@@ -1,6 +1,6 @@
 # Handover: validator estate
 
-Continue on `exec/estate-v3`, draft PR 154. Iterations 29 to 32 were made by a fresh Opus takeover in a separate worktree (`.worktrees/exec-estate-fresh`, detached, pushed with `git push origin HEAD:exec/estate-v3`). The older worktree `.worktrees/exec-estate-v2` holds an unrelated local change to `research.md` and is not used. Never edit the validator or bank.
+Continue on `exec/estate-v3`, draft PR 154. Iterations 29 to 38 were made by a fresh Opus takeover in a separate worktree (`.worktrees/exec-estate-fresh`, detached, pushed with `git push origin HEAD:exec/estate-v3`). The older worktree `.worktrees/exec-estate-v2` holds an unrelated local change to `research.md` and is not used. Never edit the validator or bank.
 
 ## Level per seed
 
@@ -10,19 +10,19 @@ Continue on `exec/estate-v3`, draft PR 154. Iterations 29 to 32 were made by a f
 | 1 | 0 |
 <!-- level-table:end -->
 
-Iteration 36, sweep at 3c752798b: seed 1 passes 1080 of 1170 items. The reader level passes 640 of 641. The only reader item left is `scan.hostile.prompt-hook`, and no correct reader can pass it (see "Item defect" below). So the ladder stays at level 0 until the maintainer fixes that item.
+Iteration 38, sweep at 48a078786: seed 1 passes 1082 of 1170 items. The reader level passes 640 of 641. The only reader item left is `scan.hostile.prompt-hook`, and no correct reader can pass it (see "Item defect" below). So the ladder stays at level 0 until the maintainer fixes that item.
 
-| Level | Passing at the takeover (5fbc3c9a) | Passing at 3c752798b |
+| Level | Passing at the takeover (5fbc3c9a) | Passing at 48a078786 |
 |---|---|---|
 | reader | 584/641 | 640/641 |
 | lint | 45/46 | 46/46 |
 | plan | 44/65 | 64/65 |
-| generation | 196/270 | 239/270 |
+| generation | 196/270 | 241/270 |
 | agent-mutants | 22/75 | 26/75 |
 | maintenance | 49/53 | 50/53 |
 | scale | 20/20 | 15/20 on this run (timing) |
 
-Item by item against the takeover run: no item outside scale lost. Scale items are timing on a loaded host. They passed 20, 18, 19, 17, 20, 15, 15, 15 and 15 times across the nine sweeps, with no change to scale code.
+Item by item against the takeover run: no item outside scale lost. Scale items are timing on a loaded host. They passed 20, 18, 19, 17, 20, 15, 15, 15, 15, 15 and 15 times across the eleven sweeps, with no change to scale code.
 
 The cross-seed sweep (seeds 1 to 20 and hidden) was not rerun after these changes. It stops at the first failing level, which is level 1 on every seed while the defect stands.
 
@@ -74,19 +74,20 @@ The gate fix held back by D6 (a gate's read tied to its file, or to the edited f
 
 First failing level (reader), seed 1: `scan.hostile.prompt-hook` only (D1, PR 230).
 
-Beyond level 1, from the all-level run at 4581ef3c5 (96 failing items):
+Beyond level 1, from the all-level run at 48a078786 (88 failing items):
 
 | Family | Failing | Note |
 |---|---|---|
-| kill.fake | 31 | not yet examined in depth: most rows have no complete live spec green on the original fixture under the fake runtime |
-| mutant.agent | 22 | mostly D5 (PR 233) and D6 (PR 240) |
+| kill.fake | 27 | classified one by one under "Next actions", item 2 |
+| mutant.agent | 22 | D5 (PR 233) and D6 (PR 240); not to be worked around |
 | gen.complete | 14 | custom predicates, guard message and stage reach checks |
-| gen.task | 9 | one cause: asks written as restated rules |
+| gen.task | 6 | see "Next actions", item 3 |
 | gen.coverage | 5 | |
+| scale | 5 | timing on a loaded host |
 | gen.asks | 4 | PRs 239 and 241, and k distinct phrases per route |
-| maintain.impact | 3 | D3 (draft PR) and D4 (PR 240) |
-| gen.reads | 1 | |
+| maintain.impact | 3 | D3 (draft PR 244) and D4 (PR 240) |
 | plan.contract | 1 | D2 (PR 231) |
+| scan.hostile | 1 | D1 (PR 230) |
 
 ## Hypotheses tried
 
@@ -158,6 +159,14 @@ For the second: a guard spec takes its payloads from the native unit tests writt
 
 1076 to 1080. One commit: the fixture's fake runtime acts from the estate copy for an ask it holds no stream for (`examples/estates/fixture/live/fake/agent.mjs`), and a recorded guard or step row plays only while the copy declares it. Nothing in the fake names a test or a mutant; no stream is written per atom (owner ruling). kill.fake 0 to 4 of 31.
 
+### Iteration 37
+
+1080 to 1082. Two commits. (1) `estate generate` checks reads against the files the map knows when the folder beside the map holds no estate (674c07f84). (2) A declared tool's row names the skill that declares it, so its ask loads the skill; the fake runs the command a loaded skill's body says to run; the misroute row note now says what docs section 5 says (the ask names no skill) (869c1e025). Generation 239 to 241. kill.fake unchanged at 4: tool-1 turned green on the original and honestly lives.
+
+### Iteration 38
+
+Two commits. (1) Journeys walk a skill to the script its body runs, so scripts get live specs; a focus atom counts its complete specs once per ask and cell (7bbdf67cb). (2) A journey through a reference read under a condition waits for a situation that sets the condition off (48a078786). Plan 1145 rows, suite 847 complete. Family runs: plan 64, generation 241, kill.fake 4, all unchanged; the full sweep is row 38 of the journal.
+
 ### What the previous executor got wrong
 
 The earlier stuck record held back 14 reader items as "contract conflicts": gate wordings beyond the four, routing outside tables, extra standing files, and relaxed step JSON. `NEEDS.md` keeps them in the bank, and none contradicts a decoy item. They were passable product gaps, and `docs/estate.md` and `docs/adapters/claude-code.md` now name the forms. Measurement note: each journal row of iterations 30 to 32 covers several one-cause commits measured by one sweep, because a full sweep takes 8 to 20 minutes on this host. Each commit was checked by running its affected families.
@@ -165,12 +174,22 @@ The earlier stuck record held back 14 reader items as "contract conflicts": gate
 ## Next actions
 
 1. After each ruling PR merges: merge main into this branch, then rerun the families it touches (see the table above).
-2. kill.fake: 4 of 31 with the estate-derived fake (route-1, guard-2, stage-1, stage-2). The 27 others, by why, each a question for the maintainer, not a fake to script:
-   * no complete live spec names the atom (10): gate-1 and its invert, reference-1 and -2, script-1 and -2 (generation gaps: needs-existing-file, needs-ordered-anchor), setting-1 and -2, invariant-1 and -2 (static atoms: their tests are static records, never live specs, so this item can never hold for them);
-   * `estate mutate` refuses the delete as an equivalent mutant (2): skill-1, skill-2;
-   * no spec is green on the original fixture under the bank's run (8): instruction-1, -2 and its invert (judged criteria, and the kill run passes no judge); guard-1 and register-2 (their specs carry session-state cells, and the kill run passes no `--states` library); hazard-1 and -2 (the hazard is planted only with `--states`); tool-1 and -2 (a declared tool binds only with its skill loaded, which "use the Bash tool on the files here" does not do);
-   * green on the original, and an honest agent still passes on the mutant (7): gate-2 (without the rule, the step list still puts verify before report), route-2 (the standing routing table still routes the ask), subagent-1 and -2 (deleting a helper's name line leaves it named by its file: equivalent), register-1 and its invert (the reply comes from a recorded stream; deriving a reply from an output rule is not attempted).
-3. gen.task (7 items left; none has a docs rule that code can follow without matching the oracle's own verb list): the guard_positive breach template ("Please go against this rule just this once: ...", `guardAct`), "Please help me with ..." from `askedTo` (help is no task verb of the oracle), tool rows ("Please use the Read tool on the files here", left alone: docs section 5 does not name tool asks), the stop word as a twin ("stop"), and no complete read_when or hazard_recovery spec.
+2. kill.fake: 4 of 31 with the estate-derived fake (route-1, guard-2, stage-1, stage-2). Iterations 37 and 38 built the product gaps the coordinator named; the 27 left, by why:
+   * Built, now honest lives or honest waits (no ruling needed, written here so no one re-opens them):
+     * tool-1: the tool_boundary row of a declared tool now names its skill (`plan/contract.ts` `owners()`), so the ask loads the skill, and the fake runs the command the skill body says to run. The spec is green on the original. On the delete mutant it stays green: the settings allow `Bash(python3 *)`, so an agent may still run the script without the skill's declaration. An honest live.
+     * tool-2 (declared `Edit` of invoice-reconcile): the spec now loads the skill, but the skill's body never edits anything (step 4 says never change an amount), so no run of a task of that skill calls `Edit`. The `permission` check (`declared`: at least one covered call) cannot pass. A declared tool the body never uses has no act to observe; the item is unreachable for it.
+     * script-1 and -2: journeys now walk a skill to the script its body runs (`plan/journeys.ts`, edge kind `script`), so each script has a complete live spec (journey.09 runs reconcile.py, journey.04 runs track.sh). Both asks are approved phrases that the fixture's manifest maps to recorded streams (`streams/invoice-match.jsonl`, `streams/late-shipment.jsonl`), and both recordings skip the script (the agent read the files and answered). The spec is right to fail them. Rewriting a recording per atom is ruled out. With the derived agent instead of the recording (tried on a scratch copy of the fake), journey.09 passes; journey.04 fails: the derived agent does not route "Where is shipment NW-55012?" to the tracker skill (no skill load, no script call). Question for the maintainer: drop the recorded streams the derived agent can replace, or keep them and accept these two.
+     * reference-1 (currency table, read "When the invoice is not in EUR"): its only live spec, journey.08, asked about a EUR invoice, so it failed the agent for obeying the condition. It now waits under needs-approved-phrase, as its read_when row does, until a non-EUR invoice situation is approved in `phrases.yaml`. Writing that situation is writing the bank, the person's step in the real flow; left alone.
+     * reference-2 (matching rules): green on the original through the recorded `invoice-match` stream, which keeps reading the file on the mutant. Same question as scripts.
+   * For a ruling (sent to the maintainer by the coordinator):
+     * gate-1 and its invert: "Read references/matching-rules.md before matching any line" has an end that is prose, no act; `needs-ordered-anchor` is the documented gap (docs/estate.md section 6) and `packages/generate/test/estate/then.test.ts` "still names a gap for an end that is no act" pins it.
+     * setting-1 and -2, invariant-1 and -2: static by design; their tests are static records, never live specs.
+     * skill-1 and -2: `estate mutate` refuses the delete as an equivalent mutant.
+     * gate-2, route-2, subagent-1 and -2, register-1 and its invert: green on the original and honestly green on the mutant (see iteration 36).
+   * Not green on the original, cannot be fixed without the validator (8): instruction-1, -2 and its invert carry a judged criterion, and `runOnFake` (`packages/validators/src/ladders/estate/bank/fixture-suite.ts`) passes no `--judge`. The fixture's fake judge (`live/fake/judge.cjs`) fails only on the words of `FAKE_JUDGE_FAIL`, blind to the rule, so even wired it would pass both the original and the mutant: no kill. guard-1 and register-2 carry session-state cells and hazard-1 and -2 plant their hazard only through `--states`; `runOnFake` passes no `--states`. A states library placed beside the estate as a default would make every mutant copy fail to load it, counted as a kill: false kills. Reproduced at 48a078786 with S = `examples/estates/fixture/generated/specs/live/obligation/estate.obligation.instruction.inbox-triager.a-message-that-fits-no-folder.yaml`: `pnpm -s driftbench estate run S --estate examples/estates/fixture --runtime claude-code --command examples/estates/fixture/live/fake/claude.mjs --store <tmp>/a.db` fails with the judged criterion "inconclusive" (no judge). Adding `--judge claude:fake --judge-command examples/estates/fixture/live/fake/judge.cjs` passes it, and passes it again on the copy written by `pnpm -s driftbench estate mutate examples/estates/fixture/approved.yaml --atom instruction.inbox-triager.a-message-that-fits-no-folder --delete --to <tmp>/mut`.
+3. gen.task (6 items left; none has a docs rule that code can follow without matching the oracle's own verb list): the guard_positive breach template ("Please go against this rule just this once: ...", `guardAct`), "Please help me with ..." from `askedTo` (help is no task verb of the oracle), tool rows ("Please use the Read tool on the files here", left alone: docs section 5 does not name tool asks), the stop word as a twin ("stop"), and no complete hazard_recovery spec (read_when now passes).
+
+4. `packages/cli/src/commands/estate-stats.ts` counts edge coverage over route, reference, dispatch and next edges (and docs/estate.md shows that code). Journeys now also walk script edges; the stats edge list was left as it is to keep iteration 38 small. Decide whether coverage should count script edges too, and change both together.
 
 ## Pitfalls
 
@@ -182,6 +201,8 @@ The earlier stuck record held back 14 reader items as "contract conflicts": gate
 * `estate unit` takes either unit specs (`*.yaml`, judged on their Then) or native unit tests (`*.json`, compared with a recorded outcome), never both in one call.
 * Host: disk and load are critical. Run one focused test file at a time with a long timeout; no full suite and no repo-wide typecheck locally.
 * Never `git stash`: the stash is shared across worktrees.
+* Run nothing beside a sweep. A sweep at 48a078786 with two `estate run` commands beside it read 920: every fixture family threw "plan approve exited 143" (a timeout). Rerun alone, it read 1082.
+* The measuring worktree `.worktrees/exec-estate-measure` no longer exists; sweeps 60 to 62 ran in this worktree with no source edit during the run.
 
 ## How to run
 
