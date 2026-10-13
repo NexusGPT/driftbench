@@ -1,0 +1,15 @@
+{
+  "status": "published price verified",
+  "usdPerMillionTokens": {
+    "input": 2,
+    "cached": 0.1,
+    "cacheWrite": 2.5,
+    "output": 10,
+    "longContext": 272000
+  },
+  "url": "https://developers.openai.com/api/docs/pricing",
+  "modelUrl": "https://developers.openai.com/api/docs/models/gpt-6.1-sol",
+  "serviceTier": "standard",
+  "retrievedAt": "2026-10-13",
+  "note": "Input and cache rates double above 272000 input tokens; output rate multiplies by 1.5. Bill all output including reasoning."
+}

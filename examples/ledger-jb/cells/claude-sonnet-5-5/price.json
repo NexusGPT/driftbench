@@ -1,0 +1,5 @@
+{
+  "status": "actual cost from Claude CLI total_cost_usd",
+  "route": "native CLI alias sonnet in isolated empty folder",
+  "publishedPrice": "not used; provider-reported request cost"
+}
