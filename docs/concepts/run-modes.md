@@ -71,6 +71,7 @@ T passes all five blocks: each starts from the canonical prefix, whose assistant
   ```
   $ pnpm -s driftbench campaign run examples/acme/specs/tasks/price-sheet.yaml --mode T,F,P
   Campaign c-2764042aa240: 3 cells, 4 at a time. Checks: tools, tools_offered, forbidden, must, must_not, similarity, relevancy, knowledge_retention, lang, pii, cards, stage, skills, guards, references, subagents, execution, workspace, safety, artifacts, schema_strict, budget, end_state, custom.
+  Not judged: 2 criteria in 3 blocks of 1 spec (sheet_matches_catalog, reports_what_it_did), 1 of them gating. This campaign loads no judge, so these criteria have no verdict and count in no pass or fail. See docs/concepts/judges.md.
   ✓ acme-price-sheet · process:acme-ops · T · repeat 0  pass  2 blocks
   ✓ acme-price-sheet · process:acme-ops · F · repeat 0  pass  2 blocks
   ✓ acme-price-sheet · process:acme-ops · P · repeat 0 · instruction-in-notes  pass  2 blocks

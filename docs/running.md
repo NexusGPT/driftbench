@@ -109,6 +109,7 @@ With `--dataset <ref>`, the specs come from a dataset version of the store inste
 ```
 $ pnpm -s driftbench campaign run examples/acme/specs/conversations --target function:acme --repeats 2 --store acme.db
 Campaign c-3e6aff180724: 12 cells, 4 at a time. Checks: tools, tools_offered, forbidden, must, must_not, exact, injection, rouge_l, bleu, sql, similarity, relevancy, knowledge_retention, lang, pii, cards, stage, skills, guards, references, subagents, execution, workspace, safety, artifacts, schema_strict, budget, end_state, custom.
+Not judged: 8 criteria in 16 blocks of 6 specs (one_question_per_turn, coverage_before_offer, checks_before_promising, resumes_pending_step, ledger_intact, and 3 more), 6 of them gating. This campaign loads no judge, so these criteria have no verdict and count in no pass or fail. See docs/concepts/judges.md.
 ✓ acme-new-customer-coverage · function:acme · F · repeat 0  pass  4 blocks
 ✓ acme-new-customer-coverage · function:acme · F · repeat 1  pass  4 blocks
 ✓ acme-number-porting · function:acme · F · repeat 0  pass  5 blocks
@@ -130,6 +131,7 @@ The command exits 0. A failing cell lists the gating verdicts that did not pass,
 $ pnpm -s driftbench campaign run examples/acme/specs/tasks/price-sheet.yaml --target function:acme
 Note: acme-price-sheet names the process adapter; --target runs it on function:acme.
 Campaign c-334a2d1abc96: 1 cell, 4 at a time. Checks: tools, tools_offered, forbidden, must, must_not, exact, injection, rouge_l, bleu, sql, similarity, relevancy, knowledge_retention, lang, pii, cards, stage, skills, guards, references, subagents, execution, workspace, safety, artifacts, schema_strict, budget, end_state, custom.
+Not judged: 2 criteria in 3 blocks of 1 spec (sheet_matches_catalog, reports_what_it_did), 1 of them gating. This campaign loads no judge, so these criteria have no verdict and count in no pass or fail. See docs/concepts/judges.md.
 ✗ acme-price-sheet · function:acme · F · repeat 0  fail  block 0 must.0, block 0 stage.reached, block 0 skills.xlsx, block 0 guards.no_destructive_ops.pass, block 0 execution.ran_code, block 0 execution.exit_code, block 0 execution.max_commands, block 0 workspace.created, block 0 workspace.changed, block 0 workspace.deleted, block 0 workspace.others_untouched, block 0 artifacts.out/acme-price-sheet.xlsx, block 1 stage.reached, block 1 skills.xlsx, block 1 guards.no_destructive_ops.pass, block 1 execution.ran_code, block 1 execution.exit_code, block 1 workspace.created, block 1 workspace.changed, block 1 workspace.deleted, block 1 workspace.others_untouched, block 1 artifacts.out/acme-price-sheet.xlsx
 1 cell: 0 pass, 1 fail, 0 failed. Spent $0.00.
 The runs are not kept: pass --store <file> to keep them.
@@ -140,6 +142,7 @@ That command exits 1. The execution and workspace verdicts are inconclusive and 
 ```
 $ pnpm -s driftbench campaign run examples/acme/specs/tasks/price-sheet.yaml
 Campaign c-1700c0b95753: 1 cell, 4 at a time. Checks: tools, tools_offered, forbidden, must, must_not, exact, injection, rouge_l, bleu, sql, similarity, relevancy, knowledge_retention, lang, pii, cards, stage, skills, guards, references, subagents, execution, workspace, safety, artifacts, schema_strict, budget, end_state, custom.
+Not judged: 2 criteria in 3 blocks of 1 spec (sheet_matches_catalog, reports_what_it_did), 1 of them gating. This campaign loads no judge, so these criteria have no verdict and count in no pass or fail. See docs/concepts/judges.md.
 ✓ acme-price-sheet · process:acme-ops · F · repeat 0  pass  2 blocks
 1 cell: 1 pass, 0 fail, 0 failed. Spent $0.00.
 The runs are not kept: pass --store <file> to keep them.
@@ -169,6 +172,7 @@ The store needs Node.js 22.13 or newer, for `node:sqlite`.
 ```
 $ pnpm -s driftbench campaign run examples/acme/specs/conversations --target function:acme --mode T,F,P --repeats 2 --store modes.db
 Campaign c-9d34273e590c: 44 cells, 4 at a time. Checks: tools, tools_offered, forbidden, must, must_not, exact, injection, rouge_l, bleu, sql, similarity, relevancy, knowledge_retention, lang, pii, cards, stage, skills, guards, references, subagents, execution, workspace, safety, artifacts, schema_strict, budget, end_state, custom.
+Not judged: 8 criteria in 16 blocks of 6 specs (one_question_per_turn, coverage_before_offer, checks_before_promising, resumes_pending_step, ledger_intact, and 3 more), 6 of them gating. This campaign loads no judge, so these criteria have no verdict and count in no pass or fail. See docs/concepts/judges.md.
 ✓ acme-new-customer-coverage · function:acme · T · repeat 0  pass  4 blocks
 ✓ acme-new-customer-coverage · function:acme · T · repeat 1  pass  4 blocks
 ✓ acme-new-customer-coverage · function:acme · F · repeat 0  pass  4 blocks
@@ -425,6 +429,7 @@ A campaign keeps its targets, not the commands behind them: a campaign run with 
 ```
 $ pnpm -s driftbench campaign resume c-3e6aff180724 --store acme.db
 Campaign c-3e6aff180724: 12 cells, 4 at a time. Checks: tools, tools_offered, forbidden, must, must_not, exact, injection, rouge_l, bleu, sql, similarity, relevancy, knowledge_retention, lang, pii, cards, stage, skills, guards, references, subagents, execution, workspace, safety, artifacts, schema_strict, budget, end_state, custom.
+Not judged: 8 criteria in 16 blocks of 6 specs (one_question_per_turn, coverage_before_offer, checks_before_promising, resumes_pending_step, ledger_intact, and 3 more), 6 of them gating. This campaign loads no judge, so these criteria have no verdict and count in no pass or fail. See docs/concepts/judges.md.
 ✓ acme-new-customer-coverage · function:acme · F · repeat 0  pass (reused)  4 blocks
 ✓ acme-new-customer-coverage · function:acme · F · repeat 1  pass (reused)  4 blocks
 ✓ acme-number-porting · function:acme · F · repeat 0  pass (reused)  5 blocks
@@ -542,6 +547,7 @@ The campaign record stores a budget of 0 when none was given. `resume` reads a s
 ```
 $ pnpm -s driftbench campaign run examples/acme/specs/conversations/plan-upgrade.yaml --target function:acme --repeats 2 --budget-usd 0
 Campaign c-7572a9cb7069: 2 cells, 4 at a time. Budget $0.00. Checks: tools, tools_offered, forbidden, must, must_not, exact, injection, rouge_l, bleu, sql, similarity, relevancy, knowledge_retention, lang, pii, cards, stage, skills, guards, references, subagents, execution, workspace, safety, artifacts, schema_strict, budget, end_state, custom.
+Not judged: 2 criteria in 3 blocks of 1 spec (one_question_per_turn, no_invented_data), 1 of them gating. This campaign loads no judge, so these criteria have no verdict and count in no pass or fail. See docs/concepts/judges.md.
 ! acme-plan-upgrade · function:acme · F · repeat 0  stopped  not started: the campaign spent $0.00 of its $0.00 budget
 ! acme-plan-upgrade · function:acme · F · repeat 1  stopped  not started: the campaign spent $0.00 of its $0.00 budget
 2 cells: 0 pass, 0 fail, 0 failed, 2 stopped by the budget. Spent $0.00.
@@ -702,6 +708,7 @@ On the command line the store is the cache. A second campaign over the same spec
 ```
 $ pnpm -s driftbench campaign run examples/acme/specs/conversations --target function:acme --repeats 2 --store acme.db
 Campaign c-868fb474970f: 12 cells, 4 at a time. Checks: tools, tools_offered, forbidden, must, must_not, exact, injection, rouge_l, bleu, sql, similarity, relevancy, knowledge_retention, lang, pii, cards, stage, skills, guards, references, subagents, execution, workspace, safety, artifacts, schema_strict, budget, end_state, custom.
+Not judged: 8 criteria in 16 blocks of 6 specs (one_question_per_turn, coverage_before_offer, checks_before_promising, resumes_pending_step, ledger_intact, and 3 more), 6 of them gating. This campaign loads no judge, so these criteria have no verdict and count in no pass or fail. See docs/concepts/judges.md.
 ✓ acme-new-customer-coverage · function:acme · F · repeat 0  pass (replayed from the cache)  4 blocks
 ✓ acme-new-customer-coverage · function:acme · F · repeat 1  pass (replayed from the cache)  4 blocks
 ✓ acme-number-porting · function:acme · F · repeat 0  pass (replayed from the cache)  5 blocks
