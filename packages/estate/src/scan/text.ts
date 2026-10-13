@@ -188,7 +188,8 @@ export function readFrontmatter(text: string): Frontmatter {
   if (lines[0]?.trim() !== '---') return { fields: {}, bodyLine: 1 };
   const close = lines.findIndex((line, index) => index > 0 && line.trim() === '---');
   if (close < 0) return { fields: {}, bodyLine: 1, error: 'the frontmatter block is never closed' };
-  const block = lines.slice(1, close);
+  // A carriage return before the line end (a file saved with CRLF) is no part of a key or a value.
+  const block = lines.slice(1, close).map((line) => line.replace(/\r$/, ''));
   try {
     const parsed: unknown = parseYaml(block.join('\n'));
     const fields =
@@ -226,7 +227,10 @@ export function tolerantFields(block: readonly string[]): Record<string, unknown
   const fields: Record<string, unknown> = {};
   for (const { key, lines } of entries) {
     try {
-      const parsed: unknown = parseYaml(lines.join('\n'));
+      // YAML refuses a tab as indentation; people still indent a list with one. Each leading tab reads as
+      // two spaces.
+      const spaced = lines.map((line) => line.replace(/^\t+/, (tabs) => '  '.repeat(tabs.length)));
+      const parsed: unknown = parseYaml(spaced.join('\n'));
       if (parsed !== null && typeof parsed === 'object' && !Array.isArray(parsed) && key in parsed) {
         fields[key] = (parsed as Record<string, unknown>)[key];
         continue;
