@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import type { AnswerAudit } from './answer-audit';
 import type { Assessment, RubricScores } from './assessment';
 import type { ClaudeThinkingRecovery } from './clients/claude-cli';
 import type { ConformanceAudit } from './conformance';
@@ -142,6 +143,8 @@ export type JudgeResult = {
   readonly responseRelevance?: ResponseRelevanceAnswer;
   /** Opt-in criterion-local conformance audit, with its outcome computed in code. */
   readonly conformance?: ConformanceAudit;
+  /** Opt-in answer audit: the conditions the model listed and settled, with the outcome computed in code. */
+  readonly answerAudit?: AnswerAudit;
   /** Default chat-model requirement ledger, with the public outcome computed in code. */
   readonly checks?: readonly CriterionCheck[];
   /** Number of ungrounded evidence strings nulled without changing their met values. */

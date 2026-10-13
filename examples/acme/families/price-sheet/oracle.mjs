@@ -12,6 +12,9 @@
  * - summary: a sheet named Summary added after the others, header Category, Plan, Monthly price (USD), one
  *   row per category in the same order, with the cheapest plan (the first one listed on a tie). The other
  *   sheets stay as they were; the workbook is changed, nothing else.
+ * - start: with existing-workbook, the workspace already holds the price sheet the build block would make,
+ *   with the yearly price as a value, so an instance has the summary block alone. The oracle computes the
+ *   sheets from the catalog the same way and never reads the seeded workbook.
  *
  * Fictional data only.
  */

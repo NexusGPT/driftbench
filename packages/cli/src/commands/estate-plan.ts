@@ -1,4 +1,4 @@
-import { readFile, stat } from 'node:fs/promises';
+import { readFile } from 'node:fs/promises';
 import { resolve } from 'node:path';
 import {
   approvePlanRows,
@@ -14,7 +14,7 @@ import {
 } from '@agent-nexus/driftbench-estate';
 import { loadSpaceMap, type SpaceMap } from '@agent-nexus/driftbench-space';
 import type { Command } from 'commander';
-import { show, writeOut } from '../files';
+import { exists, show, writeOut } from '../files';
 import type { Io } from '../io';
 import { optionNumber } from '../number';
 import { mapCacheOptions } from './map-cache';
@@ -233,8 +233,4 @@ function issueLine(issue: { code: string; path: string; message: string }): stri
 
 function collect(value: string, previous: string[] | undefined): string[] {
   return [...(previous ?? []), value];
-}
-
-async function exists(path: string): Promise<boolean> {
-  return (await stat(path).catch(() => undefined)) !== undefined;
 }

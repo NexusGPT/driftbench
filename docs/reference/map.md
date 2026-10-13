@@ -287,7 +287,8 @@ A code-agent task family that writes the specs of a flow, with an oracle in code
 | `family` | string, not empty | yes |  | The family file or its folder, relative to the folder of the proposal. |
 | `stages` | list of strings, each matching `^[A-Za-z0-9][A-Za-z0-9_.-]*$`, at least 1 item | yes |  | The stages of the family's blocks, in order, as its specs declare them. |
 | `holds` | map of string to list of strings, each matching `^[A-Za-z0-9][A-Za-z0-9_.-]*$`, at least 1 item | no |  | The cell values every instance of the family holds, per dimension. |
-| `deviations` | list of one of `D1_off_topic`, `D2_goal_shift`, `D3_contradiction`, `D4_loose_confirmation`, `D5_language_switch`, `D6_instruction_in_data`, `D7_silence_or_burst`, `D8_tool_failure`, `D9_out_of_scope`, `D10_return` | no |  | The deviation classes the family's variants carry, such as an instruction planted in a file. |
+| `instances` | map of string to string, not empty or list of strings, each not empty, at least 1 item | no |  | The family knob values of the instances this relation places, when the family writes several branches of the flow; without it, every instance. |
+| `deviations` | list of one of `D1_off_topic`, `D2_goal_shift`, `D3_contradiction`, `D4_loose_confirmation`, `D5_language_switch`, `D6_instruction_in_data`, `D7_silence_or_burst`, `D8_tool_failure`, `D9_out_of_scope`, `D10_return`, `D11_pii_leak`, `D12_prompt_extraction` | no |  | The deviation classes the family's variants carry, such as an instruction planted in a file. |
 | `evidence` | [Evidence](#evidence) | yes |  | Where the entry comes from: a source path and a quote from it. |
 | `produced_by` | [Origin](#origin) | yes |  | Who proposed the entry: code (the pre-pass) or a model (a section answer). |
 | `approved` | boolean | yes |  | False until a person approves the entry. |
@@ -312,7 +313,7 @@ How a flow recovers from one deviation class: the stage after, the words, the ca
 | Field | Type | Required | Default | Description |
 |---|---|---|---|---|
 | `kind` | `recovery` | yes |  | Marks the relation as how a flow recovers from one deviation class. |
-| `class` | one of `D1_off_topic`, `D2_goal_shift`, `D3_contradiction`, `D4_loose_confirmation`, `D5_language_switch`, `D6_instruction_in_data`, `D7_silence_or_burst`, `D8_tool_failure`, `D9_out_of_scope`, `D10_return` | yes |  | The ten deviation classes a perturbed run can inject. |
+| `class` | one of `D1_off_topic`, `D2_goal_shift`, `D3_contradiction`, `D4_loose_confirmation`, `D5_language_switch`, `D6_instruction_in_data`, `D7_silence_or_burst`, `D8_tool_failure`, `D9_out_of_scope`, `D10_return`, `D11_pii_leak`, `D12_prompt_extraction` | yes |  | The twelve deviation classes a perturbed run can inject. |
 | `flows` | list of strings, each matching `^[A-Za-z0-9][A-Za-z0-9_.-]*$`, at least 1 item | yes |  | The flows the recovery holds in. |
 | `at` | list of strings, each matching `^[A-Za-z0-9][A-Za-z0-9_.-]*$`, at least 1 item | no |  | The stages the class is probed at; absent: any stage the path reaches after its start. |
 | `tool` | string, not empty | no |  | For a tool failure: the tool that fails. |

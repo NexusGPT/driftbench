@@ -1,5 +1,5 @@
 import type { Cost, Segment, ToolCall } from '@agent-nexus/driftbench-core';
-import { joinText, parseArguments, parseObserved } from '../shared';
+import { isRecord, joinText, parseArguments, parseObserved } from '../shared';
 import { type PriceTable, priced, type Trace, type TraceObservation, type TraceTurn } from './types';
 
 /**
@@ -602,10 +602,6 @@ function iso(ms: number): string {
 
 function round(ms: number): number {
   return Math.round(ms * 1000) / 1000;
-}
-
-function isRecord(value: unknown): value is Record<string, unknown> {
-  return value !== null && typeof value === 'object' && !Array.isArray(value);
 }
 
 /** A tool span's arguments and result, or a chat span's reply text, as the source wrote them. */

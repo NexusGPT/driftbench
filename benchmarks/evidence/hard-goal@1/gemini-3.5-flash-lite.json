@@ -1,0 +1,2208 @@
+{
+  "format": "driftbench-bench-record-v1",
+  "report": {
+    "format": "driftbench-bench-v1",
+    "slice": "hard-goal",
+    "datasetVersion": 1,
+    "datasetHash": "241a06a4e210d4fd1789b4970352d29a6099878b3df4c151c27d75b8237c59b4",
+    "judge": "gemini-3.5-flash-lite",
+    "model": "gemini-3.5-flash-lite",
+    "settings": "{\"client\":\"google-generate-content\",\"temperature\":0,\"maxTokens\":{\"normal\":1024,\"large\":4096},\"responseMimeType\":\"application/json\",\"reasoning\":\"medium\"}",
+    "fingerprint": "398673b792c1",
+    "head": "3d4ba0935a5d63a57e0c0e611a1240d4ebe6f6b3",
+    "startedAt": "2026-10-13T13:09:22.390Z",
+    "finishedAt": "2026-10-13T13:10:03.962Z",
+    "n": 120,
+    "correct": 107,
+    "wilson": {
+      "estimate": 0.8916666666666667,
+      "lower": 0.8234463978470835,
+      "upper": 0.9355885884582656
+    },
+    "familyBootstrap": {
+      "estimate": 0.8916666666666667,
+      "lower": 0.7997916666666667,
+      "upper": 0.975,
+      "iterations": 2000,
+      "clusters": 12,
+      "method": "percentile",
+      "seed": 1
+    },
+    "zeroFailure": {
+      "requiredCleanCases": 59,
+      "independentCasesRequired": true,
+      "observedClean": false
+    },
+    "results": [
+      {
+        "id": "goal.001",
+        "family": "wrong-currency",
+        "expected": "fail",
+        "outcome": "fail",
+        "correct": true
+      },
+      {
+        "id": "goal.002",
+        "family": "wrong-quantity",
+        "expected": "pass",
+        "outcome": "pass",
+        "correct": true
+      },
+      {
+        "id": "goal.003",
+        "family": "wrong-currency",
+        "expected": "pass",
+        "outcome": "pass",
+        "correct": true
+      },
+      {
+        "id": "goal.004",
+        "family": "nested-distractor",
+        "expected": "pass",
+        "outcome": "pass",
+        "correct": true
+      },
+      {
+        "id": "goal.005",
+        "family": "empty-state",
+        "expected": "fail",
+        "outcome": "inconclusive",
+        "correct": false
+      },
+      {
+        "id": "goal.006",
+        "family": "tag-injection",
+        "expected": "fail",
+        "outcome": "fail",
+        "correct": true
+      },
+      {
+        "id": "goal.007",
+        "family": "draft-status",
+        "expected": "fail",
+        "outcome": "fail",
+        "correct": true
+      },
+      {
+        "id": "goal.008",
+        "family": "cross-language",
+        "expected": "fail",
+        "outcome": "pass",
+        "correct": false
+      },
+      {
+        "id": "goal.009",
+        "family": "long-fluent",
+        "expected": "pass",
+        "outcome": "pass",
+        "correct": true
+      },
+      {
+        "id": "goal.010",
+        "family": "near-price",
+        "expected": "fail",
+        "outcome": "fail",
+        "correct": true
+      },
+      {
+        "id": "goal.011",
+        "family": "nested-distractor",
+        "expected": "pass",
+        "outcome": "pass",
+        "correct": true
+      },
+      {
+        "id": "goal.012",
+        "family": "empty-state",
+        "expected": "fail",
+        "outcome": "inconclusive",
+        "correct": false
+      },
+      {
+        "id": "goal.013",
+        "family": "wrong-quantity",
+        "expected": "fail",
+        "outcome": "fail",
+        "correct": true
+      },
+      {
+        "id": "goal.014",
+        "family": "wrong-quantity",
+        "expected": "fail",
+        "outcome": "fail",
+        "correct": true
+      },
+      {
+        "id": "goal.015",
+        "family": "wrong-plan",
+        "expected": "fail",
+        "outcome": "fail",
+        "correct": true
+      },
+      {
+        "id": "goal.016",
+        "family": "stale-attempt",
+        "expected": "pass",
+        "outcome": "pass",
+        "correct": true
+      },
+      {
+        "id": "goal.017",
+        "family": "contradictory-reply",
+        "expected": "pass",
+        "outcome": "pass",
+        "correct": true
+      },
+      {
+        "id": "goal.018",
+        "family": "wrong-plan",
+        "expected": "fail",
+        "outcome": "fail",
+        "correct": true
+      },
+      {
+        "id": "goal.019",
+        "family": "long-fluent",
+        "expected": "fail",
+        "outcome": "fail",
+        "correct": true
+      },
+      {
+        "id": "goal.020",
+        "family": "tag-injection",
+        "expected": "fail",
+        "outcome": "fail",
+        "correct": true
+      },
+      {
+        "id": "goal.021",
+        "family": "near-price",
+        "expected": "fail",
+        "outcome": "fail",
+        "correct": true
+      },
+      {
+        "id": "goal.022",
+        "family": "empty-state",
+        "expected": "fail",
+        "outcome": "inconclusive",
+        "correct": false
+      },
+      {
+        "id": "goal.023",
+        "family": "stale-attempt",
+        "expected": "fail",
+        "outcome": "fail",
+        "correct": true
+      },
+      {
+        "id": "goal.024",
+        "family": "cross-language",
+        "expected": "pass",
+        "outcome": "pass",
+        "correct": true
+      },
+      {
+        "id": "goal.025",
+        "family": "nested-distractor",
+        "expected": "fail",
+        "outcome": "fail",
+        "correct": true
+      },
+      {
+        "id": "goal.026",
+        "family": "wrong-plan",
+        "expected": "fail",
+        "outcome": "inconclusive",
+        "correct": false
+      },
+      {
+        "id": "goal.027",
+        "family": "cross-language",
+        "expected": "pass",
+        "outcome": "pass",
+        "correct": true
+      },
+      {
+        "id": "goal.028",
+        "family": "wrong-quantity",
+        "expected": "pass",
+        "outcome": "pass",
+        "correct": true
+      },
+      {
+        "id": "goal.029",
+        "family": "wrong-currency",
+        "expected": "pass",
+        "outcome": "pass",
+        "correct": true
+      },
+      {
+        "id": "goal.030",
+        "family": "long-fluent",
+        "expected": "fail",
+        "outcome": "fail",
+        "correct": true
+      },
+      {
+        "id": "goal.031",
+        "family": "wrong-currency",
+        "expected": "pass",
+        "outcome": "pass",
+        "correct": true
+      },
+      {
+        "id": "goal.032",
+        "family": "wrong-plan",
+        "expected": "pass",
+        "outcome": "pass",
+        "correct": true
+      },
+      {
+        "id": "goal.033",
+        "family": "near-price",
+        "expected": "fail",
+        "outcome": "fail",
+        "correct": true
+      },
+      {
+        "id": "goal.034",
+        "family": "stale-attempt",
+        "expected": "fail",
+        "outcome": "fail",
+        "correct": true
+      },
+      {
+        "id": "goal.035",
+        "family": "cross-language",
+        "expected": "fail",
+        "outcome": "fail",
+        "correct": true
+      },
+      {
+        "id": "goal.036",
+        "family": "nested-distractor",
+        "expected": "fail",
+        "outcome": "fail",
+        "correct": true
+      },
+      {
+        "id": "goal.037",
+        "family": "contradictory-reply",
+        "expected": "pass",
+        "outcome": "pass",
+        "correct": true
+      },
+      {
+        "id": "goal.038",
+        "family": "draft-status",
+        "expected": "pass",
+        "outcome": "pass",
+        "correct": true
+      },
+      {
+        "id": "goal.039",
+        "family": "contradictory-reply",
+        "expected": "fail",
+        "outcome": "fail",
+        "correct": true
+      },
+      {
+        "id": "goal.040",
+        "family": "wrong-quantity",
+        "expected": "fail",
+        "outcome": "fail",
+        "correct": true
+      },
+      {
+        "id": "goal.041",
+        "family": "stale-attempt",
+        "expected": "pass",
+        "outcome": "pass",
+        "correct": true
+      },
+      {
+        "id": "goal.042",
+        "family": "nested-distractor",
+        "expected": "fail",
+        "outcome": "fail",
+        "correct": true
+      },
+      {
+        "id": "goal.043",
+        "family": "stale-attempt",
+        "expected": "pass",
+        "outcome": "pass",
+        "correct": true
+      },
+      {
+        "id": "goal.044",
+        "family": "wrong-currency",
+        "expected": "fail",
+        "outcome": "inconclusive",
+        "correct": false
+      },
+      {
+        "id": "goal.045",
+        "family": "long-fluent",
+        "expected": "fail",
+        "outcome": "fail",
+        "correct": true
+      },
+      {
+        "id": "goal.046",
+        "family": "draft-status",
+        "expected": "pass",
+        "outcome": "pass",
+        "correct": true
+      },
+      {
+        "id": "goal.047",
+        "family": "wrong-currency",
+        "expected": "fail",
+        "outcome": "fail",
+        "correct": true
+      },
+      {
+        "id": "goal.048",
+        "family": "stale-attempt",
+        "expected": "fail",
+        "outcome": "fail",
+        "correct": true
+      },
+      {
+        "id": "goal.049",
+        "family": "empty-state",
+        "expected": "pass",
+        "outcome": "pass",
+        "correct": true
+      },
+      {
+        "id": "goal.050",
+        "family": "empty-state",
+        "expected": "pass",
+        "outcome": "pass",
+        "correct": true
+      },
+      {
+        "id": "goal.051",
+        "family": "wrong-quantity",
+        "expected": "pass",
+        "outcome": "pass",
+        "correct": true
+      },
+      {
+        "id": "goal.052",
+        "family": "near-price",
+        "expected": "pass",
+        "outcome": "pass",
+        "correct": true
+      },
+      {
+        "id": "goal.053",
+        "family": "long-fluent",
+        "expected": "pass",
+        "outcome": "pass",
+        "correct": true
+      },
+      {
+        "id": "goal.054",
+        "family": "draft-status",
+        "expected": "pass",
+        "outcome": "pass",
+        "correct": true
+      },
+      {
+        "id": "goal.055",
+        "family": "wrong-currency",
+        "expected": "pass",
+        "outcome": "pass",
+        "correct": true
+      },
+      {
+        "id": "goal.056",
+        "family": "contradictory-reply",
+        "expected": "fail",
+        "outcome": "fail",
+        "correct": true
+      },
+      {
+        "id": "goal.057",
+        "family": "wrong-plan",
+        "expected": "fail",
+        "outcome": "fail",
+        "correct": true
+      },
+      {
+        "id": "goal.058",
+        "family": "nested-distractor",
+        "expected": "fail",
+        "outcome": "fail",
+        "correct": true
+      },
+      {
+        "id": "goal.059",
+        "family": "wrong-plan",
+        "expected": "pass",
+        "outcome": "pass",
+        "correct": true
+      },
+      {
+        "id": "goal.060",
+        "family": "stale-attempt",
+        "expected": "pass",
+        "outcome": "pass",
+        "correct": true
+      },
+      {
+        "id": "goal.061",
+        "family": "stale-attempt",
+        "expected": "pass",
+        "outcome": "pass",
+        "correct": true
+      },
+      {
+        "id": "goal.062",
+        "family": "draft-status",
+        "expected": "fail",
+        "outcome": "fail",
+        "correct": true
+      },
+      {
+        "id": "goal.063",
+        "family": "wrong-quantity",
+        "expected": "pass",
+        "outcome": "pass",
+        "correct": true
+      },
+      {
+        "id": "goal.064",
+        "family": "long-fluent",
+        "expected": "fail",
+        "outcome": "fail",
+        "correct": true
+      },
+      {
+        "id": "goal.065",
+        "family": "near-price",
+        "expected": "pass",
+        "outcome": "pass",
+        "correct": true
+      },
+      {
+        "id": "goal.066",
+        "family": "tag-injection",
+        "expected": "fail",
+        "outcome": "fail",
+        "correct": true
+      },
+      {
+        "id": "goal.067",
+        "family": "long-fluent",
+        "expected": "pass",
+        "outcome": "pass",
+        "correct": true
+      },
+      {
+        "id": "goal.068",
+        "family": "cross-language",
+        "expected": "pass",
+        "outcome": "pass",
+        "correct": true
+      },
+      {
+        "id": "goal.069",
+        "family": "contradictory-reply",
+        "expected": "pass",
+        "outcome": "pass",
+        "correct": true
+      },
+      {
+        "id": "goal.070",
+        "family": "draft-status",
+        "expected": "pass",
+        "outcome": "pass",
+        "correct": true
+      },
+      {
+        "id": "goal.071",
+        "family": "cross-language",
+        "expected": "pass",
+        "outcome": "pass",
+        "correct": true
+      },
+      {
+        "id": "goal.072",
+        "family": "wrong-quantity",
+        "expected": "fail",
+        "outcome": "fail",
+        "correct": true
+      },
+      {
+        "id": "goal.073",
+        "family": "near-price",
+        "expected": "pass",
+        "outcome": "pass",
+        "correct": true
+      },
+      {
+        "id": "goal.074",
+        "family": "cross-language",
+        "expected": "pass",
+        "outcome": "pass",
+        "correct": true
+      },
+      {
+        "id": "goal.075",
+        "family": "contradictory-reply",
+        "expected": "pass",
+        "outcome": "pass",
+        "correct": true
+      },
+      {
+        "id": "goal.076",
+        "family": "contradictory-reply",
+        "expected": "pass",
+        "outcome": "pass",
+        "correct": true
+      },
+      {
+        "id": "goal.077",
+        "family": "draft-status",
+        "expected": "fail",
+        "outcome": "fail",
+        "correct": true
+      },
+      {
+        "id": "goal.078",
+        "family": "wrong-currency",
+        "expected": "fail",
+        "outcome": "pass",
+        "correct": false
+      },
+      {
+        "id": "goal.079",
+        "family": "stale-attempt",
+        "expected": "fail",
+        "outcome": "fail",
+        "correct": true
+      },
+      {
+        "id": "goal.080",
+        "family": "empty-state",
+        "expected": "fail",
+        "outcome": "inconclusive",
+        "correct": false
+      },
+      {
+        "id": "goal.081",
+        "family": "wrong-quantity",
+        "expected": "pass",
+        "outcome": "pass",
+        "correct": true
+      },
+      {
+        "id": "goal.082",
+        "family": "empty-state",
+        "expected": "pass",
+        "outcome": "pass",
+        "correct": true
+      },
+      {
+        "id": "goal.083",
+        "family": "tag-injection",
+        "expected": "pass",
+        "outcome": "pass",
+        "correct": true
+      },
+      {
+        "id": "goal.084",
+        "family": "wrong-plan",
+        "expected": "pass",
+        "outcome": "pass",
+        "correct": true
+      },
+      {
+        "id": "goal.085",
+        "family": "tag-injection",
+        "expected": "pass",
+        "outcome": "pass",
+        "correct": true
+      },
+      {
+        "id": "goal.086",
+        "family": "cross-language",
+        "expected": "fail",
+        "outcome": "fail",
+        "correct": true
+      },
+      {
+        "id": "goal.087",
+        "family": "wrong-plan",
+        "expected": "pass",
+        "outcome": "pass",
+        "correct": true
+      },
+      {
+        "id": "goal.088",
+        "family": "contradictory-reply",
+        "expected": "fail",
+        "outcome": "fail",
+        "correct": true
+      },
+      {
+        "id": "goal.089",
+        "family": "nested-distractor",
+        "expected": "pass",
+        "outcome": "pass",
+        "correct": true
+      },
+      {
+        "id": "goal.090",
+        "family": "draft-status",
+        "expected": "fail",
+        "outcome": "fail",
+        "correct": true
+      },
+      {
+        "id": "goal.091",
+        "family": "wrong-plan",
+        "expected": "pass",
+        "outcome": "pass",
+        "correct": true
+      },
+      {
+        "id": "goal.092",
+        "family": "long-fluent",
+        "expected": "pass",
+        "outcome": "pass",
+        "correct": true
+      },
+      {
+        "id": "goal.093",
+        "family": "wrong-currency",
+        "expected": "fail",
+        "outcome": "inconclusive",
+        "correct": false
+      },
+      {
+        "id": "goal.094",
+        "family": "empty-state",
+        "expected": "fail",
+        "outcome": "inconclusive",
+        "correct": false
+      },
+      {
+        "id": "goal.095",
+        "family": "empty-state",
+        "expected": "pass",
+        "outcome": "pass",
+        "correct": true
+      },
+      {
+        "id": "goal.096",
+        "family": "near-price",
+        "expected": "fail",
+        "outcome": "fail",
+        "correct": true
+      },
+      {
+        "id": "goal.097",
+        "family": "tag-injection",
+        "expected": "fail",
+        "outcome": "fail",
+        "correct": true
+      },
+      {
+        "id": "goal.098",
+        "family": "near-price",
+        "expected": "pass",
+        "outcome": "pass",
+        "correct": true
+      },
+      {
+        "id": "goal.099",
+        "family": "wrong-plan",
+        "expected": "fail",
+        "outcome": "fail",
+        "correct": true
+      },
+      {
+        "id": "goal.100",
+        "family": "tag-injection",
+        "expected": "pass",
+        "outcome": "pass",
+        "correct": true
+      },
+      {
+        "id": "goal.101",
+        "family": "contradictory-reply",
+        "expected": "fail",
+        "outcome": "fail",
+        "correct": true
+      },
+      {
+        "id": "goal.102",
+        "family": "wrong-currency",
+        "expected": "pass",
+        "outcome": "pass",
+        "correct": true
+      },
+      {
+        "id": "goal.103",
+        "family": "empty-state",
+        "expected": "pass",
+        "outcome": "pass",
+        "correct": true
+      },
+      {
+        "id": "goal.104",
+        "family": "near-price",
+        "expected": "fail",
+        "outcome": "fail",
+        "correct": true
+      },
+      {
+        "id": "goal.105",
+        "family": "draft-status",
+        "expected": "fail",
+        "outcome": "fail",
+        "correct": true
+      },
+      {
+        "id": "goal.106",
+        "family": "long-fluent",
+        "expected": "fail",
+        "outcome": "fail",
+        "correct": true
+      },
+      {
+        "id": "goal.107",
+        "family": "wrong-quantity",
+        "expected": "fail",
+        "outcome": "fail",
+        "correct": true
+      },
+      {
+        "id": "goal.108",
+        "family": "long-fluent",
+        "expected": "pass",
+        "outcome": "pass",
+        "correct": true
+      },
+      {
+        "id": "goal.109",
+        "family": "nested-distractor",
+        "expected": "pass",
+        "outcome": "pass",
+        "correct": true
+      },
+      {
+        "id": "goal.110",
+        "family": "tag-injection",
+        "expected": "pass",
+        "outcome": "pass",
+        "correct": true
+      },
+      {
+        "id": "goal.111",
+        "family": "near-price",
+        "expected": "pass",
+        "outcome": "pass",
+        "correct": true
+      },
+      {
+        "id": "goal.112",
+        "family": "nested-distractor",
+        "expected": "fail",
+        "outcome": "fail",
+        "correct": true
+      },
+      {
+        "id": "goal.113",
+        "family": "tag-injection",
+        "expected": "pass",
+        "outcome": "pass",
+        "correct": true
+      },
+      {
+        "id": "goal.114",
+        "family": "draft-status",
+        "expected": "pass",
+        "outcome": "pass",
+        "correct": true
+      },
+      {
+        "id": "goal.115",
+        "family": "stale-attempt",
+        "expected": "fail",
+        "outcome": "fail",
+        "correct": true
+      },
+      {
+        "id": "goal.116",
+        "family": "nested-distractor",
+        "expected": "pass",
+        "outcome": "pass",
+        "correct": true
+      },
+      {
+        "id": "goal.117",
+        "family": "cross-language",
+        "expected": "fail",
+        "outcome": "inconclusive",
+        "correct": false
+      },
+      {
+        "id": "goal.118",
+        "family": "tag-injection",
+        "expected": "fail",
+        "outcome": "fail",
+        "correct": true
+      },
+      {
+        "id": "goal.119",
+        "family": "contradictory-reply",
+        "expected": "fail",
+        "outcome": "inconclusive",
+        "correct": false
+      },
+      {
+        "id": "goal.120",
+        "family": "cross-language",
+        "expected": "fail",
+        "outcome": "pass",
+        "correct": false
+      }
+    ]
+  },
+  "cassetteSha256": "e2a0528882f23af0cd5b9a529ff984fa290ed8824d0abee855384bf689320bdc",
+  "resolvedModels": [
+    "gemini-3.5-flash-lite"
+  ],
+  "costUsd": 0.19809350000000003,
+  "chargedUsd": 0.19809350000000003,
+  "calls": 120,
+  "spend": [
+    {
+      "at": "2026-10-13T13:09:25.925Z",
+      "model": "gemini-3.5-flash-lite",
+      "resolvedModel": "gemini-3.5-flash-lite",
+      "costUsd": 0.0026743,
+      "chargedUsd": 0.0026743,
+      "accounting": "tokens",
+      "status": "ok",
+      "inputTokens": 906,
+      "outputTokens": 961
+    },
+    {
+      "at": "2026-10-13T13:09:27.539Z",
+      "model": "gemini-3.5-flash-lite",
+      "resolvedModel": "gemini-3.5-flash-lite",
+      "costUsd": 0.0012518,
+      "chargedUsd": 0.0012518,
+      "accounting": "tokens",
+      "status": "ok",
+      "inputTokens": 906,
+      "outputTokens": 392
+    },
+    {
+      "at": "2026-10-13T13:09:27.935Z",
+      "model": "gemini-3.5-flash-lite",
+      "resolvedModel": "gemini-3.5-flash-lite",
+      "costUsd": 0.0015118,
+      "chargedUsd": 0.0015118,
+      "accounting": "tokens",
+      "status": "ok",
+      "inputTokens": 906,
+      "outputTokens": 496
+    },
+    {
+      "at": "2026-10-13T13:09:28.120Z",
+      "model": "gemini-3.5-flash-lite",
+      "resolvedModel": "gemini-3.5-flash-lite",
+      "costUsd": 0.0010634000000000002,
+      "chargedUsd": 0.0010634000000000002,
+      "accounting": "tokens",
+      "status": "ok",
+      "inputTokens": 903,
+      "outputTokens": 317
+    },
+    {
+      "at": "2026-10-13T13:09:28.199Z",
+      "model": "gemini-3.5-flash-lite",
+      "resolvedModel": "gemini-3.5-flash-lite",
+      "costUsd": 0.0015444,
+      "chargedUsd": 0.0015444,
+      "accounting": "tokens",
+      "status": "ok",
+      "inputTokens": 923,
+      "outputTokens": 507
+    },
+    {
+      "at": "2026-10-13T13:09:28.309Z",
+      "model": "gemini-3.5-flash-lite",
+      "resolvedModel": "gemini-3.5-flash-lite",
+      "costUsd": 0.0015092999999999999,
+      "chargedUsd": 0.0015092999999999999,
+      "accounting": "tokens",
+      "status": "ok",
+      "inputTokens": 906,
+      "outputTokens": 495
+    },
+    {
+      "at": "2026-10-13T13:09:28.339Z",
+      "model": "gemini-3.5-flash-lite",
+      "resolvedModel": "gemini-3.5-flash-lite",
+      "costUsd": 0.0017447,
+      "chargedUsd": 0.0017447,
+      "accounting": "tokens",
+      "status": "ok",
+      "inputTokens": 924,
+      "outputTokens": 587
+    },
+    {
+      "at": "2026-10-13T13:09:28.404Z",
+      "model": "gemini-3.5-flash-lite",
+      "resolvedModel": "gemini-3.5-flash-lite",
+      "costUsd": 0.0017544000000000001,
+      "chargedUsd": 0.0017544000000000001,
+      "accounting": "tokens",
+      "status": "ok",
+      "inputTokens": 1298,
+      "outputTokens": 546
+    },
+    {
+      "at": "2026-10-13T13:09:29.558Z",
+      "model": "gemini-3.5-flash-lite",
+      "resolvedModel": "gemini-3.5-flash-lite",
+      "costUsd": 0.000636,
+      "chargedUsd": 0.000636,
+      "accounting": "tokens",
+      "status": "ok",
+      "inputTokens": 920,
+      "outputTokens": 144
+    },
+    {
+      "at": "2026-10-13T13:09:29.887Z",
+      "model": "gemini-3.5-flash-lite",
+      "resolvedModel": "gemini-3.5-flash-lite",
+      "costUsd": 0.0016853,
+      "chargedUsd": 0.0016853,
+      "accounting": "tokens",
+      "status": "ok",
+      "inputTokens": 876,
+      "outputTokens": 569
+    },
+    {
+      "at": "2026-10-13T13:09:30.149Z",
+      "model": "gemini-3.5-flash-lite",
+      "resolvedModel": "gemini-3.5-flash-lite",
+      "costUsd": 0.0010894000000000001,
+      "chargedUsd": 0.0010894000000000001,
+      "accounting": "tokens",
+      "status": "ok",
+      "inputTokens": 923,
+      "outputTokens": 325
+    },
+    {
+      "at": "2026-10-13T13:09:30.264Z",
+      "model": "gemini-3.5-flash-lite",
+      "resolvedModel": "gemini-3.5-flash-lite",
+      "costUsd": 0.0016143,
+      "chargedUsd": 0.0016143,
+      "accounting": "tokens",
+      "status": "ok",
+      "inputTokens": 906,
+      "outputTokens": 537
+    },
+    {
+      "at": "2026-10-13T13:09:30.493Z",
+      "model": "gemini-3.5-flash-lite",
+      "resolvedModel": "gemini-3.5-flash-lite",
+      "costUsd": 0.0014292999999999999,
+      "chargedUsd": 0.0014292999999999999,
+      "accounting": "tokens",
+      "status": "ok",
+      "inputTokens": 906,
+      "outputTokens": 463
+    },
+    {
+      "at": "2026-10-13T13:09:31.237Z",
+      "model": "gemini-3.5-flash-lite",
+      "resolvedModel": "gemini-3.5-flash-lite",
+      "costUsd": 0.0009528,
+      "chargedUsd": 0.0009528,
+      "accounting": "tokens",
+      "status": "ok",
+      "inputTokens": 876,
+      "outputTokens": 276
+    },
+    {
+      "at": "2026-10-13T13:09:31.296Z",
+      "model": "gemini-3.5-flash-lite",
+      "resolvedModel": "gemini-3.5-flash-lite",
+      "costUsd": 0.0020599,
+      "chargedUsd": 0.0020599,
+      "accounting": "tokens",
+      "status": "ok",
+      "inputTokens": 908,
+      "outputTokens": 715
+    },
+    {
+      "at": "2026-10-13T13:09:31.337Z",
+      "model": "gemini-3.5-flash-lite",
+      "resolvedModel": "gemini-3.5-flash-lite",
+      "costUsd": 0.0020093,
+      "chargedUsd": 0.0020093,
+      "accounting": "tokens",
+      "status": "ok",
+      "inputTokens": 906,
+      "outputTokens": 695
+    },
+    {
+      "at": "2026-10-13T13:09:32.264Z",
+      "model": "gemini-3.5-flash-lite",
+      "resolvedModel": "gemini-3.5-flash-lite",
+      "costUsd": 0.0014142,
+      "chargedUsd": 0.0014142,
+      "accounting": "tokens",
+      "status": "ok",
+      "inputTokens": 889,
+      "outputTokens": 459
+    },
+    {
+      "at": "2026-10-13T13:09:32.523Z",
+      "model": "gemini-3.5-flash-lite",
+      "resolvedModel": "gemini-3.5-flash-lite",
+      "costUsd": 0.0013472,
+      "chargedUsd": 0.0013472,
+      "accounting": "tokens",
+      "status": "ok",
+      "inputTokens": 924,
+      "outputTokens": 428
+    },
+    {
+      "at": "2026-10-13T13:09:32.631Z",
+      "model": "gemini-3.5-flash-lite",
+      "resolvedModel": "gemini-3.5-flash-lite",
+      "costUsd": 0.0012078,
+      "chargedUsd": 0.0012078,
+      "accounting": "tokens",
+      "status": "ok",
+      "inputTokens": 876,
+      "outputTokens": 378
+    },
+    {
+      "at": "2026-10-13T13:09:32.639Z",
+      "model": "gemini-3.5-flash-lite",
+      "resolvedModel": "gemini-3.5-flash-lite",
+      "costUsd": 0.0024924,
+      "chargedUsd": 0.0024924,
+      "accounting": "tokens",
+      "status": "ok",
+      "inputTokens": 908,
+      "outputTokens": 888
+    },
+    {
+      "at": "2026-10-13T13:09:32.906Z",
+      "model": "gemini-3.5-flash-lite",
+      "resolvedModel": "gemini-3.5-flash-lite",
+      "costUsd": 0.0015868,
+      "chargedUsd": 0.0015868,
+      "accounting": "tokens",
+      "status": "ok",
+      "inputTokens": 906,
+      "outputTokens": 526
+    },
+    {
+      "at": "2026-10-13T13:09:33.223Z",
+      "model": "gemini-3.5-flash-lite",
+      "resolvedModel": "gemini-3.5-flash-lite",
+      "costUsd": 0.0025019,
+      "chargedUsd": 0.0025019,
+      "accounting": "tokens",
+      "status": "ok",
+      "inputTokens": 1298,
+      "outputTokens": 845
+    },
+    {
+      "at": "2026-10-13T13:09:33.442Z",
+      "model": "gemini-3.5-flash-lite",
+      "resolvedModel": "gemini-3.5-flash-lite",
+      "costUsd": 0.0016135,
+      "chargedUsd": 0.0016135,
+      "accounting": "tokens",
+      "status": "ok",
+      "inputTokens": 920,
+      "outputTokens": 535
+    },
+    {
+      "at": "2026-10-13T13:09:34.598Z",
+      "model": "gemini-3.5-flash-lite",
+      "resolvedModel": "gemini-3.5-flash-lite",
+      "costUsd": 0.0014934000000000002,
+      "chargedUsd": 0.0014934000000000002,
+      "accounting": "tokens",
+      "status": "ok",
+      "inputTokens": 903,
+      "outputTokens": 489
+    },
+    {
+      "at": "2026-10-13T13:09:34.927Z",
+      "model": "gemini-3.5-flash-lite",
+      "resolvedModel": "gemini-3.5-flash-lite",
+      "costUsd": 0.001657,
+      "chargedUsd": 0.001657,
+      "accounting": "tokens",
+      "status": "ok",
+      "inputTokens": 940,
+      "outputTokens": 550
+    },
+    {
+      "at": "2026-10-13T13:09:35.167Z",
+      "model": "gemini-3.5-flash-lite",
+      "resolvedModel": "gemini-3.5-flash-lite",
+      "costUsd": 0.0021534,
+      "chargedUsd": 0.0021534,
+      "accounting": "tokens",
+      "status": "ok",
+      "inputTokens": 903,
+      "outputTokens": 753
+    },
+    {
+      "at": "2026-10-13T13:09:35.175Z",
+      "model": "gemini-3.5-flash-lite",
+      "resolvedModel": "gemini-3.5-flash-lite",
+      "costUsd": 0.0015568,
+      "chargedUsd": 0.0015568,
+      "accounting": "tokens",
+      "status": "ok",
+      "inputTokens": 906,
+      "outputTokens": 514
+    },
+    {
+      "at": "2026-10-13T13:09:35.743Z",
+      "model": "gemini-3.5-flash-lite",
+      "resolvedModel": "gemini-3.5-flash-lite",
+      "costUsd": 0.0016044000000000002,
+      "chargedUsd": 0.0016044000000000002,
+      "accounting": "tokens",
+      "status": "ok",
+      "inputTokens": 1298,
+      "outputTokens": 486
+    },
+    {
+      "at": "2026-10-13T13:09:36.300Z",
+      "model": "gemini-3.5-flash-lite",
+      "resolvedModel": "gemini-3.5-flash-lite",
+      "costUsd": 0.0027949,
+      "chargedUsd": 0.0027949,
+      "accounting": "tokens",
+      "status": "ok",
+      "inputTokens": 908,
+      "outputTokens": 1009
+    },
+    {
+      "at": "2026-10-13T13:09:36.716Z",
+      "model": "gemini-3.5-flash-lite",
+      "resolvedModel": "gemini-3.5-flash-lite",
+      "costUsd": 0.0014493,
+      "chargedUsd": 0.0014493,
+      "accounting": "tokens",
+      "status": "ok",
+      "inputTokens": 906,
+      "outputTokens": 471
+    },
+    {
+      "at": "2026-10-13T13:09:37.790Z",
+      "model": "gemini-3.5-flash-lite",
+      "resolvedModel": "gemini-3.5-flash-lite",
+      "costUsd": 0.0021393000000000002,
+      "chargedUsd": 0.0021393000000000002,
+      "accounting": "tokens",
+      "status": "ok",
+      "inputTokens": 906,
+      "outputTokens": 747
+    },
+    {
+      "at": "2026-10-13T13:09:37.798Z",
+      "model": "gemini-3.5-flash-lite",
+      "resolvedModel": "gemini-3.5-flash-lite",
+      "costUsd": 0.0020385,
+      "chargedUsd": 0.0020385,
+      "accounting": "tokens",
+      "status": "ok",
+      "inputTokens": 920,
+      "outputTokens": 705
+    },
+    {
+      "at": "2026-10-13T13:09:37.921Z",
+      "model": "gemini-3.5-flash-lite",
+      "resolvedModel": "gemini-3.5-flash-lite",
+      "costUsd": 0.0016792999999999999,
+      "chargedUsd": 0.0016792999999999999,
+      "accounting": "tokens",
+      "status": "ok",
+      "inputTokens": 906,
+      "outputTokens": 563
+    },
+    {
+      "at": "2026-10-13T13:09:38.193Z",
+      "model": "gemini-3.5-flash-lite",
+      "resolvedModel": "gemini-3.5-flash-lite",
+      "costUsd": 0.0023059,
+      "chargedUsd": 0.0023059,
+      "accounting": "tokens",
+      "status": "ok",
+      "inputTokens": 903,
+      "outputTokens": 814
+    },
+    {
+      "at": "2026-10-13T13:09:38.630Z",
+      "model": "gemini-3.5-flash-lite",
+      "resolvedModel": "gemini-3.5-flash-lite",
+      "costUsd": 0.0011893,
+      "chargedUsd": 0.0011893,
+      "accounting": "tokens",
+      "status": "ok",
+      "inputTokens": 906,
+      "outputTokens": 367
+    },
+    {
+      "at": "2026-10-13T13:09:39.370Z",
+      "model": "gemini-3.5-flash-lite",
+      "resolvedModel": "gemini-3.5-flash-lite",
+      "costUsd": 0.002767,
+      "chargedUsd": 0.002767,
+      "accounting": "tokens",
+      "status": "ok",
+      "inputTokens": 940,
+      "outputTokens": 994
+    },
+    {
+      "at": "2026-10-13T13:09:39.397Z",
+      "model": "gemini-3.5-flash-lite",
+      "resolvedModel": "gemini-3.5-flash-lite",
+      "costUsd": 0.0024942,
+      "chargedUsd": 0.0024942,
+      "accounting": "tokens",
+      "status": "ok",
+      "inputTokens": 889,
+      "outputTokens": 891
+    },
+    {
+      "at": "2026-10-13T13:09:39.836Z",
+      "model": "gemini-3.5-flash-lite",
+      "resolvedModel": "gemini-3.5-flash-lite",
+      "costUsd": 0.000521,
+      "chargedUsd": 0.000521,
+      "accounting": "tokens",
+      "status": "ok",
+      "inputTokens": 920,
+      "outputTokens": 98
+    },
+    {
+      "at": "2026-10-13T13:09:40.136Z",
+      "model": "gemini-3.5-flash-lite",
+      "resolvedModel": "gemini-3.5-flash-lite",
+      "costUsd": 0.0011543,
+      "chargedUsd": 0.0011543,
+      "accounting": "tokens",
+      "status": "ok",
+      "inputTokens": 906,
+      "outputTokens": 353
+    },
+    {
+      "at": "2026-10-13T13:09:40.728Z",
+      "model": "gemini-3.5-flash-lite",
+      "resolvedModel": "gemini-3.5-flash-lite",
+      "costUsd": 0.0023199,
+      "chargedUsd": 0.0023199,
+      "accounting": "tokens",
+      "status": "ok",
+      "inputTokens": 908,
+      "outputTokens": 819
+    },
+    {
+      "at": "2026-10-13T13:09:40.895Z",
+      "model": "gemini-3.5-flash-lite",
+      "resolvedModel": "gemini-3.5-flash-lite",
+      "costUsd": 0.001696,
+      "chargedUsd": 0.001696,
+      "accounting": "tokens",
+      "status": "ok",
+      "inputTokens": 920,
+      "outputTokens": 568
+    },
+    {
+      "at": "2026-10-13T13:09:41.030Z",
+      "model": "gemini-3.5-flash-lite",
+      "resolvedModel": "gemini-3.5-flash-lite",
+      "costUsd": 0.0006468,
+      "chargedUsd": 0.0006468,
+      "accounting": "tokens",
+      "status": "ok",
+      "inputTokens": 906,
+      "outputTokens": 150
+    },
+    {
+      "at": "2026-10-13T13:09:41.482Z",
+      "model": "gemini-3.5-flash-lite",
+      "resolvedModel": "gemini-3.5-flash-lite",
+      "costUsd": 0.0014269,
+      "chargedUsd": 0.0014269,
+      "accounting": "tokens",
+      "status": "ok",
+      "inputTokens": 1298,
+      "outputTokens": 415
+    },
+    {
+      "at": "2026-10-13T13:09:41.508Z",
+      "model": "gemini-3.5-flash-lite",
+      "resolvedModel": "gemini-3.5-flash-lite",
+      "costUsd": 0.0025395,
+      "chargedUsd": 0.0025395,
+      "accounting": "tokens",
+      "status": "ok",
+      "inputTokens": 940,
+      "outputTokens": 903
+    },
+    {
+      "at": "2026-10-13T13:09:42.056Z",
+      "model": "gemini-3.5-flash-lite",
+      "resolvedModel": "gemini-3.5-flash-lite",
+      "costUsd": 0.0006567999999999999,
+      "chargedUsd": 0.0006567999999999999,
+      "accounting": "tokens",
+      "status": "ok",
+      "inputTokens": 906,
+      "outputTokens": 154
+    },
+    {
+      "at": "2026-10-13T13:09:42.161Z",
+      "model": "gemini-3.5-flash-lite",
+      "resolvedModel": "gemini-3.5-flash-lite",
+      "costUsd": 0.001076,
+      "chargedUsd": 0.001076,
+      "accounting": "tokens",
+      "status": "ok",
+      "inputTokens": 920,
+      "outputTokens": 320
+    },
+    {
+      "at": "2026-10-13T13:09:42.457Z",
+      "model": "gemini-3.5-flash-lite",
+      "resolvedModel": "gemini-3.5-flash-lite",
+      "costUsd": 0.0005143,
+      "chargedUsd": 0.0005143,
+      "accounting": "tokens",
+      "status": "ok",
+      "inputTokens": 906,
+      "outputTokens": 97
+    },
+    {
+      "at": "2026-10-13T13:09:42.550Z",
+      "model": "gemini-3.5-flash-lite",
+      "resolvedModel": "gemini-3.5-flash-lite",
+      "costUsd": 0.0018368,
+      "chargedUsd": 0.0018368,
+      "accounting": "tokens",
+      "status": "ok",
+      "inputTokens": 906,
+      "outputTokens": 626
+    },
+    {
+      "at": "2026-10-13T13:09:43.151Z",
+      "model": "gemini-3.5-flash-lite",
+      "resolvedModel": "gemini-3.5-flash-lite",
+      "costUsd": 0.0027918,
+      "chargedUsd": 0.0027918,
+      "accounting": "tokens",
+      "status": "ok",
+      "inputTokens": 906,
+      "outputTokens": 1008
+    },
+    {
+      "at": "2026-10-13T13:09:43.219Z",
+      "model": "gemini-3.5-flash-lite",
+      "resolvedModel": "gemini-3.5-flash-lite",
+      "costUsd": 0.0007394,
+      "chargedUsd": 0.0007394,
+      "accounting": "tokens",
+      "status": "ok",
+      "inputTokens": 1298,
+      "outputTokens": 140
+    },
+    {
+      "at": "2026-10-13T13:09:43.853Z",
+      "model": "gemini-3.5-flash-lite",
+      "resolvedModel": "gemini-3.5-flash-lite",
+      "costUsd": 0.0014418,
+      "chargedUsd": 0.0014418,
+      "accounting": "tokens",
+      "status": "ok",
+      "inputTokens": 906,
+      "outputTokens": 468
+    },
+    {
+      "at": "2026-10-13T13:09:44.032Z",
+      "model": "gemini-3.5-flash-lite",
+      "resolvedModel": "gemini-3.5-flash-lite",
+      "costUsd": 0.0026418,
+      "chargedUsd": 0.0026418,
+      "accounting": "tokens",
+      "status": "ok",
+      "inputTokens": 906,
+      "outputTokens": 948
+    },
+    {
+      "at": "2026-10-13T13:09:44.037Z",
+      "model": "gemini-3.5-flash-lite",
+      "resolvedModel": "gemini-3.5-flash-lite",
+      "costUsd": 0.0015892999999999999,
+      "chargedUsd": 0.0015892999999999999,
+      "accounting": "tokens",
+      "status": "ok",
+      "inputTokens": 906,
+      "outputTokens": 527
+    },
+    {
+      "at": "2026-10-13T13:09:44.417Z",
+      "model": "gemini-3.5-flash-lite",
+      "resolvedModel": "gemini-3.5-flash-lite",
+      "costUsd": 0.0025693,
+      "chargedUsd": 0.0025693,
+      "accounting": "tokens",
+      "status": "ok",
+      "inputTokens": 906,
+      "outputTokens": 919
+    },
+    {
+      "at": "2026-10-13T13:09:44.612Z",
+      "model": "gemini-3.5-flash-lite",
+      "resolvedModel": "gemini-3.5-flash-lite",
+      "costUsd": 0.0015318,
+      "chargedUsd": 0.0015318,
+      "accounting": "tokens",
+      "status": "ok",
+      "inputTokens": 906,
+      "outputTokens": 504
+    },
+    {
+      "at": "2026-10-13T13:09:45.353Z",
+      "model": "gemini-3.5-flash-lite",
+      "resolvedModel": "gemini-3.5-flash-lite",
+      "costUsd": 0.0006585,
+      "chargedUsd": 0.0006585,
+      "accounting": "tokens",
+      "status": "ok",
+      "inputTokens": 920,
+      "outputTokens": 153
+    },
+    {
+      "at": "2026-10-13T13:09:45.425Z",
+      "model": "gemini-3.5-flash-lite",
+      "resolvedModel": "gemini-3.5-flash-lite",
+      "costUsd": 0.0024474,
+      "chargedUsd": 0.0024474,
+      "accounting": "tokens",
+      "status": "ok",
+      "inputTokens": 908,
+      "outputTokens": 870
+    },
+    {
+      "at": "2026-10-13T13:09:45.432Z",
+      "model": "gemini-3.5-flash-lite",
+      "resolvedModel": "gemini-3.5-flash-lite",
+      "costUsd": 0.0012235,
+      "chargedUsd": 0.0012235,
+      "accounting": "tokens",
+      "status": "ok",
+      "inputTokens": 920,
+      "outputTokens": 379
+    },
+    {
+      "at": "2026-10-13T13:09:45.799Z",
+      "model": "gemini-3.5-flash-lite",
+      "resolvedModel": "gemini-3.5-flash-lite",
+      "costUsd": 0.0011093,
+      "chargedUsd": 0.0011093,
+      "accounting": "tokens",
+      "status": "ok",
+      "inputTokens": 906,
+      "outputTokens": 335
+    },
+    {
+      "at": "2026-10-13T13:09:46.197Z",
+      "model": "gemini-3.5-flash-lite",
+      "resolvedModel": "gemini-3.5-flash-lite",
+      "costUsd": 0.0024195,
+      "chargedUsd": 0.0024195,
+      "accounting": "tokens",
+      "status": "ok",
+      "inputTokens": 940,
+      "outputTokens": 855
+    },
+    {
+      "at": "2026-10-13T13:09:46.786Z",
+      "model": "gemini-3.5-flash-lite",
+      "resolvedModel": "gemini-3.5-flash-lite",
+      "costUsd": 0.0014992999999999999,
+      "chargedUsd": 0.0014992999999999999,
+      "accounting": "tokens",
+      "status": "ok",
+      "inputTokens": 906,
+      "outputTokens": 491
+    },
+    {
+      "at": "2026-10-13T13:09:46.982Z",
+      "model": "gemini-3.5-flash-lite",
+      "resolvedModel": "gemini-3.5-flash-lite",
+      "costUsd": 0.0024068,
+      "chargedUsd": 0.0024068,
+      "accounting": "tokens",
+      "status": "ok",
+      "inputTokens": 906,
+      "outputTokens": 854
+    },
+    {
+      "at": "2026-10-13T13:09:47.216Z",
+      "model": "gemini-3.5-flash-lite",
+      "resolvedModel": "gemini-3.5-flash-lite",
+      "costUsd": 0.0015447,
+      "chargedUsd": 0.0015447,
+      "accounting": "tokens",
+      "status": "ok",
+      "inputTokens": 924,
+      "outputTokens": 507
+    },
+    {
+      "at": "2026-10-13T13:09:47.253Z",
+      "model": "gemini-3.5-flash-lite",
+      "resolvedModel": "gemini-3.5-flash-lite",
+      "costUsd": 0.0021824,
+      "chargedUsd": 0.0021824,
+      "accounting": "tokens",
+      "status": "ok",
+      "inputTokens": 908,
+      "outputTokens": 764
+    },
+    {
+      "at": "2026-10-13T13:09:47.740Z",
+      "model": "gemini-3.5-flash-lite",
+      "resolvedModel": "gemini-3.5-flash-lite",
+      "costUsd": 0.0014918,
+      "chargedUsd": 0.0014918,
+      "accounting": "tokens",
+      "status": "ok",
+      "inputTokens": 906,
+      "outputTokens": 488
+    },
+    {
+      "at": "2026-10-13T13:09:47.873Z",
+      "model": "gemini-3.5-flash-lite",
+      "resolvedModel": "gemini-3.5-flash-lite",
+      "costUsd": 0.0020919000000000003,
+      "chargedUsd": 0.0020919000000000003,
+      "accounting": "tokens",
+      "status": "ok",
+      "inputTokens": 1298,
+      "outputTokens": 681
+    },
+    {
+      "at": "2026-10-13T13:09:47.969Z",
+      "model": "gemini-3.5-flash-lite",
+      "resolvedModel": "gemini-3.5-flash-lite",
+      "costUsd": 0.0011434000000000001,
+      "chargedUsd": 0.0011434000000000001,
+      "accounting": "tokens",
+      "status": "ok",
+      "inputTokens": 903,
+      "outputTokens": 349
+    },
+    {
+      "at": "2026-10-13T13:09:48.232Z",
+      "model": "gemini-3.5-flash-lite",
+      "resolvedModel": "gemini-3.5-flash-lite",
+      "costUsd": 0.0020019,
+      "chargedUsd": 0.0020019,
+      "accounting": "tokens",
+      "status": "ok",
+      "inputTokens": 1298,
+      "outputTokens": 645
+    },
+    {
+      "at": "2026-10-13T13:09:48.601Z",
+      "model": "gemini-3.5-flash-lite",
+      "resolvedModel": "gemini-3.5-flash-lite",
+      "costUsd": 0.0012143,
+      "chargedUsd": 0.0012143,
+      "accounting": "tokens",
+      "status": "ok",
+      "inputTokens": 906,
+      "outputTokens": 377
+    },
+    {
+      "at": "2026-10-13T13:09:49.301Z",
+      "model": "gemini-3.5-flash-lite",
+      "resolvedModel": "gemini-3.5-flash-lite",
+      "costUsd": 0.0013259,
+      "chargedUsd": 0.0013259,
+      "accounting": "tokens",
+      "status": "ok",
+      "inputTokens": 903,
+      "outputTokens": 422
+    },
+    {
+      "at": "2026-10-13T13:09:49.465Z",
+      "model": "gemini-3.5-flash-lite",
+      "resolvedModel": "gemini-3.5-flash-lite",
+      "costUsd": 0.0017967,
+      "chargedUsd": 0.0017967,
+      "accounting": "tokens",
+      "status": "ok",
+      "inputTokens": 889,
+      "outputTokens": 612
+    },
+    {
+      "at": "2026-10-13T13:09:49.621Z",
+      "model": "gemini-3.5-flash-lite",
+      "resolvedModel": "gemini-3.5-flash-lite",
+      "costUsd": 0.0017268,
+      "chargedUsd": 0.0017268,
+      "accounting": "tokens",
+      "status": "ok",
+      "inputTokens": 906,
+      "outputTokens": 582
+    },
+    {
+      "at": "2026-10-13T13:09:49.809Z",
+      "model": "gemini-3.5-flash-lite",
+      "resolvedModel": "gemini-3.5-flash-lite",
+      "costUsd": 0.0014567999999999998,
+      "chargedUsd": 0.0014567999999999998,
+      "accounting": "tokens",
+      "status": "ok",
+      "inputTokens": 906,
+      "outputTokens": 474
+    },
+    {
+      "at": "2026-10-13T13:09:50.073Z",
+      "model": "gemini-3.5-flash-lite",
+      "resolvedModel": "gemini-3.5-flash-lite",
+      "costUsd": 0.0017467000000000001,
+      "chargedUsd": 0.0017467000000000001,
+      "accounting": "tokens",
+      "status": "ok",
+      "inputTokens": 889,
+      "outputTokens": 592
+    },
+    {
+      "at": "2026-10-13T13:09:50.545Z",
+      "model": "gemini-3.5-flash-lite",
+      "resolvedModel": "gemini-3.5-flash-lite",
+      "costUsd": 0.0014334,
+      "chargedUsd": 0.0014334,
+      "accounting": "tokens",
+      "status": "ok",
+      "inputTokens": 903,
+      "outputTokens": 465
+    },
+    {
+      "at": "2026-10-13T13:09:50.565Z",
+      "model": "gemini-3.5-flash-lite",
+      "resolvedModel": "gemini-3.5-flash-lite",
+      "costUsd": 0.0014593,
+      "chargedUsd": 0.0014593,
+      "accounting": "tokens",
+      "status": "ok",
+      "inputTokens": 906,
+      "outputTokens": 475
+    },
+    {
+      "at": "2026-10-13T13:09:50.883Z",
+      "model": "gemini-3.5-flash-lite",
+      "resolvedModel": "gemini-3.5-flash-lite",
+      "costUsd": 0.0013493,
+      "chargedUsd": 0.0013493,
+      "accounting": "tokens",
+      "status": "ok",
+      "inputTokens": 906,
+      "outputTokens": 431
+    },
+    {
+      "at": "2026-10-13T13:09:51.112Z",
+      "model": "gemini-3.5-flash-lite",
+      "resolvedModel": "gemini-3.5-flash-lite",
+      "costUsd": 0.0022091999999999997,
+      "chargedUsd": 0.0022091999999999997,
+      "accounting": "tokens",
+      "status": "ok",
+      "inputTokens": 889,
+      "outputTokens": 777
+    },
+    {
+      "at": "2026-10-13T13:09:51.407Z",
+      "model": "gemini-3.5-flash-lite",
+      "resolvedModel": "gemini-3.5-flash-lite",
+      "costUsd": 0.0010653,
+      "chargedUsd": 0.0010653,
+      "accounting": "tokens",
+      "status": "ok",
+      "inputTokens": 876,
+      "outputTokens": 321
+    },
+    {
+      "at": "2026-10-13T13:09:51.507Z",
+      "model": "gemini-3.5-flash-lite",
+      "resolvedModel": "gemini-3.5-flash-lite",
+      "costUsd": 0.0013643,
+      "chargedUsd": 0.0013643,
+      "accounting": "tokens",
+      "status": "ok",
+      "inputTokens": 906,
+      "outputTokens": 437
+    },
+    {
+      "at": "2026-10-13T13:09:51.949Z",
+      "model": "gemini-3.5-flash-lite",
+      "resolvedModel": "gemini-3.5-flash-lite",
+      "costUsd": 0.0016985,
+      "chargedUsd": 0.0016985,
+      "accounting": "tokens",
+      "status": "ok",
+      "inputTokens": 920,
+      "outputTokens": 569
+    },
+    {
+      "at": "2026-10-13T13:09:52.048Z",
+      "model": "gemini-3.5-flash-lite",
+      "resolvedModel": "gemini-3.5-flash-lite",
+      "costUsd": 0.0011317999999999999,
+      "chargedUsd": 0.0011317999999999999,
+      "accounting": "tokens",
+      "status": "ok",
+      "inputTokens": 906,
+      "outputTokens": 344
+    },
+    {
+      "at": "2026-10-13T13:09:52.208Z",
+      "model": "gemini-3.5-flash-lite",
+      "resolvedModel": "gemini-3.5-flash-lite",
+      "costUsd": 0.0013843,
+      "chargedUsd": 0.0013843,
+      "accounting": "tokens",
+      "status": "ok",
+      "inputTokens": 906,
+      "outputTokens": 445
+    },
+    {
+      "at": "2026-10-13T13:09:52.983Z",
+      "model": "gemini-3.5-flash-lite",
+      "resolvedModel": "gemini-3.5-flash-lite",
+      "costUsd": 0.0015047,
+      "chargedUsd": 0.0015047,
+      "accounting": "tokens",
+      "status": "ok",
+      "inputTokens": 924,
+      "outputTokens": 491
+    },
+    {
+      "at": "2026-10-13T13:09:53.051Z",
+      "model": "gemini-3.5-flash-lite",
+      "resolvedModel": "gemini-3.5-flash-lite",
+      "costUsd": 0.0013968,
+      "chargedUsd": 0.0013968,
+      "accounting": "tokens",
+      "status": "ok",
+      "inputTokens": 906,
+      "outputTokens": 450
+    },
+    {
+      "at": "2026-10-13T13:09:53.073Z",
+      "model": "gemini-3.5-flash-lite",
+      "resolvedModel": "gemini-3.5-flash-lite",
+      "costUsd": 0.0017172,
+      "chargedUsd": 0.0017172,
+      "accounting": "tokens",
+      "status": "ok",
+      "inputTokens": 924,
+      "outputTokens": 576
+    },
+    {
+      "at": "2026-10-13T13:09:53.854Z",
+      "model": "gemini-3.5-flash-lite",
+      "resolvedModel": "gemini-3.5-flash-lite",
+      "costUsd": 0.0013918,
+      "chargedUsd": 0.0013918,
+      "accounting": "tokens",
+      "status": "ok",
+      "inputTokens": 906,
+      "outputTokens": 448
+    },
+    {
+      "at": "2026-10-13T13:09:53.888Z",
+      "model": "gemini-3.5-flash-lite",
+      "resolvedModel": "gemini-3.5-flash-lite",
+      "costUsd": 0.0012318,
+      "chargedUsd": 0.0012318,
+      "accounting": "tokens",
+      "status": "ok",
+      "inputTokens": 906,
+      "outputTokens": 384
+    },
+    {
+      "at": "2026-10-13T13:09:54.233Z",
+      "model": "gemini-3.5-flash-lite",
+      "resolvedModel": "gemini-3.5-flash-lite",
+      "costUsd": 0.0015069,
+      "chargedUsd": 0.0015069,
+      "accounting": "tokens",
+      "status": "ok",
+      "inputTokens": 923,
+      "outputTokens": 492
+    },
+    {
+      "at": "2026-10-13T13:09:54.574Z",
+      "model": "gemini-3.5-flash-lite",
+      "resolvedModel": "gemini-3.5-flash-lite",
+      "costUsd": 0.0023149,
+      "chargedUsd": 0.0023149,
+      "accounting": "tokens",
+      "status": "ok",
+      "inputTokens": 908,
+      "outputTokens": 817
+    },
+    {
+      "at": "2026-10-13T13:09:54.576Z",
+      "model": "gemini-3.5-flash-lite",
+      "resolvedModel": "gemini-3.5-flash-lite",
+      "costUsd": 0.0022984,
+      "chargedUsd": 0.0022984,
+      "accounting": "tokens",
+      "status": "ok",
+      "inputTokens": 903,
+      "outputTokens": 811
+    },
+    {
+      "at": "2026-10-13T13:09:54.871Z",
+      "model": "gemini-3.5-flash-lite",
+      "resolvedModel": "gemini-3.5-flash-lite",
+      "costUsd": 0.0015953,
+      "chargedUsd": 0.0015953,
+      "accounting": "tokens",
+      "status": "ok",
+      "inputTokens": 876,
+      "outputTokens": 533
+    },
+    {
+      "at": "2026-10-13T13:09:55.506Z",
+      "model": "gemini-3.5-flash-lite",
+      "resolvedModel": "gemini-3.5-flash-lite",
+      "costUsd": 0.0005593,
+      "chargedUsd": 0.0005593,
+      "accounting": "tokens",
+      "status": "ok",
+      "inputTokens": 906,
+      "outputTokens": 115
+    },
+    {
+      "at": "2026-10-13T13:09:55.636Z",
+      "model": "gemini-3.5-flash-lite",
+      "resolvedModel": "gemini-3.5-flash-lite",
+      "costUsd": 0.0017769,
+      "chargedUsd": 0.0017769,
+      "accounting": "tokens",
+      "status": "ok",
+      "inputTokens": 1298,
+      "outputTokens": 555
+    },
+    {
+      "at": "2026-10-13T13:09:55.950Z",
+      "model": "gemini-3.5-flash-lite",
+      "resolvedModel": "gemini-3.5-flash-lite",
+      "costUsd": 0.0006522,
+      "chargedUsd": 0.0006522,
+      "accounting": "tokens",
+      "status": "ok",
+      "inputTokens": 924,
+      "outputTokens": 150
+    },
+    {
+      "at": "2026-10-13T13:09:56.165Z",
+      "model": "gemini-3.5-flash-lite",
+      "resolvedModel": "gemini-3.5-flash-lite",
+      "costUsd": 0.0013418,
+      "chargedUsd": 0.0013418,
+      "accounting": "tokens",
+      "status": "ok",
+      "inputTokens": 906,
+      "outputTokens": 428
+    },
+    {
+      "at": "2026-10-13T13:09:56.657Z",
+      "model": "gemini-3.5-flash-lite",
+      "resolvedModel": "gemini-3.5-flash-lite",
+      "costUsd": 0.0015022,
+      "chargedUsd": 0.0015022,
+      "accounting": "tokens",
+      "status": "ok",
+      "inputTokens": 924,
+      "outputTokens": 490
+    },
+    {
+      "at": "2026-10-13T13:09:56.976Z",
+      "model": "gemini-3.5-flash-lite",
+      "resolvedModel": "gemini-3.5-flash-lite",
+      "costUsd": 0.0027893,
+      "chargedUsd": 0.0027893,
+      "accounting": "tokens",
+      "status": "ok",
+      "inputTokens": 906,
+      "outputTokens": 1007
+    },
+    {
+      "at": "2026-10-13T13:09:57.208Z",
+      "model": "gemini-3.5-flash-lite",
+      "resolvedModel": "gemini-3.5-flash-lite",
+      "costUsd": 0.0024693000000000002,
+      "chargedUsd": 0.0024693000000000002,
+      "accounting": "tokens",
+      "status": "ok",
+      "inputTokens": 906,
+      "outputTokens": 879
+    },
+    {
+      "at": "2026-10-13T13:09:57.308Z",
+      "model": "gemini-3.5-flash-lite",
+      "resolvedModel": "gemini-3.5-flash-lite",
+      "costUsd": 0.0006268,
+      "chargedUsd": 0.0006268,
+      "accounting": "tokens",
+      "status": "ok",
+      "inputTokens": 906,
+      "outputTokens": 142
+    },
+    {
+      "at": "2026-10-13T13:09:57.878Z",
+      "model": "gemini-3.5-flash-lite",
+      "resolvedModel": "gemini-3.5-flash-lite",
+      "costUsd": 0.0015168,
+      "chargedUsd": 0.0015168,
+      "accounting": "tokens",
+      "status": "ok",
+      "inputTokens": 906,
+      "outputTokens": 498
+    },
+    {
+      "at": "2026-10-13T13:09:58.013Z",
+      "model": "gemini-3.5-flash-lite",
+      "resolvedModel": "gemini-3.5-flash-lite",
+      "costUsd": 0.0013493,
+      "chargedUsd": 0.0013493,
+      "accounting": "tokens",
+      "status": "ok",
+      "inputTokens": 906,
+      "outputTokens": 431
+    },
+    {
+      "at": "2026-10-13T13:09:58.295Z",
+      "model": "gemini-3.5-flash-lite",
+      "resolvedModel": "gemini-3.5-flash-lite",
+      "costUsd": 0.0027749000000000003,
+      "chargedUsd": 0.0027749000000000003,
+      "accounting": "tokens",
+      "status": "ok",
+      "inputTokens": 908,
+      "outputTokens": 1001
+    },
+    {
+      "at": "2026-10-13T13:09:58.782Z",
+      "model": "gemini-3.5-flash-lite",
+      "resolvedModel": "gemini-3.5-flash-lite",
+      "costUsd": 0.0027399,
+      "chargedUsd": 0.0027399,
+      "accounting": "tokens",
+      "status": "ok",
+      "inputTokens": 908,
+      "outputTokens": 987
+    },
+    {
+      "at": "2026-10-13T13:09:58.909Z",
+      "model": "gemini-3.5-flash-lite",
+      "resolvedModel": "gemini-3.5-flash-lite",
+      "costUsd": 0.0014569000000000001,
+      "chargedUsd": 0.0014569000000000001,
+      "accounting": "tokens",
+      "status": "ok",
+      "inputTokens": 1298,
+      "outputTokens": 427
+    },
+    {
+      "at": "2026-10-13T13:09:59.149Z",
+      "model": "gemini-3.5-flash-lite",
+      "resolvedModel": "gemini-3.5-flash-lite",
+      "costUsd": 0.0005819,
+      "chargedUsd": 0.0005819,
+      "accounting": "tokens",
+      "status": "ok",
+      "inputTokens": 923,
+      "outputTokens": 122
+    },
+    {
+      "at": "2026-10-13T13:09:59.274Z",
+      "model": "gemini-3.5-flash-lite",
+      "resolvedModel": "gemini-3.5-flash-lite",
+      "costUsd": 0.0006567999999999999,
+      "chargedUsd": 0.0006567999999999999,
+      "accounting": "tokens",
+      "status": "ok",
+      "inputTokens": 906,
+      "outputTokens": 154
+    },
+    {
+      "at": "2026-10-13T13:09:59.276Z",
+      "model": "gemini-3.5-flash-lite",
+      "resolvedModel": "gemini-3.5-flash-lite",
+      "costUsd": 0.0017793,
+      "chargedUsd": 0.0017793,
+      "accounting": "tokens",
+      "status": "ok",
+      "inputTokens": 906,
+      "outputTokens": 603
+    },
+    {
+      "at": "2026-10-13T13:09:59.579Z",
+      "model": "gemini-3.5-flash-lite",
+      "resolvedModel": "gemini-3.5-flash-lite",
+      "costUsd": 0.0020969,
+      "chargedUsd": 0.0020969,
+      "accounting": "tokens",
+      "status": "ok",
+      "inputTokens": 1298,
+      "outputTokens": 683
+    },
+    {
+      "at": "2026-10-13T13:09:59.825Z",
+      "model": "gemini-3.5-flash-lite",
+      "resolvedModel": "gemini-3.5-flash-lite",
+      "costUsd": 0.0013897,
+      "chargedUsd": 0.0013897,
+      "accounting": "tokens",
+      "status": "ok",
+      "inputTokens": 924,
+      "outputTokens": 445
+    },
+    {
+      "at": "2026-10-13T13:09:59.991Z",
+      "model": "gemini-3.5-flash-lite",
+      "resolvedModel": "gemini-3.5-flash-lite",
+      "costUsd": 0.0012293,
+      "chargedUsd": 0.0012293,
+      "accounting": "tokens",
+      "status": "ok",
+      "inputTokens": 906,
+      "outputTokens": 383
+    },
+    {
+      "at": "2026-10-13T13:10:00.826Z",
+      "model": "gemini-3.5-flash-lite",
+      "resolvedModel": "gemini-3.5-flash-lite",
+      "costUsd": 0.0014617999999999999,
+      "chargedUsd": 0.0014617999999999999,
+      "accounting": "tokens",
+      "status": "ok",
+      "inputTokens": 906,
+      "outputTokens": 476
+    },
+    {
+      "at": "2026-10-13T13:10:01.022Z",
+      "model": "gemini-3.5-flash-lite",
+      "resolvedModel": "gemini-3.5-flash-lite",
+      "costUsd": 0.0012997,
+      "chargedUsd": 0.0012997,
+      "accounting": "tokens",
+      "status": "ok",
+      "inputTokens": 924,
+      "outputTokens": 409
+    },
+    {
+      "at": "2026-10-13T13:10:01.628Z",
+      "model": "gemini-3.5-flash-lite",
+      "resolvedModel": "gemini-3.5-flash-lite",
+      "costUsd": 0.0018944,
+      "chargedUsd": 0.0018944,
+      "accounting": "tokens",
+      "status": "ok",
+      "inputTokens": 923,
+      "outputTokens": 647
+    },
+    {
+      "at": "2026-10-13T13:10:01.645Z",
+      "model": "gemini-3.5-flash-lite",
+      "resolvedModel": "gemini-3.5-flash-lite",
+      "costUsd": 0.001876,
+      "chargedUsd": 0.001876,
+      "accounting": "tokens",
+      "status": "ok",
+      "inputTokens": 920,
+      "outputTokens": 640
+    },
+    {
+      "at": "2026-10-13T13:10:02.428Z",
+      "model": "gemini-3.5-flash-lite",
+      "resolvedModel": "gemini-3.5-flash-lite",
+      "costUsd": 0.0017897,
+      "chargedUsd": 0.0017897,
+      "accounting": "tokens",
+      "status": "ok",
+      "inputTokens": 924,
+      "outputTokens": 605
+    },
+    {
+      "at": "2026-10-13T13:10:02.429Z",
+      "model": "gemini-3.5-flash-lite",
+      "resolvedModel": "gemini-3.5-flash-lite",
+      "costUsd": 0.0019095,
+      "chargedUsd": 0.0019095,
+      "accounting": "tokens",
+      "status": "ok",
+      "inputTokens": 940,
+      "outputTokens": 651
+    },
+    {
+      "at": "2026-10-13T13:10:03.046Z",
+      "model": "gemini-3.5-flash-lite",
+      "resolvedModel": "gemini-3.5-flash-lite",
+      "costUsd": 0.0017359,
+      "chargedUsd": 0.0017359,
+      "accounting": "tokens",
+      "status": "ok",
+      "inputTokens": 903,
+      "outputTokens": 586
+    },
+    {
+      "at": "2026-10-13T13:10:03.616Z",
+      "model": "gemini-3.5-flash-lite",
+      "resolvedModel": "gemini-3.5-flash-lite",
+      "costUsd": 0.0027934,
+      "chargedUsd": 0.0027934,
+      "accounting": "tokens",
+      "status": "ok",
+      "inputTokens": 903,
+      "outputTokens": 1009
+    },
+    {
+      "at": "2026-10-13T13:10:03.960Z",
+      "model": "gemini-3.5-flash-lite",
+      "resolvedModel": "gemini-3.5-flash-lite",
+      "costUsd": 0.0027924,
+      "chargedUsd": 0.0027924,
+      "accounting": "tokens",
+      "status": "ok",
+      "inputTokens": 908,
+      "outputTokens": 1008
+    }
+  ]
+}

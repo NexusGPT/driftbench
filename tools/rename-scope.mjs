@@ -26,6 +26,10 @@ const SKIP_DIRS = new Set([
 ]);
 // These trees pin hashes or exact scan output. They are inputs and saved evidence, not npm source.
 const SKIP_PATHS = new Set([
+  '.bench-run',
+  'benchmarks/slices',
+  'benchmarks/cassettes',
+  'benchmarks/evidence',
   'python',
   'examples/estates/fixture',
   'examples/estates/fixture-v2',

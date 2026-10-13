@@ -1,0 +1,23 @@
+monthly_usd,category,name,allowance,plan_id
+66,mobile,Acme Mobile 1,10 GB,mobile-1
+7,mobile,Acme Mobile 2,10 GB,mobile-2
+61,mobile,Acme Mobile 3,10 GB,mobile-3
+44,office,Acme Office 1,50 GB,office-1
+49,mobile,Acme Mobile 4,5 GB,mobile-4
+93,office,Acme Office 2,100 GB,office-2
+39,mobile,Acme Mobile 5,unlimited,mobile-5
+10,office,Acme Office 3,50 GB,office-3
+56,home,Acme Home 1,300 Mbps,home-1
+17,mobile,Acme Mobile 6,5 GB,mobile-6
+77,home,Acme Home 2,100 Mbps,home-2
+11,office,Acme Office 4,unlimited,office-4
+51,office,Acme Office 5,50 GB,office-5
+92,mobile,Acme Mobile 7,20 GB,mobile-7
+28,office,Acme Office 6,unlimited,office-6
+50,home,Acme Home 3,500 Mbps,home-3
+77,office,Acme Office 7,50 GB,office-7
+60,mobile,Acme Mobile 8,40 GB,mobile-8
+23,mobile,Acme Mobile 9,20 GB,mobile-9
+26,office,Acme Office 8,250 GB,office-8
+62,mobile,Acme Mobile 10,unlimited,mobile-10
+73,mobile,Acme Mobile 11,5 GB,mobile-11

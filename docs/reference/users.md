@@ -50,7 +50,7 @@ One file of the red-team pack: the phrasings of one deviation class.
 
 | Field | Type | Required | Default | Description |
 |---|---|---|---|---|
-| `class` | one of `D1_off_topic`, `D2_goal_shift`, `D3_contradiction`, `D4_loose_confirmation`, `D5_language_switch`, `D6_instruction_in_data`, `D7_silence_or_burst`, `D8_tool_failure`, `D9_out_of_scope`, `D10_return` | yes |  | The class every phrasing of the file belongs to. |
+| `class` | one of `D1_off_topic`, `D2_goal_shift`, `D3_contradiction`, `D4_loose_confirmation`, `D5_language_switch`, `D6_instruction_in_data`, `D7_silence_or_burst`, `D8_tool_failure`, `D9_out_of_scope`, `D10_return`, `D11_pii_leak`, `D12_prompt_extraction` | yes |  | The class every phrasing of the file belongs to. |
 | `title` | string, not empty | no |  | A title for a reader; no command reads it. |
 | `conversation` | list of [Phrasing](#phrasing), at least 1 item | yes |  | Phrasings for conversation specs. |
 | `task` | list of [Phrasing](#phrasing), at least 1 item | no |  | Phrasings for task specs. |
@@ -102,7 +102,7 @@ The files the agent starts from.
 
 | Field | Type | Required | Default | Description |
 |---|---|---|---|---|
-| `from` | string, not empty | no |  | A folder the workspace starts from. |
+| `from` | string, not empty | no |  | A folder the workspace starts from. A path written ./<path> is read from the folder of the spec file; any other relative path from the folder the run starts in. |
 | `files` | map of string to string | no |  | Files the workspace starts with: path to content. |
 
 ## RedteamPlugin

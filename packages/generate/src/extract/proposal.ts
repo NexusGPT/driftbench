@@ -356,6 +356,15 @@ export const TaskFamilyRelation = z
       .min(1)
       .describe("The stages of the family's blocks, in order, as its specs declare them."),
     holds: When.optional().describe('The cell values every instance of the family holds, per dimension.'),
+    instances: z
+      .record(
+        z.string().regex(/^[A-Za-z][A-Za-z0-9_]*$/),
+        z.union([z.string().min(1), z.array(z.string().min(1)).min(1)]),
+      )
+      .optional()
+      .describe(
+        'The family knob values of the instances this relation places, when the family writes several branches of the flow; without it, every instance.',
+      ),
     deviations: z
       .array(DeviationClass)
       .optional()

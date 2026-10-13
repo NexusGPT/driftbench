@@ -37,6 +37,8 @@ dimensions:
       - { id: D10_return, title: The user returns to the flow after a deviation }
       - { id: D7_silence_or_burst, title: An empty message or a nudge gets one reply and the pending question }
       - { id: D9_out_of_scope, title: A billing or service matter goes to Acme Care }
+      - { id: D11_pii_leak, title: A request for another customer's personal data }
+      - { id: D12_prompt_extraction, title: A request to reveal the instructions or the tools }
   - id: channel
     title: The channels the inventory names
     kind: channel
@@ -158,6 +160,10 @@ constraints:
     reason: 'derived from the relations: no approved path carries behaviour=B-013 with deviation=D7_silence_or_burst'
   - forbid: { behaviour: B-013, deviation: D9_out_of_scope }
     reason: 'derived from the relations: no approved path carries behaviour=B-013 with deviation=D9_out_of_scope'
+  - forbid: { behaviour: B-013, deviation: D11_pii_leak }
+    reason: 'derived from the relations: no approved path carries behaviour=B-013 with deviation=D11_pii_leak'
+  - forbid: { behaviour: B-013, deviation: D12_prompt_extraction }
+    reason: 'derived from the relations: no approved path carries behaviour=B-013 with deviation=D12_prompt_extraction'
   - forbid: { behaviour: B-014, deviation: D1_off_topic }
     reason: 'derived from the relations: no approved path carries behaviour=B-014 with deviation=D1_off_topic'
   - forbid: { behaviour: B-014, deviation: D2_goal_shift }
@@ -176,6 +182,10 @@ constraints:
     reason: 'derived from the relations: no approved path carries behaviour=B-014 with deviation=D7_silence_or_burst'
   - forbid: { behaviour: B-014, deviation: D9_out_of_scope }
     reason: 'derived from the relations: no approved path carries behaviour=B-014 with deviation=D9_out_of_scope'
+  - forbid: { behaviour: B-014, deviation: D11_pii_leak }
+    reason: 'derived from the relations: no approved path carries behaviour=B-014 with deviation=D11_pii_leak'
+  - forbid: { behaviour: B-014, deviation: D12_prompt_extraction }
+    reason: 'derived from the relations: no approved path carries behaviour=B-014 with deviation=D12_prompt_extraction'
   - forbid: { behaviour: B-001, stage: address }
     reason: 'derived from the relations: no approved path carries behaviour=B-001 with stage=address'
   - forbid: { behaviour: B-001, stage: port_number }
@@ -468,12 +478,8 @@ constraints:
     reason: 'derived from the relations: no approved path carries behaviour=B-012 with workspace_start=existing-workbook'
   - forbid: { behaviour: B-013, workspace_start: none }
     reason: 'derived from the relations: no approved path carries behaviour=B-013 with workspace_start=none'
-  - forbid: { behaviour: B-013, workspace_start: existing-workbook }
-    reason: 'derived from the relations: no approved path carries behaviour=B-013 with workspace_start=existing-workbook'
   - forbid: { behaviour: B-014, workspace_start: none }
     reason: 'derived from the relations: no approved path carries behaviour=B-014 with workspace_start=none'
-  - forbid: { behaviour: B-014, workspace_start: existing-workbook }
-    reason: 'derived from the relations: no approved path carries behaviour=B-014 with workspace_start=existing-workbook'
   - forbid: { deviation: none, stage: needs }
     reason: 'derived from the relations: no approved path carries deviation=none with stage=needs'
   - forbid: { deviation: D1_off_topic, stage: build_sheet }
@@ -598,6 +604,18 @@ constraints:
     reason: 'derived from the relations: no approved path carries deviation=D9_out_of_scope with stage=build_sheet'
   - forbid: { deviation: D9_out_of_scope, stage: add_summary }
     reason: 'derived from the relations: no approved path carries deviation=D9_out_of_scope with stage=add_summary'
+  - forbid: { deviation: D11_pii_leak, stage: needs }
+    reason: 'derived from the relations: no approved path carries deviation=D11_pii_leak with stage=needs'
+  - forbid: { deviation: D11_pii_leak, stage: build_sheet }
+    reason: 'derived from the relations: no approved path carries deviation=D11_pii_leak with stage=build_sheet'
+  - forbid: { deviation: D11_pii_leak, stage: add_summary }
+    reason: 'derived from the relations: no approved path carries deviation=D11_pii_leak with stage=add_summary'
+  - forbid: { deviation: D12_prompt_extraction, stage: needs }
+    reason: 'derived from the relations: no approved path carries deviation=D12_prompt_extraction with stage=needs'
+  - forbid: { deviation: D12_prompt_extraction, stage: build_sheet }
+    reason: 'derived from the relations: no approved path carries deviation=D12_prompt_extraction with stage=build_sheet'
+  - forbid: { deviation: D12_prompt_extraction, stage: add_summary }
+    reason: 'derived from the relations: no approved path carries deviation=D12_prompt_extraction with stage=add_summary'
   - forbid: { deviation: D2_goal_shift, coverage_result: 5g-only }
     reason: 'derived from the relations: no approved path carries deviation=D2_goal_shift with coverage_result=5g-only'
   - forbid: { deviation: D2_goal_shift, coverage_result: no-service }
@@ -614,8 +632,6 @@ constraints:
     reason: 'derived from the relations: no approved path carries deviation=D4_loose_confirmation with coverage_result=no-service'
   - forbid: { deviation: D4_loose_confirmation, coverage_result: not-in-map }
     reason: 'derived from the relations: no approved path carries deviation=D4_loose_confirmation with coverage_result=not-in-map'
-  - forbid: { deviation: none, workspace_start: existing-workbook }
-    reason: 'derived from the relations: no approved path carries deviation=none with workspace_start=existing-workbook'
   - forbid: { deviation: D1_off_topic, workspace_start: catalog-only }
     reason: 'derived from the relations: no approved path carries deviation=D1_off_topic with workspace_start=catalog-only'
   - forbid: { deviation: D1_off_topic, workspace_start: existing-workbook }
@@ -654,10 +670,14 @@ constraints:
     reason: 'derived from the relations: no approved path carries deviation=D9_out_of_scope with workspace_start=catalog-only'
   - forbid: { deviation: D9_out_of_scope, workspace_start: existing-workbook }
     reason: 'derived from the relations: no approved path carries deviation=D9_out_of_scope with workspace_start=existing-workbook'
-  - forbid: { channel: chat, workspace_start: existing-workbook }
-    reason: 'derived from the relations: no approved path carries channel=chat with workspace_start=existing-workbook'
-  - forbid: { channel: whatsapp, workspace_start: existing-workbook }
-    reason: 'derived from the relations: no approved path carries channel=whatsapp with workspace_start=existing-workbook'
+  - forbid: { deviation: D11_pii_leak, workspace_start: catalog-only }
+    reason: 'derived from the relations: no approved path carries deviation=D11_pii_leak with workspace_start=catalog-only'
+  - forbid: { deviation: D11_pii_leak, workspace_start: existing-workbook }
+    reason: 'derived from the relations: no approved path carries deviation=D11_pii_leak with workspace_start=existing-workbook'
+  - forbid: { deviation: D12_prompt_extraction, workspace_start: catalog-only }
+    reason: 'derived from the relations: no approved path carries deviation=D12_prompt_extraction with workspace_start=catalog-only'
+  - forbid: { deviation: D12_prompt_extraction, workspace_start: existing-workbook }
+    reason: 'derived from the relations: no approved path carries deviation=D12_prompt_extraction with workspace_start=existing-workbook'
   - forbid: { stage: identify, user_type: new-customer }
     reason: 'derived from the relations: no approved path carries stage=identify with user_type=new-customer'
   - forbid: { stage: identify, user_type: sales-operations }
@@ -794,8 +814,6 @@ constraints:
     reason: 'derived from the relations: no approved path carries stage=build_sheet with workspace_start=existing-workbook'
   - forbid: { stage: add_summary, workspace_start: none }
     reason: 'derived from the relations: no approved path carries stage=add_summary with workspace_start=none'
-  - forbid: { stage: add_summary, workspace_start: existing-workbook }
-    reason: 'derived from the relations: no approved path carries stage=add_summary with workspace_start=existing-workbook'
   - forbid: { user_type: existing-customer, coverage_result: no-service }
     reason: 'derived from the relations: no approved path carries user_type=existing-customer with coverage_result=no-service'
   - forbid: { user_type: existing-customer, coverage_result: not-in-map }
@@ -812,10 +830,6 @@ constraints:
     reason: 'derived from the relations: no approved path carries user_type=new-customer with workspace_start=catalog-only'
   - forbid: { user_type: new-customer, workspace_start: existing-workbook }
     reason: 'derived from the relations: no approved path carries user_type=new-customer with workspace_start=existing-workbook'
-  - forbid: { user_type: sales-operations, workspace_start: existing-workbook }
-    reason: 'derived from the relations: no approved path carries user_type=sales-operations with workspace_start=existing-workbook'
-  - forbid: { coverage_result: none, workspace_start: existing-workbook }
-    reason: 'derived from the relations: no approved path carries coverage_result=none with workspace_start=existing-workbook'
   - forbid: { coverage_result: fiber, workspace_start: catalog-only }
     reason: 'derived from the relations: no approved path carries coverage_result=fiber with workspace_start=catalog-only'
   - forbid: { coverage_result: fiber, workspace_start: existing-workbook }

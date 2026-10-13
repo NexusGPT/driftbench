@@ -1,6 +1,7 @@
 import { readFile, stat } from 'node:fs/promises';
 import { parseJsonl } from '../claude-code/format';
 import { mapSession } from '../claude-code/session';
+import { isRecord } from '../shared/records';
 import { type PriceTable, priced, type Trace, type TraceObservation } from './types';
 
 /**
@@ -114,8 +115,4 @@ function observationsOf(
     });
   }
   return out;
-}
-
-function isRecord(value: unknown): value is Record<string, unknown> {
-  return value !== null && typeof value === 'object' && !Array.isArray(value);
 }
