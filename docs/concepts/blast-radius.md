@@ -319,3 +319,23 @@ A paid judge requires `--judge-budget <usd>`. The budget guard is the existing r
 Exit 0 means the resulting campaign passes, 1 means a gating result fails or is inconclusive,
 and 2 means the inputs or reuse proof were refused. `--json` emits the campaign ids, carried
 and re-judged block counts, zero agent calls and judge spend.
+
+## Prompt quotes
+
+`radius auto` compares two prompt files against the approved map's `evidence.quote` anchors. It writes a normal change manifest, so campaign carry, age limits and audits keep their existing checks. The source path selects exactly one of the map's declared sources. Every other source is assumed unchanged; include its change separately if it changed too.
+
+For Acme, change the offer price expression and derive the manifest:
+
+```sh
+node -e 'const fs = require("node:fs"); const text = fs.readFileSync("examples/acme/src/policy.ts", "utf8"); fs.writeFileSync("/tmp/acme-price-next.ts", text.replace("plan.monthly_usd}", "plan.monthly_usd + 1}"));'
+pnpm -s driftbench radius auto --prompt examples/acme/src/policy.ts /tmp/acme-price-next.ts --map examples/acme/map/approved.yaml --from-version acme-v1 --to-version acme-v2 --out /tmp/acme-price-change.yaml
+pnpm -s driftbench radius examples/acme/gated/specs --change /tmp/acme-price-change.yaml --mode T --explain
+```
+
+The manifest records each matched entry, its source, the quote and its raw character offsets. `--explain` prints those anchors, then every block's dependency reasons and state. Mode F and P still close forward and rerun complete conversations. Without `--explain`, existing radius output is unchanged.
+
+Supported anchors are dimension values, phrases, and `states`, `path`, `recovery`, `uses_tool` and `reply_language` relations. Changed unsupported entries select the whole suite. Whitespace in evidence quotes can span source indentation; the prompt diff itself compares raw bytes as JavaScript text, including whitespace.
+
+Unknown means everything: an edit outside the anchors, an insertion at their boundary, stale evidence, or an ambiguous matching quote selects the whole suite. A matching price edit cannot conceal an unanchored language edit. Multiple separated edits are enclosed in one span; gaps between anchors conservatively select the whole suite. No fuzzy matching narrows the radius.
+
+Always use the agent versions your campaigns record. Without explicit version flags, `auto` uses the text content hashes; these need not equal a prompt registry's hash. The learned dependency table and automatic estate-diff ingestion remain separate work. Existing estate atom manifests continue to work.

@@ -1596,3 +1596,7 @@ driftbench campaign rejudge <paths...> --from <campaign> --campaign <new-id> --s
 Re-judge selected criteria using compatible stored observations, without calling an agent.
 The manifest's agent versions must be identical. Full compatibility requirements, refusal
 cases and an executed Acme example are in [blast radius](../concepts/blast-radius.md#re-judge-a-criterion).
+
+### Prompt change manifests
+
+`driftbench radius auto --prompt <old> <new> --map <approved.yaml> [--source <path>] [--from-version <version>] [--to-version <version>] [--out <manifest.yaml>]` writes a manifest from approved evidence quotes. `driftbench radius <specs> --change <manifest.yaml> --explain` traces anchors to block reasons. See [prompt quotes](../concepts/blast-radius.md#prompt-quotes).
