@@ -24,7 +24,8 @@ import { keyLine, type Located, lineAt, linesOf, readFrontmatter, readTables } f
 /**
  * The Claude Code reader: the runtime adapter of the estate scanner. It reads `CLAUDE.md` (and
  * `.claude/CLAUDE.md`, `CLAUDE.local.md`), memory files under `.claude/memory/`, skills under
- * `.claude/skills/<name>/SKILL.md` with the files beside them, helper agents under `.claude/agents/`,
+ * `.claude/skills/<name>/SKILL.md` with the files beside them, helper agents under `.claude/agents/` and its
+ * subfolders,
  * `.claude/settings.json` (model, permissions, environment keys, hooks), the hooks a skill declares in its
  * frontmatter, a check registry (a file whose name holds "registry", every table keyed by check id), a
  * catalogue of checks (a JSON file of entries with kind, event, watches, work, step and status), and step
@@ -236,6 +237,7 @@ export class ClaudeCodeReader implements EstateReader {
         addProse(estate, file, frontmatter.bodyLine, lastLine(file.text), budget);
       }
     }
+    noteSharedNames(estate);
     await readRootReferences(root, estate, ignored, budget);
     // The registry comes last: a row names its guard by a script, a check id or an id the script holds,
     // so every guard is known before a row is matched to one.
@@ -247,6 +249,26 @@ export class ClaudeCodeReader implements EstateReader {
     const scripts = new Set(estate.guards.flatMap((guard) => (guard.script ? [guard.script] : [])));
     for (const file of files) if (scripts.has(file.path)) file.kind = 'guard_script';
     return estate;
+  }
+}
+
+/** Two skills, or two helpers, that declare one name: both are read, and the later file carries a note. */
+function noteSharedNames(estate: RawEstate): void {
+  for (const [word, units] of [
+    ['skill', estate.skills],
+    ['helper', estate.subagents],
+  ] as const) {
+    const first = new Map<string, string>();
+    for (const unit of units) {
+      const earlier = first.get(unit.name);
+      if (earlier === undefined) first.set(unit.name, unit.file);
+      else {
+        estate.notes.push({
+          file: unit.file,
+          message: `the ${word} name ${unit.name} is also declared by ${earlier}: the runtime loads one of them`,
+        });
+      }
+    }
   }
 }
 
@@ -499,7 +521,8 @@ function classify(path: string, text: string): { kind: FileKind; owner?: string 
       ? { kind: 'skill', owner }
       : { kind: 'skill_file', owner };
   }
-  if (parts[1] === 'agents' && parts.length === 3 && path.endsWith('.md')) return { kind: 'subagent' };
+  // A helper may sit in a subfolder of the helpers folder (`agents/team/clerk.md`).
+  if (parts[1] === 'agents' && parts.length >= 3 && path.endsWith('.md')) return { kind: 'subagent' };
   if (/registry|catalogu?e?/i.test(basename(path)) && /\.(md|json|ya?ml)$/.test(path))
     return { kind: 'registry' };
   if (/\.(jsonc?|ya?ml)$/.test(path) && isStepList(text, path)) return { kind: 'step_list' };
