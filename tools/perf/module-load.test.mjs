@@ -64,6 +64,14 @@ describe('what loads at start', () => {
     }
   }, 120_000);
 
+  it('loads no command module and no other package to print the help of the CLI', () => {
+    const { status, packages, workspace } = loaded([join(ROOT, 'packages/cli/src/bin.ts'), '--help']);
+    expect(status).toBe(0);
+    expect(Object.keys(workspace)).toEqual(['packages/cli']);
+    for (const name of ['zod', 'yaml', 'smol-toml', 'franc-min'])
+      expect(packages[name], name).toBeUndefined();
+  }, 120_000);
+
   it('loads the validators package for validate, and for no other command', () => {
     const help = loaded([join(ROOT, 'packages/cli/src/bin.ts'), '--help']);
     expect(help.status).toBe(0);
