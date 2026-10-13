@@ -42,6 +42,7 @@ import {
   type UserDriver,
 } from '@agent-nexus/driftbench-core';
 import { portFromEnv } from '@agent-nexus/driftbench-generate';
+import { textTable as table } from '@agent-nexus/driftbench-report';
 import { localProvider } from '@agent-nexus/driftbench-sandbox';
 import { bootstrapCI } from '@agent-nexus/driftbench-stats';
 import {
@@ -1666,19 +1667,6 @@ function collect(value: string, previous: string[]): string[] {
 function required<T>(value: T | undefined, what: string): T {
   if (value === undefined) throw new Error(`campaign: no ${what}`);
   return value;
-}
-
-/** Pads every column but the last to its widest cell, two spaces apart, indented by two. */
-function table(rows: string[][]): string[] {
-  const widths: number[] = [];
-  for (const row of rows) {
-    row.forEach((cell, index) => {
-      widths[index] = Math.max(widths[index] ?? 0, cell.length);
-    });
-  }
-  return rows.map((row) =>
-    `  ${row.map((cell, index) => (index === row.length - 1 ? cell : cell.padEnd(widths[index] ?? 0))).join('  ')}`.trimEnd(),
-  );
 }
 
 /**
