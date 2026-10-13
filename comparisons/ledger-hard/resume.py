@@ -63,8 +63,9 @@ def main():
     quota=json.loads((HERE/'quota-amendment.json').read_text())
     pacing=json.loads((HERE/'pacing-amendment.json').read_text())
     billing=json.loads((HERE/'billing-amendment.json').read_text())
+    topup=json.loads((HERE/'topup-runtime-amendment.json').read_text())
     assert pacing['per_model_limits']==MODEL_LIMITS
-    for name,value in (amendment['sha256']|concurrency['sha256']|quota['sha256']|pacing['sha256']|billing['sha256']).items():assert digest(ROOT/name)==value,name
+    for name,value in (amendment['sha256']|concurrency['sha256']|quota['sha256']|pacing['sha256']|billing['sha256']|topup['sha256']).items():assert digest(ROOT/name)==value,name
     committed=primary.subprocess.check_output(['git','show','HEAD:comparisons/ledger-hard/recovery-amendment.json'],cwd=ROOT)
     assert committed==(HERE/'recovery-amendment.json').read_bytes()
     committed=primary.subprocess.check_output(['git','show','HEAD:comparisons/ledger-hard/concurrency-amendment.json'],cwd=ROOT)
@@ -75,6 +76,8 @@ def main():
     assert committed==(HERE/'pacing-amendment.json').read_bytes()
     committed=primary.subprocess.check_output(['git','show','HEAD:comparisons/ledger-hard/billing-amendment.json'],cwd=ROOT)
     assert committed==(HERE/'billing-amendment.json').read_bytes()
+    committed=primary.subprocess.check_output(['git','show','HEAD:comparisons/ledger-hard/topup-runtime-amendment.json'],cwd=ROOT)
+    assert committed==(HERE/'topup-runtime-amendment.json').read_bytes()
     PROVIDER_HOLDS.update(json.loads((HERE/'provider-holds.json').read_text())['models'])
     recovery=json.loads((HERE/'crash-recovery.json').read_text())
     authorised={r['request_sha256'] for r in recovery['items']}
@@ -118,7 +121,7 @@ def main():
                     with LOCK:primary.append(dest(r['experiment'])/'starts.jsonl',{k:v for k,v in r.items() if k not in ('prompt','built')}|{'started':stamp()})
                     inflight[pool.submit(work,r)]=r
             if not inflight:
-                if any(q and k[1] in PROVIDER_HOLDS for k,q in queues.items()):stop='provider billing pending; owner top-up required'
+                if stop is None and any(q and k[1] in PROVIDER_HOLDS for k,q in queues.items()):stop='provider billing pending; owner top-up required'
                 break
             completed,_=concurrent.futures.wait(inflight,timeout=10,return_when=concurrent.futures.FIRST_COMPLETED)
             for f in completed:
