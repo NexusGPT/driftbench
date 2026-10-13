@@ -137,6 +137,7 @@ Iteration 122 (cause: the Caesar reading skipped any text over 400 characters, s
 Iteration 123 (cause: seed 15 planted the shifted line after JSON with no sentence break, a sentence over 200 characters that the Caesar reading skipped. The length cap per sentence is gone; the whole-text cap is 6000 characters. Test: screen.test.ts Caesar after a long unbroken run.)
 Iteration 124 (cause: no Swedish words. OTHER_LANGUAGES row. Test: screen.test.ts Swedish.)
 Iteration 125 (cause: no Indonesian words. OTHER_LANGUAGES row. Test: screen.test.ts Indonesian.)
+Iteration 126 (cause: no Hindi words. OTHER_LANGUAGES row, loose; sentences also end at the danda. Test: screen.test.ts Hindi.)
 
 ## Next actions
 
