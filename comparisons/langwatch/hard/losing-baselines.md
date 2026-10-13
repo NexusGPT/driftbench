@@ -1,5 +1,7 @@
 # Baseline failure analysis
 
+Historical criterion measurements use the confirmed defective adapter: a mixed-role trace is collapsed into an agent entry. Their original scores and raw answers remain unchanged, but they do not isolate pure judge quality. Corrected adapter v2 uses only new preregistered seeds20261019 and20261020; no historical criterion result is replaced. Nested role-like context text remains literal.
+
 The raw request, response and cost for each call are in `recorded/calls.jsonl`.
 Scoring metadata never enters a request. All changes below are research
 procedures in this directory; no packages source is changed.

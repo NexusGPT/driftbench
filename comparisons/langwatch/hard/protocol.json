@@ -45,34 +45,20 @@
       "hard": 120,
       "frozenFresh": 60,
       "priority": "first",
-      "rows": [
-        "pairwise",
-        "criterion primary",
-        "criterion vector"
-      ]
+      "rows": ["pairwise", "criterion primary", "criterion vector"]
     },
     "conformance": {
       "seed": 20261018,
       "hard": 120,
       "newFresh": 60,
-      "proceduresFresh": [
-        "ours",
-        "compliance",
-        "theirs"
-      ],
+      "proceduresFresh": ["ours", "compliance", "theirs"],
       "status": "superseded, no calls; frozen procedure evaluated on trusted-event v2 new seeds only"
     },
     "longtrace": {
       "seed": 20261014,
       "cases": 120,
       "criteria": 240,
-      "procedures": [
-        "ours",
-        "audit",
-        "theirs",
-        "compliance",
-        "pr115"
-      ],
+      "procedures": ["ours", "audit", "theirs", "compliance", "pr115"],
       "committedBeforeCalls": true,
       "status": "superseded, no calls; new trusted-event v2 seed20261020"
     },
@@ -87,13 +73,7 @@
       "longSeed": 20261020,
       "casesEach": 120,
       "criteriaEach": 240,
-      "procedures": [
-        "ours",
-        "audit",
-        "theirs",
-        "compliance",
-        "pr115"
-      ],
+      "procedures": ["ours", "audit", "theirs", "compliance", "pr115"],
       "oldScoresUnchanged": true,
       "committedBeforeCalls": true,
       "roles": "trusted construction-time events only; no bracket parsing",

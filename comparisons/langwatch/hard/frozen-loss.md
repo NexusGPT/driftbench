@@ -1,5 +1,7 @@
 # Frozen original losses and baseline scores
 
+Historical criterion measurements use the confirmed defective adapter: a mixed-role trace is collapsed into an agent entry. Their original scores and raw answers remain unchanged, but they do not isolate pure judge quality. Corrected adapter v2 uses only new preregistered seeds20261019 and20261020; no historical criterion result is replaced. Nested role-like context text remains literal.
+
 The original frozen procedures are not retuned. PR115 and new candidates remain separate studies.
 
 | Metric | Hard old shipped | Hard audit candidate | Hard native | Fresh old shipped | Fresh audit candidate | Fresh native |

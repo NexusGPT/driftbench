@@ -21,6 +21,17 @@ The old main contract remains the historical baseline above. PR 115 default is m
 | Hard 120 | 120/120 (95% 96.90% to 100.00%; coverage 120/120; 0 unanswered) | 120/120 (95% 96.90% to 100.00%; coverage 120/120; 0 unanswered) | 119/120 (95% 95.43% to 99.85%; coverage 120/120; 0 unanswered) |
 | Frozen fresh 60 | 60/60 (95% 93.98% to 100.00%; coverage 60/60; 0 unanswered) | 60/60 (95% 93.98% to 100.00%; coverage 60/60; 0 unanswered) | 58/60 (95% 88.64% to 99.08%; coverage 60/60; 0 unanswered) |
 
+## Preregistered long traces
+
+Primary metric: correct individual criteria out of 240. Per-case primary, receipt and complete vector scores are secondary. The earlier ceiling result remains separate.
+
+| Metric | Shipped | Audit candidate | Native default | Conformance candidate | PR115 default |
+|---|---|---|---|---|---|
+| All criteria | pending | pending | pending | pending | pending |
+| Primary criterion | pending | pending | pending | pending | pending |
+| Receipt criterion | pending | pending | pending | pending | pending |
+| Complete vector | pending | pending | pending | pending | pending |
+
 | Measurement | Model USD per 100 scored units | Attributable USD | Unscored transport cases |
 |---|---|---|---|
 | judges-ours-primary | 0.08322158 | 0.09986590 | 0 |
@@ -81,9 +92,49 @@ The old main contract remains the historical baseline above. PR 115 default is m
 | judges-pr115-vector | 0.08732167 | 0.10478600 | 0 |
 | judges-pr115-heldout-primary | 0.08802533 | 0.05281520 | 0 |
 | judges-pr115-heldout-vector | 0.08802533 | 0.05281520 | 0 |
+| adapter-v2-ours-primary | 0.08375475 | 0.10050570 | 0 |
+| adapter-v2-ours-receipt | 0.08375475 | 0.10050570 | 0 |
+| adapter-v2-ours-vector | 0.08375475 | 0.10050570 | 0 |
+| adapter-v2-ours-criteria | 0.04187738 | 0.10050570 | 0 |
+| adapter-v2-audit-primary | 0.10326267 | 0.12391520 | 0 |
+| adapter-v2-audit-receipt | 0.10326267 | 0.12391520 | 0 |
+| adapter-v2-audit-vector | 0.10326267 | 0.12391520 | 0 |
+| adapter-v2-audit-criteria | 0.05163133 | 0.12391520 | 0 |
+| adapter-v2-theirs-primary | 0.10205544 | 0.12246653 | 0 |
+| adapter-v2-theirs-receipt | 0.10205544 | 0.12246653 | 0 |
+| adapter-v2-theirs-vector | 0.10205544 | 0.12246653 | 0 |
+| adapter-v2-theirs-criteria | 0.05102772 | 0.12246653 | 0 |
+| adapter-v2-compliance-primary | 0.09101203 | 0.10921444 | 0 |
+| adapter-v2-compliance-receipt | 0.09101203 | 0.10921444 | 0 |
+| adapter-v2-compliance-vector | 0.09101203 | 0.10921444 | 0 |
+| adapter-v2-compliance-criteria | 0.04550602 | 0.10921444 | 0 |
+| adapter-v2-pr115-primary | 0.09027308 | 0.10832770 | 0 |
+| adapter-v2-pr115-receipt | 0.09027308 | 0.10832770 | 0 |
+| adapter-v2-pr115-vector | 0.09027308 | 0.10832770 | 0 |
+| adapter-v2-pr115-criteria | 0.04513654 | 0.10832770 | 0 |
+| longtrace-v2-ours-primary | 0.39744008 | 0.47692810 | 0 |
+| longtrace-v2-ours-receipt | 0.39744008 | 0.47692810 | 0 |
+| longtrace-v2-ours-vector | 0.39744008 | 0.47692810 | 0 |
+| longtrace-v2-ours-criteria | 0.19872004 | 0.47692810 | 0 |
+| longtrace-v2-audit-primary | 0.41291700 | 0.49550040 | 0 |
+| longtrace-v2-audit-receipt | 0.41291700 | 0.49550040 | 0 |
+| longtrace-v2-audit-vector | 0.41291700 | 0.49550040 | 0 |
+| longtrace-v2-audit-criteria | 0.20645850 | 0.49550040 | 0 |
+| longtrace-v2-theirs-primary | 0.30193896 | 0.36232675 | 0 |
+| longtrace-v2-theirs-receipt | 0.30193896 | 0.36232675 | 0 |
+| longtrace-v2-theirs-vector | 0.30193896 | 0.36232675 | 0 |
+| longtrace-v2-theirs-criteria | 0.15096948 | 0.36232675 | 0 |
+| longtrace-v2-compliance-primary | 0.45912378 | 0.55094854 | 0 |
+| longtrace-v2-compliance-receipt | 0.45912378 | 0.55094854 | 0 |
+| longtrace-v2-compliance-vector | 0.45912378 | 0.55094854 | 0 |
+| longtrace-v2-compliance-criteria | 0.22956189 | 0.55094854 | 0 |
+| longtrace-v2-pr115-primary | 0.51337425 | 0.61604910 | 0 |
+| longtrace-v2-pr115-receipt | 0.51337425 | 0.61604910 | 0 |
+| longtrace-v2-pr115-vector | 0.51337425 | 0.61604910 | 0 |
+| longtrace-v2-pr115-criteria | 0.25668713 | 0.61604910 | 0 |
 
-New-task recorded invocations: 3411; unique charged spend 1.76119205 USD, including 3 interrupted-call reservations totaling 0.09 USD.
-Raw failed CLI invocations: 10. Empty native structured CLI outputs receive one recovery attempt; unrecovered transport cases are unscored, never quality losses.
+New-task recorded invocations: 5574; unique charged spend 4.82737451 USD, including 3 interrupted-call reservations totaling 0.09 USD.
+Raw failed CLI invocations: 13. Empty native structured CLI outputs receive one recovery attempt; unrecovered transport cases are unscored, never quality losses.
 
 Prototype judge sets v1/v2/v3 are excluded from accuracy, but all their charges remain. Pairwise hard scores come from the preceding round; their attributable costs are shown but excluded from new-task spend.
 

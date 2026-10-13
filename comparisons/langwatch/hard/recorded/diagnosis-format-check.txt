@@ -1,0 +1,19 @@
+comparisons/langwatch/hard/recorded/longtrace-v2-pr115-misses.json format ━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  ! The size of the file is 3.1 MiB, which exceeds the configured maximum of 1.0 MiB for this project.
+    Use the `files.maxSize` configuration to change the maximum size of files processed, or `files.includes` to ignore the file.
+  
+
+Formatted 0 files in 60ms. No fixes applied.
+Found 1 warning.
+format ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  × No files were processed in the specified paths.
+  
+  i Check your biome.json or biome.jsonc to ensure the paths are not ignored by the configuration.
+  
+  i These paths were provided but ignored:
+  
+  - comparisons/langwatch/hard/recorded/longtrace-v2-pr115-misses.json
+  
+

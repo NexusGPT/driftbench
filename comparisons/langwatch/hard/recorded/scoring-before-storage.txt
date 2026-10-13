@@ -88,4 +88,3 @@ Raw failed CLI invocations: 10. Empty native structured CLI outputs receive one 
 Prototype judge sets v1/v2/v3 are excluded from accuracy, but all their charges remain. Pairwise hard scores come from the preceding round; their attributable costs are shown but excluded from new-task spend.
 
 Hard sets are the development cohorts. Candidate procedures are frozen before generative held-out calls. Held-out labels and source/fixture hashes are recorded before calls. No held-out tuning occurs. Shared generator families remain correlated; Wilson intervals are descriptive and do not prove population-level superiority. Azure results stay unmeasured without native credentials; no proxy is used.
-

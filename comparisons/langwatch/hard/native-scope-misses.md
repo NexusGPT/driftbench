@@ -55,4 +55,3 @@ These misses reflect disabled PERSON or LOCATION defaults, not enabled recognize
 | `pii-seed-20261013-buried_home-02-positive` | LOCATION | `buried_home` |
 | `pii-seed-20261013-negated_person-01-positive` | PERSON | `negated_person` |
 | `pii-seed-20261013-negated_person-02-positive` | PERSON | `negated_person` |
-
