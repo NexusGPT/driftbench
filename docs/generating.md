@@ -74,7 +74,7 @@ The relations are what lets code derive a machine Then. Each one quotes its sour
 | `binds` | the concrete values a data or persona value stands for, such as the email of a found account | 12 |
 | `recovery` | how a flow recovers from one deviation class: the stages it is probed at (`at`), the stage after (`pending` is the stage the conversation had reached), reply patterns, guards and calls; for `D8_tool_failure`, the tool that fails | 24: 7 by code, 17 by the model |
 | `reply_language` | the language every reply is in, whatever the user writes | 1 |
-| `task_family` | a flow a code agent does as a task: the [task family](#task-families) folder, its stages, the values every instance holds (`holds`), and the deviation class its planted variant carries | 1 |
+| `task_family` | a flow a code agent does as a task: the [task family](#task-families) folder, its stages, the values every instance holds (`holds`), the family knob values of the instances it places (`instances`), and the deviation class its planted variant carries | 2 |
 
 A phrase may hold a `{slot}` (`It's {email}.`), may say where it fits with `when` (a flow, a stage, a data value), and may state slot values itself with `binds` (`The unlimited one, please.` binds the plan `mobile-l`). The generator fills each slot from the values the cell binds, so a tool input expected in a block is the value the block's own When states.
 
@@ -212,7 +212,7 @@ A dimension has one `approved` flag, which its values inherit; a value may set i
 
 ```
 $ pnpm -s driftbench extract approve _captures/docs3/generating/acme/map/proposal.yaml
-_captures/docs3/generating/acme/map/proposal.yaml: 290 of 290 decisions are open (51 dimensions, 111 constraints, 55 phrases, 73 relations).
+_captures/docs3/generating/acme/map/proposal.yaml: 291 of 291 decisions are open (51 dimensions, 111 constraints, 55 phrases, 74 relations).
 Axes: 7 of 51 dimensions, a full grid of 113568 cells (the space commands accept 250000).
   dimension   behaviour  behaviour axis, by code, 14 values: The behaviours the inventory lists
   dimension   flow  behaviour detail, by code, 5 values: The flows the inventory lists
@@ -253,11 +253,11 @@ The Acme map was approved with `--all` on the owner's delegation, for the fictio
 * a data or task value is held only where the path's `when` or the family's `holds` states it; elsewhere the axis holds `none`, the value a data or task axis gets on a structured map;
 * a conversation holds no task setting, so a conversation event allows only `none` on the task axes.
 
-The inventory pre-pass also writes one constraint per flow a behaviour does not belong to. On Acme this leaves 701 allowed pairs, and `generate` covers all of them with complete specs. A value no allowed pair holds is named in the report under `cover.unreachable`: on Acme, `workspace_start=existing-workbook`, which the price-sheet family has no knob for.
+The inventory pre-pass also writes one constraint per flow a behaviour does not belong to. On Acme this leaves 708 allowed pairs, and `generate` covers all of them with complete specs. A value no allowed pair holds is named in the report under `cover.unreachable`. On Acme there is none: the price-sheet family's `start` knob reaches `workspace_start=existing-workbook`.
 
 ```
 $ pnpm -s driftbench extract map _captures/docs3/generating/acme/map/approved.yaml --to _captures/docs3/generating/acme/map/space.yaml
-Wrote _captures/docs3/generating/acme/map/space.yaml: 7 axes (behaviour, deviation, channel, stage, user_type, coverage_result, workspace_start), 388 constraints, a full grid of 212940 cells.
+Wrote _captures/docs3/generating/acme/map/space.yaml: 7 axes (behaviour, deviation, channel, stage, user_type, coverage_result, workspace_start), 380 constraints, a full grid of 212940 cells.
 exit 0
 ```
 
@@ -267,10 +267,10 @@ The result is identical to the committed `examples/acme/map/space.yaml`. Three c
 * `driftbench space complete <specs> --map <space.yaml> [--t <n>]` prints the completeness line: the share of the cells that have appeared and the chance that the next conversation shows a new one. It exits 1 when there are fewer conversations than cells.
 * `driftbench space declare <specs> --inventory <file> --out <file>` writes a first map from the inventory and the specs, for the owner to edit.
 
-On the Acme map, the hand-written specs cover 237 of 701 allowed pairs (exit 1, three required cells empty); the gated suite covers 592 and every required cell:
+On the Acme map, the hand-written specs cover 237 of 708 allowed pairs (exit 1, three required cells empty); the gated suite covers 592 and every required cell:
 
 ```
-Coverage: 10 of 10 required cells covered, 592 of 701 cells at t = 2 (84.5%).
+Coverage: 10 of 10 required cells covered, 592 of 708 cells at t = 2 (83.6%).
 ```
 
 That is the last line of `pnpm -s driftbench space coverage examples/acme/gated/specs --map examples/acme/map/space.yaml --t 2` (exit 0). The cells the gated specs miss are the ones only a sealed spec covers.
@@ -286,7 +286,7 @@ That is the last line of `pnpm -s driftbench space coverage examples/acme/gated/
 | `boundary` | one spec per value of every detail data dimension, on a path that needs it; a tool output value becomes the tool's answer, a tool input value an expected or a forbidden call |
 | `deviation` | one probe per deviation class, injected at a stage of a path whose flow has a recovery for the class; a class a first message can carry may arrive on the first turn, and a class whose recovery stays may arrive after the last stage |
 | `metamorphic` | families of specs that differ only in the phrasing of one value, with the same Then by construction |
-| `task` | the instances of every family a `task_family` relation names (`--tasks <n>` per family, default 8), each with its corner and planted variants; see [task families](#task-families) |
+| `task` | the instances of every family a `task_family` relation names (`--tasks <n>` per relation, default 8), each with its corner and planted variants; see [task families](#task-families) |
 | `cover` | runs last: one scenario for each allowed pair no complete spec of the other seeders covers, its values fixed and its deviation a probe at its stage; a pair it cannot build is listed in `generate-report.json` under `cover.unbuilt` with the reasons |
 
 Every seeded choice comes from `--seed` (default 1), so the same map and seed give the same suite byte for byte.
@@ -389,10 +389,10 @@ A block the map supports no machine Then for, or a value with no approved phrase
 
 ```
 $ pnpm -s driftbench generate --map examples/acme/map/approved.yaml --out generated --baseline examples/acme/specs --t 2
-Actual axis-map coverage (written complete specs): pairs 701 of 701 (100.0%); triples 2871 of 4044 (71.0%).
+Actual axis-map coverage (written complete specs): pairs 708 of 708 (100.0%); triples 2885 of 4064 (71.0%).
 Candidate t-wise array (before the total cap): covering array of 156 rows over 5 dimensions, 356 of 356 allowed 2-tuples (100.0%); 2 pairs no path reaches are left out.
-Uncovered on the axis map: 0 pairs, 1173 triples (see coverage.actual[].uncovered).
-Map acme (../examples/acme/map/approved.yaml), hash 0f897ba84410: 51 dimensions, 187 values, 471 constraints, 55 approved phrases.
+Uncovered on the axis map: 0 pairs, 1179 triples (see coverage.actual[].uncovered).
+Map acme (../examples/acme/map/approved.yaml), hash 7c05b9cee9cc: 51 dimensions, 187 values, 463 constraints, 55 approved phrases.
 Seed 1, t = 2.
 
 Seeder        specs  blocks  complete  incomplete
@@ -401,14 +401,13 @@ twise           156     793       153           3
 boundary         85     146        13          72
 deviation        21     111        21           0
 metamorphic      42     192        42           0
-task             34      47        34           0
+task             67      71        67           0
 cover            28     155        28           0
 
 Stage graph: 18 of 23 edges covered in 12 paths from needs.
-Constraints applied: 471.
+Constraints applied: 463.
 Deviation probes: 12 of 12 classes. Metamorphic families: 21.
-Coverage on the axis map at t = 2: complete specs 701 of 701 (100.0%), all specs 701 (100.0%), examples/acme/specs 237 (33.8%).
-Values no allowed pair holds, so no spec can cover them until the map gives them a path: workspace_start=existing-workbook.
+Coverage on the axis map at t = 2: complete specs 708 of 708 (100.0%), all specs 708 (100.0%), examples/acme/specs 237 (33.5%).
 
 Values with no approved phrase (72): their blocks are placeholders in incomplete/.
   catalog.search.in.category=catalog.search.in.category.mobile  1 block(s)
@@ -438,11 +437,11 @@ Specs with a block the map supports no machine Then for (18), in incomplete/: ge
      1  no approved path needs callback_phone=not-given
      1  no approved path needs catalog.search.in.unknown-key=catalog.search.in.unknown-key.sent
      1  no approved path needs coverage.check.in.unknown-key=coverage.check.in.unknown-key.sent
-Wrote 379 files to generated.
+Wrote 508 files to generated.
 exit 1
 ```
 
-The files match the committed `examples/acme/generated`, apart from the relative path of the map, which follows the output folder. Exit 1 is the exit for a suite written with incomplete specs: 303 specs are complete, 75 are incomplete. Complete specs cover all 701 allowed pairs. The price-sheet flow has no conversation path: its specs come from the map's `task_family` relation, so B-013, B-014 and `sales-operations` hold allowed pairs through the [task families](#task-families). `--baseline <specs>` measures other specs on the same map for comparison; `--max <n>` caps the specs per seeder.
+The files match the committed `examples/acme/generated`, apart from the relative path of the map, which follows the output folder. Exit 1 is the exit for a suite written with incomplete specs: 336 specs are complete, 75 are incomplete. Complete specs cover all 708 allowed pairs. The price-sheet flow has no conversation path: its specs come from the map's `task_family` relation, so B-013, B-014 and `sales-operations` hold allowed pairs through the [task families](#task-families). `--baseline <specs>` measures other specs on the same map for comparison; `--max <n>` caps the specs per seeder.
 
 `generate-report.json` holds the generator and map identity, the options, the summary (specs, blocks, complete, incomplete), one entry per seeder, the stage graph, the covering array, the boundary values, the deviation probes, the metamorphic families, the constraints applied, the values with no phrase (`no_phrase`), the blocks with no machine Then and why (`no_then`), the coverage, and any invalid spec or lint finding. `generate` exits 0 when every block has an approved phrase and a Then, 1 when the suite is written with incomplete specs, a seeder cut by `--max` or a generator defect, 2 on a usage or input error (nothing written).
 
@@ -489,8 +488,8 @@ Selected lines from the Acme comparison command, run from the repository root:
 ```
 $ pnpm -s driftbench generate --map examples/acme/map/approved.yaml --out _captures/budget/budget-20 --t 2 --seed 1 --budget 20 --force
 Candidate budget array (before the total cap), budget 20: 20 cells of 901 allowed, pairs covered 155 of 356 (43.5%), max deviation from fair share 2.00.
-Coverage on the axis map at t = 2: complete specs 701 of 701 (100.0%), all specs 701 (100.0%).
-Wrote 371 files to _captures/budget/budget-20.
+Coverage on the axis map at t = 2: complete specs 708 of 708 (100.0%), all specs 708 (100.0%).
+Wrote 500 files to _captures/budget/budget-20.
 exit 1
 ```
 
@@ -661,7 +660,7 @@ A task family is one code-agent task written once with knobs, so code builds as 
 |---|---|
 | Knobs | `difficulty` (counts: rows, files, sheets), `structure` (formats, layouts, formula kinds, paths the outcome holds), `style` (wording, order, line endings, names of files the task never names, language); each a whole-number range or a list of values |
 | Constraints | `compare` (two whole-number knobs, or a knob and a number) and `implies` (`when`, `require`) |
-| Seed grammar | tables of generated rows rendered as CSV or JSON files, approved texts, and copied files |
+| Seed grammar | tables of generated rows rendered as CSV or JSON files or as a workbook (one sheet per value of a column), approved texts, and copied files |
 | Corner kinds | `empty_cell`, `duplicate_row`, `column_order`, `unit_change`; `per_instance` says how many apply to an instance |
 | Instructions | per block, parts made of approved phrase ids, one per wording; no free text |
 | Oracle | `oracle.mjs` beside the family: from the seed files and the knobs, the slots the phrases use and, per block, the expected files, workspace diff and `must` |
@@ -681,19 +680,19 @@ exit 1
 
 ```
 $ pnpm -s driftbench family instances examples/acme/families/price-sheet --n 20 --seed 1 --out _captures/docs3/generating/families/instances
-Family acme-price-sheet: 20 instances, seed 1, 86 specs.
-  i01  seed 1219026796  categories=3 column_order=shuffled language=EN line_endings=crlf plans=15 planted=without readme_name=readme.txt seed_format=csv summary=without wording=a workbook=out/acme-prices.xlsx yearly=value  base, duplicate-line, header-order, unit-change
-  i02  seed 1269359653  categories=4 column_order=catalog language=EN line_endings=lf plans=29 planted=without readme_name=readme.txt seed_format=json summary=with wording=b workbook=out/acme-prices.xlsx yearly=formula  base, duplicate-line, header-order, unit-change
-  i03  seed 1252582034  categories=2 column_order=shuffled language=EN line_endings=crlf plans=24 planted=without readme_name=README.txt seed_format=csv summary=without wording=a workbook=out/acme-prices.xlsx yearly=value  base, empty-cell, header-order, unit-change
-  i04  seed 1168693939  categories=3 column_order=catalog language=EN line_endings=crlf plans=27 planted=with readme_name=readme.txt seed_format=csv summary=with wording=c workbook=out/acme-prices.xlsx yearly=value  base, empty-cell, duplicate-line, header-order, planted
+Family acme-price-sheet: 20 instances, seed 1, 88 specs.
+  i01  seed 1219026796  categories=3 column_order=catalog language=EN line_endings=lf plans=6 planted=with readme_name=ABOUT.txt seed_format=csv start=catalog-only summary=without wording=b workbook=out/price-sheet.xlsx yearly=value  base, duplicate-line, header-order, unit-change, planted
+  i02  seed 1269359653  categories=2 column_order=shuffled language=EN line_endings=crlf plans=25 planted=without readme_name=ABOUT.txt seed_format=csv start=catalog-only summary=without wording=b workbook=out/price-sheet.xlsx yearly=value  base, duplicate-line, header-order, unit-change
+  i03  seed 1252582034  categories=4 column_order=catalog language=EN line_endings=lf plans=15 planted=without readme_name=readme.txt seed_format=json start=catalog-only summary=without wording=a workbook=out/acme-prices.xlsx yearly=value  base, empty-cell, header-order, unit-change
+  i04  seed 1168693939  categories=3 column_order=catalog language=EN line_endings=crlf plans=27 planted=with readme_name=readme.txt seed_format=csv start=catalog-only summary=without wording=c workbook=out/price-sheet.xlsx yearly=formula  base, empty-cell, duplicate-line, header-order, planted
 ```
 
 The listing goes on with one line per instance, then ends:
 
 ```
-Style invariant: 114 style alternatives rebuilt; none changed the expected outcome.
+Style invariant: 116 style alternatives rebuilt; none changed the expected outcome.
 Review: pending. examples/acme/families/price-sheet/review.yaml is not signed yet; the instances record it, and a person signs it before release.
-Wrote 86 specs and family-report.json to _captures/docs3/generating/families/instances.
+Wrote 88 specs and family-report.json to _captures/docs3/generating/families/instances.
 exit 0
 ```
 
@@ -701,17 +700,17 @@ Each instance seed is derived from the run seed and the instance number, and is 
 
 ```
 $ pnpm -s driftbench family verify _captures/docs3/generating/families/instances --reference process:acme-ops
-Verify _captures/docs3/generating/families/instances on the reference process:acme-ops: 86 specs.
+Verify _captures/docs3/generating/families/instances on the reference process:acme-ops: 88 specs.
   ✓ i01/base.yaml
   ✓ i01/duplicate-line.yaml
   ✓ i01/header-order.yaml
-  ✓ i01/unit-change.yaml
+  ✓ i01/planted.yaml
 ```
 
 and, after one line per spec:
 
 ```
-✓ The reference passes all 86 specs: 20 instances may ship.
+✓ The reference passes all 88 specs: 20 instances may ship.
 Release also waits for a person to sign the review of acme-price-sheet (20 instances wait on it).
 Wrote _captures/docs3/generating/families/instances/verify-report.json.
 exit 0
@@ -733,7 +732,7 @@ Limits today:
 
 ### Task families in the map
 
-A map hands a flow to a family with a `task_family` relation. The Acme one, as written in `examples/acme/map/answers.yaml`:
+A map hands a flow to a family with a `task_family` relation. A family that writes several branches of the flow gets one relation per branch, each naming the knob values of its instances (`instances`) and the cell values they hold (`holds`). The two Acme ones, as written in `examples/acme/map/answers.yaml`:
 
 ```
 - kind: task_family
@@ -741,12 +740,21 @@ A map hands a flow to a family with a `task_family` relation. The Acme one, as w
   family: ../families/price-sheet
   stages: [build_sheet, add_summary]
   holds: { user_type: [sales-operations], workspace_start: [catalog-only] }
+  instances: { start: catalog-only }
   deviations: [D6_instruction_in_data]
   source: ../README.md
   quote: "its stage, `build_sheet` or `add_summary`"
+- kind: task_family
+  flow: price-sheet
+  family: ../families/price-sheet
+  stages: [add_summary]
+  holds: { user_type: [sales-operations], workspace_start: [existing-workbook] }
+  instances: { start: existing-workbook }
+  source: ../inventory.yaml
+  quote: "title: Add a summary sheet to the existing workbook and leave every other file untouched"
 ```
 
-`generate` builds `--tasks <n>` instances of the family from the seed (default 8) and writes every variant to `specs/task/`. The family's oracle wrote each Then; the task seeder only places the spec: the values of `holds` become its tags, and a planted variant also declares its planted file as a perturbation of the relation's class at the first block, with that block's Then. A family whose phrases are not approved, whose review is missing, invalid or stale, or whose variant needs a binary seed folder is refused with its reason, and the refusal counts as a defect (exit 1). The gate runs task specs on the code agent with `--route flow:price-sheet=process:acme-ops`; `campaign` and `ci` take the same `--route`.
+`generate` builds `--tasks <n>` instances per relation from the seed (default 8) and writes every variant to `specs/task/`. Relations on one family share its draws: instances are drawn in order, and each goes to the relations whose `instances` its knobs meet. The family's oracle wrote each Then; the task seeder only places the spec: the values of `holds` become its tags, and a planted variant also declares its planted file as a perturbation of the relation's class at the first block, with that block's Then. A variant whose workspace holds a file that is not text, such as the existing workbook, is written to a folder beside its spec, `specs/task/.seed-<spec id>/`, which its `workspace_seed.from` names from the folder `generate` runs in. A relation whose family's phrases are not approved, whose review is missing, invalid or stale, whose `instances` names a knob the family lacks, or that gets no instance is refused with its reason, and the refusal counts as a defect (exit 1). The gate runs task specs on the code agent with `--route flow:price-sheet=process:acme-ops`; `campaign` and `ci` take the same `--route`.
 
 ## The variance pilot
 

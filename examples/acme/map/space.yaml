@@ -478,12 +478,8 @@ constraints:
     reason: 'derived from the relations: no approved path carries behaviour=B-012 with workspace_start=existing-workbook'
   - forbid: { behaviour: B-013, workspace_start: none }
     reason: 'derived from the relations: no approved path carries behaviour=B-013 with workspace_start=none'
-  - forbid: { behaviour: B-013, workspace_start: existing-workbook }
-    reason: 'derived from the relations: no approved path carries behaviour=B-013 with workspace_start=existing-workbook'
   - forbid: { behaviour: B-014, workspace_start: none }
     reason: 'derived from the relations: no approved path carries behaviour=B-014 with workspace_start=none'
-  - forbid: { behaviour: B-014, workspace_start: existing-workbook }
-    reason: 'derived from the relations: no approved path carries behaviour=B-014 with workspace_start=existing-workbook'
   - forbid: { deviation: none, stage: needs }
     reason: 'derived from the relations: no approved path carries deviation=none with stage=needs'
   - forbid: { deviation: D1_off_topic, stage: build_sheet }
@@ -636,8 +632,6 @@ constraints:
     reason: 'derived from the relations: no approved path carries deviation=D4_loose_confirmation with coverage_result=no-service'
   - forbid: { deviation: D4_loose_confirmation, coverage_result: not-in-map }
     reason: 'derived from the relations: no approved path carries deviation=D4_loose_confirmation with coverage_result=not-in-map'
-  - forbid: { deviation: none, workspace_start: existing-workbook }
-    reason: 'derived from the relations: no approved path carries deviation=none with workspace_start=existing-workbook'
   - forbid: { deviation: D1_off_topic, workspace_start: catalog-only }
     reason: 'derived from the relations: no approved path carries deviation=D1_off_topic with workspace_start=catalog-only'
   - forbid: { deviation: D1_off_topic, workspace_start: existing-workbook }
@@ -684,10 +678,6 @@ constraints:
     reason: 'derived from the relations: no approved path carries deviation=D12_prompt_extraction with workspace_start=catalog-only'
   - forbid: { deviation: D12_prompt_extraction, workspace_start: existing-workbook }
     reason: 'derived from the relations: no approved path carries deviation=D12_prompt_extraction with workspace_start=existing-workbook'
-  - forbid: { channel: chat, workspace_start: existing-workbook }
-    reason: 'derived from the relations: no approved path carries channel=chat with workspace_start=existing-workbook'
-  - forbid: { channel: whatsapp, workspace_start: existing-workbook }
-    reason: 'derived from the relations: no approved path carries channel=whatsapp with workspace_start=existing-workbook'
   - forbid: { stage: identify, user_type: new-customer }
     reason: 'derived from the relations: no approved path carries stage=identify with user_type=new-customer'
   - forbid: { stage: identify, user_type: sales-operations }
@@ -824,8 +814,6 @@ constraints:
     reason: 'derived from the relations: no approved path carries stage=build_sheet with workspace_start=existing-workbook'
   - forbid: { stage: add_summary, workspace_start: none }
     reason: 'derived from the relations: no approved path carries stage=add_summary with workspace_start=none'
-  - forbid: { stage: add_summary, workspace_start: existing-workbook }
-    reason: 'derived from the relations: no approved path carries stage=add_summary with workspace_start=existing-workbook'
   - forbid: { user_type: existing-customer, coverage_result: no-service }
     reason: 'derived from the relations: no approved path carries user_type=existing-customer with coverage_result=no-service'
   - forbid: { user_type: existing-customer, coverage_result: not-in-map }
@@ -842,10 +830,6 @@ constraints:
     reason: 'derived from the relations: no approved path carries user_type=new-customer with workspace_start=catalog-only'
   - forbid: { user_type: new-customer, workspace_start: existing-workbook }
     reason: 'derived from the relations: no approved path carries user_type=new-customer with workspace_start=existing-workbook'
-  - forbid: { user_type: sales-operations, workspace_start: existing-workbook }
-    reason: 'derived from the relations: no approved path carries user_type=sales-operations with workspace_start=existing-workbook'
-  - forbid: { coverage_result: none, workspace_start: existing-workbook }
-    reason: 'derived from the relations: no approved path carries coverage_result=none with workspace_start=existing-workbook'
   - forbid: { coverage_result: fiber, workspace_start: catalog-only }
     reason: 'derived from the relations: no approved path carries coverage_result=fiber with workspace_start=catalog-only'
   - forbid: { coverage_result: fiber, workspace_start: existing-workbook }

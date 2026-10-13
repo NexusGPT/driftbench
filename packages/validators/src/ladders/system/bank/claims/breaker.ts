@@ -4897,7 +4897,7 @@ function toolItems(): BankItem[] {
       tier: 4,
       component: 'driftbench family',
       title:
-        'generating.md "Task families": the expected outcome of every instance comes from code and the same seed gives the same instances; instances reports "Family acme-price-sheet: 3 instances, seed 1, 12 specs."',
+        'generating.md "Task families": the expected outcome of every instance comes from code and the same seed gives the same instances; instances reports "Family acme-price-sheet: 3 instances, seed 1, 13 specs."',
       cause:
         'driftbench family instances writes the same instance files for the same family, count and seed, and prints the documented header',
       async check(ctx) {
@@ -4915,7 +4915,7 @@ function toolItems(): BankItem[] {
           fa.every((f) => text(join(dir, 'a', f)) === text(join(dir, 'b', f)));
         return expectAll([
           [
-            a.code === 0 && a.out.includes('Family acme-price-sheet: 3 instances, seed 1, 12 specs.'),
+            a.code === 0 && a.out.includes('Family acme-price-sheet: 3 instances, seed 1, 13 specs.'),
             `expected the header; got ${shown(a)}`,
           ],
           [same, 'two runs with the same seed should write the same spec files'],

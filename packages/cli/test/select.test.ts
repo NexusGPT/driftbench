@@ -76,12 +76,12 @@ describe('driftbench select', () => {
       expect(result.out).toContain('k = 10 is smaller than the cover');
       expect(result.out).toContain('Required cells: 10 of 10; the pool covers 10.');
       expect(result.out).not.toContain('✗ flow price-sheet');
-      expect(result.out).toMatch(/Cells covered: \d+ of 701 allowed pairs .*; the pool covers 598\./);
+      expect(result.out).toMatch(/Cells covered: \d+ of 708 allowed pairs .*; the pool covers 598\./);
       expect(result.out).toContain('Faults turned red: 12 of the 13 the pool turns red');
 
       const golden = await manifest(out);
       expect(golden.golden).toHaveLength(10);
-      expect(golden.coverage.allowed).toBe(701);
+      expect(golden.coverage.allowed).toBe(708);
       expect(golden.coverage.pool_covered).toBe(598);
       expect(golden.pool).toMatchObject({ specs: 200, sealed_left_out: 58, faults_red: 13 });
       expect(golden.uncoverable_required).toEqual([]);
