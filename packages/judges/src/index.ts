@@ -182,6 +182,7 @@ export {
   readPairwiseCriterion,
   swapConsistent,
 } from './pairwise';
+export { judgePersonalData, type PersonalDataVerdict, PII_CRITERION } from './pii-judge';
 export {
   ANSWER_CONTRACT,
   buildPrompt,

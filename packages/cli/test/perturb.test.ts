@@ -186,7 +186,7 @@ describe('driftbench perturb', { timeout: 60_000 }, () => {
       ],
       [
         [UPGRADE, '--perturbation', 'nope'],
-        'acme-plan-upgrade declares no perturbation nope; it declares billing-aside, loose-ok',
+        'acme-plan-upgrade declares no perturbation nope; it declares billing-aside, order-service-down, loose-ok',
       ],
       [
         [UPGRADE, '--class', 'D1', '--at', '9', '--drafts'],

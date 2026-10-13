@@ -1,5 +1,5 @@
-import { mkdir, readFile, stat, writeFile } from 'node:fs/promises';
-import { dirname, relative, resolve } from 'node:path';
+import { readFile, stat } from 'node:fs/promises';
+import { resolve } from 'node:path';
 import {
   approvePlanRows,
   buildPlan,
@@ -14,6 +14,7 @@ import {
 } from '@agent-nexus/driftbench-estate';
 import { loadSpaceMap, type SpaceMap } from '@agent-nexus/driftbench-space';
 import type { Command } from 'commander';
+import { show, writeOut } from '../files';
 import type { Io } from '../io';
 import { optionNumber } from '../number';
 import { mapCacheOptions } from './map-cache';
@@ -226,17 +227,6 @@ function wholeNumber(value: string, flag: string, io: Io): number | undefined {
   return n;
 }
 
-async function writeOut(path: string, text: string, io: Io): Promise<boolean> {
-  try {
-    await mkdir(dirname(path), { recursive: true });
-    await writeFile(path, text);
-    return true;
-  } catch (cause) {
-    io.err(`Cannot write ${show(path, io)}: ${cause instanceof Error ? cause.message : String(cause)}\n`);
-    return false;
-  }
-}
-
 function issueLine(issue: { code: string; path: string; message: string }): string {
   return `  ${issue.path || '(file)'}  ${issue.code}  ${issue.message}\n`;
 }
@@ -247,9 +237,4 @@ function collect(value: string, previous: string[] | undefined): string[] {
 
 async function exists(path: string): Promise<boolean> {
   return (await stat(path).catch(() => undefined)) !== undefined;
-}
-
-function show(path: string, io: Io): string {
-  const rel = relative(io.cwd, path);
-  return rel === '' ? '.' : rel.startsWith('..') ? path : rel;
 }
