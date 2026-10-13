@@ -1,0 +1,37 @@
+{
+  "name": "WP-1: originality rewarded over explicitly commissioned repetition",
+  "scope": "One fully read DEV pair; mechanism generalization remains a hypothesis, not proof of the whole TEST gap",
+  "rowKey": "4ae6fb8c6f273a598d0a",
+  "requestQuote": "多用短句、重复句式，模拟广告的洗脑效果。",
+  "requestQuoteEnglish": "Use short sentences and repeated sentence patterns to simulate advertising brainwashing.",
+  "holisticReasons": [
+    "B develops the premise through specific, escalating episodes of the narrator absorbing consumer language and gesture, with surprising, precise imagery. A relies on repetitive abstractions and explanatory mood-labeling, so B is the more fully realized and original commission.",
+    "Draft A develops the premise through specific, escalating observations (the badge number spreading, the speech of ad copy, expiry dates eroding memory), while Draft B relies on generic objects, abstract repetition, and explicit labels of its own mood. A's concrete realization gives it far greater craft and engagement."
+  ],
+  "promptfooGames": [
+    "A",
+    "B"
+  ],
+  "holisticGames": [
+    "B",
+    "B"
+  ],
+  "humanLabel": "A",
+  "auditVerdict": "defensible",
+  "auditQuotes": [
+    {
+      "side": "A",
+      "quote": "我，商品编码734"
+    },
+    {
+      "side": "A",
+      "quote": "排列。排列。排列。"
+    },
+    {
+      "side": "B",
+      "quote": "声带 在齿轮间转动出 下一季的促销文案"
+    }
+  ],
+  "nextRoundFindingOnly": true,
+  "noNewPaidCalls": true
+}

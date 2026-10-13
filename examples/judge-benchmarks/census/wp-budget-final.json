@@ -1,8 +1,10 @@
 {
-  "freshCalls": 989,
-  "returnedCostUsd": 2.9003198,
-  "unknownStoppedReserveUsd": 0.5,
+  "freshCalls": 1184,
+  "returnedCostUsd": 3.1416562100000003,
+  "unknownStoppedReserveUsd": 0.6,
   "capUsd": 8,
   "recordingBase": "0fa48a41",
-  "testNewSpendUsd": 0.9483427499999999
+  "testNewSpendUsd": 0.94834275,
+  "nextDevNewSpendUsd": 0.24133641,
+  "noMorePaidCalls": true
 }
