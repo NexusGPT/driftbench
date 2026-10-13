@@ -31,3 +31,22 @@ describe('a tool failure probe', () => {
     expect(continued).toBeGreaterThan(0);
   }, 60_000);
 });
+
+describe('a clean walk in perturbed mode', () => {
+  it('declares a tool failure the recovery stays from, with the turn answering again afterwards', () => {
+    let declared = 0;
+    for (const spec of suite.complete) {
+      for (const perturbation of spec.perturbations ?? []) {
+        if (perturbation.class !== 'D8_tool_failure') continue;
+        declared += 1;
+        const tool = Object.keys(perturbation.world?.tools ?? {})[0] as string;
+        expect(perturbation.world?.tools?.[tool]?.error).toBeDefined();
+        const turn = spec.blocks[perturbation.inject_at];
+        expect(perturbation.user).toBe(turn?.when && 'user' in turn.when ? turn.when.user : undefined);
+        expect(turn?.given?.world?.tools?.[tool]?.result).toBeDefined();
+        expect(perturbation.expect?.stage).toBe(perturbation.recovery?.stage_after);
+      }
+    }
+    expect(declared).toBeGreaterThan(0);
+  }, 60_000);
+});

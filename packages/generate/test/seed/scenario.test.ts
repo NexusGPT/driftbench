@@ -654,7 +654,7 @@ describe('pilot iteration 9: a clean walk declares a perturbation for mode P', (
       fixed: [],
     });
     if (!built.ok) throw new Error(built.reason);
-    expect(built.perturbations).toEqual([
+    expect(built.perturbations?.[0]).toEqual(
       {
         id: 'p1-D1_off_topic',
         class: 'D1_off_topic',
@@ -669,7 +669,15 @@ describe('pilot iteration 9: a clean walk declares a perturbation for mode P', (
         },
         recovery: { within_blocks: 0, stage_after: 'verify' },
       },
-    ]);
+    );
+    // The turn that calls the lookup also fails it in perturbed mode, with the recovery as its Then.
+    expect(built.perturbations?.[1]).toMatchObject({
+      id: 'p2-D8_tool_failure',
+      class: 'D8_tool_failure',
+      inject_at: 1,
+      world: { tools: { lookup: { error: TOOL_FAILURE_ERROR } } },
+      recovery: { within_blocks: 0, stage_after: 'verify' },
+    });
     // The walk itself is unchanged: the end state still holds after the perturbation.
     expect(built.endState).toEqual({ source: 'tool:lookup', mode: 'subset', expect: { account: '4' } });
   });

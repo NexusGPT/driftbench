@@ -410,14 +410,14 @@ export function buildScenario(prepared: PreparedMap, rng: Rng, request: Scenario
 
   let placed: Built['probe'];
   let truncated = turnPlaced;
+  // The answer a tool gives once it works again: the bound values the replies state, else its defaults.
+  const answering = (tool: string): ToolAnswer => {
+    const bound = worldFor(prepared, unique(replyData), { useBindings: true }).world?.tools?.[tool];
+    if (bound) return bound;
+    const schema = prepared.tools.find((entry) => entry.name === tool);
+    return { result: (schema ? toolAnswer(schema, []).answer : {}) as never };
+  };
   if (probe && probe.classId === TOOL_FAILURE) {
-    // The answer a tool gives once it works again: the bound values the replies state, else its defaults.
-    const answering = (tool: string): ToolAnswer => {
-      const bound = worldFor(prepared, unique(replyData), { useBindings: true }).world?.tools?.[tool];
-      if (bound) return bound;
-      const schema = prepared.tools.find((entry) => entry.name === tool);
-      return { result: (schema ? toolAnswer(schema, []).answer : {}) as never };
-    };
     const failed = toolFailure(prepared, rng, path, blocks, cell, probe, answering);
     if (!failed.ok) return fail(failed.reason);
     placed = failed.placed;
@@ -479,6 +479,25 @@ export function buildScenario(prepared: PreparedMap, rng: Rng, request: Scenario
         expect: chosen.expect,
         // The map's recovery keeps the conversation where it was: the injected block itself recovers.
         recovery: { within_blocks: 0, stage_after: chosen.expect.stage as string },
+      });
+    }
+    // A tool failure the recovery stays from: before the first turn that calls a recovered tool first, the
+    // user says that turn with the tool failing. The recovery is the injected block's Then, and the turn
+    // itself then runs with the tool answering again. It takes no seeded draw, so the rest is unchanged.
+    const failure = toolFailurePerturbation(relations, path, blocks, slots, inPlay, lang);
+    if (failure) {
+      const block = blocks[failure.index] as BlockDraft;
+      block.given = {
+        world: { tools: { ...block.given?.world?.tools, [failure.tool]: answering(failure.tool) } },
+      };
+      perturbations.push({
+        id: `p${perturbations.length + 1}-${TOOL_FAILURE}`,
+        class: TOOL_FAILURE as PerturbationSpec['class'],
+        inject_at: failure.index,
+        user: failure.user,
+        world: { tools: { [failure.tool]: { error: TOOL_FAILURE_ERROR } } },
+        expect: failure.expect,
+        recovery: { within_blocks: 0, stage_after: failure.expect.stage as string },
       });
     }
   }
@@ -565,6 +584,37 @@ function recoveryExpect(
     ...(mustNot.length > 0 ? { must_not: mustNot } : {}),
     ...(lang === undefined ? {} : { lang }),
   };
+}
+
+/**
+ * The first turn of a clean walk whose first call is a tool the map recovers from without leaving the stage:
+ * where a tool failure goes in perturbed mode, said with that turn's words, and what the recovery expects.
+ */
+function toolFailurePerturbation(
+  relations: PreparedMap['relations'],
+  path: PathRelation,
+  blocks: readonly BlockDraft[],
+  slots: Record<string, string>,
+  inPlay: ReadonlySet<string>,
+  lang: string | undefined,
+): { index: number; tool: string; user: string; expect: Expect } | undefined {
+  for (const [index, block] of blocks.entries()) {
+    const stage = path.stages[index];
+    const first = (block.tools ?? []).find(calls);
+    if (stage === undefined || !first || block.stimulus.kind !== 'phrase') continue;
+    const recovery = recoveryFor(relations, TOOL_FAILURE, path.flow, first.label);
+    if (!recovery || stageAfter(recovery, stage) !== stage) continue;
+    const expect = recoveryExpect(recovery, stage, slots, inPlay, lang);
+    if (!expect) continue;
+    // The agent sends the failing tool the arguments the turn names.
+    expect.tools = (expect.tools ?? []).map((tool) =>
+      tool.label === first.label && tool.input === undefined && first.input !== undefined
+        ? { ...tool, input: first.input }
+        : tool,
+    );
+    return { index, tool: first.label, user: block.stimulus.phrase.text, expect };
+  }
+  return undefined;
 }
 
 function choosePhraseExists(
