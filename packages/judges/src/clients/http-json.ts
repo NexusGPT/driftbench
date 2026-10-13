@@ -18,6 +18,8 @@ export type HttpJudgeOptions = ClientOptions & {
  * the response body is the contract itself.
  */
 export function createHttpJudge(options: HttpJudgeOptions): JudgeClient {
+  if (options.reasoning !== undefined)
+    throw new JudgeError('config', 'reasoning is not supported by the HTTP judge client');
   const env = options.env ?? process.env;
   const key = options.keyVariable ? requireEnv(env, options.keyVariable) : undefined;
   const headers: Record<string, string> = key ? { authorization: `Bearer ${key}` } : {};

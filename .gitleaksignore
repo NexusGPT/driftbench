@@ -1,3 +1,8 @@
 # One reviewed false positive of gitleaks' generic-api-key rule: an estate bank item key, the words
 # 't2-duplicate-constraints' (fictional, no secret), in a commit of lane/v-estate.
 68b2ad5bf4c9936a69f176e6146a0fa0ab021c77:packages/validators/src/ladders/estate/bank/plan.ts:generic-api-key:454
+# examples/escalation/fixtures/mm-dev400.jsonl: two recorded request hashes, recomputed from
+# SHA256(JSON.stringify([model, system, user])).slice(0, 20) for items 4141 and 4234, order AB.
+# Pinned prompt code 0278595c and recordings 140f406a produce identical hashes; no credentials.
+714af9eacb10f6fe268dd829c254505d40f6d39b:examples/escalation/fixtures/mm-dev400.jsonl:generic-api-key:31
+714af9eacb10f6fe268dd829c254505d40f6d39b:examples/escalation/fixtures/mm-dev400.jsonl:generic-api-key:86

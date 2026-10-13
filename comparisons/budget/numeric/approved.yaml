@@ -1,0 +1,68 @@
+version: 1
+agent: zed-sampling
+produced_by: { family: code, model: fictional fixture, at: 2026-10-13T00:00:00.000Z }
+sources:
+  - { kind: prompt, path: prompt.md }
+dimensions:
+  - id: stage
+    title: Stages
+    kind: stage
+    role: axis
+    produced_by: code
+    approved: true
+    values:
+      - { id: greet, title: The assistant greets, evidence: { source: prompt.md, quote: "Stages, in order: greet, help, done." }, produced_by: code }
+      - { id: help, title: The assistant helps, evidence: { source: prompt.md, quote: "Stages, in order: greet, help, done." }, produced_by: code }
+      - { id: done, title: The assistant is done, evidence: { source: prompt.md, quote: "Stages, in order: greet, help, done." }, produced_by: code }
+  - id: stage_transition
+    title: Transitions
+    kind: behaviour
+    role: detail
+    produced_by: code
+    approved: true
+    values:
+      - { id: greet-to-help, title: The user asks for help, evidence: { source: prompt.md, quote: "Stages, in order: greet, help, done." }, produced_by: code }
+      - { id: help-to-done, title: The user is done, evidence: { source: prompt.md, quote: "Stages, in order: greet, help, done." }, produced_by: code }
+  - id: flow
+    title: Flows
+    kind: behaviour
+    role: axis
+    produced_by: code
+    approved: true
+    values:
+      - { id: balance, title: The customer asks for their balance, evidence: { source: prompt.md, quote: "The balance flow follows all three stages." }, produced_by: code }
+  - id: channel
+    title: Channels
+    kind: channel
+    role: axis
+    produced_by: code
+    approved: true
+    values:
+      - { id: chat, title: Chat, evidence: { source: prompt.md, quote: "Channels: chat and email." }, produced_by: code }
+      - { id: email, title: Email, evidence: { source: prompt.md, quote: "Channels: chat and email." }, produced_by: code }
+  - id: user
+    title: Personas
+    kind: persona
+    role: axis
+    produced_by: code
+    approved: true
+    values:
+      - { id: novice, title: Novice, evidence: { source: prompt.md, quote: "Personas: novice, regular and expert." }, produced_by: code }
+      - { id: regular, title: Regular, evidence: { source: prompt.md, quote: "Personas: novice, regular and expert." }, produced_by: code }
+      - { id: expert, title: Expert, evidence: { source: prompt.md, quote: "Personas: novice, regular and expert." }, produced_by: code }
+constraints: []
+phrases:
+  - { dimension: stage_transition, value: greet-to-help, text: I need help with my account., lang: en, produced_by: code, approved: true }
+  - { dimension: stage_transition, value: help-to-done, text: That is all., lang: en, produced_by: code, approved: true }
+  - { dimension: flow, value: balance, text: What is my balance?, lang: en, produced_by: code, approved: true }
+  - { dimension: channel, value: chat, text: Hello from chat., lang: en, produced_by: code, approved: true }
+  - { dimension: channel, value: email, text: Hello from email., lang: en, produced_by: code, approved: true }
+  - { dimension: user, value: novice, text: I am new here., lang: en, produced_by: code, approved: true }
+  - { dimension: user, value: regular, text: I use this service., lang: en, produced_by: code, approved: true }
+  - { dimension: user, value: expert, text: I know this service well., lang: en, produced_by: code, approved: true }
+relations:
+  - { kind: path, id: balance-help, flow: balance, stages: [greet, help, done], evidence: { source: prompt.md, quote: "The balance flow follows all three stages." }, produced_by: code, approved: true }
+numeric_settings:
+  - { id: temperature, min: 0, max: 1, evidence: { source: prompt.md, quote: "Temperature ranges from 0 to 1." }, produced_by: code, approved: true }
+  - { id: delay, min: 0, max: 100, unit: milliseconds, evidence: { source: prompt.md, quote: "Delay ranges from 0 to 100 milliseconds." }, produced_by: code, approved: true }
+  - { id: iterations, min: 1, max: 5, integer: true, unit: attempts, evidence: { source: prompt.md, quote: "Iterations range from 1 to 5 integer attempts." }, produced_by: code, approved: true }

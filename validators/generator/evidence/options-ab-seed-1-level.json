@@ -1,0 +1,1482 @@
+{
+  "component": "generator",
+  "ladderVersion": 1,
+  "level": 5,
+  "top": 22,
+  "seeds": [
+    {
+      "seed": 1,
+      "hidden": false,
+      "level": 5,
+      "top": 22,
+      "rows": [
+        {
+          "level": 1,
+          "id": "generate",
+          "name": "generate and lint",
+          "metric": "items passing / items of the level (25)",
+          "threshold": 1,
+          "direction": "atLeast",
+          "observed": 1,
+          "pass": true,
+          "itemCount": 0,
+          "bank": [
+            {
+              "id": "generate.valid.graph",
+              "component": "packages/generate/src/seed/assemble.ts#renderDraft",
+              "family": "generate",
+              "tier": 1,
+              "pass": true,
+              "detail": "0 written specs refused by the loader, 0 refused by the generator itself: "
+            },
+            {
+              "id": "generate.lint.graph",
+              "component": "packages/generate/src/seed/assemble.ts#renderDraft",
+              "family": "generate",
+              "tier": 1,
+              "pass": true,
+              "detail": "0 specs carry lint warnings: "
+            },
+            {
+              "id": "generate.bytes.graph",
+              "component": "packages/generate/src/seed/random.ts",
+              "family": "generate",
+              "tier": 1,
+              "pass": true,
+              "detail": "0 of 6 files differ between two runs on the same map and seed: "
+            },
+            {
+              "id": "generate.report.graph",
+              "component": "packages/generate/src/enumerate/generate.ts",
+              "family": "generate",
+              "tier": 2,
+              "pass": true,
+              "detail": "the report says 6 specs and 6 complete; the folder holds 6 and 6"
+            },
+            {
+              "id": "generate.identity.graph",
+              "component": "packages/generate/src/seed/assemble.ts#renderDraft",
+              "family": "generate",
+              "tier": 1,
+              "pass": true,
+              "detail": "0 specs miss their seeder, seed or map hash; duplicate ids: none"
+            },
+            {
+              "id": "generate.valid.twise",
+              "component": "packages/generate/src/seed/assemble.ts#renderDraft",
+              "family": "generate",
+              "tier": 1,
+              "pass": true,
+              "detail": "0 written specs refused by the loader, 0 refused by the generator itself: "
+            },
+            {
+              "id": "generate.lint.twise",
+              "component": "packages/generate/src/seed/assemble.ts#renderDraft",
+              "family": "generate",
+              "tier": 1,
+              "pass": true,
+              "detail": "0 specs carry lint warnings: "
+            },
+            {
+              "id": "generate.bytes.twise",
+              "component": "packages/generate/src/seed/random.ts",
+              "family": "generate",
+              "tier": 1,
+              "pass": true,
+              "detail": "0 of 120 files differ between two runs on the same map and seed: "
+            },
+            {
+              "id": "generate.report.twise",
+              "component": "packages/generate/src/enumerate/generate.ts",
+              "family": "generate",
+              "tier": 2,
+              "pass": true,
+              "detail": "the report says 120 specs and 120 complete; the folder holds 120 and 120"
+            },
+            {
+              "id": "generate.identity.twise",
+              "component": "packages/generate/src/seed/assemble.ts#renderDraft",
+              "family": "generate",
+              "tier": 1,
+              "pass": true,
+              "detail": "0 specs miss their seeder, seed or map hash; duplicate ids: none"
+            },
+            {
+              "id": "generate.valid.boundary",
+              "component": "packages/generate/src/seed/assemble.ts#renderDraft",
+              "family": "generate",
+              "tier": 1,
+              "pass": true,
+              "detail": "0 written specs refused by the loader, 0 refused by the generator itself: "
+            },
+            {
+              "id": "generate.lint.boundary",
+              "component": "packages/generate/src/seed/assemble.ts#renderDraft",
+              "family": "generate",
+              "tier": 1,
+              "pass": true,
+              "detail": "0 specs carry lint warnings: "
+            },
+            {
+              "id": "generate.bytes.boundary",
+              "component": "packages/generate/src/seed/random.ts",
+              "family": "generate",
+              "tier": 1,
+              "pass": true,
+              "detail": "0 of 39 files differ between two runs on the same map and seed: "
+            },
+            {
+              "id": "generate.report.boundary",
+              "component": "packages/generate/src/enumerate/generate.ts",
+              "family": "generate",
+              "tier": 2,
+              "pass": true,
+              "detail": "the report says 39 specs and 39 complete; the folder holds 39 and 39"
+            },
+            {
+              "id": "generate.identity.boundary",
+              "component": "packages/generate/src/seed/assemble.ts#renderDraft",
+              "family": "generate",
+              "tier": 1,
+              "pass": true,
+              "detail": "0 specs miss their seeder, seed or map hash; duplicate ids: none"
+            },
+            {
+              "id": "generate.valid.deviation",
+              "component": "packages/generate/src/seed/assemble.ts#renderDraft",
+              "family": "generate",
+              "tier": 1,
+              "pass": true,
+              "detail": "0 written specs refused by the loader, 0 refused by the generator itself: "
+            },
+            {
+              "id": "generate.lint.deviation",
+              "component": "packages/generate/src/seed/assemble.ts#renderDraft",
+              "family": "generate",
+              "tier": 1,
+              "pass": true,
+              "detail": "0 specs carry lint warnings: "
+            },
+            {
+              "id": "generate.bytes.deviation",
+              "component": "packages/generate/src/seed/random.ts",
+              "family": "generate",
+              "tier": 1,
+              "pass": true,
+              "detail": "0 of 20 files differ between two runs on the same map and seed: "
+            },
+            {
+              "id": "generate.report.deviation",
+              "component": "packages/generate/src/enumerate/generate.ts",
+              "family": "generate",
+              "tier": 2,
+              "pass": true,
+              "detail": "the report says 20 specs and 20 complete; the folder holds 20 and 20"
+            },
+            {
+              "id": "generate.identity.deviation",
+              "component": "packages/generate/src/seed/assemble.ts#renderDraft",
+              "family": "generate",
+              "tier": 1,
+              "pass": true,
+              "detail": "0 specs miss their seeder, seed or map hash; duplicate ids: none"
+            },
+            {
+              "id": "generate.valid.metamorphic",
+              "component": "packages/generate/src/seed/assemble.ts#renderDraft",
+              "family": "generate",
+              "tier": 1,
+              "pass": true,
+              "detail": "0 written specs refused by the loader, 0 refused by the generator itself: "
+            },
+            {
+              "id": "generate.lint.metamorphic",
+              "component": "packages/generate/src/seed/assemble.ts#renderDraft",
+              "family": "generate",
+              "tier": 1,
+              "pass": true,
+              "detail": "0 specs carry lint warnings: "
+            },
+            {
+              "id": "generate.bytes.metamorphic",
+              "component": "packages/generate/src/seed/random.ts",
+              "family": "generate",
+              "tier": 1,
+              "pass": true,
+              "detail": "0 of 44 files differ between two runs on the same map and seed: "
+            },
+            {
+              "id": "generate.report.metamorphic",
+              "component": "packages/generate/src/enumerate/generate.ts",
+              "family": "generate",
+              "tier": 2,
+              "pass": true,
+              "detail": "the report says 44 specs and 44 complete; the folder holds 44 and 44"
+            },
+            {
+              "id": "generate.identity.metamorphic",
+              "component": "packages/generate/src/seed/assemble.ts#renderDraft",
+              "family": "generate",
+              "tier": 1,
+              "pass": true,
+              "detail": "0 specs miss their seeder, seed or map hash; duplicate ids: none"
+            }
+          ]
+        },
+        {
+          "level": 2,
+          "id": "differential",
+          "name": "differential against brute force",
+          "metric": "items passing / items of the level (25)",
+          "threshold": 1,
+          "direction": "atLeast",
+          "observed": 1,
+          "pass": true,
+          "itemCount": 0,
+          "bank": [
+            {
+              "id": "diff.twise.pairs",
+              "component": "packages/generate/src/seed/seeders.ts#twiseSeeder",
+              "family": "differential",
+              "tier": 2,
+              "pass": true,
+              "detail": "0 allowed 2-tuples of behaviour, deviation, channel, user_type held by no complete t-wise spec: "
+            },
+            {
+              "id": "diff.twise.triples",
+              "component": "packages/generate/src/seed/seeders.ts#twiseSeeder",
+              "family": "differential",
+              "tier": 4,
+              "pass": true,
+              "detail": "0 allowed 3-tuples of behaviour, deviation, channel, user_type held by no complete t-wise spec: "
+            },
+            {
+              "id": "diff.twise.allowed",
+              "component": "packages/generate/src/seed/twise.ts",
+              "family": "differential",
+              "tier": 2,
+              "pass": true,
+              "detail": "brute force counts 285 allowed 3-tuples over behaviour, deviation, channel, user_type; the report says 285"
+            },
+            {
+              "id": "diff.graph.start",
+              "component": "packages/generate/src/seed/graph.ts",
+              "family": "differential",
+              "tier": 1,
+              "pass": true,
+              "detail": "the report starts at opening, the hidden graph at opening"
+            },
+            {
+              "id": "diff.graph.reachable",
+              "component": "packages/generate/src/seed/graph.ts",
+              "family": "differential",
+              "tier": 2,
+              "pass": true,
+              "detail": "breadth first search reaches 9 edges; the report counts 9 reachable of 9"
+            },
+            {
+              "id": "diff.graph.walks",
+              "component": "packages/generate/src/seed/scenario.ts#buildScenario",
+              "family": "differential",
+              "tier": 2,
+              "pass": true,
+              "detail": "0 expected stage sequences step along no edge of the hidden graph: "
+            },
+            {
+              "id": "diff.feasible.graph",
+              "component": "packages/generate/src/seed/feasible.ts",
+              "family": "differential",
+              "tier": 2,
+              "pass": true,
+              "detail": "0 blocks sit in a cell a hidden constraint forbids: "
+            },
+            {
+              "id": "diff.feasible.twise",
+              "component": "packages/generate/src/seed/feasible.ts",
+              "family": "differential",
+              "tier": 2,
+              "pass": true,
+              "detail": "0 blocks sit in a cell a hidden constraint forbids: "
+            },
+            {
+              "id": "diff.feasible.boundary",
+              "component": "packages/generate/src/seed/feasible.ts",
+              "family": "differential",
+              "tier": 2,
+              "pass": true,
+              "detail": "0 blocks sit in a cell a hidden constraint forbids: "
+            },
+            {
+              "id": "diff.feasible.deviation",
+              "component": "packages/generate/src/seed/feasible.ts",
+              "family": "differential",
+              "tier": 2,
+              "pass": true,
+              "detail": "0 blocks sit in a cell a hidden constraint forbids: "
+            },
+            {
+              "id": "diff.feasible.metamorphic",
+              "component": "packages/generate/src/seed/feasible.ts",
+              "family": "differential",
+              "tier": 2,
+              "pass": true,
+              "detail": "0 blocks sit in a cell a hidden constraint forbids: "
+            },
+            {
+              "id": "diff.coverage.pairs",
+              "component": "packages/generate/src/enumerate/generate.ts",
+              "family": "differential",
+              "tier": 3,
+              "pass": true,
+              "detail": "placing every complete spec by hand covers 1161 allowed 3-tuples; the report counts 1161"
+            },
+            {
+              "id": "diff.boundary.in.enum",
+              "component": "packages/generate/src/seed/values.ts",
+              "family": "differential",
+              "tier": 2,
+              "pass": true,
+              "detail": "0 of 9 values: "
+            },
+            {
+              "id": "diff.boundary.in.below-minimum",
+              "component": "packages/generate/src/seed/values.ts",
+              "family": "differential",
+              "tier": 2,
+              "pass": true,
+              "detail": "0 of 3 values: "
+            },
+            {
+              "id": "diff.boundary.in.at-minimum",
+              "component": "packages/generate/src/seed/values.ts",
+              "family": "differential",
+              "tier": 2,
+              "pass": true,
+              "detail": "0 of 3 values: "
+            },
+            {
+              "id": "diff.boundary.in.above-minimum",
+              "component": "packages/generate/src/seed/values.ts",
+              "family": "differential",
+              "tier": 2,
+              "pass": true,
+              "detail": "0 of 3 values: "
+            },
+            {
+              "id": "diff.boundary.in.below-maximum",
+              "component": "packages/generate/src/seed/values.ts",
+              "family": "differential",
+              "tier": 2,
+              "pass": true,
+              "detail": "0 of 3 values: "
+            },
+            {
+              "id": "diff.boundary.in.at-maximum",
+              "component": "packages/generate/src/seed/values.ts",
+              "family": "differential",
+              "tier": 2,
+              "pass": true,
+              "detail": "0 of 3 values: "
+            },
+            {
+              "id": "diff.boundary.in.above-maximum",
+              "component": "packages/generate/src/seed/values.ts",
+              "family": "differential",
+              "tier": 2,
+              "pass": true,
+              "detail": "0 of 3 values: "
+            },
+            {
+              "id": "diff.boundary.out.true",
+              "component": "packages/generate/src/seed/values.ts",
+              "family": "differential",
+              "tier": 2,
+              "pass": true,
+              "detail": "0 of 3 values: "
+            },
+            {
+              "id": "diff.boundary.out.false",
+              "component": "packages/generate/src/seed/values.ts",
+              "family": "differential",
+              "tier": 2,
+              "pass": true,
+              "detail": "0 of 3 values: "
+            },
+            {
+              "id": "diff.boundary.out.enum",
+              "component": "packages/generate/src/seed/values.ts",
+              "family": "differential",
+              "tier": 2,
+              "pass": true,
+              "detail": "0 of 6 values: "
+            },
+            {
+              "id": "diff.phrases.filled",
+              "component": "packages/generate/src/seed/scenario.ts#buildScenario",
+              "family": "differential",
+              "tier": 2,
+              "pass": true,
+              "detail": "0 user turns match no approved phrase: "
+            },
+            {
+              "id": "diff.slots.consistent",
+              "component": "packages/generate/src/seed/relations.ts",
+              "family": "differential",
+              "tier": 3,
+              "pass": true,
+              "detail": "0 tool inputs differ from the slot value the conversation stated: "
+            },
+            {
+              "id": "diff.endstate.plan",
+              "component": "packages/generate/src/seed/relations.ts",
+              "family": "differential",
+              "tier": 3,
+              "pass": true,
+              "detail": "0 of 185 end states disagree with the plan the conversation stated: "
+            }
+          ]
+        },
+        {
+          "level": 3,
+          "id": "hostile",
+          "name": "hostile and degenerate maps",
+          "metric": "items passing / items of the level (26)",
+          "threshold": 1,
+          "direction": "atLeast",
+          "observed": 1,
+          "pass": true,
+          "itemCount": 0,
+          "bank": [
+            {
+              "id": "hostile.empty-phrases",
+              "component": "packages/generate/src/seed/assemble.ts#renderDraft",
+              "family": "hostile",
+              "tier": 2,
+              "pass": true,
+              "detail": "handled"
+            },
+            {
+              "id": "hostile.single-stage",
+              "component": "packages/generate/src/seed/graph.ts",
+              "family": "hostile",
+              "tier": 3,
+              "pass": true,
+              "detail": "handled"
+            },
+            {
+              "id": "hostile.no-transitions",
+              "component": "packages/generate/src/seed/graph.ts",
+              "family": "hostile",
+              "tier": 3,
+              "pass": true,
+              "detail": "handled"
+            },
+            {
+              "id": "hostile.duplicate-value",
+              "component": "packages/generate/src/enumerate/load.ts",
+              "family": "hostile",
+              "tier": 2,
+              "pass": true,
+              "detail": "refused with MAP_INVALID"
+            },
+            {
+              "id": "hostile.unicode-phrase",
+              "component": "packages/generate/src/seed/assemble.ts#renderDraft",
+              "family": "hostile",
+              "tier": 3,
+              "pass": true,
+              "detail": "handled"
+            },
+            {
+              "id": "hostile.phrase-over-limit",
+              "component": "packages/generate/src/enumerate/load.ts",
+              "family": "hostile",
+              "tier": 2,
+              "pass": true,
+              "detail": "refused with MAP_INVALID"
+            },
+            {
+              "id": "hostile.phrase-at-limit",
+              "component": "packages/generate/src/seed/assemble.ts#renderDraft",
+              "family": "hostile",
+              "tier": 3,
+              "pass": true,
+              "detail": "handled"
+            },
+            {
+              "id": "hostile.forbid-everything",
+              "component": "packages/generate/src/seed/feasible.ts",
+              "family": "hostile",
+              "tier": 3,
+              "pass": true,
+              "detail": "refused with MAP_INVALID"
+            },
+            {
+              "id": "hostile.instruction-in-phrase",
+              "component": "packages/generate/src/seed/assemble.ts#renderDraft",
+              "family": "hostile",
+              "tier": 3,
+              "pass": true,
+              "detail": "handled"
+            },
+            {
+              "id": "hostile.cycle-without-start",
+              "component": "packages/generate/src/seed/graph.ts",
+              "family": "hostile",
+              "tier": 4,
+              "pass": true,
+              "detail": "handled"
+            },
+            {
+              "id": "hostile.unreachable-stage",
+              "component": "packages/generate/src/seed/graph.ts",
+              "family": "hostile",
+              "tier": 3,
+              "pass": true,
+              "detail": "handled"
+            },
+            {
+              "id": "hostile.dead-end",
+              "component": "packages/generate/src/seed/graph.ts",
+              "family": "hostile",
+              "tier": 3,
+              "pass": true,
+              "detail": "handled"
+            },
+            {
+              "id": "hostile.one-member-enum",
+              "component": "packages/generate/src/seed/values.ts",
+              "family": "hostile",
+              "tier": 2,
+              "pass": true,
+              "detail": "handled"
+            },
+            {
+              "id": "hostile.min-equals-max",
+              "component": "packages/generate/src/seed/values.ts",
+              "family": "hostile",
+              "tier": 3,
+              "pass": true,
+              "detail": "handled"
+            },
+            {
+              "id": "hostile.missing-tools-file",
+              "component": "packages/generate/src/enumerate/load.ts",
+              "family": "hostile",
+              "tier": 1,
+              "pass": true,
+              "detail": "refused with MAP_INVALID"
+            },
+            {
+              "id": "hostile.malformed-tools-file",
+              "component": "packages/generate/src/enumerate/load.ts",
+              "family": "hostile",
+              "tier": 1,
+              "pass": true,
+              "detail": "refused with MAP_INVALID"
+            },
+            {
+              "id": "hostile.invalid-inventory",
+              "component": "packages/generate/src/enumerate/load.ts",
+              "family": "hostile",
+              "tier": 1,
+              "pass": true,
+              "detail": "refused with MAP_INVENTORY_INVALID"
+            },
+            {
+              "id": "hostile.unapproved-entry",
+              "component": "packages/generate/src/enumerate/load.ts",
+              "family": "hostile",
+              "tier": 1,
+              "pass": true,
+              "detail": "refused with MAP_NOT_APPROVED"
+            },
+            {
+              "id": "hostile.path-without-edge",
+              "component": "packages/generate/src/seed/scenario.ts#buildScenario",
+              "family": "hostile",
+              "tier": 3,
+              "pass": true,
+              "detail": "handled"
+            },
+            {
+              "id": "hostile.unknown-tool-use",
+              "component": "packages/generate/src/seed/scenario.ts#buildScenario",
+              "family": "hostile",
+              "tier": 3,
+              "pass": true,
+              "detail": "handled"
+            },
+            {
+              "id": "hostile.unbound-slot",
+              "component": "packages/generate/src/seed/relations.ts",
+              "family": "hostile",
+              "tier": 3,
+              "pass": true,
+              "detail": "handled"
+            },
+            {
+              "id": "hostile.huge-integer",
+              "component": "packages/generate/src/seed/values.ts",
+              "family": "hostile",
+              "tier": 3,
+              "pass": true,
+              "detail": "handled"
+            },
+            {
+              "id": "hostile.flow-without-paths",
+              "component": "packages/generate/src/seed/scenario.ts#buildScenario",
+              "family": "hostile",
+              "tier": 3,
+              "pass": true,
+              "detail": "handled"
+            },
+            {
+              "id": "hostile.nul-in-phrase",
+              "component": "packages/generate/src/seed/assemble.ts#renderDraft",
+              "family": "hostile",
+              "tier": 3,
+              "pass": true,
+              "detail": "handled"
+            },
+            {
+              "id": "hostile.every-phrase-twice",
+              "component": "packages/generate/src/seed/seeders.ts#metamorphicSeeder",
+              "family": "hostile",
+              "tier": 3,
+              "pass": true,
+              "detail": "refused with MAP_INVALID"
+            },
+            {
+              "id": "hostile.binds-unread",
+              "component": "packages/generate/src/seed/relations.ts",
+              "family": "hostile",
+              "tier": 2,
+              "pass": true,
+              "detail": "handled"
+            }
+          ]
+        },
+        {
+          "level": 4,
+          "id": "reference",
+          "name": "green on the rule follower",
+          "metric": "items passing / items of the level (25)",
+          "threshold": 1,
+          "direction": "atLeast",
+          "observed": 1,
+          "pass": true,
+          "itemCount": 0,
+          "bank": [
+            {
+              "id": "reference.seeder.graph",
+              "component": "packages/generate/src/seed/seeders.ts#graphSeeder",
+              "family": "reference",
+              "tier": 1,
+              "pass": true,
+              "detail": "0 of 23 blocks of the graph seeder fail the follower: "
+            },
+            {
+              "id": "reference.seeder.twise",
+              "component": "packages/generate/src/seed/seeders.ts#twiseSeeder",
+              "family": "reference",
+              "tier": 1,
+              "pass": true,
+              "detail": "0 of 528 blocks of the twise seeder fail the follower: "
+            },
+            {
+              "id": "reference.seeder.boundary",
+              "component": "packages/generate/src/seed/seeders.ts#boundarySeeder",
+              "family": "reference",
+              "tier": 1,
+              "pass": true,
+              "detail": "0 of 72 blocks of the boundary seeder fail the follower: "
+            },
+            {
+              "id": "reference.seeder.deviation",
+              "component": "packages/generate/src/seed/seeders.ts#deviationSeeder",
+              "family": "reference",
+              "tier": 1,
+              "pass": true,
+              "detail": "0 of 91 blocks of the deviation seeder fail the follower: "
+            },
+            {
+              "id": "reference.seeder.metamorphic",
+              "component": "packages/generate/src/seed/seeders.ts#metamorphicSeeder",
+              "family": "reference",
+              "tier": 1,
+              "pass": true,
+              "detail": "0 of 177 blocks of the metamorphic seeder fail the follower: "
+            },
+            {
+              "id": "reference.probe.D1_off_topic",
+              "component": "packages/generate/src/seed/scenario.ts#buildScenario",
+              "family": "reference",
+              "tier": 2,
+              "pass": true,
+              "detail": "0 of 43 blocks that injects D1_off_topic fail the follower: "
+            },
+            {
+              "id": "reference.probe.D2_goal_shift",
+              "component": "packages/generate/src/seed/scenario.ts#buildScenario",
+              "family": "reference",
+              "tier": 2,
+              "pass": true,
+              "detail": "0 of 29 blocks that injects D2_goal_shift fail the follower: "
+            },
+            {
+              "id": "reference.probe.D3_contradiction",
+              "component": "packages/generate/src/seed/scenario.ts#buildScenario",
+              "family": "reference",
+              "tier": 2,
+              "pass": true,
+              "detail": "0 of 40 blocks that injects D3_contradiction fail the follower: "
+            },
+            {
+              "id": "reference.probe.D4_loose_confirmation",
+              "component": "packages/generate/src/seed/scenario.ts#buildScenario",
+              "family": "reference",
+              "tier": 2,
+              "pass": true,
+              "detail": "0 of 34 blocks that injects D4_loose_confirmation fail the follower: "
+            },
+            {
+              "id": "reference.probe.D5_language_switch",
+              "component": "packages/generate/src/seed/scenario.ts#buildScenario",
+              "family": "reference",
+              "tier": 2,
+              "pass": true,
+              "detail": "0 of 25 blocks that injects D5_language_switch fail the follower: "
+            },
+            {
+              "id": "reference.probe.D6_instruction_in_data",
+              "component": "packages/generate/src/seed/scenario.ts#buildScenario",
+              "family": "reference",
+              "tier": 2,
+              "pass": true,
+              "detail": "0 of 26 blocks that injects D6_instruction_in_data fail the follower: "
+            },
+            {
+              "id": "reference.probe.D7_silence_or_burst",
+              "component": "packages/generate/src/seed/scenario.ts#buildScenario",
+              "family": "reference",
+              "tier": 2,
+              "pass": true,
+              "detail": "0 of 43 blocks that injects D7_silence_or_burst fail the follower: "
+            },
+            {
+              "id": "reference.probe.D8_tool_failure",
+              "component": "packages/generate/src/seed/scenario.ts#buildScenario",
+              "family": "reference",
+              "tier": 2,
+              "pass": true,
+              "detail": "0 of 24 blocks that injects D8_tool_failure fail the follower: "
+            },
+            {
+              "id": "reference.probe.D9_out_of_scope",
+              "component": "packages/generate/src/seed/scenario.ts#buildScenario",
+              "family": "reference",
+              "tier": 2,
+              "pass": true,
+              "detail": "0 of 22 blocks that injects D9_out_of_scope fail the follower: "
+            },
+            {
+              "id": "reference.probe.D10_return",
+              "component": "packages/generate/src/seed/scenario.ts#buildScenario",
+              "family": "reference",
+              "tier": 2,
+              "pass": true,
+              "detail": "0 of 42 blocks that injects D10_return fail the follower: "
+            },
+            {
+              "id": "reference.flow.new-request",
+              "component": "packages/generate/src/seed/scenario.ts#buildScenario",
+              "family": "reference",
+              "tier": 1,
+              "pass": true,
+              "detail": "0 of 1148 blocks of the flow new-request fail the follower: "
+            },
+            {
+              "id": "reference.flow.change-request",
+              "component": "packages/generate/src/seed/scenario.ts#buildScenario",
+              "family": "reference",
+              "tier": 1,
+              "pass": true,
+              "detail": "0 of 321 blocks of the flow change-request fail the follower: "
+            },
+            {
+              "id": "reference.flow.status-check",
+              "component": "packages/generate/src/seed/scenario.ts#buildScenario",
+              "family": "reference",
+              "tier": 1,
+              "pass": true,
+              "detail": "0 of 475 blocks of the flow status-check fail the follower: "
+            },
+            {
+              "id": "reference.tool.read",
+              "component": "packages/generate/src/seed/relations.ts",
+              "family": "reference",
+              "tier": 2,
+              "pass": true,
+              "detail": "0 of 462 blocks that expect the read tool fail the follower: "
+            },
+            {
+              "id": "reference.tool.list",
+              "component": "packages/generate/src/seed/relations.ts",
+              "family": "reference",
+              "tier": 2,
+              "pass": true,
+              "detail": "0 of 177 blocks that expect the list tool fail the follower: "
+            },
+            {
+              "id": "reference.tool.write",
+              "component": "packages/generate/src/seed/relations.ts",
+              "family": "reference",
+              "tier": 2,
+              "pass": true,
+              "detail": "0 of 185 blocks that expect the write tool fail the follower: "
+            },
+            {
+              "id": "reference.end-state",
+              "component": "packages/generate/src/seed/relations.ts",
+              "family": "reference",
+              "tier": 2,
+              "pass": true,
+              "detail": "0 of 185 blocks with an end state fail the follower: "
+            },
+            {
+              "id": "reference.text",
+              "component": "packages/generate/src/seed/scenario.ts#buildScenario",
+              "family": "reference",
+              "tier": 2,
+              "pass": true,
+              "detail": "0 of 1837 blocks with must or must_not fail the follower: "
+            },
+            {
+              "id": "reference.format",
+              "component": "packages/generate/src/seed/scenario.ts#buildScenario",
+              "family": "reference",
+              "tier": 2,
+              "pass": true,
+              "detail": "0 of 265 blocks with one message per turn fail the follower: "
+            },
+            {
+              "id": "reference.stable",
+              "component": "packages/core/src/runner/run.ts",
+              "family": "reference",
+              "tier": 2,
+              "pass": true,
+              "detail": "0 of 1966 green blocks flip over 5 repeats of the same follower: "
+            }
+          ]
+        },
+        {
+          "level": 5,
+          "id": "cheaters",
+          "name": "cheater resistance",
+          "metric": "items passing / items of the level (25)",
+          "threshold": 1,
+          "direction": "atLeast",
+          "observed": 1,
+          "pass": true,
+          "itemCount": 0,
+          "bank": [
+            {
+              "id": "cheater.constant.graph",
+              "component": "packages/generate/src/seed/seeders.ts#graphSeeder",
+              "family": "cheaters",
+              "tier": 2,
+              "pass": true,
+              "detail": "0 of 23 graph blocks are passed by constant: "
+            },
+            {
+              "id": "cheater.constant.twise",
+              "component": "packages/generate/src/seed/seeders.ts#twiseSeeder",
+              "family": "cheaters",
+              "tier": 2,
+              "pass": true,
+              "detail": "0 of 528 twise blocks are passed by constant: "
+            },
+            {
+              "id": "cheater.constant.boundary",
+              "component": "packages/generate/src/seed/seeders.ts#boundarySeeder",
+              "family": "cheaters",
+              "tier": 2,
+              "pass": true,
+              "detail": "0 of 72 boundary blocks are passed by constant: "
+            },
+            {
+              "id": "cheater.constant.deviation",
+              "component": "packages/generate/src/seed/seeders.ts#deviationSeeder",
+              "family": "cheaters",
+              "tier": 2,
+              "pass": true,
+              "detail": "0 of 91 deviation blocks are passed by constant: "
+            },
+            {
+              "id": "cheater.constant.metamorphic",
+              "component": "packages/generate/src/seed/seeders.ts#metamorphicSeeder",
+              "family": "cheaters",
+              "tier": 2,
+              "pass": true,
+              "detail": "0 of 177 metamorphic blocks are passed by constant: "
+            },
+            {
+              "id": "cheater.echo.graph",
+              "component": "packages/generate/src/seed/seeders.ts#graphSeeder",
+              "family": "cheaters",
+              "tier": 2,
+              "pass": true,
+              "detail": "0 of 23 graph blocks are passed by echo: "
+            },
+            {
+              "id": "cheater.echo.twise",
+              "component": "packages/generate/src/seed/seeders.ts#twiseSeeder",
+              "family": "cheaters",
+              "tier": 2,
+              "pass": true,
+              "detail": "0 of 528 twise blocks are passed by echo: "
+            },
+            {
+              "id": "cheater.echo.boundary",
+              "component": "packages/generate/src/seed/seeders.ts#boundarySeeder",
+              "family": "cheaters",
+              "tier": 2,
+              "pass": true,
+              "detail": "0 of 72 boundary blocks are passed by echo: "
+            },
+            {
+              "id": "cheater.echo.deviation",
+              "component": "packages/generate/src/seed/seeders.ts#deviationSeeder",
+              "family": "cheaters",
+              "tier": 2,
+              "pass": true,
+              "detail": "0 of 91 deviation blocks are passed by echo: "
+            },
+            {
+              "id": "cheater.echo.metamorphic",
+              "component": "packages/generate/src/seed/seeders.ts#metamorphicSeeder",
+              "family": "cheaters",
+              "tier": 2,
+              "pass": true,
+              "detail": "0 of 177 metamorphic blocks are passed by echo: "
+            },
+            {
+              "id": "cheater.copy-given.graph",
+              "component": "packages/generate/src/seed/seeders.ts#graphSeeder",
+              "family": "cheaters",
+              "tier": 3,
+              "pass": true,
+              "detail": "0 of 23 graph blocks are passed by copy-given: "
+            },
+            {
+              "id": "cheater.copy-given.twise",
+              "component": "packages/generate/src/seed/seeders.ts#twiseSeeder",
+              "family": "cheaters",
+              "tier": 3,
+              "pass": true,
+              "detail": "0 of 528 twise blocks are passed by copy-given: "
+            },
+            {
+              "id": "cheater.copy-given.boundary",
+              "component": "packages/generate/src/seed/seeders.ts#boundarySeeder",
+              "family": "cheaters",
+              "tier": 3,
+              "pass": true,
+              "detail": "0 of 72 boundary blocks are passed by copy-given: "
+            },
+            {
+              "id": "cheater.copy-given.deviation",
+              "component": "packages/generate/src/seed/seeders.ts#deviationSeeder",
+              "family": "cheaters",
+              "tier": 3,
+              "pass": true,
+              "detail": "0 of 91 deviation blocks are passed by copy-given: "
+            },
+            {
+              "id": "cheater.copy-given.metamorphic",
+              "component": "packages/generate/src/seed/seeders.ts#metamorphicSeeder",
+              "family": "cheaters",
+              "tier": 3,
+              "pass": true,
+              "detail": "0 of 177 metamorphic blocks are passed by copy-given: "
+            },
+            {
+              "id": "cheater.every-tool.graph",
+              "component": "packages/generate/src/seed/seeders.ts#graphSeeder",
+              "family": "cheaters",
+              "tier": 3,
+              "pass": true,
+              "detail": "0 of 23 graph blocks are passed by every-tool: "
+            },
+            {
+              "id": "cheater.every-tool.twise",
+              "component": "packages/generate/src/seed/seeders.ts#twiseSeeder",
+              "family": "cheaters",
+              "tier": 3,
+              "pass": true,
+              "detail": "0 of 528 twise blocks are passed by every-tool: "
+            },
+            {
+              "id": "cheater.every-tool.boundary",
+              "component": "packages/generate/src/seed/seeders.ts#boundarySeeder",
+              "family": "cheaters",
+              "tier": 3,
+              "pass": true,
+              "detail": "0 of 72 boundary blocks are passed by every-tool: "
+            },
+            {
+              "id": "cheater.every-tool.deviation",
+              "component": "packages/generate/src/seed/seeders.ts#deviationSeeder",
+              "family": "cheaters",
+              "tier": 3,
+              "pass": true,
+              "detail": "0 of 91 deviation blocks are passed by every-tool: "
+            },
+            {
+              "id": "cheater.every-tool.metamorphic",
+              "component": "packages/generate/src/seed/seeders.ts#metamorphicSeeder",
+              "family": "cheaters",
+              "tier": 3,
+              "pass": true,
+              "detail": "0 of 177 metamorphic blocks are passed by every-tool: "
+            },
+            {
+              "id": "cheater.replay-suite.graph",
+              "component": "packages/generate/src/seed/seeders.ts#graphSeeder",
+              "family": "cheaters",
+              "tier": 3,
+              "pass": true,
+              "detail": "0 of 23 graph blocks are passed by replay-suite: "
+            },
+            {
+              "id": "cheater.replay-suite.twise",
+              "component": "packages/generate/src/seed/seeders.ts#twiseSeeder",
+              "family": "cheaters",
+              "tier": 3,
+              "pass": true,
+              "detail": "0 of 528 twise blocks are passed by replay-suite: "
+            },
+            {
+              "id": "cheater.replay-suite.boundary",
+              "component": "packages/generate/src/seed/seeders.ts#boundarySeeder",
+              "family": "cheaters",
+              "tier": 3,
+              "pass": true,
+              "detail": "0 of 72 boundary blocks are passed by replay-suite: "
+            },
+            {
+              "id": "cheater.replay-suite.deviation",
+              "component": "packages/generate/src/seed/seeders.ts#deviationSeeder",
+              "family": "cheaters",
+              "tier": 3,
+              "pass": true,
+              "detail": "0 of 91 deviation blocks are passed by replay-suite: "
+            },
+            {
+              "id": "cheater.replay-suite.metamorphic",
+              "component": "packages/generate/src/seed/seeders.ts#metamorphicSeeder",
+              "family": "cheaters",
+              "tier": 3,
+              "pass": true,
+              "detail": "0 of 177 metamorphic blocks are passed by replay-suite: "
+            }
+          ]
+        },
+        {
+          "level": 6,
+          "id": "gate",
+          "name": "the validity gate",
+          "metric": "items passing / items of the level (22)",
+          "threshold": 1,
+          "direction": "atLeast",
+          "observed": 0.8636363636363636,
+          "pass": false,
+          "itemCount": 3,
+          "bank": [
+            {
+              "id": "gate.observed.no-machine-then",
+              "component": "packages/generate/src/seed/assemble.ts#renderDraft",
+              "family": "gate",
+              "tier": 3,
+              "pass": true,
+              "detail": "0 complete blocks are rejected by the gate stage observed for no-machine-then: "
+            },
+            {
+              "id": "gate.observed.words-only",
+              "component": "packages/generate/src/seed/assemble.ts#renderDraft",
+              "family": "gate",
+              "tier": 3,
+              "pass": true,
+              "detail": "0 complete blocks are rejected by the gate stage observed for words-only: "
+            },
+            {
+              "id": "gate.leakage.expected-value-in-when",
+              "component": "packages/generate/src/seed/assemble.ts#renderDraft",
+              "family": "gate",
+              "tier": 3,
+              "pass": true,
+              "detail": "0 complete blocks are rejected by the gate stage leakage for expected-value-in-when: "
+            },
+            {
+              "id": "gate.leakage.expected-value-in-given",
+              "component": "packages/generate/src/seed/assemble.ts#renderDraft",
+              "family": "gate",
+              "tier": 3,
+              "pass": true,
+              "detail": "0 complete blocks are rejected by the gate stage leakage for expected-value-in-given: "
+            },
+            {
+              "id": "gate.leakage.ngram-overlap",
+              "component": "packages/generate/src/seed/assemble.ts#renderDraft",
+              "family": "gate",
+              "tier": 3,
+              "pass": true,
+              "detail": "0 complete blocks are rejected by the gate stage leakage for ngram-overlap: "
+            },
+            {
+              "id": "gate.leakage.same-family-as-judge",
+              "component": "packages/generate/src/seed/assemble.ts#renderDraft",
+              "family": "gate",
+              "tier": 3,
+              "pass": true,
+              "detail": "0 complete blocks are rejected by the gate stage leakage for same-family-as-judge: "
+            },
+            {
+              "id": "gate.shortcut.passed-by-constant",
+              "component": "packages/generate/src/seed/assemble.ts#renderDraft",
+              "family": "gate",
+              "tier": 3,
+              "pass": true,
+              "detail": "0 complete blocks are rejected by the gate stage shortcut for passed-by-constant: "
+            },
+            {
+              "id": "gate.shortcut.passed-by-echo",
+              "component": "packages/generate/src/seed/assemble.ts#renderDraft",
+              "family": "gate",
+              "tier": 3,
+              "pass": true,
+              "detail": "0 complete blocks are rejected by the gate stage shortcut for passed-by-echo: "
+            },
+            {
+              "id": "gate.shortcut.passed-by-first-tool",
+              "component": "packages/generate/src/seed/assemble.ts#renderDraft",
+              "family": "gate",
+              "tier": 3,
+              "pass": false,
+              "detail": "8 complete blocks are rejected by the gate stage shortcut for passed-by-first-tool: gen-boundary-010#b1-value, gen-boundary-011#b1-value, gen-boundary-012#b1-value"
+            },
+            {
+              "id": "gate.contrast.then-ignores-edit",
+              "component": "packages/generate/src/seed/assemble.ts#renderDraft",
+              "family": "gate",
+              "tier": 4,
+              "pass": false,
+              "detail": "30 complete blocks are rejected by the gate stage contrast for then-ignores-edit: gen-boundary-004#b2-value, gen-boundary-009#b2-value, gen-boundary-017#b2-value"
+            },
+            {
+              "id": "gate.contrast.twins-disagree",
+              "component": "packages/generate/src/seed/assemble.ts#renderDraft",
+              "family": "gate",
+              "tier": 4,
+              "pass": true,
+              "detail": "0 complete blocks are rejected by the gate stage contrast for twins-disagree: "
+            },
+            {
+              "id": "gate.red_first.not-green-on-reference",
+              "component": "packages/generate/src/seed/assemble.ts#renderDraft",
+              "family": "gate",
+              "tier": 4,
+              "pass": true,
+              "detail": "0 complete blocks are rejected by the gate stage red_first for not-green-on-reference: "
+            },
+            {
+              "id": "gate.red_first.red-on-control",
+              "component": "packages/generate/src/seed/assemble.ts#renderDraft",
+              "family": "gate",
+              "tier": 4,
+              "pass": true,
+              "detail": "0 complete blocks are rejected by the gate stage red_first for red-on-control: "
+            },
+            {
+              "id": "gate.red_first.targets-no-fault",
+              "component": "packages/generate/src/seed/assemble.ts#renderDraft",
+              "family": "gate",
+              "tier": 4,
+              "pass": true,
+              "detail": "0 complete blocks are rejected by the gate stage red_first for targets-no-fault: "
+            },
+            {
+              "id": "gate.red_first.kills-no-fault",
+              "component": "packages/generate/src/seed/assemble.ts#renderDraft",
+              "family": "gate",
+              "tier": 4,
+              "pass": true,
+              "detail": "0 complete blocks are rejected by the gate stage red_first for kills-no-fault: "
+            },
+            {
+              "id": "gate.stability.flips",
+              "component": "packages/generate/src/seed/assemble.ts#renderDraft",
+              "family": "gate",
+              "tier": 3,
+              "pass": true,
+              "detail": "0 complete blocks are rejected by the gate stage stability for flips: "
+            },
+            {
+              "id": "gate.accepted.graph",
+              "component": "packages/generate/src/seed/seeders.ts#graphSeeder",
+              "family": "gate",
+              "tier": 4,
+              "pass": true,
+              "detail": "23 of 23 graph blocks pass the gate (at least 0.9)"
+            },
+            {
+              "id": "gate.accepted.twise",
+              "component": "packages/generate/src/seed/seeders.ts#twiseSeeder",
+              "family": "gate",
+              "tier": 4,
+              "pass": true,
+              "detail": "523 of 528 twise blocks pass the gate (at least 0.9)"
+            },
+            {
+              "id": "gate.accepted.boundary",
+              "component": "packages/generate/src/seed/seeders.ts#boundarySeeder",
+              "family": "gate",
+              "tier": 4,
+              "pass": false,
+              "detail": "54 of 72 boundary blocks pass the gate (at least 0.9)"
+            },
+            {
+              "id": "gate.accepted.deviation",
+              "component": "packages/generate/src/seed/seeders.ts#deviationSeeder",
+              "family": "gate",
+              "tier": 4,
+              "pass": true,
+              "detail": "89 of 91 deviation blocks pass the gate (at least 0.9)"
+            },
+            {
+              "id": "gate.accepted.metamorphic",
+              "component": "packages/generate/src/seed/seeders.ts#metamorphicSeeder",
+              "family": "gate",
+              "tier": 4,
+              "pass": true,
+              "detail": "177 of 177 metamorphic blocks pass the gate (at least 0.9)"
+            },
+            {
+              "id": "gate.killers",
+              "component": "packages/generate/src/seed/seeders.ts",
+              "family": "gate",
+              "tier": 4,
+              "pass": true,
+              "detail": "classes with no killer in the gated suite: none"
+            }
+          ]
+        },
+        {
+          "level": 7,
+          "id": "boundary",
+          "name": "boundary values",
+          "metric": "items passing / items of the level (30)",
+          "threshold": 1,
+          "direction": "atLeast",
+          "observed": null,
+          "pass": null,
+          "itemCount": null
+        },
+        {
+          "level": 8,
+          "id": "paths",
+          "name": "paths of every flow",
+          "metric": "items passing / items of the level (30)",
+          "threshold": 1,
+          "direction": "atLeast",
+          "observed": null,
+          "pass": null,
+          "itemCount": null
+        },
+        {
+          "level": 9,
+          "id": "phrases",
+          "name": "phrase bank expansion",
+          "metric": "items passing / items of the level (20)",
+          "threshold": 1,
+          "direction": "atLeast",
+          "observed": null,
+          "pass": null,
+          "itemCount": null
+        },
+        {
+          "level": 10,
+          "id": "behaviours",
+          "name": "behaviours exercised",
+          "metric": "items passing / items of the level (20)",
+          "threshold": 1,
+          "direction": "atLeast",
+          "observed": null,
+          "pass": null,
+          "itemCount": null
+        },
+        {
+          "level": 11,
+          "id": "faults",
+          "name": "every fault class killed",
+          "metric": "items passing / items of the level (72)",
+          "threshold": 1,
+          "direction": "atLeast",
+          "observed": null,
+          "pass": null,
+          "itemCount": null
+        },
+        {
+          "level": 12,
+          "id": "adequacy",
+          "name": "faults caught where they happen",
+          "metric": "items passing / items of the level (50)",
+          "threshold": 1,
+          "direction": "atLeast",
+          "observed": null,
+          "pass": null,
+          "itemCount": null
+        },
+        {
+          "level": 13,
+          "id": "modes",
+          "name": "modes and perturbations",
+          "metric": "items passing / items of the level (141)",
+          "threshold": 1,
+          "direction": "atLeast",
+          "observed": null,
+          "pass": null,
+          "itemCount": null
+        },
+        {
+          "level": 14,
+          "id": "coverage",
+          "name": "coverage of the hidden cells",
+          "metric": "items passing / items of the level (31)",
+          "threshold": 1,
+          "direction": "atLeast",
+          "observed": null,
+          "pass": null,
+          "itemCount": null
+        },
+        {
+          "level": 15,
+          "id": "sequence",
+          "name": "sequence coverage",
+          "metric": "items passing / items of the level (27)",
+          "threshold": 1,
+          "direction": "atLeast",
+          "observed": null,
+          "pass": null,
+          "itemCount": null
+        },
+        {
+          "level": 16,
+          "id": "allocation",
+          "name": "allocation over the strata",
+          "metric": "items passing / items of the level (20)",
+          "threshold": 1,
+          "direction": "atLeast",
+          "observed": null,
+          "pass": null,
+          "itemCount": null
+        },
+        {
+          "level": 17,
+          "id": "report",
+          "name": "coverage and diversity measures in the report",
+          "metric": "items passing / items of the level (40)",
+          "threshold": 1,
+          "direction": "atLeast",
+          "observed": null,
+          "pass": null,
+          "itemCount": null
+        },
+        {
+          "level": 18,
+          "id": "minimality",
+          "name": "minimality",
+          "metric": "items passing / items of the level (55)",
+          "threshold": 1,
+          "direction": "atLeast",
+          "observed": null,
+          "pass": null,
+          "itemCount": null
+        },
+        {
+          "level": 19,
+          "id": "contrast",
+          "name": "contrast and invariance",
+          "metric": "items passing / items of the level (24)",
+          "threshold": 1,
+          "direction": "atLeast",
+          "observed": null,
+          "pass": null,
+          "itemCount": null
+        },
+        {
+          "level": 20,
+          "id": "interactions",
+          "name": "fault interactions",
+          "metric": "items passing / items of the level (1255)",
+          "threshold": 1,
+          "direction": "atLeast",
+          "observed": null,
+          "pass": null,
+          "itemCount": null
+        },
+        {
+          "level": 21,
+          "id": "stability",
+          "name": "stability across generator seeds",
+          "metric": "items passing / items of the level (50)",
+          "threshold": 1,
+          "direction": "atLeast",
+          "observed": null,
+          "pass": null,
+          "itemCount": null
+        },
+        {
+          "level": 22,
+          "id": "scale",
+          "name": "scale",
+          "metric": "items passing / items of the level (20)",
+          "threshold": 1,
+          "direction": "atLeast",
+          "observed": null,
+          "pass": null,
+          "itemCount": null
+        }
+      ],
+      "failing": {
+        "level": 6,
+        "id": "gate",
+        "name": "the validity gate",
+        "items": [
+          {
+            "id": "gate.shortcut.passed-by-first-tool",
+            "component": "packages/generate/src/seed/assemble.ts#renderDraft",
+            "detail": "8 complete blocks are rejected by the gate stage shortcut for passed-by-first-tool: gen-boundary-010#b1-value, gen-boundary-011#b1-value, gen-boundary-012#b1-value",
+            "family": "gate",
+            "tier": 3
+          },
+          {
+            "id": "gate.contrast.then-ignores-edit",
+            "component": "packages/generate/src/seed/assemble.ts#renderDraft",
+            "detail": "30 complete blocks are rejected by the gate stage contrast for then-ignores-edit: gen-boundary-004#b2-value, gen-boundary-009#b2-value, gen-boundary-017#b2-value",
+            "family": "gate",
+            "tier": 4
+          },
+          {
+            "id": "gate.accepted.boundary",
+            "component": "packages/generate/src/seed/seeders.ts#boundarySeeder",
+            "detail": "54 of 72 boundary blocks pass the gate (at least 0.9)",
+            "family": "gate",
+            "tier": 4
+          }
+        ]
+      }
+    }
+  ]
+}

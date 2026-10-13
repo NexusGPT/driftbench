@@ -6,6 +6,10 @@ import { createHash } from 'node:crypto';
  */
 import { copyFileSync, existsSync, mkdirSync, readdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
+import { loadSpecFile } from '@agent-nexus/driftbench-core';
+import { AUTO_MARGIN_WARN } from '@agent-nexus/driftbench-report';
+import { nonInferiority } from '@agent-nexus/driftbench-stats';
+import { gateContract, goldenContract, goldenCount } from '../current-contracts';
 import { type BankItem, expectAll, fail, type Tier } from '../types';
 
 // ---------------------------------------------------------------------------------------------------------
@@ -1771,6 +1775,8 @@ function goldenFaults(scratch: string, root: string): Promise<Map<string, FaultR
         specs,
         '--target',
         'function:acme-sales',
+        '--route',
+        'flow:price-sheet=process:acme-ops',
         '--store',
         store,
         '--campaign',
@@ -1801,6 +1807,8 @@ function goldenFaults(scratch: string, root: string): Promise<Map<string, FaultR
           specs,
           '--target',
           `fault:${id}`,
+          '--route',
+          'flow:price-sheet=process:acme-ops',
           '--faults',
           faults,
           '--baseline',
@@ -1824,22 +1832,10 @@ function goldenFaults(scratch: string, root: string): Promise<Map<string, FaultR
   });
 }
 
-for (const [slug, ids, verdict, code] of [
-  ['regression', ['d4-order-on-loose-yes', 'x3-skips-recap', 'x4-wrong-language'], 'regression', 1],
-  [
-    'not-shown',
-    [
-      'd2-ignores-goal-shift',
-      'd6-obeys-instruction',
-      'd8-hides-tool-failure',
-      'd9-answers-out-of-scope',
-      'x1-invents-price',
-      'x5-drops-coverage-check',
-    ],
-    'not-shown-non-inferior',
-    1,
-  ],
-  ['parity', ['control-sales-identity', 'x2-keeps-first-email'], 'parity', 0],
+for (const [slug, verdict, code] of [
+  ['regression', 'regression', 1],
+  ['not-shown', 'not-shown-non-inferior', 1],
+  ['parity', 'parity', 0],
 ] as const) {
   add(
     FC,
@@ -1849,10 +1845,32 @@ for (const [slug, ids, verdict, code] of [
     'contract',
     'driftbench ci',
     `${QCI} ("Measured 2026-10-12 with the defaults", examples/acme/golden/specs, 10 goldens)`,
-    `on the golden suite the faults ${ids.join(', ')} read ${verdict} with exit ${code}`,
+    `on the golden suite the faults documented as ${verdict} read that verdict with exit ${code}`,
     async (ctx) => {
       const m = await goldenFaults(ctx.scratch, ctx.root);
-      const bad = ids
+      const page = readFileSync(join(ctx.root, 'examples/acme/ci/README.md'), 'utf8');
+      const row = page.split('\n').find((line) => line.includes('10 goldens |')) ?? '';
+      const regression =
+        /: ([a-z0-9, ]+) `regression`/
+          .exec(row)?.[1]
+          ?.split(',')
+          .map((id) => id.trim()) ?? [];
+      const notShown =
+        /; ([a-z0-9, -]+) `not-shown-non-inferior`/
+          .exec(row)?.[1]
+          ?.split(/,| and /)
+          .map((id) => id.trim()) ?? [];
+      const documented =
+        slug === 'regression'
+          ? regression
+          : slug === 'not-shown'
+            ? notShown
+            : ['control', ...(/\. ([a-z0-9]+) and ops-d6 read parity/.exec(row)?.slice(1) ?? [])];
+      const expectedIds = [...m.keys()].filter((id) =>
+        documented.includes(id === 'control-sales-identity' ? 'control' : (id.split('-')[0] ?? '')),
+      );
+      if (expectedIds.length === 0) return fail(`missing documented ${slug} fault group`);
+      const bad = expectedIds
         .filter((id) => m.get(id)?.verdict !== verdict || m.get(id)?.code !== code)
         .map((id) => `${id}: ${m.get(id)?.verdict} exit ${m.get(id)?.code}`);
       return expectAll([[bad.length === 0, `expected ${verdict} exit ${code}; got ${bad.join('; ')}`]]);
@@ -1868,18 +1886,22 @@ add(
   'contract',
   'driftbench ci',
   `${QCI} ("Auto margin 28 points" for the 10-golden suite)`,
-  'the auto margin on the 10-golden suite is 28 points, set by the all-pass flag at 27.75, with the 15 point warning',
+  'the auto margin agrees with the all-pass paired interval on the current golden count and the warning threshold',
   async (ctx) => {
     const m = await goldenFaults(ctx.scratch, ctx.root);
     const t = m.get('control-sales-identity')?.text ?? '';
+    const n = await goldenCount(ctx.root);
+    const flags = Array.from({ length: n }, () => true);
+    const needed = nonInferiority({ baseline: flags, candidate: flags, margin: 0.5 }).effect.upper;
+    const margin = Number((Math.min(0.995, (Math.floor(needed * 200 + 1e-9) + 1) / 200) * 100).toFixed(2));
     return expectAll([
       [
-        /Margin auto: 28 points/.test(t) && /27\.75/.test(t),
-        `expected "Margin auto: 28 points" set by 27.75, got ${brief(t.slice(0, 300))}`,
+        t.includes(`Margin auto: ${margin} points`) && t.includes((needed * 100).toFixed(2)),
+        `expected auto margin ${margin}, floor ${needed * 100}; ${brief(t)}`,
       ],
       [
-        /cannot show parity under 15 points/.test(t),
-        `expected the 15 point warning, got ${brief(t.slice(0, 500))}`,
+        t.includes(`cannot show parity under ${AUTO_MARGIN_WARN * 100} points`),
+        `missing warning: ${brief(t)}`,
       ],
     ]);
   },
@@ -5550,12 +5572,16 @@ add(
   10,
   'contract',
   'driftbench select',
-  'examples/acme/golden/README.md "What the ten cover" (The tenth required cell is covered only by a sealed spec ... so select exits 1)',
-  'select on the gated Acme specs writes the golden set and exits 1 because a required cell stays empty',
+  'examples/acme/golden/README.md "What the ten cover" (select exits according to the required-cell coverage)',
+  'select on the gated Acme specs writes the golden set and exits according to the documented required-cell coverage',
   async (ctx) => {
     const s = await selectGated(ctx.scratch, ctx.root);
+    const want = goldenContract(ctx.root);
     return expectAll([
-      [s.r.code === 1, `expected exit 1, got ${s.r.code}: ${brief(s.r.err)}`],
+      [
+        s.r.code === (want.required === want.totalRequired ? 0 : 1),
+        `exit disagrees with documented required coverage, got ${s.r.code}: ${brief(s.r.err)}`,
+      ],
       [existsSync(join(s.out, 'golden.json')), 'golden.json was not written'],
     ]);
   },
@@ -5568,20 +5594,24 @@ add(
   10,
   'contract',
   'driftbench select',
-  'examples/acme/golden/README.md "How the ten were chosen" (139 unsealed specs, 36 sealed, 592 of 840 cells, 303 of 840 for the ten)',
-  'the pool holds 139 unsealed specs, 36 sealed are left out, the pool covers 592 cells and the ten cover 303',
+  'examples/acme/golden/README.md "How the ten were chosen" (pool, sealed specs, allowed pairs and golden coverage)',
+  'the pool and golden coverage counts agree with the current README',
   async (ctx) => {
     const s = await selectGated(ctx.scratch, ctx.root);
+    const want = goldenContract(ctx.root);
     const pool = s.j?.pool ?? {};
     const golden = (s.j?.golden ?? []) as { adds_cells: number; cumulative: number }[];
     return expectAll([
       [
-        pool.specs === 139 && pool.sealed_left_out === 36 && pool.cells_covered === 592,
+        pool.specs === want.pool &&
+          pool.sealed_left_out === want.sealed &&
+          pool.cells_covered === want.cells &&
+          s.j?.coverage?.allowed === want.allowed,
         `got pool ${JSON.stringify({ specs: pool.specs, sealed: pool.sealed_left_out, cells: pool.cells_covered })}`,
       ],
       [
-        golden.length === 10 && golden[9]?.cumulative === 303,
-        `expected 10 picks ending at 303 cells, got ${golden.length} ending ${golden[9]?.cumulative}`,
+        golden.length === 10 && golden[9]?.cumulative === want.golden,
+        `expected 10 picks ending at ${want.golden} cells, got ${golden.length} ending ${golden[9]?.cumulative}`,
       ],
     ]);
   },
@@ -5747,7 +5777,7 @@ add(
   'contract',
   'driftbench select',
   'driftbench select --help ("--k: the size of the golden set; without it, the whole cover")',
-  'without --k the golden set is the whole cover of 86 conversations and covers every cell the pool covers',
+  'without --k the golden set is the whole cover documented in the golden README and covers every cell the pool covers',
   async (ctx) => {
     const d = dir(ctx.scratch, uniq('selcover'));
     const r = await cli(
@@ -5763,6 +5793,7 @@ add(
       ],
       d,
     );
+    const want = goldenContract(ctx.root);
     const j = parse(r);
     const files = existsSync(join(d, 'g/specs'))
       ? (readdirSync(join(d, 'g/specs'), { recursive: true }) as string[]).filter((f) => f.endsWith('.yaml'))
@@ -5770,13 +5801,13 @@ add(
       : 0;
     return expectAll([
       [
-        (j?.cover ?? []).length === 86 && (j?.golden ?? []).length === 86,
-        `expected 86 in cover and golden, got ${(j?.cover ?? []).length} / ${(j?.golden ?? []).length}`,
+        (j?.cover ?? []).length === want.cover && (j?.golden ?? []).length === want.cover,
+        `expected ${want.cover} in cover and golden, got ${(j?.cover ?? []).length} / ${(j?.golden ?? []).length}`,
       ],
-      [files === 86, `expected 86 spec files written, got ${files}`],
+      [files === want.cover, `expected ${want.cover} spec files written, got ${files}`],
       [
-        (j?.golden ?? [])[85]?.cumulative === 592,
-        `expected the cover to end at 592 cells, got ${(j?.golden ?? [])[85]?.cumulative}`,
+        (j?.golden ?? []).at(-1)?.cumulative === want.cells,
+        `expected the cover to end at ${want.cells} cells, got ${(j?.golden ?? []).at(-1)?.cumulative}`,
       ],
     ]);
   },
@@ -5790,18 +5821,25 @@ add(
   'contract',
   'examples/acme/golden',
   'examples/acme/golden/README.md "The files" (golden.json holds each golden spec with its hash and what it adds)',
-  'the committed golden.json lists ten specs, each of which exists in specs/, and ends at 303 cells',
+  'the committed golden.json lists ten specs, each of which exists in specs/, and ends at the coverage documented in the README',
   async (ctx) => {
+    const want = goldenContract(ctx.root);
     const t = readFileSync(join(ctx.root, 'examples/acme/golden/golden.json'), 'utf8');
-    const j = JSON.parse(t) as { golden?: { id: string; path: string; cumulative: number }[] };
+    const j = JSON.parse(t) as { golden?: { id: string; path: string; cumulative: number; hash: string }[] };
     const g = j.golden ?? [];
     const missing = g.filter((x) => !existsSync(join(ctx.root, 'examples/acme/golden', x.path)));
+    const wrongHashes = [];
+    for (const entry of g) {
+      const loaded = await loadSpecFile(join(ctx.root, 'examples/acme/golden', entry.path));
+      if (!loaded.ok || loaded.hash !== entry.hash || loaded.spec.id !== entry.id) wrongHashes.push(entry.id);
+    }
     return expectAll([
       [
-        g.length === 10 && g[9]?.cumulative === 303,
-        `expected 10 picks ending at 303, got ${g.length} ending ${g[9]?.cumulative}`,
+        g.length === 10 && g[9]?.cumulative === want.golden,
+        `expected 10 picks ending at ${want.golden}, got ${g.length} ending ${g[9]?.cumulative}`,
       ],
       [missing.length === 0, `missing files: ${missing.map((x) => x.path)}`],
+      [wrongHashes.length === 0, `golden ids or hashes disagree: ${wrongHashes}`],
     ]);
   },
 );
@@ -5876,17 +5914,18 @@ add(
   'contract',
   'driftbench holdout seal',
   `${QHO} (seal seals the gate own split when it has one)`,
-  'seal takes the gate own split of 36 specs out of 175 and writes sealed.json, exit 0',
+  'seal takes the gate own split and writes sealed.json, exit 0',
   async (ctx) => {
+    const want = await gateContract(ctx.root);
     const h = await holdout(ctx.scratch, ctx.root);
     return expectAll([
       [
-        h.seal1.code === 0 && /Sealed 36 of 175 gated specs/.test(h.seal1.out),
-        `expected exit 0 and "Sealed 36 of 175", got ${h.seal1.code} ${brief(h.seal1.out.slice(0, 160))}`,
+        h.seal1.code === 0 && h.seal1.out.includes(`Sealed ${want.sealed} of ${want.total} gated specs`),
+        `expected exit 0 and "Sealed ${want.sealed} of ${want.total}", got ${h.seal1.code} ${brief(h.seal1.out.slice(0, 160))}`,
       ],
       [
-        (h.sealedJson?.specs ?? []).length === 36,
-        `expected 36 specs in sealed.json, got ${(h.sealedJson?.specs ?? []).length}`,
+        (h.sealedJson?.specs ?? []).length === want.sealed,
+        `expected ${want.sealed} specs in sealed.json, got ${(h.sealedJson?.specs ?? []).length}`,
       ],
     ]);
   },
@@ -5937,6 +5976,7 @@ add(
   `${QHO} (prints the pass rate with its Wilson interval)`,
   'the score prints passed over conversations with the Wilson interval of those counts',
   async (ctx) => {
+    const want = await gateContract(ctx.root);
     const h = await holdout(ctx.scratch, ctx.root);
     const j = parse(h.score2);
     const [lo, hi] = wilson(j?.passed ?? -1, j?.conversations ?? 0);
@@ -5946,8 +5986,8 @@ add(
         `expected exit 0 for both scores, got ${h.score1.code} and ${h.score2.code}`,
       ],
       [
-        j?.conversations === 35 && j?.passed >= 0,
-        `expected 35 runnable conversations, got ${j?.conversations}`,
+        j?.conversations === want.runnable && j?.passed >= 0,
+        `expected ${want.runnable} runnable conversations, got ${j?.conversations}`,
       ],
       [
         close(j?.rate?.lower, lo, 1e-9) && close(j?.rate?.upper, hi, 1e-9),
@@ -6017,13 +6057,17 @@ add(
   `${QHO} (never which spec passed)`,
   'the score output names no sealed spec as passed or failed',
   async (ctx) => {
+    const want = await gateContract(ctx.root);
     const h = await holdout(ctx.scratch, ctx.root);
     const ids = ((h.sealedJson?.specs ?? []) as { id: string }[]).map((x) => x.id);
     const notRun = ((parse(h.score2)?.not_run ?? []) as string[]).join(' ');
     const text = h.score1.out + h.score2.out;
     const leaked = ids.filter((id) => text.includes(id) && !notRun.includes(id));
     return expectAll([
-      [ids.length === 36 && leaked.length === 0, `sealed ids in the score output: ${leaked.join(',')}`],
+      [
+        ids.length === want.sealed && leaked.length === 0,
+        `sealed ids in the score output: ${leaked.join(',')}`,
+      ],
     ]);
   },
 );
