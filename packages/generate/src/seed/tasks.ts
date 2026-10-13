@@ -1,11 +1,14 @@
 import { resolve } from 'node:path';
 import type { TaskFamilyRelation } from '../extract/proposal';
 import {
-  buildInstances,
+  buildInstance,
   FamilyError,
   type Instance,
+  type LoadedFamily,
   loadFamily,
+  meets,
   reviewStatus,
+  type SeedFiles,
   unapprovedPhrases,
 } from '../families';
 import type { RunIdentity } from './assemble';
@@ -27,6 +30,8 @@ export type TaskVariant = {
   /** The spec the family wrote, as a plain object. */
   spec: Record<string, unknown>;
   planted?: boolean;
+  /** The workspace files, when one is not text: the spec starts from a folder that must hold them. */
+  seed?: SeedFiles;
 };
 
 export type TaskInput = { relation: TaskFamilyRelation; variants: TaskVariant[] };
@@ -38,8 +43,8 @@ export function taskSpecs(
   prepared: PreparedMap,
   inputs: readonly TaskInput[],
   run: RunIdentity,
-): Array<{ id: string; spec: Record<string, unknown> }> {
-  const out: Array<{ id: string; spec: Record<string, unknown> }> = [];
+): Array<{ id: string; spec: Record<string, unknown>; seed?: SeedFiles }> {
+  const out: Array<{ id: string; spec: Record<string, unknown>; seed?: SeedFiles }> = [];
   for (const { relation, variants } of inputs) {
     const tags: string[] = [];
     for (const [dimensionId, values] of Object.entries(relation.holds ?? {})) {
@@ -80,72 +85,142 @@ export function taskSpecs(
           family: relation.family,
         },
       };
-      out.push({ id: String(spec.id), spec });
+      out.push({ id: String(spec.id), spec, ...(variant.seed ? { seed: variant.seed } : {}) });
     }
   }
   return out;
 }
 
+/** How many instances, per relation asked for, are drawn at most while a relation waits for its own. */
+const DRAWS_PER_INSTANCE = 20;
+
 /**
  * Builds the instances of every task family the map names, for `generateSuite`'s `tasks`: `n` instances per
- * family from `seed`, each with its corner and planted variants. A family is refused, with the reason, when
- * it does not load, uses a phrase no person approved, has a missing, invalid or stale review, has a defect
- * the build finds, or a variant needs a binary seed folder (a generated spec carries text seeds only).
+ * relation from `seed`, each with its corner and planted variants. Relations on one family share its draws:
+ * instances are drawn in order, and each goes to the relations whose `instances` condition its knobs meet,
+ * until each relation has `n` or `n` times DRAWS_PER_INSTANCE are drawn. A relation is refused, with the
+ * reason, when its family does not load, uses a phrase no person approved, has a missing, invalid or stale
+ * review, has a defect the build finds, names a knob the family does not have, or gets no instance. A
+ * variant whose workspace holds a file that is not text starts from the folder `seedFrom` names for its
+ * spec id; without `seedFrom` such a variant is refused.
  */
 export async function buildTaskInputs(
   prepared: PreparedMap,
   mapDir: string,
-  options: { n: number; seed: number },
+  options: { n: number; seed: number; seedFrom?: (specId: string) => string },
 ): Promise<{ inputs: TaskInput[]; refused: Array<{ family: string; reason: string }> }> {
-  const inputs: TaskInput[] = [];
   const refused: Array<{ family: string; reason: string }> = [];
+  const placed = new Map<TaskFamilyRelation, TaskVariant[]>();
+  const groups = new Map<string, TaskFamilyRelation[]>();
   for (const relation of prepared.relations.taskFamilies) {
-    const loaded = await loadFamily(resolve(mapDir, relation.family));
+    const key = resolve(mapDir, relation.family);
+    groups.set(key, [...(groups.get(key) ?? []), relation]);
+  }
+  for (const [dir, relations] of groups) {
+    const family = relations[0]?.family as string;
+    const refuseAll = (reason: string) => {
+      for (const relation of relations) refused.push({ family: relation.family, reason });
+    };
+    const loaded = await loadFamily(dir);
     if (!loaded.ok) {
-      refused.push({
-        family: relation.family,
-        reason: loaded.issues.map((issue) => issue.message).join('; '),
-      });
+      refuseAll(loaded.issues.map((issue) => issue.message).join('; '));
       continue;
     }
     const unapproved = unapprovedPhrases(loaded.loaded.family);
     if (unapproved.length > 0) {
-      refused.push({ family: relation.family, reason: `unapproved phrases: ${unapproved.join(', ')}` });
+      refuseAll(`unapproved phrases: ${unapproved.join(', ')}`);
       continue;
     }
     const review = await reviewStatus(loaded.loaded);
     if (review.state !== 'signed' && review.state !== 'pending') {
-      refused.push({ family: relation.family, reason: `review ${review.state}` });
+      refuseAll(`review ${review.state}`);
       continue;
     }
-    let instances: Instance[];
+    const open: TaskFamilyRelation[] = [];
+    for (const relation of relations) {
+      const unknown = Object.keys(relation.instances ?? {}).filter(
+        (knob) => !Object.hasOwn(loaded.loaded.family.knobs, knob),
+      );
+      if (unknown.length > 0) {
+        refused.push({
+          family: relation.family,
+          reason: `instances names the knob ${unknown.join(', ')}, which the family does not have`,
+        });
+      } else open.push(relation);
+    }
     try {
-      instances = await buildInstances(loaded.loaded, {
-        n: options.n,
-        seed: options.seed,
-        review: review.state,
-        seedFrom: () => {
-          throw new FamilyError(
-            'a variant needs a binary seed folder, which a generated spec does not carry',
-          );
-        },
-      });
+      const drawn = await drawFor(loaded.loaded, open, family, options);
+      for (const relation of open) {
+        const variants = drawn.get(relation) ?? [];
+        if (variants.length > 0) placed.set(relation, variants);
+        else {
+          refused.push({
+            family: relation.family,
+            reason: `no instance of the first ${options.n * DRAWS_PER_INSTANCE} drawn has ${Object.entries(
+              relation.instances ?? {},
+            )
+              .map(([knob, value]) => `${knob} ${[value].flat().join(' or ')}`)
+              .join(' and ')}`,
+          });
+        }
+      }
     } catch (cause) {
-      refused.push({
-        family: relation.family,
-        reason: cause instanceof Error ? cause.message : String(cause),
-      });
-      continue;
+      for (const relation of open) {
+        refused.push({
+          family: relation.family,
+          reason: cause instanceof Error ? cause.message : String(cause),
+        });
+      }
     }
-    inputs.push({
-      relation,
-      variants: instances.flatMap((instance) =>
-        instance.variants.map((variant) => ({
-          spec: variant.spec,
-          ...(variant.planted ? { planted: true } : {}),
-        })),
-      ),
-    });
   }
+  const inputs = prepared.relations.taskFamilies.flatMap((relation) => {
+    const variants = placed.get(relation);
+    return variants ? [{ relation, variants }] : [];
+  });
   return { inputs, refused };
+}
+
+/** Draws instances of one family in order and hands each to the relations whose condition it meets. */
+async function drawFor(
+  loaded: LoadedFamily,
+  relations: readonly TaskFamilyRelation[],
+  family: string,
+  options: { n: number; seed: number; seedFrom?: (specId: string) => string },
+): Promise<Map<TaskFamilyRelation, TaskVariant[]>> {
+  const out = new Map<TaskFamilyRelation, TaskVariant[]>();
+  const count = new Map<TaskFamilyRelation, number>();
+  if (relations.length === 0) return out;
+  const review = (await reviewStatus(loaded)).state === 'signed' ? 'signed' : 'pending';
+  const familyId = loaded.family.id;
+  const build = {
+    n: options.n,
+    seed: options.seed,
+    review,
+    seedFrom: (instance: string, variant: string) => {
+      if (!options.seedFrom) {
+        throw new FamilyError(
+          `${family}: a variant needs a binary seed folder, and the caller gave no place for it`,
+        );
+      }
+      return options.seedFrom(`${familyId}-${instance}-${variant}`);
+    },
+  } as const;
+  const wanted = (relation: TaskFamilyRelation) => (count.get(relation) ?? 0) < options.n;
+  for (let index = 1; index <= options.n * DRAWS_PER_INSTANCE && relations.some(wanted); index += 1) {
+    const instance: Instance = await buildInstance(loaded, index, build);
+    const takers = relations.filter(
+      (relation) => wanted(relation) && meets(instance.knobs, relation.instances),
+    );
+    if (takers.length === 0) continue;
+    const variants = instance.variants.map((variant) => ({
+      spec: variant.spec,
+      ...(variant.planted ? { planted: true } : {}),
+      ...(Object.keys(variant.seed.binary).length > 0 ? { seed: variant.seed } : {}),
+    }));
+    for (const relation of takers) {
+      out.set(relation, [...(out.get(relation) ?? []), ...variants]);
+      count.set(relation, (count.get(relation) ?? 0) + 1);
+    }
+  }
+  return out;
 }

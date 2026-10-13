@@ -1,0 +1,862 @@
+{
+  "row": "borderline",
+  "side": "ours",
+  "variant": "audit",
+  "procedure": "driftbench answer audit, three votes, weighted panel",
+  "model": "haiku",
+  "set": "borderline-heldout.json",
+  "setSha256": "4f4662cb8e93447c97823c78a4093ec91d194ec5a895870ef19222ca05d0000b",
+  "items": 60,
+  "complete": 60,
+  "right": 60,
+  "wrong": 0,
+  "inconclusive": 0,
+  "ci95": {
+    "lower": 0.93982814785791,
+    "upper": 0.9999999999999998
+  },
+  "costUsd": 0.10636484000000002,
+  "calls": 180,
+  "results": [
+    {
+      "id": "heldout-20261013-borderline-near-number-5-69",
+      "family": "near-number",
+      "label": "fail",
+      "outcome": "fail",
+      "complete": true,
+      "votes": ["fail", "fail", "fail"],
+      "request_sha256": [
+        "c06fa598deb83098f32b698b52dea129ac2ebe72da95efc738872f79e6ee7b72",
+        "5db23ff34d1c298296874e6be9f0781bb7d8aadaee24fe14e18097e1bcf85401",
+        "c5b7064ba73c1fa36cf1dffb8591a0e8ee501874e46f476410a07a4d11189d84"
+      ],
+      "costUsd": 0.00145458
+    },
+    {
+      "id": "heldout-20261013-borderline-near-number-3-17",
+      "family": "near-number",
+      "label": "fail",
+      "outcome": "fail",
+      "complete": true,
+      "votes": ["fail", "fail", "fail"],
+      "request_sha256": [
+        "528ff78953951b914f4766776b0db8afee4a6f9b066d9a96813cf2f4e909260a",
+        "24e962d1bd13d5870a88b25fdb69aef8b51809971faef2b6389339bc9fdb0097",
+        "40d88c57c498086160726817bf228211564b8df996f9ef6a2cc4dc590061deeb"
+      ],
+      "costUsd": 0.00149358
+    },
+    {
+      "id": "heldout-20261013-borderline-near-number-8-67",
+      "family": "near-number",
+      "label": "pass",
+      "outcome": "pass",
+      "complete": true,
+      "votes": ["pass", "pass", "pass"],
+      "request_sha256": [
+        "56ca08cc3646a5fac1335be48a252def29764cd42f2a5af3512c575331ddd834",
+        "e15d483aadea794abea00cb3f14da8f259e87b8c0b76d57dd935438f7f83c285",
+        "4557f540e7ac95d8f325c729f705be53a028564f6ad9cc61881262dc2c34f389"
+      ],
+      "costUsd": 0.00141908
+    },
+    {
+      "id": "heldout-20261013-borderline-near-number-6-73",
+      "family": "near-number",
+      "label": "pass",
+      "outcome": "pass",
+      "complete": true,
+      "votes": ["pass", "pass", "pass"],
+      "request_sha256": [
+        "52ae56689ff490200386e878ea4721420d1ee38f5101d63d8e413635ba9bb996",
+        "a4f99cd32570c0bc6979e13a97e6cf9c3239d83e13234aed51ae386f6f2b6b70",
+        "fb11966658b369431d02b59459654840931ce45ade73b292cc1098213c520927"
+      ],
+      "costUsd": 0.00141708
+    },
+    {
+      "id": "heldout-20261013-borderline-near-number-0-23",
+      "family": "near-number",
+      "label": "pass",
+      "outcome": "pass",
+      "complete": true,
+      "votes": ["pass", "pass", "pass"],
+      "request_sha256": [
+        "bae60906516edbf25cb2e7238b16256db027346cc3795c9d2702b7d8cd0f1b23",
+        "aced53841c246ad121854b40a1afcdfb78bcb3ea0e60724224a0ff7c3c10cca1",
+        "231b2fc9eb2bf25e68d9168bec5c1964736705bb6c2db8ebf9d51786af578834"
+      ],
+      "costUsd": 0.00171366
+    },
+    {
+      "id": "heldout-20261013-borderline-unit-4-53",
+      "family": "unit",
+      "label": "pass",
+      "outcome": "pass",
+      "complete": true,
+      "votes": ["pass", "pass", "pass"],
+      "request_sha256": [
+        "066015154e069e1fee0ad057fad62c446d06022bf2d62a96e1637bfb48a6049d",
+        "ea9d932b9dfed94fed9d8fddd015f203300087a1226bcd589c359e9b18a15a8c",
+        "5caf9f7050191c139f87353eae9ace3e208b16604463e147512b1c0e58321067"
+      ],
+      "costUsd": 0.00156624
+    },
+    {
+      "id": "heldout-20261013-borderline-unit-3-68",
+      "family": "unit",
+      "label": "fail",
+      "outcome": "fail",
+      "complete": true,
+      "votes": ["fail", "fail", "fail"],
+      "request_sha256": [
+        "32fe759fdb8e3899fbdf2338c161308f074bf1048fef140ca8f803694aabe739",
+        "ecad3b94a5946f11d25e9f7dba31a2cfb5b1d4e581981e718864c2b4a35292fd",
+        "80a80e1c79c4b9b4b717abae57feae3f938cfac1136aab47f5b34aa6a3e7eb2b"
+      ],
+      "costUsd": 0.0020038
+    },
+    {
+      "id": "heldout-20261013-borderline-unit-7-21",
+      "family": "unit",
+      "label": "fail",
+      "outcome": "fail",
+      "complete": true,
+      "votes": ["fail", "fail", "fail"],
+      "request_sha256": [
+        "8ce4d44ac5ee1b74114b0452f4dfbec87759e49c741206dd1d47ee184fb8003f",
+        "1dcbf8e0f73d88a6c883668424450ecd02c1be660619a455cf023c9663ef4895",
+        "64875f829438af3df15e9483f46aea5eedf2d246f57230630eb000543b60c0b6"
+      ],
+      "costUsd": 0.0018658
+    },
+    {
+      "id": "heldout-20261013-borderline-unit-6-68",
+      "family": "unit",
+      "label": "pass",
+      "outcome": "pass",
+      "complete": true,
+      "votes": ["pass", "pass", "pass"],
+      "request_sha256": [
+        "76997ca8677d3740eb9fead0c2fdb5c8c75cda4783ae85f583a6b8ea65004030",
+        "16550854d2fae012eaf427acedb83cc1d4b0d3469ff32fbb33853490c935dd8c",
+        "0b47c5e480e06e619990d0ed74f08021e5924ebd3232e2cffe1ea58e22ae7264"
+      ],
+      "costUsd": 0.00169174
+    },
+    {
+      "id": "heldout-20261013-borderline-unit-1-62",
+      "family": "unit",
+      "label": "fail",
+      "outcome": "fail",
+      "complete": true,
+      "votes": ["fail", "fail", "fail"],
+      "request_sha256": [
+        "141ef139fa2a052942bcb068f5991c8e10e84a66697d1a74c2e32627724a17f7",
+        "1394d89bee412585b2a13f82644445b5a626f92a4cd462d9bd43169955e0e03f",
+        "d40ab8096e3bebf42f136687f0b313ab633812ddda790c7c54f76ba69e685958"
+      ],
+      "costUsd": 0.0019903
+    },
+    {
+      "id": "heldout-20261013-borderline-negation-6-10",
+      "family": "negation",
+      "label": "pass",
+      "outcome": "pass",
+      "complete": true,
+      "votes": ["pass", "pass", "pass"],
+      "request_sha256": [
+        "2762e3bc7bc36289194065251c912d2e9490b5d56f75f781d8f6c83631a7069e",
+        "2d7a244eea625a4e2ccf0a739160d5ab15a9c92d8a212e30c12857a494485d07",
+        "dc6c8a2c4014914ec10c735f5477debbd1da1effb32691edae0a497d56008d01"
+      ],
+      "costUsd": 0.00116922
+    },
+    {
+      "id": "heldout-20261013-borderline-negation-9-69",
+      "family": "negation",
+      "label": "fail",
+      "outcome": "fail",
+      "complete": true,
+      "votes": ["fail", "fail", "fail"],
+      "request_sha256": [
+        "9f0e26a5c17d4d7e352fb0a0bffd56aab6e26c5054ae6f60d7398126e1a07ad9",
+        "6bc8dda05d79658d275316a68a10095ddb22f4662abcea47f9a711b2057150a2",
+        "27affb245a7706c33d3e539fff5e52a029d1fa8d029a230c574f1701235a84f0"
+      ],
+      "costUsd": 0.0019986199999999996
+    },
+    {
+      "id": "heldout-20261013-borderline-negation-4-63",
+      "family": "negation",
+      "label": "pass",
+      "outcome": "pass",
+      "complete": true,
+      "votes": ["pass", "pass", "pass"],
+      "request_sha256": [
+        "41c35b2d1f963f48bd648af32c5fe519bdfd99e5b12e5e1df802755b5f4164d2",
+        "d8d2fa823715260bb0a17cbce135e6e3965bee7926d02ff7832fc0eee98d2497",
+        "7ba0013100176ee5b5646a23914f202a347b15be62673b1ae27470abd960c7a1"
+      ],
+      "costUsd": 0.00134172
+    },
+    {
+      "id": "heldout-20261013-borderline-negation-5-28",
+      "family": "negation",
+      "label": "fail",
+      "outcome": "fail",
+      "complete": true,
+      "votes": ["fail", "fail", "fail"],
+      "request_sha256": [
+        "ce43e7503b4d9ceec9ee3398d303fb1dfb32dbf10d950a78d14435b9f5d1193e",
+        "d2b5d88a2789dc8fbccfbe309dafc7e000d78537cc2f244a3595c5de24979a39",
+        "2f3bbd9db88858c08d9d2f43d192539a04d1403f8e5f213ff722ece4f25c1c80"
+      ],
+      "costUsd": 0.0019006199999999998
+    },
+    {
+      "id": "heldout-20261013-borderline-negation-8-21",
+      "family": "negation",
+      "label": "pass",
+      "outcome": "pass",
+      "complete": true,
+      "votes": ["pass", "pass", "pass"],
+      "request_sha256": [
+        "0d7acbf7dfc2acff0d147fc44192a98fdabd4bf78a7532614e14e5810d15c096",
+        "b38dc311b688094cb52e588e17ceb623880eae020b6539eefaef8e1baa86d735",
+        "f093f25480c48af59116037045390a343d7b8de5780f2a7dbac281124607fbf4"
+      ],
+      "costUsd": 0.00132172
+    },
+    {
+      "id": "heldout-20261013-borderline-entity-7-58",
+      "family": "entity",
+      "label": "fail",
+      "outcome": "fail",
+      "complete": true,
+      "votes": ["fail", "fail", "fail"],
+      "request_sha256": [
+        "c2673cd003b7bfde3c4afc7a551454c37a71710855444d2e055527759162e639",
+        "0798d8acc5c0a8670740a6bbacb79009ec56dae12c89582880b81bc7b63de11b",
+        "f661e9e34866066bb79848f4a3f819d2fd63646645f08432ab38e269e9697180"
+      ],
+      "costUsd": 0.0015868
+    },
+    {
+      "id": "heldout-20261013-borderline-entity-8-14",
+      "family": "entity",
+      "label": "pass",
+      "outcome": "pass",
+      "complete": true,
+      "votes": ["pass", "pass", "pass"],
+      "request_sha256": [
+        "57c6b3e1fc81e49f45152e16d4fec91a6972098aac8ae2e18dae44d81b67c3c2",
+        "553f05a44e3a3bf49a05ea2e5e92dc7c88c689830a747adcf15fc8c579529ae9",
+        "36bd26b7bf11409130e90689190586633ea5214534da24d69edb9f6147769719"
+      ],
+      "costUsd": 0.00183876
+    },
+    {
+      "id": "heldout-20261013-borderline-entity-5-33",
+      "family": "entity",
+      "label": "fail",
+      "outcome": "fail",
+      "complete": true,
+      "votes": ["fail", "fail", "fail"],
+      "request_sha256": [
+        "7a3ca75bb4897502b066c948f7e8b93c37772b792f79c83b1f2602aebdcca7c7",
+        "896150ad0a84675346a627fdc0e20c0b5a864c375b79a838c8555a87a3f07b5b",
+        "2d68446f05cfa0f6c29df18e2bdb90ad91c214a94518fc63b5e92b34147701e6"
+      ],
+      "costUsd": 0.0017548
+    },
+    {
+      "id": "heldout-20261013-borderline-entity-1-44",
+      "family": "entity",
+      "label": "fail",
+      "outcome": "fail",
+      "complete": true,
+      "votes": ["fail", "fail", "fail"],
+      "request_sha256": [
+        "dbe5d18774b6129a304a1aeba2bca619d48a336e0f5dc6fd68d664c14e191944",
+        "75ccc417c8bb50686f896f015ed1e17361e0a3e2cb378f17eb7b69b205afb8c0",
+        "d3033636b37fe3be60bafa80fcf691702282d96fbf18a5f254b0ed006420efcc"
+      ],
+      "costUsd": 0.0014628
+    },
+    {
+      "id": "heldout-20261013-borderline-entity-4-76",
+      "family": "entity",
+      "label": "pass",
+      "outcome": "pass",
+      "complete": true,
+      "votes": ["pass", "pass", "pass"],
+      "request_sha256": [
+        "fd4cc56bfb10ad04a51923a0d17d867f585016d7fab886c07043f550b79d59a7",
+        "be5dc077615c5584082a0c5078cf6496217aacb3f23c18b78db1d091ba5cdbed",
+        "904a4230475f7031e2c111dc2a8accb398e9e00c3f350c98c54fde3129c7bbc9"
+      ],
+      "costUsd": 0.00150726
+    },
+    {
+      "id": "heldout-20261013-borderline-missing-8-75",
+      "family": "missing",
+      "label": "pass",
+      "outcome": "pass",
+      "complete": true,
+      "votes": ["pass", "pass", "pass"],
+      "request_sha256": [
+        "702ceef7942a5ae6c3d2b17c283605c027a0380a5a23d83ebc145571617d3165",
+        "ec557f9e37f2c78bbf74c7700f4619aaabfda42fc00992e11856776be2ec5fea",
+        "d349e129367ed6ae8418c879106bb10d550e4754ae2a8b4ef49775bfd9195373"
+      ],
+      "costUsd": 0.00136208
+    },
+    {
+      "id": "heldout-20261013-borderline-missing-1-72",
+      "family": "missing",
+      "label": "fail",
+      "outcome": "fail",
+      "complete": true,
+      "votes": ["fail", "fail", "fail"],
+      "request_sha256": [
+        "1721253f62d974d259c6585c82eec03d8f41e78c6e8f79e1f5c0c9ca98c2b144",
+        "0f9ce251d42e102284cf1194643fb34b6992e01493ed2832546764628a118273",
+        "4631b701f49a04cc6d36e012336434b1324cb0d8567e1863c7e081160f30a6dc"
+      ],
+      "costUsd": 0.0013995
+    },
+    {
+      "id": "heldout-20261013-borderline-missing-2-17",
+      "family": "missing",
+      "label": "pass",
+      "outcome": "pass",
+      "complete": true,
+      "votes": ["pass", "pass", "pass"],
+      "request_sha256": [
+        "fac13566b934bcfeb0784a01e009cfa878e487ec75160eabeededac2bbd723cf",
+        "241d42d08cc872f70bc30b2a91677abc14d964d40c4e501827fc94a3a90e87ab",
+        "cdc3d9015a90c73e3a607686022b526a6c5dd889f2a98762e6a5db8906b62965"
+      ],
+      "costUsd": 0.00169958
+    },
+    {
+      "id": "heldout-20261013-borderline-missing-6-24",
+      "family": "missing",
+      "label": "pass",
+      "outcome": "pass",
+      "complete": true,
+      "votes": ["pass", "pass", "pass"],
+      "request_sha256": [
+        "f09af47ab62f902f3accecc7ad967ebfd81bf1a4cad23f789a069626edfad68b",
+        "24c74801e7e45bc15d3845950e9e2b858b73d727cd7da26ab86c4580136f67c7",
+        "5a662223bd6fde2ed1759eefbbe37dfa14f8b67a5aee815eedcdda1c9da3d529"
+      ],
+      "costUsd": 0.0016525799999999998
+    },
+    {
+      "id": "heldout-20261013-borderline-missing-5-71",
+      "family": "missing",
+      "label": "fail",
+      "outcome": "fail",
+      "complete": true,
+      "votes": ["fail", "fail", "fail"],
+      "request_sha256": [
+        "991b1db01e70354291121d0ed004c392ba88d4c8bc7a1e1e64000fb8bbe19e99",
+        "81dc95d8c9d3a7d39b38f606f2192a80e918835d2890fc98034876fc141eb194",
+        "ca52efb368e9c1cf25c5a9c23afbf1f162fb28b557b155a4ae55b28b2f3aa29d"
+      ],
+      "costUsd": 0.001248
+    },
+    {
+      "id": "heldout-20261013-borderline-conditional-9-18",
+      "family": "conditional",
+      "label": "fail",
+      "outcome": "fail",
+      "complete": true,
+      "votes": ["fail", "fail", "fail"],
+      "request_sha256": [
+        "7b09caebd1dff3e9a96f5183ed40862d3f7756d47e36156b787af77ef7da42e5",
+        "8b03c90115964f386c5e93d931139a6dc0f04c80c049bf9fff37fc53c51321d6",
+        "a55faa3f6bc47576920161f6e31444f2d73a31778e7fa94260682c8f9b197c7c"
+      ],
+      "costUsd": 0.0015800200000000001
+    },
+    {
+      "id": "heldout-20261013-borderline-conditional-4-33",
+      "family": "conditional",
+      "label": "pass",
+      "outcome": "pass",
+      "complete": true,
+      "votes": ["pass", "pass", "pass"],
+      "request_sha256": [
+        "95b6a17090c8f0c41e4f87f90825f93ded5026c35bf74f7ec70bbaeed764cf8b",
+        "00ac36e33c7f3b0eb722982902527b308b0d47e43244457e986bafa2b5ab1e82",
+        "eea08757eb90e4230ac122e290326020d312db1fff6ba373d7005e556f9f8f17"
+      ],
+      "costUsd": 0.0019036
+    },
+    {
+      "id": "heldout-20261013-borderline-conditional-6-22",
+      "family": "conditional",
+      "label": "pass",
+      "outcome": "pass",
+      "complete": true,
+      "votes": ["pass", "pass", "pass"],
+      "request_sha256": [
+        "a37c175492aef27f82a8e886d6f63a17bbd89fccfe1d96d325a7ab2edc20d95f",
+        "158333be48b5b94801c8c50b4bd351c2dae307f4f6df8e6fbfb2bf0a111ee22a",
+        "2902085fcc5968e67c5c7472336687466f31bd7dd000224274fa73d3c1961aff"
+      ],
+      "costUsd": 0.0018750999999999998
+    },
+    {
+      "id": "heldout-20261013-borderline-conditional-3-42",
+      "family": "conditional",
+      "label": "fail",
+      "outcome": "fail",
+      "complete": true,
+      "votes": ["fail", "fail", "fail"],
+      "request_sha256": [
+        "a7a55c8f2acdb9abab89460b9345df01c4402169f3fde5d063246b58d334a9c7",
+        "72fb60900662f69cd42c75fc151074bbd487223409313f0cf92660ecc6ae7baa",
+        "fa8a7b804234993355be4b33da9baa7fcdbd6444beb7ea71a0ff0025356a0a74"
+      ],
+      "costUsd": 0.0016560200000000002
+    },
+    {
+      "id": "heldout-20261013-borderline-conditional-1-46",
+      "family": "conditional",
+      "label": "fail",
+      "outcome": "fail",
+      "complete": true,
+      "votes": ["fail", "fail", "fail"],
+      "request_sha256": [
+        "b4a02dd999951e3b763f51b9c9c4bfe2855fa2773ca0a6bce4c0d117c7a5cba0",
+        "81b8fb85c8c0d98d71c77c3764987ac0a5bc86e3ddbea42e0be76b8ec59e1c00",
+        "2200c639fef82f7070b70c531e8952a140d3b7bda17e8f2d0699fe10a9b38b8c"
+      ],
+      "costUsd": 0.0018055200000000001
+    },
+    {
+      "id": "heldout-20261013-borderline-correction-6-72",
+      "family": "correction",
+      "label": "pass",
+      "outcome": "pass",
+      "complete": true,
+      "votes": ["pass", "pass", "pass"],
+      "request_sha256": [
+        "d5f412e98290eb0d6b895574679fed206b7f16d1161c5f366999df73166ec1ba",
+        "1934464838b06ad057e01ea258807192b40961c22d430614cf9405fe36b4bd33",
+        "192198b957ef99af8db4fb41b84639d413b178bd5283e4fa03683d1c98f56aa4"
+      ],
+      "costUsd": 0.0017156799999999998
+    },
+    {
+      "id": "heldout-20261013-borderline-correction-9-46",
+      "family": "correction",
+      "label": "fail",
+      "outcome": "fail",
+      "complete": true,
+      "votes": ["fail", "fail", "fail"],
+      "request_sha256": [
+        "5526ec709ad1fe28a7b1ce51f564cc007d4a4696ec38875a70d3b61d0e7ecfd8",
+        "e2634be77739146697961d6ac5991e340257b97b1c39e9e46134fe2430accfc6",
+        "7ec63ab795d2b3f8b6915605e43a840292c33bf0ac18fc0f75a79d0bffc2912d"
+      ],
+      "costUsd": 0.00224964
+    },
+    {
+      "id": "heldout-20261013-borderline-correction-8-24",
+      "family": "correction",
+      "label": "pass",
+      "outcome": "pass",
+      "complete": true,
+      "votes": ["pass", "pass", "pass"],
+      "request_sha256": [
+        "311e5c2cceacec95524770a4173dbe6c09c6dd4555e85eb494e56ca3eff2fafc",
+        "21a142e8529564041ff11869cd973d86e3bf51b4330a3bd9167db21a5af57895",
+        "59896a730e8c44d107717a8b32ab8c58d9e2f93288c8732f94ace7f879192c14"
+      ],
+      "costUsd": 0.0016411800000000001
+    },
+    {
+      "id": "heldout-20261013-borderline-correction-2-45",
+      "family": "correction",
+      "label": "pass",
+      "outcome": "pass",
+      "complete": true,
+      "votes": ["pass", "pass", "pass"],
+      "request_sha256": [
+        "3d241a3d50e20b311b12fa7f2b4e92ec2242588a9884dd4a095112c3ed3e4de9",
+        "e77f5b815b90d3f7d7307f47b991495a33a7d11ef3a2d99938673a9b0bc8a96c",
+        "4c232a7343983b3471563226871d7ad2091f8ee2fd0a8f180cca7f48ff62589c"
+      ],
+      "costUsd": 0.00182218
+    },
+    {
+      "id": "heldout-20261013-borderline-correction-3-43",
+      "family": "correction",
+      "label": "fail",
+      "outcome": "fail",
+      "complete": true,
+      "votes": ["fail", "fail", "fail"],
+      "request_sha256": [
+        "c59088271c61399e750ab1940791ca9edf844ed4be8ffcd1857b55d2f7db625c",
+        "c0b580e32a6cb99df0f2fad5ca5b7e819ca77c0cf44c340c66cbd35542e1e350",
+        "42e81b03d227fd95991f4f8293205b0f958932bcb09329501a763c45bfdefbdf"
+      ],
+      "costUsd": 0.00205164
+    },
+    {
+      "id": "heldout-20261013-borderline-quotation-2-68",
+      "family": "quotation",
+      "label": "pass",
+      "outcome": "pass",
+      "complete": true,
+      "votes": ["pass", "pass", "pass"],
+      "request_sha256": [
+        "2cb4b4983281184556ca336aa3680c59f68972a99cef4f1b54036e8a2656a4ea",
+        "eb4e70164ada5090741e201aba1654a8e7e679a39cab5608fd323d401b44b80b",
+        "b8506b35e536c1e64231e8029648414922b57443baa3ba3ad45d451c91870966"
+      ],
+      "costUsd": 0.00179418
+    },
+    {
+      "id": "heldout-20261013-borderline-quotation-8-48",
+      "family": "quotation",
+      "label": "pass",
+      "outcome": "pass",
+      "complete": true,
+      "votes": ["pass", "pass", "pass"],
+      "request_sha256": [
+        "39679c56466b11d9320a9d36db678a895c557221319df9bcca111d6ad349e148",
+        "73d6c7c7f64838e004457ff64c79da6b5222893ebb7ebc23f59f430ca546e639",
+        "2eff9913f096e118c514ca0444cb6ea3fd9ac93ca5b448cba9735399608d884f"
+      ],
+      "costUsd": 0.00190168
+    },
+    {
+      "id": "heldout-20261013-borderline-quotation-3-38",
+      "family": "quotation",
+      "label": "fail",
+      "outcome": "fail",
+      "complete": true,
+      "votes": ["fail", "fail", "fail"],
+      "request_sha256": [
+        "8466f34cbbbc742740a7778ce0ff59b8cf5cfbdc97ef8e030d95c35943dcc8f6",
+        "7fc1d013cd2c7d373e88d9af2ca2f6c74830e618340bb51f0091be57f303dc89",
+        "cfb1095641db82be27d6a72585dc5bc6996d3a7c6c665548b970d663ede2d1a5"
+      ],
+      "costUsd": 0.00193902
+    },
+    {
+      "id": "heldout-20261013-borderline-quotation-5-76",
+      "family": "quotation",
+      "label": "fail",
+      "outcome": "fail",
+      "complete": true,
+      "votes": ["fail", "fail", "fail"],
+      "request_sha256": [
+        "24f6d0805e1aa05f9a95bcfddcd488b99508c468c8dd129e8f3fdbfbac21ecd0",
+        "1447ac4bfd59870f45c08c40f5ed160713d9f257aefa6d4f2bcd75ed542ef63a",
+        "19fb4ec6ddf228624432d15e9de220fd9773a2d0c66d5c188e401d4a65617b80"
+      ],
+      "costUsd": 0.0014865200000000003
+    },
+    {
+      "id": "heldout-20261013-borderline-quotation-1-37",
+      "family": "quotation",
+      "label": "fail",
+      "outcome": "fail",
+      "complete": true,
+      "votes": ["fail", "fail", "fail"],
+      "request_sha256": [
+        "a3f31b5d9990ceab56d1cd433bc010425bbf72cb529a92397f72a1eea37330f5",
+        "59e0560a863227c725fda201977cd3139b5d4e9ce68b73af3b7c07f3d8d8d844",
+        "53daf5a35ec3b4644d9052cf6d6c117c74e99994bd8b35e7050ecb428c284be3"
+      ],
+      "costUsd": 0.00205952
+    },
+    {
+      "id": "heldout-20261013-borderline-mixed-language-4-44",
+      "family": "mixed-language",
+      "label": "pass",
+      "outcome": "pass",
+      "complete": true,
+      "votes": ["pass", "pass", "pass"],
+      "request_sha256": [
+        "5104a18469dd1c8b9b7d106ac9beb30050d34d11b546abddb6a0e88c8a0ebb70",
+        "7929484c9cc9b303fbefb85e7f1eaf9c152dd4e0fc4b2429faaaaa69eb04b958",
+        "19ceb4707d51642629b05270ebc56858b60f4160cf675ac9cfc3765f865b71eb"
+      ],
+      "costUsd": 0.00180832
+    },
+    {
+      "id": "heldout-20261013-borderline-mixed-language-9-39",
+      "family": "mixed-language",
+      "label": "fail",
+      "outcome": "fail",
+      "complete": true,
+      "votes": ["fail", "fail", "fail"],
+      "request_sha256": [
+        "cc2fdb78924483e0836e03ffd8c823c628df342c2f7cb0ab556b36ef7dd2d77a",
+        "4c2c7a8f7afa204c9f60b549ec70979cabecfbffab5e79711e9f105708470351",
+        "a33967fead4fd1cbdf717389b087bed4d97403dbadb47d3d565461255eea3c0d"
+      ],
+      "costUsd": 0.0022533400000000004
+    },
+    {
+      "id": "heldout-20261013-borderline-mixed-language-6-22",
+      "family": "mixed-language",
+      "label": "pass",
+      "outcome": "pass",
+      "complete": true,
+      "votes": ["pass", "pass", "pass"],
+      "request_sha256": [
+        "c942309c2d8f8198723c9ce0afaf31ece064d3f65b89f52d9068e91dd9cac675",
+        "1d51f27bdf64164af0e73b89ca6b7a9e0655733cbd5206c935c23611fa3cd9b6",
+        "f72a9f3041137176ce9e2082a7b08cd4fbe7e0a60c6e028a750c926bef5575ce"
+      ],
+      "costUsd": 0.0018788200000000002
+    },
+    {
+      "id": "heldout-20261013-borderline-mixed-language-8-73",
+      "family": "mixed-language",
+      "label": "pass",
+      "outcome": "pass",
+      "complete": true,
+      "votes": ["pass", "pass", "pass"],
+      "request_sha256": [
+        "ec1cb35325ba4d1ba76b1646754c9a4d2596953f8769f6007e2837d32823d8c5",
+        "20ab0f4321a57906bf050c8b5a24ce1055b13a2261c79452a2a3bcdf743e279a",
+        "ebf005bce7b1fb695e71201884b88c4fef83177bb59ae1d088c3bd8171937bde"
+      ],
+      "costUsd": 0.00212532
+    },
+    {
+      "id": "heldout-20261013-borderline-mixed-language-7-33",
+      "family": "mixed-language",
+      "label": "fail",
+      "outcome": "fail",
+      "complete": true,
+      "votes": ["fail", "fail", "fail"],
+      "request_sha256": [
+        "efe89a75e4c6698b6d7c9c9c73829c567541b63b1946c36c5e450e357ddb2baf",
+        "790918e3fa572a5b8125b522544b5ff84b917f1624115fca3b857ed41030db0d",
+        "b804844a3b4e42bce2a2042c24073600d2ce51cbc374bbaef114fb8b73684fc7"
+      ],
+      "costUsd": 0.00193434
+    },
+    {
+      "id": "heldout-20261013-borderline-long-distractors-0-73",
+      "family": "long-distractors",
+      "label": "pass",
+      "outcome": "pass",
+      "complete": true,
+      "votes": ["pass", "pass", "pass"],
+      "request_sha256": [
+        "068a66dca6ec562a63701ccea424d41dfc5191655d399aed3d857e69ad55c054",
+        "a7f3d1eb5fb93ab2990c9480b50a2a1ffe3cabc74ca77bd2e6c0d9bc975848d4",
+        "7a9ff9ec2fcde5142eb922214d123986d13fd03d88568308800f39d4e3e13efe"
+      ],
+      "costUsd": 0.0021363
+    },
+    {
+      "id": "heldout-20261013-borderline-long-distractors-5-13",
+      "family": "long-distractors",
+      "label": "fail",
+      "outcome": "fail",
+      "complete": true,
+      "votes": ["fail", "fail", "fail"],
+      "request_sha256": [
+        "87552328d402fa0c6f0d8fb56f87b4a3d4bf4565d6e14a418529e6be7c77f27c",
+        "a372cacb4187debd80cc1f84bc9b68a81b74ce0cbd4a2b40b224bd7cfad122a3",
+        "c61cb11cc78e69f9a81197054157092916e06e3c07448608b5b74e17e69c449c"
+      ],
+      "costUsd": 0.0020913399999999997
+    },
+    {
+      "id": "heldout-20261013-borderline-long-distractors-7-34",
+      "family": "long-distractors",
+      "label": "fail",
+      "outcome": "fail",
+      "complete": true,
+      "votes": ["fail", "fail", "fail"],
+      "request_sha256": [
+        "54076cc522f1315752502dae7a070da9b06e6c058379d3f125e59bd98dc9ea18",
+        "8a27ef741c805bc0cc40144373a9a2a77cda0503c84075461170687e71c30e4d",
+        "c0a5d5c30e3cc1bef0cabba31fc51e5632f07d3cf49bf55556e15623fb7f8e8b"
+      ],
+      "costUsd": 0.00224734
+    },
+    {
+      "id": "heldout-20261013-borderline-long-distractors-8-14",
+      "family": "long-distractors",
+      "label": "pass",
+      "outcome": "pass",
+      "complete": true,
+      "votes": ["pass", "pass", "pass"],
+      "request_sha256": [
+        "442360d96352dd85d2493f63c730a4cd68a845d1f9dbd2da2b130aaa70d939bf",
+        "2cad366bf439dd1e2cc8979aa3a01376802278faf235fe9bfb19a9a6c2cbe7c9",
+        "a9be89150bc24dd4ac3880dcc90359790b44554acf4e67e09ea32dfd4a646089"
+      ],
+      "costUsd": 0.0019773
+    },
+    {
+      "id": "heldout-20261013-borderline-long-distractors-3-30",
+      "family": "long-distractors",
+      "label": "fail",
+      "outcome": "fail",
+      "complete": true,
+      "votes": ["fail", "fail", "fail"],
+      "request_sha256": [
+        "3686f1c4149308af07f5b62e206d1591f95e1c1c7433367eb3f3f05e385038b9",
+        "175430f1637c19aa93ab05b60f806fcd7fdacbbfd3d1c872a8840bd3e85c894d",
+        "439dc032109b65d0eff352a71afc75540ce6d8b8f8be60502dec8bd5c90539fe"
+      ],
+      "costUsd": 0.00192534
+    },
+    {
+      "id": "heldout-20261013-borderline-instruction-4-37",
+      "family": "instruction",
+      "label": "pass",
+      "outcome": "pass",
+      "complete": true,
+      "votes": ["pass", "pass", "pass"],
+      "request_sha256": [
+        "df78e46dd0ba8455d33655733a16895e7cf59563706748658743e09da2bb94a9",
+        "5ab95cd9c8c020823d58b552520237904cb2287aeef02ffcb3afc04838b41d30",
+        "a122748c2f9827e09ba7646ad913e566b3a5ce94a044d34a08263d61d639cecd"
+      ],
+      "costUsd": 0.00193998
+    },
+    {
+      "id": "heldout-20261013-borderline-instruction-0-64",
+      "family": "instruction",
+      "label": "pass",
+      "outcome": "pass",
+      "complete": true,
+      "votes": ["pass", "pass", "pass"],
+      "request_sha256": [
+        "52717af9025f0853eabe4eb53fed0fd30cf8075e4e462d3a70d603f4ac632fc8",
+        "2cd86db62c4a42521a6eeb63162300bd08f669ba9bf89e0c7452227f741e0d4d",
+        "ccc32199156b73b9d0f5e0d59fc17029f9282688b82e178fb8dd3128f2bea055"
+      ],
+      "costUsd": 0.0019449799999999998
+    },
+    {
+      "id": "heldout-20261013-borderline-instruction-5-72",
+      "family": "instruction",
+      "label": "fail",
+      "outcome": "fail",
+      "complete": true,
+      "votes": ["fail", "fail", "fail"],
+      "request_sha256": [
+        "01a924ddaf3969479083e04bb7d14b37ae1baea63a6145b37cce6166132b3e78",
+        "e25a24cc2010d968490f5ca9aa8b7d8606c6d0a1b2f585020160211d79a1a533",
+        "eed5695e9918480314f3ae430fcbbf79affe9bb6e07b5c2af7c01b98705dca3d"
+      ],
+      "costUsd": 0.00216402
+    },
+    {
+      "id": "heldout-20261013-borderline-instruction-1-46",
+      "family": "instruction",
+      "label": "fail",
+      "outcome": "fail",
+      "complete": true,
+      "votes": ["fail", "fail", "fail"],
+      "request_sha256": [
+        "cacd2bd62730e937c0bac4fd5e703257104ed1d859fae6f8d82cf56dd8d7d1dc",
+        "9a3399f856f0b250aadb6632c92c788ea6d47ccf5d494d537ad63de7cdd66d78",
+        "1c1b38d44f7bf1cd40814079964151b384fe4ba6a2f3b46c779c2c1c24c52a27"
+      ],
+      "costUsd": 0.00244552
+    },
+    {
+      "id": "heldout-20261013-borderline-instruction-6-51",
+      "family": "instruction",
+      "label": "pass",
+      "outcome": "pass",
+      "complete": true,
+      "votes": ["pass", "pass", "pass"],
+      "request_sha256": [
+        "fff5b9a79d5e74e8bd758f4e950528abbc10a75c7627895b31aed611720368db",
+        "e59a2558b600618fcbd21d246e9eb1b576a13263e988ca395c76c286b2c71599",
+        "e12d0cf84cec2b9467ed29bb79286c08aba4005e116145b59d268c8be666875c"
+      ],
+      "costUsd": 0.00193248
+    },
+    {
+      "id": "heldout-20261013-borderline-partial-4-52",
+      "family": "partial",
+      "label": "pass",
+      "outcome": "pass",
+      "complete": true,
+      "votes": ["pass", "pass", "pass"],
+      "request_sha256": [
+        "5aadc76bd4c3f924d84e0cc94f38d20974a8aeb74e22d6540a5bc683c9a5e295",
+        "1458fca5babc0811c9413844599db4d1a8b80aabdc1d761454e863edcd76e3df",
+        "32105f49fee6a26a14b1304912e73276ba4522f5c8169e894af6ee1775878d4b"
+      ],
+      "costUsd": 0.0015628800000000002
+    },
+    {
+      "id": "heldout-20261013-borderline-partial-3-14",
+      "family": "partial",
+      "label": "fail",
+      "outcome": "fail",
+      "complete": true,
+      "votes": ["fail", "fail", "fail"],
+      "request_sha256": [
+        "a6e3f27430022134c04f61ba79090ebf7516c01f2bb23903a326239eeadd308f",
+        "eaf75ec3e033b8fdbdb2e442a067ad2498856a328879a37eeacd40a50c8590fc",
+        "51bdd8ae233aff7396985a3a6c59b54034b68b4a3aaf2a3dbd58ed9429e87fa6"
+      ],
+      "costUsd": 0.00171464
+    },
+    {
+      "id": "heldout-20261013-borderline-partial-6-62",
+      "family": "partial",
+      "label": "pass",
+      "outcome": "pass",
+      "complete": true,
+      "votes": ["pass", "pass", "pass"],
+      "request_sha256": [
+        "5909e8181724bd1ca8e592c2d45ef9ec5d5e78f8eb9486ea973457a2d1cc1480",
+        "bb449ea0ffba0e61f53289e18d9ae79b92b2ce1d5b872869a5febe4c0f2d5187",
+        "51f9922eef6009543338c06676ab242cc3b30c22ece317e863599c3310b60748"
+      ],
+      "costUsd": 0.00144888
+    },
+    {
+      "id": "heldout-20261013-borderline-partial-9-17",
+      "family": "partial",
+      "label": "fail",
+      "outcome": "fail",
+      "complete": true,
+      "votes": ["fail", "fail", "fail"],
+      "request_sha256": [
+        "a7e841f2d3912c7cc15d99f38243c010d2c56120e34a405bd45feca4c768509e",
+        "3ef40e83fafb9aca224856a3ab96af4ac96f9869e10b79ed60c11fbba597e7bf",
+        "70bc1b98a069d8d972ec70b66d5f17d941ad2791adeba73d679f2d9c008eecda"
+      ],
+      "costUsd": 0.00171364
+    },
+    {
+      "id": "heldout-20261013-borderline-partial-7-46",
+      "family": "partial",
+      "label": "fail",
+      "outcome": "fail",
+      "complete": true,
+      "votes": ["fail", "fail", "fail"],
+      "request_sha256": [
+        "66226381e87d9ec1728bdf8b491c50e30e92354b24e4b64e8bca00ce73e25b87",
+        "28da5aa5b17ae608b9007cdab2a5112d3fa240f0ab2251c1f4f4bfbb74dc46f6",
+        "c142e93079265f5596866fe8461701f17e3ad0d3aff1d112f01e76fc7788df74"
+      ],
+      "costUsd": 0.00177864
+    }
+  ]
+}

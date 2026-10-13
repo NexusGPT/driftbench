@@ -100,6 +100,27 @@ describe('driftbench extract: usage', () => {
     expect(err).toBe("error: required options '--inventory <file>', '--out <file>' not specified\n");
   });
 
+  it('refuses an unknown --provider before any model call, and writes nothing', async () => {
+    const dir = await project();
+    const { code, err } = await run(
+      [
+        'extract',
+        '--prompt',
+        'prompt.md',
+        '--inventory',
+        'inventory.yaml',
+        '--out',
+        'p.yaml',
+        '--provider',
+        'bogus',
+      ],
+      dir,
+    );
+    expect(code).toBe(2);
+    expect(err).toContain('unknown provider "bogus": use anthropic or openai.');
+    await expect(readFile(join(dir, 'p.yaml'), 'utf8')).rejects.toThrow();
+  });
+
   it('exits 2 on an unknown option, and on approve without a file', async () => {
     const dir = await project();
     expect((await run([...base(), '--no-model', '--colour'], dir)).code).toBe(2);
@@ -437,7 +458,7 @@ describe('driftbench extract map', () => {
     expect(err).not.toContain('over the limit');
     expect(code).toBe(1);
     expect(out.split('\n')[0]).toBe(
-      'Map acme, version 1: 7 dimensions, 180180 cells, 374 constraints, prior uniform (no weight declared)',
+      'Map acme, version 1: 7 dimensions, 212940 cells, 380 constraints, prior uniform (no weight declared)',
     );
   });
 });

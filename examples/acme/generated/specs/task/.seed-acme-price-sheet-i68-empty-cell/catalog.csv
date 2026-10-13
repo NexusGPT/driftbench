@@ -1,0 +1,28 @@
+plan_id,name,category,allowance,monthly_usd
+home-1,Acme Home 1,home,300 Mbps,55
+travel-1,Acme Travel 1,travel,,38
+travel-2,Acme Travel 2,travel,10 GB,66
+mobile-1,Acme Mobile 1,mobile,10 GB,81
+travel-3,Acme Travel 3,travel,10 GB,22
+mobile-2,Acme Mobile 2,mobile,10 GB,59
+home-2,Acme Home 2,home,1000 Mbps,89
+mobile-3,Acme Mobile 3,mobile,unlimited,28
+home-3,Acme Home 3,home,1000 Mbps,53
+travel-4,Acme Travel 4,travel,5 GB,49
+mobile-4,Acme Mobile 4,mobile,40 GB,76
+office-1,Acme Office 1,office,50 GB,27
+office-2,Acme Office 2,office,unlimited,61
+office-3,Acme Office 3,office,unlimited,22
+travel-5,Acme Travel 5,travel,3 GB,21
+office-4,Acme Office 4,office,50 GB,32
+travel-6,Acme Travel 6,travel,10 GB,48
+office-5,Acme Office 5,office,100 GB,90
+office-6,Acme Office 6,office,unlimited,78
+travel-7,Acme Travel 7,travel,1 GB,85
+travel-8,Acme Travel 8,travel,3 GB,78
+mobile-5,Acme Mobile 5,mobile,20 GB,11
+office-7,Acme Office 7,office,50 GB,54
+office-8,Acme Office 8,office,unlimited,74
+mobile-6,Acme Mobile 6,mobile,unlimited,89
+home-4,Acme Home 4,home,500 Mbps,63
+travel-9,Acme Travel 9,travel,10 GB,22

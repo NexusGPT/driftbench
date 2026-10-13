@@ -4,6 +4,9 @@ All notable changes to driftbench are listed here. The format follows [Keep a Ch
 
 ## [Unreleased]
 
+* Opt-in answer audit in the judges package: `judgeAnswerAudit`, or `assessment: { kind: 'answer-audit' }`, grades a submission against a criterion and an optional trusted reference. The request is role-separated JSON; the model settles each condition with a quote before its status and code computes the outcome. It has its own prompt fingerprint; default and legacy prompts and cassette keys are unchanged.
+* Evidence grounding accepts `{}` or `[]` quoted from a source whose whole text is that empty JSON container. A check that reports an empty persisted file no longer voids its ledger. Prompts and cassette keys are unchanged; 24 recorded goal answers that were inconclusive now decode to their recorded fail verdict. Decoration-only quotes stay ungrounded.
+* `campaign:` key in `driftbench.yaml`: the settings of `campaign run` (specs, targets, routes, modes, repeats, store, cache, concurrency, budget, simulated user, model families, retries), each a plain mapping onto its flag. A flag on the command line wins over the file. `campaign run` and `campaign plan` gain `--config <file>`; `ci` takes the run settings it shares. A config with no `campaign:` key behaves as before.
 * Opt-in `criterionPromptVersion: 2` for ordinary criterion checks: the default prompt plus exact-identifier, stated-facts and stated-scope rules, under its own prompt fingerprint. The default prompt, its fingerprint and every existing recording key are unchanged. See [judges](docs/concepts/judges.md).
 * Opt-in `createEscalation` routes reference disagreement, order splits, inconclusive results and low confidence to a cross-family council. It preserves comparison diagnostics and recorded replay, supports deployable-route calibration and checks constituent model families. The offline MM-Eval DEV400 example reproduces 91.16 from pinned recordings, with unknown historical generator families disclosed.
 * Councils accept named pairwise winners directly, preserve them in votes and distinguish a majority tie from missing evidence. Comparison-aware reference, final-answer and verification wrappers preserve their behavior around an escalation client.
@@ -44,7 +47,7 @@ The first public release. driftbench evaluates AI agents block by block: a block
 
 ### Packages
 
-`@agent-nexus/driftbench` (the `driftbench` command), `@agent-nexus/driftbench-core`, `@agent-nexus/driftbench-checks`, `@agent-nexus/driftbench-judges`, `@agent-nexus/driftbench-users`, `@agent-nexus/driftbench-adapters`, `@agent-nexus/driftbench-sandbox`, `@agent-nexus/driftbench-artifacts`, `@agent-nexus/driftbench-stats`, `@agent-nexus/driftbench-store`, `@agent-nexus/driftbench-report`, `@agent-nexus/driftbench-space`, `@agent-nexus/driftbench-generate`, `@agent-nexus/driftbench-estate`, `@agent-nexus/driftbench-validators` and `@agent-nexus/driftbench-vitest`, and `driftbench` on PyPI. `@agent-nexus/driftbench-battery` stays private until it holds code.
+`@agent-nexus/driftbench` (the `driftbench` command), `@agent-nexus/driftbench-core`, `@agent-nexus/driftbench-checks`, `@agent-nexus/driftbench-judges`, `@agent-nexus/driftbench-users`, `@agent-nexus/driftbench-adapters`, `@agent-nexus/driftbench-sandbox`, `@agent-nexus/driftbench-artifacts`, `@agent-nexus/driftbench-stats`, `@agent-nexus/driftbench-store`, `@agent-nexus/driftbench-report`, `@agent-nexus/driftbench-space`, `@agent-nexus/driftbench-generate`, `@agent-nexus/driftbench-estate`, `@agent-nexus/driftbench-validators` and `@agent-nexus/driftbench-vitest`, and `drift-bench` on PyPI (imported as `driftbench`). `@agent-nexus/driftbench-battery` stays private until it holds code.
 
 ### Added
 
