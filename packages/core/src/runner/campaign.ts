@@ -10,6 +10,7 @@ import type { Spec } from '../schema/spec';
 import type { ObservedCache } from './cache';
 import { cellId } from './cell';
 import { replacesBlock } from './inject';
+import { preflightTargetPrices, priceObserved, TokenPrices } from './pricing';
 import type { RetryOptions } from './retry';
 import { runSpec } from './run';
 
@@ -272,6 +273,8 @@ function byCell(runs: readonly RunResult[]): Map<string, RunResult> {
 }
 
 export type CampaignRunOptions = {
+  /** Dated USD prices for adapters that report tokens without dollar cost. */
+  prices?: TokenPrices;
   campaignId: string;
   cells: readonly PlannedCell[];
   /** The spec of a cell, by id and hash. */
@@ -324,10 +327,34 @@ export async function runCampaign(options: CampaignRunOptions): Promise<CellOutc
   const stored = await options.store.listRuns({ campaignId: options.campaignId });
   const done = byCell(stored);
   const { cells, budgetUsd } = options;
+  const prices = options.prices === undefined ? undefined : TokenPrices.parse(options.prices);
+  if (budgetUsd !== undefined)
+    preflightTargetPrices(
+      cells.map((cell) => cell.target),
+      prices,
+    );
   // A carried run was paid for by the campaign that ran it: it spends nothing of this budget.
   let spentUsd = stored
     .filter((run) => !run.cacheHit && run.carried === undefined)
-    .reduce((sum, run) => sum + run.cost, 0);
+    .reduce(
+      (sum, run) =>
+        sum +
+        (budgetUsd === undefined
+          ? run.cost
+          : Math.max(
+              run.cost,
+              run.blocks.reduce((total, block) => {
+                // Old unpriced records can have cost=0 despite token usage. Reprice their raw observations before resuming.
+                const observed = priceObserved(block.observed, run.target, prices, true);
+                return (
+                  total +
+                  (observed.cost.usd ??
+                    observed.segments.reduce((usd, segment) => usd + (segment.cost?.usd ?? 0), 0))
+                );
+              }, 0),
+            )),
+      0,
+    );
   const outcomes: Array<CellOutcome | undefined> = cells.map(() => undefined);
   let next = 0;
   let heard = 0;
@@ -396,6 +423,8 @@ export async function runCampaign(options: CampaignRunOptions): Promise<CellOutc
     const reference = cell.mode === 'P' ? await referenceFor(cell) : undefined;
     const spec = options.specFor(cell);
     const run = await runSpec(spec, {
+      ...(prices ? { prices } : {}),
+      requireTokenPrices: budgetUsd !== undefined,
       adapter: options.adapterFor(cell.target),
       driver: options.driver(cell, spec),
       checks: options.checks,

@@ -31,6 +31,7 @@ import {
   stimulusMessages,
 } from './given';
 import { describeContradiction, ledgerVerdicts } from './ledger';
+import { preflightTargetPrices, priceObserved, TokenPriceError, TokenPrices } from './pricing';
 import { type RecoveryOptions, recoveryOf } from './recovery';
 import { CallFailure, describeError, type RetryOptions, retryLayer, withRetry } from './retry';
 import { canonicalPreviousStage, flowVerdicts, readStage, stageSignatures } from './stages';
@@ -44,6 +45,10 @@ import { succession } from './succession';
 export type { RunEvent };
 
 export type RunOptions = {
+  /** Dated, user-supplied USD prices for token-only observations. */
+  prices?: TokenPrices;
+  /** A budgeted campaign cannot continue with an unpriced token-only block. */
+  requireTokenPrices?: boolean;
   /** Receives each event as it happens. Absent: no events are reported. */
   onEvent?: (event: RunEvent) => void;
   /** Keeps the events on the run record (its events field), in order. Off by default: a run record stays as it was. */
@@ -119,6 +124,8 @@ export async function runSpec(spec: Spec, options: RunOptions): Promise<RunResul
   const { version: _version, ...unlabelled } = spec;
   const cacheSpecHash = contentHash(unlabelled);
   const target = options.target ?? spec.target ?? { adapter: options.adapter.id };
+  const prices = options.prices === undefined ? undefined : TokenPrices.parse(options.prices);
+  if (options.requireTokenPrices) preflightTargetPrices([target], prices);
   // In P mode the spec's end state describes the unperturbed run, so it is neither read nor compared, as
   // the Acme light runner and the end_state check do; phase 3 decides what a perturbed run should leave.
   const endState = options.mode === 'P' ? undefined : spec.end_state;
@@ -136,6 +143,8 @@ export async function runSpec(spec: Spec, options: RunOptions): Promise<RunResul
         }
       : undefined;
   const run: RunContext = {
+    prices,
+    requireTokenPrices: options.requireTokenPrices === true,
     spec,
     specHash,
     cacheSpecHash,
@@ -195,6 +204,8 @@ export async function runSpec(spec: Spec, options: RunOptions): Promise<RunResul
 }
 
 type RunContext = {
+  prices: TokenPrices | undefined;
+  requireTokenPrices: boolean;
   spec: Spec;
   specHash: string;
   /** The hash the cache key carries: the spec's, without its version label. */
@@ -340,8 +351,9 @@ async function execute(run: RunContext, channel: Channel): Promise<RunResult | u
         ...(run.suite === undefined ? {} : { suite: run.suite }),
       });
       run.onEvent?.({ type: 'block_start', index: position, at: new Date().toISOString() });
-      const observed = await channel.observe(turn, user, key);
-      if (!observed) return undefined;
+      const raw = await channel.observe(turn, user, key);
+      if (!raw) return undefined;
+      const observed = priceObserved(raw, run.target, run.prices, run.requireTokenPrices);
       // A model call the adapter reported on a segment: its tokens, cost and latency. The time is when the reply came back;
       // the call began latencyMs earlier.
       for (const segment of observed.segments) {
@@ -440,6 +452,10 @@ async function execute(run: RunContext, channel: Channel): Promise<RunResult | u
       run.onEvent?.({ type: 'block_end', index: position, pass: block.pass, at: new Date().toISOString() });
     }
   } catch (cause) {
+    if (cause instanceof TokenPriceError) {
+      await channel.close();
+      throw cause;
+    }
     if (channel.replay) return undefined;
     status = 'failed';
     error =

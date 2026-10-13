@@ -6,8 +6,8 @@ import { isMap, isScalar, isSeq, parseDocument } from 'yaml';
 
 /**
  * The project config file: `driftbench.yaml` at the root, or --config. It declares campaign-level criteria
- * under `aggregates:`, one `name:op threshold` string each, the same syntax as --aggregate. Nothing else is
- * defined, so any other key is refused. A bad entry is refused with its file and line.
+ * under `aggregates:`, one `name:op threshold` string each, the same syntax as --aggregate. Other recognized
+ * sections have their own loaders; unknown keys and bad entries are refused with their file and line.
  */
 
 export type ConfigLoad = { ok: true; specs: string[] } | { ok: false; message: string };
@@ -78,7 +78,7 @@ export async function readAggregateConfig(path: string): Promise<ConfigLoad> {
       const at = pair.key && 'range' in pair.key && pair.key.range ? pair.key.range[0] : 0;
       return {
         ok: false,
-        message: `${path}:${lineOf(text, at)}: unknown key ${key}; the config defines aggregates, scales and campaign only`,
+        message: `${path}:${lineOf(text, at)}: unknown key ${key}; the config defines ${[...KEYS].sort().join(', ')} only`,
       };
     }
   }
@@ -163,3 +163,6 @@ export async function criteriaFromConfig(
 }
 
 export const DEFAULT_CONFIG = 'driftbench.yaml';
+
+// Extend the shared allowlist without replacing other independently loaded project sections.
+KEYS.add('prices');

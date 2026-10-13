@@ -1586,3 +1586,7 @@ Every command `driftbench --help` lists is built. These do not exist as commands
 ## `driftbench campaign run --cache-suite`
 
 `--cache-suite <name>` names the cache suite of a campaign. Its block keys include the name, so a campaign under a new name starts from an empty cache, and the entries of the other suites stay in the store. A campaign under the same name replays from its own suite. Without the flag, the keys are the ones earlier caches used.
+
+## Token prices for campaign budgets
+
+`campaign run` and `campaign resume` accept `--prices <file>` for a standalone dated USD token price table. Without the flag, they read `prices:` from `driftbench.yaml`. See [the budget](../running.md#the-budget) for the format, model lookup, and preflight refusal listing every declared target model without a price. Models first reported at runtime can only be checked after that first call. A budget counts target-adapter reports only; simulated-user and judge calls are excluded. The CLI prints that scope on stderr when those roles are used with a budget.

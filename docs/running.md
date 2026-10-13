@@ -609,6 +609,53 @@ A cell's line notes `reused` when a completed run of the cell was already in the
 
 `--budget-usd` is a hard stop on spend, in US dollars, over the whole campaign. The spend is the cost of the campaign's runs already in the store, plus the runs finished in this command. A run replayed from the cache costs nothing. A worker checks the budget when it takes a cell: once the spend has reached the budget, the cell is stopped and never starts. Cells already in flight finish, so the spend can pass the budget by the cost of those cells.
 
+The budget counts what the target adapter reports; simulated-user and judge calls are not counted.
+The CLI prints this notice on stderr when a budget is set and a simulated user or a model judge is used, including with `--json`.
+
+Token-only adapters need a user-supplied price to make this stop meaningful. Put `prices:` in
+`driftbench.yaml`, or pass `--prices <file>` to `campaign run` or `campaign resume`.
+The standalone file contains the table below without the outer `prices:` key; it takes precedence over the project file.
+`ci` reads the same project `prices:` key, including its `--config` file.
+
+This example is **fictional**, including its model and rates. No vendor prices are bundled.
+Replace it with prices you verify for your model and the date you verified them:
+
+```yaml
+prices:
+  as_of: '2026-10-13'
+  models:
+    fictional-model:
+      input: 2
+      output: 4
+      cached_input: 0.5
+```
+
+All rates are finite, nonnegative USD per million tokens; an explicit zero rate is allowed.
+All three rates and the valid `as_of` date are required. Negative, nonnumeric and missing rates are refused at load time.
+The exact lookup key is the adapter's aggregate `cost.model`, then a unique model named in segment costs, then the spec's `target.options.model`.
+Set that target option explicitly when the adapter does not report its model. Segment usage may name its own model; otherwise it inherits the block model, then the target model.
+Model-only segment metadata identifies aggregate tokens without replacing their usage. Ambiguous aggregate models or incomplete segment accounting stop a budgeted run.
+`inputTokens` includes `cachedInputTokens`; cached input is subtracted before applying the regular input rate.
+Adapters that report cache reads separately must include those reads in their input total.
+The estimate is `((inputTokens - cachedInputTokens) * input + cachedInputTokens * cached_input + outputTokens * output) / 1000000`.
+Reported dollars, including zero, take precedence. Aggregate usage is priced once; segment-only usage is summed without counting it twice.
+
+With a budget, every declared target model is checked before the campaign sends anything, including targets in later cells.
+All missing model names appear in one error with instructions to supply prices. This preflight requires a price for each declared model even if the adapter normally reports dollars.
+
+When a model only becomes known at runtime, the first block that reports tokens without a price stops the run and closes its session.
+This case costs one call before the error is detected. Tokens with no resolvable model also stop the run; they never count as zero.
+The CLI exits 2 and names the model (or the missing identity) and how to supply prices.
+No further cell starts after the error is observed. Other cells already in flight can finish.
+Without a budget or prices, token accounting behaves as before. A price table can also estimate costs without setting a budget.
+On resume, old stored token-only observations are priced before the budget check; keep the price file available when resuming.
+The prices do not estimate unreported usage, and they do not change the worker pool's existing cell-level stop or reserve in-flight spend.
+`campaign plan` still projects from measured units in the store, not this table.
+
+From code, pass `prices` to `runCampaign` or `runSpec`. `runCampaign` requires prices for token-only
+observations whenever `budgetUsd` is set; a direct `runSpec` caller can request the same guard with `requireTokenPrices: true`.
+An unknown price raises `TokenPriceError`.
+
 The campaign record stores a budget of 0 when none was given. `resume` reads a stored 0 as no budget.
 
 ```
