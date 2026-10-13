@@ -2,9 +2,9 @@ import { mkdtemp, readdir, readFile, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join, relative } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { functionAdapter } from '@driftbench/adapters';
-import { loadSpecs, runSpec } from '@driftbench/core';
-import { createScriptedDriver } from '@driftbench/users';
+import { functionAdapter } from '@agent-nexus/driftbench-adapters';
+import { loadSpecs, runSpec } from '@agent-nexus/driftbench-core';
+import { createScriptedDriver } from '@agent-nexus/driftbench-users';
 import { describe, expect, it } from 'vitest';
 import { type Io, main } from '../src/index';
 

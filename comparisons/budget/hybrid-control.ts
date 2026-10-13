@@ -1,9 +1,9 @@
 /** Run after random-control.ts: hybrid-20 on the same seeds, then exact paired tests. No model calls. */
 import { mkdir, readFile, writeFile } from 'node:fs/promises';
-import { functionAdapter } from '@driftbench/adapters';
-import { defaultReaders } from '@driftbench/artifacts';
-import { defaultChecks } from '@driftbench/checks';
-import { parseSpecText } from '@driftbench/core';
+import { functionAdapter } from '@agent-nexus/driftbench-adapters';
+import { defaultReaders } from '@agent-nexus/driftbench-artifacts';
+import { defaultChecks } from '@agent-nexus/driftbench-checks';
+import { parseSpecText } from '@agent-nexus/driftbench-core';
 import {
   blockOutcome,
   enumerateCells,
@@ -12,10 +12,10 @@ import {
   projectRun,
   runOnce,
   selectBudget,
-} from '@driftbench/generate';
-import { localProvider } from '@driftbench/sandbox';
-import { NONE } from '@driftbench/space';
-import { createScriptedDriver } from '@driftbench/users';
+} from '@agent-nexus/driftbench-generate';
+import { localProvider } from '@agent-nexus/driftbench-sandbox';
+import { NONE } from '@agent-nexus/driftbench-space';
+import { createScriptedDriver } from '@agent-nexus/driftbench-users';
 import { faults } from '../../examples/acme/faults/index';
 import { createAcmeAgent, createStore } from '../../examples/acme/src/index';
 import { type Pick, renderDraft, specText } from '../../packages/generate/src/seed/assemble';

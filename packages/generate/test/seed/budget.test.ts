@@ -1,4 +1,4 @@
-import { compileSpace, type SpaceMap } from '@driftbench/space';
+import { compileSpace, type SpaceMap } from '@agent-nexus/driftbench-space';
 import { describe, expect, it } from 'vitest';
 import { enumerateCells, MAX_POOL, selectBudget, slicedLhs } from '../../src/seed/budget';
 import { Feasibility } from '../../src/seed/feasible';

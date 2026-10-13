@@ -1,6 +1,6 @@
 import { createHash } from 'node:crypto';
 import { dirname } from 'node:path';
-import { type LoadedSpec, loadSpecs, type Spec } from '@driftbench/core';
+import { type LoadedSpec, loadSpecs, type Spec } from '@agent-nexus/driftbench-core';
 import { beforeAll, describe, expect, it } from 'vitest';
 import { generateSuite } from '../../src/enumerate/generate';
 import { loadApprovedMap } from '../../src/enumerate/load';

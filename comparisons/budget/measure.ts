@@ -2,13 +2,19 @@
 import { existsSync } from 'node:fs';
 import { mkdir, readFile, writeFile } from 'node:fs/promises';
 import { resolve } from 'node:path';
-import { functionAdapter, processAdapter } from '@driftbench/adapters';
-import { defaultReaders } from '@driftbench/artifacts';
-import { defaultChecks } from '@driftbench/checks';
-import { type AgentAdapter, loadSpecs } from '@driftbench/core';
-import { blockOutcome, faultAdapter, type GenerateReport, projectRun, runOnce } from '@driftbench/generate';
-import { localProvider } from '@driftbench/sandbox';
-import { createScriptedDriver } from '@driftbench/users';
+import { functionAdapter, processAdapter } from '@agent-nexus/driftbench-adapters';
+import { defaultReaders } from '@agent-nexus/driftbench-artifacts';
+import { defaultChecks } from '@agent-nexus/driftbench-checks';
+import { type AgentAdapter, loadSpecs } from '@agent-nexus/driftbench-core';
+import {
+  blockOutcome,
+  faultAdapter,
+  type GenerateReport,
+  projectRun,
+  runOnce,
+} from '@agent-nexus/driftbench-generate';
+import { localProvider } from '@agent-nexus/driftbench-sandbox';
+import { createScriptedDriver } from '@agent-nexus/driftbench-users';
 import { faults } from '../../examples/acme/faults/index';
 import { createAcmeAgent, createStore } from '../../examples/acme/src/index';
 import { main } from '../../packages/cli/src/index';
