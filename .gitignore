@@ -159,5 +159,10 @@ __pycache__/
 *.egg-info/
 .venv/
 
+# Local benchmark recording checkpoints; complete cassettes and evidence are committed.
+.bench-run/
+benchmarks/**/*.partial.json
+benchmarks/**/*.tmp
+
 # Reader-first local run state
 .reader-first/
