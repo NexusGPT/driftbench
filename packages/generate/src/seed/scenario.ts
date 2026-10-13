@@ -76,6 +76,11 @@ export type ScenarioRequest = {
    * the conversation stays on the stage it reached, no tool runs, and the walk goes on after it.
    */
   aside?: { phrase: ProposalPhrase; carries: Pick[] };
+  /**
+   * A clean walk declares one perturbation, drawn among the classes it can take. With this, it declares one
+   * for every class it can take: the stage graph's walks do, so no class depends on a draw to be declared.
+   */
+  perturbEvery?: boolean;
 };
 
 export type Scenario =
@@ -523,10 +528,18 @@ export function buildScenario(prepared: PreparedMap, rng: Rng, request: Scenario
         options.push({ classId, index, expect, user: text.value });
       }
     }
-    const chosen = pick(rng, options);
-    if (chosen) {
+    // One class is drawn, as before; a walk that declares every class adds the others at the first stage
+    // each can take, with no further draw, so the rest of the walk is the same either way.
+    const drawn = pick(rng, options);
+    const picked = drawn ? [drawn] : [];
+    if (request.perturbEvery) {
+      for (const option of options) {
+        if (!picked.some((entry) => entry.classId === option.classId)) picked.push(option);
+      }
+    }
+    for (const chosen of picked) {
       perturbations.push({
-        id: `p1-${chosen.classId}`,
+        id: `p${perturbations.length + 1}-${chosen.classId}`,
         class: chosen.classId as PerturbationSpec['class'],
         inject_at: chosen.index,
         user: chosen.user,
@@ -536,7 +549,7 @@ export function buildScenario(prepared: PreparedMap, rng: Rng, request: Scenario
       });
     }
     // A nudge gets one reply: the walk that declares one holds the rule a nudge probe holds.
-    if (chosen?.classId === 'D7_silence_or_burst') rules.one_message_per_turn = true;
+    if (picked.some((chosen) => chosen.classId === 'D7_silence_or_burst')) rules.one_message_per_turn = true;
     // A tool failure the recovery stays from: before the first turn that calls a recovered tool first, the
     // user says that turn with the tool failing. The recovery is the injected block's Then, and the turn
     // itself then runs with the tool answering again. It takes no seeded draw, so the rest is unchanged.

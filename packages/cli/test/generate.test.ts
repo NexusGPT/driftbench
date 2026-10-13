@@ -125,7 +125,7 @@ describe('driftbench generate', () => {
     );
     const before = await tree(join(dir, 'a'));
     expect(Object.keys(before)).toContain('generate-report.json');
-    expect(Object.keys(before).filter((path) => path.startsWith('specs/'))).toHaveLength(259);
+    expect(Object.keys(before).filter((path) => path.startsWith('specs/'))).toHaveLength(258);
 
     const refused = await run(
       ['generate', '--map', `${ACME}map/approved.yaml`, '--out', 'a', '--t', '2'],

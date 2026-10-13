@@ -1,11 +1,11 @@
 {
-  "source": "A failing turn keeps its closed arguments (exec/generator-v3)",
+  "source": "Stage graph walks declare a perturbation per class (exec/generator-v3)",
   "mapHash": "ed9e4089e9c5",
   "hashes": {
-    "pairwise": "a022f45c559b61b532acd7c1d7ea3c8a4a71b586ce60d5f086e807ae6f974489",
-    "budget-20": "a2bb811e678f46c2c061d38b029d2eb858d3e8d48e9fd837e318c25ab6e90766",
-    "budget-50": "1e61617e73dd1117d163886f4bb802bd298c0e98e049735619541196d54b0ac1",
-    "budget-100": "9e14dcb123ec4ee09253749367e58b42d68dd742a250f6be59fe2f1b41d2f3b3",
-    "budget-200": "d706d9bcf3344177d3663baaf6bc2028d85afe88fcf989d4b9f26e84b560b857"
+    "pairwise": "3478d3b266888f6846d98e12c6cb88e2e949e93bf4453539616814a851fc8071",
+    "budget-20": "21115e9c16a87c4bd460024f4478d78cda5eef1e04e4c168d7c8064be1cc1ca1",
+    "budget-50": "a534c3be77dccf6f16e2a287ad0704651bc30ebab1d2fd388845c8ad892ab5fb",
+    "budget-100": "c2d2ccae4077397191d421766304c7e526e353c05eaa26677566ef51447d3c35",
+    "budget-200": "e178bca6bc82628bc7011ac6a3faab677f2af0bb5e34ea28e9c57f413439fab8"
   }
 }
