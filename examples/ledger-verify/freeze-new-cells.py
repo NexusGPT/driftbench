@@ -13,6 +13,7 @@ for folder,model in [('sonnet','claude-sonnet-5-5'),('sol61','gpt-6.1-sol')]:
   p=BASE/name;hashes[str(p.relative_to(ROOT))]=sha(p)
  ns=folder+'-medium-20261013'
  runtime={**original,'id':ns,'recordingsId':ns,'pilotRecordingsId':ns,'models':{model:{'timeoutMs':300000,'reasoning':'medium'}},'capUsd':25,'modelConcurrency':{model:2},'command':'examples/ledger-verify/new-cell-transport.sh','deadlineAt':None,'hashes':hashes,
+  'outerTimeoutMs':2147483647,
   'transportIdentity':'responses-standard-medium-output32768-v1' if folder=='sol61' else 'claude-cli-lean-sonnet-medium-output16384-v1'}
  (b/'evidence/runtime-freeze.json').write_text(json.dumps(runtime,indent=2)+'\n')
  (b/'evidence/pilot-runtime-freeze.json').write_text(json.dumps(runtime,indent=2)+'\n')

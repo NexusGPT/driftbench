@@ -18,7 +18,7 @@ def archive(p,target):
 def main():
  assert read(BASE/'haiku.progress.json')['status']=='complete'
  amendment=read(BASE/'evidence/haiku-test-timeouts.json')
- calls=[r for r in rows(BASE/'receipts/errors.jsonl') if all(r.get(k)==amendment['eligibility'][k] for k in ['model','phase','message'])]
+ calls=amendment['calls']  # Initial TEST receipts only; retry receipts never expand the target set.
  for r in calls:assert Path(r['nativeReceipt']).exists() and not Path(r['nativeReceipt']).read_text().strip()
  amendment.update(calls=calls,callsCollectedAt=now(),unknownHoldsRetainedUsd=len(calls)*.5)
  (BASE/'evidence/haiku-test-timeouts.json').write_text(json.dumps(amendment,indent=2)+'\n')
@@ -58,23 +58,30 @@ def main():
   answer=CACHE/(request['fingerprint']+'.answered.json')
   if answer.exists():return read(answer)
   attempt=len(list(CACHE.glob(request['fingerprint']+'.attempt-*.json')))
-  while True:
-   attempt+=1
-   ran=subprocess.run(tsx+[str(generated),'--model','haiku','--system-prompt',request['prompt']['system']],input=request['prompt']['user'],text=True,capture_output=True,cwd=ROOT,env=env,check=True)
-   if ran.stderr:(CACHE/(request['fingerprint']+f'.attempt-{attempt}.stderr.log')).write_text(ran.stderr)
-   response=json.loads(ran.stdout)
-   receipts=[r for r in rows(BASE/'receipts/calls.jsonl') if r.get('fingerprint')==request['fingerprint'] and r.get('phase')=='test']
-   errors=[r for r in rows(BASE/'receipts/errors.jsonl') if r.get('fingerprint')==request['fingerprint'] and r.get('phase')=='test']
-   latest=sorted(receipts+errors,key=lambda x:x['at'])[-1]
-   native=Path(latest['nativeReceipt']) if latest.get('nativeReceipt') else None
-   native_nonempty=bool(native and native.exists() and native.stat().st_size)
-   answered=not response.get('is_error') or native_nonempty
-   value=dict(key=request['key'],fingerprint=request['fingerprint'],labels=request['labels'],output=response,receipt=latest['id'],attempt=attempt,returnedModelAnswer=answered,use='initial answered finals preserved; only transport-missing finals are replaced')
-   (CACHE/(request['fingerprint']+f'.attempt-{attempt}.json')).write_text(json.dumps(value,indent=2)+'\n')
-   if answered:answer.write_text(json.dumps(value,indent=2)+'\n');return value
-   assert re.search(r'ran past \d+ ms|ENOTFOUND|ECONNRESET|ETIMEDOUT|fetch failed|connect.*timeout',response.get('result',''),re.I),response.get('result')
-   time.sleep(30)
- with concurrent.futures.ThreadPoolExecutor(max_workers=2) as pool:recovered=list(pool.map(retry,requests))
+  attempt+=1
+  ran=subprocess.run(tsx+[str(generated),'--model','haiku','--system-prompt',request['prompt']['system']],input=request['prompt']['user'],text=True,capture_output=True,cwd=ROOT,env=env,check=True)
+  if ran.stderr:(CACHE/(request['fingerprint']+f'.attempt-{attempt}.stderr.log')).write_text(ran.stderr)
+  response=json.loads(ran.stdout)
+  receipts=[r for r in rows(BASE/'receipts/calls.jsonl') if r.get('fingerprint')==request['fingerprint'] and r.get('phase')=='test']
+  errors=[r for r in rows(BASE/'receipts/errors.jsonl') if r.get('fingerprint')==request['fingerprint'] and r.get('phase')=='test']
+  latest=sorted(receipts+errors,key=lambda x:x['at'])[-1]
+  native=Path(latest['nativeReceipt']) if latest.get('nativeReceipt') else None
+  native_nonempty=bool(native and native.exists() and native.stat().st_size)
+  answered=not response.get('is_error') or native_nonempty
+  value=dict(key=request['key'],fingerprint=request['fingerprint'],labels=request['labels'],output=response,receipt=latest['id'],attempt=attempt,returnedModelAnswer=answered,use='initial answered finals preserved; only transport-missing finals are replaced')
+  (CACHE/(request['fingerprint']+f'.attempt-{attempt}.json')).write_text(json.dumps(value,indent=2)+'\n')
+  if answered:answer.write_text(json.dumps(value,indent=2)+'\n');return value
+  assert re.search(r'ran past \d+ ms|ENOTFOUND|ECONNRESET|ETIMEDOUT|fetch failed|connect.*timeout',response.get('result',''),re.I),response.get('result')
+  time.sleep(30)
+  return value
+ recovered=[]
+ pending=list(requests)
+ while pending:
+  with concurrent.futures.ThreadPoolExecutor(max_workers=2) as pool:attempted=list(pool.map(retry,pending))
+  recovered.extend(r for r in attempted if r['returnedModelAnswer'])
+  answered={r['fingerprint'] for r in recovered}
+  pending=[r for r in requests if r['fingerprint'] not in answered]
+  save(status='recovering missing-only under network gate' if pending else 'all missing requests returned',**execution,answered=len(recovered),remaining=len(pending))
  assert report.read_bytes()==original_report and cassette.read_bytes()==original_cassette
  missing={(c['contestant'],d['id']) for c in initial['contestants'] for d in c['decisions'] if d.get('missing',0)>0 or type(d.get('pass')) is not bool}
  final_recoveries={r['key']:r for r in recovered if (r['labels']['contestant'],r['labels']['item']) in missing and r['labels']['order']=='single'}
@@ -96,7 +103,7 @@ def main():
  assert preserved==442-len(missing)
  replay['recovery']={'initialReport':'haiku.pre-test-timeout-recovery.json','missingFinalsRecovered':replacements,'answeredDecisionsPreserved':preserved,'providerCallsDuringReplay':0}
  report.write_text(json.dumps(replay,indent=2)+'\n')
- receipts=[r for r in rows(BASE/'receipts/calls.jsonl') if r['id'] not in before]
+ receipts=[r for r in rows(BASE/'receipts/calls.jsonl') if r.get('model')=='haiku' and r.get('phase')=='test' and r.get('fingerprint') in {x['fingerprint'] for x in requests} and r['id'] not in {x['id'] for x in calls}]
  save(status='complete',**execution,outcomes=recovered,newReceiptIds=[r['id'] for r in receipts],newSettledUsd=sum(r['costUsd'] for r in receipts),primaryReportSha256=digest(report.read_bytes()),primaryCassetteSha256=digest(cassette.read_bytes()),initialDecisionsPreserved=preserved,primaryResultsReplaced=replacements,returnedAnswersResent=0,transportMissingFinalItems=0)
  with (BASE/'logs/haiku-test-timeout-finalize.log').open('w') as log:subprocess.run(['python3',str(BASE/'finish.py'),'--allow-daily-quota'],cwd=ROOT,env=env,stdout=log,stderr=subprocess.STDOUT,check=True)
 if __name__=='__main__':main()

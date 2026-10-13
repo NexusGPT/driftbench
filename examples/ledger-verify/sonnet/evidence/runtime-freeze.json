@@ -140,7 +140,7 @@
     "examples/ledger-verify/test-billing.ts": "0ceab4aef146fd35c8796dfcfd2d90f3b00ab063101a93ad708e5640f3867a84",
     "examples/ledger-verify/pacing.py": "248ee9149371c28c53a82fdf017ef6d313f509ba3161e5f7622b7034f8778416",
     "examples/ledger-verify/test_pacing.py": "efbe31fced8d16f373cb147008b9f9576c164bca20db3786051f94606be6fb33",
-    "examples/ledger-verify/new-cell-run.ts": "7e4c80d67251c0f35c41693edc7d9d448bb7a12025415a28bf207f289095dbbe",
+    "examples/ledger-verify/new-cell-run.ts": "0bfae9258b44c938203a6bf57a269e756b89b437ea3adc1215d7b91afe651855",
     "examples/ledger-verify/new-cell-transport.ts": "f6f0775cf86147fded958510c2136e58dbfa2bbc9d35b392d95aecae3d963f57",
     "examples/ledger-verify/new-cell-transport.sh": "082fab76eda59dca529c9be30de08321dde8ddffb80d2ebb185158391b92248f",
     "examples/ledger-verify/new-cell-budget.py": "35b421d27ff0bd6c642d574c47ec80edb8dd5d69e0859969c36781f89d82baa0",
@@ -186,5 +186,6 @@
     "alreadyStartedCalls": "finish normally"
   },
   "id": "sonnet-medium-20261013",
+  "outerTimeoutMs": 2147483647,
   "transportIdentity": "claude-cli-lean-sonnet-medium-output16384-v1"
 }

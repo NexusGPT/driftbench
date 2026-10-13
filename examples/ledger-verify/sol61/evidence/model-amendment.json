@@ -46,9 +46,9 @@
     "longInputMultiplier": 2,
     "longOutputMultiplier": 1.5
   },
-  "frozenAt": "2026-10-13T14:34:16.866565+00:00",
-  "runtimeSha256": "b3084927974bd5efd0c203bf204bf6491af56f47a1d3951cd36ecbaaa4665e8e",
-  "reportingSha256": "117fb5d74734aa7d3d6df57072ec8ff39365eedf33dc6d48db1d0ee5a4c3bd1d",
+  "frozenAt": "2026-10-13T14:54:00.034665+00:00",
+  "runtimeSha256": "0766ac83a1aa9defcfcd7ce68a072c57738de687f4a033ed2285725b8d68d107",
+  "reportingSha256": "98fb5ca299d3299ae16b2bc4e1f6dc904f85e85c87d8865a261c4fadf541f68a",
   "cacheWriteAccounting": {
     "at": "2026-10-13T14:13:29.537391+00:00",
     "beforeFirstCall": true,
@@ -56,5 +56,7 @@
     "usageField": "usage.input_tokens_details.cache_write_tokens",
     "formula": "ordinary input excludes cached and written tokens; writes use 2.50 USD per million; reserve uses the maximum input price"
   },
-  "networkAmendment": "Ten healthy provider probes spaced 30 seconds apart before new calls, one model cell at a time, concurrency two. Three consecutive connection failures pause ten minutes and repeat the gate. Zero-token no-output transport requests retry missing-only without an attempt limit. Every answer stays cached."
+  "networkAmendment": "Ten healthy provider probes spaced 30 seconds apart before new calls, one model cell at a time, concurrency two. Three consecutive connection failures pause ten minutes and repeat the gate. Zero-token no-output transport requests retry missing-only without an attempt limit. Every answer stays cached.",
+  "outerProcessTimeoutMs": 2147483647,
+  "outerProcessNote": "Queueing and network-health pauses must not kill a live wrapper and orphan its physical attempt. Actual provider attempts remain 300 seconds; the outer envelope uses the maximum supported Node timer."
 }

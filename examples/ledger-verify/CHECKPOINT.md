@@ -154,3 +154,9 @@
 - Haiku initial TEST returns all 221 cascade verdicts; promptfoo has two transport-missing finals. Six empty native timeouts are eligible. Completed answers remain primary and only missing finals can change.
 - Sequence: finish Haiku recovery, then Sonnet, then Sol. A new model cost projection above 25 USD stops that cell before its full run. Gemini 3.8 remains parked with no timed restart.
 - Provider probes have no credentials and make no generation request. Evidence: evidence/network-pause-20261013.json, network-probes.jsonl and network-admission.json.
+
+## 2026-10-13T14:55:03.348307+00:00 network scheduling safeguards
+
+- Five offline admission and retry checks pass: closed gate, other model, two-call ceiling, terminal answered error, and missing-only connection retry. No model calls occur in these checks.
+- Haiku retry waves retain the original six target requests and visit every missing request before repeating failures. Previously answered recovery requests replay their cached answer.
+- New-cell outer envelopes cover network waits; physical provider attempts stay at 300 seconds. runtime-freeze.json records the outer Node timer, reasoning and unchanged scorer hashes.

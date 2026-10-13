@@ -69,7 +69,7 @@ if (!replayOnly) {
     items:items.length, coreSha:runtime.coreSha, runtime:runtime.id }, null,2)+'\n', { flag:'wx' });
 }
 process.env.VERIFY_PHASE=phase;
-process.env.VERIFY_OUTER_TIMEOUT_MS=String(amendment.outerTimeoutMs);
+process.env.VERIFY_OUTER_TIMEOUT_MS=String(runtime.outerTimeoutMs??amendment.outerTimeoutMs);
 try {
 const report = await runBenchmark({
   bench:'longjudge-verify', model,
