@@ -35,6 +35,20 @@ Causes that look blocked by the spec language or the follower (checked, not fixe
 
 Known regression to repair: iteration 13 removed the first-turn D9 probe (`fault.D9.inside`, `mode.F.D9_out_of_scope`, about 41 `pair.*+D9.inside` items). `fault.D9.inside` passes on seed 1 now; re-check on a full sweep.
 
+## Decision for the owner: the six unkilled fault classes
+
+These need a public contract change, so nothing is built. Two options, each with the example it unblocks.
+
+Option A, a spec language addition. Two new assertions on a block:
+- `tools[].input_closed: true` (the call carries only the keys named in `input`). Example: `X1.field-extra` adds `note: "added by the agent"` to a lookup call; with `input_closed` on the lookup expectation `{ kind: green }` the call `{ kind: green, note: ... }` fails.
+- `expect.stage_reported: true` (the runtime must report a stage in this block). Example: `X3.no-report` reports no stage; today `expect.stage` does not apply when no stage was ever reported, so the block passes.
+Trade-off: every runner and adapter must implement both; the generator then emits them everywhere, which makes old specs and new specs differ. It does not help the three text classes.
+
+Option B, a `states` relation in the map for what a reply states (the relation already exists in the generator for quoted prices). Example: `{ subject: flow=status-check, stage: check, to: check, must: ["{found}"] }` makes the reply of the lookup turn state the value the tool returned, which kills `X2.fact-flip` (opposite of a yes or no) and `X2.fact-invent`; a `must_not` of narration words kills `X4.narrate`; a question pattern kills `X4.no-question`.
+Trade-off: the owner approves one relation per flow, and the validator's rendered map (`packages/validators/.../render.ts`) has none today, so the generator has nothing to read; the follower's reply texts would have to be stated by the map. It leaves `X1.field-extra` and `X3.no-report` open.
+
+Both together kill all six. A alone kills two, B alone kills four.
+
 ## Hypotheses tried
 
 Rows 1 to 10 are the pilot (branch `exec/generator-pilot`, merged). Rows 11 to 13 are listed in the journal. Row 14 covers four causes:
