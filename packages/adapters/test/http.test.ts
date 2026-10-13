@@ -4,7 +4,7 @@ import {
   type Message,
   retryDecision,
   type Session,
-} from '@driftbench/core';
+} from '@agent-nexus/driftbench-core';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { toChatMessages } from '../src/http/chat';
 import { httpAdapter } from '../src/http/index';

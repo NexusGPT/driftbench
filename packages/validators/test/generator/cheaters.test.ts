@@ -1,4 +1,4 @@
-import { blockOutcome, CONSTANT_REPLY, runOnce } from '@driftbench/generate';
+import { blockOutcome, CONSTANT_REPLY, runOnce } from '@agent-nexus/driftbench-generate';
 import { describe, expect, it } from 'vitest';
 import { baselineSpecs, baselineSuite } from '../../src/ladders/generator/baseline';
 import { CHEATERS, cheaterAdapter, givenValues, replayCalls } from '../../src/ladders/generator/cheaters';

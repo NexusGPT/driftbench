@@ -1,4 +1,4 @@
-import type { Check, Embedder } from '@driftbench/core';
+import type { Check, Embedder } from '@agent-nexus/driftbench-core';
 import { artifacts } from './checks/artifacts';
 import { budget } from './checks/budget';
 import { cards } from './checks/cards';
@@ -29,7 +29,7 @@ import { toolsOffered } from './checks/tools_offered';
 import { workspace } from './checks/workspace';
 
 /**
- * What judges the criteria a block names: a council of @driftbench/judges (its `check()` makes the
+ * What judges the criteria a block names: a council of @agent-nexus/driftbench-judges (its `check()` makes the
  * `judge` check), or any object that makes a check the same way. The checks package does not depend on
  * the judges package; it only asks the council for its check.
  */

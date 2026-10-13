@@ -2,9 +2,9 @@ import { cp, mkdtemp, readFile, rm, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { findSpecFiles, loadSpecs } from '@driftbench/core';
-import { faultAdapter, importFaultSet } from '@driftbench/generate';
-import { localProvider } from '@driftbench/sandbox';
+import { findSpecFiles, loadSpecs } from '@agent-nexus/driftbench-core';
+import { faultAdapter, importFaultSet } from '@agent-nexus/driftbench-generate';
+import { localProvider } from '@agent-nexus/driftbench-sandbox';
 import { afterAll, describe, expect, it } from 'vitest';
 import {
   defaultHoldoutDeps,

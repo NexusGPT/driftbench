@@ -7,7 +7,7 @@ The pydantic-ai adapter runs a [Pydantic AI](https://ai.pydantic.dev/) agent in 
 ## Options
 
 ```ts
-import { pydanticAiAdapter } from '@driftbench/adapters';
+import { pydanticAiAdapter } from '@agent-nexus/driftbench-adapters';
 
 const adapter = pydanticAiAdapter({
   agent: 'acme.agents:sales', // an Agent, or a function that returns one

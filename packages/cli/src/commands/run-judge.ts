@@ -1,13 +1,13 @@
 import { open } from 'node:fs/promises';
 import { resolve } from 'node:path';
-import type { Check } from '@driftbench/core';
+import type { Check } from '@agent-nexus/driftbench-core';
 import {
   createClaudeCliJudge,
   type JudgeClient,
   JudgeError,
   noJudgeCheck,
   singleJudgeCheck,
-} from '@driftbench/judges';
+} from '@agent-nexus/driftbench-judges';
 import type { Command } from 'commander';
 import type { Io } from '../io';
 import { optionNumber } from '../number';

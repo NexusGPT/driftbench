@@ -1,4 +1,10 @@
-import { DEFAULT_MAX_CELLS, gridSize, loadSpaceMap, NONE, validateSpaceMap } from '@driftbench/space';
+import {
+  DEFAULT_MAX_CELLS,
+  gridSize,
+  loadSpaceMap,
+  NONE,
+  validateSpaceMap,
+} from '@agent-nexus/driftbench-space';
 import { describe, expect, it } from 'vitest';
 import {
   approveAll,

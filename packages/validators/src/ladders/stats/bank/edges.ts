@@ -91,7 +91,7 @@ export function edgeItems(root: string): BankItem[] {
     cause: `${c.fn} differs from scipy or exact arithmetic on an edge input`,
     check: ({ s }) => {
       const f = exported(s, c.fn);
-      if (!f) return fail(`@driftbench/stats exports no function ${c.fn}.`);
+      if (!f) return fail(`@agent-nexus/driftbench-stats exports no function ${c.fn}.`);
       const call = `${c.fn}(${c.args.map((a) => show(a)).join(', ')})`;
       const got = attempt(() => (f as (...args: unknown[]) => unknown)(...c.args));
       if (got.error) return fail(`${call} threw ${got.error.name}: ${got.error.message}; edge: ${c.edge}.`);
@@ -175,7 +175,8 @@ export function ruleItems(): BankItem[] {
   ) => {
     const parse = exported(s, 'parseRepeatReducer') as Parse | undefined;
     const r = exported(s, 'reduceRepeats') as Reduce | undefined;
-    if (!parse || !r) return { error: '@driftbench/stats exports no parseRepeatReducer or reduceRepeats' };
+    if (!parse || !r)
+      return { error: '@agent-nexus/driftbench-stats exports no parseRepeatReducer or reduceRepeats' };
     const got = attempt(() => r(values, parse(spelling)));
     return got.error ? { error: `threw ${got.error.message}` } : { value: got.value };
   };
@@ -273,7 +274,7 @@ export function ruleItems(): BankItem[] {
       'parseRepeatReducer accepts at_least with k of 0 or a leading zero',
       ({ s }) => {
         const parse = exported(s, 'parseRepeatReducer') as Parse | undefined;
-        if (!parse) return fail('@driftbench/stats exports no parseRepeatReducer');
+        if (!parse) return fail('@agent-nexus/driftbench-stats exports no parseRepeatReducer');
         for (const spelling of ['at_least:0', 'at_least:03', 'at_least:', 'at_least:-1']) {
           const got = attempt(() => parse(spelling));
           if (!(got.error instanceof RangeError))

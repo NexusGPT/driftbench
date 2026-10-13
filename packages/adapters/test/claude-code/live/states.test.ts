@@ -1,6 +1,11 @@
 import { join } from 'node:path';
-import { AdapterTransportError, type AgentAdapter, AgentFailure, type Observed } from '@driftbench/core';
-import { localProvider } from '@driftbench/sandbox';
+import {
+  AdapterTransportError,
+  type AgentAdapter,
+  AgentFailure,
+  type Observed,
+} from '@agent-nexus/driftbench-core';
+import { localProvider } from '@agent-nexus/driftbench-sandbox';
 import { afterEach, beforeAll, describe, expect, it, vi } from 'vitest';
 import {
   applySessionOps,

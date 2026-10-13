@@ -9,8 +9,8 @@ import {
   type JudgeRequest,
   loadCassette,
   type TranscriptEntry,
-} from '@driftbench/judges';
-import { cohenKappa, mulberry32, quantile } from '@driftbench/stats';
+} from '@agent-nexus/driftbench-judges';
+import { cohenKappa, mulberry32, quantile } from '@agent-nexus/driftbench-stats';
 import { showNumber } from '../../format';
 import { defineLadder, type Ladder, type Item as LadderItem, type Measure } from '../../ladder';
 import { type Item, loadPool, type Pool, splitPool } from './pool';

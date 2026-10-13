@@ -1,5 +1,5 @@
-import type { RunMode, RunResult, Spec } from '@driftbench/core';
-import { quantile, repeatsForFloor, sampleVariance, Z95 } from '@driftbench/stats';
+import type { RunMode, RunResult, Spec } from '@agent-nexus/driftbench-core';
+import { quantile, repeatsForFloor, sampleVariance, Z95 } from '@agent-nexus/driftbench-stats';
 import { blocksWithSpec, type CampaignData, groupBy, lineKey, runPassed, specOfRun } from './data';
 import { clustered, type Estimate, type Rate, rate } from './estimate';
 

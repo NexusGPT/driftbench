@@ -1,4 +1,4 @@
-"""driftbench bridge for a Pydantic AI agent, run by the pydantic-ai adapter of @driftbench/adapters.
+"""driftbench bridge for a Pydantic AI agent, run by the pydantic-ai adapter of @agent-nexus/driftbench-adapters.
 
 Usage: python bridge.py <module>:<name>
 

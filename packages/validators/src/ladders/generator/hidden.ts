@@ -1,5 +1,5 @@
-import type { DeviationClass } from '@driftbench/core';
-import { rngFor } from '@driftbench/generate';
+import type { DeviationClass } from '@agent-nexus/driftbench-core';
+import { rngFor } from '@agent-nexus/driftbench-generate';
 
 /**
  * The hidden specification of the generator validator (docs/validators.md sections 3 and 12). Code draws,

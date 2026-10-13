@@ -7,7 +7,7 @@ import {
   type ToolCall,
   type ToolExpect,
   type Verdict,
-} from '@driftbench/core';
+} from '@agent-nexus/driftbench-core';
 import { checkAssertion } from '../support/assert';
 import { countAllows, describeCount, minimumOf } from '../support/count';
 import { entryKeys, isRecord, listed, plural, show, times } from '../support/values';

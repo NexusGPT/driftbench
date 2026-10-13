@@ -1,4 +1,4 @@
-import { analysePilot, type PilotObservation } from '@driftbench/generate';
+import { analysePilot, type PilotObservation } from '@agent-nexus/driftbench-generate';
 import { showNumber } from '../../format';
 import type { Item, Measure } from '../../ladder';
 import type { SharesDesign } from './designs';

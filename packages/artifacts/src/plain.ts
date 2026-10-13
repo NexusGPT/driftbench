@@ -1,4 +1,4 @@
-import type { ArtifactKind } from '@driftbench/core';
+import type { ArtifactKind } from '@agent-nexus/driftbench-core';
 import { isRecord } from './args';
 import { type CheckTable, type KindReader, ReaderDocument, type TextCheck } from './document';
 import { decodeText, lines, TEXT_CHECKS } from './text';

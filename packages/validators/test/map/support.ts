@@ -1,5 +1,5 @@
 import { fileURLToPath } from 'node:url';
-import { extractMap, type Recording } from '@driftbench/generate';
+import { extractMap, type Recording } from '@agent-nexus/driftbench-generate';
 import { oracleRecording } from '../../src/ladders/map/oracle';
 import type { Rendered } from '../../src/ladders/map/render';
 import type { Answerer, Extract } from '../../src/ladders/map/run';

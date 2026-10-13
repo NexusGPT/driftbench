@@ -1,5 +1,5 @@
 {
-  "name": "@driftbench/store",
+  "name": "@agent-nexus/driftbench-store",
   "version": "0.1.0",
   "description": "The driftbench result store: specs, campaigns, runs, the response cache and cost units in one SQLite file through node:sqlite.",
   "keywords": [
@@ -41,7 +41,7 @@
     "build": "tsup src/index.ts --format esm --dts --clean --target node22"
   },
   "dependencies": {
-    "@driftbench/core": "workspace:*"
+    "@agent-nexus/driftbench-core": "workspace:*"
   },
   "publishConfig": {
     "access": "public",

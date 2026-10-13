@@ -1,4 +1,9 @@
-import type { ClientOptions, JudgeClient, JudgeRequest, System1Options } from '@driftbench/judges';
+import type {
+  ClientOptions,
+  JudgeClient,
+  JudgeRequest,
+  System1Options,
+} from '@agent-nexus/driftbench-judges';
 import { type BankItem, fn, type JudgesApi, type Tier } from '../bank';
 
 /**

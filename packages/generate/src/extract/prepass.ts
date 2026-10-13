@@ -1,4 +1,4 @@
-import { DeviationClass, type InventoryIssue, parseInventoryText } from '@driftbench/core';
+import { DeviationClass, type InventoryIssue, parseInventoryText } from '@agent-nexus/driftbench-core';
 import { isSeq, parseDocument } from 'yaml';
 import { entry, nodeText, pairText } from './nodes';
 import {

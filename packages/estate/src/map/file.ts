@@ -1,6 +1,6 @@
 import { mkdir, readFile, rename, writeFile } from 'node:fs/promises';
 import { dirname, join } from 'node:path';
-import { isPlainObject } from '@driftbench/core';
+import { isPlainObject } from '@agent-nexus/driftbench-core';
 import { Document, isMap, isSeq, parseDocument, parse as parseYaml } from 'yaml';
 import type { z } from 'zod';
 import { EVENT_PREFIX } from '../graph/edges';

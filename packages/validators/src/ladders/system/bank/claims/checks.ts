@@ -1,4 +1,4 @@
-import { CheckRegistry, defaultChecks } from '@driftbench/checks';
+import { CheckRegistry, defaultChecks } from '@agent-nexus/driftbench-checks';
 import {
   type Check,
   type CheckContext,
@@ -9,7 +9,7 @@ import {
   type RunResult,
   type Verdict,
   validateSpec,
-} from '@driftbench/core';
+} from '@agent-nexus/driftbench-core';
 import type { Behaviour, RawSpec } from '../../plant';
 import { between, type Rng, rngFor } from '../../random';
 import { DOCUMENTED_CHECKS } from '../documented';

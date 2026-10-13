@@ -1,7 +1,12 @@
 import { readdir, readFile } from 'node:fs/promises';
 import { dirname, join, relative } from 'node:path';
-import { type LoadedSpec, loadSpecs, type Spec } from '@driftbench/core';
-import { compileSpace, isForbidden, loadSpaceMap, coverage as spaceCoverage } from '@driftbench/space';
+import { type LoadedSpec, loadSpecs, type Spec } from '@agent-nexus/driftbench-core';
+import {
+  compileSpace,
+  isForbidden,
+  loadSpaceMap,
+  coverage as spaceCoverage,
+} from '@agent-nexus/driftbench-space';
 import { beforeAll, describe, expect, it } from 'vitest';
 import { type GenerateResult, generateSuite } from '../../src/enumerate/generate';
 import { loadApprovedMap } from '../../src/enumerate/load';

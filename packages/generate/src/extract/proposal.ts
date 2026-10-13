@@ -1,6 +1,6 @@
 import { readFile } from 'node:fs/promises';
 import { dirname, resolve } from 'node:path';
-import { Assertion, Count, DeviationClass, GuardExpect, isPlainObject } from '@driftbench/core';
+import { Assertion, Count, DeviationClass, GuardExpect, isPlainObject } from '@agent-nexus/driftbench-core';
 import { Document, isMap, isSeq, parse as parseYaml } from 'yaml';
 import { z } from 'zod';
 import { QuoteIndex } from './quote';
