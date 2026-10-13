@@ -130,7 +130,7 @@ describe('generate on the approved Acme map', () => {
   it('writes valid specs only; the complete ones lint clean', () => {
     expect(result.report.invalid).toEqual([]);
     expect(result.report.lint).toEqual([]);
-    expect(result.report.summary).toMatchObject({ complete: 252, incomplete: 73 });
+    expect(result.report.summary).toMatchObject({ complete: 259, incomplete: 73 });
   });
 
   it('never walks a spec on a path of a flow its behaviours do not belong to', () => {
@@ -223,7 +223,7 @@ describe('generate on the approved Acme map', () => {
   });
 
   it('gives every block of every complete spec a machine Then, derived from an approved path', () => {
-    expect(result.complete).toHaveLength(252);
+    expect(result.complete).toHaveLength(259);
     // A task spec's Then comes from its family's oracle, not from a path: the task seeder is checked apart.
     for (const spec of result.complete.filter((entry) => entry.kind !== 'task')) {
       const generated = (spec.metadata as { generated: { path?: string } }).generated;
@@ -293,15 +293,11 @@ describe('generate on the approved Acme map', () => {
 
   it('builds a scenario for each allowed pair the other seeders leave uncovered, and names why the rest cannot be', () => {
     const cover = result.report.cover;
-    expect(cover.cells).toBe(20);
-    expect(cover.covered).toBe(7);
-    expect(cover.unbuilt).toHaveLength(13);
-    // The opening-stage pairs have no discriminating Then; they are reported, never counted as covered.
-    for (const entry of cover.unbuilt) {
-      expect(entry.cell.stage).toBe('needs');
-      expect(entry.reasons.length).toBeGreaterThan(0);
-    }
-    expect(result.report.coverage.complete.covered).toBe(624);
+    expect(cover.cells).toBe(14);
+    expect(cover.covered).toBe(14);
+    expect(cover.unbuilt).toEqual([]);
+    // Approved policy guards now distinguish opening recoveries from idle replies.
+    expect(result.report.coverage.complete.covered).toBe(637);
     expect(result.report.coverage.allowed - result.report.coverage.complete.covered).toBe(
       cover.unbuilt.length,
     );
