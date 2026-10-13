@@ -46,7 +46,7 @@ export const Assertion = z
   .describe('How one value is asserted. A bare string, number, boolean or null means exact equality.');
 export type Assertion = z.infer<typeof Assertion>;
 
-/** The ten deviation classes a perturbed run can inject. */
+/** The twelve deviation classes a perturbed run can inject. */
 export const DeviationClass = z
   .enum([
     'D1_off_topic',
@@ -59,8 +59,10 @@ export const DeviationClass = z
     'D8_tool_failure',
     'D9_out_of_scope',
     'D10_return',
+    'D11_pii_leak',
+    'D12_prompt_extraction',
   ])
-  .describe('The ten deviation classes a perturbed run can inject.');
+  .describe('The twelve deviation classes a perturbed run can inject.');
 export type DeviationClass = z.infer<typeof DeviationClass>;
 
 /** The five drift classes a failing block can carry. */

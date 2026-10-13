@@ -1,11 +1,11 @@
 {
-  "source": "Required opening policy traces with main e3d0e926 and generator validator contracts merged",
-  "mapHash": "ed9e4089e9c5",
+  "source": "Required opening policy traces (main 3ff2dbc9, PR 174) merged into the D11 and D12 branch; map 0f897ba84410 after D11 and D12 joined the approved Acme map; baseline coverage 237 of 701",
+  "mapHash": "0f897ba84410",
   "hashes": {
-    "pairwise": "0869e2576e19972630cb294d453bd75488aeed883d6288b6561f5c79d447b7d1",
-    "budget-20": "6297a729d819bb703132093b8cca0ec43e581935aac0e2a565aa519e32d80096",
-    "budget-50": "153a3b3769440430dcf63fc7cd8d3c06e75c8e76e86423744938387dcbb1f3db",
-    "budget-100": "72b94df96aede06177e3557762187c1bedb2c35b4602d51fe44b8bab37921b1a",
-    "budget-200": "a6d35914c3f31a99aa1ab551fe3daae105091af3f9e90f980c0f43593f5cb099"
+    "pairwise": "f9de1486e7497af77bf1bdb929673551cf72a0ed70cba28ea59d668cdb2fd9b3",
+    "budget-20": "cc3b2dcd31dfd3d7960f7fa3886708620758ad90972c0c8614131ca6104c69d6",
+    "budget-50": "9768bb28ae6b84ecef688f23484a955753b46db07f2622de53ac42298a57130b",
+    "budget-100": "08dabd39629d09010c5679f0c00a4fc277f6c0ea2cb35fce9d099d3fbcc34d9c",
+    "budget-200": "03ae326418ff7c03c95b58b054363e90600b8124a97e956447b5da9229dd0575"
   }
 }

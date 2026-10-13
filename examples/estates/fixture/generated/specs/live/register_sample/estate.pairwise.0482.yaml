@@ -4,7 +4,7 @@
 id: estate.pairwise.0482
 version: be2e7a0919cb
 kind: task
-title: "register_sample: One closing line per invoice"
+title: "register_sample: Bullets for three or more parallel items"
 lang: EN
 tier: generated
 tags:
@@ -20,8 +20,8 @@ given:
     estate:
       runtime: claude-code
       map_hash: be2e7a0919cb31aecf73102cd271e7611cb439be814983a47b9dc39e38775f10
-    session_state: helpers_running
-    event: dead_helper
+    session_state: after_restart
+    event: stale_tracker
     workspace_seed: northwind-ops
   world:
     workspace:
@@ -50,15 +50,20 @@ given:
           ## Invoices reconciled
           2
           ## Shipments late
+criteria:
+  - name: register.standing.bullets-for-three-or-more-parallel
+    rubric: Bullets for three or more parallel items
+    gating: false
+    scope: block
 blocks:
   - id: ask
     when:
-      user: Match the Fjord Kitchenware invoice INV-1001 with its order.
+      user: Give me a short status of invoices, shipments and supplier emails.
     expect:
-      must:
-        - matched
       workspace:
         others_untouched: true
+      criteria:
+        - register.standing.bullets-for-three-or-more-parallel
 perturbations:
   - id: deviation-D3_contradiction
     class: D3_contradiction
@@ -69,16 +74,16 @@ perturbations:
 metadata:
   estate:
     atoms:
-      - register.invoice-reconcile.one-closing-line-per-invoice
+      - register.standing.bullets-for-three-or-more-parallel
     planRow: pairwise.0482
     cell:
       ask_class: compose
       ask_shape: correction
-      session_state: helpers_running
-      owner_signal: hold
+      session_state: after_restart
+      owner_signal: frustration
       deviation: D3_contradiction
-      estate_hazard: dead_helper
-      atoms.register: register.invoice-reconcile.one-closing-line-per-invoice
+      estate_hazard: stale_tracker
+      atoms.register: register.standing.bullets-for-three-or-more-parallel
     seeder: estate
     seed: 1
     mapHash: be2e7a0919cb31aecf73102cd271e7611cb439be814983a47b9dc39e38775f10
@@ -86,7 +91,7 @@ metadata:
     mode: live
     map: ../approved.yaml
     plan: ../../../../packages/generate/test/estate/fixtures/planner-plan.approved.yaml
-    situation: invoice-reconcile
-    phrase: 2
+    situation: open-items
+    phrase: 1
     ask: code
     outcome: bank

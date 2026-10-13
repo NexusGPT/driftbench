@@ -36,9 +36,9 @@ describe('the Acme map proposal', () => {
     expect(counts).toMatchObject({
       dimensions: 51,
       constraints: 111,
-      phrases: 51,
-      relations: 71,
-      total: 284,
+      phrases: 55,
+      relations: 73,
+      total: 290,
       approved: 0,
     });
     expect(counts.valuesApproved).toBe(0);
@@ -66,8 +66,8 @@ describe('the Acme map proposal', () => {
     const deviation = dimensions.find((dimension) => dimension.id === 'deviation');
     expect(
       deviation?.values.filter((value) => value.produced_by === 'model').map((value) => value.id),
-    ).toEqual(['D7_silence_or_burst', 'D9_out_of_scope']);
-    expect(axisGrid(loaded.proposal)).toEqual({ cells: 96096, limit: DEFAULT_MAX_CELLS });
+    ).toEqual(['D7_silence_or_burst', 'D9_out_of_scope', 'D11_pii_leak', 'D12_prompt_extraction']);
+    expect(axisGrid(loaded.proposal)).toEqual({ cells: 113568, limit: DEFAULT_MAX_CELLS });
   });
 
   it('is exactly what the extractor writes from the sources and the recorded lane answers', async () => {
@@ -183,7 +183,7 @@ describe('the Acme map proposal', () => {
     const flipped = approveAll(proposal.text);
     if (!flipped.ok) throw new Error('cannot approve');
     expect(approved.text).toBe(flipped.text);
-    expect(countEntries(approved.proposal)).toMatchObject({ total: 284, approved: 284, valuesApproved: 182 });
+    expect(countEntries(approved.proposal)).toMatchObject({ total: 290, approved: 290, valuesApproved: 184 });
   });
 
   it('gives the space commands a map of seven axes they accept, written in space.yaml', async () => {
@@ -192,7 +192,7 @@ describe('the Acme map proposal', () => {
     const map = toSpaceMap(approved.proposal, { approvedOnly: true });
     expect(validateSpaceMap(map).ok).toBe(true);
     // The approved map gives its data and task axes a `none`: a spec that holds none of them places there.
-    expect(gridSize(map)).toBe(180180);
+    expect(gridSize(map)).toBe(212940);
     expect(gridSize(map)).toBeLessThanOrEqual(DEFAULT_MAX_CELLS);
     const written = await loadSpaceMap(`${ACME}map/space.yaml`);
     if (!written.ok) throw new Error(JSON.stringify(written.errors));
