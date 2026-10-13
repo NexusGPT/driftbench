@@ -215,7 +215,7 @@ describe('pair ledger persistence and adversarial properties', () => {
     const { emptyCassette, recordingClient, playerClient } = await import('../src/cassette');
     const cassette = emptyCassette();
     const f = fake([JSON.stringify(ledger(4, 0)).slice(0, -1)]);
-    const live = { ...f.client, dialect: 'openai-json-schema', reasoning: 'high' };
+    const live: JudgeClient = { ...f.client, dialect: 'openai-json-schema', reasoning: 'high' };
     const result = await recordingClient(live, cassette).judge(request());
     const replay = await playerClient(cassette, 'test').judge(request());
     expect(replay).toEqual(result);

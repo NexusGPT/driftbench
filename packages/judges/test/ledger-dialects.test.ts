@@ -221,7 +221,7 @@ describe('the published dialect table', () => {
   });
 
   it('selects the transport dialect without mutating a request or opting in legacy calls', () => {
-    const ledger = { ...REQUEST, dialect: 'wrong', reasoning: 'high' };
+    const ledger: JudgeRequest = { ...REQUEST, dialect: 'wrong', reasoning: 'high' };
     const updated = withJudgeDialect(ledger, 'openai-json-schema', 'medium');
     expect(updated).toMatchObject({ dialect: 'openai-json-schema', reasoning: 'high' });
     expect(ledger.dialect).toBe('wrong');

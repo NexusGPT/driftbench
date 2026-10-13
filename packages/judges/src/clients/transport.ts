@@ -23,7 +23,7 @@ export type DialectCompletionRequest = {
   readonly user: string;
   /** Absent: plain output, with no injected schema, JSON instructions or judge contract. */
   readonly schema?: Readonly<Record<string, unknown>>;
-  readonly reasoning?: string;
+  readonly reasoning?: ClientOptions['reasoning'];
 };
 
 export type DialectCompletion = {
@@ -51,7 +51,7 @@ export type DialectTransportOptions = ClientOptions & {
 
 export type DialectTransport = {
   readonly dialect: JudgeDialect;
-  readonly reasoning?: string;
+  readonly reasoning?: ClientOptions['reasoning'];
   /** Transport configuration only. Each completion also carries its complete request fingerprint. */
   readonly fingerprint: string;
   complete(request: DialectCompletionRequest): Promise<DialectCompletion>;

@@ -39,7 +39,7 @@ export const CassetteJudge = z.strictObject({
   /** The client settings it was recorded with (see `JudgeClient.settings`). Part of every key. */
   settings: z.string().optional(),
   dialect: z.string().optional(),
-  reasoning: z.string().optional(),
+  reasoning: z.enum(['low', 'medium', 'high']).optional(),
 });
 export type CassetteJudge = z.infer<typeof CassetteJudge>;
 
@@ -114,7 +114,7 @@ export type KeyClient = {
   readonly model?: string;
   readonly settings?: string;
   readonly dialect?: string;
-  readonly reasoning?: string;
+  readonly reasoning?: JudgeClient['reasoning'];
   readonly families?: readonly string[];
   readonly comparison?: boolean;
   readonly judgeComparison?: JudgeClient['judgeComparison'];

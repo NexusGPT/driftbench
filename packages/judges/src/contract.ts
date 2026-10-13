@@ -63,7 +63,7 @@ export type JudgeRequest = {
   readonly answerContract?: 'ledger' | 'legacy';
   /** Provider output dialect and explicit reasoning setting for pair ledgers. */
   readonly dialect?: string;
-  readonly reasoning?: string;
+  readonly reasoning?: 'low' | 'medium' | 'high';
   /** Exact requirement ids and definitions to check. Absent: the criterion name and full rubric. */
   readonly requirements?: readonly CriterionRequirement[];
   /** Opt-in answer contract. Pairwise calls name the winner; rubric calls score each supplied item. */

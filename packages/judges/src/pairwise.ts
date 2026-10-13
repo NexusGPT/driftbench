@@ -37,7 +37,7 @@ export type PairwiseOptions = PairLedgerOptions & {
   rubricItems?: readonly RubricItem[];
   audit?: boolean;
   answerContract?: 'ledger' | 'legacy';
-  reasoning?: string;
+  reasoning?: JudgeRequest['reasoning'];
   /** Canonical is for explicit-winner calls. The pair ledger always requires both orders. */
   presentation?: 'both-orders' | 'canonical';
 };

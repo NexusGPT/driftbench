@@ -102,6 +102,10 @@ string and `--reasoning-effort` with the provider setting. `SHIM_SCHEMA_FLAG` ex
 flag name. `pairLedgerSchema(request)` supplies the pair schema. Pointwise callers supply their
 own schema. Fingerprints include dialect and reasoning so incompatible calls cannot share recordings.
 
+## HTTP ledger reasoning
+
+`createHttpJudge({ reasoning: 'medium', ... })` supplies the default for pair-ledger requests. `JudgeRequest.reasoning` overrides it per request. Supported values are `low`, `medium` and `high`. The default appears in the client settings descriptor; the effective request value contributes to the cassette key. With reasoning unset, request bytes and keys stay unchanged. HTTP non-ledger requests and system 1 clients reject reasoning before transport because those paths cannot apply it.
+
 ## Knowledge retention
 
 Pass `KNOWLEDGE_RETENTION_CRITERION` as a judge request's `criterion`, with the conversation in

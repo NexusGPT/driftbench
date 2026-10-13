@@ -126,7 +126,7 @@ export function pairLedgerRequest(
   options: {
     readonly requirements?: readonly RubricItem[];
     readonly reference?: string;
-    readonly reasoning?: string;
+    readonly reasoning?: 'low' | 'medium' | 'high';
   } = {},
 ): JudgeRequest {
   const request: JudgeRequest = {

@@ -17,6 +17,31 @@ const OK = {
 };
 
 describe('the OpenAI client and a model that takes only the default temperature', () => {
+  it('retries both concurrent initial 400s and omits temperature on later requests', async () => {
+    const bodies: Record<string, unknown>[] = [];
+    const initial: Array<(response: Response) => void> = [];
+    const judge = createOpenAiJudge({
+      env: { OPENAI_API_KEY: 'k', OPENAI_JUDGE_MODEL: 'm' },
+      maxRetries: 0,
+      fetch: async (_url, init) => {
+        const body = JSON.parse(String(init.body)) as Record<string, unknown>;
+        bodies.push(body);
+        if ('temperature' in body) return new Promise<Response>((resolve) => initial.push(resolve));
+        return new Response(JSON.stringify(OK), { status: 200 });
+      },
+    });
+    const first = judge.judge(REQUEST);
+    const second = judge.judge(REQUEST);
+    expect(initial).toHaveLength(2);
+    const rejected = () => new Response('{"error":{"message":"Unsupported temperature"}}', { status: 400 });
+    initial[0]?.(rejected());
+    expect((await first).answer.outcome).toBe('pass');
+    initial[1]?.(rejected());
+    expect((await second).answer.outcome).toBe('pass');
+    await judge.judge(REQUEST);
+    expect(bodies.map((body) => 'temperature' in body)).toEqual([true, true, false, false, false]);
+  });
+
   it('asks again without temperature after a 400 about it, and stops sending it', async () => {
     const bodies: Record<string, unknown>[] = [];
     const judge = createOpenAiJudge({
