@@ -19,8 +19,8 @@ import {
   type CampaignDeps,
   defaultDeps,
   loadValidSpecs,
-  noAdapter,
   parseTarget,
+  resolveAdapter,
   showTarget,
   specRuns,
 } from './campaign';
@@ -128,9 +128,13 @@ export async function attackCommand(
   const [planned] = specRuns([entry], given, io) ?? [];
   const target = planned?.targets[0];
   if (planned === undefined || target === undefined) return 2;
-  const adapter = await deps.adapterFor(target);
+  const adapter = await resolveAdapter(
+    target,
+    () => deps.adapterFor(target),
+    io,
+    planned.pinned === undefined ? [] : [entry.spec.id],
+  );
   if (!adapter) {
-    io.err(`${noAdapter(target, planned.pinned === undefined ? [] : [entry.spec.id])}\n`);
     return 2;
   }
 
