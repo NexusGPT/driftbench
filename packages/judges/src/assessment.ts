@@ -28,6 +28,12 @@ import {
   parseAnswerValue as parseLegacyAnswerValue,
 } from './legacy-contract';
 import {
+  isPairLedgerRequest,
+  pairLedgerSchema,
+  parsePairLedgerText,
+  parsePairLedgerValue,
+} from './pair-ledger-contract';
+import {
   parseResponseRelevance,
   ResponseRelevanceAnswer,
   validateResponseRelevanceRequest,
@@ -41,7 +47,7 @@ export type RubricItem = {
   readonly hard?: boolean;
 };
 export type Assessment =
-  | { readonly kind: 'pairwise' }
+  | { readonly kind: 'pairwise'; readonly items?: readonly RubricItem[] }
   | {
       readonly kind: 'fact-ledger';
       /** Pointwise only: reject reference/reply text that is not a source quote. Default semantic. */
@@ -118,6 +124,7 @@ export function validateAssessment(assessment: Assessment): void {
 
 /** The provider schema matches the exact answer contract of this request. */
 export function responseSchema(request: JudgeRequest): Record<string, unknown> & { properties?: unknown } {
+  if (isPairLedgerRequest(request)) return pairLedgerSchema(request);
   if (request.assessment?.kind === 'response-relevance') validateResponseRelevanceRequest(request);
   if (request.assessment?.kind === 'conformance') validateConformanceRequest(request);
   const a = request.answerContract === 'legacy' ? undefined : request.assessment;
@@ -175,6 +182,7 @@ export function parseJudgeText(raw: string, request: JudgeRequest): JudgeResult 
     return parseConformanceText(raw);
   }
   if (request.answerContract === 'legacy') return parseLegacyAnswerText(raw);
+  if (isPairLedgerRequest(request)) return parsePairLedgerText(raw, request);
   const callerError = requirementsError(request);
   if (callerError) return invalid(raw, callerError);
   const text = extractObject(raw);
@@ -209,6 +217,17 @@ export function parseJudgeValue(
     return parseConformanceValue(value, raw);
   }
   if (request.answerContract === 'legacy') return parseLegacyAnswerValue(value, raw);
+  if (isPairLedgerRequest(request)) {
+    const result = parsePairLedgerValue(value, request, raw);
+    return repeatedObjectKey(raw) === undefined
+      ? result
+      : {
+          raw,
+          unparsed: true,
+          metadata: { graderError: true },
+          answer: inconclusive('duplicate pair ledger key'),
+        };
+  }
   const callerError = requirementsError(request);
   if (callerError) return invalid(raw, callerError);
   const duplicate = repeatedObjectKey(repairAnswerText(raw));

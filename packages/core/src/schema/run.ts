@@ -26,6 +26,8 @@ export type ResolvedGiven = z.infer<typeof ResolvedGiven>;
 
 export const ToolCall = z.strictObject({
   id: z.string().optional(),
+  /** The trace span the call ran in, when the adapter has one (an OpenTelemetry span id). */
+  spanId: z.string().optional(),
   label: z.string().min(1),
   input: z.unknown(),
   output: z.unknown().optional(),
@@ -150,6 +152,8 @@ export const RuntimeTrace = z.strictObject({
     .optional(),
   /** Files the agent read during the block, by path. Absent when the runtime does not report them. */
   references: z.array(z.strictObject({ path: z.string(), at: z.string().optional() })).optional(),
+  /** Why the model stopped, such as stop or length. Absent when the runtime does not report it. */
+  finishReason: z.string().optional(),
   /** The tools the runtime offered the agent in the block, by name. Absent when the runtime does not report them. */
   offered: z.array(z.string()).optional(),
   /** Helpers the agent dispatched during the block. Absent when the runtime does not report them. */
@@ -224,6 +228,8 @@ export const BlockResult = z.strictObject({
   blockId: z.string().optional(),
   injected: z.boolean().optional(),
   givenHash: z.string().min(1),
+  /** The key the block's observed record is cached under: what a replay looked up. */
+  cacheKey: z.string().min(1).optional(),
   observed: Observed,
   verdicts: z.array(Verdict),
   stageObserved: z.string().optional(),
@@ -270,6 +276,7 @@ export const RunEvent = z.discriminatedUnion('type', [
     type: z.literal('tool_call'),
     index: z.number().int().min(0),
     label: z.string().min(1),
+    spanId: z.string().optional(),
     error: z.string().optional(),
     at: z.string().min(1),
   }),

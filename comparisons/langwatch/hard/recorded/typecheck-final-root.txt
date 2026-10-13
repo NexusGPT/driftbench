@@ -1,0 +1,4 @@
+
+> driftbench-monorepo@ typecheck /Users/assem/Documents/GitHub/driftbench/.worktrees/codex-pairwise
+> tsc -p tsconfig.json --noEmit
+

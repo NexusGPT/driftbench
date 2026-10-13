@@ -1,7 +1,14 @@
 // Free baseline-decoder check using the actual shipped implementation.
-import { readFileSync, writeFileSync } from 'node:fs';
+
+import { deepStrictEqual } from 'node:assert';
+import { readFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
-import { parseAnswerText } from '../../../packages/judges/src/contract';
+import type { parseAnswerText as ParseAnswerText } from '../../../packages/judges/src/contract';
+import { pinnedJudge } from '../../pinned-judge';
+
+const pinned = pinnedJudge(new URL('./pinned-judge/', import.meta.url));
+const parseAnswerText = pinned.load('packages/judges/src/contract.ts')
+  .parseAnswerText as typeof ParseAnswerText;
 
 const here = fileURLToPath(new URL('.', import.meta.url));
 type Call = { side: string; request_sha256: string; text: string; success: boolean };
@@ -15,5 +22,5 @@ for (const line of readFileSync(`${here}recorded/calls.jsonl`, 'utf8').split('\n
     decoded[digest] = parseAnswerText(call.text).answer.outcome;
   }
 }
-writeFileSync(`${here}recorded/shipped-native-decoder.json`, `${JSON.stringify(decoded, null, 2)}\n`);
-console.log(`Decoded ${Object.keys(decoded).length} shipped answers with the production parser.`);
+deepStrictEqual(decoded, JSON.parse(readFileSync(`${here}recorded/shipped-native-decoder.json`, 'utf8')));
+console.log(`Decoded ${Object.keys(decoded).length} shipped answers with pinned judge ${pinned.commit}.`);

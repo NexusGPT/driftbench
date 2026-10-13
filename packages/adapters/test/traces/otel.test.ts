@@ -47,6 +47,7 @@ describe('tracesFromOtel: the current GenAI semantic conventions', () => {
     expect(first?.observed.toolCalls).toEqual([
       {
         id: 'call_cov_1',
+        spanId: 'a100000000000003',
         label: 'coverage.check',
         input: { address: '3 Orchard Way, Acmeville' },
         output: { found: true, address_id: 'addr-102', fiber_mbps: 300, five_g: true },
@@ -156,6 +157,7 @@ describe('tracesFromOtel: edge cases', () => {
     const [trace, other] = traces;
     expect(trace?.turns[0]?.observed.toolCalls).toEqual([
       {
+        spanId: tool.spanId,
         label: 'lookup',
         input: null,
         error: 'timeout',

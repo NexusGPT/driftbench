@@ -1,5 +1,5 @@
 import { fileURLToPath } from 'node:url';
-import { type FaultSession, generateSuite } from '@agent-nexus/driftbench-generate';
+import { type FaultSession, generateSuite, renderProposal } from '@agent-nexus/driftbench-generate';
 import { describe, expect, it, vi } from 'vitest';
 
 vi.setConfig({ testTimeout: 120_000 });
@@ -17,6 +17,8 @@ import {
   forecast,
   generatorLadder,
   type HiddenSpec,
+  hiddenProposal,
+  renderMap,
   type ScaleReport,
   SeedData,
 } from '../../src/ladders/generator/index';
@@ -126,7 +128,21 @@ describe('items with planted defects', () => {
   });
 
   it('kills a stage fault and names a text fault no Then reads', async () => {
-    const data = new SeedData(1, { cheaters: [], faults: only('X3.skip', 'X2.fact-flip') }, noScale);
+    // Explicitly retain the historical weak map as a negative control. The default map now
+    // has reply assertions, but a map without them must still leave the fact fault alive.
+    const data = new SeedData(
+      1,
+      {
+        cheaters: [],
+        faults: only('X3.skip', 'X2.fact-flip'),
+        render: (hidden) => {
+          const proposal = hiddenProposal(hidden);
+          proposal.relations = proposal.relations?.filter((relation) => relation.kind !== 'states');
+          return { ...renderMap(hidden), map: renderProposal(proposal) };
+        },
+      },
+      noScale,
+    );
     // evaluate returns the items in bank order, so each is found by its id.
     const results = await evaluate(itemsOf('fault.X3.skip', 'fault.X2.fact-flip'), data);
     const skip = results.find((result) => result.item.id === 'fault.X3.skip');

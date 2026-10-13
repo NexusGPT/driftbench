@@ -300,10 +300,10 @@ describe('driftbench campaign in mode P', () => {
     expect(out).toContain(
       '✓ acme-tool-failure · function:acme · P · repeat 0 · sales-queue-down  pass  3 blocks',
     );
-    expect(out).toContain('16 cells: 16 pass, 0 fail, 0 failed. Spent $0.00.');
+    expect(out).toContain('17 cells: 17 pass, 0 fail, 0 failed. Spent $0.00.');
     const opened = await openStore(store);
     const runs = await opened.listRuns({ campaignId: 'c-perturbed', mode: 'P' });
-    expect(runs).toHaveLength(10);
+    expect(runs).toHaveLength(11);
     expect(runs.map((run) => run.recovery?.label)).toEqual(runs.map(() => 'immediate'));
     expect(runs.every((run) => run.recovery?.collateral === 0 && run.recovery.safeAction === true)).toBe(
       true,
@@ -356,15 +356,15 @@ describe('driftbench campaign status --detail', () => {
     );
     expect(out).toContain('  all specs                         5                 100.0%  60.0%  +40.0\n');
     expect(out).toContain(
-      '  acme-plan-upgrade  F     0                      5       3            2       40.0%  3              no        X1_local 2',
+      '  acme-plan-upgrade  F     0                           5       3            2       40.0%  3              no        X1_local 2',
     );
     // billing-aside: the aside passes, then the recap (passed in F) fails: collateral 1.
     expect(out).toContain(
-      '  acme-plan-upgrade  billing-aside  D9_out_of_scope        0       2            0      immediate  1           yes          yes',
+      '  acme-plan-upgrade  billing-aside       D9_out_of_scope        0       2            0      immediate  1           yes          yes',
     );
     // loose-ok: injected after three replies of its own, so it never comes back.
     expect(out).toContain(
-      '  acme-plan-upgrade  loose-ok       D4_loose_confirmation  0       3            none   never      0           yes          yes',
+      '  acme-plan-upgrade  loose-ok            D4_loose_confirmation  0       3            none   never      0           yes          yes',
     );
     const json = await cli(['campaign', 'status', 'c-detail', '--store', store, '--detail', '--json'], deps);
     const detail = (JSON.parse(json.out) as { detail: { compounding: { overall: { index: number } } } })
@@ -406,7 +406,7 @@ describe('driftbench campaign run', () => {
     ]);
     expect(code).toBe(0);
     expect(out).toContain(
-      'Campaign c-main: 6 cells, 4 at a time. Checks: tools, tools_offered, forbidden, must, must_not, exact, injection, rouge_l, bleu, sql, similarity, relevancy, knowledge_retention, lang, pii, cards, stage, skills, guards, references, subagents, execution, workspace, safety, artifacts, schema_strict, budget, end_state, custom.',
+      'Campaign c-main: 6 cells, 4 at a time. Checks: tools, tools_offered, forbidden, must, must_not, regex, exact, injection, length, markup, starts_with, finish_reason, json, tool_f1, refusal, rouge_l, bleu, sql, similarity, relevancy, knowledge_retention, lang, pii, cards, stage, skills, guards, references, subagents, execution, workspace, safety, artifacts, schema_strict, budget, end_state, custom.',
     );
     expect(out).toContain('✓ acme-plan-upgrade · function:acme · F · repeat 0  pass  5 blocks');
     expect(out).toContain('6 cells: 6 pass, 0 fail, 0 failed. Spent $0.00.');
@@ -770,7 +770,7 @@ describe('each spec on its own target, without --target', () => {
       ]);
       expect(code, out).toBe(0);
       expect(out).toContain(
-        'Checks: tools, tools_offered, forbidden, must, must_not, exact, injection, rouge_l, bleu, sql, similarity, relevancy, knowledge_retention, lang, pii, cards, stage, skills, guards, references, subagents, execution, workspace, safety, artifacts, schema_strict, budget, end_state, custom.',
+        'Checks: tools, tools_offered, forbidden, must, must_not, regex, exact, injection, length, markup, starts_with, finish_reason, json, tool_f1, refusal, rouge_l, bleu, sql, similarity, relevancy, knowledge_retention, lang, pii, cards, stage, skills, guards, references, subagents, execution, workspace, safety, artifacts, schema_strict, budget, end_state, custom.',
       );
       expect(out).toContain('✓ acme-price-sheet · process:acme-ops · F · repeat 0  pass  2 blocks');
       expect(out).toContain('✓ acme-price-sheet · process:acme-ops · F · repeat 1  pass  2 blocks');

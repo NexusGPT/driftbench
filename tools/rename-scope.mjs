@@ -41,6 +41,8 @@ const PINNED_COMPARISON_FILES = new Set([
   'comparisons/inspect/hard/arch-deciding-snapshot.json',
   'comparisons/inspect/hard/arch-snapshot.json',
   'comparisons/inspect/hard/deciding/main-snapshot.json',
+  'comparisons/langwatch/hard/pr115.mts',
+  'comparisons/langwatch/hard/pr115-verification.md',
 ]);
 const SKIP_FILE_PATTERN = /\.cassette\.json$/;
 const EXTENSIONS = new Set([

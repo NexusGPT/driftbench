@@ -4,7 +4,7 @@ import type { DatabaseSync as Handle } from 'node:sqlite';
  * Loads `node:sqlite` at call time through the runtime, not as an import: a bundler does not know the module and
  * rewrites its name, so the built package would fail to load it.
  */
-function sqliteModule(): typeof import('node:sqlite') {
+export function sqliteModule(): typeof import('node:sqlite') {
   const loaded =
     typeof process.getBuiltinModule === 'function' ? process.getBuiltinModule('node:sqlite') : undefined;
   if (loaded === undefined)

@@ -1,6 +1,8 @@
 import { spawn } from 'node:child_process';
+import { createRequire } from 'node:module';
 import { availableParallelism } from 'node:os';
-import { fileURLToPath } from 'node:url';
+import { join } from 'node:path';
+import { fileURLToPath, pathToFileURL } from 'node:url';
 import type { BankItem, ItemOutcome } from './item';
 
 /**
@@ -12,12 +14,38 @@ export const DEFAULT_ITEM_BUDGET_MS = 120_000;
 
 const CHILD = fileURLToPath(new URL('./child.ts', import.meta.url));
 
+/**
+ * The Node.js arguments that start the bank's child. From source the child is child.ts, loaded through tsx. A
+ * built package has no child.ts beside it, so its child is the package's own entry point, which exports the same
+ * routine. Bank items import TypeScript files of the checkout under `root` (the examples, the package under
+ * test), so the built child still loads tsx when the checkout has it; without it those items fail by name.
+ */
+export function childCommand(moduleUrl: string, root: string, rest: readonly string[]): string[] {
+  if (moduleUrl.endsWith('.ts')) return ['--import', 'tsx', CHILD, ...rest];
+  const entry = new URL('./index.js', moduleUrl).href;
+  let loader: string[] = [];
+  try {
+    loader = ['--import', pathToFileURL(createRequire(join(root, 'package.json')).resolve('tsx')).href];
+  } catch {
+    // No tsx in this checkout: the child runs on plain Node.js.
+  }
+  return [
+    ...loader,
+    '--input-type=module',
+    '--eval',
+    `import { statsBankChild } from ${JSON.stringify(entry)}; await statsBankChild(process.argv.slice(1));`,
+    ...rest,
+  ];
+}
+
 type Line = { start?: number; done?: number; id: string; pass?: boolean; detail?: string; ms?: number };
 
 /**
  * Runs every item of the bank on one seed in a child process and returns each item's outcome by id. An item
  * past its budget fails as "did not finish"; the child is killed and a new one resumes at the next item. A child
- * that dies on its own fails the item it was running with its error output.
+ * that dies on its own fails the item it was running with its error output. A child that ends with exit code 0
+ * before it has reported every item is not believed: a new child resumes at the first item without an outcome,
+ * and an item a fresh child ends on without reporting anything fails by name. So every item has an outcome.
  */
 export async function runIsolated(
   items: readonly BankItem[],
@@ -42,6 +70,12 @@ export async function runIsolated(
 /** The time a child process may take to load the bank before it runs its first item. */
 export const STARTUP_MS = 120_000;
 
+/**
+ * After a child's exit, how long the parent waits for the rest of its output. The exit can be seen before the
+ * last lines are read; the streams close right after, unless a process the item started still holds them.
+ */
+export const DRAIN_MS = 10_000;
+
 /** Child processes run side by side for one seed: the cores less one, at most 4. */
 export const DEFAULT_SHARDS = Math.max(1, Math.min(4, availableParallelism() - 1));
 
@@ -54,14 +88,17 @@ function runFrom(
   results: Map<string, ItemOutcome & { ms?: number }>,
 ): Promise<number> {
   return new Promise((resolve) => {
-    const child = spawn(process.execPath, ['--import', 'tsx', CHILD, String(seed), root, String(start)], {
-      cwd: root,
-      stdio: ['pipe', 'pipe', 'pipe'],
-    });
+    const child = spawn(
+      process.execPath,
+      childCommand(import.meta.url, root, [String(seed), root, String(start)]),
+      {
+        cwd: root,
+        stdio: ['pipe', 'pipe', 'pipe'],
+      },
+    );
     child.stdin.end(JSON.stringify(items.map((item) => item.id)));
     let buffer = '';
     let errors = '';
-    let current = start;
     let timer: NodeJS.Timeout | undefined;
     let settled = false;
     const finish = (resume: number) => {
@@ -71,6 +108,8 @@ function runFrom(
       resolve(resume);
     };
     const arm = (index: number) => {
+      // A line read after the child was stopped must not start a budget for a process that is gone.
+      if (settled) return;
       if (timer) clearTimeout(timer);
       const item = items[index];
       if (!item) return;
@@ -112,11 +151,10 @@ function runFrom(
           continue;
         }
         if (line.start !== undefined) {
-          current = line.start;
-          arm(current);
+          arm(line.start);
         } else if (line.done !== undefined) {
           results.set(line.id, { pass: line.pass === true, detail: line.detail ?? '', ms: line.ms });
-          current = line.done + 1;
+          reported += 1;
         }
       }
     });
@@ -124,20 +162,37 @@ function runFrom(
     child.stderr.on('data', (chunk: string) => {
       errors += chunk;
     });
-    child.on('exit', (code) => {
+    let reported = 0;
+    let drain: NodeJS.Timeout | undefined;
+    const conclude = (code: number | null) => {
+      if (drain) clearTimeout(drain);
       if (settled) return;
-      if (code === 0 || current >= items.length) {
+      // The first item from the start that has no outcome: the one the child was on, or one it never reported.
+      let first = start;
+      while (first < items.length && results.has((items[first] as BankItem).id)) first += 1;
+      if (first >= items.length) {
         finish(items.length);
         return;
       }
-      const item = items[current];
-      if (item && !results.has(item.id)) {
-        results.set(item.id, {
-          pass: false,
-          detail: `the bank's child process died (exit ${code}) while running this item on seed ${seed}: ${errors.trim().split('\n').slice(-3).join(' / ')}`,
-        });
+      const item = items[first] as BankItem;
+      if (code === 0 && reported > 0) {
+        // Exit code 0 with items unreported: run them in a new child, never count them as done.
+        finish(first);
+        return;
       }
-      finish(current + 1);
+      results.set(item.id, {
+        pass: false,
+        detail:
+          code === 0
+            ? `the bank's child process ended (exit 0) on seed ${seed} without reporting this item or any other: the item ends the process, or its output is lost`
+            : `the bank's child process died (exit ${code}) while running this item on seed ${seed}: ${errors.trim().split('\n').slice(-3).join(' / ')}`,
+      });
+      finish(first + 1);
+    };
+    // The outcome is read when the output streams have closed, so no line still on its way is lost.
+    child.on('exit', (code) => {
+      drain = setTimeout(() => conclude(code), DRAIN_MS);
     });
+    child.on('close', (code) => conclude(code));
   });
 }

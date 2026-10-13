@@ -3,6 +3,7 @@ import type { Assessment, RubricScores } from './assessment';
 import type { ConformanceAudit } from './conformance';
 import type { CriterionCheck, CriterionDecoderVersion, CriterionRequirement } from './criterion-ledger';
 import type { FactLedgerAnswer, PointwiseFactLedgerAnswer } from './fact-audit';
+import type { LedgerParseStep, PairLedger } from './pair-ledger-contract';
 import type { ResponseRelevanceAnswer } from './response-relevance';
 
 /**
@@ -63,6 +64,9 @@ export type JudgeRequest = {
   readonly answerContract?: 'ledger' | 'legacy';
   /** Default-ledger decoder. Default 1: strict quote rejection. Opt-in 2 nulls an ungrounded string quote. */
   readonly criterionDecoderVersion?: CriterionDecoderVersion;
+  /** Provider output dialect and explicit reasoning setting for pair ledgers. */
+  readonly dialect?: string;
+  readonly reasoning?: 'low' | 'medium' | 'high';
   /** Exact requirement ids and definitions to check. Absent: the criterion name and full rubric. */
   readonly requirements?: readonly CriterionRequirement[];
   /** Opt-in answer contract. Pairwise calls name the winner; rubric calls score each supplied item. */
@@ -109,6 +113,10 @@ export type ComparisonResult = {
 
 /** What a client returns: the answer, the raw text it came from, and whether that text parsed. */
 export type JudgeResult = {
+  readonly pairLedger?: PairLedger;
+  readonly parseSteps?: readonly LedgerParseStep[];
+  readonly metadata?: { readonly graderError?: boolean };
+
   readonly escalation?: EscalationRecord;
   readonly comparison?: ComparisonResult;
   /** Explicit disagreement observed by a reference verification procedure. */

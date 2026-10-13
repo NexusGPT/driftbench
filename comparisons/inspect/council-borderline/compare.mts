@@ -1,3 +1,4 @@
+/* biome-ignore-all lint/style/noNonNullAssertion: research script; each lookup uses a key the same script just built */
 // Wrong verdicts on the borderline blocks: plain majority of the three recorded models against the kappa-weighted
 // abstaining panel. Weights are kappa from the clean twelve-criterion council (not from these labels), so the
 // borderline set is a fresh test. Reads recorded-haiku.json, recorded-sonnet.json and recorded-opus.json.
