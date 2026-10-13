@@ -197,6 +197,11 @@ const OTHER_LANGUAGES: readonly {
     ],
     verdict: ['godk[äa]nt', 'godk[äa]nd\\p{L}*', 'klarat', 'underk[äa]nt', 'lyckad\\p{L}*'],
   },
+  {
+    // Indonesian
+    judge: ['rubrik', 'penilaian', 'penilai', 'juri', 'kriteria'],
+    verdict: ['lulus', 'berhasil', 'gagal', 'sukses'],
+  },
 ];
 
 const VERDICT_WORDS = [
