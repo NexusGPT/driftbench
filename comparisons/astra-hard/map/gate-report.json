@@ -1,0 +1,332 @@
+{
+  "cosine_threshold": 0.95,
+  "embedding": "native character 3-5 gram TF-IDF, corpus fitted",
+  "rows": {
+    "promptfoo-rubric": {
+      "input": 192,
+      "leak_drops": 0,
+      "near_duplicate_drops": 31,
+      "balance_drops": 5,
+      "kept": 156,
+      "constant_pass_accuracy": 0.5,
+      "pass": 78,
+      "fail": 78,
+      "family_counts": {
+        "arithmetic": 11,
+        "conjunction": 14,
+        "cross-language": 13,
+        "disjunction": 12,
+        "later-contradiction": 14,
+        "long-fluent": 14,
+        "negation": 10,
+        "partial-completion": 14,
+        "period": 13,
+        "quoted-claim": 11,
+        "scope": 14,
+        "tag-injection": 16
+      },
+      "drops": [
+        {
+          "id": "map-promptfoo-rubric-156",
+          "reason": "cosine-near-duplicate",
+          "similarity": 0.952509738794574,
+          "against": "map-promptfoo-rubric-008"
+        },
+        {
+          "id": "map-promptfoo-rubric-049",
+          "reason": "cosine-near-duplicate",
+          "similarity": 0.9639124844775163,
+          "against": "map-promptfoo-rubric-018"
+        },
+        {
+          "id": "map-promptfoo-rubric-124",
+          "reason": "cosine-near-duplicate",
+          "similarity": 0.9544177241793754,
+          "against": "map-promptfoo-rubric-018"
+        },
+        {
+          "id": "map-promptfoo-rubric-163",
+          "reason": "cosine-near-duplicate",
+          "similarity": 0.95339993215879,
+          "against": "map-promptfoo-rubric-043"
+        },
+        {
+          "id": "map-promptfoo-rubric-076",
+          "reason": "cosine-near-duplicate",
+          "similarity": 0.9507150051926017,
+          "against": "map-promptfoo-rubric-054"
+        },
+        {
+          "id": "map-promptfoo-rubric-039",
+          "reason": "cosine-near-duplicate",
+          "similarity": 0.9521721916308922,
+          "against": "map-promptfoo-rubric-054"
+        },
+        {
+          "id": "map-promptfoo-rubric-158",
+          "reason": "cosine-near-duplicate",
+          "similarity": 0.9528815399863393,
+          "against": "map-promptfoo-rubric-018"
+        },
+        {
+          "id": "map-promptfoo-rubric-032",
+          "reason": "cosine-near-duplicate",
+          "similarity": 0.9536704519416538,
+          "against": "map-promptfoo-rubric-028"
+        },
+        {
+          "id": "map-promptfoo-rubric-185",
+          "reason": "cosine-near-duplicate",
+          "similarity": 0.9570667855561954,
+          "against": "map-promptfoo-rubric-008"
+        },
+        {
+          "id": "map-promptfoo-rubric-020",
+          "reason": "cosine-near-duplicate",
+          "similarity": 0.9632718357082888,
+          "against": "map-promptfoo-rubric-127"
+        },
+        {
+          "id": "map-promptfoo-rubric-111",
+          "reason": "cosine-near-duplicate",
+          "similarity": 0.9515150844452221,
+          "against": "map-promptfoo-rubric-075"
+        },
+        {
+          "id": "map-promptfoo-rubric-180",
+          "reason": "cosine-near-duplicate",
+          "similarity": 0.9540820060863354,
+          "against": "map-promptfoo-rubric-018"
+        },
+        {
+          "id": "map-promptfoo-rubric-137",
+          "reason": "cosine-near-duplicate",
+          "similarity": 0.9511551977805384,
+          "against": "map-promptfoo-rubric-036"
+        },
+        {
+          "id": "map-promptfoo-rubric-175",
+          "reason": "cosine-near-duplicate",
+          "similarity": 0.9605863807328421,
+          "against": "map-promptfoo-rubric-127"
+        },
+        {
+          "id": "map-promptfoo-rubric-044",
+          "reason": "cosine-near-duplicate",
+          "similarity": 0.9661745979242742,
+          "against": "map-promptfoo-rubric-018"
+        },
+        {
+          "id": "map-promptfoo-rubric-088",
+          "reason": "cosine-near-duplicate",
+          "similarity": 0.9594113262579309,
+          "against": "map-promptfoo-rubric-041"
+        },
+        {
+          "id": "map-promptfoo-rubric-067",
+          "reason": "cosine-near-duplicate",
+          "similarity": 0.9516862472359121,
+          "against": "map-promptfoo-rubric-151"
+        },
+        {
+          "id": "map-promptfoo-rubric-142",
+          "reason": "cosine-near-duplicate",
+          "similarity": 0.9526619993246459,
+          "against": "map-promptfoo-rubric-057"
+        },
+        {
+          "id": "map-promptfoo-rubric-022",
+          "reason": "cosine-near-duplicate",
+          "similarity": 0.9577795746303834,
+          "against": "map-promptfoo-rubric-054"
+        },
+        {
+          "id": "map-promptfoo-rubric-131",
+          "reason": "cosine-near-duplicate",
+          "similarity": 0.9611402321089624,
+          "against": "map-promptfoo-rubric-057"
+        },
+        {
+          "id": "map-promptfoo-rubric-138",
+          "reason": "cosine-near-duplicate",
+          "similarity": 0.9538554538620864,
+          "against": "map-promptfoo-rubric-063"
+        },
+        {
+          "id": "map-promptfoo-rubric-123",
+          "reason": "cosine-near-duplicate",
+          "similarity": 0.9643068421223577,
+          "against": "map-promptfoo-rubric-147"
+        },
+        {
+          "id": "map-promptfoo-rubric-025",
+          "reason": "cosine-near-duplicate",
+          "similarity": 0.9679104425978621,
+          "against": "map-promptfoo-rubric-018"
+        },
+        {
+          "id": "map-promptfoo-rubric-092",
+          "reason": "cosine-near-duplicate",
+          "similarity": 0.9533654572670089,
+          "against": "map-promptfoo-rubric-054"
+        },
+        {
+          "id": "map-promptfoo-rubric-140",
+          "reason": "cosine-near-duplicate",
+          "similarity": 0.9510056786993298,
+          "against": "map-promptfoo-rubric-041"
+        },
+        {
+          "id": "map-promptfoo-rubric-190",
+          "reason": "cosine-near-duplicate",
+          "similarity": 0.952103210247454,
+          "against": "map-promptfoo-rubric-018"
+        },
+        {
+          "id": "map-promptfoo-rubric-051",
+          "reason": "cosine-near-duplicate",
+          "similarity": 0.9512708336115737,
+          "against": "map-promptfoo-rubric-063"
+        },
+        {
+          "id": "map-promptfoo-rubric-052",
+          "reason": "cosine-near-duplicate",
+          "similarity": 0.9542877450746462,
+          "against": "map-promptfoo-rubric-037"
+        },
+        {
+          "id": "map-promptfoo-rubric-150",
+          "reason": "cosine-near-duplicate",
+          "similarity": 0.9525441098440753,
+          "against": "map-promptfoo-rubric-114"
+        },
+        {
+          "id": "map-promptfoo-rubric-099",
+          "reason": "cosine-near-duplicate",
+          "similarity": 0.9534763247344291,
+          "against": "map-promptfoo-rubric-063"
+        },
+        {
+          "id": "map-promptfoo-rubric-024",
+          "reason": "cosine-near-duplicate",
+          "similarity": 0.9540246616112535,
+          "against": "map-promptfoo-rubric-036"
+        },
+        {
+          "id": "map-promptfoo-rubric-148",
+          "reason": "balance-after-dedup"
+        },
+        {
+          "id": "map-promptfoo-rubric-188",
+          "reason": "balance-after-dedup"
+        },
+        {
+          "id": "map-promptfoo-rubric-086",
+          "reason": "balance-after-dedup"
+        },
+        {
+          "id": "map-promptfoo-rubric-021",
+          "reason": "balance-after-dedup"
+        },
+        {
+          "id": "map-promptfoo-rubric-125",
+          "reason": "balance-after-dedup"
+        }
+      ]
+    },
+    "langfuse-reference": {
+      "input": 192,
+      "leak_drops": 0,
+      "near_duplicate_drops": 10,
+      "balance_drops": 2,
+      "kept": 180,
+      "constant_pass_accuracy": 0.5,
+      "pass": 90,
+      "fail": 90,
+      "family_counts": {
+        "conditions": 16,
+        "entity-binding": 16,
+        "fluent-extra": 14,
+        "instruction-data": 16,
+        "long-distractors": 14,
+        "multilingual": 16,
+        "near-number": 12,
+        "negation": 13,
+        "omission": 15,
+        "quantifiers": 16,
+        "revision": 16,
+        "units": 16
+      },
+      "drops": [
+        {
+          "id": "map-langfuse-reference-155",
+          "reason": "cosine-near-duplicate",
+          "similarity": 0.9505230961129661,
+          "against": "map-langfuse-reference-016"
+        },
+        {
+          "id": "map-langfuse-reference-158",
+          "reason": "cosine-near-duplicate",
+          "similarity": 0.9567176650211373,
+          "against": "map-langfuse-reference-057"
+        },
+        {
+          "id": "map-langfuse-reference-180",
+          "reason": "cosine-near-duplicate",
+          "similarity": 0.9560306260165965,
+          "against": "map-langfuse-reference-057"
+        },
+        {
+          "id": "map-langfuse-reference-062",
+          "reason": "cosine-near-duplicate",
+          "similarity": 0.9509068132973395,
+          "against": "map-langfuse-reference-016"
+        },
+        {
+          "id": "map-langfuse-reference-011",
+          "reason": "cosine-near-duplicate",
+          "similarity": 0.9523718929495916,
+          "against": "map-langfuse-reference-156"
+        },
+        {
+          "id": "map-langfuse-reference-190",
+          "reason": "cosine-near-duplicate",
+          "similarity": 0.9507400889992906,
+          "against": "map-langfuse-reference-142"
+        },
+        {
+          "id": "map-langfuse-reference-024",
+          "reason": "cosine-near-duplicate",
+          "similarity": 0.9573268038559303,
+          "against": "map-langfuse-reference-035"
+        },
+        {
+          "id": "map-langfuse-reference-134",
+          "reason": "cosine-near-duplicate",
+          "similarity": 0.9549534206407958,
+          "against": "map-langfuse-reference-026"
+        },
+        {
+          "id": "map-langfuse-reference-138",
+          "reason": "cosine-near-duplicate",
+          "similarity": 0.95011183203461,
+          "against": "map-langfuse-reference-026"
+        },
+        {
+          "id": "map-langfuse-reference-131",
+          "reason": "cosine-near-duplicate",
+          "similarity": 0.9596008240372269,
+          "against": "map-langfuse-reference-057"
+        },
+        {
+          "id": "map-langfuse-reference-084",
+          "reason": "balance-after-dedup"
+        },
+        {
+          "id": "map-langfuse-reference-082",
+          "reason": "balance-after-dedup"
+        }
+      ]
+    }
+  }
+}

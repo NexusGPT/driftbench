@@ -1,0 +1,30 @@
+# The space map of langfuse-reference-map.json: its approved axis dimensions and their constraints.
+# Written by driftbench extract map; edit the proposal and write it again rather than editing this file.
+version: '1'
+agent: astra-fixtures
+dimensions:
+  - id: flow
+    title: flow
+    kind: behaviour
+    values:
+      - { id: near-number, title: near-number }
+      - { id: units, title: units }
+      - { id: negation, title: negation }
+      - { id: entity-binding, title: entity-binding }
+      - { id: conditions, title: conditions }
+      - { id: quantifiers, title: quantifiers }
+      - { id: revision, title: revision }
+      - { id: multilingual, title: multilingual }
+      - { id: fluent-extra, title: fluent-extra }
+      - { id: omission, title: omission }
+      - { id: long-distractors, title: long-distractors }
+      - { id: instruction-data, title: instruction-data }
+  - id: truth
+    title: truth
+    kind: persona
+    values:
+      - { id: pass, title: pass }
+      - { id: fail, title: fail }
+constraints: []
+prior:
+  kind: declared

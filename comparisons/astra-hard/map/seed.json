@@ -1,0 +1,5 @@
+{
+  "construction_freeze_commit": "7ee661e3ddb1e979eb0940c9fe34fbe6e1db779a",
+  "derivation": "int(sha256(commit).hexdigest()[:8], 16)",
+  "seed": 2274381994
+}

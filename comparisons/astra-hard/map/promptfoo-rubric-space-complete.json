@@ -1,0 +1,35 @@
+{
+  "map": "comparisons/astra-hard/map/promptfoo-rubric-space.yaml",
+  "t": 2,
+  "full": true,
+  "cells": 24,
+  "conversations": 156,
+  "unplaced": [],
+  "seen": 20,
+  "f1": 8,
+  "f2": 0,
+  "hill": {
+    "q0": 20,
+    "q1": 14.279158566807967,
+    "q2": 13.06981740064447
+  },
+  "printable": true,
+  "invalidSpecs": [],
+  "coverage": {
+    "estimate": 0.9487179487179487,
+    "lower": 0.9616209970287224,
+    "upper": 0.993978243978244
+  },
+  "discovery": {
+    "estimate": 0.05128205128205128,
+    "lower": 0.00641025641025641,
+    "upper": 0.038461538461538464
+  },
+  "sentence": "About 95 percent of the interaction classes have appeared; the chance that the next conversation shows a new one is about 5 percent.",
+  "bootstrap": {
+    "iterations": 2000,
+    "seed": 1,
+    "level": 0.95
+  },
+  "assumption": "The figures assume independent conversations from a generator that does not learn from results; a generator that steers toward unseen cells makes them optimistic."
+}

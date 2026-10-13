@@ -1,0 +1,12 @@
+{
+  "checked_at": "2026-10-13T03:53:24.916368+00:00",
+  "items": 72,
+  "matched": 72,
+  "disagreements": 0,
+  "ambiguity_ids": [
+    "map-langfuse-reference-002",
+    "map-langfuse-reference-110",
+    "map-langfuse-reference-170"
+  ],
+  "note": "Three monthly-allowance shared-modifier ambiguities retained under the original contextual reading. No label or case changed."
+}

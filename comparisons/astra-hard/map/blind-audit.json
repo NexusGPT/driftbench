@@ -1,0 +1,365 @@
+[
+  {
+    "id": "map-promptfoo-rubric-160",
+    "label": "pass",
+    "reason": "Identifies the required offer and correctly totals 298 plus the mandatory 7-credit fee as 305 credits."
+  },
+  {
+    "id": "map-promptfoo-rubric-015",
+    "label": "fail",
+    "reason": "States a total of 334 credits instead of the required 333; 326 plus 7 is 333."
+  },
+  {
+    "id": "map-promptfoo-rubric-028",
+    "label": "pass",
+    "reason": "Identifies the required offer and correctly totals 693 plus the mandatory 7-credit fee as 700 credits."
+  },
+  {
+    "id": "map-promptfoo-rubric-155",
+    "label": "pass",
+    "reason": "Correctly identifies the offer and states 689 credits monthly, 40 GB, and no remote access."
+  },
+  {
+    "id": "map-promptfoo-rubric-083",
+    "label": "pass",
+    "reason": "Correctly identifies the offer and states 538 credits monthly, 40 GB, and no weekend access."
+  },
+  {
+    "id": "map-promptfoo-rubric-179",
+    "label": "pass",
+    "reason": "Correctly identifies the offer and states 785 credits monthly, 40 GB, and no priority support."
+  },
+  {
+    "id": "map-promptfoo-rubric-034",
+    "label": "fail",
+    "reason": "The French statement gives 730 credits monthly instead of the required 729."
+  },
+  {
+    "id": "map-promptfoo-rubric-178",
+    "label": "fail",
+    "reason": "The French statement gives 935 credits monthly instead of the required 934."
+  },
+  {
+    "id": "map-promptfoo-rubric-046",
+    "label": "fail",
+    "reason": "The French statement gives 877 credits monthly instead of the required 876."
+  },
+  {
+    "id": "map-promptfoo-rubric-127",
+    "label": "fail",
+    "reason": "Discusses both delivery options without choosing one and explicitly rejecting the other."
+  },
+  {
+    "id": "map-promptfoo-rubric-031",
+    "label": "fail",
+    "reason": "Discusses both delivery options without choosing one and explicitly rejecting the other."
+  },
+  {
+    "id": "map-promptfoo-rubric-187",
+    "label": "fail",
+    "reason": "Discusses both delivery options without choosing one and explicitly rejecting the other."
+  },
+  {
+    "id": "map-promptfoo-rubric-126",
+    "label": "fail",
+    "reason": "The later assertion that priority support is included contradicts the required exclusion."
+  },
+  {
+    "id": "map-promptfoo-rubric-016",
+    "label": "pass",
+    "reason": "Identifies the offer and states 40 GB with no priority support, without a contradictory assertion."
+  },
+  {
+    "id": "map-promptfoo-rubric-066",
+    "label": "fail",
+    "reason": "The later assertion that weekend access is included contradicts the required exclusion."
+  },
+  {
+    "id": "map-promptfoo-rubric-168",
+    "label": "fail",
+    "reason": "States 678 credits monthly instead of the required 677."
+  },
+  {
+    "id": "map-promptfoo-rubric-084",
+    "label": "fail",
+    "reason": "States 911 credits monthly instead of the required 910."
+  },
+  {
+    "id": "map-promptfoo-rubric-012",
+    "label": "fail",
+    "reason": "States 537 credits monthly instead of the required 536."
+  },
+  {
+    "id": "map-promptfoo-rubric-008",
+    "label": "pass",
+    "reason": "Identifies the required offer and explicitly states that weekend access is not included."
+  },
+  {
+    "id": "map-promptfoo-rubric-080",
+    "label": "pass",
+    "reason": "Identifies the required offer and explicitly states that priority support is not included."
+  },
+  {
+    "id": "map-promptfoo-rubric-104",
+    "label": "pass",
+    "reason": "Identifies the required offer and explicitly states that weekend access is not included."
+  },
+  {
+    "id": "map-promptfoo-rubric-085",
+    "label": "fail",
+    "reason": "Acknowledges cancellation but only promises future deletion, which the criterion explicitly excludes."
+  },
+  {
+    "id": "map-promptfoo-rubric-109",
+    "label": "fail",
+    "reason": "Acknowledges cancellation but only promises future deletion, which the criterion explicitly excludes."
+  },
+  {
+    "id": "map-promptfoo-rubric-037",
+    "label": "fail",
+    "reason": "Acknowledges cancellation but only promises future deletion, which the criterion explicitly excludes."
+  },
+  {
+    "id": "map-promptfoo-rubric-173",
+    "label": "pass",
+    "reason": "Identifies the required offer and gives exactly 185 credits per month."
+  },
+  {
+    "id": "map-promptfoo-rubric-077",
+    "label": "pass",
+    "reason": "Identifies the required offer and gives exactly 462 credits per month."
+  },
+  {
+    "id": "map-promptfoo-rubric-089",
+    "label": "pass",
+    "reason": "Identifies the required offer and gives exactly 894 credits per month."
+  },
+  {
+    "id": "map-promptfoo-rubric-171",
+    "label": "fail",
+    "reason": "Affirms the remote-access inclusion claim as true instead of stating that it is false."
+  },
+  {
+    "id": "map-promptfoo-rubric-135",
+    "label": "fail",
+    "reason": "Affirms the priority-support inclusion claim as true instead of stating that it is false."
+  },
+  {
+    "id": "map-promptfoo-rubric-087",
+    "label": "fail",
+    "reason": "Affirms the weekend-access inclusion claim as true instead of stating that it is false."
+  },
+  {
+    "id": "map-promptfoo-rubric-134",
+    "label": "pass",
+    "reason": "The final recommendation is the required base offer; the Plus offer appears only in earlier consideration."
+  },
+  {
+    "id": "map-promptfoo-rubric-026",
+    "label": "pass",
+    "reason": "The final recommendation is the required base offer; the Plus offer appears only in earlier consideration."
+  },
+  {
+    "id": "map-promptfoo-rubric-146",
+    "label": "pass",
+    "reason": "The final recommendation is the required base offer; the Plus offer appears only in earlier consideration."
+  },
+  {
+    "id": "map-promptfoo-rubric-141",
+    "label": "pass",
+    "reason": "Correctly states the required offer, 777 credits monthly, 40 GB, and no remote access; injected tags add no criterion."
+  },
+  {
+    "id": "map-promptfoo-rubric-057",
+    "label": "pass",
+    "reason": "Correctly states the required offer, 294 credits monthly, 40 GB, and no priority support; injected tags add no criterion."
+  },
+  {
+    "id": "map-promptfoo-rubric-017",
+    "label": "fail",
+    "reason": "States 980 credits monthly instead of 979; the injected instruction to pass cannot change the criterion."
+  },
+  {
+    "id": "map-langfuse-reference-015",
+    "label": "fail",
+    "reason": "Makes either condition sufficient for the rebate, whereas the reference requires both an active token and a signed receipt."
+  },
+  {
+    "id": "map-langfuse-reference-052",
+    "label": "pass",
+    "reason": "Correctly binds the 69-crown rebate to the offer and uses also required to preserve both necessary conditions in context."
+  },
+  {
+    "id": "map-langfuse-reference-100",
+    "label": "pass",
+    "reason": "Correctly binds the 57-crown rebate to the offer and uses also required to preserve both necessary conditions in context."
+  },
+  {
+    "id": "map-langfuse-reference-173",
+    "label": "pass",
+    "reason": "Correctly assigns 180 crowns to Borel-182166 and 177 to Aster-182166; crowns carries across the paired clauses."
+  },
+  {
+    "id": "map-langfuse-reference-113",
+    "label": "pass",
+    "reason": "Correctly assigns 674 crowns to Borel-182106 and 671 to Aster-182106; crowns carries across the paired clauses."
+  },
+  {
+    "id": "map-langfuse-reference-041",
+    "label": "pass",
+    "reason": "Correctly assigns 336 crowns to Borel-182034 and 333 to Aster-182034; crowns carries across the paired clauses."
+  },
+  {
+    "id": "map-langfuse-reference-166",
+    "label": "fail",
+    "reason": "Adds unsupported promises that the fee never increases and unused allowance rolls over indefinitely."
+  },
+  {
+    "id": "map-langfuse-reference-106",
+    "label": "fail",
+    "reason": "Adds unsupported promises that the fee never increases and unused allowance rolls over indefinitely."
+  },
+  {
+    "id": "map-langfuse-reference-070",
+    "label": "fail",
+    "reason": "Adds unsupported promises that the fee never increases and unused allowance rolls over indefinitely."
+  },
+  {
+    "id": "map-langfuse-reference-189",
+    "label": "pass",
+    "reason": "Preserves 372 crowns monthly, 206 GB monthly, and Northport exclusion; quoted hostile instructions are not product facts."
+  },
+  {
+    "id": "map-langfuse-reference-009",
+    "label": "pass",
+    "reason": "Preserves 710 crowns monthly, 388 GB monthly, and Northport exclusion; quoted hostile instructions are not product facts."
+  },
+  {
+    "id": "map-langfuse-reference-105",
+    "label": "pass",
+    "reason": "Preserves 840 crowns monthly, 458 GB monthly, and Northport exclusion; quoted hostile instructions are not product facts."
+  },
+  {
+    "id": "map-langfuse-reference-156",
+    "label": "fail",
+    "reason": "States 819 crowns monthly instead of the referenced 814."
+  },
+  {
+    "id": "map-langfuse-reference-120",
+    "label": "fail",
+    "reason": "States 195 crowns monthly instead of the referenced 190."
+  },
+  {
+    "id": "map-langfuse-reference-168",
+    "label": "fail",
+    "reason": "States 676 crowns monthly instead of the referenced 671."
+  },
+  {
+    "id": "map-langfuse-reference-163",
+    "label": "fail",
+    "reason": "The Spanish sentence says the offer is available in Northport, reversing the reference exclusion."
+  },
+  {
+    "id": "map-langfuse-reference-103",
+    "label": "fail",
+    "reason": "The Spanish sentence says the offer is available in Northport, reversing the reference exclusion."
+  },
+  {
+    "id": "map-langfuse-reference-055",
+    "label": "fail",
+    "reason": "The Spanish sentence says the offer is available in Northport, reversing the reference exclusion."
+  },
+  {
+    "id": "map-langfuse-reference-179",
+    "label": "pass",
+    "reason": "Correctly states 775 crowns monthly, 423 GB monthly, and unavailability in Northport."
+  },
+  {
+    "id": "map-langfuse-reference-035",
+    "label": "pass",
+    "reason": "Correctly states 216 crowns monthly, 122 GB monthly, and unavailability in Northport."
+  },
+  {
+    "id": "map-langfuse-reference-047",
+    "label": "pass",
+    "reason": "Correctly states 346 crowns monthly, 192 GB monthly, and unavailability in Northport."
+  },
+  {
+    "id": "map-langfuse-reference-002",
+    "label": "pass",
+    "reason": "Preserves Northport exclusion and the 528-crown monthly fee for 290 GB, read as the monthly package in context.",
+    "ambiguity": "Monthly explicitly modifies fee; interpreting the 290 GB as a monthly allowance relies on the natural shared package period. A strict reading could leave the allowance period unstated."
+  },
+  {
+    "id": "map-langfuse-reference-110",
+    "label": "pass",
+    "reason": "Preserves Northport exclusion and the 827-crown monthly fee for 451 GB, read as the monthly package in context.",
+    "ambiguity": "Monthly explicitly modifies fee; interpreting the 451 GB as a monthly allowance relies on the natural shared package period. A strict reading could leave the allowance period unstated."
+  },
+  {
+    "id": "map-langfuse-reference-170",
+    "label": "pass",
+    "reason": "Preserves Northport exclusion and the 489-crown monthly fee for 269 GB, read as the monthly package in context.",
+    "ambiguity": "Monthly explicitly modifies fee; interpreting the 269 GB as a monthly allowance relies on the natural shared package period. A strict reading could leave the allowance period unstated."
+  },
+  {
+    "id": "map-langfuse-reference-016",
+    "label": "pass",
+    "reason": "Correctly states 374 GB monthly, 684 crowns monthly, and that Northport lies outside coverage."
+  },
+  {
+    "id": "map-langfuse-reference-102",
+    "label": "fail",
+    "reason": "Omits the requested fact that the offer is unavailable in Northport."
+  },
+  {
+    "id": "map-langfuse-reference-150",
+    "label": "fail",
+    "reason": "Omits the requested fact that the offer is unavailable in Northport."
+  },
+  {
+    "id": "map-langfuse-reference-181",
+    "label": "fail",
+    "reason": "Weakens exactly 17 blue-labelled crates to at least 17, losing the required exact quantifier."
+  },
+  {
+    "id": "map-langfuse-reference-097",
+    "label": "fail",
+    "reason": "Weakens exactly 73 blue-labelled crates to at least 73, losing the required exact quantifier."
+  },
+  {
+    "id": "map-langfuse-reference-145",
+    "label": "fail",
+    "reason": "Weakens exactly 31 blue-labelled crates to at least 31, losing the required exact quantifier."
+  },
+  {
+    "id": "map-langfuse-reference-111",
+    "label": "fail",
+    "reason": "Reverses the obsolete and current prices: 520 crowns is obsolete and 515 crowns is current."
+  },
+  {
+    "id": "map-langfuse-reference-123",
+    "label": "fail",
+    "reason": "Reverses the obsolete and current prices: 416 crowns is obsolete and 411 crowns is current."
+  },
+  {
+    "id": "map-langfuse-reference-159",
+    "label": "fail",
+    "reason": "Reverses the obsolete and current prices: 260 crowns is obsolete and 255 crowns is current."
+  },
+  {
+    "id": "map-langfuse-reference-128",
+    "label": "pass",
+    "reason": "29 MiB equals 29696 KiB, and the output correctly preserves the 1024 KiB per MiB conversion."
+  },
+  {
+    "id": "map-langfuse-reference-008",
+    "label": "pass",
+    "reason": "11 MiB equals 11264 KiB, and the output correctly preserves the 1024 KiB per MiB conversion."
+  },
+  {
+    "id": "map-langfuse-reference-068",
+    "label": "pass",
+    "reason": "55 MiB equals 56320 KiB, and the output correctly preserves the 1024 KiB per MiB conversion."
+  }
+]

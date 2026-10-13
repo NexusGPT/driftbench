@@ -1,0 +1,30 @@
+# The space map of promptfoo-rubric-map.json: its approved axis dimensions and their constraints.
+# Written by driftbench extract map; edit the proposal and write it again rather than editing this file.
+version: '1'
+agent: astra-fixtures
+dimensions:
+  - id: flow
+    title: flow
+    kind: behaviour
+    values:
+      - { id: conjunction, title: conjunction }
+      - { id: negation, title: negation }
+      - { id: scope, title: scope }
+      - { id: period, title: period }
+      - { id: arithmetic, title: arithmetic }
+      - { id: partial-completion, title: partial-completion }
+      - { id: quoted-claim, title: quoted-claim }
+      - { id: disjunction, title: disjunction }
+      - { id: cross-language, title: cross-language }
+      - { id: later-contradiction, title: later-contradiction }
+      - { id: long-fluent, title: long-fluent }
+      - { id: tag-injection, title: tag-injection }
+  - id: truth
+    title: truth
+    kind: persona
+    values:
+      - { id: pass, title: pass }
+      - { id: fail, title: fail }
+constraints: []
+prior:
+  kind: declared
