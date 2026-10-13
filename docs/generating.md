@@ -267,10 +267,10 @@ The result is identical to the committed `examples/acme/map/space.yaml`. Three c
 * `driftbench space complete <specs> --map <space.yaml> [--t <n>]` prints the completeness line: the share of the cells that have appeared and the chance that the next conversation shows a new one. It exits 1 when there are fewer conversations than cells.
 * `driftbench space declare <specs> --inventory <file> --out <file>` writes a first map from the inventory and the specs, for the owner to edit.
 
-On the Acme map, the hand-written specs cover 234 of 637 allowed pairs (exit 1, three required cells empty); the gated suite covers 591 and every required cell:
+On the Acme map, the hand-written specs cover 237 of 637 allowed pairs (exit 1, three required cells empty); the gated suite covers 592 and every required cell:
 
 ```
-Coverage: 10 of 10 required cells covered, 591 of 637 cells at t = 2 (92.8%).
+Coverage: 10 of 10 required cells covered, 592 of 637 cells at t = 2 (92.9%).
 ```
 
 That is the last line of `pnpm -s driftbench space coverage examples/acme/gated/specs --map examples/acme/map/space.yaml --t 2` (exit 0). The cells the gated specs miss are the ones only a sealed spec covers.
@@ -388,27 +388,29 @@ A block the map supports no machine Then for, or a value with no approved phrase
 ### The Acme suite
 
 ```
-$ pnpm -s driftbench generate --map _captures/docs3/generating/acme/map/approved.yaml --out _captures/docs3/generating/acme/generated --baseline examples/acme/specs --t 2
-Map acme (../map/approved.yaml), hash 6d29ed7a7539: 51 dimensions, 185 values, 457 constraints, 51 approved phrases.
+$ pnpm -s driftbench generate --map examples/acme/map/approved.yaml --out generated --baseline examples/acme/specs --t 2
+Actual axis-map coverage (written complete specs): pairs 637 of 637 (100.0%); triples 2582 of 3510 (73.6%).
+Candidate t-wise array (before the total cap): covering array of 132 rows over 5 dimensions, 314 of 314 allowed 2-tuples (100.0%); 2 pairs no path reaches are left out.
+Uncovered on the axis map: 0 pairs, 928 triples (see coverage.actual[].uncovered).
+Map acme (../examples/acme/map/approved.yaml), hash ed9e4089e9c5: 51 dimensions, 185 values, 457 constraints, 51 approved phrases.
 Seed 1, t = 2.
 
 Seeder        specs  blocks  complete  incomplete
 graph            12      48        12           0
 twise           132     675       131           1
-boundary         85     118        13          72
-deviation        10      52        10           0
-metamorphic      40     172        38           2
+boundary         85     146        13          72
+deviation        17      90        17           0
+metamorphic      38     168        38           0
 task             34      47        34           0
-cover            13      72        13           0
+cover            14      79        14           0
 
 Stage graph: 18 of 23 edges covered in 12 paths from needs.
-t-wise: covering array of 132 rows over 5 dimensions, 314 of 314 allowed 2-tuples (100.0%).
 Constraints applied: 457.
-Deviation probes: 10 of 10 classes. Metamorphic families: 20.
-Coverage on the axis map at t = 2: complete specs 637 of 637 (100.0%), all specs 637 (100.0%), examples/acme/specs 234 (36.7%).
+Deviation probes: 10 of 10 classes. Metamorphic families: 19.
+Coverage on the axis map at t = 2: complete specs 637 of 637 (100.0%), all specs 637 (100.0%), examples/acme/specs 237 (37.2%).
 Values no allowed pair holds, so no spec can cover them until the map gives them a path: workspace_start=existing-workbook.
 
-Values with no approved phrase (67): their blocks are placeholders in incomplete/.
+Values with no approved phrase (72): their blocks are placeholders in incomplete/.
   catalog.search.in.category=catalog.search.in.category.mobile  1 block(s)
   catalog.search.in.category=catalog.search.in.category.home  1 block(s)
   catalog.search.in.customer_email=catalog.search.in.customer_email.below-min-length  1 block(s)
@@ -416,6 +418,7 @@ Values with no approved phrase (67): their blocks are placeholders in incomplete
   catalog.search.in.customer_email=catalog.search.in.customer_email.absent  1 block(s)
   catalog.search.in.address_id=catalog.search.in.address_id.present  1 block(s)
   catalog.search.in.address_id=catalog.search.in.address_id.absent  1 block(s)
+  catalog.search.in.unknown-key=catalog.search.in.unknown-key.sent  1 block(s)
   catalog.search.out.plans=catalog.search.out.plans.empty  1 block(s)
   catalog.search.out.plans=catalog.search.out.plans.one-item  1 block(s)
   catalog.search.out.plans=catalog.search.out.plans.several-items  1 block(s)
@@ -423,24 +426,23 @@ Values with no approved phrase (67): their blocks are placeholders in incomplete
   catalog.search.out.customer=catalog.search.out.customer.null  1 block(s)
   catalog.search.out.customer=catalog.search.out.customer.absent  1 block(s)
   coverage.check.in.address=coverage.check.in.address.below-min-length  1 block(s)
-  coverage.check.in.address=coverage.check.in.address.at-min-length  1 block(s)
-  ... 52 more in generate-report.json
+  ... 57 more in generate-report.json
 
-Specs with a block the map supports no machine Then for (18), in incomplete/: gen-twise-089, gen-boundary-062, gen-boundary-063, gen-boundary-064, gen-boundary-072, gen-boundary-073, gen-boundary-074, gen-boundary-075, gen-boundary-077, gen-boundary-078, ....
+Specs with a block the map supports no machine Then for (16), in incomplete/: gen-twise-089, gen-boundary-008, gen-boundary-017, gen-boundary-031, gen-boundary-046, gen-boundary-060, gen-boundary-067, gen-boundary-068, gen-boundary-069, gen-boundary-077, ....
   Most frequent reasons:
-     2  no approved path says flow=upgrade
      1  it needs coverage_result in no-service; the cell holds none
      1  it needs user_type in existing-customer; the cell holds new-customer
      1  no approved path needs callback_phone=not-given
+     1  no approved path needs catalog.search.in.unknown-key=catalog.search.in.unknown-key.sent
+     1  no approved path needs coverage.check.in.unknown-key=coverage.check.in.unknown-key.sent
      1  no approved path needs customer_details=neither
      1  no approved path needs customer_details=one-of-them
      1  no approved path needs home_plans=no-plan
-     1  no approved path needs home_plans=one-plan
-Wrote 327 files to _captures/docs3/generating/acme/generated.
+Wrote 333 files to generated.
 exit 1
 ```
 
-The output is identical to the committed `examples/acme/generated`. Exit 1 is the exit for a suite written with incomplete specs: 251 specs are complete (1107 blocks), 75 are incomplete. Complete specs cover all 637 allowed pairs. The price-sheet flow has no conversation path: its specs come from the map's `task_family` relation, so B-013, B-014 and `sales-operations` hold allowed pairs through the [task families](#task-families). `--baseline <specs>` measures other specs on the same map for comparison; `--max <n>` caps the specs per seeder.
+The files match the committed `examples/acme/generated`, apart from the relative path of the map, which follows the output folder. Exit 1 is the exit for a suite written with incomplete specs: 259 specs are complete, 73 are incomplete. Complete specs cover all 637 allowed pairs. The price-sheet flow has no conversation path: its specs come from the map's `task_family` relation, so B-013, B-014 and `sales-operations` hold allowed pairs through the [task families](#task-families). `--baseline <specs>` measures other specs on the same map for comparison; `--max <n>` caps the specs per seeder.
 
 `generate-report.json` holds the generator and map identity, the options, the summary (specs, blocks, complete, incomplete), one entry per seeder, the stage graph, the covering array, the boundary values, the deviation probes, the metamorphic families, the constraints applied, the values with no phrase (`no_phrase`), the blocks with no machine Then and why (`no_then`), the coverage, and any invalid spec or lint finding. `generate` exits 0 when every block has an approved phrase and a Then, 1 when the suite is written with incomplete specs, a seeder cut by `--max` or a generator defect, 2 on a usage or input error (nothing written).
 
@@ -486,9 +488,9 @@ Selected lines from the Acme comparison command, run from the repository root:
 
 ```
 $ pnpm -s driftbench generate --map examples/acme/map/approved.yaml --out _captures/budget/budget-20 --t 2 --seed 1 --budget 20 --force
-Budget 20: 20 cells of 747 allowed, pairs covered 154 of 314 (49.0%), max deviation from fair share 2.00.
+Candidate budget array (before the total cap), budget 20: 20 cells of 747 allowed, pairs covered 154 of 314 (49.0%), max deviation from fair share 2.00.
 Coverage on the axis map at t = 2: complete specs 637 of 637 (100.0%), all specs 637 (100.0%).
-Wrote 321 files to _captures/budget/budget-20.
+Wrote 330 files to _captures/budget/budget-20.
 exit 1
 ```
 
