@@ -395,13 +395,15 @@ const READINGS: readonly ((text: string) => string | undefined)[] = [
     );
     return split === text ? undefined : split;
   },
-  // The 24 Caesar shifts other than 13, of a short text: every shift is a line of its own.
-  (text) =>
-    text.length > 400
-      ? undefined
-      : Array.from({ length: 25 }, (_, i) => shift(text, i + 1))
-          .filter((_, i) => i + 1 !== 13)
-          .join('\n'),
+  // The 24 Caesar shifts other than 13, of each short sentence (up to 4000 characters in all): one line per shift.
+  (text) => {
+    const short = sentencesOf(text).filter((sentence) => sentence.length >= 8 && sentence.length <= 200);
+    if (short.reduce((sum, sentence) => sum + sentence.length, 0) > 4000) return undefined;
+    const body = short.join('\n');
+    return Array.from({ length: 25 }, (_, i) => shift(body, i + 1))
+      .filter((_, i) => i + 1 !== 13)
+      .join('\n');
+  },
   // Compatibility forms: fullwidth letters and the like read as plain letters.
   (text) => {
     const folded = text.normalize('NFKC');
