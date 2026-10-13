@@ -4,7 +4,7 @@
 id: estate.pairwise.0829
 version: be2e7a0919cb
 kind: task
-title: "route_positive: An ask that fits route-planner dispatches it"
+title: "route_positive: An ask to write to or chase a supplier loads supplier-email"
 lang: EN
 tier: generated
 tags:
@@ -21,7 +21,7 @@ given:
       runtime: claude-code
       map_hash: be2e7a0919cb31aecf73102cd271e7611cb439be814983a47b9dc39e38775f10
     session_state: helpers_running
-    event: compaction_mid_task
+    event: stale_tracker
     workspace_seed: northwind-ops
   world:
     workspace:
@@ -53,35 +53,35 @@ given:
 blocks:
   - id: ask
     when:
-      user: Plan the delivery routes for tomorrow.
+      user: Chase Copperline Pans about the missing lids on PO-2002.
     expect:
-      subagents:
-        - name: route-planner
+      skills:
+        - name: supplier-email
           count:
             min: 1
       workspace:
         others_untouched: true
 perturbations:
-  - id: deviation-D3_contradiction
-    class: D3_contradiction
+  - id: deviation-D2_goal_shift
+    class: D2_goal_shift
     inject_at: 0
-    user: Wait, earlier I said the opposite of what I just asked. Which one should hold?
+    user: "Actually, change of plan: do only the first part of what I asked and stop there."
     recovery:
       within_blocks: 1
 metadata:
   estate:
     atoms:
-      - route.route-planner.an-ask-that-fits-route-planner
+      - route.standing.an-ask-to-write-to-or
     planRow: pairwise.0829
     focusVariant: 828
     cell:
-      ask_class: debug
+      ask_class: chat
       ask_shape: ambiguous
       session_state: helpers_running
-      owner_signal: keep_going
-      deviation: D3_contradiction
-      estate_hazard: compaction_mid_task
-      atoms.route: route.route-planner.an-ask-that-fits-route-planner
+      owner_signal: limit_word
+      deviation: D2_goal_shift
+      estate_hazard: stale_tracker
+      atoms.route: route.standing.an-ask-to-write-to-or
     seeder: estate
     seed: 1
     mapHash: be2e7a0919cb31aecf73102cd271e7611cb439be814983a47b9dc39e38775f10
@@ -89,7 +89,7 @@ metadata:
     mode: live
     map: ../approved.yaml
     plan: ../../../../packages/generate/test/estate/fixtures/planner-plan.approved.yaml
-    situation: route-planning
-    phrase: 0
+    situation: supplier-email
+    phrase: 1
     ask: code
     outcome: bank
