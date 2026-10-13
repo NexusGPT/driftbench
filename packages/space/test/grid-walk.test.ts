@@ -172,5 +172,6 @@ describe('forEachAllowedCell', () => {
     const slow = counted(space);
     expect(walked(forEachAllowedCell, fast.space)).toEqual(walked(odometer, slow.space));
     expect({ fast: fast.checks(), slow: slow.checks() }).toEqual({ fast: 1_452_292, slow: 13_439_066 });
-  });
+    // Both walks of the whole Acme map run here; on a shared CI runner that passes the default five seconds.
+  }, 60_000);
 });

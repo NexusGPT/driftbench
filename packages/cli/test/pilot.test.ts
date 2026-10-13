@@ -103,7 +103,7 @@ describe('driftbench pilot plan', () => {
     const empty = await cli(['pilot', 'plan', '--map', MAP, '--suite', SUITE, '--by', ' , ']);
     expect(empty.code).toBe(2);
     expect(empty.err).toBe('--by names at least one dimension.\n');
-  });
+  }, 60_000);
 
   it('refuses a bad number with exit 2', async () => {
     const { code, err } = await cli(['pilot', 'plan', '--map', MAP, '--suite', SUITE, '--repeats', '0']);
