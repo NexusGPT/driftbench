@@ -329,3 +329,23 @@ The isolated baseline at 59f4b083b reports the following 21 failures. The fake-r
 ### v4 scale measurement needing a ruling
 
 The baseline passes 15/20 scale items. plan-1000 takes 46064 ms against a 6000 ms budget; plan-2500 and plan-5000 are not run after that failure. generate-2500 is killed at 75015 ms against a 15000 ms budget; generate-5000 is not run after it. These are wall-clock results on the owner's heavily loaded host, not proof of an algorithmic cause. Repeat the five items on an uncongested runner before deciding a product performance fix or changing any timing contract. The executor does not change budgets or validator tests.
+
+### v4 continuation: five reviewer repros and product fixes
+
+This section supersedes the earlier open rulings for ask approval, warning messages and command absence. The maintainer authorized the estate check implementation and focused tests under packages/checks; other checks files remain out of scope.
+
+| Reviewer case | Executor branch result |
+|---|---|
+| Named prerequisite read after Edit, with other Reads early | Already fixed at 39007f52b. The named ordered selector fails while the original passes. |
+| Named prerequisite absent, with generic Read before Edit retained | Already fixed at 39007f52b. Both the reference and named ordering checks fail. |
+| Journey skill load absent, reference reads retained | Already fixed on the pre-change d068edb6d tree. The skill count fails. |
+| Allowed command pattern replaced by an unrelated command under the same tool | Already fixed on the pre-change d068edb6d tree. Bash(python3 *) rejects the unrelated Bash command. |
+| Permission request without a decision | Fixed at 6e311f263. Explicit system request and grant evidence must match call id, tool and input, in time order before the call. Missing records or timestamps stay inconclusive and gating. Denied, mismatched, late and ambiguous evidence cannot pass. |
+
+The five probes use PR307's estate-derived fixture/follower from 7341a1169 with this branch's product. All five unmodified controls pass and all five violating traces fail. No validator file is edited. The scratch proof is /private/tmp/estate-v4-reviewer-five.json; this is a paired behavior probe, not a ladder claim.
+
+- 6e311f263: approval regressions fail 5/21 before the fix, then pass 21/21. Ask compilation fails first, then passes. Existing estate checks 29/29, then 34/34 and generator 32/32 pass. Targeted types pass. Fixture complete count increases from 957 to 958; incomplete decreases from 344 to 343.
+- 5f1b54e4e: guard_message checks deny, block, ask, warn and nudge interventions. The three warning/ask regressions fail before the fix, then all 4 tests pass; existing estate checks pass 29/29. Neutral allow remains inconclusive for this message check.
+- bdfc60623: command_absent compiles its literal command to the existing some_call prohibition. Both regressions fail first, then pass 2/2; generator passes 32/32. The isolated seed 1 mutant.agent family rises from 38/44 to 39/44. The earlier instruction-no-force-push ruling diagnosis was incorrect: a fresh replay shows a push task, but the uncompiled custom predicate produced a judged criterion. The rule now has a machine check.
+
+Focused seed 1 measurements at bdfc60623: gen.complete 84/97, gen.task 19/23, gen.coverage 21/25, mutant.agent 39/44. One-per-tool is resolved by approval compilation. Two measured bank items gained since d068edb6d. No new full-level or scale claim is made. PR307's input repairs are not merged into this worktree yet.
