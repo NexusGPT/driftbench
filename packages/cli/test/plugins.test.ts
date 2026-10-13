@@ -3,6 +3,7 @@ import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { functionAdapter } from '@agent-nexus/driftbench-adapters';
+import { defaultRegistry } from '@agent-nexus/driftbench-checks';
 import type { JudgeClient } from '@agent-nexus/driftbench-judges';
 import { afterEach, describe, expect, it } from 'vitest';
 import { readAggregateConfig } from '../src/aggregate-config';
@@ -220,6 +221,76 @@ describe('plugins', () => {
     const { campaignRunCommand, defaultDeps } = await campaignCommands();
     expect(typeof campaignRunCommand).toBe('function');
     expect((await defaultDeps.adapterFor({ adapter: 'function', agent: 'acme-sales' }))?.id).toBe('function');
+  });
+
+  it('a plugin never replaces a check that is already registered, and a reset leaves that check as it was', async () => {
+    const original = () => [];
+    const replacement = () => [];
+    defaultRegistry.register('preexisting', original);
+    try {
+      const clash = await cli(['--help'], ROOT, {
+        plugins: [(api) => api.check('preexisting', replacement)],
+      });
+      expect(clash.code).toBe(2);
+      expect(clash.err).toBe(
+        'driftbench: The plugin given in code (1) registers the check preexisting, which is already registered outside the plugins of this run. A plugin never replaces a check: give it another name.\n',
+      );
+      expect(defaultRegistry.get('preexisting')).toBe(original);
+      expect((await cli(['--help'])).code).toBe(0);
+      expect(defaultRegistry.get('preexisting')).toBe(original);
+    } finally {
+      defaultRegistry.unregister('preexisting');
+    }
+  });
+
+  it('two plugins that register the same check are refused, both named', async () => {
+    const dir = await temp({
+      'one.mjs': "export default (api) => api.check('twice', () => []);\n",
+      'two.mjs': "export default (api) => api.check('twice', () => []);\n",
+    });
+    const run = await cli(['--help', '--plugin', join(dir, 'one.mjs'), '--plugin', join(dir, 'two.mjs')]);
+    expect(run.code).toBe(2);
+    expect(run.err).toBe(
+      `driftbench: The plugin ${join(dir, 'two.mjs')} registers the check twice, which the plugin ${join(dir, 'one.mjs')} already registered. A plugin never replaces a check: give it another name.\n`,
+    );
+    expect(defaultRegistry.get('twice')).toBeUndefined();
+  });
+
+  it('a module named in the config and by the flag runs once', async () => {
+    const run = await cli(['campaign', 'run', 'specs/hello.yaml', '--plugin', './plugin.mjs'], EXAMPLE);
+    expect(run.err).toBe('');
+    expect(run.code).toBe(0);
+  });
+
+  it('a check a plugin added is gone after the run, and other checks are untouched', async () => {
+    const mine = () => [];
+    defaultRegistry.register('kept', mine);
+    try {
+      await cli(['--help'], ROOT, { plugins: [(api) => api.check('added', () => [])] });
+      expect(defaultRegistry.get('added')).toBeDefined();
+      await cli(['--help']);
+      expect(defaultRegistry.get('added')).toBeUndefined();
+      expect(defaultRegistry.get('kept')).toBe(mine);
+    } finally {
+      defaultRegistry.unregister('kept');
+    }
+  });
+
+  it('a plugin judge may not take the name of a built-in judge', async () => {
+    for (const name of ['openai', 'anthropic', 'google']) {
+      const run = await cli(['--help'], ROOT, {
+        plugins: [(api) => api.pairwiseJudge(name, () => ({ id: 'mine' }) as JudgeClient)],
+      });
+      expect(run.code).toBe(2);
+      expect(run.err).toBe(
+        `driftbench: The plugin given in code (1) failed: the judge name ${name} is built in (openai, anthropic, google): a plugin judge needs another name\n`,
+      );
+    }
+  });
+
+  it('the top-level help lists --plugin', async () => {
+    const help = await cli(['--help']);
+    expect(help.out).toMatch(/--plugin <module>\s+load a plugin/);
   });
 
   it('a plugin judge answers --pairwise-judge by its name; an unknown name is refused as before', async () => {

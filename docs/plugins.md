@@ -65,7 +65,7 @@ Two places name the plugins of a run:
 
 2. The flag `--plugin <module>`, anywhere on the command line, once per module. A path is relative to the working folder.
 
-The plugins of the config load first, then those of the flags, in the order written. A later registration of the same adapter name, check name or judge name replaces the earlier one. The two Acme example targets, `function:acme-sales` and `process:acme-ops`, stay with the built-in example.
+The plugins of the config load first, then those of the flags, in the order written. A later registration of the same adapter name replaces the earlier one. A check or a judge is never replaced: a plugin that registers a check name already registered (by another plugin of the run, or by your own code through `registerCheck`), or a judge named `openai`, `anthropic` or `google`, stops the command with exit code 2 and a line that names the plugin and the name. When the run ends, the checks its plugins added are removed and every other check is as it was. The two Acme example targets, `function:acme-sales` and `process:acme-ops`, stay with the built-in example.
 
 A plugin that cannot be loaded, exports no function or throws stops the command with one line on stderr and exit code 2.
 
