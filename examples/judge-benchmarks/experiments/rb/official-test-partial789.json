@@ -1,0 +1,120 @@
+{
+  "measuredAt": "2026-10-13T04:32:17.051Z",
+  "frozenCommit": "76f4f6a6a3acaf105a9f1e0849becf9cf9a3efc5",
+  "classification": "Confirmation on a previously evaluated split; partial extension, not a random sample",
+  "attemptRequestedItems": 790,
+  "judgedItems": 789,
+  "unjudgedItems": 1,
+  "unjudgedIds": [
+    "rubric_eval_842"
+  ],
+  "failureCategory": "Provider safety refusal [bio]; no candidate judgment",
+  "run": {
+    "bench": "rubricbench",
+    "model": "haiku",
+    "split": "test",
+    "items": 789,
+    "contestants": [
+      {
+        "contestant": "driftbench-rb-binary-canonical-executed",
+        "source": "Expert rubric, evidence per atomic requirement, binary aggregation (dev experiment); canonical presentation with exact candidate-code execution",
+        "mode": "pairwise, both orders",
+        "summary": {
+          "metric": "accuracy (RubricBench, over games)",
+          "value": {
+            "estimate": 0.8124207858048162,
+            "lower": 0.7924095873775487,
+            "upper": 0.8309145735248276
+          },
+          "n": 789,
+          "byGroup": {
+            "code": {
+              "n": 360,
+              "value": 0.8388888888888889
+            },
+            "general": {
+              "n": 160,
+              "value": 0.9
+            },
+            "ifeval": {
+              "n": 136,
+              "value": 0.8235294117647058
+            },
+            "stem": {
+              "n": 240,
+              "value": 0.7750000000000004
+            },
+            "Factuality": {
+              "n": 68,
+              "value": 0.911764705882353
+            },
+            "math": {
+              "n": 94,
+              "value": 0.8936170212765957
+            },
+            "Precise IF": {
+              "n": 26,
+              "value": 0.6923076923076923
+            },
+            "harmlessness": {
+              "n": 64,
+              "value": 0.875
+            },
+            "human-preference": {
+              "n": 304,
+              "value": 0.6907894736842105
+            },
+            "Math": {
+              "n": 6,
+              "value": 0
+            },
+            "Safety": {
+              "n": 46,
+              "value": 0.9130434782608695
+            },
+            "mmlu-pro": {
+              "n": 8,
+              "value": 1
+            },
+            "Focus": {
+              "n": 32,
+              "value": 0.9375
+            },
+            "helpful": {
+              "n": 16,
+              "value": 1
+            },
+            "mbpp": {
+              "n": 16,
+              "value": 0.75
+            },
+            "gpqa": {
+              "n": 2,
+              "value": 0
+            }
+          },
+          "missing": 0,
+          "positionConsistency": 0.9708491761723701
+        },
+        "costUsd": 2.708571299999991,
+        "calls": 1578,
+        "uniqueCostUsd": 1.3542856499999998,
+        "uniqueCalls": 789
+      }
+    ],
+    "newSpendUsd": 0,
+    "newCalls": 0,
+    "replayed": 1578,
+    "failedCalls": 0
+  },
+  "conditionalAccuracy": 0.8124207858048162,
+  "requestedSetAccuracyMissingCountedAsError": 0.8113924050632911,
+  "usdPer100Judged": 0.1716458365019011,
+  "taskSuccessfulSpend": 4.295809120000001,
+  "capturedRefusals": 6,
+  "capturedRefusalCostUsd": 0.0009967600000000004,
+  "knownTaskSpendUsd": 4.296805880000001,
+  "uncapturedFailureCost": "Earlier unsuccessful calls do not retain their cost; USD0.30 reserved",
+  "interval": null,
+  "intervalReason": "Coverage is incomplete and the missing case is provider-selected; the original predeclared434 sample interval remains the official estimate."
+}

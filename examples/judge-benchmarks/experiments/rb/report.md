@@ -1,10 +1,11 @@
 # RubricBench dev and frozen confirmation
 
-Measured at 2026-10-13T04:27:28.199Z. Branch: codex/rb-judge. Head: 5756251ccaf16ca9bba12772a37d2f1c651994dd.
+Measured at 2026-10-13T04:27:28.199Z. Branch: codex/rb-judge. Head: 73f5395142cdb41c7f34cebbb1a99f7ebfd7bec2.
 
 Best completed full-dev config: **driftbench-rb-binary-canonical-executed**, **82.3529%**, **$0.167171 per 100 items**.
 The 90% target is not met on dev. Tonight confirms the committed frozen design on a previously evaluated split.
-Recorded task spend: $4.295809 across 2917 new recorded calls. Aborted calls without a returned cost cannot be metered from this harness.
+Latest test coverage: **789 of 790 pairs judged, 81.2421%, USD 0.171646 per 100 judged pairs**. Counting the unresolved pair as an error gives **81.1392% over all 790 requested pairs**, USD 0.171429 per 100 requested pairs. The provider refuses the remaining pair. The original predeclared 434-pair sample and its interval remain below.
+Recorded successful-call spend: USD 4.295809 across 2917 recorded calls. Captured refusal costs add USD 0.000997, for known task spend USD 4.296806. Earlier unsuccessful-call costs are not retained; USD 0.30 remains reserved.
 
 | Completed variant | Dev items | Game accuracy | Position consistency | USD per 100 items | Unique calls | Unresolved judgments |
 |---|---:|---:|---:|---:|---:|---:|
@@ -84,8 +85,8 @@ Stratified sample: 434 of 790 test pairs. All requested cases are evaluated. Mis
 | gpqa | 0 | not sampled | 0.169843 |
 
 The original predeclared sample covers 434 pairs: 83.4101%, 95% Wilson 79.62% to 86.61%, USD 0.169843 per 100 items. Its complete results remain in official-test-sample434.json.
-The owner then doubles the task cap to USD 16 and authorizes six simultaneous calls. The frozen design evaluates the remaining 356 pairs once. The extension adds 355 recorded calls costing USD 0.617169. No judged sample pair receives a new model call.
-The 434-pair sample remains the official headline result; the incomplete extension is reported separately. Test results never select or alter the design.
+The owner then doubles the task cap to USD 16 and authorizes six simultaneous calls. The frozen design attempts the remaining 356 pairs without rejudging completed pairs. The extension adds 355 recorded calls costing USD 0.617169. No judged sample pair receives a new model call.
+The predeclared sample remains an official sample estimate; the extended partial test result is stated first and reported separately. Test results never select or alter the design.
 
 | Default competitor on the same test items | Accuracy | Missing answers | USD per 100 items |
 |---|---:|---:|---:|
@@ -166,3 +167,36 @@ A full run must cover all 357 pairs. Unresolved judgment parses count as errors 
 ## Verification after the test extension
 
 Judge source and test files match the frozen commit. The selected config hash remains unchanged. The existing validation passes 62 tests across 12 files and TypeScript checking before the freeze. Only recordings and result artifacts change after it. The latest full-text scan covers every recording shard with 33 private terms and no denylist finding. All shards remain below the 10 MiB guard limit.
+
+## Partial extension to the remaining test pairs
+
+The frozen design attempts all 790 test pairs. It records judgments for 789. Item rubric_eval_842 remains unjudged: the provider returns an AUP refusal with category [bio]. The diagnostic captures 6 refusals and their costs. That refusal supplies no candidate No vote. The design and prompts remain unchanged. No bypass occurs.
+
+| Test coverage | Judged pairs | Accuracy | 95% interval | USD per 100 judged pairs |
+|---|---:|---:|---|---:|
+| Original predeclared stratified sample | 434 | 83.4101% | 79.62% to 86.61% | 0.169843 |
+| Extended observed subset | 789 of 790 | 81.2421% | not estimated for a provider-selected missing case | 0.171646 |
+| All 790 requested, missing case counted as error | 789 of 790 | 81.1392% | not reported | 0.171429 |
+
+The extended subset is descriptive. Its missing case is not random. The original 434 sample remains the official result and retains its predeclared sampling interval. Test numbers do not select or change the frozen design. The 90% target is not met.
+
+| Extended test domain | Judged pairs | Accuracy |
+|---|---:|---:|
+| code | 180 | 83.8889% |
+| general | 80 | 90.0000% |
+| ifeval | 68 | 82.3529% |
+| stem | 120 | 77.5000% |
+| Factuality | 34 | 91.1765% |
+| math | 47 | 89.3617% |
+| Precise IF | 13 | 69.2308% |
+| harmlessness | 32 | 87.5000% |
+| human-preference | 152 | 69.0789% |
+| Math | 3 | 0.0000% |
+| Safety | 23 | 91.3043% |
+| mmlu-pro | 4 | 100.0000% |
+| Focus | 16 | 93.7500% |
+| helpful | 8 | 100.0000% |
+| mbpp | 8 | 75.0000% |
+| gpqa | 1 | 0.0000% |
+
+Precise IF has 13 of 14 judged pairs; every other domain has complete test coverage. Cost per 100 uses successful unique prompt keys. Refusal costs are included in the task spend, separately from successful-judgment reproduction cost.
