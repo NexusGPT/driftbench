@@ -1,0 +1,12 @@
+{
+  "measuredAt": "2026-10-13T02:01:03.912016+00:00",
+  "pairs": 357,
+  "control": "driftbench-rb-binary-canonical",
+  "executed": "driftbench-rb-binary-canonical-executed",
+  "gainedCorrect": 6,
+  "lostCorrect": 3,
+  "unchangedCorrectness": 348,
+  "netCorrect": 3,
+  "mcnemarExactTwoSidedP": 0.5078125,
+  "interpretation": "Paired observed outcomes; fresh model sampling also differs, so the change is not a causal execution-only effect."
+}

@@ -109,6 +109,9 @@ async function main(): Promise<void> {
   const privacy = JSON.parse(await readFile(join(directory, 'guard-verification.json'), 'utf8')) as {
     measuredAt: string; bench: string; privateTerms: number; denylistFindings: number;
   };
+  const pairedCode = JSON.parse(await readFile(join(directory, 'paired-code-ablation.json'), 'utf8')) as {
+    gainedCorrect: number; lostCorrect: number; netCorrect: number; mcnemarExactTwoSidedP: number;
+  };
   let official:
     | {
         frozenCommit: string;
@@ -195,7 +198,7 @@ async function main(): Promise<void> {
     '',
     '## Best config by domain',
     '',
-    'All completed variants and every dataset domain are in domain-scores.csv beside the result JSON files. Domain labels remain exactly as the source dataset supplies them.',
+    `All completed variants and every dataset domain are in domain-scores.csv beside the result JSON files. The source supplies ${Object.keys(best.summary.byGroup).length} exact domain labels; their spelling and case stay unchanged.`,
     '',
     '| Dataset domain | Items | Dev accuracy | Whole judge USD per 100 |',
     '|---|---:|---:|---:|',
@@ -270,6 +273,10 @@ async function main(): Promise<void> {
     '- Code and MBPP snippets run in worktree scratch folders. Python uses supplied examples, JavaScript runs in a VM, C/C++ run when an entry point exists, and SQL uses a scratch SQLite database. A portable Java runtime is stored in the ignored worktree cache; unsupported languages and absent context remain visible unknowns.',
     '',
     `The selected configuration uses ${config.rubricEngine?.samples ?? config.samples ?? 1} judgment(s) per prompt and ${config.canonicalOrder ? 'canonical presentation' : 'the original presentation rules'}. Its measured score and domain rows above are the evidence for choosing it.`,
+    ...(best.contestant.includes('binary') ? [
+      'The best configuration converts full-satisfaction grades into Boolean counts. It uses the judge’s named winner when those counts tie.',
+    ] : []),
+    `Against the binary control, the execution variant gains ${pairedCode.gainedCorrect} correct pairs and loses ${pairedCode.lostCorrect}, a net gain of ${pairedCode.netCorrect}. Exact paired McNemar p=${pairedCode.mcnemarExactTwoSidedP.toFixed(4)}. This is not a statistically clear improvement. Fresh model draws also differ, so the result does not isolate execution as the cause.`,
     ...(selectedAudit
       ? [
           `The canonical prototype has ${selectedAudit.details.filter((row) => row.countMismatch).length} rubric-count mismatches and ${selectedAudit.details.filter((row) => row.invalidParse).length} malformed outputs among ${selectedAudit.completeItems} audited pairs. Its score retains those original judgments. The pointwise engine separately validates every original rubric id. Wrapped expert questions remain one requirement.`,
