@@ -8,6 +8,7 @@ import type {
   ToolExpect,
   WorldState,
 } from '@agent-nexus/driftbench-core';
+import { isPlainObject } from '@agent-nexus/driftbench-core';
 import { NONE } from '@agent-nexus/driftbench-space';
 import { stringify } from 'yaml';
 import type { ProposalPhrase } from '../extract/proposal';
@@ -233,7 +234,7 @@ export function renderDraft(prepared: PreparedMap, draft: SpecDraft, run: RunIde
       expect.stage = block.stage;
       expect.stage_reported = true;
     }
-    if (block.tools && block.tools.length > 0) expect.tools = block.tools;
+    if (block.tools && block.tools.length > 0) expect.tools = closeKnownInputs(prepared, block.tools);
     if (block.guards && block.guards.length > 0) expect.guards = block.guards;
     if (block.must && block.must.length > 0) expect.must = block.must;
     if (block.must_not && block.must_not.length > 0) expect.must_not = block.must_not;
@@ -279,6 +280,12 @@ export function renderDraft(prepared: PreparedMap, draft: SpecDraft, run: RunIde
     }
   }
   const perturbations = draft.perturbations?.map((perturbation) => {
+    if (perturbation.expect?.tools) {
+      perturbation = {
+        ...perturbation,
+        expect: { ...perturbation.expect, tools: closeKnownInputs(prepared, perturbation.expect.tools) },
+      };
+    }
     if (!incomplete || !perturbation.expect?.criteria) return perturbation;
     const { criteria: _dropped, ...expect } = perturbation.expect;
     return { ...perturbation, expect };
@@ -356,6 +363,21 @@ export function renderDraft(prepared: PreparedMap, draft: SpecDraft, run: RunIde
     },
   };
   return { id: draft.id, seeder: draft.seeder, spec, placeholders, noThen, reasons, blocks: blocks.length };
+}
+
+/** A partial map assertion cannot establish that other schema-declared arguments are forbidden. */
+function closeKnownInputs(prepared: PreparedMap, tools: ToolExpect[]): ToolExpect[] {
+  return tools.map((tool) => {
+    if (tool.input_closed !== true) return tool;
+    const properties = prepared.tools.find((entry) => entry.name === tool.label)?.input?.properties;
+    if (
+      isPlainObject(properties) &&
+      Object.keys(properties).every((key) => Object.hasOwn(tool.input ?? {}, key))
+    )
+      return tool;
+    const { input_closed: _closed, ...partial } = tool;
+    return partial;
+  });
 }
 
 /** The YAML text of a rendered spec, with a header. Deterministic: no clock, no absolute path. */

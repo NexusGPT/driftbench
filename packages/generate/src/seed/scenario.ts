@@ -342,6 +342,14 @@ export function buildScenario(prepared: PreparedMap, rng: Rng, request: Scenario
           : context[entry.subject.dimension] === entry.subject.value;
       if (!subject || entry.stage !== from || (entry.to !== undefined && entry.to !== to)) continue;
       if (!matches(entry.when, context)) continue;
+      for (const slot of slotsOf([entry.must, entry.must_not])) {
+        const source = boundBy.get(slot);
+        if (!source || prepared.toolDimensions.get(source[0])?.direction !== 'out') continue;
+        const original = relations.binds.get(
+          `${dimensionId(prepared, source[0])}=${valueId(prepared, source[0], source[1])}`,
+        )?.[slot];
+        if (slots[slot] !== original) return fail(`the phrase overrides tool output slot ${slot}`);
+      }
       for (const [patterns, target] of [
         [entry.must ?? [], stated],
         [entry.must_not ?? [], unstated],

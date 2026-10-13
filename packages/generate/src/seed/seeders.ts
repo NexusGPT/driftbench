@@ -118,7 +118,7 @@ function scenarioDraft(
     const criteria = behaviours.map((entry) => draftCriterion(prepared, entry));
     // Only reply-bound outputs need an injected answer. Other output partitions can describe
     // a real fixture's business state without being synthetic JSON Schema partitions.
-    const world = worldFor(prepared, built.replyData);
+    const world = worldFor(prepared, built.replyData, { useBindings: true });
     if (world.unsupported.length > 0) {
       reasons.push(...world.unsupported);
       continue;
@@ -873,10 +873,11 @@ function failingTool(prepared: PreparedMap, rng: Rng, cell: Pick[]): string | un
 export function worldFor(
   prepared: PreparedMap,
   cell: readonly Pick[],
+  options: { useBindings?: boolean } = {},
 ): { world?: WorldState; unsupported: string[] } {
   const byTool = new Map<
     string,
-    Array<{ path: string[]; schema: Record<string, unknown>; partition: string }>
+    Array<{ path: string[]; schema: Record<string, unknown>; partition: string; bindings?: string[] }>
   >();
   for (const [dimension, value] of cell) {
     const found = prepared.toolDimensions.get(dimension);
@@ -884,7 +885,20 @@ export function worldFor(
     const partition = partitionOf(dimensionId(prepared, dimension), valueId(prepared, dimension, value));
     byTool.set(found.tool.name, [
       ...(byTool.get(found.tool.name) ?? []),
-      { path: found.path, schema: found.schema, partition },
+      {
+        path: found.path,
+        schema: found.schema,
+        partition,
+        ...(options.useBindings
+          ? {
+              bindings: Object.values(
+                prepared.relations.binds.get(
+                  `${dimensionId(prepared, dimension)}=${valueId(prepared, dimension, value)}`,
+                ) ?? {},
+              ),
+            }
+          : {}),
+      },
     ]);
   }
   if (byTool.size === 0) return { unsupported: [] };

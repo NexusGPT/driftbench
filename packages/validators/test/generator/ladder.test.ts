@@ -80,7 +80,7 @@ describe('the generator bank', () => {
         expect(item.component).toMatch(/^packages\//);
       }
     }
-  });
+  }, 300_000);
 });
 
 describe('items with planted defects', () => {

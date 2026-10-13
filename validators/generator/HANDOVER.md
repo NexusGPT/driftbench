@@ -16,7 +16,7 @@ The bank holds 2033 items in 26 families, ordered in 22 levels; a level passes w
 
 See `validators/floors.json`; `pnpm driftbench validate floors` prints it. The lane proposes a floor of 1 for generator, ladder version 2 (a maintainer change after the merge).
 
-## Open items
+## Historical open items before options A and B
 
 Failing items per family on seed 1 after row 14: fault-code 20, fault-drift 9, fault-deviation 1, modes 47, perturbation 3, coverage 9, minimality 53, interaction-pair 286, interaction-triple 11, stability 6, scale 11, sequence 2, allocation 4, contrast 4, phrases 3, behaviours 1, adequacy 18, gate 8 (after row 16: gate 4, scale 1). Report, boundary and paths are at 0.
 
@@ -37,7 +37,7 @@ Known regression to repair: iteration 13 removed the first-turn D9 probe (`fault
 
 ## Decision for the owner: the six unkilled fault classes
 
-These need a public contract change, so nothing is built. Two options, each with the example it unblocks.
+The owner approved both options. They are implemented on this branch. The decision record below preserves the original rationale.
 
 Option A, a spec language addition. Two new assertions on a block:
 - `tools[].input_closed: true` (the call carries only the keys named in `input`). Example: `X1.field-extra` adds `note: "added by the agent"` to a lookup call; with `input_closed` on the lookup expectation `{ kind: green }` the call `{ kind: green, note: ... }` fails.
@@ -64,11 +64,20 @@ Rows 1 to 10 are the pilot (branch `exec/generator-pilot`, merged). Rows 11 to 1
 
 ## Next actions
 
-1. Run the full sweep (seeds 1 to 20 and hidden) in the background and write the next journal row from it; the level table is stale.
-2. `gate.contrast.then-ignores-edit`: choose one family of pairs (transition siblings) and give the two blocks a different Then or a different cell; measure with the `runGate` script, which takes about 5 minutes.
-3. `scale.100x.time`: only a smaller suite at that size gets under 60 s (170 s now, a fifth of it the validator's reload). Needs an owner choice on how many specs a 100 times map may write.
-4. Ask the owner whether the spec language may gain a closed-input assertion and a stage-reported assertion; the six unkilled classes depend on it.
-5. Handover test on the next third iteration: `pnpm driftbench validate generator --brief --fresh`.
+1. Finish the full sweep on the final A+B source, seeds 1 to 20 plus hidden, with two seed workers. Record partial results before the 06:40 push deadline if it is still running.
+2. Keep the 100x cap, performance and speed work on their separately owned branches. Merge their PRs into this branch only after the owner explicitly authorizes it.
+3. Use the fresh sweep's failing items to choose the next generator change. Do not treat the historical list above as a current measurement.
+
+## Approved options A and B
+
+- Optional spec assertions `tools[].input_closed` and `expect.stage_reported` are implemented in the canonical schema, shared checks, runner integration tests, adapters and reference docs. No field default is added; existing saved specs retain their behavior.
+- Generated stages require a current-block report. A generated call is closed only when its approved input assertion names every declared input schema property. Partial legacy input assertions remain open.
+- Approved `states` relations accept `must`, `must_not`, or both. Both lists support regex-escaped bound tool values. The validator renders these reply requirements and their source evidence for every flow transition.
+- The six previously unchecked fault classes are killed by the graph-suite integration test. The all-spec reference smoke before the main merge passes all 426 generated specs.
+- Main is merged at `e2a5acdf` (upstream `7c0b3592`); `node tools/rename-scope.mjs` reports no remaining changes. The separate performance PRs are not merged.
+- Acme generated fixtures are refreshed. Its inline-email flow phrase now carries the existing `first_message=says-everything` context, so it is not treated as equivalent to a greeting that gives no email.
+- Read-only review found that a bound numeric reply value could disagree with the synthetic tool answer. The repair injects the exact typed scalar binding and refuses ambiguous or inconsistent bindings. The bound-reply and related scenario/value tests pass (71 tests); the six-class integration recheck also passes.
+- No external model API calls are made by this work.
 
 ## Validator item defects (logged, not edited)
 
@@ -82,7 +91,7 @@ Gate funnel and fault table on the generated suite: a script with `SeedData(1, {
 
 ## Pitfalls
 
-* Never edit the validator or bank (`packages/validators/**`, the rest of `validators/`).
+* Do not change bank item expected answers. The owner authorizes the rendered-map reply relations and the separate composed-report repair described below.
 * An echo agent repeats every literal word of the spec's `must` patterns: words alone never kill it.
 * Acme items read `examples/acme`. The Acme regeneration waits for three other pull requests; five tests in `test/enumerate/acme.test.ts` fail until it runs. Regenerate with `pnpm -s driftbench generate --map examples/acme/map/approved.yaml --out examples/acme/generated --baseline examples/acme/specs --t 2 --force` then `pnpm -s biome check --write examples`; pinned counts live in `packages/generate/test/enumerate/acme.test.ts` and `test/gate/acme-generated.test.ts`.
 * Memory is tight: vitest with `--maxWorkers=2`, bank-run with `--jobs 2`, one sweep at a time, about 25 minutes each.
