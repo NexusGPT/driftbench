@@ -58,7 +58,7 @@ def main():
     if args.output:
         args.output.write_text(json.dumps(scores, indent=2)+"\n")
     calls = {r.get("request_sha256",r.get("key")): r for r in records(CALLS)}
-    audit = [f"# {recording['variant']} loss audit", "", "Raw inputs and answers are preserved in calls.jsonl.", ""]
+    audit = [f"# {recording['variant']} loss audit", "", "Inputs and privacy-redacted answers are preserved in the JSONL recording stream.", ""]
     for r in recording["rows"]:
         if r["ours"]["prediction"] is not r["truth"]:
             audit.extend([f"## {r['row']}: {r['id']}", "", f"Construction truth: {r['truth']}", ""])

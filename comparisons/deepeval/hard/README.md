@@ -66,7 +66,7 @@ and computes the final answer in Python. It does not rewrite production judges.
 
 `run.py` invokes the actual pinned metric classes with a custom Haiku model
 adapter. Their default templates render through their own Jinja implementation.
-Every complete rendered prompt is preserved verbatim in `calls.jsonl`, including
+Every complete rendered prompt is preserved verbatim in the JSONL recording stream, including
 the fragments. Default scoring thresholds remain 0.5. G-Eval is strict and uses
 the same fixed evaluation steps as the inherited comparison. DAG uses the same
 one-node relevancy graph. Reason-only extra calls are disabled; decision prompts
@@ -85,7 +85,7 @@ The new runner repairs errors in the inherited manual runner:
 
 The parser normalizes a singleton object to a one-element list for native verdict
 lists and audit checks. This layout-only rule applies to every contestant. It changes
-no decision, status or evidence. The original raw responses remain available.
+no decision, status or evidence. Responses remain available with the documented operator-identifier redaction.
 The role template itself shows a singleton object despite declaring a list.
 
 The default metrics and our criteria have different policies. Turn relevancy
@@ -175,10 +175,10 @@ is revised to keep identifiers opaque and match the requested date precision.
 The final procedure is remeasured on the hard corpora before it is frozen.
 
 The per-corpus baseline and audit files contain per-case decisions and call digests.
-`calls.jsonl` stores recording identifiers as `request_sha256`; case results
+The recording stream stores identifiers as `request_sha256`; case results
 refer to `request_sha256s`. These are prompt digests, not credentials.
 The metadata migration preserves every raw prompt, response and envelope.
-`calls.jsonl` contains the full prompt, full response, CLI envelope, actual model
+The recording stream contains the full prompt, redacted response, CLI envelope, actual model
 usage and cost for each unique invocation. Per-row costs charge their underlying
 calls, including shared recordings. These row costs must not be added as actual
 billed spend. Actual spend is the sum of unique recorded invocation costs.

@@ -1,6 +1,6 @@
 # audit loss audit
 
-Raw inputs and answers are preserved in calls.jsonl.
+Inputs and privacy-redacted answers are preserved in the JSONL recording stream.
 
 ## role adherence: role-long-blend-4-b
 
