@@ -110,12 +110,13 @@ Each row of a per-tool page is measured head to head, measured against our own e
 ## A judge that shows its work
 
 * The pair ledger is opt-in (`answerContract: 'ledger'`), merged in PR 168.
+* promptfoo's select-best prompt is quoted from its grader, vendored at commit `8014282` in [comparisons/promptfoo/hard/vendor/grading.ts.txt](../../comparisons/promptfoo/hard/vendor/grading.ts.txt): "Output the index of the text that best fits the criteria. You must output a single integer."
 * RubricBench, Claude Haiku 5.5, 790 test pairs, 1,580 games: 1,306 correct (82.7 percent) against promptfoo select-best's 1,194 (75.6 percent); game McNemar p = 6.9e-10, with a correction across the full family of cells still pending. The test split was evaluated before. The result file is a copy of `examples/judge-benchmarks/experiments/ledger-rb/live-summary.json` on `research/ledger-rb` at `fe76cd48`, in [docs/assets/data/sealed/rubricbench-haiku.json](../assets/data/sealed/rubricbench-haiku.json). In the same file, Gemini 3.8 Flash is partial (116 of 790 pairs) and scores below promptfoo.
 
 ## The other innovation figures
 
 * Drift and recovery: `pnpm driftbench perturb examples/acme/specs/conversations/plan-upgrade.yaml --class D2_goal_shift --at 2` prints `Recovery: immediate, 0 blocks to come back (the spec allows 1 block), collateral 0`. Row 15 of the comparison.
 * Statistics: the Acme gate prints `this suite cannot show parity under 15 points (the all-pass flag needs 27.8 points); about 22 goldens would.` with 10 goldens paired. Row 17 of the comparison.
-* Code agents: `pnpm driftbench estate lint examples/estates/fixture/approved.yaml` reads 125 atoms and prints 6 findings, all planted in the fixture. The code-agent benchmarks are cited from the comparison page.
+* Code agents: `pnpm driftbench estate lint examples/estates/fixture/approved.yaml` reads 125 atoms and prints 6 findings, all planted in the fixture. The six code-agent benchmarks (SWE-bench, Terminal-Bench, OpenHands evaluation, GAIA, AgentBench, inspect_ai sandboxes), what decides a pass in each and whether it grades office files are listed in [code-agent benchmarks](../comparison.md#code-agent-benchmarks).
 * Self-tests: see [driftbench tests itself](#driftbench-tests-itself).
 * Replay: `pnpm exec tsx examples/escalation/replay.ts` reproduces the MM-Eval development score of 91.16 from recordings, with no provider call.
