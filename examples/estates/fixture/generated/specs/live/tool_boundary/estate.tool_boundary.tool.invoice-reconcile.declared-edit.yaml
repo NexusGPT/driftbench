@@ -12,6 +12,7 @@ tags:
   - test:tool_boundary
   - mode:live
   - kind:tool
+  - kind:skill
   - ask:code
 target:
   adapter: claude-code
@@ -23,8 +24,12 @@ given:
 blocks:
   - id: ask
     when:
-      user: Please use the Edit tool on the files here.
+      user: Please check, match or reconcile an invoice.
     expect:
+      skills:
+        - name: invoice-reconcile
+          count:
+            min: 1
       workspace:
         deleted: []
 rules:
@@ -38,6 +43,7 @@ metadata:
   estate:
     atoms:
       - tool.invoice-reconcile.declared-edit
+      - skill.invoice-reconcile.skill-invoice-reconcile
     planRow: tool_boundary.tool.invoice-reconcile.declared-edit
     cell: {}
     seeder: estate
@@ -50,5 +56,5 @@ metadata:
     situation: null
     phrase: null
     ask: code
-    askFrom: tool.invoice-reconcile.declared-edit (tool rule)
+    askFrom: skill.invoice-reconcile.skill-invoice-reconcile (asks it names)
     outcome: no-delete

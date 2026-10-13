@@ -319,12 +319,12 @@ The contract: every approved atom gets the mandatory test types of its kind. Neg
 | Instruction | `obligation` (the act happens; a prohibition is worded as an act that does not happen), `outside_trigger` (over-firing: the act does not happen, or an allowed act is not held back), `twin` (another phrasing) |
 | Gate | `ordered_pair`; `skip_pressure` (cell `owner_signal: keep_going`) |
 | Route | k `route_positive` (default 3, `--k`); `route_near_miss` (`ask_shape: ambiguous`); `misroute` (`ask_shape: concrete`) |
-| Skill | its route, instruction, reference and script rows name it; a skill no approved route names gets one `route_positive` row of its own |
+| Skill | its route, instruction, reference, script and declared tool rows name it; a skill no approved route names gets one `route_positive` row of its own |
 | Reference | `read_when` |
 | Script | `script_fixture` |
 | Subagent | `dispatch`, `contract_alone`, `stop_resume` (`session_state: helpers_running`, `estate_hazard: dead_helper`) |
 | Guard | `guard_positive`, `guard_negative`, `guard_hostile`, `guard_speed`, `guard_register` |
-| Tool | `tool_denied` for a deny rule, else `tool_boundary`; `tool_deferred` for a tool that loads late (the scanner does not read deferred tools yet) |
+| Tool | `tool_denied` for a deny rule, else `tool_boundary`; `tool_deferred` for a tool that loads late (the scanner does not read deferred tools yet). A tool a skill declares names that skill, so its ask is a task of the skill and the skill loads |
 | Stage | `stage_order` and `stage_skip`; a step allowed at any point gets `stage_anytime` only |
 | Register | `register_sample`, one row per ask class |
 | Hazard | `hazard_recovery`, the hazard crossed with a long task |
@@ -348,7 +348,7 @@ Wrote _captures/docs3/estate/plan.yaml: 1338 rows (348 from the contract, 10 jou
     instruction   120
     gate           16
     route          65
-    skill         111
+    skill         114
     reference       9
     script          2
     subagent       69

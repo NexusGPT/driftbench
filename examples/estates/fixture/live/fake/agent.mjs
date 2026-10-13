@@ -3,8 +3,8 @@
  * is given, nothing else. It reads the copy in its working folder (the standing file, the skills, the helpers,
  * the settings and the step list), routes the ask by the words it shares with a routing row or a unit's
  * description, and does what the unit and the estate say: load the skill, read the files its body names,
- * dispatch the helpers it names, run the command the ask spells out, read a file before editing it when a
- * standing rule says so, edit the file the ask names, walk the step list, and run every hook the settings
+ * dispatch the helpers it names, run the command its body names and the command the ask spells out, read a
+ * file before editing it when a standing rule says so, edit the file the ask names, walk the step list, and run every hook the settings
  * declare on each of its tool calls, as the runtime would. It knows nothing of any test, plan row or mutant:
  * what changes its stream is only what the copy says. No model, no cost, fictional data only.
  */
@@ -302,6 +302,22 @@ export function planStream({ ask, cwd, sessionId, env }) {
         const path = join(unit.folder, match[1]);
         if (existsSync(join(cwd, path)))
           call('Read', { file_path: join(cwd, path) }, () => ({ content: read(join(cwd, path)) ?? '' }));
+      }
+      // A command the body says to run, its script found in the skill folder; placeholders are left out.
+      const runs = /\brun\b/i.test(line) ? /`([^`]+\s[^`]+)`/.exec(line)?.[1] : undefined;
+      if (runs) {
+        const command = runs
+          .split(/\s+/)
+          .filter((token) => !/^<.*>$/.test(token))
+          .map((token) => (existsSync(join(cwd, unit.folder, token)) ? join(unit.folder, token) : token))
+          .join(' ');
+        call('Bash', { command, description: 'Run the command the skill names' }, () => {
+          const ran = spawnSync('/bin/sh', ['-c', command], { cwd, encoding: 'utf8', timeout: 30_000 });
+          return {
+            content: `${ran.stdout ?? ''}${ran.stderr ?? ''}`.trim() || `exit ${ran.status}`,
+            error: ran.status !== 0,
+          };
+        });
       }
       for (const helper of estate.helpers) {
         if (line.includes(`\`${helper.name}\``) && /\b(dispatch|call|delegate|hand)\b/i.test(line))

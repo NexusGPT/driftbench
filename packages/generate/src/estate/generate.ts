@@ -274,7 +274,7 @@ type Context = ThenContext & {
   fallback: boolean;
   /** The estate's output rules as patterns no message may match, compiled from its register atoms. */
   outputRules: string[];
-  /** Skill names, for a misroute ask that names the wrong skill. */
+  /** Unit names, so a misroute ask is checked to name none of them. */
   units: string[];
 };
 

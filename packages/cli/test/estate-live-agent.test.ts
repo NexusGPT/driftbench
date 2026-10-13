@@ -92,6 +92,14 @@ describe('the fake on an ask it holds no stream for: acts read from the estate',
     expect(await pass(FIXTURE, spec)).toBe(true);
     expect(await pass(await mutant('route.inbox-triager.an-ask-that-fits-inbox-triager'), spec)).toBe(false);
   });
+
+  it('runs the command the skill body names, and none once the body no longer names it', async () => {
+    const spec = 'tool_boundary/estate.tool_boundary.tool.invoice-reconcile.declared-bash.yaml';
+    expect(await pass(FIXTURE, spec)).toBe(true);
+    expect(await pass(await mutant('script.invoice-reconcile.script-scripts-reconcile-py'), spec)).toBe(
+      false,
+    );
+  });
 });
 
 describe('a recorded stream on a copy that lost a step', () => {
