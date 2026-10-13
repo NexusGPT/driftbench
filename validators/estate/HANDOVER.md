@@ -10,7 +10,17 @@ Rewritten by the executor every iteration (docs/validators.md section 10). A str
 | 1 | 0 |
 <!-- level-table:end -->
 
-### Current executor measurement, iteration 17
+### Current executor measurement, iteration 18
+
+Seed 1 passes 924 of 1170 items (0.7897435897435897), level 0, from row 17's 926. The exact SQLite warning filter makes estate.determinism.node22-lint pass; all five Node 22 determinism items now pass. Three generation-scale timing items fail in this run, and those losses remain in the score. Capture: .cache/estate-executor/iteration-18.json. No timing result is credited as a component fix or discarded.
+
+The product CLI entry packages/cli/src/bin.ts filters only ExperimentalWarning with the exact SQLite message, before main loads. Every other warning is forwarded with its original arguments. Three canonical suppression cases are red first, while three preservation controls pass. All six final cases pass on Node 22 and Node 24, including code and detail preservation. The related CLI tests make 14 passing assertions. The complete build succeeds; the built CLI on Node 22 prints its unchanged 970-byte lint output and empty stderr. Early canonical tests exceed Vitest's default process-start timeout during the concurrent sweep and build. The assertions stay unchanged; process and test waits are bounded explicitly. Fresh typecheck and lint pass after that adjustment.
+
+Six own component causes are complete, iterations 13 through 18. Since takeover, 51 new seed 1 bank items come from owned fixes; 11 new passes come from imported PR 124 and are excluded. Iteration 18 also restores a portability item that passes at the takeover baseline. There are 52 owned passing transitions across paired iterations, but only 51 net new bank passes relative to takeover. The fifth-fix full sweep remains on source c415e845, before this warning fix, with no completed score yet.
+
+CI for bfb8a652 fails typecheck at its merge ref 54426d9d: new protected maintenance, map and stats tests import the old npm scope. These files exist on newer main, not on the locally imported a624204b. The executor's typecheck passes and the required rename-scope script changes zero files. PR 133 is now merged at 4d54e92c; PR 140 supplies the protected scope fixes and is open at the last read. Import main with 133 and 140 together so protected files stay maintainer-owned. This CI failure is separate from the earlier local-name assertion, which has been fixed and tested.
+
+### Previous executor measurement, iteration 17
 
 The refined seed 1 run on main a624204b plus the spaced-path fix passes 926 of 1170 items (0.7914529914529914), level 0. The before capture is row 16 at 919. Exactly three component items improve: scan.paths.link-angle, scan.paths.spaced-name and lint.clean.reference-with-space. The primary pre-main capture passes 923; it is retained as a diagnostic. The final capture is iteration-17-main119-final.json. The wide-folder timing recovery and three generation-scale recoveries after the imported main performance change receive no executor credit.
 
@@ -107,9 +117,9 @@ The ten pilot iterations are the journal rows 1 to 10 and the commits of `exec/v
 
 ## Next actions
 
-1. Finish the fifth-fix full sweep from immutable committed source: .cache/estate-executor/full-sweep.py 17. Read full-17.state.json and full-17.json for its actual source commit, hidden seed and score. Record the authoritative state below. Keep the source snapshot unchanged while later fixes run in the canonical tree.
-2. Iteration 18: filter only the exact Node SQLite ExperimentalWarning at packages/cli/src/bin.ts, with packages/cli/test/sqlite-warning.test.ts. The ready isolated candidate is .cache/s18warning. Canonical red test log: iteration-18-warning-canonical-red.log; candidate green logs: iteration-18-warning-final-green.log and iteration-18-warning-node22-green.log. Preserve every other warning and the bank comparison. Apply only this separate cause, measure seed 1, journal, commit and push.
-3. Then iteration 19 fixes exact plain routing names in packages/estate/src/scan/code.ts, with packages/estate/test/scan/routing-names.test.ts from .cache/s19candidate. Apply only its routeAtoms target loop, preserving current comments and paths. PR 119 is imported; do not make a duplicate launcher fix. Merge main again when PR 133 lands. After every main merge, run node tools/rename-scope.mjs, then fresh typecheck and lint before push. Watch PR 110's current CI. Stop at 07:00 Europe/Brussels on 2026-10-13 if the bank has not reached 1.
+1. Iteration 19: fix exact plain routing names in packages/estate/src/scan/code.ts, with packages/estate/test/scan/routing-names.test.ts from .cache/s19candidate. Apply only the routeAtoms target loop, preserving current comments and paths. The isolated tests have four red cases and one passing control. See the canonical test red before applying, measure seed 1, journal, commit and push.
+2. Import origin/main once PR 140's scope fix is merged; it also includes merged PR 133. Run node tools/rename-scope.mjs from this repo root, then fresh typecheck, lint and protection before push. Do not commit protected validator edits as executor work. The seven PR 133 maintenance corrections receive no own progress credit. Watch PR 110's current CI; its last failed merge-ref run is explained above.
+3. The immutable fifth-fix sweep still runs from c415e845 in .cache/full-17. Read full-17.state.json, full-17.json and full-17.stderr for actual status and metrics. After the tenth own fix, take another immutable sweep snapshot. Next after routing: compaction synonyms in packages/estate/src/scan/code.ts and packages/estate/test/scan/compaction-names.test.ts, with the explicit outside-owner control from .cache/s20candidate. Stop at 07:00 Europe/Brussels on 2026-10-13 if the bank has not reached 1.
 
 ### Historical next actions before takeover
 
