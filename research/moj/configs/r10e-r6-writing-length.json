@@ -1,0 +1,39 @@
+{
+ "name": "r10e-r6-writing-length",
+ "note": "Round 10e. r6 (router on every pair) with stage 1 on writing terrain = System-1 pairwise plus the computed length feature, weights fitted on writing-terrain tuning items.",
+ "stage1": [
+  "s1p"
+ ],
+ "hi": 0.8,
+ "lo": 0.8,
+ "low": [
+  "s2v"
+ ],
+ "always": [
+  {
+   "expert": "ref",
+   "terrain": {
+    "needs_reasoning": 0.6
+   }
+  }
+ ],
+ "no_escalate": [
+  {
+   "terrain": {
+    "subjective_writing": 0.6
+   }
+  }
+ ],
+ "stage1_by_terrain": [
+  {
+   "terrain": {
+    "subjective_writing": 0.6
+   },
+   "stage1": [
+    "s1p",
+    "f_len"
+   ],
+   "fit_terrain": true
+  }
+ ]
+}

@@ -114,7 +114,18 @@ def score():
         if os.path.exists(lp):
             for line in open(lp):
                 r = json.loads(line); ledger[r['id']] = r
-        rows = []
+        # ledger calls and cost per pair come from the call recording (the runner's per-pair counters overlap under concurrency)
+        per_pair = {}
+        cp = os.path.join(OUT, 'ledger-calls.jsonl')
+        if os.path.exists(cp):
+            for line in open(cp):
+                r = json.loads(line)
+                if r.get('response') and r['meta'].get('bench') == bench:
+                    e = per_pair.setdefault(str(r['meta']['id']), {'calls': 0, 'usd': 0.0})
+                    e['calls'] += 1; e['usd'] += r['usd']
+        for item_id, lg in ledger.items():
+            lg.update(per_pair.get(item_id, {'calls': 0, 'usd': 0.0}))
+        rows, unanswered = [], 0
         for item_id, s in store.items():
             d = decide(fr['config'], s, comb)
             d2 = decide(fr['secondary_config'], s, comb)
@@ -123,19 +134,21 @@ def score():
             lg = ledger.get(item_id)
             lgames = [flip[g] if s['_meta']['swapped'] else g for g in lg['games']] if lg and lg.get('games') else None
             pf = s['s2v']['detail']['games']
+            lost = s['s1p'].get('pA') is None  # no System-1 answer (gateway 403): a loss for MoJ, never a drop
+            unanswered += lost
             rows.append({'id': item_id, 'group': s['_meta']['group_key'], 'label': label,
-                         'moj': score_verdict(d['verdict'], label), 'moj_strict': 1.0 if d['verdict'] == label else 0.0,
+                         'moj': 0.0 if lost else score_verdict(d['verdict'], label), 'moj_strict': 0.0 if lost else (1.0 if d['verdict'] == label else 0.0),
                          'pf': score_games(pf, label), 'pf_strict': strict(pf, label),
                          'ledger': score_games(lgames, label) if lgames else None, 'ledger_strict': strict(lgames, label) if lgames else None,
                          'length': score_verdict('A' if s['length']['pA'] > .5 else 'B' if s['length']['pA'] < .5 else 'tie', label),
                          'moj_s1': d['calls']['jev'], 'moj_s2': d['calls']['luna'], 'moj_usd': d['calls']['usd'], 'moj_sec': d['calls']['seconds'],
                          'pf_usd': s['s2v']['usd'], 'ledger_usd': lg.get('usd') if lg else None, 'ledger_calls': lg.get('calls') if lg else None,
                          'level': d['level'], 'confidence': d['confidence'],
-                         'r6': score_verdict(d2['verdict'], label), 'r6_s1': d2['calls']['jev'], 'r6_s2': d2['calls']['luna']})
+                         'r6': 0.0 if lost else score_verdict(d2['verdict'], label), 'r6_s1': d2['calls']['jev'], 'r6_s2': d2['calls']['luna']})
         key = 'strict' if bench == 'judgebench' else ''
         def acc(col):
             v = [r[col] for r in rows if r[col] is not None]; m = sum(v) / len(v); lo, hi = wilson(m, len(v)); return {'n': len(v), 'acc': m, 'low': lo, 'high': hi}
-        out = {'pairs': len(rows)}
+        out = {'pairs': len(rows), 'moj_unanswered_counted_as_loss': unanswered}
         for col in ['moj', 'moj_strict', 'r6', 'pf', 'pf_strict', 'ledger', 'ledger_strict', 'length']:
             out[col] = acc(col)
         n = len(rows)

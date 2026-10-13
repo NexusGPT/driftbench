@@ -63,7 +63,7 @@ def board(config, benches=None):
     pooled = {bench: load_signals(bench) for bench in benches}
     decisions, combiner = run_variant(config, pooled)
     by_key = {(bench, item_id): s for bench, store in pooled.items() for item_id, s in store.items()}
-    out = {'variant': config['name'], 'cells': {}, 'weights': {'+'.join(k): [round(float(x), 2) for x in w] for k, w in combiner.models.items() if k and k[0] != 'boundary'}}
+    out = {'variant': config['name'], 'cells': {}, 'weights': {'+'.join(k): [round(float(x), 2) for x in w] for k, w in combiner.models.items() if k and k[0] not in ('boundary', 'terrain')}}
     for bench in benches:
         for half in ('tune', 'valid', 'all'):
             keys = [k for k in by_key if k[0] == bench and (half == 'all' or by_key[k]['_meta']['half'] == half)]

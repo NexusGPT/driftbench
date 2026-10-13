@@ -21,7 +21,8 @@ const lines = p => existsSync(p) ? readFileSync(p, 'utf8').split('\n').filter(Bo
 const CALLS = resolve(OUT, 'ledger-calls.jsonl');
 const answered = new Map(lines(CALLS).filter(r => r.response).map(r => [r.key, r]));
 const attempts = new Map();
-for (const r of lines(CALLS)) if (!r.response) attempts.set(r.key, (attempts.get(r.key) || 0) + 1);
+// a submission that never reached the provider (network down) is not counted against the three submissions
+for (const r of lines(CALLS)) if (!r.response && !/could not be reached/.test(r.error || '')) attempts.set(r.key, (attempts.get(r.key) || 0) + 1);
 const env = { ...process.env };
 for (const k of ['OPENAI_JUDGE_MODEL', 'OPENAI_BASE_URL', 'CLAUDECODE', 'OPENAI_API_KEY']) delete env[k];
 env.OPENAI_API_KEY = readFileSync(resolve(process.env.HOME, '.nexus-secrets/openai.key'), 'utf8').trim();
@@ -40,7 +41,7 @@ async function ask(meta, request) {
       const row = { key, meta, usd: cost(response), response: { text: response.text, raw: response.raw, refusal: response.refusal, truncated: response.truncated } };
       append(CALLS, row); answered.set(key, row); usd += row.usd; calls++;
       return row.response;
-    } catch (error) { last = String(error?.message ?? error).replace(/sk-[A-Za-z0-9_-]+/g, '[redacted]').slice(0, 300); append(CALLS, { key, meta, error: last, submission: n + 1 }); }
+    } catch (error) { last = String(error?.message ?? error).replace(/sk-[A-Za-z0-9_-]+/g, '[redacted]').slice(0, 300); append(CALLS, { key, meta, error: last, submission: n + 1 }); await new Promise(r => setTimeout(r, [20000, 60000, 1000][n] ?? 1000)); }
   }
   throw new Error('NO_ANSWER ' + last);
 }
@@ -148,7 +149,7 @@ async function judge(bench, item) {
 const done = {};
 for (const bench of ['judgebench', 'mmeval', 'writing']) {
   const path = resolve(OUT, `ledger-${bench}.jsonl`);
-  done[bench] = new Set(lines(path).map(r => r.id));
+  done[bench] = new Set(lines(path).filter(r => r.games).map(r => r.id));
   const items = JSON.parse(readFileSync(resolve(MOJ, `sealed/${bench}.json`), 'utf8')).filter(x => !done[bench].has(String(x.id)));
   let i = 0;
   await Promise.all(Array.from({ length: 8 }, async () => {

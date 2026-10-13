@@ -1,0 +1,46 @@
+{
+ "name": "r10c-writing-all",
+ "note": "Round 10c. r9 with length, structure and specificity features, the creative rubric and the completeness question joined on writing terrain for abstained pairs.",
+ "stage1": [
+  "s1p"
+ ],
+ "two_step": {
+  "commit": 0.8,
+  "routes": [
+   {
+    "name": "writing-features",
+    "terrain": {
+     "subjective_writing": 0.6
+    },
+    "add": [
+     "f_len",
+     "f_structure",
+     "f_specifics",
+     "wq",
+     "lenfull"
+    ],
+    "fit_terrain": true
+   },
+   {
+    "name": "reference-first",
+    "terrain": {
+     "needs_reasoning": 0.6
+    },
+    "add": [
+     "ref"
+    ],
+    "stop_at": 0.6,
+    "else_add": [
+     "s2v"
+    ]
+   },
+   {
+    "name": "system2",
+    "terrain": {},
+    "add": [
+     "s2v"
+    ]
+   }
+  ]
+ }
+}

@@ -1,0 +1,42 @@
+{
+ "name": "r10a-writing-length",
+ "note": "Round 10a. r9 with the computed length feature joined on writing terrain for abstained pairs (weights fitted). Bar: writing validation above 68.7 by more than the 6.7 floor; no loss on JudgeBench or MM-Eval.",
+ "stage1": [
+  "s1p"
+ ],
+ "two_step": {
+  "commit": 0.8,
+  "routes": [
+   {
+    "name": "writing-features",
+    "terrain": {
+     "subjective_writing": 0.6
+    },
+    "add": [
+     "f_len"
+    ],
+    "fit_terrain": true
+   },
+   {
+    "name": "reference-first",
+    "terrain": {
+     "needs_reasoning": 0.6
+    },
+    "add": [
+     "ref"
+    ],
+    "stop_at": 0.6,
+    "else_add": [
+     "s2v"
+    ]
+   },
+   {
+    "name": "system2",
+    "terrain": {},
+    "add": [
+     "s2v"
+    ]
+   }
+  ]
+ }
+}

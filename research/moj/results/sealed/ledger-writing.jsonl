@@ -1,0 +1,398 @@
+{"bench":"writing","id":"e04a417de6678a904365d6a5b3a598351886871fe62c1eeebe3215b71e7ef3e5","games":["A","A"],"status":"decided","calls":7,"usd":0.004761799999999983}
+{"bench":"writing","id":"035569d06e10ff20f41d059db90c756131149fe00396c5e658e6ad5183ef2a2a","games":["A","A"],"status":"decided","calls":9,"usd":0.006360499999999991}
+{"bench":"writing","id":"8ab40b740714e82baa99214278a0b413a84c034e932ad73abb30de02c80df259","games":["A","A"],"status":"decided","calls":12,"usd":0.00970419999999994}
+{"bench":"writing","id":"8bf5d72332a24d0182e1dc1338390fe9e9100b68ac1e7aff1913c5f7858984f8","games":null,"error":"NO_ANSWER https://api.openai.com/v1/chat/completions could not be reached (TypeError)"}
+{"bench":"writing","id":"e65467ed44a3487e6fc32780309e372b6f6db980e0707c2424ffcae4dbc33592","games":["A","A"],"status":"decided","calls":2,"usd":0.0007371999999999934}
+{"bench":"writing","id":"34990c639e363584a87d1e03c4efe1d547510fc73a9852225a452a7bede7368a","games":null,"error":"NO_ANSWER https://api.openai.com/v1/chat/completions could not be reached (TypeError)"}
+{"bench":"writing","id":"551726d02561970a2cac26e631e3a21a02b3e3cc85022ef4d9779e900bace143","games":null,"error":"NO_ANSWER https://api.openai.com/v1/chat/completions could not be reached (TypeError)"}
+{"bench":"writing","id":"6a2356800bf59cad1fbc5aa2eaab04bd9ba0b6ed5de30150cf6ab8c2648f09e6","games":null,"error":"NO_ANSWER https://api.openai.com/v1/chat/completions could not be reached (TypeError)"}
+{"bench":"writing","id":"fd590222012df3ad6540d320a971edab83837e0ebccf453a9a5c6f0ab7a72ccc","games":null,"error":"NO_ANSWER https://api.openai.com/v1/chat/completions could not be reached (TypeError)"}
+{"bench":"writing","id":"7e81aa66c9cce8c62010c1c97aa826d20a08f975a9f2d6c8d8eb207858c20b67","games":null,"error":"NO_ANSWER https://api.openai.com/v1/chat/completions could not be reached (TypeError)"}
+{"bench":"writing","id":"f13472c7cb6f5cfd23970ce70b91486537cea3d90f64f124a409ff8687dc2ab6","games":null,"error":"NO_ANSWER https://api.openai.com/v1/chat/completions could not be reached (TypeError)"}
+{"bench":"writing","id":"bce81322a8905dcfbb8e1e03186b0169c2c417897e099fe012c974455c99a3f3","games":null,"error":"NO_ANSWER https://api.openai.com/v1/chat/completions could not be reached (TypeError)"}
+{"bench":"writing","id":"a1500c3b4373eb10107345f3e93d1b2b4e1a07c7715f4679d7f2a25bfaa077d3","games":["B","B"],"status":"decided","calls":15,"usd":0.010974999999999957}
+{"bench":"writing","id":"f6932028e0bc167c65911460324706537003661d70838fa6f0de63ccd366cdb7","games":["B","B"],"status":"decided","calls":17,"usd":0.011732349999999947}
+{"bench":"writing","id":"839b0b10e8b6f337ad425ec1a9f61349d894dbab4b26e97ea69e2e472a954bf5","games":null,"error":"NO_ANSWER https://api.openai.com/v1/chat/completions could not be reached (TypeError)"}
+{"bench":"writing","id":"f0602822b296337d3cf37061237722c5bb61aa5b1a8074530635eba51cc4248c","games":null,"error":"NO_ANSWER https://api.openai.com/v1/chat/completions could not be reached (TypeError)"}
+{"bench":"writing","id":"710a2188bc68859e5ad10598a3c80880d13080776880c18dbf4feddebea0f1b8","games":["A","A"],"status":"decided","calls":9,"usd":0.004803049999999975}
+{"bench":"writing","id":"a45b3a884b38eb6f9cf6b2ba477aefe43f4e41aef8c9d1f7f2e3d26a94f216ac","games":["B","B"],"status":"decided","calls":17,"usd":0.011188149999999952}
+{"bench":"writing","id":"bb12dc50c09a0803cb28031461f5eb3b925fa5a1afe61bf0b0d013bef2118835","games":["A","A"],"status":"decided","calls":6,"usd":0.0030598000000000014}
+{"bench":"writing","id":"c14d05b5b5f43ffdca05ccb51de873a48b59aa9269990e2f6628bb10571bc84f","games":["A","A"],"status":"decided","calls":8,"usd":0.004469999999999974}
+{"bench":"writing","id":"30f1f3d629de5923fbf50b6bd9b96d10c2b3cc21101a47f4f214c1d46c4fc6d7","games":["A","A"],"status":"decided","calls":12,"usd":0.007404299999999975}
+{"bench":"writing","id":"ea50fac2e7c7cf544cedc9b101c990cdc2ed722aa952b16ec515c5506f15f17f","games":["A","A"],"status":"decided","calls":6,"usd":0.0038401999999999603}
+{"bench":"writing","id":"6ea0b74f5a84ba6f7d58f16e3fbdd0812f7c0bf89231690fba9bd70d57581cc7","games":["B","B"],"status":"decided","calls":37,"usd":0.024522189999999888}
+{"bench":"writing","id":"62215300ac44c47dd686bffbb68d12442c4016d68012962ca12d4458f09c83dd","games":null,"error":"NO_ANSWER https://api.openai.com/v1/chat/completions could not be reached (TypeError)"}
+{"bench":"writing","id":"bd497ceba212bdd72a657f41b5d662c012bee10e1eae6ba66e9a7a9753877e9f","games":null,"error":"NO_ANSWER https://api.openai.com/v1/chat/completions could not be reached (TypeError)"}
+{"bench":"writing","id":"2bd62bd5c15a19d058abe97aebab0f0b8fd671a2bc01580d6b3fecad530ab7d0","games":null,"error":"NO_ANSWER https://api.openai.com/v1/chat/completions could not be reached (TypeError)"}
+{"bench":"writing","id":"911919959d9ee5f055b89209140156d08fe8ab82d20ce992ed03be3a6a71c5bd","games":null,"error":"NO_ANSWER https://api.openai.com/v1/chat/completions could not be reached (TypeError)"}
+{"bench":"writing","id":"5a679439db3323a7783dd704f01809790d56299eaa240ebc3697881f1648f1a8","games":null,"error":"NO_ANSWER https://api.openai.com/v1/chat/completions could not be reached (TypeError)"}
+{"bench":"writing","id":"3073126e66e643777a8adbc1f291b608fd09d79bef7b9fbd48a51b7cfc2d4a61","games":null,"error":"NO_ANSWER https://api.openai.com/v1/chat/completions could not be reached (TypeError)"}
+{"bench":"writing","id":"bde19edf6159f37d6fe83037fe662c2be6e80754c8bd64a29e8479124a0b81cf","games":null,"error":"NO_ANSWER https://api.openai.com/v1/chat/completions could not be reached (TypeError)"}
+{"bench":"writing","id":"55e23200567d3c64ba406d3470dcd72716438a6d2ccd2b82a00f298aa52e74aa","games":null,"error":"NO_ANSWER https://api.openai.com/v1/chat/completions could not be reached (TypeError)"}
+{"bench":"writing","id":"96d7f9ecf4087e21e0e48bd84bef7db077cab647659cdadfc56caff70f283938","games":null,"error":"NO_ANSWER https://api.openai.com/v1/chat/completions could not be reached (TypeError)"}
+{"bench":"writing","id":"0d4752be2243842765fa3c51153b979b0cc0a1910c29c813389f5aeb0af62908","games":null,"error":"NO_ANSWER https://api.openai.com/v1/chat/completions could not be reached (TypeError)"}
+{"bench":"writing","id":"91a2b27cea769894d3a45f4b1294b11b1dd995b659a0c6ca312b646241e7d7f0","games":null,"error":"NO_ANSWER https://api.openai.com/v1/chat/completions could not be reached (TypeError)"}
+{"bench":"writing","id":"72a31b90b5ddf145f6700c4a1059d94c0607eb227eff7723651507912b7429f6","games":null,"error":"NO_ANSWER https://api.openai.com/v1/chat/completions could not be reached (TypeError)"}
+{"bench":"writing","id":"16b6811a6007b7d800fee9bafede411f784f589edc0d705b0846f0e40dbbcdad","games":null,"error":"NO_ANSWER https://api.openai.com/v1/chat/completions could not be reached (TypeError)"}
+{"bench":"writing","id":"3e205d8dd7887de5fffbae85dc4140186582068302535f3f772a0f0737af2cda","games":null,"error":"NO_ANSWER https://api.openai.com/v1/chat/completions could not be reached (TypeError)"}
+{"bench":"writing","id":"f5cb0c1bcf493ac666e2cf46be142069ec189ac7a44c6e704fbdfcc0e7f8218c","games":null,"error":"NO_ANSWER https://api.openai.com/v1/chat/completions could not be reached (TypeError)"}
+{"bench":"writing","id":"7a1c008b2a560e8335d87a7d82c3032e9e7831915b3ea79c33054c272f1c1667","games":null,"error":"NO_ANSWER https://api.openai.com/v1/chat/completions could not be reached (TypeError)"}
+{"bench":"writing","id":"2aed15f8222fc8e3f159babe631bd194f14e9f7777eb0e9d70c4b2243a753c50","games":null,"error":"NO_ANSWER https://api.openai.com/v1/chat/completions could not be reached (TypeError)"}
+{"bench":"writing","id":"fa5815cfc2ac8e5e2fff0a92e88c16f679f65421cd57d273de1026057901f52c","games":null,"error":"NO_ANSWER https://api.openai.com/v1/chat/completions could not be reached (TypeError)"}
+{"bench":"writing","id":"16f6cf8abdb090b2606d1e5d92c949edb0adcdccd52c3bdd6ae50b11427a5256","games":null,"error":"NO_ANSWER https://api.openai.com/v1/chat/completions could not be reached (TypeError)"}
+{"bench":"writing","id":"e55408ae79c9b032df6c5043a06bdb99b222fd97cb350bf7a6d237e4f9b4cf03","games":null,"error":"NO_ANSWER https://api.openai.com/v1/chat/completions could not be reached (TypeError)"}
+{"bench":"writing","id":"8fe4292cb14db25117b6894d37c01052d921d5a46c8a7a335586fe73a7483759","games":null,"error":"NO_ANSWER https://api.openai.com/v1/chat/completions could not be reached (TypeError)"}
+{"bench":"writing","id":"dabf64ab66472c6ce31d22736143b2a87436d7d234621a2156a3f3f803e3931e","games":null,"error":"NO_ANSWER https://api.openai.com/v1/chat/completions could not be reached (TypeError)"}
+{"bench":"writing","id":"f68e532057039bb6570e8b736a4f93d7e2b0219d114416f47a2e69fab7fbcb0c","games":null,"error":"NO_ANSWER https://api.openai.com/v1/chat/completions could not be reached (TypeError)"}
+{"bench":"writing","id":"075f806bc52f28836a073dc20602bda96e6ddeaa5955b328706977e07fb3d2f0","games":null,"error":"NO_ANSWER https://api.openai.com/v1/chat/completions could not be reached (TypeError)"}
+{"bench":"writing","id":"c8833fdb6cee12c7240ac07b0230da0d5334d6453e4b8140a484c6f40a153b35","games":null,"error":"NO_ANSWER https://api.openai.com/v1/chat/completions could not be reached (TypeError)"}
+{"bench":"writing","id":"f1702d77ff13a3f21c2d3535c10b38a96e40e1311887b25ca97ad61a2551d274","games":null,"error":"NO_ANSWER https://api.openai.com/v1/chat/completions could not be reached (TypeError)"}
+{"bench":"writing","id":"d9dd01ba2f9f941d0632d3008a7706923e3ce271a152fdc62c622e3e74e0612b","games":null,"error":"NO_ANSWER https://api.openai.com/v1/chat/completions could not be reached (TypeError)"}
+{"bench":"writing","id":"3eb30afdf0e762e559f15456cf59f74f2f483ed6a4618b20a9c12392899a2f65","games":null,"error":"NO_ANSWER https://api.openai.com/v1/chat/completions could not be reached (TypeError)"}
+{"bench":"writing","id":"d42259cb54eb13b663e69482c19c55bfbe1af2c0ebd2ac86d357bedf9f17735b","games":null,"error":"NO_ANSWER https://api.openai.com/v1/chat/completions could not be reached (TypeError)"}
+{"bench":"writing","id":"c4d6b851aa98b0ec7c327ba87af8629b70d7c12c78b65d6871388ee7eae7b6a6","games":null,"error":"NO_ANSWER https://api.openai.com/v1/chat/completions could not be reached (TypeError)"}
+{"bench":"writing","id":"9b6c441e8eb582e33d96bb124e7af4b609e1f705ad5a159bbfa304e3f081e89f","games":null,"error":"NO_ANSWER https://api.openai.com/v1/chat/completions could not be reached (TypeError)"}
+{"bench":"writing","id":"0af12213554dd64946b58e56e3b4d310afbfe281324c355f776171ce4536c30b","games":null,"error":"NO_ANSWER https://api.openai.com/v1/chat/completions could not be reached (TypeError)"}
+{"bench":"writing","id":"fc70071bce4245ac48ff78410ee17ff7e959d8c70560dceaa3c5e5106864ae22","games":null,"error":"NO_ANSWER https://api.openai.com/v1/chat/completions could not be reached (TypeError)"}
+{"bench":"writing","id":"6a72e106be9e47b8b4b5fbedf0e995be417760ed37bed3ec263c733826659798","games":null,"error":"NO_ANSWER https://api.openai.com/v1/chat/completions could not be reached (TypeError)"}
+{"bench":"writing","id":"300ba137fc64284568431901e67331a83e3361e4039664c7e1b3f9b9a7211a19","games":null,"error":"NO_ANSWER https://api.openai.com/v1/chat/completions could not be reached (TypeError)"}
+{"bench":"writing","id":"44eb26298765a98658a46818a8b28cfd3494152538bb7a0a88c431c94a79cf60","games":null,"error":"NO_ANSWER https://api.openai.com/v1/chat/completions could not be reached (TypeError)"}
+{"bench":"writing","id":"3c6433f7df85bda9c6bef58a7357f9514cbd65799b6aa74dcf49da30610fe01e","games":null,"error":"NO_ANSWER https://api.openai.com/v1/chat/completions could not be reached (TypeError)"}
+{"bench":"writing","id":"07f6253b6ea162e5be952be657e289abccaae906c7d9b83fad2cffd37b5752c0","games":null,"error":"NO_ANSWER https://api.openai.com/v1/chat/completions could not be reached (TypeError)"}
+{"bench":"writing","id":"5b3eb01f7edb696ff05be1b22b0e726b5e33961b64ff55f3b88bb7343b20c597","games":null,"error":"NO_ANSWER https://api.openai.com/v1/chat/completions could not be reached (TypeError)"}
+{"bench":"writing","id":"2890d2f7905b19da98d1f389c2e79c27b3560bc68d9c5ff1e7ecaf1d5872ca67","games":null,"error":"NO_ANSWER https://api.openai.com/v1/chat/completions could not be reached (TypeError)"}
+{"bench":"writing","id":"f583b5d250ffc1894ebed92437c43258002aae30b6a79d23d9ba4559abbd49f2","games":null,"error":"NO_ANSWER https://api.openai.com/v1/chat/completions could not be reached (TypeError)"}
+{"bench":"writing","id":"0dca046649e16b5103061710ac4b448c140e1ee208ad1d111ed54389b621f59e","games":null,"error":"NO_ANSWER https://api.openai.com/v1/chat/completions could not be reached (TypeError)"}
+{"bench":"writing","id":"a4c68d144a7a3ed2ff6e8bc85013222d1d9177ae5e151794573b58210439b4ce","games":null,"error":"NO_ANSWER https://api.openai.com/v1/chat/completions could not be reached (TypeError)"}
+{"bench":"writing","id":"d52cfaebc4414d5ec05e310c8cde1a400f035302a09656b3b856ed746828f379","games":null,"error":"NO_ANSWER https://api.openai.com/v1/chat/completions could not be reached (TypeError)"}
+{"bench":"writing","id":"51f0b851ebd12f5f9627d8ad6ebf95ae2d75c74de773981f8ac8024793cf76a2","games":null,"error":"NO_ANSWER https://api.openai.com/v1/chat/completions could not be reached (TypeError)"}
+{"bench":"writing","id":"33236143e4c3ff0cba33bc54c8755cc963a2dc4a11dd57a29448d25edbc151ea","games":null,"error":"NO_ANSWER https://api.openai.com/v1/chat/completions could not be reached (TypeError)"}
+{"bench":"writing","id":"ba8d0e6120e2d0a94e5005c628ef20c289b44b19db160ee72679c296642a7466","games":null,"error":"NO_ANSWER https://api.openai.com/v1/chat/completions could not be reached (TypeError)"}
+{"bench":"writing","id":"3c1dd92c31a17f297059f92de0088c61881c84aa65face25dcfe673058673b6f","games":null,"error":"NO_ANSWER https://api.openai.com/v1/chat/completions could not be reached (TypeError)"}
+{"bench":"writing","id":"9181bbcb72aafc0761df34b80012a4a20a2bec8e12cc81e43af030a45042e7ec","games":null,"error":"NO_ANSWER https://api.openai.com/v1/chat/completions could not be reached (TypeError)"}
+{"bench":"writing","id":"025bd429c9d1252a785d4637ac7445cd34871543f706cd112b55b0c78ec76f95","games":null,"error":"NO_ANSWER https://api.openai.com/v1/chat/completions could not be reached (TypeError)"}
+{"bench":"writing","id":"f8929db0fbf95f186cdd0ede84c9a0fdca6be98ede4e3b270a0c7e6ae2dcecbc","games":null,"error":"NO_ANSWER https://api.openai.com/v1/chat/completions could not be reached (TypeError)"}
+{"bench":"writing","id":"01b6cb3ab4ccefbd86b3c9c9a96229f1ee8cb85bd883fa0ad2357f2721fa1183","games":null,"error":"NO_ANSWER https://api.openai.com/v1/chat/completions could not be reached (TypeError)"}
+{"bench":"writing","id":"fd07bf75beb84f097cf94b79015cb8f951984b24b3bc42c6ab9677384d6618a9","games":null,"error":"NO_ANSWER https://api.openai.com/v1/chat/completions could not be reached (TypeError)"}
+{"bench":"writing","id":"5be36e5313aa01bf8c92f9bb6064286f325f60680ef12064677510a644296674","games":null,"error":"NO_ANSWER https://api.openai.com/v1/chat/completions could not be reached (TypeError)"}
+{"bench":"writing","id":"86a2f214ef193ae256aaeda988b71dac4b8e88c8eb7f7ee1db38327826f3866b","games":null,"error":"NO_ANSWER https://api.openai.com/v1/chat/completions could not be reached (TypeError)"}
+{"bench":"writing","id":"992b678133936188cd8837d71f29ebc552a6f3c9e6014280a3844d62d8a19b49","games":null,"error":"NO_ANSWER https://api.openai.com/v1/chat/completions could not be reached (TypeError)"}
+{"bench":"writing","id":"71040e6fd1c22015ba3a29815a59b8ca7e3f2a19dcf2edf7cee6c23ef5f827a6","games":null,"error":"NO_ANSWER https://api.openai.com/v1/chat/completions could not be reached (TypeError)"}
+{"bench":"writing","id":"37941d0eede66dae09019ecb9071276d53c0284ef8c2c8bc76be5583192d6c03","games":null,"error":"NO_ANSWER https://api.openai.com/v1/chat/completions could not be reached (TypeError)"}
+{"bench":"writing","id":"65279f802749fd0cd6121adfc8457072dc10c5f8c16a7595e854689969be9898","games":null,"error":"NO_ANSWER https://api.openai.com/v1/chat/completions could not be reached (TypeError)"}
+{"bench":"writing","id":"2cedfa8ea608f8801cd1562d1bc1714daaa10eb27eb71573a96e277d441369b1","games":null,"error":"NO_ANSWER https://api.openai.com/v1/chat/completions could not be reached (TypeError)"}
+{"bench":"writing","id":"39655bd4c063055e98ba1e85c81e88db33699629f537221aead358884edfa330","games":null,"error":"NO_ANSWER https://api.openai.com/v1/chat/completions could not be reached (TypeError)"}
+{"bench":"writing","id":"5d5be9e7151969bc0139b520b45b5d454ac23c203b4ab7f5d1ff3a1939dc4eb5","games":null,"error":"NO_ANSWER https://api.openai.com/v1/chat/completions could not be reached (TypeError)"}
+{"bench":"writing","id":"42454ffd530b90f18423ef043f00a6ccbf6e824f371fd2e199c3e936138a7cd4","games":null,"error":"NO_ANSWER https://api.openai.com/v1/chat/completions could not be reached (TypeError)"}
+{"bench":"writing","id":"18d6fbe3595ba09b0eaadfce6136400b38c02957aa12cd562e19c9f8e30d20cd","games":null,"error":"NO_ANSWER https://api.openai.com/v1/chat/completions could not be reached (TypeError)"}
+{"bench":"writing","id":"e17e24935e977f804fc14dcbb8802b1deb0d04299ffbbfd92342a854d102be60","games":null,"error":"NO_ANSWER https://api.openai.com/v1/chat/completions could not be reached (TypeError)"}
+{"bench":"writing","id":"6f1e226e27747998b0f6d5ee73a2098c9ab14e2881da6990e2e9b0759aa02c14","games":null,"error":"NO_ANSWER https://api.openai.com/v1/chat/completions could not be reached (TypeError)"}
+{"bench":"writing","id":"b7442ed6a39364f31bb428079f61e03366fdc4f90b8c1c4dc94e35d9bbc46565","games":null,"error":"NO_ANSWER https://api.openai.com/v1/chat/completions could not be reached (TypeError)"}
+{"bench":"writing","id":"32f58a52a6b8777b26bb0af66e366e3fc08be2933b2c3e860560ee092a7dcb41","games":null,"error":"NO_ANSWER https://api.openai.com/v1/chat/completions could not be reached (TypeError)"}
+{"bench":"writing","id":"30d7545b3c8abfbb540ed0152f819163285bd187d9ed2142943a3cd92fe73fba","games":null,"error":"NO_ANSWER https://api.openai.com/v1/chat/completions could not be reached (TypeError)"}
+{"bench":"writing","id":"86c52ded777b4658d8936cf11125ecc28ed48d9ec168467891f7419af25130d8","games":null,"error":"NO_ANSWER https://api.openai.com/v1/chat/completions could not be reached (TypeError)"}
+{"bench":"writing","id":"697fe0873a62c719f7ab6088dd6d8aafbfe525e459c8ceae5354edec7b7abee5","games":null,"error":"NO_ANSWER https://api.openai.com/v1/chat/completions could not be reached (TypeError)"}
+{"bench":"writing","id":"70a77f212b768f09af5ae3a03b3322d0b9f29ec21201a179602f5a72419bf579","games":null,"error":"NO_ANSWER https://api.openai.com/v1/chat/completions could not be reached (TypeError)"}
+{"bench":"writing","id":"1d02369036c190497827ee7f1a8de39e03f195cbd7f5a21ec819866b535ad0ce","games":null,"error":"NO_ANSWER https://api.openai.com/v1/chat/completions could not be reached (TypeError)"}
+{"bench":"writing","id":"a210dd60dfd05460882db97376e7967ef5409b4386810d1bcb184925d9a2a6ca","games":null,"error":"NO_ANSWER https://api.openai.com/v1/chat/completions could not be reached (TypeError)"}
+{"bench":"writing","id":"abd60b0bfe2f2ca376787b303208b7b03cf489908cdf2748b9b8327de5064553","games":null,"error":"NO_ANSWER https://api.openai.com/v1/chat/completions could not be reached (TypeError)"}
+{"bench":"writing","id":"e47a058cf728dba076b1dc941d843021d9b7997a10ac19b964d01b6866e0bbdb","games":null,"error":"NO_ANSWER https://api.openai.com/v1/chat/completions could not be reached (TypeError)"}
+{"bench":"writing","id":"4ad447ba82f14dc5d58ef33b9af2ab0ce18cb07159d47a5e5f9486d487674489","games":null,"error":"NO_ANSWER https://api.openai.com/v1/chat/completions could not be reached (TypeError)"}
+{"bench":"writing","id":"fc277f73bcf94764c4765d50d9825b2acfee914683eb5d38cffe2c143ed86cc0","games":null,"error":"NO_ANSWER https://api.openai.com/v1/chat/completions could not be reached (TypeError)"}
+{"bench":"writing","id":"c70bd8b9136780d8775c02d060195a256d72c563b68541a539fc29b4f77194c2","games":["B","B"],"status":"decided","calls":2,"usd":0.0027556000000000247}
+{"bench":"writing","id":"56cfbc3237881bf11941a2ab47dbe2b52a31af60d8a27024b63f56146e818686","games":["A","A"],"status":"decided","calls":13,"usd":0.010613919999999999}
+{"bench":"writing","id":"37a0c0c75e0e84817f62d9971132ea80a71134df0528beb87aaeda03d91f02f9","games":["B","B"],"status":"decided","calls":42,"usd":0.029478379999999915}
+{"bench":"writing","id":"00ae99bffc0503329468802559c7804e98ce0f5637c0061607b57bca897e4f7f","games":["A","A"],"status":"decided","calls":18,"usd":0.014275029999999966}
+{"bench":"writing","id":"4ab7cf9ce45f97e1eaa1f7ca169ff03b3564a70000571cad2282f49585362ff0","games":["A","A"],"status":"decided","calls":19,"usd":0.015420929999999944}
+{"bench":"writing","id":"04c241fbe66c9c57bb034105f9c6917d9476c353f4d7cf670cc8ac78e93ce6cc","games":["B","B"],"status":"decided","calls":13,"usd":0.011093289999999978}
+{"bench":"writing","id":"d4c7dba9ebd050c6613b3e50a63b72ae5bfd22e8b96512e8dc759359937143f8","games":["B","B"],"status":"decided","calls":11,"usd":0.007680789999999937}
+{"bench":"writing","id":"8073a45b53fd89e2090bdd782eb8d3aaab764d8b8e934923f18a36b14a3839cf","games":["B","B"],"status":"decided","calls":26,"usd":0.019805619999999913}
+{"bench":"writing","id":"ac8d62e138cdaf6ccd8ed8c1b2b5cbf10a6ac5a0b6395d642ae741c811a23768","games":["B","B"],"status":"decided","calls":11,"usd":0.00778408999999991}
+{"bench":"writing","id":"a861d026a00a396f41f0b4c96ce1ba529abca16fcd8c0a8631030791b635e6c7","games":["B","B"],"status":"decided","calls":14,"usd":0.009615299999999938}
+{"bench":"writing","id":"80dd792fba89d9429fb0fcc3c48415a88350f30874c21ea3bcfe89e33e68c83e","games":["B","B"],"status":"decided","calls":33,"usd":0.02440711999999995}
+{"bench":"writing","id":"ade7e7fdfd3e9048b6a4dcf2a9ddfd5162310006bea62b3e0f30d0774e74849c","games":["B","B"],"status":"decided","calls":12,"usd":0.008638889999999955}
+{"bench":"writing","id":"02ca98a036e2c59ef0c795ed981d66360b6497330afd5588caa6e86d258d6e33","games":["B","B"],"status":"decided","calls":15,"usd":0.011611890000000014}
+{"bench":"writing","id":"2eefd993957dbd8eb59346b22a31bcb489d8b8b538b90d53491c49ac3b8aa74f","games":["B","B"],"status":"decided","calls":15,"usd":0.01175548999999998}
+{"bench":"writing","id":"646f59f0cabc5a2c96f834da088cb86a63974a5de528714e178846c98d4c5239","games":["A","A"],"status":"decided","calls":8,"usd":0.006873199999999968}
+{"bench":"writing","id":"52970cb4793c78babcfd17572a27559ec490b6b91c9dfdd1699b2c23ccdec2ea","games":["B","B"],"status":"decided","calls":17,"usd":0.014596699999999962}
+{"bench":"writing","id":"8e6a3cb6434ad5b71aab4587eefde78384322f3a107d12d0e88ca078761365d1","games":["B","B"],"status":"decided","calls":20,"usd":0.01669188999999993}
+{"bench":"writing","id":"23f895accd66e138de3d3a2065765ccf70af220dad0c98b3478d64ed0c02ce3c","games":["B","B"],"status":"decided","calls":19,"usd":0.01641809999999988}
+{"bench":"writing","id":"7c125688e0c29f4de2a301c728685255dcf6928d545274a1f5c90ff0479905e2","games":["B","B"],"status":"decided","calls":25,"usd":0.020598069999999913}
+{"bench":"writing","id":"8a85ec2148c9a597fe4a26a5456fb5b874ad9f4d48e52939e7edf0fe358eea20","games":["A","A"],"status":"decided","calls":12,"usd":0.009700369999999903}
+{"bench":"writing","id":"b2ef965affcfe85b52797ee3dcbe1e025349dbebd8b532759f0ed357e66746bd","games":["A","A"],"status":"decided","calls":12,"usd":0.008106769999999874}
+{"bench":"writing","id":"0f401e97d1b95b24a0742123ea4274f02d0fc98630d5e61949b5f4365127ffb7","games":["B","B"],"status":"decided","calls":11,"usd":0.006742969999999904}
+{"bench":"writing","id":"21e43f2c105ed5ac735ffcd41f938cd2c17f0a9d68d8af9a1fe6023aa520ca92","games":["A","A"],"status":"decided","calls":28,"usd":0.022161369999999847}
+{"bench":"writing","id":"0c9ac097a59d3de4dbfbc04f65f702ccb051db73fc942e6473affc606e4ac476","games":["A","A"],"status":"decided","calls":9,"usd":0.0061622000000000066}
+{"bench":"writing","id":"f37f918a97b1fb4267ae8b25c6b14f6c581d97c10d84f70027eef505afae242f","games":["B","B"],"status":"decided","calls":27,"usd":0.01954239999999985}
+{"bench":"writing","id":"2386262e8c6ea4f84accfffc703912824e2efbf446706febbf8147fb826192ce","games":["B","B"],"status":"decided","calls":14,"usd":0.009069929999999948}
+{"bench":"writing","id":"b1c2f863a4b2c5bdf5094206df02f0650618fc9c1d5808027858d413aec5d652","games":["A","A"],"status":"decided","calls":11,"usd":0.007489730000000028}
+{"bench":"writing","id":"214de5868f207a70710a07523cc20fe8bec925f10c87e49911f5b273bb6877df","games":["B","B"],"status":"decided","calls":30,"usd":0.021299379999999868}
+{"bench":"writing","id":"311cdcaa058b4033cf2981ce337a8a1d02668955627399cee5c4f71f3796b151","games":["B","B"],"status":"decided","calls":17,"usd":0.011109109999999978}
+{"bench":"writing","id":"4625aea728b79dbc93cd8029f43793a0a92b0ee6ade959fbd5858fb64e4e5137","games":["B","B"],"status":"decided","calls":12,"usd":0.007750180000000051}
+{"bench":"writing","id":"b46d24f0584e5188d89ab7796bcd7b1fb1fbc8ec737ecdef564d2f9a3082a01a","games":["B","B"],"status":"decided","calls":15,"usd":0.009385310000000036}
+{"bench":"writing","id":"72bc4513d0676fb914b5e55304226bbebf6e83f0bf31ef55214fbd8f5f29ab9d","games":["B","B"],"status":"decided","calls":32,"usd":0.02044718000000001}
+{"bench":"writing","id":"ba073f3ba9e2e2de0f9cf93bf86d2902ce64489095b5db2be7013c97f292357b","games":["A","A"],"status":"decided","calls":23,"usd":0.014809110000000014}
+{"bench":"writing","id":"0b1c259118325555f4ca4fd0835dd837b9aad337f492c4e65c8efc5f8407339b","games":["B","B"],"status":"decided","calls":13,"usd":0.008452000000000015}
+{"bench":"writing","id":"ae045e6d34e0eefdd11e8659bf47fd13f674f60bb81919f2872a8bfff5d14080","games":["B","B"],"status":"decided","calls":17,"usd":0.01084008000000003}
+{"bench":"writing","id":"96dd27debfeff4a6bdd5a43f59d5eb32110f44db31e049c6b708d29e08384b46","games":["A","A"],"status":"decided","calls":16,"usd":0.009715699999999994}
+{"bench":"writing","id":"22f2e3371b38c8898a58050784a2aadaa49045c723fabc2a9b235bcd0f05fb8b","games":["A","A"],"status":"decided","calls":23,"usd":0.014274579999999926}
+{"bench":"writing","id":"73863d7c489bf6bc52c30b0e76f98eb5a25d100e50e0052322dd23f56f7c9bb8","games":["B","B"],"status":"decided","calls":9,"usd":0.005515099999999884}
+{"bench":"writing","id":"d8bf897d3eb49d3c76e75ce87243958ecea1b4df1740636355119cd565d3577d","games":["B","B"],"status":"decided","calls":12,"usd":0.0067349999999999355}
+{"bench":"writing","id":"8993a5b2025e49de7cf2bdd316c6d3bfe39bae362c201d894bf7321787646691","games":["A","A"],"status":"decided","calls":10,"usd":0.005203100000000016}
+{"bench":"writing","id":"ec18977cfd9b91fab370a6c06e1b6f77c9243875300fc44f6e8d9891fd5d5264","games":["B","B"],"status":"decided","calls":13,"usd":0.009170800000000034}
+{"bench":"writing","id":"d165e24c0fbeea4c624615d87d56b8bbf5e991f65ee28820e83b2ea15ddf333e","games":["B","B"],"status":"decided","calls":12,"usd":0.009113800000000172}
+{"bench":"writing","id":"591016a30bb2af2f05b1e507f41529f14adf4d5cc6d66116c197d9c570769e6c","games":["B","B"],"status":"decided","calls":12,"usd":0.009405100000000166}
+{"bench":"writing","id":"d3a00610b8e900f0f8f1c5b7ebe6ff9b9726fbcacf05b62ea73f1a31343986df","games":["B","B"],"status":"decided","calls":23,"usd":0.016078400000000048}
+{"bench":"writing","id":"0cf1f5541162fe590fb0b051a1fc3192285200f8b7c5424ed5be93f658956dea","games":["A","A"],"status":"decided","calls":19,"usd":0.014095600000000097}
+{"bench":"writing","id":"8dc4d4f730bc4e5b16db5fe872c47aa43af5766f20dc76a4a2f4bd96f0560054","games":["B","B"],"status":"decided","calls":9,"usd":0.005868800000000007}
+{"bench":"writing","id":"03b2e7762d98983deb133b2baadd77a18fb67c69198ed3dd101d533e4df49d8d","games":["A","A"],"status":"decided","calls":11,"usd":0.007734399999999919}
+{"bench":"writing","id":"4f47c9f4c83f73cf0381ed85e4982d22995bb3106b5570dfca36cbcb427447bf","games":["A","A"],"status":"decided","calls":22,"usd":0.01658237000000007}
+{"bench":"writing","id":"2503bde90d763eb00b4040578f8076beb854617755dbf79bd0b9db1563824172","games":["B","B"],"status":"decided","calls":28,"usd":0.01963734000000017}
+{"bench":"writing","id":"7bf3acd356b35ec69b87a7b12c6f6c86e24c64e844c646c622a9653783e1c3ad","games":["B","B"],"status":"decided","calls":38,"usd":0.02593395000000004}
+{"bench":"writing","id":"dcf71004fb62809b0c1357941bd810f008ffee2ce5d329f1056cbac05f4f0c0c","games":["A","A"],"status":"decided","calls":23,"usd":0.016111449999999916}
+{"bench":"writing","id":"1565572368aa76fbac0153b4ad6be9c8ea2e499116ff5f69b489a24d97d54e17","games":["A","A"],"status":"decided","calls":17,"usd":0.011596149999999916}
+{"bench":"writing","id":"129fe5de6fe311081ab57fded32922aeedb9fd12dae36956a0f95762232cb028","games":["A","A"],"status":"decided","calls":17,"usd":0.011585849999999898}
+{"bench":"writing","id":"6b6a37ca42e89f3d71d857140cfcbdbe747b0a8a83d4bb16f5f48e3a039eff84","games":["A","A"],"status":"decided","calls":15,"usd":0.011120449999999948}
+{"bench":"writing","id":"c5bb397907372cbbab117ffbeb14ed5043c834328ef76102b1f2ab2a2d58c905","games":["B","B"],"status":"decided","calls":11,"usd":0.008236399999999922}
+{"bench":"writing","id":"41b73d1e85b06f69c30db84861bc624c8c2b93ab7a483a384fd117ddc4b8d5a9","games":["A","A"],"status":"decided","calls":17,"usd":0.013052749999999946}
+{"bench":"writing","id":"38b9075662eeeba86175523fcf1677949fbdad8d60936af247022329720905db","games":["B","B"],"status":"decided","calls":18,"usd":0.014010379999999878}
+{"bench":"writing","id":"76c72b801fb31aad2e648ef486232ec8103463886611faf4a5f1a5810fc8edd6","games":["A","A"],"status":"decided","calls":13,"usd":0.010052900000000031}
+{"bench":"writing","id":"b50862f9848eafc79694639dd6d0acb6045bbf479a380411fb66e7dcad15bb99","games":["A","A"],"status":"decided","calls":20,"usd":0.01614430999999994}
+{"bench":"writing","id":"5d691926dc389f2e68b8b4d13a2dc3bba9b534208efbabba895b24ea0f80ed58","games":["A","A"],"status":"decided","calls":13,"usd":0.011941300000000044}
+{"bench":"writing","id":"c558800c2a42326762d4452e24aa648b573881e5c7e844620520f233bd95900a","games":["B","B"],"status":"decided","calls":11,"usd":0.010489000000000082}
+{"bench":"writing","id":"b90faace3a45b9ce4a7b6e0eed467a547ec0985923fea5b38efc7f3b0d7598e6","games":["B","B"],"status":"decided","calls":23,"usd":0.01970330000000009}
+{"bench":"writing","id":"3eda426d8a6af5c4b395b2633020b1797deef2e5f87ffe03b1cef8a349598a42","games":["A","A"],"status":"decided","calls":16,"usd":0.014172300000000027}
+{"bench":"writing","id":"411501a67bc1f80f1a30a7a0d6278610d31581f151dd091c94be86ae0a92d660","games":["A","A"],"status":"decided","calls":13,"usd":0.012002300000000021}
+{"bench":"writing","id":"674bc196dcbe6dd01efacd6047de959799c42325f904836403b851bc586a004c","games":["A","A"],"status":"decided","calls":13,"usd":0.010672990000000104}
+{"bench":"writing","id":"0b77b7ad0d55a13db8a851abb994a97d7438173ab2feb8eeb65432891005d95d","games":["B","B"],"status":"decided","calls":30,"usd":0.02395736000000015}
+{"bench":"writing","id":"1fe8c5fbc9db835181db19bff07994699774415db77e03570e2cd82e995dceb6","games":["A","A"],"status":"decided","calls":8,"usd":0.003792360000000161}
+{"bench":"writing","id":"a0390f7330a9632528075d82c4683e66eb922d24ce49b1e75a072071e67f78dc","games":["A","A"],"status":"decided","calls":19,"usd":0.012254160000000125}
+{"bench":"writing","id":"17d239fd108f4827dcd19e39e145bbc4de5e51664ad32207ad7a0b889a090067","games":["A","A"],"status":"decided","calls":15,"usd":0.008383260000000115}
+{"bench":"writing","id":"26e126d8b6a5fca5eb321782f8255d884af871ef066d0ec91ccc15b8b0632f6e","games":["A","A"],"status":"decided","calls":10,"usd":0.00533080000000008}
+{"bench":"writing","id":"d193ef050f7598667d2a4a51629ad1dc16975c8bc335e361c52c8183f08fc6e8","games":["B","B"],"status":"decided","calls":14,"usd":0.007277260000000174}
+{"bench":"writing","id":"c25365b4073a00d0f7e11a9a528456ee60d8db037f6c18edbcf3a5341c9717d4","games":["B","B"],"status":"decided","calls":11,"usd":0.006468299999999982}
+{"bench":"writing","id":"428bac735cec343ad2e97ad9e19d913df4dd1ae42ecf26e099802586d5a9f02b","games":["A","A"],"status":"decided","calls":21,"usd":0.011311300000000024}
+{"bench":"writing","id":"ec13b2db03eae798074b344a55073a4a9f8eb7bcc1533324317f2058aace1fe9","games":["B","B"],"status":"decided","calls":10,"usd":0.005039429999999956}
+{"bench":"writing","id":"20333f04a287b83c9bf3c11357d807a57dbcb654e1f92a55bc4881fb2dc1e247","games":["B","B"],"status":"decided","calls":44,"usd":0.02992091000000019}
+{"bench":"writing","id":"60977a82bbf15adca63ab9ae82cd4c586d71a3550bf766d5fa245e5ca466868b","games":["B","B"],"status":"decided","calls":15,"usd":0.007665640000000029}
+{"bench":"writing","id":"584c7de2b9009127794dc206eabeffddf41c842008c4844a51483e14d8535489","games":["A","A"],"status":"decided","calls":18,"usd":0.009015939999999945}
+{"bench":"writing","id":"85fecbf7b9a2a67b33cce5e4d3a9883975a367c8855a0c4f77a7afc5d343f063","games":["A","A"],"status":"decided","calls":9,"usd":0.004635989999999923}
+{"bench":"writing","id":"5ccb4dddefb357c9c064138fc132a340395e5001d243bb17443f9e0e855f01c9","games":["A","A"],"status":"decided","calls":11,"usd":0.005861199999999789}
+{"bench":"writing","id":"d7cca1bf79a1fd7829a59ac2d5b56fd11fa119802435b36e822bcaa0e517b964","games":["B","B"],"status":"decided","calls":41,"usd":0.021774089999999968}
+{"bench":"writing","id":"1cc457add38e609b01c41beebe67f120f6577156075244dab488a9d5d2948ec3","games":["A","A"],"status":"decided","calls":19,"usd":0.010468609999999878}
+{"bench":"writing","id":"02ce03b64e76daf5bba8dca652eb2665fab0362ab2bb7779be7bce643276978b","games":["A","A"],"status":"decided","calls":30,"usd":0.016418759999999866}
+{"bench":"writing","id":"88708c6a7c2e703ffb8297774552f1d0bcb82a1dc87c3b83a6fbd5446bf8ff61","games":["A","A"],"status":"decided","calls":26,"usd":0.013509809999999955}
+{"bench":"writing","id":"b71fef48402802eb3d9b93da0f743602ea9ea50c9d82778bd8bbbe9d096b1be9","games":["A","A"],"status":"decided","calls":15,"usd":0.010321469999999944}
+{"bench":"writing","id":"94eea2ffd59efd8d7c1e8234812f39e0bcba93d90db66adbf98c6c7f41150faf","games":["B","B"],"status":"decided","calls":8,"usd":0.006275550000000019}
+{"bench":"writing","id":"fb5687ef3fe27404d7e26fbd7ea8a3709cd865a6fc2be5de128d9984b4f7a9a8","games":["A","A"],"status":"decided","calls":16,"usd":0.012213680000000005}
+{"bench":"writing","id":"f1a815b134c2840b01b833f79d76bfb5c51ac911879935a526287acfed5b7e41","games":["B","B"],"status":"decided","calls":33,"usd":0.02228537999999991}
+{"bench":"writing","id":"481be42f4672adb92e9d751e44f0b9d95492cacf34287ce95c9cd59e090eca88","games":["tie","tie"],"status":"tie","calls":31,"usd":0.021974749999999932}
+{"bench":"writing","id":"49da755d8e65119cdbd964abc85a6aa752afdb3c5c673a6bc69d53e248d689be","games":["A","A"],"status":"decided","calls":9,"usd":0.007385080000000044}
+{"bench":"writing","id":"0acd3553930d0438b8ece26d8434af3597726d58e23e186cd510b4b5dd5feb16","games":["B","B"],"status":"decided","calls":13,"usd":0.010107980000000127}
+{"bench":"writing","id":"f42c0394ed9588035e33f41bd29af125828372aca7cc1890a0ee154ae8fe410e","games":["A","A"],"status":"decided","calls":26,"usd":0.019546820000000187}
+{"bench":"writing","id":"f62b09f69bd57bd62d8e29b85780d466772c59c7ea60a226fd3192e3b312b833","games":["B","B"],"status":"decided","calls":24,"usd":0.019272550000000166}
+{"bench":"writing","id":"1f1a4fd94412bd4205da73be7b661a6446ef7d4028eaaf9e6f4171e3513fdc93","games":["B","B"],"status":"decided","calls":13,"usd":0.008664970000000216}
+{"bench":"writing","id":"0e3633a85e0dcebf0308755fd3e4d30428fc6b36c8e865fd03449c1ee77b0387","games":["B","B"],"status":"decided","calls":11,"usd":0.007249070000000191}
+{"bench":"writing","id":"b5de5bb972df000dd22433071ab01e8a9c079d5ac2d731223a5c32d462f4b5f0","games":["B","B"],"status":"decided","calls":33,"usd":0.024006570000000282}
+{"bench":"writing","id":"b5d733b9b020f6d4e8587d995c92f58ffb12d5c3a90322b67532da748c9d7712","games":["A","A"],"status":"decided","calls":22,"usd":0.01584503000000037}
+{"bench":"writing","id":"1d3b3de0c52d38ea4fab10dd2e1790e60629b8e4786b361d7f3b81bbde5dc8a1","games":["B","B"],"status":"decided","calls":21,"usd":0.014433820000000153}
+{"bench":"writing","id":"7e2152bbcdb21142439fb9c97ccd653709880989a5b23cb5c91ac98948304898","games":["A","A"],"status":"decided","calls":26,"usd":0.01828959000000019}
+{"bench":"writing","id":"fa95680c41a65782eafdf6cba0e2e095838ea493d07abcf25665a11a0de6bc4a","games":["B","B"],"status":"decided","calls":16,"usd":0.011273339999999799}
+{"bench":"writing","id":"7d5c734ae262ee1d12f79d57e5d7ff5c16a768daefa01b67951cc5f9cb19f85e","games":["A","A"],"status":"decided","calls":18,"usd":0.01322636999999971}
+{"bench":"writing","id":"aefe1804475b3fc90f890b002b1d4b2f8a6ca741592851ff0fd414684653c063","games":["A","A"],"status":"decided","calls":11,"usd":0.008276019999999829}
+{"bench":"writing","id":"9d81e9e821b3a118541fece12a487e7f594909e0f99cc3adc250311a5ab4fa4c","games":["B","B"],"status":"decided","calls":17,"usd":0.011967669999999764}
+{"bench":"writing","id":"7fb73a329d1c877ed6f0213da8615e9a24413f7c26c649316f22d4722fadb8b3","games":["B","B"],"status":"decided","calls":21,"usd":0.014328129999999883}
+{"bench":"writing","id":"5d6560f653210dd02e3ddf9c15efe7e046890e5c136cc1584b0e9682652e397b","games":["A","A"],"status":"decided","calls":11,"usd":0.006829340000000128}
+{"bench":"writing","id":"ab77ef825b1a019df429145be408bece28efc85250430e056775b404dfb7f696","games":["B","B"],"status":"decided","calls":38,"usd":0.026587930000000037}
+{"bench":"writing","id":"2066b9b675dc614dce3e7f61001d5a21010fec8c97c087b755aa9fd86208d6fe","games":["A","A"],"status":"decided","calls":11,"usd":0.009156080000000011}
+{"bench":"writing","id":"c1e2ad251b090ae388c03235d6686058d16b1daaeb0a446c9345fc045e35804b","games":["B","B"],"status":"decided","calls":14,"usd":0.010878860000000046}
+{"bench":"writing","id":"0a9161642bb3cad6b176ac752218713b1ab85285bbf122e430ae02f713b4363a","games":["A","A"],"status":"decided","calls":9,"usd":0.008333150000000011}
+{"bench":"writing","id":"9f56a91311f530de2f0907c7ebecbb6fb868cf6e77c40cee18b2d85b80702505","games":["A","A"],"status":"decided","calls":26,"usd":0.01951539000000002}
+{"bench":"writing","id":"062be02d8f98ceae27f6f06d4bbc3d82b01afbbde637ca8b4e0972b72f98606e","games":["A","A"],"status":"decided","calls":9,"usd":0.007690600000000103}
+{"bench":"writing","id":"ec58718514cf0f2810e7d35a70b3d8d18c220ed00e647185c8dec7a108aedb82","games":["tie","tie"],"status":"tie","calls":44,"usd":0.03197981999999999}
+{"bench":"writing","id":"0cdd7d7fa8ea9a63dd60abf15c9fdd392aa98758e204911c60871599cea0b451","games":["A","A"],"status":"decided","calls":27,"usd":0.022475550000000233}
+{"bench":"writing","id":"b0ffd0d81ef5608e93039b0b881ebfa858da6727f7c5b9bb66f3cf79da490567","games":["A","A"],"status":"decided","calls":14,"usd":0.012356390000000106}
+{"bench":"writing","id":"2439945876df19e1fa7f0f142ae146c12578f69e86332ccae38c1d9e6a90b6a9","games":["B","B"],"status":"decided","calls":12,"usd":0.010232989999999997}
+{"bench":"writing","id":"4bb10738658c58af4ab30906ca0bbbd1481cf0da78a4502a37adc6847dbfbdb8","games":["A","A"],"status":"decided","calls":26,"usd":0.02223898000000013}
+{"bench":"writing","id":"93368ff665ed8aa8bfcb7605dfe2f43085a0df24db7d19f8b781f812d05184d1","games":["B","B"],"status":"decided","calls":9,"usd":0.004947759999999968}
+{"bench":"writing","id":"2b65184eced791c88c5b3c81df54f3b11da579f791f31a4bad97b7de1d79bed5","games":["B","B"],"status":"decided","calls":22,"usd":0.01659704999999989}
+{"bench":"writing","id":"92f7ae5a56aaab495c139ed94d31aa80e38652935f3582babe47a7b7f8c362af","games":["A","A"],"status":"decided","calls":21,"usd":0.015773849999999756}
+{"bench":"writing","id":"fcd8f3f6ec5dddbd316521fed567b1e7e90b16da480e595e8ec2167b5690542f","games":["B","B"],"status":"decided","calls":28,"usd":0.019732850000000024}
+{"bench":"writing","id":"710340e8a680def967eaa1af373e52a8b2f884ce5a9846aef3f29088ce7d9ddf","games":["B","B"],"status":"decided","calls":14,"usd":0.007771359999999894}
+{"bench":"writing","id":"a60bdb5d89037922c30046ab62bff09bd8c041a64a40183f9cb69d0f085bfceb","games":["B","B"],"status":"decided","calls":24,"usd":0.016712759999999882}
+{"bench":"writing","id":"661a379cdfd860cc43b2258b4d935a568bd7e4a35f948aed8f45c8ab3cf4441e","games":["A","A"],"status":"decided","calls":12,"usd":0.0068469999999999365}
+{"bench":"writing","id":"6e8d180318d10dd5c65689b64cd1b75a4792b419b564b5e0b00d1ad3d8e31640","games":["B","B"],"status":"decided","calls":14,"usd":0.007767600000000097}
+{"bench":"writing","id":"0ec88a7fd4e46c2b33a611a4396812ff3adc66fb7991783cfc968d790a8c0e28","games":["A","A"],"status":"decided","calls":25,"usd":0.014496679999999817}
+{"bench":"writing","id":"a7389304be3bc39cd4f0f76e425be69410fb2ab755a1498dd7f1059d87e946b7","games":["B","B"],"status":"decided","calls":18,"usd":0.010155130000000012}
+{"bench":"writing","id":"7942a1f6520e5b3ef6b39ad9e482a65e660c6f93a12c17007935ee0dda69226c","games":["B","B"],"status":"decided","calls":13,"usd":0.007510730000000021}
+{"bench":"writing","id":"ed7905cabca30151daa6887a4ee4dd595284c30531893693b46b524160d3a5d5","games":["A","A"],"status":"decided","calls":13,"usd":0.00784452999999996}
+{"bench":"writing","id":"31da5b1da49b6d5800b1850c9791b5bcb57a7d5b389fc0d396b953329eb66b89","games":["B","B"],"status":"decided","calls":18,"usd":0.010841729999999994}
+{"bench":"writing","id":"fb837c7def2fa02c73a04500ab3d18b4f2f004619f07f15b41f2663b8cc9b69f","games":["A","A"],"status":"decided","calls":36,"usd":0.020967539999999896}
+{"bench":"writing","id":"7e475e8ef14963e78bdd64b7e313225e7677a5d08d762c9a63ec4946157be905","games":["B","B"],"status":"decided","calls":24,"usd":0.014488279999999909}
+{"bench":"writing","id":"40155e5d8ab6320a1dd2c886a38897e26bdcde3e64653dddf5bee1c6b8196d8c","games":["A","A"],"status":"decided","calls":14,"usd":0.008769879999999897}
+{"bench":"writing","id":"5150e22aff8153019ff05b455a0914925dbc27af7723395f42d9b1af8f169958","games":["B","B"],"status":"decided","calls":13,"usd":0.00828481999999997}
+{"bench":"writing","id":"20102626f5713357281c8b514016755e598db3ed9d058493f495282c0c464941","games":["A","A"],"status":"decided","calls":11,"usd":0.007345549999999923}
+{"bench":"writing","id":"be72da15ebdaee86b4c2152ae00843abb66ad2bb74c53e49d64e135956ac3c00","games":["B","B"],"status":"decided","calls":10,"usd":0.006144099999999875}
+{"bench":"writing","id":"6279b2d6870c062e01250024d35a5216b7ab5fac92b695cee9bc361f51dd76f7","games":["B","B"],"status":"decided","calls":20,"usd":0.012544349999999871}
+{"bench":"writing","id":"3d6ccbf85e5c40c5c0bcede57b1828a8c240f67fb8054b4476ffb18831cd2196","games":["A","A"],"status":"decided","calls":23,"usd":0.014641749999999898}
+{"bench":"writing","id":"76c63f90398f77e0e87db23142a25c07322f48a31d1dbefdc5490d50c2d75f78","games":["B","B"],"status":"decided","calls":13,"usd":0.007730899999999985}
+{"bench":"writing","id":"9c2a95eb50ead8bd62249f8284c76010b0e519583b739600c26ee59a92f98223","games":["A","A"],"status":"decided","calls":15,"usd":0.008946299999999963}
+{"bench":"writing","id":"247c2a04ba0a086b7bb9ad0e3e7322f6c3fa3e061c45ecd2574d63a1df0abcc9","games":["B","B"],"status":"decided","calls":16,"usd":0.009345700000000012}
+{"bench":"writing","id":"8c038b7f945cf73e82982a6fa333bc2f3b7ccb52afb43fc2d5edde9fa2f6b88d","games":["B","B"],"status":"decided","calls":9,"usd":0.005436600000000014}
+{"bench":"writing","id":"b8b1ea2b3d781b78443b564322c06ab2c6a53537aae4cfbbecdd19829636b006","games":["B","B"],"status":"decided","calls":21,"usd":0.012304399999999993}
+{"bench":"writing","id":"bbf56ee0fbea4ac6082ff7ad86854330ed6f8dea4624e2d933d055bb11e57eb8","games":["A","A"],"status":"decided","calls":32,"usd":0.019388329999999954}
+{"bench":"writing","id":"503f179236bbcd1daeeffbeb5bb5e57808079b98a1e176920242f77e30a41c3a","games":["B","B"],"status":"decided","calls":15,"usd":0.008758880000000024}
+{"bench":"writing","id":"db9b5efa0ccd596170eeaca1917dcc9254dd3b7226f01204435f69c214d8c02f","games":["B","B"],"status":"decided","calls":9,"usd":0.0049379800000000085}
+{"bench":"writing","id":"beba2f1dbf57cf5f5f97f189de0d157c625662d5a6130a66b852c06be0f4da45","games":["A","A"],"status":"decided","calls":17,"usd":0.009713980000000011}
+{"bench":"writing","id":"b207d97306d9e900dd59e6f17eeebc5c64dfcd98560da7988b5908ab2106d777","games":["A","A"],"status":"decided","calls":26,"usd":0.015062580000000048}
+{"bench":"writing","id":"e331174ba27e7c44c40954ab16417dd3ecc0aa76f4a2dd29f3686e71e59f20fc","games":["A","A"],"status":"decided","calls":16,"usd":0.00961637999999998}
+{"bench":"writing","id":"6808cf81ddf58716879056397a5ea0520b4b8bf0796156830458c3ebab90ab55","games":["B","B"],"status":"decided","calls":10,"usd":0.005614399999999908}
+{"bench":"writing","id":"8e4e7abf6b67f30c3e6fe333eb5223ad397d9835b59055588d285af49c8fbcca","games":["tie","tie"],"status":"tie","calls":23,"usd":0.013397339999999924}
+{"bench":"writing","id":"5e2ee10cb25ff27950f110c2e4db08c6d8c3c51745f2d4737508cb97d2d5c3cf","games":["B","B"],"status":"decided","calls":15,"usd":0.009025159999999866}
+{"bench":"writing","id":"1914464ab955a546825597e371e914203adc38605cd747af5d2bce47171d368f","games":["A","A"],"status":"decided","calls":12,"usd":0.007835559999999853}
+{"bench":"writing","id":"2b7363206c9087829346a39d9ee82123cc2053c1c1b4f1469720089e780946ff","games":["A","A"],"status":"decided","calls":13,"usd":0.008403959999999766}
+{"bench":"writing","id":"c95ae8d770c8d935681d9fec00767d03212a6444149735a9cb6bd3eedba09e46","games":["B","B"],"status":"decided","calls":17,"usd":0.011357559999999767}
+{"bench":"writing","id":"0d5389f17506bc496ca0c5081dbbcb3c0969fb540bf48a97afeda61038056203","games":["B","B"],"status":"decided","calls":20,"usd":0.013026659999999746}
+{"bench":"writing","id":"4a0439c818585e641d86f174237383e141ec800f9c86ab7c3daa77006d4856b9","games":["A","A"],"status":"decided","calls":25,"usd":0.01582528999999977}
+{"bench":"writing","id":"6556ba2a6353682f525ca4ac6cb9553bcc60d886e28df4987504ef7e15691185","games":["B","B"],"status":"decided","calls":20,"usd":0.014529949999999903}
+{"bench":"writing","id":"cde1d34506cba24f187d8238dc648cd27b373b0f2a97848ce7f59c14f86066c6","games":["A","A"],"status":"decided","calls":22,"usd":0.015179439999999822}
+{"bench":"writing","id":"c8e1e2b013b3506ab65dfceffc5129ef9299350cee86cbc1bdf1e751832025f0","games":["B","B"],"status":"decided","calls":10,"usd":0.006337629999999983}
+{"bench":"writing","id":"498fbda00fb9535fee677c70f7511bfbac04770abd6fae489cad71bba6047e3a","games":["B","B"],"status":"decided","calls":22,"usd":0.014648079999999952}
+{"bench":"writing","id":"b9347fb87d8eff5636eac40b75f61e76c44d208a016ed355adc0fcfd792d536b","games":["B","B"],"status":"decided","calls":17,"usd":0.011188180000000103}
+{"bench":"writing","id":"012f85de3f1de6aacf4182eaad7040c41a4080468ae0e9ddd757360a259ec739","games":["A","A"],"status":"decided","calls":10,"usd":0.0053153300000000625}
+{"bench":"writing","id":"4c398f20bdc6c1816282a8b13abc79418d3228aae457bb15379d499747963348","games":["B","B"],"status":"decided","calls":21,"usd":0.013228680000000104}
+{"bench":"writing","id":"0733879499b7b33bbe288fda8411f607f2788c58313b5f90da76f09f189f2db7","games":["A","A"],"status":"decided","calls":25,"usd":0.015701969999999954}
+{"bench":"writing","id":"d678486f2bd9bf6c83213f218dfd4739094e172971e583d2bae81b2ac030743e","games":["B","B"],"status":"decided","calls":12,"usd":0.00617600000000007}
+{"bench":"writing","id":"d71375da5f0e6871777554f42ffd4a2799adda9989f1d81793f1cd70dc5bd9d3","games":["B","B"],"status":"decided","calls":15,"usd":0.0075177000000000715}
+{"bench":"writing","id":"845d03825226b7df4108b1c193d7ee68e82d76c91409fbafccb037b47156a4a1","games":["B","B"],"status":"decided","calls":30,"usd":0.018123280000000075}
+{"bench":"writing","id":"cc45e9d42ac0244a9b86af1d727bf6f1bda0fd644271e661fa9b330bce74b854","games":["B","B"],"status":"decided","calls":9,"usd":0.005536010000000036}
+{"bench":"writing","id":"90620f9ad935173c23eb64a01d7e0d78157f1623064de0f2909b68385377d678","games":["A","A"],"status":"decided","calls":15,"usd":0.009838499999999972}
+{"bench":"writing","id":"1af83e29fdd804427d2378d470478c59fab97aae6610e8cf4f598d560c3900c6","games":["A","A"],"status":"decided","calls":11,"usd":0.008530499999999996}
+{"bench":"writing","id":"81f1557ed19cde7a675683e1cd4fab0e6d6646a463dc76239421d7c30f0f226a","games":["B","B"],"status":"decided","calls":13,"usd":0.0097545}
+{"bench":"writing","id":"6f7c55594a46b5f8cd809eea6b8b043287621d94f0acc75c3c56d053f83f582d","games":["A","A"],"status":"decided","calls":24,"usd":0.016020900000000116}
+{"bench":"writing","id":"b14f1b93366845b6a9b818ea67ed9ff2b8fb5056494280ee09150b6587272b92","games":["B","B"],"status":"decided","calls":6,"usd":0.0048951999999999884}
+{"bench":"writing","id":"aaaa3ce60c89938a83220795196220e6a5c1395c2a9bafcc622607ca8f2e387e","games":["A","A"],"status":"decided","calls":28,"usd":0.018409670000000045}
+{"bench":"writing","id":"f10dc6ec3a37244ad27cd64d267c055ca6417a724ff0694ce2ea3c776d4d41ba","games":["B","B"],"status":"decided","calls":10,"usd":0.007266070000000013}
+{"bench":"writing","id":"7d2f0793aa0eb6c6510b136cce4b52c617a1b337d23f4765cb49aa611382da0a","games":["B","B"],"status":"decided","calls":17,"usd":0.01238866999999999}
+{"bench":"writing","id":"b7729d6bf23109bc7c8aeacf49bab4a37453ff97993ab8bf47f8393c4ce55d27","games":["B","B"],"status":"decided","calls":19,"usd":0.013188489999999997}
+{"bench":"writing","id":"74eb3738d3cf7380450df18711bc7081df45c86b9d45a7ffb594dc8eb51eeb38","games":["B","B"],"status":"decided","calls":14,"usd":0.009013189999999893}
+{"bench":"writing","id":"c3891d705115724bd035644db69e11767ebaced80da98163d440219ecd91fb39","games":["A","A"],"status":"decided","calls":14,"usd":0.010386489999999915}
+{"bench":"writing","id":"f79f00bef0f40959ae75fa4c5a55b284fd900a2f03080f70965f3df682578881","games":["A","A"],"status":"decided","calls":39,"usd":0.027676299999999876}
+{"bench":"writing","id":"ce4e19427f1ca8bf059103d36d4277bee286164b878fc8dc1e402f8db104f492","games":["A","A"],"status":"decided","calls":15,"usd":0.011356629999999868}
+{"bench":"writing","id":"6ce1965a60e6f2b42e7f1d95e08878779a01ba56ea2573fbdb0338fdfb547086","games":["A","A"],"status":"decided","calls":16,"usd":0.011401849999999825}
+{"bench":"writing","id":"81df38ca0fd6822228b234b1860cad14ec78d1217e5905ee4b0dcb2c6b5bbb9e","games":["B","B"],"status":"decided","calls":37,"usd":0.027542319999999787}
+{"bench":"writing","id":"df1bb420034febb4d15fff0a29ca4c1be44258944130e773607916a018091f3f","games":["A","A"],"status":"decided","calls":15,"usd":0.012367829999999858}
+{"bench":"writing","id":"2052c7a2c2d7118d01aa10de402923e87eb5e50e05a82bf2a4fe06257de56b30","games":["B","B"],"status":"decided","calls":13,"usd":0.009764620000000002}
+{"bench":"writing","id":"01271ff418f90721c631172993e1ed6de680e9aabe45319590584126d045b017","games":["A","A"],"status":"decided","calls":13,"usd":0.00940571999999995}
+{"bench":"writing","id":"d187931bccda924937febc86c5ff4f096829695d5d2464dbae41352aeb66df2e","games":["A","A"],"status":"decided","calls":21,"usd":0.015816829999999893}
+{"bench":"writing","id":"fcb281426cbe7dcffd4b9afe1fd1c7b01924e8b6971096830b5f30e4c48fbac3","games":["B","B"],"status":"decided","calls":19,"usd":0.01415862999999995}
+{"bench":"writing","id":"f1326b0630ff870415c262483b7732f8beef0ed2a379ae67cb35679d87dc75c2","games":["A","A"],"status":"decided","calls":9,"usd":0.006532699999999947}
+{"bench":"writing","id":"be420788b97f9714d17c3d66e91c82d50257a0d518ae6336d99beb5c5f630158","games":["B","B"],"status":"decided","calls":35,"usd":0.0263101699999998}
+{"bench":"writing","id":"a92f01b830d3f6857d68d5d6fd01de22da10123c32f6245f2a40b6575d93acb7","games":["B","B"],"status":"decided","calls":19,"usd":0.014886120000000003}
+{"bench":"writing","id":"21a3e197fe5607835067944dc096ab1fb30aa3ebb4ee3c046f0f7f5da16ce5d7","games":["A","A"],"status":"decided","calls":10,"usd":0.00755402000000005}
+{"bench":"writing","id":"4664e078c93e28c445439d6165a383e3c386bc6b2c53aa61bbb0eaca54cd183d","games":["B","B"],"status":"decided","calls":15,"usd":0.011520019999999964}
+{"bench":"writing","id":"1733ca844d5e4d8a4bee1948383c4066cbdbfecf9e058b610ed8bcce1c250657","games":["B","B"],"status":"decided","calls":17,"usd":0.013168820000000081}
+{"bench":"writing","id":"5c80da4366ad3c068bbd2b806c3281543532625ae848a2df4580b17c8e9d80aa","games":["B","B"],"status":"decided","calls":11,"usd":0.007756420000000097}
+{"bench":"writing","id":"0557e288567fe5bf70a88dbb32cc7c48df3817bc1d81c9db0caf85db99118a33","games":["B","B"],"status":"decided","calls":31,"usd":0.023655820000000105}
+{"bench":"writing","id":"ed0c845005d16a80a7bc8dee51c407d792955ec94fd6be4fe84cb465a9f4a302","games":["B","B"],"status":"decided","calls":25,"usd":0.018118060000000158}
+{"bench":"writing","id":"25ec33fe87e778b1cb6549b340c9a209e692df52d53c708e67300a78f7593241","games":["A","A"],"status":"decided","calls":10,"usd":0.006508740000000124}
+{"bench":"writing","id":"184f1591c5421184f8d71f49cf1fa2278fa2af9de25b4f16f94d81dc0c3b7812","games":["B","B"],"status":"decided","calls":15,"usd":0.010996440000000218}
+{"bench":"writing","id":"92c3a0f1c04798828785a50edb848f110f4a2712f4d9f0a53fcdfe340f5c1be7","games":["B","B"],"status":"decided","calls":14,"usd":0.00979034000000023}
+{"bench":"writing","id":"8bf5d72332a24d0182e1dc1338390fe9e9100b68ac1e7aff1913c5f7858984f8","games":["B","B"],"status":"decided","calls":2,"usd":0.0015393000000000002}
+{"bench":"writing","id":"7e81aa66c9cce8c62010c1c97aa826d20a08f975a9f2d6c8d8eb207858c20b67","games":["B","B"],"status":"decided","calls":9,"usd":0.006331100000000001}
+{"bench":"writing","id":"62215300ac44c47dd686bffbb68d12442c4016d68012962ca12d4458f09c83dd","games":["A","A"],"status":"decided","calls":11,"usd":0.008261600000000001}
+{"bench":"writing","id":"551726d02561970a2cac26e631e3a21a02b3e3cc85022ef4d9779e900bace143","games":["A","A"],"status":"decided","calls":12,"usd":0.008968700000000001}
+{"bench":"writing","id":"bce81322a8905dcfbb8e1e03186b0169c2c417897e099fe012c974455c99a3f3","games":["A","A"],"status":"decided","calls":11,"usd":0.007719200000000001}
+{"bench":"writing","id":"fd590222012df3ad6540d320a971edab83837e0ebccf453a9a5c6f0ab7a72ccc","games":["A","A"],"status":"decided","calls":15,"usd":0.010714300000000001}
+{"bench":"writing","id":"f13472c7cb6f5cfd23970ce70b91486537cea3d90f64f124a409ff8687dc2ab6","games":["A","A"],"status":"decided","calls":23,"usd":0.01862426}
+{"bench":"writing","id":"2bd62bd5c15a19d058abe97aebab0f0b8fd671a2bc01580d6b3fecad530ab7d0","games":["A","A"],"status":"decided","calls":11,"usd":0.01012966}
+{"bench":"writing","id":"6a2356800bf59cad1fbc5aa2eaab04bd9ba0b6ed5de30150cf6ab8c2648f09e6","games":["A","A"],"status":"decided","calls":27,"usd":0.021962620000000002}
+{"bench":"writing","id":"f0602822b296337d3cf37061237722c5bb61aa5b1a8074530635eba51cc4248c","games":["B","B"],"status":"decided","calls":17,"usd":0.01445942}
+{"bench":"writing","id":"911919959d9ee5f055b89209140156d08fe8ab82d20ce992ed03be3a6a71c5bd","games":["B","B"],"status":"decided","calls":14,"usd":0.01254132}
+{"bench":"writing","id":"bd497ceba212bdd72a657f41b5d662c012bee10e1eae6ba66e9a7a9753877e9f","games":["B","B"],"status":"decided","calls":19,"usd":0.015434310000000001}
+{"bench":"writing","id":"bde19edf6159f37d6fe83037fe662c2be6e80754c8bd64a29e8479124a0b81cf","games":["B","B"],"status":"decided","calls":9,"usd":0.0069314899999999985}
+{"bench":"writing","id":"3073126e66e643777a8adbc1f291b608fd09d79bef7b9fbd48a51b7cfc2d4a61","games":["A","A"],"status":"decided","calls":16,"usd":0.012234049999999996}
+{"bench":"writing","id":"839b0b10e8b6f337ad425ec1a9f61349d894dbab4b26e97ea69e2e472a954bf5","games":["B","B"],"status":"decided","calls":32,"usd":0.02592038}
+{"bench":"writing","id":"34990c639e363584a87d1e03c4efe1d547510fc73a9852225a452a7bede7368a","games":["A","A"],"status":"decided","calls":43,"usd":0.034101059999999996}
+{"bench":"writing","id":"16b6811a6007b7d800fee9bafede411f784f589edc0d705b0846f0e40dbbcdad","games":["A","A"],"status":"decided","calls":4,"usd":0.00316868}
+{"bench":"writing","id":"96d7f9ecf4087e21e0e48bd84bef7db077cab647659cdadfc56caff70f283938","games":null,"error":"NO_ANSWER https://api.openai.com/v1/chat/completions could not be reached (TypeError)"}
+{"bench":"writing","id":"0d4752be2243842765fa3c51153b979b0cc0a1910c29c813389f5aeb0af62908","games":null,"error":"NO_ANSWER https://api.openai.com/v1/chat/completions could not be reached (TypeError)"}
+{"bench":"writing","id":"55e23200567d3c64ba406d3470dcd72716438a6d2ccd2b82a00f298aa52e74aa","games":null,"error":"NO_ANSWER https://api.openai.com/v1/chat/completions could not be reached (TypeError)"}
+{"bench":"writing","id":"3e205d8dd7887de5fffbae85dc4140186582068302535f3f772a0f0737af2cda","games":null,"error":"NO_ANSWER https://api.openai.com/v1/chat/completions could not be reached (TypeError)"}
+{"bench":"writing","id":"72a31b90b5ddf145f6700c4a1059d94c0607eb227eff7723651507912b7429f6","games":null,"error":"NO_ANSWER https://api.openai.com/v1/chat/completions could not be reached (TypeError)"}
+{"bench":"writing","id":"5a679439db3323a7783dd704f01809790d56299eaa240ebc3697881f1648f1a8","games":null,"error":"NO_ANSWER https://api.openai.com/v1/chat/completions could not be reached (TypeError)"}
+{"bench":"writing","id":"fa5815cfc2ac8e5e2fff0a92e88c16f679f65421cd57d273de1026057901f52c","games":["B","B"],"status":"decided","calls":5,"usd":0.003296649999999998}
+{"bench":"writing","id":"f5cb0c1bcf493ac666e2cf46be142069ec189ac7a44c6e704fbdfcc0e7f8218c","games":null,"error":"NO_ANSWER https://api.openai.com/v1/chat/completions could not be reached (TypeError)"}
+{"bench":"writing","id":"91a2b27cea769894d3a45f4b1294b11b1dd995b659a0c6ca312b646241e7d7f0","games":null,"error":"NO_ANSWER https://api.openai.com/v1/chat/completions could not be reached (TypeError)"}
+{"bench":"writing","id":"e55408ae79c9b032df6c5043a06bdb99b222fd97cb350bf7a6d237e4f9b4cf03","games":["A","A"],"status":"decided","calls":6,"usd":0.004336149999999997}
+{"bench":"writing","id":"8fe4292cb14db25117b6894d37c01052d921d5a46c8a7a335586fe73a7483759","games":["B","B"],"status":"decided","calls":6,"usd":0.004395749999999997}
+{"bench":"writing","id":"7a1c008b2a560e8335d87a7d82c3032e9e7831915b3ea79c33054c272f1c1667","games":null,"error":"NO_ANSWER https://api.openai.com/v1/chat/completions could not be reached (TypeError)"}
+{"bench":"writing","id":"075f806bc52f28836a073dc20602bda96e6ddeaa5955b328706977e07fb3d2f0","games":["B","B"],"status":"decided","calls":11,"usd":0.008718299999999991}
+{"bench":"writing","id":"c8833fdb6cee12c7240ac07b0230da0d5334d6453e4b8140a484c6f40a153b35","games":["A","A"],"status":"decided","calls":12,"usd":0.008299689999999992}
+{"bench":"writing","id":"f68e532057039bb6570e8b736a4f93d7e2b0219d114416f47a2e69fab7fbcb0c","games":["B","B"],"status":"decided","calls":14,"usd":0.009736279999999993}
+{"bench":"writing","id":"dabf64ab66472c6ce31d22736143b2a87436d7d234621a2156a3f3f803e3931e","games":["A","A"],"status":"decided","calls":15,"usd":0.010060229999999996}
+{"bench":"writing","id":"3eb30afdf0e762e559f15456cf59f74f2f483ed6a4618b20a9c12392899a2f65","games":["A","A"],"status":"decided","calls":6,"usd":0.0024836300000000006}
+{"bench":"writing","id":"d9dd01ba2f9f941d0632d3008a7706923e3ce271a152fdc62c622e3e74e0612b","games":["B","B"],"status":"decided","calls":12,"usd":0.007027930000000002}
+{"bench":"writing","id":"fc70071bce4245ac48ff78410ee17ff7e959d8c70560dceaa3c5e5106864ae22","games":["B","B"],"status":"decided","calls":6,"usd":0.003476}
+{"bench":"writing","id":"9b6c441e8eb582e33d96bb124e7af4b609e1f705ad5a159bbfa304e3f081e89f","games":["B","B"],"status":"decided","calls":11,"usd":0.006572799999999997}
+{"bench":"writing","id":"c4d6b851aa98b0ec7c327ba87af8629b70d7c12c78b65d6871388ee7eae7b6a6","games":["B","B"],"status":"decided","calls":13,"usd":0.007704049999999997}
+{"bench":"writing","id":"0af12213554dd64946b58e56e3b4d310afbfe281324c355f776171ce4536c30b","games":["A","A"],"status":"decided","calls":11,"usd":0.007142799999999998}
+{"bench":"writing","id":"d42259cb54eb13b663e69482c19c55bfbe1af2c0ebd2ac86d357bedf9f17735b","games":["B","B"],"status":"decided","calls":16,"usd":0.009736439999999999}
+{"bench":"writing","id":"f1702d77ff13a3f21c2d3535c10b38a96e40e1311887b25ca97ad61a2551d274","games":["B","B"],"status":"decided","calls":28,"usd":0.01747031999999999}
+{"bench":"writing","id":"6a72e106be9e47b8b4b5fbedf0e995be417760ed37bed3ec263c733826659798","games":["A","A"],"status":"decided","calls":11,"usd":0.007474489999999986}
+{"bench":"writing","id":"16f6cf8abdb090b2606d1e5d92c949edb0adcdccd52c3bdd6ae50b11427a5256","games":["A","A"],"status":"decided","calls":48,"usd":0.03184306999999998}
+{"bench":"writing","id":"2aed15f8222fc8e3f159babe631bd194f14e9f7777eb0e9d70c4b2243a753c50","games":["B","B"],"status":"decided","calls":50,"usd":0.033085389999999985}
+{"bench":"writing","id":"2890d2f7905b19da98d1f389c2e79c27b3560bc68d9c5ff1e7ecaf1d5872ca67","games":["A","A"],"status":"decided","calls":11,"usd":0.007409920000000007}
+{"bench":"writing","id":"07f6253b6ea162e5be952be657e289abccaae906c7d9b83fad2cffd37b5752c0","games":["A","A"],"status":"decided","calls":18,"usd":0.012234809999999999}
+{"bench":"writing","id":"44eb26298765a98658a46818a8b28cfd3494152538bb7a0a88c431c94a79cf60","games":["B","B"],"status":"decided","calls":22,"usd":0.015617599999999988}
+{"bench":"writing","id":"300ba137fc64284568431901e67331a83e3361e4039664c7e1b3f9b9a7211a19","games":null,"error":"NO_ANSWER https://api.openai.com/v1/chat/completions could not be reached (TypeError)"}
+{"bench":"writing","id":"f583b5d250ffc1894ebed92437c43258002aae30b6a79d23d9ba4559abbd49f2","games":["A","A"],"status":"decided","calls":10,"usd":0.007822110000000007}
+{"bench":"writing","id":"51f0b851ebd12f5f9627d8ad6ebf95ae2d75c74de773981f8ac8024793cf76a2","games":["B","B"],"status":"decided","calls":5,"usd":0.004085900000000017}
+{"bench":"writing","id":"d52cfaebc4414d5ec05e310c8cde1a400f035302a09656b3b856ed746828f379","games":["A","A"],"status":"decided","calls":8,"usd":0.006567590000000012}
+{"bench":"writing","id":"3c6433f7df85bda9c6bef58a7357f9514cbd65799b6aa74dcf49da30610fe01e","games":["A","A"],"status":"decided","calls":31,"usd":0.021917570000000004}
+{"bench":"writing","id":"33236143e4c3ff0cba33bc54c8755cc963a2dc4a11dd57a29448d25edbc151ea","games":["B","B"],"status":"decided","calls":11,"usd":0.007628570000000015}
+{"bench":"writing","id":"0dca046649e16b5103061710ac4b448c140e1ee208ad1d111ed54389b621f59e","games":["B","B"],"status":"decided","calls":18,"usd":0.013007459999999998}
+{"bench":"writing","id":"5b3eb01f7edb696ff05be1b22b0e726b5e33961b64ff55f3b88bb7343b20c597","games":["B","B"],"status":"decided","calls":35,"usd":0.024508580000000002}
+{"bench":"writing","id":"ba8d0e6120e2d0a94e5005c628ef20c289b44b19db160ee72679c296642a7466","games":["B","B"],"status":"decided","calls":13,"usd":0.008158070000000003}
+{"bench":"writing","id":"9181bbcb72aafc0761df34b80012a4a20a2bec8e12cc81e43af030a45042e7ec","games":["B","B"],"status":"decided","calls":17,"usd":0.010048779999999993}
+{"bench":"writing","id":"01b6cb3ab4ccefbd86b3c9c9a96229f1ee8cb85bd883fa0ad2357f2721fa1183","games":["A","A"],"status":"decided","calls":11,"usd":0.006722310000000009}
+{"bench":"writing","id":"5be36e5313aa01bf8c92f9bb6064286f325f60680ef12064677510a644296674","games":["A","A"],"status":"decided","calls":12,"usd":0.008374809999999996}
+{"bench":"writing","id":"a4c68d144a7a3ed2ff6e8bc85013222d1d9177ae5e151794573b58210439b4ce","games":["B","B"],"status":"decided","calls":34,"usd":0.024353070000000004}
+{"bench":"writing","id":"3c1dd92c31a17f297059f92de0088c61881c84aa65face25dcfe673058673b6f","games":["B","B"],"status":"decided","calls":27,"usd":0.017760639999999994}
+{"bench":"writing","id":"fd07bf75beb84f097cf94b79015cb8f951984b24b3bc42c6ab9677384d6618a9","games":["B","B"],"status":"decided","calls":19,"usd":0.012794849999999997}
+{"bench":"writing","id":"86a2f214ef193ae256aaeda988b71dac4b8e88c8eb7f7ee1db38327826f3866b","games":["A","A"],"status":"decided","calls":13,"usd":0.009319739999999993}
+{"bench":"writing","id":"992b678133936188cd8837d71f29ebc552a6f3c9e6014280a3844d62d8a19b49","games":["B","B"],"status":"decided","calls":14,"usd":0.010060239999999998}
+{"bench":"writing","id":"71040e6fd1c22015ba3a29815a59b8ca7e3f2a19dcf2edf7cee6c23ef5f827a6","games":["A","A"],"status":"decided","calls":12,"usd":0.007865340000000012}
+{"bench":"writing","id":"f8929db0fbf95f186cdd0ede84c9a0fdca6be98ede4e3b270a0c7e6ae2dcecbc","games":["tie","tie"],"status":"tie","calls":30,"usd":0.01990518000000001}
+{"bench":"writing","id":"37941d0eede66dae09019ecb9071276d53c0284ef8c2c8bc76be5583192d6c03","games":["A","A"],"status":"decided","calls":14,"usd":0.008183970000000013}
+{"bench":"writing","id":"39655bd4c063055e98ba1e85c81e88db33699629f537221aead358884edfa330","games":["A","A"],"status":"decided","calls":10,"usd":0.0057708300000000184}
+{"bench":"writing","id":"2cedfa8ea608f8801cd1562d1bc1714daaa10eb27eb71573a96e277d441369b1","games":["B","B"],"status":"decided","calls":14,"usd":0.007778330000000014}
+{"bench":"writing","id":"025bd429c9d1252a785d4637ac7445cd34871543f706cd112b55b0c78ec76f95","games":["A","A"],"status":"decided","calls":42,"usd":0.0261652}
+{"bench":"writing","id":"5d5be9e7151969bc0139b520b45b5d454ac23c203b4ab7f5d1ff3a1939dc4eb5","games":["B","B"],"status":"decided","calls":16,"usd":0.008769949999999999}
+{"bench":"writing","id":"42454ffd530b90f18423ef043f00a6ccbf6e824f371fd2e199c3e936138a7cd4","games":["A","A"],"status":"decided","calls":17,"usd":0.009557849999999979}
+{"bench":"writing","id":"6f1e226e27747998b0f6d5ee73a2098c9ab14e2881da6990e2e9b0759aa02c14","games":["B","B"],"status":"decided","calls":13,"usd":0.008083119999999971}
+{"bench":"writing","id":"e17e24935e977f804fc14dcbb8802b1deb0d04299ffbbfd92342a854d102be60","games":["A","A"],"status":"decided","calls":15,"usd":0.009278719999999976}
+{"bench":"writing","id":"65279f802749fd0cd6121adfc8457072dc10c5f8c16a7595e854689969be9898","games":["B","B"],"status":"decided","calls":30,"usd":0.01793995999999999}
+{"bench":"writing","id":"18d6fbe3595ba09b0eaadfce6136400b38c02957aa12cd562e19c9f8e30d20cd","games":["B","B"],"status":"decided","calls":21,"usd":0.011870659999999977}
+{"bench":"writing","id":"b7442ed6a39364f31bb428079f61e03366fdc4f90b8c1c4dc94e35d9bbc46565","games":["A","A"],"status":"decided","calls":16,"usd":0.010129159999999984}
+{"bench":"writing","id":"30d7545b3c8abfbb540ed0152f819163285bd187d9ed2142943a3cd92fe73fba","games":["B","B"],"status":"decided","calls":13,"usd":0.008112039999999987}
+{"bench":"writing","id":"70a77f212b768f09af5ae3a03b3322d0b9f29ec21201a179602f5a72419bf579","games":["A","A"],"status":"decided","calls":12,"usd":0.007136339999999991}
+{"bench":"writing","id":"86c52ded777b4658d8936cf11125ecc28ed48d9ec168467891f7419af25130d8","games":["A","A"],"status":"decided","calls":16,"usd":0.010192739999999992}
+{"bench":"writing","id":"1d02369036c190497827ee7f1a8de39e03f195cbd7f5a21ec819866b535ad0ce","games":["A","A"],"status":"decided","calls":14,"usd":0.009169809999999987}
+{"bench":"writing","id":"697fe0873a62c719f7ab6088dd6d8aafbfe525e459c8ceae5354edec7b7abee5","games":["A","A"],"status":"decided","calls":20,"usd":0.013480240000000004}
+{"bench":"writing","id":"a210dd60dfd05460882db97376e7967ef5409b4386810d1bcb184925d9a2a6ca","games":["A","A"],"status":"decided","calls":18,"usd":0.012469519999999998}
+{"bench":"writing","id":"32f58a52a6b8777b26bb0af66e366e3fc08be2933b2c3e860560ee092a7dcb41","games":["A","A"],"status":"decided","calls":32,"usd":0.02114271000000001}
+{"bench":"writing","id":"e47a058cf728dba076b1dc941d843021d9b7997a10ac19b964d01b6866e0bbdb","games":["A","A"],"status":"decided","calls":17,"usd":0.011753970000000016}
+{"bench":"writing","id":"4ad447ba82f14dc5d58ef33b9af2ab0ce18cb07159d47a5e5f9486d487674489","games":["A","A"],"status":"decided","calls":14,"usd":0.009983870000000034}
+{"bench":"writing","id":"abd60b0bfe2f2ca376787b303208b7b03cf489908cdf2748b9b8327de5064553","games":["A","A"],"status":"decided","calls":23,"usd":0.015687090000000042}
+{"bench":"writing","id":"fc277f73bcf94764c4765d50d9825b2acfee914683eb5d38cffe2c143ed86cc0","games":["B","B"],"status":"decided","calls":15,"usd":0.010215240000000056}
+{"bench":"writing","id":"0d4752be2243842765fa3c51153b979b0cc0a1910c29c813389f5aeb0af62908","games":["A","A"],"status":"decided","calls":7,"usd":0.0044776}
+{"bench":"writing","id":"55e23200567d3c64ba406d3470dcd72716438a6d2ccd2b82a00f298aa52e74aa","games":["A","A"],"status":"decided","calls":10,"usd":0.00615943}
+{"bench":"writing","id":"96d7f9ecf4087e21e0e48bd84bef7db077cab647659cdadfc56caff70f283938","games":["B","B"],"status":"decided","calls":14,"usd":0.00928793}
+{"bench":"writing","id":"5a679439db3323a7783dd704f01809790d56299eaa240ebc3697881f1648f1a8","games":["A","A"],"status":"decided","calls":15,"usd":0.00975507}
+{"bench":"writing","id":"3e205d8dd7887de5fffbae85dc4140186582068302535f3f772a0f0737af2cda","games":["B","B"],"status":"decided","calls":16,"usd":0.010265469999999999}
+{"bench":"writing","id":"300ba137fc64284568431901e67331a83e3361e4039664c7e1b3f9b9a7211a19","games":["B","B"],"status":"decided","calls":9,"usd":0.006720369999999999}
+{"bench":"writing","id":"f5cb0c1bcf493ac666e2cf46be142069ec189ac7a44c6e704fbdfcc0e7f8218c","games":["B","B"],"status":"decided","calls":21,"usd":0.014521699999999998}
+{"bench":"writing","id":"91a2b27cea769894d3a45f4b1294b11b1dd995b659a0c6ca312b646241e7d7f0","games":["A","A"],"status":"decided","calls":22,"usd":0.014854659999999999}
+{"bench":"writing","id":"72a31b90b5ddf145f6700c4a1059d94c0607eb227eff7723651507912b7429f6","games":["A","A"],"status":"decided","calls":23,"usd":0.01612236}
+{"bench":"writing","id":"7a1c008b2a560e8335d87a7d82c3032e9e7831915b3ea79c33054c272f1c1667","games":["B","B"],"status":"decided","calls":17,"usd":0.012860659999999998}

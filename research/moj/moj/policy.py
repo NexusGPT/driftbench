@@ -21,6 +21,7 @@ A variant is one JSON config (configs/*.json):
 Combination is a logistic regression without intercept on x = 2 pA - 1 of the experts used so far, one model per
 set of experts, fitted on training items only. No intercept means swapping A and B flips the verdict exactly.
 """
+import json
 import math
 
 import numpy as np
@@ -66,6 +67,20 @@ class Combiner:
             y = np.array([1.0 if s['_meta']['label'] == 'A' else 0.0 for s in rows])
             self.models[key] = fit_logistic(X, y, self.l2) if len(rows) else np.ones(len(key))
         return self.models[key]
+
+    def p_terrain(self, signals, experts, card):
+        """The combination with weights fitted only on training items of the same terrain (a content rule, never a benchmark name)."""
+        key = ('terrain', json.dumps(card.get('terrain', {}), sort_keys=True), tuple(experts))
+        if key not in self.models:
+            rows = [s for s in self.train if s['_meta']['label'] in ('A', 'B') and matches(card, terrain(s, []))]
+            if len(rows) < 30:
+                self.models[key] = self.weights(experts)
+            else:
+                X = np.array([[x_of(s, name) for name in experts] for s in rows], dtype=float)
+                y = np.array([1.0 if s['_meta']['label'] == 'A' else 0.0 for s in rows])
+                self.models[key] = fit_logistic(X, y, self.l2)
+        z = float(sum(wi * x_of(signals, name) for wi, name in zip(self.models[key], experts)))
+        return 1 / (1 + math.exp(-max(-30, min(30, z))))
 
     def boundary(self, experts, share):
         key = ('boundary', tuple(experts), share)
@@ -160,7 +175,7 @@ def decide_two_step(config, signals, combiner):
                 paid.extend(added)
                 return added
             join(route.get('add', []))
-            p = combiner.p(signals, used)
+            p = combiner.p_terrain(signals, used, route) if route.get('fit_terrain') and not combiner.raw else combiner.p(signals, used)
             conf = max(p, 1 - p)
             if route.get('else_add') and conf < route.get('stop_at', 1.01):
                 level += '+'
@@ -180,9 +195,11 @@ def decide(config, signals, combiner):
     if config.get('escalate_share') is not None:  # the dial: this share of training items sits under the boundary
         hi = lo = combiner.boundary(config['stage1'], config['escalate_share'])
     used = list(config['stage1'])
+    tcard = None
     for card in config.get('stage1_by_terrain', []):  # a terrain may take another stage-1 expert
         if matches(card, terrain(signals, [])):
             used = list(card['stage1'])
+            tcard = card if card.get('fit_terrain') else None
             break
     land = terrain(signals, used)
     paid = list(used) + (['route'] if config.get('cards') or config.get('always') else [])
@@ -196,7 +213,7 @@ def decide(config, signals, combiner):
             p = combiner.p(signals, [card['expert']])
             return {'verdict': 'A' if p > 0.5 else 'B' if p < 0.5 else 'tie', 'p': p, 'confidence': max(p, 1 - p), 'level': 'terminal',
                     'path': used + [card['expert']], 'reason': None, 'calls': calls_of(signals, paid + [card['expert']] + list(card.get('paid', [])))}
-    p = combiner.p(signals, used)
+    p = combiner.p_terrain(signals, used, tcard) if tcard and not combiner.raw else combiner.p(signals, used)
     conf = max(p, 1 - p)
     level = 'high'
     held = any(matches(card, land) for card in config.get('no_escalate', []))  # terrain where escalation does not pay

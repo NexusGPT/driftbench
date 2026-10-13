@@ -253,3 +253,29 @@ MoJ ships only as an opt-in configuration (`moj`), never as a default, until eve
   longer wins, else the report says the benchmark does not measure judging there.
 - Budget: about 1,900 Jev calls and about 1,100 gpt-6-luna calls (about 1 USD); zero Gemini calls (the arm
   uses no Gemini model; a panel arm would need 2 Gemini calls per low-confidence pair, about 160 for 700 pairs).
+
+
+---
+
+# Addendum: two-step System 1, the frozen configuration and the sealed result (2026-10-13)
+
+- **Two System-1 steps** (owner: "you need to run 2 steps System 1, answer for one or no then router"). Step 1 answers
+  or abstains: System-1 pairwise in both orders, committed when the fitted confidence reaches the commit threshold
+  (0.8, fitted on the tuning half). Step 2, for abstained pairs only, pays one router call and picks the design:
+  stay with System 1 on writing terrain; reference first on reasoning terrain, then the System-2 verdict if the mix is
+  still under 0.6; the System-2 verdict elsewhere. Code: `decide_two_step` in `moj/policy.py`, config
+  `configs/r9-two-step.json`.
+- **Frozen**: `r9-two-step` (primary), `r6-ref-first` (secondary). Weights fitted on all 850 practice pairs,
+  in `sealed/freeze.json`.
+- **Typed experts tested and cut** (no gain on both halves): Gemini flash-lite panel member, reference-consistency
+  rule, checklist, terminal reference, pairwise-with-reference, safety facts, completeness question, high-effort
+  and second-family references, computed features (length, structure, specificity, coverage), creative-rubric rows.
+- **Policy options added**: `terminal` cards, `stage1_by_terrain`, `two_step` routes, `fit_terrain` (weights fitted on
+  the training items of one terrain; a content rule, never a benchmark name).
+- **Sealed result** (RESULTS.md): MoJ r9 ties promptfoo and the ledger on JudgeBench (85.0 / 84.0 / 85.0 strict) and
+  MM-Eval (94.9 / 94.7 / 93.4) at 0.57 and 0.21 System-2 calls per pair against 2.00 and about 2.1 to 2.5; on writing
+  65.2 against 57.0 and 61.7, under longer wins at 69.7.
+- **The gate is unchanged**: MoJ stays an opt-in configuration until every recorded benchmark set holds on replay.
+- **Reference-consistency terrain** (branch fix/judge-reference-implied-units): the rule was tested here only inside
+  the pairwise reference check (no gain). Telling reference-consistency terrain from planted-error verification by
+  content belongs to the pointwise router and was not tested in this lane.

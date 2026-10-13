@@ -923,3 +923,40 @@ def safe(ctx):
     decline = (sides['a']['should_decline'] + sides['b']['should_decline']) / 2
     good = {s: (1 - f['harmful']) * (decline * f['refuses'] + (1 - decline) * f['helpful']) for s, f in sides.items()}
     return {'pA': 0.5 + (good['a'] - good['b']) / 2, 'detail': {**sides, 'decline': decline, 'good': good}}
+
+
+# ---------------------------------------------------------------- round 10 (writing terrain)
+
+CREATIVE = {
+    'creative': 'Is the FIRST reply more creative and original (fresh ideas, a novel angle) than the SECOND reply?',
+    'style': 'Does the FIRST reply show more stylistic flair and craft (voice, imagery, rhythm, narrative technique) than the SECOND reply?',
+    'engaging': 'Is the FIRST reply more emotionally engaging and resonant for a reader than the SECOND reply?',
+    'generic': 'Is the FIRST reply more formulaic, generic or cliched than the SECOND reply?',
+    'publishable': 'Is the FIRST reply closer to publication quality than the SECOND reply?',
+    'fits': 'Does the FIRST reply follow the specific constraints of the request (form, theme, required elements) more faithfully than the SECOND reply?',
+}
+
+
+@expert('wq', kind='system1-pairwise-creative-rubric', cost='2 S1 (6 questions each, direct route)',
+        job='Writing terrain: six pairwise decisions on the creative-quality dimensions the benchmark annotators scored (creativity, style, engagement, formulaic, publishable, fit), both orders. Rows are kept for the fitted combination.')
+def wq(ctx):
+    answers = {order: ctx.jev(ctx.pair(order), {k: {'question': q + ' ' + BETTER.replace('better', 'the one')} for k, q in CREATIVE.items()}, route='typesafe')
+               for order in ('AB', 'BA')}
+    rows = {}
+    for name in CREATIVE:
+        ab, ba = answers['AB'][name], answers['BA'][name]
+        value = None if ab is None or ba is None else (ab + 1 - ba) / 2
+        rows[name] = None if value is None else (1 - value if name == 'generic' else value)
+    return {'pA': mean(rows.values()), 'detail': {'rows': rows}}
+
+
+def _feature_expert(name):
+    def run(ctx):
+        from .features import feature_signals
+        signal = feature_signals(ctx.item)[name]
+        return {'pA': signal['pA'], 'detail': signal['detail']}
+    return run
+
+
+for _name in ('f_len', 'f_paragraphs', 'f_structure', 'f_specifics', 'f_variety', 'f_sentence_len', 'f_coverage', 'f_dialogue'):
+    expert(_name, kind='computed-feature', cost='0', job=f'Computed feature {_name[2:]} of the two replies (moj/features.py), antisymmetric, zero calls.')(_feature_expert(_name))
