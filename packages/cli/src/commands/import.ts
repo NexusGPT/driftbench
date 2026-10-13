@@ -1,7 +1,7 @@
 import { mkdir, readFile, writeFile } from 'node:fs/promises';
 import { basename, join, relative, resolve } from 'node:path';
-import { readTables } from '@driftbench/artifacts';
-import { importTable, parseTableMapping } from '@driftbench/core';
+import { readTables } from '@agent-nexus/driftbench-artifacts';
+import { importTable, parseTableMapping } from '@agent-nexus/driftbench-core';
 import type { Command } from 'commander';
 import type { Io } from '../io';
 

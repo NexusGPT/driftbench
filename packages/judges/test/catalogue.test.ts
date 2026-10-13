@@ -1,6 +1,6 @@
 import { fileURLToPath } from 'node:url';
-import { knowledgeRetention, relevancy } from '@driftbench/checks';
-import type { Check, CheckContext, Observed, Spec } from '@driftbench/core';
+import { knowledgeRetention, relevancy } from '@agent-nexus/driftbench-checks';
+import type { Check, CheckContext, Observed, Spec } from '@agent-nexus/driftbench-core';
 import { describe, expect, it } from 'vitest';
 import { type CriterionFixture, loadCriteria } from '../src/criteria';
 

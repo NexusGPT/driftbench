@@ -1,6 +1,6 @@
 import { copyFile, mkdir, readdir, readFile, rm, stat, writeFile } from 'node:fs/promises';
 import { basename, dirname, join, relative, resolve, sep } from 'node:path';
-import { type Inventory, type LoadedSpec, loadInventory, loadSpecs } from '@driftbench/core';
+import { type Inventory, type LoadedSpec, loadInventory, loadSpecs } from '@agent-nexus/driftbench-core';
 import {
   AUDIT_FILE,
   coverElements,
@@ -17,8 +17,14 @@ import {
   type Selection,
   sealFromJson,
   selectGolden,
-} from '@driftbench/generate';
-import { coverage, DEFAULT_MAX_CELLS, gridSize, loadSpaceMap, type SpaceCoverage } from '@driftbench/space';
+} from '@agent-nexus/driftbench-generate';
+import {
+  coverage,
+  DEFAULT_MAX_CELLS,
+  gridSize,
+  loadSpaceMap,
+  type SpaceCoverage,
+} from '@agent-nexus/driftbench-space';
 import type { Command } from 'commander';
 import type { Io } from '../io';
 import { optionNumber } from '../number';

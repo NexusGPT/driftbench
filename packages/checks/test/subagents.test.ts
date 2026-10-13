@@ -1,4 +1,4 @@
-import type { Expect } from '@driftbench/core';
+import type { Expect } from '@agent-nexus/driftbench-core';
 import { describe, expect, it } from 'vitest';
 import { subagents } from '../src/checks/subagents';
 import { acme } from './support/acme';

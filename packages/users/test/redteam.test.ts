@@ -1,7 +1,7 @@
 import { mkdtemp, rm, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
-import { DeviationClass } from '@driftbench/core';
+import { DeviationClass } from '@agent-nexus/driftbench-core';
 import { afterEach, describe, expect, it } from 'vitest';
 import {
   checkPackFile,

@@ -31,7 +31,7 @@ See `validators/floors.json`; `pnpm driftbench validate floors` prints it. Ladde
 
 1. The seven missing methods are built. The remaining failing items are degenerate inputs, neymanAllocation (maintainer), numerical stability and chaoCoverage.
 2. Degenerate inputs (about 130 items): per function, a RangeError that names the argument, the scipy limit at the edge of the special functions, exact answers on one or all-equal values. A shared finiteness helper fixes many at once (say so in the journal).
-3. chaoCoverage just above the class count (3 items), neymanAllocation (11 items, maintainer), numerical stability (5 items).
+3. chaoCoverage richness (4 items, a maintainer fixes them in a separate PR). Everything else passes on every seed.
 4. `simulation.newcombe.n30` fails on one seed of 21 (pairedRateDifference coverage); not touched yet.
 
 ## Hypotheses tried

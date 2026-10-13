@@ -2,8 +2,8 @@ import { copyFile, mkdir, mkdtemp, readdir, readFile, writeFile } from 'node:fs/
 import { tmpdir } from 'node:os';
 import { join, relative } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { parseSpecText } from '@driftbench/core';
-import { REPLAY_CUSTOM_CHECKS } from '@driftbench/generate';
+import { parseSpecText } from '@agent-nexus/driftbench-core';
+import { REPLAY_CUSTOM_CHECKS } from '@agent-nexus/driftbench-generate';
 import { beforeAll, describe, expect, it } from 'vitest';
 import { replayRegistry } from '../src/commands/replay';
 import { type Io, main } from '../src/index';

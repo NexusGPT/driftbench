@@ -1,7 +1,7 @@
 import { createHash } from 'node:crypto';
 import { cpSync, existsSync, mkdirSync, readdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
-import { openStore } from '@driftbench/store';
+import { openStore } from '@agent-nexus/driftbench-store';
 import { parse, stringify } from 'yaml';
 import { type BankItem, expectAll, fail, type ItemResult, PASS, type Tier } from '../types';
 

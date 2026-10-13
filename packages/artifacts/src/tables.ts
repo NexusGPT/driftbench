@@ -1,4 +1,4 @@
-import type { TableCell, TableInput } from '@driftbench/core';
+import type { TableCell, TableInput } from '@agent-nexus/driftbench-core';
 import { detectDelimiter, parseCsv } from './csv';
 import { describeFailure } from './document';
 import type { Grid } from './grid';

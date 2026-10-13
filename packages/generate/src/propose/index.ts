@@ -1,4 +1,4 @@
-import { contentHash, type Spec, validateSpec } from '@driftbench/core';
+import { contentHash, type Spec, validateSpec } from '@agent-nexus/driftbench-core';
 import { parseAllDocuments, parse as parseYaml, stringify } from 'yaml';
 import type { ModelPort } from '../model/port';
 

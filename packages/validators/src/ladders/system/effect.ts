@@ -1,4 +1,4 @@
-import { defaultChecks } from '@driftbench/checks';
+import { defaultChecks } from '@agent-nexus/driftbench-checks';
 import {
   type AgentAdapter,
   type Campaign,
@@ -13,10 +13,10 @@ import {
   type Store,
   type TargetRef,
   validateSpec,
-} from '@driftbench/core';
-import * as stats from '@driftbench/stats';
-import { openMemoryStore } from '@driftbench/store';
-import { createScriptedDriver } from '@driftbench/users';
+} from '@agent-nexus/driftbench-core';
+import * as stats from '@agent-nexus/driftbench-stats';
+import { openMemoryStore } from '@agent-nexus/driftbench-store';
+import { createScriptedDriver } from '@agent-nexus/driftbench-users';
 import { showNumber } from '../../format';
 import type { Item, Measure } from '../../ladder';
 import { plantedAdapter } from './agent';

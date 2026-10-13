@@ -1,5 +1,5 @@
 import { fileURLToPath } from 'node:url';
-import * as stats from '@driftbench/stats';
+import * as stats from '@agent-nexus/driftbench-stats';
 import { designsPath, readDesigns, type StatsDesigns } from '../../src/ladders/stats/index';
 
 /** The repository root, where the ladder finds its fixtures. */

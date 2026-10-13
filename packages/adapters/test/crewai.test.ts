@@ -1,5 +1,5 @@
 import { readFileSync } from 'node:fs';
-import { AdapterTransportError, AgentFailure, type Session } from '@driftbench/core';
+import { AdapterTransportError, AgentFailure, type Session } from '@agent-nexus/driftbench-core';
 import { describe, expect, it } from 'vitest';
 import { CREWAI_BRIDGE } from '../src/crewai/bridge-source';
 import { type CrewRun, crewaiAdapter, crewaiHttp, crewaiInputs, crewaiProcess } from '../src/crewai/index';

@@ -72,7 +72,7 @@ Without a decision log, `runtime.guards` is absent, and without a step feed, `ru
 `replayAdapter({ session, fromBlock, files })` serves a mapped session to the runner, block by block, with no model call. Its id is `claude-code`. With `files`, the folder the session left, it also reads artifacts from there (a bounded read that refuses a path outside the folder), so the artifact checks open the files the agent produced.
 
 ```ts
-import { readSession, replayAdapter } from '@driftbench/adapters';
+import { readSession, replayAdapter } from '@agent-nexus/driftbench-adapters';
 
 const session = await readSession({
   transcript: 'examples/estates/sessions/gate-violated.jsonl',
@@ -125,7 +125,7 @@ blocks:
       execution: { ran_code: true, exit_code: 0 }
 ```
 
-`session` is the transcript's file name without `.jsonl`, or its path, and `from_block` the session block the spec's first block reads (default 0). `before` and `after` go together: the folders the workspace held before and after the session, relative to the transcript's folder, so a corpus can move. With them, the last block's workspace diff is the diff of the two trees, and the artifact checks read the produced files from the `after` folder with the readers of `@driftbench/artifacts`. The spec's `workspace_seed` is what a live run would start from; replay reads the trees instead. A spec that names files in `expect.references` gets its session read again with those paths, so a read of any of them is a reference too. A spec without the key reads, in file order, the next session given, from block 0. A decision log or a step feed belongs to the session whose file name starts its own (`gate-violated.decisions.jsonl` for `gate-violated.jsonl`).
+`session` is the transcript's file name without `.jsonl`, or its path, and `from_block` the session block the spec's first block reads (default 0). `before` and `after` go together: the folders the workspace held before and after the session, relative to the transcript's folder, so a corpus can move. With them, the last block's workspace diff is the diff of the two trees, and the artifact checks read the produced files from the `after` folder with the readers of `@agent-nexus/driftbench-artifacts`. The spec's `workspace_seed` is what a live run would start from; replay reads the trees instead. A spec that names files in `expect.references` gets its session read again with those paths, so a read of any of them is a reference too. A spec without the key reads, in file order, the next session given, from block 0. A decision log or a step feed belongs to the session whose file name starts its own (`gate-violated.decisions.jsonl` for `gate-violated.jsonl`).
 
 The seven fixture sessions and their suite, from the repository root:
 

@@ -1,4 +1,4 @@
-import { collectRetries } from '@driftbench/core';
+import { collectRetries } from '@agent-nexus/driftbench-core';
 import { describe, expect, it } from 'vitest';
 import {
   createAnthropicJudge,

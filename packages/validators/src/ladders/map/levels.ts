@@ -1,4 +1,4 @@
-import type { Proposal, Refusal } from '@driftbench/generate';
+import type { Proposal, Refusal } from '@agent-nexus/driftbench-generate';
 import type { Item, Measure } from '../../ladder';
 import { contractStatesRole } from './oracle';
 import { INVENTORY_PATH, PROMPT_PATH, type Rendered, TOOLS_PATH } from './render';

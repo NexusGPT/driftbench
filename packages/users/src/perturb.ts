@@ -14,7 +14,7 @@ import {
   type Stimulus,
   type UserDriver,
   type WorldState,
-} from '@driftbench/core';
+} from '@agent-nexus/driftbench-core';
 import { DEVIATIONS, isWorldClass } from './deviations';
 import { drawPhrasing, type Phrasing, type PhrasingKind, type RedteamPack } from './redteam';
 import { createScriptedDriver } from './scripted';

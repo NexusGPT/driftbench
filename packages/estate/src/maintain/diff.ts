@@ -1,5 +1,5 @@
-import { canonicalJson } from '@driftbench/core';
-import { shortQuote } from '@driftbench/generate';
+import { canonicalJson } from '@agent-nexus/driftbench-core';
+import { shortQuote } from '@agent-nexus/driftbench-generate';
 import { z } from 'zod';
 import { type Atom, AtomKind, Edge, type EstateMap } from '../schema';
 
