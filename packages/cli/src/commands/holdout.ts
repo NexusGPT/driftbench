@@ -17,7 +17,14 @@ import {
 import type { Command } from 'commander';
 import type { Io } from '../io';
 import { optionNumber } from '../number';
-import { type CampaignDeps, type CampaignScope, defaultDeps, parseTarget, showTarget } from './campaign';
+import {
+  type CampaignDeps,
+  type CampaignScope,
+  defaultDeps,
+  parseTarget,
+  resolveAdapter,
+  showTarget,
+} from './campaign';
 import { display, exists, portable, readPool, table, whole } from './select';
 
 export type HoldoutDeps = Pick<CampaignDeps, 'adapterFor' | 'checks' | 'artifacts' | 'driver' | 'now'>;
@@ -259,9 +266,8 @@ export async function holdoutScoreCommand(options: ScoreOptions, io: Io, deps: H
   const scope = openScope();
   let adapter: AgentAdapter | undefined;
   try {
-    adapter = await deps.adapterFor(target, scope);
+    adapter = await resolveAdapter(target, () => deps.adapterFor(target, scope), io, [], { unspent: true });
     if (!adapter) {
-      io.err(`No adapter is set up for ${shown}: nothing ran, no query was spent.\n`);
       return 2;
     }
     // The query is spent before the first run: results seen once count, even when the run breaks off.

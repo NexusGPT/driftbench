@@ -1453,23 +1453,46 @@ async function adaptersFor(
   for (const target of runs.flatMap((run) => run.targets)) {
     const key = showTarget(target);
     if (adapters.has(key)) continue;
-    const adapter = await deps.adapterFor(target, scope);
-    if (!adapter) {
-      const owners = runs
-        .filter((run) => run.pinned !== undefined && showTarget(run.pinned) === key)
-        .map((run) => run.spec.id);
-      io.err(`${noAdapter(target, owners)}\n`);
-      return undefined;
-    }
+    const owners = runs
+      .filter((run) => run.pinned !== undefined && showTarget(run.pinned) === key)
+      .map((run) => run.spec.id);
+    const adapter = await resolveAdapter(target, () => deps.adapterFor(target, scope), io, owners);
+    if (!adapter) return undefined;
     adapters.set(key, adapter);
   }
   return adapters;
 }
 
-/** Why a target cannot run: no adapter is set up for it. Names the specs whose own target it is. */
-export function noAdapter(target: TargetRef, specIds: readonly string[] = []): string {
+type RefusalContext = { reference?: boolean; unspent?: boolean; pilot?: boolean; exampleInstalled?: boolean };
+
+/** Resolve a command's target and give every refusal the same install-aware explanation. */
+export async function resolveAdapter(
+  target: TargetRef,
+  factory: () => Promise<AgentAdapter | undefined>,
+  io: Io,
+  specIds: readonly string[] = [],
+  context: RefusalContext = {},
+): Promise<AgentAdapter | undefined> {
+  const adapter = await factory();
+  if (!adapter) io.err(`${noAdapter(target, specIds, context)}\n`);
+  return adapter;
+}
+
+/** Why a target cannot run, including its owning specs and the targets this install reaches. */
+export function noAdapter(
+  target: TargetRef,
+  specIds: readonly string[] = [],
+  context: RefusalContext = {},
+): string {
   const whose = specIds.length === 0 ? '' : `, the target of ${specIds.join(', ')}`;
-  return `No adapter is set up for ${showTarget(target)}${whose}. ${knownTargets()}`;
+  const installed = context.exampleInstalled ?? acmeExampleInstalled();
+  const reaches = context.pilot
+    ? installed
+      ? 'The pilot reaches function:acme (the Acme sales assistant) and function:acme-random or function:acme-random-<seed> (its seeded random control).'
+      : `${ACME_EXAMPLE_ABSENT} The pilot runs on the example's agents only, so this install has no pilot target.`
+    : knownTargets(installed);
+  const suffix = context.unspent ? ': nothing ran, no query was spent.' : '.';
+  return `No adapter is set up for ${context.reference ? 'the reference ' : ''}${showTarget(target)}${whose}${suffix} ${reaches}`;
 }
 
 /** The target of the first route whose tag the spec carries, if any. */
