@@ -1,8 +1,9 @@
 {
-  "stamp": "2026-10-13T11:16:50.398193+00:00",
+  "stamp": "2026-10-13T12:02:55.587714+00:00",
   "models": [
     "gemini-3.8-flash"
   ],
-  "reason": "Daily quota; resume only on owner word or after reset",
-  "resume_not_before": "2026-10-14T00:00:00+00:00"
+  "reason": "Owner-only resumption; reset does not authorize Gemini calls",
+  "resume_not_before": "2026-10-14T00:00:00+00:00",
+  "requires_owner_resume": true
 }

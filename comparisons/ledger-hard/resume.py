@@ -56,6 +56,9 @@ def work(r):
 
 def hold_after_reset(hold,now):
     result=dict(hold)
+    if hold.get('requires_owner_resume'):
+        result['models']=sorted(set(hold['models'])|{'gemini-3.8-flash'})
+        return result
     if hold.get('resume_not_before') and now>=datetime.datetime.fromisoformat(hold['resume_not_before']):
         result['models']=[m for m in hold['models'] if m!='gemini-3.8-flash']
         result.update(stamp=now.isoformat(),reason='Daily quota reset reached; missing-only resumption authorized')
@@ -76,8 +79,9 @@ def main():
     topup=json.loads((HERE/'topup-runtime-amendment.json').read_text())
     budget=json.loads((HERE/'budget-amendment.json').read_text())
     daily=json.loads((HERE/'daily-quota-amendment.json').read_text())
+    owner_hold=json.loads((HERE/'owner-hold-amendment.json').read_text())
     assert pacing['per_model_limits']==MODEL_LIMITS
-    for name,value in (amendment['sha256']|concurrency['sha256']|quota['sha256']|pacing['sha256']|billing['sha256']|topup['sha256']|budget['sha256']|daily['sha256']).items():assert digest(ROOT/name)==value,name
+    for name,value in (amendment['sha256']|concurrency['sha256']|quota['sha256']|pacing['sha256']|billing['sha256']|topup['sha256']|budget['sha256']|daily['sha256']|owner_hold['sha256']).items():assert digest(ROOT/name)==value,name
     committed=primary.subprocess.check_output(['git','show','HEAD:comparisons/ledger-hard/recovery-amendment.json'],cwd=ROOT)
     assert committed==(HERE/'recovery-amendment.json').read_bytes()
     committed=primary.subprocess.check_output(['git','show','HEAD:comparisons/ledger-hard/concurrency-amendment.json'],cwd=ROOT)
@@ -94,6 +98,8 @@ def main():
     assert committed==(HERE/'budget-amendment.json').read_bytes()
     committed=primary.subprocess.check_output(['git','show','HEAD:comparisons/ledger-hard/daily-quota-amendment.json'],cwd=ROOT)
     assert committed==(HERE/'daily-quota-amendment.json').read_bytes()
+    committed=primary.subprocess.check_output(['git','show','HEAD:comparisons/ledger-hard/owner-hold-amendment.json'],cwd=ROOT)
+    assert committed==(HERE/'owner-hold-amendment.json').read_bytes()
     hold=json.loads((HERE/'provider-holds.json').read_text())
     released=hold_after_reset(hold,datetime.datetime.now(datetime.timezone.utc))
     if args.execute and released!=hold:dump(HERE/'provider-holds.json',released)

@@ -16,7 +16,7 @@ def main():
     audit=json.loads((HERE/'construction-cue-audit.json').read_text())
     assert audit['blocking_cues']==[] and audit['verdict'].startswith('PASS')
     source_hashes={}
-    for amendment in ('recovery-amendment.json','concurrency-amendment.json','quota-amendment.json','pacing-amendment.json','billing-amendment.json','topup-runtime-amendment.json','budget-amendment.json','daily-quota-amendment.json'):
+    for amendment in ('recovery-amendment.json','concurrency-amendment.json','quota-amendment.json','pacing-amendment.json','billing-amendment.json','topup-runtime-amendment.json','budget-amendment.json','daily-quota-amendment.json','owner-hold-amendment.json'):
         source_hashes.update(json.loads((HERE/amendment).read_text())['sha256'])
     for path,value in source_hashes.items():assert digest(ROOT/path)==value,path
     authorised={i['request_sha256']:i for i in recovery['items']}

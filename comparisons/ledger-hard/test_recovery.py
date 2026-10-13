@@ -25,6 +25,11 @@ class RecoveryTests(unittest.TestCase):
         self.assertEqual(hold['models'],['gemini-3.8-flash'])
         billing={'models':['gemini-3.8-flash'],'reason':'HTTP 402'}
         self.assertEqual(r.hold_after_reset(billing,after),billing)
+    def test_owner_hold_survives_reset_and_forces_provider_block(self):
+        after=r.datetime.datetime.fromisoformat('2026-10-14T01:00:00+00:00')
+        for models in [[],['gemini-3.8-flash']]:
+            hold={'models':models,'resume_not_before':'2026-10-14T00:00:00+00:00','requires_owner_resume':True}
+            self.assertEqual(r.hold_after_reset(hold,after)['models'],['gemini-3.8-flash'])
     def test_cutoff_extension_applies_only_to_gemini(self):
         amendment={'gemini_missing_only_cutoff':'2026-10-14T12:00:00+00:00'}
         self.assertEqual(r.deadline_for('gemini-3.8-flash',amendment),'2026-10-14T12:00:00+00:00')

@@ -1,6 +1,6 @@
 # Ledger hard-row dossier
 
-Haiku and Luna complete; Gemini 262 requests not run: daily quota. Recording analysis generated 2026-10-13T11:21:49.347084+00:00. All case and result counts come from the linked files in `comparisons/ledger-hard/`.
+Haiku and Luna complete; Gemini 262 requests not run: daily quota. Recording analysis generated 2026-10-13T12:03:30.442917+00:00. All case and result counts come from the linked files in `comparisons/ledger-hard/`.
 
 - Haiku and Luna have full coverage in both experiments: 384 cases per row. Gemini has 262 requests not run: daily quota. Its unfinished cells carry no final verdict.
 - 6560 primary and 9578 dialect unique recorded requests, including the goal equal-evidence ablation.
@@ -80,7 +80,9 @@ Gemini reaches the shared 10,000-request daily limit on 13 October. The owner st
 
 The partial publication marks Gemini as "262 requests not run: daily quota". Of these, 260 are queued without a new attempt and two have quota-only rejections without an answer. This wording denotes missing scored answers. The previously recorded Gemini answers remain included once in descriptive partial tables; no incomplete pooled verdict is claimed.
 
-The Gemini missing-only cutoff extends to 2026-10-14 12:00 UTC. Resumption requires an explicit owner instruction or the daily reset near 2026-10-14 00:00 UTC. The USD 12 cap, USD 0.40 reserve, two-call Gemini limit, sealed order and answer contracts remain fixed. `daily-quota-amendment.json` records this authorization and the affected keys.
+The Gemini missing-only cutoff extends to 2026-10-14 12:00 UTC. A later owner instruction supersedes reset-based resumption: Gemini resumes only on explicit owner word. The daily reset does not authorize calls. The USD 12 cap, USD 0.40 reserve, two-call Gemini limit, sealed order and answer contracts remain fixed. `daily-quota-amendment.json` records this authorization and the affected keys.
+
+Quota allocation: exactly 262 unique Gemini requests remain: 110 candidate goal requests, 40 default peer goal requests, and 112 equal-evidence peer goal requests. The two abandoned no-answer requests are included in 262. All 20 crash re-asks are already recorded. There are zero planned additional content re-asks. Future no-answer transport failures may require extra attempts; these cannot be fixed in advance. `owner-hold-amendment.json` records this census and the owner-only hold.
 
 ## Native parity and verification
 
@@ -111,13 +113,14 @@ Focused protocol/recovery tests pass; `test-output.txt` retains the test result.
 | `gemini-probe-result.json` | `3ee1edc838607e69e304755ae9551b586669c0dd6c3ebba39c53a1e8e30e9391` |
 | `budget-amendment.json` | `721f7a1b0871220ee61ef506a7b422d1e64cf1e60cb6de334d0908180b7128c4` |
 | `daily-quota-amendment.json` | `67f64ff18c53e3527652ee7aadbcfaa35b83bedbc060fdd13baced18a49f4de6` |
+| `owner-hold-amendment.json` | `1a5e4ef20548794adb0572ccb8a425953dea2f3aa89004d10ae9c0412532cfe4` |
 | `crash-recovery.json` | `7a033003ca9a0813b34d752ed9360a8d8502274ea502f962aa05e8ac59178308` |
 | `seeds.json` | `8aa6b101d2feaf60c27f36ee7521ff7e53d3c5c247817b29e98902d6ed6dc40d` |
 | `prompts.json` | `9d8bfad218065453b74a13d3841164c9a3cdb454165ca703c76bde93c3bdae4c` |
 | `dialect/prompts.json` | `2fe5c23508da1f5ee542d9c6ceb10313a96336e64f45182df74ae3d72a756bef` |
 | `score.py` | `f5f91044dcb166d04b8bff098e8cc31d7431fae30a3983894e7dc1617c4a6831` |
 | `dialect-score.py` | `98092ff0d7d5876a829eaaa08af5eca68d078afda5926bfdbeadb0c0aa31e917` |
-| `verification-final.json` | `795a6e8d903db58f3e6ea00a14265e8bc426f9a5449a6ccf27766bb9ea4958a3` |
+| `verification-final.json` | `b3a45b0e5360fdd01988e5ffffce7b7fdb3393b2a90a4b3fec2ca45fbfe54d51` |
 
 Candidate procedure: `d7f5e226bf5afe7b955ee0f2247835cd19953001c196dcc7260d1f0c37922587`. Original seal commit: `eeb7875e`. Core dialect source: `2bb0a7a787ca4466ff69d204f2380a7ad19cc056`; dialect seal commit: `a7954b1b`. The per-file source hash maps remain inside the seals and operational amendments.
 
