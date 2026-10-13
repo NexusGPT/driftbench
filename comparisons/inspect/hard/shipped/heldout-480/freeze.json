@@ -4,22 +4,10 @@
   "casesPerRow": 480,
   "perFamilyAndLabel": 20,
   "seedRanges": {
-    "qa": [
-      500001,
-      500015
-    ],
-    "fact": [
-      500001,
-      500017
-    ],
-    "panel": [
-      600001,
-      600013
-    ],
-    "borderline": [
-      700001,
-      700021
-    ]
+    "qa": [500001, 500015],
+    "fact": [500001, 500017],
+    "panel": [600001, 600013],
+    "borderline": [700001, 700021]
   },
   "selection": "Seeds walked upward from 500001 (QA, fact), 600001 (panel), 700001 (borderline). Items taken in generator order when the request of every procedure is new and unique, until each family and label cell holds 20. No model outcome is read.",
   "preRegistration": {
