@@ -1,6 +1,6 @@
-import { DatabaseSync } from 'node:sqlite';
 import { type Check, machineVerdict, type Verdict } from '@agent-nexus/driftbench-core';
 import { visibleText } from '../support/text';
+import { sqliteModule } from './sql';
 
 /**
  * `expect.markup`: the customer-visible text is well-formed XML or HTML. A tag scanner walks the opening and
@@ -56,7 +56,7 @@ export function sqlStatements(text: string): string[] {
  * is not in a schema is valid syntax here: the check reads syntax only, with no database.
  */
 export function sqlProblem(text: string): string | undefined {
-  const db = new DatabaseSync(':memory:');
+  const db = new (sqliteModule().DatabaseSync)(':memory:');
   try {
     for (const statement of sqlStatements(text)) {
       try {
