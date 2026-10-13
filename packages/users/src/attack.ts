@@ -22,6 +22,7 @@ import {
   phrasingKindProblems,
   phrasingPool,
   type RedteamPack,
+  RedteamPackError,
   shapeProblems,
 } from './redteam';
 import { createScriptedDriver } from './scripted';
@@ -171,6 +172,17 @@ export async function runAttack(options: AttackOptions): Promise<AttackResult> {
     if (!options.pack) return true;
     return phrasingPool(options.pack, cls, kind, options.drafts === true) > 0;
   };
+  // A pack nobody has approved a phrasing of gives nothing to draw. That is a pack to refuse, not a clean
+  // run of zero attacks: skipping is for a class the pack leaves out, never for the whole pack.
+  if (options.pack && !options.replay && !options.port && !options.drafts) {
+    const classes = [...options.pack.files.keys()];
+    const written = classes.some((cls) => phrasingPool(options.pack as RedteamPack, cls, kind, true) > 0);
+    if (written && !classes.some(drawable)) {
+      throw new RedteamPackError(
+        `the red-team pack holds no approved ${kind} phrasing: a person reads each one and sets approved: true, or the run asks for drafts`,
+      );
+    }
+  }
   let last: { run: RunResult; label: string; perturbation?: PerturbationSpec } = {
     run: reference,
     label: 'reference',

@@ -87,7 +87,7 @@ export function canonicalJsonWithList(value: Record<string, unknown>, listKey: s
   return `{${fields.join(',')}}`;
 }
 
-type Running = { head: string; items: readonly unknown[]; state: Hash };
+type Running = { head: string; items: readonly unknown[]; state: Hash; text: string };
 const running: Running[] = [];
 const RUNNING_KEPT = 8;
 
@@ -101,38 +101,51 @@ function itemText(item: unknown): string {
   return text;
 }
 
+/** Whether `items` starts with every item of `entry`, the same objects in the same order. */
+function isPrefixOf(entry: Running, items: readonly unknown[]): boolean {
+  if (entry.items.length > items.length) return false;
+  for (let index = 0; index < entry.items.length; index += 1) {
+    if (entry.items[index] !== items[index]) return false;
+  }
+  return true;
+}
+
 /**
  * The SHA-256 (hex) of `head + [items] + tail`, where the items are written as `canonicalList` writes them.
  * The digest state after a list is kept, so the next call with the same head and the same items plus more
- * hashes only the new ones: a history that grows by a message per block costs one message per block.
+ * hashes only the new ones: a history that grows by a message per block costs one message per block. The
+ * text of the list is kept too, so a call under another head (a ledger that changed, another block
+ * position) reads only the new items again; it hashes the whole text, which costs bytes, not item reads.
  */
 export function sha256WithList(head: string, items: readonly unknown[], tail: string): string {
   let from: Running | undefined;
+  let textFrom: Running | undefined;
   for (const entry of running) {
-    if (entry.head !== head || entry.items.length > items.length) continue;
-    let same = true;
-    for (let index = 0; index < entry.items.length; index += 1) {
-      if (entry.items[index] !== items[index]) {
-        same = false;
-        break;
-      }
-    }
-    if (same && (from === undefined || entry.items.length > from.items.length)) from = entry;
+    if (!isPrefixOf(entry, items)) continue;
+    if (entry.head === head && (from === undefined || entry.items.length > from.items.length)) from = entry;
+    if (textFrom === undefined || entry.items.length > textFrom.items.length) textFrom = entry;
   }
   let state: Hash;
+  let text: string;
   let start: number;
-  if (from) {
+  if (from && from.items.length >= (textFrom?.items.length ?? 0)) {
     state = from.state.copy();
+    text = from.text;
     start = from.items.length;
   } else {
     state = createHash('sha256');
     state.update(`${head}[`);
-    start = 0;
+    text = textFrom ? textFrom.text : '';
+    if (text !== '') state.update(text);
+    start = textFrom ? textFrom.items.length : 0;
   }
+  let added = '';
   for (let index = start; index < items.length; index += 1) {
-    state.update(index === 0 ? itemText(items[index]) : `,${itemText(items[index])}`);
+    added += index === 0 ? itemText(items[index]) : `,${itemText(items[index])}`;
   }
-  const entry: Running = { head, items: [...items], state };
+  if (added !== '') state.update(added);
+  text += added;
+  const entry: Running = { head, items: [...items], state, text };
   running.unshift(entry);
   if (running.length > RUNNING_KEPT) running.length = RUNNING_KEPT;
   return state.copy().update(`]${tail}`).digest('hex');
