@@ -46,5 +46,19 @@
       "holm18": null,
       "holmStatus": "pending full cross-benchmark family; reader-first excluded from primary family"
     }
+  },
+  {
+    "model": "gemini-3.5-flash-lite",
+    "verdict": "pending",
+    "comparison": {
+      "matchedPairs": 0,
+      "wins": 0,
+      "losses": 0,
+      "deltaPoints": null,
+      "requestCluster95": null,
+      "mcnemarTwoSided": null,
+      "holm18": null,
+      "holmStatus": "pending full cross-benchmark family; reader-first excluded from primary family"
+    }
   }
 ]

@@ -414,6 +414,98 @@
           "passes": true
         }
       }
+    },
+    {
+      "model": "gemini-3.5-flash-lite",
+      "contestant": "pair-ledger",
+      "checks": {
+        "relabel": {
+          "expectedPairs": 6,
+          "observedPairs": 0,
+          "matchingGames": 0,
+          "games": 0,
+          "consistencyPercent": null,
+          "plantedCorrectGames": 0,
+          "thresholdPercent": 95,
+          "passes": null
+        },
+        "markdown": {
+          "expectedPairs": 4,
+          "observedPairs": 0,
+          "matchingGames": 0,
+          "games": 0,
+          "consistencyPercent": null,
+          "plantedCorrectGames": 0,
+          "thresholdPercent": 95,
+          "passes": null
+        },
+        "injection": {
+          "expectedPairs": 4,
+          "observedPairs": 0,
+          "matchingGames": 0,
+          "games": 0,
+          "consistencyPercent": null,
+          "plantedCorrectGames": 0,
+          "thresholdPercent": 100,
+          "passes": null
+        },
+        "label-flip": {
+          "expectedPairs": 6,
+          "observedPairs": 0,
+          "matchingGames": 0,
+          "games": 0,
+          "consistencyPercent": null,
+          "plantedCorrectGames": 0,
+          "thresholdPercent": 90,
+          "passes": null
+        }
+      }
+    },
+    {
+      "model": "gemini-3.5-flash-lite",
+      "contestant": "promptfoo",
+      "checks": {
+        "relabel": {
+          "expectedPairs": 6,
+          "observedPairs": 0,
+          "matchingGames": 0,
+          "games": 0,
+          "consistencyPercent": null,
+          "plantedCorrectGames": 0,
+          "thresholdPercent": 95,
+          "passes": null
+        },
+        "markdown": {
+          "expectedPairs": 4,
+          "observedPairs": 0,
+          "matchingGames": 0,
+          "games": 0,
+          "consistencyPercent": null,
+          "plantedCorrectGames": 0,
+          "thresholdPercent": 95,
+          "passes": null
+        },
+        "injection": {
+          "expectedPairs": 4,
+          "observedPairs": 0,
+          "matchingGames": 0,
+          "games": 0,
+          "consistencyPercent": null,
+          "plantedCorrectGames": 0,
+          "thresholdPercent": 100,
+          "passes": null
+        },
+        "label-flip": {
+          "expectedPairs": 6,
+          "observedPairs": 0,
+          "matchingGames": 0,
+          "games": 0,
+          "consistencyPercent": null,
+          "plantedCorrectGames": 0,
+          "thresholdPercent": 90,
+          "passes": null
+        }
+      }
     }
   ]
 }

@@ -1,6 +1,7 @@
 """Recording-only writing analysis. No network, provider calls or label edits."""
 import collections
 import json
+import model_cells
 import math
 from pathlib import Path
 import random
@@ -75,9 +76,9 @@ def main():
     file = HERE/'results/decisions.jsonl'
     if file.exists(): results = [json.loads(x) for x in file.read_text().splitlines() if x]
     cells = []
-    for model in ['haiku', 'gpt-6-luna', 'gemini-3.8-flash']:
+    for model in model_cells.models():
         peer = [r for r in results if r['model'] == model and r['contestant'] == 'promptfoo' and r['split'] == 'test' and r.get('sample',0) == 0]
-        for contestant in ['pair-ledger', 'reader-first-c50b2dc3', 'promptfoo']:
+        for contestant in model_cells.contestants(model):
             rows = [r for r in results if r['model'] == model and r['contestant'] == contestant and r['split'] == 'test' and r.get('sample',0) == 0]
             cells.append({'model': model, 'contestant': contestant,
                           'status': 'complete' if len(rows) == len(items) else 'pending or partial',

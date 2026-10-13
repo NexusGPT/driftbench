@@ -24,11 +24,17 @@ def load(path):
 
 def main():
     freeze = load('freeze.json')
+    if freeze.get('geminiOwnerHold', {}).get('active'):
+        state('disarmed', reason='Owner-only resumption; no automatic reset run')
+        return
     reset = datetime.datetime.fromisoformat(freeze['geminiDailyQuotaAmendment']['resumeNotBefore'])
     cutoff = datetime.datetime.fromisoformat(freeze['modelLastCallUtc']['gemini-3.8-flash'])
     state('armed', resumeNotBefore=reset.isoformat(), lastCallUtc=cutoff.isoformat(),
           stopCondition='One missing-only Gemini run after reset, followed by verification and push; then exit.')
     while True:
+        if load('freeze.json').get('geminiOwnerHold', {}).get('active'):
+            state('disarmed', reason='Owner-only resumption; no automatic reset run')
+            return
         current = load('results/run-state.json')
         if current['pid'] != TARGET:
             state('retired', reason='Another run replaces the parked target; no second runner started.')

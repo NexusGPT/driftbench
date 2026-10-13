@@ -3,6 +3,7 @@ import datetime
 import collections
 import hashlib
 import json
+import model_cells
 from pathlib import Path
 import subprocess
 
@@ -40,8 +41,8 @@ def main():
     gemini_test=sum(r['model']=='gemini-3.8-flash' and r['split']=='test' for r in decisions)
     quota_parked=bool(quota) and gemini_dev+gemini_test<789 and (
         datetime.datetime.now(datetime.timezone.utc)<datetime.datetime.fromisoformat(quota['resumeNotBefore']) or
-        progress.get('models',{}).get('gemini-3.8-flash',{}).get('status')=='stopped')
-    quota_status=(f"Gemini: not run: daily quota. Development comparisons: {gemini_dev}/270 complete, {270-gemini_dev} missing. Test comparisons: {gemini_test}/519 complete, {519-gemini_test} missing. No-answer quota rejections are not judge failures. Missing-only resumption is authorized after 2026-10-14 00:00 UTC or on the owner's word, with a Gemini-only last-call cutoff of 2026-10-14 12:00 UTC. Source: `freeze.json` and `results/decisions.jsonl`.") if quota_parked else 'Provider status follows the coverage table below.'
+        progress.get('models',{}).get('gemini-3.8-flash',{}).get('status')=='stopped' or freeze.get('geminiOwnerHold',{}).get('active'))
+    quota_status=(f"Gemini: not run: daily quota. Development comparisons: {gemini_dev}/270 complete, {270-gemini_dev} missing. Test comparisons: {gemini_test}/519 complete, {519-gemini_test} missing. No-answer quota rejections are not judge failures. The reset watcher is disarmed. Resumption requires the owner's explicit word and runs last; the prior reset-based permission is superseded. The Gemini-only last-call cutoff remains 2026-10-14 12:00 UTC. Source: `freeze.json` and `results/decisions.jsonl`.") if quota_parked else 'Provider status follows the coverage table below.'
     validity=load('results/validity-checks.json',{})
     failed_dev=[r for r in phase.get('dev',[]) if r['contestant']=='pair-ledger' and r.get('noise',{}).get('completeTriplePairs')==30 and not r.get('cheaterBarPass')]
     dev_warning=('Preregistered development validity fails the cheater bar for '+', '.join(r['model'] for r in failed_dev)+'. The full test runs under explicit owner authorization without tuning. This study cannot claim that all validity gates pass. Source: `results/phase-report.json`.') if failed_dev else 'Development validity is reported below; incomplete checks remain pending.'
@@ -58,7 +59,7 @@ def main():
     primary_summary='; '.join(r['model']+': '+r['verdict'] for r in primary)
     reasks=[]
     for scope in ['all phases','test']:
-        for model in ['haiku','gpt-6-luna','gemini-3.8-flash']:
+        for model in model_cells.models():
             selected=[r for r in decisions if r['contestant']=='pair-ledger' and r['model']==model and (scope=='all phases' or r['split']=='test')]
             reads=[read for row in selected for read in row['details']['reads']]
             repeated=[read for read in reads if any(step['ruleId']=='ledger.reask' for step in read['parseSteps'])]
@@ -123,7 +124,7 @@ def main():
         '|---|---:|---:|---:|']
     control={r['id']:r['games'] for r in decisions if r['split']=='test' and r['contestant']=='longer-wins'}
     reader_comparisons=[]
-    for model in ['haiku','gpt-6-luna','gemini-3.8-flash']:
+    for model in model_cells.models():
         selected=[r for r in decisions if r['split']=='test' and r['model']==model and r['contestant']=='reader-first-c50b2dc3']
         same=sum(r['games']==control[r['id']] for r in selected)
         reader_comparisons.append({'model':model,'observedPairs':len(selected),'identicalToLongerWins':same,'differentFromLongerWins':len(selected)-same})
@@ -152,8 +153,8 @@ def main():
         '| Model | Contestant | Recorded attempts | Output-limit finishes | Provider errors | HTTP 429, all / test |',
         '|---|---|---:|---:|---:|---:|']
     transport_summary=[]
-    for model in ['haiku','gpt-6-luna','gemini-3.8-flash']:
-        for contestant in ['pair-ledger','reader-first-c50b2dc3','promptfoo']:
+    for model in model_cells.models():
+        for contestant in model_cells.contestants(model):
             subset=[r for r in calls if r['model']==model and r['contestant']==contestant]
             limited=sum(r.get('providerMeta',{}).get('finishReason') in ['MAX_TOKENS','length'] for r in subset)
             rate_limits=[r for r in subset if r.get('providerError') and 'Provider 429:' in r['text']]
@@ -173,7 +174,7 @@ def main():
         '- Reader-first: [PR 157](https://github.com/achammah/driftbench/pull/157), source snapshot `c50b2dc3`.',
         '- Promptfoo select-best: `801428268b5e421b2f6994332f6a06f86b27bb1f`, verbatim attributed template and MIT notice.',
         f"- Original judge freeze commit: `a4ae4b33`. Initial freeze SHA-256: `1fb32801af8549c7a4bef7a6c271c1799e950a84316e9fcb027ef757a36b3682`, preserved in `freeze-initial.json`. Current freeze SHA-256: `{hashlib.sha256((HERE/'freeze.json').read_bytes()).hexdigest()}`. The 191 exact file hashes are in `freeze.json`.",
-        '- Runtime amendments set the spending cap to 35 USD, transport timeouts to 300 seconds, and the per-model scheduling limits below. Judge contracts, parser behavior, models, medium reasoning, output limits, statistics and sealed order are unchanged.',
+        '- Runtime amendments set the spending cap to 35 USD, transport timeouts to 300 seconds, and the per-model scheduling limits below. Judge contracts, parser behavior, original model cells, medium reasoning, output limits, statistical formulas and sealed order are unchanged. The additive Flash Lite amendment adds a separate model cell.',
         '- The first plugin crash interrupts six pilot calls; their 0.90 USD reservations remain uncertain. A second reconnect finds one Gemini fetch failure and three unfinished native calls. All uncertain reservations remain counted. See `runtime-recovery.json`, `runtime-recovery-2.json`, and `results/spend.jsonl`.',
         '- The latest owner authorization permits three retries after an initial HTTP 429, with waits of 60, 120 and 240 seconds. Other transport failures allow three submissions total. Timeouts are 300 seconds. Returned model answers never receive transport retries.',
         '- The latest pacing amendment runs all three models side by side: gpt-6-luna uses at most eight plain HTTP calls, Gemini two calls, and Haiku two calls. Each model keeps its sealed order and phase prerequisites. All queues share one spending ledger.',
@@ -186,6 +187,32 @@ def main():
         '- The owner unblocks Gemini billing and restricts key files to `openai.key` and `gemini-driftbench.key`. Keys load inside each command and are not printed.',
         '- Six analysis tests and sixteen harness tests pass before the daily quota resume is committed. Coverage includes charged transport accounting, elapsed backoff credit, the single-probe barrier, rejection blocking, source tamper rejection, shared spend reservations, proven HTTP 402 hold release, transport backoff, per-model concurrency, sealed queue order, provider isolation, output polarity and the pushed-core adapter.',
         '- All paths above are relative to `examples/ledger-wp` unless prefixed otherwise. The branch is [research/ledger-wp](https://github.com/achammah/driftbench/tree/research/ledger-wp). Remote delivery is verified separately at handoff.','']
+    requests=load('results/gemini-remaining-requests.json',{})
+    lite=freeze.get('additionalModelCells',{}).get('gemini-3.5-flash-lite',{})
+    if lite:
+        subset=[r for r in calls if r['model']=='gemini-3.5-flash-lite']
+        applied=sorted({r.get('providerMeta',{}).get('appliedThinkingLevel','unknown') for r in subset if not r.get('providerError')})
+        cell_pending={};cell_actual=0
+        for event in records(lite['spendFile']):
+            if event['kind']=='reserve':cell_pending[event['key']]=event['usd']
+            if event['kind']=='settle':cell_actual+=event['usd'];cell_pending.pop(event['key'],None)
+            if event['kind']=='release':cell_pending.pop(event['key'],None)
+        lines+=['## Additive Flash Lite cell','',
+            '- Owner authorization adds `gemini-3.5-flash-lite` as a separate model. Only pair-ledger and promptfoo run on it. Partial Gemini 3.8 and the separate reader-first rows remain intact.',
+            '- The original DEV, fixtures, validity edits and 173-pair TEST seals apply in unchanged order. Fixtures, validity and three-repeat DEV finish before TEST. No pilot is added under this amendment.',
+            '- Published standard price: 0.30 USD per million input tokens; 2.50 USD per million output tokens, including thinking. Source: [Google pricing](https://ai.google.dev/gemini-api/docs/pricing), read 2026-10-13. The unchanged provider shim matches these rates.',
+            '- Medium is listed as supported in [Google thinking settings](https://ai.google.dev/gemini-api/docs/thinking). The first sealed fixture call runs alone and records the applied request setting before opening concurrency eight.',
+            f"- Applied reasoning on returned calls: {', '.join(applied) if applied else 'pending first call'}. Actual cell spend: {cell_actual:.8f} USD; held cell spend: {sum(cell_pending.values()):.8f} USD; cell cap: 5 USD inside the unchanged 35 USD cap. Source: `results/flash-lite-spend.jsonl` and raw provider metadata.",
+            '- Flash Lite transport: at most eight calls, 300-second timeout, four total submissions for HTTP 429 with 20/60/180-second waits, three submissions for other transport failures. HTTP 402 aborts Gemini immediately and releases only proven rejections.',
+            '- The same win/loss rule and statistical formulas apply. Positive results still require the prescribed multiplicity correction; this added model is reported separately, never substituted for the original Gemini cell.',
+            '- The new model is explicitly authorized after earlier model outcomes were observed. It is an additive model check on the same sealed pool, not a newly blinded study. The amendment and source hashes precede its first call.','']
+    if requests:
+        lines+=['## Parked Gemini 3.8 request allocation','',
+            '- Watcher 70641 is disarmed and verified absent. Owner-only resumption supersedes the previous automatic reset permission. Evidence: `results/gemini-reset-watcher-disarmed.json` and `freeze.json`.',
+            '- Missing comparisons: 575, consisting of 191 pair-ledger, 192 reader-first and 192 promptfoo. No answered call is cached inside these incomplete comparisons.',
+            '- Exactly 1,150 base answer requests remain. Estimated total: 1,196, rounded up after applying the observed DEV canonical-read rate, 17/72, to 191 primary comparisons. Observed schema re-asks are 0/281, so the empirical expected extra schema requests are zero.',
+            '- The exact maximum is 1,914 answer requests if all primary comparisons require canonical escalation and every allowed schema re-ask. Transport retries are additional. Future answers determine the actual total; the expected count is not guaranteed.',
+            '- Source: `results/gemini-remaining-requests.json`, raw calls and decisions.','']
     text='\n'.join(lines)
     assert '\u2014' not in text and '\u2013' not in text
     DEST.write_text(text)

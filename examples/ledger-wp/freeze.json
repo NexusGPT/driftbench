@@ -45,11 +45,11 @@
   },
   "files": {
     "examples/judge-benchmarks/src/llm-shim.mjs": "376105a7240ba6ad265fb2acc629a2c251ce5debdfca353a0b4c40aca41fe2a5",
-    "examples/ledger-wp/harness.ts": "c3de9a35d4537795a047b1e6db1da217824a7099ac3fb4bd4652a4f213a08323",
-    "examples/ledger-wp/phase_report.py": "adabe9c88210b02720345d6e7ae2ca74908fb9aac7357bce405c5bf9dd9f2e1a",
+    "examples/ledger-wp/harness.ts": "c29e2dfa7ebe33650fe6d192ce3d6d6ac659c63b8886897f64bb7edbad8c9d41",
+    "examples/ledger-wp/phase_report.py": "565e6ec606042877a6037c143943d3c6bfe16af3d4b1871d294319b099a6c9e8",
     "examples/ledger-wp/prepare.py": "12e81d34a14a2f00f2ab821d41a1911b29d2de91466fd71a998c7c3a33d76d2d",
     "examples/ledger-wp/seal_validity.py": "527d73e3b1ffdd0f5943d854c1e468b26b318703ae8eeb4d4369accbff5d66b2",
-    "examples/ledger-wp/stats.py": "a4a11aebc0c00bfec490ebc22ebe87d466ebd18fa6a0df454f354797e96bea9b",
+    "examples/ledger-wp/stats.py": "367927ad38992c0fb2059665ee454ca8914e750f1498f5dd0bf1a7af6dd11838",
     "examples/ledger-wp/vendor/reader-c50/packages/judges/src/answer-extraction.ts": "34c7b51c16ccee89de90cb93a7809b2baa69b1fbe4133a174c277784d41f4367",
     "examples/ledger-wp/vendor/reader-c50/packages/judges/src/artifacts.ts": "03c257805bbb737632ef8d4abd20e9ae0a1cb99150b130556f7eba681551e653",
     "examples/ledger-wp/vendor/reader-c50/packages/judges/src/assessment.ts": "2938653c1b490c1d6d1c3a32905d27fe31c6c1651887199d0354f7a09fd5e7ae",
@@ -369,5 +369,71 @@
     "knownFailedAttemptCostUsd": 0.0018808600000000003,
     "costAudit": "results/cost-audit.json",
     "decisionCosts": "Raw decision costs continue to describe returned model answers; reported per-cell rates add known failed-attempt charges."
+  },
+  "geminiOwnerHold": {
+    "active": true,
+    "at": "2026-10-13T12:09:03.995005+00:00",
+    "authorization": "Disarm the reset watcher (70641) so it does not start Gemini on its own; resume Gemini only on my word.",
+    "supersedes": "Automatic reset permission in geminiDailyQuotaAmendment",
+    "watcherPid": 70641,
+    "watcherStatus": "disarmed; process absence verified",
+    "resumePolicy": "Explicit owner word only; missing-only completion last."
+  },
+  "additionalModelCells": {
+    "gemini-3.5-flash-lite": {
+      "at": "2026-10-13T12:09:03.995005+00:00",
+      "authorization": "Owner authorizes gemini-3.5-flash-lite now as a NEW model cell, both contestants, DEV checks then full 173-pair sealed TEST, medium if accepted else default, cap 5 USD within 35 USD, concurrency 8, 429 waits 20/60/180 seconds, 402 stop at once.",
+      "model": "gemini-3.5-flash-lite",
+      "reasoning": "medium",
+      "reasoningFallback": "Default only after a proven setting rejection, recorded before any new submission; returned answers never resubmitted.",
+      "contestants": [
+        "pair-ledger",
+        "promptfoo"
+      ],
+      "phases": [
+        "fixtures",
+        "validity",
+        "dev",
+        "test"
+      ],
+      "capUsd": 5,
+      "spendFile": "results/flash-lite-spend.jsonl",
+      "maxConcurrentCalls": 8,
+      "http429BackoffSeconds": [
+        20,
+        60,
+        180
+      ],
+      "max429Submissions": 4,
+      "maxOtherTransportSubmissions": 3,
+      "timeoutSeconds": 300,
+      "http402Policy": "Abort all Gemini calls immediately; no retry; release only proven rejections.",
+      "priceUsdPerMillion": {
+        "input": 0.3,
+        "outputIncludingThinking": 2.5
+      },
+      "priceSource": "https://ai.google.dev/gemini-api/docs/pricing",
+      "thinkingSource": "https://ai.google.dev/gemini-api/docs/thinking",
+      "priceObservedAt": "2026-10-13T12:09:03.995005+00:00",
+      "reasoningSupport": "Published table supports medium; the first sealed fixture call validates applied medium before concurrency opens.",
+      "ownerReportedLimits": {
+        "perDay": 150000,
+        "perMinute": 4000
+      },
+      "judgeContractChanged": false,
+      "sealedOrderChanged": false,
+      "statisticsPolicy": "Same frozen scoring, exact two-sided McNemar and request-cluster interval. Any positive result awaits multiplicity handling by the collator; never pooled with Gemini 3.8.",
+      "parentFreezeSha256": "5453587b9325521d36becf320a2cb0e5626225e65998b0bbffead9d59c7e50b3",
+      "changedFrozenFiles": [
+        "examples/ledger-wp/harness.ts",
+        "examples/ledger-wp/phase_report.py",
+        "examples/ledger-wp/stats.py"
+      ],
+      "sourceChangeScope": "Runtime transport/budget/model enumeration only. Judge invocation block and statistical formulas unchanged.",
+      "runtimeArtifactHashes": {
+        "examples/ledger-wp/model_cells.py": "fdc6ea7399e3466182efe64cbfd85e02f938760077fa68b96e682388dd0b0658",
+        "examples/ledger-wp/run_remaining.py": "192edd773bf145bf59827c3ec63a871e89c5a34e7e72b80522559f9f5d1d29c7"
+      }
+    }
   }
 }

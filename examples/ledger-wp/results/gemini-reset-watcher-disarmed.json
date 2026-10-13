@@ -1,0 +1,7 @@
+{
+  "pid": 70641,
+  "targetPid": 2552,
+  "status": "disarmed",
+  "at": "2026-10-13T12:09:03.995005+00:00",
+  "reason": "Owner-only Gemini 3.8 resume; SIGTERM sent and process absent verified."
+}

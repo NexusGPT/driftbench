@@ -229,6 +229,46 @@
       "usdPer100Games": null
     },
     {
+      "model": "gemini-3.5-flash-lite",
+      "contestant": "pair-ledger",
+      "status": "pending or partial",
+      "pairs": 0,
+      "games": 0,
+      "correct": 0,
+      "accuracy": null,
+      "wilson95": null,
+      "recipeUsd": 0,
+      "graderErrors": 0,
+      "ties": 0,
+      "usdPer100Pairs": null,
+      "usdPer100Games": null,
+      "comparison": {
+        "matchedPairs": 0,
+        "wins": 0,
+        "losses": 0,
+        "deltaPoints": null,
+        "requestCluster95": null,
+        "mcnemarTwoSided": null,
+        "holm18": null,
+        "holmStatus": "pending full cross-benchmark family; reader-first excluded from primary family"
+      }
+    },
+    {
+      "model": "gemini-3.5-flash-lite",
+      "contestant": "promptfoo",
+      "status": "pending or partial",
+      "pairs": 0,
+      "games": 0,
+      "correct": 0,
+      "accuracy": null,
+      "wilson95": null,
+      "recipeUsd": 0,
+      "graderErrors": 0,
+      "ties": 0,
+      "usdPer100Pairs": null,
+      "usdPer100Games": null
+    },
+    {
       "model": "machine",
       "contestant": "longer-wins",
       "pairs": 173,

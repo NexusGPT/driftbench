@@ -66,5 +66,19 @@
     "byPhase": {
       "dev": 3
     }
+  },
+  {
+    "model": "gemini-3.5-flash-lite",
+    "contestant": "pair-ledger",
+    "http429All": 0,
+    "http429Test": 0,
+    "byPhase": {}
+  },
+  {
+    "model": "gemini-3.5-flash-lite",
+    "contestant": "promptfoo",
+    "http429All": 0,
+    "http429Test": 0,
+    "byPhase": {}
   }
 ]

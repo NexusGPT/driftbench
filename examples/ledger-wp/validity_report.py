@@ -1,5 +1,6 @@
 """Compare sealed edits with their parent decisions, without altering judges."""
 import json
+import model_cells
 from pathlib import Path
 
 HERE = Path(__file__).resolve().parent
@@ -18,8 +19,8 @@ def main():
     rows = [json.loads(x) for x in (HERE / 'results/decisions.jsonl').read_text().splitlines() if x]
     variants = json.loads((HERE / 'seals/validity.json').read_text())
     result = {'scope': 'Supplemental recording-only interpretation of the preregistered edit checks. No contestant or primary statistics change.', 'cells': []}
-    for model in ['haiku', 'gpt-6-luna', 'gemini-3.8-flash']:
-        for contestant in ['pair-ledger', 'reader-first-c50b2dc3', 'promptfoo']:
+    for model in model_cells.models():
+        for contestant in model_cells.contestants(model):
             base = {r['id']: r for r in rows if r['split'] == 'fixtures' and r['model'] == model and r['contestant'] == contestant and r.get('sample', 0) == 0}
             edits = {r['id']: r for r in rows if r['split'] == 'validity' and r['model'] == model and r['contestant'] == contestant}
             checks = {}

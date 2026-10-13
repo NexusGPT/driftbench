@@ -34,7 +34,7 @@ test('a reset resume credits time already waited after a no-answer 429',()=>{
 });
 test('per-model queues preserve sealed start order and independent concurrency bounds',async()=>{
   const maxima:Record<string,number>={};
-  const limits:Record<string,number>={haiku:2,'gpt-6-luna':8,'gemini-3.8-flash':2};
+  const limits:Record<string,number>={haiku:2,'gpt-6-luna':8,'gemini-3.8-flash':2,'gemini-3.5-flash-lite':8};
   await Promise.all(Object.entries(limits).map(async([model,limit])=>{
     let active=0;const starts:number[]=[];maxima[model]=0;
     const jobs=Array.from({length:17},(_,i)=>i);
@@ -121,4 +121,17 @@ test('pushed core adapter carries exact caller rows through both orders without 
   }};
   const result=await judgePairLedger(client,request,{stage0:{correctness:false,compute:false},tiePolicy:'canonical'});
   assert.equal(calls,2);assert.equal(result.choice,'first');assert.equal(result.status,'decided');
+});
+
+test('Flash Lite has its own 429 waits and leaves original Gemini unchanged',()=>{
+  assert.deepEqual([2,3,4].map(n=>transportBackoffMs('Provider 429',n,'gemini-3.5-flash-lite')),[20000,60000,180000]);
+  assert.deepEqual([2,3,4].map(n=>transportBackoffMs('Provider 429',n,'gemini-3.8-flash')),[60000,120000,240000]);
+  assert.equal(transportBackoffMs('fetch failed',3,'gemini-3.5-flash-lite'),3000);
+});
+test('a model subcap rejects before either shared ledger receives a reservation',()=>{
+  const dir=mkdtempSync(resolve(HERE,'runtime/subcap-test-'));
+  const shared=new Budget(resolve(dir,'shared.jsonl'),35),cell=new Budget(resolve(dir,'cell.jsonl'),5);
+  cell.reserve('prior',4.95);
+  assert.throws(()=>{shared.canReserve('next',.1);cell.canReserve('next',.1);shared.reserve('next',.1);cell.reserve('next',.1);},/CAP/);
+  assert.equal(shared.totals().reserved,0);
 });

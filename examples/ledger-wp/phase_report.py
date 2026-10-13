@@ -1,6 +1,7 @@
 """Summarize fixed pilots and dev validity without changing a contestant."""
 import collections
 import json
+import model_cells
 from pathlib import Path
 import stats
 
@@ -12,8 +13,9 @@ def main():
     output={'pilot':[],'dev':[],'policy':'A failed predeclared validity criterion is reported and never tuned away. Test launch requires an explicit recorded disposition.'}
     for split in ['pilot','dev']:
         items=json.loads((HERE/'seals'/f'{split}.json').read_text())
-        for model in ['haiku','gpt-6-luna','gemini-3.8-flash']:
-            for contestant in ['pair-ledger','reader-first-c50b2dc3','promptfoo']:
+        for model in model_cells.models():
+            if split not in model_cells.phases(model): continue
+            for contestant in model_cells.contestants(model):
                 selected=[x for x in rows if x['split']==split and x['model']==model and x['contestant']==contestant]
                 first=[x for x in selected if x.get('sample',0)==0]
                 peer=[x for x in rows if x['split']==split and x['model']==model and x['contestant']=='promptfoo' and x.get('sample',0)==0]

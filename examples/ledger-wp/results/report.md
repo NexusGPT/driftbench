@@ -1,16 +1,16 @@
 # LongJudge writing pair ledger study
 
-Measured state: 2026-10-13T11:42:27.295802+00:00. Branch `research/ledger-wp`, local head `1a92e06901e11d0a0646d0a2867059d287ff2081`.
+Measured state: 2026-10-13T12:11:26.510309+00:00. Branch `research/ledger-wp`, local head `cdeb94af9dc77f5d2bcd75965632e481cc8c5eea`.
 
 ## Outcome
 
 The model table below is the observed result, including pending and partial cells. No global superiority claim is made. This row is preregistered as no significant loss, not an assumed win.
 
-haiku: TIE; gpt-6-luna: TIE; gemini-3.8-flash: pending. TIE follows the preregistered significance rule and does not establish equivalence. Source: `results/primary-disposition.json`.
+haiku: TIE; gpt-6-luna: TIE; gemini-3.8-flash: pending; gemini-3.5-flash-lite: pending. TIE follows the preregistered significance rule and does not establish equivalence. Source: `results/primary-disposition.json`.
 
 Preregistered development validity fails the cheater bar for haiku, gpt-6-luna. The full test runs under explicit owner authorization without tuning. This study cannot claim that all validity gates pass. Source: `results/phase-report.json`.
 
-Gemini: not run: daily quota. Development comparisons: 214/270 complete, 56 missing. Test comparisons: 0/519 complete, 519 missing. No-answer quota rejections are not judge failures. Missing-only resumption is authorized after 2026-10-14 00:00 UTC or on the owner's word, with a Gemini-only last-call cutoff of 2026-10-14 12:00 UTC. Source: `freeze.json` and `results/decisions.jsonl`.
+Gemini: not run: daily quota. Development comparisons: 214/270 complete, 56 missing. Test comparisons: 0/519 complete, 519 missing. No-answer quota rejections are not judge failures. The reset watcher is disarmed. Resumption requires the owner's explicit word and runs last; the prior reset-based permission is superseded. The Gemini-only last-call cutoff remains 2026-10-14 12:00 UTC. Source: `freeze.json` and `results/decisions.jsonl`.
 
 Actual recorded model spend: 12.10518820 USD. Unsettled reservations: 4.04811914 USD. Total lane cap: 35 USD. Recorded call attempts: 4845. Source: `results/spend.jsonl` and `results/calls.jsonl`.
 
@@ -53,6 +53,8 @@ Scores use normalized presentation games. Ties and unparsed pair-ledger or promp
 | gemini-3.8-flash | pair-ledger | 0 | 0/0 | pending | pending | 0 | pending | pending |
 | gemini-3.8-flash | reader-first-c50b2dc3 | 0 | 0/0 | pending | pending | 0 | pending | pending |
 | gemini-3.8-flash | promptfoo | 0 | 0/0 | pending | pending | 0 | pending | pending |
+| gemini-3.5-flash-lite | pair-ledger | 0 | 0/0 | pending | pending | 0 | pending | pending |
+| gemini-3.5-flash-lite | promptfoo | 0 | 0/0 | pending | pending | 0 | pending | pending |
 
 Cost rates include known charges from no-answer transport attempts. Frozen score output keeps successful decision costs; `results/cost-audit.json` adds observed failed-attempt charges without changing any decision. The known portion moves from held spend to actual spend; the unresolved balance remains held.
 
@@ -67,6 +69,7 @@ Reader-first is the separate opt-in PR 157 row at `c50b2dc3`. It has a length pr
 | gpt-6-luna | reader-first-c50b2dc3 | 173 | 109/72 | 10.69 | 0.86 to 20.71 | 0.007284 | not applicable, exploratory |
 | gemini-3.8-flash | pair-ledger | 0 | 0/0 | pending | pending | pending | pending full primary family |
 | gemini-3.8-flash | reader-first-c50b2dc3 | 0 | 0/0 | pending | pending | pending | not applicable, exploratory |
+| gemini-3.5-flash-lite | pair-ledger | 0 | 0/0 | pending | pending | pending | pending full primary family |
 
 Per-cell game McNemar is the requested nominal test. Games sharing a pair and request are dependent. Interpret the request-cluster interval alongside that p value. Holm awaits the complete cross-benchmark primary family. Reader-first remains exploratory. Source: `results/cells.json` and frozen `stats.py`.
 
@@ -85,6 +88,7 @@ Longer-wins uses whitespace units in English and Han characters in Chinese, matc
 | haiku | 173 | 173 | 0 |
 | gpt-6-luna | 173 | 173 | 0 |
 | gemini-3.8-flash | 0 | 0 | 0 |
+| gemini-3.5-flash-lite | 0 | 0 | 0 |
 
 This comparison uses every recorded test choice, not accuracy alone. Exact agreement with the control cannot support an added writing-quality benefit. Source: `results/reader-vs-longer.json` and `results/decisions.jsonl`.
 
@@ -110,6 +114,8 @@ This comparison uses every recorded test choice, not accuracy alone. Exact agree
 | dev | gemini-3.8-flash | pair-ledger | 30 | 53.33 | 3.4290 | 2/48 | True | False |
 | dev | gemini-3.8-flash | reader-first-c50b2dc3 | 30 | 73.33 | 5.6330 | 0/44 | False | False |
 | dev | gemini-3.8-flash | promptfoo | 30 | 50.00 | 2.4088 | 3/44 | True | False |
+| dev | gemini-3.5-flash-lite | pair-ledger | 0 | pending | pending | 0/0 | pending | pending |
+| dev | gemini-3.5-flash-lite | promptfoo | 0 | pending | pending | 0/0 | pending | pending |
 
 Detailed three-repeat noise, six planted fixtures, kappa, label-preserving, injection and label-flipping checks: `results/phase-report.json`. Unrun checks are pending, not passed. Source and parser remain frozen; no tuning follows these observations.
 
@@ -151,6 +157,14 @@ Detailed three-repeat noise, six planted fixtures, kappa, label-preserving, inje
 | gemini-3.8-flash | promptfoo | markdown | 4/4 | 8/8 | 100.00 | 95 | pass |
 | gemini-3.8-flash | promptfoo | injection | 4/4 | 8/8 | 100.00 | 100 | pass |
 | gemini-3.8-flash | promptfoo | label-flip | 6/6 | 12/12 | 100.00 | 90 | pass |
+| gemini-3.5-flash-lite | pair-ledger | relabel | 0/6 | 0/0 | pending | 95 | pending |
+| gemini-3.5-flash-lite | pair-ledger | markdown | 0/4 | 0/0 | pending | 95 | pending |
+| gemini-3.5-flash-lite | pair-ledger | injection | 0/4 | 0/0 | pending | 100 | pending |
+| gemini-3.5-flash-lite | pair-ledger | label-flip | 0/6 | 0/0 | pending | 90 | pending |
+| gemini-3.5-flash-lite | promptfoo | relabel | 0/6 | 0/0 | pending | 95 | pending |
+| gemini-3.5-flash-lite | promptfoo | markdown | 0/4 | 0/0 | pending | 95 | pending |
+| gemini-3.5-flash-lite | promptfoo | injection | 0/4 | 0/0 | pending | 100 | pending |
+| gemini-3.5-flash-lite | promptfoo | label-flip | 0/6 | 0/0 | pending | 90 | pending |
 
 Edit consistency compares each variant with the first sealed fixture reading. Relabelling maps the choice back; label-flipping edits require the opposite choice. Planted accuracy is also retained in `results/validity-checks.json`. These are small planted checks, not estimates over arbitrary writing.
 
@@ -167,6 +181,8 @@ Edit consistency compares each variant with the first sealed fixture reading. Re
 | gemini-3.8-flash | pair-ledger | 281 | 0 | 0 | 0/0 |
 | gemini-3.8-flash | reader-first-c50b2dc3 | 263 | 40 | 5 | 4/0 |
 | gemini-3.8-flash | promptfoo | 261 | 0 | 3 | 3/0 |
+| gemini-3.5-flash-lite | pair-ledger | 0 | 0 | 0 | 0/0 |
+| gemini-3.5-flash-lite | promptfoo | 0 | 0 | 0 | 0/0 |
 
 The common HTTP output limit can truncate a reasoning-heavy response. This is recorded, not repaired outside the frozen contract. In the separate reader-first row, an invalid ballot can still yield the frozen length fallback. Source: `results/calls.jsonl`.
 
@@ -175,9 +191,11 @@ The common HTTP output limit can truncate a reasoning-heavy response. This is re
 | all phases | haiku | 734 | 0 | 0 | 0.00000000 |
 | all phases | gpt-6-luna | 728 | 0 | 0 | 0.00000000 |
 | all phases | gemini-3.8-flash | 281 | 0 | 0 | 0.00000000 |
+| all phases | gemini-3.5-flash-lite | 0 | 0 | 0 | 0.00000000 |
 | test | haiku | 400 | 0 | 0 | 0.00000000 |
 | test | gpt-6-luna | 398 | 0 | 0 | 0.00000000 |
 | test | gemini-3.8-flash | 0 | 0 | 0 | 0.00000000 |
+| test | gemini-3.5-flash-lite | 0 | 0 | 0 | 0.00000000 |
 
 The owner explicitly preserves the frozen core single schema re-ask after malformed JSON. The no-returned-answer-retry rule applies to transport wrappers. Frequencies count `ledger.reask` in completed pair readings; their second attempt cost is included in each decision and the overall spend. Source: `results/reasks.json` and `results/decisions.jsonl`.
 
@@ -186,8 +204,8 @@ The owner explicitly preserves the frozen core single schema re-ask after malfor
 - Core: [PR 168](https://github.com/achammah/driftbench/pull/168), `2bb0a7a787ca4466ff69d204f2380a7ad19cc056`, remote hash verified before calls.
 - Reader-first: [PR 157](https://github.com/achammah/driftbench/pull/157), source snapshot `c50b2dc3`.
 - Promptfoo select-best: `801428268b5e421b2f6994332f6a06f86b27bb1f`, verbatim attributed template and MIT notice.
-- Original judge freeze commit: `a4ae4b33`. Initial freeze SHA-256: `1fb32801af8549c7a4bef7a6c271c1799e950a84316e9fcb027ef757a36b3682`, preserved in `freeze-initial.json`. Current freeze SHA-256: `5453587b9325521d36becf320a2cb0e5626225e65998b0bbffead9d59c7e50b3`. The 191 exact file hashes are in `freeze.json`.
-- Runtime amendments set the spending cap to 35 USD, transport timeouts to 300 seconds, and the per-model scheduling limits below. Judge contracts, parser behavior, models, medium reasoning, output limits, statistics and sealed order are unchanged.
+- Original judge freeze commit: `a4ae4b33`. Initial freeze SHA-256: `1fb32801af8549c7a4bef7a6c271c1799e950a84316e9fcb027ef757a36b3682`, preserved in `freeze-initial.json`. Current freeze SHA-256: `ebdcb9da56bc1878ff12a254d2ffe572e6b8237da1d4b313168e37f5ca6df0e1`. The 191 exact file hashes are in `freeze.json`.
+- Runtime amendments set the spending cap to 35 USD, transport timeouts to 300 seconds, and the per-model scheduling limits below. Judge contracts, parser behavior, original model cells, medium reasoning, output limits, statistical formulas and sealed order are unchanged. The additive Flash Lite amendment adds a separate model cell.
 - The first plugin crash interrupts six pilot calls; their 0.90 USD reservations remain uncertain. A second reconnect finds one Gemini fetch failure and three unfinished native calls. All uncertain reservations remain counted. See `runtime-recovery.json`, `runtime-recovery-2.json`, and `results/spend.jsonl`.
 - The latest owner authorization permits three retries after an initial HTTP 429, with waits of 60, 120 and 240 seconds. Other transport failures allow three submissions total. Timeouts are 300 seconds. Returned model answers never receive transport retries.
 - The latest pacing amendment runs all three models side by side: gpt-6-luna uses at most eight plain HTTP calls, Gemini two calls, and Haiku two calls. Each model keeps its sealed order and phase prerequisites. All queues share one spending ledger.
@@ -200,3 +218,22 @@ The owner explicitly preserves the frozen core single schema re-ask after malfor
 - The owner unblocks Gemini billing and restricts key files to `openai.key` and `gemini-driftbench.key`. Keys load inside each command and are not printed.
 - Six analysis tests and sixteen harness tests pass before the daily quota resume is committed. Coverage includes charged transport accounting, elapsed backoff credit, the single-probe barrier, rejection blocking, source tamper rejection, shared spend reservations, proven HTTP 402 hold release, transport backoff, per-model concurrency, sealed queue order, provider isolation, output polarity and the pushed-core adapter.
 - All paths above are relative to `examples/ledger-wp` unless prefixed otherwise. The branch is [research/ledger-wp](https://github.com/achammah/driftbench/tree/research/ledger-wp). Remote delivery is verified separately at handoff.
+
+## Additive Flash Lite cell
+
+- Owner authorization adds `gemini-3.5-flash-lite` as a separate model. Only pair-ledger and promptfoo run on it. Partial Gemini 3.8 and the separate reader-first rows remain intact.
+- The original DEV, fixtures, validity edits and 173-pair TEST seals apply in unchanged order. Fixtures, validity and three-repeat DEV finish before TEST. No pilot is added under this amendment.
+- Published standard price: 0.30 USD per million input tokens; 2.50 USD per million output tokens, including thinking. Source: [Google pricing](https://ai.google.dev/gemini-api/docs/pricing), read 2026-10-13. The unchanged provider shim matches these rates.
+- Medium is listed as supported in [Google thinking settings](https://ai.google.dev/gemini-api/docs/thinking). The first sealed fixture call runs alone and records the applied request setting before opening concurrency eight.
+- Applied reasoning on returned calls: pending first call. Actual cell spend: 0.00000000 USD; held cell spend: 0.00000000 USD; cell cap: 5 USD inside the unchanged 35 USD cap. Source: `results/flash-lite-spend.jsonl` and raw provider metadata.
+- Flash Lite transport: at most eight calls, 300-second timeout, four total submissions for HTTP 429 with 20/60/180-second waits, three submissions for other transport failures. HTTP 402 aborts Gemini immediately and releases only proven rejections.
+- The same win/loss rule and statistical formulas apply. Positive results still require the prescribed multiplicity correction; this added model is reported separately, never substituted for the original Gemini cell.
+- The new model is explicitly authorized after earlier model outcomes were observed. It is an additive model check on the same sealed pool, not a newly blinded study. The amendment and source hashes precede its first call.
+
+## Parked Gemini 3.8 request allocation
+
+- Watcher 70641 is disarmed and verified absent. Owner-only resumption supersedes the previous automatic reset permission. Evidence: `results/gemini-reset-watcher-disarmed.json` and `freeze.json`.
+- Missing comparisons: 575, consisting of 191 pair-ledger, 192 reader-first and 192 promptfoo. No answered call is cached inside these incomplete comparisons.
+- Exactly 1,150 base answer requests remain. Estimated total: 1,196, rounded up after applying the observed DEV canonical-read rate, 17/72, to 191 primary comparisons. Observed schema re-asks are 0/281, so the empirical expected extra schema requests are zero.
+- The exact maximum is 1,914 answer requests if all primary comparisons require canonical escalation and every allowed schema re-ask. Transport retries are additional. Future answers determine the actual total; the expected count is not guaranteed.
+- Source: `results/gemini-remaining-requests.json`, raw calls and decisions.

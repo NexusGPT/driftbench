@@ -3,6 +3,7 @@ import collections
 import datetime
 import hashlib
 import json
+import model_cells
 import math
 from pathlib import Path
 import sys
@@ -24,10 +25,14 @@ def main():
         if hashlib.sha256((ROOT / file).read_bytes()).hexdigest() != expected:
             failures.append('Source hash: ' + file)
     changed = [file for file in freeze['files'] if initial['files'].get(file) != freeze['files'][file]]
-    if changed != ['examples/ledger-wp/harness.ts']:
+    if set(changed) != {'examples/ledger-wp/harness.ts', 'examples/ledger-wp/phase_report.py', 'examples/ledger-wp/stats.py'}:
         failures.append('Unexpected source change since initial freeze')
     if any(initial[field] != freeze[field] for field in ['seals', 'models', 'reasoning']):
         failures.append('Pool, model or reasoning changed')
+    for cell in freeze.get('additionalModelCells', {}).values():
+        for file, expected in cell.get('runtimeArtifactHashes', {}).items():
+            if hashlib.sha256((ROOT / file).read_bytes()).hexdigest() != expected:
+                failures.append('Additive runtime hash: ' + file)
     seals = {}
     for split, expected in freeze['seals'].items():
         file = HERE / 'seals' / (split + '.json')
@@ -74,12 +79,30 @@ def main():
             failures.append('Returned cost not settled: ' + row['key'])
         if row.get('providerError') and row.get('costUsd', 0) > 0 and not math.isclose(settled.get('known-error-charge:' + row['key'], -1), row['costUsd'], abs_tol=1e-12):
             failures.append('Known no-answer charge not counted: ' + row['key'])
+    for model, config in freeze.get('additionalModelCells', {}).items():
+        cell_pending = {}; cell_actual = 0
+        for event in read_rows(Path(config['spendFile']).name):
+            if event['kind'] == 'reserve': cell_pending[event['key']] = event['usd']
+            if event['kind'] == 'settle':
+                cell_actual += event['usd']; cell_pending.pop(event['key'], None)
+            if event['kind'] == 'release': cell_pending.pop(event['key'], None)
+        if cell_actual + sum(cell_pending.values()) > config['capUsd']:
+            failures.append('Additive model cap exceeded: ' + model)
+        model_calls = [r for r in calls if r['model'] == model]
+        if not math.isclose(cell_actual, sum(r['costUsd'] for r in model_calls), abs_tol=1e-10):
+            failures.append('Additive model spend mismatch: ' + model)
+        if any(not r.get('providerError') and r.get('providerMeta', {}).get('appliedThinkingLevel') != config['reasoning'] for r in model_calls):
+            failures.append('Additive reasoning mismatch: ' + model)
+    hold = freeze.get('geminiOwnerHold', {})
+    if hold.get('active') and any(r['model'] == 'gemini-3.8-flash' and r['startedAt'] >= hold['at'] for r in calls):
+        failures.append('Gemini 3.8 submitted during owner-only hold')
     coverage = []
     for split, items in seals.items():
         ids = {r['id'] for r in items}
         repeats = 3 if split in {'dev', 'fixtures'} else 1
-        for model in freeze['models']:
-            for contestant in ['pair-ledger', 'reader-first-c50b2dc3', 'promptfoo']:
+        for model in model_cells.models():
+            if split not in model_cells.phases(model): continue
+            for contestant in model_cells.contestants(model):
                 observed = [r for r in decisions if r['split'] == split and r['model'] == model and r['contestant'] == contestant]
                 for row in observed:
                     if row['id'] not in ids or row['sample'] not in range(repeats) or len(row['games']) != 2:
@@ -88,7 +111,7 @@ def main():
                         failures.append('Decision cost mismatch: ' + str(job_key(row)))
                 coverage.append({'split': split, 'model': model, 'contestant': contestant,
                                  'recorded': len(observed), 'expected': len(items) * repeats})
-    required_models = sys.argv[sys.argv.index('--models')+1].split(',') if '--models' in sys.argv else freeze['models']
+    required_models = sys.argv[sys.argv.index('--models')+1].split(',') if '--models' in sys.argv else model_cells.models()
     complete = all(r['recorded'] == r['expected'] for r in coverage if r['model'] in required_models)
     if '--require-complete' in sys.argv and not complete: failures.append('Incomplete phase coverage')
     output = {'at': datetime.datetime.now(datetime.timezone.utc).isoformat(), 'failures': failures,
