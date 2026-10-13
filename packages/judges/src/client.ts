@@ -33,6 +33,11 @@ export type ClientOptions = HttpOptions & {
   id?: string;
   /** The model, when the variable that names it is not set. */
   model?: string;
+  /**
+   * Reasoning effort for OpenAI chat and Google Gemini clients, on models supporting the level.
+   * Unset preserves the provider default. The Anthropic chat client rejects this option.
+   */
+  reasoning?: 'low' | 'medium' | 'high';
   /** Relative cost. Defaults: 1 for system 1 clients, 10 for chat models. */
   cost?: number;
 };
