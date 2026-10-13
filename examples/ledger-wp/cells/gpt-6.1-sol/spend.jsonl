@@ -1,0 +1,14 @@
+{"kind":"reserve","key":"a60d2937415043b80d4dc4a9dd8fabca48abb8df208c437c4626738fda986288","usd":0.1,"at":"2026-10-13T13:38:07.836Z"}
+{"kind":"settle","key":"a60d2937415043b80d4dc4a9dd8fabca48abb8df208c437c4626738fda986288","usd":0.020596,"at":"2026-10-13T13:38:25.651Z"}
+{"kind":"reserve","key":"9ec5e4d13821ab5a213642dc734b10022cde0c2d2fade9a17feca5fe990c35af","usd":0.1,"at":"2026-10-13T13:38:25.657Z"}
+{"kind":"settle","key":"9ec5e4d13821ab5a213642dc734b10022cde0c2d2fade9a17feca5fe990c35af","usd":0.022116,"at":"2026-10-13T13:38:49.791Z"}
+{"kind":"reserve","key":"15ece7b0577f0138b9ddef0c799bf501e575276053c1ceb300ce86f5a73878fb","usd":0.1,"at":"2026-10-13T13:38:49.794Z"}
+{"kind":"settle","key":"15ece7b0577f0138b9ddef0c799bf501e575276053c1ceb300ce86f5a73878fb","usd":0.0045865,"at":"2026-10-13T13:39:05.235Z"}
+{"kind":"reserve","key":"e59080714e5d009dbc914bb29d67481b4e40b30344012ec527122004227a093c","usd":0.1,"at":"2026-10-13T13:39:05.237Z"}
+{"kind":"settle","key":"e59080714e5d009dbc914bb29d67481b4e40b30344012ec527122004227a093c","usd":0.014826,"at":"2026-10-13T13:39:08.138Z"}
+{"kind":"reserve","key":"0b364f9f98f112ade071899e451087543af7cda5b5a19b6f3621a3c680eab919","usd":0.1,"at":"2026-10-13T13:39:08.138Z"}
+{"kind":"settle","key":"0b364f9f98f112ade071899e451087543af7cda5b5a19b6f3621a3c680eab919","usd":0.014836,"at":"2026-10-13T13:39:13.833Z"}
+{"kind": "settle", "key": "cache-write-meter-correction:a60d2937415043b80d4dc4a9dd8fabca48abb8df208c437c4626738fda986288", "usd": 0.0038525, "at": "2026-10-13T13:42:41.100711+00:00", "reason": "Observed cache_write_tokens replaces assumed base-input billing; original raw call preserved"}
+{"kind": "settle", "key": "cache-write-meter-correction:9ec5e4d13821ab5a213642dc734b10022cde0c2d2fade9a17feca5fe990c35af", "usd": 0.0038525, "at": "2026-10-13T13:42:41.100711+00:00", "reason": "Observed cache_write_tokens replaces assumed base-input billing; original raw call preserved"}
+{"kind": "settle", "key": "cache-write-meter-correction:e59080714e5d009dbc914bb29d67481b4e40b30344012ec527122004227a093c", "usd": 0.00359, "at": "2026-10-13T13:42:41.100711+00:00", "reason": "Observed cache_write_tokens replaces assumed base-input billing; original raw call preserved"}
+{"kind": "settle", "key": "cache-write-meter-correction:0b364f9f98f112ade071899e451087543af7cda5b5a19b6f3621a3c680eab919", "usd": 0.00359, "at": "2026-10-13T13:42:41.100711+00:00", "reason": "Observed cache_write_tokens replaces assumed base-input billing; original raw call preserved"}

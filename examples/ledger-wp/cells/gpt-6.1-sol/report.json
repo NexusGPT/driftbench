@@ -1,6 +1,6 @@
 {
   "model": "gpt-6.1-sol",
-  "at": "2026-10-13T13:37:53.321379+00:00",
+  "at": "2026-10-13T13:42:43.979267+00:00",
   "scores": [
     {
       "contestant": "pair-ledger",
@@ -24,9 +24,9 @@
         "holm18": null,
         "holmStatus": "pending full cross-benchmark family; reader-first excluded from primary family"
       },
-      "allPhaseCostUsd": 0,
+      "allPhaseCostUsd": 0.0550035,
       "testCostUsdIncludingTransport": 0,
-      "orderedReadings": 0,
+      "orderedReadings": 3,
       "schemaReasks": 0,
       "schemaReaskUsd": 0,
       "outputCapCalls": 0,
@@ -209,10 +209,10 @@
       "http429": 0,
       "transportFailures": 0,
       "tokens": {
-        "input": 0,
-        "output": 0,
-        "cacheRead": 0,
-        "cacheWrite": 0
+        "input": 23124,
+        "output": 1569,
+        "cacheRead": 7705,
+        "cacheWrite": 15410
       }
     },
     {
@@ -227,7 +227,7 @@
       "ties": 0,
       "usdPer100Pairs": null,
       "usdPer100Games": null,
-      "allPhaseCostUsd": 0,
+      "allPhaseCostUsd": 0.036842,
       "testCostUsdIncludingTransport": 0,
       "orderedReadings": 0,
       "schemaReasks": 0,
@@ -412,10 +412,10 @@
       "http429": 0,
       "transportFailures": 0,
       "tokens": {
-        "input": 0,
-        "output": 0,
+        "input": 14366,
+        "output": 93,
         "cacheRead": 0,
-        "cacheWrite": 0
+        "cacheWrite": 14360
       }
     }
   ],
@@ -436,11 +436,34 @@
   },
   "complete": false,
   "spend": {
-    "actualUsd": 0,
+    "actualUsd": 0.09184549999999998,
     "heldUsd": 0,
     "pending": {}
   },
-  "phaseCounts": {},
-  "projection": null,
-  "freezeSha256": "218e2317dd502d1037f239c7fca1f7f88906ce9038840536b6f9ce5cc01dfd28"
+  "phaseCounts": {
+    "pilot": 2
+  },
+  "projection": {
+    "model": "gpt-6.1-sol",
+    "at": "2026-10-13T13:42:43.978901+00:00",
+    "answeredCalls": 5,
+    "calibrationUsd": 0.0918455,
+    "callsPerContestant": {
+      "pair-ledger": 3,
+      "promptfoo": 2
+    },
+    "meanUsdPerCall": {
+      "pair-ledger": 0.0183345,
+      "promptfoo": 0.018421
+    },
+    "projectedPrimaryCalls": 713.0,
+    "projectedPromptfooCalls": 602,
+    "planningRate": 2.3687707641196014,
+    "method": "Five calls from sealed pilot prefix; per-contestant mean cost times 301 comparisons. Primary calls per comparison use completed Flash Lite runtime counts. No calibration outcome drives tuning.",
+    "projectedCellUsd": 24.253786,
+    "worstContractCallCountUsd": 44.2933945,
+    "capUsd": 25,
+    "separateFromOld35UsdCap": true
+  },
+  "freezeSha256": "b7330d4653e8310f164623dd0674ae11a1d8878c7930b219937dbe060800a9f8"
 }

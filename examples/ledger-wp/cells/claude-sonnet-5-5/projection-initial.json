@@ -1,0 +1,22 @@
+{
+  "model": "claude-sonnet-5-5",
+  "at": "2026-10-13T13:39:11.929421+00:00",
+  "answeredCalls": 5,
+  "calibrationUsd": 0.2567304,
+  "callsPerContestant": {
+    "pair-ledger": 3,
+    "promptfoo": 2
+  },
+  "meanUsdPerCall": {
+    "pair-ledger": 0.05646346666666666,
+    "promptfoo": 0.04367
+  },
+  "projectedPrimaryCalls": 713.0,
+  "projectedPromptfooCalls": 602,
+  "planningRate": 2.3687707641196014,
+  "method": "Five calls from sealed pilot prefix; per-contestant mean cost times 301 comparisons. Primary calls per comparison use completed Flash Lite runtime counts. No calibration outcome drives tuning.",
+  "projectedCellUsd": 66.80452213333334,
+  "worstContractCallCountUsd": 128.5190912,
+  "capUsd": 25,
+  "separateFromOld35UsdCap": true
+}

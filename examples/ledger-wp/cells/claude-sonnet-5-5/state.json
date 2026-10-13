@@ -1,0 +1,14 @@
+{
+  "pid": 94187,
+  "model": "claude-sonnet-5-5",
+  "mode": "calibrate",
+  "status": "calibrated",
+  "at": "2026-10-13T13:38:46.704Z",
+  "decisions": 2,
+  "submissions": 5,
+  "spend": {
+    "actual": 0.2567304,
+    "reserved": 0,
+    "pending": []
+  }
+}

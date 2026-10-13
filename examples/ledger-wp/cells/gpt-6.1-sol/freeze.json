@@ -56,9 +56,9 @@
   },
   "parentFreezeSha256": "c10437448cf3d17ead724ac4b12c4d2075787fa764711872a66d16f1748d41b0",
   "files": {
-    "examples/ledger-wp/frontier.ts": "3b3ff8c03c70ae6890a794e090278c2d126c1e7f0fa9f5b0c1c77d72fae6ed6c",
-    "examples/ledger-wp/frontier.test.ts": "32a0fcbe37ba9f0027a5f38b8da71442457863fa61dd3221bf9642fb5871ee2c",
-    "examples/ledger-wp/frontier-report.py": "b0c64df81407d9d241c42f949fb38cc237e3c8eb8ac825dbd37781bee4bc7b04"
+    "examples/ledger-wp/frontier.ts": "1900f3581e3f2b7fddddf98e4d21dad50cf88b29980367d6fa0a985d9d76b7a7",
+    "examples/ledger-wp/frontier.test.ts": "086d58ba7bada4810db2811b34a904675c3cf370065b8c64ab5da0e26685da1c",
+    "examples/ledger-wp/frontier-report.py": "268643525cb71ca01a8219ba7e550da7437c96e1be8b73bed12cf22fc6f95ba2"
   },
   "judgeContractChanged": false,
   "sealedOrderChanged": false,
@@ -76,5 +76,18 @@
     "outputIncludingReasoning": 10
   },
   "priceSource": "https://developers.openai.com/api/docs/pricing",
-  "priceObservedAt": "2026-10-13T13:37:53.138995+00:00"
+  "priceObservedAt": "2026-10-13T13:37:53.138995+00:00",
+  "runtimeAmendment": {
+    "at": "2026-10-13T13:42:41.100711+00:00",
+    "reason": "Sonnet one-hour cache writes are charged at 4 USD/M versus 2 USD/M uncached. Disable prompt caching only, leaving prompt, contestant input, medium setting and cap unchanged. Sol meter accounts for observed input_tokens_details.cache_write_tokens at 2.50 USD/M.",
+    "sources": [
+      "https://code.claude.com/docs/en/env-vars",
+      "https://platform.claude.com/docs/en/about-claude/pricing",
+      "https://developers.openai.com/api/docs/pricing"
+    ],
+    "previousFreezeSha256": "218e2317dd502d1037f239c7fca1f7f88906ce9038840536b6f9ce5cc01dfd28",
+    "promptChanged": false,
+    "contestantInputChanged": false,
+    "modelSettingChanged": false
+  }
 }

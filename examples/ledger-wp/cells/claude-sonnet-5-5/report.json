@@ -1,6 +1,6 @@
 {
   "model": "claude-sonnet-5-5",
-  "at": "2026-10-13T13:37:53.320298+00:00",
+  "at": "2026-10-13T13:42:43.974854+00:00",
   "scores": [
     {
       "contestant": "pair-ledger",
@@ -24,9 +24,9 @@
         "holm18": null,
         "holmStatus": "pending full cross-benchmark family; reader-first excluded from primary family"
       },
-      "allPhaseCostUsd": 0,
+      "allPhaseCostUsd": 0.1693904,
       "testCostUsdIncludingTransport": 0,
-      "orderedReadings": 0,
+      "orderedReadings": 2,
       "schemaReasks": 0,
       "schemaReaskUsd": 0,
       "outputCapCalls": 0,
@@ -209,10 +209,10 @@
       "http429": 0,
       "transportFailures": 0,
       "tokens": {
-        "input": 0,
-        "output": 0,
-        "cacheRead": 0,
-        "cacheWrite": 0
+        "input": 6,
+        "output": 3972,
+        "cacheRead": 1824,
+        "cacheWrite": 32369
       }
     },
     {
@@ -227,7 +227,7 @@
       "ties": 0,
       "usdPer100Pairs": null,
       "usdPer100Games": null,
-      "allPhaseCostUsd": 0,
+      "allPhaseCostUsd": 0.08734,
       "testCostUsdIncludingTransport": 0,
       "orderedReadings": 0,
       "schemaReasks": 0,
@@ -412,10 +412,10 @@
       "http429": 0,
       "transportFailures": 0,
       "tokens": {
-        "input": 0,
-        "output": 0,
+        "input": 4,
+        "output": 6,
         "cacheRead": 0,
-        "cacheWrite": 0
+        "cacheWrite": 21818
       }
     }
   ],
@@ -436,11 +436,13 @@
   },
   "complete": false,
   "spend": {
-    "actualUsd": 0,
+    "actualUsd": 0.2567304,
     "heldUsd": 0,
     "pending": {}
   },
-  "phaseCounts": {},
+  "phaseCounts": {
+    "pilot": 2
+  },
   "projection": null,
-  "freezeSha256": "5de0cb6241bb5a2821e3d2c0327cd691ed3efffced55c012fae890a288a50ab2"
+  "freezeSha256": "7debf1ef89074767caaec221ef4e9367eaba65910b13375907486b10e4102834"
 }

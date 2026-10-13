@@ -1,0 +1,73 @@
+{
+  "at": "2026-10-13T13:37:53.138995+00:00",
+  "model": "claude-sonnet-5-5",
+  "authorization": "Add two model cells: claude-sonnet-5-5 and gpt-6.1-sol. Two separate budgets up to 25 USD each on top of the old 35 USD. Five-call calibrations before full cell; report projection if above 25 USD.",
+  "capUsd": 25,
+  "budgetScope": "New model cell only; excludes original 35 USD lane budget and preserves old holds",
+  "contestants": [
+    "pair-ledger",
+    "promptfoo"
+  ],
+  "reasoning": "medium",
+  "maxOutputTokens": 4096,
+  "maxConcurrentCalls": 2,
+  "timeoutSeconds": 300,
+  "maxOtherTransportSubmissions": 3,
+  "max429Submissions": 4,
+  "http429BackoffSeconds": [
+    60,
+    120,
+    240
+  ],
+  "lastCallUtc": "2026-10-13T16:00:00Z",
+  "phases": [
+    "fixtures",
+    "validity",
+    "dev",
+    "test"
+  ],
+  "phaseComparisons": {
+    "fixtures": 36,
+    "validity": 40,
+    "dev": 180,
+    "test": 346
+  },
+  "calibration": "Exactly five answered calls from sealed PILOT prefix in sealed contestant order. Cost only; no prompt, pool, parser, criteria or contract tuning. Partial calibration job may remain as raw cached calls.",
+  "projection": "Per-contestant five-call mean times 301 comparisons. Primary calls per comparison use pre-existing completed Flash Lite runtime rate; promptfoo uses two. Hard budget prevents overspend regardless of projection.",
+  "core": {
+    "pr": "https://github.com/achammah/driftbench/pull/168",
+    "commit": "2bb0a7a787ca4466ff69d204f2380a7ad19cc056",
+    "pushed": true
+  },
+  "promptfooCommit": "801428268b5e421b2f6994332f6a06f86b27bb1f",
+  "seals": {
+    "test": "178754731d81f74abd2f6c001eca58ef4d16df7bbcd22bb702611e7bd09e7f0a",
+    "dev": "d47cdd3a3dab25e87e49bce60cbcb19706a7330ca4776b50df8745912f267c9b",
+    "validity": "e394ed458ddb9c05ccfc3ce3d21ba15facbfc4acb6142a28ab07ec4d5bb568c5",
+    "pilot": "a4d1b6f4ae7046f4bd17d7dc79e278c32f3e883fb93c83937c0a7721c7d25c15",
+    "fixtures": "e0873175e7f63f53bab63ff05899917247ecf2783421da427a349bfcea0ad469"
+  },
+  "sealCommits": {
+    "dev": "6dc58cc0",
+    "pilot": "57a11548",
+    "test": "650b07f5",
+    "fixtures": "212049e6",
+    "validity": "212049e6"
+  },
+  "parentFreezeSha256": "c10437448cf3d17ead724ac4b12c4d2075787fa764711872a66d16f1748d41b0",
+  "files": {
+    "examples/ledger-wp/frontier.ts": "3b3ff8c03c70ae6890a794e090278c2d126c1e7f0fa9f5b0c1c77d72fae6ed6c",
+    "examples/ledger-wp/frontier.test.ts": "32a0fcbe37ba9f0027a5f38b8da71442457863fa61dd3221bf9642fb5871ee2c",
+    "examples/ledger-wp/frontier-report.py": "b0c64df81407d9d241c42f949fb38cc237e3c8eb8ac825dbd37781bee4bc7b04"
+  },
+  "judgeContractChanged": false,
+  "sealedOrderChanged": false,
+  "statistics": "Unchanged stats.py summarize: nominal exact two-sided McNemar plus language-stratified request-cluster 95% CI; positive results await family multiplicity handling.",
+  "transportPolicy": "Never resubmit a returned answer. Frozen core single schema re-ask is retained and charged. HTTP 402 stops immediately and releases only proven rejection holds. Transport failures retain uncertain holds.",
+  "thinkingCap": "Total output including thinking is 4096. Native Sonnet additionally requests MAX_THINKING_TOKENS=2048; adaptive reasoning may ignore that fixed budget. Output-cap losses are reported.",
+  "thinkingSource": "https://code.claude.com/docs/en/env-vars",
+  "route": "native claude CLI",
+  "alias": "sonnet",
+  "price": "Native total_cost_usd reported per call",
+  "isolation": "Empty cell runtime/empty directory; explicit frozen judge system prompt; no tools, settings sources, MCP config, session persistence or slash commands; medium effort; native retries disabled."
+}

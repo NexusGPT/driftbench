@@ -2,7 +2,7 @@
   "at": "2026-10-13T13:37:53.138995+00:00",
   "model": "claude-sonnet-5-5",
   "authorization": "Add two model cells: claude-sonnet-5-5 and gpt-6.1-sol. Two separate budgets up to 25 USD each on top of the old 35 USD. Five-call calibrations before full cell; report projection if above 25 USD.",
-  "capUsd": 25,
+  "capUsd": 45,
   "budgetScope": "New model cell only; excludes original 35 USD lane budget and preserves old holds",
   "contestants": [
     "pair-ledger",
@@ -56,9 +56,9 @@
   },
   "parentFreezeSha256": "c10437448cf3d17ead724ac4b12c4d2075787fa764711872a66d16f1748d41b0",
   "files": {
-    "examples/ledger-wp/frontier.ts": "3b3ff8c03c70ae6890a794e090278c2d126c1e7f0fa9f5b0c1c77d72fae6ed6c",
-    "examples/ledger-wp/frontier.test.ts": "32a0fcbe37ba9f0027a5f38b8da71442457863fa61dd3221bf9642fb5871ee2c",
-    "examples/ledger-wp/frontier-report.py": "b0c64df81407d9d241c42f949fb38cc237e3c8eb8ac825dbd37781bee4bc7b04"
+    "examples/ledger-wp/frontier.ts": "1900f3581e3f2b7fddddf98e4d21dad50cf88b29980367d6fa0a985d9d76b7a7",
+    "examples/ledger-wp/frontier.test.ts": "086d58ba7bada4810db2811b34a904675c3cf370065b8c64ab5da0e26685da1c",
+    "examples/ledger-wp/frontier-report.py": "268643525cb71ca01a8219ba7e550da7437c96e1be8b73bed12cf22fc6f95ba2"
   },
   "judgeContractChanged": false,
   "sealedOrderChanged": false,
@@ -69,5 +69,25 @@
   "route": "native claude CLI",
   "alias": "sonnet",
   "price": "Native total_cost_usd reported per call",
-  "isolation": "Empty cell runtime/empty directory; explicit frozen judge system prompt; no tools, settings sources, MCP config, session persistence or slash commands; medium effort; native retries disabled."
+  "isolation": "Empty cell runtime/empty directory; explicit frozen judge system prompt; no tools, settings sources, MCP config, session persistence or slash commands; medium effort; native retries disabled.",
+  "runtimeAmendment": {
+    "at": "2026-10-13T13:42:41.100711+00:00",
+    "reason": "Sonnet one-hour cache writes are charged at 4 USD/M versus 2 USD/M uncached. Disable prompt caching only, leaving prompt, contestant input, medium setting and cap unchanged. Sol meter accounts for observed input_tokens_details.cache_write_tokens at 2.50 USD/M.",
+    "sources": [
+      "https://code.claude.com/docs/en/env-vars",
+      "https://platform.claude.com/docs/en/about-claude/pricing",
+      "https://developers.openai.com/api/docs/pricing"
+    ],
+    "previousFreezeSha256": "5de0cb6241bb5a2821e3d2c0327cd691ed3efffced55c012fae890a288a50ab2",
+    "promptChanged": false,
+    "contestantInputChanged": false,
+    "modelSettingChanged": false,
+    "authorization": "Owner permits runtime-only fix projecting at most 45 USD, five fresh calibration calls, then full run under 45 USD hard stop. Otherwise park as owner budget decision.",
+    "environment": {
+      "DISABLE_PROMPT_CACHING": "1"
+    },
+    "inferredProjectionWithoutCachingUsd": 39.10767906666666,
+    "originalProjectionUsd": 66.80452213333334
+  },
+  "calibrationAfter": "2026-10-13T13:42:41.100711+00:00"
 }

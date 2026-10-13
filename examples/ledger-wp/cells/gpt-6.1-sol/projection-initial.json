@@ -1,0 +1,22 @@
+{
+  "model": "gpt-6.1-sol",
+  "at": "2026-10-13T13:39:51.524854+00:00",
+  "answeredCalls": 5,
+  "calibrationUsd": 0.0769605,
+  "callsPerContestant": {
+    "pair-ledger": 3,
+    "promptfoo": 2
+  },
+  "meanUsdPerCall": {
+    "pair-ledger": 0.015766166666666668,
+    "promptfoo": 0.014831
+  },
+  "projectedPrimaryCalls": 713.0,
+  "projectedPromptfooCalls": 602,
+  "planningRate": 2.3687707641196014,
+  "method": "Five calls from sealed pilot prefix; per-contestant mean cost times 301 comparisons. Primary calls per comparison use completed Flash Lite runtime counts. No calibration outcome drives tuning.",
+  "projectedCellUsd": 20.246499333333333,
+  "worstContractCallCountUsd": 37.4789195,
+  "capUsd": 25,
+  "separateFromOld35UsdCap": true
+}

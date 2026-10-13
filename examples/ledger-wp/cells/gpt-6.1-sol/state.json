@@ -1,0 +1,14 @@
+{
+  "pid": 94188,
+  "model": "gpt-6.1-sol",
+  "mode": "calibrate",
+  "status": "calibrated",
+  "at": "2026-10-13T13:39:13.865Z",
+  "decisions": 2,
+  "submissions": 5,
+  "spend": {
+    "actual": 0.0769605,
+    "reserved": 0,
+    "pending": []
+  }
+}

@@ -19,12 +19,12 @@ export function responsesBody(prompt:any,schema?:any) {
 }
 export function solCost(u:any) {
   if(!u||!Number.isFinite(u.input_tokens)||!Number.isFinite(u.output_tokens))throw Error('Missing usage; cost cannot be settled');
-  const cached=u.input_tokens_details?.cached_tokens??0, writes=u.input_tokens_details?.cache_creation_tokens??0;
+  const cached=u.input_tokens_details?.cached_tokens??0, writes=u.input_tokens_details?.cache_write_tokens??u.input_tokens_details?.cache_creation_tokens??0;
   return ((u.input_tokens-cached-writes)*2+cached*.1+writes*2.5+u.output_tokens*10)/1e6;
 }
 export function claudeConfig(prompt:any,cwd:string) {
   const env={...process.env,TMPDIR:cwd,CLAUDE_CODE_MAX_OUTPUT_TOKENS:'4096',MAX_THINKING_TOKENS:'2048',
-    CLAUDE_CODE_MAX_RETRIES:'0',CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC:'1'};
+    CLAUDE_CODE_MAX_RETRIES:'0',CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC:'1',DISABLE_PROMPT_CACHING:'1'};
   delete env.CLAUDECODE;delete env.OPENAI_API_KEY;delete env.CLAUDE_CODE_RETRY_WATCHDOG;
   return {env,args:['-p','--output-format','json','--model','sonnet','--effort','medium','--system-prompt',prompt.system,
     '--tools','','--setting-sources','','--strict-mcp-config','--no-session-persistence','--disable-slash-commands',
@@ -47,7 +47,7 @@ export function verifyCell(model:string) {
   const dir=resolve(HERE,'cells',model),f=load(resolve(dir,'freeze.json'));
   if(sha(readFileSync(resolve(HERE,'freeze.json')))!==f.parentFreezeSha256)throw Error('Base freeze changed');
   for(const [p,h] of Object.entries(f.files))if(sha(readFileSync(resolve(ROOT,p)))!==h)throw Error('Frozen source changed: '+p);
-  if(f.capUsd!==25||f.reasoning!=='medium'||f.maxOutputTokens!==4096)throw Error('Cell contract mismatch');
+  if(f.capUsd!==(model==='claude-sonnet-5-5'?45:25)||f.reasoning!=='medium'||f.maxOutputTokens!==4096)throw Error('Cell contract mismatch');
   const tracked=spawnSync('git',['diff','HEAD','--',resolve(dir,'freeze.json')],{cwd:ROOT,encoding:'utf8'});
   const exists=spawnSync('git',['ls-files','--error-unmatch',resolve(dir,'freeze.json')],{cwd:ROOT,encoding:'utf8'});
   if(tracked.status!==0||tracked.stdout||exists.status!==0)throw Error('Freeze must be committed before any call');
@@ -57,7 +57,7 @@ async function main() {
   const [model,mode]=process.argv.slice(2);
   if(!['calibrate','run','replay'].includes(mode))throw Error('Usage: frontier.ts MODEL calibrate|run|replay');
   const {dir,f}=verifyCell(model);mkdirSync(resolve(dir,'runtime/empty'),{recursive:true});
-  const budget=new Budget(resolve(dir,'spend.jsonl'),25),history=rows(resolve(dir,'calls.jsonl'));
+  const budget=new Budget(resolve(dir,'spend.jsonl'),f.capUsd),history=rows(resolve(dir,'calls.jsonl'));
   const cached=new Map(history.filter(r=>!r.providerError).map(r=>[r.logicalKey,r]));
   const decisions=rows(resolve(dir,'decisions.jsonl'));
   const jobKey=(j:any)=>JSON.stringify([j.split,j.contestant,j.id,j.sample]);
@@ -69,7 +69,7 @@ async function main() {
     if(cached.has(key))return cached.get(key);
     if(mode==='replay')throw Error('Replay miss '+key);
     if(stopped)throw Error('Provider stopped');
-    if(mode==='calibrate'&&history.filter(r=>!r.providerError).length>=5)throw Error('CALIBRATION_COMPLETE');
+    if(mode==='calibrate'&&history.filter(r=>!r.providerError&&r.startedAt>=(f.calibrationAfter??'')).length>=5)throw Error('CALIBRATION_COMPLETE');
     let last:any;
     for(let attempt=1;attempt<=4;attempt++) {
       if(attempt===4&&last?.httpStatus!==429)break;
@@ -81,13 +81,15 @@ async function main() {
         await new Promise(r=>setTimeout(r,Math.max(0,delay-(Date.now()-Date.parse(last?.finishedAt??new Date().toISOString())))));}
       if(stopped)throw Error('Provider stopped');
       if(Date.now()>Date.parse(f.lastCallUtc))throw Error('LAST_CALL_CUTOFF');
-      budget.reserve(attemptKey,model==='claude-sonnet-5-5'?.25:.10);submissions++;
+      budget.reserve(attemptKey,.25);submissions++;
       const startedAt=new Date().toISOString();let payload:any,httpStatus:number|undefined,providerMeta:any={};
       try {
         if(model==='claude-sonnet-5-5') {
           payload=await claude(prompt,resolve(dir,'runtime/empty'));
           providerMeta={modelUsage:payload.modelUsage,stopReason:payload.stop_reason??payload.stopReason,subtype:payload.subtype,
             outputTokenCap:4096,requestedThinkingBudget:2048,reasoningApplied:'medium',thinkingBudgetNote:'Adaptive Sonnet may ignore fixed budget; total output cap applies.'};
+          if(payload.is_error&&payload.usage?.output_tokens>=4096){providerMeta.returnedOutputCapError=true;payload.is_error=false;}
+          if(payload.is_error&&/\b429\b/.test(payload.result??'')){httpStatus=429;payload.result='Provider 429: '+payload.result;}
           const observed=Object.keys(payload.modelUsage??{});
           if(observed.some(x=>x!==model)) {stopped=true;providerMeta.modelMismatch=observed;}
         } else {
@@ -143,7 +145,7 @@ async function main() {
   };
   if(mode==='run') {
     const p=load(resolve(dir,'projection.json'));
-    if(p.answeredCalls!==5||p.projectedCellUsd>25)throw Error('Five-call projection must pass before full cell');
+    if(p.answeredCalls!==5||p.projectedCellUsd>f.capUsd)throw Error('Five-call projection must pass before full cell');
   }
   state('running');
   for(const split of mode==='calibrate'?['pilot']:f.phases) {
