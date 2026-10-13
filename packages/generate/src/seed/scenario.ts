@@ -61,6 +61,11 @@ export type ScenarioRequest = {
    * Its Then is the stage the walk had reached, with the tool counts given; the walk ends there.
    */
   turn?: { stimulus: Stimulus; carries: Pick[]; tools: ToolExpect[] };
+  /**
+   * A turn said after the walk's first move that names a context value (who the user is) and asks for nothing:
+   * the conversation stays on the stage it reached, no tool runs, and the walk goes on after it.
+   */
+  aside?: { phrase: ProposalPhrase; carries: Pick[] };
 };
 
 export type Scenario =
@@ -271,6 +276,20 @@ export function buildScenario(prepared: PreparedMap, rng: Rng, request: Scenario
       turnPlaced = true;
       break;
     }
+    if (request.aside && !request.turn && index === 1) {
+      const [dimension, value] = request.aside.carries[0] ?? [-1, -1];
+      blocks.push({
+        id: `b${blocks.length + 1}-aside`,
+        stimulus: stimulusOf(
+          request.aside.phrase,
+          dimensionId(prepared, dimension),
+          valueId(prepared, dimension, value),
+        ),
+        stage: path.stages[index] as string,
+        carries: request.aside.carries,
+        ...(lang === undefined ? {} : { lang }),
+      });
+    }
     if (probeAt === index && probe && deviationKey !== undefined && recovery) {
       const stage = path.stages[index] as string;
       const deviation = dimensions[prepared.deviation ?? -1]?.index.get(probe.classId);
@@ -446,7 +465,14 @@ export function buildScenario(prepared: PreparedMap, rng: Rng, request: Scenario
   // conversation on the stage it reached, said before the turn that leaves that stage, with the recovery as
   // its Then. The rest of the walk stays valid after it, so the perturbed run checks every later block too.
   const perturbations: PerturbationSpec[] = [];
-  if (!probe && !request.turn && deviationKey !== undefined && prepared.deviation !== undefined) {
+  // A walk with an aside keeps its turns where they are: a perturbation's position counts the path's moves.
+  if (
+    !probe &&
+    !request.turn &&
+    !request.aside &&
+    deviationKey !== undefined &&
+    prepared.deviation !== undefined
+  ) {
     const options: Array<{ classId: string; index: number; expect: Expect; user: string }> = [];
     for (const value of dimensions[prepared.deviation]?.values ?? []) {
       const classId = value.id;

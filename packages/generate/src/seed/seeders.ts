@@ -85,6 +85,7 @@ function scenarioDraft(
     force?: ProposalPhrase;
     rngLabel?: string;
     turn?: ScenarioRequest['turn'];
+    aside?: ScenarioRequest['aside'];
   } = {},
 ): PathTry {
   const rng = rngFor(context.seed, options.rngLabel ?? id);
@@ -97,6 +98,7 @@ function scenarioDraft(
       ...(options.probe ? { probe: options.probe } : {}),
       ...(options.force ? { force: options.force } : {}),
       ...(options.turn ? { turn: options.turn } : {}),
+      ...(options.aside ? { aside: options.aside } : {}),
     });
     if (!built.ok) {
       reasons.push(built.reason);
@@ -1498,6 +1500,7 @@ function metamorphicOnPaths(
     .sort((a, b) => a - b)
     .filter((index) => ['persona', 'channel'].includes(prepared.space.dimensions[index]?.kind ?? ''));
   const indexOf = (id: string) => prepared.space.dimensions.findIndex((dimension) => dimension.id === id);
+  let personasSaid = false;
   for (const path of prepared.relations.paths) {
     for (const axis of contextual) {
       if (drafts.length >= context.max) break;
@@ -1515,6 +1518,17 @@ function metamorphicOnPaths(
         .map((_, value) => value)
         .filter((value) => prepared.feasibility.allowed([...data, [axis, value]]));
       if (members.length < 2) continue;
+      // Over the persona axis, each user says who they are in their own approved words after the first move,
+      // when every member has such a phrase: the same outcome is expected whoever speaks. One family says
+      // them: the twins of one family are compared with each other, never with another path's variants.
+      const asides = members.map((value) => {
+        const phrase =
+          dimension.kind === 'persona' && !personasSaid
+            ? prepared.phrasesOf.get(phraseKey(dimension.id, dimension.values[value]?.id ?? ''))?.[0]
+            : undefined;
+        return phrase ? { phrase, carries: [[axis, value] as Pick] } : undefined;
+      });
+      const aside = asides.every((entry) => entry !== undefined);
       const built = members.map((value, variant) =>
         scenarioDraft(
           prepared,
@@ -1526,10 +1540,12 @@ function metamorphicOnPaths(
           one,
           {
             rngLabel: family,
+            ...(aside && asides[variant] ? { aside: asides[variant] } : {}),
           },
         ),
       );
       if (!built.every((entry) => 'draft' in entry)) continue;
+      if (aside) personasSaid = true;
       families += 1;
       values.push(`${path.id}@${dimension.id}`);
       built.forEach((entry, variant) => {
