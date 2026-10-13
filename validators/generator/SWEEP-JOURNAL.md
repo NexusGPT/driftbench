@@ -52,3 +52,9 @@ The next entry records completed seed results or the final bank result. No unmea
 - The six affected test suites finish before the pause: all 6 pass, with 105 tests passing and 4 skipped. This recheck uses one worker, a 30-second default test timeout and a 60-second cleanup timeout; explicit test timeouts and bank budgets are unchanged. The initial full-run failure record remains preserved above.
 - A read-only adapter audit finds a remaining option-A edge case: Claude Code replay assigns step-feed rows before the first user turn to block 0, falsely satisfying `stage_reported: true`. The repair is not started. No further adapter or runner gap is found in the audited surfaces.
 - On resume, fix that boundary with a regression while preserving old spec behavior, then finish the sweep and append native journal row 18. The stopped parent kept global scale results only in memory, so those must be recomputed.
+
+## 2026-10-13T07:00:04+00:00: resume and replay boundary repair
+
+- The owner resumes work from `a0fedc3b` and authorizes merging PR 155 (cap) and PR 158 (speed) into this branch after the replay repair. Their workers are paused.
+- The replay regression first reproduces the false pass in all three modes, then passes after pre-turn stage reports gain carried provenance. Legacy omitted/false flags remain unchanged. The targeted run passes 130 tests in 12 files.
+- The combined cap evidence and full 21-seed sweep require fresh measurements. Pre-pause seed files retain their old source stamp and are not reused as new evidence.

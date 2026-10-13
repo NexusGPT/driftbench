@@ -10,7 +10,7 @@ Rewritten by the executor every iteration (docs/validators.md section 10). A str
 | 1 | 5 |
 <!-- level-table:end -->
 
-The owner pauses this work at 06:54 local time. The sweep and its active children are stopped; no finalizer is armed. Options A and B and the separate compose repair are pushed to PR 113 before the 06:40 deadline. Fresh completed seeds 1 through 4 each reach level 5, with 1788, 1791, 1773 and 1789 of 2009 seed-dependent items passing respectively. Seeds 5 through 20 plus hidden and the 24 global items remain unmeasured. This is a partial result, not a full 2033-item bank score. Source code: `8359f453`; [partial sweep evidence](evidence/options-ab-partial-sweep.json). Row 17 (1551 of 2033 on source `4d94b132`) remains the pre-change seed-1-only full-bank baseline. [SWEEP-JOURNAL.md](SWEEP-JOURNAL.md) records the deadline, test results and pause.
+The owner resumes this work after the recorded pause and authorizes merging cap PR 155 and speed PR 158 into this branch. The replay-stage edge case is repaired; integration and new measurements follow. No sweep is active yet. Options A and B and the separate compose repair are pushed to PR 113 before the 06:40 deadline. Fresh completed seeds 1 through 4 each reach level 5, with 1788, 1791, 1773 and 1789 of 2009 seed-dependent items passing respectively. Seeds 5 through 20 plus hidden and the 24 global items remain unmeasured. This is a partial result, not a full 2033-item bank score. Source code: `8359f453`; [partial sweep evidence](evidence/options-ab-partial-sweep.json). Row 17 (1551 of 2033 on source `4d94b132`) remains the pre-change seed-1-only full-bank baseline. [SWEEP-JOURNAL.md](SWEEP-JOURNAL.md) records the deadline, test results and pause.
 
 ## Floor
 
@@ -73,11 +73,10 @@ Rows 1 to 10 are the pilot (branch `exec/generator-pilot`, merged). Rows 11 to 1
 
 ## Next actions
 
-1. Remain paused until the owner resumes work. No sweep, test or automatic finalizer remains active.
-2. On resume, repair the discovered Claude Code replay edge case: `session.ts:623,665` assigns a step-feed row before the first user turn to block 0, so `stage_reported: true` can falsely pass. No repair is started. Preserve legacy `stage.reached` semantics while distinguishing pre-turn reports, and add a regression before the fix.
-3. Resume the full sweep on the final source. Completed seed files 1 through 4 remain in `.exec/after-ab.json.seed-*.json`. The stopped parent did not persist global scale results; recompute those and the remaining seeds. The original hidden seed for source `8359f453` is 204710547. The standard bank script has no resume option, so do not assume it will reuse those files.
-4. Keep the 100x cap, performance and speed work on their separately owned branches. Merge their PRs into this branch only after the owner explicitly authorizes it.
-5. Append a complete native journal row only when all 2033 items across all requested seeds are measured. Partial progress belongs in `SWEEP-JOURNAL.md`.
+1. Merge cap PR 155 and speed PR 158 into this branch, preserving the optional assertions, approved reply relations, cap/report behavior and speed changes. Their workers are paused; the owner authorizes these two merges.
+2. Re-measure the cap limits and exact caught fault classes against the combined source. Preserve historical evidence with its source stamp.
+3. Run a fresh full sweep on the final combined source, seeds 1 to 20 plus hidden. The pre-pause files describe the old source and do not count toward this sweep.
+4. Append the completed native journal row after all bank items across all requested seeds are measured; use `SWEEP-JOURNAL.md` for partial progress.
 
 ## Approved options A and B
 
@@ -127,3 +126,7 @@ pnpm driftbench validate generator --journal .exec/row.json
 ## Approved composed-report repair
 
 The owner authorizes the `follower.compose` repair. A report mutation returning `null` now remains absent when composed with another mutation, in either order. This makes the bank stricter and changes no item's expected answer. The regression test `composed missing-stage reports` fails before the fix (it sees an `intake` report) and passes after the fix. Evidence: `.exec/compose-red.log` and `.exec/compose-green.log`. The paused sweep measures this repaired fault family together with options A and B; its completed seed results are recorded above.
+
+## Replay-stage boundary repair
+
+Pre-turn Claude Code step-feed entries remain in the first block for legacy `stage.reached` behavior, with optional `carried: true` provenance. The new `stage.reported` check excludes carried entries. Reports at the user-turn timestamp count in that block only. The T/F/P replay regression fails before the production fix and passes afterward; omitted and false reporting flags retain the prior result. Evidence: `.exec/replay-stage-red-confirmed.log` and `.exec/replay-stage-green.log`, with 130 targeted tests passing across 12 files.

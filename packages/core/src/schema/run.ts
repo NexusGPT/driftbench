@@ -136,7 +136,18 @@ export const RuntimeTrace = z.strictObject({
       }),
     )
     .optional(),
-  stages: z.array(z.strictObject({ name: z.string(), at: z.string().optional() })).optional(),
+  stages: z
+    .array(
+      z.strictObject({
+        name: z.string(),
+        at: z.string().optional(),
+        carried: z
+          .boolean()
+          .optional()
+          .describe('True marks a stage carried into this block, not reported during it.'),
+      }),
+    )
+    .optional(),
   /** Files the agent read during the block, by path. Absent when the runtime does not report them. */
   references: z.array(z.strictObject({ path: z.string(), at: z.string().optional() })).optional(),
   /** The tools the runtime offered the agent in the block, by name. Absent when the runtime does not report them. */
