@@ -106,23 +106,133 @@ function quoteMatches(text: string, evidence: string, keepLists = false): boolea
   return parts.length > 0 && substantive(quote) && containsParts(text, parts, keepLists);
 }
 
+type CandidateView = {
+  readonly text: string;
+  readonly literalOwnText?: string;
+  readonly normalizationBodies?: readonly string[];
+  readonly normalize: boolean;
+};
+
 /** Only strict JSON strings or text fields add a decoded view; invalid or duplicate JSON stays raw. */
-function jsonTextViews(text: string): string[] {
-  const views = [text];
-  if (repeatedObjectKey(text) !== undefined) return views;
+function jsonTextViews(text: string): CandidateView[] {
+  const views: CandidateView[] = [{ text, normalize: true }];
+  const duplicate = repeatedObjectKey(text);
   try {
     const value: unknown = JSON.parse(text);
-    if (typeof value === 'string') views.push(value);
+    // Serialized escapes and keys cannot supply substance. Raw identity uses decoded character
+    // provenance; normalization uses the decoded text rather than the JSON spelling.
+    views[0] = { text, ...jsonLiteralProjection(text), normalize: true };
+    if (duplicate !== undefined) return views;
+    if (typeof value === 'string') views.push({ text: value, normalize: true });
     else if (value && typeof value === 'object' && 'text' in value) {
       const content = value.text;
-      if (typeof content === 'string') views.push(content);
+      if (typeof content === 'string') views.push({ text: content, normalize: true });
       else if (Array.isArray(content) && content.every((item) => typeof item === 'string'))
-        views.push(content.join('\n'));
+        views.push({ text: content.join('\n'), normalize: true });
     }
   } catch {
     // Reversible decoding never repairs malformed candidate data or guesses its content.
   }
   return views;
+}
+
+/** Map decoded, non-metadata letters and digits back onto their complete raw JSON spellings. */
+function jsonLiteralProjection(text: string): {
+  literalOwnText: string;
+  normalizationBodies: readonly string[];
+} {
+  const value: unknown = JSON.parse(text);
+  const textWrapper =
+    value !== null &&
+    typeof value === 'object' &&
+    'text' in value &&
+    (typeof value.text === 'string' ||
+      (Array.isArray(value.text) && value.text.every((item) => typeof item === 'string')));
+  const own = maskPresentationMetadata(text).split('');
+  const outside = text.split('');
+  const bodies: string[] = [];
+  type Origin = { from: number; to: number };
+  const strings: {
+    start: number;
+    end: number;
+    decoded: string;
+    offsets: Origin[];
+    key: boolean;
+    bodyIndex?: number;
+  }[] = [];
+  const paint = (decoded: string, offsets: readonly (Origin | undefined)[]) => {
+    const body = maskPresentationMetadata(decoded.replace(/⏎/g, '\n'));
+    for (const letter of body.matchAll(/[\p{L}\p{N}]/gu)) {
+      const from = offsets[letter.index]?.from;
+      const to = offsets[letter.index + letter[0].length - 1]?.to;
+      if (from !== undefined && to !== undefined) own.fill('x', from, to);
+    }
+  };
+  // The caller has already validated the whole JSON. This lexer visits its complete string tokens.
+  for (const token of text.matchAll(/"(?:\\[\s\S]|[^"\\])*"/g)) {
+    const start = token.index;
+    const end = start + token[0].length;
+    own.fill(' ', start, end);
+    outside.fill(' ', start, end);
+    const key = /^\s*:/.test(text.slice(end));
+    const decoded: string = JSON.parse(token[0]);
+    const offsets: Origin[] = [];
+    for (let at = start + 1; at < end - 1; ) {
+      const length = text[at] === '\\' ? (text[at + 1] === 'u' ? 6 : 2) : 1;
+      offsets.push({ from: at, to: at + length });
+      at += length;
+    }
+    const record = { start, end, decoded, offsets, key };
+    if (textWrapper && key) strings.push(record);
+    else {
+      strings.push({ ...record, bodyIndex: bodies.length });
+      bodies.push(decoded.replace(/⏎/g, '\n'));
+      paint(decoded, offsets);
+    }
+  }
+  const syntax = outside.join('');
+  if (
+    textWrapper &&
+    value &&
+    typeof value === 'object' &&
+    'text' in value &&
+    Array.isArray(value.text) &&
+    repeatedObjectKey(text) === undefined
+  ) {
+    const depthAt = (at: number) =>
+      [...syntax.slice(0, at)].reduce(
+        (depth, ch) => depth + ('{['.includes(ch) ? 1 : '}]'.includes(ch) ? -1 : 0),
+        0,
+      );
+    const field = strings.find(
+      (token) => token.key && token.decoded === 'text' && depthAt(token.start) === 1,
+    );
+    if (field) {
+      const prefix = /^\s*:\s*/.exec(text.slice(field.end));
+      const start = field.end + (prefix?.[0].length ?? 0);
+      const end = syntax.indexOf(']', start);
+      const payload = strings.filter((token) => token.start > start && token.end <= end);
+      if (payload.length === value.text.length) {
+        const offsets: (Origin | undefined)[] = [];
+        for (const [i, token] of payload.entries()) {
+          if (i) offsets.push(undefined);
+          offsets.push(...token.offsets);
+          own.fill(' ', token.start, token.end);
+        }
+        const decoded = payload.map((token) => token.decoded).join('\n');
+        paint(decoded, offsets);
+        for (const token of [...payload].reverse())
+          if (token.bodyIndex !== undefined) bodies.splice(token.bodyIndex, 1);
+        bodies.push(decoded.replace(/⏎/g, '\n'));
+      }
+    }
+  }
+  // Keep numeric/boolean/null source spellings intact; JSON number coercion cannot round a quote.
+  for (const value of outside
+    .join('')
+    .matchAll(/true|false|null|-?(?:0|[1-9]\d*)(?:\.\d+)?(?:[eE][+-]?\d+)?/g))
+    bodies.push(value[0]);
+  return { literalOwnText: own.join(''), normalizationBodies: bodies };
 }
 
 export function stripReplyLabel(quote: string, winner: 'A' | 'B'): string | undefined {
@@ -155,10 +265,13 @@ function maskRoleTokens(text: string): string {
 }
 
 /** Raw literal identity remains valid even when markup folding changes its boundary. */
-function literalCandidateQuote(text: string, quote: string): boolean {
+function literalCandidateQuote(
+  text: string,
+  quote: string,
+  ownText = maskPresentationMetadata(text),
+): boolean {
   if (!substantive(quote)) return false;
   // Preserve source offsets so metadata letters never count as the quoted substantive span.
-  const ownText = maskPresentationMetadata(text);
   for (let at = text.indexOf(quote); at >= 0; at = text.indexOf(quote, at + 1)) {
     if (/[\p{L}\p{N}]/u.test(ownText.slice(at, at + quote.length))) return true;
   }
@@ -172,16 +285,35 @@ function maskPresentationMetadata(text: string): string {
 }
 
 /** Keep folded offsets aligned while excluding metadata letters and list numbers from each match. */
-function candidateQuoteHasRealText(text: string, evidence: string, keepLists: boolean): boolean {
+function candidateQuoteHasRealText(
+  text: string,
+  evidence: string,
+  keepLists: boolean,
+  normalizationBodies?: readonly string[],
+): boolean {
   const presented = presentationText(text, keepLists);
   const punctuation = (metadata: string) =>
     metadata.replace(/[\p{L}\p{N}]/gu, (character) => '.'.repeat(character.length));
-  const own = presented
+  let own = presented
     .replace(roleToken, punctuation)
     .replace(/^ {0,3}(?:[-+*]|\d+[.)])[\t ]+/gm, punctuation)
     .replace(/\s+/g, ' ')
     .trim();
   const hay = fold(text, keepLists);
+  if (normalizationBodies !== undefined) {
+    try {
+      JSON.parse(hay);
+      own = jsonLiteralProjection(hay).literalOwnText;
+    } catch {
+      // Presentation folding can make a serialized string syntactically invalid. Retain a match
+      // only when its quoted content also occurs in an actual decoded value, never a wrapper key.
+      return normalizationBodies.some(
+        (body) =>
+          literalCandidateQuote(body, evidence) ||
+          (quoteMatches(body, evidence, keepLists) && candidateQuoteHasRealText(body, evidence, keepLists)),
+      );
+    }
+  }
   let quote = fold(evidence, keepLists);
   if (/^".*"$/.test(quote)) quote = quote.slice(1, -1).trim();
   return quote
@@ -197,15 +329,18 @@ function candidateQuoteHasRealText(text: string, evidence: string, keepLists: bo
 
 /** Winner identity preserves literal matches and adds reversible JSON/presentation views. */
 export function candidateContainsQuote(text: string, quote: string): boolean {
+  // Decode JSON before folding renderer marks. A separator and its newline occupy one code unit.
   const supplied = quote.replace(/⏎/g, '\n');
   return jsonTextViews(text).some((view) => {
-    const source = view.replace(/⏎/g, '\n');
+    const source = view.text.replace(/⏎/g, '\n');
     return (
-      literalCandidateQuote(source, supplied) ||
-      [false, true].some(
-        (keepLists) =>
-          quoteMatches(source, supplied, keepLists) && candidateQuoteHasRealText(source, supplied, keepLists),
-      )
+      literalCandidateQuote(source, supplied, view.literalOwnText) ||
+      (view.normalize &&
+        [false, true].some(
+          (keepLists) =>
+            quoteMatches(source, supplied, keepLists) &&
+            candidateQuoteHasRealText(source, supplied, keepLists, view.normalizationBodies),
+        ))
     );
   });
 }
