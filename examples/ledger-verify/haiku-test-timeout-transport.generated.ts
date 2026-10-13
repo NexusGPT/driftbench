@@ -62,9 +62,14 @@ try {
       if(!slot)await new Promise(resolve=>setTimeout(resolve,250));
     }
   };
-  await writeFile(resolve(base,'cache/haiku-test-outage',callFingerprint+'.claim.json'),JSON.stringify({id,at:new Date().toISOString(),fingerprint:callFingerprint}),{flag:'wx'});
+  while(true){
+    const gate=JSON.parse(await readFile(resolve(base,'evidence/network-admission.json'),'utf8'));
+    if(gate.open&&gate.model===model&&Date.now()/1000-gate.lastProbeEpoch<75)break;
+    await new Promise(r=>setTimeout(r,1000));
+  }
+  await writeFile(resolve(base,'cache/haiku-test-outage',callFingerprint+'.'+id+'.claim.json'),JSON.stringify({id,at:new Date().toISOString(),fingerprint:callFingerprint}),{flag:'wx'});
   await acquire();
-  budget('reserve',model.startsWith('gemini-')?1:0.5);
+  budget('reserve' ,model.startsWith('gemini-')?1:0.5);
   reservation=true;
   let result:any;
   let metadata:any;

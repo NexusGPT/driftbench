@@ -34,6 +34,17 @@ def main():
         assert cells['additionalCellFees']['maximumAccountedUsd']<=24
         for path,h in json.loads((BASE/'lite/evidence/reporting-freeze.json').read_text())['sourceHashes'].items():
             assert hashlib.sha256((ROOT/path).read_bytes()).hexdigest()==h,path
+    addendum = BASE / 'luna-addendum/state.json'
+    if addendum.exists():
+        recovered = json.loads(addendum.read_text())
+        assert recovered['status'] == 'complete' and recovered['returnedAnswersResent'] == 0
+        for name, h in json.loads((BASE / 'luna-addendum/freeze-amendment.json').read_text())['officialHashes'].items():
+            assert hashlib.sha256((BASE / name).read_bytes()).hexdigest() == h, name
+    for model, folder in [('claude-sonnet-5-5', 'sonnet'), ('gpt-6.1-sol', 'sol61')]:
+        for name in ['runtime-freeze.json', 'reporting-freeze.json']:
+            freeze_new = json.loads((BASE / folder / 'evidence' / name).read_text())
+            for name, h in freeze_new.get('hashes', freeze_new.get('sourceHashes', {})).items():
+                assert hashlib.sha256((ROOT / name).read_bytes()).hexdigest() == h, name
     for model in final['completedModels']:
         progress = json.loads((BASE / f'{model}.progress.json').read_text())
         assert progress['phase'] == 'all' and progress['status'] == 'complete'

@@ -31,6 +31,7 @@ metrics=dict(at=datetime.datetime.now(datetime.timezone.utc).isoformat(),officia
 cells=read(BASE/'evidence/cells.json');budget=read(BASE/'receipts/budget.json');old_fees=cells['fees'];held=sum(x['usd'] for x in budget['reservations'].values());assert budget['spentUsd']+held<=40
 cells['fees']={**old_fees,'settledUsd':budget['spentUsd'],'unresolvedMaximumUsd':held,'maximumAccountedUsd':budget['spentUsd']+held,'providerReceipts':len(receipts),'byModel':{m:sum(r['costUsd'] for r in receipts if r['model']==m) for m in ['haiku','gpt-6-luna','gemini-3.8-flash']},'unknownCharges':budget['reservations']}
 cells['lunaNoiseAddendum']=metrics
+cells['overallAccountedMaximumUsd']=cells['fees']['maximumAccountedUsd']+cells.get('additionalCellFees',{}).get('maximumAccountedUsd',0)+sum(f['maximumAccountedUsd'] for f in cells.get('newModelFees',{}).values())
 for name in ['freeze-amendment.json','execution-freeze.json','state.json','metrics.json']:
  cells['freeze']['hashes']['luna-addendum/'+name]=hashlib.sha256((DEST/name).read_bytes()).hexdigest()
 (BASE/'evidence/cells.json').write_text(json.dumps(cells,indent=2)+'\n')

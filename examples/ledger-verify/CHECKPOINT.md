@@ -160,3 +160,9 @@
 - Five offline admission and retry checks pass: closed gate, other model, two-call ceiling, terminal answered error, and missing-only connection retry. No model calls occur in these checks.
 - Haiku retry waves retain the original six target requests and visit every missing request before repeating failures. Previously answered recovery requests replay their cached answer.
 - New-cell outer envelopes cover network waits; physical provider attempts stay at 300 seconds. runtime-freeze.json records the outer Node timer, reasoning and unchanged scorer hashes.
+
+## 2026-10-13T15:29:58.697233+00:00 verified report publication
+
+- Completed models: haiku, gpt-6-luna. Offline replay covers 16 finished phases, with zero new provider calls.
+- Gemini pending status, if present, is an authorized daily-quota pause. See evidence/gemini-daily-quota-amendment.json and evidence/gemini-reset-watcher.json.
+- Fee reconciliation and frozen source hashes pass. No confirmed output-limit envelope remains unmapped.

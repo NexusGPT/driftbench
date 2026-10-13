@@ -1,5 +1,5 @@
 {
-  "at": "2026-10-13T14:32:19.831952+00:00",
+  "at": "2026-10-13T14:51:10.022250+00:00",
   "authorization": "Owner network amendment: missing-only zero-token no-output transport recoveries, including Haiku timeouts, are unlimited after ten healthy provider probes spaced 30 seconds apart; concurrency two and one model cell at a time. After three consecutive connection failures, pause ten minutes and repeat the gate. Retain answers, receipts and holds; never resubmit any returned answer. No sealed result is final while transport-missing items remain.",
   "originalTransportSha256": "c621bb49d72cd20d7aa23e8b6d974026bbdae1ca6461680324098be849a3226a",
   "recoveryTransportSha256": "d666e8f3a6cfa5f86c6302a51c462a03b13e3e793307ce92ab065c4cfd48a374",

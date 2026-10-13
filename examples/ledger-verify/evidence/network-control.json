@@ -1,0 +1,6 @@
+{
+  "at": "2026-10-13T15:24:53.955253+00:00",
+  "model": "claude-sonnet-5-5",
+  "stop": false,
+  "policy": "ten healthy probes spaced 30 seconds, concurrency two, one model cell at a time"
+}

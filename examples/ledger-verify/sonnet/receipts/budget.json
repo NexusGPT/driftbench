@@ -1,0 +1,31 @@
+{
+  "capUsd": 25,
+  "spentUsd": 0.035454,
+  "reservations": {
+    "11c16009-8ef6-44d8-b677-ebbe50b1f8f4": {
+      "usd": 0.5,
+      "model": "claude-sonnet-5-5",
+      "at": "2026-10-13T15:30:09.965891+00:00"
+    }
+  },
+  "receipts": [
+    {
+      "id": "30e6a1f0-18f9-4e38-a91a-418e0da63dee",
+      "model": "claude-sonnet-5-5",
+      "usd": 0.035454,
+      "reservedUsd": 0.5
+    }
+  ],
+  "activeCalls": {
+    "11c16009-8ef6-44d8-b677-ebbe50b1f8f4": {
+      "pid": 81201,
+      "model": "claude-sonnet-5-5",
+      "at": "2026-10-13T15:30:09.771851+00:00"
+    }
+  },
+  "pacing": {
+    "loadOneMinute": 139.2685546875,
+    "recentNoAnswerIds": [],
+    "limit": 2
+  }
+}

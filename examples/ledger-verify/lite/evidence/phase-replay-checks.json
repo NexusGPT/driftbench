@@ -1,5 +1,5 @@
 {
-  "at": "2026-10-13T12:29:16.872Z",
+  "at": "2026-10-13T13:36:39.522Z",
   "phases": [
     {
       "model": "gemini-3.5-flash-lite",
@@ -16,6 +16,38 @@
       "identicalDecisions": true,
       "changed": [],
       "newCalls": 0
+    },
+    {
+      "model": "gemini-3.5-flash-lite",
+      "phase": "noise-0",
+      "items": 30,
+      "identicalDecisions": true,
+      "changed": [],
+      "newCalls": 0
+    },
+    {
+      "model": "gemini-3.5-flash-lite",
+      "phase": "noise-1",
+      "items": 30,
+      "identicalDecisions": true,
+      "changed": [],
+      "newCalls": 0
+    },
+    {
+      "model": "gemini-3.5-flash-lite",
+      "phase": "noise-2",
+      "items": 30,
+      "identicalDecisions": true,
+      "changed": [],
+      "newCalls": 0
+    },
+    {
+      "model": "gemini-3.5-flash-lite",
+      "phase": "results",
+      "items": 221,
+      "identicalDecisions": true,
+      "changed": [],
+      "newCalls": 0
     }
   ],
   "sourceHashes": {
@@ -23,6 +55,5 @@
     "run": "41d295290938673a96c796be95391ef2a6b1b71039145d3a18cfcc77507dfed0"
   },
   "mechanism": "Read-only copied caller prefers the original item/order answer among concurrently returned duplicate keys. Final decisions are recomputed, never replaced by expected labels.",
-  "providerCalls": 0,
-  "ordinaryReplayLimitation": "Concurrent duplicate keys have different upstream text; last-key replay cannot reconstruct every consumer. History-aware replay matches every original decision without provider calls."
+  "providerCalls": 0
 }

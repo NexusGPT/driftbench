@@ -18,6 +18,19 @@
       "pass_": true
     }
   },
-  "noise": {},
+  "noise": {
+    "driftbench-verify-uncertainty-cascade": {
+      "items": 30,
+      "repeats": 3,
+      "itemsWithAnyFlip": 10,
+      "itemsWithAnyMissing": 0
+    },
+    "promptfoo": {
+      "items": 30,
+      "repeats": 3,
+      "itemsWithAnyFlip": 10,
+      "itemsWithAnyMissing": 1
+    }
+  },
   "limitations": "Mutation labels are planted arithmetic truth. This tests invariance, not broad domain accuracy."
 }

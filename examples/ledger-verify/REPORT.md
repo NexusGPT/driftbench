@@ -1,6 +1,6 @@
 # LongJudge verify confirmation
 
-Evidence timestamp: 2026-10-13T10:54:25.665936+00:00.
+Evidence timestamp: 2026-10-13T15:23:46.475225+00:00.
 
 - Branch: research/ledger-verify. Core contract: PR 168 at 35f07309a4d1d1c8a7c5b176ff19e537d0ef8fdd.
 - All 221 TEST items are sealed. This is a previously evaluated split, not an unseen holdout.
@@ -21,35 +21,39 @@ The output-limit column counts observed TEST completion envelopes, cascade / pro
 
 | Model | Cascade accuracy [95% CI] | promptfoo accuracy [95% CI] | Output-limit answers: cascade / promptfoo | Paired difference [95% CI] | Wins / losses | Exact p | Holm p | Status |
 |---|---|---|---|---|---|---|---|---|
-| haiku | pending | pending | pending | pending | pending | pending | pending | TEST pending |
+| haiku | 164/221, 74.21% [68.06%, 79.53%] | 159/221, 71.95% [65.69%, 77.46%] | 7 / 0 | 2.26% [-2.73%, 7.62%] | 19 / 14 | 0.48685024 | pending | TIE |
 | gpt-6-luna | 165/221, 74.66% [68.54%, 79.94%] | 160/221, 72.40% [66.16%, 77.87%] | 0 / 0 | 2.26% [-2.73%, 7.21%] | 18 / 13 | 0.47312966 | pending | TIE |
-| gemini-3.8-flash | not run: daily quota (0/221) | not run: daily quota (0/221) | 0 / 0 (not run) | pending | pending | pending | pending | not run: daily quota |
+| gemini-3.8-flash | not run: daily quota (0/221) | not run: daily quota (0/221) | 0 / 0 (not run) | pending | pending | pending | pending | owner-only restart |
+| gemini-3.5-flash-lite | 138/221, 62.44% [55.90%, 68.56%] | 127/221, 57.47% [50.88%, 63.80%] | 5 / 0 | 4.98% [-2.24%, 11.87%] | 39 / 28 | 0.22154873 | pending | TIE |
 
 ### Strict headline, audited labels
 
 | Model | Cascade accuracy [95% CI] | promptfoo accuracy [95% CI] | Output-limit answers: cascade / promptfoo | Paired difference [95% CI] | Wins / losses | Exact p | Holm p | Status |
 |---|---|---|---|---|---|---|---|---|
-| haiku | pending | pending | pending | pending | pending | pending | pending | TEST pending |
+| haiku | 185/221, 83.71% [78.27%, 88.00%] | 180/221, 81.45% [75.80%, 86.02%] | 7 / 0 | 2.26% [-2.74%, 7.27%] | 19 / 14 | 0.48685024 | pending | TIE |
 | gpt-6-luna | 188/221, 85.07% [79.77%, 89.17%] | 181/221, 81.90% [76.29%, 86.42%] | 0 / 0 | 3.17% [-1.80%, 8.11%] | 19 / 12 | 0.28104152 | pending | TIE |
-| gemini-3.8-flash | not run: daily quota (0/221) | not run: daily quota (0/221) | 0 / 0 (not run) | pending | pending | pending | pending | not run: daily quota |
+| gemini-3.8-flash | not run: daily quota (0/221) | not run: daily quota (0/221) | 0 / 0 (not run) | pending | pending | pending | pending | owner-only restart |
+| gemini-3.5-flash-lite | 158/221, 71.49% [65.21%, 77.04%] | 142/221, 64.25% [57.74%, 70.28%] | 5 / 0 | 7.24% [0.00%, 14.16%] | 42 / 26 | 0.068118674 | pending | TIE |
 
 ### Product-final sensitivity, official labels
 
 | Model | Cascade accuracy [95% CI] | promptfoo accuracy [95% CI] | Output-limit answers: cascade / promptfoo | Paired difference [95% CI] | Wins / losses | Exact p | Holm p | Status |
 |---|---|---|---|---|---|---|---|---|
-| haiku | pending | pending | pending | pending | pending | pending | pending | TEST pending |
+| haiku | 168/221, 76.02% [69.97%, 81.17%] | 159/221, 71.95% [65.69%, 77.46%] | 7 / 0 | 4.07% [-0.45%, 9.01%] | 19 / 10 | 0.13604595 | pending | TIE |
 | gpt-6-luna | 165/221, 74.66% [68.54%, 79.94%] | 160/221, 72.40% [66.16%, 77.87%] | 0 / 0 | 2.26% [-2.73%, 7.21%] | 18 / 13 | 0.47312966 | pending | TIE |
-| gemini-3.8-flash | not run: daily quota (0/221) | not run: daily quota (0/221) | 0 / 0 (not run) | pending | pending | pending | pending | not run: daily quota |
+| gemini-3.8-flash | not run: daily quota (0/221) | not run: daily quota (0/221) | 0 / 0 (not run) | pending | pending | pending | pending | owner-only restart |
+| gemini-3.5-flash-lite | 138/221, 62.44% [55.90%, 68.56%] | 127/221, 57.47% [50.88%, 63.80%] | 5 / 0 | 4.98% [-2.24%, 11.87%] | 39 / 28 | 0.22154873 | pending | TIE |
 
 ### Product-final sensitivity, audited labels
 
 | Model | Cascade accuracy [95% CI] | promptfoo accuracy [95% CI] | Output-limit answers: cascade / promptfoo | Paired difference [95% CI] | Wins / losses | Exact p | Holm p | Status |
 |---|---|---|---|---|---|---|---|---|
-| haiku | pending | pending | pending | pending | pending | pending | pending | TEST pending |
+| haiku | 189/221, 85.52% [80.27%, 89.55%] | 180/221, 81.45% [75.80%, 86.02%] | 7 / 0 | 4.07% [-0.46%, 8.68%] | 19 / 10 | 0.13604595 | pending | TIE |
 | gpt-6-luna | 188/221, 85.07% [79.77%, 89.17%] | 181/221, 81.90% [76.29%, 86.42%] | 0 / 0 | 3.17% [-1.80%, 8.11%] | 19 / 12 | 0.28104152 | pending | TIE |
-| gemini-3.8-flash | not run: daily quota (0/221) | not run: daily quota (0/221) | 0 / 0 (not run) | pending | pending | pending | pending | not run: daily quota |
+| gemini-3.8-flash | not run: daily quota (0/221) | not run: daily quota (0/221) | 0 / 0 (not run) | pending | pending | pending | pending | owner-only restart |
+| gemini-3.5-flash-lite | 158/221, 71.49% [65.21%, 77.04%] | 142/221, 64.25% [57.74%, 70.28%] | 5 / 0 | 7.24% [0.00%, 14.16%] | 42 / 26 | 0.068118674 | pending | TIE |
 
-Holm correction belongs to the prespecified 18-cell family and remains pending at this handoff. No local WIN or overall superiority claim is made.
+The original three models belong to the prespecified 18-cell family. Flash Lite is an additional model cell, never a replacement for parked Gemini 3.8. Multiplicity adjustment remains pending with the collator. No local WIN or overall superiority claim is made.
 Per-item strict decisions: results/<model>.strict.json. Original product-final decisions: results/<model>.json.
 Exact intervals, balanced accuracy, valid-verdict coverage and paired differences: evidence/cells.json.
 
@@ -57,12 +61,14 @@ Exact intervals, balanced accuracy, valid-verdict coverage and paired difference
 
 | Model | Contestant | TEST limit answers | TEST affected items | All-phase limit answers | All-phase affected items |
 |---|---|---|---|---|---|
-| haiku | driftbench-verify-uncertainty-cascade | 0 | 0 | 10 | 6 |
+| haiku | driftbench-verify-uncertainty-cascade | 7 | 4 | 21 | 12 |
 | haiku | promptfoo | 0 | 0 | 0 | 0 |
 | gpt-6-luna | driftbench-verify-uncertainty-cascade | 0 | 0 | 0 | 0 |
 | gpt-6-luna | promptfoo | 0 | 0 | 0 | 0 |
 | gemini-3.8-flash | driftbench-verify-uncertainty-cascade | 0 | 0 | 0 | 0 |
 | gemini-3.8-flash | promptfoo | 0 | 0 | 0 | 0 |
+| gemini-3.5-flash-lite | driftbench-verify-uncertainty-cascade | 5 | 5 | 5 | 5 |
+| gemini-3.5-flash-lite | promptfoo | 0 | 0 | 2 | 2 |
 
 Unclassified historical native errors: 2. Unmapped confirmed limits: 0.
 Counts refer to observed completion envelopes. Native internal attempts are not inferred from aggregate turn counts.
@@ -72,24 +78,26 @@ Receipt ids, exact reasons and request-to-item attribution: evidence/output-limi
 
 | Model | TEST cost per 100: cascade / promptfoo | Mutation preserve, flip, injection changes: cascade / promptfoo | Noise items with any change: cascade / promptfoo |
 |---|---|---|---|
-| haiku | pending / pending | 12/12, 12/12, 0 / 12/12, 12/12, 0 | pending / pending |
+| haiku | 1.139292 / 0.187925 | 12/12, 12/12, 0 / 12/12, 12/12, 0 | 2/30 / 10/30 |
 | gpt-6-luna | 0.414580 / 0.067791 | 12/12, 12/12, 0 / 12/12, 12/12, 0 | 4/30 / 9/30 |
 | gemini-3.8-flash | pending / pending | 12/12, 12/12, 0 / 12/12, 12/12, 0 | pending / pending |
+| gemini-3.5-flash-lite | 2.047560 / 0.349120 | 12/12, 12/12, 0 / 12/12, 12/12, 0 | 10/30 / 10/30 |
 
 Constant pass / fail: official 21.27% / 78.73%; audited 23.53% / 76.47%.
 Mutation checks cover planted arithmetic truth only. Thresholds: preserve at least 95%, flip at least 90%, no injection changes or missing verdicts.
 Noise uses 30 DEV items in three separate recording namespaces. A transition to or from a missing verdict counts as a change; missing counts are also reported in evidence/cells.json.
 Cost per 100 uses unique prompt keys; actual provider fees include any duplicate paid calls. Replayed logical-call costs are separate.
-Settled fees: 7.871661 USD. Unresolved-charge maximum: 17.500000 USD. Total accounted maximum: 25.371661 USD, cap 40 USD.
+Original three-model budget, settled fees: 12.691818 USD. Unresolved-charge maximum: 19.500000 USD. Total accounted maximum: 32.191818 USD, cap 40 USD.
 Fee sources: receipts/budget.json and receipts/calls.jsonl. Historical replay cost is excluded from new spend.
 
 ## Phase coverage
 
 | Model | Pilot | Mutation fixtures | Noise 0 | Noise 1 | Noise 2 | TEST |
 |---|---|---|---|---|---|---|
-| haiku | 20 items; missing 0/0 | 48 items; missing 0/0 | 30 items; missing 0/0 | 30 items; missing 0/0 | pending | pending |
+| haiku | 20 items; missing 0/0 | 48 items; missing 0/0 | 30 items; missing 0/0 | 30 items; missing 0/0 | 30 items; missing 0/0 | 221 items; missing 0/0 |
 | gpt-6-luna | 20 items; missing 0/0 | 48 items; missing 0/0 | 30 items; missing 2/2 | 30 items; missing 0/0 | 30 items; missing 0/0 | 221 items; missing 0/0 |
-| gemini-3.8-flash | 20 items; missing 0/0 | 48 items; missing 0/0 | 30 items; missing 0/0 | 30 items; missing 0/0 | pending | pending |
+| gemini-3.8-flash | 20 items; missing 0/0 | 48 items; missing 0/0 | 30 items; missing 0/0 | 30 items; missing 0/0 | 30 cascade, 20 peer; 10 quota pending | not run: daily quota, 0/221 each |
+| gemini-3.5-flash-lite | 20 items; missing 0/0 | 48 items; missing 0/0 | 30 items; missing 0/1 | 30 items; missing 0/0 | 30 items; missing 0/1 | 221 items; missing 5/0 |
 
 ## Freeze and recovery
 
@@ -98,7 +106,7 @@ Fee sources: receipts/budget.json and receipts/calls.jsonl. Historical replay co
 - Original pilot runtime b4e4305a2426e0bb7589 is preserved. The plugin crash leaves five unknown-charge reservations totaling 3 USD.
 - Subsequent 180-second API timeouts and a 240-second Haiku timeout are preserved in pilot partial reports and error receipts.
 - The owner authorizes one resume of missing transport outputs for all models at 300 seconds. Returned answers are never retried.
-- The pacing amendment replaces the earlier global four-call limit: gpt-6-luna permits eight HTTP calls, Gemini two, and native Haiku two.
+- Current admission: two calls and one model cell at a time, after ten healthy provider probes spaced 30 seconds apart. Gemini 3.8 remains parked.
 - Both API models use medium. Haiku uses claude-haiku-5-5 through local Claude processes.
 - The outer process envelope includes queueing and quota backoff. Execution-only changes are recorded in evidence/execution-amendment.json.
 - HTTP 429 receives waits of 60, 120 and 240 seconds. Exhausted quota remains pending transport, never a judge failure.
@@ -113,7 +121,7 @@ Fee sources: receipts/budget.json and receipts/calls.jsonl. Historical replay co
 | Artifact | SHA-256 |
 |---|---|
 | evidence/seal.json | 54fc167420330d25eb2d8874a0784bd9aa4ec4ff06fbcae82ffaa26d5fc42155 |
-| evidence/runtime-freeze.json | c1da047e74647cd9f61318b63e6bd5a11ecb5dc2a4c51a1887b5f039a411e52e |
+| evidence/runtime-freeze.json | 6963645ce6d5ae50e718ebad8e5acaf34d996cddea1b69d746089048df48dae6 |
 | evidence/pilot-runtime-freeze.json | b374d2982c6d3673c07c1f72dd4ebf96cf068981ee4e416d4a1a3311cfc3c6df |
 | evidence/scoring-freeze.json | e1c0ce28e0dc259b6fe3e3bf98e16e7e0bc20c05e621d09522f43576752fe40b |
 | evidence/pool.json | f569c72a5e701366d232b619a623c09abddcf69cfc4379e849dbdef76b9559c5 |
@@ -125,8 +133,29 @@ Fee sources: receipts/budget.json and receipts/calls.jsonl. Historical replay co
 | summarize.py | 1cd18ffa8da398404528c3ffd71c351c6f67248e67b2110cd612789168dcf840 |
 | output_limits.py | e497c931f8a4f395cd5edb9d3bf7ec8250b334d358d758d605cb3a23dfa2d8c6 |
 | trace-requests.ts | 72e5253798d6d3b23f7a866a51b450027b23ce71fe240d775b3709d5318dd33e |
+| evidence/luna-cache-write-reconciliation.json | 291ea2f6a0126761eafe9aee792cbe48d407786b60320d150a2e90c88868dd54 |
+| evidence/gemini-daily-quota-amendment.json | 65fbfd3a11c3a0888062c3ea55769408d573b2a5dce057d550da4b2953adb7a0 |
+| evidence/haiku-outage-amendment.json | 20190c7cbf55d5113dd6b4f8e37b2bc3d6a764149d16fc9ce4e4b59efeb3fad3 |
+| evidence/haiku-test-timeouts.json | 469b9901abf1d84322ab4d93862e9d9a20e79264037306d395b54dcec49e3a19 |
+| evidence/haiku-test-timeout-execution.json | cb76e09f8cc5e590cb193f17411ebf6dbe12c63ecaf3733691003b5d31e31e43 |
+| evidence/haiku-test-timeout-recovery.json | 5c2e56bdba586b0a46a7416aae21985c7b1c62fc65860461c6453f8eb3d605ce |
+| evidence/haiku-pacing-amendment.json | bdcb1942e6c763870ead7e8f690ed85f243daaf2b123d7185cd856ea1d60987f |
+| lite/evidence/model-amendment.json | 53532f016c64c7e8320de57988f52308cd9e0db4268dacaa0830d26e8f311d7b |
+| lite/evidence/cap12-amendment.json | 90c80f9e6748eab3202985604d15709bec545a43858e47fa71d6e0861d8ad07a |
+| lite/evidence/cap24-amendment.json | 67d55422ae71b301b215bb249345e0893289e74f438ad22c831269ea07d72e1b |
+| lite/evidence/runtime-freeze.json | 453bdeeca15c767a64d2f43002cbde64a42b79ca3661c4938637c20a6c8b12fb |
+| lite/evidence/reporting-freeze.json | 96780529ca41e14920a300ab4ff0e25719d4632d1d5ce72054c535f33c00c3df |
+| lite/evidence/reasoning-applied.json | b5a42a0768a6654c36fc5bda03a8693f35f04380a33e9a0ad1945aeb8da77e1b |
+| lite/evidence/network-recovery-amendment.json | 609f7ec45b4ba4f011144bf87f052078d836f08821aca6caebf1c04f918f56d4 |
+| lite/evidence/network-recovery-execution.json | 389fa06ac60dcef8ca1e7b517a78aaf0a2e907184cbd512e697f803853a0bc84 |
+| lite/evidence/replay-reconstruction-amendment.json | 75e9f0c64d13cce8c98044918196dc98215e0b622f929ea846059aab095e5323 |
+| lite/evidence/network-diagnostics-amendment.json | 2acc7c2cde2a4a57cadd94bc6497463fea82983b44ece4c7a3e9e61ec1bae905 |
+| lite/evidence/first-final-preservation.json | a5ea8cb42a2ffad7a23cb18c5d6deb69f0870b6f19c8cc5a085ff490e1beb8fb |
+| lite/evidence/first-final-replay-amendment.json | 2f1bb9bb25210d96daf9e963dba935f31189d5ee588332ec2c2fb70963adfdfd |
+| lite/evidence/test-recovery-amendment.json | 9c704acdcc6dbbb721201bfb08a803f85ab1d42e611684d4f00c30902fb671e0 |
+| lite/evidence/test-network-hold-release.json | b74985e2eaf5c16f86127bf93aa2a7d10f0605cd9e10a3dd25969f46d7e05121 |
 
-Active runtime id: ee96e47757aa837860fe. Frozen core: 35f07309a4d1d1c8a7c5b176ff19e537d0ef8fdd.
+Active runtime id: d49a333a9d4e6dd0ffd6. Frozen core: 35f07309a4d1d1c8a7c5b176ff19e537d0ef8fdd.
 Offline checks cover source/pool hashes, exact schemas, strict replay, fail-closed missing replay and restricted Python execution.
 Unit checks cover statistics, strict output-limit scoring, missing outcomes, fee capture, budget reservations, concurrency and quota backoff. Historical replay reproduces 102 verdicts with zero new model calls.
 Sources: evidence/offline-checks.json, evidence/frozen-replay.json, test_stats.py, test_budget.py.
@@ -144,13 +173,78 @@ Sources: evidence/offline-checks.json, evidence/frozen-replay.json, test_stats.p
 - This documentation audit occurs after TEST starts. TEST predictions, endpoints and statistical code remain unchanged; no blanket validity or confirmatory superiority claim follows.
 - Cheater disclosure source: evidence/cheater-gate-audit.json.
 
+## Luna cache-write fee reconciliation
+
+- The native usage records 1752698 cache-write tokens. Published pricing adds 0.04381745 USD to the original recorded fee calculation.
+- One fee-only ledger row accounts for the difference inside the original 40 USD cap. All original receipts and model answers remain unchanged; no provider call is made.
+- Historical unique-key cost-per-100 metrics retain the frozen calculation. The reconciled settled fee total includes this separate premium.
+- Sources: evidence/luna-cache-write-reconciliation.json and https://developers.openai.com/api/docs/pricing.
+
+## Haiku host-outage runtime amendment
+
+- The owner identifies a host DNS outage near 11:28 to 11:33 UTC and authorizes one retry of four ENOTFOUND calls and one 300-second timeout.
+- Only those five fingerprints are eligible. Atomic claims prevent another paid retry; original errors and all returned answers remain archived.
+- The unknown timeout hold remains reserved. These five retries use the then-current Haiku concurrency two, 300-second attempts and the 40 USD cap.
+- Sources: evidence/haiku-outage-amendment.json, evidence/haiku-outage-recovery.json and noise-2/haiku.pre-outage-recovery.partial.json.
+
+## Haiku adaptive pacing runtime amendment
+
+- The owner raises Haiku to four workers. Admission falls to two only when one-minute host load exceeds 60 or two no-answer transport failures occur within 600 seconds.
+- Parse errors and output-limit completions do not lower pacing. Already-started calls finish normally; admission checks refresh within five seconds.
+- The transition archives the partial TEST report and preserves all 33 returned responses. Only missing requests resume.
+- Eight offline pacing and budget checks pass. The sealed order, cap, model contract and statistical scoring stay unchanged.
+- Sources: evidence/haiku-pacing-amendment.json, receipts/budget.json, test_pacing.py and test_budget.py.
+
+## Haiku TEST timeout recovery
+
+- The network amendment replaces the earlier retry ceiling. Zero-token, no-output transport requests recover missing-only without an attempt limit; answers are never resubmitted.
+- Ten healthy provider probes spaced 30 seconds apart precede recovery of 6 missing requests, at two calls and one model cell at a time. Original holds total 3.0 USD and remain reserved.
+- Recovery preserves 440 answered finals and replaces only 2 transport-missing finals. Initial reports and cassettes remain archived; intermediate recoveries remain supplemental.
+- The recovery settles 0.09871296 USD. Returned answers, including output-limit errors, are never resubmitted.
+- Sources: evidence/haiku-test-timeouts.json, evidence/haiku-test-timeout-execution.json and evidence/haiku-test-timeout-recovery.json.
+
 ## Daily quota runtime amendment
 
-- Recorded 2026-10-13T11:23:02.896066+00:00. Gemini is stopped for the owner-diagnosed daily request quota.
-- Noise 2 retains 30/30 cascade and 20/30 promptfoo verdicts. Ten promptfoo verdicts remain eligible; neither contestant has started the 221-item TEST.
-- Gemini TEST status: not run: daily quota, 221 items per contestant. Quota pending does not count as a judge error or a noise flip.
-- Both outstanding quota calls settle at zero; their two USD reservation holds are released. Unknown historical holds remain.
-- Resume requires an owner instruction or the reset near 14 October 00:00 UTC. Missing-only completion ends by 14 October 12:00 UTC.
-- Medium, 300-second attempts, two Gemini calls, 60/120/240-second quota waits, the 402 circuit break, the sealed order and the 40 USD cap remain unchanged.
-- The existing backoff processes make their final rejected attempts at 11:19 UTC before the resumed controller verifies they have exited. No new Gemini runner starts today.
-- Sources: evidence/gemini-daily-quota-amendment.json, the archived noise-2 partial report, receipts/quota.jsonl and receipts/calls.jsonl.
+- The owner identifies the Gemini daily request quota and permits missing-only completion after the reset near 14 October 00:00 UTC, through 12:00 UTC.
+- Two proven quota holds settle at zero. Returned answers stay cached; unknown-charge holds remain.
+- Source and runtime amendment hash: evidence/gemini-daily-quota-amendment.json. Medium, 300-second attempts, two Gemini calls and the 40 USD cap remain unchanged.
+- Gemini TEST: not run: daily quota, 0/221 items per contestant. Noise 2 retains 30/30 cascade and 20/30 promptfoo verdicts; ten peer verdicts remain pending.
+- Pending quota requests count as no answer, never a judge failure. Gemini noise is pending until its third repeat finishes.
+- The reset driver is disarmed. Gemini 3.8 resumes only on owner instruction; the prior timed restart permission is superseded by evidence/gemini-owner-hold.json.
+
+## Separate Flash Lite cell
+
+- Owner adds gemini-3.5-flash-lite, then raises its separate cap from 6 USD to 12 USD, 18 USD, then 24 USD with unknown-charge holds retained. Original model budgets and answers remain separate.
+- Medium reasoning is accepted and applied to both contestants. Provider attempts have a 300-second timeout, initially eight workers and four for the TEST continuation, 429 waits of 20/60/180 seconds and an immediate HTTP 402 admission stop.
+- Published Standard price is 0.30 USD per million input tokens and 2.50 USD per million output tokens, including thinking. Source: https://ai.google.dev/gemini-api/docs/pricing#gemini-3.5-flash-lite. Medium support: https://ai.google.dev/gemini-api/docs/thinking. Read 13 October 2026.
+- The 20-item pilot costs 0.5183653 USD. Its linear projection is 9.823022435 USD across 379 units; actual fees below supersede that estimate.
+- Flash Lite actual settled fees: 8.62269050 USD. Unknown-charge holds: 10.80000000 USD. Accounted maximum: 19.42269050 USD, cap 24 USD.
+- Host overload recovery keeps all 35 original uncertain-charge holds (10.50 USD). All 35 missing requests return on one additional submission each, costing 0.1725274 USD. Connectivity probes pass first.
+- Upstream recovery creates new downstream keys for six already completed noise items. Their first product-final verdicts stay primary; all continuation answers and charges remain archived. Two continuation verdicts differ and are excluded symmetrically by the first-answer rule. Offline replay reproduces the selected original chains.
+- A second TEST network wave has 24 fetch-stage connect timeouts and one interrupted HTTP-200 response. The owner authorizes release of 7.20 USD in proven pre-connection holds and missing-only recovery of all 25. The HTTP-200 hold and earlier 35 holds stay reserved.
+- TEST continuation preserves all 117 completed item outcomes, including five parse failures, before asking any remaining question. Original partial reports, exact answers, unused recovery answers and fees stay in the evidence.
+- Flash Lite files live under lite/: receipts, recordings, per-item strict and product-final decisions, request attribution, validation and exact replay evidence. The shared pool and audit map are symbolic links to the identical sealed originals.
+- Scoring algorithms match the original frozen functions exactly. lite/evidence/reporting-freeze.json records syntax hashes before TEST. The TEST contains 221 items per contestant; all six phases total 379 units.
+- Gemini 3.8 stays parked. Its disarmed driver cannot start on the clock; only a new owner instruction can release the hold. Its missing work has a 1472 judge-request upper bound, including at most 221 adaptive reviews, before extra rejected 429 attempts.
+- The additional cell does not establish the unmeasured full DEV cheater margin and does not alter the original multiplicity family silently.
+
+## Luna noise addendum: official result preserved
+
+- The closed Luna cell remains official. Its 221-item TEST reports and recordings match every pre-recovery hash. No TEST call is repeated.
+- The owner authorizes recovery of six noise-0 no-answer requests after Haiku. All six return once, at medium, 300-second timeouts and concurrency two after the provider health gate.
+- Four recovered final requests fill the separate addendum. Its 56 earlier answered finals stay unchanged. Two intermediate responses remain supplemental; downstream final requests keep their original frozen inputs.
+- Official noise flips include missing values under the frozen calculation. Recovered-item rows apply that identical rule. Strict remains the headline.
+
+| Model and result | Score variant | Our items with noise flips / 30 | promptfoo items with noise flips / 30 | Items with any missing, ours / peer | New output-limit answers, ours / peer |
+|---|---|---|---|---|---|
+| gpt-6-luna official | strict and product-final | 4/30 | 9/30 | 2 / 2 | 0 / 0 |
+| gpt-6-luna with recovered items | strict | 2/30 | 8/30 | 0 / 0 | 0 / 0 |
+| gpt-6-luna with recovered items | product-final | 2/30 | 8/30 | 0 / 0 | 0 / 0 |
+
+| Addendum contestant | Settled recovery cost USD | Requests |
+|---|---|---|
+| driftbench-verify-uncertainty-cascade | 0.00320077 | 4 |
+| promptfoo | 0.00136698 | 2 |
+
+- Addendum settled cost: 0.00456775 USD inside the original 40 USD cap. Existing unknown-charge holds remain. Cache-write fees use the published 0.125 USD per million tokens.
+- Sources: luna-addendum/freeze-amendment.json, execution-freeze.json, state.json, metrics.json and noise-0.with-recovered-items.json. The addendum never replaces the official cell table.

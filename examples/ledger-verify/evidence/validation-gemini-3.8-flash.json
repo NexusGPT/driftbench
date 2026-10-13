@@ -19,5 +19,6 @@
     }
   },
   "noise": {},
-  "limitations": "Mutation labels are planted arithmetic truth. This tests invariance, not broad domain accuracy."
+  "limitations": "Mutation labels are planted arithmetic truth. This tests invariance, not broad domain accuracy.",
+  "noiseStatus": "pending: daily quota; incomplete repeat excluded"
 }

@@ -1,0 +1,8 @@
+{
+  "phase": "cost-sample",
+  "status": "running",
+  "requestsFinished": 1,
+  "at": "2026-10-13T15:30:04.121834+00:00",
+  "model": "claude-sonnet-5-5",
+  "pid": 44683
+}
