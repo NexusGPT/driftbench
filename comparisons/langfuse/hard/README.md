@@ -53,6 +53,8 @@ python3 comparisons/langfuse/hard/run.py audit --sides ours-audit --cap-usd 0
 python3 comparisons/langfuse/hard/analyse.py
 ```
 
+An `analyse.py` run that reproduces the committed numbers leaves `scores.json` and `heldout-scores.json` byte for byte.
+
 The ledger has model-dependent fact extraction. Code validates its shape and rejects empty ledgers, duplicate reference strings and invalid status values. Shape validation does not prove that the model extracted every fact correctly. No unseen-set score is claimed.
 
 ## Fresh held-out check

@@ -65,4 +65,4 @@ Request digests use the field `request_sha256` and retain their original hexadec
 
 Confidence intervals are 95% Wilson intervals on the synthetic case population. `score.py` also reports the exact two-sided paired sign test. Its ahead/equal/behind outcome requires p below 0.05, following the earlier comparison convention. A higher raw score with a non-significant sign test remains equal. Intervals alone do not prove that one procedure beats another.
 
-`recorded/losses.md` contains the full error census with actual inputs and recorded answers. Replay and scoring make no model calls. A table's attributed cost includes its underlying shared recordings. Such table costs must not be summed as additional billed spend; the unique-call total is the budget measure.
+`recorded/losses.md` contains the full error census with actual inputs and recorded answers. Replay and scoring make no model calls. A `score.py` run that reproduces the committed numbers leaves `recorded/summary.json` byte for byte. A table's attributed cost includes its underlying shared recordings. Such table costs must not be summed as additional billed spend; the unique-call total is the budget measure.

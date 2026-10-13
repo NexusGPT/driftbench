@@ -7,9 +7,12 @@ adds a pytest plugin. No runtime dependency beyond the standard library. See
 ## Install
 
 ```sh
-pip install driftbench               # this package, Python 3.11 or newer
-npm install -g @driftbench/cli       # the driftbench command it runs, Node.js 22.13 or newer
+pip install ./python/driftbench           # this package, from a clone of the repository; Python 3.11 or newer
+npm install -g @agent-nexus/driftbench    # the driftbench command it runs, Node.js 22.13 or newer
 ```
+
+This package is not on PyPI. The name `driftbench` there belongs to another project, a tool that analyses
+process drift: `pip install driftbench` installs that project, not this one.
 
 The package finds the command in this order: the `cli` argument, the `DRIFTBENCH_CLI` environment variable
 (a JSON list of strings, or a command line), then `driftbench` on the `PATH`.

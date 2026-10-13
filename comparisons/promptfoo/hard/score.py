@@ -7,11 +7,19 @@ from run import HERE, outcome, recordings
 
 
 def write_if_changed(path, content):
-    if path.exists():
-        previous = path.read_text()
-        if previous == content or (path.suffix == '.json' and json.loads(previous) == json.loads(content)):
+    if not path.exists() or path.read_text() != content:
+        path.write_text(content)
+
+
+def write_result(path, value):
+    """Write a result file, unless it already holds this value: a replay that reproduces the committed numbers keeps the committed bytes."""
+    text = json.dumps(value, indent=2) + '\n'
+    try:
+        if json.loads(path.read_text()) == json.loads(text):
             return
-    path.write_text(content)
+    except (OSError, ValueError):
+        pass
+    path.write_text(text)
 
 
 def wilson(k, n):
@@ -102,7 +110,7 @@ def main():
                 if r['outcome'] != ('pass' if r['truth'] else 'fail'):
                     audit_lines.extend([f'### peer-full-state {i}: {r["kind"]}', '', f'Truth: {r["truth"]}. Outcome: {r["outcome"]}.', '', 'Input:', '```json', json.dumps(cases[i], ensure_ascii=False, indent=2), '```', 'Recorded answer:', '```text', by_key[r['request_sha256']]['text'], '```', ''])
     output = dict(total_unique_calls=len(calls), total_charged_usd=sum(c['charged_usd'] for c in calls), unknown_cost_calls=sum(not c['cost_known'] for c in calls), model_names=sorted({m for c in calls for m in c.get('resolved_model', [])}), rows=reports, ablations=ablations)
-    write_if_changed(HERE / 'recorded/summary.json', json.dumps(output, indent=2) + '\n')
+    write_result(HERE / 'recorded/summary.json', output)
     write_if_changed(HERE / 'recorded/losses.md', '\n'.join(audit_lines) + '\n')
     print(json.dumps(output, indent=2))
 

@@ -192,13 +192,55 @@ describe('betaQuantile in the lower tail of a U-shaped beta', () => {
 });
 
 describe('neymanAllocation at scale', () => {
-  it('allocates 1e6 units over 1e5 strata in under five seconds and sums to the total', () => {
-    const sizes = Array.from({ length: 100_000 }, (_, i) => 1 + (i % 100));
+  const strataOf = (count: number) => {
+    const sizes = Array.from({ length: count }, (_, i) => 1 + (i % 100));
     const sds = sizes.map((_, i) => ((i * 7919) % 1000) / 1000 + 0.001);
-    const t0 = Date.now();
-    const r = neymanAllocation({ sizes, sds, total: 1_000_000 });
-    expect(Date.now() - t0).toBeLessThan(5000);
+    return { sizes, sds };
+  };
+
+  it('allocates 1e6 units over 1e5 strata and sums to the total', () => {
+    const r = neymanAllocation({ ...strataOf(100_000), total: 1_000_000 });
     expect(r.allocated.reduce((a, b) => a + b, 0)).toBe(1_000_000);
+  });
+
+  /**
+   * Counts the element reads and writes of every array the allocation derives from its sizes. An array
+   * method such as map builds its result through the species constructor of its source, so sizes that
+   * name a counting constructor hand it on to the weights, the allocation and the heap.
+   */
+  function elementAccesses(strata: number): number {
+    let accesses = 0;
+    const isIndex = (key: string | symbol) => typeof key === 'string' && /^\d+$/.test(key);
+    const handler: ProxyHandler<unknown[]> = {
+      get(target, key, receiver) {
+        if (isIndex(key)) accesses += 1;
+        return Reflect.get(target, key, receiver);
+      },
+      set(target, key, value, receiver) {
+        if (isIndex(key)) accesses += 1;
+        return Reflect.set(target, key, value, receiver);
+      },
+    };
+    const species = { [Symbol.species]: Counted };
+    const mark = <T>(list: T[]): T[] => Object.defineProperty(list, 'constructor', { value: species });
+    function Counted(length: number): unknown[] {
+      return new Proxy(mark(new Array(length)), handler);
+    }
+    const { sizes, sds } = strataOf(strata);
+    const total = strata * 10;
+    const r = neymanAllocation({ sizes: mark(sizes), sds, total });
+    expect(r.allocated.reduce((a, b) => a + b, 0)).toBe(total);
+    // The counter is live: each unit past the first of a stratum costs at least one counted write.
+    expect(accesses).toBeGreaterThan(total);
+    return accesses;
+  }
+
+  it('does work that grows near linearly with the problem, not with units times strata', () => {
+    // Four times the strata and four times the units. One heap step per unit grows the count by a little
+    // over four; a scan of every stratum per unit grows it by sixteen.
+    const growth = elementAccesses(2000) / elementAccesses(500);
+    expect(growth).toBeGreaterThan(3);
+    expect(growth).toBeLessThan(8);
   });
 });
 

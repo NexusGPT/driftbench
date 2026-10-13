@@ -119,7 +119,7 @@ describe('a run and its blocks are read in one transaction', () => {
     sql.selectBlocks.all = (...args: unknown[]) => {
       try {
         writer.prepare('UPDATE runs SET cost = cost + 1 WHERE run_id = ?').run(stored.runId);
-      } catch (error) {
+      } catch {
         writerRefused = true;
       }
       return original(...args);
