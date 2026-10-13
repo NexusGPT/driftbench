@@ -146,7 +146,7 @@ describe('--audit: a sample of the cells about to be carried runs fresh', () => 
     );
     expect(out.err).toBe('');
     await writeFile(
-      '/tmp/radius-audit.txt',
+      join(dir, 'radius-audit.txt'),
       out.out
         .split('\n')
         .filter((line) => !line.startsWith('✓') && !line.startsWith('✗'))
