@@ -1,0 +1,111 @@
+{
+  "label": "Full 1,052-item DEV replication",
+  "completeCascadeCohort": {
+    "n": 1052,
+    "metric": "five-subset macro",
+    "base": 88.53114922202532,
+    "cascade": 89.60428488854242,
+    "difference": 1.0731356665171035,
+    "paired95": [
+      0.2093161724672882,
+      1.9670924719355527
+    ],
+    "wins": 26,
+    "losses": 7,
+    "unchanged": 1019,
+    "signTestP": 0.0013187271542847157,
+    "subsets": {
+      "reasoning": {
+        "n": 398,
+        "base": 96.60804020100502,
+        "cascade": 97.23618090452261,
+        "difference": 0.628140703517588
+      },
+      "chat": {
+        "n": 96,
+        "base": 66.66666666666666,
+        "cascade": 66.92708333333334,
+        "difference": 0.26041666666666663
+      },
+      "linguistics": {
+        "n": 93,
+        "base": 90.32258064516128,
+        "cascade": 92.20430107526882,
+        "difference": 1.881720430107527
+      },
+      "language mixing": {
+        "n": 259,
+        "base": 99.13127413127413,
+        "cascade": 99.42084942084942,
+        "difference": 0.28957528957528955
+      },
+      "safety": {
+        "n": 206,
+        "base": 89.92718446601941,
+        "cascade": 92.23300970873787,
+        "difference": 2.3058252427184467
+      }
+    }
+  },
+  "fullPanelEscalationsOnly": {
+    "n": 42,
+    "metric": "item mean among full-panel escalations only",
+    "base": 48.80952380952381,
+    "cascade": 72.61904761904762,
+    "difference": 23.80952380952381,
+    "paired95": [
+      11.309523809523807,
+      35.71428571428571
+    ],
+    "wins": 26,
+    "losses": 7,
+    "unchanged": 9,
+    "signTestP": 0.0013187271542847157,
+    "subsets": {
+      "reasoning": {
+        "n": 9,
+        "base": 50.0,
+        "cascade": 77.77777777777779,
+        "difference": 27.77777777777778
+      },
+      "chat": {
+        "n": 13,
+        "base": 53.84615384615385,
+        "cascade": 55.769230769230774,
+        "difference": 1.9230769230769231
+      },
+      "linguistics": {
+        "n": 6,
+        "base": 50.0,
+        "cascade": 79.16666666666666,
+        "difference": 29.166666666666668
+      },
+      "language mixing": {
+        "n": 6,
+        "base": 62.5,
+        "cascade": 75.0,
+        "difference": 12.5
+      },
+      "safety": {
+        "n": 8,
+        "base": 28.125,
+        "cascade": 87.5,
+        "difference": 59.375
+      }
+    }
+  },
+  "excludedItems": 0,
+  "testGateEvaluated": true,
+  "reason": "Frozen DEV cohort complete.",
+  "bootstrap": {
+    "draws": 20000,
+    "seed": 20261013,
+    "strata": "subset",
+    "percentiles": [
+      2.5,
+      97.5
+    ],
+    "note": "The complete-cascade cohort includes Haiku agreements with no panel required, plus escalations with all panel requests recorded. The strict full-panel cohort contains only the latter."
+  },
+  "testGatePassed": true
+}

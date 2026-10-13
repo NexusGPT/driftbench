@@ -1,7 +1,7 @@
 // Runs the frozen MM design (codex/mm-judge 92d6e72, contract c576): native direct for every subset,
 // chat-only three-sample vote. Imports that code read only; new calls append to a recordings COPY.
 // Usage: tsx frozen-arm.mts SAMPLE.json OUT.jsonl RECORDINGS_COPY.jsonl CAP_USD DEADLINE_ISO
-import { appendFile, readFile } from 'node:fs/promises';
+import { appendFile, readFile, open } from 'node:fs/promises';
 import { existsSync } from 'node:fs';
 const CM = '/Users/assem/Documents/GitHub/driftbench/.worktrees/astra-mm/research/astra-mm/frozen-source/examples/judge-benchmarks';
 const { createCaller, Recordings, ProviderRefused, promptKey } = await import(`${CM}/src/call.ts`);
@@ -13,7 +13,15 @@ const deadline = Date.parse(deadlineArg!);
 const done = new Set<string>();
 if (existsSync(out!)) for (const l of (await readFile(out!, 'utf8')).split('\n')) if (l.trim()) done.add(JSON.parse(l).id);
 const recordings = await new Recordings(recPath!).load();
-const caller = createCaller(recordings, { model: 'haiku', maxCallUsd: 0.05 }, { capUsd: Number(capArg) });
+const refusalPath=recPath!.replace(/-haiku\.jsonl$/, '-refusals.jsonl');
+const refusals=new Map<string,any>();
+if(refusalPath!==recPath && existsSync(refusalPath)) for(const l of (await readFile(refusalPath,'utf8')).split('\n')) if(l.trim()){const r=JSON.parse(l);refusals.set(r.key,r);}
+const receiptRows=existsSync(recPath!)?(await readFile(recPath!,'utf8')).split('\n').filter(Boolean).map(l=>JSON.parse(l)):[];
+const already=receiptRows.reduce((v,r)=>v+r.costUsd,0)+[...refusals.values()].reduce((v,r)=>v+r.costUsd,0);
+const caller = createCaller(recordings, { model: 'haiku', maxCallUsd: 0.05 }, { capUsd: Number(capArg)-already });
+const inflight=new Map<string,Promise<any>>();
+async function syncFile(path:string){const f=await open(path,'a');try{await f.sync();}finally{await f.close();}}
+
 let fresh = 0, freshUsd = 0, replays = 0, next = 0, stop = false;
 const workers = Number(process.env.WORKERS ?? 1);
 await Promise.all(Array.from({ length: workers }, async () => {
@@ -23,10 +31,24 @@ while (!stop && next < sample.length) {
   if (Date.now() >= deadline) { console.log('deadline reached'); stop = true; break; }
   const ask = async (prompt: any, stage: string) => {
     if (Date.now() >= deadline) throw new Error('deadline reached');
-    const hit = recordings.get(promptKey('haiku', prompt));
-    const r = await caller.call(prompt, { bench: 'mmeval', contestant: 'opus-mm-frozen-replica', item: item.id, order: stage });
-    if (hit) replays++; else { fresh++; freshUsd += r.costUsd; }
-    return r;
+    const key=promptKey('haiku',prompt);
+    const refusal=refusals.get(key);if(refusal)throw new ProviderRefused('cached provider refusal',refusal.costUsd);
+    const hit=recordings.get(key);
+    if(hit){replays++;return hit;}
+    if(inflight.has(key)){replays++;return await inflight.get(key);}
+    const request=(async()=>{
+      try{
+        const r=await caller.call(prompt,{bench:'mmeval',contestant:'opus-mm-frozen-replica',item:item.id,order:stage});
+        await syncFile(recPath!);fresh++;freshUsd+=r.costUsd;return r;
+      }catch(e:any){
+        if(e instanceof ProviderRefused && refusalPath!==recPath){
+          const r={key,item:item.id,order:stage,costUsd:e.costUsd,providerRefused:true};
+          await appendFile(refusalPath,JSON.stringify(r)+'\n');await syncFile(refusalPath);refusals.set(key,r);freshUsd+=e.costUsd;
+        }
+        throw e;
+      }
+    })();
+    inflight.set(key,request);try{return await request;}finally{inflight.delete(key);}
   };
   let games: string[], refused = false;
   try {
@@ -36,6 +58,7 @@ while (!stop && next < sample.length) {
     else { console.log('stop:', String(e?.message ?? e).slice(0, 200)); stop = true; break; }
   }
   await appendFile(out!, JSON.stringify({ id: item.id, group: item.group, label: item.label, games, providerRefused: refused }) + '\n');
+  await syncFile(out!);
   if ((fresh + replays) % 20 < 3) console.log(`fresh ${fresh} calls ${freshUsd.toFixed(4)} USD, replays ${replays}`);
 }
 }));

@@ -7,6 +7,8 @@ LEDGER=pathlib.Path('/private/tmp/claude-501/-Users-assem-Documents-Doc-Assem-Cl
 PREFIX=sys.argv[1] if len(sys.argv)>1 else 'dev'
 WORKERS=int(sys.argv[2]) if len(sys.argv)>2 else 6
 GEMINI_ONLY='--gemini-only' in sys.argv
+NON_GEMINI='--non-gemini' in sys.argv
+assert not (GEMINI_ONLY and NON_GEMINI)
 PHASE='gemini-billing-resume-20261013' if GEMINI_ONLY else 'available-panels'
 TIMEOUT=180 if GEMINI_ONLY else 300
 TASKS=DATA/('tasks.jsonl' if PREFIX=='dev' else f'{PREFIX}-tasks.jsonl')
@@ -41,7 +43,7 @@ def cost(provider,payload):
  return 0,u.get('input_tokens',0),u.get('output_tokens',0),0
 cache={r['key']:r for r in rows(OUT)}
 def all_spent():
- return sum(r.get('usd',0) for p in DATA.glob('*-calls.jsonl') for r in rows(p))+sum(r.get('costUsd',0) for r in rows(DATA/'haiku.jsonl'))
+ return sum(r.get('usd',0) for p in DATA.glob('*-calls.jsonl') for r in rows(p))+sum(r.get('costUsd',0) for p in [DATA/'haiku.jsonl',*DATA.glob('*-haiku.jsonl'),*DATA.glob('*-refusals.jsonl')] for r in rows(p))
 spent=all_spent() # includes replayed historical base cost, conservatively
 reserved=0.0
 inflight=set()
@@ -62,7 +64,8 @@ def call(t):
   if t['key'] in cache or t['key'] in inflight:return
   if GEMINI_ONLY and (t['provider']!='gemini' or attempt_counts.get(t['key'],0)>=2):return
   if t['provider']=='gemini' and (ROOT/'pause-gemini').exists():return
-  if spent+reserved+.20>=30:
+  spent=all_spent()
+  if spent+reserved+1.00>=30:
    stop=True;print('BUDGET_STOP',flush=True);return
   reserved+=.20
   inflight.add(t['key'])
@@ -104,17 +107,18 @@ alltasks=rows(TASKS)
 expected=len({t['id'] for t in alltasks})
 with concurrent.futures.ThreadPoolExecutor(max_workers=WORKERS) as pool:
  while not stop:
+  cache.update({r['key']:r for r in rows(OUT)})
   bases={r['id']:r for r in rows(BASE)}
   escalated={i for i,r in bases.items() if r.get('providerRefused') or not(len(r['games'])==2 and r['games'][0]==r['games'][1] and r['games'][0] in ('A','B'))}
   pending=[t for t in alltasks if t['id'] in escalated and t['key'] not in cache]
-  ready=[t for t in pending if retry_after.get(t['key'],0)<=time.time() and not(t['provider']=='gemini' and (ROOT/'pause-gemini').exists()) and (not GEMINI_ONLY or (t['provider']=='gemini' and attempt_counts.get(t['key'],0)<2))]
+  ready=[t for t in pending if retry_after.get(t['key'],0)<=time.time() and not(t['provider']=='gemini' and (ROOT/'pause-gemini').exists()) and (not NON_GEMINI or t['provider']!='gemini') and (not GEMINI_ONLY or (t['provider']=='gemini' and attempt_counts.get(t['key'],0)<2))]
   waiting=sorted({t['id'] for t in pending if t['provider']=='gemini'},key=int)
   (DATA/f'{PREFIX}-waiting-gemini.json').write_text(json.dumps({'items':waiting,'n':len(waiting),'pendingCalls':sum(t['provider']=='gemini' for t in pending)},indent=2)+'\n')
   if ready:
    print(json.dumps({'time':now(),'baseItems':len(bases),'escalated':len(escalated),'pending':len(pending),'workers':WORKERS}),flush=True)
    list(pool.map(call,ready))
-  elif len(bases)==expected and (not pending or ('--available' in sys.argv and not any(t['provider']!='gemini' for t in pending))):
+  elif len(bases)==expected and (not pending or (('--available' in sys.argv or NON_GEMINI) and not any(t['provider']!='gemini' for t in pending)) or (GEMINI_ONLY and not any(t['provider']=='gemini' for t in pending))):
    print(json.dumps({'done':True,'geminiPaused':(ROOT/'pause-gemini').exists(),'waitingGeminiItems':len(waiting),'waitingGeminiCalls':sum(t['provider']=='gemini' for t in pending),'items':expected,'escalated':len(escalated),'calls':len(cache),'spendConservative':spent}),flush=True);break
-  elif GEMINI_ONLY and pending and all(attempt_counts.get(t['key'],0)>=2 for t in pending if t['provider']=='gemini'):
+  elif GEMINI_ONLY and len(bases)==expected and any(t['provider']=='gemini' for t in pending) and all(attempt_counts.get(t['key'],0)>=2 for t in pending if t['provider']=='gemini'):
    print(json.dumps({'stopped':'Gemini one-retry limit reached','pending':len(pending)}),flush=True);break
   else:time.sleep(10)

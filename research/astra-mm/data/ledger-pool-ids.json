@@ -1,0 +1,3005 @@
+{
+  "sourceHash": "c5d9b880f98a3cefcacdd5ac1417d0ce70fe526e358edecd890dcfa792f65aeb",
+  "items": [
+    {
+      "id": "3406",
+      "group": "chat",
+      "language": "es"
+    },
+    {
+      "id": "3337",
+      "group": "chat",
+      "language": "en"
+    },
+    {
+      "id": "2935",
+      "group": "language mixing",
+      "language": "eu"
+    },
+    {
+      "id": "2986",
+      "group": "language mixing",
+      "language": "vn"
+    },
+    {
+      "id": "3438",
+      "group": "chat",
+      "language": "es"
+    },
+    {
+      "id": "3596",
+      "group": "chat",
+      "language": "zh"
+    },
+    {
+      "id": "4022",
+      "group": "linguistics",
+      "language": "it"
+    },
+    {
+      "id": "3304",
+      "group": "chat",
+      "language": "en"
+    },
+    {
+      "id": "2106",
+      "group": "language mixing",
+      "language": "bn"
+    },
+    {
+      "id": "2166",
+      "group": "language mixing",
+      "language": "ar"
+    },
+    {
+      "id": "2535",
+      "group": "language mixing",
+      "language": "ca"
+    },
+    {
+      "id": "4904",
+      "group": "safety",
+      "language": "vn"
+    },
+    {
+      "id": "10",
+      "group": "reasoning",
+      "language": "bn"
+    },
+    {
+      "id": "4030",
+      "group": "linguistics",
+      "language": "it"
+    },
+    {
+      "id": "3229",
+      "group": "chat",
+      "language": "de"
+    },
+    {
+      "id": "1054",
+      "group": "reasoning",
+      "language": "ru"
+    },
+    {
+      "id": "3075",
+      "group": "language mixing",
+      "language": "vn"
+    },
+    {
+      "id": "4417",
+      "group": "safety",
+      "language": "gl"
+    },
+    {
+      "id": "2942",
+      "group": "language mixing",
+      "language": "eu"
+    },
+    {
+      "id": "3827",
+      "group": "linguistics",
+      "language": "en"
+    },
+    {
+      "id": "1507",
+      "group": "reasoning",
+      "language": "te"
+    },
+    {
+      "id": "3875",
+      "group": "linguistics",
+      "language": "es"
+    },
+    {
+      "id": "3905",
+      "group": "linguistics",
+      "language": "es"
+    },
+    {
+      "id": "2640",
+      "group": "language mixing",
+      "language": "ko"
+    },
+    {
+      "id": "4823",
+      "group": "safety",
+      "language": "th"
+    },
+    {
+      "id": "3275",
+      "group": "chat",
+      "language": "en"
+    },
+    {
+      "id": "780",
+      "group": "reasoning",
+      "language": "fr"
+    },
+    {
+      "id": "1216",
+      "group": "reasoning",
+      "language": "sw"
+    },
+    {
+      "id": "176",
+      "group": "reasoning",
+      "language": "bn"
+    },
+    {
+      "id": "3909",
+      "group": "linguistics",
+      "language": "es"
+    },
+    {
+      "id": "4874",
+      "group": "safety",
+      "language": "th"
+    },
+    {
+      "id": "2338",
+      "group": "language mixing",
+      "language": "es"
+    },
+    {
+      "id": "3362",
+      "group": "chat",
+      "language": "en"
+    },
+    {
+      "id": "1346",
+      "group": "reasoning",
+      "language": "sw"
+    },
+    {
+      "id": "4414",
+      "group": "safety",
+      "language": "gl"
+    },
+    {
+      "id": "4834",
+      "group": "safety",
+      "language": "th"
+    },
+    {
+      "id": "284",
+      "group": "reasoning",
+      "language": "de"
+    },
+    {
+      "id": "3429",
+      "group": "chat",
+      "language": "es"
+    },
+    {
+      "id": "1058",
+      "group": "reasoning",
+      "language": "ru"
+    },
+    {
+      "id": "4689",
+      "group": "safety",
+      "language": "ko"
+    },
+    {
+      "id": "4358",
+      "group": "safety",
+      "language": "gl"
+    },
+    {
+      "id": "3446",
+      "group": "chat",
+      "language": "es"
+    },
+    {
+      "id": "2737",
+      "group": "language mixing",
+      "language": "ko"
+    },
+    {
+      "id": "89",
+      "group": "reasoning",
+      "language": "bn"
+    },
+    {
+      "id": "4964",
+      "group": "safety",
+      "language": "vn"
+    },
+    {
+      "id": "4362",
+      "group": "safety",
+      "language": "gl"
+    },
+    {
+      "id": "3313",
+      "group": "chat",
+      "language": "en"
+    },
+    {
+      "id": "4415",
+      "group": "safety",
+      "language": "gl"
+    },
+    {
+      "id": "2832",
+      "group": "language mixing",
+      "language": "eu"
+    },
+    {
+      "id": "4607",
+      "group": "safety",
+      "language": "ja"
+    },
+    {
+      "id": "1667",
+      "group": "reasoning",
+      "language": "th"
+    },
+    {
+      "id": "2844",
+      "group": "language mixing",
+      "language": "eu"
+    },
+    {
+      "id": "773",
+      "group": "reasoning",
+      "language": "fr"
+    },
+    {
+      "id": "572",
+      "group": "reasoning",
+      "language": "es"
+    },
+    {
+      "id": "3679",
+      "group": "linguistics",
+      "language": "ca"
+    },
+    {
+      "id": "2138",
+      "group": "language mixing",
+      "language": "bn"
+    },
+    {
+      "id": "4211",
+      "group": "safety",
+      "language": "ar"
+    },
+    {
+      "id": "3780",
+      "group": "linguistics",
+      "language": "en"
+    },
+    {
+      "id": "3815",
+      "group": "linguistics",
+      "language": "en"
+    },
+    {
+      "id": "3238",
+      "group": "chat",
+      "language": "de"
+    },
+    {
+      "id": "3776",
+      "group": "linguistics",
+      "language": "en"
+    },
+    {
+      "id": "3523",
+      "group": "chat",
+      "language": "ru"
+    },
+    {
+      "id": "4580",
+      "group": "safety",
+      "language": "ja"
+    },
+    {
+      "id": "3277",
+      "group": "chat",
+      "language": "en"
+    },
+    {
+      "id": "4037",
+      "group": "linguistics",
+      "language": "it"
+    },
+    {
+      "id": "4695",
+      "group": "safety",
+      "language": "ko"
+    },
+    {
+      "id": "4088",
+      "group": "safety",
+      "language": "en"
+    },
+    {
+      "id": "936",
+      "group": "reasoning",
+      "language": "ja"
+    },
+    {
+      "id": "2573",
+      "group": "language mixing",
+      "language": "ca"
+    },
+    {
+      "id": "2698",
+      "group": "language mixing",
+      "language": "ko"
+    },
+    {
+      "id": "4463",
+      "group": "safety",
+      "language": "it"
+    },
+    {
+      "id": "2041",
+      "group": "language mixing",
+      "language": "bn"
+    },
+    {
+      "id": "4052",
+      "group": "linguistics",
+      "language": "it"
+    },
+    {
+      "id": "2208",
+      "group": "language mixing",
+      "language": "ar"
+    },
+    {
+      "id": "3757",
+      "group": "linguistics",
+      "language": "de"
+    },
+    {
+      "id": "2800",
+      "group": "language mixing",
+      "language": "ko"
+    },
+    {
+      "id": "4681",
+      "group": "safety",
+      "language": "ko"
+    },
+    {
+      "id": "3474",
+      "group": "chat",
+      "language": "fr"
+    },
+    {
+      "id": "3383",
+      "group": "chat",
+      "language": "es"
+    },
+    {
+      "id": "4395",
+      "group": "safety",
+      "language": "gl"
+    },
+    {
+      "id": "3280",
+      "group": "chat",
+      "language": "en"
+    },
+    {
+      "id": "621",
+      "group": "reasoning",
+      "language": "es"
+    },
+    {
+      "id": "4329",
+      "group": "safety",
+      "language": "eu"
+    },
+    {
+      "id": "4782",
+      "group": "safety",
+      "language": "sw"
+    },
+    {
+      "id": "3204",
+      "group": "chat",
+      "language": "ca"
+    },
+    {
+      "id": "4387",
+      "group": "safety",
+      "language": "gl"
+    },
+    {
+      "id": "3943",
+      "group": "linguistics",
+      "language": "gl"
+    },
+    {
+      "id": "3718",
+      "group": "linguistics",
+      "language": "de"
+    },
+    {
+      "id": "3762",
+      "group": "linguistics",
+      "language": "de"
+    },
+    {
+      "id": "476",
+      "group": "reasoning",
+      "language": "en"
+    },
+    {
+      "id": "2811",
+      "group": "language mixing",
+      "language": "ko"
+    },
+    {
+      "id": "3378",
+      "group": "chat",
+      "language": "es"
+    },
+    {
+      "id": "2260",
+      "group": "language mixing",
+      "language": "ar"
+    },
+    {
+      "id": "4529",
+      "group": "safety",
+      "language": "ja"
+    },
+    {
+      "id": "3423",
+      "group": "chat",
+      "language": "es"
+    },
+    {
+      "id": "3340",
+      "group": "chat",
+      "language": "en"
+    },
+    {
+      "id": "1771",
+      "group": "reasoning",
+      "language": "th"
+    },
+    {
+      "id": "2967",
+      "group": "language mixing",
+      "language": "eu"
+    },
+    {
+      "id": "2797",
+      "group": "language mixing",
+      "language": "ko"
+    },
+    {
+      "id": "3548",
+      "group": "chat",
+      "language": "ru"
+    },
+    {
+      "id": "4011",
+      "group": "linguistics",
+      "language": "it"
+    },
+    {
+      "id": "3223",
+      "group": "chat",
+      "language": "de"
+    },
+    {
+      "id": "3084",
+      "group": "language mixing",
+      "language": "vn"
+    },
+    {
+      "id": "1563",
+      "group": "reasoning",
+      "language": "te"
+    },
+    {
+      "id": "3384",
+      "group": "chat",
+      "language": "es"
+    },
+    {
+      "id": "2685",
+      "group": "language mixing",
+      "language": "ko"
+    },
+    {
+      "id": "3850",
+      "group": "linguistics",
+      "language": "es"
+    },
+    {
+      "id": "3205",
+      "group": "chat",
+      "language": "ca"
+    },
+    {
+      "id": "855",
+      "group": "reasoning",
+      "language": "ja"
+    },
+    {
+      "id": "3706",
+      "group": "linguistics",
+      "language": "de"
+    },
+    {
+      "id": "3369",
+      "group": "chat",
+      "language": "es"
+    },
+    {
+      "id": "3738",
+      "group": "linguistics",
+      "language": "de"
+    },
+    {
+      "id": "1420",
+      "group": "reasoning",
+      "language": "te"
+    },
+    {
+      "id": "3192",
+      "group": "chat",
+      "language": "ca"
+    },
+    {
+      "id": "2365",
+      "group": "language mixing",
+      "language": "es"
+    },
+    {
+      "id": "3288",
+      "group": "chat",
+      "language": "en"
+    },
+    {
+      "id": "992",
+      "group": "reasoning",
+      "language": "ja"
+    },
+    {
+      "id": "4730",
+      "group": "safety",
+      "language": "sw"
+    },
+    {
+      "id": "3407",
+      "group": "chat",
+      "language": "es"
+    },
+    {
+      "id": "3680",
+      "group": "linguistics",
+      "language": "ca"
+    },
+    {
+      "id": "4104",
+      "group": "safety",
+      "language": "en"
+    },
+    {
+      "id": "3998",
+      "group": "linguistics",
+      "language": "it"
+    },
+    {
+      "id": "4504",
+      "group": "safety",
+      "language": "it"
+    },
+    {
+      "id": "3178",
+      "group": "chat",
+      "language": "ca"
+    },
+    {
+      "id": "1167",
+      "group": "reasoning",
+      "language": "ru"
+    },
+    {
+      "id": "3267",
+      "group": "chat",
+      "language": "de"
+    },
+    {
+      "id": "3271",
+      "group": "chat",
+      "language": "en"
+    },
+    {
+      "id": "3711",
+      "group": "linguistics",
+      "language": "de"
+    },
+    {
+      "id": "775",
+      "group": "reasoning",
+      "language": "fr"
+    },
+    {
+      "id": "4915",
+      "group": "safety",
+      "language": "vn"
+    },
+    {
+      "id": "3832",
+      "group": "linguistics",
+      "language": "en"
+    },
+    {
+      "id": "2104",
+      "group": "language mixing",
+      "language": "bn"
+    },
+    {
+      "id": "3190",
+      "group": "chat",
+      "language": "ca"
+    },
+    {
+      "id": "3708",
+      "group": "linguistics",
+      "language": "de"
+    },
+    {
+      "id": "3525",
+      "group": "chat",
+      "language": "ru"
+    },
+    {
+      "id": "3821",
+      "group": "linguistics",
+      "language": "en"
+    },
+    {
+      "id": "1046",
+      "group": "reasoning",
+      "language": "ru"
+    },
+    {
+      "id": "3651",
+      "group": "linguistics",
+      "language": "ca"
+    },
+    {
+      "id": "3430",
+      "group": "chat",
+      "language": "es"
+    },
+    {
+      "id": "4419",
+      "group": "safety",
+      "language": "gl"
+    },
+    {
+      "id": "3285",
+      "group": "chat",
+      "language": "en"
+    },
+    {
+      "id": "3114",
+      "group": "language mixing",
+      "language": "vn"
+    },
+    {
+      "id": "962",
+      "group": "reasoning",
+      "language": "ja"
+    },
+    {
+      "id": "3542",
+      "group": "chat",
+      "language": "ru"
+    },
+    {
+      "id": "4066",
+      "group": "linguistics",
+      "language": "it"
+    },
+    {
+      "id": "4946",
+      "group": "safety",
+      "language": "vn"
+    },
+    {
+      "id": "2687",
+      "group": "language mixing",
+      "language": "ko"
+    },
+    {
+      "id": "2616",
+      "group": "language mixing",
+      "language": "ca"
+    },
+    {
+      "id": "2",
+      "group": "reasoning",
+      "language": "bn"
+    },
+    {
+      "id": "3305",
+      "group": "chat",
+      "language": "en"
+    },
+    {
+      "id": "2957",
+      "group": "language mixing",
+      "language": "eu"
+    },
+    {
+      "id": "1513",
+      "group": "reasoning",
+      "language": "te"
+    },
+    {
+      "id": "2361",
+      "group": "language mixing",
+      "language": "es"
+    },
+    {
+      "id": "4642",
+      "group": "safety",
+      "language": "ko"
+    },
+    {
+      "id": "3212",
+      "group": "chat",
+      "language": "ca"
+    },
+    {
+      "id": "338",
+      "group": "reasoning",
+      "language": "de"
+    },
+    {
+      "id": "1670",
+      "group": "reasoning",
+      "language": "th"
+    },
+    {
+      "id": "3210",
+      "group": "chat",
+      "language": "ca"
+    },
+    {
+      "id": "960",
+      "group": "reasoning",
+      "language": "ja"
+    },
+    {
+      "id": "4969",
+      "group": "safety",
+      "language": "vn"
+    },
+    {
+      "id": "3876",
+      "group": "linguistics",
+      "language": "es"
+    },
+    {
+      "id": "3344",
+      "group": "chat",
+      "language": "en"
+    },
+    {
+      "id": "3512",
+      "group": "chat",
+      "language": "ru"
+    },
+    {
+      "id": "3535",
+      "group": "chat",
+      "language": "ru"
+    },
+    {
+      "id": "4249",
+      "group": "safety",
+      "language": "ar"
+    },
+    {
+      "id": "3976",
+      "group": "linguistics",
+      "language": "gl"
+    },
+    {
+      "id": "2748",
+      "group": "language mixing",
+      "language": "ko"
+    },
+    {
+      "id": "552",
+      "group": "reasoning",
+      "language": "es"
+    },
+    {
+      "id": "3467",
+      "group": "chat",
+      "language": "fr"
+    },
+    {
+      "id": "4832",
+      "group": "safety",
+      "language": "th"
+    },
+    {
+      "id": "4043",
+      "group": "linguistics",
+      "language": "it"
+    },
+    {
+      "id": "4566",
+      "group": "safety",
+      "language": "ja"
+    },
+    {
+      "id": "3764",
+      "group": "linguistics",
+      "language": "de"
+    },
+    {
+      "id": "4160",
+      "group": "safety",
+      "language": "ar"
+    },
+    {
+      "id": "3321",
+      "group": "chat",
+      "language": "en"
+    },
+    {
+      "id": "3924",
+      "group": "linguistics",
+      "language": "gl"
+    },
+    {
+      "id": "3065",
+      "group": "language mixing",
+      "language": "vn"
+    },
+    {
+      "id": "3492",
+      "group": "chat",
+      "language": "fr"
+    },
+    {
+      "id": "728",
+      "group": "reasoning",
+      "language": "fr"
+    },
+    {
+      "id": "4017",
+      "group": "linguistics",
+      "language": "it"
+    },
+    {
+      "id": "4398",
+      "group": "safety",
+      "language": "gl"
+    },
+    {
+      "id": "3597",
+      "group": "chat",
+      "language": "zh"
+    },
+    {
+      "id": "3497",
+      "group": "chat",
+      "language": "fr"
+    },
+    {
+      "id": "3763",
+      "group": "linguistics",
+      "language": "de"
+    },
+    {
+      "id": "2265",
+      "group": "language mixing",
+      "language": "ar"
+    },
+    {
+      "id": "3967",
+      "group": "linguistics",
+      "language": "gl"
+    },
+    {
+      "id": "1468",
+      "group": "reasoning",
+      "language": "te"
+    },
+    {
+      "id": "2237",
+      "group": "language mixing",
+      "language": "ar"
+    },
+    {
+      "id": "3239",
+      "group": "chat",
+      "language": "de"
+    },
+    {
+      "id": "2009",
+      "group": "language mixing",
+      "language": "bn"
+    },
+    {
+      "id": "85",
+      "group": "reasoning",
+      "language": "bn"
+    },
+    {
+      "id": "3018",
+      "group": "language mixing",
+      "language": "vn"
+    },
+    {
+      "id": "3515",
+      "group": "chat",
+      "language": "ru"
+    },
+    {
+      "id": "4880",
+      "group": "safety",
+      "language": "th"
+    },
+    {
+      "id": "2374",
+      "group": "language mixing",
+      "language": "es"
+    },
+    {
+      "id": "3411",
+      "group": "chat",
+      "language": "es"
+    },
+    {
+      "id": "634",
+      "group": "reasoning",
+      "language": "es"
+    },
+    {
+      "id": "4953",
+      "group": "safety",
+      "language": "vn"
+    },
+    {
+      "id": "2490",
+      "group": "language mixing",
+      "language": "es"
+    },
+    {
+      "id": "4294",
+      "group": "safety",
+      "language": "eu"
+    },
+    {
+      "id": "1954",
+      "group": "reasoning",
+      "language": "zh"
+    },
+    {
+      "id": "2976",
+      "group": "language mixing",
+      "language": "eu"
+    },
+    {
+      "id": "2076",
+      "group": "language mixing",
+      "language": "bn"
+    },
+    {
+      "id": "3533",
+      "group": "chat",
+      "language": "ru"
+    },
+    {
+      "id": "2244",
+      "group": "language mixing",
+      "language": "ar"
+    },
+    {
+      "id": "4778",
+      "group": "safety",
+      "language": "sw"
+    },
+    {
+      "id": "4009",
+      "group": "linguistics",
+      "language": "it"
+    },
+    {
+      "id": "3997",
+      "group": "linguistics",
+      "language": "it"
+    },
+    {
+      "id": "3667",
+      "group": "linguistics",
+      "language": "ca"
+    },
+    {
+      "id": "2966",
+      "group": "language mixing",
+      "language": "eu"
+    },
+    {
+      "id": "690",
+      "group": "reasoning",
+      "language": "fr"
+    },
+    {
+      "id": "3631",
+      "group": "linguistics",
+      "language": "ca"
+    },
+    {
+      "id": "4960",
+      "group": "safety",
+      "language": "vn"
+    },
+    {
+      "id": "2642",
+      "group": "language mixing",
+      "language": "ko"
+    },
+    {
+      "id": "4766",
+      "group": "safety",
+      "language": "sw"
+    },
+    {
+      "id": "2367",
+      "group": "language mixing",
+      "language": "es"
+    },
+    {
+      "id": "3443",
+      "group": "chat",
+      "language": "es"
+    },
+    {
+      "id": "4605",
+      "group": "safety",
+      "language": "ja"
+    },
+    {
+      "id": "3203",
+      "group": "chat",
+      "language": "ca"
+    },
+    {
+      "id": "932",
+      "group": "reasoning",
+      "language": "ja"
+    },
+    {
+      "id": "4370",
+      "group": "safety",
+      "language": "gl"
+    },
+    {
+      "id": "1716",
+      "group": "reasoning",
+      "language": "th"
+    },
+    {
+      "id": "3254",
+      "group": "chat",
+      "language": "de"
+    },
+    {
+      "id": "967",
+      "group": "reasoning",
+      "language": "ja"
+    },
+    {
+      "id": "3526",
+      "group": "chat",
+      "language": "ru"
+    },
+    {
+      "id": "3761",
+      "group": "linguistics",
+      "language": "de"
+    },
+    {
+      "id": "3195",
+      "group": "chat",
+      "language": "ca"
+    },
+    {
+      "id": "3316",
+      "group": "chat",
+      "language": "en"
+    },
+    {
+      "id": "2750",
+      "group": "language mixing",
+      "language": "ko"
+    },
+    {
+      "id": "1525",
+      "group": "reasoning",
+      "language": "te"
+    },
+    {
+      "id": "3347",
+      "group": "chat",
+      "language": "en"
+    },
+    {
+      "id": "2977",
+      "group": "language mixing",
+      "language": "eu"
+    },
+    {
+      "id": "358",
+      "group": "reasoning",
+      "language": "de"
+    },
+    {
+      "id": "4122",
+      "group": "safety",
+      "language": "en"
+    },
+    {
+      "id": "3843",
+      "group": "linguistics",
+      "language": "es"
+    },
+    {
+      "id": "4530",
+      "group": "safety",
+      "language": "ja"
+    },
+    {
+      "id": "4205",
+      "group": "safety",
+      "language": "ar"
+    },
+    {
+      "id": "3319",
+      "group": "chat",
+      "language": "en"
+    },
+    {
+      "id": "3461",
+      "group": "chat",
+      "language": "fr"
+    },
+    {
+      "id": "3663",
+      "group": "linguistics",
+      "language": "ca"
+    },
+    {
+      "id": "2085",
+      "group": "language mixing",
+      "language": "bn"
+    },
+    {
+      "id": "3459",
+      "group": "chat",
+      "language": "es"
+    },
+    {
+      "id": "3844",
+      "group": "linguistics",
+      "language": "es"
+    },
+    {
+      "id": "3361",
+      "group": "chat",
+      "language": "en"
+    },
+    {
+      "id": "4603",
+      "group": "safety",
+      "language": "ja"
+    },
+    {
+      "id": "3368",
+      "group": "chat",
+      "language": "es"
+    },
+    {
+      "id": "1677",
+      "group": "reasoning",
+      "language": "th"
+    },
+    {
+      "id": "3753",
+      "group": "linguistics",
+      "language": "de"
+    },
+    {
+      "id": "3173",
+      "group": "chat",
+      "language": "ca"
+    },
+    {
+      "id": "2847",
+      "group": "language mixing",
+      "language": "eu"
+    },
+    {
+      "id": "3951",
+      "group": "linguistics",
+      "language": "gl"
+    },
+    {
+      "id": "3666",
+      "group": "linguistics",
+      "language": "ca"
+    },
+    {
+      "id": "4466",
+      "group": "safety",
+      "language": "it"
+    },
+    {
+      "id": "4326",
+      "group": "safety",
+      "language": "eu"
+    },
+    {
+      "id": "2701",
+      "group": "language mixing",
+      "language": "ko"
+    },
+    {
+      "id": "500",
+      "group": "reasoning",
+      "language": "en"
+    },
+    {
+      "id": "3410",
+      "group": "chat",
+      "language": "es"
+    },
+    {
+      "id": "377",
+      "group": "reasoning",
+      "language": "de"
+    },
+    {
+      "id": "531",
+      "group": "reasoning",
+      "language": "es"
+    },
+    {
+      "id": "3961",
+      "group": "linguistics",
+      "language": "gl"
+    },
+    {
+      "id": "4458",
+      "group": "safety",
+      "language": "it"
+    },
+    {
+      "id": "3784",
+      "group": "linguistics",
+      "language": "en"
+    },
+    {
+      "id": "3038",
+      "group": "language mixing",
+      "language": "vn"
+    },
+    {
+      "id": "4228",
+      "group": "safety",
+      "language": "ar"
+    },
+    {
+      "id": "4163",
+      "group": "safety",
+      "language": "ar"
+    },
+    {
+      "id": "3914",
+      "group": "linguistics",
+      "language": "es"
+    },
+    {
+      "id": "33",
+      "group": "reasoning",
+      "language": "bn"
+    },
+    {
+      "id": "608",
+      "group": "reasoning",
+      "language": "es"
+    },
+    {
+      "id": "3481",
+      "group": "chat",
+      "language": "fr"
+    },
+    {
+      "id": "2245",
+      "group": "language mixing",
+      "language": "ar"
+    },
+    {
+      "id": "2953",
+      "group": "language mixing",
+      "language": "eu"
+    },
+    {
+      "id": "3494",
+      "group": "chat",
+      "language": "fr"
+    },
+    {
+      "id": "4002",
+      "group": "linguistics",
+      "language": "it"
+    },
+    {
+      "id": "4344",
+      "group": "safety",
+      "language": "gl"
+    },
+    {
+      "id": "3621",
+      "group": "linguistics",
+      "language": "ca"
+    },
+    {
+      "id": "1805",
+      "group": "reasoning",
+      "language": "th"
+    },
+    {
+      "id": "3145",
+      "group": "language mixing",
+      "language": "vn"
+    },
+    {
+      "id": "3896",
+      "group": "linguistics",
+      "language": "es"
+    },
+    {
+      "id": "2304",
+      "group": "language mixing",
+      "language": "ar"
+    },
+    {
+      "id": "3745",
+      "group": "linguistics",
+      "language": "de"
+    },
+    {
+      "id": "2618",
+      "group": "language mixing",
+      "language": "ca"
+    },
+    {
+      "id": "1327",
+      "group": "reasoning",
+      "language": "sw"
+    },
+    {
+      "id": "3935",
+      "group": "linguistics",
+      "language": "gl"
+    },
+    {
+      "id": "2156",
+      "group": "language mixing",
+      "language": "ar"
+    },
+    {
+      "id": "2968",
+      "group": "language mixing",
+      "language": "eu"
+    },
+    {
+      "id": "3919",
+      "group": "linguistics",
+      "language": "gl"
+    },
+    {
+      "id": "3683",
+      "group": "linguistics",
+      "language": "ca"
+    },
+    {
+      "id": "4606",
+      "group": "safety",
+      "language": "ja"
+    },
+    {
+      "id": "2910",
+      "group": "language mixing",
+      "language": "eu"
+    },
+    {
+      "id": "4067",
+      "group": "safety",
+      "language": "en"
+    },
+    {
+      "id": "3301",
+      "group": "chat",
+      "language": "en"
+    },
+    {
+      "id": "877",
+      "group": "reasoning",
+      "language": "ja"
+    },
+    {
+      "id": "2608",
+      "group": "language mixing",
+      "language": "ca"
+    },
+    {
+      "id": "4093",
+      "group": "safety",
+      "language": "en"
+    },
+    {
+      "id": "3654",
+      "group": "linguistics",
+      "language": "ca"
+    },
+    {
+      "id": "4557",
+      "group": "safety",
+      "language": "ja"
+    },
+    {
+      "id": "3985",
+      "group": "linguistics",
+      "language": "gl"
+    },
+    {
+      "id": "4970",
+      "group": "safety",
+      "language": "vn"
+    },
+    {
+      "id": "3988",
+      "group": "linguistics",
+      "language": "gl"
+    },
+    {
+      "id": "2073",
+      "group": "language mixing",
+      "language": "bn"
+    },
+    {
+      "id": "2353",
+      "group": "language mixing",
+      "language": "es"
+    },
+    {
+      "id": "3004",
+      "group": "language mixing",
+      "language": "vn"
+    },
+    {
+      "id": "1767",
+      "group": "reasoning",
+      "language": "th"
+    },
+    {
+      "id": "3945",
+      "group": "linguistics",
+      "language": "gl"
+    },
+    {
+      "id": "2723",
+      "group": "language mixing",
+      "language": "ko"
+    },
+    {
+      "id": "1739",
+      "group": "reasoning",
+      "language": "th"
+    },
+    {
+      "id": "3537",
+      "group": "chat",
+      "language": "ru"
+    },
+    {
+      "id": "3747",
+      "group": "linguistics",
+      "language": "de"
+    },
+    {
+      "id": "4897",
+      "group": "safety",
+      "language": "vn"
+    },
+    {
+      "id": "3421",
+      "group": "chat",
+      "language": "es"
+    },
+    {
+      "id": "2179",
+      "group": "language mixing",
+      "language": "ar"
+    },
+    {
+      "id": "3946",
+      "group": "linguistics",
+      "language": "gl"
+    },
+    {
+      "id": "3564",
+      "group": "chat",
+      "language": "ru"
+    },
+    {
+      "id": "2261",
+      "group": "language mixing",
+      "language": "ar"
+    },
+    {
+      "id": "3672",
+      "group": "linguistics",
+      "language": "ca"
+    },
+    {
+      "id": "640",
+      "group": "reasoning",
+      "language": "es"
+    },
+    {
+      "id": "4892",
+      "group": "safety",
+      "language": "vn"
+    },
+    {
+      "id": "2991",
+      "group": "language mixing",
+      "language": "vn"
+    },
+    {
+      "id": "3012",
+      "group": "language mixing",
+      "language": "vn"
+    },
+    {
+      "id": "3848",
+      "group": "linguistics",
+      "language": "es"
+    },
+    {
+      "id": "4691",
+      "group": "safety",
+      "language": "ko"
+    },
+    {
+      "id": "3960",
+      "group": "linguistics",
+      "language": "gl"
+    },
+    {
+      "id": "880",
+      "group": "reasoning",
+      "language": "ja"
+    },
+    {
+      "id": "2405",
+      "group": "language mixing",
+      "language": "es"
+    },
+    {
+      "id": "1056",
+      "group": "reasoning",
+      "language": "ru"
+    },
+    {
+      "id": "3513",
+      "group": "chat",
+      "language": "ru"
+    },
+    {
+      "id": "3245",
+      "group": "chat",
+      "language": "de"
+    },
+    {
+      "id": "1347",
+      "group": "reasoning",
+      "language": "sw"
+    },
+    {
+      "id": "3060",
+      "group": "language mixing",
+      "language": "vn"
+    },
+    {
+      "id": "4045",
+      "group": "linguistics",
+      "language": "it"
+    },
+    {
+      "id": "3243",
+      "group": "chat",
+      "language": "de"
+    },
+    {
+      "id": "2322",
+      "group": "language mixing",
+      "language": "ar"
+    },
+    {
+      "id": "4722",
+      "group": "safety",
+      "language": "sw"
+    },
+    {
+      "id": "3193",
+      "group": "chat",
+      "language": "ca"
+    },
+    {
+      "id": "4746",
+      "group": "safety",
+      "language": "sw"
+    },
+    {
+      "id": "2705",
+      "group": "language mixing",
+      "language": "ko"
+    },
+    {
+      "id": "3470",
+      "group": "chat",
+      "language": "fr"
+    },
+    {
+      "id": "4499",
+      "group": "safety",
+      "language": "it"
+    },
+    {
+      "id": "3390",
+      "group": "chat",
+      "language": "es"
+    },
+    {
+      "id": "3605",
+      "group": "chat",
+      "language": "zh"
+    },
+    {
+      "id": "783",
+      "group": "reasoning",
+      "language": "fr"
+    },
+    {
+      "id": "3427",
+      "group": "chat",
+      "language": "es"
+    },
+    {
+      "id": "3860",
+      "group": "linguistics",
+      "language": "es"
+    },
+    {
+      "id": "2882",
+      "group": "language mixing",
+      "language": "eu"
+    },
+    {
+      "id": "3692",
+      "group": "linguistics",
+      "language": "de"
+    },
+    {
+      "id": "3649",
+      "group": "linguistics",
+      "language": "ca"
+    },
+    {
+      "id": "1909",
+      "group": "reasoning",
+      "language": "zh"
+    },
+    {
+      "id": "2378",
+      "group": "language mixing",
+      "language": "es"
+    },
+    {
+      "id": "2829",
+      "group": "language mixing",
+      "language": "eu"
+    },
+    {
+      "id": "4714",
+      "group": "safety",
+      "language": "sw"
+    },
+    {
+      "id": "3354",
+      "group": "chat",
+      "language": "en"
+    },
+    {
+      "id": "439",
+      "group": "reasoning",
+      "language": "en"
+    },
+    {
+      "id": "4346",
+      "group": "safety",
+      "language": "gl"
+    },
+    {
+      "id": "4931",
+      "group": "safety",
+      "language": "vn"
+    },
+    {
+      "id": "206",
+      "group": "reasoning",
+      "language": "bn"
+    },
+    {
+      "id": "3694",
+      "group": "linguistics",
+      "language": "de"
+    },
+    {
+      "id": "4788",
+      "group": "safety",
+      "language": "sw"
+    },
+    {
+      "id": "2000",
+      "group": "language mixing",
+      "language": "bn"
+    },
+    {
+      "id": "3417",
+      "group": "chat",
+      "language": "es"
+    },
+    {
+      "id": "2247",
+      "group": "language mixing",
+      "language": "ar"
+    },
+    {
+      "id": "172",
+      "group": "reasoning",
+      "language": "bn"
+    },
+    {
+      "id": "501",
+      "group": "reasoning",
+      "language": "en"
+    },
+    {
+      "id": "1674",
+      "group": "reasoning",
+      "language": "th"
+    },
+    {
+      "id": "3092",
+      "group": "language mixing",
+      "language": "vn"
+    },
+    {
+      "id": "3647",
+      "group": "linguistics",
+      "language": "ca"
+    },
+    {
+      "id": "3686",
+      "group": "linguistics",
+      "language": "ca"
+    },
+    {
+      "id": "328",
+      "group": "reasoning",
+      "language": "de"
+    },
+    {
+      "id": "4314",
+      "group": "safety",
+      "language": "eu"
+    },
+    {
+      "id": "610",
+      "group": "reasoning",
+      "language": "es"
+    },
+    {
+      "id": "4506",
+      "group": "safety",
+      "language": "it"
+    },
+    {
+      "id": "4184",
+      "group": "safety",
+      "language": "ar"
+    },
+    {
+      "id": "2438",
+      "group": "language mixing",
+      "language": "es"
+    },
+    {
+      "id": "3989",
+      "group": "linguistics",
+      "language": "gl"
+    },
+    {
+      "id": "4771",
+      "group": "safety",
+      "language": "sw"
+    },
+    {
+      "id": "3150",
+      "group": "language mixing",
+      "language": "vn"
+    },
+    {
+      "id": "3981",
+      "group": "linguistics",
+      "language": "gl"
+    },
+    {
+      "id": "3972",
+      "group": "linguistics",
+      "language": "gl"
+    },
+    {
+      "id": "1565",
+      "group": "reasoning",
+      "language": "te"
+    },
+    {
+      "id": "4676",
+      "group": "safety",
+      "language": "ko"
+    },
+    {
+      "id": "4437",
+      "group": "safety",
+      "language": "it"
+    },
+    {
+      "id": "4365",
+      "group": "safety",
+      "language": "gl"
+    },
+    {
+      "id": "3868",
+      "group": "linguistics",
+      "language": "es"
+    },
+    {
+      "id": "3956",
+      "group": "linguistics",
+      "language": "gl"
+    },
+    {
+      "id": "4865",
+      "group": "safety",
+      "language": "th"
+    },
+    {
+      "id": "3984",
+      "group": "linguistics",
+      "language": "gl"
+    },
+    {
+      "id": "3928",
+      "group": "linguistics",
+      "language": "gl"
+    },
+    {
+      "id": "1658",
+      "group": "reasoning",
+      "language": "th"
+    },
+    {
+      "id": "2039",
+      "group": "language mixing",
+      "language": "bn"
+    },
+    {
+      "id": "3612",
+      "group": "chat",
+      "language": "zh"
+    },
+    {
+      "id": "4650",
+      "group": "safety",
+      "language": "ko"
+    },
+    {
+      "id": "4378",
+      "group": "safety",
+      "language": "gl"
+    },
+    {
+      "id": "4951",
+      "group": "safety",
+      "language": "vn"
+    },
+    {
+      "id": "3648",
+      "group": "linguistics",
+      "language": "ca"
+    },
+    {
+      "id": "3793",
+      "group": "linguistics",
+      "language": "en"
+    },
+    {
+      "id": "4487",
+      "group": "safety",
+      "language": "it"
+    },
+    {
+      "id": "4279",
+      "group": "safety",
+      "language": "eu"
+    },
+    {
+      "id": "3574",
+      "group": "chat",
+      "language": "ru"
+    },
+    {
+      "id": "4881",
+      "group": "safety",
+      "language": "th"
+    },
+    {
+      "id": "4928",
+      "group": "safety",
+      "language": "vn"
+    },
+    {
+      "id": "3085",
+      "group": "language mixing",
+      "language": "vn"
+    },
+    {
+      "id": "2118",
+      "group": "language mixing",
+      "language": "bn"
+    },
+    {
+      "id": "4055",
+      "group": "linguistics",
+      "language": "it"
+    },
+    {
+      "id": "4898",
+      "group": "safety",
+      "language": "vn"
+    },
+    {
+      "id": "3325",
+      "group": "chat",
+      "language": "en"
+    },
+    {
+      "id": "2890",
+      "group": "language mixing",
+      "language": "eu"
+    },
+    {
+      "id": "2703",
+      "group": "language mixing",
+      "language": "ko"
+    },
+    {
+      "id": "3248",
+      "group": "chat",
+      "language": "de"
+    },
+    {
+      "id": "1632",
+      "group": "reasoning",
+      "language": "th"
+    },
+    {
+      "id": "1733",
+      "group": "reasoning",
+      "language": "th"
+    },
+    {
+      "id": "624",
+      "group": "reasoning",
+      "language": "es"
+    },
+    {
+      "id": "4779",
+      "group": "safety",
+      "language": "sw"
+    },
+    {
+      "id": "4475",
+      "group": "safety",
+      "language": "it"
+    },
+    {
+      "id": "4260",
+      "group": "safety",
+      "language": "eu"
+    },
+    {
+      "id": "3486",
+      "group": "chat",
+      "language": "fr"
+    },
+    {
+      "id": "3719",
+      "group": "linguistics",
+      "language": "de"
+    },
+    {
+      "id": "1229",
+      "group": "reasoning",
+      "language": "sw"
+    },
+    {
+      "id": "4406",
+      "group": "safety",
+      "language": "gl"
+    },
+    {
+      "id": "2955",
+      "group": "language mixing",
+      "language": "eu"
+    },
+    {
+      "id": "3619",
+      "group": "linguistics",
+      "language": "ca"
+    },
+    {
+      "id": "3381",
+      "group": "chat",
+      "language": "es"
+    },
+    {
+      "id": "4671",
+      "group": "safety",
+      "language": "ko"
+    },
+    {
+      "id": "3379",
+      "group": "chat",
+      "language": "es"
+    },
+    {
+      "id": "4310",
+      "group": "safety",
+      "language": "eu"
+    },
+    {
+      "id": "4020",
+      "group": "linguistics",
+      "language": "it"
+    },
+    {
+      "id": "4388",
+      "group": "safety",
+      "language": "gl"
+    },
+    {
+      "id": "4012",
+      "group": "linguistics",
+      "language": "it"
+    },
+    {
+      "id": "569",
+      "group": "reasoning",
+      "language": "es"
+    },
+    {
+      "id": "3260",
+      "group": "chat",
+      "language": "de"
+    },
+    {
+      "id": "4427",
+      "group": "safety",
+      "language": "gl"
+    },
+    {
+      "id": "1857",
+      "group": "reasoning",
+      "language": "zh"
+    },
+    {
+      "id": "681",
+      "group": "reasoning",
+      "language": "fr"
+    },
+    {
+      "id": "3861",
+      "group": "linguistics",
+      "language": "es"
+    },
+    {
+      "id": "2146",
+      "group": "language mixing",
+      "language": "bn"
+    },
+    {
+      "id": "3833",
+      "group": "linguistics",
+      "language": "en"
+    },
+    {
+      "id": "364",
+      "group": "reasoning",
+      "language": "de"
+    },
+    {
+      "id": "3781",
+      "group": "linguistics",
+      "language": "en"
+    },
+    {
+      "id": "3503",
+      "group": "chat",
+      "language": "fr"
+    },
+    {
+      "id": "620",
+      "group": "reasoning",
+      "language": "es"
+    },
+    {
+      "id": "2349",
+      "group": "language mixing",
+      "language": "es"
+    },
+    {
+      "id": "3964",
+      "group": "linguistics",
+      "language": "gl"
+    },
+    {
+      "id": "4610",
+      "group": "safety",
+      "language": "ja"
+    },
+    {
+      "id": "2660",
+      "group": "language mixing",
+      "language": "ko"
+    },
+    {
+      "id": "3678",
+      "group": "linguistics",
+      "language": "ca"
+    },
+    {
+      "id": "4878",
+      "group": "safety",
+      "language": "th"
+    },
+    {
+      "id": "1814",
+      "group": "reasoning",
+      "language": "th"
+    },
+    {
+      "id": "252",
+      "group": "reasoning",
+      "language": "de"
+    },
+    {
+      "id": "963",
+      "group": "reasoning",
+      "language": "ja"
+    },
+    {
+      "id": "4267",
+      "group": "safety",
+      "language": "eu"
+    },
+    {
+      "id": "1116",
+      "group": "reasoning",
+      "language": "ru"
+    },
+    {
+      "id": "3970",
+      "group": "linguistics",
+      "language": "gl"
+    },
+    {
+      "id": "2926",
+      "group": "language mixing",
+      "language": "eu"
+    },
+    {
+      "id": "4509",
+      "group": "safety",
+      "language": "it"
+    },
+    {
+      "id": "3819",
+      "group": "linguistics",
+      "language": "en"
+    },
+    {
+      "id": "4655",
+      "group": "safety",
+      "language": "ko"
+    },
+    {
+      "id": "4024",
+      "group": "linguistics",
+      "language": "it"
+    },
+    {
+      "id": "3742",
+      "group": "linguistics",
+      "language": "de"
+    },
+    {
+      "id": "3329",
+      "group": "chat",
+      "language": "en"
+    },
+    {
+      "id": "4292",
+      "group": "safety",
+      "language": "eu"
+    },
+    {
+      "id": "2641",
+      "group": "language mixing",
+      "language": "ko"
+    },
+    {
+      "id": "1557",
+      "group": "reasoning",
+      "language": "te"
+    },
+    {
+      "id": "2219",
+      "group": "language mixing",
+      "language": "ar"
+    },
+    {
+      "id": "4062",
+      "group": "linguistics",
+      "language": "it"
+    },
+    {
+      "id": "3400",
+      "group": "chat",
+      "language": "es"
+    },
+    {
+      "id": "3855",
+      "group": "linguistics",
+      "language": "es"
+    },
+    {
+      "id": "2437",
+      "group": "language mixing",
+      "language": "es"
+    },
+    {
+      "id": "2212",
+      "group": "language mixing",
+      "language": "ar"
+    },
+    {
+      "id": "3610",
+      "group": "chat",
+      "language": "zh"
+    },
+    {
+      "id": "2243",
+      "group": "language mixing",
+      "language": "ar"
+    },
+    {
+      "id": "4593",
+      "group": "safety",
+      "language": "ja"
+    },
+    {
+      "id": "765",
+      "group": "reasoning",
+      "language": "fr"
+    },
+    {
+      "id": "1203",
+      "group": "reasoning",
+      "language": "sw"
+    },
+    {
+      "id": "2918",
+      "group": "language mixing",
+      "language": "eu"
+    },
+    {
+      "id": "63",
+      "group": "reasoning",
+      "language": "bn"
+    },
+    {
+      "id": "4194",
+      "group": "safety",
+      "language": "ar"
+    },
+    {
+      "id": "3899",
+      "group": "linguistics",
+      "language": "es"
+    },
+    {
+      "id": "2446",
+      "group": "language mixing",
+      "language": "es"
+    },
+    {
+      "id": "2625",
+      "group": "language mixing",
+      "language": "ca"
+    },
+    {
+      "id": "1635",
+      "group": "reasoning",
+      "language": "th"
+    },
+    {
+      "id": "198",
+      "group": "reasoning",
+      "language": "bn"
+    },
+    {
+      "id": "3353",
+      "group": "chat",
+      "language": "en"
+    },
+    {
+      "id": "3028",
+      "group": "language mixing",
+      "language": "vn"
+    },
+    {
+      "id": "1736",
+      "group": "reasoning",
+      "language": "th"
+    },
+    {
+      "id": "3158",
+      "group": "language mixing",
+      "language": "vn"
+    },
+    {
+      "id": "3262",
+      "group": "chat",
+      "language": "de"
+    },
+    {
+      "id": "285",
+      "group": "reasoning",
+      "language": "de"
+    },
+    {
+      "id": "335",
+      "group": "reasoning",
+      "language": "de"
+    },
+    {
+      "id": "4582",
+      "group": "safety",
+      "language": "ja"
+    },
+    {
+      "id": "3676",
+      "group": "linguistics",
+      "language": "ca"
+    },
+    {
+      "id": "3936",
+      "group": "linguistics",
+      "language": "gl"
+    },
+    {
+      "id": "3750",
+      "group": "linguistics",
+      "language": "de"
+    },
+    {
+      "id": "3505",
+      "group": "chat",
+      "language": "ru"
+    },
+    {
+      "id": "873",
+      "group": "reasoning",
+      "language": "ja"
+    },
+    {
+      "id": "4013",
+      "group": "linguistics",
+      "language": "it"
+    },
+    {
+      "id": "215",
+      "group": "reasoning",
+      "language": "bn"
+    },
+    {
+      "id": "3527",
+      "group": "chat",
+      "language": "ru"
+    },
+    {
+      "id": "2719",
+      "group": "language mixing",
+      "language": "ko"
+    },
+    {
+      "id": "934",
+      "group": "reasoning",
+      "language": "ja"
+    },
+    {
+      "id": "2667",
+      "group": "language mixing",
+      "language": "ko"
+    },
+    {
+      "id": "4000",
+      "group": "linguistics",
+      "language": "it"
+    },
+    {
+      "id": "1973",
+      "group": "language mixing",
+      "language": "bn"
+    },
+    {
+      "id": "692",
+      "group": "reasoning",
+      "language": "fr"
+    },
+    {
+      "id": "3530",
+      "group": "chat",
+      "language": "ru"
+    },
+    {
+      "id": "1687",
+      "group": "reasoning",
+      "language": "th"
+    },
+    {
+      "id": "2432",
+      "group": "language mixing",
+      "language": "es"
+    },
+    {
+      "id": "158",
+      "group": "reasoning",
+      "language": "bn"
+    },
+    {
+      "id": "1368",
+      "group": "reasoning",
+      "language": "sw"
+    },
+    {
+      "id": "2586",
+      "group": "language mixing",
+      "language": "ca"
+    },
+    {
+      "id": "4705",
+      "group": "safety",
+      "language": "ko"
+    },
+    {
+      "id": "144",
+      "group": "reasoning",
+      "language": "bn"
+    },
+    {
+      "id": "3514",
+      "group": "chat",
+      "language": "ru"
+    },
+    {
+      "id": "3641",
+      "group": "linguistics",
+      "language": "ca"
+    },
+    {
+      "id": "3828",
+      "group": "linguistics",
+      "language": "en"
+    },
+    {
+      "id": "3606",
+      "group": "chat",
+      "language": "zh"
+    },
+    {
+      "id": "3973",
+      "group": "linguistics",
+      "language": "gl"
+    },
+    {
+      "id": "70",
+      "group": "reasoning",
+      "language": "bn"
+    },
+    {
+      "id": "1924",
+      "group": "reasoning",
+      "language": "zh"
+    },
+    {
+      "id": "1156",
+      "group": "reasoning",
+      "language": "ru"
+    },
+    {
+      "id": "4436",
+      "group": "safety",
+      "language": "it"
+    },
+    {
+      "id": "3978",
+      "group": "linguistics",
+      "language": "gl"
+    },
+    {
+      "id": "4433",
+      "group": "safety",
+      "language": "it"
+    },
+    {
+      "id": "1440",
+      "group": "reasoning",
+      "language": "te"
+    },
+    {
+      "id": "4341",
+      "group": "safety",
+      "language": "eu"
+    },
+    {
+      "id": "29",
+      "group": "reasoning",
+      "language": "bn"
+    },
+    {
+      "id": "2220",
+      "group": "language mixing",
+      "language": "ar"
+    },
+    {
+      "id": "3480",
+      "group": "chat",
+      "language": "fr"
+    },
+    {
+      "id": "2291",
+      "group": "language mixing",
+      "language": "ar"
+    },
+    {
+      "id": "3668",
+      "group": "linguistics",
+      "language": "ca"
+    },
+    {
+      "id": "3014",
+      "group": "language mixing",
+      "language": "vn"
+    },
+    {
+      "id": "4351",
+      "group": "safety",
+      "language": "gl"
+    },
+    {
+      "id": "4379",
+      "group": "safety",
+      "language": "gl"
+    },
+    {
+      "id": "3869",
+      "group": "linguistics",
+      "language": "es"
+    },
+    {
+      "id": "4036",
+      "group": "linguistics",
+      "language": "it"
+    },
+    {
+      "id": "4840",
+      "group": "safety",
+      "language": "th"
+    },
+    {
+      "id": "1405",
+      "group": "reasoning",
+      "language": "te"
+    },
+    {
+      "id": "298",
+      "group": "reasoning",
+      "language": "de"
+    },
+    {
+      "id": "3468",
+      "group": "chat",
+      "language": "fr"
+    },
+    {
+      "id": "3293",
+      "group": "chat",
+      "language": "en"
+    },
+    {
+      "id": "514",
+      "group": "reasoning",
+      "language": "es"
+    },
+    {
+      "id": "1510",
+      "group": "reasoning",
+      "language": "te"
+    },
+    {
+      "id": "588",
+      "group": "reasoning",
+      "language": "es"
+    },
+    {
+      "id": "2090",
+      "group": "language mixing",
+      "language": "bn"
+    },
+    {
+      "id": "4497",
+      "group": "safety",
+      "language": "it"
+    },
+    {
+      "id": "3617",
+      "group": "linguistics",
+      "language": "ca"
+    },
+    {
+      "id": "864",
+      "group": "reasoning",
+      "language": "ja"
+    },
+    {
+      "id": "2148",
+      "group": "language mixing",
+      "language": "bn"
+    },
+    {
+      "id": "4493",
+      "group": "safety",
+      "language": "it"
+    },
+    {
+      "id": "2415",
+      "group": "language mixing",
+      "language": "es"
+    },
+    {
+      "id": "3825",
+      "group": "linguistics",
+      "language": "en"
+    },
+    {
+      "id": "3652",
+      "group": "linguistics",
+      "language": "ca"
+    },
+    {
+      "id": "2484",
+      "group": "language mixing",
+      "language": "es"
+    },
+    {
+      "id": "2726",
+      "group": "language mixing",
+      "language": "ko"
+    },
+    {
+      "id": "2488",
+      "group": "language mixing",
+      "language": "es"
+    },
+    {
+      "id": "691",
+      "group": "reasoning",
+      "language": "fr"
+    },
+    {
+      "id": "513",
+      "group": "reasoning",
+      "language": "es"
+    },
+    {
+      "id": "2892",
+      "group": "language mixing",
+      "language": "eu"
+    },
+    {
+      "id": "2062",
+      "group": "language mixing",
+      "language": "bn"
+    },
+    {
+      "id": "1132",
+      "group": "reasoning",
+      "language": "ru"
+    },
+    {
+      "id": "3385",
+      "group": "chat",
+      "language": "es"
+    },
+    {
+      "id": "4719",
+      "group": "safety",
+      "language": "sw"
+    },
+    {
+      "id": "4810",
+      "group": "safety",
+      "language": "th"
+    },
+    {
+      "id": "3414",
+      "group": "chat",
+      "language": "es"
+    },
+    {
+      "id": "3191",
+      "group": "chat",
+      "language": "ca"
+    },
+    {
+      "id": "3689",
+      "group": "linguistics",
+      "language": "ca"
+    },
+    {
+      "id": "3415",
+      "group": "chat",
+      "language": "es"
+    },
+    {
+      "id": "4701",
+      "group": "safety",
+      "language": "ko"
+    },
+    {
+      "id": "3247",
+      "group": "chat",
+      "language": "de"
+    },
+    {
+      "id": "1976",
+      "group": "language mixing",
+      "language": "bn"
+    },
+    {
+      "id": "3809",
+      "group": "linguistics",
+      "language": "en"
+    },
+    {
+      "id": "3189",
+      "group": "chat",
+      "language": "ca"
+    },
+    {
+      "id": "3462",
+      "group": "chat",
+      "language": "fr"
+    },
+    {
+      "id": "4876",
+      "group": "safety",
+      "language": "th"
+    },
+    {
+      "id": "845",
+      "group": "reasoning",
+      "language": "ja"
+    },
+    {
+      "id": "4179",
+      "group": "safety",
+      "language": "ar"
+    },
+    {
+      "id": "3578",
+      "group": "chat",
+      "language": "zh"
+    },
+    {
+      "id": "4343",
+      "group": "safety",
+      "language": "eu"
+    },
+    {
+      "id": "1708",
+      "group": "reasoning",
+      "language": "th"
+    },
+    {
+      "id": "4438",
+      "group": "safety",
+      "language": "it"
+    },
+    {
+      "id": "4600",
+      "group": "safety",
+      "language": "ja"
+    },
+    {
+      "id": "1905",
+      "group": "reasoning",
+      "language": "zh"
+    },
+    {
+      "id": "3219",
+      "group": "chat",
+      "language": "de"
+    },
+    {
+      "id": "223",
+      "group": "reasoning",
+      "language": "de"
+    },
+    {
+      "id": "3428",
+      "group": "chat",
+      "language": "es"
+    },
+    {
+      "id": "1266",
+      "group": "reasoning",
+      "language": "sw"
+    },
+    {
+      "id": "2951",
+      "group": "language mixing",
+      "language": "eu"
+    },
+    {
+      "id": "3226",
+      "group": "chat",
+      "language": "de"
+    },
+    {
+      "id": "3840",
+      "group": "linguistics",
+      "language": "en"
+    },
+    {
+      "id": "2692",
+      "group": "language mixing",
+      "language": "ko"
+    },
+    {
+      "id": "519",
+      "group": "reasoning",
+      "language": "es"
+    },
+    {
+      "id": "3630",
+      "group": "linguistics",
+      "language": "ca"
+    },
+    {
+      "id": "3645",
+      "group": "linguistics",
+      "language": "ca"
+    },
+    {
+      "id": "3394",
+      "group": "chat",
+      "language": "es"
+    },
+    {
+      "id": "811",
+      "group": "reasoning",
+      "language": "ja"
+    },
+    {
+      "id": "3442",
+      "group": "chat",
+      "language": "es"
+    },
+    {
+      "id": "3592",
+      "group": "chat",
+      "language": "zh"
+    },
+    {
+      "id": "4047",
+      "group": "linguistics",
+      "language": "it"
+    },
+    {
+      "id": "3399",
+      "group": "chat",
+      "language": "es"
+    },
+    {
+      "id": "3336",
+      "group": "chat",
+      "language": "en"
+    },
+    {
+      "id": "4315",
+      "group": "safety",
+      "language": "eu"
+    },
+    {
+      "id": "1577",
+      "group": "reasoning",
+      "language": "te"
+    },
+    {
+      "id": "2345",
+      "group": "language mixing",
+      "language": "es"
+    }
+  ]
+}
