@@ -1,15 +1,15 @@
 {
   "model": "gpt-6.1-sol",
-  "pid": 45819,
-  "mode": "first-five",
+  "pid": 98184,
+  "mode": "run",
   "freezeSha256": "74c2aaf848dbb36da10684efd440c5e8c3dd53add4201ac338d32e088974c035",
-  "status": "probe-complete",
-  "phase": "pilot",
-  "completed": 2,
-  "planned": 40,
-  "at": "2026-10-13T13:41:34.463Z",
-  "liabilityUsd": 0.04165,
-  "requests": 5,
-  "workers": 1,
-  "projectionUsd": 15.275328496
+  "status": "stopped",
+  "phase": "test",
+  "completed": 62,
+  "planned": 540,
+  "at": "2026-10-13T14:23:34.595Z",
+  "liabilityUsd": 21.98716539999996,
+  "requests": 911,
+  "workers": 8,
+  "error": "OPERATOR_DRAIN"
 }

@@ -1,37 +1,23 @@
 {
   "model": "claude-sonnet-5-5",
-  "at": "2026-10-13T14:02:16.450Z",
-  "freezeSha256": "2017a20810ba61885c9e4b5b77f9a0a04bdc3dea8d5ce08697809f1129237d49",
-  "status": "NOT_RUN",
+  "at": "2026-10-13T14:24:14.525Z",
+  "freezeSha256": "e7435a4f25ec66a330b59bef568c3dc62297580646323e83359801ee2b5cdca7",
+  "status": "NETWORK_PAUSED",
   "n": 0,
   "planned": 270,
   "coverage": 0,
-  "wins": 0,
-  "losses": 0,
-  "ledger": {
-    "correct": 0,
-    "estimate": null,
-    "lower": null,
-    "upper": null
-  },
-  "promptfoo": {
-    "correct": 0,
-    "estimate": null,
-    "lower": null,
-    "upper": null
-  },
-  "difference": {
-    "estimate": null,
-    "lower": null,
-    "upper": null
-  },
-  "p": 1,
+  "wins": null,
+  "losses": null,
+  "ledger": null,
+  "promptfoo": null,
+  "difference": null,
+  "p": null,
   "holmP": null,
   "holmStatus": "Additional model cell; multiplicity family assignment belongs to the parent comparison. Original 18-cell family unchanged.",
-  "verdict": "NOT_COMPLETE",
-  "decisions": [],
+  "verdict": "WITHHELD_PENDING_TRANSPORT_RECOVERY",
+  "decisions": null,
   "readiness": {
-    "pilotComplete": false,
+    "pilotComplete": true,
     "fixturesComplete": false,
     "noiseComplete": false,
     "validityPassed": false
@@ -39,16 +25,16 @@
   "fixtures": {
     "livebench": {
       "expected": 18,
-      "measured": 0,
-      "correct": 0,
-      "kappa": null,
-      "complete": false,
+      "measured": 18,
+      "correct": 13,
+      "kappa": 0.5652173913043479,
+      "complete": true,
       "earned": false
     },
     "livecodebench": {
       "expected": 18,
-      "measured": 0,
-      "correct": 0,
+      "measured": 1,
+      "correct": 1,
       "kappa": null,
       "complete": false,
       "earned": false
@@ -164,13 +150,13 @@
   "cost": {
     "ledger": {
       "testUsd": 0,
-      "allPhasesUsd": 0.11418239999999999,
+      "allPhasesUsd": 1.7658343999999995,
       "testRequests": 0,
-      "allRequests": 7,
+      "allRequests": 104,
       "unknownCostHoldsUsd": 0,
       "tokens": {
-        "input": 19794,
-        "output": 5892,
+        "input": 282560,
+        "output": 118504,
         "cached": 1824,
         "cacheWrite": 9570,
         "reasoning": 0
@@ -178,13 +164,13 @@
     },
     "promptfoo": {
       "testUsd": 0,
-      "allPhasesUsd": 0.038914,
+      "allPhasesUsd": 0.35976799999999987,
       "testRequests": 0,
-      "allRequests": 4,
+      "allRequests": 41,
       "unknownCostHoldsUsd": 0,
       "tokens": {
-        "input": 10110,
-        "output": 507,
+        "input": 94062,
+        "output": 15802,
         "cached": 0,
         "cacheWrite": 6812,
         "reasoning": 0
@@ -213,17 +199,17 @@
   },
   "budget": {
     "capUsd": 45,
-    "measuredUsd": 0.1530964,
+    "measuredUsd": 2.1256024,
     "holdsUsd": 0,
     "pending": 0,
     "pendingReserveUsd": 0,
-    "liabilityUsd": 0.1530964
+    "liabilityUsd": 2.1256024
   },
-  "requests": 11,
+  "requests": 145,
   "modelActual": [
     "claude-sonnet-5-5"
   ],
-  "transportFailures": 1,
+  "transportFailures": 24,
   "tokenCapCalls": 0,
   "powerRegistration": "TIE-only: fewer than 440 pairs; no powered per-cell WIN claim expected."
 }

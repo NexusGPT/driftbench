@@ -1,0 +1,17 @@
+{
+  "at": "2026-10-13T14:30:51.518617+00:00",
+  "checkpoint": "cdbd5cce89255a4a5535f12d305a5039064fad85",
+  "files": {
+    "decisions-fixtures.jsonl": "568e98333b124e89f6962bd9fbdbe0002b5e6310a150343dbdad88470fe13a85",
+    "decisions-test.jsonl": "74bee3e8df4804ca912fbcc7b0056601f90460bea280ba2aae5814d5511e2ab9",
+    "decisions-noise.jsonl": "358b3b19552f7e05eeee7106590a5f2d57c9fbdc2155c61c2001e1671212f02f",
+    "decisions-pilot.jsonl": "06d4aaa28c48283e4fa3ed92ff6a09b67294b8e5ff31b6bfcf6d001315f0df72",
+    "calls.jsonl": "85c0e75a604f8f95ea8fe34567c1e9d3187c31404b4362cfaac6db83b65c275e",
+    "decisions-validity.jsonl": "ca838d11e2c354fd49a8b8932e35dff97e09097946a0aca55b93bcd913d8f5d9"
+  },
+  "knownUsd": 3.8430674,
+  "unknownHoldsUsd": 17.946205,
+  "answeredReceipts": 744,
+  "finishedAttempts": 913,
+  "pendingAttempts": 0
+}

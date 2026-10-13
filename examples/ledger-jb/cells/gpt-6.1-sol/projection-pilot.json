@@ -1,0 +1,28 @@
+{
+  "model": "gpt-6.1-sol",
+  "at": "2026-10-13T13:45:06.394Z",
+  "basisRequests": 83,
+  "parts": {
+    "ledger": {
+      "sampleRequests": 40,
+      "sampleUsd": 0.3922300000000001,
+      "meanRequestUsd": 0.009805750000000002,
+      "plannedDecisions": 484,
+      "expectedReadsPerDecision": 2.244,
+      "projectedRequests": 1086.096,
+      "projectedUsd": 10.649985852000002
+    },
+    "promptfoo": {
+      "sampleRequests": 43,
+      "sampleUsd": 0.432133,
+      "meanRequestUsd": 0.01004960465116279,
+      "plannedDecisions": 380,
+      "expectedReadsPerDecision": 2,
+      "projectedRequests": 760,
+      "projectedUsd": 7.637699534883721
+    }
+  },
+  "capUsd": 25,
+  "projectedUsd": 18.287685386883723,
+  "method": "Mean measured request cost per contestant times all planned decisions; ledger starts at 2.2 reads plus 2% schema re-asks, then uses a larger observed pilot rate. Small-sample projection, not a guarantee. Hard reservation cap remains authoritative."
+}

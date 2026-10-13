@@ -1,0 +1,15 @@
+{
+  "at": "2026-10-13T14:30:51.518617+00:00",
+  "checkpoint": "cdbd5cce89255a4a5535f12d305a5039064fad85",
+  "files": {
+    "decisions-fixtures.jsonl": "f75ebad0b5bd76e7215a7410a64faaafc47bc23e572451055f32b6929566490a",
+    "pacing-events.jsonl": "2769c3523d2048d2595095cacb1d167ac2a91e655b7e2cfa6bb26d2b8c089d4f",
+    "decisions-pilot.jsonl": "b65487b6c7acb329ff50ae2f35ebe14da96e3b3a59dc0c7aa62313a2373d3214",
+    "calls.jsonl": "c4cc8c2456c372ce04866ad501c285eee2b4f435caf025700af232a9d1d59dec"
+  },
+  "knownUsd": 2.1256024,
+  "unknownHoldsUsd": 0,
+  "answeredReceipts": 121,
+  "finishedAttempts": 145,
+  "pendingAttempts": 0
+}
