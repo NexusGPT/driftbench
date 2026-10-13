@@ -116,10 +116,12 @@ describe('driftbench generate', () => {
     expect(first.out).toContain('Stage graph: 18 of 23 edges covered in 12 paths from needs.');
     expect(first.out).toContain('t-wise: covering array of 132 rows over 5 dimensions');
     expect(first.out).toContain('Constraints applied: 457.');
-    expect(first.out).toContain('  Most frequent reasons:\n     2  no approved path says flow=upgrade');
+    expect(first.out).toContain(
+      '  Most frequent reasons:\n     1  it needs coverage_result in no-service; the cell holds none',
+    );
     const before = await tree(join(dir, 'a'));
     expect(Object.keys(before)).toContain('generate-report.json');
-    expect(Object.keys(before).filter((path) => path.startsWith('specs/'))).toHaveLength(251);
+    expect(Object.keys(before).filter((path) => path.startsWith('specs/'))).toHaveLength(252);
 
     const refused = await run(
       ['generate', '--map', `${ACME}map/approved.yaml`, '--out', 'a', '--t', '2'],
