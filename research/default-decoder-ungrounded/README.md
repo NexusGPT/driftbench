@@ -127,3 +127,10 @@ On current hard-factuality/Haiku, the string-only decoder stays at 104/120 (0 fi
 - The refreshed recorded test passes 33 tests. Missing sets remain not recorded; partial sets do not establish a complete slice pass.
 - After merging main `54b0f904`, 100 focused tests across 7 files pass, including escalation compatibility. The scope codemod changes zero files; all 12 immutable file hashes remain unchanged.
 - Reproduce an imported snapshot with `pnpm exec tsx research/default-decoder-ungrounded/refresh-recordings.mts <recorded-inputs.json.gz>`.
+
+## Main integration after PR 185
+
+- Merged main `98d82dcf0929e647d6c51f688419e53133a9f8e9`, including the upstream escalation union fix. This draft adds no escalation changes.
+- `node tools/rename-scope.mjs` changes zero files. The focused post-merge run passes 153 tests across 10 files, including all frozen decoder rows, pointwise fact-ledger replay, escalation, cassettes and legacy goldens.
+- All 11 legacy file and fixture hashes still match the initial manifest. Main changed `prompt.ts` to add pointwise fact-ledger routing; this draft's file is byte-identical to main. The default prompt fingerprint remains `398673b792c1`.
+- Frozen replay counts remain 38 fixes and zero breaks across 3,727 rows. The draft gate and missing-slice labels remain in force.
