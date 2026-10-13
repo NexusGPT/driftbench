@@ -68,7 +68,7 @@ describe('driftbench gate', () => {
       const specs = await folder([
         join(HAND, 'order-loose-confirmation.yaml'),
         join(HAND, 'tool-failure.yaml'),
-        join(GENERATED, 'gen-deviation-004.yaml'),
+        join(GENERATED, 'gen-deviation-005.yaml'),
       ]);
       const out = join(await temp(), 'gated');
       const result = await run(['gate', specs, ...BASE, '--holdout', '0', '--out', out]);
@@ -91,7 +91,7 @@ describe('driftbench gate', () => {
       );
       // The generated probe walks an approved path: its loose yes at the recap passes the reference and
       // goes red on the fault that orders on a loose yes.
-      expect(files).toContain('specs/gen-deviation-004.yaml');
+      expect(files).toContain('specs/gen-deviation-005.yaml');
       const report = JSON.parse(await readFile(join(out, 'gate-report.json'), 'utf8'));
       expect(report.summary.specs).toBe(3);
       expect(report.funnel.map((row: { stage: string }) => row.stage)).toEqual([
@@ -106,7 +106,7 @@ describe('driftbench gate', () => {
         'freshness',
       ]);
       const probe = report.blocks.find(
-        (block: { key: string }) => block.key === 'gen-deviation-004#b5-D4_loose_confirmation',
+        (block: { key: string }) => block.key === 'gen-deviation-005#b5-D4_loose_confirmation',
       );
       expect(probe).toMatchObject({ status: 'accepted' });
       expect(probe.faults['d4-order-on-loose-yes']).toMatchObject({ outcome: 'fail' });
@@ -140,7 +140,7 @@ describe('driftbench gate', () => {
       // Two specs no path could build: their blocks hold judged criteria only, so stage 1 rejects them.
       const specs = await folder([
         join(INCOMPLETE, 'gen-twise-089.yaml'),
-        join(INCOMPLETE, '../boundary/gen-boundary-062.yaml'),
+        join(INCOMPLETE, '../boundary/gen-boundary-008.yaml'),
       ]);
       const out = join(await temp(), 'gated');
       const result = await run(['gate', specs, ...BASE, '--out', out]);

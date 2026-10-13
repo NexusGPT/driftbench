@@ -1,6 +1,8 @@
+import { stage, tools } from '@agent-nexus/driftbench-checks';
 import {
   AdapterTransportError,
   type AgentAdapter,
+  type CheckContext,
   canonicalJson,
   contentHash,
   gateToolCalls,
@@ -11,7 +13,7 @@ import {
   type TargetRef,
   type Turn,
   type WorldState,
-} from '@driftbench/core';
+} from '@agent-nexus/driftbench-core';
 import { describe, expect, it } from 'vitest';
 
 /**
@@ -288,6 +290,91 @@ export function adapterContract(name: string, makeAdapter: AdapterFactory, optio
           expect(observed.toolCalls.map((call) => call.label)).toEqual(['coverage.check', 'catalog.search']);
           expect(observed.toolCalls[0]?.output).toMatchObject({ found: true, address_id: 'addr-102' });
           expect(observed.text).toContain('3 Orchard Way, Acmeville has fiber up to 300 Mbps');
+        });
+      },
+      timeout,
+    );
+
+    it(
+      'keeps tool inputs observable by the optional closed-input check',
+      async ({ skip }) => {
+        chatOnly(skip, 'the task protocol has no tool calls');
+        await withSession(async (adapter, session) => {
+          const observed = await sendUser(adapter, session, COVERAGE_QUESTION, 0);
+          const block = {
+            when: { user: COVERAGE_QUESTION },
+            expect: {
+              tools: [
+                {
+                  label: 'coverage.check',
+                  input: { address: '3 Orchard Way, Acmeville' },
+                  input_closed: true,
+                },
+              ],
+            },
+          };
+          const ctx: CheckContext = {
+            spec: { id: 'optional-observations', kind: 'conversation', blocks: [block] },
+            mode: 'F',
+            blockIndex: 0,
+            block,
+            expect: block.expect,
+            given: session.given,
+            observed,
+            history: [],
+            ledger: {},
+          };
+          expect((await tools.evaluate(ctx)).every((verdict) => verdict.outcome === 'pass')).toBe(true);
+          const mutated = structuredClone(observed);
+          const call = mutated.toolCalls.find((entry) => entry.label === 'coverage.check');
+          if (!call) throw new Error('the contract fixture omitted coverage.check');
+          call.input = { ...(call.input as Record<string, unknown>), extra: 'unapproved' };
+          expect(await tools.evaluate({ ...ctx, observed: mutated })).toContainEqual(
+            expect.objectContaining({
+              id: 'tools.coverage.check.input_closed',
+              outcome: 'fail',
+              gating: true,
+            }),
+          );
+        });
+      },
+      timeout,
+    );
+
+    it(
+      'uses only this block runtime events for the optional stage-reported check',
+      async () => {
+        await withSession(async (adapter, session) => {
+          const observed = await sendUser(adapter, session, firstText, 0);
+          const block = { when: { user: firstText }, expect: { stage_reported: true } };
+          const ctx: CheckContext = {
+            spec: { id: 'optional-stage-report', kind: 'conversation', blocks: [block] },
+            mode: 'F',
+            blockIndex: 0,
+            block,
+            expect: block.expect,
+            given: session.given,
+            observed,
+            history: [],
+            ledger: {},
+          };
+          const reported = (observed.runtime?.stages ?? []).some((entry) => entry.name.trim() !== '');
+          expect(await stage.evaluate(ctx)).toContainEqual(
+            expect.objectContaining({
+              id: 'stage.reported',
+              outcome: reported ? 'pass' : 'fail',
+              gating: true,
+            }),
+          );
+          const removed = structuredClone(observed);
+          if (removed.runtime) delete removed.runtime.stages;
+          expect(await stage.evaluate({ ...ctx, observed: removed })).toContainEqual(
+            expect.objectContaining({
+              id: 'stage.reported',
+              outcome: 'fail',
+              gating: true,
+            }),
+          );
         });
       },
       timeout,

@@ -1,4 +1,4 @@
-import { validateSpec } from '@driftbench/core';
+import { validateSpec } from '@agent-nexus/driftbench-core';
 import { describe, expect, it } from 'vitest';
 import { parse as parseYaml } from 'yaml';
 import { approveDrafts, type DraftTrace, draftSpec, pendingDrafts } from '../../src/drafts';

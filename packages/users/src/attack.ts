@@ -10,7 +10,7 @@ import {
   runSpec,
   type Spec,
   type TargetRef,
-} from '@driftbench/core';
+} from '@agent-nexus/driftbench-core';
 import { DEVIATIONS, isWorldClass } from './deviations';
 import { createPerturbingDriver, fromPhrasing, isWorldOnly } from './perturb';
 import { seededIndex } from './random';

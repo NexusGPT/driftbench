@@ -1,11 +1,12 @@
-import { spawn, spawnSync } from 'node:child_process';
+import { spawn } from 'node:child_process';
 import { readdirSync, readlinkSync, realpathSync } from 'node:fs';
 import { constants } from 'node:os';
 import { sep } from 'node:path';
 import { performance } from 'node:perf_hooks';
-import type { ExecutionRecord } from '@driftbench/core';
+import type { ExecutionRecord } from '@agent-nexus/driftbench-core';
 import { trackGroup, untrackGroup } from './cleanup';
 import { TIMEOUT_EXIT_CODE } from './limits';
+import { candidatePids, scanWorkingFolders } from './process-scan';
 
 /**
  * Runs one process with bounded output and a timeout, and returns its execution record. The process
@@ -59,6 +60,7 @@ export function runProcess(
     let exit: { code: number | null; signal: NodeJS.Signals | null } | undefined;
     let cleanup: Promise<string | undefined> | undefined;
     let grace: NodeJS.Timeout | undefined;
+    let sweepNote: string | undefined;
 
     const killGroup = () => {
       if (child.pid === undefined) return;
@@ -67,7 +69,10 @@ export function runProcess(
       } catch {
         // The group is already gone.
       }
-      if (options.cwd !== undefined) killInside(realFolder(options.cwd));
+      if (options.cwd !== undefined) {
+        const note = killInside(realFolder(options.cwd));
+        sweepNote ??= note;
+      }
     };
 
     const timer = setTimeout(() => {
@@ -89,6 +94,7 @@ export function runProcess(
       if (child.pid !== undefined) untrackGroup(child.pid);
       const status = exit ?? { code, signal };
       const notes: string[] = [];
+      if (sweepNote) notes.push(sweepNote);
       if (timedOut) notes.push(`driftbench: timed out after ${options.timeoutMs} ms; the command was killed`);
       const build = (cleanupNote: string | undefined): ExecutionRecord => {
         if (cleanupNote) notes.push(cleanupNote);
@@ -137,12 +143,13 @@ function realFolder(folder: string): string {
 }
 
 /**
- * Kills every process whose working folder is inside `root`: the children the command left behind, also
+ * Kills processes whose working folder is inside `root`: the children the command left behind, also
  * one that started its own process group (the group kill does not reach it, and its parent is gone, so no
  * walk of the process tree finds it). A child that moved to another folder is not found.
  */
-function killInside(root: string): void {
-  for (const pid of pidsInside(root)) {
+function killInside(root: string): string | undefined {
+  const { pids, note } = pidsInside(root);
+  for (const pid of pids) {
     if (pid === process.pid) continue;
     try {
       process.kill(pid, 'SIGKILL');
@@ -150,9 +157,10 @@ function killInside(root: string): void {
       // It ended on its own, or it is not ours to kill.
     }
   }
+  return note;
 }
 
-function pidsInside(root: string): number[] {
+function pidsInside(root: string): { pids: number[]; note?: string } {
   const inside = (folder: string) => folder === root || folder.startsWith(`${root}${sep}`);
   try {
     if (process.platform === 'linux') {
@@ -165,24 +173,15 @@ function pidsInside(root: string): number[] {
           // Not readable: another user's process, or one that just ended.
         }
       }
-      return pids;
+      return { pids };
     }
-    // lsof -Fpn prints "p<pid>" then "n<folder>" for each process; -d cwd limits it to the working folder.
-    // lsof exits 1 when it could not read some process (another user's), and still prints the others.
-    const listing = spawnSync('lsof', ['-a', '-d', 'cwd', '-Fpn'], {
-      encoding: 'utf8',
-      maxBuffer: 64 * 1024 * 1024,
-    }).stdout;
-    const pids: number[] = [];
-    let current = 0;
-    for (const line of (listing ?? '').split('\n')) {
-      if (line.startsWith('p')) current = Number.parseInt(line.slice(1), 10);
-      else if (line.startsWith('n') && inside(line.slice(1))) pids.push(current);
-    }
-    return pids;
+    const { folders, note } = scanWorkingFolders(candidatePids(root));
+    return { pids: folders.filter(({ cwd }) => inside(cwd)).map(({ pid }) => pid), note };
   } catch {
     // The listing is unavailable: the group kill has still run.
-    return [];
+    return process.platform === 'linux'
+      ? { pids: [] }
+      : { pids: [], note: 'driftbench: cwd sweep skipped; process listing unavailable' };
   }
 }
 

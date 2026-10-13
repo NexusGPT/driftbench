@@ -9,7 +9,8 @@ import { DriftClass, Message, TargetRef, WorldState } from './common';
 export const RunMode = z.enum(['T', 'F', 'P']);
 export type RunMode = z.infer<typeof RunMode>;
 
-export const Outcome = z.enum(['pass', 'fail', 'inconclusive']);
+/** `not_applicable`: a check whose subject the run never produced (a stage check with no stage record). */
+export const Outcome = z.enum(['pass', 'fail', 'inconclusive', 'not_applicable']);
 export type Outcome = z.infer<typeof Outcome>;
 
 /** The fully resolved initial conditions of a block. */
@@ -135,7 +136,18 @@ export const RuntimeTrace = z.strictObject({
       }),
     )
     .optional(),
-  stages: z.array(z.strictObject({ name: z.string(), at: z.string().optional() })).optional(),
+  stages: z
+    .array(
+      z.strictObject({
+        name: z.string(),
+        at: z.string().optional(),
+        carried: z
+          .boolean()
+          .optional()
+          .describe('True marks a stage carried into this block, not reported during it.'),
+      }),
+    )
+    .optional(),
   /** Files the agent read during the block, by path. Absent when the runtime does not report them. */
   references: z.array(z.strictObject({ path: z.string(), at: z.string().optional() })).optional(),
   /** The tools the runtime offered the agent in the block, by name. Absent when the runtime does not report them. */
@@ -185,6 +197,8 @@ export type Observed = z.infer<typeof Observed>;
 export const Vote = z.strictObject({
   judge: z.string().min(1),
   outcome: Outcome,
+  /** The explicitly named candidate on a pairwise request. A tie differs from missing evidence. */
+  winner: z.enum(['A', 'B', 'tie', 'inconclusive']).optional(),
   score: z.number().optional(),
   reasoning: z.string().optional(),
   /** Every retry the judge's call took. Absent when none. */

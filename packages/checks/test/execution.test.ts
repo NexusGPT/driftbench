@@ -1,4 +1,4 @@
-import type { ExecutionRecord } from '@driftbench/core';
+import type { ExecutionRecord } from '@agent-nexus/driftbench-core';
 import { describe, expect, it } from 'vitest';
 import { execution } from '../src/checks/execution';
 import { acme } from './support/acme';

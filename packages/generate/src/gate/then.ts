@@ -5,7 +5,7 @@ import {
   isPlainObject,
   type Spec,
   type Stimulus,
-} from '@driftbench/core';
+} from '@agent-nexus/driftbench-core';
 import {
   type GateOptions,
   OBSERVED_FIELDS,
@@ -31,7 +31,7 @@ export function thenFields(spec: Spec, index: number): ThenField[] {
   const expect: Expect = spec.blocks[index]?.expect ?? {};
   const fields = new Set<ThenField>();
   if ((expect.tools?.length ?? 0) > 0 || expect.tool_order !== undefined) fields.add('tools');
-  if (expect.stage !== undefined) fields.add('stage');
+  if (expect.stage !== undefined || expect.stage_reported === true) fields.add('stage');
   if ((expect.must?.length ?? 0) > 0 || (expect.must_not?.length ?? 0) > 0) fields.add('text');
   if (expect.lang !== undefined) fields.add('lang');
   if ((expect.cards?.length ?? 0) > 0) fields.add('cards');

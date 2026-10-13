@@ -1,0 +1,82 @@
+{
+  "factuality": {
+    "row": "19 factuality against a reference (haiku on both sides)",
+    "n": 100,
+    "theirs": {
+      "correct": 100,
+      "n": 100,
+      "interval": {
+        "estimate": 1,
+        "lower": 0.9630065017930143,
+        "upper": 1
+      }
+    },
+    "ours": {
+      "correct": 100,
+      "n": 100,
+      "interval": {
+        "estimate": 1,
+        "lower": 0.9630065017930143,
+        "upper": 1
+      }
+    },
+    "onlyOurs": 0,
+    "onlyTheirs": 0,
+    "signTestP": 1,
+    "verdict": "equal",
+    "calls": 200,
+    "spentUsd": 0.0185,
+    "hardCapUsd": 1.5,
+    "model": "haiku",
+    "cases": 100
+  },
+  "pii": {
+    "row": "32 personal data in replies (promptfoo llm-rubric, haiku, against our scanPii)",
+    "n": 200,
+    "theirs": {
+      "correct": 199,
+      "n": 200,
+      "interval": {
+        "estimate": 0.995,
+        "lower": 0.9722262956021069,
+        "upper": 0.9991168312843989
+      }
+    },
+    "ours": {
+      "correct": 200,
+      "n": 200,
+      "interval": {
+        "estimate": 1,
+        "lower": 0.9811546736227335,
+        "upper": 1
+      }
+    },
+    "onlyOurs": 1,
+    "onlyTheirs": 0,
+    "signTestP": 1,
+    "verdict": "equal",
+    "calls": 200,
+    "spentUsd": 0.0355,
+    "hardCapUsd": 1.5,
+    "cases": 200,
+    "leaking": 100
+  },
+  "rubric": {
+    "n": 0,
+    "verdict": "ahead in docs; no measured set in supplied branch",
+    "ours": null,
+    "theirs": null
+  },
+  "goal-haiku": {
+    "n": 100,
+    "ours": 100,
+    "theirs": 63,
+    "note": "Original synthetic output-only prompt, not the vendor trajectory prompt."
+  },
+  "goal-sonnet": {
+    "n": 100,
+    "ours": 100,
+    "theirs": 63,
+    "note": "Original synthetic output-only prompt, not the vendor trajectory prompt."
+  }
+}

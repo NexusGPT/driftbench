@@ -4,7 +4,14 @@ import { copyFile, mkdir, mkdtemp, readFile, realpath, rm, writeFile } from 'nod
 import { createRequire } from 'node:module';
 import { homedir, tmpdir } from 'node:os';
 import { dirname, extname, join } from 'node:path';
-import type { GuardCase, UnitDecision, UnitOutcome, UnitTest } from '@driftbench/generate';
+import type { GuardCase, UnitDecision, UnitOutcome, UnitTest } from '@agent-nexus/driftbench-generate';
+import {
+  reapFolder,
+  trackFolder,
+  trackGroup,
+  untrackFolder,
+  untrackGroup,
+} from '@agent-nexus/driftbench-sandbox';
 import { parse as parseYaml } from 'yaml';
 import { guardName } from '../scan/code';
 import type { EstateReader, GuardDecl } from '../scan/reader';
@@ -96,6 +103,8 @@ export async function runUnitTests(tests: readonly UnitTest[], options: UnitRunO
   const notes: string[] = [];
   const raw = await options.reader.read(options.root);
   const work = await realpath(await mkdtemp(join(tmpdir(), 'driftbench-unit-')));
+  // Removed at exit or on a signal if the run never reaches its finally, with what still runs in it.
+  trackFolder(work);
   const copy = join(work, 'estate');
   try {
     await copyListed(options.root, copy, options.reader);
@@ -129,7 +138,11 @@ export async function runUnitTests(tests: readonly UnitTest[], options: UnitRunO
     );
     return { results, sandbox: sandbox ? 'sandbox-exec' : 'none', notes };
   } finally {
+    // A guard may start a daemon that leaves its process group (a new session) and outlives the run: what
+    // still names or stands in the run's folder ends before the folder goes.
+    await reapFolder([work]);
     await rm(work, { recursive: true, force: true });
+    untrackFolder(work);
   }
 }
 
@@ -626,12 +639,13 @@ export function casesFromSource(source: string): GuardCase[] {
 }
 
 /**
- * How a TypeScript script runs offline: tsx where driftbench can resolve it, else Node's own type stripping.
+ * How a TypeScript script runs offline: the tsx loader where available, else Node's own type stripping.
+ * The loader avoids the CLI's Unix socket, which cannot represent long temporary paths.
  * Never `npx tsx`, which reaches for the network the sandbox closes and waits out the timeout.
  */
 function typeScriptRunner(): string[] {
   try {
-    return [process.execPath, createRequire(import.meta.url).resolve('tsx/cli')];
+    return [process.execPath, '--import', createRequire(import.meta.url).resolve('tsx')];
   } catch {
     return [process.execPath, '--experimental-strip-types', '--no-warnings'];
   }
@@ -690,17 +704,28 @@ async function execute(
     : argv;
   const started = performance.now();
   return await new Promise<Exec>((resolve) => {
+    // Its own process group, so what it leaves running in the background ends with it.
     const child = spawn(command[0] as string, command.slice(1), {
       cwd,
       env,
+      detached: true,
       stdio: ['pipe', 'pipe', 'pipe'],
     });
+    if (child.pid !== undefined) trackGroup(child.pid);
+    const killGroup = () => {
+      if (child.pid === undefined) return;
+      try {
+        process.kill(-child.pid, 'SIGKILL');
+      } catch {
+        // The group already ended.
+      }
+    };
     let stdout = '';
     let stderr = '';
     let timedOut = false;
     const timer = setTimeout(() => {
       timedOut = true;
-      child.kill('SIGKILL');
+      killGroup();
     }, timeoutMs);
     child.stdout.on('data', (chunk: Buffer) => {
       stdout += chunk.toString('utf8');
@@ -720,8 +745,10 @@ async function execute(
         timedOut,
       });
     });
+    child.on('exit', killGroup);
     child.on('close', (code) => {
       clearTimeout(timer);
+      if (child.pid !== undefined) untrackGroup(child.pid);
       resolve({
         exitCode: code ?? 1,
         stdout: neutral(stdout, runner.work),

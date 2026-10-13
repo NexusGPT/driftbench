@@ -5,8 +5,8 @@ import {
   type JudgeRequest,
   type LabelledBlock,
   type LoadedCriterion,
-} from '@driftbench/judges';
-import { cohenKappa } from '@driftbench/stats';
+} from '@agent-nexus/driftbench-judges';
+import { cohenKappa } from '@agent-nexus/driftbench-stats';
 import { type BankItem, fn, type Tier } from '../bank';
 
 /**

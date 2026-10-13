@@ -6,7 +6,7 @@ import {
   type Observed,
   type Segment,
   type ToolCall,
-} from '@driftbench/core';
+} from '@agent-nexus/driftbench-core';
 import { contentText, joinText, parseArguments, parseObserved } from '../shared';
 
 /**
@@ -56,7 +56,7 @@ export function readCandidate(value: unknown, where: string): Candidate {
   const toolCalls = (Array.isArray(value.toolCalls) ? value.toolCalls : []).flatMap((call: unknown) => {
     if (!isPlainObject(call) || typeof call.name !== 'string' || call.name === '') return [];
     return [
-      { name: call.name, input: call.input ?? {}, ...('output' in call ? { output: call.output } : {}) },
+      { name: call.name, input: call.input ?? null, ...('output' in call ? { output: call.output } : {}) },
     ];
   });
   const candidate: Candidate = { content: value.content, toolCalls };
@@ -202,7 +202,7 @@ function replyOf(generation: Generation): {
     for (const block of json.content) {
       if (!isPlainObject(block) || block.type !== 'tool_use' || typeof block.name !== 'string') continue;
       const id = typeof block.id === 'string' ? block.id : `${generation.id}-${calls.length + 1}`;
-      calls.push({ id, name: block.name, input: block.input ?? {} });
+      calls.push({ id, name: block.name, input: block.input ?? null });
     }
   }
   const text = contentText(json.content);

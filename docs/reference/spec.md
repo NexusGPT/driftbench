@@ -121,7 +121,7 @@ A prompt version from the registry, handed to the agent as its system prompt. ca
 
 ## RetrySettings
 
-How model calls are retried. Only a 429, a 5xx (529 included) or a network error is retried.
+How model calls are retried. Only a 408, a 429, a 5xx (529 included) or a network error is retried.
 
 | Field | Type | Required | Default | Description |
 |---|---|---|---|---|
@@ -278,6 +278,7 @@ The expected output and state delta of a block. Every field is optional.
 | Field | Type | Required | Default | Description |
 |---|---|---|---|---|
 | `stage` | string, not empty | no |  | The stage the agent must reach after the block, one of the spec stages. |
+| `stage_reported` | boolean | no |  | True requires the runtime to report a non-empty stage in this block. A carried or inferred stage does not count. False or absent leaves reporting optional. |
 | `ledger_add` | map of string to any value | no |  | Facts the block establishes. They join the ledger. |
 | `tools` | list of [ToolExpect](#toolexpect) | no |  | The tool calls expected in the block. |
 | `tools_offered` | [ToolsOfferedExpect](#toolsofferedexpect) | no |  | The tools the runtime must offer and must not offer, whether or not the agent calls them. |
@@ -313,6 +314,7 @@ One expected tool call.
 | `label` | string, not empty | yes |  | The tool name. |
 | `count` | [Count](#count) | no |  | How many calls are expected. 0 means the tool must not be called. |
 | `input` | map of string to [Assertion](#assertion) | no |  | Assertions on the arguments, by argument name. |
+| `input_closed` | boolean | no |  | True requires every call input to be an object with only the top-level keys named in input. An absent input allows no keys. False or absent leaves other keys allowed. |
 
 ## Count
 

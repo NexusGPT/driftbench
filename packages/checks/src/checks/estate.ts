@@ -5,7 +5,7 @@ import {
   globMatches,
   machineVerdict,
   type Verdict,
-} from '@driftbench/core';
+} from '@agent-nexus/driftbench-core';
 import { checkAssertion } from '../support/assert';
 import { countAllows, describeCount } from '../support/count';
 import { classifyCommand, classifyTool } from '../support/operations';
@@ -519,7 +519,8 @@ export const noDeleteUnder: CustomCheckFunction = (ctx, options) => {
 
 /**
  * `{ name, block? }`. A step a step list allows at any point is reached when the runtime reports it once in
- * the block, wherever: no order can show it. Inconclusive when the runtime reports no stages.
+ * the block, wherever: no order can show it. Not applicable when the runtime reports no stages: the run holds
+ * no stage record, so the check cannot be decided and is left out of the decided count.
  */
 export const stageSeen: CustomCheckFunction = (ctx, options) => {
   if (!isRecord(options) || typeof options.name !== 'string' || options.name === '') {
@@ -529,7 +530,9 @@ export const stageSeen: CustomCheckFunction = (ctx, options) => {
   const id = options.name.replace(/[^A-Za-z0-9_-]/g, '_');
   const reported = ctx.observed.runtime?.stages;
   if (reported === undefined) {
-    return [machineVerdict('stage_seen', id, 'inconclusive', 'the runtime reports no stages for this block')];
+    return [
+      machineVerdict('stage_seen', id, 'not_applicable', 'the runtime reports no stages for this block'),
+    ];
   }
   const seen = reported.some((stage) => stage.name === options.name);
   return [

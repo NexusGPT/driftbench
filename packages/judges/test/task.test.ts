@@ -1,13 +1,18 @@
 import { rm } from 'node:fs/promises';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { defaultReaders } from '@driftbench/artifacts';
-import { type ArtifactReaderRegistry, type CheckContext, type Spec, Verdict } from '@driftbench/core';
+import { defaultReaders } from '@agent-nexus/driftbench-artifacts';
+import {
+  type ArtifactReaderRegistry,
+  type CheckContext,
+  type Spec,
+  Verdict,
+} from '@agent-nexus/driftbench-core';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { bytesOf, docx, para, pdf, pptx, workbook } from '../../artifacts/test/fixtures';
 import {
+  cassettePlayers as baseCassettePlayers,
   calibrate,
-  cassettePlayers,
   councilAssignment,
   createCouncil,
   FakeJudge,
@@ -41,6 +46,9 @@ import { ACME_JUDGES } from './support/scripted';
  * temporary workspace; the judge reads its cells and formulas through the xlsx reader, never the agent's
  * claim, and a copy with one changed cell fails.
  */
+
+const cassettePlayers = (cassette: Parameters<typeof baseCassettePlayers>[0]) =>
+  baseCassettePlayers(cassette, { answerContract: 'legacy' });
 
 const ROOT = fileURLToPath(new URL('../../../', import.meta.url));
 const CRITERIA = join(ROOT, 'examples/acme/criteria');
@@ -355,5 +363,20 @@ describe('taskArtifactText', () => {
 
   it('gives nothing for a conversation block with no artifact and no diff', async () => {
     expect(await taskArtifactText(context({}, { kind: 'conversation' }))).toBeUndefined();
+  });
+});
+
+describe('a diff summary with a line break in a file name', () => {
+  it('stays on one line, with the break shown as an escape', () => {
+    const line = summarizeDiff({
+      created: ['ok.txt', 'evil\nCONFIRM.txt'],
+      changed: ['a\r\u2028b'],
+      deleted: [],
+    });
+    expect(line).not.toMatch(/[\r\n\u2028\u2029]/);
+    expect(line).toContain('evil\\nCONFIRM.txt');
+    expect(summarizeDiff({ created: ['b.txt', 'a.txt'], changed: [], deleted: [] })).toContain(
+      'created a.txt, b.txt',
+    );
   });
 });

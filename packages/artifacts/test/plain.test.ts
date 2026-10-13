@@ -1,5 +1,5 @@
-import { codeReader, textReader } from '@driftbench/artifacts';
-import type { ArtifactDocument } from '@driftbench/core';
+import { codeReader, textReader } from '@agent-nexus/driftbench-artifacts';
+import type { ArtifactDocument } from '@agent-nexus/driftbench-core';
 import { describe, expect, it } from 'vitest';
 import { lineCount } from '../src/text';
 import { bytesOf, runCases } from './fixtures';

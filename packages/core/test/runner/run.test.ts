@@ -1,5 +1,5 @@
-import { defaultChecks } from '@driftbench/checks';
-import * as core from '@driftbench/core';
+import { defaultChecks } from '@agent-nexus/driftbench-checks';
+import * as core from '@agent-nexus/driftbench-core';
 import {
   AdapterTransportError,
   AgentFailure,
@@ -12,9 +12,9 @@ import {
   RunResult,
   type Spec,
   type UserDriver,
-} from '@driftbench/core';
-import { openMemoryStore, cellId as storeCellId } from '@driftbench/store';
-import { createScriptedDriver } from '@driftbench/users';
+} from '@agent-nexus/driftbench-core';
+import { openMemoryStore, cellId as storeCellId } from '@agent-nexus/driftbench-store';
+import { createScriptedDriver } from '@agent-nexus/driftbench-users';
 import { describe, expect, it } from 'vitest';
 import * as runner from '../../src/runner';
 import { blockCacheKey, cellId, runSpec } from '../../src/runner';
@@ -125,7 +125,7 @@ describe('runSpec on the Acme conversations, free-running, with the real Acme ag
   });
 });
 
-describe('the real stack: the function adapter of @driftbench/adapters, defaultChecks of @driftbench/checks', () => {
+describe('the real stack: the function adapter of @agent-nexus/driftbench-adapters, defaultChecks of @agent-nexus/driftbench-checks', () => {
   it.each(loaded.map((entry) => ({ id: entry.spec.id, spec: entry.spec })))(
     '$id passes every machine check',
     async ({ spec }) => {
@@ -739,7 +739,7 @@ describe('failures', () => {
     expect(attempts, 'the run settings win over the spec target').toBe(3);
   });
 
-  it('waits what Retry-After asks, and never retries a 408 or a call the adapter already retried in full', async () => {
+  it('waits what Retry-After asks, retries a 408 like a 429, and never retries a call the adapter already retried in full', async () => {
     const waits: number[] = [];
     const run = async (errors: AdapterTransportError[]) => {
       const adapter = acmeAdapter();
@@ -771,8 +771,9 @@ describe('failures', () => {
     });
 
     const timeout = await run([new AdapterTransportError('request timeout', { status: 408 })]);
-    expect(timeout.attempts).toBe(1);
-    expect(timeout.result.error).toBe('send on block 0 failed: AdapterTransportError: request timeout');
+    expect(timeout.attempts).toBe(2);
+    expect(timeout.result.status).toBe('completed');
+    expect(timeout.result.blocks[0]?.observed.retries?.[0]).toMatchObject({ status: 408 });
 
     const spent = await run([
       new AdapterTransportError('messages.create failed after 4 attempts', { status: 503, exhausted: true }),

@@ -1,4 +1,4 @@
-import type { Count } from '@driftbench/core';
+import type { Count } from '@agent-nexus/driftbench-core';
 
 /**
  * Count semantics, shared by tools, cards, skills and guards. No count means at least one; a number is an

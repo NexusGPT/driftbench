@@ -157,8 +157,11 @@ describe('the recorded cascade on the 5 criteria the council run did not reach (
     // The costly judges replay from the council recording, which holds no answer for these criteria:
     // any escalation would be a cassette miss, counted as an error.
     const report = await calibrateCascade({
-      first: playerClient(haiku, 'claude-haiku'),
-      escalateTo: [playerClient(council, 'claude-sonnet'), playerClient(council, 'claude-opus')],
+      first: playerClient(haiku, 'claude-haiku', { answerContract: 'legacy' }),
+      escalateTo: [
+        playerClient(council, 'claude-sonnet', { answerContract: 'legacy' }),
+        playerClient(council, 'claude-opus', { answerContract: 'legacy' }),
+      ],
       criteria: criteria.filter((c) => names.includes(c.def.name)),
       labels,
     });

@@ -1,4 +1,4 @@
-import { type LoadedSpec, type Spec, validateSpec } from '@driftbench/core';
+import { type LoadedSpec, type Spec, validateSpec } from '@agent-nexus/driftbench-core';
 import type { Slots, When } from '../extract/proposal';
 import { TRANSITION_DIMENSION } from '../seed/map';
 import { fillText, matches } from '../seed/relations';

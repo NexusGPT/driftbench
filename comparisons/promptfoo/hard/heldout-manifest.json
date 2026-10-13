@@ -1,0 +1,21 @@
+{
+  "seed": 20261113,
+  "cases_per_row": 72,
+  "generated": "2026-10-13T00:01:15+02:00",
+  "canonical_hashes": {
+    "rubric": "20aea64bd85db9c5061facb5b85f3e0fdf98d0c9fc0e957c08061dac029f2370",
+    "factuality": "aff1e4b70775a99f69aa786abf3f05dde468f99257012ea47421117f00e2a14e",
+    "pii": "7e0396d05cacab20d126053d12b94b5505a1afd03fd875786bd39c30b80feb70",
+    "goal": "b2f8ad1cff7852ed03c3fadfe6c68d2e42e964cffc85b24cfa3eb138dc4a3adb"
+  },
+  "rule": "Labels fixed by construction before any held-out model call. Candidate frozen before held-out runs; no tuning on held-out outcomes.",
+  "revisions": [
+    {
+      "stamp": "2026-10-13T00:39:18+02:00",
+      "row": "goal",
+      "reason": "Match pinned upstream numeric status object before any goal model call; IDs, labels, family balance and all other fields unchanged.",
+      "old_hash": "e21e273fe78f85743804d6870c925b8cb83429bbd18959773034cf6d698abe33",
+      "new_hash": "b2f8ad1cff7852ed03c3fadfe6c68d2e42e964cffc85b24cfa3eb138dc4a3adb"
+    }
+  ]
+}

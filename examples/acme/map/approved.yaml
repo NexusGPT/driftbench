@@ -11,7 +11,7 @@ agent: acme
 produced_by:
   family: lane
   model: claude-opus-5-5 as the extract and generate2 lanes, by hand
-  at: 2026-10-11T20:06:40.420Z
+  at: 2026-10-12T20:37:02.190Z
 sources:
   - { kind: prompt, path: ../src/policy.ts }
   - { kind: prompt, path: ../README.md }
@@ -347,6 +347,19 @@ dimensions:
           source: tools.yaml
           quote: "required: [category]"
         produced_by: code
+  - id: catalog.search.in.unknown-key
+    title: catalog.search input unknown-key
+    kind: data
+    role: detail
+    produced_by: code
+    approved: true
+    values:
+      - id: catalog.search.in.unknown-key.sent
+        title: a key the schema does not name is sent
+        evidence:
+          source: tools.yaml
+          quote: "additionalProperties: false"
+        produced_by: code
   - id: catalog.search.out.plans
     title: catalog.search output plans
     kind: data
@@ -431,6 +444,19 @@ dimensions:
         evidence:
           source: tools.yaml
           quote: "address: { type: string, minLength: 1 }"
+        produced_by: code
+  - id: coverage.check.in.unknown-key
+    title: coverage.check input unknown-key
+    kind: data
+    role: detail
+    produced_by: code
+    approved: true
+    values:
+      - id: coverage.check.in.unknown-key.sent
+        title: a key the schema does not name is sent
+        evidence:
+          source: tools.yaml
+          quote: "additionalProperties: false"
         produced_by: code
   - id: coverage.check.out.found
     title: coverage.check output found
@@ -544,6 +570,19 @@ dimensions:
         evidence:
           source: tools.yaml
           quote: "number: { type: string, minLength: 1, description: A US phone number; anything else is refused. }"
+        produced_by: code
+  - id: port.check.in.unknown-key
+    title: port.check input unknown-key
+    kind: data
+    role: detail
+    produced_by: code
+    approved: true
+    values:
+      - id: port.check.in.unknown-key.sent
+        title: a key the schema does not name is sent
+        evidence:
+          source: tools.yaml
+          quote: "additionalProperties: false"
         produced_by: code
   - id: port.check.out.eligible
     title: port.check output eligible
@@ -684,6 +723,19 @@ dimensions:
           source: tools.yaml
           quote: "required: [type, plan_id]"
         produced_by: code
+  - id: order.create.in.unknown-key
+    title: order.create input unknown-key
+    kind: data
+    role: detail
+    produced_by: code
+    approved: true
+    values:
+      - id: order.create.in.unknown-key.sent
+        title: a key the schema does not name is sent
+        evidence:
+          source: tools.yaml
+          quote: "additionalProperties: false"
+        produced_by: code
   - id: order.create.out.status
     title: order.create output status
     kind: data
@@ -803,6 +855,19 @@ dimensions:
         evidence:
           source: tools.yaml
           quote: "summary: { type: string, minLength: 1 }"
+        produced_by: code
+  - id: notify_sales.in.unknown-key
+    title: notify_sales input unknown-key
+    kind: data
+    role: detail
+    produced_by: code
+    approved: true
+    values:
+      - id: notify_sales.in.unknown-key.sent
+        title: a key the schema does not name is sent
+        evidence:
+          source: tools.yaml
+          quote: "additionalProperties: false"
         produced_by: code
   - id: notify_sales.out.queued
     title: notify_sales output queued
@@ -2279,6 +2344,7 @@ phrases:
     value: upgrade
     text: Can I get more data? My account email is sam.lee@example.com
     lang: en
+    when: { first_message: [ says-everything ] }
     produced_by: model
     approved: true
   - dimension: flow

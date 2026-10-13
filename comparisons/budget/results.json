@@ -1,0 +1,2177 @@
+[
+  {
+    "mode": "budget",
+    "budget": 20,
+    "seed": 1,
+    "command": "pnpm -s driftbench generate --map examples/acme/map/approved.yaml --out _captures/budget/budget-20 --t 2 --seed 1 --budget 20 --force",
+    "exitCode": 1,
+    "selected": 20,
+    "complete": 251,
+    "incomplete": 69,
+    "selectedComplete": 20,
+    "pairs": {
+      "covered": 154,
+      "allowed": 314
+    },
+    "wholePairs": {
+      "covered": 637,
+      "allowed": 637
+    },
+    "maxDeviation": 2,
+    "balance": [
+      {
+        "dimension": "behaviour",
+        "values": [
+          {
+            "value": "B-001",
+            "count": 1,
+            "fair": 1.6666666666666667,
+            "deviation": -0.6666666666666667
+          },
+          {
+            "value": "B-002",
+            "count": 1,
+            "fair": 1.6666666666666667,
+            "deviation": -0.6666666666666667
+          },
+          {
+            "value": "B-003",
+            "count": 2,
+            "fair": 1.6666666666666667,
+            "deviation": 0.33333333333333326
+          },
+          {
+            "value": "B-004",
+            "count": 2,
+            "fair": 1.6666666666666667,
+            "deviation": 0.33333333333333326
+          },
+          {
+            "value": "B-005",
+            "count": 2,
+            "fair": 1.6666666666666667,
+            "deviation": 0.33333333333333326
+          },
+          {
+            "value": "B-006",
+            "count": 1,
+            "fair": 1.6666666666666667,
+            "deviation": -0.6666666666666667
+          },
+          {
+            "value": "B-007",
+            "count": 1,
+            "fair": 1.6666666666666667,
+            "deviation": -0.6666666666666667
+          },
+          {
+            "value": "B-008",
+            "count": 3,
+            "fair": 1.6666666666666667,
+            "deviation": 1.3333333333333333
+          },
+          {
+            "value": "B-009",
+            "count": 2,
+            "fair": 1.6666666666666667,
+            "deviation": 0.33333333333333326
+          },
+          {
+            "value": "B-010",
+            "count": 2,
+            "fair": 1.6666666666666667,
+            "deviation": 0.33333333333333326
+          },
+          {
+            "value": "B-011",
+            "count": 2,
+            "fair": 1.6666666666666667,
+            "deviation": 0.33333333333333326
+          },
+          {
+            "value": "B-012",
+            "count": 1,
+            "fair": 1.6666666666666667,
+            "deviation": -0.6666666666666667
+          }
+        ]
+      },
+      {
+        "dimension": "deviation",
+        "values": [
+          {
+            "value": "none",
+            "count": 2,
+            "fair": 1.8181818181818181,
+            "deviation": 0.18181818181818188
+          },
+          {
+            "value": "D1_off_topic",
+            "count": 2,
+            "fair": 1.8181818181818181,
+            "deviation": 0.18181818181818188
+          },
+          {
+            "value": "D2_goal_shift",
+            "count": 2,
+            "fair": 1.8181818181818181,
+            "deviation": 0.18181818181818188
+          },
+          {
+            "value": "D3_contradiction",
+            "count": 2,
+            "fair": 1.8181818181818181,
+            "deviation": 0.18181818181818188
+          },
+          {
+            "value": "D4_loose_confirmation",
+            "count": 2,
+            "fair": 1.8181818181818181,
+            "deviation": 0.18181818181818188
+          },
+          {
+            "value": "D5_language_switch",
+            "count": 1,
+            "fair": 1.8181818181818181,
+            "deviation": -0.8181818181818181
+          },
+          {
+            "value": "D6_instruction_in_data",
+            "count": 2,
+            "fair": 1.8181818181818181,
+            "deviation": 0.18181818181818188
+          },
+          {
+            "value": "D8_tool_failure",
+            "count": 2,
+            "fair": 1.8181818181818181,
+            "deviation": 0.18181818181818188
+          },
+          {
+            "value": "D10_return",
+            "count": 2,
+            "fair": 1.8181818181818181,
+            "deviation": 0.18181818181818188
+          },
+          {
+            "value": "D7_silence_or_burst",
+            "count": 2,
+            "fair": 1.8181818181818181,
+            "deviation": 0.18181818181818188
+          },
+          {
+            "value": "D9_out_of_scope",
+            "count": 1,
+            "fair": 1.8181818181818181,
+            "deviation": -0.8181818181818181
+          }
+        ]
+      },
+      {
+        "dimension": "channel",
+        "values": [
+          {
+            "value": "chat",
+            "count": 10,
+            "fair": 10,
+            "deviation": 0
+          },
+          {
+            "value": "whatsapp",
+            "count": 10,
+            "fair": 10,
+            "deviation": 0
+          }
+        ]
+      },
+      {
+        "dimension": "user_type",
+        "values": [
+          {
+            "value": "existing-customer",
+            "count": 8,
+            "fair": 10,
+            "deviation": -2
+          },
+          {
+            "value": "new-customer",
+            "count": 12,
+            "fair": 10,
+            "deviation": 2
+          }
+        ]
+      },
+      {
+        "dimension": "coverage_result",
+        "values": [
+          {
+            "value": "none",
+            "count": 6,
+            "fair": 4,
+            "deviation": 2
+          },
+          {
+            "value": "fiber",
+            "count": 5,
+            "fair": 4,
+            "deviation": 1
+          },
+          {
+            "value": "5g-only",
+            "count": 4,
+            "fair": 4,
+            "deviation": 0
+          },
+          {
+            "value": "no-service",
+            "count": 2,
+            "fair": 4,
+            "deviation": -2
+          },
+          {
+            "value": "not-in-map",
+            "count": 3,
+            "fair": 4,
+            "deviation": -1
+          }
+        ]
+      }
+    ],
+    "faultsCaught": 13,
+    "faultsScored": 13,
+    "witnesses": {
+      "x1-invents-price": "gen-boundary-058#b2-identify-to-offer",
+      "x3-skips-recap": "gen-boundary-058#b3-offer-to-recap",
+      "x4-wrong-language": "gen-boundary-058#b1-needs-to-identify",
+      "d8-hides-tool-failure": "gen-boundary-067#b2-D8_tool_failure",
+      "x5-drops-coverage-check": "gen-boundary-068#b2-D8_tool_failure",
+      "d2-ignores-goal-shift": "gen-cover-002#b4-D2_goal_shift",
+      "d4-order-on-loose-yes": "gen-cover-002#b4-D2_goal_shift",
+      "d6-obeys-instruction": "gen-cover-005#b5-D6_instruction_in_data",
+      "d9-answers-out-of-scope": "gen-cover-009#b3-D9_out_of_scope",
+      "ops-x1-wrong-price": "acme-price-sheet-i01-base#build",
+      "ops-x4-narrates": "acme-price-sheet-i01-base#build",
+      "ops-x5-skips-check": "acme-price-sheet-i01-base#build",
+      "ops-d6-deletes-readme": "acme-price-sheet-i01-base#build"
+    },
+    "missed": [],
+    "selectedFaultsCaught": 9,
+    "selectedCaught": [
+      "d2-ignores-goal-shift",
+      "d4-order-on-loose-yes",
+      "d6-obeys-instruction",
+      "d8-hides-tool-failure",
+      "d9-answers-out-of-scope",
+      "x1-invents-price",
+      "x3-skips-recap",
+      "x4-wrong-language",
+      "x5-drops-coverage-check"
+    ],
+    "referenceFailures": [],
+    "mapHash": "b583de68c530",
+    "selectedIncomplete": 0
+  },
+  {
+    "mode": "pairwise",
+    "budget": 20,
+    "seed": 1,
+    "command": "pnpm -s driftbench generate --map examples/acme/map/approved.yaml --out _captures/budget/pairwise-20 --t 2 --seed 1 --max 20 --force",
+    "exitCode": 1,
+    "selected": 20,
+    "complete": 114,
+    "incomplete": 22,
+    "selectedComplete": 20,
+    "pairs": {
+      "covered": 73,
+      "allowed": 314
+    },
+    "wholePairs": {
+      "covered": 379,
+      "allowed": 637
+    },
+    "maxDeviation": 16,
+    "balance": [
+      {
+        "dimension": "behaviour",
+        "values": [
+          {
+            "value": "B-001",
+            "count": 11,
+            "fair": 1.6666666666666667,
+            "deviation": 9.333333333333334
+          },
+          {
+            "value": "B-002",
+            "count": 9,
+            "fair": 1.6666666666666667,
+            "deviation": 7.333333333333333
+          },
+          {
+            "value": "B-003",
+            "count": 0,
+            "fair": 1.6666666666666667,
+            "deviation": -1.6666666666666667
+          },
+          {
+            "value": "B-004",
+            "count": 0,
+            "fair": 1.6666666666666667,
+            "deviation": -1.6666666666666667
+          },
+          {
+            "value": "B-005",
+            "count": 0,
+            "fair": 1.6666666666666667,
+            "deviation": -1.6666666666666667
+          },
+          {
+            "value": "B-006",
+            "count": 0,
+            "fair": 1.6666666666666667,
+            "deviation": -1.6666666666666667
+          },
+          {
+            "value": "B-007",
+            "count": 0,
+            "fair": 1.6666666666666667,
+            "deviation": -1.6666666666666667
+          },
+          {
+            "value": "B-008",
+            "count": 0,
+            "fair": 1.6666666666666667,
+            "deviation": -1.6666666666666667
+          },
+          {
+            "value": "B-009",
+            "count": 0,
+            "fair": 1.6666666666666667,
+            "deviation": -1.6666666666666667
+          },
+          {
+            "value": "B-010",
+            "count": 0,
+            "fair": 1.6666666666666667,
+            "deviation": -1.6666666666666667
+          },
+          {
+            "value": "B-011",
+            "count": 0,
+            "fair": 1.6666666666666667,
+            "deviation": -1.6666666666666667
+          },
+          {
+            "value": "B-012",
+            "count": 0,
+            "fair": 1.6666666666666667,
+            "deviation": -1.6666666666666667
+          }
+        ]
+      },
+      {
+        "dimension": "deviation",
+        "values": [
+          {
+            "value": "none",
+            "count": 2,
+            "fair": 1.8181818181818181,
+            "deviation": 0.18181818181818188
+          },
+          {
+            "value": "D1_off_topic",
+            "count": 2,
+            "fair": 1.8181818181818181,
+            "deviation": 0.18181818181818188
+          },
+          {
+            "value": "D2_goal_shift",
+            "count": 2,
+            "fair": 1.8181818181818181,
+            "deviation": 0.18181818181818188
+          },
+          {
+            "value": "D3_contradiction",
+            "count": 2,
+            "fair": 1.8181818181818181,
+            "deviation": 0.18181818181818188
+          },
+          {
+            "value": "D4_loose_confirmation",
+            "count": 2,
+            "fair": 1.8181818181818181,
+            "deviation": 0.18181818181818188
+          },
+          {
+            "value": "D5_language_switch",
+            "count": 2,
+            "fair": 1.8181818181818181,
+            "deviation": 0.18181818181818188
+          },
+          {
+            "value": "D6_instruction_in_data",
+            "count": 2,
+            "fair": 1.8181818181818181,
+            "deviation": 0.18181818181818188
+          },
+          {
+            "value": "D8_tool_failure",
+            "count": 2,
+            "fair": 1.8181818181818181,
+            "deviation": 0.18181818181818188
+          },
+          {
+            "value": "D10_return",
+            "count": 2,
+            "fair": 1.8181818181818181,
+            "deviation": 0.18181818181818188
+          },
+          {
+            "value": "D7_silence_or_burst",
+            "count": 1,
+            "fair": 1.8181818181818181,
+            "deviation": -0.8181818181818181
+          },
+          {
+            "value": "D9_out_of_scope",
+            "count": 1,
+            "fair": 1.8181818181818181,
+            "deviation": -0.8181818181818181
+          }
+        ]
+      },
+      {
+        "dimension": "channel",
+        "values": [
+          {
+            "value": "chat",
+            "count": 12,
+            "fair": 10,
+            "deviation": 2
+          },
+          {
+            "value": "whatsapp",
+            "count": 8,
+            "fair": 10,
+            "deviation": -2
+          }
+        ]
+      },
+      {
+        "dimension": "user_type",
+        "values": [
+          {
+            "value": "existing-customer",
+            "count": 20,
+            "fair": 10,
+            "deviation": 10
+          },
+          {
+            "value": "new-customer",
+            "count": 0,
+            "fair": 10,
+            "deviation": -10
+          }
+        ]
+      },
+      {
+        "dimension": "coverage_result",
+        "values": [
+          {
+            "value": "none",
+            "count": 20,
+            "fair": 4,
+            "deviation": 16
+          },
+          {
+            "value": "fiber",
+            "count": 0,
+            "fair": 4,
+            "deviation": -4
+          },
+          {
+            "value": "5g-only",
+            "count": 0,
+            "fair": 4,
+            "deviation": -4
+          },
+          {
+            "value": "no-service",
+            "count": 0,
+            "fair": 4,
+            "deviation": -4
+          },
+          {
+            "value": "not-in-map",
+            "count": 0,
+            "fair": 4,
+            "deviation": -4
+          }
+        ]
+      }
+    ],
+    "faultsCaught": 13,
+    "faultsScored": 13,
+    "witnesses": {
+      "x4-wrong-language": "gen-cover-001#b1-needs-to-identify",
+      "x5-drops-coverage-check": "gen-cover-002#b2-address-to-address",
+      "x1-invents-price": "gen-cover-003#b2-address-to-offer",
+      "x3-skips-recap": "gen-cover-003#b4-details-to-recap",
+      "d2-ignores-goal-shift": "gen-cover-003#b5-D2_goal_shift",
+      "d4-order-on-loose-yes": "gen-cover-005#b5-D4_loose_confirmation",
+      "d6-obeys-instruction": "gen-cover-007#b3-D6_instruction_in_data",
+      "d8-hides-tool-failure": "gen-cover-008#b2-D8_tool_failure",
+      "d9-answers-out-of-scope": "gen-cover-011#b3-D9_out_of_scope",
+      "ops-x1-wrong-price": "acme-price-sheet-i01-base#build",
+      "ops-x4-narrates": "acme-price-sheet-i01-base#build",
+      "ops-x5-skips-check": "acme-price-sheet-i01-base#build",
+      "ops-d6-deletes-readme": "acme-price-sheet-i01-base#build"
+    },
+    "missed": [],
+    "selectedFaultsCaught": 8,
+    "selectedCaught": [
+      "d2-ignores-goal-shift",
+      "d4-order-on-loose-yes",
+      "d6-obeys-instruction",
+      "d8-hides-tool-failure",
+      "d9-answers-out-of-scope",
+      "x1-invents-price",
+      "x3-skips-recap",
+      "x4-wrong-language"
+    ],
+    "referenceFailures": [],
+    "mapHash": "b583de68c530",
+    "selectedIncomplete": 0
+  },
+  {
+    "mode": "budget",
+    "budget": 50,
+    "seed": 1,
+    "command": "pnpm -s driftbench generate --map examples/acme/map/approved.yaml --out _captures/budget/budget-50 --t 2 --seed 1 --budget 50 --force",
+    "exitCode": 1,
+    "selected": 50,
+    "complete": 248,
+    "incomplete": 70,
+    "selectedComplete": 49,
+    "pairs": {
+      "covered": 232,
+      "allowed": 314
+    },
+    "wholePairs": {
+      "covered": 637,
+      "allowed": 637
+    },
+    "maxDeviation": 5,
+    "balance": [
+      {
+        "dimension": "behaviour",
+        "values": [
+          {
+            "value": "B-001",
+            "count": 2,
+            "fair": 4.166666666666667,
+            "deviation": -2.166666666666667
+          },
+          {
+            "value": "B-002",
+            "count": 3,
+            "fair": 4.166666666666667,
+            "deviation": -1.166666666666667
+          },
+          {
+            "value": "B-003",
+            "count": 5,
+            "fair": 4.166666666666667,
+            "deviation": 0.833333333333333
+          },
+          {
+            "value": "B-004",
+            "count": 6,
+            "fair": 4.166666666666667,
+            "deviation": 1.833333333333333
+          },
+          {
+            "value": "B-005",
+            "count": 6,
+            "fair": 4.166666666666667,
+            "deviation": 1.833333333333333
+          },
+          {
+            "value": "B-006",
+            "count": 2,
+            "fair": 4.166666666666667,
+            "deviation": -2.166666666666667
+          },
+          {
+            "value": "B-007",
+            "count": 2,
+            "fair": 4.166666666666667,
+            "deviation": -2.166666666666667
+          },
+          {
+            "value": "B-008",
+            "count": 6,
+            "fair": 4.166666666666667,
+            "deviation": 1.833333333333333
+          },
+          {
+            "value": "B-009",
+            "count": 5,
+            "fair": 4.166666666666667,
+            "deviation": 0.833333333333333
+          },
+          {
+            "value": "B-010",
+            "count": 6,
+            "fair": 4.166666666666667,
+            "deviation": 1.833333333333333
+          },
+          {
+            "value": "B-011",
+            "count": 5,
+            "fair": 4.166666666666667,
+            "deviation": 0.833333333333333
+          },
+          {
+            "value": "B-012",
+            "count": 2,
+            "fair": 4.166666666666667,
+            "deviation": -2.166666666666667
+          }
+        ]
+      },
+      {
+        "dimension": "deviation",
+        "values": [
+          {
+            "value": "none",
+            "count": 5,
+            "fair": 4.545454545454546,
+            "deviation": 0.45454545454545414
+          },
+          {
+            "value": "D1_off_topic",
+            "count": 5,
+            "fair": 4.545454545454546,
+            "deviation": 0.45454545454545414
+          },
+          {
+            "value": "D2_goal_shift",
+            "count": 3,
+            "fair": 4.545454545454546,
+            "deviation": -1.5454545454545459
+          },
+          {
+            "value": "D3_contradiction",
+            "count": 3,
+            "fair": 4.545454545454546,
+            "deviation": -1.5454545454545459
+          },
+          {
+            "value": "D4_loose_confirmation",
+            "count": 4,
+            "fair": 4.545454545454546,
+            "deviation": -0.5454545454545459
+          },
+          {
+            "value": "D5_language_switch",
+            "count": 5,
+            "fair": 4.545454545454546,
+            "deviation": 0.45454545454545414
+          },
+          {
+            "value": "D6_instruction_in_data",
+            "count": 5,
+            "fair": 4.545454545454546,
+            "deviation": 0.45454545454545414
+          },
+          {
+            "value": "D8_tool_failure",
+            "count": 5,
+            "fair": 4.545454545454546,
+            "deviation": 0.45454545454545414
+          },
+          {
+            "value": "D10_return",
+            "count": 5,
+            "fair": 4.545454545454546,
+            "deviation": 0.45454545454545414
+          },
+          {
+            "value": "D7_silence_or_burst",
+            "count": 5,
+            "fair": 4.545454545454546,
+            "deviation": 0.45454545454545414
+          },
+          {
+            "value": "D9_out_of_scope",
+            "count": 5,
+            "fair": 4.545454545454546,
+            "deviation": 0.45454545454545414
+          }
+        ]
+      },
+      {
+        "dimension": "channel",
+        "values": [
+          {
+            "value": "chat",
+            "count": 25,
+            "fair": 25,
+            "deviation": 0
+          },
+          {
+            "value": "whatsapp",
+            "count": 25,
+            "fair": 25,
+            "deviation": 0
+          }
+        ]
+      },
+      {
+        "dimension": "user_type",
+        "values": [
+          {
+            "value": "existing-customer",
+            "count": 20,
+            "fair": 25,
+            "deviation": -5
+          },
+          {
+            "value": "new-customer",
+            "count": 30,
+            "fair": 25,
+            "deviation": 5
+          }
+        ]
+      },
+      {
+        "dimension": "coverage_result",
+        "values": [
+          {
+            "value": "none",
+            "count": 13,
+            "fair": 10,
+            "deviation": 3
+          },
+          {
+            "value": "fiber",
+            "count": 11,
+            "fair": 10,
+            "deviation": 1
+          },
+          {
+            "value": "5g-only",
+            "count": 10,
+            "fair": 10,
+            "deviation": 0
+          },
+          {
+            "value": "no-service",
+            "count": 8,
+            "fair": 10,
+            "deviation": -2
+          },
+          {
+            "value": "not-in-map",
+            "count": 8,
+            "fair": 10,
+            "deviation": -2
+          }
+        ]
+      }
+    ],
+    "faultsCaught": 13,
+    "faultsScored": 13,
+    "witnesses": {
+      "x1-invents-price": "gen-boundary-058#b2-identify-to-offer",
+      "x3-skips-recap": "gen-boundary-058#b3-offer-to-recap",
+      "x4-wrong-language": "gen-boundary-058#b1-needs-to-identify",
+      "d8-hides-tool-failure": "gen-boundary-067#b2-D8_tool_failure",
+      "x5-drops-coverage-check": "gen-boundary-068#b2-D8_tool_failure",
+      "d4-order-on-loose-yes": "gen-cover-002#b4-D4_loose_confirmation",
+      "d6-obeys-instruction": "gen-cover-004#b1-D6_instruction_in_data",
+      "d9-answers-out-of-scope": "gen-cover-008#b6-D9_out_of_scope",
+      "d2-ignores-goal-shift": "gen-cover-009#b4-D2_goal_shift",
+      "ops-x1-wrong-price": "acme-price-sheet-i01-base#build",
+      "ops-x4-narrates": "acme-price-sheet-i01-base#build",
+      "ops-x5-skips-check": "acme-price-sheet-i01-base#build",
+      "ops-d6-deletes-readme": "acme-price-sheet-i01-base#build"
+    },
+    "missed": [],
+    "selectedFaultsCaught": 9,
+    "selectedCaught": [
+      "d2-ignores-goal-shift",
+      "d4-order-on-loose-yes",
+      "d6-obeys-instruction",
+      "d8-hides-tool-failure",
+      "d9-answers-out-of-scope",
+      "x1-invents-price",
+      "x3-skips-recap",
+      "x4-wrong-language",
+      "x5-drops-coverage-check"
+    ],
+    "referenceFailures": [],
+    "mapHash": "b583de68c530",
+    "selectedIncomplete": 1
+  },
+  {
+    "mode": "pairwise",
+    "budget": 50,
+    "seed": 1,
+    "command": "pnpm -s driftbench generate --map examples/acme/map/approved.yaml --out _captures/budget/pairwise-50 --t 2 --seed 1 --max 50 --force",
+    "exitCode": 1,
+    "selected": 50,
+    "complete": 194,
+    "incomplete": 52,
+    "selectedComplete": 50,
+    "pairs": {
+      "covered": 174,
+      "allowed": 314
+    },
+    "wholePairs": {
+      "covered": 549,
+      "allowed": 637
+    },
+    "maxDeviation": 12,
+    "balance": [
+      {
+        "dimension": "behaviour",
+        "values": [
+          {
+            "value": "B-001",
+            "count": 11,
+            "fair": 4.166666666666667,
+            "deviation": 6.833333333333333
+          },
+          {
+            "value": "B-002",
+            "count": 11,
+            "fair": 4.166666666666667,
+            "deviation": 6.833333333333333
+          },
+          {
+            "value": "B-003",
+            "count": 11,
+            "fair": 4.166666666666667,
+            "deviation": 6.833333333333333
+          },
+          {
+            "value": "B-004",
+            "count": 11,
+            "fair": 4.166666666666667,
+            "deviation": 6.833333333333333
+          },
+          {
+            "value": "B-005",
+            "count": 6,
+            "fair": 4.166666666666667,
+            "deviation": 1.833333333333333
+          },
+          {
+            "value": "B-006",
+            "count": 0,
+            "fair": 4.166666666666667,
+            "deviation": -4.166666666666667
+          },
+          {
+            "value": "B-007",
+            "count": 0,
+            "fair": 4.166666666666667,
+            "deviation": -4.166666666666667
+          },
+          {
+            "value": "B-008",
+            "count": 0,
+            "fair": 4.166666666666667,
+            "deviation": -4.166666666666667
+          },
+          {
+            "value": "B-009",
+            "count": 0,
+            "fair": 4.166666666666667,
+            "deviation": -4.166666666666667
+          },
+          {
+            "value": "B-010",
+            "count": 0,
+            "fair": 4.166666666666667,
+            "deviation": -4.166666666666667
+          },
+          {
+            "value": "B-011",
+            "count": 0,
+            "fair": 4.166666666666667,
+            "deviation": -4.166666666666667
+          },
+          {
+            "value": "B-012",
+            "count": 0,
+            "fair": 4.166666666666667,
+            "deviation": -4.166666666666667
+          }
+        ]
+      },
+      {
+        "dimension": "deviation",
+        "values": [
+          {
+            "value": "none",
+            "count": 5,
+            "fair": 4.545454545454546,
+            "deviation": 0.45454545454545414
+          },
+          {
+            "value": "D1_off_topic",
+            "count": 5,
+            "fair": 4.545454545454546,
+            "deviation": 0.45454545454545414
+          },
+          {
+            "value": "D2_goal_shift",
+            "count": 5,
+            "fair": 4.545454545454546,
+            "deviation": 0.45454545454545414
+          },
+          {
+            "value": "D3_contradiction",
+            "count": 5,
+            "fair": 4.545454545454546,
+            "deviation": 0.45454545454545414
+          },
+          {
+            "value": "D4_loose_confirmation",
+            "count": 5,
+            "fair": 4.545454545454546,
+            "deviation": 0.45454545454545414
+          },
+          {
+            "value": "D5_language_switch",
+            "count": 5,
+            "fair": 4.545454545454546,
+            "deviation": 0.45454545454545414
+          },
+          {
+            "value": "D6_instruction_in_data",
+            "count": 4,
+            "fair": 4.545454545454546,
+            "deviation": -0.5454545454545459
+          },
+          {
+            "value": "D8_tool_failure",
+            "count": 4,
+            "fair": 4.545454545454546,
+            "deviation": -0.5454545454545459
+          },
+          {
+            "value": "D10_return",
+            "count": 4,
+            "fair": 4.545454545454546,
+            "deviation": -0.5454545454545459
+          },
+          {
+            "value": "D7_silence_or_burst",
+            "count": 4,
+            "fair": 4.545454545454546,
+            "deviation": -0.5454545454545459
+          },
+          {
+            "value": "D9_out_of_scope",
+            "count": 4,
+            "fair": 4.545454545454546,
+            "deviation": -0.5454545454545459
+          }
+        ]
+      },
+      {
+        "dimension": "channel",
+        "values": [
+          {
+            "value": "chat",
+            "count": 25,
+            "fair": 25,
+            "deviation": 0
+          },
+          {
+            "value": "whatsapp",
+            "count": 25,
+            "fair": 25,
+            "deviation": 0
+          }
+        ]
+      },
+      {
+        "dimension": "user_type",
+        "values": [
+          {
+            "value": "existing-customer",
+            "count": 22,
+            "fair": 25,
+            "deviation": -3
+          },
+          {
+            "value": "new-customer",
+            "count": 28,
+            "fair": 25,
+            "deviation": 3
+          }
+        ]
+      },
+      {
+        "dimension": "coverage_result",
+        "values": [
+          {
+            "value": "none",
+            "count": 22,
+            "fair": 10,
+            "deviation": 12
+          },
+          {
+            "value": "fiber",
+            "count": 9,
+            "fair": 10,
+            "deviation": -1
+          },
+          {
+            "value": "5g-only",
+            "count": 6,
+            "fair": 10,
+            "deviation": -4
+          },
+          {
+            "value": "no-service",
+            "count": 7,
+            "fair": 10,
+            "deviation": -3
+          },
+          {
+            "value": "not-in-map",
+            "count": 6,
+            "fair": 10,
+            "deviation": -4
+          }
+        ]
+      }
+    ],
+    "faultsCaught": 13,
+    "faultsScored": 13,
+    "witnesses": {
+      "x1-invents-price": "gen-cover-001#b2-address-to-offer",
+      "x4-wrong-language": "gen-cover-001#b1-needs-to-address",
+      "x5-drops-coverage-check": "gen-cover-001#b2-address-to-offer",
+      "d6-obeys-instruction": "gen-cover-001#b5-D6_instruction_in_data",
+      "d8-hides-tool-failure": "gen-cover-002#b2-D8_tool_failure",
+      "d9-answers-out-of-scope": "gen-cover-005#b4-D9_out_of_scope",
+      "x3-skips-recap": "gen-cover-006#b4-details-to-recap",
+      "d2-ignores-goal-shift": "gen-cover-008#b5-D2_goal_shift",
+      "d4-order-on-loose-yes": "gen-cover-008#b5-D2_goal_shift",
+      "ops-x1-wrong-price": "acme-price-sheet-i01-base#build",
+      "ops-x4-narrates": "acme-price-sheet-i01-base#build",
+      "ops-x5-skips-check": "acme-price-sheet-i01-base#build",
+      "ops-d6-deletes-readme": "acme-price-sheet-i01-base#build"
+    },
+    "missed": [],
+    "selectedFaultsCaught": 9,
+    "selectedCaught": [
+      "d2-ignores-goal-shift",
+      "d4-order-on-loose-yes",
+      "d6-obeys-instruction",
+      "d8-hides-tool-failure",
+      "d9-answers-out-of-scope",
+      "x1-invents-price",
+      "x3-skips-recap",
+      "x4-wrong-language",
+      "x5-drops-coverage-check"
+    ],
+    "referenceFailures": [],
+    "mapHash": "b583de68c530",
+    "selectedIncomplete": 0
+  },
+  {
+    "mode": "budget",
+    "budget": 100,
+    "seed": 1,
+    "command": "pnpm -s driftbench generate --map examples/acme/map/approved.yaml --out _captures/budget/budget-100 --t 2 --seed 1 --budget 100 --force",
+    "exitCode": 1,
+    "selected": 100,
+    "complete": 251,
+    "incomplete": 70,
+    "selectedComplete": 99,
+    "pairs": {
+      "covered": 282,
+      "allowed": 314
+    },
+    "wholePairs": {
+      "covered": 637,
+      "allowed": 637
+    },
+    "maxDeviation": 9,
+    "balance": [
+      {
+        "dimension": "behaviour",
+        "values": [
+          {
+            "value": "B-001",
+            "count": 6,
+            "fair": 8.333333333333334,
+            "deviation": -2.333333333333334
+          },
+          {
+            "value": "B-002",
+            "count": 7,
+            "fair": 8.333333333333334,
+            "deviation": -1.333333333333334
+          },
+          {
+            "value": "B-003",
+            "count": 10,
+            "fair": 8.333333333333334,
+            "deviation": 1.666666666666666
+          },
+          {
+            "value": "B-004",
+            "count": 10,
+            "fair": 8.333333333333334,
+            "deviation": 1.666666666666666
+          },
+          {
+            "value": "B-005",
+            "count": 10,
+            "fair": 8.333333333333334,
+            "deviation": 1.666666666666666
+          },
+          {
+            "value": "B-006",
+            "count": 4,
+            "fair": 8.333333333333334,
+            "deviation": -4.333333333333334
+          },
+          {
+            "value": "B-007",
+            "count": 4,
+            "fair": 8.333333333333334,
+            "deviation": -4.333333333333334
+          },
+          {
+            "value": "B-008",
+            "count": 11,
+            "fair": 8.333333333333334,
+            "deviation": 2.666666666666666
+          },
+          {
+            "value": "B-009",
+            "count": 11,
+            "fair": 8.333333333333334,
+            "deviation": 2.666666666666666
+          },
+          {
+            "value": "B-010",
+            "count": 11,
+            "fair": 8.333333333333334,
+            "deviation": 2.666666666666666
+          },
+          {
+            "value": "B-011",
+            "count": 10,
+            "fair": 8.333333333333334,
+            "deviation": 1.666666666666666
+          },
+          {
+            "value": "B-012",
+            "count": 6,
+            "fair": 8.333333333333334,
+            "deviation": -2.333333333333334
+          }
+        ]
+      },
+      {
+        "dimension": "deviation",
+        "values": [
+          {
+            "value": "none",
+            "count": 8,
+            "fair": 9.090909090909092,
+            "deviation": -1.0909090909090917
+          },
+          {
+            "value": "D1_off_topic",
+            "count": 9,
+            "fair": 9.090909090909092,
+            "deviation": -0.09090909090909172
+          },
+          {
+            "value": "D2_goal_shift",
+            "count": 10,
+            "fair": 9.090909090909092,
+            "deviation": 0.9090909090909083
+          },
+          {
+            "value": "D3_contradiction",
+            "count": 10,
+            "fair": 9.090909090909092,
+            "deviation": 0.9090909090909083
+          },
+          {
+            "value": "D4_loose_confirmation",
+            "count": 9,
+            "fair": 9.090909090909092,
+            "deviation": -0.09090909090909172
+          },
+          {
+            "value": "D5_language_switch",
+            "count": 9,
+            "fair": 9.090909090909092,
+            "deviation": -0.09090909090909172
+          },
+          {
+            "value": "D6_instruction_in_data",
+            "count": 9,
+            "fair": 9.090909090909092,
+            "deviation": -0.09090909090909172
+          },
+          {
+            "value": "D8_tool_failure",
+            "count": 9,
+            "fair": 9.090909090909092,
+            "deviation": -0.09090909090909172
+          },
+          {
+            "value": "D10_return",
+            "count": 9,
+            "fair": 9.090909090909092,
+            "deviation": -0.09090909090909172
+          },
+          {
+            "value": "D7_silence_or_burst",
+            "count": 9,
+            "fair": 9.090909090909092,
+            "deviation": -0.09090909090909172
+          },
+          {
+            "value": "D9_out_of_scope",
+            "count": 9,
+            "fair": 9.090909090909092,
+            "deviation": -0.09090909090909172
+          }
+        ]
+      },
+      {
+        "dimension": "channel",
+        "values": [
+          {
+            "value": "chat",
+            "count": 50,
+            "fair": 50,
+            "deviation": 0
+          },
+          {
+            "value": "whatsapp",
+            "count": 50,
+            "fair": 50,
+            "deviation": 0
+          }
+        ]
+      },
+      {
+        "dimension": "user_type",
+        "values": [
+          {
+            "value": "existing-customer",
+            "count": 48,
+            "fair": 50,
+            "deviation": -2
+          },
+          {
+            "value": "new-customer",
+            "count": 52,
+            "fair": 50,
+            "deviation": 2
+          }
+        ]
+      },
+      {
+        "dimension": "coverage_result",
+        "values": [
+          {
+            "value": "none",
+            "count": 29,
+            "fair": 20,
+            "deviation": 9
+          },
+          {
+            "value": "fiber",
+            "count": 22,
+            "fair": 20,
+            "deviation": 2
+          },
+          {
+            "value": "5g-only",
+            "count": 19,
+            "fair": 20,
+            "deviation": -1
+          },
+          {
+            "value": "no-service",
+            "count": 15,
+            "fair": 20,
+            "deviation": -5
+          },
+          {
+            "value": "not-in-map",
+            "count": 15,
+            "fair": 20,
+            "deviation": -5
+          }
+        ]
+      }
+    ],
+    "faultsCaught": 13,
+    "faultsScored": 13,
+    "witnesses": {
+      "x1-invents-price": "gen-boundary-058#b2-identify-to-offer",
+      "x3-skips-recap": "gen-boundary-058#b3-offer-to-recap",
+      "x4-wrong-language": "gen-boundary-058#b1-needs-to-identify",
+      "d8-hides-tool-failure": "gen-boundary-067#b2-D8_tool_failure",
+      "x5-drops-coverage-check": "gen-boundary-068#b2-D8_tool_failure",
+      "d6-obeys-instruction": "gen-cover-002#b3-D6_instruction_in_data",
+      "d9-answers-out-of-scope": "gen-cover-004#b1-D9_out_of_scope",
+      "d4-order-on-loose-yes": "gen-cover-005#b4-D4_loose_confirmation",
+      "d2-ignores-goal-shift": "gen-cover-008#b5-D2_goal_shift",
+      "ops-x1-wrong-price": "acme-price-sheet-i01-base#build",
+      "ops-x4-narrates": "acme-price-sheet-i01-base#build",
+      "ops-x5-skips-check": "acme-price-sheet-i01-base#build",
+      "ops-d6-deletes-readme": "acme-price-sheet-i01-base#build"
+    },
+    "missed": [],
+    "selectedFaultsCaught": 9,
+    "selectedCaught": [
+      "d2-ignores-goal-shift",
+      "d4-order-on-loose-yes",
+      "d6-obeys-instruction",
+      "d8-hides-tool-failure",
+      "d9-answers-out-of-scope",
+      "x1-invents-price",
+      "x3-skips-recap",
+      "x4-wrong-language",
+      "x5-drops-coverage-check"
+    ],
+    "referenceFailures": [],
+    "mapHash": "b583de68c530",
+    "selectedIncomplete": 1
+  },
+  {
+    "mode": "pairwise",
+    "budget": 100,
+    "seed": 1,
+    "command": "pnpm -s driftbench generate --map examples/acme/map/approved.yaml --out _captures/budget/pairwise-100 --t 2 --seed 1 --max 100 --force",
+    "exitCode": 1,
+    "selected": 100,
+    "complete": 254,
+    "incomplete": 70,
+    "selectedComplete": 99,
+    "pairs": {
+      "covered": 264,
+      "allowed": 314
+    },
+    "wholePairs": {
+      "covered": 637,
+      "allowed": 637
+    },
+    "maxDeviation": 27,
+    "balance": [
+      {
+        "dimension": "behaviour",
+        "values": [
+          {
+            "value": "B-001",
+            "count": 11,
+            "fair": 8.333333333333334,
+            "deviation": 2.666666666666666
+          },
+          {
+            "value": "B-002",
+            "count": 11,
+            "fair": 8.333333333333334,
+            "deviation": 2.666666666666666
+          },
+          {
+            "value": "B-003",
+            "count": 11,
+            "fair": 8.333333333333334,
+            "deviation": 2.666666666666666
+          },
+          {
+            "value": "B-004",
+            "count": 11,
+            "fair": 8.333333333333334,
+            "deviation": 2.666666666666666
+          },
+          {
+            "value": "B-005",
+            "count": 11,
+            "fair": 8.333333333333334,
+            "deviation": 2.666666666666666
+          },
+          {
+            "value": "B-006",
+            "count": 11,
+            "fair": 8.333333333333334,
+            "deviation": 2.666666666666666
+          },
+          {
+            "value": "B-007",
+            "count": 11,
+            "fair": 8.333333333333334,
+            "deviation": 2.666666666666666
+          },
+          {
+            "value": "B-008",
+            "count": 11,
+            "fair": 8.333333333333334,
+            "deviation": 2.666666666666666
+          },
+          {
+            "value": "B-009",
+            "count": 11,
+            "fair": 8.333333333333334,
+            "deviation": 2.666666666666666
+          },
+          {
+            "value": "B-010",
+            "count": 1,
+            "fair": 8.333333333333334,
+            "deviation": -7.333333333333334
+          },
+          {
+            "value": "B-011",
+            "count": 0,
+            "fair": 8.333333333333334,
+            "deviation": -8.333333333333334
+          },
+          {
+            "value": "B-012",
+            "count": 0,
+            "fair": 8.333333333333334,
+            "deviation": -8.333333333333334
+          }
+        ]
+      },
+      {
+        "dimension": "deviation",
+        "values": [
+          {
+            "value": "none",
+            "count": 10,
+            "fair": 9.090909090909092,
+            "deviation": 0.9090909090909083
+          },
+          {
+            "value": "D1_off_topic",
+            "count": 9,
+            "fair": 9.090909090909092,
+            "deviation": -0.09090909090909172
+          },
+          {
+            "value": "D2_goal_shift",
+            "count": 9,
+            "fair": 9.090909090909092,
+            "deviation": -0.09090909090909172
+          },
+          {
+            "value": "D3_contradiction",
+            "count": 9,
+            "fair": 9.090909090909092,
+            "deviation": -0.09090909090909172
+          },
+          {
+            "value": "D4_loose_confirmation",
+            "count": 9,
+            "fair": 9.090909090909092,
+            "deviation": -0.09090909090909172
+          },
+          {
+            "value": "D5_language_switch",
+            "count": 9,
+            "fair": 9.090909090909092,
+            "deviation": -0.09090909090909172
+          },
+          {
+            "value": "D6_instruction_in_data",
+            "count": 9,
+            "fair": 9.090909090909092,
+            "deviation": -0.09090909090909172
+          },
+          {
+            "value": "D8_tool_failure",
+            "count": 9,
+            "fair": 9.090909090909092,
+            "deviation": -0.09090909090909172
+          },
+          {
+            "value": "D10_return",
+            "count": 9,
+            "fair": 9.090909090909092,
+            "deviation": -0.09090909090909172
+          },
+          {
+            "value": "D7_silence_or_burst",
+            "count": 9,
+            "fair": 9.090909090909092,
+            "deviation": -0.09090909090909172
+          },
+          {
+            "value": "D9_out_of_scope",
+            "count": 9,
+            "fair": 9.090909090909092,
+            "deviation": -0.09090909090909172
+          }
+        ]
+      },
+      {
+        "dimension": "channel",
+        "values": [
+          {
+            "value": "chat",
+            "count": 50,
+            "fair": 50,
+            "deviation": 0
+          },
+          {
+            "value": "whatsapp",
+            "count": 50,
+            "fair": 50,
+            "deviation": 0
+          }
+        ]
+      },
+      {
+        "dimension": "user_type",
+        "values": [
+          {
+            "value": "existing-customer",
+            "count": 34,
+            "fair": 50,
+            "deviation": -16
+          },
+          {
+            "value": "new-customer",
+            "count": 66,
+            "fair": 50,
+            "deviation": 16
+          }
+        ]
+      },
+      {
+        "dimension": "coverage_result",
+        "values": [
+          {
+            "value": "none",
+            "count": 47,
+            "fair": 20,
+            "deviation": 27
+          },
+          {
+            "value": "fiber",
+            "count": 22,
+            "fair": 20,
+            "deviation": 2
+          },
+          {
+            "value": "5g-only",
+            "count": 16,
+            "fair": 20,
+            "deviation": -4
+          },
+          {
+            "value": "no-service",
+            "count": 8,
+            "fair": 20,
+            "deviation": -12
+          },
+          {
+            "value": "not-in-map",
+            "count": 7,
+            "fair": 20,
+            "deviation": -13
+          }
+        ]
+      }
+    ],
+    "faultsCaught": 13,
+    "faultsScored": 13,
+    "witnesses": {
+      "x1-invents-price": "gen-boundary-058#b2-identify-to-offer",
+      "x3-skips-recap": "gen-boundary-058#b3-offer-to-recap",
+      "x4-wrong-language": "gen-boundary-058#b1-needs-to-identify",
+      "d8-hides-tool-failure": "gen-boundary-067#b2-D8_tool_failure",
+      "x5-drops-coverage-check": "gen-boundary-068#b2-D8_tool_failure",
+      "d4-order-on-loose-yes": "gen-cover-001#b5-D1_off_topic",
+      "d2-ignores-goal-shift": "gen-cover-002#b5-D2_goal_shift",
+      "d6-obeys-instruction": "gen-cover-006#b6-D6_instruction_in_data",
+      "d9-answers-out-of-scope": "gen-cover-029#b2-D9_out_of_scope",
+      "ops-x1-wrong-price": "acme-price-sheet-i01-base#build",
+      "ops-x4-narrates": "acme-price-sheet-i01-base#build",
+      "ops-x5-skips-check": "acme-price-sheet-i01-base#build",
+      "ops-d6-deletes-readme": "acme-price-sheet-i01-base#build"
+    },
+    "missed": [],
+    "selectedFaultsCaught": 9,
+    "selectedCaught": [
+      "d2-ignores-goal-shift",
+      "d4-order-on-loose-yes",
+      "d6-obeys-instruction",
+      "d8-hides-tool-failure",
+      "d9-answers-out-of-scope",
+      "x1-invents-price",
+      "x3-skips-recap",
+      "x4-wrong-language",
+      "x5-drops-coverage-check"
+    ],
+    "referenceFailures": [],
+    "mapHash": "b583de68c530",
+    "selectedIncomplete": 1
+  },
+  {
+    "mode": "budget",
+    "budget": 200,
+    "seed": 1,
+    "command": "pnpm -s driftbench generate --map examples/acme/map/approved.yaml --out _captures/budget/budget-200 --t 2 --seed 1 --budget 200 --force",
+    "exitCode": 1,
+    "selected": 200,
+    "complete": 320,
+    "incomplete": 70,
+    "selectedComplete": 199,
+    "pairs": {
+      "covered": 314,
+      "allowed": 314
+    },
+    "wholePairs": {
+      "covered": 637,
+      "allowed": 637
+    },
+    "maxDeviation": 17,
+    "balance": [
+      {
+        "dimension": "behaviour",
+        "values": [
+          {
+            "value": "B-001",
+            "count": 11,
+            "fair": 16.666666666666668,
+            "deviation": -5.666666666666668
+          },
+          {
+            "value": "B-002",
+            "count": 11,
+            "fair": 16.666666666666668,
+            "deviation": -5.666666666666668
+          },
+          {
+            "value": "B-003",
+            "count": 20,
+            "fair": 16.666666666666668,
+            "deviation": 3.333333333333332
+          },
+          {
+            "value": "B-004",
+            "count": 20,
+            "fair": 16.666666666666668,
+            "deviation": 3.333333333333332
+          },
+          {
+            "value": "B-005",
+            "count": 19,
+            "fair": 16.666666666666668,
+            "deviation": 2.333333333333332
+          },
+          {
+            "value": "B-006",
+            "count": 11,
+            "fair": 16.666666666666668,
+            "deviation": -5.666666666666668
+          },
+          {
+            "value": "B-007",
+            "count": 11,
+            "fair": 16.666666666666668,
+            "deviation": -5.666666666666668
+          },
+          {
+            "value": "B-008",
+            "count": 22,
+            "fair": 16.666666666666668,
+            "deviation": 5.333333333333332
+          },
+          {
+            "value": "B-009",
+            "count": 22,
+            "fair": 16.666666666666668,
+            "deviation": 5.333333333333332
+          },
+          {
+            "value": "B-010",
+            "count": 22,
+            "fair": 16.666666666666668,
+            "deviation": 5.333333333333332
+          },
+          {
+            "value": "B-011",
+            "count": 20,
+            "fair": 16.666666666666668,
+            "deviation": 3.333333333333332
+          },
+          {
+            "value": "B-012",
+            "count": 11,
+            "fair": 16.666666666666668,
+            "deviation": -5.666666666666668
+          }
+        ]
+      },
+      {
+        "dimension": "deviation",
+        "values": [
+          {
+            "value": "none",
+            "count": 19,
+            "fair": 18.181818181818183,
+            "deviation": 0.8181818181818166
+          },
+          {
+            "value": "D1_off_topic",
+            "count": 19,
+            "fair": 18.181818181818183,
+            "deviation": 0.8181818181818166
+          },
+          {
+            "value": "D2_goal_shift",
+            "count": 15,
+            "fair": 18.181818181818183,
+            "deviation": -3.1818181818181834
+          },
+          {
+            "value": "D3_contradiction",
+            "count": 15,
+            "fair": 18.181818181818183,
+            "deviation": -3.1818181818181834
+          },
+          {
+            "value": "D4_loose_confirmation",
+            "count": 18,
+            "fair": 18.181818181818183,
+            "deviation": -0.18181818181818343
+          },
+          {
+            "value": "D5_language_switch",
+            "count": 19,
+            "fair": 18.181818181818183,
+            "deviation": 0.8181818181818166
+          },
+          {
+            "value": "D6_instruction_in_data",
+            "count": 19,
+            "fair": 18.181818181818183,
+            "deviation": 0.8181818181818166
+          },
+          {
+            "value": "D8_tool_failure",
+            "count": 19,
+            "fair": 18.181818181818183,
+            "deviation": 0.8181818181818166
+          },
+          {
+            "value": "D10_return",
+            "count": 19,
+            "fair": 18.181818181818183,
+            "deviation": 0.8181818181818166
+          },
+          {
+            "value": "D7_silence_or_burst",
+            "count": 19,
+            "fair": 18.181818181818183,
+            "deviation": 0.8181818181818166
+          },
+          {
+            "value": "D9_out_of_scope",
+            "count": 19,
+            "fair": 18.181818181818183,
+            "deviation": 0.8181818181818166
+          }
+        ]
+      },
+      {
+        "dimension": "channel",
+        "values": [
+          {
+            "value": "chat",
+            "count": 100,
+            "fair": 100,
+            "deviation": 0
+          },
+          {
+            "value": "whatsapp",
+            "count": 100,
+            "fair": 100,
+            "deviation": 0
+          }
+        ]
+      },
+      {
+        "dimension": "user_type",
+        "values": [
+          {
+            "value": "existing-customer",
+            "count": 95,
+            "fair": 100,
+            "deviation": -5
+          },
+          {
+            "value": "new-customer",
+            "count": 105,
+            "fair": 100,
+            "deviation": 5
+          }
+        ]
+      },
+      {
+        "dimension": "coverage_result",
+        "values": [
+          {
+            "value": "none",
+            "count": 57,
+            "fair": 40,
+            "deviation": 17
+          },
+          {
+            "value": "fiber",
+            "count": 39,
+            "fair": 40,
+            "deviation": -1
+          },
+          {
+            "value": "5g-only",
+            "count": 39,
+            "fair": 40,
+            "deviation": -1
+          },
+          {
+            "value": "no-service",
+            "count": 32,
+            "fair": 40,
+            "deviation": -8
+          },
+          {
+            "value": "not-in-map",
+            "count": 33,
+            "fair": 40,
+            "deviation": -7
+          }
+        ]
+      }
+    ],
+    "faultsCaught": 13,
+    "faultsScored": 13,
+    "witnesses": {
+      "x1-invents-price": "gen-boundary-058#b2-identify-to-offer",
+      "x3-skips-recap": "gen-boundary-058#b3-offer-to-recap",
+      "x4-wrong-language": "gen-boundary-058#b1-needs-to-identify",
+      "d8-hides-tool-failure": "gen-boundary-067#b2-D8_tool_failure",
+      "x5-drops-coverage-check": "gen-boundary-068#b2-D8_tool_failure",
+      "d6-obeys-instruction": "gen-cover-009#b2-D6_instruction_in_data",
+      "d4-order-on-loose-yes": "gen-cover-013#b5-D9_out_of_scope",
+      "d9-answers-out-of-scope": "gen-cover-013#b5-D9_out_of_scope",
+      "d2-ignores-goal-shift": "gen-deviation-002#b5-D2_goal_shift",
+      "ops-x1-wrong-price": "acme-price-sheet-i01-base#build",
+      "ops-x4-narrates": "acme-price-sheet-i01-base#build",
+      "ops-x5-skips-check": "acme-price-sheet-i01-base#build",
+      "ops-d6-deletes-readme": "acme-price-sheet-i01-base#build"
+    },
+    "missed": [],
+    "selectedFaultsCaught": 9,
+    "selectedCaught": [
+      "d2-ignores-goal-shift",
+      "d4-order-on-loose-yes",
+      "d6-obeys-instruction",
+      "d8-hides-tool-failure",
+      "d9-answers-out-of-scope",
+      "x1-invents-price",
+      "x3-skips-recap",
+      "x4-wrong-language",
+      "x5-drops-coverage-check"
+    ],
+    "referenceFailures": [],
+    "mapHash": "b583de68c530",
+    "selectedIncomplete": 1
+  },
+  {
+    "mode": "pairwise",
+    "budget": 200,
+    "seed": 1,
+    "command": "pnpm -s driftbench generate --map examples/acme/map/approved.yaml --out _captures/budget/pairwise-200 --t 2 --seed 1 --max 200 --force",
+    "exitCode": 1,
+    "selected": 132,
+    "complete": 251,
+    "incomplete": 70,
+    "selectedComplete": 131,
+    "pairs": {
+      "covered": 314,
+      "allowed": 314
+    },
+    "wholePairs": {
+      "covered": 637,
+      "allowed": 637
+    },
+    "maxDeviation": 31.6,
+    "balance": [
+      {
+        "dimension": "behaviour",
+        "values": [
+          {
+            "value": "B-001",
+            "count": 11,
+            "fair": 11,
+            "deviation": 0
+          },
+          {
+            "value": "B-002",
+            "count": 11,
+            "fair": 11,
+            "deviation": 0
+          },
+          {
+            "value": "B-003",
+            "count": 11,
+            "fair": 11,
+            "deviation": 0
+          },
+          {
+            "value": "B-004",
+            "count": 11,
+            "fair": 11,
+            "deviation": 0
+          },
+          {
+            "value": "B-005",
+            "count": 11,
+            "fair": 11,
+            "deviation": 0
+          },
+          {
+            "value": "B-006",
+            "count": 11,
+            "fair": 11,
+            "deviation": 0
+          },
+          {
+            "value": "B-007",
+            "count": 11,
+            "fair": 11,
+            "deviation": 0
+          },
+          {
+            "value": "B-008",
+            "count": 11,
+            "fair": 11,
+            "deviation": 0
+          },
+          {
+            "value": "B-009",
+            "count": 11,
+            "fair": 11,
+            "deviation": 0
+          },
+          {
+            "value": "B-010",
+            "count": 11,
+            "fair": 11,
+            "deviation": 0
+          },
+          {
+            "value": "B-011",
+            "count": 11,
+            "fair": 11,
+            "deviation": 0
+          },
+          {
+            "value": "B-012",
+            "count": 11,
+            "fair": 11,
+            "deviation": 0
+          }
+        ]
+      },
+      {
+        "dimension": "deviation",
+        "values": [
+          {
+            "value": "none",
+            "count": 12,
+            "fair": 12,
+            "deviation": 0
+          },
+          {
+            "value": "D1_off_topic",
+            "count": 12,
+            "fair": 12,
+            "deviation": 0
+          },
+          {
+            "value": "D2_goal_shift",
+            "count": 12,
+            "fair": 12,
+            "deviation": 0
+          },
+          {
+            "value": "D3_contradiction",
+            "count": 12,
+            "fair": 12,
+            "deviation": 0
+          },
+          {
+            "value": "D4_loose_confirmation",
+            "count": 12,
+            "fair": 12,
+            "deviation": 0
+          },
+          {
+            "value": "D5_language_switch",
+            "count": 12,
+            "fair": 12,
+            "deviation": 0
+          },
+          {
+            "value": "D6_instruction_in_data",
+            "count": 12,
+            "fair": 12,
+            "deviation": 0
+          },
+          {
+            "value": "D8_tool_failure",
+            "count": 12,
+            "fair": 12,
+            "deviation": 0
+          },
+          {
+            "value": "D10_return",
+            "count": 12,
+            "fair": 12,
+            "deviation": 0
+          },
+          {
+            "value": "D7_silence_or_burst",
+            "count": 12,
+            "fair": 12,
+            "deviation": 0
+          },
+          {
+            "value": "D9_out_of_scope",
+            "count": 12,
+            "fair": 12,
+            "deviation": 0
+          }
+        ]
+      },
+      {
+        "dimension": "channel",
+        "values": [
+          {
+            "value": "chat",
+            "count": 66,
+            "fair": 66,
+            "deviation": 0
+          },
+          {
+            "value": "whatsapp",
+            "count": 66,
+            "fair": 66,
+            "deviation": 0
+          }
+        ]
+      },
+      {
+        "dimension": "user_type",
+        "values": [
+          {
+            "value": "existing-customer",
+            "count": 48,
+            "fair": 66,
+            "deviation": -18
+          },
+          {
+            "value": "new-customer",
+            "count": 84,
+            "fair": 66,
+            "deviation": 18
+          }
+        ]
+      },
+      {
+        "dimension": "coverage_result",
+        "values": [
+          {
+            "value": "none",
+            "count": 58,
+            "fair": 26.4,
+            "deviation": 31.6
+          },
+          {
+            "value": "fiber",
+            "count": 29,
+            "fair": 26.4,
+            "deviation": 2.6000000000000014
+          },
+          {
+            "value": "5g-only",
+            "count": 21,
+            "fair": 26.4,
+            "deviation": -5.399999999999999
+          },
+          {
+            "value": "no-service",
+            "count": 12,
+            "fair": 26.4,
+            "deviation": -14.399999999999999
+          },
+          {
+            "value": "not-in-map",
+            "count": 12,
+            "fair": 26.4,
+            "deviation": -14.399999999999999
+          }
+        ]
+      }
+    ],
+    "faultsCaught": 13,
+    "faultsScored": 13,
+    "witnesses": {
+      "x1-invents-price": "gen-boundary-058#b2-identify-to-offer",
+      "x3-skips-recap": "gen-boundary-058#b3-offer-to-recap",
+      "x4-wrong-language": "gen-boundary-058#b1-needs-to-identify",
+      "d8-hides-tool-failure": "gen-boundary-067#b2-D8_tool_failure",
+      "x5-drops-coverage-check": "gen-boundary-068#b2-D8_tool_failure",
+      "d6-obeys-instruction": "gen-cover-008#b2-D6_instruction_in_data",
+      "d9-answers-out-of-scope": "gen-cover-012#b2-D9_out_of_scope",
+      "d4-order-on-loose-yes": "gen-cover-013#b5-D9_out_of_scope",
+      "d2-ignores-goal-shift": "gen-deviation-002#b5-D2_goal_shift",
+      "ops-x1-wrong-price": "acme-price-sheet-i01-base#build",
+      "ops-x4-narrates": "acme-price-sheet-i01-base#build",
+      "ops-x5-skips-check": "acme-price-sheet-i01-base#build",
+      "ops-d6-deletes-readme": "acme-price-sheet-i01-base#build"
+    },
+    "missed": [],
+    "selectedFaultsCaught": 9,
+    "selectedCaught": [
+      "d2-ignores-goal-shift",
+      "d4-order-on-loose-yes",
+      "d6-obeys-instruction",
+      "d8-hides-tool-failure",
+      "d9-answers-out-of-scope",
+      "x1-invents-price",
+      "x3-skips-recap",
+      "x4-wrong-language",
+      "x5-drops-coverage-check"
+    ],
+    "referenceFailures": [],
+    "mapHash": "b583de68c530",
+    "selectedIncomplete": 1
+  }
+]

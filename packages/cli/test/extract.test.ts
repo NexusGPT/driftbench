@@ -2,7 +2,7 @@ import { mkdir, mkdtemp, readFile, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { FakeModelPort, loadProposal } from '@driftbench/generate';
+import { FakeModelPort, loadProposal } from '@agent-nexus/driftbench-generate';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { extractCommand } from '../src/commands/extract';
 import { type Io, main } from '../src/index';
@@ -277,7 +277,7 @@ describe('driftbench extract: the proposal', () => {
     );
     expect(code).toBe(0);
     expect(out).toMatch(
-      /^Wrote proposal\.yaml: 29 dimensions, 86 values, 55 constraints, 0 phrases, 7 relations, none approved\./,
+      /^Wrote proposal\.yaml: 34 dimensions, 91 values, 55 constraints, 0 phrases, 7 relations, none approved\./,
     );
     const loaded = await loadProposal(join(dir, 'proposal.yaml'));
     expect(loaded.ok && loaded.proposal.agent).toBe('acme');

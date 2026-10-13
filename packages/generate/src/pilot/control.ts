@@ -1,4 +1,4 @@
-import { type Check, machineVerdict } from '@driftbench/core';
+import { type Check, machineVerdict } from '@agent-nexus/driftbench-core';
 
 /**
  * The control check of the pilot. A control agent marks a reply it planted a failure in with this text;

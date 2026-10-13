@@ -1,0 +1,29 @@
+{
+  "id": "unit.guard_speed.guard.shipment-tracker.pretooluse-bash-guard-check-carrier-sh",
+  "planRow": "guard_speed.guard.shipment-tracker.pretooluse-bash-guard-check-carrier-sh",
+  "testType": "guard_speed",
+  "atom": "guard.shipment-tracker.pretooluse-bash-guard-check-carrier-sh",
+  "title": "PreToolUse Bash guard check-carrier.sh",
+  "mapHash": "be2e7a0919cb31aecf73102cd271e7611cb439be814983a47b9dc39e38775f10",
+  "target": {
+    "kind": "guard",
+    "name": "check-carrier.sh",
+    "event": "PreToolUse",
+    "command": "$CLAUDE_PROJECT_DIR/.claude/skills/shipment-tracker/scripts/check-carrier.sh",
+    "matcher": "Bash"
+  },
+  "cases": [
+    {
+      "id": "case-01",
+      "payload": {
+        "tool_name": "Bash",
+        "tool_input": {
+          "command": "./scripts/track.sh NWX 123",
+          "description": "unit test"
+        }
+      },
+      "material": "./scripts/track.sh NWX 123"
+    }
+  ],
+  "budgetMs": 60000
+}

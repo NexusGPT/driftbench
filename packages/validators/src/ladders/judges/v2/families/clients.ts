@@ -1,4 +1,9 @@
-import type { ClientOptions, JudgeClient, JudgeRequest, System1Options } from '@driftbench/judges';
+import type {
+  ClientOptions,
+  JudgeClient,
+  JudgeRequest,
+  System1Options,
+} from '@agent-nexus/driftbench-judges';
 import { type BankItem, fn, type JudgesApi, type Tier } from '../bank';
 
 /**
@@ -22,7 +27,18 @@ const REQUEST: JudgeRequest = {
   ],
 };
 const ANSWER = { outcome: 'pass', reasoning: 'routed to Acme Care' };
-const TEXT = JSON.stringify(ANSWER);
+// The unsplit rubric supplies care_redirect as its sole requirement id. The quote is in REQUEST.
+const LEDGER = {
+  checks: [
+    {
+      id: 'care_redirect',
+      reasoning: 'routed to Acme Care',
+      evidence: 'Acme Care can help: call +1 202 555 0100.',
+      met: true,
+    },
+  ],
+};
+const TEXT = JSON.stringify(LEDGER);
 
 type Reply = { status?: number; body: unknown; headers?: Record<string, string> };
 type Read = { outcome: string; unparsed: boolean; sleeps?: number[]; calls?: number; leaked?: boolean };
@@ -118,7 +134,7 @@ export function clientItems(): BankItem[] {
       [
         openai({
           content: null,
-          tool_calls: [{ type: 'function', function: { name: 'answer', arguments: TEXT } }],
+          tool_calls: [{ type: 'function', function: { name: 'answer', arguments: JSON.stringify(ANSWER) } }],
         }),
       ],
       reads('pass'),
@@ -127,7 +143,7 @@ export function clientItems(): BankItem[] {
       'openai-legacy-text',
       4,
       'createOpenAiJudge',
-      [{ body: { choices: [{ text: TEXT, finish_reason: 'stop' }] } }],
+      [{ body: { choices: [{ text: JSON.stringify(ANSWER), finish_reason: 'stop' }] } }],
       reads('pass'),
     ),
     item(
@@ -211,7 +227,10 @@ export function clientItems(): BankItem[] {
               {
                 content: {
                   parts: [
-                    { text: 'Draft: {"outcome":"fail","reasoning":"draft"}', thought: true },
+                    {
+                      text: 'Draft: {"checks":[{"id":"care_redirect","met":false,"reasoning":"draft","evidence":null}]}',
+                      thought: true,
+                    },
                     { text: TEXT },
                   ],
                 },

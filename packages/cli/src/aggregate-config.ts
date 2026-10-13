@@ -1,7 +1,7 @@
 import { existsSync } from 'node:fs';
 import { readFile } from 'node:fs/promises';
 import { resolve } from 'node:path';
-import { type AggregateCriterion, aggregateFromFlag } from '@driftbench/report';
+import { type AggregateCriterion, aggregateFromFlag } from '@agent-nexus/driftbench-report';
 import { isMap, isScalar, isSeq, parseDocument } from 'yaml';
 
 /**

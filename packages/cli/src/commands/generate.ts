@@ -1,6 +1,6 @@
 import { mkdir, readFile, rm, stat, writeFile } from 'node:fs/promises';
 import { dirname, isAbsolute, join, relative, resolve, sep } from 'node:path';
-import { type LoadedSpec, loadSpecs } from '@driftbench/core';
+import { type LoadedSpec, loadSpecs } from '@agent-nexus/driftbench-core';
 import {
   buildTaskInputs,
   COMPLETE_DIR,
@@ -14,7 +14,7 @@ import {
   REPORT_FILE,
   renderSummary,
   type SpecProposal,
-} from '@driftbench/generate';
+} from '@agent-nexus/driftbench-generate';
 import type { Command } from 'commander';
 import type { Io } from '../io';
 import { optionNumber } from '../number';
@@ -40,6 +40,9 @@ export type GenerateCommandOptions = {
   t?: string;
   seed?: string;
   max?: string;
+  budget?: string;
+  specCap?: string;
+  specCapMode?: string;
   tasks?: string;
   baseline?: string[];
   force?: boolean;
@@ -70,6 +73,18 @@ export function registerGenerateCommand(
     .option('--t <n>', 'the strength of the covering array (default 3)')
     .option('--seed <n>', 'the integer seed of every seeded choice (default 1)')
     .option('--max <n>', 'the most specs per seeder')
+    .option(
+      '--budget <n>',
+      'budget mode: N conversations placed by pair coverage, then value balance, in place of the t-wise rows',
+    )
+    .option(
+      '--spec-cap <n>',
+      'total specs written; preserves structural probes and selects actual pair/triple coverage',
+    )
+    .option(
+      '--spec-cap-mode <mode>',
+      'tuples (default) preserves pairs and triples; pairs permits reported triple loss',
+    )
     .option('--tasks <n>', `instances built per task family the map names (default ${DEFAULT_TASKS})`)
     .option('--baseline <path>', 'specs to measure on the same map for comparison; repeat it', collect)
     .option('--force', 'replace the output of an earlier run in the folder')
@@ -120,12 +135,21 @@ export async function generateCommand(
   const t = whole(options.t, 't', 1);
   const seed = whole(options.seed, 'seed', 0);
   const max = whole(options.max, 'max', 1);
+  const budget = whole(options.budget, 'budget', 1);
+  const specCap = whole(options.specCap, 'spec-cap', 1);
   const tasks = whole(options.tasks, 'tasks', 1);
-  for (const parsed of [t, seed, max, tasks]) {
+  for (const parsed of [t, seed, max, budget, specCap, tasks]) {
     if (typeof parsed === 'string') {
       io.err(`${parsed}\n`);
       return 2;
     }
+  }
+  if (
+    options.specCapMode !== undefined &&
+    (specCap === undefined || !['tuples', 'pairs'].includes(options.specCapMode))
+  ) {
+    io.err('--spec-cap-mode requires --spec-cap and must be tuples or pairs.\n');
+    return 2;
   }
   const mapPath = resolve(io.cwd, options.map);
   const outPath = resolve(io.cwd, options.out);
@@ -188,6 +212,10 @@ export async function generateCommand(
       ...(typeof t === 'number' ? { t } : {}),
       ...(typeof seed === 'number' ? { seed } : {}),
       ...(typeof max === 'number' ? { max } : {}),
+      ...(typeof budget === 'number' ? { budget } : {}),
+      ...(typeof specCap === 'number'
+        ? { specCap, specCapMode: (options.specCapMode ?? 'tuples') as 'tuples' | 'pairs' }
+        : {}),
       mapPath: portable(relative(outPath, mapPath)),
       ...(baseline ? { baseline } : {}),
     });
@@ -205,7 +233,8 @@ export async function generateCommand(
   const report = result.report;
   if (options.json) io.out(formatJson(report));
   else io.out(`${renderSummary(report)}Wrote ${result.files.length} files to ${display(outPath, io)}.\n`);
-  const cut = Object.values(report.seeders).some((entry) => entry.cut);
+  const cut =
+    Object.values(report.seeders).some((entry) => entry.cut) || report.spec_cap?.preserved === false;
   const defects = report.invalid.length > 0 || report.lint.length > 0 || built.refused.length > 0;
   const code = report.summary.incomplete > 0 || cut || defects ? 1 : 0;
   if (!options.model) return code;

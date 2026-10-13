@@ -1,4 +1,4 @@
-import type { Assertion } from '@driftbench/core';
+import type { Assertion } from '@agent-nexus/driftbench-core';
 import { describe, expect, it } from 'vitest';
 import { checkAssertion } from '../src/support/assert';
 import { countAllows, describeCount } from '../src/support/count';

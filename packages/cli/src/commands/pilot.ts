@@ -1,7 +1,7 @@
 import { mkdir, writeFile } from 'node:fs/promises';
 import { join, relative, resolve } from 'node:path';
-import { functionAdapter } from '@driftbench/adapters';
-import type { AgentAdapter, CostUnit, Store, TargetRef } from '@driftbench/core';
+import { functionAdapter } from '@agent-nexus/driftbench-adapters';
+import type { AgentAdapter, CostUnit, Store, TargetRef } from '@agent-nexus/driftbench-core';
 import {
   analysePilot,
   designPilot,
@@ -18,7 +18,7 @@ import {
   planPilot,
   type Resample,
   runPilot,
-} from '@driftbench/generate';
+} from '@agent-nexus/driftbench-generate';
 import type { Command } from 'commander';
 import type { Io } from '../io';
 import { optionNumber } from '../number';

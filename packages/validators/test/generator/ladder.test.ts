@@ -1,5 +1,5 @@
 import { fileURLToPath } from 'node:url';
-import { type FaultSession, generateSuite } from '@driftbench/generate';
+import { type FaultSession, generateSuite } from '@agent-nexus/driftbench-generate';
 import { describe, expect, it, vi } from 'vitest';
 
 vi.setConfig({ testTimeout: 120_000 });
