@@ -1,0 +1,9 @@
+{
+  "examples/judge-benchmarks/src/contestants.ts": "1b8607394bb0d6fac8989dd4da20db705143c838e28d0bdbfe5857c8a4e5fc67",
+  "examples/judge-benchmarks/experiments/mm-cascade.ts": "b43a39da3db9b23bf468b1c831e16f0eccde8f23e6a33e179ead3bf0b75436b1",
+  "examples/judge-benchmarks/experiments/mm-vote3.ts": "a2881e714cf11092d3e933f5a7a5b659578e5fb275aa73a3f60d3792e814d770",
+  "packages/judges/src/prompt.ts": "e8cf6fee79af172c82a3c77ea6f53b3ece1a228c1be9f8aeed47ebceb19b9882",
+  "packages/judges/src/pairwise.ts": "8cd330af97c2b5856a4f5fe211e78e0440ae7830bca853d2772f7c72f781f49c",
+  "packages/judges/src/clients/system1.ts": "9fc9103ef550709aec7b8224043df32e6efcac6dc72f86737fb1484d09401734",
+  "worktreeHead": "0278595cb5b5a6b49830a1cacdbfd22bb951c0de"
+}

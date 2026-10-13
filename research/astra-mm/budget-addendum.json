@@ -1,0 +1,10 @@
+{
+  "ownerClarification": "Count only measured OpenAI, Gemini and Haiku spend against 30 USD. Report Jev tokens separately, price not published.",
+  "ratesPerMillion": {
+    "gpt-6-luna": {"input": 0.10, "cachedInput": 0.01, "output": 0.50},
+    "gemini-3.8-flash": {"input": 0.75, "cachedInput": 0.075, "outputIncludingThinking": 3.75}
+  },
+  "sources": ["https://developers.openai.com/api/docs/models/gpt-6-luna", "https://ai.google.dev/gemini-api/docs/pricing.md"],
+  "checkedUtc": "2026-10-13T04:48:00Z",
+  "budgetGuard": "Reserve 0.20 USD per in-flight council request, include all imported Haiku cost conservatively in the runtime guard. Haiku base stage has an 8 USD separate cap. True fresh spend reported separately."
+}
