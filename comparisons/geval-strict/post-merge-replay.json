@@ -1,5 +1,5 @@
 {
-  "verifiedSourceCommit": "38c5a79f04e1e2afa4f6506380c9d413ea64bd2f",
+  "verifiedSourceCommit": "75755c088aaaf4fc92ddb200b6c62b76842e4e12",
   "sourceTreeClean": true,
   "measuredSourceCommit": "b97fe578",
   "recordedArtifactCommit": "9b0bfaaf",
@@ -29,7 +29,7 @@
     "packages/judges/src/council.ts": "fa670af1f612deef072e4868ccfe3d61442c86bfa0f4ebbac08f20997e045994",
     "packages/judges/src/criteria.ts": "0dd6622c52d63f065ba1594eee0ba65041e665beabcb069d94cba770996cff77",
     "packages/judges/src/criterion-ledger.ts": "1dd2947c6dbb8c5941df2df1f50a9b87e7f9949dba60b438dc32bd3ff7d645fd",
-    "packages/judges/src/escalation.ts": "57455f312d4fb9f5c99821fc0a58cf76589704baa8e9c8e89a6cda22b1e35191",
+    "packages/judges/src/escalation.ts": "20cd702ce642b162316afdbce565cc0f8b5631947a6427e130f226531cc3648b",
     "packages/judges/src/evidence.ts": "1a5e13f0514987fda85fe8347b96ebedfe2925b2e176d31b57eec1d2f4fdf8d0",
     "packages/judges/src/fact-audit.ts": "d21f4572f4aaedb9569e26f5d6c862ed09782000a4faeb42932e8fd35fe5112d",
     "packages/judges/src/family.ts": "02820330478ea1513fc8822bbd1598275487a8101f934b094aba60f9b5423963",

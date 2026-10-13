@@ -26,7 +26,8 @@ merges include PRs 164, 165, 166, 167, 169, 170 and 173. The final upstream base
 at measurement time is `71c26039`. After the first PR checks pass, main advances
 to `b06b5ddb`. Merge `38c5a79f` integrates that base without changing the opt-in
 policy, any recorded feature prompt, or any replayed feature result. These
-defaults are distinct versions.
+defaults are distinct versions. PR 185 then lands upstream; merge `75755c08`
+integrates main `98d82dcf` with the same feature policy and recorded results.
 
 ## Recorded results
 
@@ -83,7 +84,10 @@ from the opt-in feature policy. After the `b06b5ddb` integration, 124 focused
 tests pass, including pointwise fact-ledger and escalation composition. The
 1,440 default and legacy comparisons also match that newer base. A separate
 free replay verifies exact feature prompts and complete parsed results for all
-192 final tuning and held-out cases. See `post-merge-replay.json`.
+192 final tuning and held-out cases. After PR 185, all 151 focused tests pass,
+the package build and typechecks pass, and the 1,440 compatibility comparisons
+match `98d82dcf`. See `post-merge-replay.json` and
+`post-merge-verification.json`.
 
 Unit tests prove schema, source restriction, aggregation and compatibility.
 Scripted verdicts do not prove model judgment; the recorded model runs provide
@@ -97,7 +101,7 @@ From the repository root, verify current package compatibility without model cal
 ```sh
 pnpm exec tsx comparisons/geval-strict/replay-current.ts
 python3 comparisons/geval-strict/score.py tuning heldout
-pnpm exec vitest run packages/judges/test/response-relevance.test.ts packages/judges/test/legacy-main.test.ts packages/judges/test/cassette.test.ts packages/judges/test/pointwise-fact-ledger.test.ts packages/judges/test/escalation-composition.test.ts --maxWorkers=2
+pnpm exec vitest run packages/judges/test/response-relevance.test.ts packages/judges/test/legacy-main.test.ts packages/judges/test/cassette.test.ts packages/judges/test/pointwise-fact-ledger.test.ts packages/judges/test/escalation-composition.test.ts packages/judges/test/escalation.test.ts --maxWorkers=2
 ```
 
 The original measurement replay below requires checkout `9b0bfaaf`, whose full
