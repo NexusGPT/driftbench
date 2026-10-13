@@ -1,4 +1,5 @@
-import { describe, expect, it } from 'vitest';
+import * as product from '@agent-nexus/driftbench-estate';
+import { afterEach, describe, expect, it, vi } from 'vitest';
 import {
   agentMutantLevel,
   agentMutants,
@@ -13,6 +14,26 @@ import {
   renderEstate,
 } from '../../src/ladders/estate/index';
 import { estateMeta } from '../../src/ladders/estate/levels';
+
+vi.mock('@agent-nexus/driftbench-estate', async (importOriginal) => {
+  const actual = await importOriginal<typeof import('@agent-nexus/driftbench-estate')>();
+  return { ...actual, estateImpact: vi.fn(actual.estateImpact) };
+});
+
+const GATE = 'gate.standing.read-a-file-before-you-edit';
+
+/** The run with the ordered pair taken out of every complete spec that names the gate: still complete. */
+function withoutOrderedPair(run: EstateRun): EstateRun {
+  return {
+    ...run,
+    specs: run.specs.map((spec) => {
+      if (!spec.loaded || !(estateMeta(spec).atoms ?? []).includes(GATE)) return spec;
+      const body = structuredClone(spec.loaded.spec) as { rules?: { custom?: Record<string, unknown> } };
+      if (body.rules?.custom) delete body.rules.custom.ordered;
+      return { ...spec, loaded: { ...spec.loaded, spec: body } } as typeof spec;
+    }),
+  };
+}
 
 describe('agent mutants (level 5)', { timeout: 120_000 }, () => {
   it('kills skills, scripts and the deleted WebFetch prohibition, and says why a living mutant lives', async () => {
@@ -99,6 +120,66 @@ describe('agent mutants (level 5)', { timeout: 120_000 }, () => {
     };
     const measure = await agentMutantLevel(none);
     expect(measure.value).toBe(0);
+  });
+});
+
+describe('a living agent mutant run on the follower (level 5, planted)', { timeout: 300_000 }, () => {
+  it('keeps the gate mutant alive, with its reason, when its complete tests check no order', async () => {
+    const run = withoutOrderedPair(await estateRun(1));
+    const gate = (await agentMutants(run)).find((mutant) => mutant.atom === GATE);
+    expect(gate?.tests.length).toBeGreaterThan(0);
+    expect(gate?.killed).toBe(false);
+    expect(gate?.reason).toMatch(
+      /complete tests ran on the follower with the atom deleted and all passed; the evidence .*did not fire/,
+    );
+    const mutants = await agentMutants(run);
+    const gates = mutants.filter((mutant) => mutant.kind === 'gate');
+    const share = gates.filter((mutant) => mutant.killed).length / gates.length;
+    const measure = await agentMutantLevel(run);
+    if (share < MUTATION_SCORE)
+      expect(measure.items.map((item) => item.id)).toContain(`mutant-alive:${GATE}`);
+    expect(measure.value).toBeLessThanOrEqual(share);
+  });
+});
+
+describe('wrong maintenance decisions (level 6, planted products)', { timeout: 300_000 }, () => {
+  afterEach(() => vi.mocked(product.estateImpact).mockReset());
+
+  it('names the tests a product that retires nothing should have retired', async () => {
+    const actual = await vi.importActual<typeof product>('@agent-nexus/driftbench-estate');
+    vi.mocked(product.estateImpact).mockImplementation((diff, tests) => ({
+      ...actual.estateImpact(diff, tests),
+      retire: [],
+    }));
+    const { wrong } = await estateMutantDecisions(await estateRun(1));
+    const missed = wrong.filter((verdict) => verdict.expected === 'retired');
+    expect(missed.length).toBeGreaterThan(0);
+    expect(missed.every((verdict) => verdict.got === 'regenerated' || verdict.got === 'untouched')).toBe(
+      true,
+    );
+  });
+
+  it('names the tests a product that retires every test of a renamed folder should have kept', async () => {
+    const actual = await vi.importActual<typeof product>('@agent-nexus/driftbench-estate');
+    vi.mocked(product.estateImpact).mockImplementation((diff, tests) => {
+      const impact = actual.estateImpact(diff, tests);
+      const gone = new Set(diff.atoms.removed.map((atom) => atom.id));
+      const extra = tests
+        .filter((test) => test.atoms.some((atom) => gone.has(atom)))
+        .filter((test) => !impact.retire.some((entry) => entry.test === test.id))
+        .map((test) => ({
+          test: test.id,
+          file: test.file,
+          atoms: test.atoms,
+          reason: 'planted: every test of a removed atom',
+          state: 'to_write' as const,
+        }));
+      return { ...impact, retire: [...impact.retire, ...extra] };
+    });
+    const { wrong } = await estateMutantDecisions(await estateRun(1));
+    const renamed = wrong.filter((verdict) => verdict.mutant.startsWith('rename:'));
+    expect(renamed.length).toBeGreaterThan(0);
+    expect(renamed.every((verdict) => verdict.expected === 'kept' && verdict.got === 'retired')).toBe(true);
   });
 });
 
