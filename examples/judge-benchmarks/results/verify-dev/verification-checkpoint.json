@@ -46,5 +46,19 @@
     "maxWorkers": 2,
     "testTimeoutMs": 30000,
     "biome": "Changed verify-dossier.ts passed without findings."
+  },
+  "completeAnswerAgreementVerification": {
+    "at": "2026-10-13T03:13:35+02:00",
+    "tests": 54,
+    "testFiles": 7,
+    "typecheck": "passed",
+    "mutationEvidence": "Both new cases fail before implementation and pass afterward.",
+    "behavior": "Opt-in on the two new literal variants only.",
+    "biome": {
+      "files": 4,
+      "exitCode": 0,
+      "warnings": 2,
+      "infos": 4
+    }
   }
 }

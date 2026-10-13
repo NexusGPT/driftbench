@@ -272,12 +272,18 @@ export async function runBenchmark(options: RunOptions): Promise<RunReport> {
     const solveFor = async (item: Item): Promise<string | undefined> => {
       if (contestant.referencePaths) {
         const texts: string[] = [];
+        const completeAnswers: (string | undefined)[] = [];
+        const completeFinal = (text: string): string | undefined => {
+          const last = [...text.matchAll(/Final answer:/gi)].at(-1);
+          return last?.index === undefined ? undefined : text.slice(last.index + last[0].length).trim();
+        };
         const diagnostics: string[] = [];
         for (const path of contestant.referencePaths) {
           const r = await ask(contestant, path.prompt(item.question), item.id, `blind-${path.name}`);
           if (!r) continue;
           if (!path.program) {
             texts.push(r.text);
+            completeAnswers.push(completeFinal(r.text));
             continue;
           }
           const out = await executeProgram(r.text, item);
@@ -296,11 +302,21 @@ export async function runBenchmark(options: RunOptions): Promise<RunReport> {
           texts.push(
             typeof answer === 'string' ? `Independent program output:\n${out}\nFinal answer: ${answer}` : out,
           );
+          completeAnswers.push(typeof answer === 'string' ? answer : completeFinal(out));
         }
         const winner = majoritySolve(texts);
         const key = normalizeFinal(finalLine(winner));
-        const count =
-          key === undefined ? 0 : texts.filter((text) => normalizeFinal(finalLine(text)) === key).length;
+        const completeCounts = new Map<string, number>();
+        for (const answer of completeAnswers) {
+          const normalized = normalizeFinal(answer);
+          if (normalized !== undefined)
+            completeCounts.set(normalized, (completeCounts.get(normalized) ?? 0) + 1);
+        }
+        const count = contestant.fullReferenceAnswers
+          ? Math.max(0, ...completeCounts.values())
+          : key === undefined
+            ? 0
+            : texts.filter((text) => normalizeFinal(finalLine(text)) === key).length;
         const total = contestant.referencePaths.length;
         const agreement = count / total;
         const threshold = contestant.referenceAgreementThreshold;

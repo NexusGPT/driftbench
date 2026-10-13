@@ -16,6 +16,57 @@ import {
 import { testMetrics, testSample } from '../src/verify-test-metrics';
 import { deterministicEvidence } from '../src/verify-tools';
 
+it.skipIf(process.platform !== 'darwin').each([
+  ['long list', 'x'.repeat(220) + 'A', 'x'.repeat(220) + 'B'],
+  ['multiline program answer', 'A', 'A\nB'],
+])('does not falsely merge %s in complete blind agreement', async (_name, textAnswer, programAnswer) => {
+  const folder = await mkdtemp(join(tmpdir(), 'verify-complete-answer-test-'));
+  try {
+    const command = join(folder, 'fake.mjs');
+    const code = `import json\nprint(json.dumps({'final_answer': ${JSON.stringify(programAnswer)}}))`;
+    await writeFile(
+      command,
+      `#!/usr/bin/env node
+let input = '';
+process.stdin.on('data', c => input += c);
+process.stdin.on('end', () => {
+  const result = input.startsWith('TEXT') ? ${JSON.stringify(`Final answer: ${textAnswer}`)} : input.startsWith('PROGRAM') ? ${JSON.stringify('```python\n' + code + '\n```')} : '{"pass":false}';
+  process.stdout.write(JSON.stringify({result, total_cost_usd:.001}));
+});
+`,
+    );
+    await chmod(command, 0o755);
+    const c: Contestant = {
+      ...contestantById('driftbench-verify-program-backward'),
+      responseExtractor: undefined,
+      toolEvidence: undefined,
+      codeCheck: undefined,
+      fullReferenceAnswers: true,
+      referenceAgreementThreshold: 0.8,
+      referencePaths: [
+        { name: 'text', prompt: () => ({ system: '', user: 'TEXT' }) },
+        { name: 'program', program: true, prompt: () => ({ system: '', user: 'PROGRAM' }) },
+      ],
+      point: ({ reference }) => {
+        expect(reference).toContain('1/2, below');
+        return { system: '', user: 'JUDGE' };
+      },
+    };
+    const result = await runBenchmark({
+      bench: 'longjudge-verify',
+      model: 'fake',
+      contestants: [c],
+      command,
+      recordingsDir: folder,
+      concurrency: 1,
+      items: [{ kind: 'point', id: 'complete', question: 'q', response: 'r', correct: false, group: 'g' }],
+    });
+    expect(result.contestants[0]?.summary.value.estimate).toBe(1);
+  } finally {
+    await rm(folder, { recursive: true, force: true });
+  }
+});
+
 it('applies RGB source context only to BoardgameQA primary-color questions', () => {
   const source = contestantById('driftbench-verify-program-backward-step-fallback');
   const wrapped = withBoardgameConvention(source, 'test-context');

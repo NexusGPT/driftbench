@@ -57,6 +57,8 @@ export type Contestant = {
   }[];
   /** With method-diverse solves, only use a final answer supported by this fraction of all paths. */
   readonly referenceAgreementThreshold?: number;
+  /** Compare complete blind answers, including long lists and multiline program values. */
+  readonly fullReferenceAnswers?: boolean;
   /** A deterministic, label-blind local solver. No model call or submission is supplied. */
   readonly toolEvidence?: (question: string) => Promise<string | undefined>;
   /** Extract the submitted answers before judging. This step must not solve or correct them. */

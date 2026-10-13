@@ -14,5 +14,13 @@
     "maxWorkers": 2,
     "testTimeoutMs": 30000,
     "biomeChangedFile": "passed"
+  },
+  "completeAgreement": {
+    "changedBeforeMeasurementAt": "2026-10-13T03:15:26.174904+02:00",
+    "method": "Compare the full terminal text answer and the full JSON final_answer string for program paths. Normalize presentation only. No 200-character clipping or first-line-only program voting.",
+    "compatibility": "Opt-in on the two new literal variants. Existing measured variants and competitors retain their prior behavior.",
+    "mutationEvidence": "Two tests fail before implementation with false 2/2 agreement, then pass with correct 1/2 agreement.",
+    "tests": 54,
+    "testFiles": 7
   }
 }

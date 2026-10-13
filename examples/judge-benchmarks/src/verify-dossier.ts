@@ -113,6 +113,7 @@ export function dossierContestants(
   const literal = (source: Contestant, id: string): Contestant => ({
     ...source,
     id,
+    fullReferenceAnswers: true,
     source: `${source.source}; explicit countermodel test for unstated assumptions`,
     point: (input) => {
       const prompt = source.point?.(input);
