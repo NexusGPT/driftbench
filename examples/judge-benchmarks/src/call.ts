@@ -3,8 +3,8 @@ import { createHash } from 'node:crypto';
 import { mkdtemp } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
-import { appendRecording, readRecordingRows } from './recording-files';
 import type { Prompt } from './contestants';
+import { appendRecording, readRecordingRows } from './recording-files';
 
 /**
  * Model calls through the local claude command, recorded. A recording is keyed by a hash of the model and

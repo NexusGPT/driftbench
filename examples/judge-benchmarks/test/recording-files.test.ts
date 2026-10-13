@@ -1,17 +1,24 @@
-import { mkdtemp, readFile, rm, stat, writeFile } from 'node:fs/promises';
-import { tmpdir } from 'node:os';
+import { readFile, rm, stat, writeFile } from 'node:fs/promises';
 import { join } from 'node:path';
 import { afterEach, describe, expect, it } from 'vitest';
-import { Recordings, type Recorded } from '../src/call';
-import { RECORDING_SHARD_BYTES, readRecordingRows, recordingFiles, shardRecordingFile } from '../src/recording-files';
+import { type Recorded, Recordings } from '../src/call';
+import {
+  RECORDING_SHARD_BYTES,
+  readRecordingRows,
+  recordingFiles,
+  shardRecordingFile,
+} from '../src/recording-files';
+import { scratch } from './scratch';
 
 const directories: string[] = [];
 async function fixture(): Promise<string> {
-  const directory = await mkdtemp(join(tmpdir(), 'recording-shards-'));
+  const directory = await scratch('recording-shards-');
   directories.push(directory);
   return join(directory, 'haiku.jsonl');
 }
-afterEach(async () => { for (const path of directories.splice(0)) await rm(path, { recursive: true, force: true }); });
+afterEach(async () => {
+  for (const path of directories.splice(0)) await rm(path, { recursive: true, force: true });
+});
 const row = (key: string, text = 'answer'): Recorded => ({ key, model: 'fake', text, costUsd: 0.001 });
 
 describe('recording shards', () => {
@@ -31,9 +38,18 @@ describe('recording shards', () => {
     expect(recordings.size).toBe(5);
     for (const entry of entries) expect(recordings.get(entry.key)).toEqual(entry);
     await Promise.all(['5', '6'].map((key) => recordings.add(row(key, '🙂'.repeat(600_000)))));
-    expect((await readRecordingRows(path)).map((entry) => entry.key)).toEqual(['0', '1', '2', '3', '4', '5', '6']);
+    expect((await readRecordingRows(path)).map((entry) => entry.key)).toEqual([
+      '0',
+      '1',
+      '2',
+      '3',
+      '4',
+      '5',
+      '6',
+    ]);
     expect(await recordingFiles(path)).toHaveLength(3);
-    for (const file of await recordingFiles(path)) expect((await stat(file)).size).toBeLessThanOrEqual(RECORDING_SHARD_BYTES);
+    for (const file of await recordingFiles(path))
+      expect((await stat(file)).size).toBeLessThanOrEqual(RECORDING_SHARD_BYTES);
   });
 
   it('reads legacy plus shards in numeric order and retains the latest key', async () => {

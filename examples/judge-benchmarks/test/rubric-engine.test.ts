@@ -9,15 +9,22 @@ import {
 } from '../src/rubric-engine';
 
 describe('pointwise rubric engine', () => {
-  it('resolves a winner letter contradicted by its unique content anchor', () => {
+  it('abstains on contradicted or shared winner identity', () => {
     expect(
       parseEngineTie(
         '{"winner":"B","winner_quote":"unique good answer"}',
         'The unique good answer.',
         'other answer',
       ),
+    ).toBe('tie');
+    expect(parseEngineTie('{"winner":"B","winner_quote":"shared"}', 'shared A', 'shared B')).toBe('tie');
+    expect(
+      parseEngineTie(
+        '{"winner":"A","winner_quote":"Reply A: unique good answer"}',
+        '**The unique good answer.**',
+        'other answer',
+      ),
     ).toBe('A');
-    expect(parseEngineTie('{"winner":"B","winner_quote":"shared"}', 'shared A', 'shared B')).toBe('B');
   });
   it('enforces hard items before soft counts', () => {
     const rules = [
@@ -52,8 +59,12 @@ describe('pointwise rubric engine', () => {
         { id: 1, yes: true, quote: 'actual text' },
       ],
     });
-    expect(parseRubricReply(raw, 2, 'some actual text here')).toEqual([true, false]);
-    expect(parseRubricReply('{"checks":[{"id":1,"yes":true,"quote":""}]}', 1, 'reply')).toEqual([false]);
+    expect(parseRubricReply(raw, 2, 'some actual text here')).toBeUndefined();
+    expect(parseRubricReply(raw.replace('absent quote', 'some actual'), 2, 'some actual text here')).toEqual([
+      true,
+      true,
+    ]);
+    expect(parseRubricReply('{"checks":[{"id":1,"yes":true,"quote":""}]}', 1, 'reply')).toBeUndefined();
     expect(
       parseRubricReply('{"checks":[{"id":1,"yes":"true","quote":"reply"}]}', 1, 'reply'),
     ).toBeUndefined();

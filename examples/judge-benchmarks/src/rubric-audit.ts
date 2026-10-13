@@ -1,11 +1,11 @@
-import { readRecordingRows } from './recording-files';
 import { createHash } from 'node:crypto';
-import { readFile, writeFile } from 'node:fs/promises';
+import { writeFile } from 'node:fs/promises';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { promptKey, Recordings } from './call';
 import { contestantById, type PairDecision } from './contestants';
 import { loadBenchmark, type PairItem, splitOf } from './data';
+import { readRecordingRows } from './recording-files';
 import { atomicChecks } from './rubric-atomic';
 import { rubricItems } from './rubric-items';
 import { RECORDINGS } from './run';
@@ -64,7 +64,15 @@ async function main(): Promise<void> {
       if (!complete) continue;
       const games = [decisions[0] ?? 'tie', flip(decisions[1] ?? 'tie')];
       results.push({ item, games, missing: 0 });
-      details.push({ id: item.id, group: item.group, label: item.label, games, invalidChecks, invalidParse, countMismatch });
+      details.push({
+        id: item.id,
+        group: item.group,
+        label: item.label,
+        games,
+        invalidChecks,
+        invalidParse,
+        countMismatch,
+      });
     }
     const cost = [...unique.values()].reduce((a, b) => a + b, 0);
     reports.push({

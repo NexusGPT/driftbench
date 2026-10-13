@@ -1,8 +1,8 @@
-import { readRecordingRows } from './recording-files';
 import { appendFile, readFile, writeFile } from 'node:fs/promises';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { type Contestant, contestantById } from './contestants';
+import { readRecordingRows } from './recording-files';
 import { RECORDINGS, type RunReport, runBenchmark } from './run';
 
 /** Sequential, dev-only campaign with a task-wide cap and a fixed local deadline. */
@@ -13,15 +13,12 @@ const RESERVE = 0.05;
 const wait = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 
 async function taskSpend(): Promise<number> {
-  return (await readRecordingRows(join(RECORDINGS, 'rubricbench', 'haiku.jsonl')))
-    .reduce((sum, r) => {
-      return (
-        sum +
-        (r.contestant?.startsWith('driftbench-rb-') || r.contestant === 'driftbench-checklist'
-          ? r.costUsd
-          : 0)
-      );
-    }, 0);
+  return (await readRecordingRows(join(RECORDINGS, 'rubricbench', 'haiku.jsonl'))).reduce((sum, r) => {
+    return (
+      sum +
+      (r.contestant?.startsWith('driftbench-rb-') || r.contestant === 'driftbench-checklist' ? r.costUsd : 0)
+    );
+  }, 0);
 }
 
 const won = (report: RunReport) =>
@@ -48,6 +45,12 @@ async function main(): Promise<void> {
     {
       name: 'hardpoint-dev',
       contestants: ['driftbench-rb-hardpoint', 'driftbench-rb-quotedcounts'].map(contestantById),
+    },
+    {
+      name: 'atomic-executed-dev',
+      contestants: ['binary', 'equal', 'weighted', 'holistic'].map((method) =>
+        contestantById(`driftbench-rb-${method}-canonical-executed`),
+      ),
     },
     { name: 'hardpoint5-executed-dev', contestants: [contestantById('driftbench-rb-hardpoint5-executed')] },
     {
@@ -139,7 +142,7 @@ async function main(): Promise<void> {
       );
       targetReached ||= won(report);
       if (
-        (stage.name === 'executed-dev' || stage.name === 'hardpoint5-executed-dev') &&
+        (stage.name === 'executed-dev' || stage.name === 'atomic-executed-dev' || stage.name === 'hardpoint5-executed-dev') &&
         !report.stopped &&
         report.contestants.every((r) => r.summary.missing === 0)
       )

@@ -1,6 +1,7 @@
 import { createHash } from 'node:crypto';
 import type { Contestant, PairDecision, Prompt } from './contestants';
 import { jsonObjects } from './json';
+import { candidateContainsQuote, stripReplyLabel } from './quote-matching';
 import { atomicPrompt, CONTRACT_CONTESTANT } from './rubric-atomic';
 
 export type RubricRule = { id: number; hard: boolean; weight: number };
@@ -81,8 +82,6 @@ export function parseRubricReply(
     .filter((object) => Array.isArray(object.checks))
     .at(-1)?.checks;
   if (!Array.isArray(raw) || raw.length !== count) return undefined;
-  const normal = (value: string) => value.replace(/\s+/g, ' ').trim();
-  const source = normal(`${reply}\n${evidence}`);
   const checks = new Map<number, boolean>();
   for (const value of raw) {
     const c = value as Record<string, unknown> | undefined;
@@ -96,8 +95,10 @@ export function parseRubricReply(
       typeof c.quote !== 'string'
     )
       return undefined;
-    const quote = normal(c.quote);
-    checks.set(c.id as number, c.yes && quote !== '' && source.includes(quote));
+    // Unsupported evidence is a grader failure, never proof that the candidate fails.
+    if (c.yes && !candidateContainsQuote(reply, c.quote) && !candidateContainsQuote(evidence, c.quote))
+      return undefined;
+    checks.set(c.id as number, c.yes);
   }
   return Array.from({ length: count }, (_, i) => checks.get(i + 1) ?? false);
 }
@@ -192,10 +193,11 @@ export function parseEngineTie(text: string, a?: string, b?: string): PairDecisi
     a !== undefined &&
     b !== undefined
   ) {
-    const normalize = (value: string) => value.replace(/\s+/g, ' ').trim();
-    const inA = normalize(a).includes(normalize(quote));
-    const inB = normalize(b).includes(normalize(quote));
-    if (inA !== inB) return inA ? 'A' : 'B';
+    const body = stripReplyLabel(quote, winner);
+    if (body === undefined) return 'tie';
+    const inA = candidateContainsQuote(a, body);
+    const inB = candidateContainsQuote(b, body);
+    if (inA !== inB && (winner === 'A' ? inA : inB)) return winner;
   }
-  return winner === 'A' || winner === 'B' ? winner : 'tie';
+  return 'tie';
 }

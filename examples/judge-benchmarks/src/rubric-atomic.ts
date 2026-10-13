@@ -92,6 +92,13 @@ export const RUBRIC_ATOMIC: readonly Contestant[] = [
     canonicalOrder: true,
     source: `${c.source}; content-hash presentation mapped back to both caller orders`,
   })),
+  ...AGGREGATIONS.map((c) => ({
+    ...c,
+    id: `${c.id}-canonical-executed`,
+    canonicalOrder: true,
+    pairEvidence: codeEvidence,
+    source: `${c.source}; canonical presentation with exact candidate-code execution`,
+  })),
 ];
 
 /** A second prompt isolates binary rubric adherence from general answer quality. */

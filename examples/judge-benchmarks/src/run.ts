@@ -4,7 +4,6 @@ import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { type Caller, CallFailed, createCaller, promptKey, Recordings, SpendCapReached } from './call';
 import { codeEvidence } from './code-evidence';
-import { rubricItems } from './rubric-items';
 import {
   CONTESTANTS,
   type Contestant,
@@ -33,6 +32,7 @@ import {
   rubricPlan,
   rubricReply,
 } from './rubric-engine';
+import { rubricItems } from './rubric-items';
 import {
   type PairResult,
   type PointResult,
@@ -50,7 +50,7 @@ import {
  *   npx tsx examples/judge-benchmarks/src/run.ts --bench judgebench --model haiku [--sample 100]
  *     [--contestants driftbench,deepeval] [--cap-usd 1] [--concurrency 6] [--replay-only] [--out report.json]
  *
- * Recordings live in examples/judge-benchmarks/recordings/<bench>/<model>.jsonl. A rerun of the same
+ * Recordings live in examples/judge-benchmarks/recordings/<bench>/<model>-NNN.jsonl shards. A rerun of the same
  * prompts reads them and costs nothing; --replay-only refuses to call the model at all.
  */
 
@@ -355,29 +355,55 @@ export async function runBenchmark(options: RunOptions): Promise<RunReport> {
           const engine = contestant.rubricEngine;
           const criterion = await criterionFor(item);
           const rubrics = rubricItems(criterion);
-          const planned = await ask(contestant, rubricPlan(item.question, rubrics), item.id, 'hardsoft-plan');
-          const rules = planned ? parseRubricPlan(planned.text, rubrics.length) : undefined;
+          const planPrompt = rubricPlan(item.question, rubrics);
+          const planned = await ask(contestant, planPrompt, item.id, 'hardsoft-plan');
+          let rules = planned ? parseRubricPlan(planned.text, rubrics.length) : undefined;
+          if (planned && !rules) {
+            const repaired = await ask(
+              contestant,
+              {
+                ...planPrompt,
+                system: `${planPrompt.system}\nYour earlier output failed schema validation. Return exactly the required JSON, with every original id once in ascending order and Boolean hard values.`,
+              },
+              item.id,
+              'hardsoft-plan-repair',
+            );
+            rules = repaired ? parseRubricPlan(repaired.text, rubrics.length) : undefined;
+          }
           if (!rules) return { item, games: ['tie', 'tie'], missing: 2 };
+          const rubricRules = rules;
           const grade = async (reply: string, side: string): Promise<boolean[] | undefined> => {
             const evidence = engine.execution
               ? await codeEvidence({ question: item.question, a: reply, b: '' })
               : undefined;
             const samples: boolean[][] = [];
             for (let sample = 0; sample < engine.samples; sample += 1) {
-              const r = await ask(
-                contestant,
-                rubricReply({
-                  question: item.question,
-                  reply,
-                  rubrics,
-                  rules,
-                  sample,
-                  ...(evidence === undefined ? {} : { evidence }),
-                }),
-                item.id,
-                `pointwise-${side}#${sample + 1}`,
-              );
-              const checks = r ? parseRubricReply(r.text, rubrics.length, reply, evidence) : undefined;
+              const gradePrompt = rubricReply({
+                question: item.question,
+                reply,
+                rubrics,
+                rules: rubricRules,
+                // The one-sample ablation retains the control order. Every five-vote
+                // sample receives a content-seeded permutation, including its first.
+                sample: engine.samples > 1 ? sample + 1 : sample,
+                ...(evidence === undefined ? {} : { evidence }),
+              });
+              const r = await ask(contestant, gradePrompt, item.id, `pointwise-${side}#${sample + 1}`);
+              let checks = r ? parseRubricReply(r.text, rubrics.length, reply, evidence) : undefined;
+              if (r && !checks) {
+                const repaired = await ask(
+                  contestant,
+                  {
+                    ...gradePrompt,
+                    system: `${gradePrompt.system}\nYour earlier output failed schema or evidence validation. Re-evaluate the original response. Return exactly the required JSON, with every original id once, a string quote and a Boolean yes for each check. Every positive quote must be one short continuous exact excerpt; do not join passages with ellipses or paraphrase them.`,
+                  },
+                  item.id,
+                  `pointwise-${side}#${sample + 1}-repair`,
+                );
+                checks = repaired
+                  ? parseRubricReply(repaired.text, rubrics.length, reply, evidence)
+                  : undefined;
+              }
               if (checks) samples.push(checks);
               const fixed = fixedMajority(samples, rubrics.length, engine.samples);
               if (fixed) return fixed;

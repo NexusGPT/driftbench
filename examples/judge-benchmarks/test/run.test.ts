@@ -1,11 +1,11 @@
-import { readRecordingRows } from '../src/recording-files';
-import { chmod, mkdtemp, rm, writeFile } from 'node:fs/promises';
-import { tmpdir } from 'node:os';
+import { chmod, rm, writeFile } from 'node:fs/promises';
 import { join } from 'node:path';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { contestantById } from '../src/contestants';
 import type { PairItem, PointItem } from '../src/data';
+import { readRecordingRows } from '../src/recording-files';
 import { renderReport, runBenchmark } from '../src/run';
+import { scratch } from './scratch';
 
 /**
  * The runner on a fake claude command: it finds the contestant from its prompt and always prefers the text
@@ -37,7 +37,7 @@ process.stdin.on('end', () => {
 let dir: string;
 let command: string;
 beforeAll(async () => {
-  dir = await mkdtemp(join(tmpdir(), 'judge-benchmarks-'));
+  dir = await scratch('judge-benchmarks-');
   command = join(dir, 'fake-claude.mjs');
   await writeFile(command, FAKE);
   await chmod(command, 0o755);
@@ -65,6 +65,7 @@ describe('runBenchmark', () => {
 let input=''; process.stdin.on('data',c=>input+=c);
 process.stdin.on('end',()=>{
   const data=JSON.parse(input);
+  if(data.response!==undefined && data.sample===1) throw new Error('Five-vote samples must all use permutations');
   const result=data.response===undefined
     ? {rules:data.requirements.map(r=>({id:r.id,hard:true,weight:3}))}
     : {checks:data.requirements.map(r=>({id:r.id,yes:data.response.startsWith('RIGHT'),quote:data.response,reason:'literal check'}))};
@@ -96,6 +97,46 @@ process.stdin.on('end',()=>{
     // One shared plan plus two responses per item, three fixed-majority samples each.
     expect(report.newCalls).toBe(13);
     expect(report.replayed).toBe(1);
+  }, 20000);
+  it('retries one malformed pointwise grade without changing its rubric or exposing the other reply', async () => {
+    const cmd = join(dir, 'repair-claude.mjs');
+    await writeFile(
+      cmd,
+      `#!/usr/bin/env node
+let input=''; process.stdin.on('data',c=>input+=c);
+process.stdin.on('end',()=>{
+  const data=JSON.parse(input), args=process.argv.slice(2);
+  const repair=args[args.indexOf('--system-prompt')+1].includes('failed schema');
+  const result=data.response===undefined
+    ? {rules:data.requirements.map(r=>({id:r.id,hard:true,weight:3}))}
+    : !repair ? {checks:[]}
+    : {checks:data.requirements.map(r=>({id:r.id,yes:data.response.startsWith('RIGHT'),quote:data.response,reason:'literal check'}))};
+  process.stdout.write(JSON.stringify({result:JSON.stringify(result),total_cost_usd:0.001}));
+});
+`,
+    );
+    await chmod(cmd, 0o755);
+    const report = await runBenchmark({
+      bench: 'rubricbench',
+      model: 'fake',
+      command: cmd,
+      concurrency: 1,
+      items: [{ ...pairs[0]!, criterion: 'Rubrics:\nDoes the reply start with RIGHT?' }],
+      recordingsDir: join(dir, 'rec-repair'),
+      contestants: [
+        {
+          id: 'repair-test',
+          source: 'test',
+          rubricEngine: { samples: 1, execution: false },
+          pair: () => ({ system: '', user: '' }),
+        },
+      ],
+    });
+    expect(report.contestants[0]?.summary.value.estimate).toBe(1);
+    expect(report.contestants[0]?.summary.missing).toBe(0);
+    expect(report.newCalls).toBe(5);
+    const rows = await readRecordingRows(join(dir, 'rec-repair', 'rubricbench', 'fake.jsonl'));
+    expect(rows.filter((row) => row.order?.endsWith('-repair'))).toHaveLength(2);
   }, 20000);
   it('starts no model calls after the explicit deadline', async () => {
     const report = await runBenchmark({

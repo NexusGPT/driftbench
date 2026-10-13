@@ -10,8 +10,11 @@ async function main(): Promise<void> {
     for (const file of await readdir(directory)) {
       if (!file.endsWith('.jsonl') || /-[0-9]+\.jsonl$/.test(file)) continue;
       const path = join(directory, file);
-      console.log(JSON.stringify({ path, ...await shardRecordingFile(path) }));
+      console.log(JSON.stringify({ path, ...(await shardRecordingFile(path)) }));
     }
   }
 }
-main().catch((error) => { console.error(error); process.exitCode = 1; });
+main().catch((error) => {
+  console.error(error);
+  process.exitCode = 1;
+});
