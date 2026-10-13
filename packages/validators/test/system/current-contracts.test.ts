@@ -1,7 +1,7 @@
 import { cpSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import * as report from '@driftbench/report';
+import * as report from '@agent-nexus/driftbench-report';
 import { afterAll, describe, expect, it, vi } from 'vitest';
 import * as main from '../../../cli/src/main';
 import { type BankItem, PASS, scratchFolder, systemBank } from '../../src/ladders/system/bank/index';

@@ -1,7 +1,7 @@
 import { readdirSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
-import { loadSpecs } from '@driftbench/core';
-import { designPilot, loadApprovedMap, PILOT_DEFAULTS } from '@driftbench/generate';
+import { loadSpecs } from '@agent-nexus/driftbench-core';
+import { designPilot, loadApprovedMap, PILOT_DEFAULTS } from '@agent-nexus/driftbench-generate';
 
 /** Numeric examples are contracts, not snapshots of the last command we ran. */
 export function goldenContract(root: string) {

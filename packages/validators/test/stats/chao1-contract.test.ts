@@ -1,6 +1,6 @@
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
-import * as stats from '@driftbench/stats';
+import * as stats from '@agent-nexus/driftbench-stats';
 import { describe, expect, it } from 'vitest';
 import { analyticItems } from '../../src/ladders/stats/bank/analytic';
 import { runItem } from '../../src/ladders/stats/bank/index';

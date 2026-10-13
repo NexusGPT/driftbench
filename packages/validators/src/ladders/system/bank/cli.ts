@@ -1,6 +1,6 @@
 import { mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
-import { mde as powerMde } from '@driftbench/stats';
+import { mde as powerMde } from '@agent-nexus/driftbench-stats';
 import { parse, stringify } from 'yaml';
 import { between, rngFor } from '../random';
 import { DOCUMENTED_CHECKS } from './documented';

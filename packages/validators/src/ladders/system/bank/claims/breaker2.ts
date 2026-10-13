@@ -6,9 +6,9 @@ import { createHash } from 'node:crypto';
  */
 import { copyFileSync, existsSync, mkdirSync, readdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
-import { loadSpecFile } from '@driftbench/core';
-import { AUTO_MARGIN_WARN } from '@driftbench/report';
-import { nonInferiority } from '@driftbench/stats';
+import { loadSpecFile } from '@agent-nexus/driftbench-core';
+import { AUTO_MARGIN_WARN } from '@agent-nexus/driftbench-report';
+import { nonInferiority } from '@agent-nexus/driftbench-stats';
 import { gateContract, goldenContract, goldenCount } from '../current-contracts';
 import { type BankItem, expectAll, fail, type Tier } from '../types';
 
