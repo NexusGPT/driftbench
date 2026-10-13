@@ -111,3 +111,10 @@
 - Noise resumes from preserved answers, followed by the remaining repeats and sealed TEST. Source: lite/evidence/network-recovery-result.json and network-recovery-execution.json.
 
 - Recovery driver PID 16732, exec session 10043. Original finalizer PID 2795; Flash Lite finalizer exec session 52960. Haiku TEST continues. Gemini 3.8 stays owner-held.
+
+## 2026-10-13T12:53:26.576077+00:00 first-final preservation
+
+- The Flash Lite noise recovery returns new downstream keys for six items with an existing final verdict. Two continuation verdicts differ.
+- All six first completed verdicts remain primary. Both generations and every actual fee remain in the evidence.
+- Offline replay reproduces pilot, mutations and the first two noise repeats exactly, with zero provider calls.
+- The original model partial-report audit finds no changed completed verdicts across nine archived reports. Source: evidence/first-final-audit.json.

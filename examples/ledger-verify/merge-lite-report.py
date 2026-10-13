@@ -26,7 +26,7 @@ original['additionalCellFees']=extra['fees'];original['additionalCellEvidence']=
 original['overallAccountedMaximumUsd']=original['fees']['maximumAccountedUsd']+extra['fees']['maximumAccountedUsd']
 original['originalBudgetCapUsd']=40;original['additionalCellCapUsd']=18
 original['at']=datetime.datetime.now(datetime.timezone.utc).isoformat()
-for name in ['model-amendment.json','cap12-amendment.json','runtime-freeze.json','reporting-freeze.json','reasoning-applied.json','network-recovery-amendment.json','network-recovery-execution.json','replay-reconstruction-amendment.json','network-diagnostics-amendment.json']:
+for name in ['model-amendment.json','cap12-amendment.json','runtime-freeze.json','reporting-freeze.json','reasoning-applied.json','network-recovery-amendment.json','network-recovery-execution.json','replay-reconstruction-amendment.json','network-diagnostics-amendment.json','first-final-preservation.json','first-final-replay-amendment.json']:
  path=LITE/'evidence'/name;original['freeze']['hashes']['lite/evidence/'+name]=hashlib.sha256(path.read_bytes()).hexdigest()
 (BASE/'evidence/cells.json').write_text(json.dumps(original,indent=2)+'\n')
 subprocess.run([sys.executable,str(BASE/'render_report.py'),str(DOSSIER)],cwd=ROOT,check=True)
@@ -43,6 +43,8 @@ addition+='- Medium reasoning is accepted and applied to both contestants. Provi
 addition+='- Published Standard price is 0.30 USD per million input tokens and 2.50 USD per million output tokens, including thinking. Source: https://ai.google.dev/gemini-api/docs/pricing#gemini-3.5-flash-lite. Medium support: https://ai.google.dev/gemini-api/docs/thinking. Read 13 October 2026.\n'
 addition+='- The 20-item pilot costs 0.5183653 USD. Its linear projection is 9.823022435 USD across 379 units; actual fees below supersede that estimate.\n'
 addition+=f"- Flash Lite actual settled fees: {f['settledUsd']:.8f} USD. Unknown-charge holds: {f['unresolvedMaximumUsd']:.8f} USD. Accounted maximum: {f['maximumAccountedUsd']:.8f} USD, cap 18 USD.\n"
+addition+='- Host overload recovery keeps all 35 original uncertain-charge holds (10.50 USD). All 35 missing requests return on one additional submission each, costing 0.1725274 USD. Connectivity probes pass first.\n'
+addition+='- Upstream recovery creates new downstream keys for six already completed noise items. Their first product-final verdicts stay primary; all continuation answers and charges remain archived. Two continuation verdicts differ and are excluded symmetrically by the first-answer rule. Offline replay reproduces the selected original chains.\n'
 addition+='- Flash Lite files live under lite/: receipts, recordings, per-item strict and product-final decisions, request attribution, validation and exact replay evidence. The shared pool and audit map are symbolic links to the identical sealed originals.\n'
 addition+='- Scoring algorithms match the original frozen functions exactly. lite/evidence/reporting-freeze.json records syntax hashes before TEST. The TEST contains 221 items per contestant; all six phases total 379 units.\n'
 addition+='- Gemini 3.8 stays parked. Its disarmed driver cannot start on the clock; only a new owner instruction can release the hold. Its missing work has a 1472 judge-request upper bound, including at most 221 adaptive reviews, before extra rejected 429 attempts.\n'
