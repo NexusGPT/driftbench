@@ -1,0 +1,172 @@
+{
+  "stamp": "2026-10-13T12:43:08.664233+00:00",
+  "completed": 4975,
+  "measured_usd": 6.0586918,
+  "stratified_projection_usd": 8.322923346170578,
+  "unseen_groups": 0,
+  "basis": "Sealed prefixes, stratified by experiment, row and contestant. No outcomes used; family mix may still change.",
+  "groups": [
+    {
+      "experiment": "primary",
+      "row": "rubric",
+      "side": "audit",
+      "done": 289,
+      "planned": 384,
+      "measured": 0.4693510999999999,
+      "projected": 0.62363606366782
+    },
+    {
+      "experiment": "primary",
+      "row": "rubric",
+      "side": "peer",
+      "done": 289,
+      "planned": 384,
+      "measured": 0.3057584999999998,
+      "projected": 0.4062673494809686
+    },
+    {
+      "experiment": "primary",
+      "row": "factuality",
+      "side": "audit",
+      "done": 289,
+      "planned": 384,
+      "measured": 0.3406445999999998,
+      "projected": 0.45262119861591665
+    },
+    {
+      "experiment": "primary",
+      "row": "factuality",
+      "side": "peer",
+      "done": 289,
+      "planned": 384,
+      "measured": 0.34100670000000016,
+      "projected": 0.45310232802768186
+    },
+    {
+      "experiment": "primary",
+      "row": "pii",
+      "side": "audit",
+      "done": 289,
+      "planned": 384,
+      "measured": 0.3736185,
+      "projected": 0.49643426989619377
+    },
+    {
+      "experiment": "primary",
+      "row": "pii",
+      "side": "peer",
+      "done": 289,
+      "planned": 384,
+      "measured": 0.27301410000000004,
+      "projected": 0.36275921937716266
+    },
+    {
+      "experiment": "primary",
+      "row": "goal",
+      "side": "audit",
+      "done": 288,
+      "planned": 384,
+      "measured": 0.5195025999999999,
+      "projected": 0.6926701333333333
+    },
+    {
+      "experiment": "primary",
+      "row": "goal",
+      "side": "peer",
+      "done": 178,
+      "planned": 208,
+      "measured": 0.27975320000000004,
+      "projected": 0.32690261573033713
+    },
+    {
+      "experiment": "primary",
+      "row": "goal",
+      "side": "peer-full-state",
+      "done": 289,
+      "planned": 384,
+      "measured": 0.33798279999999975,
+      "projected": 0.44908441245674713
+    },
+    {
+      "experiment": "dialect",
+      "row": "rubric",
+      "side": "audit",
+      "done": 384,
+      "planned": 384,
+      "measured": 0.5000707999999997,
+      "projected": 0.5000707999999997
+    },
+    {
+      "experiment": "dialect",
+      "row": "rubric",
+      "side": "peer",
+      "done": 384,
+      "planned": 384,
+      "measured": 0.3893002,
+      "projected": 0.3893002
+    },
+    {
+      "experiment": "dialect",
+      "row": "factuality",
+      "side": "audit",
+      "done": 384,
+      "planned": 384,
+      "measured": 0.39337920000000054,
+      "projected": 0.3933792000000005
+    },
+    {
+      "experiment": "dialect",
+      "row": "factuality",
+      "side": "peer",
+      "done": 384,
+      "planned": 384,
+      "measured": 0.4398643,
+      "projected": 0.4398643
+    },
+    {
+      "experiment": "dialect",
+      "row": "pii",
+      "side": "audit",
+      "done": 384,
+      "planned": 384,
+      "measured": 0.43678460000000013,
+      "projected": 0.43678460000000013
+    },
+    {
+      "experiment": "dialect",
+      "row": "pii",
+      "side": "peer",
+      "done": 384,
+      "planned": 384,
+      "measured": 0.3697846000000004,
+      "projected": 0.3697846000000004
+    },
+    {
+      "experiment": "dialect",
+      "row": "goal",
+      "side": "audit",
+      "done": 64,
+      "planned": 384,
+      "measured": 0.11490109999999999,
+      "projected": 0.6894066
+    },
+    {
+      "experiment": "dialect",
+      "row": "goal",
+      "side": "peer",
+      "done": 55,
+      "planned": 208,
+      "measured": 0.09490839999999999,
+      "projected": 0.35892631272727266
+    },
+    {
+      "experiment": "dialect",
+      "row": "goal",
+      "side": "peer-full-state",
+      "done": 63,
+      "planned": 384,
+      "measured": 0.07906650000000003,
+      "projected": 0.48192914285714294
+    }
+  ]
+}
