@@ -40,10 +40,6 @@ const UNDECLARED_ALLOWLIST = {
 
 // Workspace packages a manifest declares that src never imports. Key: "<package> -> <package>".
 const UNUSED_ALLOWLIST = {
-  'generate -> checks': 'listed in the manifest, not imported from src',
-  'generate -> sandbox': 'listed in the manifest, not imported from src',
-  'generate -> store': 'listed in the manifest, not imported from src',
-  'report -> store': 'listed in the manifest, not imported from src',
   'validators -> artifacts': 'listed in the manifest, not imported from src',
 };
 

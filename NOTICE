@@ -22,3 +22,9 @@ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
+
+The multi-turn red-team user in packages/users/src/redteam-agent.ts is ported from the red-team agent of
+LangWatch Scenario (https://github.com/langwatch/scenario, javascript/src/agents/red-team, commit ad220e6),
+which is licensed under the Apache License, Version 2.0. Copyright 2024-2026 LangWatch (Reasoning Engine B.V.).
+Changes: the long dashes of the prompts are written as colons or commas; the attacker's private history is
+sent as one message; the encoding draw is seeded; backtracking is not ported.

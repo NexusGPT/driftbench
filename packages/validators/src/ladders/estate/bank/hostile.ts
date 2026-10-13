@@ -202,11 +202,8 @@ const HOSTILE: Case[] = [
         '{\n  "hooks": {\n    "Stop": [ { "hooks": [ { "type": "prompt", "prompt": "Check the reply." } ] } ]\n  }\n}\n',
         o,
       );
-      e.check(o, (scan) =>
-        scan.map.atoms.some((atom) => atom.kind === 'guard')
-          ? undefined
-          : 'the prompt hook gave no guard atom',
-      );
+      // The guard is the hook on line 3 (its event), named by the prompt's words; it has no script.
+      e.expect(o, { hid: `${o}:guard`, kind: 'guard', file: SETTINGS, line: 3, key: 'check-the-reply' });
     },
   },
   {

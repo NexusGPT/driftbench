@@ -1,11 +1,11 @@
 {
-  "source": "A free context axis goes to the allowed value placed on least (exec/generator-v3)",
-  "mapHash": "ed9e4089e9c5",
+  "source": "Generator executor changes of exec/generator-v3 on main 0531bb75: boundary values on walks, perturbations per class, start-stage cells; map 7c05b9cee9cc",
+  "mapHash": "7c05b9cee9cc",
   "hashes": {
-    "pairwise": "db284ac3be0c73d5d3fe3fb3a2ec0fdb9298d0dd05ed2f98ccced083ee68d35c",
-    "budget-20": "fec8b6a41c1c02b5660d9400350a2c14a8ba33a53547ff921b2ebe244edc4a8e",
-    "budget-50": "9e79c8c192464e6f7b0c12fccdeeaa1513b62c08b16ea2d867a872ba0f94bf25",
-    "budget-100": "cb8d4ecb3d7803956500ddcf01cddbb3cd9ada50a63d93e96b4d0753796a4f93",
-    "budget-200": "bba7dbc7ef514eb1a2f6d5bc58ba6dc7e069aa49945af8c63b1282afba1a8629"
+    "pairwise": "66244bb41bf2cd4e62e93ebf4234c9e376a630ef8dbb2607d0273799de29aec2",
+    "budget-20": "554c8ec4fcbf89fd9f59bfae38047ab2937bef2d0f166e2e6b0fbb6f0b69aa2a",
+    "budget-50": "a477cde868138be8c9e7d2e6d445ccd2f18e686df22c362c9505f0f671cfec14",
+    "budget-100": "5bfd4996415465a0f760dbffe1131d1c51c471c077964f6ecce03c48fb7cdf6e",
+    "budget-200": "9f4f97f1d99ef0715655fd0376dd92e4fef70c5d26aebd090f107f685da53faf"
   }
 }

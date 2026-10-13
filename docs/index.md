@@ -13,7 +13,7 @@ Every page says what exists today and what is not built yet, with the phase that
 * [Run modes](concepts/run-modes.md): teacher-forced, free-running and perturbed runs of the same spec.
 * [Blast radius](concepts/blast-radius.md): which blocks a change to the agent can affect, so a fix reruns its radius and not the whole suite.
 * [Drift](concepts/drift.md): the five drift classes, and the metrics across a succession of blocks.
-* [Recovery](concepts/recovery.md): the ten deviation classes, and how fast the agent comes back.
+* [Recovery](concepts/recovery.md): the twelve deviation classes, and how fast the agent comes back.
 * [Script](concepts/script.md): writing a conversation spec in code, with the steps `user`, `agent`, `judge` and `injection`, and the steps that have no spec form.
 * [Judges](concepts/judges.md): judged criteria, the judge council and calibration.
 * [Statistics](concepts/statistics.md): repeats, intervals, paired tests and the parity verdict.
@@ -25,6 +25,7 @@ Every page says what exists today and what is not built yet, with the phase that
 * [Simulated user](simulated-user.md): a persona played through the model port or a recording, `driftbench simulate` and `campaign run --driver simulated`.
 * [Red-team plugins](redteam-plugins.md): 40 attack plugins, each with a generation template and a grader rubric.
 * [Adaptive attacker](attack.md): red-team attacks picked from the agent's last replies, scored by the recovery record, `driftbench attack`.
+* [Multi-turn red-team user](redteam-agent.md): an attacker with one objective over many turns, Crescendo or GOAT, scored each turn, stopping when the agent gives in.
 * [Generating tests](generating.md): the map of situations and its relations, `extract` and its approval, `generate`, the validity gate and its funnel, task families, the variance pilot and intake.
 * [Testing an estate](estate.md): how driftbench tests a code-interpreter agent as a whole estate (instructions, skills, subagents, guards, tools, settings): atoms, the estate graph, the plan, generated tests, replay over recorded sessions, maintenance.
 * [Datasets and prompts](datasets.md): `import` specs from a CSV file or a spreadsheet through a mapping, and the registry of immutable dataset and prompt versions (`dataset`, `prompt`) that a campaign records.
@@ -34,6 +35,7 @@ Every page says what exists today and what is not built yet, with the phase that
 * [Production traces](traces.md): `driftbench import traces` drafts specs from OpenTelemetry, Nexus or Claude Code traces; `driftbench monitor --source traces` watches production for drift in time windows, with the measured delay and false alarms.
 * [Releasing](releasing.md): the 0.1.0 packages, the release check and the tag-only release workflow.
 * [Validators](validators.md): code that proves driftbench works: six ladders (map, generator, judges, system, estate, statistics) and the executor loop that drives each to 100 percent.
+* [Benchmark floors](benchmarks.md): the shipped default judge on immutable fictional slices, recorded responses, free replay, and regression floors in CI.
 
 ## Reference
 
@@ -103,7 +105,7 @@ Each row names a command that shows the phase working on the bundled examples, w
 | 0, foundations | spec format, loader, `spec validate`, `spec lint`, `spec coverage`, leak guard, CI, synthetic example agent, docs | built | `pnpm driftbench spec validate examples/acme/specs` |
 | 1, runner | runner in free-running mode with a scripted user; machine checks for text, language, personal data, tools, skills, guards, cards, end state, budget, execution, artifacts, workspace and safety; store, cache and resume; cost and latency per segment; sandbox workspace; artifact readers; function, http, nexus and process adapters | built | `pnpm driftbench campaign run examples/acme/specs --store <db>` |
 | 2, judges | judge clients, the council and its cascade, calibration on fixture pairs and hand labels, judges for task artifacts | built | `pnpm driftbench judge calibrate --criteria examples/acme/criteria --labels examples/acme/labels --cassette examples/acme/criteria/calibration/cassette.json --out <file>` |
-| 3, perturbation, drift and recovery | simulated user, perturbing driver with the ten deviation classes, stage classifier and ledger check, drift classes, recovery metrics, teacher-forced mode; the same deviations on code-agent tasks | built | `pnpm driftbench perturb examples/acme/specs/conversations/plan-upgrade.yaml --class D2_goal_shift --at 2` |
+| 3, perturbation, drift and recovery | simulated user, perturbing driver with the twelve deviation classes, stage classifier and ledger check, drift classes, recovery metrics, teacher-forced mode; the same deviations on code-agent tasks | built | `pnpm driftbench perturb examples/acme/specs/conversations/plan-upgrade.yaml --class D2_goal_shift --at 2` |
 | 4, statistics and gates | statistics functions with reference fixtures, the parity verdict, scorecard, run diff, JUnit output, CI gate, drift monitor, viewer, runtime battery | built but the runtime battery, which is not built | `pnpm driftbench ci --specs examples/acme/specs/conversations --target fault:x3-skips-recap --faults examples/acme/faults --baseline <campaign> --store <db> --margin 50` |
 | G, the space of situations | the map of situations, its coverage and completeness, the map extractor, generation, the gate, task families, the variance pilot, intake, selection and the holdout | built | `pnpm driftbench select --cover examples/acme/map/space.yaml --specs examples/acme/gated --out <dir> --k 10` |
 | E, estates | estate scan, lint, approval and map; the plan; test generation; replay; maintenance; the live runner and estate mutants | built; the unit runner is not built | `pnpm driftbench estate mutate examples/estates/fixture/approved.yaml --atom gate.standing.read-a-file-before-editing-it --delete --to <dir>` |

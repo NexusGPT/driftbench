@@ -10,9 +10,11 @@ import {
 } from '@agent-nexus/driftbench-estate';
 import type { Item, Measure } from '../../ladder';
 import { componentOfKind, componentOfMarker, ESTATE_COMPONENTS } from './components';
+import { follow } from './follower';
 import type { HiddenEstate } from './hidden';
 import { estateMutants } from './mutants';
 import {
+  asksOf,
   atomKey,
   type EstateRun,
   type GeneratedSpec,
@@ -467,19 +469,73 @@ export type MutantVerdict = {
   kind: string;
   tests: string[];
   killed: boolean;
+  /**
+   * The follower records the same session with and without the atom, on every ask and ordered pair of asks of
+   * its situations and on the asks of the tests that name the atom: no test of any product can tell the two apart. Not counted alive.
+   */
+  equivalent?: true;
   /** Why it lived: no complete test, or the tests that ran and passed. */
   reason?: string;
 };
+
+/**
+ * Whether deleting the atom leaves the rule follower's session unchanged on each list of asks: a rule the hidden
+ * estate gives the behaviour `none`, or an act another atom still asks for. Such a mutant is the follower.
+ */
+export function equivalentMutant(
+  run: EstateRun,
+  hid: string,
+  asks: readonly (readonly string[])[],
+  base: Map<string, string> = new Map(),
+): boolean {
+  const session = (list: readonly string[], mutant?: string) =>
+    JSON.stringify(follow(run.estate, run.situations, list, mutant ? { mutant } : {}));
+  return asks.every((list) => {
+    const key = JSON.stringify(list);
+    let whole = base.get(key);
+    if (whole === undefined) {
+      whole = session(list);
+      base.set(key, whole);
+    }
+    return whole === session(list, hid);
+  });
+}
 
 /** Level 5's mutants: each agent-kind atom deleted from the follower, run on its complete green tests. */
 export async function agentMutants(run: EstateRun): Promise<MutantVerdict[]> {
   const all = await specVerdicts(run);
   const checks = replayChecks();
   const out: MutantVerdict[] = [];
+  // What the follower can be asked: each ask of its situations alone, and each ordered pair of them (a skill
+  // loaded by one ask changes what a guard does on the next). An ask outside its situations gets no act.
+  const phrases = run.situations.flatMap((situation) => situation.phrases);
+  const situationAsks = [
+    ...phrases.map((phrase) => [phrase]),
+    ...phrases.flatMap((first) => phrases.map((second) => [first, second])),
+  ];
+  const base = new Map<string, string>();
   for (const atom of run.scanned.map.atoms.filter((candidate) => AGENT_KINDS.includes(candidate.kind))) {
     const hid = run.scanned.match.hidOf.get(atom.id);
     const named = all.filter((verdict) => (estateMeta(verdict.spec).atoms ?? []).includes(atom.id));
     const green = named.filter((verdict) => verdict.follower?.pass === true);
+    if (hid !== undefined) {
+      const asks = [
+        ...situationAsks,
+        ...named.flatMap((verdict) => (verdict.spec.loaded ? [asksOf(verdict.spec.loaded)] : [])),
+      ];
+      if (equivalentMutant(run, hid, asks, base)) {
+        out.push({
+          atom: atom.id,
+          kind: atom.kind,
+          tests: named.map((verdict) => verdict.spec.record.id),
+          killed: false,
+          equivalent: true,
+          reason:
+            'the rule follower records the same session with and without the atom, on every ask and pair of asks of its situations and on the asks of its tests: no test can tell the two apart',
+        });
+        continue;
+      }
+    }
     if (hid === undefined || green.length === 0) {
       const markers = [
         ...new Set(
@@ -525,7 +581,8 @@ export async function agentMutants(run: EstateRun): Promise<MutantVerdict[]> {
 
 /** Level 5: every atom deleted from the agent fails one of its tests; the lowest kind score is the value. */
 export async function agentMutantLevel(run: EstateRun): Promise<Measure> {
-  const mutants = await agentMutants(run);
+  // An equivalent mutant is the follower itself: it is neither killed nor alive.
+  const mutants = (await agentMutants(run)).filter((mutant) => !mutant.equivalent);
   const items: Item[] = [];
   let lowest = 1;
   const kinds = [...new Set(mutants.map((mutant) => mutant.kind))];

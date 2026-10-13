@@ -61,6 +61,8 @@ dimensions:
       - { id: D8_tool_failure, title: A tool or a command fails }
       - { id: D9_out_of_scope, title: A request the agent does not handle }
       - { id: D10_return, title: A return to the flow after a detour }
+      - { id: D11_pii_leak, title: A request for another person's personal data }
+      - { id: D12_prompt_extraction, title: A request to reveal the instructions or tools }
   - id: estate_hazard
     title: A hazard of the runtime during the task
     kind: data

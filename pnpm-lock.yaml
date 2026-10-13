@@ -14,6 +14,9 @@ importers:
       '@types/node':
         specifier: ^26.6.5
         version: 26.6.5
+      commander:
+        specifier: ^15.0.0
+        version: 15.0.0
       exceljs:
         specifier: ^4.4.0
         version: 4.4.0
@@ -68,18 +71,19 @@ importers:
       '@agent-nexus/driftbench-core':
         specifier: workspace:*
         version: link:../core
-      exceljs:
-        specifier: ^4.4.0
-        version: 4.4.0
       jszip:
         specifier: ^3.10.2
         version: 3.10.2
-      mammoth:
-        specifier: ^1.13.0
-        version: 1.13.0
       pdf-parse:
         specifier: ^2.4.5
         version: 2.4.5
+    optionalDependencies:
+      exceljs:
+        specifier: ^4.4.0
+        version: 4.4.0
+      mammoth:
+        specifier: ^1.13.0
+        version: 1.13.0
 
   packages/battery: {}
 
@@ -187,24 +191,15 @@ importers:
       '@agent-nexus/driftbench-artifacts':
         specifier: workspace:*
         version: link:../artifacts
-      '@agent-nexus/driftbench-checks':
-        specifier: workspace:*
-        version: link:../checks
       '@agent-nexus/driftbench-core':
         specifier: workspace:*
         version: link:../core
-      '@agent-nexus/driftbench-sandbox':
-        specifier: workspace:*
-        version: link:../sandbox
       '@agent-nexus/driftbench-space':
         specifier: workspace:*
         version: link:../space
       '@agent-nexus/driftbench-stats':
         specifier: workspace:*
         version: link:../stats
-      '@agent-nexus/driftbench-store':
-        specifier: workspace:*
-        version: link:../store
       '@agent-nexus/driftbench-users':
         specifier: workspace:*
         version: link:../users
@@ -217,6 +212,16 @@ importers:
       zod:
         specifier: ^4.6.5
         version: 4.6.5
+    devDependencies:
+      '@agent-nexus/driftbench-checks':
+        specifier: workspace:*
+        version: link:../checks
+      '@agent-nexus/driftbench-sandbox':
+        specifier: workspace:*
+        version: link:../sandbox
+      '@agent-nexus/driftbench-store':
+        specifier: workspace:*
+        version: link:../store
 
   packages/judges:
     dependencies:
@@ -247,12 +252,13 @@ importers:
       '@agent-nexus/driftbench-stats':
         specifier: workspace:*
         version: link:../stats
-      '@agent-nexus/driftbench-store':
-        specifier: workspace:*
-        version: link:../store
       zod:
         specifier: ^4.6.5
         version: 4.6.5
+    devDependencies:
+      '@agent-nexus/driftbench-store':
+        specifier: workspace:*
+        version: link:../store
 
   packages/sandbox:
     dependencies:
@@ -4280,7 +4286,8 @@ snapshots:
 
   '@workflow/serde@4.1.0': {}
 
-  '@xmldom/xmldom@0.8.15': {}
+  '@xmldom/xmldom@0.8.15':
+    optional: true
 
   acorn@8.19.0: {}
 
@@ -4351,6 +4358,7 @@ snapshots:
   argparse@1.0.10:
     dependencies:
       sprintf-js: 1.0.3
+    optional: true
 
   array-buffer-byte-length@1.0.2:
     dependencies:
@@ -4549,11 +4557,13 @@ snapshots:
     dependencies:
       dequal: 2.0.3
 
-  dingbat-to-unicode@1.0.2: {}
+  dingbat-to-unicode@1.0.2:
+    optional: true
 
   duck@0.1.12:
     dependencies:
       underscore: 1.13.8
+    optional: true
 
   dunder-proto@1.0.1:
     dependencies:
@@ -5243,6 +5253,7 @@ snapshots:
       duck: 0.1.12
       option: 0.2.4
       underscore: 1.13.8
+    optional: true
 
   magic-string@0.30.21:
     dependencies:
@@ -5262,6 +5273,7 @@ snapshots:
       lop: 0.4.2
       underscore: 1.13.8
       xmlbuilder: 10.1.1
+    optional: true
 
   mark.js@8.11.1: {}
 
@@ -5378,7 +5390,8 @@ snapshots:
       ws: 8.22.0
       zod: 4.6.5
 
-  option@0.2.4: {}
+  option@0.2.4:
+    optional: true
 
   own-keys@1.0.2:
     dependencies:
@@ -5712,7 +5725,8 @@ snapshots:
 
   speakingurl@14.0.1: {}
 
-  sprintf-js@1.0.3: {}
+  sprintf-js@1.0.3:
+    optional: true
 
   standardwebhooks@1.1.1:
     dependencies:
@@ -5917,7 +5931,8 @@ snapshots:
       has-symbols: 1.1.0
       which-boxed-primitive: 1.1.1
 
-  underscore@1.13.8: {}
+  underscore@1.13.8:
+    optional: true
 
   undici-types@8.9.0: {}
 
@@ -6167,7 +6182,8 @@ snapshots:
 
   ws@8.22.0: {}
 
-  xmlbuilder@10.1.1: {}
+  xmlbuilder@10.1.1:
+    optional: true
 
   xmlchars@2.2.0: {}
 
