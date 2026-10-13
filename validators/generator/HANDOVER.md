@@ -129,7 +129,7 @@ The owner authorizes the `follower.compose` repair. A report mutation returning 
 
 ## Replay-stage boundary repair
 
-Pre-turn Claude Code step-feed entries remain in the first block for legacy `stage.reached` behavior, with optional `carried: true` provenance. The new `stage.reported` check excludes carried entries. Reports at the user-turn timestamp count in that block only. The T/F/P replay regression fails before the production fix and passes afterward; omitted and false reporting flags retain the prior result. Evidence: `.exec/replay-stage-red-confirmed.log` and `.exec/replay-stage-green.log`, with 130 targeted tests passing across 12 files.
+Pre-turn Claude Code step-feed entries remain in the first block for legacy `stage.reached` behavior, with optional `carried: true` provenance. The new `stage.reported` check excludes carried entries. Reports at the user-turn timestamp count in that block only. The T/F/P replay regression fails before the production fix and passes afterward; omitted and false reporting flags retain the prior result. Evidence: `.exec/replay-stage-red-confirmed.log` and `.exec/replay-stage-green.log`, with 130 targeted tests passing across 12 files. Replay adapter version `0.1.1` invalidates pre-fix cache entries for library callers. The T/F/P cache regression fails before the version bump and passes after it; the 27-test recheck confirms the new cached failure stays a failure. Evidence: `.exec/replay-cache-version-red.log` and `.exec/replay-cache-version-green.log`.
 
 ## Spec cap: historical PR 155 evidence
 
