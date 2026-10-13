@@ -1406,10 +1406,10 @@ The review queue of blocks to label, kept beside the labels as `queue.json`. `cr
 ## `driftbench view`
 
 ```
-driftbench view [--store <file>] [--port <n>] [--labels <dir>] [--labelled-by <name>]
+driftbench view [--store <file>] [--port <n>] [--labels <dir>] [--labelled-by <name>] [--config <file>]
 ```
 
-Serves a store on `127.0.0.1` as a local website: the campaigns, each campaign's scorecard with its spread view, one page per run with every block in full, and the comparison of two campaigns. Under every block a form saves a pass or fail label per criterion, with a note, to the labels folder `judge calibrate --labels` reads. `--store` defaults to `driftbench.db`, `--port` to `4317` (`0` picks a free one), `--labels` to `labels`. It runs until Ctrl+C. Exit 0 after a stop; 2 when the store is missing, the port is not a number, or the port cannot be opened. See [viewer](../viewer.md).
+Serves a store on `127.0.0.1` as a local website: the campaigns, each campaign's scorecard with its spread view, one page per run with every block in full, and the comparison of two campaigns. Under every block a form saves a pass or fail label per criterion, with a note, to the labels folder `judge calibrate --labels` reads. `--store` defaults to `driftbench.db`, `--port` to `4317` (`0` picks a free one), `--labels` to `labels`. `--config` names the config whose `scales:` bound each criterion's queue score; it defaults to `driftbench.yaml` when that file exists, and a config that does not parse exits 2. It runs until Ctrl+C. Exit 0 after a stop; 2 when the store is missing, the port is not a number, or the port cannot be opened. See [viewer](../viewer.md).
 
 ## `driftbench import`
 

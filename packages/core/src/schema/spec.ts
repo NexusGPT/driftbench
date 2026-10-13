@@ -551,9 +551,19 @@ export const Spec = z
           .enum(['success', 'failure'])
           .describe('success when the script ends the conversation well, failure when it ends it badly.'),
         reason: z.string().min(1).optional().describe('Why the script ends here.'),
+        atBlock: z
+          .number()
+          .int()
+          .min(-1)
+          .optional()
+          .describe(
+            'The index of the last block that runs, -1 for none. The blocks after it are skipped by the verdict. Absent means the last block.',
+          ),
       })
       .optional()
-      .describe('An end verdict, given after the last block: the run stops there with this verdict.'),
+      .describe(
+        'An end verdict: the run stops after block atBlock (the last block when absent) with this verdict.',
+      ),
     rules: Rules.optional().describe('Rules for the whole conversation.'),
     end_state: EndState.optional().describe('The expected end state of the world after the run.'),
     perturbations: z.array(PerturbationSpec).optional().describe('Deviations to inject in perturbed mode.'),
