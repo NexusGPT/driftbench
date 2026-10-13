@@ -1,6 +1,7 @@
 import { INFORMATION, LINT_CODES } from '@agent-nexus/driftbench-estate';
 import { mde as powerMde } from '@agent-nexus/driftbench-stats';
 import { gateContract, goldenContract, pilotContract } from '../current-contracts';
+import { docBlock } from '../doc-blocks';
 import { DOCUMENTED_CHECKS } from '../documented';
 /**
  * Blind-breaker claims: executable claims taken from the documentation pages and the command-line help
@@ -2611,7 +2612,7 @@ function campaignItems(): BankItem[] {
       tier: 3,
       component: 'driftbench campaign plan',
       title:
-        'running.md "driftbench campaign plan": T, F and P modes give one P cell per perturbation and repeat; plan-upgrade with 2 repeats is "8 cells, 44 blocks"',
+        'running.md "driftbench campaign plan": T, F and P modes give one P cell per perturbation and repeat; plan-upgrade with 2 repeats prints the cells and blocks running.md prints, and r repeats r times their half',
       cause:
         'driftbench campaign plan prints "Plan: N specs, M targets, modes T, F, P, R repeats: C cells, B blocks." with one P cell per perturbation and repeat',
       async check(ctx) {
@@ -2631,8 +2632,36 @@ function campaignItems(): BankItem[] {
           ],
           dir,
         );
-        const cells = 4 * r;
-        const blocks = 22 * r;
+        // The counts running.md prints for 2 repeats, read from the page: a cell count and a block count per
+        // repeat, so the plan at r repeats is r times those.
+        const block = docBlock(
+          ctx.root,
+          'docs/running.md',
+          'pnpm -s driftbench campaign plan examples/acme/specs/conversations/plan-upgrade.yaml --target function:acme --mode T,F,P --repeats 2',
+        );
+        if (typeof block === 'string') return fail(block);
+        const documented = block.find((line) => line.startsWith('Plan: '));
+        const counts = documented && /: (\d+) cells, (\d+) blocks\.$/.exec(documented);
+        if (!counts)
+          return fail('running.md prints no Plan line for plan-upgrade in modes T, F, P with 2 repeats');
+        const two = await cli(
+          [
+            'campaign',
+            'plan',
+            planUpgrade(ctx.root),
+            '--target',
+            'function:acme',
+            '--mode',
+            'T,F,P',
+            '--repeats',
+            '2',
+          ],
+          dir,
+        );
+        if (!two.out.split('\n').includes(documented))
+          return fail(`running.md prints "${documented}"; campaign plan with 2 repeats gives ${shown(two)}`);
+        const cells = (Number(counts[1]) / 2) * r;
+        const blocks = (Number(counts[2]) / 2) * r;
         const want = `Plan: 1 spec, 1 target, modes T, F, P, ${r} repeat${r === 1 ? '' : 's'}: ${cells} cells, ${blocks} blocks.`;
         return c.code === 0 && c.out.includes(want) ? PASS : fail(`expected "${want}"; got ${shown(c)}`);
       },
@@ -3126,7 +3155,7 @@ function campaignItems(): BankItem[] {
       tier: 3,
       component: 'driftbench campaign run',
       title:
-        'running.md "campaign plan": with several modes the cells come in the order T, F, P, and each P cell names its perturbation',
+        'running.md "campaign plan": with several modes the cells come in the order running.md prints, T, F, then each P cell named by its perturbation',
       cause:
         'driftbench campaign plan lists the T cells, then the F cells, then one P cell per perturbation, naming it',
       async check(ctx) {
@@ -3145,13 +3174,26 @@ function campaignItems(): BankItem[] {
           dir,
         );
         const j = tryJson(c.out) as { cells?: { mode: string; perturbationId?: string }[] } | undefined;
-        const modes = (j?.cells ?? []).map((x) => x.mode).join('');
-        const pOk = (j?.cells ?? [])
-          .filter((x) => x.mode === 'P')
-          .every((x) => typeof x.perturbationId === 'string' && x.perturbationId.length > 0);
-        return modes === 'TFPP' && pOk
+        // The order running.md prints for repeat 0: mode and perturbation of each row.
+        const block = docBlock(
+          ctx.root,
+          'docs/running.md',
+          'pnpm -s driftbench campaign plan examples/acme/specs/conversations/plan-upgrade.yaml --target function:acme --mode T,F,P --repeats 2',
+        );
+        if (typeof block === 'string') return fail(block);
+        const documented = block
+          .map((line) => line.trim().split(/\s+/))
+          .filter((cells) => cells[1] === 'acme-plan-upgrade' && cells[4] === '0')
+          .map((cells) => (cells[3] === 'P' ? `P ${cells[5]}` : (cells[3] as string)))
+          .join(', ');
+        if (documented === '')
+          return fail('running.md prints no repeat 0 row for plan-upgrade in modes T, F, P');
+        const got = (j?.cells ?? [])
+          .map((x) => (x.mode === 'P' ? `P ${x.perturbationId ?? '(none)'}` : x.mode))
+          .join(', ');
+        return got === documented
           ? PASS
-          : fail(`expected modes in the order T F P P, each P with a perturbation; got "${modes}"`);
+          : fail(`running.md prints the order ${documented}; campaign plan with --mode P,F,T gives ${got}`);
       },
     }),
     cl({
@@ -4897,7 +4939,7 @@ function toolItems(): BankItem[] {
       tier: 4,
       component: 'driftbench family',
       title:
-        'generating.md "Task families": the expected outcome of every instance comes from code and the same seed gives the same instances; instances reports "Family acme-price-sheet: 3 instances, seed 1, 12 specs."',
+        'generating.md "Task families": the expected outcome of every instance comes from code and the same seed gives the same instances; instances reports "Family acme-price-sheet: 3 instances, seed 1, 13 specs."',
       cause:
         'driftbench family instances writes the same instance files for the same family, count and seed, and prints the documented header',
       async check(ctx) {
@@ -4915,7 +4957,7 @@ function toolItems(): BankItem[] {
           fa.every((f) => text(join(dir, 'a', f)) === text(join(dir, 'b', f)));
         return expectAll([
           [
-            a.code === 0 && a.out.includes('Family acme-price-sheet: 3 instances, seed 1, 12 specs.'),
+            a.code === 0 && a.out.includes('Family acme-price-sheet: 3 instances, seed 1, 13 specs.'),
             `expected the header; got ${shown(a)}`,
           ],
           [same, 'two runs with the same seed should write the same spec files'],

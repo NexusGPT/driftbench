@@ -1,5 +1,5 @@
 import { readdir, readFile, stat } from 'node:fs/promises';
-import { extname, join } from 'node:path';
+import { dirname, extname, join, resolve } from 'node:path';
 import { parse as parseYaml } from 'yaml';
 import type { z } from 'zod';
 import { Spec } from '../schema/spec';
@@ -69,7 +69,24 @@ export async function loadSpecFile(path: string): Promise<LoadResult> {
       warnings: [],
     };
   }
-  return parseSpecText(text, extname(path).toLowerCase() === '.json' ? 'json' : 'yaml', path);
+  return anchorWorkspace(
+    parseSpecText(text, extname(path).toLowerCase() === '.json' ? 'json' : 'yaml', path),
+  );
+}
+
+/**
+ * A workspace folder written `./<path>` is read from the folder of the spec file, so a spec and the seed folder
+ * beside it move together. Any other relative path is left as written: it is read from the folder the run starts
+ * in. The hash is the one of the spec as resolved, as the store checks it.
+ */
+function anchorWorkspace(result: LoadResult): LoadResult {
+  if (!result.ok) return result;
+  const workspace = result.spec.given?.world?.workspace;
+  if (workspace?.from === undefined || !workspace.from.startsWith('./')) return result;
+  const from = resolve(dirname(result.path), workspace.from);
+  const world = { ...result.spec.given?.world, workspace: { ...workspace, from } };
+  const spec = { ...result.spec, given: { ...result.spec.given, world } } as Spec;
+  return { ...result, spec, hash: contentHash(spec) };
 }
 
 /** Expands files and folders into spec files: `*.yaml`, `*.yml` and `*.spec.json`, sorted. */

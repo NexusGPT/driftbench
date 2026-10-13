@@ -6,6 +6,7 @@ import {
   contentHash,
   findSpecFiles,
   type LoadResult,
+  loadSpecFile,
   loadSpecs,
   parseCriterionRef,
   parseSpecText,
@@ -348,5 +349,49 @@ describe('files and folders', () => {
   it('reports a missing file as an invalid spec, not a crash', async () => {
     const [result] = await loadSpecs(['/definitely/not/here.yaml']);
     expect(result && codes(result)).toEqual(['SPEC_PARSE']);
+  });
+});
+
+describe('a relative workspace folder', () => {
+  const SPEC = [
+    'id: seeded-task',
+    'version: "1"',
+    'kind: task',
+    'title: A task that starts from a folder beside it',
+    'tier: handwritten',
+    'target: { adapter: process, agent: ops }',
+    'workspace_seed: { from: ./.seed-seeded-task }',
+    'blocks:',
+    '  - id: b',
+    '    user: Do the task.',
+    '    expect: { execution: { ran_code: true } }',
+    '',
+  ].join('\n');
+
+  it('is read from the folder of the spec file when written ./<path>, wherever the file sits', async () => {
+    for (const name of ['one', 'two']) {
+      const dir = join(await mkdtemp(join(tmpdir(), 'driftbench-seed-')), name);
+      await mkdir(dir);
+      await writeFile(join(dir, 'task.yaml'), SPEC);
+      const loaded = await loadSpecFile(join(dir, 'task.yaml'));
+      if (!loaded.ok) throw new Error(JSON.stringify(loaded.errors));
+      expect(loaded.spec.given?.world?.workspace?.from).toBe(join(dir, '.seed-seeded-task'));
+      // The hash is the one of the spec as resolved, which the store checks.
+      expect(loaded.hash).toBe(contentHash(loaded.spec));
+    }
+  });
+
+  it('leaves any other relative path as written: it is read from the folder the run starts in', async () => {
+    const dir = await mkdtemp(join(tmpdir(), 'driftbench-seed-'));
+    await writeFile(join(dir, 'task.yaml'), SPEC.replace('./.seed-seeded-task', 'examples/seeds/task'));
+    const loaded = await loadSpecFile(join(dir, 'task.yaml'));
+    if (!loaded.ok) throw new Error(JSON.stringify(loaded.errors));
+    expect(loaded.spec.given?.world?.workspace?.from).toBe('examples/seeds/task');
+  });
+
+  it('stays as written when the text is parsed with no file', () => {
+    const parsed = parseSpecText(SPEC, 'yaml');
+    if (!parsed.ok) throw new Error('invalid');
+    expect(parsed.spec.given?.world?.workspace?.from).toBe('./.seed-seeded-task');
   });
 });

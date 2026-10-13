@@ -37,8 +37,8 @@ Plan: 6 specs, 1 target, mode F, 2 repeats: 12 cells, 52 blocks.
   3969e3c2e0988fb1  acme-off-topic-return          function:acme  F     1       5
   479eb10c52e2f431  acme-order-loose-confirmation  function:acme  F     0       4
   58bb8357be2ee702  acme-order-loose-confirmation  function:acme  F     1       4
-  58ec431a6e09bf0b  acme-plan-upgrade              function:acme  F     0       5
-  6119d5416ceb4b84  acme-plan-upgrade              function:acme  F     1       5
+  cc92cc9eb562f586  acme-plan-upgrade              function:acme  F     0       5
+  2b7a03560cb7a80e  acme-plan-upgrade              function:acme  F     1       5
   d44b9dfe9d1cf87a  acme-tool-failure              function:acme  F     0       3
   0e486429b58c635e  acme-tool-failure              function:acme  F     1       3
 Projected cost: $0.00 (function: no unit measured).
@@ -49,20 +49,22 @@ With several modes, the cells come in the order T, F, P, and each P cell names i
 
 ```
 $ pnpm -s driftbench campaign plan examples/acme/specs/conversations/plan-upgrade.yaml --target function:acme --mode T,F,P --repeats 2
-Plan: 1 spec, 1 target, modes T, F, P, 2 repeats: 8 cells, 44 blocks.
-  cell              spec               target         mode  repeat  perturbation   blocks
-  c7d40a5cc807648d  acme-plan-upgrade  function:acme  T     0                      5
-  f67a2c0e90ea10d7  acme-plan-upgrade  function:acme  T     1                      5
-  58ec431a6e09bf0b  acme-plan-upgrade  function:acme  F     0                      5
-  6119d5416ceb4b84  acme-plan-upgrade  function:acme  F     1                      5
-  0f40ae96a7124046  acme-plan-upgrade  function:acme  P     0       billing-aside  6
-  7bf7725c3215d9f2  acme-plan-upgrade  function:acme  P     1       billing-aside  6
-  468e63cbd5cafa61  acme-plan-upgrade  function:acme  P     0       loose-ok       6
-  96dad27d69a17729  acme-plan-upgrade  function:acme  P     1       loose-ok       6
+Plan: 1 spec, 1 target, modes T, F, P, 2 repeats: 10 cells, 54 blocks.
+  cell              spec               target         mode  repeat  perturbation        blocks
+  850ffcff3927f170  acme-plan-upgrade  function:acme  T     0                           5
+  40e3484e079a0e33  acme-plan-upgrade  function:acme  T     1                           5
+  cc92cc9eb562f586  acme-plan-upgrade  function:acme  F     0                           5
+  2b7a03560cb7a80e  acme-plan-upgrade  function:acme  F     1                           5
+  e5fd30b27f5451f2  acme-plan-upgrade  function:acme  P     0       billing-aside       6
+  92de4e0dd994705c  acme-plan-upgrade  function:acme  P     1       billing-aside       6
+  d331b9f8ffb1a5fb  acme-plan-upgrade  function:acme  P     0       order-service-down  5
+  869fa63484786221  acme-plan-upgrade  function:acme  P     1       order-service-down  5
+  e5f5fa45081fd718  acme-plan-upgrade  function:acme  P     0       loose-ok            6
+  679e9be4b0b4ad7c  acme-plan-upgrade  function:acme  P     1       loose-ok            6
 Projected cost: $0.00 (function: no unit measured).
 Minimum detectable effect, mode T: none detectable on a 50% pass rate, with 2 runs per arm over 1 spec (rho 0, design effect 1.00; two-sided alpha 0.05, power 0.8).
 Minimum detectable effect, mode F: none detectable on a 50% pass rate, with 2 runs per arm over 1 spec (rho 0, design effect 1.00; two-sided alpha 0.05, power 0.8).
-Minimum detectable effect, mode P: none detectable on a 50% pass rate, with 4 runs per arm over 1 spec (rho 0, design effect 1.00; two-sided alpha 0.05, power 0.8).
+Minimum detectable effect, mode P: none detectable on a 50% pass rate, with 6 runs per arm over 1 spec (rho 0, design effect 1.00; two-sided alpha 0.05, power 0.8).
 ```
 
 Without `--target`, each spec is planned on its own target:
@@ -75,9 +77,9 @@ Plan: 7 specs, each on its own target (function:acme-sales, process:acme-ops), m
   8f5541041b373b2e  acme-number-porting            function:acme-sales  F     0       5
   1db8182e57b23352  acme-off-topic-return          function:acme-sales  F     0       5
   b33724145e0a8911  acme-order-loose-confirmation  function:acme-sales  F     0       4
-  b723bb610e39ceaa  acme-plan-upgrade              function:acme-sales  F     0       5
+  a66a7aba9986a136  acme-plan-upgrade              function:acme-sales  F     0       5
   c72578fc24c33e86  acme-tool-failure              function:acme-sales  F     0       3
-  500a848c99ae5b91  acme-price-sheet               process:acme-ops     F     0       2
+  fbb8f12c6c884035  acme-price-sheet               process:acme-ops     F     0       2
 Projected cost: $0.00 (function: no unit measured; process: no unit measured).
 Minimum detectable effect, mode F: none detectable on a 50% pass rate, with 7 runs per arm over 7 specs (rho 0, design effect 1.00; two-sided alpha 0.05, power 0.8).
 ```
@@ -581,7 +583,7 @@ A campaign pins the specs by id and content hash, the target of each spec run on
 
 `planCampaign` expands specs, targets, modes and repeats into cells. In mode P a spec gives one cell per perturbation and repeat. A cell sends the spec's blocks, plus the injected block in mode P, except for a perturbation that writes only a world: it runs under its own block, so the cell sends the spec's blocks alone (`order-service-down` and `sales-queue-down` above).
 
-A cell's id is also the run id of its run: the first 16 hex characters of the SHA-256 of the canonical JSON of the spec hash, the target, the mode, the repeat and the perturbation. The campaign plays no part, so the same cell in two campaigns has the same id: `acme-plan-upgrade` in mode F at repeat 0 on `function:acme` is `58ec431a6e09bf0b` in every Acme campaign above.
+A cell's id is also the run id of its run: the first 16 hex characters of the SHA-256 of the canonical JSON of the spec hash, the target, the mode, the repeat and the perturbation. The campaign plays no part, so the same cell in two campaigns has the same id: `acme-plan-upgrade` in mode F at repeat 0 on `function:acme` is `cc92cc9eb562f586` in every Acme campaign above.
 
 ### Outcomes
 
@@ -673,13 +675,13 @@ console.log(run.runId, run.status, run.blocks.map((block) => block.pass), run.en
 Run from the repository root, it prints:
 
 ```
-b723bb610e39ceaa completed [ true, true, true, true, true ] true
+a66a7aba9986a136 completed [ true, true, true, true, true ] true
 ```
 
 With `mode: 'T'`, it prints:
 
 ```
-1694052eb6539717 completed [ true, true, true, true, true ] true
+6a402b958212918e completed [ true, true, true, true, true ] true
 ```
 
 | Option | Meaning |

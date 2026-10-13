@@ -41,6 +41,14 @@ async function fixtureCopy(): Promise<string> {
 }
 
 describe('driftbench estate scan', () => {
+  it('refuses an unknown --provider before any model call, and writes nothing', async () => {
+    const root = await fixtureCopy();
+    const result = await run(['estate', 'scan', '.', '--out', 'map.yaml', '--provider', 'bogus'], root);
+    expect(result.code).toBe(2);
+    expect(result.err).toContain('unknown provider "bogus": use anthropic or openai.');
+    await expect(readFile(join(root, 'map.yaml'), 'utf8')).rejects.toThrow();
+  });
+
   it('writes the map from recorded answers and prints the counts, refusals, orphans and unenforced atoms', async () => {
     const root = await fixtureCopy();
     const result = await run(

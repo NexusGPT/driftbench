@@ -14,7 +14,17 @@ import { type BankItem, fail, ok } from './item';
  * on its own. The truths are planted and the coverage, recovery, error and power are counted over draws.
  */
 
-/** The coverage bar of one clustered design alone (1000 draws, a correct interval covers about 0.945). */
+/**
+ * The coverage bar of one clustered design alone (1000 draws, a correct interval covers about 0.945).
+ *
+ * Measured 2026-10-13 on main a0a3e5d7, seeds 10000 to 10051 (52 seeds): a correct implementation covers
+ * 0.9448 (c80x8-rho0.2), 0.9445 (c120x6-rho0.3) and 0.947 (c160x4-rho0.5) of its draws. The coverage of one seed
+ * is binomial over its 1000 draws (spread over seeds 0.0056 to 0.0079, binomial 0.0071 to 0.0072), so a correct
+ * implementation falls under 0.92 on 4.7e-4, 5.4e-4 and 1.4e-4 of the seeds. Hidden seed 696095767 gave 0.915
+ * on c120x6-rho0.3, an 8.5e-5 event. The wrong implementations the family plants cover 0.48 to 0.81 on that seed
+ * (no clustering, a naive Wilson interval, a resample unit that is not the conversation). A bar of 0.91 would
+ * lower the false failures to about 4e-6 but catch an interval at 0.90 on 84 percent of seeds instead of 98.
+ */
 export const SINGLE_DESIGN_COVERAGE = 0.92;
 
 const designsCache = new Map<string, StatsDesigns>();
