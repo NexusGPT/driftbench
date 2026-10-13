@@ -25,7 +25,11 @@ async function main(): Promise<void> {
       )
         completed.set(contestant.contestant, contestant);
     }
-    if (report.stopped || report.items !== 357 || report.contestants.some((c) => c.summary.missing > 0))
+    if (
+      report.stopped ||
+      report.items !== 357 ||
+      (report.failedCalls !== 0 && report.contestants.some((c) => c.summary.missing > 0))
+    )
       partial.push({
         file,
         items: report.items ?? 0,

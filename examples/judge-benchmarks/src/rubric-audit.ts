@@ -15,7 +15,12 @@ import { type PairResult, scorePairs } from './score';
 async function main(): Promise<void> {
   const ids = (
     process.argv[2] ??
-    'driftbench-rb-binary-canonical,driftbench-rb-equal-canonical,driftbench-rb-weighted-canonical,driftbench-rb-holistic-canonical'
+    ['binary', 'equal', 'weighted', 'holistic']
+      .flatMap((method) => [
+        `driftbench-rb-${method}-canonical`,
+        `driftbench-rb-${method}-canonical-executed`,
+      ])
+      .join(',')
   ).split(',');
   const benchmark = await loadBenchmark('rubricbench');
   const items = benchmark.items.filter((x) => splitOf('rubricbench', x.id) === 'dev') as PairItem[];
@@ -41,11 +46,19 @@ async function main(): Promise<void> {
         [item.b, item.a],
       ] as const) {
         const reversed = contestant.canonicalOrder === true && hash(a) > hash(b);
+        const presentedA = reversed ? b : a;
+        const presentedB = reversed ? a : b;
+        const evidence = await contestant.pairEvidence?.({
+          question: item.question,
+          a: presentedA,
+          b: presentedB,
+        });
         const prompt = contestant.pair({
           question: item.question,
-          a: reversed ? b : a,
-          b: reversed ? a : b,
+          a: presentedA,
+          b: presentedB,
           criterion: item.criterion ?? benchmark.criterion,
+          ...(evidence === undefined ? {} : { reference: evidence }),
         });
         const entry = recordings.get(promptKey('haiku', prompt));
         if (!entry) {
