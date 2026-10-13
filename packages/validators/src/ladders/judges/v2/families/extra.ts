@@ -117,13 +117,18 @@ const entry = (key: string, outcome: 'pass' | 'fail' = 'pass') => ({
 });
 
 /** A provider-neutral ledger schema check derived from the documented row contract, not product output. */
-function ledgerSchema(schema: Record<string, unknown> | undefined): boolean {
+/**
+ * The ledger response schema. OpenAI takes null as a type list or an anyOf; Gemini rejects both with a 400 ("Proto
+ * field is not repeating") and takes one type plus `nullable: true`, so `openApi` asks for that form.
+ */
+function ledgerSchema(schema: Record<string, unknown> | undefined, openApi = false): boolean {
   const props = schema?.properties as Record<string, Record<string, unknown>> | undefined;
   const checks = props?.checks;
   const row = checks?.items as Record<string, unknown> | undefined;
   const fields = row?.properties as Record<string, Record<string, unknown>> | undefined;
   const required = row?.required as string[] | undefined;
   const alternatives = (field: Record<string, unknown> | undefined, type: string) => {
+    if (openApi) return field?.type === type && field.nullable === true;
     const types = field?.type;
     if (Array.isArray(types)) return types.includes(type) && types.includes('null');
     const variants = field?.anyOf as Record<string, unknown>[] | undefined;
@@ -217,9 +222,9 @@ export function extraItems(): BankItem[] {
         const schema = (s.body?.generationConfig as Record<string, unknown> | undefined)?.responseSchema as
           | Record<string, unknown>
           | undefined;
-        return ledgerSchema(schema)
+        return ledgerSchema(schema, true)
           ? undefined
-          : 'generationConfig.responseSchema lacks the per-requirement ledger';
+          : 'generationConfig.responseSchema lacks the per-requirement ledger, with one type and nullable: true for the nullable fields';
       },
     ),
     check(
