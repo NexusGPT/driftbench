@@ -413,44 +413,44 @@
         "flipPercent": null
       },
       "sixFixturesThreeOfThree": {
-        "fixture-en-name": false,
-        "fixture-en-count": false,
-        "fixture-en-language": false,
-        "fixture-zh-name": false,
-        "fixture-zh-count": false,
-        "fixture-zh-language": false
+        "fixture-en-name": true,
+        "fixture-en-count": true,
+        "fixture-en-language": true,
+        "fixture-zh-name": true,
+        "fixture-zh-count": true,
+        "fixture-zh-language": true
       },
       "fixtureKappa": 1.0,
-      "earnedFixtureSeat": false,
+      "earnedFixtureSeat": true,
       "cheaterBarPass": false,
       "plantedEditChecks": {
         "relabel": {
           "expectedPairs": 6,
-          "coveredPairs": 0,
-          "correctGames": 0,
-          "games": 0,
-          "accuracy": null
+          "coveredPairs": 6,
+          "correctGames": 12,
+          "games": 12,
+          "accuracy": 100.0
         },
         "markdown": {
           "expectedPairs": 4,
-          "coveredPairs": 0,
-          "correctGames": 0,
-          "games": 0,
-          "accuracy": null
+          "coveredPairs": 4,
+          "correctGames": 8,
+          "games": 8,
+          "accuracy": 100.0
         },
         "injection": {
           "expectedPairs": 4,
-          "coveredPairs": 0,
-          "correctGames": 0,
-          "games": 0,
-          "accuracy": null
+          "coveredPairs": 3,
+          "correctGames": 6,
+          "games": 6,
+          "accuracy": 100.0
         },
         "label-flip": {
           "expectedPairs": 6,
-          "coveredPairs": 0,
-          "correctGames": 0,
-          "games": 0,
-          "accuracy": null
+          "coveredPairs": 5,
+          "correctGames": 10,
+          "games": 10,
+          "accuracy": 100.0
         }
       }
     },
@@ -501,42 +501,42 @@
       "sixFixturesThreeOfThree": {
         "fixture-en-name": false,
         "fixture-en-count": false,
-        "fixture-en-language": false,
+        "fixture-en-language": true,
         "fixture-zh-name": false,
         "fixture-zh-count": false,
-        "fixture-zh-language": false
+        "fixture-zh-language": true
       },
-      "fixtureKappa": -0.3333333333333333,
+      "fixtureKappa": 0.0,
       "earnedFixtureSeat": false,
       "cheaterBarPass": false,
       "plantedEditChecks": {
         "relabel": {
           "expectedPairs": 6,
-          "coveredPairs": 0,
-          "correctGames": 0,
-          "games": 0,
-          "accuracy": null
+          "coveredPairs": 6,
+          "correctGames": 4,
+          "games": 12,
+          "accuracy": 33.333333333333336
         },
         "markdown": {
           "expectedPairs": 4,
-          "coveredPairs": 0,
-          "correctGames": 0,
-          "games": 0,
-          "accuracy": null
+          "coveredPairs": 4,
+          "correctGames": 4,
+          "games": 8,
+          "accuracy": 50.0
         },
         "injection": {
           "expectedPairs": 4,
-          "coveredPairs": 0,
-          "correctGames": 0,
-          "games": 0,
-          "accuracy": null
+          "coveredPairs": 3,
+          "correctGames": 2,
+          "games": 6,
+          "accuracy": 33.333333333333336
         },
         "label-flip": {
           "expectedPairs": 6,
-          "coveredPairs": 0,
-          "correctGames": 0,
-          "games": 0,
-          "accuracy": null
+          "coveredPairs": 5,
+          "correctGames": 4,
+          "games": 10,
+          "accuracy": 40.0
         }
       }
     },
@@ -576,43 +576,43 @@
       },
       "sixFixturesThreeOfThree": {
         "fixture-en-name": false,
-        "fixture-en-count": false,
-        "fixture-en-language": false,
-        "fixture-zh-name": false,
+        "fixture-en-count": true,
+        "fixture-en-language": true,
+        "fixture-zh-name": true,
         "fixture-zh-count": false,
-        "fixture-zh-language": false
+        "fixture-zh-language": true
       },
-      "fixtureKappa": 0.6666666666666667,
+      "fixtureKappa": 0.8333333333333333,
       "earnedFixtureSeat": false,
       "cheaterBarPass": false,
       "plantedEditChecks": {
         "relabel": {
           "expectedPairs": 6,
-          "coveredPairs": 0,
-          "correctGames": 0,
-          "games": 0,
-          "accuracy": null
+          "coveredPairs": 6,
+          "correctGames": 11,
+          "games": 12,
+          "accuracy": 91.66666666666667
         },
         "markdown": {
           "expectedPairs": 4,
-          "coveredPairs": 0,
-          "correctGames": 0,
-          "games": 0,
-          "accuracy": null
+          "coveredPairs": 4,
+          "correctGames": 8,
+          "games": 8,
+          "accuracy": 100.0
         },
         "injection": {
           "expectedPairs": 4,
-          "coveredPairs": 0,
-          "correctGames": 0,
-          "games": 0,
-          "accuracy": null
+          "coveredPairs": 3,
+          "correctGames": 6,
+          "games": 6,
+          "accuracy": 100.0
         },
         "label-flip": {
           "expectedPairs": 6,
-          "coveredPairs": 0,
-          "correctGames": 0,
-          "games": 0,
-          "accuracy": null
+          "coveredPairs": 5,
+          "correctGames": 10,
+          "games": 10,
+          "accuracy": 100.0
         }
       }
     },
@@ -661,44 +661,44 @@
         "flipPercent": null
       },
       "sixFixturesThreeOfThree": {
-        "fixture-en-name": false,
-        "fixture-en-count": false,
-        "fixture-en-language": false,
-        "fixture-zh-name": false,
-        "fixture-zh-count": false,
-        "fixture-zh-language": false
+        "fixture-en-name": true,
+        "fixture-en-count": true,
+        "fixture-en-language": true,
+        "fixture-zh-name": true,
+        "fixture-zh-count": true,
+        "fixture-zh-language": true
       },
       "fixtureKappa": 1.0,
-      "earnedFixtureSeat": false,
+      "earnedFixtureSeat": true,
       "cheaterBarPass": false,
       "plantedEditChecks": {
         "relabel": {
           "expectedPairs": 6,
-          "coveredPairs": 0,
-          "correctGames": 0,
-          "games": 0,
-          "accuracy": null
+          "coveredPairs": 6,
+          "correctGames": 12,
+          "games": 12,
+          "accuracy": 100.0
         },
         "markdown": {
           "expectedPairs": 4,
-          "coveredPairs": 0,
-          "correctGames": 0,
-          "games": 0,
-          "accuracy": null
+          "coveredPairs": 4,
+          "correctGames": 8,
+          "games": 8,
+          "accuracy": 100.0
         },
         "injection": {
           "expectedPairs": 4,
-          "coveredPairs": 0,
-          "correctGames": 0,
-          "games": 0,
-          "accuracy": null
+          "coveredPairs": 3,
+          "correctGames": 6,
+          "games": 6,
+          "accuracy": 100.0
         },
         "label-flip": {
           "expectedPairs": 6,
-          "coveredPairs": 0,
-          "correctGames": 0,
-          "games": 0,
-          "accuracy": null
+          "coveredPairs": 5,
+          "correctGames": 10,
+          "games": 10,
+          "accuracy": 100.0
         }
       }
     },
@@ -749,42 +749,42 @@
       "sixFixturesThreeOfThree": {
         "fixture-en-name": false,
         "fixture-en-count": false,
-        "fixture-en-language": false,
+        "fixture-en-language": true,
         "fixture-zh-name": false,
         "fixture-zh-count": false,
-        "fixture-zh-language": false
+        "fixture-zh-language": true
       },
-      "fixtureKappa": -0.3333333333333333,
+      "fixtureKappa": 0.0,
       "earnedFixtureSeat": false,
       "cheaterBarPass": false,
       "plantedEditChecks": {
         "relabel": {
           "expectedPairs": 6,
-          "coveredPairs": 0,
-          "correctGames": 0,
-          "games": 0,
-          "accuracy": null
+          "coveredPairs": 6,
+          "correctGames": 4,
+          "games": 12,
+          "accuracy": 33.333333333333336
         },
         "markdown": {
           "expectedPairs": 4,
-          "coveredPairs": 0,
-          "correctGames": 0,
-          "games": 0,
-          "accuracy": null
+          "coveredPairs": 4,
+          "correctGames": 4,
+          "games": 8,
+          "accuracy": 50.0
         },
         "injection": {
           "expectedPairs": 4,
-          "coveredPairs": 0,
-          "correctGames": 0,
-          "games": 0,
-          "accuracy": null
+          "coveredPairs": 3,
+          "correctGames": 2,
+          "games": 6,
+          "accuracy": 33.333333333333336
         },
         "label-flip": {
           "expectedPairs": 6,
-          "coveredPairs": 0,
-          "correctGames": 0,
-          "games": 0,
-          "accuracy": null
+          "coveredPairs": 5,
+          "correctGames": 4,
+          "games": 10,
+          "accuracy": 40.0
         }
       }
     },
@@ -823,44 +823,44 @@
         "flipPercent": null
       },
       "sixFixturesThreeOfThree": {
-        "fixture-en-name": false,
-        "fixture-en-count": false,
-        "fixture-en-language": false,
-        "fixture-zh-name": false,
-        "fixture-zh-count": false,
-        "fixture-zh-language": false
+        "fixture-en-name": true,
+        "fixture-en-count": true,
+        "fixture-en-language": true,
+        "fixture-zh-name": true,
+        "fixture-zh-count": true,
+        "fixture-zh-language": true
       },
       "fixtureKappa": 1.0,
-      "earnedFixtureSeat": false,
+      "earnedFixtureSeat": true,
       "cheaterBarPass": false,
       "plantedEditChecks": {
         "relabel": {
           "expectedPairs": 6,
-          "coveredPairs": 0,
-          "correctGames": 0,
-          "games": 0,
-          "accuracy": null
+          "coveredPairs": 6,
+          "correctGames": 12,
+          "games": 12,
+          "accuracy": 100.0
         },
         "markdown": {
           "expectedPairs": 4,
-          "coveredPairs": 0,
-          "correctGames": 0,
-          "games": 0,
-          "accuracy": null
+          "coveredPairs": 4,
+          "correctGames": 8,
+          "games": 8,
+          "accuracy": 100.0
         },
         "injection": {
           "expectedPairs": 4,
-          "coveredPairs": 0,
-          "correctGames": 0,
-          "games": 0,
-          "accuracy": null
+          "coveredPairs": 3,
+          "correctGames": 6,
+          "games": 6,
+          "accuracy": 100.0
         },
         "label-flip": {
           "expectedPairs": 6,
-          "coveredPairs": 0,
-          "correctGames": 0,
-          "games": 0,
-          "accuracy": null
+          "coveredPairs": 5,
+          "correctGames": 10,
+          "games": 10,
+          "accuracy": 100.0
         }
       }
     },
@@ -909,44 +909,44 @@
         "flipPercent": null
       },
       "sixFixturesThreeOfThree": {
-        "fixture-en-name": false,
-        "fixture-en-count": false,
-        "fixture-en-language": false,
-        "fixture-zh-name": false,
-        "fixture-zh-count": false,
-        "fixture-zh-language": false
+        "fixture-en-name": true,
+        "fixture-en-count": true,
+        "fixture-en-language": true,
+        "fixture-zh-name": true,
+        "fixture-zh-count": true,
+        "fixture-zh-language": true
       },
       "fixtureKappa": 1.0,
-      "earnedFixtureSeat": false,
+      "earnedFixtureSeat": true,
       "cheaterBarPass": false,
       "plantedEditChecks": {
         "relabel": {
           "expectedPairs": 6,
-          "coveredPairs": 0,
-          "correctGames": 0,
-          "games": 0,
-          "accuracy": null
+          "coveredPairs": 6,
+          "correctGames": 12,
+          "games": 12,
+          "accuracy": 100.0
         },
         "markdown": {
           "expectedPairs": 4,
-          "coveredPairs": 0,
-          "correctGames": 0,
-          "games": 0,
-          "accuracy": null
+          "coveredPairs": 4,
+          "correctGames": 8,
+          "games": 8,
+          "accuracy": 100.0
         },
         "injection": {
           "expectedPairs": 4,
-          "coveredPairs": 0,
-          "correctGames": 0,
-          "games": 0,
-          "accuracy": null
+          "coveredPairs": 3,
+          "correctGames": 6,
+          "games": 6,
+          "accuracy": 100.0
         },
         "label-flip": {
           "expectedPairs": 6,
-          "coveredPairs": 0,
-          "correctGames": 0,
-          "games": 0,
-          "accuracy": null
+          "coveredPairs": 5,
+          "correctGames": 10,
+          "games": 10,
+          "accuracy": 100.0
         }
       }
     },
@@ -997,42 +997,42 @@
       "sixFixturesThreeOfThree": {
         "fixture-en-name": false,
         "fixture-en-count": false,
-        "fixture-en-language": false,
+        "fixture-en-language": true,
         "fixture-zh-name": false,
         "fixture-zh-count": false,
-        "fixture-zh-language": false
+        "fixture-zh-language": true
       },
-      "fixtureKappa": -0.3333333333333333,
+      "fixtureKappa": 0.0,
       "earnedFixtureSeat": false,
       "cheaterBarPass": false,
       "plantedEditChecks": {
         "relabel": {
           "expectedPairs": 6,
-          "coveredPairs": 0,
-          "correctGames": 0,
-          "games": 0,
-          "accuracy": null
+          "coveredPairs": 5,
+          "correctGames": 2,
+          "games": 10,
+          "accuracy": 20.0
         },
         "markdown": {
           "expectedPairs": 4,
-          "coveredPairs": 0,
-          "correctGames": 0,
-          "games": 0,
-          "accuracy": null
+          "coveredPairs": 4,
+          "correctGames": 4,
+          "games": 8,
+          "accuracy": 50.0
         },
         "injection": {
           "expectedPairs": 4,
-          "coveredPairs": 0,
-          "correctGames": 0,
-          "games": 0,
-          "accuracy": null
+          "coveredPairs": 3,
+          "correctGames": 2,
+          "games": 6,
+          "accuracy": 33.333333333333336
         },
         "label-flip": {
           "expectedPairs": 6,
-          "coveredPairs": 0,
-          "correctGames": 0,
-          "games": 0,
-          "accuracy": null
+          "coveredPairs": 5,
+          "correctGames": 4,
+          "games": 10,
+          "accuracy": 40.0
         }
       }
     },
@@ -1071,44 +1071,44 @@
         "flipPercent": null
       },
       "sixFixturesThreeOfThree": {
-        "fixture-en-name": false,
-        "fixture-en-count": false,
-        "fixture-en-language": false,
-        "fixture-zh-name": false,
-        "fixture-zh-count": false,
-        "fixture-zh-language": false
+        "fixture-en-name": true,
+        "fixture-en-count": true,
+        "fixture-en-language": true,
+        "fixture-zh-name": true,
+        "fixture-zh-count": true,
+        "fixture-zh-language": true
       },
       "fixtureKappa": 1.0,
-      "earnedFixtureSeat": false,
+      "earnedFixtureSeat": true,
       "cheaterBarPass": false,
       "plantedEditChecks": {
         "relabel": {
           "expectedPairs": 6,
-          "coveredPairs": 0,
-          "correctGames": 0,
-          "games": 0,
-          "accuracy": null
+          "coveredPairs": 6,
+          "correctGames": 12,
+          "games": 12,
+          "accuracy": 100.0
         },
         "markdown": {
           "expectedPairs": 4,
-          "coveredPairs": 0,
-          "correctGames": 0,
-          "games": 0,
-          "accuracy": null
+          "coveredPairs": 3,
+          "correctGames": 6,
+          "games": 6,
+          "accuracy": 100.0
         },
         "injection": {
           "expectedPairs": 4,
-          "coveredPairs": 0,
-          "correctGames": 0,
-          "games": 0,
-          "accuracy": null
+          "coveredPairs": 3,
+          "correctGames": 6,
+          "games": 6,
+          "accuracy": 100.0
         },
         "label-flip": {
           "expectedPairs": 6,
-          "coveredPairs": 0,
-          "correctGames": 0,
-          "games": 0,
-          "accuracy": null
+          "coveredPairs": 5,
+          "correctGames": 10,
+          "games": 10,
+          "accuracy": 100.0
         }
       }
     }

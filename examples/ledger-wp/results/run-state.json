@@ -1,6 +1,7 @@
 {
   "pid": 90022,
-  "status": "running",
-  "phase": "fixtures",
-  "at": "2026-10-13T08:13:57.669725+00:00"
+  "status": "stopped",
+  "phase": "validity",
+  "at": "2026-10-13T08:27:11.785411+00:00",
+  "exitCode": 1
 }

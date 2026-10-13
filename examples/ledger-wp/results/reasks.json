@@ -2,8 +2,8 @@
   {
     "scope": "all phases",
     "model": "haiku",
-    "completedPairs": 38,
-    "orderedReadings": 81,
+    "completedPairs": 56,
+    "orderedReadings": 117,
     "schemaReasks": 0,
     "recovered": 0,
     "reaskCostUsd": 0
@@ -11,8 +11,8 @@
   {
     "scope": "all phases",
     "model": "gpt-6-luna",
-    "completedPairs": 38,
-    "orderedReadings": 82,
+    "completedPairs": 56,
+    "orderedReadings": 118,
     "schemaReasks": 0,
     "recovered": 0,
     "reaskCostUsd": 0
@@ -20,8 +20,8 @@
   {
     "scope": "all phases",
     "model": "gemini-3.8-flash",
-    "completedPairs": 38,
-    "orderedReadings": 80,
+    "completedPairs": 56,
+    "orderedReadings": 116,
     "schemaReasks": 0,
     "recovered": 0,
     "reaskCostUsd": 0

@@ -72,10 +72,11 @@ def main():
                         failures.append('Decision cost mismatch: ' + str(job_key(row)))
                 coverage.append({'split': split, 'model': model, 'contestant': contestant,
                                  'recorded': len(observed), 'expected': len(items) * repeats})
-    complete = all(r['recorded'] == r['expected'] for r in coverage)
+    required_models = sys.argv[sys.argv.index('--models')+1].split(',') if '--models' in sys.argv else freeze['models']
+    complete = all(r['recorded'] == r['expected'] for r in coverage if r['model'] in required_models)
     if '--require-complete' in sys.argv and not complete: failures.append('Incomplete phase coverage')
     output = {'at': datetime.datetime.now(datetime.timezone.utc).isoformat(), 'failures': failures,
-              'complete': complete, 'sourceHashes': len(freeze['files']), 'sealHashes': len(seals),
+              'complete': complete, 'modelsChecked': required_models, 'sourceHashes': len(freeze['files']), 'sealHashes': len(seals),
               'actualUsd': actual, 'uncertainOrInflightUsd': sum(pending.values()), 'capUsd': freeze['capUsd'],
               'returnedCalls': len(calls), 'completedDecisions': len(decisions), 'coverage': coverage}
     (HERE / 'results/verification.json').write_text(json.dumps(output, indent=2) + '\n')

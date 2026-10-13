@@ -2,7 +2,7 @@ import assert from 'node:assert/strict';
 import { test } from 'node:test';
 import { mkdtempSync, readFileSync, writeFileSync } from 'node:fs';
 import { resolve } from 'node:path';
-import { Budget, cheater, HERE, isTransportFailure, parsePromptfoo, promptfoo, sha, verifyFreeze } from './harness';
+import { Budget, cheater, HERE, isTransportFailure, parsePromptfoo, promptfoo, sha, transportBackoffMs, verifyFreeze } from './harness';
 import { judgePairLedger, pairLedgerRequest } from '../../packages/judges/src/pair-ledger';
 import { responseSchema } from '../../packages/judges/src/assessment';
 import { buildPrompt } from '../../packages/judges/src/prompt';
@@ -19,8 +19,12 @@ test('integer parser accepts only the pinned first integer and records unparsed 
   assert.equal(parsePromptfoo('none'),'tie');assert.equal(parsePromptfoo('0'),'A');
 });
 test('transport retry classification excludes billing, authentication and content failures',()=>{
-  for(const text of ['shim error: fetch failed','Owned Claude call timed out','Provider 503: unavailable'])assert.equal(isTransportFailure(text),true);
-  for(const text of ['Provider 429: quota exceeded','Provider 401: invalid API key','Unparsed JSON','0','1','provider refused'])assert.equal(isTransportFailure(text),false);
+  for(const text of ['shim error: fetch failed','Owned Claude call timed out','Provider 503: unavailable','Provider 429: Resource has been exhausted (e.g. check quota).'])assert.equal(isTransportFailure(text),true);
+  for(const text of ['Provider 402: billing credits required','Provider 401: invalid API key','Unparsed JSON','0','1','provider refused'])assert.equal(isTransportFailure(text),false);
+});
+test('HTTP 429 uses the owner-authorized 60, 120 and 240 second waits',()=>{
+  assert.deepEqual([2,3,4].map(n=>transportBackoffMs('shim error: Provider 429: shared quota',n)),[60000,120000,240000]);
+  assert.equal(transportBackoffMs('shim error: fetch failed',2),1500);
 });
 test('upstream rendering has byte-identical two-output format and opaque input',()=>{
   const out=promptfoo('Brief','first','second');

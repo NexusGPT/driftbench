@@ -38,8 +38,11 @@ export function cheater(item: any, kind: string) {
   const choice=a===b?'tie':a?'A':'B';return [choice,choice];
 }
 
+export const isRateLimit = (text:string) => /Provider 429\b/iu.test(text);
+export const transportBackoffMs = (error:string,attempt:number) => isRateLimit(error)?60_000*2**(attempt-2):1500*(attempt-1);
 export function isTransportFailure(text:string) {
-  if(/spending cap|quota|billing|invalid.api.key|authentication/iu.test(text))return false;
+  if(isRateLimit(text))return true;
+  if(/spending cap|billing|invalid.api.key|authentication|insufficient_quota/iu.test(text))return false;
   return /fetch failed|timed? ?out|timeout|ECONNRESET|ETIMEDOUT|EAI_AGAIN|ENOTFOUND|network error|Provider (?:429|5\d\d)\b/iu.test(text);
 }
 
@@ -97,7 +100,7 @@ async function runClaude(prompt: {system:string;user:string}, cwd:string): Promi
 async function main() {
   const arg=(name:string)=>{const i=process.argv.indexOf('--'+name);return i<0?undefined:process.argv[i+1];};
   if(process.argv.includes('--help')) {
-    console.log('harness.ts --cheaters | --phase pilot|dev|fixtures|validity|test [--model haiku|gpt-6-luna|gemini-3.8-flash] [--concurrency N] [--replay-only]');return;
+    console.log('harness.ts --cheaters | --phase pilot|dev|fixtures|validity|test [--model comma-separated frozen model IDs] [--concurrency N] [--replay-only]');return;
   }
   mkdirSync(resolve(HERE,'results'),{recursive:true});mkdirSync(resolve(HERE,'runtime/empty'),{recursive:true});
   if(process.argv.includes('--cheaters')) {
@@ -114,9 +117,10 @@ async function main() {
   const promptModule:any=await import(pathToFileURL(resolve(ROOT,'packages/judges/src/prompt.ts')).href);
   const schemaModule:any=await import(pathToFileURL(resolve(ROOT,'packages/judges/src/assessment.ts')).href);
   const shim:any=await import(pathToFileURL(resolve(ROOT,'examples/judge-benchmarks/src/llm-shim.mjs')).href);
-  const modelArg=arg('model');const models=modelArg?[modelArg]:freeze.models;
+  const modelArg=arg('model');const models=modelArg?modelArg.split(','):freeze.models;
   if(models.some((x:string)=>!freeze.models.includes(x)))throw Error('Model not frozen');
   const concurrency=Number(arg('concurrency')??4);if(!Number.isInteger(concurrency)||concurrency<1||concurrency>4)throw Error('Concurrency outside 1..4');
+  if(models.includes('gemini-3.8-flash')&&concurrency>2)throw Error('Gemini concurrency exceeds two');
   const budget=new Budget();
   const history=rows('results/calls.jsonl');
   const recorded=new Map(history.map(r=>[r.logicalKey??r.key,r]));
@@ -129,16 +133,19 @@ async function main() {
     const key=sha(JSON.stringify([meta,prompt,schema,freeze.reasoning]));
     if(recorded.has(key) && !recorded.get(key).providerError) return recorded.get(key);
     if(process.argv.includes('--replay-only'))throw Error('REPLAY_MISS '+key);
-    for(let attempt=1;attempt<=3;attempt++) {
+    let lastError="";
+    for(let attempt=1;attempt<=4;attempt++) {
+      if(attempt===4&&!isRateLimit(lastError))break;
       const attemptKey=attempt===1?key:sha(key+':transport:'+attempt);
       const prior=attempts.get(attemptKey);
       if(prior) {
         if(!prior.providerError)return prior;
         if(!isTransportFailure(prior.text))throw Error('Recorded non-transport failure; no retry');
-        continue;
+        lastError=prior.text;continue;
       }
       // A crashed submission may still have incurred cost. Keep its reservation and count its try.
-      if(budget.totals().pending.includes(attemptKey))continue;
+      if(budget.totals().pending.includes(attemptKey)){lastError="Interrupted transport";continue;}
+      if(attempt>1)await new Promise(resolve=>setTimeout(resolve,transportBackoffMs(lastError,attempt)));
       if(Date.now()>Date.parse(freeze.lastCallUtc))throw Error('LAST_CALL_CUTOFF');
       budget.reserve(attemptKey,meta.model==='haiku'?0.25:0.10);
       const started=Date.now();let payload:any;let providerMeta:any={};
@@ -173,9 +180,9 @@ async function main() {
       }
       append('results/transport-errors.jsonl',{key:attemptKey,logicalKey:key,attempt,...meta,error:entry.text,at:new Date().toISOString()});
       if(!isTransportFailure(entry.text))throw Error('Non-transport provider error; no retry');
-      if(attempt<3)await new Promise(resolve=>setTimeout(resolve,1500*attempt));
+      lastError=entry.text;
     }
-    throw Error('Transport failed after three tries; uncertain reservations retained');
+    throw Error('Transport attempts exhausted; uncertain reservations retained');
   };
   const items=load('seals/'+phase+'.json');
   const jobs:any[]=[];

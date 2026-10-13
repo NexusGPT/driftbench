@@ -1,1 +1,2 @@
 {"split":"fixtures","model":"gemini-3.8-flash","contestant":"reader-first-c50b2dc3","id":"fixture-en-count","requestId":"fixture-en-count","sample":2,"error":"Error: Provider call failed; raw answer and reservation retained","at":"2026-10-13T08:00:15.070Z"}
+{"split":"validity","model":"gemini-3.8-flash","contestant":"reader-first-c50b2dc3","id":"fixture-zh-language-relabel","requestId":"fixture-zh-language","sample":0,"error":"Error: Non-transport provider error; no retry","at":"2026-10-13T08:26:40.184Z"}

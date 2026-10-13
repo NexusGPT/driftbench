@@ -1,14 +1,19 @@
 {
-  "at": "2026-10-13T08:12:27.872060+00:00",
+  "at": "2026-10-13T08:33:30.914348+00:00",
   "failures": [],
   "complete": false,
+  "modelsChecked": [
+    "haiku",
+    "gpt-6-luna",
+    "gemini-3.8-flash"
+  ],
   "sourceHashes": 191,
   "sealHashes": 5,
-  "actualUsd": 2.2707937400000002,
-  "uncertainOrInflightUsd": 1.75,
+  "actualUsd": 2.98045945,
+  "uncertainOrInflightUsd": 1.85,
   "capUsd": 35,
-  "returnedCalls": 627,
-  "completedDecisions": 305,
+  "returnedCalls": 1022,
+  "completedDecisions": 502,
   "coverage": [
     {
       "split": "test",
@@ -140,63 +145,63 @@
       "split": "validity",
       "model": "haiku",
       "contestant": "pair-ledger",
-      "recorded": 0,
+      "recorded": 18,
       "expected": 20
     },
     {
       "split": "validity",
       "model": "haiku",
       "contestant": "reader-first-c50b2dc3",
-      "recorded": 0,
+      "recorded": 18,
       "expected": 20
     },
     {
       "split": "validity",
       "model": "haiku",
       "contestant": "promptfoo",
-      "recorded": 0,
+      "recorded": 18,
       "expected": 20
     },
     {
       "split": "validity",
       "model": "gpt-6-luna",
       "contestant": "pair-ledger",
-      "recorded": 0,
+      "recorded": 18,
       "expected": 20
     },
     {
       "split": "validity",
       "model": "gpt-6-luna",
       "contestant": "reader-first-c50b2dc3",
-      "recorded": 0,
+      "recorded": 18,
       "expected": 20
     },
     {
       "split": "validity",
       "model": "gpt-6-luna",
       "contestant": "promptfoo",
-      "recorded": 0,
+      "recorded": 18,
       "expected": 20
     },
     {
       "split": "validity",
       "model": "gemini-3.8-flash",
       "contestant": "pair-ledger",
-      "recorded": 0,
+      "recorded": 18,
       "expected": 20
     },
     {
       "split": "validity",
       "model": "gemini-3.8-flash",
       "contestant": "reader-first-c50b2dc3",
-      "recorded": 0,
+      "recorded": 17,
       "expected": 20
     },
     {
       "split": "validity",
       "model": "gemini-3.8-flash",
       "contestant": "promptfoo",
-      "recorded": 0,
+      "recorded": 17,
       "expected": 20
     },
     {
@@ -266,63 +271,63 @@
       "split": "fixtures",
       "model": "haiku",
       "contestant": "pair-ledger",
-      "recorded": 14,
+      "recorded": 18,
       "expected": 18
     },
     {
       "split": "fixtures",
       "model": "haiku",
       "contestant": "reader-first-c50b2dc3",
-      "recorded": 14,
+      "recorded": 18,
       "expected": 18
     },
     {
       "split": "fixtures",
       "model": "haiku",
       "contestant": "promptfoo",
-      "recorded": 14,
+      "recorded": 18,
       "expected": 18
     },
     {
       "split": "fixtures",
       "model": "gpt-6-luna",
       "contestant": "pair-ledger",
-      "recorded": 14,
+      "recorded": 18,
       "expected": 18
     },
     {
       "split": "fixtures",
       "model": "gpt-6-luna",
       "contestant": "reader-first-c50b2dc3",
-      "recorded": 14,
+      "recorded": 18,
       "expected": 18
     },
     {
       "split": "fixtures",
       "model": "gpt-6-luna",
       "contestant": "promptfoo",
-      "recorded": 14,
+      "recorded": 18,
       "expected": 18
     },
     {
       "split": "fixtures",
       "model": "gemini-3.8-flash",
       "contestant": "pair-ledger",
-      "recorded": 14,
+      "recorded": 18,
       "expected": 18
     },
     {
       "split": "fixtures",
       "model": "gemini-3.8-flash",
       "contestant": "reader-first-c50b2dc3",
-      "recorded": 13,
+      "recorded": 18,
       "expected": 18
     },
     {
       "split": "fixtures",
       "model": "gemini-3.8-flash",
       "contestant": "promptfoo",
-      "recorded": 14,
+      "recorded": 18,
       "expected": 18
     }
   ]

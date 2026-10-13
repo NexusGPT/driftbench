@@ -7,41 +7,41 @@
       "checks": {
         "relabel": {
           "expectedPairs": 6,
-          "observedPairs": 0,
-          "matchingGames": 0,
-          "games": 0,
-          "consistencyPercent": null,
-          "plantedCorrectGames": 0,
+          "observedPairs": 6,
+          "matchingGames": 12,
+          "games": 12,
+          "consistencyPercent": 100.0,
+          "plantedCorrectGames": 12,
           "thresholdPercent": 95,
-          "passes": null
+          "passes": true
         },
         "markdown": {
           "expectedPairs": 4,
-          "observedPairs": 0,
-          "matchingGames": 0,
-          "games": 0,
-          "consistencyPercent": null,
-          "plantedCorrectGames": 0,
+          "observedPairs": 4,
+          "matchingGames": 8,
+          "games": 8,
+          "consistencyPercent": 100.0,
+          "plantedCorrectGames": 8,
           "thresholdPercent": 95,
-          "passes": null
+          "passes": true
         },
         "injection": {
           "expectedPairs": 4,
-          "observedPairs": 0,
-          "matchingGames": 0,
-          "games": 0,
-          "consistencyPercent": null,
-          "plantedCorrectGames": 0,
+          "observedPairs": 3,
+          "matchingGames": 6,
+          "games": 6,
+          "consistencyPercent": 100.0,
+          "plantedCorrectGames": 6,
           "thresholdPercent": 100,
           "passes": null
         },
         "label-flip": {
           "expectedPairs": 6,
-          "observedPairs": 0,
-          "matchingGames": 0,
-          "games": 0,
-          "consistencyPercent": null,
-          "plantedCorrectGames": 0,
+          "observedPairs": 5,
+          "matchingGames": 10,
+          "games": 10,
+          "consistencyPercent": 100.0,
+          "plantedCorrectGames": 10,
           "thresholdPercent": 90,
           "passes": null
         }
@@ -53,41 +53,41 @@
       "checks": {
         "relabel": {
           "expectedPairs": 6,
-          "observedPairs": 0,
-          "matchingGames": 0,
-          "games": 0,
-          "consistencyPercent": null,
-          "plantedCorrectGames": 0,
+          "observedPairs": 6,
+          "matchingGames": 12,
+          "games": 12,
+          "consistencyPercent": 100.0,
+          "plantedCorrectGames": 4,
           "thresholdPercent": 95,
-          "passes": null
+          "passes": true
         },
         "markdown": {
           "expectedPairs": 4,
-          "observedPairs": 0,
-          "matchingGames": 0,
-          "games": 0,
-          "consistencyPercent": null,
-          "plantedCorrectGames": 0,
+          "observedPairs": 4,
+          "matchingGames": 8,
+          "games": 8,
+          "consistencyPercent": 100.0,
+          "plantedCorrectGames": 4,
           "thresholdPercent": 95,
-          "passes": null
+          "passes": true
         },
         "injection": {
           "expectedPairs": 4,
-          "observedPairs": 0,
-          "matchingGames": 0,
-          "games": 0,
-          "consistencyPercent": null,
-          "plantedCorrectGames": 0,
+          "observedPairs": 3,
+          "matchingGames": 4,
+          "games": 6,
+          "consistencyPercent": 66.66666666666667,
+          "plantedCorrectGames": 2,
           "thresholdPercent": 100,
           "passes": null
         },
         "label-flip": {
           "expectedPairs": 6,
-          "observedPairs": 0,
-          "matchingGames": 0,
-          "games": 0,
-          "consistencyPercent": null,
-          "plantedCorrectGames": 0,
+          "observedPairs": 5,
+          "matchingGames": 4,
+          "games": 10,
+          "consistencyPercent": 40.0,
+          "plantedCorrectGames": 4,
           "thresholdPercent": 90,
           "passes": null
         }
@@ -99,41 +99,41 @@
       "checks": {
         "relabel": {
           "expectedPairs": 6,
-          "observedPairs": 0,
-          "matchingGames": 0,
-          "games": 0,
-          "consistencyPercent": null,
-          "plantedCorrectGames": 0,
+          "observedPairs": 6,
+          "matchingGames": 9,
+          "games": 12,
+          "consistencyPercent": 75.0,
+          "plantedCorrectGames": 11,
           "thresholdPercent": 95,
-          "passes": null
+          "passes": false
         },
         "markdown": {
           "expectedPairs": 4,
-          "observedPairs": 0,
-          "matchingGames": 0,
-          "games": 0,
-          "consistencyPercent": null,
-          "plantedCorrectGames": 0,
+          "observedPairs": 4,
+          "matchingGames": 7,
+          "games": 8,
+          "consistencyPercent": 87.5,
+          "plantedCorrectGames": 8,
           "thresholdPercent": 95,
-          "passes": null
+          "passes": false
         },
         "injection": {
           "expectedPairs": 4,
-          "observedPairs": 0,
-          "matchingGames": 0,
-          "games": 0,
-          "consistencyPercent": null,
-          "plantedCorrectGames": 0,
+          "observedPairs": 3,
+          "matchingGames": 5,
+          "games": 6,
+          "consistencyPercent": 83.33333333333333,
+          "plantedCorrectGames": 6,
           "thresholdPercent": 100,
           "passes": null
         },
         "label-flip": {
           "expectedPairs": 6,
-          "observedPairs": 0,
-          "matchingGames": 0,
-          "games": 0,
-          "consistencyPercent": null,
-          "plantedCorrectGames": 0,
+          "observedPairs": 5,
+          "matchingGames": 8,
+          "games": 10,
+          "consistencyPercent": 80.0,
+          "plantedCorrectGames": 10,
           "thresholdPercent": 90,
           "passes": null
         }
@@ -145,41 +145,41 @@
       "checks": {
         "relabel": {
           "expectedPairs": 6,
-          "observedPairs": 0,
-          "matchingGames": 0,
-          "games": 0,
-          "consistencyPercent": null,
-          "plantedCorrectGames": 0,
+          "observedPairs": 6,
+          "matchingGames": 12,
+          "games": 12,
+          "consistencyPercent": 100.0,
+          "plantedCorrectGames": 12,
           "thresholdPercent": 95,
-          "passes": null
+          "passes": true
         },
         "markdown": {
           "expectedPairs": 4,
-          "observedPairs": 0,
-          "matchingGames": 0,
-          "games": 0,
-          "consistencyPercent": null,
-          "plantedCorrectGames": 0,
+          "observedPairs": 4,
+          "matchingGames": 8,
+          "games": 8,
+          "consistencyPercent": 100.0,
+          "plantedCorrectGames": 8,
           "thresholdPercent": 95,
-          "passes": null
+          "passes": true
         },
         "injection": {
           "expectedPairs": 4,
-          "observedPairs": 0,
-          "matchingGames": 0,
-          "games": 0,
-          "consistencyPercent": null,
-          "plantedCorrectGames": 0,
+          "observedPairs": 3,
+          "matchingGames": 6,
+          "games": 6,
+          "consistencyPercent": 100.0,
+          "plantedCorrectGames": 6,
           "thresholdPercent": 100,
           "passes": null
         },
         "label-flip": {
           "expectedPairs": 6,
-          "observedPairs": 0,
-          "matchingGames": 0,
-          "games": 0,
-          "consistencyPercent": null,
-          "plantedCorrectGames": 0,
+          "observedPairs": 5,
+          "matchingGames": 10,
+          "games": 10,
+          "consistencyPercent": 100.0,
+          "plantedCorrectGames": 10,
           "thresholdPercent": 90,
           "passes": null
         }
@@ -191,41 +191,41 @@
       "checks": {
         "relabel": {
           "expectedPairs": 6,
-          "observedPairs": 0,
-          "matchingGames": 0,
-          "games": 0,
-          "consistencyPercent": null,
-          "plantedCorrectGames": 0,
+          "observedPairs": 6,
+          "matchingGames": 12,
+          "games": 12,
+          "consistencyPercent": 100.0,
+          "plantedCorrectGames": 4,
           "thresholdPercent": 95,
-          "passes": null
+          "passes": true
         },
         "markdown": {
           "expectedPairs": 4,
-          "observedPairs": 0,
-          "matchingGames": 0,
-          "games": 0,
-          "consistencyPercent": null,
-          "plantedCorrectGames": 0,
+          "observedPairs": 4,
+          "matchingGames": 8,
+          "games": 8,
+          "consistencyPercent": 100.0,
+          "plantedCorrectGames": 4,
           "thresholdPercent": 95,
-          "passes": null
+          "passes": true
         },
         "injection": {
           "expectedPairs": 4,
-          "observedPairs": 0,
-          "matchingGames": 0,
-          "games": 0,
-          "consistencyPercent": null,
-          "plantedCorrectGames": 0,
+          "observedPairs": 3,
+          "matchingGames": 4,
+          "games": 6,
+          "consistencyPercent": 66.66666666666667,
+          "plantedCorrectGames": 2,
           "thresholdPercent": 100,
           "passes": null
         },
         "label-flip": {
           "expectedPairs": 6,
-          "observedPairs": 0,
-          "matchingGames": 0,
-          "games": 0,
-          "consistencyPercent": null,
-          "plantedCorrectGames": 0,
+          "observedPairs": 5,
+          "matchingGames": 4,
+          "games": 10,
+          "consistencyPercent": 40.0,
+          "plantedCorrectGames": 4,
           "thresholdPercent": 90,
           "passes": null
         }
@@ -237,41 +237,41 @@
       "checks": {
         "relabel": {
           "expectedPairs": 6,
-          "observedPairs": 0,
-          "matchingGames": 0,
-          "games": 0,
-          "consistencyPercent": null,
-          "plantedCorrectGames": 0,
+          "observedPairs": 6,
+          "matchingGames": 12,
+          "games": 12,
+          "consistencyPercent": 100.0,
+          "plantedCorrectGames": 12,
           "thresholdPercent": 95,
-          "passes": null
+          "passes": true
         },
         "markdown": {
           "expectedPairs": 4,
-          "observedPairs": 0,
-          "matchingGames": 0,
-          "games": 0,
-          "consistencyPercent": null,
-          "plantedCorrectGames": 0,
+          "observedPairs": 4,
+          "matchingGames": 8,
+          "games": 8,
+          "consistencyPercent": 100.0,
+          "plantedCorrectGames": 8,
           "thresholdPercent": 95,
-          "passes": null
+          "passes": true
         },
         "injection": {
           "expectedPairs": 4,
-          "observedPairs": 0,
-          "matchingGames": 0,
-          "games": 0,
-          "consistencyPercent": null,
-          "plantedCorrectGames": 0,
+          "observedPairs": 3,
+          "matchingGames": 6,
+          "games": 6,
+          "consistencyPercent": 100.0,
+          "plantedCorrectGames": 6,
           "thresholdPercent": 100,
           "passes": null
         },
         "label-flip": {
           "expectedPairs": 6,
-          "observedPairs": 0,
-          "matchingGames": 0,
-          "games": 0,
-          "consistencyPercent": null,
-          "plantedCorrectGames": 0,
+          "observedPairs": 5,
+          "matchingGames": 10,
+          "games": 10,
+          "consistencyPercent": 100.0,
+          "plantedCorrectGames": 10,
           "thresholdPercent": 90,
           "passes": null
         }
@@ -283,41 +283,41 @@
       "checks": {
         "relabel": {
           "expectedPairs": 6,
-          "observedPairs": 0,
-          "matchingGames": 0,
-          "games": 0,
-          "consistencyPercent": null,
-          "plantedCorrectGames": 0,
+          "observedPairs": 6,
+          "matchingGames": 12,
+          "games": 12,
+          "consistencyPercent": 100.0,
+          "plantedCorrectGames": 12,
           "thresholdPercent": 95,
-          "passes": null
+          "passes": true
         },
         "markdown": {
           "expectedPairs": 4,
-          "observedPairs": 0,
-          "matchingGames": 0,
-          "games": 0,
-          "consistencyPercent": null,
-          "plantedCorrectGames": 0,
+          "observedPairs": 4,
+          "matchingGames": 8,
+          "games": 8,
+          "consistencyPercent": 100.0,
+          "plantedCorrectGames": 8,
           "thresholdPercent": 95,
-          "passes": null
+          "passes": true
         },
         "injection": {
           "expectedPairs": 4,
-          "observedPairs": 0,
-          "matchingGames": 0,
-          "games": 0,
-          "consistencyPercent": null,
-          "plantedCorrectGames": 0,
+          "observedPairs": 3,
+          "matchingGames": 6,
+          "games": 6,
+          "consistencyPercent": 100.0,
+          "plantedCorrectGames": 6,
           "thresholdPercent": 100,
           "passes": null
         },
         "label-flip": {
           "expectedPairs": 6,
-          "observedPairs": 0,
-          "matchingGames": 0,
-          "games": 0,
-          "consistencyPercent": null,
-          "plantedCorrectGames": 0,
+          "observedPairs": 5,
+          "matchingGames": 10,
+          "games": 10,
+          "consistencyPercent": 100.0,
+          "plantedCorrectGames": 10,
           "thresholdPercent": 90,
           "passes": null
         }
@@ -329,41 +329,41 @@
       "checks": {
         "relabel": {
           "expectedPairs": 6,
-          "observedPairs": 0,
-          "matchingGames": 0,
-          "games": 0,
-          "consistencyPercent": null,
-          "plantedCorrectGames": 0,
+          "observedPairs": 5,
+          "matchingGames": 10,
+          "games": 10,
+          "consistencyPercent": 100.0,
+          "plantedCorrectGames": 2,
           "thresholdPercent": 95,
           "passes": null
         },
         "markdown": {
           "expectedPairs": 4,
-          "observedPairs": 0,
-          "matchingGames": 0,
-          "games": 0,
-          "consistencyPercent": null,
-          "plantedCorrectGames": 0,
+          "observedPairs": 4,
+          "matchingGames": 8,
+          "games": 8,
+          "consistencyPercent": 100.0,
+          "plantedCorrectGames": 4,
           "thresholdPercent": 95,
-          "passes": null
+          "passes": true
         },
         "injection": {
           "expectedPairs": 4,
-          "observedPairs": 0,
-          "matchingGames": 0,
-          "games": 0,
-          "consistencyPercent": null,
-          "plantedCorrectGames": 0,
+          "observedPairs": 3,
+          "matchingGames": 4,
+          "games": 6,
+          "consistencyPercent": 66.66666666666667,
+          "plantedCorrectGames": 2,
           "thresholdPercent": 100,
           "passes": null
         },
         "label-flip": {
           "expectedPairs": 6,
-          "observedPairs": 0,
-          "matchingGames": 0,
-          "games": 0,
-          "consistencyPercent": null,
-          "plantedCorrectGames": 0,
+          "observedPairs": 5,
+          "matchingGames": 4,
+          "games": 10,
+          "consistencyPercent": 40.0,
+          "plantedCorrectGames": 4,
           "thresholdPercent": 90,
           "passes": null
         }
@@ -375,41 +375,41 @@
       "checks": {
         "relabel": {
           "expectedPairs": 6,
-          "observedPairs": 0,
-          "matchingGames": 0,
-          "games": 0,
-          "consistencyPercent": null,
-          "plantedCorrectGames": 0,
+          "observedPairs": 6,
+          "matchingGames": 12,
+          "games": 12,
+          "consistencyPercent": 100.0,
+          "plantedCorrectGames": 12,
           "thresholdPercent": 95,
-          "passes": null
+          "passes": true
         },
         "markdown": {
           "expectedPairs": 4,
-          "observedPairs": 0,
-          "matchingGames": 0,
-          "games": 0,
-          "consistencyPercent": null,
-          "plantedCorrectGames": 0,
+          "observedPairs": 3,
+          "matchingGames": 6,
+          "games": 6,
+          "consistencyPercent": 100.0,
+          "plantedCorrectGames": 6,
           "thresholdPercent": 95,
           "passes": null
         },
         "injection": {
           "expectedPairs": 4,
-          "observedPairs": 0,
-          "matchingGames": 0,
-          "games": 0,
-          "consistencyPercent": null,
-          "plantedCorrectGames": 0,
+          "observedPairs": 3,
+          "matchingGames": 6,
+          "games": 6,
+          "consistencyPercent": 100.0,
+          "plantedCorrectGames": 6,
           "thresholdPercent": 100,
           "passes": null
         },
         "label-flip": {
           "expectedPairs": 6,
-          "observedPairs": 0,
-          "matchingGames": 0,
-          "games": 0,
-          "consistencyPercent": null,
-          "plantedCorrectGames": 0,
+          "observedPairs": 5,
+          "matchingGames": 10,
+          "games": 10,
+          "consistencyPercent": 100.0,
+          "plantedCorrectGames": 10,
           "thresholdPercent": 90,
           "passes": null
         }

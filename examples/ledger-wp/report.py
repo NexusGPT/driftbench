@@ -49,7 +49,7 @@ def main():
     lines=['# LongJudge writing pair ledger study','',f"Measured state: {datetime.datetime.now(datetime.timezone.utc).isoformat()}. Branch `research/ledger-wp`, local head `{head}`.",'',
         '## Outcome','',
         'The model table below is the observed result, including pending and partial cells. No global superiority claim is made. This row is preregistered as no significant loss, not an assumed win.','',
-        f"Actual recorded model spend: {actual:.8f} USD. Unsettled reservations: {sum(pending.values()):.8f} USD. Total lane cap: {freeze['capUsd']} USD. Returned calls: {len(calls)}. Source: `results/spend.jsonl` and `results/calls.jsonl`.",'',
+        f"Actual recorded model spend: {actual:.8f} USD. Unsettled reservations: {sum(pending.values()):.8f} USD. Total lane cap: {freeze['capUsd']} USD. Recorded call attempts: {len(calls)}. Source: `results/spend.jsonl` and `results/calls.jsonl`.",'',
         '## Licence and label provenance','',
         '- WritingPreferenceBench is attributed to Shuangshuang Ying and coauthors. Both fetched dataset READMEs specify ODC-BY, research and educational use, attribution, and respect for referenced data licences.',
         '- Sources: [dataset repository](https://github.com/WritingPreferenceBench/Writing-Preference-Bench), [Hugging Face release](https://huggingface.co/datasets/m-a-p/Writing-Preference-Bench), [paper section 2.1](https://arxiv.org/html/2510.14616v2#S2.SS1). Fetched URLs and hashes: `sources/receipts.json` and `sources/hf-receipts.json`.',
@@ -105,13 +105,19 @@ def main():
             lines.append(f"| {row['model']} | {row['contestant']} | {kind} | {check['observedPairs']}/{check['expectedPairs']} | {check['matchingGames']}/{check['games']} | {f(check['consistencyPercent'])} | {check['thresholdPercent']} | {verdict} |")
     lines+=['','Edit consistency compares each variant with the first sealed fixture reading. Relabelling maps the choice back; label-flipping edits require the opposite choice. Planted accuracy is also retained in `results/validity-checks.json`. These are small planted checks, not estimates over arbitrary writing.','',
         '## Runtime audit','',
-        '| Model | Contestant | Returned calls | Output-limit finishes | Recorded provider errors |',
-        '|---|---|---:|---:|---:|']
+        '| Model | Contestant | Recorded attempts | Output-limit finishes | Provider errors | HTTP 429, all / test |',
+        '|---|---|---:|---:|---:|---:|']
+    transport_summary=[]
     for model in ['haiku','gpt-6-luna','gemini-3.8-flash']:
         for contestant in ['pair-ledger','reader-first-c50b2dc3','promptfoo']:
             subset=[r for r in calls if r['model']==model and r['contestant']==contestant]
             limited=sum(r.get('providerMeta',{}).get('finishReason') in ['MAX_TOKENS','length'] for r in subset)
-            lines.append(f"| {model} | {contestant} | {len(subset)} | {limited} | {sum(bool(r.get('providerError')) for r in subset)} |")
+            rate_limits=[r for r in subset if r.get('providerError') and 'Provider 429:' in r['text']]
+            test_rate_limits=sum(r['split']=='test' for r in rate_limits)
+            transport_summary.append({'model':model,'contestant':contestant,'http429All':len(rate_limits),'http429Test':test_rate_limits,
+                                      'byPhase':dict(collections.Counter(r['split'] for r in rate_limits))})
+            lines.append(f"| {model} | {contestant} | {len(subset)} | {limited} | {sum(bool(r.get('providerError')) for r in subset)} | {len(rate_limits)}/{test_rate_limits} |")
+    (HERE/'results/transport-summary.json').write_text(json.dumps(transport_summary,indent=2)+'\n')
     lines+=['','The common HTTP output limit can truncate a reasoning-heavy response. This is recorded, not repaired outside the frozen contract. In the separate reader-first row, an invalid ballot can still yield the frozen length fallback. Source: `results/calls.jsonl`.','',
         '| Scope | Model | Ordered readings | Schema re-asks | Recovered | Re-ask USD, already in total |',
         '|---|---|---:|---:|---:|---:|']
@@ -125,7 +131,8 @@ def main():
         f"- Original judge freeze commit: `a4ae4b33`. Initial freeze SHA-256: `1fb32801af8549c7a4bef7a6c271c1799e950a84316e9fcb027ef757a36b3682`, preserved in `freeze-initial.json`. Current freeze SHA-256: `{hashlib.sha256((HERE/'freeze.json').read_bytes()).hexdigest()}`. The 191 exact file hashes are in `freeze.json`.",
         '- The owner changes only the spending cap to 35 USD, transport timeouts to 300 seconds, and concurrency to four. Judge contracts, parser behavior, models, medium reasoning, output limits, statistics and sealed order are unchanged.',
         '- The first plugin crash interrupts six pilot calls; their 0.90 USD reservations remain uncertain. A second reconnect finds one Gemini fetch failure and three unfinished native calls. All uncertain reservations remain counted. See `runtime-recovery.json`, `runtime-recovery-2.json`, and `results/spend.jsonl`.',
-        '- The latest owner authorization permits at most three transport attempts with 300 second timeouts. Every returned model answer, including refusals and truncated content, is reused without a transport retry.',
+        '- The latest owner authorization permits three retries after an initial HTTP 429, with waits of 60, 120 and 240 seconds. Other transport failures allow three submissions total. Timeouts are 300 seconds. Returned model answers never receive transport retries.',
+        '- Haiku and Luna run first with at most four concurrent calls. Gemini runs last with at most two. HTTP 429 returns no model answer and is counted separately per cell, never as a judge failure. Exhausted Gemini rate-limit recovery is parked and disclosed.',
         '- Both HTTP models use medium reasoning for every contestant and the same 4096 output-token cap. Haiku uses native Claude CLI without an exposed reasoning setting.',
         '- The owner unblocks Gemini billing and restricts key files to `openai.key` and `gemini-driftbench.key`. Keys load inside each command and are not printed.',
         '- Six analysis tests and seven initial harness tests pass before calls; the transport amendment adds one passing error-classification test, including source tamper rejection, concurrent spend reservation, output polarity and the pushed-core adapter.',

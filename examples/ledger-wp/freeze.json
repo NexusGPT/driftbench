@@ -45,7 +45,7 @@
   },
   "files": {
     "examples/judge-benchmarks/src/llm-shim.mjs": "376105a7240ba6ad265fb2acc629a2c251ce5debdfca353a0b4c40aca41fe2a5",
-    "examples/ledger-wp/harness.ts": "09725a9594a276ecdc5793067416ccd6c02af475063b1ee65fb8d350b3772202",
+    "examples/ledger-wp/harness.ts": "acbc21ede442813b87fb7d83c7c03699cb8b3a9ada55b9aa705d4a600f9a826c",
     "examples/ledger-wp/phase_report.py": "adabe9c88210b02720345d6e7ae2ca74908fb9aac7357bce405c5bf9dd9f2e1a",
     "examples/ledger-wp/prepare.py": "12e81d34a14a2f00f2ab821d41a1911b29d2de91466fd71a998c7c3a33d76d2d",
     "examples/ledger-wp/seal_validity.py": "527d73e3b1ffdd0f5943d854c1e468b26b318703ae8eeb4d4369accbff5d66b2",
@@ -242,15 +242,24 @@
   "labelUse": "Gold labels never enter provider prompts, fixture requests or model cache keys.",
   "keys": "User-authorized openai.key and gemini-driftbench.key, loaded inside invoking commands only.",
   "operationalAmendment": {
-    "at": "2026-10-13T08:12:27.231036+00:00",
-    "parentFreezeSha256": "8a08d246ef989b6798df925d2b658c593aa93813e1a73194530395d061c4f1e4",
-    "ownerAuthorization": "Resume full 173-pair TEST. Cap 35 USD. At most four calls concurrently. Retry transport failures only, up to three tries, 300 second timeout. Never retry a returned answer.",
+    "at": "2026-10-13T08:33:30.374461+00:00",
+    "parentFreezeSha256": "823ee50ce8c3c75db14410d5db4e59368c5fb34c19aca9acde8c2af023982bb8",
+    "ownerAuthorization": "Shared Gemini quota. Run Haiku and Luna first, Gemini last with at most two concurrent calls. Treat 429 as no-answer transport, never judge failure.",
     "judgeContractChanged": false,
     "changedFrozenFiles": [
       "examples/ledger-wp/harness.ts"
     ],
     "transportTimeoutSeconds": 300,
     "maxConcurrency": 4,
-    "maxTransportTries": 3
+    "maxGeminiConcurrency": 2,
+    "maxTransportTries": 3,
+    "backoffClarification": "Owner explicitly authorizes three retries after the initial 429. Gemini runs last at concurrency two.",
+    "max429Submissions": 4,
+    "http429BackoffSeconds": [
+      60,
+      120,
+      240
+    ],
+    "maxOtherTransportSubmissions": 3
   }
 }

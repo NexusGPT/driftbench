@@ -1,12 +1,12 @@
 # LongJudge writing pair ledger study
 
-Measured state: 2026-10-13T08:16:21.102506+00:00. Branch `research/ledger-wp`, local head `a0d905ad279b0fc6efd749e8da7410bbc4d60315`.
+Measured state: 2026-10-13T08:27:11.663714+00:00. Branch `research/ledger-wp`, local head `edbeb20410c7214a8de3f7c0a9bd340adae23618`.
 
 ## Outcome
 
 The model table below is the observed result, including pending and partial cells. No global superiority claim is made. This row is preregistered as no significant loss, not an assumed win.
 
-Actual recorded model spend: 2.38188184 USD. Unsettled reservations: 1.85000000 USD. Total lane cap: 35 USD. Returned calls: 698. Source: `results/spend.jsonl` and `results/calls.jsonl`.
+Actual recorded model spend: 2.98045945 USD. Unsettled reservations: 1.85000000 USD. Total lane cap: 35 USD. Returned calls: 1022. Source: `results/spend.jsonl` and `results/calls.jsonl`.
 
 ## Licence and label provenance
 
@@ -84,56 +84,56 @@ Longer-wins uses whitespace units in English and Han characters in Chinese, matc
 | pilot | gemini-3.8-flash | pair-ledger | 20 | 60.00 | 3.3606 | pending/pending | pending | pending |
 | pilot | gemini-3.8-flash | reader-first-c50b2dc3 | 20 | 75.00 | 5.5983 | pending/pending | pending | pending |
 | pilot | gemini-3.8-flash | promptfoo | 20 | 75.00 | 2.4523 | pending/pending | pending | pending |
-| dev | haiku | pair-ledger | 0 | pending | pending | 0/0 | False | pending |
+| dev | haiku | pair-ledger | 0 | pending | pending | 0/0 | True | pending |
 | dev | haiku | reader-first-c50b2dc3 | 0 | pending | pending | 0/0 | False | pending |
 | dev | haiku | promptfoo | 0 | pending | pending | 0/0 | False | pending |
-| dev | gpt-6-luna | pair-ledger | 0 | pending | pending | 0/0 | False | pending |
+| dev | gpt-6-luna | pair-ledger | 0 | pending | pending | 0/0 | True | pending |
 | dev | gpt-6-luna | reader-first-c50b2dc3 | 0 | pending | pending | 0/0 | False | pending |
-| dev | gpt-6-luna | promptfoo | 0 | pending | pending | 0/0 | False | pending |
-| dev | gemini-3.8-flash | pair-ledger | 0 | pending | pending | 0/0 | False | pending |
-| dev | gemini-3.8-flash | reader-first-c50b2dc3 | 0 | pending | pending | 0/0 | pending | pending |
-| dev | gemini-3.8-flash | promptfoo | 0 | pending | pending | 0/0 | False | pending |
+| dev | gpt-6-luna | promptfoo | 0 | pending | pending | 0/0 | True | pending |
+| dev | gemini-3.8-flash | pair-ledger | 0 | pending | pending | 0/0 | True | pending |
+| dev | gemini-3.8-flash | reader-first-c50b2dc3 | 0 | pending | pending | 0/0 | False | pending |
+| dev | gemini-3.8-flash | promptfoo | 0 | pending | pending | 0/0 | True | pending |
 
 Detailed three-repeat noise, six planted fixtures, kappa, label-preserving, injection and label-flipping checks: `results/phase-report.json`. Unrun checks are pending, not passed. Source and parser remain frozen; no tuning follows these observations.
 
 | Model | Contestant | Edit | Observed / expected pairs | Consistent games | Consistency % | Preregistered bar % | Verdict |
 |---|---|---|---:|---:|---:|---:|---|
-| haiku | pair-ledger | relabel | 0/6 | 0/0 | pending | 95 | pending |
-| haiku | pair-ledger | markdown | 0/4 | 0/0 | pending | 95 | pending |
-| haiku | pair-ledger | injection | 0/4 | 0/0 | pending | 100 | pending |
-| haiku | pair-ledger | label-flip | 0/6 | 0/0 | pending | 90 | pending |
-| haiku | reader-first-c50b2dc3 | relabel | 0/6 | 0/0 | pending | 95 | pending |
-| haiku | reader-first-c50b2dc3 | markdown | 0/4 | 0/0 | pending | 95 | pending |
-| haiku | reader-first-c50b2dc3 | injection | 0/4 | 0/0 | pending | 100 | pending |
-| haiku | reader-first-c50b2dc3 | label-flip | 0/6 | 0/0 | pending | 90 | pending |
-| haiku | promptfoo | relabel | 0/6 | 0/0 | pending | 95 | pending |
-| haiku | promptfoo | markdown | 0/4 | 0/0 | pending | 95 | pending |
-| haiku | promptfoo | injection | 0/4 | 0/0 | pending | 100 | pending |
-| haiku | promptfoo | label-flip | 0/6 | 0/0 | pending | 90 | pending |
-| gpt-6-luna | pair-ledger | relabel | 0/6 | 0/0 | pending | 95 | pending |
-| gpt-6-luna | pair-ledger | markdown | 0/4 | 0/0 | pending | 95 | pending |
-| gpt-6-luna | pair-ledger | injection | 0/4 | 0/0 | pending | 100 | pending |
-| gpt-6-luna | pair-ledger | label-flip | 0/6 | 0/0 | pending | 90 | pending |
-| gpt-6-luna | reader-first-c50b2dc3 | relabel | 0/6 | 0/0 | pending | 95 | pending |
-| gpt-6-luna | reader-first-c50b2dc3 | markdown | 0/4 | 0/0 | pending | 95 | pending |
-| gpt-6-luna | reader-first-c50b2dc3 | injection | 0/4 | 0/0 | pending | 100 | pending |
-| gpt-6-luna | reader-first-c50b2dc3 | label-flip | 0/6 | 0/0 | pending | 90 | pending |
-| gpt-6-luna | promptfoo | relabel | 0/6 | 0/0 | pending | 95 | pending |
-| gpt-6-luna | promptfoo | markdown | 0/4 | 0/0 | pending | 95 | pending |
-| gpt-6-luna | promptfoo | injection | 0/4 | 0/0 | pending | 100 | pending |
-| gpt-6-luna | promptfoo | label-flip | 0/6 | 0/0 | pending | 90 | pending |
-| gemini-3.8-flash | pair-ledger | relabel | 0/6 | 0/0 | pending | 95 | pending |
-| gemini-3.8-flash | pair-ledger | markdown | 0/4 | 0/0 | pending | 95 | pending |
-| gemini-3.8-flash | pair-ledger | injection | 0/4 | 0/0 | pending | 100 | pending |
-| gemini-3.8-flash | pair-ledger | label-flip | 0/6 | 0/0 | pending | 90 | pending |
-| gemini-3.8-flash | reader-first-c50b2dc3 | relabel | 0/6 | 0/0 | pending | 95 | pending |
-| gemini-3.8-flash | reader-first-c50b2dc3 | markdown | 0/4 | 0/0 | pending | 95 | pending |
-| gemini-3.8-flash | reader-first-c50b2dc3 | injection | 0/4 | 0/0 | pending | 100 | pending |
-| gemini-3.8-flash | reader-first-c50b2dc3 | label-flip | 0/6 | 0/0 | pending | 90 | pending |
-| gemini-3.8-flash | promptfoo | relabel | 0/6 | 0/0 | pending | 95 | pending |
-| gemini-3.8-flash | promptfoo | markdown | 0/4 | 0/0 | pending | 95 | pending |
-| gemini-3.8-flash | promptfoo | injection | 0/4 | 0/0 | pending | 100 | pending |
-| gemini-3.8-flash | promptfoo | label-flip | 0/6 | 0/0 | pending | 90 | pending |
+| haiku | pair-ledger | relabel | 6/6 | 12/12 | 100.00 | 95 | pass |
+| haiku | pair-ledger | markdown | 4/4 | 8/8 | 100.00 | 95 | pass |
+| haiku | pair-ledger | injection | 3/4 | 6/6 | 100.00 | 100 | pending |
+| haiku | pair-ledger | label-flip | 5/6 | 10/10 | 100.00 | 90 | pending |
+| haiku | reader-first-c50b2dc3 | relabel | 6/6 | 12/12 | 100.00 | 95 | pass |
+| haiku | reader-first-c50b2dc3 | markdown | 4/4 | 8/8 | 100.00 | 95 | pass |
+| haiku | reader-first-c50b2dc3 | injection | 3/4 | 4/6 | 66.67 | 100 | pending |
+| haiku | reader-first-c50b2dc3 | label-flip | 5/6 | 4/10 | 40.00 | 90 | pending |
+| haiku | promptfoo | relabel | 6/6 | 9/12 | 75.00 | 95 | fail |
+| haiku | promptfoo | markdown | 4/4 | 7/8 | 87.50 | 95 | fail |
+| haiku | promptfoo | injection | 3/4 | 5/6 | 83.33 | 100 | pending |
+| haiku | promptfoo | label-flip | 5/6 | 8/10 | 80.00 | 90 | pending |
+| gpt-6-luna | pair-ledger | relabel | 6/6 | 12/12 | 100.00 | 95 | pass |
+| gpt-6-luna | pair-ledger | markdown | 4/4 | 8/8 | 100.00 | 95 | pass |
+| gpt-6-luna | pair-ledger | injection | 3/4 | 6/6 | 100.00 | 100 | pending |
+| gpt-6-luna | pair-ledger | label-flip | 5/6 | 10/10 | 100.00 | 90 | pending |
+| gpt-6-luna | reader-first-c50b2dc3 | relabel | 6/6 | 12/12 | 100.00 | 95 | pass |
+| gpt-6-luna | reader-first-c50b2dc3 | markdown | 4/4 | 8/8 | 100.00 | 95 | pass |
+| gpt-6-luna | reader-first-c50b2dc3 | injection | 3/4 | 4/6 | 66.67 | 100 | pending |
+| gpt-6-luna | reader-first-c50b2dc3 | label-flip | 5/6 | 4/10 | 40.00 | 90 | pending |
+| gpt-6-luna | promptfoo | relabel | 6/6 | 12/12 | 100.00 | 95 | pass |
+| gpt-6-luna | promptfoo | markdown | 4/4 | 8/8 | 100.00 | 95 | pass |
+| gpt-6-luna | promptfoo | injection | 3/4 | 6/6 | 100.00 | 100 | pending |
+| gpt-6-luna | promptfoo | label-flip | 5/6 | 10/10 | 100.00 | 90 | pending |
+| gemini-3.8-flash | pair-ledger | relabel | 6/6 | 12/12 | 100.00 | 95 | pass |
+| gemini-3.8-flash | pair-ledger | markdown | 4/4 | 8/8 | 100.00 | 95 | pass |
+| gemini-3.8-flash | pair-ledger | injection | 3/4 | 6/6 | 100.00 | 100 | pending |
+| gemini-3.8-flash | pair-ledger | label-flip | 5/6 | 10/10 | 100.00 | 90 | pending |
+| gemini-3.8-flash | reader-first-c50b2dc3 | relabel | 5/6 | 10/10 | 100.00 | 95 | pending |
+| gemini-3.8-flash | reader-first-c50b2dc3 | markdown | 4/4 | 8/8 | 100.00 | 95 | pass |
+| gemini-3.8-flash | reader-first-c50b2dc3 | injection | 3/4 | 4/6 | 66.67 | 100 | pending |
+| gemini-3.8-flash | reader-first-c50b2dc3 | label-flip | 5/6 | 4/10 | 40.00 | 90 | pending |
+| gemini-3.8-flash | promptfoo | relabel | 6/6 | 12/12 | 100.00 | 95 | pass |
+| gemini-3.8-flash | promptfoo | markdown | 3/4 | 6/6 | 100.00 | 95 | pending |
+| gemini-3.8-flash | promptfoo | injection | 3/4 | 6/6 | 100.00 | 100 | pending |
+| gemini-3.8-flash | promptfoo | label-flip | 5/6 | 10/10 | 100.00 | 90 | pending |
 
 Edit consistency compares each variant with the first sealed fixture reading. Relabelling maps the choice back; label-flipping edits require the opposite choice. Planted accuracy is also retained in `results/validity-checks.json`. These are small planted checks, not estimates over arbitrary writing.
 
@@ -141,23 +141,23 @@ Edit consistency compares each variant with the first sealed fixture reading. Re
 
 | Model | Contestant | Returned calls | Output-limit finishes | Recorded provider errors |
 |---|---|---:|---:|---:|
-| haiku | pair-ledger | 81 | 0 | 0 |
-| haiku | reader-first-c50b2dc3 | 76 | 0 | 0 |
-| haiku | promptfoo | 76 | 0 | 0 |
-| gpt-6-luna | pair-ledger | 82 | 0 | 0 |
-| gpt-6-luna | reader-first-c50b2dc3 | 76 | 0 | 0 |
-| gpt-6-luna | promptfoo | 76 | 0 | 0 |
-| gemini-3.8-flash | pair-ledger | 80 | 0 | 0 |
-| gemini-3.8-flash | reader-first-c50b2dc3 | 75 | 15 | 1 |
-| gemini-3.8-flash | promptfoo | 76 | 0 | 0 |
+| haiku | pair-ledger | 117 | 0 | 0 |
+| haiku | reader-first-c50b2dc3 | 112 | 0 | 0 |
+| haiku | promptfoo | 112 | 0 | 0 |
+| gpt-6-luna | pair-ledger | 118 | 0 | 0 |
+| gpt-6-luna | reader-first-c50b2dc3 | 112 | 0 | 0 |
+| gpt-6-luna | promptfoo | 112 | 0 | 0 |
+| gemini-3.8-flash | pair-ledger | 116 | 0 | 0 |
+| gemini-3.8-flash | reader-first-c50b2dc3 | 113 | 25 | 2 |
+| gemini-3.8-flash | promptfoo | 110 | 0 | 0 |
 
 The common HTTP output limit can truncate a reasoning-heavy response. This is recorded, not repaired outside the frozen contract. In the separate reader-first row, an invalid ballot can still yield the frozen length fallback. Source: `results/calls.jsonl`.
 
 | Scope | Model | Ordered readings | Schema re-asks | Recovered | Re-ask USD, already in total |
 |---|---|---:|---:|---:|---:|
-| all phases | haiku | 81 | 0 | 0 | 0.00000000 |
-| all phases | gpt-6-luna | 82 | 0 | 0 | 0.00000000 |
-| all phases | gemini-3.8-flash | 80 | 0 | 0 | 0.00000000 |
+| all phases | haiku | 117 | 0 | 0 | 0.00000000 |
+| all phases | gpt-6-luna | 118 | 0 | 0 | 0.00000000 |
+| all phases | gemini-3.8-flash | 116 | 0 | 0 | 0.00000000 |
 | test | haiku | 0 | 0 | 0 | 0.00000000 |
 | test | gpt-6-luna | 0 | 0 | 0 | 0.00000000 |
 | test | gemini-3.8-flash | 0 | 0 | 0 | 0.00000000 |
