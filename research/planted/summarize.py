@@ -111,9 +111,12 @@ for bench,N in [('verify',95),('rb',357)]:
                       'noFlipRiskBound':{'method':'Wilson upper bound on chance an item flips across three repeats','upper':iteminterval['upper']}})
     metrics['noise'][bench]=block
 spendrows=[json.loads(x) for x in (runtime/'spend.jsonl').read_text().splitlines()]
+metrics['runControls']={'initial':start,'resumes':[json.loads(x) for x in (runtime/'resumes.jsonl').read_text().splitlines()] if (runtime/'resumes.jsonl').exists() else [],'finalCapUsd':16,'maxConcurrentCalls':6,'lastNewCall':'2026-10-13T06:35:00+02:00'}
 metrics['models']=sorted({m for x in spendrows for m in x.get('models',[])})
 metrics['meterAudit']={'attempts':len(spendrows),'sumKnownCosts':sum(x['costUsd'] or 0 for x in spendrows),'unpricedAttempts':sum(x['costUsd'] is None for x in spendrows),
                        'errors':sum(x['isError'] is True or x['exitCode']!=0 for x in spendrows)}
+metrics['meterAudit']['successfulRecordedCalls']=sum(x['successfulRecordedCalls'] for x in metrics['bank'].values())+sum(x['successfulRecordedCalls'] for x in metrics['noise'].values())
+metrics['meterAudit']['unrecordedTransportAttempts']=meter['calls']-metrics['meterAudit']['successfulRecordedCalls']
 lines=['# Planted truth and noise floor','',f"Measured {metrics['generatedAt']}. Branch `research/astra-planted-truth`.",
        f"Bank freeze commit: `{start['freezeCommit']}`. Seed: `{manifest['seed']}`.",'',
        '| Benchmark | Evaluated pairs | Strict defect detection, TPR (95% Wilson) | Strict clean acceptance, TNR (95% Wilson) | Both twins correct |',
@@ -144,6 +147,14 @@ lines+=['','The noise cohorts are restricted DEV samples: 30 of 38 eligible veri
         'Each repetition uses a fresh model-recording namespace. Prompts stay identical. Deterministic code evidence may be reused; model replies are not reused between repeats.',
         'The floor is 1.95996 times sqrt(correctness-disagreement / N), for the difference between two independent one-run DEV accuracies. It is a pilot estimate, not a significance guarantee.',
         'The smallest larger gain rounds this floor upward to the next achievable item count. A real variant comparison still needs a paired test and its own error control.','']
+lines+=['','| Bank | DEV template | Constructed task | Pairs |','|---|---|---|---:|']
+familyNames={'verify':['Bracket closure','Expected marble sum','Prime factorization','Distinct tens digits','Successive discounts','Exponents and products','Parabola locus','Diagonal inverse','Unspecified fictional color','Linear equations'],
+             'rb':['Frequency dictionary','Adjacent tuple pairs','Element cubes','Nested integer sum','All capitals','No capitals','No commas','Exactly four numbers','Second paragraph prefix','Complete code fence']}
+for bench,bank in [('verify',vb),('rb',rb)]:
+    for family in range(10):
+        group=[x for x in bank if x['family']==family]
+        lines.append(f"| {bench} | `{group[0]['source']['id']}` | {familyNames[bench][family]} | {len(group)} |")
+lines+=['','These counts expose template reuse. The approved construction changes parameters and one answer component; it does not create 155 independent task families.','']
 for bench in ['verify','rb']:
     b=metrics['noise'][bench]
     if 'pairwiseFlipRate' in b:
@@ -158,8 +169,10 @@ for bench in ['rb','verify']:
 for bench in ['rb','verify']:
     b=metrics['noise'][bench]
     lines.append(f"| {bench} noise | {b['successfulRecordedCalls']} | {b['successfulRecordedCalls']} | {b['usd']:.7f} |")
-lines+=['',f"Total transport attempts: {meter['calls']}. Recorded spend: USD {meter['spent']:.7f}. Unpriced reserved amount: USD {meter['unknownReserved']:.2f}. Cap: USD 8.00. Peak active model calls: {meter['peak']}.",
+lines+=['',f"Total transport attempts: {meter['calls']}. Recorded spend: USD {meter['spent']:.7f}. Unpriced reserved amount: USD {meter['unknownReserved']:.2f}. Cap: USD 16.00. Peak active model calls: {meter['peak']}.",
         f"Observed model identifiers: {', '.join(metrics['models']) or 'not returned'}. Calls request the haiku alias.",'',
+        f"The transport completed {metrics['meterAudit']['unrecordedTransportAttempts']} attempts without a retained judge recording. This includes calls finishing during the owner-authorized concurrency restart. Their spend remains included above.",
+        'The initial bank run used two concurrent calls. The owner then raised concurrency to six and the task cap to USD 16. Existing bank predictions were preserved.',
         'Per-judgment call accounting:',
         f"- Verify bank: {metrics['bank']['verify']['successfulRecordedCalls']}/190 new calls per planned answer judgment; shared blind-reference cache hits are listed separately in metrics.json.",
         f"- RubricBench bank: {metrics['bank']['rb']['successfulRecordedCalls']}/60 new calls per pair. One canonical comparison provides both requirement grades.",
@@ -175,7 +188,7 @@ lines+=['',f"Total transport attempts: {meter['calls']}. Recorded spend: USD {me
         '- `research/planted/manifest.json`, `bank-verify.json`, `bank-rb.json`, `noise-cohorts.json`: committed pre-call stimuli and seed.',
         '- `research/planted/frozen-sources.json`: frozen judge source hashes.',
         '- `research/planted/audit-bank.py`: independent construction checks.',
-        '- `research/planted/runtime/`: raw model recordings, per-item judgments, program observations, spend meter and progress.',
+        '- `research/planted/results/`: archived model recordings, per-item judgments, program observations, spend meter and progress.',
         '- `research/planted/metrics.json`: exact counts, intervals, family rows, noise triples and call-stage counts.','']
 if any(b['complete']!=b['pairs'] for b in metrics['bank'].values()) or any(b['completeItems']!=30 for b in metrics['noise'].values()):
     lines.insert(2,'Status: INCOMPLETE. Pending cells are not completion claims.\n')

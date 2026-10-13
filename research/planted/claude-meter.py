@@ -7,7 +7,7 @@ root=Path(__file__).parent
 runtime=root/'runtime';runtime.mkdir(exist_ok=True)
 statefile=runtime/'meter-state.json';lockfile=runtime/'meter.lock'
 RESERVE=0.25
-CAP=8.0
+CAP=16.0
 token=str(uuid.uuid4())
 
 def update(fn):
@@ -19,7 +19,8 @@ def update(fn):
         return result
 
 def reserve(s):
-    if len(s['active'])>=2: raise RuntimeError('Global model concurrency exceeds two')
+    if time.time()>=1791866100: raise RuntimeError('Last new call deadline reached: 06:35 Brussels')
+    if len(s['active'])>=6: raise RuntimeError('Global model concurrency exceeds six')
     if s['spent']+s['unknownReserved']+sum(s['active'].values())+RESERVE>CAP:
         raise RuntimeError('Task spend limit reached with in-flight reserve')
     s['active'][token]=RESERVE;s['peak']=max(s['peak'],len(s['active']))
