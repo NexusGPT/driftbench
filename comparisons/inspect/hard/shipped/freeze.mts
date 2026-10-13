@@ -81,7 +81,7 @@ const dirty = execFileSync(
   },
 )
   .split('\n')
-  .filter((line) => line && !line.includes('shipped/heldout/'));
+  .filter((line) => line && !line.includes('shipped/heldout/') && !line.includes('shipped/calls'));
 if (dirty.length) throw new Error(`Commit the judge and the harness before freezing:\n${dirty.join('\n')}`);
 writeFileSync(
   `${out}freeze.json`,
