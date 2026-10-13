@@ -5,7 +5,7 @@
 <p align="center">
   <picture>
     <source media="(prefers-color-scheme: dark)" srcset=".github/readme/hero-dark.webp">
-    <img src=".github/readme/hero-light.webp" alt="driftbench, an agent evaluation framework by Nexus. Every exchange is a unit test. Every number carries an interval; drift and recovery are measured, block by block. Beside the title, driftbench drawn as one machine, an indexing test line on a bench, with eight callouts. Test generation: a hopper fed from a prompt, a spec or past conversations. Validity gate: invalid blocks never run. Agent under test: chat or code, through one adapter. Machine checks: nine pins, and a fail is final. Judge council: system 1 and system 2 balances that earned their criteria. Drift and recovery: a chart pen leaves the line, then comes back. Pass rate and interval: a dial reads 0.38, between 0.14 and 0.69. CI gate: an arm that lifts only when the candidate is noninferior." width="100%" />
+    <img src=".github/readme/hero-light.webp" alt="driftbench, an agent evaluation framework by Nexus. Every exchange is a unit test. Every number carries an interval; drift and recovery are measured, block by block. Beside the title, driftbench drawn as one machine, an indexing test line on a bench, with eight callouts. Test generation: a hopper fed from a prompt, a spec or past conversations. Validity gate: invalid blocks never run. Agent under test: chat or code, through one adapter. Machine checks: nine pins, and a fail is final. Judge council: fast and expert judges that earned their criteria. Drift and recovery: a chart pen leaves the line, then comes back. Pass rate and interval: a dial reads 0.38, between 0.14 and 0.69. CI gate: an arm that lifts only when the candidate is noninferior." width="100%" />
   </picture>
 </p>
 
@@ -216,7 +216,7 @@ Four ideas lead. Each one changes what you learn when a test fails, and what it 
 <a href=".github/readme/areas-light.png">
   <picture>
     <source media="(prefers-color-scheme: dark)" srcset=".github/readme/areas-dark.png">
-    <img alt="Four areas on four cards: scenarios and simulated users, checks and judges, drift and recovery, statistics and CI gates." src=".github/readme/areas-light.png" width="100%">
+    <img alt="Four things driftbench tests, on four cards. Test conversations: replay a real conversation, let a simulated user talk, or throw in a surprise at any step. Rules and judges: rules check what code can check, and a judge decides the rest once it has proved it can. Going off track: where the agent first went wrong, and how many steps it took to get back. Numbers you can trust: every rate with its range, and a yes or no your CI can act on." src=".github/readme/areas-light.png" width="100%">
   </picture>
 </a>
 
@@ -326,20 +326,20 @@ Complete specs go to `specs/`. A spec with no approved phrase or no machine-chec
 <a href=".github/readme/block-light.png">
   <picture>
     <source media="(prefers-color-scheme: dark)" srcset=".github/readme/block-dark.png">
-    <img alt="The second block of the plan upgrade spec in three parts. Given: the first block, an existing customer, the Acme store, the chat channel. When: the user gives the email on their account. Then: stage offer, one catalogue search, both larger plans named, no home plans, the customer id added to the ledger, the no invented data criterion. Below, every observed field passes and the block passes." src=".github/readme/block-light.png" width="100%">
+    <img alt="One step of a conversation in three parts. Before: where the step starts, after the greeting, with a current customer, in a phone shop, on chat. The user says their email address. After: what must be true: make an offer, search the plans once, name the two bigger plans, not mention home internet, learn the customer id, invent nothing. Below, every check passes and the step passes." src=".github/readme/block-light.png" width="100%">
   </picture>
 </a>
-<p align="center"><sub>Given the state so far, when the user speaks, then the agent must reach the right stage, call the right tools and say nothing it must not.</sub></p>
+<p align="center"><sub>Before the step, what the user says, and what must be true after it.</sub></p>
 
 A block holds everything the agent does between two user messages: text, cards, tool calls and tool results. The spec fixes what must be true after it. driftbench reads what happened, compares it field by field, and keeps the evidence behind every verdict. Because a block starts from its own Given, it can be run many times on its own and gets its own pass rate.
 
 <a href=".github/readme/kinds-light.png">
   <picture>
     <source media="(prefers-color-scheme: dark)" srcset=".github/readme/kinds-dark.png">
-    <img alt="The same block model for two agents. Left, the Acme sales assistant at block four: the user replies CONFIRM, the agent places the order and gives its order number; stage, tool call, confirmation guard, text and end state are checked. Right, a code interpreter agent at the first block of the price sheet task: it loads the xlsx skill, runs code that exits with 0, creates the price sheet workbook and leaves the other files untouched; sheets and cells, the formula, the workspace diff and no destructive operation are checked." src=".github/readme/kinds-light.png" width="100%">
+    <img alt="The same step model for two kinds of agent. Left, a chat agent at step 4: the user says Confirm, the agent places the order and gives its order number; right step, tool call, asked first, order id and order saved are checked. Right, an agent that writes files at step 1: it uses its spreadsheet skill, runs its own code with no error, creates price-sheet.xlsx and leaves the other files untouched; sheets and cells, the yearly formula, the other files and nothing deleted are checked." src=".github/readme/kinds-light.png" width="100%">
   </picture>
 </a>
-<p align="center"><sub>One block model for both kinds of agent. Left, the Acme agent's real reply. The same checks read a reply, a tool call or a file.</sub></p>
+<p align="center"><sub>One step model for a chat agent and for an agent that writes files.</sub></p>
 
 The same block model covers a chat agent and an agent that writes code and files. For a code agent, a block is one task step in a sandbox, and the checks read what it left behind: workbook cells and formulas, the workspace diff, the commands run, the skills loaded.
 
@@ -425,22 +425,22 @@ blocks:
 <a href=".github/readme/modes-light.png">
   <picture>
     <source media="(prefers-color-scheme: dark)" srcset=".github/readme/modes-dark.png">
-    <img alt="One golden, the plan upgrade spec, feeds three runs. Teacher forced: each block starts from the golden, so a miss stays local; it measures local accuracy. Free running: the agent's own replies carry forward, one miss leads to another; it measures compounding. Perturbed: a deviation lands at block two and the agent is back one block later; it measures recovery." src=".github/readme/modes-light.png" width="100%">
+    <img alt="One conversation, run three ways. Replay the real conversation: each step starts from the real past turns, so a miss stays local; it shows each step alone. Let the agent run: its own replies carry forward, so one miss leads to another; it shows errors that pile up. Throw in a surprise: the user changes course midway and the agent is back one step later; it shows recovery." src=".github/readme/modes-light.png" width="100%">
   </picture>
 </a>
-<p align="center"><sub>Teacher forced isolates each block. Free running lets errors compound. Perturbed injects a deviation and measures the way back.</sub></p>
+<p align="center"><sub>Replay to test each step alone, let it run to see errors pile up, or throw in a surprise to see it recover.</sub></p>
 
-The gap between teacher forced and free running on the same conversation is the **compounding index**. An agent can pass every block on its own and still fail the whole conversation. Only free running shows it. → [run modes](docs/concepts/run-modes.md)
+An agent can pass every step on its own and still fail the whole conversation. Replaying the real conversation tests each step alone; letting the agent run shows the errors that pile up. The gap between the two is the **compounding index**. → [run modes](docs/concepts/run-modes.md)
 
 ### Checking and judging every block
 
 <a href=".github/readme/council-light.png">
   <picture>
     <source media="(prefers-color-scheme: dark)" srcset=".github/readme/council-dark.png">
-    <img alt="The judge council. Machine checks run first and a machine fail is final. Then three system 1 judges, such as Jev and the OpenAI Decisions API, or three system 2 judges, chat models from OpenAI, Google and Anthropic, vote. Majority wins, a split goes to the other class, inconclusive is judged again and never counted. Below: assignment is earned through a fixture pair, separation three times out of three, and a kappa of 0.8 or more against hand labels." src=".github/readme/council-light.png" width="100%">
+    <img alt="How a verdict is reached. First, rules checked by code: tools, text, language, personal data, end state; a rule that fails is final. Then three fast judges, which answer one yes or no question, or three expert judges, models from different labs that reason it through. The majority of three wins; a split goes to the other kind of judge; an unsure answer is judged again and never counted. Below, a judge earns its place: two examples, one bad and one good; it tells them apart 3 times out of 3; it agrees with your own labels; then it judges, and ties go to the fast judge." src=".github/readme/council-light.png" width="100%">
   </picture>
 </a>
-<p align="center"><sub>Machine checks run first and cannot be overruled. Each criterion goes to the judge class that earned it on a fixture pair.</sub></p>
+<p align="center"><sub>Rules first, then fast or expert judges, each one tested before it may judge.</sub></p>
 
 - **Machine checks first.** Code checks everything code can check. A machine fail is final.
 - **Earned on evidence.** A judge owns a criterion only if it separates a failing transcript from a clean one 3 times out of 3 and agrees with hand labels at a kappa of 0.8 or more.
@@ -455,10 +455,10 @@ One run proves little. Every rate comes with its interval, comparisons are paire
 <a href=".github/readme/perturbed-light.png">
   <picture>
     <source media="(prefers-color-scheme: dark)" srcset=".github/readme/perturbed-dark.png">
-    <img alt="Six blocks of an order flow. A goal shift is injected at block three: make it two lines. At block three the agent asks for ID and skips the change: flow drift. At block four it says one line: contradiction. At block five it is back on the expected path, and the end state matches. Turns to recover: two blocks, label late, collateral zero." src=".github/readme/perturbed-light.png" width="100%">
+    <img alt="A surprise mid-conversation. Six steps of an order. At step 3 the user changes course: make it two lines. At step 3 the agent ignores the change, a wrong step. At step 4 it contradicts it. At step 5 it is back on track, and the order is saved. Back on track after 2 steps, with no damage after that." src=".github/readme/perturbed-light.png" width="100%">
   </picture>
 </a>
-<p align="center"><sub>A goal shift lands at block 3. The agent skips the change, then contradicts it, then comes back. Two blocks to recover.</sub></p>
+<p align="center"><sub>The user changes course at step 3. The agent goes off track, then comes back two steps later.</sub></p>
 
 Every failing block gets a drift class: a local error, a contradiction, flow drift, format drift or tool drift. Ten kinds of deviation can be injected at any block. After an injection, driftbench reports the blocks to recover, the failures after recovery, and whether the agent's actions stayed safe.
 
