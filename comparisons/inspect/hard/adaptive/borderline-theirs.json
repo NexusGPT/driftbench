@@ -1,0 +1,1708 @@
+{
+  "row": "borderline",
+  "set": "hard",
+  "variant": "theirs",
+  "procedureLabel": "Inspect default",
+  "model": "haiku",
+  "date": "2026-10-13T03:44:44.308Z",
+  "setSha256": "b9c13c2c69289599bb1215d497cd800ede9e07abf6273b0840b088112cb59637",
+  "items": 120,
+  "complete": 120,
+  "right": 120,
+  "wrong": 0,
+  "inconclusive": 0,
+  "unrun": 0,
+  "partial": 0,
+  "coverage": 1,
+  "accuracy": 1,
+  "ci95": {
+    "lower": 0.9689808335812966,
+    "upper": 1
+  },
+  "costUsd": 0.14531749999999993,
+  "freshCalls": 0,
+  "freshReservedUsd": 0,
+  "taskReservedUsd": 3.7568539000000003,
+  "results": [
+    {
+      "id": "borderline-near-number-0",
+      "family": "near-number",
+      "label": "pass",
+      "outcome": "pass",
+      "complete": true,
+      "request_sha256": [
+        "4108db9718b135c43bc2909198b9abbf4d7082c7cf0db1a5a61c86627aa4bdfe",
+        "a63e0a0b3e65cf9866ea5a7a8c1262147eaaa0696a11ed362ee0ccf6169b96de",
+        "d1f1227730c2e1d18740447e74d2164e09e40a4ddad036b28e1631a1b441a7cb"
+      ],
+      "votes": ["pass", "pass", "pass"],
+      "costUsd": 0.00138356
+    },
+    {
+      "id": "borderline-near-number-1",
+      "family": "near-number",
+      "label": "fail",
+      "outcome": "fail",
+      "complete": true,
+      "request_sha256": [
+        "3201d1338ad71c602fcd9dba6cd5e43e966d962702a57df93d8d8555b320f596",
+        "3990487c9fc713a05e23e545849f07f5c975e5953c36c2af684e2263b521016f",
+        "229bcfb52b1cb3689fff41eea3883963a402500c24abde4d189056081081f869"
+      ],
+      "votes": ["fail", "fail", "fail"],
+      "costUsd": 0.0008510600000000001
+    },
+    {
+      "id": "borderline-near-number-2",
+      "family": "near-number",
+      "label": "pass",
+      "outcome": "pass",
+      "complete": true,
+      "request_sha256": [
+        "6abac0d74ff79ec31ac8f9e877c3e38f322cb33f39ca98154e2be83187750f75",
+        "d36cfaaf2d8d654c3c56007b4568d336c37243502a404c3bf53f8720bde1678a",
+        "128861ecbcbe1dfcb0f5e9afc9592e5989f489e8cfb7f3c6a0a8c4150a8e38a3"
+      ],
+      "votes": ["pass", "pass", "pass"],
+      "costUsd": 0.00119756
+    },
+    {
+      "id": "borderline-near-number-3",
+      "family": "near-number",
+      "label": "fail",
+      "outcome": "fail",
+      "complete": true,
+      "request_sha256": [
+        "de2fb835ddaefb6a369300a1a5afc3cdfae3d4798418d75e68fed7b36cd658ae",
+        "e7ce76c0c6567fb71248e43618232db006729184c045de30d604c1a573c42866",
+        "994d8556d3be2982ac56ccc80edfde1565096d1183a121a453c223b6053609c4"
+      ],
+      "votes": ["fail", "fail", "fail"],
+      "costUsd": 0.0009215600000000001
+    },
+    {
+      "id": "borderline-near-number-4",
+      "family": "near-number",
+      "label": "pass",
+      "outcome": "pass",
+      "complete": true,
+      "request_sha256": [
+        "1eabbe60cbead7c087c14a0a077a2afa33489faee24d2e9c8ac422ca29a829bf",
+        "b5864953d6c50dc96d48062d8a81ae15d4fec2de50788755bcb1273e63b128d4",
+        "f92dfee8f11919d53362a647659a36f16ea3daa5d5f70ac6357f25f125702cad"
+      ],
+      "votes": ["pass", "pass", "pass"],
+      "costUsd": 0.0013335600000000001
+    },
+    {
+      "id": "borderline-near-number-5",
+      "family": "near-number",
+      "label": "fail",
+      "outcome": "fail",
+      "complete": true,
+      "request_sha256": [
+        "f0914c1836b01882c0e3967febc01752d0551e4d00a3034a2e2a3525641d7ee1",
+        "edefaabcf9345ee8d0551d390b93852925dad20de8ee8b2b815230c616523252",
+        "ff8166b0d51575d09d7ebd712c9bc15e534390029f3b1694d3cd36c8fadd8427"
+      ],
+      "votes": ["fail", "fail", "fail"],
+      "costUsd": 0.00098206
+    },
+    {
+      "id": "borderline-near-number-6",
+      "family": "near-number",
+      "label": "pass",
+      "outcome": "pass",
+      "complete": true,
+      "request_sha256": [
+        "071bd2369639418dac6a9eee0d96e6522168b3a6f044c5d10ee50df03fe7dbda",
+        "b01927bded97c5bcae976be6d70d70cd1c80df73705ea2438ebe7eaf8c80e705",
+        "61a3819abf55fb2df148edbd2eb6d7c6fcfb5eaf3ac296213558d8b13a34ddca"
+      ],
+      "votes": ["pass", "pass", "pass"],
+      "costUsd": 0.00124956
+    },
+    {
+      "id": "borderline-near-number-7",
+      "family": "near-number",
+      "label": "fail",
+      "outcome": "fail",
+      "complete": true,
+      "request_sha256": [
+        "3420e2003527ecf3bde1eb11023b49b690230e9db69d24480e6cc7e5c0048822",
+        "86442d7a3622372cbe9120c63e7636f18dc3db27d1360dd41a9c89ef313311ab",
+        "de0520d61d355f87a75fec83e58875cb159c08dc0a8a5235079b596c84b9a98d"
+      ],
+      "votes": ["fail", "fail", "fail"],
+      "costUsd": 0.0008470600000000001
+    },
+    {
+      "id": "borderline-near-number-8",
+      "family": "near-number",
+      "label": "pass",
+      "outcome": "pass",
+      "complete": true,
+      "request_sha256": [
+        "0fd48f0af584fdeabbb1001912179f70c069d23c1b3cc32136072bcfc36d6625",
+        "8c76d4b710670c383ece36b8c3dcdf65c68daec70b1ca67da3149df3e390df64",
+        "878fa9c596ad47964d06bb2040c754942ff60aa876ef6011a3ef7c8f4f5313ca"
+      ],
+      "votes": ["pass", "pass", "pass"],
+      "costUsd": 0.00131306
+    },
+    {
+      "id": "borderline-near-number-9",
+      "family": "near-number",
+      "label": "fail",
+      "outcome": "fail",
+      "complete": true,
+      "request_sha256": [
+        "19a6cb4a51a2adf91ce00bfbcace1a2f3a1de9fcf705fc4888ea49a99426c897",
+        "66fafd67bcd40e3535e79dca4db62451fb6c78c3d7466ce572706844a9dfac3e",
+        "ad680f5a16416fb227245234fbcbd70050f264727bb298b6d2c0fe41992432f8"
+      ],
+      "votes": ["fail", "fail", "fail"],
+      "costUsd": 0.00096606
+    },
+    {
+      "id": "borderline-unit-0",
+      "family": "unit",
+      "label": "pass",
+      "outcome": "pass",
+      "complete": true,
+      "request_sha256": [
+        "fd78c7cdaec2718cf92026453f012ad86d34b967a08b276ce47d02e0c18e3389",
+        "14befbbf8bce9f61493395461168c7209dfed1a6687106caf08c32abd90b22ab",
+        "18d3ca4c9b045741513dd0afc9b81227a71e84b189e47ca9b021aec2b37e940b"
+      ],
+      "votes": ["pass", "pass", "pass"],
+      "costUsd": 0.00133022
+    },
+    {
+      "id": "borderline-unit-1",
+      "family": "unit",
+      "label": "fail",
+      "outcome": "fail",
+      "complete": true,
+      "request_sha256": [
+        "239d3807a0c9e8347cefa33befdf5a7dd916afcf2ffe0e17c829d62124c20a87",
+        "7a527c9cc5327843ee29d12e4618a71bd6f928839c8dc46468bae8c25065ca5b",
+        "a6e9cb6eac811cbcd57041fa1c3fe89b14ec0e18b1672debf1c34892b6d854c8"
+      ],
+      "votes": ["fail", "fail", "fail"],
+      "costUsd": 0.00107078
+    },
+    {
+      "id": "borderline-unit-2",
+      "family": "unit",
+      "label": "pass",
+      "outcome": "pass",
+      "complete": true,
+      "request_sha256": [
+        "d0140f990c6ddd55be0f5f9025aa71f3897dae4e4a210dc867c822637ea718fd",
+        "17f6f80c66d2137a2a25b1c77dd442ae0e3e396c8c5498d9290e725a0cc1c0bf",
+        "fca54a54fc6ef11fe4785b16635d0c4fc25a63fc23f3c41cac7592c53d631b71"
+      ],
+      "votes": ["pass", "pass", "pass"],
+      "costUsd": 0.0012987200000000002
+    },
+    {
+      "id": "borderline-unit-3",
+      "family": "unit",
+      "label": "fail",
+      "outcome": "fail",
+      "complete": true,
+      "request_sha256": [
+        "a973784cd9dcac85d4d11b762958800da815ccc146e9797246fb8ba41a6d8ab5",
+        "010e3e688775066b9d7ff2b1c12ab8d6c4de583f129632f4ff2e75f7c9d97094",
+        "098790d6f9e6120bd2cf5aa496f3976063ddd931f9466c68eca4d0b992b558b1"
+      ],
+      "votes": ["fail", "fail", "fail"],
+      "costUsd": 0.00105778
+    },
+    {
+      "id": "borderline-unit-4",
+      "family": "unit",
+      "label": "pass",
+      "outcome": "pass",
+      "complete": true,
+      "request_sha256": [
+        "96eeaf7bbeb01aa3fec29f49591ab755ea78482989fc026d372cedc1e3533b63",
+        "84b0c2813e3e3f835b72409c7512b5e51e04d344fd4b5fb18186f3d7f748caf4",
+        "a0ac34c01ee12587777f666ae98161ed12b46c163e052d29ae9d57e24ec38a89"
+      ],
+      "votes": ["pass", "pass", "pass"],
+      "costUsd": 0.0012407199999999998
+    },
+    {
+      "id": "borderline-unit-5",
+      "family": "unit",
+      "label": "fail",
+      "outcome": "fail",
+      "complete": true,
+      "request_sha256": [
+        "4eda1315898ee955968edfa23273dea1df0af12aaf00a70bb89e4a38f60cd735",
+        "f622823ba0dc6f5ae3bc123cec88a58f83a7cd613cd75bcd48229af68724ac41",
+        "1279eeb216e1bf130c0de97ff36c768ad69389179647b5103bf44d2b2d54555b"
+      ],
+      "votes": ["fail", "fail", "fail"],
+      "costUsd": 0.00108028
+    },
+    {
+      "id": "borderline-unit-6",
+      "family": "unit",
+      "label": "pass",
+      "outcome": "pass",
+      "complete": true,
+      "request_sha256": [
+        "d5c33f1999152d5bc28af6057d383423d397fc2e486ce63871f18a047c25df1e",
+        "5c9c029d5a7d8c43cd2dcf60f994e374f7776491d6b70702ab4a00be3cec9fdb",
+        "954b58d44f0467fe51c2dd9637ac80c0f5488ce4b8fe22f1954d5e81e3856a82"
+      ],
+      "votes": ["pass", "pass", "pass"],
+      "costUsd": 0.00119122
+    },
+    {
+      "id": "borderline-unit-7",
+      "family": "unit",
+      "label": "fail",
+      "outcome": "fail",
+      "complete": true,
+      "request_sha256": [
+        "90f7a6d66870bdeed11922a9b6b19c8274072c7fe9c6fb4b758bce8ac5ce8656",
+        "4179a973652debfb0f8d7d991f6c0318f6d22f6f7122ad687a2f47afbe9ca228",
+        "8fc358a5201e600ff4d57ae4c179141d98fc8fac0ac084579c7abad3239d6143"
+      ],
+      "votes": ["fail", "fail", "fail"],
+      "costUsd": 0.00102628
+    },
+    {
+      "id": "borderline-unit-8",
+      "family": "unit",
+      "label": "pass",
+      "outcome": "pass",
+      "complete": true,
+      "request_sha256": [
+        "f0c37a6459330cefb73d9211b75c2f25a5cf06672a58dcea4316c1ccbe179514",
+        "1ed55f9cc86596963fa9077b096afada1b206f995fe2d7d78befea90e6a9c877",
+        "e5e8e3ba8970a90402ed9b7f95da238fdf07b3b0b797ae3194bc964bd167e966"
+      ],
+      "votes": ["pass", "pass", "pass"],
+      "costUsd": 0.00127172
+    },
+    {
+      "id": "borderline-unit-9",
+      "family": "unit",
+      "label": "fail",
+      "outcome": "fail",
+      "complete": true,
+      "request_sha256": [
+        "eed6496d4df0dbfe6805671b08024aae03db26fcffcb94fb4d87b9e4aa3a5560",
+        "cb71cb6ee8634a5580177bd52b9deedb7352cf7e97731e8017e36f5b2e1a06de",
+        "f1b436b9c019457c2707d149d5460d9ba72ae211369c1ac4e5b3904e081bde92"
+      ],
+      "votes": ["fail", "fail", "fail"],
+      "costUsd": 0.00104078
+    },
+    {
+      "id": "borderline-negation-0",
+      "family": "negation",
+      "label": "pass",
+      "outcome": "pass",
+      "complete": true,
+      "request_sha256": [
+        "55b885f6894aa4ad7fd06859d02e964bdf6e0ab8e7a0ac7cc0b8819520771db4",
+        "ed9ee0a6afe8b1571c100a1c65a804a1129dc24601225abbde9798366000cb4e",
+        "21b6bafa7797638ff4e43a1a4c82ad3b03c0e4a7bbfa661c043f105f57555aeb"
+      ],
+      "votes": ["pass", "pass", "pass"],
+      "costUsd": 0.0013062
+    },
+    {
+      "id": "borderline-negation-1",
+      "family": "negation",
+      "label": "fail",
+      "outcome": "fail",
+      "complete": true,
+      "request_sha256": [
+        "eae4a53670343c1167f327072ea4472c66ec26cc5658e632839342287a5decc2",
+        "174eef197daef9f4a2b948c84958b1345582fdd0f75c5219acd292d21187a380",
+        "7af225ef9788bf1888ca39ffb0108bf0555f7d6e857959f25f2f4f8efecdd6c0"
+      ],
+      "votes": ["fail", "fail", "fail"],
+      "costUsd": 0.0010386
+    },
+    {
+      "id": "borderline-negation-2",
+      "family": "negation",
+      "label": "pass",
+      "outcome": "pass",
+      "complete": true,
+      "request_sha256": [
+        "514e5dbdb39dbc3d23ba5d8738feb111d55f039ef96d6df74fd1ee605b80249f",
+        "92ec1d14db1344165e3c8be8167b2fde50e874c4050a486ef2438947b7a90363",
+        "27f75753520e3563ca335fe98a5869730d476c00bec0241fa3740b9c31e5fd8e"
+      ],
+      "votes": ["pass", "pass", "pass"],
+      "costUsd": 0.0012687
+    },
+    {
+      "id": "borderline-negation-3",
+      "family": "negation",
+      "label": "fail",
+      "outcome": "fail",
+      "complete": true,
+      "request_sha256": [
+        "9044ebef8fa374d942e9caf5339996997c4854c02bcbc1b0ccfff1f5d45e1239",
+        "4fc21249e061ee03b0b1c21226be4a76e969ffd19bdc659cb0e54dbaf65ef4e5",
+        "2268173d900fdb2c529c80463f97fd0db6cfa563178c55a2a09e97975fe43d50"
+      ],
+      "votes": ["fail", "fail", "fail"],
+      "costUsd": 0.0010096
+    },
+    {
+      "id": "borderline-negation-4",
+      "family": "negation",
+      "label": "pass",
+      "outcome": "pass",
+      "complete": true,
+      "request_sha256": [
+        "1802bae252570ffcd0b7637890063dd61e514045428254cb48d608ed6b7f4a9b",
+        "e219702343ad29d8075351e8510a032e73c58d51169b0807f84181bd023e6593",
+        "155007cf4cf30230c4a7dbabdc7a174d5087285d113a96a3f61b307e0979e1a7"
+      ],
+      "votes": ["pass", "pass", "pass"],
+      "costUsd": 0.0013117
+    },
+    {
+      "id": "borderline-negation-5",
+      "family": "negation",
+      "label": "fail",
+      "outcome": "fail",
+      "complete": true,
+      "request_sha256": [
+        "b5d5a17e886e5b736f34adc26c3b94bc5870bf09861f3d4f12605eca46cc4c83",
+        "35b1c969e1d5dfed3d8805a299ec80b3c58670f8142932b34886cb6894048706",
+        "b2fbbe60a3b331cd692749e32479ef7ef97d01e0494f5f046a6a65e5129ce6e7"
+      ],
+      "votes": ["fail", "fail", "fail"],
+      "costUsd": 0.0010031
+    },
+    {
+      "id": "borderline-negation-6",
+      "family": "negation",
+      "label": "pass",
+      "outcome": "pass",
+      "complete": true,
+      "request_sha256": [
+        "a28592c6fe6667ca24b5cb43329c4f508f985d08b53dbbab806aa78520ee46da",
+        "69b3dcdcd196f236a735d4c6c472cbd8acab1c08059440f0c4d78628f0528d6d",
+        "9d628a2315e4a2731e7a3c53bf042ebd2a2fd0f65894681b8d5150cc35ebcdff"
+      ],
+      "votes": ["pass", "pass", "pass"],
+      "costUsd": 0.0013047
+    },
+    {
+      "id": "borderline-negation-7",
+      "family": "negation",
+      "label": "fail",
+      "outcome": "fail",
+      "complete": true,
+      "request_sha256": [
+        "bf34938b6c86fa79975751ad7185d52ed2ea1d519e2f7a09eef9c23103486b9d",
+        "47c3463c85b196e826c8a45db4f35ab491bcaf1d330e27467a35f16a7d016975",
+        "d15513767459c247bed43e3195350fd56342c8a7cc1b5f98503a127e005b9268"
+      ],
+      "votes": ["fail", "fail", "fail"],
+      "costUsd": 0.0009946
+    },
+    {
+      "id": "borderline-negation-8",
+      "family": "negation",
+      "label": "pass",
+      "outcome": "pass",
+      "complete": true,
+      "request_sha256": [
+        "7029e47ea53998afbe6f00ebb944472180124bed93a1ba3d1c331e138b5b2365",
+        "3d9f2a1478e9c4a6e4ca710de561772a80a420c2f336a8756e011c9f7d983672",
+        "33ea49181a1cd4cf6648a8c02abbdbdeb8cd04bee41edc5ab69022aa738660b2"
+      ],
+      "votes": ["pass", "pass", "pass"],
+      "costUsd": 0.0012792
+    },
+    {
+      "id": "borderline-negation-9",
+      "family": "negation",
+      "label": "fail",
+      "outcome": "fail",
+      "complete": true,
+      "request_sha256": [
+        "374e75cd906c11e0026ba3393e8934f887b30ddb4c2ff594befd27fd876eec37",
+        "f2634362cb11708ea83b6bcd9034b996993b3059437a469841192c02022bc28f",
+        "9b12be6fdab02ad80e79bb1c9f50bfb9da8a363723a711bed61b54ab33a0775d"
+      ],
+      "votes": ["fail", "fail", "fail"],
+      "costUsd": 0.0009416000000000001
+    },
+    {
+      "id": "borderline-entity-0",
+      "family": "entity",
+      "label": "pass",
+      "outcome": "pass",
+      "complete": true,
+      "request_sha256": [
+        "3958a93e90af1de87bb274b9696bd50109244b6168acf5f2209cfc2c47abf1b7",
+        "1b4aa82efed2f892d81b13eee5ecac192f25f65eb79ee1a4f4c966bb489b83ce",
+        "17b0aba960ebc0e0fcb6d77eb3c2efe56990e8be4e9b341e7f4aa4f9545e2a46"
+      ],
+      "votes": ["pass", "pass", "pass"],
+      "costUsd": 0.00134724
+    },
+    {
+      "id": "borderline-entity-1",
+      "family": "entity",
+      "label": "fail",
+      "outcome": "fail",
+      "complete": true,
+      "request_sha256": [
+        "38b532a4592eddc2bf82fce1bf22ed604b53cfc97327fdbb2807e50b1c433326",
+        "db6ec46814525cafcb1044173fe26a18420c141518b42b1f6e7a1a460e8f1e71",
+        "ac981ca668cc0d8772e86d751a6cbbf55b311a9d6bd74317710d6bbdd1547d31"
+      ],
+      "votes": ["fail", "fail", "fail"],
+      "costUsd": 0.00102028
+    },
+    {
+      "id": "borderline-entity-2",
+      "family": "entity",
+      "label": "pass",
+      "outcome": "pass",
+      "complete": true,
+      "request_sha256": [
+        "3c980654dac00a70e447e069bbf6122386946c251c0dcea8ade365e44d61723a",
+        "a15b069f6fa27ba1b54bea42925f822291eafe458603b145dee451dca45969f4",
+        "9a80c4472933574432e184517c2b837b7dab93bea73702e9d18555cc013ac7a7"
+      ],
+      "votes": ["pass", "pass", "pass"],
+      "costUsd": 0.00130474
+    },
+    {
+      "id": "borderline-entity-3",
+      "family": "entity",
+      "label": "fail",
+      "outcome": "fail",
+      "complete": true,
+      "request_sha256": [
+        "edb16745a56ede8f7e4c4ddc041ce008d103d6038168aed4c9e96f1a7c0ee1f1",
+        "2154101d191033c48826a9341cf50d464c4339c324ccfa9749050cebfd0f4815",
+        "e3d593769ffca5c3a8fa6ddbf9bb1763b2c8fefc06d6d6cb92a69d84a78c3c4c"
+      ],
+      "votes": ["fail", "fail", "fail"],
+      "costUsd": 0.00106228
+    },
+    {
+      "id": "borderline-entity-4",
+      "family": "entity",
+      "label": "pass",
+      "outcome": "pass",
+      "complete": true,
+      "request_sha256": [
+        "c32e5c016bef65eb541b144f37e2464fe189c037cb8e6dba93ea72bd9e82f115",
+        "aeae4d27e90bced1b1b86d5a97c1cee9027d18806bd909ad21c30048b6924f91",
+        "2822c5204df12eccdf2eb52af12f230b91eaf04d97f2c026fec99867107e87b6"
+      ],
+      "votes": ["pass", "pass", "pass"],
+      "costUsd": 0.00125424
+    },
+    {
+      "id": "borderline-entity-5",
+      "family": "entity",
+      "label": "fail",
+      "outcome": "fail",
+      "complete": true,
+      "request_sha256": [
+        "7573f7acb4e3a2210742f375b725152adf7db8329175efef3df0fc8b942ea87a",
+        "38b3cfb58318fa7f47f0378a34d628fb3ab4a2d77152e629f52c3eaa28588038",
+        "ebcda85cede95175417016fc007e2a5feb234c37c9b840e41f46586b3e5ef33f"
+      ],
+      "votes": ["fail", "fail", "fail"],
+      "costUsd": 0.0011542800000000001
+    },
+    {
+      "id": "borderline-entity-6",
+      "family": "entity",
+      "label": "pass",
+      "outcome": "pass",
+      "complete": true,
+      "request_sha256": [
+        "a7dc3d079f76f5c730ffc27e954e5f16a7e766e517575d8fc450568ea63430f0",
+        "87b84b2cb194b844d880767fbce8bbde98d41f000d8be5871462be71f8825bb8",
+        "d4cc0211d30ef927fd3bbcbb8401e2987fbffb8e96f0239be528383ce837608f"
+      ],
+      "votes": ["pass", "pass", "pass"],
+      "costUsd": 0.00123924
+    },
+    {
+      "id": "borderline-entity-7",
+      "family": "entity",
+      "label": "fail",
+      "outcome": "fail",
+      "complete": true,
+      "request_sha256": [
+        "9385b6ecb8d467866184603cc8c46cd82a09e6dbcda3bf9d4b3a5ecbb6cdd691",
+        "bcbcac1246eadf6d8d5a644fb4eefad14aedefb5827e648f183b7d6f9f8d88eb",
+        "e1b6b79ca3524e2e69c2a51124cd48159532c1f30811241daab82c4330c2823c"
+      ],
+      "votes": ["fail", "fail", "fail"],
+      "costUsd": 0.0011247800000000001
+    },
+    {
+      "id": "borderline-entity-8",
+      "family": "entity",
+      "label": "pass",
+      "outcome": "pass",
+      "complete": true,
+      "request_sha256": [
+        "c4e75ae37caab3fd159b69aaee6083080bbcdf11925acea52b40f3adeebdc582",
+        "2cd3fade89c45db9965286340526576a571e4f29fada8b6103fa0c4691c3b88f",
+        "7d915706211d1dc08804de7ced5a4520ea8bcfe2453cf89ebb5d96a897dbb496"
+      ],
+      "votes": ["pass", "pass", "pass"],
+      "costUsd": 0.00131924
+    },
+    {
+      "id": "borderline-entity-9",
+      "family": "entity",
+      "label": "fail",
+      "outcome": "fail",
+      "complete": true,
+      "request_sha256": [
+        "f53fc85b2358d7c071e6213775d4f02e41b807bc3c6561cb81f4601ea98c576c",
+        "9317f43e705ddbb6655066ef60f2f343766c6e0d6fd579d8aa47a103524301ec",
+        "67e95bd51420441d2de132d4823be936d5afb685b14f29f6b14ca432b2d11b3c"
+      ],
+      "votes": ["fail", "fail", "fail"],
+      "costUsd": 0.0010597800000000002
+    },
+    {
+      "id": "borderline-missing-0",
+      "family": "missing",
+      "label": "pass",
+      "outcome": "pass",
+      "complete": true,
+      "request_sha256": [
+        "4108db9718b135c43bc2909198b9abbf4d7082c7cf0db1a5a61c86627aa4bdfe",
+        "a63e0a0b3e65cf9866ea5a7a8c1262147eaaa0696a11ed362ee0ccf6169b96de",
+        "d1f1227730c2e1d18740447e74d2164e09e40a4ddad036b28e1631a1b441a7cb"
+      ],
+      "votes": ["pass", "pass", "pass"],
+      "costUsd": 0.00138356
+    },
+    {
+      "id": "borderline-missing-1",
+      "family": "missing",
+      "label": "fail",
+      "outcome": "fail",
+      "complete": true,
+      "request_sha256": [
+        "0136f9826a84a9d6430ab52466ff25f8067805166013e2d8118251d5f883b7f2",
+        "857ef2fffa318998908d69a29c87631aead466e1fe95c865fdb08705a4bb6c56",
+        "50eb34751e63c59c29ceefd630c99bdf6279f051c1c917612fbfdd0c93a50fe2"
+      ],
+      "votes": ["fail", "fail", "fail"],
+      "costUsd": 0.0009434800000000001
+    },
+    {
+      "id": "borderline-missing-2",
+      "family": "missing",
+      "label": "pass",
+      "outcome": "pass",
+      "complete": true,
+      "request_sha256": [
+        "6abac0d74ff79ec31ac8f9e877c3e38f322cb33f39ca98154e2be83187750f75",
+        "d36cfaaf2d8d654c3c56007b4568d336c37243502a404c3bf53f8720bde1678a",
+        "128861ecbcbe1dfcb0f5e9afc9592e5989f489e8cfb7f3c6a0a8c4150a8e38a3"
+      ],
+      "votes": ["pass", "pass", "pass"],
+      "costUsd": 0.00119756
+    },
+    {
+      "id": "borderline-missing-3",
+      "family": "missing",
+      "label": "fail",
+      "outcome": "fail",
+      "complete": true,
+      "request_sha256": [
+        "b745a7ec02801c3ce38298494ac065234d1ab229f86ade7ae57e28b18100224f",
+        "7da5a1d02bde1997b4e606feda89bfec3642eb0260728449e6eb410d32262fa1",
+        "955c5d18138b095504663bcd5a8b5043e870eaf02cca85c90d3ce1194abf39ef"
+      ],
+      "votes": ["fail", "fail", "fail"],
+      "costUsd": 0.00091198
+    },
+    {
+      "id": "borderline-missing-4",
+      "family": "missing",
+      "label": "pass",
+      "outcome": "pass",
+      "complete": true,
+      "request_sha256": [
+        "1eabbe60cbead7c087c14a0a077a2afa33489faee24d2e9c8ac422ca29a829bf",
+        "b5864953d6c50dc96d48062d8a81ae15d4fec2de50788755bcb1273e63b128d4",
+        "f92dfee8f11919d53362a647659a36f16ea3daa5d5f70ac6357f25f125702cad"
+      ],
+      "votes": ["pass", "pass", "pass"],
+      "costUsd": 0.0013335600000000001
+    },
+    {
+      "id": "borderline-missing-5",
+      "family": "missing",
+      "label": "fail",
+      "outcome": "fail",
+      "complete": true,
+      "request_sha256": [
+        "36206c71133afa2d266343733511a5f3a18b13ca1491f50a6f4471ca040c79f1",
+        "e24791f0c0773b57ecbc5c543d82afde921bc8f6256b7320208cb2aea204f08d",
+        "c14b41d3f84fe03430a01dc80c85fd8407d6815ed1b38137deaefff706d2d9b4"
+      ],
+      "votes": ["fail", "fail", "fail"],
+      "costUsd": 0.0009869800000000001
+    },
+    {
+      "id": "borderline-missing-6",
+      "family": "missing",
+      "label": "pass",
+      "outcome": "pass",
+      "complete": true,
+      "request_sha256": [
+        "071bd2369639418dac6a9eee0d96e6522168b3a6f044c5d10ee50df03fe7dbda",
+        "b01927bded97c5bcae976be6d70d70cd1c80df73705ea2438ebe7eaf8c80e705",
+        "61a3819abf55fb2df148edbd2eb6d7c6fcfb5eaf3ac296213558d8b13a34ddca"
+      ],
+      "votes": ["pass", "pass", "pass"],
+      "costUsd": 0.00124956
+    },
+    {
+      "id": "borderline-missing-7",
+      "family": "missing",
+      "label": "fail",
+      "outcome": "fail",
+      "complete": true,
+      "request_sha256": [
+        "8caa38653b42d8e9c2c695513cf916565ecf63f570e0b88344c0dd1c3e4c32d9",
+        "0d12aab51429f9d3a80def309f8ce0c1467887c9c13e42e1b87760d166e46670",
+        "0740c17a38867cf83da15967bc8ef32098d1618f8d0954dfe1cf22c442b5f94d"
+      ],
+      "votes": ["fail", "fail", "fail"],
+      "costUsd": 0.0009559800000000002
+    },
+    {
+      "id": "borderline-missing-8",
+      "family": "missing",
+      "label": "pass",
+      "outcome": "pass",
+      "complete": true,
+      "request_sha256": [
+        "0fd48f0af584fdeabbb1001912179f70c069d23c1b3cc32136072bcfc36d6625",
+        "8c76d4b710670c383ece36b8c3dcdf65c68daec70b1ca67da3149df3e390df64",
+        "878fa9c596ad47964d06bb2040c754942ff60aa876ef6011a3ef7c8f4f5313ca"
+      ],
+      "votes": ["pass", "pass", "pass"],
+      "costUsd": 0.00131306
+    },
+    {
+      "id": "borderline-missing-9",
+      "family": "missing",
+      "label": "fail",
+      "outcome": "fail",
+      "complete": true,
+      "request_sha256": [
+        "6d5151ec0ca3a5955f53e1ce80054f5425a70e8a3fb861304e7615b46184186d",
+        "5cbc2bb23b84edd59e576e99ebcb9c53478933d122aa52297574ce77a4f3f10a",
+        "874125af618ea8ca5d57df5fbb1ee1164f60430996493121068119677a798cf5"
+      ],
+      "votes": ["fail", "fail", "fail"],
+      "costUsd": 0.00109998
+    },
+    {
+      "id": "borderline-conditional-0",
+      "family": "conditional",
+      "label": "pass",
+      "outcome": "pass",
+      "complete": true,
+      "request_sha256": [
+        "56bb29d6f61785d5a92681af5472430843478569fc2beadfa4629c00a18c7951",
+        "a55baa2fa53b19b995b186e563b49773637cc8525bf9e19107b32e868128aaff",
+        "b1b02bed5e03a9a9ac14160d4b09d43931c20a4b3897e5b7e0642da334d16539"
+      ],
+      "votes": ["pass", "pass", "pass"],
+      "costUsd": 0.00120558
+    },
+    {
+      "id": "borderline-conditional-1",
+      "family": "conditional",
+      "label": "fail",
+      "outcome": "fail",
+      "complete": true,
+      "request_sha256": [
+        "e830be6c6ff3a0469fd59b9c28cb99052f5851c6bff62196ab055f8cb20daf7e",
+        "48d881f679b7b254aee0a54dd49da94dceae122a2f0c2b9777c4b3caffef17c5",
+        "64f4b1bdb17abca527441218fb87631d1964c57a63125c165676e96bc7b05dea"
+      ],
+      "votes": ["fail", "fail", "fail"],
+      "costUsd": 0.0009465000000000001
+    },
+    {
+      "id": "borderline-conditional-2",
+      "family": "conditional",
+      "label": "pass",
+      "outcome": "pass",
+      "complete": true,
+      "request_sha256": [
+        "13f9b27634eab68e9b964a2bd8ba50d88d6dd825c828dfb9ed42c6c87023fe41",
+        "80385762f2e2ef0065572bec94c370c0bc1d74e06da0a3740bdafe8b62cc4201",
+        "a709babd6967e3c767474a997a04cc21431c38edcd6f0fa711f2386e16d85003"
+      ],
+      "votes": ["pass", "pass", "pass"],
+      "costUsd": 0.00126558
+    },
+    {
+      "id": "borderline-conditional-3",
+      "family": "conditional",
+      "label": "fail",
+      "outcome": "fail",
+      "complete": true,
+      "request_sha256": [
+        "b78948485713e5c580da58262ec5eff64d26bcbcce5f57e266d458a8f4feea3b",
+        "521ae42e1d491f349f4fec42ced76527ef3aa4089236858afc7806e7b2d50662",
+        "7596cb518be3fa46aed8aa53e8b65387474a6ca19f5d3f55dc880a3dd52d6eaa"
+      ],
+      "votes": ["fail", "fail", "fail"],
+      "costUsd": 0.0009925000000000001
+    },
+    {
+      "id": "borderline-conditional-4",
+      "family": "conditional",
+      "label": "pass",
+      "outcome": "pass",
+      "complete": true,
+      "request_sha256": [
+        "b6eb5ec1c07dec0b3a392eaf48b7d384ee8a3fc86ba80045df1efaf4d60ba609",
+        "d31b43e5939e8f225ed7171d0a139909b121b6b2b53f42a68df1dd1106a98a8b",
+        "0b522996382bb8e83951cda3f195ecf60861be5dbd659a16e589f1f63526d8de"
+      ],
+      "votes": ["pass", "pass", "pass"],
+      "costUsd": 0.00110708
+    },
+    {
+      "id": "borderline-conditional-5",
+      "family": "conditional",
+      "label": "fail",
+      "outcome": "fail",
+      "complete": true,
+      "request_sha256": [
+        "5b1534b8ea5ffa54f131bf4f43b278bbc4de93d2ad380afad0d9772a0d7b5a1d",
+        "9200e29f211b7f7225d9f6b944679a7e0c6543be29d9854730f787c353e9a0d2",
+        "13e898346eb1376f467b60d6f1ca939288e5e9583340b0870ace62c3f0ae1427"
+      ],
+      "votes": ["fail", "fail", "fail"],
+      "costUsd": 0.0009545000000000002
+    },
+    {
+      "id": "borderline-conditional-6",
+      "family": "conditional",
+      "label": "pass",
+      "outcome": "pass",
+      "complete": true,
+      "request_sha256": [
+        "a68f5eb61fad4d0a1061bfaf3bcfc5b08d927bf422b6c28091d96f2f1d16bf4f",
+        "31ba601a764a34093b122fa2167a7b98c8a721a43b00ec2712483a639e9eb715",
+        "ea140c5d3c4ca0190f3b446bc95521fe7cbbb72a2c3321ca4d18dc544430d4bf"
+      ],
+      "votes": ["pass", "pass", "pass"],
+      "costUsd": 0.00114558
+    },
+    {
+      "id": "borderline-conditional-7",
+      "family": "conditional",
+      "label": "fail",
+      "outcome": "fail",
+      "complete": true,
+      "request_sha256": [
+        "0f6ceec6c299f53f436064beee8d19c93393a20cd306ccf0096ff26c979d866f",
+        "b1a61aa8a3a993486f44ceb3dbd55c8ad6dd27b7ff86330934e54b2dc2d8486a",
+        "e6b80a0b81308c7ca08241ac7f563c4a4f8fb22fae6665c6bee514b54d423be2"
+      ],
+      "votes": ["fail", "fail", "fail"],
+      "costUsd": 0.0010015000000000002
+    },
+    {
+      "id": "borderline-conditional-8",
+      "family": "conditional",
+      "label": "pass",
+      "outcome": "pass",
+      "complete": true,
+      "request_sha256": [
+        "7d4711a1045746fd6851e775111ceecb13769b75cdfb09b888dfaa88706680f2",
+        "7793b19abbdcbdde417ba80885b7a2f2775569b353e4fcc5746a404c91a1c071",
+        "02196fbc0f7381bfaf2a8df190910184e5eda4e31953269430858bca8c08eebd"
+      ],
+      "votes": ["pass", "pass", "pass"],
+      "costUsd": 0.00108208
+    },
+    {
+      "id": "borderline-conditional-9",
+      "family": "conditional",
+      "label": "fail",
+      "outcome": "fail",
+      "complete": true,
+      "request_sha256": [
+        "ca1aeb6d54b8e6c47816c1c2890286227fe6edbdc7bec6954a3b3ebf60b5c8f8",
+        "b69bdd9a8c63fb9cc5a319fa6c2becb0f53998531666152e2165e89ad3f26526",
+        "579895e6f53dfe9d1f871730a9912a2ac197e0366ec7f7156f1288cafac19395"
+      ],
+      "votes": ["fail", "fail", "fail"],
+      "costUsd": 0.0009570000000000002
+    },
+    {
+      "id": "borderline-correction-0",
+      "family": "correction",
+      "label": "pass",
+      "outcome": "pass",
+      "complete": true,
+      "request_sha256": [
+        "6577282cf9bf8bf649aad91235db66ac0cba36eb22e0bef9d0203f2a65e99e16",
+        "05d1bdbd7a7d3b2581a4790b1bc0ba2c9416872dcf9229ebd19db98526bf3f32",
+        "040f92d13997550fa1d337b26fd7468cd08e2665f392f54ae78f70c8b3c5f91a"
+      ],
+      "votes": ["pass", "pass", "pass"],
+      "costUsd": 0.0013333400000000001
+    },
+    {
+      "id": "borderline-correction-1",
+      "family": "correction",
+      "label": "fail",
+      "outcome": "fail",
+      "complete": true,
+      "request_sha256": [
+        "c664e6ff4e6d970cc654889e1ff8e1a7db6effb2835974293eea9b0ae50d83b9",
+        "0d979d955c329344a54c5083d0850f8319a5e3a67c2d2e26b4109ce4c85d09a7",
+        "de45ed2911a8dd25825616efaa840c205876bcbd6b3d093f2e6e72606f08adb9"
+      ],
+      "votes": ["fail", "fail", "fail"],
+      "costUsd": 0.0011991200000000001
+    },
+    {
+      "id": "borderline-correction-2",
+      "family": "correction",
+      "label": "pass",
+      "outcome": "pass",
+      "complete": true,
+      "request_sha256": [
+        "eb3df07109ee6a63290bf91e3c8a958049a15bca815aaf5ee78d1b0e794976ef",
+        "7a3c444214d24e6a8f9b1863ad7d27f62700248ab475ee2df081865dcc614219",
+        "8edd5f2282d93c50e250c50a4aac82ea55422d1dbbccad72ddccf962624e709e"
+      ],
+      "votes": ["pass", "pass", "pass"],
+      "costUsd": 0.0013203400000000001
+    },
+    {
+      "id": "borderline-correction-3",
+      "family": "correction",
+      "label": "fail",
+      "outcome": "fail",
+      "complete": true,
+      "request_sha256": [
+        "cb6a82434f8349ce907b5125613abef6ada5ac5f8fe9a0df6bee616aff9259e3",
+        "6de0583fd0241129a3a6293df1be48120c71f7c8a440fdd9f6dc5e69c9669d1b",
+        "caf64c4fda10ecbbea06016add944cf9c4d1ef27100f630897ad392b6e28d631"
+      ],
+      "votes": ["fail", "fail", "fail"],
+      "costUsd": 0.0011141200000000001
+    },
+    {
+      "id": "borderline-correction-4",
+      "family": "correction",
+      "label": "pass",
+      "outcome": "pass",
+      "complete": true,
+      "request_sha256": [
+        "0c073f1fe927126de5d162d17ad6a454166b6f899385b9922a73bf4d085827a7",
+        "c3fee622160eb70623fb3db15bc217a2a821dda7d603a81617b36f364a1957ee",
+        "a6566aeac21223c26f5baef6c08f43deb41fc9ff497e38cc07f8423be0c1c8b1"
+      ],
+      "votes": ["pass", "pass", "pass"],
+      "costUsd": 0.00127684
+    },
+    {
+      "id": "borderline-correction-5",
+      "family": "correction",
+      "label": "fail",
+      "outcome": "fail",
+      "complete": true,
+      "request_sha256": [
+        "7d3ff6cc42127fa1094f93672e5bf96fa5e824cb3668ab15459b6ed30cba0f93",
+        "17b626ad84142aefe7d2c06b78b3a3dac60954e4e5ce0955e706d739064a8745",
+        "fddfc1af234fbaaeee59ee5fedeee042cf01e3b5cfb5b16f18788a568cf1b2fc"
+      ],
+      "votes": ["fail", "fail", "fail"],
+      "costUsd": 0.00117562
+    },
+    {
+      "id": "borderline-correction-6",
+      "family": "correction",
+      "label": "pass",
+      "outcome": "pass",
+      "complete": true,
+      "request_sha256": [
+        "5b4e51fd512edd168bdd4907c40fe08eb6ccf27a98e0f32c2fcd754ea9ed0514",
+        "7fcd962c7139f0cb6b13dea5d2beedb078bc4fca3f70d1e4127b1a855c148cc8",
+        "4a4ae6429ebeab2b996dc2aa174fdb05c4af3a0a8a7b7ae8f869a485116b2501"
+      ],
+      "votes": ["pass", "pass", "pass"],
+      "costUsd": 0.00133934
+    },
+    {
+      "id": "borderline-correction-7",
+      "family": "correction",
+      "label": "fail",
+      "outcome": "fail",
+      "complete": true,
+      "request_sha256": [
+        "27b3f09a5edafb50eb5c4a95283d8928ed8856d1f960d0c1c45d43c29041b8cc",
+        "77f4760f1113afe1e570a15fe244208893ef9533c6b438a42626a7bfd319490d",
+        "fc65fe80998bf12bc9ce60af0f8414c6f76a1430ba81b125f3a9af9420e9ea0c"
+      ],
+      "votes": ["fail", "fail", "fail"],
+      "costUsd": 0.0012046200000000002
+    },
+    {
+      "id": "borderline-correction-8",
+      "family": "correction",
+      "label": "pass",
+      "outcome": "pass",
+      "complete": true,
+      "request_sha256": [
+        "a382c20535635f1ca36755a2e0023280531eb89bf5fae2d929b03e6b2e3adfe2",
+        "b0260eac9e082c7683d3c2e012f34e4ccf41c0518b7c6959adf57fe5c3ba3f60",
+        "547d7edb3a36a0cd991ebd5b6f8f3f481bd07badea30673e8af19e3cf1662c1b"
+      ],
+      "votes": ["pass", "pass", "pass"],
+      "costUsd": 0.0013053400000000003
+    },
+    {
+      "id": "borderline-correction-9",
+      "family": "correction",
+      "label": "fail",
+      "outcome": "fail",
+      "complete": true,
+      "request_sha256": [
+        "9fcffe8f527dad912b7e7113ab319af8bc9c6c2e074cb52c247c8e79895a71c4",
+        "5559042ce9c3f421cfdf094786d0975e277a79713387f94cdbe05398e05dab65",
+        "21f23770a6b4b78430f1ee5b493ec1cf2a898e9360c1952d6d67f54918c6aa6f"
+      ],
+      "votes": ["fail", "fail", "fail"],
+      "costUsd": 0.00115912
+    },
+    {
+      "id": "borderline-quotation-0",
+      "family": "quotation",
+      "label": "pass",
+      "outcome": "pass",
+      "complete": true,
+      "request_sha256": [
+        "6725649a621eb74891f65079ba6c04443d377ff45cc0521f3744bf20d3b6ddd1",
+        "dde9a2d9ff6f402b443b082edc5f885b311e524e668acd0c2e030a9e357f2c4a",
+        "9d440d8fb668b0e026929ea24534e92121b6c97776b04dca05028f18326f22d5"
+      ],
+      "votes": ["pass", "pass", "pass"],
+      "costUsd": 0.0013795
+    },
+    {
+      "id": "borderline-quotation-1",
+      "family": "quotation",
+      "label": "fail",
+      "outcome": "fail",
+      "complete": true,
+      "request_sha256": [
+        "6f7a7b206ab4626053dec3a86fb3281ae63455e9a891b7956b4526ba29698671",
+        "e7e857bef56ad5974db6604e8653190e6c9cbe6e3efecd5a5768ba4a4d09210c",
+        "ede3c88818fdf73037a3dde9acca31dd2d8dc8828d71308309a82ef4c9155017"
+      ],
+      "votes": ["fail", "fail", "fail"],
+      "costUsd": 0.00133884
+    },
+    {
+      "id": "borderline-quotation-2",
+      "family": "quotation",
+      "label": "pass",
+      "outcome": "pass",
+      "complete": true,
+      "request_sha256": [
+        "13802780502607317fac1cb0189db89e1b19740d1d6cbc19cd2784453e2476bb",
+        "ae0adcbfb759fe088dbc5a8dd1af1c5fa3223d56e4039143d90464cc168c8012",
+        "bfffe8a29973f8780639d0efa39b4cd57404d8edbe3899ce33335b235498f997"
+      ],
+      "votes": ["pass", "pass", "pass"],
+      "costUsd": 0.001263
+    },
+    {
+      "id": "borderline-quotation-3",
+      "family": "quotation",
+      "label": "fail",
+      "outcome": "fail",
+      "complete": true,
+      "request_sha256": [
+        "f5c6f126cc6d3b983b9d8630bf830dac54a165fb23cfdc4be75402c1ff2645ae",
+        "5416dd799bf278f016b433047dfd657698bb32a89ba7f9e793510e0567f42169",
+        "f070610c65b82fe1f0a77a436be8bea54c6bbad30d140264ccfb16916d48f98d"
+      ],
+      "votes": ["fail", "fail", "fail"],
+      "costUsd": 0.00121984
+    },
+    {
+      "id": "borderline-quotation-4",
+      "family": "quotation",
+      "label": "pass",
+      "outcome": "pass",
+      "complete": true,
+      "request_sha256": [
+        "116c2b3908c2fb236dfd753415f18df2433df6703c1c76f7b917cd6eea3ffa60",
+        "0338dc1842812500eb9b587190c02279184e159b2383ee82a16073401c9d61d5",
+        "e54a0ccb479eb9b0edbef8ad960e65ad8e442ec44211e7851a0fb676ad4bba93"
+      ],
+      "votes": ["pass", "pass", "pass"],
+      "costUsd": 0.0014485000000000001
+    },
+    {
+      "id": "borderline-quotation-5",
+      "family": "quotation",
+      "label": "fail",
+      "outcome": "fail",
+      "complete": true,
+      "request_sha256": [
+        "ca6b65ff28140327426d2deaffeb71d897070ed784d5968d7d1dd46129b895a5",
+        "a24a0ac7b04ddb42ba954994c4776078ba7f733e3b55f67b51604a497ffbb555",
+        "e9f68c58c83d50860a5b2a14545fb1f36c367690710953a987e0b3bd2299f6d2"
+      ],
+      "votes": ["fail", "fail", "fail"],
+      "costUsd": 0.00118484
+    },
+    {
+      "id": "borderline-quotation-6",
+      "family": "quotation",
+      "label": "pass",
+      "outcome": "pass",
+      "complete": true,
+      "request_sha256": [
+        "f43305005bdae37b48cb40e44bd9b3cb3ef185ea04bc7a499e1e043a645fede9",
+        "97e39cdab90da8c93f3ee126c806112a56aa162ac126c345eafe8c59bdd08fa7",
+        "4c19adbe4d61aac934c44cf1a5b0b0c5fbe70301aa2cb77e1defc8bc6d144d01"
+      ],
+      "votes": ["pass", "pass", "pass"],
+      "costUsd": 0.001337
+    },
+    {
+      "id": "borderline-quotation-7",
+      "family": "quotation",
+      "label": "fail",
+      "outcome": "fail",
+      "complete": true,
+      "request_sha256": [
+        "aeff1003c5646531c204d1effd8a9616fbaaeab3ffcd129023a93e376c961cad",
+        "d252968e082e7d36bfc7e773c6f849ce1b118461523eafc9c1f8fc5cc0c36193",
+        "2d103bead8f4fbe9e1822d5c072a7073a08393d5bc2be64cf89d6da20652ab7c"
+      ],
+      "votes": ["fail", "fail", "fail"],
+      "costUsd": 0.0013793400000000002
+    },
+    {
+      "id": "borderline-quotation-8",
+      "family": "quotation",
+      "label": "pass",
+      "outcome": "pass",
+      "complete": true,
+      "request_sha256": [
+        "44352a2d32b244d463346458724f68dd599d21e1f50b1b5567ca0e096075df65",
+        "a60af4564b4b03da6a51195ee880d3be97da88765465eea3f869d9f449125d1e",
+        "a7359ff47a7d76121f0b67d8aaedcdbba8c1d50d98216021de6ed5faa92ebf53"
+      ],
+      "votes": ["pass", "pass", "pass"],
+      "costUsd": 0.001412
+    },
+    {
+      "id": "borderline-quotation-9",
+      "family": "quotation",
+      "label": "fail",
+      "outcome": "fail",
+      "complete": true,
+      "request_sha256": [
+        "e5a50168f82ecacb4370fc0e1ab793f47cecfad5ce9767842eb135b53f2a35f6",
+        "12a802f614b3b7dbe04335f3070bfb5b0c72293fc8bf6b4bf488e0bde44e55e5",
+        "010644757cece0eb63f95398287aef61d28137df4a7bc3a489754e01dd33dc79"
+      ],
+      "votes": ["fail", "fail", "fail"],
+      "costUsd": 0.0014183400000000001
+    },
+    {
+      "id": "borderline-mixed-language-0",
+      "family": "mixed-language",
+      "label": "pass",
+      "outcome": "pass",
+      "complete": true,
+      "request_sha256": [
+        "fdffa4a0df74ebe0ece51f4ccdb292cbb68dc8cbebc4f23bc28efaa5fb9f429d",
+        "abbcae6d1baf21608911e0813f28dc0b9b8398ee2e23f93213b46c670f1b5908",
+        "239607a25642c7f74050dba36719802905f0abc0c40f3b3891e789b5a334ce5f"
+      ],
+      "votes": ["pass", "pass", "pass"],
+      "costUsd": 0.0012983
+    },
+    {
+      "id": "borderline-mixed-language-1",
+      "family": "mixed-language",
+      "label": "fail",
+      "outcome": "fail",
+      "complete": true,
+      "request_sha256": [
+        "33987fd95fb3ddd20bddc4d095e3551eb94ef8c1a370885e5e68acc819838af3",
+        "c0b78895cf9ee8272bf6cb5e9a7556afbcf20c215da9cf2d924d5e9009f8898d",
+        "aeb7117be6202df66322e8763bf719f9d56c69b648b342f2820949e486e01c90"
+      ],
+      "votes": ["fail", "fail", "fail"],
+      "costUsd": 0.00110332
+    },
+    {
+      "id": "borderline-mixed-language-2",
+      "family": "mixed-language",
+      "label": "pass",
+      "outcome": "pass",
+      "complete": true,
+      "request_sha256": [
+        "1b02c5bdc7cf9b271cf67bff30dc7a97b5a46864641a252ba664e1422838e34e",
+        "6494c36c0452b8710fcd1cc32ce185c8cae71958419e67a60c26953b7a1080e2",
+        "c9f748a24c83c03d01c8871b4b677cbb6bfceee76f5c269bc9112f44f0169c76"
+      ],
+      "votes": ["pass", "pass", "pass"],
+      "costUsd": 0.0012783
+    },
+    {
+      "id": "borderline-mixed-language-3",
+      "family": "mixed-language",
+      "label": "fail",
+      "outcome": "fail",
+      "complete": true,
+      "request_sha256": [
+        "78892c63fc3dba929e05e8802211bb45b93b0f23591df28ebd95bbac9ad19342",
+        "71b0ce1e44b502cfd537cdeca6efcb18c51a09d05e04d428eda2c100ade779bb",
+        "9923e96bb033a9b5c7d7e285ea25f8c57960c29b0789a5d5a3280dcbee776397"
+      ],
+      "votes": ["fail", "fail", "fail"],
+      "costUsd": 0.00107532
+    },
+    {
+      "id": "borderline-mixed-language-4",
+      "family": "mixed-language",
+      "label": "pass",
+      "outcome": "pass",
+      "complete": true,
+      "request_sha256": [
+        "493e9b443a849680f6d1e6314d04c87d6329659151db1672b51d0b2c41428f86",
+        "30c0c244730f89c5f083639829c37bf7d5914e7768108ea294faf5034c565486",
+        "2aeeb5a1021e77a7df3d7bfd2629048659e4421d0c872f76ddcd47b709d34dcb"
+      ],
+      "votes": ["pass", "pass", "pass"],
+      "costUsd": 0.0012083
+    },
+    {
+      "id": "borderline-mixed-language-5",
+      "family": "mixed-language",
+      "label": "fail",
+      "outcome": "fail",
+      "complete": true,
+      "request_sha256": [
+        "f9f18199aa743c64422739bd779bd0b28a5cf13c33dfa7f68d27249e273a8634",
+        "2d74f4d86c80ff15795f154b893049b229ee0a44069187f9f9b13e32106647ac",
+        "b9fec1e778d306dfe91d013c6db3c808f10b59eb7b4c609e2080c2486b5f4f37"
+      ],
+      "votes": ["fail", "fail", "fail"],
+      "costUsd": 0.00108132
+    },
+    {
+      "id": "borderline-mixed-language-6",
+      "family": "mixed-language",
+      "label": "pass",
+      "outcome": "pass",
+      "complete": true,
+      "request_sha256": [
+        "6fabd54b265241c820d631fe1bc6155ecb631dc0be876ed4e253aa348642129e",
+        "bcbc59bac5b29fb6ff57f0848bef677638b6e40b56c517a78a4d2be01306997f",
+        "2e62b61d77aa915b064863ed6680fb86ec58e0ca5731c15b1dc0d3195924eec4"
+      ],
+      "votes": ["pass", "pass", "pass"],
+      "costUsd": 0.0013038000000000001
+    },
+    {
+      "id": "borderline-mixed-language-7",
+      "family": "mixed-language",
+      "label": "fail",
+      "outcome": "fail",
+      "complete": true,
+      "request_sha256": [
+        "ababa2037c977bb0614ab08a3b3f3246574855a90f7717fca13366e252dd3ce0",
+        "65e44b6d871b5a42f8a0dd83cef1eaa480f009e93ec263e9660c80ebae5f03d9",
+        "5336d96b249f0a31266e09045bc4c78f700a2a4c4df587462a72cc0b2ee1d67b"
+      ],
+      "votes": ["fail", "fail", "fail"],
+      "costUsd": 0.0009578200000000001
+    },
+    {
+      "id": "borderline-mixed-language-8",
+      "family": "mixed-language",
+      "label": "pass",
+      "outcome": "pass",
+      "complete": true,
+      "request_sha256": [
+        "9dd11873eef5798f9312498fae9d4ae555fc50c7f1fd008c7f490727634f86f1",
+        "840bc16fe37e6054416440e22677db58602c3730b529c84bedb1fa77c9c2ce59",
+        "85c7e1f5dcd62367feb549837b24c47672422257ced5b1826dfef1144f087b22"
+      ],
+      "votes": ["pass", "pass", "pass"],
+      "costUsd": 0.0012848
+    },
+    {
+      "id": "borderline-mixed-language-9",
+      "family": "mixed-language",
+      "label": "fail",
+      "outcome": "fail",
+      "complete": true,
+      "request_sha256": [
+        "e4791554c75a887ba3607a3aed50823bee5b9c8033b877746cb51f0943a35de8",
+        "49dc81fea6fc1ba03730efdd45dcfac660f291d28ff4cfc0a9d76f89c18e4a51",
+        "cd16615bfeb6090299a759a3ff138d3c6b80c03a57f2a1aa5edebc48109ac44c"
+      ],
+      "votes": ["fail", "fail", "fail"],
+      "costUsd": 0.00115982
+    },
+    {
+      "id": "borderline-long-distractors-0",
+      "family": "long-distractors",
+      "label": "pass",
+      "outcome": "pass",
+      "complete": true,
+      "request_sha256": [
+        "54bf003241b119ef73ff4bc4666be642f7bdb6336c83eeddbfc063304e470450",
+        "2570adce6df59da5a7b20179dab645efb14a211dc22586adbc2c04874dee327e",
+        "c30b4b6216cdf0fe7c02a28c86e04681b8afcbf3471bad9d784cfd3ca2d5ee6a"
+      ],
+      "votes": ["pass", "pass", "pass"],
+      "costUsd": 0.00154356
+    },
+    {
+      "id": "borderline-long-distractors-1",
+      "family": "long-distractors",
+      "label": "fail",
+      "outcome": "fail",
+      "complete": true,
+      "request_sha256": [
+        "0437fad545663418b2432cf88ab7e17a380f35407f9ab05a947298a22e18d808",
+        "733c6c063b9296ca844dc01b7c3493c42cac47408e1f5205cdf2245486d97795",
+        "ddd24ea098a46355117196ff7fe7ab892b254ba1c74a3281b39c6c45b4e0e1db"
+      ],
+      "votes": ["fail", "fail", "fail"],
+      "costUsd": 0.0013671000000000002
+    },
+    {
+      "id": "borderline-long-distractors-2",
+      "family": "long-distractors",
+      "label": "pass",
+      "outcome": "pass",
+      "complete": true,
+      "request_sha256": [
+        "42b67e43b3a66df2218434b2fd6741991b5e4dd44da1a72813b63735397799b2",
+        "f299c19e7ae0df0ec9f37580c43525be659f2734e0c13e209281a0a14e53a5e5",
+        "46eac5a2c252e999c99ef467a0fd7917b5d34434b7aae6f836cf20fe83259690"
+      ],
+      "votes": ["pass", "pass", "pass"],
+      "costUsd": 0.0015430600000000002
+    },
+    {
+      "id": "borderline-long-distractors-3",
+      "family": "long-distractors",
+      "label": "fail",
+      "outcome": "fail",
+      "complete": true,
+      "request_sha256": [
+        "bf7269ec473735ab5c5ab69fc33b9477f834b81af87fa3e594d7c32288c937e6",
+        "a05768c4e430bd639630e543ec8a00bd79dcb4398365f4c956d09d96bae160fa",
+        "542fc483858fd10582c8367f9f46e62689c2516da09a070774a2bb6dbe5b971b"
+      ],
+      "votes": ["fail", "fail", "fail"],
+      "costUsd": 0.0014411000000000003
+    },
+    {
+      "id": "borderline-long-distractors-4",
+      "family": "long-distractors",
+      "label": "pass",
+      "outcome": "pass",
+      "complete": true,
+      "request_sha256": [
+        "6b317a80d50f200b7cc3eb6a02a83dcc7fc9da6bf1d2f5c438f5d327498ccc13",
+        "500143ab34cd03b230303b3dc6f360efd962ee26da5346d1e16d8e0993195c50",
+        "b25fdb6be6a1c86e754793bb9dada22cd94f6fded38123921ccd96eb0a609b97"
+      ],
+      "votes": ["pass", "pass", "pass"],
+      "costUsd": 0.0015350600000000002
+    },
+    {
+      "id": "borderline-long-distractors-5",
+      "family": "long-distractors",
+      "label": "fail",
+      "outcome": "fail",
+      "complete": true,
+      "request_sha256": [
+        "c2b9cb0b023d4d5478c07c2d0483c9f001d96d3803c50f661dcc745915032b36",
+        "ca6637cd60e5308dea51e803179ce4ca8ab30d982b8979dcd6f7f979c77ae4b3",
+        "f39d76df9f368df302d709c37506e4e76bc7fbc4dd44c75e4450a43324605706"
+      ],
+      "votes": ["fail", "fail", "fail"],
+      "costUsd": 0.0013911000000000001
+    },
+    {
+      "id": "borderline-long-distractors-6",
+      "family": "long-distractors",
+      "label": "pass",
+      "outcome": "pass",
+      "complete": true,
+      "request_sha256": [
+        "b47266359b60164ddeb3a0a822e5c3ce97f6b7bf7a009dd26f56c167cf48eb58",
+        "793f02f8eb09f56eaeed9956129bb3731eb2e0db80228237881b07fb94574a53",
+        "c39f0b6c3ae76cb690c59c5c409f9bc0e38ec9247353109bf4ce3cc6a2b67bf0"
+      ],
+      "votes": ["pass", "pass", "pass"],
+      "costUsd": 0.0017320600000000001
+    },
+    {
+      "id": "borderline-long-distractors-7",
+      "family": "long-distractors",
+      "label": "fail",
+      "outcome": "fail",
+      "complete": true,
+      "request_sha256": [
+        "cf5c202544fe11cc7abab43b93c090298f1c25057fb2f89aee7d427fd4ee3c3e",
+        "1419f9dd7f99cdd9299f22bb883529ce600912f179e1e3b44a34303d2250e707",
+        "7cb7e46b09ccc69649df07e24116504be423b87ab1cc5f67f970e6b58d337b91"
+      ],
+      "votes": ["fail", "fail", "fail"],
+      "costUsd": 0.0014726000000000001
+    },
+    {
+      "id": "borderline-long-distractors-8",
+      "family": "long-distractors",
+      "label": "pass",
+      "outcome": "pass",
+      "complete": true,
+      "request_sha256": [
+        "b5628ad0c11580b84b9ae31918b357e2e63aa7de59a773672f0643e32e4b5ff7",
+        "806f9b2e8474d7ca6b32f04edec06b1cd892366c11e14a573303503eec044176",
+        "1d3aa6727506bcf76266e6c7fc55d2e234a1c92012955dd29066d7d515f54759"
+      ],
+      "votes": ["pass", "pass", "pass"],
+      "costUsd": 0.00160206
+    },
+    {
+      "id": "borderline-long-distractors-9",
+      "family": "long-distractors",
+      "label": "fail",
+      "outcome": "fail",
+      "complete": true,
+      "request_sha256": [
+        "76a82b8646847a0ac31ba5a1bf150e18d23566364bab9a34512e50cbcf504aec",
+        "4de6ac75c2929be46da08f3aa236e8a2f7a750aae854e289cebe9034ced61e58",
+        "5f555d353b0c3a925e3305c46a3029acf283a96975f7487f274c585713a867b7"
+      ],
+      "votes": ["fail", "fail", "fail"],
+      "costUsd": 0.0012896000000000001
+    },
+    {
+      "id": "borderline-instruction-0",
+      "family": "instruction",
+      "label": "pass",
+      "outcome": "pass",
+      "complete": true,
+      "request_sha256": [
+        "903fc3707a8e9f58ce77f8b75d66024d69299f66595b031a186b0868b6874fdf",
+        "ad004059139971d2893810dfd2ded100d54a008bbe300f5606160adf7b67a091",
+        "0d444abbe3d5df43ccd5d23dab5edf59e5fe8330194b59807c0d898f7289b2b3"
+      ],
+      "votes": ["pass", "pass", "pass"],
+      "costUsd": 0.0013055200000000001
+    },
+    {
+      "id": "borderline-instruction-1",
+      "family": "instruction",
+      "label": "fail",
+      "outcome": "fail",
+      "complete": true,
+      "request_sha256": [
+        "e3ec12b0a24c49d4208186a03afd82461290c9e69fdabe90a656ba5792c7d516",
+        "e4c41146c9e066b5c34090d5a18eff6ca972a0d6c755d97e0ea4063d43e56f8f",
+        "db65dd0c9521b1fa5c4105a282a0d3da69c6f2fa9fd7935e59415da481a59bc9"
+      ],
+      "votes": ["fail", "fail", "fail"],
+      "costUsd": 0.00122706
+    },
+    {
+      "id": "borderline-instruction-2",
+      "family": "instruction",
+      "label": "pass",
+      "outcome": "pass",
+      "complete": true,
+      "request_sha256": [
+        "5b1f17499984cfcc82ace09a3e9a1e7705d5b76d5d6a32ee08f723a1c72acf53",
+        "b0913fefd89c4ca575da9e3381efa76051ff98dccc300fbdc3580776a1937839",
+        "853a63a6070d8bc34e7e0e783d15a213d4f6f0af0f809b3fed07432121990090"
+      ],
+      "votes": ["pass", "pass", "pass"],
+      "costUsd": 0.00133402
+    },
+    {
+      "id": "borderline-instruction-3",
+      "family": "instruction",
+      "label": "fail",
+      "outcome": "fail",
+      "complete": true,
+      "request_sha256": [
+        "8f68d1b06c428536da4d5e8b125107be401b9f3a2182e51a0f02df3417cc661e",
+        "81d898d3a7e82c155383b93f46e6778f3031d4c60c8b1305ad3551d08932f8a1",
+        "b38f299f6216425f316106b8b3dcd3bf9c97ed66b6c0adc92d6338f2543cc1b9"
+      ],
+      "votes": ["fail", "fail", "fail"],
+      "costUsd": 0.00123106
+    },
+    {
+      "id": "borderline-instruction-4",
+      "family": "instruction",
+      "label": "pass",
+      "outcome": "pass",
+      "complete": true,
+      "request_sha256": [
+        "78fdbee50b4dadb356cc81bfe6a359747fbfb7ff16ad4a015f14bdcf28ecee99",
+        "53ae3de58e8b88f4f346569f961bc89c9314b4719bbd9c92b7a327ad1cbfda90",
+        "0a7a623329f32cbf4418cd2101edbc73bed85d64b725d76ef2e89ab4d9174e2d"
+      ],
+      "votes": ["pass", "pass", "pass"],
+      "costUsd": 0.0013905200000000001
+    },
+    {
+      "id": "borderline-instruction-5",
+      "family": "instruction",
+      "label": "fail",
+      "outcome": "fail",
+      "complete": true,
+      "request_sha256": [
+        "a2ed86167bbec0fc29087f9bcf9e6b48e17574e54fa4f027d0e671f6149d7db3",
+        "d544e587d2ae34da37513d2be46c285d670f42f6e2b4b0e6f7e891e8a6dab5b2",
+        "aaa347b25a69f3afa850e71989b3a6f61284cbb7ac56f8f2c82812c4789776b4"
+      ],
+      "votes": ["fail", "fail", "fail"],
+      "costUsd": 0.00116656
+    },
+    {
+      "id": "borderline-instruction-6",
+      "family": "instruction",
+      "label": "pass",
+      "outcome": "pass",
+      "complete": true,
+      "request_sha256": [
+        "e3fa06602b725766889a0dc04f52290f2ff775b07fb5f66a6b667c4ae84ea5b0",
+        "706d39f83e6cbfa096421024eb394f0c8d6771ea2c040a2e7ee1c5516399fa44",
+        "33309557601efcff45c56d14a8c15d1c23f7bdd20095ee08b0df43418bb6c2b0"
+      ],
+      "votes": ["pass", "pass", "pass"],
+      "costUsd": 0.00131952
+    },
+    {
+      "id": "borderline-instruction-7",
+      "family": "instruction",
+      "label": "fail",
+      "outcome": "fail",
+      "complete": true,
+      "request_sha256": [
+        "256dc7ac1277057956a7b3f642c80e3359a8b140358b9ef9e81db18902f28832",
+        "d07958b2f9992a3d05547f14a8261f3422ab1fcb94b569b971fb6d6466729b04",
+        "735fb6ce57021bc8b0bac0264a730d69db4feb9a6733bfcdb50af2992b61614c"
+      ],
+      "votes": ["fail", "fail", "fail"],
+      "costUsd": 0.00123256
+    },
+    {
+      "id": "borderline-instruction-8",
+      "family": "instruction",
+      "label": "pass",
+      "outcome": "pass",
+      "complete": true,
+      "request_sha256": [
+        "87d83ac60e21b752809c3ed844ef1c7e6391f8584471d12d0a06a6c73c5b81f7",
+        "9476882871082ab4e5fcde0931d24cd2d6172cb00008af37d07d1c932c536b1e",
+        "8a1e620c2ff5aa2264ae2d3e4bd61fca8984967abc82c580ea8b205f34265470"
+      ],
+      "votes": ["pass", "pass", "pass"],
+      "costUsd": 0.00139002
+    },
+    {
+      "id": "borderline-instruction-9",
+      "family": "instruction",
+      "label": "fail",
+      "outcome": "fail",
+      "complete": true,
+      "request_sha256": [
+        "f172e72300420bdba01aa3d2fdbeb79a5cb9163c8a99e22f6214edb552c5cd23",
+        "990e0ee603728cd0417d5c7e7a2b447aa5e02df6eb981c279447da5386def126",
+        "17dd1882d8a11bab3dce46d8a8ad34f59e353031169c32bf38edcb157e3f0240"
+      ],
+      "votes": ["fail", "fail", "fail"],
+      "costUsd": 0.00121206
+    },
+    {
+      "id": "borderline-partial-0",
+      "family": "partial",
+      "label": "pass",
+      "outcome": "pass",
+      "complete": true,
+      "request_sha256": [
+        "f0533cb6d40cac6bee04148f311c90dfaf827926c89b421db8426d954d256986",
+        "96939a0fd438f7161e59fc83c09cf5070dd6c1cf16c5d3a43a201cc237f163d3",
+        "af2b39f772ac61e748b37b6af828db0881de93fd55ddb5a6257bf095fcca0dd3"
+      ],
+      "votes": ["pass", "pass", "pass"],
+      "costUsd": 0.0012818600000000001
+    },
+    {
+      "id": "borderline-partial-1",
+      "family": "partial",
+      "label": "fail",
+      "outcome": "fail",
+      "complete": true,
+      "request_sha256": [
+        "00c7db48f7fd719fe41b045f49cd0a8807744674768647f1fe6711db7fa4ec96",
+        "58c8e3beeea111b796fae867da404e8a859fcb8d362cb342ff0742ce0e9a09bd",
+        "7021aa943b7155fc87176a1b38cb73c2730c6eaf8c55dc0e9c05e2ba52432c23"
+      ],
+      "votes": ["fail", "fail", "fail"],
+      "costUsd": 0.00113512
+    },
+    {
+      "id": "borderline-partial-2",
+      "family": "partial",
+      "label": "pass",
+      "outcome": "pass",
+      "complete": true,
+      "request_sha256": [
+        "ed4a920f51493df70128c7041c8c37858f1bf7a83c96d940eff999c70b3ada1e",
+        "63fa556ca6a51d39e9382b08d6eb5db1b3562f77406db51bb493c4c3eaa2ae7a",
+        "f0073169a37b32b3fe300e6d5990488d2b98ecbd19491ca89a8a4c030b3d4ded"
+      ],
+      "votes": ["pass", "pass", "pass"],
+      "costUsd": 0.00122236
+    },
+    {
+      "id": "borderline-partial-3",
+      "family": "partial",
+      "label": "fail",
+      "outcome": "fail",
+      "complete": true,
+      "request_sha256": [
+        "4f11a385cf4055f65a76946ad15a1711e2fe70bd5f553d480a003a8667cef08b",
+        "44521610731a59f919c7383bd76313ba87601da59c0d9684e09a84562eba98c9",
+        "6e4045e44e1704233dc1e0c165923cdb74f2ed36fe29eabd26c277a636f8f14b"
+      ],
+      "votes": ["fail", "fail", "fail"],
+      "costUsd": 0.0010916200000000002
+    },
+    {
+      "id": "borderline-partial-4",
+      "family": "partial",
+      "label": "pass",
+      "outcome": "pass",
+      "complete": true,
+      "request_sha256": [
+        "00d012ad39f4227c2a02807620603b8f60f172ada73cfe2933b51bde1261481a",
+        "3da607ab01403317afc979173ed8d59b9fea6c033a0370362f3ba9f9ce57fd98",
+        "0097d270c5b94e5585d753b1802629c05c24de42a386138ae89ac1f6aea644ce"
+      ],
+      "votes": ["pass", "pass", "pass"],
+      "costUsd": 0.00126536
+    },
+    {
+      "id": "borderline-partial-5",
+      "family": "partial",
+      "label": "fail",
+      "outcome": "fail",
+      "complete": true,
+      "request_sha256": [
+        "e863b27c6d00154be2560bab47507a6922c12fce88b77d9ce2deffd2ef6af063",
+        "c89988669099f7a4af6b12aba83265f4dbc665a4712d4c1d734c39e11081318b",
+        "0d5fa00a7a771f60905294163e80b195efb6ad7ca0295c6c13b8c7565ebcc1e3"
+      ],
+      "votes": ["fail", "fail", "fail"],
+      "costUsd": 0.00111862
+    },
+    {
+      "id": "borderline-partial-6",
+      "family": "partial",
+      "label": "pass",
+      "outcome": "pass",
+      "complete": true,
+      "request_sha256": [
+        "9912f340eaabc8a5ea59e7338af44dbc6eba9bbbe537f4aa9a5227787cba93d5",
+        "db74ca8e5ac75336f68060ef18e001a2034a3825b432c5f2d24ad61d21d1201a",
+        "7c134019abb500ae8b198d6cf8a55a96c63ef86b6765369f1bcfb27ec8b8ec6f"
+      ],
+      "votes": ["pass", "pass", "pass"],
+      "costUsd": 0.00118986
+    },
+    {
+      "id": "borderline-partial-7",
+      "family": "partial",
+      "label": "fail",
+      "outcome": "fail",
+      "complete": true,
+      "request_sha256": [
+        "93560f93eb9899616036d8109d5d5d1f1baf7881c754483b9e9c80c7b9620494",
+        "d31fd32812a29f32f4c8ebd7128fbf8cdef1a6ad75f91a45f1e1d6b18c1f1017",
+        "6ea0505835d504f5c9e2bf82cabd7c2f8c61eccaf2319bc0a07bf80b432f1b11"
+      ],
+      "votes": ["fail", "fail", "fail"],
+      "costUsd": 0.00117362
+    },
+    {
+      "id": "borderline-partial-8",
+      "family": "partial",
+      "label": "pass",
+      "outcome": "pass",
+      "complete": true,
+      "request_sha256": [
+        "1c4e22700c027076d1090dcb30a2158539fbbb20f89f1b0c5ad5cfba0cd7103c",
+        "864553487b1a35baf68655b5ca50d5c34df1ece7f75cf721369e8622c8ad005c",
+        "0ff59cd2bf8a3ca51b3e481f0791c605d01dcd4dbdfa58380efcb04eb8c4f3c9"
+      ],
+      "votes": ["pass", "pass", "pass"],
+      "costUsd": 0.00137186
+    },
+    {
+      "id": "borderline-partial-9",
+      "family": "partial",
+      "label": "fail",
+      "outcome": "fail",
+      "complete": true,
+      "request_sha256": [
+        "d2ee1deb0a99b9df9773e5d372d93cb4d03d9caea0667f06ba2cbf45133ef613",
+        "65eaffd6ed5e30ba6f011daa0dc64f524281b92c3edfcfd47d73adb36b5d8330",
+        "b6f2c8c377d3e5022b8c46d472e746c598b24c0f3470a65d02267414e1e81ab7"
+      ],
+      "votes": ["fail", "fail", "fail"],
+      "costUsd": 0.00114962
+    }
+  ]
+}
