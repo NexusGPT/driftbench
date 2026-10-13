@@ -26,6 +26,7 @@ import { openMemoryStore } from '@agent-nexus/driftbench-store';
 import { createScriptedDriver } from '@agent-nexus/driftbench-users';
 import { SYSTEM_COMPONENTS } from '../components';
 import { type Behaviour, followerReply } from '../plant';
+import { measureGrowth } from './growth';
 import {
   type BankItem,
   type Draft,
@@ -74,6 +75,11 @@ type Subject = {
   /** The largest size must finish within this budget. */
   budgetMs: number;
   component: string;
+  /**
+   * True for the subject whose size is the length of the history the agent is given. Its growth item reads
+   * the growth measure of `growth.ts`.
+   */
+  history?: boolean;
   run(seed: number, size: number): Promise<ItemResult>;
 };
 
@@ -436,6 +442,7 @@ const SUBJECTS: Subject[] = [
     base: 4,
     budgetMs: 4_000,
     component: 'packages/core/src/runner/given.ts',
+    history: true,
     run: (seed, size) => longFlow(seed, size, 'T'),
   },
   {
@@ -581,6 +588,12 @@ export function scaleItems(): BankItem[] {
       source: 'scale',
       title: `${subject.name}: the time from ten to a hundred times the size grows at most ${GROWTH_BOUND} times`,
       async check({ seed }) {
+        if (subject.history) {
+          const growth = await measureGrowth((size) => subject.run(seed, size), subject.base, {
+            timeBound: GROWTH_BOUND,
+          });
+          return growth.result;
+        }
         const rows = await measure(seed, subject);
         const ten = rows[1]?.ms ?? 0;
         const hundred = rows[2]?.ms ?? 0;
