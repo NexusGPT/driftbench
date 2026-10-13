@@ -32,10 +32,12 @@ const answer = {
 };
 const prompt = { system: 'Assess a fictional reply.', user: 'Hello.' };
 
+const lines = (log: string) => readFileSync(log, 'utf8').split('\n').filter(Boolean);
+
 /** A fake command that answers the nth process with the nth envelope and logs the effort it was given. */
 function scripted(sequence: readonly unknown[]) {
   const log = join(mkdtempSync(join(tmpdir(), 'driftbench-composed-')), 'efforts');
-  const script = `const f=require('node:fs');const log=process.env.COMPOSED_LOG;const n=f.existsSync(log)?f.readFileSync(log,'utf8').split('\\n').filter(Boolean).length:0;const at=process.argv.indexOf('--effort');f.appendFileSync(log,(at<0?'native':process.argv[at+1])+'\\n');let s='';process.stdin.on('data',x=>s+=x);process.stdin.on('end',()=>{const all=${JSON.stringify(sequence)};const p=all[Math.min(n,all.length-1)];process.stdout.write(JSON.stringify(p));if(p.is_error)process.exitCode=1;});`;
+  const script = `const f=require('node:fs');const log=process.env.COMPOSED_LOG;const n=f.existsSync(log)?f.readFileSync(log,'utf8').split('\\n').filter(Boolean).length:0;const at=process.argv.indexOf('--effort');const cap=process.argv.indexOf('--max-budget-usd');f.appendFileSync(log,(at<0?'native':process.argv[at+1])+' '+(cap<0?'none':process.argv[cap+1])+'\\n');let s='';process.stdin.on('data',x=>s+=x);process.stdin.on('end',()=>{const all=${JSON.stringify(sequence)};const p=all[Math.min(n,all.length-1)];process.stdout.write(JSON.stringify(p));if(p.is_error)process.exitCode=1;});`;
   return {
     options: {
       model: 'fictional',
@@ -44,7 +46,9 @@ function scripted(sequence: readonly unknown[]) {
       commandArgs: ['--eval', script, '--'],
       sleep: async () => {},
     },
-    efforts: () => readFileSync(log, 'utf8').split('\n').filter(Boolean),
+    efforts: () => lines(log).map((line) => line.split(' ')[0]),
+    /** The --max-budget-usd each process was given. */
+    budgets: () => lines(log).map((line) => Number(line.split(' ')[1])),
   };
 }
 
@@ -117,4 +121,78 @@ it('counts a failed retry against the spend cap before a recovery process', asyn
     thinkingRecovery: { requestCount: 1, retrySkipped: 'spend-cap' },
   });
   expect(fake.efforts()).toHaveLength(2);
+});
+
+const costly = { ...overload, total_cost_usd: 0.9 };
+const late = { ...answer, total_cost_usd: 0.2 };
+it('gives a transient retry only what is left of the cap', async () => {
+  const fake = scripted([costly, late]);
+  const r = await createDialectTransport({
+    ...fake.options,
+    provider: 'claude-cli',
+    maxBudgetUsd: 1,
+  }).complete(prompt);
+  expect(r.requestCount).toBe(2);
+  const [first, second] = fake.budgets();
+  expect(first).toBe(1);
+  expect(second).toBeCloseTo(0.1);
+});
+it('starts no retry once earlier processes have spent the cap', async () => {
+  const fake = scripted([costly, costly, late]);
+  await expect(
+    createDialectTransport({ ...fake.options, provider: 'claude-cli', maxBudgetUsd: 1 }).complete(prompt),
+  ).rejects.toMatchObject({
+    category: 'overload',
+    retryable: true,
+    retrySkipped: 'spend-cap',
+    requestCount: 2,
+    costUsd: 1.8,
+  });
+  expect(fake.budgets()).toHaveLength(2);
+  expect(fake.budgets()[1]).toBeCloseTo(0.1);
+});
+it('starts no retry when the remainder cannot cover the reservation', async () => {
+  const fake = scripted([costly, late]);
+  await expect(
+    createClaudeCliJudge({ ...fake.options, maxBudgetUsd: 1, retryMaxCostUsd: 0.2 }).judge({
+      criterion: { name: 'greeting', rubric: 'Use a greeting.' },
+      transcript: [{ role: 'agent', text: 'Hello.' }],
+    }),
+  ).rejects.toMatchObject({ category: 'overload', retrySkipped: 'spend-cap', requestCount: 1 });
+  expect(fake.budgets()).toEqual([1]);
+});
+it('starts no retry under a cap when an earlier process reported no cost', async () => {
+  const { total_cost_usd: _, ...unpriced } = overload;
+  const fake = scripted([unpriced, answer]);
+  await expect(
+    createDialectTransport({ ...fake.options, provider: 'claude-cli', maxBudgetUsd: 1 }).complete(prompt),
+  ).rejects.toMatchObject({ retrySkipped: 'spend-cap', requestCount: 1, costIncomplete: true });
+  expect(fake.budgets()).toEqual([1]);
+});
+it('keeps retries unchanged without a cap', async () => {
+  const fake = scripted([costly, costly, late]);
+  const r = await createDialectTransport({ ...fake.options, provider: 'claude-cli' }).complete(prompt);
+  expect(r.requestCount).toBe(3);
+  expect(r.costUsd).toBeCloseTo(2);
+  expect(fake.budgets()).toEqual([Number.NaN, Number.NaN, Number.NaN]);
+});
+it('reports an unknown total as unknown, never the last process alone', async () => {
+  const { total_cost_usd: _, ...unpriced } = exhausted;
+  const fake = scripted([unpriced, answer]);
+  const r = await createDialectTransport({ ...fake.options, provider: 'claude-cli' }).complete(prompt);
+  expect(r.thinkingRecovery?.requestCount).toBe(2);
+  expect(r.costUsd).toBeUndefined();
+  expect(r.costIncomplete).toBe(true);
+  const judged = await createClaudeCliJudge(scripted([unpriced, answer]).options).judge({
+    criterion: { name: 'greeting', rubric: 'Use a greeting.' },
+    transcript: [{ role: 'agent', text: 'Hello.' }],
+  });
+  expect(judged.costUsd).toBeUndefined();
+  expect(judged.costIncomplete).toBe(true);
+});
+it('leaves a fully priced call unflagged', async () => {
+  const fake = scripted([exhausted, answer]);
+  const r = await createDialectTransport({ ...fake.options, provider: 'claude-cli' }).complete(prompt);
+  expect(r.costUsd).toBeCloseTo(0.04);
+  expect(r.costIncomplete).toBeUndefined();
 });

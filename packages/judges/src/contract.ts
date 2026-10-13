@@ -116,6 +116,8 @@ export type JudgeResult = {
   readonly retryReceipts?: readonly import('./clients/claude-errors').ClaudeRetryReceipt[];
   /** Every Claude CLI process started for this answer, recovery and retries included. */
   readonly requestCount?: number;
+  /** A process of the call reported no cost: costUsd is absent and a total that adds it is partial. */
+  readonly costIncomplete?: true;
   readonly pairLedger?: PairLedger;
   readonly parseSteps?: readonly LedgerParseStep[];
   readonly metadata?: { readonly graderError?: boolean };

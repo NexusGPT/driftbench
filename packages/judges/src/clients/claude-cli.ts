@@ -30,7 +30,7 @@ import type { TokenUsage } from './usage';
  *
  * Errors: an output-limit error gets one lower-effort recovery, subject to the caller spend cap; transient
  * API errors without an answer are retried; other errors retain sanitized diagnostics. Recovery and retries
- * share one ceiling of three submissions. A run that stopped at its turn limit is an unparsed answer, never
+ * share one ceiling of three submissions and one spend cap: each later process gets what is left of it. A run that stopped at its turn limit is an unparsed answer, never
  * a pass. Reads CLAUDE_JUDGE_MODEL when no model is given.
  */
 
@@ -46,7 +46,10 @@ export type ClaudeCliOptions = Pick<
   maxBudgetUsd?: number;
   /** Opt-in adaptive thinking control. Unset preserves the native request. */
   claudeEffort?: 'low' | 'medium' | 'high';
-  /** Conservative upper bound reserved before a recovery when maxBudgetUsd is set. */
+  /**
+   * Conservative upper bound reserved before a later process when maxBudgetUsd is set. A recovery needs it;
+   * a transient retry starts without it while anything is left of the cap.
+   */
   retryMaxCostUsd?: number;
 };
 
@@ -235,10 +238,14 @@ export type ClaudeAccounting = {
   requestCount?: number;
   usage?: TokenUsage;
   costUsd?: number;
+  /** A process of the call reported no cost: costUsd is absent, never the cost of a part. */
+  costIncomplete?: true;
 };
 /**
  * One judge call: thinking recovery inside each attempt, then failure classification and transient retries.
- * Both draw on CLAUDE_SUBMISSION_CEILING processes in total. Native receipts and cumulative billing of every
+ * Both draw on CLAUDE_SUBMISSION_CEILING processes in total and on one spend cap: every process after the
+ * first is given the cap less the known cost of the earlier ones, and does not start when that cost is
+ * unknown or the remainder cannot cover its reservation. Native receipts and cumulative billing of every
  * process survive a failed recovery or retry.
  */
 export async function runClaudeJudgeCommand(
@@ -281,21 +288,26 @@ export async function runClaudeJudgeCommand(
     const t = totals();
     return new ClaudeThinkingError(recovery(skipped), t.usage, t.costUsd);
   };
+  /** What is left of the cap for a later process, or undefined when that process may not start. */
+  const remaining = (recovering: boolean): number | undefined => {
+    const cap = options.maxBudgetUsd;
+    if (cap === undefined) return Number.POSITIVE_INFINITY;
+    // Every earlier process, failed retries included, counts against the cap.
+    const spent = totals().costUsd;
+    if (spent === undefined || launched > returned.length) return undefined;
+    const reserve = options.retryMaxCostUsd;
+    if (reserve === undefined ? recovering || spent >= cap : spent + reserve > cap) return undefined;
+    return cap - spent;
+  };
   const submit = async () => {
     const effort = low ? 'low' : options.claudeEffort;
     const nextArgs = [...args];
     if (effort !== undefined) nextArgs.push('--effort', effort);
-    if (low && options.maxBudgetUsd !== undefined) {
-      // Every earlier process, failed retries included, counts against the cap before a recovery process.
-      const spent = totals().costUsd;
-      if (
-        spent === undefined ||
-        options.retryMaxCostUsd === undefined ||
-        spent + options.retryMaxCostUsd > options.maxBudgetUsd
-      )
-        throw fail('spend-cap');
+    if (launched > 0 && options.maxBudgetUsd !== undefined) {
+      const left = remaining(low);
+      if (left === undefined) throw fail('spend-cap');
       const at = nextArgs.indexOf('--max-budget-usd');
-      if (at >= 0) nextArgs[at + 1] = String(options.maxBudgetUsd - spent);
+      if (at >= 0) nextArgs[at + 1] = String(left);
     }
     launched++;
     let ran: Ran;
@@ -360,23 +372,35 @@ export async function runClaudeJudgeCommand(
       attempt,
       { system: options.system, user: input, env: options.env },
       options,
-      () => launched,
+      { submitted: () => launched, affordable: () => remaining(low) !== undefined },
     );
   } catch (error) {
-    // A classified failure after a recovery keeps the thinking receipts and the cost of every process.
-    if (thinking.length && error instanceof ClaudeTransportError)
-      Object.assign(error, { thinkingRecovery: recovery(), costUsd: totals().costUsd });
+    if (error instanceof Error) {
+      const known = totals().costUsd;
+      // A classified failure after a recovery keeps the thinking receipts and the cost of every process.
+      if (error instanceof ClaudeTransportError)
+        Object.assign(error, {
+          costUsd: known,
+          ...(thinking.length ? { thinkingRecovery: recovery() } : {}),
+        });
+      if (known === undefined || launched > returned.length) Object.assign(error, { costIncomplete: true });
+    }
     throw error;
   }
   const t = totals();
   return {
     ran: sent.ran,
     accounting: {
-      ...(thinking.length ? { ...t, thinkingRecovery: recovery() } : {}),
-      ...(sent.retryReceipts
-        ? { retryReceipts: sent.retryReceipts, costUsd: thinking.length ? t.costUsd : sent.costUsd }
+      ...(thinking.length ? { usage: t.usage, thinkingRecovery: recovery() } : {}),
+      ...(sent.retryReceipts ? { retryReceipts: sent.retryReceipts } : {}),
+      // The total of every process, or explicitly unknown: never the last process alone.
+      ...(launched > 1
+        ? {
+            requestCount: launched,
+            costUsd: t.costUsd,
+            ...(t.costUsd === undefined ? { costIncomplete: true as const } : {}),
+          }
         : {}),
-      ...(launched > 1 ? { requestCount: launched } : {}),
     },
   };
 }

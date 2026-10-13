@@ -46,6 +46,8 @@ export type DialectCompletion = {
   /** Billed output includes Google thinking tokens; raw preserves the provider's separate counters. */
   readonly usage?: TokenUsage;
   readonly costUsd?: number;
+  /** A process of the call reported no cost: costUsd is absent, never the cost of a part. */
+  readonly costIncomplete?: true;
   readonly finishReason?: string;
   readonly truncated?: boolean;
   readonly refusal?: string;

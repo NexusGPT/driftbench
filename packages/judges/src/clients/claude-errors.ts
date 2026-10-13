@@ -90,6 +90,10 @@ export class ClaudeTransportError extends JudgeError {
   readonly costUsd?: number;
   readonly requestCount: number = 1;
   readonly retryReceipts?: readonly ClaudeRetryReceipt[];
+  /** A retryable failure that was not retried: the spend cap could not cover another process. */
+  readonly retrySkipped?: 'spend-cap';
+  /** A process of the call reported no cost or never returned: costUsd is absent, never a part. */
+  readonly costIncomplete?: true;
   constructor(
     code: 'http' | 'bad_response',
     message: string,
@@ -128,13 +132,14 @@ export class ClaudeTransportError extends JudgeError {
 export const CLAUDE_SUBMISSION_CEILING = 3;
 /**
  * No answer: retry transient provider failures only, with a ceiling of three submissions. A run that starts
- * more than one process per attempt passes `submitted`, the count of processes started so far.
+ * more than one process per attempt passes `submitted`, the count of processes started so far. A run under
+ * a spend cap passes `affordable`: false stops the retries and marks the failure `retrySkipped`.
  */
 export async function withClaudeErrorRetries<T extends ClaudeProcessResult>(
   run: () => Promise<T>,
   context: ClaudeErrorContext,
   options: HttpOptions,
-  submitted?: () => number,
+  budget: { submitted?: () => number; affordable?: () => boolean } = {},
 ): Promise<{
   ran: T;
   retryReceipts?: readonly ClaudeRetryReceipt[];
@@ -143,7 +148,7 @@ export async function withClaudeErrorRetries<T extends ClaudeProcessResult>(
 }> {
   const receipts: ClaudeRetryReceipt[] = [];
   let count = 0;
-  const physical = () => submitted?.() ?? count;
+  const physical = () => budget.submitted?.() ?? count;
   let last: ClaudeTransportError | undefined;
   const aggregate = (cost?: number) =>
     cost !== undefined && receipts.every((r) => r.costUsd !== undefined)
@@ -219,14 +224,19 @@ export async function withClaudeErrorRetries<T extends ClaudeProcessResult>(
       {
         policy: { ...configured, maxAttempts: Math.min(CLAUDE_SUBMISSION_CEILING, configured.maxAttempts) },
         ...(options.sleep ? { sleep: options.sleep } : {}),
-        decide: (error) => ({
-          retry:
+        decide: (error) => {
+          const wanted =
             error instanceof ClaudeTransportError &&
             error.retryable &&
-            physical() < CLAUDE_SUBMISSION_CEILING,
-          status: error instanceof JudgeError ? error.status : undefined,
-          reason: error instanceof Error ? error.message : 'Claude transport error',
-        }),
+            physical() < CLAUDE_SUBMISSION_CEILING;
+          const affordable = !wanted || (budget.affordable?.() ?? true);
+          if (!affordable) Object.assign(error, { retrySkipped: 'spend-cap' });
+          return {
+            retry: wanted && affordable,
+            status: error instanceof JudgeError ? error.status : undefined,
+            reason: error instanceof Error ? error.message : 'Claude transport error',
+          };
+        },
       },
     );
   } catch (error) {
