@@ -19,3 +19,7 @@ Interrupted runs are excluded from full-score selection. Program outputs and mod
 
 - `test-72-report.md`: complete original 72-item result beside Inspect, official/audited scores, cost and intervals.
 - `test-expansion-started.json` and `test-expansion-selection-*.json`: later explicit $16 budget and concurrency-six authorization, plus time/cost-only nested cohort selections. Frozen judge source and audit hashes remain unchanged.
+
+- `test-expanded-report.md`, `test-expanded-comparison.json`, and `test-expanded-inspect-replay.json`: completed 102-item confirmation and matched Inspect comparison, including official, primary-audited and strict-audited scores, costs and intervals.
+- `test-expanded-evidence-checks.json` and `final-guard.json`: frozen hashes, original-72 preservation, unique seeded cohort, zero-call Inspect replay and full-file publication scan.
+- `test-expanded-independent-checks.json`: independent Python reproduction of all three label-policy counts and intervals, plus fee and call sums.

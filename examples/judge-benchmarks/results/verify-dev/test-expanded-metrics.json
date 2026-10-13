@@ -1,0 +1,145 @@
+{
+  "at": "2026-10-13T04:31:58.180Z",
+  "sourceFreeze": "558d75de017ecbf243852f5669a1bffeb8d511b9",
+  "authorization": "Owner doubled every budget: your cap is now twice its old value. Use it to finish more of the verify TEST items before 06:35. Push at 06:40.",
+  "originalCompleteItems": 72,
+  "completeItems": 102,
+  "attemptedItems": 102,
+  "judgmentsReturned": 102,
+  "binaryVerdicts": 102,
+  "population": 221,
+  "official": {
+    "right": 81,
+    "n": 102,
+    "sampleAccuracy": 0.7941176470588235,
+    "sampleWilson95": {
+      "estimate": 0.7941176470588235,
+      "lower": 0.7056745056103343,
+      "upper": 0.861211104891746
+    },
+    "balancedAccuracy": 0.7469135802469136,
+    "populationWeighted": {
+      "estimate": 0.7926777871283975,
+      "lower": 0.5913280641758766,
+      "upper": 0.91871144520848
+    },
+    "intervalMethod": "Proportional official-label by response-length strata; population-weighted Bonferroni Wilson interval, approximate 95%, no finite-population correction for sampled strata.",
+    "strata": [
+      {
+        "stratum": "incorrect:short",
+        "population": 114,
+        "sampled": 53,
+        "right": 48,
+        "interval": {
+          "estimate": 0.9056603773584906,
+          "lower": 0.7589062468526085,
+          "upper": 0.9669726378179436
+        }
+      },
+      {
+        "stratum": "incorrect:long",
+        "population": 60,
+        "sampled": 28,
+        "right": 19,
+        "interval": {
+          "estimate": 0.6785714285714286,
+          "lower": 0.44404308621551175,
+          "upper": 0.8480255052176351
+        }
+      },
+      {
+        "stratum": "correct:short",
+        "population": 40,
+        "sampled": 18,
+        "right": 13,
+        "interval": {
+          "estimate": 0.7222222222222222,
+          "lower": 0.43070537357950833,
+          "upper": 0.8993476094058519
+        }
+      },
+      {
+        "stratum": "correct:long",
+        "population": 7,
+        "sampled": 3,
+        "right": 1,
+        "interval": {
+          "estimate": 0.3333333333333333,
+          "lower": 0.042484275080040934,
+          "upper": 0.8492734272194751
+        }
+      }
+    ]
+  },
+  "audited": {
+    "right": 93,
+    "n": 102,
+    "sampleAccuracy": 0.9117647058823529,
+    "sampleWilson95": {
+      "estimate": 0.9117647058823529,
+      "lower": 0.8407554144604857,
+      "upper": 0.9528844402424269
+    },
+    "balancedAccuracy": 0.9122179416620804,
+    "populationWeighted": {
+      "estimate": 0.9119794991049154,
+      "lower": 0.7138543987065907,
+      "upper": 0.971941797707183
+    },
+    "intervalMethod": "Proportional official-label by response-length strata; population-weighted Bonferroni Wilson interval, approximate 95%, no finite-population correction for sampled strata.",
+    "strata": [
+      {
+        "stratum": "incorrect:short",
+        "population": 114,
+        "sampled": 53,
+        "right": 52,
+        "interval": {
+          "estimate": 0.9811320754716981,
+          "lower": 0.8632553332917056,
+          "upper": 0.9976707857361585
+        }
+      },
+      {
+        "stratum": "incorrect:long",
+        "population": 60,
+        "sampled": 28,
+        "right": 22,
+        "interval": {
+          "estimate": 0.7857142857142857,
+          "lower": 0.5509308994671094,
+          "upper": 0.9163788468259257
+        }
+      },
+      {
+        "stratum": "correct:short",
+        "population": 40,
+        "sampled": 18,
+        "right": 16,
+        "interval": {
+          "estimate": 0.8888888888888888,
+          "lower": 0.6005442974791348,
+          "upper": 0.9770484227452452
+        }
+      },
+      {
+        "stratum": "correct:long",
+        "population": 7,
+        "sampled": 3,
+        "right": 3,
+        "interval": {
+          "estimate": 1,
+          "lower": 0.32472689310145186,
+          "upper": 0.9999999999999999
+        }
+      }
+    ]
+  },
+  "costPer100Usd": 0.9958262450980393,
+  "totalNewTestSpendUsd": 1.01003777,
+  "additionalNewSpendUsd": 0.31703662999999993,
+  "additionalNewCalls": 139,
+  "taskRecordedSpendUsd": 3.8568407399999964,
+  "concurrency": 6,
+  "expansionElapsedSeconds": 1164.171,
+  "rounds": 3
+}

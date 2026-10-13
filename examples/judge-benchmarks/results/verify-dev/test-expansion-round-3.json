@@ -1,0 +1,84 @@
+{
+  "bench": "longjudge-verify",
+  "model": "haiku",
+  "items": 6,
+  "contestants": [
+    {
+      "contestant": "driftbench-verify-uncertainty-cascade",
+      "source": "two blind paths, backward and final-step checks; recheck acceptances admitting missing premises; exclude reminders not to invent unrequested outputs from uncertainty detection",
+      "mode": "pointwise",
+      "summary": {
+        "metric": "accuracy (LongJudgeBench verify, binary)",
+        "value": {
+          "estimate": 0.5,
+          "lower": 0.18761630648265054,
+          "upper": 0.8123836935173494
+        },
+        "n": 6,
+        "balancedAccuracy": 0.3,
+        "byGroup": {
+          "incorrect": {
+            "n": 5,
+            "value": 0.6
+          },
+          "correct": {
+            "n": 1,
+            "value": 0
+          }
+        },
+        "missing": 0
+      },
+      "costUsd": 0.05537118,
+      "calls": 29,
+      "decisions": [
+        {
+          "id": "db9d1073cfc7e3c528d4e53c9cafec5f_9335b07078ff6f103a96273733566d8f",
+          "pass": true,
+          "correct": false,
+          "responseChars": 2476,
+          "missing": 0
+        },
+        {
+          "id": "287bcd3d36c6958aec6c36b1f1075d90_916fc50c5bc8ada6e961c86e70ca5dcf",
+          "pass": false,
+          "correct": false,
+          "responseChars": 15492,
+          "missing": 0
+        },
+        {
+          "id": "d0c35f0f3b5817fbbf44eb15edbdc8f9_b1e8810e6ae336cb388b9da498beed99",
+          "pass": true,
+          "correct": false,
+          "responseChars": 22600,
+          "missing": 0
+        },
+        {
+          "id": "64acefcc694b7c0d2d3c0b0d202cf216_fe703bfad3c1bfb22774296a171da34b",
+          "pass": false,
+          "correct": true,
+          "responseChars": 8640,
+          "missing": 0
+        },
+        {
+          "id": "82ece4512b1231eadc987a7f69fb126e_e4ce7a69266ebfc2f0ec91072de788a7",
+          "pass": false,
+          "correct": false,
+          "responseChars": 5363,
+          "missing": 0
+        },
+        {
+          "id": "d56aae81c28c1f0aa554d7a4cb455808_58783fb19bcc916569805ef726f18196",
+          "pass": false,
+          "correct": false,
+          "responseChars": 4592,
+          "missing": 0
+        }
+      ]
+    }
+  ],
+  "newSpendUsd": 0.05537118,
+  "newCalls": 29,
+  "replayed": 0,
+  "failedCalls": 0,
+  "elapsedSeconds": 235.331
+}

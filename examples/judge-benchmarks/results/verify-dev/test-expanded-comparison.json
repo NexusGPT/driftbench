@@ -1,0 +1,538 @@
+{
+  "at": "2026-10-13T04:32:15.639Z",
+  "items": 102,
+  "sourceFreeze": "558d75de017ecbf243852f5669a1bffeb8d511b9",
+  "verify": {
+    "official": {
+      "right": 81,
+      "n": 102,
+      "sampleAccuracy": 0.7941176470588235,
+      "sampleWilson95": {
+        "estimate": 0.7941176470588235,
+        "lower": 0.7056745056103343,
+        "upper": 0.861211104891746
+      },
+      "balancedAccuracy": 0.7469135802469136,
+      "populationWeighted": {
+        "estimate": 0.7926777871283975,
+        "lower": 0.5913280641758766,
+        "upper": 0.91871144520848
+      },
+      "intervalMethod": "Proportional official-label by response-length strata; population-weighted Bonferroni Wilson interval, approximate 95%, no finite-population correction for sampled strata.",
+      "strata": [
+        {
+          "stratum": "incorrect:short",
+          "population": 114,
+          "sampled": 53,
+          "right": 48,
+          "interval": {
+            "estimate": 0.9056603773584906,
+            "lower": 0.7589062468526085,
+            "upper": 0.9669726378179436
+          }
+        },
+        {
+          "stratum": "incorrect:long",
+          "population": 60,
+          "sampled": 28,
+          "right": 19,
+          "interval": {
+            "estimate": 0.6785714285714286,
+            "lower": 0.44404308621551175,
+            "upper": 0.8480255052176351
+          }
+        },
+        {
+          "stratum": "correct:short",
+          "population": 40,
+          "sampled": 18,
+          "right": 13,
+          "interval": {
+            "estimate": 0.7222222222222222,
+            "lower": 0.43070537357950833,
+            "upper": 0.8993476094058519
+          }
+        },
+        {
+          "stratum": "correct:long",
+          "population": 7,
+          "sampled": 3,
+          "right": 1,
+          "interval": {
+            "estimate": 0.3333333333333333,
+            "lower": 0.042484275080040934,
+            "upper": 0.8492734272194751
+          }
+        }
+      ]
+    },
+    "audited": {
+      "right": 93,
+      "n": 102,
+      "sampleAccuracy": 0.9117647058823529,
+      "sampleWilson95": {
+        "estimate": 0.9117647058823529,
+        "lower": 0.8407554144604857,
+        "upper": 0.9528844402424269
+      },
+      "balancedAccuracy": 0.9122179416620804,
+      "populationWeighted": {
+        "estimate": 0.9119794991049154,
+        "lower": 0.7138543987065907,
+        "upper": 0.971941797707183
+      },
+      "intervalMethod": "Proportional official-label by response-length strata; population-weighted Bonferroni Wilson interval, approximate 95%, no finite-population correction for sampled strata.",
+      "strata": [
+        {
+          "stratum": "incorrect:short",
+          "population": 114,
+          "sampled": 53,
+          "right": 52,
+          "interval": {
+            "estimate": 0.9811320754716981,
+            "lower": 0.8632553332917056,
+            "upper": 0.9976707857361585
+          }
+        },
+        {
+          "stratum": "incorrect:long",
+          "population": 60,
+          "sampled": 28,
+          "right": 22,
+          "interval": {
+            "estimate": 0.7857142857142857,
+            "lower": 0.5509308994671094,
+            "upper": 0.9163788468259257
+          }
+        },
+        {
+          "stratum": "correct:short",
+          "population": 40,
+          "sampled": 18,
+          "right": 16,
+          "interval": {
+            "estimate": 0.8888888888888888,
+            "lower": 0.6005442974791348,
+            "upper": 0.9770484227452452
+          }
+        },
+        {
+          "stratum": "correct:long",
+          "population": 7,
+          "sampled": 3,
+          "right": 3,
+          "interval": {
+            "estimate": 1,
+            "lower": 0.32472689310145186,
+            "upper": 0.9999999999999999
+          }
+        }
+      ]
+    },
+    "strict": {
+      "right": 92,
+      "n": 102,
+      "sampleAccuracy": 0.9019607843137255,
+      "sampleWilson95": {
+        "estimate": 0.9019607843137255,
+        "lower": 0.8288716882111405,
+        "upper": 0.945871979475036
+      },
+      "balancedAccuracy": 0.8926282051282051,
+      "populationWeighted": {
+        "estimate": 0.9014214297233166,
+        "lower": 0.7083430763434845,
+        "upper": 0.970596141935417
+      },
+      "intervalMethod": "Proportional official-label by response-length strata; population-weighted Bonferroni Wilson interval, approximate 95%, no finite-population correction for sampled strata.",
+      "strata": [
+        {
+          "stratum": "incorrect:short",
+          "population": 114,
+          "sampled": 53,
+          "right": 52,
+          "interval": {
+            "estimate": 0.9811320754716981,
+            "lower": 0.8632553332917056,
+            "upper": 0.9976707857361585
+          }
+        },
+        {
+          "stratum": "incorrect:long",
+          "population": 60,
+          "sampled": 28,
+          "right": 22,
+          "interval": {
+            "estimate": 0.7857142857142857,
+            "lower": 0.5509308994671094,
+            "upper": 0.9163788468259257
+          }
+        },
+        {
+          "stratum": "correct:short",
+          "population": 40,
+          "sampled": 18,
+          "right": 16,
+          "interval": {
+            "estimate": 0.8888888888888888,
+            "lower": 0.6005442974791348,
+            "upper": 0.9770484227452452
+          }
+        },
+        {
+          "stratum": "correct:long",
+          "population": 7,
+          "sampled": 3,
+          "right": 2,
+          "interval": {
+            "estimate": 0.6666666666666666,
+            "lower": 0.15072657278052493,
+            "upper": 0.9575157249199591
+          }
+        }
+      ]
+    },
+    "costPer100Usd": 0.9958262450980393,
+    "costUsd": 1.0157427700000001,
+    "calls": 471
+  },
+  "inspect": {
+    "official": {
+      "right": 76,
+      "n": 102,
+      "sampleAccuracy": 0.7450980392156863,
+      "sampleWilson95": {
+        "estimate": 0.7450980392156863,
+        "lower": 0.6527012596010672,
+        "upper": 0.8197034158173332
+      },
+      "balancedAccuracy": 0.6807760141093474,
+      "populationWeighted": {
+        "estimate": 0.7434420309004105,
+        "lower": 0.5437828342523982,
+        "upper": 0.887254177243786
+      },
+      "intervalMethod": "Proportional official-label by response-length strata; population-weighted Bonferroni Wilson interval, approximate 95%, no finite-population correction for sampled strata.",
+      "strata": [
+        {
+          "stratum": "incorrect:short",
+          "population": 114,
+          "sampled": 53,
+          "right": 47,
+          "interval": {
+            "estimate": 0.8867924528301887,
+            "lower": 0.7354615258976512,
+            "upper": 0.9566555501835728
+          }
+        },
+        {
+          "stratum": "incorrect:long",
+          "population": 60,
+          "sampled": 28,
+          "right": 17,
+          "interval": {
+            "estimate": 0.6071428571428571,
+            "lower": 0.37823711921129,
+            "upper": 0.797004035648598
+          }
+        },
+        {
+          "stratum": "correct:short",
+          "population": 40,
+          "sampled": 18,
+          "right": 11,
+          "interval": {
+            "estimate": 0.6111111111111112,
+            "lower": 0.33354438348025095,
+            "upper": 0.8314821080124293
+          }
+        },
+        {
+          "stratum": "correct:long",
+          "population": 7,
+          "sampled": 3,
+          "right": 1,
+          "interval": {
+            "estimate": 0.3333333333333333,
+            "lower": 0.042484275080040934,
+            "upper": 0.8492734272194751
+          }
+        }
+      ]
+    },
+    "audited": {
+      "right": 88,
+      "n": 102,
+      "sampleAccuracy": 0.8627450980392157,
+      "sampleWilson95": {
+        "estimate": 0.8627450980392157,
+        "lower": 0.7827125858265774,
+        "upper": 0.9164463337926553
+      },
+      "balancedAccuracy": 0.8497523390203632,
+      "populationWeighted": {
+        "estimate": 0.8627437428769281,
+        "lower": 0.6583808848700009,
+        "upper": 0.9484128136556004
+      },
+      "intervalMethod": "Proportional official-label by response-length strata; population-weighted Bonferroni Wilson interval, approximate 95%, no finite-population correction for sampled strata.",
+      "strata": [
+        {
+          "stratum": "incorrect:short",
+          "population": 114,
+          "sampled": 53,
+          "right": 51,
+          "interval": {
+            "estimate": 0.9622641509433962,
+            "lower": 0.8348801007115118,
+            "upper": 0.9922842097270245
+          }
+        },
+        {
+          "stratum": "incorrect:long",
+          "population": 60,
+          "sampled": 28,
+          "right": 20,
+          "interval": {
+            "estimate": 0.7142857142857143,
+            "lower": 0.47849316297173733,
+            "upper": 0.871989146748039
+          }
+        },
+        {
+          "stratum": "correct:short",
+          "population": 40,
+          "sampled": 18,
+          "right": 14,
+          "interval": {
+            "estimate": 0.7777777777777778,
+            "lower": 0.48357915112858685,
+            "upper": 0.9289870776031134
+          }
+        },
+        {
+          "stratum": "correct:long",
+          "population": 7,
+          "sampled": 3,
+          "right": 3,
+          "interval": {
+            "estimate": 1,
+            "lower": 0.32472689310145186,
+            "upper": 0.9999999999999999
+          }
+        }
+      ]
+    },
+    "strict": {
+      "right": 87,
+      "n": 102,
+      "sampleAccuracy": 0.8529411764705882,
+      "sampleWilson95": {
+        "estimate": 0.8529411764705882,
+        "lower": 0.7714538787113648,
+        "upper": 0.9088088538911315
+      },
+      "balancedAccuracy": 0.8317307692307692,
+      "populationWeighted": {
+        "estimate": 0.8521856734953294,
+        "lower": 0.6528695625068947,
+        "upper": 0.9470671578838343
+      },
+      "intervalMethod": "Proportional official-label by response-length strata; population-weighted Bonferroni Wilson interval, approximate 95%, no finite-population correction for sampled strata.",
+      "strata": [
+        {
+          "stratum": "incorrect:short",
+          "population": 114,
+          "sampled": 53,
+          "right": 51,
+          "interval": {
+            "estimate": 0.9622641509433962,
+            "lower": 0.8348801007115118,
+            "upper": 0.9922842097270245
+          }
+        },
+        {
+          "stratum": "incorrect:long",
+          "population": 60,
+          "sampled": 28,
+          "right": 20,
+          "interval": {
+            "estimate": 0.7142857142857143,
+            "lower": 0.47849316297173733,
+            "upper": 0.871989146748039
+          }
+        },
+        {
+          "stratum": "correct:short",
+          "population": 40,
+          "sampled": 18,
+          "right": 14,
+          "interval": {
+            "estimate": 0.7777777777777778,
+            "lower": 0.48357915112858685,
+            "upper": 0.9289870776031134
+          }
+        },
+        {
+          "stratum": "correct:long",
+          "population": 7,
+          "sampled": 3,
+          "right": 2,
+          "interval": {
+            "estimate": 0.6666666666666666,
+            "lower": 0.15072657278052493,
+            "upper": 0.9575157249199591
+          }
+        }
+      ]
+    },
+    "costPer100Usd": 0.231221568627451,
+    "costUsd": 0.235846,
+    "calls": 102
+  },
+  "expansion": {
+    "at": "2026-10-13T04:31:58.180Z",
+    "sourceFreeze": "558d75de017ecbf243852f5669a1bffeb8d511b9",
+    "authorization": "Owner doubled every budget: your cap is now twice its old value. Use it to finish more of the verify TEST items before 06:35. Push at 06:40.",
+    "originalCompleteItems": 72,
+    "completeItems": 102,
+    "attemptedItems": 102,
+    "judgmentsReturned": 102,
+    "binaryVerdicts": 102,
+    "population": 221,
+    "official": {
+      "right": 81,
+      "n": 102,
+      "sampleAccuracy": 0.7941176470588235,
+      "sampleWilson95": {
+        "estimate": 0.7941176470588235,
+        "lower": 0.7056745056103343,
+        "upper": 0.861211104891746
+      },
+      "balancedAccuracy": 0.7469135802469136,
+      "populationWeighted": {
+        "estimate": 0.7926777871283975,
+        "lower": 0.5913280641758766,
+        "upper": 0.91871144520848
+      },
+      "intervalMethod": "Proportional official-label by response-length strata; population-weighted Bonferroni Wilson interval, approximate 95%, no finite-population correction for sampled strata.",
+      "strata": [
+        {
+          "stratum": "incorrect:short",
+          "population": 114,
+          "sampled": 53,
+          "right": 48,
+          "interval": {
+            "estimate": 0.9056603773584906,
+            "lower": 0.7589062468526085,
+            "upper": 0.9669726378179436
+          }
+        },
+        {
+          "stratum": "incorrect:long",
+          "population": 60,
+          "sampled": 28,
+          "right": 19,
+          "interval": {
+            "estimate": 0.6785714285714286,
+            "lower": 0.44404308621551175,
+            "upper": 0.8480255052176351
+          }
+        },
+        {
+          "stratum": "correct:short",
+          "population": 40,
+          "sampled": 18,
+          "right": 13,
+          "interval": {
+            "estimate": 0.7222222222222222,
+            "lower": 0.43070537357950833,
+            "upper": 0.8993476094058519
+          }
+        },
+        {
+          "stratum": "correct:long",
+          "population": 7,
+          "sampled": 3,
+          "right": 1,
+          "interval": {
+            "estimate": 0.3333333333333333,
+            "lower": 0.042484275080040934,
+            "upper": 0.8492734272194751
+          }
+        }
+      ]
+    },
+    "audited": {
+      "right": 93,
+      "n": 102,
+      "sampleAccuracy": 0.9117647058823529,
+      "sampleWilson95": {
+        "estimate": 0.9117647058823529,
+        "lower": 0.8407554144604857,
+        "upper": 0.9528844402424269
+      },
+      "balancedAccuracy": 0.9122179416620804,
+      "populationWeighted": {
+        "estimate": 0.9119794991049154,
+        "lower": 0.7138543987065907,
+        "upper": 0.971941797707183
+      },
+      "intervalMethod": "Proportional official-label by response-length strata; population-weighted Bonferroni Wilson interval, approximate 95%, no finite-population correction for sampled strata.",
+      "strata": [
+        {
+          "stratum": "incorrect:short",
+          "population": 114,
+          "sampled": 53,
+          "right": 52,
+          "interval": {
+            "estimate": 0.9811320754716981,
+            "lower": 0.8632553332917056,
+            "upper": 0.9976707857361585
+          }
+        },
+        {
+          "stratum": "incorrect:long",
+          "population": 60,
+          "sampled": 28,
+          "right": 22,
+          "interval": {
+            "estimate": 0.7857142857142857,
+            "lower": 0.5509308994671094,
+            "upper": 0.9163788468259257
+          }
+        },
+        {
+          "stratum": "correct:short",
+          "population": 40,
+          "sampled": 18,
+          "right": 16,
+          "interval": {
+            "estimate": 0.8888888888888888,
+            "lower": 0.6005442974791348,
+            "upper": 0.9770484227452452
+          }
+        },
+        {
+          "stratum": "correct:long",
+          "population": 7,
+          "sampled": 3,
+          "right": 3,
+          "interval": {
+            "estimate": 1,
+            "lower": 0.32472689310145186,
+            "upper": 0.9999999999999999
+          }
+        }
+      ]
+    },
+    "costPer100Usd": 0.9958262450980393,
+    "totalNewTestSpendUsd": 1.01003777,
+    "additionalNewSpendUsd": 0.31703662999999993,
+    "additionalNewCalls": 139,
+    "taskRecordedSpendUsd": 3.8568407399999964,
+    "concurrency": 6,
+    "expansionElapsedSeconds": 1164.171,
+    "rounds": 3
+  }
+}

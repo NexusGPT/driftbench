@@ -1,0 +1,22 @@
+{
+  "checks": {
+    "official_counts": true,
+    "official_raw_interval": true,
+    "official_weighted_interval": true,
+    "audited_counts": true,
+    "audited_raw_interval": true,
+    "audited_weighted_interval": true,
+    "strict_counts": true,
+    "strict_raw_interval": true,
+    "strict_weighted_interval": true,
+    "new_fee_sum": true,
+    "new_call_sum": true,
+    "required_cost_sum": true,
+    "cost_per100": true,
+    "sourcefreeze_is_ancestor": true,
+    "frozen_hash_count": true
+  },
+  "allPassed": true,
+  "items": 102,
+  "independentArithmetic": "Python counts, Wilson and weighted intervals, fee and call sums; no model calls"
+}

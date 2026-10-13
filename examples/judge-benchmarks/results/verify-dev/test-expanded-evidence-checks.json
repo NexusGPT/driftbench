@@ -1,0 +1,109 @@
+{
+  "at": "2026-10-13T04:32:15.643Z",
+  "hashes": [
+    {
+      "path": "examples/judge-benchmarks/src/call.ts",
+      "match": true
+    },
+    {
+      "path": "examples/judge-benchmarks/src/chart.ts",
+      "match": true
+    },
+    {
+      "path": "examples/judge-benchmarks/src/charts.ts",
+      "match": true
+    },
+    {
+      "path": "examples/judge-benchmarks/src/contestants.ts",
+      "match": true
+    },
+    {
+      "path": "examples/judge-benchmarks/src/data.ts",
+      "match": true
+    },
+    {
+      "path": "examples/judge-benchmarks/src/extras.ts",
+      "match": true
+    },
+    {
+      "path": "examples/judge-benchmarks/src/guard-allow.ts",
+      "match": true
+    },
+    {
+      "path": "examples/judge-benchmarks/src/run.ts",
+      "match": true
+    },
+    {
+      "path": "examples/judge-benchmarks/src/score.ts",
+      "match": true
+    },
+    {
+      "path": "examples/judge-benchmarks/src/verify-domain.ts",
+      "match": true
+    },
+    {
+      "path": "examples/judge-benchmarks/src/verify-dossier.ts",
+      "match": true
+    },
+    {
+      "path": "examples/judge-benchmarks/src/verify-experiment.ts",
+      "match": true
+    },
+    {
+      "path": "examples/judge-benchmarks/src/verify-extraction.ts",
+      "match": true
+    },
+    {
+      "path": "examples/judge-benchmarks/src/verify-freeze.ts",
+      "match": true
+    },
+    {
+      "path": "examples/judge-benchmarks/src/verify-label-audit.py",
+      "match": true
+    },
+    {
+      "path": "examples/judge-benchmarks/src/verify-summary.ts",
+      "match": true
+    },
+    {
+      "path": "examples/judge-benchmarks/src/verify-test-metrics.ts",
+      "match": true
+    },
+    {
+      "path": "examples/judge-benchmarks/src/verify-test.ts",
+      "match": true
+    },
+    {
+      "path": "examples/judge-benchmarks/src/verify-tools.py",
+      "match": true
+    },
+    {
+      "path": "examples/judge-benchmarks/src/verify-tools.ts",
+      "match": true
+    },
+    {
+      "path": "examples/judge-benchmarks/src/verify.ts",
+      "match": true
+    },
+    {
+      "path": "examples/judge-benchmarks/results/verify-dev/label-audit.json",
+      "match": true
+    },
+    {
+      "path": "examples/judge-benchmarks/results/verify-dev/test-label-audit.json",
+      "match": true
+    },
+    {
+      "path": "examples/judge-benchmarks/results/verify-dev/adaptive-test-driver.mjs",
+      "match": true
+    }
+  ],
+  "cohortSeedMatches": true,
+  "uniqueIds": true,
+  "original72Unchanged": true,
+  "allValidBinary": true,
+  "auditCorrections": 23,
+  "strictCorrections": 22,
+  "inspectNewCalls": 0,
+  "inspectNewSpendUsd": 0
+}

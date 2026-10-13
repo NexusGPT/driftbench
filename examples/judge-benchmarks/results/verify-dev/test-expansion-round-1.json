@@ -1,0 +1,126 @@
+{
+  "bench": "longjudge-verify",
+  "model": "haiku",
+  "items": 12,
+  "contestants": [
+    {
+      "contestant": "driftbench-verify-uncertainty-cascade",
+      "source": "two blind paths, backward and final-step checks; recheck acceptances admitting missing premises; exclude reminders not to invent unrequested outputs from uncertainty detection",
+      "mode": "pointwise",
+      "summary": {
+        "metric": "accuracy (LongJudgeBench verify, binary)",
+        "value": {
+          "estimate": 0.5833333333333334,
+          "lower": 0.31951131254954973,
+          "upper": 0.8067396863412435
+        },
+        "n": 12,
+        "balancedAccuracy": 0.5,
+        "byGroup": {
+          "incorrect": {
+            "n": 9,
+            "value": 0.6666666666666666
+          },
+          "correct": {
+            "n": 3,
+            "value": 0.3333333333333333
+          }
+        },
+        "missing": 0
+      },
+      "costUsd": 0.10033342,
+      "calls": 58,
+      "decisions": [
+        {
+          "id": "18920edc584abc7ac0ed5609b60d2a13_1184e0f0f4f884c97c868836b1b88e68",
+          "pass": false,
+          "correct": false,
+          "responseChars": 1716,
+          "missing": 0
+        },
+        {
+          "id": "810717d60b1d0fd96fde7503a7da0bff_3f3e46bdc826111ddfe5ec35f9629337",
+          "pass": false,
+          "correct": false,
+          "responseChars": 17336,
+          "missing": 0
+        },
+        {
+          "id": "85484073395135384c7235d903f054f4_b629da2c271997896da3aca353f20a50",
+          "pass": false,
+          "correct": false,
+          "responseChars": 2911,
+          "missing": 0
+        },
+        {
+          "id": "39e51c99600845c8c81cafaf0537f4f6_24d8ffb3739318dcf65b4b48a5e5cf41",
+          "pass": false,
+          "correct": true,
+          "responseChars": 6888,
+          "missing": 0
+        },
+        {
+          "id": "95eb60c3016382cea9ff3da10ed5bff7_0fdd370e0b390b2be254852a21b4abc3",
+          "pass": false,
+          "correct": false,
+          "responseChars": 1882,
+          "missing": 0
+        },
+        {
+          "id": "3fc81c77397f2e951b26af4a2b1f6624_a17576d640829f45e705272da9857616",
+          "pass": true,
+          "correct": false,
+          "responseChars": 14460,
+          "missing": 0
+        },
+        {
+          "id": "01d58761da56763794c136264dc00325_07bdbfc68fd8a2f595757f5e06b7e854",
+          "pass": false,
+          "correct": false,
+          "responseChars": 2760,
+          "missing": 0
+        },
+        {
+          "id": "7fd9d80b188fd0e511568ce4eaf9823b_907c854eb1ea880801b52abe25e62acf",
+          "pass": true,
+          "correct": false,
+          "responseChars": 7718,
+          "missing": 0
+        },
+        {
+          "id": "ed88bc7ccbf6d4d119fddd362def6f5c_59074388a97ba22cd75e6351edac1b27",
+          "pass": true,
+          "correct": true,
+          "responseChars": 3320,
+          "missing": 0
+        },
+        {
+          "id": "ff2796ddf628ec8029f38e475395f8f6_e6ecff7ef1f0ae955e946289eae08fa3",
+          "pass": true,
+          "correct": false,
+          "responseChars": 8936,
+          "missing": 0
+        },
+        {
+          "id": "1c835b08565c96fd050e8d03fcaaa2fe_828481bc71c07b032a217144bfd826c6",
+          "pass": false,
+          "correct": false,
+          "responseChars": 21546,
+          "missing": 0
+        },
+        {
+          "id": "41c476582f5f4e93fd0804f903a67304_ccc78e110fd84c30105ba39cdd2ed3a1",
+          "pass": false,
+          "correct": true,
+          "responseChars": 19876,
+          "missing": 0
+        }
+      ]
+    }
+  ],
+  "newSpendUsd": 0.10033342,
+  "newCalls": 58,
+  "replayed": 0,
+  "failedCalls": 0,
+  "elapsedSeconds": 452.399
+}
