@@ -12,7 +12,7 @@ def main():
     output={'pilot':[],'dev':[],'policy':'A failed predeclared validity criterion is reported and never tuned away. Test launch requires an explicit recorded disposition.'}
     for split in ['pilot','dev']:
         items=json.loads((HERE/'seals'/f'{split}.json').read_text())
-        for model in ['haiku','gpt-6-luna']:
+        for model in ['haiku','gpt-6-luna','gemini-3.8-flash']:
             for contestant in ['pair-ledger','reader-first-c50b2dc3','promptfoo']:
                 selected=[x for x in rows if x['split']==split and x['model']==model and x['contestant']==contestant]
                 first=[x for x in selected if x.get('sample',0)==0]

@@ -80,7 +80,7 @@ def main():
         for contestant in ['pair-ledger', 'reader-first-c50b2dc3', 'promptfoo']:
             rows = [r for r in results if r['model'] == model and r['contestant'] == contestant and r['split'] == 'test' and r.get('sample',0) == 0]
             cells.append({'model': model, 'contestant': contestant,
-                          'status': 'pending billing' if model.startswith('gemini') else ('complete' if len(rows) == len(items) else 'pending or partial'),
+                          'status': 'complete' if len(rows) == len(items) else 'pending or partial',
                           **summarize(items, rows, peer if contestant != 'promptfoo' else None)})
     for contestant in ['longer-wins', 'constant-FIRST', 'refusal-wins']:
         rows = [r for r in results if r['contestant'] == contestant and r['split'] == 'test']

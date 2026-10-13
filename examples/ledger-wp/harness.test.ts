@@ -3,6 +3,9 @@ import { test } from 'node:test';
 import { mkdtempSync, readFileSync, writeFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { Budget, cheater, HERE, parsePromptfoo, promptfoo, sha, verifyFreeze } from './harness';
+import { judgePairLedger, pairLedgerRequest } from '../../packages/judges/src/pair-ledger';
+import { responseSchema } from '../../packages/judges/src/assessment';
+import { buildPrompt } from '../../packages/judges/src/prompt';
 
 test('constant FIRST has exactly one correct game for either gold side',()=>{
   for(const label of ['A','B'])assert.equal(cheater({},'constant-FIRST').filter(x=>x===label).length,1);
@@ -37,4 +40,19 @@ test('freeze gate blocks pending core and corrupted files before calls',()=>{
   assert.throws(()=>verifyFreeze(freeze),/FROZEN_SOURCE/);
   freeze.files['examples/ledger-wp/stats.py']=sha(readFileSync(resolve(HERE,'stats.py')));
   assert.doesNotThrow(()=>verifyFreeze(freeze));
+});
+test('pushed core adapter carries exact caller rows through both orders without labels',async()=>{
+  const item=JSON.parse(readFileSync(resolve(HERE,'seals/fixtures.json'),'utf8'))[0];
+  const request=pairLedgerRequest({name:'writing',rubric:'Follow the writing request.'},[{role:'user',text:item.question}],item.a,item.b,
+    {requirements:item.requirements.map((r:any)=>({name:r.id,rubric:r.definition,hard:r.hard})),reasoning:'medium'});
+  let calls=0;
+  const client:any={id:'mock',family:'test',cls:'system2',cost:0,dialect:'openai-json-schema',reasoning:'medium',judge:async(r:any)=>{
+    calls++;
+    const prompt=buildPrompt(r);assert.ok(prompt.user.includes('<first_data>'));assert.ok(!prompt.user.includes('sourceScores'));
+    const schema:any=responseSchema(r);assert.equal(schema.properties.items.minItems,item.requirements.length);
+    const first=r.candidates.A.includes('Ada');
+    return {raw:JSON.stringify({items:item.requirements.map((row:any)=>({name:row.id,first:first?4:0,second:first?0:4,reasoning:'Literal fixture requirement.',evidence:null}))}),costUsd:0};
+  }};
+  const result=await judgePairLedger(client,request,{stage0:{correctness:false,compute:false},tiePolicy:'canonical'});
+  assert.equal(calls,2);assert.equal(result.choice,'first');assert.equal(result.status,'decided');
 });

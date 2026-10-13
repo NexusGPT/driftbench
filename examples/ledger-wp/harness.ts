@@ -72,7 +72,7 @@ export function verifyFreeze(freeze: any) {
   for (const [split, expected] of Object.entries(freeze.seals)) {
     if(sha(readFileSync(resolve(HERE,'seals',split+'.json')))!==expected)throw Error('SEALED_POOL_CHANGED');
   }
-  if(freeze.capUsd!==15 || freeze.models.includes('gemini-3.8-flash'))throw Error('Invalid spend/model authorization');
+  if(freeze.capUsd!==15 || freeze.models.some((x:string)=>!['haiku','gpt-6-luna','gemini-3.8-flash'].includes(x)))throw Error('Invalid spend/model authorization');
 }
 
 async function runClaude(prompt: {system:string;user:string}, cwd:string): Promise<any> {
@@ -92,7 +92,7 @@ async function runClaude(prompt: {system:string;user:string}, cwd:string): Promi
 async function main() {
   const arg=(name:string)=>{const i=process.argv.indexOf('--'+name);return i<0?undefined:process.argv[i+1];};
   if(process.argv.includes('--help')) {
-    console.log('harness.ts --cheaters | --phase pilot|dev|fixtures|validity|test [--model haiku|gpt-6-luna] [--concurrency N] [--replay-only]');return;
+    console.log('harness.ts --cheaters | --phase pilot|dev|fixtures|validity|test [--model haiku|gpt-6-luna|gemini-3.8-flash] [--concurrency N] [--replay-only]');return;
   }
   mkdirSync(resolve(HERE,'results'),{recursive:true});mkdirSync(resolve(HERE,'runtime/empty'),{recursive:true});
   if(process.argv.includes('--cheaters')) {
@@ -128,22 +128,26 @@ async function main() {
     if(process.argv.includes('--replay-only'))throw Error('REPLAY_MISS '+key);
     if(Date.now()>Date.parse(freeze.lastCallUtc))throw Error('LAST_CALL_CUTOFF');
     budget.reserve(key,meta.model==='haiku'?0.25:0.10);
-    const started=Date.now();let payload:any;
+    const started=Date.now();let payload:any;let providerMeta:any={};
     if(meta.model==='haiku')payload=await runClaude(prompt,resolve(HERE,'runtime/empty'));
     else {
       const argv=['--model',meta.model,'--system-prompt',prompt.system,'--reasoning-effort',freeze.reasoning[meta.model]];
       if(schema)argv.push('--json-schema',JSON.stringify(schema));
       // The upstream shim owns pricing and provider shape. The bound is identical for all contestants.
       payload=await shim.runShim({argv,input:prompt.user,fetch:async(url:any,options:any)=> {
-        const body=JSON.parse(options.body);body.max_completion_tokens=4096;
+        const body=JSON.parse(options.body);
+        if(meta.model.startsWith('gemini'))body.generationConfig={...body.generationConfig,maxOutputTokens:4096};
+        else body.max_completion_tokens=4096;
         const response=await fetch(url,{...options,body:JSON.stringify(body),signal:AbortSignal.timeout(300_000)});
         if(!response.ok) {const data=await response.text();throw Error('Provider '+response.status+': '+data.slice(0,300));}
+        const observed=await response.clone().json();
+        providerMeta={usage:observed.usage??observed.usageMetadata,model:observed.model??observed.modelVersion,finishReason:observed.choices?.[0]?.finish_reason??observed.candidates?.[0]?.finishReason};
         return response;
       }});
     }
     const entry={key,...meta,promptHash:sha(JSON.stringify(prompt)),schemaHash:schema?sha(JSON.stringify(schema)):null,
       modelRequested:meta.model,text:payload.result??'',costUsd:payload.total_cost_usd,
-      providerError:payload.is_error===true,usage:payload.usage??null,modelUsage:payload.modelUsage??null,
+      providerError:payload.is_error===true,usage:payload.usage??providerMeta.usage??null,modelUsage:payload.modelUsage??null,providerMeta,
       startedAt:new Date(started).toISOString(),finishedAt:new Date().toISOString(),durationMs:Date.now()-started};
     append('results/calls.jsonl',entry);recorded.set(key,entry);
     if(!entry.providerError&&Number.isFinite(entry.costUsd))budget.settle(key,entry.costUsd);
@@ -168,13 +172,13 @@ async function main() {
           const ba=await ask(promptfoo(item.question,item.b,item.a));
           games=[parsePromptfoo(ab.text),flip(parsePromptfoo(ba.text))];graderErrors=games.filter(g=>g==='tie').length;
         } else if(job.contestant==='reader-first-c50b2dc3') {
-          const client:any={id:job.model,family:job.model==='haiku'?'anthropic':'openai',cls:'system2',cost:1,
+          const client:any={id:job.model,family:job.model==='haiku'?'anthropic':job.model.startsWith('gemini')?'google':'openai',cls:'system2',cost:1,
             judge:async(request:any)=>{const out=await ask(readerPrompt(request));return {...readerParse(out.text,request),costUsd:out.costUsd};}};
           details=await createReaderFirstJudge(client,{configuration:'reader-first',language:item.language}).judgePair(item.question,item.a,item.b);
           games=[details.choice,details.choice];graderErrors=Number(!details.ordered.valid)+Number(!details.swapped.valid);
         } else {
-          const dialect=job.model==='haiku'?'scratchpad-json':'openai-json-schema';
-          const client:any={id:job.model,family:job.model==='haiku'?'anthropic':'openai',cls:'system2',cost:1,dialect,reasoning:freeze.reasoning[job.model],
+          const dialect=job.model==='haiku'?'scratchpad-json':job.model.startsWith('gemini')?'google-response-schema':'openai-json-schema';
+          const client:any={id:job.model,family:job.model==='haiku'?'anthropic':job.model.startsWith('gemini')?'google':'openai',cls:'system2',cost:1,dialect,reasoning:freeze.reasoning[job.model],
             judge:async(request:any)=>{const out=await ask(promptModule.buildPrompt(request),job.model==='haiku'?undefined:schemaModule.responseSchema(request));return {raw:out.text,costUsd:out.costUsd};}};
           const request=core.pairLedgerRequest({name:'writing',rubric:criterion},[{role:'user',text:item.question}],item.a,item.b,
             {requirements:item.requirements.map((r:any)=>({name:r.id,rubric:r.definition,hard:r.hard})),reasoning:freeze.reasoning[job.model]});
