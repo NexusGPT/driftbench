@@ -2,7 +2,7 @@ import { AsyncLocalStorage } from 'node:async_hooks';
 import { execFileSync } from 'node:child_process';
 import { createHash } from 'node:crypto';
 import { appendFileSync } from 'node:fs';
-import { type Ladder, type LadderReport, runSeeds, type SeedSpec } from '@driftbench/validators';
+import { type Ladder, type LadderReport, runSeeds, type SeedSpec } from '@agent-nexus/driftbench-validators';
 
 type CacheEvent = { key: string; cached: boolean; reportHash: string };
 
@@ -13,7 +13,12 @@ export function createStatsMeasurementCache(
 ) {
   const held = new Map<string, Promise<LadderReport>>();
   return {
-    async run(ladder: Ladder, seeds: readonly SeedSpec[], root: string, options: { full?: boolean } = {}) {
+    async run(
+      ladder: Ladder,
+      seeds: readonly SeedSpec[],
+      root: string,
+      options: { full?: boolean; maxLevel?: number } = {},
+    ) {
       const code = ladder.component === 'stats' ? revision(root) : undefined;
       if (code === undefined || seeds.length === 0) return measure(ladder, seeds, root, options);
       const parts: LadderReport[] = [];
@@ -25,6 +30,7 @@ export function createStatsMeasurementCache(
           seed.seed,
           seed.hidden,
           Boolean(options.full),
+          options.maxLevel,
         ]);
         const existing = held.get(key);
         const pending = existing ?? measure(ladder, [seed], root, options);
@@ -88,7 +94,7 @@ export function measuredSeeds(
   ladder: Ladder,
   seeds: readonly SeedSpec[],
   root: string,
-  options: { full?: boolean },
+  options: { full?: boolean; maxLevel?: number },
 ) {
   const cache = sweep.getStore();
   return cache ? cache.run(ladder, seeds, root, options) : runSeeds(ladder, seeds, root, options);
