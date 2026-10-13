@@ -358,7 +358,7 @@
         "no usable situation (skill.invoice-reconcile.skill-invoice-reconcile (asks it names)): the situation names the file references/currency-table.md: \"When the invoice is not in EUR, read references/currency-table.md to convert every amount\"",
         "no usable situation (skill.invoice-reconcile.skill-invoice-reconcile (asks it names)): the situation names the file references/matching-rules.md: \"Read references/matching-rules.md before matching any line\"",
         "no usable situation (skill.supplier-email.skill-supplier-email (asks it names)): the situation names the file .claude/memory/supplier-languages.md: \"Write in the supplier's language, as listed in .claude/memory/supplier-languages.md\"",
-        "no usable situation (skill.weekly-report.skill-weekly-report (asks it names)): the situation names the file References/kpi-definitions.md: \"References/kpi-definitions.md when a number needs a definition\""
+        "no usable situation (skill.weekly-report.skill-weekly-report (description task)): the situation names the file References/kpi-definitions.md: \"References/kpi-definitions.md when a number needs a definition\""
       ]
     },
     {

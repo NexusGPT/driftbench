@@ -225,7 +225,17 @@ export function actOf(
     const description = typeof atom.fields?.description === 'string' ? atom.fields.description : undefined;
     for (const text of [atom.situation, description]) {
       const asked = text === undefined ? undefined : askedTo(text);
-      if (asked) return withContext(asked, `${atom.id} (asks it names)`);
+      if (asked) {
+        // A topic trigger ("asks about delivery") names no operation. Prefer the concrete operation
+        // the same description states before it, while preserving explicit "asks to" actions.
+        if (asked.startsWith('help me with ') && text !== undefined) {
+          const sentence = firstSentence(text);
+          const task = taskOf(sentence);
+          if (askedTo(sentence) === undefined && verbLed(task))
+            return withContext(task, `${atom.id} (description task)`);
+        }
+        return withContext(asked, `${atom.id} (asks it names)`);
+      }
     }
   }
   if (head?.kind === 'guard') {
@@ -439,7 +449,7 @@ const VERBS: ReadonlySet<string> = new Set(
     'close commit confirm give invent keep make mark note notify paste pull push quote recover reply restate retry return tell use ' +
     'clean collect compare compile compose configure connect convert copy count create debug deploy discover operate decide define ' +
     'delete deploy design diagnose dispatch document draft edit estimate evaluate execute explain export ' +
-    'extract fetch file fill find fix format generate import inspect install integrate list load log manage ' +
+    'extract fetch file fill find fix format generate import inspect install integrate list load log look manage ' +
     'map match measure merge migrate monitor move open operate optimise optimize order organise organize ' +
     'pick plan post prepare process publish read rebuild reconcile record refactor register reject release ' +
     'remove rename render repair replace replay report research resolve restore retrieve review rewrite run ' +
