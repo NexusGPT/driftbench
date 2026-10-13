@@ -79,6 +79,8 @@ export function dataKey(request: JudgeRequest): string {
     ...(isPairLedgerRequest(request)
       ? { dialect: request.dialect ?? 'scratchpad-json', reasoning: request.reasoning }
       : {}),
+    // Keep existing/default keys stable, including legacy and system 1 recordings.
+    ...(request.presentation === 'canonical' ? { presentation: request.presentation } : {}),
     ...(request.answerContract !== 'legacy' && request.requirements
       ? { requirements: request.requirements }
       : {}),

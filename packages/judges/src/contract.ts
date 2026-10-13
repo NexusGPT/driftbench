@@ -68,6 +68,8 @@ export type JudgeRequest = {
   readonly assessment?: Assessment;
   /** Candidate texts for validating content-anchored winners. */
   readonly candidates?: { readonly A: string; readonly B: string };
+  /** Pairwise presentation policy, included in cassette identity. Absent means both orders. */
+  readonly presentation?: 'both-orders' | 'canonical';
   readonly factAudit?: { readonly reference: string };
   readonly criterion: CriterionText;
   /** The system prompt of this request. Absent: the criterion prompt of the prompt kit. */
@@ -99,7 +101,7 @@ export type JudgeResult = {
   readonly conformance?: ConformanceAudit;
   /** Default chat-model requirement ledger, with the public outcome computed in code. */
   readonly checks?: CriterionLedger['checks'];
-  /** Model-invented requirement ids, ignored during scoring and retained for diagnostics. */
+  /** Model-invented criterion ids or rubric names, ignored in scoring and retained for diagnostics. */
   readonly ignoredRequirementIds?: readonly string[];
   readonly referenceAgreement?: {
     readonly attempts: number;

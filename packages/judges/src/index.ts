@@ -211,6 +211,7 @@ export {
   runPairStage0,
 } from './pair-stage0';
 export {
+  type CanonicalPairwiseVerdict,
   judgePairwise,
   type PairwiseChoice,
   type PairwiseOptions,

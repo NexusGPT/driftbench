@@ -14,6 +14,16 @@ import { buildDialectRequest } from './transport';
 
 const CHAT_COST = 10;
 
+/** The temperature every chat judge asks for. */
+const TEMPERATURE = 0;
+
+/**
+ * A client's settings descriptor: everything beyond the model that shapes its answers, as one stable string.
+ * It is part of every cassette key, so changing a default below changes the descriptor and no old recording replays.
+ */
+const settingsOf = (client: string, extra: Record<string, unknown>): string =>
+  JSON.stringify({ client, temperature: TEMPERATURE, maxTokens: MAX_TOKENS, ...extra });
+
 function modelOf(options: ClientOptions, env: Record<string, string | undefined>, variable: string): string {
   const model = env[variable]?.trim() || options.model;
   if (!model) throw new JudgeError('config', `${variable} is not set and no model was given`);
@@ -46,6 +56,7 @@ export function createOpenAiJudge(options: ClientOptions = {}): JudgeClient {
   const key = requireEnv(env, 'OPENAI_API_KEY');
   const model = modelOf(options, env, 'OPENAI_JUDGE_MODEL');
   const url = `${baseOf(env, 'OPENAI_BASE_URL', 'https://api.openai.com')}/v1/chat/completions`;
+  let sendTemperature = true;
   return {
     id: options.id ?? 'openai',
     family: 'openai',
@@ -54,6 +65,10 @@ export function createOpenAiJudge(options: ClientOptions = {}): JudgeClient {
     dialect: JUDGE_DIALECTS.openai.id,
     ...(options.reasoning === undefined ? {} : { reasoning: options.reasoning }),
     cost: options.cost ?? CHAT_COST,
+    settings: settingsOf('openai-chat', {
+      temperatureRetry: 'drop on a 400 that names it',
+      responseFormat: 'json_schema',
+    }),
     async judge(original) {
       const request = withJudgeDialect(original, JUDGE_DIALECTS.openai.id, options.reasoning);
       const reasoning = request.reasoning ?? options.reasoning;
@@ -61,15 +76,18 @@ export function createOpenAiJudge(options: ClientOptions = {}): JudgeClient {
       const ledgerPayload = isPairLedgerRequest(request)
         ? buildDialectRequest('openai', { ...prompt, schema: responseSchema(request), reasoning }).payload
         : undefined;
-      const payload = await postJson(
-        url,
-        { authorization: `Bearer ${key}` },
+      const body = (withTemperature: boolean) =>
         ledgerPayload
-          ? { model, max_completion_tokens: budgetOf(request), temperature: 0, ...ledgerPayload }
+          ? {
+              model,
+              max_completion_tokens: budgetOf(request),
+              ...(withTemperature ? { temperature: TEMPERATURE } : {}),
+              ...ledgerPayload,
+            }
           : {
               model,
               max_completion_tokens: budgetOf(request),
-              temperature: 0,
+              ...(withTemperature ? { temperature: TEMPERATURE } : {}),
               ...(reasoning === undefined ? {} : { reasoning_effort: reasoning }),
               response_format: {
                 type: 'json_schema',
@@ -83,9 +101,20 @@ export function createOpenAiJudge(options: ClientOptions = {}): JudgeClient {
                 { role: 'system', content: prompt.system },
                 { role: 'user', content: prompt.user },
               ],
-            },
-        options,
-      );
+            };
+      const send = (withTemperature: boolean) =>
+        postJson(url, { authorization: `Bearer ${key}` }, body(withTemperature), options);
+      let payload: unknown;
+      try {
+        payload = await send(sendTemperature);
+      } catch (cause) {
+        // Retry a rejected temperature once, then omit it on subsequent calls from this client.
+        const text = cause instanceof Error ? cause.message : '';
+        if (!sendTemperature || !/answered 400/.test(text) || !/temperature/i.test(text)) throw cause;
+        sendTemperature = false;
+        payload = await send(false);
+      }
+
       const choice = isRecord(payload) && Array.isArray(payload.choices) ? payload.choices[0] : undefined;
       const message = isRecord(choice) ? choice.message : undefined;
       const raw = JSON.stringify(payload);
@@ -121,6 +150,7 @@ export function createAnthropicJudge(options: ClientOptions = {}): JudgeClient {
     model,
     dialect: JUDGE_DIALECTS.anthropic.id,
     cost: options.cost ?? CHAT_COST,
+    settings: settingsOf('anthropic-messages', { anthropicVersion: '2023-06-01' }),
     async judge(original) {
       const request = withJudgeDialect(original, JUDGE_DIALECTS.anthropic.id);
       const prompt = buildPrompt(request);
@@ -131,11 +161,11 @@ export function createAnthropicJudge(options: ClientOptions = {}): JudgeClient {
         url,
         { 'x-api-key': key, 'anthropic-version': '2023-06-01' },
         ledgerPayload
-          ? { model, max_tokens: budgetOf(request), temperature: 0, ...ledgerPayload }
+          ? { model, max_tokens: budgetOf(request), temperature: TEMPERATURE, ...ledgerPayload }
           : {
               model,
               max_tokens: budgetOf(request),
-              temperature: 0,
+              temperature: TEMPERATURE,
               system: prompt.system,
               messages: [{ role: 'user', content: prompt.user }],
             },
@@ -180,6 +210,7 @@ export function createGoogleJudge(options: ClientOptions = {}): JudgeClient {
     dialect: JUDGE_DIALECTS.google.id,
     ...(options.reasoning === undefined ? {} : { reasoning: options.reasoning }),
     cost: options.cost ?? CHAT_COST,
+    settings: settingsOf('google-generate-content', { responseMimeType: 'application/json' }),
     async judge(original) {
       const request = withJudgeDialect(original, JUDGE_DIALECTS.google.id, options.reasoning);
       const reasoning = request.reasoning ?? options.reasoning;
@@ -196,7 +227,7 @@ export function createGoogleJudge(options: ClientOptions = {}): JudgeClient {
               generationConfig: {
                 ...(isRecord(ledgerPayload.generationConfig) ? ledgerPayload.generationConfig : {}),
                 maxOutputTokens: budgetOf(request),
-                temperature: 0,
+                temperature: TEMPERATURE,
               },
             }
           : {
@@ -208,7 +239,7 @@ export function createGoogleJudge(options: ClientOptions = {}): JudgeClient {
                   ? googleResponseSchema(responseSchema(request))
                   : googleSchema(responseSchema(request)),
                 maxOutputTokens: budgetOf(request),
-                temperature: 0,
+                temperature: TEMPERATURE,
                 ...(reasoning === undefined ? {} : { thinkingConfig: { thinkingLevel: reasoning } }),
               },
             },

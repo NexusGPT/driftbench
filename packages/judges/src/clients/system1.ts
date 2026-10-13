@@ -12,6 +12,9 @@ import { JUDGE_DIALECTS } from './dialects';
 
 const SYSTEM1_COST = 1;
 
+/** The focus line Jev is asked to read the FAIL picture first. */
+const JEV_FOCUS = 'Read the FAIL picture first. When the data matches it, the answer is no.';
+
 /** Where a probability turns into pass or fail. Between the two the answer is inconclusive. */
 export type ProbabilityBounds = { passAt?: number; failAt?: number };
 
@@ -61,6 +64,14 @@ export function createJevJudge(options: System1Options = {}): JudgeClient {
     cls: 'system1',
     model,
     cost: options.cost ?? SYSTEM1_COST,
+    settings: JSON.stringify({
+      client: 'jev',
+      questionType: 'noul',
+      answerContract: 'legacy',
+      focus: JEV_FOCUS,
+      passAt: options.passAt ?? null,
+      failAt: options.failAt ?? null,
+    }),
     async judge(request) {
       const prompt = buildPrompt({ ...request, answerContract: 'legacy' });
       const payload = await postJson(
@@ -74,7 +85,7 @@ export function createJevJudge(options: System1Options = {}): JudgeClient {
               type: 'noul',
               instructions: {
                 question: binaryQuestion(request),
-                focus: 'Read the FAIL picture first. When the data matches it, the answer is no.',
+                focus: JEV_FOCUS,
               },
             },
           },

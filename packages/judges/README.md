@@ -32,6 +32,7 @@ The full list of exports is in the type declarations (`dist/index.d.ts`).
 The reader scores FIRST and SECOND from 0 to 4 (or null) on caller-owned requirements.
 Optional evidence quotes are validated against either candidate. There is no model-authored winner.
 The existing default and explicit `legacy` requests keep their previous behavior.
+The pair ledger requires both orders; combining it with `presentation: 'canonical'` throws before any call.
 
 ```ts
 import { createOpenAiJudge, pairLedgerRequest, judgePairLedger } from '@agent-nexus/driftbench-judges';
