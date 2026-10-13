@@ -316,7 +316,10 @@ export const XLSX_CHECKS: CheckTable<Workbook> = {
   ...TEXT_CHECKS,
 };
 
-/** exceljs, loaded on first use. A missing package fails here, outside the catch that reports an unreadable file. */
+/**
+ * exceljs, several hundred modules: it loads when the first workbook opens, not when this package does. A
+ * missing package fails here, outside the catch that reports an unreadable file.
+ */
 function loadExcelJS(): Promise<typeof ExcelJS> {
   return loadReaderLibrary('exceljs', 'xlsx', async () => (await import('exceljs')).default);
 }
