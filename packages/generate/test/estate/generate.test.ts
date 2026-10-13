@@ -475,6 +475,19 @@ describe('the committed suite', () => {
     );
   });
 
+  it('lets a journey through a conditional atom wait until an approved situation sets the condition off', async () => {
+    const result = generateEstateSuite(await fixtureInputs(APPROVED_PLAN), { paths: PLANNER_PATHS });
+    const currency = 'reference.invoice-reconcile.read-references-currency-table-md';
+    const journeys = result.specs.filter(
+      (record) => record.testType === 'journey' && record.atoms.includes(currency),
+    );
+    expect(journeys.length).toBeGreaterThan(0);
+    for (const record of journeys) {
+      expect(record.complete, record.id).toBe(false);
+      expect(record.markers, record.id).toContain(MARKERS.phrase);
+    }
+  }, 120_000);
+
   it("is byte for byte what the generator writes for the planner's plan, seed 1", async () => {
     const result = generateEstateSuite(await fixtureInputs(APPROVED_PLAN), { paths: PLANNER_PATHS });
     const committed = await tree(FIXTURE_GENERATED);
@@ -484,8 +497,8 @@ describe('the committed suite', () => {
       // An ask that would restate the rule under test is refused (needs-askable-act): fewer complete specs.
       specs: 1145,
       blocks: 1140,
-      complete: 848,
-      incomplete: 297,
+      complete: 847,
+      incomplete: 298,
       judged: 251,
     });
     expect(result.report.invalid).toEqual([]);

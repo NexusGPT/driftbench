@@ -43,8 +43,8 @@
   "summary": {
     "specs": 1145,
     "blocks": 1140,
-    "complete": 848,
-    "incomplete": 297,
+    "complete": 847,
+    "incomplete": 298,
     "judged": 251
   },
   "unit": {
@@ -61,13 +61,13 @@
   },
   "sources": {
     "asks": {
-      "bank": 366,
+      "bank": 365,
       "code": 474,
       "session": 0,
       "none": 8
     },
     "outcomes": {
-      "bank": 677,
+      "bank": 676,
       "no-change:denied": 2,
       "no-change:guard": 15,
       "no-change:negative": 58,
@@ -244,8 +244,8 @@
     "journey": {
       "rows": 11,
       "specs": 11,
-      "complete": 10,
-      "incomplete": 1
+      "complete": 9,
+      "incomplete": 2
     }
   },
   "perMode": {
@@ -264,11 +264,23 @@
     "live": {
       "rows": 1102,
       "specs": 1102,
-      "complete": 811,
-      "incomplete": 291
+      "complete": 810,
+      "incomplete": 292
     }
   },
   "gaps": [
+    {
+      "marker": "needs-approved-phrase",
+      "specs": 2,
+      "atoms": [
+        "reference.invoice-reconcile.read-references-currency-table-md",
+        "reference.weekly-report.read-references-kpi-definitions-md"
+      ],
+      "details": [
+        "a situation that sets off reference.invoice-reconcile.read-references-currency-table-md: 2. When the invoice is not in EUR, read `references/currency-table.md` to convert every amount.",
+        "a situation that sets off reference.weekly-report.read-references-kpi-definitions-md: `references/kpi-definitions.md` when a number needs a definition. Save the report as"
+      ]
+    },
     {
       "marker": "needs-askable-act",
       "specs": 280,

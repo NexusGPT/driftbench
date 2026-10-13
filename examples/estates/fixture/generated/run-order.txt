@@ -395,7 +395,6 @@ specs/live/journey/estate.journey.04.yaml
 specs/live/journey/estate.journey.05.yaml
 specs/live/journey/estate.journey.06.yaml
 specs/live/journey/estate.journey.07.yaml
-specs/live/journey/estate.journey.08.yaml
 specs/live/journey/estate.journey.09.yaml
 specs/live/journey/estate.journey.10.yaml
 specs/live/route_positive/estate.pairwise.001.yaml

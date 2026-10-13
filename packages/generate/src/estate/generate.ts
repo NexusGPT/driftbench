@@ -783,6 +783,16 @@ function build(
         askFrom = written.source;
       }
     } else if (missing) gap(then, missing.marker, first, missing.detail);
+    // A reference read only under a condition ("When the invoice is not in EUR, read ...") needs an approved
+    // situation that sets it off; the ask of another situation cannot reach it, so the row waits.
+    if (ask === 'bank' && situation) {
+      for (const atom of atoms) {
+        const when = atom.fields?.readWhen;
+        if (atom === first || atom.kind !== 'reference' || typeof when !== 'string') continue;
+        if (!/\b(?:when|if|unless)\b/i.test(when) || situation.atoms.includes(atom.id)) continue;
+        gap(then, MARKERS.phrase, atom, `a situation that sets off ${atom.id}: ${when}`);
+      }
+    }
   }
 
   // The outcome the situation declares, else the one the atoms name, else the one read from the atoms.
