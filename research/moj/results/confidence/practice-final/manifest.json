@@ -1,0 +1,40 @@
+{
+  "settings": {
+    "benches": "judgebench,mmeval,writing",
+    "full_experts": [
+      "s1p",
+      "s1r",
+      "ref",
+      "s2v",
+      "s2h"
+    ],
+    "extra": "ref",
+    "target": 0.9,
+    "risk": 0.05,
+    "accuracy_target": 0.8,
+    "cost_budget": null,
+    "s2_weight": 10.0,
+    "splits": 1000,
+    "seed": 13,
+    "output": "results/confidence/practice-final"
+  },
+  "inputs": {
+    "judgebench": {
+      "path": "results/signals/judgebench.json",
+      "sha256": "a245be961d159e5cb2ecc2b7f18cdb7dccfb5aa58e06839456c5f971766fe8cc"
+    },
+    "mmeval": {
+      "path": "results/signals/mmeval.json",
+      "sha256": "b2c804f467d7f4c7a3bd699b27d0515d90e301bcf1e77c8e0bb013ee97169c7c"
+    },
+    "writing": {
+      "path": "results/signals/writing.json",
+      "sha256": "f0de64138bcdd2ed331ee1db20cc4fbe36d2320979b366c3afce9e1e1852427f"
+    }
+  },
+  "guarantee_minimum_labels": {
+    "one_frozen_region": 29,
+    "two_frozen_regions": 36,
+    "grid_each_enabled_exit": 70
+  }
+}

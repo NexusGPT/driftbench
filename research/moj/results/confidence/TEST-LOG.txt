@@ -1,0 +1,22 @@
+test_crossfit_never_scores_its_training_item (test_confidence.ConfidenceTests.test_crossfit_never_scores_its_training_item) ... ok
+test_exact_binomial_math (test_confidence.ConfidenceTests.test_exact_binomial_math) ... ok
+test_exact_bound_coverage_exhaustive_small_binomial (test_confidence.ConfidenceTests.test_exact_bound_coverage_exhaustive_small_binomial) ... ok
+test_exact_fixed_boundaries_and_order_guard (test_confidence.ConfidenceTests.test_exact_fixed_boundaries_and_order_guard) ... ok
+test_fit_and_validation_separation (test_confidence.ConfidenceTests.test_fit_and_validation_separation) ... ok
+test_full_cost_does_not_charge_skipped_middle_expert (test_confidence.ConfidenceTests.test_full_cost_does_not_charge_skipped_middle_expert) ... ok
+test_guarantee_can_accept_and_stale_reference_rejected (test_confidence.ConfidenceTests.test_guarantee_can_accept_and_stale_reference_rejected) ... ok
+test_guarantee_small_sample_falls_back (test_confidence.ConfidenceTests.test_guarantee_small_sample_falls_back) ... ok
+test_invalid_calibration_rejected (test_confidence.ConfidenceTests.test_invalid_calibration_rejected) ... ok
+test_known_miscalibration_is_corrected_out_of_sample (test_confidence.ConfidenceTests.test_known_miscalibration_is_corrected_out_of_sample) ... ok
+test_missing_full_expert_is_excluded_not_imputed (test_confidence.ConfidenceTests.test_missing_full_expert_is_excluded_not_imputed) ... ok
+test_order_semantics_and_swap (test_confidence.ConfidenceTests.test_order_semantics_and_swap) ... ok
+test_pava_known_solution_and_duplicate_weights (test_confidence.ConfidenceTests.test_pava_known_solution_and_duplicate_weights) ... ok
+test_reliability_endpoints_and_empty (test_confidence.ConfidenceTests.test_reliability_endpoints_and_empty) ... ok
+test_runtime_does_not_read_gold_or_unrun_experts (test_confidence.ConfidenceTests.test_runtime_does_not_read_gold_or_unrun_experts) ... ok
+test_sealed_and_unknown_provenance_rejected (test_confidence.ConfidenceTests.test_sealed_and_unknown_provenance_rejected) ... ok
+test_serialization_and_full_parameter (test_confidence.ConfidenceTests.test_serialization_and_full_parameter) ... ok
+
+----------------------------------------------------------------------
+Ran 17 tests in 0.051s
+
+OK

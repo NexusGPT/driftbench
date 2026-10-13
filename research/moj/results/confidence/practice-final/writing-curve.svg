@@ -1,0 +1,95 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="760" height="450" viewBox="0 0 760 450">
+<rect width="760" height="450" fill="white"/>
+<text x="70" y="28" font-family="sans-serif" font-size="18">writing: validation threshold sweep</text>
+<path d="M70 340 H690" stroke="#ddd"/>
+<text x="22" y="345" font-family="sans-serif">0%</text>
+<path d="M70 270.0 H690" stroke="#ddd"/>
+<text x="22" y="275.0" font-family="sans-serif">25%</text>
+<path d="M70 200.0 H690" stroke="#ddd"/>
+<text x="22" y="205.0" font-family="sans-serif">50%</text>
+<path d="M70 130.0 H690" stroke="#ddd"/>
+<text x="22" y="135.0" font-family="sans-serif">75%</text>
+<path d="M70 60 H690" stroke="#ddd"/>
+<text x="22" y="65" font-family="sans-serif">100%</text>
+<text x="58.0" y="365" font-family="sans-serif">0.0</text>
+<text x="182.0" y="365" font-family="sans-serif">11.8</text>
+<text x="306.0" y="365" font-family="sans-serif">23.5</text>
+<text x="430.0" y="365" font-family="sans-serif">35.3</text>
+<text x="554.0" y="365" font-family="sans-serif">47.0</text>
+<text x="678.0" y="365" font-family="sans-serif">58.8</text>
+<circle cx="152.09426627793974" cy="150.0" r="4" fill="#1265ae" opacity="0.55"><title>hi=0.5, lo=0.5, gold_accuracy=0.6786</title></circle>
+<circle cx="174.68901846452866" cy="150.0" r="4" fill="#1265ae" opacity="0.55"><title>hi=0.6, lo=0.5, gold_accuracy=0.6786</title></circle>
+<circle cx="253.77065111758986" cy="160.0" r="4" fill="#1265ae" opacity="0.55"><title>hi=0.6, lo=0.6, gold_accuracy=0.6429</title></circle>
+<circle cx="174.68901846452866" cy="150.0" r="4" fill="#1265ae" opacity="0.55"><title>hi=0.7, lo=0.5, gold_accuracy=0.6786</title></circle>
+<circle cx="253.77065111758986" cy="160.0" r="4" fill="#1265ae" opacity="0.55"><title>hi=0.7, lo=0.6, gold_accuracy=0.6429</title></circle>
+<circle cx="253.77065111758986" cy="160.0" r="4" fill="#1265ae" opacity="0.55"><title>hi=0.7, lo=0.7, gold_accuracy=0.6429</title></circle>
+<circle cx="179.20796890184644" cy="150.0" r="4" fill="#1265ae" opacity="0.55"><title>hi=0.8, lo=0.5, gold_accuracy=0.6786</title></circle>
+<circle cx="258.2896015549077" cy="160.0" r="4" fill="#1265ae" opacity="0.55"><title>hi=0.8, lo=0.6, gold_accuracy=0.6429</title></circle>
+<circle cx="258.2896015549077" cy="160.0" r="4" fill="#1265ae" opacity="0.55"><title>hi=0.8, lo=0.7, gold_accuracy=0.6429</title></circle>
+<circle cx="274.10592808551996" cy="160.0" r="4" fill="#1265ae" opacity="0.55"><title>hi=0.8, lo=0.8, gold_accuracy=0.6429</title></circle>
+<circle cx="246.9922254616132" cy="150.0" r="4" fill="#1265ae" opacity="0.55"><title>hi=0.9, lo=0.5, gold_accuracy=0.6786</title></circle>
+<circle cx="326.0738581146744" cy="160.0" r="4" fill="#1265ae" opacity="0.55"><title>hi=0.9, lo=0.6, gold_accuracy=0.6429</title></circle>
+<circle cx="326.0738581146744" cy="160.0" r="4" fill="#1265ae" opacity="0.55"><title>hi=0.9, lo=0.7, gold_accuracy=0.6429</title></circle>
+<circle cx="341.89018464528664" cy="160.0" r="4" fill="#1265ae" opacity="0.55"><title>hi=0.9, lo=0.8, gold_accuracy=0.6429</title></circle>
+<circle cx="579.1350826044703" cy="160.0" r="4" fill="#1265ae" opacity="0.55"><title>hi=0.9, lo=0.9, gold_accuracy=0.6429</title></circle>
+<circle cx="246.9922254616132" cy="150.0" r="4" fill="#1265ae" opacity="0.55"><title>hi=0.95, lo=0.5, gold_accuracy=0.6786</title></circle>
+<circle cx="326.0738581146744" cy="160.0" r="4" fill="#1265ae" opacity="0.55"><title>hi=0.95, lo=0.6, gold_accuracy=0.6429</title></circle>
+<circle cx="326.0738581146744" cy="160.0" r="4" fill="#1265ae" opacity="0.55"><title>hi=0.95, lo=0.7, gold_accuracy=0.6429</title></circle>
+<circle cx="341.89018464528664" cy="160.0" r="4" fill="#1265ae" opacity="0.55"><title>hi=0.95, lo=0.8, gold_accuracy=0.6429</title></circle>
+<circle cx="579.1350826044703" cy="160.0" r="4" fill="#1265ae" opacity="0.55"><title>hi=0.95, lo=0.9, gold_accuracy=0.6429</title></circle>
+<circle cx="579.1350826044703" cy="160.0" r="4" fill="#1265ae" opacity="0.55"><title>hi=0.95, lo=0.95, gold_accuracy=0.6429</title></circle>
+<circle cx="246.9922254616132" cy="150.0" r="4" fill="#1265ae" opacity="0.55"><title>hi=1.0, lo=0.5, gold_accuracy=0.6786</title></circle>
+<circle cx="326.0738581146744" cy="160.0" r="4" fill="#1265ae" opacity="0.55"><title>hi=1.0, lo=0.6, gold_accuracy=0.6429</title></circle>
+<circle cx="326.0738581146744" cy="160.0" r="4" fill="#1265ae" opacity="0.55"><title>hi=1.0, lo=0.7, gold_accuracy=0.6429</title></circle>
+<circle cx="341.89018464528664" cy="160.0" r="4" fill="#1265ae" opacity="0.55"><title>hi=1.0, lo=0.8, gold_accuracy=0.6429</title></circle>
+<circle cx="579.1350826044703" cy="160.0" r="4" fill="#1265ae" opacity="0.55"><title>hi=1.0, lo=0.9, gold_accuracy=0.6429</title></circle>
+<circle cx="579.1350826044703" cy="160.0" r="4" fill="#1265ae" opacity="0.55"><title>hi=1.0, lo=0.95, gold_accuracy=0.6429</title></circle>
+<circle cx="579.1350826044703" cy="160.0" r="4" fill="#1265ae" opacity="0.55"><title>hi=1.0, lo=1.0, gold_accuracy=0.6429</title></circle>
+<circle cx="265.06802721088434" cy="150.0" r="4" fill="#1265ae" opacity="0.55"><title>hi=1.01, lo=0.5, gold_accuracy=0.6786</title></circle>
+<circle cx="344.14965986394554" cy="160.0" r="4" fill="#1265ae" opacity="0.55"><title>hi=1.01, lo=0.6, gold_accuracy=0.6429</title></circle>
+<circle cx="344.14965986394554" cy="160.0" r="4" fill="#1265ae" opacity="0.55"><title>hi=1.01, lo=0.7, gold_accuracy=0.6429</title></circle>
+<circle cx="359.9659863945578" cy="160.0" r="4" fill="#1265ae" opacity="0.55"><title>hi=1.01, lo=0.8, gold_accuracy=0.6429</title></circle>
+<circle cx="597.2108843537414" cy="160.0" r="4" fill="#1265ae" opacity="0.55"><title>hi=1.01, lo=0.9, gold_accuracy=0.6429</title></circle>
+<circle cx="597.2108843537414" cy="160.0" r="4" fill="#1265ae" opacity="0.55"><title>hi=1.01, lo=0.95, gold_accuracy=0.6429</title></circle>
+<circle cx="597.2108843537414" cy="160.0" r="4" fill="#1265ae" opacity="0.55"><title>hi=1.01, lo=1.0, gold_accuracy=0.6429</title></circle>
+<circle cx="660.4761904761905" cy="160.0" r="4" fill="#1265ae" opacity="0.55"><title>hi=1.01, lo=1.01, gold_accuracy=0.6429</title></circle>
+<circle cx="152.09426627793974" cy="70.0" r="4" fill="#c14e00" opacity="0.55"><title>hi=0.5, lo=0.5, full_agreement=0.9643</title></circle>
+<circle cx="174.68901846452866" cy="70.0" r="4" fill="#c14e00" opacity="0.55"><title>hi=0.6, lo=0.5, full_agreement=0.9643</title></circle>
+<circle cx="253.77065111758986" cy="60.0" r="4" fill="#c14e00" opacity="0.55"><title>hi=0.6, lo=0.6, full_agreement=1.0000</title></circle>
+<circle cx="174.68901846452866" cy="70.0" r="4" fill="#c14e00" opacity="0.55"><title>hi=0.7, lo=0.5, full_agreement=0.9643</title></circle>
+<circle cx="253.77065111758986" cy="60.0" r="4" fill="#c14e00" opacity="0.55"><title>hi=0.7, lo=0.6, full_agreement=1.0000</title></circle>
+<circle cx="253.77065111758986" cy="60.0" r="4" fill="#c14e00" opacity="0.55"><title>hi=0.7, lo=0.7, full_agreement=1.0000</title></circle>
+<circle cx="179.20796890184644" cy="70.0" r="4" fill="#c14e00" opacity="0.55"><title>hi=0.8, lo=0.5, full_agreement=0.9643</title></circle>
+<circle cx="258.2896015549077" cy="60.0" r="4" fill="#c14e00" opacity="0.55"><title>hi=0.8, lo=0.6, full_agreement=1.0000</title></circle>
+<circle cx="258.2896015549077" cy="60.0" r="4" fill="#c14e00" opacity="0.55"><title>hi=0.8, lo=0.7, full_agreement=1.0000</title></circle>
+<circle cx="274.10592808551996" cy="60.0" r="4" fill="#c14e00" opacity="0.55"><title>hi=0.8, lo=0.8, full_agreement=1.0000</title></circle>
+<circle cx="246.9922254616132" cy="70.0" r="4" fill="#c14e00" opacity="0.55"><title>hi=0.9, lo=0.5, full_agreement=0.9643</title></circle>
+<circle cx="326.0738581146744" cy="60.0" r="4" fill="#c14e00" opacity="0.55"><title>hi=0.9, lo=0.6, full_agreement=1.0000</title></circle>
+<circle cx="326.0738581146744" cy="60.0" r="4" fill="#c14e00" opacity="0.55"><title>hi=0.9, lo=0.7, full_agreement=1.0000</title></circle>
+<circle cx="341.89018464528664" cy="60.0" r="4" fill="#c14e00" opacity="0.55"><title>hi=0.9, lo=0.8, full_agreement=1.0000</title></circle>
+<circle cx="579.1350826044703" cy="60.0" r="4" fill="#c14e00" opacity="0.55"><title>hi=0.9, lo=0.9, full_agreement=1.0000</title></circle>
+<circle cx="246.9922254616132" cy="70.0" r="4" fill="#c14e00" opacity="0.55"><title>hi=0.95, lo=0.5, full_agreement=0.9643</title></circle>
+<circle cx="326.0738581146744" cy="60.0" r="4" fill="#c14e00" opacity="0.55"><title>hi=0.95, lo=0.6, full_agreement=1.0000</title></circle>
+<circle cx="326.0738581146744" cy="60.0" r="4" fill="#c14e00" opacity="0.55"><title>hi=0.95, lo=0.7, full_agreement=1.0000</title></circle>
+<circle cx="341.89018464528664" cy="60.0" r="4" fill="#c14e00" opacity="0.55"><title>hi=0.95, lo=0.8, full_agreement=1.0000</title></circle>
+<circle cx="579.1350826044703" cy="60.0" r="4" fill="#c14e00" opacity="0.55"><title>hi=0.95, lo=0.9, full_agreement=1.0000</title></circle>
+<circle cx="579.1350826044703" cy="60.0" r="4" fill="#c14e00" opacity="0.55"><title>hi=0.95, lo=0.95, full_agreement=1.0000</title></circle>
+<circle cx="246.9922254616132" cy="70.0" r="4" fill="#c14e00" opacity="0.55"><title>hi=1.0, lo=0.5, full_agreement=0.9643</title></circle>
+<circle cx="326.0738581146744" cy="60.0" r="4" fill="#c14e00" opacity="0.55"><title>hi=1.0, lo=0.6, full_agreement=1.0000</title></circle>
+<circle cx="326.0738581146744" cy="60.0" r="4" fill="#c14e00" opacity="0.55"><title>hi=1.0, lo=0.7, full_agreement=1.0000</title></circle>
+<circle cx="341.89018464528664" cy="60.0" r="4" fill="#c14e00" opacity="0.55"><title>hi=1.0, lo=0.8, full_agreement=1.0000</title></circle>
+<circle cx="579.1350826044703" cy="60.0" r="4" fill="#c14e00" opacity="0.55"><title>hi=1.0, lo=0.9, full_agreement=1.0000</title></circle>
+<circle cx="579.1350826044703" cy="60.0" r="4" fill="#c14e00" opacity="0.55"><title>hi=1.0, lo=0.95, full_agreement=1.0000</title></circle>
+<circle cx="579.1350826044703" cy="60.0" r="4" fill="#c14e00" opacity="0.55"><title>hi=1.0, lo=1.0, full_agreement=1.0000</title></circle>
+<circle cx="265.06802721088434" cy="70.0" r="4" fill="#c14e00" opacity="0.55"><title>hi=1.01, lo=0.5, full_agreement=0.9643</title></circle>
+<circle cx="344.14965986394554" cy="60.0" r="4" fill="#c14e00" opacity="0.55"><title>hi=1.01, lo=0.6, full_agreement=1.0000</title></circle>
+<circle cx="344.14965986394554" cy="60.0" r="4" fill="#c14e00" opacity="0.55"><title>hi=1.01, lo=0.7, full_agreement=1.0000</title></circle>
+<circle cx="359.9659863945578" cy="60.0" r="4" fill="#c14e00" opacity="0.55"><title>hi=1.01, lo=0.8, full_agreement=1.0000</title></circle>
+<circle cx="597.2108843537414" cy="60.0" r="4" fill="#c14e00" opacity="0.55"><title>hi=1.01, lo=0.9, full_agreement=1.0000</title></circle>
+<circle cx="597.2108843537414" cy="60.0" r="4" fill="#c14e00" opacity="0.55"><title>hi=1.01, lo=0.95, full_agreement=1.0000</title></circle>
+<circle cx="597.2108843537414" cy="60.0" r="4" fill="#c14e00" opacity="0.55"><title>hi=1.01, lo=1.0, full_agreement=1.0000</title></circle>
+<circle cx="660.4761904761905" cy="60.0" r="4" fill="#c14e00" opacity="0.55"><title>hi=1.01, lo=1.01, full_agreement=1.0000</title></circle>
+<text x="70" y="400" fill="#1265ae" font-family="sans-serif">Blue: gold accuracy</text>
+<text x="330" y="400" fill="#c14e00" font-family="sans-serif">Orange: full-judge agreement</text>
+<text x="70" y="430" font-family="sans-serif" font-size="12">Cost units = S1 calls + configured weight x S2 calls. Points chosen on tuning only.</text>
+</svg>
