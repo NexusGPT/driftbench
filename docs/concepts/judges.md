@@ -224,6 +224,61 @@ The six judges are three of system 1 (`s1p-a` and `s1p-b`, cost 1, and `openai-d
 * Diversity: the council is refused when it is built, before any call, when a judge shares the model family of the agent under test (compared without case). The agent family must be stated: `none` for an agent that is not a model. In perturbed mode, the simulated user runs on a third family; the simulated user is planned, phase 3.
 * The council is also refused for fewer than three judges of a class the mode uses, two judges with one id, a row with a class the mode does not use or without three different judges of the right class, a re-judge row outside hybrid mode, and a criterion both assigned and unassigned.
 
+### Label-blind escalation
+
+`createEscalation` is an opt-in `JudgeClient` that asks other families only when the first judge reports a selected uncertainty signal. It uses `createCouncil` for the later vote. It does not read fixture sides or human labels, and it leaves the default prompt fingerprint unchanged.
+
+```ts
+import { createEscalation, judgePairwise } from '@agent-nexus/driftbench-judges';
+
+// first and then are caller-supplied provider clients or cassette players.
+const judge = createEscalation({
+  first,
+  then,
+  agentFamily: 'meta',
+  on: ['order-split', 'inconclusive', 'reference-disagreement'],
+  confidence: 0.5,
+  decide: 'first-stands',
+});
+const verdict = await judgePairwise(judge, criterion, transcript, firstReply, secondReply);
+console.log(verdict.choice, verdict.escalation);
+```
+
+Each enabled signal can trigger the same single escalation round:
+
+| Signal | When it fires |
+|---|---|
+| `order-split` | The first judge's two presentation orders disagree after mapping back to the same candidates. |
+| `inconclusive` | A first result is unparseable or unknown, or its requirement/rubric ledger contains a null value. A valid pairwise tie does not trigger this signal. |
+| `reference-disagreement` | A supplied reference disagrees with both explicitly marked final answers, a reference procedure reports disagreement, blind solves do not reach consensus, or both candidates have wrong/missing reference facts. |
+| `low-confidence` | The probability of the selected verdict is below `confidence`, or no valid score is available. |
+
+`score` is the probability of passing. A fail at score 0.01 has confidence 0.99, not 0.01. Equality with the threshold is accepted. Chat clients often omit scores, so enabling `low-confidence` makes those answers escalate. This signal is opt-in through `on`; no confidence is inferred from reasoning text.
+
+Exact final-answer comparison uses the existing extractor and preserves case, signs and punctuation after Unicode and whitespace normalization. Unmarked candidate prose is not compared as an exact answer. This signal requests another judgment; it does not prove that the reference is correct.
+
+`judgePairwise` supplies both orders together. The first judge answers each once, then every later seat answers at most once in that escalation round. Later seats receive the original ordering and may themselves be recorded comparison procedures. The first vote does not join the later majority. Both decision policies accept a later majority, including an explicit tie; `majority` abstains on a second split, while `first-stands` preserves the original answer or original two order outcomes. An inconsistent first pair still has aggregate `choice: 'tie'` when it stands.
+
+With `presentation: 'canonical'`, the first judge receives only the canonical order. `order-split` cannot fire without a second order; the other selected signals still apply. The canonical verdict preserves the escalation record, reported cost and actual seat-call count, including when replayed with the caller's candidates reversed.
+
+`verdict.escalation` records the triggers, first results, later results, decision and call count. The pairwise `ordered` and `swapped` fields carry the final outcomes; `consistent` and `positionBias` retain the first judge's diagnostics. `costUsd` sums reported provider costs. A first-seat transport error still throws; it is not relabelled as a model verdict. Later-seat errors abstain under the council contract.
+
+`agentFamily` is required. Construction refuses a first or later judge from that family, including known model-name aliases and constituents of nested clients. The pool must span multiple families. The composite retains `families` so an outer council and calibration cannot hide its later models behind the first judge's identity. `none` means a non-model agent; it does not mean unknown provenance.
+
+For pointwise use, call `judge.judge(request)`. That path has no second presentation, so it cannot trigger `order-split`. Reference and verification decorators can wrap the first seat or the full escalation client. A custom comparison client implements optional `judgeComparison(ordered, swapped)` and returns comparison diagnostics with its `JudgeResult`.
+
+To measure the actual deployable route, use the existing calibration engine:
+
+```ts
+const report = await calibrateCascade({ judge, criteria, labels, repeats: 3 });
+```
+
+This overload sends only each `JudgeRequest` to the procedure and uses labels afterward for scoring. Its full and `unsureOnly` scores coincide. The older `{ first, escalateTo, ... }` research overload remains available; its full score includes label-aware escalation and must not be presented as a deployed route's accuracy.
+
+`recordingClient(judge, cassette)` and `playerClient(cassette, judge.id)` preserve both-order comparisons and routing records. The key covers both requests and the escalation configuration, including constituent model settings. A missing entry fails; there is no live fallback.
+
+The [recording-only MM-Eval example](../../examples/escalation/README.md) replays all DEV400 rows through this public API. It pins research object `140f406a55a8ce46b24f1b51c5c32c23daf035b7` and the companion frozen-base recordings. The historical generator families are absent, so that replay cannot establish family independence or held-out quality. The package enforces the family rule on supplied production metadata.
+
 `driftbench judge run` replays a council on a cassette over every fixture pair of a criteria folder. A criterion is separated when its pass fixture passes and its fail fixture fails. It exits 0 when every criterion is separated, 1 when one is not or a judge gave no answer, and 2 on bad input or a refused council.
 
 ```text
@@ -584,6 +639,8 @@ The committed Haiku regression cassettes retain four fresh responses for each of
 
 ## Pairwise comparison
 
+`council.judge(pairwiseRequest(criterion, transcript, first, second))` seats the named-winner contract directly. Every vote carries `winner`, and the council counts that field even if a custom client's binary outcome contradicts it. A majority of explicit ties returns `winner: 'tie'` with an inconclusive binary outcome, without another round. Missing winners and unparseable responses abstain. The council returns a winner for that presentation only; use `judgePairwise` when both orders must be checked.
+
 `judgePairwise(client, criterion, transcript, first, second, options)` defaults to `presentation: 'both-orders'`. It compares both candidate orders and reconciles their identities in code. Its public `choice`, `ordered`, `swapped`, `consistent` and `positionBias` fields remain available. A disagreement remains a tie. `calls` counts the actual calls; `recovered` marks a fact-ledger recovery.
 
 Chat models now return a named winner instead of translating a winner into pass or fail:
@@ -710,3 +767,88 @@ A criterion can say how its verdicts across the repeats of one spec become one v
 * `at_least:<k>`: a pass when at least `k` repeats pass. A fail only when the passes plus the inconclusive repeats cannot reach `k`. Undecided otherwise, since an inconclusive repeat could still be the `k`-th pass.
 
 A run folds the criterion's verdicts across its blocks first: any fail makes the run a fail, every block passing makes it a pass, and anything else is undecided. An inconclusive repeat is left out of every reducer. A criterion without `repeat_reducer` gets no reduced verdict.
+
+
+## Pointwise fact ledger against a trusted reference
+
+This option audits one reply against a caller-supplied trusted reference. It stays off
+unless the request sets `assessment: { kind: 'fact-ledger' }` and omits `candidates`.
+The shipped default judge and its prompt fingerprint remain unchanged.
+
+```ts
+import { createAnthropicJudge, type JudgeRequest } from '@agent-nexus/driftbench-judges';
+
+const request: JudgeRequest = {
+  criterion: { name: 'facts', rubric: 'Every requested fact matches the trusted reference.' },
+  reference: 'Aster costs 34 crowns monthly, includes 60 GB, and excludes roaming.',
+  transcript: [
+    { role: 'user', text: 'State the price, data and roaming terms of Aster.' },
+    { role: 'agent', text: 'Aster: 34 crowns monthly, 60 GB and no roaming.' },
+  ],
+  assessment: { kind: 'fact-ledger' },
+};
+const result = await createAnthropicJudge({ model: 'your-model' }).judge(request);
+console.log(result.answer.outcome, result.factLedger);
+```
+
+The result carries a `PointwiseFactLedgerAnswer` in `factLedger`: each `facts` row
+has `reference`, `reply` and `status` (`match`, `wrong` or `missing`), plus an
+`unsupported` array of extra factual claims. Code computes `pass` only when all
+rows match and that array is empty. A wrong fact, missing fact or unsupported
+claim makes `fail`. A malformed, empty or duplicate ledger makes `inconclusive`.
+Only missing facts have empty reply text. There is no model-authored overall verdict.
+
+The semantic contract is the frozen candidate procedure, including shared sentence
+modifiers, paraphrases, exact unit conversions, negation, conditions and quantifiers.
+Its model prompt is exported as `FACT_LEDGER_POINTWISE`. Model judgment still decides
+which facts are requested, whether the list is complete, and whether each claim
+matches. Code does not independently prove those semantic decisions.
+
+A nonempty `reference` is required before a built-in chat client sends a request.
+Pass the transcript slice to audit: user entries become the query, agent entries
+become the reply, joined with newlines within each role. Other roles and artifacts
+are not included in this pointwise contract. Query, reference and reply are JSON
+data. The criterion name and rubric identify the request; requested facts come from
+the query and reference. Use the ordinary criterion judge for arbitrary rubrics.
+Existing `candidates` requests keep the pairwise fact ledger and its winner rules.
+
+### Strict grounding
+
+Set `assessment: { kind: 'fact-ledger', grounding: 'strict' }` to require each
+reference row to quote the supplied reference and each nonempty reply row to quote
+one agent entry. The existing quote matcher tolerates presentation differences and
+ordered ellipsis segments; it does not verify paraphrases. Quotes from user or tool
+entries cannot count as reply evidence. A failed grounding check returns
+`inconclusive` with `unparsed: true` and a reason, never a fabricated pass or fail.
+
+Strict mode applies to the parser only and preserves the frozen model prompt. A
+valid semantic paraphrase can therefore be refused. It neither proves that every
+requested fact is present nor checks the model's unsupported-claim judgments.
+The assessment, grounding option and reference participate in cassette keys.
+Calibration can evaluate either request variant on caller-owned labels; automatic
+procedure selection is a separate feature.
+
+### Offline replay evidence
+
+The committed replay imports every frozen Langfuse candidate response from
+`research/astra-hard-fresh` at `89425c88b12e5fd7516ed9cdbf6d37b9b0261595`.
+It verifies exact system and user prompt bytes and their SHA-256 digests, then
+parses the original responses through the public `playerClient` API. It makes
+no model calls and does not claim a new live-model measurement.
+
+| Slice | Recordings | Semantic correct | Strict correct | Strict inconclusive | Pass to inconclusive | Fail to inconclusive |
+|---|---:|---:|---:|---:|---:|---:|
+| Fresh planted facts | 192 | 192/192 | 74/192 | 118 | 57 | 61 |
+| Map replication | 180 | 178/180 | 77/180 | 101 | 43 | 58 |
+| Total | 372 | 370/372 | 151/372 | 219 | 100 | 119 |
+
+Strict mode changes 219 verdicts, all to inconclusive. No pass becomes fail and no
+fail becomes pass. The map slice retains its two wrong verdicts in both modes.
+Inconclusive responses count as incorrect for these scores; abstention is not an
+accuracy gain. These results describe the frozen fictional fixtures and recorded
+model responses, not a guarantee for other data or models.
+
+Run `pnpm exec tsx comparisons/langfuse/pointwise-fact-ledger/replay.ts` to verify
+[the report and per-case transitions](https://github.com/achammah/driftbench/blob/main/comparisons/langfuse/pointwise-fact-ledger/replay.json).
+The same replay runs in the regular test suite. The legacy cassette and golden
+prompt tests also run to prove that opting out retains the previous behavior.

@@ -28,7 +28,7 @@ Two kinds of verdict are inconclusive:
 
 | Check | Applies to a block when | Verdict ids |
 |---|---|---|
-| `tools` | `expect.tools` names a tool with a count other than 0, or `expect.tool_order` is set | `tools.<label>.count`, `tools.<label>.input.<field>`, `tools.order`, `tools.argument_accuracy` |
+| `tools` | `expect.tools` names a tool with a count other than 0, or `expect.tool_order` is set | `tools.<label>.count`, `tools.<label>.input.<field>`, `tools.<label>.input_closed`, `tools.order`, `tools.argument_accuracy` |
 | `tools_offered` | `expect.tools_offered` names a tool to include or exclude | `tools_offered.include.<tool>`, `tools_offered.exclude.<tool>` |
 | `forbidden` | a tool is in `rules.forbidden_tools`, has `rules.max_calls`, or is expected 0 times in the block | `forbidden.<label>`, `forbidden.max_calls.<label>` |
 | `must` | `expect.must` holds a pattern | `must.<index>` |
@@ -44,7 +44,7 @@ Two kinds of verdict are inconclusive:
 | `lang` | `expect.lang` is set, or `rules.lang_stable` is true | `lang.expected`, `lang.stable` |
 | `pii` | the block has visible text | `pii.iban`, `pii.national_number`, `pii.phone`, `pii.email` |
 | `cards` | `expect.cards` names a card, or `rules.one_message_per_turn` is true | `cards.<name>`, `cards.one_message_per_turn` |
-| `stage` | `expect.stage` is set and the runtime reported a stage | `stage.reached` |
+| `stage` | `expect.stage` is set and the runtime reported a stage, or `expect.stage_reported` is true | `stage.reached`, `stage.reported` |
 | `skills` | `expect.skills` names a skill | `skills.<name>` |
 | `guards` | `expect.guards` names a guard | `guards.<name>.<verdict>`, or `guards.<name>.any` for an entry without a verdict |
 | `references` | `expect.references` names a path and the runtime reports the files read | `references.<path>`, the path or glob as the spec writes it |
@@ -125,6 +125,8 @@ A tool expectation names the tool by `label`. `count` is an exact number, or `{ 
           coupon: { absent: true }
     tool_order: in_order
 ```
+
+`input_closed: true` requires each call input to be an object containing only the top-level keys listed in `input`. Missing or non-object inputs fail. With no `input`, only an empty object is allowed. Nested values keep their normal assertion semantics. This gives a gating `tools.<label>.input_closed` verdict; it does not change argument accuracy. Zero calls pass closure; the count assertion remains independent. Omitted or false leaves extra keys allowed.
 
 `count: 0` means the call must not happen. The `forbidden` check reports that fact, not `tools`, so it is never reported twice.
 
@@ -456,6 +458,7 @@ A verdict from the Acme campaign run with a council that replays the campaign ca
 ## Stage and facts
 
 * `stage` reads the last stage the runtime reports in the block. A runtime that reports a stage only when it changes leaves some blocks without one: in a free-running or perturbed run, the last stage an earlier block reported still holds. When no stage was ever reported, the check does not apply, and the runner's stage classifier reads the stage from the block's tool calls instead and gives `flow.stage` or `flow.order` verdicts. See [the stage classifier](../concepts/drift.md#the-stage-classifier). A name missing from `stages` is an error (`STAGE_UNKNOWN`).
+* `stage_reported: true` requires a non-empty runtime stage in this block, with a gating `stage.reported` verdict. A stage carried from history, marked `carried: true` in `runtime.stages`, or inferred from tools cannot satisfy it, in any run mode. It works without `stage`; use both to require a report with a particular stage name. Omitted or false keeps the existing behavior.
 * `ledger_add` adds facts to the ledger, which every later check sees. The runner records a ledger check per block: a fact the block adds with a value other than the one the ledger already holds is a contradiction, named with both values. It does not change whether the block passes. The ledger check compares the block's tool inputs, and the email addresses and phone numbers its reply states, with the ledger, in code, and gives one gating verdict `ledger.<fact>` per fact stated. See [the ledger check](../concepts/drift.md#the-ledger-check).
 
 ## Budget

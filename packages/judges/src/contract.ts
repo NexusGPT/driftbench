@@ -2,7 +2,7 @@ import { z } from 'zod';
 import type { Assessment, RubricScores } from './assessment';
 import type { ConformanceAudit } from './conformance';
 import type { CriterionLedger, CriterionRequirement } from './criterion-ledger';
-import type { FactLedgerAnswer } from './fact-audit';
+import type { FactLedgerAnswer, PointwiseFactLedgerAnswer } from './fact-audit';
 import type { ResponseRelevanceAnswer } from './response-relevance';
 
 /**
@@ -57,6 +57,8 @@ export type CriterionText = z.infer<typeof CriterionText>;
 
 /** Everything one judge call reads. */
 export type JudgeRequest = {
+  /** A reference procedure observed disagreement before this judge call. Never a truth label. */
+  readonly referenceDisagreement?: boolean;
   /** Previous model-facing prompt and parser, for exact replay of existing scores. Default ledger. */
   readonly answerContract?: 'ledger' | 'legacy';
   /** Exact requirement ids and definitions to check. Absent: the criterion name and full rubric. */
@@ -84,13 +86,36 @@ export type JudgeRequest = {
   readonly budget?: Budget;
 };
 
+/** Observable uncertainty signals. Labels never enter this routing contract. */
+export type EscalationTrigger = 'order-split' | 'inconclusive' | 'reference-disagreement' | 'low-confidence';
+export type EscalationRecord = {
+  readonly triggers: readonly EscalationTrigger[];
+  readonly escalated: boolean;
+  readonly first: readonly JudgeResult[];
+  readonly then: readonly { readonly judge: string; readonly result: JudgeResult; readonly error?: string }[];
+  readonly decision: 'first' | 'majority' | 'first-stands' | 'inconclusive';
+  readonly calls: number;
+};
+export type ComparisonResult = {
+  /** Final outcomes in their original presentation orders, including first-stands fallback. */
+  readonly ordered: JudgeOutcome;
+  readonly swapped: JudgeOutcome;
+  /** Diagnostics from the first judge's two orders, before escalation. */
+  readonly consistent: boolean;
+  readonly positionBias: boolean;
+};
+
 /** What a client returns: the answer, the raw text it came from, and whether that text parsed. */
 export type JudgeResult = {
+  readonly escalation?: EscalationRecord;
+  readonly comparison?: ComparisonResult;
+  /** Explicit disagreement observed by a reference verification procedure. */
+  readonly referenceDisagreement?: boolean;
   /** Explicit pairwise winner before mapping it to the legacy binary outcome. */
   readonly winner?: 'A' | 'B' | 'tie' | 'inconclusive';
   /** Validated item scores and the deterministic aggregate. */
   readonly rubric?: RubricScores;
-  readonly factLedger?: FactLedgerAnswer;
+  readonly factLedger?: FactLedgerAnswer | PointwiseFactLedgerAnswer;
   /** Opt-in latest-ask obligations with quotes grounded in the selected request and reply. */
   readonly responseRelevance?: ResponseRelevanceAnswer;
   /** Opt-in criterion-local conformance audit, with its outcome computed in code. */

@@ -122,6 +122,16 @@ export function computeCoverage(
   const channels = options.channel === undefined ? channelUniverse(specs, inventory) : [options.channel];
   // A spec counts when it runs on one of the matrix channels, or on no channel (then it counts for all).
   const counted = valid.filter((spec) => spec.channel === undefined || channels.includes(spec.channel));
+  // Index once instead of scanning the whole suite for every behaviour on every channel. Lists keep
+  // input order, including distinct specs with the same id; specIds still performs the final deduplication.
+  const covering = new Map<string, Spec[]>();
+  for (const spec of counted) {
+    for (const id of new Set(spec.covers ?? [])) {
+      const members = covering.get(id);
+      if (members) members.push(spec);
+      else covering.set(id, [spec]);
+    }
+  }
 
   const behaviours = inventory.behaviours.map((behaviour): BehaviourCoverage => {
     const cells = channels.map((channel): ChannelCell => {
@@ -129,9 +139,8 @@ export function computeCoverage(
         return { channel, status: 'n/a', specs: [] };
       }
       const ids = specIds(
-        counted.filter(
-          (spec) =>
-            (spec.channel === undefined || spec.channel === channel) && spec.covers?.includes(behaviour.id),
+        (covering.get(behaviour.id) ?? []).filter(
+          (spec) => spec.channel === undefined || spec.channel === channel,
         ),
       );
       return { channel, status: ids.length > 0 ? 'covered' : 'missing', specs: ids };
@@ -148,9 +157,9 @@ export function computeCoverage(
   });
 
   const flows = inventory.flows.map((flow): FlowCoverage => {
+    const behaviours = new Set(flow.behaviours);
     const members = counted.filter(
-      (spec) =>
-        spec.tags?.includes(`flow:${flow.id}`) || spec.covers?.some((id) => flow.behaviours.includes(id)),
+      (spec) => spec.tags?.includes(`flow:${flow.id}`) || spec.covers?.some((id) => behaviours.has(id)),
     );
     const cells = (flow.deviations ?? []).map((deviation): DeviationCell => {
       const sources = members.flatMap((spec) => deviationSources(spec, deviation));
