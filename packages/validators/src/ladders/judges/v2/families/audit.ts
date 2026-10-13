@@ -11,6 +11,7 @@ import {
   type JudgeRequest,
 } from '@agent-nexus/driftbench-judges';
 import { type BankItem, fn, type JudgesApi, type Tier } from '../bank';
+import { parseRendered } from '../rules';
 
 /**
  * Items written from the independent audit of ladder version 2 (validators/judges/audit.md on audit/judges-v2).
@@ -62,7 +63,11 @@ function asWritten(
   return check('render', `as-written-${id}`, tier, PROMPT, (api, random) => {
     const { texts, rubric, expect } = make(random);
     const user = fn<Build>(api, 'buildPrompt')(req(texts, rubric)).user;
-    const missing = expect.filter((text) => !user.includes(text));
+    const missing = expect.filter((text) =>
+      id === 'code-in-the-reply'
+        ? !parseRendered(user)?.some((entry) => entry.role === 'agent' && entry.text === text)
+        : !user.includes(text),
+    );
     return missing.length === 0
       ? undefined
       : `the prompt no longer holds ${JSON.stringify(missing[0])} as written: the guard escapes ordinary text`;

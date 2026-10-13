@@ -18,12 +18,34 @@ process.stdin.on('end', () => {
     outcome: fail ? 'fail' : 'pass',
     reasoning: fail ? `The reply does not keep to the rule about ${words}.` : 'The reply keeps to the rule.',
   };
+  const at = process.argv.indexOf('--system-prompt');
+  const system = at < 0 ? '' : (process.argv[at + 1] ?? '');
+  const contract = process.env.FAKE_JUDGE_CONTRACT ?? (system.includes('"checks"') ? 'ledger' : 'legacy');
+  const block = input.match(/<transcript_data>\n([\s\S]*?)\n<\/transcript_data>/)?.[1] ?? '';
+  const entries = block.trim().startsWith('[') && block.trim().endsWith(']') ? JSON.parse(block) : [];
+  const observed =
+    entries.find((entry) => entry.role === 'agent')?.text ??
+    entries.find((entry) => entry.role === 'user')?.text ??
+    input.match(/^\[agent\] (.*)$/m)?.[1] ??
+    input.match(/^\[user\] (.*)$/m)?.[1] ??
+    input.match(/<artifact_data>\n([^\n]+)/)?.[1] ??
+    '';
+  const ledger = {
+    checks: [
+      {
+        id: input.match(/^CRITERION: ([^\n]+)$/m)?.[1] ?? 'missing',
+        reasoning: answer.reasoning,
+        evidence: observed.match(/[\p{L}\p{N}]+/u)?.[0] ?? null,
+        met: !fail,
+      },
+    ],
+  };
   process.stdout.write(
     JSON.stringify({
       type: 'result',
       subtype: 'success',
       is_error: false,
-      result: JSON.stringify(answer),
+      result: JSON.stringify(contract === 'ledger' ? ledger : answer),
       total_cost_usd: Number(process.env.FAKE_JUDGE_COST ?? '0.0015'),
     }),
   );

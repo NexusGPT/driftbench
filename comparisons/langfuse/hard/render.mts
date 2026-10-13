@@ -1,3 +1,4 @@
+import assert from 'node:assert/strict';
 import { readFileSync, writeFileSync } from 'node:fs';
 import { buildPrompt } from '../../../packages/judges/src/prompt.ts';
 
@@ -15,6 +16,7 @@ const rubric =
 const system = `Return one JSON object with keys score and reasoning.\nscore: ${template.outputDefinition.score}\nreasoning: ${template.outputDefinition.reasoning}`;
 const prompts = rows.map((r: { id: string; query: string; output: string; reference: string }) => {
   const ours = buildPrompt({
+    answerContract: 'legacy',
     criterion: {
       name: 'reference_correctness',
       rubric,
@@ -39,5 +41,11 @@ const prompts = rows.map((r: { id: string; query: string; output: string; refere
   };
   return { id: r.id, ours, 'ours-audit': audit, theirs: { system, user } };
 });
-writeFileSync(new URL(promptName, root), `${JSON.stringify(prompts, null, 2)}\n`);
-writeFileSync(new URL('vendor/correctness.txt', root), template.prompt);
+if (process.argv[3] === '--check') {
+  assert.deepEqual(prompts, JSON.parse(readFileSync(new URL(promptName, root), 'utf8')));
+  assert.equal(template.prompt, readFileSync(new URL('vendor/correctness.txt', root), 'utf8'));
+  console.log(`Frozen legacy inputs match: ${setName}`);
+} else {
+  writeFileSync(new URL(promptName, root), `${JSON.stringify(prompts, null, 2)}\n`);
+  writeFileSync(new URL('vendor/correctness.txt', root), template.prompt);
+}

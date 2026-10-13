@@ -1,0 +1,156 @@
+{
+  "model": "haiku",
+  "settings": "[\"-p\",\"--output-format\",\"json\",\"--tools\",\"\",\"--setting-sources\",\"\",\"--strict-mcp-config\",\"--no-session-persistence\",\"--max-turns\",\"1\"]",
+  "promptFingerprint": "480f7ca01462",
+  "cases": [
+    {
+      "case_id": "relevancy-entity-swap-4-a",
+      "expected": "pass",
+      "request": {
+        "criterion": {
+          "name": "relevancy",
+          "rubric": "The reply answers what the user asked in this turn, in any words. It does not answer a different question, change the subject, or ignore the ask. A short reply that fits the ask is relevant. A reply that restates the order the customer asked for and asks them to confirm it answers an order request.",
+          "pass": "The reply gives the answer the question needs, even when it does not repeat the question words. Restating the requested order and asking for confirmation is an answer to an order request.",
+          "fail": "The reply answers a different question, changes the subject, or ignores the ask.",
+          "scope": "block"
+        },
+        "transcript": [
+          {
+            "role": "user",
+            "text": "Give Acme Cedar 4's price, not Amber's, and Acme Cedar 4's data allowance."
+          },
+          {
+            "role": "agent",
+            "text": "Acme Cedar 4 is $59 monthly and includes 78 GB."
+          }
+        ],
+        "answerContract": "ledger"
+      }
+    },
+    {
+      "case_id": "factuality.006",
+      "expected": "pass",
+      "request": {
+        "criterion": {
+          "name": "factuality_hard",
+          "rubric": "The reply contains no factual disagreement with reference.txt. A consistent subset, superset, or equivalent paraphrase passes. Any contradicted fact fails.",
+          "pass": "data where the answer to the QUESTION is yes, with nothing that matches the FAIL picture",
+          "fail": "any data where the answer to the QUESTION is no",
+          "scope": "block"
+        },
+        "transcript": [
+          {
+            "role": "user",
+            "text": "State the price, data and roaming policy of Lumen-135."
+          },
+          {
+            "role": "agent",
+            "text": "After reviewing the complete product portfolio, I can confidently confirm 65 credits monthly, 40 GB and no roaming."
+          }
+        ],
+        "inputs": [
+          {
+            "path": "reference.txt",
+            "text": " The network office recorded ordinary maintenance, and the archive lists unrelated legacy offers. The network office recorded ordinary maintenance, and the archive lists unrelated legacy offers. The network office recorded ordinary maintenance, and the archive lists unrelated legacy offers. The network office recorded ordinary maintenance, and the archive lists unrelated legacy offers. The network office recorded ordinary maintenance, and the archive lists unrelated legacy offers. The network office recorded ordinary maintenance, and the archive lists unrelated legacy offers. The network office recorded ordinary maintenance, and the archive lists unrelated legacy offers. The network office recorded ordinary maintenance, and the archive lists unrelated legacy offers. The network office recorded ordinary maintenance, and the archive lists unrelated legacy offers. The network office recorded ordinary maintenance, and the archive lists unrelated legacy offers. The network office recorded ordinary maintenance, and the archive lists unrelated legacy offers. The network office recorded ordinary maintenance, and the archive lists unrelated legacy offers. The network office recorded ordinary maintenance, and the archive lists unrelated legacy offers. The network office recorded ordinary maintenance, and the archive lists unrelated legacy offers. The network office recorded ordinary maintenance, and the archive lists unrelated legacy offers. The network office recorded ordinary maintenance, and the archive lists unrelated legacy offers. The network office recorded ordinary maintenance, and the archive lists unrelated legacy offers. The network office recorded ordinary maintenance, and the archive lists unrelated legacy offers. The network office recorded ordinary maintenance, and the archive lists unrelated legacy offers. The network office recorded ordinary maintenance, and the archive lists unrelated legacy offers. The network office recorded ordinary maintenance, and the archive lists unrelated legacy offers. The network office recorded ordinary maintenance, and the archive lists unrelated legacy offers.\nCURRENT AUTHORIZED RECORD: Lumen-135 costs 65 credits per month, includes 40 GB, and excludes roaming. The network office recorded ordinary maintenance, and the archive lists unrelated legacy offers. The network office recorded ordinary maintenance, and the archive lists unrelated legacy offers. The network office recorded ordinary maintenance, and the archive lists unrelated legacy offers. The network office recorded ordinary maintenance, and the archive lists unrelated legacy offers. The network office recorded ordinary maintenance, and the archive lists unrelated legacy offers. The network office recorded ordinary maintenance, and the archive lists unrelated legacy offers. The network office recorded ordinary maintenance, and the archive lists unrelated legacy offers. The network office recorded ordinary maintenance, and the archive lists unrelated legacy offers. The network office recorded ordinary maintenance, and the archive lists unrelated legacy offers. The network office recorded ordinary maintenance, and the archive lists unrelated legacy offers. The network office recorded ordinary maintenance, and the archive lists unrelated legacy offers. The network office recorded ordinary maintenance, and the archive lists unrelated legacy offers. The network office recorded ordinary maintenance, and the archive lists unrelated legacy offers. The network office recorded ordinary maintenance, and the archive lists unrelated legacy offers. The network office recorded ordinary maintenance, and the archive lists unrelated legacy offers. The network office recorded ordinary maintenance, and the archive lists unrelated legacy offers. The network office recorded ordinary maintenance, and the archive lists unrelated legacy offers. The network office recorded ordinary maintenance, and the archive lists unrelated legacy offers. The network office recorded ordinary maintenance, and the archive lists unrelated legacy offers. The network office recorded ordinary maintenance, and the archive lists unrelated legacy offers. The network office recorded ordinary maintenance, and the archive lists unrelated legacy offers. The network office recorded ordinary maintenance, and the archive lists unrelated legacy offers."
+          }
+        ],
+        "answerContract": "ledger"
+      }
+    },
+    {
+      "case_id": "qa-negation-0",
+      "expected": "pass",
+      "request": {
+        "criterion": {
+          "name": "factual_content",
+          "rubric": "State the upload limit, setup fee, and booking duration for Room 71 at Luma Annex. All three must be stated without any current contradiction or extra condition. Equivalent unit conversions are accepted. Only the final submitted answer counts; quotations and superseded drafts are context. Trusted reference: Room 71 at Luma Annex has an upload limit of 320 megabits per second, a setup fee of 24 USD, and a booking duration of 6 hours.",
+          "pass": "All three requested facts are present and correct for the requested entity, without a current contradiction or added condition.",
+          "fail": "Any requested fact is wrong, missing, negated, attributed only to a quotation, or limited by an extra condition. A correct quotation does not repair a wrong final answer."
+        },
+        "transcript": [
+          {
+            "role": "agent",
+            "text": "It is false that Room 71 at Luma Annex lacks the following offer: upload 320 Mbps, setup 24 USD, booking 6 hours."
+          }
+        ],
+        "answerContract": "ledger"
+      }
+    },
+    {
+      "case_id": "qa-negation-2",
+      "expected": "pass",
+      "request": {
+        "criterion": {
+          "name": "factual_content",
+          "rubric": "State the upload limit, setup fee, and booking duration for Room 73 at Luma Annex. All three must be stated without any current contradiction or extra condition. Equivalent unit conversions are accepted. Only the final submitted answer counts; quotations and superseded drafts are context. Trusted reference: Room 73 at Luma Annex has an upload limit of 336 megabits per second, a setup fee of 26 USD, and a booking duration of 8 hours.",
+          "pass": "All three requested facts are present and correct for the requested entity, without a current contradiction or added condition.",
+          "fail": "Any requested fact is wrong, missing, negated, attributed only to a quotation, or limited by an extra condition. A correct quotation does not repair a wrong final answer."
+        },
+        "transcript": [
+          {
+            "role": "agent",
+            "text": "It is false that Room 73 at Luma Annex lacks the following offer: upload 336 Mbps, setup 26 USD, booking 8 hours."
+          }
+        ],
+        "answerContract": "ledger"
+      }
+    },
+    {
+      "case_id": "qa-negation-4",
+      "expected": "pass",
+      "request": {
+        "criterion": {
+          "name": "factual_content",
+          "rubric": "State the upload limit, setup fee, and booking duration for Room 75 at Luma Annex. All three must be stated without any current contradiction or extra condition. Equivalent unit conversions are accepted. Only the final submitted answer counts; quotations and superseded drafts are context. Trusted reference: Room 75 at Luma Annex has an upload limit of 352 megabits per second, a setup fee of 28 USD, and a booking duration of 10 hours.",
+          "pass": "All three requested facts are present and correct for the requested entity, without a current contradiction or added condition.",
+          "fail": "Any requested fact is wrong, missing, negated, attributed only to a quotation, or limited by an extra condition. A correct quotation does not repair a wrong final answer."
+        },
+        "transcript": [
+          {
+            "role": "agent",
+            "text": "It is false that Room 75 at Luma Annex lacks the following offer: upload 352 Mbps, setup 28 USD, booking 10 hours."
+          }
+        ],
+        "answerContract": "ledger"
+      }
+    },
+    {
+      "case_id": "qa-negation-6",
+      "expected": "pass",
+      "request": {
+        "criterion": {
+          "name": "factual_content",
+          "rubric": "State the upload limit, setup fee, and booking duration for Room 77 at Luma Annex. All three must be stated without any current contradiction or extra condition. Equivalent unit conversions are accepted. Only the final submitted answer counts; quotations and superseded drafts are context. Trusted reference: Room 77 at Luma Annex has an upload limit of 368 megabits per second, a setup fee of 30 USD, and a booking duration of 12 hours.",
+          "pass": "All three requested facts are present and correct for the requested entity, without a current contradiction or added condition.",
+          "fail": "Any requested fact is wrong, missing, negated, attributed only to a quotation, or limited by an extra condition. A correct quotation does not repair a wrong final answer."
+        },
+        "transcript": [
+          {
+            "role": "agent",
+            "text": "It is false that Room 77 at Luma Annex lacks the following offer: upload 368 Mbps, setup 30 USD, booking 12 hours."
+          }
+        ],
+        "answerContract": "ledger"
+      }
+    },
+    {
+      "case_id": "qa-negation-8",
+      "expected": "pass",
+      "request": {
+        "criterion": {
+          "name": "factual_content",
+          "rubric": "State the upload limit, setup fee, and booking duration for Room 79 at Luma Annex. All three must be stated without any current contradiction or extra condition. Equivalent unit conversions are accepted. Only the final submitted answer counts; quotations and superseded drafts are context. Trusted reference: Room 79 at Luma Annex has an upload limit of 384 megabits per second, a setup fee of 32 USD, and a booking duration of 14 hours.",
+          "pass": "All three requested facts are present and correct for the requested entity, without a current contradiction or added condition.",
+          "fail": "Any requested fact is wrong, missing, negated, attributed only to a quotation, or limited by an extra condition. A correct quotation does not repair a wrong final answer."
+        },
+        "transcript": [
+          {
+            "role": "agent",
+            "text": "It is false that Room 79 at Luma Annex lacks the following offer: upload 384 Mbps, setup 32 USD, booking 14 hours."
+          }
+        ],
+        "answerContract": "ledger"
+      }
+    }
+  ]
+}

@@ -2,8 +2,9 @@ import { spawn } from 'node:child_process';
 import { mkdtempSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
+import { parseJudgeText } from '../assessment';
 import type { ClientOptions, JudgeClient } from '../client';
-import { inconclusive, type JudgeResult, parseAnswerText } from '../contract';
+import { inconclusive, type JudgeRequest, type JudgeResult } from '../contract';
 import { isRecord, JudgeError } from '../http';
 import { buildPrompt } from '../prompt';
 
@@ -95,12 +96,12 @@ export function createClaudeCliJudge(options: ClaudeCliOptions = {}): JudgeClien
         ...(options.maxBudgetUsd === undefined ? [] : ['--max-budget-usd', String(options.maxBudgetUsd)]),
       ];
       const ran = await run(command, args, prompt.user, { cwd: workdir(), env, timeoutMs });
-      return readResult(ran, model);
+      return readResult(ran, model, request);
     },
   };
 }
 
-function readResult(ran: Ran, model: string): JudgeResult {
+function readResult(ran: Ran, model: string, request: JudgeRequest): JudgeResult {
   let payload: unknown;
   try {
     payload = JSON.parse(ran.stdout);
@@ -131,7 +132,7 @@ function readResult(ran: Ran, model: string): JudgeResult {
       ...cost,
     };
   }
-  return { ...parseAnswerText(text), ...cost };
+  return { ...parseJudgeText(text, request), ...cost };
 }
 
 function run(
