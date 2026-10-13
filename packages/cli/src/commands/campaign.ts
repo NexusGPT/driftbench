@@ -1,8 +1,7 @@
-import { existsSync, readFileSync, statSync } from 'node:fs';
+import { existsSync, statSync } from 'node:fs';
 import { mkdtemp, rm } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
-import { dirname, isAbsolute, join, relative, resolve, sep } from 'node:path';
-import { fileURLToPath } from 'node:url';
+import { isAbsolute, join, relative, resolve, sep } from 'node:path';
 import { functionAdapter, processAdapter } from '@agent-nexus/driftbench-adapters';
 import { defaultReaders } from '@agent-nexus/driftbench-artifacts';
 import { classifyTool, defaultChecks } from '@agent-nexus/driftbench-checks';
@@ -72,6 +71,7 @@ import {
   type UserModelPort,
 } from '@agent-nexus/driftbench-users';
 import type { Command } from 'commander';
+import { acmeExample, requireAcmeExample } from '../acme-example';
 import type { Io } from '../io';
 import { optionNumber } from '../number';
 import { noStoreAt } from '../store-path';
@@ -221,7 +221,7 @@ const KNOWN_TARGETS =
 export const defaultDeps: CampaignDeps = {
   adapterFor: async (target, scope) => {
     if (target.adapter === 'function' && (target.agent === 'acme' || target.agent === 'acme-sales')) {
-      return acmeFunctionAdapter();
+      return (await acmeExample()) === undefined ? undefined : acmeFunctionAdapter();
     }
     if (target.adapter === 'process' && target.agent === 'acme-ops') return acmeOpsAdapter(scope);
     return undefined;
@@ -1989,7 +1989,7 @@ function required<T>(value: T | undefined, what: string): T {
  * payloads never leak between runs, and its payload log as the end-state source.
  */
 export async function acmeFunctionAdapter(): Promise<AgentAdapter> {
-  const acme = await import('../../../../examples/acme/src/index');
+  const acme = await requireAcmeExample();
   type AcmeSession = {
     store: ReturnType<typeof acme.createStore>;
     agent: ReturnType<typeof acme.createAcmeAgent>;
@@ -2013,7 +2013,7 @@ export async function acmeFunctionAdapter(): Promise<AgentAdapter> {
  * Undefined when this install does not hold the example.
  */
 export async function acmeOpsAdapter(scope?: CampaignScope): Promise<AgentAdapter | undefined> {
-  const agent = acmeOpsAgent();
+  const agent = await acmeOpsAgent();
   if (agent === undefined) return undefined;
   return processAdapter({
     command: process.execPath,
@@ -2025,32 +2025,12 @@ export async function acmeOpsAdapter(scope?: CampaignScope): Promise<AgentAdapte
 }
 
 /**
- * The path of examples/acme/ops/agent.mjs, found from the folder of the CLI package, which holds this
- * module in src/ and in dist/ alike; never from the working folder. Undefined when the file is not there.
+ * The path of the Acme ops agent, `ops/agent.mjs` of the example package; never from the working folder.
+ * Undefined when this install does not hold the example, or the file is not there.
  */
-export function acmeOpsAgent(): string | undefined {
-  const root = cliPackageRoot(dirname(fileURLToPath(import.meta.url)));
-  if (root === undefined) return undefined;
-  const agent = join(root, '..', '..', 'examples', 'acme', 'ops', 'agent.mjs');
-  return existsSync(agent) ? agent : undefined;
-}
-
-/** The nearest folder at or above `from` whose package.json names the driftbench CLI. */
-function cliPackageRoot(from: string): string | undefined {
-  for (let dir = from; ; dir = dirname(dir)) {
-    const manifest = join(dir, 'package.json');
-    if (existsSync(manifest) && packageName(manifest) === '@agent-nexus/driftbench') return dir;
-    if (dirname(dir) === dir) return undefined;
-  }
-}
-
-function packageName(manifest: string): unknown {
-  try {
-    return (JSON.parse(readFileSync(manifest, 'utf8')) as { name?: unknown }).name;
-  } catch {
-    // A package.json that does not parse belongs to no package this lookup wants.
-    return undefined;
-  }
+export async function acmeOpsAgent(): Promise<string | undefined> {
+  const agent = (await acmeExample())?.OPS_AGENT;
+  return agent !== undefined && existsSync(agent) ? agent : undefined;
 }
 
 /**

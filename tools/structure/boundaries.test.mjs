@@ -13,10 +13,6 @@ const SCOPE = '@agent-nexus/driftbench';
 
 // Relative imports in src that leave their own package. Key: "<file> -> <specifier>".
 const CROSSING_ALLOWLIST = {
-  'packages/cli/src/commands/campaign.ts -> ../../../../examples/acme/src/index':
-    'the campaign command loads the acme example agent in a dynamic import, as its built-in demo',
-  'packages/cli/src/commands/pilot.ts -> ../../../../examples/acme/pilot/random-agent/index':
-    'the pilot command loads the acme random agent in a dynamic import, as its built-in baseline',
   'packages/validators/src/ladders/system/bank/cli.ts -> ../../../../../cli/src/main':
     'the system ladder drives the real CLI entry; the cli package depends on validators, so a manifest dependency would be a cycle',
   'packages/validators/src/ladders/system/bank/claims/breaker.ts -> ../../../../../../cli/src/main':

@@ -22,12 +22,18 @@ const packages = [
 
 export default defineConfig({
   resolve: {
-    alias: Object.fromEntries(
-      packages.map((name) => [
-        name === 'cli' ? '@agent-nexus/driftbench' : `@agent-nexus/driftbench-${name}`,
-        fileURLToPath(new URL(`./packages/${name}/src/index.ts`, import.meta.url)),
-      ]),
-    ),
+    alias: {
+      // The Acme example package, which the CLI loads by name: its source, like the packages below.
+      '@agent-nexus/driftbench-example-acme': fileURLToPath(
+        new URL('./examples/acme/src/package.ts', import.meta.url),
+      ),
+      ...Object.fromEntries(
+        packages.map((name) => [
+          name === 'cli' ? '@agent-nexus/driftbench' : `@agent-nexus/driftbench-${name}`,
+          fileURLToPath(new URL(`./packages/${name}/src/index.ts`, import.meta.url)),
+        ]),
+      ),
+    },
   },
   test: {
     include: [

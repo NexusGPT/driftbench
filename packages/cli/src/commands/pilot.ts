@@ -20,6 +20,7 @@ import {
   runPilot,
 } from '@agent-nexus/driftbench-generate';
 import type { Command } from 'commander';
+import { acmeExample, requireAcmeExample } from '../acme-example';
 import type { Io } from '../io';
 import { optionNumber } from '../number';
 import { noStoreAt } from '../store-path';
@@ -41,7 +42,10 @@ export const pilotDeps: CampaignDeps = {
   ...defaultDeps,
   adapterFor: async (target, scope) => {
     const seed = target.adapter === 'function' ? randomSeed(target.agent) : undefined;
-    if (seed !== undefined) return randomAgentAdapter(seed === 'default' ? undefined : seed);
+    if (seed !== undefined) {
+      if ((await acmeExample()) === undefined) return undefined;
+      return randomAgentAdapter(seed === 'default' ? undefined : seed);
+    }
     return defaultDeps.adapterFor(target, scope);
   },
 };
@@ -55,7 +59,7 @@ function randomSeed(agent: string | undefined): number | 'default' | undefined {
 
 /** The seeded random Acme agent of examples/acme/pilot/random-agent behind the function adapter. */
 export async function randomAgentAdapter(seed?: number): Promise<AgentAdapter> {
-  const control = await import('../../../../examples/acme/pilot/random-agent/index');
+  const control = await requireAcmeExample();
   const agent = control.createRandomAgent(seed === undefined ? {} : { seed });
   return functionAdapter<ReturnType<typeof agent.create>>({
     create: (given) => agent.create(given),

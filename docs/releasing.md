@@ -13,7 +13,7 @@ driftbench ships as sixteen npm packages under the `@agent-nexus` scope and one 
 | `@agent-nexus/driftbench-vitest` | `describeSpec`, one vitest test per block |
 | the Python package in `python/driftbench` (not on PyPI) | the Python runner and pytest plugin. Its name on PyPI is not settled: `driftbench` there belongs to another project |
 
-`@agent-nexus/driftbench-battery` stays private until it holds code. Each package has its own `README.md`, and its tarball holds only `dist`, the README and `package.json`.
+`@agent-nexus/driftbench-battery` stays private until it holds code. `@agent-nexus/driftbench-example-acme`, the Acme example in `examples/acme`, is private too and is never published: the command loads it by name when it is installed beside it, as in a checkout, and the published `@agent-nexus/driftbench` does not contain it. From an install of the published command alone, `function:acme-sales`, `process:acme-ops` and `function:acme-random` have no adapter. Each package has its own `README.md`, and its tarball holds only `dist`, the README and `package.json`.
 
 ## The release check
 

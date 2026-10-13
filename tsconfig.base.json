@@ -15,6 +15,7 @@
     "types": ["node"],
     "paths": {
       "@agent-nexus/driftbench": ["./packages/cli/src/index.ts"],
+      "@agent-nexus/driftbench-example-acme": ["./examples/acme/src/package.ts"],
       "@agent-nexus/driftbench-*": ["./packages/*/src/index.ts"]
     },
     "ignoreDeprecations": "6.0"
