@@ -1,0 +1,7 @@
+{
+  "epochStart": "2026-10-13T14:25:39.652649+00:00",
+  "cycle": 1,
+  "supervisorPid": 31398,
+  "probeFile": "/Users/assem/Documents/GitHub/driftbench/.worktrees/ledger-wp/examples/ledger-wp/results/frontier-probes.jsonl",
+  "maxConcurrentCalls": 2
+}

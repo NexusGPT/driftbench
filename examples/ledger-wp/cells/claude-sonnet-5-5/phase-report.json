@@ -4,39 +4,45 @@
     {
       "model": "claude-sonnet-5-5",
       "contestant": "pair-ledger",
-      "pairs": 0,
-      "games": 0,
-      "correct": 0,
-      "accuracy": null,
-      "wilson95": null,
-      "recipeUsd": 0,
+      "pairs": 4,
+      "games": 8,
+      "correct": 4,
+      "accuracy": 50.0,
+      "wilson95": [
+        21.521606221387756,
+        78.47839377861224
+      ],
+      "recipeUsd": 0.37468799999999997,
       "graderErrors": 0,
       "ties": 0,
-      "usdPer100Pairs": null,
-      "usdPer100Games": null,
+      "usdPer100Pairs": 9.367199999999999,
+      "usdPer100Games": 4.683599999999999,
       "comparison": {
-        "matchedPairs": 0,
+        "matchedPairs": 3,
         "wins": 0,
-        "losses": 0,
-        "deltaPoints": null,
-        "requestCluster95": null,
-        "mcnemarTwoSided": null,
+        "losses": 1,
+        "deltaPoints": -16.666666666666668,
+        "requestCluster95": [
+          -50.0,
+          0.0
+        ],
+        "mcnemarTwoSided": 1.0,
         "holm18": null,
         "holmStatus": "pending full cross-benchmark family; reader-first excluded from primary family"
       },
-      "projectedTestUsd": null,
+      "projectedTestUsd": 16.205256,
       "controls": {
         "longer-wins": {
           "accuracy": 73.33333333333333,
-          "judgeLeadPoints": null
+          "judgeLeadPoints": -23.33333333333333
         },
         "constant-FIRST": {
           "accuracy": 50.0,
-          "judgeLeadPoints": null
+          "judgeLeadPoints": 0.0
         },
         "refusal-wins": {
           "accuracy": 0.0,
-          "judgeLeadPoints": null
+          "judgeLeadPoints": 50.0
         }
       },
       "noise": {
@@ -59,60 +65,63 @@
       "plantedEditChecks": {
         "relabel": {
           "expectedPairs": 6,
-          "coveredPairs": 1,
-          "correctGames": 2,
-          "games": 2,
+          "coveredPairs": 6,
+          "correctGames": 12,
+          "games": 12,
           "accuracy": 100.0
         },
         "markdown": {
           "expectedPairs": 4,
-          "coveredPairs": 1,
-          "correctGames": 2,
-          "games": 2,
+          "coveredPairs": 4,
+          "correctGames": 8,
+          "games": 8,
           "accuracy": 100.0
         },
         "injection": {
           "expectedPairs": 4,
-          "coveredPairs": 0,
-          "correctGames": 0,
-          "games": 0,
-          "accuracy": null
+          "coveredPairs": 4,
+          "correctGames": 8,
+          "games": 8,
+          "accuracy": 100.0
         },
         "label-flip": {
           "expectedPairs": 6,
-          "coveredPairs": 0,
-          "correctGames": 0,
-          "games": 0,
-          "accuracy": null
+          "coveredPairs": 6,
+          "correctGames": 12,
+          "games": 12,
+          "accuracy": 100.0
         }
       }
     },
     {
       "model": "claude-sonnet-5-5",
       "contestant": "promptfoo",
-      "pairs": 0,
-      "games": 0,
-      "correct": 0,
-      "accuracy": null,
-      "wilson95": null,
-      "recipeUsd": 0,
+      "pairs": 3,
+      "games": 6,
+      "correct": 3,
+      "accuracy": 50.0,
+      "wilson95": [
+        18.76163064826506,
+        81.23836935173495
+      ],
+      "recipeUsd": 0.179226,
       "graderErrors": 0,
       "ties": 0,
-      "usdPer100Pairs": null,
-      "usdPer100Games": null,
-      "projectedTestUsd": null,
+      "usdPer100Pairs": 5.9742,
+      "usdPer100Games": 2.9871,
+      "projectedTestUsd": 10.335365999999999,
       "controls": {
         "longer-wins": {
           "accuracy": 73.33333333333333,
-          "judgeLeadPoints": null
+          "judgeLeadPoints": -23.33333333333333
         },
         "constant-FIRST": {
           "accuracy": 50.0,
-          "judgeLeadPoints": null
+          "judgeLeadPoints": 0.0
         },
         "refusal-wins": {
           "accuracy": 0.0,
-          "judgeLeadPoints": null
+          "judgeLeadPoints": 50.0
         }
       },
       "noise": {
@@ -135,31 +144,31 @@
       "plantedEditChecks": {
         "relabel": {
           "expectedPairs": 6,
-          "coveredPairs": 1,
-          "correctGames": 2,
-          "games": 2,
+          "coveredPairs": 6,
+          "correctGames": 12,
+          "games": 12,
           "accuracy": 100.0
         },
         "markdown": {
           "expectedPairs": 4,
-          "coveredPairs": 0,
-          "correctGames": 0,
-          "games": 0,
-          "accuracy": null
+          "coveredPairs": 4,
+          "correctGames": 8,
+          "games": 8,
+          "accuracy": 100.0
         },
         "injection": {
           "expectedPairs": 4,
-          "coveredPairs": 0,
-          "correctGames": 0,
-          "games": 0,
-          "accuracy": null
+          "coveredPairs": 4,
+          "correctGames": 8,
+          "games": 8,
+          "accuracy": 100.0
         },
         "label-flip": {
           "expectedPairs": 6,
-          "coveredPairs": 0,
-          "correctGames": 0,
-          "games": 0,
-          "accuracy": null
+          "coveredPairs": 6,
+          "correctGames": 12,
+          "games": 12,
+          "accuracy": 100.0
         }
       }
     }

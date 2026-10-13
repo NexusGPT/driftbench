@@ -1,6 +1,6 @@
 {
   "model": "gpt-6.1-sol",
-  "at": "2026-10-13T14:05:58.580391+00:00",
+  "at": "2026-10-13T14:34:06.837558+00:00",
   "scores": [
     {
       "contestant": "pair-ledger",
@@ -24,9 +24,9 @@
         "holm18": null,
         "holmStatus": "pending full cross-benchmark family; reader-first excluded from primary family"
       },
-      "allPhaseCostUsd": 1.8034004,
+      "allPhaseCostUsd": 2.1448636,
       "testCostUsdIncludingTransport": 0,
-      "orderedReadings": 172,
+      "orderedReadings": 210,
       "schemaReasks": 0,
       "schemaReaskUsd": 0,
       "outputCapCalls": 0,
@@ -207,12 +207,12 @@
         "87a37381f9cef4d92c4999699aa0a99361ab1e7bd1970fea9b0d6bbcd8b9cd13"
       ],
       "http429": 0,
-      "transportFailures": 40,
+      "transportFailures": 44,
       "tokens": {
-        "input": 767143,
-        "output": 84848,
-        "cacheRead": 389204,
-        "cacheWrite": 320244
+        "input": 996943,
+        "output": 101545,
+        "cacheRead": 555856,
+        "cacheWrite": 383308
       }
     },
     {
@@ -227,7 +227,7 @@
       "ties": 0,
       "usdPer100Pairs": null,
       "usdPer100Games": null,
-      "allPhaseCostUsd": 1.0802379,
+      "allPhaseCostUsd": 1.2525016,
       "testCostUsdIncludingTransport": 0,
       "orderedReadings": 0,
       "schemaReasks": 0,
@@ -410,12 +410,12 @@
         "87a37381f9cef4d92c4999699aa0a99361ab1e7bd1970fea9b0d6bbcd8b9cd13"
       ],
       "http429": 0,
-      "transportFailures": 18,
+      "transportFailures": 19,
       "tokens": {
-        "input": 648797,
-        "output": 5648,
-        "cacheRead": 246699,
-        "cacheWrite": 389784
+        "input": 745477,
+        "output": 6478,
+        "cacheRead": 279081,
+        "cacheWrite": 454043
       }
     }
   ],
@@ -436,8 +436,8 @@
   },
   "complete": false,
   "spend": {
-    "actualUsd": 2.883638300000001,
-    "heldUsd": 14.5,
+    "actualUsd": 3.3973652000000016,
+    "heldUsd": 15.75,
     "pending": {
       "6a5f23957007f75d5f49aaf8e454b73ff5c28b2bc45c2a1ece7d3f83efa92d30": 0.25,
       "f0632c2ad4cd24c8f41f112e7ff0ae8eb3277286f656370fb88f1f17c2d55770": 0.25,
@@ -496,14 +496,19 @@
       "ebd4a0abde2b2b3d22f80a0439387fd95c663e433f29a5c2d6c8d15f055ea598": 0.25,
       "5ec7b3c79546171cf3e69ea3bab789060c18ad9910b54a911773767f54f19cb8": 0.25,
       "5eeaa560809da869d5aa827f43e395dc41a9c47ce8a9e9879b770b524c593ab5": 0.25,
-      "6398f466d0703686cd1f3b74d89f3f5e08c2ac049d4cb6c47fee166c4d5b8ad2": 0.25
+      "6398f466d0703686cd1f3b74d89f3f5e08c2ac049d4cb6c47fee166c4d5b8ad2": 0.25,
+      "738c3e4c983a0a0ad34dcf04c004f418fd0f9f6b874bfe5324140bd46a5ac3a0": 0.25,
+      "5682ebffd0aff048e5073773be058f94ac58092297bef330539b1670082305af": 0.25,
+      "cd197ede9c14b4bb7e533b75b321a7c93b4c8bff42391564631dcd1db6c9735f": 0.25,
+      "b790f62a5b3a6ddd9a931d1c45030b75f4c534fbcb478e8f906ffd9163bf52ab": 0.25,
+      "6f057093d6398b33a525fb9eb843e95803b9b6d4c92832ca80b6fb6e5e8feb98": 0.25
     }
   },
   "phaseCounts": {
     "pilot": 2,
     "fixtures": 36,
     "validity": 40,
-    "dev": 86
+    "dev": 108
   },
   "projection": {
     "model": "gpt-6.1-sol",
@@ -527,5 +532,5 @@
     "capUsd": 25,
     "separateFromOld35UsdCap": true
   },
-  "freezeSha256": "2cc6722bd3641b5b2657219e88a789115bdcbf6758a8d39d423ac9ce7b9823ec"
+  "freezeSha256": "b895a4ebb1bb5689c9ff73370d2a5a83ddd510435b524df3631d3d4990012a6e"
 }

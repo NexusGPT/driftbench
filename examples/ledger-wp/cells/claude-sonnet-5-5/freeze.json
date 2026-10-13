@@ -19,7 +19,7 @@
     120,
     240
   ],
-  "lastCallUtc": "2026-10-13T16:00:00Z",
+  "lastCallUtc": null,
   "phases": [
     "fixtures",
     "validity",
@@ -56,10 +56,13 @@
   },
   "parentFreezeSha256": "c10437448cf3d17ead724ac4b12c4d2075787fa764711872a66d16f1748d41b0",
   "files": {
-    "examples/ledger-wp/frontier.ts": "3103fd629c74a1a950f9c4106bb3859b078ffaa44b829d6adae60d4e7a88f5a3",
-    "examples/ledger-wp/frontier.test.ts": "38a1a3b92aaaed3f316ae75d100f1fec56a2331e65d82ee38d45c0c3ed974d4d",
-    "examples/ledger-wp/frontier-report.py": "014bb6f43e0dc6f60730c521a50aba895a8011747ef9c9ee3ff40c20e6886d19",
-    "examples/ledger-wp/frontier-supervise.py": "cf4caaa853081f3ad29d82c873aef667cf0f005af4f4fa2f3135f13e9690722c"
+    "examples/ledger-wp/frontier.ts": "35af20093a2ea13bbbe967a3823ad9eb0bdef5c500529f1b1a703c426d6a14a7",
+    "examples/ledger-wp/frontier.test.ts": "88c4e2dfe0162a81d8054d6184b6bf13a1e72d0c40af02cd6ff826d340c779b7",
+    "examples/ledger-wp/frontier-report.py": "2f0930184a9d2e0173364f9b0b3f19c2e32567fdce9ec89f483f4757694170a3",
+    "examples/ledger-wp/frontier-supervise.py": "6a91431e244f11aef280bf0ab7f38dab084842503b91975c99710d79f1e570b2",
+    "examples/ledger-wp/frontier-wrapup.py": "89a31047dd1706c3c8fc09665001a736e6bd8547d39a74f6f780102e751cb3f1",
+    "examples/ledger-wp/frontier-finalize.py": "d0813697c60e3c202c63c672d4d4eb36129664a5d0d39c0fd8448837d09f55d4",
+    "examples/ledger-wp/frontier-audit.ts": "9c97e9a60cc58bad94dd1916945ede61983b23d563a9accc79c6e863feec0a14"
   },
   "judgeContractChanged": false,
   "sealedOrderChanged": false,
@@ -124,5 +127,31 @@
     "parentFreezeSha256": "1e82a019194e78d94cd6546e8ea4855ee4ddbbd296955a5a02524d6ceee05fe7",
     "judgeContractChanged": false,
     "sealedOrderChanged": false
+  },
+  "unlimitedRecoveryAmendment": {
+    "at": "2026-10-13T14:34:05.800582+00:00",
+    "authorization": "Owner requires ten healthy probes 30 seconds apart on the active provider; concurrency 2, one model at a time; three consecutive connection-class failures pause 600 seconds then repeat the gate. Unlimited missing-only transport recovery, including the 12 exhausted logical calls. No answered call is resent. Settle no-answer holds only when explicit provider usage confirms zero tokens. TEST requires 20 consecutive healthy DEV calls; no final result while transport-missing items remain. Owner removes 16:00 UTC cutoff for these two cells because of host network pause, no TEST result seen.",
+    "probesRequired": 10,
+    "probeSpacingSeconds": 30,
+    "consecutiveConnectionFailures": 3,
+    "networkBreakWaitSeconds": 600,
+    "maxRecoveryCycles": null,
+    "activeModelCells": 1,
+    "maxConcurrentCalls": 2,
+    "healthyDevCallsBeforeTest": 20,
+    "lastCallUtc": null,
+    "cutoffReason": "Host network pause, no TEST result seen. Schedule amendment only.",
+    "previousFreezeSha256": "684a0f09f9fd30cd7c6e6241813d5a6809a9df583b64d4c3361fe5a622e3cd3c",
+    "supersedes": [
+      "networkSupervisionAmendment",
+      "recoveryAmendment maximumTotalSubmissionsPerKey and mid-TEST owner-word requirement"
+    ],
+    "judgeContractChanged": false,
+    "sealedOrderChanged": false,
+    "promptsChanged": false,
+    "inputsChanged": false,
+    "modelsChanged": false,
+    "scoringChanged": false,
+    "capsChanged": false
   }
 }

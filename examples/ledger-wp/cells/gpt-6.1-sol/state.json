@@ -1,13 +1,13 @@
 {
-  "pid": 45239,
+  "pid": 31048,
   "model": "gpt-6.1-sol",
   "mode": "run",
   "status": "stopped",
-  "at": "2026-10-13T14:08:23.341Z",
-  "decisions": 174,
-  "submissions": 21,
+  "at": "2026-10-13T14:28:57.177Z",
+  "decisions": 186,
+  "submissions": 25,
   "spend": {
-    "actual": 3.017512900000001,
+    "actual": 3.3973652000000016,
     "reserved": 15.75,
     "pending": [
       "6a5f23957007f75d5f49aaf8e454b73ff5c28b2bc45c2a1ece7d3f83efa92d30",

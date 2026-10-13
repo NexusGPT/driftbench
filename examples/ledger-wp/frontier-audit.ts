@@ -21,12 +21,7 @@ for(const model of process.argv.slice(2)) {
   for(const split of f.phases) {
     const items=JSON.parse(readFileSync(resolve(HERE,'seals',split+'.json'),'utf8'));
     const selected=decisions.filter(r=>r.split===split);
-    if(split==='test')assert.equal(selected.length,f.phaseComparisons[split],'Incomplete TEST');
-    else if(selected.length!==f.phaseComparisons[split]) {
-      const done=new Set(selected.map(decisionKey));
-      const absent=new Set(missing.filter(r=>r.split===split&&!done.has(decisionKey(r))).map(decisionKey));
-      assert.equal(selected.length+absent.size,f.phaseComparisons[split],'Unaccounted development items');
-    }
+    assert.equal(selected.length,f.phaseComparisons[split],'Transport-missing items prevent final status: '+split);
     for(const result of selected) {
       const item=items.find((i:any)=>i.id===result.id);assert(item);
       const {model,split,sample,contestant,id,requestId}=result;
@@ -65,13 +60,15 @@ for(const model of process.argv.slice(2)) {
     assert(orderedTimes.every((t,i)=>Number.isFinite(t)&&(i===0||orderedTimes[i-1]<=t)),'Sealed submission order changed');
   }
   const events=calls.flatMap(r=>[{t:r.startedAt,d:1},{t:r.finishedAt,d:-1}]).sort((a,b)=>a.t.localeCompare(b.t)||a.d-b.d);
-  let active=0,peak=0;for(const e of events){active+=e.d;peak=Math.max(peak,active);}assert.equal(active,0);assert(peak<=f.maxConcurrentCalls);
+  let active=0,peak=0;for(const e of events){active+=e.d;peak=Math.max(peak,active);}assert.equal(active,0);assert(peak<=(model==='gpt-6.1-sol'?8:2));
+  const currentEvents=calls.filter(r=>r.startedAt>=f.unlimitedRecoveryAmendment.at).flatMap(r=>[{t:r.startedAt,d:1},{t:r.finishedAt,d:-1}]).sort((a,b)=>a.t.localeCompare(b.t)||a.d-b.d);
+  let currentActive=0,currentPeak=0;for(const e of currentEvents){currentActive+=e.d;currentPeak=Math.max(currentPeak,currentActive);}assert.equal(currentActive,0);assert(currentPeak<=2);
   const budget=new Budget(resolve(dir,'spend.jsonl'),f.capUsd).totals();
   const known=calls.reduce((n,r)=>n+(model==='gpt-6.1-sol'&&!r.providerError?solCost(r.usage):r.costUsd),0);
   assert(Math.abs(budget.actual-known)<1e-9);assert(budget.actual+budget.reserved<=f.capUsd);
   const audit={model,at:new Date().toISOString(),passed:true,replayedComparisons:replayed,answeredCalls:answers.length,
     developmentMissingComparisons:new Set(missing.filter(r=>r.split!=='test'&&!decisions.some(d=>decisionKey(d)===decisionKey(r))).map(decisionKey)).size,
-    noAnsweredResubmissions:true,sealedJobOrder:true,peakConcurrentCalls:peak,spend:budget,freezeSha256:sha(readFileSync(resolve(dir,'freeze.json'))),
+    noAnsweredResubmissions:true,sealedJobOrder:true,peakConcurrentCalls:peak,peakSinceSerialAmendment:currentPeak,spend:budget,freezeSha256:sha(readFileSync(resolve(dir,'freeze.json'))),
     originalSourceAndSealHashes:'verified by verifyCell -> verifyFreeze',networkCalls:0};
   writeFileSync(resolve(dir,'audit.json'),JSON.stringify(audit,null,2)+'\n');console.log(JSON.stringify(audit));
 }

@@ -1,13 +1,13 @@
 {
-  "pid": 45238,
+  "pid": 31047,
   "model": "claude-sonnet-5-5",
   "mode": "run",
   "status": "stopped",
-  "at": "2026-10-13T14:07:20.412Z",
-  "decisions": 48,
-  "submissions": 11,
+  "at": "2026-10-13T14:28:58.559Z",
+  "decisions": 88,
+  "submissions": 80,
   "spend": {
-    "actual": 0.9145964,
+    "actual": 1.8612184000000003,
     "reserved": 1.75,
     "pending": [
       "fd098f5718e563e4042ab645adcba2df856906ecaaae2b286cf62bcb17c8d316",

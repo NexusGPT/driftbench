@@ -20,12 +20,23 @@ const epochEvents=()=>rows(networkEvents).filter(e=>e.at>=(existsSync(networkCon
 export const connectionFailure=(entry:any)=>entry.httpStatus===503||/ECONNRESET|ECONNREFUSED|fetch failed|fetch failure|ETIMEDOUT|EAI_AGAIN|ENOTFOUND|EADDRNOTAVAIL|UND_ERR|timed? ?out|timeout|connection dropped|connection refused/iu.test(entry.text??'');
 export function shouldBreakNetwork(events:any[]) {
   // Latch any qualifying sequence, including a concurrent success appended before this reader runs.
-  return events.some((event,i)=>event.connectionFailure&&(event.split==='test'||events[i-1]?.connectionFailure===true));
+  return events.some((event,i)=>event.connectionFailure&&events[i-1]?.connectionFailure===true&&events[i-2]?.connectionFailure===true);
+}
+export function confirmedZeroTokens(entry:any) {
+  const u=entry.usage;
+  return entry.providerError===true&&u&&u.input_tokens===0&&u.output_tokens===0&&
+    (u.cache_creation_input_tokens??0)===0&&(u.cache_read_input_tokens??0)===0&&
+    (u.input_tokens_details?.cached_tokens??0)===0&&(u.input_tokens_details?.cache_write_tokens??0)===0&&entry.costUsd===0;
+}
+export function nextTransportAttempt(key:string,history:any[],pending:string[]) {
+  let attempt=1;
+  while(history.some(r=>r.key===(attempt===1?key:sha(key+':transport:'+attempt)))||pending.includes(attempt===1?key:sha(key+':transport:'+attempt)))attempt++;
+  return attempt;
 }
 function observeNetwork(entry:any) {
   append(networkEvents,{at:entry.finishedAt,model:entry.model,split:entry.split,key:entry.key,healthy:!entry.providerError,connectionFailure:entry.providerError&&connectionFailure(entry)});
   if(shouldBreakNetwork(epochEvents())&&!existsSync(networkHold))writeFileSync(networkHold,JSON.stringify({active:true,at:new Date().toISOString(),key:entry.key,model:entry.model,split:entry.split,
-    reason:entry.split==='test'?'First TEST connection failure; no TEST retry without owner word':'Two consecutive connection failures; all new paid submissions stopped'},null,2)+'\n');
+    reason:'Three consecutive connection failures; pause ten minutes then require ten healthy provider probes'},null,2)+'\n');
 }
 export function responsesBody(prompt:any,schema?:any) {
   return {model:'gpt-6.1-sol',instructions:prompt.system,input:prompt.user,reasoning:{effort:'medium'},max_output_tokens:4096,
@@ -72,29 +83,32 @@ async function main() {
   if(!['calibrate','run','replay'].includes(mode))throw Error('Usage: frontier.ts MODEL calibrate|run|replay');
   const {dir,f}=verifyCell(model);mkdirSync(resolve(dir,'runtime/empty'),{recursive:true});
   const budget=new Budget(resolve(dir,'spend.jsonl'),f.capUsd),history=rows(resolve(dir,'calls.jsonl'));
+  // Only explicit provider usage settles a no-answer hold. Unknown network failures retain their holds.
+  for(const row of history)if(confirmedZeroTokens(row)&&budget.totals().pending.includes(row.key))budget.settle(row.key,0);
   const cached=new Map(history.filter(r=>!r.providerError).map(r=>[r.logicalKey,r]));
   const decisions=rows(resolve(dir,'decisions.jsonl'));
   const jobKey=(j:any)=>JSON.stringify([j.split,j.contestant,j.id,j.sample]);
-  const done=new Set(decisions.map(jobKey));let stopped=false,submissions=0;
-  const state=(status:string,extra:any={})=>writeFileSync(resolve(dir,'state.json'),JSON.stringify({pid:process.pid,model,mode,status,at:new Date().toISOString(),decisions:done.size,submissions,spend:budget.totals(),...extra},null,2)+'\n');
+  const done=new Set(decisions.map(jobKey));let stopped=false,submissions=0,terminalError:any;
+  const state=(status:string,extra:any={})=>{if(extra.error)terminalError=extra.error;writeFileSync(resolve(dir,'state.json'),JSON.stringify({pid:process.pid,model,mode,status,at:new Date().toISOString(),decisions:done.size,submissions,spend:budget.totals(),error:terminalError,...extra},null,2)+'\n');};
   process.on('SIGTERM',()=>{stopped=true;state('draining');});
   const submit=async(prompt:any,meta:any,schema?:any)=>{
     const key=sha(JSON.stringify([meta,prompt,schema,{reasoning:f.reasoning,maxOutputTokens:f.maxOutputTokens}]));
     if(cached.has(key))return cached.get(key);
     if(mode==='replay')throw Error('Replay miss '+key);
-    if(stopped||existsSync(networkHold))throw Error('Shared network hold; owner word required');
+    if(stopped||existsSync(networkHold))throw Error('Shared network hold; fresh probe gate required');
     if(mode==='calibrate'&&history.filter(r=>!r.providerError&&r.startedAt>=(f.calibrationAfter??'')).length>=5)throw Error('CALIBRATION_COMPLETE');
-    let last:any;const recovery=f.recoveryAmendment?.logicalCallKeys.includes(key)===true;
-    for(let attempt=1;attempt<=(recovery?6:4);attempt++) {
-      if(attempt===4&&!recovery&&last?.httpStatus!==429)break;
+    let last:any;
+    const previous=history.filter(r=>r.logicalKey===key);
+    if(previous.some(r=>r.providerError&&!isTransportFailure(r.text)&&!connectionFailure(r)))throw Error('Prior nontransport failure');
+    const firstAttempt=nextTransportAttempt(key,history,budget.totals().pending);
+    for(let offset=0;offset<4;offset++) {
+      if(offset===3&&last?.httpStatus!==429)break;
+      const attempt=firstAttempt+offset;
       const attemptKey=attempt===1?key:sha(key+':transport:'+attempt);
-      const prior=history.find(r=>r.key===attemptKey);
-      if(prior){last=prior;if(!prior.providerError)return prior;if(!isTransportFailure(prior.text)&&!connectionFailure(prior))throw Error('Prior nontransport failure');continue;}
-      if(budget.totals().pending.includes(attemptKey)){last={text:'Interrupted transport'};continue;}
-      if(attempt>1){const delay=last?.httpStatus===429?[60000,120000,240000][attempt-2]:1500*(attempt-1);
+      if(offset>0){const delay=last?.httpStatus===429?[60000,120000,240000][offset-1]:1500*offset;
         await new Promise(r=>setTimeout(r,Math.max(0,delay-(Date.now()-Date.parse(last?.finishedAt??new Date().toISOString())))));}
-      if(stopped||existsSync(networkHold))throw Error('Shared network hold; owner word required');
-      if(Date.now()>Date.parse(f.lastCallUtc))throw Error('LAST_CALL_CUTOFF');
+      if(stopped||existsSync(networkHold))throw Error('Shared network hold; fresh probe gate required');
+      if(f.lastCallUtc&&Date.now()>Date.parse(f.lastCallUtc))throw Error('LAST_CALL_CUTOFF');
       budget.reserve(attemptKey,.25);submissions++;
       const startedAt=new Date().toISOString();let payload:any,httpStatus:number|undefined,providerMeta:any={};
       try {
@@ -125,11 +139,12 @@ async function main() {
       observeNetwork(entry);
       if(!entry.providerError){budget.settle(attemptKey,entry.costUsd);cached.set(key,entry);state('running');return entry;}
       budget.chargeError(attemptKey,entry.costUsd);
-      if(existsSync(networkHold)){stopped=true;throw Error('Shared network circuit break; no further paid submissions or TEST retries');}
+      if(confirmedZeroTokens(entry))budget.settle(attemptKey,0);
+      if(existsSync(networkHold)){stopped=true;throw Error('Shared network circuit break; fresh probe gate required');}
       if(httpStatus===402){budget.releaseRejected(attemptKey,402);stopped=true;throw Error('402 circuit break');}
       if(!isTransportFailure(entry.text)&&!connectionFailure(entry)){stopped=true;throw Error('Nontransport provider failure: '+entry.text);}
     }
-    append(resolve(dir,'missing.jsonl'),{...meta,logicalKey:key,reason:'Transport exhausted; no answer',at:new Date().toISOString()});
+    append(resolve(dir,'missing.jsonl'),{...meta,logicalKey:key,reason:'Transport cycle exhausted; no answer; eligible for later missing-only recovery',at:new Date().toISOString()});
     throw Error('TRANSPORT_EXHAUSTED');
   };
   const runJob=async({job,item}:any)=>{
@@ -160,18 +175,24 @@ async function main() {
     }
   };
   if(mode==='run') {
+    const control=load(networkControl);
+    if(control.model!==model||control.gatePassed!==true||control.probesRequired!==10)throw Error('TEN_PROVIDER_PROBES_REQUIRED');
     const p=load(resolve(dir,'projection.json'));
     if(p.answeredCalls!==5||p.projectedCellUsd>f.capUsd)throw Error('Five-call projection must pass before full cell');
   }
   state('running');
   for(const split of mode==='calibrate'?['pilot']:f.phases) {
     if(split==='test'&&mode!=='replay') {
+      const gatePath=resolve(dir,'test-health-gate.json');
+      const beganTest=history.some(r=>r.split==='test');
+      const previousGate=existsSync(gatePath)?load(gatePath):null;
+      if(beganTest&&!previousGate?.passed)throw Error('TEST started without a recorded healthy DEV gate');
       let healthyDev=0;
       for(const event of epochEvents().filter(e=>e.model===model)) {
         if(!event.healthy)healthyDev=0;else if(event.split==='dev')healthyDev++;
       }
-      writeFileSync(resolve(dir,'test-health-gate.json'),JSON.stringify({at:new Date().toISOString(),model,healthyDev,required:20,passed:healthyDev>=20,epochStart:load(networkControl).epochStart},null,2)+'\n');
-      if(healthyDev<20){stopped=true;state('stopped',{error:'TEST_HEALTH_GATE',healthyDev});break;}
+      if(!beganTest)writeFileSync(gatePath,JSON.stringify({at:new Date().toISOString(),model,healthyDev,required:20,passed:healthyDev>=20,epochStart:load(networkControl).epochStart},null,2)+'\n');
+      if(!beganTest&&healthyDev<20){stopped=true;state('stopped',{error:'TEST_HEALTH_GATE',healthyDev});break;}
     }
     const jobs:any[]=[];
     for(let sample=0;sample<(['fixtures','dev'].includes(split)?3:1);sample++)for(const item of load(resolve(HERE,'seals',split+'.json')))for(const contestant of f.contestants) {
@@ -180,6 +201,9 @@ async function main() {
     }
     if(!await runLimitedJobs(jobs,mode==='calibrate'?1:f.maxConcurrentCalls,runJob))break;
     if(stopped)break;
+    if(mode==='run'&&decisions.filter(r=>r.split===split).length+jobs.filter(j=>done.has(jobKey(j.job))).length<f.phaseComparisons[split]) {
+      stopped=true;state('stopped',{error:'TRANSPORT_MISSING_PHASE',split});break;
+    }
   }
   state(stopped?'stopped':mode==='calibrate'?'calibrated':'complete');
   console.log(JSON.stringify({model,mode,stopped,decisions:done.size,answeredCalls:history.filter(r=>!r.providerError).length,spend:budget.totals()}));

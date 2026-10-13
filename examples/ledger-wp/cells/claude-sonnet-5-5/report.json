@@ -1,6 +1,6 @@
 {
   "model": "claude-sonnet-5-5",
-  "at": "2026-10-13T14:05:58.439124+00:00",
+  "at": "2026-10-13T14:34:06.823106+00:00",
   "scores": [
     {
       "contestant": "pair-ledger",
@@ -24,9 +24,9 @@
         "holm18": null,
         "holmStatus": "pending full cross-benchmark family; reader-first excluded from primary family"
       },
-      "allPhaseCostUsd": 0.6542124,
+      "allPhaseCostUsd": 1.3761004,
       "testCostUsdIncludingTransport": 0,
-      "orderedReadings": 46,
+      "orderedReadings": 91,
       "schemaReasks": 0,
       "schemaReaskUsd": 0,
       "outputCapCalls": 0,
@@ -207,10 +207,10 @@
         "87a37381f9cef4d92c4999699aa0a99361ab1e7bd1970fea9b0d6bbcd8b9cd13"
       ],
       "http429": 0,
-      "transportFailures": 2,
+      "transportFailures": 4,
       "tokens": {
-        "input": 105907,
-        "output": 31274,
+        "input": 287796,
+        "output": 67085,
         "cacheRead": 1824,
         "cacheWrite": 32369
       }
@@ -227,7 +227,7 @@
       "ties": 0,
       "usdPer100Pairs": null,
       "usdPer100Games": null,
-      "allPhaseCostUsd": 0.217174,
+      "allPhaseCostUsd": 0.485118,
       "testCostUsdIncludingTransport": 0,
       "orderedReadings": 0,
       "schemaReasks": 0,
@@ -412,8 +412,8 @@
       "http429": 0,
       "transportFailures": 3,
       "tokens": {
-        "input": 61056,
-        "output": 779,
+        "input": 186808,
+        "output": 2423,
         "cacheRead": 0,
         "cacheWrite": 21818
       }
@@ -436,20 +436,15 @@
   },
   "complete": false,
   "spend": {
-    "actualUsd": 0.8713863999999999,
-    "heldUsd": 1.25,
-    "pending": {
-      "fd098f5718e563e4042ab645adcba2df856906ecaaae2b286cf62bcb17c8d316": 0.25,
-      "c49ce89afb1629d8a5f31c299fe50c55e32bfa9619d3c5d901b9d73de6153a05": 0.25,
-      "4100b78b4c25df71d98c376c8776f35748af489c9119133c847f560823baa911": 0.25,
-      "83164eb054f7440e158c653d8a9c1977c0cf7be14dc135ccbde4c9b194f29183": 0.25,
-      "571bb10e2b9c85fac71f832b935988fbabc7e5a8a5abd18193a5409a63be4b72": 0.25
-    }
+    "actualUsd": 1.8612184000000003,
+    "heldUsd": 0,
+    "pending": {}
   },
   "phaseCounts": {
     "pilot": 5,
     "fixtures": 36,
-    "validity": 3
+    "validity": 40,
+    "dev": 7
   },
   "projection": {
     "model": "claude-sonnet-5-5",
@@ -473,5 +468,5 @@
     "capUsd": 45,
     "separateFromOld35UsdCap": true
   },
-  "freezeSha256": "1e82a019194e78d94cd6546e8ea4855ee4ddbbd296955a5a02524d6ceee05fe7"
+  "freezeSha256": "9f80de887df299dfedb0cf599b5e72f9075579ae60986455dadb1f74b936783b"
 }

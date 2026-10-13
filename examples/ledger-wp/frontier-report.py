@@ -73,14 +73,15 @@ def main():
                     'cacheRead':sum((r.get('usage') or {}).get('cache_read_input_tokens',(r.get('usage') or {}).get('input_tokens_details',{}).get('cached_tokens',0)) for r in selected),
                     'cacheWrite':sum((r.get('usage') or {}).get('cache_creation_input_tokens',(r.get('usage') or {}).get('input_tokens_details',{}).get('cache_write_tokens',0)) for r in selected)}})
         report={'model':model,'at':datetime.datetime.now(datetime.timezone.utc).isoformat(),'scores':scores,'longerWins':longer,
-            'complete':all(s['pairs']==173 for s in scores),'spend':spending(rows(cell/'spend.jsonl')),
+            'complete':all(s['pairs']==173 for s in scores) and all(sum(r['split']==split for r in decisions)==n for split,n in freeze['phaseComparisons'].items()),'spend':spending(rows(cell/'spend.jsonl')),
             'phaseCounts':dict(collections.Counter(r['split'] for r in decisions)),
             'projection':json.loads((cell/'projection.json').read_text()) if (cell/'projection.json').exists() else None,
             'freezeSha256':hashlib.sha256((cell/'freeze.json').read_bytes()).hexdigest()}
         write(cell/'report.json',report);reports.append(report)
     lines=['## Additive Sonnet and GPT-6.1 writing cells','','- Authorization: separate budgets on top of the original 35 USD. GPT-6.1 cap is 32 USD including holds after the network recovery amendment; Sonnet cap is 45 USD after the cache-only runtime fix and five-call recalibration. Existing reservations stay unchanged.',
         '- Both contestants use the same model inside each cell. Gemini 3.8 remains parked. Reader-first stays in its separate legacy rows.',
-        '- Recovery: 12 named exhausted no-answer calls receive at most three fresh submissions. Two consecutive connection failures stop new calls across both models. Any connection failure during TEST stops before a TEST retry.',
+        '- Runtime amendment: ten consecutive healthy probes 30 seconds apart on the active provider; concurrency two, one model cell at a time. Three consecutive connection failures pause ten minutes before a fresh gate. Missing-only transport recovery has no cycle limit, including the 12 formerly exhausted calls. Returned answers are never submitted again.',
+        '- The 16:00 UTC cutoff is removed for these two new cells because of the host network pause; no TEST result was seen before this amendment. Unknown holds remain reserved. Explicit zero-token provider errors settle at their real zero cost. TEST starts only after 20 consecutive healthy DEV calls; transport-missing items prevent final status.',
         '- Frozen core, pool, order, schema re-ask and scoring remain fixed. Five pilot calls calibrate cost before fixtures, validity, DEV and the full TEST.',
         '- Both models use medium reasoning and a 4096 total output-token cap. Sonnet uses the lean Haiku CLI route with alias sonnet and empty working directory.',
         '- GPT-6.1 uses Responses without temperature. Standard USD per million tokens: input 2, cached input 0.10, cache writes 2.50, output 10. Source: https://developers.openai.com/api/docs/pricing, read 2026-10-13.',

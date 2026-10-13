@@ -41,6 +41,7 @@ def main():
             run(['node','--import','tsx',str(HERE/'frontier-audit.ts'),model])
             audits[model]=json.loads((HERE/'cells'/model/'audit.json').read_text())
         else:audits[model]={'passed':False,'reason':'Incomplete sealed cell','spend':report['spend']}
+    run(['python3',str(HERE/'frontier-wrapup.py')])
     with LEDGER.open('a') as out:
         out.write(f"\n| {datetime.datetime.now(datetime.timezone.utc).isoformat()} | ledger-wp additive terminal audit | {json.dumps(audits)} | No paid calls; old 35 USD cap and holds unchanged |\n")
     run(['git','status','--short','examples/ledger-wp'])
@@ -49,10 +50,8 @@ def main():
     if any(not x.startswith('examples/ledger-wp/') for x in paths.splitlines()):raise RuntimeError('Out-of-scope staged path')
     run(['git','diff','--cached','--check'])
     if paths:run(['git','commit','-m','Record and audit additive Sonnet and GPT-6.1 writing cells'])
-    run(['git','push','origin','research/ledger-wp'])
-    head=run(['git','rev-parse','HEAD']);remote=run(['git','ls-remote','--refs','origin','research/ledger-wp']).split()[0]
-    if head!=remote:raise RuntimeError('Remote hash mismatch')
-    state('pushed',commit=head,audits=audits)
+    head=run(['git','rev-parse','HEAD'])
+    state('committed',commit=head,audits=audits,push='Deferred until link is healthy, per owner amendment')
 if __name__=='__main__':
     try:main()
     except Exception as e:state('failed',error=str(e));raise
