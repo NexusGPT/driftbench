@@ -5,10 +5,9 @@
 <title>driftbench: more that ships</title>
 <link rel="stylesheet" href="brand.css">
 <style>
-  /* Six more innovations, one card each, with one recorded number. Sources: the RubricBench Haiku cell of the
-     pair ledger (docs/assets/data/sealed/rubricbench-haiku.json), perturb and ci on the Acme examples, estate lint
-     on the fixture estate, the validator banks, and the MM-Eval DEV400 replay in examples/escalation. */
-  #frame { width: 640px; height: 396px; }
+  /* Six more things driftbench does, one card each, in plain words. No measured number on the figure: the
+     numbers and their sources are on docs/comparison/methods.md. */
+  #frame { width: 640px; height: 356px; }
   .nx-ill__glass { display: grid; grid-template-columns: repeat(3, 1fr); grid-auto-rows: 1fr; gap: 12px; padding: 14px; height: auto; }
   .c { position: relative; padding: 12px; border-radius: 14px; background: var(--nx-card); border: 1px solid var(--nx-ill-panel-border); box-shadow: var(--nx-ill-panel-shadow); }
   .c .top { display: flex; align-items: center; gap: 7px; }
@@ -17,7 +16,7 @@
   .c .k { font: 500 10px/1 var(--nx-mono); letter-spacing: .6px; text-transform: uppercase; color: var(--kind); white-space: nowrap; }
   .c .t { margin-top: 9px; font: 600 13px/1.25 var(--nx-sans); color: var(--nx-ink); }
   .c .n { margin-top: 10px; font: 400 23px/1 var(--nx-serif); letter-spacing: var(--nx-serif-track); color: var(--nx-ink); white-space: nowrap; }
-  .c .l { margin-top: 6px; font: 400 11px/1.35 var(--nx-sans); color: var(--detail); }
+  .c .l { margin-top: 8px; font: 400 12px/1.4 var(--nx-sans); color: var(--detail); }
   .opt { display: inline-flex; margin-left: auto; height: 18px; align-items: center; padding: 0 7px; border-radius: 999px; background: var(--miss-bg); color: var(--miss-ink); font: 600 9.5px/1 var(--nx-sans); }
 </style>
 </head>
@@ -26,39 +25,33 @@
   <div class="nx-ill__glass">
     <div class="c">
       <div class="top"><span class="nx-node__ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6h16M4 12h16M4 18h10"/></svg></span><span class="k">Judge</span><span class="opt">opt-in</span></div>
-      <div class="t">Evidence per requirement, verdict in code</div>
-      <div class="n">82.7 v 75.6</div>
-      <div class="l">RubricBench, Claude Haiku 5.5, against promptfoo</div>
+      <div class="t">A judge that shows its work</div>
+      <div class="l">It lists the evidence for each requirement; code decides pass or fail.</div>
     </div>
     <div class="c">
-      <div class="top"><span class="nx-node__ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 16c3-8 6-8 8-4s5 4 8-4"/></svg></span><span class="k">Drift and recovery</span></div>
-      <div class="t">A deviation, then the way back</div>
-      <div class="n">0 blocks</div>
-      <div class="l">to recover from a goal shift at block 2, no collateral</div>
+      <div class="top"><span class="nx-node__ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 16c3-8 6-8 8-4s5 4 8-4"/></svg></span><span class="k">Recovery</span></div>
+      <div class="t">A surprise mid-conversation</div>
+      <div class="l">See how many steps the agent needs to get back on track.</div>
     </div>
     <div class="c">
       <div class="top"><span class="nx-node__ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19h16M7 16V9M12 16V5M17 16v-4"/></svg></span><span class="k">Statistics</span></div>
-      <div class="t">It says when a suite is too small</div>
-      <div class="n">about 22</div>
-      <div class="l">goldens needed to show parity under 15 points; the suite had 10</div>
+      <div class="t">Know when to trust a score</div>
+      <div class="l">Every rate has a range, and it says when you have too few tests.</div>
     </div>
     <div class="c">
       <div class="top"><span class="nx-node__ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="4" width="16" height="16" rx="3"/><path d="M8 9h8M8 13h5"/></svg></span><span class="k">Code agents</span></div>
-      <div class="t">Skills, guards and files as tests</div>
-      <div class="n">125 atoms</div>
-      <div class="l">read from the fixture estate; lint names 6 findings</div>
+      <div class="t">Agents that write files, tested too</div>
+      <div class="l">It opens the spreadsheets and documents the agent leaves behind.</div>
     </div>
     <div class="c">
-      <div class="top"><span class="nx-node__ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8"/><path d="M8.5 12.5l2.5 2.5 4.5-5"/></svg></span><span class="k">Self-tests</span></div>
-      <div class="t">driftbench checked on planted truth</div>
-      <div class="n">7,453</div>
-      <div class="l">cases with a known answer, 4 suites with a CI floor</div>
+      <div class="top"><span class="nx-node__ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M12 3v3M12 18v3M3 12h3M18 12h3"/></svg></span><span class="k">Attacker</span></div>
+      <div class="t">A user that pushes back</div>
+      <div class="l">Each next move is picked from the agent's last reply.</div>
     </div>
     <div class="c">
       <div class="top"><span class="nx-node__ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12a8 8 0 1 0 3-6.2"/><path d="M4 4v4h4"/></svg></span><span class="k">Replay</span></div>
-      <div class="t">Recorded runs, rerun for free</div>
-      <div class="n">0 calls</div>
-      <div class="l">to reproduce the MM-Eval development score, 91.16</div>
+      <div class="t">Rerun recorded tests for free</div>
+      <div class="l">A recorded run replays with no model call, so CI costs nothing.</div>
     </div>
   </div>
 </div>

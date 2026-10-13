@@ -79,14 +79,18 @@ Each row of a per-tool page is measured head to head, measured against our own e
 
 ## Mixture of Judges
 
+* The README's line, at least as accurate with 3.5 to 20 times fewer costly calls: on the sealed sets MoJ scores 85.0, 94.9 and 65.2 against promptfoo's 84.0, 94.7 and 57.0, with ties on the first two after a Holm correction and a win on the third; promptfoo uses 200 reasoning calls per 100 pairs, MoJ 57, 21 and 10 (200 / 57 = 3.5, 200 / 10 = 20).
+
 * Design and results: `research/moj/RESULTS.md` on `research/system1-judge` at `06fd0edb`, section "Sealed confirmation (run once)". MoJ runs from that research harness; the package's opt-in escalation API (`createEscalation`) is on main.
 * The sealed ids were drawn before any call and the primary configuration (`r9-two-step`) was frozen before any sealed score existed. All contestants run GPT-6 Luna at medium effort. Sealed pairs: JudgeBench 100, MM-Eval 294, writing 300.
 * Results: JudgeBench (strict both-order rule) MoJ 85.0 [77, 91], promptfoo 84.0 [76, 90]; MM-Eval 94.9 [92, 97] against 94.7 [92, 97]; writing 65.2 [60, 70] against 57.0 [51, 62]. Paired tests with a Holm correction over six comparisons: ties on JudgeBench and MM-Eval, a win on writing against promptfoo (+8.2 points, Holm p 0.047). On writing a rule that picks the longer reply scores 69.7, above MoJ.
 * Reasoning (System-2) calls per 100 pairs: MoJ 57, 21 and 10 on JudgeBench, MM-Eval and writing; promptfoo 200 on each. MoJ also makes 246 to 347 System-1 calls per 100 pairs, whose price is not published.
 * Inspect's scorer cascade is cited from its [multiple scorers page](https://inspect.aisi.org.uk/multiple-scorers.html); judge choice and ensembles in the other tools from row 11 of the [comparison](../comparison.md).
 
-## Synthetic tests, written by code
+## Tests written by code
 
+* The README's ratio, 5.7 times fewer tests: on the Acme example map, the covering array that holds every allowed pair of settings has 132 rows (`covering array of 132 rows over 5 dimensions, 314 of 314 allowed 2-tuples`), where the same five dimensions allow 747 combinations (`budget 20: 20 cells of 747 allowed`); 747 / 132 = 5.7. Both lines are printed by `generate` on main.
+* The figure is a toy example with three settings of two values each: 8 combinations, 4 tests (an orthogonal array) hold every pair, and a bug that needs French and transfer together is caught by one of the 4. It illustrates the method; it is not a measurement.
 * Coverage: `pnpm driftbench generate --map examples/acme/map/approved.yaml --out generated --t 2` on main prints `complete specs 637 of 637 (100.0%)` and writes 333 files. It exits 1 because some map values have no approved phrase yet; their specs go to `incomplete/`.
 * Covering arrays (pairwise and t-wise) and sliced Latin hypercube sampling (`slicedLhs`, for approved numeric settings in budget mode) are described in [generating tests](../generating.md#sliced-numeric-sampling).
 * The budget figures (9.00, 8.00, 8.37 of 13 at 20 tests) are means over 30 seeds from [the budget study](../../comparisons/budget/full-study.md); see [faults found on a budget](#faults-found-on-a-budget).
@@ -95,11 +99,15 @@ Each row of a per-tool page is measured head to head, measured against our own e
 
 ## Blocks: a failure you can diagnose
 
+* The figure says in plain words what the run reports. The step labels are the stages of `gen-twise-066`; the expected and observed lines restate `stage.reached` and `forbidden.order.create` below.
+
 * The example is a recorded run on main: the golden Acme suite on the planted fault `x3-skips-recap` (`driftbench ci ... --target fault:x3-skips-recap --faults examples/acme/faults --route flow:price-sheet=process:acme-ops`), then `campaign status <campaign> --detail` and `--json`. In `gen-twise-066`, block 3 (counted from 0, the fourth block) fails `stage.reached` with `reached order_placed, expected recap` and `forbidden.order.create` with `order.create called 1 time (call-1); the block expects it 0 times`. Block 4 then fails `tools.order.create.count` with `order.create called 0 times, expected exactly 1; calls in this block: none`. The other five blocks pass.
 * That each of the 13 scored Acme faults turns specific blocks red is read from the committed gate report `examples/acme/gated/gate-report.json`; the red block count of each fault is listed in the blast radius containment test.
 * The units the other tools score are cited from row 1 of the [comparison](../comparison.md#where-driftbench-is-ahead).
 
 ## Blast radius: rerun only what a change touches
+
+* The README's numbers: the recap change skips 261 of 867 blocks (30.1 percent) and finds the same 102 failing tests as a full run; the largest saving by change is 95.9 percent (the price sheet task family), rounded to 96.
 
 * The numbers come from `docs/concepts/blast-radius.md` on the blast radius pull requests ([PR 238](https://github.com/achammah/driftbench/pull/238), commit `916220c5`), measured on the Acme gated suite: 195 specs, 867 blocks sent in all, 861 scored.
 * End to end (`packages/cli/test/radius-carry.test.ts` on that branch, no model call): a baseline runs the agents as `acme-v1`; the sales assistant then suffers the planted fault that skips the recap. The radius campaign of the recap change sends 606 of 867 blocks and carries 93 cells (261 blocks): 30.1 percent saved. A full campaign of the same faulty agent fails on 102 cells, the same 102 the radius campaign fails on, none of them carried.
@@ -108,6 +116,8 @@ Each row of a per-tool page is measured head to head, measured against our own e
 * Caching in the other tools is cited from row 22 of the [comparison](../comparison.md).
 
 ## A judge that shows its work
+
+* The README's "7 points above promptfoo": 82.7 against 75.6 percent on RubricBench with Claude Haiku 5.5.
 
 * The pair ledger is opt-in (`answerContract: 'ledger'`), merged in PR 168.
 * promptfoo's select-best prompt is quoted from its grader, vendored at commit `8014282` in [comparisons/promptfoo/hard/vendor/grading.ts.txt](../../comparisons/promptfoo/hard/vendor/grading.ts.txt): "Output the index of the text that best fits the criteria. You must output a single integer."
