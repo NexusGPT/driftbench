@@ -61,14 +61,14 @@ function longSpec(size: number) {
   });
 }
 
-async function readsOf(size: number): Promise<number> {
+async function readsOf(size: number, mode: 'F' | 'T' = 'F'): Promise<number> {
   const spec = longSpec(size);
   return countReads(async () => {
     const run = await runSpec(spec, {
       adapter: echoAdapter('ok'),
       driver: createScriptedDriver(),
       checks: [],
-      mode: 'F',
+      mode,
       repeat: 0,
     });
     expect(run.status).toBe('completed');
@@ -80,6 +80,13 @@ describe('the runner reads each message of the history a bounded number of times
   it('reads ten times the messages for ten times the blocks, within a tenth', async () => {
     const small = await readsOf(30);
     const large = await readsOf(300);
+    expect(small).toBeGreaterThan(0);
+    expect(large / small).toBeLessThanOrEqual(11);
+  });
+
+  it('in mode T too, where every block starts from the canonical prefix', async () => {
+    const small = await readsOf(30, 'T');
+    const large = await readsOf(300, 'T');
     expect(small).toBeGreaterThan(0);
     expect(large / small).toBeLessThanOrEqual(11);
   });
