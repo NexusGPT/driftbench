@@ -386,6 +386,22 @@ describe('driftbench intake from-interview', () => {
     );
   });
 
+  it('refuses a plan over --max-cells, and gives every cell --min-per-cell turns', async () => {
+    const dir = await zed();
+    const over = await run(
+      ['intake', 'from-interview', 'answers.yaml', '--dry-run', '--max-cells', '2'],
+      dir,
+    );
+    expect(over.code).toBe(2);
+    expect(over.err).toContain('The answers give 3 cells, more than --max-cells 2.');
+    const floor = await run(
+      ['intake', 'from-interview', 'answers.yaml', '--dry-run', '--turns', '3', '--min-per-cell', '4'],
+      dir,
+    );
+    expect(floor.code).toBe(0);
+    expect(floor.out).toContain('Cells: 3, 12 model turns to request');
+  });
+
   it('writes the set and its approval file, every turn unapproved, and exits 0', async () => {
     const dir = await zed();
     const { io, output } = capture(dir);
@@ -539,6 +555,40 @@ describe('driftbench intake fidelity', () => {
       dir,
     );
     expect(JSON.parse(json.out)).toMatchObject({ n: { reference: 6, candidate: 3 }, dimensions: ['flow'] });
+  });
+
+  it('counts a candidate turn as a copy against the --threshold it is given', async () => {
+    const dir = await withSet();
+    await run(['intake', 'approve', 'set/approval.yaml', '--all'], dir);
+    const copyRate = async (threshold: string) => {
+      const result = await run(
+        [
+          'intake',
+          'fidelity',
+          '--reference',
+          'set',
+          '--candidate',
+          'candidate.jsonl',
+          '--json',
+          '--threshold',
+          threshold,
+        ],
+        dir,
+      );
+      expect(result.code).toBe(0);
+      const json = JSON.parse(result.out) as { duplicates: { threshold: number; copyRate: number } };
+      return json.duplicates;
+    };
+    expect(await copyRate('0')).toMatchObject({ threshold: 0, copyRate: 1 });
+    const strict = await copyRate('1');
+    expect(strict.threshold).toBe(1);
+    expect(strict.copyRate).toBeLessThan(1);
+    const bad = await run(
+      ['intake', 'fidelity', '--reference', 'set', '--candidate', 'candidate.jsonl', '--threshold', '2'],
+      dir,
+    );
+    expect(bad.code).toBe(2);
+    expect(bad.err).toContain('--threshold takes a number from 0 to 1');
   });
 
   it('counts unapproved turns only when asked, and says so', async () => {
