@@ -498,8 +498,8 @@ describe('the committed suite', () => {
       // An ask that would restate the rule under test is refused (needs-askable-act): fewer complete specs.
       specs: 1301,
       blocks: 1296,
-      complete: 957,
-      incomplete: 344,
+      complete: 958,
+      incomplete: 343,
       judged: 283,
     });
     expect(result.report.invalid).toEqual([]);
