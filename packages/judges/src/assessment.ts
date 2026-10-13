@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { AnswerAudit, parseAnswerAudit, validateAnswerAuditRequest } from './answer-audit';
 import type { JudgeClient } from './client';
 import {
   ConformanceAudit,
@@ -55,6 +56,8 @@ export type Assessment =
     }
   | { readonly kind: 'response-relevance' }
   | { readonly kind: 'conformance'; readonly reference: string }
+  /** Role-separated audit of a submitted answer against the criterion and an optional reference. */
+  | { readonly kind: 'answer-audit' }
   | {
       readonly kind: 'rubric';
       readonly items: readonly RubricItem[];
@@ -127,6 +130,7 @@ export function responseSchema(request: JudgeRequest): Record<string, unknown> &
   if (isPairLedgerRequest(request)) return pairLedgerSchema(request);
   if (request.assessment?.kind === 'response-relevance') validateResponseRelevanceRequest(request);
   if (request.assessment?.kind === 'conformance') validateConformanceRequest(request);
+  if (request.assessment?.kind === 'answer-audit') validateAnswerAuditRequest(request);
   const a = request.answerContract === 'legacy' ? undefined : request.assessment;
   if (a) validateAssessment(a);
   if (a?.kind === 'fact-ledger' && !request.candidates) validatePointwiseFactRequest(request);
@@ -135,19 +139,21 @@ export function responseSchema(request: JudgeRequest): Record<string, unknown> &
       ? ResponseRelevanceAnswer
       : a?.kind === 'conformance'
         ? ConformanceAudit
-        : a?.kind === 'fact-ledger'
-          ? request.candidates
-            ? FactLedgerAnswer
-            : PointwiseFactLedgerAnswer
-          : a?.kind === 'pairwise'
-            ? PairwiseAnswer
-            : a?.kind === 'rubric'
-              ? a.pairwise
-                ? pairLedger
-                : pointLedger
-              : request.answerContract === 'legacy'
-                ? undefined
-                : CriterionLedger;
+        : a?.kind === 'answer-audit'
+          ? AnswerAudit
+          : a?.kind === 'fact-ledger'
+            ? request.candidates
+              ? FactLedgerAnswer
+              : PointwiseFactLedgerAnswer
+            : a?.kind === 'pairwise'
+              ? PairwiseAnswer
+              : a?.kind === 'rubric'
+                ? a.pairwise
+                  ? pairLedger
+                  : pointLedger
+                : request.answerContract === 'legacy'
+                  ? undefined
+                  : CriterionLedger;
   if (!schema)
     return {
       type: 'object',
@@ -235,6 +241,7 @@ export function parseJudgeValue(
   const assessment = request.assessment;
   if (!assessment) return parseCriterionLedger(value, request, raw);
   validateAssessment(assessment);
+  if (assessment.kind === 'answer-audit') return parseAnswerAudit(value, request, raw);
   if (assessment.kind === 'fact-ledger')
     return request.candidates
       ? parseFactLedger(value, request, raw)
