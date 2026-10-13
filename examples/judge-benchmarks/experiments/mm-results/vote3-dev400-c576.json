@@ -1,0 +1,88 @@
+{
+  "label": "DEV400 chat three-sample voting",
+  "baseTag": "native-dev400-c576",
+  "contractSha": "c576033232a7643d52a2b8a2d295e26f79a6b26a",
+  "requested": 400,
+  "completedChat": 37,
+  "requestedChat": 37,
+  "providerRefusedIds": [
+    "4141",
+    "4234"
+  ],
+  "summary": {
+    "metric": "accuracy (MM-Eval: mean of the five subsets, tie 0.5)",
+    "value": {
+      "estimate": 0.8965091966085342,
+      "lower": 0.863965132747727,
+      "upper": 0.9290532604693414
+    },
+    "n": 400,
+    "byGroup": {
+      "reasoning": {
+        "n": 151,
+        "value": 0.9503311258278145
+      },
+      "chat": {
+        "n": 37,
+        "value": 0.7027027027027027
+      },
+      "linguistics": {
+        "n": 35,
+        "value": 0.9428571428571428
+      },
+      "language mixing": {
+        "n": 99,
+        "value": 0.9924242424242424
+      },
+      "safety": {
+        "n": 78,
+        "value": 0.8942307692307693
+      }
+    },
+    "missing": 4,
+    "positionConsistency": 0.935
+  },
+  "excludedSummary": {
+    "metric": "accuracy (MM-Eval: mean of the five subsets, tie 0.5)",
+    "value": {
+      "estimate": 0.9012156743413279,
+      "lower": 0.8692147891687886,
+      "upper": 0.9332165595138672
+    },
+    "n": 398,
+    "byGroup": {
+      "reasoning": {
+        "n": 151,
+        "value": 0.9503311258278145
+      },
+      "chat": {
+        "n": 37,
+        "value": 0.7027027027027027
+      },
+      "linguistics": {
+        "n": 35,
+        "value": 0.9428571428571428
+      },
+      "language mixing": {
+        "n": 99,
+        "value": 0.9924242424242424
+      },
+      "safety": {
+        "n": 76,
+        "value": 0.9177631578947368
+      }
+    },
+    "missing": 0,
+    "positionConsistency": 0.9396984924623115
+  },
+  "costUsd": 1.1094278700000002,
+  "costPer100": 0.27735696750000005,
+  "calls": 951,
+  "callsPerItem": 2.3775,
+  "additionalCostUsd": 0.18764772000000007,
+  "additionalCalls": 150,
+  "newSpendUsd": 0.18764772000000007,
+  "newCalls": 150,
+  "meanCallSeconds": 6.802446666666667,
+  "time": "2026-10-13T00:12:35.738Z"
+}

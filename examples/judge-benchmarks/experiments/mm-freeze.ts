@@ -1,64 +1,93 @@
 import { createHash } from 'node:crypto';
 import { readFile, writeFile } from 'node:fs/promises';
-import { loadBenchmark, type PairItem } from '../src/data';
-import { type PairResult, scorePairs } from '../src/score';
 import { fileURLToPath } from 'node:url';
+import { loadBenchmark, type PairItem } from '../src/data';
+import { scorePairs, type PairResult } from '../src/score';
 
 async function main() {
   const root = 'examples/judge-benchmarks/experiments/mm-results';
-  const at = process.argv.indexOf('--dev-tag');
-  const devTag = at >= 0 ? process.argv[at + 1]! : 'cascade-dev400-repaired';
-  const rows = (await readFile(`${root}/${devTag}-rounds.jsonl`, 'utf8'))
-    .trim()
-    .split('\n')
-    .map((s) => JSON.parse(s));
-  const direct = rows.find((r) => r.phase === 'batch1-direct');
-  const premise = rows.find((r) => r.phase === 'batch1-premise');
-  const cascade = rows.find((r) => r.phase === 'batch1-cascade');
+  const arg = (key: string) => {
+    const i = process.argv.indexOf(`--${key}`);
+    return i < 0 ? undefined : process.argv[i + 1];
+  };
+  const devTag = arg('dev-tag'),
+    voteTag = arg('vote-tag');
+  if (!devTag || !voteTag) throw new Error('Require current native dev-tag and completed vote-tag');
+  const direct = JSON.parse(await readFile(`${root}/${devTag}.json`, 'utf8'));
+  const vote = JSON.parse(await readFile(`${root}/${voteTag}.json`, 'utf8'));
   if (
-    !direct ||
-    !premise ||
-    !cascade ||
-    cascade.directCompleted !== 400 ||
-    cascade.pendingEscalations !== 0 ||
-    cascade.stopped ||
-    cascade.premiseCompleted !== cascade.directSummary.byGroup.safety.n
+    direct.directCompleted !== 400 ||
+    direct.stopped ||
+    direct.directSource !== 'current shared prompt' ||
+    vote.requested !== 400 ||
+    vote.completedChat !== vote.requestedChat ||
+    vote.stopped ||
+    vote.baseTag !== devTag ||
+    vote.contractSha !== direct.contractSha
   )
-    throw new Error('Require a complete fixed DEV400 cascade and matched safety ablation before freezing');
+    throw new Error('Require matched complete native DEV400 and chat vote before freeze');
+  const refused = new Set<string>([...direct.providerRefusedIds, ...vote.providerRefusedIds]);
   const benchmark = await loadBenchmark('mmeval');
   const byId = new Map(benchmark.items.filter((i): i is PairItem => i.kind === 'pair').map((i) => [i.id, i]));
-  const refused = new Set<string>((rows.at(-1).providerRefusedIds ?? []) as string[]);
-  const readRows = async (stage: string) => (await readFile(`${root}/${devTag}-${stage}-decisions.jsonl`, 'utf8')).trim().split('\n').filter(Boolean).map((line) => JSON.parse(line));
-  const directRows = await readRows('direct'), crowdRows = await readRows('crowd'), premiseRows = await readRows('premise');
-  const initial = new Map(directRows.map((r) => [r.id, r.games]));
-  for (const id of refused) if (!initial.has(id)) initial.set(id, ['tie', 'tie']);
-  const summary = (replacement: any[]) => {
-    const games = new Map(initial);
-    for (const row of replacement) games.set(row.id, row.games);
-    return scorePairs('mmeval', [...games].map(([id, games]): PairResult => ({ item: byId.get(id)!, games, missing: refused.has(id) ? 2 : 0, providerRefused: refused.has(id) })));
+  const summary = async (file: string) => {
+    const rows = (await readFile(file, 'utf8'))
+      .trim()
+      .split('\n')
+      .filter(Boolean)
+      .map((s) => JSON.parse(s));
+    const results: PairResult[] = rows.map((r) => ({
+      item: byId.get(r.id)!,
+      games: r.games,
+      missing: refused.has(r.id) ? 2 : 0,
+      providerRefused: refused.has(r.id),
+    }));
+    for (const id of refused)
+      if (!results.some((r) => r.item.id === id))
+        results.push({ item: byId.get(id)!, games: ['tie', 'tie'], missing: 2, providerRefused: true });
+    if (results.length !== 400 || new Set(results.map((r) => r.item.id)).size !== 400)
+      throw new Error('Frozen selection cohort mismatch');
+    return scorePairs('mmeval', results);
   };
-  const records = (await readFile('examples/judge-benchmarks/recordings/mmeval/haiku.jsonl', 'utf8')).trim().split('\n').map((line) => JSON.parse(line));
-  const recordMap = new Map(records.map((r) => [r.key, r]));
-  const safetyKeys = new Set(directRows.filter((r) => r.group === 'safety' && !refused.has(r.id)).flatMap((r) => r.rawComparisons.map((a: any) => a.key)));
-  const replacedCost = [...safetyKeys].reduce((sum, key) => sum + recordMap.get(key).costUsd, 0);
   const candidates = [
-    { name: 'explicit-winner direct', cascade: false, premises: false, summary: summary([]), costPer100: direct.directCostPer100, callsPerItem: direct.phaseCosts.direct.calls / 400 },
-    { name: 'premise-aware direct', cascade: false, premises: true, summary: summary(premiseRows), costPer100: (direct.phaseCosts.direct.costUsd - replacedCost + premise.phaseCosts.premise.costUsd) / 4, callsPerItem: (direct.phaseCosts.direct.calls - safetyKeys.size + premise.phaseCosts.premise.calls) / 400 },
-    { name: 'selective cascade', cascade: true, premises: false, summary: summary(crowdRows), costPer100: cascade.costPer100, callsPerItem: cascade.callsPerItem },
-  ].sort((a, b) => b.summary.value.estimate - a.summary.value.estimate || a.costPer100 - b.costPer100);
+    {
+      name: 'native explicit-winner direct',
+      chatSamples: 1,
+      cascade: false,
+      premises: false,
+      summary: await summary(`${root}/${devTag}-direct-decisions.jsonl`),
+      costPer100: direct.directCostPer100,
+      callsPerItem: direct.phaseCosts.direct.calls / 400,
+    },
+    {
+      name: 'native direct plus chat-only three-sample vote',
+      chatSamples: 3,
+      cascade: false,
+      premises: false,
+      summary: await summary(`${root}/${voteTag}-decisions.jsonl`),
+      costPer100: vote.costPer100,
+      callsPerItem: vote.callsPerItem,
+    },
+  ].sort((a, b) => {
+    const delta = b.summary.value.estimate - a.summary.value.estimate;
+    return Math.abs(delta) <= 1e-12 ? a.costPer100 - b.costPer100 : delta;
+  });
   const selected = candidates[0]!;
   const sources = [
     'examples/judge-benchmarks/experiments/mm-cascade.ts',
     'examples/judge-benchmarks/experiments/mm-crowd.ts',
+    'examples/judge-benchmarks/experiments/mm-vote3.ts',
     'examples/judge-benchmarks/experiments/mm-test-sample.ts',
     'examples/judge-benchmarks/experiments/mm-budget.ts',
     'examples/judge-benchmarks/src/mm-language.ts',
     'examples/judge-benchmarks/src/call.ts',
+    'examples/judge-benchmarks/src/data.ts',
+    'examples/judge-benchmarks/src/score.ts',
     'packages/judges/src/assessment.ts',
     'packages/judges/src/pairwise.ts',
     'packages/judges/src/prompt.ts',
     'packages/judges/src/contract.ts',
     'packages/judges/src/evidence.ts',
+    'packages/judges/src/transcript.ts',
   ];
   const sourceHashes: Record<string, string> = {};
   for (const source of sources)
@@ -67,13 +96,15 @@ async function main() {
       .digest('hex');
   const config = {
     version: 1,
-    cascade: selected.cascade,
-    premises: selected.premises,
-    contractSha: cascade.contractSha,
+    cascade: false,
+    premises: false,
+    chatSamples: selected.chatSamples,
+    contractSha: direct.contractSha,
     devTag,
+    voteTag,
     frozenAt: new Date().toISOString(),
     contractReviewStatus:
-      'The shared winner contract is still under independent re-review at the freeze, per the lead’s latest status.',
+      'The shared winner contract is still under independent re-review at the freeze, per the last review status received from the lead.',
     sourceHashes,
   };
   await writeFile(`${root}/frozen-config.json`, JSON.stringify(config, null, 2) + '\n');
@@ -82,7 +113,7 @@ async function main() {
     JSON.stringify(
       {
         selectionRule:
-          'Highest fixed DEV400 mean, lower inference cost breaks an exact tie. No test label or output has been read.',
+          'Highest official matched native DEV400 mean; lower cost breaks an exact tie. Same refused-item set for both. Premise extraction was dropped after its measured negative result. Test is unread.',
         selected,
         candidates,
         config,

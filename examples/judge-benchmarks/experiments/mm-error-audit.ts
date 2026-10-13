@@ -13,9 +13,17 @@ const sets = await mmDevSets(recordings);
 const shipped = contestantById('driftbench');
 const rerun = process.argv.includes('--repair-recorded');
 type RepairEvidence = {
-  id: string; group: string; label: 'A' | 'B'; order: 'AB' | 'BA'; key: string;
-  original: string; repairedText: string; changed: boolean;
-  repaired: ReturnType<typeof parseAnswerText>; winner: 'A' | 'B' | 'tie'; correct: boolean | null;
+  id: string;
+  group: string;
+  label: 'A' | 'B';
+  order: 'AB' | 'BA';
+  key: string;
+  original: string;
+  repairedText: string;
+  changed: boolean;
+  repaired: ReturnType<typeof parseAnswerText>;
+  winner: 'A' | 'B' | 'tie';
+  correct: boolean | null;
 };
 const invalid: RepairEvidence[] = rerun
   ? (JSON.parse(await readFile(join(out, 'near-json-repair-evidence.json'), 'utf8')) as RepairEvidence[]).map(
@@ -85,7 +93,10 @@ const count = (rows: typeof invalid) => ({
   unparseableGames: rows.filter((r) => r.repaired.unparsed).length,
   unresolvedItems: new Set(rows.filter((r) => r.repaired.unparsed).map((r) => r.id)).size,
 });
-const suffix = rerun ? '-shared' : '';
+const versionIndex = process.argv.indexOf('--version');
+const version = versionIndex >= 0 ? process.argv[versionIndex + 1] : undefined;
+if (version && !/^[a-z0-9-]+$/.test(version)) throw new Error('Invalid version identifier');
+const suffix = version ? `-${version}` : rerun ? '-shared' : '';
 await writeFile(
   join(out, `near-json-repair${suffix}-evidence.json`),
   JSON.stringify(invalid, null, 2) + '\n',

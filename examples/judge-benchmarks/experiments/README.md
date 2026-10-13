@@ -95,8 +95,10 @@ baseline safety comparisons retained solely for the paired ablation. Experimenta
 spend includes every paid call. Checkpoints distinguish eligible, escalated and
 pending items, so an unfinished cascade cannot claim full coverage.
 
-Use a new tag for each run. `--replay-only` forbids model calls. `--phase` supports
-pilot, confirm, common, aligned and full. The deadline and ledger path above are
+Use a new tag for each run. On the historical `mm-dev.ts` driver, `--replay-only`
+forbids model calls and `--phase` supports pilot, confirm, common, aligned and full.
+For free shared-parser replay use `mm-rescore.ts`; the live cascade driver is not
+a replay-only driver. The deadline and ledger path above are
 run parameters, not defaults for a later experiment.
 
 `mm-mapping-audit.ts` emits a conservative screen of reasoning/outcome mismatches
@@ -110,8 +112,9 @@ must separate pilot selection, confirmation and any partial full-DEV run.
 
 ## Frozen test sample
 
-`mm-freeze.ts` chooses the highest complete DEV400 subset mean; lower cost breaks
-an exact tie. It writes source hashes and the shared contract commit. Commit that
+`mm-freeze.ts` chooses between completed current-contract DEV400 native direct
+and chat-only three-sample voting. Lower cost breaks an exact tie. Premise
+extraction is dropped after its measured negative result. It writes source hashes and the shared contract commit. Commit that
 configuration before invoking `mm-test-sample.ts --frozen-commit <sha>`. The test
 runner verifies HEAD and source hashes, declares the fixed cohort before any call,
 and records the frozen commit with every report. No configuration changes follow
@@ -133,3 +136,15 @@ The call-level cap reserves headroom for these unknowns.
 It selects the first valid stored attempt in each order, because a parser fix can
 remove a repair call. It never changes a raw winner. Older-prompt replay and fresh
 current-contract inference are distinct measurements in the report.
+
+The lead approves current native direct DEV400 inference before the chat-only
+three-sample vote. `mm-vote3.ts` reuses that complete baseline and collects two
+additional native comparisons in each order only for the 37 chat pairs. Code pools
+the three validated declared winners per order. Non-chat decisions are unchanged.
+This is a sampling and aggregation architecture from preference research T7, not
+a new winner contract. No label-audit finding changes its instructions or votes.
+
+The chat-label audit records a defense or uncertainty for every item where direct
+and crowd both miss at least one game. Model disagreement is not a label error.
+Only proven indefensible labels reduce the reported audit ceiling bound; that
+bound is separate from the official score and is not an empirical model ceiling.

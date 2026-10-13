@@ -8,6 +8,7 @@ import { loadBenchmark, type PairItem, splitOf, stratifiedSample } from '../src/
 import { type PairResult, scorePairs } from '../src/score';
 import { directItem, escalationReasons, PREMISE_POLICY, premiseLedger, premisePrompt } from './mm-cascade';
 import { crowdItem } from './mm-crowd';
+import { voteChat } from './mm-vote3';
 
 const ROOT = 'examples/judge-benchmarks/experiments/mm-results';
 const RECORDING = 'examples/judge-benchmarks/recordings/mmeval/haiku.jsonl';
@@ -15,11 +16,28 @@ type FrozenConfig = {
   version: 1;
   cascade: boolean;
   premises: boolean;
+  chatSamples: 1 | 3;
   contractSha: string;
   devTag: string;
   frozenAt: string;
   sourceHashes: Record<string, string>;
 };
+
+/** Same proportional cohort, hash-ranked within subsets and interleaved for honest partial coverage. */
+export function interleavedSample(population: PairItem[], n: number, seed: string) {
+  const chosen = stratifiedSample(population, n, seed);
+  const groups = ['reasoning', 'chat', 'linguistics', 'language mixing', 'safety'];
+  const rank = (item: PairItem) => createHash('sha256').update(`${seed}:${item.id}`).digest('hex');
+  const queues = groups.map((group) =>
+    chosen.filter((i) => i.group === group).sort((a, b) => rank(a).localeCompare(rank(b))),
+  );
+  if (queues.reduce((sum, rows) => sum + rows.length, 0) !== chosen.length)
+    throw new Error('Unknown MM subset');
+  const items: PairItem[] = [];
+  for (let i = 0; queues.some((q) => q[i]); i++)
+    for (const queue of queues) if (queue[i]) items.push(queue[i]!);
+  return items;
+}
 
 export function stratifiedInterval(results: readonly PairResult[], repeats = 10000) {
   if (!results.length || !Number.isInteger(repeats) || repeats < 40)
@@ -85,7 +103,12 @@ async function main() {
   )
     throw new Error('Require tag, ledger, config, frozen-commit, items and deadline');
   const config = JSON.parse(await readFile(path, 'utf8')) as FrozenConfig;
-  if (config.version !== 1 || typeof config.cascade !== 'boolean' || typeof config.premises !== 'boolean')
+  if (
+    config.version !== 1 ||
+    typeof config.cascade !== 'boolean' ||
+    typeof config.premises !== 'boolean' ||
+    ![1, 3].includes(config.chatSamples)
+  )
     throw new Error('Invalid frozen configuration');
   if (execFileSync('git', ['rev-parse', 'HEAD'], { encoding: 'utf8' }).trim() !== frozenCommit)
     throw new Error('Test must begin at the recorded frozen commit');
@@ -125,7 +148,7 @@ async function main() {
   }
   if (n > population.length) throw new Error('Sample exceeds test population');
   const seed = split === 'test' ? 'mm-frozen-test-sample-v1' : 'mm-frozen-dev-remainder-v1';
-  const items = stratifiedSample(population, n, seed);
+  const items = interleavedSample(population, n, seed);
   if (!resume)
     await writeFile(
       `${ROOT}/${tag}-items.json`,
@@ -228,7 +251,18 @@ async function main() {
     checkpointQueue = checkpointQueue.then(async () => {
       await writeFile(`${ROOT}/${tag}.json`, serialized + '\n');
       await appendFile(`${ROOT}/${tag}-rounds.jsonl`, serialized + '\n');
-      process.stdout.write(serialized + '\n');
+      process.stdout.write(
+        JSON.stringify({
+          label: report.label,
+          completed: report.completed,
+          requested: report.requested,
+          score: report.summary?.value.estimate,
+          interval95: report.interval95,
+          costPer100: report.costPer100,
+          newSpendUsd: report.newSpendUsd,
+          stopped: report.stopped,
+        }) + '\n',
+      );
     });
     await checkpointQueue;
     return report;
@@ -274,7 +308,10 @@ async function main() {
             if (!extracted.valid) invalidPremises++;
             premises = JSON.stringify({ ...extracted, policy: PREMISE_POLICY });
           }
-          const direct = await directItem(item, ask, premises);
+          const direct =
+            config.chatSamples === 3 && item.group === 'chat'
+              ? await voteChat(item, ask)
+              : await directItem(item, ask, premises);
           const reasons = config.cascade
             ? escalationReasons(item.group, direct.games, direct.parseFailed)
             : [];

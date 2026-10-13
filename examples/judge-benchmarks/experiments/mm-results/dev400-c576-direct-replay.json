@@ -1,0 +1,135 @@
+{
+  "input": "examples/judge-benchmarks/experiments/mm-results/cascade-dev400-repaired-direct-decisions.jsonl",
+  "contractSha": "c576033232a7643d52a2b8a2d295e26f79a6b26a",
+  "items": 400,
+  "changedItems": 8,
+  "unparsedGames": 7,
+  "blankQuotes": 0,
+  "ambiguousQuotes": 7,
+  "before": {
+    "metric": "accuracy (MM-Eval: mean of the five subsets, tie 0.5)",
+    "value": {
+      "estimate": 0.8811912717872982,
+      "lower": 0.8467886197441163,
+      "upper": 0.91559392383048
+    },
+    "n": 400,
+    "byGroup": {
+      "chat": {
+        "n": 37,
+        "value": 0.6756756756756757
+      },
+      "reasoning": {
+        "n": 151,
+        "value": 0.9519867549668874
+      },
+      "language mixing": {
+        "n": 99,
+        "value": 0.9823232323232324
+      },
+      "safety": {
+        "n": 78,
+        "value": 0.9102564102564102
+      },
+      "linguistics": {
+        "n": 35,
+        "value": 0.8857142857142857
+      }
+    },
+    "missing": 4,
+    "positionConsistency": 0.91
+  },
+  "byClass": {
+    "chat": {
+      "beforeUnparsed": 0,
+      "afterUnparsed": 0
+    },
+    "reasoning": {
+      "beforeUnparsed": 9,
+      "afterUnparsed": 4
+    },
+    "language mixing": {
+      "beforeUnparsed": 4,
+      "afterUnparsed": 0
+    },
+    "safety": {
+      "beforeUnparsed": 2,
+      "afterUnparsed": 2
+    },
+    "linguistics": {
+      "beforeUnparsed": 1,
+      "afterUnparsed": 1
+    }
+  },
+  "providerRefusedIds": [
+    "4141",
+    "4234"
+  ],
+  "excludedSummary": {
+    "metric": "accuracy (MM-Eval: mean of the five subsets, tie 0.5)",
+    "value": {
+      "estimate": 0.8896579261584489,
+      "lower": 0.85590456947971,
+      "upper": 0.9234112828371877
+    },
+    "n": 398,
+    "byGroup": {
+      "chat": {
+        "n": 37,
+        "value": 0.6756756756756757
+      },
+      "reasoning": {
+        "n": 151,
+        "value": 0.9602649006622517
+      },
+      "language mixing": {
+        "n": 99,
+        "value": 0.9924242424242424
+      },
+      "safety": {
+        "n": 76,
+        "value": 0.9342105263157895
+      },
+      "linguistics": {
+        "n": 35,
+        "value": 0.8857142857142857
+      }
+    },
+    "missing": 0,
+    "positionConsistency": 0.9321608040201005
+  },
+  "summary": {
+    "metric": "accuracy (MM-Eval: mean of the five subsets, tie 0.5)",
+    "value": {
+      "estimate": 0.8848671029465731,
+      "lower": 0.8505486085636,
+      "upper": 0.9191855973295462
+    },
+    "n": 400,
+    "byGroup": {
+      "chat": {
+        "n": 37,
+        "value": 0.6756756756756757
+      },
+      "reasoning": {
+        "n": 151,
+        "value": 0.9602649006622517
+      },
+      "language mixing": {
+        "n": 99,
+        "value": 0.9924242424242424
+      },
+      "safety": {
+        "n": 78,
+        "value": 0.9102564102564102
+      },
+      "linguistics": {
+        "n": 35,
+        "value": 0.8857142857142857
+      }
+    },
+    "missing": 4,
+    "positionConsistency": 0.93
+  },
+  "time": "2026-10-12T23:18:48.180Z"
+}

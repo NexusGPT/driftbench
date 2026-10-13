@@ -1,0 +1,22 @@
+{
+  "chatItems": 37,
+  "improvedItems": 3,
+  "regressedItems": 1,
+  "unchangedItems": 33,
+  "netPairScoreGain": 1.0,
+  "overallGain": 0.005405405405405406,
+  "pairedInterval95": {
+    "lower": -0.005405405405405406,
+    "upper": 0.016216216216216217,
+    "method": "fixed-seed percentile paired bootstrap over 37 chat pair differences; other subsets unchanged",
+    "repeats": 10000,
+    "seed": 251013
+  },
+  "baseChatCostPer100": 0.2501088108108108,
+  "voteChatCostPer100": 0.757264810810811,
+  "baseChatCallsPerItem": 2.0,
+  "voteChatCallsPerItem": 6.054054054054054,
+  "overallCostMultiplier": 1.2035710141946538,
+  "additionalCalls": 150,
+  "additionalCostUsd": 0.18764772000000007
+}

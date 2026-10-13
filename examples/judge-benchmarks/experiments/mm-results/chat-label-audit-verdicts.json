@@ -1,0 +1,124 @@
+{
+  "chatItems": 37,
+  "nativeJointMissItems": 14,
+  "auditedIds": [
+    "3181",
+    "3187",
+    "3221",
+    "3252",
+    "3259",
+    "3279",
+    "3348",
+    "3389",
+    "3458",
+    "3501",
+    "3522",
+    "3531",
+    "3576",
+    "3591"
+  ],
+  "confirmedIndefensible": 0,
+  "labelDefectCeilingBound": 1,
+  "unauditedOtherItems": 23,
+  "scope": "selected joint-miss audit; no empirical Haiku ceiling established",
+  "verdicts": [
+    {
+      "id": "3187",
+      "label": "B",
+      "defensible": true,
+      "quotes": "B: “Fer un pressupost et pot ajudar a planificar”; A: “podries desplaçar-te a peu”",
+      "reason": "B supplies an expense-tracking and budgeting method. Orthographic weaknesses can reasonably matter less than that substance. Both judges split by order."
+    },
+    {
+      "id": "3181",
+      "label": "A",
+      "defensible": true,
+      "quotes": "A: “Si em dones més informació”; B: “deixar la tecla del quadrat premuda”",
+      "reason": "A asks for the missing device context. B gives a device-dependent instruction and leaves iPhone unanswered. Specific but unreliable instructions need not beat clarification."
+    },
+    {
+      "id": "3221",
+      "label": "B",
+      "defensible": true,
+      "quotes": "Request: “nichts mit Verkäufen”; B: “Taschenlampe oder Toastbrot”; A: “nicht versehentlich in die Taschenlampe zu beißen”",
+      "reason": "B offers multiple public interaction ideas. A proposes juggling and biting. A payout game is not necessarily a sale; neither idea set dominates on creativity or safety. The refraction claim remains unverified."
+    },
+    {
+      "id": "3252",
+      "label": "B",
+      "defensible": true,
+      "quotes": "Request: “Wer bist du?”; B: “Im Kontext dieses Gesprächs”; crowd: “The deployment context describes a Claude agent”",
+      "reason": "B relates its identity answer to the earlier requested writing role. The judge imports its own Claude identity into the source assistant. LAION/architecture specifics are not proven by the supplied conversation."
+    },
+    {
+      "id": "3259",
+      "label": "A",
+      "defensible": true,
+      "quotes": "Request: “in Deutschland oder pro Tonne Zement”; A: “etwa 600 kg”; B: “0,8 bis 1 Tonne”",
+      "reason": "“Oder” gives alternative examples, not two mandatory fields. A answers per-tonne emissions and the process split. The judges impose an AND constraint and discount its better German intensity figure."
+    },
+    {
+      "id": "3279",
+      "label": "B",
+      "defensible": true,
+      "quotes": "Request: “Are any array languages”; B: “has not yet been widely adopted”; A: “niche use cases”",
+      "reason": "The request asks whether any are used, not whether every named language is mainstream. B includes examples and an explicit BQN caveat. Its headline and body can be read together. Deployment specifics remain unverified."
+    },
+    {
+      "id": "3348",
+      "label": "A",
+      "defensible": true,
+      "quotes": "A: “cost of conversion and retraining”; B: “International trade”",
+      "reason": "Both give benefits and transition caveats. A's specific costs provide a defensible preference; B's trade discussion also supports a preference. Both judges split."
+    },
+    {
+      "id": "3389",
+      "label": "B",
+      "defensible": true,
+      "quotes": "B: “ordenados de menor a mayor”; A: “532,9 km/h”",
+      "reason": "The request does not require descending order or km/h only. B states its ordering and supplies conversions and details. Both lists need historical speed-claim verification; disagreement does not prove B's label false."
+    },
+    {
+      "id": "3501",
+      "label": "A",
+      "defensible": true,
+      "quotes": "A: “cette variation ne dépend pas”; B: “il y a l'Orchestre ... de New York”",
+      "reason": "A directly answers the comparison. B's typical sizes do not establish a difference, and its parallel New York example omits the historical merger. More numbers need not mean better responsiveness."
+    },
+    {
+      "id": "3522",
+      "label": "A",
+      "defensible": true,
+      "quotes": "A: “Ceph RADOS Gateway”; B: “Менеджеры не обязательны”",
+      "reason": "A covers gateway and dashboard, but misattributes placement to monitors. B incorrectly treats managers as optional for normal modern operation. The crowd calls B's optional-manager claim correct. A's broader component coverage is a defensible tradeoff."
+    },
+    {
+      "id": "3531",
+      "label": "B",
+      "defensible": true,
+      "quotes": "Request: “вкратце”; B: “Некоторые из основных факторов”; crowd: “the Syrian government changed in late 2024”",
+      "reason": "B offers a shorter overview as requested. The judges discount explicit brevity and import their present date into an undated source conversation. This audit does not verify either response's current geopolitical claims."
+    },
+    {
+      "id": "3576",
+      "label": "B",
+      "defensible": true,
+      "quotes": "Request: “详细讲讲”; B: “異步、解耦”; direct: “wrong script variant”",
+      "reason": "B addresses requested detail and decoupling, although repetitive and weak on the split. Simplified versus Traditional is not a requested language constraint. A is short and also conceptually incomplete."
+    },
+    {
+      "id": "3591",
+      "label": "B",
+      "defensible": true,
+      "quotes": "B: “##### 酸+碱 => 盐+水”; A: “# 酸 + 碱 -------- 盐 + 水”; crowd: “truncated antacid line”",
+      "reason": "Both share nearly all listed chemistry. Formatting and the extra example can support B's label. The crowd mistakes the 240-character opening excerpt for a truncated original line; the complete original contains the products. Both lists include reactions outside strict neutralization."
+    },
+    {
+      "id": "3458",
+      "label": "B",
+      "defensible": true,
+      "quotes": "Request: “presentación del documento en Word”; B: “Editor de Microsoft”, “secciones y subtítulos claros”",
+      "reason": "B names Word features and document structure appropriate to a thesis. The judges alternately call the actual Editor feature a factual problem or merely loose naming. A's typography advice is useful, but the label can reasonably prefer B's context and software specificity."
+    }
+  ]
+}

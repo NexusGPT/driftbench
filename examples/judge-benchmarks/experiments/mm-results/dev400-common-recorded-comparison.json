@@ -1,0 +1,324 @@
+{
+  "label": "common recorded comparison inside the declared sample",
+  "input": "examples/judge-benchmarks/experiments/mm-results/cascade-dev400-c576-direct-decisions.jsonl",
+  "manifestPath": "examples/judge-benchmarks/experiments/mm-results/cascade-dev400-c576-items.json",
+  "declaredItems": 400,
+  "commonItems": 128,
+  "providerRefusedIds": [],
+  "variants": [
+    {
+      "name": "c576 free direct replay",
+      "costPer100": null,
+      "callsPerItem": null,
+      "official": {
+        "metric": "accuracy (MM-Eval: mean of the five subsets, tie 0.5)",
+        "value": {
+          "estimate": 0.9084360902255639,
+          "lower": 0.8589019615653188,
+          "upper": 0.957970218885809
+        },
+        "n": 128,
+        "byGroup": {
+          "linguistics": {
+            "n": 19,
+            "value": 0.9078947368421053
+          },
+          "safety": {
+            "n": 25,
+            "value": 0.92
+          },
+          "reasoning": {
+            "n": 42,
+            "value": 0.9642857142857143
+          },
+          "chat": {
+            "n": 14,
+            "value": 0.75
+          },
+          "language mixing": {
+            "n": 28,
+            "value": 1
+          }
+        },
+        "missing": 0,
+        "positionConsistency": 0.9375
+      },
+      "interval95": {
+        "level": 0.95,
+        "method": "percentile bootstrap, pairs resampled within each subset, fixed seed 251013",
+        "repeats": 10000,
+        "lower": 0.8581854636591478,
+        "upper": 0.9532581453634086
+      },
+      "excluded": {
+        "metric": "accuracy (MM-Eval: mean of the five subsets, tie 0.5)",
+        "value": {
+          "estimate": 0.9084360902255639,
+          "lower": 0.8589019615653188,
+          "upper": 0.957970218885809
+        },
+        "n": 128,
+        "byGroup": {
+          "linguistics": {
+            "n": 19,
+            "value": 0.9078947368421053
+          },
+          "safety": {
+            "n": 25,
+            "value": 0.92
+          },
+          "reasoning": {
+            "n": 42,
+            "value": 0.9642857142857143
+          },
+          "chat": {
+            "n": 14,
+            "value": 0.75
+          },
+          "language mixing": {
+            "n": 28,
+            "value": 1
+          }
+        },
+        "missing": 0,
+        "positionConsistency": 0.9375
+      }
+    },
+    {
+      "name": "driftbench",
+      "costPer100": 0.13848679687500004,
+      "callsPerItem": 2,
+      "official": {
+        "metric": "accuracy (MM-Eval: mean of the five subsets, tie 0.5)",
+        "value": {
+          "estimate": 0.8649711779448621,
+          "lower": 0.8128305517239525,
+          "upper": 0.9171118041657718
+        },
+        "n": 128,
+        "byGroup": {
+          "linguistics": {
+            "n": 19,
+            "value": 0.8947368421052632
+          },
+          "safety": {
+            "n": 25,
+            "value": 0.82
+          },
+          "reasoning": {
+            "n": 42,
+            "value": 0.9404761904761905
+          },
+          "chat": {
+            "n": 14,
+            "value": 0.75
+          },
+          "language mixing": {
+            "n": 28,
+            "value": 0.9196428571428571
+          }
+        },
+        "missing": 0,
+        "positionConsistency": 0.859375
+      },
+      "interval95": {
+        "level": 0.95,
+        "method": "percentile bootstrap, pairs resampled within each subset, fixed seed 251013",
+        "repeats": 10000,
+        "lower": 0.8124937343358397,
+        "upper": 0.9138984962406015
+      },
+      "excluded": {
+        "metric": "accuracy (MM-Eval: mean of the five subsets, tie 0.5)",
+        "value": {
+          "estimate": 0.8649711779448621,
+          "lower": 0.8128305517239525,
+          "upper": 0.9171118041657718
+        },
+        "n": 128,
+        "byGroup": {
+          "linguistics": {
+            "n": 19,
+            "value": 0.8947368421052632
+          },
+          "safety": {
+            "n": 25,
+            "value": 0.82
+          },
+          "reasoning": {
+            "n": 42,
+            "value": 0.9404761904761905
+          },
+          "chat": {
+            "n": 14,
+            "value": 0.75
+          },
+          "language mixing": {
+            "n": 28,
+            "value": 0.9196428571428571
+          }
+        },
+        "missing": 0,
+        "positionConsistency": 0.859375
+      }
+    },
+    {
+      "name": "deepeval",
+      "costPer100": 0.184784375,
+      "callsPerItem": 2.0078125,
+      "official": {
+        "metric": "accuracy (MM-Eval: mean of the five subsets, tie 0.5)",
+        "value": {
+          "estimate": 0.9067318295739348,
+          "lower": 0.8539013369558717,
+          "upper": 0.959562322191998
+        },
+        "n": 128,
+        "byGroup": {
+          "linguistics": {
+            "n": 19,
+            "value": 0.868421052631579
+          },
+          "safety": {
+            "n": 25,
+            "value": 0.82
+          },
+          "reasoning": {
+            "n": 42,
+            "value": 0.9880952380952381
+          },
+          "chat": {
+            "n": 14,
+            "value": 0.8571428571428571
+          },
+          "language mixing": {
+            "n": 28,
+            "value": 1
+          }
+        },
+        "missing": 0,
+        "positionConsistency": 0.9609375
+      },
+      "interval95": {
+        "level": 0.95,
+        "method": "percentile bootstrap, pairs resampled within each subset, fixed seed 251013",
+        "repeats": 10000,
+        "lower": 0.852375939849624,
+        "upper": 0.955187969924812
+      },
+      "excluded": {
+        "metric": "accuracy (MM-Eval: mean of the five subsets, tie 0.5)",
+        "value": {
+          "estimate": 0.9067318295739348,
+          "lower": 0.8539013369558717,
+          "upper": 0.959562322191998
+        },
+        "n": 128,
+        "byGroup": {
+          "linguistics": {
+            "n": 19,
+            "value": 0.868421052631579
+          },
+          "safety": {
+            "n": 25,
+            "value": 0.82
+          },
+          "reasoning": {
+            "n": 42,
+            "value": 0.9880952380952381
+          },
+          "chat": {
+            "n": 14,
+            "value": 0.8571428571428571
+          },
+          "language mixing": {
+            "n": 28,
+            "value": 1
+          }
+        },
+        "missing": 0,
+        "positionConsistency": 0.9609375
+      }
+    },
+    {
+      "name": "promptfoo",
+      "costPer100": 0.09179321874999996,
+      "callsPerItem": 2,
+      "official": {
+        "metric": "accuracy (MM-Eval: mean of the five subsets, tie 0.5)",
+        "value": {
+          "estimate": 0.8591127819548874,
+          "lower": 0.8053928088657202,
+          "upper": 0.9128327550440546
+        },
+        "n": 128,
+        "byGroup": {
+          "linguistics": {
+            "n": 19,
+            "value": 0.868421052631579
+          },
+          "safety": {
+            "n": 25,
+            "value": 0.82
+          },
+          "reasoning": {
+            "n": 42,
+            "value": 0.9285714285714286
+          },
+          "chat": {
+            "n": 14,
+            "value": 0.75
+          },
+          "language mixing": {
+            "n": 28,
+            "value": 0.9285714285714286
+          }
+        },
+        "missing": 0,
+        "positionConsistency": 0.8515625
+      },
+      "interval95": {
+        "level": 0.95,
+        "method": "percentile bootstrap, pairs resampled within each subset, fixed seed 251013",
+        "repeats": 10000,
+        "lower": 0.8049649122807017,
+        "upper": 0.9105438596491228
+      },
+      "excluded": {
+        "metric": "accuracy (MM-Eval: mean of the five subsets, tie 0.5)",
+        "value": {
+          "estimate": 0.8591127819548874,
+          "lower": 0.8053928088657202,
+          "upper": 0.9128327550440546
+        },
+        "n": 128,
+        "byGroup": {
+          "linguistics": {
+            "n": 19,
+            "value": 0.868421052631579
+          },
+          "safety": {
+            "n": 25,
+            "value": 0.82
+          },
+          "reasoning": {
+            "n": 42,
+            "value": 0.9285714285714286
+          },
+          "chat": {
+            "n": 14,
+            "value": 0.75
+          },
+          "language mixing": {
+            "n": 28,
+            "value": 0.9285714285714286
+          }
+        },
+        "missing": 0,
+        "positionConsistency": 0.8515625
+      }
+    }
+  ],
+  "time": "2026-10-12T23:49:53.703Z",
+  "newSpendUsd": 0
+}

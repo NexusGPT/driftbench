@@ -1,0 +1,28 @@
+{
+  "version": 1,
+  "cascade": false,
+  "premises": false,
+  "chatSamples": 3,
+  "contractSha": "c576033232a7643d52a2b8a2d295e26f79a6b26a",
+  "devTag": "native-dev400-c576",
+  "voteTag": "vote3-dev400-c576",
+  "frozenAt": "2026-10-13T00:18:17.442Z",
+  "contractReviewStatus": "The shared winner contract is still under independent re-review at the freeze, per the last review status received from the lead.",
+  "sourceHashes": {
+    "examples/judge-benchmarks/experiments/mm-cascade.ts": "b43a39da3db9b23bf468b1c831e16f0eccde8f23e6a33e179ead3bf0b75436b1",
+    "examples/judge-benchmarks/experiments/mm-crowd.ts": "c7a5f1bd114320ad11744a8ea1610a295b1bbf403704b1403c0081425b638ae6",
+    "examples/judge-benchmarks/experiments/mm-vote3.ts": "a2881e714cf11092d3e933f5a7a5b659578e5fb275aa73a3f60d3792e814d770",
+    "examples/judge-benchmarks/experiments/mm-test-sample.ts": "9ac6946c896a8ca40a96c9201925a8303e901f21f373271d0faeb88dc4e7eb35",
+    "examples/judge-benchmarks/experiments/mm-budget.ts": "75012942b10fdc9e5b9c9daaae7ae39f32d71ff3edc246131880dc4e2bcf303e",
+    "examples/judge-benchmarks/src/mm-language.ts": "e30df650538fc2a61eedc4ce88dfcaa0adf3e367b595b62c538380699482db24",
+    "examples/judge-benchmarks/src/call.ts": "f33f8e3cb1d2f93c4123c8e0e855588c64fa9dcb35f0b81d44dc3f44e0b9e6b8",
+    "examples/judge-benchmarks/src/data.ts": "0ad8c198e952608eb0c3959c6147d98e07253265b72e196d270ddff57ebfdc00",
+    "examples/judge-benchmarks/src/score.ts": "718526461e0930399509af6daf7d8acd06186cdf32529b43c96baf449e633938",
+    "packages/judges/src/assessment.ts": "9c17b831c9c165feef4c16450447d8f24e3d5de148bad3567c72b98833e1a8ce",
+    "packages/judges/src/pairwise.ts": "8cd330af97c2b5856a4f5fe211e78e0440ae7830bca853d2772f7c72f781f49c",
+    "packages/judges/src/prompt.ts": "e8cf6fee79af172c82a3c77ea6f53b3ece1a228c1be9f8aeed47ebceb19b9882",
+    "packages/judges/src/contract.ts": "0f55a6cf4a9e98a76f1d563f4cb99b1a9f9f6fb2a92466308b5ae3a9a302d22c",
+    "packages/judges/src/evidence.ts": "2aeb265d3c7e916f0a35af0c27434b21db7867104fa48c01406054ecbab152ad",
+    "packages/judges/src/transcript.ts": "5c709a63d0f000a6f531f8b4868aa334a6ff4fd1cdfcc79a66fb868c8a6c146d"
+  }
+}

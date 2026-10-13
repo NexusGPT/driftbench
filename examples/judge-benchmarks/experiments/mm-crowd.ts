@@ -162,11 +162,18 @@ export async function crowdItem(item: PairItem, ask: Ask, premises?: string) {
       const record = await ask(buildPrompt(shortRequest), 'compare');
       const parsed = parseJudgeText(record.text, request);
       let raw: Record<string, unknown> | undefined;
-      const rawText = record.text.trim().replace(/^```(?:json)?\s*/i, '').replace(/\s*```$/, '');
+      const rawText = record.text
+        .trim()
+        .replace(/^```(?:json)?\s*/i, '')
+        .replace(/\s*```$/, '');
       try {
         raw = JSON.parse(rawText);
       } catch {
-        try { raw = JSON.parse(repairAnswerText(rawText)); } catch { raw = undefined; }
+        try {
+          raw = JSON.parse(repairAnswerText(rawText));
+        } catch {
+          raw = undefined;
+        }
       }
       rawComparisons.push({
         key: record.key,
