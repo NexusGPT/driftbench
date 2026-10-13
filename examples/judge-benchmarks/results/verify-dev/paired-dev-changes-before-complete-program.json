@@ -1,0 +1,32 @@
+[
+  {
+    "contestant": "driftbench-verify-final",
+    "audited_fixed_vs_adaptive": [
+      "8725986b8def7d6dc2430b5a82ebe768_d892147f21a603cf006be26ac0db27cb",
+      "adba4a0e3dc7ec9d2b9a05a9d21f2209_d48215d589eb5969bfcfcd58993ab543",
+      "ce9c5a2a8a4bcee73556a9bc58edc434_f621234c0a48bfc2cef1d0e9feb927a6"
+    ],
+    "audited_broken_vs_adaptive": [
+      "4d94773555d0a8e3f9b059e6cc729bdf_42f7be3f4cdef5f9018edfefec78418b",
+      "ea0320de605869a0838201660ae8105e_1e8bfac1a4b21fd6f1399ff208f493fd",
+      "a4ec51f047502137ba39fd41cfc5bb68_c2caf04b04cdfc57e3491ad56e63a5a7",
+      "8a7107d6fa68c57dd6608f90208a6f61_bd6387db3ba7707f36a144a4530b7914",
+      "7225b2d4f79d885c8321c58e2d6c5726_fc8966d593a7ee92993b32d9ce4520e0",
+      "2c0b811d86ed6140f5f9811cf3a320fa_4e375ba613e31acadbdf76cf9dcb95ad"
+    ]
+  },
+  {
+    "contestant": "driftbench-verify-solve",
+    "audited_fixed_vs_adaptive": [
+      "adba4a0e3dc7ec9d2b9a05a9d21f2209_d48215d589eb5969bfcfcd58993ab543",
+      "9d9b9827b9c7f258b3b21b1c42a2d0ab_eff2f462cb62e139749f5a7aa067a8a6",
+      "ce9c5a2a8a4bcee73556a9bc58edc434_f621234c0a48bfc2cef1d0e9feb927a6"
+    ],
+    "audited_broken_vs_adaptive": [
+      "ea0320de605869a0838201660ae8105e_1e8bfac1a4b21fd6f1399ff208f493fd",
+      "8a7107d6fa68c57dd6608f90208a6f61_bd6387db3ba7707f36a144a4530b7914",
+      "52fc2d3ed06507bdbd094aabcfde7e1d_67b0aab158f41fd3a9675c7d5529910e",
+      "579e9027b927781718b789a8b67f44d4_12804c09750686ba0cee118dcdb5524e"
+    ]
+  }
+]

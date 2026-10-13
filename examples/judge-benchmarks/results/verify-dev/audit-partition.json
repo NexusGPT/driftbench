@@ -1,0 +1,48 @@
+{
+  "units": 3,
+  "root_files": [
+    "src/verify.ts",
+    "src/verify-tools.ts",
+    "src/verify-tools.py",
+    "src/contestants.ts",
+    "src/run.ts",
+    "src/extras.ts"
+  ],
+  "lanes": [
+    {
+      "id": "root-dev",
+      "owns": [
+        "examples/judge-benchmarks/src/verify*",
+        "examples/judge-benchmarks/src/contestants.ts",
+        "examples/judge-benchmarks/src/run.ts",
+        "examples/judge-benchmarks/src/extras.ts",
+        "examples/judge-benchmarks/recordings/longjudge-verify/*",
+        "examples/judge-benchmarks/results/verify-dev/* except test-label-audit files"
+      ],
+      "type": "PLUMBING",
+      "model": "inherited session model",
+      "contract": "dev-only model calls, concurrency one, total task cap eight USD; official and audited dev scores"
+    },
+    {
+      "id": "test-label-audit",
+      "owns": [
+        "examples/judge-benchmarks/results/verify-dev/test-label-audit.md",
+        "examples/judge-benchmarks/results/verify-dev/test-label-audit.json",
+        "examples/judge-benchmarks/results/verify-dev/test-label-audit.py"
+      ],
+      "type": "VERIFICATION",
+      "model": "inherited session model",
+      "contract": "read-only test input; zero new model calls; one coverage verdict for every test item; executable proofs for every asserted conflict; no tuning advice"
+    },
+    {
+      "id": "quoted-extraction",
+      "owns": [
+        "examples/judge-benchmarks/src/verify-extraction.ts",
+        "examples/judge-benchmarks/test/verify-extraction.test.ts"
+      ],
+      "type": "PLUMBING",
+      "model": "inherited session model",
+      "contract": "literal-substring local/fallback extraction; meaningful fake tests; no model calls and no test-split reads"
+    }
+  ]
+}

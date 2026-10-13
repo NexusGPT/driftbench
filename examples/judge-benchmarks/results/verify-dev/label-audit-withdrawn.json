@@ -1,0 +1,17 @@
+[
+  {
+    "id": "1bd8144011c39f410df900a04d6e156a_f0ff48079a16eda16a3925eb5c78c21a",
+    "official": true,
+    "original_proposed_audit": false,
+    "status": "withdrawn",
+    "corrected_audit_value": true,
+    "reason": "The original claim assumes RYB primaries. The upstream task uses RGB, where yellow is not primary.",
+    "conditional_ryb_result": "unknown",
+    "rgb_result": "disproved",
+    "rgb_counter_derivation": "Rule21 derives frog destroys swan wall; Rule24 defeats Rule6 and derives swan shouts peafowl. Rules22,1,7 give beetle trades stork. Independently Rules5,19,20,14 and23,2,13,17,18 derive bee does not trade stork. Rules4 and10 derive finch does not capture pigeon. Thus the submitted disproved is correct under RGB.",
+    "source_urls": [
+      "https://journals.sagepub.com/doi/10.3233/FAIA250981",
+      "https://huggingface.co/datasets/BBEH/bbeh"
+    ]
+  }
+]

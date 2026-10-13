@@ -1,0 +1,10 @@
+{
+  "instruction": "Freeze best dev design by 04:30, then one frozen test evaluation completed by 06:30; use stratified sample if full test cannot finish. No design changes after freeze.",
+  "timezone": "Europe/Brussels",
+  "freeze_deadline": "2026-10-13T04:30:00+02:00",
+  "test_deadline": "2026-10-13T06:30:00+02:00",
+  "absolute_task_deadline": "2026-10-13T07:00:00+02:00",
+  "budget_usd": 8,
+  "test_sampling_policy": "Choose once before test calls from measured DEV throughput. Proportional stratification with a fixed seed; state sample size and 95% interval. Never tune on test outcomes.",
+  "audit_policy": "Freeze DEV corrections and TEST audit corrections before test predictions; retain official labels and original scorer."
+}

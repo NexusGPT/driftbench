@@ -66,8 +66,7 @@ const plan = {
     costPer100Usd: (c.costUsd * 100) / 95,
   },
   criterion: benchmark.criterion,
-  auditPolicy:
-    `${audit.length} DEV changes and 23 TEST changes; TEST unresolved labels remain official. No audit ids or labels enter judging.`,
+  auditPolicy: `${audit.length} DEV changes and 23 TEST changes; TEST unresolved labels remain official. No audit ids or labels enter judging.`,
 };
 await writeFile(join(folder, 'freeze-plan.json'), `${JSON.stringify(plan, null, 2)}\n`, { flag: 'wx' });
 console.log(

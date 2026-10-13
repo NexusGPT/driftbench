@@ -1,0 +1,85 @@
+[
+  {
+    "id": "b399132127b57ffbf6fe2023a8971cf0_5489558bf570728f589efe731e286105",
+    "tool_output": {
+      "tool": "exhaustive Boolean evaluation",
+      "unknown_factual_atoms": 9,
+      "assignments_checked": 512,
+      "possible_true_option_sets": [
+        [
+          "B"
+        ]
+      ],
+      "final_answer": "B",
+      "proof_scope": "Exact rational arithmetic and every truth assignment to capital facts. A unique final answer here does not assume a geography lookup."
+    }
+  },
+  {
+    "id": "81f7ad90f1eb2aa5a53b7f7294f91e47_91920d2eadb3e994802e37bc89e15014",
+    "tool_output": {
+      "tool": "exhaustive Boolean evaluation",
+      "unknown_factual_atoms": 8,
+      "assignments_checked": 256,
+      "possible_true_option_sets": [
+        [
+          "A"
+        ]
+      ],
+      "final_answer": "A",
+      "proof_scope": "Exact rational arithmetic and every truth assignment to capital facts. A unique final answer here does not assume a geography lookup."
+    }
+  },
+  {
+    "id": "3e12f104244648c9a58ed98d25d06249_a2144e352f15bb692f84f1721110479b",
+    "tool_output": {
+      "tool": "exhaustive Boolean evaluation",
+      "unknown_factual_atoms": 9,
+      "assignments_checked": 512,
+      "possible_true_option_sets": [
+        [
+          "B"
+        ],
+        [
+          "B",
+          "D"
+        ]
+      ],
+      "final_answer": null,
+      "proof_scope": "Exact rational arithmetic and every truth assignment to capital facts. A unique final answer here does not assume a geography lookup."
+    }
+  },
+  {
+    "id": "5305069c7919fc01c8707be50843590a_b156bd30f7b7d418897e9ccec7ea7708",
+    "tool_output": {
+      "tool": "exhaustive Boolean evaluation",
+      "unknown_factual_atoms": 8,
+      "assignments_checked": 256,
+      "possible_true_option_sets": [
+        [
+          "B"
+        ],
+        [
+          "B",
+          "E"
+        ]
+      ],
+      "final_answer": null,
+      "proof_scope": "Exact rational arithmetic and every truth assignment to capital facts. A unique final answer here does not assume a geography lookup."
+    }
+  },
+  {
+    "id": "4f8faed01fbb8264519d9f4ae8989a36_45f94dc55ea05eafeb903b1266bfe98e",
+    "tool_output": {
+      "tool": "exhaustive Boolean evaluation",
+      "unknown_factual_atoms": 7,
+      "assignments_checked": 128,
+      "possible_true_option_sets": [
+        [
+          "C"
+        ]
+      ],
+      "final_answer": "C",
+      "proof_scope": "Exact rational arithmetic and every truth assignment to capital facts. A unique final answer here does not assume a geography lookup."
+    }
+  }
+]

@@ -1,0 +1,7 @@
+{
+  "at": "2026-10-13T01:11:18.958890+02:00",
+  "rowsSinceBaseline": 728,
+  "recordedSpendUsd": 1.35784692,
+  "newSincePreviousLedgerUsd": 0.3780229300000001,
+  "reason": "Restart to load Unicode Roman multipart extraction and premise checks; completed prompts replay. In-flight terminated call has no reported usage. No full score claimed."
+}

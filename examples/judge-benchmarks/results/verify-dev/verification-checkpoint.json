@@ -1,0 +1,40 @@
+{
+  "at": "2026-10-13T01:15:30.884017+02:00",
+  "sourceCheckpoint": "9e6f1249",
+  "verification": {
+    "tests": 52,
+    "files": 7,
+    "testWorkers": 2,
+    "testTimeoutMs": 30000,
+    "typecheck": "passed",
+    "devIndependentProofBlocks": 5,
+    "proofBlocksPassed": 5
+  },
+  "scope": {
+    "outsideAllowedChangedPaths": 0,
+    "officialScorer": "unchanged",
+    "competitorTemplates": "unchanged"
+  },
+  "guard": {
+    "patternFindings": 0,
+    "denylistTerms": 0,
+    "scannedChangedOrUntrackedFiles": 30
+  },
+  "audit": {
+    "devChanges": 10,
+    "strictDevChanges": 9,
+    "qualifiedDevChanges": 1,
+    "testLiteralChanges": 22,
+    "testPolicyChanges": 23,
+    "testUnresolved": 75
+  },
+  "noTestPredictions": true,
+  "formatCheck": {
+    "at": "2026-10-13T01:42:19.199016+02:00",
+    "exitCode": 0,
+    "files": 12,
+    "warnings": 3,
+    "infos": 5,
+    "fix": "Only a line-wrap change in the freeze script."
+  }
+}

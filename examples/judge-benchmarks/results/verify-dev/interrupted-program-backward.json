@@ -1,0 +1,10 @@
+{
+  "status": "interrupted experiment; not a full DEV score",
+  "reason": "Prioritized quote recovery, final-step and five-path designs before the owner freeze deadline.",
+  "runtime_checkpoint": "57d16af1",
+  "newRowsThisResume": 229,
+  "newSpendThisResumeUsd": 0.48391206000000003,
+  "taskRecordedSpendUsd": 0.97982399,
+  "judgmentsRecorded": 62,
+  "at": "2026-10-13T00:19:37.070665+02:00"
+}

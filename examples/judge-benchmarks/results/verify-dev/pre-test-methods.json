@@ -1,0 +1,12 @@
+{
+  "sourceHashes": {
+    "src/verify.ts": "fa2ba0e28d4173c4764b17180c62bf2ed6c5daf738491a036f1f2613d003ccec",
+    "src/verify-tools.ts": "a8bd39e04710415e7c3665372eae9e765e07e24d22abc4b16aa03b6152681e6f",
+    "src/verify-tools.py": "73ed9e5b0180a764ec17ac14a2a4377dbd354d89602ac52967e3f4c1a60d18da",
+    "src/contestants.ts": "b69ca1ef569103629a89c869b02d31bcb3505613eb78f9c4e7f815947f5c325d",
+    "src/run.ts": "6d375fbec086299a1de0e79415ca0d82ec1c39e260977a57ac30381a3d259c5d",
+    "src/extras.ts": "bdaa72f9e2f075fc834055ad196c8ec4755b2e00df059babc58ca7c458996072"
+  },
+  "rule": "Test audit cannot supply tuning advice or judge inputs. Dev tuning remains separate.",
+  "frozenBeforeTestAudit": true
+}

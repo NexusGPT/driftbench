@@ -1,0 +1,8 @@
+{
+  "at": "2026-10-13T01:24:06.211851+02:00",
+  "taskCapUsd": 8,
+  "devRecordedSpendStopUsd": 5,
+  "testSelection": "Choose a cohort whose measured DEV call cost plus 50 percent margin fits remaining recorded allowance and whose estimated completion time plus 35 percent margin fits before 06:30. Select before predictions. Prefer all 221 if both conditions hold.",
+  "finalRecordedSpendTargetUsd": 7.5,
+  "caveat": "These are operational reservations. Interrupted CLI calls without usage output remain unpriced; recorded totals are not a provider billing settlement."
+}

@@ -1,0 +1,62 @@
+[
+  {
+    "id": "d39f096bb2596eb7d8955356ef44a14e_cc7a467fa14f91c15dd31328e13f485e",
+    "official": false,
+    "audited": true,
+    "proof": "For x<-3, distance to (2,0) is at least 2-x, greater than -x-4, so no solution. Otherwise the distance equation is sqrt((x-2)^2+y^2)=x+2. Squaring gives y^2=8x. Conversely y^2=8x implies x>=0 and the square root is x+2. The submitted locus is exact."
+  },
+  {
+    "id": "045503cb808f8344ae4972c147441517_90dddf89d761d5515d371d5d883e15ec",
+    "official": false,
+    "audited": true,
+    "proof": "Under the two-intersection line convention in the question, the polar points are (4,pi/6) and (4,7pi/6). Substitution gives x^2-y^2=8. For the second line, t^2+4sqrt(3)t-8=0, so t=-2sqrt(3)+/-2sqrt(5). The direction vector has norm 1, hence MN=4sqrt(5). Both submitted parts match."
+  },
+  {
+    "id": "799919e29bafa202e0028952ff76d912_deee86a59cea577b40827ba2735e51f2",
+    "official": false,
+    "audited": true,
+    "proof": "Exact Fraction arithmetic: A=[[-4/5,3/5],[-1/5,2/5]]. (A+I)^2=[[-2/25,24/25],[-8/25,46/25]]. Multiplication in both orders by the submitted [[23/2,-6],[2,-1/2]] gives the identity."
+  },
+  {
+    "id": "514cb7d27518d395ec9a46c2ae62c9bf_6a8c772c3cbf9a7e26dae82deafbc213",
+    "official": true,
+    "audited": false,
+    "proof": "A stack parse of the given input leaves [ and ( open, requiring only the suffix ) ]. The final submitted completed sequence appends ) ] ) ], producing two unmatched closers. The earlier explanatory suffix is also wrong. The final answer is invalid."
+  },
+  {
+    "id": "d29e283a52241c0a9a32224b711237bd_cab7eb980622deaad71cf6fe7e803264",
+    "official": false,
+    "audited": true,
+    "proof": "No premise specifies Greg's color and there is no universal color rule. Both a model with Greg yellow and a model with Greg green satisfy every listed premise. Thus the final committed answer, that Greg's color is not specified, is correct."
+  },
+  {
+    "id": "daafa66d5d745cf90a6a9f7e7476456e_ee51a4efa53adaad8c8b234938587bc9",
+    "official": true,
+    "audited": false,
+    "proof": "Q1=05/13/2021, X'=29, P=Sunday, P'=Thursday, Y'=12, Q=Saturday, Q'=Wednesday and Z'=24. Exactly 24 hours after Wednesday is Thursday. The submitted unanswerable is wrong; no time of day is needed."
+  },
+  {
+    "id": "8dce745bcd66e7dc916e9f3549d8ebc1_4495bceb02b2986125965eb7cb6c2b98",
+    "official": false,
+    "audited": true,
+    "proof": "There are choose(70,6)=131115985 equally likely six-element subsets. Choosing six of seven tens digits and one of ten integers for each gives choose(7,6)*10^6=7000000 favorable subsets. The reduced probability is exactly the submitted 200000/3746171."
+  },
+  {
+    "id": "987731fefdee670139b52a3c2cd13b54_63abd6b1489e90a7836c25efd043d174",
+    "official": false,
+    "audited": true,
+    "proof": "Exhaustive enumeration of all 15 unordered pairs of marbles 2 through 7 gives a total pair sum of 135, so the expected sum is 135/15=9. Equivalently, linearity gives 2*(2+3+4+5+6+7)/6=9, the submitted value."
+  },
+  {
+    "id": "aee1de22ebcbd6dffb545f85c2cc6d3c_4ad6596d535addc90e3929c4cd601d2a",
+    "official": false,
+    "audited": true,
+    "proof": "Exhaustive enumeration of all eight-painting placements finds E alone possible. A witness, in upper/lower order, is: wall1 HO/FW, wall2 GW/FO, wall3 GO/IW, wall4 HW/IO. Each wall contains an oil and a watercolor from different students; Franz never shares a wall with Isaacs; Greene's watercolor is above Franz's oil; Isaacs's oil is lower on wall4. Greene and Hidalgo each occupy two upper slots. The submitted E is therefore correct."
+  },
+  {
+    "id": "1bd8144011c39f410df900a04d6e156a_f0ff48079a16eda16a3925eb5c78c21a",
+    "official": true,
+    "audited": false,
+    "proof": "Rule16 (yellow primary-color card) defeats Rule21 (spinach) for the frog. The seahorse triggers Rule12 then Rule6, deriving that the swan does not shout at the peafowl. No positive shout is derived, so Rules22,1,7 cannot derive beetle-trades-with-stork. That missing antecedent blocks Rule4 and then Rule10, the only rule concluding that the finch does not capture the pigeon. No rule concludes capture either. The truth value is unknown, not the submitted disproved. The code computes this closure."
+  }
+]

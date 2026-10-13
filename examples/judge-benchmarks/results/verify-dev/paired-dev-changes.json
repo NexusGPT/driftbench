@@ -1,0 +1,52 @@
+[
+  {
+    "contestant": "driftbench-verify-program-backward-step-context",
+    "auditChanges": 10,
+    "audited_fixed_vs_adaptive": [
+      "9eeb0aa3c4d5607cf62dac86e1b9eca4_75b2a58542259d851176d51275ee3259",
+      "6475b7ad5531cf9bc60abf8728996c1d_14dcca0905e181fe50f31e588e3dd482",
+      "6a3431d6cab874b5d26e1963a5952a89_58a69db1ee812fe90dcc48f6d0534f3d",
+      "adba4a0e3dc7ec9d2b9a05a9d21f2209_d48215d589eb5969bfcfcd58993ab543",
+      "ce9c5a2a8a4bcee73556a9bc58edc434_f621234c0a48bfc2cef1d0e9feb927a6",
+      "1bd8144011c39f410df900a04d6e156a_f0ff48079a16eda16a3925eb5c78c21a",
+      "be73eb99a5ea91d6c472aa92c6fae571_5068cdce1c8e345dd0640c60d72950d1"
+    ],
+    "audited_broken_vs_adaptive": [
+      "be36325bac0fa5963c9cae9d74dab91a_3001a5b03a832d025f4e8b9b44ef99a1",
+      "8a7107d6fa68c57dd6608f90208a6f61_bd6387db3ba7707f36a144a4530b7914",
+      "5f981c74919500aeaaae8b6d69ce31b8_c01d363627aeded9eee9e3f19ad99d21"
+    ]
+  },
+  {
+    "contestant": "driftbench-verify-solve",
+    "auditChanges": 10,
+    "audited_fixed_vs_adaptive": [
+      "adba4a0e3dc7ec9d2b9a05a9d21f2209_d48215d589eb5969bfcfcd58993ab543",
+      "9d9b9827b9c7f258b3b21b1c42a2d0ab_eff2f462cb62e139749f5a7aa067a8a6",
+      "ce9c5a2a8a4bcee73556a9bc58edc434_f621234c0a48bfc2cef1d0e9feb927a6"
+    ],
+    "audited_broken_vs_adaptive": [
+      "ea0320de605869a0838201660ae8105e_1e8bfac1a4b21fd6f1399ff208f493fd",
+      "8a7107d6fa68c57dd6608f90208a6f61_bd6387db3ba7707f36a144a4530b7914",
+      "52fc2d3ed06507bdbd094aabcfde7e1d_67b0aab158f41fd3a9675c7d5529910e",
+      "579e9027b927781718b789a8b67f44d4_12804c09750686ba0cee118dcdb5524e"
+    ]
+  },
+  {
+    "contestant": "driftbench-verify-final",
+    "auditChanges": 10,
+    "audited_fixed_vs_adaptive": [
+      "8725986b8def7d6dc2430b5a82ebe768_d892147f21a603cf006be26ac0db27cb",
+      "adba4a0e3dc7ec9d2b9a05a9d21f2209_d48215d589eb5969bfcfcd58993ab543",
+      "ce9c5a2a8a4bcee73556a9bc58edc434_f621234c0a48bfc2cef1d0e9feb927a6"
+    ],
+    "audited_broken_vs_adaptive": [
+      "4d94773555d0a8e3f9b059e6cc729bdf_42f7be3f4cdef5f9018edfefec78418b",
+      "ea0320de605869a0838201660ae8105e_1e8bfac1a4b21fd6f1399ff208f493fd",
+      "a4ec51f047502137ba39fd41cfc5bb68_c2caf04b04cdfc57e3491ad56e63a5a7",
+      "8a7107d6fa68c57dd6608f90208a6f61_bd6387db3ba7707f36a144a4530b7914",
+      "7225b2d4f79d885c8321c58e2d6c5726_fc8966d593a7ee92993b32d9ce4520e0",
+      "2c0b811d86ed6140f5f9811cf3a320fa_4e375ba613e31acadbdf76cf9dcb95ad"
+    ]
+  }
+]

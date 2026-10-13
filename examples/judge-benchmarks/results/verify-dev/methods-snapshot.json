@@ -1,0 +1,76 @@
+{
+  "snapshot_time": "2026-10-12T22:59:46+0200",
+  "base_head": "0fa48a41a5ec09135bca6c8169670ca1dabca887",
+  "sources": {
+    "examples/judge-benchmarks/src/call.ts": "d8a69d68ab0fbf54e0dd9696878037706305b1ae9b28e04e94ccf42225a855af",
+    "examples/judge-benchmarks/src/chart.ts": "8c25cdef2e36a9eac87096ce343ffda66a8e0b90fcd44cb826adfb97c48c1300",
+    "examples/judge-benchmarks/src/charts.ts": "0c1315a9b55c8a5349d4a3f40a591e6b549cfaada381447a07f6e72a4301c8ec",
+    "examples/judge-benchmarks/src/contestants.ts": "c76a9a19f3b920e33631dfa76c5972f673f611673981188a562b370f97189143",
+    "examples/judge-benchmarks/src/data.ts": "0ad8c198e952608eb0c3959c6147d98e07253265b72e196d270ddff57ebfdc00",
+    "examples/judge-benchmarks/src/extras.ts": "ecfffad279bbe7a99e95a5761a18a577dbf9fad1122cd35777418c97dd9f54fa",
+    "examples/judge-benchmarks/src/guard-allow.ts": "fb1f997b841467d751c41cd2025245a99768cd1d90e1bdd942b1bfb2ec7d0e7f",
+    "examples/judge-benchmarks/src/run.ts": "34b3922c74ac33093de9f5ed0f1b03ca4753ef395e3e0f413e2c07438648d4e8",
+    "examples/judge-benchmarks/src/score.ts": "6edd315117e69756cb0705e4335dfb7675805374a1d3aee357ac477123f6e827",
+    "examples/judge-benchmarks/src/verify-dossier.ts": "2500d1b4bc04cb2780ad46ed4fca530eebb7486664f0428d8c26e75087b7717d",
+    "examples/judge-benchmarks/src/verify-experiment.ts": "692a723ea0e4a2251d0600fa478a294acd9db371392f93c4ae81bd0e1abf8539",
+    "examples/judge-benchmarks/src/verify-extraction.ts": "b38acfbb0161d570cad5c46e67efcf335d442c3e0ba683ffb960776da3bb51c4",
+    "examples/judge-benchmarks/src/verify-summary.ts": "1d3c6b359e861dc37d33acb6cc29923fcd337af1ba3aadfb8d4e00326bfef496",
+    "examples/judge-benchmarks/src/verify-tools.ts": "b6ddaae7e150fc3ad18872e23e25ddb7613ea5ac03c46bfe3a8270783db35c23",
+    "examples/judge-benchmarks/src/verify.ts": "62a98eeef9ffe7ca5bedf39d453b72afd0e46e2b4331b901feac9bdaa438b1fb",
+    "examples/judge-benchmarks/src/verify-label-audit.py": "e3aed301fc18ecf010acd71d9bc254e839a5b26e0bc8f971db6a8cc8c4902b19",
+    "examples/judge-benchmarks/src/verify-tools.py": "a5cde69a323952de9a8986541d8f6fabfb2605a8536e02b79988b29276db948e"
+  },
+  "dev_ids_sha256": "e9175e7f8e1392b0e1238ae79efc2d3fd47b67c4a48ad35bed70f42f7cc3c204",
+  "model": "haiku",
+  "concurrency": 1,
+  "budget_usd": 8,
+  "deadline": "2026-10-13T07:00:00+02:00",
+  "test_policy": "read-only label audit; no prompts, thresholds, routing or method selection from test records",
+  "registered_dossier_methods": [
+    "driftbench-verify-program-backward",
+    "driftbench-verify-program-backward-step",
+    "driftbench-verify-diverse5",
+    "driftbench-verify-diverse5-all"
+  ],
+  "consensus_threshold": 0.8,
+  "driver_restart_time": "2026-10-12T23:05:10+0200",
+  "additional_combination_registration": {
+    "time": "2026-10-12T23:07:33+0200",
+    "methods": [
+      "driftbench-verify-diverse5-step",
+      "driftbench-verify-diverse5-all-step"
+    ],
+    "reason": "Combine already supplied five-path, backward-check and final-step techniques. No prompts, threshold or routing changed; no test-driven choice.",
+    "source_sha256": "3adf7088ff411a62720d07a931f5d037568fcdf800c51ba05caa737ccc9e9db4"
+  },
+  "judgment_vote_registration": {
+    "time": "2026-10-12T23:15:32+0200",
+    "methods": [
+      "driftbench-verify-program-backward-step-vote3",
+      "driftbench-verify-diverse5-all-step-vote3"
+    ],
+    "reason": "Dossier rank 6 and the adaptive baseline both suggest comparison sampling. Add three votes to already registered check combinations; no threshold or test-driven routing change.",
+    "source_sha256": "b2c9ed8b0066936056e75f82ece2f48f5c81b6e29255a79338c618f2ee6d990d"
+  },
+  "exact_arithmetic_hardening": {
+    "time": "2026-10-12T23:21:02+0200",
+    "source_sha256": "92b52ba7027a6970b2c734dc3652472db7a80d34962f5dbd0655ba6d4f4ae045",
+    "basis": "Generic decimal boundary fixture: 0.1+0.2 is exactly 0.3; binary float comparison incorrectly says greater. Source only; no test examples or labels used.",
+    "dev_only_check": "dev-boolean-tool-checks.json"
+  },
+  "quote_recovery_registration": {
+    "time": "2026-10-12T23:30:19+0200",
+    "methods": [
+      "driftbench-verify-program-backward-step-fallback",
+      "driftbench-verify-diverse5-all-step-fallback",
+      "driftbench-verify-diverse5-all-step-fallback-vote3"
+    ],
+    "basis": "DEV-only failures observed in the first 35 items: overescaped LaTex quotes, and refusals/missing answers. Keep literal validation; recover with the original committed text only. No benchmark label enters the recovery rule. No TEST example or result selects this method.",
+    "sources": {
+      "src/run.ts": "a4bf8d81c9c51d6843a51829a813e62adbe1b3f72364756718fb1af0e4f2f5ed",
+      "src/contestants.ts": "668bb8e3b540a09b2e136cd008cae7873f38aec8661a1310bafcc42a9602f69f",
+      "src/verify-extraction.ts": "20a2558f611d55f321cff2223d2e2c4d4f824cfb298b317677d650ae930a8e23",
+      "src/verify-dossier.ts": "8b7a020d40afe0340dbcfe42b7aeda1f6c50146a7e821ff5fbe07fe744f442e3"
+    }
+  }
+}

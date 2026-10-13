@@ -1,0 +1,24 @@
+{
+  "id": "81f7ad90f1eb2aa5a53b7f7294f91e47_91920d2eadb3e994802e37bc89e15014",
+  "official": true,
+  "proposedAudited": false,
+  "responseChars": 6233,
+  "responseSha256": "080708c87ba3ffb433cb61047589e68d65b64501241d31613618cbe930adb2df",
+  "questionSha256": "3e955bdcfeb9c56f313c902394309383569a72cc400b596a5d12bdf4cb7609c7",
+  "check": {
+    "assignments_checked": 256,
+    "final_answer": "A",
+    "possible_true_option_sets": [
+      [
+        "A"
+      ]
+    ],
+    "proof_scope": "Exact rational arithmetic and every truth assignment to capital facts. A unique final answer here does not assume a geography lookup.",
+    "tool": "exhaustive Boolean evaluation",
+    "unknown_factual_atoms": 8
+  },
+  "responseEnding": "n(-4, -9, -1, 8) <= 2) and (8 * 5 + -4 * -3 is greater than -8 * -2)) and not not ((The capital ofMathematics is cstit.) or (not (max(-4, -9, -1, 8) - min(-4, -9, -1, 8) <= 2) and (8 * 5 + -4 * -3 is greater than -8 * -2)) and not not ((The capital ofMathematics is cstit.) or (not (max(-4, -9, -1, 8",
+  "rootReadEntireResponse": true,
+  "status": "accepted after independent 95-item DEV audit and root whole-response review",
+  "acceptedAt": "2026-10-13T01:01:31.928066+02:00"
+}
