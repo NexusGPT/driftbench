@@ -679,19 +679,19 @@ exit 1
 
 ```
 $ pnpm -s driftbench family instances examples/acme/families/price-sheet --n 20 --seed 1 --out _captures/docs3/generating/families/instances
-Family acme-price-sheet: 20 instances, seed 1, 86 specs.
-  i01  seed 1219026796  categories=3 column_order=shuffled language=EN line_endings=crlf plans=15 planted=without readme_name=readme.txt seed_format=csv summary=without wording=a workbook=out/acme-prices.xlsx yearly=value  base, duplicate-line, header-order, unit-change
-  i02  seed 1269359653  categories=4 column_order=catalog language=EN line_endings=lf plans=29 planted=without readme_name=readme.txt seed_format=json summary=with wording=b workbook=out/acme-prices.xlsx yearly=formula  base, duplicate-line, header-order, unit-change
-  i03  seed 1252582034  categories=2 column_order=shuffled language=EN line_endings=crlf plans=24 planted=without readme_name=README.txt seed_format=csv summary=without wording=a workbook=out/acme-prices.xlsx yearly=value  base, empty-cell, header-order, unit-change
-  i04  seed 1168693939  categories=3 column_order=catalog language=EN line_endings=crlf plans=27 planted=with readme_name=readme.txt seed_format=csv summary=with wording=c workbook=out/acme-prices.xlsx yearly=value  base, empty-cell, duplicate-line, header-order, planted
+Family acme-price-sheet: 20 instances, seed 1, 88 specs.
+  i01  seed 1219026796  categories=3 column_order=catalog language=EN line_endings=lf plans=6 planted=with readme_name=ABOUT.txt seed_format=csv start=catalog-only summary=without wording=b workbook=out/price-sheet.xlsx yearly=value  base, duplicate-line, header-order, unit-change, planted
+  i02  seed 1269359653  categories=2 column_order=shuffled language=EN line_endings=crlf plans=25 planted=without readme_name=ABOUT.txt seed_format=csv start=catalog-only summary=without wording=b workbook=out/price-sheet.xlsx yearly=value  base, duplicate-line, header-order, unit-change
+  i03  seed 1252582034  categories=4 column_order=catalog language=EN line_endings=lf plans=15 planted=without readme_name=readme.txt seed_format=json start=catalog-only summary=without wording=a workbook=out/acme-prices.xlsx yearly=value  base, empty-cell, header-order, unit-change
+  i04  seed 1168693939  categories=3 column_order=catalog language=EN line_endings=crlf plans=27 planted=with readme_name=readme.txt seed_format=csv start=catalog-only summary=without wording=c workbook=out/price-sheet.xlsx yearly=formula  base, empty-cell, duplicate-line, header-order, planted
 ```
 
 The listing goes on with one line per instance, then ends:
 
 ```
-Style invariant: 114 style alternatives rebuilt; none changed the expected outcome.
+Style invariant: 116 style alternatives rebuilt; none changed the expected outcome.
 Review: pending. examples/acme/families/price-sheet/review.yaml is not signed yet; the instances record it, and a person signs it before release.
-Wrote 86 specs and family-report.json to _captures/docs3/generating/families/instances.
+Wrote 88 specs and family-report.json to _captures/docs3/generating/families/instances.
 exit 0
 ```
 
@@ -699,17 +699,17 @@ Each instance seed is derived from the run seed and the instance number, and is 
 
 ```
 $ pnpm -s driftbench family verify _captures/docs3/generating/families/instances --reference process:acme-ops
-Verify _captures/docs3/generating/families/instances on the reference process:acme-ops: 86 specs.
+Verify _captures/docs3/generating/families/instances on the reference process:acme-ops: 88 specs.
   ✓ i01/base.yaml
   ✓ i01/duplicate-line.yaml
   ✓ i01/header-order.yaml
-  ✓ i01/unit-change.yaml
+  ✓ i01/planted.yaml
 ```
 
 and, after one line per spec:
 
 ```
-✓ The reference passes all 86 specs: 20 instances may ship.
+✓ The reference passes all 88 specs: 20 instances may ship.
 Release also waits for a person to sign the review of acme-price-sheet (20 instances wait on it).
 Wrote _captures/docs3/generating/families/instances/verify-report.json.
 exit 0

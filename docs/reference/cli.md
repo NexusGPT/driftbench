@@ -924,21 +924,22 @@ On the Acme price-sheet family:
 
 ```
 $ pnpm -s driftbench family instances examples/acme/families/price-sheet --n 3 --seed 1 --out _captures/docs3/cli/family
-Family acme-price-sheet: 3 instances, seed 1, 12 specs.
-  i01  seed 1219026796  categories=3 column_order=shuffled language=EN line_endings=crlf plans=15 planted=without readme_name=readme.txt seed_format=csv summary=without wording=a workbook=out/acme-prices.xlsx yearly=value  base, duplicate-line, header-order, unit-change
-  i02  seed 1269359653  categories=4 column_order=catalog language=EN line_endings=lf plans=29 planted=without readme_name=readme.txt seed_format=json summary=with wording=b workbook=out/acme-prices.xlsx yearly=formula  base, duplicate-line, header-order, unit-change
-  i03  seed 1252582034  categories=2 column_order=shuffled language=EN line_endings=crlf plans=24 planted=without readme_name=README.txt seed_format=csv summary=without wording=a workbook=out/acme-prices.xlsx yearly=value  base, empty-cell, header-order, unit-change
+Family acme-price-sheet: 3 instances, seed 1, 13 specs.
+  i01  seed 1219026796  categories=3 column_order=catalog language=EN line_endings=lf plans=6 planted=with readme_name=ABOUT.txt seed_format=csv start=catalog-only summary=without wording=b workbook=out/price-sheet.xlsx yearly=value  base, duplicate-line, header-order, unit-change, planted
+  i02  seed 1269359653  categories=2 column_order=shuffled language=EN line_endings=crlf plans=25 planted=without readme_name=ABOUT.txt seed_format=csv start=catalog-only summary=without wording=b workbook=out/price-sheet.xlsx yearly=value  base, duplicate-line, header-order, unit-change
+  i03  seed 1252582034  categories=4 column_order=catalog language=EN line_endings=lf plans=15 planted=without readme_name=readme.txt seed_format=json start=catalog-only summary=without wording=a workbook=out/acme-prices.xlsx yearly=value  base, empty-cell, header-order, unit-change
 Style invariant: 17 style alternatives rebuilt; none changed the expected outcome.
 Review: pending. examples/acme/families/price-sheet/review.yaml is not signed yet; the instances record it, and a person signs it before release.
-Wrote 12 specs and family-report.json to _captures/docs3/cli/family.
+Wrote 13 specs and family-report.json to _captures/docs3/cli/family.
 ```
 
 ```
 $ pnpm -s driftbench family verify _captures/docs3/cli/family --reference process:acme-ops
-Verify _captures/docs3/cli/family on the reference process:acme-ops: 12 specs.
+Verify _captures/docs3/cli/family on the reference process:acme-ops: 13 specs.
   ✓ i01/base.yaml
   ✓ i01/duplicate-line.yaml
   ✓ i01/header-order.yaml
+  ✓ i01/planted.yaml
   ✓ i01/unit-change.yaml
   ✓ i02/base.yaml
   ✓ i02/duplicate-line.yaml
@@ -948,7 +949,7 @@ Verify _captures/docs3/cli/family on the reference process:acme-ops: 12 specs.
   ✓ i03/empty-cell.yaml
   ✓ i03/header-order.yaml
   ✓ i03/unit-change.yaml
-✓ The reference passes all 12 specs: 3 instances may ship.
+✓ The reference passes all 13 specs: 3 instances may ship.
 Release also waits for a person to sign the review of acme-price-sheet (3 instances wait on it).
 Wrote _captures/docs3/cli/family/verify-report.json.
 ```

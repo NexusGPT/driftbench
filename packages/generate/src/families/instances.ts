@@ -56,7 +56,7 @@ export type BuildOptions = {
   review: ReviewState;
   /**
    * Where the workspace folder of a variant with binary files sits, as a spec's `workspace_seed.from` holds
-   * it: relative to the folder the runner starts in.
+   * it: relative to the spec file.
    */
   seedFrom: (instance: string, variant: string) => string;
 };

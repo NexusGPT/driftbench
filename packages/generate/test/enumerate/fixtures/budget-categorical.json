@@ -2,10 +2,10 @@
   "source": "Options A and B (a1462f30) with cap PR 155 and speed PR 158 merged (01d617cc); spec files match the A/B pin, only the report's opening-pair reasons differ; baseline coverage 237 of 637 after the plan-upgrade handover perturbation (report only, spec files unchanged); map 0f897ba84410 after D11 and D12 joined the approved Acme map; map 7c05b9cee9cc with the price-sheet start knob",
   "mapHash": "7c05b9cee9cc",
   "hashes": {
-    "pairwise": "1b1301b8702bd76db231e6d472696a2a5a1d5907e3642e87137c02f4fd239982",
-    "budget-20": "80fb9bcb2e9d7ebfb82ef65c1e03041b76613882062842dcf3a316a4eaea7354",
-    "budget-50": "e69114262a17ed918fa52620363d2db29a340d2d20f54f7847978259c44cf4a0",
-    "budget-100": "e5875ccf79ab269e1d67c90cc465c25fb9cc08e520d83dc8804a630a2422f57a",
-    "budget-200": "1a7dcb6ad0fc09c0a0a56efdab37c81b00ef926e989c22a8c00796efd11b321f"
+    "pairwise": "ca627429d2a577c7ea59e39361c317e50bdaac02f8194a316b7fd4a1dd464fc5",
+    "budget-20": "8311216605f459f67c66b46da4cb8575ad4cc53a274dfe9cc51da7f6e9af6132",
+    "budget-50": "2a094b4049455aaba6393e6ecbc5e04cdb72e5b82c27a289a804b8b1861b0bb5",
+    "budget-100": "fa76291290055484e7e31ffdac31680f6e6d33971e7d4bb02aea5f4f771d2a80",
+    "budget-200": "0c27caeeb8ded259692f23740f289e86617e641f4f3dfcda63ec62b69e912b9e"
   }
 }

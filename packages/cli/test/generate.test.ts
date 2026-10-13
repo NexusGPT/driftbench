@@ -150,14 +150,11 @@ describe('driftbench generate', () => {
     );
     expect(elsewhere.code).toBe(1);
     const moved = await tree(join(dir, 'b/c'));
-    // Only two paths differ: the recorded map path, relative to the output folder, and the seed folder a
-    // workbook task starts from, relative to the folder the command runs in.
+    // Only the recorded map path differs: it is relative to the output folder. A workbook task names its seed
+    // folder relative to its own spec file, so that path is the same wherever the suite is written.
     const strip = (files: Record<string, string>) =>
       Object.fromEntries(
-        Object.entries(files).map(([path, text]) => [
-          path,
-          text.replaceAll(/(\.\.\/)+/g, '').replaceAll(/from: (a|b\/c)\/specs\//g, 'from: <out>/specs/'),
-        ]),
+        Object.entries(files).map(([path, text]) => [path, text.replaceAll(/(\.\.\/)+/g, '')]),
       );
     expect(strip(moved)).toEqual(strip(before));
   }, 120_000);

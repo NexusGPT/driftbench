@@ -22,8 +22,8 @@ describe('budget mode on the approved Acme map', () => {
     const built = await buildTaskInputs(prepared, dirname(ACME_MAP), {
       n: 8,
       seed: 1,
-      // As `driftbench generate` names it from the repository root: the folder beside the spec.
-      seedFrom: (id) => `examples/acme/generated/specs/task/.seed-${id}`,
+      // As `driftbench generate` names it: the folder beside the spec, relative to the spec file.
+      seedFrom: (id) => `./.seed-${id}`,
     });
     taskInputs = built.inputs;
     const hand = await loadSpecs([`${ACME}specs`]);

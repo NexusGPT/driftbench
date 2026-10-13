@@ -19,7 +19,7 @@ target:
   adapter: process
   agent: acme-ops
 workspace_seed:
-  from: examples/acme/families/price-sheet/instances/i06/.seed-base
+  from: ./.seed-base
 stages:
   - build_sheet
   - add_summary

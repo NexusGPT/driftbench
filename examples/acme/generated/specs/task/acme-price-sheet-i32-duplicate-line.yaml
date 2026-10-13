@@ -22,7 +22,7 @@ target:
   adapter: process
   agent: acme-ops
 workspace_seed:
-  from: examples/acme/generated/specs/task/.seed-acme-price-sheet-i32-duplicate-line
+  from: ./.seed-acme-price-sheet-i32-duplicate-line
 stages:
   - build_sheet
   - add_summary

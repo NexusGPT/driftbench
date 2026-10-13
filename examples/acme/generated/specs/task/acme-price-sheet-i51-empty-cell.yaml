@@ -22,7 +22,7 @@ target:
   adapter: process
   agent: acme-ops
 workspace_seed:
-  from: examples/acme/generated/specs/task/.seed-acme-price-sheet-i51-empty-cell
+  from: ./.seed-acme-price-sheet-i51-empty-cell
 stages:
   - build_sheet
   - add_summary

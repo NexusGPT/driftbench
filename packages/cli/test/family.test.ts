@@ -1,6 +1,6 @@
 import { cp, mkdtemp, readdir, readFile, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
-import { join, relative, sep } from 'node:path';
+import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { describe, expect, it } from 'vitest';
 import { type Io, main } from '../src/index';
@@ -186,15 +186,9 @@ describe('the committed Acme instances', () => {
     expect(result.code).toBe(0);
     const committed = await tree(join(ACME_FAMILY, 'instances'));
     delete committed['verify-report.json'];
-    // A spec whose workspace holds a workbook names its seed folder from the folder the command runs in.
-    const written = await tree(out);
-    const here = relative(repo, out).split(sep).join('/');
-    for (const [path, text] of Object.entries(written)) {
-      written[path] = text
-        .split(`from: ${here}/`)
-        .join('from: examples/acme/families/price-sheet/instances/');
-    }
-    expect(written).toEqual(committed);
+    // A spec whose workspace holds a workbook names its seed folder relative to itself, so the output folder
+    // never shows in the files.
+    expect(await tree(out)).toEqual(committed);
   }, 60_000);
 });
 
