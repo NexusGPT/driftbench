@@ -1,0 +1,16 @@
+{
+  "at": "2026-10-13T11:04:03.067373+00:00",
+  "selected": "v2",
+  "tuning": {
+    "before": 69,
+    "v1": 79,
+    "v2": 84,
+    "n": 96
+  },
+  "promptFingerprint": "343bad24e16c",
+  "sourceCommit": "e598f01cd70b5b937f06bbc7d5b8d051d1757ae1",
+  "rule": "- For factual requirements, preserve meaning, not literal repetition: count equivalent paraphrases and unchanged quantities with an entity, unit or period carried by the reply's unambiguous shared context as met, even when a modifier appears only once for parallel amounts or a periodic fee and its allowance; reject contradictions, genuinely absent facts, unsupported additions, and violations of an explicit literal-wording requirement.",
+  "validationInspected": false,
+  "gate": "PR 172 comparePaired regression=false for every required set",
+  "haikuSets": ["fresh-reference", "heldout-factuality", "hard-factuality"]
+}

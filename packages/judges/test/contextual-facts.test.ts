@@ -1,7 +1,13 @@
+import { readFileSync } from 'node:fs';
 import { describe, expect, it } from 'vitest';
-import { buildPrompt, parseJudgeText, promptFingerprint, PROMPT_PARTS } from '../src/index';
+import { replayExperiment } from '../../../research/judge-contextual-facts/replay';
 import type { JudgeRequest } from '../src/index';
+import { buildPrompt, parseJudgeText, promptFingerprint, requestKey } from '../src/index';
 
+const system = readFileSync(
+  new URL('../../../research/judge-contextual-facts/candidate-system.txt', import.meta.url),
+  'utf8',
+);
 const request: JudgeRequest = {
   criterion: { name: 'facts', rubric: 'Report every requested fact with no unsupported additions.' },
   transcript: [
@@ -11,28 +17,43 @@ const request: JudgeRequest = {
   inputs: [{ path: 'plans.txt', text: 'Miro costs 12 crowns. Sola costs 15 crowns.' }],
 };
 
-describe('contextual fact fulfillment', () => {
-  it('defines semantic fulfillment with shared context and explicit safety boundaries', () => {
-    const { system } = buildPrompt(request);
-    expect(system).toContain('Unless the criterion requires literal wording');
-    expect(system).toContain('equivalent paraphrase or unambiguous shared context');
-    expect(system).toContain('including an implied entity, unit or period');
-    expect(system).toContain('do not infer an absent fact or excuse a contradiction');
+describe('experimental contextual fact fulfillment', () => {
+  it('uses the existing explicit override with literal-wording and missing-fact boundaries', () => {
+    const prompt = buildPrompt({ ...request, system });
+    expect(prompt.system).toBe(system);
+    expect(system).toContain('explicit literal-wording requirement');
+    expect(system).toContain('unambiguous shared context');
+    expect(system).toContain('an entity, unit or period');
+    expect(system).toContain('reject contradictions, genuinely absent facts, unsupported additions');
   });
 
-  it('changes the default fingerprint and preserves the observed text verbatim', () => {
-    expect(promptFingerprint()).not.toBe('398673b792c1');
-    expect(promptFingerprint(PROMPT_PARTS)).toBe(promptFingerprint());
-    const { user } = buildPrompt(request);
-    expect(user).toContain(request.transcript[1]!.text);
-    expect(user).toContain(request.inputs![0]!.text);
+  it('partitions opted-in requests while preserving the shipped default and source text', () => {
+    expect(promptFingerprint()).toBe('398673b792c1');
+    expect(buildPrompt(request).system).not.toContain('For factual requirements, preserve meaning');
+    expect(requestKey({ ...request, system })).not.toBe(requestKey(request));
+    const prompt = buildPrompt({ ...request, system });
+    expect(prompt.user).toContain(request.transcript[1]?.text);
+    expect(prompt.user).toContain(request.inputs?.[0]?.text);
   });
 
   it('does not turn a model-reported violation into a pass', () => {
-    const result = parseJudgeText(JSON.stringify({ checks: [{
-      id: 'facts', reasoning: 'The supplied reply fails the criterion.',
-      evidence: [{ source: 'transcript.1', quote: request.transcript[1]!.text }], met: false,
-    }] }), request);
+    const result = parseJudgeText(
+      JSON.stringify({
+        checks: [
+          {
+            id: 'facts',
+            reasoning: 'The supplied reply fails the criterion.',
+            evidence: [{ source: 'transcript.1', quote: request.transcript[1]?.text }],
+            met: false,
+          },
+        ],
+      }),
+      { ...request, system },
+    );
     expect(result.answer.outcome).toBe('fail');
+  });
+
+  it('replays every measured case from exact submitted prompt bytes with no live calls', () => {
+    expect(replayExperiment()).toEqual({ checked: 2182, liveCalls: 0 });
   });
 });

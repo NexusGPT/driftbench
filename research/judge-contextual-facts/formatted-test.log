@@ -1,0 +1,12 @@
+
+ RUN  v5.0.3 /Users/assem/Documents/GitHub/driftbench/.worktrees/fix-judge-reference-implied-units
+
+
+ Test Files  1 passed (1)
+      Tests  4 passed (4)
+   Start at  16:52:57
+   Duration  5.43s (transform 78%, import 13%, tests 9%)
+
+  Transform  transforming modules took 4.12s · 78% of tracked time, re-done on every run
+             persist transforms across runs with fsModuleCache: true
+             learn more: https://vitest.dev/guide/improving-performance#caching-between-reruns

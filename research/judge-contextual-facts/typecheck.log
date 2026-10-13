@@ -1,0 +1,4 @@
+Command: pnpm exec tsc -p .experiment/tsconfig-check.json
+Scope: contextual-facts.test.ts and replay.ts, extending tsconfig.base.json
+Exit status: 0
+Diagnostics: none

@@ -1,0 +1,12 @@
+diff --git a/packages/judges/src/prompt.ts b/packages/judges/src/prompt.ts
+index 0929117e..c096e251 100644
+--- a/packages/judges/src/prompt.ts
++++ b/packages/judges/src/prompt.ts
+@@ -48,6 +48,7 @@ export const SYSTEM_PROMPT = [
+   'Rules:',
+   '- Judge only the supplied criterion. Do not add requirements.',
+   '- Restate each requirement positively, including prohibitions. met means the requirement is satisfied, never that a failure condition occurred.',
++  "- For factual requirements, preserve meaning, not literal repetition: count equivalent paraphrases and unchanged quantities with an entity, unit or period carried by the reply's unambiguous shared context as met, even when a modifier appears only once for parallel amounts or a periodic fee and its allowance; reject contradictions, genuinely absent facts, unsupported additions, and violations of an explicit literal-wording requirement.",
+   '- Check each requirement against the actual transcript, inputs and artifact. Copy a short supporting or contradicting quote exactly.',
+   '- Use met false for an observed violation or missing required action. Use met null only when the data cannot determine the requirement.',
+   '- A met true check needs evidence from the supplied data. A prohibited event being absent can quote the relevant completed reply or action sequence.',

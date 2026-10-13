@@ -1,0 +1,22 @@
+{
+  "calls": {
+    "gpt-6-luna": 1886,
+    "haiku": 384
+  },
+  "retries": 0,
+  "peaks": {
+    "v1": {
+      "gpt-6-luna": 8
+    },
+    "v2": {
+      "gpt-6-luna": 8,
+      "haiku": 2
+    }
+  },
+  "chargedUsd": 0.59581804,
+  "capUsd": 6,
+  "reusedCases": 8,
+  "noTemperature": true,
+  "reasoning": "medium",
+  "validationAndGateRetuning": false
+}

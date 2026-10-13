@@ -1,0 +1,293 @@
+
+ RUN  v5.0.3 /Users/assem/Documents/GitHub/driftbench/.worktrees/fix-judge-reference-implied-units
+
+ ❯ packages/judges/test/pointwise-fact-replay.test.ts (1 test | 1 failed) 388ms
+   ❯ frozen pointwise fact candidate through the public API (1)
+     × replays every prompt byte, verdict and strict transition without live calls 386ms
+ ❯ packages/judges/test/client-reasoning.test.ts (13 tests | 3 failed) 51ms
+   ❯ chat client defaults remain byte stable (3)
+     × openai preserves its body, settings and exact request key 43ms
+     × google preserves its body, settings and exact request key 1ms
+     × anthropic preserves its body, settings and exact request key 1ms
+ ❯ packages/judges/test/multi-span-recorded.test.ts (10 tests | 10 failed) 7ms
+   ❯ real Haiku responses to the multi-span contract (10)
+     × pins all eight actual prompts, settings, response keys and costs 4ms
+     × judge-threshold-02 replays the unchanged model response 1ms
+     × relevancy-entity-swap-4-a replays the unchanged model response 0ms
+     × factuality.006 replays the unchanged model response 0ms
+     × qa-negation-0 replays the unchanged model response 0ms
+     × qa-negation-2 replays the unchanged model response 0ms
+     × qa-negation-4 replays the unchanged model response 0ms
+     × qa-negation-6 replays the unchanged model response 0ms
+     × qa-negation-8 replays the unchanged model response 0ms
+     × the real threshold response contains two separately grounded entries 0ms
+ ❯ packages/judges/test/canonical.test.ts (25 tests | 1 failed) 86ms
+   ❯ default compatibility and canonical tally (4)
+     × preserves the pre-canonical default key and prompt fingerprint 25ms
+
+⎯⎯⎯⎯⎯⎯ Failed Tests 15 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  packages/judges/test/canonical.test.ts > default compatibility and canonical tally > preserves the pre-canonical default key and prompt fingerprint
+AssertionError: expected '25e002b67059' to be '2516c80c92c8' // Object.is equality
+
+Expected: "2516c80c92c8"
+Received: "25e002b67059"
+
+ ❯ packages/judges/test/canonical.test.ts:327:94
+    325|
+    326|   it('preserves the pre-canonical default key and prompt fingerprint',…
+    327|     expect(requestKey(pairwiseRequest({ name: 'c', rubric: 'Correct.' …
+       |                                                                                              ^
+    328|       '2516c80c92c8',
+    329|     );
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/15]⎯
+
+ FAIL  packages/judges/test/client-reasoning.test.ts > chat client defaults remain byte stable > openai preserves its body, settings and exact request key
+AssertionError: expected { …(3) } to deeply equal { …(3) }
+
+- Expected
++ Received
+
+  {
+-   "body": "019fba192eec75c26948ea081f306773c68f796a1ba28e3b9377e9c92205238f",
+-   "requestKey": "d303f86f20d7",
++   "body": "24dd19dc8025b57b08dda18573693aaad9c92b565fc8cf39a02d0c692b039ac0",
++   "requestKey": "1512fc1a3c32",
+    "settings": "{\"client\":\"openai-chat\",\"temperature\":0,\"maxTokens\":{\"normal\":1024,\"large\":4096},\"temperatureRetry\":\"drop on a 400 that names it\",\"responseFormat\":\"json_schema\"}",
+  }
+
+ ❯ packages/judges/test/client-reasoning.test.ts:75:10
+     73|         settings: client.settings,
+     74|         requestKey: requestKey(REQUEST, client),
+     75|       }).toEqual(BASELINES[name]);
+       |          ^
+     76|       const explicitUndefined = await capture(make, { reasoning: undef…
+     77|       expect(explicitUndefined.body).toBe(body);
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/15]⎯
+
+ FAIL  packages/judges/test/client-reasoning.test.ts > chat client defaults remain byte stable > google preserves its body, settings and exact request key
+AssertionError: expected { …(3) } to deeply equal { …(3) }
+
+- Expected
++ Received
+
+  {
+-   "body": "fa627ea55dfc71d217437cb76d78c2a3677e31628f264ebd49f128697f4bb454",
+-   "requestKey": "e3e89f430f19",
++   "body": "be31e5554444c55f3e77328d2b23faa8fd3e355d6180db21ca3222297ffec043",
++   "requestKey": "144de43a25dc",
+    "settings": "{\"client\":\"google-generate-content\",\"temperature\":0,\"maxTokens\":{\"normal\":1024,\"large\":4096},\"responseMimeType\":\"application/json\"}",
+  }
+
+ ❯ packages/judges/test/client-reasoning.test.ts:75:10
+     73|         settings: client.settings,
+     74|         requestKey: requestKey(REQUEST, client),
+     75|       }).toEqual(BASELINES[name]);
+       |          ^
+     76|       const explicitUndefined = await capture(make, { reasoning: undef…
+     77|       expect(explicitUndefined.body).toBe(body);
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/15]⎯
+
+ FAIL  packages/judges/test/client-reasoning.test.ts > chat client defaults remain byte stable > anthropic preserves its body, settings and exact request key
+AssertionError: expected { …(3) } to deeply equal { …(3) }
+
+- Expected
++ Received
+
+  {
+-   "body": "403bd1988b2fb70f7508fd161c5cb45f5c6c6226da68063fa7bf3dfcc761c1ad",
+-   "requestKey": "a4707f3a7b2c",
++   "body": "40c5bced27dbcd44d33d4258afabd25b1e47f97d0ea6a401bb040faa0cee3d17",
++   "requestKey": "c93705250959",
+    "settings": "{\"client\":\"anthropic-messages\",\"temperature\":0,\"maxTokens\":{\"normal\":1024,\"large\":4096},\"anthropicVersion\":\"2023-06-01\"}",
+  }
+
+ ❯ packages/judges/test/client-reasoning.test.ts:75:10
+     73|         settings: client.settings,
+     74|         requestKey: requestKey(REQUEST, client),
+     75|       }).toEqual(BASELINES[name]);
+       |          ^
+     76|       const explicitUndefined = await capture(make, { reasoning: undef…
+     77|       expect(explicitUndefined.body).toBe(body);
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/15]⎯
+
+ FAIL  packages/judges/test/multi-span-recorded.test.ts > real Haiku responses to the multi-span contract > pins all eight actual prompts, settings, response keys and costs
+AssertionError: expected '398673b792c1' to be '343bad24e16c' // Object.is equality
+
+Expected: "343bad24e16c"
+Received: "398673b792c1"
+
+ ❯ packages/judges/test/multi-span-recorded.test.ts:16:40
+     14|   it('pins all eight actual prompts, settings, response keys and costs…
+     15|     expect(cassette.entries).toHaveLength(8);
+     16|     expect(requests.promptFingerprint).toBe(PROMPT_FINGERPRINT);
+       |                                        ^
+     17|     expect(requests.settings).toBe(CLAUDE_SETTINGS);
+     18|     for (const row of requests.cases) {
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[5/15]⎯
+
+ FAIL  packages/judges/test/multi-span-recorded.test.ts > real Haiku responses to the multi-span contract > judge-threshold-02 replays the unchanged model response
+JudgeError: no recording for judge claude-haiku, criterion requirement_1, key 510ac88af137
+ ❯ play packages/judges/src/cassette.ts:274:13
+    272|     const matches = byKey.get(key) ?? [];
+    273|     if (matches.length === 0)
+    274|       throw new JudgeError(
+       |             ^
+    275|         'cassette_miss',
+    276|         `no recording for judge ${judgeId}, criterion ${request.criter…
+ ❯ Object.judge packages/judges/src/cassette.ts:290:25
+ ❯ packages/judges/test/multi-span-recorded.test.ts:32:35
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[6/15]⎯
+
+ FAIL  packages/judges/test/multi-span-recorded.test.ts > real Haiku responses to the multi-span contract > relevancy-entity-swap-4-a replays the unchanged model response
+JudgeError: no recording for judge claude-haiku, criterion relevancy, key 8a49e1c09739
+ ❯ play packages/judges/src/cassette.ts:274:13
+    272|     const matches = byKey.get(key) ?? [];
+    273|     if (matches.length === 0)
+    274|       throw new JudgeError(
+       |             ^
+    275|         'cassette_miss',
+    276|         `no recording for judge ${judgeId}, criterion ${request.criter…
+ ❯ Object.judge packages/judges/src/cassette.ts:290:25
+ ❯ packages/judges/test/multi-span-recorded.test.ts:32:35
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[7/15]⎯
+
+ FAIL  packages/judges/test/multi-span-recorded.test.ts > real Haiku responses to the multi-span contract > factuality.006 replays the unchanged model response
+JudgeError: no recording for judge claude-haiku, criterion factuality_hard, key 73c58a65f846
+ ❯ play packages/judges/src/cassette.ts:274:13
+    272|     const matches = byKey.get(key) ?? [];
+    273|     if (matches.length === 0)
+    274|       throw new JudgeError(
+       |             ^
+    275|         'cassette_miss',
+    276|         `no recording for judge ${judgeId}, criterion ${request.criter…
+ ❯ Object.judge packages/judges/src/cassette.ts:290:25
+ ❯ packages/judges/test/multi-span-recorded.test.ts:32:35
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[8/15]⎯
+
+ FAIL  packages/judges/test/multi-span-recorded.test.ts > real Haiku responses to the multi-span contract > qa-negation-0 replays the unchanged model response
+JudgeError: no recording for judge claude-haiku, criterion factual_content, key a7d8ed2af152
+ ❯ play packages/judges/src/cassette.ts:274:13
+    272|     const matches = byKey.get(key) ?? [];
+    273|     if (matches.length === 0)
+    274|       throw new JudgeError(
+       |             ^
+    275|         'cassette_miss',
+    276|         `no recording for judge ${judgeId}, criterion ${request.criter…
+ ❯ Object.judge packages/judges/src/cassette.ts:290:25
+ ❯ packages/judges/test/multi-span-recorded.test.ts:32:35
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[9/15]⎯
+
+ FAIL  packages/judges/test/multi-span-recorded.test.ts > real Haiku responses to the multi-span contract > qa-negation-2 replays the unchanged model response
+JudgeError: no recording for judge claude-haiku, criterion factual_content, key 38c84fa29dc5
+ ❯ play packages/judges/src/cassette.ts:274:13
+    272|     const matches = byKey.get(key) ?? [];
+    273|     if (matches.length === 0)
+    274|       throw new JudgeError(
+       |             ^
+    275|         'cassette_miss',
+    276|         `no recording for judge ${judgeId}, criterion ${request.criter…
+ ❯ Object.judge packages/judges/src/cassette.ts:290:25
+ ❯ packages/judges/test/multi-span-recorded.test.ts:32:35
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[10/15]⎯
+
+ FAIL  packages/judges/test/multi-span-recorded.test.ts > real Haiku responses to the multi-span contract > qa-negation-4 replays the unchanged model response
+JudgeError: no recording for judge claude-haiku, criterion factual_content, key c3266464c2b3
+ ❯ play packages/judges/src/cassette.ts:274:13
+    272|     const matches = byKey.get(key) ?? [];
+    273|     if (matches.length === 0)
+    274|       throw new JudgeError(
+       |             ^
+    275|         'cassette_miss',
+    276|         `no recording for judge ${judgeId}, criterion ${request.criter…
+ ❯ Object.judge packages/judges/src/cassette.ts:290:25
+ ❯ packages/judges/test/multi-span-recorded.test.ts:32:35
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[11/15]⎯
+
+ FAIL  packages/judges/test/multi-span-recorded.test.ts > real Haiku responses to the multi-span contract > qa-negation-6 replays the unchanged model response
+JudgeError: no recording for judge claude-haiku, criterion factual_content, key b6f2b812c653
+ ❯ play packages/judges/src/cassette.ts:274:13
+    272|     const matches = byKey.get(key) ?? [];
+    273|     if (matches.length === 0)
+    274|       throw new JudgeError(
+       |             ^
+    275|         'cassette_miss',
+    276|         `no recording for judge ${judgeId}, criterion ${request.criter…
+ ❯ Object.judge packages/judges/src/cassette.ts:290:25
+ ❯ packages/judges/test/multi-span-recorded.test.ts:32:35
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[12/15]⎯
+
+ FAIL  packages/judges/test/multi-span-recorded.test.ts > real Haiku responses to the multi-span contract > qa-negation-8 replays the unchanged model response
+JudgeError: no recording for judge claude-haiku, criterion factual_content, key d6bc3a5fa43e
+ ❯ play packages/judges/src/cassette.ts:274:13
+    272|     const matches = byKey.get(key) ?? [];
+    273|     if (matches.length === 0)
+    274|       throw new JudgeError(
+       |             ^
+    275|         'cassette_miss',
+    276|         `no recording for judge ${judgeId}, criterion ${request.criter…
+ ❯ Object.judge packages/judges/src/cassette.ts:290:25
+ ❯ packages/judges/test/multi-span-recorded.test.ts:32:35
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[13/15]⎯
+
+ FAIL  packages/judges/test/multi-span-recorded.test.ts > real Haiku responses to the multi-span contract > the real threshold response contains two separately grounded entries
+JudgeError: no recording for judge claude-haiku, criterion requirement_1, key 510ac88af137
+ ❯ play packages/judges/src/cassette.ts:274:13
+    272|     const matches = byKey.get(key) ?? [];
+    273|     if (matches.length === 0)
+    274|       throw new JudgeError(
+       |             ^
+    275|         'cassette_miss',
+    276|         `no recording for judge ${judgeId}, criterion ${request.criter…
+ ❯ Object.judge packages/judges/src/cassette.ts:290:25
+ ❯ packages/judges/test/multi-span-recorded.test.ts:41:33
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[14/15]⎯
+
+ FAIL  packages/judges/test/pointwise-fact-replay.test.ts > frozen pointwise fact candidate through the public API > replays every prompt byte, verdict and strict transition without live calls
+AssertionError: expected { …(7) } to deeply equal { …(7) }
+
+- Expected
++ Received
+
+@@ -1,7 +1,7 @@
+  {
+-   "defaultPromptFingerprint": "398673b792c1",
++   "defaultPromptFingerprint": "343bad24e16c",
+    "fixtureSha256": "7696b6c5660ac24290ae5bbee5891708aa3f67180404b046bd815f167c167d57",
+    "liveCalls": 0,
+    "slices": [
+      {
+        "changed": 118,
+
+ ❯ packages/judges/test/pointwise-fact-replay.test.ts:8:20
+      6|   it('replays every prompt byte, verdict and strict transition without…
+      7|     const report = await replayPointwiseFacts();
+      8|     expect(report).toEqual(JSON.parse(await readFile(reportUrl, 'utf8'…
+       |                    ^
+      9|     expect(report.liveCalls).toBe(0);
+     10|     expect(report.slices.map((slice) => [slice.n, slice.semantic.corre…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[15/15]⎯
+
+
+ Test Files  4 failed | 79 passed (83)
+      Tests  15 failed | 920 passed (935)
+   Start at  16:34:21
+   Duration  69.50s (import 67%, tests 26%, transform 6%)
+
+    Isolate  83 workers spawned · ~274ms startup each (spawn + environment, per file)
+             at least ~11.09s faster with isolate: false — reuses workers across files instead of one per file

@@ -1,0 +1,23 @@
+{
+  "fingerprint": "fe92aa3b1c37",
+  "head": "658896df837edf371295520db12a9fa6636af52e",
+  "charged": 0.023494800000000007,
+  "tables": [
+    {
+      "model": "gpt-6-luna",
+      "set": "tuning",
+      "n": 96,
+      "measured": 96,
+      "before": 69,
+      "after": 79
+    },
+    {
+      "model": "gpt-6-luna",
+      "set": "validation",
+      "n": 96,
+      "measured": 0,
+      "before": 71,
+      "after": 0
+    }
+  ]
+}

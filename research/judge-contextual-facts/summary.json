@@ -1,0 +1,873 @@
+{
+  "fingerprint": "343bad24e16c",
+  "head": "658896df837edf371295520db12a9fa6636af52e",
+  "charged": 0.5958180400000002,
+  "tables": [
+    {
+      "model": "gpt-6-luna",
+      "set": "fresh-rubric",
+      "n": 192,
+      "before": 191,
+      "after": 191,
+      "paired": {
+        "mcnemar": {
+          "statistic": 1,
+          "pValue": 1,
+          "method": "exact",
+          "b": 1,
+          "c": 1
+        },
+        "nonInferiority": {
+          "nonInferior": true,
+          "effect": {
+            "estimate": 0,
+            "lower": -0.02410610782542628,
+            "upper": 0.02410610782542628,
+            "n": 192
+          },
+          "margin": 0.025,
+          "discordant": {
+            "regressed": 1,
+            "improved": 1
+          },
+          "regressedPairs": ["fresh-rubric-166"],
+          "newFlags": [],
+          "reason": "upper bound 0.0241 is below the margin 0.025"
+        },
+        "familyBootstrap": {
+          "estimate": 0,
+          "lower": 0,
+          "upper": 0,
+          "iterations": 2000,
+          "clusters": 12,
+          "method": "percentile",
+          "seed": 1
+        },
+        "regression": false
+      }
+    },
+    {
+      "model": "gpt-6-luna",
+      "set": "fresh-reference",
+      "n": 192,
+      "before": 140,
+      "after": 167,
+      "paired": {
+        "mcnemar": {
+          "statistic": 12,
+          "pValue": 0.00019803945133744784,
+          "method": "exact",
+          "b": 12,
+          "c": 39
+        },
+        "nonInferiority": {
+          "nonInferior": true,
+          "effect": {
+            "estimate": -0.140625,
+            "lower": -0.21155169469125484,
+            "upper": -0.06919636618645791,
+            "n": 192
+          },
+          "margin": 0.015,
+          "discordant": {
+            "regressed": 12,
+            "improved": 39
+          },
+          "regressedPairs": [
+            "fresh-reference-019",
+            "fresh-reference-025",
+            "fresh-reference-042",
+            "fresh-reference-092",
+            "fresh-reference-040",
+            "fresh-reference-016",
+            "fresh-reference-177",
+            "fresh-reference-121",
+            "fresh-reference-141",
+            "fresh-reference-144",
+            "fresh-reference-004",
+            "fresh-reference-139"
+          ],
+          "newFlags": [],
+          "reason": "upper bound -0.0692 is below the margin 0.015"
+        },
+        "familyBootstrap": {
+          "estimate": 0.140625,
+          "lower": 0.020833333333333332,
+          "upper": 0.2604166666666667,
+          "iterations": 2000,
+          "clusters": 12,
+          "method": "percentile",
+          "seed": 1
+        },
+        "regression": false
+      }
+    },
+    {
+      "model": "gpt-6-luna",
+      "set": "map-rubric",
+      "n": 156,
+      "before": 156,
+      "after": 156,
+      "paired": {
+        "mcnemar": {
+          "statistic": 0,
+          "pValue": 1,
+          "method": "exact",
+          "b": 0,
+          "c": 0
+        },
+        "nonInferiority": {
+          "nonInferior": true,
+          "effect": {
+            "estimate": 0,
+            "lower": -0.02403293143741514,
+            "upper": 0.02403293143741514,
+            "n": 156
+          },
+          "margin": 0.025,
+          "discordant": {
+            "regressed": 0,
+            "improved": 0
+          },
+          "regressedPairs": [],
+          "newFlags": [],
+          "reason": "upper bound 0.0240 is below the margin 0.025"
+        },
+        "familyBootstrap": {
+          "estimate": 0,
+          "lower": 0,
+          "upper": 0,
+          "iterations": 2000,
+          "clusters": 12,
+          "method": "percentile",
+          "seed": 1
+        },
+        "regression": false
+      }
+    },
+    {
+      "model": "gpt-6-luna",
+      "set": "map-reference",
+      "n": 180,
+      "before": 145,
+      "after": 163,
+      "paired": {
+        "mcnemar": {
+          "statistic": 15,
+          "pValue": 0.013283281562244585,
+          "method": "exact",
+          "b": 15,
+          "c": 33
+        },
+        "nonInferiority": {
+          "nonInferior": true,
+          "effect": {
+            "estimate": -0.09999999999999998,
+            "lower": -0.174613703507919,
+            "upper": -0.025088045651590576,
+            "n": 180
+          },
+          "margin": 0.02,
+          "discordant": {
+            "regressed": 15,
+            "improved": 33
+          },
+          "regressedPairs": [
+            "map-langfuse-reference-123",
+            "map-langfuse-reference-150",
+            "map-langfuse-reference-113",
+            "map-langfuse-reference-127",
+            "map-langfuse-reference-110",
+            "map-langfuse-reference-078",
+            "map-langfuse-reference-007",
+            "map-langfuse-reference-187",
+            "map-langfuse-reference-060",
+            "map-langfuse-reference-022",
+            "map-langfuse-reference-069",
+            "map-langfuse-reference-030",
+            "map-langfuse-reference-013",
+            "map-langfuse-reference-162",
+            "map-langfuse-reference-109"
+          ],
+          "newFlags": [],
+          "reason": "upper bound -0.0251 is below the margin 0.02"
+        },
+        "familyBootstrap": {
+          "estimate": 0.1,
+          "lower": -0.022820466570466567,
+          "upper": 0.2500341530054643,
+          "iterations": 2000,
+          "clusters": 12,
+          "method": "percentile",
+          "seed": 1
+        },
+        "regression": false
+      }
+    },
+    {
+      "model": "gpt-6-luna",
+      "set": "hard-rubric",
+      "n": 120,
+      "before": 120,
+      "after": 119,
+      "paired": {
+        "mcnemar": {
+          "statistic": 0,
+          "pValue": 1,
+          "method": "exact",
+          "b": 1,
+          "c": 0
+        },
+        "nonInferiority": {
+          "nonInferior": false,
+          "effect": {
+            "estimate": 0.008333333333333304,
+            "lower": -0.023435502883748335,
+            "upper": 0.04569629124504948,
+            "n": 120
+          },
+          "margin": 0.035,
+          "discordant": {
+            "regressed": 1,
+            "improved": 0
+          },
+          "regressedPairs": ["rubric.074"],
+          "newFlags": [],
+          "reason": "upper bound 0.0457 of the regression effect is not below the margin 0.035"
+        },
+        "familyBootstrap": {
+          "estimate": -0.008333333333333333,
+          "lower": -0.025,
+          "upper": 0,
+          "iterations": 2000,
+          "clusters": 12,
+          "method": "percentile",
+          "seed": 1
+        },
+        "regression": true
+      }
+    },
+    {
+      "model": "gpt-6-luna",
+      "set": "hard-factuality",
+      "n": 120,
+      "before": 100,
+      "after": 101,
+      "paired": {
+        "mcnemar": {
+          "statistic": 17,
+          "pValue": 0.9999999999999981,
+          "method": "exact",
+          "b": 17,
+          "c": 18
+        },
+        "nonInferiority": {
+          "nonInferior": false,
+          "effect": {
+            "estimate": -0.008333333333333304,
+            "lower": -0.10565808519441743,
+            "upper": 0.0891092533459322,
+            "n": 120
+          },
+          "margin": 0.03,
+          "discordant": {
+            "regressed": 17,
+            "improved": 18
+          },
+          "regressedPairs": [
+            "factuality.003",
+            "factuality.005",
+            "factuality.014",
+            "factuality.020",
+            "factuality.029",
+            "factuality.032",
+            "factuality.037",
+            "factuality.050",
+            "factuality.073",
+            "factuality.077",
+            "factuality.086",
+            "factuality.091",
+            "factuality.095",
+            "factuality.106",
+            "factuality.108",
+            "factuality.109",
+            "factuality.114"
+          ],
+          "newFlags": [],
+          "reason": "upper bound 0.0891 of the regression effect is not below the margin 0.03"
+        },
+        "familyBootstrap": {
+          "estimate": 0.008333333333333333,
+          "lower": -0.075,
+          "upper": 0.08333333333333333,
+          "iterations": 2000,
+          "clusters": 12,
+          "method": "percentile",
+          "seed": 1
+        },
+        "regression": true
+      }
+    },
+    {
+      "model": "gpt-6-luna",
+      "set": "hard-pii",
+      "n": 120,
+      "before": 114,
+      "after": 114,
+      "paired": {
+        "mcnemar": {
+          "statistic": 4,
+          "pValue": 1,
+          "method": "exact",
+          "b": 4,
+          "c": 4
+        },
+        "nonInferiority": {
+          "nonInferior": false,
+          "effect": {
+            "estimate": 0,
+            "lower": -0.0557297973843871,
+            "upper": 0.0557297973843871,
+            "n": 120
+          },
+          "margin": 0.035,
+          "discordant": {
+            "regressed": 4,
+            "improved": 4
+          },
+          "regressedPairs": ["pii.014", "pii.035", "pii.073", "pii.119"],
+          "newFlags": [],
+          "reason": "upper bound 0.0557 of the regression effect is not below the margin 0.035"
+        },
+        "familyBootstrap": {
+          "estimate": 0,
+          "lower": -0.03333333333333333,
+          "upper": 0.03333333333333333,
+          "iterations": 2000,
+          "clusters": 12,
+          "method": "percentile",
+          "seed": 1
+        },
+        "regression": true
+      }
+    },
+    {
+      "model": "gpt-6-luna",
+      "set": "hard-goal",
+      "n": 120,
+      "before": 97,
+      "after": 100,
+      "paired": {
+        "mcnemar": {
+          "statistic": 13,
+          "pValue": 0.7110711038112557,
+          "method": "exact",
+          "b": 13,
+          "c": 16
+        },
+        "nonInferiority": {
+          "nonInferior": false,
+          "effect": {
+            "estimate": -0.025000000000000022,
+            "lower": -0.11512850878674805,
+            "upper": 0.06522573426321196,
+            "n": 120
+          },
+          "margin": 0.025,
+          "discordant": {
+            "regressed": 13,
+            "improved": 16
+          },
+          "regressedPairs": [
+            "goal.003",
+            "goal.004",
+            "goal.014",
+            "goal.032",
+            "goal.043",
+            "goal.045",
+            "goal.065",
+            "goal.091",
+            "goal.101",
+            "goal.103",
+            "goal.113",
+            "goal.114",
+            "goal.119"
+          ],
+          "newFlags": [],
+          "reason": "upper bound 0.0652 of the regression effect is not below the margin 0.025"
+        },
+        "familyBootstrap": {
+          "estimate": 0.025,
+          "lower": -0.041666666666666664,
+          "upper": 0.09166666666666666,
+          "iterations": 2000,
+          "clusters": 12,
+          "method": "percentile",
+          "seed": 1
+        },
+        "regression": true
+      }
+    },
+    {
+      "model": "gpt-6-luna",
+      "set": "heldout-rubric",
+      "n": 72,
+      "before": 71,
+      "after": 72,
+      "paired": {
+        "mcnemar": {
+          "statistic": 0,
+          "pValue": 1,
+          "method": "exact",
+          "b": 0,
+          "c": 1
+        },
+        "nonInferiority": {
+          "nonInferior": true,
+          "effect": {
+            "estimate": -0.01388888888888884,
+            "lower": -0.07456602147476143,
+            "upper": 0.03803657051186115,
+            "n": 72
+          },
+          "margin": 0.06,
+          "discordant": {
+            "regressed": 0,
+            "improved": 1
+          },
+          "regressedPairs": [],
+          "newFlags": [],
+          "reason": "upper bound 0.0380 is below the margin 0.06"
+        },
+        "familyBootstrap": {
+          "estimate": 0.013888888888888888,
+          "lower": 0,
+          "upper": 0.041666666666666664,
+          "iterations": 2000,
+          "clusters": 12,
+          "method": "percentile",
+          "seed": 1
+        },
+        "regression": false
+      }
+    },
+    {
+      "model": "gpt-6-luna",
+      "set": "heldout-factuality",
+      "n": 72,
+      "before": 63,
+      "after": 60,
+      "paired": {
+        "mcnemar": {
+          "statistic": 7,
+          "pValue": 0.6290588378906283,
+          "method": "exact",
+          "b": 10,
+          "c": 7
+        },
+        "nonInferiority": {
+          "nonInferior": false,
+          "effect": {
+            "estimate": 0.04166666666666663,
+            "lower": -0.0762130758284667,
+            "upper": 0.1592993068000983,
+            "n": 72
+          },
+          "margin": 0.05,
+          "discordant": {
+            "regressed": 10,
+            "improved": 7
+          },
+          "regressedPairs": [
+            "heldout-factuality.005",
+            "heldout-factuality.007",
+            "heldout-factuality.009",
+            "heldout-factuality.036",
+            "heldout-factuality.039",
+            "heldout-factuality.041",
+            "heldout-factuality.045",
+            "heldout-factuality.054",
+            "heldout-factuality.058",
+            "heldout-factuality.067"
+          ],
+          "newFlags": [],
+          "reason": "upper bound 0.1593 of the regression effect is not below the margin 0.05"
+        },
+        "familyBootstrap": {
+          "estimate": -0.041666666666666664,
+          "lower": -0.16666666666666666,
+          "upper": 0.08333333333333333,
+          "iterations": 2000,
+          "clusters": 12,
+          "method": "percentile",
+          "seed": 1
+        },
+        "regression": true
+      }
+    },
+    {
+      "model": "gpt-6-luna",
+      "set": "heldout-pii",
+      "n": 72,
+      "before": 68,
+      "after": 72,
+      "paired": {
+        "mcnemar": {
+          "statistic": 0,
+          "pValue": 0.1250000000000001,
+          "method": "exact",
+          "b": 0,
+          "c": 4
+        },
+        "nonInferiority": {
+          "nonInferior": true,
+          "effect": {
+            "estimate": -0.05555555555555558,
+            "lower": -0.13432015965997912,
+            "upper": 0.005305099071717813,
+            "n": 72
+          },
+          "margin": 0.055,
+          "discordant": {
+            "regressed": 0,
+            "improved": 4
+          },
+          "regressedPairs": [],
+          "newFlags": [],
+          "reason": "upper bound 0.0053 is below the margin 0.055"
+        },
+        "familyBootstrap": {
+          "estimate": 0.05555555555555555,
+          "lower": 0,
+          "upper": 0.125,
+          "iterations": 2000,
+          "clusters": 12,
+          "method": "percentile",
+          "seed": 1
+        },
+        "regression": false
+      }
+    },
+    {
+      "model": "gpt-6-luna",
+      "set": "heldout-goal",
+      "n": 72,
+      "before": 61,
+      "after": 59,
+      "paired": {
+        "mcnemar": {
+          "statistic": 7,
+          "pValue": 0.80361938476562,
+          "method": "exact",
+          "b": 9,
+          "c": 7
+        },
+        "nonInferiority": {
+          "nonInferior": false,
+          "effect": {
+            "estimate": 0.02777777777777779,
+            "lower": -0.08651484509838127,
+            "upper": 0.14205901725395517,
+            "n": 72
+          },
+          "margin": 0.045,
+          "discordant": {
+            "regressed": 9,
+            "improved": 7
+          },
+          "regressedPairs": [
+            "heldout-goal.007",
+            "heldout-goal.009",
+            "heldout-goal.010",
+            "heldout-goal.014",
+            "heldout-goal.031",
+            "heldout-goal.041",
+            "heldout-goal.046",
+            "heldout-goal.047",
+            "heldout-goal.055"
+          ],
+          "newFlags": [],
+          "reason": "upper bound 0.1421 of the regression effect is not below the margin 0.045"
+        },
+        "familyBootstrap": {
+          "estimate": -0.027777777777777776,
+          "lower": -0.1111111111111111,
+          "upper": 0.05555555555555555,
+          "iterations": 2000,
+          "clusters": 12,
+          "method": "percentile",
+          "seed": 1
+        },
+        "regression": true
+      }
+    },
+    {
+      "model": "gpt-6-luna",
+      "set": "planted-verify",
+      "n": 190,
+      "before": 187,
+      "after": 178,
+      "paired": {
+        "mcnemar": {
+          "statistic": 1,
+          "pValue": 0.011718749999999981,
+          "method": "exact",
+          "b": 10,
+          "c": 1
+        },
+        "nonInferiority": {
+          "nonInferior": false,
+          "effect": {
+            "estimate": 0.047368421052631504,
+            "lower": 0.012326979745158305,
+            "upper": 0.09019498307256042,
+            "n": 190
+          },
+          "margin": 0.025,
+          "discordant": {
+            "regressed": 10,
+            "improved": 1
+          },
+          "regressedPairs": [
+            "verify-bank-027/defect",
+            "verify-bank-030/clean",
+            "verify-bank-039/clean",
+            "verify-bank-055/defect",
+            "verify-bank-061/clean",
+            "verify-bank-080/defect",
+            "verify-bank-081/defect",
+            "verify-bank-085/defect",
+            "verify-bank-090/clean",
+            "verify-bank-090/defect"
+          ],
+          "newFlags": [],
+          "reason": "upper bound 0.0902 of the regression effect is not below the margin 0.025"
+        },
+        "familyBootstrap": {
+          "estimate": -0.04736842105263158,
+          "lower": -0.08247422680412371,
+          "upper": -0.015785361842105286,
+          "iterations": 2000,
+          "clusters": 10,
+          "method": "percentile",
+          "seed": 1
+        },
+        "regression": true
+      }
+    },
+    {
+      "model": "gpt-6-luna",
+      "set": "planted-rubric",
+      "n": 120,
+      "before": 120,
+      "after": 120,
+      "paired": {
+        "mcnemar": {
+          "statistic": 0,
+          "pValue": 1,
+          "method": "exact",
+          "b": 0,
+          "c": 0
+        },
+        "nonInferiority": {
+          "nonInferior": true,
+          "effect": {
+            "estimate": 0,
+            "lower": -0.031019166418703392,
+            "upper": 0.031019166418703392,
+            "n": 120
+          },
+          "margin": 0.035,
+          "discordant": {
+            "regressed": 0,
+            "improved": 0
+          },
+          "regressedPairs": [],
+          "newFlags": [],
+          "reason": "upper bound 0.0310 is below the margin 0.035"
+        },
+        "familyBootstrap": {
+          "estimate": 0,
+          "lower": 0,
+          "upper": 0,
+          "iterations": 2000,
+          "clusters": 10,
+          "method": "percentile",
+          "seed": 1
+        },
+        "regression": false
+      }
+    },
+    {
+      "model": "haiku",
+      "set": "fresh-reference",
+      "n": 192,
+      "before": 189,
+      "after": 192,
+      "paired": {
+        "mcnemar": {
+          "statistic": 0,
+          "pValue": 0.2500000000000003,
+          "method": "exact",
+          "b": 0,
+          "c": 3
+        },
+        "nonInferiority": {
+          "nonInferior": true,
+          "effect": {
+            "estimate": -0.015625,
+            "lower": -0.04492427936429988,
+            "upper": 0.006528653418831437,
+            "n": 192
+          },
+          "margin": 0.025,
+          "discordant": {
+            "regressed": 0,
+            "improved": 3
+          },
+          "regressedPairs": [],
+          "newFlags": [],
+          "reason": "upper bound 0.0065 is below the margin 0.025"
+        },
+        "familyBootstrap": {
+          "estimate": 0.015625,
+          "lower": 0,
+          "upper": 0.046875,
+          "iterations": 2000,
+          "clusters": 12,
+          "method": "percentile",
+          "seed": 1
+        },
+        "regression": false
+      }
+    },
+    {
+      "model": "haiku",
+      "set": "hard-factuality",
+      "n": 120,
+      "before": 104,
+      "after": 100,
+      "paired": {
+        "mcnemar": {
+          "statistic": 13,
+          "pValue": 0.584664711728686,
+          "method": "exact",
+          "b": 17,
+          "c": 13
+        },
+        "nonInferiority": {
+          "nonInferior": false,
+          "effect": {
+            "estimate": 0.033333333333333326,
+            "lower": -0.05819463059656227,
+            "upper": 0.12472821317134572,
+            "n": 120
+          },
+          "margin": 0.03,
+          "discordant": {
+            "regressed": 17,
+            "improved": 13
+          },
+          "regressedPairs": [
+            "factuality.014",
+            "factuality.016",
+            "factuality.018",
+            "factuality.023",
+            "factuality.027",
+            "factuality.028",
+            "factuality.033",
+            "factuality.036",
+            "factuality.046",
+            "factuality.052",
+            "factuality.065",
+            "factuality.071",
+            "factuality.077",
+            "factuality.079",
+            "factuality.087",
+            "factuality.113",
+            "factuality.116"
+          ],
+          "newFlags": [],
+          "reason": "upper bound 0.1247 of the regression effect is not below the margin 0.03"
+        },
+        "familyBootstrap": {
+          "estimate": -0.03333333333333333,
+          "lower": -0.125,
+          "upper": 0.075,
+          "iterations": 2000,
+          "clusters": 12,
+          "method": "percentile",
+          "seed": 1
+        },
+        "regression": true
+      }
+    },
+    {
+      "model": "haiku",
+      "set": "heldout-factuality",
+      "n": 72,
+      "before": 55,
+      "after": 59,
+      "paired": {
+        "mcnemar": {
+          "statistic": 7,
+          "pValue": 0.48068237304687333,
+          "method": "exact",
+          "b": 7,
+          "c": 11
+        },
+        "nonInferiority": {
+          "nonInferior": false,
+          "effect": {
+            "estimate": -0.05555555555555558,
+            "lower": -0.17377618133504713,
+            "upper": 0.06360080288326987,
+            "n": 72
+          },
+          "margin": 0.04,
+          "discordant": {
+            "regressed": 7,
+            "improved": 11
+          },
+          "regressedPairs": [
+            "heldout-factuality.024",
+            "heldout-factuality.027",
+            "heldout-factuality.041",
+            "heldout-factuality.049",
+            "heldout-factuality.062",
+            "heldout-factuality.066",
+            "heldout-factuality.068"
+          ],
+          "newFlags": [],
+          "reason": "upper bound 0.0636 of the regression effect is not below the margin 0.04"
+        },
+        "familyBootstrap": {
+          "estimate": 0.05555555555555555,
+          "lower": -0.06979166666666665,
+          "upper": 0.16666666666666666,
+          "iterations": 2000,
+          "clusters": 12,
+          "method": "percentile",
+          "seed": 1
+        },
+        "regression": true
+      }
+    },
+    {
+      "model": "gpt-6-luna",
+      "set": "tuning",
+      "n": 96,
+      "measured": 96,
+      "before": 69,
+      "after": 84
+    },
+    {
+      "model": "gpt-6-luna",
+      "set": "validation",
+      "n": 96,
+      "measured": 96,
+      "before": 71,
+      "after": 83
+    }
+  ]
+}
