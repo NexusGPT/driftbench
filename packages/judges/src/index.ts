@@ -57,6 +57,7 @@ export {
   type CascadeReport,
   type CascadeVariant,
   calibrateCascade,
+  type DeployableCascadeConfig,
 } from './cascade';
 export {
   Cassette,
@@ -107,6 +108,7 @@ export {
   ConformanceAudit,
   judgeConformance,
 } from './conformance';
+export type { ComparisonResult, EscalationRecord, EscalationTrigger } from './contract';
 export {
   type Budget,
   CriterionText,
@@ -159,12 +161,14 @@ export {
   type CriterionRequirement,
   requirementsFor,
 } from './criterion-ledger';
+export { createEscalation, type EscalationConfig } from './escalation';
 export { type Grounding, groundEvidence } from './evidence';
 export { FactLedgerAnswer } from './fact-audit';
 export { familyOfModel, normalizeFamily, sameFamily } from './family';
 export { findCycles } from './find-cycles';
 export { type FetchLike, type HttpOptions, JudgeError, type JudgeErrorCode, postJson } from './http';
 export { ATTACK_CRITERION, type AttackVerdict, judgeAttack } from './injection-judge';
+export { KNOWLEDGE_RETENTION_CRITERION } from './knowledge-retention';
 export { labelFilePath, readLabelFile, saveLabel } from './labels';
 export {
   PROMPT_FINGERPRINT as LEGACY_PROMPT_FINGERPRINT,

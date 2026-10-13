@@ -4,7 +4,14 @@ import { z } from 'zod';
 import { parseJudgeText, parseJudgeValue } from './assessment';
 import type { JudgeClient } from './client';
 import { CONFORMANCE_PROMPT_FINGERPRINT } from './conformance';
-import { JudgeClass, type JudgeRequest, type JudgeResult, parseAnswerValue } from './contract';
+import {
+  JudgeAnswer,
+  JudgeClass,
+  JudgeOutcome,
+  type JudgeRequest,
+  type JudgeResult,
+  parseAnswerValue,
+} from './contract';
 import { CRITERION_DECODER_VERSION, type CriterionDecoderVersion } from './criterion-ledger';
 import { JudgeError } from './http';
 import { PROMPT_FINGERPRINT as LEGACY_PROMPT_FINGERPRINT } from './legacy-prompt';
@@ -23,6 +30,8 @@ import { PROMPT_FINGERPRINT } from './prompt';
 export const CassetteJudge = z.strictObject({
   id: z.string().min(1),
   family: z.string().min(1),
+  families: z.array(z.string().min(1)).optional(),
+  comparison: z.literal(true).optional(),
   cls: JudgeClass,
   model: z.string().optional(),
   cost: z.number().nonnegative(),
@@ -30,6 +39,42 @@ export const CassetteJudge = z.strictObject({
   settings: z.string().optional(),
 });
 export type CassetteJudge = z.infer<typeof CassetteJudge>;
+
+/** Structured procedure results are application output, not model text to re-parse as a ledger. */
+const ProcedureResult: z.ZodType<JudgeResult> = z.lazy(() =>
+  z
+    .object({
+      answer: JudgeAnswer,
+      raw: z.string(),
+      winner: z.enum(['A', 'B', 'tie', 'inconclusive']).optional(),
+      unparsed: z.boolean().optional(),
+      costUsd: z.number().nonnegative().optional(),
+      comparison: z
+        .strictObject({
+          ordered: JudgeOutcome,
+          swapped: JudgeOutcome,
+          consistent: z.boolean(),
+          positionBias: z.boolean(),
+        })
+        .optional(),
+      escalation: z
+        .strictObject({
+          triggers: z.array(
+            z.enum(['order-split', 'inconclusive', 'reference-disagreement', 'low-confidence']),
+          ),
+          escalated: z.boolean(),
+          first: z.array(ProcedureResult),
+          // biome-ignore lint/suspicious/noThenProperty: then describes an audit array, never a callable.
+          then: z.array(
+            z.strictObject({ judge: z.string(), result: ProcedureResult, error: z.string().optional() }),
+          ),
+          decision: z.enum(['first', 'majority', 'first-stands', 'inconclusive']),
+          calls: z.number().int().nonnegative(),
+        })
+        .optional(),
+    })
+    .passthrough(),
+);
 
 export const CassetteEntry = z.strictObject({
   judge: z.string().min(1),
@@ -41,6 +86,8 @@ export const CassetteEntry = z.strictObject({
   /** Missing means strict v1 for a historical default-ledger entry. */
   criterionDecoderVersion: z.union([z.literal(1), z.literal(2)]).optional(),
   note: z.string().optional(),
+  /** Full deterministic procedure result, including its routing audit and both presentation orders. */
+  result: ProcedureResult.optional(),
   answer: z.unknown().optional(),
   raw: z.string().optional(),
   error: z.string().optional(),
@@ -63,6 +110,9 @@ export type KeyClient = {
   readonly cls: JudgeClass;
   readonly model?: string;
   readonly settings?: string;
+  readonly families?: readonly string[];
+  readonly comparison?: boolean;
+  readonly judgeComparison?: JudgeClient['judgeComparison'];
   readonly criterionDecoderVersion?: CriterionDecoderVersion;
 };
 
@@ -72,6 +122,9 @@ export type KeyClient = {
  */
 export function dataKey(request: JudgeRequest): string {
   return contentHash({
+    ...(request.referenceDisagreement === undefined
+      ? {}
+      : { referenceDisagreement: request.referenceDisagreement }),
     // Keep existing/default keys stable, including legacy and system 1 recordings.
     ...(request.presentation === 'canonical' ? { presentation: request.presentation } : {}),
     ...(request.answerContract !== 'legacy' && request.requirements
@@ -96,16 +149,33 @@ export function dataKey(request: JudgeRequest): string {
  * class, model and settings. A changed prompt, model or setting gives another key: a cassette miss, never a
  * silent replay of an answer to another question.
  */
-export function requestKey(request: JudgeRequest, client?: KeyClient, prompt?: string): string {
-  const effective = client?.cls === 'system1' ? { ...request, answerContract: 'legacy' as const } : request;
+export function requestKey(
+  request: JudgeRequest,
+  client?: KeyClient,
+  prompt?: string,
+  swapped?: JudgeRequest,
+): string {
+  const procedure =
+    client?.families !== undefined ||
+    client?.comparison === true ||
+    client?.judgeComparison !== undefined ||
+    swapped !== undefined;
+  const effective =
+    client?.cls === 'system1' && !procedure ? { ...request, answerContract: 'legacy' as const } : request;
   const decoder =
     request.criterionDecoderVersion ?? client?.criterionDecoderVersion ?? CRITERION_DECODER_VERSION;
+  const fullKey = (r: JudgeRequest) =>
+    contentHash({
+      data: dataKey({ ...r, answerContract: 'ledger' }),
+      answerContract: r.answerContract ?? 'ledger',
+    });
   return contentHash({
-    // Absence preserves all historical keys, including the frozen strict-ledger recordings.
+    // Version 1 omits the field to preserve historical request keys.
     ...(effective.answerContract !== 'legacy' && !effective.assessment && decoder !== 1
       ? { criterionDecoderVersion: decoder }
       : {}),
-    data: dataKey(effective),
+    data: procedure ? fullKey(effective) : dataKey(effective),
+    ...(swapped ? { comparison: fullKey(swapped) } : {}),
     prompt:
       prompt ??
       (effective.answerContract === 'legacy'
@@ -123,45 +193,46 @@ export function recordingClient(client: JudgeClient, cassette: Cassette): JudgeC
     cassette.judges.push({
       id: client.id,
       family: client.family,
+      ...(client.families ? { families: [...client.families] } : {}),
+      ...(client.judgeComparison ? { comparison: true as const } : {}),
       cls: client.cls,
       ...(client.model ? { model: client.model } : {}),
       cost: client.cost,
       ...(client.settings === undefined ? {} : { settings: client.settings }),
     });
   }
-  return {
-    id: client.id,
-    family: client.family,
-    cls: client.cls,
-    ...(client.model ? { model: client.model } : {}),
-    cost: client.cost,
-    ...(client.settings === undefined ? {} : { settings: client.settings }),
-    ...(client.criterionDecoderVersion === undefined
-      ? {}
-      : { criterionDecoderVersion: client.criterionDecoderVersion }),
-    async judge(request) {
-      const base = {
-        judge: client.id,
-        key: requestKey(request, client),
-        criterion: request.criterion.name,
-        answerContract:
-          request.answerContract ?? (client.cls === 'system1' ? ('legacy' as const) : ('ledger' as const)),
-        ...(request.answerContract !== 'legacy' && client.cls !== 'system1' && !request.assessment
-          ? {
-              criterionDecoderVersion:
-                request.criterionDecoderVersion ??
-                client.criterionDecoderVersion ??
-                CRITERION_DECODER_VERSION,
-            }
-          : {}),
-      };
-      const cost = (result: JudgeResult) =>
-        result.costUsd === undefined ? {} : { cost_usd: result.costUsd };
-      try {
-        const result = await client.judge(request);
-        // An unparsed answer is kept as raw text only, so its replay is unparsed too and is re-judged.
-        cassette.entries.push(
-          result.unparsed || request.assessment || result.checks
+  const record = async (request: JudgeRequest, swapped?: JudgeRequest): Promise<JudgeResult> => {
+    const base = {
+      judge: client.id,
+      key: requestKey(request, client, undefined, swapped),
+      criterion: request.criterion.name,
+      answerContract:
+        request.answerContract ??
+        (client.cls === 'system1' && !client.families && !client.judgeComparison
+          ? ('legacy' as const)
+          : ('ledger' as const)),
+      ...(request.answerContract !== 'legacy' &&
+      !request.assessment &&
+      (client.cls !== 'system1' || client.families || client.judgeComparison)
+        ? {
+            criterionDecoderVersion:
+              request.criterionDecoderVersion ?? client.criterionDecoderVersion ?? CRITERION_DECODER_VERSION,
+          }
+        : {}),
+    };
+    const cost = (result: JudgeResult) => (result.costUsd === undefined ? {} : { cost_usd: result.costUsd });
+    try {
+      const result =
+        swapped && client.judgeComparison
+          ? await client.judgeComparison(request, swapped)
+          : await client.judge(request);
+      cassette.entries.push(
+        result.escalation ||
+          result.comparison ||
+          result.referenceAgreement ||
+          result.referenceDisagreement !== undefined
+          ? { ...base, result, raw: result.raw, ...cost(result) }
+          : result.unparsed || request.assessment || result.checks
             ? { ...base, raw: result.raw, ...cost(result) }
             : {
                 ...base,
@@ -170,13 +241,28 @@ export function recordingClient(client: JudgeClient, cassette: Cassette): JudgeC
                 ...cost(result),
                 ...(result.repaired ? { repaired: true as const } : {}),
               },
-        );
-        return result;
-      } catch (cause) {
-        cassette.entries.push({ ...base, error: cause instanceof Error ? cause.message : String(cause) });
-        throw cause;
-      }
-    },
+      );
+      return result;
+    } catch (cause) {
+      cassette.entries.push({ ...base, error: cause instanceof Error ? cause.message : String(cause) });
+      throw cause;
+    }
+  };
+  return {
+    id: client.id,
+    family: client.family,
+    cls: client.cls,
+    cost: client.cost,
+    ...(client.families ? { families: client.families } : {}),
+    ...(client.model ? { model: client.model } : {}),
+    ...(client.settings === undefined ? {} : { settings: client.settings }),
+    ...(client.criterionDecoderVersion === undefined
+      ? {}
+      : { criterionDecoderVersion: client.criterionDecoderVersion }),
+    judge: (request) => record(request),
+    ...(client.judgeComparison
+      ? { judgeComparison: (ordered: JudgeRequest, swapped: JudgeRequest) => record(ordered, swapped) }
+      : {}),
   };
 }
 
@@ -208,32 +294,36 @@ export function playerClient(
   const recordedDecoder =
     options.criterionDecoderVersion ??
     ([...byKey.values()].some((list) => list.some((entry) => entry.criterionDecoderVersion === 2)) ? 2 : 1);
+  const play = async (request: JudgeRequest, swapped?: JudgeRequest): Promise<JudgeResult> => {
+    const effective = {
+      ...request,
+      answerContract: request.answerContract ?? recordedContract,
+      criterionDecoderVersion: request.criterionDecoderVersion ?? recordedDecoder,
+    };
+    const key = requestKey(effective, judge, options.prompt, swapped);
+    const matches = byKey.get(key) ?? [];
+    if (matches.length === 0)
+      throw new JudgeError(
+        'cassette_miss',
+        `no recording for judge ${judgeId}, criterion ${request.criterion.name}, key ${key}`,
+      );
+    const index = used.get(key) ?? 0;
+    used.set(key, index + 1);
+    return replay(matches[Math.min(index, matches.length - 1)] as CassetteEntry, effective);
+  };
   return {
     id: judge.id,
     family: judge.family,
     cls: judge.cls,
-    ...(judge.model ? { model: judge.model } : {}),
     cost: judge.cost,
+    ...(judge.families ? { families: judge.families } : {}),
+    ...(judge.model ? { model: judge.model } : {}),
     ...(judge.settings === undefined ? {} : { settings: judge.settings }),
     criterionDecoderVersion: recordedDecoder,
-    async judge(request) {
-      const effective = {
-        ...request,
-        answerContract: request.answerContract ?? recordedContract,
-        criterionDecoderVersion: request.criterionDecoderVersion ?? recordedDecoder,
-      };
-      const key = requestKey(effective, judge, options.prompt);
-      const matches = byKey.get(key) ?? [];
-      if (matches.length === 0) {
-        throw new JudgeError(
-          'cassette_miss',
-          `no recording for judge ${judgeId}, criterion ${request.criterion.name}, key ${key}`,
-        );
-      }
-      const index = used.get(key) ?? 0;
-      used.set(key, index + 1);
-      return replay(matches[Math.min(index, matches.length - 1)] as CassetteEntry, effective);
-    },
+    judge: (request) => play(request),
+    ...(judge.comparison
+      ? { judgeComparison: (ordered: JudgeRequest, swapped: JudgeRequest) => play(ordered, swapped) }
+      : {}),
   };
 }
 
@@ -247,6 +337,7 @@ export function cassettePlayers(
 
 function replay(entry: CassetteEntry, request: JudgeRequest): JudgeResult {
   if (entry.error !== undefined) throw new JudgeError('http', `recorded failure: ${entry.error}`);
+  if (entry.result) return structuredClone(entry.result);
   const cost = {
     ...(entry.cost_usd === undefined ? {} : { costUsd: entry.cost_usd }),
     ...(entry.repaired ? { repaired: true } : {}),
