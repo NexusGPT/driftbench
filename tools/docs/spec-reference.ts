@@ -1,6 +1,8 @@
 /**
  * Writes docs/reference/spec.md from the zod schemas exported by @agent-nexus/driftbench-core: the spec, the
- * drift classes of run records, and the behaviour inventory that `spec coverage` reads.
+ * drift classes of run records, and the behaviour inventory that `spec coverage` reads. Writes
+ * docs/reference/family.md from the task family schemas of @agent-nexus/driftbench-generate: the family file
+ * and its review file.
  *
  * zod's own toJSONSchema turns the schemas into JSON Schema. Each exported schema keeps its export
  * name, so the page has one section per named type. Field descriptions come from `.describe()` in
@@ -8,16 +10,17 @@
  * each enum value lives in VALUE_LINES below, and generation fails when a value has no line.
  *
  * Usage:  pnpm docs:reference [--check] [--out <file>] [--missing]
- *   (no flag)   write the page
+ *   (no flag)   write both pages
  *   --check     compare instead of writing: exit 1 and name the file when it is stale
- *   --out       the file to write or check (default docs/reference/spec.md)
- *   --missing   print every field that has no description, one per line
+ *   --out       the file to write or check for the spec page; the family page is then left alone
+ *   --missing   print every field of the spec page that has no description, one per line
  * Exit:   0 written, current or listed; 1 stale or missing; 2 usage error.
  */
 import { readFile, writeFile } from 'node:fs/promises';
 import { relative, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import * as core from '@agent-nexus/driftbench-core';
+import * as family from '../../packages/generate/src/families/schema';
 import { slug } from './check-links';
 
 type Node = { [key: string]: unknown };
@@ -26,6 +29,7 @@ export type Io = { out: (text: string) => void; err: (text: string) => void };
 
 const ROOT = fileURLToPath(new URL('../..', import.meta.url));
 export const DEFAULT_OUT = resolve(ROOT, 'docs/reference/spec.md');
+export const FAMILY_OUT = resolve(ROOT, 'docs/reference/family.md');
 const NAME = 'x-name';
 
 /** One line per enum value, keyed by the export name of the enum. */
@@ -51,6 +55,12 @@ export const VALUE_LINES: Record<string, Record<string, string>> = {
       "A request outside the agent's job, such as a billing complaint in the middle of an order. Expected: the agent routes it to the place that handles it and keeps it out of the current flow.",
     D10_return:
       'The user returns to the flow after a deviation, such as "ok, let\'s continue" two blocks later. Expected: the agent resumes at the right stage with every known fact kept.',
+  },
+  KnobClass: {
+    difficulty: 'A count: rows, files or sheets.',
+    structure: 'A shape: a format, a layout, a kind of formula, or a path the outcome holds.',
+    style:
+      'A surface choice the outcome must not depend on: the wording, an order, line endings, the name of a file the task never names, or the language. `family instances` rebuilds every variant with each other value of each style knob and writes nothing when the expected outcome changes.',
   },
   DriftClass: {
     X1_local:
@@ -102,7 +112,7 @@ The loader rewrites these forms before it validates a spec.
 `;
 
 const USAGE = `Usage: pnpm docs:reference [--check] [--out <file>] [--missing]
-Writes docs/reference/spec.md from the zod schemas. --check compares instead of writing.
+Writes docs/reference/spec.md and docs/reference/family.md from the zod schemas. --check compares instead of writing.
 Exit 0 written or current, 1 stale or missing, 2 usage error.
 `;
 
@@ -277,6 +287,21 @@ function isSingleKey(node: Node): boolean {
   return keys.length === 1 && Array.isArray(node.required) && node.required.includes(keys[0]);
 }
 
+/**
+ * For a union of several mapping shapes, the key that tells each one apart: its first key the other shapes
+ * do not have. Generation fails when a shape has no such key.
+ */
+function distinguishingKeys(mappings: Node[]): string[] {
+  const keysOf = mappings.map((mapping) => Object.keys(asNode(mapping.properties)));
+  return keysOf.map((keys, index) => {
+    const own = keys.find((key) => keysOf.every((other, at) => at === index || !other.includes(key)));
+    if (own === undefined) {
+      throw new Error(`spec-reference: a union shape with the keys ${keys.join(', ')} has no key of its own`);
+    }
+    return own;
+  });
+}
+
 class Page {
   private readonly nodes = new Map<string, Node>();
   private readonly done = new Set<string>();
@@ -338,6 +363,9 @@ class Page {
     const parts = scalarParts(node);
     if (parts) return withRules(parts.base, parts.rules);
     if (node.type === 'null') return code(null);
+    if (Array.isArray(node.type) && node.type.every((type) => typeof type === 'string')) {
+      return node.type.map((type) => (type === 'null' ? code(null) : type)).join(' or ');
+    }
     if (node.type === 'array') return this.array(node, hint, children);
     if (node.type === 'object') return this.map(node, hint, children);
     if (isEmpty(node)) return 'any value';
@@ -353,7 +381,9 @@ class Page {
       if (parts.rules.length > 0) text += `, each ${parts.rules.join(', ')}`;
     } else {
       const inner = this.typeOf(items, hint, children);
-      text = `list of ${PLURALS[inner] ?? inner.replace(/^map of /, 'maps of ')}`;
+      const parts = inner.split(' or ').map((part) => PLURALS[part]);
+      const plural = parts.every((part) => part !== undefined) ? parts.join(' or ') : undefined;
+      text = `list of ${PLURALS[inner] ?? plural ?? inner.replace(/^map of /, 'maps of ')}`;
     }
     const min = numberAt(node.minItems);
     const max = numberAt(node.maxItems);
@@ -401,19 +431,18 @@ class Page {
         !isSingleKey(option) && sectionKind(option) === 'object' && typeof option[NAME] !== 'string',
     );
     const others = options.filter((option) => !keyed.includes(option) && !mappings.includes(option));
-    if (mappings.length > 1 || (mappings.length > 0 && keyed.length > 0)) {
-      throw new Error(`spec-reference: ${title} mixes mapping shapes the generator does not render yet`);
-    }
 
-    const mapping = mappings[0];
     const lines: string[] = [];
-    if (others.length === 0 && mapping === undefined) {
+    if (others.length === 0 && mappings.length === 0) {
       lines.push('Write a mapping with exactly one of these keys.', '');
     } else {
       lines.push('Write one of these forms.', '');
       for (const option of others) lines.push(`* ${this.typeOf(option, title, children)}`);
       if (keyed.length > 0) lines.push('* a mapping with exactly one of the keys below');
-      if (mapping) lines.push('* a mapping with the fields below');
+      if (mappings.length === 1) lines.push('* a mapping with the fields below');
+      for (const key of mappings.length > 1 ? distinguishingKeys(mappings) : []) {
+        lines.push(`* a mapping with \`${key}\`, with the fields below`);
+      }
       lines.push('');
     }
 
@@ -427,7 +456,20 @@ class Page {
         lines.push(row([code(key), this.typeOf(field, `${title} ${key}`, children), description]));
       }
     }
-    if (mapping) lines.push(...this.fields(title, mapping, children));
+    if (mappings.length === 1 && mappings[0]) {
+      if (keyed.length > 0) lines.push('');
+      lines.push(...this.fields(title, mappings[0], children));
+    } else if (mappings.length > 1) {
+      const keys = distinguishingKeys(mappings);
+      mappings.forEach((mapping, index) => {
+        const key = keys[index] ?? '';
+        if (lines.at(-1) !== '') lines.push('');
+        lines.push(`With \`${key}\`:`, '');
+        const description = this.description(mapping);
+        if (description !== '') lines.push(description, '');
+        lines.push(...this.fields(title, mapping, children));
+      });
+    }
     return lines;
   }
 
@@ -456,23 +498,49 @@ class Page {
   }
 }
 
-/** The whole page, and the fields that have no description. */
-export function renderReference(): { markdown: string; missing: string[] } {
-  const names = schemaNames({ ...core });
+function typeDescriptionsOf(names: Map<unknown, string>): Map<string, string> {
   const typeDescriptions = new Map<string, string>();
   for (const [schema, name] of names) {
     const description = (schema as { description?: unknown }).description;
     typeDescriptions.set(name, typeof description === 'string' ? description : '');
   }
+  return typeDescriptions;
+}
+
+function assemble(intro: string, page: Page): string {
+  const contents = ['## Contents', '', ...page.order.map((title) => `* [${title}](#${slug(title)})`)];
+  return `${[intro.trimEnd(), contents.join('\n'), ...page.sections].join('\n\n')}\n`;
+}
+
+/** The whole page, and the fields that have no description. */
+export function renderReference(): { markdown: string; missing: string[] } {
+  const names = schemaNames({ ...core });
   const spec = toJsonSchema(core.Spec, names);
-  const page = new Page(asNode(spec.$defs), typeDescriptions);
+  const page = new Page(asNode(spec.$defs), typeDescriptionsOf(names));
   page.emit('Spec', spec);
   page.emit('DriftClass', toJsonSchema(core.DriftClass, names));
   page.emit('Inventory', toJsonSchema(core.Inventory, names));
+  return { markdown: assemble(INTRO, page), missing: page.missing };
+}
 
-  const contents = ['## Contents', '', ...page.order.map((title) => `* [${title}](#${slug(title)})`)];
-  const markdown = `${[INTRO.trimEnd(), contents.join('\n'), ...page.sections].join('\n\n')}\n`;
-  return { markdown, missing: page.missing };
+const FAMILY_INTRO = `<!-- Generated by tools/docs/spec-reference.ts from the zod schemas in packages/generate/src/families/schema.ts. Do not edit by hand: run \`pnpm docs:reference\`. -->
+
+# Task family reference
+
+A task family is one code-agent task written once with knobs, in \`family.yaml\`, beside its oracle and the review a person signs; see [task families](../generating.md#task-families). \`driftbench family instances\`, \`verify\` and \`review\` read these files. This page lists every field the family loader accepts, then the fields of the review file. It is generated from the zod schemas the CLI uses.
+
+* Keys are snake_case. An unknown key is an error.
+* Descriptions come from the schemas. An empty cell means the schema has no description for that field yet.
+`;
+
+/** The task family page, and the fields that have no description. */
+export function renderFamilyReference(): { markdown: string; missing: string[] } {
+  const names = schemaNames({ ...family });
+  const file = toJsonSchema(family.FamilyFile, names);
+  const page = new Page(asNode(file.$defs), typeDescriptionsOf(names));
+  page.emit('FamilyFile', file);
+  page.emit('ReviewFile', toJsonSchema(family.ReviewFile, names));
+  return { markdown: assemble(FAMILY_INTRO, page), missing: page.missing };
 }
 
 function parseArgs(argv: string[]): { check: boolean; missing: boolean; help: boolean; out?: string } {
@@ -516,32 +584,36 @@ export async function run(argv: string[], io: Io): Promise<number> {
     return 0;
   }
 
-  const { markdown, missing } = renderReference();
+  const spec = renderReference();
+  const pages = [{ file: resolve(options.out ?? DEFAULT_OUT), markdown: spec.markdown }];
+  const familyPage = options.out === undefined ? renderFamilyReference() : undefined;
+  if (familyPage) pages.push({ file: FAMILY_OUT, markdown: familyPage.markdown });
   if (options.missing) {
+    const missing = [...spec.missing, ...(familyPage?.missing ?? [])];
     io.out(missing.map((field) => `${field}\n`).join(''));
     return 0;
   }
 
-  const file = resolve(options.out ?? DEFAULT_OUT);
-  const shown = display(file);
-  if (options.check) {
-    const current = await readFile(file, 'utf8').catch(() => undefined);
-    if (current === undefined) {
-      io.err(`${shown} is missing. Run \`pnpm docs:reference\` to write it.\n`);
-      return 1;
+  let code = 0;
+  for (const { file, markdown } of pages) {
+    const shown = display(file);
+    if (options.check) {
+      const current = await readFile(file, 'utf8').catch(() => undefined);
+      if (current === undefined) {
+        io.err(`${shown} is missing. Run \`pnpm docs:reference\` to write it.\n`);
+        code = 1;
+      } else if (current !== markdown) {
+        io.err(
+          `${shown} is stale: it differs from the zod schemas. Run \`pnpm docs:reference\` to regenerate it.\n`,
+        );
+        code = 1;
+      } else io.out(`${shown} is up to date.\n`);
+      continue;
     }
-    if (current !== markdown) {
-      io.err(
-        `${shown} is stale: it differs from the zod schemas. Run \`pnpm docs:reference\` to regenerate it.\n`,
-      );
-      return 1;
-    }
-    io.out(`${shown} is up to date.\n`);
-    return 0;
+    await writeFile(file, markdown);
+    io.out(`Wrote ${shown}.\n`);
   }
-  await writeFile(file, markdown);
-  io.out(`Wrote ${shown}.\n`);
-  return 0;
+  return code;
 }
 
 if (process.argv[1] && resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {

@@ -5,6 +5,7 @@ import { join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import * as core from '@agent-nexus/driftbench-core';
 import { describe, expect, it } from 'vitest';
+import * as family from '../../packages/generate/src/families/schema';
 import {
   checkLinks,
   DOCS,
@@ -18,6 +19,8 @@ import {
   checkValueLines,
   DEFAULT_OUT,
   exportName,
+  FAMILY_OUT,
+  renderFamilyReference,
   renderReference,
   run,
   schemaNames,
@@ -108,6 +111,7 @@ describe('spec reference generator', () => {
     });
     expect(committed.status, committed.stderr).toBe(0);
     expect(committed.stdout).toContain('docs/reference/spec.md is up to date.');
+    expect(committed.stdout).toContain('docs/reference/family.md is up to date.');
   }, 60_000);
 
   it('refuses an unknown argument and an --out without a file, with exit 2', async () => {
@@ -212,6 +216,32 @@ describe('spec reference generator', () => {
     expect(loaded.spec.blocks[1]?.when).toEqual({ burst: ['a', 'b'] });
     expect(loaded.spec.given?.ledger).toEqual({ plan: 'basic' });
     expect(loaded.spec.given?.world?.workspace).toEqual({ from: 'fixtures/start' });
+  });
+});
+
+describe('task family reference', () => {
+  it('equals the committed docs/reference/family.md', async () => {
+    expect(renderFamilyReference().markdown).toBe(await readFile(FAMILY_OUT, 'utf8'));
+  });
+
+  it('documents every field of the family file and the review file, at any depth, each with a description', () => {
+    const { markdown, missing } = renderFamilyReference();
+    const names = schemaNames({ ...family });
+    for (const schema of [family.FamilyFile, family.ReviewFile]) {
+      const keys = propertyKeys(toJsonSchema(schema, names));
+      expect([...keys].filter((key) => !markdown.includes(`| \`${key}\` |`))).toEqual([]);
+    }
+    expect(propertyKeys(toJsonSchema(family.FamilyFile, names)).size).toBeGreaterThan(50);
+    expect(missing).toEqual([]);
+  });
+
+  it('renders a union of mapping shapes as one table per shape, named by its own key', () => {
+    const { markdown } = renderFamilyReference();
+    const files = markdown.slice(markdown.indexOf('## SeedFile\n'), markdown.indexOf('## SeedFile csv'));
+    for (const key of ['csv', 'json', 'text', 'copy']) {
+      expect(files).toContain(`* a mapping with \`${key}\`, with the fields below`);
+      expect(files).toContain(`With \`${key}\`:`);
+    }
   });
 });
 
