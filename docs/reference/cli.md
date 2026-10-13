@@ -1164,7 +1164,7 @@ Runs a validator ladder: the levels in order, stopping at the first failing leve
 | `--seeds <a..b>` | a range of visible seeds, such as `1..20` |
 | `--hidden` | add the hidden seed derived from `git rev-parse HEAD` |
 | `--json` | print the report as JSON |
-| `--check-floor` | exit 1 when a run is below its floor in `validators/floors.json`, else 0 |
+| `--check-floor` | compute through each positive applicable floor in `validators/floors.json`; floor 0 keeps the ordinary walk; exit 1 below a floor, else 0 |
 | `--raise <component>` | with `floors`: raise the floor of this component to `<level>` |
 | `--evidence <json>` | with `floors --raise`: the `--json` run that reaches the level |
 | `--brief` | print `validators/EXECUTOR.md` with the live state of the loop embedded |
