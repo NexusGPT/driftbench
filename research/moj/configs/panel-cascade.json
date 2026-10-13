@@ -20,5 +20,6 @@
   "initial_pair": [
     "luna",
     "gemini"
-  ]
+  ],
+  "split_version": "moj-split-v2"
 }

@@ -1,0 +1,4039 @@
+{
+  "variants": {
+    "reference-first": {
+      "overall": {
+        "n": 27,
+        "accuracy": 0.9629629629629629,
+        "ci95": [
+          0.8888888888888888,
+          1.0
+        ],
+        "calls_per_100": 100.0,
+        "known_calls_per_100": 100.0,
+        "known_usd_per_100": 0.0,
+        "cost_complete": false,
+        "missing": 0
+      },
+      "low": {
+        "n": 4,
+        "accuracy": 1.0,
+        "ci95": [
+          0.5100999795960008,
+          1.0
+        ],
+        "calls_per_100": 100.0,
+        "known_calls_per_100": 100.0,
+        "known_usd_per_100": 0.0,
+        "cost_complete": false,
+        "missing": 0
+      }
+    },
+    "reference-blind": {
+      "overall": {
+        "n": 27,
+        "accuracy": 0.37037037037037035,
+        "ci95": [
+          0.18518518518518517,
+          0.5555555555555556
+        ],
+        "calls_per_100": 100.0,
+        "known_calls_per_100": 100.0,
+        "known_usd_per_100": 0.0,
+        "cost_complete": false,
+        "missing": 0
+      },
+      "low": {
+        "n": 4,
+        "accuracy": 0.75,
+        "ci95": [
+          0.25,
+          1.0
+        ],
+        "calls_per_100": 100.0,
+        "known_calls_per_100": 100.0,
+        "known_usd_per_100": 0.0,
+        "cost_complete": false,
+        "missing": 0
+      }
+    },
+    "ledger": {
+      "overall": {
+        "n": 27,
+        "accuracy": 1.0,
+        "ci95": [
+          0.8754409628553641,
+          1.0
+        ],
+        "calls_per_100": 100.0,
+        "known_calls_per_100": 100.0,
+        "known_usd_per_100": 0.03713455555555555,
+        "cost_complete": true,
+        "missing": 0
+      },
+      "low": {
+        "n": 4,
+        "accuracy": 1.0,
+        "ci95": [
+          0.5100999795960008,
+          1.0
+        ],
+        "calls_per_100": 100.0,
+        "known_calls_per_100": 100.0,
+        "known_usd_per_100": 0.044879,
+        "cost_complete": true,
+        "missing": 0
+      }
+    },
+    "promptfoo": {
+      "overall": {
+        "n": 27,
+        "accuracy": 0.8518518518518519,
+        "ci95": [
+          0.7037037037037037,
+          0.9629629629629629
+        ],
+        "calls_per_100": 100.0,
+        "known_calls_per_100": 100.0,
+        "known_usd_per_100": 0.037906666666666665,
+        "cost_complete": true,
+        "missing": 0
+      },
+      "low": {
+        "n": 4,
+        "accuracy": 0.0,
+        "ci95": [
+          0.0,
+          0.48990002040399916
+        ],
+        "calls_per_100": 100.0,
+        "known_calls_per_100": 100.0,
+        "known_usd_per_100": 0.0498575,
+        "cost_complete": true,
+        "missing": 0
+      }
+    },
+    "shipped": {
+      "overall": {
+        "n": 27,
+        "accuracy": 0.9259259259259259,
+        "ci95": [
+          0.8148148148148148,
+          1.0
+        ],
+        "calls_per_100": 100.0,
+        "known_calls_per_100": 100.0,
+        "known_usd_per_100": 0.033323703703703696,
+        "cost_complete": true,
+        "missing": 0
+      },
+      "low": {
+        "n": 4,
+        "accuracy": 0.5,
+        "ci95": [
+          0.0,
+          1.0
+        ],
+        "calls_per_100": 100.0,
+        "known_calls_per_100": 100.0,
+        "known_usd_per_100": 0.04284,
+        "cost_complete": true,
+        "missing": 0
+      }
+    }
+  },
+  "decisions": {
+    "reference-first": [
+      {
+        "key": "hardrows|factuality.064",
+        "low": false,
+        "score": 1.0,
+        "calls": 1,
+        "usd": 0,
+        "cost_complete": false,
+        "pA": 0.48,
+        "missing": false
+      },
+      {
+        "key": "hardrows|factuality.075",
+        "low": true,
+        "score": 1.0,
+        "calls": 1,
+        "usd": 0,
+        "cost_complete": false,
+        "pA": 0.96,
+        "missing": false
+      },
+      {
+        "key": "hardrows|factuality.041",
+        "low": true,
+        "score": 1.0,
+        "calls": 1,
+        "usd": 0,
+        "cost_complete": false,
+        "pA": 0.96,
+        "missing": false
+      },
+      {
+        "key": "hardrows|factuality.029",
+        "low": false,
+        "score": 1.0,
+        "calls": 1,
+        "usd": 0,
+        "cost_complete": false,
+        "pA": 0.03,
+        "missing": false
+      },
+      {
+        "key": "hardrows|factuality.116",
+        "low": false,
+        "score": 1.0,
+        "calls": 1,
+        "usd": 0,
+        "cost_complete": false,
+        "pA": 0.03,
+        "missing": false
+      },
+      {
+        "key": "hardrows|factuality.098",
+        "low": false,
+        "score": 1.0,
+        "calls": 1,
+        "usd": 0,
+        "cost_complete": false,
+        "pA": 0.97,
+        "missing": false
+      },
+      {
+        "key": "hardrows|factuality.101",
+        "low": false,
+        "score": 1.0,
+        "calls": 1,
+        "usd": 0,
+        "cost_complete": false,
+        "pA": 0.03,
+        "missing": false
+      },
+      {
+        "key": "hardrows|factuality.062",
+        "low": false,
+        "score": 1.0,
+        "calls": 1,
+        "usd": 0,
+        "cost_complete": false,
+        "pA": 0.98,
+        "missing": false
+      },
+      {
+        "key": "hardrows|factuality.015",
+        "low": false,
+        "score": 1.0,
+        "calls": 1,
+        "usd": 0,
+        "cost_complete": false,
+        "pA": 0.98,
+        "missing": false
+      },
+      {
+        "key": "hardrows|factuality.099",
+        "low": false,
+        "score": 1.0,
+        "calls": 1,
+        "usd": 0,
+        "cost_complete": false,
+        "pA": 0.08,
+        "missing": false
+      },
+      {
+        "key": "hardrows|factuality.036",
+        "low": false,
+        "score": 1.0,
+        "calls": 1,
+        "usd": 0,
+        "cost_complete": false,
+        "pA": 0.09,
+        "missing": false
+      },
+      {
+        "key": "hardrows|factuality.086",
+        "low": false,
+        "score": 1.0,
+        "calls": 1,
+        "usd": 0,
+        "cost_complete": false,
+        "pA": 0.98,
+        "missing": false
+      },
+      {
+        "key": "hardrows|factuality.065",
+        "low": false,
+        "score": 1.0,
+        "calls": 1,
+        "usd": 0,
+        "cost_complete": false,
+        "pA": 0.04,
+        "missing": false
+      },
+      {
+        "key": "hardrows|factuality.021",
+        "low": false,
+        "score": 1.0,
+        "calls": 1,
+        "usd": 0,
+        "cost_complete": false,
+        "pA": 0.04,
+        "missing": false
+      },
+      {
+        "key": "hardrows|factuality.073",
+        "low": false,
+        "score": 1.0,
+        "calls": 1,
+        "usd": 0,
+        "cost_complete": false,
+        "pA": 0.1,
+        "missing": false
+      },
+      {
+        "key": "hardrows|factuality.006",
+        "low": true,
+        "score": 1.0,
+        "calls": 1,
+        "usd": 0,
+        "cost_complete": false,
+        "pA": 0.96,
+        "missing": false
+      },
+      {
+        "key": "hardrows|factuality.057",
+        "low": false,
+        "score": 1.0,
+        "calls": 1,
+        "usd": 0,
+        "cost_complete": false,
+        "pA": 0.08,
+        "missing": false
+      },
+      {
+        "key": "hardrows|factuality.040",
+        "low": false,
+        "score": 1.0,
+        "calls": 1,
+        "usd": 0,
+        "cost_complete": false,
+        "pA": 0.1,
+        "missing": false
+      },
+      {
+        "key": "hardrows|factuality.090",
+        "low": false,
+        "score": 1.0,
+        "calls": 1,
+        "usd": 0,
+        "cost_complete": false,
+        "pA": 0.06,
+        "missing": false
+      },
+      {
+        "key": "hardrows|factuality.042",
+        "low": false,
+        "score": 1.0,
+        "calls": 1,
+        "usd": 0,
+        "cost_complete": false,
+        "pA": 0.07,
+        "missing": false
+      },
+      {
+        "key": "hardrows|factuality.118",
+        "low": false,
+        "score": 1.0,
+        "calls": 1,
+        "usd": 0,
+        "cost_complete": false,
+        "pA": 0.98,
+        "missing": false
+      },
+      {
+        "key": "hardrows|factuality.037",
+        "low": false,
+        "score": 1.0,
+        "calls": 1,
+        "usd": 0,
+        "cost_complete": false,
+        "pA": 0.09,
+        "missing": false
+      },
+      {
+        "key": "hardrows|factuality.027",
+        "low": false,
+        "score": 1.0,
+        "calls": 1,
+        "usd": 0,
+        "cost_complete": false,
+        "pA": 0.09,
+        "missing": false
+      },
+      {
+        "key": "hardrows|factuality.067",
+        "low": false,
+        "score": 1.0,
+        "calls": 1,
+        "usd": 0,
+        "cost_complete": false,
+        "pA": 0.97,
+        "missing": false
+      },
+      {
+        "key": "hardrows|factuality.038",
+        "low": false,
+        "score": 1.0,
+        "calls": 1,
+        "usd": 0,
+        "cost_complete": false,
+        "pA": 0.04,
+        "missing": false
+      },
+      {
+        "key": "hardrows|factuality.113",
+        "low": false,
+        "score": 0.0,
+        "calls": 1,
+        "usd": 0,
+        "cost_complete": false,
+        "pA": 0.93,
+        "missing": false
+      },
+      {
+        "key": "hardrows|factuality.074",
+        "low": true,
+        "score": 1.0,
+        "calls": 1,
+        "usd": 0,
+        "cost_complete": false,
+        "pA": 0.95,
+        "missing": false
+      }
+    ],
+    "reference-blind": [
+      {
+        "key": "hardrows|factuality.064",
+        "low": false,
+        "score": 0.0,
+        "calls": 1,
+        "usd": 0,
+        "cost_complete": false,
+        "pA": 0.72,
+        "missing": false
+      },
+      {
+        "key": "hardrows|factuality.075",
+        "low": true,
+        "score": 1.0,
+        "calls": 1,
+        "usd": 0,
+        "cost_complete": false,
+        "pA": 0.71,
+        "missing": false
+      },
+      {
+        "key": "hardrows|factuality.041",
+        "low": true,
+        "score": 1.0,
+        "calls": 1,
+        "usd": 0,
+        "cost_complete": false,
+        "pA": 0.7,
+        "missing": false
+      },
+      {
+        "key": "hardrows|factuality.029",
+        "low": false,
+        "score": 0.0,
+        "calls": 1,
+        "usd": 0,
+        "cost_complete": false,
+        "pA": 0.55,
+        "missing": false
+      },
+      {
+        "key": "hardrows|factuality.116",
+        "low": false,
+        "score": 0.0,
+        "calls": 1,
+        "usd": 0,
+        "cost_complete": false,
+        "pA": 0.52,
+        "missing": false
+      },
+      {
+        "key": "hardrows|factuality.098",
+        "low": false,
+        "score": 1.0,
+        "calls": 1,
+        "usd": 0,
+        "cost_complete": false,
+        "pA": 0.53,
+        "missing": false
+      },
+      {
+        "key": "hardrows|factuality.101",
+        "low": false,
+        "score": 1.0,
+        "calls": 1,
+        "usd": 0,
+        "cost_complete": false,
+        "pA": 0.49,
+        "missing": false
+      },
+      {
+        "key": "hardrows|factuality.062",
+        "low": false,
+        "score": 1.0,
+        "calls": 1,
+        "usd": 0,
+        "cost_complete": false,
+        "pA": 0.54,
+        "missing": false
+      },
+      {
+        "key": "hardrows|factuality.015",
+        "low": false,
+        "score": 1.0,
+        "calls": 1,
+        "usd": 0,
+        "cost_complete": false,
+        "pA": 0.57,
+        "missing": false
+      },
+      {
+        "key": "hardrows|factuality.099",
+        "low": false,
+        "score": 0.0,
+        "calls": 1,
+        "usd": 0,
+        "cost_complete": false,
+        "pA": 0.69,
+        "missing": false
+      },
+      {
+        "key": "hardrows|factuality.036",
+        "low": false,
+        "score": 0.0,
+        "calls": 1,
+        "usd": 0,
+        "cost_complete": false,
+        "pA": 0.7,
+        "missing": false
+      },
+      {
+        "key": "hardrows|factuality.086",
+        "low": false,
+        "score": 1.0,
+        "calls": 1,
+        "usd": 0,
+        "cost_complete": false,
+        "pA": 0.7,
+        "missing": false
+      },
+      {
+        "key": "hardrows|factuality.065",
+        "low": false,
+        "score": 0.0,
+        "calls": 1,
+        "usd": 0,
+        "cost_complete": false,
+        "pA": 0.87,
+        "missing": false
+      },
+      {
+        "key": "hardrows|factuality.021",
+        "low": false,
+        "score": 0.0,
+        "calls": 1,
+        "usd": 0,
+        "cost_complete": false,
+        "pA": 0.86,
+        "missing": false
+      },
+      {
+        "key": "hardrows|factuality.073",
+        "low": false,
+        "score": 0.0,
+        "calls": 1,
+        "usd": 0,
+        "cost_complete": false,
+        "pA": 0.52,
+        "missing": false
+      },
+      {
+        "key": "hardrows|factuality.006",
+        "low": true,
+        "score": 0.0,
+        "calls": 1,
+        "usd": 0,
+        "cost_complete": false,
+        "pA": 0.25,
+        "missing": false
+      },
+      {
+        "key": "hardrows|factuality.057",
+        "low": false,
+        "score": 0.0,
+        "calls": 1,
+        "usd": 0,
+        "cost_complete": false,
+        "pA": 0.9,
+        "missing": false
+      },
+      {
+        "key": "hardrows|factuality.040",
+        "low": false,
+        "score": 0.0,
+        "calls": 1,
+        "usd": 0,
+        "cost_complete": false,
+        "pA": 0.88,
+        "missing": false
+      },
+      {
+        "key": "hardrows|factuality.090",
+        "low": false,
+        "score": 0.0,
+        "calls": 1,
+        "usd": 0,
+        "cost_complete": false,
+        "pA": 0.84,
+        "missing": false
+      },
+      {
+        "key": "hardrows|factuality.042",
+        "low": false,
+        "score": 0.0,
+        "calls": 1,
+        "usd": 0,
+        "cost_complete": false,
+        "pA": 0.86,
+        "missing": false
+      },
+      {
+        "key": "hardrows|factuality.118",
+        "low": false,
+        "score": 1.0,
+        "calls": 1,
+        "usd": 0,
+        "cost_complete": false,
+        "pA": 0.85,
+        "missing": false
+      },
+      {
+        "key": "hardrows|factuality.037",
+        "low": false,
+        "score": 0.0,
+        "calls": 1,
+        "usd": 0,
+        "cost_complete": false,
+        "pA": 0.88,
+        "missing": false
+      },
+      {
+        "key": "hardrows|factuality.027",
+        "low": false,
+        "score": 0.0,
+        "calls": 1,
+        "usd": 0,
+        "cost_complete": false,
+        "pA": 0.87,
+        "missing": false
+      },
+      {
+        "key": "hardrows|factuality.067",
+        "low": false,
+        "score": 1.0,
+        "calls": 1,
+        "usd": 0,
+        "cost_complete": false,
+        "pA": 0.89,
+        "missing": false
+      },
+      {
+        "key": "hardrows|factuality.038",
+        "low": false,
+        "score": 0.0,
+        "calls": 1,
+        "usd": 0,
+        "cost_complete": false,
+        "pA": 0.73,
+        "missing": false
+      },
+      {
+        "key": "hardrows|factuality.113",
+        "low": false,
+        "score": 0.0,
+        "calls": 1,
+        "usd": 0,
+        "cost_complete": false,
+        "pA": 0.59,
+        "missing": false
+      },
+      {
+        "key": "hardrows|factuality.074",
+        "low": true,
+        "score": 1.0,
+        "calls": 1,
+        "usd": 0,
+        "cost_complete": false,
+        "pA": 0.63,
+        "missing": false
+      }
+    ],
+    "ledger": [
+      {
+        "key": "hardrows|factuality.064",
+        "low": false,
+        "score": 1.0,
+        "calls": 1,
+        "usd": 0.00045399000000000004,
+        "cost_complete": true
+      },
+      {
+        "key": "hardrows|factuality.075",
+        "low": true,
+        "score": 1.0,
+        "calls": 1,
+        "usd": 0.00036399,
+        "cost_complete": true
+      },
+      {
+        "key": "hardrows|factuality.041",
+        "low": true,
+        "score": 1.0,
+        "calls": 1,
+        "usd": 0.00036099000000000005,
+        "cost_complete": true
+      },
+      {
+        "key": "hardrows|factuality.029",
+        "low": false,
+        "score": 1.0,
+        "calls": 1,
+        "usd": 0.00040059,
+        "cost_complete": true
+      },
+      {
+        "key": "hardrows|factuality.116",
+        "low": false,
+        "score": 1.0,
+        "calls": 1,
+        "usd": 0.00042559,
+        "cost_complete": true
+      },
+      {
+        "key": "hardrows|factuality.098",
+        "low": false,
+        "score": 1.0,
+        "calls": 1,
+        "usd": 0.00033559000000000003,
+        "cost_complete": true
+      },
+      {
+        "key": "hardrows|factuality.101",
+        "low": false,
+        "score": 1.0,
+        "calls": 1,
+        "usd": 0.00044379,
+        "cost_complete": true
+      },
+      {
+        "key": "hardrows|factuality.062",
+        "low": false,
+        "score": 1.0,
+        "calls": 1,
+        "usd": 0.00030279000000000005,
+        "cost_complete": true
+      },
+      {
+        "key": "hardrows|factuality.015",
+        "low": false,
+        "score": 1.0,
+        "calls": 1,
+        "usd": 0.00033679,
+        "cost_complete": true
+      },
+      {
+        "key": "hardrows|factuality.099",
+        "low": false,
+        "score": 1.0,
+        "calls": 1,
+        "usd": 0.00034509000000000005,
+        "cost_complete": true
+      },
+      {
+        "key": "hardrows|factuality.036",
+        "low": false,
+        "score": 1.0,
+        "calls": 1,
+        "usd": 0.00029159,
+        "cost_complete": true
+      },
+      {
+        "key": "hardrows|factuality.086",
+        "low": false,
+        "score": 1.0,
+        "calls": 1,
+        "usd": 0.00033909,
+        "cost_complete": true
+      },
+      {
+        "key": "hardrows|factuality.065",
+        "low": false,
+        "score": 1.0,
+        "calls": 1,
+        "usd": 0.00037579,
+        "cost_complete": true
+      },
+      {
+        "key": "hardrows|factuality.021",
+        "low": false,
+        "score": 1.0,
+        "calls": 1,
+        "usd": 0.00036379,
+        "cost_complete": true
+      },
+      {
+        "key": "hardrows|factuality.073",
+        "low": false,
+        "score": 1.0,
+        "calls": 1,
+        "usd": 0.00037139000000000003,
+        "cost_complete": true
+      },
+      {
+        "key": "hardrows|factuality.006",
+        "low": true,
+        "score": 1.0,
+        "calls": 1,
+        "usd": 0.00069699,
+        "cost_complete": true
+      },
+      {
+        "key": "hardrows|factuality.057",
+        "low": false,
+        "score": 1.0,
+        "calls": 1,
+        "usd": 0.00030529000000000005,
+        "cost_complete": true
+      },
+      {
+        "key": "hardrows|factuality.040",
+        "low": false,
+        "score": 1.0,
+        "calls": 1,
+        "usd": 0.00032029000000000004,
+        "cost_complete": true
+      },
+      {
+        "key": "hardrows|factuality.090",
+        "low": false,
+        "score": 1.0,
+        "calls": 1,
+        "usd": 0.00029419000000000005,
+        "cost_complete": true
+      },
+      {
+        "key": "hardrows|factuality.042",
+        "low": false,
+        "score": 1.0,
+        "calls": 1,
+        "usd": 0.00033919,
+        "cost_complete": true
+      },
+      {
+        "key": "hardrows|factuality.118",
+        "low": false,
+        "score": 1.0,
+        "calls": 1,
+        "usd": 0.00034089000000000005,
+        "cost_complete": true
+      },
+      {
+        "key": "hardrows|factuality.037",
+        "low": false,
+        "score": 1.0,
+        "calls": 1,
+        "usd": 0.00035999000000000003,
+        "cost_complete": true
+      },
+      {
+        "key": "hardrows|factuality.027",
+        "low": false,
+        "score": 1.0,
+        "calls": 1,
+        "usd": 0.00040149,
+        "cost_complete": true
+      },
+      {
+        "key": "hardrows|factuality.067",
+        "low": false,
+        "score": 1.0,
+        "calls": 1,
+        "usd": 0.00037349000000000003,
+        "cost_complete": true
+      },
+      {
+        "key": "hardrows|factuality.038",
+        "low": false,
+        "score": 1.0,
+        "calls": 1,
+        "usd": 0.00034679000000000003,
+        "cost_complete": true
+      },
+      {
+        "key": "hardrows|factuality.113",
+        "low": false,
+        "score": 1.0,
+        "calls": 1,
+        "usd": 0.00036369,
+        "cost_complete": true
+      },
+      {
+        "key": "hardrows|factuality.074",
+        "low": true,
+        "score": 1.0,
+        "calls": 1,
+        "usd": 0.00037319,
+        "cost_complete": true
+      }
+    ],
+    "promptfoo": [
+      {
+        "key": "hardrows|factuality.064",
+        "low": false,
+        "score": 1.0,
+        "calls": 1,
+        "usd": 0.00039240000000000005,
+        "cost_complete": true
+      },
+      {
+        "key": "hardrows|factuality.075",
+        "low": true,
+        "score": 0.0,
+        "calls": 1,
+        "usd": 0.00046190000000000006,
+        "cost_complete": true
+      },
+      {
+        "key": "hardrows|factuality.041",
+        "low": true,
+        "score": 0.0,
+        "calls": 1,
+        "usd": 0.0004404000000000001,
+        "cost_complete": true
+      },
+      {
+        "key": "hardrows|factuality.029",
+        "low": false,
+        "score": 1.0,
+        "calls": 1,
+        "usd": 0.0003725,
+        "cost_complete": true
+      },
+      {
+        "key": "hardrows|factuality.116",
+        "low": false,
+        "score": 1.0,
+        "calls": 1,
+        "usd": 0.00034,
+        "cost_complete": true
+      },
+      {
+        "key": "hardrows|factuality.098",
+        "low": false,
+        "score": 1.0,
+        "calls": 1,
+        "usd": 0.0003685,
+        "cost_complete": true
+      },
+      {
+        "key": "hardrows|factuality.101",
+        "low": false,
+        "score": 1.0,
+        "calls": 1,
+        "usd": 0.00033720000000000006,
+        "cost_complete": true
+      },
+      {
+        "key": "hardrows|factuality.062",
+        "low": false,
+        "score": 1.0,
+        "calls": 1,
+        "usd": 0.0003467,
+        "cost_complete": true
+      },
+      {
+        "key": "hardrows|factuality.015",
+        "low": false,
+        "score": 1.0,
+        "calls": 1,
+        "usd": 0.00034020000000000003,
+        "cost_complete": true
+      },
+      {
+        "key": "hardrows|factuality.099",
+        "low": false,
+        "score": 1.0,
+        "calls": 1,
+        "usd": 0.0004045,
+        "cost_complete": true
+      },
+      {
+        "key": "hardrows|factuality.036",
+        "low": false,
+        "score": 1.0,
+        "calls": 1,
+        "usd": 0.000335,
+        "cost_complete": true
+      },
+      {
+        "key": "hardrows|factuality.086",
+        "low": false,
+        "score": 1.0,
+        "calls": 1,
+        "usd": 0.000336,
+        "cost_complete": true
+      },
+      {
+        "key": "hardrows|factuality.065",
+        "low": false,
+        "score": 1.0,
+        "calls": 1,
+        "usd": 0.0004327,
+        "cost_complete": true
+      },
+      {
+        "key": "hardrows|factuality.021",
+        "low": false,
+        "score": 1.0,
+        "calls": 1,
+        "usd": 0.00034920000000000003,
+        "cost_complete": true
+      },
+      {
+        "key": "hardrows|factuality.073",
+        "low": false,
+        "score": 1.0,
+        "calls": 1,
+        "usd": 0.0003702,
+        "cost_complete": true
+      },
+      {
+        "key": "hardrows|factuality.006",
+        "low": true,
+        "score": 0.0,
+        "calls": 1,
+        "usd": 0.0006784,
+        "cost_complete": true
+      },
+      {
+        "key": "hardrows|factuality.057",
+        "low": false,
+        "score": 1.0,
+        "calls": 1,
+        "usd": 0.0003382,
+        "cost_complete": true
+      },
+      {
+        "key": "hardrows|factuality.040",
+        "low": false,
+        "score": 1.0,
+        "calls": 1,
+        "usd": 0.0003457,
+        "cost_complete": true
+      },
+      {
+        "key": "hardrows|factuality.090",
+        "low": false,
+        "score": 1.0,
+        "calls": 1,
+        "usd": 0.00032659999999999997,
+        "cost_complete": true
+      },
+      {
+        "key": "hardrows|factuality.042",
+        "low": false,
+        "score": 1.0,
+        "calls": 1,
+        "usd": 0.00035709999999999995,
+        "cost_complete": true
+      },
+      {
+        "key": "hardrows|factuality.118",
+        "low": false,
+        "score": 1.0,
+        "calls": 1,
+        "usd": 0.00033830000000000004,
+        "cost_complete": true
+      },
+      {
+        "key": "hardrows|factuality.037",
+        "low": false,
+        "score": 1.0,
+        "calls": 1,
+        "usd": 0.0003479,
+        "cost_complete": true
+      },
+      {
+        "key": "hardrows|factuality.027",
+        "low": false,
+        "score": 1.0,
+        "calls": 1,
+        "usd": 0.0003524,
+        "cost_complete": true
+      },
+      {
+        "key": "hardrows|factuality.067",
+        "low": false,
+        "score": 1.0,
+        "calls": 1,
+        "usd": 0.0003409,
+        "cost_complete": true
+      },
+      {
+        "key": "hardrows|factuality.038",
+        "low": false,
+        "score": 1.0,
+        "calls": 1,
+        "usd": 0.0003457,
+        "cost_complete": true
+      },
+      {
+        "key": "hardrows|factuality.113",
+        "low": false,
+        "score": 1.0,
+        "calls": 1,
+        "usd": 0.00042259999999999997,
+        "cost_complete": true
+      },
+      {
+        "key": "hardrows|factuality.074",
+        "low": true,
+        "score": 0.0,
+        "calls": 1,
+        "usd": 0.00041359999999999997,
+        "cost_complete": true
+      }
+    ],
+    "shipped": [
+      {
+        "key": "hardrows|factuality.064",
+        "low": false,
+        "score": 1.0,
+        "calls": 1,
+        "usd": 0.00033130000000000003,
+        "cost_complete": true
+      },
+      {
+        "key": "hardrows|factuality.075",
+        "low": true,
+        "score": 1.0,
+        "calls": 1,
+        "usd": 0.0003488,
+        "cost_complete": true
+      },
+      {
+        "key": "hardrows|factuality.041",
+        "low": true,
+        "score": 1.0,
+        "calls": 1,
+        "usd": 0.00036280000000000004,
+        "cost_complete": true
+      },
+      {
+        "key": "hardrows|factuality.029",
+        "low": false,
+        "score": 1.0,
+        "calls": 1,
+        "usd": 0.0003289,
+        "cost_complete": true
+      },
+      {
+        "key": "hardrows|factuality.116",
+        "low": false,
+        "score": 1.0,
+        "calls": 1,
+        "usd": 0.0003109,
+        "cost_complete": true
+      },
+      {
+        "key": "hardrows|factuality.098",
+        "low": false,
+        "score": 1.0,
+        "calls": 1,
+        "usd": 0.0003149,
+        "cost_complete": true
+      },
+      {
+        "key": "hardrows|factuality.101",
+        "low": false,
+        "score": 1.0,
+        "calls": 1,
+        "usd": 0.0003003,
+        "cost_complete": true
+      },
+      {
+        "key": "hardrows|factuality.062",
+        "low": false,
+        "score": 1.0,
+        "calls": 1,
+        "usd": 0.0002963,
+        "cost_complete": true
+      },
+      {
+        "key": "hardrows|factuality.015",
+        "low": false,
+        "score": 1.0,
+        "calls": 1,
+        "usd": 0.00030429999999999997,
+        "cost_complete": true
+      },
+      {
+        "key": "hardrows|factuality.099",
+        "low": false,
+        "score": 1.0,
+        "calls": 1,
+        "usd": 0.00030789999999999995,
+        "cost_complete": true
+      },
+      {
+        "key": "hardrows|factuality.036",
+        "low": false,
+        "score": 1.0,
+        "calls": 1,
+        "usd": 0.0003179,
+        "cost_complete": true
+      },
+      {
+        "key": "hardrows|factuality.086",
+        "low": false,
+        "score": 1.0,
+        "calls": 1,
+        "usd": 0.0003664,
+        "cost_complete": true
+      },
+      {
+        "key": "hardrows|factuality.065",
+        "low": false,
+        "score": 1.0,
+        "calls": 1,
+        "usd": 0.0003231,
+        "cost_complete": true
+      },
+      {
+        "key": "hardrows|factuality.021",
+        "low": false,
+        "score": 1.0,
+        "calls": 1,
+        "usd": 0.0003241,
+        "cost_complete": true
+      },
+      {
+        "key": "hardrows|factuality.073",
+        "low": false,
+        "score": 1.0,
+        "calls": 1,
+        "usd": 0.00032859999999999996,
+        "cost_complete": true
+      },
+      {
+        "key": "hardrows|factuality.006",
+        "low": true,
+        "score": 0.0,
+        "calls": 1,
+        "usd": 0.0006655,
+        "cost_complete": true
+      },
+      {
+        "key": "hardrows|factuality.057",
+        "low": false,
+        "score": 1.0,
+        "calls": 1,
+        "usd": 0.00031810000000000003,
+        "cost_complete": true
+      },
+      {
+        "key": "hardrows|factuality.040",
+        "low": false,
+        "score": 1.0,
+        "calls": 1,
+        "usd": 0.0003166,
+        "cost_complete": true
+      },
+      {
+        "key": "hardrows|factuality.090",
+        "low": false,
+        "score": 1.0,
+        "calls": 1,
+        "usd": 0.00029699999999999996,
+        "cost_complete": true
+      },
+      {
+        "key": "hardrows|factuality.042",
+        "low": false,
+        "score": 1.0,
+        "calls": 1,
+        "usd": 0.00031899999999999995,
+        "cost_complete": true
+      },
+      {
+        "key": "hardrows|factuality.118",
+        "low": false,
+        "score": 1.0,
+        "calls": 1,
+        "usd": 0.00031270000000000007,
+        "cost_complete": true
+      },
+      {
+        "key": "hardrows|factuality.037",
+        "low": false,
+        "score": 1.0,
+        "calls": 1,
+        "usd": 0.00031329999999999997,
+        "cost_complete": true
+      },
+      {
+        "key": "hardrows|factuality.027",
+        "low": false,
+        "score": 1.0,
+        "calls": 1,
+        "usd": 0.0003168,
+        "cost_complete": true
+      },
+      {
+        "key": "hardrows|factuality.067",
+        "low": false,
+        "score": 1.0,
+        "calls": 1,
+        "usd": 0.0003168,
+        "cost_complete": true
+      },
+      {
+        "key": "hardrows|factuality.038",
+        "low": false,
+        "score": 1.0,
+        "calls": 1,
+        "usd": 0.00030609999999999996,
+        "cost_complete": true
+      },
+      {
+        "key": "hardrows|factuality.113",
+        "low": false,
+        "score": 1.0,
+        "calls": 1,
+        "usd": 0.00031250000000000006,
+        "cost_complete": true
+      },
+      {
+        "key": "hardrows|factuality.074",
+        "low": true,
+        "score": 0.0,
+        "calls": 1,
+        "usd": 0.00033650000000000005,
+        "cost_complete": true
+      }
+    ]
+  },
+  "observations": {
+    "hardrows|factuality.064": {
+      "reference-first": {
+        "pA": 0.48,
+        "confidence": 0.52,
+        "detail": {
+          "eligible": true,
+          "with_reference": true,
+          "kind": "pointwise",
+          "points": [
+            "The reply meets the stated criterion, or agrees with the reference on every fact."
+          ],
+          "scores": {
+            "a": 0.48
+          },
+          "rows": {
+            "a": {
+              "point_0": 0.48
+            }
+          },
+          "reference_source": "dataset"
+        },
+        "calls": 1,
+        "usd": 0,
+        "cost_complete": false,
+        "keys": [
+          "3d40fb8b661d4f83b51a2375413640286fdaba8cb01eec389d4f7a1164c42195"
+        ]
+      },
+      "reference-blind": {
+        "pA": 0.72,
+        "confidence": 0.72,
+        "detail": {
+          "eligible": true,
+          "with_reference": false,
+          "kind": "pointwise",
+          "points": [
+            "The reply meets the stated criterion, or agrees with the reference on every fact."
+          ],
+          "scores": {
+            "a": 0.72
+          },
+          "rows": {
+            "a": {
+              "point_0": 0.72
+            }
+          },
+          "reference_source": null
+        },
+        "calls": 1,
+        "usd": 0,
+        "cost_complete": false,
+        "keys": [
+          "a583b281a2dddea9a22345cc76056b7924748d5153b1e625bc49fe1e60a152ba"
+        ]
+      }
+    },
+    "hardrows|factuality.013": {
+      "reference-first": {
+        "pA": 0.55,
+        "confidence": 0.55,
+        "detail": {
+          "eligible": true,
+          "with_reference": true,
+          "kind": "pointwise",
+          "points": [
+            "The reply meets the stated criterion, or agrees with the reference on every fact."
+          ],
+          "scores": {
+            "a": 0.55
+          },
+          "rows": {
+            "a": {
+              "point_0": 0.55
+            }
+          },
+          "reference_source": "dataset"
+        },
+        "calls": 1,
+        "usd": 0,
+        "cost_complete": false,
+        "keys": [
+          "c2e659cfa2e1c9e4333524d6fce44703a19bee47e04fc3e94144ef48cbeacbf2"
+        ]
+      },
+      "reference-blind": {
+        "pA": 0.71,
+        "confidence": 0.71,
+        "detail": {
+          "eligible": true,
+          "with_reference": false,
+          "kind": "pointwise",
+          "points": [
+            "The reply meets the stated criterion, or agrees with the reference on every fact."
+          ],
+          "scores": {
+            "a": 0.71
+          },
+          "rows": {
+            "a": {
+              "point_0": 0.71
+            }
+          },
+          "reference_source": null
+        },
+        "calls": 1,
+        "usd": 0,
+        "cost_complete": false,
+        "keys": [
+          "562e5bb9b814050a655d821fddd6c769565f79e30f4ad4bada65e11d0d2cfe72"
+        ]
+      }
+    },
+    "hardrows|factuality.075": {
+      "reference-first": {
+        "pA": 0.96,
+        "confidence": 0.96,
+        "detail": {
+          "eligible": true,
+          "with_reference": true,
+          "kind": "pointwise",
+          "points": [
+            "The reply meets the stated criterion, or agrees with the reference on every fact."
+          ],
+          "scores": {
+            "a": 0.96
+          },
+          "rows": {
+            "a": {
+              "point_0": 0.96
+            }
+          },
+          "reference_source": "dataset"
+        },
+        "calls": 1,
+        "usd": 0,
+        "cost_complete": false,
+        "keys": [
+          "b4b92a926857c76d02479a3b2bf6b5a3b519fc7be360cb96c2f23382199d1fff"
+        ]
+      },
+      "reference-blind": {
+        "pA": 0.71,
+        "confidence": 0.71,
+        "detail": {
+          "eligible": true,
+          "with_reference": false,
+          "kind": "pointwise",
+          "points": [
+            "The reply meets the stated criterion, or agrees with the reference on every fact."
+          ],
+          "scores": {
+            "a": 0.71
+          },
+          "rows": {
+            "a": {
+              "point_0": 0.71
+            }
+          },
+          "reference_source": null
+        },
+        "calls": 1,
+        "usd": 0,
+        "cost_complete": false,
+        "keys": [
+          "79ba5bb66efea13a37e8ac42290e1c906fcca77e97c33a372d9879c1d83725bc"
+        ]
+      }
+    },
+    "hardrows|factuality.041": {
+      "reference-first": {
+        "pA": 0.96,
+        "confidence": 0.96,
+        "detail": {
+          "eligible": true,
+          "with_reference": true,
+          "kind": "pointwise",
+          "points": [
+            "The reply meets the stated criterion, or agrees with the reference on every fact."
+          ],
+          "scores": {
+            "a": 0.96
+          },
+          "rows": {
+            "a": {
+              "point_0": 0.96
+            }
+          },
+          "reference_source": "dataset"
+        },
+        "calls": 1,
+        "usd": 0,
+        "cost_complete": false,
+        "keys": [
+          "3b9acf07548892975646ef8b818ad3cce80a3bb7249e045890b490d7bdef108e"
+        ]
+      },
+      "reference-blind": {
+        "pA": 0.7,
+        "confidence": 0.7,
+        "detail": {
+          "eligible": true,
+          "with_reference": false,
+          "kind": "pointwise",
+          "points": [
+            "The reply meets the stated criterion, or agrees with the reference on every fact."
+          ],
+          "scores": {
+            "a": 0.7
+          },
+          "rows": {
+            "a": {
+              "point_0": 0.7
+            }
+          },
+          "reference_source": null
+        },
+        "calls": 1,
+        "usd": 0,
+        "cost_complete": false,
+        "keys": [
+          "9c504b948b003c7d6582bbb044c22d8660d4b7291f1af9a79698512dc865d077"
+        ]
+      }
+    },
+    "hardrows|factuality.029": {
+      "reference-first": {
+        "pA": 0.03,
+        "confidence": 0.97,
+        "detail": {
+          "eligible": true,
+          "with_reference": true,
+          "kind": "pointwise",
+          "points": [
+            "The reply meets the stated criterion, or agrees with the reference on every fact."
+          ],
+          "scores": {
+            "a": 0.03
+          },
+          "rows": {
+            "a": {
+              "point_0": 0.03
+            }
+          },
+          "reference_source": "dataset"
+        },
+        "calls": 1,
+        "usd": 0,
+        "cost_complete": false,
+        "keys": [
+          "e3788d569537a6d5d751987c140c34afd624d9dc309e3d928033b3b650d7b8ec"
+        ]
+      },
+      "reference-blind": {
+        "pA": 0.55,
+        "confidence": 0.55,
+        "detail": {
+          "eligible": true,
+          "with_reference": false,
+          "kind": "pointwise",
+          "points": [
+            "The reply meets the stated criterion, or agrees with the reference on every fact."
+          ],
+          "scores": {
+            "a": 0.55
+          },
+          "rows": {
+            "a": {
+              "point_0": 0.55
+            }
+          },
+          "reference_source": null
+        },
+        "calls": 1,
+        "usd": 0,
+        "cost_complete": false,
+        "keys": [
+          "a72e755917b04a8b5b2cee9f2d58956ab39f74be7110d7f0c3be8ccb145fba04"
+        ]
+      }
+    },
+    "hardrows|factuality.116": {
+      "reference-first": {
+        "pA": 0.03,
+        "confidence": 0.97,
+        "detail": {
+          "eligible": true,
+          "with_reference": true,
+          "kind": "pointwise",
+          "points": [
+            "The reply meets the stated criterion, or agrees with the reference on every fact."
+          ],
+          "scores": {
+            "a": 0.03
+          },
+          "rows": {
+            "a": {
+              "point_0": 0.03
+            }
+          },
+          "reference_source": "dataset"
+        },
+        "calls": 1,
+        "usd": 0,
+        "cost_complete": false,
+        "keys": [
+          "d0379644315df893b6dce11afd685ecaa55765c9ee25881bd48225d76c6b97ac"
+        ]
+      },
+      "reference-blind": {
+        "pA": 0.52,
+        "confidence": 0.52,
+        "detail": {
+          "eligible": true,
+          "with_reference": false,
+          "kind": "pointwise",
+          "points": [
+            "The reply meets the stated criterion, or agrees with the reference on every fact."
+          ],
+          "scores": {
+            "a": 0.52
+          },
+          "rows": {
+            "a": {
+              "point_0": 0.52
+            }
+          },
+          "reference_source": null
+        },
+        "calls": 1,
+        "usd": 0,
+        "cost_complete": false,
+        "keys": [
+          "9b3a085d7ca257e41e04e9ba66febade9bebd7f331f2094eb63c6305341da3d7"
+        ]
+      }
+    },
+    "hardrows|factuality.098": {
+      "reference-first": {
+        "pA": 0.97,
+        "confidence": 0.97,
+        "detail": {
+          "eligible": true,
+          "with_reference": true,
+          "kind": "pointwise",
+          "points": [
+            "The reply meets the stated criterion, or agrees with the reference on every fact."
+          ],
+          "scores": {
+            "a": 0.97
+          },
+          "rows": {
+            "a": {
+              "point_0": 0.97
+            }
+          },
+          "reference_source": "dataset"
+        },
+        "calls": 1,
+        "usd": 0,
+        "cost_complete": false,
+        "keys": [
+          "52a366fd74de184dea3924d2277cad2fed40e4b9951649a27989913dc9d8a3e7"
+        ]
+      },
+      "reference-blind": {
+        "pA": 0.53,
+        "confidence": 0.53,
+        "detail": {
+          "eligible": true,
+          "with_reference": false,
+          "kind": "pointwise",
+          "points": [
+            "The reply meets the stated criterion, or agrees with the reference on every fact."
+          ],
+          "scores": {
+            "a": 0.53
+          },
+          "rows": {
+            "a": {
+              "point_0": 0.53
+            }
+          },
+          "reference_source": null
+        },
+        "calls": 1,
+        "usd": 0,
+        "cost_complete": false,
+        "keys": [
+          "3a52d3dfc58e057a081228a12f0c36e22a8408d5f4edf15440c50ecec217a611"
+        ]
+      }
+    },
+    "hardrows|factuality.068": {
+      "reference-first": {
+        "pA": 0.97,
+        "confidence": 0.97,
+        "detail": {
+          "eligible": true,
+          "with_reference": true,
+          "kind": "pointwise",
+          "points": [
+            "The reply meets the stated criterion, or agrees with the reference on every fact."
+          ],
+          "scores": {
+            "a": 0.97
+          },
+          "rows": {
+            "a": {
+              "point_0": 0.97
+            }
+          },
+          "reference_source": "dataset"
+        },
+        "calls": 1,
+        "usd": 0,
+        "cost_complete": false,
+        "keys": [
+          "ff1913d01187fc9da83584ef382ab966467fa4c1e47c7f870f61d814b5454313"
+        ]
+      },
+      "reference-blind": {
+        "pA": 0.53,
+        "confidence": 0.53,
+        "detail": {
+          "eligible": true,
+          "with_reference": false,
+          "kind": "pointwise",
+          "points": [
+            "The reply meets the stated criterion, or agrees with the reference on every fact."
+          ],
+          "scores": {
+            "a": 0.53
+          },
+          "rows": {
+            "a": {
+              "point_0": 0.53
+            }
+          },
+          "reference_source": null
+        },
+        "calls": 1,
+        "usd": 0,
+        "cost_complete": false,
+        "keys": [
+          "af54d54047d017112be28229f56c03f746cced4f78d565665d7a3b9635414833"
+        ]
+      }
+    },
+    "hardrows|factuality.025": {
+      "reference-first": {
+        "pA": 0.03,
+        "confidence": 0.97,
+        "detail": {
+          "eligible": true,
+          "with_reference": true,
+          "kind": "pointwise",
+          "points": [
+            "The reply meets the stated criterion, or agrees with the reference on every fact."
+          ],
+          "scores": {
+            "a": 0.03
+          },
+          "rows": {
+            "a": {
+              "point_0": 0.03
+            }
+          },
+          "reference_source": "dataset"
+        },
+        "calls": 1,
+        "usd": 0,
+        "cost_complete": false,
+        "keys": [
+          "829e9791fda346f639b1f15277e50e69fe7216e0d1aa10387eab6e1ed4e05586"
+        ]
+      },
+      "reference-blind": {
+        "pA": 0.54,
+        "confidence": 0.54,
+        "detail": {
+          "eligible": true,
+          "with_reference": false,
+          "kind": "pointwise",
+          "points": [
+            "The reply meets the stated criterion, or agrees with the reference on every fact."
+          ],
+          "scores": {
+            "a": 0.54
+          },
+          "rows": {
+            "a": {
+              "point_0": 0.54
+            }
+          },
+          "reference_source": null
+        },
+        "calls": 1,
+        "usd": 0,
+        "cost_complete": false,
+        "keys": [
+          "4d900c21556409de8a1078c813208ad3e9dc0fefdebb6de1e13514dd5b007594"
+        ]
+      }
+    },
+    "hardrows|factuality.101": {
+      "reference-first": {
+        "pA": 0.03,
+        "confidence": 0.97,
+        "detail": {
+          "eligible": true,
+          "with_reference": true,
+          "kind": "pointwise",
+          "points": [
+            "The reply meets the stated criterion, or agrees with the reference on every fact."
+          ],
+          "scores": {
+            "a": 0.03
+          },
+          "rows": {
+            "a": {
+              "point_0": 0.03
+            }
+          },
+          "reference_source": "dataset"
+        },
+        "calls": 1,
+        "usd": 0,
+        "cost_complete": false,
+        "keys": [
+          "47122e68af4e9c1c2b1ba01d74b727fa3a096715f715d591d557f677c1231b3b"
+        ]
+      },
+      "reference-blind": {
+        "pA": 0.49,
+        "confidence": 0.51,
+        "detail": {
+          "eligible": true,
+          "with_reference": false,
+          "kind": "pointwise",
+          "points": [
+            "The reply meets the stated criterion, or agrees with the reference on every fact."
+          ],
+          "scores": {
+            "a": 0.49
+          },
+          "rows": {
+            "a": {
+              "point_0": 0.49
+            }
+          },
+          "reference_source": null
+        },
+        "calls": 1,
+        "usd": 0,
+        "cost_complete": false,
+        "keys": [
+          "8a8d53f21c20ce5889a1f091bcbcd8a9fa629cf03da0b59829167e2996adb61f"
+        ]
+      }
+    },
+    "hardrows|factuality.062": {
+      "reference-first": {
+        "pA": 0.98,
+        "confidence": 0.98,
+        "detail": {
+          "eligible": true,
+          "with_reference": true,
+          "kind": "pointwise",
+          "points": [
+            "The reply meets the stated criterion, or agrees with the reference on every fact."
+          ],
+          "scores": {
+            "a": 0.98
+          },
+          "rows": {
+            "a": {
+              "point_0": 0.98
+            }
+          },
+          "reference_source": "dataset"
+        },
+        "calls": 1,
+        "usd": 0,
+        "cost_complete": false,
+        "keys": [
+          "4b37f7bd91ce72474f341671b083271df63bebab3ca89622eb0818aae12947bf"
+        ]
+      },
+      "reference-blind": {
+        "pA": 0.54,
+        "confidence": 0.54,
+        "detail": {
+          "eligible": true,
+          "with_reference": false,
+          "kind": "pointwise",
+          "points": [
+            "The reply meets the stated criterion, or agrees with the reference on every fact."
+          ],
+          "scores": {
+            "a": 0.54
+          },
+          "rows": {
+            "a": {
+              "point_0": 0.54
+            }
+          },
+          "reference_source": null
+        },
+        "calls": 1,
+        "usd": 0,
+        "cost_complete": false,
+        "keys": [
+          "13c73ba0c650c7c2407c9a33d286e6b15b17ff4fb468cb86dd03d597025317e6"
+        ]
+      }
+    },
+    "hardrows|factuality.015": {
+      "reference-first": {
+        "pA": 0.98,
+        "confidence": 0.98,
+        "detail": {
+          "eligible": true,
+          "with_reference": true,
+          "kind": "pointwise",
+          "points": [
+            "The reply meets the stated criterion, or agrees with the reference on every fact."
+          ],
+          "scores": {
+            "a": 0.98
+          },
+          "rows": {
+            "a": {
+              "point_0": 0.98
+            }
+          },
+          "reference_source": "dataset"
+        },
+        "calls": 1,
+        "usd": 0,
+        "cost_complete": false,
+        "keys": [
+          "a831a1ea12eb0a3a6cfc43449d111cfd25a24857620eebcb8f3eafd27281372f"
+        ]
+      },
+      "reference-blind": {
+        "pA": 0.57,
+        "confidence": 0.57,
+        "detail": {
+          "eligible": true,
+          "with_reference": false,
+          "kind": "pointwise",
+          "points": [
+            "The reply meets the stated criterion, or agrees with the reference on every fact."
+          ],
+          "scores": {
+            "a": 0.57
+          },
+          "rows": {
+            "a": {
+              "point_0": 0.57
+            }
+          },
+          "reference_source": null
+        },
+        "calls": 1,
+        "usd": 0,
+        "cost_complete": false,
+        "keys": [
+          "7820d942f966737652d7987b9440ded12ea265b17d272ab5be3e6753ad8bebe5"
+        ]
+      }
+    },
+    "hardrows|factuality.099": {
+      "reference-first": {
+        "pA": 0.08,
+        "confidence": 0.92,
+        "detail": {
+          "eligible": true,
+          "with_reference": true,
+          "kind": "pointwise",
+          "points": [
+            "The reply meets the stated criterion, or agrees with the reference on every fact."
+          ],
+          "scores": {
+            "a": 0.08
+          },
+          "rows": {
+            "a": {
+              "point_0": 0.08
+            }
+          },
+          "reference_source": "dataset"
+        },
+        "calls": 1,
+        "usd": 0,
+        "cost_complete": false,
+        "keys": [
+          "093cc140e677361af33f9fd17c7d6b1a25ebaf6a3075adffe61933cdacf92bd0"
+        ]
+      },
+      "reference-blind": {
+        "pA": 0.69,
+        "confidence": 0.69,
+        "detail": {
+          "eligible": true,
+          "with_reference": false,
+          "kind": "pointwise",
+          "points": [
+            "The reply meets the stated criterion, or agrees with the reference on every fact."
+          ],
+          "scores": {
+            "a": 0.69
+          },
+          "rows": {
+            "a": {
+              "point_0": 0.69
+            }
+          },
+          "reference_source": null
+        },
+        "calls": 1,
+        "usd": 0,
+        "cost_complete": false,
+        "keys": [
+          "7651c09469910f8e981a31353f93d4a6abcb22d49830c6694651674814b86395"
+        ]
+      }
+    },
+    "hardrows|factuality.036": {
+      "reference-first": {
+        "pA": 0.09,
+        "confidence": 0.91,
+        "detail": {
+          "eligible": true,
+          "with_reference": true,
+          "kind": "pointwise",
+          "points": [
+            "The reply meets the stated criterion, or agrees with the reference on every fact."
+          ],
+          "scores": {
+            "a": 0.09
+          },
+          "rows": {
+            "a": {
+              "point_0": 0.09
+            }
+          },
+          "reference_source": "dataset"
+        },
+        "calls": 1,
+        "usd": 0,
+        "cost_complete": false,
+        "keys": [
+          "5a70b3bf14e1e55967174ffb493ba8ac40d7b36d00dc6fe0407f2999e3734aaa"
+        ]
+      },
+      "reference-blind": {
+        "pA": 0.7,
+        "confidence": 0.7,
+        "detail": {
+          "eligible": true,
+          "with_reference": false,
+          "kind": "pointwise",
+          "points": [
+            "The reply meets the stated criterion, or agrees with the reference on every fact."
+          ],
+          "scores": {
+            "a": 0.7
+          },
+          "rows": {
+            "a": {
+              "point_0": 0.7
+            }
+          },
+          "reference_source": null
+        },
+        "calls": 1,
+        "usd": 0,
+        "cost_complete": false,
+        "keys": [
+          "1a9e847a0f52ee7195927e539d5398ed7cc672257101379d77ba7127a282e406"
+        ]
+      }
+    },
+    "hardrows|factuality.086": {
+      "reference-first": {
+        "pA": 0.98,
+        "confidence": 0.98,
+        "detail": {
+          "eligible": true,
+          "with_reference": true,
+          "kind": "pointwise",
+          "points": [
+            "The reply meets the stated criterion, or agrees with the reference on every fact."
+          ],
+          "scores": {
+            "a": 0.98
+          },
+          "rows": {
+            "a": {
+              "point_0": 0.98
+            }
+          },
+          "reference_source": "dataset"
+        },
+        "calls": 1,
+        "usd": 0,
+        "cost_complete": false,
+        "keys": [
+          "6e5467c37d2e2796cd9134ef9e1f237ab1d4c75403fd6d897efb488a6cb62cec"
+        ]
+      },
+      "reference-blind": {
+        "pA": 0.7,
+        "confidence": 0.7,
+        "detail": {
+          "eligible": true,
+          "with_reference": false,
+          "kind": "pointwise",
+          "points": [
+            "The reply meets the stated criterion, or agrees with the reference on every fact."
+          ],
+          "scores": {
+            "a": 0.7
+          },
+          "rows": {
+            "a": {
+              "point_0": 0.7
+            }
+          },
+          "reference_source": null
+        },
+        "calls": 1,
+        "usd": 0,
+        "cost_complete": false,
+        "keys": [
+          "73d6fb330381947732d620edb965aad50457088d9805fb1ddf34d091060d4129"
+        ]
+      }
+    },
+    "hardrows|factuality.105": {
+      "reference-first": {
+        "pA": 0.98,
+        "confidence": 0.98,
+        "detail": {
+          "eligible": true,
+          "with_reference": true,
+          "kind": "pointwise",
+          "points": [
+            "The reply meets the stated criterion, or agrees with the reference on every fact."
+          ],
+          "scores": {
+            "a": 0.98
+          },
+          "rows": {
+            "a": {
+              "point_0": 0.98
+            }
+          },
+          "reference_source": "dataset"
+        },
+        "calls": 1,
+        "usd": 0,
+        "cost_complete": false,
+        "keys": [
+          "25f4fbba94100b70b76350a43eb1202542fece0e10b8916516f797b8280bebdc"
+        ]
+      },
+      "reference-blind": {
+        "pA": 0.69,
+        "confidence": 0.69,
+        "detail": {
+          "eligible": true,
+          "with_reference": false,
+          "kind": "pointwise",
+          "points": [
+            "The reply meets the stated criterion, or agrees with the reference on every fact."
+          ],
+          "scores": {
+            "a": 0.69
+          },
+          "rows": {
+            "a": {
+              "point_0": 0.69
+            }
+          },
+          "reference_source": null
+        },
+        "calls": 1,
+        "usd": 0,
+        "cost_complete": false,
+        "keys": [
+          "e4a8b5bc5b4e83b8ca0edeb284a1dae3875fce30778fff17508f01cb1576b3f4"
+        ]
+      }
+    },
+    "hardrows|factuality.065": {
+      "reference-first": {
+        "pA": 0.04,
+        "confidence": 0.96,
+        "detail": {
+          "eligible": true,
+          "with_reference": true,
+          "kind": "pointwise",
+          "points": [
+            "The reply meets the stated criterion, or agrees with the reference on every fact."
+          ],
+          "scores": {
+            "a": 0.04
+          },
+          "rows": {
+            "a": {
+              "point_0": 0.04
+            }
+          },
+          "reference_source": "dataset"
+        },
+        "calls": 1,
+        "usd": 0,
+        "cost_complete": false,
+        "keys": [
+          "3cdd968bd7f5dc81a302a6693f6e8e2add91fdcd1bd88616248c50de3e0b1bb7"
+        ]
+      },
+      "reference-blind": {
+        "pA": 0.87,
+        "confidence": 0.87,
+        "detail": {
+          "eligible": true,
+          "with_reference": false,
+          "kind": "pointwise",
+          "points": [
+            "The reply meets the stated criterion, or agrees with the reference on every fact."
+          ],
+          "scores": {
+            "a": 0.87
+          },
+          "rows": {
+            "a": {
+              "point_0": 0.87
+            }
+          },
+          "reference_source": null
+        },
+        "calls": 1,
+        "usd": 0,
+        "cost_complete": false,
+        "keys": [
+          "f73f753822b172bff363e898adfa10c98ca48e615c777219e26a40e48df1649c"
+        ]
+      }
+    },
+    "hardrows|factuality.021": {
+      "reference-first": {
+        "pA": 0.04,
+        "confidence": 0.96,
+        "detail": {
+          "eligible": true,
+          "with_reference": true,
+          "kind": "pointwise",
+          "points": [
+            "The reply meets the stated criterion, or agrees with the reference on every fact."
+          ],
+          "scores": {
+            "a": 0.04
+          },
+          "rows": {
+            "a": {
+              "point_0": 0.04
+            }
+          },
+          "reference_source": "dataset"
+        },
+        "calls": 1,
+        "usd": 0,
+        "cost_complete": false,
+        "keys": [
+          "143717af5325139b3a18bbf2a2eaf5651152b0485b9893e573484b03075929aa"
+        ]
+      },
+      "reference-blind": {
+        "pA": 0.86,
+        "confidence": 0.86,
+        "detail": {
+          "eligible": true,
+          "with_reference": false,
+          "kind": "pointwise",
+          "points": [
+            "The reply meets the stated criterion, or agrees with the reference on every fact."
+          ],
+          "scores": {
+            "a": 0.86
+          },
+          "rows": {
+            "a": {
+              "point_0": 0.86
+            }
+          },
+          "reference_source": null
+        },
+        "calls": 1,
+        "usd": 0,
+        "cost_complete": false,
+        "keys": [
+          "b755fac1d2f2a5ae414a093e63172778344a55993036f8d0f431996aa33638e1"
+        ]
+      }
+    },
+    "hardrows|factuality.011": {
+      "reference-first": {
+        "pA": 0.97,
+        "confidence": 0.97,
+        "detail": {
+          "eligible": true,
+          "with_reference": true,
+          "kind": "pointwise",
+          "points": [
+            "The reply meets the stated criterion, or agrees with the reference on every fact."
+          ],
+          "scores": {
+            "a": 0.97
+          },
+          "rows": {
+            "a": {
+              "point_0": 0.97
+            }
+          },
+          "reference_source": "dataset"
+        },
+        "calls": 1,
+        "usd": 0,
+        "cost_complete": false,
+        "keys": [
+          "59996e11aec2f5d9d61856e91c527196530acec3370c412a1c9e6e8648d2029e"
+        ]
+      },
+      "reference-blind": {
+        "pA": 0.85,
+        "confidence": 0.85,
+        "detail": {
+          "eligible": true,
+          "with_reference": false,
+          "kind": "pointwise",
+          "points": [
+            "The reply meets the stated criterion, or agrees with the reference on every fact."
+          ],
+          "scores": {
+            "a": 0.85
+          },
+          "rows": {
+            "a": {
+              "point_0": 0.85
+            }
+          },
+          "reference_source": null
+        },
+        "calls": 1,
+        "usd": 0,
+        "cost_complete": false,
+        "keys": [
+          "96e08ceacae8f3a0d8c56df80061927d5f2e6b6ef1aa02b33bdd6263990e7e04"
+        ]
+      }
+    },
+    "hardrows|factuality.007": {
+      "reference-first": {
+        "pA": 0.97,
+        "confidence": 0.97,
+        "detail": {
+          "eligible": true,
+          "with_reference": true,
+          "kind": "pointwise",
+          "points": [
+            "The reply meets the stated criterion, or agrees with the reference on every fact."
+          ],
+          "scores": {
+            "a": 0.97
+          },
+          "rows": {
+            "a": {
+              "point_0": 0.97
+            }
+          },
+          "reference_source": "dataset"
+        },
+        "calls": 1,
+        "usd": 0,
+        "cost_complete": false,
+        "keys": [
+          "612661d8e625a3f3acac41a821c45c36cfb7dc0f5945635ef79933827c18b6ff"
+        ]
+      },
+      "reference-blind": {
+        "pA": 0.85,
+        "confidence": 0.85,
+        "detail": {
+          "eligible": true,
+          "with_reference": false,
+          "kind": "pointwise",
+          "points": [
+            "The reply meets the stated criterion, or agrees with the reference on every fact."
+          ],
+          "scores": {
+            "a": 0.85
+          },
+          "rows": {
+            "a": {
+              "point_0": 0.85
+            }
+          },
+          "reference_source": null
+        },
+        "calls": 1,
+        "usd": 0,
+        "cost_complete": false,
+        "keys": [
+          "ab11a4634fe1f2dfaa42a59f61647fc4cb8f06da76641a9226b3594f1d399a2b"
+        ]
+      }
+    },
+    "hardrows|factuality.032": {
+      "reference-first": {
+        "pA": 0.09,
+        "confidence": 0.91,
+        "detail": {
+          "eligible": true,
+          "with_reference": true,
+          "kind": "pointwise",
+          "points": [
+            "The reply meets the stated criterion, or agrees with the reference on every fact."
+          ],
+          "scores": {
+            "a": 0.09
+          },
+          "rows": {
+            "a": {
+              "point_0": 0.09
+            }
+          },
+          "reference_source": "dataset"
+        },
+        "calls": 1,
+        "usd": 0,
+        "cost_complete": false,
+        "keys": [
+          "b20f213d6994bc3eaf0f14daa7c534baf3a2acf772e751149e894d524cdfcf89"
+        ]
+      },
+      "reference-blind": {
+        "pA": 0.53,
+        "confidence": 0.53,
+        "detail": {
+          "eligible": true,
+          "with_reference": false,
+          "kind": "pointwise",
+          "points": [
+            "The reply meets the stated criterion, or agrees with the reference on every fact."
+          ],
+          "scores": {
+            "a": 0.53
+          },
+          "rows": {
+            "a": {
+              "point_0": 0.53
+            }
+          },
+          "reference_source": null
+        },
+        "calls": 1,
+        "usd": 0,
+        "cost_complete": false,
+        "keys": [
+          "d2a5dda662408e03288588c4930214f1ac4915a800217fb4b6723cb9e803a5d1"
+        ]
+      }
+    },
+    "hardrows|factuality.073": {
+      "reference-first": {
+        "pA": 0.1,
+        "confidence": 0.9,
+        "detail": {
+          "eligible": true,
+          "with_reference": true,
+          "kind": "pointwise",
+          "points": [
+            "The reply meets the stated criterion, or agrees with the reference on every fact."
+          ],
+          "scores": {
+            "a": 0.1
+          },
+          "rows": {
+            "a": {
+              "point_0": 0.1
+            }
+          },
+          "reference_source": "dataset"
+        },
+        "calls": 1,
+        "usd": 0,
+        "cost_complete": false,
+        "keys": [
+          "c9e27261de52506723b7757e7fc1e16088fecbdc727e5c246f5f631851b955bf"
+        ]
+      },
+      "reference-blind": {
+        "pA": 0.52,
+        "confidence": 0.52,
+        "detail": {
+          "eligible": true,
+          "with_reference": false,
+          "kind": "pointwise",
+          "points": [
+            "The reply meets the stated criterion, or agrees with the reference on every fact."
+          ],
+          "scores": {
+            "a": 0.52
+          },
+          "rows": {
+            "a": {
+              "point_0": 0.52
+            }
+          },
+          "reference_source": null
+        },
+        "calls": 1,
+        "usd": 0,
+        "cost_complete": false,
+        "keys": [
+          "cf540e2b855063432196289de76414f3de0ad357bd7885e42c7f45e3792c581a"
+        ]
+      }
+    },
+    "hardrows|factuality.070": {
+      "reference-first": {
+        "pA": 0.92,
+        "confidence": 0.92,
+        "detail": {
+          "eligible": true,
+          "with_reference": true,
+          "kind": "pointwise",
+          "points": [
+            "The reply meets the stated criterion, or agrees with the reference on every fact."
+          ],
+          "scores": {
+            "a": 0.92
+          },
+          "rows": {
+            "a": {
+              "point_0": 0.92
+            }
+          },
+          "reference_source": "dataset"
+        },
+        "calls": 1,
+        "usd": 0,
+        "cost_complete": false,
+        "keys": [
+          "03871f91d02f6d95224fd55a31a2dd4394bbb33ba975c308b13dceded413a553"
+        ]
+      },
+      "reference-blind": {
+        "pA": 0.55,
+        "confidence": 0.55,
+        "detail": {
+          "eligible": true,
+          "with_reference": false,
+          "kind": "pointwise",
+          "points": [
+            "The reply meets the stated criterion, or agrees with the reference on every fact."
+          ],
+          "scores": {
+            "a": 0.55
+          },
+          "rows": {
+            "a": {
+              "point_0": 0.55
+            }
+          },
+          "reference_source": null
+        },
+        "calls": 1,
+        "usd": 0,
+        "cost_complete": false,
+        "keys": [
+          "b15ec95c681ce76751772fd00e67a485c9086c9aca5a01f31a74dad954655069"
+        ]
+      }
+    },
+    "hardrows|factuality.115": {
+      "reference-first": {
+        "pA": 0.93,
+        "confidence": 0.93,
+        "detail": {
+          "eligible": true,
+          "with_reference": true,
+          "kind": "pointwise",
+          "points": [
+            "The reply meets the stated criterion, or agrees with the reference on every fact."
+          ],
+          "scores": {
+            "a": 0.93
+          },
+          "rows": {
+            "a": {
+              "point_0": 0.93
+            }
+          },
+          "reference_source": "dataset"
+        },
+        "calls": 1,
+        "usd": 0,
+        "cost_complete": false,
+        "keys": [
+          "d2d54bcab0df8a77fab359bd306217272df4df8d0ef32427a028b940c91703db"
+        ]
+      },
+      "reference-blind": {
+        "pA": 0.51,
+        "confidence": 0.51,
+        "detail": {
+          "eligible": true,
+          "with_reference": false,
+          "kind": "pointwise",
+          "points": [
+            "The reply meets the stated criterion, or agrees with the reference on every fact."
+          ],
+          "scores": {
+            "a": 0.51
+          },
+          "rows": {
+            "a": {
+              "point_0": 0.51
+            }
+          },
+          "reference_source": null
+        },
+        "calls": 1,
+        "usd": 0,
+        "cost_complete": false,
+        "keys": [
+          "22bd9a51f26ef4cc95be11c66dec878bdeaea66c1647780a5393b4143e9578c8"
+        ]
+      }
+    },
+    "hardrows|factuality.055": {
+      "reference-first": {
+        "pA": 0.06,
+        "confidence": 0.94,
+        "detail": {
+          "eligible": true,
+          "with_reference": true,
+          "kind": "pointwise",
+          "points": [
+            "The reply meets the stated criterion, or agrees with the reference on every fact."
+          ],
+          "scores": {
+            "a": 0.06
+          },
+          "rows": {
+            "a": {
+              "point_0": 0.06
+            }
+          },
+          "reference_source": "dataset"
+        },
+        "calls": 1,
+        "usd": 0,
+        "cost_complete": false,
+        "keys": [
+          "cb35f17e33adf1b093c8ce8920d081907d979d6b94609f5971cc8d67b55320e8"
+        ]
+      },
+      "reference-blind": {
+        "pA": 0.3,
+        "confidence": 0.7,
+        "detail": {
+          "eligible": true,
+          "with_reference": false,
+          "kind": "pointwise",
+          "points": [
+            "The reply meets the stated criterion, or agrees with the reference on every fact."
+          ],
+          "scores": {
+            "a": 0.3
+          },
+          "rows": {
+            "a": {
+              "point_0": 0.3
+            }
+          },
+          "reference_source": null
+        },
+        "calls": 1,
+        "usd": 0,
+        "cost_complete": false,
+        "keys": [
+          "6a4212432da350d91556e343cee69d94a925bc3e0f7a87cbd249fff56142465b"
+        ]
+      }
+    },
+    "hardrows|factuality.014": {
+      "reference-first": {
+        "pA": 0.05,
+        "confidence": 0.95,
+        "detail": {
+          "eligible": true,
+          "with_reference": true,
+          "kind": "pointwise",
+          "points": [
+            "The reply meets the stated criterion, or agrees with the reference on every fact."
+          ],
+          "scores": {
+            "a": 0.05
+          },
+          "rows": {
+            "a": {
+              "point_0": 0.05
+            }
+          },
+          "reference_source": "dataset"
+        },
+        "calls": 1,
+        "usd": 0,
+        "cost_complete": false,
+        "keys": [
+          "10cccc90e4e7bf6a732282619fd115bfd97841b69d06cb658b441f152743d744"
+        ]
+      },
+      "reference-blind": {
+        "pA": 0.28,
+        "confidence": 0.72,
+        "detail": {
+          "eligible": true,
+          "with_reference": false,
+          "kind": "pointwise",
+          "points": [
+            "The reply meets the stated criterion, or agrees with the reference on every fact."
+          ],
+          "scores": {
+            "a": 0.28
+          },
+          "rows": {
+            "a": {
+              "point_0": 0.28
+            }
+          },
+          "reference_source": null
+        },
+        "calls": 1,
+        "usd": 0,
+        "cost_complete": false,
+        "keys": [
+          "49481059403440a97a2637fd56cb6164a775ba53203b4d0c11958700d1218ed0"
+        ]
+      }
+    },
+    "hardrows|factuality.081": {
+      "reference-first": {
+        "pA": 0.96,
+        "confidence": 0.96,
+        "detail": {
+          "eligible": true,
+          "with_reference": true,
+          "kind": "pointwise",
+          "points": [
+            "The reply meets the stated criterion, or agrees with the reference on every fact."
+          ],
+          "scores": {
+            "a": 0.96
+          },
+          "rows": {
+            "a": {
+              "point_0": 0.96
+            }
+          },
+          "reference_source": "dataset"
+        },
+        "calls": 1,
+        "usd": 0,
+        "cost_complete": false,
+        "keys": [
+          "db1e8c64291045630e72a004f7c1c321f86c17791b30cd463d9cdb0aa6817788"
+        ]
+      },
+      "reference-blind": {
+        "pA": 0.24,
+        "confidence": 0.76,
+        "detail": {
+          "eligible": true,
+          "with_reference": false,
+          "kind": "pointwise",
+          "points": [
+            "The reply meets the stated criterion, or agrees with the reference on every fact."
+          ],
+          "scores": {
+            "a": 0.24
+          },
+          "rows": {
+            "a": {
+              "point_0": 0.24
+            }
+          },
+          "reference_source": null
+        },
+        "calls": 1,
+        "usd": 0,
+        "cost_complete": false,
+        "keys": [
+          "2bdec12a8e1b45eec4500cb2ae5fc94b6b1da170920e80ae60d556c83ff8767c"
+        ]
+      }
+    },
+    "hardrows|factuality.006": {
+      "reference-first": {
+        "pA": 0.96,
+        "confidence": 0.96,
+        "detail": {
+          "eligible": true,
+          "with_reference": true,
+          "kind": "pointwise",
+          "points": [
+            "The reply meets the stated criterion, or agrees with the reference on every fact."
+          ],
+          "scores": {
+            "a": 0.96
+          },
+          "rows": {
+            "a": {
+              "point_0": 0.96
+            }
+          },
+          "reference_source": "dataset"
+        },
+        "calls": 1,
+        "usd": 0,
+        "cost_complete": false,
+        "keys": [
+          "dd36ff8a81fae6f4747302ca41891755e42b470a8e6f2ad560a62c6cde99cb9c"
+        ]
+      },
+      "reference-blind": {
+        "pA": 0.25,
+        "confidence": 0.75,
+        "detail": {
+          "eligible": true,
+          "with_reference": false,
+          "kind": "pointwise",
+          "points": [
+            "The reply meets the stated criterion, or agrees with the reference on every fact."
+          ],
+          "scores": {
+            "a": 0.25
+          },
+          "rows": {
+            "a": {
+              "point_0": 0.25
+            }
+          },
+          "reference_source": null
+        },
+        "calls": 1,
+        "usd": 0,
+        "cost_complete": false,
+        "keys": [
+          "a8948550df65623df47de9a71b6b78971c9a9c56b409b211972af25338c0bc28"
+        ]
+      }
+    },
+    "hardrows|factuality.057": {
+      "reference-first": {
+        "pA": 0.08,
+        "confidence": 0.92,
+        "detail": {
+          "eligible": true,
+          "with_reference": true,
+          "kind": "pointwise",
+          "points": [
+            "The reply meets the stated criterion, or agrees with the reference on every fact."
+          ],
+          "scores": {
+            "a": 0.08
+          },
+          "rows": {
+            "a": {
+              "point_0": 0.08
+            }
+          },
+          "reference_source": "dataset"
+        },
+        "calls": 1,
+        "usd": 0,
+        "cost_complete": false,
+        "keys": [
+          "33871588083479b6e18e8d4c936d4bc9874648c2b622e201796755d431443219"
+        ]
+      },
+      "reference-blind": {
+        "pA": 0.9,
+        "confidence": 0.9,
+        "detail": {
+          "eligible": true,
+          "with_reference": false,
+          "kind": "pointwise",
+          "points": [
+            "The reply meets the stated criterion, or agrees with the reference on every fact."
+          ],
+          "scores": {
+            "a": 0.9
+          },
+          "rows": {
+            "a": {
+              "point_0": 0.9
+            }
+          },
+          "reference_source": null
+        },
+        "calls": 1,
+        "usd": 0,
+        "cost_complete": false,
+        "keys": [
+          "9a1ce4917ef787c0b32ee53e3db803c8157bac4d40ce4ed65eb8f606380da385"
+        ]
+      }
+    },
+    "hardrows|factuality.040": {
+      "reference-first": {
+        "pA": 0.1,
+        "confidence": 0.9,
+        "detail": {
+          "eligible": true,
+          "with_reference": true,
+          "kind": "pointwise",
+          "points": [
+            "The reply meets the stated criterion, or agrees with the reference on every fact."
+          ],
+          "scores": {
+            "a": 0.1
+          },
+          "rows": {
+            "a": {
+              "point_0": 0.1
+            }
+          },
+          "reference_source": "dataset"
+        },
+        "calls": 1,
+        "usd": 0,
+        "cost_complete": false,
+        "keys": [
+          "b9435388fc121dbc743a1bc083b03340205255b95c496f2363544841bf7d4eb4"
+        ]
+      },
+      "reference-blind": {
+        "pA": 0.88,
+        "confidence": 0.88,
+        "detail": {
+          "eligible": true,
+          "with_reference": false,
+          "kind": "pointwise",
+          "points": [
+            "The reply meets the stated criterion, or agrees with the reference on every fact."
+          ],
+          "scores": {
+            "a": 0.88
+          },
+          "rows": {
+            "a": {
+              "point_0": 0.88
+            }
+          },
+          "reference_source": null
+        },
+        "calls": 1,
+        "usd": 0,
+        "cost_complete": false,
+        "keys": [
+          "8473c3d6ea5f1bf741969aa909c72a3d31813ea238c606a39c5bf51da260d3b3"
+        ]
+      }
+    },
+    "hardrows|factuality.060": {
+      "reference-first": {
+        "pA": 0.97,
+        "confidence": 0.97,
+        "detail": {
+          "eligible": true,
+          "with_reference": true,
+          "kind": "pointwise",
+          "points": [
+            "The reply meets the stated criterion, or agrees with the reference on every fact."
+          ],
+          "scores": {
+            "a": 0.97
+          },
+          "rows": {
+            "a": {
+              "point_0": 0.97
+            }
+          },
+          "reference_source": "dataset"
+        },
+        "calls": 1,
+        "usd": 0,
+        "cost_complete": false,
+        "keys": [
+          "a76e745d6daad38bf6cfeefa5d14d05efb7259a1a3840d36e969ec98b1a18805"
+        ]
+      },
+      "reference-blind": {
+        "pA": 0.89,
+        "confidence": 0.89,
+        "detail": {
+          "eligible": true,
+          "with_reference": false,
+          "kind": "pointwise",
+          "points": [
+            "The reply meets the stated criterion, or agrees with the reference on every fact."
+          ],
+          "scores": {
+            "a": 0.89
+          },
+          "rows": {
+            "a": {
+              "point_0": 0.89
+            }
+          },
+          "reference_source": null
+        },
+        "calls": 1,
+        "usd": 0,
+        "cost_complete": false,
+        "keys": [
+          "bf6d19803d16ac90d758b4d488fec86d25439f6acb07c96192f767c762a89740"
+        ]
+      }
+    },
+    "hardrows|factuality.102": {
+      "reference-first": {
+        "pA": 0.97,
+        "confidence": 0.97,
+        "detail": {
+          "eligible": true,
+          "with_reference": true,
+          "kind": "pointwise",
+          "points": [
+            "The reply meets the stated criterion, or agrees with the reference on every fact."
+          ],
+          "scores": {
+            "a": 0.97
+          },
+          "rows": {
+            "a": {
+              "point_0": 0.97
+            }
+          },
+          "reference_source": "dataset"
+        },
+        "calls": 1,
+        "usd": 0,
+        "cost_complete": false,
+        "keys": [
+          "4b4c9f577b9ba56125215ffacef637f6b68908a96d6340449e9ab2a611a98475"
+        ]
+      },
+      "reference-blind": {
+        "pA": 0.88,
+        "confidence": 0.88,
+        "detail": {
+          "eligible": true,
+          "with_reference": false,
+          "kind": "pointwise",
+          "points": [
+            "The reply meets the stated criterion, or agrees with the reference on every fact."
+          ],
+          "scores": {
+            "a": 0.88
+          },
+          "rows": {
+            "a": {
+              "point_0": 0.88
+            }
+          },
+          "reference_source": null
+        },
+        "calls": 1,
+        "usd": 0,
+        "cost_complete": false,
+        "keys": [
+          "a06313acb4377537d2e557635ea8a6a4f8e3e376600ce3211ecb2fe93c50e926"
+        ]
+      }
+    },
+    "hardrows|factuality.090": {
+      "reference-first": {
+        "pA": 0.06,
+        "confidence": 0.94,
+        "detail": {
+          "eligible": true,
+          "with_reference": true,
+          "kind": "pointwise",
+          "points": [
+            "The reply meets the stated criterion, or agrees with the reference on every fact."
+          ],
+          "scores": {
+            "a": 0.06
+          },
+          "rows": {
+            "a": {
+              "point_0": 0.06
+            }
+          },
+          "reference_source": "dataset"
+        },
+        "calls": 1,
+        "usd": 0,
+        "cost_complete": false,
+        "keys": [
+          "d0b3884373ded7664aefb83714138cb189d86c8377b62452b53772d00eef5947"
+        ]
+      },
+      "reference-blind": {
+        "pA": 0.84,
+        "confidence": 0.84,
+        "detail": {
+          "eligible": true,
+          "with_reference": false,
+          "kind": "pointwise",
+          "points": [
+            "The reply meets the stated criterion, or agrees with the reference on every fact."
+          ],
+          "scores": {
+            "a": 0.84
+          },
+          "rows": {
+            "a": {
+              "point_0": 0.84
+            }
+          },
+          "reference_source": null
+        },
+        "calls": 1,
+        "usd": 0,
+        "cost_complete": false,
+        "keys": [
+          "fa160248ed5c36736fe72dc7abf380ddb647501b3ff021e9839db23dba715a6f"
+        ]
+      }
+    },
+    "hardrows|factuality.042": {
+      "reference-first": {
+        "pA": 0.07,
+        "confidence": 0.9299999999999999,
+        "detail": {
+          "eligible": true,
+          "with_reference": true,
+          "kind": "pointwise",
+          "points": [
+            "The reply meets the stated criterion, or agrees with the reference on every fact."
+          ],
+          "scores": {
+            "a": 0.07
+          },
+          "rows": {
+            "a": {
+              "point_0": 0.07
+            }
+          },
+          "reference_source": "dataset"
+        },
+        "calls": 1,
+        "usd": 0,
+        "cost_complete": false,
+        "keys": [
+          "b2a4abb39c93fd0aae49ff2a4f36239cdd449ee0f0545a5ef2ec3860f547eee8"
+        ]
+      },
+      "reference-blind": {
+        "pA": 0.86,
+        "confidence": 0.86,
+        "detail": {
+          "eligible": true,
+          "with_reference": false,
+          "kind": "pointwise",
+          "points": [
+            "The reply meets the stated criterion, or agrees with the reference on every fact."
+          ],
+          "scores": {
+            "a": 0.86
+          },
+          "rows": {
+            "a": {
+              "point_0": 0.86
+            }
+          },
+          "reference_source": null
+        },
+        "calls": 1,
+        "usd": 0,
+        "cost_complete": false,
+        "keys": [
+          "b49eb781f65841b7b2632930e6cc0351eab359dac47130a4278a13794b6a8768"
+        ]
+      }
+    },
+    "hardrows|factuality.063": {
+      "reference-first": {
+        "pA": 0.98,
+        "confidence": 0.98,
+        "detail": {
+          "eligible": true,
+          "with_reference": true,
+          "kind": "pointwise",
+          "points": [
+            "The reply meets the stated criterion, or agrees with the reference on every fact."
+          ],
+          "scores": {
+            "a": 0.98
+          },
+          "rows": {
+            "a": {
+              "point_0": 0.98
+            }
+          },
+          "reference_source": "dataset"
+        },
+        "calls": 1,
+        "usd": 0,
+        "cost_complete": false,
+        "keys": [
+          "d331b5d8277d00191b94bacf763082307487c07843ffae023911aecd80888bef"
+        ]
+      },
+      "reference-blind": {
+        "pA": 0.88,
+        "confidence": 0.88,
+        "detail": {
+          "eligible": true,
+          "with_reference": false,
+          "kind": "pointwise",
+          "points": [
+            "The reply meets the stated criterion, or agrees with the reference on every fact."
+          ],
+          "scores": {
+            "a": 0.88
+          },
+          "rows": {
+            "a": {
+              "point_0": 0.88
+            }
+          },
+          "reference_source": null
+        },
+        "calls": 1,
+        "usd": 0,
+        "cost_complete": false,
+        "keys": [
+          "563887da908124d949b12892b997d1836d0a21614df9d187f8eaa7199b9e9625"
+        ]
+      }
+    },
+    "hardrows|factuality.118": {
+      "reference-first": {
+        "pA": 0.98,
+        "confidence": 0.98,
+        "detail": {
+          "eligible": true,
+          "with_reference": true,
+          "kind": "pointwise",
+          "points": [
+            "The reply meets the stated criterion, or agrees with the reference on every fact."
+          ],
+          "scores": {
+            "a": 0.98
+          },
+          "rows": {
+            "a": {
+              "point_0": 0.98
+            }
+          },
+          "reference_source": "dataset"
+        },
+        "calls": 1,
+        "usd": 0,
+        "cost_complete": false,
+        "keys": [
+          "5c810c0bc9044e314cb9da33c8fccdb05783cb851821e12de8d2dd6eedc4d3b9"
+        ]
+      },
+      "reference-blind": {
+        "pA": 0.85,
+        "confidence": 0.85,
+        "detail": {
+          "eligible": true,
+          "with_reference": false,
+          "kind": "pointwise",
+          "points": [
+            "The reply meets the stated criterion, or agrees with the reference on every fact."
+          ],
+          "scores": {
+            "a": 0.85
+          },
+          "rows": {
+            "a": {
+              "point_0": 0.85
+            }
+          },
+          "reference_source": null
+        },
+        "calls": 1,
+        "usd": 0,
+        "cost_complete": false,
+        "keys": [
+          "af70de778cffeb40c2fc6a744b4aede6f20dd6053c1d1c64718f916debcb7c69"
+        ]
+      }
+    },
+    "hardrows|factuality.037": {
+      "reference-first": {
+        "pA": 0.09,
+        "confidence": 0.91,
+        "detail": {
+          "eligible": true,
+          "with_reference": true,
+          "kind": "pointwise",
+          "points": [
+            "The reply meets the stated criterion, or agrees with the reference on every fact."
+          ],
+          "scores": {
+            "a": 0.09
+          },
+          "rows": {
+            "a": {
+              "point_0": 0.09
+            }
+          },
+          "reference_source": "dataset"
+        },
+        "calls": 1,
+        "usd": 0,
+        "cost_complete": false,
+        "keys": [
+          "b74cad82e4705b026924dc2d205428d9900237cf8ad5ec1226cbbd89b5c52cd7"
+        ]
+      },
+      "reference-blind": {
+        "pA": 0.88,
+        "confidence": 0.88,
+        "detail": {
+          "eligible": true,
+          "with_reference": false,
+          "kind": "pointwise",
+          "points": [
+            "The reply meets the stated criterion, or agrees with the reference on every fact."
+          ],
+          "scores": {
+            "a": 0.88
+          },
+          "rows": {
+            "a": {
+              "point_0": 0.88
+            }
+          },
+          "reference_source": null
+        },
+        "calls": 1,
+        "usd": 0,
+        "cost_complete": false,
+        "keys": [
+          "6e6d1f3be1bbf6a9fd190ffbc87ce3bab6fde2ea78b5c377c03f7dfcad449352"
+        ]
+      }
+    },
+    "hardrows|factuality.027": {
+      "reference-first": {
+        "pA": 0.09,
+        "confidence": 0.91,
+        "detail": {
+          "eligible": true,
+          "with_reference": true,
+          "kind": "pointwise",
+          "points": [
+            "The reply meets the stated criterion, or agrees with the reference on every fact."
+          ],
+          "scores": {
+            "a": 0.09
+          },
+          "rows": {
+            "a": {
+              "point_0": 0.09
+            }
+          },
+          "reference_source": "dataset"
+        },
+        "calls": 1,
+        "usd": 0,
+        "cost_complete": false,
+        "keys": [
+          "83e1d78aa7d48d1d0bb80aee66c2afe7983ff19f77f9bc3e9ad44e8fcfcecaf8"
+        ]
+      },
+      "reference-blind": {
+        "pA": 0.87,
+        "confidence": 0.87,
+        "detail": {
+          "eligible": true,
+          "with_reference": false,
+          "kind": "pointwise",
+          "points": [
+            "The reply meets the stated criterion, or agrees with the reference on every fact."
+          ],
+          "scores": {
+            "a": 0.87
+          },
+          "rows": {
+            "a": {
+              "point_0": 0.87
+            }
+          },
+          "reference_source": null
+        },
+        "calls": 1,
+        "usd": 0,
+        "cost_complete": false,
+        "keys": [
+          "fa879a4dff26a5d145dc7765569a37cfd6037bd4b69f250c6fcefad137c77feb"
+        ]
+      }
+    },
+    "hardrows|factuality.083": {
+      "reference-first": {
+        "pA": 0.98,
+        "confidence": 0.98,
+        "detail": {
+          "eligible": true,
+          "with_reference": true,
+          "kind": "pointwise",
+          "points": [
+            "The reply meets the stated criterion, or agrees with the reference on every fact."
+          ],
+          "scores": {
+            "a": 0.98
+          },
+          "rows": {
+            "a": {
+              "point_0": 0.98
+            }
+          },
+          "reference_source": "dataset"
+        },
+        "calls": 1,
+        "usd": 0,
+        "cost_complete": false,
+        "keys": [
+          "8072061bc16e0fa228dfd21dc45b30a1b2ace9f7f8e135456e3c0444efa25088"
+        ]
+      },
+      "reference-blind": {
+        "pA": 0.91,
+        "confidence": 0.91,
+        "detail": {
+          "eligible": true,
+          "with_reference": false,
+          "kind": "pointwise",
+          "points": [
+            "The reply meets the stated criterion, or agrees with the reference on every fact."
+          ],
+          "scores": {
+            "a": 0.91
+          },
+          "rows": {
+            "a": {
+              "point_0": 0.91
+            }
+          },
+          "reference_source": null
+        },
+        "calls": 1,
+        "usd": 0,
+        "cost_complete": false,
+        "keys": [
+          "1a4b2d631f2cfd32219f475077c8371bbb625103a8b63bb78cc51575f333eaba"
+        ]
+      }
+    },
+    "hardrows|factuality.067": {
+      "reference-first": {
+        "pA": 0.97,
+        "confidence": 0.97,
+        "detail": {
+          "eligible": true,
+          "with_reference": true,
+          "kind": "pointwise",
+          "points": [
+            "The reply meets the stated criterion, or agrees with the reference on every fact."
+          ],
+          "scores": {
+            "a": 0.97
+          },
+          "rows": {
+            "a": {
+              "point_0": 0.97
+            }
+          },
+          "reference_source": "dataset"
+        },
+        "calls": 1,
+        "usd": 0,
+        "cost_complete": false,
+        "keys": [
+          "a6e56cef428a0e797d74fe2788100139d0646850300dd9113f70475c74493543"
+        ]
+      },
+      "reference-blind": {
+        "pA": 0.89,
+        "confidence": 0.89,
+        "detail": {
+          "eligible": true,
+          "with_reference": false,
+          "kind": "pointwise",
+          "points": [
+            "The reply meets the stated criterion, or agrees with the reference on every fact."
+          ],
+          "scores": {
+            "a": 0.89
+          },
+          "rows": {
+            "a": {
+              "point_0": 0.89
+            }
+          },
+          "reference_source": null
+        },
+        "calls": 1,
+        "usd": 0,
+        "cost_complete": false,
+        "keys": [
+          "21bf588969552a2881853c1a35769fe82b147c050c6daddb435251078f702742"
+        ]
+      }
+    },
+    "hardrows|factuality.038": {
+      "reference-first": {
+        "pA": 0.04,
+        "confidence": 0.96,
+        "detail": {
+          "eligible": true,
+          "with_reference": true,
+          "kind": "pointwise",
+          "points": [
+            "The reply meets the stated criterion, or agrees with the reference on every fact."
+          ],
+          "scores": {
+            "a": 0.04
+          },
+          "rows": {
+            "a": {
+              "point_0": 0.04
+            }
+          },
+          "reference_source": "dataset"
+        },
+        "calls": 1,
+        "usd": 0,
+        "cost_complete": false,
+        "keys": [
+          "776a28cb306dbdc5cdcf687f513ec35fb7cd615d5ea46b2a31063ebe7a205bbe"
+        ]
+      },
+      "reference-blind": {
+        "pA": 0.73,
+        "confidence": 0.73,
+        "detail": {
+          "eligible": true,
+          "with_reference": false,
+          "kind": "pointwise",
+          "points": [
+            "The reply meets the stated criterion, or agrees with the reference on every fact."
+          ],
+          "scores": {
+            "a": 0.73
+          },
+          "rows": {
+            "a": {
+              "point_0": 0.73
+            }
+          },
+          "reference_source": null
+        },
+        "calls": 1,
+        "usd": 0,
+        "cost_complete": false,
+        "keys": [
+          "23c821525999db503d8e501adc9f2c7345406069c8015529cbc62f3bcf29f713"
+        ]
+      }
+    },
+    "hardrows|factuality.097": {
+      "reference-first": {
+        "pA": 0.04,
+        "confidence": 0.96,
+        "detail": {
+          "eligible": true,
+          "with_reference": true,
+          "kind": "pointwise",
+          "points": [
+            "The reply meets the stated criterion, or agrees with the reference on every fact."
+          ],
+          "scores": {
+            "a": 0.04
+          },
+          "rows": {
+            "a": {
+              "point_0": 0.04
+            }
+          },
+          "reference_source": "dataset"
+        },
+        "calls": 1,
+        "usd": 0,
+        "cost_complete": false,
+        "keys": [
+          "b515ce5379f2c6636932c55e49a9ea5c101f3aadbb31048eb8e7eb420d7ae76b"
+        ]
+      },
+      "reference-blind": {
+        "pA": 0.69,
+        "confidence": 0.69,
+        "detail": {
+          "eligible": true,
+          "with_reference": false,
+          "kind": "pointwise",
+          "points": [
+            "The reply meets the stated criterion, or agrees with the reference on every fact."
+          ],
+          "scores": {
+            "a": 0.69
+          },
+          "rows": {
+            "a": {
+              "point_0": 0.69
+            }
+          },
+          "reference_source": null
+        },
+        "calls": 1,
+        "usd": 0,
+        "cost_complete": false,
+        "keys": [
+          "44dddac37f816371aec4403ae0953d2f8899a8574d373b88c2a068cab6acb9d3"
+        ]
+      }
+    },
+    "hardrows|factuality.010": {
+      "reference-first": {
+        "pA": 0.98,
+        "confidence": 0.98,
+        "detail": {
+          "eligible": true,
+          "with_reference": true,
+          "kind": "pointwise",
+          "points": [
+            "The reply meets the stated criterion, or agrees with the reference on every fact."
+          ],
+          "scores": {
+            "a": 0.98
+          },
+          "rows": {
+            "a": {
+              "point_0": 0.98
+            }
+          },
+          "reference_source": "dataset"
+        },
+        "calls": 1,
+        "usd": 0,
+        "cost_complete": false,
+        "keys": [
+          "dc8062b1500198716da062911c224c5487d3341f43eacd00600c060e19663396"
+        ]
+      },
+      "reference-blind": {
+        "pA": 0.74,
+        "confidence": 0.74,
+        "detail": {
+          "eligible": true,
+          "with_reference": false,
+          "kind": "pointwise",
+          "points": [
+            "The reply meets the stated criterion, or agrees with the reference on every fact."
+          ],
+          "scores": {
+            "a": 0.74
+          },
+          "rows": {
+            "a": {
+              "point_0": 0.74
+            }
+          },
+          "reference_source": null
+        },
+        "calls": 1,
+        "usd": 0,
+        "cost_complete": false,
+        "keys": [
+          "a26a205403c39e7fa821c73e6cbc6262411e04194759395569659abc072236ce"
+        ]
+      }
+    },
+    "hardrows|factuality.114": {
+      "reference-first": {
+        "pA": 0.98,
+        "confidence": 0.98,
+        "detail": {
+          "eligible": true,
+          "with_reference": true,
+          "kind": "pointwise",
+          "points": [
+            "The reply meets the stated criterion, or agrees with the reference on every fact."
+          ],
+          "scores": {
+            "a": 0.98
+          },
+          "rows": {
+            "a": {
+              "point_0": 0.98
+            }
+          },
+          "reference_source": "dataset"
+        },
+        "calls": 1,
+        "usd": 0,
+        "cost_complete": false,
+        "keys": [
+          "d6ec00bba056cc1f839feacad1b57adf07c11aeab94027849f752d462f5bff12"
+        ]
+      },
+      "reference-blind": {
+        "pA": 0.72,
+        "confidence": 0.72,
+        "detail": {
+          "eligible": true,
+          "with_reference": false,
+          "kind": "pointwise",
+          "points": [
+            "The reply meets the stated criterion, or agrees with the reference on every fact."
+          ],
+          "scores": {
+            "a": 0.72
+          },
+          "rows": {
+            "a": {
+              "point_0": 0.72
+            }
+          },
+          "reference_source": null
+        },
+        "calls": 1,
+        "usd": 0,
+        "cost_complete": false,
+        "keys": [
+          "3ad0640cb97dc34ef0dd081efda85cfd1a49f8be1fe19f6edc45104fc0eebbd3"
+        ]
+      }
+    },
+    "hardrows|factuality.113": {
+      "reference-first": {
+        "pA": 0.93,
+        "confidence": 0.93,
+        "detail": {
+          "eligible": true,
+          "with_reference": true,
+          "kind": "pointwise",
+          "points": [
+            "The reply meets the stated criterion, or agrees with the reference on every fact."
+          ],
+          "scores": {
+            "a": 0.93
+          },
+          "rows": {
+            "a": {
+              "point_0": 0.93
+            }
+          },
+          "reference_source": "dataset"
+        },
+        "calls": 1,
+        "usd": 0,
+        "cost_complete": false,
+        "keys": [
+          "2ffa8fae1800fc9f536c215724ca0090be2f49260ab909098eaa41dbcaf2ecaf"
+        ]
+      },
+      "reference-blind": {
+        "pA": 0.59,
+        "confidence": 0.59,
+        "detail": {
+          "eligible": true,
+          "with_reference": false,
+          "kind": "pointwise",
+          "points": [
+            "The reply meets the stated criterion, or agrees with the reference on every fact."
+          ],
+          "scores": {
+            "a": 0.59
+          },
+          "rows": {
+            "a": {
+              "point_0": 0.59
+            }
+          },
+          "reference_source": null
+        },
+        "calls": 1,
+        "usd": 0,
+        "cost_complete": false,
+        "keys": [
+          "7e45fe1faf3b75e6e2e095ec03ab90ac349fe77378e115d1fcf9e55fc8bf7f85"
+        ]
+      }
+    },
+    "hardrows|factuality.054": {
+      "reference-first": {
+        "pA": 0.95,
+        "confidence": 0.95,
+        "detail": {
+          "eligible": true,
+          "with_reference": true,
+          "kind": "pointwise",
+          "points": [
+            "The reply meets the stated criterion, or agrees with the reference on every fact."
+          ],
+          "scores": {
+            "a": 0.95
+          },
+          "rows": {
+            "a": {
+              "point_0": 0.95
+            }
+          },
+          "reference_source": "dataset"
+        },
+        "calls": 1,
+        "usd": 0,
+        "cost_complete": false,
+        "keys": [
+          "c7374223a56421172e0e71919de0dd184a8856a32ec527db374a90c83819a51a"
+        ]
+      },
+      "reference-blind": {
+        "pA": 0.64,
+        "confidence": 0.64,
+        "detail": {
+          "eligible": true,
+          "with_reference": false,
+          "kind": "pointwise",
+          "points": [
+            "The reply meets the stated criterion, or agrees with the reference on every fact."
+          ],
+          "scores": {
+            "a": 0.64
+          },
+          "rows": {
+            "a": {
+              "point_0": 0.64
+            }
+          },
+          "reference_source": null
+        },
+        "calls": 1,
+        "usd": 0,
+        "cost_complete": false,
+        "keys": [
+          "fa13ce73961ab51dd0a5c63ba8d3bf573fdb539a41e22744182902b7ba2a7c78"
+        ]
+      }
+    },
+    "hardrows|factuality.005": {
+      "reference-first": {
+        "pA": 0.94,
+        "confidence": 0.94,
+        "detail": {
+          "eligible": true,
+          "with_reference": true,
+          "kind": "pointwise",
+          "points": [
+            "The reply meets the stated criterion, or agrees with the reference on every fact."
+          ],
+          "scores": {
+            "a": 0.94
+          },
+          "rows": {
+            "a": {
+              "point_0": 0.94
+            }
+          },
+          "reference_source": "dataset"
+        },
+        "calls": 1,
+        "usd": 0,
+        "cost_complete": false,
+        "keys": [
+          "08632aef0e6aa81a45e63264ddf680850b4feb1d7dbf13e886c8e0c0e5a1b37b"
+        ]
+      },
+      "reference-blind": {
+        "pA": 0.61,
+        "confidence": 0.61,
+        "detail": {
+          "eligible": true,
+          "with_reference": false,
+          "kind": "pointwise",
+          "points": [
+            "The reply meets the stated criterion, or agrees with the reference on every fact."
+          ],
+          "scores": {
+            "a": 0.61
+          },
+          "rows": {
+            "a": {
+              "point_0": 0.61
+            }
+          },
+          "reference_source": null
+        },
+        "calls": 1,
+        "usd": 0,
+        "cost_complete": false,
+        "keys": [
+          "e292f306d8d1b1010579d08a34492f49b55fe60271d063b3cdad9e65978014ce"
+        ]
+      }
+    },
+    "hardrows|factuality.074": {
+      "reference-first": {
+        "pA": 0.95,
+        "confidence": 0.95,
+        "detail": {
+          "eligible": true,
+          "with_reference": true,
+          "kind": "pointwise",
+          "points": [
+            "The reply meets the stated criterion, or agrees with the reference on every fact."
+          ],
+          "scores": {
+            "a": 0.95
+          },
+          "rows": {
+            "a": {
+              "point_0": 0.95
+            }
+          },
+          "reference_source": "dataset"
+        },
+        "calls": 1,
+        "usd": 0,
+        "cost_complete": false,
+        "keys": [
+          "eea3a4a0687386f84c1ea86cf09b7a98d93cd4f5769b5e46014cf9db46d23532"
+        ]
+      },
+      "reference-blind": {
+        "pA": 0.63,
+        "confidence": 0.63,
+        "detail": {
+          "eligible": true,
+          "with_reference": false,
+          "kind": "pointwise",
+          "points": [
+            "The reply meets the stated criterion, or agrees with the reference on every fact."
+          ],
+          "scores": {
+            "a": 0.63
+          },
+          "rows": {
+            "a": {
+              "point_0": 0.63
+            }
+          },
+          "reference_source": null
+        },
+        "calls": 1,
+        "usd": 0,
+        "cost_complete": false,
+        "keys": [
+          "a072b7ac01132a0ae1c3205d5052bb4502c8733cf234b2c4e750a4b97192d90f"
+        ]
+      }
+    }
+  },
+  "fit": {
+    "tune_n": 21,
+    "threshold": 0.5,
+    "note": "No fitted choices; fixed pointwise threshold, validation labels never affect prompts."
+  }
+}

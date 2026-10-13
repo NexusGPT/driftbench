@@ -1,0 +1,4850 @@
+{
+  "variants": {
+    "reference-first": {
+      "overall": {
+        "n": 55,
+        "clusters": 55,
+        "accuracy": 0.9545454545454546,
+        "ci95": [
+          0.8909090909090909,
+          1.0
+        ],
+        "calls_per_100": 100.0,
+        "known_calls_per_100": 100.0,
+        "known_usd_per_100": 0.0,
+        "cost_complete": false,
+        "missing": 0
+      },
+      "low": {
+        "n": 9,
+        "clusters": 9,
+        "accuracy": 0.8888888888888888,
+        "ci95": [
+          0.6666666666666666,
+          1.0
+        ],
+        "calls_per_100": 100.0,
+        "known_calls_per_100": 100.0,
+        "known_usd_per_100": 0.0,
+        "cost_complete": false,
+        "missing": 0
+      },
+      "matched_overall": {
+        "n": 19,
+        "clusters": 19,
+        "accuracy": 0.9473684210526315,
+        "ci95": [
+          0.8421052631578947,
+          1.0
+        ],
+        "calls_per_100": 100.0,
+        "known_calls_per_100": 100.0,
+        "known_usd_per_100": 0.0,
+        "cost_complete": false,
+        "missing": 0
+      },
+      "matched_low": {
+        "n": 0,
+        "accuracy": null,
+        "ci95": null,
+        "calls_per_100": null,
+        "known_usd_per_100": null,
+        "cost_complete": false
+      }
+    },
+    "reference-blind": {
+      "overall": {
+        "n": 55,
+        "clusters": 55,
+        "accuracy": 0.41818181818181815,
+        "ci95": [
+          0.2909090909090909,
+          0.5454545454545454
+        ],
+        "calls_per_100": 100.0,
+        "known_calls_per_100": 100.0,
+        "known_usd_per_100": 0.0,
+        "cost_complete": false,
+        "missing": 0
+      },
+      "low": {
+        "n": 9,
+        "clusters": 9,
+        "accuracy": 0.0,
+        "ci95": [
+          0.0,
+          0.2991527535509594
+        ],
+        "calls_per_100": 100.0,
+        "known_calls_per_100": 100.0,
+        "known_usd_per_100": 0.0,
+        "cost_complete": false,
+        "missing": 0
+      },
+      "matched_overall": {
+        "n": 19,
+        "clusters": 19,
+        "accuracy": 0.5789473684210527,
+        "ci95": [
+          0.3684210526315789,
+          0.7894736842105263
+        ],
+        "calls_per_100": 100.0,
+        "known_calls_per_100": 100.0,
+        "known_usd_per_100": 0.0,
+        "cost_complete": false,
+        "missing": 0
+      },
+      "matched_low": {
+        "n": 0,
+        "accuracy": null,
+        "ci95": null,
+        "calls_per_100": null,
+        "known_usd_per_100": null,
+        "cost_complete": false
+      }
+    },
+    "ledger": {
+      "overall": {
+        "n": 19,
+        "clusters": 19,
+        "accuracy": 0.8421052631578947,
+        "ci95": [
+          0.6842105263157895,
+          1.0
+        ],
+        "calls_per_100": 467.36842105263156,
+        "known_calls_per_100": 467.36842105263156,
+        "known_usd_per_100": 0.5600999999999999,
+        "cost_complete": true,
+        "missing": 0
+      },
+      "low": {
+        "n": 0,
+        "accuracy": null,
+        "ci95": null,
+        "calls_per_100": null,
+        "known_usd_per_100": null,
+        "cost_complete": false
+      },
+      "matched_overall": {
+        "n": 19,
+        "clusters": 19,
+        "accuracy": 0.8421052631578947,
+        "ci95": [
+          0.6842105263157895,
+          1.0
+        ],
+        "calls_per_100": 467.36842105263156,
+        "known_calls_per_100": 467.36842105263156,
+        "known_usd_per_100": 0.5600999999999999,
+        "cost_complete": true,
+        "missing": 0
+      },
+      "matched_low": {
+        "n": 0,
+        "accuracy": null,
+        "ci95": null,
+        "calls_per_100": null,
+        "known_usd_per_100": null,
+        "cost_complete": false
+      }
+    },
+    "promptfoo": {
+      "overall": {
+        "n": 19,
+        "clusters": 19,
+        "accuracy": 0.8947368421052632,
+        "ci95": [
+          0.7368421052631579,
+          1.0
+        ],
+        "calls_per_100": 98.1578947368421,
+        "known_calls_per_100": 98.1578947368421,
+        "known_usd_per_100": 0.07408947368421054,
+        "cost_complete": true,
+        "missing": 0
+      },
+      "low": {
+        "n": 0,
+        "accuracy": null,
+        "ci95": null,
+        "calls_per_100": null,
+        "known_usd_per_100": null,
+        "cost_complete": false
+      },
+      "matched_overall": {
+        "n": 19,
+        "clusters": 19,
+        "accuracy": 0.8947368421052632,
+        "ci95": [
+          0.7368421052631579,
+          1.0
+        ],
+        "calls_per_100": 98.1578947368421,
+        "known_calls_per_100": 98.1578947368421,
+        "known_usd_per_100": 0.07408947368421054,
+        "cost_complete": true,
+        "missing": 0
+      },
+      "matched_low": {
+        "n": 0,
+        "accuracy": null,
+        "ci95": null,
+        "calls_per_100": null,
+        "known_usd_per_100": null,
+        "cost_complete": false
+      }
+    }
+  },
+  "decisions": {
+    "reference-first": [
+      {
+        "key": "verify-with-reference|002ba0331c11a198784abdfff1d7b8fb_936d37ed03db3340809ca9409508b906",
+        "low": false,
+        "cluster": "verify-with-reference:67c487e0171279d7",
+        "score": 1.0,
+        "calls": 1,
+        "usd": 0,
+        "cost_complete": false,
+        "pA": 0.47,
+        "missing": false
+      },
+      {
+        "key": "verify-with-reference|012d78a208c04759392be0c8b9d27dc6_dc9a328c94255249105f5d3b465499d5",
+        "low": false,
+        "cluster": "verify-with-reference:5d34de367a265ad9",
+        "score": 1.0,
+        "calls": 1,
+        "usd": 0,
+        "cost_complete": false,
+        "pA": 0.02,
+        "missing": false
+      },
+      {
+        "key": "verify-with-reference|045503cb808f8344ae4972c147441517_90dddf89d761d5515d371d5d883e15ec",
+        "low": false,
+        "cluster": "verify-with-reference:9aedf78c63389c17",
+        "score": 1.0,
+        "calls": 1,
+        "usd": 0,
+        "cost_complete": false,
+        "pA": 0.15,
+        "missing": false
+      },
+      {
+        "key": "verify-with-reference|081833aa552befb57c837abfaa3e82c6_3687dcc53ca83b415f453e9939ed2277",
+        "low": false,
+        "cluster": "verify-with-reference:7a36f716974d458c",
+        "score": 0.0,
+        "calls": 1,
+        "usd": 0,
+        "cost_complete": false,
+        "pA": 0.87,
+        "missing": false
+      },
+      {
+        "key": "verify-with-reference|0af2a305f4c4e44a69c7fd5e03d7f74e_7ff87a43db7f15aa80827e2230dd95a1",
+        "low": false,
+        "cluster": "verify-with-reference:3eacf2e4d1c1a90c",
+        "score": 1.0,
+        "calls": 1,
+        "usd": 0,
+        "cost_complete": false,
+        "pA": 0.06,
+        "missing": false
+      },
+      {
+        "key": "verify-with-reference|1548f1e34026a5988f77c35cbc1e2528_c39553e7f10dd1483084dd94954eb1ec",
+        "low": false,
+        "cluster": "verify-with-reference:5cb793b68627d218",
+        "score": 1.0,
+        "calls": 1,
+        "usd": 0,
+        "cost_complete": false,
+        "pA": 0.8,
+        "missing": false
+      },
+      {
+        "key": "verify-with-reference|1bd8144011c39f410df900a04d6e156a_f0ff48079a16eda16a3925eb5c78c21a",
+        "low": false,
+        "cluster": "verify-with-reference:c68c5fc81f9be5ff",
+        "score": 1.0,
+        "calls": 1,
+        "usd": 0,
+        "cost_complete": false,
+        "pA": 0.76,
+        "missing": false
+      },
+      {
+        "key": "verify-with-reference|20f09d89d7c677862fd06e2e96e7ec19_a7f2ac04dc8fb1609ab7384631ce736c",
+        "low": false,
+        "cluster": "verify-with-reference:752ac7c706fbcebc",
+        "score": 1.0,
+        "calls": 1,
+        "usd": 0,
+        "cost_complete": false,
+        "pA": 0.02,
+        "missing": false
+      },
+      {
+        "key": "verify-with-reference|251325e4d8bd19d38d1481ec5bb6b952_b0e0faf620816637683d6cefbc8d905d",
+        "low": false,
+        "cluster": "verify-with-reference:0873a45f21d1c954",
+        "score": 1.0,
+        "calls": 1,
+        "usd": 0,
+        "cost_complete": false,
+        "pA": 0.23,
+        "missing": false
+      },
+      {
+        "key": "verify-with-reference|2c0b811d86ed6140f5f9811cf3a320fa_4e375ba613e31acadbdf76cf9dcb95ad",
+        "low": false,
+        "cluster": "verify-with-reference:a9a03b3e9a034e39",
+        "score": 1.0,
+        "calls": 1,
+        "usd": 0,
+        "cost_complete": false,
+        "pA": 0.04,
+        "missing": false
+      },
+      {
+        "key": "verify-with-reference|316ee3d0bc7b041ff6036ff4eedebd63_2a81f176304fb48b93a51804c8813763",
+        "low": false,
+        "cluster": "verify-with-reference:7ec853b8585b236e",
+        "score": 1.0,
+        "calls": 1,
+        "usd": 0,
+        "cost_complete": false,
+        "pA": 0.03,
+        "missing": false
+      },
+      {
+        "key": "verify-with-reference|465fc22785286db5dd33b22506c32cb7_167ebe0d73af5771692e25d41290c636",
+        "low": false,
+        "cluster": "verify-with-reference:90f11578f840d99d",
+        "score": 1.0,
+        "calls": 1,
+        "usd": 0,
+        "cost_complete": false,
+        "pA": 0.04,
+        "missing": false
+      },
+      {
+        "key": "verify-with-reference|4b4809afe76dd8c903f188bf277830c2_564014cd48e8406e59bd7edae9b402f5",
+        "low": false,
+        "cluster": "verify-with-reference:a71a1240a8513f62",
+        "score": 1.0,
+        "calls": 1,
+        "usd": 0,
+        "cost_complete": false,
+        "pA": 0.04,
+        "missing": false
+      },
+      {
+        "key": "verify-with-reference|4d1497a568219528716b51f87ef72f18_6029e690d7a881057e987894b31db7e6",
+        "low": false,
+        "cluster": "verify-with-reference:31a315015a156fb0",
+        "score": 1.0,
+        "calls": 1,
+        "usd": 0,
+        "cost_complete": false,
+        "pA": 0.24,
+        "missing": false
+      },
+      {
+        "key": "verify-with-reference|4d94773555d0a8e3f9b059e6cc729bdf_42f7be3f4cdef5f9018edfefec78418b",
+        "low": false,
+        "cluster": "verify-with-reference:33ce809f62eca350",
+        "score": 1.0,
+        "calls": 1,
+        "usd": 0,
+        "cost_complete": false,
+        "pA": 0.02,
+        "missing": false
+      },
+      {
+        "key": "verify-with-reference|4e962b5781cb54bc20844b76f48015bf_5030f4551098b9ae90f2f5e090b46346",
+        "low": false,
+        "cluster": "verify-with-reference:78eaf5323d28de24",
+        "score": 1.0,
+        "calls": 1,
+        "usd": 0,
+        "cost_complete": false,
+        "pA": 0.06,
+        "missing": false
+      },
+      {
+        "key": "verify-with-reference|4fd3bc514ff8e3775723a0f883a7d347_54c1d82ec537b265b891b55d68a2d539",
+        "low": false,
+        "cluster": "verify-with-reference:b0fd69e7ea79caa7",
+        "score": 1.0,
+        "calls": 1,
+        "usd": 0,
+        "cost_complete": false,
+        "pA": 0.16,
+        "missing": false
+      },
+      {
+        "key": "verify-with-reference|5305069c7919fc01c8707be50843590a_b156bd30f7b7d418897e9ccec7ea7708",
+        "low": false,
+        "cluster": "verify-with-reference:fe673be25ef0bd44",
+        "score": 1.0,
+        "calls": 1,
+        "usd": 0,
+        "cost_complete": false,
+        "pA": 0.62,
+        "missing": false
+      },
+      {
+        "key": "verify-with-reference|542a4a7aed316e1a799d1c145b101ea9_c10967faf71a528ab33e138f74ffb1cf",
+        "low": false,
+        "cluster": "verify-with-reference:c2c5af1b933c81fc",
+        "score": 1.0,
+        "calls": 1,
+        "usd": 0,
+        "cost_complete": false,
+        "pA": 0.04,
+        "missing": false
+      },
+      {
+        "key": "verify-with-reference|579e9027b927781718b789a8b67f44d4_12804c09750686ba0cee118dcdb5524e",
+        "low": false,
+        "cluster": "verify-with-reference:99847cfbc2a5f303",
+        "score": 1.0,
+        "calls": 1,
+        "usd": 0,
+        "cost_complete": false,
+        "pA": 0.06,
+        "missing": false
+      },
+      {
+        "key": "verify-with-reference|57ca02df541ae1687b9712f12df0e425_ee6b572c5fd4f4a2a6b0cb97265a4af8",
+        "low": false,
+        "cluster": "verify-with-reference:e2b38dcf48950d05",
+        "score": 1.0,
+        "calls": 1,
+        "usd": 0,
+        "cost_complete": false,
+        "pA": 0.1,
+        "missing": false
+      },
+      {
+        "key": "verify-with-reference|5dfb02d5ff7008e6319ca9ebff69f3ba_c5d3070446bc46d1c98f353fce17822e",
+        "low": true,
+        "cluster": "verify-with-reference:d587aa7857c9ada4",
+        "score": 1.0,
+        "calls": 1,
+        "usd": 0,
+        "cost_complete": false,
+        "pA": 0.49,
+        "missing": false
+      },
+      {
+        "key": "verify-with-reference|5f981c74919500aeaaae8b6d69ce31b8_c01d363627aeded9eee9e3f19ad99d21",
+        "low": true,
+        "cluster": "verify-with-reference:f6a0566fffa1aa89",
+        "score": 1.0,
+        "calls": 1,
+        "usd": 0,
+        "cost_complete": false,
+        "pA": 0.48,
+        "missing": false
+      },
+      {
+        "key": "verify-with-reference|6475b7ad5531cf9bc60abf8728996c1d_14dcca0905e181fe50f31e588e3dd482",
+        "low": false,
+        "cluster": "verify-with-reference:bb28a002d1132579",
+        "score": 1.0,
+        "calls": 1,
+        "usd": 0,
+        "cost_complete": false,
+        "pA": 0.05,
+        "missing": false
+      },
+      {
+        "key": "verify-with-reference|6e4aba2ba0751961277a5be9c22f6e53_76bc2098e25dcd33b5bde96980673a4b",
+        "low": false,
+        "cluster": "verify-with-reference:1190c0a4a6238c20",
+        "score": 0.5,
+        "calls": 1,
+        "usd": 0,
+        "cost_complete": false,
+        "pA": 0.5,
+        "missing": false
+      },
+      {
+        "key": "verify-with-reference|7225b2d4f79d885c8321c58e2d6c5726_fc8966d593a7ee92993b32d9ce4520e0",
+        "low": true,
+        "cluster": "verify-with-reference:b3f0b9b18474c342",
+        "score": 1.0,
+        "calls": 1,
+        "usd": 0,
+        "cost_complete": false,
+        "pA": 0.65,
+        "missing": false
+      },
+      {
+        "key": "verify-with-reference|73fddce12aee4876a4877c3ec5db723f_583d9e36a2bd03fbf485b8a4019fc9b9",
+        "low": false,
+        "cluster": "verify-with-reference:c64767f825109c90",
+        "score": 1.0,
+        "calls": 1,
+        "usd": 0,
+        "cost_complete": false,
+        "pA": 0.06,
+        "missing": false
+      },
+      {
+        "key": "verify-with-reference|74455975cc7822e30f33648e197a1775_ccbe576fccccc23b0bdad67d79075fb2",
+        "low": false,
+        "cluster": "verify-with-reference:2b70d93b180f584f",
+        "score": 1.0,
+        "calls": 1,
+        "usd": 0,
+        "cost_complete": false,
+        "pA": 0.14,
+        "missing": false
+      },
+      {
+        "key": "verify-with-reference|7c3345602da2596f3ff58658788cd183_cbfde9b9bf8facffcf498eab4aadd1a6",
+        "low": false,
+        "cluster": "verify-with-reference:1aabc208b737c800",
+        "score": 1.0,
+        "calls": 1,
+        "usd": 0,
+        "cost_complete": false,
+        "pA": 0.82,
+        "missing": false
+      },
+      {
+        "key": "verify-with-reference|81f7ad90f1eb2aa5a53b7f7294f91e47_91920d2eadb3e994802e37bc89e15014",
+        "low": true,
+        "cluster": "verify-with-reference:3e955bdcfeb9c56f",
+        "score": 0.0,
+        "calls": 1,
+        "usd": 0,
+        "cost_complete": false,
+        "pA": 0.32,
+        "missing": false
+      },
+      {
+        "key": "verify-with-reference|848aefe451338e2934283c1417b49704_5d429963fda0a400af8b2e0d334830a7",
+        "low": false,
+        "cluster": "verify-with-reference:dcf82437f4c77a96",
+        "score": 1.0,
+        "calls": 1,
+        "usd": 0,
+        "cost_complete": false,
+        "pA": 0.22,
+        "missing": false
+      },
+      {
+        "key": "verify-with-reference|8725986b8def7d6dc2430b5a82ebe768_d892147f21a603cf006be26ac0db27cb",
+        "low": true,
+        "cluster": "verify-with-reference:6ce79e424349eb32",
+        "score": 1.0,
+        "calls": 1,
+        "usd": 0,
+        "cost_complete": false,
+        "pA": 0.22,
+        "missing": false
+      },
+      {
+        "key": "verify-with-reference|885d1842d6a91b50b8ae527de98c3aad_b33afc0790fa12b013da7a444d8410d6",
+        "low": false,
+        "cluster": "verify-with-reference:ee52499ebff80cec",
+        "score": 1.0,
+        "calls": 1,
+        "usd": 0,
+        "cost_complete": false,
+        "pA": 0.06,
+        "missing": false
+      },
+      {
+        "key": "verify-with-reference|8a7107d6fa68c57dd6608f90208a6f61_bd6387db3ba7707f36a144a4530b7914",
+        "low": true,
+        "cluster": "verify-with-reference:da35d0bf9399545c",
+        "score": 1.0,
+        "calls": 1,
+        "usd": 0,
+        "cost_complete": false,
+        "pA": 0.19,
+        "missing": false
+      },
+      {
+        "key": "verify-with-reference|8afa540116fbcf61b6a65125a1272a82_10a36a85dc46ca3ce4659c52bd553f22",
+        "low": false,
+        "cluster": "verify-with-reference:52d8d5d439c3a377",
+        "score": 1.0,
+        "calls": 1,
+        "usd": 0,
+        "cost_complete": false,
+        "pA": 0.02,
+        "missing": false
+      },
+      {
+        "key": "verify-with-reference|8d5e34bb0c4ae72f49a999d4950d0d50_b386787e81fc71a19aeff29ecb5b7cae",
+        "low": false,
+        "cluster": "verify-with-reference:be7270b741a985e7",
+        "score": 1.0,
+        "calls": 1,
+        "usd": 0,
+        "cost_complete": false,
+        "pA": 0.04,
+        "missing": false
+      },
+      {
+        "key": "verify-with-reference|8dce745bcd66e7dc916e9f3549d8ebc1_4495bceb02b2986125965eb7cb6c2b98",
+        "low": false,
+        "cluster": "verify-with-reference:410c2683485e5c31",
+        "score": 1.0,
+        "calls": 1,
+        "usd": 0,
+        "cost_complete": false,
+        "pA": 0.13,
+        "missing": false
+      },
+      {
+        "key": "verify-with-reference|8fb2e641b5868077f1080ebc2a77f638_ab543eb5433d029341e7180d9d1d684a",
+        "low": true,
+        "cluster": "verify-with-reference:887fbc386ffa0bc1",
+        "score": 1.0,
+        "calls": 1,
+        "usd": 0,
+        "cost_complete": false,
+        "pA": 0.28,
+        "missing": false
+      },
+      {
+        "key": "verify-with-reference|9627c5098f4185184311edb8a3ccb640_116a5adea8a225f8c8542f0576808a6e",
+        "low": false,
+        "cluster": "verify-with-reference:9e930dfadd5b9972",
+        "score": 1.0,
+        "calls": 1,
+        "usd": 0,
+        "cost_complete": false,
+        "pA": 0.06,
+        "missing": false
+      },
+      {
+        "key": "verify-with-reference|97420293b650b40bab24bbf45949eb76_daa4f21cc7788af3b8e863453b68e590",
+        "low": false,
+        "cluster": "verify-with-reference:40f3e57c330a9a3f",
+        "score": 1.0,
+        "calls": 1,
+        "usd": 0,
+        "cost_complete": false,
+        "pA": 0.74,
+        "missing": false
+      },
+      {
+        "key": "verify-with-reference|a11d83cb0b8f07278223b4d659d85643_5518ab7ab0dd13c3c4a7e58909335b50",
+        "low": false,
+        "cluster": "verify-with-reference:438b751f5eaec795",
+        "score": 1.0,
+        "calls": 1,
+        "usd": 0,
+        "cost_complete": false,
+        "pA": 0.91,
+        "missing": false
+      },
+      {
+        "key": "verify-with-reference|adba4a0e3dc7ec9d2b9a05a9d21f2209_d48215d589eb5969bfcfcd58993ab543",
+        "low": false,
+        "cluster": "verify-with-reference:ea3d62f278a16a6b",
+        "score": 1.0,
+        "calls": 1,
+        "usd": 0,
+        "cost_complete": false,
+        "pA": 0.03,
+        "missing": false
+      },
+      {
+        "key": "verify-with-reference|aee1de22ebcbd6dffb545f85c2cc6d3c_4ad6596d535addc90e3929c4cd601d2a",
+        "low": false,
+        "cluster": "verify-with-reference:a75d07cc7c11262e",
+        "score": 1.0,
+        "calls": 1,
+        "usd": 0,
+        "cost_complete": false,
+        "pA": 0.06,
+        "missing": false
+      },
+      {
+        "key": "verify-with-reference|aef693000b50d9b8e7d0ddeba51e3601_6a486339655ffd1769d793f87483e86d",
+        "low": false,
+        "cluster": "verify-with-reference:4b25f370b72822a8",
+        "score": 1.0,
+        "calls": 1,
+        "usd": 0,
+        "cost_complete": false,
+        "pA": 0.07,
+        "missing": false
+      },
+      {
+        "key": "verify-with-reference|aeffde6db44b11ba884385c6d3330778_86ab71bcb255a4099f268a5af4548add",
+        "low": false,
+        "cluster": "verify-with-reference:0255eca1f646c957",
+        "score": 1.0,
+        "calls": 1,
+        "usd": 0,
+        "cost_complete": false,
+        "pA": 0.12,
+        "missing": false
+      },
+      {
+        "key": "verify-with-reference|b7efa9e28caf28086ae71c1099f80c85_c2a2771adf0010ee3a5ba9e3450a37c0",
+        "low": false,
+        "cluster": "verify-with-reference:552ac3db1e4f4ae7",
+        "score": 1.0,
+        "calls": 1,
+        "usd": 0,
+        "cost_complete": false,
+        "pA": 0.12,
+        "missing": false
+      },
+      {
+        "key": "verify-with-reference|c3e51f4a45069f8d7553d30d1bc8b35d_7817bb9c553c6bb83b982f47843e0f54",
+        "low": false,
+        "cluster": "verify-with-reference:b47b253c0a7bfb12",
+        "score": 1.0,
+        "calls": 1,
+        "usd": 0,
+        "cost_complete": false,
+        "pA": 0.45,
+        "missing": false
+      },
+      {
+        "key": "verify-with-reference|c8cadbcb97f9fc98c52201c05d2cc7ed_e53ffb97227c484cb4cf3e395207ef4f",
+        "low": false,
+        "cluster": "verify-with-reference:69fee374d4d01ab6",
+        "score": 1.0,
+        "calls": 1,
+        "usd": 0,
+        "cost_complete": false,
+        "pA": 0.03,
+        "missing": false
+      },
+      {
+        "key": "verify-with-reference|d29e283a52241c0a9a32224b711237bd_cab7eb980622deaad71cf6fe7e803264",
+        "low": true,
+        "cluster": "verify-with-reference:b922fe7ddf8f7d01",
+        "score": 1.0,
+        "calls": 1,
+        "usd": 0,
+        "cost_complete": false,
+        "pA": 0.17,
+        "missing": false
+      },
+      {
+        "key": "verify-with-reference|d39f096bb2596eb7d8955356ef44a14e_cc7a467fa14f91c15dd31328e13f485e",
+        "low": false,
+        "cluster": "verify-with-reference:12596e35cb3d4064",
+        "score": 1.0,
+        "calls": 1,
+        "usd": 0,
+        "cost_complete": false,
+        "pA": 0.04,
+        "missing": false
+      },
+      {
+        "key": "verify-with-reference|daafa66d5d745cf90a6a9f7e7476456e_ee51a4efa53adaad8c8b234938587bc9",
+        "low": true,
+        "cluster": "verify-with-reference:15c47d30cea888b0",
+        "score": 1.0,
+        "calls": 1,
+        "usd": 0,
+        "cost_complete": false,
+        "pA": 0.75,
+        "missing": false
+      },
+      {
+        "key": "verify-with-reference|e05c879fa8330428d5f4c60e2165c671_a1cf5c7e22209a7dde60b811f14dcfa3",
+        "low": false,
+        "cluster": "verify-with-reference:24bab31a0671e02d",
+        "score": 1.0,
+        "calls": 1,
+        "usd": 0,
+        "cost_complete": false,
+        "pA": 0.23,
+        "missing": false
+      },
+      {
+        "key": "verify-with-reference|e294330c907c43e8b8e2fe5b2d1eff04_01bcb6a22e65a9be3cd5c1f0c5accf0b",
+        "low": false,
+        "cluster": "verify-with-reference:6756a2e74b25f765",
+        "score": 1.0,
+        "calls": 1,
+        "usd": 0,
+        "cost_complete": false,
+        "pA": 0.95,
+        "missing": false
+      },
+      {
+        "key": "verify-with-reference|e33318504a7ac7627d557aa1c8a28757_2773ef67563d0ff7b53513d4038a7626",
+        "low": false,
+        "cluster": "verify-with-reference:5609c81f75cfe145",
+        "score": 1.0,
+        "calls": 1,
+        "usd": 0,
+        "cost_complete": false,
+        "pA": 0.02,
+        "missing": false
+      },
+      {
+        "key": "verify-with-reference|f7f4f5882b9c712068cbeac5acb4a0a4_7294b3b236c33212fbbe5aa24dbd47f4",
+        "low": false,
+        "cluster": "verify-with-reference:ef70964dced054cc",
+        "score": 1.0,
+        "calls": 1,
+        "usd": 0,
+        "cost_complete": false,
+        "pA": 0.02,
+        "missing": false
+      }
+    ],
+    "reference-blind": [
+      {
+        "key": "verify-with-reference|002ba0331c11a198784abdfff1d7b8fb_936d37ed03db3340809ca9409508b906",
+        "low": false,
+        "cluster": "verify-with-reference:67c487e0171279d7",
+        "score": 1.0,
+        "calls": 1,
+        "usd": 0,
+        "cost_complete": false,
+        "pA": 0.37,
+        "missing": false
+      },
+      {
+        "key": "verify-with-reference|012d78a208c04759392be0c8b9d27dc6_dc9a328c94255249105f5d3b465499d5",
+        "low": false,
+        "cluster": "verify-with-reference:5d34de367a265ad9",
+        "score": 1.0,
+        "calls": 1,
+        "usd": 0,
+        "cost_complete": false,
+        "pA": 0.24,
+        "missing": false
+      },
+      {
+        "key": "verify-with-reference|045503cb808f8344ae4972c147441517_90dddf89d761d5515d371d5d883e15ec",
+        "low": false,
+        "cluster": "verify-with-reference:9aedf78c63389c17",
+        "score": 0.0,
+        "calls": 1,
+        "usd": 0,
+        "cost_complete": false,
+        "pA": 0.82,
+        "missing": false
+      },
+      {
+        "key": "verify-with-reference|081833aa552befb57c837abfaa3e82c6_3687dcc53ca83b415f453e9939ed2277",
+        "low": false,
+        "cluster": "verify-with-reference:7a36f716974d458c",
+        "score": 0.0,
+        "calls": 1,
+        "usd": 0,
+        "cost_complete": false,
+        "pA": 0.62,
+        "missing": false
+      },
+      {
+        "key": "verify-with-reference|0af2a305f4c4e44a69c7fd5e03d7f74e_7ff87a43db7f15aa80827e2230dd95a1",
+        "low": false,
+        "cluster": "verify-with-reference:3eacf2e4d1c1a90c",
+        "score": 0.0,
+        "calls": 1,
+        "usd": 0,
+        "cost_complete": false,
+        "pA": 0.91,
+        "missing": false
+      },
+      {
+        "key": "verify-with-reference|1548f1e34026a5988f77c35cbc1e2528_c39553e7f10dd1483084dd94954eb1ec",
+        "low": false,
+        "cluster": "verify-with-reference:5cb793b68627d218",
+        "score": 0.0,
+        "calls": 1,
+        "usd": 0,
+        "cost_complete": false,
+        "pA": 0.3,
+        "missing": false
+      },
+      {
+        "key": "verify-with-reference|1bd8144011c39f410df900a04d6e156a_f0ff48079a16eda16a3925eb5c78c21a",
+        "low": false,
+        "cluster": "verify-with-reference:c68c5fc81f9be5ff",
+        "score": 1.0,
+        "calls": 1,
+        "usd": 0,
+        "cost_complete": false,
+        "pA": 0.54,
+        "missing": false
+      },
+      {
+        "key": "verify-with-reference|20f09d89d7c677862fd06e2e96e7ec19_a7f2ac04dc8fb1609ab7384631ce736c",
+        "low": false,
+        "cluster": "verify-with-reference:752ac7c706fbcebc",
+        "score": 1.0,
+        "calls": 1,
+        "usd": 0,
+        "cost_complete": false,
+        "pA": 0.33,
+        "missing": false
+      },
+      {
+        "key": "verify-with-reference|251325e4d8bd19d38d1481ec5bb6b952_b0e0faf620816637683d6cefbc8d905d",
+        "low": false,
+        "cluster": "verify-with-reference:0873a45f21d1c954",
+        "score": 1.0,
+        "calls": 1,
+        "usd": 0,
+        "cost_complete": false,
+        "pA": 0.46,
+        "missing": false
+      },
+      {
+        "key": "verify-with-reference|2c0b811d86ed6140f5f9811cf3a320fa_4e375ba613e31acadbdf76cf9dcb95ad",
+        "low": false,
+        "cluster": "verify-with-reference:a9a03b3e9a034e39",
+        "score": 0.0,
+        "calls": 1,
+        "usd": 0,
+        "cost_complete": false,
+        "pA": 0.75,
+        "missing": false
+      },
+      {
+        "key": "verify-with-reference|316ee3d0bc7b041ff6036ff4eedebd63_2a81f176304fb48b93a51804c8813763",
+        "low": false,
+        "cluster": "verify-with-reference:7ec853b8585b236e",
+        "score": 1.0,
+        "calls": 1,
+        "usd": 0,
+        "cost_complete": false,
+        "pA": 0.07,
+        "missing": false
+      },
+      {
+        "key": "verify-with-reference|465fc22785286db5dd33b22506c32cb7_167ebe0d73af5771692e25d41290c636",
+        "low": false,
+        "cluster": "verify-with-reference:90f11578f840d99d",
+        "score": 1.0,
+        "calls": 1,
+        "usd": 0,
+        "cost_complete": false,
+        "pA": 0.02,
+        "missing": false
+      },
+      {
+        "key": "verify-with-reference|4b4809afe76dd8c903f188bf277830c2_564014cd48e8406e59bd7edae9b402f5",
+        "low": false,
+        "cluster": "verify-with-reference:a71a1240a8513f62",
+        "score": 0.0,
+        "calls": 1,
+        "usd": 0,
+        "cost_complete": false,
+        "pA": 0.56,
+        "missing": false
+      },
+      {
+        "key": "verify-with-reference|4d1497a568219528716b51f87ef72f18_6029e690d7a881057e987894b31db7e6",
+        "low": false,
+        "cluster": "verify-with-reference:31a315015a156fb0",
+        "score": 1.0,
+        "calls": 1,
+        "usd": 0,
+        "cost_complete": false,
+        "pA": 0.27,
+        "missing": false
+      },
+      {
+        "key": "verify-with-reference|4d94773555d0a8e3f9b059e6cc729bdf_42f7be3f4cdef5f9018edfefec78418b",
+        "low": false,
+        "cluster": "verify-with-reference:33ce809f62eca350",
+        "score": 0.0,
+        "calls": 1,
+        "usd": 0,
+        "cost_complete": false,
+        "pA": 0.88,
+        "missing": false
+      },
+      {
+        "key": "verify-with-reference|4e962b5781cb54bc20844b76f48015bf_5030f4551098b9ae90f2f5e090b46346",
+        "low": false,
+        "cluster": "verify-with-reference:78eaf5323d28de24",
+        "score": 1.0,
+        "calls": 1,
+        "usd": 0,
+        "cost_complete": false,
+        "pA": 0.43,
+        "missing": false
+      },
+      {
+        "key": "verify-with-reference|4fd3bc514ff8e3775723a0f883a7d347_54c1d82ec537b265b891b55d68a2d539",
+        "low": false,
+        "cluster": "verify-with-reference:b0fd69e7ea79caa7",
+        "score": 1.0,
+        "calls": 1,
+        "usd": 0,
+        "cost_complete": false,
+        "pA": 0.12,
+        "missing": false
+      },
+      {
+        "key": "verify-with-reference|5305069c7919fc01c8707be50843590a_b156bd30f7b7d418897e9ccec7ea7708",
+        "low": false,
+        "cluster": "verify-with-reference:fe673be25ef0bd44",
+        "score": 0.0,
+        "calls": 1,
+        "usd": 0,
+        "cost_complete": false,
+        "pA": 0.18,
+        "missing": false
+      },
+      {
+        "key": "verify-with-reference|542a4a7aed316e1a799d1c145b101ea9_c10967faf71a528ab33e138f74ffb1cf",
+        "low": false,
+        "cluster": "verify-with-reference:c2c5af1b933c81fc",
+        "score": 1.0,
+        "calls": 1,
+        "usd": 0,
+        "cost_complete": false,
+        "pA": 0.46,
+        "missing": false
+      },
+      {
+        "key": "verify-with-reference|579e9027b927781718b789a8b67f44d4_12804c09750686ba0cee118dcdb5524e",
+        "low": false,
+        "cluster": "verify-with-reference:99847cfbc2a5f303",
+        "score": 0.0,
+        "calls": 1,
+        "usd": 0,
+        "cost_complete": false,
+        "pA": 0.76,
+        "missing": false
+      },
+      {
+        "key": "verify-with-reference|57ca02df541ae1687b9712f12df0e425_ee6b572c5fd4f4a2a6b0cb97265a4af8",
+        "low": false,
+        "cluster": "verify-with-reference:e2b38dcf48950d05",
+        "score": 1.0,
+        "calls": 1,
+        "usd": 0,
+        "cost_complete": false,
+        "pA": 0.46,
+        "missing": false
+      },
+      {
+        "key": "verify-with-reference|5dfb02d5ff7008e6319ca9ebff69f3ba_c5d3070446bc46d1c98f353fce17822e",
+        "low": true,
+        "cluster": "verify-with-reference:d587aa7857c9ada4",
+        "score": 0.0,
+        "calls": 1,
+        "usd": 0,
+        "cost_complete": false,
+        "pA": 0.74,
+        "missing": false
+      },
+      {
+        "key": "verify-with-reference|5f981c74919500aeaaae8b6d69ce31b8_c01d363627aeded9eee9e3f19ad99d21",
+        "low": true,
+        "cluster": "verify-with-reference:f6a0566fffa1aa89",
+        "score": 0.0,
+        "calls": 1,
+        "usd": 0,
+        "cost_complete": false,
+        "pA": 0.52,
+        "missing": false
+      },
+      {
+        "key": "verify-with-reference|6475b7ad5531cf9bc60abf8728996c1d_14dcca0905e181fe50f31e588e3dd482",
+        "low": false,
+        "cluster": "verify-with-reference:bb28a002d1132579",
+        "score": 0.0,
+        "calls": 1,
+        "usd": 0,
+        "cost_complete": false,
+        "pA": 0.81,
+        "missing": false
+      },
+      {
+        "key": "verify-with-reference|6e4aba2ba0751961277a5be9c22f6e53_76bc2098e25dcd33b5bde96980673a4b",
+        "low": false,
+        "cluster": "verify-with-reference:1190c0a4a6238c20",
+        "score": 0.0,
+        "calls": 1,
+        "usd": 0,
+        "cost_complete": false,
+        "pA": 0.83,
+        "missing": false
+      },
+      {
+        "key": "verify-with-reference|7225b2d4f79d885c8321c58e2d6c5726_fc8966d593a7ee92993b32d9ce4520e0",
+        "low": true,
+        "cluster": "verify-with-reference:b3f0b9b18474c342",
+        "score": 0.0,
+        "calls": 1,
+        "usd": 0,
+        "cost_complete": false,
+        "pA": 0.24,
+        "missing": false
+      },
+      {
+        "key": "verify-with-reference|73fddce12aee4876a4877c3ec5db723f_583d9e36a2bd03fbf485b8a4019fc9b9",
+        "low": false,
+        "cluster": "verify-with-reference:c64767f825109c90",
+        "score": 1.0,
+        "calls": 1,
+        "usd": 0,
+        "cost_complete": false,
+        "pA": 0.49,
+        "missing": false
+      },
+      {
+        "key": "verify-with-reference|74455975cc7822e30f33648e197a1775_ccbe576fccccc23b0bdad67d79075fb2",
+        "low": false,
+        "cluster": "verify-with-reference:2b70d93b180f584f",
+        "score": 1.0,
+        "calls": 1,
+        "usd": 0,
+        "cost_complete": false,
+        "pA": 0.32,
+        "missing": false
+      },
+      {
+        "key": "verify-with-reference|7c3345602da2596f3ff58658788cd183_cbfde9b9bf8facffcf498eab4aadd1a6",
+        "low": false,
+        "cluster": "verify-with-reference:1aabc208b737c800",
+        "score": 0.0,
+        "calls": 1,
+        "usd": 0,
+        "cost_complete": false,
+        "pA": 0.2,
+        "missing": false
+      },
+      {
+        "key": "verify-with-reference|81f7ad90f1eb2aa5a53b7f7294f91e47_91920d2eadb3e994802e37bc89e15014",
+        "low": true,
+        "cluster": "verify-with-reference:3e955bdcfeb9c56f",
+        "score": 0.0,
+        "calls": 1,
+        "usd": 0,
+        "cost_complete": false,
+        "pA": 0.03,
+        "missing": false
+      },
+      {
+        "key": "verify-with-reference|848aefe451338e2934283c1417b49704_5d429963fda0a400af8b2e0d334830a7",
+        "low": false,
+        "cluster": "verify-with-reference:dcf82437f4c77a96",
+        "score": 0.0,
+        "calls": 1,
+        "usd": 0,
+        "cost_complete": false,
+        "pA": 0.6,
+        "missing": false
+      },
+      {
+        "key": "verify-with-reference|8725986b8def7d6dc2430b5a82ebe768_d892147f21a603cf006be26ac0db27cb",
+        "low": true,
+        "cluster": "verify-with-reference:6ce79e424349eb32",
+        "score": 0.0,
+        "calls": 1,
+        "usd": 0,
+        "cost_complete": false,
+        "pA": 0.52,
+        "missing": false
+      },
+      {
+        "key": "verify-with-reference|885d1842d6a91b50b8ae527de98c3aad_b33afc0790fa12b013da7a444d8410d6",
+        "low": false,
+        "cluster": "verify-with-reference:ee52499ebff80cec",
+        "score": 1.0,
+        "calls": 1,
+        "usd": 0,
+        "cost_complete": false,
+        "pA": 0.12,
+        "missing": false
+      },
+      {
+        "key": "verify-with-reference|8a7107d6fa68c57dd6608f90208a6f61_bd6387db3ba7707f36a144a4530b7914",
+        "low": true,
+        "cluster": "verify-with-reference:da35d0bf9399545c",
+        "score": 0.0,
+        "calls": 1,
+        "usd": 0,
+        "cost_complete": false,
+        "pA": 0.73,
+        "missing": false
+      },
+      {
+        "key": "verify-with-reference|8afa540116fbcf61b6a65125a1272a82_10a36a85dc46ca3ce4659c52bd553f22",
+        "low": false,
+        "cluster": "verify-with-reference:52d8d5d439c3a377",
+        "score": 0.0,
+        "calls": 1,
+        "usd": 0,
+        "cost_complete": false,
+        "pA": 0.65,
+        "missing": false
+      },
+      {
+        "key": "verify-with-reference|8d5e34bb0c4ae72f49a999d4950d0d50_b386787e81fc71a19aeff29ecb5b7cae",
+        "low": false,
+        "cluster": "verify-with-reference:be7270b741a985e7",
+        "score": 1.0,
+        "calls": 1,
+        "usd": 0,
+        "cost_complete": false,
+        "pA": 0.09,
+        "missing": false
+      },
+      {
+        "key": "verify-with-reference|8dce745bcd66e7dc916e9f3549d8ebc1_4495bceb02b2986125965eb7cb6c2b98",
+        "low": false,
+        "cluster": "verify-with-reference:410c2683485e5c31",
+        "score": 0.0,
+        "calls": 1,
+        "usd": 0,
+        "cost_complete": false,
+        "pA": 0.77,
+        "missing": false
+      },
+      {
+        "key": "verify-with-reference|8fb2e641b5868077f1080ebc2a77f638_ab543eb5433d029341e7180d9d1d684a",
+        "low": true,
+        "cluster": "verify-with-reference:887fbc386ffa0bc1",
+        "score": 0.0,
+        "calls": 1,
+        "usd": 0,
+        "cost_complete": false,
+        "pA": 0.58,
+        "missing": false
+      },
+      {
+        "key": "verify-with-reference|9627c5098f4185184311edb8a3ccb640_116a5adea8a225f8c8542f0576808a6e",
+        "low": false,
+        "cluster": "verify-with-reference:9e930dfadd5b9972",
+        "score": 1.0,
+        "calls": 1,
+        "usd": 0,
+        "cost_complete": false,
+        "pA": 0.33,
+        "missing": false
+      },
+      {
+        "key": "verify-with-reference|97420293b650b40bab24bbf45949eb76_daa4f21cc7788af3b8e863453b68e590",
+        "low": false,
+        "cluster": "verify-with-reference:40f3e57c330a9a3f",
+        "score": 0.0,
+        "calls": 1,
+        "usd": 0,
+        "cost_complete": false,
+        "pA": 0.47,
+        "missing": false
+      },
+      {
+        "key": "verify-with-reference|a11d83cb0b8f07278223b4d659d85643_5518ab7ab0dd13c3c4a7e58909335b50",
+        "low": false,
+        "cluster": "verify-with-reference:438b751f5eaec795",
+        "score": 1.0,
+        "calls": 1,
+        "usd": 0,
+        "cost_complete": false,
+        "pA": 0.81,
+        "missing": false
+      },
+      {
+        "key": "verify-with-reference|adba4a0e3dc7ec9d2b9a05a9d21f2209_d48215d589eb5969bfcfcd58993ab543",
+        "low": false,
+        "cluster": "verify-with-reference:ea3d62f278a16a6b",
+        "score": 0.0,
+        "calls": 1,
+        "usd": 0,
+        "cost_complete": false,
+        "pA": 0.71,
+        "missing": false
+      },
+      {
+        "key": "verify-with-reference|aee1de22ebcbd6dffb545f85c2cc6d3c_4ad6596d535addc90e3929c4cd601d2a",
+        "low": false,
+        "cluster": "verify-with-reference:a75d07cc7c11262e",
+        "score": 0.0,
+        "calls": 1,
+        "usd": 0,
+        "cost_complete": false,
+        "pA": 0.91,
+        "missing": false
+      },
+      {
+        "key": "verify-with-reference|aef693000b50d9b8e7d0ddeba51e3601_6a486339655ffd1769d793f87483e86d",
+        "low": false,
+        "cluster": "verify-with-reference:4b25f370b72822a8",
+        "score": 0.0,
+        "calls": 1,
+        "usd": 0,
+        "cost_complete": false,
+        "pA": 0.69,
+        "missing": false
+      },
+      {
+        "key": "verify-with-reference|aeffde6db44b11ba884385c6d3330778_86ab71bcb255a4099f268a5af4548add",
+        "low": false,
+        "cluster": "verify-with-reference:0255eca1f646c957",
+        "score": 0.0,
+        "calls": 1,
+        "usd": 0,
+        "cost_complete": false,
+        "pA": 0.59,
+        "missing": false
+      },
+      {
+        "key": "verify-with-reference|b7efa9e28caf28086ae71c1099f80c85_c2a2771adf0010ee3a5ba9e3450a37c0",
+        "low": false,
+        "cluster": "verify-with-reference:552ac3db1e4f4ae7",
+        "score": 1.0,
+        "calls": 1,
+        "usd": 0,
+        "cost_complete": false,
+        "pA": 0.03,
+        "missing": false
+      },
+      {
+        "key": "verify-with-reference|c3e51f4a45069f8d7553d30d1bc8b35d_7817bb9c553c6bb83b982f47843e0f54",
+        "low": false,
+        "cluster": "verify-with-reference:b47b253c0a7bfb12",
+        "score": 0.0,
+        "calls": 1,
+        "usd": 0,
+        "cost_complete": false,
+        "pA": 0.8,
+        "missing": false
+      },
+      {
+        "key": "verify-with-reference|c8cadbcb97f9fc98c52201c05d2cc7ed_e53ffb97227c484cb4cf3e395207ef4f",
+        "low": false,
+        "cluster": "verify-with-reference:69fee374d4d01ab6",
+        "score": 1.0,
+        "calls": 1,
+        "usd": 0,
+        "cost_complete": false,
+        "pA": 0.11,
+        "missing": false
+      },
+      {
+        "key": "verify-with-reference|d29e283a52241c0a9a32224b711237bd_cab7eb980622deaad71cf6fe7e803264",
+        "low": true,
+        "cluster": "verify-with-reference:b922fe7ddf8f7d01",
+        "score": 0.0,
+        "calls": 1,
+        "usd": 0,
+        "cost_complete": false,
+        "pA": 0.61,
+        "missing": false
+      },
+      {
+        "key": "verify-with-reference|d39f096bb2596eb7d8955356ef44a14e_cc7a467fa14f91c15dd31328e13f485e",
+        "low": false,
+        "cluster": "verify-with-reference:12596e35cb3d4064",
+        "score": 0.0,
+        "calls": 1,
+        "usd": 0,
+        "cost_complete": false,
+        "pA": 0.83,
+        "missing": false
+      },
+      {
+        "key": "verify-with-reference|daafa66d5d745cf90a6a9f7e7476456e_ee51a4efa53adaad8c8b234938587bc9",
+        "low": true,
+        "cluster": "verify-with-reference:15c47d30cea888b0",
+        "score": 0.0,
+        "calls": 1,
+        "usd": 0,
+        "cost_complete": false,
+        "pA": 0.07,
+        "missing": false
+      },
+      {
+        "key": "verify-with-reference|e05c879fa8330428d5f4c60e2165c671_a1cf5c7e22209a7dde60b811f14dcfa3",
+        "low": false,
+        "cluster": "verify-with-reference:24bab31a0671e02d",
+        "score": 1.0,
+        "calls": 1,
+        "usd": 0,
+        "cost_complete": false,
+        "pA": 0.06,
+        "missing": false
+      },
+      {
+        "key": "verify-with-reference|e294330c907c43e8b8e2fe5b2d1eff04_01bcb6a22e65a9be3cd5c1f0c5accf0b",
+        "low": false,
+        "cluster": "verify-with-reference:6756a2e74b25f765",
+        "score": 1.0,
+        "calls": 1,
+        "usd": 0,
+        "cost_complete": false,
+        "pA": 0.85,
+        "missing": false
+      },
+      {
+        "key": "verify-with-reference|e33318504a7ac7627d557aa1c8a28757_2773ef67563d0ff7b53513d4038a7626",
+        "low": false,
+        "cluster": "verify-with-reference:5609c81f75cfe145",
+        "score": 0.0,
+        "calls": 1,
+        "usd": 0,
+        "cost_complete": false,
+        "pA": 0.55,
+        "missing": false
+      },
+      {
+        "key": "verify-with-reference|f7f4f5882b9c712068cbeac5acb4a0a4_7294b3b236c33212fbbe5aa24dbd47f4",
+        "low": false,
+        "cluster": "verify-with-reference:ef70964dced054cc",
+        "score": 1.0,
+        "calls": 1,
+        "usd": 0,
+        "cost_complete": false,
+        "pA": 0.27,
+        "missing": false
+      }
+    ],
+    "ledger": [
+      {
+        "key": "verify-with-reference|002ba0331c11a198784abdfff1d7b8fb_936d37ed03db3340809ca9409508b906",
+        "low": false,
+        "cluster": "verify-with-reference:67c487e0171279d7",
+        "score": 1.0,
+        "calls": 4.7,
+        "usd": 0.005666,
+        "cost_complete": true
+      },
+      {
+        "key": "verify-with-reference|012d78a208c04759392be0c8b9d27dc6_dc9a328c94255249105f5d3b465499d5",
+        "low": false,
+        "cluster": "verify-with-reference:5d34de367a265ad9",
+        "score": 1.0,
+        "calls": 4.7,
+        "usd": 0.005666,
+        "cost_complete": true
+      },
+      {
+        "key": "verify-with-reference|045503cb808f8344ae4972c147441517_90dddf89d761d5515d371d5d883e15ec",
+        "low": false,
+        "cluster": "verify-with-reference:9aedf78c63389c17",
+        "score": 0.0,
+        "calls": 4.7,
+        "usd": 0.005666,
+        "cost_complete": true
+      },
+      {
+        "key": "verify-with-reference|081833aa552befb57c837abfaa3e82c6_3687dcc53ca83b415f453e9939ed2277",
+        "low": false,
+        "cluster": "verify-with-reference:7a36f716974d458c",
+        "score": 1.0,
+        "calls": 4.7,
+        "usd": 0.005666,
+        "cost_complete": true
+      },
+      {
+        "key": "verify-with-reference|0af2a305f4c4e44a69c7fd5e03d7f74e_7ff87a43db7f15aa80827e2230dd95a1",
+        "low": false,
+        "cluster": "verify-with-reference:3eacf2e4d1c1a90c",
+        "score": 1.0,
+        "calls": 4.7,
+        "usd": 0.005666,
+        "cost_complete": true
+      },
+      {
+        "key": "verify-with-reference|1548f1e34026a5988f77c35cbc1e2528_c39553e7f10dd1483084dd94954eb1ec",
+        "low": false,
+        "cluster": "verify-with-reference:5cb793b68627d218",
+        "score": 1.0,
+        "calls": 4.7,
+        "usd": 0.005666,
+        "cost_complete": true
+      },
+      {
+        "key": "verify-with-reference|1bd8144011c39f410df900a04d6e156a_f0ff48079a16eda16a3925eb5c78c21a",
+        "low": false,
+        "cluster": "verify-with-reference:c68c5fc81f9be5ff",
+        "score": 1.0,
+        "calls": 4.7,
+        "usd": 0.005666,
+        "cost_complete": true
+      },
+      {
+        "key": "verify-with-reference|20f09d89d7c677862fd06e2e96e7ec19_a7f2ac04dc8fb1609ab7384631ce736c",
+        "low": false,
+        "cluster": "verify-with-reference:752ac7c706fbcebc",
+        "score": 1.0,
+        "calls": 4.7,
+        "usd": 0.005666,
+        "cost_complete": true
+      },
+      {
+        "key": "verify-with-reference|251325e4d8bd19d38d1481ec5bb6b952_b0e0faf620816637683d6cefbc8d905d",
+        "low": false,
+        "cluster": "verify-with-reference:0873a45f21d1c954",
+        "score": 1.0,
+        "calls": 4.7,
+        "usd": 0.005666,
+        "cost_complete": true
+      },
+      {
+        "key": "verify-with-reference|2c0b811d86ed6140f5f9811cf3a320fa_4e375ba613e31acadbdf76cf9dcb95ad",
+        "low": false,
+        "cluster": "verify-with-reference:a9a03b3e9a034e39",
+        "score": 0.0,
+        "calls": 4.7,
+        "usd": 0.005666,
+        "cost_complete": true
+      },
+      {
+        "key": "verify-with-reference|316ee3d0bc7b041ff6036ff4eedebd63_2a81f176304fb48b93a51804c8813763",
+        "low": false,
+        "cluster": "verify-with-reference:7ec853b8585b236e",
+        "score": 1.0,
+        "calls": 4.7,
+        "usd": 0.005666,
+        "cost_complete": true
+      },
+      {
+        "key": "verify-with-reference|465fc22785286db5dd33b22506c32cb7_167ebe0d73af5771692e25d41290c636",
+        "low": false,
+        "cluster": "verify-with-reference:90f11578f840d99d",
+        "score": 1.0,
+        "calls": 4.7,
+        "usd": 0.005666,
+        "cost_complete": true
+      },
+      {
+        "key": "verify-with-reference|4b4809afe76dd8c903f188bf277830c2_564014cd48e8406e59bd7edae9b402f5",
+        "low": false,
+        "cluster": "verify-with-reference:a71a1240a8513f62",
+        "score": 1.0,
+        "calls": 4.7,
+        "usd": 0.005666,
+        "cost_complete": true
+      },
+      {
+        "key": "verify-with-reference|4d1497a568219528716b51f87ef72f18_6029e690d7a881057e987894b31db7e6",
+        "low": false,
+        "cluster": "verify-with-reference:31a315015a156fb0",
+        "score": 1.0,
+        "calls": 4.7,
+        "usd": 0.005666,
+        "cost_complete": true
+      },
+      {
+        "key": "verify-with-reference|4d94773555d0a8e3f9b059e6cc729bdf_42f7be3f4cdef5f9018edfefec78418b",
+        "low": false,
+        "cluster": "verify-with-reference:33ce809f62eca350",
+        "score": 1.0,
+        "calls": 4.6,
+        "usd": 0.005419,
+        "cost_complete": true
+      },
+      {
+        "key": "verify-with-reference|4e962b5781cb54bc20844b76f48015bf_5030f4551098b9ae90f2f5e090b46346",
+        "low": false,
+        "cluster": "verify-with-reference:78eaf5323d28de24",
+        "score": 1.0,
+        "calls": 4.6,
+        "usd": 0.005419,
+        "cost_complete": true
+      },
+      {
+        "key": "verify-with-reference|4fd3bc514ff8e3775723a0f883a7d347_54c1d82ec537b265b891b55d68a2d539",
+        "low": false,
+        "cluster": "verify-with-reference:b0fd69e7ea79caa7",
+        "score": 1.0,
+        "calls": 4.6,
+        "usd": 0.005419,
+        "cost_complete": true
+      },
+      {
+        "key": "verify-with-reference|5305069c7919fc01c8707be50843590a_b156bd30f7b7d418897e9ccec7ea7708",
+        "low": false,
+        "cluster": "verify-with-reference:fe673be25ef0bd44",
+        "score": 1.0,
+        "calls": 4.6,
+        "usd": 0.005419,
+        "cost_complete": true
+      },
+      {
+        "key": "verify-with-reference|542a4a7aed316e1a799d1c145b101ea9_c10967faf71a528ab33e138f74ffb1cf",
+        "low": false,
+        "cluster": "verify-with-reference:c2c5af1b933c81fc",
+        "score": 0.0,
+        "calls": 4.6,
+        "usd": 0.005419,
+        "cost_complete": true
+      }
+    ],
+    "promptfoo": [
+      {
+        "key": "verify-with-reference|002ba0331c11a198784abdfff1d7b8fb_936d37ed03db3340809ca9409508b906",
+        "low": false,
+        "cluster": "verify-with-reference:67c487e0171279d7",
+        "score": 1.0,
+        "calls": 1.0,
+        "usd": 0.000738,
+        "cost_complete": true
+      },
+      {
+        "key": "verify-with-reference|012d78a208c04759392be0c8b9d27dc6_dc9a328c94255249105f5d3b465499d5",
+        "low": false,
+        "cluster": "verify-with-reference:5d34de367a265ad9",
+        "score": 1.0,
+        "calls": 1.0,
+        "usd": 0.000738,
+        "cost_complete": true
+      },
+      {
+        "key": "verify-with-reference|045503cb808f8344ae4972c147441517_90dddf89d761d5515d371d5d883e15ec",
+        "low": false,
+        "cluster": "verify-with-reference:9aedf78c63389c17",
+        "score": 0.0,
+        "calls": 1.0,
+        "usd": 0.000738,
+        "cost_complete": true
+      },
+      {
+        "key": "verify-with-reference|081833aa552befb57c837abfaa3e82c6_3687dcc53ca83b415f453e9939ed2277",
+        "low": false,
+        "cluster": "verify-with-reference:7a36f716974d458c",
+        "score": 1.0,
+        "calls": 1.0,
+        "usd": 0.000738,
+        "cost_complete": true
+      },
+      {
+        "key": "verify-with-reference|0af2a305f4c4e44a69c7fd5e03d7f74e_7ff87a43db7f15aa80827e2230dd95a1",
+        "low": false,
+        "cluster": "verify-with-reference:3eacf2e4d1c1a90c",
+        "score": 0.0,
+        "calls": 1.0,
+        "usd": 0.000738,
+        "cost_complete": true
+      },
+      {
+        "key": "verify-with-reference|1548f1e34026a5988f77c35cbc1e2528_c39553e7f10dd1483084dd94954eb1ec",
+        "low": false,
+        "cluster": "verify-with-reference:5cb793b68627d218",
+        "score": 1.0,
+        "calls": 1.0,
+        "usd": 0.000738,
+        "cost_complete": true
+      },
+      {
+        "key": "verify-with-reference|1bd8144011c39f410df900a04d6e156a_f0ff48079a16eda16a3925eb5c78c21a",
+        "low": false,
+        "cluster": "verify-with-reference:c68c5fc81f9be5ff",
+        "score": 1.0,
+        "calls": 1.0,
+        "usd": 0.000738,
+        "cost_complete": true
+      },
+      {
+        "key": "verify-with-reference|20f09d89d7c677862fd06e2e96e7ec19_a7f2ac04dc8fb1609ab7384631ce736c",
+        "low": false,
+        "cluster": "verify-with-reference:752ac7c706fbcebc",
+        "score": 1.0,
+        "calls": 1.0,
+        "usd": 0.000738,
+        "cost_complete": true
+      },
+      {
+        "key": "verify-with-reference|251325e4d8bd19d38d1481ec5bb6b952_b0e0faf620816637683d6cefbc8d905d",
+        "low": false,
+        "cluster": "verify-with-reference:0873a45f21d1c954",
+        "score": 1.0,
+        "calls": 1.0,
+        "usd": 0.000738,
+        "cost_complete": true
+      },
+      {
+        "key": "verify-with-reference|2c0b811d86ed6140f5f9811cf3a320fa_4e375ba613e31acadbdf76cf9dcb95ad",
+        "low": false,
+        "cluster": "verify-with-reference:a9a03b3e9a034e39",
+        "score": 1.0,
+        "calls": 1.0,
+        "usd": 0.000738,
+        "cost_complete": true
+      },
+      {
+        "key": "verify-with-reference|316ee3d0bc7b041ff6036ff4eedebd63_2a81f176304fb48b93a51804c8813763",
+        "low": false,
+        "cluster": "verify-with-reference:7ec853b8585b236e",
+        "score": 1.0,
+        "calls": 1.0,
+        "usd": 0.000738,
+        "cost_complete": true
+      },
+      {
+        "key": "verify-with-reference|465fc22785286db5dd33b22506c32cb7_167ebe0d73af5771692e25d41290c636",
+        "low": false,
+        "cluster": "verify-with-reference:90f11578f840d99d",
+        "score": 1.0,
+        "calls": 1.0,
+        "usd": 0.000738,
+        "cost_complete": true
+      },
+      {
+        "key": "verify-with-reference|4b4809afe76dd8c903f188bf277830c2_564014cd48e8406e59bd7edae9b402f5",
+        "low": false,
+        "cluster": "verify-with-reference:a71a1240a8513f62",
+        "score": 1.0,
+        "calls": 1.0,
+        "usd": 0.000738,
+        "cost_complete": true
+      },
+      {
+        "key": "verify-with-reference|4d1497a568219528716b51f87ef72f18_6029e690d7a881057e987894b31db7e6",
+        "low": false,
+        "cluster": "verify-with-reference:31a315015a156fb0",
+        "score": 1.0,
+        "calls": 1.0,
+        "usd": 0.000738,
+        "cost_complete": true
+      },
+      {
+        "key": "verify-with-reference|4d94773555d0a8e3f9b059e6cc729bdf_42f7be3f4cdef5f9018edfefec78418b",
+        "low": false,
+        "cluster": "verify-with-reference:33ce809f62eca350",
+        "score": 1.0,
+        "calls": 0.93,
+        "usd": 0.000749,
+        "cost_complete": true
+      },
+      {
+        "key": "verify-with-reference|4e962b5781cb54bc20844b76f48015bf_5030f4551098b9ae90f2f5e090b46346",
+        "low": false,
+        "cluster": "verify-with-reference:78eaf5323d28de24",
+        "score": 1.0,
+        "calls": 0.93,
+        "usd": 0.000749,
+        "cost_complete": true
+      },
+      {
+        "key": "verify-with-reference|4fd3bc514ff8e3775723a0f883a7d347_54c1d82ec537b265b891b55d68a2d539",
+        "low": false,
+        "cluster": "verify-with-reference:b0fd69e7ea79caa7",
+        "score": 1.0,
+        "calls": 0.93,
+        "usd": 0.000749,
+        "cost_complete": true
+      },
+      {
+        "key": "verify-with-reference|5305069c7919fc01c8707be50843590a_b156bd30f7b7d418897e9ccec7ea7708",
+        "low": false,
+        "cluster": "verify-with-reference:fe673be25ef0bd44",
+        "score": 1.0,
+        "calls": 0.93,
+        "usd": 0.000749,
+        "cost_complete": true
+      },
+      {
+        "key": "verify-with-reference|542a4a7aed316e1a799d1c145b101ea9_c10967faf71a528ab33e138f74ffb1cf",
+        "low": false,
+        "cluster": "verify-with-reference:c2c5af1b933c81fc",
+        "score": 1.0,
+        "calls": 0.93,
+        "usd": 0.000749,
+        "cost_complete": true
+      }
+    ]
+  },
+  "observations": {
+    "verify-with-reference|002ba0331c11a198784abdfff1d7b8fb_936d37ed03db3340809ca9409508b906": {
+      "reference-first": {
+        "pA": 0.47,
+        "confidence": 0.53,
+        "detail": {
+          "eligible": true,
+          "with_reference": true,
+          "kind": "pointwise",
+          "points": [
+            "The final answer the response gives to the question is correct, checked against the reference solution."
+          ],
+          "scores": {
+            "a": 0.47
+          },
+          "rows": {
+            "a": {
+              "point_0": 0.47
+            }
+          },
+          "reference_source": "dataset"
+        },
+        "calls": 1,
+        "usd": 0,
+        "cost_complete": false,
+        "keys": [
+          "72ff38cdf55e1be3306c9e3dd59110cd4648f51831e6cd47cd12928fcca9dd09"
+        ]
+      },
+      "reference-blind": {
+        "pA": 0.37,
+        "confidence": 0.63,
+        "detail": {
+          "eligible": true,
+          "with_reference": false,
+          "kind": "pointwise",
+          "points": [
+            "The final answer the response gives to the question is correct, checked against the reference solution."
+          ],
+          "scores": {
+            "a": 0.37
+          },
+          "rows": {
+            "a": {
+              "point_0": 0.37
+            }
+          },
+          "reference_source": null
+        },
+        "calls": 1,
+        "usd": 0,
+        "cost_complete": false,
+        "keys": [
+          "06395c236ca050daabdfe158920937c4433be67e16bb093aaf4d82321d72489f"
+        ]
+      }
+    },
+    "verify-with-reference|012d78a208c04759392be0c8b9d27dc6_dc9a328c94255249105f5d3b465499d5": {
+      "reference-first": {
+        "pA": 0.02,
+        "confidence": 0.98,
+        "detail": {
+          "eligible": true,
+          "with_reference": true,
+          "kind": "pointwise",
+          "points": [
+            "The final answer the response gives to the question is correct, checked against the reference solution."
+          ],
+          "scores": {
+            "a": 0.02
+          },
+          "rows": {
+            "a": {
+              "point_0": 0.02
+            }
+          },
+          "reference_source": "dataset"
+        },
+        "calls": 1,
+        "usd": 0,
+        "cost_complete": false,
+        "keys": [
+          "3e7b02fe2c5128798cda90ea18b65033ffb7c1141df79fc8f4ba9ba61f8b60a9"
+        ]
+      },
+      "reference-blind": {
+        "pA": 0.24,
+        "confidence": 0.76,
+        "detail": {
+          "eligible": true,
+          "with_reference": false,
+          "kind": "pointwise",
+          "points": [
+            "The final answer the response gives to the question is correct, checked against the reference solution."
+          ],
+          "scores": {
+            "a": 0.24
+          },
+          "rows": {
+            "a": {
+              "point_0": 0.24
+            }
+          },
+          "reference_source": null
+        },
+        "calls": 1,
+        "usd": 0,
+        "cost_complete": false,
+        "keys": [
+          "cbd94169e478b178ba927db80667941e922d30614882d369426827e1ae5c8398"
+        ]
+      }
+    },
+    "verify-with-reference|045503cb808f8344ae4972c147441517_90dddf89d761d5515d371d5d883e15ec": {
+      "reference-first": {
+        "pA": 0.15,
+        "confidence": 0.85,
+        "detail": {
+          "eligible": true,
+          "with_reference": true,
+          "kind": "pointwise",
+          "points": [
+            "The final answer the response gives to the question is correct, checked against the reference solution."
+          ],
+          "scores": {
+            "a": 0.15
+          },
+          "rows": {
+            "a": {
+              "point_0": 0.15
+            }
+          },
+          "reference_source": "dataset"
+        },
+        "calls": 1,
+        "usd": 0,
+        "cost_complete": false,
+        "keys": [
+          "bbd9314d8084bffcd128a1931b9b46bfa98ef9985d226d61e25e542b91dc5f8d"
+        ]
+      },
+      "reference-blind": {
+        "pA": 0.82,
+        "confidence": 0.82,
+        "detail": {
+          "eligible": true,
+          "with_reference": false,
+          "kind": "pointwise",
+          "points": [
+            "The final answer the response gives to the question is correct, checked against the reference solution."
+          ],
+          "scores": {
+            "a": 0.82
+          },
+          "rows": {
+            "a": {
+              "point_0": 0.82
+            }
+          },
+          "reference_source": null
+        },
+        "calls": 1,
+        "usd": 0,
+        "cost_complete": false,
+        "keys": [
+          "9d1e820fbe10879d0c8dce0646d7b8a2a3efae5fc22017dd5642c6c02ddbea63"
+        ]
+      }
+    },
+    "verify-with-reference|081833aa552befb57c837abfaa3e82c6_3687dcc53ca83b415f453e9939ed2277": {
+      "reference-first": {
+        "pA": 0.87,
+        "confidence": 0.87,
+        "detail": {
+          "eligible": true,
+          "with_reference": true,
+          "kind": "pointwise",
+          "points": [
+            "The final answer the response gives to the question is correct, checked against the reference solution."
+          ],
+          "scores": {
+            "a": 0.87
+          },
+          "rows": {
+            "a": {
+              "point_0": 0.87
+            }
+          },
+          "reference_source": "dataset"
+        },
+        "calls": 1,
+        "usd": 0,
+        "cost_complete": false,
+        "keys": [
+          "7b1e017fadfe7c049f4b5c7f5be12fee9d3e3119371cc91365fd40a3efdfab8a"
+        ]
+      },
+      "reference-blind": {
+        "pA": 0.62,
+        "confidence": 0.62,
+        "detail": {
+          "eligible": true,
+          "with_reference": false,
+          "kind": "pointwise",
+          "points": [
+            "The final answer the response gives to the question is correct, checked against the reference solution."
+          ],
+          "scores": {
+            "a": 0.62
+          },
+          "rows": {
+            "a": {
+              "point_0": 0.62
+            }
+          },
+          "reference_source": null
+        },
+        "calls": 1,
+        "usd": 0,
+        "cost_complete": false,
+        "keys": [
+          "7ad2ecefe8f9c50a12c55fdb8037cd2d30fc4b811e624a931624c625d510e898"
+        ]
+      }
+    },
+    "verify-with-reference|0af2a305f4c4e44a69c7fd5e03d7f74e_7ff87a43db7f15aa80827e2230dd95a1": {
+      "reference-first": {
+        "pA": 0.06,
+        "confidence": 0.94,
+        "detail": {
+          "eligible": true,
+          "with_reference": true,
+          "kind": "pointwise",
+          "points": [
+            "The final answer the response gives to the question is correct, checked against the reference solution."
+          ],
+          "scores": {
+            "a": 0.06
+          },
+          "rows": {
+            "a": {
+              "point_0": 0.06
+            }
+          },
+          "reference_source": "dataset"
+        },
+        "calls": 1,
+        "usd": 0,
+        "cost_complete": false,
+        "keys": [
+          "66bb5ab72c87740283d49dc4a9d06232b94b3bb7e73759e165be5f4f37d2aa0c"
+        ]
+      },
+      "reference-blind": {
+        "pA": 0.91,
+        "confidence": 0.91,
+        "detail": {
+          "eligible": true,
+          "with_reference": false,
+          "kind": "pointwise",
+          "points": [
+            "The final answer the response gives to the question is correct, checked against the reference solution."
+          ],
+          "scores": {
+            "a": 0.91
+          },
+          "rows": {
+            "a": {
+              "point_0": 0.91
+            }
+          },
+          "reference_source": null
+        },
+        "calls": 1,
+        "usd": 0,
+        "cost_complete": false,
+        "keys": [
+          "1c35af62c9b7333a80ca389058b52787bc16ef247741ff4e7ae5a4d6159bc7e9"
+        ]
+      }
+    },
+    "verify-with-reference|1548f1e34026a5988f77c35cbc1e2528_c39553e7f10dd1483084dd94954eb1ec": {
+      "reference-first": {
+        "pA": 0.8,
+        "confidence": 0.8,
+        "detail": {
+          "eligible": true,
+          "with_reference": true,
+          "kind": "pointwise",
+          "points": [
+            "The final answer the response gives to the question is correct, checked against the reference solution."
+          ],
+          "scores": {
+            "a": 0.8
+          },
+          "rows": {
+            "a": {
+              "point_0": 0.8
+            }
+          },
+          "reference_source": "dataset"
+        },
+        "calls": 1,
+        "usd": 0,
+        "cost_complete": false,
+        "keys": [
+          "a17b3332f8f7530dab01a867f49de79b1dc62adc9ceb23a891c84ca308cbc870"
+        ]
+      },
+      "reference-blind": {
+        "pA": 0.3,
+        "confidence": 0.7,
+        "detail": {
+          "eligible": true,
+          "with_reference": false,
+          "kind": "pointwise",
+          "points": [
+            "The final answer the response gives to the question is correct, checked against the reference solution."
+          ],
+          "scores": {
+            "a": 0.3
+          },
+          "rows": {
+            "a": {
+              "point_0": 0.3
+            }
+          },
+          "reference_source": null
+        },
+        "calls": 1,
+        "usd": 0,
+        "cost_complete": false,
+        "keys": [
+          "0a06a3fff3e8e2ad8a9a8805fbf611281a53572bae952857bcaf12c9df6a132c"
+        ]
+      }
+    },
+    "verify-with-reference|1bd8144011c39f410df900a04d6e156a_f0ff48079a16eda16a3925eb5c78c21a": {
+      "reference-first": {
+        "pA": 0.76,
+        "confidence": 0.76,
+        "detail": {
+          "eligible": true,
+          "with_reference": true,
+          "kind": "pointwise",
+          "points": [
+            "The final answer the response gives to the question is correct, checked against the reference solution."
+          ],
+          "scores": {
+            "a": 0.76
+          },
+          "rows": {
+            "a": {
+              "point_0": 0.76
+            }
+          },
+          "reference_source": "dataset"
+        },
+        "calls": 1,
+        "usd": 0,
+        "cost_complete": false,
+        "keys": [
+          "be171b9996938757357af2477cbd0c13dbc3fcca0513a16aff19535ca7798ca1"
+        ]
+      },
+      "reference-blind": {
+        "pA": 0.54,
+        "confidence": 0.54,
+        "detail": {
+          "eligible": true,
+          "with_reference": false,
+          "kind": "pointwise",
+          "points": [
+            "The final answer the response gives to the question is correct, checked against the reference solution."
+          ],
+          "scores": {
+            "a": 0.54
+          },
+          "rows": {
+            "a": {
+              "point_0": 0.54
+            }
+          },
+          "reference_source": null
+        },
+        "calls": 1,
+        "usd": 0,
+        "cost_complete": false,
+        "keys": [
+          "464620086944fa1abeb33271936120235a2067a7b07eee92c86bc624f45c51c7"
+        ]
+      }
+    },
+    "verify-with-reference|20f09d89d7c677862fd06e2e96e7ec19_a7f2ac04dc8fb1609ab7384631ce736c": {
+      "reference-first": {
+        "pA": 0.02,
+        "confidence": 0.98,
+        "detail": {
+          "eligible": true,
+          "with_reference": true,
+          "kind": "pointwise",
+          "points": [
+            "The final answer the response gives to the question is correct, checked against the reference solution."
+          ],
+          "scores": {
+            "a": 0.02
+          },
+          "rows": {
+            "a": {
+              "point_0": 0.02
+            }
+          },
+          "reference_source": "dataset"
+        },
+        "calls": 1,
+        "usd": 0,
+        "cost_complete": false,
+        "keys": [
+          "9ef1648e13c0fd7b0900c49d3ede0774146d65f662f5c93b2a5ac0a92e18f156"
+        ]
+      },
+      "reference-blind": {
+        "pA": 0.33,
+        "confidence": 0.6699999999999999,
+        "detail": {
+          "eligible": true,
+          "with_reference": false,
+          "kind": "pointwise",
+          "points": [
+            "The final answer the response gives to the question is correct, checked against the reference solution."
+          ],
+          "scores": {
+            "a": 0.33
+          },
+          "rows": {
+            "a": {
+              "point_0": 0.33
+            }
+          },
+          "reference_source": null
+        },
+        "calls": 1,
+        "usd": 0,
+        "cost_complete": false,
+        "keys": [
+          "4a7a3899a8709b6b4e53a9720e14e09b7b198cc84fb9b7cd93dc00a0519dcf1d"
+        ]
+      }
+    },
+    "verify-with-reference|251325e4d8bd19d38d1481ec5bb6b952_b0e0faf620816637683d6cefbc8d905d": {
+      "reference-first": {
+        "pA": 0.23,
+        "confidence": 0.77,
+        "detail": {
+          "eligible": true,
+          "with_reference": true,
+          "kind": "pointwise",
+          "points": [
+            "The final answer the response gives to the question is correct, checked against the reference solution."
+          ],
+          "scores": {
+            "a": 0.23
+          },
+          "rows": {
+            "a": {
+              "point_0": 0.23
+            }
+          },
+          "reference_source": "dataset"
+        },
+        "calls": 1,
+        "usd": 0,
+        "cost_complete": false,
+        "keys": [
+          "0dcedf14654d1b92b84c2c495d2b483bd4954ff45f14a98eccca8923b07fbc16"
+        ]
+      },
+      "reference-blind": {
+        "pA": 0.46,
+        "confidence": 0.54,
+        "detail": {
+          "eligible": true,
+          "with_reference": false,
+          "kind": "pointwise",
+          "points": [
+            "The final answer the response gives to the question is correct, checked against the reference solution."
+          ],
+          "scores": {
+            "a": 0.46
+          },
+          "rows": {
+            "a": {
+              "point_0": 0.46
+            }
+          },
+          "reference_source": null
+        },
+        "calls": 1,
+        "usd": 0,
+        "cost_complete": false,
+        "keys": [
+          "f90982ea4e675dfec892de8a5ec04ae48ef6c6f3cda4ca6c13be264292e00b61"
+        ]
+      }
+    },
+    "verify-with-reference|2c0b811d86ed6140f5f9811cf3a320fa_4e375ba613e31acadbdf76cf9dcb95ad": {
+      "reference-first": {
+        "pA": 0.04,
+        "confidence": 0.96,
+        "detail": {
+          "eligible": true,
+          "with_reference": true,
+          "kind": "pointwise",
+          "points": [
+            "The final answer the response gives to the question is correct, checked against the reference solution."
+          ],
+          "scores": {
+            "a": 0.04
+          },
+          "rows": {
+            "a": {
+              "point_0": 0.04
+            }
+          },
+          "reference_source": "dataset"
+        },
+        "calls": 1,
+        "usd": 0,
+        "cost_complete": false,
+        "keys": [
+          "e112a433ad6232410ab15997995915eb75394c53fbfe32efa5780fe9811041d7"
+        ]
+      },
+      "reference-blind": {
+        "pA": 0.75,
+        "confidence": 0.75,
+        "detail": {
+          "eligible": true,
+          "with_reference": false,
+          "kind": "pointwise",
+          "points": [
+            "The final answer the response gives to the question is correct, checked against the reference solution."
+          ],
+          "scores": {
+            "a": 0.75
+          },
+          "rows": {
+            "a": {
+              "point_0": 0.75
+            }
+          },
+          "reference_source": null
+        },
+        "calls": 1,
+        "usd": 0,
+        "cost_complete": false,
+        "keys": [
+          "459e867db3e7c693088bb939d2964d90f9fa2f273e50713640d93e93e28e8ec3"
+        ]
+      }
+    },
+    "verify-with-reference|316ee3d0bc7b041ff6036ff4eedebd63_2a81f176304fb48b93a51804c8813763": {
+      "reference-first": {
+        "pA": 0.03,
+        "confidence": 0.97,
+        "detail": {
+          "eligible": true,
+          "with_reference": true,
+          "kind": "pointwise",
+          "points": [
+            "The final answer the response gives to the question is correct, checked against the reference solution."
+          ],
+          "scores": {
+            "a": 0.03
+          },
+          "rows": {
+            "a": {
+              "point_0": 0.03
+            }
+          },
+          "reference_source": "dataset"
+        },
+        "calls": 1,
+        "usd": 0,
+        "cost_complete": false,
+        "keys": [
+          "6c577c12e39c987b7b81dfe81ef609dec11c7c61c77e23b65bbb814913be0851"
+        ]
+      },
+      "reference-blind": {
+        "pA": 0.07,
+        "confidence": 0.9299999999999999,
+        "detail": {
+          "eligible": true,
+          "with_reference": false,
+          "kind": "pointwise",
+          "points": [
+            "The final answer the response gives to the question is correct, checked against the reference solution."
+          ],
+          "scores": {
+            "a": 0.07
+          },
+          "rows": {
+            "a": {
+              "point_0": 0.07
+            }
+          },
+          "reference_source": null
+        },
+        "calls": 1,
+        "usd": 0,
+        "cost_complete": false,
+        "keys": [
+          "df4c3fd6d6df2b27e52118601d4cf3c32a28e929b3d14cf751f9ada523dcbb50"
+        ]
+      }
+    },
+    "verify-with-reference|465fc22785286db5dd33b22506c32cb7_167ebe0d73af5771692e25d41290c636": {
+      "reference-first": {
+        "pA": 0.04,
+        "confidence": 0.96,
+        "detail": {
+          "eligible": true,
+          "with_reference": true,
+          "kind": "pointwise",
+          "points": [
+            "The final answer the response gives to the question is correct, checked against the reference solution."
+          ],
+          "scores": {
+            "a": 0.04
+          },
+          "rows": {
+            "a": {
+              "point_0": 0.04
+            }
+          },
+          "reference_source": "dataset"
+        },
+        "calls": 1,
+        "usd": 0,
+        "cost_complete": false,
+        "keys": [
+          "3b96fbe30ca2258ca8a7eb70594ef42ca45f7b9fbaa79035593d038bb7012151"
+        ]
+      },
+      "reference-blind": {
+        "pA": 0.02,
+        "confidence": 0.98,
+        "detail": {
+          "eligible": true,
+          "with_reference": false,
+          "kind": "pointwise",
+          "points": [
+            "The final answer the response gives to the question is correct, checked against the reference solution."
+          ],
+          "scores": {
+            "a": 0.02
+          },
+          "rows": {
+            "a": {
+              "point_0": 0.02
+            }
+          },
+          "reference_source": null
+        },
+        "calls": 1,
+        "usd": 0,
+        "cost_complete": false,
+        "keys": [
+          "44bed3314a194d64503688f937199dfb5bc77ba75d875496ac72a64b5ae1c467"
+        ]
+      }
+    },
+    "verify-with-reference|4b4809afe76dd8c903f188bf277830c2_564014cd48e8406e59bd7edae9b402f5": {
+      "reference-first": {
+        "pA": 0.04,
+        "confidence": 0.96,
+        "detail": {
+          "eligible": true,
+          "with_reference": true,
+          "kind": "pointwise",
+          "points": [
+            "The final answer the response gives to the question is correct, checked against the reference solution."
+          ],
+          "scores": {
+            "a": 0.04
+          },
+          "rows": {
+            "a": {
+              "point_0": 0.04
+            }
+          },
+          "reference_source": "dataset"
+        },
+        "calls": 1,
+        "usd": 0,
+        "cost_complete": false,
+        "keys": [
+          "e7943646fb05906cf333ce2867eaff06f264c9663ecfcd3d2b4007be6ed375e3"
+        ]
+      },
+      "reference-blind": {
+        "pA": 0.56,
+        "confidence": 0.56,
+        "detail": {
+          "eligible": true,
+          "with_reference": false,
+          "kind": "pointwise",
+          "points": [
+            "The final answer the response gives to the question is correct, checked against the reference solution."
+          ],
+          "scores": {
+            "a": 0.56
+          },
+          "rows": {
+            "a": {
+              "point_0": 0.56
+            }
+          },
+          "reference_source": null
+        },
+        "calls": 1,
+        "usd": 0,
+        "cost_complete": false,
+        "keys": [
+          "9dd74e6962a487b4d0540c7980a585756fc28d02703de68a4cfa61838dae1a38"
+        ]
+      }
+    },
+    "verify-with-reference|4d1497a568219528716b51f87ef72f18_6029e690d7a881057e987894b31db7e6": {
+      "reference-first": {
+        "pA": 0.24,
+        "confidence": 0.76,
+        "detail": {
+          "eligible": true,
+          "with_reference": true,
+          "kind": "pointwise",
+          "points": [
+            "The final answer the response gives to the question is correct, checked against the reference solution."
+          ],
+          "scores": {
+            "a": 0.24
+          },
+          "rows": {
+            "a": {
+              "point_0": 0.24
+            }
+          },
+          "reference_source": "dataset"
+        },
+        "calls": 1,
+        "usd": 0,
+        "cost_complete": false,
+        "keys": [
+          "4951370dfca90d5115912582862621fcd0e363245b485fe2646abbd79020cf1e"
+        ]
+      },
+      "reference-blind": {
+        "pA": 0.27,
+        "confidence": 0.73,
+        "detail": {
+          "eligible": true,
+          "with_reference": false,
+          "kind": "pointwise",
+          "points": [
+            "The final answer the response gives to the question is correct, checked against the reference solution."
+          ],
+          "scores": {
+            "a": 0.27
+          },
+          "rows": {
+            "a": {
+              "point_0": 0.27
+            }
+          },
+          "reference_source": null
+        },
+        "calls": 1,
+        "usd": 0,
+        "cost_complete": false,
+        "keys": [
+          "99486bd629bda65da01c1a412e0cb4beb1d9d5324402956c372388642ac28dc2"
+        ]
+      }
+    },
+    "verify-with-reference|4d94773555d0a8e3f9b059e6cc729bdf_42f7be3f4cdef5f9018edfefec78418b": {
+      "reference-first": {
+        "pA": 0.02,
+        "confidence": 0.98,
+        "detail": {
+          "eligible": true,
+          "with_reference": true,
+          "kind": "pointwise",
+          "points": [
+            "The final answer the response gives to the question is correct, checked against the reference solution."
+          ],
+          "scores": {
+            "a": 0.02
+          },
+          "rows": {
+            "a": {
+              "point_0": 0.02
+            }
+          },
+          "reference_source": "dataset"
+        },
+        "calls": 1,
+        "usd": 0,
+        "cost_complete": false,
+        "keys": [
+          "e9c67ba1352f14deb0a1274bb3519555136c9e48d4b43242bcc5142fc08f58b7"
+        ]
+      },
+      "reference-blind": {
+        "pA": 0.88,
+        "confidence": 0.88,
+        "detail": {
+          "eligible": true,
+          "with_reference": false,
+          "kind": "pointwise",
+          "points": [
+            "The final answer the response gives to the question is correct, checked against the reference solution."
+          ],
+          "scores": {
+            "a": 0.88
+          },
+          "rows": {
+            "a": {
+              "point_0": 0.88
+            }
+          },
+          "reference_source": null
+        },
+        "calls": 1,
+        "usd": 0,
+        "cost_complete": false,
+        "keys": [
+          "82a5337827550c35d291477ff5dd6da3a0470acc442b915321bedfae1d7b5441"
+        ]
+      }
+    },
+    "verify-with-reference|4e962b5781cb54bc20844b76f48015bf_5030f4551098b9ae90f2f5e090b46346": {
+      "reference-first": {
+        "pA": 0.06,
+        "confidence": 0.94,
+        "detail": {
+          "eligible": true,
+          "with_reference": true,
+          "kind": "pointwise",
+          "points": [
+            "The final answer the response gives to the question is correct, checked against the reference solution."
+          ],
+          "scores": {
+            "a": 0.06
+          },
+          "rows": {
+            "a": {
+              "point_0": 0.06
+            }
+          },
+          "reference_source": "dataset"
+        },
+        "calls": 1,
+        "usd": 0,
+        "cost_complete": false,
+        "keys": [
+          "8c74f1fede78e825fd0a592cb32b106d3c88c34214922c06e5682fd8721223de"
+        ]
+      },
+      "reference-blind": {
+        "pA": 0.43,
+        "confidence": 0.5700000000000001,
+        "detail": {
+          "eligible": true,
+          "with_reference": false,
+          "kind": "pointwise",
+          "points": [
+            "The final answer the response gives to the question is correct, checked against the reference solution."
+          ],
+          "scores": {
+            "a": 0.43
+          },
+          "rows": {
+            "a": {
+              "point_0": 0.43
+            }
+          },
+          "reference_source": null
+        },
+        "calls": 1,
+        "usd": 0,
+        "cost_complete": false,
+        "keys": [
+          "75a80a65ca74d584602545991bec2f4de5101fa0ba671a26dbf99cefd9503304"
+        ]
+      }
+    },
+    "verify-with-reference|4fd3bc514ff8e3775723a0f883a7d347_54c1d82ec537b265b891b55d68a2d539": {
+      "reference-first": {
+        "pA": 0.16,
+        "confidence": 0.84,
+        "detail": {
+          "eligible": true,
+          "with_reference": true,
+          "kind": "pointwise",
+          "points": [
+            "The final answer the response gives to the question is correct, checked against the reference solution."
+          ],
+          "scores": {
+            "a": 0.16
+          },
+          "rows": {
+            "a": {
+              "point_0": 0.16
+            }
+          },
+          "reference_source": "dataset"
+        },
+        "calls": 1,
+        "usd": 0,
+        "cost_complete": false,
+        "keys": [
+          "f333a0c26490fed2cbd92fe4857a9759c6f0dffe381744a35b4a88c48aeed5db"
+        ]
+      },
+      "reference-blind": {
+        "pA": 0.12,
+        "confidence": 0.88,
+        "detail": {
+          "eligible": true,
+          "with_reference": false,
+          "kind": "pointwise",
+          "points": [
+            "The final answer the response gives to the question is correct, checked against the reference solution."
+          ],
+          "scores": {
+            "a": 0.12
+          },
+          "rows": {
+            "a": {
+              "point_0": 0.12
+            }
+          },
+          "reference_source": null
+        },
+        "calls": 1,
+        "usd": 0,
+        "cost_complete": false,
+        "keys": [
+          "c1c9d3d10129c8eeacb6f3668a7fb774e1ec73f86f7bcd5289712de8ab38375b"
+        ]
+      }
+    },
+    "verify-with-reference|5305069c7919fc01c8707be50843590a_b156bd30f7b7d418897e9ccec7ea7708": {
+      "reference-first": {
+        "pA": 0.62,
+        "confidence": 0.62,
+        "detail": {
+          "eligible": true,
+          "with_reference": true,
+          "kind": "pointwise",
+          "points": [
+            "The final answer the response gives to the question is correct, checked against the reference solution."
+          ],
+          "scores": {
+            "a": 0.62
+          },
+          "rows": {
+            "a": {
+              "point_0": 0.62
+            }
+          },
+          "reference_source": "dataset"
+        },
+        "calls": 1,
+        "usd": 0,
+        "cost_complete": false,
+        "keys": [
+          "e1c94b44acd44e63013034b8d8be51231361fd2d3d281fd3e86115a24b0332fb"
+        ]
+      },
+      "reference-blind": {
+        "pA": 0.18,
+        "confidence": 0.8200000000000001,
+        "detail": {
+          "eligible": true,
+          "with_reference": false,
+          "kind": "pointwise",
+          "points": [
+            "The final answer the response gives to the question is correct, checked against the reference solution."
+          ],
+          "scores": {
+            "a": 0.18
+          },
+          "rows": {
+            "a": {
+              "point_0": 0.18
+            }
+          },
+          "reference_source": null
+        },
+        "calls": 1,
+        "usd": 0,
+        "cost_complete": false,
+        "keys": [
+          "c4a1034364c1aafb1a46a4836b33fc089e67f724e6db99d07b7dcdb4947cba71"
+        ]
+      }
+    },
+    "verify-with-reference|542a4a7aed316e1a799d1c145b101ea9_c10967faf71a528ab33e138f74ffb1cf": {
+      "reference-first": {
+        "pA": 0.04,
+        "confidence": 0.96,
+        "detail": {
+          "eligible": true,
+          "with_reference": true,
+          "kind": "pointwise",
+          "points": [
+            "The final answer the response gives to the question is correct, checked against the reference solution."
+          ],
+          "scores": {
+            "a": 0.04
+          },
+          "rows": {
+            "a": {
+              "point_0": 0.04
+            }
+          },
+          "reference_source": "dataset"
+        },
+        "calls": 1,
+        "usd": 0,
+        "cost_complete": false,
+        "keys": [
+          "eed43e552f71e99daf12f9682d2405235529805a233cf7a4d544ab97713142d7"
+        ]
+      },
+      "reference-blind": {
+        "pA": 0.46,
+        "confidence": 0.54,
+        "detail": {
+          "eligible": true,
+          "with_reference": false,
+          "kind": "pointwise",
+          "points": [
+            "The final answer the response gives to the question is correct, checked against the reference solution."
+          ],
+          "scores": {
+            "a": 0.46
+          },
+          "rows": {
+            "a": {
+              "point_0": 0.46
+            }
+          },
+          "reference_source": null
+        },
+        "calls": 1,
+        "usd": 0,
+        "cost_complete": false,
+        "keys": [
+          "1b7eaa997baa6fabff830f2529773b2065251bfe2c09284a838bf00c75aa5cb2"
+        ]
+      }
+    },
+    "verify-with-reference|579e9027b927781718b789a8b67f44d4_12804c09750686ba0cee118dcdb5524e": {
+      "reference-first": {
+        "pA": 0.06,
+        "confidence": 0.94,
+        "detail": {
+          "eligible": true,
+          "with_reference": true,
+          "kind": "pointwise",
+          "points": [
+            "The final answer the response gives to the question is correct, checked against the reference solution."
+          ],
+          "scores": {
+            "a": 0.06
+          },
+          "rows": {
+            "a": {
+              "point_0": 0.06
+            }
+          },
+          "reference_source": "dataset"
+        },
+        "calls": 1,
+        "usd": 0,
+        "cost_complete": false,
+        "keys": [
+          "cbc75d903983211c84478f609c820fc0782ef2a304b2f13abf760c254a1523ab"
+        ]
+      },
+      "reference-blind": {
+        "pA": 0.76,
+        "confidence": 0.76,
+        "detail": {
+          "eligible": true,
+          "with_reference": false,
+          "kind": "pointwise",
+          "points": [
+            "The final answer the response gives to the question is correct, checked against the reference solution."
+          ],
+          "scores": {
+            "a": 0.76
+          },
+          "rows": {
+            "a": {
+              "point_0": 0.76
+            }
+          },
+          "reference_source": null
+        },
+        "calls": 1,
+        "usd": 0,
+        "cost_complete": false,
+        "keys": [
+          "9a08ab7adadb173973b17248012bb7e26313bbc5b0f3e67df789536db72dc5e3"
+        ]
+      }
+    },
+    "verify-with-reference|57ca02df541ae1687b9712f12df0e425_ee6b572c5fd4f4a2a6b0cb97265a4af8": {
+      "reference-first": {
+        "pA": 0.1,
+        "confidence": 0.9,
+        "detail": {
+          "eligible": true,
+          "with_reference": true,
+          "kind": "pointwise",
+          "points": [
+            "The final answer the response gives to the question is correct, checked against the reference solution."
+          ],
+          "scores": {
+            "a": 0.1
+          },
+          "rows": {
+            "a": {
+              "point_0": 0.1
+            }
+          },
+          "reference_source": "dataset"
+        },
+        "calls": 1,
+        "usd": 0,
+        "cost_complete": false,
+        "keys": [
+          "66f35658b22203093df063db1278a2848445e83f4fcf9d8435126ed24a95fedc"
+        ]
+      },
+      "reference-blind": {
+        "pA": 0.46,
+        "confidence": 0.54,
+        "detail": {
+          "eligible": true,
+          "with_reference": false,
+          "kind": "pointwise",
+          "points": [
+            "The final answer the response gives to the question is correct, checked against the reference solution."
+          ],
+          "scores": {
+            "a": 0.46
+          },
+          "rows": {
+            "a": {
+              "point_0": 0.46
+            }
+          },
+          "reference_source": null
+        },
+        "calls": 1,
+        "usd": 0,
+        "cost_complete": false,
+        "keys": [
+          "b81244fe63ade550d6fddece303e8695615545c94e8557acee046f1d07fb8c81"
+        ]
+      }
+    },
+    "verify-with-reference|5dfb02d5ff7008e6319ca9ebff69f3ba_c5d3070446bc46d1c98f353fce17822e": {
+      "reference-first": {
+        "pA": 0.49,
+        "confidence": 0.51,
+        "detail": {
+          "eligible": true,
+          "with_reference": true,
+          "kind": "pointwise",
+          "points": [
+            "The final answer the response gives to the question is correct, checked against the reference solution."
+          ],
+          "scores": {
+            "a": 0.49
+          },
+          "rows": {
+            "a": {
+              "point_0": 0.49
+            }
+          },
+          "reference_source": "dataset"
+        },
+        "calls": 1,
+        "usd": 0,
+        "cost_complete": false,
+        "keys": [
+          "7bfb4c7f8ea6e15823bc2407e3f6e5a5cfd3ab4817a81c98e0a2ff682960cbbb"
+        ]
+      },
+      "reference-blind": {
+        "pA": 0.74,
+        "confidence": 0.74,
+        "detail": {
+          "eligible": true,
+          "with_reference": false,
+          "kind": "pointwise",
+          "points": [
+            "The final answer the response gives to the question is correct, checked against the reference solution."
+          ],
+          "scores": {
+            "a": 0.74
+          },
+          "rows": {
+            "a": {
+              "point_0": 0.74
+            }
+          },
+          "reference_source": null
+        },
+        "calls": 1,
+        "usd": 0,
+        "cost_complete": false,
+        "keys": [
+          "c640bd8095661e2e53045db4bc359feb97b3f10debf5286b27db96c8c3998000"
+        ]
+      }
+    },
+    "verify-with-reference|5f981c74919500aeaaae8b6d69ce31b8_c01d363627aeded9eee9e3f19ad99d21": {
+      "reference-first": {
+        "pA": 0.48,
+        "confidence": 0.52,
+        "detail": {
+          "eligible": true,
+          "with_reference": true,
+          "kind": "pointwise",
+          "points": [
+            "The final answer the response gives to the question is correct, checked against the reference solution."
+          ],
+          "scores": {
+            "a": 0.48
+          },
+          "rows": {
+            "a": {
+              "point_0": 0.48
+            }
+          },
+          "reference_source": "dataset"
+        },
+        "calls": 1,
+        "usd": 0,
+        "cost_complete": false,
+        "keys": [
+          "b7727a9eaffd4542829798ba9585600fdb9b36138667d67a1b7e4348bd578d0c"
+        ]
+      },
+      "reference-blind": {
+        "pA": 0.52,
+        "confidence": 0.52,
+        "detail": {
+          "eligible": true,
+          "with_reference": false,
+          "kind": "pointwise",
+          "points": [
+            "The final answer the response gives to the question is correct, checked against the reference solution."
+          ],
+          "scores": {
+            "a": 0.52
+          },
+          "rows": {
+            "a": {
+              "point_0": 0.52
+            }
+          },
+          "reference_source": null
+        },
+        "calls": 1,
+        "usd": 0,
+        "cost_complete": false,
+        "keys": [
+          "382ad4be5bfe1c5693e071f2d9a59c404bea2d2fe917182a95d75b8dc80a38e5"
+        ]
+      }
+    },
+    "verify-with-reference|6475b7ad5531cf9bc60abf8728996c1d_14dcca0905e181fe50f31e588e3dd482": {
+      "reference-first": {
+        "pA": 0.05,
+        "confidence": 0.95,
+        "detail": {
+          "eligible": true,
+          "with_reference": true,
+          "kind": "pointwise",
+          "points": [
+            "The final answer the response gives to the question is correct, checked against the reference solution."
+          ],
+          "scores": {
+            "a": 0.05
+          },
+          "rows": {
+            "a": {
+              "point_0": 0.05
+            }
+          },
+          "reference_source": "dataset"
+        },
+        "calls": 1,
+        "usd": 0,
+        "cost_complete": false,
+        "keys": [
+          "d097bc129266132dd545e137aba21cead2836dce08b7488ecfb3bb7ef31de553"
+        ]
+      },
+      "reference-blind": {
+        "pA": 0.81,
+        "confidence": 0.81,
+        "detail": {
+          "eligible": true,
+          "with_reference": false,
+          "kind": "pointwise",
+          "points": [
+            "The final answer the response gives to the question is correct, checked against the reference solution."
+          ],
+          "scores": {
+            "a": 0.81
+          },
+          "rows": {
+            "a": {
+              "point_0": 0.81
+            }
+          },
+          "reference_source": null
+        },
+        "calls": 1,
+        "usd": 0,
+        "cost_complete": false,
+        "keys": [
+          "533e8f6e2015ded10d791a98f19dbf2f4b14311393beb52204e285cc4ce36567"
+        ]
+      }
+    },
+    "verify-with-reference|6e4aba2ba0751961277a5be9c22f6e53_76bc2098e25dcd33b5bde96980673a4b": {
+      "reference-first": {
+        "pA": 0.5,
+        "confidence": 0.5,
+        "detail": {
+          "eligible": true,
+          "with_reference": true,
+          "kind": "pointwise",
+          "points": [
+            "The final answer the response gives to the question is correct, checked against the reference solution."
+          ],
+          "scores": {
+            "a": 0.5
+          },
+          "rows": {
+            "a": {
+              "point_0": 0.5
+            }
+          },
+          "reference_source": "dataset"
+        },
+        "calls": 1,
+        "usd": 0,
+        "cost_complete": false,
+        "keys": [
+          "ea995da4acecb265a1612d5ea22896cb4654c53f8ea7fae90a1bc672260f5afa"
+        ]
+      },
+      "reference-blind": {
+        "pA": 0.83,
+        "confidence": 0.83,
+        "detail": {
+          "eligible": true,
+          "with_reference": false,
+          "kind": "pointwise",
+          "points": [
+            "The final answer the response gives to the question is correct, checked against the reference solution."
+          ],
+          "scores": {
+            "a": 0.83
+          },
+          "rows": {
+            "a": {
+              "point_0": 0.83
+            }
+          },
+          "reference_source": null
+        },
+        "calls": 1,
+        "usd": 0,
+        "cost_complete": false,
+        "keys": [
+          "a755eeb34925eafd0b3c932fc1953d99e23f685ac0b62c1d2bcf33e37a348437"
+        ]
+      }
+    },
+    "verify-with-reference|7225b2d4f79d885c8321c58e2d6c5726_fc8966d593a7ee92993b32d9ce4520e0": {
+      "reference-first": {
+        "pA": 0.65,
+        "confidence": 0.65,
+        "detail": {
+          "eligible": true,
+          "with_reference": true,
+          "kind": "pointwise",
+          "points": [
+            "The final answer the response gives to the question is correct, checked against the reference solution."
+          ],
+          "scores": {
+            "a": 0.65
+          },
+          "rows": {
+            "a": {
+              "point_0": 0.65
+            }
+          },
+          "reference_source": "dataset"
+        },
+        "calls": 1,
+        "usd": 0,
+        "cost_complete": false,
+        "keys": [
+          "b3d33f7831c56491c23fe18d460920e9897579ba113e69e37833b8db8aaf0013"
+        ]
+      },
+      "reference-blind": {
+        "pA": 0.24,
+        "confidence": 0.76,
+        "detail": {
+          "eligible": true,
+          "with_reference": false,
+          "kind": "pointwise",
+          "points": [
+            "The final answer the response gives to the question is correct, checked against the reference solution."
+          ],
+          "scores": {
+            "a": 0.24
+          },
+          "rows": {
+            "a": {
+              "point_0": 0.24
+            }
+          },
+          "reference_source": null
+        },
+        "calls": 1,
+        "usd": 0,
+        "cost_complete": false,
+        "keys": [
+          "3f3b8a53727f490de2595b8edcc6689f430c6023aa0f59729bc703e49331622a"
+        ]
+      }
+    },
+    "verify-with-reference|73fddce12aee4876a4877c3ec5db723f_583d9e36a2bd03fbf485b8a4019fc9b9": {
+      "reference-first": {
+        "pA": 0.06,
+        "confidence": 0.94,
+        "detail": {
+          "eligible": true,
+          "with_reference": true,
+          "kind": "pointwise",
+          "points": [
+            "The final answer the response gives to the question is correct, checked against the reference solution."
+          ],
+          "scores": {
+            "a": 0.06
+          },
+          "rows": {
+            "a": {
+              "point_0": 0.06
+            }
+          },
+          "reference_source": "dataset"
+        },
+        "calls": 1,
+        "usd": 0,
+        "cost_complete": false,
+        "keys": [
+          "e165da61675b02320feb4b852589739b7998a6e451dfa293efa4626f4a27963b"
+        ]
+      },
+      "reference-blind": {
+        "pA": 0.49,
+        "confidence": 0.51,
+        "detail": {
+          "eligible": true,
+          "with_reference": false,
+          "kind": "pointwise",
+          "points": [
+            "The final answer the response gives to the question is correct, checked against the reference solution."
+          ],
+          "scores": {
+            "a": 0.49
+          },
+          "rows": {
+            "a": {
+              "point_0": 0.49
+            }
+          },
+          "reference_source": null
+        },
+        "calls": 1,
+        "usd": 0,
+        "cost_complete": false,
+        "keys": [
+          "4900934ee3aa196b3e7dcd6061dc68e0611c220bfcd3e59180a468e7f2a97aa2"
+        ]
+      }
+    },
+    "verify-with-reference|74455975cc7822e30f33648e197a1775_ccbe576fccccc23b0bdad67d79075fb2": {
+      "reference-first": {
+        "pA": 0.14,
+        "confidence": 0.86,
+        "detail": {
+          "eligible": true,
+          "with_reference": true,
+          "kind": "pointwise",
+          "points": [
+            "The final answer the response gives to the question is correct, checked against the reference solution."
+          ],
+          "scores": {
+            "a": 0.14
+          },
+          "rows": {
+            "a": {
+              "point_0": 0.14
+            }
+          },
+          "reference_source": "dataset"
+        },
+        "calls": 1,
+        "usd": 0,
+        "cost_complete": false,
+        "keys": [
+          "d23e783b96a4d7cebe6c49c3e3374476b3a4f1d080022a074b62fd015c9bf64d"
+        ]
+      },
+      "reference-blind": {
+        "pA": 0.32,
+        "confidence": 0.6799999999999999,
+        "detail": {
+          "eligible": true,
+          "with_reference": false,
+          "kind": "pointwise",
+          "points": [
+            "The final answer the response gives to the question is correct, checked against the reference solution."
+          ],
+          "scores": {
+            "a": 0.32
+          },
+          "rows": {
+            "a": {
+              "point_0": 0.32
+            }
+          },
+          "reference_source": null
+        },
+        "calls": 1,
+        "usd": 0,
+        "cost_complete": false,
+        "keys": [
+          "b030e158ef766b2e482f219f51954fc1dea70ec6602815e853ca96dc066492b0"
+        ]
+      }
+    },
+    "verify-with-reference|7c3345602da2596f3ff58658788cd183_cbfde9b9bf8facffcf498eab4aadd1a6": {
+      "reference-first": {
+        "pA": 0.82,
+        "confidence": 0.82,
+        "detail": {
+          "eligible": true,
+          "with_reference": true,
+          "kind": "pointwise",
+          "points": [
+            "The final answer the response gives to the question is correct, checked against the reference solution."
+          ],
+          "scores": {
+            "a": 0.82
+          },
+          "rows": {
+            "a": {
+              "point_0": 0.82
+            }
+          },
+          "reference_source": "dataset"
+        },
+        "calls": 1,
+        "usd": 0,
+        "cost_complete": false,
+        "keys": [
+          "b215abaa2a93d632a27415bb51c0da08cabab448b68b16e63d30834484918cda"
+        ]
+      },
+      "reference-blind": {
+        "pA": 0.2,
+        "confidence": 0.8,
+        "detail": {
+          "eligible": true,
+          "with_reference": false,
+          "kind": "pointwise",
+          "points": [
+            "The final answer the response gives to the question is correct, checked against the reference solution."
+          ],
+          "scores": {
+            "a": 0.2
+          },
+          "rows": {
+            "a": {
+              "point_0": 0.2
+            }
+          },
+          "reference_source": null
+        },
+        "calls": 1,
+        "usd": 0,
+        "cost_complete": false,
+        "keys": [
+          "44e9fc2f6e61df605438f318ea36a8768475e3e1d95a04da2442552e97affb1a"
+        ]
+      }
+    },
+    "verify-with-reference|81f7ad90f1eb2aa5a53b7f7294f91e47_91920d2eadb3e994802e37bc89e15014": {
+      "reference-first": {
+        "pA": 0.32,
+        "confidence": 0.6799999999999999,
+        "detail": {
+          "eligible": true,
+          "with_reference": true,
+          "kind": "pointwise",
+          "points": [
+            "The final answer the response gives to the question is correct, checked against the reference solution."
+          ],
+          "scores": {
+            "a": 0.32
+          },
+          "rows": {
+            "a": {
+              "point_0": 0.32
+            }
+          },
+          "reference_source": "dataset"
+        },
+        "calls": 1,
+        "usd": 0,
+        "cost_complete": false,
+        "keys": [
+          "e6ce438fbc3a00894677a118fccf2cb40c71ba353e6af7ed167c9cbee424613d"
+        ]
+      },
+      "reference-blind": {
+        "pA": 0.03,
+        "confidence": 0.97,
+        "detail": {
+          "eligible": true,
+          "with_reference": false,
+          "kind": "pointwise",
+          "points": [
+            "The final answer the response gives to the question is correct, checked against the reference solution."
+          ],
+          "scores": {
+            "a": 0.03
+          },
+          "rows": {
+            "a": {
+              "point_0": 0.03
+            }
+          },
+          "reference_source": null
+        },
+        "calls": 1,
+        "usd": 0,
+        "cost_complete": false,
+        "keys": [
+          "d2c135bd78578ff02c71e9d8768d11e45f26dfacd9a5871487e0fa6d0fb1d38c"
+        ]
+      }
+    },
+    "verify-with-reference|848aefe451338e2934283c1417b49704_5d429963fda0a400af8b2e0d334830a7": {
+      "reference-first": {
+        "pA": 0.22,
+        "confidence": 0.78,
+        "detail": {
+          "eligible": true,
+          "with_reference": true,
+          "kind": "pointwise",
+          "points": [
+            "The final answer the response gives to the question is correct, checked against the reference solution."
+          ],
+          "scores": {
+            "a": 0.22
+          },
+          "rows": {
+            "a": {
+              "point_0": 0.22
+            }
+          },
+          "reference_source": "dataset"
+        },
+        "calls": 1,
+        "usd": 0,
+        "cost_complete": false,
+        "keys": [
+          "1af35c6631963956e738a3461df87b5d17e110d0fc496cc313701d7341d8f9c5"
+        ]
+      },
+      "reference-blind": {
+        "pA": 0.6,
+        "confidence": 0.6,
+        "detail": {
+          "eligible": true,
+          "with_reference": false,
+          "kind": "pointwise",
+          "points": [
+            "The final answer the response gives to the question is correct, checked against the reference solution."
+          ],
+          "scores": {
+            "a": 0.6
+          },
+          "rows": {
+            "a": {
+              "point_0": 0.6
+            }
+          },
+          "reference_source": null
+        },
+        "calls": 1,
+        "usd": 0,
+        "cost_complete": false,
+        "keys": [
+          "6196df0ab1221a33d1b65cfcbdc7fca0271dc10b5289d6f3c41a423df3b6efb4"
+        ]
+      }
+    },
+    "verify-with-reference|8725986b8def7d6dc2430b5a82ebe768_d892147f21a603cf006be26ac0db27cb": {
+      "reference-first": {
+        "pA": 0.22,
+        "confidence": 0.78,
+        "detail": {
+          "eligible": true,
+          "with_reference": true,
+          "kind": "pointwise",
+          "points": [
+            "The final answer the response gives to the question is correct, checked against the reference solution."
+          ],
+          "scores": {
+            "a": 0.22
+          },
+          "rows": {
+            "a": {
+              "point_0": 0.22
+            }
+          },
+          "reference_source": "dataset"
+        },
+        "calls": 1,
+        "usd": 0,
+        "cost_complete": false,
+        "keys": [
+          "ac365458c39f58db5996d7a5a60133ea926c00d2d61aeb160816d22215cbdb02"
+        ]
+      },
+      "reference-blind": {
+        "pA": 0.52,
+        "confidence": 0.52,
+        "detail": {
+          "eligible": true,
+          "with_reference": false,
+          "kind": "pointwise",
+          "points": [
+            "The final answer the response gives to the question is correct, checked against the reference solution."
+          ],
+          "scores": {
+            "a": 0.52
+          },
+          "rows": {
+            "a": {
+              "point_0": 0.52
+            }
+          },
+          "reference_source": null
+        },
+        "calls": 1,
+        "usd": 0,
+        "cost_complete": false,
+        "keys": [
+          "c37ddaf5f4a9ef43b149f04971f462d6d266c47b4391c49b6d767aff721139aa"
+        ]
+      }
+    },
+    "verify-with-reference|885d1842d6a91b50b8ae527de98c3aad_b33afc0790fa12b013da7a444d8410d6": {
+      "reference-first": {
+        "pA": 0.06,
+        "confidence": 0.94,
+        "detail": {
+          "eligible": true,
+          "with_reference": true,
+          "kind": "pointwise",
+          "points": [
+            "The final answer the response gives to the question is correct, checked against the reference solution."
+          ],
+          "scores": {
+            "a": 0.06
+          },
+          "rows": {
+            "a": {
+              "point_0": 0.06
+            }
+          },
+          "reference_source": "dataset"
+        },
+        "calls": 1,
+        "usd": 0,
+        "cost_complete": false,
+        "keys": [
+          "bb47875a937c65275fd623b818629f7b3c5ff4f7ae583b25b925039d061c68b9"
+        ]
+      },
+      "reference-blind": {
+        "pA": 0.12,
+        "confidence": 0.88,
+        "detail": {
+          "eligible": true,
+          "with_reference": false,
+          "kind": "pointwise",
+          "points": [
+            "The final answer the response gives to the question is correct, checked against the reference solution."
+          ],
+          "scores": {
+            "a": 0.12
+          },
+          "rows": {
+            "a": {
+              "point_0": 0.12
+            }
+          },
+          "reference_source": null
+        },
+        "calls": 1,
+        "usd": 0,
+        "cost_complete": false,
+        "keys": [
+          "00659d967c0357ed0e822b48a69021f69b11872d14360ef5beca556e4581e1f2"
+        ]
+      }
+    },
+    "verify-with-reference|8a7107d6fa68c57dd6608f90208a6f61_bd6387db3ba7707f36a144a4530b7914": {
+      "reference-first": {
+        "pA": 0.19,
+        "confidence": 0.81,
+        "detail": {
+          "eligible": true,
+          "with_reference": true,
+          "kind": "pointwise",
+          "points": [
+            "The final answer the response gives to the question is correct, checked against the reference solution."
+          ],
+          "scores": {
+            "a": 0.19
+          },
+          "rows": {
+            "a": {
+              "point_0": 0.19
+            }
+          },
+          "reference_source": "dataset"
+        },
+        "calls": 1,
+        "usd": 0,
+        "cost_complete": false,
+        "keys": [
+          "e40f9257ca870cd0f5ee0afd3ceb99a4c3c96b294d5fcf19400924c81677b531"
+        ]
+      },
+      "reference-blind": {
+        "pA": 0.73,
+        "confidence": 0.73,
+        "detail": {
+          "eligible": true,
+          "with_reference": false,
+          "kind": "pointwise",
+          "points": [
+            "The final answer the response gives to the question is correct, checked against the reference solution."
+          ],
+          "scores": {
+            "a": 0.73
+          },
+          "rows": {
+            "a": {
+              "point_0": 0.73
+            }
+          },
+          "reference_source": null
+        },
+        "calls": 1,
+        "usd": 0,
+        "cost_complete": false,
+        "keys": [
+          "b6d8b9de3890ae1c47fa3098038c4ad28e0a3dc7d4f6d4b6ca912cab3f3e67ff"
+        ]
+      }
+    },
+    "verify-with-reference|8afa540116fbcf61b6a65125a1272a82_10a36a85dc46ca3ce4659c52bd553f22": {
+      "reference-first": {
+        "pA": 0.02,
+        "confidence": 0.98,
+        "detail": {
+          "eligible": true,
+          "with_reference": true,
+          "kind": "pointwise",
+          "points": [
+            "The final answer the response gives to the question is correct, checked against the reference solution."
+          ],
+          "scores": {
+            "a": 0.02
+          },
+          "rows": {
+            "a": {
+              "point_0": 0.02
+            }
+          },
+          "reference_source": "dataset"
+        },
+        "calls": 1,
+        "usd": 0,
+        "cost_complete": false,
+        "keys": [
+          "8a900169460ebb317582899def643411e5cef29df579104c61a74d039ef15d0d"
+        ]
+      },
+      "reference-blind": {
+        "pA": 0.65,
+        "confidence": 0.65,
+        "detail": {
+          "eligible": true,
+          "with_reference": false,
+          "kind": "pointwise",
+          "points": [
+            "The final answer the response gives to the question is correct, checked against the reference solution."
+          ],
+          "scores": {
+            "a": 0.65
+          },
+          "rows": {
+            "a": {
+              "point_0": 0.65
+            }
+          },
+          "reference_source": null
+        },
+        "calls": 1,
+        "usd": 0,
+        "cost_complete": false,
+        "keys": [
+          "4635a055d4563e29ce8c43ddf2b0f85af8677e941a51f8160a8819fb33117520"
+        ]
+      }
+    },
+    "verify-with-reference|8d5e34bb0c4ae72f49a999d4950d0d50_b386787e81fc71a19aeff29ecb5b7cae": {
+      "reference-first": {
+        "pA": 0.04,
+        "confidence": 0.96,
+        "detail": {
+          "eligible": true,
+          "with_reference": true,
+          "kind": "pointwise",
+          "points": [
+            "The final answer the response gives to the question is correct, checked against the reference solution."
+          ],
+          "scores": {
+            "a": 0.04
+          },
+          "rows": {
+            "a": {
+              "point_0": 0.04
+            }
+          },
+          "reference_source": "dataset"
+        },
+        "calls": 1,
+        "usd": 0,
+        "cost_complete": false,
+        "keys": [
+          "69356e5346681f680248ad73058505086b12ba3f512f944c6ee92bcea87be0ed"
+        ]
+      },
+      "reference-blind": {
+        "pA": 0.09,
+        "confidence": 0.91,
+        "detail": {
+          "eligible": true,
+          "with_reference": false,
+          "kind": "pointwise",
+          "points": [
+            "The final answer the response gives to the question is correct, checked against the reference solution."
+          ],
+          "scores": {
+            "a": 0.09
+          },
+          "rows": {
+            "a": {
+              "point_0": 0.09
+            }
+          },
+          "reference_source": null
+        },
+        "calls": 1,
+        "usd": 0,
+        "cost_complete": false,
+        "keys": [
+          "099d52ac9db65cbeab8b42aaccc4a6d45cbf3e19111a706aa226ab4506806565"
+        ]
+      }
+    },
+    "verify-with-reference|8dce745bcd66e7dc916e9f3549d8ebc1_4495bceb02b2986125965eb7cb6c2b98": {
+      "reference-first": {
+        "pA": 0.13,
+        "confidence": 0.87,
+        "detail": {
+          "eligible": true,
+          "with_reference": true,
+          "kind": "pointwise",
+          "points": [
+            "The final answer the response gives to the question is correct, checked against the reference solution."
+          ],
+          "scores": {
+            "a": 0.13
+          },
+          "rows": {
+            "a": {
+              "point_0": 0.13
+            }
+          },
+          "reference_source": "dataset"
+        },
+        "calls": 1,
+        "usd": 0,
+        "cost_complete": false,
+        "keys": [
+          "e65821343d75df3721371055eaaf0db28836fb42ef581e18b055c67d6130a90b"
+        ]
+      },
+      "reference-blind": {
+        "pA": 0.77,
+        "confidence": 0.77,
+        "detail": {
+          "eligible": true,
+          "with_reference": false,
+          "kind": "pointwise",
+          "points": [
+            "The final answer the response gives to the question is correct, checked against the reference solution."
+          ],
+          "scores": {
+            "a": 0.77
+          },
+          "rows": {
+            "a": {
+              "point_0": 0.77
+            }
+          },
+          "reference_source": null
+        },
+        "calls": 1,
+        "usd": 0,
+        "cost_complete": false,
+        "keys": [
+          "d484b56a482b63cd0a2629d734e45f2bb3174d713887405efd9372f780b0e93d"
+        ]
+      }
+    },
+    "verify-with-reference|8fb2e641b5868077f1080ebc2a77f638_ab543eb5433d029341e7180d9d1d684a": {
+      "reference-first": {
+        "pA": 0.28,
+        "confidence": 0.72,
+        "detail": {
+          "eligible": true,
+          "with_reference": true,
+          "kind": "pointwise",
+          "points": [
+            "The final answer the response gives to the question is correct, checked against the reference solution."
+          ],
+          "scores": {
+            "a": 0.28
+          },
+          "rows": {
+            "a": {
+              "point_0": 0.28
+            }
+          },
+          "reference_source": "dataset"
+        },
+        "calls": 1,
+        "usd": 0,
+        "cost_complete": false,
+        "keys": [
+          "35e26a5c2eee58890d3b1c3db2e8bc0af31c45a3f89eec5d4b107abfe4334a41"
+        ]
+      },
+      "reference-blind": {
+        "pA": 0.58,
+        "confidence": 0.58,
+        "detail": {
+          "eligible": true,
+          "with_reference": false,
+          "kind": "pointwise",
+          "points": [
+            "The final answer the response gives to the question is correct, checked against the reference solution."
+          ],
+          "scores": {
+            "a": 0.58
+          },
+          "rows": {
+            "a": {
+              "point_0": 0.58
+            }
+          },
+          "reference_source": null
+        },
+        "calls": 1,
+        "usd": 0,
+        "cost_complete": false,
+        "keys": [
+          "a80fb2a6494f82a5139093ea7d80b382bc61b10e406d1b0672d533de6214fc01"
+        ]
+      }
+    },
+    "verify-with-reference|9627c5098f4185184311edb8a3ccb640_116a5adea8a225f8c8542f0576808a6e": {
+      "reference-first": {
+        "pA": 0.06,
+        "confidence": 0.94,
+        "detail": {
+          "eligible": true,
+          "with_reference": true,
+          "kind": "pointwise",
+          "points": [
+            "The final answer the response gives to the question is correct, checked against the reference solution."
+          ],
+          "scores": {
+            "a": 0.06
+          },
+          "rows": {
+            "a": {
+              "point_0": 0.06
+            }
+          },
+          "reference_source": "dataset"
+        },
+        "calls": 1,
+        "usd": 0,
+        "cost_complete": false,
+        "keys": [
+          "8047afc7fbfc1c061829fd6abaced41a8811ff5904a331f3dcab588e23d9dbd9"
+        ]
+      },
+      "reference-blind": {
+        "pA": 0.33,
+        "confidence": 0.6699999999999999,
+        "detail": {
+          "eligible": true,
+          "with_reference": false,
+          "kind": "pointwise",
+          "points": [
+            "The final answer the response gives to the question is correct, checked against the reference solution."
+          ],
+          "scores": {
+            "a": 0.33
+          },
+          "rows": {
+            "a": {
+              "point_0": 0.33
+            }
+          },
+          "reference_source": null
+        },
+        "calls": 1,
+        "usd": 0,
+        "cost_complete": false,
+        "keys": [
+          "c414a8a4999124d3faf66adcced1da0394c83b7fa62157bb8841913f6e9940e5"
+        ]
+      }
+    },
+    "verify-with-reference|97420293b650b40bab24bbf45949eb76_daa4f21cc7788af3b8e863453b68e590": {
+      "reference-first": {
+        "pA": 0.74,
+        "confidence": 0.74,
+        "detail": {
+          "eligible": true,
+          "with_reference": true,
+          "kind": "pointwise",
+          "points": [
+            "The final answer the response gives to the question is correct, checked against the reference solution."
+          ],
+          "scores": {
+            "a": 0.74
+          },
+          "rows": {
+            "a": {
+              "point_0": 0.74
+            }
+          },
+          "reference_source": "dataset"
+        },
+        "calls": 1,
+        "usd": 0,
+        "cost_complete": false,
+        "keys": [
+          "0d0033c4697890ff6f22b0e82b6f7b4f1fc06840ac1c1032b679e708186217a6"
+        ]
+      },
+      "reference-blind": {
+        "pA": 0.47,
+        "confidence": 0.53,
+        "detail": {
+          "eligible": true,
+          "with_reference": false,
+          "kind": "pointwise",
+          "points": [
+            "The final answer the response gives to the question is correct, checked against the reference solution."
+          ],
+          "scores": {
+            "a": 0.47
+          },
+          "rows": {
+            "a": {
+              "point_0": 0.47
+            }
+          },
+          "reference_source": null
+        },
+        "calls": 1,
+        "usd": 0,
+        "cost_complete": false,
+        "keys": [
+          "d40d44ea81f22aa929c593943bda14ee03551fa4ced8b8e85278513facf8c0b1"
+        ]
+      }
+    },
+    "verify-with-reference|a11d83cb0b8f07278223b4d659d85643_5518ab7ab0dd13c3c4a7e58909335b50": {
+      "reference-first": {
+        "pA": 0.91,
+        "confidence": 0.91,
+        "detail": {
+          "eligible": true,
+          "with_reference": true,
+          "kind": "pointwise",
+          "points": [
+            "The final answer the response gives to the question is correct, checked against the reference solution."
+          ],
+          "scores": {
+            "a": 0.91
+          },
+          "rows": {
+            "a": {
+              "point_0": 0.91
+            }
+          },
+          "reference_source": "dataset"
+        },
+        "calls": 1,
+        "usd": 0,
+        "cost_complete": false,
+        "keys": [
+          "0201f179d9088da8b9c9ce07e7aad52596c197c3c0917bed0361e973306a2e0c"
+        ]
+      },
+      "reference-blind": {
+        "pA": 0.81,
+        "confidence": 0.81,
+        "detail": {
+          "eligible": true,
+          "with_reference": false,
+          "kind": "pointwise",
+          "points": [
+            "The final answer the response gives to the question is correct, checked against the reference solution."
+          ],
+          "scores": {
+            "a": 0.81
+          },
+          "rows": {
+            "a": {
+              "point_0": 0.81
+            }
+          },
+          "reference_source": null
+        },
+        "calls": 1,
+        "usd": 0,
+        "cost_complete": false,
+        "keys": [
+          "a70b34a9ecf8fbe71b4791cf22abf02149f06ce60c37d82aeed13c4eb572e3ce"
+        ]
+      }
+    },
+    "verify-with-reference|adba4a0e3dc7ec9d2b9a05a9d21f2209_d48215d589eb5969bfcfcd58993ab543": {
+      "reference-first": {
+        "pA": 0.03,
+        "confidence": 0.97,
+        "detail": {
+          "eligible": true,
+          "with_reference": true,
+          "kind": "pointwise",
+          "points": [
+            "The final answer the response gives to the question is correct, checked against the reference solution."
+          ],
+          "scores": {
+            "a": 0.03
+          },
+          "rows": {
+            "a": {
+              "point_0": 0.03
+            }
+          },
+          "reference_source": "dataset"
+        },
+        "calls": 1,
+        "usd": 0,
+        "cost_complete": false,
+        "keys": [
+          "af590d716dd083a9a56b67ca011002d2021cbdf29d1f38db0f0c68275708f28b"
+        ]
+      },
+      "reference-blind": {
+        "pA": 0.71,
+        "confidence": 0.71,
+        "detail": {
+          "eligible": true,
+          "with_reference": false,
+          "kind": "pointwise",
+          "points": [
+            "The final answer the response gives to the question is correct, checked against the reference solution."
+          ],
+          "scores": {
+            "a": 0.71
+          },
+          "rows": {
+            "a": {
+              "point_0": 0.71
+            }
+          },
+          "reference_source": null
+        },
+        "calls": 1,
+        "usd": 0,
+        "cost_complete": false,
+        "keys": [
+          "82ea297d32f56bd7df27ac71f6ae311e0f5f0b1590c313e075ffaaf62079897b"
+        ]
+      }
+    },
+    "verify-with-reference|aee1de22ebcbd6dffb545f85c2cc6d3c_4ad6596d535addc90e3929c4cd601d2a": {
+      "reference-first": {
+        "pA": 0.06,
+        "confidence": 0.94,
+        "detail": {
+          "eligible": true,
+          "with_reference": true,
+          "kind": "pointwise",
+          "points": [
+            "The final answer the response gives to the question is correct, checked against the reference solution."
+          ],
+          "scores": {
+            "a": 0.06
+          },
+          "rows": {
+            "a": {
+              "point_0": 0.06
+            }
+          },
+          "reference_source": "dataset"
+        },
+        "calls": 1,
+        "usd": 0,
+        "cost_complete": false,
+        "keys": [
+          "bbe53300a57fbc09528e6a4a84f1400b43e6bbe26b69fa3fbf3c673a9aa92ac9"
+        ]
+      },
+      "reference-blind": {
+        "pA": 0.91,
+        "confidence": 0.91,
+        "detail": {
+          "eligible": true,
+          "with_reference": false,
+          "kind": "pointwise",
+          "points": [
+            "The final answer the response gives to the question is correct, checked against the reference solution."
+          ],
+          "scores": {
+            "a": 0.91
+          },
+          "rows": {
+            "a": {
+              "point_0": 0.91
+            }
+          },
+          "reference_source": null
+        },
+        "calls": 1,
+        "usd": 0,
+        "cost_complete": false,
+        "keys": [
+          "d874cd13df3db7f0eaea847f840f1ef8579b5b7839818b1d8d7a19058cc95ca4"
+        ]
+      }
+    },
+    "verify-with-reference|aef693000b50d9b8e7d0ddeba51e3601_6a486339655ffd1769d793f87483e86d": {
+      "reference-first": {
+        "pA": 0.07,
+        "confidence": 0.9299999999999999,
+        "detail": {
+          "eligible": true,
+          "with_reference": true,
+          "kind": "pointwise",
+          "points": [
+            "The final answer the response gives to the question is correct, checked against the reference solution."
+          ],
+          "scores": {
+            "a": 0.07
+          },
+          "rows": {
+            "a": {
+              "point_0": 0.07
+            }
+          },
+          "reference_source": "dataset"
+        },
+        "calls": 1,
+        "usd": 0,
+        "cost_complete": false,
+        "keys": [
+          "660e3c24eac9f0a18e69c73d9eb9980739aa11c926aafad092aa1461b71e4b1c"
+        ]
+      },
+      "reference-blind": {
+        "pA": 0.69,
+        "confidence": 0.69,
+        "detail": {
+          "eligible": true,
+          "with_reference": false,
+          "kind": "pointwise",
+          "points": [
+            "The final answer the response gives to the question is correct, checked against the reference solution."
+          ],
+          "scores": {
+            "a": 0.69
+          },
+          "rows": {
+            "a": {
+              "point_0": 0.69
+            }
+          },
+          "reference_source": null
+        },
+        "calls": 1,
+        "usd": 0,
+        "cost_complete": false,
+        "keys": [
+          "b17238df4eacb671b961f137f3386a4d4071a434c0f7695ae5f9aee9cf380114"
+        ]
+      }
+    },
+    "verify-with-reference|aeffde6db44b11ba884385c6d3330778_86ab71bcb255a4099f268a5af4548add": {
+      "reference-first": {
+        "pA": 0.12,
+        "confidence": 0.88,
+        "detail": {
+          "eligible": true,
+          "with_reference": true,
+          "kind": "pointwise",
+          "points": [
+            "The final answer the response gives to the question is correct, checked against the reference solution."
+          ],
+          "scores": {
+            "a": 0.12
+          },
+          "rows": {
+            "a": {
+              "point_0": 0.12
+            }
+          },
+          "reference_source": "dataset"
+        },
+        "calls": 1,
+        "usd": 0,
+        "cost_complete": false,
+        "keys": [
+          "d93375753a827853193a37b7f1e6c6598780447f363bd47d11d0f4025d4275fb"
+        ]
+      },
+      "reference-blind": {
+        "pA": 0.59,
+        "confidence": 0.59,
+        "detail": {
+          "eligible": true,
+          "with_reference": false,
+          "kind": "pointwise",
+          "points": [
+            "The final answer the response gives to the question is correct, checked against the reference solution."
+          ],
+          "scores": {
+            "a": 0.59
+          },
+          "rows": {
+            "a": {
+              "point_0": 0.59
+            }
+          },
+          "reference_source": null
+        },
+        "calls": 1,
+        "usd": 0,
+        "cost_complete": false,
+        "keys": [
+          "7e78ad066bfa32ed5bc3c33d3621c76752461e63f8c24c49fd78759e59471ae4"
+        ]
+      }
+    },
+    "verify-with-reference|b7efa9e28caf28086ae71c1099f80c85_c2a2771adf0010ee3a5ba9e3450a37c0": {
+      "reference-first": {
+        "pA": 0.12,
+        "confidence": 0.88,
+        "detail": {
+          "eligible": true,
+          "with_reference": true,
+          "kind": "pointwise",
+          "points": [
+            "The final answer the response gives to the question is correct, checked against the reference solution."
+          ],
+          "scores": {
+            "a": 0.12
+          },
+          "rows": {
+            "a": {
+              "point_0": 0.12
+            }
+          },
+          "reference_source": "dataset"
+        },
+        "calls": 1,
+        "usd": 0,
+        "cost_complete": false,
+        "keys": [
+          "2af7f5c0d8866fbd610af6580f1255403e588bd7d294a994e1eb09d2230e6c39"
+        ]
+      },
+      "reference-blind": {
+        "pA": 0.03,
+        "confidence": 0.97,
+        "detail": {
+          "eligible": true,
+          "with_reference": false,
+          "kind": "pointwise",
+          "points": [
+            "The final answer the response gives to the question is correct, checked against the reference solution."
+          ],
+          "scores": {
+            "a": 0.03
+          },
+          "rows": {
+            "a": {
+              "point_0": 0.03
+            }
+          },
+          "reference_source": null
+        },
+        "calls": 1,
+        "usd": 0,
+        "cost_complete": false,
+        "keys": [
+          "5adccb57b97a80271312d0fced4c11b077de3ff97362b9235f0f54b7415a3f75"
+        ]
+      }
+    },
+    "verify-with-reference|c3e51f4a45069f8d7553d30d1bc8b35d_7817bb9c553c6bb83b982f47843e0f54": {
+      "reference-first": {
+        "pA": 0.45,
+        "confidence": 0.55,
+        "detail": {
+          "eligible": true,
+          "with_reference": true,
+          "kind": "pointwise",
+          "points": [
+            "The final answer the response gives to the question is correct, checked against the reference solution."
+          ],
+          "scores": {
+            "a": 0.45
+          },
+          "rows": {
+            "a": {
+              "point_0": 0.45
+            }
+          },
+          "reference_source": "dataset"
+        },
+        "calls": 1,
+        "usd": 0,
+        "cost_complete": false,
+        "keys": [
+          "d4ffaa5aeeb9f7ea4e027cdf49e0b6c01b7276e3c9e2e52a15388f41524143e7"
+        ]
+      },
+      "reference-blind": {
+        "pA": 0.8,
+        "confidence": 0.8,
+        "detail": {
+          "eligible": true,
+          "with_reference": false,
+          "kind": "pointwise",
+          "points": [
+            "The final answer the response gives to the question is correct, checked against the reference solution."
+          ],
+          "scores": {
+            "a": 0.8
+          },
+          "rows": {
+            "a": {
+              "point_0": 0.8
+            }
+          },
+          "reference_source": null
+        },
+        "calls": 1,
+        "usd": 0,
+        "cost_complete": false,
+        "keys": [
+          "829f112bb290c6a11e4af0b0d8c8f51bc417fa7b3fa706eac63f04e40b7987cf"
+        ]
+      }
+    },
+    "verify-with-reference|c8cadbcb97f9fc98c52201c05d2cc7ed_e53ffb97227c484cb4cf3e395207ef4f": {
+      "reference-first": {
+        "pA": 0.03,
+        "confidence": 0.97,
+        "detail": {
+          "eligible": true,
+          "with_reference": true,
+          "kind": "pointwise",
+          "points": [
+            "The final answer the response gives to the question is correct, checked against the reference solution."
+          ],
+          "scores": {
+            "a": 0.03
+          },
+          "rows": {
+            "a": {
+              "point_0": 0.03
+            }
+          },
+          "reference_source": "dataset"
+        },
+        "calls": 1,
+        "usd": 0,
+        "cost_complete": false,
+        "keys": [
+          "2ea5870117b74142fe7176bbd453d1431c358ea4acef181a4877eaadcd86fe09"
+        ]
+      },
+      "reference-blind": {
+        "pA": 0.11,
+        "confidence": 0.89,
+        "detail": {
+          "eligible": true,
+          "with_reference": false,
+          "kind": "pointwise",
+          "points": [
+            "The final answer the response gives to the question is correct, checked against the reference solution."
+          ],
+          "scores": {
+            "a": 0.11
+          },
+          "rows": {
+            "a": {
+              "point_0": 0.11
+            }
+          },
+          "reference_source": null
+        },
+        "calls": 1,
+        "usd": 0,
+        "cost_complete": false,
+        "keys": [
+          "36c4e3e1a028a730c6838d84473ac59f8213cf32322cb6bf1950b1af87074a0a"
+        ]
+      }
+    },
+    "verify-with-reference|d29e283a52241c0a9a32224b711237bd_cab7eb980622deaad71cf6fe7e803264": {
+      "reference-first": {
+        "pA": 0.17,
+        "confidence": 0.83,
+        "detail": {
+          "eligible": true,
+          "with_reference": true,
+          "kind": "pointwise",
+          "points": [
+            "The final answer the response gives to the question is correct, checked against the reference solution."
+          ],
+          "scores": {
+            "a": 0.17
+          },
+          "rows": {
+            "a": {
+              "point_0": 0.17
+            }
+          },
+          "reference_source": "dataset"
+        },
+        "calls": 1,
+        "usd": 0,
+        "cost_complete": false,
+        "keys": [
+          "b743a926990716c2413120feb1295809d8f9e1f6b87facf1b36e6a4a4c7b28b5"
+        ]
+      },
+      "reference-blind": {
+        "pA": 0.61,
+        "confidence": 0.61,
+        "detail": {
+          "eligible": true,
+          "with_reference": false,
+          "kind": "pointwise",
+          "points": [
+            "The final answer the response gives to the question is correct, checked against the reference solution."
+          ],
+          "scores": {
+            "a": 0.61
+          },
+          "rows": {
+            "a": {
+              "point_0": 0.61
+            }
+          },
+          "reference_source": null
+        },
+        "calls": 1,
+        "usd": 0,
+        "cost_complete": false,
+        "keys": [
+          "8c8ddb9feb0f064f58f36ae6285fd8e91c8cd028cf23e999a8fb2d1e76a75e3b"
+        ]
+      }
+    },
+    "verify-with-reference|d39f096bb2596eb7d8955356ef44a14e_cc7a467fa14f91c15dd31328e13f485e": {
+      "reference-first": {
+        "pA": 0.04,
+        "confidence": 0.96,
+        "detail": {
+          "eligible": true,
+          "with_reference": true,
+          "kind": "pointwise",
+          "points": [
+            "The final answer the response gives to the question is correct, checked against the reference solution."
+          ],
+          "scores": {
+            "a": 0.04
+          },
+          "rows": {
+            "a": {
+              "point_0": 0.04
+            }
+          },
+          "reference_source": "dataset"
+        },
+        "calls": 1,
+        "usd": 0,
+        "cost_complete": false,
+        "keys": [
+          "cd90ef5de04e6c67ae79cd716be2193e71b0aae2ab8d98d7214a2b10c9f4ea26"
+        ]
+      },
+      "reference-blind": {
+        "pA": 0.83,
+        "confidence": 0.83,
+        "detail": {
+          "eligible": true,
+          "with_reference": false,
+          "kind": "pointwise",
+          "points": [
+            "The final answer the response gives to the question is correct, checked against the reference solution."
+          ],
+          "scores": {
+            "a": 0.83
+          },
+          "rows": {
+            "a": {
+              "point_0": 0.83
+            }
+          },
+          "reference_source": null
+        },
+        "calls": 1,
+        "usd": 0,
+        "cost_complete": false,
+        "keys": [
+          "d0cbe01240d992fc613facf7ccff41fbf042c749d9003ca4e7840416ddfc8317"
+        ]
+      }
+    },
+    "verify-with-reference|daafa66d5d745cf90a6a9f7e7476456e_ee51a4efa53adaad8c8b234938587bc9": {
+      "reference-first": {
+        "pA": 0.75,
+        "confidence": 0.75,
+        "detail": {
+          "eligible": true,
+          "with_reference": true,
+          "kind": "pointwise",
+          "points": [
+            "The final answer the response gives to the question is correct, checked against the reference solution."
+          ],
+          "scores": {
+            "a": 0.75
+          },
+          "rows": {
+            "a": {
+              "point_0": 0.75
+            }
+          },
+          "reference_source": "dataset"
+        },
+        "calls": 1,
+        "usd": 0,
+        "cost_complete": false,
+        "keys": [
+          "0271008bbad647411a2a103eaa25a365619309a2433c3474fb07ab4b1dd31361"
+        ]
+      },
+      "reference-blind": {
+        "pA": 0.07,
+        "confidence": 0.9299999999999999,
+        "detail": {
+          "eligible": true,
+          "with_reference": false,
+          "kind": "pointwise",
+          "points": [
+            "The final answer the response gives to the question is correct, checked against the reference solution."
+          ],
+          "scores": {
+            "a": 0.07
+          },
+          "rows": {
+            "a": {
+              "point_0": 0.07
+            }
+          },
+          "reference_source": null
+        },
+        "calls": 1,
+        "usd": 0,
+        "cost_complete": false,
+        "keys": [
+          "522c2a49921ebde2ab141cda80d40d34e38d517b785c9414bd9f480983d25021"
+        ]
+      }
+    },
+    "verify-with-reference|e05c879fa8330428d5f4c60e2165c671_a1cf5c7e22209a7dde60b811f14dcfa3": {
+      "reference-first": {
+        "pA": 0.23,
+        "confidence": 0.77,
+        "detail": {
+          "eligible": true,
+          "with_reference": true,
+          "kind": "pointwise",
+          "points": [
+            "The final answer the response gives to the question is correct, checked against the reference solution."
+          ],
+          "scores": {
+            "a": 0.23
+          },
+          "rows": {
+            "a": {
+              "point_0": 0.23
+            }
+          },
+          "reference_source": "dataset"
+        },
+        "calls": 1,
+        "usd": 0,
+        "cost_complete": false,
+        "keys": [
+          "e238692a8cbe7ed1ff8e6ae685d6c30291b97b728188c5e662b399bdcc75a416"
+        ]
+      },
+      "reference-blind": {
+        "pA": 0.06,
+        "confidence": 0.94,
+        "detail": {
+          "eligible": true,
+          "with_reference": false,
+          "kind": "pointwise",
+          "points": [
+            "The final answer the response gives to the question is correct, checked against the reference solution."
+          ],
+          "scores": {
+            "a": 0.06
+          },
+          "rows": {
+            "a": {
+              "point_0": 0.06
+            }
+          },
+          "reference_source": null
+        },
+        "calls": 1,
+        "usd": 0,
+        "cost_complete": false,
+        "keys": [
+          "43dac425002fce8f102d565f4954a95365e2088d46a6eaa9bc02e7e3fc1ce4c7"
+        ]
+      }
+    },
+    "verify-with-reference|e294330c907c43e8b8e2fe5b2d1eff04_01bcb6a22e65a9be3cd5c1f0c5accf0b": {
+      "reference-first": {
+        "pA": 0.95,
+        "confidence": 0.95,
+        "detail": {
+          "eligible": true,
+          "with_reference": true,
+          "kind": "pointwise",
+          "points": [
+            "The final answer the response gives to the question is correct, checked against the reference solution."
+          ],
+          "scores": {
+            "a": 0.95
+          },
+          "rows": {
+            "a": {
+              "point_0": 0.95
+            }
+          },
+          "reference_source": "dataset"
+        },
+        "calls": 1,
+        "usd": 0,
+        "cost_complete": false,
+        "keys": [
+          "fc7d4531d2760aeb91d755915ba7336d4956aa237e80a7d2d0826fc8ccdf42ca"
+        ]
+      },
+      "reference-blind": {
+        "pA": 0.85,
+        "confidence": 0.85,
+        "detail": {
+          "eligible": true,
+          "with_reference": false,
+          "kind": "pointwise",
+          "points": [
+            "The final answer the response gives to the question is correct, checked against the reference solution."
+          ],
+          "scores": {
+            "a": 0.85
+          },
+          "rows": {
+            "a": {
+              "point_0": 0.85
+            }
+          },
+          "reference_source": null
+        },
+        "calls": 1,
+        "usd": 0,
+        "cost_complete": false,
+        "keys": [
+          "b2ecbf6a0019257bcb4fe0fa3b797103dc5359a50e641bc9a2c230c499ccb858"
+        ]
+      }
+    },
+    "verify-with-reference|e33318504a7ac7627d557aa1c8a28757_2773ef67563d0ff7b53513d4038a7626": {
+      "reference-first": {
+        "pA": 0.02,
+        "confidence": 0.98,
+        "detail": {
+          "eligible": true,
+          "with_reference": true,
+          "kind": "pointwise",
+          "points": [
+            "The final answer the response gives to the question is correct, checked against the reference solution."
+          ],
+          "scores": {
+            "a": 0.02
+          },
+          "rows": {
+            "a": {
+              "point_0": 0.02
+            }
+          },
+          "reference_source": "dataset"
+        },
+        "calls": 1,
+        "usd": 0,
+        "cost_complete": false,
+        "keys": [
+          "96a1fbb966d5bef77c5346ad347183e93e5fa8d24dfc7d73e68a681eb49adec0"
+        ]
+      },
+      "reference-blind": {
+        "pA": 0.55,
+        "confidence": 0.55,
+        "detail": {
+          "eligible": true,
+          "with_reference": false,
+          "kind": "pointwise",
+          "points": [
+            "The final answer the response gives to the question is correct, checked against the reference solution."
+          ],
+          "scores": {
+            "a": 0.55
+          },
+          "rows": {
+            "a": {
+              "point_0": 0.55
+            }
+          },
+          "reference_source": null
+        },
+        "calls": 1,
+        "usd": 0,
+        "cost_complete": false,
+        "keys": [
+          "6df56af45c7524a8c4d74cf61923a75b09a1f2f08e2cc59f294517c8902a2e84"
+        ]
+      }
+    },
+    "verify-with-reference|f7f4f5882b9c712068cbeac5acb4a0a4_7294b3b236c33212fbbe5aa24dbd47f4": {
+      "reference-first": {
+        "pA": 0.02,
+        "confidence": 0.98,
+        "detail": {
+          "eligible": true,
+          "with_reference": true,
+          "kind": "pointwise",
+          "points": [
+            "The final answer the response gives to the question is correct, checked against the reference solution."
+          ],
+          "scores": {
+            "a": 0.02
+          },
+          "rows": {
+            "a": {
+              "point_0": 0.02
+            }
+          },
+          "reference_source": "dataset"
+        },
+        "calls": 1,
+        "usd": 0,
+        "cost_complete": false,
+        "keys": [
+          "3231c4477b4f0dea79df6114cdeb9e617d64439548d5d4d62f0331ea55b73404"
+        ]
+      },
+      "reference-blind": {
+        "pA": 0.27,
+        "confidence": 0.73,
+        "detail": {
+          "eligible": true,
+          "with_reference": false,
+          "kind": "pointwise",
+          "points": [
+            "The final answer the response gives to the question is correct, checked against the reference solution."
+          ],
+          "scores": {
+            "a": 0.27
+          },
+          "rows": {
+            "a": {
+              "point_0": 0.27
+            }
+          },
+          "reference_source": null
+        },
+        "calls": 1,
+        "usd": 0,
+        "cost_complete": false,
+        "keys": [
+          "fd48d91300816ac9010226970331afbdae34cfad59a108a676de97ea09c9c756"
+        ]
+      }
+    }
+  },
+  "fit": {
+    "tune_n": 40,
+    "threshold": 0.5,
+    "note": "No fitted choices; fixed pointwise threshold, validation labels never affect prompts."
+  },
+  "common_baseline_population_n": 19
+}

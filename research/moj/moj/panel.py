@@ -80,7 +80,7 @@ def base_probability(games):
 
 
 def frozen_population():
-    path = DIRECTORY/'population.json'
+    path = DIRECTORY/'population-v2.json'
     if path.exists():
         return json.loads(path.read_text())
     rows = []
@@ -126,17 +126,13 @@ def unique_population(rows):
 
 def collect(population, recorder, limit=None):
     from .experts import Ctx
-    items = {(b, i['id']): i for b in ('judgebench', 'mmeval', 'writing') for i in load(b)}
+    # The experiment's immutable judge inputs survive later data expansions and split changes.
+    inputs = json.loads((DIRECTORY/'inputs.json').read_text())
     eligible = [r for r in population if r['low']]
     if limit is not None:
         eligible = eligible[:limit]
     def one(row):
-        item = dict(items[(row['bench'], row['id'])])
-        # Later helpers append repeat-run metadata; it is not a judge input.
-        item.pop('repeats', None)
-        if digest(item) != row['input_hash']:
-            raise ValueError('Frozen input changed: '+row['key'])
-        item['low_confidence'] = True
+        item = {**inputs[row['key']], 'low_confidence': True}
         ctx = Ctx(item, recorder.offline)
         out = cross_family_panel(ctx, recorder=recorder)
         return row['key'], out['detail']['members']
@@ -189,11 +185,11 @@ def evaluate(population, observations):
         return (acc, -usd)
     pair = max(pairs, key=pair_quality)
     tune_oof = []
-    for held in folds([r['key'] for r in tune]):
-        train = [i for i, r in enumerate(tune) if r['key'] not in held]
+    for held in folds(sorted({r.get('cluster', r['key']) for r in tune})):
+        train = [i for i, r in enumerate(tune) if r.get('cluster', r['key']) not in held]
         w = fit_logistic(X[train], np.array([tune[i]['label'] == 'A' for i in train])) if train else np.ones(3)
         for r in tune:
-            if r['key'] in held:
+            if r.get('cluster', r['key']) in held:
                 p = combine(observations[r['key']], w)['pA']
                 tune_oof.append({'key': r['key'], 'pA': p, 'score': score_verdict(verdict(p), r['label'])})
     names = ['recorded-stage1-or-fallback', 'panel-majority', 'panel-weighted', 'panel-cascade', 'ledger', 'promptfoo']
@@ -230,7 +226,7 @@ def evaluate(population, observations):
                     calls += extra_calls
                     complete &= all(v['cost_complete'] for v in chosen.values())
                 score = 0 if missing else score_verdict(verdict(p), row['label'])
-            decisions.append({'key': row['key'], 'low': row['low'], 'score': score, 'pA': p,
+            decisions.append({'key': row['key'], 'cluster': row.get('cluster', row['key']), 'low': row['low'], 'score': score, 'pA': p,
                               'calls': calls, 'usd': cost, 'cost_complete': complete, 'missing': missing,
                               'incremental_usd': extra_cost, 'incremental_calls': extra_calls, **detail})
         output['variants'][name] = {'overall': stats(decisions), 'low': stats([r for r in decisions if r['low']]),

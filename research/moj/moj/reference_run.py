@@ -31,18 +31,35 @@ class Context:
 
 
 def population(bench):
-    path = DIRECTORY/(bench+'-grouped-population.json')
+    path = DIRECTORY/(bench+'-v2-population.json')
     if path.exists():return json.loads(path.read_text())
     items = load_point(bench)
+    baseline_items = {x['id']:x for x in load_point('verify')} if bench == 'verify-with-reference' else {}
+    signal_path = Path(HERE)/'results/pointwise/signals'/bench/'pw_whole.json'
+    signals = json.loads(signal_path.read_text()) if signal_path.exists() else {}
+    prior_path = DIRECTORY/(bench+'-population.json')
+    prior = {r['id']:r for r in json.loads(prior_path.read_text())} if prior_path.exists() else {}
     rows=[]
     for item in items:
         if item['split'].lower() not in ('tuning','pilot','noise','fixtures','dev','practice','tune','valid'):
             raise ValueError('Non-practice split rejected')
         if not eligible(item):continue
-        games=[g for b in item['baselines'].values() for g in b.get('games',[])]
+        bases = item['baselines']
+        if item['id'] in baseline_items:
+            other = baseline_items[item['id']]
+            if any(item[k] != other[k] for k in ('question','a','label')):
+                raise ValueError('Verify baseline input mismatch')
+            bases = other['baselines']
+        games=[g for b in bases.values() for g in b.get('games',[])]
+        confidence = signals.get(item['id'],{}).get('pA')
+        confidence = max(confidence,1-confidence) if confidence is not None else None
+        low = confidence < .7 if confidence is not None else len(set(games))>1
+        low_source = 'recorded-pw_whole-margin-below-0.7' if confidence is not None else 'recorded-baseline-disagreement'
+        if item['id'] in prior:
+            low,low_source=prior[item['id']]['low'],prior[item['id']]['low_source']
         rows.append({'key':bench+'|'+item['id'],'id':item['id'],'half':item['half'], 'label':item['label'],
-                     'low':len(set(games))>1,'low_source':'recorded-baseline-disagreement',
-                     'hash':digest(item), 'cluster':item.get('split_group',item['id']), 'baselines':item['baselines']})
+                     'low':low,'low_source':low_source,'stage1_confidence':confidence,
+                     'hash':digest(item), 'cluster':item.get('split_group',item['id']), 'baselines':bases})
     if not rows:raise ValueError('No explicit dataset references: '+bench)
     path.write_text(json.dumps(rows,indent=2)+'\n')
     return rows
@@ -64,7 +81,8 @@ def collect(bench,pop,rec):
                           keys=[r['key'] for r in ctx.records])
             out[name]=result
         return row['key'],out
-    with ThreadPoolExecutor(max_workers=8) as pool:return dict(pool.map(one,pop))
+    targets = [r for r in pop if r['half'] == 'valid'] if bench == 'verify-with-reference' else pop
+    with ThreadPoolExecutor(max_workers=8) as pool:return dict(pool.map(one,targets))
 
 
 def evaluate(pop,obs):
@@ -89,6 +107,13 @@ def evaluate(pop,obs):
             decisions.append({'key':row['key'],'low':row['low'],'cluster':row['cluster'],**record})
         output['decisions'][name]=decisions
         output['variants'][name]={'overall':stats(decisions),'low':stats([r for r in decisions if r['low']])}
+    common = {r['key'] for r in pop if r['half'] == 'valid'
+              and all(b in r['baselines'] for b in baseline_names)} if baseline_names else set()
+    output['common_baseline_population_n'] = len(common)
+    for name, decisions in output['decisions'].items():
+        matched = [r for r in decisions if r['key'] in common]
+        output['variants'][name]['matched_overall'] = stats(matched)
+        output['variants'][name]['matched_low'] = stats([r for r in matched if r['low']])
     return output
 
 
@@ -96,12 +121,12 @@ def main():
     p=argparse.ArgumentParser()
     mode=p.add_mutually_exclusive_group(required=True)
     mode.add_argument('--live',action='store_true');mode.add_argument('--offline',action='store_true')
-    p.add_argument('--bench',choices=['verify','hardrows','rubricbench'],required=True)
+    p.add_argument('--bench',choices=['verify','verify-with-reference','hardrows','rubricbench'],required=True)
     args=p.parse_args();DIRECTORY.mkdir(parents=True,exist_ok=True)
     rec=Recorder(DIRECTORY,offline=args.offline)
     with rec.exclusive():
         pop=population(args.bench);obs=collect(args.bench,pop,rec);result=evaluate(pop,obs)
-        path=DIRECTORY/(args.bench+'-grouped-validation.json')
+        path=DIRECTORY/(args.bench+'-v2-validation.json')
         if args.offline:
             if json.loads(path.read_text())!=result:raise AssertionError('Offline reference replay differs')
             print('Offline replay matches every decision and metric.')

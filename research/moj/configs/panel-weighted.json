@@ -18,8 +18,9 @@
   "offline_replay": "python3 -m moj.panel --offline",
   "note": "Use route_item for live routing; moj.score does not implement within-panel weighting or reference priority.",
   "weights": {
-    "luna": 0.08692612640278513,
-    "gemini": 0.11947735275832098,
-    "haiku": -0.08035375278627929
-  }
+    "luna": -0.3622596083552747,
+    "gemini": 0.3422164089813182,
+    "haiku": -0.4680326411221783
+  },
+  "split_version": "moj-split-v2"
 }

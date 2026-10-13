@@ -19,7 +19,7 @@ import urllib.error
 import urllib.request
 
 ROOT = Path(__file__).resolve().parents[1]
-LIMITS = {'luna': 8, 'gemini': 2, 'haiku': 2, 'jev': 8}
+LIMITS = {'luna': 8, 'gemini': 2, 'haiku': 2, 'jev': 3}
 MODELS = {'luna': 'gpt-6-luna', 'gemini': 'gemini-3.8-flash', 'haiku': 'haiku', 'jev': 'jev-latest'}
 KEYS = {'luna': '~/.nexus-secrets/openai.key', 'gemini': '~/.nexus-secrets/gemini-driftbench.key',
         'jev': '~/.nexus-secrets/nexus-orga.key'}

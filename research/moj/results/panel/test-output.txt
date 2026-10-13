@@ -1,0 +1,32 @@
+test_agreement_and_swap_symmetry (moj.test_panel.PanelTests.test_agreement_and_swap_symmetry) ... ok
+test_cascade_stops_after_two_consistent_members (moj.test_panel.PanelTests.test_cascade_stops_after_two_consistent_members) ... ok
+test_high_confidence_zero_calls (moj.test_panel.PanelTests.test_high_confidence_zero_calls) ... ok
+test_missing_member_never_silently_becomes_smaller_panel (moj.test_panel.PanelTests.test_missing_member_never_silently_becomes_smaller_panel) ... ok
+test_order_remapping (moj.test_panel.PanelTests.test_order_remapping) ... ok
+test_order_ties_escalate (moj.test_panel.PanelTests.test_order_ties_escalate) ... ok
+test_strict_one_token_and_no_retry (moj.test_panel.PanelTests.test_strict_one_token_and_no_retry) ... ok
+test_budget_before_send (moj.test_panel.RecorderTests.test_budget_before_send) ... ok
+test_no_answer_retries_capped_across_restart (moj.test_panel.RecorderTests.test_no_answer_retries_capped_across_restart) ... ok
+test_replay_never_sends_even_invalid_answer (moj.test_panel.RecorderTests.test_replay_never_sends_even_invalid_answer) ... ok
+test_duplicate_source_splits_count_once (moj.test_panel.RegressionTests.test_duplicate_source_splits_count_once) ... ok
+test_gemini_402_skips_are_recorded_and_offline (moj.test_panel.RegressionTests.test_gemini_402_skips_are_recorded_and_offline) ... ok
+test_point_kind_is_single_candidate (moj.test_panel.RegressionTests.test_point_kind_is_single_candidate) ... ok
+test_timeout_cost_stays_unknown_after_success (moj.test_panel.RegressionTests.test_timeout_cost_stays_unknown_after_success) ... ok
+test_high_stage_never_calls_panel (moj.test_panel.RouterTests.test_high_stage_never_calls_panel) ... ok
+test_reference_goes_first_and_can_stop (moj.test_panel.RouterTests.test_reference_goes_first_and_can_stop) ... ok
+test_uncertain_reference_then_low_stage_then_panel (moj.test_panel.RouterTests.test_uncertain_reference_then_low_stage_then_panel) ... ok
+test_ablation_has_no_reference_anywhere_in_payload (moj.test_reference_first.ReferenceFirstTests.test_ablation_has_no_reference_anywhere_in_payload) ... ok
+test_decompose_never_triggers_generation (moj.test_reference_first.ReferenceFirstTests.test_decompose_never_triggers_generation) ... ok
+test_labels_and_baselines_never_enter_either_request (moj.test_reference_first.ReferenceFirstTests.test_labels_and_baselines_never_enter_either_request) ... ok
+test_missing_answer_does_not_become_a_partial_verdict (moj.test_reference_first.ReferenceFirstTests.test_missing_answer_does_not_become_a_partial_verdict) ... ok
+test_missing_reference_means_zero_calls_in_both_arms (moj.test_reference_first.ReferenceFirstTests.test_missing_reference_means_zero_calls_in_both_arms) ... ok
+test_nan_and_out_of_range_are_missing_answers (moj.test_reference_first.ReferenceFirstTests.test_nan_and_out_of_range_are_missing_answers) ... ok
+test_pairwise_per_candidate_and_confidence (moj.test_reference_first.ReferenceFirstTests.test_pairwise_per_candidate_and_confidence) ... ok
+test_pointwise_is_explicit_and_uses_one_call (moj.test_reference_first.ReferenceFirstTests.test_pointwise_is_explicit_and_uses_one_call) ... ok
+test_reference_is_explicit_and_never_a_label (moj.test_reference_first.ReferenceFirstTests.test_reference_is_explicit_and_never_a_label) ... ok
+test_swapping_candidates_complements_probability (moj.test_reference_first.ReferenceFirstTests.test_swapping_candidates_complements_probability) ... ok
+
+----------------------------------------------------------------------
+Ran 27 tests in 0.009s
+
+OK
