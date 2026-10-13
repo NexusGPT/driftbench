@@ -1,6 +1,7 @@
 import { randomUUID } from 'node:crypto';
-import { rm } from 'node:fs/promises';
-import { posix } from 'node:path';
+import { mkdtemp, rm, writeFile } from 'node:fs/promises';
+import { tmpdir } from 'node:os';
+import { join, posix } from 'node:path';
 import type {
   ExecOptions,
   ExecutionRecord,
@@ -124,22 +125,44 @@ export class DockerSandbox extends FolderSandbox {
     if (this.destroyed) throw new Error('the sandbox is destroyed');
     const rel = await this.workingFolder(options.cwd);
     const args = ['exec', '-i', '-w', rel === '.' ? DOCKER_WORKSPACE : posix.join(DOCKER_WORKSPACE, rel)];
-    for (const name of Object.keys(options.env ?? {})) {
-      if (name === '' || name.includes('='))
+    const entries = Object.entries(options.env ?? {});
+    for (const [name, value] of entries) {
+      if (name === '' || name.startsWith('#') || /[=\s\0]/u.test(name))
         throw new Error(`the variable name ${JSON.stringify(name)} is invalid`);
-      // Docker reads bare variable names from its client environment, keeping values out of argv.
-      args.push('-e', name);
+      if (/[\r\n]/.test(value))
+        throw new Error(
+          `the variable ${JSON.stringify(name)} contains a line break; Docker env files require single-line values`,
+        );
+      if (value.includes('\0'))
+        throw new Error(`the variable ${JSON.stringify(name)} contains a NUL character`);
     }
-    args.push(this.container, '/bin/sh', '-c', command);
-    return runProcess(this.binary, args, command, {
-      env: { ...process.env, ...options.env },
-      stdin: options.stdin,
-      timeoutMs: options.timeoutMs ?? DEFAULT_EXEC_TIMEOUT_MS,
-      maxOutputBytes: options.maxOutputBytes ?? DEFAULT_MAX_OUTPUT_BYTES,
-      // Killing the docker client leaves the command running in the container; a restart ends every
-      // process there and keeps the workspace, which lives on this machine.
-      onTimeout: () => this.restart(),
-    });
+    let envDir: string | undefined;
+    try {
+      if (entries.length > 0) {
+        // Keep credentials outside the mounted workspace. Docker reads literal KEY=value lines:
+        // quotes, spaces, equals signs and hashes in values must not be escaped.
+        envDir = await mkdtemp(join(tmpdir(), 'driftbench-docker-env-'));
+        const envFile = join(envDir, 'env');
+        await writeFile(envFile, entries.map(([name, value]) => `${name}=${value}\n`).join(''), {
+          mode: 0o600,
+          flag: 'wx',
+        });
+        args.push('--env-file', envFile);
+      }
+      args.push(this.container, '/bin/sh', '-c', command);
+      return await runProcess(this.binary, args, command, {
+        // Container variables must never configure the Docker client itself.
+        env: process.env,
+        stdin: options.stdin,
+        timeoutMs: options.timeoutMs ?? DEFAULT_EXEC_TIMEOUT_MS,
+        maxOutputBytes: options.maxOutputBytes ?? DEFAULT_MAX_OUTPUT_BYTES,
+        // Killing the docker client leaves the command running in the container; a restart ends every
+        // process there and keeps the workspace, which lives on this machine.
+        onTimeout: () => this.restart(),
+      });
+    } finally {
+      if (envDir !== undefined) await rm(envDir, { recursive: true, force: true });
+    }
   }
 
   /** Removes the container, then the folder unless the sandbox keeps it. A second call does nothing. */

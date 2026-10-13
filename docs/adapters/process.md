@@ -123,7 +123,9 @@ Docker resource and privilege defaults are configured on `dockerProvider`:
 
 For example, `dockerProvider({ image: 'node:22-alpine', memory: '2g', cpus: 2, pidsLimit: 512 })` raises the resource limits while keeping the default privilege restrictions and network denial. Workloads that exceed a resource limit can fail; raise only the limits they need.
 
-Exec environment values travel in the Docker client's child process environment. The argument vector contains only `-e NAME`, never `-e NAME=value`. Empty values, line breaks and stdin are preserved. Only explicitly named variables are forwarded to the container; the parent process environment is not changed.
+Exec environment values travel through `--env-file`, stored outside the mounted workspace in a private temporary folder (mode `0700`). The file is created with mode `0600`; the file and folder are removed after success, failure or timeout. Values appear in neither argv nor the Docker client's environment. Container variables such as `PATH`, `DOCKER_HOST`, `DOCKER_CONFIG`, `DOCKER_CONTEXT` and `HTTP_PROXY` cannot steer the client.
+
+Docker's [env-file parser](https://github.com/docker/cli/blob/master/pkg/kvfile/kvfile.go) reads literal `NAME=value` lines: spaces (including leading and trailing spaces), quotes, `=` and `#` inside values are preserved, with no quoting or escaping added. Empty values and stdin are preserved. Values containing LF or CR line breaks are rejected before Docker runs, with an error naming the variable; multiline values cannot be represented by this format. NUL values and names containing whitespace, `=` or NUL, or starting with `#`, are also rejected. Only explicitly named variables are forwarded to the container; the parent process environment is not changed.
 
 A sandbox folder that a run leaves open is removed when the process exits, including on SIGINT and SIGTERM, so an interrupted run leaves no workspace behind. A kept sandbox is not removed. A command still running at that point is killed with its process group. Only SIGKILL, which no process can catch, leaves them behind.
 

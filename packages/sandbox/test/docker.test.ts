@@ -208,7 +208,7 @@ describe('the docker sandbox, on the fake docker command line', () => {
       binary: fake.binary,
       dir: fake.workspaces,
     }).create();
-    const env = { FIXTURE_VALUE: "fictional=value with spaces\nand 'quotes'", EMPTY_VALUE: '' };
+    const env = { FIXTURE_VALUE: "fictional=value with spaces and 'quotes'", EMPTY_VALUE: '' };
     try {
       const record = await box.exec('printf "%s|%s|%s" "$FIXTURE_VALUE" "$EMPTY_VALUE" "$(cat)" > env.txt', {
         env,
@@ -219,8 +219,7 @@ describe('the docker sandbox, on the fake docker command line', () => {
         `${env.FIXTURE_VALUE}||input preserved`,
       );
       const exec = (await fake.calls()).find((call) => call[0] === 'exec');
-      expect(exec).toContain('FIXTURE_VALUE');
-      expect(exec).toContain('EMPTY_VALUE');
+      expect(exec).toContain('--env-file');
       expect(exec?.some((arg) => arg.includes(env.FIXTURE_VALUE))).toBe(false);
       expect((await box.exec('printenv FIXTURE_VALUE')).exitCode).toBe(1);
       expect(process.env.FIXTURE_VALUE).toBeUndefined();
@@ -251,8 +250,8 @@ describe('the docker sandbox, on the fake docker command line', () => {
         '-i',
         '-w',
         '/workspace/sub',
-        '-e',
-        'GREETING',
+        '--env-file',
+        expect.any(String),
         box.container,
       ]);
       expect(Buffer.from(await box.readFile('sub/made.txt')).toString('utf8')).toBe('hello|from stdin');

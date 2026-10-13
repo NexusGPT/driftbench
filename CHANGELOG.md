@@ -4,7 +4,7 @@ All notable changes to driftbench are listed here. The format follows [Keep a Ch
 
 ## [Unreleased]
 
-- Docker sandboxes default to 1 GiB memory, 1 CPU, 256 processes, all capabilities dropped and no-new-privileges, with provider options to override each restriction. Exec environment values no longer appear in Docker argv; networking remains denied by default.
+- Docker sandboxes default to 1 GiB memory, 1 CPU, 256 processes, all capabilities dropped and no-new-privileges, with provider options to override each restriction. Exec variables use a private temporary env file instead of Docker argv or the client environment; multiline values are rejected by variable name. Networking remains denied by default.
 
 * Opt-in answer audit in the judges package: `judgeAnswerAudit`, or `assessment: { kind: 'answer-audit' }`, grades a submission against a criterion and an optional trusted reference. The request is role-separated JSON; the model settles each condition with a quote before its status and code computes the outcome. It has its own prompt fingerprint; default and legacy prompts and cassette keys are unchanged.
 * Evidence grounding accepts `{}` or `[]` quoted from a source whose whole text is that empty JSON container. A check that reports an empty persisted file no longer voids its ledger. Prompts and cassette keys are unchanged; 24 recorded goal answers that were inconclusive now decode to their recorded fail verdict. Decoration-only quotes stay ungrounded.

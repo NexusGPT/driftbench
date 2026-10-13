@@ -91,7 +91,7 @@ if (verb === 'version') {
     process.stdout.write(`${container.name}-id\n`);
   }
 } else if (verb === 'exec') {
-  const { flags, rest: tail } = parse(rest, ['-w', '-e']);
+  const { flags, rest: tail } = parse(rest, ['-w', '-e', '--env-file']);
   const [name, file, ...args] = tail;
   const container = load(name);
   if (container === undefined) {
@@ -102,6 +102,14 @@ if (verb === 'version') {
     const env = { PATH: process.env.PATH ?? '/usr/bin:/bin' };
     for (const pair of [
       ...container.env,
+      ...flags
+        .filter(([flag]) => flag === '--env-file')
+        .flatMap(([, path]) =>
+          readFileSync(path, 'utf8')
+            .split(/\r?\n/)
+            .map((line) => line.trimStart())
+            .filter((line) => line !== '' && !line.startsWith('#')),
+        ),
       ...flags.filter(([flag]) => flag === '-e').map(([, value]) => value),
     ]) {
       const at = pair.indexOf('=');
