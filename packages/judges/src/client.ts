@@ -25,7 +25,7 @@ export interface JudgeClient {
    * Part of the cassette key: a recording made with other settings never replays.
    */
   readonly settings?: string;
-  /** Replay decoder inferred from a cassette. Live clients default to the current decoder. */
+  /** Replay decoder inferred from a cassette. Absent means strict version 1. */
   readonly criterionDecoderVersion?: CriterionDecoderVersion;
   judge(request: JudgeRequest): Promise<JudgeResult>;
   /** Own both supplied presentation orders as one comparison, preserving every request field. */

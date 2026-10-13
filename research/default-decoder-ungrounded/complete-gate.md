@@ -3,9 +3,9 @@
 Gate: PASS. All 14 sets on Haiku and all 14 on gpt-6-luna have zero breaks. Gemini is not recorded.
 
 - Recordings: PR 172 commit `d25cc282013bcb170d7bd6e0c4ab0fdc6c4fa85d`; fingerprint `398673b792c1`.
-- Measured at `2026-10-13T10:11:28.557Z`. New model calls: 0. Cost: USD 0.
-- Current means the recorded strict-v1 outcome. Every request joins its old cassette key using `criterionDecoderVersion: 1`.
-- Every baseline outcome matches PR 172's recorded outcome. Dataset sizes, input membership, fingerprints and cassette hashes are checked.
+- Re-read on merged main `eb3e7a98` with `rebase-fixture.mts`. New model calls: 0. Cost: USD 0.
+- Current means main's strict version 1 decoder, which stays the default. Version 2 is opt-in.
+- Main's source-alias grounding (PR 184) moved 43 current rows from unparsed to parsed since PR 172 recorded them. Both decoders read those rows identically. `results.json` lists them under `baselineMovedOnMain`.
 - With change measures this PR alone. Alias replay keeps decoder version 1; decoder replay compares versions 1 and 2.
 - The complete current gate covers 3,596 rows. The frozen fixture also retains historical sets: 5,469 rows total across 45 recorded or partially recorded sets, all with zero breaks.
 - Focused tests: 80 pass in 4 files, including the full frozen replay, variant tests, cassettes and the 1,028-entry legacy/golden test. Prompt and fingerprint unchanged.
@@ -17,18 +17,18 @@ Gate: PASS. All 14 sets on Haiku and all 14 on gpt-6-luna have zero breaks. Gemi
 | fresh-rubric | 188/192 | 188/192 | 0 | 0 |
 | fresh-reference | 189/192 | 189/192 | 0 | 0 |
 | map-rubric | 156/156 | 156/156 | 0 | 0 |
-| map-reference | 168/180 | 168/180 | 0 | 0 |
+| map-reference | 173/180 | 173/180 | 0 | 0 |
 | hard-rubric | 117/120 | 117/120 | 0 | 0 |
-| hard-factuality | 104/120 | 104/120 | 0 | 0 |
+| hard-factuality | 119/120 | 119/120 | 0 | 0 |
 | hard-pii | 118/120 | 118/120 | 0 | 0 |
 | hard-goal | 106/120 | 106/120 | 0 | 0 |
 | heldout-rubric | 71/72 | 71/72 | 0 | 0 |
-| heldout-factuality | 55/72 | 55/72 | 0 | 0 |
+| heldout-factuality | 71/72 | 71/72 | 0 | 0 |
 | heldout-pii | 72/72 | 72/72 | 0 | 0 |
 | heldout-goal | 65/72 | 65/72 | 0 | 0 |
 | planted-verify | 189/190 | 189/190 | 0 | 0 |
 | planted-rubric | 117/120 | 117/120 | 0 | 0 |
-| Total | 1715/1798 | 1715/1798 | 0 | 0 |
+| Total | 1751/1798 | 1751/1798 | 0 | 0 |
 
 ### gpt-6-luna
 
@@ -39,16 +39,16 @@ Gate: PASS. All 14 sets on Haiku and all 14 on gpt-6-luna have zero breaks. Gemi
 | map-rubric | 156/156 | 156/156 | 0 | 0 |
 | map-reference | 145/180 | 145/180 | 0 | 0 |
 | hard-rubric | 120/120 | 120/120 | 0 | 0 |
-| hard-factuality | 100/120 | 100/120 | 0 | 0 |
+| hard-factuality | 101/120 | 101/120 | 0 | 0 |
 | hard-pii | 114/120 | 114/120 | 0 | 0 |
-| hard-goal | 97/120 | 97/120 | 0 | 0 |
+| hard-goal | 101/120 | 101/120 | 0 | 0 |
 | heldout-rubric | 71/72 | 71/72 | 0 | 0 |
-| heldout-factuality | 63/72 | 63/72 | 0 | 0 |
+| heldout-factuality | 64/72 | 64/72 | 0 | 0 |
 | heldout-pii | 68/72 | 68/72 | 0 | 0 |
 | heldout-goal | 61/72 | 61/72 | 0 | 0 |
 | planted-verify | 187/190 | 187/190 | 0 | 0 |
 | planted-rubric | 120/120 | 120/120 | 0 | 0 |
-| Total | 1633/1798 | 1633/1798 | 0 | 0 |
+| Total | 1639/1798 | 1639/1798 | 0 | 0 |
 
 ### Gemini 3.8 Flash
 

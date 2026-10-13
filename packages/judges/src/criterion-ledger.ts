@@ -3,9 +3,12 @@ import { inconclusive, type JudgeRequest, type JudgeResult } from './contract';
 import { groundEvidence, groundEvidenceSpan } from './evidence';
 
 export type CriterionRequirement = { readonly id: string; readonly requirement: string };
-/** Decoder identity is separate from the unchanged model-facing prompt. */
-export const CRITERION_DECODER_VERSION = 2;
-export type CriterionDecoderVersion = 1 | typeof CRITERION_DECODER_VERSION;
+/**
+ * Decoder identity is separate from the unchanged model-facing prompt. The default stays strict
+ * version 1, so default requests keep their bytes, keys and verdicts. Version 2 is opt-in.
+ */
+export const CRITERION_DECODER_VERSION = 1;
+export type CriterionDecoderVersion = 1 | 2;
 
 /** The caller owns the requirement set; an unsplit criterion is one complete requirement. */
 export function requirementsFor(request: JudgeRequest): readonly CriterionRequirement[] {
@@ -95,7 +98,7 @@ export function parseCriterionLedger(value: unknown, request: JudgeRequest, raw:
             .grounded
         : check.evidence.every((span) => groundEvidenceSpan(request, span).grounded))
     ) {
-      if (request.criterionDecoderVersion === 1 || typeof check.evidence !== 'string')
+      if (request.criterionDecoderVersion !== 2 || typeof check.evidence !== 'string')
         return invalid('the evidence quote is not in the supplied data');
       // Preserve the model's met value, but never present an unverified string as a quote.
       check.evidence = null;

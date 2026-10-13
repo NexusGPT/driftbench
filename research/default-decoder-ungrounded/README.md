@@ -2,7 +2,7 @@
 
 Status: complete Haiku/Luna replay gate passes with zero breaks on all 28 sets. Gemini is not recorded. See [the complete gate table](complete-gate.md).
 
-The candidate nulls ungrounded evidence strings and retains met. It does not relax source-addressed spans. The prompt and fingerprint remain unchanged (`398673b792c1`).
+Decoder version 2 is opt-in (`criterionDecoderVersion: 2`); the default stays strict version 1. Version 2 nulls ungrounded evidence strings and retains met. It does not relax source-addressed spans. The prompt and fingerprint remain unchanged (`398673b792c1`).
 
 Red-first: 7 failures and 6 passes before implementation. Complete-gate validation: 80 focused tests pass across 4 files, including the unchanged 1,028-entry legacy cassette test and golden tests. Earlier broader runs are recorded below.
 
@@ -67,26 +67,26 @@ Replay snapshot: 2026-10-13T10:11:28.557Z. Recordings pinned to PR 172 commit `d
 | bench-current/map-rubric/haiku | 156 | 156 | 156 | 0 | 0 | recorded |
 | bench-current/map-rubric/gpt-6-luna | 156 | 156 | 156 | 0 | 0 | recorded |
 | bench-current/map-rubric/gemini-3.8-flash | 0 | n/a | n/a | n/a | n/a | not recorded |
-| bench-current/map-reference/haiku | 180 | 168 | 168 | 0 | 0 | recorded |
+| bench-current/map-reference/haiku | 180 | 173 | 173 | 0 | 0 | recorded |
 | bench-current/map-reference/gpt-6-luna | 180 | 145 | 145 | 0 | 0 | recorded |
 | bench-current/map-reference/gemini-3.8-flash | 0 | n/a | n/a | n/a | n/a | not recorded |
 | bench-current/hard-rubric/haiku | 120 | 117 | 117 | 0 | 0 | recorded |
 | bench-current/hard-rubric/gpt-6-luna | 120 | 120 | 120 | 0 | 0 | recorded |
 | bench-current/hard-rubric/gemini-3.8-flash | 0 | n/a | n/a | n/a | n/a | not recorded |
-| bench-current/hard-factuality/haiku | 120 | 104 | 104 | 0 | 0 | recorded |
-| bench-current/hard-factuality/gpt-6-luna | 120 | 100 | 100 | 0 | 0 | recorded |
+| bench-current/hard-factuality/haiku | 120 | 119 | 119 | 0 | 0 | recorded |
+| bench-current/hard-factuality/gpt-6-luna | 120 | 101 | 101 | 0 | 0 | recorded |
 | bench-current/hard-factuality/gemini-3.8-flash | 0 | n/a | n/a | n/a | n/a | not recorded |
 | bench-current/hard-pii/haiku | 120 | 118 | 118 | 0 | 0 | recorded |
 | bench-current/hard-pii/gpt-6-luna | 120 | 114 | 114 | 0 | 0 | recorded |
 | bench-current/hard-pii/gemini-3.8-flash | 0 | n/a | n/a | n/a | n/a | not recorded |
 | bench-current/hard-goal/haiku | 120 | 106 | 106 | 0 | 0 | recorded |
-| bench-current/hard-goal/gpt-6-luna | 120 | 97 | 97 | 0 | 0 | recorded |
+| bench-current/hard-goal/gpt-6-luna | 120 | 101 | 101 | 0 | 0 | recorded |
 | bench-current/hard-goal/gemini-3.8-flash | 0 | n/a | n/a | n/a | n/a | not recorded |
 | bench-current/heldout-rubric/haiku | 72 | 71 | 71 | 0 | 0 | recorded |
 | bench-current/heldout-rubric/gpt-6-luna | 72 | 71 | 71 | 0 | 0 | recorded |
 | bench-current/heldout-rubric/gemini-3.8-flash | 0 | n/a | n/a | n/a | n/a | not recorded |
-| bench-current/heldout-factuality/haiku | 72 | 55 | 55 | 0 | 0 | recorded |
-| bench-current/heldout-factuality/gpt-6-luna | 72 | 63 | 63 | 0 | 0 | recorded |
+| bench-current/heldout-factuality/haiku | 72 | 71 | 71 | 0 | 0 | recorded |
+| bench-current/heldout-factuality/gpt-6-luna | 72 | 64 | 64 | 0 | 0 | recorded |
 | bench-current/heldout-factuality/gemini-3.8-flash | 0 | n/a | n/a | n/a | n/a | not recorded |
 | bench-current/heldout-pii/haiku | 72 | 72 | 72 | 0 | 0 | recorded |
 | bench-current/heldout-pii/gpt-6-luna | 72 | 68 | 68 | 0 | 0 | recorded |
@@ -118,7 +118,7 @@ On current hard-factuality/Haiku, the string-only decoder stays at 104/120 (0 fi
 
 ## Decoder compatibility
 
-`CRITERION_DECODER_VERSION` is 2. `JudgeRequest.criterionDecoderVersion: 1` selects the historical strict parser. New default-ledger cassette entries and keys carry version 2; historical unversioned entries keep their old key and strict decoding. Legacy, system1 and explicit assessment keys stay unchanged. Grounding diagnostics are output-only and never enter the provider schema.
+`CRITERION_DECODER_VERSION` is 1, the strict parser, and stays the default. `JudgeRequest.criterionDecoderVersion: 2` (or a client's `criterionDecoderVersion: 2`) opts into the new decoder. Only version 2 requests and cassette entries carry the field, so default request bodies, keys and cassette entries are byte-identical to main. A player infers version 2 from a cassette that records it. Legacy, system1 and explicit assessment keys stay unchanged. Grounding diagnostics are output-only and never enter the provider schema.
 
 ## Refreshed recording snapshot
 
@@ -138,3 +138,10 @@ On current hard-factuality/Haiku, the string-only decoder stays at 104/120 (0 fi
 ## Complete benchmark gate
 
 The [complete per-set table](complete-gate.md) covers all 28 current recordings at `d25cc282013bcb170d7bd6e0c4ab0fdc6c4fa85d`. The focused run passes 80 tests in 4 files. Gemini is not recorded. The earlier integration snapshots above remain historical evidence.
+
+## Main integration after PRs 157, 179, 184, 185 and 191
+
+- Merged main `eb3e7a98`. Main's frozen tests pin the default request key, the chat-client request keys and the strict rejection of all 1,422 decoration quotes. Version 2 as the default broke all three, so version 2 is now opt-in and the default is the unchanged strict decoder.
+- Main's source-alias grounding (PR 184) now parses 43 bench-current rows that the PR 172 recordings stored as unparsed. Both decoders read those rows identically, so this PR still changes 0 of them. `rebase-fixture.mts` re-reads the committed fixture with zero model calls and records each moved row in `results.json` under `baselineMovedOnMain`.
+- Current totals: Haiku 1751/1798, gpt-6-luna 1639/1798. Decoder version 2: 0 fixes and 0 breaks on all 28 current sets. Historical sets keep 38 fixes and 0 breaks.
+

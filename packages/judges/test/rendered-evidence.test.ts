@@ -12,8 +12,11 @@ describe('real Inspect rendered evidence', () => {
       const evidence = text === '\n\n' ? '[agent] ⏎ ⏎' : '[agent] ⏎';
       const raw = JSON.stringify({ checks: [{ id: 'c', reasoning: 'Empty.', evidence, met: true }] });
       expect(groundEvidence(request, { outcome: 'pass', reasoning: '', evidence }).grounded).toBe(false);
-      expect(parseJudgeText(raw, { ...request, criterionDecoderVersion: 1 }).unparsed).toBe(true);
-      expect(parseJudgeText(raw, request).checks?.[0]).toMatchObject({ evidence: null, grounded: false });
+      expect(parseJudgeText(raw, request).unparsed).toBe(true);
+      expect(parseJudgeText(raw, { ...request, criterionDecoderVersion: 2 }).checks?.[0]).toMatchObject({
+        evidence: null,
+        grounded: false,
+      });
     });
   }
   it('rejects prefixed quotes made only of quotes, ellipses, whitespace or markup', () => {
@@ -90,13 +93,13 @@ describe('real Inspect rendered evidence', () => {
           expect(
             parseJudgeText(
               JSON.stringify({ checks: [{ id: 'price', reasoning: '', evidence, met: true }] }),
-              { ...request, criterionDecoderVersion: 1 },
+              request,
             ).unparsed,
           ).toBe(true);
           if (evidence.trim()) {
             const decoded = parseJudgeText(
               JSON.stringify({ checks: [{ id: 'price', reasoning: '', evidence, met: true }] }),
-              request,
+              { ...request, criterionDecoderVersion: 2 },
             );
             expect(decoded.checks?.[0]).toMatchObject({ evidence: null, grounded: false, met: true });
             expect(decoded.answer.evidence).toBeUndefined();

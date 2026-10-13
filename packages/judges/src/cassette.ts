@@ -224,13 +224,12 @@ export function recordingClient(client: JudgeClient, cassette: Cassette): JudgeC
         (client.cls === 'system1' && !client.families && !client.judgeComparison
           ? ('legacy' as const)
           : ('ledger' as const)),
+      // Version 1 entries omit the field, so default recordings stay byte-identical.
       ...(request.answerContract !== 'legacy' &&
       !request.assessment &&
-      (client.cls !== 'system1' || client.families || client.judgeComparison)
-        ? {
-            criterionDecoderVersion:
-              request.criterionDecoderVersion ?? client.criterionDecoderVersion ?? CRITERION_DECODER_VERSION,
-          }
+      (client.cls !== 'system1' || client.families || client.judgeComparison) &&
+      (request.criterionDecoderVersion ?? client.criterionDecoderVersion ?? CRITERION_DECODER_VERSION) === 2
+        ? { criterionDecoderVersion: 2 as const }
         : {}),
     };
     const cost = (result: JudgeResult) => (result.costUsd === undefined ? {} : { cost_usd: result.costUsd });
@@ -334,7 +333,7 @@ export function playerClient(
     ...(judge.families ? { families: judge.families } : {}),
     ...(judge.model ? { model: judge.model } : {}),
     ...(judge.settings === undefined ? {} : { settings: judge.settings }),
-    criterionDecoderVersion: recordedDecoder,
+    ...(recordedDecoder === 2 ? { criterionDecoderVersion: recordedDecoder } : {}),
     judge: (request) => play(request),
     ...(judge.comparison
       ? { judgeComparison: (ordered: JudgeRequest, swapped: JudgeRequest) => play(ordered, swapped) }

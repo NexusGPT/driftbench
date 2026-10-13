@@ -9,21 +9,22 @@ const request: JudgeRequest = {
   criterion: { name: 'c', rubric: 'The action is complete.' },
   transcript: [{ role: 'agent', text: 'The action is complete.' }],
 };
+const v2: JudgeRequest = { ...request, criterionDecoderVersion: 2 };
 const raw = (met: boolean | null, evidence: unknown = 'Invented quote') =>
   JSON.stringify({ checks: [{ id: 'c', reasoning: 'Observed action.', evidence, met }] });
 
-describe('criterion decoder v2', () => {
+describe('opt-in criterion decoder v2', () => {
   it.each([
     [true, 'pass'],
     [false, 'fail'],
     [null, 'inconclusive'],
   ] as const)('keeps met %s when its string evidence does not ground', (met, outcome) => {
-    const result = parseJudgeText(raw(met), request);
+    const result = parseJudgeText(raw(met), v2);
     expect(result.unparsed).toBeUndefined();
     expect(result.answer).toEqual({ outcome, reasoning: 'The action is complete.: Observed action.' });
     expect(result.checks?.[0]).toMatchObject({ met, evidence: null, grounded: false });
     expect(result.evidenceUnverified).toBe(1);
-    expect(parseJudgeValue(JSON.parse(raw(met)), request, raw(met))).toEqual(result);
+    expect(parseJudgeValue(JSON.parse(raw(met)), v2, raw(met))).toEqual(result);
   });
   it('counts rejected strings and aggregates every original met without mutating input', () => {
     const value = {
@@ -35,7 +36,7 @@ describe('criterion decoder v2', () => {
     };
     const original = structuredClone(value);
     const result = parseJudgeValue(value, {
-      ...request,
+      ...v2,
       requirements: ['a', 'b', 'c'].map((id) => ({ id, requirement: id })),
     });
     expect(value).toEqual(original);
@@ -47,35 +48,33 @@ describe('criterion decoder v2', () => {
   it.each([null, '', [], [{ source: 'transcript.0', quote: 'Invented quote' }]])(
     'still rejects an originally absent, malformed or invalid addressed quote: %j',
     (evidence) => {
-      expect(parseJudgeText(raw(true, evidence), request).unparsed).toBe(true);
+      expect(parseJudgeText(raw(true, evidence), v2).unparsed).toBe(true);
     },
   );
-  it('preserves the strict decoder for existing recordings', () => {
+  it('keeps the strict decoder as the default and for existing recordings', () => {
+    expect(parseJudgeText(raw(true), request).unparsed).toBe(true);
     expect(parseJudgeText(raw(true), { ...request, criterionDecoderVersion: 1 }).unparsed).toBe(true);
   });
   it('does not change the prompt, fingerprint or provider schema', () => {
-    const strict = { ...request, criterionDecoderVersion: 1 as const };
     expect(PROMPT_FINGERPRINT).toBe('398673b792c1');
-    expect(buildPrompt(request)).toEqual(buildPrompt(strict));
-    expect(responseSchema(request)).toEqual(responseSchema(strict));
-    expect(JSON.stringify(responseSchema(request))).not.toContain('grounded');
+    expect(buildPrompt(v2)).toEqual(buildPrompt(request));
+    expect(responseSchema(v2)).toEqual(responseSchema(request));
+    expect(JSON.stringify(responseSchema(v2))).not.toContain('grounded');
   });
-  it('versions default cassette keys independently of unchanged prompt bytes', () => {
-    expect(requestKey(request)).not.toBe(requestKey({ ...request, criterionDecoderVersion: 1 }));
-    expect(requestKey(request)).toBe(requestKey({ ...request, criterionDecoderVersion: 2 }));
+  it('keys v2 apart while default keys stay unversioned', () => {
+    expect(requestKey(request)).toBe(requestKey({ ...request, criterionDecoderVersion: 1 }));
+    expect(requestKey(v2)).not.toBe(requestKey(request));
     for (const other of [
       { ...request, answerContract: 'legacy' as const },
       { ...request, assessment: { kind: 'pairwise' as const } },
       { ...request, assessment: { kind: 'conformance' as const, reference: 'r' } },
     ]) {
-      expect(requestKey({ ...other, criterionDecoderVersion: 1 })).toBe(requestKey(other));
+      expect(requestKey({ ...other, criterionDecoderVersion: 2 })).toBe(requestKey(other));
     }
-    expect(requestKey(request, { cls: 'system1' })).toBe(
-      requestKey({ ...request, criterionDecoderVersion: 1 }, { cls: 'system1' }),
-    );
+    expect(requestKey(v2, { cls: 'system1' })).toBe(requestKey(request, { cls: 'system1' }));
   });
-  it('records v2 identity and replays the same nulled evidence', async () => {
-    const cassette = emptyCassette();
+  it('records v2 identity only when opted in and replays the same nulled evidence', async () => {
+    const strict = emptyCassette();
     const client: JudgeClient = {
       id: 'test',
       family: 'test',
@@ -85,7 +84,12 @@ describe('criterion decoder v2', () => {
         return parseJudgeText(raw(true), r);
       },
     };
-    const result = await recordingClient(client, cassette).judge(request);
+    await recordingClient(client, strict).judge(request);
+    expect(strict.entries[0]).not.toHaveProperty('criterionDecoderVersion');
+    expect(strict.entries[0]?.key).toBe(requestKey(request, client));
+    const cassette = emptyCassette();
+    const result = await recordingClient(client, cassette).judge(v2);
+    expect(result.evidenceUnverified).toBe(1);
     expect(cassette.entries[0]?.criterionDecoderVersion).toBe(2);
     expect(await playerClient(cassette, 'test').judge(request)).toEqual(result);
     await expect(

@@ -1,6 +1,6 @@
 {
-  "measuredAt": "2026-10-13T10:11:28.557Z",
-  "packageBase": "54b0f9046da2171314d742bcdbfa743f7fd53206",
+  "measuredAt": "2026-10-13T13:09:43.383Z",
+  "packageBase": "6808aac71e898081c03f9e4b769e52d6f6405193",
   "recordingCommit": "d25cc282013bcb170d7bd6e0c4ab0fdc6c4fa85d",
   "snapshotSha256": "af00f157f03bf6524cd3a81d4b0e22004e3481c48f8d969d49cb933827a2859b",
   "modelCalls": 0,
@@ -654,8 +654,8 @@
       "planned": 180,
       "status": "recorded",
       "recordedFingerprint": "398673b792c1",
-      "baselineCorrect": 168,
-      "candidateCorrect": 168,
+      "baselineCorrect": 173,
+      "candidateCorrect": 173,
       "fixes": 0,
       "breaks": 0,
       "changed": 0,
@@ -722,8 +722,8 @@
       "planned": 120,
       "status": "recorded",
       "recordedFingerprint": "398673b792c1",
-      "baselineCorrect": 104,
-      "candidateCorrect": 104,
+      "baselineCorrect": 119,
+      "candidateCorrect": 119,
       "fixes": 0,
       "breaks": 0,
       "changed": 0,
@@ -735,8 +735,8 @@
       "planned": 120,
       "status": "recorded",
       "recordedFingerprint": "398673b792c1",
-      "baselineCorrect": 100,
-      "candidateCorrect": 100,
+      "baselineCorrect": 101,
+      "candidateCorrect": 101,
       "fixes": 0,
       "breaks": 0,
       "changed": 0,
@@ -803,8 +803,8 @@
       "planned": 120,
       "status": "recorded",
       "recordedFingerprint": "398673b792c1",
-      "baselineCorrect": 97,
-      "candidateCorrect": 97,
+      "baselineCorrect": 101,
+      "candidateCorrect": 101,
       "fixes": 0,
       "breaks": 0,
       "changed": 0,
@@ -858,8 +858,8 @@
       "planned": 72,
       "status": "recorded",
       "recordedFingerprint": "398673b792c1",
-      "baselineCorrect": 55,
-      "candidateCorrect": 55,
+      "baselineCorrect": 71,
+      "candidateCorrect": 71,
       "fixes": 0,
       "breaks": 0,
       "changed": 0,
@@ -871,8 +871,8 @@
       "planned": 72,
       "status": "recorded",
       "recordedFingerprint": "398673b792c1",
-      "baselineCorrect": 63,
-      "candidateCorrect": 63,
+      "baselineCorrect": 64,
+      "candidateCorrect": 64,
       "fixes": 0,
       "breaks": 0,
       "changed": 0,
@@ -26647,8 +26647,8 @@
       "truth": "fail",
       "recordedOutcome": "inconclusive",
       "transportError": false,
-      "baseline": "inconclusive",
-      "candidate": "inconclusive"
+      "baseline": "fail",
+      "candidate": "fail"
     },
     {
       "set": "bench-current/map-reference/haiku",
@@ -26890,8 +26890,8 @@
       "truth": "fail",
       "recordedOutcome": "inconclusive",
       "transportError": false,
-      "baseline": "inconclusive",
-      "candidate": "inconclusive"
+      "baseline": "fail",
+      "candidate": "fail"
     },
     {
       "set": "bench-current/map-reference/haiku",
@@ -27475,8 +27475,8 @@
       "truth": "fail",
       "recordedOutcome": "inconclusive",
       "transportError": false,
-      "baseline": "inconclusive",
-      "candidate": "inconclusive"
+      "baseline": "fail",
+      "candidate": "fail"
     },
     {
       "set": "bench-current/map-reference/haiku",
@@ -27574,8 +27574,8 @@
       "truth": "fail",
       "recordedOutcome": "inconclusive",
       "transportError": false,
-      "baseline": "inconclusive",
-      "candidate": "inconclusive"
+      "baseline": "fail",
+      "candidate": "fail"
     },
     {
       "set": "bench-current/map-reference/haiku",
@@ -27682,8 +27682,8 @@
       "truth": "fail",
       "recordedOutcome": "inconclusive",
       "transportError": false,
-      "baseline": "inconclusive",
-      "candidate": "inconclusive"
+      "baseline": "fail",
+      "candidate": "fail"
     },
     {
       "set": "bench-current/map-reference/haiku",
@@ -29140,8 +29140,8 @@
       "truth": "pass",
       "recordedOutcome": "inconclusive",
       "transportError": false,
-      "baseline": "inconclusive",
-      "candidate": "inconclusive"
+      "baseline": "fail",
+      "candidate": "fail"
     },
     {
       "set": "bench-current/map-reference/gpt-6-luna",
@@ -31552,8 +31552,8 @@
       "truth": "fail",
       "recordedOutcome": "inconclusive",
       "transportError": false,
-      "baseline": "inconclusive",
-      "candidate": "inconclusive"
+      "baseline": "fail",
+      "candidate": "fail"
     },
     {
       "set": "bench-current/hard-factuality/haiku",
@@ -31561,8 +31561,8 @@
       "truth": "pass",
       "recordedOutcome": "inconclusive",
       "transportError": false,
-      "baseline": "inconclusive",
-      "candidate": "inconclusive"
+      "baseline": "pass",
+      "candidate": "pass"
     },
     {
       "set": "bench-current/hard-factuality/haiku",
@@ -31588,8 +31588,8 @@
       "truth": "pass",
       "recordedOutcome": "inconclusive",
       "transportError": false,
-      "baseline": "inconclusive",
-      "candidate": "inconclusive"
+      "baseline": "pass",
+      "candidate": "pass"
     },
     {
       "set": "bench-current/hard-factuality/haiku",
@@ -31606,8 +31606,8 @@
       "truth": "pass",
       "recordedOutcome": "inconclusive",
       "transportError": false,
-      "baseline": "inconclusive",
-      "candidate": "inconclusive"
+      "baseline": "pass",
+      "candidate": "pass"
     },
     {
       "set": "bench-current/hard-factuality/haiku",
@@ -31750,8 +31750,8 @@
       "truth": "fail",
       "recordedOutcome": "inconclusive",
       "transportError": false,
-      "baseline": "inconclusive",
-      "candidate": "inconclusive"
+      "baseline": "fail",
+      "candidate": "fail"
     },
     {
       "set": "bench-current/hard-factuality/haiku",
@@ -32029,8 +32029,8 @@
       "truth": "fail",
       "recordedOutcome": "inconclusive",
       "transportError": false,
-      "baseline": "inconclusive",
-      "candidate": "inconclusive"
+      "baseline": "fail",
+      "candidate": "fail"
     },
     {
       "set": "bench-current/hard-factuality/haiku",
@@ -32056,8 +32056,8 @@
       "truth": "fail",
       "recordedOutcome": "inconclusive",
       "transportError": false,
-      "baseline": "inconclusive",
-      "candidate": "inconclusive"
+      "baseline": "fail",
+      "candidate": "fail"
     },
     {
       "set": "bench-current/hard-factuality/haiku",
@@ -32119,8 +32119,8 @@
       "truth": "fail",
       "recordedOutcome": "inconclusive",
       "transportError": false,
-      "baseline": "inconclusive",
-      "candidate": "inconclusive"
+      "baseline": "fail",
+      "candidate": "fail"
     },
     {
       "set": "bench-current/hard-factuality/haiku",
@@ -32227,8 +32227,8 @@
       "truth": "pass",
       "recordedOutcome": "inconclusive",
       "transportError": false,
-      "baseline": "inconclusive",
-      "candidate": "inconclusive"
+      "baseline": "pass",
+      "candidate": "pass"
     },
     {
       "set": "bench-current/hard-factuality/haiku",
@@ -32416,8 +32416,8 @@
       "truth": "fail",
       "recordedOutcome": "inconclusive",
       "transportError": false,
-      "baseline": "inconclusive",
-      "candidate": "inconclusive"
+      "baseline": "fail",
+      "candidate": "fail"
     },
     {
       "set": "bench-current/hard-factuality/haiku",
@@ -32479,8 +32479,8 @@
       "truth": "fail",
       "recordedOutcome": "inconclusive",
       "transportError": false,
-      "baseline": "inconclusive",
-      "candidate": "inconclusive"
+      "baseline": "fail",
+      "candidate": "fail"
     },
     {
       "set": "bench-current/hard-factuality/haiku",
@@ -32524,8 +32524,8 @@
       "truth": "pass",
       "recordedOutcome": "inconclusive",
       "transportError": false,
-      "baseline": "inconclusive",
-      "candidate": "inconclusive"
+      "baseline": "pass",
+      "candidate": "pass"
     },
     {
       "set": "bench-current/hard-factuality/haiku",
@@ -32542,8 +32542,8 @@
       "truth": "fail",
       "recordedOutcome": "inconclusive",
       "transportError": false,
-      "baseline": "inconclusive",
-      "candidate": "inconclusive"
+      "baseline": "fail",
+      "candidate": "fail"
     },
     {
       "set": "bench-current/hard-factuality/haiku",
@@ -32605,8 +32605,8 @@
       "truth": "fail",
       "recordedOutcome": "inconclusive",
       "transportError": false,
-      "baseline": "inconclusive",
-      "candidate": "inconclusive"
+      "baseline": "fail",
+      "candidate": "fail"
     },
     {
       "set": "bench-current/hard-factuality/haiku",
@@ -32614,8 +32614,8 @@
       "truth": "fail",
       "recordedOutcome": "inconclusive",
       "transportError": false,
-      "baseline": "inconclusive",
-      "candidate": "inconclusive"
+      "baseline": "fail",
+      "candidate": "fail"
     },
     {
       "set": "bench-current/hard-factuality/gpt-6-luna",
@@ -33595,8 +33595,8 @@
       "truth": "fail",
       "recordedOutcome": "inconclusive",
       "transportError": false,
-      "baseline": "inconclusive",
-      "candidate": "inconclusive"
+      "baseline": "fail",
+      "candidate": "fail"
     },
     {
       "set": "bench-current/hard-factuality/gpt-6-luna",
@@ -37150,8 +37150,8 @@
       "truth": "fail",
       "recordedOutcome": "inconclusive",
       "transportError": false,
-      "baseline": "inconclusive",
-      "candidate": "inconclusive"
+      "baseline": "fail",
+      "candidate": "fail"
     },
     {
       "set": "bench-current/hard-goal/gpt-6-luna",
@@ -37213,8 +37213,8 @@
       "truth": "fail",
       "recordedOutcome": "inconclusive",
       "transportError": false,
-      "baseline": "inconclusive",
-      "candidate": "inconclusive"
+      "baseline": "fail",
+      "candidate": "fail"
     },
     {
       "set": "bench-current/hard-goal/gpt-6-luna",
@@ -37222,8 +37222,8 @@
       "truth": "fail",
       "recordedOutcome": "inconclusive",
       "transportError": false,
-      "baseline": "inconclusive",
-      "candidate": "inconclusive"
+      "baseline": "fail",
+      "candidate": "fail"
     },
     {
       "set": "bench-current/hard-goal/gpt-6-luna",
@@ -37465,8 +37465,8 @@
       "truth": "fail",
       "recordedOutcome": "inconclusive",
       "transportError": false,
-      "baseline": "inconclusive",
-      "candidate": "inconclusive"
+      "baseline": "fail",
+      "candidate": "fail"
     },
     {
       "set": "bench-current/hard-goal/gpt-6-luna",
@@ -39319,8 +39319,8 @@
       "truth": "fail",
       "recordedOutcome": "inconclusive",
       "transportError": false,
-      "baseline": "inconclusive",
-      "candidate": "inconclusive"
+      "baseline": "fail",
+      "candidate": "fail"
     },
     {
       "set": "bench-current/heldout-factuality/haiku",
@@ -39355,8 +39355,8 @@
       "truth": "fail",
       "recordedOutcome": "inconclusive",
       "transportError": false,
-      "baseline": "inconclusive",
-      "candidate": "inconclusive"
+      "baseline": "fail",
+      "candidate": "fail"
     },
     {
       "set": "bench-current/heldout-factuality/haiku",
@@ -39364,8 +39364,8 @@
       "truth": "fail",
       "recordedOutcome": "inconclusive",
       "transportError": false,
-      "baseline": "inconclusive",
-      "candidate": "inconclusive"
+      "baseline": "fail",
+      "candidate": "fail"
     },
     {
       "set": "bench-current/heldout-factuality/haiku",
@@ -39373,8 +39373,8 @@
       "truth": "fail",
       "recordedOutcome": "inconclusive",
       "transportError": false,
-      "baseline": "inconclusive",
-      "candidate": "inconclusive"
+      "baseline": "fail",
+      "candidate": "fail"
     },
     {
       "set": "bench-current/heldout-factuality/haiku",
@@ -39382,8 +39382,8 @@
       "truth": "pass",
       "recordedOutcome": "inconclusive",
       "transportError": false,
-      "baseline": "inconclusive",
-      "candidate": "inconclusive"
+      "baseline": "pass",
+      "candidate": "pass"
     },
     {
       "set": "bench-current/heldout-factuality/haiku",
@@ -39445,8 +39445,8 @@
       "truth": "fail",
       "recordedOutcome": "inconclusive",
       "transportError": false,
-      "baseline": "inconclusive",
-      "candidate": "inconclusive"
+      "baseline": "fail",
+      "candidate": "fail"
     },
     {
       "set": "bench-current/heldout-factuality/haiku",
@@ -39517,8 +39517,8 @@
       "truth": "fail",
       "recordedOutcome": "inconclusive",
       "transportError": false,
-      "baseline": "inconclusive",
-      "candidate": "inconclusive"
+      "baseline": "fail",
+      "candidate": "fail"
     },
     {
       "set": "bench-current/heldout-factuality/haiku",
@@ -39544,8 +39544,8 @@
       "truth": "fail",
       "recordedOutcome": "inconclusive",
       "transportError": false,
-      "baseline": "inconclusive",
-      "candidate": "inconclusive"
+      "baseline": "fail",
+      "candidate": "fail"
     },
     {
       "set": "bench-current/heldout-factuality/haiku",
@@ -39580,8 +39580,8 @@
       "truth": "fail",
       "recordedOutcome": "inconclusive",
       "transportError": false,
-      "baseline": "inconclusive",
-      "candidate": "inconclusive"
+      "baseline": "fail",
+      "candidate": "fail"
     },
     {
       "set": "bench-current/heldout-factuality/haiku",
@@ -39634,8 +39634,8 @@
       "truth": "fail",
       "recordedOutcome": "inconclusive",
       "transportError": false,
-      "baseline": "inconclusive",
-      "candidate": "inconclusive"
+      "baseline": "fail",
+      "candidate": "fail"
     },
     {
       "set": "bench-current/heldout-factuality/haiku",
@@ -39688,8 +39688,8 @@
       "truth": "fail",
       "recordedOutcome": "inconclusive",
       "transportError": false,
-      "baseline": "inconclusive",
-      "candidate": "inconclusive"
+      "baseline": "fail",
+      "candidate": "fail"
     },
     {
       "set": "bench-current/heldout-factuality/haiku",
@@ -39706,8 +39706,8 @@
       "truth": "pass",
       "recordedOutcome": "inconclusive",
       "transportError": false,
-      "baseline": "inconclusive",
-      "candidate": "inconclusive"
+      "baseline": "pass",
+      "candidate": "pass"
     },
     {
       "set": "bench-current/heldout-factuality/haiku",
@@ -39733,8 +39733,8 @@
       "truth": "fail",
       "recordedOutcome": "inconclusive",
       "transportError": false,
-      "baseline": "inconclusive",
-      "candidate": "inconclusive"
+      "baseline": "fail",
+      "candidate": "fail"
     },
     {
       "set": "bench-current/heldout-factuality/haiku",
@@ -39895,8 +39895,8 @@
       "truth": "fail",
       "recordedOutcome": "inconclusive",
       "transportError": false,
-      "baseline": "inconclusive",
-      "candidate": "inconclusive"
+      "baseline": "fail",
+      "candidate": "fail"
     },
     {
       "set": "bench-current/heldout-factuality/haiku",
@@ -39949,8 +39949,8 @@
       "truth": "pass",
       "recordedOutcome": "inconclusive",
       "transportError": false,
-      "baseline": "inconclusive",
-      "candidate": "inconclusive"
+      "baseline": "pass",
+      "candidate": "pass"
     },
     {
       "set": "bench-current/heldout-factuality/haiku",
@@ -39958,8 +39958,8 @@
       "truth": "fail",
       "recordedOutcome": "inconclusive",
       "transportError": false,
-      "baseline": "inconclusive",
-      "candidate": "inconclusive"
+      "baseline": "fail",
+      "candidate": "fail"
     },
     {
       "set": "bench-current/heldout-factuality/gpt-6-luna",
@@ -40192,8 +40192,8 @@
       "truth": "fail",
       "recordedOutcome": "inconclusive",
       "transportError": false,
-      "baseline": "inconclusive",
-      "candidate": "inconclusive"
+      "baseline": "fail",
+      "candidate": "fail"
     },
     {
       "set": "bench-current/heldout-factuality/gpt-6-luna",
@@ -48780,6 +48780,309 @@
       "transportError": false,
       "baseline": "fail",
       "candidate": "fail"
+    }
+  ],
+  "baselineMovedOnMain": [
+    {
+      "set": "bench-current/map-reference/haiku",
+      "id": "map-langfuse-reference-049",
+      "truth": "fail",
+      "was": "inconclusive",
+      "now": "fail"
+    },
+    {
+      "set": "bench-current/map-reference/haiku",
+      "id": "map-langfuse-reference-079",
+      "truth": "fail",
+      "was": "inconclusive",
+      "now": "fail"
+    },
+    {
+      "set": "bench-current/map-reference/haiku",
+      "id": "map-langfuse-reference-017",
+      "truth": "fail",
+      "was": "inconclusive",
+      "now": "fail"
+    },
+    {
+      "set": "bench-current/map-reference/haiku",
+      "id": "map-langfuse-reference-144",
+      "truth": "fail",
+      "was": "inconclusive",
+      "now": "fail"
+    },
+    {
+      "set": "bench-current/map-reference/haiku",
+      "id": "map-langfuse-reference-085",
+      "truth": "fail",
+      "was": "inconclusive",
+      "now": "fail"
+    },
+    {
+      "set": "bench-current/map-reference/gpt-6-luna",
+      "id": "map-langfuse-reference-038",
+      "truth": "pass",
+      "was": "inconclusive",
+      "now": "fail"
+    },
+    {
+      "set": "bench-current/hard-factuality/haiku",
+      "id": "factuality.003",
+      "truth": "fail",
+      "was": "inconclusive",
+      "now": "fail"
+    },
+    {
+      "set": "bench-current/hard-factuality/haiku",
+      "id": "factuality.005",
+      "truth": "pass",
+      "was": "inconclusive",
+      "now": "pass"
+    },
+    {
+      "set": "bench-current/hard-factuality/haiku",
+      "id": "factuality.007",
+      "truth": "pass",
+      "was": "inconclusive",
+      "now": "pass"
+    },
+    {
+      "set": "bench-current/hard-factuality/haiku",
+      "id": "factuality.006",
+      "truth": "pass",
+      "was": "inconclusive",
+      "now": "pass"
+    },
+    {
+      "set": "bench-current/hard-factuality/haiku",
+      "id": "factuality.024",
+      "truth": "fail",
+      "was": "inconclusive",
+      "now": "fail"
+    },
+    {
+      "set": "bench-current/hard-factuality/haiku",
+      "id": "factuality.055",
+      "truth": "fail",
+      "was": "inconclusive",
+      "now": "fail"
+    },
+    {
+      "set": "bench-current/hard-factuality/haiku",
+      "id": "factuality.059",
+      "truth": "fail",
+      "was": "inconclusive",
+      "now": "fail"
+    },
+    {
+      "set": "bench-current/hard-factuality/haiku",
+      "id": "factuality.066",
+      "truth": "fail",
+      "was": "inconclusive",
+      "now": "fail"
+    },
+    {
+      "set": "bench-current/hard-factuality/haiku",
+      "id": "factuality.078",
+      "truth": "pass",
+      "was": "inconclusive",
+      "now": "pass"
+    },
+    {
+      "set": "bench-current/hard-factuality/haiku",
+      "id": "factuality.097",
+      "truth": "fail",
+      "was": "inconclusive",
+      "now": "fail"
+    },
+    {
+      "set": "bench-current/hard-factuality/haiku",
+      "id": "factuality.106",
+      "truth": "fail",
+      "was": "inconclusive",
+      "now": "fail"
+    },
+    {
+      "set": "bench-current/hard-factuality/haiku",
+      "id": "factuality.109",
+      "truth": "pass",
+      "was": "inconclusive",
+      "now": "pass"
+    },
+    {
+      "set": "bench-current/hard-factuality/haiku",
+      "id": "factuality.111",
+      "truth": "fail",
+      "was": "inconclusive",
+      "now": "fail"
+    },
+    {
+      "set": "bench-current/hard-factuality/haiku",
+      "id": "factuality.120",
+      "truth": "fail",
+      "was": "inconclusive",
+      "now": "fail"
+    },
+    {
+      "set": "bench-current/hard-factuality/haiku",
+      "id": "factuality.119",
+      "truth": "fail",
+      "was": "inconclusive",
+      "now": "fail"
+    },
+    {
+      "set": "bench-current/hard-factuality/gpt-6-luna",
+      "id": "factuality.110",
+      "truth": "fail",
+      "was": "inconclusive",
+      "now": "fail"
+    },
+    {
+      "set": "bench-current/hard-goal/gpt-6-luna",
+      "id": "goal.025",
+      "truth": "fail",
+      "was": "inconclusive",
+      "now": "fail"
+    },
+    {
+      "set": "bench-current/hard-goal/gpt-6-luna",
+      "id": "goal.033",
+      "truth": "fail",
+      "was": "inconclusive",
+      "now": "fail"
+    },
+    {
+      "set": "bench-current/hard-goal/gpt-6-luna",
+      "id": "goal.026",
+      "truth": "fail",
+      "was": "inconclusive",
+      "now": "fail"
+    },
+    {
+      "set": "bench-current/hard-goal/gpt-6-luna",
+      "id": "goal.062",
+      "truth": "fail",
+      "was": "inconclusive",
+      "now": "fail"
+    },
+    {
+      "set": "bench-current/heldout-factuality/haiku",
+      "id": "heldout-factuality.001",
+      "truth": "fail",
+      "was": "inconclusive",
+      "now": "fail"
+    },
+    {
+      "set": "bench-current/heldout-factuality/haiku",
+      "id": "heldout-factuality.002",
+      "truth": "fail",
+      "was": "inconclusive",
+      "now": "fail"
+    },
+    {
+      "set": "bench-current/heldout-factuality/haiku",
+      "id": "heldout-factuality.006",
+      "truth": "fail",
+      "was": "inconclusive",
+      "now": "fail"
+    },
+    {
+      "set": "bench-current/heldout-factuality/haiku",
+      "id": "heldout-factuality.007",
+      "truth": "fail",
+      "was": "inconclusive",
+      "now": "fail"
+    },
+    {
+      "set": "bench-current/heldout-factuality/haiku",
+      "id": "heldout-factuality.008",
+      "truth": "pass",
+      "was": "inconclusive",
+      "now": "pass"
+    },
+    {
+      "set": "bench-current/heldout-factuality/haiku",
+      "id": "heldout-factuality.015",
+      "truth": "fail",
+      "was": "inconclusive",
+      "now": "fail"
+    },
+    {
+      "set": "bench-current/heldout-factuality/haiku",
+      "id": "heldout-factuality.022",
+      "truth": "fail",
+      "was": "inconclusive",
+      "now": "fail"
+    },
+    {
+      "set": "bench-current/heldout-factuality/haiku",
+      "id": "heldout-factuality.026",
+      "truth": "fail",
+      "was": "inconclusive",
+      "now": "fail"
+    },
+    {
+      "set": "bench-current/heldout-factuality/haiku",
+      "id": "heldout-factuality.030",
+      "truth": "fail",
+      "was": "inconclusive",
+      "now": "fail"
+    },
+    {
+      "set": "bench-current/heldout-factuality/haiku",
+      "id": "heldout-factuality.036",
+      "truth": "fail",
+      "was": "inconclusive",
+      "now": "fail"
+    },
+    {
+      "set": "bench-current/heldout-factuality/haiku",
+      "id": "heldout-factuality.043",
+      "truth": "fail",
+      "was": "inconclusive",
+      "now": "fail"
+    },
+    {
+      "set": "bench-current/heldout-factuality/haiku",
+      "id": "heldout-factuality.045",
+      "truth": "pass",
+      "was": "inconclusive",
+      "now": "pass"
+    },
+    {
+      "set": "bench-current/heldout-factuality/haiku",
+      "id": "heldout-factuality.047",
+      "truth": "fail",
+      "was": "inconclusive",
+      "now": "fail"
+    },
+    {
+      "set": "bench-current/heldout-factuality/haiku",
+      "id": "heldout-factuality.067",
+      "truth": "fail",
+      "was": "inconclusive",
+      "now": "fail"
+    },
+    {
+      "set": "bench-current/heldout-factuality/haiku",
+      "id": "heldout-factuality.071",
+      "truth": "pass",
+      "was": "inconclusive",
+      "now": "pass"
+    },
+    {
+      "set": "bench-current/heldout-factuality/haiku",
+      "id": "heldout-factuality.072",
+      "truth": "fail",
+      "was": "inconclusive",
+      "now": "fail"
+    },
+    {
+      "set": "bench-current/heldout-factuality/gpt-6-luna",
+      "id": "heldout-factuality.026",
+      "truth": "fail",
+      "was": "inconclusive",
+      "now": "fail"
     }
   ]
 }

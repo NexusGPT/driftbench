@@ -61,7 +61,7 @@ export type JudgeRequest = {
   readonly referenceDisagreement?: boolean;
   /** Previous model-facing prompt and parser, for exact replay of existing scores. Default ledger. */
   readonly answerContract?: 'ledger' | 'legacy';
-  /** Default-ledger decoder. Version 1 preserves strict historical quote rejection. Default 2. */
+  /** Default-ledger decoder. Default 1: strict quote rejection. Opt-in 2 nulls an ungrounded string quote. */
   readonly criterionDecoderVersion?: CriterionDecoderVersion;
   /** Exact requirement ids and definitions to check. Absent: the criterion name and full rubric. */
   readonly requirements?: readonly CriterionRequirement[];

@@ -25,10 +25,8 @@ const parse = (evidence: unknown, met: boolean | null = true, r: JudgeRequest = 
 describe('criterion evidence spans are grounded in their named sources', () => {
   it('preserves the real unmet threshold judgment with separate spans, without guessing a pipe split', () => {
     const r = recorded.request as JudgeRequest;
-    expect(parseJudgeText(recorded.raw_ledger_response, { ...r, criterionDecoderVersion: 1 }).unparsed).toBe(
-      true,
-    );
-    expect(parseJudgeText(recorded.raw_ledger_response, r)).toMatchObject({
+    expect(parseJudgeText(recorded.raw_ledger_response, r).unparsed).toBe(true);
+    expect(parseJudgeText(recorded.raw_ledger_response, { ...r, criterionDecoderVersion: 2 })).toMatchObject({
       answer: { outcome: 'fail' },
       evidenceUnverified: 1,
       checks: [{ met: false, evidence: null, grounded: false }],
