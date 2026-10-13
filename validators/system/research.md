@@ -91,4 +91,15 @@ Finding: liveChannel only passes the key to remember, which returns immediately 
 
 Mechanism: compute the block key only with a cache. Two red uncached tests see three calls each, then pass after the fix. A third case confirms cached live and replay keys stay identical. Full seed 1 moves from 2361 to 2362/2384, with all scale items passing. The five-seed stage completes 5 of 21 with 2359/2384 passing every completed seed; free-running seed 3 and teacher-forced seed 4 still exceed 25. The numeric registry prefix also fails seed 4. No bank or limit changes.
 
-Private follow-up probes: descending and sparse array construction have mixed results. Hybrid eager scalar-message copies slow actual teacher-forced flows and are rejected. Moving reply contact extraction before historical ledger scanning preserves exact verdict projections but fails to improve teacher-forced growth; it is not implemented. The remaining shared lazy-array allocation cost needs a different mechanism.
+Private follow-up probes: descending and sparse array construction have mixed results. The hybrid adapter and copied-runner timings are withdrawn after instrumentation finds zero borrowed prefixes: the private CommonJS modules duplicate the ESM ownership marker. Corrected ESM probes borrow all 924 opened prefixes. The ledger reordering preserves exact verdict projections but still has teacher-forced failures; it is not implemented. The remaining shared lazy-array allocation cost needs a different mechanism.
+
+
+## 2026-10-13: message-field snapshot representation
+
+Question: can ordinary callback arrays avoid indexed accessor dictionaries while retaining mutable writes, unread fields and structuredClone?
+
+Sources: packages/core/src/contracts/history.ts (lazyHistoryCopy and immutableHistorySource); packages/adapters/src/function/index.ts (callback and exposed-session boundary); docs/adapters/index.md (snapshot ownership and compatibility); packages/core/test/history-fields.test.ts.
+
+Finding: a 400-message snapshot creates 400 indexed array accessors. Reading a message role also reads its content getter. Both deterministic tests fail before the representation change. Private copied adapters must be ESM: CommonJS reloads the marker module and forces prefix cloning, invalidating those earlier performance comparisons. Instrumented corrected ESM probes borrow all opened prefixes.
+
+Mechanism committed as 5b628263: retain data slots holding private message objects, capture primitive fields, and share per-field getters for nested JSON and accessors. Cache field templates only for explicitly immutable sources. Proxy and non-plain messages keep the prior indexed fallback. Compatibility checks pass, including structuredClone, frozen/sealed objects, unread proxies and sparse inputs. The 15 targeted growth checks pass 13 cases; seed 3 free-running is 25.5 and teacher-forced is 31.5 against 25. Those probes are not complete bank seeds and do not prove growth is fixed. The full seed-1 bank measurement stays level 7, with 2361/2384 passing and free-running growth 28.6 against 25. Teacher-forced and replay pass. Coverage is 1 of 21.
