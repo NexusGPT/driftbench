@@ -24,8 +24,8 @@ The owner raises concurrency to six and the budget to USD 20.00. Last new call: 
 
 The owner authorizes TEST after 144/180 DEV, with six calls at a time and no new calls after 06:39 Brussels. An interrupted TEST is partial and resumes from the same frozen source hashes and cached calls after the outage. Resume requires `--resume --call-deadline <authorized ISO timestamp>`; a completed TEST cannot run again. The 22 of 90 invalid-evidence DEV pairs use length fallback.
 
-## Display-only export redactions
+## Consistent contact redaction
 
-The `explore.json` and `final-dev.json` exports replace one contact address with `support@example.com`. Each `quoteBRedaction` sibling marks `redacted: true`, records the SHA-256 of the original complete quote, and names its public benchmark item. Stored validity, scores, features and verdicts describe the original evaluation and remain unchanged. Raw recordings retain the original response.
+One approved benchmark contact is replaced with `support@example.com` in loaded candidates, recorded evidence and result exports. The loader scopes this replacement by item ID and the original address hash because other items contain contacts that must stay unchanged.
 
-When revalidating an export, skip exact candidate-substring matching for a quote whose sibling marks `redacted: true`. Report that quote as display-redacted, never as failed evidence or newly validated evidence. To verify the original quote, use the named item's raw recording and check its SHA-256. Live `readerBallot` validation is unchanged and accepts no redaction bypass.
+Exact candidate-substring validation applies without a bypass. Both affected prompt keys and the corresponding exported pair keys are recomputed. Scores remain unchanged. See [the redaction note](recordings/REDACTION.md) for provenance and replay verification. Historical freeze receipts retain the source hashes measured during the original study.

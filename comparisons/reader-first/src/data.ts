@@ -212,13 +212,24 @@ export function parseLongJudgeWp(text: string): PairItem[] {
       kind: 'pair',
       id: str(r.id),
       question: str(r.instruction),
-      a: first.content,
-      b: second.content,
+      a: redactCandidateEmail(str(r.id), first.content),
+      b: redactCandidateEmail(str(r.id), second.content),
       label: first.model === truth.chosen.model ? 'A' : 'B',
       group: str(meta.language) || 'all',
       language: str(meta.language),
     };
   });
+}
+
+// Replace only the approved item's hash-matched email; other benchmark contacts stay unchanged.
+function redactCandidateEmail(id: string, text: string): string {
+  if (id !== '43f5c75c-3554-4b10-b356-38ff14fb45ec') return text;
+  return text.replace(/[A-Za-z0-9._%+-]+@[A-Za-z0-9-]+(?:\.[A-Za-z0-9-]+)*\.[A-Za-z]{2,}/g, (address) =>
+    createHash('sha256').update(address.toLowerCase()).digest('hex') ===
+    'ca05b867c8c0007209a7d2d5136555ea3e8678a2b933898785a7ebb9bf7fb6df'
+      ? 'support@example.com'
+      : address,
+  );
 }
 
 /** LongJudgeBench verify_bench_hard: 316 math answers, each labelled correct or not by hand. */

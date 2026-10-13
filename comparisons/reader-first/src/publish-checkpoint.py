@@ -21,10 +21,11 @@ for path in paths:
             json.loads(line)
     output = []
     for line in lines:
-        for match in email.finditer(line):
+        contacts = [match for match in email.finditer(line) if match.group().lower() != "support@example.com"]
+        for match in contacts:
             if hashlib.sha256(match.group().encode()).hexdigest() not in verified:
                 raise RuntimeError("A quoted contact needs public-source verification before publication")
-        if email.search(line) and "guard:allow" not in line:
+        if contacts and "guard:allow" not in line:
             reason = "public benchmark generated contact retained for exact evidence validation"
             if path.suffix == ".jsonl":
                 value = json.loads(line)

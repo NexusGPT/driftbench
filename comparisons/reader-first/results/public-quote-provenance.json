@@ -1,9 +1,6 @@
 {
   "source": "longjudge-wp public dataset loaded by the frozen data.ts",
   "verifiedAt": "2026-10-13T04:53:39.971Z",
-  "quoteOccurrences": 3,
-  "emailSha256": [
-    "ca05b867c8c0007209a7d2d5136555ea3e8678a2b933898785a7ebb9bf7fb6df",
-    "7afc0f4f5fae48383afe6cf25fca735381bd8a624815dfca87092e58d3cfd85f"
-  ]
+  "quoteOccurrences": 2,
+  "emailSha256": ["7afc0f4f5fae48383afe6cf25fca735381bd8a624815dfca87092e58d3cfd85f"]
 }
