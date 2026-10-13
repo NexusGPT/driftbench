@@ -49,7 +49,7 @@ Two kinds of verdict are inconclusive:
 | `relevancy` | `expect.relevancy` is set | `relevancy.terms`, with the share of key terms found as the score |
 | `knowledge_retention` | `expect.knowledge_retention` names a fact | `knowledge_retention.<fact>.asked`, and `knowledge_retention.<fact>.used` for an entry with `use: true` |
 | `lang` | `expect.lang` is set, or `rules.lang_stable` is true | `lang.expected`, `lang.stable` |
-| `pii` | the block has visible text | `pii.iban`, `pii.national_number`, `pii.phone`, `pii.email` |
+| `pii` | the block has visible text | `pii.iban`, `pii.national_number`, `pii.phone`, `pii.email`; opt-in `pii.personal_data` |
 | `cards` | `expect.cards` names a card, or `rules.one_message_per_turn` is true | `cards.<name>`, `cards.one_message_per_turn` |
 | `stage` | `expect.stage` is set and the runtime reported a stage, or `expect.stage_reported` is true | `stage.reached`, `stage.reported` |
 | `skills` | `expect.skills` names a skill | `skills.<name>` |
@@ -293,7 +293,26 @@ A failing `similarity` or `relevancy` verdict gives drift class X1; a failing `k
 
 The `pii` check is always on in `defaultChecks()` and gates. It reads the visible text and gives one verdict per kind: IBANs with a valid checksum, Belgian national register numbers with a valid check, phone numbers in international form and Belgian mobiles, and email addresses. Fictional data passes, with the same exceptions as the repository's leak guard, such as email addresses at `example.com`, `example.org`, `example.net` and `localhost` or under `.example`, `.test`, `.invalid` and `.localhost`, and phone numbers in the reserved North American range 555-0100 to 555-0199. The evidence masks each value and gives its offset, so a report never repeats the data it flags. The option `reservedDomains: 'include'` on `createPiiCheck` makes those reserved addresses findings too, for a comparison with a detector that does not know the convention; the default stays `exclude`. The judged detector `judgePersonalData` in `@agent-nexus/driftbench-judges` reads the text for a real person's name or a personal address, which the patterns cannot see. It answers `personal` or `none` and throws when the model gives no answer, so a judge failure is never read as a pass.
 
-A spec cannot configure the check. A caller can give it the owner's own values, so a replay of the owner's own sessions does not flag the address they typed or read:
+Names and personal addresses are **opt-in**, separate from the always-on regex checks. Set `expect.pii_judge: true` on each block to enable them:
+
+```yaml
+expect:
+  pii_judge: true
+```
+
+With a configured judge, the check adds the gating verdict `pii.personal_data`: `personal` fails and `none` passes. Missing configuration, a failed call or an unusable answer is gating `inconclusive`. An absent or false key makes no model call, even when a judge is configured. Empty replies make no call. Reports withhold names, addresses and provider error text.
+
+`driftbench replay` and `estate run` use the existing `--judge claude:<model>` and `--judge-budget <usd>` options for this call. The call shares the criterion judge's budget and cost accounting. `campaign run` does not configure a judge; an opted-in block there is inconclusive. A council passed to `defaultChecks({ judges: council })` supplies the detector too; its voting and retry policy can make multiple model calls. For a single SDK judge:
+
+```ts
+import { defaultChecks } from '@agent-nexus/driftbench-checks';
+import { judgePersonalData } from '@agent-nexus/driftbench-judges';
+
+// client is an explicitly configured JudgeClient; model calls may incur cost.
+const checks = defaultChecks({ piiJudge: (text) => judgePersonalData(client, text) });
+```
+
+The regex owner allowlist does not exempt names or addresses from the judge. A caller can give the regex check the owner's own identifier values, so a replay does not flag those identifiers:
 
 ```ts
 import { createPiiCheck, defaultChecks } from '@agent-nexus/driftbench-checks';
