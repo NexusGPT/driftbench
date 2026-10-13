@@ -11,13 +11,14 @@
 
 | Model | Our TEST score | Promptfoo TEST score | Longer-wins | Paired p | Actual / held USD | Status |
 | --- | --- | --- | --- | --- | --- | --- |
-| claude-sonnet-5-5 | 0/0 | 0/0 | 234/346 | None | 10.92762640 / 0.00000000 | pending |
+| claude-sonnet-5-5 | 110/178 | 116/180 | 234/346 | 0.5715881884098053 | 20.75912640 / 0.00000000 | pending |
 
 ### claude-sonnet-5-5
 - Freeze SHA256: `ead1bb79d939a1c01d38637dee38a534d922e0c13bee65bdac61c40249e61d1c`. Artifact folder: `examples/ledger-wp/cells/claude-sonnet-5-5/`.
 - Calibration projection: {"model": "claude-sonnet-5-5", "at": "2026-10-13T13:44:47.091650+00:00", "answeredCalls": 5, "calibrationUsd": 0.155604, "callsPerContestant": {"pair-ledger": 3, "promptfoo": 2}, "meanUsdPerCall": {"pair-ledger": 0.038233333333333334, "promptfoo": 0.020451999999999998}, "projectedPrimaryCalls": 713.0, "projectedPromptfooCalls": 602, "planningRate": 2.3687707641196014, "method": "Five calls from sealed pilot prefix; per-contestant mean cost times 301 comparisons. Primary calls per comparison use completed Flash Lite runtime counts. No calibration outcome drives tuning.", "projectedCellUsd": 39.98480506666667, "worstContractCallCountUsd": 81.7738384, "capUsd": 45, "separateFromOld35UsdCap": true}
-- pair-ledger: TEST cost 0.00000000 USD; all-phase cost 7.29996040 USD; output-cap calls 0; lost TEST items 0; missing TEST items 173; schema re-asks 1/247 costing 0.04040400 USD; HTTP 429 0; tokens {"input": 2131141, "output": 290802, "cacheRead": 1824, "cacheWrite": 32369}.
-- promptfoo: TEST cost 0.00000000 USD; all-phase cost 3.62766600 USD; output-cap calls 0; lost TEST items 0; missing TEST items 173; schema re-asks 0/0 costing 0.00000000 USD; HTTP 429 0; tokens {"input": 1676032, "output": 18833, "cacheRead": 0, "cacheWrite": 21818}.
+- pair-ledger: TEST cost 5.42256600 USD; all-phase cost 14.11663840 USD; output-cap calls 0; lost TEST items 0; missing TEST items 84; schema re-asks 2/485 costing 0.07821600 USD; HTTP 429 0; tokens {"input": 3711410, "output": 656416, "cacheRead": 1824, "cacheWrite": 32369}.
+- promptfoo: TEST cost 2.23615600 USD; all-phase cost 6.64248800 USD; output-cap calls 0; lost TEST items 0; missing TEST items 83; schema re-asks 0/0 costing 0.00000000 USD; HTTP 429 0; tokens {"input": 2920118, "output": 71498, "cacheRead": 0, "cacheWrite": 21818}.
+- Paired test: {"matchedPairs": 89, "wins": 12, "losses": 16, "deltaPoints": -2.247191011235955, "requestCluster95": [-9.659090909090908, 4.7368421052631575], "mcnemarTwoSided": 0.5715881884098053, "holm18": null, "holmStatus": "pending full cross-benchmark family; reader-first excluded from primary family"}. Game McNemar is nominal; interpret with the request-cluster interval. Any positive claim awaits family multiplicity handling.
 | gpt-6.1-sol | 0/0 | 0/0 | 234/346 | None | 3.39736520 / 15.75000000 | pending |
 
 ### gpt-6.1-sol

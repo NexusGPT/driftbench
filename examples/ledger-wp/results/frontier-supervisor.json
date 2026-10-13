@@ -1,11 +1,11 @@
 {
   "pid": 3701,
-  "status": "probe-spacing",
-  "at": "2026-10-13T15:53:19.842897+00:00",
+  "status": "blocked",
+  "at": "2026-10-13T16:28:27.038742+00:00",
   "cycle": 2,
   "activeModel": "claude-sonnet-5-5",
   "targets": {
-    "claude-sonnet-5-5": 26448
+    "claude-sonnet-5-5": 71823
   },
   "networkStops": [
     {
@@ -15,7 +15,6 @@
       "split": "dev"
     }
   ],
-  "nextAt": "2026-10-13T15:53:49.669478+00:00",
-  "consecutive": 3,
-  "required": 10
+  "reason": "Error: Shared network hold; fresh probe gate required",
+  "exitCode": 1
 }

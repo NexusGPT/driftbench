@@ -1,0 +1,8 @@
+{
+  "at": "2026-10-13T16:01:26.464Z",
+  "model": "claude-sonnet-5-5",
+  "healthyDev": 71,
+  "required": 20,
+  "passed": true,
+  "epochStart": "2026-10-13T15:56:49.864400+00:00"
+}
