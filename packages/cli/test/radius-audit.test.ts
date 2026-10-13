@@ -165,6 +165,51 @@ describe('--audit: a sample of the cells about to be carried runs fresh', () => 
     expect(out.out).toContain('171 cells: 146 pass, 25 fail, 0 failed, 20 reused.');
   });
 
+  it('draws the audited cells with --audit-seed: the same seed the same cells, another seed other cells', async () => {
+    const audited = async (id: string, seed: string[]) => {
+      const out = await cli(
+        run(id, 'acme-v2', [
+          '--change',
+          manifest('deviation-goal-shift'),
+          '--from',
+          'c-base',
+          '--audit',
+          '5',
+          ...seed,
+        ]),
+      );
+      expect(out.err).toBe('');
+      expect(out.code).toBe(0);
+      const fresh = (await runsOf(id)).filter((each) => each.carried === undefined);
+      // 9 cells in the radius and 5 audited run fresh.
+      expect(fresh).toHaveLength(14);
+      return {
+        out: out.out,
+        cells: fresh.map((each) => `${each.specId} ${each.mode} ${each.repeat}`).sort(),
+      };
+    };
+    const one = await audited('c-seed-default', []);
+    expect(one.out).toContain('(seed 1)');
+    const same = await audited('c-seed-1', ['--audit-seed', '1']);
+    expect(same.cells).toEqual(one.cells);
+    const other = await audited('c-seed-2', ['--audit-seed', '2']);
+    expect(other.out).toContain('(seed 2)');
+    expect(other.cells).not.toEqual(one.cells);
+
+    const alone = await cli(
+      run('c-bad-seed', 'acme-v2', [
+        '--change',
+        manifest('deviation-goal-shift'),
+        '--from',
+        'c-base',
+        '--audit-seed',
+        '2',
+      ]),
+    );
+    expect(alone.code).toBe(2);
+    expect(alone.err).toContain('--audit-seed sets the draw of an audit: it goes with --audit <n>.');
+  });
+
   it('refuses the audit flags without --change, and a size that is not a whole number', async () => {
     expect((await cli(run('c-bad', 'acme-v2', ['--audit', '5']))).code).toBe(2);
     expect((await cli(run('c-bad', 'acme-v2', ['--max-carry', '2']))).code).toBe(2);
