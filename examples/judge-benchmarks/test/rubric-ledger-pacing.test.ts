@@ -39,3 +39,20 @@ test('a reduced queue drains active work, preserves job order and terminates wit
   expect(maximum).toBe(4); expect(peakAfterReduction).toBeLessThanOrEqual(2);
   expect(seen).toEqual(jobs.map((j) => j.id));
 });
+
+
+test('recovery requires uninterrupted low load and no transport failure, and can fall back again', () => {
+  const pacing = new HaikuPacing(2), start = Date.parse('2026-10-13T12:00:00Z');
+  expect(pacing.update(39, [], start).limit).toBe(2);
+  expect(pacing.update(40, [], start + 599999).limit).toBe(2);
+  expect(pacing.update(39, [], start + 600000).limit).toBe(2);
+  expect(pacing.update(39, [], start + 1199999).limit).toBe(2);
+  expect(pacing.update(39, [], start + 1200000)).toMatchObject({ limit: 4, newlyRestored: true });
+  expect(pacing.update(61, [], start + 1200001)).toMatchObject({ limit: 2, newlyReduced: true });
+  const failure = { model: 'claude-haiku-5-5', status: 'error', error: 'fetch failed',
+    completedAt: new Date(start + 1500000).toISOString() } as LedgerCall;
+  expect(pacing.update(20, [], start + 1300000).limit).toBe(2);
+  expect(pacing.update(20, [failure], start + 1500000).limit).toBe(2);
+  expect(pacing.update(20, [failure], start + 2100000).limit).toBe(2);
+  expect(pacing.update(20, [failure], start + 2100001)).toMatchObject({ limit: 4, newlyRestored: true });
+});

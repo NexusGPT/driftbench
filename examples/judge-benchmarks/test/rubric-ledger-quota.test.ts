@@ -5,17 +5,18 @@ import { evaluate, validityFixtures } from '../src/rubric-ledger-live';
 import { type DialectTransport } from '@agent-nexus/driftbench-judges';
 import { scratch } from './scratch';
 
-test('Gemini cannot reserve before reset or at cutoff; owner word only bypasses the reset', async () => {
+test('Gemini cannot reserve before reset or at cutoff; reset alone never grants permission', async () => {
   const before = Date.parse('2026-10-13T23:59:59Z'), reset = Date.parse('2026-10-14T00:00:00Z');
   const cutoff = Date.parse('2026-10-14T12:00:00Z');
   expect(() => checkQuotaWindow('gemini-3.8-flash', before)).toThrow(LedgerRateLimitStop);
   expect(() => checkQuotaWindow('gemini-3.8-flash', before, true)).not.toThrow();
-  expect(() => checkQuotaWindow('gemini-3.8-flash', reset)).not.toThrow();
+  expect(() => checkQuotaWindow('gemini-3.8-flash', reset)).toThrow(LedgerRateLimitStop);
+  expect(() => checkQuotaWindow('gemini-3.8-flash', reset, true)).not.toThrow();
   expect(() => checkQuotaWindow('gemini-3.8-flash', cutoff, true)).toThrow(LedgerRateLimitStop);
   expect(() => checkQuotaWindow('claude-haiku-5-5', before)).not.toThrow();
   let clock = reset, submitted = 0;
   const calls = await new LedgerCalls(await scratch('quota-window-'), 1, Infinity,
-    (i) => checkQuotaWindow(i.model, clock)).load();
+    (i) => checkQuotaWindow(i.model, clock, true)).load();
   const identity = { model: 'gemini-3.8-flash', phase: 'test', item: 'fixture', contestant: 'promptfoo',
     sample: 0, ordinal: 0, request: {}, transportFingerprint: 'fixture' };
   const complete = async () => { submitted++; return { text: '0', raw: '{}', fingerprint: 'fixture', costUsd: .001 }; };

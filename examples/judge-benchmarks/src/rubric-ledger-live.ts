@@ -25,7 +25,7 @@ export const SETTINGS = {
   concurrency: 14, testOrderSeed: 'ledger-rb-test-order-v1',
   modelConcurrency: { 'claude-haiku-5-5': 4, 'gpt-6-luna': 8, 'gemini-3.8-flash': 2 },
   haikuPacing: { maximum: 4, fallback: 2, loadOneMinuteThreshold: 60,
-    errorTrigger: 'Two Haiku timeout, network or CLI process failures within ten minutes, using completion timestamps. Parse errors are judge results and never affect pacing. Reduction remains latched for the run; in-flight calls drain.' },
+    errorTrigger: 'Two Haiku timeout, network or CLI process failures within ten minutes, using completion timestamps. Parse errors are judge results and never affect pacing. Return to four only after load stays below 40 for ten minutes with no transport failure; in-flight calls drain. Persist the last limit across restarts; restart the recovery clock.' },
   rateLimitWaitMs: [60000, 120000, 240000],
   dailyQuotaWindow: GEMINI_WINDOW,
   providerBlockPolicy: 'An empty model answer with an explicit provider block/refusal reason is provider-blocked. Any blocked request makes the whole item an error for that contestant in the headline score, identically for ledger and promptfoo. The second score removes an item from both contestants on that model if either was provider-blocked. Nonempty model refusals are ordinary returned answers. Provider blocks are never retried.',
@@ -241,7 +241,7 @@ const sourcePaths = [
 
 async function main() {
   if (process.argv.includes('--help')) {
-    console.log('Usage: pnpm exec tsx --no-cache examples/judge-benchmarks/src/rubric-ledger-live.ts --phase seal|pilot|fixtures|noise|validity|provider-probe|test [--execute] [--models comma,list] [--recover-interrupted after verifying the prior runner stopped] [--billing-resume positive-epoch only after owner confirms top-up] [--probe-one-call with Gemini-only TEST] [--owner-quota-resume only with explicit authorization before reset]. Gemini otherwise resumes after 2026-10-14 00:00 UTC, with last-call cutoff 12:00 UTC.'); return;
+    console.log('Usage: pnpm exec tsx --no-cache examples/judge-benchmarks/src/rubric-ledger-live.ts --phase seal|pilot|fixtures|noise|validity|provider-probe|test [--execute] [--models comma,list] [--recover-interrupted after verifying the prior runner stopped] [--billing-resume positive-epoch only after owner confirms top-up] [--probe-one-call with Gemini-only TEST] [--owner-quota-resume only with explicit owner authorization]. Automatic Gemini reset resume is disarmed; last-call cutoff 2026-10-14 12:00 UTC.'); return;
   }
   const phase = process.argv[process.argv.indexOf('--phase') + 1];
   if (!['seal', 'pilot', 'fixtures', 'noise', 'validity', 'provider-probe', 'test'].includes(phase ?? '')) throw new Error('Select a phase; use --help');
@@ -306,13 +306,19 @@ async function main() {
   const selectedJobs = jobs.filter((j) => models.includes(j.model));
   const todo = selectedJobs.filter((j) => !done.has(decisionKey({ ...j, id: j.item.id })));
   let writes = Promise.resolve();
-  const pacing = new HaikuPacing();
+  const pacingPath = `${DIRECTORY}/haiku-runtime-pacing.jsonl`;
+  const lastPacing = (await readRecordingRows<{ limit: 2 | 4 }>(pacingPath)).at(-1);
+  const pacing = new HaikuPacing(lastPacing?.limit ?? 4);
   const currentLimit = (model: string, maximum: number) => {
     if (model !== 'claude-haiku-5-5') return maximum;
     const load = loadavg()[0]!;
     const state = pacing.update(load, calls.rows);
-    if (state.newlyReduced) console.error(JSON.stringify({ event: 'haiku-pacing-reduced', at: new Date().toISOString(),
-      limit: state.limit, reason: state.reason, loadOneMinute: load, recentTransportFailures: state.recentTransportFailures }));
+    if (state.newlyReduced || state.newlyRestored) {
+      const event = { event: state.newlyReduced ? 'haiku-pacing-reduced' : 'haiku-pacing-restored', at: new Date().toISOString(),
+        limit: state.limit, reason: state.reason, loadOneMinute: load, recentTransportFailures: state.recentTransportFailures };
+      console.error(JSON.stringify(event));
+      writes = writes.then(() => appendRecording(pacingPath, event));
+    }
     return Math.min(maximum, state.limit);
   };
   process.once('SIGUSR2', () => { stopped = true; console.error('Stop requested; draining in-flight work'); });

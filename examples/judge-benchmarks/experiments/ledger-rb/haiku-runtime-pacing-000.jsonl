@@ -1,0 +1,1 @@
+{"event": "haiku-pacing-reduced", "at": "2026-10-13T11:56:59.949Z", "limit": 2, "reason": "Restore observed pacing at graceful restart", "loadOneMinute": 65.81298828125, "recentTransportFailures": 0}

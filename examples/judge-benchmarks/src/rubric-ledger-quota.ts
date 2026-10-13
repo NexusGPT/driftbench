@@ -4,15 +4,17 @@ export const GEMINI_WINDOW = {
   resetUtc: '2026-10-14T00:00:00Z',
   lastCallUtc: '2026-10-14T12:00:00Z',
   status: 'not run: daily quota',
+  automaticResetResume: false,
+  resumeAuthority: 'Explicit owner word only; finish other models first',
 } as const;
 
 /** Called before each new reservation, including retries after a backoff. */
-export function checkQuotaWindow(model: string, now = Date.now(), ownerAuthorizedEarly = false): void {
+export function checkQuotaWindow(model: string, now = Date.now(), ownerAuthorized = false): void {
   if (model !== 'gemini-3.8-flash') return;
   if (now >= Date.parse(GEMINI_WINDOW.lastCallUtc))
     throw new LedgerRateLimitStop('Gemini last-call cutoff reached; no answer and no judge error');
-  if (now < Date.parse(GEMINI_WINDOW.resetUtc) && !ownerAuthorizedEarly)
-    throw new LedgerRateLimitStop('Gemini not run: daily quota; wait for reset or explicit owner authorization');
+  if (!ownerAuthorized)
+    throw new LedgerRateLimitStop('Gemini not run: daily quota; automatic reset resume disarmed; explicit owner authorization required');
 }
 
 export function requestHistory(base: CallIdentity, calls: readonly LedgerCall[]): LedgerCall[] {

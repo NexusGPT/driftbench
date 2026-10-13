@@ -6,17 +6,24 @@ export function isHaikuTransportFailure(row: LedgerCall): boolean {
     (transportRetryable(row) || /claude .*error|claude exited|without a JSON result|not a JSON result|cannot run claude/i.test(row.error ?? ''));
 }
 
-/** A pacing-only latch: active requests drain; later jobs use two workers. */
+/** Pacing hysteresis changes dispatch only; active requests drain in recorded order. */
 export class HaikuPacing {
-  private reduced = false;
+  private reduced: boolean;
+  private lowLoadSince: number | undefined;
+  constructor(initialLimit: 2 | 4 = 4) { this.reduced = initialLimit === 2; }
   update(loadOneMinute: number, calls: readonly LedgerCall[], now = Date.now()):
-    { limit: number; newlyReduced: boolean; recentTransportFailures: number; reason?: string } {
+    { limit: number; newlyReduced: boolean; newlyRestored: boolean; recentTransportFailures: number; reason?: string } {
     const recentTransportFailures = calls.filter((r) => isHaikuTransportFailure(r) && r.completedAt &&
       Date.parse(r.completedAt) <= now && now - Date.parse(r.completedAt) <= 600000).length;
     const reason = loadOneMinute > 60 ? 'host one-minute load exceeds 60' :
       recentTransportFailures >= 2 ? 'two Haiku transport failures within ten minutes' : undefined;
     const newlyReduced = !this.reduced && Boolean(reason);
     if (reason) this.reduced = true;
-    return { limit: this.reduced ? 2 : 4, newlyReduced, recentTransportFailures, ...(newlyReduced ? { reason } : {}) };
+    if (loadOneMinute >= 40) this.lowLoadSince = undefined;
+    else if (this.reduced && this.lowLoadSince === undefined) this.lowLoadSince = now;
+    const newlyRestored = this.reduced && recentTransportFailures === 0 && this.lowLoadSince !== undefined && now - this.lowLoadSince >= 600000;
+    if (newlyRestored) { this.reduced = false; this.lowLoadSince = undefined; }
+    return { limit: this.reduced ? 2 : 4, newlyReduced, newlyRestored, recentTransportFailures,
+      ...(newlyReduced ? { reason } : newlyRestored ? { reason: 'load below 40 for ten minutes with no transport failure' } : {}) };
   }
 }
