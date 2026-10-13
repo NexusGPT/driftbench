@@ -2,7 +2,7 @@ import assert from 'node:assert/strict';
 import { test } from 'node:test';
 import { mkdtempSync, readFileSync, writeFileSync } from 'node:fs';
 import { resolve } from 'node:path';
-import { Budget, cheater, HERE, parsePromptfoo, promptfoo, sha, verifyFreeze } from './harness';
+import { Budget, cheater, HERE, isTransportFailure, parsePromptfoo, promptfoo, sha, verifyFreeze } from './harness';
 import { judgePairLedger, pairLedgerRequest } from '../../packages/judges/src/pair-ledger';
 import { responseSchema } from '../../packages/judges/src/assessment';
 import { buildPrompt } from '../../packages/judges/src/prompt';
@@ -17,6 +17,10 @@ test('longer cheater uses Chinese characters and preserves normalized choice',()
 test('integer parser accepts only the pinned first integer and records unparsed as tie',()=>{
   assert.equal(parsePromptfoo('choice: 1'),'B');assert.equal(parsePromptfoo('2 then 0'),'tie');
   assert.equal(parsePromptfoo('none'),'tie');assert.equal(parsePromptfoo('0'),'A');
+});
+test('transport retry classification excludes billing, authentication and content failures',()=>{
+  for(const text of ['shim error: fetch failed','Owned Claude call timed out','Provider 503: unavailable'])assert.equal(isTransportFailure(text),true);
+  for(const text of ['Provider 429: quota exceeded','Provider 401: invalid API key','Unparsed JSON','0','1','provider refused'])assert.equal(isTransportFailure(text),false);
 });
 test('upstream rendering has byte-identical two-output format and opaque input',()=>{
   const out=promptfoo('Brief','first','second');

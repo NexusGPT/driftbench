@@ -45,7 +45,7 @@
   },
   "files": {
     "examples/judge-benchmarks/src/llm-shim.mjs": "376105a7240ba6ad265fb2acc629a2c251ce5debdfca353a0b4c40aca41fe2a5",
-    "examples/ledger-wp/harness.ts": "53b315cb872816db385bd579d36f88d7de11a3a6043bc669fb5a75840b9eefbb",
+    "examples/ledger-wp/harness.ts": "09725a9594a276ecdc5793067416ccd6c02af475063b1ee65fb8d350b3772202",
     "examples/ledger-wp/phase_report.py": "adabe9c88210b02720345d6e7ae2ca74908fb9aac7357bce405c5bf9dd9f2e1a",
     "examples/ledger-wp/prepare.py": "12e81d34a14a2f00f2ab821d41a1911b29d2de91466fd71a998c7c3a33d76d2d",
     "examples/ledger-wp/seal_validity.py": "527d73e3b1ffdd0f5943d854c1e468b26b318703ae8eeb4d4369accbff5d66b2",
@@ -242,14 +242,15 @@
   "labelUse": "Gold labels never enter provider prompts, fixture requests or model cache keys.",
   "keys": "User-authorized openai.key and gemini-driftbench.key, loaded inside invoking commands only.",
   "operationalAmendment": {
-    "at": "2026-10-13T07:42:35.978242+00:00",
-    "parentFreezeSha256": "1fb32801af8549c7a4bef7a6c271c1799e950a84316e9fcb027ef757a36b3682",
-    "ownerAuthorization": "Cap 35 USD; 180 second transport timeouts; at most four concurrent calls.",
+    "at": "2026-10-13T08:12:27.231036+00:00",
+    "parentFreezeSha256": "8a08d246ef989b6798df925d2b658c593aa93813e1a73194530395d061c4f1e4",
+    "ownerAuthorization": "Resume full 173-pair TEST. Cap 35 USD. At most four calls concurrently. Retry transport failures only, up to three tries, 300 second timeout. Never retry a returned answer.",
     "judgeContractChanged": false,
     "changedFrozenFiles": [
       "examples/ledger-wp/harness.ts"
     ],
-    "transportTimeoutSeconds": 180,
-    "maxConcurrency": 4
+    "transportTimeoutSeconds": 300,
+    "maxConcurrency": 4,
+    "maxTransportTries": 3
   }
 }

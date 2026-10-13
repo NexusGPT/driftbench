@@ -1,0 +1,12 @@
+{
+  "at": "2026-10-13T08:12:27.231036+00:00",
+  "observed": "No active writing runner at reconnect. 125 fixture comparisons recorded. One Gemini fetch failure recorded and three native calls lack returned answers.",
+  "unfinishedCalls": {
+    "6e43093640fb8d58babf2f1ed84bc60a521c0481b08be73c46e4f630e8b35a55": 0.25,
+    "8460384d97520f20e42fbc3eb5927d0f630ee5bbbc6acc87f5fc895f9865a2a4": 0.25,
+    "2ec86a2fbbc7d7d1f2736070333cbba356b4b8c193ed4c7152f402a30e1dabb6": 0.1,
+    "4dfa96492be6e81f4fbfca5b51807bf921c30dbcfb1252da6dd32a2e72ecac25": 0.25
+  },
+  "uncertainUsdTotal": 1.75,
+  "policy": "Preserve all reservations and returned answers. Each unfinished transport counts toward three tries. Resume same sealed order."
+}

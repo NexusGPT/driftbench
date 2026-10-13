@@ -33,6 +33,7 @@ def main():
         elif row['kind']=='settle':actual+=row['usd'];pending.pop(row['key'],None)
         elif row['kind']=='release':pending.pop(row['key'],None)
     calls=records('results/calls.jsonl')
+    decisions=records('results/decisions.jsonl')
     validity=load('results/validity-checks.json',{})
     head=subprocess.check_output(['git','rev-parse','HEAD'],cwd=ROOT).decode().strip()
     lines=['# LongJudge writing pair ledger study','',f"Measured state: {datetime.datetime.now(datetime.timezone.utc).isoformat()}. Branch `research/ledger-wp`, local head `{head}`.",'',
@@ -81,7 +82,10 @@ def main():
     for stage in ['pilot','dev']:
         for row in phase.get(stage,[]):
             noise=row.get('noise',{})
-            lines.append(f"| {stage} | {row['model']} | {row['contestant']} | {row['pairs']} | {f(row['accuracy'])} | {f(row.get('projectedTestUsd'),4)} | {noise.get('repeatGameFlips','pending')}/{noise.get('comparisons','pending')} | {row.get('earnedFixtureSeat','pending')} | {row.get('cheaterBarPass','pending')} |")
+            fixture_count=sum(r['split']=='fixtures' and r['model']==row['model'] and r['contestant']==row['contestant'] for r in decisions)
+            seat=row.get('earnedFixtureSeat','pending') if fixture_count==18 else 'pending'
+            cheater_bar=row.get('cheaterBarPass','pending') if row['pairs']==30 else 'pending'
+            lines.append(f"| {stage} | {row['model']} | {row['contestant']} | {row['pairs']} | {f(row['accuracy'])} | {f(row.get('projectedTestUsd'),4)} | {noise.get('repeatGameFlips','pending')}/{noise.get('comparisons','pending')} | {seat} | {cheater_bar} |")
     lines+=['','Detailed three-repeat noise, six planted fixtures, kappa, label-preserving, injection and label-flipping checks: `results/phase-report.json`. Unrun checks are pending, not passed. Source and parser remain frozen; no tuning follows these observations.','',
         '| Model | Contestant | Edit | Observed / expected pairs | Consistent games | Consistency % | Preregistered bar % | Verdict |',
         '|---|---|---|---:|---:|---:|---:|---|']
@@ -104,11 +108,12 @@ def main():
         '- Reader-first: [PR 157](https://github.com/achammah/driftbench/pull/157), source snapshot `c50b2dc3`.',
         '- Promptfoo select-best: `801428268b5e421b2f6994332f6a06f86b27bb1f`, verbatim attributed template and MIT notice.',
         f"- Original judge freeze commit: `a4ae4b33`. Initial freeze SHA-256: `1fb32801af8549c7a4bef7a6c271c1799e950a84316e9fcb027ef757a36b3682`, preserved in `freeze-initial.json`. Current freeze SHA-256: `{hashlib.sha256((HERE/'freeze.json').read_bytes()).hexdigest()}`. The 191 exact file hashes are in `freeze.json`.",
-        '- The owner changes only the spending cap to 35 USD, transport timeouts to 180 seconds, and concurrency to four. Judge contracts, parser behavior, models, medium reasoning, output limits, statistics and sealed order are unchanged.',
-        '- A plugin crash interrupts six in-flight calls during the pilot. Their 0.90 USD reservations remain uncertain spend; returned answers are reused and only unfinished transports resume. See `runtime-recovery.json`.',
+        '- The owner changes only the spending cap to 35 USD, transport timeouts to 300 seconds, and concurrency to four. Judge contracts, parser behavior, models, medium reasoning, output limits, statistics and sealed order are unchanged.',
+        '- The first plugin crash interrupts six pilot calls; their 0.90 USD reservations remain uncertain. A second reconnect finds one Gemini fetch failure and three unfinished native calls. All uncertain reservations remain counted. See `runtime-recovery.json`, `runtime-recovery-2.json`, and `results/spend.jsonl`.',
+        '- The latest owner authorization permits at most three transport attempts with 300 second timeouts. Every returned model answer, including refusals and truncated content, is reused without a transport retry.',
         '- Both HTTP models use medium reasoning for every contestant and the same 4096 output-token cap. Haiku uses native Claude CLI without an exposed reasoning setting.',
         '- The owner unblocks Gemini billing and restricts key files to `openai.key` and `gemini-driftbench.key`. Keys load inside each command and are not printed.',
-        '- Six analysis tests and seven harness tests pass before calls, including source tamper rejection, concurrent spend reservation, output polarity and the pushed-core adapter.',
+        '- Six analysis tests and seven initial harness tests pass before calls; the transport amendment adds one passing error-classification test, including source tamper rejection, concurrent spend reservation, output polarity and the pushed-core adapter.',
         '- All paths above are relative to `examples/ledger-wp` unless prefixed otherwise. The branch is [research/ledger-wp](https://github.com/achammah/driftbench/tree/research/ledger-wp). Remote delivery is verified separately at handoff.','']
     text='\n'.join(lines)
     assert '\u2014' not in text and '\u2013' not in text

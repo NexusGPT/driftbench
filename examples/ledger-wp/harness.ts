@@ -38,6 +38,11 @@ export function cheater(item: any, kind: string) {
   const choice=a===b?'tie':a?'A':'B';return [choice,choice];
 }
 
+export function isTransportFailure(text:string) {
+  if(/spending cap|quota|billing|invalid.api.key|authentication/iu.test(text))return false;
+  return /fetch failed|timed? ?out|timeout|ECONNRESET|ETIMEDOUT|EAI_AGAIN|ENOTFOUND|network error|Provider (?:429|5\d\d)\b/iu.test(text);
+}
+
 export class Budget {
   readonly file: string;
   readonly cap: number;
@@ -81,7 +86,7 @@ async function runClaude(prompt: {system:string;user:string}, cwd:string): Promi
     const env={...process.env,TMPDIR:cwd};delete env.CLAUDECODE;
     const child=spawn('claude',args,{cwd,env,stdio:['pipe','pipe','pipe']});
     let out='',err='';
-    const timer=setTimeout(()=>{child.kill('SIGKILL');reject(Error('Owned Claude call timed out; reservation retained'));},180_000);
+    const timer=setTimeout(()=>{child.kill('SIGKILL');reject(Error('Owned Claude call timed out; reservation retained'));},300_000);
     child.stdout.on('data',x=>out+=x.toString());child.stderr.on('data',x=>err+=x.toString());
     child.on('error',e=>{clearTimeout(timer);reject(e);});
     child.on('close',code=>{clearTimeout(timer);try {const data=JSON.parse(out);resolvePromise({...data,exitCode:code});} catch {reject(Error('Claude output not JSON, exit '+code+'; stderr '+err.slice(0,100)));}});
@@ -113,46 +118,64 @@ async function main() {
   if(models.some((x:string)=>!freeze.models.includes(x)))throw Error('Model not frozen');
   const concurrency=Number(arg('concurrency')??4);if(!Number.isInteger(concurrency)||concurrency<1||concurrency>4)throw Error('Concurrency outside 1..4');
   const budget=new Budget();
-  const recorded=new Map(rows('results/calls.jsonl').map(r=>[r.key,r]));
+  const history=rows('results/calls.jsonl');
+  const recorded=new Map(history.map(r=>[r.logicalKey??r.key,r]));
+  const attempts=new Map(history.map(r=>[r.key,r]));
   const decisions=rows('results/decisions.jsonl');
   const decisionKey=(x:any)=>JSON.stringify([x.split,x.model,x.contestant,x.id,x.sample??0]);
   const done=new Set(decisions.map(decisionKey));
   let stop=false,completed=0;
   const calls=async(prompt:any,meta:any,schema?:any)=> {
     const key=sha(JSON.stringify([meta,prompt,schema,freeze.reasoning]));
-    if(recorded.has(key)) {
-      const prior=recorded.get(key);
-      if(prior.providerError)throw Error('Recorded provider error; no automatic retry');
-      return prior;
-    }
+    if(recorded.has(key) && !recorded.get(key).providerError) return recorded.get(key);
     if(process.argv.includes('--replay-only'))throw Error('REPLAY_MISS '+key);
-    if(Date.now()>Date.parse(freeze.lastCallUtc))throw Error('LAST_CALL_CUTOFF');
-    budget.reserve(key,meta.model==='haiku'?0.25:0.10);
-    const started=Date.now();let payload:any;let providerMeta:any={};
-    if(meta.model==='haiku')payload=await runClaude(prompt,resolve(HERE,'runtime/empty'));
-    else {
-      const argv=['--model',meta.model,'--system-prompt',prompt.system,'--reasoning-effort',freeze.reasoning[meta.model]];
-      if(schema)argv.push('--json-schema',JSON.stringify(schema));
-      // The upstream shim owns pricing and provider shape. The bound is identical for all contestants.
-      payload=await shim.runShim({argv,input:prompt.user,fetch:async(url:any,options:any)=> {
-        const body=JSON.parse(options.body);
-        if(meta.model.startsWith('gemini'))body.generationConfig={...body.generationConfig,maxOutputTokens:4096};
-        else body.max_completion_tokens=4096;
-        const response=await fetch(url,{...options,body:JSON.stringify(body),signal:AbortSignal.timeout(180_000)});
-        if(!response.ok) {const data=await response.text();throw Error('Provider '+response.status+': '+data.slice(0,300));}
-        const observed=await response.clone().json();
-        providerMeta={usage:observed.usage??observed.usageMetadata,model:observed.model??observed.modelVersion,finishReason:observed.choices?.[0]?.finish_reason??observed.candidates?.[0]?.finishReason};
-        return response;
-      }});
+    for(let attempt=1;attempt<=3;attempt++) {
+      const attemptKey=attempt===1?key:sha(key+':transport:'+attempt);
+      const prior=attempts.get(attemptKey);
+      if(prior) {
+        if(!prior.providerError)return prior;
+        if(!isTransportFailure(prior.text))throw Error('Recorded non-transport failure; no retry');
+        continue;
+      }
+      // A crashed submission may still have incurred cost. Keep its reservation and count its try.
+      if(budget.totals().pending.includes(attemptKey))continue;
+      if(Date.now()>Date.parse(freeze.lastCallUtc))throw Error('LAST_CALL_CUTOFF');
+      budget.reserve(attemptKey,meta.model==='haiku'?0.25:0.10);
+      const started=Date.now();let payload:any;let providerMeta:any={};
+      try {
+        if(meta.model==='haiku')payload=await runClaude(prompt,resolve(HERE,'runtime/empty'));
+        else {
+          const argv=['--model',meta.model,'--system-prompt',prompt.system,'--reasoning-effort',freeze.reasoning[meta.model]];
+          if(schema)argv.push('--json-schema',JSON.stringify(schema));
+          // The upstream shim owns pricing and provider shape. The bound is identical for all contestants.
+          payload=await shim.runShim({argv,input:prompt.user,fetch:async(url:any,options:any)=> {
+            const body=JSON.parse(options.body);
+            if(meta.model.startsWith('gemini'))body.generationConfig={...body.generationConfig,maxOutputTokens:4096};
+            else body.max_completion_tokens=4096;
+            const response=await fetch(url,{...options,body:JSON.stringify(body),signal:AbortSignal.timeout(300_000)});
+            if(!response.ok) {const data=await response.text();throw Error('Provider '+response.status+': '+data.slice(0,300));}
+            const observed=await response.clone().json();
+            providerMeta={usage:observed.usage??observed.usageMetadata,model:observed.model??observed.modelVersion,finishReason:observed.choices?.[0]?.finish_reason??observed.candidates?.[0]?.finishReason};
+            return response;
+          }});
+        }
+      } catch(error) {
+        payload={result:String(error),total_cost_usd:0,is_error:true};
+      }
+      const entry={key:attemptKey,logicalKey:key,transportAttempt:attempt,...meta,promptHash:sha(JSON.stringify(prompt)),schemaHash:schema?sha(JSON.stringify(schema)):null,
+        modelRequested:meta.model,text:payload.result??'',costUsd:payload.total_cost_usd,
+        providerError:payload.is_error===true,usage:payload.usage??providerMeta.usage??null,modelUsage:payload.modelUsage??null,providerMeta,
+        startedAt:new Date(started).toISOString(),finishedAt:new Date().toISOString(),durationMs:Date.now()-started};
+      append('results/calls.jsonl',entry);recorded.set(key,entry);attempts.set(attemptKey,entry);
+      if(!entry.providerError) {
+        if(Number.isFinite(entry.costUsd))budget.settle(attemptKey,entry.costUsd);
+        return entry;
+      }
+      append('results/transport-errors.jsonl',{key:attemptKey,logicalKey:key,attempt,...meta,error:entry.text,at:new Date().toISOString()});
+      if(!isTransportFailure(entry.text))throw Error('Non-transport provider error; no retry');
+      if(attempt<3)await new Promise(resolve=>setTimeout(resolve,1500*attempt));
     }
-    const entry={key,...meta,promptHash:sha(JSON.stringify(prompt)),schemaHash:schema?sha(JSON.stringify(schema)):null,
-      modelRequested:meta.model,text:payload.result??'',costUsd:payload.total_cost_usd,
-      providerError:payload.is_error===true,usage:payload.usage??providerMeta.usage??null,modelUsage:payload.modelUsage??null,providerMeta,
-      startedAt:new Date(started).toISOString(),finishedAt:new Date().toISOString(),durationMs:Date.now()-started};
-    append('results/calls.jsonl',entry);recorded.set(key,entry);
-    if(!entry.providerError&&Number.isFinite(entry.costUsd))budget.settle(key,entry.costUsd);
-    if(entry.providerError)throw Error('Provider call failed; raw answer and reservation retained');
-    return entry;
+    throw Error('Transport failed after three tries; uncertain reservations retained');
   };
   const items=load('seals/'+phase+'.json');
   const jobs:any[]=[];

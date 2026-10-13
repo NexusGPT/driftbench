@@ -1,0 +1,329 @@
+{
+  "at": "2026-10-13T08:12:27.872060+00:00",
+  "failures": [],
+  "complete": false,
+  "sourceHashes": 191,
+  "sealHashes": 5,
+  "actualUsd": 2.2707937400000002,
+  "uncertainOrInflightUsd": 1.75,
+  "capUsd": 35,
+  "returnedCalls": 627,
+  "completedDecisions": 305,
+  "coverage": [
+    {
+      "split": "test",
+      "model": "haiku",
+      "contestant": "pair-ledger",
+      "recorded": 0,
+      "expected": 173
+    },
+    {
+      "split": "test",
+      "model": "haiku",
+      "contestant": "reader-first-c50b2dc3",
+      "recorded": 0,
+      "expected": 173
+    },
+    {
+      "split": "test",
+      "model": "haiku",
+      "contestant": "promptfoo",
+      "recorded": 0,
+      "expected": 173
+    },
+    {
+      "split": "test",
+      "model": "gpt-6-luna",
+      "contestant": "pair-ledger",
+      "recorded": 0,
+      "expected": 173
+    },
+    {
+      "split": "test",
+      "model": "gpt-6-luna",
+      "contestant": "reader-first-c50b2dc3",
+      "recorded": 0,
+      "expected": 173
+    },
+    {
+      "split": "test",
+      "model": "gpt-6-luna",
+      "contestant": "promptfoo",
+      "recorded": 0,
+      "expected": 173
+    },
+    {
+      "split": "test",
+      "model": "gemini-3.8-flash",
+      "contestant": "pair-ledger",
+      "recorded": 0,
+      "expected": 173
+    },
+    {
+      "split": "test",
+      "model": "gemini-3.8-flash",
+      "contestant": "reader-first-c50b2dc3",
+      "recorded": 0,
+      "expected": 173
+    },
+    {
+      "split": "test",
+      "model": "gemini-3.8-flash",
+      "contestant": "promptfoo",
+      "recorded": 0,
+      "expected": 173
+    },
+    {
+      "split": "dev",
+      "model": "haiku",
+      "contestant": "pair-ledger",
+      "recorded": 0,
+      "expected": 90
+    },
+    {
+      "split": "dev",
+      "model": "haiku",
+      "contestant": "reader-first-c50b2dc3",
+      "recorded": 0,
+      "expected": 90
+    },
+    {
+      "split": "dev",
+      "model": "haiku",
+      "contestant": "promptfoo",
+      "recorded": 0,
+      "expected": 90
+    },
+    {
+      "split": "dev",
+      "model": "gpt-6-luna",
+      "contestant": "pair-ledger",
+      "recorded": 0,
+      "expected": 90
+    },
+    {
+      "split": "dev",
+      "model": "gpt-6-luna",
+      "contestant": "reader-first-c50b2dc3",
+      "recorded": 0,
+      "expected": 90
+    },
+    {
+      "split": "dev",
+      "model": "gpt-6-luna",
+      "contestant": "promptfoo",
+      "recorded": 0,
+      "expected": 90
+    },
+    {
+      "split": "dev",
+      "model": "gemini-3.8-flash",
+      "contestant": "pair-ledger",
+      "recorded": 0,
+      "expected": 90
+    },
+    {
+      "split": "dev",
+      "model": "gemini-3.8-flash",
+      "contestant": "reader-first-c50b2dc3",
+      "recorded": 0,
+      "expected": 90
+    },
+    {
+      "split": "dev",
+      "model": "gemini-3.8-flash",
+      "contestant": "promptfoo",
+      "recorded": 0,
+      "expected": 90
+    },
+    {
+      "split": "validity",
+      "model": "haiku",
+      "contestant": "pair-ledger",
+      "recorded": 0,
+      "expected": 20
+    },
+    {
+      "split": "validity",
+      "model": "haiku",
+      "contestant": "reader-first-c50b2dc3",
+      "recorded": 0,
+      "expected": 20
+    },
+    {
+      "split": "validity",
+      "model": "haiku",
+      "contestant": "promptfoo",
+      "recorded": 0,
+      "expected": 20
+    },
+    {
+      "split": "validity",
+      "model": "gpt-6-luna",
+      "contestant": "pair-ledger",
+      "recorded": 0,
+      "expected": 20
+    },
+    {
+      "split": "validity",
+      "model": "gpt-6-luna",
+      "contestant": "reader-first-c50b2dc3",
+      "recorded": 0,
+      "expected": 20
+    },
+    {
+      "split": "validity",
+      "model": "gpt-6-luna",
+      "contestant": "promptfoo",
+      "recorded": 0,
+      "expected": 20
+    },
+    {
+      "split": "validity",
+      "model": "gemini-3.8-flash",
+      "contestant": "pair-ledger",
+      "recorded": 0,
+      "expected": 20
+    },
+    {
+      "split": "validity",
+      "model": "gemini-3.8-flash",
+      "contestant": "reader-first-c50b2dc3",
+      "recorded": 0,
+      "expected": 20
+    },
+    {
+      "split": "validity",
+      "model": "gemini-3.8-flash",
+      "contestant": "promptfoo",
+      "recorded": 0,
+      "expected": 20
+    },
+    {
+      "split": "pilot",
+      "model": "haiku",
+      "contestant": "pair-ledger",
+      "recorded": 20,
+      "expected": 20
+    },
+    {
+      "split": "pilot",
+      "model": "haiku",
+      "contestant": "reader-first-c50b2dc3",
+      "recorded": 20,
+      "expected": 20
+    },
+    {
+      "split": "pilot",
+      "model": "haiku",
+      "contestant": "promptfoo",
+      "recorded": 20,
+      "expected": 20
+    },
+    {
+      "split": "pilot",
+      "model": "gpt-6-luna",
+      "contestant": "pair-ledger",
+      "recorded": 20,
+      "expected": 20
+    },
+    {
+      "split": "pilot",
+      "model": "gpt-6-luna",
+      "contestant": "reader-first-c50b2dc3",
+      "recorded": 20,
+      "expected": 20
+    },
+    {
+      "split": "pilot",
+      "model": "gpt-6-luna",
+      "contestant": "promptfoo",
+      "recorded": 20,
+      "expected": 20
+    },
+    {
+      "split": "pilot",
+      "model": "gemini-3.8-flash",
+      "contestant": "pair-ledger",
+      "recorded": 20,
+      "expected": 20
+    },
+    {
+      "split": "pilot",
+      "model": "gemini-3.8-flash",
+      "contestant": "reader-first-c50b2dc3",
+      "recorded": 20,
+      "expected": 20
+    },
+    {
+      "split": "pilot",
+      "model": "gemini-3.8-flash",
+      "contestant": "promptfoo",
+      "recorded": 20,
+      "expected": 20
+    },
+    {
+      "split": "fixtures",
+      "model": "haiku",
+      "contestant": "pair-ledger",
+      "recorded": 14,
+      "expected": 18
+    },
+    {
+      "split": "fixtures",
+      "model": "haiku",
+      "contestant": "reader-first-c50b2dc3",
+      "recorded": 14,
+      "expected": 18
+    },
+    {
+      "split": "fixtures",
+      "model": "haiku",
+      "contestant": "promptfoo",
+      "recorded": 14,
+      "expected": 18
+    },
+    {
+      "split": "fixtures",
+      "model": "gpt-6-luna",
+      "contestant": "pair-ledger",
+      "recorded": 14,
+      "expected": 18
+    },
+    {
+      "split": "fixtures",
+      "model": "gpt-6-luna",
+      "contestant": "reader-first-c50b2dc3",
+      "recorded": 14,
+      "expected": 18
+    },
+    {
+      "split": "fixtures",
+      "model": "gpt-6-luna",
+      "contestant": "promptfoo",
+      "recorded": 14,
+      "expected": 18
+    },
+    {
+      "split": "fixtures",
+      "model": "gemini-3.8-flash",
+      "contestant": "pair-ledger",
+      "recorded": 14,
+      "expected": 18
+    },
+    {
+      "split": "fixtures",
+      "model": "gemini-3.8-flash",
+      "contestant": "reader-first-c50b2dc3",
+      "recorded": 13,
+      "expected": 18
+    },
+    {
+      "split": "fixtures",
+      "model": "gemini-3.8-flash",
+      "contestant": "promptfoo",
+      "recorded": 14,
+      "expected": 18
+    }
+  ]
+}
