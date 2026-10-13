@@ -1,5 +1,5 @@
 {
-  "at": "2026-10-13T17:30:21.673Z",
+  "at": "2026-10-13T19:34:35.301Z",
   "phases": [
     {
       "model": "claude-sonnet-5-5",
@@ -29,6 +29,22 @@
       "model": "claude-sonnet-5-5",
       "phase": "noise-1",
       "items": 30,
+      "identicalDecisions": true,
+      "changed": [],
+      "newCalls": 0
+    },
+    {
+      "model": "claude-sonnet-5-5",
+      "phase": "noise-2",
+      "items": 30,
+      "identicalDecisions": true,
+      "changed": [],
+      "newCalls": 0
+    },
+    {
+      "model": "claude-sonnet-5-5",
+      "phase": "results",
+      "items": 221,
       "identicalDecisions": true,
       "changed": [],
       "newCalls": 0

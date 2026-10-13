@@ -1435,6 +1435,748 @@
       "claimStatus": "Additional cell; multiplicity policy pending collator. No confirmatory win claim.",
       "additionalCell": true,
       "validityPassedScope": "Planted mutation checks only; full DEV cheater margin not established"
+    },
+    {
+      "model": "claude-sonnet-5-5",
+      "status": "measured",
+      "official": {
+        "sealedItems": 221,
+        "matchedItems": 193,
+        "missing": [
+          0,
+          28
+        ],
+        "correct": [
+          176,
+          152
+        ],
+        "accuracy": [
+          0.7963800904977375,
+          0.6877828054298643
+        ],
+        "balancedAccuracy": [
+          0.7464539007092199,
+          0.6774883834678405
+        ],
+        "wilson95": [
+          [
+            0.7384376928503353,
+            0.8441950684166579
+          ],
+          [
+            0.6239187012353715,
+            0.7452303001780669
+          ]
+        ],
+        "delta": 0.1085972850678733,
+        "deltaRequestClusterBootstrap95": [
+          0.05803571428571429,
+          0.16216216216216217
+        ],
+        "bootstrapReplicates": 10000,
+        "bootstrapSeed": 20261013,
+        "requestClusters": 219,
+        "wins": 31,
+        "losses": 7,
+        "twoSidedExactMcNemarP": 0.00011616700794547796,
+        "holmP": null,
+        "holmStatus": "Additional cell, outside original 18-cell family",
+        "verdict": "PENDING_HOLM",
+        "missingPolicy": "Unparsed and missing verdicts are wrong in official scores; coverage reported separately",
+        "provisional": false,
+        "validVerdictCoverageComplete": false
+      },
+      "audited": {
+        "sealedItems": 221,
+        "matchedItems": 193,
+        "missing": [
+          0,
+          28
+        ],
+        "correct": [
+          199,
+          167
+        ],
+        "accuracy": [
+          0.9004524886877828,
+          0.755656108597285
+        ],
+        "balancedAccuracy": [
+          0.8883136094674556,
+          0.7536982248520709
+        ],
+        "wilson95": [
+          [
+            0.8538829948525327,
+            0.9333383696074508
+          ],
+          [
+            0.6949526863765076,
+            0.8076236649454025
+          ]
+        ],
+        "delta": 0.14479638009049775,
+        "deltaRequestClusterBootstrap95": [
+          0.091324200913242,
+          0.19909502262443438
+        ],
+        "bootstrapReplicates": 10000,
+        "bootstrapSeed": 20261013,
+        "requestClusters": 219,
+        "wins": 37,
+        "losses": 5,
+        "twoSidedExactMcNemarP": 4.4337048166198656e-07,
+        "holmP": null,
+        "holmStatus": "Additional cell, outside original 18-cell family",
+        "verdict": "PENDING_HOLM",
+        "missingPolicy": "Unparsed and missing verdicts are wrong in official scores; coverage reported separately",
+        "provisional": false,
+        "validVerdictCoverageComplete": false
+      },
+      "costUsd": [
+        15.738013999999998,
+        3.000152
+      ],
+      "costPer100SealedItems": [
+        7.1212733031674205,
+        1.3575348416289592
+      ],
+      "report": "results/claude-sonnet-5-5.json",
+      "outputLimitErrors": {
+        "driftbench-verify-uncertainty-cascade": {
+          "all": {
+            "answerEnvelopes": 0,
+            "affectedItems": 0,
+            "items": []
+          },
+          "test": {
+            "answerEnvelopes": 0,
+            "affectedItems": 0,
+            "items": []
+          }
+        },
+        "promptfoo": {
+          "all": {
+            "answerEnvelopes": 0,
+            "affectedItems": 0,
+            "items": []
+          },
+          "test": {
+            "answerEnvelopes": 0,
+            "affectedItems": 0,
+            "items": []
+          }
+        }
+      },
+      "validation": {
+        "model": "claude-sonnet-5-5",
+        "mutationChecks": {
+          "driftbench-verify-uncertainty-cascade": {
+            "baseItems": 12,
+            "preserved": 12,
+            "flipped": 12,
+            "injectionMovedOrMissing": 0,
+            "baseMissing": 0,
+            "pass_": true
+          },
+          "promptfoo": {
+            "baseItems": 12,
+            "preserved": 12,
+            "flipped": 12,
+            "injectionMovedOrMissing": 0,
+            "baseMissing": 0,
+            "pass_": true
+          }
+        },
+        "noise": {
+          "driftbench-verify-uncertainty-cascade": {
+            "items": 30,
+            "repeats": 3,
+            "itemsWithAnyFlip": 1,
+            "itemsWithAnyMissing": 0
+          },
+          "promptfoo": {
+            "items": 30,
+            "repeats": 3,
+            "itemsWithAnyFlip": 5,
+            "itemsWithAnyMissing": 8
+          }
+        },
+        "limitations": "Mutation labels are planted arithmetic truth. This tests invariance, not broad domain accuracy."
+      },
+      "phaseCoverage": {
+        "pilot": {
+          "items": 20,
+          "stopped": null,
+          "missing": {
+            "driftbench-verify-uncertainty-cascade": 0,
+            "promptfoo": 4
+          },
+          "cassetteRows": 115,
+          "uniquePromptKeys": 115,
+          "terminalNoAnswerRecords": 4,
+          "recordedExecutionUsd": 2.2413819999999998,
+          "costPer100UniqueKeys": {
+            "driftbench-verify-uncertainty-cascade": 9.6983,
+            "promptfoo": 2.0575900000000003
+          },
+          "report": "examples/ledger-verify/sonnet/pilot/claude-sonnet-5-5.json",
+          "recording": "examples/ledger-verify/sonnet/recordings/sonnet-medium-20261013/pilot/longjudge-verify/claude-sonnet-5-5.jsonl"
+        },
+        "validity": {
+          "items": 48,
+          "stopped": null,
+          "missing": {
+            "driftbench-verify-uncertainty-cascade": 0,
+            "promptfoo": 0
+          },
+          "cassetteRows": 113,
+          "uniquePromptKeys": 84,
+          "terminalNoAnswerRecords": 0,
+          "recordedExecutionUsd": 0.41926599999999997,
+          "costPer100UniqueKeys": {
+            "driftbench-verify-uncertainty-cascade": 0.40697500000000003,
+            "promptfoo": 0.22900416666666665
+          },
+          "report": "examples/ledger-verify/sonnet/validity/claude-sonnet-5-5.json",
+          "recording": "examples/ledger-verify/sonnet/recordings/sonnet-medium-20261013/validity/longjudge-verify/claude-sonnet-5-5.jsonl"
+        },
+        "noise-0": {
+          "items": 30,
+          "stopped": null,
+          "missing": {
+            "driftbench-verify-uncertainty-cascade": 0,
+            "promptfoo": 8
+          },
+          "cassetteRows": 172,
+          "uniquePromptKeys": 172,
+          "terminalNoAnswerRecords": 101,
+          "recordedExecutionUsd": 1.545516,
+          "costPer100UniqueKeys": {
+            "driftbench-verify-uncertainty-cascade": 2.79378,
+            "promptfoo": 2.3579399999999997
+          },
+          "report": "examples/ledger-verify/sonnet/noise-0/claude-sonnet-5-5.json",
+          "recording": "examples/ledger-verify/sonnet/recordings/sonnet-medium-20261013/noise-0/longjudge-verify/claude-sonnet-5-5.jsonl"
+        },
+        "noise-1": {
+          "items": 30,
+          "stopped": null,
+          "missing": {
+            "driftbench-verify-uncertainty-cascade": 0,
+            "promptfoo": 8
+          },
+          "cassetteRows": 174,
+          "uniquePromptKeys": 174,
+          "terminalNoAnswerRecords": 12,
+          "recordedExecutionUsd": 3.620538,
+          "costPer100UniqueKeys": {
+            "driftbench-verify-uncertainty-cascade": 10.376746666666666,
+            "promptfoo": 2.6772133333333334
+          },
+          "report": "examples/ledger-verify/sonnet/noise-1/claude-sonnet-5-5.json",
+          "recording": "examples/ledger-verify/sonnet/recordings/sonnet-medium-20261013/noise-1/longjudge-verify/claude-sonnet-5-5.jsonl"
+        },
+        "noise-2": {
+          "items": 30,
+          "stopped": null,
+          "missing": {
+            "driftbench-verify-uncertainty-cascade": 0,
+            "promptfoo": 6
+          },
+          "cassetteRows": 174,
+          "uniquePromptKeys": 174,
+          "terminalNoAnswerRecords": 6,
+          "recordedExecutionUsd": 3.457376,
+          "costPer100UniqueKeys": {
+            "driftbench-verify-uncertainty-cascade": 9.883360000000001,
+            "promptfoo": 2.3020666666666667
+          },
+          "report": "examples/ledger-verify/sonnet/noise-2/claude-sonnet-5-5.json",
+          "recording": "examples/ledger-verify/sonnet/recordings/sonnet-medium-20261013/noise-2/longjudge-verify/claude-sonnet-5-5.jsonl"
+        },
+        "results": {
+          "items": 221,
+          "stopped": null,
+          "missing": {
+            "driftbench-verify-uncertainty-cascade": 0,
+            "promptfoo": 28
+          },
+          "cassetteRows": 1245,
+          "uniquePromptKeys": 1245,
+          "terminalNoAnswerRecords": 28,
+          "recordedExecutionUsd": 18.700779999999998,
+          "costPer100UniqueKeys": {
+            "driftbench-verify-uncertainty-cascade": 7.1043565610859725,
+            "promptfoo": 1.9172524886877829
+          },
+          "report": "examples/ledger-verify/sonnet/results/claude-sonnet-5-5.json",
+          "recording": "examples/ledger-verify/sonnet/recordings/sonnet-medium-20261013/test/longjudge-verify/claude-sonnet-5-5.jsonl"
+        }
+      },
+      "productFinal": {
+        "official": {
+          "sealedItems": 221,
+          "matchedItems": 193,
+          "missing": [
+            0,
+            28
+          ],
+          "correct": [
+            176,
+            152
+          ],
+          "accuracy": [
+            0.7963800904977375,
+            0.6877828054298643
+          ],
+          "balancedAccuracy": [
+            0.7464539007092199,
+            0.6774883834678405
+          ],
+          "wilson95": [
+            [
+              0.7384376928503353,
+              0.8441950684166579
+            ],
+            [
+              0.6239187012353715,
+              0.7452303001780669
+            ]
+          ],
+          "delta": 0.1085972850678733,
+          "deltaRequestClusterBootstrap95": [
+            0.05803571428571429,
+            0.16216216216216217
+          ],
+          "bootstrapReplicates": 10000,
+          "bootstrapSeed": 20261013,
+          "requestClusters": 219,
+          "wins": 31,
+          "losses": 7,
+          "twoSidedExactMcNemarP": 0.00011616700794547796,
+          "holmP": null,
+          "holmStatus": "Additional cell, outside original 18-cell family",
+          "verdict": "PENDING_HOLM",
+          "missingPolicy": "Unparsed and missing verdicts are wrong in official scores; coverage reported separately",
+          "provisional": false,
+          "validVerdictCoverageComplete": false
+        },
+        "audited": {
+          "sealedItems": 221,
+          "matchedItems": 193,
+          "missing": [
+            0,
+            28
+          ],
+          "correct": [
+            199,
+            167
+          ],
+          "accuracy": [
+            0.9004524886877828,
+            0.755656108597285
+          ],
+          "balancedAccuracy": [
+            0.8883136094674556,
+            0.7536982248520709
+          ],
+          "wilson95": [
+            [
+              0.8538829948525327,
+              0.9333383696074508
+            ],
+            [
+              0.6949526863765076,
+              0.8076236649454025
+            ]
+          ],
+          "delta": 0.14479638009049775,
+          "deltaRequestClusterBootstrap95": [
+            0.091324200913242,
+            0.19909502262443438
+          ],
+          "bootstrapReplicates": 10000,
+          "bootstrapSeed": 20261013,
+          "requestClusters": 219,
+          "wins": 37,
+          "losses": 5,
+          "twoSidedExactMcNemarP": 4.4337048166198656e-07,
+          "holmP": null,
+          "holmStatus": "Additional cell, outside original 18-cell family",
+          "verdict": "PENDING_HOLM",
+          "missingPolicy": "Unparsed and missing verdicts are wrong in official scores; coverage reported separately",
+          "provisional": false,
+          "validVerdictCoverageComplete": false
+        }
+      },
+      "headline": "strict",
+      "strictDecisions": "results/claude-sonnet-5-5.strict.json",
+      "productFinalDecisions": "results/claude-sonnet-5-5.json",
+      "costPer100UniqueKeys": {
+        "driftbench-verify-uncertainty-cascade": 7.1043565610859725,
+        "promptfoo": 1.9172524886877829
+      },
+      "validityPassed": true,
+      "claimStatus": "Additional cell; multiplicity policy pending collator",
+      "additionalCell": true,
+      "validityPassedScope": "Planted mutation checks only; full DEV cheater margin not established",
+      "refusalErrors": {
+        "driftbench-verify-uncertainty-cascade": {
+          "all": {
+            "answerEnvelopes": 0,
+            "affectedItems": 0,
+            "items": []
+          },
+          "test": {
+            "answerEnvelopes": 0,
+            "affectedItems": 0,
+            "items": []
+          }
+        },
+        "promptfoo": {
+          "all": {
+            "answerEnvelopes": 54,
+            "affectedItems": 54,
+            "items": [
+              {
+                "phase": "noise-0",
+                "id": "0693b094973e7e926583c76785af77ca_5a776264cbecc67bd81bf1bea7505338"
+              },
+              {
+                "phase": "noise-0",
+                "id": "0af2a305f4c4e44a69c7fd5e03d7f74e_7ff87a43db7f15aa80827e2230dd95a1"
+              },
+              {
+                "phase": "noise-0",
+                "id": "251325e4d8bd19d38d1481ec5bb6b952_b0e0faf620816637683d6cefbc8d905d"
+              },
+              {
+                "phase": "noise-0",
+                "id": "2c0b811d86ed6140f5f9811cf3a320fa_4e375ba613e31acadbdf76cf9dcb95ad"
+              },
+              {
+                "phase": "noise-0",
+                "id": "4d1497a568219528716b51f87ef72f18_6029e690d7a881057e987894b31db7e6"
+              },
+              {
+                "phase": "noise-0",
+                "id": "4f8faed01fbb8264519d9f4ae8989a36_45f94dc55ea05eafeb903b1266bfe98e"
+              },
+              {
+                "phase": "noise-0",
+                "id": "5379ab99eae4161320d5bb2c0850315e_bcec25bc2e21ce2667e0368df647bcf2"
+              },
+              {
+                "phase": "noise-0",
+                "id": "542a4a7aed316e1a799d1c145b101ea9_c10967faf71a528ab33e138f74ffb1cf"
+              },
+              {
+                "phase": "noise-1",
+                "id": "0693b094973e7e926583c76785af77ca_5a776264cbecc67bd81bf1bea7505338"
+              },
+              {
+                "phase": "noise-1",
+                "id": "0af2a305f4c4e44a69c7fd5e03d7f74e_7ff87a43db7f15aa80827e2230dd95a1"
+              },
+              {
+                "phase": "noise-1",
+                "id": "251325e4d8bd19d38d1481ec5bb6b952_b0e0faf620816637683d6cefbc8d905d"
+              },
+              {
+                "phase": "noise-1",
+                "id": "2c0b811d86ed6140f5f9811cf3a320fa_4e375ba613e31acadbdf76cf9dcb95ad"
+              },
+              {
+                "phase": "noise-1",
+                "id": "4d1497a568219528716b51f87ef72f18_6029e690d7a881057e987894b31db7e6"
+              },
+              {
+                "phase": "noise-1",
+                "id": "4f8faed01fbb8264519d9f4ae8989a36_45f94dc55ea05eafeb903b1266bfe98e"
+              },
+              {
+                "phase": "noise-1",
+                "id": "5379ab99eae4161320d5bb2c0850315e_bcec25bc2e21ce2667e0368df647bcf2"
+              },
+              {
+                "phase": "noise-1",
+                "id": "542a4a7aed316e1a799d1c145b101ea9_c10967faf71a528ab33e138f74ffb1cf"
+              },
+              {
+                "phase": "noise-2",
+                "id": "0693b094973e7e926583c76785af77ca_5a776264cbecc67bd81bf1bea7505338"
+              },
+              {
+                "phase": "noise-2",
+                "id": "0af2a305f4c4e44a69c7fd5e03d7f74e_7ff87a43db7f15aa80827e2230dd95a1"
+              },
+              {
+                "phase": "noise-2",
+                "id": "251325e4d8bd19d38d1481ec5bb6b952_b0e0faf620816637683d6cefbc8d905d"
+              },
+              {
+                "phase": "noise-2",
+                "id": "2c0b811d86ed6140f5f9811cf3a320fa_4e375ba613e31acadbdf76cf9dcb95ad"
+              },
+              {
+                "phase": "noise-2",
+                "id": "4f8faed01fbb8264519d9f4ae8989a36_45f94dc55ea05eafeb903b1266bfe98e"
+              },
+              {
+                "phase": "noise-2",
+                "id": "5379ab99eae4161320d5bb2c0850315e_bcec25bc2e21ce2667e0368df647bcf2"
+              },
+              {
+                "phase": "pilot",
+                "id": "0693b094973e7e926583c76785af77ca_5a776264cbecc67bd81bf1bea7505338"
+              },
+              {
+                "phase": "pilot",
+                "id": "0af2a305f4c4e44a69c7fd5e03d7f74e_7ff87a43db7f15aa80827e2230dd95a1"
+              },
+              {
+                "phase": "pilot",
+                "id": "251325e4d8bd19d38d1481ec5bb6b952_b0e0faf620816637683d6cefbc8d905d"
+              },
+              {
+                "phase": "pilot",
+                "id": "2c0b811d86ed6140f5f9811cf3a320fa_4e375ba613e31acadbdf76cf9dcb95ad"
+              },
+              {
+                "phase": "test",
+                "id": "0392540a38af6a74d7dd8473fa0ba1a5_0a68ff276c1d5df9e87726e464ecc216"
+              },
+              {
+                "phase": "test",
+                "id": "03927b9bcf620c4ee68271a80692b351_dee2e96b000e11691c6a03d182193ec7"
+              },
+              {
+                "phase": "test",
+                "id": "0612a03d51144ae540ecb39ad33140f4_304928c772c1f3d037cb8eb47ccd3508"
+              },
+              {
+                "phase": "test",
+                "id": "18505267e05c58f3a305e54904fd34b2_1451931fd30649952c2c0089f11102a1"
+              },
+              {
+                "phase": "test",
+                "id": "1a0f5c1eb06fc3ba0a21ad7ddf65ae37_1788d536a2e32efa5857a4de8215f3ba"
+              },
+              {
+                "phase": "test",
+                "id": "1c835b08565c96fd050e8d03fcaaa2fe_828481bc71c07b032a217144bfd826c6"
+              },
+              {
+                "phase": "test",
+                "id": "287bcd3d36c6958aec6c36b1f1075d90_916fc50c5bc8ada6e961c86e70ca5dcf"
+              },
+              {
+                "phase": "test",
+                "id": "2e7f5b41a327fb39c97b9d5b06788f6b_194ce3fb21f0fb17e9c38159b1074591"
+              },
+              {
+                "phase": "test",
+                "id": "4e21cbb12bc4b04b9c5c11b3130930d2_1f93e0b2fc4155023de1a373f3893141"
+              },
+              {
+                "phase": "test",
+                "id": "600b2a52c4bada1645ea967aa15e342b_150c121fc0c6df113525e7fa9c3fca25"
+              },
+              {
+                "phase": "test",
+                "id": "7c7b03126509e19f57695d4c13a05e60_54131bb736b6100dd111748baf677290"
+              },
+              {
+                "phase": "test",
+                "id": "81a79415e371594cf9f043a48136f044_1f0ec0885c6ce6c4302916d5ce4d24f0"
+              },
+              {
+                "phase": "test",
+                "id": "83d530f576c40265eca17ed0cc22f944_a5695b562ca1662f09f05988a63a9aa7"
+              },
+              {
+                "phase": "test",
+                "id": "8549f4ef6a78c00928955dbc7c7f1fa7_94f53e1c1dc62f94b0e69b6134b6f0ab"
+              },
+              {
+                "phase": "test",
+                "id": "8b0978cf784337023aea05c2618312f3_31f8ae96db2157f9744f6c8cca1357aa"
+              },
+              {
+                "phase": "test",
+                "id": "8cc9ba80404c18e7f7ffcf1d2f1ef4c1_861159dcb9d4cf60054fc3d92c577e8f"
+              },
+              {
+                "phase": "test",
+                "id": "8e1c94d7d9a559574ae09a7be0a5fbda_b82d6989e850993cc34b985e38f634c9"
+              },
+              {
+                "phase": "test",
+                "id": "8f069b7855423c3fc5313cac20850f1c_afd8e5c91bbfb4bb57b8d4764bd00a70"
+              },
+              {
+                "phase": "test",
+                "id": "979fe3662e6300afbcdf50c73cbb9fa3_715cf112f0842667b81ec3cef4a1ae3d"
+              },
+              {
+                "phase": "test",
+                "id": "a138b53260ab9a16a1bc86a4cc7a82ab_3384d0cc46433f6a4ff30d8ea3838a39"
+              },
+              {
+                "phase": "test",
+                "id": "abb63589d40c54505066d21fad69b411_04d6e8c43b837396d1da3a9c795fe494"
+              },
+              {
+                "phase": "test",
+                "id": "af2be5176b42b614654d5edc677ad8fa_88c3f2ae1e921c411fcc75e50bbcef2e"
+              },
+              {
+                "phase": "test",
+                "id": "b2cce1e0d1c9d642c84c1475cab4dc7f_fbdf7e874d4a8623febf36a884552cc1"
+              },
+              {
+                "phase": "test",
+                "id": "c383c667ed79dc1f679e457d62110278_ccf56c2bb6526e7e53f2c228f43441dc"
+              },
+              {
+                "phase": "test",
+                "id": "c90403884913aa2db3af49249ad355bd_c8bee784983a268e8a0d04768234641c"
+              },
+              {
+                "phase": "test",
+                "id": "ca2979cb4b51aa090d1ea89c3866296b_2843ccdb6ec40e7f40ddc028139cbb72"
+              },
+              {
+                "phase": "test",
+                "id": "d9dff41d573180ecfb4a2a046051907f_be0778a6d01f7806fdb0ed6808d39678"
+              },
+              {
+                "phase": "test",
+                "id": "ee2b019b748e79e6ca19ce7e98f08570_daef883c97da521206a756e4934403de"
+              }
+            ]
+          },
+          "test": {
+            "answerEnvelopes": 28,
+            "affectedItems": 28,
+            "items": [
+              {
+                "phase": "test",
+                "id": "0392540a38af6a74d7dd8473fa0ba1a5_0a68ff276c1d5df9e87726e464ecc216"
+              },
+              {
+                "phase": "test",
+                "id": "03927b9bcf620c4ee68271a80692b351_dee2e96b000e11691c6a03d182193ec7"
+              },
+              {
+                "phase": "test",
+                "id": "0612a03d51144ae540ecb39ad33140f4_304928c772c1f3d037cb8eb47ccd3508"
+              },
+              {
+                "phase": "test",
+                "id": "18505267e05c58f3a305e54904fd34b2_1451931fd30649952c2c0089f11102a1"
+              },
+              {
+                "phase": "test",
+                "id": "1a0f5c1eb06fc3ba0a21ad7ddf65ae37_1788d536a2e32efa5857a4de8215f3ba"
+              },
+              {
+                "phase": "test",
+                "id": "1c835b08565c96fd050e8d03fcaaa2fe_828481bc71c07b032a217144bfd826c6"
+              },
+              {
+                "phase": "test",
+                "id": "287bcd3d36c6958aec6c36b1f1075d90_916fc50c5bc8ada6e961c86e70ca5dcf"
+              },
+              {
+                "phase": "test",
+                "id": "2e7f5b41a327fb39c97b9d5b06788f6b_194ce3fb21f0fb17e9c38159b1074591"
+              },
+              {
+                "phase": "test",
+                "id": "4e21cbb12bc4b04b9c5c11b3130930d2_1f93e0b2fc4155023de1a373f3893141"
+              },
+              {
+                "phase": "test",
+                "id": "600b2a52c4bada1645ea967aa15e342b_150c121fc0c6df113525e7fa9c3fca25"
+              },
+              {
+                "phase": "test",
+                "id": "7c7b03126509e19f57695d4c13a05e60_54131bb736b6100dd111748baf677290"
+              },
+              {
+                "phase": "test",
+                "id": "81a79415e371594cf9f043a48136f044_1f0ec0885c6ce6c4302916d5ce4d24f0"
+              },
+              {
+                "phase": "test",
+                "id": "83d530f576c40265eca17ed0cc22f944_a5695b562ca1662f09f05988a63a9aa7"
+              },
+              {
+                "phase": "test",
+                "id": "8549f4ef6a78c00928955dbc7c7f1fa7_94f53e1c1dc62f94b0e69b6134b6f0ab"
+              },
+              {
+                "phase": "test",
+                "id": "8b0978cf784337023aea05c2618312f3_31f8ae96db2157f9744f6c8cca1357aa"
+              },
+              {
+                "phase": "test",
+                "id": "8cc9ba80404c18e7f7ffcf1d2f1ef4c1_861159dcb9d4cf60054fc3d92c577e8f"
+              },
+              {
+                "phase": "test",
+                "id": "8e1c94d7d9a559574ae09a7be0a5fbda_b82d6989e850993cc34b985e38f634c9"
+              },
+              {
+                "phase": "test",
+                "id": "8f069b7855423c3fc5313cac20850f1c_afd8e5c91bbfb4bb57b8d4764bd00a70"
+              },
+              {
+                "phase": "test",
+                "id": "979fe3662e6300afbcdf50c73cbb9fa3_715cf112f0842667b81ec3cef4a1ae3d"
+              },
+              {
+                "phase": "test",
+                "id": "a138b53260ab9a16a1bc86a4cc7a82ab_3384d0cc46433f6a4ff30d8ea3838a39"
+              },
+              {
+                "phase": "test",
+                "id": "abb63589d40c54505066d21fad69b411_04d6e8c43b837396d1da3a9c795fe494"
+              },
+              {
+                "phase": "test",
+                "id": "af2be5176b42b614654d5edc677ad8fa_88c3f2ae1e921c411fcc75e50bbcef2e"
+              },
+              {
+                "phase": "test",
+                "id": "b2cce1e0d1c9d642c84c1475cab4dc7f_fbdf7e874d4a8623febf36a884552cc1"
+              },
+              {
+                "phase": "test",
+                "id": "c383c667ed79dc1f679e457d62110278_ccf56c2bb6526e7e53f2c228f43441dc"
+              },
+              {
+                "phase": "test",
+                "id": "c90403884913aa2db3af49249ad355bd_c8bee784983a268e8a0d04768234641c"
+              },
+              {
+                "phase": "test",
+                "id": "ca2979cb4b51aa090d1ea89c3866296b_2843ccdb6ec40e7f40ddc028139cbb72"
+              },
+              {
+                "phase": "test",
+                "id": "d9dff41d573180ecfb4a2a046051907f_be0778a6d01f7806fdb0ed6808d39678"
+              },
+              {
+                "phase": "test",
+                "id": "ee2b019b748e79e6ca19ce7e98f08570_daef883c97da521206a756e4934403de"
+              }
+            ]
+          }
+        }
+      }
     }
   ],
   "exposure": "previously evaluated split",
@@ -1488,6 +2230,20 @@
         "repeats": 3,
         "itemsWithAnyFlip": 10,
         "itemsWithAnyMissing": 1
+      }
+    },
+    "claude-sonnet-5-5": {
+      "driftbench-verify-uncertainty-cascade": {
+        "items": 30,
+        "repeats": 3,
+        "itemsWithAnyFlip": 1,
+        "itemsWithAnyMissing": 0
+      },
+      "promptfoo": {
+        "items": 30,
+        "repeats": 3,
+        "itemsWithAnyFlip": 5,
+        "itemsWithAnyMissing": 8
       }
     }
   },
@@ -1707,6 +2463,32 @@
                 "id": "045503cb808f8344ae4972c147441517_90dddf89d761d5515d371d5d883e15ec"
               }
             ]
+          },
+          "test": {
+            "answerEnvelopes": 0,
+            "affectedItems": 0,
+            "items": []
+          }
+        }
+      },
+      "claude-sonnet-5-5": {
+        "driftbench-verify-uncertainty-cascade": {
+          "all": {
+            "answerEnvelopes": 0,
+            "affectedItems": 0,
+            "items": []
+          },
+          "test": {
+            "answerEnvelopes": 0,
+            "affectedItems": 0,
+            "items": []
+          }
+        },
+        "promptfoo": {
+          "all": {
+            "answerEnvelopes": 0,
+            "affectedItems": 0,
+            "items": []
           },
           "test": {
             "answerEnvelopes": 0,
@@ -2506,7 +3288,7 @@
       "sol61/evidence/refusal-amendment.json": "e491b299318ea66f2bf6a55b7eab78ce8812f9c8ebed724b802646983b2f5375",
       "sonnet/evidence/native-quota-amendment.json": "43cc78f59120129d525a9ed53b10f81425b97c79b917effdf2f8d40042efa792",
       "sonnet/evidence/native-quota-recovery.json": "597f79da24cf9c1109aecdd728e896ccdb282385a9db4b5ae1ef41bd52dbb1d1",
-      "sol61/evidence/cost-sample.json": "115c6295036bfa42ce0f17e75b2672849de2960120c3290383e8679319ee2d29",
+      "sol61/evidence/cost-sample.json": "4261ce779d264fa621267616cc8b02621fcf3deeaa0ff75650532b5eadb79d8e",
       "sol61/evidence/native-quota-amendment.json": "bb43781ed864b81ccb10bc2b71dd4c680403f37770e4c8e444c54cc22151ffe3",
       "sonnet/evidence/native-quota-continuation.json": "a0414832086482f1411f457a9721ec121555a43bf60d09a02015913013058260",
       "sol61/evidence/cap40-amendment.json": "e2b20a24a09cefd97c940022546eba6e0878246dceb36c195fc87674a53f7484",
@@ -2516,7 +3298,7 @@
       "evidence/gemini-owner-drop.json": "bb5ffda38ecfd49b1da0e59930e1ca67e84e19a38bb596a918067beb862e8959"
     }
   },
-  "at": "2026-10-13T18:33:38.173829+00:00",
+  "at": "2026-10-13T19:35:10.468757+00:00",
   "cheaterGateAuditFile": "evidence/cheater-gate-audit.json",
   "predeclaredCheaterMarginEstablished": false,
   "lunaFeeReconciliation": {
@@ -8360,9 +9142,9 @@
   },
   "newModelFees": {
     "claude-sonnet-5-5": {
-      "settledUsd": 21.790028000000035,
-      "unresolvedMaximumUsd": 1.5,
-      "maximumAccountedUsd": 23.290028000000035,
+      "settledUsd": 34.113672000000015,
+      "unresolvedMaximumUsd": 0.5,
+      "maximumAccountedUsd": 34.613672000000015,
       "capUsd": 45
     },
     "gpt-6.1-sol": {
@@ -8372,7 +9154,33 @@
       "capUsd": 40
     }
   },
-  "newModelCostAttribution": [],
+  "newModelCostAttribution": [
+    {
+      "model": "claude-sonnet-5-5",
+      "folder": "sonnet",
+      "costs": {
+        "driftbench-verify-uncertainty-cascade": 27.153938000000004,
+        "promptfoo": 6.959734000000006
+      },
+      "unassignedUsd": 0,
+      "tokens": [
+        {
+          "contestant": "driftbench-verify-uncertainty-cascade",
+          "input": 3476231,
+          "output": 2018821,
+          "reasoning": 1048478,
+          "cacheWrite": 6633
+        },
+        {
+          "contestant": "promptfoo",
+          "input": 2477201,
+          "output": 198208,
+          "reasoning": 137967,
+          "cacheWrite": 11626
+        }
+      ]
+    }
+  ],
   "closedOutputLimitAudit": {
     "path": "evidence/closed-output-limit-audit.json",
     "sha256": "43af6ef30137e3deb770715e9c3789b40d443f281fc094f841463292c055d8ce",

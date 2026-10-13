@@ -12,9 +12,10 @@ DOSSIER = Path('/private/tmp/claude-501/-Users-assem-Documents-Doc-Assem-Claude-
 
 
 def git(*args):
-    result = subprocess.run(['git', *args], cwd=ROOT, text=True, capture_output=True, check=True)
+    result = subprocess.run(['git', *args], cwd=ROOT, text=True, capture_output=True)
     if result.stderr:
         print(result.stderr, end='')
+    result.check_returncode()
     return result.stdout.strip()
 
 

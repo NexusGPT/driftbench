@@ -1,8 +1,8 @@
 {
-  "phase": "cost-sample",
-  "status": "authorized at 40 USD; waiting for Sonnet to finish",
-  "projected379UnitsUsd": 36.1998895,
-  "at": "2026-10-13T16:51:25.581114+00:00",
+  "phase": "pilot",
+  "status": "running",
+  "concurrency": 2,
+  "at": "2026-10-13T19:34:39.260376+00:00",
   "model": "gpt-6.1-sol",
-  "pid": 75059
+  "pid": 73927
 }
