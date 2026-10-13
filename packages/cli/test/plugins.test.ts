@@ -77,6 +77,16 @@ describe('plugins', () => {
     expect(run.out).toContain('plugins-hello · echo:demo');
   });
 
+  it('plugins and campaign settings live in one config', async () => {
+    const dir = await temp({
+      'both.yaml': `plugins:\n  - ${join(EXAMPLE, 'plugin.mjs')}\ncampaign:\n  specs: [${SPEC}]\n  repeats: 2\n`,
+    });
+    const run = await cli(['campaign', 'run', '--config', join(dir, 'both.yaml')]);
+    expect(run.err).toBe('');
+    expect(run.code).toBe(0);
+    expect(run.out).toContain('2 cells: 2 pass');
+  });
+
   it('a plugin check fails the block it catches', async () => {
     const dir = await temp({
       'rude.yaml': [
@@ -162,7 +172,7 @@ describe('plugins', () => {
     expect(await readAggregateConfig(join(dir, 'ok.yaml'))).toEqual({ ok: true, specs: [] });
     expect(await readAggregateConfig(join(dir, 'unknown.yaml'))).toEqual({
       ok: false,
-      message: `${join(dir, 'unknown.yaml')}:2: unknown key mystery; the config defines aggregates, plugins, scales only`,
+      message: `${join(dir, 'unknown.yaml')}:2: unknown key mystery; the config defines aggregates, scales, campaign and plugins only`,
     });
   });
 

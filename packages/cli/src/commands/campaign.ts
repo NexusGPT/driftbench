@@ -72,6 +72,7 @@ import {
   type UserModelPort,
 } from '@agent-nexus/driftbench-users';
 import type { Command } from 'commander';
+import { applyCampaignConfig } from '../campaign-config';
 import type { Io } from '../io';
 import { optionNumber } from '../number';
 import { pluginAdapter, pluginAdapterNames } from '../plugins';
@@ -115,6 +116,8 @@ export type CampaignDeps = {
 const MODE_HELP =
   'the run mode: T teacher-forced, F free-running, P perturbed; several separated by commas, such as T,F';
 
+const CONFIG_HELP =
+  'the project config whose campaign: settings apply where no flag is given; default driftbench.yaml in the working folder';
 const TARGET_HELP =
   'run every spec on this target (but the specs a --route marks); repeat for several. Without it, each spec runs on its own target';
 
@@ -242,6 +245,7 @@ export const defaultDeps: CampaignDeps = {
 };
 
 type PlanCommandOptions = {
+  config?: string;
   target: string[];
   route?: string[];
   mode: string;
@@ -254,6 +258,7 @@ type PlanCommandOptions = {
 };
 
 type RunCommandOptions = {
+  config?: string;
   dataset?: string;
   cacheSuite?: string;
   prompt?: string[];
@@ -320,7 +325,9 @@ export function registerCampaignCommands(
     .option('--rho <rho>', 'the correlation of repeats of one spec, as icc measures it, from 0 to 1', '0')
     .option('--store <file>', 'read the measured unit costs from this store')
     .option('--json', 'print one JSON document')
-    .action(async (paths: string[], options: PlanCommandOptions) => {
+    .option('--config <file>', CONFIG_HELP)
+    .action(async (paths: string[], options: PlanCommandOptions, command: Command) => {
+      if ((await applyCampaignConfig(command, options, io)) === false) return setExit(2);
       setExit(await campaignPlanCommand(paths, options, io, deps));
     });
 
@@ -407,8 +414,14 @@ export function registerCampaignCommands(
     )
     .option('--retry-max-ms <ms>', 'the longest wait between two attempts (default 30000)')
     .option('--json', 'print one JSON document')
-    .action(async (paths: string[], options: RunCommandOptions) => {
-      setExit(await campaignRunCommand(paths, options, io, deps));
+    .option('--config <file>', CONFIG_HELP)
+    .action(async (paths: string[], options: RunCommandOptions, command: Command) => {
+      const config = await applyCampaignConfig(command, options, io);
+      if (config === false) return setExit(2);
+      // What to run comes from one place: the command line when it names paths or --dataset, else the file.
+      const named = paths.length > 0 || command.getOptionValueSource('dataset') === 'cli';
+      if (named && command.getOptionValueSource('dataset') !== 'cli') options.dataset = undefined;
+      setExit(await campaignRunCommand(named ? paths : (config?.specs ?? []), options, io, deps));
     });
 
   campaign
