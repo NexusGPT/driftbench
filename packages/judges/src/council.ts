@@ -9,6 +9,7 @@ import { type JudgeCheckOptions, judgeCheck } from './check';
 import type { JudgeClient } from './client';
 import type { Budget, JudgeClass, JudgeOutcome, JudgeRequest, JudgeResult } from './contract';
 import { familyOfModel, normalizeFamily, sameFamily } from './family';
+import { judgePersonalData, type PersonalDataVerdict } from './pii-judge';
 import { screenData } from './screen';
 
 /**
@@ -137,6 +138,8 @@ export type Council = {
   judge(request: JudgeRequest, judgeClass?: 'system1' | 'system2' | 'auto'): Promise<CouncilResult>;
   /** This council as the `judge` check, for a check set such as `defaultChecks({ judges: council })`. */
   check(options?: JudgeCheckOptions): Check;
+  /** Personal-data hook used by defaultChecks only when `expect.pii_judge` is true. */
+  piiJudge(text: string): Promise<PersonalDataVerdict>;
 };
 
 export function createCouncil(config: CouncilConfig): Council {
@@ -182,6 +185,16 @@ export function createCouncil(config: CouncilConfig): Council {
     assignmentFor,
     unassignedReason: (criterion) => unassigned.get(criterion),
     check: (options) => judgeCheck(council, options),
+    piiJudge: (text) =>
+      judgePersonalData(
+        {
+          async judge(request) {
+            const result = await council.judge(request);
+            return { answer: { outcome: result.outcome, reasoning: result.log.join(' | ') }, raw: '' };
+          },
+        },
+        text,
+      ),
     async judge(request, judgeClass) {
       const row = assignmentFor(request.criterion.name, judgeClass);
       const pick = (ids: readonly string[]) => ids.map((id) => byId.get(id) as JudgeClient);

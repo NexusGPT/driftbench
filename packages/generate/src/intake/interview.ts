@@ -67,16 +67,28 @@ const Channel = z.strictObject({
 
 export const Interview = z
   .strictObject({
-    version: z.literal(1),
-    agent: z.string().min(1),
+    version: z.literal(1).describe('The version of the interview format, 1.'),
+    agent: z
+      .string()
+      .min(1)
+      .describe('The agent the interview is about; the reference set built from it names the same agent.'),
     map: z.string().min(1).describe('The approved map, as a path relative to this file.'),
-    personas: z.array(Persona).min(1),
-    intents: z.array(Intent).min(1),
-    examples: z.array(Example).min(1),
-    never: z.array(Never).default([]),
-    tone: z.string().default(''),
-    languages: z.array(Language).min(1),
-    channels: z.array(Channel).min(1),
+    personas: z.array(Persona).min(1).describe('The kinds of user who write to the agent, one entry each.'),
+    intents: z
+      .array(Intent)
+      .min(1)
+      .describe('How often each intent of the map occurs, and which personas come with it.'),
+    examples: z
+      .array(Example)
+      .min(1)
+      .describe('Example messages a user writes next at a stage, for one persona and one intent.'),
+    never: z.array(Never).default([]).describe('What users never do or say, one entry each.'),
+    tone: z
+      .string()
+      .default('')
+      .describe('How users write in general: length, politeness, typos, emoji, slang.'),
+    languages: z.array(Language).min(1).describe('The languages users write in, and how often each.'),
+    channels: z.array(Channel).min(1).describe('How often users come through each channel of the map.'),
   })
   .describe('The owner interview: the answers path (ii) of the reference set is built from.');
 export type Interview = z.infer<typeof Interview>;

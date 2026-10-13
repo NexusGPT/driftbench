@@ -37,6 +37,7 @@ import {
   parseCriterionRef,
   planCampaign,
   planRadiusCampaign,
+  preflightTargetPrices,
   type RadiusPlan,
   type RegistrySource,
   type RetryOptions,
@@ -49,6 +50,8 @@ import {
   type Store,
   type TargetPrompt,
   TargetRef,
+  TokenPriceError,
+  type TokenPrices,
   type UserDriver,
   withAgentVersion,
 } from '@agent-nexus/driftbench-core';
@@ -75,7 +78,10 @@ import { ACME_EXAMPLE_ABSENT, acmeExample, acmeExampleInstalled, requireAcmeExam
 import { applyCampaignConfig } from '../campaign-config';
 import type { Io } from '../io';
 import { optionNumber } from '../number';
+import { pluginAdapter, pluginAdapterNames } from '../plugins';
 import { noStoreAt } from '../store-path';
+import { BUILTIN_TARGETS_NOTE, builtinTarget, builtinTargetHint } from '../targets';
+import { pricesFromConfig } from '../token-prices';
 import { agentFamilyOf, describeSource, loadPersonas, portFor, userFactory, userSource } from './personas';
 
 /** What lives as long as one campaign: a temporary folder for its sandboxes, made on first use. */
@@ -240,7 +246,10 @@ export const defaultDeps: CampaignDeps = {
       return (await acmeExample()) === undefined ? undefined : acmeFunctionAdapter();
     }
     if (target.adapter === 'process' && target.agent === 'acme-ops') return acmeOpsAdapter(scope);
-    return undefined;
+    const plugged = await pluginAdapter(target, scope);
+    if (plugged !== undefined) return plugged;
+    const builtin = builtinTarget(target);
+    return builtin !== undefined && 'adapter' in builtin ? builtin.adapter : undefined;
   },
   checks: defaultChecks(),
   artifacts: defaultReaders(),
@@ -270,6 +279,7 @@ type PlanCommandOptions = {
 };
 
 type RunCommandOptions = {
+  prices?: string;
   config?: string;
   dataset?: string;
   cacheSuite?: string;
@@ -304,6 +314,8 @@ type RunCommandOptions = {
 type RetryFlags = { retryAttempts?: string; retryBaseMs?: string; retryMaxMs?: string };
 
 type StoredCommandOptions = RetryFlags & {
+  prices?: string;
+  config?: string;
   store: string;
   cache?: boolean;
   cacheSuite?: string;
@@ -360,7 +372,7 @@ export function registerCampaignCommands(
     .option('--repeats <n>', 'runs per spec, target and mode', '1')
     .option(
       '--agent-version <label>',
-      'the version of the agent under test, written as the variant of every target that names none',
+      'the agent version in every block cache key; also the variant of targets that name none',
     )
     .option(
       '--change <manifest>',
@@ -389,6 +401,7 @@ export function registerCampaignCommands(
     )
     .option('--concurrency <n>', 'cells run at the same time', '4')
     .option('--budget-usd <usd>', 'a hard stop: no cell starts once the campaign has spent this much')
+    .option('--prices <file>', 'dated USD token prices; default prices in driftbench.yaml')
     .option('--process-command <command>', PROCESS_COMMAND_HELP)
     .option(
       '--driver <driver>',
@@ -446,6 +459,7 @@ export function registerCampaignCommands(
     .option('--no-cache', 'neither replay runs from the cache nor write to it')
     .option('--concurrency <n>', 'cells run at the same time', '4')
     .option('--budget-usd <usd>', "a hard stop on the campaign's spend; default: the budget it was run with")
+    .option('--prices <file>', 'dated USD token prices; default prices in driftbench.yaml')
     .option('--process-command <command>', PROCESS_COMMAND_HELP)
     .option(
       '--retry-attempts <n>',
@@ -671,6 +685,8 @@ export async function campaignRunCommand(
   const pool = parsePool(options, io);
   const withCommand = processDeps(deps, options.processCommand, io);
   if (!shape || !pool || !withCommand) return 2;
+  const prices = await readPrices(options, io);
+  if (prices === null) return 2;
   if (options.from !== undefined && options.change === undefined) {
     io.err('--from names the campaign a radius run carries from: it goes with --change <manifest>.\n');
     return 2;
@@ -715,6 +731,13 @@ export async function campaignRunCommand(
     );
     if (!runs) return 2;
     if (tooManyCells(runs, shape, io)) return 2;
+    if (pool.budgetUsd !== undefined) {
+      budgetScopeNotice(options.driver === 'simulated', deps, io);
+      preflightTargetPrices(
+        runs.flatMap((run) => run.targets),
+        prices,
+      );
+    }
     const driven = await driverDeps(options, runs, deps, io);
     if (!driven) return 2;
     deps = driven.deps;
@@ -758,6 +781,7 @@ export async function campaignRunCommand(
         judge: { mode: 'system1', judges: [] },
         createdAt,
         ...(registry.sources.length > 0 ? { sources: registry.sources } : {}),
+        ...(options.agentVersion === undefined ? {} : { agentVersion: options.agentVersion }),
       };
       const radius =
         options.change === undefined
@@ -783,8 +807,11 @@ export async function campaignRunCommand(
                   checks: deps.checks,
                   ...(deps.artifacts ? { artifacts: deps.artifacts } : {}),
                   store: memory,
+                  ...(campaign.agentVersion === undefined ? {} : { agentVersion: campaign.agentVersion }),
                   now: () => deps.now(),
                   concurrency: pool.concurrency,
+                  ...(pool.budgetUsd === undefined ? {} : { budgetUsd: pool.budgetUsd }),
+                  ...(prices ? { prices } : {}),
                   ...(pool.retry ? { retry: pool.retry } : {}),
                 });
                 return outcomes.flatMap((outcome) => (outcome.run ? [outcome.run] : []));
@@ -818,12 +845,17 @@ export async function campaignRunCommand(
         json: options.json === true,
         kept: options.store !== undefined,
         ...pool,
+        ...(prices ? { prices } : {}),
       });
       // A radius miss fails closed, whatever the cells say: the manifest left out part of the change.
       return (radius?.record.audit?.misses ?? 0) > 0 ? 1 : exit;
     } finally {
       await store.close();
     }
+  } catch (cause) {
+    if (!(cause instanceof TokenPriceError)) throw cause;
+    io.err(`${cause.message}\n`);
+    return 2;
   } finally {
     await closeScope(scope, io);
   }
@@ -934,6 +966,8 @@ export async function campaignResumeCommand(
   const pool = parsePool({ ...options, concurrency: options.concurrency ?? '4' }, io);
   const withCommand = processDeps(deps, options.processCommand, io);
   if (!pool || !withCommand) return 2;
+  const prices = await readPrices(options, io);
+  if (prices === null) return 2;
   deps = withCommand;
   if (noStoreAt(resolve(io.cwd, options.store), options.store, io)) return 2;
   const store = await openReported(deps, resolve(io.cwd, options.store), io);
@@ -942,10 +976,18 @@ export async function campaignResumeCommand(
   try {
     const stored = await storedCampaign(store, campaignId, options.store, io);
     if (!stored) return 2;
-    const adapters = await adaptersFor(runsOf(stored.campaign, stored.specs), deps, scope, io);
-    if (!adapters) return 2;
     const budgetUsd =
       pool.budgetUsd ?? (stored.campaign.budgetUsd > 0 ? stored.campaign.budgetUsd : undefined);
+    const runs = runsOf(stored.campaign, stored.specs);
+    if (budgetUsd !== undefined) {
+      budgetScopeNotice(false, deps, io);
+      preflightTargetPrices(
+        runs.flatMap((run) => run.targets),
+        prices,
+      );
+    }
+    const adapters = await adaptersFor(runs, deps, scope, io);
+    if (!adapters) return 2;
     return await executeCampaign(stored.campaign, stored.specs, adapters, store, deps, io, {
       cache: options.cache !== false,
       ...(options.cacheSuite === undefined ? {} : { cacheSuite: options.cacheSuite }),
@@ -953,8 +995,13 @@ export async function campaignResumeCommand(
       kept: true,
       concurrency: pool.concurrency,
       ...(budgetUsd === undefined ? {} : { budgetUsd }),
+      ...(prices ? { prices } : {}),
       ...(pool.retry ? { retry: pool.retry } : {}),
     });
+  } catch (cause) {
+    if (!(cause instanceof TokenPriceError)) throw cause;
+    io.err(`${cause.message}\n`);
+    return 2;
   } finally {
     // closeScope never throws, so the store is closed whatever happens to the folder.
     await closeScope(scope, io);
@@ -1010,6 +1057,7 @@ async function executeCampaign(
     kept: boolean;
     concurrency: number;
     budgetUsd?: number;
+    prices?: TokenPrices;
     retry?: RetryOptions;
     /** The line a radius campaign prints before its cells: what runs and what is carried. */
     radiusNote?: string;
@@ -1042,9 +1090,11 @@ async function executeCampaign(
     // The runner neither replays nor caches a run in a sandbox: a replay has no workspace to read.
     ...(flags.cache ? { cache: store } : {}),
     ...(flags.cacheSuite === undefined ? {} : { cacheSuite: flags.cacheSuite }),
+    ...(campaign.agentVersion === undefined ? {} : { agentVersion: campaign.agentVersion }),
     now: () => deps.now(),
     concurrency: flags.concurrency,
     ...(flags.budgetUsd === undefined ? {} : { budgetUsd: flags.budgetUsd }),
+    ...(flags.prices ? { prices: flags.prices } : {}),
     ...(flags.retry ? { retry: flags.retry } : {}),
     ...(flags.json ? {} : { onCell: (outcome: CellOutcome) => io.out(cellLine(outcome)) }),
   });
@@ -1491,8 +1541,13 @@ export function noAdapter(
       ? 'The pilot reaches function:acme (the Acme sales assistant) and function:acme-random or function:acme-random-<seed> (its seeded random control).'
       : `${ACME_EXAMPLE_ABSENT} The pilot runs on the example's agents only, so this install has no pilot target.`
     : knownTargets(installed);
+  const added = pluginAdapterNames();
+  const plugins = added.length === 0 ? '' : ` Plugins add the adapters ${added.join(', ')}.`;
+  const hint = context.pilot || added.includes(target.adapter) ? undefined : builtinTargetHint(target);
+  const needs = hint === undefined ? '' : ` ${hint}`;
   const suffix = context.unspent ? ': nothing ran, no query was spent.' : '.';
-  return `No adapter is set up for ${context.reference ? 'the reference ' : ''}${showTarget(target)}${whose}${suffix} ${reaches}`;
+  const extra = context.pilot ? '' : ` ${BUILTIN_TARGETS_NOTE}${plugins}`;
+  return `No adapter is set up for ${context.reference ? 'the reference ' : ''}${showTarget(target)}${whose}${suffix}${needs} ${reaches}${extra}`;
 }
 
 /** The target of the first route whose tag the spec carries, if any. */
@@ -2157,4 +2212,26 @@ async function driverDeps(
     },
     note: `Driver: simulated, ${lines.join('; ')}.\n`,
   };
+}
+
+/** Invalid pricing is input error, before any adapter call or stored campaign. */
+async function readPrices(
+  options: { prices?: string; config?: string },
+  io: Io,
+): Promise<TokenPrices | undefined | null> {
+  try {
+    return await pricesFromConfig(options, io.cwd);
+  } catch (cause) {
+    io.err(`${cause instanceof Error ? cause.message : String(cause)}\n`);
+    return null;
+  }
+}
+
+/** stderr keeps --json machine-readable; the notice precedes any paid driver or judge call. */
+function budgetScopeNotice(simulated: boolean, deps: CampaignDeps, io: Io): void {
+  if (simulated || deps.checks.some((check) => check.name === JUDGE_CHECK)) {
+    io.err(
+      'The budget counts what the target adapter reports; simulated-user and judge calls are not counted.\n',
+    );
+  }
 }
