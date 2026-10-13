@@ -46,7 +46,14 @@
     "longInputMultiplier": 2,
     "longOutputMultiplier": 1.5
   },
-  "frozenAt": "2026-10-13T13:45:30.409260+00:00",
-  "runtimeSha256": "5ace08dca560456b7b7de182658588a4f3fc34bbcdf63454f4378e80ca3e8001",
-  "reportingSha256": "3cb3f3407e25f0eb1e4f87d4eb93dbaa84129b83d329641c69c302bc2178461f"
+  "frozenAt": "2026-10-13T14:13:29.892813+00:00",
+  "runtimeSha256": "22647d865a14788e9b4a68e0c770a2551edf6084ed324273befe463c194d06d4",
+  "reportingSha256": "10df53bc316506c1d04c1e79f9d8ade62a172661fdf017a3df14b7d39a220380",
+  "cacheWriteAccounting": {
+    "at": "2026-10-13T14:13:29.537391+00:00",
+    "beforeFirstCall": true,
+    "source": "https://developers.openai.com/api/docs/guides/prompt-caching",
+    "usageField": "usage.input_tokens_details.cache_write_tokens",
+    "formula": "ordinary input excludes cached and written tokens; writes use 2.50 USD per million; reserve uses the maximum input price"
+  }
 }

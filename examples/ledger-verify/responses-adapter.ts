@@ -31,7 +31,8 @@ export function responsesFetch(onEnvelope:(value:any)=>Promise<void>,fetcher:Fet
 }
 export function responsesCost(value:any) {
   const u=value.usage;assert(u&&Number.isFinite(u.input_tokens)&&Number.isFinite(u.output_tokens));
-  const cached=Math.min(u.input_tokens,u.input_tokens_details?.cached_tokens??0),long=u.input_tokens>272000;
+  const cached=u.input_tokens_details?.cached_tokens??0,written=u.input_tokens_details?.cache_write_tokens??0,long=u.input_tokens>272000;
+  assert(cached>=0&&written>=0&&cached+written<=u.input_tokens,'Invalid cache accounting');
   // Standard USD/MTok, read 2026-10-13: https://developers.openai.com/api/docs/pricing
-  return ((u.input_tokens-cached)*2*(long?2:1)+cached*.10*(long?2:1)+u.output_tokens*10*(long?1.5:1))/1e6;
+  return ((u.input_tokens-cached-written)*2*(long?2:1)+cached*.10*(long?2:1)+written*2.50*(long?2:1)+u.output_tokens*10*(long?1.5:1))/1e6;
 }

@@ -33,7 +33,7 @@ try{
  if(hit){process.stdout.write(JSON.stringify(hit.output));process.exit(0);}
  while(!slot){slot=budget('try-acquire').acquired;if(!slot)await new Promise(r=>setTimeout(r,250));}
  const inputBound=Buffer.byteLength(system+user)+4096;
- const reserve=model==='claude-sonnet-5-5'?.5:(inputBound*2*(inputBound>272000?2:1)+32768*10*(inputBound>272000?1.5:1))/1e6;
+ const reserve=model==='claude-sonnet-5-5'?.5:(inputBound*2.5*(inputBound>272000?2:1)+32768*10*(inputBound>272000?1.5:1))/1e6;
  budget('reserve',reserve);reservation=true;
  let output:any,metadata:any;
  if(model==='claude-sonnet-5-5'){

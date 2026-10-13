@@ -19,4 +19,6 @@ assert(Math.abs(responsesCost(captured)-.32930)<1e-9);
 assert.equal(normalizeResponses({status:'incomplete',incomplete_details:{reason:'max_output_tokens'},output:[]}).choices[0].message.content,'');
 assert.throws(()=>responsesBody({model:'gpt-6.1-sol',reasoning_effort:'medium',max_completion_tokens:65536}));
 assert.throws(()=>responsesBody({model:'gpt-6.1-sol',reasoning_effort:'medium',max_completion_tokens:32768,temperature:0}));
-console.log(JSON.stringify({tests:4,providerCalls:0,coreDialectBound:true,outputLimitPreserved:true}));
+assert(Math.abs(responsesCost({usage:{input_tokens:15000,input_tokens_details:{cached_tokens:12000,cache_write_tokens:3000},output_tokens:0}})-.0087)<1e-10);
+assert.throws(()=>responsesCost({usage:{input_tokens:100,input_tokens_details:{cached_tokens:80,cache_write_tokens:80},output_tokens:0}}));
+console.log(JSON.stringify({tests:6,providerCalls:0,coreDialectBound:true,outputLimitPreserved:true}));
