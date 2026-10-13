@@ -75,7 +75,7 @@ def board(config, benches=None):
             for kind in ('jev', 'luna', 'usd', 'seconds'):
                 row['moj'][kind] = sum(decisions[k]['calls'][kind] for k in keys) / len(keys)
             row['moj']['levels'] = {}
-            for level in ('high', 'held', 'middle', 'low'):
+            for level in ('terminal', 'high', 'held', 'middle', 'low'):
                 inside = [k for k in keys if decisions[k]['level'] == level]
                 row['moj']['levels'][level] = {'share': len(inside) / len(keys),
                                                'acc': cell([score_verdict(decisions[k]['verdict'], by_key[k]['_meta']['label']) for k in inside])['acc']}

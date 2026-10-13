@@ -64,10 +64,20 @@ def compact(value):
     return value
 
 
+EXTRA = {'jev.jsonl': ['jev-s1v2.jsonl']}  # imported read-only recordings (design-moj-system1-v2, direct route)
+
+
 def _load(name):
     if name in _cache:
         return _cache[name]
     rows = {}
+    for extra in EXTRA.get(name, []):
+        path = os.path.join(REC, extra)
+        if os.path.exists(path):
+            with open(path) as handle:
+                for line in handle:
+                    row = json.loads(line)
+                    rows.setdefault(row['key'], row)
     path = os.path.join(REC, name)
     if os.path.exists(path):
         with open(path) as handle:

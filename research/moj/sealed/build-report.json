@@ -1,0 +1,18 @@
+{
+ "mmeval_dropped_not_core": [],
+ "judgebench": {
+  "sealed_ids": 100,
+  "prompt_overlap_dropped": 0,
+  "pairs": 100
+ },
+ "mmeval": {
+  "sealed_ids": 300,
+  "prompt_overlap_dropped": 6,
+  "pairs": 294
+ },
+ "writing": {
+  "sealed_ids": 300,
+  "prompt_overlap_dropped": 0,
+  "pairs": 300
+ }
+}

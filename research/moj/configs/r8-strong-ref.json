@@ -1,0 +1,54 @@
+{
+ "name": "r8-strong-ref",
+ "note": "Round 8 (design v2 round B). The reference at high effort; terminal when the three references agree (ref_agree >= 0.6) and its margin is at least 0.3; where they disagree the item goes to the low level with the pairwise-with-reference decision and the System-2 verdict. Refuted when JudgeBench validation is under 94.0.",
+ "stage1": [
+  "s1p"
+ ],
+ "hi": 0.8,
+ "lo": 0.8,
+ "low": [
+  "refpair",
+  "s2v"
+ ],
+ "always": [
+  {
+   "expert": "ref_hi",
+   "terrain": {
+    "needs_reasoning": 0.6
+   }
+  }
+ ],
+ "no_escalate": [
+  {
+   "terrain": {
+    "subjective_writing": 0.6
+   }
+  }
+ ],
+ "terminal": [
+  {
+   "expert": "ref_hi",
+   "terrain": {
+    "needs_reasoning": 0.6,
+    "ref_agree": 0.6
+   },
+   "min_margin": 0.3,
+   "paid": [
+    "ref",
+    "ref_gem",
+    "ref_agree"
+   ]
+  }
+ ],
+ "force_low": [
+  {
+   "terrain": {
+    "needs_reasoning": 0.6,
+    "ref_agree": [
+     0.0,
+     0.6
+    ]
+   }
+  }
+ ]
+}

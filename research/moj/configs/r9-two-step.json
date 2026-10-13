@@ -1,0 +1,39 @@
+{
+ "name": "r9-two-step",
+ "note": "Round 9. Two System-1 steps: step 1 answers (commit) or abstains; step 2, for abstained pairs only, reads the terrain and picks the design (stay with System 1 on writing, reference first on reasoning then the System-2 verdict if still under the stop, System-2 verdict elsewhere). Thresholds fitted on the tuning half: the cheapest setting whose cross-fitted tuning accuracy is within 0.5 point of the best (commit 0.8, reference stop 0.6).",
+ "stage1": [
+  "s1p"
+ ],
+ "two_step": {
+  "commit": 0.8,
+  "routes": [
+   {
+    "name": "writing-stay",
+    "terrain": {
+     "subjective_writing": 0.6
+    },
+    "commit": true
+   },
+   {
+    "name": "reference-first",
+    "terrain": {
+     "needs_reasoning": 0.6
+    },
+    "add": [
+     "ref"
+    ],
+    "stop_at": 0.6,
+    "else_add": [
+     "s2v"
+    ]
+   },
+   {
+    "name": "system2",
+    "terrain": {},
+    "add": [
+     "s2v"
+    ]
+   }
+  ]
+ }
+}

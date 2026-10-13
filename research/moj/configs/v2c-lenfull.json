@@ -1,0 +1,37 @@
+{
+ "name": "v2c-lenfull",
+ "note": "Round C. r6 with the completeness question (lenfull) as stage 1 on writing terrain. A preference alignment. Kept only if writing validation clears r6 by more than the 6.7-point floor and tuning does not fall.",
+ "stage1": [
+  "s1p"
+ ],
+ "hi": 0.8,
+ "lo": 0.8,
+ "low": [
+  "s2v"
+ ],
+ "always": [
+  {
+   "expert": "ref",
+   "terrain": {
+    "needs_reasoning": 0.6
+   }
+  }
+ ],
+ "no_escalate": [
+  {
+   "terrain": {
+    "subjective_writing": 0.6
+   }
+  }
+ ],
+ "stage1_by_terrain": [
+  {
+   "terrain": {
+    "subjective_writing": 0.6
+   },
+   "stage1": [
+    "lenfull"
+   ]
+  }
+ ]
+}

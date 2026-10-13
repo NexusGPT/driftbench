@@ -15,7 +15,8 @@ from moj.collect import load_signals
 from moj.experts import CATALOGUE, Ctx
 from moj.policy import Combiner, decide, score_games, score_verdict, wilson
 
-CONFIG = 'configs/r6-ref-first.json'
+CONFIG = 'configs/r9-two-step.json'      # primary, frozen 2026-10-13 after round 9
+SECONDARY = 'configs/r6-ref-first.json'  # the configuration frozen first; reported beside the primary, outside the Holm family
 EXPERTS = ['s1p', 'route', 'ref', 's2v', 'length']
 SETS = [['s1p'], ['s1p', 'ref'], ['s1p', 's2v'], ['s1p', 'ref', 's2v']]
 OUT = os.path.join(HERE, 'results', 'sealed')
@@ -27,9 +28,10 @@ def freeze():
     practice = [s for b in BENCH_LIST for s in load_signals(b).values()]
     comb = Combiner(practice, config.get('l2', 1.0))
     weights = {'+'.join(k): [float(x) for x in comb.weights(k)] for k in SETS}
-    files = ['moj/policy.py', 'moj/experts.py', 'moj/client.py', 'moj/benches.py', CONFIG, 'sealed/run.py', 'sealed/build.py', 'data/sealed-confirmation.json']
+    files = ['moj/policy.py', 'moj/experts.py', 'moj/client.py', 'moj/benches.py', CONFIG, SECONDARY, 'sealed/run.py', 'sealed/build.py', 'data/sealed-confirmation.json']
     digests = {f: hashlib.sha256(open(os.path.join(HERE, f), 'rb').read()).hexdigest() for f in files}
-    freeze = {'config': config, 'weights_fitted_on': f'all practice pairs ({len(practice)})', 'weights': weights,
+    freeze = {'config': config, 'secondary_config': json.load(open(os.path.join(HERE, SECONDARY))),
+              'note': 'Sealed signals (s1p, route, ref, s2v, length) were collected under the first freeze (r6, commit 60da2848) and never scored. The primary was changed to r9-two-step before any sealed score was computed or read; both configurations use the same experts and the same frozen weights.', 'weights_fitted_on': f'all practice pairs ({len(practice)})', 'weights': weights,
               'models': {'system1': 'jev-latest (answered as jev-1.13.0)', 'system2': 'gpt-6-luna, medium effort, no temperature'},
               'file_sha256': digests,
               'rule_for_a_win': ('Per benchmark and baseline: paired bootstrap (20,000 draws, resampling prompt groups) of MoJ minus baseline. '
@@ -68,7 +70,7 @@ def collect():
             out = CATALOGUE[name]['fn'](ctx)
             return item['id'], name, {'pA': out['pA'], 'detail': out['detail'], 'calls': ctx.calls, 'usd': round(ctx.usd, 6),
                                       'seconds': {k: round(sum(v), 3) for k, v in ctx.seconds.items()}, 'missing': ctx.missing}
-        todo = [lambda i=i, n=n: one(i, n) for n in EXPERTS for i in items if n not in store.get(i['id'], {})]
+        todo = [lambda i=i, n=n: one(i, n) for n in EXPERTS for i in items if n not in store.get(i['id'], {}) or store[i['id']][n].get('missing')]
         for item_id, name, sig in run_all(todo):
             store.setdefault(item_id, {})[name] = sig
         for item in items:
@@ -115,6 +117,7 @@ def score():
         rows = []
         for item_id, s in store.items():
             d = decide(fr['config'], s, comb)
+            d2 = decide(fr['secondary_config'], s, comb)
             label = s['_meta']['label']
             flip = {'A': 'B', 'B': 'A', 'tie': 'tie', None: None}
             lg = ledger.get(item_id)
@@ -127,20 +130,23 @@ def score():
                          'length': score_verdict('A' if s['length']['pA'] > .5 else 'B' if s['length']['pA'] < .5 else 'tie', label),
                          'moj_s1': d['calls']['jev'], 'moj_s2': d['calls']['luna'], 'moj_usd': d['calls']['usd'], 'moj_sec': d['calls']['seconds'],
                          'pf_usd': s['s2v']['usd'], 'ledger_usd': lg.get('usd') if lg else None, 'ledger_calls': lg.get('calls') if lg else None,
-                         'level': d['level'], 'confidence': d['confidence']})
+                         'level': d['level'], 'confidence': d['confidence'],
+                         'r6': score_verdict(d2['verdict'], label), 'r6_s1': d2['calls']['jev'], 'r6_s2': d2['calls']['luna']})
         key = 'strict' if bench == 'judgebench' else ''
         def acc(col):
             v = [r[col] for r in rows if r[col] is not None]; m = sum(v) / len(v); lo, hi = wilson(m, len(v)); return {'n': len(v), 'acc': m, 'low': lo, 'high': hi}
         out = {'pairs': len(rows)}
-        for col in ['moj', 'moj_strict', 'pf', 'pf_strict', 'ledger', 'ledger_strict', 'length']:
+        for col in ['moj', 'moj_strict', 'r6', 'pf', 'pf_strict', 'ledger', 'ledger_strict', 'length']:
             out[col] = acc(col)
         n = len(rows)
         out['cost_per_100'] = {'moj_s1_calls': 100 * sum(r['moj_s1'] for r in rows) / n, 'moj_s2_calls': 100 * sum(r['moj_s2'] for r in rows) / n,
                                'moj_usd': 100 * sum(r['moj_usd'] for r in rows) / n, 'pf_s2_calls': 200, 'pf_usd': 100 * sum(r['pf_usd'] for r in rows) / n,
                                'ledger_calls': 100 * sum(r['ledger_calls'] or 0 for r in rows) / max(1, sum(1 for r in rows if r['ledger_calls'])),
                                'ledger_usd': 100 * sum(r['ledger_usd'] or 0 for r in rows) / max(1, sum(1 for r in rows if r['ledger_usd'] is not None))}
+        out['secondary_r6_calls_per_100'] = {'s1': 100 * sum(r['r6_s1'] for r in rows) / n, 's2': 100 * sum(r['r6_s2'] for r in rows) / n}
         out['moj_seconds_per_pair'] = sum(r['moj_sec'] for r in rows) / n
-        out['levels'] = {lv: sum(1 for r in rows if r['level'] == lv) / n for lv in ('high', 'held', 'low')}
+        out['levels'] = {lv: sum(1 for r in rows if r['level'] == lv) / n for lv in sorted({r['level'] for r in rows})}
+        out['level_accuracy'] = {lv: sum(r['moj'] for r in rows if r['level'] == lv) / max(1, sum(1 for r in rows if r['level'] == lv)) for lv in sorted({r['level'] for r in rows})}
         for base, col in [('promptfoo', 'pf'), ('ledger', 'ledger')]:
             sel = [r for r in rows if r[col] is not None]
             m_col, b_col = ('moj_strict', col + '_strict') if bench == 'judgebench' else ('moj', col)

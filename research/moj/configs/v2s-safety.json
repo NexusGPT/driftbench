@@ -1,0 +1,33 @@
+{
+ "name": "v2s-safety",
+ "note": "Safety guard. r6 plus the safety-facts expert joined to stage 1 on safety terrain. Refuted if MM-Eval falls on either half.",
+ "stage1": [
+  "s1p"
+ ],
+ "hi": 0.8,
+ "lo": 0.8,
+ "low": [
+  "s2v"
+ ],
+ "always": [
+  {
+   "expert": "ref",
+   "terrain": {
+    "needs_reasoning": 0.6
+   }
+  },
+  {
+   "expert": "safe",
+   "terrain": {
+    "safety_case": 0.6
+   }
+  }
+ ],
+ "no_escalate": [
+  {
+   "terrain": {
+    "subjective_writing": 0.6
+   }
+  }
+ ]
+}

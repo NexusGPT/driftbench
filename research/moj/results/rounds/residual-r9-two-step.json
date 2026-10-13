@@ -1,0 +1,154 @@
+{
+ "variant": "r9-two-step",
+ "R1_cells_not_ahead": 2,
+ "R2_cells_costlier_than_unbeaten": 1,
+ "cells": [
+  {
+   "cell": "judgebench x gpt-6-luna",
+   "moj": 0.912,
+   "moj_valid": 0.9224137931034483,
+   "best_baseline": "ledger",
+   "noise_floor": 0.0167,
+   "ahead": false,
+   "costlier_than_unbeaten": false,
+   "moj_s1": 3.92,
+   "moj_s2": 0.84,
+   "detail": {
+    "ledger": {
+     "n": 68,
+     "baseline": 0.9558823529411765,
+     "moj_same_pairs": 0.9264705882352942,
+     "diff": -0.029411764705882353,
+     "diff_low": -0.10294117647058823,
+     "diff_high": 0.04411764705882353,
+     "baseline_s2_calls": 2.0588235294117645
+    },
+    "promptfoo": {
+     "n": 250,
+     "baseline": 0.904,
+     "moj_same_pairs": 0.912,
+     "diff": 0.008,
+     "diff_low": -0.022,
+     "diff_high": 0.04,
+     "baseline_s2_calls": 2.0
+    },
+    "length": {
+     "n": 250,
+     "baseline": 0.472,
+     "moj_same_pairs": 0.912,
+     "diff": 0.44,
+     "diff_low": 0.364,
+     "diff_high": 0.512,
+     "baseline_s2_calls": 0.0
+    },
+    "first": {
+     "n": 250,
+     "baseline": 0.5,
+     "moj_same_pairs": 0.912,
+     "diff": 0.412,
+     "diff_low": 0.376,
+     "diff_high": 0.444,
+     "baseline_s2_calls": 0.0
+    }
+   }
+  },
+  {
+   "cell": "mmeval x gpt-6-luna",
+   "moj": 0.95,
+   "moj_valid": 0.9513888888888888,
+   "best_baseline": "promptfoo",
+   "noise_floor": 0.0183,
+   "ahead": true,
+   "costlier_than_unbeaten": false,
+   "moj_s1": 2.7066666666666666,
+   "moj_s2": 0.37333333333333335,
+   "detail": {
+    "ledger": {
+     "n": 20,
+     "baseline": 0.55,
+     "moj_same_pairs": 0.825,
+     "diff": 0.275,
+     "diff_low": 0.1,
+     "diff_high": 0.475,
+     "baseline_s2_calls": 0.95
+    },
+    "promptfoo": {
+     "n": 300,
+     "baseline": 0.9283333333333333,
+     "moj_same_pairs": 0.95,
+     "diff": 0.021666666666666667,
+     "diff_low": -0.0016666666666666668,
+     "diff_high": 0.045,
+     "baseline_s2_calls": 2.0
+    },
+    "length": {
+     "n": 300,
+     "baseline": 0.37,
+     "moj_same_pairs": 0.95,
+     "diff": 0.58,
+     "diff_low": 0.52,
+     "diff_high": 0.6366666666666667,
+     "baseline_s2_calls": 0.0
+    },
+    "first": {
+     "n": 300,
+     "baseline": 0.5,
+     "moj_same_pairs": 0.95,
+     "diff": 0.45,
+     "diff_low": 0.425,
+     "diff_high": 0.47333333333333333,
+     "baseline_s2_calls": 0.0
+    }
+   }
+  },
+  {
+   "cell": "writing x gpt-6-luna",
+   "moj": 0.6483333333333333,
+   "moj_valid": 0.6422764227642277,
+   "best_baseline": "length",
+   "noise_floor": 0.0667,
+   "ahead": false,
+   "costlier_than_unbeaten": true,
+   "moj_s1": 2.7133333333333334,
+   "moj_s2": 0.12333333333333334,
+   "detail": {
+    "ledger": {
+     "n": 50,
+     "baseline": 0.57,
+     "moj_same_pairs": 0.64,
+     "diff": 0.07,
+     "diff_low": -0.08,
+     "diff_high": 0.21,
+     "baseline_s2_calls": 2.26
+    },
+    "promptfoo": {
+     "n": 300,
+     "baseline": 0.5483333333333333,
+     "moj_same_pairs": 0.6483333333333333,
+     "diff": 0.1,
+     "diff_low": 0.043333333333333335,
+     "diff_high": 0.16,
+     "baseline_s2_calls": 2.0
+    },
+    "length": {
+     "n": 300,
+     "baseline": 0.6866666666666666,
+     "moj_same_pairs": 0.6483333333333333,
+     "diff": -0.03833333333333333,
+     "diff_low": -0.1,
+     "diff_high": 0.021666666666666667,
+     "baseline_s2_calls": 0.0
+    },
+    "first": {
+     "n": 300,
+     "baseline": 0.5,
+     "moj_same_pairs": 0.6483333333333333,
+     "diff": 0.14833333333333334,
+     "diff_low": 0.09666666666666666,
+     "diff_high": 0.20166666666666666,
+     "baseline_s2_calls": 0.0
+    }
+   }
+  }
+ ]
+}

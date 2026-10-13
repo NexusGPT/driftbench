@@ -1,0 +1,28 @@
+{
+ "name": "v2e-refpair",
+ "note": "E2. r6 plus the pairwise-with-reference System-1 decision at the low level beside the System-2 verdict. Refuted if JudgeBench validation does not rise.",
+ "stage1": [
+  "s1p"
+ ],
+ "hi": 0.8,
+ "lo": 0.8,
+ "low": [
+  "refpair",
+  "s2v"
+ ],
+ "always": [
+  {
+   "expert": "ref",
+   "terrain": {
+    "needs_reasoning": 0.6
+   }
+  }
+ ],
+ "no_escalate": [
+  {
+   "terrain": {
+    "subjective_writing": 0.6
+   }
+  }
+ ]
+}

@@ -10,6 +10,7 @@ A variant is one JSON config (configs/*.json):
            inside the unsure band counts as a match: an unsure route takes the safer, more expensive expert.
   always   cards applied to every item whatever the confidence (for example a stability judge when lengths differ)
   low      experts added at the low level
+  terminal  cards {expert, terrain, min_margin, paid}: on a match with a margin at least min_margin the expert decides alone
   no_escalate   terrain cards {"terrain": {...}}: on a match the item stays with stage 1 whatever its confidence
   force_low     terrain cards: on a match the item goes to the low level whatever its confidence
   abstain_below   final confidence under this value is an explicit abstention (scored as a tie)
@@ -96,6 +97,9 @@ def terrain(signals, used=()):
     if signs and min(signs) < -0.1 and max(signs) > 0.1:
         conflict = 1.0
     land['s1_conflict'] = conflict
+    agree = (signals.get('ref_agree') or {}).get('detail') or {}
+    if agree.get('agree') is not None:
+        land['ref_agree'] = agree['agree']
     return land
 
 
@@ -107,7 +111,7 @@ def matches(card, land):
         if isinstance(minimum, list):  # [low, high] band, both inclusive
             if not (minimum[0] <= value <= minimum[1]):
                 return False
-        elif feature in ('chars', 'length_gap', 'non_latin', 'order_split', 'first_bias', 's1_conflict'):
+        elif feature in ('chars', 'length_gap', 'non_latin', 'order_split', 'first_bias', 's1_conflict', 'ref_agree'):
             if value < minimum:
                 return False
         elif value < min(minimum, UNSURE[0]) if minimum >= 0.5 else value < minimum:
@@ -118,7 +122,7 @@ def matches(card, land):
 def calls_of(signals, experts):
     jev = luna = gem = 0
     usd = seconds = 0.0
-    for name in experts:
+    for name in dict.fromkeys(experts):  # an expert used twice is paid once
         signal = signals.get(name)
         if not signal:
             continue
@@ -130,18 +134,68 @@ def calls_of(signals, experts):
     return {'jev': jev, 'luna': luna + gem, 'gemini': gem, 'usd': usd, 'seconds': seconds}
 
 
+def decide_two_step(config, signals, combiner):
+    """Two System-1 steps. Step 1 answers or abstains: the stage-1 experts alone, committed when the fitted confidence
+    reaches `commit`. Step 2, only for abstained items, pays the router call and takes the first matching route:
+    {terrain, add: [experts], stop_at: confidence, else_add: [experts], commit: true (stay with step 1)}."""
+    spec = config['two_step']
+    used = list(config['stage1'])
+    paid = list(used)
+    p = combiner.p(signals, used)
+    conf = max(p, 1 - p)
+    level = 'step1'
+    if conf < spec['commit']:
+        paid.append('route')
+        land = terrain(signals, used)
+        level = 'abstain-unrouted'
+        for route in spec['routes']:
+            if not matches(route, land):
+                continue
+            level = route.get('name', 'routed')
+            if route.get('commit'):
+                break
+            def join(names):
+                added = [n for n in names if n not in used and signals.get(n, {}).get('pA') is not None]
+                used.extend(added)
+                paid.extend(added)
+                return added
+            join(route.get('add', []))
+            p = combiner.p(signals, used)
+            conf = max(p, 1 - p)
+            if route.get('else_add') and conf < route.get('stop_at', 1.01):
+                level += '+'
+                if join(route['else_add']):
+                    p = combiner.p(signals, used)
+                    conf = max(p, 1 - p)
+            break
+    verdict = 'A' if p > 0.5 else 'B' if p < 0.5 else 'tie'
+    return {'verdict': verdict, 'p': p, 'confidence': conf, 'level': level, 'path': used, 'reason': None, 'calls': calls_of(signals, paid)}
+
+
 def decide(config, signals, combiner):
     """Runs one item through the variant. Returns verdict, confidence, level, path and calls."""
+    if config.get('two_step'):
+        return decide_two_step(config, signals, combiner)
     hi, lo = config.get('hi', 0.9), config.get('lo', 0.7)
     if config.get('escalate_share') is not None:  # the dial: this share of training items sits under the boundary
         hi = lo = combiner.boundary(config['stage1'], config['escalate_share'])
     used = list(config['stage1'])
+    for card in config.get('stage1_by_terrain', []):  # a terrain may take another stage-1 expert
+        if matches(card, terrain(signals, [])):
+            used = list(card['stage1'])
+            break
     land = terrain(signals, used)
     paid = list(used) + (['route'] if config.get('cards') or config.get('always') else [])
     for card in config.get('always', []):
         if matches(card, land) and card['expert'] not in used:
             used.append(card['expert'])
             paid.append(card['expert'])
+    for card in config.get('terminal', []):  # a trusted expert on its terrain ends the item
+        signal = signals.get(card['expert']) or {}
+        if matches(card, terrain(signals, used)) and signal.get('pA') is not None and abs(signal['pA'] - 0.5) >= card.get('min_margin', 0.3):
+            p = combiner.p(signals, [card['expert']])
+            return {'verdict': 'A' if p > 0.5 else 'B' if p < 0.5 else 'tie', 'p': p, 'confidence': max(p, 1 - p), 'level': 'terminal',
+                    'path': used + [card['expert']], 'reason': None, 'calls': calls_of(signals, paid + [card['expert']] + list(card.get('paid', [])))}
     p = combiner.p(signals, used)
     conf = max(p, 1 - p)
     level = 'high'

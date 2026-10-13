@@ -1,0 +1,39 @@
+{
+ "name": "r9b-two-step-max",
+ "note": "Round 9b. The two-step policy at the setting with the highest tuning accuracy (commit 0.95, reference stop 0.6).",
+ "stage1": [
+  "s1p"
+ ],
+ "two_step": {
+  "commit": 0.95,
+  "routes": [
+   {
+    "name": "writing-stay",
+    "terrain": {
+     "subjective_writing": 0.6
+    },
+    "commit": true
+   },
+   {
+    "name": "reference-first",
+    "terrain": {
+     "needs_reasoning": 0.6
+    },
+    "add": [
+     "ref"
+    ],
+    "stop_at": 0.6,
+    "else_add": [
+     "s2v"
+    ]
+   },
+   {
+    "name": "system2",
+    "terrain": {},
+    "add": [
+     "s2v"
+    ]
+   }
+  ]
+ }
+}

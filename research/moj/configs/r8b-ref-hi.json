@@ -1,0 +1,27 @@
+{
+ "name": "r8b-ref-hi",
+ "note": "Round 8b. r6 with the high-effort reference in place of the medium one, nothing else. Refuted if pooled tuning and validation gains are both at or under 0.",
+ "stage1": [
+  "s1p"
+ ],
+ "hi": 0.8,
+ "lo": 0.8,
+ "low": [
+  "s2v"
+ ],
+ "always": [
+  {
+   "expert": "ref_hi",
+   "terrain": {
+    "needs_reasoning": 0.6
+   }
+  }
+ ],
+ "no_escalate": [
+  {
+   "terrain": {
+    "subjective_writing": 0.6
+   }
+  }
+ ]
+}
