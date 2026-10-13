@@ -1,0 +1,9 @@
+{
+  "status": "answered",
+  "key": "7d0e8d3ba5d19ccb4d055ed3ce143801c24f3e95580e4bfee5edb7cf778e416f",
+  "startedAt": "2026-10-13T12:11:54.959Z",
+  "finishedAt": "2026-10-13T12:11:56.808Z",
+  "reasoningApplied": "medium",
+  "costUsd": 0.0004364,
+  "policy": "First sealed fixture call; answer retained and not resubmitted."
+}

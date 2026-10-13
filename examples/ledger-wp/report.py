@@ -205,6 +205,7 @@ def main():
             f"- Applied reasoning on returned calls: {', '.join(applied) if applied else 'pending first call'}. Actual cell spend: {cell_actual:.8f} USD; held cell spend: {sum(cell_pending.values()):.8f} USD; cell cap: 5 USD inside the unchanged 35 USD cap. Source: `results/flash-lite-spend.jsonl` and raw provider metadata.",
             '- Flash Lite transport: at most eight calls, 300-second timeout, four total submissions for HTTP 429 with 20/60/180-second waits, three submissions for other transport failures. HTTP 402 aborts Gemini immediately and releases only proven rejections.',
             '- The same win/loss rule and statistical formulas apply. Positive results still require the prescribed multiplicity correction; this added model is reported separately, never substituted for the original Gemini cell.',
+            '- Pre-call amendment commit: `00af46678f86a108a1a47eda74746b29ad8da03b`, pushed before the first Flash Lite call. Eighteen harness tests and six analysis tests pass; the judge invocation block and statistical formulas match the previous freeze exactly.',
             '- The new model is explicitly authorized after earlier model outcomes were observed. It is an additive model check on the same sealed pool, not a newly blinded study. The amendment and source hashes precede its first call.','']
     if requests:
         lines+=['## Parked Gemini 3.8 request allocation','',

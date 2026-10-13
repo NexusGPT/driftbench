@@ -1,22 +1,19 @@
 {
-  "at": "2026-10-13T12:11:26.915335+00:00",
+  "at": "2026-10-13T12:18:03.003360+00:00",
   "failures": [],
   "complete": false,
   "modelsChecked": [
-    "haiku",
-    "gpt-6-luna",
-    "gemini-3.8-flash",
     "gemini-3.5-flash-lite"
   ],
   "sourceHashes": 191,
   "sealHashes": 5,
-  "actualUsd": 12.1051882,
-  "uncertainOrInflightUsd": 4.04811914,
+  "actualUsd": 13.8066051,
+  "uncertainOrInflightUsd": 6.44811914,
   "capUsd": 35,
   "duplicateSuccessfulLogicalCalls": 0,
   "geminiSingleProbeVerified": true,
-  "returnedCalls": 4845,
-  "completedDecisions": 2314,
+  "returnedCalls": 5405,
+  "completedDecisions": 2570,
   "coverage": [
     {
       "split": "test",
@@ -162,14 +159,14 @@
       "split": "dev",
       "model": "gemini-3.5-flash-lite",
       "contestant": "pair-ledger",
-      "recorded": 0,
+      "recorded": 90,
       "expected": 90
     },
     {
       "split": "dev",
       "model": "gemini-3.5-flash-lite",
       "contestant": "promptfoo",
-      "recorded": 0,
+      "recorded": 90,
       "expected": 90
     },
     {
@@ -239,14 +236,14 @@
       "split": "validity",
       "model": "gemini-3.5-flash-lite",
       "contestant": "pair-ledger",
-      "recorded": 0,
+      "recorded": 20,
       "expected": 20
     },
     {
       "split": "validity",
       "model": "gemini-3.5-flash-lite",
       "contestant": "promptfoo",
-      "recorded": 0,
+      "recorded": 20,
       "expected": 20
     },
     {
@@ -379,14 +376,14 @@
       "split": "fixtures",
       "model": "gemini-3.5-flash-lite",
       "contestant": "pair-ledger",
-      "recorded": 0,
+      "recorded": 18,
       "expected": 18
     },
     {
       "split": "fixtures",
       "model": "gemini-3.5-flash-lite",
       "contestant": "promptfoo",
-      "recorded": 0,
+      "recorded": 18,
       "expected": 18
     }
   ]

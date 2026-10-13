@@ -29,8 +29,8 @@
   {
     "scope": "all phases",
     "model": "gemini-3.5-flash-lite",
-    "completedPairs": 0,
-    "orderedReadings": 0,
+    "completedPairs": 128,
+    "orderedReadings": 280,
     "schemaReasks": 0,
     "recovered": 0,
     "reaskCostUsd": 0

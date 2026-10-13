@@ -48,6 +48,8 @@ def main():
     for script in ['stats.py', 'phase_report.py', 'validity_report.py', 'report.py']:
         run(['python3', str(HERE / script)])
     verification = ['python3', str(HERE / 'verify_results.py')]
+    if current.get('models'):
+        verification.extend(['--models', current['models']])
     if current['status'] == 'complete':
         verification.append('--require-complete')
     run(verification)
