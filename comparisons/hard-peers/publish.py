@@ -58,8 +58,29 @@ def main():
     lines += [f'- **{k}**: {v}' for k, v in freeze['classes'].items()]
     lines += ['', '## Rows', '']
     lines += [f'- **{k}**: {v}' for k, v in freeze['rows'].items()]
-    if 'run' in report:
-        lines += ['', '## Run', '', *report['run']]
+    sens = json.loads((HERE / 'sensitivity.json').read_text())
+    lines += ['', '## What the result says', '',
+              '- promptfoo: no measurable difference. The answer audit is right on 500 of 504 cases and the promptfoo defaults on 496; the pre-registered test does not separate them. The driftbench default ties at 496. Both sides are still near the ceiling on these classes with Claude Haiku 5.5.',
+              '- Langfuse: no measurable difference, and the Correctness template is ahead in raw counts (123 against 118 for the answer audit and 122 for the default) when read at its better threshold, 0.5. At 1.0 the template scores 108.',
+              '- DeepEval: the pre-registered test is decisive. The answer audit is right on 353 of 378 cases and the default metrics on 269. The gap comes from task completion (82 of 126) and conversation completeness (64 of 126); knowledge retention is close (123 of 126).',
+              '- The opt-in answer audit is not uniformly better than the driftbench default: it is behind on Langfuse correctness (118 against 122) and DeepEval task completion (119 against 126), both on the long-one-wrong class.',
+              '', '## Defects found in the frozen sets after the run', '',
+              'Reading the misses after the results were in showed defects in the construction. The frozen sets and the pre-registered numbers above are left as they are. This section is post hoc.', '',
+              '- **D1, a bug.** In DeepEval conversation completeness, the double-negation and long-one-wrong pairs kept the base user question while the replies answer a different one. The nine double-negation cases labelled pass leave two questions open, and the nine long-one-wrong cases labelled fail answer every question asked. Both driftbench modes judged these 18 cases against their labels and were right about the text.',
+              '- **D2, ambiguous labels.** In DeepEval task completion, long-one-wrong, the user asks for "the references" and the reply labelled pass gives one. In Langfuse correctness, long-one-wrong, the reply labelled pass adds "I have checked the plan record for you", which a strict reader can call an unsupported assertion. The answer audit failed 7 and 8 of those pass cases for exactly these reasons.', '',
+              'Pooled paired tests with those pairs removed (36 cases for D1; 72 for D1 and D2):', '',
+              '| Exclusion | Competitor | driftbench mode | Paired cases | driftbench right | Competitor right | Only driftbench | Only competitor | Exact McNemar p |',
+              '|---|---|---|---|---|---|---|---|---|']
+    for name, label in [('without_D1', 'D1 removed'), ('without_D1_and_D2', 'D1 and D2 removed')]:
+        for c, modes in sens[name].items():
+            for mode, v in modes.items():
+                lines.append(f"| {label} | {NAMES[c]} | {'answer audit' if mode == 'audit' else 'default'} | {v['paired_items']} | {v['ours_right']} | "
+                             f"{v['theirs_right']} | {v['ours_only_right']} | {v['theirs_only_right']} | {p_text(v['mcnemar_exact_p'])} |")
+    lines += ['', 'The conclusions do not change: decisive against DeepEval, no measurable difference against promptfoo and Langfuse.',
+              '', '## Run', '',
+              '- 3,610 answered calls on the frozen sets, 1.54 USD, concurrency 2, every case completed for every contestant. Four calls made before the freeze-gated run hit an account session limit, returned no answer at zero cost, and were sent again later.',
+              '- For about ten minutes two DeepEval runner processes from an aborted launch ran beside the main runner, so up to four calls were in flight. Their answered calls are part of the recording; no answered call was sent twice.',
+              '- The runner file changed twice after the first freeze commit and was refrozen each time, both before any answered call on these sets (commits `47917b194`, `2452e1001`).']
     lines += ['', '## Reproduce', '', 'See `comparisons/hard-peers/README.md`. `--replay` re-scores the recorded answers without a model call.', '']
     (REPO / 'docs/comparison/hard-peers-heldout.md').write_text('\n'.join(lines))
 
