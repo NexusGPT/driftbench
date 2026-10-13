@@ -272,7 +272,8 @@ async function main() {
   const recorded = new Map(latestDecisions(await readRecordingRows<DecisionRow>(resultPath)).map((r) => [decisionKey(r), r]));
   const ordered = jobs.flatMap((j, recordIndex) => {
     const row = recorded.get(decisionKey({ ...j, id: j.item.id }));
-    return row ? [{ ...row, recordIndex }] : [];
+    return row ? [{ model: row.model, phase: row.phase, id: row.id,
+      contestant: row.contestant, sample: row.sample, recordIndex }] : [];
   });
   await writeFile(`${DIRECTORY}/ordered-${phase}.json`, `${JSON.stringify(ordered, null, 2)}\n`);
   console.log(JSON.stringify({ phase, complete: !stopped, added: completed, prior: done.size, target: jobs.length, chargedUsd: calls.chargedUsd }));
