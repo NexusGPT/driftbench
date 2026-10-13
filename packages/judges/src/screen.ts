@@ -381,6 +381,18 @@ const DECODERS: readonly ((text: string) => string | undefined)[] = [
     );
     return decoded === text ? undefined : decoded;
   },
+  // Percent escapes (%20, %C3%BA), when the text holds four or more: read as the characters they stand for.
+  (text) => {
+    if ((text.match(/%[0-9a-f]{2}/gi) ?? []).length < 4) return undefined;
+    const decoded = text.replace(/(?:%[0-9a-f]{2})+/gi, (run) => {
+      try {
+        return decodeURIComponent(run);
+      } catch {
+        return run;
+      }
+    });
+    return decoded === text ? undefined : decoded;
+  },
   // HTML numeric entities (&#65; and &#x41;): read as the characters they stand for.
   (text) => {
     const decoded = text.replace(
