@@ -41,6 +41,7 @@ def all_spent():
  return sum(r.get('usd',0) for p in DATA.glob('*-calls.jsonl') for r in rows(p))+sum(r.get('costUsd',0) for r in rows(DATA/'haiku.jsonl'))
 spent=all_spent() # includes replayed historical base cost, conservatively
 reserved=0.0
+inflight=set()
 stop=False
 retry_after={}
 def post(url,headers,body):
@@ -51,11 +52,12 @@ def post(url,headers,body):
 def call(t):
  global spent,reserved,stop
  with LOCK:
-  if t['key'] in cache:return
+  if t['key'] in cache or t['key'] in inflight:return
   if t['provider']=='gemini' and (ROOT/'pause-gemini').exists():return
   if spent+reserved+.20>=30:
    stop=True;print('BUDGET_STOP',flush=True);return
   reserved+=.20
+  inflight.add(t['key'])
   append(ATTEMPTS,{'time':now(),'key':t['key'],'id':t['id'],'provider':t['provider'],'event':'started'})
  started=time.monotonic();p=t['provider'];route=p
  try:
@@ -84,7 +86,9 @@ def call(t):
    retry_after[t['key']]=time.time()+60
   print(json.dumps({'provider':p,'id':t['id'],'error':err}),flush=True)
  finally:
-  with LOCK:reserved-=.20
+  with LOCK:
+   reserved-=.20
+   inflight.discard(t['key'])
 
 if not TASKS.exists():raise SystemExit('Task bank missing; generate it before starting calls')
 alltasks=rows(TASKS)

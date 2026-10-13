@@ -230,5 +230,21 @@
   "jevPrice": "price not published",
   "unresolvedCouncilAttempts": [],
   "testCalls": 0,
-  "baseInterruptedCallCaveat": "Three owned Haiku child processes were stopped at the explicit pause. Remote completion and any unreported charges are unknown. On resume, use saved prompt hashes and identify these partial items before retrying."
+  "baseInterruptedCallCaveat": "Three owned Haiku child processes were stopped at the explicit pause. Remote completion and any unreported charges are unknown. On resume, use saved prompt hashes and identify these partial items before retrying.",
+  "uniqueCouncilRequestKeys": 208,
+  "concurrentDuplicateRequests": [
+    {
+      "key": "32fdbfd52ac2919ffb6316933de56a0ac19f725ed39b8655c799333e0133d780",
+      "receipts": 2,
+      "id": "2506",
+      "provider": "openai"
+    },
+    {
+      "key": "362d5792f0ac318b1a86c01c7ac153686b132b583388f2ee8ed3ceb2e28dda96",
+      "receipts": 2,
+      "id": "2605",
+      "provider": "jev"
+    }
+  ],
+  "duplicateNote": "Two equal-text order pairs were dispatched concurrently before either result entered the cache. Both receipts and charges are retained. An in-flight key guard now prevents this on resume. No completed request was retried after an outage or restart. Replay uses the last saved response per key, as the source harness does."
 }
