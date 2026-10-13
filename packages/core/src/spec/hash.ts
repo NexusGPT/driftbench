@@ -43,6 +43,7 @@ export function cloneJson<T>(value: T): T {
 
 const canonicalOfItem = new WeakMap<object, string>();
 const canonicalOfList = new WeakMap<readonly unknown[], string>();
+let recentList: { items: readonly unknown[]; text: string } | undefined;
 
 /**
  * The canonical JSON of a list, as `canonicalJson` writes it, with the text of each object item read once
@@ -53,22 +54,32 @@ const canonicalOfList = new WeakMap<readonly unknown[], string>();
 export function canonicalList(items: readonly unknown[]): string {
   const known = canonicalOfList.get(items);
   if (known !== undefined) return known;
-  const parts = new Array<string>(items.length);
-  for (let index = 0; index < items.length; index += 1) {
-    const item = items[index];
-    if (item === null || typeof item !== 'object') {
-      parts[index] = canonicalJson(item === undefined ? null : item);
-      continue;
-    }
-    let text = canonicalOfItem.get(item);
-    if (text === undefined) {
-      text = canonicalJson(item);
-      canonicalOfItem.set(item, text);
-    }
-    parts[index] = text;
-  }
-  const text = `[${parts.join(',')}]`;
+  const text = currentListText(items);
   canonicalOfList.set(items, text);
+  return text;
+}
+
+/** Reuse the last prefix's text while checking current array contents, including mutable arrays. */
+function currentListText(items: readonly unknown[]): string {
+  const previous = recentList;
+  let start = 0;
+  let previousText: string | undefined;
+  if (previous && previous.items.length <= items.length) {
+    let index = 0;
+    while (index < previous.items.length && previous.items[index] === items[index]) index += 1;
+    if (index === previous.items.length) {
+      start = index;
+      previousText = previous.text;
+    }
+  }
+  if (previousText !== undefined && start === items.length) return previousText;
+  const parts = new Array<string>(items.length - start);
+  for (let index = start; index < items.length; index += 1) parts[index - start] = itemText(items[index]);
+  const text =
+    previousText === undefined
+      ? `[${parts.join(',')}]`
+      : `${previousText.slice(0, -1)}${start === 0 ? '' : ','}${parts.join(',')}]`;
+  recentList = { items: [...items], text };
   return text;
 }
 
@@ -110,7 +121,12 @@ function itemText(item: unknown): string {
 export function sha256WithList(head: string, items: readonly unknown[], tail: string): string {
   let from: Running | undefined;
   for (const entry of running) {
-    if (entry.head !== head || entry.items.length > items.length) continue;
+    if (
+      entry.head !== head ||
+      entry.items.length > items.length ||
+      (from && entry.items.length <= from.items.length)
+    )
+      continue;
     let same = true;
     for (let index = 0; index < entry.items.length; index += 1) {
       if (entry.items[index] !== items[index]) {
@@ -128,7 +144,7 @@ export function sha256WithList(head: string, items: readonly unknown[], tail: st
   } else {
     state = createHash('sha256');
     state.update(head);
-    state.update(canonicalList(items).slice(0, -1));
+    state.update(currentListText(items).slice(0, -1));
     start = items.length;
   }
   for (let index = start; index < items.length; index += 1) {
