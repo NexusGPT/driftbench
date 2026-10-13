@@ -1,6 +1,6 @@
 # Benchmark floors for the shipped judge
 
-`driftbench bench` records the shipped default judge on fictional cases with labels fixed by construction. Committed recordings replay without credentials or model calls. CI refuses a missing recording, stale evidence, or a result below its floor.
+The repository-only `pnpm bench` script records the shipped default judge on fictional cases with labels fixed by construction. Committed recordings replay without credentials or model calls. CI refuses a missing recording, stale evidence, or a result below its floor.
 
 This checks the behavior available through the public package. It does not establish that one model is best for every user's task. Calibrate on your own criteria and labels as described in [judges](concepts/judges.md).
 
@@ -9,9 +9,9 @@ This checks the behavior available through the public package. It does not estab
 Run from a checkout of this repository:
 
 ```sh
-pnpm driftbench bench replay --slice all --check-floor
-pnpm driftbench bench replay --slice fresh-reference --model haiku --json
-pnpm driftbench bench floors
+pnpm bench replay --slice all --check-floor
+pnpm bench replay --slice fresh-reference --model haiku --json
+pnpm bench floors
 ```
 
 `--slice` defaults to `all`. Without `--model`, replay selects every active model. `--root <path>` selects another repository checkout containing `benchmarks/`. The command reads raw recorded responses through the current public parser.
@@ -59,7 +59,7 @@ The folder hash is the [dataset registry](datasets.md#the-registry) content hash
 
 ```sh
 pnpm driftbench dataset push fresh-rubric benchmarks/slices/fresh-rubric/1 --store bench.db
-pnpm driftbench bench replay --slice fresh-rubric --store bench.db
+pnpm bench replay --slice fresh-rubric --store bench.db
 ```
 
 ## Labels and the public API boundary
@@ -71,6 +71,8 @@ Reference slices supply their trusted reference as an input file. Factuality sli
 The harness accepts only the default request fields: `criterion`, `transcript`, `inputs`, `reference`, `artifact` and `given`. Dataset cases cannot select another assessment or answer contract.
 
 [The public API check](../tools/bench-lint.mjs) limits production benchmark imports to allowed judge exports, public statistics, Node builtins and local production benchmark modules. It rejects internal package imports, runtime module loaders, and imports from benchmark tests or preparation scripts. The scoring and recording code cannot substitute a benchmark-specific judge prompt.
+
+The repository entry `benchmarks/cli.ts` also permits named public APIs for loading specs, opening the dataset store, finding the repository root and parsing arguments. Those command helpers are unavailable to the scoring and recording modules.
 
 ## Active models
 
@@ -88,8 +90,8 @@ All active models use the same shipped prompt fingerprint. Explicit reasoning se
 Recording is a maintainer action that makes live model calls. Select one model and supply an approved spending limit. Haiku needs an installed, authenticated `claude` executable. OpenAI needs `OPENAI_API_KEY`; Gemini needs `GEMINI_API_KEY` in the environment.
 
 ```sh
-pnpm driftbench bench record --slice fresh-rubric --model haiku --spend-cap-usd <approved-cap>
-pnpm driftbench bench record --slice all --model gpt-6-luna --spend-cap-usd <approved-cap> --resume
+pnpm bench record --slice fresh-rubric --model haiku --spend-cap-usd <approved-cap>
+pnpm bench record --slice all --model gpt-6-luna --spend-cap-usd <approved-cap> --resume
 ```
 
 `--concurrency` defaults to 4 and accepts 1 through 16. The first live request completes before concurrent recording starts. The budget reserves spending before each live call, including concurrent calls. It refuses an unmetered answer. An error without measured usage charges the reservation conservatively. The cap applies to this invocation; a resumed invocation needs its own cap.
@@ -128,9 +130,9 @@ These intervals describe this finite, constructed population. They do not measur
 To establish or raise a floor, first inspect a complete recording and its replay. Then provide current evidence:
 
 ```sh
-pnpm --silent driftbench bench replay --slice fresh-rubric --model haiku --json > bench-replay.json
-pnpm driftbench bench floors --raise fresh-rubric haiku --evidence bench-replay.json
-pnpm driftbench bench replay --slice all --check-floor
+pnpm --silent bench replay --slice fresh-rubric --model haiku --json > bench-replay.json
+pnpm bench floors --raise fresh-rubric haiku --evidence bench-replay.json
+pnpm bench replay --slice all --check-floor
 ```
 
 `--evidence` also accepts the individual record evidence file. The command validates the evidence against the current cassette replay before writing. Within one dataset version, the correct count cannot fall. An equal count can update the evidence after a fingerprint change; an unchanged count at the same fingerprint is refused. Previous floor records remain in history.
@@ -139,8 +141,48 @@ pnpm driftbench bench replay --slice all --check-floor
 
 The [CI workflow](../.github/workflows/ci.yml) runs the public API check and `bench replay --slice all --check-floor` on pull requests and pushes to main. It makes no live model calls.
 
-[`validate protect`](validators.md#82-the-command) rejects changes from `exec/` branches to the benchmark folders, CLI implementation, public API check and enforcing workflows. Maintainers change recordings and floors from a maintainer branch, with the evidence run in the commit message. Review the raw responses and measured results before committing a new floor.
+[`validate protect`](validators.md#82-the-command) rejects changes from `exec/` branches to the benchmark folders, harness entry, public API check and enforcing workflows. Maintainers change recordings and floors from a maintainer branch, with the evidence run in the commit message. Review the raw responses and measured results before committing a new floor.
 
-The full flag and exit-code reference is under [`driftbench bench`](reference/cli.md#driftbench-bench).
+The published `driftbench` CLI does not contain this repository harness. The flags and exit codes are listed below.
 
 Gemini metering counts candidate and thinking tokens, and discounts cached input. Flash-Lite uses the standard rates of $0.30 input, $0.03 cached input and $2.50 output per million tokens. Reservations allow its [full 65,536-token output ceiling](https://ai.google.dev/gemini-api/docs/models/gemini-3.5-flash-lite), so each in-flight call requires that budget headroom even though only measured usage is charged. The separate Flash 3.8 introductory rates expire after December 31, 2026; recording that model then refuses until its rates are updated. Rates were verified on October 13, 2026 against [Google pricing](https://ai.google.dev/gemini-api/docs/pricing).
+
+## Command reference
+
+Record the shipped default judge against immutable fictional slices, replay raw responses without model calls, and enforce per-model floors. Run from the repository checkout, or supply `--root`. The slice set, source commits, recording workflow and statistical limits are described above.
+
+```sh
+pnpm bench replay [--slice <name|all>] [--model <id>] [--check-floor] [--root <path>] [--store <file>] [--json]
+pnpm bench record --model <id> --spend-cap-usd <usd> [--slice <name|all>] [--resume] [--concurrency <n>] [--spend-ledger <path>] [--root <path>] [--store <file>] [--json]
+pnpm bench floors [--root <path>] [--json]
+pnpm bench floors --raise <slice> <model> --evidence <json> [--root <path>] [--json]
+```
+
+| Option | Effect |
+|---|---|
+| `--slice <name>` | One manifest slice, or `all`, the default |
+| `--model <id>` | One model. Replay defaults to all active models; record requires one |
+| `--root <path>` | Repository containing `benchmarks/`; otherwise discovered from the working directory |
+| `--store <file>` | Also register the exact dataset versions in the store; reject a conflicting version |
+| `--check-floor` | Replay: require the absolute correct-count floor and paired regression checks |
+| `--spend-cap-usd <usd>` | Record: required positive spending cap for this invocation, including in-flight reservations |
+| `--spend-ledger <path>` | Record: append call spending rows here; default `benchmarks/evidence/spend.jsonl` |
+| `--concurrency <n>` | Record: parallel calls, from 1 through 16, default 4 |
+| `--resume` | Record: validate and reuse completed cassettes; resume matching successful responses from partial recordings |
+| `--raise <slice> <model>` | Floors: establish or raise the selected slice/model floor from current evidence |
+| `--evidence <json>` | Floors: a `bench replay --json` result, an individual record evidence file, or a matching report |
+| `--json` | Replay: reports, checks, problems and skips. Record: recording evidence and invocation charges. Floors: floor JSON |
+
+Replay and floor checks make no model calls. Replay reports the correct count, Wilson interval and bootstrap over construction families. Floor checks also report exact McNemar and the automatic non-inferiority margin. A changed prompt fingerprint, dataset or client setting fails with `re-record needed`.
+
+Recording uses the public client and retains raw responses. It checkpoints partial runs, checks recorded results against replay, and writes cassettes with measured spending evidence. `--resume` refuses stale data. Omit it for an intentional re-record; the previous completed cassette is archived by hash. A spend cap is per invocation, including after resume.
+
+The active model ids are `haiku`, `gpt-6-luna` and `gemini-3.5-flash-lite`. Haiku is pinned to `claude-haiku-5-5` and needs an authenticated `claude` executable. OpenAI needs `OPENAI_API_KEY`; Gemini needs `GEMINI_API_KEY`. Luna and Flash-Lite use medium reasoning. `gemini-3.8-flash` awaits a later recording slot and cannot be selected until its manifest entry is activated.
+
+Floors validate evidence against the current cassette. The correct count cannot decrease within a dataset version. The same count can update evidence at a new fingerprint; unchanged count and fingerprint are refused. Earlier floor records remain in history.
+
+| Exit code | When |
+|---|---|
+| 0 | Replay has no problems; record completes; or floors are shown or raised |
+| 1 | Replay finds missing or stale recordings, integrity failures, or a failed floor |
+| 2 | Bad input or dataset; record fails, reaches its cap or regresses; or a floor update is refused |

@@ -101,7 +101,7 @@ describe('the benchmark workflows', () => {
     );
     const runs = workflow.jobs.bench.steps.flatMap((step: { run?: string }) => step.run ?? []);
     expect(runs).toContain('node tools/bench-lint.mjs');
-    expect(runs).toContain('pnpm driftbench bench replay --slice all --check-floor');
+    expect(runs).toContain('pnpm bench replay --slice all --check-floor');
     expect(Object.keys(workflow.on).sort()).toEqual(['pull_request', 'push']);
     expect(workflow.permissions).toEqual({ contents: 'read' });
   });

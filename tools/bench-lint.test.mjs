@@ -26,6 +26,23 @@ function fixture(files) {
 }
 
 describe('bench public API boundary', () => {
+  it('allows only named command plumbing APIs in the repository entry', () => {
+    const source = [
+      "import { loadSpecs } from '@agent-nexus/driftbench-core';",
+      "import { openMemoryStore, openStore, readTree } from '@agent-nexus/driftbench-store';",
+      "import { findRoot } from '@agent-nexus/driftbench-validators';",
+      "import { Command, CommanderError } from 'commander';",
+    ].join('\n');
+    expect(lintBenchSource(source, 'benchmarks/cli.ts')).toEqual([]);
+    expect(lintBenchSource(source, 'benchmarks/run.ts').length).toBeGreaterThan(0);
+    expect(
+      lintBenchSource(source.replace('loadSpecs', 'privateHelper'), 'benchmarks/cli.ts').length,
+    ).toBeGreaterThan(0);
+    expect(
+      lintBenchSource("import * as core from '@agent-nexus/driftbench-core';", 'benchmarks/cli.ts').length,
+    ).toBeGreaterThan(0);
+  });
+
   it('accepts the public judge API, metadata, statistics, builtins and local harness modules', () => {
     const source = [
       allowed,

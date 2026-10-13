@@ -1,6 +1,5 @@
 import { Command, CommanderError } from 'commander';
 import { registerAttackCommand } from './commands/attack';
-import { registerBenchCommand } from './commands/bench';
 import { registerCampaignCommands } from './commands/campaign';
 import { registerCiCommand } from './commands/ci';
 import { registerCompareCommand } from './commands/compare';
@@ -60,7 +59,6 @@ export async function main(argv: string[], io: Io = processIo): Promise<number> 
   registerAttackCommand(program, io, setExit);
   registerJudgeCommand(program, io, setExit);
   registerValidateCommand(program, io, setExit);
-  registerBenchCommand(program, io, setExit);
   registerReportCommand(program, io, setExit);
   registerCompareCommand(program, io, setExit);
   registerCiCommand(program, io, setExit);

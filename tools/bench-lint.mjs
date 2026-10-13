@@ -6,6 +6,13 @@ import ts from 'typescript';
 
 const JUDGES = '@agent-nexus/driftbench-judges';
 const STATS = '@agent-nexus/driftbench-stats';
+// Only the repository entry needs dataset loading, root discovery and argument parsing.
+const ENTRY_EXPORTS = new Map([
+  ['@agent-nexus/driftbench-core', new Set(['loadSpecs'])],
+  ['@agent-nexus/driftbench-store', new Set(['openMemoryStore', 'openStore', 'readTree'])],
+  ['@agent-nexus/driftbench-validators', new Set(['findRoot'])],
+  ['commander', new Set(['Command', 'CommanderError'])],
+]);
 const JUDGE_EXPORTS = new Set([
   'buildPrompt',
   'parseJudgeText',
@@ -49,6 +56,7 @@ export function lintBenchSource(source, file = 'benchmarks/run.ts') {
     }
     const specifier = node.text;
     if (specifier === JUDGES || specifier === STATS) return specifier;
+    if (file === 'benchmarks/cli.ts' && ENTRY_EXPORTS.has(specifier)) return specifier;
     if (specifier === 'module' || specifier === 'node:module') {
       report(node, 'module loaders bypass the benchmark public API boundary; use static imports');
       return undefined;
@@ -79,15 +87,33 @@ export function lintBenchSource(source, file = 'benchmarks/run.ts') {
       }
     }
   };
+  const checkEntryNames = (specifier, bindings, node) => {
+    const names = ENTRY_EXPORTS.get(specifier);
+    if (!names) return;
+    if (!bindings || !(ts.isNamedImports(bindings) || ts.isNamedExports(bindings))) {
+      report(node, 'use named public entry imports or exports');
+      return;
+    }
+    for (const binding of bindings.elements) {
+      if (!names.has((binding.propertyName ?? binding.name).text))
+        report(binding, 'symbol is outside the repository entry public API allowlist');
+    }
+  };
   const visit = (node) => {
     if (ts.isImportDeclaration(node)) {
-      if (checkSpecifier(node.moduleSpecifier) === JUDGES) {
+      const specifier = checkSpecifier(node.moduleSpecifier);
+      checkEntryNames(specifier, node.importClause?.namedBindings, node);
+      if (ENTRY_EXPORTS.has(specifier) && node.importClause?.name)
+        report(node.importClause.name, 'use named public entry imports, never a default import');
+      if (specifier === JUDGES) {
         checkJudgeNames(node.importClause?.namedBindings, node);
         if (node.importClause?.name)
           report(node.importClause.name, 'use named public judge imports, never a default import');
       }
     } else if (ts.isExportDeclaration(node) && node.moduleSpecifier) {
-      if (checkSpecifier(node.moduleSpecifier) === JUDGES) checkJudgeNames(node.exportClause, node);
+      const specifier = checkSpecifier(node.moduleSpecifier);
+      checkEntryNames(specifier, node.exportClause, node);
+      if (specifier === JUDGES) checkJudgeNames(node.exportClause, node);
     } else if (ts.isImportEqualsDeclaration(node) && ts.isExternalModuleReference(node.moduleReference)) {
       report(node, 'require-style imports bypass the benchmark public API boundary; use static imports');
     } else if (ts.isImportTypeNode(node) && ts.isLiteralTypeNode(node.argument)) {

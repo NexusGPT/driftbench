@@ -2,12 +2,13 @@ import { execFileSync } from 'node:child_process';
 import { appendFileSync, existsSync, readFileSync, writeFileSync } from 'node:fs';
 import { mkdir, readFile, rename, unlink, writeFile } from 'node:fs/promises';
 import { dirname, join, resolve } from 'node:path';
+import { fileURLToPath } from 'node:url';
 import { loadSpecs } from '@agent-nexus/driftbench-core';
 import { type Cassette, loadCassette, PROMPT_FINGERPRINT, requestKey } from '@agent-nexus/driftbench-judges';
 import { openMemoryStore, openStore, readTree } from '@agent-nexus/driftbench-store';
 import { findRoot } from '@agent-nexus/driftbench-validators';
-import type { Command } from 'commander';
-import { makeRecordingClient, SpendBudget, type SpendRow } from '../../../../benchmarks/record';
+import { Command, CommanderError } from 'commander';
+import { makeRecordingClient, SpendBudget, type SpendRow } from './record';
 import {
   type BenchFloor,
   type BenchReport,
@@ -22,8 +23,9 @@ import {
   sha256,
   validateReport,
   validateSlice,
-} from '../../../../benchmarks/run';
-import type { Io } from '../io';
+} from './run';
+
+type Io = { out: (text: string) => void; err: (text: string) => void; readonly cwd: string };
 
 type Model = { id: string; model: string; status: 'active' | 'skipped'; reason?: string };
 type SliceEntry = {
@@ -66,10 +68,22 @@ const paths = (root: string, entry: SliceEntry, model: string) => ({
 const headOf = (root: string) =>
   execFileSync('git', ['rev-parse', 'HEAD'], { cwd: root, encoding: 'utf8' }).trim();
 
-export function registerBenchCommand(program: Command, io: Io, setExit: (code: number) => void): void {
-  const bench = program
-    .command('bench')
-    .description('Record and replay the shipped judge against versioned planted truths.');
+export async function main(
+  argv: string[],
+  io: Io = {
+    out: (text) => process.stdout.write(text),
+    err: (text) => process.stderr.write(text),
+    cwd: process.cwd(),
+  },
+): Promise<number> {
+  let exitCode = 0;
+  const setExit = (code: number) => {
+    exitCode = code;
+  };
+  const bench = new Command('bench')
+    .description('Repository harness: record and replay the shipped judge against versioned planted truths.')
+    .exitOverride()
+    .configureOutput({ writeOut: (text) => io.out(text), writeErr: (text) => io.err(text) });
   const common = (c: Command) =>
     c
       .option('--slice <name>', 'slice name or all', 'all')
@@ -103,6 +117,13 @@ export function registerBenchCommand(program: Command, io: Io, setExit: (code: n
         o: { root?: string; raise?: string; evidence?: string; json?: boolean },
       ) => setExit(await benchFloors(model, o, io)),
     );
+  try {
+    await bench.parseAsync(argv, { from: 'user' });
+  } catch (cause) {
+    if (cause instanceof CommanderError) return cause.exitCode === 0 ? 0 : 2;
+    throw cause;
+  }
+  return exitCode;
 }
 function rootOf(io: Io, root?: string) {
   return root ? resolve(io.cwd, root) : findRoot(io.cwd);
@@ -567,4 +588,8 @@ export async function benchFloors(
 }
 function message(cause: unknown) {
   return cause instanceof Error ? cause.message : String(cause);
+}
+
+if (process.argv[1] && resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {
+  process.exitCode = await main(process.argv.slice(2));
 }
