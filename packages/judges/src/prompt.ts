@@ -1,5 +1,6 @@
 import { contentHash } from '@agent-nexus/driftbench-core';
 import { validateAssessment } from './assessment';
+import { CONFORMANCE_SYSTEM_PROMPT, conformanceUser } from './conformance';
 import type { JudgeRequest, TranscriptEntry } from './contract';
 import { requirementsFor } from './criterion-ledger';
 import { auditData, FACT_LEDGER_SYSTEM } from './fact-audit';
@@ -158,6 +159,7 @@ export function renderTranscript(entries: readonly TranscriptEntry[]): string {
 /** The user prompt: the rubric, then every data section, then the closing instruction. */
 export function renderUser(request: JudgeRequest): string {
   if (request.assessment?.kind === 'response-relevance') return renderResponseRelevance(request);
+  if (request.assessment?.kind === 'conformance') return conformanceUser(request);
   if (request.factAudit && request.assessment?.kind !== 'rubric') return auditData(request);
   const parts = [
     request.assessment
@@ -201,6 +203,8 @@ export function renderUser(request: JudgeRequest): string {
 export function buildPrompt(request: JudgeRequest): { system: string; user: string } {
   if (request.assessment?.kind === 'response-relevance')
     return { system: RESPONSE_RELEVANCE_SYSTEM_PROMPT, user: renderResponseRelevance(request) };
+  if (request.assessment?.kind === 'conformance')
+    return { system: CONFORMANCE_SYSTEM_PROMPT, user: conformanceUser(request) };
   if (request.answerContract === 'legacy')
     return buildLegacyPrompt({
       ...request,

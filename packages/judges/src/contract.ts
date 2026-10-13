@@ -1,5 +1,6 @@
 import { z } from 'zod';
 import type { Assessment, RubricScores } from './assessment';
+import type { ConformanceAudit } from './conformance';
 import type { CriterionLedger, CriterionRequirement } from './criterion-ledger';
 import type { FactLedgerAnswer } from './fact-audit';
 import type { ResponseRelevanceAnswer } from './response-relevance';
@@ -90,14 +91,18 @@ export type JudgeResult = {
   readonly factLedger?: FactLedgerAnswer;
   /** Opt-in latest-ask obligations with quotes grounded in the selected request and reply. */
   readonly responseRelevance?: ResponseRelevanceAnswer;
+  /** Opt-in criterion-local conformance audit, with its outcome computed in code. */
+  readonly conformance?: ConformanceAudit;
   /** Default chat-model requirement ledger, with the public outcome computed in code. */
   readonly checks?: CriterionLedger['checks'];
-  /** Model-invented requirement ids, ignored during scoring and retained for diagnostics. */
+  /** Model-invented criterion ids or rubric names, ignored in scoring and retained for diagnostics. */
   readonly ignoredRequirementIds?: readonly string[];
   readonly referenceAgreement?: {
     readonly attempts: number;
     readonly agreement: number;
     readonly used: boolean;
+    /** Auto route selected solving (true) or skipped it (false). Absent when routing was not requested. */
+    readonly routed?: boolean;
   };
   readonly answer: JudgeAnswer;
   /** The provider's answer as received: the model text, or the JSON body of a system 1 answer. */
