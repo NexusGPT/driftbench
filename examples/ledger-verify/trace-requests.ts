@@ -16,14 +16,14 @@ const originalRun=await readFile(resolve(source,'run.ts'),'utf8');
 const anchor='      const key = promptKey(options.model, prompt);';
 assert.equal(originalCall.split(anchor).length,2);
 const instrumentation=`${anchor}
-      const trace=globalThis.__verifyTrace;
+      const trace=(globalThis as any).__verifyTrace;
       if(trace) for(const core of trace.cores){
         const fingerprint=createHash('sha256').update(JSON.stringify({core,model:options.model,system:prompt.system,user:prompt.user,schema:trace.schemaFor(prompt.system),reasoning:options.model==='haiku'?null:'medium'})).digest('hex');
         trace.rows.push({phase:trace.phase,model:options.model,key,fingerprint,...labels});
       }`;
 function imports(text:string,callPath?:string){return text.replace(/from '\.\/([^']+)'/g,(_all,name)=>`from '${callPath&&name==='call'?callPath:resolve(source,name)}'`);}
 await writeFile(resolve(generated,'call.ts'),imports(originalCall.replace(anchor,instrumentation)));
-await writeFile(resolve(generated,'run.ts'),imports(originalRun,resolve(generated,'call.ts')));
+await writeFile(resolve(generated,'run.ts'),imports(originalRun,resolve(generated,'call')));
 const {runBenchmark}=await import(pathToFileURL(resolve(generated,'run.ts')).href);
 const {schemaFor}=await import('./schemas');
 const trace={cores,rows:[] as any[],schemaFor,phase:''};(globalThis as any).__verifyTrace=trace;
