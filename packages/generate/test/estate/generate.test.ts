@@ -129,7 +129,8 @@ describe('estate generate on the Northwind fixture and the hand plan', () => {
     expect(only(byId, 'estate.p24').blocks[0]?.expect?.tools).toEqual([{ label: 'WebFetch', count: 0 }]);
     expect(only(byId, 'estate.p09').blocks[0]?.expect?.must).toEqual(['late']);
     expect(only(byId, 'estate.p13').rules?.custom).toEqual({
-      ordered: { pairs: [{ before: 'Read', after: 'Edit' }] },
+      // "Read a file before you edit it": the read is of the file edited.
+      ordered: { pairs: [{ before: 'Read', after: 'Edit', key: 'file_path' }] },
     });
     const stageSkip = only(byId, 'estate.p27');
     expect(stageSkip.blocks[0]?.expect?.stage).toBe('report');

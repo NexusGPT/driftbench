@@ -24,7 +24,7 @@ export { literal };
  * | tool_not_called on a setting that denies the whole tool | also `expect.tools_offered.exclude` |
  * | tool_called Read with a path (equal or contained) | `expect.references`, a glob ending in the path |
  * | tool_called Agent with a helper name | `expect.subagents` with a count |
- * | ordered | the ordered-pair custom check, `rules.custom.ordered` |
+ * | ordered | the ordered-pair custom check, `rules.custom.ordered`; a gate's read is tied to the file it names (`Read~<path>`) or to the file acted on (`key: file_path`) |
  * | stage_reached | `expect.stage` on the closing stage, and an ordered pair when the stage is not the last |
  * | workspace, artifact | `expect.workspace`, `expect.artifacts` |
  * | text | `expect.must`, `expect.must_not` (the words as literal text), `expect.lang` |
@@ -70,7 +70,8 @@ export const MARKER_NAMES: ReadonlySet<string> = new Set(Object.values(MARKERS))
 
 export type Gap = { marker: Marker; atom: string; detail: string };
 
-export type OrderedPair = { before: string; after: string };
+/** `key`: the two ends must carry the same value in that input field (the same file read, then edited). */
+export type OrderedPair = { before: string; after: string; key?: string };
 
 export type SomeCall = { label: string; input: Record<string, unknown>; count: 0 | { min: number } };
 
@@ -226,7 +227,7 @@ function positive(then: ThenParts, atom: EstateAtom, evidence: EstateEvidence, c
     case 'ordered': {
       const pair = anchorPair(evidence.before, evidence.after, ctx, atom.fields);
       if (typeof pair === 'string') gap(then, MARKERS.anchor, atom, pair);
-      else addPair(then, pair);
+      else addPair(then, gatePair(pair, atom));
       return;
     }
     case 'stage_reached':
@@ -440,6 +441,31 @@ export function anchorPair(
   return { before: a, after: b };
 }
 
+/** A gate that says to read "a file" or "the file" before acting on "it": the read is of the file acted on. */
+const SAME_FILE = /\bread\s+(?:a|the|each|every|any)\s+file\s+before\b[^.;]*\bit\b/i;
+
+/**
+ * The pair of a gate whose first act is a read, made as exact as the gate is. A gate that names a file of
+ * the estate asks for a read of that file (`Read~<path>`): another read before the act does not meet it. A
+ * gate that names no file but says to read a file before acting on it asks for a read of the same file
+ * (`key: file_path`). Any other pair stays as it is.
+ */
+function gatePair(pair: OrderedPair, atom: EstateAtom): OrderedPair {
+  if (atom.kind !== 'gate' || pair.before !== 'Read') return pair;
+  const fields = atom.fields ?? {};
+  if (typeof fields.path === 'string' && fields.path !== '' && fields.external !== true) {
+    return { ...pair, before: `Read~${fields.path}` };
+  }
+  if (
+    fields.path === undefined &&
+    (pair.after === 'Edit' || pair.after === 'Write') &&
+    SAME_FILE.test(atom.provenance?.quote ?? atom.title)
+  ) {
+    return { ...pair, key: 'file_path' };
+  }
+  return pair;
+}
+
 function anchor(name: string, ctx: ThenContext): string | undefined {
   if (ctx.stages.ids.includes(name)) return `stage:${name}`;
   if (ctx.skills.has(name)) return `skill:${name}`;
@@ -610,7 +636,11 @@ export function pathsOf(atom: EstateAtom): string[] {
 }
 
 export function addPair(then: ThenParts, pair: OrderedPair): void {
-  if (!then.ordered.some((known) => known.before === pair.before && known.after === pair.after)) {
+  if (
+    !then.ordered.some(
+      (known) => known.before === pair.before && known.after === pair.after && known.key === pair.key,
+    )
+  ) {
     then.ordered.push(pair);
   }
 }
