@@ -1,5 +1,5 @@
 import { createHash } from 'node:crypto';
-import { appendFile, mkdir, readFile } from 'node:fs/promises';
+import { mkdir } from 'node:fs/promises';
 import { join } from 'node:path';
 import { appendRecording, readRecordingRows } from './recording-files';
 
@@ -54,13 +54,11 @@ export class LedgerCalls {
   }
   async load(): Promise<this> {
     await mkdir(this.directory, { recursive: true });
-    try {
-      for (const line of (await readFile(join(this.directory, 'starts.jsonl'), 'utf8')).split('\n').filter(Boolean)) {
-        const row = JSON.parse(line) as Start;
+      for (const value of await readRecordingRows(join(this.directory, 'starts.jsonl'))) {
+        const row = value as Start;
         if (this.started.has(row.key)) throw new Error(`Duplicate start: ${row.key}`);
         this.started.set(row.key, row);
       }
-    } catch (e) { if ((e as NodeJS.ErrnoException).code !== 'ENOENT') throw e; }
     for (const row of await readRecordingRows(join(this.directory, 'calls.jsonl'))) {
       const call = row as LedgerCall;
       if (this.completed.has(call.key)) throw new Error(`Duplicate completion: ${call.key}`);
@@ -106,7 +104,7 @@ export class LedgerCalls {
       if (this.chargedUsd + reserveUsd > this.capUsd + 1e-12)
         throw new LedgerBudgetStop(`USD ${this.capUsd} lane cap cannot reserve another USD ${reserveUsd}`);
       const start: Start = { key, reserveUsd, identity, startedAt: new Date().toISOString() };
-      await appendFile(join(this.directory, 'starts.jsonl'), `${JSON.stringify(start)}\n`);
+      await appendRecording(join(this.directory, 'starts.jsonl'), start);
       this.started.set(key, start);
     });
     let row: LedgerCall;
