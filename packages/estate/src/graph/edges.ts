@@ -1,4 +1,4 @@
-import { chunkLines, guardName, registryRowOf, toolBase } from '../scan/code';
+import { chunkLines, guardName, positiveMention, registryRowOf, toolBase } from '../scan/code';
 import type { EstateFile, RawEstate } from '../scan/reader';
 import { labelOfLine, linesOf, plain } from '../scan/text';
 import type { Atom, Edge } from '../schema';
@@ -86,7 +86,8 @@ export function buildGraph(atoms: readonly Atom[], raw: RawEstate): Graph {
       .join('\n');
     for (const helper of helpers) {
       const name = String(helper.fields?.name ?? '');
-      if (name !== '' && visible.includes(`\`${name}\``)) add(unit.id, helper.id, 'dispatch');
+      if (name !== '' && positiveMention(visible, `\`${name}\``, ['dispatch', 'call', 'delegate', 'invoke']))
+        add(unit.id, helper.id, 'dispatch');
     }
   }
 

@@ -396,6 +396,31 @@ export function namedPaths(line: string): string[] {
   return found.filter((path) => !/[<>*?{}$]/.test(path) && /\.[A-Za-z0-9]+$/.test(path));
 }
 
+/** Whether at least one mention requires the act, rather than forbidding it in its own clause. */
+export function positiveMention(
+  text: string,
+  name: string,
+  verbs: readonly string[],
+  bareNever = false,
+): boolean {
+  if (name === '') return false;
+  const forbidden = new RegExp(
+    `\\b(?:never|do not|don['’]t|must not|should not)\\s+(?:${verbs.join('|')})\\b[^.;!?]*$`,
+    'i',
+  );
+  let offset = text.indexOf(name);
+  while (offset >= 0) {
+    const prefix =
+      text
+        .slice(0, offset)
+        .split(/[\n;!?]|\.(?=\s|$)|\b(?:but|until|instead)\b/i)
+        .at(-1) ?? '';
+    if (!forbidden.test(prefix) && !(bareNever && /\bnever\s*[`*]*$/i.test(prefix))) return true;
+    offset = text.indexOf(name, offset + name.length);
+  }
+  return false;
+}
+
 /**
  * A path a file names, relative to the root. It is tried, in order, from the naming file's folder, from the
  * root, then from each base folder the runtime declares; the first that names a file of the estate (or a file
@@ -530,6 +555,7 @@ function referenceAtoms(
   const skipped = new Set(raw.ignored?.paths ?? []);
   for (const line of chunkLines(chunk, files.get(chunk.file))) {
     for (const named of namedPaths(line.text)) {
+      if (!positiveMention(line.text, named, ['read', 'open', 'load'])) continue;
       const located = locateNamed(named, chunk.file, files, {
         bases: raw.bases ?? [],
         skipped,
@@ -582,6 +608,7 @@ function routeAtoms(
         const helper = /^(?:the )?(.+) agent$/.exec(plain)?.[1];
         if (helper && names.subagents.has(helper)) targets.add(helper);
         for (const target of targets) {
+          if (!positiveMention(cell, target, ['load', 'dispatch', 'call'], true)) continue;
           const isSkill = !(target === helper && names.subagents.has(helper)) && names.skills.has(target);
           if (!isSkill && !names.subagents.has(target)) continue;
           builder.add({

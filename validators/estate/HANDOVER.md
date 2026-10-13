@@ -10,9 +10,19 @@ Rewritten by the executor every iteration (docs/validators.md section 10). A str
 | 1 | 0 |
 <!-- level-table:end -->
 
-### Current executor measurement, iteration 21
+### Current executor measurement, iteration 22
 
-Seed 1 passes 944 of 1170 items (0.8068376068376069), level 0, from row 20's 940. Exactly four registry items improve: scan.registry.json-guards-key, scan.catalogue.keyed-by-id, scan.catalogue.by-event and scan.catalogue.wrapped. No item regresses. Capture: .cache/estate-executor/iteration-21.json, immutable base 69177605 plus packages/estate/src/scan/claude-code.ts and packages/estate/test/scan/registry-shapes.test.ts.
+Seed 1 passes 947 of 1170 items, level 0, from row 21's 944. Exactly three items improve: scan.decoys.negated-route, scan.decoys.negated-dispatch and scan.decoys.negated-reference. No item regresses. Capture: .cache/estate-executor/iteration-22.json, immutable base 877ca0ce plus packages/estate/src/scan/code.ts, packages/estate/src/graph/edges.ts and packages/estate/test/scan/negated-mentions.test.ts.
+
+Five canonical cases fail first and one affirmative control passes. All six final cases and 301 estate tests pass. The shared clause check preserves affirmative but/until clauses, later dispatches, never-forget phrasing and curly apostrophes. Fresh typecheck and lint pass after the required import spacing. Ten owned causes are complete, iterations 13 through 22. Own net new seed 1 gains total 64, plus one restored baseline portability item. Eighteen maintainer gains stay excluded. This tenth fix starts an immutable full sweep immediately after commit; read full-22.state.json for its actual source and status before claiming a result.
+
+The independent handover-21 review matches 944 of 1170, reader 0.886115 and the same 73 failed ids. The quiet brief agrees exactly with row 21. Its initially incomplete id extractor is corrected to include plus signs and validate the count against the displayed metric. The two requested text corrections are included here: the historical ratio is rounded to 0.807 and current archive references name handover-21. The lead requests no extra recheck. The next scheduled review is iteration 24.
+
+CI on 877ca0ce fails two protected routing assertions, not a component regression. Node 24 job 115097292931 reports 4534 passes and two failures; both stale assertions require scan.standing.plain-name to remain broken. Local targeted tests reproduce both failures. The maintainer is informed through .cache/estate-executor/ci-routing-oracle-defects.md; protected tests remain unchanged. Continue component work and import the maintainer fix from main when the lead confirms it.
+
+### Previous executor measurement, iteration 21
+
+Seed 1 passes 944 of 1170 items (0.807, rounded), level 0, from row 20's 940. Exactly four registry items improve: scan.registry.json-guards-key, scan.catalogue.keyed-by-id, scan.catalogue.by-event and scan.catalogue.wrapped. No item regresses. Capture: .cache/estate-executor/iteration-21.json, immutable base 69177605 plus packages/estate/src/scan/claude-code.ts and packages/estate/test/scan/registry-shapes.test.ts.
 
 Six canonical cases fail first, with two passing controls. The normalized entries retain source keys, inherited events and explicit event overrides. They ignore unrelated nested metadata. All eight final cases and 295 estate tests pass. Typecheck initially rejects flatMap's inferred union after the event refinement; a private RegistryEntry type makes the normalized shape explicit. Refined typecheck, lint and thirteen related assertions pass before measurement. Nine owned component causes are complete, iterations 13 through 21. Own net new seed 1 gains total 61, plus one restored baseline portability item. Eighteen maintainer corrections remain excluded.
 
@@ -127,19 +137,19 @@ See `validators/floors.json`; `pnpm driftbench validate floors` prints it. The e
 
 ## Local artifacts, not pushed
 
-Canonical executor worktree: /Users/assem/Documents/GitHub/driftbench/.worktrees/exec-estate-v2. Files under .cache are local, not pushed. They exist only in the canonical executor worktree; they are absent from Git clones and frozen handover archives unless copied explicitly. A frozen archive under .cache/handover-18 reaches the canonical root through ../.. Source and capture paths below are relative to that canonical root.
+Canonical executor worktree: /Users/assem/Documents/GitHub/driftbench/.worktrees/exec-estate-v2. Files under .cache are local, not pushed. They exist only in the canonical executor worktree; they are absent from Git clones and frozen handover archives unless copied explicitly. The current frozen archive under .cache/handover-21 reaches the canonical root through ../.. Source and capture paths below are relative to that canonical root.
 
 The routing and compaction tests are committed in iterations 19 and 20; packages/estate/test/scan/registry-shapes.test.ts joins iteration 21. They are absent only from older frozen archives. Their .cache candidates remain local, not pushed. The next negation test exists locally at /Users/assem/Documents/GitHub/driftbench/.worktrees/exec-estate-v2/.cache/s22negation/packages/estate/test/scan/negated-mentions.test.ts. It is not pushed until its separate fix is measured and committed.
 
-The sweep source .cache/full-17 is local, not pushed and is absent from handover-18. Read the canonical .cache/estate-executor/full-17.state.json, full-17.source.json, full-17.json and full-17.stderr for it. The directory is immutable source c415e845. A missing directory in a frozen archive is not proof that the named canonical sweep stopped.
+The sweep source .cache/full-17 is local, not pushed and is absent from the handover-21 source snapshot; its full-17 measurement and stamps are copied under that snapshot's .cache/estate-executor/. Read the canonical .cache/estate-executor/full-17.state.json, full-17.source.json, full-17.json and full-17.stderr for it. The directory is immutable source c415e845. A missing directory in a frozen archive is not proof that the named canonical sweep stopped.
 
 ## Open items
 
-The published row 21 measurement is iteration-21.json, immutable base 69177605 plus its two registry files. It passes 944 of 1170, with 226 failures; reader has 73 failures of 641. All measurements here use seed 1 unless an explicit sweep source is named.
+The published row 22 capture is iteration-22.json, immutable base 877ca0ce plus its three negation files. It passes 947 of 1170, with 223 failures; reader has 70 failures of 641. All values here use seed 1 unless an explicit sweep source is named.
 
 | Level | Passing | Failing |
 |---|---|---|
-| reader | 568/641 | 73 |
+| reader | 571/641 | 70 |
 | lint | 45/46 | 1 |
 | plan | 44/65 | 21 |
 | generation | 196/270 | 74 |
@@ -147,7 +157,7 @@ The published row 21 measurement is iteration-21.json, immutable base 69177605 p
 | maintenance | 49/53 | 4 |
 | scale | 20/20 | 0 |
 
-All 25 bench.defects items, all 25 determinism items and all 37 stats items pass. The unit input mismatch and documented closed-list conflicts remain below. Seven PR 133 maintenance oracle corrections pass and receive no executor credit.
+All 25 bench.defects, 25 determinism and 37 stats items pass. Unit-input and closed-list conflicts remain below. Seven PR 133 maintenance corrections pass and receive no executor credit.
 
 ### Historical pilot gap list
 
@@ -167,9 +177,9 @@ The ten pilot iterations are the journal rows 1 to 10 and the commits of `exec/v
 
 ## Next actions
 
-1. Iteration 22 fixes forbidden mentions in packages/estate/src/scan/code.ts and packages/estate/src/graph/edges.ts. Copy packages/estate/test/scan/negated-mentions.test.ts from /Users/assem/Documents/GitHub/driftbench/.worktrees/exec-estate-v2/.cache/s22negation, which is local, not pushed. Run it red, then apply only positiveMention and its reference, routing and graph-dispatch calls. Preserve the routing collision fix, compaction synonyms and comment/path masking. Its prepared six tests include a curly-apostrophe prohibition and affirmative but/until controls; the final related candidate suite has 23 passes.
-2. Measure iteration 22 against .cache/estate-executor/iteration-21.json, journal, commit and push after fresh typecheck and lint. It is the tenth owned cause, so immediately start another immutable seeds 1..20 plus hidden sweep. The scheduled fresh review is requested at iteration 21; the next scheduled request is iteration 24. Do not issue an extra review between them unless the lead directs it.
-3. Iteration 23 reads literal quoted file paths in packages/estate/src/scan/code.ts, with packages/estate/test/scan/quoted-paths.test.ts from /Users/assem/Documents/GitHub/driftbench/.worktrees/exec-estate-v2/.cache/s23quoted, local and not pushed. Apply only namedPaths, preserving its exclusions and the negation helper. Completed full-17 is 911 of 1170 on immutable c415e845; its source /Users/assem/Documents/GitHub/driftbench/.worktrees/exec-estate-v2/.cache/full-17 is local, not pushed. Stop at 07:00 Europe/Brussels on 2026-10-13 if the bank has not reached 1.
+1. Iteration 23 reads literal quoted file paths. Copy packages/estate/test/scan/quoted-paths.test.ts from /Users/assem/Documents/GitHub/driftbench/.worktrees/exec-estate-v2/.cache/s23quoted, local and not pushed. Run it red, then apply only namedPaths to packages/estate/src/scan/code.ts. Preserve negation, spaced names, comments and command/link-title exclusions. The refined candidate has four red cases and one passing control, then eleven related passes; it also tests a quoted HTML href.
+2. Measure against iteration-22.json, journal, commit and push after fresh typecheck and lint. Iteration 24 then accepts scalar JSON registry rules in packages/estate/src/scan/claude-code.ts, with packages/estate/test/scan/scalar-rules.test.ts from /Users/assem/Documents/GitHub/driftbench/.worktrees/exec-estate-v2/.cache/s24rules, local and not pushed. Apply only the listed/enforces value block inside readJsonRegistry, preserving registryEntries and event inheritance. Request the next scheduled fresh review at iteration 24.
+3. Read .cache/estate-executor/full-22.state.json, full-22.source.json, full-22.json and full-22.stderr for the tenth-fix sweep's actual source and result. They are local, not pushed. The completed older full-17 is 911 of 1170 on c415e845. CI's two stale protected assertions await the maintainer; import the confirmed main fix, run node tools/rename-scope.mjs, typecheck and lint, then push. Stop at 07:00 Europe/Brussels on 2026-10-13 if the bank has not reached 1.
 
 ### Historical next actions before takeover
 
@@ -182,11 +192,11 @@ Then the owner-flagged output items: lint codes, scan order, approve counts (122
 
 ## Pitfalls
 
-Current row 21 measures the full bank afresh on its explicitly stamped post-import snapshot. All 25 determinism items pass, including all five Node 22 comparisons. All 37 stats items and all 25 bench.defects items pass. The 41 unit.runner items still await the input-contract review. gen.task is reinstated, not quarantined. The bank has 1170 items. Rows 17 and 18 record fresh scale measurements and retain their different timing outcomes.
+Current row 22 measures the full bank afresh on its explicitly stamped post-import snapshot. All 25 determinism items pass, including all five Node 22 comparisons. All 37 stats items and all 25 bench.defects items pass. The 41 unit.runner items still await the input-contract review. gen.task is reinstated, not quarantined. The bank has 1170 items. Rows 17 and 18 record fresh scale measurements and retain their different timing outcomes.
 
 ### Historical pilot notes
 
-The former pilot bench gap list includes ignored reference folders, refused guard or setting mutants, the runtime pin, a phrase bank without a situation, short guard names and two ids in a registry cell. It is superseded: all 25 bench items pass at row 21.
+The former pilot bench gap list includes ignored reference folders, refused guard or setting mutants, the runtime pin, a phrase bank without a situation, short guard names and two ids in a registry cell. It is superseded: all 25 bench items pass at row 22.
 
 The following notes preserve the pilot's inputs, timings and earlier family sizes. They are historical observations, not the current open-item count or a current passing claim. Use the latest journal row and the measurements above for current values.
 
