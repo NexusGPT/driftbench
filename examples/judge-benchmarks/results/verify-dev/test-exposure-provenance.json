@@ -1,0 +1,498 @@
+{
+  "schema_version": 1,
+  "observed_at_utc": "2026-10-13T00:38:23.375085+00:00",
+  "local_timezone": "Europe/Brussels",
+  "read_only_investigation": true,
+  "model_calls": 0,
+  "new_predictions": 0,
+  "new_test_or_audited_test_scores": 0,
+  "conclusion": "Definitive prior TEST exposure on 12 October 2026. Tonight must be described as confirmation on a previously evaluated 221-item TEST partition. This investigation does not establish TEST-label tuning or an exhaustive global exposure history.",
+  "source_roots": {
+    "capture_and_source_paths_relative_to": "<archived-judge-benchmarks-worktree>",
+    "ledger_and_census_paths_relative_to": "<lead-session-directory>",
+    "historical_transcript": "<historical-transcript-directory>/agent-ajudges2-lane-79fa3de2ca4edbbd.jsonl"
+  },
+  "historical_raw_test_trials": [
+    {
+      "trial": "A",
+      "contestant": "driftbench-reference",
+      "items": 221,
+      "official_score_percent": "73.3",
+      "printed_95_percent_interval": [
+        "67.1",
+        "78.7"
+      ],
+      "balanced_score_percent": "69.1",
+      "total_recorded_contestant_cost_usd": "0.7470",
+      "cost_usd_per_100_derived_from_printed_cost": "0.338009",
+      "cost_precision_note": "Derived from the printed four-decimal total cost; not an exact unrounded billing amount. Shared/replayed answers can be attributed to multiple contestants.",
+      "missing_answers": 0,
+      "new_calls": 439,
+      "new_spend_usd": "0.7441",
+      "replayed_calls": 3,
+      "capture_path": "_captures/jb/testA-v.out",
+      "sha256": "5fea79a6b719dc8ca703c2b75d64ed88ac49a311ac52d19b322ca77f45f07309",
+      "mtime_local": "2026-10-12T15:00:20.789292+02:00",
+      "provenance_class": "historical raw CLI table; official labels; no new scoring"
+    },
+    {
+      "trial": "B",
+      "contestant": "driftbench-reference3",
+      "items": 221,
+      "official_score_percent": "74.2",
+      "printed_95_percent_interval": [
+        "68.1",
+        "79.5"
+      ],
+      "balanced_score_percent": "68.9",
+      "total_recorded_contestant_cost_usd": "1.4636",
+      "cost_usd_per_100_derived_from_printed_cost": "0.662262",
+      "cost_precision_note": "Derived from the printed four-decimal total cost; not an exact unrounded billing amount. Shared/replayed answers can be attributed to multiple contestants.",
+      "missing_answers": 0,
+      "new_calls": 442,
+      "new_spend_usd": "0.7166",
+      "replayed_calls": 442,
+      "capture_path": "_captures/jb/testB-v.out",
+      "sha256": "ecd878dc8695c29751b6d1e350369667b20fdd545f64ddcb12cac7210b51805b",
+      "mtime_local": "2026-10-12T15:46:24.988283+02:00",
+      "provenance_class": "historical raw CLI table; official labels; no new scoring"
+    },
+    {
+      "trial": "C",
+      "contestant": "driftbench-adaptive",
+      "items": 221,
+      "official_score_percent": "73.8",
+      "printed_95_percent_interval": [
+        "67.6",
+        "79.1"
+      ],
+      "balanced_score_percent": "68.6",
+      "total_recorded_contestant_cost_usd": "1.4874",
+      "cost_usd_per_100_derived_from_printed_cost": "0.673032",
+      "cost_precision_note": "Derived from the printed four-decimal total cost; not an exact unrounded billing amount. Shared/replayed answers can be attributed to multiple contestants.",
+      "missing_answers": 0,
+      "new_calls": 305,
+      "new_spend_usd": "0.1961",
+      "replayed_calls": 771,
+      "capture_path": "_captures/jb/testC-longjudge-verify.out",
+      "sha256": "8e8e9ee2bac28677c75ff650e4b599f1c6e3412d4d008bbf03fd2ac9da67f854",
+      "mtime_local": "2026-10-12T17:36:23.948757+02:00",
+      "provenance_class": "historical raw CLI table; official labels; no new scoring"
+    }
+  ],
+  "historical_census_test_scores": [
+    {
+      "source_line": 149,
+      "contestant": "driftbench-adaptive",
+      "mode": "pointwise",
+      "items": 221,
+      "official_score_percent": "73.8",
+      "missing": 0,
+      "cost_usd_per_100": "0.67",
+      "provenance_class": "census-derived historical replay; not independently recomputed here",
+      "raw_row": "| LongJudge verify | driftbench-adaptive | pointwise | 221 | 73.8 | 0 | 0.67 |"
+    },
+    {
+      "source_line": 150,
+      "contestant": "driftbench (shipped)",
+      "mode": "pointwise",
+      "items": 221,
+      "official_score_percent": "72.9",
+      "missing": 0,
+      "cost_usd_per_100": "0.16",
+      "provenance_class": "census-derived historical replay; not independently recomputed here",
+      "raw_row": "| LongJudge verify | driftbench (shipped) | pointwise | 221 | 72.9 | 0 | 0.16 |"
+    },
+    {
+      "source_line": 151,
+      "contestant": "DeepEval",
+      "mode": "pointwise",
+      "items": 221,
+      "official_score_percent": "53.4",
+      "missing": 0,
+      "cost_usd_per_100": "0.18",
+      "provenance_class": "census-derived historical replay; not independently recomputed here",
+      "raw_row": "| LongJudge verify | DeepEval | pointwise | 221 | 53.4 | 0 | 0.18 |"
+    },
+    {
+      "source_line": 152,
+      "contestant": "promptfoo",
+      "mode": "pointwise",
+      "items": 221,
+      "official_score_percent": "71.0",
+      "missing": 0,
+      "cost_usd_per_100": "0.18",
+      "provenance_class": "census-derived historical replay; not independently recomputed here",
+      "raw_row": "| LongJudge verify | promptfoo | pointwise | 221 | 71.0 | 0 | 0.18 |"
+    },
+    {
+      "source_line": 153,
+      "contestant": "Inspect",
+      "mode": "pointwise",
+      "items": 221,
+      "official_score_percent": "74.2",
+      "missing": 0,
+      "cost_usd_per_100": "0.22",
+      "provenance_class": "census-derived historical replay; not independently recomputed here",
+      "raw_row": "| LongJudge verify | Inspect | pointwise | 221 | 74.2 | 0 | 0.22 |"
+    },
+    {
+      "source_line": 154,
+      "contestant": "LangWatch Scenario",
+      "mode": "pointwise",
+      "items": 221,
+      "official_score_percent": "68.3",
+      "missing": 0,
+      "cost_usd_per_100": "0.20",
+      "provenance_class": "census-derived historical replay; not independently recomputed here",
+      "raw_row": "| LongJudge verify | LangWatch Scenario | pointwise | 221 | 68.3 | 0 | 0.20 |"
+    },
+    {
+      "source_line": 155,
+      "contestant": "Langfuse",
+      "mode": "pointwise",
+      "items": 221,
+      "official_score_percent": "73.3",
+      "missing": 0,
+      "cost_usd_per_100": "0.18",
+      "provenance_class": "census-derived historical replay; not independently recomputed here",
+      "raw_row": "| LongJudge verify | Langfuse | pointwise | 221 | 73.3 | 0 | 0.18 |"
+    }
+  ],
+  "launches": [
+    {
+      "trial": "initial-all",
+      "transcript_line": 1639,
+      "timestamp_utc": "2026-10-12T10:13:35.027Z",
+      "timestamp_local": "2026-10-12T12:13:35.027000+02:00",
+      "tool_id": "toolu_01Fpc19YAmUxEKciEn5KMPQF",
+      "literal_launch_excerpt": "npx tsx examples/judge-benchmarks/src/run.ts --bench longjudge-verify --model haiku --cap-usd 2.6 --concurrency 8 --out _captures/jb/haiku-verify.json > _captures/jb/haiku-verify.out 2>&1",
+      "tool_input_sha256": "ca5e10d41ff72a4a677f625c3c46eacf2b88f75c737643ed7375e9e5e1acb6db",
+      "transcript_record_sha256": "f6d9f8eef1a44966b0ee64cafcf1664727cbf2e9b4ff878d438e81e3fca87cfc",
+      "clock_meaning": "Historical tool-call submission, not exact subprocess start."
+    },
+    {
+      "trial": "all-resume-2",
+      "transcript_line": 1757,
+      "timestamp_utc": "2026-10-12T10:57:00.638Z",
+      "timestamp_local": "2026-10-12T12:57:00.638000+02:00",
+      "tool_id": "toolu_01YURCgnW5fdggeeRT3gVVoL",
+      "literal_launch_excerpt": "npx tsx examples/judge-benchmarks/src/run.ts --bench longjudge-verify --model haiku --cap-usd 1.0 --concurrency 8 --out _captures/jb/haiku-verify.json > _captures/jb/haiku-verify2.out 2>&1",
+      "tool_input_sha256": "c8602a10009a173157f4d1b72e14aa3b39bf5efd63dc13f65db37f83ef13bc40",
+      "transcript_record_sha256": "d02b33aba2348af4e1cfab004daef498bb28cf18ee6bc13df5e124a174788c72",
+      "clock_meaning": "Historical tool-call submission, not exact subprocess start."
+    },
+    {
+      "trial": "all-resume-3",
+      "transcript_line": 1783,
+      "timestamp_utc": "2026-10-12T11:22:56.063Z",
+      "timestamp_local": "2026-10-12T13:22:56.063000+02:00",
+      "tool_id": "toolu_01N5fa3iUGqoiKNuXrh3m683",
+      "literal_launch_excerpt": "npx tsx examples/judge-benchmarks/src/run.ts --bench longjudge-verify --model haiku --cap-usd 0.1 --concurrency 8 --out _captures/jb/haiku-verify.json > _captures/jb/haiku-verify3.out 2>&1",
+      "tool_input_sha256": "f6992b26bceddb49e0227644342e6d690a75d8ff3a97e296f1f93678a54eb21e",
+      "transcript_record_sha256": "1a9f607099d26e9444ff846d736299b9fc650c510afe61e85a622dd817326940",
+      "clock_meaning": "Historical tool-call submission, not exact subprocess start."
+    },
+    {
+      "trial": "A",
+      "transcript_line": 1984,
+      "timestamp_utc": "2026-10-12T12:28:27.488Z",
+      "timestamp_local": "2026-10-12T14:28:27.488000+02:00",
+      "tool_id": "toolu_01VGkrYYDyMMANKUozUZNT7U",
+      "literal_launch_excerpt": "npx tsx examples/judge-benchmarks/src/run.ts --bench longjudge-verify --model haiku --split test --contestants driftbench-reference --cap-usd 1.1 --concurrency 10 > _captures/jb/testA-v.out 2>&1",
+      "tool_input_sha256": "a5f60f8632286a73de39dec6b7412277202b745381803ea3066c58ce3b49f88a",
+      "transcript_record_sha256": "6b521af3625c2eb03d1ccb64485c136b425ac09eea96d1f126de64ffb3cfb615",
+      "clock_meaning": "Historical tool-call submission. For A/B/C this submits a chain with JudgeBench before verify, not the exact verify subprocess start."
+    },
+    {
+      "trial": "B",
+      "transcript_line": 2076,
+      "timestamp_utc": "2026-10-12T13:20:39.854Z",
+      "timestamp_local": "2026-10-12T15:20:39.854000+02:00",
+      "tool_id": "toolu_0163C7gutBMoJx5PSMcz71iJ",
+      "literal_launch_excerpt": "npx tsx examples/judge-benchmarks/src/run.ts --bench longjudge-verify --model haiku --split test --contestants driftbench-reference3 --cap-usd 1.0 --concurrency 10 > _captures/jb/testB-v.out 2>&1",
+      "tool_input_sha256": "28927661ecb8352f909dc5b36b095369e68514db5155fe031374a6cb9a8927a1",
+      "transcript_record_sha256": "999beb15084aa29af93506bd52f1ab8414ffee4aa1df0a4e0ae15d5801c1213a",
+      "clock_meaning": "Historical tool-call submission. For A/B/C this submits a chain with JudgeBench before verify, not the exact verify subprocess start."
+    },
+    {
+      "trial": "C",
+      "transcript_line": 2445,
+      "timestamp_utc": "2026-10-12T15:20:22.612Z",
+      "timestamp_local": "2026-10-12T17:20:22.612000+02:00",
+      "tool_id": "toolu_01XMSxGJsxGKPZFYhYKNvjY4",
+      "literal_launch_excerpt": "nohup sh -c \"for b in judgebench:1 longjudge-verify:0.8 longjudge-wp:3.5; do n=\\${b%%:*}; c=\\${b##*:}; npx tsx examples/judge-benchmarks/src/run.ts --bench \\$n --split test --contestants driftbench-adaptive --cap-usd \\$c --concurrency 4 > $J/testC-\\$n.out 2>&1; done; echo DONE > $J/testC.done\" > $J/bg-testC.log 2>&1",
+      "tool_input_sha256": "901d48eab5c58977da61045c366959fe1e881f89cd4c68d6d3174a49cc9e9fef",
+      "transcript_record_sha256": "7a7980d5e4812c0bc26333e6b6ecfc2db46624ad3f13919fc3d68487f2b2d4e7",
+      "clock_meaning": "Historical tool-call submission. For A/B/C this submits a chain with JudgeBench before verify, not the exact verify subprocess start."
+    }
+  ],
+  "clock_qualification": {
+    "dates": "Bare ledger times are dated from the ledger header night of 2026-10-12; exact UTC transcript dates and local file mtimes corroborate 12 October. CEST is UTC+02:00.",
+    "ledger_vs_launch": "A/B ledger rows use launch-like times but contain later edited result summaries. C records 17:24 while the recorded submission is 17:20:22.612 CEST. Neither is the exact verify process start.",
+    "mtime": "mtime records last filesystem write, not execution start or guaranteed completion. Historical commands explicitly touch A/B output files. DONE suffixes confirm A/B chain completion independently of clock precision. C has a completed metric table without DONE in its verify output.",
+    "prior_touch_records": [
+      {
+        "transcript_line": 1999,
+        "timestamp_utc": "2026-10-12T12:39:33.073Z",
+        "tool_id": "toolu_01BiTdediYj91GnwPzvtzrpG",
+        "touch_excerpt": "cd <archived-judge-benchmarks-worktree> && touch _captures/jb/testA-v.out",
+        "tool_input_sha256": "d1c725a11925edd6f729fe919cf901154767b999afa11fe6deebd167a70ef9fa"
+      },
+      {
+        "transcript_line": 2007,
+        "timestamp_utc": "2026-10-12T12:59:17.361Z",
+        "tool_id": "toolu_01AXzKcb5BUuZXBhW3zsTDHQ",
+        "touch_excerpt": "cd <archived-judge-benchmarks-worktree> && touch _captures/jb/testA-v.out",
+        "tool_input_sha256": "cc57328e26d26577fcc170196559f1c345235631cb8ec44a19be79d41bbfe22e"
+      },
+      {
+        "transcript_line": 2080,
+        "timestamp_utc": "2026-10-12T13:20:45.582Z",
+        "tool_id": "toolu_01JEGaJpkVZmp6gGt5uMcDx6",
+        "touch_excerpt": "cd <archived-judge-benchmarks-worktree> && touch _captures/jb/testB-v.out",
+        "tool_input_sha256": "192daa05fa54e020adf7b16b4104a33bec0df09cb4b90ff811e9e060a21f9563"
+      }
+    ]
+  },
+  "initial_all_item_runs": [
+    {
+      "path": "_captures/jb/haiku-verify.out",
+      "bytes": 740,
+      "sha256": "35020201ff59090f7a162efda63a34a5c9ae9988937287fee1e9c00ad24b8096",
+      "mtime_utc": "2026-10-12T10:56:33.919672+00:00",
+      "mtime_local": "2026-10-12T12:56:33.919672+02:00",
+      "stable_during_read": true,
+      "observed_at_utc": "2026-10-13T00:38:23.375085+00:00"
+    },
+    {
+      "path": "_captures/jb/haiku-verify2.out",
+      "bytes": 740,
+      "sha256": "b0f8ba2db166dc291e05e5f56d4264ec414ecd94aefd9f50b512f81274537831",
+      "mtime_utc": "2026-10-12T11:19:44.984389+00:00",
+      "mtime_local": "2026-10-12T13:19:44.984389+02:00",
+      "stable_during_read": true,
+      "observed_at_utc": "2026-10-13T00:38:23.375085+00:00"
+    },
+    {
+      "path": "_captures/jb/haiku-verify3.out",
+      "bytes": 692,
+      "sha256": "aa45ebcb063a14bf608068b1600ff84ed9fa5923207f7f9a53166c21dee1672d",
+      "mtime_utc": "2026-10-12T11:24:19.843022+00:00",
+      "mtime_local": "2026-10-12T13:24:19.843022+02:00",
+      "stable_during_read": true,
+      "observed_at_utc": "2026-10-13T00:38:23.375085+00:00"
+    }
+  ],
+  "all_item_final_raw_output": "longjudge-verify on haiku: 316 items\n\n| Contestant | Mode | Metric (95% interval) | Position consistency | Cost (USD) | Missing answers |\n|---|---|---|---|---|---|\n| driftbench | pointwise | 69.9 [64.7, 74.7], balanced 66.6 | n/a | 0.5529 | 0 |\n| deepeval | pointwise | 50.6 [45.1, 56.1], balanced 44.0 | n/a | 0.6036 | 0 |\n| promptfoo | pointwise | 70.9 [65.7, 75.6], balanced 67.2 | n/a | 0.6190 | 0 |\n| inspect | pointwise | 73.4 [68.3, 78.0], balanced 68.2 | n/a | 0.7307 | 0 |\n| scenario | pointwise | 66.8 [61.4, 71.7], balanced 61.1 | n/a | 0.6618 | 0 |\n| langfuse | pointwise | 71.8 [66.6, 76.5], balanced 67.8 | n/a | 0.5928 | 0 |\n\nNew calls 19, new spend 0.0403 USD, replayed 1878.\n",
+  "population_membership_check": {
+    "source_url": "https://raw.githubusercontent.com/cjj826/LongJudgeBench/main/data_standardized/verify_bench_hard.jsonl",
+    "cache": {
+      "path": "existing OS cache: driftbench-judge-benchmarks/3b48c632ac204173",
+      "bytes": 3891573,
+      "sha256": "92f7a99e91ee8067d5397042e2104b0e82deaa81fcffcb66a70eac614f7c20af",
+      "mtime_utc": "2026-10-12T09:52:56.798784+00:00",
+      "mtime_local": "2026-10-12T11:52:56.798784+02:00",
+      "stable_during_read": true,
+      "observed_at_utc": "2026-10-13T00:38:23.375085+00:00"
+    },
+    "scope": "Identifier-only read. Regex extracts id strings; no question, response, gold label, or TEST prediction inspected. Existing DEV item ids used only for set equality.",
+    "split_rule": "sha256(\"split:longjudge-verify:\" + id).digest()[0] < 77 => DEV; else TEST",
+    "all_unique_items": 316,
+    "dev_items": 95,
+    "test_items": 221,
+    "disjoint": true,
+    "exhaustive": true,
+    "dev_ids_match_existing_dev_items": true,
+    "id_set_hash_serialization": "UTF-8 newline join of lexicographically sorted ids, with no trailing newline",
+    "id_set_sha256": {
+      "all": "f18e626d63a8c419f7f92e6b465f488dfe13d00c075e8956b95eaab133d7cea2",
+      "dev": "c19a968d699860bc4c678e05b29cf9166df66defc51dbe6be08a2f39361d68ae",
+      "test": "f7bef008c269d20f7d5d5d68f243e39b28a66c667dc5b6c8a4782f744d8fd026"
+    },
+    "sources": {
+      "split_and_parse": {
+        "path": "examples/judge-benchmarks/src/data.ts",
+        "bytes": 11884,
+        "sha256": "0ad8c198e952608eb0c3959c6147d98e07253265b72e196d270ddff57ebfdc00",
+        "mtime_utc": "2026-10-12T12:06:37.749419+00:00",
+        "mtime_local": "2026-10-12T14:06:37.749419+02:00",
+        "stable_during_read": true,
+        "observed_at_utc": "2026-10-13T00:38:23.375085+00:00"
+      },
+      "run_filter": {
+        "path": "examples/judge-benchmarks/src/run.ts",
+        "bytes": 20327,
+        "sha256": "8951a41cfb686132cc41e95fc83478476e353c7158bdaf924ecd262bba26ab48",
+        "mtime_utc": "2026-10-12T18:29:16.915481+00:00",
+        "mtime_local": "2026-10-12T20:29:16.915481+02:00",
+        "stable_during_read": true,
+        "observed_at_utc": "2026-10-13T00:38:23.375085+00:00"
+      },
+      "dev_id_comparison": {
+        "path": "results/verify-dev/items.json",
+        "bytes": 1192795,
+        "sha256": "0b378671ded40adbb968f2d05e6308c7fdd1194fbc4917b65c8882f76e3a4e07",
+        "mtime_utc": "2026-10-12T20:13:37.750540+00:00",
+        "mtime_local": "2026-10-12T22:13:37.750540+02:00",
+        "stable_during_read": true,
+        "observed_at_utc": "2026-10-13T00:38:23.375085+00:00"
+      }
+    }
+  },
+  "sources": {
+    "raw_cli_captures": [
+      {
+        "path": "_captures/jb/testA-v.out",
+        "bytes": 310,
+        "sha256": "5fea79a6b719dc8ca703c2b75d64ed88ac49a311ac52d19b322ca77f45f07309",
+        "mtime_utc": "2026-10-12T13:00:20.789292+00:00",
+        "mtime_local": "2026-10-12T15:00:20.789292+02:00",
+        "stable_during_read": true,
+        "observed_at_utc": "2026-10-13T00:38:23.375085+00:00"
+      },
+      {
+        "path": "_captures/jb/testB-v.out",
+        "bytes": 313,
+        "sha256": "ecd878dc8695c29751b6d1e350369667b20fdd545f64ddcb12cac7210b51805b",
+        "mtime_utc": "2026-10-12T13:46:24.988283+00:00",
+        "mtime_local": "2026-10-12T15:46:24.988283+02:00",
+        "stable_during_read": true,
+        "observed_at_utc": "2026-10-13T00:38:23.375085+00:00"
+      },
+      {
+        "path": "_captures/jb/testC-longjudge-verify.out",
+        "bytes": 306,
+        "sha256": "8e8e9ee2bac28677c75ff650e4b599f1c6e3412d4d008bbf03fd2ac9da67f854",
+        "mtime_utc": "2026-10-12T15:36:23.948757+00:00",
+        "mtime_local": "2026-10-12T17:36:23.948757+02:00",
+        "stable_during_read": true,
+        "observed_at_utc": "2026-10-13T00:38:23.375085+00:00"
+      },
+      {
+        "path": "_captures/jb/haiku-verify.out",
+        "bytes": 740,
+        "sha256": "35020201ff59090f7a162efda63a34a5c9ae9988937287fee1e9c00ad24b8096",
+        "mtime_utc": "2026-10-12T10:56:33.919672+00:00",
+        "mtime_local": "2026-10-12T12:56:33.919672+02:00",
+        "stable_during_read": true,
+        "observed_at_utc": "2026-10-13T00:38:23.375085+00:00"
+      },
+      {
+        "path": "_captures/jb/haiku-verify2.out",
+        "bytes": 740,
+        "sha256": "b0f8ba2db166dc291e05e5f56d4264ec414ecd94aefd9f50b512f81274537831",
+        "mtime_utc": "2026-10-12T11:19:44.984389+00:00",
+        "mtime_local": "2026-10-12T13:19:44.984389+02:00",
+        "stable_during_read": true,
+        "observed_at_utc": "2026-10-13T00:38:23.375085+00:00"
+      },
+      {
+        "path": "_captures/jb/haiku-verify3.out",
+        "bytes": 692,
+        "sha256": "aa45ebcb063a14bf608068b1600ff84ed9fa5923207f7f9a53166c21dee1672d",
+        "mtime_utc": "2026-10-12T11:24:19.843022+00:00",
+        "mtime_local": "2026-10-12T13:24:19.843022+02:00",
+        "stable_during_read": true,
+        "observed_at_utc": "2026-10-13T00:38:23.375085+00:00"
+      }
+    ],
+    "ledger": {
+      "path": "scratchpad/spend-ledger.md",
+      "bytes": 88541,
+      "sha256": "aac4caac792827ea2020bef946bf78eb30906fec2a9477460e051c13cf6ca7bd",
+      "mtime_utc": "2026-10-13T00:34:03.900979+00:00",
+      "mtime_local": "2026-10-13T02:34:03.900979+02:00",
+      "stable_during_read": true,
+      "observed_at_utc": "2026-10-13T00:38:23.375085+00:00"
+    },
+    "ledger_rows": [
+      {
+        "line": 1,
+        "text": "# Spend ledger, night of 2026-10-12 (cap 100 USD, stop at 80)",
+        "sha256_utf8_without_newline": "5c8bd5c03f0b1babc614d44241c4d4ef9beab440ff23e10167f1b420600a05c0"
+      },
+      {
+        "line": 81,
+        "text": "| 11:49 | judge-benchmarks cost probe (after: per item, all 6 contestants: JudgeBench 0.0115, MM-Eval 0.0080, wp 0.0191, verify 0.0076 USD): 10 stratified items per benchmark (JudgeBench, MM-Eval, LongJudgeBench wp and verify), 6 contestants, both orders on pairs; job budget 15 USD; includes 1 earlier 0.0001 USD system-prompt probe | haiku | 423 | 0.60 | 0.4658 | +0.4658 (job 0.4658 of 15) |",
+        "sha256_utf8_without_newline": "ed1e9fa58e8dbca82d271b11e43cf215dd6765d690361f3e5f8e5fa5e9715b36"
+      },
+      {
+        "line": 84,
+        "text": "| 12:13 | judge-benchmarks haiku run 2 (after: stopped at its cap; 4 contestants complete, scenario 100 of 316, langfuse none): LongJudgeBench verify_bench_hard, all 316 items, 6 contestants; spend cap flag 2.6 | haiku | 1320 | 2.40 | 2.6088 | +2.6088 (job 3.9281 of 15, run 1 still going) |",
+        "sha256_utf8_without_newline": "732e9ba3a64ebb6daf63b6d97ad15e125fd485e49208918b82d17275255778b8"
+      },
+      {
+        "line": 96,
+        "text": "| 12:57 | judge-benchmarks haiku run 2b (after: stopped at its cap again): verify_bench_hard, the rest of scenario (216) and langfuse (316); spend cap flag 1.0 | haiku | 497 | 0.90 | 1.0317 | +1.0317 (job 9.2725 of 15) |",
+        "sha256_utf8_without_newline": "1d34cf5cbe9fb41e88475493831ceb407ed409c107587061c014b00c209b02af"
+      },
+      {
+        "line": 98,
+        "text": "| 13:22 | judge-benchmarks haiku run 1c and 2c (after: verify complete; JudgeBench complete except one pair that fails for every contestant): finish JudgeBench (langfuse 428 calls, retry of failed calls) and verify (20 calls); caps 0.6 and 0.1 | haiku | 434 | 0.45 | 0.4635 | +0.4635 (job 9.7360 of 15) |",
+        "sha256_utf8_without_newline": "51eec791a8f02234d846d7eb4474052c20e8d48bc6f02de8b18f643c15a1ae47"
+      },
+      {
+        "line": 120,
+        "text": "| 14:28 | judge-benchmarks test run A (after: test JudgeBench 82.5 against promptfoo 83.8; test verify 73.3 against inspect 74.2; not yet on top): the chosen driftbench-reference on the test splits of JudgeBench (229 pairs) and verify (221); caps 1.0 and 1.1 | haiku | 1123 | 1.60 | 1.4673 | +1.4673 |",
+        "sha256_utf8_without_newline": "c04e3da20095f65acbdc031379cefae4bc70321c7a5e2d585bdeb87dba100826"
+      },
+      {
+        "line": 128,
+        "text": "| 15:20 | judge-benchmarks test run B (after: test JudgeBench 85.2, now first, promptfoo 83.8; test verify 74.2, tied with inspect): driftbench-reference3 on the test splits of JudgeBench and verify; caps 1.3 and 1.0 | haiku | 1354 | 1.90 | 1.7443 | +1.7443 |",
+        "sha256_utf8_without_newline": "d9b2d3a06d429ec93826901321d1fa6d379584b05c7a4e50cf0d970f38d7e27d"
+      },
+      {
+        "line": 146,
+        "text": "| 17:24 | judge-benchmarks test run C (before): driftbench-adaptive on the test splits of JudgeBench (229), verify (221), wp_bench (173); results read only after the config is frozen on dev; caps 1, 0.8, 3.5 | haiku | ~2500 | 5.30 | pending | |",
+        "sha256_utf8_without_newline": "c8fabc1d89e782951acf38a25ef0360ae97c2b7cd055bc0ff780a32cbce9200d"
+      },
+      {
+        "line": 173,
+        "text": "| 20:26 | judges3 phase 1 census: replay only, 0 model calls, rebuilt dev and test decisions from recordings | haiku | 0 | 0 | 0.0000 | +0.0000 |",
+        "sha256_utf8_without_newline": "61018bfe24ecdcd3fb0894a79f25f36341fd2cd29802d5c132c78f3c02ab020d"
+      }
+    ],
+    "census": {
+      "path": "scratchpad/reports/judges-census.md",
+      "bytes": 17005,
+      "sha256": "8d2eb46c9e23f99bcc450a04af6cb940936c9961ef36b4f1348dc6d511cd2b09",
+      "mtime_utc": "2026-10-12T18:25:36.947942+00:00",
+      "mtime_local": "2026-10-12T20:25:36.947942+02:00",
+      "stable_during_read": true,
+      "observed_at_utc": "2026-10-13T00:38:23.375085+00:00"
+    },
+    "transcript": {
+      "path": "historical subagent transcript: agent-ajudges2-lane-79fa3de2ca4edbbd.jsonl",
+      "bytes": 9707357,
+      "sha256": "d48bcfd2bb16469bdc6f8a8ded3d50b82427b3d66b358b9780cb1efb2f7a57ff",
+      "mtime_utc": "2026-10-12T18:05:59.026834+00:00",
+      "mtime_local": "2026-10-12T20:05:59.026834+02:00",
+      "stable_during_read": true,
+      "observed_at_utc": "2026-10-13T00:38:23.375085+00:00"
+    }
+  },
+  "search_scope": "Bounded positive-evidence investigation: 84 direct files in archived _captures/jb; one task-output directory (1241 filenames), 10 named judge/benchmark subagent JSONLs, and the known main transcript. No huge fixture-tree enumeration. This report claims no exhaustive absence of older global logs.",
+  "limitations": [
+    "The 11:49 stratified sample ledger row predates the all316 run. Its sample ids were not examined; the 12:13 launch is not claimed as earliest possible TEST exposure.",
+    "Census scope header says dev-only; its explicit section6 is a TEST table. The seven rows are attributed to that section, not silently treated as raw logs.",
+    "Historical scores use official labels and printed precision. No historical audited TEST metric is calculated.",
+    "The provenance check proves prior population evaluation, not that this current code version was previously tested.",
+    "Archived source and dataset hashes are observed snapshots. This report does not claim immutable historical source-code identity from filenames or mtimes alone."
+  ],
+  "observed_verification": {
+    "timestamp_utc": "2026-10-13T00:39:17.816684+00:00",
+    "status": "PASS",
+    "checks": [
+      "JSON companion parses successfully.",
+      "Three raw CLI TEST rows match score/cost expectations and current capture SHA-256 hashes.",
+      "All three complete raw TEST outputs appear verbatim in the Markdown report.",
+      "Capture references are file-relative paths.",
+      "Seven census TEST rows are separated from raw trial evidence.",
+      "Identifier-only population partition is 316 total, 95 DEV, 221 TEST; disjoint, exhaustive, DEV id set matches existing DEV artifact.",
+      "Archived split source and runner all-item filter directly corroborate the reproduced rule.",
+      "No model calls, predictions, historical audited TEST metrics, or new TEST metrics were created."
+    ]
+  },
+  "publication_note": "Local absolute path prefixes are replaced with named placeholders. Source content hashes, metric outputs, timestamps, relative capture paths and historical tool-input hashes remain unchanged."
+}

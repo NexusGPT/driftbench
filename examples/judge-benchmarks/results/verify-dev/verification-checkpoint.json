@@ -36,5 +36,15 @@
     "warnings": 3,
     "infos": 5,
     "fix": "Only a line-wrap change in the freeze script."
+  },
+  "literalVariantVerification": {
+    "at": "2026-10-13T02:37:39+02:00",
+    "sourceCommit": "c3edad86",
+    "typecheck": "passed",
+    "tests": 52,
+    "testFiles": 7,
+    "maxWorkers": 2,
+    "testTimeoutMs": 30000,
+    "biome": "Changed verify-dossier.ts passed without findings."
   }
 }
