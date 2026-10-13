@@ -643,6 +643,9 @@ function referenceAtoms(
       const isSkipped = target === undefined && skipped.has(path);
       if (!target && !isSkipped && !DOCUMENT.test(path)) continue;
       if (target && (target.kind === 'guard_script' || SCRIPT.test(path))) continue;
+      // A routing row that links to a skill's or a helper's file routes to it; it asks for no read.
+      if (target && (target.kind === 'skill' || target.kind === 'subagent') && line.text.startsWith('|'))
+        continue;
       builder.add({
         kind: 'reference',
         title: `Read ${named}`,
@@ -677,14 +680,25 @@ function routeAtoms(
     for (const row of table.rows) {
       const ask = row.cells[0]?.replace(/[`*]/g, '').trim() ?? '';
       for (const cell of row.cells.slice(1)) {
-        const targets = new Set(Array.from(cell.matchAll(/`([^`]+)`/g), (match) => match[1] ?? ''));
+        // A target and the words it is written with in the cell, to check the cell does not negate it.
+        const written = new Map<string, string>();
+        for (const match of cell.matchAll(/`\/?([^`]+)`/g)) written.set(match[1] ?? '', match[1] ?? '');
         const plain = cell.replace(/[`*]/g, '').trim();
-        if (names.skills.has(plain) || names.subagents.has(plain)) targets.add(plain);
+        if (names.skills.has(plain) || names.subagents.has(plain)) written.set(plain, plain);
         const helper = /^(?:the )?(.+) agent$/.exec(plain)?.[1];
-        if (helper && names.subagents.has(helper)) targets.add(helper);
-        for (const target of targets) {
-          if (!positiveMention(cell, target, ['load', 'dispatch', 'call'], true)) continue;
-          const isSkill = !(target === helper && names.subagents.has(helper)) && names.skills.has(target);
+        if (helper && names.subagents.has(helper)) written.set(helper, helper);
+        // A link to a skill's or a helper's own file names that skill or helper.
+        let linkedHelper: string | undefined;
+        for (const match of cell.matchAll(/\[([^\]\n]*)\]\(([^)\s]+)\)/g)) {
+          const unit = unitOfFile(resolveNamed(match[2] ?? '', chunk.file, files, raw.bases ?? []), raw);
+          if (!unit) continue;
+          written.set(unit.name, match[0]);
+          if (unit.kind === 'subagent') linkedHelper = unit.name;
+        }
+        for (const [target, mention] of written) {
+          if (!positiveMention(cell, mention, ['load', 'dispatch', 'call'], true)) continue;
+          const asHelper = (target === helper || target === linkedHelper) && names.subagents.has(target);
+          const isSkill = !asHelper && names.skills.has(target);
           if (!isSkill && !names.subagents.has(target)) continue;
           builder.add({
             kind: 'route',
@@ -702,6 +716,14 @@ function routeAtoms(
       }
     }
   }
+}
+
+/** The skill or helper whose definition file a path is. */
+function unitOfFile(path: string, raw: RawEstate): { name: string; kind: 'skill' | 'subagent' } | undefined {
+  const skill = raw.skills.find((unit) => unit.file === path);
+  if (skill) return { name: skill.name, kind: 'skill' };
+  const helper = raw.subagents.find((unit) => unit.file === path);
+  return helper ? { name: helper.name, kind: 'subagent' } : undefined;
 }
 
 /** What a gate names to read: a backticked or double-quoted name, a markdown link, or one word. */
