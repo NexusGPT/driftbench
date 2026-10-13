@@ -1,9 +1,9 @@
 {
-  "measuredAt": "2026-10-13T01:34:12.567Z",
+  "measuredAt": "2026-10-13T04:27:17.792Z",
   "bench": "all",
   "fullText": true,
-  "scannedFiles": 11,
-  "scannedBytes": 68436391,
+  "scannedFiles": 12,
+  "scannedBytes": 70754925,
   "maxFileBytes": 8388424,
   "privateTerms": 33,
   "denylistFindings": 0,

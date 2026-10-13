@@ -1,0 +1,74 @@
+{
+  "bench": "rubricbench",
+  "model": "haiku",
+  "split": "test",
+  "items": 59,
+  "contestants": [
+    {
+      "contestant": "driftbench-rb-binary-canonical-executed",
+      "source": "Expert rubric, evidence per atomic requirement, binary aggregation (dev experiment); canonical presentation with exact candidate-code execution",
+      "mode": "pairwise, both orders",
+      "summary": {
+        "metric": "accuracy (RubricBench, over games)",
+        "value": {
+          "estimate": 0.7796610169491526,
+          "lower": 0.6967223270508931,
+          "upper": 0.8449652121399152
+        },
+        "n": 59,
+        "byGroup": {
+          "stem": {
+            "n": 16,
+            "value": 0.75
+          },
+          "general": {
+            "n": 10,
+            "value": 0.8
+          },
+          "human-preference": {
+            "n": 28,
+            "value": 0.7142857142857143
+          },
+          "code": {
+            "n": 36,
+            "value": 0.8333333333333334
+          },
+          "ifeval": {
+            "n": 10,
+            "value": 0.8
+          },
+          "Factuality": {
+            "n": 6,
+            "value": 1
+          },
+          "helpful": {
+            "n": 2,
+            "value": 1
+          },
+          "math": {
+            "n": 6,
+            "value": 0.6666666666666666
+          },
+          "harmlessness": {
+            "n": 2,
+            "value": 0
+          },
+          "Safety": {
+            "n": 2,
+            "value": 1
+          }
+        },
+        "missing": 0,
+        "positionConsistency": 0.9661016949152542
+      },
+      "costUsd": 0.20568486000000005,
+      "calls": 118,
+      "uniqueCostUsd": 0.10284243000000005,
+      "uniqueCalls": 59
+    }
+  ],
+  "newSpendUsd": 0.10284243000000005,
+  "newCalls": 59,
+  "replayed": 59,
+  "failedCalls": 0
+}

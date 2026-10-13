@@ -1,10 +1,10 @@
 {
-  "measuredAt": "2026-10-13T03:58:27.000Z",
-  "bench": "rubricbench",
+  "measuredAt": "2026-10-13T04:27:17.792Z",
+  "bench": "all",
   "fullText": true,
-  "scannedFiles": 5,
-  "scannedBytes": 33967068,
-  "maxFileBytes": 8388251,
+  "scannedFiles": 12,
+  "scannedBytes": 70754925,
+  "maxFileBytes": 8388424,
   "privateTerms": 33,
   "denylistFindings": 0,
   "termsSource": "local, environment and Git common-root private denylist"
