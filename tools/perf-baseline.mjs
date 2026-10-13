@@ -242,6 +242,24 @@ process.on('exit', () => {
       const name = inside[0].startsWith('@') ? inside[0] + '/' + inside[1] : inside[0];
       byPackage[name] = (byPackage[name] ?? 0) + 1;
     }
+    const timesRead = {};
+    for (const [file] of data) timesRead[file] = (timesRead[file] ?? 0) + 1;
+    const cwd = process.cwd() + '/';
+    report.files_read_again = Object.fromEntries(
+      Object.entries(timesRead)
+        .filter(([, times]) => times > 1)
+        .map(([file, times]) => [file.startsWith(cwd) ? file.slice(cwd.length) : file.split('/').at(-1), times])
+        .sort((a, b) => (a[0] < b[0] ? -1 : 1)),
+    );
+    const byWorkspace = {};
+    for (const file of modules.workspace) {
+      const match = /\/(packages|examples)\/([^/]+)\//.exec(file);
+      const name = match ? match[1] + '/' + match[2] : 'other';
+      byWorkspace[name] = (byWorkspace[name] ?? 0) + 1;
+    }
+    report.modules_by_workspace = Object.fromEntries(
+      Object.entries(byWorkspace).sort((a, b) => (a[0] < b[0] ? -1 : 1)),
+    );
     report.modules_by_package = Object.fromEntries(
       Object.entries(byPackage).sort((a, b) => b[1] - a[1] || (a[0] < b[0] ? -1 : 1)),
     );
@@ -599,6 +617,8 @@ export function measure(row, { runs, countRuns }) {
   if (counted.length > 0) {
     result.counts = counted[0].counts;
     result.modules_by_package = counted[0].modules_by_package;
+    result.modules_by_workspace = counted[0].modules_by_workspace;
+    result.files_read_again = counted[0].files_read_again;
     const unstable = Object.keys(result.counts).filter((key) =>
       counted.some((report) => report.counts[key] !== result.counts[key]),
     );
