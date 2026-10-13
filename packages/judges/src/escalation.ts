@@ -68,8 +68,9 @@ function referenceDisagrees(result: JudgeResult): boolean {
     (result.referenceAgreement !== undefined &&
       result.referenceAgreement.attempts > 0 &&
       !result.referenceAgreement.used) ||
-    (result.factLedger?.facts.some((row) => row.a !== 'match') === true &&
-      result.factLedger.facts.some((row) => row.b !== 'match'))
+    // The rule reads a pair ledger, which grades candidates A and B. A pointwise ledger grades one reply.
+    (result.factLedger?.facts.some((row) => 'a' in row && row.a !== 'match') === true &&
+      result.factLedger.facts.some((row) => 'b' in row && row.b !== 'match'))
   );
 }
 
