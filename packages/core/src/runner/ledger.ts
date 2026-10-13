@@ -134,11 +134,12 @@ const EMAIL = /[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}/g;
 const PHONE = /\+?\d[\d ().-]{5,}\d/g;
 /** A phone number has at least 9 digits: a date (8) or a short code is never read as one. */
 const PHONE_DIGITS = 9;
+const EMAIL_VALUE = new RegExp(`^${EMAIL.source}$`);
+const PHONE_VALUE = new RegExp(`^${PHONE.source}$`);
 
 function kindOf(value: string): 'email' | 'phone' | undefined {
-  if (new RegExp(`^${EMAIL.source}$`).test(value.trim())) return 'email';
-  if (new RegExp(`^${PHONE.source}$`).test(value.trim()) && digits(value).length >= PHONE_DIGITS)
-    return 'phone';
+  if (EMAIL_VALUE.test(value.trim())) return 'email';
+  if (PHONE_VALUE.test(value.trim()) && digits(value).length >= PHONE_DIGITS) return 'phone';
   return undefined;
 }
 
