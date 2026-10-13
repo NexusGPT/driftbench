@@ -395,10 +395,10 @@ const READINGS: readonly ((text: string) => string | undefined)[] = [
     );
     return split === text ? undefined : split;
   },
-  // The 24 Caesar shifts other than 13, of each short sentence (up to 4000 characters in all): one line per shift.
+  // The 24 Caesar shifts other than 13, of each sentence (up to 6000 characters in all): one line per shift.
   (text) => {
-    const short = sentencesOf(text).filter((sentence) => sentence.length >= 8 && sentence.length <= 200);
-    if (short.reduce((sum, sentence) => sum + sentence.length, 0) > 4000) return undefined;
+    const short = sentencesOf(text).filter((sentence) => sentence.length >= 8);
+    if (short.reduce((sum, sentence) => sum + sentence.length, 0) > 6000) return undefined;
     const body = short.join('\n');
     return Array.from({ length: 25 }, (_, i) => shift(body, i + 1))
       .filter((_, i) => i + 1 !== 13)
