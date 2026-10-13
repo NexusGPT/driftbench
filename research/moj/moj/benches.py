@@ -66,3 +66,49 @@ def load(bench):
             for base in item.get('baselines', {}).values():
                 base['games'] = [flip.get(game) for game in base['games']]
     return items
+
+
+# ---------------------------------------------------------------- pointwise benchmarks (appended, see moj/pointwise.py)
+# Kept out of BENCHES on purpose: the pairwise collection and scoreboard never run on them.
+# A point item is the pair shape with the output in `a` and an empty reference in `b`: label "A" is pass, "B" is fail,
+# and pA is the probability of a pass. A pair item with rubric rows (rubricbench) keeps both replies: each reply is
+# judged pointwise against the rows and the pair verdict is computed in code.
+POINT_BENCHES = {
+    'rubricbench': {
+        'kind': 'pair',
+        'criterion': 'The response satisfies the rubrics below better.',
+        'cheaters': ['length', 'first'],
+        'baselines': {'ledger': 'our judge (pair ledger), recorded, gpt-6-luna', 'seat': 'our judge with a domain seat, recorded, gpt-6-luna',
+                      'promptfoo': 'promptfoo select-best, recorded, gpt-6-luna'},
+    },
+    'verify': {
+        'kind': 'point',
+        'criterion': 'The final answer the response gives to the question is correct.',
+        'cheaters': ['const_fail', 'const_pass'],
+        'baselines': {'ledger': 'our judge (uncertainty cascade), recorded, gpt-6-luna', 'promptfoo': 'promptfoo llm-rubric, recorded, gpt-6-luna'},
+    },
+    'hardrows': {
+        'kind': 'point',
+        'criterion': 'The reply meets the stated criterion, or agrees with the reference on every fact.',
+        'cheaters': ['const_fail', 'const_pass'],
+        'baselines': {'ledger': 'our judge (criterion ledger), recorded, claude-haiku-5-5', 'shipped': 'our shipped judge, recorded, claude-haiku-5-5',
+                      'promptfoo': 'promptfoo default grader, recorded, claude-haiku-5-5'},
+    },
+}
+
+
+def load_point(bench):
+    """Practice items of one pointwise benchmark. A point item is never swapped; a pair item is, as in load()."""
+    flip = {'A': 'B', 'B': 'A'}
+    items = json.load(open(os.path.join(HERE, 'data', f'{bench}.json')))
+    for item in items:
+        item['bench'] = bench
+        item['id'] = str(item['id'])
+        item['half'] = half(item['id'])
+        item['swapped'] = item['kind'] == 'pair' and _swap(item['id'])
+        if item['swapped']:
+            item['a'], item['b'] = item['b'], item['a']
+            item['label'] = flip[item['label']]
+            for base in item.get('baselines', {}).values():
+                base['games'] = [flip.get(game, game) for game in base['games']]
+    return items
