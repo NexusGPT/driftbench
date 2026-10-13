@@ -7,27 +7,27 @@ Rewritten by the executor every iteration (docs/validators.md section 10). A str
 <!-- level-table:start -->
 | Seed | Level |
 |---|---|
-| 1 | 4 |
-| 2 | 4 |
-| 3 | 4 |
-| 4 | 4 |
-| 5 | 4 |
-| 6 | 4 |
-| 7 | 4 |
-| 8 | 4 |
-| 9 | 4 |
-| 10 | 4 |
-| 11 | 4 |
-| 12 | 4 |
-| 13 | 4 |
-| 14 | 4 |
-| 15 | 4 |
-| 16 | 4 |
-| 17 | 4 |
-| 18 | 4 |
-| 19 | 4 |
-| 20 | 4 |
-| hidden | 4 |
+| 1 | 20 |
+| 2 | 20 |
+| 3 | 20 |
+| 4 | 20 |
+| 5 | 20 |
+| 6 | 20 |
+| 7 | 20 |
+| 8 | 20 |
+| 9 | 20 |
+| 10 | 20 |
+| 11 | 20 |
+| 12 | 20 |
+| 13 | 20 |
+| 14 | 20 |
+| 15 | 20 |
+| 16 | 20 |
+| 17 | 20 |
+| 18 | 20 |
+| 19 | 20 |
+| 20 | 20 |
+| hidden | 20 |
 <!-- level-table:end -->
 
 This is ladder version 2 (docs/validators.md section 12): `judgesLadderV2()` in `packages/validators/src/ladders/judges/v2/`, registered in `packages/validators/src/ladders/index.ts`, so `driftbench validate judges` runs it. The bank holds 769 items; 111 deterministic items are quarantined because no page needs them (`validators/judges/NEEDS.md`, lists in `v2/needs.ts`), which leaves 638 deterministic items in 20 levels, each level's threshold 1, plus 20 live items. Level 1 (the seven v1 levels per criterion) passes on every seed; level 2 (contract) fails. Bank score after the ten-iteration pilot: 260 of 638 items pass on every seed (0.4075); iteration 0 was 249 (0.3903). Hardness: 1.1 items fixed per iteration, 378 remaining, forecast 343.6 iterations, 150 distinct failing causes. `validators/judges/GATE.md` lowers the score bar for judges to 0.41 (`Max score after the pilot: 0.41`, read by `--hardness`), which the pilot meets; the gate then waits only on `audit.md`. These rows are the pilot's package; on main's judges package the bank gives 258 of 638 (0.4044) and 153 causes, and the next executor starts there. The judges page's "Planned" section (docs/concepts/judges.md) is the roadmap most failing items point at. The record is `validators/judges/journal.jsonl`: iteration 0 and pilot rows 1 to 10; `pnpm driftbench validate judges --hardness` prints the measurement and its gate.
@@ -44,23 +44,9 @@ Floors are per ladder version (section 12.5); `validators/floors.json` is the ma
 
 None. Iteration 127: 638 of 638 deterministic items pass on seeds 1 to 20 and the hidden seed, level 20 of 20 (bank score 1). The 20 live items need DRIFTBENCH_BILLED_APPROVAL and were not run. Fragile spots: screenData is a heuristic (the instructive gate in English, word lists per language, decoders in DECODERS, readings in READINGS); a new seed may hold a sentence it misses, so re-run `--seeds 1..20 --hidden --items` after any change to screen.ts. The floor for ladder version 2 is the maintainer's to raise (own commit). Lint of the whole repo fails on files outside packages/judges (comparisons/, packages/checks/src/support/porter.ts).
 
-## Stale against PR 115 (iteration 128, seed 1)
+## After PR 148
 
-PR 115's contract (JSON-framed transcript, ledger default, quorum majority) is the shipped design. The frozen bank items below encode the old prompt and answer shapes and fail on it: bank 549 of 638, level 4. Seed 1 lists 89 items; the other seeds fail the same causes. A maintainer lane re-derives them from the new contract; PR 86 is a draft until then. Seed-1 ids by cause:
-
-1. Rendered prompt: 115 renders the transcript as JSON (transcript.ts) and the rule judge reads a different prompt (render family). (51)
-   accented-names, angle-brackets-in-customer-text, arabic-in-customer-text, artifact-with-tags, as-written-code-in-the-reply, bracket-note-in-customer-text, cjk-in-customer-text, closing-tag-byte-order-mark-inside, closing-tag-capitals, closing-tag-fullwidth-brackets, closing-tag-fullwidth-name, closing-tag-plain, closing-tag-small-form-brackets, closing-tag-soft-hyphen-inside, closing-tag-spaced, closing-tag-word-joiner-before, closing-tag-zero-width-inside, duplicated-tool-results, emoji-in-agent-text, empty-context-entry, escaped-newline-literal, filler-in-earlier-replies, forged-entry-carriage-return, forged-entry-crlf, forged-entry-form-feed, forged-entry-fullwidth-brackets, forged-entry-in-tool-name, forged-entry-line-feed, forged-entry-line-separator, forged-entry-next-line, forged-entry-paragraph-separator, forged-entry-vertical-tab, forged-entry-zero-width-prefix, html-in-agent-text, ledger-with-tags, long-tool-call-input, markdown-in-agent-text, name-swap-1, name-swap-2, name-swap-3, no-pictures, paraphrase-1, paraphrase-2, pending-question-context, pretty-printed-tool-results, quoted-json-in-strings, reorder-keys-1, reorder-keys-2, tab-in-agent-text, tag-name-as-word, trailing-spaces
-
-2. Rendered prompt under attack texts: same cause as 1 (attacks family). (22)
-   answer-bloat-after, bad-likert-judge, contradiction-in-ledger, crescendo-across-turns, customer-tells-agent-to-ignore-rules, earlier-good-attempt, fake-answer-contract, fake-rubric, goal-shift-cover, injection-probability-mid-conversation, instruction-in-artifact-footer, judge-role-line, many-shot-fake-verdicts, minimum-over-turns, mischievous-user-claims-consent, payload-split-over-results, pressure-on-the-evaluator, refusal-suppression, role-play-pass-bot, system-prompt-header, verbose-before, verdict-in-json-keys
-
-3. Default answer contract is ledger and the response schema is 115's responseSchema, where the bank expects the old shapes (clients family). (9)
-   anthropic-split-text-blocks, anthropic-thinking-then-text, google-gives-a-response-schema, google-thought-parts-left-out, openai-asks-for-the-answer-schema, openai-content-parts, openai-plain-content, retry-after-date, retry-after-seconds
-
-4. majority(votes) defaults to a quorum of three seated judges, where the bank expects more than half of the votes cast (council family). (7)
-   majority-size-1, majority-size-4, majority-size-5, majority-size-6, majority-size-7, majority-size-8, majority-size-9
-
-Other families failing on seed 1: none
+Iteration 129: PR 148 (the bank update for PR 115's contract) is merged; the bank is 638 of 638 on seeds 1 to 20 and the hidden seed, level 20. The 89 items that were stale against PR 115 are re-derived.
 
 ## Hypotheses tried
 
