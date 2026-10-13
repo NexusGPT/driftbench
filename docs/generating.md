@@ -482,15 +482,15 @@ The report adds a `budget` block:
 | `maxDeviation` | largest absolute difference between a count and its fair share |
 | `numeric` | present only with approved ranges: settings and each row's spec id, categorical cell, quantiles and runtime variables |
 
-Partial pair coverage does not set the seeder's cut flag. A complete map exits 0 even below the pair-cover size and prints `pairs covered X of Y`. Incomplete specs, generator defects and cuts in other seeders keep their usual exit codes. The Acme run at budget 20 has 69 incomplete specs and exits 1 for those specs, not for the budget.
+Partial pair coverage does not set the seeder's cut flag. A complete map exits 0 even below the pair-cover size and prints `pairs covered X of Y`. Incomplete specs, generator defects and cuts in other seeders keep their usual exit codes. The Acme run at budget 20 has 72 incomplete specs and exits 1 for those specs, not for the budget.
 
 Selected lines from the Acme comparison command, run from the repository root:
 
 ```
 $ pnpm -s driftbench generate --map examples/acme/map/approved.yaml --out _captures/budget/budget-20 --t 2 --seed 1 --budget 20 --force
-Candidate budget array (before the total cap), budget 20: 20 cells of 747 allowed, pairs covered 154 of 314 (49.0%), max deviation from fair share 2.00.
-Coverage on the axis map at t = 2: complete specs 637 of 637 (100.0%), all specs 637 (100.0%).
-Wrote 330 files to _captures/budget/budget-20.
+Candidate budget array (before the total cap), budget 20: 20 cells of 901 allowed, pairs covered 155 of 356 (43.5%), max deviation from fair share 2.00.
+Coverage on the axis map at t = 2: complete specs 701 of 701 (100.0%), all specs 701 (100.0%).
+Wrote 371 files to _captures/budget/budget-20.
 exit 1
 ```
 
