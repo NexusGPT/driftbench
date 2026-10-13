@@ -1,0 +1,9 @@
+{
+  "at": "2026-10-13T11:49:01.849201+00:00",
+  "pid": 95097,
+  "target": "Gemini noise-2 and sealed TEST missing-only",
+  "status": "waiting for authorized reset",
+  "stop": "complete, first stopped phase, or 2026-10-14T12:00:00Z",
+  "notBefore": "2026-10-14T00:00:00Z",
+  "deadline": "2026-10-14T12:00:00Z"
+}

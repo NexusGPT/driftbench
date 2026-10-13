@@ -53,3 +53,33 @@
 - Luna completes all 379 units, including 221 TEST items per contestant. Official strict/product-final: 165 versus 160 correct, p 0.4731296599. Audited: 188 versus 181, p 0.2810415151. Both TIE; no limits or missing TEST verdicts.
 - Gemini has one HTTP 429 event, followed by its prescribed 60-second wait. No renewed HTTP 402.
 - Offline finalizer session 40010 was retired to fix a status-file read race. Replacement session 57895 is active; its current PID is in evidence/finalizer-state.json. Paid runners were not interrupted.
+
+## 11:09 UTC durable state
+
+- Completed Luna TEST and completed validation artifacts are pushed at a77c6f33. Live provider receipts and current Gemini/Haiku phases remain uncommitted.
+- Gemini supervisor is exec session 64488. Haiku supervisor is session 22934. Both are in noise-2 at two calls each. Luna session 1821 has exited successfully.
+- Latest offline finalizer is exec session 76728, PID 3489. Session 57895 was replaced so machine-readable cells also disclose the cheater-gate limitation. The finalizer does not make provider calls.
+- Ten confirmed output-limit envelopes are attributed to Haiku cascade across pilot/noise-0/noise-1, affecting six phase/item pairs. New noise-2 limits await that phase's completion and final attribution.
+- The latest free replay covers twelve completed phases including Luna TEST, with zero divergent decisions and zero provider calls. Finalizer rechecks all eighteen when execution finishes.
+- Do not end while Haiku/Gemini TEST is pending unless the conservative 40 USD cap truly prevents continuation. If a reservation-only budget stop occurs, let other in-flight calls settle before deciding whether remaining missing calls fit.
+- Final steps: inspect finalizer evidence and report, verify no pending coverage or unmapped limits, append finish spend, commit all final receipts/artifacts, push and verify remote HEAD.
+
+## 2026-10-13T11:39:24.388282+00:00 daily quota pause
+
+- This section supersedes older Gemini continuation instructions. Gemini is not run: daily quota; TEST 0/221 per contestant. Noise 2 has 30 cascade and 20 promptfoo final verdicts, ten peer verdicts pending.
+- No Gemini paid runner remains. Both known backoff holds settled at zero automatically; no manual budget rewrite occurs. The final rejected attempts were at 11:19 UTC before the resumed controller inspected their exit.
+- Runtime-only evidence: evidence/gemini-daily-quota-amendment.json. All 163 returned noise-2 answers and the stopped report are archived unchanged.
+- Named reset driver: resume_gemini.py --wait, exec session 71554, PID 77546. It makes no provider calls before 2026-10-14T00:00:00Z, resumes missing-only once, and stops its own process group at 2026-10-14T12:00:00Z or on the first stopped phase.
+- Haiku continues under its existing supervisor PID 39438, exec session 22934. Do not interrupt it. Luna is complete.
+- Offline reporter: finish.py --wait --allow-daily-quota, exec session 81156; PID is in evidence/finalizer-state.json. It waits for Haiku and Luna, excludes unfinished Gemini noise from measured flips, then writes the official/audited strict/product-final report.
+- Four offline reset tests pass without provider calls. Frozen scoring and transport source are untouched.
+- After Haiku finishes: inspect report, reconcile fees, append spend, commit and push the owned branch. Gemini reset driver later invokes the full offline finalizer after its remaining phases finish.
+
+## 2026-10-13T11:49:56.001538+00:00 outage recovery and current controllers
+
+- Owner authorizes one retry of exactly four ENOTFOUND calls and one 300-second timeout in Haiku noise-2. See evidence/haiku-outage-amendment.json. Returned answers and the three output-limit envelopes remain untouched.
+- recover_outage.py runs as exec session 91919. It uses the exact frozen request fingerprints, a five-call allowlist and atomic once-only claims. The original cassette/report is archived before replacing only authorized no-answer slots. Global Haiku concurrency stays two. The unknown timeout hold remains.
+- Haiku sealed TEST has started under the original supervisor. No prompt or statistical code changes. Outage recovery is an execution-only amendment after TEST starts.
+- Latest reset driver: exec session 50009, PID 95097. Older session 71554 is retired. It remains gated until 14 October 00:00 UTC and stops by 12:00 UTC. After Gemini completes, it runs offline verification and publish_results.py to push this owned branch.
+- Latest offline reporter: exec session 72035; PID in evidence/finalizer-state.json. Older session 81156 is retired. It waits for completed Haiku, Luna and the five-call outage recovery before reporting.
+- Four reset preservation/timing tests pass again. Generated outage transport successfully executes its guarded claim path; the canonical transport and runtime hashes are unchanged.

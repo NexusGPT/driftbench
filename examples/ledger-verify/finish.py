@@ -13,12 +13,22 @@ ROOT = BASE.parents[1]
 MODELS = ['haiku', 'gpt-6-luna', 'gemini-3.8-flash']
 PHASES = {'pilot': 20, 'validity': 48, 'noise-0': 30, 'noise-1': 30, 'noise-2': 30, 'results': 221}
 DOSSIER = Path('/private/tmp/claude-501/-Users-assem-Documents-Doc-Assem-Claude-Code-nexus/649588d0-8d65-49cb-8d78-47b071cd71cb/scratchpad/codex/dossier-ledger-verify.md')
+ALLOW_QUOTA_PAUSE = '--allow-daily-quota' in sys.argv
+REQUIRED_MODELS = MODELS[:2] if ALLOW_QUOTA_PAUSE else MODELS
 
 def now():
     return datetime.datetime.now(datetime.timezone.utc).isoformat()
 
 def ready():
-    for model in MODELS:
+    outage = BASE / 'evidence/haiku-outage-amendment.json'
+    if outage.exists():
+        try:
+            recovered = json.loads((BASE / 'evidence/haiku-outage-recovery.json').read_text())
+        except (FileNotFoundError, json.JSONDecodeError):
+            return False
+        if recovered.get('status') != 'complete':
+            return False
+    for model in REQUIRED_MODELS:
         try:
             state = json.loads((BASE / f'{model}.progress.json').read_text())
         except (FileNotFoundError, json.JSONDecodeError):
@@ -29,11 +39,17 @@ def ready():
     return True
 
 if '--wait' in sys.argv:
-    (BASE / 'evidence/finalizer-state.json').write_text(json.dumps({'pid': os.getpid(), 'at': now(), 'status': 'waiting', 'target': 'all three full verify runs', 'stop': 'offline verification finishes or fails'}, indent=2) + '\n')
+    (BASE / 'evidence/finalizer-state.json').write_text(json.dumps({'pid': os.getpid(), 'at': now(), 'status': 'waiting', 'target': REQUIRED_MODELS, 'stop': 'offline verification finishes or fails'}, indent=2) + '\n')
     while not ready():
         time.sleep(30)
 assert ready(), 'The complete sealed runs must finish first'
-for model in MODELS:
+if ALLOW_QUOTA_PAUSE:
+    amendment = json.loads((BASE / 'evidence/gemini-daily-quota-amendment.json').read_text())
+    gemini = json.loads((BASE / 'gemini-3.8-flash.progress.json').read_text())
+    assert gemini['status'] == 'not run: daily quota'
+    assert not (BASE / 'results/gemini-3.8-flash.json').exists()
+    assert not (BASE / 'noise-2/gemini-3.8-flash.active.json').exists()
+for model in REQUIRED_MODELS:
     for phase, count in PHASES.items():
         report = json.loads((BASE / phase / f'{model}.json').read_text())
         assert report['items'] == count and not report.get('stopped'), (model, phase)
@@ -49,7 +65,6 @@ commands = [
     ['python3', 'examples/ledger-verify/output_limits.py'],
     ['python3', 'examples/ledger-verify/check-replays.py'],
     ['python3', 'examples/ledger-verify/summarize.py'],
-    ['python3', 'examples/ledger-verify/render_report.py', str(DOSSIER)],
 ]
 try:
     for index, command in enumerate(commands):
@@ -58,14 +73,37 @@ try:
     limits = json.loads((BASE / 'evidence/output-limit-errors.json').read_text())
     assert not limits['unmappedLimits']
     replay = json.loads((BASE / 'evidence/phase-replay-checks.json').read_text())
-    assert len(replay['phases']) == 18 and all(p['identicalDecisions'] and p['newCalls'] == 0 for p in replay['phases'])
+    expected_phases = 16 if ALLOW_QUOTA_PAUSE else 18
+    assert len(replay['phases']) == expected_phases and all(p['identicalDecisions'] and p['newCalls'] == 0 for p in replay['phases'])
     cells = json.loads((BASE / 'evidence/cells.json').read_text())
     assert cells['fees']['maximumAccountedUsd'] <= 40
     cells['cheaterGateAuditFile'] = 'evidence/cheater-gate-audit.json'
     cells['predeclaredCheaterMarginEstablished'] = False
     for cell in cells['cells']:
         cell['validityPassedScope'] = 'Planted mutation checks only; predeclared cheater margin not established'
+    quota_path = BASE / 'evidence/gemini-daily-quota-amendment.json'
+    if quota_path.exists():
+        cells['runtimeAmendments'] = ['evidence/gemini-daily-quota-amendment.json']
+        cells['freeze']['hashes']['evidence/gemini-daily-quota-amendment.json'] = hashlib.sha256(quota_path.read_bytes()).hexdigest()
+    outage_path = BASE / 'evidence/haiku-outage-amendment.json'
+    if outage_path.exists():
+        cells.setdefault('runtimeAmendments', []).append('evidence/haiku-outage-amendment.json')
+        cells['freeze']['hashes']['evidence/haiku-outage-amendment.json'] = hashlib.sha256(outage_path.read_bytes()).hexdigest()
+        cells['outageRecovery'] = json.loads((BASE / 'evidence/haiku-outage-recovery.json').read_text())
+    if ALLOW_QUOTA_PAUSE:
+        cell = next(c for c in cells['cells'] if c['model'] == 'gemini-3.8-flash')
+        cell['status'] = 'not run: daily quota'
+        cell['pendingTestItemsPerContestant'] = 221
+        cell['phaseCoverage']['results'] = dict(status='not run: daily quota', pendingItemsPerContestant=221)
+        cell['pendingNoise2PerContestant'] = {k: len(v) for k, v in amendment['pendingNoise2Ids'].items()}
+        # Quota is an execution pause. It cannot become a judge error or an observed noise flip.
+        cell['validation']['noise'] = {}
+        cell['validation']['noiseStatus'] = 'pending: daily quota; incomplete repeat excluded'
+        cells['noiseFloor']['gemini-3.8-flash'] = {}
+        (BASE / 'evidence/validation-gemini-3.8-flash.json').write_text(json.dumps(cell['validation'], indent=2) + '\n')
     (BASE / 'evidence/cells.json').write_text(json.dumps(cells, indent=2) + '\n')
+    subprocess.run(['python3', 'examples/ledger-verify/render_report.py', str(DOSSIER)],
+                   cwd=ROOT, env=env, check=True)
     freeze = json.loads((BASE / 'evidence/scoring-freeze.json').read_text())
     for path, expected in {**freeze['sourceHashes'], **freeze['implementationHashes']}.items():
         assert hashlib.sha256((ROOT / path).read_bytes()).hexdigest() == expected, path
@@ -80,10 +118,30 @@ try:
     supplement += '- The full 95-item DEV cheater gate is not freshly measured. The validityPassed field in cells.json covers planted mutation checks only.\n'
     supplement += '- This documentation audit occurs after TEST starts. TEST predictions, endpoints and statistical code remain unchanged; no blanket validity or confirmatory superiority claim follows.\n'
     supplement += '- Cheater disclosure source: evidence/cheater-gate-audit.json.\n'
+    if outage_path.exists():
+        supplement += '\n## Haiku host-outage runtime amendment\n\n'
+        supplement += '- The owner identifies a host DNS outage near 11:28 to 11:33 UTC and authorizes one retry of four ENOTFOUND calls and one 300-second timeout.\n'
+        supplement += '- Only those five fingerprints are eligible. Atomic claims prevent another paid retry; original errors and all returned answers remain archived.\n'
+        supplement += '- The unknown timeout hold remains reserved. Frozen prompts, scoring, the 300-second attempt limit, Haiku concurrency two and the 40 USD cap remain unchanged.\n'
+        supplement += '- Sources: evidence/haiku-outage-amendment.json, evidence/haiku-outage-recovery.json and noise-2/haiku.pre-outage-recovery.partial.json.\n'
+    if quota_path.exists():
+        supplement += '\n## Daily quota runtime amendment\n\n'
+        supplement += '- The owner identifies the Gemini daily request quota and permits missing-only completion after the reset near 14 October 00:00 UTC, through 12:00 UTC.\n'
+        supplement += '- Two proven quota holds settle at zero. Returned answers stay cached; unknown-charge holds remain.\n'
+        supplement += '- Source and runtime amendment hash: evidence/gemini-daily-quota-amendment.json. Medium, 300-second attempts, two Gemini calls and the 40 USD cap remain unchanged.\n'
+        if ALLOW_QUOTA_PAUSE:
+            supplement += '- Gemini TEST: not run: daily quota, 0/221 items per contestant. Noise 2 retains 30/30 cascade and 20/30 promptfoo verdicts; ten peer verdicts remain pending.\n'
+            supplement += '- Pending quota requests count as no answer, never a judge failure. Gemini noise is pending until its third repeat finishes.\n'
+            supplement += '- The named reset driver is resume_gemini.py; its state and stop condition are in evidence/gemini-reset-watcher.json.\n'
     for path in [BASE / 'REPORT.md', DOSSIER]:
-        with path.open('a') as file:
-            file.write(supplement)
-    result = {'at': now(), 'status': 'offline evidence ready for review', 'phases': 18, 'evaluationUnitsPerModel': 379, 'replayNewCalls': 0, 'unmappedLimits': 0, 'fees': cells['fees']}
+        text = path.read_text()
+        if ALLOW_QUOTA_PAUSE:
+            text = text.replace('| gemini-3.8-flash | pending | pending | pending | pending | pending | pending | pending | TEST pending |',
+                '| gemini-3.8-flash | not run: daily quota (0/221) | not run: daily quota (0/221) | 0 / 0 (not run) | pending | pending | pending | pending | not run: daily quota |')
+            text = text.replace('| gemini-3.8-flash | 20 items; missing 0/0 | 48 items; missing 0/0 | 30 items; missing 0/0 | 30 items; missing 0/0 | 30 items; missing 0/10; stopped | pending |',
+                '| gemini-3.8-flash | 20 items; missing 0/0 | 48 items; missing 0/0 | 30 items; missing 0/0 | 30 items; missing 0/0 | 30/30 cascade, 20/30 promptfoo; 10 quota pending | not run: daily quota, 0/221 each |')
+        path.write_text(text + supplement)
+    result = {'at': now(), 'status': 'offline evidence ready for review', 'phases': expected_phases, 'completedModels': REQUIRED_MODELS, 'evaluationUnitsPerCompletedModel': 379, 'replayNewCalls': 0, 'unmappedLimits': 0, 'fees': cells['fees']}
     (BASE / 'evidence/finalizer-state.json').write_text(json.dumps(result, indent=2) + '\n')
     print(json.dumps({key: value for key, value in result.items() if key != 'fees'}), flush=True)
 except Exception as error:

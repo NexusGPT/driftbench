@@ -1,6 +1,12 @@
 {
-  "phase": "pilot",
-  "status": "waiting for existing runner",
-  "at": "2026-10-13T08:10:52.535820+00:00",
-  "model": "gemini-3.8-flash"
+  "at": "2026-10-13T11:23:02.896066+00:00",
+  "model": "gemini-3.8-flash",
+  "phase": "noise-2",
+  "status": "not run: daily quota",
+  "pendingNoise2": {
+    "driftbench-verify-uncertainty-cascade": 0,
+    "promptfoo": 10
+  },
+  "pendingTestPerContestant": 221,
+  "amendment": "examples/ledger-verify/evidence/gemini-daily-quota-amendment.json"
 }

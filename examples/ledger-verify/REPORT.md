@@ -23,7 +23,7 @@ The output-limit column counts observed TEST completion envelopes, cascade / pro
 |---|---|---|---|---|---|---|---|---|
 | haiku | pending | pending | pending | pending | pending | pending | pending | TEST pending |
 | gpt-6-luna | 165/221, 74.66% [68.54%, 79.94%] | 160/221, 72.40% [66.16%, 77.87%] | 0 / 0 | 2.26% [-2.73%, 7.21%] | 18 / 13 | 0.47312966 | pending | TIE |
-| gemini-3.8-flash | pending | pending | pending | pending | pending | pending | pending | TEST pending |
+| gemini-3.8-flash | not run: daily quota (0/221) | not run: daily quota (0/221) | 0 / 0 (not run) | pending | pending | pending | pending | not run: daily quota |
 
 ### Strict headline, audited labels
 
@@ -31,7 +31,7 @@ The output-limit column counts observed TEST completion envelopes, cascade / pro
 |---|---|---|---|---|---|---|---|---|
 | haiku | pending | pending | pending | pending | pending | pending | pending | TEST pending |
 | gpt-6-luna | 188/221, 85.07% [79.77%, 89.17%] | 181/221, 81.90% [76.29%, 86.42%] | 0 / 0 | 3.17% [-1.80%, 8.11%] | 19 / 12 | 0.28104152 | pending | TIE |
-| gemini-3.8-flash | pending | pending | pending | pending | pending | pending | pending | TEST pending |
+| gemini-3.8-flash | not run: daily quota (0/221) | not run: daily quota (0/221) | 0 / 0 (not run) | pending | pending | pending | pending | not run: daily quota |
 
 ### Product-final sensitivity, official labels
 
@@ -39,7 +39,7 @@ The output-limit column counts observed TEST completion envelopes, cascade / pro
 |---|---|---|---|---|---|---|---|---|
 | haiku | pending | pending | pending | pending | pending | pending | pending | TEST pending |
 | gpt-6-luna | 165/221, 74.66% [68.54%, 79.94%] | 160/221, 72.40% [66.16%, 77.87%] | 0 / 0 | 2.26% [-2.73%, 7.21%] | 18 / 13 | 0.47312966 | pending | TIE |
-| gemini-3.8-flash | pending | pending | pending | pending | pending | pending | pending | TEST pending |
+| gemini-3.8-flash | not run: daily quota (0/221) | not run: daily quota (0/221) | 0 / 0 (not run) | pending | pending | pending | pending | not run: daily quota |
 
 ### Product-final sensitivity, audited labels
 
@@ -47,7 +47,7 @@ The output-limit column counts observed TEST completion envelopes, cascade / pro
 |---|---|---|---|---|---|---|---|---|
 | haiku | pending | pending | pending | pending | pending | pending | pending | TEST pending |
 | gpt-6-luna | 188/221, 85.07% [79.77%, 89.17%] | 181/221, 81.90% [76.29%, 86.42%] | 0 / 0 | 3.17% [-1.80%, 8.11%] | 19 / 12 | 0.28104152 | pending | TIE |
-| gemini-3.8-flash | pending | pending | pending | pending | pending | pending | pending | TEST pending |
+| gemini-3.8-flash | not run: daily quota (0/221) | not run: daily quota (0/221) | 0 / 0 (not run) | pending | pending | pending | pending | not run: daily quota |
 
 Holm correction belongs to the prespecified 18-cell family and remains pending at this handoff. No local WIN or overall superiority claim is made.
 Per-item strict decisions: results/<model>.strict.json. Original product-final decisions: results/<model>.json.
@@ -143,3 +143,14 @@ Sources: evidence/offline-checks.json, evidence/frozen-replay.json, test_stats.p
 - The full 95-item DEV cheater gate is not freshly measured. The validityPassed field in cells.json covers planted mutation checks only.
 - This documentation audit occurs after TEST starts. TEST predictions, endpoints and statistical code remain unchanged; no blanket validity or confirmatory superiority claim follows.
 - Cheater disclosure source: evidence/cheater-gate-audit.json.
+
+## Daily quota runtime amendment
+
+- Recorded 2026-10-13T11:23:02.896066+00:00. Gemini is stopped for the owner-diagnosed daily request quota.
+- Noise 2 retains 30/30 cascade and 20/30 promptfoo verdicts. Ten promptfoo verdicts remain eligible; neither contestant has started the 221-item TEST.
+- Gemini TEST status: not run: daily quota, 221 items per contestant. Quota pending does not count as a judge error or a noise flip.
+- Both outstanding quota calls settle at zero; their two USD reservation holds are released. Unknown historical holds remain.
+- Resume requires an owner instruction or the reset near 14 October 00:00 UTC. Missing-only completion ends by 14 October 12:00 UTC.
+- Medium, 300-second attempts, two Gemini calls, 60/120/240-second quota waits, the 402 circuit break, the sealed order and the 40 USD cap remain unchanged.
+- The existing backoff processes make their final rejected attempts at 11:19 UTC before the resumed controller verifies they have exited. No new Gemini runner starts today.
+- Sources: evidence/gemini-daily-quota-amendment.json, the archived noise-2 partial report, receipts/quota.jsonl and receipts/calls.jsonl.
