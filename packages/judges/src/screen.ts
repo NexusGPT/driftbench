@@ -374,6 +374,13 @@ const DECODERS: readonly ((text: string) => string | undefined)[] = [
     );
     return decoded === text ? undefined : decoded;
   },
+  // \uXXXX escapes, four or more in a row: read as the characters they stand for.
+  (text) => {
+    const decoded = text.replace(/(?:\\u[0-9a-f]{4}){4,}/gi, (run) =>
+      run.replace(/\\u([0-9a-f]{4})/gi, (_, hex: string) => String.fromCharCode(Number.parseInt(hex, 16))),
+    );
+    return decoded === text ? undefined : decoded;
+  },
   // HTML numeric entities (&#65; and &#x41;): read as the characters they stand for.
   (text) => {
     const decoded = text.replace(
