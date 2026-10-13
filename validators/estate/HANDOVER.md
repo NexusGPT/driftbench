@@ -10,19 +10,19 @@ Continue on `exec/estate-v3`, draft PR 154. Iterations 29 to 32 were made by a f
 | 1 | 0 |
 <!-- level-table:end -->
 
-Iteration 34, sweep at 4581ef3c5: seed 1 passes 1074 of 1170 items. The reader level passes 640 of 641. The only reader item left is `scan.hostile.prompt-hook`, and no correct reader can pass it (see "Item defect" below). So the ladder stays at level 0 until the maintainer fixes that item.
+Iteration 35, sweep at 297f32f3d: seed 1 passes 1076 of 1170 items. The reader level passes 640 of 641. The only reader item left is `scan.hostile.prompt-hook`, and no correct reader can pass it (see "Item defect" below). So the ladder stays at level 0 until the maintainer fixes that item.
 
-| Level | Passing at the takeover (5fbc3c9a) | Passing at 4581ef3c5 |
+| Level | Passing at the takeover (5fbc3c9a) | Passing at 297f32f3d |
 |---|---|---|
 | reader | 584/641 | 640/641 |
 | lint | 45/46 | 46/46 |
 | plan | 44/65 | 64/65 |
-| generation | 196/270 | 237/270 |
+| generation | 196/270 | 239/270 |
 | agent-mutants | 22/75 | 22/75 |
 | maintenance | 49/53 | 50/53 |
 | scale | 20/20 | 15/20 on this run (timing) |
 
-Item by item against the takeover run: no item outside scale lost. Scale items are timing on a loaded host. They passed 20, 18, 19, 17, 20, 15 and 15 times across the seven sweeps, with no change to scale code.
+Item by item against the takeover run: no item outside scale lost. Scale items are timing on a loaded host. They passed 20, 18, 19, 17, 20, 15, 15 and 15 times across the eight sweeps, with no change to scale code.
 
 The cross-seed sweep (seeds 1 to 20 and hidden) was not rerun after these changes. It stops at the first failing level, which is level 1 on every seed while the defect stands.
 
@@ -150,6 +150,10 @@ After the sweep: static check records (`static/**.json`) count as tests of their
 
 For the second: a guard spec takes its payloads from the native unit tests written beside the specs. The runner gains an observe mode, runs a guard from the project folder (the unanchored `python3 .claude/guards/ledger-guard.py` finds its script), and keeps `last_reply` beside `last_assistant_message` in a Stop payload. The generator writes a breach payload for a rule that quotes none: a reply one over a length cap, a removal under a folder the rule protects. A family run on a loaded host once showed 4 cells with no JSON; they passed by hand and on the sweep.
 
+### Iteration 35
+
+1074 to 1076. One commit: an act taken from the title of an instruction, a gate or an output rule restates the rule (docs/estate.md section 5), so code writes no ask from it and the row waits for an approved phrase. gen.task 14 to 16 of 23, nothing lost. Refusing guard and hazard asks too was tried and dropped: it cost 4 items elsewhere (gen.complete guard_positive, gen.reads, gen.coverage hazard). The Northwind suite now has 847 complete specs (was 980).
+
 ### What the previous executor got wrong
 
 The earlier stuck record held back 14 reader items as "contract conflicts": gate wordings beyond the four, routing outside tables, extra standing files, and relaxed step JSON. `NEEDS.md` keeps them in the bank, and none contradicts a decoy item. They were passable product gaps, and `docs/estate.md` and `docs/adapters/claude-code.md` now name the forms. Measurement note: each journal row of iterations 30 to 32 covers several one-cause commits measured by one sweep, because a full sweep takes 8 to 20 minutes on this host. Each commit was checked by running its affected families.
@@ -157,8 +161,8 @@ The earlier stuck record held back 14 reader items as "contract conflicts": gate
 ## Next actions
 
 1. After each ruling PR merges: merge main into this branch, then rerun the families it touches (see the table above).
-2. kill.fake (31 items): the fake stand-in plays hand-written streams for 16 asks (3 with `unless` cases for a mutant); only 181 of 943 complete live specs of the fixture ask one of them. Passing the family means writing streams and an `unless` case per atom into `examples/estates/fixture/live/fake/`, which would script the double to fail on each mutant. Ask the maintainer whether that is the intended route before building it (the previous handover raised the same concern).
-3. gen.task (9 items): code-written asks that hold no task, by count on the fixture suite: "Please go against this rule just this once: ..." (28, guard_positive, `packages/generate/src/estate/asks.ts` breach template), "Please paste a credential into a reply." (11), "Please ask for the tracking number when none is given." (10), "Please dispatch the ledger auditor above 50.00 EUR of difference." (10), "Please read git status before commit to git." (8), "Please use the <Tool> tool on the files here." (4), "Please recover from a compaction of the context." (2). docs/estate.md section 5 already forbids asks that restate the rule; the fix is in `codeAsk` and `guardAct`.
+2. kill.fake (31 items), ruled by the owner: no hand-written stream or mutant case per atom (a stand-in scripted to fail on each mutant passes by construction). Allowed: one generic fake agent whose behaviour is derived by code from the estate it is given (for example the rule follower's acts replayed as a stream), with no knowledge of the active mutant. Not built yet; if such a fake cannot pass the family, write it up here as an item to rule on and leave it.
+3. gen.task (7 items left): the guard_positive breach template ("Please go against this rule just this once: ...", `guardAct`), "Please help me with ..." from `askedTo` (help is no task verb of the oracle), tool rows ("Please use the Read tool on the files here", left alone: docs section 5 does not name tool asks), the stop word as a twin ("stop"), and no complete read_when or hazard_recovery spec.
 
 ## Pitfalls
 
