@@ -16,9 +16,11 @@ Iteration 6, source 5b628263: seed 1 stays level 7, with 2361/2384 passing (scor
 
 Latest committed measurement, iteration 7 source 796124a5: seed 1 stays level 7, 2361/2384 (score 0.9903523489932886), 1 of 21. Free-running growth is 25.3 against 25. The numeric-ref fix passes all 16 targeted registry tests and the unchanged seed-4 dataset/ref-forms item; no whole seed-4 result at this source is claimed.
 
+Main bace403d is now merged as 5bdb54b7, including newer stats code and Acme fixtures. That merged source has not yet been remeasured. The accepted iteration-7 figures above are stamped 796124a5 and must not be described as a result for this newer head.
+
 ## Floor
 
-No system floor is set on this branch yet. PR 143 has merged the initial floor into main; merge it at the next measurement boundary. Main c43c8e96 reaches level 7 on visible seeds 1 through 5 and commit-derived hidden seed 293302998: 6 of 21 stopping runs. That minimum justifies the owner-authorized initial system v5 floor of 7 in a separate main change. Further rises require all 21 seeds. Floor evidence is separate from this branch journal.
+This branch now includes the system v5 floor of 7 from main PR 143. Main c43c8e96 reaches level 7 on visible seeds 1 through 5 and commit-derived hidden seed 293302998: 6 of 21 stopping runs. That minimum justifies the owner-authorized initial system v5 floor of 7 in a separate main change. Further rises require all 21 seeds. Floor evidence is separate from this branch journal.
 
 ## Open items
 
@@ -55,7 +57,7 @@ Iteration 5 commits packages/core/test/runner/uncached-key-cost.test.ts with the
 * Nested stats measurements are cached by stats revision and seed only within one sweep. Dirty stats/bank code measures fresh. Disclose cache use and verify fresh/cached report equality.
 * The scale bank times CPU and keeps the minimum of repeated timings. One green micro-run is insufficient when another run fails the bound.
 * The owner skips the local estate-floor rerun: 616 seconds against 600 seconds at host load 150 is judged by CI. Do not raise the timeout.
-* This branch includes main 14225a2a. The namespace codemod changes zero files; typecheck and lint pass before pushing. New pushes create fresh CI; cancelled runs are not rerun. The public commit-attribution address has a scoped guard:allow marker; keep it when editing this handover.
+* This branch includes main bace403d. The namespace codemod changes zero files; typecheck and lint pass before pushing. New pushes create fresh CI; cancelled runs are not rerun. The public commit-attribution address has a scoped guard:allow marker; keep it when editing this handover.
 
 ## How to run
 
