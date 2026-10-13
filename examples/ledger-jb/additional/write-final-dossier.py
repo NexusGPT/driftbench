@@ -50,6 +50,16 @@ for model in MODELS:
         def cost(values, estimated):
             return sum(x['costUsd'] for x in values if bool(x.get('costEstimated')) == estimated)
         out.append(f'| {model} | {contestant} | {cost(test,False):.8f} | {cost(test,True):.8f} | {cost(paid,False):.8f} | {cost(paid,True):.8f} | {len(test)} |')
+out += ['', '| Model | Contestant | TEST measured USD per 100 pairs | TEST held USD per 100 pairs | All-phase input / output tokens |',
+        '|---|---|---|---|---|']
+for model in MODELS:
+    for contestant in ('ledger', 'promptfoo'):
+        paid = [x for x in calls[model] if x['contestant'] == contestant]
+        test = [x for x in paid if x['phase'] == 'test']
+        measured = sum(x['costUsd'] for x in test if not x.get('costEstimated'))
+        held = sum(x['costUsd'] for x in test if x.get('costEstimated'))
+        tokens = reports[model]['cost'][contestant]['tokens']
+        out.append(f"| {model} | {contestant} | {measured*100/270:.8f} | {held*100/270:.8f} | {tokens['input']} / {tokens['output']} |")
 out += ['', 'Unknown holds are conservative reserves, not measured provider spend. Every recovered attempt remains in the journal.',
         'A zero-cost settlement requires a provider receipt; no unknown hold is silently released.', '',
         '| Model | Liability / cap USD | Missing TEST items | Error or unparsed items, ours / peer | Token-cap lost items, ours / peer | Schema re-asks, TEST / all phases |',

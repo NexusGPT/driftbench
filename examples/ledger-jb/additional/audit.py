@@ -101,7 +101,9 @@ for model in models:
         logical.setdefault(base, []).append(row)
     missing = [values for values in logical.values()
                if all(x.get('transportFailure') and not x.get('returnedAnswer') and not x.get('text') for x in values)]
-    assert not [values for values in missing if values[-1]['phase'] == 'test']
+    assert not missing, 'All practice and TEST transport requests must be settled'
+    for values in logical.values():
+        assert sum(not (x.get('transportFailure') and not x.get('returnedAnswer') and not x.get('text')) for x in values) <= 1
     if model == 'claude-sonnet-5-5':
         for row in finishes.values():
             if row['phase'] == 'test':
