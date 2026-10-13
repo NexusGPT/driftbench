@@ -36,6 +36,7 @@ export {
   WORDING_FIELDS,
   type WordingField,
 } from './depends';
+export { type PromptAnchor, promptChangeManifest } from './prompt';
 export {
   type BlockState,
   type RadiusBlock,
