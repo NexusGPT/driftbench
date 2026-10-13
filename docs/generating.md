@@ -36,7 +36,7 @@ A dimension has a role. An axis is a dimension of the space map, crossed with th
 
 An optional top-level `numeric_settings` list declares runtime variables. It does not add a categorical dimension or change the pair-coverage denominator. Each range needs its own approval and source evidence. This range is used in the numeric CLI test:
 
-```yaml
+```
 numeric_settings:
   - id: iterations
     min: 1
