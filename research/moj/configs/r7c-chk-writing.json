@@ -1,0 +1,33 @@
+{
+ "name": "r7c-chk-writing",
+ "note": "Round 7c. r6 plus the checklist joined to stage 1 on writing terrain (the item still stays out of System 2). Refuted if writing tuning and validation both do not rise.",
+ "stage1": [
+  "s1p"
+ ],
+ "hi": 0.8,
+ "lo": 0.8,
+ "low": [
+  "s2v"
+ ],
+ "always": [
+  {
+   "expert": "ref",
+   "terrain": {
+    "needs_reasoning": 0.6
+   }
+  },
+  {
+   "expert": "chk",
+   "terrain": {
+    "subjective_writing": 0.6
+   }
+  }
+ ],
+ "no_escalate": [
+  {
+   "terrain": {
+    "subjective_writing": 0.6
+   }
+  }
+ ]
+}

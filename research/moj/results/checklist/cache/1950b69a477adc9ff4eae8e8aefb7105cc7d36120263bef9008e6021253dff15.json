@@ -1,0 +1,25 @@
+{
+ "key": "1950b69a477adc9ff4eae8e8aefb7105cc7d36120263bef9008e6021253dff15",
+ "boxes": [
+  {
+   "question": "合計を6冊と答えているか？",
+   "weight": 5
+  },
+  {
+   "question": "ドリーとパンドラがそれぞれ3冊ずつ読むと説明しているか？",
+   "weight": 4
+  },
+  {
+   "question": "同じ本を2人が読んだ場合も、2人それぞれの読書冊数として数えているか？",
+   "weight": 3
+  },
+  {
+   "question": "回答は日本語で書かれているか？",
+   "weight": 2
+  }
+ ],
+ "error": null,
+ "short": false,
+ "s2_usd": 0.0001709,
+ "seconds": 4.1383
+}

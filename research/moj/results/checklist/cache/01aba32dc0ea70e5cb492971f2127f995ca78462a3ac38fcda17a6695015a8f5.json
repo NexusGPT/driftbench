@@ -1,0 +1,25 @@
+{
+ "key": "01aba32dc0ea70e5cb492971f2127f995ca78462a3ac38fcda17a6695015a8f5",
+ "boxes": [
+  {
+   "question": "La réponse calcule-t-elle correctement 9 heures de cours les lundis, mercredis et vendredis réunis ?",
+   "weight": 3
+  },
+  {
+   "question": "La réponse calcule-t-elle correctement 8 heures de cours les mardis et jeudis réunis ?",
+   "weight": 3
+  },
+  {
+   "question": "La réponse donne-t-elle correctement un total de 272 heures de cours pour les 16 semaines du semestre ?",
+   "weight": 5
+  },
+  {
+   "question": "La réponse est-elle formulée en français et explique-t-elle suffisamment le calcul pour répondre clairement à la question ?",
+   "weight": 2
+  }
+ ],
+ "error": null,
+ "short": false,
+ "s2_usd": 0.0001663,
+ "seconds": 3.9941
+}

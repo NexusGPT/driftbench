@@ -1,0 +1,27 @@
+{
+ "name": "r7b-ref-rc",
+ "note": "Round 7b. r6 with the reference-consistency rule (ref_rc) in place of ref on reasoning terrain. Refuted if pooled tuning and validation gains are both at or under 0.",
+ "stage1": [
+  "s1p"
+ ],
+ "hi": 0.8,
+ "lo": 0.8,
+ "low": [
+  "s2v"
+ ],
+ "always": [
+  {
+   "expert": "ref_rc",
+   "terrain": {
+    "needs_reasoning": 0.6
+   }
+  }
+ ],
+ "no_escalate": [
+  {
+   "terrain": {
+    "subjective_writing": 0.6
+   }
+  }
+ ]
+}

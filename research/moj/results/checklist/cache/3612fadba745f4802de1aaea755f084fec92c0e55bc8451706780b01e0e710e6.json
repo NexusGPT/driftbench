@@ -1,0 +1,25 @@
+{
+ "key": "3612fadba745f4802de1aaea755f084fec92c0e55bc8451706780b01e0e710e6",
+ "boxes": [
+  {
+   "question": "Does the answer correctly say that the person at the gym does not tell the truth?",
+   "weight": 5
+  },
+  {
+   "question": "Does the answer correctly say that the person at the botanical garden does not tell the truth?",
+   "weight": 5
+  },
+  {
+   "question": "Does the answer correctly say that the person at the theater does not tell the truth?",
+   "weight": 5
+  },
+  {
+   "question": "Is the answer presented in the requested order as a bold list of three words, each “yes” or “no”?",
+   "weight": 2
+  }
+ ],
+ "error": null,
+ "short": false,
+ "s2_usd": 0.0002524,
+ "seconds": 5.0509
+}

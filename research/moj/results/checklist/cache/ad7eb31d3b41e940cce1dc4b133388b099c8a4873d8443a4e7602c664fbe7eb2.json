@@ -1,0 +1,25 @@
+{
+ "key": "ad7eb31d3b41e940cce1dc4b133388b099c8a4873d8443a4e7602c664fbe7eb2",
+ "boxes": [
+  {
+   "question": "Does the answer account for changing a character through a sequence of allowed transformations, using the minimum total cost among all such paths?",
+   "weight": 5
+  },
+  {
+   "question": "Does the answer determine the conversion cost separately for each corresponding source and target position, with no cost for positions whose characters already match?",
+   "weight": 5
+  },
+  {
+   "question": "Does the answer return the sum of the minimum per-position conversion costs when every position is convertible, and return -1 if any position is not convertible?",
+   "weight": 5
+  },
+  {
+   "question": "Does the answer handle duplicate transformation rules by ensuring that a more expensive rule for the same character change cannot increase the minimum conversion cost?",
+   "weight": 4
+  }
+ ],
+ "error": null,
+ "short": false,
+ "s2_usd": 0.0002766,
+ "seconds": 5.6413
+}

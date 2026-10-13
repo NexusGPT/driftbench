@@ -1,0 +1,25 @@
+{
+ "key": "904de09af3ae895a9c9dcb8d3b6a07babdb87bb1d766dcecf61c8709b0d2b1fb",
+ "boxes": [
+  {
+   "question": "Does the answer correctly say that the person at the farm tells the truth?",
+   "weight": 5
+  },
+  {
+   "question": "Does the answer correctly say that the person at the vineyard does not tell the truth?",
+   "weight": 5
+  },
+  {
+   "question": "Does the answer correctly say that the person at the library does not tell the truth?",
+   "weight": 5
+  },
+  {
+   "question": "Does the answer give the three truth values in the requested order: farm, vineyard, library?",
+   "weight": 5
+  }
+ ],
+ "error": null,
+ "short": false,
+ "s2_usd": 0.0003105,
+ "seconds": 7.4709
+}

@@ -1,0 +1,41 @@
+{
+ "key": "52267b3f1b906cb29a40030772ed6b7be32a748c4ad5f2c0114c4d3a505834b9",
+ "boxes": [
+  {
+   "question": "Does the response provide exactly five distinct tourism slogans for Moxi?",
+   "weight": 3
+  },
+  {
+   "question": "Is each slogan between 10 and 25 words?",
+   "weight": 3
+  },
+  {
+   "question": "Do the slogans consistently center on the theme of slow time?",
+   "weight": 3
+  },
+  {
+   "question": "Do the slogans incorporate stone bridges?",
+   "weight": 2
+  },
+  {
+   "question": "Do the slogans incorporate black-canopy boats?",
+   "weight": 2
+  },
+  {
+   "question": "Do the slogans incorporate lantern light?",
+   "weight": 2
+  },
+  {
+   "question": "Is the language poetic and picturesque?",
+   "weight": 2
+  },
+  {
+   "question": "Do the slogans evoke a sense of longing in city dwellers?",
+   "weight": 2
+  }
+ ],
+ "error": null,
+ "short": false,
+ "s2_usd": 0.0002197,
+ "seconds": 4.6894
+}

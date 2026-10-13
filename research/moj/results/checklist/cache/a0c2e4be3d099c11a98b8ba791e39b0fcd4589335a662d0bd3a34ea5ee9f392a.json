@@ -1,0 +1,25 @@
+{
+ "key": "a0c2e4be3d099c11a98b8ba791e39b0fcd4589335a662d0bd3a34ea5ee9f392a",
+ "boxes": [
+  {
+   "question": "Does the response identify F as the correct answer?",
+   "weight": 5
+  },
+  {
+   "question": "Does the response contain exactly five copies of the selected letter?",
+   "weight": 5
+  },
+  {
+   "question": "Are the five copies presented together as one continuous string?",
+   "weight": 3
+  },
+  {
+   "question": "Does the response omit additional explanation or other text?",
+   "weight": 2
+  }
+ ],
+ "error": null,
+ "short": false,
+ "s2_usd": 0.00024859999999999997,
+ "seconds": 5.7743
+}

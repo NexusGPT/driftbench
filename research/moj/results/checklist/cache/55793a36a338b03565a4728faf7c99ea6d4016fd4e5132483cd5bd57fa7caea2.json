@@ -1,0 +1,29 @@
+{
+ "key": "55793a36a338b03565a4728faf7c99ea6d4016fd4e5132483cd5bd57fa7caea2",
+ "boxes": [
+  {
+   "question": "Does the answer express the quadratic in an equivalent completed-square form, such as \\(12(x+\\frac{1}{12})^2+\\frac{131}{12}\\)?",
+   "weight": 5
+  },
+  {
+   "question": "Is the coefficient multiplying the squared binomial equivalent to \\(12\\)?",
+   "weight": 4
+  },
+  {
+   "question": "Does the squared binomial use a shift equivalent to \\(x+\\frac{1}{12}\\)?",
+   "weight": 4
+  },
+  {
+   "question": "Is the additive constant equivalent to \\(\\frac{131}{12}\\)?",
+   "weight": 4
+  },
+  {
+   "question": "Is the final answer enclosed in \\(\\boxed{}\\)?",
+   "weight": 1
+  }
+ ],
+ "error": null,
+ "short": false,
+ "s2_usd": 0.0002708,
+ "seconds": 6.0969
+}

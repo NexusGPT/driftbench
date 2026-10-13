@@ -1,0 +1,25 @@
+{
+ "key": "c34fa50fdc3e6312e300b5970226a975520dbca5c0892211d89974e648dfbfdb",
+ "boxes": [
+  {
+   "question": "Does the answer identify option D as the correct choice?",
+   "weight": 5
+  },
+  {
+   "question": "Does the answer give 5.38 Torr for the osmotic pressure?",
+   "weight": 5
+  },
+  {
+   "question": "Does the answer give approximately 73.0 mm H₂O for the osmotic pressure?",
+   "weight": 5
+  },
+  {
+   "question": "Does the answer write the letter D five times in a single string, as requested?",
+   "weight": 2
+  }
+ ],
+ "error": null,
+ "short": false,
+ "s2_usd": 0.0002718,
+ "seconds": 6.3503
+}

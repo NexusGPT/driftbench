@@ -1,0 +1,25 @@
+{
+ "key": "137389748667a064665aa79412a3599d1951669c6a861e05829e06e2af968e3c",
+ "boxes": [
+  {
+   "question": "Does the answer correctly handle the negative product, stating that no real geometric mean exists (or giving the principal complex value if working over the complex numbers)?",
+   "weight": 5
+  },
+  {
+   "question": "If the answer gives a complex value, is it mathematically equivalent to $4\\sqrt{5}\\,i$?",
+   "weight": 5
+  },
+  {
+   "question": "Does the answer correctly identify the product of the two numbers as $-80$?",
+   "weight": 2
+  },
+  {
+   "question": "Is the final answer placed in a $\\boxed{}$?",
+   "weight": 1
+  }
+ ],
+ "error": null,
+ "short": false,
+ "s2_usd": 0.00026210000000000003,
+ "seconds": 6.9492
+}

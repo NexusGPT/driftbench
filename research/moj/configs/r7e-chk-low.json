@@ -1,0 +1,28 @@
+{
+ "name": "r7e-chk-low",
+ "note": "Round 7e. r6 plus the checklist at the low level beside the System-2 verdict. Refuted if pooled tuning and validation gains are both at or under 0.",
+ "stage1": [
+  "s1p"
+ ],
+ "hi": 0.8,
+ "lo": 0.8,
+ "low": [
+  "s2v",
+  "chk"
+ ],
+ "always": [
+  {
+   "expert": "ref",
+   "terrain": {
+    "needs_reasoning": 0.6
+   }
+  }
+ ],
+ "no_escalate": [
+  {
+   "terrain": {
+    "subjective_writing": 0.6
+   }
+  }
+ ]
+}

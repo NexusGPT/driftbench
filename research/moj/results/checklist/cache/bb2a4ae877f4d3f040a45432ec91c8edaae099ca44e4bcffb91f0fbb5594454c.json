@@ -1,0 +1,25 @@
+{
+ "key": "bb2a4ae877f4d3f040a45432ec91c8edaae099ca44e4bcffb91f0fbb5594454c",
+ "boxes": [
+  {
+   "question": "Does the answer identify the shape as a square pyramid?",
+   "weight": 5
+  },
+  {
+   "question": "Does the answer correctly describe the four original sphere centers as forming the square base of the new shape?",
+   "weight": 2
+  },
+  {
+   "question": "Does the answer correctly identify the fifth sphere’s center as the apex of the square pyramid?",
+   "weight": 2
+  },
+  {
+   "question": "Does the answer avoid identifying the new shape as a square, pentagon, tetrahedron, triangular prism, or sphere?",
+   "weight": 3
+  }
+ ],
+ "error": null,
+ "short": false,
+ "s2_usd": 0.000401,
+ "seconds": 10.5527
+}

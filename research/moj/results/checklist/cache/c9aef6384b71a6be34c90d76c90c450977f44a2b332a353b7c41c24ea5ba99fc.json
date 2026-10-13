@@ -1,0 +1,25 @@
+{
+ "key": "c9aef6384b71a6be34c90d76c90c450977f44a2b332a353b7c41c24ea5ba99fc",
+ "boxes": [
+  {
+   "question": "Does the answer identify option C as the correct choice?",
+   "weight": 5
+  },
+  {
+   "question": "Does the answer give a heat-loss rate of approximately 160.2 Btu/(hr·ft of pipe)?",
+   "weight": 5
+  },
+  {
+   "question": "Does the answer repeat the selected letter five times in a single string?",
+   "weight": 1
+  },
+  {
+   "question": "If the answer uses the requested five-letter string, is it exactly CCCCC?",
+   "weight": 1
+  }
+ ],
+ "error": null,
+ "short": false,
+ "s2_usd": 0.0003404,
+ "seconds": 8.2094
+}

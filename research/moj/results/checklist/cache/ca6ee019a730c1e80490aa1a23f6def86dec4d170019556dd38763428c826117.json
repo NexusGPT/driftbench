@@ -1,0 +1,25 @@
+{
+ "key": "ca6ee019a730c1e80490aa1a23f6def86dec4d170019556dd38763428c826117",
+ "boxes": [
+  {
+   "question": "是否正确理解为米盖尔每周使用 2 叠、每叠 30 张纸？",
+   "weight": 2
+  },
+  {
+   "question": "是否正确算出米盖尔每周使用 60 张纸？",
+   "weight": 2
+  },
+  {
+   "question": "是否按一个月 4 周计算每月用纸量？",
+   "weight": 2
+  },
+  {
+   "question": "是否用中文给出每月用纸量为 240 张纸？",
+   "weight": 5
+  }
+ ],
+ "error": null,
+ "short": false,
+ "s2_usd": 0.0002362,
+ "seconds": 5.7383
+}

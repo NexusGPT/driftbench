@@ -1,0 +1,25 @@
+{
+ "key": "2275e6b6428b2e75d870a8af37b991323d46ee38f4c736da8d7b79f3394e436b",
+ "boxes": [
+  {
+   "question": "La réponse donne-t-elle un nombre précis d’éléments naturels découverts par des Allemands ?",
+   "weight": 3
+  },
+  {
+   "question": "Le nombre donné correspond-il aux éléments naturels, sans compter les éléments synthétiques ?",
+   "weight": 5
+  },
+  {
+   "question": "La réponse attribue-t-elle les découvertes à des chercheurs allemands plutôt que de confondre nationalité, lieu de découverte et origine de l’élément ?",
+   "weight": 4
+  },
+  {
+   "question": "La réponse est-elle rédigée en français ?",
+   "weight": 2
+  }
+ ],
+ "error": null,
+ "short": false,
+ "s2_usd": 0.0001699,
+ "seconds": 4.1261
+}

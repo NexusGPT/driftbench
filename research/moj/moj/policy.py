@@ -116,17 +116,18 @@ def matches(card, land):
 
 
 def calls_of(signals, experts):
-    jev = luna = 0
+    jev = luna = gem = 0
     usd = seconds = 0.0
     for name in experts:
         signal = signals.get(name)
         if not signal:
             continue
         jev += signal['calls']['jev']
+        gem += signal['calls'].get('gemini', 0)
         luna += signal['calls']['luna'] + (signal['detail'].get('recorded_calls') or 0 if isinstance(signal.get('detail'), dict) else 0)
         usd += signal['usd']
         seconds += signal['seconds']['jev'] + signal['seconds']['luna']
-    return {'jev': jev, 'luna': luna, 'usd': usd, 'seconds': seconds}
+    return {'jev': jev, 'luna': luna + gem, 'gemini': gem, 'usd': usd, 'seconds': seconds}
 
 
 def decide(config, signals, combiner):

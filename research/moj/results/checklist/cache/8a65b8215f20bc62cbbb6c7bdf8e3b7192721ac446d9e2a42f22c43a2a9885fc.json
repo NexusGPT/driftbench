@@ -1,0 +1,25 @@
+{
+ "key": "8a65b8215f20bc62cbbb6c7bdf8e3b7192721ac446d9e2a42f22c43a2a9885fc",
+ "boxes": [
+  {
+   "question": "Explica una manera clara i pràctica de tancar una aplicació en un telèfon mòbil?",
+   "weight": 3
+  },
+  {
+   "question": "Les instruccions són adequades per al sistema o el mètode que descriuen, sense presentar un procediment incorrecte com si fos universal?",
+   "weight": 3
+  },
+  {
+   "question": "La resposta és segura i no recomana cap acció perjudicial per al telèfon o les dades?",
+   "weight": 2
+  },
+  {
+   "question": "La resposta està escrita en català, com la pregunta de l’usuari?",
+   "weight": 2
+  }
+ ],
+ "error": null,
+ "short": false,
+ "s2_usd": 0.00018480000000000002,
+ "seconds": 4.8917
+}

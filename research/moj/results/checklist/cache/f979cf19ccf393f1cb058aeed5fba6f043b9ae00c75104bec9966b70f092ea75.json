@@ -1,0 +1,33 @@
+{
+ "key": "f979cf19ccf393f1cb058aeed5fba6f043b9ae00c75104bec9966b70f092ea75",
+ "boxes": [
+  {
+   "question": "¿La respuesta está escrita en español?",
+   "weight": 2
+  },
+  {
+   "question": "¿Interpreta las señales observadas —respuestas breves, evitar el contacto visual, tensión y salir deprisa— como posibles indicios de incomodidad, preocupación o reticencia, sin presentarlas como prueba concluyente de un estado mental específico?",
+   "weight": 3
+  },
+  {
+   "question": "¿Reconoce que esas señales, por sí solas, no permiten concluir si Thomas está de acuerdo o en desacuerdo con las estrategias de ciberseguridad discutidas?",
+   "weight": 3
+  },
+  {
+   "question": "¿Propone que Linda aborde a Thomas de manera privada, empática y sin juzgarlo para preguntarle cómo se siente o qué piensa sobre la discusión?",
+   "weight": 3
+  },
+  {
+   "question": "¿Sugiere formas concretas de invitar a Thomas a compartir sus ideas, como preguntas abiertas o pedirle que explique una contribución previa?",
+   "weight": 2
+  },
+  {
+   "question": "¿Recomienda crear un ambiente de seguridad psicológica en el que Thomas pueda discrepar y responder a las críticas sin sentirse descalificado?",
+   "weight": 2
+  }
+ ],
+ "error": null,
+ "short": false,
+ "s2_usd": 0.0002344,
+ "seconds": 4.658
+}

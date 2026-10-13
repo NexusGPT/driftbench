@@ -1,0 +1,25 @@
+{
+ "key": "03fbf2ca9ef7d365799a84ba570a75edee483804cdccc4d134c3050850901d69",
+ "boxes": [
+  {
+   "question": "Does the answer identify (F) as the correct choice?",
+   "weight": 5
+  },
+  {
+   "question": "Is the repeated letter in the answer F?",
+   "weight": 5
+  },
+  {
+   "question": "Does the answer contain exactly five copies of the letter?",
+   "weight": 2
+  },
+  {
+   "question": "Are the five copies written together as one contiguous string?",
+   "weight": 2
+  }
+ ],
+ "error": null,
+ "short": false,
+ "s2_usd": 0.000246,
+ "seconds": 6.0004
+}

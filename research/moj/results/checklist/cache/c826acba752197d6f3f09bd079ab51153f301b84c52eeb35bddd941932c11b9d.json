@@ -1,0 +1,25 @@
+{
+ "key": "c826acba752197d6f3f09bd079ab51153f301b84c52eeb35bddd941932c11b9d",
+ "boxes": [
+  {
+   "question": "Does the answer correctly calculate [Cu²⁺]/[Cu(NH₃)₄²⁺] as 2 × 10⁻¹³ when [NH₃] = 1 M?",
+   "weight": 3
+  },
+  {
+   "question": "Does the answer correctly calculate the free NH₃ concentration for 50% conversion as approximately 6.7 × 10⁻⁴ M?",
+   "weight": 3
+  },
+  {
+   "question": "Does the answer avoid claiming that any listed option gives both correct results?",
+   "weight": 2
+  },
+  {
+   "question": "If the answer gives a letter, does it repeat that same letter exactly five times in a single string, as requested?",
+   "weight": 1
+  }
+ ],
+ "error": null,
+ "short": false,
+ "s2_usd": 0.0005285,
+ "seconds": 10.8495
+}

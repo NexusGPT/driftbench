@@ -1,0 +1,41 @@
+{
+ "key": "24959c353530602ddbbd8568d8b59efcc87bd0950c90658cbbc81f9e1116a723",
+ "boxes": [
+  {
+   "question": "Is the post titled exactly “The Art of Wasting Time: Why True Productivity Isn't About Filling Every Minute”?",
+   "weight": 2
+  },
+  {
+   "question": "Does the post include personal anecdotes about failures in time management?",
+   "weight": 2
+  },
+  {
+   "question": "Does it discuss three distinct common efficiency myths and support them with neuroscience research?",
+   "weight": 5
+  },
+  {
+   "question": "Does it describe a transformative experience that was initially or seemingly unproductive?",
+   "weight": 2
+  },
+  {
+   "question": "Does it offer actionable strategies focused on energy cycles rather than only on scheduling time?",
+   "weight": 3
+  },
+  {
+   "question": "Does it include the requested “gardening your schedule” metaphor or a clear use of that metaphor?",
+   "weight": 2
+  },
+  {
+   "question": "Does it include data from Harvard Business Review about perfectionist scheduling?",
+   "weight": 5
+  },
+  {
+   "question": "Is the post conversational and self-deprecating, suited to overworked professionals aged 25–40 with time anxiety, and does it end with a discussion question about readers’ burnout experiences?",
+   "weight": 3
+  }
+ ],
+ "error": null,
+ "short": false,
+ "s2_usd": 0.0002265,
+ "seconds": 4.9356
+}

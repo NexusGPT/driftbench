@@ -1,0 +1,29 @@
+{
+ "key": "8246a374adba2d34d9628950f43f1a14508e924133f9bd62225f58dde0d39fa9",
+ "boxes": [
+  {
+   "question": "Does the answer use the determinant formula for a 2×2 matrix, multiplying the diagonal entries and subtracting the product of the off-diagonal entries?",
+   "weight": 2
+  },
+  {
+   "question": "Does the answer correctly evaluate the product of the diagonal entries as \\(1802/225\\)?",
+   "weight": 2
+  },
+  {
+   "question": "Does the answer correctly evaluate the product of the off-diagonal entries as \\(94/75\\) and subtract it from the diagonal product?",
+   "weight": 2
+  },
+  {
+   "question": "Is the stated determinant \\(304/45\\), or an equivalent value?",
+   "weight": 5
+  },
+  {
+   "question": "Is the final answer enclosed in \\(\\boxed{}\\)?",
+   "weight": 1
+  }
+ ],
+ "error": null,
+ "short": false,
+ "s2_usd": 0.00027039999999999996,
+ "seconds": 6.4898
+}

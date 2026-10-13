@@ -1,0 +1,25 @@
+{
+ "key": "49c8791548e693e63fc63dad8bedb123be2ba387873bd425c1ef02d4b57bf825",
+ "boxes": [
+  {
+   "question": "Does the answer identify (E), corresponding to \\(\\frac{1}{4}\\), as the closest probability?",
+   "weight": 5
+  },
+  {
+   "question": "Does the answer give the letter E five times in a row?",
+   "weight": 1
+  },
+  {
+   "question": "Are all five letters in the answer string identical?",
+   "weight": 1
+  },
+  {
+   "question": "Does the answer present the five-letter string without additional text?",
+   "weight": 1
+  }
+ ],
+ "error": null,
+ "short": false,
+ "s2_usd": 0.0002624,
+ "seconds": 7.0754
+}

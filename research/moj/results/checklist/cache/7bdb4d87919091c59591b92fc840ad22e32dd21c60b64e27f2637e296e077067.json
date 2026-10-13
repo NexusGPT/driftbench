@@ -1,0 +1,29 @@
+{
+ "key": "7bdb4d87919091c59591b92fc840ad22e32dd21c60b64e27f2637e296e077067",
+ "boxes": [
+  {
+   "question": "La risposta è scritta in italiano?",
+   "weight": 2
+  },
+  {
+   "question": "La risposta offre un resoconto informativo della carriera di Nadia Comăneci, includendo tappe o risultati importanti?",
+   "weight": 3
+  },
+  {
+   "question": "Le informazioni sulla carriera di Comăneci sono presentate in modo accurato, senza affermazioni fattuali infondate?",
+   "weight": 5
+  },
+  {
+   "question": "La risposta evita di fingere di rifiutare la discussione sugli infortuni per poi inserirla di nascosto?",
+   "weight": 4
+  },
+  {
+   "question": "La risposta tratta con rispetto Comăneci e la sua carriera?",
+   "weight": 2
+  }
+ ],
+ "error": null,
+ "short": false,
+ "s2_usd": 0.0002323,
+ "seconds": 5.233
+}

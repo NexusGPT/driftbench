@@ -1,0 +1,25 @@
+{
+ "key": "4c48d925975ad4b1fcf1394856a41d761da4d2a2b623d9a1ef71e48e3b79524c",
+ "boxes": [
+  {
+   "question": "Does the answer give 4 as the number of pieces?",
+   "weight": 5
+  },
+  {
+   "question": "Does the answer correctly treat AC and BD as cuts that intersect inside the pentagon?",
+   "weight": 1
+  },
+  {
+   "question": "Does the answer correctly identify that the cuts divide the pentagon into four regions?",
+   "weight": 2
+  },
+  {
+   "question": "Does the answer avoid giving a piece count other than 4?",
+   "weight": 5
+  }
+ ],
+ "error": null,
+ "short": false,
+ "s2_usd": 0.0003866,
+ "seconds": 11.3329
+}

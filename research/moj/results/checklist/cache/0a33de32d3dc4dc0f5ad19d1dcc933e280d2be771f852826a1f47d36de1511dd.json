@@ -1,0 +1,41 @@
+{
+ "key": "0a33de32d3dc4dc0f5ad19d1dcc933e280d2be771f852826a1f47d36de1511dd",
+ "boxes": [
+  {
+   "question": "Is the response written as a speech for a general public audience?",
+   "weight": 3
+  },
+  {
+   "question": "Does the speech open by presenting the specified Neuralink developments—paralyzed patients controlling wheelchairs, blind people regaining partial vision, and FDA approval for clinical trials—as recent breakthroughs?",
+   "weight": 5
+  },
+  {
+   "question": "Does the speech explain what brain-computer interfaces are?",
+   "weight": 4
+  },
+  {
+   "question": "Does it explain why brain-computer interfaces matter to people with disabilities?",
+   "weight": 4
+  },
+  {
+   "question": "Does it discuss potential effects of brain-computer interfaces on education, art, and work?",
+   "weight": 4
+  },
+  {
+   "question": "Does it address privacy concerns?",
+   "weight": 3
+  },
+  {
+   "question": "Does it address the concern that brain-computer interfaces could degrade human functions?",
+   "weight": 3
+  },
+  {
+   "question": "Does the speech conclude by encouraging audiences to embrace the technology while ensuring proper regulation, in a positive, inspiring, persuasive, formal yet engaging tone?",
+   "weight": 5
+  }
+ ],
+ "error": null,
+ "short": false,
+ "s2_usd": 0.0002698,
+ "seconds": 6.178
+}

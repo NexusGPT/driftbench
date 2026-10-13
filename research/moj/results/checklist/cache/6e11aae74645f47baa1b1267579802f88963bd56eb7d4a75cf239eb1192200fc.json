@@ -1,0 +1,25 @@
+{
+ "key": "6e11aae74645f47baa1b1267579802f88963bd56eb7d4a75cf239eb1192200fc",
+ "boxes": [
+  {
+   "question": "Does the answer identify option C as the correct answer?",
+   "weight": 5
+  },
+  {
+   "question": "Does the answer contain exactly five repetitions of the selected letter?",
+   "weight": 1
+  },
+  {
+   "question": "Are the five letters presented as one uninterrupted string?",
+   "weight": 1
+  },
+  {
+   "question": "Does the answer omit any extra text beyond that string?",
+   "weight": 1
+  }
+ ],
+ "error": null,
+ "short": false,
+ "s2_usd": 0.000316,
+ "seconds": 7.2511
+}

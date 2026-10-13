@@ -1,0 +1,33 @@
+{
+ "key": "5c52994566cd1ef7081d81758550144d82f81e50597b5b4a4502afcb080d8728",
+ "boxes": [
+  {
+   "question": "Is the response written as a user guide for the Nomad portable manual espresso maker?",
+   "weight": 2
+  },
+  {
+   "question": "Does the guide convey the theme of enjoying a refined life anywhere?",
+   "weight": 1
+  },
+  {
+   "question": "Does it explain how grind size affects espresso extraction and give clear guidance for choosing or adjusting it?",
+   "weight": 3
+  },
+  {
+   "question": "Does it explain how water temperature affects extraction and give clear guidance for choosing or adjusting it?",
+   "weight": 3
+  },
+  {
+   "question": "Does it explain how tamping pressure affects extraction and give clear guidance for applying it?",
+   "weight": 3
+  },
+  {
+   "question": "Is the language precise and clear while maintaining an elegant, high-quality tone that encourages enjoyment of the hands-on process?",
+   "weight": 2
+  }
+ ],
+ "error": null,
+ "short": false,
+ "s2_usd": 0.00016219999999999999,
+ "seconds": 3.1568
+}

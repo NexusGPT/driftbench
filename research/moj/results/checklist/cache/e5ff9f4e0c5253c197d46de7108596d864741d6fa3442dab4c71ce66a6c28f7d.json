@@ -1,0 +1,25 @@
+{
+ "key": "e5ff9f4e0c5253c197d46de7108596d864741d6fa3442dab4c71ce66a6c28f7d",
+ "boxes": [
+  {
+   "question": "Does the answer identify the number of qualifying subsets as 144?",
+   "weight": 5
+  },
+  {
+   "question": "Does the answer select option D?",
+   "weight": 5
+  },
+  {
+   "question": "Does the answer repeat the selected letter exactly five times?",
+   "weight": 3
+  },
+  {
+   "question": "Is the repeated letter presented as a single string?",
+   "weight": 2
+  }
+ ],
+ "error": null,
+ "short": false,
+ "s2_usd": 0.0002968,
+ "seconds": 7.2761
+}

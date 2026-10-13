@@ -1,0 +1,25 @@
+{
+ "key": "38347af277677cc37d9d0cbc7fc62f7ac9c354720fc5b6a8a36a4a26a86e6e3b",
+ "boxes": [
+  {
+   "question": "Triangeluaren azalera 3 dela adierazten al du?",
+   "weight": 5
+  },
+  {
+   "question": "Azalera unitate karratutan ematen al du?",
+   "weight": 3
+  },
+  {
+   "question": "Erantzuna euskaraz ematen al du?",
+   "weight": 2
+  },
+  {
+   "question": "Erantzunak erabiltzailearen azalera-galderari zuzenean erantzuten al dio?",
+   "weight": 2
+  }
+ ],
+ "error": null,
+ "short": false,
+ "s2_usd": 0.0001369,
+ "seconds": 3.4344
+}

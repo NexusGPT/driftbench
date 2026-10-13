@@ -1,0 +1,25 @@
+{
+ "key": "3a3a4394b99b1fb25ded2e46a77ac9fa502a462f4d21897fed6e63dbcb1bd8d6",
+ "boxes": [
+  {
+   "question": "Does the answer identify A as the false statement?",
+   "weight": 5
+  },
+  {
+   "question": "Is the answer exactly five characters long?",
+   "weight": 1
+  },
+  {
+   "question": "Are all five characters identical?",
+   "weight": 1
+  },
+  {
+   "question": "Does the answer contain only the repeated letter, with no additional text?",
+   "weight": 1
+  }
+ ],
+ "error": null,
+ "short": false,
+ "s2_usd": 0.00031989999999999997,
+ "seconds": 8.5699
+}

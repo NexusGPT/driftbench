@@ -1,0 +1,37 @@
+{
+ "key": "ee2adf844ba7017015be33c885f2910e35253df783dde28bc5e31d396a37cd09",
+ "boxes": [
+  {
+   "question": "¿Está la respuesta escrita en español?",
+   "weight": 2
+  },
+  {
+   "question": "¿Propone un itinerario que cubre dos días y una noche en París?",
+   "weight": 3
+  },
+  {
+   "question": "¿Plantea los desplazamientos a pie, según el requisito de transporte?",
+   "weight": 3
+  },
+  {
+   "question": "¿Incluye una visita a la Torre Eiffel?",
+   "weight": 3
+  },
+  {
+   "question": "¿Incluye una visita al Museo del Louvre?",
+   "weight": 3
+  },
+  {
+   "question": "¿Incluye escargot como parte del plan?",
+   "weight": 3
+  },
+  {
+   "question": "¿Organiza las actividades de forma clara y útil para que el turista pueda seguir el plan?",
+   "weight": 2
+  }
+ ],
+ "error": null,
+ "short": false,
+ "s2_usd": 0.0001706,
+ "seconds": 3.5249
+}

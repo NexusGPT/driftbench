@@ -1,0 +1,25 @@
+{
+ "key": "dc2bde5d926df2c4e26426a4eb9384624705b9a770c5985387f65a8655fae5d5",
+ "boxes": [
+  {
+   "question": "Does the response identify (C) Household Responsibilities as the correct answer?",
+   "weight": 5
+  },
+  {
+   "question": "Does the response associate the scenario with the gendered division of household and yard work?",
+   "weight": 3
+  },
+  {
+   "question": "Does the response give the letter C five times in a single string?",
+   "weight": 1
+  },
+  {
+   "question": "Does the response avoid selecting a different answer choice?",
+   "weight": 4
+  }
+ ],
+ "error": null,
+ "short": false,
+ "s2_usd": 0.0003298,
+ "seconds": 8.3632
+}

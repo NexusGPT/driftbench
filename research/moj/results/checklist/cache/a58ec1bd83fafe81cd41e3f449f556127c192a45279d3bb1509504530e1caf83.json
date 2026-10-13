@@ -1,0 +1,25 @@
+{
+ "key": "a58ec1bd83fafe81cd41e3f449f556127c192a45279d3bb1509504530e1caf83",
+ "boxes": [
+  {
+   "question": "Je, jibu linatoa jumla sahihi ya watu wote kuwa 48?",
+   "weight": 5
+  },
+  {
+   "question": "Je, jibu linahesabu wachezaji 10 kwa kila shule, yaani timu mbili zenye wachezaji 5 kila moja?",
+   "weight": 4
+  },
+  {
+   "question": "Je, jibu linajumuisha makocha wawili kwa kila shule katika hesabu?",
+   "weight": 4
+  },
+  {
+   "question": "Je, jibu limetolewa kwa Kiswahili?",
+   "weight": 2
+  }
+ ],
+ "error": null,
+ "short": false,
+ "s2_usd": 0.0001291,
+ "seconds": 2.4424
+}

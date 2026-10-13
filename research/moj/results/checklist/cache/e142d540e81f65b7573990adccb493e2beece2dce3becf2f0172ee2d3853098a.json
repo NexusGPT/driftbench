@@ -1,0 +1,37 @@
+{
+ "key": "e142d540e81f65b7573990adccb493e2beece2dce3becf2f0172ee2d3853098a",
+ "boxes": [
+  {
+   "question": "作品是否以《端午》为题？",
+   "weight": 1
+  },
+  {
+   "question": "作品是否为八句、每句七字的七言律诗？",
+   "weight": 5
+  },
+  {
+   "question": "作品是否在整体上遵循七言律诗的平仄格律？",
+   "weight": 5
+  },
+  {
+   "question": "作品的颔联和颈联是否分别做到对仗工整？",
+   "weight": 5
+  },
+  {
+   "question": "作品是否押韵和谐，且韵脚符合七言律诗的要求？",
+   "weight": 4
+  },
+  {
+   "question": "作品是否写到龙舟、粽子，并表达思乡之情？",
+   "weight": 4
+  },
+  {
+   "question": "作品是否突出端午节日氛围，并较好地采用第三人称视角？",
+   "weight": 2
+  }
+ ],
+ "error": null,
+ "short": false,
+ "s2_usd": 0.0002235,
+ "seconds": 4.6554
+}

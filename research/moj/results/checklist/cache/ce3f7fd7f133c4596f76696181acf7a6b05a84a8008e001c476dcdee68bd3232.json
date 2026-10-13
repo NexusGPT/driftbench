@@ -1,0 +1,33 @@
+{
+ "key": "ce3f7fd7f133c4596f76696181acf7a6b05a84a8008e001c476dcdee68bd3232",
+ "boxes": [
+  {
+   "question": "Is the response written as a thank-you letter from Chen Jing, a high school graduate, to her homeroom teacher, Ms. Wang?",
+   "weight": 3
+  },
+  {
+   "question": "Does the letter express gratitude for Ms. Wang’s help throughout Chen Jing’s three years of high school?",
+   "weight": 4
+  },
+  {
+   "question": "Does it mention Ms. Wang’s help with academic difficulties during Chen Jing’s first year?",
+   "weight": 4
+  },
+  {
+   "question": "Does it mention Ms. Wang’s emotional support during family changes in Chen Jing’s second year?",
+   "weight": 4
+  },
+  {
+   "question": "Does it mention Ms. Wang’s encouragement during stressful college entrance exam preparation in Chen Jing’s third year?",
+   "weight": 4
+  },
+  {
+   "question": "Is the letter sincere, warm, and respectful, conveying deep appreciation and sincere wishes for Ms. Wang?",
+   "weight": 3
+  }
+ ],
+ "error": null,
+ "short": false,
+ "s2_usd": 0.0001717,
+ "seconds": 4.849
+}

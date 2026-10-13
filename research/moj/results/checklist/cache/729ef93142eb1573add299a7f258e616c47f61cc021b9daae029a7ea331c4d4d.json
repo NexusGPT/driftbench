@@ -1,0 +1,41 @@
+{
+ "key": "729ef93142eb1573add299a7f258e616c47f61cc021b9daae029a7ea331c4d4d",
+ "boxes": [
+  {
+   "question": "Does the report state the aim of assessing how light intensity affects key growth parameters of ‘Zhongwan No.6’ pea seedlings and identifying the optimal intensity?",
+   "weight": 3
+  },
+  {
+   "question": "Does the experimental setup identify the seeds, instruments, and consumables used?",
+   "weight": 2
+  },
+  {
+   "question": "Does the experimental design include all five specified light conditions (2000, 4000, 6000, and 8000 lux, plus natural light control), six replicates, and a controlled environment?",
+   "weight": 4
+  },
+  {
+   "question": "Does the methods section describe the procedures step by step, including seed treatment, preparation, transplanting, 15 days of light exposure, and measurements?",
+   "weight": 4
+  },
+  {
+   "question": "Do the results include tables reporting plant height, leaf count, stem diameter, fresh weight, and dry weight as mean ± SD?",
+   "weight": 5
+  },
+  {
+   "question": "Do the results report statistical analysis of differences among light conditions, including significance at P<0.05 where applicable?",
+   "weight": 4
+  },
+  {
+   "question": "Does the report analyze correlations between light intensity and the measured growth parameters?",
+   "weight": 4
+  },
+  {
+   "question": "Does the conclusion summarize the effects of light intensity and identify a best intensity or range for growth, in a structured, objective report using formal scientific language?",
+   "weight": 3
+  }
+ ],
+ "error": null,
+ "short": false,
+ "s2_usd": 0.00029360000000000003,
+ "seconds": 5.7043
+}

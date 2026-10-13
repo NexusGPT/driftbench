@@ -1,0 +1,25 @@
+{
+ "key": "369312bef4597559495de144f3f44c267c7a1671712f005ec5548db9157889b0",
+ "boxes": [
+  {
+   "question": "Does the answer identify the wire’s length as 140 cm?",
+   "weight": 5
+  },
+  {
+   "question": "Does the answer select option G?",
+   "weight": 5
+  },
+  {
+   "question": "Does the answer repeat the selected letter exactly five times?",
+   "weight": 3
+  },
+  {
+   "question": "Are the five repeated letters written as a single string?",
+   "weight": 2
+  }
+ ],
+ "error": null,
+ "short": false,
+ "s2_usd": 0.000289,
+ "seconds": 8.1422
+}

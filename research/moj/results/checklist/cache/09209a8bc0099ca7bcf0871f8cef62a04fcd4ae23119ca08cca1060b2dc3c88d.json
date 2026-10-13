@@ -1,0 +1,29 @@
+{
+ "key": "09209a8bc0099ca7bcf0871f8cef62a04fcd4ae23119ca08cca1060b2dc3c88d",
+ "boxes": [
+  {
+   "question": "Sind alle fünf vorgegebenen Wörter jeweils genau einmal in der Antwort enthalten?",
+   "weight": 3
+  },
+  {
+   "question": "Stehen die Wörter mit dem zweiten Buchstaben „a“ (nachdem und Handgelenk) vor Bild, dessen zweiter Buchstabe „i“ ist?",
+   "weight": 5
+  },
+  {
+   "question": "Steht Bild vor Fortschritt, entsprechend den zweiten Buchstaben „i“ und „o“?",
+   "weight": 5
+  },
+  {
+   "question": "Steht Fortschritt vor erschweren, entsprechend den zweiten Buchstaben „o“ und „r“?",
+   "weight": 5
+  },
+  {
+   "question": "Ist die Antwort auf Deutsch formuliert?",
+   "weight": 2
+  }
+ ],
+ "error": null,
+ "short": false,
+ "s2_usd": 0.00020030000000000002,
+ "seconds": 4.4172
+}

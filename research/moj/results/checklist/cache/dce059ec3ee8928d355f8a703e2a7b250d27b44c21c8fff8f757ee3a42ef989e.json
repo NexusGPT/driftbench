@@ -1,0 +1,37 @@
+{
+ "key": "dce059ec3ee8928d355f8a703e2a7b250d27b44c21c8fff8f757ee3a42ef989e",
+ "boxes": [
+  {
+   "question": "Does the note thank enterprise clients for their patience during the outage?",
+   "weight": 2
+  },
+  {
+   "question": "Does the note specify that the outage lasted 8 hours on November 7?",
+   "weight": 3
+  },
+  {
+   "question": "Does the note recognize that clients provided detailed error logs?",
+   "weight": 2
+  },
+  {
+   "question": "Does the note explain that the error logs helped diagnose RAID configuration issues?",
+   "weight": 3
+  },
+  {
+   "question": "Does the note commit to implementing quarterly redundancy tests starting in Q1 2024?",
+   "weight": 3
+  },
+  {
+   "question": "Is the note written from the perspective of an IT support manager addressing enterprise clients?",
+   "weight": 2
+  },
+  {
+   "question": "Does the note maintain a grateful, technical, and approachable tone?",
+   "weight": 2
+  }
+ ],
+ "error": null,
+ "short": false,
+ "s2_usd": 0.000151,
+ "seconds": 3.2573
+}

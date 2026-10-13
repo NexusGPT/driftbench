@@ -1,0 +1,25 @@
+{
+ "key": "eaa9e7e78ee3538216db02c1ffc7afe475582ff3ea1f7db1adb450a96992e144",
+ "boxes": [
+  {
+   "question": "Does the response give 4 as the number of pieces that are triangles?",
+   "weight": 5
+  },
+  {
+   "question": "Does the response correctly count the cut as producing two triangular pieces from ABC?",
+   "weight": 2
+  },
+  {
+   "question": "Does the response correctly count the cut as producing two triangular pieces from DEF?",
+   "weight": 2
+  },
+  {
+   "question": "Does the response correctly conclude that all four resulting pieces are triangles?",
+   "weight": 3
+  }
+ ],
+ "error": null,
+ "short": false,
+ "s2_usd": 0.000479,
+ "seconds": 12.277
+}

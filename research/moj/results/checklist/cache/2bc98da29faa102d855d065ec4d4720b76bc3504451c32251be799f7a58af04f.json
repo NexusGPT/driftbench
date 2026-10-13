@@ -1,0 +1,41 @@
+{
+ "key": "2bc98da29faa102d855d065ec4d4720b76bc3504451c32251be799f7a58af04f",
+ "boxes": [
+  {
+   "question": "Does the response provide an overall rating for the latest iPhone on a 1-to-10 scale?",
+   "weight": 3
+  },
+  {
+   "question": "Is the iPhone rating consistent with the review’s praise for its exceptional performance and camera, while accounting for its high price and less impressive design?",
+   "weight": 4
+  },
+  {
+   "question": "Does the response provide an overall rating for the latest Samsung Galaxy on a 1-to-10 scale?",
+   "weight": 3
+  },
+  {
+   "question": "Is the Galaxy rating consistent with its strong display, performance, battery life, and cameras, while accounting for its persistent weaknesses?",
+   "weight": 4
+  },
+  {
+   "question": "Does the response provide an overall rating for the latest Google Pixel on a 1-to-10 scale?",
+   "weight": 3
+  },
+  {
+   "question": "Is the Pixel rating consistent with its strong camera, software, and AI features, while accounting for its battery life, storage, performance, and price drawbacks?",
+   "weight": 4
+  },
+  {
+   "question": "Is the response a valid JSON object containing the three phones’ overall ratings, each expressed to one decimal place?",
+   "weight": 5
+  },
+  {
+   "question": "Is the response written in Vietnamese?",
+   "weight": 2
+  }
+ ],
+ "error": null,
+ "short": false,
+ "s2_usd": 0.0002885,
+ "seconds": 6.1515
+}

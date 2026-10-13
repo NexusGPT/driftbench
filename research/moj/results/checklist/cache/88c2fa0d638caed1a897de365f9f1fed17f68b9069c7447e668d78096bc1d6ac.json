@@ -1,0 +1,25 @@
+{
+ "key": "88c2fa0d638caed1a897de365f9f1fed17f68b9069c7447e668d78096bc1d6ac",
+ "boxes": [
+  {
+   "question": "¿Identifica al cocido madrileño como el cocido más popular entre los españoles?",
+   "weight": 4
+  },
+  {
+   "question": "¿Explica qué hace que el cocido sea un plato básico de la cocina española, mencionando razones culturales o culinarias pertinentes?",
+   "weight": 4
+  },
+  {
+   "question": "¿Presenta información correcta y pertinente sobre el plato, sin afirmaciones engañosas o contradicciones importantes?",
+   "weight": 3
+  },
+  {
+   "question": "¿Responde en español?",
+   "weight": 1
+  }
+ ],
+ "error": null,
+ "short": false,
+ "s2_usd": 0.000219,
+ "seconds": 6.0725
+}

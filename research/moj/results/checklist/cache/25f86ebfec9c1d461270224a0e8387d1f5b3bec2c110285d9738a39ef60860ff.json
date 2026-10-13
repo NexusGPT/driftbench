@@ -1,0 +1,25 @@
+{
+ "key": "25f86ebfec9c1d461270224a0e8387d1f5b3bec2c110285d9738a39ef60860ff",
+ "boxes": [
+  {
+   "question": "Does the response give the correct truth values for the premises and conclusion across all eight assignments of J, K, and L?",
+   "weight": 5
+  },
+  {
+   "question": "Does the response correctly identify the argument as invalid?",
+   "weight": 5
+  },
+  {
+   "question": "Does the response identify option (A), with J true, K false, and L false, as a counterexample?",
+   "weight": 5
+  },
+  {
+   "question": "Does the response repeat the selected letter five times in a single string?",
+   "weight": 2
+  }
+ ],
+ "error": null,
+ "short": false,
+ "s2_usd": 0.0002414,
+ "seconds": 5.4605
+}

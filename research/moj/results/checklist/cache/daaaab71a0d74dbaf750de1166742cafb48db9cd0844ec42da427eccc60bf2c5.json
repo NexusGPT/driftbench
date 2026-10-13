@@ -1,0 +1,25 @@
+{
+ "key": "daaaab71a0d74dbaf750de1166742cafb48db9cd0844ec42da427eccc60bf2c5",
+ "boxes": [
+  {
+   "question": "Does the answer select option F, which gives a) 0.113, b) 0.32, and c) 75%?",
+   "weight": 5
+  },
+  {
+   "question": "Does the answer repeat its selected option letter exactly five times?",
+   "weight": 2
+  },
+  {
+   "question": "Are the five repeated letters presented as a single string?",
+   "weight": 1
+  },
+  {
+   "question": "Does the answer avoid adding text outside the requested repeated-letter string?",
+   "weight": 1
+  }
+ ],
+ "error": null,
+ "short": false,
+ "s2_usd": 0.0007635,
+ "seconds": 17.7436
+}

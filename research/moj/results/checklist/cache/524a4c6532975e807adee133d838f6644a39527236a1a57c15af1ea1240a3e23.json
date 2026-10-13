@@ -1,0 +1,25 @@
+{
+ "key": "524a4c6532975e807adee133d838f6644a39527236a1a57c15af1ea1240a3e23",
+ "boxes": [
+  {
+   "question": "Gibt die Antwort 90 $ als Geldbetrag nach einem Jahr an?",
+   "weight": 5
+  },
+  {
+   "question": "Behandelt die Antwort die Verdreifachung als Multiplikation der ursprünglichen investierten Summe von 30 $ mit 3?",
+   "weight": 5
+  },
+  {
+   "question": "Ist die Antwort auf Deutsch formuliert?",
+   "weight": 2
+  },
+  {
+   "question": "Beantwortet die Antwort direkt, wie viel Geld Johnny nach einem Jahr hatte?",
+   "weight": 1
+  }
+ ],
+ "error": null,
+ "short": false,
+ "s2_usd": 0.0002124,
+ "seconds": 5.1252
+}

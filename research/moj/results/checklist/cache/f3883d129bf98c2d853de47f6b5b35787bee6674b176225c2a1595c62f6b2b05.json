@@ -1,0 +1,25 @@
+{
+ "key": "f3883d129bf98c2d853de47f6b5b35787bee6674b176225c2a1595c62f6b2b05",
+ "boxes": [
+  {
+   "question": "Does the answer express the quadratic in an equivalent completed-square form?",
+   "weight": 5
+  },
+  {
+   "question": "Does the squared term use the shift corresponding to a center of \\(x=\\frac45\\)?",
+   "weight": 3
+  },
+  {
+   "question": "Does the constant term make the expression equivalent to the original quadratic (\\(-\\frac{96}{5}\\) when written as \\(5(x-\\frac45)^2+C\\))?",
+   "weight": 3
+  },
+  {
+   "question": "Is the final answer enclosed in \\(\\boxed{}\\)?",
+   "weight": 1
+  }
+ ],
+ "error": null,
+ "short": false,
+ "s2_usd": 0.00025580000000000004,
+ "seconds": 6.2523
+}

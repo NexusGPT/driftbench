@@ -1,0 +1,25 @@
+{
+ "key": "9aeef3632dce466452704d0ec7a9a0a472a489eb772de3de7eed4c8d5152ab50",
+ "boxes": [
+  {
+   "question": "Does the answer give 18 as the value of the expression?",
+   "weight": 5
+  },
+  {
+   "question": "Does the answer identify option D as the correct choice?",
+   "weight": 5
+  },
+  {
+   "question": "Does the answer provide the letter D five times in a single string?",
+   "weight": 1
+  },
+  {
+   "question": "Does the answer avoid identifying any other option as correct?",
+   "weight": 5
+  }
+ ],
+ "error": null,
+ "short": false,
+ "s2_usd": 0.0003216,
+ "seconds": 7.3324
+}

@@ -1,0 +1,41 @@
+{
+ "key": "45c23bff7296db9a715de4c08c5dd7f03ff81a68afd10e656ae4b02b18795a92",
+ "boxes": [
+  {
+   "question": "Is the response written as a sports-novel narrative rather than merely an outline or summary?",
+   "weight": 2
+  },
+  {
+   "question": "Does the story portray Leland as a former free-diving champion haunted by a past accident, and show his psychological struggles as he joins the Ink Whales?",
+   "weight": 3
+  },
+  {
+   "question": "Does the story establish underwater rugby as a brutal sport played 100 meters deep with a 15 kg lead ball and sonar tactics for communication?",
+   "weight": 3
+  },
+  {
+   "question": "Does Leland's challenging debut against the Russian Arctic Bear team lead to the discovery of a deeper conspiracy involving his past accident?",
+   "weight": 3
+  },
+  {
+   "question": "Does the climax take place in a triple-pressure Mariana Trench arena and include foul play, Leland saving an opponent instead of prioritizing victory, and the Ink Whales using a breathing relay to secure the win?",
+   "weight": 4
+  },
+  {
+   "question": "Does the story develop themes of redemption, courage, and sportsmanship beyond winning?",
+   "weight": 2
+  },
+  {
+   "question": "Does the ending connect the sport's future to its consideration for the Olympics?",
+   "weight": 2
+  },
+  {
+   "question": "Is the writing gritty and intense while remaining coherent and effective as a story?",
+   "weight": 2
+  }
+ ],
+ "error": null,
+ "short": false,
+ "s2_usd": 0.0002335,
+ "seconds": 4.7851
+}

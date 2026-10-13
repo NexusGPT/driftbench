@@ -1,0 +1,25 @@
+{
+ "key": "c33d3a384400ec1b641ef2e042deda9f4d00a128e7d0e52411b0e13eff20fdd6",
+ "boxes": [
+  {
+   "question": "Does the answer identify nature versus nurture as the two main viewpoints?",
+   "weight": 5
+  },
+  {
+   "question": "Does the answer select option F?",
+   "weight": 5
+  },
+  {
+   "question": "Does the answer include exactly five copies of the selected letter?",
+   "weight": 3
+  },
+  {
+   "question": "Are the five copies written together as one continuous string?",
+   "weight": 2
+  }
+ ],
+ "error": null,
+ "short": false,
+ "s2_usd": 0.00027110000000000003,
+ "seconds": 6.4355
+}

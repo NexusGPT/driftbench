@@ -1,0 +1,37 @@
+{
+ "key": "3edb893a12b1ba2a983c05f2e724e94862e43efd8430a406341648e4a8004e62",
+ "boxes": [
+  {
+   "question": "Does the response provide a cover letter for Zhang Ming applying for a Product Manager role?",
+   "weight": 2
+  },
+  {
+   "question": "Does the letter highlight Zhang Ming’s passion for product design and practical product experience?",
+   "weight": 2
+  },
+  {
+   "question": "Does the letter highlight keen market insight and the ability to analyze user demand?",
+   "weight": 2
+  },
+  {
+   "question": "Does the letter emphasize cross-departmental collaboration and efficient project execution?",
+   "weight": 2
+  },
+  {
+   "question": "Does the letter emphasize data-driven decision-making and connect it to creating products with excellent user experience and high commercial value?",
+   "weight": 3
+  },
+  {
+   "question": "Does the letter use a confident, results-oriented tone and show how Zhang Ming’s skills align with Product Manager responsibilities?",
+   "weight": 2
+  },
+  {
+   "question": "Does the letter use active voice throughout?",
+   "weight": 2
+  }
+ ],
+ "error": null,
+ "short": false,
+ "s2_usd": 0.0001582,
+ "seconds": 3.1188
+}

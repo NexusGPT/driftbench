@@ -1,0 +1,25 @@
+{
+ "key": "f135d17d81171bbf0f02a2a0ec46301bd516dc31009a10e48b0cdeb426c4fb74",
+ "boxes": [
+  {
+   "question": "Does the answer state that పంచో walks 120 miles in a week?",
+   "weight": 5
+  },
+  {
+   "question": "Does the answer treat the 10 miles on weekends as 10 miles on each of the two weekend days?",
+   "weight": 4
+  },
+  {
+   "question": "Does the answer calculate the weekly distance as five days at 20 miles plus two days at 10 miles?",
+   "weight": 4
+  },
+  {
+   "question": "Is the answer written in Telugu, the language of the question?",
+   "weight": 2
+  }
+ ],
+ "error": null,
+ "short": false,
+ "s2_usd": 0.00020009999999999998,
+ "seconds": 5.2798
+}

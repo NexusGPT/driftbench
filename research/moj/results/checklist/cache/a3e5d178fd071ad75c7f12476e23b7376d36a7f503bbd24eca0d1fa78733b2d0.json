@@ -1,0 +1,37 @@
+{
+ "key": "a3e5d178fd071ad75c7f12476e23b7376d36a7f503bbd24eca0d1fa78733b2d0",
+ "boxes": [
+  {
+   "question": "Is the response a psychological military story set in a post-war context?",
+   "weight": 2
+  },
+  {
+   "question": "Is the protagonist established as a retired intelligence officer who now works as a military psychologist specializing in post-mission debriefings and truth reconstruction for special forces soldiers?",
+   "weight": 3
+  },
+  {
+   "question": "Does the protagonist's latest assignment involve interrogating the sole survivor of a disastrous mission behind enemy lines?",
+   "weight": 3
+  },
+  {
+   "question": "Does the survivor's testimony contain contradictions with the official report, and is the survivor portrayed as extremely mentally unstable?",
+   "weight": 3
+  },
+  {
+   "question": "Does the story unfold almost entirely within a single, closed interrogation room?",
+   "weight": 3
+  },
+  {
+   "question": "Does the story explore war trauma and memory as a labyrinth, as well as the multifaceted nature of truth from different perspectives?",
+   "weight": 3
+  },
+  {
+   "question": "Is the story coherent and effective as a piece of writing while fulfilling the prompt's requirements?",
+   "weight": 2
+  }
+ ],
+ "error": null,
+ "short": false,
+ "s2_usd": 0.0002026,
+ "seconds": 4.3678
+}

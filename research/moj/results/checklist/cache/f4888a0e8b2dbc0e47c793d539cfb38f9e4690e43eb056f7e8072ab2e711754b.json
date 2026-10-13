@@ -1,0 +1,33 @@
+{
+ "key": "f4888a0e8b2dbc0e47c793d539cfb38f9e4690e43eb056f7e8072ab2e711754b",
+ "boxes": [
+  {
+   "question": "Is the story centered on a magical cloud leopard with wind powers who lives on a sky island?",
+   "weight": 2
+  },
+  {
+   "question": "Does the proud leopard try to weave a rainbow bridge alone with its wind magic, fail, and make a mess?",
+   "weight": 3
+  },
+  {
+   "question": "Does a dangerous tar storm threaten the island?",
+   "weight": 3
+  },
+  {
+   "question": "Does the leopard accept help from its friends in responding to the storm or overcoming the challenge?",
+   "weight": 3
+  },
+  {
+   "question": "Does the story convey that humility and collaboration help overcome challenges and strengthen a community?",
+   "weight": 3
+  },
+  {
+   "question": "Is the writing enchanting and easy for young readers to understand, with a gentle, engaging presentation?",
+   "weight": 2
+  }
+ ],
+ "error": null,
+ "short": false,
+ "s2_usd": 0.0001685,
+ "seconds": 3.5626
+}

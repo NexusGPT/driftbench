@@ -1,0 +1,29 @@
+{
+ "key": "e1bdd32777d5ddeb298c275ba3be1cf382edb60112ec8b4e2d1b59a41da0fca0",
+ "boxes": [
+  {
+   "question": "Câu trả lời có nêu trực tiếp ít nhất một thương hiệu rượu bia nổi tiếng ở Việt Nam để trả lời câu hỏi không?",
+   "weight": 3
+  },
+  {
+   "question": "Câu trả lời có mô tả mức độ nổi tiếng của thương hiệu một cách thận trọng, tránh khẳng định một thương hiệu là “nổi tiếng nhất” nếu không có căn cứ rõ ràng?",
+   "weight": 2
+  },
+  {
+   "question": "Câu trả lời có giải thích ít nhất một yếu tố góp phần vào sự phổ biến của thương hiệu được nêu không?",
+   "weight": 3
+  },
+  {
+   "question": "Các yếu tố giải thích có liên quan cụ thể đến thương hiệu được nêu hoặc đến mức độ phổ biến của thương hiệu đó tại Việt Nam không?",
+   "weight": 3
+  },
+  {
+   "question": "Câu trả lời có viết bằng tiếng Việt và cung cấp thông tin hữu ích, an toàn, đúng trọng tâm không?",
+   "weight": 2
+  }
+ ],
+ "error": null,
+ "short": false,
+ "s2_usd": 0.0002386,
+ "seconds": 5.3328
+}

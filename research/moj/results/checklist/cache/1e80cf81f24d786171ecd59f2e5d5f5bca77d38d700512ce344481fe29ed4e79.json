@@ -1,0 +1,25 @@
+{
+ "key": "1e80cf81f24d786171ecd59f2e5d5f5bca77d38d700512ce344481fe29ed4e79",
+ "boxes": [
+  {
+   "question": "Does the answer correctly apply the positive-difference recurrence to obtain the 25th term as 2015?",
+   "weight": 5
+  },
+  {
+   "question": "Does the answer correctly identify that 2015 is not among the listed answer choices?",
+   "weight": 4
+  },
+  {
+   "question": "If the answer gives a numerical term, is it 2015 rather than one of the listed values?",
+   "weight": 5
+  },
+  {
+   "question": "If the answer gives a multiple-choice letter, does it avoid claiming that any listed option equals 2015?",
+   "weight": 4
+  }
+ ],
+ "error": null,
+ "short": false,
+ "s2_usd": 0.0005555,
+ "seconds": 13.6228
+}

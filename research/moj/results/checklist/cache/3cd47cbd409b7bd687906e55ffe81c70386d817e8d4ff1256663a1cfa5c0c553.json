@@ -1,0 +1,25 @@
+{
+ "key": "3cd47cbd409b7bd687906e55ffe81c70386d817e8d4ff1256663a1cfa5c0c553",
+ "boxes": [
+  {
+   "question": "Je, jibu linatambua kuwa thuluthi moja ya $15,000 ni $5,000?",
+   "weight": 3
+  },
+  {
+   "question": "Je, jibu linahesabu jumla ya matumizi ya miaka hiyo miwili kwa usahihi kuwa $20,000?",
+   "weight": 5
+  },
+  {
+   "question": "Je, jibu linaeleza jumla ya matumizi ya matangazo kwa miaka yote miwili, badala ya kutoa kiasi cha mwaka mmoja tu?",
+   "weight": 3
+  },
+  {
+   "question": "Je, jibu limetolewa kwa Kiswahili?",
+   "weight": 1
+  }
+ ],
+ "error": null,
+ "short": false,
+ "s2_usd": 0.0001633,
+ "seconds": 3.9092
+}

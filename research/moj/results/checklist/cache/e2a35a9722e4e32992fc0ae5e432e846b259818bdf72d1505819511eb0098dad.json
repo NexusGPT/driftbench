@@ -1,0 +1,25 @@
+{
+ "key": "e2a35a9722e4e32992fc0ae5e432e846b259818bdf72d1505819511eb0098dad",
+ "boxes": [
+  {
+   "question": "Does the answer correctly identify that the maximum number of elements examined is 7?",
+   "weight": 5
+  },
+  {
+   "question": "Does the answer select option (F), corresponding to 7?",
+   "weight": 5
+  },
+  {
+   "question": "Does the answer repeat the selected letter exactly five times in one string?",
+   "weight": 2
+  },
+  {
+   "question": "Does the answer provide that repeated-letter string without additional text?",
+   "weight": 1
+  }
+ ],
+ "error": null,
+ "short": false,
+ "s2_usd": 0.00026060000000000005,
+ "seconds": 6.5788
+}

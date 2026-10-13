@@ -1,0 +1,25 @@
+{
+ "key": "e3001f1bb6a323c4ed563f147ac46d8a383a9eabc74406de5edb4538690ece3a",
+ "boxes": [
+  {
+   "question": "Je, jibu linaeleza kuwa jumla ya sehemu za uwiano ni 7 + 13 = 20?",
+   "weight": 2
+  },
+  {
+   "question": "Je, jibu linahesabu kwa usahihi kuwa kila sehemu inawakilisha 120 ÷ 20 = 6?",
+   "weight": 3
+  },
+  {
+   "question": "Je, jibu linatoa idadi sahihi ya vijiko vidogo vya sukari, yaani 7 × 6 = 42?",
+   "weight": 5
+  },
+  {
+   "question": "Je, jibu limetolewa kwa Kiswahili?",
+   "weight": 2
+  }
+ ],
+ "error": null,
+ "short": false,
+ "s2_usd": 0.0001796,
+ "seconds": 4.2849
+}

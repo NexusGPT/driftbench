@@ -1,0 +1,25 @@
+{
+ "key": "fd29a7b8429eb27109284001b89304b3a9a35af4ef277312f736b434f7954693",
+ "boxes": [
+  {
+   "question": "Does the answer correctly say that the person at the restaurant tells the truth?",
+   "weight": 5
+  },
+  {
+   "question": "Does the answer correctly say that the person at the library does not tell the truth?",
+   "weight": 5
+  },
+  {
+   "question": "Does the answer correctly say that the person at the hotel tells the truth?",
+   "weight": 5
+  },
+  {
+   "question": "Does the answer give the correct answers in the order restaurant, library, hotel (yes, no, yes)?",
+   "weight": 5
+  }
+ ],
+ "error": null,
+ "short": false,
+ "s2_usd": 0.000372,
+ "seconds": 7.815
+}

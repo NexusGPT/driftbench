@@ -1,0 +1,25 @@
+{
+ "key": "4eed7a6b237d9adb3961845a43e4fcf3d4a75ce82c1528b1a4bb32b50a7b536b",
+ "boxes": [
+  {
+   "question": "Does the answer identify the possible integer values of the expression as 2, 3, 4, and 5?",
+   "weight": 2
+  },
+  {
+   "question": "Does the answer give 14 as the sum of all such integer values?",
+   "weight": 5
+  },
+  {
+   "question": "Does the answer select choice E?",
+   "weight": 4
+  },
+  {
+   "question": "Does the answer write the letter E five times in a single string?",
+   "weight": 1
+  }
+ ],
+ "error": null,
+ "short": false,
+ "s2_usd": 0.0003328,
+ "seconds": 8.0723
+}

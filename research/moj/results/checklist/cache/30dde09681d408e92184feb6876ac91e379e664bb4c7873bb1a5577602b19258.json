@@ -1,0 +1,25 @@
+{
+ "key": "30dde09681d408e92184feb6876ac91e379e664bb4c7873bb1a5577602b19258",
+ "boxes": [
+  {
+   "question": "Does the answer give a method or result that returns the maximum possible length for every valid input?",
+   "weight": 5
+  },
+  {
+   "question": "Does the answer correctly account for the restriction that the concatenated string must not contain \"AAA\" or \"BBB\"?",
+   "weight": 5
+  },
+  {
+   "question": "Does the answer give 12 for the input x = 2, y = 5, z = 1?",
+   "weight": 3
+  },
+  {
+   "question": "Does the answer give 14 for the input x = 3, y = 2, z = 2?",
+   "weight": 3
+  }
+ ],
+ "error": null,
+ "short": false,
+ "s2_usd": 0.0003043,
+ "seconds": 8.1055
+}

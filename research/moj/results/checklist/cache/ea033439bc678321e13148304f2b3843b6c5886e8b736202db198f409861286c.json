@@ -1,0 +1,25 @@
+{
+ "key": "ea033439bc678321e13148304f2b3843b6c5886e8b736202db198f409861286c",
+ "boxes": [
+  {
+   "question": "Does the answer identify the resulting shape as a square pyramid?",
+   "weight": 5
+  },
+  {
+   "question": "Does the answer identify the shape as having a square base?",
+   "weight": 3
+  },
+  {
+   "question": "Does the answer identify the shape as having one apex above the base?",
+   "weight": 3
+  },
+  {
+   "question": "Does the answer avoid identifying the shape as a square, pentagon, tetrahedron, circle, triangular prism, or sphere?",
+   "weight": 4
+  }
+ ],
+ "error": null,
+ "short": false,
+ "s2_usd": 0.0002516,
+ "seconds": 5.6019
+}

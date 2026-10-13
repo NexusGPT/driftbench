@@ -1,0 +1,29 @@
+{
+ "key": "80240929f982ee1655c94551360f05e6f9c61608632c8dde22f7f3df1f98af54",
+ "boxes": [
+  {
+   "question": "¿La respuesta está escrita en español?",
+   "weight": 2
+  },
+  {
+   "question": "¿Describe correctamente cómo se relaciona el PIB con la inflación y el desempleo, sin presentar esas relaciones como reglas invariables?",
+   "weight": 5
+  },
+  {
+   "question": "¿Explica de forma correcta cómo las políticas fiscales pueden influir en el PIB, la inflación o el desempleo?",
+   "weight": 5
+  },
+  {
+   "question": "¿Explica de forma correcta cómo las políticas monetarias pueden influir en el PIB, la inflación o el desempleo?",
+   "weight": 5
+  },
+  {
+   "question": "¿La respuesta es útil y segura, y evita afirmaciones económicas engañosas o recomendaciones potencialmente perjudiciales presentadas como certezas?",
+   "weight": 3
+  }
+ ],
+ "error": null,
+ "short": false,
+ "s2_usd": 0.0001555,
+ "seconds": 5.712
+}

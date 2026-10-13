@@ -1,0 +1,33 @@
+{
+ "key": "cf92d715b15114aed3f30403be14b8a6c81235a218c88ccbc706ecf08ae40e17",
+ "boxes": [
+  {
+   "question": "Does the answer count valid selections by considering possible group sizes from 0 through nums.length?",
+   "weight": 2
+  },
+  {
+   "question": "For a proposed group size k, does the answer correctly require every selected student to have nums[i] < k?",
+   "weight": 3
+  },
+  {
+   "question": "For a proposed group size k, does the answer correctly require every unselected student to have nums[i] > k?",
+   "weight": 3
+  },
+  {
+   "question": "Does the answer correctly exclude a group size if any student has nums[i] equal to k?",
+   "weight": 3
+  },
+  {
+   "question": "Does the answer count each valid group size exactly once, corresponding to its uniquely determined selection of students?",
+   "weight": 3
+  },
+  {
+   "question": "Does the answer give the correct number of valid selections for the input or inputs it addresses?",
+   "weight": 5
+  }
+ ],
+ "error": null,
+ "short": false,
+ "s2_usd": 0.0002498,
+ "seconds": 5.6011
+}

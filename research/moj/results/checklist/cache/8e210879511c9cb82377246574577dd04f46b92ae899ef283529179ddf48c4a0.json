@@ -1,0 +1,25 @@
+{
+ "key": "8e210879511c9cb82377246574577dd04f46b92ae899ef283529179ddf48c4a0",
+ "boxes": [
+  {
+   "question": "Does the response identify position 3 as the position of the person who likes pumpkin?",
+   "weight": 5
+  },
+  {
+   "question": "Does the response give the position as a single digit?",
+   "weight": 1
+  },
+  {
+   "question": "Is the response formatted exactly as ***3***?",
+   "weight": 1
+  },
+  {
+   "question": "Does the response contain no additional text beyond the requested answer?",
+   "weight": 1
+  }
+ ],
+ "error": null,
+ "short": false,
+ "s2_usd": 0.0004719,
+ "seconds": 11.8234
+}

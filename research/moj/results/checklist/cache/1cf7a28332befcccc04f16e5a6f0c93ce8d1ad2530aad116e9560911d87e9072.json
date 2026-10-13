@@ -1,0 +1,25 @@
+{
+ "key": "1cf7a28332befcccc04f16e5a6f0c93ce8d1ad2530aad116e9560911d87e9072",
+ "boxes": [
+  {
+   "question": "Nennt die Antwort 40 Videospiele als Bobbys Anzahl?",
+   "weight": 5
+  },
+  {
+   "question": "Berücksichtigt die Antwort, dass Brian vor dem Vergleich nach dem Verlust noch 15 Videospiele hat?",
+   "weight": 5
+  },
+  {
+   "question": "Berechnet die Antwort Bobbys Anzahl als das Dreifache von Brians aktuellem Bestand minus 5?",
+   "weight": 4
+  },
+  {
+   "question": "Ist die Antwort auf Deutsch formuliert und beantwortet die Frage direkt?",
+   "weight": 2
+  }
+ ],
+ "error": null,
+ "short": false,
+ "s2_usd": 0.0001533,
+ "seconds": 3.523
+}

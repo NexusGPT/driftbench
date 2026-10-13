@@ -1,0 +1,25 @@
+{
+ "key": "9b337925caf227545bbe2f6d3b36780039b4439e93e28987cdb219fdec89d9ad",
+ "boxes": [
+  {
+   "question": "Does the answer identify the acute angle as 45 degrees?",
+   "weight": 5
+  },
+  {
+   "question": "Does the answer select option C?",
+   "weight": 5
+  },
+  {
+   "question": "Does the answer give the selected letter five times in a single string?",
+   "weight": 2
+  },
+  {
+   "question": "Is the five-letter string CCCCC?",
+   "weight": 3
+  }
+ ],
+ "error": null,
+ "short": false,
+ "s2_usd": 0.00023280000000000002,
+ "seconds": 5.5238
+}

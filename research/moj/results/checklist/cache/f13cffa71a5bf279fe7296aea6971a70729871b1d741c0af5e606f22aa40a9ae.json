@@ -1,0 +1,25 @@
+{
+ "key": "f13cffa71a5bf279fe7296aea6971a70729871b1d741c0af5e606f22aa40a9ae",
+ "boxes": [
+  {
+   "question": "Does the answer give an algorithm that returns the maximum number of groups for the given usageLimits?",
+   "weight": 5
+  },
+  {
+   "question": "Does the algorithm account for each number being usable at most usageLimits[i] times across all groups?",
+   "weight": 4
+  },
+  {
+   "question": "Does the algorithm account for groups containing distinct numbers and having strictly increasing lengths?",
+   "weight": 4
+  },
+  {
+   "question": "Is the algorithm efficient enough to handle usageLimits of length up to 10^5?",
+   "weight": 3
+  }
+ ],
+ "error": null,
+ "short": false,
+ "s2_usd": 0.0002699,
+ "seconds": 5.4227
+}

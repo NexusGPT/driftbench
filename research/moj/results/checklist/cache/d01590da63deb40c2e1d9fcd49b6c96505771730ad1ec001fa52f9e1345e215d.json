@@ -1,0 +1,25 @@
+{
+ "key": "d01590da63deb40c2e1d9fcd49b6c96505771730ad1ec001fa52f9e1345e215d",
+ "boxes": [
+  {
+   "question": "Does the answer identify option E as the correct choice?",
+   "weight": 5
+  },
+  {
+   "question": "Does the answer consist of the letter E repeated five times?",
+   "weight": 5
+  },
+  {
+   "question": "Are all five repeated letters the same?",
+   "weight": 3
+  },
+  {
+   "question": "Is the repeated-letter answer presented as a single string?",
+   "weight": 2
+  }
+ ],
+ "error": null,
+ "short": false,
+ "s2_usd": 0.00018559999999999998,
+ "seconds": 4.1046
+}

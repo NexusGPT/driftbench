@@ -1,0 +1,25 @@
+{
+ "key": "2d94592646deba0f6025545899c856e5cf41a21c6c2f3875039bd5b07848a134",
+ "boxes": [
+  {
+   "question": "La réponse calcule-t-elle correctement le prix avant remboursement, soit 30 $ pour 10 gallons à 3,00 $ le gallon ?",
+   "weight": 3
+  },
+  {
+   "question": "La réponse calcule-t-elle correctement le remboursement total, soit 2 $ pour 10 gallons à 0,20 $ par gallon ?",
+   "weight": 3
+  },
+  {
+   "question": "La réponse donne-t-elle correctement le prix après remboursement, soit 28 $ ?",
+   "weight": 5
+  },
+  {
+   "question": "La réponse est-elle rédigée en français ?",
+   "weight": 1
+  }
+ ],
+ "error": null,
+ "short": false,
+ "s2_usd": 0.0001472,
+ "seconds": 3.647
+}

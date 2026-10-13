@@ -1,0 +1,25 @@
+{
+ "key": "7b5926c304aacfa004c33d9577b1953a62a82d7788c65357728b10d6b6464a56",
+ "boxes": [
+  {
+   "question": "Does the answer correctly say that the person at the botanical garden does not tell the truth?",
+   "weight": 5
+  },
+  {
+   "question": "Does the answer correctly say that the person at the airport does not tell the truth?",
+   "weight": 5
+  },
+  {
+   "question": "Does the answer correctly say that the person at the observatory does not tell the truth?",
+   "weight": 5
+  },
+  {
+   "question": "Does the answer avoid making any claim that contradicts these three truth-value conclusions?",
+   "weight": 4
+  }
+ ],
+ "error": null,
+ "short": false,
+ "s2_usd": 0.00030839999999999996,
+ "seconds": 7.0422
+}

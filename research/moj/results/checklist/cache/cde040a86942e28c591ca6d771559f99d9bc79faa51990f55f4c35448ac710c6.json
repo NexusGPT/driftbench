@@ -1,0 +1,17 @@
+{
+ "key": "cde040a86942e28c591ca6d771559f99d9bc79faa51990f55f4c35448ac710c6",
+ "boxes": [
+  {
+   "question": "Does the answer state the correct number of pieces produced by the cut?",
+   "weight": 5
+  },
+  {
+   "question": "Is the stated number a single integer?",
+   "weight": 1
+  }
+ ],
+ "error": null,
+ "short": true,
+ "s2_usd": 5.9300000000000005e-05,
+ "seconds": 3.7375
+}

@@ -1,0 +1,25 @@
+{
+ "key": "c7c29c8b2dbb76a26ad4d4c7cc625b6ab3be89bc4b7d7b73e22c204fd77ec5d3",
+ "boxes": [
+  {
+   "question": "回答是否得出汤姆最后剩下 91 棵树？",
+   "weight": 5
+  },
+  {
+   "question": "是否正确计算 10 年种下 100 棵树、砍掉 20 棵树？",
+   "weight": 3
+  },
+  {
+   "question": "是否将树木死亡理解为剩余树木的 30%，并正确计算死亡后的数量？",
+   "weight": 4
+  },
+  {
+   "question": "是否使用中文作答？",
+   "weight": 1
+  }
+ ],
+ "error": null,
+ "short": false,
+ "s2_usd": 0.00014780000000000001,
+ "seconds": 3.7968
+}

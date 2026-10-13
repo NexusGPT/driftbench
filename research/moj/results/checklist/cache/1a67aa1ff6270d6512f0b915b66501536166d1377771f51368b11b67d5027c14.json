@@ -1,0 +1,33 @@
+{
+ "key": "1a67aa1ff6270d6512f0b915b66501536166d1377771f51368b11b67d5027c14",
+ "boxes": [
+  {
+   "question": "Does the response provide a catchy slogan for eco-friendly reusable shopping bags?",
+   "weight": 3
+  },
+  {
+   "question": "Does the slogan highlight the bags’ durable material?",
+   "weight": 3
+  },
+  {
+   "question": "Does the slogan highlight how the bags help protect the environment?",
+   "weight": 3
+  },
+  {
+   "question": "Does the slogan inspire responsibility for the planet?",
+   "weight": 2
+  },
+  {
+   "question": "Does the slogan use rhyming phrasing?",
+   "weight": 2
+  },
+  {
+   "question": "Does the slogan use strong, active verbs?",
+   "weight": 2
+  }
+ ],
+ "error": null,
+ "short": false,
+ "s2_usd": 0.0001502,
+ "seconds": 3.6874
+}

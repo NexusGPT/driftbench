@@ -1,0 +1,37 @@
+{
+ "key": "e30de0b526af62490d9b23e576cc57babad612a4982593c5bb1c27c6292d326d",
+ "boxes": [
+  {
+   "question": "Is the response titled exactly “The Noodle Soup Stall on a Bangkok Street”?",
+   "weight": 2
+  },
+  {
+   "question": "Is the response written as a prose essay rather than primarily as a list, script, or other format?",
+   "weight": 2
+  },
+  {
+   "question": "Does the narrator use a first-person perspective as a long-term patron or nearby resident?",
+   "weight": 3
+  },
+  {
+   "question": "Does the response use the noodle soup stall to observe or convey something about Bangkok beyond the stall itself?",
+   "weight": 3
+  },
+  {
+   "question": "Does it give specific, attentive descriptions of the vendor’s practiced movements and the food’s rising steam and aroma?",
+   "weight": 3
+  },
+  {
+   "question": "Does it describe varied expressions among the customers?",
+   "weight": 2
+  },
+  {
+   "question": "Does it place the stall amid the sounds of motorcycles and the interplay of streetlights and shadows?",
+   "weight": 3
+  }
+ ],
+ "error": null,
+ "short": false,
+ "s2_usd": 0.0001702,
+ "seconds": 3.6515
+}

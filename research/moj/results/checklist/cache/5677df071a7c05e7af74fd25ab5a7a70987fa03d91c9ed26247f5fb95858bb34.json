@@ -1,0 +1,25 @@
+{
+ "key": "5677df071a7c05e7af74fd25ab5a7a70987fa03d91c9ed26247f5fb95858bb34",
+ "boxes": [
+  {
+   "question": "¿Indica que con la piedra preciosa Polly puede lanzar la jabalina hasta 1200 pies?",
+   "weight": 3
+  },
+  {
+   "question": "¿Compara correctamente los 1200 pies de alcance de la jabalina con los 1000 pies de alcance de las llamas?",
+   "weight": 3
+  },
+  {
+   "question": "¿Concluye que Polly puede pararse a 200 pies fuera del alcance de las llamas y aun así golpear al dragón?",
+   "weight": 5
+  },
+  {
+   "question": "¿Responde en español?",
+   "weight": 1
+  }
+ ],
+ "error": null,
+ "short": false,
+ "s2_usd": 0.0001895,
+ "seconds": 4.8495
+}

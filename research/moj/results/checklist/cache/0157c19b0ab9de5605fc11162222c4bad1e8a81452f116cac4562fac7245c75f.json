@@ -1,0 +1,25 @@
+{
+ "key": "0157c19b0ab9de5605fc11162222c4bad1e8a81452f116cac4562fac7245c75f",
+ "boxes": [
+  {
+   "question": "Does the answer correctly reduce the real part to a function whose maximum over the allowed values of z is being evaluated?",
+   "weight": 2
+  },
+  {
+   "question": "Does the answer correctly determine that the largest possible real part is 540?",
+   "weight": 5
+  },
+  {
+   "question": "Does the answer give 540 as the requested answer?",
+   "weight": 4
+  },
+  {
+   "question": "Does the response end with exactly the three digits 540?",
+   "weight": 1
+  }
+ ],
+ "error": null,
+ "short": false,
+ "s2_usd": 0.0003094,
+ "seconds": 7.6626
+}

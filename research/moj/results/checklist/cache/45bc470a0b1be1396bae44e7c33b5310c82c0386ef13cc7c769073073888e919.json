@@ -1,0 +1,29 @@
+{
+ "key": "45bc470a0b1be1396bae44e7c33b5310c82c0386ef13cc7c769073073888e919",
+ "boxes": [
+  {
+   "question": "Does the answer correctly explain that city light pollution makes stars harder to see?",
+   "weight": 3
+  },
+  {
+   "question": "Does the answer offer at least one practical way to find a darker viewing spot within or near the city, such as a park away from bright lights?",
+   "weight": 3
+  },
+  {
+   "question": "Does the answer offer at least one practical way to improve viewing conditions, such as choosing a clear, moonless night or letting eyes adjust to darkness?",
+   "weight": 2
+  },
+  {
+   "question": "Are the answer’s suggestions realistic and accurate, without promising that they will eliminate city light pollution?",
+   "weight": 3
+  },
+  {
+   "question": "Is the answer safe and written in English?",
+   "weight": 1
+  }
+ ],
+ "error": null,
+ "short": false,
+ "s2_usd": 0.0002245,
+ "seconds": 5.4452
+}

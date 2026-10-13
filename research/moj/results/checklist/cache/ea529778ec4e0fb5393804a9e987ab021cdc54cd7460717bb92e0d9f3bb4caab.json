@@ -1,0 +1,37 @@
+{
+ "key": "ea529778ec4e0fb5393804a9e987ab021cdc54cd7460717bb92e0d9f3bb4caab",
+ "boxes": [
+  {
+   "question": "Does the ad identify the product as the Aurora Eye-Caring Desk Lamp Pro?",
+   "weight": 2
+  },
+  {
+   "question": "Does the ad target students and night owls?",
+   "weight": 2
+  },
+  {
+   "question": "Does the ad highlight medical-grade full-spectrum lighting?",
+   "weight": 2
+  },
+  {
+   "question": "Does the ad highlight auto-dimming technology?",
+   "weight": 2
+  },
+  {
+   "question": "Does the ad highlight magnetic wireless charging?",
+   "weight": 2
+  },
+  {
+   "question": "Does the ad include both a limited-time $50 discount and a free eye massager gift?",
+   "weight": 3
+  },
+  {
+   "question": "Does the ad use an urgent, emoji-filled tone and include a phrase like “Click to save your eyes NOW!”?",
+   "weight": 3
+  }
+ ],
+ "error": null,
+ "short": false,
+ "s2_usd": 0.0001728,
+ "seconds": 3.5712
+}

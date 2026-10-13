@@ -1,0 +1,25 @@
+{
+ "key": "a128c40838c7725bf9ba0aaa3e304ecc39926fce9930fea62b488858449683f6",
+ "boxes": [
+  {
+   "question": "Does the answer identify prioritization of national liberation over social reform as the likeliest factor?",
+   "weight": 5
+  },
+  {
+   "question": "Does the answer select option D?",
+   "weight": 5
+  },
+  {
+   "question": "Does the answer give the letter D five times in a single string?",
+   "weight": 3
+  },
+  {
+   "question": "Does the answer avoid giving a conflicting multiple-choice answer?",
+   "weight": 4
+  }
+ ],
+ "error": null,
+ "short": false,
+ "s2_usd": 0.0003356,
+ "seconds": 7.9461
+}

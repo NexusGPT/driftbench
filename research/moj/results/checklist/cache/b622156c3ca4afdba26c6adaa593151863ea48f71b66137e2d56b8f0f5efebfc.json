@@ -1,0 +1,25 @@
+{
+ "key": "b622156c3ca4afdba26c6adaa593151863ea48f71b66137e2d56b8f0f5efebfc",
+ "boxes": [
+  {
+   "question": "La réponse indique-t-elle que Steve gagne la course ?",
+   "weight": 3
+  },
+  {
+   "question": "La réponse donne-t-elle un temps d’attente de 4 minutes pour Steve ?",
+   "weight": 5
+  },
+  {
+   "question": "La réponse compare-t-elle correctement les durées de trajet, soit 36 minutes pour Steve et 40 minutes pour Tim ?",
+   "weight": 4
+  },
+  {
+   "question": "La réponse est-elle rédigée en français et présente-t-elle clairement le résultat ?",
+   "weight": 2
+  }
+ ],
+ "error": null,
+ "short": false,
+ "s2_usd": 0.0001515,
+ "seconds": 4.2723
+}

@@ -1,0 +1,25 @@
+{
+ "key": "f74cb03e0d19ce3bbd6b504de2a73915fadbeefe728a69e1cc238c6616459157",
+ "boxes": [
+  {
+   "question": "Does the answer give 3 as the number of triangular pieces?",
+   "weight": 5
+  },
+  {
+   "question": "Does the answer correctly identify triangle ABC as one of the resulting pieces?",
+   "weight": 1
+  },
+  {
+   "question": "Does the answer correctly identify triangle formed by B, C, and the intersection of AC and BD as one of the resulting pieces?",
+   "weight": 1
+  },
+  {
+   "question": "Does the answer correctly identify triangle formed by C, D, and the intersection of AC and BD as one of the resulting pieces?",
+   "weight": 1
+  }
+ ],
+ "error": null,
+ "short": false,
+ "s2_usd": 0.00042219999999999996,
+ "seconds": 11.0343
+}

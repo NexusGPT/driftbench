@@ -1,0 +1,25 @@
+{
+ "key": "91e068a3e4c50eda05f3d20b9e560151f6ffeb6170c54d13afa33cf3d0584455",
+ "boxes": [
+  {
+   "question": "Does the answer state that there are 6 pieces?",
+   "weight": 5
+  },
+  {
+   "question": "Does the answer present its final answer as a single integer?",
+   "weight": 1
+  },
+  {
+   "question": "Is the final answer bolded?",
+   "weight": 1
+  },
+  {
+   "question": "Does the answer avoid giving a different piece count elsewhere?",
+   "weight": 1
+  }
+ ],
+ "error": null,
+ "short": false,
+ "s2_usd": 0.0005128,
+ "seconds": 13.8755
+}

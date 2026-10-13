@@ -1,0 +1,25 @@
+{
+ "key": "0bbe08d6780834eb7f62c701ba49ee8a88773414a84753deb083c4d2f3401617",
+ "boxes": [
+  {
+   "question": "Erantzunak DCF (Eguneratutako Diru-Fluxuen Eredua) izendatzen al du egokiena etorkizuneko balioa aurreikusteko?",
+   "weight": 5
+  },
+  {
+   "question": "Azaltzen al du DCFk etorkizuneko diru-fluxuak proiektatu eta gaur egungo baliora deskontatzen dituela?",
+   "weight": 4
+  },
+  {
+   "question": "Aipatzen al du WACC deskontu-tasa gisa erabil daitekeela, edo enpresaren kapitalaren kostuarekin lotuta dagoela?",
+   "weight": 2
+  },
+  {
+   "question": "Erantzuna euskaraz ematen al du?",
+   "weight": 2
+  }
+ ],
+ "error": null,
+ "short": false,
+ "s2_usd": 0.0002327,
+ "seconds": 4.9666
+}

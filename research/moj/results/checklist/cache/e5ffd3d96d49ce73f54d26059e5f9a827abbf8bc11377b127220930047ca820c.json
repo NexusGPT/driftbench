@@ -1,0 +1,25 @@
+{
+ "key": "e5ffd3d96d49ce73f54d26059e5f9a827abbf8bc11377b127220930047ca820c",
+ "boxes": [
+  {
+   "question": "Antwortet die Antwort auf Deutsch?",
+   "weight": 1
+  },
+  {
+   "question": "Nennt die Antwort den geschuldeten Gesamtbetrag nach drei Monaten korrekt: 106 $ bei einfacher Verzinsung oder 106,12 $ bei monatlicher Verzinsung mit Zinseszins?",
+   "weight": 5
+  },
+  {
+   "question": "Macht die Antwort deutlich, ob sie einfache Zinsen oder monatlichen Zinseszins zugrunde legt?",
+   "weight": 2
+  },
+  {
+   "question": "Bezieht die Antwort die 2 % Zinsen pro Monat auf die dreimonatige Laufzeit, statt die 2 % nur einmal anzusetzen?",
+   "weight": 4
+  }
+ ],
+ "error": null,
+ "short": false,
+ "s2_usd": 0.0002227,
+ "seconds": 5.3218
+}

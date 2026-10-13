@@ -1,0 +1,25 @@
+{
+ "key": "7da79e03ab7bee9102083329b0d199092e0e5d5640bb3d58403b634aeaaf6a21",
+ "boxes": [
+  {
+   "question": "Does the answer identify the food liked by the first person?",
+   "weight": 5
+  },
+  {
+   "question": "Is the answer a food value from the options given in the question?",
+   "weight": 1
+  },
+  {
+   "question": "Does the response contain only the single-word answer, with no explanation?",
+   "weight": 1
+  },
+  {
+   "question": "Is the answer presented in the requested ***X*** format?",
+   "weight": 1
+  }
+ ],
+ "error": null,
+ "short": false,
+ "s2_usd": 0.00031289999999999996,
+ "seconds": 8.1613
+}

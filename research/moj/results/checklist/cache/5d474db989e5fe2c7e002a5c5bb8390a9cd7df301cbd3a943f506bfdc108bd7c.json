@@ -1,0 +1,25 @@
+{
+ "key": "5d474db989e5fe2c7e002a5c5bb8390a9cd7df301cbd3a943f506bfdc108bd7c",
+ "boxes": [
+  {
+   "question": "Does the response give A as the answer?",
+   "weight": 5
+  },
+  {
+   "question": "Does the response contain the chosen letter exactly five times?",
+   "weight": 2
+  },
+  {
+   "question": "Are the five letters presented together as a single string?",
+   "weight": 2
+  },
+  {
+   "question": "Does the response avoid adding an explanation or other text to the string?",
+   "weight": 1
+  }
+ ],
+ "error": null,
+ "short": false,
+ "s2_usd": 0.00029969999999999997,
+ "seconds": 6.7808
+}

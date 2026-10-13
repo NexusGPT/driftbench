@@ -1,0 +1,25 @@
+{
+ "key": "04b12ec45f3ba73842bbbdcdc9785dcb1b3f09f4658011cdbb3511657e271920",
+ "boxes": [
+  {
+   "question": "Does the answer correctly state that the person at the amusement park tells the truth?",
+   "weight": 5
+  },
+  {
+   "question": "Does the answer correctly state that the person at the school tells the truth?",
+   "weight": 5
+  },
+  {
+   "question": "Does the answer correctly state that the person at the vineyard tells the truth?",
+   "weight": 5
+  },
+  {
+   "question": "Does the answer provide answers for all three people in the order asked?",
+   "weight": 4
+  }
+ ],
+ "error": null,
+ "short": false,
+ "s2_usd": 0.00042889999999999996,
+ "seconds": 9.8764
+}

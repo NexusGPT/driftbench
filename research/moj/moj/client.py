@@ -21,6 +21,10 @@ JEV_URLS = {
 }
 JEV_KEYS = {'gateway': '~/.nexus-secrets/nexus-orga.key', 'typesafe': '~/.nexus-secrets/jev-typesafe.key'}
 OPENAI_KEY = '~/.nexus-secrets/openai.key'
+GEMINI_KEY = '~/.nexus-secrets/gemini-driftbench.key'
+GEMINI_MODEL = 'gemini-3.5-flash-lite'  # gemini-3.8-flash stays off (daily cap); the model name is in every request
+GEMINI_PRICE = {'input': 0.10, 'output': 0.40}  # USD per 1M tokens, estimate: flash-lite list price is not verified here
+_gemini_gate = threading.Semaphore(8)
 LUNA_PRICE = {'input': 0.10, 'cached': 0.01, 'output': 0.50}  # USD per 1M tokens
 MAX_SUBMISSIONS = 3
 WAITS_403 = (20, 60, 180)
@@ -180,6 +184,33 @@ def luna(messages, tag, offline=False, json_mode=False, effort=None, max_tokens=
     if not answer:
         return None, row
     return answer['choices'][0]['message'].get('content') or '', row
+
+
+def gemini(system, user, tag, offline=False, timeout=180):
+    """One Gemini call (flash-lite). Returns (text, row). No thinking setting is sent."""
+    body = {'systemInstruction': {'parts': [{'text': system}]}, 'contents': [{'role': 'user', 'parts': [{'text': user}]}],
+            'generationConfig': {'maxOutputTokens': 1024}}
+    request = {'client': 'gemini', 'model': GEMINI_MODEL, 'tag': tag, 'body': body}
+
+    def send():
+        url = f'https://generativelanguage.googleapis.com/v1beta/models/{GEMINI_MODEL}:generateContent'
+        with _gemini_gate:
+            return _post(url, {'x-goog-api-key': _key(GEMINI_KEY)}, body, timeout)
+
+    row = _recorded_call('gemini.jsonl', request, send, offline)
+    answer = row.get('answer')
+    if not answer:
+        return None, row
+    parts = ((answer.get('candidates') or [{}])[0].get('content') or {}).get('parts') or []
+    return ''.join(p.get('text', '') for p in parts if not p.get('thought')), row
+
+
+def gemini_cost(row):
+    usage = (row.get('answer') or {}).get('usageMetadata')
+    if not usage:
+        return 0.0
+    out = usage.get('candidatesTokenCount', 0) + usage.get('thoughtsTokenCount', 0)
+    return (usage.get('promptTokenCount', 0) * GEMINI_PRICE['input'] + out * GEMINI_PRICE['output']) / 1e6
 
 
 def luna_cost(row):

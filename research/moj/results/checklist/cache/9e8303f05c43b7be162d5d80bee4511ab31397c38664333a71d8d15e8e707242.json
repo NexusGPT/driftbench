@@ -1,0 +1,25 @@
+{
+ "key": "9e8303f05c43b7be162d5d80bee4511ab31397c38664333a71d8d15e8e707242",
+ "boxes": [
+  {
+   "question": "Does the answer select option A, indicating that the pKb is near 14 at 25ºC?",
+   "weight": 5
+  },
+  {
+   "question": "Does the answer repeat the selected letter exactly five times in a single string?",
+   "weight": 3
+  },
+  {
+   "question": "Are all five repeated letters identical?",
+   "weight": 2
+  },
+  {
+   "question": "Does the answer avoid adding other text to the requested letter string?",
+   "weight": 1
+  }
+ ],
+ "error": null,
+ "short": false,
+ "s2_usd": 0.0005001000000000001,
+ "seconds": 10.8425
+}

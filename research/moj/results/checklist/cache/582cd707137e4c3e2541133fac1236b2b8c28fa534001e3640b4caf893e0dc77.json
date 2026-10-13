@@ -1,0 +1,25 @@
+{
+ "key": "582cd707137e4c3e2541133fac1236b2b8c28fa534001e3640b4caf893e0dc77",
+ "boxes": [
+  {
+   "question": "¿Responde en español?",
+   "weight": 2
+  },
+  {
+   "question": "¿Propone una acción concreta y considerada que Margaret podría tomar después de organizar el tablero?",
+   "weight": 3
+  },
+  {
+   "question": "¿Relaciona esa acción con la nostalgia de Bill y con que extraña a sus hijos?",
+   "weight": 3
+  },
+  {
+   "question": "¿Explica cómo la acción podría ayudar a Bill a sentirse acompañado o conectado con su familia, sin presentar una posibilidad inventada como un hecho seguro?",
+   "weight": 3
+  }
+ ],
+ "error": null,
+ "short": false,
+ "s2_usd": 0.0001992,
+ "seconds": 4.7292
+}

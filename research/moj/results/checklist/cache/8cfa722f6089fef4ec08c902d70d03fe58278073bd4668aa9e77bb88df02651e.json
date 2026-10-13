@@ -1,0 +1,25 @@
+{
+ "key": "8cfa722f6089fef4ec08c902d70d03fe58278073bd4668aa9e77bb88df02651e",
+ "boxes": [
+  {
+   "question": "Does the answer give 0 as the number of square pyramids?",
+   "weight": 5
+  },
+  {
+   "question": "Does the answer avoid counting the pieces formed by the cuts as square pyramids?",
+   "weight": 4
+  },
+  {
+   "question": "Does the answer distinguish the requested square pyramids from other solid shapes that may result from the cuts?",
+   "weight": 3
+  },
+  {
+   "question": "Is the answer’s stated count consistent with there being no square pyramids among the resulting pieces?",
+   "weight": 5
+  }
+ ],
+ "error": null,
+ "short": false,
+ "s2_usd": 0.0003947,
+ "seconds": 10.7766
+}

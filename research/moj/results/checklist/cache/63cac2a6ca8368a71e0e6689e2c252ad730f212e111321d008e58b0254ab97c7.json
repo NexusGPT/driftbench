@@ -1,0 +1,25 @@
+{
+ "key": "63cac2a6ca8368a71e0e6689e2c252ad730f212e111321d008e58b0254ab97c7",
+ "boxes": [
+  {
+   "question": "Does the answer correctly identify Season 5 as the season in which Meredith and Derek get married?",
+   "weight": 5
+  },
+  {
+   "question": "Is the answer written in Basque?",
+   "weight": 3
+  },
+  {
+   "question": "Does the answer clearly address which season the wedding occurs in?",
+   "weight": 2
+  },
+  {
+   "question": "Does the answer avoid factual claims that contradict or materially confuse the answer?",
+   "weight": 2
+  }
+ ],
+ "error": null,
+ "short": false,
+ "s2_usd": 0.0001719,
+ "seconds": 4.234
+}

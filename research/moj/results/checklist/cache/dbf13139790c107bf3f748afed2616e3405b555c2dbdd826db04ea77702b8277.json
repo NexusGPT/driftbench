@@ -1,0 +1,25 @@
+{
+ "key": "dbf13139790c107bf3f748afed2616e3405b555c2dbdd826db04ea77702b8277",
+ "boxes": [
+  {
+   "question": "Does the answer identify the limestone mass required per ton of clay using the stated chemical equation and composition?",
+   "weight": 5
+  },
+  {
+   "question": "Does the answer give its selected multiple-choice letter five times in a row, as requested?",
+   "weight": 2
+  },
+  {
+   "question": "Are all five repeated letters the same as the answer’s selected option?",
+   "weight": 1
+  },
+  {
+   "question": "Is the answer presented as a single string without additional text?",
+   "weight": 1
+  }
+ ],
+ "error": null,
+ "short": false,
+ "s2_usd": 0.0004691,
+ "seconds": 11.848
+}

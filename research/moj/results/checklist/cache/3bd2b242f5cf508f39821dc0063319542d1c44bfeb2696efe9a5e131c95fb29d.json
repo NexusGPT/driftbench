@@ -1,0 +1,37 @@
+{
+ "key": "3bd2b242f5cf508f39821dc0063319542d1c44bfeb2696efe9a5e131c95fb29d",
+ "boxes": [
+  {
+   "question": "Is the response written as an open letter addressed to the character’s author or creator?",
+   "weight": 2
+  },
+  {
+   "question": "Does the letter speak in the voice of a tragic supporting character from a literary work?",
+   "weight": 2
+  },
+  {
+   "question": "Does the character protest having a pre-written or predetermined destiny?",
+   "weight": 2
+  },
+  {
+   "question": "Does the letter convey the character’s pain at being used as a plot device, including their role in advancing the hero’s journey or being sacrificed for it?",
+   "weight": 2
+  },
+  {
+   "question": "Does the character question the author’s reasons for assigning them their fate?",
+   "weight": 2
+  },
+  {
+   "question": "Does the prose combine sorrow with sarcasm about being used as a tool to propel the plot?",
+   "weight": 2
+  },
+  {
+   "question": "Does the letter convey both deep resentment and a desperate longing for free will?",
+   "weight": 3
+  }
+ ],
+ "error": null,
+ "short": false,
+ "s2_usd": 0.000175,
+ "seconds": 4.4689
+}

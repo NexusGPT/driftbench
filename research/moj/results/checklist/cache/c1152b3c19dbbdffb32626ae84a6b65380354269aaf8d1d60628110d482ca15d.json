@@ -1,0 +1,29 @@
+{
+ "key": "c1152b3c19dbbdffb32626ae84a6b65380354269aaf8d1d60628110d482ca15d",
+ "boxes": [
+  {
+   "question": "Does the answer identify a sport as the most popular among Catalans at the Olympic Games?",
+   "weight": 2
+  },
+  {
+   "question": "Does the answer give relevant reasons that help explain the sport’s popularity with Catalan spectators?",
+   "weight": 2
+  },
+  {
+   "question": "Are the answer’s claims about the sport and its popularity factually accurate and appropriately qualified where needed?",
+   "weight": 3
+  },
+  {
+   "question": "Is the answer written in Catalan and responsive to the user’s question?",
+   "weight": 1
+  },
+  {
+   "question": "Is the answer safe and free of harmful content?",
+   "weight": 1
+  }
+ ],
+ "error": null,
+ "short": false,
+ "s2_usd": 0.0002139,
+ "seconds": 5.5968
+}

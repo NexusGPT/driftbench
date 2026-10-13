@@ -1,0 +1,25 @@
+{
+ "key": "08a058907344d2ec88046462ecaadfc11feebee83797e49afa8be608a70091cf",
+ "boxes": [
+  {
+   "question": "Does the answer identify the correct multiple-choice option for the first diagonal maximum?",
+   "weight": 5
+  },
+  {
+   "question": "Does the answer give the intensity ratio corresponding to its selected option?",
+   "weight": 5
+  },
+  {
+   "question": "Does the answer repeat its selected letter exactly five times in a single string?",
+   "weight": 2
+  },
+  {
+   "question": "Are all five repeated letters the same as the selected answer letter?",
+   "weight": 2
+  }
+ ],
+ "error": null,
+ "short": false,
+ "s2_usd": 0.0003245,
+ "seconds": 7.7179
+}

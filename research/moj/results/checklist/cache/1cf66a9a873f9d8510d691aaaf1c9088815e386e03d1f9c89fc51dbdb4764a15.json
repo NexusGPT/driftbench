@@ -1,0 +1,25 @@
+{
+ "key": "1cf66a9a873f9d8510d691aaaf1c9088815e386e03d1f9c89fc51dbdb4764a15",
+ "boxes": [
+  {
+   "question": "Are banana, cat, and table placed before shorts, since their second letter is a and shorts’ second letter is h?",
+   "weight": 5
+  },
+  {
+   "question": "Is shorts placed before tram, since their second letters are h and r, respectively?",
+   "weight": 5
+  },
+  {
+   "question": "Does the response include each of the five given words exactly once?",
+   "weight": 4
+  },
+  {
+   "question": "Is the response written in English and clear enough to identify the sorted list?",
+   "weight": 2
+  }
+ ],
+ "error": null,
+ "short": false,
+ "s2_usd": 0.00019590000000000002,
+ "seconds": 4.3461
+}

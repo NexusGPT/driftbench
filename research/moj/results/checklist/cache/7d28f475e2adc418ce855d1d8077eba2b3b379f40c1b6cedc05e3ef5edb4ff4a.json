@@ -1,0 +1,41 @@
+{
+ "key": "7d28f475e2adc418ce855d1d8077eba2b3b379f40c1b6cedc05e3ef5edb4ff4a",
+ "boxes": [
+  {
+   "question": "Is the essay titled “‘Looking Back’ and ‘Moving Forward’”?",
+   "weight": 1
+  },
+  {
+   "question": "Does the essay present a distinct viewpoint on the relationship between looking back and moving forward?",
+   "weight": 2
+  },
+  {
+   "question": "Does the essay explain why looking back can be valuable?",
+   "weight": 2
+  },
+  {
+   "question": "Does the essay explain why moving forward is necessary?",
+   "weight": 2
+  },
+  {
+   "question": "Does the essay explain how to balance and unite looking back with moving forward, rather than treating them only as opposing choices?",
+   "weight": 3
+  },
+  {
+   "question": "Does the essay use at least one historical figure as positive or negative evidence and analyze that example in conjunction with a contemporary social phenomenon or a personal experience?",
+   "weight": 3
+  },
+  {
+   "question": "Does the essay narrate the case with descriptive detail showing the figure’s internal journey and emotional changes when facing the choice between looking back and moving forward?",
+   "weight": 2
+  },
+  {
+   "question": "Is the essay an argumentative piece with a clear structure and at least 800 words?",
+   "weight": 2
+  }
+ ],
+ "error": null,
+ "short": false,
+ "s2_usd": 0.0002266,
+ "seconds": 4.314
+}

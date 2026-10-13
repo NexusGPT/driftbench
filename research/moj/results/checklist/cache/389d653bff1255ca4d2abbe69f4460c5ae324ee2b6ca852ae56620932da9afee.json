@@ -1,0 +1,25 @@
+{
+ "key": "389d653bff1255ca4d2abbe69f4460c5ae324ee2b6ca852ae56620932da9afee",
+ "boxes": [
+  {
+   "question": "Does the answer identify almost-equal characters as equal letters or letters adjacent in the alphabet?",
+   "weight": 3
+  },
+  {
+   "question": "Does the proposed method consider conflicts only between neighboring positions in the string?",
+   "weight": 2
+  },
+  {
+   "question": "Does the method account for overlapping conflicts so that a single change can resolve more than one adjacent pair when appropriate?",
+   "weight": 4
+  },
+  {
+   "question": "Does the method produce the minimum number of changes needed for every valid input, rather than merely a number that removes all conflicts?",
+   "weight": 5
+  }
+ ],
+ "error": null,
+ "short": false,
+ "s2_usd": 0.0002673,
+ "seconds": 6.5987
+}

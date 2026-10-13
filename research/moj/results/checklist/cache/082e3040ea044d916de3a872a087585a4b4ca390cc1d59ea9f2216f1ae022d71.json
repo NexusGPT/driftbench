@@ -1,0 +1,25 @@
+{
+ "key": "082e3040ea044d916de3a872a087585a4b4ca390cc1d59ea9f2216f1ae022d71",
+ "boxes": [
+  {
+   "question": "Does the answer correctly identify the person at the farm as telling the truth?",
+   "weight": 5
+  },
+  {
+   "question": "Does the answer correctly identify the person at the restaurant as telling the truth?",
+   "weight": 5
+  },
+  {
+   "question": "Does the answer correctly identify the person at the observatory as lying?",
+   "weight": 5
+  },
+  {
+   "question": "Does the answer present the three answers in the requested order as a bold list of three words, each either “yes” or “no”?",
+   "weight": 1
+  }
+ ],
+ "error": null,
+ "short": false,
+ "s2_usd": 0.0003756,
+ "seconds": 8.6495
+}

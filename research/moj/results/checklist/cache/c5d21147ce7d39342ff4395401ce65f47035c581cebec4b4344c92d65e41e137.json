@@ -1,0 +1,25 @@
+{
+ "key": "c5d21147ce7d39342ff4395401ce65f47035c581cebec4b4344c92d65e41e137",
+ "boxes": [
+  {
+   "question": "Does the answer identify position 2 as the position of the Polish person?",
+   "weight": 5
+  },
+  {
+   "question": "Does the answer use the requested format, ***N***, with the position in place of N?",
+   "weight": 2
+  },
+  {
+   "question": "Is the position given as a single digit?",
+   "weight": 1
+  },
+  {
+   "question": "Does the answer provide only the requested position, without additional text?",
+   "weight": 1
+  }
+ ],
+ "error": null,
+ "short": false,
+ "s2_usd": 0.0004005,
+ "seconds": 10.0649
+}

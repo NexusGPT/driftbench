@@ -1,0 +1,25 @@
+{
+ "key": "25f4fc077c67e72d707ccf55616f9377c2c17d7687df8d603d930d3779a6dfd4",
+ "boxes": [
+  {
+   "question": "¿Responde en español?",
+   "weight": 1
+  },
+  {
+   "question": "¿Incluye código Java para mostrar el dibujo del ahorcado por consola?",
+   "weight": 3
+  },
+  {
+   "question": "¿Ofrece dibujos distintos que representen diferentes fases del juego?",
+   "weight": 3
+  },
+  {
+   "question": "¿El código es correcto y utilizable para imprimir esas fases en consola?",
+   "weight": 3
+  }
+ ],
+ "error": null,
+ "short": false,
+ "s2_usd": 0.000128,
+ "seconds": 3.0815
+}

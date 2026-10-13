@@ -1,0 +1,25 @@
+{
+ "key": "e2ba73f559e521a1f71d77f37fbba17f9e63be18906732c1e618601acc22184c",
+ "boxes": [
+  {
+   "question": "La risposta contiene esattamente 10 coppie di parole?",
+   "weight": 5
+  },
+  {
+   "question": "In ciascuna coppia, le due parole fanno rima in italiano?",
+   "weight": 5
+  },
+  {
+   "question": "Le parole proposte sono parole italiane riconoscibili?",
+   "weight": 3
+  },
+  {
+   "question": "La risposta è scritta in italiano?",
+   "weight": 2
+  }
+ ],
+ "error": null,
+ "short": false,
+ "s2_usd": 0.0001428,
+ "seconds": 3.9168
+}

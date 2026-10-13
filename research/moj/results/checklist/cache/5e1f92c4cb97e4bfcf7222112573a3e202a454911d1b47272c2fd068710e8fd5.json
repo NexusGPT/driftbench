@@ -1,0 +1,25 @@
+{
+ "key": "5e1f92c4cb97e4bfcf7222112573a3e202a454911d1b47272c2fd068710e8fd5",
+ "boxes": [
+  {
+   "question": "Does the answer restrict candidate subarrays to those whose first element is even?",
+   "weight": 5
+  },
+  {
+   "question": "Does the answer require every pair of adjacent elements in a candidate subarray to have different parity?",
+   "weight": 5
+  },
+  {
+   "question": "Does the answer require every element in a candidate subarray to be less than or equal to the threshold?",
+   "weight": 5
+  },
+  {
+   "question": "Does the answer return the greatest length among all non-empty subarrays satisfying these conditions, or 0 if none exists?",
+   "weight": 5
+  }
+ ],
+ "error": null,
+ "short": false,
+ "s2_usd": 0.0002463,
+ "seconds": 5.19
+}

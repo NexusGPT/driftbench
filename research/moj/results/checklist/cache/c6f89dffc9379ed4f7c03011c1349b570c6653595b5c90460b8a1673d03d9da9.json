@@ -1,0 +1,25 @@
+{
+ "key": "c6f89dffc9379ed4f7c03011c1349b570c6653595b5c90460b8a1673d03d9da9",
+ "boxes": [
+  {
+   "question": "Inclúe as cinco palabras dadas, cada unha exactamente unha vez?",
+   "weight": 4
+  },
+  {
+   "question": "Sitúa «pantalla» e «nai», que teñen «a» como segunda letra, antes de «si»?",
+   "weight": 5
+  },
+  {
+   "question": "Sitúa «si» antes de «xuíz» e «humano», que teñen «u» como segunda letra?",
+   "weight": 5
+  },
+  {
+   "question": "Está escrita a resposta en galego?",
+   "weight": 2
+  }
+ ],
+ "error": null,
+ "short": false,
+ "s2_usd": 0.0002387,
+ "seconds": 6.0475
+}

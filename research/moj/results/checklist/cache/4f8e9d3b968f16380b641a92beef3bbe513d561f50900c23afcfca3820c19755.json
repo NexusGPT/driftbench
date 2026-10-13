@@ -1,0 +1,41 @@
+{
+ "key": "4f8e9d3b968f16380b641a92beef3bbe513d561f50900c23afcfca3820c19755",
+ "boxes": [
+  {
+   "question": "Does the response read as a film review of *The Great Buddha+* directed by Huang Hsin-yao?",
+   "weight": 2
+  },
+  {
+   "question": "Does it describe the two workers, Cai Pu and Du Cai, peeking into the upper-class world through black-and-white surveillance cameras?",
+   "weight": 3
+  },
+  {
+   "question": "Does it connect the film’s black-and-white and color imagery to its portrayal of Taiwan’s class divide?",
+   "weight": 3
+  },
+  {
+   "question": "Does it discuss the golden Buddha as a symbolic motif?",
+   "weight": 2
+  },
+  {
+   "question": "Does it discuss the styrofoam “space capsule” as a symbolic motif?",
+   "weight": 2
+  },
+  {
+   "question": "Does it explain how the film’s dark humor dissects social pathology?",
+   "weight": 3
+  },
+  {
+   "question": "Does the review sustain a tone of cold observation while showing underlying compassion for marginalized people?",
+   "weight": 3
+  },
+  {
+   "question": "Is the review well-written and coherent, rather than merely listing the requested themes?",
+   "weight": 1
+  }
+ ],
+ "error": null,
+ "short": false,
+ "s2_usd": 0.0002079,
+ "seconds": 5.4076
+}

@@ -1,0 +1,25 @@
+{
+ "key": "c8c93e64de9186bc720096fefa42853dd8138eb068520c4665e9ab311572ac41",
+ "boxes": [
+  {
+   "question": "Does the proposed method return the maximum total gold obtainable by selecting offers whose house ranges do not overlap?",
+   "weight": 5
+  },
+  {
+   "question": "Does the method correctly handle inclusive offer endpoints when determining whether two offers overlap?",
+   "weight": 4
+  },
+  {
+   "question": "Does the method allow houses to remain unsold rather than requiring every house to be sold?",
+   "weight": 3
+  },
+  {
+   "question": "Is the method efficient enough to handle up to 10^5 houses and 10^5 offers?",
+   "weight": 4
+  }
+ ],
+ "error": null,
+ "short": false,
+ "s2_usd": 0.000184,
+ "seconds": 4.7357
+}

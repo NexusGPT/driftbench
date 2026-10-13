@@ -1,0 +1,25 @@
+{
+ "key": "14c8f07b19b9b512e33dae76da4dcf72755e8b079a3c6e6f4ef4fd31a00a5dd6",
+ "boxes": [
+  {
+   "question": "Does the answer identify GDP per capita as about $15,000 in 2011 prices adjusted for inflation and PPP?",
+   "weight": 5
+  },
+  {
+   "question": "Does the answer use choice J for the correct amount?",
+   "weight": 5
+  },
+  {
+   "question": "Does the answer contain exactly five letters in its answer string?",
+   "weight": 1
+  },
+  {
+   "question": "Are all five letters in the answer string J?",
+   "weight": 1
+  }
+ ],
+ "error": null,
+ "short": false,
+ "s2_usd": 0.00027160000000000004,
+ "seconds": 6.2953
+}

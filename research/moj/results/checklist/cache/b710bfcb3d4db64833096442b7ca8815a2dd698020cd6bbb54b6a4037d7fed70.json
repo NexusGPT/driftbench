@@ -1,0 +1,17 @@
+{
+ "key": "b710bfcb3d4db64833096442b7ca8815a2dd698020cd6bbb54b6a4037d7fed70",
+ "boxes": [
+  {
+   "question": "Does the answer identify option A (r = 1.061 feet, h = 2.828 feet) as the cost-minimizing dimensions?",
+   "weight": 5
+  },
+  {
+   "question": "Does the answer write the selected letter five times consecutively in a single string, as requested?",
+   "weight": 1
+  }
+ ],
+ "error": null,
+ "short": true,
+ "s2_usd": 0.0002295,
+ "seconds": 5.373
+}

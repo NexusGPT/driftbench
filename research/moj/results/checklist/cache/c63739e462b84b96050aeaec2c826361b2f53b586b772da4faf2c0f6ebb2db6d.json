@@ -1,0 +1,25 @@
+{
+ "key": "c63739e462b84b96050aeaec2c826361b2f53b586b772da4faf2c0f6ebb2db6d",
+ "boxes": [
+  {
+   "question": "Does the answer identify option F as the correct choice?",
+   "weight": 5
+  },
+  {
+   "question": "Does the answer give the letter F five times in a single string?",
+   "weight": 3
+  },
+  {
+   "question": "Are all five repeated letters identical?",
+   "weight": 2
+  },
+  {
+   "question": "Does the answer avoid adding text outside the requested answer string?",
+   "weight": 1
+  }
+ ],
+ "error": null,
+ "short": false,
+ "s2_usd": 0.0002692,
+ "seconds": 6.091
+}

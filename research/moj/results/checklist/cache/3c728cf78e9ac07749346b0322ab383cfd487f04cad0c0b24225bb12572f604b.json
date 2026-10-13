@@ -1,0 +1,25 @@
+{
+ "key": "3c728cf78e9ac07749346b0322ab383cfd487f04cad0c0b24225bb12572f604b",
+ "boxes": [
+  {
+   "question": "Does the answer give the derivative as an expression equivalent to \\(5\\sec^2(5x+1)-8\\sin(7-8x)\\)?",
+   "weight": 5
+  },
+  {
+   "question": "Does the derivative of \\(\\tan(5x+1)\\) include the chain-rule factor \\(5\\), giving \\(5\\sec^2(5x+1)\\)?",
+   "weight": 4
+  },
+  {
+   "question": "Does the contribution from differentiating \\(-\\cos(7-8x)\\) have the correct sign and chain-rule factor, namely \\(-8\\sin(7-8x)\\)?",
+   "weight": 4
+  },
+  {
+   "question": "Is the final answer placed in a \\(\\boxed{}\\)?",
+   "weight": 1
+  }
+ ],
+ "error": null,
+ "short": false,
+ "s2_usd": 0.0002143,
+ "seconds": 6.7064
+}

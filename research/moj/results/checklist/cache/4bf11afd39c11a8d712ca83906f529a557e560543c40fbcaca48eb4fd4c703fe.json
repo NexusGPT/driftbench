@@ -1,0 +1,25 @@
+{
+ "key": "4bf11afd39c11a8d712ca83906f529a557e560543c40fbcaca48eb4fd4c703fe",
+ "boxes": [
+  {
+   "question": "Does the answer give Allen’s age in 10 years as 109 years?",
+   "weight": 5
+  },
+  {
+   "question": "Does the answer correctly use the 7:11 age ratio and the current total of 162 to determine Allen’s current age as 99?",
+   "weight": 4
+  },
+  {
+   "question": "Is the answer written in Telugu?",
+   "weight": 2
+  },
+  {
+   "question": "Does the answer provide enough explanation or calculation to make its result understandable?",
+   "weight": 2
+  }
+ ],
+ "error": null,
+ "short": false,
+ "s2_usd": 0.00014680000000000002,
+ "seconds": 3.5433
+}

@@ -1,0 +1,25 @@
+{
+ "key": "8f99ad8b24ccd95d8e0f79cfe655e92dd714e854a3726eaf8cb4cd60cc8b1fdc",
+ "boxes": [
+  {
+   "question": "Does the answer correctly say that the person at the bookstore tells the truth?",
+   "weight": 5
+  },
+  {
+   "question": "Does the answer correctly say that the person at the shopping mall tells the truth?",
+   "weight": 5
+  },
+  {
+   "question": "Does the answer correctly say that the person at the farm lies?",
+   "weight": 5
+  },
+  {
+   "question": "Is the answer presented in bold as a list of exactly three words, each being “yes” or “no,” in the order asked?",
+   "weight": 1
+  }
+ ],
+ "error": null,
+ "short": false,
+ "s2_usd": 0.0002995,
+ "seconds": 6.7192
+}

@@ -1,0 +1,25 @@
+{
+ "key": "ea9c93b69ed32eaeeb248fa30133c331dda53e165b75c1471c4b8e95ada57959",
+ "boxes": [
+  {
+   "question": "Does the answer identify option C as correct?",
+   "weight": 5
+  },
+  {
+   "question": "Does the answer provide the letter C five times consecutively as the requested string (CCCCC)?",
+   "weight": 4
+  },
+  {
+   "question": "Does the answer avoid identifying a different option as the correct answer?",
+   "weight": 5
+  },
+  {
+   "question": "Is the answer unambiguous about which multiple-choice option is selected?",
+   "weight": 3
+  }
+ ],
+ "error": null,
+ "short": false,
+ "s2_usd": 0.00021109999999999998,
+ "seconds": 5.8496
+}

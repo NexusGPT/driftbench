@@ -1,0 +1,25 @@
+{
+ "key": "c3fbdf7c7825575e29afc0bb5c9854efd75c7b518daf866aa6bd27d5fc79947a",
+ "boxes": [
+  {
+   "question": "Does the response identify (B) Impact as the quality that is not listed?",
+   "weight": 5
+  },
+  {
+   "question": "Does the response identify Impact as the quality that is not listed?",
+   "weight": 4
+  },
+  {
+   "question": "Does the response provide the letter B five times in a single string?",
+   "weight": 1
+  },
+  {
+   "question": "Are all five letters in the duplicated string B?",
+   "weight": 1
+  }
+ ],
+ "error": null,
+ "short": false,
+ "s2_usd": 0.0003462,
+ "seconds": 8.392
+}

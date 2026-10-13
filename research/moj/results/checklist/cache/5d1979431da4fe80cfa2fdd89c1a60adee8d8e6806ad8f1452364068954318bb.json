@@ -1,0 +1,25 @@
+{
+ "key": "5d1979431da4fe80cfa2fdd89c1a60adee8d8e6806ad8f1452364068954318bb",
+ "boxes": [
+  {
+   "question": "Does the answer correctly count the sequences of length n as (n+1)^10 for each n from 1 through 10?",
+   "weight": 5
+  },
+  {
+   "question": "Does the answer correctly obtain a total K congruent to 3 modulo 10?",
+   "weight": 5
+  },
+  {
+   "question": "Does the answer identify choice (B) as the correct multiple-choice answer?",
+   "weight": 5
+  },
+  {
+   "question": "Does the answer give the selected letter five times in a single string, namely BBBBB?",
+   "weight": 1
+  }
+ ],
+ "error": null,
+ "short": false,
+ "s2_usd": 0.0003414,
+ "seconds": 7.3186
+}

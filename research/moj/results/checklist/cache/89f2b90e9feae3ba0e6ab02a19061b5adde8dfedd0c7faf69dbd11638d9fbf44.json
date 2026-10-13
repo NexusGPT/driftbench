@@ -1,0 +1,25 @@
+{
+ "key": "89f2b90e9feae3ba0e6ab02a19061b5adde8dfedd0c7faf69dbd11638d9fbf44",
+ "boxes": [
+  {
+   "question": "Does the answer identify card-games as the hobby of the person in the fourth position?",
+   "weight": 5
+  },
+  {
+   "question": "Does the answer give card-games as the requested hobby rather than an attribute from another category?",
+   "weight": 3
+  },
+  {
+   "question": "Is the answer presented as a single word?",
+   "weight": 1
+  },
+  {
+   "question": "Is the answer enclosed in the requested format, ***X***?",
+   "weight": 1
+  }
+ ],
+ "error": null,
+ "short": false,
+ "s2_usd": 0.0005584,
+ "seconds": 14.5981
+}

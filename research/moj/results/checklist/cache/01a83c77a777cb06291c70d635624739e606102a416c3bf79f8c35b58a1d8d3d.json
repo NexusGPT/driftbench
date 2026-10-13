@@ -1,0 +1,29 @@
+{
+ "key": "01a83c77a777cb06291c70d635624739e606102a416c3bf79f8c35b58a1d8d3d",
+ "boxes": [
+  {
+   "question": "¿Responde en español a la pregunta sobre los cinco autos más rápidos de 2020?",
+   "weight": 2
+  },
+  {
+   "question": "¿Enumera exactamente cinco autos pertinentes a 2020, en vez de repetir sin más la lista de autos de 2010?",
+   "weight": 3
+  },
+  {
+   "question": "¿Identifica autos que realmente figuran entre los más rápidos en la categoría o criterio de velocidad que presenta?",
+   "weight": 5
+  },
+  {
+   "question": "¿Presenta de forma correcta y coherente cualquier orden, velocidad máxima o dato comparativo que incluya?",
+   "weight": 5
+  },
+  {
+   "question": "¿La respuesta es clara y útil para identificar los cinco autos solicitados?",
+   "weight": 2
+  }
+ ],
+ "error": null,
+ "short": false,
+ "s2_usd": 0.0002165,
+ "seconds": 4.862
+}

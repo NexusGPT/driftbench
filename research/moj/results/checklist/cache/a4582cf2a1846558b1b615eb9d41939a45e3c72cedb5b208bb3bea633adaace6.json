@@ -1,0 +1,25 @@
+{
+ "key": "a4582cf2a1846558b1b615eb9d41939a45e3c72cedb5b208bb3bea633adaace6",
+ "boxes": [
+  {
+   "question": "Does the answer correctly say that the person at the botanical garden tells the truth?",
+   "weight": 2
+  },
+  {
+   "question": "Does the answer correctly say that the person at the aquarium lies?",
+   "weight": 2
+  },
+  {
+   "question": "Does the answer correctly say that the person at the airport lies?",
+   "weight": 2
+  },
+  {
+   "question": "Does the answer provide truth-value answers for all three people asked about?",
+   "weight": 1
+  }
+ ],
+ "error": null,
+ "short": false,
+ "s2_usd": 0.0004189,
+ "seconds": 12.1519
+}

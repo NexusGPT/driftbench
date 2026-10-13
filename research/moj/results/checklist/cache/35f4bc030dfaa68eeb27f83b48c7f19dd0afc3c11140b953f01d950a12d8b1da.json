@@ -1,0 +1,41 @@
+{
+ "key": "35f4bc030dfaa68eeb27f83b48c7f19dd0afc3c11140b953f01d950a12d8b1da",
+ "boxes": [
+  {
+   "question": "Does the response devise a historical novel centered on court politics?",
+   "weight": 3
+  },
+  {
+   "question": "Is the protagonist portrayed as a young Censor from a humble background who is unaffiliated with any political faction?",
+   "weight": 3
+  },
+  {
+   "question": "Does the response establish that the protagonist is proud, exceptionally intelligent, and committed to serving the common people?",
+   "weight": 3
+  },
+  {
+   "question": "Does the story begin with an apparently ordinary corruption case?",
+   "weight": 3
+  },
+  {
+   "question": "Does the protagonist’s investigation uncover layers of conspiracy leading to a succession struggle between the Crown Prince and a powerful Prince?",
+   "weight": 4
+  },
+  {
+   "question": "Does the response explore how the idealist tries to maintain his principles within a corrupt bureaucracy?",
+   "weight": 3
+  },
+  {
+   "question": "Does the response develop the brutal conflict between law and personal relationships?",
+   "weight": 2
+  },
+  {
+   "question": "Is the novel concept coherent and well-crafted while following the requirements in the question?",
+   "weight": 2
+  }
+ ],
+ "error": null,
+ "short": false,
+ "s2_usd": 0.0002417,
+ "seconds": 6.6577
+}

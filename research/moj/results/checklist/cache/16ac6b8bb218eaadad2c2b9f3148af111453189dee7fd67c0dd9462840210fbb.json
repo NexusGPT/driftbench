@@ -1,0 +1,25 @@
+{
+ "key": "16ac6b8bb218eaadad2c2b9f3148af111453189dee7fd67c0dd9462840210fbb",
+ "boxes": [
+  {
+   "question": "Does the answer select option C as the correct answer?",
+   "weight": 5
+  },
+  {
+   "question": "Does the answer identify a flock as an elementary form of society called a motion group?",
+   "weight": 5
+  },
+  {
+   "question": "Does the answer repeat the selected letter exactly five times?",
+   "weight": 2
+  },
+  {
+   "question": "Is the response presented as a single string, without additional explanation?",
+   "weight": 1
+  }
+ ],
+ "error": null,
+ "short": false,
+ "s2_usd": 0.0002118,
+ "seconds": 5.6831
+}

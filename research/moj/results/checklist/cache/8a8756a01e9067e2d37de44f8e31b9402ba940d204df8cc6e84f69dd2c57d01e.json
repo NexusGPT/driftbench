@@ -1,0 +1,25 @@
+{
+ "key": "8a8756a01e9067e2d37de44f8e31b9402ba940d204df8cc6e84f69dd2c57d01e",
+ "boxes": [
+  {
+   "question": "Does the response give 294 as the number of qualifying paths?",
+   "weight": 5
+  },
+  {
+   "question": "Does the response give the correct total by counting paths that start with an eastward step and paths that start with a northward step?",
+   "weight": 4
+  },
+  {
+   "question": "Is the answer written as exactly three digits, including any leading zeros if needed?",
+   "weight": 2
+  },
+  {
+   "question": "Are the three answer digits the final part of the response?",
+   "weight": 2
+  }
+ ],
+ "error": null,
+ "short": false,
+ "s2_usd": 0.000367,
+ "seconds": 8.3265
+}

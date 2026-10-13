@@ -1,0 +1,25 @@
+{
+ "key": "c3dd15377c27f22743bc8063a467b73b91fda4bfa6adf266af8427830cf730db",
+ "boxes": [
+  {
+   "question": "¿Indica que la alarma sonó 14,5 veces en total?",
+   "weight": 5
+  },
+  {
+   "question": "¿Calcula correctamente que la segunda vez sonó 7 veces y la tercera 3,5 veces?",
+   "weight": 4
+  },
+  {
+   "question": "¿Responde en español, el idioma de la pregunta?",
+   "weight": 2
+  },
+  {
+   "question": "¿Da una respuesta clara y directamente relacionada con cuántas veces sonó la alarma en total?",
+   "weight": 2
+  }
+ ],
+ "error": null,
+ "short": false,
+ "s2_usd": 0.00016319999999999998,
+ "seconds": 4.8263
+}

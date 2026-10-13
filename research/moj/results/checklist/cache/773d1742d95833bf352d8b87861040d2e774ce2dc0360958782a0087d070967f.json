@@ -1,0 +1,33 @@
+{
+ "key": "773d1742d95833bf352d8b87861040d2e774ce2dc0360958782a0087d070967f",
+ "boxes": [
+  {
+   "question": "Does the response provide song lyrics rather than only describing a song?",
+   "weight": 3
+  },
+  {
+   "question": "Are the lyrics clearly about copper wire?",
+   "weight": 3
+  },
+  {
+   "question": "Is the song short, as requested?",
+   "weight": 2
+  },
+  {
+   "question": "Does the song evoke 1960s jazz through its musical or lyrical style?",
+   "weight": 2
+  },
+  {
+   "question": "Is the response written in English, the language of the user's request?",
+   "weight": 2
+  },
+  {
+   "question": "Is the response helpful and safe, without introducing inappropriate or harmful content?",
+   "weight": 1
+  }
+ ],
+ "error": null,
+ "short": false,
+ "s2_usd": 0.00016480000000000002,
+ "seconds": 3.666
+}

@@ -1,0 +1,33 @@
+{
+ "key": "dbf88a8dc4960cd4237d6ad0ba8221b9c5ccdd5261ed8fb912e3a60c152faef7",
+ "boxes": [
+  {
+   "question": "Bài viết được viết bằng tiếng Việt?",
+   "weight": 3
+  },
+  {
+   "question": "Bài viết có hình thức và giọng điệu hấp dẫn của một bài đăng blog du lịch?",
+   "weight": 2
+  },
+  {
+   "question": "Bài viết trình bày chuyến đi Hawaii như một chuyến đi gần đây?",
+   "weight": 2
+  },
+  {
+   "question": "Bài viết nêu bật ít nhất một trải nghiệm văn hóa ở Hawaii?",
+   "weight": 3
+  },
+  {
+   "question": "Bài viết giới thiệu những địa điểm tham quan đáng ghé thăm ở Hawaii?",
+   "weight": 3
+  },
+  {
+   "question": "Các thông tin về văn hóa và địa điểm ở Hawaii được trình bày chính xác và hữu ích?",
+   "weight": 3
+  }
+ ],
+ "error": null,
+ "short": false,
+ "s2_usd": 0.0001712,
+ "seconds": 4.0925
+}

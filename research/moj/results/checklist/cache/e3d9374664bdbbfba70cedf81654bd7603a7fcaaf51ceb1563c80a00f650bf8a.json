@@ -1,0 +1,25 @@
+{
+ "key": "e3d9374664bdbbfba70cedf81654bd7603a7fcaaf51ceb1563c80a00f650bf8a",
+ "boxes": [
+  {
+   "question": "Does the answer identify trance as the music enjoyed by the person with the rat?",
+   "weight": 5
+  },
+  {
+   "question": "Does the answer give only one music genre as its answer?",
+   "weight": 2
+  },
+  {
+   "question": "Is the answer formatted as ***X***, with the answer in place of X?",
+   "weight": 2
+  },
+  {
+   "question": "Does the answer avoid giving an alternative music genre?",
+   "weight": 1
+  }
+ ],
+ "error": null,
+ "short": false,
+ "s2_usd": 0.00038710000000000003,
+ "seconds": 8.7904
+}

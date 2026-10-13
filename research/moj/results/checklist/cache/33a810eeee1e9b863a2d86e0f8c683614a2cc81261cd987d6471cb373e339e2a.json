@@ -1,0 +1,33 @@
+{
+ "key": "33a810eeee1e9b863a2d86e0f8c683614a2cc81261cd987d6471cb373e339e2a",
+ "boxes": [
+  {
+   "question": "Is the piece a short, monologue-style passage spoken by an elderly woman to her grandchild?",
+   "weight": 2
+  },
+  {
+   "question": "Does it place the grandmother on her front porch in the American South?",
+   "weight": 2
+  },
+  {
+   "question": "Does the grandmother explain a secret family recipe for a dish such as peach cobbler or sweet tea?",
+   "weight": 3
+  },
+  {
+   "question": "Does the piece connect the dish’s taste or preparation to memory and family tradition?",
+   "weight": 3
+  },
+  {
+   "question": "Does the grandmother use folksy Southern expressions such as “I reckon,” “y’all,” or “fixin’ to”?",
+   "weight": 3
+  },
+  {
+   "question": "Does the voice use a relaxed storytelling rhythm and natural-sounding non-standard grammar to convey the grandmother’s character?",
+   "weight": 4
+  }
+ ],
+ "error": null,
+ "short": false,
+ "s2_usd": 0.0002254,
+ "seconds": 4.9887
+}

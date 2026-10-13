@@ -1,0 +1,29 @@
+{
+ "key": "ba30f9404fb3bd93fee9e818c90ea279f062d1d284fb517af172d945ff3bcbe2",
+ "boxes": [
+  {
+   "question": "¿Interpreta que al cabo del primer mes tenía 60 cartas (tres veces las 20 iniciales)?",
+   "weight": 2
+  },
+  {
+   "question": "¿Calcula que el segundo mes tenía 40 cartas, es decir, 20 menos que el primer mes?",
+   "weight": 2
+  },
+  {
+   "question": "¿Calcula que el tercer mes tenía 200 cartas, el doble de las 100 que tenía entre el primer y el segundo mes?",
+   "weight": 3
+  },
+  {
+   "question": "¿Da 300 cartas como total actual, sumando las cantidades del primer, segundo y tercer mes?",
+   "weight": 5
+  },
+  {
+   "question": "¿Responde en español?",
+   "weight": 1
+  }
+ ],
+ "error": null,
+ "short": false,
+ "s2_usd": 0.00025519999999999997,
+ "seconds": 6.2659
+}

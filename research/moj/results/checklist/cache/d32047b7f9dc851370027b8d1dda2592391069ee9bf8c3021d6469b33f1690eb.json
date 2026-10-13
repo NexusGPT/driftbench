@@ -1,0 +1,25 @@
+{
+ "key": "d32047b7f9dc851370027b8d1dda2592391069ee9bf8c3021d6469b33f1690eb",
+ "boxes": [
+  {
+   "question": "Does the answer select (D), that the usage of trade is offered to give meaning to the contract?",
+   "weight": 5
+  },
+  {
+   "question": "Does the answer avoid selecting a choice that rejects the evidence as inadmissible because of the merger clause or complete integration?",
+   "weight": 4
+  },
+  {
+   "question": "Does the answer avoid selecting a choice that rejects the evidence solely because the contract’s wording is unambiguous or explicit?",
+   "weight": 4
+  },
+  {
+   "question": "Does the answer give its selected letter exactly five times in a single string, as requested?",
+   "weight": 2
+  }
+ ],
+ "error": null,
+ "short": false,
+ "s2_usd": 0.0003776,
+ "seconds": 8.3853
+}

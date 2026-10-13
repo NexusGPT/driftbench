@@ -1,0 +1,25 @@
+{
+ "key": "7a21d028729b3a3f32f563a4015d3b1b59364c90897aed6a543332bcb114486e",
+ "boxes": [
+  {
+   "question": "Je, jibu linahesabu kuwa Jackie angepoteza $105 kwa kutofanya saa 3 za kazi ya kujitegemea kwa $35 kwa saa?",
+   "weight": 3
+  },
+  {
+   "question": "Je, jibu linalinganisha mapato ya $105 aliyoyaepuka kupoteza kwa gharama ya mhasibu ya $90?",
+   "weight": 3
+  },
+  {
+   "question": "Je, jibu linatoa hitimisho sahihi kwamba Jackie ataokoa $15 kwa kumwajiri mhasibu?",
+   "weight": 5
+  },
+  {
+   "question": "Je, jibu limeandikwa kwa Kiswahili?",
+   "weight": 2
+  }
+ ],
+ "error": null,
+ "short": false,
+ "s2_usd": 0.00019869999999999998,
+ "seconds": 4.9409
+}

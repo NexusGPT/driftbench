@@ -1,0 +1,37 @@
+{
+ "key": "c90c0110842cc5fc0e91763d59f4aac44a35bfbdcc9986fe896a37f96cb5d497",
+ "boxes": [
+  {
+   "question": "Does the post promote the summer Sunscreen Mystery Box Challenge and raise awareness of sun protection?",
+   "weight": 3
+  },
+  {
+   "question": "Does the post use a lively, energetic, friendly, and enthusiastic tone?",
+   "weight": 2
+  },
+  {
+   "question": "Does the post speak to people with oily, dry, or sensitive skin and students concerned about affordability?",
+   "weight": 3
+  },
+  {
+   "question": "Does the post include the emojis 💥, 🌞, and ✨?",
+   "weight": 1
+  },
+  {
+   "question": "Does the post include both #SunscreenMysteryBoxChallenge and #SummerSunscreenBattle?",
+   "weight": 2
+  },
+  {
+   "question": "Does the post mention @BeautyRadarStation and encourage users to tag a friend?",
+   "weight": 2
+  },
+  {
+   "question": "Does the post explain how to participate and identify free mystery boxes and skincare products as prizes, including the chance to be featured on official pages?",
+   "weight": 4
+  }
+ ],
+ "error": null,
+ "short": false,
+ "s2_usd": 0.0002608,
+ "seconds": 5.9911
+}

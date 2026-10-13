@@ -1,0 +1,41 @@
+{
+ "key": "9e0295e45346125bb35b19bee27b4133fc9d64f2b7b312c61ad47e1dd5e1332d",
+ "boxes": [
+  {
+   "question": "是否以社交媒体推文的形式讨论五一音乐节行业发展及流量经济的影响与破局之道？",
+   "weight": 2
+  },
+  {
+   "question": "是否分析流量艺人参演对音乐节的利弊？",
+   "weight": 2
+  },
+  {
+   "question": "是否提及并讨论太湖湾音乐节超时事件？",
+   "weight": 2
+  },
+  {
+   "question": "是否提供与音乐节行业亏损有关的数据？",
+   "weight": 3
+  },
+  {
+   "question": "是否讨论音乐节阵容雷同化现象？",
+   "weight": 2
+  },
+  {
+   "question": "是否提出平衡流量与专业性的具体措施？",
+   "weight": 3
+  },
+  {
+   "question": "是否提出音乐节差异化发展的建议？",
+   "weight": 2
+  },
+  {
+   "question": "是否采用亲切自然的表达，使用emoji和话题标签，并鼓励读者分享观点？",
+   "weight": 1
+  }
+ ],
+ "error": null,
+ "short": false,
+ "s2_usd": 0.000199,
+ "seconds": 4.9577
+}

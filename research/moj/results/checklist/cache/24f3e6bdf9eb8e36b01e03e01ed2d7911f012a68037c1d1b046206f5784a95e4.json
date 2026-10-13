@@ -1,0 +1,29 @@
+{
+ "key": "24f3e6bdf9eb8e36b01e03e01ed2d7911f012a68037c1d1b046206f5784a95e4",
+ "boxes": [
+  {
+   "question": "Does the answer identify 2SLS as available for estimating over-identified systems?",
+   "weight": 5
+  },
+  {
+   "question": "Does the answer identify IV as available for estimating over-identified systems?",
+   "weight": 5
+  },
+  {
+   "question": "Does the answer exclude OLS and ILS as available techniques for this question?",
+   "weight": 5
+  },
+  {
+   "question": "Does the answer select option J, the choice containing 2SLS and IV only?",
+   "weight": 5
+  },
+  {
+   "question": "Does the answer give its selected letter five times in a single string?",
+   "weight": 1
+  }
+ ],
+ "error": null,
+ "short": false,
+ "s2_usd": 0.0002265,
+ "seconds": 5.1753
+}

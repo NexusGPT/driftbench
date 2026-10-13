@@ -1,0 +1,25 @@
+{
+ "key": "7fa021f63fa4c5c6aa2a84a7383e3c27fb429530cab23a59e34ae775d4a270b7",
+ "boxes": [
+  {
+   "question": "Does the answer correctly say that the person at the gym does not tell the truth?",
+   "weight": 5
+  },
+  {
+   "question": "Does the answer correctly say that the person at the zoo tells the truth?",
+   "weight": 5
+  },
+  {
+   "question": "Does the answer correctly say that the person at the bookstore tells the truth?",
+   "weight": 5
+  },
+  {
+   "question": "Are the three answers given in the order gym, zoo, bookstore?",
+   "weight": 1
+  }
+ ],
+ "error": null,
+ "short": false,
+ "s2_usd": 0.0002992,
+ "seconds": 6.4181
+}

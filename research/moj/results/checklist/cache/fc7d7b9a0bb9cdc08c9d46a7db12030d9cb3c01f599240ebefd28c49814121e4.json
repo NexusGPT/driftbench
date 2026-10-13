@@ -1,0 +1,37 @@
+{
+ "key": "fc7d7b9a0bb9cdc08c9d46a7db12030d9cb3c01f599240ebefd28c49814121e4",
+ "boxes": [
+  {
+   "question": "Does the response present a Xianxia novel from the demonic-path perspective?",
+   "weight": 2
+  },
+  {
+   "question": "Is the protagonist an orphan raised in a demonic sect, rather than a traditional villain?",
+   "weight": 2
+  },
+  {
+   "question": "Does the protagonist practice unorthodox, domineering cultivation techniques while remaining guided by personal morals and principles?",
+   "weight": 2
+  },
+  {
+   "question": "Does a righteous alliance besiege and destroy the protagonist’s sect while claiming to act on heaven’s behalf?",
+   "weight": 2
+  },
+  {
+   "question": "Does the protagonist survive the sect’s destruction and become hunted?",
+   "weight": 2
+  },
+  {
+   "question": "Is the protagonist’s central journey a search for what defines righteousness and a demon, rather than primarily a quest for ascension or treasure?",
+   "weight": 3
+  },
+  {
+   "question": "Does the response develop these elements into a coherent, engaging novel premise?",
+   "weight": 1
+  }
+ ],
+ "error": null,
+ "short": false,
+ "s2_usd": 0.0001885,
+ "seconds": 3.9489
+}

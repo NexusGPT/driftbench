@@ -1,0 +1,29 @@
+{
+ "key": "9eaf5ef802ff6e8ef5bfa8386a5b92d0367adca0a3dbbfdb446e594cb20d73e6",
+ "boxes": [
+  {
+   "question": "Does the answer convert Sylvie’s $600 monthly salary to an initial annual salary of $7,200?",
+   "weight": 2
+  },
+  {
+   "question": "Does the answer treat each yearly increase as 10% of the initial salary, rather than as a compounded increase?",
+   "weight": 3
+  },
+  {
+   "question": "Does the answer apply three yearly increases for the three years after Sylvie reaches five years of service?",
+   "weight": 3
+  },
+  {
+   "question": "Does the answer give her annual salary after those three years as $9,360?",
+   "weight": 5
+  },
+  {
+   "question": "Is the answer clear and helpful in English?",
+   "weight": 1
+  }
+ ],
+ "error": null,
+ "short": false,
+ "s2_usd": 0.0002592,
+ "seconds": 5.4975
+}

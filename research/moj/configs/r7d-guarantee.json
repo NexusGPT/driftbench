@@ -1,0 +1,27 @@
+{
+ "name": "r7d-guarantee",
+ "note": "Round 7d. r6 with the boundary chosen on the tuning half by the lower-bound rule (most permissive boundary whose paired difference against always escalating has a one-sided 95 percent lower bound at or above -2 points; arXiv 2609.26550 section 8). Refuted if validation falls more than 2 points under r6.",
+ "stage1": [
+  "s1p"
+ ],
+ "hi": 0.6,
+ "lo": 0.6,
+ "low": [
+  "s2v"
+ ],
+ "always": [
+  {
+   "expert": "ref",
+   "terrain": {
+    "needs_reasoning": 0.6
+   }
+  }
+ ],
+ "no_escalate": [
+  {
+   "terrain": {
+    "subjective_writing": 0.6
+   }
+  }
+ ]
+}

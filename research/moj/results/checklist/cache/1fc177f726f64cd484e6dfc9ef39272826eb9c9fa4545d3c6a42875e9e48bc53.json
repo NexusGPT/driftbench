@@ -1,0 +1,33 @@
+{
+ "key": "1fc177f726f64cd484e6dfc9ef39272826eb9c9fa4545d3c6a42875e9e48bc53",
+ "boxes": [
+  {
+   "question": "Does the response present an introductory manual specifically for the BotBlox children's programmable robot?",
+   "weight": 3
+  },
+  {
+   "question": "Does the manual clearly separate content addressed to the child from content addressed to the parent?",
+   "weight": 5
+  },
+  {
+   "question": "Is the child's section written in extremely simple, fun language suited to a child?",
+   "weight": 4
+  },
+  {
+   "question": "Does the child's section guide the child through assembly using clear, actionable steps?",
+   "weight": 5
+  },
+  {
+   "question": "Does the child's section guide the child through basic programming tasks using clear, actionable steps?",
+   "weight": 5
+  },
+  {
+   "question": "Does the manual use a highly encouraging tone that supports the child's creativity and initial self-confidence?",
+   "weight": 4
+  }
+ ],
+ "error": null,
+ "short": false,
+ "s2_usd": 0.00013769999999999999,
+ "seconds": 2.7396
+}

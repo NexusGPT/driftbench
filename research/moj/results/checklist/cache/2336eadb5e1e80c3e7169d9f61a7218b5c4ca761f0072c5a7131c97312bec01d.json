@@ -1,0 +1,25 @@
+{
+ "key": "2336eadb5e1e80c3e7169d9f61a7218b5c4ca761f0072c5a7131c97312bec01d",
+ "boxes": [
+  {
+   "question": "¿Suma correctamente los pagos mínimos mensuales de las tres deudas y obtiene $1,000?",
+   "weight": 3
+  },
+  {
+   "question": "¿Interpreta «un 50 % más que el mínimo» como 1.5 veces el total mínimo y obtiene un pago mensual de $1,500?",
+   "weight": 5
+  },
+  {
+   "question": "¿Calcula correctamente que el pago de $1,500 al mes durante 12 meses suma $18,000 en un año?",
+   "weight": 5
+  },
+  {
+   "question": "¿Responde en español?",
+   "weight": 1
+  }
+ ],
+ "error": null,
+ "short": false,
+ "s2_usd": 0.000156,
+ "seconds": 3.927
+}

@@ -1,0 +1,41 @@
+{
+ "key": "1abab88d0d0116ddcdc3e26eab23381b2c6dd2d91095c4ba041effbd68a7443c",
+ "boxes": [
+  {
+   "question": "Does the piece speak from the perspective of a solo driver on a long-haul trip along an endless American highway at midnight?",
+   "weight": 2
+  },
+  {
+   "question": "Does it use an abstract or surreal mode of expression rather than presenting the trip only as literal narration?",
+   "weight": 2
+  },
+  {
+   "question": "Does it make the engine’s drone and the stars’ whisper central to its imagery or theme?",
+   "weight": 2
+  },
+  {
+   "question": "Does it evoke the near-hypnotic state of driving through darkness and solitude?",
+   "weight": 2
+  },
+  {
+   "question": "Does it convey the driver, car, and road as nearly merging into one?",
+   "weight": 2
+  },
+  {
+   "question": "Does it use surreal imagery to express the experience, such as reality shaped by the headlights or voices from other towns on the radio?",
+   "weight": 1
+  },
+  {
+   "question": "Does it convey both extreme freedom and an equally extreme sense of smallness?",
+   "weight": 2
+  },
+  {
+   "question": "Is the writing effective and coherent as a piece of abstract speech?",
+   "weight": 1
+  }
+ ],
+ "error": null,
+ "short": false,
+ "s2_usd": 0.0001976,
+ "seconds": 3.747
+}

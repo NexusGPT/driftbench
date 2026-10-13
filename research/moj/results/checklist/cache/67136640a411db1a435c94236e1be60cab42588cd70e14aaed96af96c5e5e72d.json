@@ -1,0 +1,37 @@
+{
+ "key": "67136640a411db1a435c94236e1be60cab42588cd70e14aaed96af96c5e5e72d",
+ "boxes": [
+  {
+   "question": "Does the proposal position Verve as a symbol of both a healthy and fashionable lifestyle?",
+   "weight": 3
+  },
+  {
+   "question": "Does it define a specific, detailed user persona for the campaign?",
+   "weight": 3
+  },
+  {
+   "question": "Does it present a promotional strategy organized into exactly three phases?",
+   "weight": 3
+  },
+  {
+   "question": "Does the strategy include both online and offline promotional channels?",
+   "weight": 3
+  },
+  {
+   "question": "Does it specify clear, measurable KPIs for evaluating the campaign?",
+   "weight": 3
+  },
+  {
+   "question": "Does it provide a campaign budget?",
+   "weight": 3
+  },
+  {
+   "question": "Is the proposal creative and confident while making a clear case for the campaign’s commercial value to the client?",
+   "weight": 2
+  }
+ ],
+ "error": null,
+ "short": false,
+ "s2_usd": 0.0001729,
+ "seconds": 4.0882
+}

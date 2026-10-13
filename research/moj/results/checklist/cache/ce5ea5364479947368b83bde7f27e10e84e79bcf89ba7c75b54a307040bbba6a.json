@@ -1,0 +1,25 @@
+{
+ "key": "ce5ea5364479947368b83bde7f27e10e84e79bcf89ba7c75b54a307040bbba6a",
+ "boxes": [
+  {
+   "question": "Does the answer identify 0.87 as the frequency of the dominant allele?",
+   "weight": 2
+  },
+  {
+   "question": "Does the answer give approximately 25% as the proportion of dark-colored moths that are heterozygous?",
+   "weight": 2
+  },
+  {
+   "question": "Does the answer select option H?",
+   "weight": 5
+  },
+  {
+   "question": "Does the answer output the selected letter five times in a single string?",
+   "weight": 1
+  }
+ ],
+ "error": null,
+ "short": false,
+ "s2_usd": 0.0002557,
+ "seconds": 5.8515
+}

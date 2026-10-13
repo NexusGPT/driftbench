@@ -1,0 +1,29 @@
+{
+ "key": "8e22be4bc970123c1e08e2d25a4e5936a42069df47d6c23e829c2fbb48b0fc90",
+ "boxes": [
+  {
+   "question": "Does the answer correctly calculate that 30 liters remained after Celine used 90 liters?",
+   "weight": 2
+  },
+  {
+   "question": "Does the answer correctly state that the collected rainwater is 60 liters, twice the 30 liters remaining?",
+   "weight": 2
+  },
+  {
+   "question": "Does the answer correctly give 90 liters as the current total in the tank?",
+   "weight": 5
+  },
+  {
+   "question": "Is the answer written in Swahili?",
+   "weight": 1
+  },
+  {
+   "question": "Does the answer explain the calculation clearly enough to show how it reached the total?",
+   "weight": 1
+  }
+ ],
+ "error": null,
+ "short": false,
+ "s2_usd": 0.0001715,
+ "seconds": 4.6142
+}

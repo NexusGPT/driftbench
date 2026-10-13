@@ -1,0 +1,25 @@
+{
+ "key": "0b26a716860b696a440eb50dfa6f0097ac21f1b330805ded20cfb32e9176f84d",
+ "boxes": [
+  {
+   "question": "Does the answer identify option I as the correct choice?",
+   "weight": 5
+  },
+  {
+   "question": "Does the answer give the requested answer letter five times?",
+   "weight": 2
+  },
+  {
+   "question": "Are all five repeated characters the same letter?",
+   "weight": 1
+  },
+  {
+   "question": "Is the repeated letter I?",
+   "weight": 5
+  }
+ ],
+ "error": null,
+ "short": false,
+ "s2_usd": 0.000278,
+ "seconds": 6.7742
+}

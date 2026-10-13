@@ -1,0 +1,25 @@
+{
+ "key": "5fc78499e234665b98505cc056704903d48a741d664d30016a5879c97299b4c5",
+ "boxes": [
+  {
+   "question": "Does the answer say that the person at the aquarium does not tell the truth?",
+   "weight": 5
+  },
+  {
+   "question": "Does the answer say that the person at the beach tells the truth?",
+   "weight": 5
+  },
+  {
+   "question": "Does the answer say that the person at the park does not tell the truth?",
+   "weight": 5
+  },
+  {
+   "question": "Are all three truth-value judgments in the answer correct?",
+   "weight": 5
+  }
+ ],
+ "error": null,
+ "short": false,
+ "s2_usd": 0.0003548,
+ "seconds": 7.5639
+}

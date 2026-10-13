@@ -1,0 +1,25 @@
+{
+ "key": "d1689ed9c1a5dbcf2537bb0e56cbde76665be9d4fa8f851b657ccc4c89571972",
+ "boxes": [
+  {
+   "question": "Je, jibu linatambua kuwa futi 4 ni sawa na inchi 48?",
+   "weight": 4
+  },
+  {
+   "question": "Je, jibu linahesabu kwa usahihi vipande 8 kutoka inchi 48 zilizogawanywa kwa inchi 6 kwa kila kipande?",
+   "weight": 5
+  },
+  {
+   "question": "Je, jibu linatoa vipande 8 kama jibu la mwisho?",
+   "weight": 5
+  },
+  {
+   "question": "Je, jibu limeandikwa kwa Kiswahili?",
+   "weight": 2
+  }
+ ],
+ "error": null,
+ "short": false,
+ "s2_usd": 0.00015930000000000002,
+ "seconds": 3.913
+}

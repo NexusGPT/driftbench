@@ -1,0 +1,25 @@
+{
+ "key": "fb0250519b666027a7690e5c1ab545c340ecf5f62cb46b95645cee07970418b8",
+ "boxes": [
+  {
+   "question": "Does the answer select option B?",
+   "weight": 5
+  },
+  {
+   "question": "Does the answer identify 0.5 cal/K/deg as the closest listed value for the entropy change?",
+   "weight": 4
+  },
+  {
+   "question": "Does the answer indicate that the entropy change is positive?",
+   "weight": 2
+  },
+  {
+   "question": "Does the answer provide the selected letter five times in a single string (BBBBB)?",
+   "weight": 3
+  }
+ ],
+ "error": null,
+ "short": false,
+ "s2_usd": 0.0003056,
+ "seconds": 7.5037
+}

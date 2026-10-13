@@ -1,0 +1,25 @@
+{
+ "key": "061bc6de48b143042bc983b311d16d048ac5df9f37fd861db8b5aad0841fd91c",
+ "boxes": [
+  {
+   "question": "Identifica una sèrie d’animació infantil concreta com la més popular entre els nens i nenes de Catalunya?",
+   "weight": 3
+  },
+  {
+   "question": "Presenta aquesta identificació d’una manera factualment fiable, sense afirmar més del que permeten les dades disponibles sobre la popularitat?",
+   "weight": 5
+  },
+  {
+   "question": "Explica raons pertinents que ajudin a entendre l’èxit de la sèrie identificada?",
+   "weight": 3
+  },
+  {
+   "question": "Respon en català, la llengua de la pregunta?",
+   "weight": 2
+  }
+ ],
+ "error": null,
+ "short": false,
+ "s2_usd": 0.00019319999999999998,
+ "seconds": 4.9925
+}

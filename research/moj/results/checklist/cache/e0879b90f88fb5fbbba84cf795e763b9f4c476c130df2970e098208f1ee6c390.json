@@ -1,0 +1,25 @@
+{
+ "key": "e0879b90f88fb5fbbba84cf795e763b9f4c476c130df2970e098208f1ee6c390",
+ "boxes": [
+  {
+   "question": "Does the answer interpret 36 months as 18 two-month price increases?",
+   "weight": 2
+  },
+  {
+   "question": "Does the answer calculate each increase as 20% of the original $20 price, or $4?",
+   "weight": 3
+  },
+  {
+   "question": "Does the answer give $92 as the cost after 36 months?",
+   "weight": 5
+  },
+  {
+   "question": "Is the answer written in English, the language of the question?",
+   "weight": 1
+  }
+ ],
+ "error": null,
+ "short": false,
+ "s2_usd": 0.00014319999999999998,
+ "seconds": 3.6549
+}

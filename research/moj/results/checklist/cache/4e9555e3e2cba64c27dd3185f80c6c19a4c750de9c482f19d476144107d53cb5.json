@@ -1,0 +1,25 @@
+{
+ "key": "4e9555e3e2cba64c27dd3185f80c6c19a4c750de9c482f19d476144107d53cb5",
+ "boxes": [
+  {
+   "question": "Does the answer correctly state that the person at the hotel tells the truth?",
+   "weight": 5
+  },
+  {
+   "question": "Does the answer correctly state that the person at the botanical garden lies?",
+   "weight": 5
+  },
+  {
+   "question": "Does the answer correctly state that the person at the bowling alley tells the truth?",
+   "weight": 5
+  },
+  {
+   "question": "Does the answer give the correct complete sequence of answers: yes, no, yes?",
+   "weight": 5
+  }
+ ],
+ "error": null,
+ "short": false,
+ "s2_usd": 0.0003179,
+ "seconds": 8.641
+}

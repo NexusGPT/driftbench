@@ -1,0 +1,25 @@
+{
+ "key": "e3ab4ee5f8f739ca0549cc2fe7e67d44009f8eadb31adf827d9ec9d2d4e6b404",
+ "boxes": [
+  {
+   "question": "Does the answer correctly say that the person at the barbershop tells the truth?",
+   "weight": 5
+  },
+  {
+   "question": "Does the answer correctly say that the person at the planetarium lies?",
+   "weight": 5
+  },
+  {
+   "question": "Does the answer correctly say that the person at the zoo tells the truth?",
+   "weight": 5
+  },
+  {
+   "question": "Does the answer give the three conclusions in the order asked: barbershop, planetarium, zoo?",
+   "weight": 2
+  }
+ ],
+ "error": null,
+ "short": false,
+ "s2_usd": 0.00043369999999999997,
+ "seconds": 10.8156
+}

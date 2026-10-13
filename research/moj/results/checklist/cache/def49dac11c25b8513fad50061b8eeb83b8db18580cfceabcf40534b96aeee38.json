@@ -1,0 +1,29 @@
+{
+ "key": "def49dac11c25b8513fad50061b8eeb83b8db18580cfceabcf40534b96aeee38",
+ "boxes": [
+  {
+   "question": "Does the answer give (a) $V_{14}=8.49\\angle-15^\\circ$ (approximately)?",
+   "weight": 2
+  },
+  {
+   "question": "Does the answer give (b) $V_{43}=5.3\\angle100.9^\\circ$ (approximately)?",
+   "weight": 2
+  },
+  {
+   "question": "Does the answer give (c) $V_{35}=7.27\\angle172.1^\\circ$ (approximately)?",
+   "weight": 2
+  },
+  {
+   "question": "Does the answer identify option B as the correct multiple-choice answer?",
+   "weight": 5
+  },
+  {
+   "question": "Does the answer provide the requested five-letter string BBBBB?",
+   "weight": 1
+  }
+ ],
+ "error": null,
+ "short": false,
+ "s2_usd": 0.00038030000000000003,
+ "seconds": 8.0964
+}

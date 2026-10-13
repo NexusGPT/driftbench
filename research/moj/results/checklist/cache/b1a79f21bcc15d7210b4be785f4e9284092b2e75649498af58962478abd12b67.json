@@ -1,0 +1,25 @@
+{
+ "key": "b1a79f21bcc15d7210b4be785f4e9284092b2e75649498af58962478abd12b67",
+ "boxes": [
+  {
+   "question": "La réponse indique-t-elle que le bateau a pris 16 litres d’eau ?",
+   "weight": 5
+  },
+  {
+   "question": "La réponse déduit-elle correctement que Julia a ramé 80 pieds avant d’atteindre la rive ?",
+   "weight": 3
+  },
+  {
+   "question": "La réponse applique-t-elle correctement le rythme de 2 litres d’eau par 10 pieds ramés pour calculer la quantité totale ?",
+   "weight": 4
+  },
+  {
+   "question": "La réponse est-elle rédigée en français ?",
+   "weight": 1
+  }
+ ],
+ "error": null,
+ "short": false,
+ "s2_usd": 0.0001891,
+ "seconds": 4.0051
+}

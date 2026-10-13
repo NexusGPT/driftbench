@@ -1,0 +1,33 @@
+{
+ "key": "19393db632e0beb7ca1eb2f5a27e1125b0793b8bf9a9d35f79ab18d95fc86ac2",
+ "boxes": [
+  {
+   "question": "Is the response written as an internal company memo from the perspective of the Human Resources department?",
+   "weight": 3
+  },
+  {
+   "question": "Does the memo identify the fictional company as “Ineffective Output, Inc.”?",
+   "weight": 2
+  },
+  {
+   "question": "Does the memo use “Strategically Abandoning All Q3 Objectives” as its subject?",
+   "weight": 2
+  },
+  {
+   "question": "Does the memo use the terms “synergize,” “leverage,” “paradigm shift,” and “deep dive” in a way that fits its corporate message?",
+   "weight": 3
+  },
+  {
+   "question": "Does the memo present giving up and slacking off as a deliberate, forward-thinking corporate strategy?",
+   "weight": 4
+  },
+  {
+   "question": "Is the memo coherent and skillfully written, with corporate jargon used to support rather than obscure its satirical premise?",
+   "weight": 3
+  }
+ ],
+ "error": null,
+ "short": false,
+ "s2_usd": 0.00017830000000000002,
+ "seconds": 4.6527
+}

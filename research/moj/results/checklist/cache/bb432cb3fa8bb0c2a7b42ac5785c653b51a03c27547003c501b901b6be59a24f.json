@@ -1,0 +1,29 @@
+{
+ "key": "bb432cb3fa8bb0c2a7b42ac5785c653b51a03c27547003c501b901b6be59a24f",
+ "boxes": [
+  {
+   "question": "Does the answer correctly determine whether all indices are connected by traversals between pairs whose values have gcd greater than 1?",
+   "weight": 5
+  },
+  {
+   "question": "Does the answer correctly handle a single-element array as connected?",
+   "weight": 3
+  },
+  {
+   "question": "Does the answer correctly return false when an index has value 1 and the array has more than one element?",
+   "weight": 4
+  },
+  {
+   "question": "Does the answer correctly identify connectivity that requires a sequence of traversals, even when some indices cannot traverse directly to one another?",
+   "weight": 4
+  },
+  {
+   "question": "Does the answer's approach handle the stated maximum array length and value constraints within a practical time and memory limit?",
+   "weight": 4
+  }
+ ],
+ "error": null,
+ "short": false,
+ "s2_usd": 0.0002153,
+ "seconds": 4.4229
+}

@@ -1,0 +1,25 @@
+{
+ "key": "85f0b04be9275d5e4dd31a443df0219fdbaa1291573ef68eadf75d917f781aa7",
+ "boxes": [
+  {
+   "question": "¿Responde en español, el idioma de la solicitud?",
+   "weight": 2
+  },
+  {
+   "question": "¿Ofrece consejos concretos para mejorar la presentación de un documento en Word?",
+   "weight": 3
+  },
+  {
+   "question": "¿Los consejos son pertinentes para un proyecto de fin de grado?",
+   "weight": 2
+  },
+  {
+   "question": "¿Son los consejos correctos y seguros, sin incluir afirmaciones engañosas o recomendaciones perjudiciales?",
+   "weight": 3
+  }
+ ],
+ "error": null,
+ "short": false,
+ "s2_usd": 0.00012880000000000001,
+ "seconds": 5.0447
+}

@@ -1,0 +1,25 @@
+{
+ "key": "c8cc50cca25a06c5c92531e86ed00c01c9e9cd71c67e312675bc2af6e536db95",
+ "boxes": [
+  {
+   "question": "Does the answer identify position 3 as the position of the person who likes avocado?",
+   "weight": 5
+  },
+  {
+   "question": "Does the answer give the position as the single digit 3?",
+   "weight": 5
+  },
+  {
+   "question": "Does the answer avoid giving any position other than 3 for the person who likes avocado?",
+   "weight": 5
+  },
+  {
+   "question": "Is the answer presented in the requested format, ***3***?",
+   "weight": 1
+  }
+ ],
+ "error": null,
+ "short": false,
+ "s2_usd": 0.00023830000000000002,
+ "seconds": 5.2695
+}

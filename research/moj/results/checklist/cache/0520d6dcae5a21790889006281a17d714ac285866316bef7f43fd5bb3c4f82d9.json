@@ -1,0 +1,25 @@
+{
+ "key": "0520d6dcae5a21790889006281a17d714ac285866316bef7f43fd5bb3c4f82d9",
+ "boxes": [
+  {
+   "question": "Does the answer identify the required pumping rate as approximately 102.4 liters per second?",
+   "weight": 5
+  },
+  {
+   "question": "Does the answer select option E as the correct choice?",
+   "weight": 5
+  },
+  {
+   "question": "Does the answer give the requested five-character string, EEEEE?",
+   "weight": 4
+  },
+  {
+   "question": "Does the answer avoid selecting a different option as correct?",
+   "weight": 5
+  }
+ ],
+ "error": null,
+ "short": false,
+ "s2_usd": 0.0004167,
+ "seconds": 9.5251
+}

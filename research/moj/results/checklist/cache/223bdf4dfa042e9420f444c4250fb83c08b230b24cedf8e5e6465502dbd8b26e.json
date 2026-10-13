@@ -1,0 +1,25 @@
+{
+ "key": "223bdf4dfa042e9420f444c4250fb83c08b230b24cedf8e5e6465502dbd8b26e",
+ "boxes": [
+  {
+   "question": "Je, jibu linatambua kuwa muda kuanzia saa 7:00 hadi saa 11:00 ni saa 4?",
+   "weight": 3
+  },
+  {
+   "question": "Je, jibu linatumia kiwango cha kuyeyuka cha sentimita 2 kwa saa katika hesabu yake?",
+   "weight": 3
+  },
+  {
+   "question": "Je, jibu linatoa sentimita 8 kama kiasi ambacho mshumaa utapungua?",
+   "weight": 5
+  },
+  {
+   "question": "Je, jibu limeandikwa kwa Kiswahili?",
+   "weight": 2
+  }
+ ],
+ "error": null,
+ "short": false,
+ "s2_usd": 0.000184,
+ "seconds": 4.5372
+}

@@ -1,0 +1,25 @@
+{
+ "key": "6220d846147c8c0f7488ba0b9f5ec3efca9d531a2d48a8333016d631f008e2ea",
+ "boxes": [
+  {
+   "question": "Does the answer identify (H), uncorrelated, as the correct choice?",
+   "weight": 5
+  },
+  {
+   "question": "Does the answer provide the letter H five times consecutively?",
+   "weight": 4
+  },
+  {
+   "question": "Are the five Hs presented as a single string?",
+   "weight": 2
+  },
+  {
+   "question": "Does the answer avoid including another choice letter in the requested answer string?",
+   "weight": 2
+  }
+ ],
+ "error": null,
+ "short": false,
+ "s2_usd": 0.0002403,
+ "seconds": 6.2081
+}

@@ -1,0 +1,25 @@
+{
+ "key": "c1df37f8674c363099abb0142adfadff9b363e6d91273302c1525df90abda52e",
+ "boxes": [
+  {
+   "question": "Does the answer give the longest interior diagonal as \\(\\frac{9}{4}\\)?",
+   "weight": 5
+  },
+  {
+   "question": "Does the answer identify choice D as correct?",
+   "weight": 5
+  },
+  {
+   "question": "Does the answer repeat the selected letter five times?",
+   "weight": 2
+  },
+  {
+   "question": "Are the five repeated letters presented together as a single string?",
+   "weight": 1
+  }
+ ],
+ "error": null,
+ "short": false,
+ "s2_usd": 0.00030839999999999996,
+ "seconds": 7.0283
+}

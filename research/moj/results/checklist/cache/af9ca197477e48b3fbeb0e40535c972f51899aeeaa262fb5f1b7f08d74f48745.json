@@ -1,0 +1,29 @@
+{
+ "key": "af9ca197477e48b3fbeb0e40535c972f51899aeeaa262fb5f1b7f08d74f48745",
+ "boxes": [
+  {
+   "question": "是否用中文回应用户？",
+   "weight": 1
+  },
+  {
+   "question": "是否直接回答自己是否了解 OnePlus Ace 2 和 realme GT Neo 5？",
+   "weight": 2
+  },
+  {
+   "question": "是否提供了关于两款手机的有用比较，而不只是让用户自行搜索？",
+   "weight": 3
+  },
+  {
+   "question": "是否根据比较给出哪款更值得购买的明确建议，或说明选择取决于哪些需求？",
+   "weight": 3
+  },
+  {
+   "question": "比较和建议是否准确、没有编造手机信息？",
+   "weight": 5
+  }
+ ],
+ "error": null,
+ "short": false,
+ "s2_usd": 0.00016580000000000002,
+ "seconds": 4.3519
+}

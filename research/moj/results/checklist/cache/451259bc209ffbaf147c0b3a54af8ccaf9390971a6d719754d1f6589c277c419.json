@@ -1,0 +1,41 @@
+{
+ "key": "451259bc209ffbaf147c0b3a54af8ccaf9390971a6d719754d1f6589c277c419",
+ "boxes": [
+  {
+   "question": "Is the response a military-fiction narrative titled “Blade of the Sandstorm”?",
+   "weight": 2
+  },
+  {
+   "question": "Does the narrative portray Kane as a lone-wolf mercenary with a stained past who is hired by UN Commander Eileen to infiltrate the Sand Scorpions?",
+   "weight": 4
+  },
+  {
+   "question": "Does it establish that the Sand Scorpions are backed by a powerful, shadowy entity?",
+   "weight": 3
+  },
+  {
+   "question": "Does it show that this entity has advanced weaponry, including drone swarms and EMPs, and is developing biological weapons?",
+   "weight": 4
+  },
+  {
+   "question": "Does it develop a complex relationship between Kane and Layla, a mysterious sniper he encounters within the enemy organization?",
+   "weight": 4
+  },
+  {
+   "question": "Does Eileen significantly betray Kane or otherwise commit a consequential betrayal in the narrative?",
+   "weight": 4
+  },
+  {
+   "question": "Does the narrative explore redemption in a corrupt world and the conflict between personal gain and the greater good?",
+   "weight": 4
+  },
+  {
+   "question": "Does the writing deliver a dark, suspenseful, action-packed feel through sharp, impactful prose that emphasizes combat’s harsh realities and moral compromise?",
+   "weight": 3
+  }
+ ],
+ "error": null,
+ "short": false,
+ "s2_usd": 0.000241,
+ "seconds": 5.2942
+}

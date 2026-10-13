@@ -1,0 +1,33 @@
+{
+ "key": "5f4fd485618cf21b94b224aaf09614ae4d8685a86f361a5512ac770ea400cd04",
+ "boxes": [
+  {
+   "question": "Is the response written as a thank-you letter addressed to the volunteer mentor?",
+   "weight": 2
+  },
+  {
+   "question": "Does it express sincere gratitude and deep respect for the mentor as a guide in the writer’s journey?",
+   "weight": 3
+  },
+  {
+   "question": "Does it give one or two specific pieces of advice from the mentor?",
+   "weight": 3
+  },
+  {
+   "question": "Does it explain how that advice helped the writer overcome a major difficulty?",
+   "weight": 3
+  },
+  {
+   "question": "Does it connect the mentor’s guidance to a recent success in the writer’s business?",
+   "weight": 3
+  },
+  {
+   "question": "Is the language simple and sincere?",
+   "weight": 2
+  }
+ ],
+ "error": null,
+ "short": false,
+ "s2_usd": 0.00014680000000000002,
+ "seconds": 3.2274
+}

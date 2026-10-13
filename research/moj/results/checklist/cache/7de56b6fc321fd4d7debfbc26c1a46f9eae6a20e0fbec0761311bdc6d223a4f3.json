@@ -1,0 +1,25 @@
+{
+ "key": "7de56b6fc321fd4d7debfbc26c1a46f9eae6a20e0fbec0761311bdc6d223a4f3",
+ "boxes": [
+  {
+   "question": "Does the answer identify option (E) as the correct choice?",
+   "weight": 5
+  },
+  {
+   "question": "Does the answer correctly identify tribute as the basis of Aztec imperial expansion?",
+   "weight": 5
+  },
+  {
+   "question": "Does the answer give the chosen letter five times?",
+   "weight": 2
+  },
+  {
+   "question": "Are the five copies of the chosen letter consecutive in a single string?",
+   "weight": 1
+  }
+ ],
+ "error": null,
+ "short": false,
+ "s2_usd": 0.00023630000000000002,
+ "seconds": 10.7572
+}

@@ -1,0 +1,25 @@
+{
+ "key": "19040a2233000420bf7a7f9ac22c56a5ecbfdbbffec316ba42e6b9c04df1d3fa",
+ "boxes": [
+  {
+   "question": "Je, jibu linatafsiri ongezeko la thamani la 150% kuwa thamani mpya ya 250% ya thamani ya awali ya nyumba?",
+   "weight": 3
+  },
+  {
+   "question": "Je, jibu huhesabu thamani ya nyumba baada ya ukarabati kuwa $200,000?",
+   "weight": 4
+  },
+  {
+   "question": "Je, jibu huhesabu faida kwa kutoa jumla ya gharama ya ununuqsi na ukarabati ($130,000) kutoka thamani ya nyumba baada ya ukarabati?",
+   "weight": 4
+  },
+  {
+   "question": "Je, jibu linatoa faida sahihi ya $70,000 na kueleza kwa ufupi hesabu yake kwa Kiswahili?",
+   "weight": 5
+  }
+ ],
+ "error": null,
+ "short": false,
+ "s2_usd": 0.0002165,
+ "seconds": 4.8642
+}

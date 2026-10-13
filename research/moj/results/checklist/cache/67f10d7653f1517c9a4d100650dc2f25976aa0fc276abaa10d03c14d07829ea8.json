@@ -1,0 +1,33 @@
+{
+ "key": "67f10d7653f1517c9a4d100650dc2f25976aa0fc276abaa10d03c14d07829ea8",
+ "boxes": [
+  {
+   "question": "Does the essay argue that both steadfastness and adaptability are essential for navigating life's challenges?",
+   "weight": 5
+  },
+  {
+   "question": "Does the essay follow the requested three-part structure, addressing steadfastness as an ethical bedrock, adaptability as a strategic necessity, and their dialectical unity?",
+   "weight": 4
+  },
+  {
+   "question": "Does the essay use Wen Tianxiang and Liu Bang as historical examples of moral integrity and strategic flexibility, respectively?",
+   "weight": 4
+  },
+  {
+   "question": "Does the essay discuss innovations from China's reform era as a modern case?",
+   "weight": 3
+  },
+  {
+   "question": "Does the essay include relevant philosophical references that support its argument?",
+   "weight": 3
+  },
+  {
+   "question": "Does the essay develop a coherent argument in an academic tone and use maritime metaphors?",
+   "weight": 3
+  }
+ ],
+ "error": null,
+ "short": false,
+ "s2_usd": 0.0001696,
+ "seconds": 3.0069
+}

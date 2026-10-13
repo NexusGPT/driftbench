@@ -1,0 +1,37 @@
+{
+ "key": "f8d8d6fe58dee5d85df39e5ddd5ba176b4e012d3b971575cee16fcb3baba1d5b",
+ "boxes": [
+  {
+   "question": "Does the response present itself as a museum-style description of a mundane, modern object abandoned in a city corner?",
+   "weight": 2
+  },
+  {
+   "question": "Does the description use a serious, slightly academic and scientific tone?",
+   "weight": 2
+  },
+  {
+   "question": "Does it describe the object's imagined origin and habits?",
+   "weight": 2
+  },
+  {
+   "question": "Does it give the object a small, melancholic story?",
+   "weight": 2
+  },
+  {
+   "question": "Does it find overlooked emotional or human value in the discarded object, connecting it to modern consumerism?",
+   "weight": 3
+  },
+  {
+   "question": "Does the writing evoke a gentle, transient beauty suited to the theme of “Poetry in Debris” and mono no aware?",
+   "weight": 3
+  },
+  {
+   "question": "Does the response create a coherent, evocative piece of writing that fulfills the requested voice and premise?",
+   "weight": 2
+  }
+ ],
+ "error": null,
+ "short": false,
+ "s2_usd": 0.0001873,
+ "seconds": 4.0618
+}

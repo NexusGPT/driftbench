@@ -1,0 +1,37 @@
+{
+ "key": "7c7d4ee1bed05b32c2011bff8ced8b7c304360b6557736cf48dff25549c17cca",
+ "boxes": [
+  {
+   "question": "Is the response written as a thank-you letter addressed to Ms. Zhang Min?",
+   "weight": 2
+  },
+  {
+   "question": "Does the letter explain that the writer took emergency leave last week because of a sudden family situation?",
+   "weight": 2
+  },
+  {
+   "question": "Does it specifically thank Ms. Zhang for voluntarily taking over the unfinished market research report and completing the analysis and organization before the deadline, including working overtime?",
+   "weight": 3
+  },
+  {
+   "question": "Does it acknowledge Ms. Zhang’s additional help in sharing efficient analysis tools and clarifying or organizing the data logic?",
+   "weight": 3
+  },
+  {
+   "question": "Does the letter express sincere gratitude for Ms. Zhang’s timely help, professionalism, and selflessness?",
+   "weight": 3
+  },
+  {
+   "question": "Does it say that the writer hopes to reciprocate Ms. Zhang’s kindness in the future?",
+   "weight": 2
+  },
+  {
+   "question": "Is the tone warm and formal while remaining natural and specific rather than generic?",
+   "weight": 2
+  }
+ ],
+ "error": null,
+ "short": false,
+ "s2_usd": 0.0001801,
+ "seconds": 5.1998
+}

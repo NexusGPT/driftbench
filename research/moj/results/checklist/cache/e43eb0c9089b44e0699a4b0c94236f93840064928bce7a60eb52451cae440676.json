@@ -1,0 +1,25 @@
+{
+ "key": "e43eb0c9089b44e0699a4b0c94236f93840064928bce7a60eb52451cae440676",
+ "boxes": [
+  {
+   "question": "Does the answer correctly conclude that the collecting position is not uniquely determined by the premises?",
+   "weight": 5
+  },
+  {
+   "question": "Does the answer correctly infer that hiking is at position 1, electronic is at position 2, and the dog is at position 2?",
+   "weight": 4
+  },
+  {
+   "question": "Does the answer support the ambiguity by giving valid arrangements in which collecting is at different positions?",
+   "weight": 4
+  },
+  {
+   "question": "Does the answer avoid claiming a single position is forced by the premises?",
+   "weight": 5
+  }
+ ],
+ "error": null,
+ "short": false,
+ "s2_usd": 0.0006288,
+ "seconds": 16.0735
+}

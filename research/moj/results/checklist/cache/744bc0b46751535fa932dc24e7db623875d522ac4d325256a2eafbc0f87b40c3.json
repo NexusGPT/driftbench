@@ -1,0 +1,25 @@
+{
+ "key": "744bc0b46751535fa932dc24e7db623875d522ac4d325256a2eafbc0f87b40c3",
+ "boxes": [
+  {
+   "question": "Does the answer identify the second person’s nationality as French?",
+   "weight": 5
+  },
+  {
+   "question": "Does the answer avoid giving a different nationality for the second person?",
+   "weight": 5
+  },
+  {
+   "question": "Is the response a single word, with no additional text?",
+   "weight": 2
+  },
+  {
+   "question": "Is the answer presented in the requested format, ***X***?",
+   "weight": 2
+  }
+ ],
+ "error": null,
+ "short": false,
+ "s2_usd": 0.0005146,
+ "seconds": 12.9467
+}

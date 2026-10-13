@@ -1,0 +1,25 @@
+{
+ "key": "7d25028b844e5e67fd5101718a9cf7e2be041cee9ea04b38308a6b3db7d104e4",
+ "boxes": [
+  {
+   "question": "Does the answer identify option A as the correct choice?",
+   "weight": 5
+  },
+  {
+   "question": "Does the answer give 86% as the share?",
+   "weight": 5
+  },
+  {
+   "question": "Does the answer correctly associate option A with 86%?",
+   "weight": 5
+  },
+  {
+   "question": "Is the answer written as the letter A repeated five times in a single string (AAAAA)?",
+   "weight": 1
+  }
+ ],
+ "error": null,
+ "short": false,
+ "s2_usd": 0.0002375,
+ "seconds": 6.0087
+}

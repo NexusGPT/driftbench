@@ -1,0 +1,25 @@
+{
+ "key": "76aa94b2872099d23a9d38cc349a1cd24f6caa547e0d32281ac34f9af634eff4",
+ "boxes": [
+  {
+   "question": "Does the answer identify Christianity and Buddhism as the pair of universalizing religions?",
+   "weight": 5
+  },
+  {
+   "question": "Does the answer give option A as its answer?",
+   "weight": 5
+  },
+  {
+   "question": "Does the answer repeat its selected letter exactly five times in one continuous string?",
+   "weight": 2
+  },
+  {
+   "question": "Is the repeated string made up only of the selected letter, with no spaces or other characters within it?",
+   "weight": 1
+  }
+ ],
+ "error": null,
+ "short": false,
+ "s2_usd": 0.0002963,
+ "seconds": 9.0493
+}

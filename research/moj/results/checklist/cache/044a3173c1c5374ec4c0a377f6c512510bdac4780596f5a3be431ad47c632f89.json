@@ -1,0 +1,25 @@
+{
+ "key": "044a3173c1c5374ec4c0a377f6c512510bdac4780596f5a3be431ad47c632f89",
+ "boxes": [
+  {
+   "question": "Does the answer select option A?",
+   "weight": 5
+  },
+  {
+   "question": "Does the answer identify 441.1 kJ as the irreversibility?",
+   "weight": 5
+  },
+  {
+   "question": "Does the answer give 850 K as the blocks’ common final temperature?",
+   "weight": 2
+  },
+  {
+   "question": "Does the answer end with the selected letter repeated five times as a single string (for example, AAAAA)?",
+   "weight": 2
+  }
+ ],
+ "error": null,
+ "short": false,
+ "s2_usd": 0.0002923,
+ "seconds": 8.6231
+}

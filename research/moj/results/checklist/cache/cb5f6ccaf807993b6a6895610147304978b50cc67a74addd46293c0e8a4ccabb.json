@@ -1,0 +1,25 @@
+{
+ "key": "cb5f6ccaf807993b6a6895610147304978b50cc67a74addd46293c0e8a4ccabb",
+ "boxes": [
+  {
+   "question": "Does the answer give a derivative equivalent to $-2-\\frac{17}{2}\\sec^2\\left(\\frac{9}{2}-\\frac{17x}{2}\\right)$?",
+   "weight": 5
+  },
+  {
+   "question": "Does the answer correctly account for the chain-rule factor $-\\frac{17}{2}$ when differentiating the tangent term?",
+   "weight": 4
+  },
+  {
+   "question": "Does the answer correctly include the derivative $-2$ of the linear term $-2x$?",
+   "weight": 3
+  },
+  {
+   "question": "Does the answer put its final answer in a $\\boxed{}$?",
+   "weight": 1
+  }
+ ],
+ "error": null,
+ "short": false,
+ "s2_usd": 0.0001755,
+ "seconds": 3.9635
+}

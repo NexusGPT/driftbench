@@ -1,0 +1,25 @@
+{
+ "key": "bc9742f27a7a5a8a2b65fc6832ee7230a14d248a2e66a2609ac45c0028f7408d",
+ "boxes": [
+  {
+   "question": "Does the answer select D as the correct option?",
+   "weight": 5
+  },
+  {
+   "question": "Does the answer contain exactly five letters?",
+   "weight": 2
+  },
+  {
+   "question": "Are all five letters D?",
+   "weight": 2
+  },
+  {
+   "question": "Is the answer presented as a single string?",
+   "weight": 1
+  }
+ ],
+ "error": null,
+ "short": false,
+ "s2_usd": 0.00022459999999999998,
+ "seconds": 5.1337
+}

@@ -1,0 +1,33 @@
+{
+ "key": "b22cab1ce15bb7b6012c6c7ed5ad7e4a6e44c7e60760ad38fdf841a24c324024",
+ "boxes": [
+  {
+   "question": "Does the answer explain that the laptop must relay the files because neither server can connect to the other?",
+   "weight": 3
+  },
+  {
+   "question": "Does the answer provide a valid method to transfer the directory through the laptop, such as downloading it from A and then uploading it to B, or using `scp -3`?",
+   "weight": 5
+  },
+  {
+   "question": "Does the proposed commands or steps use `~/Documents/training_results` on server A as the source and `~/training_results` on server B as the destination?",
+   "weight": 5
+  },
+  {
+   "question": "Does the answer account for copying a directory and its contents, for example by using recursive copying or an equivalent method?",
+   "weight": 3
+  },
+  {
+   "question": "Does the answer explain the transfer steps clearly enough for someone with SSH access from their laptop to both servers to follow?",
+   "weight": 2
+  },
+  {
+   "question": "Is the response organized into clearly distinguished steps or sections that make the procedure easy to understand?",
+   "weight": 1
+  }
+ ],
+ "error": null,
+ "short": false,
+ "s2_usd": 0.0002463,
+ "seconds": 5.6978
+}

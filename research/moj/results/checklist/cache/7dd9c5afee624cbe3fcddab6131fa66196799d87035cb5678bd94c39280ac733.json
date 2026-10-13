@@ -1,0 +1,25 @@
+{
+ "key": "7dd9c5afee624cbe3fcddab6131fa66196799d87035cb5678bd94c39280ac733",
+ "boxes": [
+  {
+   "question": "Does the answer correctly say that the person at the airport does not tell the truth?",
+   "weight": 5
+  },
+  {
+   "question": "Does the answer correctly say that the person at the zoo does not tell the truth?",
+   "weight": 5
+  },
+  {
+   "question": "Does the answer correctly say that the person at the bookstore tells the truth?",
+   "weight": 5
+  },
+  {
+   "question": "Does the answer give the three truth-status answers in the order airport, zoo, bookstore?",
+   "weight": 4
+  }
+ ],
+ "error": null,
+ "short": false,
+ "s2_usd": 0.0004168,
+ "seconds": 9.8443
+}

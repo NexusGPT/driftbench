@@ -1,0 +1,29 @@
+{
+ "key": "e64660526f405481f9a885662507f0ac4da01bddf844d18599d74669cf89d904",
+ "boxes": [
+  {
+   "question": "¿Responde en español?",
+   "weight": 3
+  },
+  {
+   "question": "¿Expresa una opinión sobre los secadores de manos?",
+   "weight": 3
+  },
+  {
+   "question": "¿Adopta una voz o actitud reconocible de Sheldon de «The Big Bang Theory»?",
+   "weight": 3
+  },
+  {
+   "question": "¿Evita empezar con una frase como «Como Sheldon»?",
+   "weight": 2
+  },
+  {
+   "question": "¿La respuesta es coherente y segura?",
+   "weight": 1
+  }
+ ],
+ "error": null,
+ "short": false,
+ "s2_usd": 0.0001496,
+ "seconds": 4.7617
+}

@@ -1,0 +1,25 @@
+{
+ "key": "38bfd5ae748cef5268cb50645ce2c03f6bce8dedd0dd4595eb1a3e18b12578f7",
+ "boxes": [
+  {
+   "question": "Does the answer identify option B as the correct choice?",
+   "weight": 5
+  },
+  {
+   "question": "Does the answer give the correct explanation that ice is less dense than liquid water because of its hydrogen-bonded crystalline framework?",
+   "weight": 5
+  },
+  {
+   "question": "Does the answer repeat the letter B exactly five times?",
+   "weight": 4
+  },
+  {
+   "question": "Does the answer provide the repeated letters as a single string without additional text?",
+   "weight": 3
+  }
+ ],
+ "error": null,
+ "short": false,
+ "s2_usd": 0.0002919,
+ "seconds": 6.6686
+}

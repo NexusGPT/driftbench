@@ -1,0 +1,25 @@
+{
+ "key": "be4f6db1136070bcc467f6fcd0ed4c5efb70c655f7e3171637f01957af2ebe3c",
+ "boxes": [
+  {
+   "question": "Does the answer correctly calculate that 252 eggs per day equal 21 dozen per day?",
+   "weight": 3
+  },
+  {
+   "question": "Does the answer correctly calculate daily earnings of $42 from selling 21 dozen at $2 per dozen?",
+   "weight": 3
+  },
+  {
+   "question": "Does the answer give the correct weekly earnings of $294, accounting for seven days?",
+   "weight": 5
+  },
+  {
+   "question": "Is the answer written in Telugu?",
+   "weight": 1
+  }
+ ],
+ "error": null,
+ "short": false,
+ "s2_usd": 0.0001657,
+ "seconds": 5.2317
+}

@@ -1,0 +1,25 @@
+{
+ "key": "b3e1826b9d3edf7431db6b086d690a5abff17b2e839fb84f1463006daefe449c",
+ "boxes": [
+  {
+   "question": "Does the answer correctly identify whether the stated information determines a unique number of triangular pieces?",
+   "weight": 5
+  },
+  {
+   "question": "Does the answer correctly account for how the cuts intersect the two rectangles and divide them into pieces?",
+   "weight": 5
+  },
+  {
+   "question": "If the answer claims the number is not uniquely determined, does it support that claim with valid geometric reasoning?",
+   "weight": 4
+  },
+  {
+   "question": "If the answer gives a specific number, is that number correct for the configuration described?",
+   "weight": 5
+  }
+ ],
+ "error": null,
+ "short": false,
+ "s2_usd": 0.0006585,
+ "seconds": 17.1994
+}

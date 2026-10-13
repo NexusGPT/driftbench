@@ -1,0 +1,25 @@
+{
+ "key": "da68661f00d4531f42bec84ac66ca28e65ff435e568dc9e3a37899b224847397",
+ "boxes": [
+  {
+   "question": "Does the response select option E, corresponding to an estimated diameter of 2.00 Å?",
+   "weight": 5
+  },
+  {
+   "question": "Does the response give an estimated helium-molecule diameter of approximately 2 Å?",
+   "weight": 4
+  },
+  {
+   "question": "Does the response repeat its selected answer letter exactly five times in a single string?",
+   "weight": 3
+  },
+  {
+   "question": "Is the repeated answer string consistent with the selected multiple-choice option?",
+   "weight": 3
+  }
+ ],
+ "error": null,
+ "short": false,
+ "s2_usd": 0.0003714,
+ "seconds": 8.8061
+}

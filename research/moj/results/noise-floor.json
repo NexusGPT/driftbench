@@ -1,6 +1,6 @@
 {
  "judgebench": 0.0167,
- "mmeval": 0.0667,
+ "mmeval": 0.0183,
  "writing": 0.0667,
  "default": 0.0667,
  "detail": {
@@ -48,7 +48,17 @@
     "range": 0.0167,
     "flip_share": 0.1
    }
+  },
+  "mmeval-moj-measured": {
+   "n": 30,
+   "acc": [
+    0.9167,
+    0.9167,
+    0.9167
+   ],
+   "range": 0.0,
+   "flip_share": 0.1
   }
  },
- "note": "Range of accuracy over 3 recorded repeats of the baselines on 30 practice pairs (gpt-6-luna). MM-Eval has no recorded repeats: it takes the largest measured range."
+ "note": "Floor per benchmark = the larger of (a) the accuracy range over 3 repeats of a System-2 baseline on 30 practice pairs and (b) two standard deviations of accuracy implied by the measured per-pair flip share on the full practice set. JudgeBench and writing: recorded repeats of the ledger harness (a). MM-Eval: two fresh promptfoo repeats here, range 0, flip share 0.10, so (b) = 1.8 points."
 }

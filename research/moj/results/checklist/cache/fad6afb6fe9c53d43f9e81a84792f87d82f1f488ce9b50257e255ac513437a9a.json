@@ -1,0 +1,25 @@
+{
+ "key": "fad6afb6fe9c53d43f9e81a84792f87d82f1f488ce9b50257e255ac513437a9a",
+ "boxes": [
+  {
+   "question": "Does the answer give a method that returns true exactly when the input can be split into two equal-length parts, each containing distinct elements?",
+   "weight": 5
+  },
+  {
+   "question": "Does the answer correctly identify that any value appearing more than twice makes a valid split impossible?",
+   "weight": 5
+  },
+  {
+   "question": "Does the answer correctly identify that if every value appears at most twice, a valid split is possible?",
+   "weight": 5
+  },
+  {
+   "question": "If the answer includes code, does the code implement the stated decision correctly for all valid inputs?",
+   "weight": 5
+  }
+ ],
+ "error": null,
+ "short": false,
+ "s2_usd": 0.0002184,
+ "seconds": 6.4694
+}

@@ -1,0 +1,37 @@
+{
+ "key": "d3ca01ea1e90e821b8d3f32419c56b113c1d0efa5eedb561935b58ef2e548398",
+ "boxes": [
+  {
+   "question": "La resposta està escrita en català?",
+   "weight": 2
+  },
+  {
+   "question": "La resposta presenta cinc principis diferenciats per avaluar un argument en l’escriptura analítica?",
+   "weight": 5
+  },
+  {
+   "question": "Un dels principis tracta de valorar la claredat i la precisió de la tesi o afirmació principal?",
+   "weight": 3
+  },
+  {
+   "question": "Un dels principis tracta de valorar la pertinència i la fiabilitat de les proves o evidències?",
+   "weight": 4
+  },
+  {
+   "question": "Un dels principis tracta de valorar si el raonament connecta l’evidència amb la tesi de manera lògica?",
+   "weight": 4
+  },
+  {
+   "question": "Un dels principis tracta de considerar els supòsits o possibles biaixos de l’argument?",
+   "weight": 3
+  },
+  {
+   "question": "Un dels principis tracta de valorar si l’argument aborda objeccions o contraarguments rellevants?",
+   "weight": 3
+  }
+ ],
+ "error": null,
+ "short": false,
+ "s2_usd": 0.00022490000000000002,
+ "seconds": 4.6369
+}

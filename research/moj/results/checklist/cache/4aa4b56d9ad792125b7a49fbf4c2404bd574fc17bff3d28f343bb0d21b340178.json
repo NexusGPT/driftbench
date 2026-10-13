@@ -1,0 +1,25 @@
+{
+ "key": "4aa4b56d9ad792125b7a49fbf4c2404bd574fc17bff3d28f343bb0d21b340178",
+ "boxes": [
+  {
+   "question": "Does the response give a large-pizza weight of 1.8 pounds (1 4/5 pounds)?",
+   "weight": 5
+  },
+  {
+   "question": "Does the response identify choice A as the correct answer?",
+   "weight": 5
+  },
+  {
+   "question": "If the response gives a letter string, does it repeat the same answer letter five times?",
+   "weight": 2
+  },
+  {
+   "question": "Is the repeated answer-letter string exactly AAAAA?",
+   "weight": 3
+  }
+ ],
+ "error": null,
+ "short": false,
+ "s2_usd": 0.0002622,
+ "seconds": 6.0037
+}

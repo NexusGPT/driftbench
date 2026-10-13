@@ -1,0 +1,25 @@
+{
+ "key": "e67c5dc30b41257be31a9911871e03567006cf7024fe3ce620adc750b20b9885",
+ "boxes": [
+  {
+   "question": "¿Indica que el salario anual de Sylvie después de tres años más es de $9,360?",
+   "weight": 5
+  },
+  {
+   "question": "¿Interpreta el aumento anual como el 10 % del salario inicial, es decir, $60 al mes por cada aumento?",
+   "weight": 5
+  },
+  {
+   "question": "¿Cuenta tres aumentos durante los tres años adicionales de servicio?",
+   "weight": 4
+  },
+  {
+   "question": "¿Responde en español?",
+   "weight": 1
+  }
+ ],
+ "error": null,
+ "short": false,
+ "s2_usd": 0.0002237,
+ "seconds": 4.57
+}

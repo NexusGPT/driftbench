@@ -1,0 +1,25 @@
+{
+ "key": "0723e7ca9e24064ff1555334408c39b0dd748a6c9045b78947b27ed3db7b560f",
+ "boxes": [
+  {
+   "question": "Does the answer correctly state that the person at the zoo tells the truth?",
+   "weight": 5
+  },
+  {
+   "question": "Does the answer correctly state that the person at the skate park lies?",
+   "weight": 5
+  },
+  {
+   "question": "Does the answer correctly state that the person at the beach lies?",
+   "weight": 5
+  },
+  {
+   "question": "Does the answer give the three yes-or-no responses in the requested order: zoo, skate park, beach?",
+   "weight": 1
+  }
+ ],
+ "error": null,
+ "short": false,
+ "s2_usd": 0.0003356,
+ "seconds": 7.2543
+}

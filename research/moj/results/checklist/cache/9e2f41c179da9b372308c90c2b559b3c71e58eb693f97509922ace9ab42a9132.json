@@ -1,0 +1,41 @@
+{
+ "key": "9e2f41c179da9b372308c90c2b559b3c71e58eb693f97509922ace9ab42a9132",
+ "boxes": [
+  {
+   "question": "Is the story told in the protagonist’s first-person voice?",
+   "weight": 2
+  },
+  {
+   "question": "Does the protagonist lose their memory as a result of a car accident?",
+   "weight": 3
+  },
+  {
+   "question": "Does someone claiming to be the protagonist’s friend help them reconstruct their memories?",
+   "weight": 3
+  },
+  {
+   "question": "Do the protagonist’s memory flashbacks clearly contradict the friend’s account of the past?",
+   "weight": 4
+  },
+  {
+   "question": "Does the story build psychological suspense and panic around whether the protagonist is mistaken or being deceived by others?",
+   "weight": 4
+  },
+  {
+   "question": "Does the ending contain a subversive twist that reveals the true identities of both the protagonist and the supposed friend?",
+   "weight": 4
+  },
+  {
+   "question": "Does the ending reveal the true relationship between the protagonist and the supposed friend?",
+   "weight": 4
+  },
+  {
+   "question": "Is the story well-crafted and engaging while fulfilling the requested psychological-suspense premise?",
+   "weight": 2
+  }
+ ],
+ "error": null,
+ "short": false,
+ "s2_usd": 0.0001837,
+ "seconds": 3.5108
+}

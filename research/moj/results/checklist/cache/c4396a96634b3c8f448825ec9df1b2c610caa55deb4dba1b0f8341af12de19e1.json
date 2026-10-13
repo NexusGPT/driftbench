@@ -1,0 +1,25 @@
+{
+ "key": "c4396a96634b3c8f448825ec9df1b2c610caa55deb4dba1b0f8341af12de19e1",
+ "boxes": [
+  {
+   "question": "Does the answer identify the change in money supply as \\(\\Delta M=(21/5)\\Delta D\\)?",
+   "weight": 5
+  },
+  {
+   "question": "Does the answer identify the change in demand deposits as \\(4\\Delta D\\)?",
+   "weight": 5
+  },
+  {
+   "question": "Does the answer identify the change in cash as \\(0.2\\Delta D\\)?",
+   "weight": 5
+  },
+  {
+   "question": "Does the answer give the correct choice, A, repeated five times as a single string?",
+   "weight": 5
+  }
+ ],
+ "error": null,
+ "short": false,
+ "s2_usd": 0.0002787,
+ "seconds": 7.402
+}

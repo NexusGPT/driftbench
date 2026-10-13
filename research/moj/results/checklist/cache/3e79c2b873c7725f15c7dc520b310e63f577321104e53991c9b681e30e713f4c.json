@@ -1,0 +1,25 @@
+{
+ "key": "3e79c2b873c7725f15c7dc520b310e63f577321104e53991c9b681e30e713f4c",
+ "boxes": [
+  {
+   "question": "Does the answer count integers in the inclusive range from `num1` through `num2`?",
+   "weight": 5
+  },
+  {
+   "question": "Does the answer include exactly those integers whose digit sums are between `min_sum` and `max_sum`, inclusive?",
+   "weight": 5
+  },
+  {
+   "question": "Does the answer handle bounds as large as `10^22` without relying on an integer representation that may overflow?",
+   "weight": 5
+  },
+  {
+   "question": "Does the answer return the count modulo `10^9 + 7`?",
+   "weight": 5
+  }
+ ],
+ "error": null,
+ "short": false,
+ "s2_usd": 0.0002325,
+ "seconds": 5.2783
+}

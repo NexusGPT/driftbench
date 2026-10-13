@@ -1,0 +1,25 @@
+{
+ "key": "18ebc901c25cfc88521bef65eb969fd6ce864e19ab0d8328c25ee5f175bdb8fa",
+ "boxes": [
+  {
+   "question": "La resposta presenta exactament 10 parelles de paraules?",
+   "weight": 5
+  },
+  {
+   "question": "Rimen entre si les dues paraules de cadascuna de les 10 parelles?",
+   "weight": 5
+  },
+  {
+   "question": "Les paraules proposades són en català?",
+   "weight": 4
+  },
+  {
+   "question": "Es poden identificar clarament les dues paraules de cada parella?",
+   "weight": 2
+  }
+ ],
+ "error": null,
+ "short": false,
+ "s2_usd": 0.00019830000000000002,
+ "seconds": 4.4352
+}

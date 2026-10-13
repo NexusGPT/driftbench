@@ -1,0 +1,25 @@
+{
+ "key": "8b2245f50d1fea985342a08d73ec4bc3151b4e2fb48a5321ec21409cdbc3fc37",
+ "boxes": [
+  {
+   "question": "Does the response give 16 as the sum of the two possible values of $d$?",
+   "weight": 5
+  },
+  {
+   "question": "Does the response identify option E as the correct multiple-choice answer?",
+   "weight": 5
+  },
+  {
+   "question": "Does the response give the requested five-letter string EEEEE?",
+   "weight": 5
+  },
+  {
+   "question": "Is the response free of any conflicting value or answer choice?",
+   "weight": 5
+  }
+ ],
+ "error": null,
+ "short": false,
+ "s2_usd": 0.0003412,
+ "seconds": 7.4685
+}

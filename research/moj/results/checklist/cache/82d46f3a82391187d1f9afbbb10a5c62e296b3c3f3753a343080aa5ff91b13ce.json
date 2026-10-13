@@ -1,0 +1,25 @@
+{
+ "key": "82d46f3a82391187d1f9afbbb10a5c62e296b3c3f3753a343080aa5ff91b13ce",
+ "boxes": [
+  {
+   "question": "La réponse calcule-t-elle 12 sacs cadeaux en appliquant 0,75 sac à chacun des 16 invités ?",
+   "weight": 5
+  },
+  {
+   "question": "La réponse calcule-t-elle correctement une dépense totale de 24 $ à 2 $ par sac ?",
+   "weight": 5
+  },
+  {
+   "question": "La réponse explique-t-elle clairement le calcul qui mène au montant dépensé ?",
+   "weight": 2
+  },
+  {
+   "question": "La réponse est-elle rédigée en français ?",
+   "weight": 2
+  }
+ ],
+ "error": null,
+ "short": false,
+ "s2_usd": 0.0002163,
+ "seconds": 5.3495
+}

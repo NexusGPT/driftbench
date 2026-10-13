@@ -1,0 +1,25 @@
+{
+ "key": "7f1b6811eaacd1c51079a2ccc31db2cccbf0824a89a14ce2c053343c1b21304e",
+ "boxes": [
+  {
+   "question": "Does the answer select option I?",
+   "weight": 5
+  },
+  {
+   "question": "Does the answer identify a swallowing evaluation as the appropriate step before discharge?",
+   "weight": 5
+  },
+  {
+   "question": "Does the answer give I five times in a single string, as requested?",
+   "weight": 1
+  },
+  {
+   "question": "Does the answer avoid selecting a different option as the answer?",
+   "weight": 4
+  }
+ ],
+ "error": null,
+ "short": false,
+ "s2_usd": 0.0002726,
+ "seconds": 6.5363
+}

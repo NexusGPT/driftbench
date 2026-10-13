@@ -1,0 +1,25 @@
+{
+ "key": "6f8edf9091410c85e43b1abbddc12bcdcff713ccefd9fee91db994c53e12805d",
+ "boxes": [
+  {
+   "question": "Does the response select option B?",
+   "weight": 5
+  },
+  {
+   "question": "Does the response give approximately 672.4 years as the time period?",
+   "weight": 5
+  },
+  {
+   "question": "Does the response provide the requested five-letter string BBBBB?",
+   "weight": 3
+  },
+  {
+   "question": "Is the answer consistent in identifying 672.4 years, rather than a different time period, as the time for a one-quarter reduction?",
+   "weight": 5
+  }
+ ],
+ "error": null,
+ "short": false,
+ "s2_usd": 0.0002765,
+ "seconds": 6.2833
+}

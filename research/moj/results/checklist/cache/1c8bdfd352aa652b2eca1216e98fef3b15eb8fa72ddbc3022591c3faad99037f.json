@@ -1,0 +1,25 @@
+{
+ "key": "1c8bdfd352aa652b2eca1216e98fef3b15eb8fa72ddbc3022591c3faad99037f",
+ "boxes": [
+  {
+   "question": "Does the response identify B as the correct answer?",
+   "weight": 5
+  },
+  {
+   "question": "Does the response consist of exactly five copies of the letter B?",
+   "weight": 1
+  },
+  {
+   "question": "Are the five letters consecutive, with no spaces or separators?",
+   "weight": 1
+  },
+  {
+   "question": "Does the response contain only the requested letter string, with no additional text?",
+   "weight": 1
+  }
+ ],
+ "error": null,
+ "short": false,
+ "s2_usd": 0.0002094,
+ "seconds": 5.7315
+}

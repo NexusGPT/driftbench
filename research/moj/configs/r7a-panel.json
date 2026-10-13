@@ -1,0 +1,28 @@
+{
+ "name": "r7a-panel",
+ "note": "Round 7a. r6 plus the Gemini flash-lite single verdict in the low-level mix (cross-family panel with System 1 and gpt-6-luna). H: lifts accuracy on low items; refuted if the pooled tuning and validation gains are both at or under 0.",
+ "stage1": [
+  "s1p"
+ ],
+ "hi": 0.8,
+ "lo": 0.8,
+ "low": [
+  "s2v",
+  "gem"
+ ],
+ "always": [
+  {
+   "expert": "ref",
+   "terrain": {
+    "needs_reasoning": 0.6
+   }
+  }
+ ],
+ "no_escalate": [
+  {
+   "terrain": {
+    "subjective_writing": 0.6
+   }
+  }
+ ]
+}

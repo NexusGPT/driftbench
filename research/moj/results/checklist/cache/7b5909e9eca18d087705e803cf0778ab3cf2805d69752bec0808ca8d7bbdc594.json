@@ -1,0 +1,29 @@
+{
+ "key": "7b5909e9eca18d087705e803cf0778ab3cf2805d69752bec0808ca8d7bbdc594",
+ "boxes": [
+  {
+   "question": "Câu trả lời có nêu rằng khu vực nướng đang chế biến cả bít tết lẫn cá không?",
+   "weight": 2
+  },
+  {
+   "question": "Câu trả lời có nêu rằng khu vực xào đã trống sau khi món mì được phục vụ không?",
+   "weight": 2
+  },
+  {
+   "question": "Câu trả lời có nêu rằng khu vực tráng miệng đang nướng bánh không?",
+   "weight": 2
+  },
+  {
+   "question": "Câu trả lời có phản ánh rằng bếp tiếp nhận đơn hàng mới hiệu quả trong khi vẫn tiếp tục các công việc đang diễn ra không?",
+   "weight": 2
+  },
+  {
+   "question": "Câu trả lời có viết bằng tiếng Việt và trực tiếp mô tả trạng thái tiếp theo của bếp không?",
+   "weight": 1
+  }
+ ],
+ "error": null,
+ "short": false,
+ "s2_usd": 0.00017319999999999998,
+ "seconds": 4.5864
+}

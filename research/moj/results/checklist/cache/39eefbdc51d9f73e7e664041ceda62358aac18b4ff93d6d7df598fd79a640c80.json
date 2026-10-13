@@ -1,0 +1,25 @@
+{
+ "key": "39eefbdc51d9f73e7e664041ceda62358aac18b4ff93d6d7df598fd79a640c80",
+ "boxes": [
+  {
+   "question": "Does the answer give the correct position of the person who drinks mirinda?",
+   "weight": 5
+  },
+  {
+   "question": "Does the answer identify exactly one position for the person who drinks mirinda?",
+   "weight": 2
+  },
+  {
+   "question": "Is the stated position a single digit from 1 through 4?",
+   "weight": 2
+  },
+  {
+   "question": "Does the answer use the requested format ***N***, with N as the position?",
+   "weight": 1
+  }
+ ],
+ "error": null,
+ "short": false,
+ "s2_usd": 0.0006286,
+ "seconds": 19.1918
+}

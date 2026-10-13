@@ -1,0 +1,33 @@
+{
+ "key": "3abf84d4a36352507b236e530d610eecb68da2b47c5cdc12f4bb1a84f54a1cb5",
+ "boxes": [
+  {
+   "question": "Does the text present “I” as a self composed from multiple fragments rather than as a unified individual?",
+   "weight": 5
+  },
+  {
+   "question": "Does the text use recognizable samples from varied sources, such as media, public announcements, family speech, or digital sounds?",
+   "weight": 4
+  },
+  {
+   "question": "Does the text convey identity as fragmented and pluralistic in a postmodern, information-saturated world?",
+   "weight": 4
+  },
+  {
+   "question": "Does the text cut quickly between samples to create a collage-like structure?",
+   "weight": 4
+  },
+  {
+   "question": "Does the writing use rhythm and pastiche to evoke the technique of sampling in hip-hop music?",
+   "weight": 4
+  },
+  {
+   "question": "Is the text abstract and artistically effective while meeting the prompt’s requirements?",
+   "weight": 3
+  }
+ ],
+ "error": null,
+ "short": false,
+ "s2_usd": 0.0001691,
+ "seconds": 4.6431
+}

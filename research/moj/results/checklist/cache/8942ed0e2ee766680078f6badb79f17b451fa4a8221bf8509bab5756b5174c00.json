@@ -1,0 +1,25 @@
+{
+ "key": "8942ed0e2ee766680078f6badb79f17b451fa4a8221bf8509bab5756b5174c00",
+ "boxes": [
+  {
+   "question": "Does the answer select option F as the correct description of countervailing power?",
+   "weight": 5
+  },
+  {
+   "question": "Does the answer give the requested five-letter string FFFFF?",
+   "weight": 5
+  },
+  {
+   "question": "Does the answer contain exactly five repeated copies of the selected letter?",
+   "weight": 2
+  },
+  {
+   "question": "Does the answer avoid adding text outside the requested letter string?",
+   "weight": 1
+  }
+ ],
+ "error": null,
+ "short": false,
+ "s2_usd": 0.00026169999999999996,
+ "seconds": 5.9437
+}

@@ -1,0 +1,25 @@
+{
+ "key": "02db2bef634f9e377f51019629126051ef22410aface4f67548e7aa69138c9d0",
+ "boxes": [
+  {
+   "question": "Does the answer identify 29 as the maximum amount that cannot be made from the available coin values?",
+   "weight": 5
+  },
+  {
+   "question": "Does the answer give 11 as the sum of the digits of that maximum amount?",
+   "weight": 5
+  },
+  {
+   "question": "Does the answer select choice D?",
+   "weight": 5
+  },
+  {
+   "question": "Does the answer duplicate its selected letter five times in a single string?",
+   "weight": 1
+  }
+ ],
+ "error": null,
+ "short": false,
+ "s2_usd": 0.0003198,
+ "seconds": 9.004
+}

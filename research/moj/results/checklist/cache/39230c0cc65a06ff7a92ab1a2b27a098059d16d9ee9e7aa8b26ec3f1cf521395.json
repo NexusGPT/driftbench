@@ -1,0 +1,25 @@
+{
+ "key": "39230c0cc65a06ff7a92ab1a2b27a098059d16d9ee9e7aa8b26ec3f1cf521395",
+ "boxes": [
+  {
+   "question": "Does the answer identify the correct multiple-choice option for the cost of six one-half-page advertisements, using the schedule of rates from the previous problem?",
+   "weight": 5
+  },
+  {
+   "question": "Is the repeated character a letter corresponding to one of the listed answer choices (A–J)?",
+   "weight": 1
+  },
+  {
+   "question": "Does the answer consist of exactly five characters?",
+   "weight": 1
+  },
+  {
+   "question": "Are all five characters the same letter?",
+   "weight": 1
+  }
+ ],
+ "error": null,
+ "short": false,
+ "s2_usd": 0.0002973,
+ "seconds": 6.5824
+}

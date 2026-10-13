@@ -1,0 +1,33 @@
+{
+ "key": "74d7045f0d77d3c6f34684e046040e549148fbb2bb02b8c500fa89f1e69046c6",
+ "boxes": [
+  {
+   "question": "Is the response written as a reflective essay about nostalgia and unspoken memories triggered by found objects?",
+   "weight": 2
+  },
+  {
+   "question": "Does the essay include all four required phrases exactly: “pencil lines crooked but captured my high ponytail perfectly,” “shared one small umbrella,” “magnolia buds like clenched fists, gathering strength,” and “words never spoken, brewed into secrets of time”?",
+   "weight": 5
+  },
+  {
+   "question": "Does the essay use vivid sensory detail involving the specified scents of mint and magnolia, the specified light of sunlight and twilight, and the specified textures of brittle paper and wet fabric?",
+   "weight": 4
+  },
+  {
+   "question": "Does the writing sustain a poetic, melancholic, subtly bittersweet tone?",
+   "weight": 3
+  },
+  {
+   "question": "Does the essay emphasize the passage of time and the quiet beauty of lingering feelings?",
+   "weight": 3
+  },
+  {
+   "question": "Does the essay convey that unspoken affection endures and that physical remnants can carry powerful emotional weight even decades later?",
+   "weight": 4
+  }
+ ],
+ "error": null,
+ "short": false,
+ "s2_usd": 0.0001817,
+ "seconds": 4.1945
+}

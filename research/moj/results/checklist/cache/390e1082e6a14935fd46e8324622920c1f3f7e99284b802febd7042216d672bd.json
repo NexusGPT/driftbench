@@ -1,0 +1,25 @@
+{
+ "key": "390e1082e6a14935fd46e8324622920c1f3f7e99284b802febd7042216d672bd",
+ "boxes": [
+  {
+   "question": "Je, jibu linataja kuwa idadi ya juu zaidi ya maboksi ni 83?",
+   "weight": 5
+  },
+  {
+   "question": "Je, jibu linazingatia kuwa uzani unaobaki kwa maboksi ni pauni 1,245 baada ya kutoa pauni 3,755 za lori na dereva kutoka kikomo cha pauni 5,000?",
+   "weight": 4
+  },
+  {
+   "question": "Je, jibu linatumia uzani wa pauni 15 kwa kila boksi kuhesabu idadi ya maboksi?",
+   "weight": 4
+  },
+  {
+   "question": "Je, jibu limetolewa kwa Kiswahili?",
+   "weight": 2
+  }
+ ],
+ "error": null,
+ "short": false,
+ "s2_usd": 0.0001562,
+ "seconds": 3.4293
+}

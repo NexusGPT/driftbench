@@ -1,0 +1,25 @@
+{
+ "key": "d349c9cb3668678c03475b54021e6c8d75829c90d022ed9df983dd3515a0163e",
+ "boxes": [
+  {
+   "question": "Does the answer correctly state that there are 2 triangular pieces?",
+   "weight": 5
+  },
+  {
+   "question": "Is the answer given as a single integer?",
+   "weight": 1
+  },
+  {
+   "question": "Is the integer answer bolded as requested?",
+   "weight": 1
+  },
+  {
+   "question": "Does the answer avoid giving a different number of triangular pieces elsewhere?",
+   "weight": 2
+  }
+ ],
+ "error": null,
+ "short": false,
+ "s2_usd": 0.0005307,
+ "seconds": 13.8388
+}

@@ -1,0 +1,37 @@
+{
+ "key": "8797b97571be97df1447a027e273759a88a848945ba2b95295896a363d9113e1",
+ "boxes": [
+  {
+   "question": "Is the response a short story in a wuxia-noir or anti-wuxia mode?",
+   "weight": 1
+  },
+  {
+   "question": "Does it establish the protagonist as a top-tier assassin who has retired from the jianghu and lives secluded in a southern town as a candlemaker, seeking peace?",
+   "weight": 2
+  },
+  {
+   "question": "Does a young stranger arrive seeking the protagonist’s help and carry a token tied to the protagonist’s past?",
+   "weight": 2
+  },
+  {
+   "question": "Does the stranger’s arrival force the protagonist to return to the assassin’s trade?",
+   "weight": 2
+  },
+  {
+   "question": "Does the story center on the fatalistic question of whether one can truly leave the jianghu, showing the protagonist’s internal moral struggle?",
+   "weight": 2
+  },
+  {
+   "question": "Do the fight scenes, if present, emphasize brutal, lethal efficiency rather than martial flourish?",
+   "weight": 2
+  },
+  {
+   "question": "Is the story well-written and coherent while fulfilling the instruction’s requirements?",
+   "weight": 1
+  }
+ ],
+ "error": null,
+ "short": false,
+ "s2_usd": 0.0001949,
+ "seconds": 3.7101
+}

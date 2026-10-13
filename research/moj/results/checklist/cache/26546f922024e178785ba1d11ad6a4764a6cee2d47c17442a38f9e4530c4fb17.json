@@ -1,0 +1,25 @@
+{
+ "key": "26546f922024e178785ba1d11ad6a4764a6cee2d47c17442a38f9e4530c4fb17",
+ "boxes": [
+  {
+   "question": "Does the response sort the words in ascending alphabetical order by their second letter?",
+   "weight": 5
+  },
+  {
+   "question": "Does the response include pants, car, melon, cat, and bus, each exactly once?",
+   "weight": 4
+  },
+  {
+   "question": "Does the response treat “second alphabet” as the second letter of each word?",
+   "weight": 3
+  },
+  {
+   "question": "Is the response in English?",
+   "weight": 1
+  }
+ ],
+ "error": null,
+ "short": false,
+ "s2_usd": 0.0001728,
+ "seconds": 4.9835
+}

@@ -1,0 +1,33 @@
+{
+ "key": "2bd0d99520818f45d94c263f325565503783bb3baa4c4f482c884452f4a7239b",
+ "boxes": [
+  {
+   "question": "Does the answer identify option G as the correct multiple-choice answer?",
+   "weight": 5
+  },
+  {
+   "question": "Is the first character of the answer G?",
+   "weight": 1
+  },
+  {
+   "question": "Is the second character of the answer G?",
+   "weight": 1
+  },
+  {
+   "question": "Is the third character of the answer G?",
+   "weight": 1
+  },
+  {
+   "question": "Is the fourth character of the answer G?",
+   "weight": 1
+  },
+  {
+   "question": "Is the fifth character of the answer G?",
+   "weight": 1
+  }
+ ],
+ "error": null,
+ "short": false,
+ "s2_usd": 0.0005968999999999999,
+ "seconds": 12.1086
+}

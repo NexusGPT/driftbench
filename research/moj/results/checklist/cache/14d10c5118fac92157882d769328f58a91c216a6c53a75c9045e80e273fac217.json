@@ -1,0 +1,25 @@
+{
+ "key": "14d10c5118fac92157882d769328f58a91c216a6c53a75c9045e80e273fac217",
+ "boxes": [
+  {
+   "question": "Does the answer apply the law of large numbers to identify the limit as the expected value of $-\\\\log q(X_1)$ under $X_1\\\\sim N(0,1)$?",
+   "weight": 3
+  },
+  {
+   "question": "Does the answer correctly evaluate that expectation as $\\\\tfrac12\\\\log(2\\\\pi)+1\\\\approx1.919$?",
+   "weight": 5
+  },
+  {
+   "question": "Does the answer choose option F, the closest listed choice to the calculated limit?",
+   "weight": 5
+  },
+  {
+   "question": "Does the answer give the chosen letter five times in a single string?",
+   "weight": 1
+  }
+ ],
+ "error": null,
+ "short": false,
+ "s2_usd": 0.0003081,
+ "seconds": 7.3275
+}

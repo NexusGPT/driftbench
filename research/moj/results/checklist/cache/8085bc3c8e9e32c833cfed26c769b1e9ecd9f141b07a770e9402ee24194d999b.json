@@ -1,0 +1,37 @@
+{
+ "key": "8085bc3c8e9e32c833cfed26c769b1e9ecd9f141b07a770e9402ee24194d999b",
+ "boxes": [
+  {
+   "question": "Does the piece focus on an extremely cheap, ordinary object?",
+   "weight": 2
+  },
+  {
+   "question": "Is the piece written in an ode-like, abstract literary style?",
+   "weight": 2
+  },
+  {
+   "question": "Does it use a distinctly ceremonial, almost deifying tone toward the object?",
+   "weight": 2
+  },
+  {
+   "question": "Does it describe details of the object and give them extraordinary meaning?",
+   "weight": 2
+  },
+  {
+   "question": "Does it praise authenticity as something not defined by brands?",
+   "weight": 3
+  },
+  {
+   "question": "Does it subtly critique the idea that expensive goods are necessarily better?",
+   "weight": 3
+  },
+  {
+   "question": "Is the writing coherent and artful enough to make its praise and critique effective?",
+   "weight": 1
+  }
+ ],
+ "error": null,
+ "short": false,
+ "s2_usd": 0.0001633,
+ "seconds": 3.7437
+}

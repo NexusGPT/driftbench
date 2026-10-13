@@ -1,0 +1,33 @@
+{
+ "key": "8018a65a8dbc64dcc884340bbf6cce4f5b5d8137879a362c980b7b9f6ba23703",
+ "boxes": [
+  {
+   "question": "Is the response framed as a bug report addressed to the developers of the world, such as God, the universe, or fate?",
+   "weight": 2
+  },
+  {
+   "question": "Does it speak in the voice of a Souls-like player who is repeatedly struggling with real-world hardships?",
+   "weight": 2
+  },
+  {
+   "question": "Does it complain about multiple unreasonable designs of real life, using specific examples such as deadlines, socializing, or sleep?",
+   "weight": 3
+  },
+  {
+   "question": "Does it use recognizable gamer or Souls-like language to express those complaints?",
+   "weight": 2
+  },
+  {
+   "question": "Does it convey an existential struggle while balancing playful helplessness with a defiant attitude?",
+   "weight": 3
+  },
+  {
+   "question": "Is the writing coherent and engaging, with each element contributing to the requested role-play and theme?",
+   "weight": 1
+  }
+ ],
+ "error": null,
+ "short": false,
+ "s2_usd": 0.00019380000000000002,
+ "seconds": 3.7738
+}

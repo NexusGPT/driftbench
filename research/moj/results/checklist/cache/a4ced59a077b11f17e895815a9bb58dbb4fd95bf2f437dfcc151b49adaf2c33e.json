@@ -1,0 +1,25 @@
+{
+ "key": "a4ced59a077b11f17e895815a9bb58dbb4fd95bf2f437dfcc151b49adaf2c33e",
+ "boxes": [
+  {
+   "question": "Does the answer identify goldfish as the pet of the person who likes camping?",
+   "weight": 5
+  },
+  {
+   "question": "Is the answer given as the requested single word, without additional explanation?",
+   "weight": 1
+  },
+  {
+   "question": "Is the answer formatted as ***goldfish***?",
+   "weight": 1
+  },
+  {
+   "question": "Does the answer avoid naming a different pet as the camper’s pet?",
+   "weight": 5
+  }
+ ],
+ "error": null,
+ "short": false,
+ "s2_usd": 0.0006209,
+ "seconds": 16.6229
+}

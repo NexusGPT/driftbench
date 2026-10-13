@@ -1,0 +1,33 @@
+{
+ "key": "6c0150ddccd767e112caac552284657adec118c440768b4123870edf5947af1b",
+ "boxes": [
+  {
+   "question": "Does the response portray the speaker as an anonymous, revered fanfiction writer with countless online friends over roughly twenty years, but no recognition in her offline life?",
+   "weight": 2
+  },
+  {
+   "question": "Does the speaker reflect on having learned that she does not have much time left?",
+   "weight": 2
+  },
+  {
+   "question": "Does the speaker express both pride in and emotional attachment to her secret online identity?",
+   "weight": 3
+  },
+  {
+   "question": "Does the speaker consider whether to leave a real-world trace of her otherwise nameless self, and offer final thoughts on that choice?",
+   "weight": 3
+  },
+  {
+   "question": "Is the voice calm and sad throughout the reflection?",
+   "weight": 3
+  },
+  {
+   "question": "Is the writing coherent and evocative enough to fulfill the requested role-play effectively?",
+   "weight": 2
+  }
+ ],
+ "error": null,
+ "short": false,
+ "s2_usd": 0.0001906,
+ "seconds": 4.5803
+}

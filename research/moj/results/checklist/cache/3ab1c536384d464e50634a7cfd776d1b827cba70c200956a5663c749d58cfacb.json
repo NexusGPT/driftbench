@@ -1,0 +1,25 @@
+{
+ "key": "3ab1c536384d464e50634a7cfd776d1b827cba70c200956a5663c749d58cfacb",
+ "boxes": [
+  {
+   "question": "Does the answer identify choice C as the correct answer?",
+   "weight": 5
+  },
+  {
+   "question": "Does the answer consist of five copies of the letter C in a single string?",
+   "weight": 5
+  },
+  {
+   "question": "Are all five letters in the answer identical?",
+   "weight": 3
+  },
+  {
+   "question": "Does the answer avoid including a different answer letter?",
+   "weight": 3
+  }
+ ],
+ "error": null,
+ "short": false,
+ "s2_usd": 0.0002927,
+ "seconds": 6.8492
+}

@@ -1,0 +1,29 @@
+{
+ "key": "1ebfa216218463b90358f9eb1bbb2265d0654de8a1caa75d99aa6434064e0fee",
+ "boxes": [
+  {
+   "question": "¿Concluye que el argumento no es lógicamente válido, porque la conclusión no se sigue necesariamente de las premisas?",
+   "weight": 5
+  },
+  {
+   "question": "¿Identifica el razonamiento como una afirmación del consecuente (o explica claramente esa forma de error)?",
+   "weight": 5
+  },
+  {
+   "question": "¿Explica que usar instrumentos de orquesta sinfónica no basta para demostrar que la canción sea de música clásica?",
+   "weight": 4
+  },
+  {
+   "question": "¿Aclara que las premisas podrían ser verdaderas y aun así la canción pertenecer a otro género?",
+   "weight": 3
+  },
+  {
+   "question": "¿Responde en español?",
+   "weight": 2
+  }
+ ],
+ "error": null,
+ "short": false,
+ "s2_usd": 0.0001512,
+ "seconds": 3.2252
+}

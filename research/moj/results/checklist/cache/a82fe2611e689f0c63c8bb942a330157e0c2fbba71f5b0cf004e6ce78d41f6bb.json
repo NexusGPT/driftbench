@@ -1,0 +1,37 @@
+{
+ "key": "a82fe2611e689f0c63c8bb942a330157e0c2fbba71f5b0cf004e6ce78d41f6bb",
+ "boxes": [
+  {
+   "question": "Does the response read as a game-centered novel or narrative rather than merely describing a story idea?",
+   "weight": 2
+  },
+  {
+   "question": "Is the protagonist established as a folklore enthusiast in reality who enters the game called “The Fogwood Mysteries”?",
+   "weight": 3
+  },
+  {
+   "question": "Does the game provide open-world exploration and puzzle-solving without clear guidance?",
+   "weight": 2
+  },
+  {
+   "question": "Does the protagonist piece together the truth through fragmented diaries, strange murals, and mad NPC ramblings?",
+   "weight": 3
+  },
+  {
+   "question": "Does the story include exploration of a forgotten coastal town?",
+   "weight": 2
+  },
+  {
+   "question": "Are the apparent monsters revealed as incomprehensible, unbeatable ancient beings rather than conventional enemies?",
+   "weight": 3
+  },
+  {
+   "question": "Does the writing effectively convey Cthulhu or weird-fiction elements and deliver a coherent, engaging narrative?",
+   "weight": 2
+  }
+ ],
+ "error": null,
+ "short": false,
+ "s2_usd": 0.000197,
+ "seconds": 4.6212
+}

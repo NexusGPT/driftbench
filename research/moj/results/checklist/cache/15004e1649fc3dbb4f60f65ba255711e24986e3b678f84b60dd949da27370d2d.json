@@ -1,0 +1,25 @@
+{
+ "key": "15004e1649fc3dbb4f60f65ba255711e24986e3b678f84b60dd949da27370d2d",
+ "boxes": [
+  {
+   "question": "Je, jibu linahesabu kuwa Monic ana kaa 36?",
+   "weight": 2
+  },
+  {
+   "question": "Je, jibu linahesabu kuwa Rani ana kaa 46?",
+   "weight": 2
+  },
+  {
+   "question": "Je, jibu linatoa jumla sahihi ya kaa wote watatu, 122?",
+   "weight": 5
+  },
+  {
+   "question": "Je, jibu limeandikwa kwa Kiswahili?",
+   "weight": 1
+  }
+ ],
+ "error": null,
+ "short": false,
+ "s2_usd": 0.0001388,
+ "seconds": 2.8279
+}

@@ -1,0 +1,25 @@
+{
+ "key": "4963c31b49aa84d3f55331d9f26047bffb86869e7a06d1f3d560f91a50c3f2fd",
+ "boxes": [
+  {
+   "question": "Does the answer correctly identify that the two vertical cuts divide each horizontal square cross-section into four triangular regions?",
+   "weight": 2
+  },
+  {
+   "question": "Does the answer correctly identify the pieces in each half of the cube as four triangular prisms?",
+   "weight": 3
+  },
+  {
+   "question": "Does the answer correctly count four triangular prisms in each half of the cube?",
+   "weight": 3
+  },
+  {
+   "question": "Does the answer give 8 as the total number of triangular prisms?",
+   "weight": 5
+  }
+ ],
+ "error": null,
+ "short": false,
+ "s2_usd": 0.00034419999999999996,
+ "seconds": 9.3013
+}

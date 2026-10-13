@@ -1,0 +1,25 @@
+{
+ "key": "e33fb7b7f3c1e8ae51e3661a9e98d377a86415ece2b763e4f31f327c251c20c3",
+ "boxes": [
+  {
+   "question": "Does the answer identify the mechanic’s preferred movie genre as mystery movies?",
+   "weight": 5
+  },
+  {
+   "question": "Does the answer give “mystery” as the genre, rather than spy movies or thriller movies?",
+   "weight": 5
+  },
+  {
+   "question": "Does the answer avoid giving a conflicting movie-genre answer?",
+   "weight": 4
+  },
+  {
+   "question": "Does the answer follow the requested single-word format, ***mystery***?",
+   "weight": 1
+  }
+ ],
+ "error": null,
+ "short": false,
+ "s2_usd": 0.0005225,
+ "seconds": 12.0276
+}

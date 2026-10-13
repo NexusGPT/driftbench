@@ -1,0 +1,25 @@
+{
+ "key": "a87ee738edc0656aa9939c1602d898f9f65d6117ecd1490e5399027d2d5e80ff",
+ "boxes": [
+  {
+   "question": "¿Ordena las palabras según la secuencia alfabética de sus segundas letras: e, i, o, u?",
+   "weight": 5
+  },
+  {
+   "question": "¿Coloca mecánica y delicioso antes de aire, sin exigir un orden concreto entre las dos palabras que tienen e como segunda letra?",
+   "weight": 4
+  },
+  {
+   "question": "¿Incluye mecánica, fontanera, delicioso, cualquier y aire exactamente una vez?",
+   "weight": 3
+  },
+  {
+   "question": "¿Presenta la lista ordenada de forma directa y en español?",
+   "weight": 2
+  }
+ ],
+ "error": null,
+ "short": false,
+ "s2_usd": 0.0002503,
+ "seconds": 6.007
+}

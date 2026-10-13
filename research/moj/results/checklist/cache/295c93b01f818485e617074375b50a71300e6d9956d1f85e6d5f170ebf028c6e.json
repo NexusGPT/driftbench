@@ -1,0 +1,25 @@
+{
+ "key": "295c93b01f818485e617074375b50a71300e6d9956d1f85e6d5f170ebf028c6e",
+ "boxes": [
+  {
+   "question": "Does the answer correctly count 20 glasses of water on weekdays?",
+   "weight": 2
+  },
+  {
+   "question": "Does the answer correctly count 6 glasses of water on weekends, excluding the soda with dinner?",
+   "weight": 2
+  },
+  {
+   "question": "Does the answer give the correct weekly total of 26 glasses of water?",
+   "weight": 5
+  },
+  {
+   "question": "Is the answer clear and written in English?",
+   "weight": 1
+  }
+ ],
+ "error": null,
+ "short": false,
+ "s2_usd": 0.0001828,
+ "seconds": 4.6224
+}

@@ -1,0 +1,25 @@
+{
+ "key": "1bdf1d6e41fb19f673562d0f6da2a2b025741e3d2df52c268ec1478a8540a752",
+ "boxes": [
+  {
+   "question": "Does the answer identify option E as the correct choice?",
+   "weight": 5
+  },
+  {
+   "question": "Does the answer give an actual velocity ratio of 3.948?",
+   "weight": 5
+  },
+  {
+   "question": "Does the answer give a center distance of 12 in.?",
+   "weight": 5
+  },
+  {
+   "question": "Does the answer write the selected letter five times in a single string?",
+   "weight": 1
+  }
+ ],
+ "error": null,
+ "short": false,
+ "s2_usd": 0.0003127,
+ "seconds": 7.5354
+}

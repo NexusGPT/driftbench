@@ -1,0 +1,33 @@
+{
+ "key": "7f238147a1c61dbfd3a502eacea054fe2fa7cc35ea9ac2b196e1a801d26f79dc",
+ "boxes": [
+  {
+   "question": "Is the protagonist an independent woman building a career in a big city?",
+   "weight": 2
+  },
+  {
+   "question": "Does the story establish that she has a distant relationship with her quiet, traditional father from a small hometown?",
+   "weight": 2
+  },
+  {
+   "question": "Does an accident lead to her father coming to live with her, with lifestyle differences and poor communication causing friction?",
+   "weight": 3
+  },
+  {
+   "question": "Does the daughter accidentally discover that her father secretly maintains a social media account centered on following and documenting her life?",
+   "weight": 3
+  },
+  {
+   "question": "Does the account show him clumsily tracking her achievements and anonymously joining forums related to her profession to better understand what she talks about?",
+   "weight": 3
+  },
+  {
+   "question": "Does the story use this discovery to develop the theme of understanding across the generation gap in an emotionally effective way?",
+   "weight": 3
+  }
+ ],
+ "error": null,
+ "short": false,
+ "s2_usd": 0.0001751,
+ "seconds": 4.2461
+}

@@ -1,0 +1,33 @@
+{
+ "key": "6ed45bb66a0c27bf254cb1ee93a3fd006a1a72f976677158b036d993b29ba8f1",
+ "boxes": [
+  {
+   "question": "Erantzunak zehazki lau titular-aukera proposatzen al ditu?",
+   "weight": 3
+  },
+  {
+   "question": "Lau aukerak euskaraz idatzita al daude?",
+   "weight": 2
+  },
+  {
+   "question": "Titularrek erregai biologiko berriztagarrien aurkikuntzari buruzko artikuluaren gaia argi adierazten al dute?",
+   "weight": 2
+  },
+  {
+   "question": "Titularrek arreta pizten al dute, gehiegizko edo engainagarria den sentsazionalismorik gabe?",
+   "weight": 2
+  },
+  {
+   "question": "Titularrek ez al dute aurkikuntzari buruzko xehetasun edo ondorio zientifikorik asmatzen edo frogatutzat aurkezten?",
+   "weight": 5
+  },
+  {
+   "question": "Titularrek iturri biologikoak erabiltzeak dakartzan dilema etikoak kontu handiz eta modu orekatuan tratatzen al dituzte?",
+   "weight": 4
+  }
+ ],
+ "error": null,
+ "short": false,
+ "s2_usd": 0.0002198,
+ "seconds": 5.4225
+}

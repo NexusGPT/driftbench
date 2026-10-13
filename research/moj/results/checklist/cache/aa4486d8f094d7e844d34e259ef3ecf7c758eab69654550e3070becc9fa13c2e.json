@@ -1,0 +1,29 @@
+{
+ "key": "aa4486d8f094d7e844d34e259ef3ecf7c758eab69654550e3070becc9fa13c2e",
+ "boxes": [
+  {
+   "question": "Erantzunak ondorioztatzen al du plurala morfologiaz markatzen dela, adibideetan hitzari amaiera edo plural-forma bereizgarri bat gehituz?",
+   "weight": 3
+  },
+  {
+   "question": "Argi uzten al du Indo-Europar hizkuntza guztiek ez dutela plural-marka bera erabiltzen, eta adibideek hizkuntzen arteko aldeak erakusten dituztela?",
+   "weight": 3
+  },
+  {
+   "question": "Erabiltzen al ditu ondorioa arrazoitzeko emandako adibide egokiak: ingeleseko «-s/-es», alemanezko «-e/-er» eta hindiko plural-formak?",
+   "weight": 3
+  },
+  {
+   "question": "Saihesten al du adibide gutxi horietatik Indo-Europar hizkuntza guztiei buruzko arau unibertsal eta zehatz bat ondorioztatzea?",
+   "weight": 2
+  },
+  {
+   "question": "Erantzuna euskaraz al dago?",
+   "weight": 2
+  }
+ ],
+ "error": null,
+ "short": false,
+ "s2_usd": 0.0002375,
+ "seconds": 4.9686
+}

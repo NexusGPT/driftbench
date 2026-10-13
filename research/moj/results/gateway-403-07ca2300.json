@@ -1,0 +1,32 @@
+{
+ "pair": "07ca2300f60edfef71d69d9c493d15b2d9268d58391a30e63fa9d86b6d1331f5",
+ "note": "Sanitized: no key, no auth header, no cookie. Request texts are not stored here.",
+ "result": {
+  "full": {
+   "status": 200
+  },
+  "request_only": {
+   "status": 200
+  },
+  "a_only": {
+   "status": 200
+  },
+  "b_only": {
+   "status": 403,
+   "headers": {
+    "Date": "Tue, 13 Oct 2026 12:09:08 GMT",
+    "Content-Type": "text/html",
+    "Transfer-Encoding": "chunked",
+    "Connection": "close",
+    "Server": "cloudflare",
+    "cf-cache-status": "DYNAMIC",
+    "Report-To": "{\"group\":\"cf-nel\",\"max_age\":604800,\"endpoints\":[{\"url\":\"https://a.nel.cloudflare.com/report/v4?s=Xmh%2FXGJw1UU%2BhRsZWSNwWCu6hcZFgnpz9yJ1rDYLiFyV9N69%2BWNKo5oddoDpzVZpsEMi5i3CDn%2BAOT%2Ff5MTpgC5EbOi8qtA6N6tKTKWuU7C9q57uhosnLdaQue9G5E%2Bm4KUfEbFTQsWGAjcNNcHWczxApgm9U12Kv2UoxHIk1g%3D%3D\"}]}",
+    "Nel": "{\"report_to\":\"cf-nel\",\"success_fraction\":0.0,\"max_age\":604800}",
+    "CF-RAY": "a49e3bd21e4dc099-AMS",
+    "alt-svc": "h3=\":443\"; ma=86400"
+   },
+   "body": "<html>\r\n<head><title>403 Forbidden</title></head>\r\n<body>\r\n<center><h1>403 Forbidden</h1></center>\r\n</body>\r\n</html>\r\n",
+   "request_bytes": 42672
+  }
+ }
+}

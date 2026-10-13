@@ -1,0 +1,41 @@
+{
+ "key": "262a4d16915446f0a9b1c18bfbef68184e98293b0ef69dccf29fb98b3be48215",
+ "boxes": [
+  {
+   "question": "Is the response a short story set in a city?",
+   "weight": 2
+  },
+  {
+   "question": "Is the protagonist a young person who works from home?",
+   "weight": 2
+  },
+  {
+   "question": "Does the protagonist repeatedly hear a strange, rhythmic noise late at night from their new upstairs neighbor?",
+   "weight": 3
+  },
+  {
+   "question": "Does the protagonist reach a breaking point and decide to confront the neighbor about the noise?",
+   "weight": 2
+  },
+  {
+   "question": "Does the confrontation reveal an unexpected, poignant truth about the source of the noise?",
+   "weight": 4
+  },
+  {
+   "question": "Does this revelation drive the story’s dramatic turn and contribute to a reconciliation between the neighbors?",
+   "weight": 4
+  },
+  {
+   "question": "Does the story meaningfully explore alienation and misunderstanding between people in a modern city?",
+   "weight": 3
+  },
+  {
+   "question": "Is the story coherent and emotionally effective in how it develops the conflict and its resolution?",
+   "weight": 2
+  }
+ ],
+ "error": null,
+ "short": false,
+ "s2_usd": 0.00019119999999999999,
+ "seconds": 4.3787
+}

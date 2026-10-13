@@ -1,0 +1,25 @@
+{
+ "key": "129cd4d33623fe95ebd241ee7bf79e90798cd28650c639cb764ff14afe065e6e",
+ "boxes": [
+  {
+   "question": "Does the answer identify option A as correct?",
+   "weight": 5
+  },
+  {
+   "question": "Does the answer indicate that heterogeneous groups are generally more creative?",
+   "weight": 2
+  },
+  {
+   "question": "Does the answer indicate that heterogeneous groups are generally worse at decision-making?",
+   "weight": 2
+  },
+  {
+   "question": "Does the answer give the selected letter five times in a single string?",
+   "weight": 1
+  }
+ ],
+ "error": null,
+ "short": false,
+ "s2_usd": 0.0002441,
+ "seconds": 7.2506
+}

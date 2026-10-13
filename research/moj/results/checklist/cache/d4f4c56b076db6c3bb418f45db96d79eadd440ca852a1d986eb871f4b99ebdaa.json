@@ -1,0 +1,25 @@
+{
+ "key": "d4f4c56b076db6c3bb418f45db96d79eadd440ca852a1d986eb871f4b99ebdaa",
+ "boxes": [
+  {
+   "question": "Does the answer state that there is exactly 1 quadrilateral?",
+   "weight": 5
+  },
+  {
+   "question": "Does the answer identify the quadrilateral as the piece with vertices A, E, F, and G?",
+   "weight": 2
+  },
+  {
+   "question": "Does the answer correctly treat the cuts as partitioning the heptagon along AC, AD, and AE?",
+   "weight": 2
+  },
+  {
+   "question": "Does the answer avoid counting any other resulting piece as a quadrilateral?",
+   "weight": 2
+  }
+ ],
+ "error": null,
+ "short": false,
+ "s2_usd": 0.0002565,
+ "seconds": 6.2575
+}

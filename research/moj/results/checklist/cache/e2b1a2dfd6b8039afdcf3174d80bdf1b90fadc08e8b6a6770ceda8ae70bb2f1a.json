@@ -1,0 +1,33 @@
+{
+ "key": "e2b1a2dfd6b8039afdcf3174d80bdf1b90fadc08e8b6a6770ceda8ae70bb2f1a",
+ "boxes": [
+  {
+   "question": "Câu trả lời có nêu rằng nếu vệ tinh vẫn ở quỹ đạo tròn, tốc độ nhỏ hơn tương ứng với bán kính quỹ đạo lớn hơn không?",
+   "weight": 2
+  },
+  {
+   "question": "Câu trả lời có nêu rằng trong trường hợp quỹ đạo tròn đó, chu kỳ quay tăng khi bán kính quỹ đạo tăng không?",
+   "weight": 2
+  },
+  {
+   "question": "Câu trả lời có giải thích bằng nguyên tắc vật lý phù hợp, chẳng hạn dùng quan hệ giữa tốc độ quỹ đạo và bán kính hoặc định luật Kepler về chu kỳ và bán kính?",
+   "weight": 2
+  },
+  {
+   "question": "Câu trả lời có phân biệt việc chuyển sang một quỹ đạo tròn lớn hơn với việc giảm tốc độ tức thời khi đang ở quỹ đạo tròn ban đầu, vốn thường tạo ra quỹ đạo elip chứ không còn quỹ đạo tròn?",
+   "weight": 2
+  },
+  {
+   "question": "Nếu đề cập đến việc giảm tốc độ tức thời, câu trả lời có mô tả chính xác quỹ đạo elip phát sinh, thay vì khẳng định vệ tinh lập tức chuyển sang quỹ đạo tròn lớn hơn?",
+   "weight": 2
+  },
+  {
+   "question": "Câu trả lời có được viết bằng tiếng Việt, cùng ngôn ngữ với câu hỏi không?",
+   "weight": 1
+  }
+ ],
+ "error": null,
+ "short": false,
+ "s2_usd": 0.0003711,
+ "seconds": 9.3344
+}

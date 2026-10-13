@@ -1,0 +1,41 @@
+{
+ "key": "73e8bd29b152bb13a52d70032657c28129bc1838b2e13c11e203321f90107225",
+ "boxes": [
+  {
+   "question": "Is the review professionally written, well-structured, and centered on the jacket’s core performance metrics?",
+   "weight": 2
+  },
+  {
+   "question": "Does it analyze the jacket’s fit and cut and identify its fabric technology?",
+   "weight": 2
+  },
+  {
+   "question": "Does it describe the seam-sealing process, zipper configuration, and overall weight?",
+   "weight": 2
+  },
+  {
+   "question": "Does it objectively evaluate waterproofing performance in simulated or real-world conditions?",
+   "weight": 4
+  },
+  {
+   "question": "Does it objectively evaluate breathability performance in simulated or real-world conditions?",
+   "weight": 4
+  },
+  {
+   "question": "Does it objectively evaluate windproofing performance in simulated or real-world conditions?",
+   "weight": 4
+  },
+  {
+   "question": "Does it review the hood’s adjustment range, pocket layout, and cuff and hem adjustment systems?",
+   "weight": 2
+  },
+  {
+   "question": "Does its conclusion summarize pros and cons and, considering the price, give clear purchasing advice and identify suitable user groups?",
+   "weight": 3
+  }
+ ],
+ "error": null,
+ "short": false,
+ "s2_usd": 0.0002613,
+ "seconds": 6.2059
+}

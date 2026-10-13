@@ -1,0 +1,25 @@
+{
+ "key": "15d586e5dbf99339b57822e8a8fdd4af37488873ac8a0caf5311e81067dd22e3",
+ "boxes": [
+  {
+   "question": "Does the answer give **2** as the number of resulting pieces that are triangles?",
+   "weight": 5
+  },
+  {
+   "question": "Does the answer correctly identify that the cuts divide the combined shapes into two triangular pieces and one nontriangular piece?",
+   "weight": 4
+  },
+  {
+   "question": "Does the answer treat F and G as touching A and B, respectively, so the triangle and square share the side FG = AB?",
+   "weight": 2
+  },
+  {
+   "question": "Is the final answer presented in bold as a single integer, as requested?",
+   "weight": 1
+  }
+ ],
+ "error": null,
+ "short": false,
+ "s2_usd": 0.0004819,
+ "seconds": 11.4684
+}

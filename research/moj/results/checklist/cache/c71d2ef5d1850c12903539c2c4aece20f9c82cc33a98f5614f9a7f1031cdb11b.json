@@ -1,0 +1,37 @@
+{
+ "key": "c71d2ef5d1850c12903539c2c4aece20f9c82cc33a98f5614f9a7f1031cdb11b",
+ "boxes": [
+  {
+   "question": "Câu trả lời có nêu cơ thắt niệu đạo ngoài là cơ chủ yếu của túi đáy chậu sâu không?",
+   "weight": 5
+  },
+  {
+   "question": "Câu trả lời có mô tả chức năng cơ thắt niệu đạo ngoài là ép niệu đạo để giúp kiểm soát tiểu tiện không?",
+   "weight": 5
+  },
+  {
+   "question": "Câu trả lời có đề cập cơ ngang đáy chậu sâu, đồng thời lưu ý cơ này có thể thay đổi hoặc không rõ ở một số người không?",
+   "weight": 3
+  },
+  {
+   "question": "Nếu mô tả cơ ngang đáy chậu sâu, câu trả lời có nêu chức năng hỗ trợ ổn định vùng đáy chậu hoặc thể đáy chậu không?",
+   "weight": 3
+  },
+  {
+   "question": "Câu trả lời có đề cập các thành phần cơ thắt niệu đạo bổ sung ở nữ, như cơ ép niệu đạo hoặc cơ thắt niệu đạo-âm đạo, khi phù hợp không?",
+   "weight": 3
+  },
+  {
+   "question": "Câu trả lời có phân biệt các cơ thuộc túi đáy chậu sâu với các cơ của túi đáy chậu nông không?",
+   "weight": 4
+  },
+  {
+   "question": "Câu trả lời có viết bằng tiếng Việt và trình bày thông tin rõ ràng, hữu ích không?",
+   "weight": 2
+  }
+ ],
+ "error": null,
+ "short": false,
+ "s2_usd": 0.0002599,
+ "seconds": 6.1079
+}

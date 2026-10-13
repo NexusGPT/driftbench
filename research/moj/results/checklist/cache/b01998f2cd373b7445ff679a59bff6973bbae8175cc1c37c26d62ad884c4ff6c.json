@@ -1,0 +1,25 @@
+{
+ "key": "b01998f2cd373b7445ff679a59bff6973bbae8175cc1c37c26d62ad884c4ff6c",
+ "boxes": [
+  {
+   "question": "Gibt die Antwort an, wie viele Dornen es insgesamt sind?",
+   "weight": 2
+  },
+  {
+   "question": "Nennt die Antwort 600 als Gesamtzahl der Dornen?",
+   "weight": 5
+  },
+  {
+   "question": "Bezieht sich die angegebene Zahl auf alle 3 Rosenbüsche und ihre insgesamt 75 Rosen?",
+   "weight": 3
+  },
+  {
+   "question": "Ist die Antwort auf Deutsch formuliert?",
+   "weight": 1
+  }
+ ],
+ "error": null,
+ "short": false,
+ "s2_usd": 0.0001943,
+ "seconds": 5.3622
+}

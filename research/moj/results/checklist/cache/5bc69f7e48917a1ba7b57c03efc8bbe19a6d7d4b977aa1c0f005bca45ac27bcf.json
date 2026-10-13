@@ -1,0 +1,25 @@
+{
+ "key": "5bc69f7e48917a1ba7b57c03efc8bbe19a6d7d4b977aa1c0f005bca45ac27bcf",
+ "boxes": [
+  {
+   "question": "Does the response identify climbing as the sport played by the person in the third position?",
+   "weight": 5
+  },
+  {
+   "question": "Does the response give climbing as the answer, rather than skateboarding?",
+   "weight": 5
+  },
+  {
+   "question": "Does the response give climbing as the answer, rather than tennis?",
+   "weight": 5
+  },
+  {
+   "question": "Does the response give climbing as the answer, rather than volleyball?",
+   "weight": 5
+  }
+ ],
+ "error": null,
+ "short": false,
+ "s2_usd": 0.0005612999999999999,
+ "seconds": 13.2478
+}

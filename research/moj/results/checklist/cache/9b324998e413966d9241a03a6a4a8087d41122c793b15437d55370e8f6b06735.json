@@ -1,0 +1,29 @@
+{
+ "key": "9b324998e413966d9241a03a6a4a8087d41122c793b15437d55370e8f6b06735",
+ "boxes": [
+  {
+   "question": "Does the answer give a cubic characteristic polynomial with leading term \\(\\lambda^3\\), using the convention \\(\\det(\\lambda I-A)\\)?",
+   "weight": 3
+  },
+  {
+   "question": "Is the coefficient of \\(\\lambda^2\\) equal to \\(-8\\)?",
+   "weight": 3
+  },
+  {
+   "question": "Is the coefficient of \\(\\lambda\\) equal to \\(-4\\)?",
+   "weight": 3
+  },
+  {
+   "question": "Is the constant term equal to \\(-3037\\)?",
+   "weight": 5
+  },
+  {
+   "question": "Is the final answer enclosed in \\(\\boxed{}\\)?",
+   "weight": 1
+  }
+ ],
+ "error": null,
+ "short": false,
+ "s2_usd": 0.0003089,
+ "seconds": 8.6381
+}

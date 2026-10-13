@@ -1,0 +1,25 @@
+{
+ "key": "a5de1a82490b9b0419433d57cde86da704096c86ff7b0853cae292d8ed1c413d",
+ "boxes": [
+  {
+   "question": "Does the answer identify the correct transport for the British person?",
+   "weight": 5
+  },
+  {
+   "question": "Does the answer name a transport value from the given options: tram, boat, car, or helicopter?",
+   "weight": 1
+  },
+  {
+   "question": "Is the answer a single word?",
+   "weight": 1
+  },
+  {
+   "question": "Is the answer presented in the requested ***X*** format?",
+   "weight": 1
+  }
+ ],
+ "error": null,
+ "short": false,
+ "s2_usd": 0.0007184,
+ "seconds": 17.2101
+}

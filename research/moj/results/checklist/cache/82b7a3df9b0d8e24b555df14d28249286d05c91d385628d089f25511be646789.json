@@ -1,0 +1,25 @@
+{
+ "key": "82b7a3df9b0d8e24b555df14d28249286d05c91d385628d089f25511be646789",
+ "boxes": [
+  {
+   "question": "Does the answer select option (E), the prerogative to decline radical changes to one's practical identity?",
+   "weight": 5
+  },
+  {
+   "question": "Does the answer repeat its selected letter exactly five times?",
+   "weight": 2
+  },
+  {
+   "question": "Are all five repeated letters identical?",
+   "weight": 2
+  },
+  {
+   "question": "Does the answer provide the repeated-letter string without additional text?",
+   "weight": 1
+  }
+ ],
+ "error": null,
+ "short": false,
+ "s2_usd": 0.00021459999999999998,
+ "seconds": 4.7312
+}

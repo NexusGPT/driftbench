@@ -1,0 +1,37 @@
+{
+ "key": "661913974439a26b42b7cd51b3f88e059b0e34afcd02be1f89bfc96334383d9c",
+ "boxes": [
+  {
+   "question": "Câu trả lời có nhận định một cách thận trọng rằng sự im lặng, phản hồi ngắn và thiếu cam kết của Sam có thể cho thấy anh ấy đang do dự, không thoải mái hoặc có mối bận tâm, thay vì khẳng định chắc chắn về trạng thái tinh thần của anh ấy không?",
+   "weight": 2
+  },
+  {
+   "question": "Câu trả lời có liên hệ cái cau mày thoáng qua với đề xuất khác biệt với phương pháp truyền thống với khả năng Sam hoài nghi hoặc không tán thành cách tiếp cận mới không?",
+   "weight": 2
+  },
+  {
+   "question": "Câu trả lời có nhận ra việc Sam liên tục nhìn thời gian dự án và nhíu mày có thể cho thấy anh ấy lo lắng về tiến độ hoặc áp lực thời gian không?",
+   "weight": 2
+  },
+  {
+   "question": "Câu trả lời có giải thích rằng các dấu hiệu quan sát được chỉ gợi ý những khả năng và Jenna cần hỏi Sam để xác nhận nguyên nhân thực sự không?",
+   "weight": 2
+  },
+  {
+   "question": "Câu trả lời có đề xuất Jenna trao đổi riêng với Sam bằng câu hỏi cởi mở, không phán xét để tìm hiểu những băn khoăn của anh ấy không?",
+   "weight": 2
+  },
+  {
+   "question": "Câu trả lời có đề xuất Jenna làm rõ các mối quan ngại cụ thể, chẳng hạn rủi ro của phương pháp mới, sự phù hợp với mục tiêu hoặc thời hạn dự án, rồi cùng Sam xem xét cách giải quyết không?",
+   "weight": 2
+  },
+  {
+   "question": "Câu trả lời có đưa ra lời giải thích chi tiết, hữu ích và an toàn, đồng thời viết bằng tiếng Việt như ngôn ngữ của câu hỏi không?",
+   "weight": 1
+  }
+ ],
+ "error": null,
+ "short": false,
+ "s2_usd": 0.0002857,
+ "seconds": 4.9356
+}

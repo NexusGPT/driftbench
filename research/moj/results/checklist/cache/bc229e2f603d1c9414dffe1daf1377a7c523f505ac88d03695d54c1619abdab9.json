@@ -1,0 +1,41 @@
+{
+ "key": "bc229e2f603d1c9414dffe1daf1377a7c523f505ac88d03695d54c1619abdab9",
+ "boxes": [
+  {
+   "question": "Is the response a coherent short story set during the French Revolution?",
+   "weight": 3
+  },
+  {
+   "question": "Does the story portray Pierre as a pastry chef who unintentionally becomes an important figure in the revolution through his culinary creations?",
+   "weight": 4
+  },
+  {
+   "question": "Does the story use a whimsical, slightly satirical tone with some absurdist humor?",
+   "weight": 2
+  },
+  {
+   "question": "Does the story include a specific instance of Pierre’s pastries being used for a revolutionary purpose, such as concealing a secret message?",
+   "weight": 4
+  },
+  {
+   "question": "Does Pierre accidentally encounter royalty in the story?",
+   "weight": 3
+  },
+  {
+   "question": "Does the story include a dramatic near-execution from which Pierre is saved by his pastry art?",
+   "weight": 4
+  },
+  {
+   "question": "Does the story convey that unexpected creativity can be a powerful tool for change and freedom?",
+   "weight": 3
+  },
+  {
+   "question": "Is the story well-written and effective as a piece of creative writing?",
+   "weight": 2
+  }
+ ],
+ "error": null,
+ "short": false,
+ "s2_usd": 0.0001976,
+ "seconds": 3.9326
+}

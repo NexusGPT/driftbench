@@ -1,0 +1,25 @@
+{
+ "key": "13e5f3be927f817b8fe304aebbb24be0ea68bfb79183f1fbade9dc8354686aec",
+ "boxes": [
+  {
+   "question": "Does the answer give a total distance of 5200 feet?",
+   "weight": 5
+  },
+  {
+   "question": "Does the answer identify choice (H) as the correct multiple-choice answer?",
+   "weight": 5
+  },
+  {
+   "question": "Does the answer provide the requested five-letter string HHHHH?",
+   "weight": 3
+  },
+  {
+   "question": "Does the answer account for the return trip after placing the 50th stone in its total distance?",
+   "weight": 4
+  }
+ ],
+ "error": null,
+ "short": false,
+ "s2_usd": 0.0003249,
+ "seconds": 8.9622
+}

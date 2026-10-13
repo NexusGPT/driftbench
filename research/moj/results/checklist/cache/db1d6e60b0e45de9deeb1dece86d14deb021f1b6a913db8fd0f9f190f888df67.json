@@ -1,0 +1,25 @@
+{
+ "key": "db1d6e60b0e45de9deeb1dece86d14deb021f1b6a913db8fd0f9f190f888df67",
+ "boxes": [
+  {
+   "question": "¿Explica que un Int representa valores enteros, sin parte fraccionaria?",
+   "weight": 3
+  },
+  {
+   "question": "¿Explica que un Float representa valores de punto flotante y puede representar valores con parte fraccionaria?",
+   "weight": 3
+  },
+  {
+   "question": "¿Evita afirmar que la distinción se implementa exactamente igual en todos los lenguajes?",
+   "weight": 2
+  },
+  {
+   "question": "¿Responde en español?",
+   "weight": 1
+  }
+ ],
+ "error": null,
+ "short": false,
+ "s2_usd": 0.0001581,
+ "seconds": 3.8539
+}

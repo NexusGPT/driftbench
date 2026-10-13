@@ -1,0 +1,25 @@
+{
+ "key": "37e7071431999004a42d492d245bca65b1d0b5d65b1ac19296c212d9cd61c485",
+ "boxes": [
+  {
+   "question": "Does the answer identify thriller movies as the movie genre preferred by the person who listens to dubstep?",
+   "weight": 5
+  },
+  {
+   "question": "Does the answer avoid naming time-travel movies as the dubstep listener’s preference?",
+   "weight": 5
+  },
+  {
+   "question": "Does the answer avoid naming adventure movies as the dubstep listener’s preference?",
+   "weight": 5
+  },
+  {
+   "question": "Does the answer give one of the listed movie genres as the dubstep listener’s preference?",
+   "weight": 1
+  }
+ ],
+ "error": null,
+ "short": false,
+ "s2_usd": 0.0003958,
+ "seconds": 9.0099
+}

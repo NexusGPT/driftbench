@@ -1,0 +1,37 @@
+{
+ "key": "4dd1d69072864303ddd2b61e22d7991d9f2356d4fe6ac7fb8354b3b6ad034900",
+ "boxes": [
+  {
+   "question": "Is the response written as a project proposal addressed to the employee’s boss, requesting permission to leave work on time?",
+   "weight": 3
+  },
+  {
+   "question": "Does the proposal center on the theme “A Proposal for the Optimization of a Personal Sustainable Dynamic Empowerment Model,” or a clearly equivalent formulation?",
+   "weight": 2
+  },
+  {
+   "question": "Does the employee speak as an ordinary worker whose thinking or language is comically alienated by internet jargon?",
+   "weight": 2
+  },
+  {
+   "question": "Does the response avoid directly saying that the employee is tired and wants to go home?",
+   "weight": 3
+  },
+  {
+   "question": "Does it frame leaving work on time as a strategic decision that creates long-term value for the company?",
+   "weight": 5
+  },
+  {
+   "question": "Does it use jargon heavily, including several of the specified terms such as “user experience,” “cost reduction,” “touchpoint,” “ecosystem,” and “to give back”?",
+   "weight": 4
+  },
+  {
+   "question": "Is the proposal coherent and effective as a piece of writing, rather than merely listing jargon or repeating the instructions?",
+   "weight": 2
+  }
+ ],
+ "error": null,
+ "short": false,
+ "s2_usd": 0.0002244,
+ "seconds": 4.3368
+}

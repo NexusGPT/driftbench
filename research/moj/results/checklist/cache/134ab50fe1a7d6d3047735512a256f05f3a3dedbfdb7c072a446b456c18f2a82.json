@@ -1,0 +1,37 @@
+{
+ "key": "134ab50fe1a7d6d3047735512a256f05f3a3dedbfdb7c072a446b456c18f2a82",
+ "boxes": [
+  {
+   "question": "Does the paper argue that successful technological innovation should be anchored in cultural heritage?",
+   "weight": 3
+  },
+  {
+   "question": "Does it discuss Japan’s Hayabusa probe and China’s lunar program as examples of cultural heritage in space exploration, while accurately describing the relevant evidence?",
+   "weight": 4
+  },
+  {
+   "question": "Does it contrast heritage-oriented innovation with critiques that the metaverse can cause social alienation?",
+   "weight": 3
+  },
+  {
+   "question": "Does it provide ethnographic evidence about Gen Z developers integrating Confucian ethics into AI systems?",
+   "weight": 5
+  },
+  {
+   "question": "Does it meaningfully apply Haraway’s cyborg theory to the paper’s argument?",
+   "weight": 3
+  },
+  {
+   "question": "Does it use the architectural metaphor “moral compass installation” to develop its argument?",
+   "weight": 2
+  },
+  {
+   "question": "Does it present a coherent cross-cultural academic analysis that connects applied-philosophy references to its position?",
+   "weight": 3
+  }
+ ],
+ "error": null,
+ "short": false,
+ "s2_usd": 0.0002762,
+ "seconds": 7.3296
+}

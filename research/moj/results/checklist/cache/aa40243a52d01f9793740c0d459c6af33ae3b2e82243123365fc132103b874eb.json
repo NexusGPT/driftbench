@@ -1,0 +1,29 @@
+{
+ "key": "aa40243a52d01f9793740c0d459c6af33ae3b2e82243123365fc132103b874eb",
+ "boxes": [
+  {
+   "question": "Does the answer directly address whether worldwide adoption of SI units would be beneficial?",
+   "weight": 3
+  },
+  {
+   "question": "Does the answer identify practical benefits of using a common unit system, such as easier communication, trade, or scientific collaboration?",
+   "weight": 3
+  },
+  {
+   "question": "Does the answer explain why those benefits may not be enough to justify switching everywhere, for example because conversion would involve costs, disruption, or entrenched practices?",
+   "weight": 3
+  },
+  {
+   "question": "Are the answer’s factual claims about SI units and the effects of adopting them accurate and appropriately qualified?",
+   "weight": 5
+  },
+  {
+   "question": "Is the answer helpful and safe, and written in English?",
+   "weight": 2
+  }
+ ],
+ "error": null,
+ "short": false,
+ "s2_usd": 0.000174,
+ "seconds": 6.6295
+}

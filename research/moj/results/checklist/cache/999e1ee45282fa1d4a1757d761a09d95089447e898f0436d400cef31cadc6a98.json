@@ -1,0 +1,25 @@
+{
+ "key": "999e1ee45282fa1d4a1757d761a09d95089447e898f0436d400cef31cadc6a98",
+ "boxes": [
+  {
+   "question": "Does the response provide exactly 10 pairs of words?",
+   "weight": 3
+  },
+  {
+   "question": "Does each pair consist of two words that are homophones in Catalan?",
+   "weight": 5
+  },
+  {
+   "question": "Are the pairs presented clearly enough to identify which two words belong together?",
+   "weight": 2
+  },
+  {
+   "question": "Is the response written in Catalan?",
+   "weight": 2
+  }
+ ],
+ "error": null,
+ "short": false,
+ "s2_usd": 0.0001631,
+ "seconds": 3.8466
+}

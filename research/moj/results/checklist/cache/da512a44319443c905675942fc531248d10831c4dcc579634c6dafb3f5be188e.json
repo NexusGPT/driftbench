@@ -1,0 +1,25 @@
+{
+ "key": "da512a44319443c905675942fc531248d10831c4dcc579634c6dafb3f5be188e",
+ "boxes": [
+  {
+   "question": "Does the answer identify position 2 as the position of the person who likes blueberry?",
+   "weight": 5
+  },
+  {
+   "question": "Is the position given as a single digit?",
+   "weight": 1
+  },
+  {
+   "question": "Is the digit presented in the requested `***N***` format?",
+   "weight": 1
+  },
+  {
+   "question": "Does the response give no additional answer or explanation beyond the requested position?",
+   "weight": 1
+  }
+ ],
+ "error": null,
+ "short": false,
+ "s2_usd": 0.0004164,
+ "seconds": 10.6776
+}

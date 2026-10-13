@@ -1,0 +1,25 @@
+{
+ "key": "472822db461ccb23f46bc1cc1ae2617c6e9d803ec31a4143253685817d831310",
+ "boxes": [
+  {
+   "question": "Does the answer identify option C as the correct choice?",
+   "weight": 5
+  },
+  {
+   "question": "Does the answer contain exactly five copies of the selected letter?",
+   "weight": 3
+  },
+  {
+   "question": "Are all five letters C?",
+   "weight": 5
+  },
+  {
+   "question": "Are the five letters presented as one uninterrupted string, with no additional text?",
+   "weight": 2
+  }
+ ],
+ "error": null,
+ "short": false,
+ "s2_usd": 0.0002777,
+ "seconds": 6.5312
+}

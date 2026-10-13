@@ -1,0 +1,33 @@
+{
+ "key": "71682ca7ea329ed0059cc6e5bd90968f8c40b15e3e4659f41636a707e3c890de",
+ "boxes": [
+  {
+   "question": "Is the response a catchy slogan for a portable neck massager?",
+   "weight": 2
+  },
+  {
+   "question": "Is the slogan fewer than 7 words long?",
+   "weight": 5
+  },
+  {
+   "question": "Does it highlight instant relief from soreness?",
+   "weight": 5
+  },
+  {
+   "question": "Does it highlight the massager’s compact design or convenience?",
+   "weight": 5
+  },
+  {
+   "question": "Does it use colloquial language and include rhyming words?",
+   "weight": 4
+  },
+  {
+   "question": "Does it appeal to office workers and students while emphasizing self-care?",
+   "weight": 3
+  }
+ ],
+ "error": null,
+ "short": false,
+ "s2_usd": 0.0001546,
+ "seconds": 3.1857
+}

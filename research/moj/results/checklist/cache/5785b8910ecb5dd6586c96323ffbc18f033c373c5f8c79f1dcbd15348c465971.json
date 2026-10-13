@@ -1,0 +1,41 @@
+{
+ "key": "5785b8910ecb5dd6586c96323ffbc18f033c373c5f8c79f1dcbd15348c465971",
+ "boxes": [
+  {
+   "question": "Is the essay titled exactly \"Embracing the 'Light'\"?",
+   "weight": 1
+  },
+  {
+   "question": "Does the essay present a clear, substantive thesis about the dialectical relationship between the \"crack\" and the \"light\"?",
+   "weight": 3
+  },
+  {
+   "question": "Does the essay develop compelling argumentation in support of its central thesis?",
+   "weight": 3
+  },
+  {
+   "question": "Does the essay create a specific fictional protagonist whose story is central to the essay?",
+   "weight": 3
+  },
+  {
+   "question": "Does the protagonist’s story narrate how they confront their \"crack\" and eventually find the \"light\"?",
+   "weight": 3
+  },
+  {
+   "question": "Are the protagonist and their experiences portrayed with realistic detail, emotional richness, and three-dimensional characterization?",
+   "weight": 3
+  },
+  {
+   "question": "Does the essay organically integrate its narrative and argumentation, with the central thesis guiding the whole piece?",
+   "weight": 3
+  },
+  {
+   "question": "Is the essay at least 800 words long?",
+   "weight": 2
+  }
+ ],
+ "error": null,
+ "short": false,
+ "s2_usd": 0.00020130000000000001,
+ "seconds": 3.9803
+}

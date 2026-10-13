@@ -1,0 +1,25 @@
+{
+ "key": "94884572c817df28c0ceb8e07be48cd040536d5f2d152c9494f4b356b4679475",
+ "boxes": [
+  {
+   "question": "Does the answer correctly say that the person at the planetarium does not tell the truth?",
+   "weight": 5
+  },
+  {
+   "question": "Does the answer correctly say that the person at the park tells the truth?",
+   "weight": 5
+  },
+  {
+   "question": "Does the answer correctly say that the person at the skate park does not tell the truth?",
+   "weight": 5
+  },
+  {
+   "question": "Are all three answers correct and given in the order planetarium, park, skate park?",
+   "weight": 5
+  }
+ ],
+ "error": null,
+ "short": false,
+ "s2_usd": 0.0004678,
+ "seconds": 10.2968
+}

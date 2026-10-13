@@ -1,0 +1,29 @@
+{
+ "key": "edc41e2f1d994be6194fc80324cfbe32220b275d00339d5bf2f137dfc51c408f",
+ "boxes": [
+  {
+   "question": "¿Incluye las cinco palabras originales, cada una exactamente una vez?",
+   "weight": 3
+  },
+  {
+   "question": "¿Coloca «también» antes de las palabras cuya segunda letra es «e»?",
+   "weight": 5
+  },
+  {
+   "question": "¿Coloca «cerca» y «pesar» antes de «club»?",
+   "weight": 5
+  },
+  {
+   "question": "¿Coloca «club» antes de «musical»?",
+   "weight": 5
+  },
+  {
+   "question": "¿Presenta la respuesta en español?",
+   "weight": 2
+  }
+ ],
+ "error": null,
+ "short": false,
+ "s2_usd": 0.0002254,
+ "seconds": 5.4224
+}

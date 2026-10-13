@@ -1,0 +1,37 @@
+{
+ "key": "0b41c3d628cc56acd50bbabae32161b5b8ed7452eccebdcfff955f378e73799c",
+ "boxes": [
+  {
+   "question": "故事是否以“慢吞吞的水豚成为大明星”为核心，写成具有童话特点的完整故事？",
+   "weight": 2
+  },
+  {
+   "question": "主人公是否是一只热爱唱歌和跳舞的水豚？",
+   "weight": 2
+  },
+  {
+   "question": "故事是否具体描写水豚因行动缓慢而遭到嘲笑的场景？",
+   "weight": 3
+  },
+  {
+   "question": "故事是否写出水豚如何面对并克服“慢”带来的困难？",
+   "weight": 3
+  },
+  {
+   "question": "故事结尾是否写到水豚成功成为大明星？",
+   "weight": 3
+  },
+  {
+   "question": "故事结尾是否蕴含清楚的人生道理？",
+   "weight": 2
+  },
+  {
+   "question": "语言是否活泼、童趣，并包含可爱的对话和有趣的细节描写？",
+   "weight": 2
+  }
+ ],
+ "error": null,
+ "short": false,
+ "s2_usd": 0.0001854,
+ "seconds": 3.6373
+}

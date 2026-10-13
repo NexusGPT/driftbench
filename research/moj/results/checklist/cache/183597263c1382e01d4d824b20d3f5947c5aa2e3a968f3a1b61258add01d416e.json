@@ -1,0 +1,25 @@
+{
+ "key": "183597263c1382e01d4d824b20d3f5947c5aa2e3a968f3a1b61258add01d416e",
+ "boxes": [
+  {
+   "question": "¿Indica que Gene tiene 44 bloques en total?",
+   "weight": 5
+  },
+  {
+   "question": "¿Calcula los años transcurridos restando 23 de 34?",
+   "weight": 3
+  },
+  {
+   "question": "¿Multiplica los años transcurridos por las cuatro vacaciones que hace al año?",
+   "weight": 3
+  },
+  {
+   "question": "¿Responde en español, el idioma de la pregunta?",
+   "weight": 2
+  }
+ ],
+ "error": null,
+ "short": false,
+ "s2_usd": 0.00020319999999999998,
+ "seconds": 6.2977
+}

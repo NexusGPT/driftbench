@@ -1,0 +1,33 @@
+{
+ "key": "5ce324ff1381f8cfdbeaeb4f1b6f3ad3028ae0a3db82850370c9d9272780972c",
+ "boxes": [
+  {
+   "question": "Does the response have an original title and present itself as a travel blog post about finding an echo of the wild and the self in Iceland?",
+   "weight": 2
+  },
+  {
+   "question": "Is the piece a personal narrative essay rather than a conventional travel guide, with the author as its protagonist?",
+   "weight": 3
+  },
+  {
+   "question": "Does it delicately convey specific sensory experiences of Iceland’s extreme, vast, or barren landscapes?",
+   "weight": 3
+  },
+  {
+   "question": "Does it connect those landscape experiences to the protagonist’s inner feelings or reflections?",
+   "weight": 3
+  },
+  {
+   "question": "Does it include at least one specific, detailed scene that leads to an epiphany or deep emotional shift?",
+   "weight": 4
+  },
+  {
+   "question": "Is the writing effective and cohesive in fulfilling the requested personal, sensory, reflective approach?",
+   "weight": 2
+  }
+ ],
+ "error": null,
+ "short": false,
+ "s2_usd": 0.00016380000000000002,
+ "seconds": 3.6169
+}

@@ -1,0 +1,29 @@
+{
+ "key": "fb9d5004148687f226ee8bb0b77c3fe381e83bf351d80fe27c278f0b5215e34a",
+ "boxes": [
+  {
+   "question": "La réponse indique-t-elle que les cinq voitures coûtent 20 $ au total ?",
+   "weight": 2
+  },
+  {
+   "question": "La réponse indique-t-elle que les trois figurines coûtent 15 $ au total ?",
+   "weight": 2
+  },
+  {
+   "question": "La réponse indique-t-elle que la poupée coûte 15 $, soit le prix des trois figurines ?",
+   "weight": 2
+  },
+  {
+   "question": "La réponse donne-t-elle 50 $ comme valeur totale des jouets ?",
+   "weight": 5
+  },
+  {
+   "question": "La réponse est-elle rédigée en français ?",
+   "weight": 1
+  }
+ ],
+ "error": null,
+ "short": false,
+ "s2_usd": 0.0001757,
+ "seconds": 5.4689
+}

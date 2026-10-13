@@ -1,0 +1,37 @@
+{
+ "key": "18d10feab33fc7f238be91469f86da6c2ddada01f4be54cb5597bf72ab61caa4",
+ "boxes": [
+  {
+   "question": "Is the response written as a near-future science-fiction military short story?",
+   "weight": 2
+  },
+  {
+   "question": "Is the protagonist a drone pilot controlling attacks from a comfortable base thousands of miles away from the target area?",
+   "weight": 3
+  },
+  {
+   "question": "Does the pilot surveil the target and the target’s family for an extended period through a high-definition camera before a decapitation strike?",
+   "weight": 4
+  },
+  {
+   "question": "Does the story depict the pilot’s substantial psychological conflict and moral dilemma about the strike?",
+   "weight": 4
+  },
+  {
+   "question": "Does the story contrast the comfort of the base with the reality shown in the on-screen feed?",
+   "weight": 3
+  },
+  {
+   "question": "Does that contrast meaningfully explore how remote warfare dehumanizes the people targeted?",
+   "weight": 4
+  },
+  {
+   "question": "Is the story coherent and effectively written, with its scenes and details serving the requested conflict rather than distracting from it?",
+   "weight": 2
+  }
+ ],
+ "error": null,
+ "short": false,
+ "s2_usd": 0.0001986,
+ "seconds": 4.9038
+}

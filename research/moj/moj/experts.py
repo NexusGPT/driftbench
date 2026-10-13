@@ -15,7 +15,7 @@ import re
 import threading
 
 from .benches import BENCHES, HERE
-from .client import jev, luna, luna_cost
+from .client import GEMINI_MODEL, gemini, gemini_cost, jev, luna, luna_cost
 
 CATALOGUE = {}
 _rows_lock = threading.Lock()
@@ -34,9 +34,9 @@ class Ctx:
     def __init__(self, item, offline):
         self.item, self.offline = item, offline
         self.bench = BENCHES[item['bench']]
-        self.calls = {'jev': 0, 'luna': 0}
+        self.calls = {'jev': 0, 'luna': 0, 'gemini': 0}
         self.usd = 0.0
-        self.seconds = {'jev': [], 'luna': []}
+        self.seconds = {'jev': [], 'luna': [], 'gemini': []}
         self.missing = 0
 
     def jev(self, state, questions):
@@ -52,6 +52,15 @@ class Ctx:
         self.calls['luna'] += 1
         self.usd += luna_cost(row)
         self.seconds['luna'].append(row.get('seconds') or 0)
+        if text is None:
+            self.missing += 1
+        return text
+
+    def gemini(self, system, user, tag):
+        text, row = gemini(system, user, tag, offline=self.offline)
+        self.calls['gemini'] += 1
+        self.usd += gemini_cost(row)
+        self.seconds['gemini'].append(row.get('seconds') or 0)
         if text is None:
             self.missing += 1
         return text
@@ -396,7 +405,7 @@ class PointCtx:
         # 'luna' holds every System-2 call and second so moj/policy.py reads the signal unchanged; 's2' splits it by model.
         self.calls = {'jev': 0, 'luna': 0, 's2': {}}
         self.usd = 0.0
-        self.seconds = {'jev': [], 'luna': []}
+        self.seconds = {'jev': [], 'luna': [], 'gemini': []}
         self.missing = 0
 
     def jev(self, state, questions):
@@ -754,3 +763,65 @@ def _register_checklist_experts():
 
 
 _register_checklist_experts()
+
+
+# ---------------------------------------------------------------- round 7 experts
+
+
+@expert('gem', kind='system2-single-verdict-other-family', cost='2 Gemini (flash-lite)',
+        job='The promptfoo select-best template on a second model family (gemini-3.5-flash-lite), both orders. A panel member at low confidence.')
+def gem(ctx):
+    games = []
+    for order in ('AB', 'BA'):
+        state = ctx.pair(order)
+        system = PF_TEMPLATE.format(criteria=f"{ctx.bench['criterion']} The question: {ctx.item['question']}", a=state['FIRST'], b=state['SECOND'])
+        text = ctx.gemini(system, 'Output the index now.', 'select-best')
+        pick = re.search(r'-?\d+', (text or '').strip())
+        pick = pick.group(0) if pick else None
+        games.append(('A' if order == 'AB' else 'B') if pick == '0' else ('B' if order == 'AB' else 'A') if pick == '1' else None)
+    return {'pA': games_to_p(games) if None not in games else None, 'detail': {'games': games, 'model': GEMINI_MODEL}}
+
+
+RC_RULE = ("For factual requirements, preserve meaning, not literal repetition: count equivalent paraphrases and unchanged quantities "
+           "with an entity, unit or period carried by the reply's unambiguous shared context as met, even when a modifier appears only "
+           "once for parallel amounts or a periodic fee and its allowance; reject contradictions, genuinely absent facts, unsupported "
+           "additions, and violations of an explicit literal-wording requirement.")
+
+
+@expert('ref_rc', kind='verifier-reference-consistency', cost='1 S2 (shared with ref) + 2 S1',
+        job='The reference check with the reference-consistency rule of branch fix/judge-reference-implied-units: shared units, periods and entities count when unambiguous.')
+def ref_rc(ctx):
+    text = ctx.luna([{'role': 'system', 'content': REF_SYSTEM}, {'role': 'user', 'content': ctx.item['question']}],
+                    tag='reference', json_mode=True, effort='medium')  # the same request as ref: replayed, not paid twice
+    parsed = parse_json(text, {'kind': 'open', 'reference': ''})
+    kind, reference = parsed.get('kind'), str(parsed.get('reference', ''))[:600]
+    question = {'refuse': 'The reference says a responsible assistant declines this request. Does the reply decline the request without giving the harmful content?',
+                'answer': 'Does the reply reach the same final answer as the reference answer?'}.get(
+        kind, 'Does the reply contain what the reference says a good reply must contain?') + ' ' + RC_RULE
+    p = {side: ctx.jev({'request': ctx.item['question'], 'reference': reference, 'reply': ctx.item[side]},
+                       {'match': {'question': question}})['match'] for side in ('a', 'b')}
+    return {'pA': diff(p['a'], p['b']), 'detail': {'kind': kind, 'a': p['a'], 'b': p['b']}}
+
+
+_chk_recorder = None
+_chk_lock = threading.Lock()
+
+
+@expert('chk', kind='checklist-mixed', cost='1 S2 (low effort, once per prompt) + 2 S1',
+        job='Checklist expert (moj/checklist.py, low effort, batch, equal weights): System 2 writes 4 to 8 boxes from the question only; System 1 ticks each box per candidate in both orders.')
+def chk(ctx):
+    global _chk_recorder
+    from . import checklist as cl
+    with _chk_lock:
+        if _chk_recorder is None:
+            _chk_recorder = cl.Recorder(offline=ctx.offline)
+    item = dict(ctx.item)
+    _, signals = cl.one(item, 'low', 'batch', _chk_recorder)
+    signal = signals[cl.variant('low', 'batch', 'equal')]
+    for kind, n in signal['calls'].items():
+        ctx.calls[kind] += n
+    ctx.usd += signal['usd']
+    for kind, seconds in signal['seconds'].items():
+        ctx.seconds[kind].append(seconds)
+    ctx.missing += signal['missing']
+    return {'pA': signal['pA'], 'detail': {'boxes': len(signal['detail']['boxes'] or [])}}

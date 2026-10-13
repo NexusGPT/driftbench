@@ -1,0 +1,41 @@
+{
+ "key": "88d7e7a328a4f3f51b5d30d87e06ffbca4b29d0391debc7575a3c6312d2edb03",
+ "boxes": [
+  {
+   "question": "Does the response present original lyrics with a recognizable hip-hop feel?",
+   "weight": 2
+  },
+  {
+   "question": "Does it humorously mock corporate wellness culture and toxic positivity?",
+   "weight": 3
+  },
+  {
+   "question": "Does it use the requested wordplay around “mindfulness/mind-full-mess,” “self-care/shelf-care,” and “wellness/hell-ness”?",
+   "weight": 3
+  },
+  {
+   "question": "Does it target meditation apps, juice cleanses, and LinkedIn motivational posts?",
+   "weight": 3
+  },
+  {
+   "question": "Does it include both bizarre requested habits: manifesting a Wi-Fi password and aligning chakras with a credit score?",
+   "weight": 3
+  },
+  {
+   "question": "Does it move from yoga poses to existential dread about climate change?",
+   "weight": 2
+  },
+  {
+   "question": "Does it mix spiritual jargon with mundane complaints and combine millennial burnout humor with Gen Z absurdism?",
+   "weight": 3
+  },
+  {
+   "question": "Does it evoke a TED talk having a mental breakdown while remaining funny and coherent as a piece of writing?",
+   "weight": 2
+  }
+ ],
+ "error": null,
+ "short": false,
+ "s2_usd": 0.0001874,
+ "seconds": 4.2179
+}

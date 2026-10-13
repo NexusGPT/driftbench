@@ -1,0 +1,37 @@
+{
+ "key": "ecd9855a5200a00be960d076413870482930097f830708ab95a4acc6656abf53",
+ "boxes": [
+  {
+   "question": "Does the response portray the narrator as an introverted cosplayer known for portraying powerful characters?",
+   "weight": 2
+  },
+  {
+   "question": "Is the scene set backstage at a convention shortly before the narrator is due to compete?",
+   "weight": 2
+  },
+  {
+   "question": "Does the response establish that the narrator is wearing heavy armor?",
+   "weight": 1
+  },
+  {
+   "question": "Does a message from the narrator’s real life undermine their confidence?",
+   "weight": 2
+  },
+  {
+   "question": "Does the writing convey a contrast between the armor’s cold, imposing exterior and the narrator’s inner anxiety?",
+   "weight": 3
+  },
+  {
+   "question": "Does the narrator draw strength from the hero they portray and use it to step on stage?",
+   "weight": 3
+  },
+  {
+   "question": "Is the scene written with enough emotional impact and craft to make it a compelling piece of writing?",
+   "weight": 2
+  }
+ ],
+ "error": null,
+ "short": false,
+ "s2_usd": 0.0001873,
+ "seconds": 3.8731
+}

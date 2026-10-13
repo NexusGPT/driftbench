@@ -1,0 +1,25 @@
+{
+ "key": "7bf1920f5c016a12ca98969e455c07a7605dd5b9734ffbf063d40de52b798044",
+ "boxes": [
+  {
+   "question": "Does the answer identify Expectancy as the theory?",
+   "weight": 5
+  },
+  {
+   "question": "Does the answer select option (F)?",
+   "weight": 5
+  },
+  {
+   "question": "Does the answer give the selected letter exactly five times in one string?",
+   "weight": 1
+  },
+  {
+   "question": "Are all five repeated letters the correct answer, F?",
+   "weight": 5
+  }
+ ],
+ "error": null,
+ "short": false,
+ "s2_usd": 0.0002392,
+ "seconds": 6.2942
+}

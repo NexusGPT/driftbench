@@ -1,0 +1,29 @@
+{
+ "key": "4ff531cc4253312635f01995d7eebe22b53ae554390bdb1ad5daecbfd7d2669a",
+ "boxes": [
+  {
+   "question": "Does the answer give a characteristic polynomial whose leading term is \\(\\lambda^3\\)?",
+   "weight": 2
+  },
+  {
+   "question": "Does the answer give the coefficient of \\(\\lambda^2\\) as \\(8\\)?",
+   "weight": 2
+  },
+  {
+   "question": "Does the answer give the coefficient of \\(\\lambda\\) as \\(-341\\)?",
+   "weight": 2
+  },
+  {
+   "question": "Does the answer give the constant term as \\(-744\\)?",
+   "weight": 2
+  },
+  {
+   "question": "Is the final answer enclosed in \\(\\boxed{}\\)?",
+   "weight": 1
+  }
+ ],
+ "error": null,
+ "short": false,
+ "s2_usd": 0.00029939999999999996,
+ "seconds": 6.8906
+}

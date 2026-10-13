@@ -1,0 +1,25 @@
+{
+ "key": "e4620f0b6ae03d4ae098d730f53f7fc743a3b4d4e4af5e33b8624f8243ca4571",
+ "boxes": [
+  {
+   "question": "Does the answer give 48 people as the total?",
+   "weight": 5
+  },
+  {
+   "question": "Does the answer correctly count 40 players across the eight teams?",
+   "weight": 4
+  },
+  {
+   "question": "Does the answer correctly count 8 coaches, one for each team?",
+   "weight": 4
+  },
+  {
+   "question": "Is the answer written in English, the language of the question?",
+   "weight": 2
+  }
+ ],
+ "error": null,
+ "short": false,
+ "s2_usd": 0.0001751,
+ "seconds": 4.067
+}

@@ -1,0 +1,25 @@
+{
+ "key": "ddb7e8510c6ffa22773d96687e079107210ead1c2da06b15f1e64a3ec264e52a",
+ "boxes": [
+  {
+   "question": "Does the answer calculate a Gibbs energy increase of approximately 13.5 kJ?",
+   "weight": 5
+  },
+  {
+   "question": "Does the answer select 15 kJ as the closest listed choice?",
+   "weight": 5
+  },
+  {
+   "question": "Does the answer identify the selected choice as D?",
+   "weight": 5
+  },
+  {
+   "question": "Does the answer provide the letter D five times in a single string (DDDDD)?",
+   "weight": 2
+  }
+ ],
+ "error": null,
+ "short": false,
+ "s2_usd": 0.0002319,
+ "seconds": 5.6474
+}

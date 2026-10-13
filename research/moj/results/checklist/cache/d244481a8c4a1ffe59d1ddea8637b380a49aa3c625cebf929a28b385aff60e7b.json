@@ -1,0 +1,25 @@
+{
+ "key": "d244481a8c4a1ffe59d1ddea8637b380a49aa3c625cebf929a28b385aff60e7b",
+ "boxes": [
+  {
+   "question": "Does the answer give the channel capacity as 0.5 bits?",
+   "weight": 5
+  },
+  {
+   "question": "Does the answer identify option F as the correct choice?",
+   "weight": 5
+  },
+  {
+   "question": "Does the answer include the string FFFFF as requested?",
+   "weight": 3
+  },
+  {
+   "question": "Does the answer avoid giving a conflicting capacity or multiple-choice answer?",
+   "weight": 4
+  }
+ ],
+ "error": null,
+ "short": false,
+ "s2_usd": 0.0003054,
+ "seconds": 7.816
+}

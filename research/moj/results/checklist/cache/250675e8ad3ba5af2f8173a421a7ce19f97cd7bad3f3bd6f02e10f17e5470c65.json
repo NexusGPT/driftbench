@@ -1,0 +1,25 @@
+{
+ "key": "250675e8ad3ba5af2f8173a421a7ce19f97cd7bad3f3bd6f02e10f17e5470c65",
+ "boxes": [
+  {
+   "question": "Does the answer give the difference as \\(\\frac{1}{3000}\\)?",
+   "weight": 5
+  },
+  {
+   "question": "Does the answer identify choice C as the correct option?",
+   "weight": 5
+  },
+  {
+   "question": "Does the answer repeat the selected letter exactly five times?",
+   "weight": 2
+  },
+  {
+   "question": "Are the five repeated letters presented together as a single string?",
+   "weight": 2
+  }
+ ],
+ "error": null,
+ "short": false,
+ "s2_usd": 0.00019480000000000002,
+ "seconds": 4.316
+}

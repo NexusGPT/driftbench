@@ -1,0 +1,25 @@
+{
+ "key": "a527349d27d45239b28839a1fc0312ff956835f49eb329220cdf83726c564055",
+ "boxes": [
+  {
+   "question": "¿Ordena las palabras de menor a mayor según su segunda letra (e, o, r, u, u)?",
+   "weight": 5
+  },
+  {
+   "question": "¿Incluye cada una de las cinco palabras originales exactamente una vez?",
+   "weight": 4
+  },
+  {
+   "question": "¿Presenta la respuesta en español?",
+   "weight": 2
+  },
+  {
+   "question": "¿Da una respuesta clara que permite identificar el orden resultante?",
+   "weight": 1
+  }
+ ],
+ "error": null,
+ "short": false,
+ "s2_usd": 0.0001739,
+ "seconds": 5.6866
+}

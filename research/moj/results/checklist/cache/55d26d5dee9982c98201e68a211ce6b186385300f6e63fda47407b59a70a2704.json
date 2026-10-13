@@ -1,0 +1,25 @@
+{
+ "key": "55d26d5dee9982c98201e68a211ce6b186385300f6e63fda47407b59a70a2704",
+ "boxes": [
+  {
+   "question": "Does the answer correctly state that the person at the museum tells the truth?",
+   "weight": 5
+  },
+  {
+   "question": "Does the answer correctly state that the person at the restaurant tells the truth?",
+   "weight": 5
+  },
+  {
+   "question": "Does the answer correctly state that the person at the farm tells the truth?",
+   "weight": 5
+  },
+  {
+   "question": "Is the answer presented in bold as a list of three words, in the order museum, restaurant, and farm?",
+   "weight": 1
+  }
+ ],
+ "error": null,
+ "short": false,
+ "s2_usd": 0.0002631,
+ "seconds": 6.0295
+}

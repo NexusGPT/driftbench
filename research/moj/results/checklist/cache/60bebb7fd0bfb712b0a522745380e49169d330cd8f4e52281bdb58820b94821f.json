@@ -1,0 +1,29 @@
+{
+ "key": "60bebb7fd0bfb712b0a522745380e49169d330cd8f4e52281bdb58820b94821f",
+ "boxes": [
+  {
+   "question": "La réponse est-elle rédigée en français ?",
+   "weight": 1
+  },
+  {
+   "question": "La réponse fournit-elle du code Python présenté dans un bloc facile à copier-coller ?",
+   "weight": 2
+  },
+  {
+   "question": "Le code définit-il une fonction qui prend deux nombres et retourne leur somme ?",
+   "weight": 5
+  },
+  {
+   "question": "La fonction comporte-t-elle un docstring qui décrit son rôle ?",
+   "weight": 3
+  },
+  {
+   "question": "Le code comporte-t-il un programme principal qui appelle la fonction et utilise ou affiche le résultat ?",
+   "weight": 4
+  }
+ ],
+ "error": null,
+ "short": false,
+ "s2_usd": 0.00015769999999999998,
+ "seconds": 3.2206
+}

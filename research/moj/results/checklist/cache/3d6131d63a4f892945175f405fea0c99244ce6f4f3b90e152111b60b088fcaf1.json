@@ -1,0 +1,37 @@
+{
+ "key": "3d6131d63a4f892945175f405fea0c99244ce6f4f3b90e152111b60b088fcaf1",
+ "boxes": [
+  {
+   "question": "Does the response provide a review specifically of the Dyson V12 Detect Slim wireless vacuum cleaner?",
+   "weight": 2
+  },
+  {
+   "question": "Does it use a professional, objective tone rather than presenting an unbalanced or purely promotional opinion?",
+   "weight": 2
+  },
+  {
+   "question": "Does it discuss the vacuum’s appearance and design, including its size, weight, and detail craftsmanship?",
+   "weight": 2
+  },
+  {
+   "question": "Does it explain functional performance, including the laser cleaning technology, piezoelectric sensors, and various attachments?",
+   "weight": 3
+  },
+  {
+   "question": "Does it address user experience, including ease of operation, battery life, and cleaning the dust box?",
+   "weight": 3
+  },
+  {
+   "question": "Does it assess the vacuum’s cost-effectiveness?",
+   "weight": 2
+  },
+  {
+   "question": "Does it conclude with a recommendation for families with high-end cleaning needs?",
+   "weight": 2
+  }
+ ],
+ "error": null,
+ "short": false,
+ "s2_usd": 0.0001886,
+ "seconds": 4.3884
+}

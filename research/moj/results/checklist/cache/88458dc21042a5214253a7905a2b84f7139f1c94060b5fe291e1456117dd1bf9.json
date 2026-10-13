@@ -1,0 +1,29 @@
+{
+ "key": "88458dc21042a5214253a7905a2b84f7139f1c94060b5fe291e1456117dd1bf9",
+ "boxes": [
+  {
+   "question": "Does the answer correctly reduce feasibility for a proposed operation count k to representing num1 - k·num2 as a sum of exactly k powers of two?",
+   "weight": 5
+  },
+  {
+   "question": "Does the answer correctly test that representation using x = num1 - k·num2, requiring x ≥ k and popcount(x) ≤ k?",
+   "weight": 5
+  },
+  {
+   "question": "Does the answer return the smallest positive k that passes the feasibility test, rather than just any feasible operation count?",
+   "weight": 5
+  },
+  {
+   "question": "Does the answer correctly return -1 when no feasible operation count exists?",
+   "weight": 5
+  },
+  {
+   "question": "Does the answer’s method respect that each chosen power must be 2^i for an integer i in [0, 60]?",
+   "weight": 4
+  }
+ ],
+ "error": null,
+ "short": false,
+ "s2_usd": 0.00037739999999999996,
+ "seconds": 8.4677
+}

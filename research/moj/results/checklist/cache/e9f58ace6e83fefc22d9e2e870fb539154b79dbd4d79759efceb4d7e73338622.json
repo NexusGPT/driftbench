@@ -1,0 +1,25 @@
+{
+ "key": "e9f58ace6e83fefc22d9e2e870fb539154b79dbd4d79759efceb4d7e73338622",
+ "boxes": [
+  {
+   "question": "Does the response give a distance of 209.1 m to the nearest tenth?",
+   "weight": 5
+  },
+  {
+   "question": "Does the response identify option F as the correct choice?",
+   "weight": 5
+  },
+  {
+   "question": "Does the response write the letter F five times in a single string?",
+   "weight": 3
+  },
+  {
+   "question": "Does the response avoid giving a conflicting distance or multiple-choice letter?",
+   "weight": 4
+  }
+ ],
+ "error": null,
+ "short": false,
+ "s2_usd": 0.0004484,
+ "seconds": 9.411
+}

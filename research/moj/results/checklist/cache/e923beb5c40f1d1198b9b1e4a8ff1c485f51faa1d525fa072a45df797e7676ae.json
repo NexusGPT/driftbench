@@ -1,0 +1,25 @@
+{
+ "key": "e923beb5c40f1d1198b9b1e4a8ff1c485f51faa1d525fa072a45df797e7676ae",
+ "boxes": [
+  {
+   "question": "Does the answer give a method that returns the minimum number of adjacent swaps needed to place all `0`s before all `1`s?",
+   "weight": 5
+  },
+  {
+   "question": "Does the method correctly count each pair in which a `1` appears before a `0` as one required swap?",
+   "weight": 5
+  },
+  {
+   "question": "Does the method return zero when the `1`s are already grouped at the right, including inputs with no `1`s or no `0`s?",
+   "weight": 3
+  },
+  {
+   "question": "Is the method efficient enough to handle strings of length up to `10^5`?",
+   "weight": 4
+  }
+ ],
+ "error": null,
+ "short": false,
+ "s2_usd": 0.00025760000000000003,
+ "seconds": 8.1205
+}

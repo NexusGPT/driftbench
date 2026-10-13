@@ -1,0 +1,25 @@
+{
+ "key": "bafff61b69155bc8e176de28cd530e6c72adc23c293d462c8e0c94aa19e5c684",
+ "boxes": [
+  {
+   "question": "Does the answer identify problems, solutions, participants, and choice opportunities as the key streams in March’s model?",
+   "weight": 5
+  },
+  {
+   "question": "Does the answer recognize that the listed options include multiple items that are not among those four streams, so the question does not have a unique correct letter?",
+   "weight": 5
+  },
+  {
+   "question": "If giving a letter, does the answer avoid presenting one of the non-stream options as uniquely correct?",
+   "weight": 4
+  },
+  {
+   "question": "If giving a letter as requested, does the answer repeat that same letter exactly five times in one string?",
+   "weight": 1
+  }
+ ],
+ "error": null,
+ "short": false,
+ "s2_usd": 0.000399,
+ "seconds": 10.8141
+}

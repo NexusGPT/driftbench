@@ -1,0 +1,25 @@
+{
+ "key": "26d79d7f424c7d5ada594d080f3b6946104eb184a42c3f1c63d15c034ad93017",
+ "boxes": [
+  {
+   "question": "Does the answer identify (D) as the correct choice?",
+   "weight": 5
+  },
+  {
+   "question": "Does the answer provide the requested five-letter string?",
+   "weight": 2
+  },
+  {
+   "question": "Are all five letters in the string identical?",
+   "weight": 2
+  },
+  {
+   "question": "Are all five letters D?",
+   "weight": 5
+  }
+ ],
+ "error": null,
+ "short": false,
+ "s2_usd": 0.0001614,
+ "seconds": 3.9371
+}

@@ -1,0 +1,41 @@
+{
+ "key": "84b702d346ea9b5683049a420cc3c9b6ac691797a7dcda8955aec8b2899163f5",
+ "boxes": [
+  {
+   "question": "是否准确说明了 Galaxy Z Fold6 的机身材质与做工特点？",
+   "weight": 3
+  },
+  {
+   "question": "是否准确给出了内外屏的分辨率和刷新率？",
+   "weight": 4
+  },
+  {
+   "question": "是否结合实际使用评价电池续航，并说明充电速度或充电表现？",
+   "weight": 3
+  },
+  {
+   "question": "是否分别评价影像系统在不同拍摄场景下的表现？",
+   "weight": 4
+  },
+  {
+   "question": "是否评价了 5G 网络连接的稳定性？",
+   "weight": 2
+  },
+  {
+   "question": "是否说明了系统针对折叠屏形态的优化及其实际体验？",
+   "weight": 3
+  },
+  {
+   "question": "是否总结了产品的主要优缺点，并给出有依据的购买建议？",
+   "weight": 3
+  },
+  {
+   "question": "整体内容是否客观真实、表达简洁明了，且没有明显事实错误？",
+   "weight": 5
+  }
+ ],
+ "error": null,
+ "short": false,
+ "s2_usd": 0.0002326,
+ "seconds": 5.9041
+}

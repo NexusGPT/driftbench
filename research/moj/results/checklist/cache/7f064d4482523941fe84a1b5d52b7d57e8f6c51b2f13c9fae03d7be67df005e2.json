@@ -1,0 +1,25 @@
+{
+ "key": "7f064d4482523941fe84a1b5d52b7d57e8f6c51b2f13c9fae03d7be67df005e2",
+ "boxes": [
+  {
+   "question": "Câu trả lời có được viết bằng tiếng Việt không?",
+   "weight": 2
+  },
+  {
+   "question": "Câu trả lời có nêu một số món ăn nổi tiếng có nguồn gốc từ Việt Nam và xác định chúng chính xác không?",
+   "weight": 5
+  },
+  {
+   "question": "Câu trả lời có mô tả các món được nêu đủ rõ để người đọc hiểu chúng là món gì không?",
+   "weight": 3
+  },
+  {
+   "question": "Câu trả lời có giải thích các món đó thể hiện những nét của ẩm thực truyền thống Việt Nam như thế nào không?",
+   "weight": 4
+  }
+ ],
+ "error": null,
+ "short": false,
+ "s2_usd": 0.0001773,
+ "seconds": 4.7628
+}

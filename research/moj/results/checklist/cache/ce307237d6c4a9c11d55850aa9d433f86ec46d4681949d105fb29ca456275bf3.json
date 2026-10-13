@@ -1,0 +1,33 @@
+{
+ "key": "ce307237d6c4a9c11d55850aa9d433f86ec46d4681949d105fb29ca456275bf3",
+ "boxes": [
+  {
+   "question": "Does the response provide a concise abstract for the research paper about hill tribe tourism in Northern Thailand?",
+   "weight": 2
+  },
+  {
+   "question": "Does the abstract identify the hill tribe community in Northern Thailand as the focus of the study?",
+   "weight": 2
+  },
+  {
+   "question": "Does it describe the dilemmas and negotiation processes surrounding the community’s cultural authenticity amid globalized tourism?",
+   "weight": 3
+  },
+  {
+   "question": "Does it state that the research uses long-term ethnographic fieldwork and in-depth interviews?",
+   "weight": 3
+  },
+  {
+   "question": "Does it explain how local people perform their culture to meet tourist expectations and how that performance reshapes their cultural identity?",
+   "weight": 5
+  },
+  {
+   "question": "Is the abstract clear, coherent, and well-written while covering the requested points?",
+   "weight": 2
+  }
+ ],
+ "error": null,
+ "short": false,
+ "s2_usd": 0.0002,
+ "seconds": 4.7898
+}

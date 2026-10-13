@@ -1,0 +1,25 @@
+{
+ "key": "5e77274909905127037625b58d09612e4b23e86f0a7ae75b2f537d7445cb6a32",
+ "boxes": [
+  {
+   "question": "Je, jibu linazingatia kwamba Brian alikuwa na michezo 15 baada ya kupoteza 5 kati ya 20?",
+   "weight": 3
+  },
+  {
+   "question": "Je, jibu linatumia uhusiano sahihi kwamba idadi ya michezo ya Bobby ni mara 3 ya ya Brian, ukiondoa 5?",
+   "weight": 4
+  },
+  {
+   "question": "Je, jibu linahitimisha kwa usahihi kwamba Bobby ana michezo 40 ya video?",
+   "weight": 5
+  },
+  {
+   "question": "Je, jibu limetolewa kwa Kiswahili kinachoeleweka?",
+   "weight": 2
+  }
+ ],
+ "error": null,
+ "short": false,
+ "s2_usd": 0.0001763,
+ "seconds": 3.6203
+}

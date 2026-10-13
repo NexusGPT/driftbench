@@ -1,0 +1,25 @@
+{
+ "key": "9401e90d3cf80b6a4352eca05cff4dfebb2495fa9cc34b7d1a6d683d8c7e7db2",
+ "boxes": [
+  {
+   "question": "Does the answer identify the slope as \\(\\frac{2}{5}\\)?",
+   "weight": 5
+  },
+  {
+   "question": "Does the answer select option (E)?",
+   "weight": 5
+  },
+  {
+   "question": "Does the answer provide the selected letter five times in a single string?",
+   "weight": 2
+  },
+  {
+   "question": "Is the five-letter string exactly `EEEEE`?",
+   "weight": 3
+  }
+ ],
+ "error": null,
+ "short": false,
+ "s2_usd": 0.0001896,
+ "seconds": 4.638
+}

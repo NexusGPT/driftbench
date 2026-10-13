@@ -1,0 +1,25 @@
+{
+ "key": "88b6c1974cae40d55d6442f38904047b03cb2a73b585383646d6a294ccd2c1b1",
+ "boxes": [
+  {
+   "question": "Does the answer identify option H as the correct choice?",
+   "weight": 5
+  },
+  {
+   "question": "Does the answer state that the creditor may obtain a judgment for $5,000 only, rather than for the full $12,000?",
+   "weight": 5
+  },
+  {
+   "question": "Does the answer state that the creditor’s right to that judgment arises on July 1, not June 1?",
+   "weight": 5
+  },
+  {
+   "question": "Does the answer provide the selected letter five times in a single string?",
+   "weight": 1
+  }
+ ],
+ "error": null,
+ "short": false,
+ "s2_usd": 0.0002661,
+ "seconds": 6.1028
+}

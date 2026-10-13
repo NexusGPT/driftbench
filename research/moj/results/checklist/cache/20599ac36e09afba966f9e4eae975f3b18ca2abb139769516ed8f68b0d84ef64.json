@@ -1,0 +1,37 @@
+{
+ "key": "20599ac36e09afba966f9e4eae975f3b18ca2abb139769516ed8f68b0d84ef64",
+ "boxes": [
+  {
+   "question": "Does the response provide a slogan for a city night cycling tour?",
+   "weight": 5
+  },
+  {
+   "question": "Does the slogan convey a perspective or experience distinct from daytime sightseeing?",
+   "weight": 4
+  },
+  {
+   "question": "Does it evoke exploration and discovery of beauty in the city?",
+   "weight": 4
+  },
+  {
+   "question": "Does it suggest romance that is accessible or low-cost?",
+   "weight": 3
+  },
+  {
+   "question": "Does it speak to young professionals or students seeking an escape from daily routines?",
+   "weight": 3
+  },
+  {
+   "question": "Is the slogan concise, literary, romantic, catchy, and easy to remember?",
+   "weight": 5
+  },
+  {
+   "question": "Does it use a creative metaphor or other imaginative phrasing?",
+   "weight": 3
+  }
+ ],
+ "error": null,
+ "short": false,
+ "s2_usd": 0.00014890000000000001,
+ "seconds": 3.1332
+}

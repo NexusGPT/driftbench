@@ -1,0 +1,41 @@
+{
+ "key": "517b6de641a219195531ca4b375c09eba3eec43a1fe63f9fb534cc43ba3a793f",
+ "boxes": [
+  {
+   "question": "Câu trả lời có được viết bằng tiếng Việt không?",
+   "weight": 2
+  },
+  {
+   "question": "Lịch có bố trí cả ba công việc: chuẩn bị bài thuyết trình, trả lời email và xem lại báo cáo tài chính quý không?",
+   "weight": 5
+  },
+  {
+   "question": "Lịch có giữ cuộc họp nhóm lúc 10 giờ sáng và cuộc hẹn nha sĩ lúc 2 giờ chiều không?",
+   "weight": 5
+  },
+  {
+   "question": "Lịch có dành thời gian chạy bộ 30 phút vào buổi sáng không?",
+   "weight": 4
+  },
+  {
+   "question": "Lịch có xếp công việc sáng tạo, như chuẩn bị bài thuyết trình, vào buổi sáng không?",
+   "weight": 3
+  },
+  {
+   "question": "Lịch có bố trí giờ nghỉ trưa lúc 1 giờ chiều không?",
+   "weight": 3
+  },
+  {
+   "question": "Lịch có dành thời gian đi bộ ngắn vào đầu buổi tối không?",
+   "weight": 3
+  },
+  {
+   "question": "Lịch có bảo đảm đón con lúc 4 giờ chiều và không xếp công việc sau 6 giờ chiều không?",
+   "weight": 5
+  }
+ ],
+ "error": null,
+ "short": false,
+ "s2_usd": 0.0002584,
+ "seconds": 5.2024
+}

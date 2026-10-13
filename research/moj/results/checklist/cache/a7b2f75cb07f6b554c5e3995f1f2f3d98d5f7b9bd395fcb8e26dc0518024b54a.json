@@ -1,0 +1,37 @@
+{
+ "key": "a7b2f75cb07f6b554c5e3995f1f2f3d98d5f7b9bd395fcb8e26dc0518024b54a",
+ "boxes": [
+  {
+   "question": "Does the piece read as a personal manifesto expressing the writer’s identity and aesthetic?",
+   "weight": 2
+  },
+  {
+   "question": "Does it clearly present vintage remake fashion as a way to rebel against fast fashion?",
+   "weight": 3
+  },
+  {
+   "question": "Does it give the writer’s clothes a battle-armor-like meaning?",
+   "weight": 2
+  },
+  {
+   "question": "Does it describe distinctive clothing details, such as patches or stitches, as part of the writer’s aesthetic?",
+   "weight": 2
+  },
+  {
+   "question": "Does it portray those clothes or details as resisting standardized industrial aesthetics?",
+   "weight": 3
+  },
+  {
+   "question": "Does the piece maintain a proud, slightly defiant tone that conveys the attitude “I define my own aesthetic”?",
+   "weight": 3
+  },
+  {
+   "question": "Is the writing coherent and engaging enough to work as a polished manifesto?",
+   "weight": 1
+  }
+ ],
+ "error": null,
+ "short": false,
+ "s2_usd": 0.0001847,
+ "seconds": 4.0638
+}

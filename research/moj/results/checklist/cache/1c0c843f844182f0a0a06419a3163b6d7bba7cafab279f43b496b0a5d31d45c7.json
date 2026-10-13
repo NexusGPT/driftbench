@@ -1,0 +1,29 @@
+{
+ "key": "1c0c843f844182f0a0a06419a3163b6d7bba7cafab279f43b496b0a5d31d45c7",
+ "boxes": [
+  {
+   "question": "Je, jibu linahesabu kwa usahihi mimea 80 ambayo Mary tayari alikuwa nayo (mimea 2 katika kila kishubaka 40)?",
+   "weight": 3
+  },
+  {
+   "question": "Je, jibu linahesabu kwa usahihi kwamba Mary atatoa mimea 40 (mmea 1 kutoka katika kila kishubaka 40)?",
+   "weight": 3
+  },
+  {
+   "question": "Je, jibu linajumuisha mimea 18 mipya aliyopokea katika kuhesabu atakachobakiza?",
+   "weight": 3
+  },
+  {
+   "question": "Je, jibu linatoa jumla sahihi ya mimea 58 atakayobakiza baada ya kutoa mimea 40?",
+   "weight": 5
+  },
+  {
+   "question": "Je, jibu limetolewa kwa Kiswahili na linajibu swali moja kwa moja?",
+   "weight": 2
+  }
+ ],
+ "error": null,
+ "short": false,
+ "s2_usd": 0.0002123,
+ "seconds": 4.3246
+}

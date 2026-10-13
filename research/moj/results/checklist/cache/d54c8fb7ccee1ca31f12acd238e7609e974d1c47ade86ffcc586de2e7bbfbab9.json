@@ -1,0 +1,25 @@
+{
+ "key": "d54c8fb7ccee1ca31f12acd238e7609e974d1c47ade86ffcc586de2e7bbfbab9",
+ "boxes": [
+  {
+   "question": "Does the answer identify option D as the correct statement?",
+   "weight": 5
+  },
+  {
+   "question": "Does the answer consist of exactly five copies of the selected letter?",
+   "weight": 3
+  },
+  {
+   "question": "Are all five letters in the answer identical?",
+   "weight": 3
+  },
+  {
+   "question": "Is the five-letter answer presented as a single string with no additional text?",
+   "weight": 2
+  }
+ ],
+ "error": null,
+ "short": false,
+ "s2_usd": 0.000249,
+ "seconds": 5.7236
+}

@@ -1,0 +1,41 @@
+{
+ "key": "1e8567f972b3eb8034b5761b69f1fb5340577724b7437200da23a406caeb882e",
+ "boxes": [
+  {
+   "question": "Is the response written as an open letter on behalf of the National Campus Safety Promotion Association?",
+   "weight": 3
+  },
+  {
+   "question": "Does it address students’ parents, schools, and food safety supervision departments as its audience?",
+   "weight": 3
+  },
+  {
+   "question": "Does it explain why campus food safety matters to teenagers’ health, referring to relevant problems such as spoiled meat, excessive pesticide residues, or inadequate tableware disinfection?",
+   "weight": 4
+  },
+  {
+   "question": "Does it advocate a collaborative, full-chain campus food safety management system?",
+   "weight": 5
+  },
+  {
+   "question": "Does it identify current problems in canteen contracting, food supply, and supervision?",
+   "weight": 4
+  },
+  {
+   "question": "Does it call on parents to participate in food safety supervision?",
+   "weight": 4
+  },
+  {
+   "question": "Does it urge schools to implement principal responsibility and open tendering for canteen contracting, and regulatory departments to publish supplier lists and conduct frequent inspections?",
+   "weight": 5
+  },
+  {
+   "question": "Is the letter formal, authoritative, and constructive in tone?",
+   "weight": 2
+  }
+ ],
+ "error": null,
+ "short": false,
+ "s2_usd": 0.0002255,
+ "seconds": 4.7353
+}

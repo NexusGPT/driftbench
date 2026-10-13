@@ -1,0 +1,64 @@
+{
+ "config": {
+  "name": "r6-ref-first",
+  "note": "Round 6. Reference first on reasoning terrain: the reference check joins stage 1 there; the System-2 verdict is added only when the mix is still under the boundary.",
+  "stage1": [
+   "s1p"
+  ],
+  "hi": 0.8,
+  "lo": 0.8,
+  "low": [
+   "s2v"
+  ],
+  "always": [
+   {
+    "expert": "ref",
+    "terrain": {
+     "needs_reasoning": 0.6
+    }
+   }
+  ],
+  "no_escalate": [
+   {
+    "terrain": {
+     "subjective_writing": 0.6
+    }
+   }
+  ]
+ },
+ "weights_fitted_on": "all practice pairs (850)",
+ "weights": {
+  "s1p": [
+   2.931433667908929
+  ],
+  "s1p+ref": [
+   2.362495142755022,
+   2.774940401154533
+  ],
+  "s1p+s2v": [
+   2.086970645646511,
+   0.8571589145585415
+  ],
+  "s1p+ref+s2v": [
+   2.0532534970804464,
+   2.509146743490473,
+   0.3342574067474957
+  ]
+ },
+ "models": {
+  "system1": "jev-latest (answered as jev-1.13.0)",
+  "system2": "gpt-6-luna, medium effort, no temperature"
+ },
+ "file_sha256": {
+  "moj/policy.py": "188d9674935c5f8f9fc7199ee3643087d6ce4b77eb5a2b4ffae2bf87b83cf0b7",
+  "moj/experts.py": "b5de8225115daede865c9eeedb444c7824380c0af88ac37f54fbd42752eaf95f",
+  "moj/client.py": "b4241c1eb8bc5b5e4985e7660aa12eb2d20251f664aeec67005630040af03efe",
+  "moj/benches.py": "7a6e84e039e5c571966e97f4ff21a5cf864e7a082a1b920f643be9fe07e696f3",
+  "configs/r6-ref-first.json": "0fb33705307aa442918a1e061812dd61b845ca692542f10a69e11c57fc6f9bd5",
+  "sealed/run.py": "88ebca70d58e59e19805ac24376b9c5e55c81ab48a21f67595e1c53fcf57ac9e",
+  "sealed/build.py": "5d9e7c06ecf3b508e64ad0955e739df00bcac9d8cfcbea58ce29a80f82d296c8",
+  "data/sealed-confirmation.json": "936223ca9d92ade85935d8124933c54f1a30f99228cd158affc7cd80f47d9da5"
+ },
+ "rule_for_a_win": "Per benchmark and baseline: paired bootstrap (20,000 draws, resampling prompt groups) of MoJ minus baseline. Holm over the 6 comparisons (3 benchmarks x promptfoo and our ledger). A win when the Holm-adjusted lower bound is above 0 at no more System-2 calls per pair than that baseline; a loss when the upper bound is below 0; else a tie. Overall better only if every cell is a win or a tie and at least one is a win. On writing a win also needs MoJ above longer wins; else the report says the benchmark does not measure judging there.",
+ "scoring": "JudgeBench: a pair is right only when both games are right (strict); half credit reported beside it. MM-Eval and writing: tie or split counts half."
+}

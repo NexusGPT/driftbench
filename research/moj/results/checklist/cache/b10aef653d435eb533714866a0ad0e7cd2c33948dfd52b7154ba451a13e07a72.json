@@ -1,0 +1,25 @@
+{
+ "key": "b10aef653d435eb533714866a0ad0e7cd2c33948dfd52b7154ba451a13e07a72",
+ "boxes": [
+  {
+   "question": "Berechnet die Antwort die Kosten für ein halbes Dutzend Teller korrekt als 36.000 $?",
+   "weight": 2
+  },
+  {
+   "question": "Zieht die Antwort die 1.200 $ korrekt ab und erhält für zwanzig Dutzend Tassen Gesamtkosten von 34.800 $?",
+   "weight": 3
+  },
+  {
+   "question": "Erkennt die Antwort, dass zwanzig Dutzend Tassen 240 Tassen sind, und berechnet daraus korrekt 145 $ pro Tasse?",
+   "weight": 5
+  },
+  {
+   "question": "Ist die Antwort hilfreich und sicher und in deutscher Sprache verfasst?",
+   "weight": 1
+  }
+ ],
+ "error": null,
+ "short": false,
+ "s2_usd": 0.000181,
+ "seconds": 4.4894
+}

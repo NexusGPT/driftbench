@@ -1,0 +1,41 @@
+{
+ "key": "04d726c93953e8123a0cfabcc6cc0f92ecda97d6c678548412f0b5937acb1177",
+ "boxes": [
+  {
+   "question": "Does the proposal state a goal of engaging a high proportion of community seniors in health services and activities while aiming for high satisfaction?",
+   "weight": 3
+  },
+  {
+   "question": "Does it identify adults over 60 as the target audience and specify a full-month duration, days per week, and locations that include a community center, public spaces, and health clinics?",
+   "weight": 3
+  },
+  {
+   "question": "Does it include comprehensive health screening services and educational lectures covering diverse health topics?",
+   "weight": 3
+  },
+  {
+   "question": "Does it include engaging recreational and cultural activities as well as essential home care support?",
+   "weight": 3
+  },
+  {
+   "question": "Does it describe planning and resource mobilization, multi-channel promotion, activity execution, and thorough post-event evaluation?",
+   "weight": 4
+  },
+  {
+   "question": "Does it provide a detailed estimate of required human resources, including relevant professionals, instructors, and volunteers?",
+   "weight": 3
+  },
+  {
+   "question": "Does it provide a transparent budget covering necessary materials and services?",
+   "weight": 3
+  },
+  {
+   "question": "Does it identify senior-event-specific risks, including low participation, health incidents, and environmental factors, and give robust mitigation strategies for them?",
+   "weight": 4
+  }
+ ],
+ "error": null,
+ "short": false,
+ "s2_usd": 0.00029580000000000003,
+ "seconds": 5.8769
+}

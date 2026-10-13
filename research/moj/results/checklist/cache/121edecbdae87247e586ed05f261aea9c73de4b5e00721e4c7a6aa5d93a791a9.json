@@ -1,0 +1,25 @@
+{
+ "key": "121edecbdae87247e586ed05f261aea9c73de4b5e00721e4c7a6aa5d93a791a9",
+ "boxes": [
+  {
+   "question": "Does the answer give Canadian as the nationality of the person who listens to rock?",
+   "weight": 5
+  },
+  {
+   "question": "Is the answer a single word?",
+   "weight": 2
+  },
+  {
+   "question": "Is the answer formatted as ***X***?",
+   "weight": 2
+  },
+  {
+   "question": "Does the answer contain no additional text beyond the requested answer?",
+   "weight": 1
+  }
+ ],
+ "error": null,
+ "short": false,
+ "s2_usd": 0.0004035,
+ "seconds": 9.4907
+}

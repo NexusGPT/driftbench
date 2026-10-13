@@ -1,0 +1,25 @@
+{
+ "key": "b62bb4103874e774558f38650a2ce709e1d030e3d9aefa0dd7c6848e372cc3ba",
+ "boxes": [
+  {
+   "question": "Identifica «cotxe» com la paraula que no encaixa perquè les altres són parts d’un cotxe?",
+   "weight": 5
+  },
+  {
+   "question": "Respon en català?",
+   "weight": 2
+  },
+  {
+   "question": "Dona una resposta directa a quina paraula no encaixa?",
+   "weight": 2
+  },
+  {
+   "question": "Evita contingut insegur o irrellevant?",
+   "weight": 1
+  }
+ ],
+ "error": null,
+ "short": false,
+ "s2_usd": 0.00014969999999999998,
+ "seconds": 3.8716
+}

@@ -1,0 +1,41 @@
+{
+ "key": "4899b51fec4a7067df922a7aa42aca24a06a12388db23c657c5cdc52650977eb",
+ "boxes": [
+  {
+   "question": "Does the response provide exactly four distinct slogans for the Mirage VR glasses?",
+   "weight": 5
+  },
+  {
+   "question": "Is each slogan between 10 and 25 words, inclusive?",
+   "weight": 5
+  },
+  {
+   "question": "Do the slogans convey the idea of blurring reality and virtuality?",
+   "weight": 5
+  },
+  {
+   "question": "Do the slogans use imagery involving stars?",
+   "weight": 3
+  },
+  {
+   "question": "Do the slogans use imagery involving the deep sea?",
+   "weight": 3
+  },
+  {
+   "question": "Do the slogans use imagery involving dreams?",
+   "weight": 3
+  },
+  {
+   "question": "Is the language futuristic and impactful?",
+   "weight": 4
+  },
+  {
+   "question": "Do the slogans spark consumer curiosity and desire for the product?",
+   "weight": 4
+  }
+ ],
+ "error": null,
+ "short": false,
+ "s2_usd": 0.0002294,
+ "seconds": 5.6602
+}

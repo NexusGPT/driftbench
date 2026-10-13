@@ -1,0 +1,41 @@
+{
+ "key": "9e2b84fb7fa4fbe54d1820e652e297c14a9d4897ced35438f228f1444b469ac5",
+ "boxes": [
+  {
+   "question": "Does the response read as a blog post about reconciling with failure amid an overemphasis on success?",
+   "weight": 2
+  },
+  {
+   "question": "Does the introduction raise the problem of excessive pursuit of success and the pressure it creates?",
+   "weight": 2
+  },
+  {
+   "question": "Does the response challenge the idea that success has only one standard?",
+   "weight": 3
+  },
+  {
+   "question": "Does the response explain how treating winning as the only goal can be harmful?",
+   "weight": 2
+  },
+  {
+   "question": "Does the response present failure as a meaningful part of life experience rather than a stain, and describe what it can teach?",
+   "weight": 3
+  },
+  {
+   "question": "Does the response develop its ideas through several sections that include relevant personal stories or observations and address the hidden value of misunderstood failures and making room for imperfection?",
+   "weight": 3
+  },
+  {
+   "question": "Does the conclusion summarize the message and inspire readers to reconcile with failure and accept imperfection as part of growth?",
+   "weight": 3
+  },
+  {
+   "question": "Is the writing sincere, reflective, empathetic, and inspiring without becoming overly academic or preachy?",
+   "weight": 2
+  }
+ ],
+ "error": null,
+ "short": false,
+ "s2_usd": 0.00021319999999999998,
+ "seconds": 4.2055
+}

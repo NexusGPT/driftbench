@@ -1,0 +1,17 @@
+{
+ "key": "7e57fe057865017f78a5f98637582fb3aa3a32c98f9b3f1b18d5e4bdf948a3a6",
+ "boxes": [
+  {
+   "question": "Does the answer identify Delta Burke's character's job as interior designer (D)?",
+   "weight": 5
+  },
+  {
+   "question": "Does the answer provide the selected letter five times in a single string, such as DDDDD?",
+   "weight": 1
+  }
+ ],
+ "error": null,
+ "short": true,
+ "s2_usd": 6.670000000000001e-05,
+ "seconds": 2.6322
+}

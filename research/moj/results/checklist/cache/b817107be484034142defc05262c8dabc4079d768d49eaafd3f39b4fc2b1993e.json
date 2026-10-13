@@ -1,0 +1,33 @@
+{
+ "key": "b817107be484034142defc05262c8dabc4079d768d49eaafd3f39b4fc2b1993e",
+ "boxes": [
+  {
+   "question": "Is Galileo Galilei the protagonist of the story?",
+   "weight": 2
+  },
+  {
+   "question": "Is the story set in the room where Galileo waits before entering the Roman Inquisition’s court?",
+   "weight": 3
+  },
+  {
+   "question": "Does the story focus on the moments immediately before Galileo’s public recantation of the heliocentric theory?",
+   "weight": 3
+  },
+  {
+   "question": "Is the story primarily presented as Galileo’s internal monologue?",
+   "weight": 3
+  },
+  {
+   "question": "Does the story explore the difficult choice between faith and science, and the weight of truth?",
+   "weight": 3
+  },
+  {
+   "question": "Is the response a short story rather than an explanation or another form of writing?",
+   "weight": 2
+  }
+ ],
+ "error": null,
+ "short": false,
+ "s2_usd": 0.00017680000000000001,
+ "seconds": 5.5802
+}

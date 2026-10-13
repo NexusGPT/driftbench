@@ -1,0 +1,29 @@
+{
+ "key": "afa66d12516e7c10a1b5bebf4901f6737fb3d76a0a8be4a281a1b9c85ac04511",
+ "boxes": [
+  {
+   "question": "Does the solution search for the letters `s`, `n`, `u`, `k`, and `e` in that order at five positions with a constant row-and-column displacement between consecutive positions?",
+   "weight": 5
+  },
+  {
+   "question": "Does the solution allow all eight horizontal, vertical, and diagonal directions while ensuring all five positions remain within the grid?",
+   "weight": 5
+  },
+  {
+   "question": "Does the solution output the matching cells’ 1-indexed row and column coordinates in `s`, `n`, `u`, `k`, `e` order?",
+   "weight": 5
+  },
+  {
+   "question": "Does the solution print exactly five lines, each containing a row and column separated by a space?",
+   "weight": 3
+  },
+  {
+   "question": "Does the solution correctly process grids up to 100 rows and 100 columns?",
+   "weight": 3
+  }
+ ],
+ "error": null,
+ "short": false,
+ "s2_usd": 0.00032170000000000007,
+ "seconds": 5.2687
+}

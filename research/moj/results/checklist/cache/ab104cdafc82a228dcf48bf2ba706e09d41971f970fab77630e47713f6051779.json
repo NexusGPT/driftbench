@@ -1,0 +1,41 @@
+{
+ "key": "ab104cdafc82a228dcf48bf2ba706e09d41971f970fab77630e47713f6051779",
+ "boxes": [
+  {
+   "question": "Is the speech titled exactly “Strength in the Smallest of Things”?",
+   "weight": 3
+  },
+  {
+   "question": "Is the response at least 600 words long?",
+   "weight": 5
+  },
+  {
+   "question": "Does the response read as a keynote speech addressed to the school-wide assembly?",
+   "weight": 3
+  },
+  {
+   "question": "Does the speech inspire concrete environmental actions that students and others at school can take, rather than focusing mainly on broad environmental education?",
+   "weight": 5
+  },
+  {
+   "question": "Does the language convey passionate urgency and a sense of responsibility about taking environmental action?",
+   "weight": 4
+  },
+  {
+   "question": "Does the speech convey hope and empower the audience with the belief that collective action is achievable?",
+   "weight": 4
+  },
+  {
+   "question": "Does the speech conclude with a strong call to action?",
+   "weight": 4
+  },
+  {
+   "question": "Is the speech signed exactly “Li Yue, President of the Environmental Protection Club.”?",
+   "weight": 3
+  }
+ ],
+ "error": null,
+ "short": false,
+ "s2_usd": 0.00022030000000000002,
+ "seconds": 4.7777
+}

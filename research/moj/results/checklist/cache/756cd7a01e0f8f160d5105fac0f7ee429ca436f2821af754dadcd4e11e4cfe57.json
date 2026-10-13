@@ -1,0 +1,33 @@
+{
+ "key": "756cd7a01e0f8f160d5105fac0f7ee429ca436f2821af754dadcd4e11e4cfe57",
+ "boxes": [
+  {
+   "question": "回答是否采用鬼畜rap的形式来写？",
+   "weight": 2
+  },
+  {
+   "question": "回答是否将不同领域的广告词或广告元素进行无厘头混搭？",
+   "weight": 2
+  },
+  {
+   "question": "混搭内容是否涉及电子产品、学习工具、食品饮料等不同领域？",
+   "weight": 2
+  },
+  {
+   "question": "回答是否包含“死机”和“爆炸”这两个夸张词汇？",
+   "weight": 2
+  },
+  {
+   "question": "回答是否加入“乡亲父老”等接地气的称呼？",
+   "weight": 1
+  },
+  {
+   "question": "整体表达是否形成荒诞的戏剧效果，且写作质量较好？",
+   "weight": 2
+  }
+ ],
+ "error": null,
+ "short": false,
+ "s2_usd": 0.00016659999999999998,
+ "seconds": 4.4495
+}

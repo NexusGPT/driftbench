@@ -1,0 +1,41 @@
+{
+ "key": "53b3a253eac5982be3cdbe98d34ff6c76bd0adaa4282b58d0e06822b301dd988",
+ "boxes": [
+  {
+   "question": "回答是否恰好写出3条宣传语？",
+   "weight": 3
+  },
+  {
+   "question": "每一条宣传语是否都不少于20个汉字？",
+   "weight": 3
+  },
+  {
+   "question": "宣传语是否明确突出衣服采用棉质材料？",
+   "weight": 2
+  },
+  {
+   "question": "宣传语是否提到衣服的样式或款式等具体细节？",
+   "weight": 2
+  },
+  {
+   "question": "宣传语是否明确体现衣服是专为5—10岁小朋友设计的？",
+   "weight": 2
+  },
+  {
+   "question": "宣传语是否运用小动物拟人等方式表现童趣？",
+   "weight": 2
+  },
+  {
+   "question": "宣传语是否突出衣服色彩丰富？",
+   "weight": 1
+  },
+  {
+   "question": "宣传语整体是否自然、有吸引力，适合作为童装店的宣传文案？",
+   "weight": 1
+  }
+ ],
+ "error": null,
+ "short": false,
+ "s2_usd": 0.0001885,
+ "seconds": 4.5403
+}

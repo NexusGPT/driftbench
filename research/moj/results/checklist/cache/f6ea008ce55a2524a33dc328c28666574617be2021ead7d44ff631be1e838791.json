@@ -1,0 +1,25 @@
+{
+ "key": "f6ea008ce55a2524a33dc328c28666574617be2021ead7d44ff631be1e838791",
+ "boxes": [
+  {
+   "question": "Je, jibu linasema kwamba Henry alisafiri maili 25 kati ya kusimama mara ya kwanza na ya pili?",
+   "weight": 5
+  },
+  {
+   "question": "Je, jibu linatambua kwamba kusimama mara ya pili kulikuwa baada ya Henry kusafiri maili 45 za safari?",
+   "weight": 4
+  },
+  {
+   "question": "Je, jibu linaonyesha kwa usahihi kwamba umbali kati ya kusimama ni maili 45 ukitoa maili 20?",
+   "weight": 4
+  },
+  {
+   "question": "Je, jibu limetolewa kwa Kiswahili na linaeleweka?",
+   "weight": 2
+  }
+ ],
+ "error": null,
+ "short": false,
+ "s2_usd": 0.00015480000000000002,
+ "seconds": 3.23
+}

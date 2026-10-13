@@ -1,0 +1,25 @@
+{
+ "key": "84d0984afcebecc07ddb579d5f078b5465bf38c532428bac7feb6d8e4d3f905c",
+ "boxes": [
+  {
+   "question": "Does the answer identify option J as the correct choice?",
+   "weight": 5
+  },
+  {
+   "question": "Does the answer identify 10 and 12 as the two numbers?",
+   "weight": 5
+  },
+  {
+   "question": "Does the answer repeat its selected letter exactly five times in a single string?",
+   "weight": 3
+  },
+  {
+   "question": "Is the requested answer provided without extra text?",
+   "weight": 2
+  }
+ ],
+ "error": null,
+ "short": false,
+ "s2_usd": 0.0002352,
+ "seconds": 5.6098
+}

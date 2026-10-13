@@ -1,0 +1,33 @@
+{
+ "key": "1d9e6dd1e3ffbe8585d7af03bec15ac3b67efc87236839d594c31715292d20bc",
+ "boxes": [
+  {
+   "question": "回答是否写成了一首围绕调侃说唱文化的顺口溜？",
+   "weight": 2
+  },
+  {
+   "question": "顺口溜是否提到了若干比较火的说唱歌手？",
+   "weight": 2
+  },
+  {
+   "question": "顺口溜是否以善意幽默或会心一笑的讽刺为主，避免人身攻击和恶意中伤？",
+   "weight": 3
+  },
+  {
+   "question": "顺口溜的语句是否连贯，整体读来通顺？",
+   "weight": 2
+  },
+  {
+   "question": "顺口溜是否注重押韵，韵脚听起来自然和谐？",
+   "weight": 2
+  },
+  {
+   "question": "顺口溜是否具备一定的节奏感，句式安排也大体工整？",
+   "weight": 1
+  }
+ ],
+ "error": null,
+ "short": false,
+ "s2_usd": 0.0002226,
+ "seconds": 4.7893
+}

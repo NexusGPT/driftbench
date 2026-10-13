@@ -1,0 +1,25 @@
+{
+ "key": "e48b8dc7d5ca479d5129239d2d6a45aee041f67f01f755e922c50ce651a8fe17",
+ "boxes": [
+  {
+   "question": "Berechnet die Antwort die Anzahl der rosa Kaugummikugeln als viermal 12 plus 22?",
+   "weight": 3
+  },
+  {
+   "question": "Nennt die Antwort 70 rosa Kaugummikugeln als Ergebnis?",
+   "weight": 5
+  },
+  {
+   "question": "Macht die Antwort eindeutig, dass sich die Zahl 70 auf die rosa Kaugummikugeln bezieht?",
+   "weight": 2
+  },
+  {
+   "question": "Ist die Antwort auf Deutsch formuliert?",
+   "weight": 1
+  }
+ ],
+ "error": null,
+ "short": false,
+ "s2_usd": 0.000209,
+ "seconds": 4.606
+}

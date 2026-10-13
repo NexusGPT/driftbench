@@ -1,0 +1,29 @@
+{
+ "key": "52967e5c2470b9f4299790220856e90589f0de49d60b896b496f4cd1cf0d778c",
+ "boxes": [
+  {
+   "question": "Does the answer name at least one university located in Vietnam known for engineering?",
+   "weight": 5
+  },
+  {
+   "question": "Is the named university genuinely recognized for its engineering education or research?",
+   "weight": 5
+  },
+  {
+   "question": "Does the answer explain relevant, specific strengths that help make the university stand out?",
+   "weight": 4
+  },
+  {
+   "question": "Are the answer’s factual claims about the university and its strengths accurate?",
+   "weight": 5
+  },
+  {
+   "question": "Is the answer written in Vietnamese, the language of the user’s question?",
+   "weight": 3
+  }
+ ],
+ "error": null,
+ "short": false,
+ "s2_usd": 0.0001731,
+ "seconds": 4.0812
+}

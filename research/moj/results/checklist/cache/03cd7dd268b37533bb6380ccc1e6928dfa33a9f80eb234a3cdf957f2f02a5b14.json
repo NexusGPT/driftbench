@@ -1,0 +1,25 @@
+{
+ "key": "03cd7dd268b37533bb6380ccc1e6928dfa33a9f80eb234a3cdf957f2f02a5b14",
+ "boxes": [
+  {
+   "question": "Does the answer give an activation-map dimension of 15?",
+   "weight": 5
+  },
+  {
+   "question": "Does the answer identify option D as the correct choice?",
+   "weight": 5
+  },
+  {
+   "question": "Does the answer repeat the correct letter five times?",
+   "weight": 2
+  },
+  {
+   "question": "Are the five letters written as a single string?",
+   "weight": 1
+  }
+ ],
+ "error": null,
+ "short": false,
+ "s2_usd": 0.0001888,
+ "seconds": 11.9008
+}

@@ -1,0 +1,29 @@
+{
+ "key": "2dbfc147fad942e5e72d1611e7ce9a82877e69d1f38686a7f3647d8d56790ddf",
+ "boxes": [
+  {
+   "question": "Does the answer recognize that the minimum possible total score is the bitwise AND of all elements, and that if this AND is nonzero, the maximum number of subarrays achieving it is 1?",
+   "weight": 5
+  },
+  {
+   "question": "When the bitwise AND of the entire array is zero, does the answer maximize the number of zero-score subarrays by scanning left to right and ending a subarray as soon as its running bitwise AND becomes zero?",
+   "weight": 5
+  },
+  {
+   "question": "Does the answer correctly handle the case where the entire array’s bitwise AND is zero but no earlier prefix reaches zero, returning one subarray?",
+   "weight": 3
+  },
+  {
+   "question": "Does the proposed method return the correct maximum count for arrays containing a single element, including when that element is zero?",
+   "weight": 3
+  },
+  {
+   "question": "Is the proposed algorithm efficient enough for arrays of length up to 10^5?",
+   "weight": 4
+  }
+ ],
+ "error": null,
+ "short": false,
+ "s2_usd": 0.0003551,
+ "seconds": 8.7857
+}

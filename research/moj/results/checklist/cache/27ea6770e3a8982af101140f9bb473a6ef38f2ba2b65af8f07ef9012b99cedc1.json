@@ -1,0 +1,25 @@
+{
+ "key": "27ea6770e3a8982af101140f9bb473a6ef38f2ba2b65af8f07ef9012b99cedc1",
+ "boxes": [
+  {
+   "question": "Does the response identify F as the correct answer?",
+   "weight": 5
+  },
+  {
+   "question": "Does the response give the answer as five repetitions of the selected letter?",
+   "weight": 2
+  },
+  {
+   "question": "Are all five characters in the answer string the same letter?",
+   "weight": 2
+  },
+  {
+   "question": "Does the answer string contain exactly five characters?",
+   "weight": 2
+  }
+ ],
+ "error": null,
+ "short": false,
+ "s2_usd": 0.0002548,
+ "seconds": 5.9545
+}

@@ -1,0 +1,25 @@
+{
+ "key": "e2a49bad8d47b554de61bd471a3e77342b6874678987233e55b02d98d5eab565",
+ "boxes": [
+  {
+   "question": "Does the answer select option E?",
+   "weight": 5
+  },
+  {
+   "question": "Does the answer identify the angle as \\(\\arcsin\\frac{5}{6}\\)?",
+   "weight": 5
+  },
+  {
+   "question": "Does the answer repeat the selected letter exactly five times?",
+   "weight": 3
+  },
+  {
+   "question": "Are the five letters written together as a single string?",
+   "weight": 2
+  }
+ ],
+ "error": null,
+ "short": false,
+ "s2_usd": 0.00036480000000000003,
+ "seconds": 7.9511
+}

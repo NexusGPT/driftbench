@@ -1,0 +1,25 @@
+{
+ "key": "3ce481a80c3c4dfaa216197ad1789c113dc2b99b5a8283686831ae423b4b0877",
+ "boxes": [
+  {
+   "question": "Does the answer recognize that one year of output equals four quarters of output?",
+   "weight": 2
+  },
+  {
+   "question": "Does the answer correctly infer that, for the same capital stock, the capital/output ratio for quarterly output is four times the annual ratio?",
+   "weight": 3
+  },
+  {
+   "question": "Does the answer give 8 as the capital/output ratio for quarterly output?",
+   "weight": 5
+  },
+  {
+   "question": "Does the answer identify choice J as the correct answer?",
+   "weight": 5
+  }
+ ],
+ "error": null,
+ "short": false,
+ "s2_usd": 0.0003002,
+ "seconds": 7.1962
+}

@@ -1,0 +1,25 @@
+{
+ "key": "9acc082d2bebfbe50fb727e75f4057b722bfe5411acd33af2cc1df5ff29fae59",
+ "boxes": [
+  {
+   "question": "La réponse indique-t-elle que le paquet contenait initialement 48 frites ?",
+   "weight": 5
+  },
+  {
+   "question": "Le raisonnement tient-il compte du fait que la mouette a mangé 7 frites, soit la moitié des 14 frites mangées par Dave ?",
+   "weight": 3
+  },
+  {
+   "question": "Le raisonnement inverse-t-il correctement les étapes restantes, en tenant compte des 9 frites mangées par les pigeons, des deux tiers volés par le raton laveur et de la dernière frite emportée par les fourmis, qui laissent 5 frites ?",
+   "weight": 4
+  },
+  {
+   "question": "La réponse est-elle formulée en français ?",
+   "weight": 1
+  }
+ ],
+ "error": null,
+ "short": false,
+ "s2_usd": 0.00021669999999999998,
+ "seconds": 5.2078
+}

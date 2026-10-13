@@ -1,0 +1,25 @@
+{
+ "key": "fcde802a92fdb3a5a4de67c5bf5c0a932573348832f9d95303ed43fc9cfc5bb1",
+ "boxes": [
+  {
+   "question": "Does the answer state that the person at the museum does not tell the truth?",
+   "weight": 5
+  },
+  {
+   "question": "Does the answer state that the person at the school does not tell the truth?",
+   "weight": 5
+  },
+  {
+   "question": "Does the answer state that the person at the park tells the truth?",
+   "weight": 5
+  },
+  {
+   "question": "Does the answer give the three truth values in the requested order: museum, school, then park?",
+   "weight": 4
+  }
+ ],
+ "error": null,
+ "short": false,
+ "s2_usd": 0.0005377,
+ "seconds": 13.2084
+}

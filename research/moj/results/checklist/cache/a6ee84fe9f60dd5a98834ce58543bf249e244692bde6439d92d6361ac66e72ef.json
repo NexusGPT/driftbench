@@ -1,0 +1,33 @@
+{
+ "key": "a6ee84fe9f60dd5a98834ce58543bf249e244692bde6439d92d6361ac66e72ef",
+ "boxes": [
+  {
+   "question": "Està escrit en català?",
+   "weight": 3
+  },
+  {
+   "question": "Presenta el contingut com un discurs informatiu sobre què és l’agricultura vertical?",
+   "weight": 3
+  },
+  {
+   "question": "Explica els conceptes de manera accessible per a una audiència general sense coneixements especialitzats?",
+   "weight": 3
+  },
+  {
+   "question": "Descriu el potencial de l’agricultura vertical per transformar l’agricultura urbana i contribuir a una vida urbana sostenible?",
+   "weight": 3
+  },
+  {
+   "question": "Inclou fets, dades o estadístiques pertinents i els presenta amb exactitud?",
+   "weight": 4
+  },
+  {
+   "question": "El discurs és estimulant i captivador per a una audiència curiosa i diversa?",
+   "weight": 2
+  }
+ ],
+ "error": null,
+ "short": false,
+ "s2_usd": 0.00018240000000000002,
+ "seconds": 3.7678
+}

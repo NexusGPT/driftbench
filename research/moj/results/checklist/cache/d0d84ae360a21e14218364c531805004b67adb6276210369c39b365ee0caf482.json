@@ -1,0 +1,41 @@
+{
+ "key": "d0d84ae360a21e14218364c531805004b67adb6276210369c39b365ee0caf482",
+ "boxes": [
+  {
+   "question": "Does the document present itself as formal meeting minutes for the Annual Sales Target Decomposition and Strategy Planning Meeting?",
+   "weight": 1
+  },
+  {
+   "question": "Does it report that the previous year's sales performance reached 85% of the target?",
+   "weight": 2
+  },
+  {
+   "question": "Does it identify both low market penetration for key products and slow online channel expansion as problems?",
+   "weight": 2
+  },
+  {
+   "question": "Does it state a new overall sales target of 30% year-over-year growth?",
+   "weight": 3
+  },
+  {
+   "question": "Does it include the regional growth breakdown of 35% for the East and 40% for the West?",
+   "weight": 3
+  },
+  {
+   "question": "Does it specify that key products will contribute 60% and that the online channel will grow by 50%?",
+   "weight": 3
+  },
+  {
+   "question": "Does it describe proposed solutions and support from Marketing, Finance, and Customer Service?",
+   "weight": 3
+  },
+  {
+   "question": "Does it outline an execution and monitoring plan in a clear, structured report format?",
+   "weight": 2
+  }
+ ],
+ "error": null,
+ "short": false,
+ "s2_usd": 0.0002017,
+ "seconds": 3.617
+}

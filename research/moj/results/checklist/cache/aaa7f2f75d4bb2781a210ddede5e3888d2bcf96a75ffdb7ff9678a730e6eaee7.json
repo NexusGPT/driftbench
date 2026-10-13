@@ -1,0 +1,25 @@
+{
+ "key": "aaa7f2f75d4bb2781a210ddede5e3888d2bcf96a75ffdb7ff9678a730e6eaee7",
+ "boxes": [
+  {
+   "question": "당신의 현재 순위가 2등이라고 답하는가?",
+   "weight": 5
+  },
+  {
+   "question": "추월한 사람의 현재 순위가 3등이라고 답하는가?",
+   "weight": 5
+  },
+  {
+   "question": "두 순위를 서로 혼동하지 않고 각각 명확히 답하는가?",
+   "weight": 2
+  },
+  {
+   "question": "사용자가 쓴 한국어로 답하는가?",
+   "weight": 2
+  }
+ ],
+ "error": null,
+ "short": false,
+ "s2_usd": 0.0002352,
+ "seconds": 5.8857
+}

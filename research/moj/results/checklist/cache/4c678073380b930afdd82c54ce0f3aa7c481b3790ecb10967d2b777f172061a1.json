@@ -1,0 +1,25 @@
+{
+ "key": "4c678073380b930afdd82c54ce0f3aa7c481b3790ecb10967d2b777f172061a1",
+ "boxes": [
+  {
+   "question": "Does the answer identify B as the correct translation of the formula (~B • E) ⊃ D?",
+   "weight": 5
+  },
+  {
+   "question": "Does the answer give exactly the requested five-letter string BBBBB?",
+   "weight": 5
+  },
+  {
+   "question": "Does the answer contain five copies of the same letter, with no other text?",
+   "weight": 3
+  },
+  {
+   "question": "Does the answer avoid selecting A, C, or D as the correct option?",
+   "weight": 4
+  }
+ ],
+ "error": null,
+ "short": false,
+ "s2_usd": 0.0003522,
+ "seconds": 8.0698
+}

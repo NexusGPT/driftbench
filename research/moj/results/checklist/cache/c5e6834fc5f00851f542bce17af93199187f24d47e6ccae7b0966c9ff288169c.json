@@ -1,0 +1,25 @@
+{
+ "key": "c5e6834fc5f00851f542bce17af93199187f24d47e6ccae7b0966c9ff288169c",
+ "boxes": [
+  {
+   "question": "Does the response give the determinant as \u0002-1369/36\u0002 or an equivalent value?",
+   "weight": 5
+  },
+  {
+   "question": "Is the determinant's sign stated as negative?",
+   "weight": 3
+  },
+  {
+   "question": "Is the final answer placed in a \\boxed{}?",
+   "weight": 1
+  },
+  {
+   "question": "Does the response identify its stated value as the determinant of the given matrix?",
+   "weight": 2
+  }
+ ],
+ "error": null,
+ "short": false,
+ "s2_usd": 0.0003713,
+ "seconds": 10.4333
+}

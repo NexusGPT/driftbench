@@ -1,0 +1,37 @@
+{
+ "key": "17145eae7f5cb05450a25a3542c6700ce2b88065451239ea1f76663da4257de4",
+ "boxes": [
+  {
+   "question": "Is the response written as a sports story centered on an NFL Draft?",
+   "weight": 3
+  },
+  {
+   "question": "Is the protagonist the general manager of an NFL team?",
+   "weight": 3
+  },
+  {
+   "question": "Does the story focus on the final minutes before the protagonist’s team makes its draft pick?",
+   "weight": 4
+  },
+  {
+   "question": "Does the story portray the war room as a setting for the decision?",
+   "weight": 2
+  },
+  {
+   "question": "Does the coach, scouts, and owner express conflicting opinions through tense dialogue?",
+   "weight": 4
+  },
+  {
+   "question": "Does the story clearly frame the GM’s choice as a career-defining gamble between a safe but mediocre player and a risky but talented one?",
+   "weight": 5
+  },
+  {
+   "question": "Does the writing convey the GM’s immense pressure and make the story engaging and coherent?",
+   "weight": 3
+  }
+ ],
+ "error": null,
+ "short": false,
+ "s2_usd": 0.0002036,
+ "seconds": 5.9589
+}

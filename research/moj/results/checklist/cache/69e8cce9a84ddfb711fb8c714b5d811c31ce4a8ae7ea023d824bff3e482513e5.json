@@ -1,0 +1,25 @@
+{
+ "key": "69e8cce9a84ddfb711fb8c714b5d811c31ce4a8ae7ea023d824bff3e482513e5",
+ "boxes": [
+  {
+   "question": "¿Identifica claramente una región de España como líder para profesionales de tecnología y startups?",
+   "weight": 3
+  },
+  {
+   "question": "¿Describe características pertinentes que hacen atractiva esa región para empresas tecnológicas?",
+   "weight": 2
+  },
+  {
+   "question": "¿Describe características pertinentes que hacen atractiva esa región para emprendedores o startups?",
+   "weight": 2
+  },
+  {
+   "question": "¿Responde en español?",
+   "weight": 1
+  }
+ ],
+ "error": null,
+ "short": false,
+ "s2_usd": 0.0002017,
+ "seconds": 4.4384
+}

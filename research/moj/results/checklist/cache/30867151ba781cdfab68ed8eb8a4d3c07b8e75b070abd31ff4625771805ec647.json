@@ -1,0 +1,41 @@
+{
+ "key": "30867151ba781cdfab68ed8eb8a4d3c07b8e75b070abd31ff4625771805ec647",
+ "boxes": [
+  {
+   "question": "Does the article accurately define autophagy as a cellular process for breaking down and recycling the cell’s own components?",
+   "weight": 3
+  },
+  {
+   "question": "Does it explain the roles of autophagosomes and lysosomes in that process?",
+   "weight": 3
+  },
+  {
+   "question": "Does it describe Yoshinori Ohsumi’s contribution to autophagy research and connect it to his Nobel Prize?",
+   "weight": 2
+  },
+  {
+   "question": "Does it distinguish macroautophagy, microautophagy, and chaperone-mediated autophagy?",
+   "weight": 2
+  },
+  {
+   "question": "Does it explain autophagy’s roles in waste removal, nutrient recycling, development, and disease prevention?",
+   "weight": 3
+  },
+  {
+   "question": "Does it discuss current research into clinical applications of autophagy in cancer?",
+   "weight": 2
+  },
+  {
+   "question": "Does it discuss current research into clinical applications of autophagy in neurodegenerative diseases and aging?",
+   "weight": 2
+  },
+  {
+   "question": "Is the article easy for general readers to understand, using vivid metaphors or examples to clarify its ideas?",
+   "weight": 1
+  }
+ ],
+ "error": null,
+ "short": false,
+ "s2_usd": 0.0002835,
+ "seconds": 5.644
+}

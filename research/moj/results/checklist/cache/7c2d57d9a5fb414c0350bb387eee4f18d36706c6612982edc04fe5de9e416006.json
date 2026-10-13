@@ -1,0 +1,25 @@
+{
+ "key": "7c2d57d9a5fb414c0350bb387eee4f18d36706c6612982edc04fe5de9e416006",
+ "boxes": [
+  {
+   "question": "Does the answer identify option 3 as the logically correct conclusion?",
+   "weight": 5
+  },
+  {
+   "question": "Does the answer correctly state that socks cannot be used for reading?",
+   "weight": 5
+  },
+  {
+   "question": "Is the answer written in German?",
+   "weight": 2
+  },
+  {
+   "question": "Does the answer address the question without introducing a misleading or unsafe claim?",
+   "weight": 3
+  }
+ ],
+ "error": null,
+ "short": false,
+ "s2_usd": 0.0002264,
+ "seconds": 5.9293
+}

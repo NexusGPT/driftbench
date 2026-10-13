@@ -164,6 +164,57 @@ def terrain_test(config, threshold=0.6):
     return table
 
 
+PW_BASELINES = {'ledger': 'pw_ledger', 'ledger+seat': 'pw_seat', 'shipped': 'pw_shipped', 'promptfoo': 'pw_promptfoo',
+                'promptfoo-luna-fresh': 'pw_s2v_luna', 'const_fail': 'const_fail', 'const_pass': 'const_pass'}
+
+
+def pw_residual(config, quiet=False):
+    """R1 and R2 on the pointwise benchmarks. Balanced accuracy is the measure (a constant verdict scores 50)."""
+    from . import pointwise as pw
+    result = pw.board(config)
+    floors = {}
+    path = os.path.join(HERE, 'results', 'pointwise', 'noise', 'pw-moj-luna.json')
+    if os.path.exists(path):
+        floors = {b: v.get('floor_points', 3.3) / 100 for b, v in json.load(open(path))['benches'].items()}
+    rows, r1, r2 = [], 0, 0
+    from .benches import POINT_BENCHES
+    for bench in POINT_BENCHES:
+        store = pw.load_signals(bench)
+        if not store:
+            continue
+        floor = floors.get(bench, max(floors.values(), default=0.033))
+        moj_v = {i: score_verdict(result['decisions'][f'{bench}|{i}']['verdict'], store[i]['_meta']['label']) for i in store}
+        detail, best, best_bal = {}, None, -1
+        for label, name in PW_BASELINES.items():
+            ids = [i for i in store if pw.single_score(store[i], name) is not None]
+            if len(ids) < 10:
+                continue
+            base = [(store[i]['_meta']['label'], pw.single_score(store[i], name)) for i in ids]
+            mine = [(store[i]['_meta']['label'], moj_v[i]) for i in ids]
+            b_bal, m_bal = pw.balanced(base), pw.balanced(mine)
+            usage = [pw.usage_of(store[i], [name]) for i in ids]
+            detail[label] = {'n': len(ids), 'baseline': b_bal, 'moj_same_items': m_bal, 'diff': m_bal - b_bal,
+                             's2_calls': sum(u['s2'] for u in usage) / len(ids)}
+            if b_bal > best_bal:
+                best, best_bal = label, b_bal
+        dec = [result['decisions'][f'{bench}|{i}'] for i in store]
+        moj_s2 = sum(d['calls']['luna'] for d in dec) / len(dec)
+        ahead = detail[best]['diff'] > floor
+        unbeaten = [d['s2_calls'] for d in detail.values() if d['diff'] <= floor]
+        costly = bool(unbeaten) and moj_s2 > min(unbeaten)
+        r1 += 0 if ahead else 1
+        r2 += 1 if costly else 0
+        rows.append({'cell': f'{bench} x gpt-6-luna', 'moj_balanced': pw.balanced([(store[i]['_meta']['label'], moj_v[i]) for i in store]),
+                     'best_baseline': best, 'floor': floor, 'ahead': ahead, 'costly': costly, 'moj_s2': moj_s2, 'detail': detail})
+    if not quiet:
+        print(f"{config['name']} pointwise: R1 = {r1} of {len(rows)}; R2 = {r2}")
+        for row in rows:
+            print(f"  {row['cell']}: MoJ balanced {100 * row['moj_balanced']:.1f}, S2 {row['moj_s2']:.2f}/item, floor {100 * row['floor']:.1f}, best {row['best_baseline']}")
+            for label, d in row['detail'].items():
+                print(f"     vs {label:20} {100 * d['baseline']:.1f} on {d['n']}; MoJ there {100 * d['moj_same_items']:.1f}; diff {100 * d['diff']:+.1f}; S2 {d['s2_calls']:.2f}")
+    return {'variant': config['name'], 'R1': r1, 'R2': r2, 'cells': rows}
+
+
 def compare(paths):
     """One line per variant: pooled and per-benchmark accuracy on each half, calls per pair, R1 and R2."""
     print('variant | pooled tune / valid | S1, S2 calls | ' + ' | '.join(f'{b} tune / valid (S2)' for b in ('judgebench', 'mmeval', 'writing')) + ' | R1 R2')
@@ -181,6 +232,10 @@ def compare(paths):
 
 
 if __name__ == '__main__':
+    if sys.argv[1] == 'pw_residual':
+        for path in sys.argv[2:]:
+            pw_residual(json.load(open(path)))
+        sys.exit(0)
     if sys.argv[1] == 'compare':
         compare(sys.argv[2:])
         sys.exit(0)

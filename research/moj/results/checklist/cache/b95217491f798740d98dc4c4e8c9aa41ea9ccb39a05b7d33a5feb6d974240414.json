@@ -1,0 +1,25 @@
+{
+ "key": "b95217491f798740d98dc4c4e8c9aa41ea9ccb39a05b7d33a5feb6d974240414",
+ "boxes": [
+  {
+   "question": "Does the answer identify B, the correct multiple-choice option?",
+   "weight": 5
+  },
+  {
+   "question": "Does the answer give the letter B five times in a single string?",
+   "weight": 2
+  },
+  {
+   "question": "Are all five letters in the string identical?",
+   "weight": 1
+  },
+  {
+   "question": "Does the answer avoid adding another answer choice that conflicts with B?",
+   "weight": 1
+  }
+ ],
+ "error": null,
+ "short": false,
+ "s2_usd": 0.0002753,
+ "seconds": 6.6203
+}

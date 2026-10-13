@@ -1,0 +1,37 @@
+{
+ "key": "f7a622da2c8a43c9772a62c34c929853736b2dc515f9f09759a9eb7f8abedadf",
+ "boxes": [
+  {
+   "question": "Does the response tell a story in an urban-fantasy setting?",
+   "weight": 2
+  },
+  {
+   "question": "Is the protagonist an illustrator who feels oppressed and lonely in a big city?",
+   "weight": 2
+  },
+  {
+   "question": "Does the protagonist acquire the emotional-aura ability accidentally?",
+   "weight": 2
+  },
+  {
+   "question": "Does the story depict people emitting visible emotional colors, with examples such as sadness appearing blue or happiness yellow?",
+   "weight": 2
+  },
+  {
+   "question": "Does the protagonist use his paintbrush to absorb or bestow emotional colors?",
+   "weight": 3
+  },
+  {
+   "question": "Does the story explore empathy and healing by showing the protagonist connecting with others’ emotions and processing his own?",
+   "weight": 4
+  },
+  {
+   "question": "Does the story’s tone feel healing, and is the writing effective in carrying out the prompt?",
+   "weight": 3
+  }
+ ],
+ "error": null,
+ "short": false,
+ "s2_usd": 0.0001737,
+ "seconds": 4.2395
+}

@@ -1,0 +1,17 @@
+{
+ "key": "de8457d82e0c84a11f46d2e36b50b2d94beaf32d6d124e72d2a95def1e71d8ec",
+ "boxes": [
+  {
+   "question": "Does the answer give a monic quadratic characteristic polynomial?",
+   "weight": 3
+  },
+  {
+   "question": "Is the coefficient of the linear term \u001b[?",
+   "weight": 5
+  }
+ ],
+ "error": null,
+ "short": true,
+ "s2_usd": 0.0002473,
+ "seconds": 6.0589
+}

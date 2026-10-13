@@ -1,0 +1,41 @@
+{
+ "key": "3a7f161fbd2dba54814e682a0d1ea0668bc231adaf4d78c32f6fe0f36c890771",
+ "boxes": [
+  {
+   "question": "Does the response read as a professional yet approachable marketing email for the Star Ring Smart Watch Pro X?",
+   "weight": 2
+  },
+  {
+   "question": "Does it speak to busy professionals who care about their health but may neglect it because of work?",
+   "weight": 2
+  },
+  {
+   "question": "Does it present 24-hour comprehensive health monitoring powered by the 5th-generation biosensor?",
+   "weight": 3
+  },
+  {
+   "question": "Does it mention both the 15-day battery life and magnetic fast charging?",
+   "weight": 3
+  },
+  {
+   "question": "Does it mention more than 100 sports modes and professional analysis?",
+   "weight": 3
+  },
+  {
+   "question": "Does it mention both smart schedule synchronization and offline payment as features for professionals?",
+   "weight": 3
+  },
+  {
+   "question": "Does it include a clear call to action to click to pre-order?",
+   "weight": 3
+  },
+  {
+   "question": "Does it emphasize limited-time launch benefits and portray the watch as a caring health partner, not merely a tech product?",
+   "weight": 2
+  }
+ ],
+ "error": null,
+ "short": false,
+ "s2_usd": 0.0002925,
+ "seconds": 6.125
+}

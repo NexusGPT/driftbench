@@ -338,6 +338,66 @@
 "luna": 9.366
 },
 "missing": 0
+},
+"gem": {
+"pA": 0.5,
+"detail": {
+"games": [
+"A",
+"B"
+],
+"model": "gemini-3.5-flash-lite"
+},
+"calls": {
+"jev": 0,
+"luna": 0,
+"gemini": 2
+},
+"usd": 0.000443,
+"seconds": {
+"jev": 0,
+"luna": 0,
+"gemini": 2.818
+},
+"missing": 0
+},
+"ref_rc": {
+"pA": 0.9199999999999999,
+"detail": {
+"kind": "answer",
+"a": 0.99,
+"b": 0.15
+},
+"calls": {
+"jev": 2,
+"luna": 1,
+"gemini": 0
+},
+"usd": 0.000105,
+"seconds": {
+"jev": 0.902,
+"luna": 2.882,
+"gemini": 0
+},
+"missing": 0
+},
+"chk": {
+"pA": 0.72125,
+"detail": {
+"boxes": 4
+},
+"calls": {
+"jev": 2,
+"luna": 1,
+"gemini": 0
+},
+"usd": 0.000269,
+"seconds": {
+"jev": 0.694,
+"luna": 6.763,
+"gemini": 0
+},
+"missing": 0
 }
 },
 "c5d13fd8-9d91-5e82-9ac9-3d5b372ea856": {
@@ -677,6 +737,66 @@
 "seconds": {
 "jev": 0,
 "luna": 2.77
+},
+"missing": 0
+},
+"gem": {
+"pA": 1.0,
+"detail": {
+"games": [
+"A",
+"A"
+],
+"model": "gemini-3.5-flash-lite"
+},
+"calls": {
+"jev": 0,
+"luna": 0,
+"gemini": 2
+},
+"usd": 0.000248,
+"seconds": {
+"jev": 0,
+"luna": 0,
+"gemini": 3.199
+},
+"missing": 0
+},
+"ref_rc": {
+"pA": 0.475,
+"detail": {
+"kind": "open",
+"a": 0.43,
+"b": 0.48
+},
+"calls": {
+"jev": 2,
+"luna": 1,
+"gemini": 0
+},
+"usd": 0.000178,
+"seconds": {
+"jev": 0.856,
+"luna": 4.728,
+"gemini": 0
+},
+"missing": 0
+},
+"chk": {
+"pA": 0.5225,
+"detail": {
+"boxes": 4
+},
+"calls": {
+"jev": 2,
+"luna": 1,
+"gemini": 0
+},
+"usd": 0.000267,
+"seconds": {
+"jev": 0.846,
+"luna": 6.589,
+"gemini": 0
 },
 "missing": 0
 }
@@ -1020,6 +1140,66 @@
 "luna": 6.67
 },
 "missing": 0
+},
+"gem": {
+"pA": 0.0,
+"detail": {
+"games": [
+"B",
+"B"
+],
+"model": "gemini-3.5-flash-lite"
+},
+"calls": {
+"jev": 0,
+"luna": 0,
+"gemini": 2
+},
+"usd": 0.00019,
+"seconds": {
+"jev": 0,
+"luna": 0,
+"gemini": 3.22
+},
+"missing": 0
+},
+"ref_rc": {
+"pA": 0.040000000000000036,
+"detail": {
+"kind": "answer",
+"a": 0.06,
+"b": 0.98
+},
+"calls": {
+"jev": 2,
+"luna": 1,
+"gemini": 0
+},
+"usd": 6.3e-05,
+"seconds": {
+"jev": 0.881,
+"luna": 2.084,
+"gemini": 0
+},
+"missing": 0
+},
+"chk": {
+"pA": 0.12749999999999995,
+"detail": {
+"boxes": 4
+},
+"calls": {
+"jev": 2,
+"luna": 1,
+"gemini": 0
+},
+"usd": 0.000241,
+"seconds": {
+"jev": 0.594,
+"luna": 6.652,
+"gemini": 0
+},
+"missing": 0
 }
 },
 "4a3d7d7a-61f7-5b18-92a0-4fc16cc69fbb": {
@@ -1359,6 +1539,66 @@
 "seconds": {
 "jev": 0,
 "luna": 21.955
+},
+"missing": 0
+},
+"gem": {
+"pA": 0.0,
+"detail": {
+"games": [
+"B",
+"B"
+],
+"model": "gemini-3.5-flash-lite"
+},
+"calls": {
+"jev": 0,
+"luna": 0,
+"gemini": 2
+},
+"usd": 0.000235,
+"seconds": {
+"jev": 0,
+"luna": 0,
+"gemini": 2.486
+},
+"missing": 0
+},
+"ref_rc": {
+"pA": 0.5,
+"detail": {
+"kind": "answer",
+"a": 0.98,
+"b": 0.98
+},
+"calls": {
+"jev": 2,
+"luna": 1,
+"gemini": 0
+},
+"usd": 0.000805,
+"seconds": {
+"jev": 0.895,
+"luna": 21.017,
+"gemini": 0
+},
+"missing": 0
+},
+"chk": {
+"pA": 0.39437500000000003,
+"detail": {
+"boxes": 4
+},
+"calls": {
+"jev": 2,
+"luna": 1,
+"gemini": 0
+},
+"usd": 0.000429,
+"seconds": {
+"jev": 0.576,
+"luna": 10.665,
+"gemini": 0
 },
 "missing": 0
 }
@@ -1702,6 +1942,66 @@
 "luna": 21.606
 },
 "missing": 0
+},
+"gem": {
+"pA": 1.0,
+"detail": {
+"games": [
+"A",
+"A"
+],
+"model": "gemini-3.5-flash-lite"
+},
+"calls": {
+"jev": 0,
+"luna": 0,
+"gemini": 2
+},
+"usd": 0.000234,
+"seconds": {
+"jev": 0,
+"luna": 0,
+"gemini": 2.486
+},
+"missing": 0
+},
+"ref_rc": {
+"pA": 0.575,
+"detail": {
+"kind": "open",
+"a": 0.53,
+"b": 0.38
+},
+"calls": {
+"jev": 2,
+"luna": 1,
+"gemini": 0
+},
+"usd": 0.00018,
+"seconds": {
+"jev": 0.857,
+"luna": 4.107,
+"gemini": 0
+},
+"missing": 0
+},
+"chk": {
+"pA": 0.538125,
+"detail": {
+"boxes": 4
+},
+"calls": {
+"jev": 2,
+"luna": 1,
+"gemini": 0
+},
+"usd": 0.000218,
+"seconds": {
+"jev": 0.708,
+"luna": 4.19,
+"gemini": 0
+},
+"missing": 0
 }
 },
 "9eea6f37-5da7-5b9e-81f7-6f27eccf11da": {
@@ -2041,6 +2341,66 @@
 "seconds": {
 "jev": 0,
 "luna": 3.497
+},
+"missing": 0
+},
+"gem": {
+"pA": 1.0,
+"detail": {
+"games": [
+"A",
+"A"
+],
+"model": "gemini-3.5-flash-lite"
+},
+"calls": {
+"jev": 0,
+"luna": 0,
+"gemini": 2
+},
+"usd": 0.000192,
+"seconds": {
+"jev": 0,
+"luna": 0,
+"gemini": 2.849
+},
+"missing": 0
+},
+"ref_rc": {
+"pA": 0.965,
+"detail": {
+"kind": "answer",
+"a": 0.99,
+"b": 0.06
+},
+"calls": {
+"jev": 2,
+"luna": 1,
+"gemini": 0
+},
+"usd": 6.2e-05,
+"seconds": {
+"jev": 0.842,
+"luna": 2.578,
+"gemini": 0
+},
+"missing": 0
+},
+"chk": {
+"pA": 0.621875,
+"detail": {
+"boxes": 4
+},
+"calls": {
+"jev": 2,
+"luna": 1,
+"gemini": 0
+},
+"usd": 0.000226,
+"seconds": {
+"jev": 0.622,
+"luna": 5.25,
+"gemini": 0
 },
 "missing": 0
 }
@@ -2384,6 +2744,66 @@
 "luna": 11.416
 },
 "missing": 0
+},
+"gem": {
+"pA": 1.0,
+"detail": {
+"games": [
+"A",
+"A"
+],
+"model": "gemini-3.5-flash-lite"
+},
+"calls": {
+"jev": 0,
+"luna": 0,
+"gemini": 2
+},
+"usd": 0.000555,
+"seconds": {
+"jev": 0,
+"luna": 0,
+"gemini": 4.035
+},
+"missing": 0
+},
+"ref_rc": {
+"pA": 0.015000000000000013,
+"detail": {
+"kind": "answer",
+"a": 0.02,
+"b": 0.99
+},
+"calls": {
+"jev": 2,
+"luna": 1,
+"gemini": 0
+},
+"usd": 0.000311,
+"seconds": {
+"jev": 1.134,
+"luna": 7.255,
+"gemini": 0
+},
+"missing": 0
+},
+"chk": {
+"pA": 0.289375,
+"detail": {
+"boxes": 4
+},
+"calls": {
+"jev": 2,
+"luna": 1,
+"gemini": 0
+},
+"usd": 0.000374,
+"seconds": {
+"jev": 0.707,
+"luna": 7.948,
+"gemini": 0
+},
+"missing": 0
 }
 },
 "5b5bd25b-3f2d-5ffc-9514-4464c551a497": {
@@ -2723,6 +3143,66 @@
 "seconds": {
 "jev": 0,
 "luna": 8.912
+},
+"missing": 0
+},
+"gem": {
+"pA": 0.0,
+"detail": {
+"games": [
+"B",
+"B"
+],
+"model": "gemini-3.5-flash-lite"
+},
+"calls": {
+"jev": 0,
+"luna": 0,
+"gemini": 2
+},
+"usd": 0.000586,
+"seconds": {
+"jev": 0,
+"luna": 0,
+"gemini": 6.038
+},
+"missing": 0
+},
+"ref_rc": {
+"pA": 0.435,
+"detail": {
+"kind": "open",
+"a": 0.12,
+"b": 0.25
+},
+"calls": {
+"jev": 2,
+"luna": 1,
+"gemini": 0
+},
+"usd": 0.000156,
+"seconds": {
+"jev": 1.17,
+"luna": 3.97,
+"gemini": 0
+},
+"missing": 0
+},
+"chk": {
+"pA": 0.530625,
+"detail": {
+"boxes": 4
+},
+"calls": {
+"jev": 2,
+"luna": 1,
+"gemini": 0
+},
+"usd": 0.000203,
+"seconds": {
+"jev": 1.63,
+"luna": 4.157,
+"gemini": 0
 },
 "missing": 0
 }
@@ -3066,6 +3546,66 @@
 "luna": 21.885
 },
 "missing": 0
+},
+"gem": {
+"pA": 1.0,
+"detail": {
+"games": [
+"A",
+"A"
+],
+"model": "gemini-3.5-flash-lite"
+},
+"calls": {
+"jev": 0,
+"luna": 0,
+"gemini": 2
+},
+"usd": 0.000236,
+"seconds": {
+"jev": 0,
+"luna": 0,
+"gemini": 2.432
+},
+"missing": 0
+},
+"ref_rc": {
+"pA": 0.595,
+"detail": {
+"kind": "answer",
+"a": 0.25,
+"b": 0.06
+},
+"calls": {
+"jev": 2,
+"luna": 1,
+"gemini": 0
+},
+"usd": 0.000365,
+"seconds": {
+"jev": 1.746,
+"luna": 9.255,
+"gemini": 0
+},
+"missing": 0
+},
+"chk": {
+"pA": 0.538125,
+"detail": {
+"boxes": 4
+},
+"calls": {
+"jev": 2,
+"luna": 1,
+"gemini": 0
+},
+"usd": 0.000289,
+"seconds": {
+"jev": 0.604,
+"luna": 6.322,
+"gemini": 0
+},
+"missing": 0
 }
 },
 "12684959-2d5c-5dd7-8166-cf6dd83e6ef2": {
@@ -3405,6 +3945,66 @@
 "seconds": {
 "jev": 0,
 "luna": 9.172
+},
+"missing": 0
+},
+"gem": {
+"pA": 0.0,
+"detail": {
+"games": [
+"B",
+"B"
+],
+"model": "gemini-3.5-flash-lite"
+},
+"calls": {
+"jev": 0,
+"luna": 0,
+"gemini": 2
+},
+"usd": 0.000361,
+"seconds": {
+"jev": 0,
+"luna": 0,
+"gemini": 2.402
+},
+"missing": 0
+},
+"ref_rc": {
+"pA": 0.04999999999999999,
+"detail": {
+"kind": "answer",
+"a": 0.09,
+"b": 0.99
+},
+"calls": {
+"jev": 2,
+"luna": 1,
+"gemini": 0
+},
+"usd": 0.000235,
+"seconds": {
+"jev": 1.335,
+"luna": 6.301,
+"gemini": 0
+},
+"missing": 0
+},
+"chk": {
+"pA": 0.08562499999999995,
+"detail": {
+"boxes": 4
+},
+"calls": {
+"jev": 2,
+"luna": 1,
+"gemini": 0
+},
+"usd": 0.000474,
+"seconds": {
+"jev": 0.782,
+"luna": 10.601,
+"gemini": 0
 },
 "missing": 0
 }
@@ -3748,6 +4348,66 @@
 "luna": 5.959
 },
 "missing": 0
+},
+"gem": {
+"pA": null,
+"detail": {
+"games": [
+"B",
+null
+],
+"model": "gemini-3.5-flash-lite"
+},
+"calls": {
+"jev": 0,
+"luna": 0,
+"gemini": 2
+},
+"usd": 0.000704,
+"seconds": {
+"jev": 0,
+"luna": 0,
+"gemini": 5.986
+},
+"missing": 0
+},
+"ref_rc": {
+"pA": 0.695,
+"detail": {
+"kind": "answer",
+"a": 0.95,
+"b": 0.56
+},
+"calls": {
+"jev": 2,
+"luna": 1,
+"gemini": 0
+},
+"usd": 0.000288,
+"seconds": {
+"jev": 1.758,
+"luna": 6.808,
+"gemini": 0
+},
+"missing": 0
+},
+"chk": {
+"pA": 0.56875,
+"detail": {
+"boxes": 4
+},
+"calls": {
+"jev": 2,
+"luna": 1,
+"gemini": 0
+},
+"usd": 0.000326,
+"seconds": {
+"jev": 0.684,
+"luna": 5.468,
+"gemini": 0
+},
+"missing": 0
 }
 },
 "c67cf264-33f9-5730-aeea-a7364756a96b": {
@@ -4087,6 +4747,66 @@
 "seconds": {
 "jev": 0,
 "luna": 18.288
+},
+"missing": 0
+},
+"gem": {
+"pA": 0.5,
+"detail": {
+"games": [
+"A",
+"B"
+],
+"model": "gemini-3.5-flash-lite"
+},
+"calls": {
+"jev": 0,
+"luna": 0,
+"gemini": 2
+},
+"usd": 0.000222,
+"seconds": {
+"jev": 0,
+"luna": 0,
+"gemini": 3.189
+},
+"missing": 0
+},
+"ref_rc": {
+"pA": 0.505,
+"detail": {
+"kind": "answer",
+"a": 0.06,
+"b": 0.05
+},
+"calls": {
+"jev": 2,
+"luna": 1,
+"gemini": 0
+},
+"usd": 0.00019,
+"seconds": {
+"jev": 1.84,
+"luna": 5.33,
+"gemini": 0
+},
+"missing": 0
+},
+"chk": {
+"pA": 0.49874999999999997,
+"detail": {
+"boxes": 4
+},
+"calls": {
+"jev": 2,
+"luna": 1,
+"gemini": 0
+},
+"usd": 0.000229,
+"seconds": {
+"jev": 0.944,
+"luna": 5.378,
+"gemini": 0
 },
 "missing": 0
 }
@@ -4430,6 +5150,66 @@
 "luna": 45.653
 },
 "missing": 0
+},
+"gem": {
+"pA": null,
+"detail": {
+"games": [
+"A",
+null
+],
+"model": "gemini-3.5-flash-lite"
+},
+"calls": {
+"jev": 0,
+"luna": 0,
+"gemini": 2
+},
+"usd": 0.000711,
+"seconds": {
+"jev": 0,
+"luna": 0,
+"gemini": 5.371
+},
+"missing": 0
+},
+"ref_rc": {
+"pA": 0.99,
+"detail": {
+"kind": "answer",
+"a": 0.99,
+"b": 0.01
+},
+"calls": {
+"jev": 2,
+"luna": 1,
+"gemini": 0
+},
+"usd": 0.000544,
+"seconds": {
+"jev": 2.583,
+"luna": 14.834,
+"gemini": 0
+},
+"missing": 0
+},
+"chk": {
+"pA": 0.8787499999999999,
+"detail": {
+"boxes": 4
+},
+"calls": {
+"jev": 2,
+"luna": 1,
+"gemini": 0
+},
+"usd": 0.000489,
+"seconds": {
+"jev": 0.653,
+"luna": 11.379,
+"gemini": 0
+},
+"missing": 0
 }
 },
 "5718cf3d-a1a8-5503-85dd-f58b8a7fac4d": {
@@ -4769,6 +5549,66 @@
 "seconds": {
 "jev": 0,
 "luna": 5.126
+},
+"missing": 0
+},
+"gem": {
+"pA": null,
+"detail": {
+"games": [
+null,
+null
+],
+"model": "gemini-3.5-flash-lite"
+},
+"calls": {
+"jev": 0,
+"luna": 0,
+"gemini": 2
+},
+"usd": 0.000452,
+"seconds": {
+"jev": 0,
+"luna": 0,
+"gemini": 6.494
+},
+"missing": 0
+},
+"ref_rc": {
+"pA": 0.10500000000000004,
+"detail": {
+"kind": "open",
+"a": 0.04,
+"b": 0.83
+},
+"calls": {
+"jev": 2,
+"luna": 1,
+"gemini": 0
+},
+"usd": 0.000194,
+"seconds": {
+"jev": 2.479,
+"luna": 5.743,
+"gemini": 0
+},
+"missing": 0
+},
+"chk": {
+"pA": 0.38750000000000007,
+"detail": {
+"boxes": 6
+},
+"calls": {
+"jev": 2,
+"luna": 1,
+"gemini": 0
+},
+"usd": 0.000337,
+"seconds": {
+"jev": 0.783,
+"luna": 6.771,
+"gemini": 0
 },
 "missing": 0
 }
@@ -5112,6 +5952,66 @@
 "luna": 12.967
 },
 "missing": 0
+},
+"gem": {
+"pA": 0.5,
+"detail": {
+"games": [
+"A",
+"B"
+],
+"model": "gemini-3.5-flash-lite"
+},
+"calls": {
+"jev": 0,
+"luna": 0,
+"gemini": 2
+},
+"usd": 0.000181,
+"seconds": {
+"jev": 0,
+"luna": 0,
+"gemini": 3.132
+},
+"missing": 0
+},
+"ref_rc": {
+"pA": 0.72,
+"detail": {
+"kind": "answer",
+"a": 0.93,
+"b": 0.49
+},
+"calls": {
+"jev": 2,
+"luna": 1,
+"gemini": 0
+},
+"usd": 0.000316,
+"seconds": {
+"jev": 1.992,
+"luna": 8.558,
+"gemini": 0
+},
+"missing": 0
+},
+"chk": {
+"pA": 0.7324999999999999,
+"detail": {
+"boxes": 4
+},
+"calls": {
+"jev": 2,
+"luna": 1,
+"gemini": 0
+},
+"usd": 0.000326,
+"seconds": {
+"jev": 0.75,
+"luna": 8.083,
+"gemini": 0
+},
+"missing": 0
 }
 },
 "561aa423-34b6-5d88-bbd1-011da24ad2b0": {
@@ -5451,6 +6351,66 @@
 "seconds": {
 "jev": 0,
 "luna": 19.525
+},
+"missing": 0
+},
+"gem": {
+"pA": 0.5,
+"detail": {
+"games": [
+"B",
+"A"
+],
+"model": "gemini-3.5-flash-lite"
+},
+"calls": {
+"jev": 0,
+"luna": 0,
+"gemini": 2
+},
+"usd": 0.001036,
+"seconds": {
+"jev": 0,
+"luna": 0,
+"gemini": 6.437
+},
+"missing": 0
+},
+"ref_rc": {
+"pA": 0.99,
+"detail": {
+"kind": "answer",
+"a": 0.99,
+"b": 0.01
+},
+"calls": {
+"jev": 2,
+"luna": 1,
+"gemini": 0
+},
+"usd": 0.000417,
+"seconds": {
+"jev": 1.571,
+"luna": 10.477,
+"gemini": 0
+},
+"missing": 0
+},
+"chk": {
+"pA": 0.4925,
+"detail": {
+"boxes": 4
+},
+"calls": {
+"jev": 2,
+"luna": 1,
+"gemini": 0
+},
+"usd": 0.00056,
+"seconds": {
+"jev": 0.717,
+"luna": 13.37,
+"gemini": 0
 },
 "missing": 0
 }
@@ -5794,6 +6754,66 @@
 "luna": 10.186
 },
 "missing": 0
+},
+"gem": {
+"pA": null,
+"detail": {
+"games": [
+"B",
+null
+],
+"model": "gemini-3.5-flash-lite"
+},
+"calls": {
+"jev": 0,
+"luna": 0,
+"gemini": 2
+},
+"usd": 0.000433,
+"seconds": {
+"jev": 0,
+"luna": 0,
+"gemini": 4.291
+},
+"missing": 0
+},
+"ref_rc": {
+"pA": 0.41000000000000003,
+"detail": {
+"kind": "open",
+"a": 0.77,
+"b": 0.95
+},
+"calls": {
+"jev": 2,
+"luna": 1,
+"gemini": 0
+},
+"usd": 0.000164,
+"seconds": {
+"jev": 2.176,
+"luna": 4.463,
+"gemini": 0
+},
+"missing": 0
+},
+"chk": {
+"pA": 0.48250000000000004,
+"detail": {
+"boxes": 4
+},
+"calls": {
+"jev": 2,
+"luna": 1,
+"gemini": 0
+},
+"usd": 0.000186,
+"seconds": {
+"jev": 0.542,
+"luna": 3.845,
+"gemini": 0
+},
+"missing": 0
 }
 },
 "3b317691-c56f-50df-92a6-8ad2f444dfe4": {
@@ -6133,6 +7153,66 @@
 "seconds": {
 "jev": 0,
 "luna": 3.438
+},
+"missing": 0
+},
+"gem": {
+"pA": 0.0,
+"detail": {
+"games": [
+"B",
+"B"
+],
+"model": "gemini-3.5-flash-lite"
+},
+"calls": {
+"jev": 0,
+"luna": 0,
+"gemini": 2
+},
+"usd": 0.00031,
+"seconds": {
+"jev": 0,
+"luna": 0,
+"gemini": 2.894
+},
+"missing": 0
+},
+"ref_rc": {
+"pA": 0.020000000000000018,
+"detail": {
+"kind": "answer",
+"a": 0.03,
+"b": 0.99
+},
+"calls": {
+"jev": 2,
+"luna": 1,
+"gemini": 0
+},
+"usd": 7.8e-05,
+"seconds": {
+"jev": 2.232,
+"luna": 1.907,
+"gemini": 0
+},
+"missing": 0
+},
+"chk": {
+"pA": 0.161875,
+"detail": {
+"boxes": 4
+},
+"calls": {
+"jev": 2,
+"luna": 1,
+"gemini": 0
+},
+"usd": 0.000225,
+"seconds": {
+"jev": 0.822,
+"luna": 4.652,
+"gemini": 0
 },
 "missing": 0
 }
@@ -6476,6 +7556,66 @@
 "luna": 19.044
 },
 "missing": 0
+},
+"gem": {
+"pA": 0.5,
+"detail": {
+"games": [
+"A",
+"B"
+],
+"model": "gemini-3.5-flash-lite"
+},
+"calls": {
+"jev": 0,
+"luna": 0,
+"gemini": 2
+},
+"usd": 0.0004,
+"seconds": {
+"jev": 0,
+"luna": 0,
+"gemini": 2.319
+},
+"missing": 0
+},
+"ref_rc": {
+"pA": 0.635,
+"detail": {
+"kind": "answer",
+"a": 0.66,
+"b": 0.39
+},
+"calls": {
+"jev": 2,
+"luna": 1,
+"gemini": 0
+},
+"usd": 0.000554,
+"seconds": {
+"jev": 1.38,
+"luna": 14.67,
+"gemini": 0
+},
+"missing": 0
+},
+"chk": {
+"pA": 0.86,
+"detail": {
+"boxes": 3
+},
+"calls": {
+"jev": 2,
+"luna": 1,
+"gemini": 0
+},
+"usd": 0.000267,
+"seconds": {
+"jev": 0.915,
+"luna": 5.162,
+"gemini": 0
+},
+"missing": 0
 }
 },
 "0f999ea7-10a1-5b85-a175-b86d50338266": {
@@ -6815,6 +7955,66 @@
 "seconds": {
 "jev": 0,
 "luna": 4.282
+},
+"missing": 0
+},
+"gem": {
+"pA": 0.0,
+"detail": {
+"games": [
+"B",
+"B"
+],
+"model": "gemini-3.5-flash-lite"
+},
+"calls": {
+"jev": 0,
+"luna": 0,
+"gemini": 2
+},
+"usd": 0.000236,
+"seconds": {
+"jev": 0,
+"luna": 0,
+"gemini": 3.213
+},
+"missing": 0
+},
+"ref_rc": {
+"pA": 0.010000000000000009,
+"detail": {
+"kind": "answer",
+"a": 0.02,
+"b": 1
+},
+"calls": {
+"jev": 2,
+"luna": 1,
+"gemini": 0
+},
+"usd": 5.2e-05,
+"seconds": {
+"jev": 2.836,
+"luna": 2.089,
+"gemini": 0
+},
+"missing": 0
+},
+"chk": {
+"pA": 0.023749999999999993,
+"detail": {
+"boxes": 4
+},
+"calls": {
+"jev": 2,
+"luna": 1,
+"gemini": 0
+},
+"usd": 0.000322,
+"seconds": {
+"jev": 0.77,
+"luna": 7.539,
+"gemini": 0
 },
 "missing": 0
 }
@@ -7158,6 +8358,66 @@
 "luna": 12.636
 },
 "missing": 0
+},
+"gem": {
+"pA": 0.5,
+"detail": {
+"games": [
+"A",
+"B"
+],
+"model": "gemini-3.5-flash-lite"
+},
+"calls": {
+"jev": 0,
+"luna": 0,
+"gemini": 2
+},
+"usd": 0.000384,
+"seconds": {
+"jev": 0,
+"luna": 0,
+"gemini": 1.867
+},
+"missing": 0
+},
+"ref_rc": {
+"pA": 0.73,
+"detail": {
+"kind": "answer",
+"a": 0.51,
+"b": 0.05
+},
+"calls": {
+"jev": 2,
+"luna": 1,
+"gemini": 0
+},
+"usd": 0.000132,
+"seconds": {
+"jev": 2.27,
+"luna": 3.885,
+"gemini": 0
+},
+"missing": 0
+},
+"chk": {
+"pA": 0.576875,
+"detail": {
+"boxes": 4
+},
+"calls": {
+"jev": 2,
+"luna": 1,
+"gemini": 0
+},
+"usd": 0.00032,
+"seconds": {
+"jev": 0.771,
+"luna": 7.622,
+"gemini": 0
+},
+"missing": 0
 }
 },
 "c89566b4-5831-5242-8ae9-45c2f0ae955c": {
@@ -7497,6 +8757,66 @@
 "seconds": {
 "jev": 0,
 "luna": 3.241
+},
+"missing": 0
+},
+"gem": {
+"pA": 0.0,
+"detail": {
+"games": [
+"B",
+"B"
+],
+"model": "gemini-3.5-flash-lite"
+},
+"calls": {
+"jev": 0,
+"luna": 0,
+"gemini": 2
+},
+"usd": 0.000294,
+"seconds": {
+"jev": 0,
+"luna": 0,
+"gemini": 1.801
+},
+"missing": 0
+},
+"ref_rc": {
+"pA": 0.12,
+"detail": {
+"kind": "answer",
+"a": 0.23,
+"b": 0.99
+},
+"calls": {
+"jev": 2,
+"luna": 1,
+"gemini": 0
+},
+"usd": 8.5e-05,
+"seconds": {
+"jev": 3.191,
+"luna": 2.601,
+"gemini": 0
+},
+"missing": 0
+},
+"chk": {
+"pA": 0.25187499999999996,
+"detail": {
+"boxes": 4
+},
+"calls": {
+"jev": 2,
+"luna": 1,
+"gemini": 0
+},
+"usd": 0.000251,
+"seconds": {
+"jev": 0.653,
+"luna": 6.035,
+"gemini": 0
 },
 "missing": 0
 }
@@ -7840,6 +9160,66 @@
 "luna": 23.959
 },
 "missing": 0
+},
+"gem": {
+"pA": 0.0,
+"detail": {
+"games": [
+"B",
+"B"
+],
+"model": "gemini-3.5-flash-lite"
+},
+"calls": {
+"jev": 0,
+"luna": 0,
+"gemini": 2
+},
+"usd": 0.000366,
+"seconds": {
+"jev": 0,
+"luna": 0,
+"gemini": 3.253
+},
+"missing": 0
+},
+"ref_rc": {
+"pA": 0.505,
+"detail": {
+"kind": "answer",
+"a": 0.02,
+"b": 0.01
+},
+"calls": {
+"jev": 2,
+"luna": 1,
+"gemini": 0
+},
+"usd": 0.000244,
+"seconds": {
+"jev": 1.645,
+"luna": 6.876,
+"gemini": 0
+},
+"missing": 0
+},
+"chk": {
+"pA": 0.53,
+"detail": {
+"boxes": 2
+},
+"calls": {
+"jev": 2,
+"luna": 1,
+"gemini": 0
+},
+"usd": 5.8e-05,
+"seconds": {
+"jev": 0.809,
+"luna": 1.965,
+"gemini": 0
+},
+"missing": 0
 }
 },
 "6ed13f8d-9733-5839-a628-22c6ec6c9f27": {
@@ -8179,6 +9559,66 @@
 "seconds": {
 "jev": 0,
 "luna": 3.431
+},
+"missing": 0
+},
+"gem": {
+"pA": 0.5,
+"detail": {
+"games": [
+"B",
+"A"
+],
+"model": "gemini-3.5-flash-lite"
+},
+"calls": {
+"jev": 0,
+"luna": 0,
+"gemini": 2
+},
+"usd": 0.000291,
+"seconds": {
+"jev": 0,
+"luna": 0,
+"gemini": 3.104
+},
+"missing": 0
+},
+"ref_rc": {
+"pA": 0.735,
+"detail": {
+"kind": "answer",
+"a": 0.77,
+"b": 0.3
+},
+"calls": {
+"jev": 2,
+"luna": 1,
+"gemini": 0
+},
+"usd": 0.000102,
+"seconds": {
+"jev": 1.501,
+"luna": 2.09,
+"gemini": 0
+},
+"missing": 0
+},
+"chk": {
+"pA": 0.75625,
+"detail": {
+"boxes": 4
+},
+"calls": {
+"jev": 2,
+"luna": 1,
+"gemini": 0
+},
+"usd": 0.000316,
+"seconds": {
+"jev": 0.856,
+"luna": 6.713,
+"gemini": 0
 },
 "missing": 0
 }
@@ -8522,6 +9962,66 @@
 "luna": 9.469
 },
 "missing": 0
+},
+"gem": {
+"pA": 0.0,
+"detail": {
+"games": [
+"B",
+"B"
+],
+"model": "gemini-3.5-flash-lite"
+},
+"calls": {
+"jev": 0,
+"luna": 0,
+"gemini": 2
+},
+"usd": 0.000339,
+"seconds": {
+"jev": 0,
+"luna": 0,
+"gemini": 2.132
+},
+"missing": 0
+},
+"ref_rc": {
+"pA": 0.98,
+"detail": {
+"kind": "answer",
+"a": 0.98,
+"b": 0.02
+},
+"calls": {
+"jev": 2,
+"luna": 1,
+"gemini": 0
+},
+"usd": 0.00021,
+"seconds": {
+"jev": 1.836,
+"luna": 5.329,
+"gemini": 0
+},
+"missing": 0
+},
+"chk": {
+"pA": 0.73375,
+"detail": {
+"boxes": 4
+},
+"calls": {
+"jev": 2,
+"luna": 1,
+"gemini": 0
+},
+"usd": 0.000288,
+"seconds": {
+"jev": 0.736,
+"luna": 7.181,
+"gemini": 0
+},
+"missing": 0
 }
 },
 "2aa40f83-9d2a-5a22-8c37-817397efb2e7": {
@@ -8861,6 +10361,66 @@
 "seconds": {
 "jev": 0,
 "luna": 3.753
+},
+"missing": 0
+},
+"gem": {
+"pA": 0.0,
+"detail": {
+"games": [
+"B",
+"B"
+],
+"model": "gemini-3.5-flash-lite"
+},
+"calls": {
+"jev": 0,
+"luna": 0,
+"gemini": 2
+},
+"usd": 0.000289,
+"seconds": {
+"jev": 0,
+"luna": 0,
+"gemini": 2.356
+},
+"missing": 0
+},
+"ref_rc": {
+"pA": 0.020000000000000018,
+"detail": {
+"kind": "answer",
+"a": 0.03,
+"b": 0.99
+},
+"calls": {
+"jev": 2,
+"luna": 1,
+"gemini": 0
+},
+"usd": 9.7e-05,
+"seconds": {
+"jev": 3.768,
+"luna": 2.46,
+"gemini": 0
+},
+"missing": 0
+},
+"chk": {
+"pA": 0.374375,
+"detail": {
+"boxes": 4
+},
+"calls": {
+"jev": 2,
+"luna": 1,
+"gemini": 0
+},
+"usd": 0.000229,
+"seconds": {
+"jev": 0.583,
+"luna": 5.907,
+"gemini": 0
 },
 "missing": 0
 }
@@ -9204,6 +10764,66 @@
 "luna": 7.661
 },
 "missing": 0
+},
+"gem": {
+"pA": 1.0,
+"detail": {
+"games": [
+"A",
+"A"
+],
+"model": "gemini-3.5-flash-lite"
+},
+"calls": {
+"jev": 0,
+"luna": 0,
+"gemini": 2
+},
+"usd": 0.000375,
+"seconds": {
+"jev": 0,
+"luna": 0,
+"gemini": 2.995
+},
+"missing": 0
+},
+"ref_rc": {
+"pA": 0.985,
+"detail": {
+"kind": "answer",
+"a": 0.99,
+"b": 0.02
+},
+"calls": {
+"jev": 2,
+"luna": 1,
+"gemini": 0
+},
+"usd": 0.000144,
+"seconds": {
+"jev": 3.074,
+"luna": 4.253,
+"gemini": 0
+},
+"missing": 0
+},
+"chk": {
+"pA": 0.594375,
+"detail": {
+"boxes": 4
+},
+"calls": {
+"jev": 2,
+"luna": 1,
+"gemini": 0
+},
+"usd": 0.000368,
+"seconds": {
+"jev": 0.813,
+"luna": 8.286,
+"gemini": 0
+},
+"missing": 0
 }
 },
 "07019bab-fc3e-5c91-ac9c-36869cfe79b0": {
@@ -9543,6 +11163,66 @@
 "seconds": {
 "jev": 0,
 "luna": 6.84
+},
+"missing": 0
+},
+"gem": {
+"pA": 0.5,
+"detail": {
+"games": [
+"A",
+"B"
+],
+"model": "gemini-3.5-flash-lite"
+},
+"calls": {
+"jev": 0,
+"luna": 0,
+"gemini": 2
+},
+"usd": 0.000225,
+"seconds": {
+"jev": 0,
+"luna": 0,
+"gemini": 2.346
+},
+"missing": 0
+},
+"ref_rc": {
+"pA": 0.025000000000000022,
+"detail": {
+"kind": "answer",
+"a": 0.03,
+"b": 0.98
+},
+"calls": {
+"jev": 2,
+"luna": 1,
+"gemini": 0
+},
+"usd": 8e-05,
+"seconds": {
+"jev": 0.819,
+"luna": 3.219,
+"gemini": 0
+},
+"missing": 0
+},
+"chk": {
+"pA": 0.6268750000000001,
+"detail": {
+"boxes": 4
+},
+"calls": {
+"jev": 2,
+"luna": 1,
+"gemini": 0
+},
+"usd": 0.000247,
+"seconds": {
+"jev": 1.092,
+"luna": 5.95,
+"gemini": 0
 },
 "missing": 0
 }
@@ -9886,6 +11566,66 @@
 "luna": 31.867
 },
 "missing": 0
+},
+"gem": {
+"pA": 0.5,
+"detail": {
+"games": [
+"A",
+"B"
+],
+"model": "gemini-3.5-flash-lite"
+},
+"calls": {
+"jev": 0,
+"luna": 0,
+"gemini": 2
+},
+"usd": 0.000442,
+"seconds": {
+"jev": 0,
+"luna": 0,
+"gemini": 3.752
+},
+"missing": 0
+},
+"ref_rc": {
+"pA": 0.015000000000000013,
+"detail": {
+"kind": "answer",
+"a": 0.02,
+"b": 0.99
+},
+"calls": {
+"jev": 2,
+"luna": 1,
+"gemini": 0
+},
+"usd": 0.000237,
+"seconds": {
+"jev": 2.323,
+"luna": 6.244,
+"gemini": 0
+},
+"missing": 0
+},
+"chk": {
+"pA": 0.525,
+"detail": {
+"boxes": 5
+},
+"calls": {
+"jev": 2,
+"luna": 1,
+"gemini": 0
+},
+"usd": 0.000529,
+"seconds": {
+"jev": 1.033,
+"luna": 14.683,
+"gemini": 0
+},
+"missing": 0
 }
 },
 "e9963b54-87aa-5b3f-b524-66ed9f7b5489": {
@@ -10225,6 +11965,66 @@
 "seconds": {
 "jev": 0,
 "luna": 3.484
+},
+"missing": 0
+},
+"gem": {
+"pA": 0.0,
+"detail": {
+"games": [
+"B",
+"B"
+],
+"model": "gemini-3.5-flash-lite"
+},
+"calls": {
+"jev": 0,
+"luna": 0,
+"gemini": 2
+},
+"usd": 0.000249,
+"seconds": {
+"jev": 0,
+"luna": 0,
+"gemini": 2.894
+},
+"missing": 0
+},
+"ref_rc": {
+"pA": 0.030000000000000027,
+"detail": {
+"kind": "answer",
+"a": 0.04,
+"b": 0.98
+},
+"calls": {
+"jev": 2,
+"luna": 1,
+"gemini": 0
+},
+"usd": 6.8e-05,
+"seconds": {
+"jev": 3.218,
+"luna": 1.711,
+"gemini": 0
+},
+"missing": 0
+},
+"chk": {
+"pA": 0.255,
+"detail": {
+"boxes": 4
+},
+"calls": {
+"jev": 2,
+"luna": 1,
+"gemini": 0
+},
+"usd": 0.000175,
+"seconds": {
+"jev": 0.734,
+"luna": 4.018,
+"gemini": 0
 },
 "missing": 0
 }
@@ -10568,6 +12368,66 @@
 "luna": 48.249
 },
 "missing": 0
+},
+"gem": {
+"pA": 0.5,
+"detail": {
+"games": [
+"B",
+"A"
+],
+"model": "gemini-3.5-flash-lite"
+},
+"calls": {
+"jev": 0,
+"luna": 0,
+"gemini": 2
+},
+"usd": 0.000418,
+"seconds": {
+"jev": 0,
+"luna": 0,
+"gemini": 4.78
+},
+"missing": 0
+},
+"ref_rc": {
+"pA": 0.49,
+"detail": {
+"kind": "answer",
+"a": 0.31,
+"b": 0.33
+},
+"calls": {
+"jev": 2,
+"luna": 1,
+"gemini": 0
+},
+"usd": 0.000687,
+"seconds": {
+"jev": 0.88,
+"luna": 19.117,
+"gemini": 0
+},
+"missing": 0
+},
+"chk": {
+"pA": 0.41625,
+"detail": {
+"boxes": 2
+},
+"calls": {
+"jev": 2,
+"luna": 1,
+"gemini": 0
+},
+"usd": 6.3e-05,
+"seconds": {
+"jev": 0.725,
+"luna": 1.565,
+"gemini": 0
+},
+"missing": 0
 }
 },
 "07c3dda8-0f84-5624-9b4a-19ed31d85a2b": {
@@ -10907,6 +12767,66 @@
 "seconds": {
 "jev": 0,
 "luna": 18.568
+},
+"missing": 0
+},
+"gem": {
+"pA": 1.0,
+"detail": {
+"games": [
+"A",
+"A"
+],
+"model": "gemini-3.5-flash-lite"
+},
+"calls": {
+"jev": 0,
+"luna": 0,
+"gemini": 2
+},
+"usd": 0.00022,
+"seconds": {
+"jev": 0,
+"luna": 0,
+"gemini": 3.204
+},
+"missing": 0
+},
+"ref_rc": {
+"pA": 0.28500000000000003,
+"detail": {
+"kind": "answer",
+"a": 0.42,
+"b": 0.85
+},
+"calls": {
+"jev": 2,
+"luna": 1,
+"gemini": 0
+},
+"usd": 0.000961,
+"seconds": {
+"jev": 1.693,
+"luna": 23.059,
+"gemini": 0
+},
+"missing": 0
+},
+"chk": {
+"pA": 0.4575,
+"detail": {
+"boxes": 4
+},
+"calls": {
+"jev": 2,
+"luna": 1,
+"gemini": 0
+},
+"usd": 0.000387,
+"seconds": {
+"jev": 0.584,
+"luna": 9.579,
+"gemini": 0
 },
 "missing": 0
 }
@@ -11250,6 +13170,66 @@
 "luna": 8.389
 },
 "missing": 0
+},
+"gem": {
+"pA": null,
+"detail": {
+"games": [
+null,
+"B"
+],
+"model": "gemini-3.5-flash-lite"
+},
+"calls": {
+"jev": 0,
+"luna": 0,
+"gemini": 2
+},
+"usd": 0.000531,
+"seconds": {
+"jev": 0,
+"luna": 0,
+"gemini": 4.732
+},
+"missing": 0
+},
+"ref_rc": {
+"pA": 0.05499999999999999,
+"detail": {
+"kind": "answer",
+"a": 0.03,
+"b": 0.92
+},
+"calls": {
+"jev": 2,
+"luna": 1,
+"gemini": 0
+},
+"usd": 0.000113,
+"seconds": {
+"jev": 2.406,
+"luna": 3.534,
+"gemini": 0
+},
+"missing": 0
+},
+"chk": {
+"pA": 0.853125,
+"detail": {
+"boxes": 4
+},
+"calls": {
+"jev": 2,
+"luna": 1,
+"gemini": 0
+},
+"usd": 0.000299,
+"seconds": {
+"jev": 0.799,
+"luna": 6.561,
+"gemini": 0
+},
+"missing": 0
 }
 },
 "df1964d5-629f-5b4a-bcd5-79137e8f3bc5": {
@@ -11589,6 +13569,66 @@
 "seconds": {
 "jev": 0,
 "luna": 11.66
+},
+"missing": 0
+},
+"gem": {
+"pA": 0.5,
+"detail": {
+"games": [
+"B",
+"A"
+],
+"model": "gemini-3.5-flash-lite"
+},
+"calls": {
+"jev": 0,
+"luna": 0,
+"gemini": 2
+},
+"usd": 0.001412,
+"seconds": {
+"jev": 0,
+"luna": 0,
+"gemini": 8.019
+},
+"missing": 0
+},
+"ref_rc": {
+"pA": 0.795,
+"detail": {
+"kind": "answer",
+"a": 0.88,
+"b": 0.29
+},
+"calls": {
+"jev": 2,
+"luna": 1,
+"gemini": 0
+},
+"usd": 0.000244,
+"seconds": {
+"jev": 2.351,
+"luna": 5.93,
+"gemini": 0
+},
+"missing": 0
+},
+"chk": {
+"pA": 0.71875,
+"detail": {
+"boxes": 4
+},
+"calls": {
+"jev": 2,
+"luna": 1,
+"gemini": 0
+},
+"usd": 0.000413,
+"seconds": {
+"jev": 0.83,
+"luna": 9.378,
+"gemini": 0
 },
 "missing": 0
 }
@@ -11932,6 +13972,66 @@
 "luna": 21.009
 },
 "missing": 0
+},
+"gem": {
+"pA": 0.0,
+"detail": {
+"games": [
+"B",
+"B"
+],
+"model": "gemini-3.5-flash-lite"
+},
+"calls": {
+"jev": 0,
+"luna": 0,
+"gemini": 2
+},
+"usd": 0.000361,
+"seconds": {
+"jev": 0,
+"luna": 0,
+"gemini": 2.807
+},
+"missing": 0
+},
+"ref_rc": {
+"pA": 0.98,
+"detail": {
+"kind": "answer",
+"a": 0.98,
+"b": 0.02
+},
+"calls": {
+"jev": 2,
+"luna": 1,
+"gemini": 0
+},
+"usd": 0.000402,
+"seconds": {
+"jev": 2.38,
+"luna": 10.789,
+"gemini": 0
+},
+"missing": 0
+},
+"chk": {
+"pA": 0.694375,
+"detail": {
+"boxes": 4
+},
+"calls": {
+"jev": 2,
+"luna": 1,
+"gemini": 0
+},
+"usd": 0.000551,
+"seconds": {
+"jev": 0.586,
+"luna": 13.831,
+"gemini": 0
+},
+"missing": 0
 }
 },
 "a22906b1-02f2-59da-ba1f-7a75487ba740": {
@@ -12271,6 +14371,66 @@
 "seconds": {
 "jev": 0,
 "luna": 3.348
+},
+"missing": 0
+},
+"gem": {
+"pA": 0.0,
+"detail": {
+"games": [
+"B",
+"B"
+],
+"model": "gemini-3.5-flash-lite"
+},
+"calls": {
+"jev": 0,
+"luna": 0,
+"gemini": 2
+},
+"usd": 0.000355,
+"seconds": {
+"jev": 0,
+"luna": 0,
+"gemini": 2.274
+},
+"missing": 0
+},
+"ref_rc": {
+"pA": 0.13499999999999995,
+"detail": {
+"kind": "answer",
+"a": 0.08,
+"b": 0.81
+},
+"calls": {
+"jev": 2,
+"luna": 1,
+"gemini": 0
+},
+"usd": 0.000104,
+"seconds": {
+"jev": 2.337,
+"luna": 1.972,
+"gemini": 0
+},
+"missing": 0
+},
+"chk": {
+"pA": 0.09125,
+"detail": {
+"boxes": 4
+},
+"calls": {
+"jev": 2,
+"luna": 1,
+"gemini": 0
+},
+"usd": 0.000218,
+"seconds": {
+"jev": 0.58,
+"luna": 3.977,
+"gemini": 0
 },
 "missing": 0
 }
@@ -12614,6 +14774,66 @@
 "luna": 8.805
 },
 "missing": 0
+},
+"gem": {
+"pA": 0.5,
+"detail": {
+"games": [
+"A",
+"B"
+],
+"model": "gemini-3.5-flash-lite"
+},
+"calls": {
+"jev": 0,
+"luna": 0,
+"gemini": 2
+},
+"usd": 0.001178,
+"seconds": {
+"jev": 0,
+"luna": 0,
+"gemini": 6.933
+},
+"missing": 0
+},
+"ref_rc": {
+"pA": 0.0050000000000000044,
+"detail": {
+"kind": "answer",
+"a": 0.01,
+"b": 1
+},
+"calls": {
+"jev": 2,
+"luna": 1,
+"gemini": 0
+},
+"usd": 0.000158,
+"seconds": {
+"jev": 2.309,
+"luna": 3.594,
+"gemini": 0
+},
+"missing": 0
+},
+"chk": {
+"pA": 0.26,
+"detail": {
+"boxes": 4
+},
+"calls": {
+"jev": 2,
+"luna": 1,
+"gemini": 0
+},
+"usd": 0.000324,
+"seconds": {
+"jev": 0.614,
+"luna": 7.983,
+"gemini": 0
+},
+"missing": 0
 }
 },
 "138e503c-b09d-5d19-82ff-0b5ddc3e7bf6": {
@@ -12953,6 +15173,66 @@
 "seconds": {
 "jev": 0,
 "luna": 6.969
+},
+"missing": 0
+},
+"gem": {
+"pA": 0.0,
+"detail": {
+"games": [
+"B",
+"B"
+],
+"model": "gemini-3.5-flash-lite"
+},
+"calls": {
+"jev": 0,
+"luna": 0,
+"gemini": 2
+},
+"usd": 0.000302,
+"seconds": {
+"jev": 0,
+"luna": 0,
+"gemini": 2.014
+},
+"missing": 0
+},
+"ref_rc": {
+"pA": 0.15000000000000002,
+"detail": {
+"kind": "answer",
+"a": 0.28,
+"b": 0.98
+},
+"calls": {
+"jev": 2,
+"luna": 1,
+"gemini": 0
+},
+"usd": 0.000176,
+"seconds": {
+"jev": 2.325,
+"luna": 4.158,
+"gemini": 0
+},
+"missing": 0
+},
+"chk": {
+"pA": 0.62375,
+"detail": {
+"boxes": 4
+},
+"calls": {
+"jev": 2,
+"luna": 1,
+"gemini": 0
+},
+"usd": 0.000357,
+"seconds": {
+"jev": 0.772,
+"luna": 7.646,
+"gemini": 0
 },
 "missing": 0
 }
@@ -13296,6 +15576,66 @@
 "luna": 10.289
 },
 "missing": 0
+},
+"gem": {
+"pA": 1.0,
+"detail": {
+"games": [
+"A",
+"A"
+],
+"model": "gemini-3.5-flash-lite"
+},
+"calls": {
+"jev": 0,
+"luna": 0,
+"gemini": 2
+},
+"usd": 0.000389,
+"seconds": {
+"jev": 0,
+"luna": 0,
+"gemini": 2.133
+},
+"missing": 0
+},
+"ref_rc": {
+"pA": 0.020000000000000018,
+"detail": {
+"kind": "answer",
+"a": 0.03,
+"b": 0.99
+},
+"calls": {
+"jev": 2,
+"luna": 1,
+"gemini": 0
+},
+"usd": 0.000207,
+"seconds": {
+"jev": 2.394,
+"luna": 5.03,
+"gemini": 0
+},
+"missing": 0
+},
+"chk": {
+"pA": 0.274375,
+"detail": {
+"boxes": 4
+},
+"calls": {
+"jev": 2,
+"luna": 1,
+"gemini": 0
+},
+"usd": 0.000246,
+"seconds": {
+"jev": 0.684,
+"luna": 5.374,
+"gemini": 0
+},
+"missing": 0
 }
 },
 "405f3561-1bb7-56f5-88a2-c28cec94c5d4": {
@@ -13635,6 +15975,66 @@
 "seconds": {
 "jev": 0,
 "luna": 16.643
+},
+"missing": 0
+},
+"gem": {
+"pA": 1.0,
+"detail": {
+"games": [
+"A",
+"A"
+],
+"model": "gemini-3.5-flash-lite"
+},
+"calls": {
+"jev": 0,
+"luna": 0,
+"gemini": 2
+},
+"usd": 0.000523,
+"seconds": {
+"jev": 0,
+"luna": 0,
+"gemini": 2.939
+},
+"missing": 0
+},
+"ref_rc": {
+"pA": 0.88,
+"detail": {
+"kind": "answer",
+"a": 0.97,
+"b": 0.21
+},
+"calls": {
+"jev": 2,
+"luna": 1,
+"gemini": 0
+},
+"usd": 0.000469,
+"seconds": {
+"jev": 2.505,
+"luna": 11.273,
+"gemini": 0
+},
+"missing": 0
+},
+"chk": {
+"pA": 0.4375,
+"detail": {
+"boxes": 4
+},
+"calls": {
+"jev": 2,
+"luna": 1,
+"gemini": 0
+},
+"usd": 0.000338,
+"seconds": {
+"jev": 0.574,
+"luna": 8.392,
+"gemini": 0
 },
 "missing": 0
 }
@@ -13978,6 +16378,66 @@
 "luna": 8.489
 },
 "missing": 0
+},
+"gem": {
+"pA": 0.5,
+"detail": {
+"games": [
+"B",
+"A"
+],
+"model": "gemini-3.5-flash-lite"
+},
+"calls": {
+"jev": 0,
+"luna": 0,
+"gemini": 2
+},
+"usd": 0.000373,
+"seconds": {
+"jev": 0,
+"luna": 0,
+"gemini": 1.775
+},
+"missing": 0
+},
+"ref_rc": {
+"pA": 0.030000000000000027,
+"detail": {
+"kind": "answer",
+"a": 0.02,
+"b": 0.96
+},
+"calls": {
+"jev": 2,
+"luna": 1,
+"gemini": 0
+},
+"usd": 0.000174,
+"seconds": {
+"jev": 2.538,
+"luna": 4.819,
+"gemini": 0
+},
+"missing": 0
+},
+"chk": {
+"pA": 0.401875,
+"detail": {
+"boxes": 4
+},
+"calls": {
+"jev": 2,
+"luna": 1,
+"gemini": 0
+},
+"usd": 0.000311,
+"seconds": {
+"jev": 0.604,
+"luna": 7.867,
+"gemini": 0
+},
+"missing": 0
 }
 },
 "01fb6121-e025-5251-a55f-f903c79e4ec6": {
@@ -14317,6 +16777,66 @@
 "seconds": {
 "jev": 0,
 "luna": 12.934
+},
+"missing": 0
+},
+"gem": {
+"pA": 0.5,
+"detail": {
+"games": [
+"B",
+"A"
+],
+"model": "gemini-3.5-flash-lite"
+},
+"calls": {
+"jev": 0,
+"luna": 0,
+"gemini": 2
+},
+"usd": 0.000356,
+"seconds": {
+"jev": 0,
+"luna": 0,
+"gemini": 3.079
+},
+"missing": 0
+},
+"ref_rc": {
+"pA": 0.05499999999999999,
+"detail": {
+"kind": "answer",
+"a": 0.08,
+"b": 0.97
+},
+"calls": {
+"jev": 2,
+"luna": 1,
+"gemini": 0
+},
+"usd": 0.00024,
+"seconds": {
+"jev": 5.121,
+"luna": 6.327,
+"gemini": 0
+},
+"missing": 0
+},
+"chk": {
+"pA": 0.47875,
+"detail": {
+"boxes": 4
+},
+"calls": {
+"jev": 2,
+"luna": 1,
+"gemini": 0
+},
+"usd": 0.000295,
+"seconds": {
+"jev": 0.714,
+"luna": 7.032,
+"gemini": 0
 },
 "missing": 0
 }
@@ -14660,6 +17180,66 @@
 "luna": 9.849
 },
 "missing": 0
+},
+"gem": {
+"pA": 0.0,
+"detail": {
+"games": [
+"B",
+"B"
+],
+"model": "gemini-3.5-flash-lite"
+},
+"calls": {
+"jev": 0,
+"luna": 0,
+"gemini": 2
+},
+"usd": 0.000425,
+"seconds": {
+"jev": 0,
+"luna": 0,
+"gemini": 3.598
+},
+"missing": 0
+},
+"ref_rc": {
+"pA": 0.015000000000000013,
+"detail": {
+"kind": "answer",
+"a": 0.02,
+"b": 0.99
+},
+"calls": {
+"jev": 2,
+"luna": 1,
+"gemini": 0
+},
+"usd": 0.000321,
+"seconds": {
+"jev": 4.002,
+"luna": 8.235,
+"gemini": 0
+},
+"missing": 0
+},
+"chk": {
+"pA": 0.271875,
+"detail": {
+"boxes": 4
+},
+"calls": {
+"jev": 2,
+"luna": 1,
+"gemini": 0
+},
+"usd": 0.000327,
+"seconds": {
+"jev": 0.585,
+"luna": 7.254,
+"gemini": 0
+},
+"missing": 0
 }
 },
 "129dfd5d-5786-57e3-8548-df0d26a42659": {
@@ -14999,6 +17579,66 @@
 "seconds": {
 "jev": 0,
 "luna": 4.599
+},
+"missing": 0
+},
+"gem": {
+"pA": 1.0,
+"detail": {
+"games": [
+"A",
+"A"
+],
+"model": "gemini-3.5-flash-lite"
+},
+"calls": {
+"jev": 0,
+"luna": 0,
+"gemini": 2
+},
+"usd": 0.00029,
+"seconds": {
+"jev": 0,
+"luna": 0,
+"gemini": 3.341
+},
+"missing": 0
+},
+"ref_rc": {
+"pA": 0.965,
+"detail": {
+"kind": "answer",
+"a": 0.96,
+"b": 0.03
+},
+"calls": {
+"jev": 2,
+"luna": 1,
+"gemini": 0
+},
+"usd": 8.3e-05,
+"seconds": {
+"jev": 5.9,
+"luna": 3.133,
+"gemini": 0
+},
+"missing": 0
+},
+"chk": {
+"pA": 0.855625,
+"detail": {
+"boxes": 4
+},
+"calls": {
+"jev": 2,
+"luna": 1,
+"gemini": 0
+},
+"usd": 0.000329,
+"seconds": {
+"jev": 0.619,
+"luna": 8.288,
+"gemini": 0
 },
 "missing": 0
 }
@@ -15342,6 +17982,66 @@
 "luna": 48.162
 },
 "missing": 0
+},
+"gem": {
+"pA": 1.0,
+"detail": {
+"games": [
+"A",
+"A"
+],
+"model": "gemini-3.5-flash-lite"
+},
+"calls": {
+"jev": 0,
+"luna": 0,
+"gemini": 2
+},
+"usd": 0.000207,
+"seconds": {
+"jev": 0,
+"luna": 0,
+"gemini": 2.348
+},
+"missing": 0
+},
+"ref_rc": {
+"pA": 0.015000000000000013,
+"detail": {
+"kind": "answer",
+"a": 0.02,
+"b": 0.99
+},
+"calls": {
+"jev": 2,
+"luna": 1,
+"gemini": 0
+},
+"usd": 0.001272,
+"seconds": {
+"jev": 2.227,
+"luna": 36.212,
+"gemini": 0
+},
+"missing": 0
+},
+"chk": {
+"pA": 0.373125,
+"detail": {
+"boxes": 4
+},
+"calls": {
+"jev": 2,
+"luna": 1,
+"gemini": 0
+},
+"usd": 0.000807,
+"seconds": {
+"jev": 1.026,
+"luna": 19.902,
+"gemini": 0
+},
+"missing": 0
 }
 },
 "05ea6065-69da-58b9-a53b-872e8d940915": {
@@ -15681,6 +18381,66 @@
 "seconds": {
 "jev": 0,
 "luna": 11.464
+},
+"missing": 0
+},
+"gem": {
+"pA": 1.0,
+"detail": {
+"games": [
+"A",
+"A"
+],
+"model": "gemini-3.5-flash-lite"
+},
+"calls": {
+"jev": 0,
+"luna": 0,
+"gemini": 2
+},
+"usd": 0.000263,
+"seconds": {
+"jev": 0,
+"luna": 0,
+"gemini": 2.491
+},
+"missing": 0
+},
+"ref_rc": {
+"pA": 0.09999999999999998,
+"detail": {
+"kind": "answer",
+"a": 0.19,
+"b": 0.99
+},
+"calls": {
+"jev": 2,
+"luna": 1,
+"gemini": 0
+},
+"usd": 0.000577,
+"seconds": {
+"jev": 5.058,
+"luna": 15.198,
+"gemini": 0
+},
+"missing": 0
+},
+"chk": {
+"pA": 0.848125,
+"detail": {
+"boxes": 4
+},
+"calls": {
+"jev": 2,
+"luna": 1,
+"gemini": 0
+},
+"usd": 0.000262,
+"seconds": {
+"jev": 0.68,
+"luna": 6.16,
+"gemini": 0
 },
 "missing": 0
 }
@@ -16024,6 +18784,66 @@
 "luna": 12.548
 },
 "missing": 0
+},
+"gem": {
+"pA": 0.0,
+"detail": {
+"games": [
+"B",
+"B"
+],
+"model": "gemini-3.5-flash-lite"
+},
+"calls": {
+"jev": 0,
+"luna": 0,
+"gemini": 2
+},
+"usd": 0.000437,
+"seconds": {
+"jev": 0,
+"luna": 0,
+"gemini": 2.46
+},
+"missing": 0
+},
+"ref_rc": {
+"pA": 0.98,
+"detail": {
+"kind": "answer",
+"a": 0.99,
+"b": 0.03
+},
+"calls": {
+"jev": 2,
+"luna": 1,
+"gemini": 0
+},
+"usd": 0.000282,
+"seconds": {
+"jev": 1.222,
+"luna": 6.925,
+"gemini": 0
+},
+"missing": 0
+},
+"chk": {
+"pA": 0.555,
+"detail": {
+"boxes": 4
+},
+"calls": {
+"jev": 2,
+"luna": 1,
+"gemini": 0
+},
+"usd": 0.000368,
+"seconds": {
+"jev": 0.79,
+"luna": 8.093,
+"gemini": 0
+},
+"missing": 0
 }
 },
 "3be26fc0-ead5-5d0f-8c87-2feb0524e902": {
@@ -16363,6 +19183,66 @@
 "seconds": {
 "jev": 0,
 "luna": 33.763
+},
+"missing": 0
+},
+"gem": {
+"pA": 1.0,
+"detail": {
+"games": [
+"A",
+"A"
+],
+"model": "gemini-3.5-flash-lite"
+},
+"calls": {
+"jev": 0,
+"luna": 0,
+"gemini": 2
+},
+"usd": 0.000618,
+"seconds": {
+"jev": 0,
+"luna": 0,
+"gemini": 1.918
+},
+"missing": 0
+},
+"ref_rc": {
+"pA": 0.65,
+"detail": {
+"kind": "answer",
+"a": 0.41,
+"b": 0.11
+},
+"calls": {
+"jev": 2,
+"luna": 1,
+"gemini": 0
+},
+"usd": 0.000748,
+"seconds": {
+"jev": 2.596,
+"luna": 20.206,
+"gemini": 0
+},
+"missing": 0
+},
+"chk": {
+"pA": 0.871875,
+"detail": {
+"boxes": 4
+},
+"calls": {
+"jev": 2,
+"luna": 1,
+"gemini": 0
+},
+"usd": 0.000405,
+"seconds": {
+"jev": 0.57,
+"luna": 8.595,
+"gemini": 0
 },
 "missing": 0
 }
@@ -16706,6 +19586,66 @@
 "luna": 16.904
 },
 "missing": 0
+},
+"gem": {
+"pA": 0.0,
+"detail": {
+"games": [
+"B",
+"B"
+],
+"model": "gemini-3.5-flash-lite"
+},
+"calls": {
+"jev": 0,
+"luna": 0,
+"gemini": 2
+},
+"usd": 0.000363,
+"seconds": {
+"jev": 0,
+"luna": 0,
+"gemini": 3.61
+},
+"missing": 0
+},
+"ref_rc": {
+"pA": 0.015000000000000013,
+"detail": {
+"kind": "answer",
+"a": 0.01,
+"b": 0.98
+},
+"calls": {
+"jev": 2,
+"luna": 1,
+"gemini": 0
+},
+"usd": 0.000259,
+"seconds": {
+"jev": 1.394,
+"luna": 7.737,
+"gemini": 0
+},
+"missing": 0
+},
+"chk": {
+"pA": 0.16749999999999998,
+"detail": {
+"boxes": 4
+},
+"calls": {
+"jev": 2,
+"luna": 1,
+"gemini": 0
+},
+"usd": 0.000429,
+"seconds": {
+"jev": 0.765,
+"luna": 10.063,
+"gemini": 0
+},
+"missing": 0
 }
 },
 "ca91b783-54e9-5fb6-9c30-a7ebf3ee7258": {
@@ -17047,6 +19987,66 @@
 "luna": 6.377
 },
 "missing": 0
+},
+"gem": {
+"pA": 0.5,
+"detail": {
+"games": [
+"A",
+"B"
+],
+"model": "gemini-3.5-flash-lite"
+},
+"calls": {
+"jev": 0,
+"luna": 0,
+"gemini": 2
+},
+"usd": 0.000295,
+"seconds": {
+"jev": 0,
+"luna": 0,
+"gemini": 2.388
+},
+"missing": 0
+},
+"ref_rc": {
+"pA": 0.065,
+"detail": {
+"kind": "answer",
+"a": 0.04,
+"b": 0.91
+},
+"calls": {
+"jev": 2,
+"luna": 1,
+"gemini": 0
+},
+"usd": 0.000255,
+"seconds": {
+"jev": 3.398,
+"luna": 5.814,
+"gemini": 0
+},
+"missing": 0
+},
+"chk": {
+"pA": 0.391875,
+"detail": {
+"boxes": 4
+},
+"calls": {
+"jev": 2,
+"luna": 1,
+"gemini": 0
+},
+"usd": 0.000409,
+"seconds": {
+"jev": 0.666,
+"luna": 9.133,
+"gemini": 0
+},
+"missing": 0
 }
 },
 "82a6f9e6-aa7f-5380-8503-2227e0455f1e": {
@@ -17379,6 +20379,66 @@
 "seconds": {
 "jev": 0,
 "luna": 3.707
+},
+"missing": 0
+},
+"gem": {
+"pA": null,
+"detail": {
+"games": [
+null,
+null
+],
+"model": "gemini-3.5-flash-lite"
+},
+"calls": {
+"jev": 0,
+"luna": 0,
+"gemini": 2
+},
+"usd": 0.000314,
+"seconds": {
+"jev": 0,
+"luna": 0,
+"gemini": 2.721
+},
+"missing": 0
+},
+"ref_rc": {
+"pA": 0.5,
+"detail": {
+"kind": "answer",
+"a": 0.84,
+"b": 0.84
+},
+"calls": {
+"jev": 2,
+"luna": 1,
+"gemini": 0
+},
+"usd": 6.6e-05,
+"seconds": {
+"jev": 1.48,
+"luna": 2.921,
+"gemini": 0
+},
+"missing": 0
+},
+"chk": {
+"pA": 0.5025,
+"detail": {
+"boxes": 4
+},
+"calls": {
+"jev": 2,
+"luna": 1,
+"gemini": 0
+},
+"usd": 0.000363,
+"seconds": {
+"jev": 0.709,
+"luna": 9.222,
+"gemini": 0
 },
 "missing": 0
 }
@@ -17715,6 +20775,66 @@
 "luna": 18.284
 },
 "missing": 0
+},
+"gem": {
+"pA": 1.0,
+"detail": {
+"games": [
+"A",
+"A"
+],
+"model": "gemini-3.5-flash-lite"
+},
+"calls": {
+"jev": 0,
+"luna": 0,
+"gemini": 2
+},
+"usd": 0.000615,
+"seconds": {
+"jev": 0,
+"luna": 0,
+"gemini": 3.837
+},
+"missing": 0
+},
+"ref_rc": {
+"pA": 0.015000000000000013,
+"detail": {
+"kind": "answer",
+"a": 0.02,
+"b": 0.99
+},
+"calls": {
+"jev": 2,
+"luna": 1,
+"gemini": 0
+},
+"usd": 0.000438,
+"seconds": {
+"jev": 3.797,
+"luna": 10.713,
+"gemini": 0
+},
+"missing": 0
+},
+"chk": {
+"pA": 0.24874999999999997,
+"detail": {
+"boxes": 4
+},
+"calls": {
+"jev": 2,
+"luna": 1,
+"gemini": 0
+},
+"usd": 0.000414,
+"seconds": {
+"jev": 0.555,
+"luna": 9.35,
+"gemini": 0
+},
+"missing": 0
 }
 },
 "c48c7648-83e9-5c9c-b433-14752a85bf4f": {
@@ -18047,6 +21167,66 @@
 "seconds": {
 "jev": 0,
 "luna": 7.236
+},
+"missing": 0
+},
+"gem": {
+"pA": 0.5,
+"detail": {
+"games": [
+"B",
+"A"
+],
+"model": "gemini-3.5-flash-lite"
+},
+"calls": {
+"jev": 0,
+"luna": 0,
+"gemini": 2
+},
+"usd": 0.000723,
+"seconds": {
+"jev": 0,
+"luna": 0,
+"gemini": 5.541
+},
+"missing": 0
+},
+"ref_rc": {
+"pA": 0.025000000000000022,
+"detail": {
+"kind": "answer",
+"a": 0.03,
+"b": 0.98
+},
+"calls": {
+"jev": 2,
+"luna": 1,
+"gemini": 0
+},
+"usd": 0.000265,
+"seconds": {
+"jev": 3.778,
+"luna": 7.516,
+"gemini": 0
+},
+"missing": 0
+},
+"chk": {
+"pA": 0.69625,
+"detail": {
+"boxes": 4
+},
+"calls": {
+"jev": 2,
+"luna": 1,
+"gemini": 0
+},
+"usd": 0.000304,
+"seconds": {
+"jev": 0.723,
+"luna": 7.192,
+"gemini": 0
 },
 "missing": 0
 }
@@ -18383,6 +21563,66 @@
 "luna": 10.122
 },
 "missing": 0
+},
+"gem": {
+"pA": null,
+"detail": {
+"games": [
+"A",
+null
+],
+"model": "gemini-3.5-flash-lite"
+},
+"calls": {
+"jev": 0,
+"luna": 0,
+"gemini": 2
+},
+"usd": 0.000528,
+"seconds": {
+"jev": 0,
+"luna": 0,
+"gemini": 4.199
+},
+"missing": 0
+},
+"ref_rc": {
+"pA": 0.965,
+"detail": {
+"kind": "answer",
+"a": 0.97,
+"b": 0.04
+},
+"calls": {
+"jev": 2,
+"luna": 1,
+"gemini": 0
+},
+"usd": 0.000134,
+"seconds": {
+"jev": 2.65,
+"luna": 3.995,
+"gemini": 0
+},
+"missing": 0
+},
+"chk": {
+"pA": 0.9612499999999999,
+"detail": {
+"boxes": 4
+},
+"calls": {
+"jev": 2,
+"luna": 1,
+"gemini": 0
+},
+"usd": 0.000436,
+"seconds": {
+"jev": 0.838,
+"luna": 11.593,
+"gemini": 0
+},
+"missing": 0
 }
 },
 "a0de8a56-5c4a-5e4a-9420-441005c375b1": {
@@ -18715,6 +21955,66 @@
 "seconds": {
 "jev": 0,
 "luna": 8.061
+},
+"missing": 0
+},
+"gem": {
+"pA": 0.0,
+"detail": {
+"games": [
+"B",
+"B"
+],
+"model": "gemini-3.5-flash-lite"
+},
+"calls": {
+"jev": 0,
+"luna": 0,
+"gemini": 2
+},
+"usd": 0.000388,
+"seconds": {
+"jev": 0,
+"luna": 0,
+"gemini": 2.694
+},
+"missing": 0
+},
+"ref_rc": {
+"pA": 0.96,
+"detail": {
+"kind": "answer",
+"a": 0.99,
+"b": 0.07
+},
+"calls": {
+"jev": 2,
+"luna": 1,
+"gemini": 0
+},
+"usd": 0.000227,
+"seconds": {
+"jev": 2.003,
+"luna": 5.083,
+"gemini": 0
+},
+"missing": 0
+},
+"chk": {
+"pA": 0.551875,
+"detail": {
+"boxes": 4
+},
+"calls": {
+"jev": 2,
+"luna": 1,
+"gemini": 0
+},
+"usd": 0.00037,
+"seconds": {
+"jev": 0.611,
+"luna": 7.815,
+"gemini": 0
 },
 "missing": 0
 }
@@ -19051,6 +22351,66 @@
 "luna": 25.041
 },
 "missing": 0
+},
+"gem": {
+"pA": 0.0,
+"detail": {
+"games": [
+"B",
+"B"
+],
+"model": "gemini-3.5-flash-lite"
+},
+"calls": {
+"jev": 0,
+"luna": 0,
+"gemini": 2
+},
+"usd": 0.000333,
+"seconds": {
+"jev": 0,
+"luna": 0,
+"gemini": 2.156
+},
+"missing": 0
+},
+"ref_rc": {
+"pA": 0.985,
+"detail": {
+"kind": "answer",
+"a": 0.99,
+"b": 0.02
+},
+"calls": {
+"jev": 2,
+"luna": 1,
+"gemini": 0
+},
+"usd": 0.000312,
+"seconds": {
+"jev": 2.295,
+"luna": 8.444,
+"gemini": 0
+},
+"missing": 0
+},
+"chk": {
+"pA": 0.633125,
+"detail": {
+"boxes": 4
+},
+"calls": {
+"jev": 2,
+"luna": 1,
+"gemini": 0
+},
+"usd": 0.000392,
+"seconds": {
+"jev": 0.695,
+"luna": 9.177,
+"gemini": 0
+},
+"missing": 0
 }
 },
 "0c330e4b-97db-5a89-a2c2-7513ec918421": {
@@ -19383,6 +22743,66 @@
 "seconds": {
 "jev": 0,
 "luna": 26.196
+},
+"missing": 0
+},
+"gem": {
+"pA": 0.5,
+"detail": {
+"games": [
+"A",
+"B"
+],
+"model": "gemini-3.5-flash-lite"
+},
+"calls": {
+"jev": 0,
+"luna": 0,
+"gemini": 2
+},
+"usd": 0.000212,
+"seconds": {
+"jev": 0,
+"luna": 0,
+"gemini": 2.649
+},
+"missing": 0
+},
+"ref_rc": {
+"pA": 0.495,
+"detail": {
+"kind": "open",
+"a": 0.94,
+"b": 0.95
+},
+"calls": {
+"jev": 2,
+"luna": 1,
+"gemini": 0
+},
+"usd": 0.00014,
+"seconds": {
+"jev": 2.891,
+"luna": 3.658,
+"gemini": 0
+},
+"missing": 0
+},
+"chk": {
+"pA": 0.496875,
+"detail": {
+"boxes": 4
+},
+"calls": {
+"jev": 2,
+"luna": 1,
+"gemini": 0
+},
+"usd": 0.00018,
+"seconds": {
+"jev": 0.725,
+"luna": 4.235,
+"gemini": 0
 },
 "missing": 0
 }
@@ -19719,6 +23139,66 @@
 "luna": 5.292
 },
 "missing": 0
+},
+"gem": {
+"pA": null,
+"detail": {
+"games": [
+null,
+"A"
+],
+"model": "gemini-3.5-flash-lite"
+},
+"calls": {
+"jev": 0,
+"luna": 0,
+"gemini": 2
+},
+"usd": 0.000429,
+"seconds": {
+"jev": 0,
+"luna": 0,
+"gemini": 4.694
+},
+"missing": 0
+},
+"ref_rc": {
+"pA": 0.06500000000000006,
+"detail": {
+"kind": "open",
+"a": 0.07,
+"b": 0.94
+},
+"calls": {
+"jev": 2,
+"luna": 1,
+"gemini": 0
+},
+"usd": 0.000172,
+"seconds": {
+"jev": 2.651,
+"luna": 4.338,
+"gemini": 0
+},
+"missing": 0
+},
+"chk": {
+"pA": 0.22000000000000003,
+"detail": {
+"boxes": 4
+},
+"calls": {
+"jev": 2,
+"luna": 1,
+"gemini": 0
+},
+"usd": 0.000291,
+"seconds": {
+"jev": 0.617,
+"luna": 5.974,
+"gemini": 0
+},
+"missing": 0
 }
 },
 "e4b55dd8-fbc7-5b24-94e6-fed411aa78e7": {
@@ -20051,6 +23531,66 @@
 "seconds": {
 "jev": 0,
 "luna": 4.522
+},
+"missing": 0
+},
+"gem": {
+"pA": 1.0,
+"detail": {
+"games": [
+"A",
+"A"
+],
+"model": "gemini-3.5-flash-lite"
+},
+"calls": {
+"jev": 0,
+"luna": 0,
+"gemini": 2
+},
+"usd": 0.000324,
+"seconds": {
+"jev": 0,
+"luna": 0,
+"gemini": 3.717
+},
+"missing": 0
+},
+"ref_rc": {
+"pA": 0.48000000000000004,
+"detail": {
+"kind": "answer",
+"a": 0.81,
+"b": 0.85
+},
+"calls": {
+"jev": 2,
+"luna": 1,
+"gemini": 0
+},
+"usd": 0.000134,
+"seconds": {
+"jev": 1.667,
+"luna": 3.069,
+"gemini": 0
+},
+"missing": 0
+},
+"chk": {
+"pA": 0.5862499999999999,
+"detail": {
+"boxes": 4
+},
+"calls": {
+"jev": 2,
+"luna": 1,
+"gemini": 0
+},
+"usd": 0.000209,
+"seconds": {
+"jev": 0.562,
+"luna": 3.874,
+"gemini": 0
 },
 "missing": 0
 }
@@ -20387,6 +23927,66 @@
 "luna": 5.446
 },
 "missing": 0
+},
+"gem": {
+"pA": null,
+"detail": {
+"games": [
+"A",
+null
+],
+"model": "gemini-3.5-flash-lite"
+},
+"calls": {
+"jev": 0,
+"luna": 0,
+"gemini": 2
+},
+"usd": 0.000565,
+"seconds": {
+"jev": 0,
+"luna": 0,
+"gemini": 5.409
+},
+"missing": 0
+},
+"ref_rc": {
+"pA": 0.53,
+"detail": {
+"kind": "open",
+"a": 0.76,
+"b": 0.7
+},
+"calls": {
+"jev": 2,
+"luna": 1,
+"gemini": 0
+},
+"usd": 0.000199,
+"seconds": {
+"jev": 4.473,
+"luna": 5.2,
+"gemini": 0
+},
+"missing": 0
+},
+"chk": {
+"pA": 0.47875,
+"detail": {
+"boxes": 4
+},
+"calls": {
+"jev": 2,
+"luna": 1,
+"gemini": 0
+},
+"usd": 0.000268,
+"seconds": {
+"jev": 0.991,
+"luna": 5.336,
+"gemini": 0
+},
+"missing": 0
 }
 },
 "23913c97-eb0c-5740-b0ea-d89af8741023": {
@@ -20719,6 +24319,66 @@
 "seconds": {
 "jev": 0,
 "luna": 12.662
+},
+"missing": 0
+},
+"gem": {
+"pA": 0.5,
+"detail": {
+"games": [
+"B",
+"A"
+],
+"model": "gemini-3.5-flash-lite"
+},
+"calls": {
+"jev": 0,
+"luna": 0,
+"gemini": 2
+},
+"usd": 0.000659,
+"seconds": {
+"jev": 0,
+"luna": 0,
+"gemini": 4.858
+},
+"missing": 0
+},
+"ref_rc": {
+"pA": 0.605,
+"detail": {
+"kind": "answer",
+"a": 0.63,
+"b": 0.42
+},
+"calls": {
+"jev": 2,
+"luna": 1,
+"gemini": 0
+},
+"usd": 0.000333,
+"seconds": {
+"jev": 3.524,
+"luna": 8.489,
+"gemini": 0
+},
+"missing": 0
+},
+"chk": {
+"pA": 0.46187500000000004,
+"detail": {
+"boxes": 4
+},
+"calls": {
+"jev": 2,
+"luna": 1,
+"gemini": 0
+},
+"usd": 0.000355,
+"seconds": {
+"jev": 0.897,
+"luna": 7.956,
+"gemini": 0
 },
 "missing": 0
 }
@@ -21055,6 +24715,66 @@
 "luna": 8.155
 },
 "missing": 0
+},
+"gem": {
+"pA": 1.0,
+"detail": {
+"games": [
+"A",
+"A"
+],
+"model": "gemini-3.5-flash-lite"
+},
+"calls": {
+"jev": 0,
+"luna": 0,
+"gemini": 2
+},
+"usd": 0.00048,
+"seconds": {
+"jev": 0,
+"luna": 0,
+"gemini": 4.896
+},
+"missing": 0
+},
+"ref_rc": {
+"pA": 0.59,
+"detail": {
+"kind": "open",
+"a": 0.25,
+"b": 0.07
+},
+"calls": {
+"jev": 2,
+"luna": 1,
+"gemini": 0
+},
+"usd": 0.000184,
+"seconds": {
+"jev": 2.777,
+"luna": 5.035,
+"gemini": 0
+},
+"missing": 0
+},
+"chk": {
+"pA": 0.5393749999999999,
+"detail": {
+"boxes": 4
+},
+"calls": {
+"jev": 2,
+"luna": 1,
+"gemini": 0
+},
+"usd": 0.000374,
+"seconds": {
+"jev": 0.741,
+"luna": 9.166,
+"gemini": 0
+},
+"missing": 0
 }
 },
 "af372926-1fbb-54bf-aff8-14c9cde2db90": {
@@ -21387,6 +25107,66 @@
 "seconds": {
 "jev": 0,
 "luna": 5.943
+},
+"missing": 0
+},
+"gem": {
+"pA": 0.0,
+"detail": {
+"games": [
+"B",
+"B"
+],
+"model": "gemini-3.5-flash-lite"
+},
+"calls": {
+"jev": 0,
+"luna": 0,
+"gemini": 2
+},
+"usd": 0.000641,
+"seconds": {
+"jev": 0,
+"luna": 0,
+"gemini": 3.313
+},
+"missing": 0
+},
+"ref_rc": {
+"pA": 0.03500000000000003,
+"detail": {
+"kind": "answer",
+"a": 0.06,
+"b": 0.99
+},
+"calls": {
+"jev": 2,
+"luna": 1,
+"gemini": 0
+},
+"usd": 0.000141,
+"seconds": {
+"jev": 2.81,
+"luna": 3.721,
+"gemini": 0
+},
+"missing": 0
+},
+"chk": {
+"pA": 0.13312500000000005,
+"detail": {
+"boxes": 4
+},
+"calls": {
+"jev": 2,
+"luna": 1,
+"gemini": 0
+},
+"usd": 0.000214,
+"seconds": {
+"jev": 0.744,
+"luna": 4.663,
+"gemini": 0
 },
 "missing": 0
 }
@@ -21723,6 +25503,66 @@
 "luna": 7.001
 },
 "missing": 0
+},
+"gem": {
+"pA": 0.5,
+"detail": {
+"games": [
+"A",
+"B"
+],
+"model": "gemini-3.5-flash-lite"
+},
+"calls": {
+"jev": 0,
+"luna": 0,
+"gemini": 2
+},
+"usd": 0.000334,
+"seconds": {
+"jev": 0,
+"luna": 0,
+"gemini": 2.179
+},
+"missing": 0
+},
+"ref_rc": {
+"pA": 0.96,
+"detail": {
+"kind": "answer",
+"a": 0.98,
+"b": 0.06
+},
+"calls": {
+"jev": 2,
+"luna": 1,
+"gemini": 0
+},
+"usd": 0.000217,
+"seconds": {
+"jev": 2.15,
+"luna": 5.053,
+"gemini": 0
+},
+"missing": 0
+},
+"chk": {
+"pA": 0.959375,
+"detail": {
+"boxes": 4
+},
+"calls": {
+"jev": 2,
+"luna": 1,
+"gemini": 0
+},
+"usd": 0.000369,
+"seconds": {
+"jev": 0.65,
+"luna": 7.523,
+"gemini": 0
+},
+"missing": 0
 }
 },
 "35e4e1cd-ccdf-51ae-8fee-687a634c6c2e": {
@@ -22055,6 +25895,66 @@
 "seconds": {
 "jev": 0,
 "luna": 3.801
+},
+"missing": 0
+},
+"gem": {
+"pA": 1.0,
+"detail": {
+"games": [
+"A",
+"A"
+],
+"model": "gemini-3.5-flash-lite"
+},
+"calls": {
+"jev": 0,
+"luna": 0,
+"gemini": 2
+},
+"usd": 0.000355,
+"seconds": {
+"jev": 0,
+"luna": 0,
+"gemini": 1.935
+},
+"missing": 0
+},
+"ref_rc": {
+"pA": 0.97,
+"detail": {
+"kind": "answer",
+"a": 0.98,
+"b": 0.04
+},
+"calls": {
+"jev": 2,
+"luna": 1,
+"gemini": 0
+},
+"usd": 0.000127,
+"seconds": {
+"jev": 2.577,
+"luna": 2.74,
+"gemini": 0
+},
+"missing": 0
+},
+"chk": {
+"pA": 0.8575,
+"detail": {
+"boxes": 4
+},
+"calls": {
+"jev": 2,
+"luna": 1,
+"gemini": 0
+},
+"usd": 0.000285,
+"seconds": {
+"jev": 0.878,
+"luna": 5.492,
+"gemini": 0
 },
 "missing": 0
 }
@@ -22391,6 +26291,66 @@
 "luna": 7.218
 },
 "missing": 0
+},
+"gem": {
+"pA": 0.5,
+"detail": {
+"games": [
+"B",
+"A"
+],
+"model": "gemini-3.5-flash-lite"
+},
+"calls": {
+"jev": 0,
+"luna": 0,
+"gemini": 2
+},
+"usd": 0.000375,
+"seconds": {
+"jev": 0,
+"luna": 0,
+"gemini": 1.845
+},
+"missing": 0
+},
+"ref_rc": {
+"pA": 0.955,
+"detail": {
+"kind": "answer",
+"a": 0.97,
+"b": 0.06
+},
+"calls": {
+"jev": 2,
+"luna": 1,
+"gemini": 0
+},
+"usd": 0.000232,
+"seconds": {
+"jev": 1.958,
+"luna": 6.003,
+"gemini": 0
+},
+"missing": 0
+},
+"chk": {
+"pA": 0.89625,
+"detail": {
+"boxes": 4
+},
+"calls": {
+"jev": 2,
+"luna": 1,
+"gemini": 0
+},
+"usd": 0.000312,
+"seconds": {
+"jev": 0.584,
+"luna": 7.517,
+"gemini": 0
+},
+"missing": 0
 }
 },
 "70bf4c34-6b15-53e6-bb19-9094bdaf6c9f": {
@@ -22723,6 +26683,66 @@
 "seconds": {
 "jev": 0,
 "luna": 13.009
+},
+"missing": 0
+},
+"gem": {
+"pA": 0.0,
+"detail": {
+"games": [
+"B",
+"B"
+],
+"model": "gemini-3.5-flash-lite"
+},
+"calls": {
+"jev": 0,
+"luna": 0,
+"gemini": 2
+},
+"usd": 0.000176,
+"seconds": {
+"jev": 0,
+"luna": 0,
+"gemini": 3.89
+},
+"missing": 0
+},
+"ref_rc": {
+"pA": 0.515,
+"detail": {
+"kind": "answer",
+"a": 0.07,
+"b": 0.04
+},
+"calls": {
+"jev": 2,
+"luna": 1,
+"gemini": 0
+},
+"usd": 0.000124,
+"seconds": {
+"jev": 3.536,
+"luna": 3.418,
+"gemini": 0
+},
+"missing": 0
+},
+"chk": {
+"pA": 0.431875,
+"detail": {
+"boxes": 4
+},
+"calls": {
+"jev": 2,
+"luna": 1,
+"gemini": 0
+},
+"usd": 0.000217,
+"seconds": {
+"jev": 0.617,
+"luna": 5.189,
+"gemini": 0
 },
 "missing": 0
 }
@@ -23059,6 +27079,66 @@
 "luna": 3.706
 },
 "missing": 0
+},
+"gem": {
+"pA": 0.0,
+"detail": {
+"games": [
+"B",
+"B"
+],
+"model": "gemini-3.5-flash-lite"
+},
+"calls": {
+"jev": 0,
+"luna": 0,
+"gemini": 2
+},
+"usd": 0.000329,
+"seconds": {
+"jev": 0,
+"luna": 0,
+"gemini": 2.673
+},
+"missing": 0
+},
+"ref_rc": {
+"pA": 0.050000000000000044,
+"detail": {
+"kind": "answer",
+"a": 0.07,
+"b": 0.97
+},
+"calls": {
+"jev": 2,
+"luna": 1,
+"gemini": 0
+},
+"usd": 0.000102,
+"seconds": {
+"jev": 1.668,
+"luna": 2.856,
+"gemini": 0
+},
+"missing": 0
+},
+"chk": {
+"pA": 0.10312500000000002,
+"detail": {
+"boxes": 4
+},
+"calls": {
+"jev": 2,
+"luna": 1,
+"gemini": 0
+},
+"usd": 0.000299,
+"seconds": {
+"jev": 0.681,
+"luna": 6.519,
+"gemini": 0
+},
+"missing": 0
 }
 },
 "754b1cf8-067c-513f-a0d3-c8bd401e8afb": {
@@ -23331,6 +27411,66 @@
 "seconds": {
 "jev": 0,
 "luna": 4.761
+},
+"missing": 0
+},
+"gem": {
+"pA": 0.0,
+"detail": {
+"games": [
+"B",
+"B"
+],
+"model": "gemini-3.5-flash-lite"
+},
+"calls": {
+"jev": 0,
+"luna": 0,
+"gemini": 2
+},
+"usd": 0.000206,
+"seconds": {
+"jev": 0,
+"luna": 0,
+"gemini": 2.983
+},
+"missing": 0
+},
+"ref_rc": {
+"pA": 0.09499999999999997,
+"detail": {
+"kind": "answer",
+"a": 0.12,
+"b": 0.93
+},
+"calls": {
+"jev": 2,
+"luna": 1,
+"gemini": 0
+},
+"usd": 8.9e-05,
+"seconds": {
+"jev": 1.983,
+"luna": 3.587,
+"gemini": 0
+},
+"missing": 0
+},
+"chk": {
+"pA": 0.259375,
+"detail": {
+"boxes": 4
+},
+"calls": {
+"jev": 2,
+"luna": 1,
+"gemini": 0
+},
+"usd": 0.000261,
+"seconds": {
+"jev": 0.97,
+"luna": 6.579,
+"gemini": 0
 },
 "missing": 0
 }
@@ -23607,6 +27747,66 @@
 "luna": 3.346
 },
 "missing": 0
+},
+"gem": {
+"pA": null,
+"detail": {
+"games": [
+null,
+null
+],
+"model": "gemini-3.5-flash-lite"
+},
+"calls": {
+"jev": 0,
+"luna": 0,
+"gemini": 2
+},
+"usd": 0.00046,
+"seconds": {
+"jev": 0,
+"luna": 0,
+"gemini": 3.916
+},
+"missing": 0
+},
+"ref_rc": {
+"pA": 0.040000000000000036,
+"detail": {
+"kind": "answer",
+"a": 0.07,
+"b": 0.99
+},
+"calls": {
+"jev": 2,
+"luna": 1,
+"gemini": 0
+},
+"usd": 9.7e-05,
+"seconds": {
+"jev": 2.914,
+"luna": 2.729,
+"gemini": 0
+},
+"missing": 0
+},
+"chk": {
+"pA": 0.31812500000000005,
+"detail": {
+"boxes": 4
+},
+"calls": {
+"jev": 2,
+"luna": 1,
+"gemini": 0
+},
+"usd": 0.000214,
+"seconds": {
+"jev": 0.972,
+"luna": 6.706,
+"gemini": 0
+},
+"missing": 0
 }
 },
 "f805817d-968d-5b0b-a2b2-4c62c9b848d3": {
@@ -23879,6 +28079,66 @@
 "seconds": {
 "jev": 0,
 "luna": 3.621
+},
+"missing": 0
+},
+"gem": {
+"pA": 0.5,
+"detail": {
+"games": [
+"A",
+"B"
+],
+"model": "gemini-3.5-flash-lite"
+},
+"calls": {
+"jev": 0,
+"luna": 0,
+"gemini": 2
+},
+"usd": 0.000267,
+"seconds": {
+"jev": 0,
+"luna": 0,
+"gemini": 2.34
+},
+"missing": 0
+},
+"ref_rc": {
+"pA": 0.8049999999999999,
+"detail": {
+"kind": "answer",
+"a": 0.89,
+"b": 0.28
+},
+"calls": {
+"jev": 2,
+"luna": 1,
+"gemini": 0
+},
+"usd": 7.3e-05,
+"seconds": {
+"jev": 7.837,
+"luna": 3.366,
+"gemini": 0
+},
+"missing": 0
+},
+"chk": {
+"pA": 0.861875,
+"detail": {
+"boxes": 4
+},
+"calls": {
+"jev": 2,
+"luna": 1,
+"gemini": 0
+},
+"usd": 0.00024,
+"seconds": {
+"jev": 1.109,
+"luna": 6.208,
+"gemini": 0
 },
 "missing": 0
 }
@@ -24155,6 +28415,66 @@
 "luna": 10.405
 },
 "missing": 0
+},
+"gem": {
+"pA": 0.5,
+"detail": {
+"games": [
+"A",
+"B"
+],
+"model": "gemini-3.5-flash-lite"
+},
+"calls": {
+"jev": 0,
+"luna": 0,
+"gemini": 2
+},
+"usd": 0.000491,
+"seconds": {
+"jev": 0,
+"luna": 0,
+"gemini": 2.608
+},
+"missing": 0
+},
+"ref_rc": {
+"pA": 0.015000000000000013,
+"detail": {
+"kind": "answer",
+"a": 0.02,
+"b": 0.99
+},
+"calls": {
+"jev": 2,
+"luna": 1,
+"gemini": 0
+},
+"usd": 0.000301,
+"seconds": {
+"jev": 6.053,
+"luna": 6.929,
+"gemini": 0
+},
+"missing": 0
+},
+"chk": {
+"pA": 0.300625,
+"detail": {
+"boxes": 4
+},
+"calls": {
+"jev": 2,
+"luna": 1,
+"gemini": 0
+},
+"usd": 0.000344,
+"seconds": {
+"jev": 1.033,
+"luna": 8.441,
+"gemini": 0
+},
+"missing": 0
 }
 },
 "26a84e53-9faa-5387-8293-e1d3f8589c4e": {
@@ -24427,6 +28747,66 @@
 "seconds": {
 "jev": 0,
 "luna": 13.103
+},
+"missing": 0
+},
+"gem": {
+"pA": 0.5,
+"detail": {
+"games": [
+"B",
+"A"
+],
+"model": "gemini-3.5-flash-lite"
+},
+"calls": {
+"jev": 0,
+"luna": 0,
+"gemini": 2
+},
+"usd": 0.00044,
+"seconds": {
+"jev": 0,
+"luna": 0,
+"gemini": 3.507
+},
+"missing": 0
+},
+"ref_rc": {
+"pA": 0.020000000000000018,
+"detail": {
+"kind": "answer",
+"a": 0.03,
+"b": 0.99
+},
+"calls": {
+"jev": 2,
+"luna": 1,
+"gemini": 0
+},
+"usd": 0.000181,
+"seconds": {
+"jev": 1.035,
+"luna": 5.932,
+"gemini": 0
+},
+"missing": 0
+},
+"chk": {
+"pA": 0.365625,
+"detail": {
+"boxes": 4
+},
+"calls": {
+"jev": 2,
+"luna": 1,
+"gemini": 0
+},
+"usd": 0.000318,
+"seconds": {
+"jev": 0.922,
+"luna": 8.641,
+"gemini": 0
 },
 "missing": 0
 }
@@ -24703,6 +29083,66 @@
 "luna": 12.11
 },
 "missing": 0
+},
+"gem": {
+"pA": 1.0,
+"detail": {
+"games": [
+"A",
+"A"
+],
+"model": "gemini-3.5-flash-lite"
+},
+"calls": {
+"jev": 0,
+"luna": 0,
+"gemini": 2
+},
+"usd": 0.00035,
+"seconds": {
+"jev": 0,
+"luna": 0,
+"gemini": 2.156
+},
+"missing": 0
+},
+"ref_rc": {
+"pA": 0.025000000000000022,
+"detail": {
+"kind": "answer",
+"a": 0.03,
+"b": 0.98
+},
+"calls": {
+"jev": 2,
+"luna": 1,
+"gemini": 0
+},
+"usd": 0.000315,
+"seconds": {
+"jev": 3.196,
+"luna": 8.052,
+"gemini": 0
+},
+"missing": 0
+},
+"chk": {
+"pA": 0.3525,
+"detail": {
+"boxes": 4
+},
+"calls": {
+"jev": 2,
+"luna": 1,
+"gemini": 0
+},
+"usd": 0.000445,
+"seconds": {
+"jev": 0.967,
+"luna": 10.584,
+"gemini": 0
+},
+"missing": 0
 }
 },
 "295046df-4a28-5894-b61e-70cd586ad52c": {
@@ -24975,6 +29415,66 @@
 "seconds": {
 "jev": 0,
 "luna": 14.3
+},
+"missing": 0
+},
+"gem": {
+"pA": 1.0,
+"detail": {
+"games": [
+"A",
+"A"
+],
+"model": "gemini-3.5-flash-lite"
+},
+"calls": {
+"jev": 0,
+"luna": 0,
+"gemini": 2
+},
+"usd": 0.000335,
+"seconds": {
+"jev": 0,
+"luna": 0,
+"gemini": 2.818
+},
+"missing": 0
+},
+"ref_rc": {
+"pA": 0.5,
+"detail": {
+"kind": "answer",
+"a": 0.99,
+"b": 0.99
+},
+"calls": {
+"jev": 2,
+"luna": 1,
+"gemini": 0
+},
+"usd": 0.000283,
+"seconds": {
+"jev": 1.034,
+"luna": 8.615,
+"gemini": 0
+},
+"missing": 0
+},
+"chk": {
+"pA": 0.494375,
+"detail": {
+"boxes": 4
+},
+"calls": {
+"jev": 2,
+"luna": 1,
+"gemini": 0
+},
+"usd": 0.000416,
+"seconds": {
+"jev": 1.105,
+"luna": 10.678,
+"gemini": 0
 },
 "missing": 0
 }
@@ -25251,6 +29751,66 @@
 "luna": 7.181
 },
 "missing": 0
+},
+"gem": {
+"pA": 0.5,
+"detail": {
+"games": [
+"B",
+"A"
+],
+"model": "gemini-3.5-flash-lite"
+},
+"calls": {
+"jev": 0,
+"luna": 0,
+"gemini": 2
+},
+"usd": 0.000317,
+"seconds": {
+"jev": 0,
+"luna": 0,
+"gemini": 2.539
+},
+"missing": 0
+},
+"ref_rc": {
+"pA": 0.965,
+"detail": {
+"kind": "answer",
+"a": 0.98,
+"b": 0.05
+},
+"calls": {
+"jev": 2,
+"luna": 1,
+"gemini": 0
+},
+"usd": 0.000104,
+"seconds": {
+"jev": 3.26,
+"luna": 2.508,
+"gemini": 0
+},
+"missing": 0
+},
+"chk": {
+"pA": 0.6425,
+"detail": {
+"boxes": 4
+},
+"calls": {
+"jev": 2,
+"luna": 1,
+"gemini": 0
+},
+"usd": 0.000225,
+"seconds": {
+"jev": 1.066,
+"luna": 5.356,
+"gemini": 0
+},
+"missing": 0
 }
 },
 "01e1a2ac-06a4-5838-8bbb-b1895dea0b77": {
@@ -25523,6 +30083,66 @@
 "seconds": {
 "jev": 0,
 "luna": 9.123
+},
+"missing": 0
+},
+"gem": {
+"pA": 0.0,
+"detail": {
+"games": [
+"B",
+"B"
+],
+"model": "gemini-3.5-flash-lite"
+},
+"calls": {
+"jev": 0,
+"luna": 0,
+"gemini": 2
+},
+"usd": 0.000623,
+"seconds": {
+"jev": 0,
+"luna": 0,
+"gemini": 6.133
+},
+"missing": 0
+},
+"ref_rc": {
+"pA": 0.020000000000000018,
+"detail": {
+"kind": "answer",
+"a": 0.02,
+"b": 0.98
+},
+"calls": {
+"jev": 2,
+"luna": 1,
+"gemini": 0
+},
+"usd": 0.000203,
+"seconds": {
+"jev": 2.235,
+"luna": 6.034,
+"gemini": 0
+},
+"missing": 0
+},
+"chk": {
+"pA": 0.05437500000000001,
+"detail": {
+"boxes": 4
+},
+"calls": {
+"jev": 2,
+"luna": 1,
+"gemini": 0
+},
+"usd": 0.000252,
+"seconds": {
+"jev": 0.937,
+"luna": 5.602,
+"gemini": 0
 },
 "missing": 0
 }
@@ -25799,6 +30419,66 @@
 "luna": 11.562
 },
 "missing": 0
+},
+"gem": {
+"pA": 1.0,
+"detail": {
+"games": [
+"A",
+"A"
+],
+"model": "gemini-3.5-flash-lite"
+},
+"calls": {
+"jev": 0,
+"luna": 0,
+"gemini": 2
+},
+"usd": 0.000445,
+"seconds": {
+"jev": 0,
+"luna": 0,
+"gemini": 1.855
+},
+"missing": 0
+},
+"ref_rc": {
+"pA": 0.7,
+"detail": {
+"kind": "answer",
+"a": 0.62,
+"b": 0.22
+},
+"calls": {
+"jev": 2,
+"luna": 1,
+"gemini": 0
+},
+"usd": 0.000195,
+"seconds": {
+"jev": 1.241,
+"luna": 4.439,
+"gemini": 0
+},
+"missing": 0
+},
+"chk": {
+"pA": 0.20062500000000005,
+"detail": {
+"boxes": 4
+},
+"calls": {
+"jev": 2,
+"luna": 1,
+"gemini": 0
+},
+"usd": 0.000365,
+"seconds": {
+"jev": 0.959,
+"luna": 7.951,
+"gemini": 0
+},
+"missing": 0
 }
 },
 "a7743898-29c2-52f0-9065-c9ea19b630dd": {
@@ -26071,6 +30751,66 @@
 "seconds": {
 "jev": 0,
 "luna": 6.828
+},
+"missing": 0
+},
+"gem": {
+"pA": 0.0,
+"detail": {
+"games": [
+"B",
+"B"
+],
+"model": "gemini-3.5-flash-lite"
+},
+"calls": {
+"jev": 0,
+"luna": 0,
+"gemini": 2
+},
+"usd": 0.000355,
+"seconds": {
+"jev": 0,
+"luna": 0,
+"gemini": 3.185
+},
+"missing": 0
+},
+"ref_rc": {
+"pA": 0.0050000000000000044,
+"detail": {
+"kind": "answer",
+"a": 0.01,
+"b": 1
+},
+"calls": {
+"jev": 2,
+"luna": 1,
+"gemini": 0
+},
+"usd": 0.000169,
+"seconds": {
+"jev": 2.173,
+"luna": 4.065,
+"gemini": 0
+},
+"missing": 0
+},
+"chk": {
+"pA": 0.29624999999999996,
+"detail": {
+"boxes": 4
+},
+"calls": {
+"jev": 2,
+"luna": 1,
+"gemini": 0
+},
+"usd": 0.000291,
+"seconds": {
+"jev": 1.016,
+"luna": 6.903,
+"gemini": 0
 },
 "missing": 0
 }
@@ -26347,6 +31087,66 @@
 "luna": 3.936
 },
 "missing": 0
+},
+"gem": {
+"pA": 1.0,
+"detail": {
+"games": [
+"A",
+"A"
+],
+"model": "gemini-3.5-flash-lite"
+},
+"calls": {
+"jev": 0,
+"luna": 0,
+"gemini": 2
+},
+"usd": 0.00023,
+"seconds": {
+"jev": 0,
+"luna": 0,
+"gemini": 2.327
+},
+"missing": 0
+},
+"ref_rc": {
+"pA": 0.975,
+"detail": {
+"kind": "answer",
+"a": 0.99,
+"b": 0.04
+},
+"calls": {
+"jev": 2,
+"luna": 1,
+"gemini": 0
+},
+"usd": 0.000165,
+"seconds": {
+"jev": 4.095,
+"luna": 3.585,
+"gemini": 0
+},
+"missing": 0
+},
+"chk": {
+"pA": 0.745625,
+"detail": {
+"boxes": 4
+},
+"calls": {
+"jev": 2,
+"luna": 1,
+"gemini": 0
+},
+"usd": 0.000269,
+"seconds": {
+"jev": 1.089,
+"luna": 6.091,
+"gemini": 0
+},
+"missing": 0
 }
 },
 "fdc57db0-8efc-5258-8a61-d514c7e73885": {
@@ -26619,6 +31419,66 @@
 "seconds": {
 "jev": 0,
 "luna": 15.378
+},
+"missing": 0
+},
+"gem": {
+"pA": 1.0,
+"detail": {
+"games": [
+"A",
+"A"
+],
+"model": "gemini-3.5-flash-lite"
+},
+"calls": {
+"jev": 0,
+"luna": 0,
+"gemini": 2
+},
+"usd": 0.00037,
+"seconds": {
+"jev": 0,
+"luna": 0,
+"gemini": 2.212
+},
+"missing": 0
+},
+"ref_rc": {
+"pA": 0.385,
+"detail": {
+"kind": "answer",
+"a": 0.45,
+"b": 0.68
+},
+"calls": {
+"jev": 2,
+"luna": 1,
+"gemini": 0
+},
+"usd": 0.000202,
+"seconds": {
+"jev": 1.834,
+"luna": 5.443,
+"gemini": 0
+},
+"missing": 0
+},
+"chk": {
+"pA": 0.475,
+"detail": {
+"boxes": 4
+},
+"calls": {
+"jev": 2,
+"luna": 1,
+"gemini": 0
+},
+"usd": 0.000333,
+"seconds": {
+"jev": 0.889,
+"luna": 8.072,
+"gemini": 0
 },
 "missing": 0
 }
@@ -26895,6 +31755,66 @@
 "luna": 8.418
 },
 "missing": 0
+},
+"gem": {
+"pA": 0.5,
+"detail": {
+"games": [
+"A",
+"B"
+],
+"model": "gemini-3.5-flash-lite"
+},
+"calls": {
+"jev": 0,
+"luna": 0,
+"gemini": 2
+},
+"usd": 0.000778,
+"seconds": {
+"jev": 0,
+"luna": 0,
+"gemini": 7.285
+},
+"missing": 0
+},
+"ref_rc": {
+"pA": 0.445,
+"detail": {
+"kind": "open",
+"a": 0.17,
+"b": 0.28
+},
+"calls": {
+"jev": 2,
+"luna": 1,
+"gemini": 0
+},
+"usd": 0.000556,
+"seconds": {
+"jev": 1.623,
+"luna": 14.935,
+"gemini": 0
+},
+"missing": 0
+},
+"chk": {
+"pA": 0.464,
+"detail": {
+"boxes": 5
+},
+"calls": {
+"jev": 2,
+"luna": 1,
+"gemini": 0
+},
+"usd": 0.000355,
+"seconds": {
+"jev": 1.241,
+"luna": 8.786,
+"gemini": 0
+},
+"missing": 0
 }
 },
 "883785df-990c-51ce-894a-c9f5f2952750": {
@@ -27167,6 +32087,66 @@
 "seconds": {
 "jev": 0,
 "luna": 21.461
+},
+"missing": 0
+},
+"gem": {
+"pA": 0.0,
+"detail": {
+"games": [
+"B",
+"B"
+],
+"model": "gemini-3.5-flash-lite"
+},
+"calls": {
+"jev": 0,
+"luna": 0,
+"gemini": 2
+},
+"usd": 0.000319,
+"seconds": {
+"jev": 0,
+"luna": 0,
+"gemini": 1.908
+},
+"missing": 0
+},
+"ref_rc": {
+"pA": 0.52,
+"detail": {
+"kind": "open",
+"a": 0.22,
+"b": 0.18
+},
+"calls": {
+"jev": 2,
+"luna": 1,
+"gemini": 0
+},
+"usd": 0.000204,
+"seconds": {
+"jev": 3.852,
+"luna": 4.707,
+"gemini": 0
+},
+"missing": 0
+},
+"chk": {
+"pA": 0.495,
+"detail": {
+"boxes": 4
+},
+"calls": {
+"jev": 2,
+"luna": 1,
+"gemini": 0
+},
+"usd": 0.000277,
+"seconds": {
+"jev": 0.878,
+"luna": 5.641,
+"gemini": 0
 },
 "missing": 0
 }
@@ -27443,6 +32423,66 @@
 "luna": 4.129
 },
 "missing": 0
+},
+"gem": {
+"pA": null,
+"detail": {
+"games": [
+"A",
+null
+],
+"model": "gemini-3.5-flash-lite"
+},
+"calls": {
+"jev": 0,
+"luna": 0,
+"gemini": 2
+},
+"usd": 0.000575,
+"seconds": {
+"jev": 0,
+"luna": 0,
+"gemini": 4.19
+},
+"missing": 0
+},
+"ref_rc": {
+"pA": 0.95,
+"detail": {
+"kind": "answer",
+"a": 1,
+"b": 0.1
+},
+"calls": {
+"jev": 2,
+"luna": 1,
+"gemini": 0
+},
+"usd": 0.00014,
+"seconds": {
+"jev": 4.022,
+"luna": 3.693,
+"gemini": 0
+},
+"missing": 0
+},
+"chk": {
+"pA": 0.735,
+"detail": {
+"boxes": 2
+},
+"calls": {
+"jev": 2,
+"luna": 1,
+"gemini": 0
+},
+"usd": 0.000247,
+"seconds": {
+"jev": 0.951,
+"luna": 6.059,
+"gemini": 0
+},
+"missing": 0
 }
 },
 "ebe368cb-5783-5f03-8471-e31295bc4438": {
@@ -27715,6 +32755,66 @@
 "seconds": {
 "jev": 0,
 "luna": 15.561
+},
+"missing": 0
+},
+"gem": {
+"pA": 0.5,
+"detail": {
+"games": [
+"A",
+"B"
+],
+"model": "gemini-3.5-flash-lite"
+},
+"calls": {
+"jev": 0,
+"luna": 0,
+"gemini": 2
+},
+"usd": 0.000168,
+"seconds": {
+"jev": 0,
+"luna": 0,
+"gemini": 2.119
+},
+"missing": 0
+},
+"ref_rc": {
+"pA": 0.865,
+"detail": {
+"kind": "answer",
+"a": 0.78,
+"b": 0.05
+},
+"calls": {
+"jev": 2,
+"luna": 1,
+"gemini": 0
+},
+"usd": 0.000126,
+"seconds": {
+"jev": 2.268,
+"luna": 3.986,
+"gemini": 0
+},
+"missing": 0
+},
+"chk": {
+"pA": 0.89,
+"detail": {
+"boxes": 4
+},
+"calls": {
+"jev": 2,
+"luna": 1,
+"gemini": 0
+},
+"usd": 0.000346,
+"seconds": {
+"jev": 0.965,
+"luna": 8.392,
+"gemini": 0
 },
 "missing": 0
 }
@@ -27991,6 +33091,66 @@
 "luna": 3.413
 },
 "missing": 0
+},
+"gem": {
+"pA": 0.0,
+"detail": {
+"games": [
+"B",
+"B"
+],
+"model": "gemini-3.5-flash-lite"
+},
+"calls": {
+"jev": 0,
+"luna": 0,
+"gemini": 2
+},
+"usd": 0.000245,
+"seconds": {
+"jev": 0,
+"luna": 0,
+"gemini": 2.901
+},
+"missing": 0
+},
+"ref_rc": {
+"pA": 0.335,
+"detail": {
+"kind": "answer",
+"a": 0.65,
+"b": 0.98
+},
+"calls": {
+"jev": 2,
+"luna": 1,
+"gemini": 0
+},
+"usd": 7.9e-05,
+"seconds": {
+"jev": 2.434,
+"luna": 2.271,
+"gemini": 0
+},
+"missing": 0
+},
+"chk": {
+"pA": 0.1975,
+"detail": {
+"boxes": 4
+},
+"calls": {
+"jev": 2,
+"luna": 1,
+"gemini": 0
+},
+"usd": 0.000189,
+"seconds": {
+"jev": 1.033,
+"luna": 11.901,
+"gemini": 0
+},
+"missing": 0
 }
 },
 "49707e65-4a66-56ed-9175-8ad3cba09f5d": {
@@ -28263,6 +33423,66 @@
 "seconds": {
 "jev": 0,
 "luna": 49.585
+},
+"missing": 0
+},
+"gem": {
+"pA": 0.5,
+"detail": {
+"games": [
+"B",
+"A"
+],
+"model": "gemini-3.5-flash-lite"
+},
+"calls": {
+"jev": 0,
+"luna": 0,
+"gemini": 2
+},
+"usd": 0.000777,
+"seconds": {
+"jev": 0,
+"luna": 0,
+"gemini": 6.582
+},
+"missing": 0
+},
+"ref_rc": {
+"pA": 0.010000000000000009,
+"detail": {
+"kind": "answer",
+"a": 0.01,
+"b": 0.99
+},
+"calls": {
+"jev": 2,
+"luna": 1,
+"gemini": 0
+},
+"usd": 0.000901,
+"seconds": {
+"jev": 3.938,
+"luna": 24.431,
+"gemini": 0
+},
+"missing": 0
+},
+"chk": {
+"pA": 0.438125,
+"detail": {
+"boxes": 4
+},
+"calls": {
+"jev": 2,
+"luna": 1,
+"gemini": 0
+},
+"usd": 0.000515,
+"seconds": {
+"jev": 1.086,
+"luna": 12.947,
+"gemini": 0
 },
 "missing": 0
 }
@@ -28539,6 +33759,66 @@
 "luna": 14.149
 },
 "missing": 0
+},
+"gem": {
+"pA": 1.0,
+"detail": {
+"games": [
+"A",
+"A"
+],
+"model": "gemini-3.5-flash-lite"
+},
+"calls": {
+"jev": 0,
+"luna": 0,
+"gemini": 2
+},
+"usd": 0.00028,
+"seconds": {
+"jev": 0,
+"luna": 0,
+"gemini": 2.412
+},
+"missing": 0
+},
+"ref_rc": {
+"pA": 0.8500000000000001,
+"detail": {
+"kind": "open",
+"a": 0.93,
+"b": 0.23
+},
+"calls": {
+"jev": 2,
+"luna": 1,
+"gemini": 0
+},
+"usd": 0.000322,
+"seconds": {
+"jev": 2.142,
+"luna": 7.724,
+"gemini": 0
+},
+"missing": 0
+},
+"chk": {
+"pA": 0.5875,
+"detail": {
+"boxes": 4
+},
+"calls": {
+"jev": 2,
+"luna": 1,
+"gemini": 0
+},
+"usd": 0.000365,
+"seconds": {
+"jev": 1.003,
+"luna": 7.808,
+"gemini": 0
+},
+"missing": 0
 }
 },
 "5e29323a-13d7-5bb1-814b-1b38db3dfc50": {
@@ -28811,6 +34091,66 @@
 "seconds": {
 "jev": 0,
 "luna": 4.845
+},
+"missing": 0
+},
+"gem": {
+"pA": 0.0,
+"detail": {
+"games": [
+"B",
+"B"
+],
+"model": "gemini-3.5-flash-lite"
+},
+"calls": {
+"jev": 0,
+"luna": 0,
+"gemini": 2
+},
+"usd": 0.000253,
+"seconds": {
+"jev": 0,
+"luna": 0,
+"gemini": 2.602
+},
+"missing": 0
+},
+"ref_rc": {
+"pA": 0.025000000000000022,
+"detail": {
+"kind": "answer",
+"a": 0.04,
+"b": 0.99
+},
+"calls": {
+"jev": 2,
+"luna": 1,
+"gemini": 0
+},
+"usd": 9.8e-05,
+"seconds": {
+"jev": 4.273,
+"luna": 2.882,
+"gemini": 0
+},
+"missing": 0
+},
+"chk": {
+"pA": 0.278125,
+"detail": {
+"boxes": 4
+},
+"calls": {
+"jev": 2,
+"luna": 1,
+"gemini": 0
+},
+"usd": 0.000209,
+"seconds": {
+"jev": 0.976,
+"luna": 5.731,
+"gemini": 0
 },
 "missing": 0
 }
@@ -29087,6 +34427,66 @@
 "luna": 5.587
 },
 "missing": 0
+},
+"gem": {
+"pA": 0.5,
+"detail": {
+"games": [
+"A",
+"B"
+],
+"model": "gemini-3.5-flash-lite"
+},
+"calls": {
+"jev": 0,
+"luna": 0,
+"gemini": 2
+},
+"usd": 0.000387,
+"seconds": {
+"jev": 0,
+"luna": 0,
+"gemini": 2.452
+},
+"missing": 0
+},
+"ref_rc": {
+"pA": 0.04500000000000004,
+"detail": {
+"kind": "answer",
+"a": 0.05,
+"b": 0.96
+},
+"calls": {
+"jev": 2,
+"luna": 1,
+"gemini": 0
+},
+"usd": 0.000132,
+"seconds": {
+"jev": 1.726,
+"luna": 3.69,
+"gemini": 0
+},
+"missing": 0
+},
+"chk": {
+"pA": 0.16625,
+"detail": {
+"boxes": 4
+},
+"calls": {
+"jev": 2,
+"luna": 1,
+"gemini": 0
+},
+"usd": 0.000276,
+"seconds": {
+"jev": 0.985,
+"luna": 7.221,
+"gemini": 0
+},
+"missing": 0
 }
 },
 "8332d38f-a65f-5f08-b803-934e334531ba": {
@@ -29359,6 +34759,66 @@
 "seconds": {
 "jev": 0,
 "luna": 24.952
+},
+"missing": 0
+},
+"gem": {
+"pA": 0.5,
+"detail": {
+"games": [
+"A",
+"B"
+],
+"model": "gemini-3.5-flash-lite"
+},
+"calls": {
+"jev": 0,
+"luna": 0,
+"gemini": 2
+},
+"usd": 0.000387,
+"seconds": {
+"jev": 0,
+"luna": 0,
+"gemini": 2.699
+},
+"missing": 0
+},
+"ref_rc": {
+"pA": 0.98,
+"detail": {
+"kind": "answer",
+"a": 0.99,
+"b": 0.03
+},
+"calls": {
+"jev": 2,
+"luna": 1,
+"gemini": 0
+},
+"usd": 0.000376,
+"seconds": {
+"jev": 4.962,
+"luna": 8.816,
+"gemini": 0
+},
+"missing": 0
+},
+"chk": {
+"pA": 0.641875,
+"detail": {
+"boxes": 4
+},
+"calls": {
+"jev": 2,
+"luna": 1,
+"gemini": 0
+},
+"usd": 0.000468,
+"seconds": {
+"jev": 1.196,
+"luna": 10.297,
+"gemini": 0
 },
 "missing": 0
 }
@@ -29635,6 +35095,66 @@
 "luna": 4.589
 },
 "missing": 0
+},
+"gem": {
+"pA": 0.0,
+"detail": {
+"games": [
+"B",
+"B"
+],
+"model": "gemini-3.5-flash-lite"
+},
+"calls": {
+"jev": 0,
+"luna": 0,
+"gemini": 2
+},
+"usd": 0.00016,
+"seconds": {
+"jev": 0,
+"luna": 0,
+"gemini": 2.203
+},
+"missing": 0
+},
+"ref_rc": {
+"pA": 0.12,
+"detail": {
+"kind": "answer",
+"a": 0.19,
+"b": 0.95
+},
+"calls": {
+"jev": 2,
+"luna": 1,
+"gemini": 0
+},
+"usd": 0.00011,
+"seconds": {
+"jev": 2.534,
+"luna": 3.403,
+"gemini": 0
+},
+"missing": 0
+},
+"chk": {
+"pA": 0.04375000000000001,
+"detail": {
+"boxes": 4
+},
+"calls": {
+"jev": 2,
+"luna": 1,
+"gemini": 0
+},
+"usd": 0.000237,
+"seconds": {
+"jev": 0.946,
+"luna": 6.009,
+"gemini": 0
+},
+"missing": 0
 }
 },
 "766bdf22-3677-53bf-9c46-4fb984430682": {
@@ -29907,6 +35427,66 @@
 "seconds": {
 "jev": 0,
 "luna": 3.557
+},
+"missing": 0
+},
+"gem": {
+"pA": 0.5,
+"detail": {
+"games": [
+"A",
+"B"
+],
+"model": "gemini-3.5-flash-lite"
+},
+"calls": {
+"jev": 0,
+"luna": 0,
+"gemini": 2
+},
+"usd": 0.000244,
+"seconds": {
+"jev": 0,
+"luna": 0,
+"gemini": 3.016
+},
+"missing": 0
+},
+"ref_rc": {
+"pA": 0.885,
+"detail": {
+"kind": "answer",
+"a": 0.97,
+"b": 0.2
+},
+"calls": {
+"jev": 2,
+"luna": 1,
+"gemini": 0
+},
+"usd": 0.000101,
+"seconds": {
+"jev": 2.708,
+"luna": 2.776,
+"gemini": 0
+},
+"missing": 0
+},
+"chk": {
+"pA": 0.6895,
+"detail": {
+"boxes": 5
+},
+"calls": {
+"jev": 2,
+"luna": 1,
+"gemini": 0
+},
+"usd": 0.000227,
+"seconds": {
+"jev": 1.012,
+"luna": 5.175,
+"gemini": 0
 },
 "missing": 0
 }
@@ -30183,6 +35763,66 @@
 "luna": 6.015
 },
 "missing": 0
+},
+"gem": {
+"pA": 1.0,
+"detail": {
+"games": [
+"A",
+"A"
+],
+"model": "gemini-3.5-flash-lite"
+},
+"calls": {
+"jev": 0,
+"luna": 0,
+"gemini": 2
+},
+"usd": 0.000354,
+"seconds": {
+"jev": 0,
+"luna": 0,
+"gemini": 1.948
+},
+"missing": 0
+},
+"ref_rc": {
+"pA": 0.26999999999999996,
+"detail": {
+"kind": "answer",
+"a": 0.21,
+"b": 0.67
+},
+"calls": {
+"jev": 2,
+"luna": 1,
+"gemini": 0
+},
+"usd": 0.000133,
+"seconds": {
+"jev": 0.913,
+"luna": 3.297,
+"gemini": 0
+},
+"missing": 0
+},
+"chk": {
+"pA": 0.50375,
+"detail": {
+"boxes": 4
+},
+"calls": {
+"jev": 2,
+"luna": 1,
+"gemini": 0
+},
+"usd": 0.000297,
+"seconds": {
+"jev": 0.971,
+"luna": 7.276,
+"gemini": 0
+},
+"missing": 0
 }
 },
 "000ad3d2-6b2a-5bee-baf2-fdf780b4e068": {
@@ -30455,6 +36095,66 @@
 "seconds": {
 "jev": 0,
 "luna": 3.7
+},
+"missing": 0
+},
+"gem": {
+"pA": 0.0,
+"detail": {
+"games": [
+"B",
+"B"
+],
+"model": "gemini-3.5-flash-lite"
+},
+"calls": {
+"jev": 0,
+"luna": 0,
+"gemini": 2
+},
+"usd": 0.000571,
+"seconds": {
+"jev": 0,
+"luna": 0,
+"gemini": 1.869
+},
+"missing": 0
+},
+"ref_rc": {
+"pA": 0.08999999999999997,
+"detail": {
+"kind": "answer",
+"a": 0.06,
+"b": 0.88
+},
+"calls": {
+"jev": 2,
+"luna": 1,
+"gemini": 0
+},
+"usd": 0.000219,
+"seconds": {
+"jev": 0.932,
+"luna": 4.79,
+"gemini": 0
+},
+"missing": 0
+},
+"chk": {
+"pA": 0.06562500000000004,
+"detail": {
+"boxes": 4
+},
+"calls": {
+"jev": 2,
+"luna": 1,
+"gemini": 0
+},
+"usd": 0.000322,
+"seconds": {
+"jev": 0.971,
+"luna": 7.332,
+"gemini": 0
 },
 "missing": 0
 }
@@ -30731,6 +36431,66 @@
 "luna": 14.325
 },
 "missing": 0
+},
+"gem": {
+"pA": 1.0,
+"detail": {
+"games": [
+"A",
+"A"
+],
+"model": "gemini-3.5-flash-lite"
+},
+"calls": {
+"jev": 0,
+"luna": 0,
+"gemini": 2
+},
+"usd": 0.000399,
+"seconds": {
+"jev": 0,
+"luna": 0,
+"gemini": 2.234
+},
+"missing": 0
+},
+"ref_rc": {
+"pA": 0.965,
+"detail": {
+"kind": "answer",
+"a": 0.97,
+"b": 0.04
+},
+"calls": {
+"jev": 2,
+"luna": 1,
+"gemini": 0
+},
+"usd": 0.000648,
+"seconds": {
+"jev": 3.381,
+"luna": 15.87,
+"gemini": 0
+},
+"missing": 0
+},
+"chk": {
+"pA": 0.808125,
+"detail": {
+"boxes": 4
+},
+"calls": {
+"jev": 2,
+"luna": 1,
+"gemini": 0
+},
+"usd": 0.000313,
+"seconds": {
+"jev": 0.883,
+"luna": 7.535,
+"gemini": 0
+},
+"missing": 0
 }
 },
 "83adf077-567f-5ce2-91e7-bf02decdaa21": {
@@ -31003,6 +36763,66 @@
 "seconds": {
 "jev": 0,
 "luna": 13.045
+},
+"missing": 0
+},
+"gem": {
+"pA": 1.0,
+"detail": {
+"games": [
+"A",
+"A"
+],
+"model": "gemini-3.5-flash-lite"
+},
+"calls": {
+"jev": 0,
+"luna": 0,
+"gemini": 2
+},
+"usd": 0.000552,
+"seconds": {
+"jev": 0,
+"luna": 0,
+"gemini": 2.425
+},
+"missing": 0
+},
+"ref_rc": {
+"pA": 0.08499999999999996,
+"detail": {
+"kind": "answer",
+"a": 0.09,
+"b": 0.92
+},
+"calls": {
+"jev": 2,
+"luna": 1,
+"gemini": 0
+},
+"usd": 0.000271,
+"seconds": {
+"jev": 1.894,
+"luna": 5.806,
+"gemini": 0
+},
+"missing": 0
+},
+"chk": {
+"pA": 0.30400000000000005,
+"detail": {
+"boxes": 5
+},
+"calls": {
+"jev": 2,
+"luna": 1,
+"gemini": 0
+},
+"usd": 0.00038,
+"seconds": {
+"jev": 0.94,
+"luna": 8.096,
+"gemini": 0
 },
 "missing": 0
 }
@@ -31279,6 +37099,66 @@
 "luna": 8.809
 },
 "missing": 0
+},
+"gem": {
+"pA": 0.0,
+"detail": {
+"games": [
+"B",
+"B"
+],
+"model": "gemini-3.5-flash-lite"
+},
+"calls": {
+"jev": 0,
+"luna": 0,
+"gemini": 2
+},
+"usd": 0.000568,
+"seconds": {
+"jev": 0,
+"luna": 0,
+"gemini": 2.527
+},
+"missing": 0
+},
+"ref_rc": {
+"pA": 0.135,
+"detail": {
+"kind": "answer",
+"a": 0.24,
+"b": 0.97
+},
+"calls": {
+"jev": 2,
+"luna": 1,
+"gemini": 0
+},
+"usd": 0.000166,
+"seconds": {
+"jev": 2.815,
+"luna": 3.75,
+"gemini": 0
+},
+"missing": 0
+},
+"chk": {
+"pA": 0.15375000000000005,
+"detail": {
+"boxes": 4
+},
+"calls": {
+"jev": 2,
+"luna": 1,
+"gemini": 0
+},
+"usd": 0.00034,
+"seconds": {
+"jev": 1.42,
+"luna": 8.209,
+"gemini": 0
+},
+"missing": 0
 }
 },
 "50e6565c-07f5-57d6-80d8-028498a1251b": {
@@ -31551,6 +37431,66 @@
 "seconds": {
 "jev": 0,
 "luna": 6.841
+},
+"missing": 0
+},
+"gem": {
+"pA": 0.0,
+"detail": {
+"games": [
+"B",
+"B"
+],
+"model": "gemini-3.5-flash-lite"
+},
+"calls": {
+"jev": 0,
+"luna": 0,
+"gemini": 2
+},
+"usd": 0.000393,
+"seconds": {
+"jev": 0,
+"luna": 0,
+"gemini": 4.262
+},
+"missing": 0
+},
+"ref_rc": {
+"pA": 0.685,
+"detail": {
+"kind": "answer",
+"a": 0.97,
+"b": 0.6
+},
+"calls": {
+"jev": 2,
+"luna": 1,
+"gemini": 0
+},
+"usd": 0.000202,
+"seconds": {
+"jev": 3.947,
+"luna": 5.127,
+"gemini": 0
+},
+"missing": 0
+},
+"chk": {
+"pA": 0.855,
+"detail": {
+"boxes": 4
+},
+"calls": {
+"jev": 2,
+"luna": 1,
+"gemini": 0
+},
+"usd": 0.000266,
+"seconds": {
+"jev": 1.021,
+"luna": 6.103,
+"gemini": 0
 },
 "missing": 0
 }
@@ -31827,6 +37767,66 @@
 "luna": 20.799
 },
 "missing": 0
+},
+"gem": {
+"pA": 0.5,
+"detail": {
+"games": [
+"B",
+"A"
+],
+"model": "gemini-3.5-flash-lite"
+},
+"calls": {
+"jev": 0,
+"luna": 0,
+"gemini": 2
+},
+"usd": 0.000526,
+"seconds": {
+"jev": 0,
+"luna": 0,
+"gemini": 3.951
+},
+"missing": 0
+},
+"ref_rc": {
+"pA": 0.485,
+"detail": {
+"kind": "answer",
+"a": 0.95,
+"b": 0.98
+},
+"calls": {
+"jev": 2,
+"luna": 1,
+"gemini": 0
+},
+"usd": 0.000331,
+"seconds": {
+"jev": 1.915,
+"luna": 8.157,
+"gemini": 0
+},
+"missing": 0
+},
+"chk": {
+"pA": 0.495625,
+"detail": {
+"boxes": 4
+},
+"calls": {
+"jev": 2,
+"luna": 1,
+"gemini": 0
+},
+"usd": 0.000396,
+"seconds": {
+"jev": 0.942,
+"luna": 9.01,
+"gemini": 0
+},
+"missing": 0
 }
 },
 "b93ffd05-7ed5-51be-9e67-f85416d20872": {
@@ -32099,6 +38099,66 @@
 "seconds": {
 "jev": 0,
 "luna": 3.492
+},
+"missing": 0
+},
+"gem": {
+"pA": 1.0,
+"detail": {
+"games": [
+"A",
+"A"
+],
+"model": "gemini-3.5-flash-lite"
+},
+"calls": {
+"jev": 0,
+"luna": 0,
+"gemini": 2
+},
+"usd": 0.000371,
+"seconds": {
+"jev": 0,
+"luna": 0,
+"gemini": 2.238
+},
+"missing": 0
+},
+"ref_rc": {
+"pA": 0.85,
+"detail": {
+"kind": "answer",
+"a": 0.98,
+"b": 0.28
+},
+"calls": {
+"jev": 2,
+"luna": 1,
+"gemini": 0
+},
+"usd": 9.3e-05,
+"seconds": {
+"jev": 2.374,
+"luna": 2.427,
+"gemini": 0
+},
+"missing": 0
+},
+"chk": {
+"pA": 0.975,
+"detail": {
+"boxes": 4
+},
+"calls": {
+"jev": 2,
+"luna": 1,
+"gemini": 0
+},
+"usd": 0.000296,
+"seconds": {
+"jev": 1.015,
+"luna": 7.03,
+"gemini": 0
 },
 "missing": 0
 }
@@ -32375,6 +38435,66 @@
 "luna": 5.218
 },
 "missing": 0
+},
+"gem": {
+"pA": 0.0,
+"detail": {
+"games": [
+"B",
+"B"
+],
+"model": "gemini-3.5-flash-lite"
+},
+"calls": {
+"jev": 0,
+"luna": 0,
+"gemini": 2
+},
+"usd": 0.000307,
+"seconds": {
+"jev": 0,
+"luna": 0,
+"gemini": 1.846
+},
+"missing": 0
+},
+"ref_rc": {
+"pA": 0.015000000000000013,
+"detail": {
+"kind": "answer",
+"a": 0.01,
+"b": 0.98
+},
+"calls": {
+"jev": 2,
+"luna": 1,
+"gemini": 0
+},
+"usd": 0.000166,
+"seconds": {
+"jev": 1.54,
+"luna": 4.078,
+"gemini": 0
+},
+"missing": 0
+},
+"chk": {
+"pA": 0.15125,
+"detail": {
+"boxes": 4
+},
+"calls": {
+"jev": 2,
+"luna": 1,
+"gemini": 0
+},
+"usd": 0.000277,
+"seconds": {
+"jev": 1.011,
+"luna": 5.892,
+"gemini": 0
+},
+"missing": 0
 }
 },
 "a7293376-222f-517a-b998-0ec8994cc227": {
@@ -32647,6 +38767,66 @@
 "seconds": {
 "jev": 0,
 "luna": 5.117
+},
+"missing": 0
+},
+"gem": {
+"pA": 0.0,
+"detail": {
+"games": [
+"B",
+"B"
+],
+"model": "gemini-3.5-flash-lite"
+},
+"calls": {
+"jev": 0,
+"luna": 0,
+"gemini": 2
+},
+"usd": 0.000305,
+"seconds": {
+"jev": 0,
+"luna": 0,
+"gemini": 2.655
+},
+"missing": 0
+},
+"ref_rc": {
+"pA": 0.015000000000000013,
+"detail": {
+"kind": "answer",
+"a": 0.02,
+"b": 0.99
+},
+"calls": {
+"jev": 2,
+"luna": 1,
+"gemini": 0
+},
+"usd": 0.000194,
+"seconds": {
+"jev": 1.971,
+"luna": 5.361,
+"gemini": 0
+},
+"missing": 0
+},
+"chk": {
+"pA": 0.255,
+"detail": {
+"boxes": 4
+},
+"calls": {
+"jev": 2,
+"luna": 1,
+"gemini": 0
+},
+"usd": 0.000434,
+"seconds": {
+"jev": 0.921,
+"luna": 10.816,
+"gemini": 0
 },
 "missing": 0
 }
@@ -32923,6 +39103,66 @@
 "luna": 27.426
 },
 "missing": 0
+},
+"gem": {
+"pA": 0.5,
+"detail": {
+"games": [
+"B",
+"A"
+],
+"model": "gemini-3.5-flash-lite"
+},
+"calls": {
+"jev": 0,
+"luna": 0,
+"gemini": 2
+},
+"usd": 0.0004,
+"seconds": {
+"jev": 0,
+"luna": 0,
+"gemini": 2.69
+},
+"missing": 0
+},
+"ref_rc": {
+"pA": 0.98,
+"detail": {
+"kind": "answer",
+"a": 0.98,
+"b": 0.02
+},
+"calls": {
+"jev": 2,
+"luna": 1,
+"gemini": 0
+},
+"usd": 0.000487,
+"seconds": {
+"jev": 1.403,
+"luna": 14.223,
+"gemini": 0
+},
+"missing": 0
+},
+"chk": {
+"pA": 0.983125,
+"detail": {
+"boxes": 4
+},
+"calls": {
+"jev": 2,
+"luna": 1,
+"gemini": 0
+},
+"usd": 0.000561,
+"seconds": {
+"jev": 0.957,
+"luna": 13.248,
+"gemini": 0
+},
+"missing": 0
 }
 },
 "bafda18b-4eaf-5e6a-a895-22ca57fedc2d": {
@@ -33195,6 +39435,66 @@
 "seconds": {
 "jev": 0,
 "luna": 5.819
+},
+"missing": 0
+},
+"gem": {
+"pA": 1.0,
+"detail": {
+"games": [
+"A",
+"A"
+],
+"model": "gemini-3.5-flash-lite"
+},
+"calls": {
+"jev": 0,
+"luna": 0,
+"gemini": 2
+},
+"usd": 0.000374,
+"seconds": {
+"jev": 0,
+"luna": 0,
+"gemini": 3.432
+},
+"missing": 0
+},
+"ref_rc": {
+"pA": 0.99,
+"detail": {
+"kind": "answer",
+"a": 0.99,
+"b": 0.01
+},
+"calls": {
+"jev": 2,
+"luna": 1,
+"gemini": 0
+},
+"usd": 0.000366,
+"seconds": {
+"jev": 2.507,
+"luna": 9.503,
+"gemini": 0
+},
+"missing": 0
+},
+"chk": {
+"pA": 0.905,
+"detail": {
+"boxes": 4
+},
+"calls": {
+"jev": 2,
+"luna": 1,
+"gemini": 0
+},
+"usd": 0.000395,
+"seconds": {
+"jev": 0.926,
+"luna": 10.777,
+"gemini": 0
 },
 "missing": 0
 }
@@ -33471,6 +39771,66 @@
 "luna": 7.978
 },
 "missing": 0
+},
+"gem": {
+"pA": 0.0,
+"detail": {
+"games": [
+"B",
+"B"
+],
+"model": "gemini-3.5-flash-lite"
+},
+"calls": {
+"jev": 0,
+"luna": 0,
+"gemini": 2
+},
+"usd": 0.000404,
+"seconds": {
+"jev": 0,
+"luna": 0,
+"gemini": 2.595
+},
+"missing": 0
+},
+"ref_rc": {
+"pA": 0.175,
+"detail": {
+"kind": "answer",
+"a": 0.03,
+"b": 0.68
+},
+"calls": {
+"jev": 2,
+"luna": 1,
+"gemini": 0
+},
+"usd": 0.000106,
+"seconds": {
+"jev": 4.37,
+"luna": 2.294,
+"gemini": 0
+},
+"missing": 0
+},
+"chk": {
+"pA": 0.15437500000000004,
+"detail": {
+"boxes": 4
+},
+"calls": {
+"jev": 2,
+"luna": 1,
+"gemini": 0
+},
+"usd": 0.000273,
+"seconds": {
+"jev": 0.923,
+"luna": 6.536,
+"gemini": 0
+},
+"missing": 0
 }
 },
 "57b3a50f-ce4b-5620-8f48-7196a0621301": {
@@ -33743,6 +40103,66 @@
 "seconds": {
 "jev": 0,
 "luna": 60.333
+},
+"missing": 0
+},
+"gem": {
+"pA": 0.5,
+"detail": {
+"games": [
+"B",
+"A"
+],
+"model": "gemini-3.5-flash-lite"
+},
+"calls": {
+"jev": 0,
+"luna": 0,
+"gemini": 2
+},
+"usd": 0.000426,
+"seconds": {
+"jev": 0,
+"luna": 0,
+"gemini": 5.231
+},
+"missing": 0
+},
+"ref_rc": {
+"pA": 0.59,
+"detail": {
+"kind": "open",
+"a": 0.34,
+"b": 0.16
+},
+"calls": {
+"jev": 2,
+"luna": 1,
+"gemini": 0
+},
+"usd": 0.00058,
+"seconds": {
+"jev": 1.812,
+"luna": 14.508,
+"gemini": 0
+},
+"missing": 0
+},
+"chk": {
+"pA": 0.67625,
+"detail": {
+"boxes": 4
+},
+"calls": {
+"jev": 2,
+"luna": 1,
+"gemini": 0
+},
+"usd": 0.00027,
+"seconds": {
+"jev": 1.018,
+"luna": 5.423,
+"gemini": 0
 },
 "missing": 0
 }
@@ -34019,6 +40439,66 @@
 "luna": 7.883
 },
 "missing": 0
+},
+"gem": {
+"pA": 1.0,
+"detail": {
+"games": [
+"A",
+"A"
+],
+"model": "gemini-3.5-flash-lite"
+},
+"calls": {
+"jev": 0,
+"luna": 0,
+"gemini": 2
+},
+"usd": 0.000215,
+"seconds": {
+"jev": 0,
+"luna": 0,
+"gemini": 2.442
+},
+"missing": 0
+},
+"ref_rc": {
+"pA": 0.935,
+"detail": {
+"kind": "answer",
+"a": 0.93,
+"b": 0.06
+},
+"calls": {
+"jev": 2,
+"luna": 1,
+"gemini": 0
+},
+"usd": 9.7e-05,
+"seconds": {
+"jev": 3.513,
+"luna": 2.589,
+"gemini": 0
+},
+"missing": 0
+},
+"chk": {
+"pA": 0.860625,
+"detail": {
+"boxes": 4
+},
+"calls": {
+"jev": 2,
+"luna": 1,
+"gemini": 0
+},
+"usd": 0.000272,
+"seconds": {
+"jev": 1.133,
+"luna": 6.295,
+"gemini": 0
+},
+"missing": 0
 }
 },
 "46a3d4d9-c5cf-5cb1-9fbb-86c314347f6f": {
@@ -34291,6 +40771,66 @@
 "seconds": {
 "jev": 0,
 "luna": 12.616
+},
+"missing": 0
+},
+"gem": {
+"pA": null,
+"detail": {
+"games": [
+"B",
+null
+],
+"model": "gemini-3.5-flash-lite"
+},
+"calls": {
+"jev": 0,
+"luna": 0,
+"gemini": 2
+},
+"usd": 0.000483,
+"seconds": {
+"jev": 0,
+"luna": 0,
+"gemini": 5.456
+},
+"missing": 0
+},
+"ref_rc": {
+"pA": 0.32999999999999996,
+"detail": {
+"kind": "open",
+"a": 0.47,
+"b": 0.81
+},
+"calls": {
+"jev": 2,
+"luna": 1,
+"gemini": 0
+},
+"usd": 0.000487,
+"seconds": {
+"jev": 2.329,
+"luna": 12.296,
+"gemini": 0
+},
+"missing": 0
+},
+"chk": {
+"pA": 0.3755,
+"detail": {
+"boxes": 5
+},
+"calls": {
+"jev": 2,
+"luna": 1,
+"gemini": 0
+},
+"usd": 0.000377,
+"seconds": {
+"jev": 0.953,
+"luna": 8.468,
+"gemini": 0
 },
 "missing": 0
 }
@@ -34567,6 +41107,66 @@
 "luna": 14.68
 },
 "missing": 0
+},
+"gem": {
+"pA": 1.0,
+"detail": {
+"games": [
+"A",
+"A"
+],
+"model": "gemini-3.5-flash-lite"
+},
+"calls": {
+"jev": 0,
+"luna": 0,
+"gemini": 2
+},
+"usd": 0.00041,
+"seconds": {
+"jev": 0,
+"luna": 0,
+"gemini": 2.654
+},
+"missing": 0
+},
+"ref_rc": {
+"pA": 0.015000000000000013,
+"detail": {
+"kind": "answer",
+"a": 0.02,
+"b": 0.99
+},
+"calls": {
+"jev": 2,
+"luna": 1,
+"gemini": 0
+},
+"usd": 0.000206,
+"seconds": {
+"jev": 2.885,
+"luna": 4.675,
+"gemini": 0
+},
+"missing": 0
+},
+"chk": {
+"pA": 0.14437499999999998,
+"detail": {
+"boxes": 4
+},
+"calls": {
+"jev": 2,
+"luna": 1,
+"gemini": 0
+},
+"usd": 0.000355,
+"seconds": {
+"jev": 0.958,
+"luna": 7.564,
+"gemini": 0
+},
+"missing": 0
 }
 },
 "26d7ab00-c73b-5b3e-8bc3-4a8f941fceb7": {
@@ -34839,6 +41439,66 @@
 "seconds": {
 "jev": 0,
 "luna": 3.563
+},
+"missing": 0
+},
+"gem": {
+"pA": 0.0,
+"detail": {
+"games": [
+"B",
+"B"
+],
+"model": "gemini-3.5-flash-lite"
+},
+"calls": {
+"jev": 0,
+"luna": 0,
+"gemini": 2
+},
+"usd": 0.000455,
+"seconds": {
+"jev": 0,
+"luna": 0,
+"gemini": 2.295
+},
+"missing": 0
+},
+"ref_rc": {
+"pA": 0.030000000000000027,
+"detail": {
+"kind": "answer",
+"a": 0.05,
+"b": 0.99
+},
+"calls": {
+"jev": 2,
+"luna": 1,
+"gemini": 0
+},
+"usd": 0.000121,
+"seconds": {
+"jev": 1.974,
+"luna": 3.242,
+"gemini": 0
+},
+"missing": 0
+},
+"chk": {
+"pA": 0.18124999999999997,
+"detail": {
+"boxes": 4
+},
+"calls": {
+"jev": 2,
+"luna": 1,
+"gemini": 0
+},
+"usd": 0.00029,
+"seconds": {
+"jev": 0.949,
+"luna": 6.47,
+"gemini": 0
 },
 "missing": 0
 }
@@ -35115,6 +41775,66 @@
 "luna": 14.096
 },
 "missing": 0
+},
+"gem": {
+"pA": 1.0,
+"detail": {
+"games": [
+"A",
+"A"
+],
+"model": "gemini-3.5-flash-lite"
+},
+"calls": {
+"jev": 0,
+"luna": 0,
+"gemini": 2
+},
+"usd": 0.000234,
+"seconds": {
+"jev": 0,
+"luna": 0,
+"gemini": 3.055
+},
+"missing": 0
+},
+"ref_rc": {
+"pA": 0.505,
+"detail": {
+"kind": "answer",
+"a": 0.04,
+"b": 0.03
+},
+"calls": {
+"jev": 2,
+"luna": 1,
+"gemini": 0
+},
+"usd": 0.000148,
+"seconds": {
+"jev": 2.136,
+"luna": 4.142,
+"gemini": 0
+},
+"missing": 0
+},
+"chk": {
+"pA": 0.526875,
+"detail": {
+"boxes": 4
+},
+"calls": {
+"jev": 2,
+"luna": 1,
+"gemini": 0
+},
+"usd": 0.00033,
+"seconds": {
+"jev": 1.015,
+"luna": 8.363,
+"gemini": 0
+},
+"missing": 0
 }
 },
 "e23cdc82-bbf1-5378-9404-d94c1e7ce2ef": {
@@ -35387,6 +42107,66 @@
 "seconds": {
 "jev": 0,
 "luna": 4.932
+},
+"missing": 0
+},
+"gem": {
+"pA": 0.0,
+"detail": {
+"games": [
+"B",
+"B"
+],
+"model": "gemini-3.5-flash-lite"
+},
+"calls": {
+"jev": 0,
+"luna": 0,
+"gemini": 2
+},
+"usd": 0.000465,
+"seconds": {
+"jev": 0,
+"luna": 0,
+"gemini": 2.389
+},
+"missing": 0
+},
+"ref_rc": {
+"pA": 0.030000000000000027,
+"detail": {
+"kind": "answer",
+"a": 0.04,
+"b": 0.98
+},
+"calls": {
+"jev": 2,
+"luna": 1,
+"gemini": 0
+},
+"usd": 0.000129,
+"seconds": {
+"jev": 4.025,
+"luna": 3.065,
+"gemini": 0
+},
+"missing": 0
+},
+"chk": {
+"pA": 0.16812499999999997,
+"detail": {
+"boxes": 4
+},
+"calls": {
+"jev": 2,
+"luna": 1,
+"gemini": 0
+},
+"usd": 0.000306,
+"seconds": {
+"jev": 0.923,
+"luna": 7.504,
+"gemini": 0
 },
 "missing": 0
 }
@@ -35663,6 +42443,66 @@
 "luna": 13.934
 },
 "missing": 0
+},
+"gem": {
+"pA": 0.0,
+"detail": {
+"games": [
+"B",
+"B"
+],
+"model": "gemini-3.5-flash-lite"
+},
+"calls": {
+"jev": 0,
+"luna": 0,
+"gemini": 2
+},
+"usd": 0.000258,
+"seconds": {
+"jev": 0,
+"luna": 0,
+"gemini": 2.509
+},
+"missing": 0
+},
+"ref_rc": {
+"pA": 0.55,
+"detail": {
+"kind": "open",
+"a": 0.19,
+"b": 0.09
+},
+"calls": {
+"jev": 2,
+"luna": 1,
+"gemini": 0
+},
+"usd": 0.000189,
+"seconds": {
+"jev": 1.788,
+"luna": 4.601,
+"gemini": 0
+},
+"missing": 0
+},
+"chk": {
+"pA": 0.48,
+"detail": {
+"boxes": 4
+},
+"calls": {
+"jev": 2,
+"luna": 1,
+"gemini": 0
+},
+"usd": 0.000184,
+"seconds": {
+"jev": 0.953,
+"luna": 4.736,
+"gemini": 0
+},
+"missing": 0
 }
 },
 "1d13565a-862e-591d-917e-47686c15db7c": {
@@ -35935,6 +42775,66 @@
 "seconds": {
 "jev": 0,
 "luna": 3.518
+},
+"missing": 0
+},
+"gem": {
+"pA": null,
+"detail": {
+"games": [
+null,
+null
+],
+"model": "gemini-3.5-flash-lite"
+},
+"calls": {
+"jev": 0,
+"luna": 0,
+"gemini": 2
+},
+"usd": 0.000577,
+"seconds": {
+"jev": 0,
+"luna": 0,
+"gemini": 3.497
+},
+"missing": 0
+},
+"ref_rc": {
+"pA": 0.29,
+"detail": {
+"kind": "answer",
+"a": 0.58,
+"b": 1
+},
+"calls": {
+"jev": 2,
+"luna": 1,
+"gemini": 0
+},
+"usd": 9.1e-05,
+"seconds": {
+"jev": 3.454,
+"luna": 2.542,
+"gemini": 0
+},
+"missing": 0
+},
+"chk": {
+"pA": 0.377,
+"detail": {
+"boxes": 5
+},
+"calls": {
+"jev": 2,
+"luna": 1,
+"gemini": 0
+},
+"usd": 0.000271,
+"seconds": {
+"jev": 1.017,
+"luna": 6.097,
+"gemini": 0
 },
 "missing": 0
 }
@@ -36211,6 +43111,66 @@
 "luna": 4.121
 },
 "missing": 0
+},
+"gem": {
+"pA": 0.0,
+"detail": {
+"games": [
+"B",
+"B"
+],
+"model": "gemini-3.5-flash-lite"
+},
+"calls": {
+"jev": 0,
+"luna": 0,
+"gemini": 2
+},
+"usd": 0.000369,
+"seconds": {
+"jev": 0,
+"luna": 0,
+"gemini": 2.275
+},
+"missing": 0
+},
+"ref_rc": {
+"pA": 0.24,
+"detail": {
+"kind": "open",
+"a": 0.35,
+"b": 0.87
+},
+"calls": {
+"jev": 2,
+"luna": 1,
+"gemini": 0
+},
+"usd": 0.00024,
+"seconds": {
+"jev": 3.344,
+"luna": 4.536,
+"gemini": 0
+},
+"missing": 0
+},
+"chk": {
+"pA": 0.37949999999999995,
+"detail": {
+"boxes": 5
+},
+"calls": {
+"jev": 2,
+"luna": 1,
+"gemini": 0
+},
+"usd": 0.000322,
+"seconds": {
+"jev": 0.93,
+"luna": 5.269,
+"gemini": 0
+},
+"missing": 0
 }
 },
 "77acd9dc-41c9-55cf-b1ff-a5fd5b20bfd8": {
@@ -36483,6 +43443,66 @@
 "seconds": {
 "jev": 0,
 "luna": 45.023
+},
+"missing": 0
+},
+"gem": {
+"pA": 1.0,
+"detail": {
+"games": [
+"A",
+"A"
+],
+"model": "gemini-3.5-flash-lite"
+},
+"calls": {
+"jev": 0,
+"luna": 0,
+"gemini": 2
+},
+"usd": 0.000219,
+"seconds": {
+"jev": 0,
+"luna": 0,
+"gemini": 2.381
+},
+"missing": 0
+},
+"ref_rc": {
+"pA": 0.020000000000000018,
+"detail": {
+"kind": "answer",
+"a": 0.03,
+"b": 0.99
+},
+"calls": {
+"jev": 2,
+"luna": 1,
+"gemini": 0
+},
+"usd": 0.00111,
+"seconds": {
+"jev": 2.737,
+"luna": 30.607,
+"gemini": 0
+},
+"missing": 0
+},
+"chk": {
+"pA": 0.52625,
+"detail": {
+"boxes": 4
+},
+"calls": {
+"jev": 2,
+"luna": 1,
+"gemini": 0
+},
+"usd": 0.000531,
+"seconds": {
+"jev": 0.885,
+"luna": 13.839,
+"gemini": 0
 },
 "missing": 0
 }
@@ -36759,6 +43779,66 @@
 "luna": 5.285
 },
 "missing": 0
+},
+"gem": {
+"pA": 1.0,
+"detail": {
+"games": [
+"A",
+"A"
+],
+"model": "gemini-3.5-flash-lite"
+},
+"calls": {
+"jev": 0,
+"luna": 0,
+"gemini": 2
+},
+"usd": 0.000552,
+"seconds": {
+"jev": 0,
+"luna": 0,
+"gemini": 2.301
+},
+"missing": 0
+},
+"ref_rc": {
+"pA": 0.965,
+"detail": {
+"kind": "answer",
+"a": 0.98,
+"b": 0.05
+},
+"calls": {
+"jev": 2,
+"luna": 1,
+"gemini": 0
+},
+"usd": 0.000725,
+"seconds": {
+"jev": 2.926,
+"luna": 16.917,
+"gemini": 0
+},
+"missing": 0
+},
+"chk": {
+"pA": 0.93625,
+"detail": {
+"boxes": 6
+},
+"calls": {
+"jev": 2,
+"luna": 1,
+"gemini": 0
+},
+"usd": 0.000597,
+"seconds": {
+"jev": 1.073,
+"luna": 12.109,
+"gemini": 0
+},
+"missing": 0
 }
 },
 "30756abc-c659-5660-9797-d952b638ea2c": {
@@ -37031,6 +44111,66 @@
 "seconds": {
 "jev": 0,
 "luna": 2.893
+},
+"missing": 0
+},
+"gem": {
+"pA": 0.5,
+"detail": {
+"games": [
+"A",
+"B"
+],
+"model": "gemini-3.5-flash-lite"
+},
+"calls": {
+"jev": 0,
+"luna": 0,
+"gemini": 2
+},
+"usd": 0.000357,
+"seconds": {
+"jev": 0,
+"luna": 0,
+"gemini": 2.824
+},
+"missing": 0
+},
+"ref_rc": {
+"pA": 0.495,
+"detail": {
+"kind": "answer",
+"a": 0.99,
+"b": 1
+},
+"calls": {
+"jev": 2,
+"luna": 1,
+"gemini": 0
+},
+"usd": 8.1e-05,
+"seconds": {
+"jev": 0.903,
+"luna": 2.21,
+"gemini": 0
+},
+"missing": 0
+},
+"chk": {
+"pA": 0.499375,
+"detail": {
+"boxes": 4
+},
+"calls": {
+"jev": 2,
+"luna": 1,
+"gemini": 0
+},
+"usd": 0.000176,
+"seconds": {
+"jev": 0.998,
+"luna": 3.963,
+"gemini": 0
 },
 "missing": 0
 }
@@ -37307,6 +44447,66 @@
 "luna": 23.378
 },
 "missing": 0
+},
+"gem": {
+"pA": null,
+"detail": {
+"games": [
+"B",
+null
+],
+"model": "gemini-3.5-flash-lite"
+},
+"calls": {
+"jev": 0,
+"luna": 0,
+"gemini": 2
+},
+"usd": 0.000689,
+"seconds": {
+"jev": 0,
+"luna": 0,
+"gemini": 6.36
+},
+"missing": 0
+},
+"ref_rc": {
+"pA": 0.5,
+"detail": {
+"kind": "answer",
+"a": 0.6,
+"b": 0.6
+},
+"calls": {
+"jev": 2,
+"luna": 1,
+"gemini": 0
+},
+"usd": 0.000217,
+"seconds": {
+"jev": 1.039,
+"luna": 5.713,
+"gemini": 0
+},
+"missing": 0
+},
+"chk": {
+"pA": 0.574375,
+"detail": {
+"boxes": 4
+},
+"calls": {
+"jev": 2,
+"luna": 1,
+"gemini": 0
+},
+"usd": 0.000267,
+"seconds": {
+"jev": 0.96,
+"luna": 6.599,
+"gemini": 0
+},
+"missing": 0
 }
 },
 "a13f48e6-1d51-5076-94bf-ff0303e4c198": {
@@ -37579,6 +44779,66 @@
 "seconds": {
 "jev": 0,
 "luna": 6.019
+},
+"missing": 0
+},
+"gem": {
+"pA": 1.0,
+"detail": {
+"games": [
+"A",
+"A"
+],
+"model": "gemini-3.5-flash-lite"
+},
+"calls": {
+"jev": 0,
+"luna": 0,
+"gemini": 2
+},
+"usd": 0.000327,
+"seconds": {
+"jev": 0,
+"luna": 0,
+"gemini": 2.599
+},
+"missing": 0
+},
+"ref_rc": {
+"pA": 0.94,
+"detail": {
+"kind": "answer",
+"a": 0.99,
+"b": 0.11
+},
+"calls": {
+"jev": 2,
+"luna": 1,
+"gemini": 0
+},
+"usd": 6.5e-05,
+"seconds": {
+"jev": 3.228,
+"luna": 1.527,
+"gemini": 0
+},
+"missing": 0
+},
+"chk": {
+"pA": 0.74875,
+"detail": {
+"boxes": 4
+},
+"calls": {
+"jev": 2,
+"luna": 1,
+"gemini": 0
+},
+"usd": 0.000186,
+"seconds": {
+"jev": 0.935,
+"luna": 4.105,
+"gemini": 0
 },
 "missing": 0
 }
@@ -37855,6 +45115,66 @@
 "luna": 8.12
 },
 "missing": 0
+},
+"gem": {
+"pA": 0.5,
+"detail": {
+"games": [
+"B",
+"A"
+],
+"model": "gemini-3.5-flash-lite"
+},
+"calls": {
+"jev": 0,
+"luna": 0,
+"gemini": 2
+},
+"usd": 0.000412,
+"seconds": {
+"jev": 0,
+"luna": 0,
+"gemini": 3.458
+},
+"missing": 0
+},
+"ref_rc": {
+"pA": 0.025000000000000022,
+"detail": {
+"kind": "answer",
+"a": 0.03,
+"b": 0.98
+},
+"calls": {
+"jev": 2,
+"luna": 1,
+"gemini": 0
+},
+"usd": 0.000111,
+"seconds": {
+"jev": 2.745,
+"luna": 3.372,
+"gemini": 0
+},
+"missing": 0
+},
+"chk": {
+"pA": 0.273125,
+"detail": {
+"boxes": 4
+},
+"calls": {
+"jev": 2,
+"luna": 1,
+"gemini": 0
+},
+"usd": 0.000344,
+"seconds": {
+"jev": 1.041,
+"luna": 9.301,
+"gemini": 0
+},
+"missing": 0
 }
 },
 "ad74d384-df3b-5255-ac08-b1947e40b97e": {
@@ -38127,6 +45447,66 @@
 "seconds": {
 "jev": 0,
 "luna": 56.909
+},
+"missing": 0
+},
+"gem": {
+"pA": 1.0,
+"detail": {
+"games": [
+"A",
+"A"
+],
+"model": "gemini-3.5-flash-lite"
+},
+"calls": {
+"jev": 0,
+"luna": 0,
+"gemini": 2
+},
+"usd": 0.000362,
+"seconds": {
+"jev": 0,
+"luna": 0,
+"gemini": 2.724
+},
+"missing": 0
+},
+"ref_rc": {
+"pA": 0.030000000000000027,
+"detail": {
+"kind": "answer",
+"a": 0.02,
+"b": 0.96
+},
+"calls": {
+"jev": 2,
+"luna": 1,
+"gemini": 0
+},
+"usd": 0.000788,
+"seconds": {
+"jev": 3.237,
+"luna": 22.38,
+"gemini": 0
+},
+"missing": 0
+},
+"chk": {
+"pA": 0.26,
+"detail": {
+"boxes": 4
+},
+"calls": {
+"jev": 2,
+"luna": 1,
+"gemini": 0
+},
+"usd": 0.000621,
+"seconds": {
+"jev": 1.01,
+"luna": 16.623,
+"gemini": 0
 },
 "missing": 0
 }
@@ -38403,6 +45783,66 @@
 "luna": 3.474
 },
 "missing": 0
+},
+"gem": {
+"pA": 1.0,
+"detail": {
+"games": [
+"A",
+"A"
+],
+"model": "gemini-3.5-flash-lite"
+},
+"calls": {
+"jev": 0,
+"luna": 0,
+"gemini": 2
+},
+"usd": 0.000415,
+"seconds": {
+"jev": 0,
+"luna": 0,
+"gemini": 2.759
+},
+"missing": 0
+},
+"ref_rc": {
+"pA": 0.9299999999999999,
+"detail": {
+"kind": "answer",
+"a": 0.99,
+"b": 0.13
+},
+"calls": {
+"jev": 2,
+"luna": 1,
+"gemini": 0
+},
+"usd": 0.000143,
+"seconds": {
+"jev": 5.674,
+"luna": 3.346,
+"gemini": 0
+},
+"missing": 0
+},
+"chk": {
+"pA": 0.88375,
+"detail": {
+"boxes": 2
+},
+"calls": {
+"jev": 2,
+"luna": 1,
+"gemini": 0
+},
+"usd": 0.000229,
+"seconds": {
+"jev": 0.976,
+"luna": 5.373,
+"gemini": 0
+},
+"missing": 0
 }
 },
 "37577e35-cf0b-5880-97a1-857736d76651": {
@@ -38675,6 +46115,66 @@
 "seconds": {
 "jev": 0,
 "luna": 21.852
+},
+"missing": 0
+},
+"gem": {
+"pA": 1.0,
+"detail": {
+"games": [
+"A",
+"A"
+],
+"model": "gemini-3.5-flash-lite"
+},
+"calls": {
+"jev": 0,
+"luna": 0,
+"gemini": 2
+},
+"usd": 0.000265,
+"seconds": {
+"jev": 0,
+"luna": 0,
+"gemini": 1.874
+},
+"missing": 0
+},
+"ref_rc": {
+"pA": 0.96,
+"detail": {
+"kind": "answer",
+"a": 0.98,
+"b": 0.06
+},
+"calls": {
+"jev": 2,
+"luna": 1,
+"gemini": 0
+},
+"usd": 0.00014,
+"seconds": {
+"jev": 3.71,
+"luna": 3.972,
+"gemini": 0
+},
+"missing": 0
+},
+"chk": {
+"pA": 0.628125,
+"detail": {
+"boxes": 4
+},
+"calls": {
+"jev": 2,
+"luna": 1,
+"gemini": 0
+},
+"usd": 0.0005,
+"seconds": {
+"jev": 0.977,
+"luna": 10.842,
+"gemini": 0
 },
 "missing": 0
 }
@@ -38951,6 +46451,66 @@
 "luna": 8.473
 },
 "missing": 0
+},
+"gem": {
+"pA": 1.0,
+"detail": {
+"games": [
+"A",
+"A"
+],
+"model": "gemini-3.5-flash-lite"
+},
+"calls": {
+"jev": 0,
+"luna": 0,
+"gemini": 2
+},
+"usd": 0.000239,
+"seconds": {
+"jev": 0,
+"luna": 0,
+"gemini": 2.605
+},
+"missing": 0
+},
+"ref_rc": {
+"pA": 0.71,
+"detail": {
+"kind": "open",
+"a": 0.45,
+"b": 0.03
+},
+"calls": {
+"jev": 2,
+"luna": 1,
+"gemini": 0
+},
+"usd": 0.000144,
+"seconds": {
+"jev": 0.912,
+"luna": 3.804,
+"gemini": 0
+},
+"missing": 0
+},
+"chk": {
+"pA": 0.59,
+"detail": {
+"boxes": 4
+},
+"calls": {
+"jev": 2,
+"luna": 1,
+"gemini": 0
+},
+"usd": 0.000233,
+"seconds": {
+"jev": 1.016,
+"luna": 5.278,
+"gemini": 0
+},
+"missing": 0
 }
 },
 "f1bcbe72-89fb-5ff2-bf3c-bf5383c4f4b6": {
@@ -39223,6 +46783,66 @@
 "seconds": {
 "jev": 0,
 "luna": 34.055
+},
+"missing": 0
+},
+"gem": {
+"pA": 0.5,
+"detail": {
+"games": [
+"B",
+"A"
+],
+"model": "gemini-3.5-flash-lite"
+},
+"calls": {
+"jev": 0,
+"luna": 0,
+"gemini": 2
+},
+"usd": 0.001176,
+"seconds": {
+"jev": 0,
+"luna": 0,
+"gemini": 9.129
+},
+"missing": 0
+},
+"ref_rc": {
+"pA": 0.015000000000000013,
+"detail": {
+"kind": "answer",
+"a": 0.01,
+"b": 0.98
+},
+"calls": {
+"jev": 2,
+"luna": 1,
+"gemini": 0
+},
+"usd": 0.001075,
+"seconds": {
+"jev": 2.417,
+"luna": 30.221,
+"gemini": 0
+},
+"missing": 0
+},
+"chk": {
+"pA": 0.5075000000000001,
+"detail": {
+"boxes": 4
+},
+"calls": {
+"jev": 2,
+"luna": 1,
+"gemini": 0
+},
+"usd": 0.000718,
+"seconds": {
+"jev": 1.088,
+"luna": 17.21,
+"gemini": 0
 },
 "missing": 0
 }
@@ -39499,6 +47119,66 @@
 "luna": 17.115
 },
 "missing": 0
+},
+"gem": {
+"pA": 1.0,
+"detail": {
+"games": [
+"A",
+"A"
+],
+"model": "gemini-3.5-flash-lite"
+},
+"calls": {
+"jev": 0,
+"luna": 0,
+"gemini": 2
+},
+"usd": 0.000781,
+"seconds": {
+"jev": 0,
+"luna": 0,
+"gemini": 5.248
+},
+"missing": 0
+},
+"ref_rc": {
+"pA": 0.985,
+"detail": {
+"kind": "answer",
+"a": 0.99,
+"b": 0.02
+},
+"calls": {
+"jev": 2,
+"luna": 1,
+"gemini": 0
+},
+"usd": 0.000568,
+"seconds": {
+"jev": 1.823,
+"luna": 14.283,
+"gemini": 0
+},
+"missing": 0
+},
+"chk": {
+"pA": 0.615625,
+"detail": {
+"boxes": 4
+},
+"calls": {
+"jev": 2,
+"luna": 1,
+"gemini": 0
+},
+"usd": 0.000387,
+"seconds": {
+"jev": 0.94,
+"luna": 8.79,
+"gemini": 0
+},
+"missing": 0
 }
 },
 "353ff46b-1b33-5152-ac0d-650b0f830fc3": {
@@ -39771,6 +47451,66 @@
 "seconds": {
 "jev": 0,
 "luna": 8.235
+},
+"missing": 0
+},
+"gem": {
+"pA": 0.5,
+"detail": {
+"games": [
+"A",
+"B"
+],
+"model": "gemini-3.5-flash-lite"
+},
+"calls": {
+"jev": 0,
+"luna": 0,
+"gemini": 2
+},
+"usd": 0.000406,
+"seconds": {
+"jev": 0,
+"luna": 0,
+"gemini": 2.335
+},
+"missing": 0
+},
+"ref_rc": {
+"pA": 0.99,
+"detail": {
+"kind": "answer",
+"a": 0.99,
+"b": 0.01
+},
+"calls": {
+"jev": 2,
+"luna": 1,
+"gemini": 0
+},
+"usd": 0.000264,
+"seconds": {
+"jev": 3.779,
+"luna": 5.911,
+"gemini": 0
+},
+"missing": 0
+},
+"chk": {
+"pA": 0.7075,
+"detail": {
+"boxes": 4
+},
+"calls": {
+"jev": 2,
+"luna": 1,
+"gemini": 0
+},
+"usd": 0.000252,
+"seconds": {
+"jev": 0.97,
+"luna": 5.051,
+"gemini": 0
 },
 "missing": 0
 }
@@ -40047,6 +47787,66 @@
 "luna": 20.446
 },
 "missing": 0
+},
+"gem": {
+"pA": 0.0,
+"detail": {
+"games": [
+"B",
+"B"
+],
+"model": "gemini-3.5-flash-lite"
+},
+"calls": {
+"jev": 0,
+"luna": 0,
+"gemini": 2
+},
+"usd": 0.000372,
+"seconds": {
+"jev": 0,
+"luna": 0,
+"gemini": 2.415
+},
+"missing": 0
+},
+"ref_rc": {
+"pA": 0.97,
+"detail": {
+"kind": "answer",
+"a": 0.99,
+"b": 0.05
+},
+"calls": {
+"jev": 2,
+"luna": 1,
+"gemini": 0
+},
+"usd": 0.000372,
+"seconds": {
+"jev": 3.363,
+"luna": 8.617,
+"gemini": 0
+},
+"missing": 0
+},
+"chk": {
+"pA": 0.656875,
+"detail": {
+"boxes": 4
+},
+"calls": {
+"jev": 2,
+"luna": 1,
+"gemini": 0
+},
+"usd": 0.000372,
+"seconds": {
+"jev": 0.907,
+"luna": 7.815,
+"gemini": 0
+},
+"missing": 0
 }
 },
 "ea56946d-14fb-5016-9550-1216f26856f5": {
@@ -40319,6 +48119,66 @@
 "seconds": {
 "jev": 0,
 "luna": 10.097
+},
+"missing": 0
+},
+"gem": {
+"pA": null,
+"detail": {
+"games": [
+null,
+null
+],
+"model": "gemini-3.5-flash-lite"
+},
+"calls": {
+"jev": 0,
+"luna": 0,
+"gemini": 2
+},
+"usd": 0.001343,
+"seconds": {
+"jev": 0,
+"luna": 0,
+"gemini": 7.217
+},
+"missing": 0
+},
+"ref_rc": {
+"pA": 0.07,
+"detail": {
+"kind": "answer",
+"a": 0.1,
+"b": 0.96
+},
+"calls": {
+"jev": 2,
+"luna": 1,
+"gemini": 0
+},
+"usd": 0.000443,
+"seconds": {
+"jev": 3.793,
+"luna": 11.089,
+"gemini": 0
+},
+"missing": 0
+},
+"chk": {
+"pA": 0.49125,
+"detail": {
+"boxes": 4
+},
+"calls": {
+"jev": 2,
+"luna": 1,
+"gemini": 0
+},
+"usd": 0.000469,
+"seconds": {
+"jev": 1.092,
+"luna": 11.848,
+"gemini": 0
 },
 "missing": 0
 }
@@ -40595,6 +48455,66 @@
 "luna": 4.584
 },
 "missing": 0
+},
+"gem": {
+"pA": 0.5,
+"detail": {
+"games": [
+"A",
+"B"
+],
+"model": "gemini-3.5-flash-lite"
+},
+"calls": {
+"jev": 0,
+"luna": 0,
+"gemini": 2
+},
+"usd": 0.000372,
+"seconds": {
+"jev": 0,
+"luna": 0,
+"gemini": 2.532
+},
+"missing": 0
+},
+"ref_rc": {
+"pA": 0.495,
+"detail": {
+"kind": "answer",
+"a": 0.05,
+"b": 0.06
+},
+"calls": {
+"jev": 2,
+"luna": 1,
+"gemini": 0
+},
+"usd": 0.00014,
+"seconds": {
+"jev": 1.972,
+"luna": 3.188,
+"gemini": 0
+},
+"missing": 0
+},
+"chk": {
+"pA": 0.6468750000000001,
+"detail": {
+"boxes": 4
+},
+"calls": {
+"jev": 2,
+"luna": 1,
+"gemini": 0
+},
+"usd": 0.000241,
+"seconds": {
+"jev": 0.921,
+"luna": 5.46,
+"gemini": 0
+},
+"missing": 0
 }
 },
 "6de9c1f2-0d31-5d07-a796-7dd245667f4f": {
@@ -40867,6 +48787,66 @@
 "seconds": {
 "jev": 0,
 "luna": 4.704
+},
+"missing": 0
+},
+"gem": {
+"pA": 1.0,
+"detail": {
+"games": [
+"A",
+"A"
+],
+"model": "gemini-3.5-flash-lite"
+},
+"calls": {
+"jev": 0,
+"luna": 0,
+"gemini": 2
+},
+"usd": 0.000322,
+"seconds": {
+"jev": 0,
+"luna": 0,
+"gemini": 2.346
+},
+"missing": 0
+},
+"ref_rc": {
+"pA": 0.955,
+"detail": {
+"kind": "answer",
+"a": 0.96,
+"b": 0.05
+},
+"calls": {
+"jev": 2,
+"luna": 1,
+"gemini": 0
+},
+"usd": 9.7e-05,
+"seconds": {
+"jev": 2.033,
+"luna": 2.497,
+"gemini": 0
+},
+"missing": 0
+},
+"chk": {
+"pA": 0.869375,
+"detail": {
+"boxes": 4
+},
+"calls": {
+"jev": 2,
+"luna": 1,
+"gemini": 0
+},
+"usd": 0.000325,
+"seconds": {
+"jev": 0.931,
+"luna": 8.962,
+"gemini": 0
 },
 "missing": 0
 }
@@ -41143,6 +49123,66 @@
 "luna": 6.861
 },
 "missing": 0
+},
+"gem": {
+"pA": 1.0,
+"detail": {
+"games": [
+"A",
+"A"
+],
+"model": "gemini-3.5-flash-lite"
+},
+"calls": {
+"jev": 0,
+"luna": 0,
+"gemini": 2
+},
+"usd": 0.000361,
+"seconds": {
+"jev": 0,
+"luna": 0,
+"gemini": 2.626
+},
+"missing": 0
+},
+"ref_rc": {
+"pA": 0.8049999999999999,
+"detail": {
+"kind": "answer",
+"a": 0.74,
+"b": 0.13
+},
+"calls": {
+"jev": 2,
+"luna": 1,
+"gemini": 0
+},
+"usd": 0.000204,
+"seconds": {
+"jev": 3.31,
+"luna": 4.97,
+"gemini": 0
+},
+"missing": 0
+},
+"chk": {
+"pA": 0.833125,
+"detail": {
+"boxes": 4
+},
+"calls": {
+"jev": 2,
+"luna": 1,
+"gemini": 0
+},
+"usd": 0.000336,
+"seconds": {
+"jev": 1.081,
+"luna": 7.946,
+"gemini": 0
+},
+"missing": 0
 }
 },
 "6ad28b38-685f-5146-ab23-ff8fbcc81210": {
@@ -41415,6 +49455,66 @@
 "seconds": {
 "jev": 0,
 "luna": 6.056
+},
+"missing": 0
+},
+"gem": {
+"pA": 0.5,
+"detail": {
+"games": [
+"A",
+"B"
+],
+"model": "gemini-3.5-flash-lite"
+},
+"calls": {
+"jev": 0,
+"luna": 0,
+"gemini": 2
+},
+"usd": 0.000272,
+"seconds": {
+"jev": 0,
+"luna": 0,
+"gemini": 3.413
+},
+"missing": 0
+},
+"ref_rc": {
+"pA": 0.04999999999999999,
+"detail": {
+"kind": "answer",
+"a": 0.08,
+"b": 0.98
+},
+"calls": {
+"jev": 2,
+"luna": 1,
+"gemini": 0
+},
+"usd": 0.000178,
+"seconds": {
+"jev": 0.977,
+"luna": 4.066,
+"gemini": 0
+},
+"missing": 0
+},
+"chk": {
+"pA": 0.13624999999999998,
+"detail": {
+"boxes": 4
+},
+"calls": {
+"jev": 2,
+"luna": 1,
+"gemini": 0
+},
+"usd": 0.000278,
+"seconds": {
+"jev": 1.054,
+"luna": 6.531,
+"gemini": 0
 },
 "missing": 0
 }
@@ -41691,6 +49791,66 @@
 "luna": 16.501
 },
 "missing": 0
+},
+"gem": {
+"pA": 0.5,
+"detail": {
+"games": [
+"A",
+"B"
+],
+"model": "gemini-3.5-flash-lite"
+},
+"calls": {
+"jev": 0,
+"luna": 0,
+"gemini": 2
+},
+"usd": 0.000338,
+"seconds": {
+"jev": 0,
+"luna": 0,
+"gemini": 2.891
+},
+"missing": 0
+},
+"ref_rc": {
+"pA": 0.98,
+"detail": {
+"kind": "answer",
+"a": 0.98,
+"b": 0.02
+},
+"calls": {
+"jev": 2,
+"luna": 1,
+"gemini": 0
+},
+"usd": 0.000235,
+"seconds": {
+"jev": 2.393,
+"luna": 6.221,
+"gemini": 0
+},
+"missing": 0
+},
+"chk": {
+"pA": 0.625625,
+"detail": {
+"boxes": 4
+},
+"calls": {
+"jev": 2,
+"luna": 1,
+"gemini": 0
+},
+"usd": 0.000403,
+"seconds": {
+"jev": 1.095,
+"luna": 9.491,
+"gemini": 0
+},
+"missing": 0
 }
 },
 "3c6f3a85-c058-543a-8226-852972410970": {
@@ -41963,6 +50123,66 @@
 "seconds": {
 "jev": 0,
 "luna": 7.755
+},
+"missing": 0
+},
+"gem": {
+"pA": 0.0,
+"detail": {
+"games": [
+"B",
+"B"
+],
+"model": "gemini-3.5-flash-lite"
+},
+"calls": {
+"jev": 0,
+"luna": 0,
+"gemini": 2
+},
+"usd": 0.000263,
+"seconds": {
+"jev": 0,
+"luna": 0,
+"gemini": 2.346
+},
+"missing": 0
+},
+"ref_rc": {
+"pA": 0.030000000000000027,
+"detail": {
+"kind": "answer",
+"a": 0.05,
+"b": 0.99
+},
+"calls": {
+"jev": 2,
+"luna": 1,
+"gemini": 0
+},
+"usd": 7.2e-05,
+"seconds": {
+"jev": 0.926,
+"luna": 1.885,
+"gemini": 0
+},
+"missing": 0
+},
+"chk": {
+"pA": 0.63625,
+"detail": {
+"boxes": 4
+},
+"calls": {
+"jev": 2,
+"luna": 1,
+"gemini": 0
+},
+"usd": 0.000275,
+"seconds": {
+"jev": 1.076,
+"luna": 6.62,
+"gemini": 0
 },
 "missing": 0
 }
@@ -42239,6 +50459,66 @@
 "luna": 9.203
 },
 "missing": 0
+},
+"gem": {
+"pA": 1.0,
+"detail": {
+"games": [
+"A",
+"A"
+],
+"model": "gemini-3.5-flash-lite"
+},
+"calls": {
+"jev": 0,
+"luna": 0,
+"gemini": 2
+},
+"usd": 0.000373,
+"seconds": {
+"jev": 0,
+"luna": 0,
+"gemini": 1.792
+},
+"missing": 0
+},
+"ref_rc": {
+"pA": 0.985,
+"detail": {
+"kind": "answer",
+"a": 0.99,
+"b": 0.02
+},
+"calls": {
+"jev": 2,
+"luna": 1,
+"gemini": 0
+},
+"usd": 0.000207,
+"seconds": {
+"jev": 2.438,
+"luna": 4.993,
+"gemini": 0
+},
+"missing": 0
+},
+"chk": {
+"pA": 0.8675,
+"detail": {
+"boxes": 4
+},
+"calls": {
+"jev": 2,
+"luna": 1,
+"gemini": 0
+},
+"usd": 0.000351,
+"seconds": {
+"jev": 1.022,
+"luna": 7.37,
+"gemini": 0
+},
+"missing": 0
 }
 },
 "e3de7dfc-4b9e-5476-b7af-92d7d00bf2d3": {
@@ -42511,6 +50791,66 @@
 "seconds": {
 "jev": 0,
 "luna": 9.029
+},
+"missing": 0
+},
+"gem": {
+"pA": 0.5,
+"detail": {
+"games": [
+"A",
+"B"
+],
+"model": "gemini-3.5-flash-lite"
+},
+"calls": {
+"jev": 0,
+"luna": 0,
+"gemini": 2
+},
+"usd": 0.000319,
+"seconds": {
+"jev": 0,
+"luna": 0,
+"gemini": 2.018
+},
+"missing": 0
+},
+"ref_rc": {
+"pA": 0.49,
+"detail": {
+"kind": "answer",
+"a": 0.22,
+"b": 0.24
+},
+"calls": {
+"jev": 2,
+"luna": 1,
+"gemini": 0
+},
+"usd": 0.000296,
+"seconds": {
+"jev": 1.93,
+"luna": 7.711,
+"gemini": 0
+},
+"missing": 0
+},
+"chk": {
+"pA": 0.388125,
+"detail": {
+"boxes": 4
+},
+"calls": {
+"jev": 2,
+"luna": 1,
+"gemini": 0
+},
+"usd": 0.000324,
+"seconds": {
+"jev": 0.958,
+"luna": 7.718,
+"gemini": 0
 },
 "missing": 0
 }
@@ -42787,6 +51127,66 @@
 "luna": 58.812
 },
 "missing": 0
+},
+"gem": {
+"pA": 1.0,
+"detail": {
+"games": [
+"A",
+"A"
+],
+"model": "gemini-3.5-flash-lite"
+},
+"calls": {
+"jev": 0,
+"luna": 0,
+"gemini": 2
+},
+"usd": 0.000504,
+"seconds": {
+"jev": 0,
+"luna": 0,
+"gemini": 2.41
+},
+"missing": 0
+},
+"ref_rc": {
+"pA": 0.94,
+"detail": {
+"kind": "answer",
+"a": 0.94,
+"b": 0.06
+},
+"calls": {
+"jev": 2,
+"luna": 1,
+"gemini": 0
+},
+"usd": 0.0006,
+"seconds": {
+"jev": 2.459,
+"luna": 13.88,
+"gemini": 0
+},
+"missing": 0
+},
+"chk": {
+"pA": 0.37937499999999996,
+"detail": {
+"boxes": 4
+},
+"calls": {
+"jev": 2,
+"luna": 1,
+"gemini": 0
+},
+"usd": 0.000763,
+"seconds": {
+"jev": 0.964,
+"luna": 17.744,
+"gemini": 0
+},
+"missing": 0
 }
 },
 "f48459b1-bc3e-56f2-a323-d4ccea830765": {
@@ -43059,6 +51459,66 @@
 "seconds": {
 "jev": 0,
 "luna": 13.774
+},
+"missing": 0
+},
+"gem": {
+"pA": 1.0,
+"detail": {
+"games": [
+"A",
+"A"
+],
+"model": "gemini-3.5-flash-lite"
+},
+"calls": {
+"jev": 0,
+"luna": 0,
+"gemini": 2
+},
+"usd": 0.000288,
+"seconds": {
+"jev": 0,
+"luna": 0,
+"gemini": 2.088
+},
+"missing": 0
+},
+"ref_rc": {
+"pA": 0.98,
+"detail": {
+"kind": "answer",
+"a": 0.99,
+"b": 0.03
+},
+"calls": {
+"jev": 2,
+"luna": 1,
+"gemini": 0
+},
+"usd": 9.8e-05,
+"seconds": {
+"jev": 3.335,
+"luna": 2.314,
+"gemini": 0
+},
+"missing": 0
+},
+"chk": {
+"pA": 0.749375,
+"detail": {
+"boxes": 4
+},
+"calls": {
+"jev": 2,
+"luna": 1,
+"gemini": 0
+},
+"usd": 0.000262,
+"seconds": {
+"jev": 1.012,
+"luna": 5.944,
+"gemini": 0
 },
 "missing": 0
 }
@@ -43335,6 +51795,66 @@
 "luna": 18.212
 },
 "missing": 0
+},
+"gem": {
+"pA": 0.0,
+"detail": {
+"games": [
+"B",
+"B"
+],
+"model": "gemini-3.5-flash-lite"
+},
+"calls": {
+"jev": 0,
+"luna": 0,
+"gemini": 2
+},
+"usd": 0.000367,
+"seconds": {
+"jev": 0,
+"luna": 0,
+"gemini": 2.611
+},
+"missing": 0
+},
+"ref_rc": {
+"pA": 0.044999999999999984,
+"detail": {
+"kind": "answer",
+"a": 0.08,
+"b": 0.99
+},
+"calls": {
+"jev": 2,
+"luna": 1,
+"gemini": 0
+},
+"usd": 0.000112,
+"seconds": {
+"jev": 2.786,
+"luna": 2.559,
+"gemini": 0
+},
+"missing": 0
+},
+"chk": {
+"pA": 0.20437499999999997,
+"detail": {
+"boxes": 4
+},
+"calls": {
+"jev": 2,
+"luna": 1,
+"gemini": 0
+},
+"usd": 0.000292,
+"seconds": {
+"jev": 1.073,
+"luna": 6.669,
+"gemini": 0
+},
+"missing": 0
 }
 },
 "dca9614e-d4c0-5595-8d06-91d8b33e86ff": {
@@ -43607,6 +52127,66 @@
 "seconds": {
 "jev": 0,
 "luna": 3.255
+},
+"missing": 0
+},
+"gem": {
+"pA": null,
+"detail": {
+"games": [
+"A",
+null
+],
+"model": "gemini-3.5-flash-lite"
+},
+"calls": {
+"jev": 0,
+"luna": 0,
+"gemini": 2
+},
+"usd": 0.00039,
+"seconds": {
+"jev": 0,
+"luna": 0,
+"gemini": 2.487
+},
+"missing": 0
+},
+"ref_rc": {
+"pA": 0.54,
+"detail": {
+"kind": "answer",
+"a": 1,
+"b": 0.92
+},
+"calls": {
+"jev": 2,
+"luna": 1,
+"gemini": 0
+},
+"usd": 8.6e-05,
+"seconds": {
+"jev": 2.506,
+"luna": 2.333,
+"gemini": 0
+},
+"missing": 0
+},
+"chk": {
+"pA": 0.525625,
+"detail": {
+"boxes": 4
+},
+"calls": {
+"jev": 2,
+"luna": 1,
+"gemini": 0
+},
+"usd": 0.000256,
+"seconds": {
+"jev": 0.957,
+"luna": 6.252,
+"gemini": 0
 },
 "missing": 0
 }
@@ -43883,6 +52463,66 @@
 "luna": 16.178
 },
 "missing": 0
+},
+"gem": {
+"pA": 0.5,
+"detail": {
+"games": [
+"A",
+"B"
+],
+"model": "gemini-3.5-flash-lite"
+},
+"calls": {
+"jev": 0,
+"luna": 0,
+"gemini": 2
+},
+"usd": 0.0003,
+"seconds": {
+"jev": 0,
+"luna": 0,
+"gemini": 2.573
+},
+"missing": 0
+},
+"ref_rc": {
+"pA": 0.985,
+"detail": {
+"kind": "answer",
+"a": 0.98,
+"b": 0.01
+},
+"calls": {
+"jev": 2,
+"luna": 1,
+"gemini": 0
+},
+"usd": 0.000284,
+"seconds": {
+"jev": 1.506,
+"luna": 7.574,
+"gemini": 0
+},
+"missing": 0
+},
+"chk": {
+"pA": 0.675625,
+"detail": {
+"boxes": 4
+},
+"calls": {
+"jev": 2,
+"luna": 1,
+"gemini": 0
+},
+"usd": 0.000263,
+"seconds": {
+"jev": 0.915,
+"luna": 6.029,
+"gemini": 0
+},
+"missing": 0
 }
 },
 "3cbbae47-8be1-5e31-868b-3b61d51a777d": {
@@ -44155,6 +52795,66 @@
 "seconds": {
 "jev": 0,
 "luna": 6.568
+},
+"missing": 0
+},
+"gem": {
+"pA": 1.0,
+"detail": {
+"games": [
+"A",
+"A"
+],
+"model": "gemini-3.5-flash-lite"
+},
+"calls": {
+"jev": 0,
+"luna": 0,
+"gemini": 2
+},
+"usd": 0.000249,
+"seconds": {
+"jev": 0,
+"luna": 0,
+"gemini": 2.618
+},
+"missing": 0
+},
+"ref_rc": {
+"pA": 0.030000000000000027,
+"detail": {
+"kind": "answer",
+"a": 0.03,
+"b": 0.97
+},
+"calls": {
+"jev": 2,
+"luna": 1,
+"gemini": 0
+},
+"usd": 0.000171,
+"seconds": {
+"jev": 4.341,
+"luna": 4.094,
+"gemini": 0
+},
+"missing": 0
+},
+"chk": {
+"pA": 0.73125,
+"detail": {
+"boxes": 4
+},
+"calls": {
+"jev": 2,
+"luna": 1,
+"gemini": 0
+},
+"usd": 0.000212,
+"seconds": {
+"jev": 0.964,
+"luna": 5.683,
+"gemini": 0
 },
 "missing": 0
 }
@@ -44431,6 +53131,66 @@
 "luna": 41.39
 },
 "missing": 0
+},
+"gem": {
+"pA": 0.5,
+"detail": {
+"games": [
+"B",
+"A"
+],
+"model": "gemini-3.5-flash-lite"
+},
+"calls": {
+"jev": 0,
+"luna": 0,
+"gemini": 2
+},
+"usd": 0.00076,
+"seconds": {
+"jev": 0,
+"luna": 0,
+"gemini": 5.726
+},
+"missing": 0
+},
+"ref_rc": {
+"pA": 0.495,
+"detail": {
+"kind": "answer",
+"a": 0.02,
+"b": 0.03
+},
+"calls": {
+"jev": 2,
+"luna": 1,
+"gemini": 0
+},
+"usd": 0.00129,
+"seconds": {
+"jev": 4.353,
+"luna": 36.865,
+"gemini": 0
+},
+"missing": 0
+},
+"chk": {
+"pA": 0.53125,
+"detail": {
+"boxes": 4
+},
+"calls": {
+"jev": 2,
+"luna": 1,
+"gemini": 0
+},
+"usd": 0.000659,
+"seconds": {
+"jev": 0.893,
+"luna": 17.199,
+"gemini": 0
+},
+"missing": 0
 }
 },
 "6f1bd679-4ba1-51ba-b65d-c7463e2134bf": {
@@ -44703,6 +53463,66 @@
 "seconds": {
 "jev": 0,
 "luna": 8.389
+},
+"missing": 0
+},
+"gem": {
+"pA": 0.0,
+"detail": {
+"games": [
+"B",
+"B"
+],
+"model": "gemini-3.5-flash-lite"
+},
+"calls": {
+"jev": 0,
+"luna": 0,
+"gemini": 2
+},
+"usd": 0.000465,
+"seconds": {
+"jev": 0,
+"luna": 0,
+"gemini": 2.558
+},
+"missing": 0
+},
+"ref_rc": {
+"pA": 0.97,
+"detail": {
+"kind": "answer",
+"a": 0.99,
+"b": 0.05
+},
+"calls": {
+"jev": 2,
+"luna": 1,
+"gemini": 0
+},
+"usd": 0.000557,
+"seconds": {
+"jev": 2.66,
+"luna": 14.334,
+"gemini": 0
+},
+"missing": 0
+},
+"chk": {
+"pA": 0.9087500000000001,
+"detail": {
+"boxes": 4
+},
+"calls": {
+"jev": 2,
+"luna": 1,
+"gemini": 0
+},
+"usd": 0.000417,
+"seconds": {
+"jev": 0.947,
+"luna": 9.525,
+"gemini": 0
 },
 "missing": 0
 }
@@ -44979,6 +53799,66 @@
 "luna": 13.118
 },
 "missing": 0
+},
+"gem": {
+"pA": null,
+"detail": {
+"games": [
+null,
+null
+],
+"model": "gemini-3.5-flash-lite"
+},
+"calls": {
+"jev": 0,
+"luna": 0,
+"gemini": 2
+},
+"usd": 0.00096,
+"seconds": {
+"jev": 0,
+"luna": 0,
+"gemini": 5.466
+},
+"missing": 0
+},
+"ref_rc": {
+"pA": 0.265,
+"detail": {
+"kind": "answer",
+"a": 0.52,
+"b": 0.99
+},
+"calls": {
+"jev": 2,
+"luna": 1,
+"gemini": 0
+},
+"usd": 0.000294,
+"seconds": {
+"jev": 1.795,
+"luna": 6.925,
+"gemini": 0
+},
+"missing": 0
+},
+"chk": {
+"pA": 0.1395,
+"detail": {
+"boxes": 5
+},
+"calls": {
+"jev": 2,
+"luna": 1,
+"gemini": 0
+},
+"usd": 0.000299,
+"seconds": {
+"jev": 1.011,
+"luna": 6.891,
+"gemini": 0
+},
+"missing": 0
 }
 },
 "9b0d8cfb-f165-5bcd-9a35-3f9cff879a80": {
@@ -45251,6 +54131,66 @@
 "seconds": {
 "jev": 0,
 "luna": 5.799
+},
+"missing": 0
+},
+"gem": {
+"pA": 1.0,
+"detail": {
+"games": [
+"A",
+"A"
+],
+"model": "gemini-3.5-flash-lite"
+},
+"calls": {
+"jev": 0,
+"luna": 0,
+"gemini": 2
+},
+"usd": 0.000415,
+"seconds": {
+"jev": 0,
+"luna": 0,
+"gemini": 2.767
+},
+"missing": 0
+},
+"ref_rc": {
+"pA": 0.99,
+"detail": {
+"kind": "answer",
+"a": 0.99,
+"b": 0.01
+},
+"calls": {
+"jev": 2,
+"luna": 1,
+"gemini": 0
+},
+"usd": 0.000221,
+"seconds": {
+"jev": 5.325,
+"luna": 5.538,
+"gemini": 0
+},
+"missing": 0
+},
+"chk": {
+"pA": 0.976875,
+"detail": {
+"boxes": 4
+},
+"calls": {
+"jev": 2,
+"luna": 1,
+"gemini": 0
+},
+"usd": 0.000238,
+"seconds": {
+"jev": 1.347,
+"luna": 5.269,
+"gemini": 0
 },
 "missing": 0
 }
@@ -45527,6 +54467,66 @@
 "luna": 4.001
 },
 "missing": 0
+},
+"gem": {
+"pA": 0.5,
+"detail": {
+"games": [
+"A",
+"B"
+],
+"model": "gemini-3.5-flash-lite"
+},
+"calls": {
+"jev": 0,
+"luna": 0,
+"gemini": 2
+},
+"usd": 0.000268,
+"seconds": {
+"jev": 0,
+"luna": 0,
+"gemini": 2.53
+},
+"missing": 0
+},
+"ref_rc": {
+"pA": 0.96,
+"detail": {
+"kind": "answer",
+"a": 0.95,
+"b": 0.03
+},
+"calls": {
+"jev": 2,
+"luna": 1,
+"gemini": 0
+},
+"usd": 9.2e-05,
+"seconds": {
+"jev": 3.45,
+"luna": 2.494,
+"gemini": 0
+},
+"missing": 0
+},
+"chk": {
+"pA": 0.92875,
+"detail": {
+"boxes": 4
+},
+"calls": {
+"jev": 2,
+"luna": 1,
+"gemini": 0
+},
+"usd": 0.000161,
+"seconds": {
+"jev": 0.94,
+"luna": 3.937,
+"gemini": 0
+},
+"missing": 0
 }
 },
 "107ade41-859a-5dfb-8bd4-3b3257b8b989": {
@@ -45799,6 +54799,66 @@
 "seconds": {
 "jev": 0,
 "luna": 2.868
+},
+"missing": 0
+},
+"gem": {
+"pA": 1.0,
+"detail": {
+"games": [
+"A",
+"A"
+],
+"model": "gemini-3.5-flash-lite"
+},
+"calls": {
+"jev": 0,
+"luna": 0,
+"gemini": 2
+},
+"usd": 0.000279,
+"seconds": {
+"jev": 0,
+"luna": 0,
+"gemini": 3.504
+},
+"missing": 0
+},
+"ref_rc": {
+"pA": 0.455,
+"detail": {
+"kind": "open",
+"a": 0.66,
+"b": 0.75
+},
+"calls": {
+"jev": 2,
+"luna": 1,
+"gemini": 0
+},
+"usd": 0.000143,
+"seconds": {
+"jev": 1.039,
+"luna": 3.418,
+"gemini": 0
+},
+"missing": 0
+},
+"chk": {
+"pA": 0.479375,
+"detail": {
+"boxes": 4
+},
+"calls": {
+"jev": 2,
+"luna": 1,
+"gemini": 0
+},
+"usd": 0.000246,
+"seconds": {
+"jev": 0.932,
+"luna": 5.19,
+"gemini": 0
 },
 "missing": 0
 }
@@ -46075,6 +55135,66 @@
 "luna": 5.293
 },
 "missing": 0
+},
+"gem": {
+"pA": 1.0,
+"detail": {
+"games": [
+"A",
+"A"
+],
+"model": "gemini-3.5-flash-lite"
+},
+"calls": {
+"jev": 0,
+"luna": 0,
+"gemini": 2
+},
+"usd": 0.000343,
+"seconds": {
+"jev": 0,
+"luna": 0,
+"gemini": 2.775
+},
+"missing": 0
+},
+"ref_rc": {
+"pA": 0.5349999999999999,
+"detail": {
+"kind": "answer",
+"a": 0.98,
+"b": 0.91
+},
+"calls": {
+"jev": 2,
+"luna": 1,
+"gemini": 0
+},
+"usd": 0.000102,
+"seconds": {
+"jev": 1.803,
+"luna": 2.498,
+"gemini": 0
+},
+"missing": 0
+},
+"chk": {
+"pA": 0.58625,
+"detail": {
+"boxes": 4
+},
+"calls": {
+"jev": 2,
+"luna": 1,
+"gemini": 0
+},
+"usd": 0.000308,
+"seconds": {
+"jev": 0.939,
+"luna": 7.028,
+"gemini": 0
+},
+"missing": 0
 }
 },
 "a5c0fd0a-7440-5461-9a32-c6c5ff574ae0": {
@@ -46347,6 +55467,66 @@
 "seconds": {
 "jev": 0,
 "luna": 14.628
+},
+"missing": 0
+},
+"gem": {
+"pA": 1.0,
+"detail": {
+"games": [
+"A",
+"A"
+],
+"model": "gemini-3.5-flash-lite"
+},
+"calls": {
+"jev": 0,
+"luna": 0,
+"gemini": 2
+},
+"usd": 0.00026,
+"seconds": {
+"jev": 0,
+"luna": 0,
+"gemini": 2.463
+},
+"missing": 0
+},
+"ref_rc": {
+"pA": 0.09000000000000002,
+"detail": {
+"kind": "answer",
+"a": 0.16,
+"b": 0.98
+},
+"calls": {
+"jev": 2,
+"luna": 1,
+"gemini": 0
+},
+"usd": 0.000211,
+"seconds": {
+"jev": 2.763,
+"luna": 6.884,
+"gemini": 0
+},
+"missing": 0
+},
+"chk": {
+"pA": 0.260625,
+"detail": {
+"boxes": 4
+},
+"calls": {
+"jev": 2,
+"luna": 1,
+"gemini": 0
+},
+"usd": 0.000225,
+"seconds": {
+"jev": 0.843,
+"luna": 5.134,
+"gemini": 0
 },
 "missing": 0
 }
@@ -46623,6 +55803,66 @@
 "luna": 23.876
 },
 "missing": 0
+},
+"gem": {
+"pA": 1.0,
+"detail": {
+"games": [
+"A",
+"A"
+],
+"model": "gemini-3.5-flash-lite"
+},
+"calls": {
+"jev": 0,
+"luna": 0,
+"gemini": 2
+},
+"usd": 0.000241,
+"seconds": {
+"jev": 0,
+"luna": 0,
+"gemini": 2.814
+},
+"missing": 0
+},
+"ref_rc": {
+"pA": 0.825,
+"detail": {
+"kind": "answer",
+"a": 0.97,
+"b": 0.32
+},
+"calls": {
+"jev": 2,
+"luna": 1,
+"gemini": 0
+},
+"usd": 0.000368,
+"seconds": {
+"jev": 3.033,
+"luna": 10.33,
+"gemini": 0
+},
+"missing": 0
+},
+"chk": {
+"pA": 0.74,
+"detail": {
+"boxes": 4
+},
+"calls": {
+"jev": 2,
+"luna": 1,
+"gemini": 0
+},
+"usd": 0.000244,
+"seconds": {
+"jev": 0.95,
+"luna": 6.403,
+"gemini": 0
+},
+"missing": 0
 }
 },
 "b57ea8df-78c5-5e71-9545-973d9c2d4bb5": {
@@ -46895,6 +56135,66 @@
 "seconds": {
 "jev": 0,
 "luna": 7.217
+},
+"missing": 0
+},
+"gem": {
+"pA": 0.0,
+"detail": {
+"games": [
+"B",
+"B"
+],
+"model": "gemini-3.5-flash-lite"
+},
+"calls": {
+"jev": 0,
+"luna": 0,
+"gemini": 2
+},
+"usd": 0.000249,
+"seconds": {
+"jev": 0,
+"luna": 0,
+"gemini": 2.763
+},
+"missing": 0
+},
+"ref_rc": {
+"pA": 0.020000000000000018,
+"detail": {
+"kind": "answer",
+"a": 0.03,
+"b": 0.99
+},
+"calls": {
+"jev": 2,
+"luna": 1,
+"gemini": 0
+},
+"usd": 0.000104,
+"seconds": {
+"jev": 1.824,
+"luna": 3.015,
+"gemini": 0
+},
+"missing": 0
+},
+"chk": {
+"pA": 0.379375,
+"detail": {
+"boxes": 4
+},
+"calls": {
+"jev": 2,
+"luna": 1,
+"gemini": 0
+},
+"usd": 0.000249,
+"seconds": {
+"jev": 0.946,
+"luna": 5.774,
+"gemini": 0
 },
 "missing": 0
 }
@@ -47171,6 +56471,66 @@
 "luna": 18.107
 },
 "missing": 0
+},
+"gem": {
+"pA": 0.5,
+"detail": {
+"games": [
+"A",
+"B"
+],
+"model": "gemini-3.5-flash-lite"
+},
+"calls": {
+"jev": 0,
+"luna": 0,
+"gemini": 2
+},
+"usd": 0.000208,
+"seconds": {
+"jev": 0,
+"luna": 0,
+"gemini": 2.537
+},
+"missing": 0
+},
+"ref_rc": {
+"pA": 0.455,
+"detail": {
+"kind": "open",
+"a": 0.12,
+"b": 0.21
+},
+"calls": {
+"jev": 2,
+"luna": 1,
+"gemini": 0
+},
+"usd": 0.00044,
+"seconds": {
+"jev": 3.601,
+"luna": 12.23,
+"gemini": 0
+},
+"missing": 0
+},
+"chk": {
+"pA": 0.4925,
+"detail": {
+"boxes": 4
+},
+"calls": {
+"jev": 2,
+"luna": 1,
+"gemini": 0
+},
+"usd": 0.000314,
+"seconds": {
+"jev": 0.936,
+"luna": 7.845,
+"gemini": 0
+},
+"missing": 0
 }
 },
 "58c85976-b7dd-5739-9f8c-e4943c0a1101": {
@@ -47443,6 +56803,66 @@
 "seconds": {
 "jev": 0,
 "luna": 3.933
+},
+"missing": 0
+},
+"gem": {
+"pA": null,
+"detail": {
+"games": [
+null,
+null
+],
+"model": "gemini-3.5-flash-lite"
+},
+"calls": {
+"jev": 0,
+"luna": 0,
+"gemini": 2
+},
+"usd": 0.000261,
+"seconds": {
+"jev": 0,
+"luna": 0,
+"gemini": 3.954
+},
+"missing": 0
+},
+"ref_rc": {
+"pA": 0.05499999999999999,
+"detail": {
+"kind": "answer",
+"a": 0.04,
+"b": 0.93
+},
+"calls": {
+"jev": 2,
+"luna": 1,
+"gemini": 0
+},
+"usd": 8.2e-05,
+"seconds": {
+"jev": 1.484,
+"luna": 2.842,
+"gemini": 0
+},
+"missing": 0
+},
+"chk": {
+"pA": 0.598125,
+"detail": {
+"boxes": 4
+},
+"calls": {
+"jev": 2,
+"luna": 1,
+"gemini": 0
+},
+"usd": 0.000262,
+"seconds": {
+"jev": 0.855,
+"luna": 6.949,
+"gemini": 0
 },
 "missing": 0
 }
@@ -47719,6 +57139,66 @@
 "luna": 9.324
 },
 "missing": 0
+},
+"gem": {
+"pA": 1.0,
+"detail": {
+"games": [
+"A",
+"A"
+],
+"model": "gemini-3.5-flash-lite"
+},
+"calls": {
+"jev": 0,
+"luna": 0,
+"gemini": 2
+},
+"usd": 0.000302,
+"seconds": {
+"jev": 0,
+"luna": 0,
+"gemini": 2.283
+},
+"missing": 0
+},
+"ref_rc": {
+"pA": 0.5,
+"detail": {
+"kind": "answer",
+"a": 0.99,
+"b": 0.99
+},
+"calls": {
+"jev": 2,
+"luna": 1,
+"gemini": 0
+},
+"usd": 0.000432,
+"seconds": {
+"jev": 2.421,
+"luna": 12.692,
+"gemini": 0
+},
+"missing": 0
+},
+"chk": {
+"pA": 0.510625,
+"detail": {
+"boxes": 4
+},
+"calls": {
+"jev": 2,
+"luna": 1,
+"gemini": 0
+},
+"usd": 0.000401,
+"seconds": {
+"jev": 0.954,
+"luna": 10.553,
+"gemini": 0
+},
+"missing": 0
 }
 },
 "a42d3d72-c38b-5cb4-adff-142e4d0f7736": {
@@ -47991,6 +57471,66 @@
 "seconds": {
 "jev": 0,
 "luna": 16.754
+},
+"missing": 0
+},
+"gem": {
+"pA": 0.0,
+"detail": {
+"games": [
+"B",
+"B"
+],
+"model": "gemini-3.5-flash-lite"
+},
+"calls": {
+"jev": 0,
+"luna": 0,
+"gemini": 2
+},
+"usd": 0.000548,
+"seconds": {
+"jev": 0,
+"luna": 0,
+"gemini": 2.932
+},
+"missing": 0
+},
+"ref_rc": {
+"pA": 0.47500000000000003,
+"detail": {
+"kind": "answer",
+"a": 0.9,
+"b": 0.95
+},
+"calls": {
+"jev": 2,
+"luna": 1,
+"gemini": 0
+},
+"usd": 0.000334,
+"seconds": {
+"jev": 2.44,
+"luna": 9.209,
+"gemini": 0
+},
+"missing": 0
+},
+"chk": {
+"pA": 0.49,
+"detail": {
+"boxes": 4
+},
+"calls": {
+"jev": 2,
+"luna": 1,
+"gemini": 0
+},
+"usd": 0.000293,
+"seconds": {
+"jev": 1.091,
+"luna": 6.849,
+"gemini": 0
 },
 "missing": 0
 }
@@ -48267,6 +57807,66 @@
 "luna": 90.817
 },
 "missing": 0
+},
+"gem": {
+"pA": 1.0,
+"detail": {
+"games": [
+"A",
+"A"
+],
+"model": "gemini-3.5-flash-lite"
+},
+"calls": {
+"jev": 0,
+"luna": 0,
+"gemini": 2
+},
+"usd": 0.000639,
+"seconds": {
+"jev": 0,
+"luna": 0,
+"gemini": 7.621
+},
+"missing": 0
+},
+"ref_rc": {
+"pA": 0.985,
+"detail": {
+"kind": "answer",
+"a": 0.98,
+"b": 0.01
+},
+"calls": {
+"jev": 2,
+"luna": 1,
+"gemini": 0
+},
+"usd": 0.004031,
+"seconds": {
+"jev": 1.771,
+"luna": 112.64,
+"gemini": 0
+},
+"missing": 0
+},
+"chk": {
+"pA": 0.5337500000000001,
+"detail": {
+"boxes": 4
+},
+"calls": {
+"jev": 2,
+"luna": 1,
+"gemini": 0
+},
+"usd": 0.000313,
+"seconds": {
+"jev": 0.947,
+"luna": 8.161,
+"gemini": 0
+},
+"missing": 0
 }
 },
 "dfbdd178-525e-5e35-8fe4-809fb6ef6199": {
@@ -48539,6 +58139,66 @@
 "seconds": {
 "jev": 0,
 "luna": 6.087
+},
+"missing": 0
+},
+"gem": {
+"pA": null,
+"detail": {
+"games": [
+null,
+null
+],
+"model": "gemini-3.5-flash-lite"
+},
+"calls": {
+"jev": 0,
+"luna": 0,
+"gemini": 2
+},
+"usd": 0.000787,
+"seconds": {
+"jev": 0,
+"luna": 0,
+"gemini": 4.564
+},
+"missing": 0
+},
+"ref_rc": {
+"pA": 0.03500000000000003,
+"detail": {
+"kind": "answer",
+"a": 0.06,
+"b": 0.99
+},
+"calls": {
+"jev": 2,
+"luna": 1,
+"gemini": 0
+},
+"usd": 0.000156,
+"seconds": {
+"jev": 2.372,
+"luna": 3.489,
+"gemini": 0
+},
+"missing": 0
+},
+"chk": {
+"pA": 0.18937500000000002,
+"detail": {
+"boxes": 4
+},
+"calls": {
+"jev": 2,
+"luna": 1,
+"gemini": 0
+},
+"usd": 0.000309,
+"seconds": {
+"jev": 1.079,
+"luna": 7.663,
+"gemini": 0
 },
 "missing": 0
 }
@@ -48815,6 +58475,66 @@
 "luna": 12.267
 },
 "missing": 0
+},
+"gem": {
+"pA": 0.0,
+"detail": {
+"games": [
+"B",
+"B"
+],
+"model": "gemini-3.5-flash-lite"
+},
+"calls": {
+"jev": 0,
+"luna": 0,
+"gemini": 2
+},
+"usd": 0.00026,
+"seconds": {
+"jev": 0,
+"luna": 0,
+"gemini": 3.009
+},
+"missing": 0
+},
+"ref_rc": {
+"pA": 0.10999999999999999,
+"detail": {
+"kind": "answer",
+"a": 0.19,
+"b": 0.97
+},
+"calls": {
+"jev": 2,
+"luna": 1,
+"gemini": 0
+},
+"usd": 0.000224,
+"seconds": {
+"jev": 2.361,
+"luna": 6.116,
+"gemini": 0
+},
+"missing": 0
+},
+"chk": {
+"pA": 0.6387499999999999,
+"detail": {
+"boxes": 4
+},
+"calls": {
+"jev": 2,
+"luna": 1,
+"gemini": 0
+},
+"usd": 0.000215,
+"seconds": {
+"jev": 0.9,
+"luna": 6.403,
+"gemini": 0
+},
+"missing": 0
 }
 },
 "a243b087-e171-511c-8d4c-e1f1fadad9d1": {
@@ -49087,6 +58807,66 @@
 "seconds": {
 "jev": 0,
 "luna": 14.376
+},
+"missing": 0
+},
+"gem": {
+"pA": 0.5,
+"detail": {
+"games": [
+"B",
+"A"
+],
+"model": "gemini-3.5-flash-lite"
+},
+"calls": {
+"jev": 0,
+"luna": 0,
+"gemini": 2
+},
+"usd": 0.000339,
+"seconds": {
+"jev": 0,
+"luna": 0,
+"gemini": 3.363
+},
+"missing": 0
+},
+"ref_rc": {
+"pA": 0.5,
+"detail": {
+"kind": "answer",
+"a": 0.99,
+"b": 0.99
+},
+"calls": {
+"jev": 2,
+"luna": 1,
+"gemini": 0
+},
+"usd": 0.000237,
+"seconds": {
+"jev": 1.655,
+"luna": 6.418,
+"gemini": 0
+},
+"missing": 0
+},
+"chk": {
+"pA": 0.514375,
+"detail": {
+"boxes": 4
+},
+"calls": {
+"jev": 2,
+"luna": 1,
+"gemini": 0
+},
+"usd": 0.0004,
+"seconds": {
+"jev": 0.996,
+"luna": 10.065,
+"gemini": 0
 },
 "missing": 0
 }
@@ -49363,6 +59143,66 @@
 "luna": 12.459
 },
 "missing": 0
+},
+"gem": {
+"pA": 1.0,
+"detail": {
+"games": [
+"A",
+"A"
+],
+"model": "gemini-3.5-flash-lite"
+},
+"calls": {
+"jev": 0,
+"luna": 0,
+"gemini": 2
+},
+"usd": 0.000397,
+"seconds": {
+"jev": 0,
+"luna": 0,
+"gemini": 2.745
+},
+"missing": 0
+},
+"ref_rc": {
+"pA": 0.06,
+"detail": {
+"kind": "answer",
+"a": 0.1,
+"b": 0.98
+},
+"calls": {
+"jev": 2,
+"luna": 1,
+"gemini": 0
+},
+"usd": 0.000278,
+"seconds": {
+"jev": 2.686,
+"luna": 7.0,
+"gemini": 0
+},
+"missing": 0
+},
+"chk": {
+"pA": 0.423125,
+"detail": {
+"boxes": 4
+},
+"calls": {
+"jev": 2,
+"luna": 1,
+"gemini": 0
+},
+"usd": 0.000417,
+"seconds": {
+"jev": 0.936,
+"luna": 9.844,
+"gemini": 0
+},
+"missing": 0
 }
 },
 "399f4fc1-1eb0-5d14-a505-fbd98399b34e": {
@@ -49635,6 +59475,66 @@
 "seconds": {
 "jev": 0,
 "luna": 6.313
+},
+"missing": 0
+},
+"gem": {
+"pA": 1.0,
+"detail": {
+"games": [
+"A",
+"A"
+],
+"model": "gemini-3.5-flash-lite"
+},
+"calls": {
+"jev": 0,
+"luna": 0,
+"gemini": 2
+},
+"usd": 0.000357,
+"seconds": {
+"jev": 0,
+"luna": 0,
+"gemini": 2.765
+},
+"missing": 0
+},
+"ref_rc": {
+"pA": 0.985,
+"detail": {
+"kind": "answer",
+"a": 0.99,
+"b": 0.02
+},
+"calls": {
+"jev": 2,
+"luna": 1,
+"gemini": 0
+},
+"usd": 0.000266,
+"seconds": {
+"jev": 2.376,
+"luna": 7.165,
+"gemini": 0
+},
+"missing": 0
+},
+"chk": {
+"pA": 0.559375,
+"detail": {
+"boxes": 4
+},
+"calls": {
+"jev": 2,
+"luna": 1,
+"gemini": 0
+},
+"usd": 0.000336,
+"seconds": {
+"jev": 0.983,
+"luna": 7.254,
+"gemini": 0
 },
 "missing": 0
 }
@@ -49911,6 +59811,66 @@
 "luna": 7.243
 },
 "missing": 0
+},
+"gem": {
+"pA": 0.0,
+"detail": {
+"games": [
+"B",
+"B"
+],
+"model": "gemini-3.5-flash-lite"
+},
+"calls": {
+"jev": 0,
+"luna": 0,
+"gemini": 2
+},
+"usd": 0.000358,
+"seconds": {
+"jev": 0,
+"luna": 0,
+"gemini": 2.532
+},
+"missing": 0
+},
+"ref_rc": {
+"pA": 0.015000000000000013,
+"detail": {
+"kind": "answer",
+"a": 0.02,
+"b": 0.99
+},
+"calls": {
+"jev": 2,
+"luna": 1,
+"gemini": 0
+},
+"usd": 0.000268,
+"seconds": {
+"jev": 4.25,
+"luna": 6.243,
+"gemini": 0
+},
+"missing": 0
+},
+"chk": {
+"pA": 0.360625,
+"detail": {
+"boxes": 4
+},
+"calls": {
+"jev": 2,
+"luna": 1,
+"gemini": 0
+},
+"usd": 0.000299,
+"seconds": {
+"jev": 0.883,
+"luna": 6.418,
+"gemini": 0
+},
+"missing": 0
 }
 },
 "58ee7000-47a1-54d6-9857-77d0eaa3a4b7": {
@@ -50183,6 +60143,66 @@
 "seconds": {
 "jev": 0,
 "luna": 7.38
+},
+"missing": 0
+},
+"gem": {
+"pA": 0.0,
+"detail": {
+"games": [
+"B",
+"B"
+],
+"model": "gemini-3.5-flash-lite"
+},
+"calls": {
+"jev": 0,
+"luna": 0,
+"gemini": 2
+},
+"usd": 0.000666,
+"seconds": {
+"jev": 0,
+"luna": 0,
+"gemini": 5.545
+},
+"missing": 0
+},
+"ref_rc": {
+"pA": 0.565,
+"detail": {
+"kind": "open",
+"a": 0.43,
+"b": 0.3
+},
+"calls": {
+"jev": 2,
+"luna": 1,
+"gemini": 0
+},
+"usd": 0.000349,
+"seconds": {
+"jev": 2.294,
+"luna": 9.467,
+"gemini": 0
+},
+"missing": 0
+},
+"chk": {
+"pA": 0.48250000000000004,
+"detail": {
+"boxes": 6
+},
+"calls": {
+"jev": 2,
+"luna": 1,
+"gemini": 0
+},
+"usd": 0.00025,
+"seconds": {
+"jev": 0.984,
+"luna": 5.601,
+"gemini": 0
 },
 "missing": 0
 }
@@ -50459,6 +60479,66 @@
 "luna": 7.551
 },
 "missing": 0
+},
+"gem": {
+"pA": 0.0,
+"detail": {
+"games": [
+"B",
+"B"
+],
+"model": "gemini-3.5-flash-lite"
+},
+"calls": {
+"jev": 0,
+"luna": 0,
+"gemini": 2
+},
+"usd": 0.000273,
+"seconds": {
+"jev": 0,
+"luna": 0,
+"gemini": 1.651
+},
+"missing": 0
+},
+"ref_rc": {
+"pA": 0.05499999999999999,
+"detail": {
+"kind": "answer",
+"a": 0.09,
+"b": 0.98
+},
+"calls": {
+"jev": 2,
+"luna": 1,
+"gemini": 0
+},
+"usd": 0.000112,
+"seconds": {
+"jev": 2.422,
+"luna": 3.107,
+"gemini": 0
+},
+"missing": 0
+},
+"chk": {
+"pA": 0.2675,
+"detail": {
+"boxes": 4
+},
+"calls": {
+"jev": 2,
+"luna": 1,
+"gemini": 0
+},
+"usd": 0.000278,
+"seconds": {
+"jev": 0.927,
+"luna": 6.774,
+"gemini": 0
+},
+"missing": 0
 }
 },
 "52dc37ec-fb24-59d8-9390-53185cb0c6d1": {
@@ -50731,6 +60811,66 @@
 "seconds": {
 "jev": 0,
 "luna": 7.761
+},
+"missing": 0
+},
+"gem": {
+"pA": 0.5,
+"detail": {
+"games": [
+"A",
+"B"
+],
+"model": "gemini-3.5-flash-lite"
+},
+"calls": {
+"jev": 0,
+"luna": 0,
+"gemini": 2
+},
+"usd": 0.000155,
+"seconds": {
+"jev": 0,
+"luna": 0,
+"gemini": 1.776
+},
+"missing": 0
+},
+"ref_rc": {
+"pA": 0.965,
+"detail": {
+"kind": "answer",
+"a": 0.97,
+"b": 0.04
+},
+"calls": {
+"jev": 2,
+"luna": 1,
+"gemini": 0
+},
+"usd": 0.000261,
+"seconds": {
+"jev": 2.522,
+"luna": 7.22,
+"gemini": 0
+},
+"missing": 0
+},
+"chk": {
+"pA": 0.73875,
+"detail": {
+"boxes": 4
+},
+"calls": {
+"jev": 2,
+"luna": 1,
+"gemini": 0
+},
+"usd": 0.000314,
+"seconds": {
+"jev": 1.124,
+"luna": 8.706,
+"gemini": 0
 },
 "missing": 0
 }
@@ -51007,6 +61147,66 @@
 "luna": 10.998
 },
 "missing": 0
+},
+"gem": {
+"pA": 0.5,
+"detail": {
+"games": [
+"A",
+"B"
+],
+"model": "gemini-3.5-flash-lite"
+},
+"calls": {
+"jev": 0,
+"luna": 0,
+"gemini": 2
+},
+"usd": 0.00021,
+"seconds": {
+"jev": 0,
+"luna": 0,
+"gemini": 2.039
+},
+"missing": 0
+},
+"ref_rc": {
+"pA": 0.88,
+"detail": {
+"kind": "answer",
+"a": 0.79,
+"b": 0.03
+},
+"calls": {
+"jev": 2,
+"luna": 1,
+"gemini": 0
+},
+"usd": 0.000178,
+"seconds": {
+"jev": 1.586,
+"luna": 4.694,
+"gemini": 0
+},
+"missing": 0
+},
+"chk": {
+"pA": 0.6885,
+"detail": {
+"boxes": 5
+},
+"calls": {
+"jev": 2,
+"luna": 1,
+"gemini": 0
+},
+"usd": 0.000361,
+"seconds": {
+"jev": 1.067,
+"luna": 7.723,
+"gemini": 0
+},
+"missing": 0
 }
 },
 "d8e795e2-27e7-51f7-bf16-4e00e7accd9f": {
@@ -51279,6 +61479,66 @@
 "seconds": {
 "jev": 0,
 "luna": 8.964
+},
+"missing": 0
+},
+"gem": {
+"pA": 0.5,
+"detail": {
+"games": [
+"A",
+"B"
+],
+"model": "gemini-3.5-flash-lite"
+},
+"calls": {
+"jev": 0,
+"luna": 0,
+"gemini": 2
+},
+"usd": 0.000346,
+"seconds": {
+"jev": 0,
+"luna": 0,
+"gemini": 2.313
+},
+"missing": 0
+},
+"ref_rc": {
+"pA": 0.985,
+"detail": {
+"kind": "answer",
+"a": 0.99,
+"b": 0.02
+},
+"calls": {
+"jev": 2,
+"luna": 1,
+"gemini": 0
+},
+"usd": 0.000168,
+"seconds": {
+"jev": 2.39,
+"luna": 3.722,
+"gemini": 0
+},
+"missing": 0
+},
+"chk": {
+"pA": 0.75625,
+"detail": {
+"boxes": 4
+},
+"calls": {
+"jev": 2,
+"luna": 1,
+"gemini": 0
+},
+"usd": 0.000308,
+"seconds": {
+"jev": 0.926,
+"luna": 7.042,
+"gemini": 0
 },
 "missing": 0
 }
@@ -51555,6 +61815,66 @@
 "luna": 6.561
 },
 "missing": 0
+},
+"gem": {
+"pA": 1.0,
+"detail": {
+"games": [
+"A",
+"A"
+],
+"model": "gemini-3.5-flash-lite"
+},
+"calls": {
+"jev": 0,
+"luna": 0,
+"gemini": 2
+},
+"usd": 0.00026,
+"seconds": {
+"jev": 0,
+"luna": 0,
+"gemini": 3.206
+},
+"missing": 0
+},
+"ref_rc": {
+"pA": 0.97,
+"detail": {
+"kind": "answer",
+"a": 0.99,
+"b": 0.05
+},
+"calls": {
+"jev": 2,
+"luna": 1,
+"gemini": 0
+},
+"usd": 0.000153,
+"seconds": {
+"jev": 1.546,
+"luna": 3.356,
+"gemini": 0
+},
+"missing": 0
+},
+"chk": {
+"pA": 0.8925,
+"detail": {
+"boxes": 4
+},
+"calls": {
+"jev": 2,
+"luna": 1,
+"gemini": 0
+},
+"usd": 0.000305,
+"seconds": {
+"jev": 1.003,
+"luna": 7.816,
+"gemini": 0
+},
+"missing": 0
 }
 },
 "a1259c5f-3a11-578e-88ef-58a9a7986652": {
@@ -51827,6 +62147,66 @@
 "seconds": {
 "jev": 0,
 "luna": 13.667
+},
+"missing": 0
+},
+"gem": {
+"pA": 1.0,
+"detail": {
+"games": [
+"A",
+"A"
+],
+"model": "gemini-3.5-flash-lite"
+},
+"calls": {
+"jev": 0,
+"luna": 0,
+"gemini": 2
+},
+"usd": 0.000554,
+"seconds": {
+"jev": 0,
+"luna": 0,
+"gemini": 3.938
+},
+"missing": 0
+},
+"ref_rc": {
+"pA": 0.5,
+"detail": {
+"kind": "answer",
+"a": 0.99,
+"b": 0.99
+},
+"calls": {
+"jev": 2,
+"luna": 1,
+"gemini": 0
+},
+"usd": 0.000113,
+"seconds": {
+"jev": 3.326,
+"luna": 2.652,
+"gemini": 0
+},
+"missing": 0
+},
+"chk": {
+"pA": 0.496875,
+"detail": {
+"boxes": 4
+},
+"calls": {
+"jev": 2,
+"luna": 1,
+"gemini": 0
+},
+"usd": 0.000299,
+"seconds": {
+"jev": 0.94,
+"luna": 7.09,
+"gemini": 0
 },
 "missing": 0
 }
@@ -52103,6 +62483,66 @@
 "luna": 4.534
 },
 "missing": 0
+},
+"gem": {
+"pA": 0.0,
+"detail": {
+"games": [
+"B",
+"B"
+],
+"model": "gemini-3.5-flash-lite"
+},
+"calls": {
+"jev": 0,
+"luna": 0,
+"gemini": 2
+},
+"usd": 0.000343,
+"seconds": {
+"jev": 0,
+"luna": 0,
+"gemini": 2.264
+},
+"missing": 0
+},
+"ref_rc": {
+"pA": 0.040000000000000036,
+"detail": {
+"kind": "answer",
+"a": 0.07,
+"b": 0.99
+},
+"calls": {
+"jev": 2,
+"luna": 1,
+"gemini": 0
+},
+"usd": 0.000218,
+"seconds": {
+"jev": 4.183,
+"luna": 5.045,
+"gemini": 0
+},
+"missing": 0
+},
+"chk": {
+"pA": 0.6174999999999999,
+"detail": {
+"boxes": 4
+},
+"calls": {
+"jev": 2,
+"luna": 1,
+"gemini": 0
+},
+"usd": 0.000256,
+"seconds": {
+"jev": 0.853,
+"luna": 5.851,
+"gemini": 0
+},
+"missing": 0
 }
 },
 "ef75bc50-4262-58cc-82f4-8d3c5bcac8db": {
@@ -52375,6 +62815,66 @@
 "seconds": {
 "jev": 0,
 "luna": 6.775
+},
+"missing": 0
+},
+"gem": {
+"pA": 0.0,
+"detail": {
+"games": [
+"B",
+"B"
+],
+"model": "gemini-3.5-flash-lite"
+},
+"calls": {
+"jev": 0,
+"luna": 0,
+"gemini": 2
+},
+"usd": 0.000353,
+"seconds": {
+"jev": 0,
+"luna": 0,
+"gemini": 2.531
+},
+"missing": 0
+},
+"ref_rc": {
+"pA": 0.06500000000000006,
+"detail": {
+"kind": "answer",
+"a": 0.07,
+"b": 0.94
+},
+"calls": {
+"jev": 2,
+"luna": 1,
+"gemini": 0
+},
+"usd": 0.000174,
+"seconds": {
+"jev": 2.418,
+"luna": 3.668,
+"gemini": 0
+},
+"missing": 0
+},
+"chk": {
+"pA": 0.49124999999999996,
+"detail": {
+"boxes": 4
+},
+"calls": {
+"jev": 2,
+"luna": 1,
+"gemini": 0
+},
+"usd": 0.000556,
+"seconds": {
+"jev": 0.901,
+"luna": 13.623,
+"gemini": 0
 },
 "missing": 0
 }
@@ -52651,6 +63151,66 @@
 "luna": 5.555
 },
 "missing": 0
+},
+"gem": {
+"pA": 0.5,
+"detail": {
+"games": [
+"A",
+"B"
+],
+"model": "gemini-3.5-flash-lite"
+},
+"calls": {
+"jev": 0,
+"luna": 0,
+"gemini": 2
+},
+"usd": 0.000339,
+"seconds": {
+"jev": 0,
+"luna": 0,
+"gemini": 2.914
+},
+"missing": 0
+},
+"ref_rc": {
+"pA": 0.985,
+"detail": {
+"kind": "answer",
+"a": 1,
+"b": 0.03
+},
+"calls": {
+"jev": 2,
+"luna": 1,
+"gemini": 0
+},
+"usd": 0.000163,
+"seconds": {
+"jev": 2.696,
+"luna": 4.032,
+"gemini": 0
+},
+"missing": 0
+},
+"chk": {
+"pA": 0.5875,
+"detail": {
+"boxes": 4
+},
+"calls": {
+"jev": 2,
+"luna": 1,
+"gemini": 0
+},
+"usd": 0.000188,
+"seconds": {
+"jev": 0.951,
+"luna": 4.433,
+"gemini": 0
+},
+"missing": 0
 }
 },
 "14c5f015-d741-5cbc-8d42-864b58da36b7": {
@@ -52923,6 +63483,66 @@
 "seconds": {
 "jev": 0,
 "luna": 10.213
+},
+"missing": 0
+},
+"gem": {
+"pA": 0.0,
+"detail": {
+"games": [
+"B",
+"B"
+],
+"model": "gemini-3.5-flash-lite"
+},
+"calls": {
+"jev": 0,
+"luna": 0,
+"gemini": 2
+},
+"usd": 0.000411,
+"seconds": {
+"jev": 0,
+"luna": 0,
+"gemini": 2.236
+},
+"missing": 0
+},
+"ref_rc": {
+"pA": 0.010000000000000009,
+"detail": {
+"kind": "answer",
+"a": 0.01,
+"b": 0.99
+},
+"calls": {
+"jev": 2,
+"luna": 1,
+"gemini": 0
+},
+"usd": 0.000338,
+"seconds": {
+"jev": 1.494,
+"luna": 7.688,
+"gemini": 0
+},
+"missing": 0
+},
+"chk": {
+"pA": 0.254375,
+"detail": {
+"boxes": 4
+},
+"calls": {
+"jev": 2,
+"luna": 1,
+"gemini": 0
+},
+"usd": 0.000538,
+"seconds": {
+"jev": 1.007,
+"luna": 13.208,
+"gemini": 0
 },
 "missing": 0
 }
@@ -53199,6 +63819,66 @@
 "luna": 6.639
 },
 "missing": 0
+},
+"gem": {
+"pA": null,
+"detail": {
+"games": [
+null,
+"B"
+],
+"model": "gemini-3.5-flash-lite"
+},
+"calls": {
+"jev": 0,
+"luna": 0,
+"gemini": 2
+},
+"usd": 0.000761,
+"seconds": {
+"jev": 0,
+"luna": 0,
+"gemini": 4.523
+},
+"missing": 0
+},
+"ref_rc": {
+"pA": 0.15999999999999998,
+"detail": {
+"kind": "answer",
+"a": 0.13,
+"b": 0.81
+},
+"calls": {
+"jev": 2,
+"luna": 1,
+"gemini": 0
+},
+"usd": 0.000111,
+"seconds": {
+"jev": 2.955,
+"luna": 2.984,
+"gemini": 0
+},
+"missing": 0
+},
+"chk": {
+"pA": 0.6375,
+"detail": {
+"boxes": 4
+},
+"calls": {
+"jev": 2,
+"luna": 1,
+"gemini": 0
+},
+"usd": 0.000371,
+"seconds": {
+"jev": 0.979,
+"luna": 8.806,
+"gemini": 0
+},
+"missing": 0
 }
 },
 "f8e093c3-2e73-5a58-86e7-672074882f25": {
@@ -53471,6 +64151,66 @@
 "seconds": {
 "jev": 0,
 "luna": 4.669
+},
+"missing": 0
+},
+"gem": {
+"pA": null,
+"detail": {
+"games": [
+null,
+"B"
+],
+"model": "gemini-3.5-flash-lite"
+},
+"calls": {
+"jev": 0,
+"luna": 0,
+"gemini": 2
+},
+"usd": 0.00052,
+"seconds": {
+"jev": 0,
+"luna": 0,
+"gemini": 3.494
+},
+"missing": 0
+},
+"ref_rc": {
+"pA": 0.010000000000000009,
+"detail": {
+"kind": "answer",
+"a": 0.02,
+"b": 1
+},
+"calls": {
+"jev": 2,
+"luna": 1,
+"gemini": 0
+},
+"usd": 7e-05,
+"seconds": {
+"jev": 4.763,
+"luna": 2.515,
+"gemini": 0
+},
+"missing": 0
+},
+"chk": {
+"pA": 0.42800000000000005,
+"detail": {
+"boxes": 5
+},
+"calls": {
+"jev": 2,
+"luna": 1,
+"gemini": 0
+},
+"usd": 0.00027,
+"seconds": {
+"jev": 0.896,
+"luna": 6.49,
+"gemini": 0
 },
 "missing": 0
 }
@@ -53747,6 +64487,66 @@
 "luna": 21.667
 },
 "missing": 0
+},
+"gem": {
+"pA": 1.0,
+"detail": {
+"games": [
+"A",
+"A"
+],
+"model": "gemini-3.5-flash-lite"
+},
+"calls": {
+"jev": 0,
+"luna": 0,
+"gemini": 2
+},
+"usd": 0.000255,
+"seconds": {
+"jev": 0,
+"luna": 0,
+"gemini": 2.226
+},
+"missing": 0
+},
+"ref_rc": {
+"pA": 0.88,
+"detail": {
+"kind": "answer",
+"a": 0.84,
+"b": 0.08
+},
+"calls": {
+"jev": 2,
+"luna": 1,
+"gemini": 0
+},
+"usd": 0.000615,
+"seconds": {
+"jev": 1.887,
+"luna": 15.267,
+"gemini": 0
+},
+"missing": 0
+},
+"chk": {
+"pA": 0.754375,
+"detail": {
+"boxes": 4
+},
+"calls": {
+"jev": 2,
+"luna": 1,
+"gemini": 0
+},
+"usd": 0.00032,
+"seconds": {
+"jev": 0.902,
+"luna": 8.57,
+"gemini": 0
+},
+"missing": 0
 }
 },
 "745f9340-63fd-527b-b707-126f38ebb096": {
@@ -54019,6 +64819,66 @@
 "seconds": {
 "jev": 0,
 "luna": 39.926
+},
+"missing": 0
+},
+"gem": {
+"pA": 1.0,
+"detail": {
+"games": [
+"A",
+"A"
+],
+"model": "gemini-3.5-flash-lite"
+},
+"calls": {
+"jev": 0,
+"luna": 0,
+"gemini": 2
+},
+"usd": 0.001025,
+"seconds": {
+"jev": 0,
+"luna": 0,
+"gemini": 8.419
+},
+"missing": 0
+},
+"ref_rc": {
+"pA": 0.33,
+"detail": {
+"kind": "open",
+"a": 0.13,
+"b": 0.47
+},
+"calls": {
+"jev": 2,
+"luna": 1,
+"gemini": 0
+},
+"usd": 0.000195,
+"seconds": {
+"jev": 1.426,
+"luna": 4.587,
+"gemini": 0
+},
+"missing": 0
+},
+"chk": {
+"pA": 0.290625,
+"detail": {
+"boxes": 4
+},
+"calls": {
+"jev": 2,
+"luna": 1,
+"gemini": 0
+},
+"usd": 0.000296,
+"seconds": {
+"jev": 0.933,
+"luna": 6.859,
+"gemini": 0
 },
 "missing": 0
 }
@@ -54295,6 +65155,66 @@
 "luna": 5.412
 },
 "missing": 0
+},
+"gem": {
+"pA": 1.0,
+"detail": {
+"games": [
+"A",
+"A"
+],
+"model": "gemini-3.5-flash-lite"
+},
+"calls": {
+"jev": 0,
+"luna": 0,
+"gemini": 2
+},
+"usd": 0.000202,
+"seconds": {
+"jev": 0,
+"luna": 0,
+"gemini": 2.68
+},
+"missing": 0
+},
+"ref_rc": {
+"pA": 0.98,
+"detail": {
+"kind": "answer",
+"a": 0.98,
+"b": 0.02
+},
+"calls": {
+"jev": 2,
+"luna": 1,
+"gemini": 0
+},
+"usd": 6.7e-05,
+"seconds": {
+"jev": 2.01,
+"luna": 1.969,
+"gemini": 0
+},
+"missing": 0
+},
+"chk": {
+"pA": 0.73875,
+"detail": {
+"boxes": 2
+},
+"calls": {
+"jev": 2,
+"luna": 1,
+"gemini": 0
+},
+"usd": 6.7e-05,
+"seconds": {
+"jev": 0.981,
+"luna": 2.632,
+"gemini": 0
+},
+"missing": 0
 }
 },
 "ff5f3ce7-1423-5df5-922d-644070dfaea0": {
@@ -54567,6 +65487,66 @@
 "seconds": {
 "jev": 0,
 "luna": 3.043
+},
+"missing": 0
+},
+"gem": {
+"pA": 0.5,
+"detail": {
+"games": [
+"A",
+"B"
+],
+"model": "gemini-3.5-flash-lite"
+},
+"calls": {
+"jev": 0,
+"luna": 0,
+"gemini": 2
+},
+"usd": 0.000258,
+"seconds": {
+"jev": 0,
+"luna": 0,
+"gemini": 1.886
+},
+"missing": 0
+},
+"ref_rc": {
+"pA": 0.98,
+"detail": {
+"kind": "answer",
+"a": 0.99,
+"b": 0.03
+},
+"calls": {
+"jev": 2,
+"luna": 1,
+"gemini": 0
+},
+"usd": 7.3e-05,
+"seconds": {
+"jev": 2.92,
+"luna": 1.914,
+"gemini": 0
+},
+"missing": 0
+},
+"chk": {
+"pA": 0.7275,
+"detail": {
+"boxes": 4
+},
+"calls": {
+"jev": 2,
+"luna": 1,
+"gemini": 0
+},
+"usd": 0.000236,
+"seconds": {
+"jev": 0.903,
+"luna": 10.757,
+"gemini": 0
 },
 "missing": 0
 }
@@ -54843,6 +65823,66 @@
 "luna": 6.938
 },
 "missing": 0
+},
+"gem": {
+"pA": 0.5,
+"detail": {
+"games": [
+"B",
+"A"
+],
+"model": "gemini-3.5-flash-lite"
+},
+"calls": {
+"jev": 0,
+"luna": 0,
+"gemini": 2
+},
+"usd": 0.00038,
+"seconds": {
+"jev": 0,
+"luna": 0,
+"gemini": 2.338
+},
+"missing": 0
+},
+"ref_rc": {
+"pA": 0.015000000000000013,
+"detail": {
+"kind": "answer",
+"a": 0.02,
+"b": 0.99
+},
+"calls": {
+"jev": 2,
+"luna": 1,
+"gemini": 0
+},
+"usd": 0.00028,
+"seconds": {
+"jev": 2.023,
+"luna": 6.405,
+"gemini": 0
+},
+"missing": 0
+},
+"chk": {
+"pA": 0.39,
+"detail": {
+"boxes": 4
+},
+"calls": {
+"jev": 2,
+"luna": 1,
+"gemini": 0
+},
+"usd": 0.000376,
+"seconds": {
+"jev": 0.955,
+"luna": 8.649,
+"gemini": 0
+},
+"missing": 0
 }
 },
 "f3d9764d-347d-5b58-bf39-5ad1e07a5c1a": {
@@ -55115,6 +66155,66 @@
 "seconds": {
 "jev": 0,
 "luna": 11.842
+},
+"missing": 0
+},
+"gem": {
+"pA": 0.0,
+"detail": {
+"games": [
+"B",
+"B"
+],
+"model": "gemini-3.5-flash-lite"
+},
+"calls": {
+"jev": 0,
+"luna": 0,
+"gemini": 2
+},
+"usd": 0.000319,
+"seconds": {
+"jev": 0,
+"luna": 0,
+"gemini": 2.401
+},
+"missing": 0
+},
+"ref_rc": {
+"pA": 0.51,
+"detail": {
+"kind": "answer",
+"a": 0.93,
+"b": 0.91
+},
+"calls": {
+"jev": 2,
+"luna": 1,
+"gemini": 0
+},
+"usd": 0.000127,
+"seconds": {
+"jev": 3.183,
+"luna": 3.055,
+"gemini": 0
+},
+"missing": 0
+},
+"chk": {
+"pA": 0.500625,
+"detail": {
+"boxes": 4
+},
+"calls": {
+"jev": 2,
+"luna": 1,
+"gemini": 0
+},
+"usd": 0.000336,
+"seconds": {
+"jev": 0.924,
+"luna": 10.259,
+"gemini": 0
 },
 "missing": 0
 }
@@ -55391,6 +66491,66 @@
 "luna": 32.1
 },
 "missing": 0
+},
+"gem": {
+"pA": 0.0,
+"detail": {
+"games": [
+"B",
+"B"
+],
+"model": "gemini-3.5-flash-lite"
+},
+"calls": {
+"jev": 0,
+"luna": 0,
+"gemini": 2
+},
+"usd": 0.000355,
+"seconds": {
+"jev": 0,
+"luna": 0,
+"gemini": 2.251
+},
+"missing": 0
+},
+"ref_rc": {
+"pA": 0.505,
+"detail": {
+"kind": "open",
+"a": 0.06,
+"b": 0.05
+},
+"calls": {
+"jev": 2,
+"luna": 1,
+"gemini": 0
+},
+"usd": 0.001184,
+"seconds": {
+"jev": 3.354,
+"luna": 28.276,
+"gemini": 0
+},
+"missing": 0
+},
+"chk": {
+"pA": 0.468125,
+"detail": {
+"boxes": 4
+},
+"calls": {
+"jev": 2,
+"luna": 1,
+"gemini": 0
+},
+"usd": 0.000629,
+"seconds": {
+"jev": 0.992,
+"luna": 19.192,
+"gemini": 0
+},
+"missing": 0
 }
 },
 "1c3fccb4-012e-5156-9103-ab835de77625": {
@@ -55663,6 +66823,66 @@
 "seconds": {
 "jev": 0,
 "luna": 5.373
+},
+"missing": 0
+},
+"gem": {
+"pA": 1.0,
+"detail": {
+"games": [
+"A",
+"A"
+],
+"model": "gemini-3.5-flash-lite"
+},
+"calls": {
+"jev": 0,
+"luna": 0,
+"gemini": 2
+},
+"usd": 0.000306,
+"seconds": {
+"jev": 0,
+"luna": 0,
+"gemini": 3.873
+},
+"missing": 0
+},
+"ref_rc": {
+"pA": 0.395,
+"detail": {
+"kind": "answer",
+"a": 0.73,
+"b": 0.94
+},
+"calls": {
+"jev": 2,
+"luna": 1,
+"gemini": 0
+},
+"usd": 0.000173,
+"seconds": {
+"jev": 1.182,
+"luna": 4.39,
+"gemini": 0
+},
+"missing": 0
+},
+"chk": {
+"pA": 0.504375,
+"detail": {
+"boxes": 4
+},
+"calls": {
+"jev": 2,
+"luna": 1,
+"gemini": 0
+},
+"usd": 0.000258,
+"seconds": {
+"jev": 0.945,
+"luna": 8.12,
+"gemini": 0
 },
 "missing": 0
 }
@@ -55939,6 +67159,66 @@
 "luna": 15.037
 },
 "missing": 0
+},
+"gem": {
+"pA": 1.0,
+"detail": {
+"games": [
+"A",
+"A"
+],
+"model": "gemini-3.5-flash-lite"
+},
+"calls": {
+"jev": 0,
+"luna": 0,
+"gemini": 2
+},
+"usd": 0.000379,
+"seconds": {
+"jev": 0,
+"luna": 0,
+"gemini": 1.82
+},
+"missing": 0
+},
+"ref_rc": {
+"pA": 0.98,
+"detail": {
+"kind": "answer",
+"a": 0.99,
+"b": 0.03
+},
+"calls": {
+"jev": 2,
+"luna": 1,
+"gemini": 0
+},
+"usd": 0.000255,
+"seconds": {
+"jev": 3.532,
+"luna": 6.684,
+"gemini": 0
+},
+"missing": 0
+},
+"chk": {
+"pA": 0.58875,
+"detail": {
+"boxes": 4
+},
+"calls": {
+"jev": 2,
+"luna": 1,
+"gemini": 0
+},
+"usd": 0.000419,
+"seconds": {
+"jev": 0.957,
+"luna": 12.152,
+"gemini": 0
+},
+"missing": 0
 }
 },
 "23d52920-6399-512a-a040-a8c27817c92f": {
@@ -56211,6 +67491,66 @@
 "seconds": {
 "jev": 0,
 "luna": 9.7
+},
+"missing": 0
+},
+"gem": {
+"pA": 1.0,
+"detail": {
+"games": [
+"A",
+"A"
+],
+"model": "gemini-3.5-flash-lite"
+},
+"calls": {
+"jev": 0,
+"luna": 0,
+"gemini": 2
+},
+"usd": 0.000367,
+"seconds": {
+"jev": 0,
+"luna": 0,
+"gemini": 2.338
+},
+"missing": 0
+},
+"ref_rc": {
+"pA": 0.98,
+"detail": {
+"kind": "answer",
+"a": 0.99,
+"b": 0.03
+},
+"calls": {
+"jev": 2,
+"luna": 1,
+"gemini": 0
+},
+"usd": 0.000251,
+"seconds": {
+"jev": 0.942,
+"luna": 6.412,
+"gemini": 0
+},
+"missing": 0
+},
+"chk": {
+"pA": 0.593125,
+"detail": {
+"boxes": 4
+},
+"calls": {
+"jev": 2,
+"luna": 1,
+"gemini": 0
+},
+"usd": 0.000311,
+"seconds": {
+"jev": 0.98,
+"luna": 7.471,
+"gemini": 0
 },
 "missing": 0
 }
@@ -56487,6 +67827,66 @@
 "luna": 8.908
 },
 "missing": 0
+},
+"gem": {
+"pA": 0.0,
+"detail": {
+"games": [
+"B",
+"B"
+],
+"model": "gemini-3.5-flash-lite"
+},
+"calls": {
+"jev": 0,
+"luna": 0,
+"gemini": 2
+},
+"usd": 0.000227,
+"seconds": {
+"jev": 0,
+"luna": 0,
+"gemini": 3.049
+},
+"missing": 0
+},
+"ref_rc": {
+"pA": 0.495,
+"detail": {
+"kind": "answer",
+"a": 0.15,
+"b": 0.16
+},
+"calls": {
+"jev": 2,
+"luna": 1,
+"gemini": 0
+},
+"usd": 8.3e-05,
+"seconds": {
+"jev": 3.173,
+"luna": 2.456,
+"gemini": 0
+},
+"missing": 0
+},
+"chk": {
+"pA": 0.511875,
+"detail": {
+"boxes": 4
+},
+"calls": {
+"jev": 2,
+"luna": 1,
+"gemini": 0
+},
+"usd": 0.000244,
+"seconds": {
+"jev": 0.905,
+"luna": 7.251,
+"gemini": 0
+},
+"missing": 0
 }
 },
 "6a01ee27-4246-5bb7-b1b7-bbea2dc28deb": {
@@ -56759,6 +68159,66 @@
 "seconds": {
 "jev": 0,
 "luna": 8.269
+},
+"missing": 0
+},
+"gem": {
+"pA": 1.0,
+"detail": {
+"games": [
+"A",
+"A"
+],
+"model": "gemini-3.5-flash-lite"
+},
+"calls": {
+"jev": 0,
+"luna": 0,
+"gemini": 2
+},
+"usd": 0.000542,
+"seconds": {
+"jev": 0,
+"luna": 0,
+"gemini": 2.889
+},
+"missing": 0
+},
+"ref_rc": {
+"pA": 0.885,
+"detail": {
+"kind": "answer",
+"a": 0.86,
+"b": 0.09
+},
+"calls": {
+"jev": 2,
+"luna": 1,
+"gemini": 0
+},
+"usd": 0.000182,
+"seconds": {
+"jev": 2.562,
+"luna": 3.753,
+"gemini": 0
+},
+"missing": 0
+},
+"chk": {
+"pA": 0.7825,
+"detail": {
+"boxes": 4
+},
+"calls": {
+"jev": 2,
+"luna": 1,
+"gemini": 0
+},
+"usd": 0.000279,
+"seconds": {
+"jev": 0.927,
+"luna": 7.402,
+"gemini": 0
 },
 "missing": 0
 }
@@ -57035,6 +68495,66 @@
 "luna": 4.959
 },
 "missing": 0
+},
+"gem": {
+"pA": 1.0,
+"detail": {
+"games": [
+"A",
+"A"
+],
+"model": "gemini-3.5-flash-lite"
+},
+"calls": {
+"jev": 0,
+"luna": 0,
+"gemini": 2
+},
+"usd": 0.000398,
+"seconds": {
+"jev": 0,
+"luna": 0,
+"gemini": 2.084
+},
+"missing": 0
+},
+"ref_rc": {
+"pA": 0.835,
+"detail": {
+"kind": "answer",
+"a": 0.86,
+"b": 0.19
+},
+"calls": {
+"jev": 2,
+"luna": 1,
+"gemini": 0
+},
+"usd": 0.000133,
+"seconds": {
+"jev": 1.876,
+"luna": 2.763,
+"gemini": 0
+},
+"missing": 0
+},
+"chk": {
+"pA": 0.975625,
+"detail": {
+"boxes": 4
+},
+"calls": {
+"jev": 2,
+"luna": 1,
+"gemini": 0
+},
+"usd": 0.000272,
+"seconds": {
+"jev": 0.86,
+"luna": 6.35,
+"gemini": 0
+},
+"missing": 0
 }
 },
 "bfaf6335-5640-599d-8e95-7789f7ec864a": {
@@ -57307,6 +68827,66 @@
 "seconds": {
 "jev": 0,
 "luna": 14.783
+},
+"missing": 0
+},
+"gem": {
+"pA": 0.5,
+"detail": {
+"games": [
+"A",
+"B"
+],
+"model": "gemini-3.5-flash-lite"
+},
+"calls": {
+"jev": 0,
+"luna": 0,
+"gemini": 2
+},
+"usd": 0.000367,
+"seconds": {
+"jev": 0,
+"luna": 0,
+"gemini": 1.847
+},
+"missing": 0
+},
+"ref_rc": {
+"pA": 0.485,
+"detail": {
+"kind": "answer",
+"a": 0.73,
+"b": 0.76
+},
+"calls": {
+"jev": 2,
+"luna": 1,
+"gemini": 0
+},
+"usd": 0.000105,
+"seconds": {
+"jev": 3.157,
+"luna": 2.627,
+"gemini": 0
+},
+"missing": 0
+},
+"chk": {
+"pA": 0.491875,
+"detail": {
+"boxes": 4
+},
+"calls": {
+"jev": 2,
+"luna": 1,
+"gemini": 0
+},
+"usd": 0.000341,
+"seconds": {
+"jev": 0.944,
+"luna": 7.468,
+"gemini": 0
 },
 "missing": 0
 }
@@ -57583,6 +69163,66 @@
 "luna": 41.26
 },
 "missing": 0
+},
+"gem": {
+"pA": 0.0,
+"detail": {
+"games": [
+"B",
+"B"
+],
+"model": "gemini-3.5-flash-lite"
+},
+"calls": {
+"jev": 0,
+"luna": 0,
+"gemini": 2
+},
+"usd": 0.000304,
+"seconds": {
+"jev": 0,
+"luna": 0,
+"gemini": 2.258
+},
+"missing": 0
+},
+"ref_rc": {
+"pA": 0.445,
+"detail": {
+"kind": "answer",
+"a": 0.72,
+"b": 0.83
+},
+"calls": {
+"jev": 2,
+"luna": 1,
+"gemini": 0
+},
+"usd": 0.000273,
+"seconds": {
+"jev": 2.557,
+"luna": 7.321,
+"gemini": 0
+},
+"missing": 0
+},
+"chk": {
+"pA": 0.4925,
+"detail": {
+"boxes": 4
+},
+"calls": {
+"jev": 2,
+"luna": 1,
+"gemini": 0
+},
+"usd": 0.000522,
+"seconds": {
+"jev": 0.932,
+"luna": 12.028,
+"gemini": 0
+},
+"missing": 0
 }
 },
 "fb954577-c6d1-524a-bf7c-c64f0c005022": {
@@ -57855,6 +69495,66 @@
 "seconds": {
 "jev": 0,
 "luna": 23.292
+},
+"missing": 0
+},
+"gem": {
+"pA": 1.0,
+"detail": {
+"games": [
+"A",
+"A"
+],
+"model": "gemini-3.5-flash-lite"
+},
+"calls": {
+"jev": 0,
+"luna": 0,
+"gemini": 2
+},
+"usd": 0.000234,
+"seconds": {
+"jev": 0,
+"luna": 0,
+"gemini": 1.991
+},
+"missing": 0
+},
+"ref_rc": {
+"pA": 0.865,
+"detail": {
+"kind": "answer",
+"a": 0.95,
+"b": 0.22
+},
+"calls": {
+"jev": 2,
+"luna": 1,
+"gemini": 0
+},
+"usd": 0.000185,
+"seconds": {
+"jev": 1.637,
+"luna": 5.307,
+"gemini": 0
+},
+"missing": 0
+},
+"chk": {
+"pA": 0.635625,
+"detail": {
+"boxes": 4
+},
+"calls": {
+"jev": 2,
+"luna": 1,
+"gemini": 0
+},
+"usd": 0.0003,
+"seconds": {
+"jev": 0.876,
+"luna": 6.781,
+"gemini": 0
 },
 "missing": 0
 }
@@ -58131,6 +69831,66 @@
 "luna": 3.888
 },
 "missing": 0
+},
+"gem": {
+"pA": 1.0,
+"detail": {
+"games": [
+"A",
+"A"
+],
+"model": "gemini-3.5-flash-lite"
+},
+"calls": {
+"jev": 0,
+"luna": 0,
+"gemini": 2
+},
+"usd": 0.000396,
+"seconds": {
+"jev": 0,
+"luna": 0,
+"gemini": 2.4
+},
+"missing": 0
+},
+"ref_rc": {
+"pA": 0.89,
+"detail": {
+"kind": "answer",
+"a": 0.99,
+"b": 0.21
+},
+"calls": {
+"jev": 2,
+"luna": 1,
+"gemini": 0
+},
+"usd": 9.7e-05,
+"seconds": {
+"jev": 3.1,
+"luna": 2.497,
+"gemini": 0
+},
+"missing": 0
+},
+"chk": {
+"pA": 0.8725,
+"detail": {
+"boxes": 4
+},
+"calls": {
+"jev": 2,
+"luna": 1,
+"gemini": 0
+},
+"usd": 0.000262,
+"seconds": {
+"jev": 0.991,
+"luna": 6.004,
+"gemini": 0
+},
+"missing": 0
 }
 },
 "bd6f87f2-cb60-58b3-8b27-4eceab2bfc79": {
@@ -58403,6 +70163,66 @@
 "seconds": {
 "jev": 0,
 "luna": 10.691
+},
+"missing": 0
+},
+"gem": {
+"pA": 0.5,
+"detail": {
+"games": [
+"B",
+"A"
+],
+"model": "gemini-3.5-flash-lite"
+},
+"calls": {
+"jev": 0,
+"luna": 0,
+"gemini": 2
+},
+"usd": 0.000508,
+"seconds": {
+"jev": 0,
+"luna": 0,
+"gemini": 1.923
+},
+"missing": 0
+},
+"ref_rc": {
+"pA": 0.53,
+"detail": {
+"kind": "answer",
+"a": 0.11,
+"b": 0.05
+},
+"calls": {
+"jev": 2,
+"luna": 1,
+"gemini": 0
+},
+"usd": 0.000163,
+"seconds": {
+"jev": 2.557,
+"luna": 4.524,
+"gemini": 0
+},
+"missing": 0
+},
+"chk": {
+"pA": 0.521875,
+"detail": {
+"boxes": 4
+},
+"calls": {
+"jev": 2,
+"luna": 1,
+"gemini": 0
+},
+"usd": 0.000308,
+"seconds": {
+"jev": 0.872,
+"luna": 7.327,
+"gemini": 0
 },
 "missing": 0
 }
@@ -58679,6 +70499,66 @@
 "luna": 8.167
 },
 "missing": 0
+},
+"gem": {
+"pA": 0.0,
+"detail": {
+"games": [
+"B",
+"B"
+],
+"model": "gemini-3.5-flash-lite"
+},
+"calls": {
+"jev": 0,
+"luna": 0,
+"gemini": 2
+},
+"usd": 0.000212,
+"seconds": {
+"jev": 0,
+"luna": 0,
+"gemini": 1.472
+},
+"missing": 0
+},
+"ref_rc": {
+"pA": 0.030000000000000027,
+"detail": {
+"kind": "answer",
+"a": 0.04,
+"b": 0.98
+},
+"calls": {
+"jev": 2,
+"luna": 1,
+"gemini": 0
+},
+"usd": 6.3e-05,
+"seconds": {
+"jev": 1.614,
+"luna": 1.901,
+"gemini": 0
+},
+"missing": 0
+},
+"chk": {
+"pA": 0.20062500000000005,
+"detail": {
+"boxes": 4
+},
+"calls": {
+"jev": 2,
+"luna": 1,
+"gemini": 0
+},
+"usd": 0.000239,
+"seconds": {
+"jev": 0.926,
+"luna": 6.294,
+"gemini": 0
+},
+"missing": 0
 }
 },
 "548ec6a2-d244-5724-b5c3-946285ed13c3": {
@@ -58951,6 +70831,66 @@
 "seconds": {
 "jev": 0,
 "luna": 28.726
+},
+"missing": 0
+},
+"gem": {
+"pA": 1.0,
+"detail": {
+"games": [
+"A",
+"A"
+],
+"model": "gemini-3.5-flash-lite"
+},
+"calls": {
+"jev": 0,
+"luna": 0,
+"gemini": 2
+},
+"usd": 0.000207,
+"seconds": {
+"jev": 0,
+"luna": 0,
+"gemini": 1.781
+},
+"missing": 0
+},
+"ref_rc": {
+"pA": 0.83,
+"detail": {
+"kind": "answer",
+"a": 0.96,
+"b": 0.3
+},
+"calls": {
+"jev": 2,
+"luna": 1,
+"gemini": 0
+},
+"usd": 0.000767,
+"seconds": {
+"jev": 2.356,
+"luna": 21.428,
+"gemini": 0
+},
+"missing": 0
+},
+"chk": {
+"pA": 0.6475,
+"detail": {
+"boxes": 4
+},
+"calls": {
+"jev": 2,
+"luna": 1,
+"gemini": 0
+},
+"usd": 0.000304,
+"seconds": {
+"jev": 1.025,
+"luna": 8.105,
+"gemini": 0
 },
 "missing": 0
 }
@@ -59227,6 +71167,66 @@
 "luna": 23.825
 },
 "missing": 0
+},
+"gem": {
+"pA": 0.0,
+"detail": {
+"games": [
+"B",
+"B"
+],
+"model": "gemini-3.5-flash-lite"
+},
+"calls": {
+"jev": 0,
+"luna": 0,
+"gemini": 2
+},
+"usd": 0.00035,
+"seconds": {
+"jev": 0,
+"luna": 0,
+"gemini": 2.397
+},
+"missing": 0
+},
+"ref_rc": {
+"pA": 0.020000000000000018,
+"detail": {
+"kind": "answer",
+"a": 0.02,
+"b": 0.98
+},
+"calls": {
+"jev": 2,
+"luna": 1,
+"gemini": 0
+},
+"usd": 0.000373,
+"seconds": {
+"jev": 2.481,
+"luna": 8.185,
+"gemini": 0
+},
+"missing": 0
+},
+"chk": {
+"pA": 0.554375,
+"detail": {
+"boxes": 4
+},
+"calls": {
+"jev": 2,
+"luna": 1,
+"gemini": 0
+},
+"usd": 0.000629,
+"seconds": {
+"jev": 0.985,
+"luna": 16.073,
+"gemini": 0
+},
+"missing": 0
 }
 },
 "aedbe1ff-42f3-5222-85e0-1b98c5af67bb": {
@@ -59499,6 +71499,66 @@
 "seconds": {
 "jev": 0,
 "luna": 11.953
+},
+"missing": 0
+},
+"gem": {
+"pA": 1.0,
+"detail": {
+"games": [
+"A",
+"A"
+],
+"model": "gemini-3.5-flash-lite"
+},
+"calls": {
+"jev": 0,
+"luna": 0,
+"gemini": 2
+},
+"usd": 0.000509,
+"seconds": {
+"jev": 0,
+"luna": 0,
+"gemini": 2.5
+},
+"missing": 0
+},
+"ref_rc": {
+"pA": 0.935,
+"detail": {
+"kind": "answer",
+"a": 0.9,
+"b": 0.03
+},
+"calls": {
+"jev": 2,
+"luna": 1,
+"gemini": 0
+},
+"usd": 0.000326,
+"seconds": {
+"jev": 3.328,
+"luna": 6.789,
+"gemini": 0
+},
+"missing": 0
+},
+"chk": {
+"pA": 0.555625,
+"detail": {
+"boxes": 4
+},
+"calls": {
+"jev": 2,
+"luna": 1,
+"gemini": 0
+},
+"usd": 0.000528,
+"seconds": {
+"jev": 0.966,
+"luna": 10.85,
+"gemini": 0
 },
 "missing": 0
 }
@@ -59775,6 +71835,66 @@
 "luna": 3.949
 },
 "missing": 0
+},
+"gem": {
+"pA": 0.0,
+"detail": {
+"games": [
+"B",
+"B"
+],
+"model": "gemini-3.5-flash-lite"
+},
+"calls": {
+"jev": 0,
+"luna": 0,
+"gemini": 2
+},
+"usd": 0.000261,
+"seconds": {
+"jev": 0,
+"luna": 0,
+"gemini": 2.525
+},
+"missing": 0
+},
+"ref_rc": {
+"pA": 0.020000000000000018,
+"detail": {
+"kind": "answer",
+"a": 0.03,
+"b": 0.99
+},
+"calls": {
+"jev": 2,
+"luna": 1,
+"gemini": 0
+},
+"usd": 7.8e-05,
+"seconds": {
+"jev": 2.384,
+"luna": 2.164,
+"gemini": 0
+},
+"missing": 0
+},
+"chk": {
+"pA": 0.13312500000000005,
+"detail": {
+"boxes": 4
+},
+"calls": {
+"jev": 2,
+"luna": 1,
+"gemini": 0
+},
+"usd": 0.000224,
+"seconds": {
+"jev": 0.93,
+"luna": 5.154,
+"gemini": 0
+},
+"missing": 0
 }
 },
 "d9d2249e-684a-53c7-8183-36f663b1947f": {
@@ -60047,6 +72167,66 @@
 "seconds": {
 "jev": 0,
 "luna": 9.019
+},
+"missing": 0
+},
+"gem": {
+"pA": 0.5,
+"detail": {
+"games": [
+"B",
+"A"
+],
+"model": "gemini-3.5-flash-lite"
+},
+"calls": {
+"jev": 0,
+"luna": 0,
+"gemini": 2
+},
+"usd": 0.000241,
+"seconds": {
+"jev": 0,
+"luna": 0,
+"gemini": 2.356
+},
+"missing": 0
+},
+"ref_rc": {
+"pA": 0.015000000000000013,
+"detail": {
+"kind": "answer",
+"a": 0.02,
+"b": 0.99
+},
+"calls": {
+"jev": 2,
+"luna": 1,
+"gemini": 0
+},
+"usd": 0.000342,
+"seconds": {
+"jev": 1.784,
+"luna": 10.015,
+"gemini": 0
+},
+"missing": 0
+},
+"chk": {
+"pA": 0.23312500000000003,
+"detail": {
+"boxes": 4
+},
+"calls": {
+"jev": 2,
+"luna": 1,
+"gemini": 0
+},
+"usd": 0.000479,
+"seconds": {
+"jev": 0.903,
+"luna": 12.277,
+"gemini": 0
 },
 "missing": 0
 }
@@ -60323,6 +72503,66 @@
 "luna": 5.282
 },
 "missing": 0
+},
+"gem": {
+"pA": 1.0,
+"detail": {
+"games": [
+"A",
+"A"
+],
+"model": "gemini-3.5-flash-lite"
+},
+"calls": {
+"jev": 0,
+"luna": 0,
+"gemini": 2
+},
+"usd": 0.000257,
+"seconds": {
+"jev": 0,
+"luna": 0,
+"gemini": 1.827
+},
+"missing": 0
+},
+"ref_rc": {
+"pA": 0.030000000000000027,
+"detail": {
+"kind": "answer",
+"a": 0.05,
+"b": 0.99
+},
+"calls": {
+"jev": 2,
+"luna": 1,
+"gemini": 0
+},
+"usd": 9.2e-05,
+"seconds": {
+"jev": 3.378,
+"luna": 1.844,
+"gemini": 0
+},
+"missing": 0
+},
+"chk": {
+"pA": 0.14375000000000004,
+"detail": {
+"boxes": 4
+},
+"calls": {
+"jev": 2,
+"luna": 1,
+"gemini": 0
+},
+"usd": 0.000352,
+"seconds": {
+"jev": 1.113,
+"luna": 8.07,
+"gemini": 0
+},
+"missing": 0
 }
 },
 "f1b17db1-5206-504d-a8b0-3213449e41f5": {
@@ -60595,6 +72835,66 @@
 "seconds": {
 "jev": 0,
 "luna": 7.036
+},
+"missing": 0
+},
+"gem": {
+"pA": 0.0,
+"detail": {
+"games": [
+"B",
+"B"
+],
+"model": "gemini-3.5-flash-lite"
+},
+"calls": {
+"jev": 0,
+"luna": 0,
+"gemini": 2
+},
+"usd": 0.000261,
+"seconds": {
+"jev": 0,
+"luna": 0,
+"gemini": 2.053
+},
+"missing": 0
+},
+"ref_rc": {
+"pA": 0.065,
+"detail": {
+"kind": "answer",
+"a": 0.11,
+"b": 0.98
+},
+"calls": {
+"jev": 2,
+"luna": 1,
+"gemini": 0
+},
+"usd": 8.9e-05,
+"seconds": {
+"jev": 2.273,
+"luna": 2.364,
+"gemini": 0
+},
+"missing": 0
+},
+"chk": {
+"pA": 0.364375,
+"detail": {
+"boxes": 4
+},
+"calls": {
+"jev": 2,
+"luna": 1,
+"gemini": 0
+},
+"usd": 0.000215,
+"seconds": {
+"jev": 1.018,
+"luna": 4.731,
+"gemini": 0
 },
 "missing": 0
 }
@@ -60871,6 +73171,66 @@
 "luna": 9.694
 },
 "missing": 0
+},
+"gem": {
+"pA": 0.0,
+"detail": {
+"games": [
+"B",
+"B"
+],
+"model": "gemini-3.5-flash-lite"
+},
+"calls": {
+"jev": 0,
+"luna": 0,
+"gemini": 2
+},
+"usd": 0.000336,
+"seconds": {
+"jev": 0,
+"luna": 0,
+"gemini": 2.089
+},
+"missing": 0
+},
+"ref_rc": {
+"pA": 0.985,
+"detail": {
+"kind": "answer",
+"a": 0.99,
+"b": 0.02
+},
+"calls": {
+"jev": 2,
+"luna": 1,
+"gemini": 0
+},
+"usd": 0.000362,
+"seconds": {
+"jev": 1.733,
+"luna": 10.43,
+"gemini": 0
+},
+"missing": 0
+},
+"chk": {
+"pA": 0.5800000000000001,
+"detail": {
+"boxes": 4
+},
+"calls": {
+"jev": 2,
+"luna": 1,
+"gemini": 0
+},
+"usd": 0.000429,
+"seconds": {
+"jev": 0.961,
+"luna": 9.876,
+"gemini": 0
+},
+"missing": 0
 }
 },
 "6ca62e73-d6a9-53f1-b27f-d4d17d982e6c": {
@@ -61143,6 +73503,66 @@
 "seconds": {
 "jev": 0,
 "luna": 4.964
+},
+"missing": 0
+},
+"gem": {
+"pA": 0.5,
+"detail": {
+"games": [
+"A",
+"B"
+],
+"model": "gemini-3.5-flash-lite"
+},
+"calls": {
+"jev": 0,
+"luna": 0,
+"gemini": 2
+},
+"usd": 0.000794,
+"seconds": {
+"jev": 0,
+"luna": 0,
+"gemini": 11.045
+},
+"missing": 0
+},
+"ref_rc": {
+"pA": 0.010000000000000009,
+"detail": {
+"kind": "answer",
+"a": 0.01,
+"b": 0.99
+},
+"calls": {
+"jev": 2,
+"luna": 1,
+"gemini": 0
+},
+"usd": 0.000123,
+"seconds": {
+"jev": 2.65,
+"luna": 2.979,
+"gemini": 0
+},
+"missing": 0
+},
+"chk": {
+"pA": 0.153125,
+"detail": {
+"boxes": 4
+},
+"calls": {
+"jev": 2,
+"luna": 1,
+"gemini": 0
+},
+"usd": 0.000367,
+"seconds": {
+"jev": 0.94,
+"luna": 8.326,
+"gemini": 0
 },
 "missing": 0
 }
@@ -61419,6 +73839,66 @@
 "luna": 25.067
 },
 "missing": 0
+},
+"gem": {
+"pA": 0.0,
+"detail": {
+"games": [
+"B",
+"B"
+],
+"model": "gemini-3.5-flash-lite"
+},
+"calls": {
+"jev": 0,
+"luna": 0,
+"gemini": 2
+},
+"usd": 0.000257,
+"seconds": {
+"jev": 0,
+"luna": 0,
+"gemini": 1.986
+},
+"missing": 0
+},
+"ref_rc": {
+"pA": 0.13,
+"detail": {
+"kind": "answer",
+"a": 0.23,
+"b": 0.97
+},
+"calls": {
+"jev": 2,
+"luna": 1,
+"gemini": 0
+},
+"usd": 0.000198,
+"seconds": {
+"jev": 2.419,
+"luna": 5.44,
+"gemini": 0
+},
+"missing": 0
+},
+"chk": {
+"pA": 0.379375,
+"detail": {
+"boxes": 4
+},
+"calls": {
+"jev": 2,
+"luna": 1,
+"gemini": 0
+},
+"usd": 0.000249,
+"seconds": {
+"jev": 0.993,
+"luna": 5.724,
+"gemini": 0
+},
+"missing": 0
 }
 },
 "b1614f17-39fb-564a-84c7-bcd7a2054dc8": {
@@ -61691,6 +74171,66 @@
 "seconds": {
 "jev": 0,
 "luna": 8.536
+},
+"missing": 0
+},
+"gem": {
+"pA": 0.0,
+"detail": {
+"games": [
+"B",
+"B"
+],
+"model": "gemini-3.5-flash-lite"
+},
+"calls": {
+"jev": 0,
+"luna": 0,
+"gemini": 2
+},
+"usd": 0.000333,
+"seconds": {
+"jev": 0,
+"luna": 0,
+"gemini": 2.628
+},
+"missing": 0
+},
+"ref_rc": {
+"pA": 0.22999999999999998,
+"detail": {
+"kind": "answer",
+"a": 0.35,
+"b": 0.89
+},
+"calls": {
+"jev": 2,
+"luna": 1,
+"gemini": 0
+},
+"usd": 0.000163,
+"seconds": {
+"jev": 2.411,
+"luna": 3.84,
+"gemini": 0
+},
+"missing": 0
+},
+"chk": {
+"pA": 0.6174999999999999,
+"detail": {
+"boxes": 4
+},
+"calls": {
+"jev": 2,
+"luna": 1,
+"gemini": 0
+},
+"usd": 0.000316,
+"seconds": {
+"jev": 0.938,
+"luna": 7.251,
+"gemini": 0
 },
 "missing": 0
 }
@@ -61967,6 +74507,66 @@
 "luna": 19.086
 },
 "missing": 0
+},
+"gem": {
+"pA": null,
+"detail": {
+"games": [
+"A",
+null
+],
+"model": "gemini-3.5-flash-lite"
+},
+"calls": {
+"jev": 0,
+"luna": 0,
+"gemini": 2
+},
+"usd": 0.000267,
+"seconds": {
+"jev": 0,
+"luna": 0,
+"gemini": 2.67
+},
+"missing": 0
+},
+"ref_rc": {
+"pA": 0.5,
+"detail": {
+"kind": "answer",
+"a": 0.99,
+"b": 0.99
+},
+"calls": {
+"jev": 2,
+"luna": 1,
+"gemini": 0
+},
+"usd": 0.000587,
+"seconds": {
+"jev": 2.734,
+"luna": 15.657,
+"gemini": 0
+},
+"missing": 0
+},
+"chk": {
+"pA": 0.49375,
+"detail": {
+"boxes": 2
+},
+"calls": {
+"jev": 2,
+"luna": 1,
+"gemini": 0
+},
+"usd": 5.9e-05,
+"seconds": {
+"jev": 0.935,
+"luna": 3.737,
+"gemini": 0
+},
+"missing": 0
 }
 },
 "4ae23f71-e3fa-507e-b892-50943390d857": {
@@ -62239,6 +74839,66 @@
 "seconds": {
 "jev": 0,
 "luna": 5.435
+},
+"missing": 0
+},
+"gem": {
+"pA": 0.5,
+"detail": {
+"games": [
+"B",
+"A"
+],
+"model": "gemini-3.5-flash-lite"
+},
+"calls": {
+"jev": 0,
+"luna": 0,
+"gemini": 2
+},
+"usd": 0.000529,
+"seconds": {
+"jev": 0,
+"luna": 0,
+"gemini": 5.67
+},
+"missing": 0
+},
+"ref_rc": {
+"pA": 0.495,
+"detail": {
+"kind": "answer",
+"a": 0.24,
+"b": 0.25
+},
+"calls": {
+"jev": 2,
+"luna": 1,
+"gemini": 0
+},
+"usd": 0.000293,
+"seconds": {
+"jev": 2.418,
+"luna": 7.103,
+"gemini": 0
+},
+"missing": 0
+},
+"chk": {
+"pA": 0.6168750000000001,
+"detail": {
+"boxes": 4
+},
+"calls": {
+"jev": 2,
+"luna": 1,
+"gemini": 0
+},
+"usd": 0.000218,
+"seconds": {
+"jev": 0.913,
+"luna": 6.469,
+"gemini": 0
 },
 "missing": 0
 }
@@ -62515,6 +75175,66 @@
 "luna": 11.188
 },
 "missing": 0
+},
+"gem": {
+"pA": 0.0,
+"detail": {
+"games": [
+"B",
+"B"
+],
+"model": "gemini-3.5-flash-lite"
+},
+"calls": {
+"jev": 0,
+"luna": 0,
+"gemini": 2
+},
+"usd": 0.000206,
+"seconds": {
+"jev": 0,
+"luna": 0,
+"gemini": 2.353
+},
+"missing": 0
+},
+"ref_rc": {
+"pA": 0.015000000000000013,
+"detail": {
+"kind": "answer",
+"a": 0.02,
+"b": 0.99
+},
+"calls": {
+"jev": 2,
+"luna": 1,
+"gemini": 0
+},
+"usd": 0.000179,
+"seconds": {
+"jev": 2.56,
+"luna": 4.668,
+"gemini": 0
+},
+"missing": 0
+},
+"chk": {
+"pA": 0.49875,
+"detail": {
+"boxes": 4
+},
+"calls": {
+"jev": 2,
+"luna": 1,
+"gemini": 0
+},
+"usd": 0.000422,
+"seconds": {
+"jev": 1.002,
+"luna": 11.034,
+"gemini": 0
+},
+"missing": 0
 }
 },
 "a6f94de7-dee6-579b-852a-1be7ca389cd2": {
@@ -62787,6 +75507,66 @@
 "seconds": {
 "jev": 0,
 "luna": 6.077
+},
+"missing": 0
+},
+"gem": {
+"pA": 0.5,
+"detail": {
+"games": [
+"B",
+"A"
+],
+"model": "gemini-3.5-flash-lite"
+},
+"calls": {
+"jev": 0,
+"luna": 0,
+"gemini": 2
+},
+"usd": 0.000263,
+"seconds": {
+"jev": 0,
+"luna": 0,
+"gemini": 3.447
+},
+"missing": 0
+},
+"ref_rc": {
+"pA": 0.6000000000000001,
+"detail": {
+"kind": "answer",
+"a": 0.56,
+"b": 0.36
+},
+"calls": {
+"jev": 2,
+"luna": 1,
+"gemini": 0
+},
+"usd": 8.2e-05,
+"seconds": {
+"jev": 2.472,
+"luna": 2.709,
+"gemini": 0
+},
+"missing": 0
+},
+"chk": {
+"pA": 0.620625,
+"detail": {
+"boxes": 4
+},
+"calls": {
+"jev": 2,
+"luna": 1,
+"gemini": 0
+},
+"usd": 0.000261,
+"seconds": {
+"jev": 0.922,
+"luna": 7.057,
+"gemini": 0
 },
 "missing": 0
 }
@@ -63063,6 +75843,66 @@
 "luna": 10.226
 },
 "missing": 0
+},
+"gem": {
+"pA": null,
+"detail": {
+"games": [
+null,
+"B"
+],
+"model": "gemini-3.5-flash-lite"
+},
+"calls": {
+"jev": 0,
+"luna": 0,
+"gemini": 2
+},
+"usd": 0.000769,
+"seconds": {
+"jev": 0,
+"luna": 0,
+"gemini": 4.748
+},
+"missing": 0
+},
+"ref_rc": {
+"pA": 0.835,
+"detail": {
+"kind": "answer",
+"a": 0.78,
+"b": 0.11
+},
+"calls": {
+"jev": 2,
+"luna": 1,
+"gemini": 0
+},
+"usd": 0.000174,
+"seconds": {
+"jev": 2.55,
+"luna": 3.793,
+"gemini": 0
+},
+"missing": 0
+},
+"chk": {
+"pA": 0.503125,
+"detail": {
+"boxes": 4
+},
+"calls": {
+"jev": 2,
+"luna": 1,
+"gemini": 0
+},
+"usd": 0.000448,
+"seconds": {
+"jev": 0.966,
+"luna": 9.411,
+"gemini": 0
+},
+"missing": 0
 }
 },
 "91f41b79-7c04-5300-b622-e6f1cad3f741": {
@@ -63335,6 +76175,66 @@
 "seconds": {
 "jev": 0,
 "luna": 4.812
+},
+"missing": 0
+},
+"gem": {
+"pA": 0.0,
+"detail": {
+"games": [
+"B",
+"B"
+],
+"model": "gemini-3.5-flash-lite"
+},
+"calls": {
+"jev": 0,
+"luna": 0,
+"gemini": 2
+},
+"usd": 0.000296,
+"seconds": {
+"jev": 0,
+"luna": 0,
+"gemini": 2.207
+},
+"missing": 0
+},
+"ref_rc": {
+"pA": 0.065,
+"detail": {
+"kind": "answer",
+"a": 0.12,
+"b": 0.99
+},
+"calls": {
+"jev": 2,
+"luna": 1,
+"gemini": 0
+},
+"usd": 0.000127,
+"seconds": {
+"jev": 2.622,
+"luna": 3.234,
+"gemini": 0
+},
+"missing": 0
+},
+"chk": {
+"pA": 0.06812499999999999,
+"detail": {
+"boxes": 4
+},
+"calls": {
+"jev": 2,
+"luna": 1,
+"gemini": 0
+},
+"usd": 0.000238,
+"seconds": {
+"jev": 0.9,
+"luna": 5.503,
+"gemini": 0
 },
 "missing": 0
 }
@@ -63611,6 +76511,66 @@
 "luna": 41.829
 },
 "missing": 0
+},
+"gem": {
+"pA": 0.5,
+"detail": {
+"games": [
+"B",
+"A"
+],
+"model": "gemini-3.5-flash-lite"
+},
+"calls": {
+"jev": 0,
+"luna": 0,
+"gemini": 2
+},
+"usd": 0.001065,
+"seconds": {
+"jev": 0,
+"luna": 0,
+"gemini": 8.402
+},
+"missing": 0
+},
+"ref_rc": {
+"pA": 0.5,
+"detail": {
+"kind": "answer",
+"a": 0.99,
+"b": 0.99
+},
+"calls": {
+"jev": 2,
+"luna": 1,
+"gemini": 0
+},
+"usd": 0.000649,
+"seconds": {
+"jev": 2.86,
+"luna": 15.729,
+"gemini": 0
+},
+"missing": 0
+},
+"chk": {
+"pA": 0.4975,
+"detail": {
+"boxes": 4
+},
+"calls": {
+"jev": 2,
+"luna": 1,
+"gemini": 0
+},
+"usd": 0.000513,
+"seconds": {
+"jev": 0.9,
+"luna": 13.876,
+"gemini": 0
+},
+"missing": 0
 }
 },
 "309a5084-bce2-5bf1-b3d3-6fa9449ae2f8": {
@@ -63883,6 +76843,66 @@
 "seconds": {
 "jev": 0,
 "luna": 9.959
+},
+"missing": 0
+},
+"gem": {
+"pA": 0.5,
+"detail": {
+"games": [
+"B",
+"A"
+],
+"model": "gemini-3.5-flash-lite"
+},
+"calls": {
+"jev": 0,
+"luna": 0,
+"gemini": 2
+},
+"usd": 0.000599,
+"seconds": {
+"jev": 0,
+"luna": 0,
+"gemini": 5.607
+},
+"missing": 0
+},
+"ref_rc": {
+"pA": 0.785,
+"detail": {
+"kind": "answer",
+"a": 0.66,
+"b": 0.09
+},
+"calls": {
+"jev": 2,
+"luna": 1,
+"gemini": 0
+},
+"usd": 0.00021,
+"seconds": {
+"jev": 2.375,
+"luna": 5.299,
+"gemini": 0
+},
+"missing": 0
+},
+"chk": {
+"pA": 0.501875,
+"detail": {
+"boxes": 4
+},
+"calls": {
+"jev": 2,
+"luna": 1,
+"gemini": 0
+},
+"usd": 0.000262,
+"seconds": {
+"jev": 0.885,
+"luna": 7.075,
+"gemini": 0
 },
 "missing": 0
 }
@@ -64159,6 +77179,66 @@
 "luna": 8.1
 },
 "missing": 0
+},
+"gem": {
+"pA": 0.5,
+"detail": {
+"games": [
+"A",
+"B"
+],
+"model": "gemini-3.5-flash-lite"
+},
+"calls": {
+"jev": 0,
+"luna": 0,
+"gemini": 2
+},
+"usd": 0.000206,
+"seconds": {
+"jev": 0,
+"luna": 0,
+"gemini": 2.065
+},
+"missing": 0
+},
+"ref_rc": {
+"pA": 0.955,
+"detail": {
+"kind": "answer",
+"a": 0.98,
+"b": 0.07
+},
+"calls": {
+"jev": 2,
+"luna": 1,
+"gemini": 0
+},
+"usd": 8.3e-05,
+"seconds": {
+"jev": 2.484,
+"luna": 1.974,
+"gemini": 0
+},
+"missing": 0
+},
+"chk": {
+"pA": 0.735625,
+"detail": {
+"boxes": 4
+},
+"calls": {
+"jev": 2,
+"luna": 1,
+"gemini": 0
+},
+"usd": 0.000296,
+"seconds": {
+"jev": 0.999,
+"luna": 9.049,
+"gemini": 0
+},
+"missing": 0
 }
 },
 "b07c4ba0-3480-5111-af8f-5cc69813a54b": {
@@ -64431,6 +77511,66 @@
 "seconds": {
 "jev": 0,
 "luna": 7.345
+},
+"missing": 0
+},
+"gem": {
+"pA": null,
+"detail": {
+"games": [
+"A",
+null
+],
+"model": "gemini-3.5-flash-lite"
+},
+"calls": {
+"jev": 0,
+"luna": 0,
+"gemini": 2
+},
+"usd": 0.000847,
+"seconds": {
+"jev": 0,
+"luna": 0,
+"gemini": 4.375
+},
+"missing": 0
+},
+"ref_rc": {
+"pA": 0.0050000000000000044,
+"detail": {
+"kind": "answer",
+"a": 0.01,
+"b": 1
+},
+"calls": {
+"jev": 2,
+"luna": 1,
+"gemini": 0
+},
+"usd": 0.000159,
+"seconds": {
+"jev": 2.377,
+"luna": 3.54,
+"gemini": 0
+},
+"missing": 0
+},
+"chk": {
+"pA": 0.259375,
+"detail": {
+"boxes": 4
+},
+"calls": {
+"jev": 2,
+"luna": 1,
+"gemini": 0
+},
+"usd": 0.000371,
+"seconds": {
+"jev": 0.874,
+"luna": 10.433,
+"gemini": 0
 },
 "missing": 0
 }
@@ -64707,6 +77847,66 @@
 "luna": 9.504
 },
 "missing": 0
+},
+"gem": {
+"pA": 1.0,
+"detail": {
+"games": [
+"A",
+"A"
+],
+"model": "gemini-3.5-flash-lite"
+},
+"calls": {
+"jev": 0,
+"luna": 0,
+"gemini": 2
+},
+"usd": 0.000531,
+"seconds": {
+"jev": 0,
+"luna": 0,
+"gemini": 3.388
+},
+"missing": 0
+},
+"ref_rc": {
+"pA": 0.56,
+"detail": {
+"kind": "open",
+"a": 0.22,
+"b": 0.1
+},
+"calls": {
+"jev": 2,
+"luna": 1,
+"gemini": 0
+},
+"usd": 0.000213,
+"seconds": {
+"jev": 2.511,
+"luna": 5.172,
+"gemini": 0
+},
+"missing": 0
+},
+"chk": {
+"pA": 0.585,
+"detail": {
+"boxes": 5
+},
+"calls": {
+"jev": 2,
+"luna": 1,
+"gemini": 0
+},
+"usd": 0.000215,
+"seconds": {
+"jev": 1.032,
+"luna": 4.423,
+"gemini": 0
+},
+"missing": 0
 }
 },
 "352e1a45-3dcb-5fb0-9c38-a6b7f674a084": {
@@ -64979,6 +78179,66 @@
 "seconds": {
 "jev": 0,
 "luna": 9.573
+},
+"missing": 0
+},
+"gem": {
+"pA": 1.0,
+"detail": {
+"games": [
+"A",
+"A"
+],
+"model": "gemini-3.5-flash-lite"
+},
+"calls": {
+"jev": 0,
+"luna": 0,
+"gemini": 2
+},
+"usd": 0.000307,
+"seconds": {
+"jev": 0,
+"luna": 0,
+"gemini": 2.418
+},
+"missing": 0
+},
+"ref_rc": {
+"pA": 0.5,
+"detail": {
+"kind": "answer",
+"a": 0.05,
+"b": 0.05
+},
+"calls": {
+"jev": 2,
+"luna": 1,
+"gemini": 0
+},
+"usd": 0.0001,
+"seconds": {
+"jev": 3.145,
+"luna": 2.309,
+"gemini": 0
+},
+"missing": 0
+},
+"chk": {
+"pA": 0.379375,
+"detail": {
+"boxes": 4
+},
+"calls": {
+"jev": 2,
+"luna": 1,
+"gemini": 0
+},
+"usd": 0.000255,
+"seconds": {
+"jev": 0.991,
+"luna": 5.955,
+"gemini": 0
 },
 "missing": 0
 }
@@ -65255,6 +78515,66 @@
 "luna": 25.576
 },
 "missing": 0
+},
+"gem": {
+"pA": 0.5,
+"detail": {
+"games": [
+"A",
+"B"
+],
+"model": "gemini-3.5-flash-lite"
+},
+"calls": {
+"jev": 0,
+"luna": 0,
+"gemini": 2
+},
+"usd": 0.000307,
+"seconds": {
+"jev": 0,
+"luna": 0,
+"gemini": 2.38
+},
+"missing": 0
+},
+"ref_rc": {
+"pA": 0.99,
+"detail": {
+"kind": "answer",
+"a": 0.99,
+"b": 0.01
+},
+"calls": {
+"jev": 2,
+"luna": 1,
+"gemini": 0
+},
+"usd": 0.000594,
+"seconds": {
+"jev": 2.307,
+"luna": 15.71,
+"gemini": 0
+},
+"missing": 0
+},
+"chk": {
+"pA": 0.625,
+"detail": {
+"boxes": 4
+},
+"calls": {
+"jev": 2,
+"luna": 1,
+"gemini": 0
+},
+"usd": 0.000472,
+"seconds": {
+"jev": 1.078,
+"luna": 11.823,
+"gemini": 0
+},
+"missing": 0
 }
 },
 "ef208923-d43f-5596-9503-908848c178cd": {
@@ -65527,6 +78847,66 @@
 "seconds": {
 "jev": 0,
 "luna": 11.403
+},
+"missing": 0
+},
+"gem": {
+"pA": 0.5,
+"detail": {
+"games": [
+"B",
+"A"
+],
+"model": "gemini-3.5-flash-lite"
+},
+"calls": {
+"jev": 0,
+"luna": 0,
+"gemini": 2
+},
+"usd": 0.000584,
+"seconds": {
+"jev": 0,
+"luna": 0,
+"gemini": 5.412
+},
+"missing": 0
+},
+"ref_rc": {
+"pA": 0.495,
+"detail": {
+"kind": "answer",
+"a": 0.98,
+"b": 0.99
+},
+"calls": {
+"jev": 2,
+"luna": 1,
+"gemini": 0
+},
+"usd": 0.000249,
+"seconds": {
+"jev": 1.551,
+"luna": 6.149,
+"gemini": 0
+},
+"missing": 0
+},
+"chk": {
+"pA": 0.49125,
+"detail": {
+"boxes": 4
+},
+"calls": {
+"jev": 2,
+"luna": 1,
+"gemini": 0
+},
+"usd": 0.000387,
+"seconds": {
+"jev": 1.001,
+"luna": 11.333,
+"gemini": 0
 },
 "missing": 0
 }
@@ -65803,6 +79183,66 @@
 "luna": 7.312
 },
 "missing": 0
+},
+"gem": {
+"pA": 1.0,
+"detail": {
+"games": [
+"A",
+"A"
+],
+"model": "gemini-3.5-flash-lite"
+},
+"calls": {
+"jev": 0,
+"luna": 0,
+"gemini": 2
+},
+"usd": 0.00033,
+"seconds": {
+"jev": 0,
+"luna": 0,
+"gemini": 2.618
+},
+"missing": 0
+},
+"ref_rc": {
+"pA": 0.88,
+"detail": {
+"kind": "answer",
+"a": 0.79,
+"b": 0.03
+},
+"calls": {
+"jev": 2,
+"luna": 1,
+"gemini": 0
+},
+"usd": 0.000239,
+"seconds": {
+"jev": 3.203,
+"luna": 6.021,
+"gemini": 0
+},
+"missing": 0
+},
+"chk": {
+"pA": 0.504375,
+"detail": {
+"boxes": 4
+},
+"calls": {
+"jev": 2,
+"luna": 1,
+"gemini": 0
+},
+"usd": 0.000297,
+"seconds": {
+"jev": 0.972,
+"luna": 6.582,
+"gemini": 0
+},
+"missing": 0
 }
 },
 "c9d03d78-9962-58e3-a776-703b910cde29": {
@@ -66075,6 +79515,66 @@
 "seconds": {
 "jev": 0,
 "luna": 7.178
+},
+"missing": 0
+},
+"gem": {
+"pA": 1.0,
+"detail": {
+"games": [
+"A",
+"A"
+],
+"model": "gemini-3.5-flash-lite"
+},
+"calls": {
+"jev": 0,
+"luna": 0,
+"gemini": 2
+},
+"usd": 0.000389,
+"seconds": {
+"jev": 0,
+"luna": 0,
+"gemini": 2.828
+},
+"missing": 0
+},
+"ref_rc": {
+"pA": 0.815,
+"detail": {
+"kind": "answer",
+"a": 0.97,
+"b": 0.34
+},
+"calls": {
+"jev": 2,
+"luna": 1,
+"gemini": 0
+},
+"usd": 0.000124,
+"seconds": {
+"jev": 2.375,
+"luna": 3.198,
+"gemini": 0
+},
+"missing": 0
+},
+"chk": {
+"pA": 0.551875,
+"detail": {
+"boxes": 4
+},
+"calls": {
+"jev": 2,
+"luna": 1,
+"gemini": 0
+},
+"usd": 0.000289,
+"seconds": {
+"jev": 1.13,
+"luna": 8.142,
+"gemini": 0
 },
 "missing": 0
 }
@@ -66351,6 +79851,66 @@
 "luna": 10.71
 },
 "missing": 0
+},
+"gem": {
+"pA": null,
+"detail": {
+"games": [
+null,
+null
+],
+"model": "gemini-3.5-flash-lite"
+},
+"calls": {
+"jev": 0,
+"luna": 0,
+"gemini": 2
+},
+"usd": 0.001001,
+"seconds": {
+"jev": 0,
+"luna": 0,
+"gemini": 5.554
+},
+"missing": 0
+},
+"ref_rc": {
+"pA": 0.335,
+"detail": {
+"kind": "answer",
+"a": 0.1,
+"b": 0.43
+},
+"calls": {
+"jev": 2,
+"luna": 1,
+"gemini": 0
+},
+"usd": 0.000169,
+"seconds": {
+"jev": 2.474,
+"luna": 5.352,
+"gemini": 0
+},
+"missing": 0
+},
+"chk": {
+"pA": 0.4955,
+"detail": {
+"boxes": 5
+},
+"calls": {
+"jev": 2,
+"luna": 1,
+"gemini": 0
+},
+"usd": 0.000309,
+"seconds": {
+"jev": 1.018,
+"luna": 8.638,
+"gemini": 0
+},
+"missing": 0
 }
 },
 "af8bbf3a-253a-5a14-8ec9-27d0f093d61d": {
@@ -66623,6 +80183,66 @@
 "seconds": {
 "jev": 0,
 "luna": 4.606
+},
+"missing": 0
+},
+"gem": {
+"pA": 1.0,
+"detail": {
+"games": [
+"A",
+"A"
+],
+"model": "gemini-3.5-flash-lite"
+},
+"calls": {
+"jev": 0,
+"luna": 0,
+"gemini": 2
+},
+"usd": 0.000507,
+"seconds": {
+"jev": 0,
+"luna": 0,
+"gemini": 2.19
+},
+"missing": 0
+},
+"ref_rc": {
+"pA": 0.975,
+"detail": {
+"kind": "answer",
+"a": 0.99,
+"b": 0.04
+},
+"calls": {
+"jev": 2,
+"luna": 1,
+"gemini": 0
+},
+"usd": 8.7e-05,
+"seconds": {
+"jev": 1.669,
+"luna": 2.13,
+"gemini": 0
+},
+"missing": 0
+},
+"chk": {
+"pA": 0.749375,
+"detail": {
+"boxes": 4
+},
+"calls": {
+"jev": 2,
+"luna": 1,
+"gemini": 0
+},
+"usd": 0.000235,
+"seconds": {
+"jev": 1.129,
+"luna": 5.61,
+"gemini": 0
 },
 "missing": 0
 }
@@ -66899,6 +80519,66 @@
 "luna": 10.941
 },
 "missing": 0
+},
+"gem": {
+"pA": 1.0,
+"detail": {
+"games": [
+"A",
+"A"
+],
+"model": "gemini-3.5-flash-lite"
+},
+"calls": {
+"jev": 0,
+"luna": 0,
+"gemini": 2
+},
+"usd": 0.000439,
+"seconds": {
+"jev": 0,
+"luna": 0,
+"gemini": 3.324
+},
+"missing": 0
+},
+"ref_rc": {
+"pA": 0.985,
+"detail": {
+"kind": "answer",
+"a": 0.99,
+"b": 0.02
+},
+"calls": {
+"jev": 2,
+"luna": 1,
+"gemini": 0
+},
+"usd": 0.000304,
+"seconds": {
+"jev": 2.665,
+"luna": 8.036,
+"gemini": 0
+},
+"missing": 0
+},
+"chk": {
+"pA": 0.713125,
+"detail": {
+"boxes": 4
+},
+"calls": {
+"jev": 2,
+"luna": 1,
+"gemini": 0
+},
+"usd": 0.000276,
+"seconds": {
+"jev": 1.065,
+"luna": 6.166,
+"gemini": 0
+},
+"missing": 0
 }
 },
 "3e2b3d28-4ac1-5898-ad61-f5a58cee8698": {
@@ -67171,6 +80851,66 @@
 "seconds": {
 "jev": 0,
 "luna": 4.19
+},
+"missing": 0
+},
+"gem": {
+"pA": 1.0,
+"detail": {
+"games": [
+"A",
+"A"
+],
+"model": "gemini-3.5-flash-lite"
+},
+"calls": {
+"jev": 0,
+"luna": 0,
+"gemini": 2
+},
+"usd": 0.000321,
+"seconds": {
+"jev": 0,
+"luna": 0,
+"gemini": 2.568
+},
+"missing": 0
+},
+"ref_rc": {
+"pA": 0.9199999999999999,
+"detail": {
+"kind": "answer",
+"a": 0.99,
+"b": 0.15
+},
+"calls": {
+"jev": 2,
+"luna": 1,
+"gemini": 0
+},
+"usd": 9.9e-05,
+"seconds": {
+"jev": 2.634,
+"luna": 3.992,
+"gemini": 0
+},
+"missing": 0
+},
+"chk": {
+"pA": 0.8362499999999999,
+"detail": {
+"boxes": 4
+},
+"calls": {
+"jev": 2,
+"luna": 1,
+"gemini": 0
+},
+"usd": 0.000211,
+"seconds": {
+"jev": 0.953,
+"luna": 5.85,
+"gemini": 0
 },
 "missing": 0
 }
@@ -67447,6 +81187,66 @@
 "luna": 23.833
 },
 "missing": 0
+},
+"gem": {
+"pA": 1.0,
+"detail": {
+"games": [
+"A",
+"A"
+],
+"model": "gemini-3.5-flash-lite"
+},
+"calls": {
+"jev": 0,
+"luna": 0,
+"gemini": 2
+},
+"usd": 0.000472,
+"seconds": {
+"jev": 0,
+"luna": 0,
+"gemini": 2.509
+},
+"missing": 0
+},
+"ref_rc": {
+"pA": 0.98,
+"detail": {
+"kind": "answer",
+"a": 0.97,
+"b": 0.01
+},
+"calls": {
+"jev": 2,
+"luna": 1,
+"gemini": 0
+},
+"usd": 0.000551,
+"seconds": {
+"jev": 2.632,
+"luna": 13.704,
+"gemini": 0
+},
+"missing": 0
+},
+"chk": {
+"pA": 0.4925,
+"detail": {
+"boxes": 4
+},
+"calls": {
+"jev": 2,
+"luna": 1,
+"gemini": 0
+},
+"usd": 0.000558,
+"seconds": {
+"jev": 0.894,
+"luna": 14.598,
+"gemini": 0
+},
+"missing": 0
 }
 },
 "b7bbea2c-8e83-50be-a385-70d16a0d507c": {
@@ -67719,6 +81519,66 @@
 "seconds": {
 "jev": 0,
 "luna": 3.65
+},
+"missing": 0
+},
+"gem": {
+"pA": 0.5,
+"detail": {
+"games": [
+"A",
+"B"
+],
+"model": "gemini-3.5-flash-lite"
+},
+"calls": {
+"jev": 0,
+"luna": 0,
+"gemini": 2
+},
+"usd": 0.000228,
+"seconds": {
+"jev": 0,
+"luna": 0,
+"gemini": 2.75
+},
+"missing": 0
+},
+"ref_rc": {
+"pA": 0.985,
+"detail": {
+"kind": "answer",
+"a": 0.99,
+"b": 0.02
+},
+"calls": {
+"jev": 2,
+"luna": 1,
+"gemini": 0
+},
+"usd": 0.000102,
+"seconds": {
+"jev": 2.696,
+"luna": 3.12,
+"gemini": 0
+},
+"missing": 0
+},
+"chk": {
+"pA": 0.7424999999999999,
+"detail": {
+"boxes": 4
+},
+"calls": {
+"jev": 2,
+"luna": 1,
+"gemini": 0
+},
+"usd": 0.000246,
+"seconds": {
+"jev": 0.93,
+"luna": 6.0,
+"gemini": 0
 },
 "missing": 0
 }
@@ -67995,6 +81855,66 @@
 "luna": 14.264
 },
 "missing": 0
+},
+"gem": {
+"pA": 0.5,
+"detail": {
+"games": [
+"A",
+"B"
+],
+"model": "gemini-3.5-flash-lite"
+},
+"calls": {
+"jev": 0,
+"luna": 0,
+"gemini": 2
+},
+"usd": 0.000276,
+"seconds": {
+"jev": 0,
+"luna": 0,
+"gemini": 1.916
+},
+"missing": 0
+},
+"ref_rc": {
+"pA": 0.09999999999999998,
+"detail": {
+"kind": "answer",
+"a": 0.1,
+"b": 0.9
+},
+"calls": {
+"jev": 2,
+"luna": 1,
+"gemini": 0
+},
+"usd": 0.000172,
+"seconds": {
+"jev": 3.033,
+"luna": 5.251,
+"gemini": 0
+},
+"missing": 0
+},
+"chk": {
+"pA": 0.04062500000000002,
+"detail": {
+"boxes": 4
+},
+"calls": {
+"jev": 2,
+"luna": 1,
+"gemini": 0
+},
+"usd": 0.00032,
+"seconds": {
+"jev": 0.987,
+"luna": 9.004,
+"gemini": 0
+},
+"missing": 0
 }
 },
 "36e83498-671a-5edf-be79-24bdb5e568e5": {
@@ -68267,6 +82187,66 @@
 "seconds": {
 "jev": 0,
 "luna": 10.268
+},
+"missing": 0
+},
+"gem": {
+"pA": 1.0,
+"detail": {
+"games": [
+"A",
+"A"
+],
+"model": "gemini-3.5-flash-lite"
+},
+"calls": {
+"jev": 0,
+"luna": 0,
+"gemini": 2
+},
+"usd": 0.000878,
+"seconds": {
+"jev": 0,
+"luna": 0,
+"gemini": 5.859
+},
+"missing": 0
+},
+"ref_rc": {
+"pA": 0.985,
+"detail": {
+"kind": "answer",
+"a": 0.99,
+"b": 0.02
+},
+"calls": {
+"jev": 2,
+"luna": 1,
+"gemini": 0
+},
+"usd": 0.000228,
+"seconds": {
+"jev": 3.035,
+"luna": 6.029,
+"gemini": 0
+},
+"missing": 0
+},
+"chk": {
+"pA": 0.625,
+"detail": {
+"boxes": 4
+},
+"calls": {
+"jev": 2,
+"luna": 1,
+"gemini": 0
+},
+"usd": 0.0003,
+"seconds": {
+"jev": 0.971,
+"luna": 6.719,
+"gemini": 0
 },
 "missing": 0
 }
@@ -68543,6 +82523,66 @@
 "luna": 7.698
 },
 "missing": 0
+},
+"gem": {
+"pA": 0.5,
+"detail": {
+"games": [
+"B",
+"A"
+],
+"model": "gemini-3.5-flash-lite"
+},
+"calls": {
+"jev": 0,
+"luna": 0,
+"gemini": 2
+},
+"usd": 0.000539,
+"seconds": {
+"jev": 0,
+"luna": 0,
+"gemini": 4.113
+},
+"missing": 0
+},
+"ref_rc": {
+"pA": 0.015000000000000013,
+"detail": {
+"kind": "answer",
+"a": 0.02,
+"b": 0.99
+},
+"calls": {
+"jev": 2,
+"luna": 1,
+"gemini": 0
+},
+"usd": 0.000181,
+"seconds": {
+"jev": 3.689,
+"luna": 4.065,
+"gemini": 0
+},
+"missing": 0
+},
+"chk": {
+"pA": 0.4225,
+"detail": {
+"boxes": 4
+},
+"calls": {
+"jev": 2,
+"luna": 1,
+"gemini": 0
+},
+"usd": 0.000329,
+"seconds": {
+"jev": 1.01,
+"luna": 8.469,
+"gemini": 0
+},
+"missing": 0
 }
 },
 "c1891f8b-2cce-52b7-868c-6c072e79701e": {
@@ -68815,6 +82855,66 @@
 "seconds": {
 "jev": 0,
 "luna": 4.0
+},
+"missing": 0
+},
+"gem": {
+"pA": 1.0,
+"detail": {
+"games": [
+"A",
+"A"
+],
+"model": "gemini-3.5-flash-lite"
+},
+"calls": {
+"jev": 0,
+"luna": 0,
+"gemini": 2
+},
+"usd": 0.000605,
+"seconds": {
+"jev": 0,
+"luna": 0,
+"gemini": 2.555
+},
+"missing": 0
+},
+"ref_rc": {
+"pA": 0.905,
+"detail": {
+"kind": "answer",
+"a": 0.97,
+"b": 0.16
+},
+"calls": {
+"jev": 2,
+"luna": 1,
+"gemini": 0
+},
+"usd": 0.000138,
+"seconds": {
+"jev": 1.744,
+"luna": 3.746,
+"gemini": 0
+},
+"missing": 0
+},
+"chk": {
+"pA": 0.7581249999999999,
+"detail": {
+"boxes": 4
+},
+"calls": {
+"jev": 2,
+"luna": 1,
+"gemini": 0
+},
+"usd": 0.000292,
+"seconds": {
+"jev": 0.944,
+"luna": 8.623,
+"gemini": 0
 },
 "missing": 0
 }
@@ -69091,6 +83191,66 @@
 "luna": 19.93
 },
 "missing": 0
+},
+"gem": {
+"pA": 0.0,
+"detail": {
+"games": [
+"B",
+"B"
+],
+"model": "gemini-3.5-flash-lite"
+},
+"calls": {
+"jev": 0,
+"luna": 0,
+"gemini": 2
+},
+"usd": 0.000383,
+"seconds": {
+"jev": 0,
+"luna": 0,
+"gemini": 2.151
+},
+"missing": 0
+},
+"ref_rc": {
+"pA": 0.56,
+"detail": {
+"kind": "answer",
+"a": 0.21,
+"b": 0.09
+},
+"calls": {
+"jev": 2,
+"luna": 1,
+"gemini": 0
+},
+"usd": 0.000319,
+"seconds": {
+"jev": 4.523,
+"luna": 8.426,
+"gemini": 0
+},
+"missing": 0
+},
+"chk": {
+"pA": 0.33999999999999997,
+"detail": {
+"boxes": 4
+},
+"calls": {
+"jev": 2,
+"luna": 1,
+"gemini": 0
+},
+"usd": 0.000317,
+"seconds": {
+"jev": 0.996,
+"luna": 7.129,
+"gemini": 0
+},
+"missing": 0
 }
 },
 "5a794b9e-e12f-5fbb-872c-c47b6c301b65": {
@@ -69363,6 +83523,66 @@
 "seconds": {
 "jev": 0,
 "luna": 2.843
+},
+"missing": 0
+},
+"gem": {
+"pA": 0.0,
+"detail": {
+"games": [
+"B",
+"B"
+],
+"model": "gemini-3.5-flash-lite"
+},
+"calls": {
+"jev": 0,
+"luna": 0,
+"gemini": 2
+},
+"usd": 0.000404,
+"seconds": {
+"jev": 0,
+"luna": 0,
+"gemini": 2.213
+},
+"missing": 0
+},
+"ref_rc": {
+"pA": 0.05499999999999999,
+"detail": {
+"kind": "answer",
+"a": 0.09,
+"b": 0.98
+},
+"calls": {
+"jev": 2,
+"luna": 1,
+"gemini": 0
+},
+"usd": 9.1e-05,
+"seconds": {
+"jev": 3.022,
+"luna": 2.419,
+"gemini": 0
+},
+"missing": 0
+},
+"chk": {
+"pA": 0.13875000000000004,
+"detail": {
+"boxes": 4
+},
+"calls": {
+"jev": 2,
+"luna": 1,
+"gemini": 0
+},
+"usd": 0.00019,
+"seconds": {
+"jev": 1.079,
+"luna": 4.638,
+"gemini": 0
 },
 "missing": 0
 }
@@ -69639,6 +83859,66 @@
 "luna": 8.241
 },
 "missing": 0
+},
+"gem": {
+"pA": null,
+"detail": {
+"games": [
+null,
+null
+],
+"model": "gemini-3.5-flash-lite"
+},
+"calls": {
+"jev": 0,
+"luna": 0,
+"gemini": 2
+},
+"usd": 0.00033,
+"seconds": {
+"jev": 0,
+"luna": 0,
+"gemini": 3.47
+},
+"missing": 0
+},
+"ref_rc": {
+"pA": 0.685,
+"detail": {
+"kind": "open",
+"a": 0.53,
+"b": 0.16
+},
+"calls": {
+"jev": 2,
+"luna": 1,
+"gemini": 0
+},
+"usd": 0.000697,
+"seconds": {
+"jev": 3.01,
+"luna": 16.327,
+"gemini": 0
+},
+"missing": 0
+},
+"chk": {
+"pA": 0.460625,
+"detail": {
+"boxes": 4
+},
+"calls": {
+"jev": 2,
+"luna": 1,
+"gemini": 0
+},
+"usd": 0.000399,
+"seconds": {
+"jev": 0.898,
+"luna": 10.814,
+"gemini": 0
+},
+"missing": 0
 }
 },
 "29da4abd-50bc-5254-bfca-dfbbf7b48daf": {
@@ -69911,6 +84191,66 @@
 "seconds": {
 "jev": 0,
 "luna": 4.46
+},
+"missing": 0
+},
+"gem": {
+"pA": 0.5,
+"detail": {
+"games": [
+"B",
+"A"
+],
+"model": "gemini-3.5-flash-lite"
+},
+"calls": {
+"jev": 0,
+"luna": 0,
+"gemini": 2
+},
+"usd": 0.000396,
+"seconds": {
+"jev": 0,
+"luna": 0,
+"gemini": 2.862
+},
+"missing": 0
+},
+"ref_rc": {
+"pA": 0.98,
+"detail": {
+"kind": "answer",
+"a": 0.98,
+"b": 0.02
+},
+"calls": {
+"jev": 2,
+"luna": 1,
+"gemini": 0
+},
+"usd": 0.000151,
+"seconds": {
+"jev": 2.042,
+"luna": 5.284,
+"gemini": 0
+},
+"missing": 0
+},
+"chk": {
+"pA": 0.815625,
+"detail": {
+"boxes": 4
+},
+"calls": {
+"jev": 2,
+"luna": 1,
+"gemini": 0
+},
+"usd": 0.000257,
+"seconds": {
+"jev": 0.905,
+"luna": 6.258,
+"gemini": 0
 },
 "missing": 0
 }
@@ -70187,6 +84527,66 @@
 "luna": 4.859
 },
 "missing": 0
+},
+"gem": {
+"pA": 1.0,
+"detail": {
+"games": [
+"A",
+"A"
+],
+"model": "gemini-3.5-flash-lite"
+},
+"calls": {
+"jev": 0,
+"luna": 0,
+"gemini": 2
+},
+"usd": 0.000291,
+"seconds": {
+"jev": 0,
+"luna": 0,
+"gemini": 2.305
+},
+"missing": 0
+},
+"ref_rc": {
+"pA": 0.5700000000000001,
+"detail": {
+"kind": "answer",
+"a": 0.99,
+"b": 0.85
+},
+"calls": {
+"jev": 2,
+"luna": 1,
+"gemini": 0
+},
+"usd": 7.9e-05,
+"seconds": {
+"jev": 2.47,
+"luna": 2.778,
+"gemini": 0
+},
+"missing": 0
+},
+"chk": {
+"pA": 0.740625,
+"detail": {
+"boxes": 4
+},
+"calls": {
+"jev": 2,
+"luna": 1,
+"gemini": 0
+},
+"usd": 0.000195,
+"seconds": {
+"jev": 1.01,
+"luna": 4.316,
+"gemini": 0
+},
+"missing": 0
 }
 },
 "ef607538-1628-5cce-bc92-093ff755586d": {
@@ -70459,6 +84859,66 @@
 "seconds": {
 "jev": 0,
 "luna": 4.03
+},
+"missing": 0
+},
+"gem": {
+"pA": 1.0,
+"detail": {
+"games": [
+"A",
+"A"
+],
+"model": "gemini-3.5-flash-lite"
+},
+"calls": {
+"jev": 0,
+"luna": 0,
+"gemini": 2
+},
+"usd": 0.000237,
+"seconds": {
+"jev": 0,
+"luna": 0,
+"gemini": 2.181
+},
+"missing": 0
+},
+"ref_rc": {
+"pA": 0.05499999999999999,
+"detail": {
+"kind": "answer",
+"a": 0.09,
+"b": 0.98
+},
+"calls": {
+"jev": 2,
+"luna": 1,
+"gemini": 0
+},
+"usd": 0.000105,
+"seconds": {
+"jev": 5.182,
+"luna": 3.466,
+"gemini": 0
+},
+"missing": 0
+},
+"chk": {
+"pA": 0.515625,
+"detail": {
+"boxes": 4
+},
+"calls": {
+"jev": 2,
+"luna": 1,
+"gemini": 0
+},
+"usd": 0.000271,
+"seconds": {
+"jev": 1.021,
+"luna": 6.436,
+"gemini": 0
 },
 "missing": 0
 }
@@ -70735,6 +85195,66 @@
 "luna": 7.803
 },
 "missing": 0
+},
+"gem": {
+"pA": 1.0,
+"detail": {
+"games": [
+"A",
+"A"
+],
+"model": "gemini-3.5-flash-lite"
+},
+"calls": {
+"jev": 0,
+"luna": 0,
+"gemini": 2
+},
+"usd": 0.000375,
+"seconds": {
+"jev": 0,
+"luna": 0,
+"gemini": 3.143
+},
+"missing": 0
+},
+"ref_rc": {
+"pA": 0.76,
+"detail": {
+"kind": "answer",
+"a": 0.54,
+"b": 0.02
+},
+"calls": {
+"jev": 2,
+"luna": 1,
+"gemini": 0
+},
+"usd": 0.000206,
+"seconds": {
+"jev": 1.783,
+"luna": 5.463,
+"gemini": 0
+},
+"missing": 0
+},
+"chk": {
+"pA": 0.16249999999999998,
+"detail": {
+"boxes": 4
+},
+"calls": {
+"jev": 2,
+"luna": 1,
+"gemini": 0
+},
+"usd": 0.000341,
+"seconds": {
+"jev": 1.057,
+"luna": 7.319,
+"gemini": 0
+},
+"missing": 0
 }
 },
 "00176ef4-146c-53e1-8328-d349fb7d0ea3": {
@@ -71007,6 +85527,66 @@
 "seconds": {
 "jev": 0,
 "luna": 6.274
+},
+"missing": 0
+},
+"gem": {
+"pA": null,
+"detail": {
+"games": [
+"B",
+null
+],
+"model": "gemini-3.5-flash-lite"
+},
+"calls": {
+"jev": 0,
+"luna": 0,
+"gemini": 2
+},
+"usd": 0.000622,
+"seconds": {
+"jev": 0,
+"luna": 0,
+"gemini": 6.075
+},
+"missing": 0
+},
+"ref_rc": {
+"pA": 0.505,
+"detail": {
+"kind": "open",
+"a": 0.13,
+"b": 0.12
+},
+"calls": {
+"jev": 2,
+"luna": 1,
+"gemini": 0
+},
+"usd": 0.000174,
+"seconds": {
+"jev": 3.229,
+"luna": 4.192,
+"gemini": 0
+},
+"missing": 0
+},
+"chk": {
+"pA": 0.696875,
+"detail": {
+"boxes": 4
+},
+"calls": {
+"jev": 2,
+"luna": 1,
+"gemini": 0
+},
+"usd": 0.000309,
+"seconds": {
+"jev": 1.006,
+"luna": 7.976,
+"gemini": 0
 },
 "missing": 0
 }
@@ -71283,6 +85863,66 @@
 "luna": 19.698
 },
 "missing": 0
+},
+"gem": {
+"pA": null,
+"detail": {
+"games": [
+null,
+"A"
+],
+"model": "gemini-3.5-flash-lite"
+},
+"calls": {
+"jev": 0,
+"luna": 0,
+"gemini": 2
+},
+"usd": 0.000907,
+"seconds": {
+"jev": 0,
+"luna": 0,
+"gemini": 4.538
+},
+"missing": 0
+},
+"ref_rc": {
+"pA": 0.5700000000000001,
+"detail": {
+"kind": "answer",
+"a": 0.22,
+"b": 0.08
+},
+"calls": {
+"jev": 2,
+"luna": 1,
+"gemini": 0
+},
+"usd": 0.000373,
+"seconds": {
+"jev": 1.458,
+"luna": 7.994,
+"gemini": 0
+},
+"missing": 0
+},
+"chk": {
+"pA": 0.775625,
+"detail": {
+"boxes": 4
+},
+"calls": {
+"jev": 2,
+"luna": 1,
+"gemini": 0
+},
+"usd": 0.000502,
+"seconds": {
+"jev": 0.931,
+"luna": 11.611,
+"gemini": 0
+},
+"missing": 0
 }
 },
 "57500a89-7795-5299-b6a8-d0ab8da2687a": {
@@ -71555,6 +86195,66 @@
 "seconds": {
 "jev": 0,
 "luna": 6.17
+},
+"missing": 0
+},
+"gem": {
+"pA": 0.0,
+"detail": {
+"games": [
+"B",
+"B"
+],
+"model": "gemini-3.5-flash-lite"
+},
+"calls": {
+"jev": 0,
+"luna": 0,
+"gemini": 2
+},
+"usd": 0.000408,
+"seconds": {
+"jev": 0,
+"luna": 0,
+"gemini": 2.095
+},
+"missing": 0
+},
+"ref_rc": {
+"pA": 0.54,
+"detail": {
+"kind": "answer",
+"a": 0.4,
+"b": 0.32
+},
+"calls": {
+"jev": 2,
+"luna": 1,
+"gemini": 0
+},
+"usd": 0.000105,
+"seconds": {
+"jev": 1.76,
+"luna": 2.458,
+"gemini": 0
+},
+"missing": 0
+},
+"chk": {
+"pA": 0.859375,
+"detail": {
+"boxes": 4
+},
+"calls": {
+"jev": 2,
+"luna": 1,
+"gemini": 0
+},
+"usd": 0.000232,
+"seconds": {
+"jev": 1.058,
+"luna": 5.647,
+"gemini": 0
 },
 "missing": 0
 }
@@ -71831,6 +86531,66 @@
 "luna": 4.902
 },
 "missing": 0
+},
+"gem": {
+"pA": 0.0,
+"detail": {
+"games": [
+"B",
+"B"
+],
+"model": "gemini-3.5-flash-lite"
+},
+"calls": {
+"jev": 0,
+"luna": 0,
+"gemini": 2
+},
+"usd": 0.000198,
+"seconds": {
+"jev": 0,
+"luna": 0,
+"gemini": 2.481
+},
+"missing": 0
+},
+"ref_rc": {
+"pA": 0.355,
+"detail": {
+"kind": "answer",
+"a": 0.7,
+"b": 0.99
+},
+"calls": {
+"jev": 2,
+"luna": 1,
+"gemini": 0
+},
+"usd": 6.7e-05,
+"seconds": {
+"jev": 2.197,
+"luna": 1.774,
+"gemini": 0
+},
+"missing": 0
+},
+"chk": {
+"pA": 0.2825,
+"detail": {
+"boxes": 4
+},
+"calls": {
+"jev": 2,
+"luna": 1,
+"gemini": 0
+},
+"usd": 0.000233,
+"seconds": {
+"jev": 0.945,
+"luna": 5.524,
+"gemini": 0
+},
+"missing": 0
 }
 },
 "2d989dfb-7cf0-549e-945c-3dd060d1fad5": {
@@ -72103,6 +86863,66 @@
 "seconds": {
 "jev": 0,
 "luna": 12.528
+},
+"missing": 0
+},
+"gem": {
+"pA": 0.5,
+"detail": {
+"games": [
+"A",
+"B"
+],
+"model": "gemini-3.5-flash-lite"
+},
+"calls": {
+"jev": 0,
+"luna": 0,
+"gemini": 2
+},
+"usd": 0.00034,
+"seconds": {
+"jev": 0,
+"luna": 0,
+"gemini": 2.761
+},
+"missing": 0
+},
+"ref_rc": {
+"pA": 0.12,
+"detail": {
+"kind": "answer",
+"a": 0.2,
+"b": 0.96
+},
+"calls": {
+"jev": 2,
+"luna": 1,
+"gemini": 0
+},
+"usd": 0.000382,
+"seconds": {
+"jev": 3.366,
+"luna": 9.394,
+"gemini": 0
+},
+"missing": 0
+},
+"chk": {
+"pA": 0.5975,
+"detail": {
+"boxes": 4
+},
+"calls": {
+"jev": 2,
+"luna": 1,
+"gemini": 0
+},
+"usd": 0.000378,
+"seconds": {
+"jev": 1.033,
+"luna": 8.385,
+"gemini": 0
 },
 "missing": 0
 }
@@ -72379,6 +87199,66 @@
 "luna": 3.741
 },
 "missing": 0
+},
+"gem": {
+"pA": null,
+"detail": {
+"games": [
+null,
+null
+],
+"model": "gemini-3.5-flash-lite"
+},
+"calls": {
+"jev": 0,
+"luna": 0,
+"gemini": 2
+},
+"usd": 0.000412,
+"seconds": {
+"jev": 0,
+"luna": 0,
+"gemini": 3.529
+},
+"missing": 0
+},
+"ref_rc": {
+"pA": 0.06,
+"detail": {
+"kind": "answer",
+"a": 0.08,
+"b": 0.96
+},
+"calls": {
+"jev": 2,
+"luna": 1,
+"gemini": 0
+},
+"usd": 7.3e-05,
+"seconds": {
+"jev": 2.967,
+"luna": 2.111,
+"gemini": 0
+},
+"missing": 0
+},
+"chk": {
+"pA": 0.13187500000000002,
+"detail": {
+"boxes": 4
+},
+"calls": {
+"jev": 2,
+"luna": 1,
+"gemini": 0
+},
+"usd": 0.0003,
+"seconds": {
+"jev": 1.073,
+"luna": 7.196,
+"gemini": 0
+},
+"missing": 0
 }
 },
 "ed47c678-7393-548d-975e-789595bea2c7": {
@@ -72653,6 +87533,66 @@
 "luna": 43.007
 },
 "missing": 0
+},
+"gem": {
+"pA": 0.5,
+"detail": {
+"games": [
+"B",
+"A"
+],
+"model": "gemini-3.5-flash-lite"
+},
+"calls": {
+"jev": 0,
+"luna": 0,
+"gemini": 2
+},
+"usd": 0.001083,
+"seconds": {
+"jev": 0,
+"luna": 0,
+"gemini": 8.171
+},
+"missing": 0
+},
+"ref_rc": {
+"pA": 0.985,
+"detail": {
+"kind": "answer",
+"a": 0.99,
+"b": 0.02
+},
+"calls": {
+"jev": 2,
+"luna": 1,
+"gemini": 0
+},
+"usd": 0.000974,
+"seconds": {
+"jev": 2.77,
+"luna": 27.029,
+"gemini": 0
+},
+"missing": 0
+},
+"chk": {
+"pA": 0.484375,
+"detail": {
+"boxes": 4
+},
+"calls": {
+"jev": 2,
+"luna": 1,
+"gemini": 0
+},
+"usd": 0.000482,
+"seconds": {
+"jev": 0.999,
+"luna": 11.468,
+"gemini": 0
+},
+"missing": 0
 }
 },
 "40c35c1b-4d3a-56ae-a7fa-22307efca211": {
@@ -72925,6 +87865,66 @@
 "seconds": {
 "jev": 0,
 "luna": 3.605
+},
+"missing": 0
+},
+"gem": {
+"pA": null,
+"detail": {
+"games": [
+null,
+"B"
+],
+"model": "gemini-3.5-flash-lite"
+},
+"calls": {
+"jev": 0,
+"luna": 0,
+"gemini": 2
+},
+"usd": 0.000498,
+"seconds": {
+"jev": 0,
+"luna": 0,
+"gemini": 3.523
+},
+"missing": 0
+},
+"ref_rc": {
+"pA": 0.97,
+"detail": {
+"kind": "answer",
+"a": 0.99,
+"b": 0.05
+},
+"calls": {
+"jev": 2,
+"luna": 1,
+"gemini": 0
+},
+"usd": 7.3e-05,
+"seconds": {
+"jev": 2.714,
+"luna": 1.896,
+"gemini": 0
+},
+"missing": 0
+},
+"chk": {
+"pA": 0.985625,
+"detail": {
+"boxes": 4
+},
+"calls": {
+"jev": 2,
+"luna": 1,
+"gemini": 0
+},
+"usd": 0.000276,
+"seconds": {
+"jev": 0.99,
+"luna": 6.283,
+"gemini": 0
 },
 "missing": 0
 }

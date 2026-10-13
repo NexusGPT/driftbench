@@ -1,0 +1,29 @@
+{
+ "key": "be7a5366f6699089e1e48272c58d70a71d40508597bf90652fea417d1f1d6087",
+ "boxes": [
+  {
+   "question": "Does the answer identify (B) as the statement that is NOT true?",
+   "weight": 5
+  },
+  {
+   "question": "Does the answer avoid identifying (A) as the statement that is NOT true?",
+   "weight": 3
+  },
+  {
+   "question": "Does the answer avoid identifying (C) as the statement that is NOT true?",
+   "weight": 3
+  },
+  {
+   "question": "Does the answer avoid identifying (D) as the statement that is NOT true?",
+   "weight": 3
+  },
+  {
+   "question": "Does the answer avoid identifying (E) as the statement that is NOT true?",
+   "weight": 3
+  }
+ ],
+ "error": null,
+ "short": false,
+ "s2_usd": 0.00036060000000000004,
+ "seconds": 7.7226
+}

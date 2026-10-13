@@ -1,0 +1,25 @@
+{
+ "key": "18c6f557852ab3ed6fcd761fc8382f93efb516d47716711f95cacb4318b1c896",
+ "boxes": [
+  {
+   "question": "Does the answer correctly determine that elements can be swapped only within contiguous runs whose elements have the same number of set bits?",
+   "weight": 4
+  },
+  {
+   "question": "Does the answer give a correct criterion or method for deciding whether those runs can be rearranged to produce a globally sorted array?",
+   "weight": 5
+  },
+  {
+   "question": "Does the answer’s proposed solution return true for [8,4,2,30,15] and [1,2,3,4,5], and false for [3,16,8,4,2]?",
+   "weight": 4
+  },
+  {
+   "question": "Is the proposed solution correct for all arrays satisfying the stated constraints, including arrays of length one?",
+   "weight": 5
+  }
+ ],
+ "error": null,
+ "short": false,
+ "s2_usd": 0.0002963,
+ "seconds": 6.8594
+}

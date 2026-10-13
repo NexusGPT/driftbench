@@ -1,0 +1,25 @@
+{
+ "key": "07ef47ef86c69891ecc08efbf09d134f27a3416add785a493cf0035967602ae0",
+ "boxes": [
+  {
+   "question": "Does the answer identify choice B as correct?",
+   "weight": 5
+  },
+  {
+   "question": "Does the answer give the correct probability, \\(49/216\\)?",
+   "weight": 5
+  },
+  {
+   "question": "Does the answer treat the event as reaching a running total of 3 after any of the four rolls, rather than only checking the final total?",
+   "weight": 4
+  },
+  {
+   "question": "Does the answer duplicate its chosen letter five times in one string, as requested?",
+   "weight": 2
+  }
+ ],
+ "error": null,
+ "short": false,
+ "s2_usd": 0.000336,
+ "seconds": 10.2587
+}

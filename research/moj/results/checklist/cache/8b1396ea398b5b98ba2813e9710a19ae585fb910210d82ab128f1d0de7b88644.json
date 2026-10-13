@@ -1,0 +1,25 @@
+{
+ "key": "8b1396ea398b5b98ba2813e9710a19ae585fb910210d82ab128f1d0de7b88644",
+ "boxes": [
+  {
+   "question": "Does the answer say that the person at the school does not tell the truth (no)?",
+   "weight": 5
+  },
+  {
+   "question": "Does the answer say that the person at the beach tells the truth (yes)?",
+   "weight": 5
+  },
+  {
+   "question": "Does the answer say that the person at the gym tells the truth (yes)?",
+   "weight": 5
+  },
+  {
+   "question": "Is the answer presented in bold as a list of three words, each either yes or no?",
+   "weight": 1
+  }
+ ],
+ "error": null,
+ "short": false,
+ "s2_usd": 0.0002905,
+ "seconds": 6.9026
+}

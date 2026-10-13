@@ -1,0 +1,25 @@
+{
+ "key": "96c5115e462928eafd342424d619ed902d2dac62b78bbe74e94c00559fa5eb13",
+ "boxes": [
+  {
+   "question": "Does the answer correctly recognize that each operation removes the next two elements of the remaining prefix, without skipping elements?",
+   "weight": 3
+  },
+  {
+   "question": "Does the answer correctly use the sum of the first two elements as the required score for every operation?",
+   "weight": 4
+  },
+  {
+   "question": "Does the answer correctly count consecutive pairs from the start whose sums equal that required score, stopping when a pair has a different sum or fewer than two elements remain?",
+   "weight": 5
+  },
+  {
+   "question": "Does the answer’s proposed result or method return the maximum number of valid operations for every array allowed by the constraints?",
+   "weight": 5
+  }
+ ],
+ "error": null,
+ "short": false,
+ "s2_usd": 0.00030910000000000003,
+ "seconds": 7.9763
+}

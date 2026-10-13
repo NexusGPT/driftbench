@@ -1,0 +1,33 @@
+{
+ "key": "9e8de130515e6221f0667c2c6199fbb9a7c10d88eb22d8025e5b6c5db6bef800",
+ "boxes": [
+  {
+   "question": "La réponse indique-t-elle que les revenus annuels sont de 10,50 $ (7 citrons × 1,50 $) ?",
+   "weight": 2
+  },
+  {
+   "question": "La réponse soustrait-elle correctement les 3 $ de frais annuels pour obtenir un gain net de 7,50 $ par an ?",
+   "weight": 3
+  },
+  {
+   "question": "La réponse calcule-t-elle correctement qu'il faut 12 ans pour récupérer les 90 $ investis ?",
+   "weight": 4
+  },
+  {
+   "question": "La réponse précise-t-elle que Carlos commence à réaliser un bénéfice après avoir récupéré son investissement, c'est-à-dire à partir de la 13e année si l'on compte les années complètes ?",
+   "weight": 4
+  },
+  {
+   "question": "La réponse est-elle rédigée en français ?",
+   "weight": 2
+  },
+  {
+   "question": "La réponse explique-t-elle son calcul de façon claire et utile ?",
+   "weight": 1
+  }
+ ],
+ "error": null,
+ "short": false,
+ "s2_usd": 0.0002017,
+ "seconds": 4.9152
+}

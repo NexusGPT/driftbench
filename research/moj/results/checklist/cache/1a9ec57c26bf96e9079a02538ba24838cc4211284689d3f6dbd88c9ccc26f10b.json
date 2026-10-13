@@ -1,0 +1,25 @@
+{
+ "key": "1a9ec57c26bf96e9079a02538ba24838cc4211284689d3f6dbd88c9ccc26f10b",
+ "boxes": [
+  {
+   "question": "Does the answer correctly conclude that the mother is unlikely to prevail?",
+   "weight": 5
+  },
+  {
+   "question": "Does the answer identify option B as the correct choice?",
+   "weight": 5
+  },
+  {
+   "question": "Does the answer provide the letter B exactly five times in a single string?",
+   "weight": 1
+  },
+  {
+   "question": "Does the answer avoid identifying any other option as the correct choice?",
+   "weight": 5
+  }
+ ],
+ "error": null,
+ "short": false,
+ "s2_usd": 0.0002759,
+ "seconds": 7.2208
+}

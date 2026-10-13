@@ -1,0 +1,29 @@
+{
+ "key": "b448e7f00eef0111110ed81a9c570955df0c1bcf34c5a56c79f485bd6e9b81f8",
+ "boxes": [
+  {
+   "question": "Weist die Antwort konkret auf `use_rms_prop: 0.3` als wahrscheinlichen Fehler hin, weil der Wert für diese Option vermutlich ein boolescher Wert (`true` oder `false`) sein muss?",
+   "weight": 5
+  },
+  {
+   "question": "Erklärt die Antwort korrekt, dass `normalize_advantage: False` gültige YAML-Syntax ist und `False` als boolescher Wert gelesen wird?",
+   "weight": 3
+  },
+  {
+   "question": "Unterscheidet die Antwort zwischen einem YAML-Syntaxfehler und einem ungültigen oder unpassenden Konfigurationswert?",
+   "weight": 2
+  },
+  {
+   "question": "Nennt die Antwort bei verbleibender Unsicherheit einen konkreten nächsten Prüfschritt, etwa die erwarteten Parameter des verwendeten Algorithmus oder der Bibliothek abzugleichen?",
+   "weight": 2
+  },
+  {
+   "question": "Ist die Antwort auf Deutsch formuliert?",
+   "weight": 1
+  }
+ ],
+ "error": null,
+ "short": false,
+ "s2_usd": 0.00031560000000000003,
+ "seconds": 6.2232
+}

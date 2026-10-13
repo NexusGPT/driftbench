@@ -1,0 +1,37 @@
+{
+ "key": "8364ffd149781716a8d30fe6a1022abb98d38882a08fee81839c3889f8388226",
+ "boxes": [
+  {
+   "question": "Câu trả lời có nêu biểu đồ bậc hai [Alex, Jack, Charlie, niềm tin rằng Jack đang đánh giá liệu cú cược của Charlie là mối đe dọa thật hay cú bluff] không?",
+   "weight": 5
+  },
+  {
+   "question": "Câu trả lời có nêu biểu đồ bậc hai [Alex, Charlie, Jack, niềm tin rằng Charlie dự đoán Jack đang dò xét mình và có thể tận dụng điều đó] không?",
+   "weight": 5
+  },
+  {
+   "question": "Các biểu đồ bậc hai có giữ đúng quan hệ chủ thể nghĩ mục tiêu nghĩ về mục tiêu của mục tiêu, thay vì trình bày các niềm tin này như sự thật khách quan không?",
+   "weight": 4
+  },
+  {
+   "question": "Câu trả lời có nêu biểu đồ bậc nhất thể hiện Alex tin Jack có khả năng đọc suy nghĩ hoặc dự đoán nước đi của đối thủ không?",
+   "weight": 4
+  },
+  {
+   "question": "Các biểu đồ bậc nhất có thể hiện đúng chủ thể là Alex và nêu những niềm tin được đoạn văn trình bày, chẳng hạn Jack đang phân tích Charlie hoặc Charlie có thể lường trước sự dò xét của Jack?",
+   "weight": 4
+  },
+  {
+   "question": "Câu trả lời có trình bày các biểu đồ theo đúng dạng bộ ba [chủ thể, mục tiêu, niềm tin] và bộ bốn [chủ thể, mục tiêu, mục tiêu của mục tiêu, niềm tin] được yêu cầu không?",
+   "weight": 3
+  },
+  {
+   "question": "Câu trả lời có được viết bằng tiếng Việt không?",
+   "weight": 2
+  }
+ ],
+ "error": null,
+ "short": false,
+ "s2_usd": 0.0004322,
+ "seconds": 8.5708
+}

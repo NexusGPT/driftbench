@@ -1,0 +1,37 @@
+{
+ "key": "d1f3e2f6dc396ba82c2b5a6ec7786c19a1243ba55216e3da853d25b9badb4405",
+ "boxes": [
+  {
+   "question": "Does the response present the work as an academic abstract on optimizing soil carbon sequestration with nanostructured biochar in tropical agricultural ecosystems under climate change?",
+   "weight": 2
+  },
+  {
+   "question": "Does it describe a numerical simulation combining COSMOL-BGC multi-scale biogeochemical modeling with machine learning and five-year (2020–2025) in-situ monitoring data from the Amazon Basin?",
+   "weight": 3
+  },
+  {
+   "question": "Does it state that γ-Fe2O3@biochar particles smaller than 50 nm improve carbon retention by 47.3±5.1% versus traditional biochar?",
+   "weight": 5
+  },
+  {
+   "question": "Does it report a 32.8% reduction in soluble organic carbon loss and 1.8-fold greater decomposition resistance in areas with high precipitation variability?",
+   "weight": 5
+  },
+  {
+   "question": "Does it describe the MC-OLF framework and its use of oxygen-vacancy-based carbon–water coupling optimization?",
+   "weight": 4
+  },
+  {
+   "question": "Does it emphasize the nanomaterial-design and climate-sensitive modeling innovations, and explain their relevance to IPCC inventory methodology, regional carbon management, and carbon neutrality?",
+   "weight": 3
+  },
+  {
+   "question": "Is the response written in a concise, formal abstract style appropriate to Environmental Science & Technology?",
+   "weight": 2
+  }
+ ],
+ "error": null,
+ "short": false,
+ "s2_usd": 0.0002368,
+ "seconds": 5.2223
+}

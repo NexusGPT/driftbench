@@ -1,0 +1,25 @@
+{
+ "key": "72e2b9f0547a453b46b10fe206274e2fe703d0a8cc6a77f8ca0ab2eaae2e9fd6",
+ "boxes": [
+  {
+   "question": "Does the answer correctly determine that a test case is possible exactly when the number of character frequencies that are odd is at most k + 1?",
+   "weight": 5
+  },
+  {
+   "question": "Does the answer count character frequencies from the given string when deciding whether a palindrome can be formed after exactly k deletions?",
+   "weight": 4
+  },
+  {
+   "question": "Does the answer process each of the t test cases independently and produce a YES or NO result for each?",
+   "weight": 3
+  },
+  {
+   "question": "Does the answer handle the full stated input limits without relying on infeasible time or memory usage?",
+   "weight": 3
+  }
+ ],
+ "error": null,
+ "short": false,
+ "s2_usd": 0.0003655,
+ "seconds": 7.8078
+}

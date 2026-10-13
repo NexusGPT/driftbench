@@ -1,0 +1,25 @@
+{
+ "key": "ba6c36b9bf898ab418b1d9768fcc335804f33dc0cd70337486b8f396b4f5c47f",
+ "boxes": [
+  {
+   "question": "Does the answer select option D, which says that the presence of others hinders performance on difficult tasks?",
+   "weight": 5
+  },
+  {
+   "question": "Does the answer give the selected letter exactly five times in a single string?",
+   "weight": 3
+  },
+  {
+   "question": "Does the answer avoid adding other text to the requested letter string?",
+   "weight": 2
+  },
+  {
+   "question": "Does the answer avoid selecting an option that contradicts the effect on difficult tasks?",
+   "weight": 5
+  }
+ ],
+ "error": null,
+ "short": false,
+ "s2_usd": 0.0002145,
+ "seconds": 6.4026
+}

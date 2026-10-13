@@ -1,0 +1,25 @@
+{
+ "key": "7a83ebbeef83819f876ae0909fa4accc76223eb38afd2bd735c86b75cbfdddaa",
+ "boxes": [
+  {
+   "question": "Does the answer identify option D as the correct answer?",
+   "weight": 5
+  },
+  {
+   "question": "Does the answer contain exactly five copies of the letter D?",
+   "weight": 5
+  },
+  {
+   "question": "Are the five Ds consecutive in a single string?",
+   "weight": 3
+  },
+  {
+   "question": "Does the answer avoid including any other answer letter in that string?",
+   "weight": 2
+  }
+ ],
+ "error": null,
+ "short": false,
+ "s2_usd": 0.0002242,
+ "seconds": 5.1538
+}

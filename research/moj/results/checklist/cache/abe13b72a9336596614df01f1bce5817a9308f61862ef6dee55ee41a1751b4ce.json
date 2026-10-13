@@ -1,0 +1,25 @@
+{
+ "key": "abe13b72a9336596614df01f1bce5817a9308f61862ef6dee55ee41a1751b4ce",
+ "boxes": [
+  {
+   "question": "Identifica una universitat situada a Catalunya que tingui facultat de medicina?",
+   "weight": 3
+  },
+  {
+   "question": "Explica almenys un aspecte concret i factual que justifiqui per què destaca la facultat de medicina esmentada?",
+   "weight": 5
+  },
+  {
+   "question": "Les afirmacions sobre la universitat i els motius pels quals destaca són correctes i no enganyoses?",
+   "weight": 5
+  },
+  {
+   "question": "Respon en català i s’adreça directament a la petició de l’usuari?",
+   "weight": 2
+  }
+ ],
+ "error": null,
+ "short": false,
+ "s2_usd": 0.0001615,
+ "seconds": 4.1753
+}

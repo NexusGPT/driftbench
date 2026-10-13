@@ -1,0 +1,25 @@
+{
+ "key": "1826821c7dafdd2110efd4468a78a0fc7af163942de8f7b66341fef68853f22a",
+ "boxes": [
+  {
+   "question": "Does the answer identify the gcd as 3?",
+   "weight": 5
+  },
+  {
+   "question": "Does the answer select option C?",
+   "weight": 5
+  },
+  {
+   "question": "If it provides the requested letter string, is that string CCCCC?",
+   "weight": 1
+  },
+  {
+   "question": "Does the answer avoid giving a different gcd or multiple-choice option as its answer?",
+   "weight": 5
+  }
+ ],
+ "error": null,
+ "short": false,
+ "s2_usd": 0.0005024,
+ "seconds": 11.6114
+}

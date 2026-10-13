@@ -1,0 +1,25 @@
+{
+ "key": "49e375aa5ad6ca8ef455cbde30c1762a9c768bc30fac301dc25e2aaa088cac8c",
+ "boxes": [
+  {
+   "question": "是否用中文回答了用户关于其他常见中和反应的提问？",
+   "weight": 2
+  },
+  {
+   "question": "是否给出了至少一个除氢氧化钠与盐酸反应以外的常见中和反应实例？",
+   "weight": 3
+  },
+  {
+   "question": "所举实例是否正确体现酸与碱反应生成盐和水？",
+   "weight": 5
+  },
+  {
+   "question": "是否避免了会误导用户的化学错误或不安全建议？",
+   "weight": 4
+  }
+ ],
+ "error": null,
+ "short": false,
+ "s2_usd": 0.00015030000000000002,
+ "seconds": 3.9453
+}

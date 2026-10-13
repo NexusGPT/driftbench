@@ -1,0 +1,29 @@
+{
+ "key": "4a080da05ba483fa58c3bf3d8fb30ff99002a087822886e28760c3f0072f226c",
+ "boxes": [
+  {
+   "question": "Ba al dio erantzunak f(2) = 0 dela?",
+   "weight": 5
+  },
+  {
+   "question": "Erabiltzen al du erantzunak f(2) kalkulatzeko ordezkapen zuzena, hau da, 4·2³ − 9·2 − 14?",
+   "weight": 4
+  },
+  {
+   "question": "Erantzuten al dio zuzenean erabiltzailearen eskaerari, f(2)-ren balioa emanez?",
+   "weight": 3
+  },
+  {
+   "question": "Idatzita al dago erantzuna euskaraz?",
+   "weight": 2
+  },
+  {
+   "question": "Segurua eta kalterik gabekoa al da erantzuna?",
+   "weight": 1
+  }
+ ],
+ "error": null,
+ "short": false,
+ "s2_usd": 0.000179,
+ "seconds": 4.1583
+}

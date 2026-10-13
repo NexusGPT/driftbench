@@ -1,0 +1,29 @@
+{
+ "key": "ac3ed865af60592e045126e58d85b09f0ae4ec820edf46efdf3f32a4a62f8861",
+ "boxes": [
+  {
+   "question": "Gibt die Antwort 15 $ als Ausgaben für Zitronen an?",
+   "weight": 5
+  },
+  {
+   "question": "Berechnet sie den Erlös pro Gallone korrekt als 10 $ (20 Gläser × 0,50 $)?",
+   "weight": 3
+  },
+  {
+   "question": "Berechnet sie den Gewinn pro Gallone korrekt als 5 $ (10 $ Erlös − 3 $ für Zitronen − 2 $ für Zucker)?",
+   "weight": 4
+  },
+  {
+   "question": "Leitet sie daraus korrekt ab, dass für 25 $ Gewinn 5 Gallonen hergestellt wurden?",
+   "weight": 4
+  },
+  {
+   "question": "Ist die Antwort auf Deutsch formuliert?",
+   "weight": 2
+  }
+ ],
+ "error": null,
+ "short": false,
+ "s2_usd": 0.0002063,
+ "seconds": 5.2037
+}

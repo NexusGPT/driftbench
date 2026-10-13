@@ -1,0 +1,25 @@
+{
+ "key": "e38402617dbae7ee9eb6019783222bbb44733629f0e4ba145424cef143ccedc8",
+ "boxes": [
+  {
+   "question": "Does the answer identify statement (C), (D), or (E) as incorrect?",
+   "weight": 5
+  },
+  {
+   "question": "Does the answer repeat its selected letter exactly five times in a single string?",
+   "weight": 1
+  },
+  {
+   "question": "If the answer selects (C), does it identify the claim that schizophrenia is primarily caused by poor lifestyle choices as incorrect?",
+   "weight": 5
+  },
+  {
+   "question": "If the answer selects (D) or (E), does it identify the selected claim as incorrect?",
+   "weight": 5
+  }
+ ],
+ "error": null,
+ "short": false,
+ "s2_usd": 0.0003144,
+ "seconds": 7.8451
+}

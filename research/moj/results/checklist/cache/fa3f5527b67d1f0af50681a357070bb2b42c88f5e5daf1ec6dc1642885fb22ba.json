@@ -1,0 +1,25 @@
+{
+ "key": "fa3f5527b67d1f0af50681a357070bb2b42c88f5e5daf1ec6dc1642885fb22ba",
+ "boxes": [
+  {
+   "question": "Does the answer identify the person at the farm as telling the truth?",
+   "weight": 5
+  },
+  {
+   "question": "Does the answer identify the person at the zoo as lying?",
+   "weight": 5
+  },
+  {
+   "question": "Does the answer identify the person at the botanical garden as telling the truth?",
+   "weight": 5
+  },
+  {
+   "question": "Does the answer give the correct three answers in order: yes, no, yes?",
+   "weight": 5
+  }
+ ],
+ "error": null,
+ "short": false,
+ "s2_usd": 0.00034389999999999996,
+ "seconds": 8.4408
+}

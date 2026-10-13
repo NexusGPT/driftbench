@@ -1,0 +1,25 @@
+{
+ "key": "25f2ab2239fb65620e6a1cb81bc4c3519441b2e91758a9cbd13fe89dd4574943",
+ "boxes": [
+  {
+   "question": "是否明确回答小水池现在有 8 加仑水？",
+   "weight": 5
+  },
+  {
+   "question": "是否正确考虑到两座水池在过去 4 分钟内各排出了 16 加仑水？",
+   "weight": 4
+  },
+  {
+   "question": "是否正确运用“4 分钟前大水池水量是小水池的两倍”这一条件推导结果？",
+   "weight": 4
+  },
+  {
+   "question": "是否使用中文作答？",
+   "weight": 2
+  }
+ ],
+ "error": null,
+ "short": false,
+ "s2_usd": 0.0001799,
+ "seconds": 5.4273
+}

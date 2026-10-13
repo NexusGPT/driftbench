@@ -1,0 +1,37 @@
+{
+ "key": "5a63c76d46c11bab045316627f65c227250541ba48f867653ad8bc09101cbe53",
+ "boxes": [
+  {
+   "question": "Is the response written as a fairy tale that explains the origin of the Moon’s shadows?",
+   "weight": 3
+  },
+  {
+   "question": "Is the Moon herself the protagonist?",
+   "weight": 2
+  },
+  {
+   "question": "Does the story establish that the Moon began as a perfect, intensely bright ball of light that was impossible to look at directly, leaving her lonely?",
+   "weight": 3
+  },
+  {
+   "question": "Does the Moon sacrifice part of her own light to protect a tiny friend, such as a firefly?",
+   "weight": 4
+  },
+  {
+   "question": "Does the sacrifice make the Moon imperfect and account for the shadows on her surface?",
+   "weight": 4
+  },
+  {
+   "question": "Does the story convey that imperfection can be a form of gentleness through the Moon’s loving sacrifice?",
+   "weight": 4
+  },
+  {
+   "question": "Is the story’s language and storytelling effective and poetic for this origin-myth premise?",
+   "weight": 2
+  }
+ ],
+ "error": null,
+ "short": false,
+ "s2_usd": 0.0001792,
+ "seconds": 4.2222
+}
