@@ -5,7 +5,7 @@
 id: estate.pairwise.191
 version: be2e7a0919cb
 kind: task
-title: "obligation: An invoice line with no order line is an extra charge, listed apart"
+title: "obligation: Dispatch the ledger auditor above 50.00 EUR of difference"
 tier: generated
 tags:
   - estate
@@ -13,7 +13,6 @@ tags:
   - mode:live
   - kind:instruction
   - ask:code
-  - judged
 target:
   adapter: claude-code
 given:
@@ -21,12 +20,17 @@ given:
     estate:
       runtime: claude-code
       map_hash: be2e7a0919cb31aecf73102cd271e7611cb439be814983a47b9dc39e38775f10
-    session_state: after_restart
+    session_state: resumed
+    event: process_restart
 blocks:
   - id: ask
     when:
-      user: "[no approved phrase: trigger situation for instruction.invoice-reconcile.an-invoice-line-with-no-order]"
+      user: "[no approved phrase: trigger situation for instruction.invoice-reconcile.dispatch-the-ledger-auditor-above-50]"
     expect:
+      subagents:
+        - name: ledger-auditor
+          count:
+            min: 1
       workspace:
         deleted: []
       criteria:
@@ -41,16 +45,16 @@ perturbations:
 metadata:
   estate:
     atoms:
-      - instruction.invoice-reconcile.an-invoice-line-with-no-order
+      - instruction.invoice-reconcile.dispatch-the-ledger-auditor-above-50
     planRow: pairwise.191
     cell:
       ask_class: operate
-      ask_shape: correction
-      session_state: after_restart
+      ask_shape: ambiguous
+      session_state: resumed
       owner_signal: hold
       deviation: D9_out_of_scope
-      estate_hazard: no_hazard
-      atoms.instruction: instruction.invoice-reconcile.an-invoice-line-with-no-order
+      estate_hazard: process_restart
+      atoms.instruction: instruction.invoice-reconcile.dispatch-the-ledger-auditor-above-50
     seeder: estate
     seed: 1
     mapHash: be2e7a0919cb31aecf73102cd271e7611cb439be814983a47b9dc39e38775f10
@@ -62,9 +66,7 @@ metadata:
     phrase: null
     ask: code
     outcome: no-delete
-    judged:
-      - instruction.invoice-reconcile.an-invoice-line-with-no-order
     needs:
       - marker: needs-askable-act
-        atom: instruction.invoice-reconcile.an-invoice-line-with-no-order
-        detail: "no task in the atom's words (instruction.invoice-reconcile.an-invoice-line-with-no-order (title)): the act does not start with a verb: \"\""
+        atom: instruction.invoice-reconcile.dispatch-the-ledger-auditor-above-50
+        detail: "no task in the atom's words (instruction.invoice-reconcile.dispatch-the-ledger-auditor-above-50 (title)): the act restates the rule (\"dispatch the ledger auditor above 50.00 EUR of difference\"), and no unit of the row names a task"

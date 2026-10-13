@@ -20,8 +20,7 @@ given:
     estate:
       runtime: claude-code
       map_hash: be2e7a0919cb31aecf73102cd271e7611cb439be814983a47b9dc39e38775f10
-    session_state: resumed
-    event: compaction_mid_task
+    session_state: after_compaction
     workspace_seed: northwind-ops
   world:
     workspace:
@@ -78,11 +77,11 @@ metadata:
     focusVariant: 612
     cell:
       ask_class: chat
-      ask_shape: prescribed
-      session_state: resumed
-      owner_signal: hold
+      ask_shape: problem
+      session_state: after_compaction
+      owner_signal: frustration
       deviation: D3_contradiction
-      estate_hazard: compaction_mid_task
+      estate_hazard: no_hazard
       atoms.route: route.weekly-report.an-ask-that-fits-weekly-report
     seeder: estate
     seed: 1

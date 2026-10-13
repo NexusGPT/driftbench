@@ -20,8 +20,8 @@ given:
     estate:
       runtime: claude-code
       map_hash: be2e7a0919cb31aecf73102cd271e7611cb439be814983a47b9dc39e38775f10
-    session_state: after_compaction
-    event: process_restart
+    session_state: after_restart
+    event: rate_wave
 blocks:
   - id: ask
     when:
@@ -35,10 +35,10 @@ blocks:
       criteria:
         - needs-askable-act
 perturbations:
-  - id: deviation-D2_goal_shift
-    class: D2_goal_shift
+  - id: deviation-D9_out_of_scope
+    class: D9_out_of_scope
     inject_at: 0
-    user: "Actually, change of plan: do only the first part of what I asked and stop there."
+    user: Also, can you book me a flight to Lisbon for Friday?
     recovery:
       within_blocks: 1
 metadata:
@@ -48,11 +48,11 @@ metadata:
     planRow: pairwise.434
     cell:
       ask_class: compose
-      ask_shape: ambiguous
-      session_state: after_compaction
-      owner_signal: stop
-      deviation: D2_goal_shift
-      estate_hazard: process_restart
+      ask_shape: multi_part
+      session_state: after_restart
+      owner_signal: frustration
+      deviation: D9_out_of_scope
+      estate_hazard: rate_wave
       atoms.instruction: instruction.shipment-tracker.ask-for-the-tracking-number-when
     seeder: estate
     seed: 1

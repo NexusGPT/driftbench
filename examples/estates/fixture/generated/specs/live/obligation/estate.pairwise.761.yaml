@@ -63,10 +63,10 @@ blocks:
       workspace:
         others_untouched: true
 perturbations:
-  - id: deviation-D9_out_of_scope
-    class: D9_out_of_scope
+  - id: deviation-D3_contradiction
+    class: D3_contradiction
     inject_at: 0
-    user: Also, can you book me a flight to Lisbon for Friday?
+    user: Wait, earlier I said the opposite of what I just asked. Which one should hold?
     recovery:
       within_blocks: 1
 metadata:
@@ -75,11 +75,11 @@ metadata:
       - instruction.ledger-auditor.the-auditor-never-edits-a-file
     planRow: pairwise.761
     cell:
-      ask_class: chat
-      ask_shape: ambiguous
+      ask_class: build
+      ask_shape: multi_part
       session_state: after_compaction
-      owner_signal: no_questions
-      deviation: D9_out_of_scope
+      owner_signal: go
+      deviation: D3_contradiction
       estate_hazard: process_restart
       atoms.instruction: instruction.ledger-auditor.the-auditor-never-edits-a-file
     seeder: estate

@@ -4,7 +4,7 @@
 id: estate.pairwise.459
 version: be2e7a0919cb
 kind: task
-title: "route_positive: An ask to plan the delivery routes for tomorrow dispatches route-planner"
+title: "route_positive: An ask that fits route-planner dispatches it"
 lang: EN
 tier: generated
 tags:
@@ -20,7 +20,7 @@ given:
     estate:
       runtime: claude-code
       map_hash: be2e7a0919cb31aecf73102cd271e7611cb439be814983a47b9dc39e38775f10
-    session_state: after_compaction
+    session_state: long
     workspace_seed: northwind-ops
   world:
     workspace:
@@ -61,26 +61,26 @@ blocks:
       workspace:
         others_untouched: true
 perturbations:
-  - id: deviation-D10_return
-    class: D10_return
+  - id: deviation-D8_tool_failure
+    class: D8_tool_failure
     inject_at: 0
-    user: I'm back. Where were we?
+    user: The last tool call failed. Carry on.
     recovery:
       within_blocks: 1
 metadata:
   estate:
     atoms:
-      - route.standing.an-ask-to-plan-the-delivery
+      - route.route-planner.an-ask-that-fits-route-planner
     planRow: pairwise.459
     focusVariant: 458
     cell:
       ask_class: compose
-      ask_shape: problem
-      session_state: after_compaction
+      ask_shape: prescribed
+      session_state: long
       owner_signal: go
-      deviation: D10_return
+      deviation: D8_tool_failure
       estate_hazard: no_hazard
-      atoms.route: route.standing.an-ask-to-plan-the-delivery
+      atoms.route: route.route-planner.an-ask-that-fits-route-planner
     seeder: estate
     seed: 1
     mapHash: be2e7a0919cb31aecf73102cd271e7611cb439be814983a47b9dc39e38775f10

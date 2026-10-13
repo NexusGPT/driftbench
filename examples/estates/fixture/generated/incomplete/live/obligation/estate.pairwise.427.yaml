@@ -5,7 +5,7 @@
 id: estate.pairwise.427
 version: be2e7a0919cb
 kind: task
-title: "obligation: Convert a foreign currency invoice with the currency table"
+title: "obligation: An unlisted supplier gets English and a note to the user"
 tier: generated
 tags:
   - estate
@@ -20,41 +20,38 @@ given:
     estate:
       runtime: claude-code
       map_hash: be2e7a0919cb31aecf73102cd271e7611cb439be814983a47b9dc39e38775f10
-    session_state: fresh
-    event: rate_wave
+    session_state: after_compaction
+    event: process_restart
 blocks:
   - id: ask
     when:
-      user: "[no approved phrase: trigger situation for instruction.invoice-reconcile.convert-a-foreign-currency-invoice-with]"
+      user: "[no approved phrase: trigger situation for instruction.memory-supplier-languages.an-unlisted-supplier-gets-english-and]"
     expect:
-      references:
-        - path: "**/currency-table.md"
-          count:
-            min: 1
+      lang: EN
       workspace:
         deleted: []
       criteria:
         - needs-askable-act
 perturbations:
-  - id: deviation-D3_contradiction
-    class: D3_contradiction
+  - id: deviation-D9_out_of_scope
+    class: D9_out_of_scope
     inject_at: 0
-    user: Wait, earlier I said the opposite of what I just asked. Which one should hold?
+    user: Also, can you book me a flight to Lisbon for Friday?
     recovery:
       within_blocks: 1
 metadata:
   estate:
     atoms:
-      - instruction.invoice-reconcile.convert-a-foreign-currency-invoice-with
+      - instruction.memory-supplier-languages.an-unlisted-supplier-gets-english-and
     planRow: pairwise.427
     cell:
       ask_class: compose
-      ask_shape: prescribed
-      session_state: fresh
-      owner_signal: go
-      deviation: D3_contradiction
-      estate_hazard: rate_wave
-      atoms.instruction: instruction.invoice-reconcile.convert-a-foreign-currency-invoice-with
+      ask_shape: correction
+      session_state: after_compaction
+      owner_signal: no_questions
+      deviation: D9_out_of_scope
+      estate_hazard: process_restart
+      atoms.instruction: instruction.memory-supplier-languages.an-unlisted-supplier-gets-english-and
     seeder: estate
     seed: 1
     mapHash: be2e7a0919cb31aecf73102cd271e7611cb439be814983a47b9dc39e38775f10
@@ -68,5 +65,5 @@ metadata:
     outcome: no-delete
     needs:
       - marker: needs-askable-act
-        atom: instruction.invoice-reconcile.convert-a-foreign-currency-invoice-with
-        detail: "no task in the atom's words (instruction.invoice-reconcile.convert-a-foreign-currency-invoice-with (title)): the act restates the rule (\"convert a foreign currency invoice with the currency table\"), and no unit of the row names a task"
+        atom: instruction.memory-supplier-languages.an-unlisted-supplier-gets-english-and
+        detail: "no task in the atom's words (instruction.memory-supplier-languages.an-unlisted-supplier-gets-english-and (title)): the act does not start with a verb: \"\""

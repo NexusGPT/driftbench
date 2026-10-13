@@ -230,6 +230,31 @@ describe('driftbench estate generate', () => {
     expect(waiting.gaps.map((entry: { marker: string }) => entry.marker)).toContain('needs-approved-phrase');
   });
 
+  it('judges no domain predicate with --no-judge: one no code checks waits for a registered check', async () => {
+    const plan = join(ROOT, 'packages/generate/test/estate/fixtures/planner-plan.approved.yaml');
+    const waiting = async (...extra: string[]) => {
+      const dir = await mkdtemp(join(tmpdir(), 'estate-generate-judge-'));
+      const result = await run([
+        'estate',
+        'generate',
+        '--map',
+        MAP,
+        '--plan',
+        plan,
+        '--out',
+        join(dir, 'out'),
+        '--json',
+        ...extra,
+      ]);
+      expect(result.err).toBe('');
+      const report = JSON.parse(result.out) as { gaps: Array<{ marker: string; specs: number }> };
+      return report.gaps.find((entry) => entry.marker === 'needs-registered-check')?.specs ?? 0;
+    };
+    const judged = await waiting();
+    const unjudged = await waiting('--no-judge');
+    expect(unjudged).toBeGreaterThan(judged);
+  }, 120_000);
+
   it('puts the specs of the focus atoms first in the run order, then guards, gates and invariants', async () => {
     const dir = await mkdtemp(join(tmpdir(), 'estate-generate-'));
     const atom = 'subagent.route-planner.helper-route-planner';

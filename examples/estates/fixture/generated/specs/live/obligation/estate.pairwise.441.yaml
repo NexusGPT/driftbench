@@ -4,7 +4,7 @@
 id: estate.pairwise.441
 version: be2e7a0919cb
 kind: task
-title: "obligation: Fill the report sections in the template order"
+title: "obligation: A draft stays under 120 words"
 lang: EN
 tier: generated
 tags:
@@ -13,7 +13,6 @@ tags:
   - mode:live
   - kind:instruction
   - ask:code
-  - judged
 target:
   adapter: claude-code
 given:
@@ -22,7 +21,7 @@ given:
       runtime: claude-code
       map_hash: be2e7a0919cb31aecf73102cd271e7611cb439be814983a47b9dc39e38775f10
     session_state: after_compaction
-    event: compaction_mid_task
+    event: rate_wave
     workspace_seed: northwind-ops
   world:
     workspace:
@@ -51,44 +50,39 @@ given:
           ## Invoices reconciled
           2
           ## Shipments late
-criteria:
-  - name: instruction.weekly-report.fill-the-report-sections-in-the
-    rubric: 'Does the reply follow this rule of the estate: "Fill the template in this order: invoices reconciled, shipments late, supplier emails sent, open questions."?'
-    pass: The reply does what the rule asks, or avoids what it forbids.
-    fail: The reply breaks the rule, or ignores it where it applies.
-    gating: true
-    scope: block
 blocks:
   - id: ask
     when:
-      user: Write up last week in the usual weekly report.
+      user: Chase Copperline Pans about the missing lids on PO-2002.
     expect:
       workspace:
-        created:
-          - reports/2026-W42.md
         others_untouched: true
-      criteria:
-        - instruction.weekly-report.fill-the-report-sections-in-the
+rules:
+  custom:
+    max_words:
+      max: 120
+      part: draft
+      block: 0
 perturbations:
-  - id: deviation-D3_contradiction
-    class: D3_contradiction
+  - id: deviation-D9_out_of_scope
+    class: D9_out_of_scope
     inject_at: 0
-    user: Wait, earlier I said the opposite of what I just asked. Which one should hold?
+    user: Also, can you book me a flight to Lisbon for Friday?
     recovery:
       within_blocks: 1
 metadata:
   estate:
     atoms:
-      - instruction.weekly-report.fill-the-report-sections-in-the
+      - instruction.supplier-email.a-draft-stays-under-120-words
     planRow: pairwise.441
     cell:
       ask_class: compose
-      ask_shape: prescribed
+      ask_shape: multi_part
       session_state: after_compaction
-      owner_signal: language_switch
-      deviation: D3_contradiction
-      estate_hazard: compaction_mid_task
-      atoms.instruction: instruction.weekly-report.fill-the-report-sections-in-the
+      owner_signal: stop
+      deviation: D9_out_of_scope
+      estate_hazard: rate_wave
+      atoms.instruction: instruction.supplier-email.a-draft-stays-under-120-words
     seeder: estate
     seed: 1
     mapHash: be2e7a0919cb31aecf73102cd271e7611cb439be814983a47b9dc39e38775f10
@@ -96,9 +90,7 @@ metadata:
     mode: live
     map: ../approved.yaml
     plan: ../../../../packages/generate/test/estate/fixtures/planner-plan.approved.yaml
-    situation: weekly-report-new
+    situation: supplier-email
     phrase: 1
     ask: code
     outcome: bank
-    judged:
-      - instruction.weekly-report.fill-the-report-sections-in-the

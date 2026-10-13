@@ -5,13 +5,14 @@
 id: estate.pairwise.186
 version: be2e7a0919cb
 kind: task
-title: "obligation: Convert a foreign currency invoice with the currency table"
+title: "obligation: No delivery on a public holiday of the receiving country"
 tier: generated
 tags:
   - estate
   - test:obligation
   - mode:live
   - kind:instruction
+  - judged
 target:
   adapter: claude-code
 given:
@@ -19,17 +20,13 @@ given:
     estate:
       runtime: claude-code
       map_hash: be2e7a0919cb31aecf73102cd271e7611cb439be814983a47b9dc39e38775f10
-    session_state: after_compaction
-    event: process_restart
+    session_state: fresh
+    event: rate_wave
 blocks:
   - id: ask
     when:
-      user: "[no approved phrase: trigger situation for instruction.invoice-reconcile.convert-a-foreign-currency-invoice-with]"
+      user: "[no approved phrase: trigger situation for instruction.memory-memory.no-delivery-on-a-public-holiday]"
     expect:
-      references:
-        - path: "**/currency-table.md"
-          count:
-            min: 1
       workspace:
         deleted: []
       criteria:
@@ -44,16 +41,16 @@ perturbations:
 metadata:
   estate:
     atoms:
-      - instruction.invoice-reconcile.convert-a-foreign-currency-invoice-with
+      - instruction.memory-memory.no-delivery-on-a-public-holiday
     planRow: pairwise.186
     cell:
       ask_class: operate
       ask_shape: correction
-      session_state: after_compaction
-      owner_signal: keep_going
+      session_state: fresh
+      owner_signal: limit_word
       deviation: D1_off_topic
-      estate_hazard: process_restart
-      atoms.instruction: instruction.invoice-reconcile.convert-a-foreign-currency-invoice-with
+      estate_hazard: rate_wave
+      atoms.instruction: instruction.memory-memory.no-delivery-on-a-public-holiday
     seeder: estate
     seed: 1
     mapHash: be2e7a0919cb31aecf73102cd271e7611cb439be814983a47b9dc39e38775f10
@@ -65,7 +62,9 @@ metadata:
     phrase: null
     ask: bank
     outcome: no-delete
+    judged:
+      - instruction.memory-memory.no-delivery-on-a-public-holiday
     needs:
       - marker: needs-askable-act
-        atom: instruction.invoice-reconcile.convert-a-foreign-currency-invoice-with
-        detail: "no task in the atom's words (instruction.invoice-reconcile.convert-a-foreign-currency-invoice-with (title)): the act restates the rule (\"convert a foreign currency invoice with the currency table\"), and no unit of the row names a task"
+        atom: instruction.memory-memory.no-delivery-on-a-public-holiday
+        detail: "no task in the atom's words (instruction.memory-memory.no-delivery-on-a-public-holiday (title)): the act does not start with a verb: \"\""

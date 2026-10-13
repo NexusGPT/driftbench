@@ -4,7 +4,7 @@
 id: estate.pairwise.398
 version: be2e7a0919cb
 kind: task
-title: "register_sample: At most one question per reply"
+title: "register_sample: Answer in the language of the user's latest message"
 lang: EN
 tier: generated
 tags:
@@ -19,7 +19,7 @@ given:
     estate:
       runtime: claude-code
       map_hash: be2e7a0919cb31aecf73102cd271e7611cb439be814983a47b9dc39e38775f10
-    session_state: after_compaction
+    session_state: fresh
     workspace_seed: northwind-ops
   world:
     workspace:
@@ -49,8 +49,8 @@ given:
           2
           ## Shipments late
 criteria:
-  - name: register.standing.at-most-one-question-per-reply
-    rubric: At most one question per reply
+  - name: register.standing.answer-in-the-language-of-the
+    rubric: Answer in the language of the user's latest message
     gating: false
     scope: block
 blocks:
@@ -58,25 +58,24 @@ blocks:
     when:
       user: Give me a short status of invoices, shipments and supplier emails.
     expect:
-      must_not:
-        - (?:\?[\s\S]*){2}
+      lang: EN
       workspace:
         others_untouched: true
       criteria:
-        - register.standing.at-most-one-question-per-reply
+        - register.standing.answer-in-the-language-of-the
 metadata:
   estate:
     atoms:
-      - register.standing.at-most-one-question-per-reply
+      - register.standing.answer-in-the-language-of-the
     planRow: pairwise.398
     cell:
       ask_class: research
       ask_shape: correction
-      session_state: after_compaction
+      session_state: fresh
       owner_signal: limit_word
       deviation: none
       estate_hazard: no_hazard
-      atoms.register: register.standing.at-most-one-question-per-reply
+      atoms.register: register.standing.answer-in-the-language-of-the
     seeder: estate
     seed: 1
     mapHash: be2e7a0919cb31aecf73102cd271e7611cb439be814983a47b9dc39e38775f10

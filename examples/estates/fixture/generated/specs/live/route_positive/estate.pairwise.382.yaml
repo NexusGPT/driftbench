@@ -4,14 +4,14 @@
 id: estate.pairwise.382
 version: be2e7a0919cb
 kind: task
-title: "route_positive: Skill shipment-tracker"
+title: "route_positive: An ask to audit the ledger for duplicate payments dispatches ledger-auditor"
 lang: EN
 tier: generated
 tags:
   - estate
   - test:route_positive
   - mode:live
-  - kind:skill
+  - kind:route
   - ask:code
 target:
   adapter: claude-code
@@ -20,8 +20,8 @@ given:
     estate:
       runtime: claude-code
       map_hash: be2e7a0919cb31aecf73102cd271e7611cb439be814983a47b9dc39e38775f10
-    session_state: resumed
-    event: compaction_mid_task
+    session_state: after_compaction
+    event: dead_helper
     workspace_seed: northwind-ops
   world:
     workspace:
@@ -53,35 +53,35 @@ given:
 blocks:
   - id: ask
     when:
-      user: Where is shipment NW-55012? It was promised for 2 October.
+      user: Audit the ledger for duplicate payments this week.
     expect:
-      skills:
-        - name: shipment-tracker
+      subagents:
+        - name: ledger-auditor
           count:
             min: 1
       workspace:
         others_untouched: true
 perturbations:
-  - id: deviation-D3_contradiction
-    class: D3_contradiction
+  - id: deviation-D8_tool_failure
+    class: D8_tool_failure
     inject_at: 0
-    user: Wait, earlier I said the opposite of what I just asked. Which one should hold?
+    user: The last tool call failed. Carry on.
     recovery:
       within_blocks: 1
 metadata:
   estate:
     atoms:
-      - skill.shipment-tracker.skill-shipment-tracker
+      - route.standing.an-ask-to-audit-the-ledger
     planRow: pairwise.382
     focusVariant: 381
     cell:
       ask_class: research
       ask_shape: ambiguous
-      session_state: resumed
-      owner_signal: hold
-      deviation: D3_contradiction
-      estate_hazard: compaction_mid_task
-      atoms.skill: skill.shipment-tracker.skill-shipment-tracker
+      session_state: after_compaction
+      owner_signal: frustration
+      deviation: D8_tool_failure
+      estate_hazard: dead_helper
+      atoms.route: route.standing.an-ask-to-audit-the-ledger
     seeder: estate
     seed: 1
     mapHash: be2e7a0919cb31aecf73102cd271e7611cb439be814983a47b9dc39e38775f10
@@ -89,7 +89,7 @@ metadata:
     mode: live
     map: ../approved.yaml
     plan: ../../../../packages/generate/test/estate/fixtures/planner-plan.approved.yaml
-    situation: shipment-late
+    situation: ledger-audit
     phrase: 0
     ask: code
     outcome: bank

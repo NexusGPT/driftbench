@@ -5,7 +5,7 @@
 id: estate.pairwise.694
 version: be2e7a0919cb
 kind: task
-title: "obligation: Convert a foreign currency invoice with the currency table"
+title: "obligation: A brief missing a number gets a blocked answer"
 tier: generated
 tags:
   - estate
@@ -19,17 +19,15 @@ given:
     estate:
       runtime: claude-code
       map_hash: be2e7a0919cb31aecf73102cd271e7611cb439be814983a47b9dc39e38775f10
-    session_state: long
-    event: process_restart
+    session_state: after_restart
+    event: compaction_mid_task
 blocks:
   - id: ask
     when:
-      user: "[no approved phrase: trigger situation for instruction.invoice-reconcile.convert-a-foreign-currency-invoice-with]"
+      user: "[no approved phrase: trigger situation for instruction.ledger-auditor.a-brief-missing-a-number-gets]"
     expect:
-      references:
-        - path: "**/currency-table.md"
-          count:
-            min: 1
+      must:
+        - '"status": "blocked"'
       workspace:
         deleted: []
       criteria:
@@ -37,16 +35,16 @@ blocks:
 metadata:
   estate:
     atoms:
-      - instruction.invoice-reconcile.convert-a-foreign-currency-invoice-with
+      - instruction.ledger-auditor.a-brief-missing-a-number-gets
     planRow: pairwise.694
     cell:
-      ask_class: chat
-      ask_shape: problem
-      session_state: long
-      owner_signal: stop
+      ask_class: debug
+      ask_shape: correction
+      session_state: after_restart
+      owner_signal: go
       deviation: none
-      estate_hazard: process_restart
-      atoms.instruction: instruction.invoice-reconcile.convert-a-foreign-currency-invoice-with
+      estate_hazard: compaction_mid_task
+      atoms.instruction: instruction.ledger-auditor.a-brief-missing-a-number-gets
     seeder: estate
     seed: 1
     mapHash: be2e7a0919cb31aecf73102cd271e7611cb439be814983a47b9dc39e38775f10
@@ -60,5 +58,5 @@ metadata:
     outcome: no-delete
     needs:
       - marker: needs-askable-act
-        atom: instruction.invoice-reconcile.convert-a-foreign-currency-invoice-with
-        detail: "no task in the atom's words (instruction.invoice-reconcile.convert-a-foreign-currency-invoice-with (title)): the act restates the rule (\"convert a foreign currency invoice with the currency table\"), and no unit of the row names a task"
+        atom: instruction.ledger-auditor.a-brief-missing-a-number-gets
+        detail: "no task in the atom's words (instruction.ledger-auditor.a-brief-missing-a-number-gets (title)): the act does not start with a verb: \"\""

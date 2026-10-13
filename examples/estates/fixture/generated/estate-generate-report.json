@@ -8,8 +8,8 @@
   },
   "plan": {
     "path": "../../../../packages/generate/test/estate/fixtures/planner-plan.approved.yaml",
-    "rows": 1145,
-    "approved": 1145,
+    "rows": 1301,
+    "approved": 1301,
     "proposed": 0,
     "struck": 0
   },
@@ -41,11 +41,11 @@
     "judge": true
   },
   "summary": {
-    "specs": 1145,
-    "blocks": 1140,
-    "complete": 847,
-    "incomplete": 298,
-    "judged": 251
+    "specs": 1301,
+    "blocks": 1296,
+    "complete": 957,
+    "incomplete": 344,
+    "judged": 283
   },
   "unit": {
     "tests": 26,
@@ -61,29 +61,29 @@
   },
   "sources": {
     "asks": {
-      "bank": 365,
-      "code": 474,
+      "bank": 357,
+      "code": 592,
       "session": 0,
       "none": 8
     },
     "outcomes": {
-      "bank": 676,
+      "bank": 774,
       "no-change:denied": 2,
-      "no-change:guard": 15,
+      "no-change:guard": 19,
       "no-change:negative": 58,
       "no-change:read-only": 17,
-      "no-delete": 71,
+      "no-delete": 79,
       "static": 8
     },
-    "judged": 146
+    "judged": 164
   },
   "focus": null,
   "perTestType": {
     "obligation": {
-      "rows": 473,
-      "specs": 473,
-      "complete": 233,
-      "incomplete": 240
+      "rows": 559,
+      "specs": 559,
+      "complete": 275,
+      "incomplete": 284
     },
     "outside_trigger": {
       "rows": 43,
@@ -110,9 +110,9 @@
       "incomplete": 5
     },
     "route_positive": {
-      "rows": 158,
-      "specs": 158,
-      "complete": 158,
+      "rows": 192,
+      "specs": 192,
+      "complete": 192,
       "incomplete": 0
     },
     "route_near_miss": {
@@ -140,9 +140,9 @@
       "incomplete": 0
     },
     "dispatch": {
-      "rows": 24,
-      "specs": 24,
-      "complete": 24,
+      "rows": 28,
+      "specs": 28,
+      "complete": 28,
       "incomplete": 0
     },
     "contract_alone": {
@@ -158,9 +158,9 @@
       "incomplete": 0
     },
     "guard_positive": {
-      "rows": 48,
-      "specs": 48,
-      "complete": 42,
+      "rows": 60,
+      "specs": 60,
+      "complete": 54,
       "incomplete": 6
     },
     "guard_negative": {
@@ -218,10 +218,10 @@
       "incomplete": 0
     },
     "register_sample": {
-      "rows": 140,
-      "specs": 140,
-      "complete": 133,
-      "incomplete": 7
+      "rows": 160,
+      "specs": 160,
+      "complete": 151,
+      "incomplete": 9
     },
     "hazard_recovery": {
       "rows": 2,
@@ -262,10 +262,10 @@
       "incomplete": 0
     },
     "live": {
-      "rows": 1102,
-      "specs": 1102,
-      "complete": 810,
-      "incomplete": 292
+      "rows": 1258,
+      "specs": 1258,
+      "complete": 920,
+      "incomplete": 338
     }
   },
   "gaps": [
@@ -283,7 +283,7 @@
     },
     {
       "marker": "needs-askable-act",
-      "specs": 280,
+      "specs": 326,
       "atoms": [
         "gate.standing.never-report-done-before-verify-passed",
         "gate.standing.read-claude-skills-invoice-reconcile-references",

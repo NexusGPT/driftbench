@@ -6,6 +6,7 @@ import { functionAdapter } from '@agent-nexus/driftbench-adapters';
 import { loadSpecs, runSpec } from '@agent-nexus/driftbench-core';
 import { createScriptedDriver } from '@agent-nexus/driftbench-users';
 import { describe, expect, it } from 'vitest';
+import { parse as parseYaml } from 'yaml';
 import { type Io, main } from '../src/index';
 
 const ACME = fileURLToPath(new URL('../../../examples/acme/', import.meta.url));
@@ -108,24 +109,56 @@ relations:
 `;
 
 describe('driftbench generate', () => {
+  it('builds --tasks instances per task_family relation the map names', async () => {
+    // Each relation gets --tasks instances; an instance writes one spec per variant (base, corners, planted),
+    // so the spec count is not a multiple of --tasks. Count the instances, read from the specs themselves.
+    const map = parseYaml(await readFile(`${ACME}map/approved.yaml`, 'utf8')) as {
+      relations: Array<{ kind: string }>;
+    };
+    const relations = map.relations.filter((relation) => relation.kind === 'task_family').length;
+    expect(relations).toBeGreaterThan(0);
+    const dir = await mkdtemp(join(tmpdir(), 'driftbench-generate-tasks-'));
+    const instances = async (tasks: string) => {
+      const result = await run(
+        ['generate', '--map', `${ACME}map/approved.yaml`, '--out', `t${tasks}`, '--t', '2', '--tasks', tasks],
+        dir,
+      );
+      expect(result.code).toBe(1);
+      const loaded = await loadSpecs([join(dir, `t${tasks}`, 'specs', 'task')]);
+      const seen = new Set<string>();
+      for (const spec of loaded) {
+        if (!spec.ok) throw new Error(`invalid task spec ${spec.path}`);
+        const family = spec.spec.metadata?.family as { id?: string; instance?: string } | undefined;
+        expect(family?.instance, spec.path).toBeDefined();
+        seen.add(`${family?.id}#${family?.instance}`);
+      }
+      return seen.size;
+    };
+    expect(await instances('1')).toBe(relations);
+    expect(await instances('2')).toBe(2 * relations);
+  }, 120_000);
+
   it('writes the Acme suite, refuses to overwrite it, and writes it again byte for byte with --force', async () => {
     const dir = await mkdtemp(join(tmpdir(), 'driftbench-generate-'));
     const first = await run(['generate', '--map', `${ACME}map/approved.yaml`, '--out', 'a', '--t', '2'], dir);
     // Exit 1: the suite is written, and blocks whose value has no approved phrase are placeholders.
     expect(first.code).toBe(1);
-    expect(first.out.split('\n')[0]).toMatch(/^Actual axis-map coverage .*pairs 637 of 637 \(100\.0%\)/);
+    expect(first.out.split('\n')[0]).toMatch(/^Actual axis-map coverage .*pairs 708 of 708 \(100\.0%\)/);
     expect(first.out.split('\n')[1]).toContain('Candidate t-wise array');
     expect(first.out).toContain('Stage graph: 18 of 23 edges covered in 12 paths from needs.');
     expect(first.out).toContain(
-      'Candidate t-wise array (before the total cap): covering array of 132 rows over 5 dimensions',
+      'Candidate t-wise array (before the total cap): covering array of 156 rows over 5 dimensions',
     );
-    expect(first.out).toContain('Constraints applied: 457.');
+    expect(first.out).toContain('Constraints applied: 463.');
     expect(first.out).toContain(
-      '  Most frequent reasons:\n     1  it needs coverage_result in no-service; the cell holds none',
+      '  Most frequent reasons:\n     3  it needs user_type in existing-customer; the cell holds new-customer',
     );
     const before = await tree(join(dir, 'a'));
     expect(Object.keys(before)).toContain('generate-report.json');
-    expect(Object.keys(before).filter((path) => path.startsWith('specs/'))).toHaveLength(259);
+    // The spec files of specs/; the workbook seed folders (`.seed-<id>/`) sit beside them.
+    expect(
+      Object.keys(before).filter((path) => path.startsWith('specs/') && !path.includes('/.seed-')),
+    ).toHaveLength(336);
 
     const refused = await run(
       ['generate', '--map', `${ACME}map/approved.yaml`, '--out', 'a', '--t', '2'],
@@ -147,7 +180,8 @@ describe('driftbench generate', () => {
     );
     expect(elsewhere.code).toBe(1);
     const moved = await tree(join(dir, 'b/c'));
-    // Only the recorded map path differs: it is relative to the output folder.
+    // Only the recorded map path differs: it is relative to the output folder. A workbook task names its seed
+    // folder relative to its own spec file, so that path is the same wherever the suite is written.
     const strip = (files: Record<string, string>) =>
       Object.fromEntries(
         Object.entries(files).map(([path, text]) => [path, text.replaceAll(/(\.\.\/)+/g, '')]),
@@ -204,7 +238,7 @@ describe('driftbench generate', () => {
     const result = await run(['generate', '--map', `${ACME}map/proposal.yaml`, '--out', 'out'], dir);
     expect(result.code).toBe(2);
     expect(result.err).toContain('MAP_NOT_APPROVED');
-    expect(result.err).toContain('284 of 284 entries are not approved');
+    expect(result.err).toContain('291 of 291 entries are not approved');
     expect(await readdir(dir)).toEqual([]);
   });
 

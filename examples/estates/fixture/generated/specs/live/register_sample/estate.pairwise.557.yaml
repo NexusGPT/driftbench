@@ -4,7 +4,7 @@
 id: estate.pairwise.557
 version: be2e7a0919cb
 kind: task
-title: "register_sample: Replies under 1,200 characters"
+title: "register_sample: At most one question per reply"
 lang: EN
 tier: generated
 tags:
@@ -20,8 +20,7 @@ given:
     estate:
       runtime: claude-code
       map_hash: be2e7a0919cb31aecf73102cd271e7611cb439be814983a47b9dc39e38775f10
-    session_state: after_compaction
-    event: compaction_mid_task
+    session_state: long
     workspace_seed: northwind-ops
   world:
     workspace:
@@ -51,8 +50,8 @@ given:
           2
           ## Shipments late
 criteria:
-  - name: register.standing.replies-under-1-200-characters
-    rubric: Replies under 1,200 characters
+  - name: register.standing.at-most-one-question-per-reply
+    rubric: At most one question per reply
     gating: false
     scope: block
 blocks:
@@ -61,31 +60,31 @@ blocks:
       user: Give me a short status of invoices, shipments and supplier emails.
     expect:
       must_not:
-        - "[\\s\\S]{1201}"
+        - (?:\?[\s\S]*){2}
       workspace:
         others_untouched: true
       criteria:
-        - register.standing.replies-under-1-200-characters
+        - register.standing.at-most-one-question-per-reply
 perturbations:
-  - id: deviation-D10_return
-    class: D10_return
+  - id: deviation-D7_silence_or_burst
+    class: D7_silence_or_burst
     inject_at: 0
-    user: I'm back. Where were we?
+    user: Hello? Hello? Are you there?
     recovery:
       within_blocks: 1
 metadata:
   estate:
     atoms:
-      - register.standing.replies-under-1-200-characters
+      - register.standing.at-most-one-question-per-reply
     planRow: pairwise.557
     cell:
       ask_class: change_estate
       ask_shape: multi_part
-      session_state: after_compaction
-      owner_signal: hold
-      deviation: D10_return
-      estate_hazard: compaction_mid_task
-      atoms.register: register.standing.replies-under-1-200-characters
+      session_state: long
+      owner_signal: limit_word
+      deviation: D7_silence_or_burst
+      estate_hazard: no_hazard
+      atoms.register: register.standing.at-most-one-question-per-reply
     seeder: estate
     seed: 1
     mapHash: be2e7a0919cb31aecf73102cd271e7611cb439be814983a47b9dc39e38775f10

@@ -131,7 +131,7 @@ const FileBase = {
   when: Condition.optional().describe('The file exists only in instances whose knobs meet this.'),
 };
 
-/** One file of the workspace seed: rows of a table as CSV or JSON, an approved text, or an existing file. */
+/** One file of the workspace seed: rows of a table as CSV, JSON or a workbook, an approved text, or an existing file. */
 export const SeedFile = z.union([
   z.strictObject({
     ...FileBase,
@@ -152,6 +152,30 @@ export const SeedFile = z.union([
     }),
   }),
   z.strictObject({ ...FileBase, text: z.strictObject({ phrase: Id }) }),
+  z.strictObject({
+    ...FileBase,
+    xlsx: z
+      .strictObject({
+        table: Name,
+        sheet_by: Name.describe(
+          'The column whose values name the sheets: one sheet per value, in the order values first appear.',
+        ),
+        sheet_name: z
+          .enum(['as-is', 'title'])
+          .default('as-is')
+          .describe('The sheet name: the value as written, or with a capital first letter.'),
+        columns: z
+          .array(
+            z.strictObject({
+              header: z.string().min(1).describe('The header cell of the column.'),
+              column: Name.describe('The table column the cells come from, in table order.'),
+              times: z.number().optional().describe('A number cell multiplied by this factor.'),
+            }),
+          )
+          .min(1),
+      })
+      .describe('A workbook already in the workspace: rows of a table, one sheet per value of a column.'),
+  }),
   z.strictObject({
     ...FileBase,
     copy: z.strictObject({

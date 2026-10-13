@@ -469,7 +469,7 @@ describe('the committed suite', () => {
         line.startsWith('  - {') ? line.replace('status: proposed', 'status: approved') : line,
       ),
     );
-    expect(approved.filter((line) => line.startsWith('  - {'))).toHaveLength(1145);
+    expect(approved.filter((line) => line.startsWith('  - {'))).toHaveLength(1301);
     expect(approved.filter((line) => line.startsWith('  - {') && !line.includes('status: approved'))).toEqual(
       [],
     );
@@ -495,11 +495,11 @@ describe('the committed suite', () => {
     for (const file of result.files) expect(committed[file.path], file.path).toBe(file.text);
     expect(result.report.summary).toEqual({
       // An ask that would restate the rule under test is refused (needs-askable-act): fewer complete specs.
-      specs: 1145,
-      blocks: 1140,
-      complete: 847,
-      incomplete: 298,
-      judged: 251,
+      specs: 1301,
+      blocks: 1296,
+      complete: 957,
+      incomplete: 344,
+      judged: 283,
     });
     expect(result.report.invalid).toEqual([]);
     expect(result.report.lint).toEqual([]);

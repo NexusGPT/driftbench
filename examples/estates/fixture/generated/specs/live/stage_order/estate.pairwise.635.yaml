@@ -21,7 +21,7 @@ given:
       runtime: claude-code
       map_hash: be2e7a0919cb31aecf73102cd271e7611cb439be814983a47b9dc39e38775f10
     session_state: resumed
-    event: stale_tracker
+    event: process_restart
     workspace_seed: northwind-ops
   world:
     workspace:
@@ -86,11 +86,11 @@ metadata:
     planRow: pairwise.635
     cell:
       ask_class: chat
-      ask_shape: ambiguous
+      ask_shape: prescribed
       session_state: resumed
-      owner_signal: stop
+      owner_signal: hold
       deviation: D2_goal_shift
-      estate_hazard: stale_tracker
+      estate_hazard: process_restart
       atoms.stage: stage.steps.stage-report-tell-the-user-what
     seeder: estate
     seed: 1

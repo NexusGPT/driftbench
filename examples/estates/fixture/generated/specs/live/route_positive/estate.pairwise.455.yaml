@@ -4,7 +4,7 @@
 id: estate.pairwise.455
 version: be2e7a0919cb
 kind: task
-title: "route_positive: An ask to know where a shipment is loads shipment-tracker"
+title: "route_positive: An ask that fits shipment-tracker loads it"
 lang: EN
 tier: generated
 tags:
@@ -20,8 +20,7 @@ given:
     estate:
       runtime: claude-code
       map_hash: be2e7a0919cb31aecf73102cd271e7611cb439be814983a47b9dc39e38775f10
-    session_state: after_compaction
-    event: compaction_mid_task
+    session_state: resumed
     workspace_seed: northwind-ops
   world:
     workspace:
@@ -62,26 +61,26 @@ blocks:
       workspace:
         others_untouched: true
 perturbations:
-  - id: deviation-D10_return
-    class: D10_return
+  - id: deviation-D9_out_of_scope
+    class: D9_out_of_scope
     inject_at: 0
-    user: I'm back. Where were we?
+    user: Also, can you book me a flight to Lisbon for Friday?
     recovery:
       within_blocks: 1
 metadata:
   estate:
     atoms:
-      - route.standing.an-ask-to-know-where-a
+      - route.shipment-tracker.an-ask-that-fits-shipment-tracker
     planRow: pairwise.455
     focusVariant: 454
     cell:
       ask_class: compose
-      ask_shape: problem
-      session_state: after_compaction
-      owner_signal: frustration
-      deviation: D10_return
-      estate_hazard: compaction_mid_task
-      atoms.route: route.standing.an-ask-to-know-where-a
+      ask_shape: ambiguous
+      session_state: resumed
+      owner_signal: keep_going
+      deviation: D9_out_of_scope
+      estate_hazard: no_hazard
+      atoms.route: route.shipment-tracker.an-ask-that-fits-shipment-tracker
     seeder: estate
     seed: 1
     mapHash: be2e7a0919cb31aecf73102cd271e7611cb439be814983a47b9dc39e38775f10

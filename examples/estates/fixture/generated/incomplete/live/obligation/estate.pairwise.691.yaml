@@ -19,8 +19,8 @@ given:
     estate:
       runtime: claude-code
       map_hash: be2e7a0919cb31aecf73102cd271e7611cb439be814983a47b9dc39e38775f10
-    session_state: long
-    event: compaction_mid_task
+    session_state: after_restart
+    event: process_restart
 blocks:
   - id: ask
     when:
@@ -40,12 +40,12 @@ metadata:
       - instruction.standing.report-only-numbers-read-during-the
     planRow: pairwise.691
     cell:
-      ask_class: debug
-      ask_shape: concrete
-      session_state: long
-      owner_signal: stop
+      ask_class: build
+      ask_shape: correction
+      session_state: after_restart
+      owner_signal: limit_word
       deviation: none
-      estate_hazard: compaction_mid_task
+      estate_hazard: process_restart
       atoms.instruction: instruction.standing.report-only-numbers-read-during-the
     seeder: estate
     seed: 1

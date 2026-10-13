@@ -4,7 +4,7 @@
 id: estate.pairwise.753
 version: be2e7a0919cb
 kind: task
-title: "obligation: Always pass the carrier code to the tracking script"
+title: "obligation: Tell the user about a late shipment and propose a supplier email"
 lang: EN
 tier: generated
 tags:
@@ -54,39 +54,30 @@ blocks:
     when:
       user: Where is shipment NW-55012? It was promised for 2 October.
     expect:
+      must:
+        - late
       workspace:
         others_untouched: true
-rules:
-  custom:
-    some_call:
-      calls:
-        - label: Bash
-          input:
-            command:
-              regex: "track\\.sh [A-Z]{3} "
-          count:
-            min: 1
-          block: 0
 perturbations:
-  - id: deviation-D7_silence_or_burst
-    class: D7_silence_or_burst
+  - id: deviation-D3_contradiction
+    class: D3_contradiction
     inject_at: 0
-    user: Hello? Hello? Are you there?
+    user: Wait, earlier I said the opposite of what I just asked. Which one should hold?
     recovery:
       within_blocks: 1
 metadata:
   estate:
     atoms:
-      - instruction.shipment-tracker.always-pass-the-carrier-code-to
+      - instruction.standing.tell-the-user-about-a-late
     planRow: pairwise.753
     cell:
-      ask_class: build
-      ask_shape: prescribed
+      ask_class: operate
+      ask_shape: problem
       session_state: after_restart
-      owner_signal: frustration
-      deviation: D7_silence_or_burst
+      owner_signal: keep_going
+      deviation: D3_contradiction
       estate_hazard: no_hazard
-      atoms.instruction: instruction.shipment-tracker.always-pass-the-carrier-code-to
+      atoms.instruction: instruction.standing.tell-the-user-about-a-late
     seeder: estate
     seed: 1
     mapHash: be2e7a0919cb31aecf73102cd271e7611cb439be814983a47b9dc39e38775f10

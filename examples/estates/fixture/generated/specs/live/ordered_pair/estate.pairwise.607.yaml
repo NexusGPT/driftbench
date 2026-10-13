@@ -20,7 +20,7 @@ given:
     estate:
       runtime: claude-code
       map_hash: be2e7a0919cb31aecf73102cd271e7611cb439be814983a47b9dc39e38775f10
-    session_state: long
+    session_state: after_compaction
     event: compaction_mid_task
     workspace_seed: northwind-ops
   world:
@@ -82,9 +82,9 @@ metadata:
     planRow: pairwise.607
     cell:
       ask_class: chat
-      ask_shape: multi_part
-      session_state: long
-      owner_signal: go
+      ask_shape: correction
+      session_state: after_compaction
+      owner_signal: limit_word
       deviation: D10_return
       estate_hazard: compaction_mid_task
       atoms.gate: gate.standing.write-a-helper-s-brief-before

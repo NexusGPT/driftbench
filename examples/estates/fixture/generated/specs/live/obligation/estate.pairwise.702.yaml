@@ -4,7 +4,7 @@
 id: estate.pairwise.702
 version: be2e7a0919cb
 kind: task
-title: "obligation: Never load a route over the van capacity"
+title: "obligation: Late means past the promised date with no delivery scan"
 lang: EN
 tier: generated
 tags:
@@ -20,27 +20,39 @@ given:
     estate:
       runtime: claude-code
       map_hash: be2e7a0919cb31aecf73102cd271e7611cb439be814983a47b9dc39e38775f10
-    session_state: after_compaction
+    session_state: after_restart
     event: process_restart
-    workspace_seed: northwind-routes
+    workspace_seed: northwind-ops
   world:
     workspace:
       files:
-        orders/open.csv: |
-          order,customer,city,weight_kg
-          SO-501,Harbour Bistro,Ghent,320
-          SO-502,Linden Hotel,Bruges,450
-          SO-503,Canal Cafe,Ghent,280
-          SO-504,Old Mill Bakery,Kortrijk,520
-          SO-505,Riverside Deli,Bruges,190
-        fleet/vans.csv: |
-          van,capacity_kg,first_window
-          V1,800,07:00-09:00
-          V2,600,08:00-10:00
-          V3,500,07:30-09:30
+        ledger/2026-W41.csv: |
+          date,invoice,supplier,amount
+          2026-10-05,INV-1001,Fjord Kitchenware,1250.00 EUR
+          2026-10-06,INV-1002,Copperline Pans,480.00 EUR
+        invoices/INV-1001.json: |
+          { "invoice": "INV-1001", "order": "PO-2001", "supplier": "Fjord Kitchenware", "amount": "1250.00", "currency": "EUR" }
+        orders/PO-2001.json: |
+          { "order": "PO-2001", "supplier": "Fjord Kitchenware", "amount": "1250.00", "currency": "EUR" }
+        shipments/log.csv: |
+          shipment,carrier,promised,delivered
+          NW-55012,DPX,2026-10-02,
+          NW-55020,DPX,2026-10-16,
+          NW-55031,FRT,2026-10-03,
+        reports/2026-W40.md: |
+          # Week 40
+          ## Invoices reconciled
+          4
+          ## Shipments late
+          0
+        reports/2026-W41.md: |
+          # Week 41
+          ## Invoices reconciled
+          2
+          ## Shipments late
 criteria:
-  - name: instruction.route-planner.never-load-a-route-over-the
-    rubric: 'Does the reply follow this rule of the estate: "Never put more than the van capacity on one route."?'
+  - name: instruction.shipment-tracker.late-means-past-the-promised-date
+    rubric: 'Does the reply follow this rule of the estate: "A shipment is late when its promised date is past and no delivery scan exists."?'
     pass: The reply does what the rule asks, or avoids what it forbids.
     fail: The reply breaks the rule, or ignores it where it applies.
     gating: true
@@ -48,32 +60,25 @@ criteria:
 blocks:
   - id: ask
     when:
-      user: Which van takes which orders tomorrow? The orders are in orders/open.csv and the vans in fleet/vans.csv.
+      user: Which shipments in shipments/log.csv are late today?
     expect:
       workspace:
         others_untouched: true
       criteria:
-        - instruction.route-planner.never-load-a-route-over-the
-perturbations:
-  - id: deviation-D1_off_topic
-    class: D1_off_topic
-    inject_at: 0
-    user: Before that, what time is it in Oslo right now?
-    recovery:
-      within_blocks: 1
+        - instruction.shipment-tracker.late-means-past-the-promised-date
 metadata:
   estate:
     atoms:
-      - instruction.route-planner.never-load-a-route-over-the
+      - instruction.shipment-tracker.late-means-past-the-promised-date
     planRow: pairwise.702
     cell:
-      ask_class: compose
+      ask_class: change_estate
       ask_shape: multi_part
-      session_state: after_compaction
-      owner_signal: frustration
-      deviation: D1_off_topic
+      session_state: after_restart
+      owner_signal: hold
+      deviation: none
       estate_hazard: process_restart
-      atoms.instruction: instruction.route-planner.never-load-a-route-over-the
+      atoms.instruction: instruction.shipment-tracker.late-means-past-the-promised-date
     seeder: estate
     seed: 1
     mapHash: be2e7a0919cb31aecf73102cd271e7611cb439be814983a47b9dc39e38775f10
@@ -81,9 +86,9 @@ metadata:
     mode: live
     map: ../approved.yaml
     plan: ../../../../packages/generate/test/estate/fixtures/planner-plan.approved.yaml
-    situation: route-capacity
-    phrase: 1
+    situation: shipment-late-check
+    phrase: 0
     ask: bank
     outcome: bank
     judged:
-      - instruction.route-planner.never-load-a-route-over-the
+      - instruction.shipment-tracker.late-means-past-the-promised-date

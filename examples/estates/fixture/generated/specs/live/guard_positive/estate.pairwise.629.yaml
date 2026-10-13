@@ -34,10 +34,10 @@ blocks:
       workspace:
         deleted: []
 perturbations:
-  - id: deviation-D4_loose_confirmation
-    class: D4_loose_confirmation
+  - id: deviation-D8_tool_failure
+    class: D8_tool_failure
     inject_at: 0
-    user: yeah sure, whatever works
+    user: The last tool call failed. Carry on.
     recovery:
       within_blocks: 1
 metadata:
@@ -47,10 +47,10 @@ metadata:
     planRow: pairwise.629
     cell:
       ask_class: chat
-      ask_shape: problem
+      ask_shape: correction
       session_state: fresh
-      owner_signal: hold
-      deviation: D4_loose_confirmation
+      owner_signal: go
+      deviation: D8_tool_failure
       estate_hazard: no_hazard
       atoms.guard: guard.settings.posttooluse-bash-guard-ledger-guard-py
     seeder: estate

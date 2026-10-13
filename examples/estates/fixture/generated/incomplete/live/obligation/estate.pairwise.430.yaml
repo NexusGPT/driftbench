@@ -5,13 +5,14 @@
 id: estate.pairwise.430
 version: be2e7a0919cb
 kind: task
-title: "obligation: Dispatch the ledger auditor above 50.00 EUR of difference"
+title: "obligation: Never change an invoice amount; report the difference"
 tier: generated
 tags:
   - estate
   - test:obligation
   - mode:live
   - kind:instruction
+  - judged
 target:
   adapter: claude-code
 given:
@@ -19,34 +20,37 @@ given:
     estate:
       runtime: claude-code
       map_hash: be2e7a0919cb31aecf73102cd271e7611cb439be814983a47b9dc39e38775f10
-    session_state: after_compaction
-    event: compaction_mid_task
+    session_state: fresh
+    event: rate_wave
 blocks:
   - id: ask
     when:
-      user: "[no approved phrase: trigger situation for instruction.invoice-reconcile.dispatch-the-ledger-auditor-above-50]"
+      user: "[no approved phrase: trigger situation for instruction.invoice-reconcile.never-change-an-invoice-amount-report]"
     expect:
-      subagents:
-        - name: ledger-auditor
-          count:
-            min: 1
       workspace:
         deleted: []
       criteria:
         - needs-askable-act
+perturbations:
+  - id: deviation-D1_off_topic
+    class: D1_off_topic
+    inject_at: 0
+    user: Before that, what time is it in Oslo right now?
+    recovery:
+      within_blocks: 1
 metadata:
   estate:
     atoms:
-      - instruction.invoice-reconcile.dispatch-the-ledger-auditor-above-50
+      - instruction.invoice-reconcile.never-change-an-invoice-amount-report
     planRow: pairwise.430
     cell:
       ask_class: compose
-      ask_shape: concrete
-      session_state: after_compaction
-      owner_signal: stop
-      deviation: none
-      estate_hazard: compaction_mid_task
-      atoms.instruction: instruction.invoice-reconcile.dispatch-the-ledger-auditor-above-50
+      ask_shape: ambiguous
+      session_state: fresh
+      owner_signal: go
+      deviation: D1_off_topic
+      estate_hazard: rate_wave
+      atoms.instruction: instruction.invoice-reconcile.never-change-an-invoice-amount-report
     seeder: estate
     seed: 1
     mapHash: be2e7a0919cb31aecf73102cd271e7611cb439be814983a47b9dc39e38775f10
@@ -58,7 +62,9 @@ metadata:
     phrase: null
     ask: bank
     outcome: no-delete
+    judged:
+      - instruction.invoice-reconcile.never-change-an-invoice-amount-report
     needs:
       - marker: needs-askable-act
-        atom: instruction.invoice-reconcile.dispatch-the-ledger-auditor-above-50
-        detail: "no task in the atom's words (instruction.invoice-reconcile.dispatch-the-ledger-auditor-above-50 (title)): the act restates the rule (\"dispatch the ledger auditor above 50.00 EUR of difference\"), and no unit of the row names a task"
+        atom: instruction.invoice-reconcile.never-change-an-invoice-amount-report
+        detail: "no task in the atom's words (instruction.invoice-reconcile.never-change-an-invoice-amount-report (title)): the act restates the rule (\"change an invoice amount\"), and no unit of the row names a task"

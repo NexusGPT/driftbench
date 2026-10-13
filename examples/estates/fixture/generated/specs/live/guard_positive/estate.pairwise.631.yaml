@@ -20,7 +20,7 @@ given:
     estate:
       runtime: claude-code
       map_hash: be2e7a0919cb31aecf73102cd271e7611cb439be814983a47b9dc39e38775f10
-    session_state: long
+    session_state: fresh
 blocks:
   - id: ask
     when:
@@ -46,9 +46,9 @@ metadata:
     planRow: pairwise.631
     cell:
       ask_class: chat
-      ask_shape: problem
-      session_state: long
-      owner_signal: keep_going
+      ask_shape: concrete
+      session_state: fresh
+      owner_signal: stop
       deviation: D4_loose_confirmation
       estate_hazard: no_hazard
       atoms.guard: guard.settings.stop-guard-reply-length-py

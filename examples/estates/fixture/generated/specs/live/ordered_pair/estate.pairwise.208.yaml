@@ -4,7 +4,7 @@
 id: estate.pairwise.208
 version: be2e7a0919cb
 kind: task
-title: "ordered_pair: Never report done before verify passed"
+title: "ordered_pair: Read .claude/skills/invoice-reconcile/references/matching-rules.md before editing any invoice file"
 lang: EN
 tier: generated
 tags:
@@ -53,18 +53,22 @@ given:
 blocks:
   - id: ask
     when:
-      user: Add the late shipment count to this week's report, reports/2026-W41.md.
+      user: In invoices/INV-1001.json set the note field to an empty string.
     expect:
+      references:
+        - path: "**/.claude/skills/invoice-reconcile/references/matching-rules.md"
+          count:
+            min: 1
       workspace:
         changed:
-          - reports/2026-W41.md
+          - invoices/INV-1001.json
         others_untouched: true
 rules:
   custom:
     ordered:
       pairs:
-        - before: stage:verify
-          after: stage:report
+        - before: Read
+          after: Edit
 perturbations:
   - id: deviation-D10_return
     class: D10_return
@@ -75,16 +79,16 @@ perturbations:
 metadata:
   estate:
     atoms:
-      - gate.standing.never-report-done-before-verify-passed
+      - gate.standing.read-claude-skills-invoice-reconcile-references
     planRow: pairwise.208
     cell:
       ask_class: operate
-      ask_shape: correction
+      ask_shape: problem
       session_state: resumed
       owner_signal: hold
       deviation: D10_return
       estate_hazard: compaction_mid_task
-      atoms.gate: gate.standing.never-report-done-before-verify-passed
+      atoms.gate: gate.standing.read-claude-skills-invoice-reconcile-references
     seeder: estate
     seed: 1
     mapHash: be2e7a0919cb31aecf73102cd271e7611cb439be814983a47b9dc39e38775f10
@@ -92,7 +96,7 @@ metadata:
     mode: live
     map: ../approved.yaml
     plan: ../../../../packages/generate/test/estate/fixtures/planner-plan.approved.yaml
-    situation: weekly-report-update
+    situation: invoice-file-edit
     phrase: 0
     ask: code
     outcome: bank

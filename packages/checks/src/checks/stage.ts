@@ -9,8 +9,8 @@ type ObservedStage = { name: string; block: number; own: string[] };
  * `expect.stage` against the stage the runtime reports: the last entry of the block's
  * `runtime.stages`. A runtime that reports a stage only when it changes leaves a block without one; in a
  * free-running or perturbed run the session carries on, so the last stage reported by an earlier block
- * still holds. When no stage was ever reported the check does not apply: the stage classifier of phase 3
- * owns that case. `stage_reported: true` separately requires a stage in this block, even without an
+ * still holds. When no stage was ever reported the check does not apply: the step classifier (`classifyStage` in
+ * core) owns that case. `stage_reported: true` separately requires a stage in this block, even without an
  * expected stage name. Entries marked carried, history and the classifier cannot satisfy that assertion.
  */
 export const stage: Check = {

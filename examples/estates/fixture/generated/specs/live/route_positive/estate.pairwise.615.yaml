@@ -4,7 +4,7 @@
 id: estate.pairwise.615
 version: be2e7a0919cb
 kind: task
-title: "route_positive: An ask that fits route-planner dispatches it"
+title: "route_positive: An ask that fits ledger-auditor dispatches it"
 lang: EN
 tier: generated
 tags:
@@ -21,7 +21,6 @@ given:
       runtime: claude-code
       map_hash: be2e7a0919cb31aecf73102cd271e7611cb439be814983a47b9dc39e38775f10
     session_state: after_compaction
-    event: compaction_mid_task
     workspace_seed: northwind-ops
   world:
     workspace:
@@ -53,10 +52,10 @@ given:
 blocks:
   - id: ask
     when:
-      user: Plan the delivery routes for tomorrow.
+      user: Did we pay any invoice twice in week 41? Check the ledger.
     expect:
       subagents:
-        - name: route-planner
+        - name: ledger-auditor
           count:
             min: 1
       workspace:
@@ -71,17 +70,17 @@ perturbations:
 metadata:
   estate:
     atoms:
-      - route.route-planner.an-ask-that-fits-route-planner
+      - route.ledger-auditor.an-ask-that-fits-ledger-auditor
     planRow: pairwise.615
     focusVariant: 614
     cell:
       ask_class: chat
-      ask_shape: prescribed
+      ask_shape: multi_part
       session_state: after_compaction
-      owner_signal: hold
+      owner_signal: keep_going
       deviation: D9_out_of_scope
-      estate_hazard: compaction_mid_task
-      atoms.route: route.route-planner.an-ask-that-fits-route-planner
+      estate_hazard: no_hazard
+      atoms.route: route.ledger-auditor.an-ask-that-fits-ledger-auditor
     seeder: estate
     seed: 1
     mapHash: be2e7a0919cb31aecf73102cd271e7611cb439be814983a47b9dc39e38775f10
@@ -89,7 +88,7 @@ metadata:
     mode: live
     map: ../approved.yaml
     plan: ../../../../packages/generate/test/estate/fixtures/planner-plan.approved.yaml
-    situation: route-planning
-    phrase: 0
+    situation: ledger-audit
+    phrase: 1
     ask: code
     outcome: bank

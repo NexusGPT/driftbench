@@ -4,14 +4,14 @@
 id: estate.pairwise.225
 version: be2e7a0919cb
 kind: task
-title: "route_positive: Skill weekly-report"
+title: "route_positive: An ask to plan the delivery routes for tomorrow dispatches route-planner"
 lang: EN
 tier: generated
 tags:
   - estate
   - test:route_positive
   - mode:live
-  - kind:skill
+  - kind:route
 target:
   adapter: claude-code
 given:
@@ -19,8 +19,7 @@ given:
     estate:
       runtime: claude-code
       map_hash: be2e7a0919cb31aecf73102cd271e7611cb439be814983a47b9dc39e38775f10
-    session_state: after_compaction
-    event: compaction_mid_task
+    session_state: fresh
     workspace_seed: northwind-ops
   world:
     workspace:
@@ -52,37 +51,28 @@ given:
 blocks:
   - id: ask
     when:
-      user: Fill in the shipments late section of the week 41 report.
+      user: Plan the delivery routes for tomorrow.
     expect:
-      skills:
-        - name: weekly-report
+      subagents:
+        - name: route-planner
           count:
             min: 1
       workspace:
-        changed:
-          - reports/2026-W41.md
         others_untouched: true
-perturbations:
-  - id: deviation-D1_off_topic
-    class: D1_off_topic
-    inject_at: 0
-    user: Before that, what time is it in Oslo right now?
-    recovery:
-      within_blocks: 1
 metadata:
   estate:
     atoms:
-      - skill.weekly-report.skill-weekly-report
+      - route.standing.an-ask-to-plan-the-delivery
     planRow: pairwise.225
     focusVariant: 224
     cell:
       ask_class: operate
-      ask_shape: prescribed
-      session_state: after_compaction
+      ask_shape: concrete
+      session_state: fresh
       owner_signal: limit_word
-      deviation: D1_off_topic
-      estate_hazard: compaction_mid_task
-      atoms.skill: skill.weekly-report.skill-weekly-report
+      deviation: none
+      estate_hazard: no_hazard
+      atoms.route: route.standing.an-ask-to-plan-the-delivery
     seeder: estate
     seed: 1
     mapHash: be2e7a0919cb31aecf73102cd271e7611cb439be814983a47b9dc39e38775f10
@@ -90,7 +80,7 @@ metadata:
     mode: live
     map: ../approved.yaml
     plan: ../../../../packages/generate/test/estate/fixtures/planner-plan.approved.yaml
-    situation: weekly-report-update
-    phrase: 1
+    situation: route-planning
+    phrase: 0
     ask: bank
     outcome: bank

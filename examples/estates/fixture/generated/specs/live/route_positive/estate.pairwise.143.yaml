@@ -4,14 +4,14 @@
 id: estate.pairwise.143
 version: be2e7a0919cb
 kind: task
-title: "route_positive: Skill shipment-tracker"
+title: "route_positive: An ask to know where a shipment is loads shipment-tracker"
 lang: EN
 tier: generated
 tags:
   - estate
   - test:route_positive
   - mode:live
-  - kind:skill
+  - kind:route
   - ask:code
 target:
   adapter: claude-code
@@ -20,7 +20,7 @@ given:
     estate:
       runtime: claude-code
       map_hash: be2e7a0919cb31aecf73102cd271e7611cb439be814983a47b9dc39e38775f10
-    session_state: after_compaction
+    session_state: fresh
     workspace_seed: northwind-ops
   world:
     workspace:
@@ -61,26 +61,26 @@ blocks:
       workspace:
         others_untouched: true
 perturbations:
-  - id: deviation-D2_goal_shift
-    class: D2_goal_shift
+  - id: deviation-D10_return
+    class: D10_return
     inject_at: 0
-    user: "Actually, change of plan: do only the first part of what I asked and stop there."
+    user: I'm back. Where were we?
     recovery:
       within_blocks: 1
 metadata:
   estate:
     atoms:
-      - skill.shipment-tracker.skill-shipment-tracker
+      - route.standing.an-ask-to-know-where-a
     planRow: pairwise.143
     focusVariant: 142
     cell:
       ask_class: build
-      ask_shape: prescribed
-      session_state: after_compaction
-      owner_signal: frustration
-      deviation: D2_goal_shift
+      ask_shape: problem
+      session_state: fresh
+      owner_signal: go
+      deviation: D10_return
       estate_hazard: no_hazard
-      atoms.skill: skill.shipment-tracker.skill-shipment-tracker
+      atoms.route: route.standing.an-ask-to-know-where-a
     seeder: estate
     seed: 1
     mapHash: be2e7a0919cb31aecf73102cd271e7611cb439be814983a47b9dc39e38775f10

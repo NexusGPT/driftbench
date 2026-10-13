@@ -4,14 +4,14 @@
 id: estate.pairwise.144
 version: be2e7a0919cb
 kind: task
-title: "route_positive: Skill supplier-email"
+title: "route_positive: An ask to write to or chase a supplier loads supplier-email"
 lang: EN
 tier: generated
 tags:
   - estate
   - test:route_positive
   - mode:live
-  - kind:skill
+  - kind:route
   - ask:code
 target:
   adapter: claude-code
@@ -21,6 +21,7 @@ given:
       runtime: claude-code
       map_hash: be2e7a0919cb31aecf73102cd271e7611cb439be814983a47b9dc39e38775f10
     session_state: after_compaction
+    event: compaction_mid_task
     workspace_seed: northwind-ops
   world:
     workspace:
@@ -61,26 +62,26 @@ blocks:
       workspace:
         others_untouched: true
 perturbations:
-  - id: deviation-D3_contradiction
-    class: D3_contradiction
+  - id: deviation-D10_return
+    class: D10_return
     inject_at: 0
-    user: Wait, earlier I said the opposite of what I just asked. Which one should hold?
+    user: I'm back. Where were we?
     recovery:
       within_blocks: 1
 metadata:
   estate:
     atoms:
-      - skill.supplier-email.skill-supplier-email
+      - route.standing.an-ask-to-write-to-or
     planRow: pairwise.144
     focusVariant: 143
     cell:
       ask_class: build
-      ask_shape: ambiguous
+      ask_shape: multi_part
       session_state: after_compaction
-      owner_signal: go
-      deviation: D3_contradiction
-      estate_hazard: no_hazard
-      atoms.skill: skill.supplier-email.skill-supplier-email
+      owner_signal: frustration
+      deviation: D10_return
+      estate_hazard: compaction_mid_task
+      atoms.route: route.standing.an-ask-to-write-to-or
     seeder: estate
     seed: 1
     mapHash: be2e7a0919cb31aecf73102cd271e7611cb439be814983a47b9dc39e38775f10

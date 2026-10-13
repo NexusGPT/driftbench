@@ -19,7 +19,7 @@ given:
     estate:
       runtime: claude-code
       map_hash: be2e7a0919cb31aecf73102cd271e7611cb439be814983a47b9dc39e38775f10
-    session_state: long
+    session_state: fresh
     workspace_seed: northwind-ops
   world:
     workspace:
@@ -62,6 +62,13 @@ blocks:
         others_untouched: true
       criteria:
         - register.standing.lead-with-the-result
+perturbations:
+  - id: deviation-D5_language_switch
+    class: D5_language_switch
+    inject_at: 0
+    user: Kannst du ab jetzt bitte auf Deutsch antworten?
+    recovery:
+      within_blocks: 1
 metadata:
   estate:
     atoms:
@@ -69,10 +76,10 @@ metadata:
     planRow: pairwise.480
     cell:
       ask_class: compose
-      ask_shape: prescribed
-      session_state: long
-      owner_signal: limit_word
-      deviation: none
+      ask_shape: multi_part
+      session_state: fresh
+      owner_signal: language_switch
+      deviation: D5_language_switch
       estate_hazard: no_hazard
       atoms.register: register.standing.lead-with-the-result
     seeder: estate

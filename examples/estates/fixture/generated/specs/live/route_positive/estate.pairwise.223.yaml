@@ -4,14 +4,14 @@
 id: estate.pairwise.223
 version: be2e7a0919cb
 kind: task
-title: "route_positive: Skill shipment-tracker"
+title: "route_positive: An ask to prepare the weekly report loads weekly-report"
 lang: EN
 tier: generated
 tags:
   - estate
   - test:route_positive
   - mode:live
-  - kind:skill
+  - kind:route
   - ask:code
 target:
   adapter: claude-code
@@ -20,7 +20,7 @@ given:
     estate:
       runtime: claude-code
       map_hash: be2e7a0919cb31aecf73102cd271e7611cb439be814983a47b9dc39e38775f10
-    session_state: long
+    session_state: after_compaction
     event: compaction_mid_task
     workspace_seed: northwind-ops
   world:
@@ -53,35 +53,37 @@ given:
 blocks:
   - id: ask
     when:
-      user: Where is shipment NW-55012? It was promised for 2 October.
+      user: Write up last week in the usual weekly report.
     expect:
       skills:
-        - name: shipment-tracker
+        - name: weekly-report
           count:
             min: 1
       workspace:
+        created:
+          - reports/2026-W42.md
         others_untouched: true
 perturbations:
-  - id: deviation-D9_out_of_scope
-    class: D9_out_of_scope
+  - id: deviation-D10_return
+    class: D10_return
     inject_at: 0
-    user: Also, can you book me a flight to Lisbon for Friday?
+    user: I'm back. Where were we?
     recovery:
       within_blocks: 1
 metadata:
   estate:
     atoms:
-      - skill.shipment-tracker.skill-shipment-tracker
+      - route.standing.an-ask-to-prepare-the-weekly
     planRow: pairwise.223
     focusVariant: 222
     cell:
       ask_class: operate
-      ask_shape: problem
-      session_state: long
-      owner_signal: keep_going
-      deviation: D9_out_of_scope
+      ask_shape: multi_part
+      session_state: after_compaction
+      owner_signal: hold
+      deviation: D10_return
       estate_hazard: compaction_mid_task
-      atoms.skill: skill.shipment-tracker.skill-shipment-tracker
+      atoms.route: route.standing.an-ask-to-prepare-the-weekly
     seeder: estate
     seed: 1
     mapHash: be2e7a0919cb31aecf73102cd271e7611cb439be814983a47b9dc39e38775f10
@@ -89,7 +91,7 @@ metadata:
     mode: live
     map: ../approved.yaml
     plan: ../../../../packages/generate/test/estate/fixtures/planner-plan.approved.yaml
-    situation: shipment-late
-    phrase: 0
+    situation: weekly-report-new
+    phrase: 1
     ask: code
     outcome: bank
