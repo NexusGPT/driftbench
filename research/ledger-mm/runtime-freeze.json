@@ -1,5 +1,5 @@
 {
-  "stage": "test-v3",
+  "stage": "test-v4",
   "core": {
     "pr": "https://github.com/achammah/driftbench/pull/168",
     "commit": "35f07309a4d1d1c8a7c5b176ff19e537d0ef8fdd",
@@ -85,9 +85,12 @@
     "research/ledger-mm/artifacts/pool.json": "c5d9b880f98a3cefcacdd5ac1417d0ce70fe526e358edecd890dcfa792f65aeb",
     "research/ledger-mm/artifacts/pilot.json": "1fa01e034f8fb2fe782bcf1fa6f6bc11c5856f5b69a9702fb4c2177169f5733a",
     "research/ledger-mm/artifacts/harm-fixtures.json": "cb26c07022016c8c0ecff5f1c7663991d673ed7d01c2cf50c9b82842a773467d",
-    "research/ledger-mm/run-test.mts": "5c6aa12b846c05cf8c46f1ac692ba10298d6072d6b292886cc44b312819b9a26",
+    "research/ledger-mm/run-test.mts": "7cedea43bcf472dcb4d59a96fe43fd1471834e0d46b69bec03b5f1bf5c3b0a09",
     "research/ledger-mm/exec.mjs": "3671207f6315bf28db133ce9c81edec336593ce0eb564498305d4897a5bb554c",
-    "research/ledger-mm/test_exec.mjs": "3afda975b1ff7e189137faed917a6330df81d5bc1a704cc943dae4b06aa6a8ac"
+    "research/ledger-mm/test_exec.mjs": "3afda975b1ff7e189137faed917a6330df81d5bc1a704cc943dae4b06aa6a8ac",
+    "research/ledger-mm/eligibility.json": "84b05992165f14a4bc4e130a793f52ac2204fec691d0f43ce33916579c82bdeb",
+    "research/ledger-mm/test_eligibility.py": "a84b5aeef9b7c796310442328d9529705a5faf32d720c21bdbb36a70b1009e60",
+    "research/ledger-mm/test_report.py": "bd30a3a4b1b77f44bfe1a875b90e1218ad90930ccba59a0877d338a45e6c16d8"
   },
   "executionRules": {
     "driver": "research/ledger-mm/run-test.mts, derived from frozen run.mts by execution changes only",
@@ -120,5 +123,11 @@
     "text": "Gemini stopped on the daily request quota (generate_requests_per_model_per_day, 10000; HTTP 429). Gemini missing-only completion may run until 2026-10-14T12:00:00Z, after the quota reset near 00:00 UTC. Calls with no answer stay eligible; an answered call is never re-sent. Haiku and gpt-6-luna cells are closed.",
     "geminiCutoff": "2026-10-14T12:00:00+00:00",
     "resumeNote": "run-test.mts skips items whose decision row records TRANSPORT_EXHAUSTED; the resume needs an eligibility step for those 13 quota and credit items, plus the 194 items not yet run."
+  },
+  "amendment4": {
+    "loggedUtc": "2026-10-13",
+    "by": "owner via coordinator",
+    "text": "Eligibility round 1 for the 13 Gemini items with no model answer (26 decisions, 26 calls, all TRANSPORT_EXHAUSTED with no response). They are asked again with fresh reservation keys and a fresh 3-try count. Answered calls are never re-sent. Gemini gate rises to 25 USD for this step; Gemini last-call cutoff 2026-10-14T12:00:00Z. A later round row supersedes a no-answer row in the report. Start only on the coordinator word.",
+    "file": "research/ledger-mm/eligibility.json"
   }
 }

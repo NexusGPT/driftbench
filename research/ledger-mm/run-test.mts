@@ -12,7 +12,7 @@ const root = resolve(here, '../..');
 const argv = process.argv.slice(2);
 const flag = (name: string, fallback?: string) => { const i = argv.indexOf(name); return i < 0 ? fallback : argv[i + 1]; };
 if (argv.includes('--help')) {
-  console.log('run-test.mts --phase fixture|pilot|noise|validity|test --model haiku|gpt-6-luna|gemini-3.8-flash [--workers 4] [--dry-run]\nPaid mode requires core-ready.json and a committed source freeze. TEST additionally requires runtime-freeze.json.');
+  console.log('run-test.mts --phase test --model haiku|gpt-6-luna|gemini-3.8-flash [--workers 4] [--dry-run] [--plan]\nPaid mode requires core-ready.json and a committed source freeze. TEST additionally requires runtime-freeze.json.');
   process.exit(0);
 }
 const phase = flag('--phase', 'test')!;
@@ -35,9 +35,17 @@ const runDir = resolve(here, dry ? 'runtime/dry-run' : 'recordings');
 mkdirSync(runDir, { recursive: true });
 const recordsFile = resolve(runDir, 'decisions.jsonl');
 const callsFile = resolve(runDir, 'calls.jsonl');
-const budget = new Budget(resolve(runDir, 'spend.jsonl'), 20);
-const completed = new Map(readLines(callsFile).map((r: any) => [r.key, r]));
-const decisions = new Set(readLines(recordsFile).map((r: any) => r.key));
+// Eligibility amendment: listed calls and decisions returned no model answer after their tries,
+// so they are asked again in a new round. Rows with any recorded model answer are never listed.
+const eligibilityPath = resolve(here, 'eligibility.json');
+const eligibility: any = existsSync(eligibilityPath) ? JSON.parse(readFileSync(eligibilityPath, 'utf8')) : null;
+const eligible = eligibility?.model === model ? eligibility : null;
+const eligibleCalls = new Set<string>(eligible?.callKeys ?? []);
+const eligibleDecisions = new Set<string>(eligible?.decisionKeys ?? []);
+const round: number = eligible?.round ?? 0;
+const budget = new Budget(resolve(runDir, 'spend.jsonl'), eligible?.capUsd ?? 20);
+const completed = new Map(readLines(callsFile).filter((r: any) => !(eligibleCalls.has(r.key) && r.transportExhausted === true && !('response' in r))).map((r: any) => [r.key, r]));
+const decisions = new Set(readLines(recordsFile).filter((r: any) => !(eligibleDecisions.has(r.key) && r.error && !r.games?.some((g: any) => g !== null))).map((r: any) => r.key));
 const capError = (e: any) => /BUDGET_CAP|LAST_CALL_CUTOFF|STOP_FILE/.test(String(e));
 const cfg = models[model]!;
 let transport: any;
@@ -54,7 +62,7 @@ if (!dry) {
   for (const [path, digest] of Object.entries(freeze.hashes)) {
     if (hash(readFileSync(resolve(root, path), 'utf8')) !== digest) throw new Error(`FREEZE_DRIFT ${path}`);
   }
-  cutoff = Date.parse(freeze.lastCallCutoff);
+  cutoff = Date.parse(eligible?.lastCallCutoff ?? freeze.lastCallCutoff);
   if (!Number.isFinite(cutoff)) throw new Error('MISSING_CUTOFF');
   core = await import('../../packages/judges/src/pair-ledger.ts');
   promptApi = await import('../../packages/judges/src/prompt.ts');
@@ -72,7 +80,7 @@ const gate = new Semaphore(MAX_CONCURRENT_CALLS);
 const attemptsFile = resolve(runDir, 'attempts.jsonl');
 // Tries already recorded as failed (no answer) by an earlier process count toward the three.
 const failedTries = new Map<string, number>();
-for (const r of readLines(attemptsFile) as any[]) failedTries.set(r.key, Math.max(failedTries.get(r.key) ?? 0, r.attempt));
+for (const r of readLines(attemptsFile) as any[]) if ((r.round ?? 0) === (eligibleCalls.has(r.key) ? round : 0)) failedTries.set(r.key, Math.max(failedTries.get(r.key) ?? 0, r.attempt));
 async function ask(meta: any, request: any) {
   const key = hash({ ...meta, model, request });
   const prior: any = completed.get(key);
@@ -83,7 +91,9 @@ async function ask(meta: any, request: any) {
   // Byte count upper-bounds token count conservatively for these short texts.
   const bytes = Buffer.byteLength(JSON.stringify(request));
   const reserve = model === 'haiku' ? .10 : Math.max(.01, (bytes + 2048) * (model === 'gpt-6-luna' ? .1 : .75) / 1e6 + 8192 * (model === 'gpt-6-luna' ? .5 : 3.75) / 1e6);
-  const tryKey = (n: number) => n === 1 ? key : `${key}:try${n}`;
+  // A new round uses fresh reservation keys; earlier rounds keep their retained reserves.
+  const tag = eligibleCalls.has(key) && round > 0 ? `${key}:round${round}` : key;
+  const tryKey = (n: number) => n === 1 ? tag : `${tag}:try${n}`;
   let got: any;
   try {
     got = await withTransportRetry({
@@ -102,14 +112,14 @@ async function ask(meta: any, request: any) {
           const response = await transport.complete(request);
           return { n, seconds: (Date.now() - started) / 1000, response };
         } catch (error) {
-          append(attemptsFile, { key, tryKey: tryKey(n), attempt: n, ...meta, model, seconds: (Date.now() - started) / 1000, error: redact(error), reserveRetained: reserve });
+          append(attemptsFile, { key, tryKey: tryKey(n), attempt: n, ...meta, model, seconds: (Date.now() - started) / 1000, error: redact(error), reserveRetained: reserve, ...(tag === key ? {} : { round }) });
           throw error;
         } finally { release(); }
       },
     });
   } catch (error: any) {
     if (error?.transportExhausted === true) {
-      const row = { key, ...meta, model, error: redact(error), transportExhausted: true, tries: TRIES, reserveRetained: reserve };
+      const row = { key, ...meta, model, error: redact(error), transportExhausted: true, tries: TRIES, reserveRetained: reserve, ...(tag === key ? {} : { round }) };
       append(callsFile, row); completed.set(key, row);
     }
     throw error;
@@ -254,6 +264,15 @@ if (phase === 'validity') {
   for (let repeat = 0; repeat < (phase === 'noise' || phase === 'fixture' ? 3 : 1); repeat++) {
     for (const item of pool) for (const contestant of phase === 'fixture' ? ['ledger'] : ['ledger', 'promptfoo']) tasks.push([item, contestant, repeat]);
   }
+}
+if (argv.includes('--plan')) {
+  // Offline: lists which items would be asked, makes no call and writes nothing.
+  const pending = tasks.filter((t: any[]) => !decisions.has(hash({ phase, id: t[0].id, contestant: t[1], repeat: t[2], variant: t[3] ?? 'base', model })));
+  const ids = new Set(pending.map((t: any[]) => t[0].id));
+  console.log(JSON.stringify({ phase, model, round, capUsd: budget.cap, cutoff: new Date(cutoff).toISOString(), planned: tasks.length, pendingDecisions: pending.length, pendingItems: ids.size,
+    eligibleDecisionsPending: pending.filter((t: any[]) => eligibleDecisions.has(hash({ phase, id: t[0].id, contestant: t[1], repeat: t[2], variant: t[3] ?? 'base', model }))).length,
+    eligibleCallsReopened: [...eligibleCalls].filter((k) => !completed.has(k)).length, budgetUsed: budget.used }));
+  process.exit(0);
 }
 try {
   await workers(tasks, concurrency, async (task: any[]) => evaluate(task[0], task[1], task[2], task[3]));

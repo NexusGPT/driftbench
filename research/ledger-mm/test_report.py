@@ -25,7 +25,11 @@ def strip(cell):
 
 def report(iterations=20000):
     pool = json.loads((HERE / 'artifacts/pool.json').read_text())
-    decisions = [r for r in lines(HERE / 'recordings/decisions.jsonl') if r['phase'] == 'test']
+    last = {}
+    for r in lines(HERE / 'recordings/decisions.jsonl'):
+        if r['phase'] == 'test':
+            last[(r['model'], r['id'], r['contestant'])] = r  # a later eligibility round supersedes a no-answer row
+    decisions = list(last.values())
     calls = [r for r in lines(HERE / 'recordings/calls.jsonl') if r['phase'] == 'test']
     attempts = [r for r in lines(HERE / 'recordings/attempts.jsonl') if r['phase'] == 'test']
     spend = {}
