@@ -1,11 +1,11 @@
 {
-  "source": "Options A and B (a1462f30) merged with main (7c0b3592)",
+  "source": "Options A and B (a1462f30) with cap PR 155 and speed PR 158 merged (01d617cc); spec files match the A/B pin, only the report's opening-pair reasons differ",
   "mapHash": "ed9e4089e9c5",
   "hashes": {
-    "pairwise": "ccd30540c7a32c81e366cd9b170ff7ac9d2ce69c43b3cab3614fc6b4c61e02f3",
-    "budget-20": "25601f06b8ae8ca796fbf01f74175e45d6ccb2a2a492c77fdd204a5c4e26da30",
-    "budget-50": "e4d16bfc7cf81f50737442321dd0f29a0c230d85d502251c95487b46b205b6ab",
-    "budget-100": "e426c420529fd00f24d05444b9f51c1d2d99ee801154008e26ae39c0adb39508",
-    "budget-200": "7f2bcff23507a68070703934e5c6eb71cf68b4c573250fdd9069c0813dacaf0d"
+    "pairwise": "4b99c68e0d39b03a05ecc2ab0649e0fb579240a252f13a013e0bbb1d29eb18eb",
+    "budget-20": "26c53d8269904ed92d90ce89b86c25a95ea55cffebdaa9e3c2a96aac540196f1",
+    "budget-50": "013b0a128d2113b80f29de87c82141b9ffc511a9d69a8a226fb2f3c262bf402e",
+    "budget-100": "dcba5bbd4429cfcd1c082b91ce873403da810bb45178d3781f61cc2c0102b1b9",
+    "budget-200": "e0db79f101b3d8da2c781e82955ea1ab4268ab9cb8e63ce6fd9a0c7eec5ea4ad"
   }
 }

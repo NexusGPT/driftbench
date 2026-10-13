@@ -10,7 +10,9 @@ Rewritten by the executor every iteration (docs/validators.md section 10). A str
 | 1 | 5 |
 <!-- level-table:end -->
 
-The owner resumes this work after the recorded pause and authorizes merging cap PR 155 and speed PR 158 into this branch. The replay-stage edge case and old-cache provenance are repaired. Cap PR 155 is merged at `6236f772`; speed PR 158 is merged at `8d44e8f5`. Fresh cap and speed measurements are running on source `1084a1e5`. No new sweep is active yet. Options A and B and the separate compose repair are pushed to PR 113 before the 06:40 deadline. Fresh completed seeds 1 through 4 each reach level 5, with 1788, 1791, 1773 and 1789 of 2009 seed-dependent items passing respectively. Seeds 5 through 20 plus hidden and the 24 global items remain unmeasured. This is a partial result, not a full 2033-item bank score. Source code: `8359f453`; [partial sweep evidence](evidence/options-ab-partial-sweep.json). Row 17 (1551 of 2033 on source `4d94b132`) remains the pre-change seed-1-only full-bank baseline. [SWEEP-JOURNAL.md](SWEEP-JOURNAL.md) records the deadline, test results and pause.
+The owner resumes this work after the recorded pause and authorizes merging cap PR 155 and speed PR 158 into this branch. The replay-stage edge case and old-cache provenance are repaired. Cap PR 155 is merged at `6236f772`; speed PR 158 is merged at `8d44e8f5`. The plugin interruption stops the measurements after the completed 1x and 10x comparisons. Their source is `1084a1e5`; the 100x comparison and cap refresh remain incomplete. No new sweep is active yet. Options A and B and the separate compose repair are pushed to PR 113 before the 06:40 deadline. Fresh completed seeds 1 through 4 each reach level 5, with 1788, 1791, 1773 and 1789 of 2009 seed-dependent items passing respectively. Seeds 5 through 20 plus hidden and the 24 global items remain unmeasured. This is a partial result, not a full 2033-item bank score. Source code: `8359f453`; [partial sweep evidence](evidence/options-ab-partial-sweep.json). Row 17 (1551 of 2033 on source `4d94b132`) remains the pre-change seed-1-only full-bank baseline. [SWEEP-JOURNAL.md](SWEEP-JOURNAL.md) records the deadline, test results and pause.
+
+The protected validator part of this work (reply renderer, composed follower repair, seed-1 fixtures and their validator tests) has left PR 113 for an independent maintainer; see [Moved to the maintainer](#moved-to-the-maintainer). The seed results above were measured with those changes in place.
 
 ## Floor
 
@@ -73,9 +75,9 @@ Rows 1 to 10 are the pilot (branch `exec/generator-pilot`, merged). Rows 11 to 1
 
 ## Next actions
 
-1. The authorized cap and speed merges are committed. Preserve their current contracts while completing the integrated verification.
-2. Re-measure the cap limits and exact caught fault classes against the combined source. Preserve historical evidence with its source stamp.
-3. Run a fresh full sweep on the final combined source, seeds 1 to 20 plus hidden. The pre-pause files describe the old source and do not count toward this sweep.
+1. Merge opening-pair PR 174 only after its CI is green. The replay repair is already committed and its focused recheck passes 22 tests.
+2. The maintainer applies `.exec/generator-protected-maintainer.patch` on `fix/generator-validator-contracts` (non-executor branch) once PR 113's unprotected changes are on main. Import main after that PR merges, then verify protection against origin/main. Re-measure cap limits and caught classes on the final source; preserve historical stamps.
+3. Run a fresh full sweep on the final combined source, seeds 1 to 20 plus hidden, with two seed workers and load logging. The pre-pause files do not count toward this sweep.
 4. Append the completed native journal row after all bank items across all requested seeds are measured; use `SWEEP-JOURNAL.md` for partial progress.
 
 ## Approved options A and B
@@ -297,4 +299,24 @@ Verification after both full runs finish:
 
 ## Integrated verification checkpoint
 
-The resolved cap conflicts retain the A/B assertions, reply bindings, unreachable budget-pair reporting and current Acme fixture expectations. The Acme report is regenerated and lists actual coverage of 624/637 pairs and 2529/3510 triples. The speed production diff matches its four reviewed file changes. All 104 focused integration tests pass. `node tools/rename-scope.mjs` changes no files; lint passes with 20 warnings and 8 information notices. Full tests and the new sweep remain pending.
+The resolved cap conflicts retain the A/B assertions, reply bindings, unreachable budget-pair reporting and current Acme fixture expectations. The Acme report is regenerated and lists actual coverage of 624/637 pairs and 2529/3510 triples. The speed production diff matches its four reviewed file changes. All 104 focused integration tests pass. `node tools/rename-scope.mjs` changes no files; lint passes with 20 warnings and 8 information notices. The owner delegates full suites to CI; the local full run is stopped without a result. The new sweep remains pending. The selected 100x cap receives five process-CPU timing runs, reported as a contended median with no speed-gain claim.
+
+CI protection rejects the executor branch because the approved renderer, composed follower repair and their fixtures/tests touch seven protected validator paths. [The protection job](https://github.com/achammah/driftbench/actions/runs/38362466850/job/115179908448) records the exact list. The protection rule is unchanged; maintainer review is required before merging PR 113. This check is separate from runtime tests.
+
+## Moved to the maintainer
+
+Commit `54e65573` removes every protected path change from PR 113, so `validate protect` passes against main. Protected paths may change only on an independent maintainer branch (docs/validators.md section 8.1, `packages/validators/src/protect.ts`); the GATE files tune hardness and grant no exception. The removed hunks are saved byte-identical in `.exec/generator-protected-maintainer.patch` (a local, untracked file in this worktree; its header lists the contents).
+
+| Path | What it carries | Why it moved |
+|---|---|---|
+| `packages/validators/src/ladders/generator/render.ts` | Option B reply requirements: `states` relations per flow transition, output dimensions in path `when`, full typed tool inputs, out-value slots | Protected validator code |
+| `packages/validators/src/ladders/generator/follower.ts` | Approved composed-report repair: a `null` report stays absent in either mutation order | Protected validator code |
+| `packages/validators/fixtures/generator/seed-1/approved.yaml`, `prompt.md` | Seed-1 fixtures regenerated by the new renderer | Protected fixtures |
+| `packages/validators/test/generator/approved-replies.test.ts` (new) | Reply renderer tests | Protected test; needs render.ts and the A/B code in PR 113 |
+| `packages/validators/test/generator/follower.test.ts` | `composed missing-stage reports` regression | Protected test; needs follower.ts |
+| `packages/validators/test/generator/ladder.test.ts` | Ladder expectations for the new renderer | Protected test; needs render.ts |
+
+- What stays in PR 113: Option A (`input_closed`, `stage_reported`) and Option B (`states` must and must_not) in schema, checks, adapters, generator and docs; cap PR 155; speed PR 158; the replay-stage repair. No unprotected test depended on the moved changes: all 28 focused test files pass without them.
+- Until the maintainer patch lands, the validator bank renders the old prompt and keeps the old composed-report behavior. The partial A/B sweep above therefore describes source with the patch applied.
+- The pinned Acme hashes in `packages/generate/test/enumerate/fixtures/budget-categorical.json` are refreshed. They failed CI before this move too. Every generated spec file is identical to the A/B pin at all five budgets; only `generate-report.json` differs, with the opening-pair reasons from cap commit `9e42656e`. Evidence: `.exec/nr-ab.json` and `.exec/nr-head.json`.
+- No floor, threshold or bank expected answer changes.
