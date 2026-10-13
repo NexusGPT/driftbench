@@ -244,17 +244,12 @@ const flagValue = (flag) => {
 };
 const SNAPSHOT = flagValue('--snapshot') ?? join(ROOT, 'tools/structure/api-surface.json');
 
-/** The frozen list: per package, its exported value names and type names, sorted. */
+/** The frozen list: per package, each exported name with its kind (value or type), sorted by name. */
 function frozen() {
   const list = {};
   for (const dir of [...packages].sort()) {
-    const own = out.filter((row) => row.package === dir);
-    const names = (kind) =>
-      own
-        .filter((row) => row.kind === kind)
-        .map((row) => row.name)
-        .sort();
-    list[dir] = { values: names('value'), types: names('type') };
+    const own = out.filter((row) => row.package === dir).sort((a, b) => (a.name < b.name ? -1 : 1));
+    list[dir] = Object.fromEntries(own.map((row) => [row.name, row.kind]));
   }
   return {
     note: 'The public API of every package: the names packages/*/src/index.ts exports. A test compares it with the code, so adding or removing a public name changes this file in the same pull request. Regenerate: node tools/structure/api-surface.mjs --write',
@@ -266,10 +261,9 @@ function frozen() {
 function differences(then, now) {
   const flat = (list) =>
     new Set(
-      Object.entries(list.packages ?? {}).flatMap(([dir, kinds]) => [
-        ...(kinds.values ?? []).map((name) => `${dir}: value ${name}`),
-        ...(kinds.types ?? []).map((name) => `${dir}: type ${name}`),
-      ]),
+      Object.entries(list.packages ?? {}).flatMap(([dir, names]) =>
+        Object.entries(names).map(([name, kind]) => `${dir}: ${kind} ${name}`),
+      ),
     );
   const before = flat(then);
   const after = flat(now);

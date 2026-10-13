@@ -4,7 +4,7 @@ The public API of a driftbench package is the set of names its entry exports: wh
 
 ## The frozen list
 
-[`tools/structure/api-surface.json`](https://github.com/achammah/driftbench/blob/main/tools/structure/api-surface.json) lists every public name, per package, values and types apart. A test (`tools/structure/api-surface.test.mjs`) compares it with the code on every pull request:
+[`tools/structure/api-surface.json`](https://github.com/achammah/driftbench/blob/main/tools/structure/api-surface.json) lists every public name, per package, with its kind: `value` or `type`. A test (`tools/structure/api-surface.test.mjs`) compares it with the code on every pull request:
 
 * a name added to a package entry, or removed from it, fails the test until the list is regenerated;
 * the regenerated list is part of the pull request, so the change to the API shows in the diff a reviewer reads;

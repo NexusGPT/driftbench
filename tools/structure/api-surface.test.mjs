@@ -23,8 +23,11 @@ describe('public API', () => {
     const dir = mkdtempSync(join(tmpdir(), 'driftbench-api-'));
     try {
       const frozen = JSON.parse(readFileSync(SNAPSHOT, 'utf8'));
-      const removed = frozen.packages.stats.values.pop();
-      frozen.packages.stats.values.push('zzNeverExported');
+      const removed = Object.keys(frozen.packages.stats).find(
+        (name) => frozen.packages.stats[name] === 'value',
+      );
+      delete frozen.packages.stats[removed];
+      frozen.packages.stats.zzNeverExported = 'value';
       const altered = join(dir, 'api-surface.json');
       writeFileSync(altered, JSON.stringify(frozen));
       const check = run('--check', '--snapshot', altered);
@@ -48,9 +51,9 @@ describe('public API', () => {
   it('the frozen list is sorted and holds every package', () => {
     const frozen = JSON.parse(readFileSync(SNAPSHOT, 'utf8'));
     expect(Object.keys(frozen.packages).length).toBeGreaterThan(10);
-    for (const kinds of Object.values(frozen.packages)) {
-      expect(kinds.values).toEqual([...kinds.values].sort());
-      expect(kinds.types).toEqual([...kinds.types].sort());
+    for (const names of Object.values(frozen.packages)) {
+      expect(Object.keys(names)).toEqual(Object.keys(names).sort());
+      expect(Object.values(names).every((kind) => kind === 'value' || kind === 'type')).toBe(true);
     }
   });
 });
