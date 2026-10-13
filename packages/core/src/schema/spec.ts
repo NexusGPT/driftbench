@@ -388,7 +388,7 @@ export const Expect = z
       .min(1)
       .optional()
       .describe(
-        'The reply must equal this text after normalising: case, surrounding space and punctuation ignored; two numbers compare as numbers.',
+        'The reply must equal this text after normalising: case, surrounding space and punctuation ignored; two numbers compare as numbers. A dot or comma between two digits counts, except a strictly grouped thousands comma.',
       ),
     exact_strict: z
       .boolean()
