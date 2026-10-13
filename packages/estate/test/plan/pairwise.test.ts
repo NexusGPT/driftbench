@@ -1,6 +1,6 @@
 import { gridSize, type SpaceMap } from '@agent-nexus/driftbench-space';
 import { describe, expect, it } from 'vitest';
-import { pairwiseCells, toEstateSpaceMap } from '../../src/index';
+import { actsOn, pairwiseCells, toEstateSpaceMap } from '../../src/index';
 import { approvedFixture } from './support';
 
 const OPTIONS = { t: 2, seed: 1, maxRows: 100_000 };
@@ -18,10 +18,17 @@ describe('pairwise cells over the situation axes', () => {
     const targets = space.dimensions.filter((dimension) => dimension.id.startsWith('atoms.'));
     const atoms = targets.flatMap((dimension) => dimension.values.map((value) => value.id));
     const deviations = space.dimensions.find((dimension) => dimension.id === 'deviation')?.values ?? [];
-    expect(result.cells.length).toBeGreaterThanOrEqual(atoms.length * deviations.length);
+    // Every atom meets every deviation that can act on it, and no other.
+    const kind = (atom: string) => ({ kind: atom.split('.')[0] }) as Parameters<typeof actsOn>[2];
+    const acting = atoms.flatMap((atom) =>
+      deviations
+        .filter((value) => actsOn('deviation', value.id, kind(atom)))
+        .map((value) => `${atom}|${value.id}`),
+    );
+    expect(acting.length).toBeLessThan(atoms.length * deviations.length);
+    expect(result.cells.length).toBeGreaterThanOrEqual(acting.length);
     const pairs = new Set(result.cells.map((cell) => `${cell.atom}|${cell.situation.deviation}`));
-    for (const atom of atoms)
-      for (const value of deviations) expect(pairs.has(`${atom}|${value.id}`)).toBe(true);
+    expect([...pairs].sort()).toEqual([...acting].sort());
     for (const cell of result.cells) {
       expect(cell.dimension).toBe(`atoms.${cell.atom.split('.')[0]}`);
       expect(Object.keys(cell.situation)).toEqual(result.situations);

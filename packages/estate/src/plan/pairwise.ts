@@ -41,15 +41,16 @@ export type PairwiseResult = {
 
 export type PairwiseOptions = { t: number; seed: number; maxRows: number };
 
-export function pairwiseCells(space: SpaceMap, options: PairwiseOptions): PairwiseResult {
+/**
+ * The space a row lives in: the situation axes plus one target dimension that merges the `atoms.*`
+ * dimensions. A constraint that names one target atom is carried on the merged dimension; one that names
+ * atoms of two kinds can never hold for a row with one target, and is dropped (and counted).
+ */
+export function mergedSpace(space: SpaceMap): { merged: SpaceMap; dropped: number; target: string } {
   const situations = space.dimensions.filter((dimension) => !dimension.id.startsWith(TARGET_PREFIX));
-  const targets = space.dimensions.filter((dimension) => dimension.id.startsWith(TARGET_PREFIX));
-  const dimensionOf = new Map<string, string>();
-  for (const dimension of targets)
-    for (const value of dimension.values) dimensionOf.set(value.id, dimension.id);
-  const values = targets.flatMap((dimension) => dimension.values);
-  if (values.length === 0) throw new Error('the space map names no target atom (no atoms.* dimension)');
-
+  const values = space.dimensions
+    .filter((dimension) => dimension.id.startsWith(TARGET_PREFIX))
+    .flatMap((dimension) => dimension.values);
   let dropped = 0;
   const constraints: SpaceMap['constraints'] = [];
   for (const constraint of space.constraints) {
@@ -75,6 +76,19 @@ export function pairwiseCells(space: SpaceMap, options: PairwiseOptions): Pairwi
     constraints,
     prior: { kind: 'declared' },
   };
+  return { merged, dropped, target: TARGET };
+}
+
+export function pairwiseCells(space: SpaceMap, options: PairwiseOptions): PairwiseResult {
+  const situations = space.dimensions.filter((dimension) => !dimension.id.startsWith(TARGET_PREFIX));
+  const targets = space.dimensions.filter((dimension) => dimension.id.startsWith(TARGET_PREFIX));
+  const dimensionOf = new Map<string, string>();
+  for (const dimension of targets)
+    for (const value of dimension.values) dimensionOf.set(value.id, dimension.id);
+  const values = targets.flatMap((dimension) => dimension.values);
+  if (values.length === 0) throw new Error('the space map names no target atom (no atoms.* dimension)');
+
+  const { merged, dropped } = mergedSpace(space);
   const compiled = compileSpace(merged);
   const sizes = compiled.dimensions.map((dimension) => dimension.values.length);
   const t = Math.min(options.t, sizes.length);

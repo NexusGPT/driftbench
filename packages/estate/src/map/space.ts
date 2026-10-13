@@ -1,5 +1,6 @@
 import { DeviationClass } from '@agent-nexus/driftbench-core';
 import { DEVIATION_TITLES, NONE, type SpaceDimension, type SpaceMap } from '@agent-nexus/driftbench-space';
+import { actsOn } from '../plan/relevance';
 import type { AtomKind, EstateMap } from '../schema';
 
 /**
@@ -140,6 +141,34 @@ export type EstateSpaceOptions = {
   agent?: string;
 };
 
+/**
+ * A situation value crossed with a target atom it cannot act on tests nothing (`ACTS_ON`): each such pair is
+ * a constraint, so the covering array and anything that counts allowed tuples leave it out.
+ */
+function relevanceConstraints(
+  map: EstateMap,
+  dimensions: readonly SpaceDimension[],
+): SpaceMap['constraints'] {
+  const atoms = new Map(map.atoms.map((atom) => [atom.id, atom]));
+  const targets = dimensions.filter((dimension) => dimension.id.startsWith('atoms.'));
+  const constraints: SpaceMap['constraints'] = [];
+  for (const axis of ESTATE_AXES) {
+    for (const value of axis.values) {
+      for (const dimension of targets) {
+        for (const target of dimension.values) {
+          const atom = atoms.get(target.id);
+          if (!atom || actsOn(axis.id, value.id, atom)) continue;
+          constraints.push({
+            forbid: { [axis.id]: value.id, [dimension.id]: target.id },
+            reason: `${value.id} cannot act on a ${atom.kind}`,
+          });
+        }
+      }
+    }
+  }
+  return constraints;
+}
+
 export function toEstateSpaceMap(map: EstateMap, options: EstateSpaceOptions = {}): SpaceMap {
   const approvedOnly = options.approvedOnly ?? true;
   const dimensions: SpaceDimension[] = ESTATE_AXES.map((axis) => ({
@@ -157,10 +186,13 @@ export function toEstateSpaceMap(map: EstateMap, options: EstateSpaceOptions = {
     version: map.hash.slice(0, 12),
     agent: options.agent ?? 'estate',
     dimensions,
-    constraints: ESTATE_CONSTRAINTS.map((constraint) => ({
-      forbid: { ...constraint.forbid },
-      reason: constraint.reason,
-    })),
+    constraints: [
+      ...ESTATE_CONSTRAINTS.map((constraint) => ({
+        forbid: { ...constraint.forbid },
+        reason: constraint.reason,
+      })),
+      ...relevanceConstraints(map, dimensions),
+    ],
     prior: { kind: 'declared' },
   };
 }

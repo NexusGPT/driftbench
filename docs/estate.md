@@ -298,7 +298,7 @@ The map's dimensions. Axis dimensions form the cells; detail dimensions vary ins
 | `estate_hazard` | no_hazard, compaction_mid_task, process_restart, rate_wave, stale_tracker, dead_helper |
 | `atoms.<kind>` | the approved axis atoms of that kind |
 
-The space map accepts only the ten classes as deviation values, so the estate's own hazards are a dimension of their own. Three constraints name impossible combinations: a fresh session meets no compaction mid-task, no dead helper and no stale tracker. The prior is declared.
+The space map accepts only the ten classes as deviation values, so the estate's own hazards are a dimension of their own. Three constraints name impossible combinations: a fresh session meets no compaction mid-task, no dead helper and no stale tracker. After them comes one constraint for each situation value and target atom it cannot act on (a stale tracker acts on stages only, a dead helper on helpers and the routes that dispatch them, a switch of language on output rules and instructions, and so on; the table is `ACTS_ON` in `packages/estate/src/plan/relevance.ts`). A constraint that names an atom is read for a row with that one target, as the plan reads it. The prior is declared. The capture below was taken before the relevance constraints: the committed file now holds 775 constraints.
 
 ```
 $ pnpm -s driftbench estate map examples/estates/fixture/approved.yaml --to _captures/docs3/estate/space.yaml
@@ -335,7 +335,7 @@ Run modes: `guard_positive` replays a recorded event; `script_fixture`, `contrac
 
 Journeys: edge coverage over the route, reference, dispatch and next edges of approved atoms. A start node stands for the standing instructions: it points at the routes stated outside any skill or helper file and at the stages no `next` edge enters. Each path is a journey row listing its atoms in order. A route read only from a skill or helper description starts no journey; the Northwind estate has 7 such routes, reported as edges with no journey, and each still gets its contract rows.
 
-Pairwise: a covering array of strength t (default 2) over the situation axes, under the constraint list, with the target dimensions merged into one: every pairwise row is one atom in one situation, with the first test type of its atom's kind, live. A constraint on one target atom is carried; one that names atoms of two kinds cannot hold for a single target and is dropped (and counted). In the Northwind plan the lower bound is the targets times the deviation values, 89 times 11, or 979; the array has 980 rows.
+Pairwise: a covering array of strength t (default 2) over the situation axes, under the constraint list, with the target dimensions merged into one: every pairwise row is one atom in one situation, with the first test type of its atom's kind, live. The constraint list holds the relevance constraints of section 3, so a situation is crossed only with atoms it can act on; a contract row's cell is judged in the same merged space. The captures below were taken before the relevance constraints: the committed Northwind plan now has 1144 rows (361 from the contract, 10 journeys, 773 pairwise) over 4049 allowed 2-tuples. A constraint on one target atom is carried; one that names atoms of two kinds cannot hold for a single target and is dropped (and counted). In the Northwind plan the lower bound is the targets times the deviation values, 89 times 11, or 979; the array has 980 rows.
 
 The plan of the approved Northwind map:
 

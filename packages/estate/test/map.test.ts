@@ -138,7 +138,23 @@ describe('the space map of an estate', () => {
     expect(
       space.dimensions.find((dimension) => dimension.id === 'deviation')?.values.map((value) => value.id),
     ).toEqual([NONE, ...DeviationClass.options]);
-    expect(space.constraints).toHaveLength(3);
+    // Three combinations no session can hold, then one constraint per situation value and atom it cannot
+    // act on.
+    expect(space.constraints.slice(0, 3).map((constraint) => Object.keys(constraint.forbid))).toEqual([
+      ['session_state', 'estate_hazard'],
+      ['session_state', 'estate_hazard'],
+      ['session_state', 'estate_hazard'],
+    ]);
+    const relevance = space.constraints.slice(3);
+    expect(relevance.length).toBeGreaterThan(0);
+    expect(relevance.every((constraint) => / cannot act on a /.test(constraint.reason ?? ''))).toBe(true);
+    expect(relevance).toContainEqual({
+      forbid: {
+        estate_hazard: 'stale_tracker',
+        'atoms.gate': 'gate.standing.read-git-status-before-commit-to',
+      },
+      reason: 'stale_tracker cannot act on a gate',
+    });
     expect(space.version).toBe(map.hash.slice(0, 12));
   });
 

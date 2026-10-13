@@ -52,3 +52,4 @@ export {
   pairwiseCells,
   TARGET_PREFIX,
 } from './pairwise';
+export { ACTS_ON, actsOn } from './relevance';
