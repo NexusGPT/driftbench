@@ -10,6 +10,7 @@ import {
   judgePairwise,
   type LoadedCriterion,
   pairwiseRequest,
+  parseJudgeValue,
   playerClient,
   recordingClient,
   requestKey,
@@ -139,6 +140,67 @@ describe('label-blind escalation', () => {
       expect(answer.escalation?.triggers).toEqual(['reference-disagreement']);
     }
   });
+  it.each([
+    ['match', false],
+    ['wrong', true],
+    ['missing', true],
+  ] as const)(
+    'routes pointwise reference disagreement only for wrong or missing facts: %s',
+    async (status, escalates) => {
+      const input: JudgeRequest = { ...request, reference: '42', assessment: { kind: 'fact-ledger' } };
+      const first = seat(
+        'first',
+        'anthropic',
+        parseJudgeValue(
+          {
+            facts: [
+              {
+                reference: '42',
+                reply: status === 'missing' ? '' : status === 'wrong' ? '41' : '42',
+                status,
+              },
+            ],
+            unsupported: [],
+          },
+          input,
+        ),
+      );
+      const then = thenSeats();
+      const answer = await make(first, then, { on: ['reference-disagreement'] }).judge(input);
+      expect(answer.escalation?.triggers).toEqual(escalates ? ['reference-disagreement'] : []);
+      expect(then.map((s) => s.requests.length)).toEqual(escalates ? [1, 1] : [0, 0]);
+    },
+  );
+  it.each([
+    ['match', 'match', false],
+    ['wrong', 'match', false],
+    ['match', 'missing', false],
+    ['wrong', 'missing', true],
+  ] as const)(
+    'keeps pairwise reference disagreement dependent on both candidates: %s/%s',
+    async (a, b, escalates) => {
+      const input: JudgeRequest = {
+        ...pairwiseRequest(criterion, [], 'one', 'two', '42'),
+        assessment: { kind: 'fact-ledger' },
+      };
+      const first = seat(
+        'first',
+        'anthropic',
+        parseJudgeValue(
+          {
+            facts: [{ fact: 'answer', reference: '42', a, b }],
+            unsupported_a: [],
+            unsupported_b: [],
+          },
+          input,
+        ),
+      );
+      const then = thenSeats();
+      const answer = await make(first, then, { on: ['reference-disagreement'] }).judge(input);
+      expect(answer.escalation?.triggers).toEqual(escalates ? ['reference-disagreement'] : []);
+      expect(then.map((s) => s.requests.length)).toEqual(escalates ? [1, 1] : [0, 0]);
+    },
+  );
   it('uses only then majority, falls back to first only on a second split, and never re-calls then', async () => {
     for (const decide of ['majority', 'first-stands'] as const) {
       const first = seat('first', 'anthropic', result('pass'));

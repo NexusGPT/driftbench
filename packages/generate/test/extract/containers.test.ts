@@ -1,3 +1,4 @@
+// biome-ignore-all lint/suspicious/noTemplateCurlyInString: the prompts under test hold literal placeholders.
 import { describe, expect, it } from 'vitest';
 import { promptView, rawizeAnswer, rawQuote, sectionRequest, viewSources } from '../../src/extract';
 

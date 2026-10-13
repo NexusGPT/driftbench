@@ -1,3 +1,4 @@
+// biome-ignore-all lint/suspicious/noTemplateCurlyInString: the recorded answers hold literal source text.
 export default [
   {
     caseId: 'quote-001',

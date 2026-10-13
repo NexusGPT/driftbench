@@ -3,6 +3,7 @@ import type { Assessment, RubricScores } from './assessment';
 import type { ConformanceAudit } from './conformance';
 import type { CriterionLedger, CriterionRequirement } from './criterion-ledger';
 import type { FactLedgerAnswer, PointwiseFactLedgerAnswer } from './fact-audit';
+import type { ResponseRelevanceAnswer } from './response-relevance';
 
 /**
  * The answer contract every judge returns, and the request every judge reads.
@@ -115,6 +116,8 @@ export type JudgeResult = {
   /** Validated item scores and the deterministic aggregate. */
   readonly rubric?: RubricScores;
   readonly factLedger?: FactLedgerAnswer | PointwiseFactLedgerAnswer;
+  /** Opt-in latest-ask obligations with quotes grounded in the selected request and reply. */
+  readonly responseRelevance?: ResponseRelevanceAnswer;
   /** Opt-in criterion-local conformance audit, with its outcome computed in code. */
   readonly conformance?: ConformanceAudit;
   /** Default chat-model requirement ledger, with the public outcome computed in code. */

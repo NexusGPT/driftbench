@@ -16,8 +16,7 @@ describe('a file path in prose quotes', () => {
   it('resolves the quoted path and preserves its source quote', async () => {
     const quote = 'Read "references/guide.md" for the invoice.';
     const root = await estate({
-      '.claude/skills/reconcile/SKILL.md':
-        '---\nname: reconcile\ndescription: Reconcile an invoice.\n---\n' + quote,
+      '.claude/skills/reconcile/SKILL.md': `---\nname: reconcile\ndescription: Reconcile an invoice.\n---\n${quote}`,
       '.claude/skills/reconcile/references/guide.md': '# Guide\n',
     });
     const { map } = await scanEstate({ root, reader: new ClaudeCodeReader(), now: NOW });

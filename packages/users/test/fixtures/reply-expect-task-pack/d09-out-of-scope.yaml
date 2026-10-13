@@ -1,0 +1,12 @@
+# Fictional fixture: a task phrasing may not carry reply patterns, so this file must be refused.
+class: D9_out_of_scope
+title: out of scope
+conversation:
+  - id: fx-d9-billing
+    approved: true
+    user: I was charged twice on my last invoice. Can you refund it?
+task:
+  - id: fx-d9-task
+    approved: true
+    user: Refund my invoice.
+    must_not: ['I refunded']

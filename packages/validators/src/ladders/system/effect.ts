@@ -303,11 +303,10 @@ function ratio(good: number, total: number): number {
 }
 
 /**
- * Level 6: calibration. The share of effect campaigns whose Wilson interval on the baseline pass rate holds
- * the true rate, and whether the true design effect lies in the bootstrap interval of the mean estimated
- * design effect over the clustered campaigns (1 or 0). The value is the lower of the two.
+ * Wilson calibration: the share of effect campaigns whose Wilson interval on the baseline pass rate holds the
+ * true rate. Reported on its own, so a design-effect miss never hides the coverage (and the reverse).
  */
-export function calibrationLevel(effect: EffectState, seed: number, s: SystemStats): Measure {
+export function wilsonCalibration(effect: EffectState, seed: number, s: SystemStats): Measure {
   const items: Item[] = problemItems(effect);
   let contained = 0;
   effect.flags.forEach((flags, campaign) => {
@@ -322,25 +321,160 @@ export function calibrationLevel(effect: EffectState, seed: number, s: SystemSta
       });
   });
   const coverage = ratio(contained, effect.flags.length);
-  const estimates = effect.clusters.map((clusters) => {
+  return { value: effect.problems.length > 0 ? 0 : coverage, items };
+}
+
+/**
+ * The exact finite-sample law of the design effect estimated on one clustered campaign: its mean, standard
+ * deviation and skewness over every histogram of cluster pass counts the plant can produce. The truncation of
+ * the correlation at zero makes the mean differ from the population value 1 + (m - 1) rho.
+ */
+export type DesignEffectLaw = { mean: number; sd: number; skew: number };
+
+/**
+ * The acceptance interval of the mean estimated design effect over n campaigns at level 1 - alpha: the
+ * Cornish-Fisher quantiles of the mean (normal quantiles corrected for its skewness, skew over root n), so each
+ * tail carries at most alpha / 2 of the exact law, where the plain normal interval puts more in the upper tail.
+ */
+export function designEffectInterval(law: DesignEffectLaw, n: number, alpha: number): [number, number] {
+  const z = stats.normalQuantile(1 - alpha / 2);
+  const shift = ((z * z - 1) * (law.skew / Math.sqrt(n))) / 6;
+  const se = law.sd / Math.sqrt(n);
+  return [law.mean + (-z + shift) * se, law.mean + (z + shift) * se];
+}
+
+/**
+ * What the design-effect item is held against, none of it from the statistics under test: the exact law of the
+ * estimate on one campaign, and a second implementation of the intraclass correlation of balanced 0/1 groups.
+ */
+export type DesignEffectOracle = {
+  law: DesignEffectLaw;
+  icc: (groups: readonly (readonly number[])[]) => number;
+};
+
+/** The most per-campaign misses the measure names; the rest are counted in the last one. */
+const NAMED_MISSES = 3;
+
+/**
+ * Design-effect calibration, 1 or 0. Three conditions, all against the oracle:
+ * 1. per campaign, the design effect the statistics give on the stored runs equals 1 + (m - 1) rho with rho from
+ *    the oracle's correlation of those runs, to 1e-9: a constant, scaled or shifted estimate fails here;
+ * 2. the statistics' design effect at the planted correlation equals 1 + (m - 1) CLUSTER_RHO;
+ * 3. the mean of the oracle's design effects over the campaigns lies in the DEFF_ALPHA interval of the exact
+ *    finite-sample law: the runs the chain stored follow the plant;
+ * 4. the bootstrap interval of that mean behaves as an interval at its level (bootstrapShape).
+ */
+export function designEffectCalibration(
+  effect: EffectState,
+  seed: number,
+  s: SystemStats,
+  oracle: DesignEffectOracle,
+): Measure {
+  const items: Item[] = problemItems(effect);
+  if (effect.problems.length > 0) return { value: 0, items };
+  const component = SYSTEM_COMPONENTS.designEffect;
+  const references: number[] = [];
+  let misses = 0;
+  effect.clusters.forEach((clusters, campaign) => {
     const observations = clusters.flatMap((runs, spec) =>
       runs.map((value) => ({ value, path: [`spec-${spec}`] })),
     );
     const components = s.varianceComponents(observations, { levels: ['spec'] });
     const rho = Math.max(0, s.icc(components)[0]?.icc ?? 0);
-    return s.designEffect(CLUSTER_SIZE, rho);
+    const estimate = s.designEffect(CLUSTER_SIZE, rho);
+    const reference =
+      1 + (CLUSTER_SIZE - 1) * oracle.icc(clusters.map((runs) => runs.map((pass) => (pass ? 1 : 0))));
+    references.push(reference);
+    if (Math.abs(estimate - reference) < 1e-9) return;
+    misses += 1;
+    if (misses <= NAMED_MISSES)
+      items.push({
+        id: `design-effect/c${campaign}`,
+        component,
+        detail: `seed ${seed}, campaign ${campaign}: the design effect estimated on the stored runs is ${showNumber(estimate)}, one-way ANOVA on the same runs gives ${showNumber(reference)} (m ${CLUSTER_SIZE})`,
+      });
   });
-  const truth = s.designEffect(CLUSTER_SIZE, CLUSTER_RHO);
-  const ci = s.bootstrapCI(estimates, { alpha: DEFF_ALPHA, seed });
-  const inside = ci.lower <= truth && truth <= ci.upper ? 1 : 0;
-  if (inside === 0)
+  if (misses > NAMED_MISSES)
+    items.push({
+      id: 'design-effect/campaigns',
+      component,
+      detail: `seed ${seed}: the estimated design effect differs from one-way ANOVA on the stored runs in ${misses} of ${effect.clusters.length} clustered campaigns`,
+    });
+  const planted = 1 + (CLUSTER_SIZE - 1) * CLUSTER_RHO;
+  const stated = s.designEffect(CLUSTER_SIZE, CLUSTER_RHO);
+  const formula = Math.abs(stated - planted) < 1e-12;
+  if (!formula)
+    items.push({
+      id: 'design-effect/formula',
+      component,
+      detail: `the design effect at m ${CLUSTER_SIZE} and rho ${CLUSTER_RHO} is ${showNumber(stated)}, 1 + (m - 1) rho is ${showNumber(planted)}`,
+    });
+  const mean = stats.mean(references);
+  const [lower, upper] = designEffectInterval(oracle.law, references.length, DEFF_ALPHA);
+  const inside = lower <= mean && mean <= upper;
+  if (!inside)
     items.push({
       id: 'design-effect',
-      component: SYSTEM_COMPONENTS.designEffect,
-      detail: `seed ${seed}: the mean estimated design effect over ${estimates.length} clustered campaigns is ${showNumber(stats.mean(estimates))}, bootstrap interval at ${1 - DEFF_ALPHA} [${showNumber(ci.lower)}, ${showNumber(ci.upper)}], which misses the true design effect ${showNumber(truth)} (m ${CLUSTER_SIZE}, rho ${CLUSTER_RHO})`,
+      component,
+      detail: `seed ${seed}: the mean design effect of the stored runs over ${references.length} clustered campaigns is ${showNumber(mean)}, outside the ${1 - DEFF_ALPHA} interval [${showNumber(lower)}, ${showNumber(upper)}] of its exact finite-sample law (mean ${showNumber(oracle.law.mean)}, sd ${showNumber(oracle.law.sd)}, m ${CLUSTER_SIZE}, rho ${CLUSTER_RHO})`,
     });
-  const value = Math.min(coverage, inside);
-  return { value: effect.problems.length > 0 ? 0 : value, items };
+  const shape = bootstrapShape(references, seed, s);
+  if (shape)
+    items.push({
+      id: 'design-effect/bootstrap',
+      component: SYSTEM_COMPONENTS.wilson,
+      detail: `seed ${seed}: ${shape}`,
+    });
+  return { value: misses === 0 && formula && inside && !shape ? 1 : 0, items };
+}
+
+/**
+ * Bands of the bootstrap interval of a mean, in units an implementation cannot move: the standard error
+ * sd / root n computed here. With 2000 resamples the 0.025 quantile sits 50 order statistics in, with a
+ * binomial spread of 7, which is 0.06 standard errors at each end. So the width at alpha 0.05 over
+ * 2 z(0.05) standard errors has a spread near 0.022 and the centre a spread near 0.05 standard errors; the
+ * bands are about 8 spreads wide (3000 seeds of the plant gave 0.91 to 1.07 and -0.15 to 0.20). The DEFF_ALPHA
+ * bounds are the outermost resample means, so their width over the 0.05 width is near z(0.001) / z(0.05) = 1.68
+ * with a wider spread (1.40 to 1.98 on the same seeds).
+ */
+export const BOOTSTRAP_WIDTH = [0.8, 1.2] as const;
+export const BOOTSTRAP_CENTRE = 0.4;
+export const BOOTSTRAP_WIDENING = [1.2, 2.4] as const;
+const BOOTSTRAP_ALPHA = 0.05;
+
+/**
+ * What is wrong with the bootstrap interval of the mean of the values, or undefined. The old item asked whether
+ * the DEFF_ALPHA bootstrap interval holds the population design effect; a correct interval misses even the exact
+ * expected value on about 4 seeds in 1000, so the item asks instead what a single seed can decide: the interval
+ * has a positive width and holds the mean, the DEFF_ALPHA interval strictly holds the 0.05 one, and the widths and
+ * the centre lie in the bands above.
+ */
+export function bootstrapShape(values: readonly number[], seed: number, s: SystemStats): string | undefined {
+  const mean = stats.mean(values);
+  const se = Math.sqrt(values.reduce((sum, value) => sum + (value - mean) ** 2, 0)) / values.length;
+  const inner = s.bootstrapCI(values, { alpha: BOOTSTRAP_ALPHA, seed });
+  const outer = s.bootstrapCI(values, { alpha: DEFF_ALPHA, seed });
+  const show = (ci: { lower: number; upper: number }) => `[${showNumber(ci.lower)}, ${showNumber(ci.upper)}]`;
+  const said = `the bootstrap interval of the mean ${showNumber(mean)} of ${values.length} design effects`;
+  for (const [alpha, ci] of [
+    [BOOTSTRAP_ALPHA, inner],
+    [DEFF_ALPHA, outer],
+  ] as const) {
+    if (!(ci.lower < mean && mean < ci.upper))
+      return `${said} at ${1 - alpha} is ${show(ci)}, which has no width or does not hold the mean`;
+  }
+  if (!(outer.lower < inner.lower && inner.upper < outer.upper))
+    return `${said} at ${1 - DEFF_ALPHA} is ${show(outer)}, which does not strictly hold the one at ${1 - BOOTSTRAP_ALPHA}, ${show(inner)}`;
+  const width = (inner.upper - inner.lower) / (2 * stats.normalQuantile(1 - BOOTSTRAP_ALPHA / 2) * se);
+  if (!(BOOTSTRAP_WIDTH[0] <= width && width <= BOOTSTRAP_WIDTH[1]))
+    return `${said} at ${1 - BOOTSTRAP_ALPHA} is ${show(inner)}, ${showNumber(width)} times the width of its level (standard error ${showNumber(se)}), outside ${BOOTSTRAP_WIDTH.join(' to ')}`;
+  const centre = ((inner.upper + inner.lower) / 2 - mean) / se;
+  if (Math.abs(centre) > BOOTSTRAP_CENTRE)
+    return `${said} at ${1 - BOOTSTRAP_ALPHA} is ${show(inner)}, centred ${showNumber(centre)} standard errors from the mean, beyond ${BOOTSTRAP_CENTRE}`;
+  const widening = (outer.upper - outer.lower) / (inner.upper - inner.lower);
+  if (!(BOOTSTRAP_WIDENING[0] <= widening && widening <= BOOTSTRAP_WIDENING[1]))
+    return `${said} at ${1 - DEFF_ALPHA} is ${show(outer)}, ${showNumber(widening)} times as wide as at ${1 - BOOTSTRAP_ALPHA}, outside ${BOOTSTRAP_WIDENING.join(' to ')}`;
+  return undefined;
 }
 
 function problemItems(effect: EffectState): Item[] {

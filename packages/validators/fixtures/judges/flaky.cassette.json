@@ -101,7 +101,7 @@
     },
     {
       "judge": "flaky",
-      "key": "4ac668c3e7c5",
+      "key": "1358810feeb3",
       "criterion": "coverage_before_offer",
       "answer": {
         "outcome": "pass",
@@ -110,79 +110,7 @@
     },
     {
       "judge": "flaky",
-      "key": "4ac668c3e7c5",
-      "criterion": "coverage_before_offer",
-      "answer": {
-        "outcome": "pass",
-        "reasoning": "the offered plans follow the coverage check"
-      }
-    },
-    {
-      "judge": "flaky",
-      "key": "4ac668c3e7c5",
-      "criterion": "coverage_before_offer",
-      "answer": {
-        "outcome": "pass",
-        "reasoning": "the offered plans follow the coverage check"
-      }
-    },
-    {
-      "judge": "flaky",
-      "key": "4ac668c3e7c5",
-      "criterion": "coverage_before_offer",
-      "answer": {
-        "outcome": "fail",
-        "reasoning": "changed its mind"
-      }
-    },
-    {
-      "judge": "flaky",
-      "key": "4ac668c3e7c5",
-      "criterion": "coverage_before_offer",
-      "answer": {
-        "outcome": "pass",
-        "reasoning": "the offered plans follow the coverage check"
-      }
-    },
-    {
-      "judge": "flaky",
-      "key": "2c9776b7a3c5",
-      "criterion": "coverage_before_offer",
-      "answer": {
-        "outcome": "fail",
-        "reasoning": "Acme Fiber 300 is not in the catalog result for the address"
-      }
-    },
-    {
-      "judge": "flaky",
-      "key": "2c9776b7a3c5",
-      "criterion": "coverage_before_offer",
-      "answer": {
-        "outcome": "fail",
-        "reasoning": "Acme Fiber 300 is not in the catalog result for the address"
-      }
-    },
-    {
-      "judge": "flaky",
-      "key": "2c9776b7a3c5",
-      "criterion": "coverage_before_offer",
-      "answer": {
-        "outcome": "fail",
-        "reasoning": "Acme Fiber 300 is not in the catalog result for the address"
-      }
-    },
-    {
-      "judge": "flaky",
-      "key": "2c9776b7a3c5",
-      "criterion": "coverage_before_offer",
-      "answer": {
-        "outcome": "pass",
-        "reasoning": "changed its mind"
-      }
-    },
-    {
-      "judge": "flaky",
-      "key": "2c9776b7a3c5",
+      "key": "a0891aa1f1a7",
       "criterion": "coverage_before_offer",
       "answer": {
         "outcome": "fail",
@@ -335,7 +263,7 @@
     },
     {
       "judge": "flaky",
-      "key": "1a3f62b00082",
+      "key": "270e730e193e",
       "criterion": "coverage_before_offer",
       "answer": {
         "outcome": "pass",
@@ -344,7 +272,16 @@
     },
     {
       "judge": "flaky",
-      "key": "1a3f62b00082",
+      "key": "e58ebf7912d5",
+      "criterion": "coverage_before_offer",
+      "answer": {
+        "outcome": "fail",
+        "reasoning": "Acme Fiber 1000 is offered with no coverage check"
+      }
+    },
+    {
+      "judge": "flaky",
+      "key": "b399263830e1",
       "criterion": "coverage_before_offer",
       "answer": {
         "outcome": "pass",
@@ -353,7 +290,7 @@
     },
     {
       "judge": "flaky",
-      "key": "1a3f62b00082",
+      "key": "b399263830e1",
       "criterion": "coverage_before_offer",
       "answer": {
         "outcome": "pass",
@@ -362,7 +299,16 @@
     },
     {
       "judge": "flaky",
-      "key": "1a3f62b00082",
+      "key": "b399263830e1",
+      "criterion": "coverage_before_offer",
+      "answer": {
+        "outcome": "pass",
+        "reasoning": "the offered plans follow the coverage check"
+      }
+    },
+    {
+      "judge": "flaky",
+      "key": "b399263830e1",
       "criterion": "coverage_before_offer",
       "answer": {
         "outcome": "fail",
@@ -371,7 +317,7 @@
     },
     {
       "judge": "flaky",
-      "key": "1a3f62b00082",
+      "key": "b399263830e1",
       "criterion": "coverage_before_offer",
       "answer": {
         "outcome": "pass",
@@ -380,61 +326,7 @@
     },
     {
       "judge": "flaky",
-      "key": "e6f311d3a2ac",
-      "criterion": "coverage_before_offer",
-      "answer": {
-        "outcome": "fail",
-        "reasoning": "Acme Fiber 1000 is offered with no coverage check"
-      }
-    },
-    {
-      "judge": "flaky",
-      "key": "1a3f976949b0",
-      "criterion": "coverage_before_offer",
-      "answer": {
-        "outcome": "pass",
-        "reasoning": "the offered plans follow the coverage check"
-      }
-    },
-    {
-      "judge": "flaky",
-      "key": "b67cd4fd5f1e",
-      "criterion": "coverage_before_offer",
-      "answer": {
-        "outcome": "fail",
-        "reasoning": "Acme Fiber 1000 is offered with no coverage check"
-      }
-    },
-    {
-      "judge": "flaky",
-      "key": "b67cd4fd5f1e",
-      "criterion": "coverage_before_offer",
-      "answer": {
-        "outcome": "fail",
-        "reasoning": "Acme Fiber 1000 is offered with no coverage check"
-      }
-    },
-    {
-      "judge": "flaky",
-      "key": "b67cd4fd5f1e",
-      "criterion": "coverage_before_offer",
-      "answer": {
-        "outcome": "fail",
-        "reasoning": "Acme Fiber 1000 is offered with no coverage check"
-      }
-    },
-    {
-      "judge": "flaky",
-      "key": "b67cd4fd5f1e",
-      "criterion": "coverage_before_offer",
-      "answer": {
-        "outcome": "pass",
-        "reasoning": "changed its mind"
-      }
-    },
-    {
-      "judge": "flaky",
-      "key": "b67cd4fd5f1e",
+      "key": "d6813a659f9e",
       "criterion": "coverage_before_offer",
       "answer": {
         "outcome": "fail",
@@ -542,7 +434,7 @@
     },
     {
       "judge": "flaky",
-      "key": "12b422b97ef1",
+      "key": "f19e7b27d2e5",
       "criterion": "coverage_before_offer",
       "answer": {
         "outcome": "pass",
@@ -551,43 +443,7 @@
     },
     {
       "judge": "flaky",
-      "key": "12b422b97ef1",
-      "criterion": "coverage_before_offer",
-      "answer": {
-        "outcome": "pass",
-        "reasoning": "the offered plans follow the coverage check"
-      }
-    },
-    {
-      "judge": "flaky",
-      "key": "12b422b97ef1",
-      "criterion": "coverage_before_offer",
-      "answer": {
-        "outcome": "pass",
-        "reasoning": "the offered plans follow the coverage check"
-      }
-    },
-    {
-      "judge": "flaky",
-      "key": "12b422b97ef1",
-      "criterion": "coverage_before_offer",
-      "answer": {
-        "outcome": "fail",
-        "reasoning": "changed its mind"
-      }
-    },
-    {
-      "judge": "flaky",
-      "key": "12b422b97ef1",
-      "criterion": "coverage_before_offer",
-      "answer": {
-        "outcome": "pass",
-        "reasoning": "the offered plans follow the coverage check"
-      }
-    },
-    {
-      "judge": "flaky",
-      "key": "34ab4c954651",
+      "key": "3245cf7d267d",
       "criterion": "coverage_before_offer",
       "answer": {
         "outcome": "fail",
@@ -596,7 +452,7 @@
     },
     {
       "judge": "flaky",
-      "key": "db560667bcef",
+      "key": "7e362a574176",
       "criterion": "coverage_before_offer",
       "answer": {
         "outcome": "pass",
@@ -605,7 +461,43 @@
     },
     {
       "judge": "flaky",
-      "key": "a688af6491a5",
+      "key": "5891f722f968",
+      "criterion": "coverage_before_offer",
+      "answer": {
+        "outcome": "fail",
+        "reasoning": "Acme Fiber 300 is offered with no coverage check"
+      }
+    },
+    {
+      "judge": "flaky",
+      "key": "5891f722f968",
+      "criterion": "coverage_before_offer",
+      "answer": {
+        "outcome": "fail",
+        "reasoning": "Acme Fiber 300 is offered with no coverage check"
+      }
+    },
+    {
+      "judge": "flaky",
+      "key": "5891f722f968",
+      "criterion": "coverage_before_offer",
+      "answer": {
+        "outcome": "fail",
+        "reasoning": "Acme Fiber 300 is offered with no coverage check"
+      }
+    },
+    {
+      "judge": "flaky",
+      "key": "5891f722f968",
+      "criterion": "coverage_before_offer",
+      "answer": {
+        "outcome": "pass",
+        "reasoning": "changed its mind"
+      }
+    },
+    {
+      "judge": "flaky",
+      "key": "5891f722f968",
       "criterion": "coverage_before_offer",
       "answer": {
         "outcome": "fail",
@@ -884,7 +776,7 @@
     },
     {
       "judge": "flaky",
-      "key": "9fc9d9701dec",
+      "key": "aede46849846",
       "criterion": "coverage_before_offer",
       "answer": {
         "outcome": "pass",
@@ -893,7 +785,7 @@
     },
     {
       "judge": "flaky",
-      "key": "d7324ec4cb5c",
+      "key": "c1a9f5c7571a",
       "criterion": "coverage_before_offer",
       "answer": {
         "outcome": "fail",
@@ -902,43 +794,7 @@
     },
     {
       "judge": "flaky",
-      "key": "d7324ec4cb5c",
-      "criterion": "coverage_before_offer",
-      "answer": {
-        "outcome": "fail",
-        "reasoning": "Acme Air 5G is offered with no coverage check"
-      }
-    },
-    {
-      "judge": "flaky",
-      "key": "d7324ec4cb5c",
-      "criterion": "coverage_before_offer",
-      "answer": {
-        "outcome": "fail",
-        "reasoning": "Acme Air 5G is offered with no coverage check"
-      }
-    },
-    {
-      "judge": "flaky",
-      "key": "d7324ec4cb5c",
-      "criterion": "coverage_before_offer",
-      "answer": {
-        "outcome": "pass",
-        "reasoning": "changed its mind"
-      }
-    },
-    {
-      "judge": "flaky",
-      "key": "d7324ec4cb5c",
-      "criterion": "coverage_before_offer",
-      "answer": {
-        "outcome": "fail",
-        "reasoning": "Acme Air 5G is offered with no coverage check"
-      }
-    },
-    {
-      "judge": "flaky",
-      "key": "2d4e52b1471d",
+      "key": "51ae05d11433",
       "criterion": "coverage_before_offer",
       "answer": {
         "outcome": "pass",
@@ -947,7 +803,7 @@
     },
     {
       "judge": "flaky",
-      "key": "1a7c1c54d1a2",
+      "key": "ff2102736c79",
       "criterion": "coverage_before_offer",
       "answer": {
         "outcome": "fail",
@@ -992,7 +848,7 @@
     },
     {
       "judge": "flaky",
-      "key": "7f508a8825c8",
+      "key": "57c8f23e9d58",
       "criterion": "coverage_before_offer",
       "answer": {
         "outcome": "pass",
@@ -1001,43 +857,43 @@
     },
     {
       "judge": "flaky",
-      "key": "7f508a8825c8",
-      "criterion": "coverage_before_offer",
-      "answer": {
-        "outcome": "pass",
-        "reasoning": "the offered plans follow the coverage check"
-      }
-    },
-    {
-      "judge": "flaky",
-      "key": "7f508a8825c8",
-      "criterion": "coverage_before_offer",
-      "answer": {
-        "outcome": "pass",
-        "reasoning": "the offered plans follow the coverage check"
-      }
-    },
-    {
-      "judge": "flaky",
-      "key": "7f508a8825c8",
+      "key": "678742c41494",
       "criterion": "coverage_before_offer",
       "answer": {
         "outcome": "fail",
+        "reasoning": "Acme Fiber 300 is offered with no coverage check"
+      }
+    },
+    {
+      "judge": "flaky",
+      "key": "678742c41494",
+      "criterion": "coverage_before_offer",
+      "answer": {
+        "outcome": "fail",
+        "reasoning": "Acme Fiber 300 is offered with no coverage check"
+      }
+    },
+    {
+      "judge": "flaky",
+      "key": "678742c41494",
+      "criterion": "coverage_before_offer",
+      "answer": {
+        "outcome": "fail",
+        "reasoning": "Acme Fiber 300 is offered with no coverage check"
+      }
+    },
+    {
+      "judge": "flaky",
+      "key": "678742c41494",
+      "criterion": "coverage_before_offer",
+      "answer": {
+        "outcome": "pass",
         "reasoning": "changed its mind"
       }
     },
     {
       "judge": "flaky",
-      "key": "7f508a8825c8",
-      "criterion": "coverage_before_offer",
-      "answer": {
-        "outcome": "pass",
-        "reasoning": "the offered plans follow the coverage check"
-      }
-    },
-    {
-      "judge": "flaky",
-      "key": "7d11497a6fb8",
+      "key": "678742c41494",
       "criterion": "coverage_before_offer",
       "answer": {
         "outcome": "fail",
@@ -1082,7 +938,7 @@
     },
     {
       "judge": "flaky",
-      "key": "228c724a254b",
+      "key": "b807b46e4faa",
       "criterion": "coverage_before_offer",
       "answer": {
         "outcome": "pass",
@@ -1091,7 +947,43 @@
     },
     {
       "judge": "flaky",
-      "key": "129fec6f0f5c",
+      "key": "a4e4bae66d01",
+      "criterion": "coverage_before_offer",
+      "answer": {
+        "outcome": "fail",
+        "reasoning": "Acme Fiber 300 is offered with no coverage check"
+      }
+    },
+    {
+      "judge": "flaky",
+      "key": "a4e4bae66d01",
+      "criterion": "coverage_before_offer",
+      "answer": {
+        "outcome": "fail",
+        "reasoning": "Acme Fiber 300 is offered with no coverage check"
+      }
+    },
+    {
+      "judge": "flaky",
+      "key": "a4e4bae66d01",
+      "criterion": "coverage_before_offer",
+      "answer": {
+        "outcome": "fail",
+        "reasoning": "Acme Fiber 300 is offered with no coverage check"
+      }
+    },
+    {
+      "judge": "flaky",
+      "key": "a4e4bae66d01",
+      "criterion": "coverage_before_offer",
+      "answer": {
+        "outcome": "pass",
+        "reasoning": "changed its mind"
+      }
+    },
+    {
+      "judge": "flaky",
+      "key": "a4e4bae66d01",
       "criterion": "coverage_before_offer",
       "answer": {
         "outcome": "fail",
@@ -1658,7 +1550,7 @@
     },
     {
       "judge": "flaky",
-      "key": "6e2971277ce1",
+      "key": "ae5e647a9e33",
       "criterion": "coverage_before_offer",
       "answer": {
         "outcome": "pass",
@@ -1667,7 +1559,7 @@
     },
     {
       "judge": "flaky",
-      "key": "6e2971277ce1",
+      "key": "ae5e647a9e33",
       "criterion": "coverage_before_offer",
       "answer": {
         "outcome": "pass",
@@ -1676,7 +1568,7 @@
     },
     {
       "judge": "flaky",
-      "key": "6e2971277ce1",
+      "key": "ae5e647a9e33",
       "criterion": "coverage_before_offer",
       "answer": {
         "outcome": "pass",
@@ -1685,7 +1577,7 @@
     },
     {
       "judge": "flaky",
-      "key": "6e2971277ce1",
+      "key": "ae5e647a9e33",
       "criterion": "coverage_before_offer",
       "answer": {
         "outcome": "fail",
@@ -1694,7 +1586,7 @@
     },
     {
       "judge": "flaky",
-      "key": "6e2971277ce1",
+      "key": "ae5e647a9e33",
       "criterion": "coverage_before_offer",
       "answer": {
         "outcome": "pass",
@@ -1703,7 +1595,7 @@
     },
     {
       "judge": "flaky",
-      "key": "687a76931677",
+      "key": "c0f365bc9848",
       "criterion": "coverage_before_offer",
       "answer": {
         "outcome": "pass",
@@ -1712,7 +1604,7 @@
     },
     {
       "judge": "flaky",
-      "key": "687a76931677",
+      "key": "c0f365bc9848",
       "criterion": "coverage_before_offer",
       "answer": {
         "outcome": "pass",
@@ -1721,7 +1613,7 @@
     },
     {
       "judge": "flaky",
-      "key": "687a76931677",
+      "key": "c0f365bc9848",
       "criterion": "coverage_before_offer",
       "answer": {
         "outcome": "pass",
@@ -1730,7 +1622,7 @@
     },
     {
       "judge": "flaky",
-      "key": "687a76931677",
+      "key": "c0f365bc9848",
       "criterion": "coverage_before_offer",
       "answer": {
         "outcome": "fail",
@@ -1739,7 +1631,7 @@
     },
     {
       "judge": "flaky",
-      "key": "687a76931677",
+      "key": "c0f365bc9848",
       "criterion": "coverage_before_offer",
       "answer": {
         "outcome": "pass",
@@ -1748,7 +1640,7 @@
     },
     {
       "judge": "flaky",
-      "key": "8e561c26fa05",
+      "key": "f2a2b3eccd37",
       "criterion": "coverage_before_offer",
       "answer": {
         "outcome": "pass",
@@ -1757,7 +1649,7 @@
     },
     {
       "judge": "flaky",
-      "key": "cd2061a85f4c",
+      "key": "8767918e28c9",
       "criterion": "coverage_before_offer",
       "answer": {
         "outcome": "pass",
@@ -1766,7 +1658,7 @@
     },
     {
       "judge": "flaky",
-      "key": "03c7456e858c",
+      "key": "b6b746e291ff",
       "criterion": "coverage_before_offer",
       "answer": {
         "outcome": "pass",
@@ -1775,7 +1667,7 @@
     },
     {
       "judge": "flaky",
-      "key": "3b979412bdf2",
+      "key": "e31ac3777cf4",
       "criterion": "coverage_before_offer",
       "answer": {
         "outcome": "pass",
@@ -1784,7 +1676,7 @@
     },
     {
       "judge": "flaky",
-      "key": "3b979412bdf2",
+      "key": "5d24b64b78fd",
       "criterion": "coverage_before_offer",
       "answer": {
         "outcome": "pass",
@@ -1793,7 +1685,7 @@
     },
     {
       "judge": "flaky",
-      "key": "3b979412bdf2",
+      "key": "5d24b64b78fd",
       "criterion": "coverage_before_offer",
       "answer": {
         "outcome": "pass",
@@ -1802,7 +1694,16 @@
     },
     {
       "judge": "flaky",
-      "key": "3b979412bdf2",
+      "key": "5d24b64b78fd",
+      "criterion": "coverage_before_offer",
+      "answer": {
+        "outcome": "pass",
+        "reasoning": "the offered plans follow the coverage check"
+      }
+    },
+    {
+      "judge": "flaky",
+      "key": "5d24b64b78fd",
       "criterion": "coverage_before_offer",
       "answer": {
         "outcome": "fail",
@@ -1811,7 +1712,7 @@
     },
     {
       "judge": "flaky",
-      "key": "3b979412bdf2",
+      "key": "5d24b64b78fd",
       "criterion": "coverage_before_offer",
       "answer": {
         "outcome": "pass",
@@ -1820,7 +1721,7 @@
     },
     {
       "judge": "flaky",
-      "key": "49cd8c2a81c2",
+      "key": "70ca52df1239",
       "criterion": "coverage_before_offer",
       "answer": {
         "outcome": "pass",
@@ -1829,7 +1730,7 @@
     },
     {
       "judge": "flaky",
-      "key": "ee11f71dfd99",
+      "key": "4eb97d6fa7f3",
       "criterion": "coverage_before_offer",
       "answer": {
         "outcome": "pass",
@@ -1838,52 +1739,7 @@
     },
     {
       "judge": "flaky",
-      "key": "4900aeb4b05b",
-      "criterion": "coverage_before_offer",
-      "answer": {
-        "outcome": "pass",
-        "reasoning": "the offered plans follow the coverage check"
-      }
-    },
-    {
-      "judge": "flaky",
-      "key": "4900aeb4b05b",
-      "criterion": "coverage_before_offer",
-      "answer": {
-        "outcome": "pass",
-        "reasoning": "the offered plans follow the coverage check"
-      }
-    },
-    {
-      "judge": "flaky",
-      "key": "4900aeb4b05b",
-      "criterion": "coverage_before_offer",
-      "answer": {
-        "outcome": "pass",
-        "reasoning": "the offered plans follow the coverage check"
-      }
-    },
-    {
-      "judge": "flaky",
-      "key": "4900aeb4b05b",
-      "criterion": "coverage_before_offer",
-      "answer": {
-        "outcome": "fail",
-        "reasoning": "changed its mind"
-      }
-    },
-    {
-      "judge": "flaky",
-      "key": "4900aeb4b05b",
-      "criterion": "coverage_before_offer",
-      "answer": {
-        "outcome": "pass",
-        "reasoning": "the offered plans follow the coverage check"
-      }
-    },
-    {
-      "judge": "flaky",
-      "key": "fb87fabe97d6",
+      "key": "cee123377a4a",
       "criterion": "coverage_before_offer",
       "answer": {
         "outcome": "fail",
@@ -1892,7 +1748,7 @@
     },
     {
       "judge": "flaky",
-      "key": "f9bd118531d4",
+      "key": "cee123377a4a",
       "criterion": "coverage_before_offer",
       "answer": {
         "outcome": "fail",
@@ -1901,7 +1757,7 @@
     },
     {
       "judge": "flaky",
-      "key": "f177dfa92f52",
+      "key": "cee123377a4a",
       "criterion": "coverage_before_offer",
       "answer": {
         "outcome": "fail",
@@ -1910,52 +1766,7 @@
     },
     {
       "judge": "flaky",
-      "key": "e128ff8ec8f9",
-      "criterion": "coverage_before_offer",
-      "answer": {
-        "outcome": "fail",
-        "reasoning": "Acme Fiber 1000 is offered with no coverage check"
-      }
-    },
-    {
-      "judge": "flaky",
-      "key": "12e6ee415c46",
-      "criterion": "coverage_before_offer",
-      "answer": {
-        "outcome": "fail",
-        "reasoning": "Acme Fiber 1000 is offered with no coverage check"
-      }
-    },
-    {
-      "judge": "flaky",
-      "key": "3e65a95a5c5c",
-      "criterion": "coverage_before_offer",
-      "answer": {
-        "outcome": "fail",
-        "reasoning": "Acme Fiber 1000 is offered with no coverage check"
-      }
-    },
-    {
-      "judge": "flaky",
-      "key": "3e65a95a5c5c",
-      "criterion": "coverage_before_offer",
-      "answer": {
-        "outcome": "fail",
-        "reasoning": "Acme Fiber 1000 is offered with no coverage check"
-      }
-    },
-    {
-      "judge": "flaky",
-      "key": "3e65a95a5c5c",
-      "criterion": "coverage_before_offer",
-      "answer": {
-        "outcome": "fail",
-        "reasoning": "Acme Fiber 1000 is offered with no coverage check"
-      }
-    },
-    {
-      "judge": "flaky",
-      "key": "3e65a95a5c5c",
+      "key": "cee123377a4a",
       "criterion": "coverage_before_offer",
       "answer": {
         "outcome": "pass",
@@ -1964,7 +1775,7 @@
     },
     {
       "judge": "flaky",
-      "key": "3e65a95a5c5c",
+      "key": "cee123377a4a",
       "criterion": "coverage_before_offer",
       "answer": {
         "outcome": "fail",
@@ -1973,7 +1784,7 @@
     },
     {
       "judge": "flaky",
-      "key": "e2aeae553ce7",
+      "key": "c91c9e1a032a",
       "criterion": "coverage_before_offer",
       "answer": {
         "outcome": "fail",
@@ -1982,7 +1793,7 @@
     },
     {
       "judge": "flaky",
-      "key": "e2aeae553ce7",
+      "key": "bc2a6951b44e",
       "criterion": "coverage_before_offer",
       "answer": {
         "outcome": "fail",
@@ -1991,7 +1802,7 @@
     },
     {
       "judge": "flaky",
-      "key": "e2aeae553ce7",
+      "key": "bc2a6951b44e",
       "criterion": "coverage_before_offer",
       "answer": {
         "outcome": "fail",
@@ -2000,7 +1811,16 @@
     },
     {
       "judge": "flaky",
-      "key": "e2aeae553ce7",
+      "key": "bc2a6951b44e",
+      "criterion": "coverage_before_offer",
+      "answer": {
+        "outcome": "fail",
+        "reasoning": "Acme Fiber 1000 is offered with no coverage check"
+      }
+    },
+    {
+      "judge": "flaky",
+      "key": "bc2a6951b44e",
       "criterion": "coverage_before_offer",
       "answer": {
         "outcome": "pass",
@@ -2009,7 +1829,7 @@
     },
     {
       "judge": "flaky",
-      "key": "e2aeae553ce7",
+      "key": "bc2a6951b44e",
       "criterion": "coverage_before_offer",
       "answer": {
         "outcome": "fail",
@@ -2018,7 +1838,7 @@
     },
     {
       "judge": "flaky",
-      "key": "e153d6bd1e95",
+      "key": "75431e593314",
       "criterion": "coverage_before_offer",
       "answer": {
         "outcome": "fail",
@@ -2027,7 +1847,7 @@
     },
     {
       "judge": "flaky",
-      "key": "eb7e4bdcac09",
+      "key": "44c02c90cab5",
       "criterion": "coverage_before_offer",
       "answer": {
         "outcome": "fail",
@@ -2036,7 +1856,43 @@
     },
     {
       "judge": "flaky",
-      "key": "7b2558eb92bd",
+      "key": "6965ae094507",
+      "criterion": "coverage_before_offer",
+      "answer": {
+        "outcome": "fail",
+        "reasoning": "Acme Fiber 1000 is offered with no coverage check"
+      }
+    },
+    {
+      "judge": "flaky",
+      "key": "81142044451c",
+      "criterion": "coverage_before_offer",
+      "answer": {
+        "outcome": "fail",
+        "reasoning": "Acme Fiber 1000 is offered with no coverage check"
+      }
+    },
+    {
+      "judge": "flaky",
+      "key": "1fe08404fb33",
+      "criterion": "coverage_before_offer",
+      "answer": {
+        "outcome": "fail",
+        "reasoning": "Acme Fiber 1000 is offered with no coverage check"
+      }
+    },
+    {
+      "judge": "flaky",
+      "key": "4d424b5b90c3",
+      "criterion": "coverage_before_offer",
+      "answer": {
+        "outcome": "fail",
+        "reasoning": "Acme Fiber 1000 is offered with no coverage check"
+      }
+    },
+    {
+      "judge": "flaky",
+      "key": "e1c67d1f530c",
       "criterion": "coverage_before_offer",
       "answer": {
         "outcome": "pass",
@@ -2045,7 +1901,7 @@
     },
     {
       "judge": "flaky",
-      "key": "7b2558eb92bd",
+      "key": "d0d9676805f5",
       "criterion": "coverage_before_offer",
       "answer": {
         "outcome": "pass",
@@ -2054,7 +1910,7 @@
     },
     {
       "judge": "flaky",
-      "key": "7b2558eb92bd",
+      "key": "29d791845651",
       "criterion": "coverage_before_offer",
       "answer": {
         "outcome": "pass",
@@ -2063,7 +1919,52 @@
     },
     {
       "judge": "flaky",
-      "key": "7b2558eb92bd",
+      "key": "35af915ac69f",
+      "criterion": "coverage_before_offer",
+      "answer": {
+        "outcome": "pass",
+        "reasoning": "the offered plans follow the coverage check"
+      }
+    },
+    {
+      "judge": "flaky",
+      "key": "ff7149cfe5f3",
+      "criterion": "coverage_before_offer",
+      "answer": {
+        "outcome": "pass",
+        "reasoning": "the offered plans follow the coverage check"
+      }
+    },
+    {
+      "judge": "flaky",
+      "key": "921f5364a606",
+      "criterion": "coverage_before_offer",
+      "answer": {
+        "outcome": "pass",
+        "reasoning": "the offered plans follow the coverage check"
+      }
+    },
+    {
+      "judge": "flaky",
+      "key": "921f5364a606",
+      "criterion": "coverage_before_offer",
+      "answer": {
+        "outcome": "pass",
+        "reasoning": "the offered plans follow the coverage check"
+      }
+    },
+    {
+      "judge": "flaky",
+      "key": "921f5364a606",
+      "criterion": "coverage_before_offer",
+      "answer": {
+        "outcome": "pass",
+        "reasoning": "the offered plans follow the coverage check"
+      }
+    },
+    {
+      "judge": "flaky",
+      "key": "921f5364a606",
       "criterion": "coverage_before_offer",
       "answer": {
         "outcome": "fail",
@@ -2072,7 +1973,7 @@
     },
     {
       "judge": "flaky",
-      "key": "7b2558eb92bd",
+      "key": "921f5364a606",
       "criterion": "coverage_before_offer",
       "answer": {
         "outcome": "pass",
@@ -2081,7 +1982,7 @@
     },
     {
       "judge": "flaky",
-      "key": "1417981e5ce9",
+      "key": "80b10df22227",
       "criterion": "coverage_before_offer",
       "answer": {
         "outcome": "pass",
@@ -2090,7 +1991,7 @@
     },
     {
       "judge": "flaky",
-      "key": "8041686177c2",
+      "key": "d825d212e1bc",
       "criterion": "coverage_before_offer",
       "answer": {
         "outcome": "pass",
@@ -2099,7 +2000,7 @@
     },
     {
       "judge": "flaky",
-      "key": "f2d29be16dee",
+      "key": "ca8771527c39",
       "criterion": "coverage_before_offer",
       "answer": {
         "outcome": "pass",
@@ -2108,7 +2009,7 @@
     },
     {
       "judge": "flaky",
-      "key": "f2d29be16dee",
+      "key": "ca8771527c39",
       "criterion": "coverage_before_offer",
       "answer": {
         "outcome": "pass",
@@ -2117,7 +2018,7 @@
     },
     {
       "judge": "flaky",
-      "key": "f2d29be16dee",
+      "key": "ca8771527c39",
       "criterion": "coverage_before_offer",
       "answer": {
         "outcome": "pass",
@@ -2126,7 +2027,7 @@
     },
     {
       "judge": "flaky",
-      "key": "f2d29be16dee",
+      "key": "ca8771527c39",
       "criterion": "coverage_before_offer",
       "answer": {
         "outcome": "fail",
@@ -2135,7 +2036,7 @@
     },
     {
       "judge": "flaky",
-      "key": "f2d29be16dee",
+      "key": "ca8771527c39",
       "criterion": "coverage_before_offer",
       "answer": {
         "outcome": "pass",
@@ -2144,160 +2045,7 @@
     },
     {
       "judge": "flaky",
-      "key": "b804907d0d09",
-      "criterion": "coverage_before_offer",
-      "answer": {
-        "outcome": "pass",
-        "reasoning": "the offered plans follow the coverage check"
-      }
-    },
-    {
-      "judge": "flaky",
-      "key": "2808e7f51a75",
-      "criterion": "coverage_before_offer",
-      "answer": {
-        "outcome": "pass",
-        "reasoning": "the offered plans follow the coverage check"
-      }
-    },
-    {
-      "judge": "flaky",
-      "key": "2808e7f51a75",
-      "criterion": "coverage_before_offer",
-      "answer": {
-        "outcome": "pass",
-        "reasoning": "the offered plans follow the coverage check"
-      }
-    },
-    {
-      "judge": "flaky",
-      "key": "2808e7f51a75",
-      "criterion": "coverage_before_offer",
-      "answer": {
-        "outcome": "pass",
-        "reasoning": "the offered plans follow the coverage check"
-      }
-    },
-    {
-      "judge": "flaky",
-      "key": "2808e7f51a75",
-      "criterion": "coverage_before_offer",
-      "answer": {
-        "outcome": "fail",
-        "reasoning": "changed its mind"
-      }
-    },
-    {
-      "judge": "flaky",
-      "key": "2808e7f51a75",
-      "criterion": "coverage_before_offer",
-      "answer": {
-        "outcome": "pass",
-        "reasoning": "the offered plans follow the coverage check"
-      }
-    },
-    {
-      "judge": "flaky",
-      "key": "23485de1e826",
-      "criterion": "coverage_before_offer",
-      "answer": {
-        "outcome": "pass",
-        "reasoning": "the offered plans follow the coverage check"
-      }
-    },
-    {
-      "judge": "flaky",
-      "key": "f781103def3b",
-      "criterion": "coverage_before_offer",
-      "answer": {
-        "outcome": "pass",
-        "reasoning": "the offered plans follow the coverage check"
-      }
-    },
-    {
-      "judge": "flaky",
-      "key": "f781103def3b",
-      "criterion": "coverage_before_offer",
-      "answer": {
-        "outcome": "pass",
-        "reasoning": "the offered plans follow the coverage check"
-      }
-    },
-    {
-      "judge": "flaky",
-      "key": "f781103def3b",
-      "criterion": "coverage_before_offer",
-      "answer": {
-        "outcome": "pass",
-        "reasoning": "the offered plans follow the coverage check"
-      }
-    },
-    {
-      "judge": "flaky",
-      "key": "f781103def3b",
-      "criterion": "coverage_before_offer",
-      "answer": {
-        "outcome": "fail",
-        "reasoning": "changed its mind"
-      }
-    },
-    {
-      "judge": "flaky",
-      "key": "f781103def3b",
-      "criterion": "coverage_before_offer",
-      "answer": {
-        "outcome": "pass",
-        "reasoning": "the offered plans follow the coverage check"
-      }
-    },
-    {
-      "judge": "flaky",
-      "key": "30a50910ce08",
-      "criterion": "coverage_before_offer",
-      "answer": {
-        "outcome": "pass",
-        "reasoning": "the offered plans follow the coverage check"
-      }
-    },
-    {
-      "judge": "flaky",
-      "key": "30a50910ce08",
-      "criterion": "coverage_before_offer",
-      "answer": {
-        "outcome": "pass",
-        "reasoning": "the offered plans follow the coverage check"
-      }
-    },
-    {
-      "judge": "flaky",
-      "key": "30a50910ce08",
-      "criterion": "coverage_before_offer",
-      "answer": {
-        "outcome": "pass",
-        "reasoning": "the offered plans follow the coverage check"
-      }
-    },
-    {
-      "judge": "flaky",
-      "key": "30a50910ce08",
-      "criterion": "coverage_before_offer",
-      "answer": {
-        "outcome": "fail",
-        "reasoning": "changed its mind"
-      }
-    },
-    {
-      "judge": "flaky",
-      "key": "30a50910ce08",
-      "criterion": "coverage_before_offer",
-      "answer": {
-        "outcome": "pass",
-        "reasoning": "the offered plans follow the coverage check"
-      }
-    },
-    {
-      "judge": "flaky",
-      "key": "96047c2b60d6",
+      "key": "09c91f1be41a",
       "criterion": "coverage_before_offer",
       "answer": {
         "outcome": "fail",
@@ -2306,7 +2054,7 @@
     },
     {
       "judge": "flaky",
-      "key": "9a1b39d658ab",
+      "key": "09c91f1be41a",
       "criterion": "coverage_before_offer",
       "answer": {
         "outcome": "fail",
@@ -2315,7 +2063,7 @@
     },
     {
       "judge": "flaky",
-      "key": "9a1b39d658ab",
+      "key": "09c91f1be41a",
       "criterion": "coverage_before_offer",
       "answer": {
         "outcome": "fail",
@@ -2324,16 +2072,7 @@
     },
     {
       "judge": "flaky",
-      "key": "9a1b39d658ab",
-      "criterion": "coverage_before_offer",
-      "answer": {
-        "outcome": "fail",
-        "reasoning": "Acme Fiber 1000 is offered with no coverage check"
-      }
-    },
-    {
-      "judge": "flaky",
-      "key": "9a1b39d658ab",
+      "key": "09c91f1be41a",
       "criterion": "coverage_before_offer",
       "answer": {
         "outcome": "pass",
@@ -2342,7 +2081,7 @@
     },
     {
       "judge": "flaky",
-      "key": "9a1b39d658ab",
+      "key": "09c91f1be41a",
       "criterion": "coverage_before_offer",
       "answer": {
         "outcome": "fail",
@@ -2351,7 +2090,7 @@
     },
     {
       "judge": "flaky",
-      "key": "c32618b9f6ed",
+      "key": "ac8edc9f5d6b",
       "criterion": "coverage_before_offer",
       "answer": {
         "outcome": "fail",
@@ -2360,7 +2099,7 @@
     },
     {
       "judge": "flaky",
-      "key": "c32618b9f6ed",
+      "key": "11d941d91eb2",
       "criterion": "coverage_before_offer",
       "answer": {
         "outcome": "fail",
@@ -2369,7 +2108,7 @@
     },
     {
       "judge": "flaky",
-      "key": "c32618b9f6ed",
+      "key": "4bbef79696ae",
       "criterion": "coverage_before_offer",
       "answer": {
         "outcome": "fail",
@@ -2378,16 +2117,7 @@
     },
     {
       "judge": "flaky",
-      "key": "c32618b9f6ed",
-      "criterion": "coverage_before_offer",
-      "answer": {
-        "outcome": "pass",
-        "reasoning": "changed its mind"
-      }
-    },
-    {
-      "judge": "flaky",
-      "key": "c32618b9f6ed",
+      "key": "f81cb53d3d52",
       "criterion": "coverage_before_offer",
       "answer": {
         "outcome": "fail",
@@ -2396,7 +2126,7 @@
     },
     {
       "judge": "flaky",
-      "key": "645f1a0f4bf9",
+      "key": "bfd695e5864d",
       "criterion": "coverage_before_offer",
       "answer": {
         "outcome": "fail",
@@ -2405,7 +2135,7 @@
     },
     {
       "judge": "flaky",
-      "key": "338470a89771",
+      "key": "09180e5bc856",
       "criterion": "coverage_before_offer",
       "answer": {
         "outcome": "fail",
@@ -2414,7 +2144,7 @@
     },
     {
       "judge": "flaky",
-      "key": "338470a89771",
+      "key": "f6ad65637334",
       "criterion": "coverage_before_offer",
       "answer": {
         "outcome": "fail",
@@ -2423,61 +2153,7 @@
     },
     {
       "judge": "flaky",
-      "key": "338470a89771",
-      "criterion": "coverage_before_offer",
-      "answer": {
-        "outcome": "fail",
-        "reasoning": "Acme Fiber 1000 is offered with no coverage check"
-      }
-    },
-    {
-      "judge": "flaky",
-      "key": "338470a89771",
-      "criterion": "coverage_before_offer",
-      "answer": {
-        "outcome": "pass",
-        "reasoning": "changed its mind"
-      }
-    },
-    {
-      "judge": "flaky",
-      "key": "338470a89771",
-      "criterion": "coverage_before_offer",
-      "answer": {
-        "outcome": "fail",
-        "reasoning": "Acme Fiber 1000 is offered with no coverage check"
-      }
-    },
-    {
-      "judge": "flaky",
-      "key": "88b92004a0bd",
-      "criterion": "coverage_before_offer",
-      "answer": {
-        "outcome": "fail",
-        "reasoning": "Acme Fiber 1000 is offered with no coverage check"
-      }
-    },
-    {
-      "judge": "flaky",
-      "key": "5c9efc1a6514",
-      "criterion": "coverage_before_offer",
-      "answer": {
-        "outcome": "fail",
-        "reasoning": "Acme Fiber 1000 is offered with no coverage check"
-      }
-    },
-    {
-      "judge": "flaky",
-      "key": "3de226e49e37",
-      "criterion": "coverage_before_offer",
-      "answer": {
-        "outcome": "fail",
-        "reasoning": "Acme Fiber 1000 is offered with no coverage check"
-      }
-    },
-    {
-      "judge": "flaky",
-      "key": "05f35fe27225",
+      "key": "6db2fd91a24d",
       "criterion": "coverage_before_offer",
       "answer": {
         "outcome": "fail",
@@ -3755,7 +3431,7 @@
     },
     {
       "judge": "flaky",
-      "key": "832c0c207b0b",
+      "key": "cbe1b4db7148",
       "criterion": "coverage_before_offer",
       "answer": {
         "outcome": "pass",
@@ -3764,7 +3440,7 @@
     },
     {
       "judge": "flaky",
-      "key": "832c0c207b0b",
+      "key": "f98d36ef5fba",
       "criterion": "coverage_before_offer",
       "answer": {
         "outcome": "pass",
@@ -3773,7 +3449,7 @@
     },
     {
       "judge": "flaky",
-      "key": "832c0c207b0b",
+      "key": "f98d36ef5fba",
       "criterion": "coverage_before_offer",
       "answer": {
         "outcome": "pass",
@@ -3782,7 +3458,16 @@
     },
     {
       "judge": "flaky",
-      "key": "832c0c207b0b",
+      "key": "f98d36ef5fba",
+      "criterion": "coverage_before_offer",
+      "answer": {
+        "outcome": "pass",
+        "reasoning": "the offered plans follow the coverage check"
+      }
+    },
+    {
+      "judge": "flaky",
+      "key": "f98d36ef5fba",
       "criterion": "coverage_before_offer",
       "answer": {
         "outcome": "fail",
@@ -3791,7 +3476,7 @@
     },
     {
       "judge": "flaky",
-      "key": "832c0c207b0b",
+      "key": "f98d36ef5fba",
       "criterion": "coverage_before_offer",
       "answer": {
         "outcome": "pass",
@@ -3800,7 +3485,7 @@
     },
     {
       "judge": "flaky",
-      "key": "606633aae256",
+      "key": "1cc743e02a99",
       "criterion": "coverage_before_offer",
       "answer": {
         "outcome": "pass",
@@ -3809,7 +3494,7 @@
     },
     {
       "judge": "flaky",
-      "key": "17e221111ff3",
+      "key": "d563203c2252",
       "criterion": "coverage_before_offer",
       "answer": {
         "outcome": "pass",
@@ -3818,7 +3503,7 @@
     },
     {
       "judge": "flaky",
-      "key": "17e221111ff3",
+      "key": "fe0873b1138c",
       "criterion": "coverage_before_offer",
       "answer": {
         "outcome": "pass",
@@ -3827,7 +3512,7 @@
     },
     {
       "judge": "flaky",
-      "key": "17e221111ff3",
+      "key": "04d0db509784",
       "criterion": "coverage_before_offer",
       "answer": {
         "outcome": "pass",
@@ -3836,7 +3521,25 @@
     },
     {
       "judge": "flaky",
-      "key": "17e221111ff3",
+      "key": "04d0db509784",
+      "criterion": "coverage_before_offer",
+      "answer": {
+        "outcome": "pass",
+        "reasoning": "the offered plans follow the coverage check"
+      }
+    },
+    {
+      "judge": "flaky",
+      "key": "04d0db509784",
+      "criterion": "coverage_before_offer",
+      "answer": {
+        "outcome": "pass",
+        "reasoning": "the offered plans follow the coverage check"
+      }
+    },
+    {
+      "judge": "flaky",
+      "key": "04d0db509784",
       "criterion": "coverage_before_offer",
       "answer": {
         "outcome": "fail",
@@ -3845,7 +3548,7 @@
     },
     {
       "judge": "flaky",
-      "key": "17e221111ff3",
+      "key": "04d0db509784",
       "criterion": "coverage_before_offer",
       "answer": {
         "outcome": "pass",
@@ -3854,7 +3557,7 @@
     },
     {
       "judge": "flaky",
-      "key": "a36e10a648b8",
+      "key": "b7fa2d5b482c",
       "criterion": "coverage_before_offer",
       "answer": {
         "outcome": "pass",
@@ -3863,7 +3566,7 @@
     },
     {
       "judge": "flaky",
-      "key": "5d73650e34fd",
+      "key": "10ed29b7c7bc",
       "criterion": "coverage_before_offer",
       "answer": {
         "outcome": "pass",
@@ -3872,7 +3575,7 @@
     },
     {
       "judge": "flaky",
-      "key": "5d73650e34fd",
+      "key": "a87316198346",
       "criterion": "coverage_before_offer",
       "answer": {
         "outcome": "pass",
@@ -3881,106 +3584,7 @@
     },
     {
       "judge": "flaky",
-      "key": "5d73650e34fd",
-      "criterion": "coverage_before_offer",
-      "answer": {
-        "outcome": "pass",
-        "reasoning": "the offered plans follow the coverage check"
-      }
-    },
-    {
-      "judge": "flaky",
-      "key": "5d73650e34fd",
-      "criterion": "coverage_before_offer",
-      "answer": {
-        "outcome": "fail",
-        "reasoning": "changed its mind"
-      }
-    },
-    {
-      "judge": "flaky",
-      "key": "5d73650e34fd",
-      "criterion": "coverage_before_offer",
-      "answer": {
-        "outcome": "pass",
-        "reasoning": "the offered plans follow the coverage check"
-      }
-    },
-    {
-      "judge": "flaky",
-      "key": "babe7ed4205e",
-      "criterion": "coverage_before_offer",
-      "answer": {
-        "outcome": "pass",
-        "reasoning": "the offered plans follow the coverage check"
-      }
-    },
-    {
-      "judge": "flaky",
-      "key": "56f8a869ad3f",
-      "criterion": "coverage_before_offer",
-      "answer": {
-        "outcome": "pass",
-        "reasoning": "the offered plans follow the coverage check"
-      }
-    },
-    {
-      "judge": "flaky",
-      "key": "2049ad46a1f2",
-      "criterion": "coverage_before_offer",
-      "answer": {
-        "outcome": "pass",
-        "reasoning": "the offered plans follow the coverage check"
-      }
-    },
-    {
-      "judge": "flaky",
-      "key": "2049ad46a1f2",
-      "criterion": "coverage_before_offer",
-      "answer": {
-        "outcome": "pass",
-        "reasoning": "the offered plans follow the coverage check"
-      }
-    },
-    {
-      "judge": "flaky",
-      "key": "2049ad46a1f2",
-      "criterion": "coverage_before_offer",
-      "answer": {
-        "outcome": "pass",
-        "reasoning": "the offered plans follow the coverage check"
-      }
-    },
-    {
-      "judge": "flaky",
-      "key": "2049ad46a1f2",
-      "criterion": "coverage_before_offer",
-      "answer": {
-        "outcome": "fail",
-        "reasoning": "changed its mind"
-      }
-    },
-    {
-      "judge": "flaky",
-      "key": "2049ad46a1f2",
-      "criterion": "coverage_before_offer",
-      "answer": {
-        "outcome": "pass",
-        "reasoning": "the offered plans follow the coverage check"
-      }
-    },
-    {
-      "judge": "flaky",
-      "key": "a023858ea76d",
-      "criterion": "coverage_before_offer",
-      "answer": {
-        "outcome": "pass",
-        "reasoning": "the offered plans follow the coverage check"
-      }
-    },
-    {
-      "judge": "flaky",
-      "key": "59e7fed28820",
+      "key": "ceda1c686b98",
       "criterion": "coverage_before_offer",
       "answer": {
         "outcome": "fail",
@@ -3989,7 +3593,7 @@
     },
     {
       "judge": "flaky",
-      "key": "0ccb7c8152aa",
+      "key": "e09633627886",
       "criterion": "coverage_before_offer",
       "answer": {
         "outcome": "fail",
@@ -3998,7 +3602,7 @@
     },
     {
       "judge": "flaky",
-      "key": "e92df01ba448",
+      "key": "5e104882f761",
       "criterion": "coverage_before_offer",
       "answer": {
         "outcome": "fail",
@@ -4007,7 +3611,7 @@
     },
     {
       "judge": "flaky",
-      "key": "74eadbdda6bc",
+      "key": "e1b04359a8c8",
       "criterion": "coverage_before_offer",
       "answer": {
         "outcome": "fail",
@@ -4016,7 +3620,7 @@
     },
     {
       "judge": "flaky",
-      "key": "1f81ee1a3f12",
+      "key": "e1b04359a8c8",
       "criterion": "coverage_before_offer",
       "answer": {
         "outcome": "fail",
@@ -4025,7 +3629,7 @@
     },
     {
       "judge": "flaky",
-      "key": "975b42f0e9f9",
+      "key": "e1b04359a8c8",
       "criterion": "coverage_before_offer",
       "answer": {
         "outcome": "fail",
@@ -4034,268 +3638,7 @@
     },
     {
       "judge": "flaky",
-      "key": "9514e2a56bbb",
-      "criterion": "coverage_before_offer",
-      "answer": {
-        "outcome": "fail",
-        "reasoning": "Acme Fiber 300 is offered with no coverage check"
-      }
-    },
-    {
-      "judge": "flaky",
-      "key": "b0690cced9ca",
-      "criterion": "coverage_before_offer",
-      "answer": {
-        "outcome": "fail",
-        "reasoning": "Acme Fiber 300 is offered with no coverage check"
-      }
-    },
-    {
-      "judge": "flaky",
-      "key": "fb022529e3a7",
-      "criterion": "coverage_before_offer",
-      "answer": {
-        "outcome": "fail",
-        "reasoning": "Acme Fiber 300 is offered with no coverage check"
-      }
-    },
-    {
-      "judge": "flaky",
-      "key": "c4d3fa8f4588",
-      "criterion": "coverage_before_offer",
-      "answer": {
-        "outcome": "pass",
-        "reasoning": "the offered plans follow the coverage check"
-      }
-    },
-    {
-      "judge": "flaky",
-      "key": "0e92dcf94b39",
-      "criterion": "coverage_before_offer",
-      "answer": {
-        "outcome": "pass",
-        "reasoning": "the offered plans follow the coverage check"
-      }
-    },
-    {
-      "judge": "flaky",
-      "key": "a7ec30912d26",
-      "criterion": "coverage_before_offer",
-      "answer": {
-        "outcome": "pass",
-        "reasoning": "the offered plans follow the coverage check"
-      }
-    },
-    {
-      "judge": "flaky",
-      "key": "a7ec30912d26",
-      "criterion": "coverage_before_offer",
-      "answer": {
-        "outcome": "pass",
-        "reasoning": "the offered plans follow the coverage check"
-      }
-    },
-    {
-      "judge": "flaky",
-      "key": "a7ec30912d26",
-      "criterion": "coverage_before_offer",
-      "answer": {
-        "outcome": "pass",
-        "reasoning": "the offered plans follow the coverage check"
-      }
-    },
-    {
-      "judge": "flaky",
-      "key": "a7ec30912d26",
-      "criterion": "coverage_before_offer",
-      "answer": {
-        "outcome": "fail",
-        "reasoning": "changed its mind"
-      }
-    },
-    {
-      "judge": "flaky",
-      "key": "a7ec30912d26",
-      "criterion": "coverage_before_offer",
-      "answer": {
-        "outcome": "pass",
-        "reasoning": "the offered plans follow the coverage check"
-      }
-    },
-    {
-      "judge": "flaky",
-      "key": "04d1de9eba09",
-      "criterion": "coverage_before_offer",
-      "answer": {
-        "outcome": "pass",
-        "reasoning": "the offered plans follow the coverage check"
-      }
-    },
-    {
-      "judge": "flaky",
-      "key": "4953782f2135",
-      "criterion": "coverage_before_offer",
-      "answer": {
-        "outcome": "pass",
-        "reasoning": "the offered plans follow the coverage check"
-      }
-    },
-    {
-      "judge": "flaky",
-      "key": "b68553580f45",
-      "criterion": "coverage_before_offer",
-      "answer": {
-        "outcome": "pass",
-        "reasoning": "the offered plans follow the coverage check"
-      }
-    },
-    {
-      "judge": "flaky",
-      "key": "05708b06de0f",
-      "criterion": "coverage_before_offer",
-      "answer": {
-        "outcome": "pass",
-        "reasoning": "the offered plans follow the coverage check"
-      }
-    },
-    {
-      "judge": "flaky",
-      "key": "56645aea8d65",
-      "criterion": "coverage_before_offer",
-      "answer": {
-        "outcome": "pass",
-        "reasoning": "the offered plans follow the coverage check"
-      }
-    },
-    {
-      "judge": "flaky",
-      "key": "56645aea8d65",
-      "criterion": "coverage_before_offer",
-      "answer": {
-        "outcome": "pass",
-        "reasoning": "the offered plans follow the coverage check"
-      }
-    },
-    {
-      "judge": "flaky",
-      "key": "56645aea8d65",
-      "criterion": "coverage_before_offer",
-      "answer": {
-        "outcome": "pass",
-        "reasoning": "the offered plans follow the coverage check"
-      }
-    },
-    {
-      "judge": "flaky",
-      "key": "56645aea8d65",
-      "criterion": "coverage_before_offer",
-      "answer": {
-        "outcome": "fail",
-        "reasoning": "changed its mind"
-      }
-    },
-    {
-      "judge": "flaky",
-      "key": "56645aea8d65",
-      "criterion": "coverage_before_offer",
-      "answer": {
-        "outcome": "pass",
-        "reasoning": "the offered plans follow the coverage check"
-      }
-    },
-    {
-      "judge": "flaky",
-      "key": "e860ff37466e",
-      "criterion": "coverage_before_offer",
-      "answer": {
-        "outcome": "pass",
-        "reasoning": "the offered plans follow the coverage check"
-      }
-    },
-    {
-      "judge": "flaky",
-      "key": "7316311d07d6",
-      "criterion": "coverage_before_offer",
-      "answer": {
-        "outcome": "fail",
-        "reasoning": "Acme Fiber 300 is offered with no coverage check"
-      }
-    },
-    {
-      "judge": "flaky",
-      "key": "cd09f8eeb988",
-      "criterion": "coverage_before_offer",
-      "answer": {
-        "outcome": "fail",
-        "reasoning": "Acme Fiber 300 is offered with no coverage check"
-      }
-    },
-    {
-      "judge": "flaky",
-      "key": "1b3b78ad0210",
-      "criterion": "coverage_before_offer",
-      "answer": {
-        "outcome": "fail",
-        "reasoning": "Acme Fiber 300 is offered with no coverage check"
-      }
-    },
-    {
-      "judge": "flaky",
-      "key": "8cad5bf99422",
-      "criterion": "coverage_before_offer",
-      "answer": {
-        "outcome": "fail",
-        "reasoning": "Acme Fiber 300 is offered with no coverage check"
-      }
-    },
-    {
-      "judge": "flaky",
-      "key": "7b5955ad6a7f",
-      "criterion": "coverage_before_offer",
-      "answer": {
-        "outcome": "fail",
-        "reasoning": "Acme Fiber 300 is offered with no coverage check"
-      }
-    },
-    {
-      "judge": "flaky",
-      "key": "0e45493432a0",
-      "criterion": "coverage_before_offer",
-      "answer": {
-        "outcome": "fail",
-        "reasoning": "Acme Fiber 300 is offered with no coverage check"
-      }
-    },
-    {
-      "judge": "flaky",
-      "key": "de26d8562846",
-      "criterion": "coverage_before_offer",
-      "answer": {
-        "outcome": "fail",
-        "reasoning": "Acme Fiber 300 is offered with no coverage check"
-      }
-    },
-    {
-      "judge": "flaky",
-      "key": "de26d8562846",
-      "criterion": "coverage_before_offer",
-      "answer": {
-        "outcome": "fail",
-        "reasoning": "Acme Fiber 300 is offered with no coverage check"
-      }
-    },
-    {
-      "judge": "flaky",
-      "key": "de26d8562846",
-      "criterion": "coverage_before_offer",
-      "answer": {
-        "outcome": "fail",
-        "reasoning": "Acme Fiber 300 is offered with no coverage check"
-      }
-    },
-    {
-      "judge": "flaky",
-      "key": "de26d8562846",
+      "key": "e1b04359a8c8",
       "criterion": "coverage_before_offer",
       "answer": {
         "outcome": "pass",
@@ -4304,7 +3647,7 @@
     },
     {
       "judge": "flaky",
-      "key": "de26d8562846",
+      "key": "e1b04359a8c8",
       "criterion": "coverage_before_offer",
       "answer": {
         "outcome": "fail",
@@ -4313,7 +3656,7 @@
     },
     {
       "judge": "flaky",
-      "key": "1acf8e7bec93",
+      "key": "e476114b3081",
       "criterion": "coverage_before_offer",
       "answer": {
         "outcome": "fail",
@@ -4322,7 +3665,7 @@
     },
     {
       "judge": "flaky",
-      "key": "939338e6f682",
+      "key": "73c80e866b2c",
       "criterion": "coverage_before_offer",
       "answer": {
         "outcome": "fail",
@@ -4331,7 +3674,7 @@
     },
     {
       "judge": "flaky",
-      "key": "939338e6f682",
+      "key": "9b26d58a7cb6",
       "criterion": "coverage_before_offer",
       "answer": {
         "outcome": "fail",
@@ -4340,7 +3683,7 @@
     },
     {
       "judge": "flaky",
-      "key": "939338e6f682",
+      "key": "316320dbe310",
       "criterion": "coverage_before_offer",
       "answer": {
         "outcome": "fail",
@@ -4349,7 +3692,34 @@
     },
     {
       "judge": "flaky",
-      "key": "939338e6f682",
+      "key": "134ced2f7494",
+      "criterion": "coverage_before_offer",
+      "answer": {
+        "outcome": "fail",
+        "reasoning": "Acme Fiber 300 is offered with no coverage check"
+      }
+    },
+    {
+      "judge": "flaky",
+      "key": "134ced2f7494",
+      "criterion": "coverage_before_offer",
+      "answer": {
+        "outcome": "fail",
+        "reasoning": "Acme Fiber 300 is offered with no coverage check"
+      }
+    },
+    {
+      "judge": "flaky",
+      "key": "134ced2f7494",
+      "criterion": "coverage_before_offer",
+      "answer": {
+        "outcome": "fail",
+        "reasoning": "Acme Fiber 300 is offered with no coverage check"
+      }
+    },
+    {
+      "judge": "flaky",
+      "key": "134ced2f7494",
       "criterion": "coverage_before_offer",
       "answer": {
         "outcome": "pass",
@@ -4358,7 +3728,313 @@
     },
     {
       "judge": "flaky",
-      "key": "939338e6f682",
+      "key": "134ced2f7494",
+      "criterion": "coverage_before_offer",
+      "answer": {
+        "outcome": "fail",
+        "reasoning": "Acme Fiber 300 is offered with no coverage check"
+      }
+    },
+    {
+      "judge": "flaky",
+      "key": "17b2122660e1",
+      "criterion": "coverage_before_offer",
+      "answer": {
+        "outcome": "pass",
+        "reasoning": "the offered plans follow the coverage check"
+      }
+    },
+    {
+      "judge": "flaky",
+      "key": "5c27ba0827ba",
+      "criterion": "coverage_before_offer",
+      "answer": {
+        "outcome": "pass",
+        "reasoning": "the offered plans follow the coverage check"
+      }
+    },
+    {
+      "judge": "flaky",
+      "key": "b553ff40fff5",
+      "criterion": "coverage_before_offer",
+      "answer": {
+        "outcome": "pass",
+        "reasoning": "the offered plans follow the coverage check"
+      }
+    },
+    {
+      "judge": "flaky",
+      "key": "7fcc5a09687c",
+      "criterion": "coverage_before_offer",
+      "answer": {
+        "outcome": "pass",
+        "reasoning": "the offered plans follow the coverage check"
+      }
+    },
+    {
+      "judge": "flaky",
+      "key": "add818baafed",
+      "criterion": "coverage_before_offer",
+      "answer": {
+        "outcome": "pass",
+        "reasoning": "the offered plans follow the coverage check"
+      }
+    },
+    {
+      "judge": "flaky",
+      "key": "add818baafed",
+      "criterion": "coverage_before_offer",
+      "answer": {
+        "outcome": "pass",
+        "reasoning": "the offered plans follow the coverage check"
+      }
+    },
+    {
+      "judge": "flaky",
+      "key": "add818baafed",
+      "criterion": "coverage_before_offer",
+      "answer": {
+        "outcome": "pass",
+        "reasoning": "the offered plans follow the coverage check"
+      }
+    },
+    {
+      "judge": "flaky",
+      "key": "add818baafed",
+      "criterion": "coverage_before_offer",
+      "answer": {
+        "outcome": "fail",
+        "reasoning": "changed its mind"
+      }
+    },
+    {
+      "judge": "flaky",
+      "key": "add818baafed",
+      "criterion": "coverage_before_offer",
+      "answer": {
+        "outcome": "pass",
+        "reasoning": "the offered plans follow the coverage check"
+      }
+    },
+    {
+      "judge": "flaky",
+      "key": "e363beb7e410",
+      "criterion": "coverage_before_offer",
+      "answer": {
+        "outcome": "pass",
+        "reasoning": "the offered plans follow the coverage check"
+      }
+    },
+    {
+      "judge": "flaky",
+      "key": "28e64d3a735a",
+      "criterion": "coverage_before_offer",
+      "answer": {
+        "outcome": "pass",
+        "reasoning": "the offered plans follow the coverage check"
+      }
+    },
+    {
+      "judge": "flaky",
+      "key": "11d1b67b83b7",
+      "criterion": "coverage_before_offer",
+      "answer": {
+        "outcome": "pass",
+        "reasoning": "the offered plans follow the coverage check"
+      }
+    },
+    {
+      "judge": "flaky",
+      "key": "19849249a403",
+      "criterion": "coverage_before_offer",
+      "answer": {
+        "outcome": "pass",
+        "reasoning": "the offered plans follow the coverage check"
+      }
+    },
+    {
+      "judge": "flaky",
+      "key": "7648def31855",
+      "criterion": "coverage_before_offer",
+      "answer": {
+        "outcome": "fail",
+        "reasoning": "Acme Fiber 300 is offered with no coverage check"
+      }
+    },
+    {
+      "judge": "flaky",
+      "key": "7648def31855",
+      "criterion": "coverage_before_offer",
+      "answer": {
+        "outcome": "fail",
+        "reasoning": "Acme Fiber 300 is offered with no coverage check"
+      }
+    },
+    {
+      "judge": "flaky",
+      "key": "7648def31855",
+      "criterion": "coverage_before_offer",
+      "answer": {
+        "outcome": "fail",
+        "reasoning": "Acme Fiber 300 is offered with no coverage check"
+      }
+    },
+    {
+      "judge": "flaky",
+      "key": "7648def31855",
+      "criterion": "coverage_before_offer",
+      "answer": {
+        "outcome": "pass",
+        "reasoning": "changed its mind"
+      }
+    },
+    {
+      "judge": "flaky",
+      "key": "7648def31855",
+      "criterion": "coverage_before_offer",
+      "answer": {
+        "outcome": "fail",
+        "reasoning": "Acme Fiber 300 is offered with no coverage check"
+      }
+    },
+    {
+      "judge": "flaky",
+      "key": "68c493fb721a",
+      "criterion": "coverage_before_offer",
+      "answer": {
+        "outcome": "fail",
+        "reasoning": "Acme Fiber 300 is offered with no coverage check"
+      }
+    },
+    {
+      "judge": "flaky",
+      "key": "ad279bdb27ea",
+      "criterion": "coverage_before_offer",
+      "answer": {
+        "outcome": "fail",
+        "reasoning": "Acme Fiber 300 is offered with no coverage check"
+      }
+    },
+    {
+      "judge": "flaky",
+      "key": "ad279bdb27ea",
+      "criterion": "coverage_before_offer",
+      "answer": {
+        "outcome": "fail",
+        "reasoning": "Acme Fiber 300 is offered with no coverage check"
+      }
+    },
+    {
+      "judge": "flaky",
+      "key": "ad279bdb27ea",
+      "criterion": "coverage_before_offer",
+      "answer": {
+        "outcome": "fail",
+        "reasoning": "Acme Fiber 300 is offered with no coverage check"
+      }
+    },
+    {
+      "judge": "flaky",
+      "key": "ad279bdb27ea",
+      "criterion": "coverage_before_offer",
+      "answer": {
+        "outcome": "pass",
+        "reasoning": "changed its mind"
+      }
+    },
+    {
+      "judge": "flaky",
+      "key": "ad279bdb27ea",
+      "criterion": "coverage_before_offer",
+      "answer": {
+        "outcome": "fail",
+        "reasoning": "Acme Fiber 300 is offered with no coverage check"
+      }
+    },
+    {
+      "judge": "flaky",
+      "key": "875e016752dc",
+      "criterion": "coverage_before_offer",
+      "answer": {
+        "outcome": "fail",
+        "reasoning": "Acme Fiber 300 is offered with no coverage check"
+      }
+    },
+    {
+      "judge": "flaky",
+      "key": "396d0c076142",
+      "criterion": "coverage_before_offer",
+      "answer": {
+        "outcome": "fail",
+        "reasoning": "Acme Fiber 300 is offered with no coverage check"
+      }
+    },
+    {
+      "judge": "flaky",
+      "key": "149e8d0a847c",
+      "criterion": "coverage_before_offer",
+      "answer": {
+        "outcome": "fail",
+        "reasoning": "Acme Fiber 300 is offered with no coverage check"
+      }
+    },
+    {
+      "judge": "flaky",
+      "key": "149e8d0a847c",
+      "criterion": "coverage_before_offer",
+      "answer": {
+        "outcome": "fail",
+        "reasoning": "Acme Fiber 300 is offered with no coverage check"
+      }
+    },
+    {
+      "judge": "flaky",
+      "key": "149e8d0a847c",
+      "criterion": "coverage_before_offer",
+      "answer": {
+        "outcome": "fail",
+        "reasoning": "Acme Fiber 300 is offered with no coverage check"
+      }
+    },
+    {
+      "judge": "flaky",
+      "key": "149e8d0a847c",
+      "criterion": "coverage_before_offer",
+      "answer": {
+        "outcome": "pass",
+        "reasoning": "changed its mind"
+      }
+    },
+    {
+      "judge": "flaky",
+      "key": "149e8d0a847c",
+      "criterion": "coverage_before_offer",
+      "answer": {
+        "outcome": "fail",
+        "reasoning": "Acme Fiber 300 is offered with no coverage check"
+      }
+    },
+    {
+      "judge": "flaky",
+      "key": "733d679ec434",
+      "criterion": "coverage_before_offer",
+      "answer": {
+        "outcome": "fail",
+        "reasoning": "Acme Fiber 300 is offered with no coverage check"
+      }
+    },
+    {
+      "judge": "flaky",
+      "key": "32456fef4810",
+      "criterion": "coverage_before_offer",
+      "answer": {
+        "outcome": "fail",
+        "reasoning": "Acme Fiber 300 is offered with no coverage check"
+      }
+    },
+    {
+      "judge": "flaky",
+      "key": "401b7eff7909",
       "criterion": "coverage_before_offer",
       "answer": {
         "outcome": "fail",
@@ -7391,7 +7067,7 @@
     },
     {
       "judge": "flaky",
-      "key": "1c720e876e8a",
+      "key": "09db4fa9cef8",
       "criterion": "coverage_before_offer",
       "answer": {
         "outcome": "pass",
@@ -7400,7 +7076,7 @@
     },
     {
       "judge": "flaky",
-      "key": "da4e75e3fde2",
+      "key": "9cea6d118943",
       "criterion": "coverage_before_offer",
       "answer": {
         "outcome": "pass",
@@ -7409,7 +7085,7 @@
     },
     {
       "judge": "flaky",
-      "key": "bd915eb5006e",
+      "key": "31bf59e3e4b3",
       "criterion": "coverage_before_offer",
       "answer": {
         "outcome": "pass",
@@ -7418,7 +7094,7 @@
     },
     {
       "judge": "flaky",
-      "key": "6f2332f6a5e7",
+      "key": "f139c6206b75",
       "criterion": "coverage_before_offer",
       "answer": {
         "outcome": "pass",
@@ -7427,7 +7103,7 @@
     },
     {
       "judge": "flaky",
-      "key": "43794577ad2a",
+      "key": "b31ba1193011",
       "criterion": "coverage_before_offer",
       "answer": {
         "outcome": "pass",
@@ -7436,7 +7112,7 @@
     },
     {
       "judge": "flaky",
-      "key": "ee3e0cd3ce36",
+      "key": "b31ba1193011",
       "criterion": "coverage_before_offer",
       "answer": {
         "outcome": "pass",
@@ -7445,7 +7121,7 @@
     },
     {
       "judge": "flaky",
-      "key": "0a02036bd1b1",
+      "key": "b31ba1193011",
       "criterion": "coverage_before_offer",
       "answer": {
         "outcome": "pass",
@@ -7454,205 +7130,7 @@
     },
     {
       "judge": "flaky",
-      "key": "035d8cd535bd",
-      "criterion": "coverage_before_offer",
-      "answer": {
-        "outcome": "pass",
-        "reasoning": "the offered plans follow the coverage check"
-      }
-    },
-    {
-      "judge": "flaky",
-      "key": "43988f46c77e",
-      "criterion": "coverage_before_offer",
-      "answer": {
-        "outcome": "pass",
-        "reasoning": "the offered plans follow the coverage check"
-      }
-    },
-    {
-      "judge": "flaky",
-      "key": "39cdb756a919",
-      "criterion": "coverage_before_offer",
-      "answer": {
-        "outcome": "fail",
-        "reasoning": "Acme Air 5G is offered with no coverage check"
-      }
-    },
-    {
-      "judge": "flaky",
-      "key": "fc10056cc1a1",
-      "criterion": "coverage_before_offer",
-      "answer": {
-        "outcome": "fail",
-        "reasoning": "Acme Air 5G is offered with no coverage check"
-      }
-    },
-    {
-      "judge": "flaky",
-      "key": "d9e7b74ffe7d",
-      "criterion": "coverage_before_offer",
-      "answer": {
-        "outcome": "fail",
-        "reasoning": "Acme Air 5G is offered with no coverage check"
-      }
-    },
-    {
-      "judge": "flaky",
-      "key": "d9e7b74ffe7d",
-      "criterion": "coverage_before_offer",
-      "answer": {
-        "outcome": "fail",
-        "reasoning": "Acme Air 5G is offered with no coverage check"
-      }
-    },
-    {
-      "judge": "flaky",
-      "key": "d9e7b74ffe7d",
-      "criterion": "coverage_before_offer",
-      "answer": {
-        "outcome": "fail",
-        "reasoning": "Acme Air 5G is offered with no coverage check"
-      }
-    },
-    {
-      "judge": "flaky",
-      "key": "d9e7b74ffe7d",
-      "criterion": "coverage_before_offer",
-      "answer": {
-        "outcome": "pass",
-        "reasoning": "changed its mind"
-      }
-    },
-    {
-      "judge": "flaky",
-      "key": "d9e7b74ffe7d",
-      "criterion": "coverage_before_offer",
-      "answer": {
-        "outcome": "fail",
-        "reasoning": "Acme Air 5G is offered with no coverage check"
-      }
-    },
-    {
-      "judge": "flaky",
-      "key": "2e323993df10",
-      "criterion": "coverage_before_offer",
-      "answer": {
-        "outcome": "fail",
-        "reasoning": "Acme Air 5G is offered with no coverage check"
-      }
-    },
-    {
-      "judge": "flaky",
-      "key": "49e9c74416e5",
-      "criterion": "coverage_before_offer",
-      "answer": {
-        "outcome": "fail",
-        "reasoning": "Acme Air 5G is offered with no coverage check"
-      }
-    },
-    {
-      "judge": "flaky",
-      "key": "2a0ccbf1ecc7",
-      "criterion": "coverage_before_offer",
-      "answer": {
-        "outcome": "fail",
-        "reasoning": "Acme Air 5G is offered with no coverage check"
-      }
-    },
-    {
-      "judge": "flaky",
-      "key": "a1607f4398bd",
-      "criterion": "coverage_before_offer",
-      "answer": {
-        "outcome": "fail",
-        "reasoning": "Acme Air 5G is offered with no coverage check"
-      }
-    },
-    {
-      "judge": "flaky",
-      "key": "a1607f4398bd",
-      "criterion": "coverage_before_offer",
-      "answer": {
-        "outcome": "fail",
-        "reasoning": "Acme Air 5G is offered with no coverage check"
-      }
-    },
-    {
-      "judge": "flaky",
-      "key": "a1607f4398bd",
-      "criterion": "coverage_before_offer",
-      "answer": {
-        "outcome": "fail",
-        "reasoning": "Acme Air 5G is offered with no coverage check"
-      }
-    },
-    {
-      "judge": "flaky",
-      "key": "a1607f4398bd",
-      "criterion": "coverage_before_offer",
-      "answer": {
-        "outcome": "pass",
-        "reasoning": "changed its mind"
-      }
-    },
-    {
-      "judge": "flaky",
-      "key": "a1607f4398bd",
-      "criterion": "coverage_before_offer",
-      "answer": {
-        "outcome": "fail",
-        "reasoning": "Acme Air 5G is offered with no coverage check"
-      }
-    },
-    {
-      "judge": "flaky",
-      "key": "1a321cd34277",
-      "criterion": "coverage_before_offer",
-      "answer": {
-        "outcome": "fail",
-        "reasoning": "Acme Air 5G is offered with no coverage check"
-      }
-    },
-    {
-      "judge": "flaky",
-      "key": "bbaf942b18b3",
-      "criterion": "coverage_before_offer",
-      "answer": {
-        "outcome": "fail",
-        "reasoning": "Acme Air 5G is offered with no coverage check"
-      }
-    },
-    {
-      "judge": "flaky",
-      "key": "96d3dfbb3374",
-      "criterion": "coverage_before_offer",
-      "answer": {
-        "outcome": "pass",
-        "reasoning": "the offered plans follow the coverage check"
-      }
-    },
-    {
-      "judge": "flaky",
-      "key": "96d3dfbb3374",
-      "criterion": "coverage_before_offer",
-      "answer": {
-        "outcome": "pass",
-        "reasoning": "the offered plans follow the coverage check"
-      }
-    },
-    {
-      "judge": "flaky",
-      "key": "96d3dfbb3374",
-      "criterion": "coverage_before_offer",
-      "answer": {
-        "outcome": "pass",
-        "reasoning": "the offered plans follow the coverage check"
-      }
-    },
-    {
-      "judge": "flaky",
-      "key": "96d3dfbb3374",
+      "key": "b31ba1193011",
       "criterion": "coverage_before_offer",
       "answer": {
         "outcome": "fail",
@@ -7661,7 +7139,7 @@
     },
     {
       "judge": "flaky",
-      "key": "96d3dfbb3374",
+      "key": "b31ba1193011",
       "criterion": "coverage_before_offer",
       "answer": {
         "outcome": "pass",
@@ -7670,7 +7148,7 @@
     },
     {
       "judge": "flaky",
-      "key": "6cd53afaa135",
+      "key": "1e207ddd8c64",
       "criterion": "coverage_before_offer",
       "answer": {
         "outcome": "pass",
@@ -7679,7 +7157,7 @@
     },
     {
       "judge": "flaky",
-      "key": "89d592c9398f",
+      "key": "bfdbd0a34ab9",
       "criterion": "coverage_before_offer",
       "answer": {
         "outcome": "pass",
@@ -7688,7 +7166,7 @@
     },
     {
       "judge": "flaky",
-      "key": "79c97ea0f4fe",
+      "key": "bfdbd0a34ab9",
       "criterion": "coverage_before_offer",
       "answer": {
         "outcome": "pass",
@@ -7697,7 +7175,7 @@
     },
     {
       "judge": "flaky",
-      "key": "7e096d06c433",
+      "key": "bfdbd0a34ab9",
       "criterion": "coverage_before_offer",
       "answer": {
         "outcome": "pass",
@@ -7706,34 +7184,7 @@
     },
     {
       "judge": "flaky",
-      "key": "4e0e7111f84b",
-      "criterion": "coverage_before_offer",
-      "answer": {
-        "outcome": "pass",
-        "reasoning": "the offered plans follow the coverage check"
-      }
-    },
-    {
-      "judge": "flaky",
-      "key": "4e0e7111f84b",
-      "criterion": "coverage_before_offer",
-      "answer": {
-        "outcome": "pass",
-        "reasoning": "the offered plans follow the coverage check"
-      }
-    },
-    {
-      "judge": "flaky",
-      "key": "4e0e7111f84b",
-      "criterion": "coverage_before_offer",
-      "answer": {
-        "outcome": "pass",
-        "reasoning": "the offered plans follow the coverage check"
-      }
-    },
-    {
-      "judge": "flaky",
-      "key": "4e0e7111f84b",
+      "key": "bfdbd0a34ab9",
       "criterion": "coverage_before_offer",
       "answer": {
         "outcome": "fail",
@@ -7742,7 +7193,7 @@
     },
     {
       "judge": "flaky",
-      "key": "4e0e7111f84b",
+      "key": "bfdbd0a34ab9",
       "criterion": "coverage_before_offer",
       "answer": {
         "outcome": "pass",
@@ -7751,7 +7202,7 @@
     },
     {
       "judge": "flaky",
-      "key": "46ce60523638",
+      "key": "112613869294",
       "criterion": "coverage_before_offer",
       "answer": {
         "outcome": "pass",
@@ -7760,7 +7211,7 @@
     },
     {
       "judge": "flaky",
-      "key": "ad619f8d7006",
+      "key": "112613869294",
       "criterion": "coverage_before_offer",
       "answer": {
         "outcome": "pass",
@@ -7769,7 +7220,7 @@
     },
     {
       "judge": "flaky",
-      "key": "ba1f03f68c17",
+      "key": "112613869294",
       "criterion": "coverage_before_offer",
       "answer": {
         "outcome": "pass",
@@ -7778,7 +7229,34 @@
     },
     {
       "judge": "flaky",
-      "key": "7d99965ca344",
+      "key": "112613869294",
+      "criterion": "coverage_before_offer",
+      "answer": {
+        "outcome": "fail",
+        "reasoning": "changed its mind"
+      }
+    },
+    {
+      "judge": "flaky",
+      "key": "112613869294",
+      "criterion": "coverage_before_offer",
+      "answer": {
+        "outcome": "pass",
+        "reasoning": "the offered plans follow the coverage check"
+      }
+    },
+    {
+      "judge": "flaky",
+      "key": "7573f3edceea",
+      "criterion": "coverage_before_offer",
+      "answer": {
+        "outcome": "pass",
+        "reasoning": "the offered plans follow the coverage check"
+      }
+    },
+    {
+      "judge": "flaky",
+      "key": "b114d04fe9a8",
       "criterion": "coverage_before_offer",
       "answer": {
         "outcome": "fail",
@@ -7787,7 +7265,7 @@
     },
     {
       "judge": "flaky",
-      "key": "7d99965ca344",
+      "key": "5730e11f055b",
       "criterion": "coverage_before_offer",
       "answer": {
         "outcome": "fail",
@@ -7796,7 +7274,7 @@
     },
     {
       "judge": "flaky",
-      "key": "7d99965ca344",
+      "key": "43e1df9068d5",
       "criterion": "coverage_before_offer",
       "answer": {
         "outcome": "fail",
@@ -7805,7 +7283,295 @@
     },
     {
       "judge": "flaky",
-      "key": "7d99965ca344",
+      "key": "5cedf223cb13",
+      "criterion": "coverage_before_offer",
+      "answer": {
+        "outcome": "fail",
+        "reasoning": "Acme Air 5G is offered with no coverage check"
+      }
+    },
+    {
+      "judge": "flaky",
+      "key": "b9133ef47bfd",
+      "criterion": "coverage_before_offer",
+      "answer": {
+        "outcome": "fail",
+        "reasoning": "Acme Air 5G is offered with no coverage check"
+      }
+    },
+    {
+      "judge": "flaky",
+      "key": "5ad3a5ec3585",
+      "criterion": "coverage_before_offer",
+      "answer": {
+        "outcome": "fail",
+        "reasoning": "Acme Air 5G is offered with no coverage check"
+      }
+    },
+    {
+      "judge": "flaky",
+      "key": "9fc3654f9bf2",
+      "criterion": "coverage_before_offer",
+      "answer": {
+        "outcome": "fail",
+        "reasoning": "Acme Air 5G is offered with no coverage check"
+      }
+    },
+    {
+      "judge": "flaky",
+      "key": "e72156be66a7",
+      "criterion": "coverage_before_offer",
+      "answer": {
+        "outcome": "fail",
+        "reasoning": "Acme Air 5G is offered with no coverage check"
+      }
+    },
+    {
+      "judge": "flaky",
+      "key": "67669d283b91",
+      "criterion": "coverage_before_offer",
+      "answer": {
+        "outcome": "fail",
+        "reasoning": "Acme Air 5G is offered with no coverage check"
+      }
+    },
+    {
+      "judge": "flaky",
+      "key": "7569ddb4c0de",
+      "criterion": "coverage_before_offer",
+      "answer": {
+        "outcome": "pass",
+        "reasoning": "the offered plans follow the coverage check"
+      }
+    },
+    {
+      "judge": "flaky",
+      "key": "3eaeeb4e5ca8",
+      "criterion": "coverage_before_offer",
+      "answer": {
+        "outcome": "pass",
+        "reasoning": "the offered plans follow the coverage check"
+      }
+    },
+    {
+      "judge": "flaky",
+      "key": "3eaeeb4e5ca8",
+      "criterion": "coverage_before_offer",
+      "answer": {
+        "outcome": "pass",
+        "reasoning": "the offered plans follow the coverage check"
+      }
+    },
+    {
+      "judge": "flaky",
+      "key": "3eaeeb4e5ca8",
+      "criterion": "coverage_before_offer",
+      "answer": {
+        "outcome": "pass",
+        "reasoning": "the offered plans follow the coverage check"
+      }
+    },
+    {
+      "judge": "flaky",
+      "key": "3eaeeb4e5ca8",
+      "criterion": "coverage_before_offer",
+      "answer": {
+        "outcome": "fail",
+        "reasoning": "changed its mind"
+      }
+    },
+    {
+      "judge": "flaky",
+      "key": "3eaeeb4e5ca8",
+      "criterion": "coverage_before_offer",
+      "answer": {
+        "outcome": "pass",
+        "reasoning": "the offered plans follow the coverage check"
+      }
+    },
+    {
+      "judge": "flaky",
+      "key": "9aae59efd8a1",
+      "criterion": "coverage_before_offer",
+      "answer": {
+        "outcome": "pass",
+        "reasoning": "the offered plans follow the coverage check"
+      }
+    },
+    {
+      "judge": "flaky",
+      "key": "701dd0ca41b1",
+      "criterion": "coverage_before_offer",
+      "answer": {
+        "outcome": "pass",
+        "reasoning": "the offered plans follow the coverage check"
+      }
+    },
+    {
+      "judge": "flaky",
+      "key": "701dd0ca41b1",
+      "criterion": "coverage_before_offer",
+      "answer": {
+        "outcome": "pass",
+        "reasoning": "the offered plans follow the coverage check"
+      }
+    },
+    {
+      "judge": "flaky",
+      "key": "701dd0ca41b1",
+      "criterion": "coverage_before_offer",
+      "answer": {
+        "outcome": "pass",
+        "reasoning": "the offered plans follow the coverage check"
+      }
+    },
+    {
+      "judge": "flaky",
+      "key": "701dd0ca41b1",
+      "criterion": "coverage_before_offer",
+      "answer": {
+        "outcome": "fail",
+        "reasoning": "changed its mind"
+      }
+    },
+    {
+      "judge": "flaky",
+      "key": "701dd0ca41b1",
+      "criterion": "coverage_before_offer",
+      "answer": {
+        "outcome": "pass",
+        "reasoning": "the offered plans follow the coverage check"
+      }
+    },
+    {
+      "judge": "flaky",
+      "key": "ab32d96e5317",
+      "criterion": "coverage_before_offer",
+      "answer": {
+        "outcome": "pass",
+        "reasoning": "the offered plans follow the coverage check"
+      }
+    },
+    {
+      "judge": "flaky",
+      "key": "ab32d96e5317",
+      "criterion": "coverage_before_offer",
+      "answer": {
+        "outcome": "pass",
+        "reasoning": "the offered plans follow the coverage check"
+      }
+    },
+    {
+      "judge": "flaky",
+      "key": "ab32d96e5317",
+      "criterion": "coverage_before_offer",
+      "answer": {
+        "outcome": "pass",
+        "reasoning": "the offered plans follow the coverage check"
+      }
+    },
+    {
+      "judge": "flaky",
+      "key": "ab32d96e5317",
+      "criterion": "coverage_before_offer",
+      "answer": {
+        "outcome": "fail",
+        "reasoning": "changed its mind"
+      }
+    },
+    {
+      "judge": "flaky",
+      "key": "ab32d96e5317",
+      "criterion": "coverage_before_offer",
+      "answer": {
+        "outcome": "pass",
+        "reasoning": "the offered plans follow the coverage check"
+      }
+    },
+    {
+      "judge": "flaky",
+      "key": "6499f2d9f269",
+      "criterion": "coverage_before_offer",
+      "answer": {
+        "outcome": "pass",
+        "reasoning": "the offered plans follow the coverage check"
+      }
+    },
+    {
+      "judge": "flaky",
+      "key": "a33878439aac",
+      "criterion": "coverage_before_offer",
+      "answer": {
+        "outcome": "pass",
+        "reasoning": "the offered plans follow the coverage check"
+      }
+    },
+    {
+      "judge": "flaky",
+      "key": "5eda376a563f",
+      "criterion": "coverage_before_offer",
+      "answer": {
+        "outcome": "pass",
+        "reasoning": "the offered plans follow the coverage check"
+      }
+    },
+    {
+      "judge": "flaky",
+      "key": "a243f3563aa2",
+      "criterion": "coverage_before_offer",
+      "answer": {
+        "outcome": "pass",
+        "reasoning": "the offered plans follow the coverage check"
+      }
+    },
+    {
+      "judge": "flaky",
+      "key": "2d5bdbb03241",
+      "criterion": "coverage_before_offer",
+      "answer": {
+        "outcome": "fail",
+        "reasoning": "Acme Air 5G is offered with no coverage check"
+      }
+    },
+    {
+      "judge": "flaky",
+      "key": "ed8c41ac6e97",
+      "criterion": "coverage_before_offer",
+      "answer": {
+        "outcome": "fail",
+        "reasoning": "Acme Air 5G is offered with no coverage check"
+      }
+    },
+    {
+      "judge": "flaky",
+      "key": "9896f4db8942",
+      "criterion": "coverage_before_offer",
+      "answer": {
+        "outcome": "fail",
+        "reasoning": "Acme Air 5G is offered with no coverage check"
+      }
+    },
+    {
+      "judge": "flaky",
+      "key": "9896f4db8942",
+      "criterion": "coverage_before_offer",
+      "answer": {
+        "outcome": "fail",
+        "reasoning": "Acme Air 5G is offered with no coverage check"
+      }
+    },
+    {
+      "judge": "flaky",
+      "key": "9896f4db8942",
+      "criterion": "coverage_before_offer",
+      "answer": {
+        "outcome": "fail",
+        "reasoning": "Acme Air 5G is offered with no coverage check"
+      }
+    },
+    {
+      "judge": "flaky",
+      "key": "9896f4db8942",
       "criterion": "coverage_before_offer",
       "answer": {
         "outcome": "pass",
@@ -7814,7 +7580,7 @@
     },
     {
       "judge": "flaky",
-      "key": "7d99965ca344",
+      "key": "9896f4db8942",
       "criterion": "coverage_before_offer",
       "answer": {
         "outcome": "fail",
@@ -7823,7 +7589,7 @@
     },
     {
       "judge": "flaky",
-      "key": "93d9be6c750c",
+      "key": "2e03b760bdfb",
       "criterion": "coverage_before_offer",
       "answer": {
         "outcome": "fail",
@@ -7832,7 +7598,7 @@
     },
     {
       "judge": "flaky",
-      "key": "cd0eafa5dbaa",
+      "key": "2e03b760bdfb",
       "criterion": "coverage_before_offer",
       "answer": {
         "outcome": "fail",
@@ -7841,7 +7607,7 @@
     },
     {
       "judge": "flaky",
-      "key": "8726f389e69d",
+      "key": "2e03b760bdfb",
       "criterion": "coverage_before_offer",
       "answer": {
         "outcome": "fail",
@@ -7850,52 +7616,7 @@
     },
     {
       "judge": "flaky",
-      "key": "aa483d7d4c3d",
-      "criterion": "coverage_before_offer",
-      "answer": {
-        "outcome": "fail",
-        "reasoning": "Acme Air 5G is offered with no coverage check"
-      }
-    },
-    {
-      "judge": "flaky",
-      "key": "a724d8a33465",
-      "criterion": "coverage_before_offer",
-      "answer": {
-        "outcome": "fail",
-        "reasoning": "Acme Air 5G is offered with no coverage check"
-      }
-    },
-    {
-      "judge": "flaky",
-      "key": "8d62bafaa102",
-      "criterion": "coverage_before_offer",
-      "answer": {
-        "outcome": "fail",
-        "reasoning": "Acme Air 5G is offered with no coverage check"
-      }
-    },
-    {
-      "judge": "flaky",
-      "key": "8d62bafaa102",
-      "criterion": "coverage_before_offer",
-      "answer": {
-        "outcome": "fail",
-        "reasoning": "Acme Air 5G is offered with no coverage check"
-      }
-    },
-    {
-      "judge": "flaky",
-      "key": "8d62bafaa102",
-      "criterion": "coverage_before_offer",
-      "answer": {
-        "outcome": "fail",
-        "reasoning": "Acme Air 5G is offered with no coverage check"
-      }
-    },
-    {
-      "judge": "flaky",
-      "key": "8d62bafaa102",
+      "key": "2e03b760bdfb",
       "criterion": "coverage_before_offer",
       "answer": {
         "outcome": "pass",
@@ -7904,7 +7625,7 @@
     },
     {
       "judge": "flaky",
-      "key": "8d62bafaa102",
+      "key": "2e03b760bdfb",
       "criterion": "coverage_before_offer",
       "answer": {
         "outcome": "fail",
@@ -7913,7 +7634,7 @@
     },
     {
       "judge": "flaky",
-      "key": "49893d2ff15c",
+      "key": "d4fc29385b05",
       "criterion": "coverage_before_offer",
       "answer": {
         "outcome": "fail",
@@ -7922,7 +7643,7 @@
     },
     {
       "judge": "flaky",
-      "key": "4fcb75a21949",
+      "key": "d4fc29385b05",
       "criterion": "coverage_before_offer",
       "answer": {
         "outcome": "fail",
@@ -7931,7 +7652,7 @@
     },
     {
       "judge": "flaky",
-      "key": "4fcb75a21949",
+      "key": "d4fc29385b05",
       "criterion": "coverage_before_offer",
       "answer": {
         "outcome": "fail",
@@ -7940,16 +7661,7 @@
     },
     {
       "judge": "flaky",
-      "key": "4fcb75a21949",
-      "criterion": "coverage_before_offer",
-      "answer": {
-        "outcome": "fail",
-        "reasoning": "Acme Air 5G is offered with no coverage check"
-      }
-    },
-    {
-      "judge": "flaky",
-      "key": "4fcb75a21949",
+      "key": "d4fc29385b05",
       "criterion": "coverage_before_offer",
       "answer": {
         "outcome": "pass",
@@ -7958,7 +7670,79 @@
     },
     {
       "judge": "flaky",
-      "key": "4fcb75a21949",
+      "key": "d4fc29385b05",
+      "criterion": "coverage_before_offer",
+      "answer": {
+        "outcome": "fail",
+        "reasoning": "Acme Air 5G is offered with no coverage check"
+      }
+    },
+    {
+      "judge": "flaky",
+      "key": "f1900c1d9f59",
+      "criterion": "coverage_before_offer",
+      "answer": {
+        "outcome": "fail",
+        "reasoning": "Acme Air 5G is offered with no coverage check"
+      }
+    },
+    {
+      "judge": "flaky",
+      "key": "f1900c1d9f59",
+      "criterion": "coverage_before_offer",
+      "answer": {
+        "outcome": "fail",
+        "reasoning": "Acme Air 5G is offered with no coverage check"
+      }
+    },
+    {
+      "judge": "flaky",
+      "key": "f1900c1d9f59",
+      "criterion": "coverage_before_offer",
+      "answer": {
+        "outcome": "fail",
+        "reasoning": "Acme Air 5G is offered with no coverage check"
+      }
+    },
+    {
+      "judge": "flaky",
+      "key": "f1900c1d9f59",
+      "criterion": "coverage_before_offer",
+      "answer": {
+        "outcome": "pass",
+        "reasoning": "changed its mind"
+      }
+    },
+    {
+      "judge": "flaky",
+      "key": "f1900c1d9f59",
+      "criterion": "coverage_before_offer",
+      "answer": {
+        "outcome": "fail",
+        "reasoning": "Acme Air 5G is offered with no coverage check"
+      }
+    },
+    {
+      "judge": "flaky",
+      "key": "d87d2eb65e07",
+      "criterion": "coverage_before_offer",
+      "answer": {
+        "outcome": "fail",
+        "reasoning": "Acme Air 5G is offered with no coverage check"
+      }
+    },
+    {
+      "judge": "flaky",
+      "key": "116ff0053277",
+      "criterion": "coverage_before_offer",
+      "answer": {
+        "outcome": "fail",
+        "reasoning": "Acme Air 5G is offered with no coverage check"
+      }
+    },
+    {
+      "judge": "flaky",
+      "key": "2c8e850786dc",
       "criterion": "coverage_before_offer",
       "answer": {
         "outcome": "fail",
@@ -8687,7 +8471,7 @@
     },
     {
       "judge": "flaky",
-      "key": "232ec1f0bb11",
+      "key": "4647ff401b71",
       "criterion": "coverage_before_offer",
       "answer": {
         "outcome": "pass",
@@ -8696,7 +8480,7 @@
     },
     {
       "judge": "flaky",
-      "key": "f7906dccd9ff",
+      "key": "369010edb14f",
       "criterion": "coverage_before_offer",
       "answer": {
         "outcome": "pass",
@@ -8705,7 +8489,7 @@
     },
     {
       "judge": "flaky",
-      "key": "35c013ddddf1",
+      "key": "75d6fc08b8d4",
       "criterion": "coverage_before_offer",
       "answer": {
         "outcome": "pass",
@@ -8714,7 +8498,7 @@
     },
     {
       "judge": "flaky",
-      "key": "8236ad014994",
+      "key": "5b3110e1e6de",
       "criterion": "coverage_before_offer",
       "answer": {
         "outcome": "pass",
@@ -8723,7 +8507,7 @@
     },
     {
       "judge": "flaky",
-      "key": "8236ad014994",
+      "key": "fb49f6bd9f56",
       "criterion": "coverage_before_offer",
       "answer": {
         "outcome": "pass",
@@ -8732,7 +8516,7 @@
     },
     {
       "judge": "flaky",
-      "key": "8236ad014994",
+      "key": "fb49f6bd9f56",
       "criterion": "coverage_before_offer",
       "answer": {
         "outcome": "pass",
@@ -8741,7 +8525,16 @@
     },
     {
       "judge": "flaky",
-      "key": "8236ad014994",
+      "key": "fb49f6bd9f56",
+      "criterion": "coverage_before_offer",
+      "answer": {
+        "outcome": "pass",
+        "reasoning": "the offered plans follow the coverage check"
+      }
+    },
+    {
+      "judge": "flaky",
+      "key": "fb49f6bd9f56",
       "criterion": "coverage_before_offer",
       "answer": {
         "outcome": "fail",
@@ -8750,7 +8543,7 @@
     },
     {
       "judge": "flaky",
-      "key": "8236ad014994",
+      "key": "fb49f6bd9f56",
       "criterion": "coverage_before_offer",
       "answer": {
         "outcome": "pass",
@@ -8759,7 +8552,7 @@
     },
     {
       "judge": "flaky",
-      "key": "65ac1e5a84d0",
+      "key": "e5893e3f66c0",
       "criterion": "coverage_before_offer",
       "answer": {
         "outcome": "pass",
@@ -8768,7 +8561,7 @@
     },
     {
       "judge": "flaky",
-      "key": "abbd463fcc05",
+      "key": "e5893e3f66c0",
       "criterion": "coverage_before_offer",
       "answer": {
         "outcome": "pass",
@@ -8777,7 +8570,7 @@
     },
     {
       "judge": "flaky",
-      "key": "adaa6220faa6",
+      "key": "e5893e3f66c0",
       "criterion": "coverage_before_offer",
       "answer": {
         "outcome": "pass",
@@ -8786,34 +8579,7 @@
     },
     {
       "judge": "flaky",
-      "key": "7222472e2650",
-      "criterion": "coverage_before_offer",
-      "answer": {
-        "outcome": "pass",
-        "reasoning": "the offered plans follow the coverage check"
-      }
-    },
-    {
-      "judge": "flaky",
-      "key": "7222472e2650",
-      "criterion": "coverage_before_offer",
-      "answer": {
-        "outcome": "pass",
-        "reasoning": "the offered plans follow the coverage check"
-      }
-    },
-    {
-      "judge": "flaky",
-      "key": "7222472e2650",
-      "criterion": "coverage_before_offer",
-      "answer": {
-        "outcome": "pass",
-        "reasoning": "the offered plans follow the coverage check"
-      }
-    },
-    {
-      "judge": "flaky",
-      "key": "7222472e2650",
+      "key": "e5893e3f66c0",
       "criterion": "coverage_before_offer",
       "answer": {
         "outcome": "fail",
@@ -8822,7 +8588,7 @@
     },
     {
       "judge": "flaky",
-      "key": "7222472e2650",
+      "key": "e5893e3f66c0",
       "criterion": "coverage_before_offer",
       "answer": {
         "outcome": "pass",
@@ -8831,7 +8597,7 @@
     },
     {
       "judge": "flaky",
-      "key": "e1f243f5144f",
+      "key": "c32ee9788e1a",
       "criterion": "coverage_before_offer",
       "answer": {
         "outcome": "pass",
@@ -8840,7 +8606,7 @@
     },
     {
       "judge": "flaky",
-      "key": "e1f243f5144f",
+      "key": "b8b58312e38a",
       "criterion": "coverage_before_offer",
       "answer": {
         "outcome": "pass",
@@ -8849,7 +8615,7 @@
     },
     {
       "judge": "flaky",
-      "key": "e1f243f5144f",
+      "key": "b98c7112b9e5",
       "criterion": "coverage_before_offer",
       "answer": {
         "outcome": "pass",
@@ -8858,7 +8624,25 @@
     },
     {
       "judge": "flaky",
-      "key": "e1f243f5144f",
+      "key": "b98c7112b9e5",
+      "criterion": "coverage_before_offer",
+      "answer": {
+        "outcome": "pass",
+        "reasoning": "the offered plans follow the coverage check"
+      }
+    },
+    {
+      "judge": "flaky",
+      "key": "b98c7112b9e5",
+      "criterion": "coverage_before_offer",
+      "answer": {
+        "outcome": "pass",
+        "reasoning": "the offered plans follow the coverage check"
+      }
+    },
+    {
+      "judge": "flaky",
+      "key": "b98c7112b9e5",
       "criterion": "coverage_before_offer",
       "answer": {
         "outcome": "fail",
@@ -8867,7 +8651,7 @@
     },
     {
       "judge": "flaky",
-      "key": "e1f243f5144f",
+      "key": "b98c7112b9e5",
       "criterion": "coverage_before_offer",
       "answer": {
         "outcome": "pass",
@@ -8876,7 +8660,7 @@
     },
     {
       "judge": "flaky",
-      "key": "e5e2a224e531",
+      "key": "c54062c68bbc",
       "criterion": "coverage_before_offer",
       "answer": {
         "outcome": "fail",
@@ -8885,7 +8669,7 @@
     },
     {
       "judge": "flaky",
-      "key": "fdf87a59f48b",
+      "key": "528613cdaf9c",
       "criterion": "coverage_before_offer",
       "answer": {
         "outcome": "fail",
@@ -8894,7 +8678,7 @@
     },
     {
       "judge": "flaky",
-      "key": "fdf87a59f48b",
+      "key": "36c14f686efe",
       "criterion": "coverage_before_offer",
       "answer": {
         "outcome": "fail",
@@ -8903,7 +8687,7 @@
     },
     {
       "judge": "flaky",
-      "key": "fdf87a59f48b",
+      "key": "094edd2f902e",
       "criterion": "coverage_before_offer",
       "answer": {
         "outcome": "fail",
@@ -8912,7 +8696,52 @@
     },
     {
       "judge": "flaky",
-      "key": "fdf87a59f48b",
+      "key": "58f4f3502fa1",
+      "criterion": "coverage_before_offer",
+      "answer": {
+        "outcome": "fail",
+        "reasoning": "Acme Fiber 300 is offered with no coverage check"
+      }
+    },
+    {
+      "judge": "flaky",
+      "key": "f1554ff7dbb0",
+      "criterion": "coverage_before_offer",
+      "answer": {
+        "outcome": "fail",
+        "reasoning": "Acme Fiber 300 is offered with no coverage check"
+      }
+    },
+    {
+      "judge": "flaky",
+      "key": "6f9ff78e899e",
+      "criterion": "coverage_before_offer",
+      "answer": {
+        "outcome": "fail",
+        "reasoning": "Acme Fiber 300 is offered with no coverage check"
+      }
+    },
+    {
+      "judge": "flaky",
+      "key": "6f9ff78e899e",
+      "criterion": "coverage_before_offer",
+      "answer": {
+        "outcome": "fail",
+        "reasoning": "Acme Fiber 300 is offered with no coverage check"
+      }
+    },
+    {
+      "judge": "flaky",
+      "key": "6f9ff78e899e",
+      "criterion": "coverage_before_offer",
+      "answer": {
+        "outcome": "fail",
+        "reasoning": "Acme Fiber 300 is offered with no coverage check"
+      }
+    },
+    {
+      "judge": "flaky",
+      "key": "6f9ff78e899e",
       "criterion": "coverage_before_offer",
       "answer": {
         "outcome": "pass",
@@ -8921,7 +8750,7 @@
     },
     {
       "judge": "flaky",
-      "key": "fdf87a59f48b",
+      "key": "6f9ff78e899e",
       "criterion": "coverage_before_offer",
       "answer": {
         "outcome": "fail",
@@ -8930,7 +8759,7 @@
     },
     {
       "judge": "flaky",
-      "key": "06b8e4265335",
+      "key": "3c1c5e4fb62c",
       "criterion": "coverage_before_offer",
       "answer": {
         "outcome": "fail",
@@ -8939,7 +8768,7 @@
     },
     {
       "judge": "flaky",
-      "key": "e469091c990d",
+      "key": "7f0ac11e361c",
       "criterion": "coverage_before_offer",
       "answer": {
         "outcome": "fail",
@@ -8948,7 +8777,7 @@
     },
     {
       "judge": "flaky",
-      "key": "b36b1a8412ad",
+      "key": "7f0ac11e361c",
       "criterion": "coverage_before_offer",
       "answer": {
         "outcome": "fail",
@@ -8957,7 +8786,7 @@
     },
     {
       "judge": "flaky",
-      "key": "90a674e5ffae",
+      "key": "7f0ac11e361c",
       "criterion": "coverage_before_offer",
       "answer": {
         "outcome": "fail",
@@ -8966,34 +8795,7 @@
     },
     {
       "judge": "flaky",
-      "key": "a68fa95b5c12",
-      "criterion": "coverage_before_offer",
-      "answer": {
-        "outcome": "fail",
-        "reasoning": "Acme Fiber 300 is offered with no coverage check"
-      }
-    },
-    {
-      "judge": "flaky",
-      "key": "a68fa95b5c12",
-      "criterion": "coverage_before_offer",
-      "answer": {
-        "outcome": "fail",
-        "reasoning": "Acme Fiber 300 is offered with no coverage check"
-      }
-    },
-    {
-      "judge": "flaky",
-      "key": "a68fa95b5c12",
-      "criterion": "coverage_before_offer",
-      "answer": {
-        "outcome": "fail",
-        "reasoning": "Acme Fiber 300 is offered with no coverage check"
-      }
-    },
-    {
-      "judge": "flaky",
-      "key": "a68fa95b5c12",
+      "key": "7f0ac11e361c",
       "criterion": "coverage_before_offer",
       "answer": {
         "outcome": "pass",
@@ -9002,25 +8804,7 @@
     },
     {
       "judge": "flaky",
-      "key": "a68fa95b5c12",
-      "criterion": "coverage_before_offer",
-      "answer": {
-        "outcome": "fail",
-        "reasoning": "Acme Fiber 300 is offered with no coverage check"
-      }
-    },
-    {
-      "judge": "flaky",
-      "key": "5327d20d054d",
-      "criterion": "coverage_before_offer",
-      "answer": {
-        "outcome": "fail",
-        "reasoning": "Acme Fiber 300 is offered with no coverage check"
-      }
-    },
-    {
-      "judge": "flaky",
-      "key": "c02b2dbfedd0",
+      "key": "7f0ac11e361c",
       "criterion": "coverage_before_offer",
       "answer": {
         "outcome": "fail",
@@ -9785,7 +9569,7 @@
     },
     {
       "judge": "flaky",
-      "key": "4fdc8c55cc96",
+      "key": "b4a5c44879fd",
       "criterion": "coverage_before_offer",
       "answer": {
         "outcome": "pass",
@@ -9794,7 +9578,7 @@
     },
     {
       "judge": "flaky",
-      "key": "3fd5770c611d",
+      "key": "d891bf83834a",
       "criterion": "coverage_before_offer",
       "answer": {
         "outcome": "pass",
@@ -9803,7 +9587,7 @@
     },
     {
       "judge": "flaky",
-      "key": "3fd5770c611d",
+      "key": "4e02ea006765",
       "criterion": "coverage_before_offer",
       "answer": {
         "outcome": "pass",
@@ -9812,7 +9596,7 @@
     },
     {
       "judge": "flaky",
-      "key": "3fd5770c611d",
+      "key": "4e02ea006765",
       "criterion": "coverage_before_offer",
       "answer": {
         "outcome": "pass",
@@ -9821,7 +9605,16 @@
     },
     {
       "judge": "flaky",
-      "key": "3fd5770c611d",
+      "key": "4e02ea006765",
+      "criterion": "coverage_before_offer",
+      "answer": {
+        "outcome": "pass",
+        "reasoning": "the offered plans follow the coverage check"
+      }
+    },
+    {
+      "judge": "flaky",
+      "key": "4e02ea006765",
       "criterion": "coverage_before_offer",
       "answer": {
         "outcome": "fail",
@@ -9830,7 +9623,7 @@
     },
     {
       "judge": "flaky",
-      "key": "3fd5770c611d",
+      "key": "4e02ea006765",
       "criterion": "coverage_before_offer",
       "answer": {
         "outcome": "pass",
@@ -9839,7 +9632,7 @@
     },
     {
       "judge": "flaky",
-      "key": "c10756f00b95",
+      "key": "1716947b398e",
       "criterion": "coverage_before_offer",
       "answer": {
         "outcome": "pass",
@@ -9848,7 +9641,7 @@
     },
     {
       "judge": "flaky",
-      "key": "6d7ba2139087",
+      "key": "c7ea4ee07d4b",
       "criterion": "coverage_before_offer",
       "answer": {
         "outcome": "pass",
@@ -9857,7 +9650,7 @@
     },
     {
       "judge": "flaky",
-      "key": "52f9c8212641",
+      "key": "169e3be2a820",
       "criterion": "coverage_before_offer",
       "answer": {
         "outcome": "pass",
@@ -9866,7 +9659,7 @@
     },
     {
       "judge": "flaky",
-      "key": "404af19a5c4f",
+      "key": "81cfbe3fbf66",
       "criterion": "coverage_before_offer",
       "answer": {
         "outcome": "pass",
@@ -9875,7 +9668,7 @@
     },
     {
       "judge": "flaky",
-      "key": "1c614b1ac6f0",
+      "key": "81cfbe3fbf66",
       "criterion": "coverage_before_offer",
       "answer": {
         "outcome": "pass",
@@ -9884,7 +9677,7 @@
     },
     {
       "judge": "flaky",
-      "key": "1a3601705365",
+      "key": "81cfbe3fbf66",
       "criterion": "coverage_before_offer",
       "answer": {
         "outcome": "pass",
@@ -9893,25 +9686,7 @@
     },
     {
       "judge": "flaky",
-      "key": "1a3601705365",
-      "criterion": "coverage_before_offer",
-      "answer": {
-        "outcome": "pass",
-        "reasoning": "the offered plans follow the coverage check"
-      }
-    },
-    {
-      "judge": "flaky",
-      "key": "1a3601705365",
-      "criterion": "coverage_before_offer",
-      "answer": {
-        "outcome": "pass",
-        "reasoning": "the offered plans follow the coverage check"
-      }
-    },
-    {
-      "judge": "flaky",
-      "key": "1a3601705365",
+      "key": "81cfbe3fbf66",
       "criterion": "coverage_before_offer",
       "answer": {
         "outcome": "fail",
@@ -9920,7 +9695,7 @@
     },
     {
       "judge": "flaky",
-      "key": "1a3601705365",
+      "key": "81cfbe3fbf66",
       "criterion": "coverage_before_offer",
       "answer": {
         "outcome": "pass",
@@ -9929,7 +9704,7 @@
     },
     {
       "judge": "flaky",
-      "key": "3c8b15c1385d",
+      "key": "2d3f3dd8ad63",
       "criterion": "coverage_before_offer",
       "answer": {
         "outcome": "pass",
@@ -9938,7 +9713,16 @@
     },
     {
       "judge": "flaky",
-      "key": "bb470df2e0c3",
+      "key": "64c1f2da8ffe",
+      "criterion": "coverage_before_offer",
+      "answer": {
+        "outcome": "pass",
+        "reasoning": "the offered plans follow the coverage check"
+      }
+    },
+    {
+      "judge": "flaky",
+      "key": "bdb58c961029",
       "criterion": "coverage_before_offer",
       "answer": {
         "outcome": "fail",
@@ -9947,7 +9731,7 @@
     },
     {
       "judge": "flaky",
-      "key": "bb470df2e0c3",
+      "key": "2676eba1c0f2",
       "criterion": "coverage_before_offer",
       "answer": {
         "outcome": "fail",
@@ -9956,7 +9740,7 @@
     },
     {
       "judge": "flaky",
-      "key": "bb470df2e0c3",
+      "key": "18bdd2b9087e",
       "criterion": "coverage_before_offer",
       "answer": {
         "outcome": "fail",
@@ -9965,7 +9749,43 @@
     },
     {
       "judge": "flaky",
-      "key": "bb470df2e0c3",
+      "key": "553e0ac6b4f9",
+      "criterion": "coverage_before_offer",
+      "answer": {
+        "outcome": "fail",
+        "reasoning": "Acme Fiber 300 is offered with no coverage check"
+      }
+    },
+    {
+      "judge": "flaky",
+      "key": "f21ec36ecce9",
+      "criterion": "coverage_before_offer",
+      "answer": {
+        "outcome": "fail",
+        "reasoning": "Acme Fiber 300 is offered with no coverage check"
+      }
+    },
+    {
+      "judge": "flaky",
+      "key": "f21ec36ecce9",
+      "criterion": "coverage_before_offer",
+      "answer": {
+        "outcome": "fail",
+        "reasoning": "Acme Fiber 300 is offered with no coverage check"
+      }
+    },
+    {
+      "judge": "flaky",
+      "key": "f21ec36ecce9",
+      "criterion": "coverage_before_offer",
+      "answer": {
+        "outcome": "fail",
+        "reasoning": "Acme Fiber 300 is offered with no coverage check"
+      }
+    },
+    {
+      "judge": "flaky",
+      "key": "f21ec36ecce9",
       "criterion": "coverage_before_offer",
       "answer": {
         "outcome": "pass",
@@ -9974,7 +9794,7 @@
     },
     {
       "judge": "flaky",
-      "key": "bb470df2e0c3",
+      "key": "f21ec36ecce9",
       "criterion": "coverage_before_offer",
       "answer": {
         "outcome": "fail",
@@ -9983,7 +9803,7 @@
     },
     {
       "judge": "flaky",
-      "key": "772af81cd987",
+      "key": "f5a47b6dcbcf",
       "criterion": "coverage_before_offer",
       "answer": {
         "outcome": "fail",
@@ -9992,7 +9812,7 @@
     },
     {
       "judge": "flaky",
-      "key": "5fac5694b511",
+      "key": "fffd345233b4",
       "criterion": "coverage_before_offer",
       "answer": {
         "outcome": "fail",
@@ -10001,7 +9821,7 @@
     },
     {
       "judge": "flaky",
-      "key": "82247653ba4b",
+      "key": "fffd345233b4",
       "criterion": "coverage_before_offer",
       "answer": {
         "outcome": "fail",
@@ -10010,7 +9830,7 @@
     },
     {
       "judge": "flaky",
-      "key": "d771292800ce",
+      "key": "fffd345233b4",
       "criterion": "coverage_before_offer",
       "answer": {
         "outcome": "fail",
@@ -10019,7 +9839,16 @@
     },
     {
       "judge": "flaky",
-      "key": "d979e515518d",
+      "key": "fffd345233b4",
+      "criterion": "coverage_before_offer",
+      "answer": {
+        "outcome": "pass",
+        "reasoning": "changed its mind"
+      }
+    },
+    {
+      "judge": "flaky",
+      "key": "fffd345233b4",
       "criterion": "coverage_before_offer",
       "answer": {
         "outcome": "fail",
@@ -10028,7 +9857,7 @@
     },
     {
       "judge": "flaky",
-      "key": "5a30621c328a",
+      "key": "c58bf3cdea94",
       "criterion": "coverage_before_offer",
       "answer": {
         "outcome": "fail",
@@ -10037,7 +9866,7 @@
     },
     {
       "judge": "flaky",
-      "key": "1bca3f954f53",
+      "key": "5a28fa932610",
       "criterion": "coverage_before_offer",
       "answer": {
         "outcome": "fail",
@@ -10046,7 +9875,34 @@
     },
     {
       "judge": "flaky",
-      "key": "3e57fdafbbcd",
+      "key": "5a28fa932610",
+      "criterion": "coverage_before_offer",
+      "answer": {
+        "outcome": "fail",
+        "reasoning": "Acme Fiber 300 is offered with no coverage check"
+      }
+    },
+    {
+      "judge": "flaky",
+      "key": "5a28fa932610",
+      "criterion": "coverage_before_offer",
+      "answer": {
+        "outcome": "fail",
+        "reasoning": "Acme Fiber 300 is offered with no coverage check"
+      }
+    },
+    {
+      "judge": "flaky",
+      "key": "5a28fa932610",
+      "criterion": "coverage_before_offer",
+      "answer": {
+        "outcome": "pass",
+        "reasoning": "changed its mind"
+      }
+    },
+    {
+      "judge": "flaky",
+      "key": "5a28fa932610",
       "criterion": "coverage_before_offer",
       "answer": {
         "outcome": "fail",

@@ -279,6 +279,23 @@ export function seederOf(spec: Spec): string {
   return typeof generated?.seeder === 'string' ? generated.seeder : 'hand-written';
 }
 
+/** A block's placement is recorded by the generator, independently of what any agent does. */
+function blockPlacement(spec: Spec, index: number): Pick<BlockRun, 'key' | 'seeder' | 'cell'> {
+  return {
+    key: `${spec.id}#${spec.blocks[index]?.id ?? index}`,
+    seeder: seederOf(spec),
+    cell: {
+      ...((spec.metadata?.generated as { cell?: Record<string, string> } | undefined)?.cell ?? {}),
+      ...blockCell(spec, index),
+    },
+  };
+}
+
+/** Every complete block's cell, including blocks without a machine Then, in runAll order. */
+export function generatedCells(generated: Generation): Array<Pick<BlockRun, 'key' | 'seeder' | 'cell'>> {
+  return generated.complete.flatMap(({ spec }) => spec.blocks.map((_, index) => blockPlacement(spec, index)));
+}
+
 function traceOf(run: RunResult, index: number): string {
   const block = run.blocks.find((entry) => entry.index === index);
   if (!block) return 'the run ended before the block';
@@ -423,19 +440,14 @@ export async function runAll(generated: Generation, parts: GeneratorParts = {}):
     spec.blocks.forEach((block, index) => {
       const deviation = deviationOf(spec, index);
       const run: BlockRun = {
-        key: `${spec.id}#${block.id ?? index}`,
+        ...blockPlacement(spec, index),
         spec: spec.id,
         index,
-        seeder: seederOf(spec),
         fields: thenFields(spec, index),
         ...(deviation === undefined ? {} : { deviation }),
         injected: 'injection' in (block.when ?? {}),
         signature: machineSignature(spec, index),
         when: block.when ? stimulusText(block.when) : '',
-        cell: {
-          ...((spec.metadata?.generated as { cell?: Record<string, string> } | undefined)?.cell ?? {}),
-          ...blockCell(spec, index),
-        },
         tags: [...(spec.tags ?? [])],
         reference: references.map((result) => blockOutcome(result, index)),
         referenceFailing: failingDetails(first, index),
