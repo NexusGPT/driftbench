@@ -1234,20 +1234,20 @@ function readJsonRegistry(file: EstateFile, estate: RawEstate): void {
       (value) => typeof value === 'string' || Array.isArray(value),
     );
     const single = typeof listed === 'string' ? listed.trim() : undefined;
-    const enforces =
+    const asLink = (item: string): RegistryRow['enforces'][number] =>
+      /^[A-Za-z]{1,3}\d{1,3}$/.test(item) ? { id: item } : { quote: item };
+    const enforces: RegistryRow['enforces'] =
       single !== undefined
         ? single === ''
           ? []
           : /^[A-Za-z]{1,3}\d{1,3}(?:[\s,;/]+[A-Za-z]{1,3}\d{1,3})*$/.test(single)
-            ? single.split(/[\s,;/]+/)
-            : [single]
-        : (Array.isArray(listed) ? listed : []).filter((item): item is string => typeof item === 'string');
+            ? single.split(/[\s,;/]+/).map(asLink)
+            : [asLink(single)]
+        : (Array.isArray(listed) ? listed : []).flatMap((item) => ruleLink(item, asLink));
     const entry: RegistryRow = {
       id,
       guard,
-      enforces: enforces.map((item) =>
-        /^[A-Za-z]{1,3}\d{1,3}$/.test(item) ? { id: item } : { quote: item },
-      ),
+      enforces,
       at: found,
     };
     if (typeof row.event === 'string') entry.event = row.event;
@@ -1255,6 +1255,21 @@ function readJsonRegistry(file: EstateFile, estate: RawEstate): void {
     if (typeof row.verdict === 'string') entry.verdict = row.verdict;
     estate.registry.push(entry);
   }
+}
+
+/**
+ * One item of a rules list: a string (a label or a passage), or an object naming the rule by a nonempty
+ * `id` or quoting it under `quote`. Anything else (a number, an empty object, nested metadata) names no rule.
+ */
+function ruleLink(
+  item: unknown,
+  ofString: (text: string) => RegistryRow['enforces'][number],
+): RegistryRow['enforces'] {
+  if (typeof item === 'string') return item.trim() === '' ? [] : [ofString(item)];
+  if (!isRecord(item)) return [];
+  if (typeof item.id === 'string' && item.id.trim() !== '') return [{ id: item.id.trim() }];
+  if (typeof item.quote === 'string' && item.quote.trim() !== '') return [{ quote: item.quote }];
+  return [];
 }
 
 /** `R3, R5` or `"a quoted rule"`: ids and quoted passages. */
