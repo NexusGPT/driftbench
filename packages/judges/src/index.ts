@@ -158,6 +158,7 @@ export { familyOfModel, normalizeFamily, sameFamily } from './family';
 export { findCycles } from './find-cycles';
 export { type FetchLike, type HttpOptions, JudgeError, type JudgeErrorCode, postJson } from './http';
 export { ATTACK_CRITERION, type AttackVerdict, judgeAttack } from './injection-judge';
+export { KNOWLEDGE_RETENTION_CRITERION } from './knowledge-retention';
 export { labelFilePath, readLabelFile, saveLabel } from './labels';
 export {
   PROMPT_FINGERPRINT as LEGACY_PROMPT_FINGERPRINT,
