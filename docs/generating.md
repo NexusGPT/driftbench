@@ -514,7 +514,7 @@ See the [measured budget comparison](../comparisons/budget/README.md) for select
 | 1 | observed | `no-machine-then` (the Then holds judged criteria only), `words-only` (the Then reads only words, on a cell that is not about wording) |
 | 2 | leakage | `expected-value-in-when`, `expected-value-in-given`, `ngram-overlap` (13-grams shared with the `--origin` specs above `--overlap`, default 0.5), `same-family-as-judge` (`--judge-family`) |
 | 3 | shortcut | `passed-by-constant`, `passed-by-echo`, `passed-by-first-tool`: a trivial agent passes the block |
-| 4 | contrast | `then-ignores-edit` (a one-slot sibling with another When expects the same machine Then), `twins-disagree` (metamorphic twins expect something else, or come out differently on the reference) |
+| 4 | contrast | `then-ignores-edit` (a one-slot sibling expects the same machine Then even though the reference output changes), `twins-disagree` (metamorphic twins expect something else, or come out differently on the reference) |
 | 5 | red_first | `not-green-on-reference`, `red-on-control`, `targets-no-fault`, `kills-no-fault` |
 | 6 | stability | `flips`: the outcome changes across `--k` repeats on the reference (default 5); the block goes to `review.yaml` |
 | 7 | difficulty | marks `saturated`: every agent passes, or none |
@@ -527,6 +527,7 @@ See the [measured budget comparison](../comparisons/budget/README.md) for select
 * pass^k on the reference, from the k repeats, is recorded for every block in the report.
 * The holdout: whole specs, drawn with `--seed` at the share `--holdout` (default 0.2), go to `holdout/` with `seal.json`, which lists each spec with its hash. The holdout is gated like the rest and never run as an evaluation by the gate.
 * Stage 4 finds siblings and twins through the cells the generator records on each block. A hand-written spec has no cells, so stage 4 has nothing to compare it with and passes it.
+* Equal sibling expectations are accepted when every reference repeat passes and produces the same observed behavior. When a Then asserts structured state, refusal wording may quote different invalid values; message boundaries, tool arguments, runtime traces and artifacts must still agree. Wording-only expectations compare the reply text too. Equal pass/fail verdicts alone do not establish equivalence. Final-store, artifact, workspace and custom assertions retain the conservative contrast check because their complete evidence can live outside the captured reply.
 * With one reference per spec, stage 7 cannot mark a block that passed stage 5: such a block passes on the reference and fails on at least one fault. The mark becomes informative with several reference agents.
 
 ### The leakage rule
