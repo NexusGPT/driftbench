@@ -10,7 +10,7 @@ import { buildPrompt, canonicalPairOrder, createDialectTransport, judgePairLedge
 import { codeEvidence } from './code-evidence';
 import { contestantById, type PairDecision } from './contestants';
 import { loadBenchmark, type PairItem } from './data';
-import { LedgerBudgetStop, LedgerRateLimitStop, LedgerCalls, transportRetryable, type LedgerCall, type LedgerCompletion } from './rubric-ledger-calls';
+import { LedgerBudgetStop, LedgerRateLimitStop, LedgerPrepaymentStop, LedgerCalls, isPrepaymentRejection, transportRetryable, type LedgerCall, type LedgerCompletion } from './rubric-ledger-calls';
 import { appendRecording, readRecordingRows } from './recording-files';
 
 export const DIRECTORY = 'examples/judge-benchmarks/experiments/ledger-rb';
@@ -25,6 +25,7 @@ export const SETTINGS = {
   rateLimitWaitMs: [60000, 120000, 240000],
   providerBlockPolicy: 'An empty model answer with an explicit provider block/refusal reason is provider-blocked. Any blocked request makes the whole item an error for that contestant in the headline score, identically for ledger and promptfoo. The second score removes an item from both contestants on that model if either was provider-blocked. Nonempty model refusals are ordinary returned answers. Provider blocks are never retried.',
   providerBlockProbe: { id: 'rubric_eval_1008', model: 'gemini-3.8-flash', contestant: 'promptfoo', orders: 2 },
+  prepaymentPolicy: 'HTTP 402 is a proven no-answer rejection: stop dispatch, never retry in that run, release its hold only, and record no judge error. Gemini stays pending until an owner-authorized top-up resume. Other models continue in a separate process from their saved results.',
   stage0: { correctness: false, compute: false }, tiePolicy: 'canonical',
   pricePerMillion: { 'gpt-6-luna': { input: 0.1, cached: 0.01, output: 0.5 },
     'gemini-3.8-flash': { input: 0.75, output: 3.75 } },
@@ -52,6 +53,13 @@ export function classifyProviderBlock(row: DecisionRow, calls: readonly LedgerCa
     !c.text.trim() && Boolean(c.completion?.refusal)).map((c) => c.key);
   return blockedCallKeys.length ? { ...row, providerBlocked: true, blockedCallKeys,
     returnedDecisions: row.returnedDecisions ?? row.decisions, decisions: ['tie', 'tie'], status: 'provider-blocked' } : row;
+}
+
+export function hasUnresolvedPrepayment(row: DecisionRow, calls: readonly LedgerCall[]): boolean {
+  const keys = new Set(row.callKeys);
+  const lastByRequest = new Map<number, LedgerCall>();
+  for (const call of calls) if (keys.has(call.key)) lastByRequest.set(call.identity.ordinal, call);
+  return [...lastByRequest.values()].some(isPrepaymentRejection);
 }
 
 /** Separate provider queues preserve each model's sealed submission order without head-of-line blocking. */
@@ -136,6 +144,7 @@ export async function evaluate(item: PairItem, requirements: readonly RubricItem
         () => raw.complete(request), (completion) => usagePrice(model, completion), !execute);
       callKeys.push(row.key);
       if (row.status === 'ok') return row;
+      if (isPrepaymentRejection(row)) throw new LedgerPrepaymentStop(`HTTP 402 prepayment depleted for ${model}; no judge verdict recorded`);
       if (row.httpStatus === 429 || /answered 429:/.test(row.error ?? '')) {
         const waitMs = SETTINGS.rateLimitWaitMs[attempt];
         if (waitMs === undefined) throw new LedgerRateLimitStop(`HTTP 429 retries exhausted for ${model}; no judge verdict recorded`);
@@ -158,7 +167,7 @@ export async function evaluate(item: PairItem, requirements: readonly RubricItem
           const row = await ask(p); const decision = peer.parsePair!(row.text);
           decisions.push(swapped ? flip(decision) : decision);
         } catch (e) {
-          if (e instanceof LedgerBudgetStop || e instanceof LedgerRateLimitStop || !execute) throw e;
+          if (e instanceof LedgerBudgetStop || e instanceof LedgerRateLimitStop || e instanceof LedgerPrepaymentStop || !execute) throw e;
           decisions.push('tie'); errors.push(e instanceof Error ? e.message : String(e));
         }
       }
@@ -194,7 +203,7 @@ export async function evaluate(item: PairItem, requirements: readonly RubricItem
       detail: { ...result, coreJudgeInvocations: result.calls, calls: callKeys.length,
         contentReaskPolicy: 'Suppressed per owner: returned answers are never retried. Reask trace entries represent cached reparse only.' }, elapsedMs: Date.now() - start };
   } catch (e) {
-    if (e instanceof LedgerBudgetStop || e instanceof LedgerRateLimitStop || !execute) throw e;
+    if (e instanceof LedgerBudgetStop || e instanceof LedgerRateLimitStop || e instanceof LedgerPrepaymentStop || !execute) throw e;
     return { ...base, decisions: ['tie', 'tie'], status: 'transport-error', error: e instanceof Error ? e.message : String(e), elapsedMs: Date.now() - start };
   }
 }
@@ -252,7 +261,7 @@ async function main() {
   type Job = { item: PairItem; phase: string; sample: number; contestant: 'pair-ledger' | 'promptfoo' | 'seat'; model: Model };
   const jobs: Job[] = [];
   const add = (item: PairItem, sample: number, contestants: Job['contestant'][], subphase = phase!) => {
-    for (const model of models) for (const contestant of contestants) jobs.push({ item, phase: subphase, sample, contestant, model });
+    for (const model of phase === 'test' ? MODELS : models) for (const contestant of contestants) jobs.push({ item, phase: subphase, sample, contestant, model });
   };
   if (phase === 'validity') for (const item of validityFixtures()) for (const [name, variant] of Object.entries(variants(item))) add(variant, 0, ['pair-ledger'], `validity-${name}`);
   else if (phase === 'fixtures') for (const fixture of plan.fixtures) if (fixture.availableDevPairs >= 6)
@@ -267,8 +276,9 @@ async function main() {
   const transports = new Map(await Promise.all(models.map(async (m) => [m, await transport(m, execute)] as const)));
   const resultPath = `${DIRECTORY}/decisions-${phase}.jsonl`;
   const prior = latestDecisions(await readRecordingRows<DecisionRow>(resultPath));
-  const done = new Set(prior.filter((r) => r.status !== 'transport-error').map(decisionKey)); let completed = 0, stopped = false;
-  const todo = jobs.filter((j) => !done.has(decisionKey({ ...j, id: j.item.id })));
+  const done = new Set(prior.filter((r) => models.includes(r.model) && r.status !== 'transport-error' && !hasUnresolvedPrepayment(r, calls.rows)).map(decisionKey)); let completed = 0, stopped = false;
+  const selectedJobs = jobs.filter((j) => models.includes(j.model));
+  const todo = selectedJobs.filter((j) => !done.has(decisionKey({ ...j, id: j.item.id })));
   let writes = Promise.resolve();
   process.once('SIGUSR2', () => { stopped = true; console.error('Stop requested; draining in-flight work'); });
   await scheduleModels(todo, SETTINGS.modelConcurrency, async (job) => {
@@ -277,7 +287,7 @@ async function main() {
         const row = classifyProviderBlock(await evaluate(job.item, requirements, job.model, job.phase, job.sample, job.contestant, transports.get(job.model)!, calls, execute), calls.rows);
         writes = writes.then(() => appendRecording(resultPath, row)); await writes;
         completed++;
-        console.log(JSON.stringify({ phase, model: job.model, contestant: job.contestant, completed: done.size + completed, target: jobs.length, chargedUsd: calls.chargedUsd, status: row.status }));
+        console.log(JSON.stringify({ phase, model: job.model, contestant: job.contestant, completed: done.size + completed, target: selectedJobs.length, chargedUsd: calls.chargedUsd, status: row.status }));
       } catch (e) { stopped = true; console.error(e instanceof Error ? e.message : String(e)); }
   }, () => stopped);
   await writes;
@@ -288,7 +298,7 @@ async function main() {
       contestant: row.contestant, sample: row.sample, recordIndex }] : [];
   });
   await writeFile(`${DIRECTORY}/ordered-${phase}.json`, `${JSON.stringify(ordered, null, 2)}\n`);
-  console.log(JSON.stringify({ phase, complete: !stopped, added: completed, prior: done.size, target: jobs.length, chargedUsd: calls.chargedUsd }));
+  console.log(JSON.stringify({ phase, complete: !stopped, added: completed, prior: done.size, target: selectedJobs.length, chargedUsd: calls.chargedUsd }));
   if (stopped) process.exitCode = 2;
 }
 if (process.argv[1] && import.meta.url === pathToFileURL(resolve(process.argv[1])).href)

@@ -42,10 +42,14 @@ export type LedgerCall = {
   retryable?: boolean;
   httpStatus?: number;
   retryAfterMs?: number;
+  reservationReleasedUsd?: number;
 };
 export class LedgerBudgetStop extends Error {}
 export class LedgerRateLimitStop extends Error {}
+export class LedgerPrepaymentStop extends Error {}
 export class LedgerUncertainCall extends Error {}
+export const isPrepaymentRejection = (row: Pick<LedgerCall, 'status' | 'httpStatus' | 'error'>): boolean =>
+  row.status === 'error' && (row.httpStatus === 402 || /answered 402:/.test(row.error ?? ''));
 /** Includes the core's saved network-error text from journals written before retryable was recorded. */
 export const transportRetryable = (row: { retryable?: boolean; error?: string }): boolean =>
   row.retryable ?? /fetch failed|could not be reached|timed? ?out|past \d+ ms|ECONNRESET|ECONNREFUSED|ENOTFOUND/i.test(row.error ?? '');
@@ -71,7 +75,10 @@ export class LedgerCalls {
       const call = row as LedgerCall;
       if (this.completed.has(call.key)) throw new Error(`Duplicate completion: ${call.key}`);
       if (!this.started.has(call.key)) throw new Error(`Completion without reservation: ${call.key}`);
-      this.completed.set(call.key, call);
+      // Preserve the raw journal. Only an explicit HTTP 402 releases a prior hold.
+      this.completed.set(call.key, isPrepaymentRejection(call)
+        ? { ...call, costUsd: 0, costBasis: 'no-answer', reservationReleasedUsd: call.costUsd }
+        : call);
     }
     return this;
   }
@@ -145,8 +152,9 @@ export class LedgerCalls {
       const retryAfterMs = (e as { retryAfterMs?: number }).retryAfterMs;
       const retryable = (e as { retryable?: boolean }).retryable === true ||
         code === 'network' || transportRetryable({ error: reason }) || /claude returned an error result|without a JSON result/i.test(reason);
-      row = { key, model: identity.model, text: '', costUsd: httpStatus === 429 ? 0 : reserveUsd, item: identity.item,
-        contestant: identity.contestant, status: 'error', costBasis: httpStatus === 429 ? 'no-answer' : 'reservation', identity,
+      const rejected = httpStatus === 429 || httpStatus === 402;
+      row = { key, model: identity.model, text: '', costUsd: rejected ? 0 : reserveUsd, item: identity.item,
+        contestant: identity.contestant, status: 'error', costBasis: rejected ? 'no-answer' : 'reservation', identity,
         error: reason, retryable, ...(httpStatus === undefined ? {} : { httpStatus }),
         ...(retryAfterMs === undefined ? {} : { retryAfterMs }) };
     }

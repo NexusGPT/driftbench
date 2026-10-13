@@ -1,4 +1,4 @@
-import { appendFile } from 'node:fs/promises';
+import { appendFile, readFile } from 'node:fs/promises';
 import { join } from 'node:path';
 import { describe, expect, it } from 'vitest';
 import { LedgerBudgetStop, LedgerCalls, transportRetryable, type CallIdentity } from '../src/rubric-ledger-calls';
@@ -9,6 +9,18 @@ const identity: CallIdentity = { model: 'fake', phase: 'pilot', item: 'p1', cont
 const reply = { text: 'answer', raw: '{}', fingerprint: 'test', costUsd: 0.02 };
 
 describe('paid-call reservations and replay', () => {
+  it('releases only proven 402 holds while retaining the raw rejection and unknown holds', async () => {
+    const dir = await scratch('ledger-prepayment-');
+    for (const [key, httpStatus] of [['rejected', 402], ['unknown', 503]] as const) {
+      await appendFile(join(dir, 'starts.jsonl'), `${JSON.stringify({ key, reserveUsd: .1, identity, startedAt: 'fixture' })}\n`);
+      await appendFile(join(dir, 'calls.jsonl'), `${JSON.stringify({ key, identity, status: 'error', httpStatus, text: '', costUsd: .1, costBasis: 'reservation' })}\n`);
+    }
+    const store = await new LedgerCalls(dir, 1).load();
+    expect(store.chargedUsd).toBeCloseTo(.1);
+    expect(store.rows.find((r) => r.key === 'rejected')).toMatchObject({ costUsd: 0, costBasis: 'no-answer', reservationReleasedUsd: .1 });
+    expect(store.rows.find((r) => r.key === 'unknown')).toMatchObject({ costUsd: .1, costBasis: 'reservation' });
+    expect(JSON.parse((await readFile(join(dir, 'calls.jsonl'), 'utf8')).split('\n')[0]!).costUsd).toBe(.1);
+  });
   it('recognizes legacy recorded network failures without treating provider rejection as transport', () => {
     expect(transportRetryable({ error: 'https://api.openai.com/v1/chat/completions could not be reached (TypeError)' })).toBe(true);
     expect(transportRetryable({ error: 'HTTP 400 invalid schema' })).toBe(false);

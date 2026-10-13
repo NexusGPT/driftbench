@@ -2,10 +2,28 @@ import { mkdtemp } from 'node:fs/promises';
 import { resolve } from 'node:path';
 import { describe, expect, test } from 'vitest';
 import { type DialectTransport } from '@agent-nexus/driftbench-judges';
-import { LedgerCalls, LedgerRateLimitStop, type LedgerCall } from '../src/rubric-ledger-calls';
-import { classifyProviderBlock, evaluate, mapped, scheduleModels, usagePrice, validityFixtures, variants, type DecisionRow } from '../src/rubric-ledger-live';
+import { LedgerCalls, LedgerRateLimitStop, LedgerPrepaymentStop, type LedgerCall } from '../src/rubric-ledger-calls';
+import { classifyProviderBlock, hasUnresolvedPrepayment, evaluate, mapped, scheduleModels, usagePrice, validityFixtures, variants, type DecisionRow } from '../src/rubric-ledger-live';
 
 describe('live pair-ledger harness', () => {
+  test('402 stops without a retry, charge or judge verdict', async () => {
+    const root = await mkdtemp(resolve('.cache/ledger-rb/test-live-'));
+    const calls = await new LedgerCalls(root, 1).load(); let count = 0;
+    const fake: DialectTransport = { dialect: 'scratchpad-json', fingerprint: 'prepayment-test',
+      async complete() { count++; throw Object.assign(new Error('prepayment credits depleted'), { status: 402 }); } };
+    const item = validityFixtures()[0]!;
+    await expect(evaluate(item, [{ name: 'rb_1', rubric: item.criterion! }], 'gemini-3.8-flash', '402-test', 0,
+      'promptfoo', fake, calls, true)).rejects.toBeInstanceOf(LedgerPrepaymentStop);
+    expect(count).toBe(1); expect(calls.chargedUsd).toBe(0);
+  });
+  test('unresolved 402 records stay outside scores until that request returns an answer', () => {
+    const calls = [
+      { key: 'rejected', status: 'error', httpStatus: 402, identity: { ordinal: 0 } },
+      { key: 'answered', status: 'ok', identity: { ordinal: 0 } },
+    ] as LedgerCall[];
+    expect(hasUnresolvedPrepayment({ callKeys: ['rejected'] } as DecisionRow, calls)).toBe(true);
+    expect(hasUnresolvedPrepayment({ callKeys: ['rejected', 'answered'] } as DecisionRow, calls)).toBe(false);
+  });
   test('provider blocks make the entire item wrong for either contestant, retaining returned decisions', () => {
     const calls = [{ key: 'blocked', status: 'ok', text: '', completion: { refusal: 'PROHIBITED_CONTENT' } },
       { key: 'answer', status: 'ok', text: 'I cannot comply.', completion: { refusal: 'text-refusal' } }] as LedgerCall[];

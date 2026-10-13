@@ -37,6 +37,7 @@
       "contestant": "promptfoo",
       "orders": 2
     },
+    "prepaymentPolicy": "HTTP 402 is a proven no-answer rejection: stop dispatch, never retry in that run, release its hold only, and record no judge error. Gemini stays pending until an owner-authorized top-up resume. Other models continue in a separate process from their saved results.",
     "stage0": {
       "correctness": false,
       "compute": false
@@ -59,11 +60,11 @@
     "retryPolicy": "Owner amendment: at most three ordinary transport attempts, 300-second timeout. HTTP 429 is no answer: wait 60, 120, then 240 seconds before retrying; after exhaustion stop incomplete without a judge verdict. Never retry a returned answer, including unparsed answers. Core schema reasks are suppressed. Unknown failed or interrupted attempts retain their reservations; confirmed 429 attempts cost zero."
   },
   "hashes": {
-    "examples/judge-benchmarks/src/rubric-ledger-live.ts": "f0d23c81d49c983c6e01dd0b911680a7054cd17adf1a84ebf623b5228a5b589c",
-    "examples/judge-benchmarks/src/rubric-ledger-calls.ts": "42741beb2a7a7ff474ac3ff7d001ffef1834a79980cd31eca3f28f2b38bf2d6e",
+    "examples/judge-benchmarks/src/rubric-ledger-live.ts": "52a9520d1c9b4def939c18ececa9c2f21b4edffbebd1e87b5f13803f97c176f5",
+    "examples/judge-benchmarks/src/rubric-ledger-calls.ts": "ec2d7b31aa24af545f28e0eaac18d0de43bfe54f722affcf9a60b0d4b48c1aaa",
     "examples/judge-benchmarks/src/rubric-ledger-stats.ts": "2196e3bbb140b9ac2d3e4f9307945117fd92f698719ee3086d5b1d82022120d6",
     "examples/judge-benchmarks/src/contestants.ts": "8526f07c34720791108417e68f7848fcf5f6e7c0d3eaef1ece136b1ff6f3bca0",
-    "examples/judge-benchmarks/src/rubric-ledger-report.ts": "bca4987e76b98bc4328e7a5998b8e52f11a6251ba14efa8ed301ef1d50ebc62f",
+    "examples/judge-benchmarks/src/rubric-ledger-report.ts": "a0d8254a0f409b2501880bda43640a846ee8e9614a8f38c7c4127dde2c032fb9",
     "examples/judge-benchmarks/src/code-evidence.ts": "7552ea80f292ca33c292142910b2556094a19cf44d7d85942a2de98f92bc0929",
     "examples/judge-benchmarks/src/data.ts": "0ad8c198e952608eb0c3959c6147d98e07253265b72e196d270ddff57ebfdc00",
     "examples/judge-benchmarks/src/rubric-items.ts": "b23fcd163c36d9d01e2ddbb669f0b746eca70f22d1cfc7cfcfde744db9aefe6a",

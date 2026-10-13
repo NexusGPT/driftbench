@@ -1,5 +1,5 @@
 {
-  "createdAt": "2026-10-13T09:29:22.290Z",
+  "createdAt": "2026-10-13T09:39:02.200Z",
   "settings": {
     "coreCommit": "35f07309a4d1d1c8a7c5b176ff19e537d0ef8fdd",
     "corePr": 168,
@@ -38,6 +38,7 @@
       "contestant": "promptfoo",
       "orders": 2
     },
+    "prepaymentPolicy": "HTTP 402 is a proven no-answer rejection: stop dispatch, never retry in that run, release its hold only, and record no judge error. Gemini stays pending until an owner-authorized top-up resume. Other models continue in a separate process from their saved results.",
     "stage0": {
       "correctness": false,
       "compute": false
@@ -105,44 +106,100 @@
       ]
     }
   ],
-  "chargedUsd": 7.039195819999996,
+  "chargedUsd": 7.092283459999996,
+  "prepaymentRejections": 369,
+  "releasedPrepaymentHoldsUsd": 36.900000000000254,
   "uncertainCalls": 0,
-  "uniqueCalls": 2013,
-  "knownCostUsd": 5.2391958199999955,
+  "uniqueCalls": 2454,
+  "knownCostUsd": 5.292283459999996,
   "reservedUnknownUsd": 1.8000000000000005,
   "cells": [
     {
       "model": "claude-haiku-5-5",
       "coverage": {
-        "matchedPairs": 0,
+        "matchedPairs": 3,
         "target": 790,
         "complete": false
       },
-      "stats": null,
+      "stats": {
+        "pairs": 3,
+        "games": 6,
+        "wins": 3,
+        "losses": 0,
+        "bothRight": 3,
+        "bothWrong": 0,
+        "ours": {
+          "correct": 6,
+          "estimate": 1,
+          "lower": 0.6096657120978346,
+          "upper": 1
+        },
+        "peer": {
+          "correct": 3,
+          "estimate": 0.5,
+          "lower": 0.18761630648265054,
+          "upper": 0.8123836935173494
+        },
+        "difference": 0.5,
+        "differencePairBootstrap95": [
+          0,
+          1
+        ],
+        "gameMcNemarP": 0.25000000000000006,
+        "gamePBonferroni18UpperBound": 1,
+        "holmP": null,
+        "holmStatus": "pending complete 18-cell matrix; Bonferroni value is a bound, not Holm",
+        "pairSensitivity": {
+          "wins": 2,
+          "losses": 0,
+          "p": 0.5
+        },
+        "power": {
+          "units": 6,
+          "discordant": 3,
+          "discordanceShare": 0.5,
+          "winShare": 1,
+          "alpha": 0.002777777777777778,
+          "targetPower": 0.8,
+          "neededDiscordant": 9,
+          "neededUnits": 18
+        },
+        "pairSensitivityPower": {
+          "units": 3,
+          "discordant": 2,
+          "discordanceShare": 0.6666666666666666,
+          "winShare": 1,
+          "alpha": 0.002777777777777778,
+          "targetPower": 0.8,
+          "neededDiscordant": 9,
+          "neededUnits": 14
+        },
+        "caveat": "Game Wilson and McNemar treat orders as independent. Canonical games share one judgment. Pair bootstrap and pair sign sensitivity retain dependence."
+      },
       "costs": {
         "pair-ledger": {
-          "calls": 0,
-          "costUsd": 0,
-          "reportedOrUsageUsd": 0,
+          "calls": 8,
+          "costUsd": 0.01639014,
+          "reportedOrUsageUsd": 0.01639014,
           "reservedUnknownUsd": 0,
           "transportErrors": 0,
           "rateLimits": 0,
-          "pairs": 0,
-          "per100GamesUsd": null,
+          "pairs": 4,
+          "per100GamesUsd": 0.20487675000000002,
           "unparsedOrError": 0,
           "providerBlockedPairs": 0,
           "providerBlockedCalls": 0,
           "tiesOrMissing": 0
         },
         "promptfoo": {
-          "calls": 0,
-          "costUsd": 0,
-          "reportedOrUsageUsd": 0,
+          "calls": 6,
+          "costUsd": 0.0036101,
+          "reportedOrUsageUsd": 0.0036101,
           "reservedUnknownUsd": 0,
           "transportErrors": 0,
           "rateLimits": 0,
-          "pairs": 0,
-          "per100GamesUsd": null,
+          "pairs": 3,
+          "per100GamesUsd": 0.06016833333333334,
           "unparsedOrError": 0,
           "providerBlockedPairs": 0,
           "providerBlockedCalls": 0,
@@ -150,12 +207,66 @@
         }
       },
       "providerBlockExcluded": {
-        "matchedPairs": 0,
+        "matchedPairs": 3,
         "excludedPairs": 0,
         "ledgerOnly": 0,
         "promptfooOnly": 0,
         "both": 0,
-        "stats": null,
+        "stats": {
+          "pairs": 3,
+          "games": 6,
+          "wins": 3,
+          "losses": 0,
+          "bothRight": 3,
+          "bothWrong": 0,
+          "ours": {
+            "correct": 6,
+            "estimate": 1,
+            "lower": 0.6096657120978346,
+            "upper": 1
+          },
+          "peer": {
+            "correct": 3,
+            "estimate": 0.5,
+            "lower": 0.18761630648265054,
+            "upper": 0.8123836935173494
+          },
+          "difference": 0.5,
+          "differencePairBootstrap95": [
+            0,
+            1
+          ],
+          "gameMcNemarP": 0.25000000000000006,
+          "gamePBonferroni18UpperBound": 1,
+          "holmP": null,
+          "holmStatus": "pending complete 18-cell matrix; Bonferroni value is a bound, not Holm",
+          "pairSensitivity": {
+            "wins": 2,
+            "losses": 0,
+            "p": 0.5
+          },
+          "power": {
+            "units": 6,
+            "discordant": 3,
+            "discordanceShare": 0.5,
+            "winShare": 1,
+            "alpha": 0.002777777777777778,
+            "targetPower": 0.8,
+            "neededDiscordant": 9,
+            "neededUnits": 18
+          },
+          "pairSensitivityPower": {
+            "units": 3,
+            "discordant": 2,
+            "discordanceShare": 0.6666666666666666,
+            "winShare": 1,
+            "alpha": 0.002777777777777778,
+            "targetPower": 0.8,
+            "neededDiscordant": 9,
+            "neededUnits": 14
+          },
+          "caveat": "Game Wilson and McNemar treat orders as independent. Canonical games share one judgment. Pair bootstrap and pair sign sensitivity retain dependence."
+        },
         "status": "Secondary score on the identical, model-specific unblocked item intersection; headline verdict and 18-cell correction use all sealed items."
       },
       "baseOnlyIneligibleTotal": {
@@ -195,7 +306,7 @@
           "rubric_eval_998"
         ]
       },
-      "baseRoutedMeasured": 0,
+      "baseRoutedMeasured": 4,
       "earnedRoutedMeasured": 0,
       "gates": {
         "model": "claude-haiku-5-5",
@@ -496,35 +607,89 @@
     {
       "model": "gpt-6-luna",
       "coverage": {
-        "matchedPairs": 0,
+        "matchedPairs": 14,
         "target": 790,
         "complete": false
       },
-      "stats": null,
+      "stats": {
+        "pairs": 14,
+        "games": 28,
+        "wins": 0,
+        "losses": 2,
+        "bothRight": 20,
+        "bothWrong": 6,
+        "ours": {
+          "correct": 20,
+          "estimate": 0.7142857142857143,
+          "lower": 0.5294071156670428,
+          "upper": 0.8474600394333092
+        },
+        "peer": {
+          "correct": 22,
+          "estimate": 0.7857142857142857,
+          "lower": 0.6046141434627812,
+          "upper": 0.8978753966710211
+        },
+        "difference": -0.07142857142857142,
+        "differencePairBootstrap95": [
+          -0.21428571428571427,
+          0
+        ],
+        "gameMcNemarP": 0.5,
+        "gamePBonferroni18UpperBound": 1,
+        "holmP": null,
+        "holmStatus": "pending complete 18-cell matrix; Bonferroni value is a bound, not Holm",
+        "pairSensitivity": {
+          "wins": 0,
+          "losses": 1,
+          "p": 1
+        },
+        "power": {
+          "units": 28,
+          "discordant": 2,
+          "discordanceShare": 0.07142857142857142,
+          "winShare": 0,
+          "alpha": 0.002777777777777778,
+          "targetPower": 0.8,
+          "neededDiscordant": 9,
+          "neededUnits": 126
+        },
+        "pairSensitivityPower": {
+          "units": 14,
+          "discordant": 1,
+          "discordanceShare": 0.07142857142857142,
+          "winShare": 0,
+          "alpha": 0.002777777777777778,
+          "targetPower": 0.8,
+          "neededDiscordant": 9,
+          "neededUnits": 126
+        },
+        "caveat": "Game Wilson and McNemar treat orders as independent. Canonical games share one judgment. Pair bootstrap and pair sign sensitivity retain dependence."
+      },
       "costs": {
         "pair-ledger": {
-          "calls": 0,
-          "costUsd": 0,
-          "reportedOrUsageUsd": 0,
+          "calls": 30,
+          "costUsd": 0.027874299999999998,
+          "reportedOrUsageUsd": 0.027874299999999998,
           "reservedUnknownUsd": 0,
           "transportErrors": 0,
           "rateLimits": 0,
-          "pairs": 0,
-          "per100GamesUsd": null,
-          "unparsedOrError": 0,
+          "pairs": 15,
+          "per100GamesUsd": 0.09291433333333332,
+          "unparsedOrError": 1,
           "providerBlockedPairs": 0,
           "providerBlockedCalls": 0,
-          "tiesOrMissing": 0
+          "tiesOrMissing": 1
         },
         "promptfoo": {
-          "calls": 0,
-          "costUsd": 0,
-          "reportedOrUsageUsd": 0,
+          "calls": 28,
+          "costUsd": 0.0052131,
+          "reportedOrUsageUsd": 0.0052131,
           "reservedUnknownUsd": 0,
           "transportErrors": 0,
           "rateLimits": 0,
-          "pairs": 0,
-          "per100GamesUsd": null,
+          "pairs": 14,
+          "per100GamesUsd": 0.018618214285714287,
           "unparsedOrError": 0,
           "providerBlockedPairs": 0,
           "providerBlockedCalls": 0,
@@ -532,12 +697,66 @@
         }
       },
       "providerBlockExcluded": {
-        "matchedPairs": 0,
+        "matchedPairs": 14,
         "excludedPairs": 0,
         "ledgerOnly": 0,
         "promptfooOnly": 0,
         "both": 0,
-        "stats": null,
+        "stats": {
+          "pairs": 14,
+          "games": 28,
+          "wins": 0,
+          "losses": 2,
+          "bothRight": 20,
+          "bothWrong": 6,
+          "ours": {
+            "correct": 20,
+            "estimate": 0.7142857142857143,
+            "lower": 0.5294071156670428,
+            "upper": 0.8474600394333092
+          },
+          "peer": {
+            "correct": 22,
+            "estimate": 0.7857142857142857,
+            "lower": 0.6046141434627812,
+            "upper": 0.8978753966710211
+          },
+          "difference": -0.07142857142857142,
+          "differencePairBootstrap95": [
+            -0.21428571428571427,
+            0
+          ],
+          "gameMcNemarP": 0.5,
+          "gamePBonferroni18UpperBound": 1,
+          "holmP": null,
+          "holmStatus": "pending complete 18-cell matrix; Bonferroni value is a bound, not Holm",
+          "pairSensitivity": {
+            "wins": 0,
+            "losses": 1,
+            "p": 1
+          },
+          "power": {
+            "units": 28,
+            "discordant": 2,
+            "discordanceShare": 0.07142857142857142,
+            "winShare": 0,
+            "alpha": 0.002777777777777778,
+            "targetPower": 0.8,
+            "neededDiscordant": 9,
+            "neededUnits": 126
+          },
+          "pairSensitivityPower": {
+            "units": 14,
+            "discordant": 1,
+            "discordanceShare": 0.07142857142857142,
+            "winShare": 0,
+            "alpha": 0.002777777777777778,
+            "targetPower": 0.8,
+            "neededDiscordant": 9,
+            "neededUnits": 126
+          },
+          "caveat": "Game Wilson and McNemar treat orders as independent. Canonical games share one judgment. Pair bootstrap and pair sign sensitivity retain dependence."
+        },
         "status": "Secondary score on the identical, model-specific unblocked item intersection; headline verdict and 18-cell correction use all sealed items."
       },
       "baseOnlyIneligibleTotal": {
@@ -577,8 +796,8 @@
           "rubric_eval_998"
         ]
       },
-      "baseRoutedMeasured": 0,
-      "earnedRoutedMeasured": 0,
+      "baseRoutedMeasured": 14,
+      "earnedRoutedMeasured": 1,
       "gates": {
         "model": "gpt-6-luna",
         "allowTest": true,

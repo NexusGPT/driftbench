@@ -1,8 +1,8 @@
 import { readFile, writeFile } from 'node:fs/promises';
 import { pathToFileURL } from 'node:url';
 import { resolve } from 'node:path';
-import { DIRECTORY, MODELS, SETTINGS, classifyProviderBlock, decisionKey, latestDecisions, validityFixtures, type DecisionRow } from './rubric-ledger-live';
-import { LedgerCalls } from './rubric-ledger-calls';
+import { DIRECTORY, MODELS, SETTINGS, classifyProviderBlock, hasUnresolvedPrepayment, decisionKey, latestDecisions, validityFixtures, type DecisionRow } from './rubric-ledger-live';
+import { LedgerCalls, isPrepaymentRejection } from './rubric-ledger-calls';
 import { readRecordingRows } from './recording-files';
 import { pairedStatistics, type PairedGames } from './rubric-ledger-stats';
 
@@ -28,7 +28,8 @@ export async function report() {
   const plan = JSON.parse(await readFile(`${DIRECTORY}/development-plan.json`, 'utf8'));
   const calls = await new LedgerCalls(`${DIRECTORY}/live`, SETTINGS.capUsd).load();
   const data: Record<string, DecisionRow[]> = Object.fromEntries(await Promise.all(['pilot', 'fixtures', 'noise', 'validity', 'provider-probe', 'test'].map(async (phase) => {
-    const rows = latestDecisions(await readRecordingRows<DecisionRow>(`${DIRECTORY}/decisions-${phase}.jsonl`)).map((r) => classifyProviderBlock(r, calls.rows));
+    const rows = latestDecisions(await readRecordingRows<DecisionRow>(`${DIRECTORY}/decisions-${phase}.jsonl`))
+      .filter((r) => !hasUnresolvedPrepayment(r, calls.rows)).map((r) => classifyProviderBlock(r, calls.rows));
     try {
       const ordered: (DecisionRow & { recordIndex: number })[] = JSON.parse(await readFile(`${DIRECTORY}/ordered-${phase}.json`, 'utf8'));
       const rank = new Map(ordered.map((r) => [decisionKey(r), r.recordIndex]));
@@ -42,7 +43,7 @@ export async function report() {
     return { calls: paid.length, costUsd: paid.reduce((s, r) => s + r.costUsd, 0),
       reportedOrUsageUsd: paid.filter((r) => r.costBasis !== 'reservation').reduce((s, r) => s + r.costUsd, 0),
       reservedUnknownUsd: paid.filter((r) => r.costBasis === 'reservation').reduce((s, r) => s + r.costUsd, 0),
-      transportErrors: paid.filter((r) => r.status === 'error' && r.httpStatus !== 429).length,
+      transportErrors: paid.filter((r) => r.status === 'error' && r.httpStatus !== 429 && !isPrepaymentRejection(r)).length,
       rateLimits: paid.filter((r) => r.httpStatus === 429).length };
   };
   const cells = [];
@@ -137,6 +138,8 @@ export async function report() {
     .map((r) => ({ contestant: r.contestant, sample: r.sample, providerBlocked: Boolean(r.providerBlocked), status: r.status,
       blockedCalls: r.blockedCallKeys?.length ?? 0, callKeys: r.callKeys }));
   const summary = { createdAt: new Date().toISOString(), settings: SETTINGS, providerBlockProbe, chargedUsd: calls.chargedUsd,
+    prepaymentRejections: calls.rows.filter(isPrepaymentRejection).length,
+    releasedPrepaymentHoldsUsd: calls.rows.reduce((s, r) => s + (r.reservationReleasedUsd ?? 0), 0),
     uncertainCalls: calls.uncertainKeys.length, uniqueCalls: calls.rows.length,
     knownCostUsd: calls.rows.filter((r) => r.costBasis !== 'reservation').reduce((s, r) => s + r.costUsd, 0),
     reservedUnknownUsd: calls.rows.filter((r) => r.costBasis === 'reservation').reduce((s, r) => s + r.costUsd, 0), cells };

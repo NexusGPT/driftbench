@@ -1,0 +1,2258 @@
+[
+  {
+    "model": "claude-haiku-5-5",
+    "phase": "test",
+    "id": "rubric_eval_14",
+    "contestant": "pair-ledger",
+    "sample": 0,
+    "recordIndex": 0
+  },
+  {
+    "model": "claude-haiku-5-5",
+    "phase": "test",
+    "id": "rubric_eval_14",
+    "contestant": "promptfoo",
+    "sample": 0,
+    "recordIndex": 1
+  },
+  {
+    "model": "gpt-6-luna",
+    "phase": "test",
+    "id": "rubric_eval_14",
+    "contestant": "pair-ledger",
+    "sample": 0,
+    "recordIndex": 2
+  },
+  {
+    "model": "gpt-6-luna",
+    "phase": "test",
+    "id": "rubric_eval_14",
+    "contestant": "promptfoo",
+    "sample": 0,
+    "recordIndex": 3
+  },
+  {
+    "model": "gemini-3.8-flash",
+    "phase": "test",
+    "id": "rubric_eval_14",
+    "contestant": "pair-ledger",
+    "sample": 0,
+    "recordIndex": 4
+  },
+  {
+    "model": "gemini-3.8-flash",
+    "phase": "test",
+    "id": "rubric_eval_14",
+    "contestant": "promptfoo",
+    "sample": 0,
+    "recordIndex": 5
+  },
+  {
+    "model": "claude-haiku-5-5",
+    "phase": "test",
+    "id": "rubric_eval_947",
+    "contestant": "pair-ledger",
+    "sample": 0,
+    "recordIndex": 6
+  },
+  {
+    "model": "claude-haiku-5-5",
+    "phase": "test",
+    "id": "rubric_eval_947",
+    "contestant": "promptfoo",
+    "sample": 0,
+    "recordIndex": 7
+  },
+  {
+    "model": "gpt-6-luna",
+    "phase": "test",
+    "id": "rubric_eval_947",
+    "contestant": "pair-ledger",
+    "sample": 0,
+    "recordIndex": 8
+  },
+  {
+    "model": "gpt-6-luna",
+    "phase": "test",
+    "id": "rubric_eval_947",
+    "contestant": "promptfoo",
+    "sample": 0,
+    "recordIndex": 9
+  },
+  {
+    "model": "gemini-3.8-flash",
+    "phase": "test",
+    "id": "rubric_eval_947",
+    "contestant": "pair-ledger",
+    "sample": 0,
+    "recordIndex": 10
+  },
+  {
+    "model": "gemini-3.8-flash",
+    "phase": "test",
+    "id": "rubric_eval_947",
+    "contestant": "promptfoo",
+    "sample": 0,
+    "recordIndex": 11
+  },
+  {
+    "model": "claude-haiku-5-5",
+    "phase": "test",
+    "id": "rubric_eval_666",
+    "contestant": "pair-ledger",
+    "sample": 0,
+    "recordIndex": 12
+  },
+  {
+    "model": "claude-haiku-5-5",
+    "phase": "test",
+    "id": "rubric_eval_666",
+    "contestant": "promptfoo",
+    "sample": 0,
+    "recordIndex": 13
+  },
+  {
+    "model": "gpt-6-luna",
+    "phase": "test",
+    "id": "rubric_eval_666",
+    "contestant": "pair-ledger",
+    "sample": 0,
+    "recordIndex": 14
+  },
+  {
+    "model": "gpt-6-luna",
+    "phase": "test",
+    "id": "rubric_eval_666",
+    "contestant": "promptfoo",
+    "sample": 0,
+    "recordIndex": 15
+  },
+  {
+    "model": "gemini-3.8-flash",
+    "phase": "test",
+    "id": "rubric_eval_666",
+    "contestant": "pair-ledger",
+    "sample": 0,
+    "recordIndex": 16
+  },
+  {
+    "model": "gemini-3.8-flash",
+    "phase": "test",
+    "id": "rubric_eval_666",
+    "contestant": "promptfoo",
+    "sample": 0,
+    "recordIndex": 17
+  },
+  {
+    "model": "claude-haiku-5-5",
+    "phase": "test",
+    "id": "rubric_eval_148",
+    "contestant": "pair-ledger",
+    "sample": 0,
+    "recordIndex": 18
+  },
+  {
+    "model": "gpt-6-luna",
+    "phase": "test",
+    "id": "rubric_eval_148",
+    "contestant": "pair-ledger",
+    "sample": 0,
+    "recordIndex": 20
+  },
+  {
+    "model": "gpt-6-luna",
+    "phase": "test",
+    "id": "rubric_eval_148",
+    "contestant": "promptfoo",
+    "sample": 0,
+    "recordIndex": 21
+  },
+  {
+    "model": "gemini-3.8-flash",
+    "phase": "test",
+    "id": "rubric_eval_148",
+    "contestant": "pair-ledger",
+    "sample": 0,
+    "recordIndex": 22
+  },
+  {
+    "model": "gemini-3.8-flash",
+    "phase": "test",
+    "id": "rubric_eval_148",
+    "contestant": "promptfoo",
+    "sample": 0,
+    "recordIndex": 23
+  },
+  {
+    "model": "gpt-6-luna",
+    "phase": "test",
+    "id": "rubric_eval_690",
+    "contestant": "pair-ledger",
+    "sample": 0,
+    "recordIndex": 26
+  },
+  {
+    "model": "gpt-6-luna",
+    "phase": "test",
+    "id": "rubric_eval_690",
+    "contestant": "promptfoo",
+    "sample": 0,
+    "recordIndex": 27
+  },
+  {
+    "model": "gemini-3.8-flash",
+    "phase": "test",
+    "id": "rubric_eval_690",
+    "contestant": "pair-ledger",
+    "sample": 0,
+    "recordIndex": 28
+  },
+  {
+    "model": "gemini-3.8-flash",
+    "phase": "test",
+    "id": "rubric_eval_690",
+    "contestant": "promptfoo",
+    "sample": 0,
+    "recordIndex": 29
+  },
+  {
+    "model": "gpt-6-luna",
+    "phase": "test",
+    "id": "rubric_eval_482",
+    "contestant": "pair-ledger",
+    "sample": 0,
+    "recordIndex": 32
+  },
+  {
+    "model": "gpt-6-luna",
+    "phase": "test",
+    "id": "rubric_eval_482",
+    "contestant": "promptfoo",
+    "sample": 0,
+    "recordIndex": 33
+  },
+  {
+    "model": "gemini-3.8-flash",
+    "phase": "test",
+    "id": "rubric_eval_482",
+    "contestant": "pair-ledger",
+    "sample": 0,
+    "recordIndex": 34
+  },
+  {
+    "model": "gemini-3.8-flash",
+    "phase": "test",
+    "id": "rubric_eval_482",
+    "contestant": "promptfoo",
+    "sample": 0,
+    "recordIndex": 35
+  },
+  {
+    "model": "gpt-6-luna",
+    "phase": "test",
+    "id": "rubric_eval_332",
+    "contestant": "pair-ledger",
+    "sample": 0,
+    "recordIndex": 38
+  },
+  {
+    "model": "gpt-6-luna",
+    "phase": "test",
+    "id": "rubric_eval_332",
+    "contestant": "promptfoo",
+    "sample": 0,
+    "recordIndex": 39
+  },
+  {
+    "model": "gemini-3.8-flash",
+    "phase": "test",
+    "id": "rubric_eval_332",
+    "contestant": "pair-ledger",
+    "sample": 0,
+    "recordIndex": 40
+  },
+  {
+    "model": "gemini-3.8-flash",
+    "phase": "test",
+    "id": "rubric_eval_332",
+    "contestant": "promptfoo",
+    "sample": 0,
+    "recordIndex": 41
+  },
+  {
+    "model": "gpt-6-luna",
+    "phase": "test",
+    "id": "rubric_eval_246",
+    "contestant": "pair-ledger",
+    "sample": 0,
+    "recordIndex": 44
+  },
+  {
+    "model": "gpt-6-luna",
+    "phase": "test",
+    "id": "rubric_eval_246",
+    "contestant": "promptfoo",
+    "sample": 0,
+    "recordIndex": 45
+  },
+  {
+    "model": "gemini-3.8-flash",
+    "phase": "test",
+    "id": "rubric_eval_246",
+    "contestant": "pair-ledger",
+    "sample": 0,
+    "recordIndex": 46
+  },
+  {
+    "model": "gemini-3.8-flash",
+    "phase": "test",
+    "id": "rubric_eval_246",
+    "contestant": "promptfoo",
+    "sample": 0,
+    "recordIndex": 47
+  },
+  {
+    "model": "gpt-6-luna",
+    "phase": "test",
+    "id": "rubric_eval_99",
+    "contestant": "pair-ledger",
+    "sample": 0,
+    "recordIndex": 50
+  },
+  {
+    "model": "gpt-6-luna",
+    "phase": "test",
+    "id": "rubric_eval_99",
+    "contestant": "promptfoo",
+    "sample": 0,
+    "recordIndex": 51
+  },
+  {
+    "model": "gemini-3.8-flash",
+    "phase": "test",
+    "id": "rubric_eval_99",
+    "contestant": "pair-ledger",
+    "sample": 0,
+    "recordIndex": 52
+  },
+  {
+    "model": "gemini-3.8-flash",
+    "phase": "test",
+    "id": "rubric_eval_99",
+    "contestant": "promptfoo",
+    "sample": 0,
+    "recordIndex": 53
+  },
+  {
+    "model": "gpt-6-luna",
+    "phase": "test",
+    "id": "rubric_eval_223",
+    "contestant": "pair-ledger",
+    "sample": 0,
+    "recordIndex": 56
+  },
+  {
+    "model": "gpt-6-luna",
+    "phase": "test",
+    "id": "rubric_eval_223",
+    "contestant": "promptfoo",
+    "sample": 0,
+    "recordIndex": 57
+  },
+  {
+    "model": "gemini-3.8-flash",
+    "phase": "test",
+    "id": "rubric_eval_223",
+    "contestant": "pair-ledger",
+    "sample": 0,
+    "recordIndex": 58
+  },
+  {
+    "model": "gemini-3.8-flash",
+    "phase": "test",
+    "id": "rubric_eval_223",
+    "contestant": "promptfoo",
+    "sample": 0,
+    "recordIndex": 59
+  },
+  {
+    "model": "gpt-6-luna",
+    "phase": "test",
+    "id": "rubric_eval_81",
+    "contestant": "pair-ledger",
+    "sample": 0,
+    "recordIndex": 62
+  },
+  {
+    "model": "gpt-6-luna",
+    "phase": "test",
+    "id": "rubric_eval_81",
+    "contestant": "promptfoo",
+    "sample": 0,
+    "recordIndex": 63
+  },
+  {
+    "model": "gemini-3.8-flash",
+    "phase": "test",
+    "id": "rubric_eval_81",
+    "contestant": "pair-ledger",
+    "sample": 0,
+    "recordIndex": 64
+  },
+  {
+    "model": "gemini-3.8-flash",
+    "phase": "test",
+    "id": "rubric_eval_81",
+    "contestant": "promptfoo",
+    "sample": 0,
+    "recordIndex": 65
+  },
+  {
+    "model": "gpt-6-luna",
+    "phase": "test",
+    "id": "rubric_eval_847",
+    "contestant": "pair-ledger",
+    "sample": 0,
+    "recordIndex": 68
+  },
+  {
+    "model": "gpt-6-luna",
+    "phase": "test",
+    "id": "rubric_eval_847",
+    "contestant": "promptfoo",
+    "sample": 0,
+    "recordIndex": 69
+  },
+  {
+    "model": "gemini-3.8-flash",
+    "phase": "test",
+    "id": "rubric_eval_847",
+    "contestant": "pair-ledger",
+    "sample": 0,
+    "recordIndex": 70
+  },
+  {
+    "model": "gemini-3.8-flash",
+    "phase": "test",
+    "id": "rubric_eval_847",
+    "contestant": "promptfoo",
+    "sample": 0,
+    "recordIndex": 71
+  },
+  {
+    "model": "gpt-6-luna",
+    "phase": "test",
+    "id": "rubric_eval_71",
+    "contestant": "pair-ledger",
+    "sample": 0,
+    "recordIndex": 74
+  },
+  {
+    "model": "gpt-6-luna",
+    "phase": "test",
+    "id": "rubric_eval_71",
+    "contestant": "promptfoo",
+    "sample": 0,
+    "recordIndex": 75
+  },
+  {
+    "model": "gemini-3.8-flash",
+    "phase": "test",
+    "id": "rubric_eval_71",
+    "contestant": "pair-ledger",
+    "sample": 0,
+    "recordIndex": 76
+  },
+  {
+    "model": "gemini-3.8-flash",
+    "phase": "test",
+    "id": "rubric_eval_71",
+    "contestant": "promptfoo",
+    "sample": 0,
+    "recordIndex": 77
+  },
+  {
+    "model": "gpt-6-luna",
+    "phase": "test",
+    "id": "rubric_eval_633",
+    "contestant": "pair-ledger",
+    "sample": 0,
+    "recordIndex": 80
+  },
+  {
+    "model": "gpt-6-luna",
+    "phase": "test",
+    "id": "rubric_eval_633",
+    "contestant": "promptfoo",
+    "sample": 0,
+    "recordIndex": 81
+  },
+  {
+    "model": "gemini-3.8-flash",
+    "phase": "test",
+    "id": "rubric_eval_633",
+    "contestant": "pair-ledger",
+    "sample": 0,
+    "recordIndex": 82
+  },
+  {
+    "model": "gemini-3.8-flash",
+    "phase": "test",
+    "id": "rubric_eval_633",
+    "contestant": "promptfoo",
+    "sample": 0,
+    "recordIndex": 83
+  },
+  {
+    "model": "gpt-6-luna",
+    "phase": "test",
+    "id": "rubric_eval_175",
+    "contestant": "pair-ledger",
+    "sample": 0,
+    "recordIndex": 86
+  },
+  {
+    "model": "gemini-3.8-flash",
+    "phase": "test",
+    "id": "rubric_eval_175",
+    "contestant": "pair-ledger",
+    "sample": 0,
+    "recordIndex": 88
+  },
+  {
+    "model": "gemini-3.8-flash",
+    "phase": "test",
+    "id": "rubric_eval_175",
+    "contestant": "promptfoo",
+    "sample": 0,
+    "recordIndex": 89
+  },
+  {
+    "model": "gemini-3.8-flash",
+    "phase": "test",
+    "id": "rubric_eval_1057",
+    "contestant": "pair-ledger",
+    "sample": 0,
+    "recordIndex": 94
+  },
+  {
+    "model": "gemini-3.8-flash",
+    "phase": "test",
+    "id": "rubric_eval_1057",
+    "contestant": "promptfoo",
+    "sample": 0,
+    "recordIndex": 95
+  },
+  {
+    "model": "gemini-3.8-flash",
+    "phase": "test",
+    "id": "rubric_eval_870",
+    "contestant": "pair-ledger",
+    "sample": 0,
+    "recordIndex": 100
+  },
+  {
+    "model": "gemini-3.8-flash",
+    "phase": "test",
+    "id": "rubric_eval_870",
+    "contestant": "promptfoo",
+    "sample": 0,
+    "recordIndex": 101
+  },
+  {
+    "model": "gemini-3.8-flash",
+    "phase": "test",
+    "id": "rubric_eval_229",
+    "contestant": "pair-ledger",
+    "sample": 0,
+    "recordIndex": 106
+  },
+  {
+    "model": "gemini-3.8-flash",
+    "phase": "test",
+    "id": "rubric_eval_229",
+    "contestant": "promptfoo",
+    "sample": 0,
+    "recordIndex": 107
+  },
+  {
+    "model": "gemini-3.8-flash",
+    "phase": "test",
+    "id": "rubric_eval_685",
+    "contestant": "pair-ledger",
+    "sample": 0,
+    "recordIndex": 112
+  },
+  {
+    "model": "gemini-3.8-flash",
+    "phase": "test",
+    "id": "rubric_eval_685",
+    "contestant": "promptfoo",
+    "sample": 0,
+    "recordIndex": 113
+  },
+  {
+    "model": "gemini-3.8-flash",
+    "phase": "test",
+    "id": "rubric_eval_189",
+    "contestant": "pair-ledger",
+    "sample": 0,
+    "recordIndex": 118
+  },
+  {
+    "model": "gemini-3.8-flash",
+    "phase": "test",
+    "id": "rubric_eval_189",
+    "contestant": "promptfoo",
+    "sample": 0,
+    "recordIndex": 119
+  },
+  {
+    "model": "gemini-3.8-flash",
+    "phase": "test",
+    "id": "rubric_eval_41",
+    "contestant": "pair-ledger",
+    "sample": 0,
+    "recordIndex": 124
+  },
+  {
+    "model": "gemini-3.8-flash",
+    "phase": "test",
+    "id": "rubric_eval_41",
+    "contestant": "promptfoo",
+    "sample": 0,
+    "recordIndex": 125
+  },
+  {
+    "model": "gemini-3.8-flash",
+    "phase": "test",
+    "id": "rubric_eval_104",
+    "contestant": "pair-ledger",
+    "sample": 0,
+    "recordIndex": 130
+  },
+  {
+    "model": "gemini-3.8-flash",
+    "phase": "test",
+    "id": "rubric_eval_104",
+    "contestant": "promptfoo",
+    "sample": 0,
+    "recordIndex": 131
+  },
+  {
+    "model": "gemini-3.8-flash",
+    "phase": "test",
+    "id": "rubric_eval_469",
+    "contestant": "pair-ledger",
+    "sample": 0,
+    "recordIndex": 136
+  },
+  {
+    "model": "gemini-3.8-flash",
+    "phase": "test",
+    "id": "rubric_eval_469",
+    "contestant": "promptfoo",
+    "sample": 0,
+    "recordIndex": 137
+  },
+  {
+    "model": "gemini-3.8-flash",
+    "phase": "test",
+    "id": "rubric_eval_1020",
+    "contestant": "pair-ledger",
+    "sample": 0,
+    "recordIndex": 142
+  },
+  {
+    "model": "gemini-3.8-flash",
+    "phase": "test",
+    "id": "rubric_eval_1020",
+    "contestant": "promptfoo",
+    "sample": 0,
+    "recordIndex": 143
+  },
+  {
+    "model": "gemini-3.8-flash",
+    "phase": "test",
+    "id": "rubric_eval_700",
+    "contestant": "pair-ledger",
+    "sample": 0,
+    "recordIndex": 148
+  },
+  {
+    "model": "gemini-3.8-flash",
+    "phase": "test",
+    "id": "rubric_eval_700",
+    "contestant": "promptfoo",
+    "sample": 0,
+    "recordIndex": 149
+  },
+  {
+    "model": "gemini-3.8-flash",
+    "phase": "test",
+    "id": "rubric_eval_534",
+    "contestant": "pair-ledger",
+    "sample": 0,
+    "recordIndex": 154
+  },
+  {
+    "model": "gemini-3.8-flash",
+    "phase": "test",
+    "id": "rubric_eval_534",
+    "contestant": "promptfoo",
+    "sample": 0,
+    "recordIndex": 155
+  },
+  {
+    "model": "gemini-3.8-flash",
+    "phase": "test",
+    "id": "rubric_eval_670",
+    "contestant": "pair-ledger",
+    "sample": 0,
+    "recordIndex": 160
+  },
+  {
+    "model": "gemini-3.8-flash",
+    "phase": "test",
+    "id": "rubric_eval_670",
+    "contestant": "promptfoo",
+    "sample": 0,
+    "recordIndex": 161
+  },
+  {
+    "model": "gemini-3.8-flash",
+    "phase": "test",
+    "id": "rubric_eval_460",
+    "contestant": "pair-ledger",
+    "sample": 0,
+    "recordIndex": 166
+  },
+  {
+    "model": "gemini-3.8-flash",
+    "phase": "test",
+    "id": "rubric_eval_460",
+    "contestant": "promptfoo",
+    "sample": 0,
+    "recordIndex": 167
+  },
+  {
+    "model": "gemini-3.8-flash",
+    "phase": "test",
+    "id": "rubric_eval_5",
+    "contestant": "pair-ledger",
+    "sample": 0,
+    "recordIndex": 172
+  },
+  {
+    "model": "gemini-3.8-flash",
+    "phase": "test",
+    "id": "rubric_eval_5",
+    "contestant": "promptfoo",
+    "sample": 0,
+    "recordIndex": 173
+  },
+  {
+    "model": "gemini-3.8-flash",
+    "phase": "test",
+    "id": "rubric_eval_149",
+    "contestant": "pair-ledger",
+    "sample": 0,
+    "recordIndex": 178
+  },
+  {
+    "model": "gemini-3.8-flash",
+    "phase": "test",
+    "id": "rubric_eval_149",
+    "contestant": "promptfoo",
+    "sample": 0,
+    "recordIndex": 179
+  },
+  {
+    "model": "gemini-3.8-flash",
+    "phase": "test",
+    "id": "rubric_eval_627",
+    "contestant": "pair-ledger",
+    "sample": 0,
+    "recordIndex": 184
+  },
+  {
+    "model": "gemini-3.8-flash",
+    "phase": "test",
+    "id": "rubric_eval_627",
+    "contestant": "promptfoo",
+    "sample": 0,
+    "recordIndex": 185
+  },
+  {
+    "model": "gemini-3.8-flash",
+    "phase": "test",
+    "id": "rubric_eval_151",
+    "contestant": "pair-ledger",
+    "sample": 0,
+    "recordIndex": 190
+  },
+  {
+    "model": "gemini-3.8-flash",
+    "phase": "test",
+    "id": "rubric_eval_151",
+    "contestant": "promptfoo",
+    "sample": 0,
+    "recordIndex": 191
+  },
+  {
+    "model": "gemini-3.8-flash",
+    "phase": "test",
+    "id": "rubric_eval_538",
+    "contestant": "pair-ledger",
+    "sample": 0,
+    "recordIndex": 196
+  },
+  {
+    "model": "gemini-3.8-flash",
+    "phase": "test",
+    "id": "rubric_eval_538",
+    "contestant": "promptfoo",
+    "sample": 0,
+    "recordIndex": 197
+  },
+  {
+    "model": "gemini-3.8-flash",
+    "phase": "test",
+    "id": "rubric_eval_1004",
+    "contestant": "pair-ledger",
+    "sample": 0,
+    "recordIndex": 202
+  },
+  {
+    "model": "gemini-3.8-flash",
+    "phase": "test",
+    "id": "rubric_eval_1004",
+    "contestant": "promptfoo",
+    "sample": 0,
+    "recordIndex": 203
+  },
+  {
+    "model": "gemini-3.8-flash",
+    "phase": "test",
+    "id": "rubric_eval_302",
+    "contestant": "pair-ledger",
+    "sample": 0,
+    "recordIndex": 208
+  },
+  {
+    "model": "gemini-3.8-flash",
+    "phase": "test",
+    "id": "rubric_eval_302",
+    "contestant": "promptfoo",
+    "sample": 0,
+    "recordIndex": 209
+  },
+  {
+    "model": "gemini-3.8-flash",
+    "phase": "test",
+    "id": "rubric_eval_123",
+    "contestant": "pair-ledger",
+    "sample": 0,
+    "recordIndex": 214
+  },
+  {
+    "model": "gemini-3.8-flash",
+    "phase": "test",
+    "id": "rubric_eval_123",
+    "contestant": "promptfoo",
+    "sample": 0,
+    "recordIndex": 215
+  },
+  {
+    "model": "gemini-3.8-flash",
+    "phase": "test",
+    "id": "rubric_eval_1003",
+    "contestant": "pair-ledger",
+    "sample": 0,
+    "recordIndex": 220
+  },
+  {
+    "model": "gemini-3.8-flash",
+    "phase": "test",
+    "id": "rubric_eval_1003",
+    "contestant": "promptfoo",
+    "sample": 0,
+    "recordIndex": 221
+  },
+  {
+    "model": "gemini-3.8-flash",
+    "phase": "test",
+    "id": "rubric_eval_1044",
+    "contestant": "pair-ledger",
+    "sample": 0,
+    "recordIndex": 226
+  },
+  {
+    "model": "gemini-3.8-flash",
+    "phase": "test",
+    "id": "rubric_eval_1044",
+    "contestant": "promptfoo",
+    "sample": 0,
+    "recordIndex": 227
+  },
+  {
+    "model": "gemini-3.8-flash",
+    "phase": "test",
+    "id": "rubric_eval_1146",
+    "contestant": "pair-ledger",
+    "sample": 0,
+    "recordIndex": 232
+  },
+  {
+    "model": "gemini-3.8-flash",
+    "phase": "test",
+    "id": "rubric_eval_1146",
+    "contestant": "promptfoo",
+    "sample": 0,
+    "recordIndex": 233
+  },
+  {
+    "model": "gemini-3.8-flash",
+    "phase": "test",
+    "id": "rubric_eval_352",
+    "contestant": "pair-ledger",
+    "sample": 0,
+    "recordIndex": 238
+  },
+  {
+    "model": "gemini-3.8-flash",
+    "phase": "test",
+    "id": "rubric_eval_352",
+    "contestant": "promptfoo",
+    "sample": 0,
+    "recordIndex": 239
+  },
+  {
+    "model": "gemini-3.8-flash",
+    "phase": "test",
+    "id": "rubric_eval_51",
+    "contestant": "pair-ledger",
+    "sample": 0,
+    "recordIndex": 244
+  },
+  {
+    "model": "gemini-3.8-flash",
+    "phase": "test",
+    "id": "rubric_eval_51",
+    "contestant": "promptfoo",
+    "sample": 0,
+    "recordIndex": 245
+  },
+  {
+    "model": "gemini-3.8-flash",
+    "phase": "test",
+    "id": "rubric_eval_54",
+    "contestant": "pair-ledger",
+    "sample": 0,
+    "recordIndex": 250
+  },
+  {
+    "model": "gemini-3.8-flash",
+    "phase": "test",
+    "id": "rubric_eval_54",
+    "contestant": "promptfoo",
+    "sample": 0,
+    "recordIndex": 251
+  },
+  {
+    "model": "gemini-3.8-flash",
+    "phase": "test",
+    "id": "rubric_eval_253",
+    "contestant": "pair-ledger",
+    "sample": 0,
+    "recordIndex": 256
+  },
+  {
+    "model": "gemini-3.8-flash",
+    "phase": "test",
+    "id": "rubric_eval_253",
+    "contestant": "promptfoo",
+    "sample": 0,
+    "recordIndex": 257
+  },
+  {
+    "model": "gemini-3.8-flash",
+    "phase": "test",
+    "id": "rubric_eval_806",
+    "contestant": "pair-ledger",
+    "sample": 0,
+    "recordIndex": 262
+  },
+  {
+    "model": "gemini-3.8-flash",
+    "phase": "test",
+    "id": "rubric_eval_806",
+    "contestant": "promptfoo",
+    "sample": 0,
+    "recordIndex": 263
+  },
+  {
+    "model": "gemini-3.8-flash",
+    "phase": "test",
+    "id": "rubric_eval_28",
+    "contestant": "pair-ledger",
+    "sample": 0,
+    "recordIndex": 268
+  },
+  {
+    "model": "gemini-3.8-flash",
+    "phase": "test",
+    "id": "rubric_eval_28",
+    "contestant": "promptfoo",
+    "sample": 0,
+    "recordIndex": 269
+  },
+  {
+    "model": "gemini-3.8-flash",
+    "phase": "test",
+    "id": "rubric_eval_609",
+    "contestant": "pair-ledger",
+    "sample": 0,
+    "recordIndex": 274
+  },
+  {
+    "model": "gemini-3.8-flash",
+    "phase": "test",
+    "id": "rubric_eval_609",
+    "contestant": "promptfoo",
+    "sample": 0,
+    "recordIndex": 275
+  },
+  {
+    "model": "gemini-3.8-flash",
+    "phase": "test",
+    "id": "rubric_eval_827",
+    "contestant": "pair-ledger",
+    "sample": 0,
+    "recordIndex": 280
+  },
+  {
+    "model": "gemini-3.8-flash",
+    "phase": "test",
+    "id": "rubric_eval_827",
+    "contestant": "promptfoo",
+    "sample": 0,
+    "recordIndex": 281
+  },
+  {
+    "model": "gemini-3.8-flash",
+    "phase": "test",
+    "id": "rubric_eval_898",
+    "contestant": "pair-ledger",
+    "sample": 0,
+    "recordIndex": 286
+  },
+  {
+    "model": "gemini-3.8-flash",
+    "phase": "test",
+    "id": "rubric_eval_898",
+    "contestant": "promptfoo",
+    "sample": 0,
+    "recordIndex": 287
+  },
+  {
+    "model": "gemini-3.8-flash",
+    "phase": "test",
+    "id": "rubric_eval_426",
+    "contestant": "pair-ledger",
+    "sample": 0,
+    "recordIndex": 292
+  },
+  {
+    "model": "gemini-3.8-flash",
+    "phase": "test",
+    "id": "rubric_eval_426",
+    "contestant": "promptfoo",
+    "sample": 0,
+    "recordIndex": 293
+  },
+  {
+    "model": "gemini-3.8-flash",
+    "phase": "test",
+    "id": "rubric_eval_950",
+    "contestant": "pair-ledger",
+    "sample": 0,
+    "recordIndex": 298
+  },
+  {
+    "model": "gemini-3.8-flash",
+    "phase": "test",
+    "id": "rubric_eval_950",
+    "contestant": "promptfoo",
+    "sample": 0,
+    "recordIndex": 299
+  },
+  {
+    "model": "gemini-3.8-flash",
+    "phase": "test",
+    "id": "rubric_eval_1016",
+    "contestant": "pair-ledger",
+    "sample": 0,
+    "recordIndex": 304
+  },
+  {
+    "model": "gemini-3.8-flash",
+    "phase": "test",
+    "id": "rubric_eval_1016",
+    "contestant": "promptfoo",
+    "sample": 0,
+    "recordIndex": 305
+  },
+  {
+    "model": "gemini-3.8-flash",
+    "phase": "test",
+    "id": "rubric_eval_758",
+    "contestant": "pair-ledger",
+    "sample": 0,
+    "recordIndex": 310
+  },
+  {
+    "model": "gemini-3.8-flash",
+    "phase": "test",
+    "id": "rubric_eval_758",
+    "contestant": "promptfoo",
+    "sample": 0,
+    "recordIndex": 311
+  },
+  {
+    "model": "gemini-3.8-flash",
+    "phase": "test",
+    "id": "rubric_eval_93",
+    "contestant": "pair-ledger",
+    "sample": 0,
+    "recordIndex": 316
+  },
+  {
+    "model": "gemini-3.8-flash",
+    "phase": "test",
+    "id": "rubric_eval_93",
+    "contestant": "promptfoo",
+    "sample": 0,
+    "recordIndex": 317
+  },
+  {
+    "model": "gemini-3.8-flash",
+    "phase": "test",
+    "id": "rubric_eval_606",
+    "contestant": "pair-ledger",
+    "sample": 0,
+    "recordIndex": 322
+  },
+  {
+    "model": "gemini-3.8-flash",
+    "phase": "test",
+    "id": "rubric_eval_606",
+    "contestant": "promptfoo",
+    "sample": 0,
+    "recordIndex": 323
+  },
+  {
+    "model": "gemini-3.8-flash",
+    "phase": "test",
+    "id": "rubric_eval_463",
+    "contestant": "pair-ledger",
+    "sample": 0,
+    "recordIndex": 328
+  },
+  {
+    "model": "gemini-3.8-flash",
+    "phase": "test",
+    "id": "rubric_eval_463",
+    "contestant": "promptfoo",
+    "sample": 0,
+    "recordIndex": 329
+  },
+  {
+    "model": "gemini-3.8-flash",
+    "phase": "test",
+    "id": "rubric_eval_347",
+    "contestant": "pair-ledger",
+    "sample": 0,
+    "recordIndex": 334
+  },
+  {
+    "model": "gemini-3.8-flash",
+    "phase": "test",
+    "id": "rubric_eval_347",
+    "contestant": "promptfoo",
+    "sample": 0,
+    "recordIndex": 335
+  },
+  {
+    "model": "gemini-3.8-flash",
+    "phase": "test",
+    "id": "rubric_eval_239",
+    "contestant": "pair-ledger",
+    "sample": 0,
+    "recordIndex": 340
+  },
+  {
+    "model": "gemini-3.8-flash",
+    "phase": "test",
+    "id": "rubric_eval_239",
+    "contestant": "promptfoo",
+    "sample": 0,
+    "recordIndex": 341
+  },
+  {
+    "model": "gemini-3.8-flash",
+    "phase": "test",
+    "id": "rubric_eval_422",
+    "contestant": "pair-ledger",
+    "sample": 0,
+    "recordIndex": 346
+  },
+  {
+    "model": "gemini-3.8-flash",
+    "phase": "test",
+    "id": "rubric_eval_422",
+    "contestant": "promptfoo",
+    "sample": 0,
+    "recordIndex": 347
+  },
+  {
+    "model": "gemini-3.8-flash",
+    "phase": "test",
+    "id": "rubric_eval_179",
+    "contestant": "pair-ledger",
+    "sample": 0,
+    "recordIndex": 352
+  },
+  {
+    "model": "gemini-3.8-flash",
+    "phase": "test",
+    "id": "rubric_eval_179",
+    "contestant": "promptfoo",
+    "sample": 0,
+    "recordIndex": 353
+  },
+  {
+    "model": "gemini-3.8-flash",
+    "phase": "test",
+    "id": "rubric_eval_274",
+    "contestant": "pair-ledger",
+    "sample": 0,
+    "recordIndex": 358
+  },
+  {
+    "model": "gemini-3.8-flash",
+    "phase": "test",
+    "id": "rubric_eval_274",
+    "contestant": "promptfoo",
+    "sample": 0,
+    "recordIndex": 359
+  },
+  {
+    "model": "gemini-3.8-flash",
+    "phase": "test",
+    "id": "rubric_eval_466",
+    "contestant": "pair-ledger",
+    "sample": 0,
+    "recordIndex": 364
+  },
+  {
+    "model": "gemini-3.8-flash",
+    "phase": "test",
+    "id": "rubric_eval_466",
+    "contestant": "promptfoo",
+    "sample": 0,
+    "recordIndex": 365
+  },
+  {
+    "model": "gemini-3.8-flash",
+    "phase": "test",
+    "id": "rubric_eval_33",
+    "contestant": "pair-ledger",
+    "sample": 0,
+    "recordIndex": 370
+  },
+  {
+    "model": "gemini-3.8-flash",
+    "phase": "test",
+    "id": "rubric_eval_33",
+    "contestant": "promptfoo",
+    "sample": 0,
+    "recordIndex": 371
+  },
+  {
+    "model": "gemini-3.8-flash",
+    "phase": "test",
+    "id": "rubric_eval_970",
+    "contestant": "pair-ledger",
+    "sample": 0,
+    "recordIndex": 376
+  },
+  {
+    "model": "gemini-3.8-flash",
+    "phase": "test",
+    "id": "rubric_eval_970",
+    "contestant": "promptfoo",
+    "sample": 0,
+    "recordIndex": 377
+  },
+  {
+    "model": "gemini-3.8-flash",
+    "phase": "test",
+    "id": "rubric_eval_704",
+    "contestant": "pair-ledger",
+    "sample": 0,
+    "recordIndex": 382
+  },
+  {
+    "model": "gemini-3.8-flash",
+    "phase": "test",
+    "id": "rubric_eval_704",
+    "contestant": "promptfoo",
+    "sample": 0,
+    "recordIndex": 383
+  },
+  {
+    "model": "gemini-3.8-flash",
+    "phase": "test",
+    "id": "rubric_eval_1129",
+    "contestant": "pair-ledger",
+    "sample": 0,
+    "recordIndex": 388
+  },
+  {
+    "model": "gemini-3.8-flash",
+    "phase": "test",
+    "id": "rubric_eval_1129",
+    "contestant": "promptfoo",
+    "sample": 0,
+    "recordIndex": 389
+  },
+  {
+    "model": "gemini-3.8-flash",
+    "phase": "test",
+    "id": "rubric_eval_971",
+    "contestant": "pair-ledger",
+    "sample": 0,
+    "recordIndex": 394
+  },
+  {
+    "model": "gemini-3.8-flash",
+    "phase": "test",
+    "id": "rubric_eval_971",
+    "contestant": "promptfoo",
+    "sample": 0,
+    "recordIndex": 395
+  },
+  {
+    "model": "gemini-3.8-flash",
+    "phase": "test",
+    "id": "rubric_eval_50",
+    "contestant": "pair-ledger",
+    "sample": 0,
+    "recordIndex": 400
+  },
+  {
+    "model": "gemini-3.8-flash",
+    "phase": "test",
+    "id": "rubric_eval_50",
+    "contestant": "promptfoo",
+    "sample": 0,
+    "recordIndex": 401
+  },
+  {
+    "model": "gemini-3.8-flash",
+    "phase": "test",
+    "id": "rubric_eval_649",
+    "contestant": "pair-ledger",
+    "sample": 0,
+    "recordIndex": 406
+  },
+  {
+    "model": "gemini-3.8-flash",
+    "phase": "test",
+    "id": "rubric_eval_649",
+    "contestant": "promptfoo",
+    "sample": 0,
+    "recordIndex": 407
+  },
+  {
+    "model": "gemini-3.8-flash",
+    "phase": "test",
+    "id": "rubric_eval_625",
+    "contestant": "pair-ledger",
+    "sample": 0,
+    "recordIndex": 412
+  },
+  {
+    "model": "gemini-3.8-flash",
+    "phase": "test",
+    "id": "rubric_eval_625",
+    "contestant": "promptfoo",
+    "sample": 0,
+    "recordIndex": 413
+  },
+  {
+    "model": "gemini-3.8-flash",
+    "phase": "test",
+    "id": "rubric_eval_170",
+    "contestant": "pair-ledger",
+    "sample": 0,
+    "recordIndex": 418
+  },
+  {
+    "model": "gemini-3.8-flash",
+    "phase": "test",
+    "id": "rubric_eval_170",
+    "contestant": "promptfoo",
+    "sample": 0,
+    "recordIndex": 419
+  },
+  {
+    "model": "gemini-3.8-flash",
+    "phase": "test",
+    "id": "rubric_eval_914",
+    "contestant": "pair-ledger",
+    "sample": 0,
+    "recordIndex": 424
+  },
+  {
+    "model": "gemini-3.8-flash",
+    "phase": "test",
+    "id": "rubric_eval_914",
+    "contestant": "promptfoo",
+    "sample": 0,
+    "recordIndex": 425
+  },
+  {
+    "model": "gemini-3.8-flash",
+    "phase": "test",
+    "id": "rubric_eval_631",
+    "contestant": "pair-ledger",
+    "sample": 0,
+    "recordIndex": 430
+  },
+  {
+    "model": "gemini-3.8-flash",
+    "phase": "test",
+    "id": "rubric_eval_631",
+    "contestant": "promptfoo",
+    "sample": 0,
+    "recordIndex": 431
+  },
+  {
+    "model": "gemini-3.8-flash",
+    "phase": "test",
+    "id": "rubric_eval_300",
+    "contestant": "pair-ledger",
+    "sample": 0,
+    "recordIndex": 436
+  },
+  {
+    "model": "gemini-3.8-flash",
+    "phase": "test",
+    "id": "rubric_eval_300",
+    "contestant": "promptfoo",
+    "sample": 0,
+    "recordIndex": 437
+  },
+  {
+    "model": "gemini-3.8-flash",
+    "phase": "test",
+    "id": "rubric_eval_875",
+    "contestant": "pair-ledger",
+    "sample": 0,
+    "recordIndex": 442
+  },
+  {
+    "model": "gemini-3.8-flash",
+    "phase": "test",
+    "id": "rubric_eval_875",
+    "contestant": "promptfoo",
+    "sample": 0,
+    "recordIndex": 443
+  },
+  {
+    "model": "gemini-3.8-flash",
+    "phase": "test",
+    "id": "rubric_eval_116",
+    "contestant": "pair-ledger",
+    "sample": 0,
+    "recordIndex": 448
+  },
+  {
+    "model": "gemini-3.8-flash",
+    "phase": "test",
+    "id": "rubric_eval_116",
+    "contestant": "promptfoo",
+    "sample": 0,
+    "recordIndex": 449
+  },
+  {
+    "model": "gemini-3.8-flash",
+    "phase": "test",
+    "id": "rubric_eval_651",
+    "contestant": "pair-ledger",
+    "sample": 0,
+    "recordIndex": 454
+  },
+  {
+    "model": "gemini-3.8-flash",
+    "phase": "test",
+    "id": "rubric_eval_651",
+    "contestant": "promptfoo",
+    "sample": 0,
+    "recordIndex": 455
+  },
+  {
+    "model": "gemini-3.8-flash",
+    "phase": "test",
+    "id": "rubric_eval_624",
+    "contestant": "pair-ledger",
+    "sample": 0,
+    "recordIndex": 460
+  },
+  {
+    "model": "gemini-3.8-flash",
+    "phase": "test",
+    "id": "rubric_eval_624",
+    "contestant": "promptfoo",
+    "sample": 0,
+    "recordIndex": 461
+  },
+  {
+    "model": "gemini-3.8-flash",
+    "phase": "test",
+    "id": "rubric_eval_19",
+    "contestant": "pair-ledger",
+    "sample": 0,
+    "recordIndex": 466
+  },
+  {
+    "model": "gemini-3.8-flash",
+    "phase": "test",
+    "id": "rubric_eval_19",
+    "contestant": "promptfoo",
+    "sample": 0,
+    "recordIndex": 467
+  },
+  {
+    "model": "gemini-3.8-flash",
+    "phase": "test",
+    "id": "rubric_eval_455",
+    "contestant": "pair-ledger",
+    "sample": 0,
+    "recordIndex": 472
+  },
+  {
+    "model": "gemini-3.8-flash",
+    "phase": "test",
+    "id": "rubric_eval_455",
+    "contestant": "promptfoo",
+    "sample": 0,
+    "recordIndex": 473
+  },
+  {
+    "model": "gemini-3.8-flash",
+    "phase": "test",
+    "id": "rubric_eval_63",
+    "contestant": "pair-ledger",
+    "sample": 0,
+    "recordIndex": 478
+  },
+  {
+    "model": "gemini-3.8-flash",
+    "phase": "test",
+    "id": "rubric_eval_63",
+    "contestant": "promptfoo",
+    "sample": 0,
+    "recordIndex": 479
+  },
+  {
+    "model": "gemini-3.8-flash",
+    "phase": "test",
+    "id": "rubric_eval_1001",
+    "contestant": "pair-ledger",
+    "sample": 0,
+    "recordIndex": 484
+  },
+  {
+    "model": "gemini-3.8-flash",
+    "phase": "test",
+    "id": "rubric_eval_1001",
+    "contestant": "promptfoo",
+    "sample": 0,
+    "recordIndex": 485
+  },
+  {
+    "model": "gemini-3.8-flash",
+    "phase": "test",
+    "id": "rubric_eval_423",
+    "contestant": "pair-ledger",
+    "sample": 0,
+    "recordIndex": 490
+  },
+  {
+    "model": "gemini-3.8-flash",
+    "phase": "test",
+    "id": "rubric_eval_423",
+    "contestant": "promptfoo",
+    "sample": 0,
+    "recordIndex": 491
+  },
+  {
+    "model": "gemini-3.8-flash",
+    "phase": "test",
+    "id": "rubric_eval_264",
+    "contestant": "pair-ledger",
+    "sample": 0,
+    "recordIndex": 496
+  },
+  {
+    "model": "gemini-3.8-flash",
+    "phase": "test",
+    "id": "rubric_eval_264",
+    "contestant": "promptfoo",
+    "sample": 0,
+    "recordIndex": 497
+  },
+  {
+    "model": "gemini-3.8-flash",
+    "phase": "test",
+    "id": "rubric_eval_524",
+    "contestant": "pair-ledger",
+    "sample": 0,
+    "recordIndex": 502
+  },
+  {
+    "model": "gemini-3.8-flash",
+    "phase": "test",
+    "id": "rubric_eval_524",
+    "contestant": "promptfoo",
+    "sample": 0,
+    "recordIndex": 503
+  },
+  {
+    "model": "gemini-3.8-flash",
+    "phase": "test",
+    "id": "rubric_eval_718",
+    "contestant": "pair-ledger",
+    "sample": 0,
+    "recordIndex": 508
+  },
+  {
+    "model": "gemini-3.8-flash",
+    "phase": "test",
+    "id": "rubric_eval_718",
+    "contestant": "promptfoo",
+    "sample": 0,
+    "recordIndex": 509
+  },
+  {
+    "model": "gemini-3.8-flash",
+    "phase": "test",
+    "id": "rubric_eval_58",
+    "contestant": "pair-ledger",
+    "sample": 0,
+    "recordIndex": 514
+  },
+  {
+    "model": "gemini-3.8-flash",
+    "phase": "test",
+    "id": "rubric_eval_58",
+    "contestant": "promptfoo",
+    "sample": 0,
+    "recordIndex": 515
+  },
+  {
+    "model": "gemini-3.8-flash",
+    "phase": "test",
+    "id": "rubric_eval_948",
+    "contestant": "pair-ledger",
+    "sample": 0,
+    "recordIndex": 520
+  },
+  {
+    "model": "gemini-3.8-flash",
+    "phase": "test",
+    "id": "rubric_eval_948",
+    "contestant": "promptfoo",
+    "sample": 0,
+    "recordIndex": 521
+  },
+  {
+    "model": "gemini-3.8-flash",
+    "phase": "test",
+    "id": "rubric_eval_780",
+    "contestant": "pair-ledger",
+    "sample": 0,
+    "recordIndex": 526
+  },
+  {
+    "model": "gemini-3.8-flash",
+    "phase": "test",
+    "id": "rubric_eval_780",
+    "contestant": "promptfoo",
+    "sample": 0,
+    "recordIndex": 527
+  },
+  {
+    "model": "gemini-3.8-flash",
+    "phase": "test",
+    "id": "rubric_eval_261",
+    "contestant": "pair-ledger",
+    "sample": 0,
+    "recordIndex": 532
+  },
+  {
+    "model": "gemini-3.8-flash",
+    "phase": "test",
+    "id": "rubric_eval_261",
+    "contestant": "promptfoo",
+    "sample": 0,
+    "recordIndex": 533
+  },
+  {
+    "model": "gemini-3.8-flash",
+    "phase": "test",
+    "id": "rubric_eval_576",
+    "contestant": "pair-ledger",
+    "sample": 0,
+    "recordIndex": 538
+  },
+  {
+    "model": "gemini-3.8-flash",
+    "phase": "test",
+    "id": "rubric_eval_576",
+    "contestant": "promptfoo",
+    "sample": 0,
+    "recordIndex": 539
+  },
+  {
+    "model": "gemini-3.8-flash",
+    "phase": "test",
+    "id": "rubric_eval_136",
+    "contestant": "pair-ledger",
+    "sample": 0,
+    "recordIndex": 544
+  },
+  {
+    "model": "gemini-3.8-flash",
+    "phase": "test",
+    "id": "rubric_eval_136",
+    "contestant": "promptfoo",
+    "sample": 0,
+    "recordIndex": 545
+  },
+  {
+    "model": "gemini-3.8-flash",
+    "phase": "test",
+    "id": "rubric_eval_183",
+    "contestant": "pair-ledger",
+    "sample": 0,
+    "recordIndex": 550
+  },
+  {
+    "model": "gemini-3.8-flash",
+    "phase": "test",
+    "id": "rubric_eval_183",
+    "contestant": "promptfoo",
+    "sample": 0,
+    "recordIndex": 551
+  },
+  {
+    "model": "gemini-3.8-flash",
+    "phase": "test",
+    "id": "rubric_eval_388",
+    "contestant": "pair-ledger",
+    "sample": 0,
+    "recordIndex": 556
+  },
+  {
+    "model": "gemini-3.8-flash",
+    "phase": "test",
+    "id": "rubric_eval_388",
+    "contestant": "promptfoo",
+    "sample": 0,
+    "recordIndex": 557
+  },
+  {
+    "model": "gemini-3.8-flash",
+    "phase": "test",
+    "id": "rubric_eval_702",
+    "contestant": "pair-ledger",
+    "sample": 0,
+    "recordIndex": 562
+  },
+  {
+    "model": "gemini-3.8-flash",
+    "phase": "test",
+    "id": "rubric_eval_702",
+    "contestant": "promptfoo",
+    "sample": 0,
+    "recordIndex": 563
+  },
+  {
+    "model": "gemini-3.8-flash",
+    "phase": "test",
+    "id": "rubric_eval_427",
+    "contestant": "pair-ledger",
+    "sample": 0,
+    "recordIndex": 568
+  },
+  {
+    "model": "gemini-3.8-flash",
+    "phase": "test",
+    "id": "rubric_eval_427",
+    "contestant": "promptfoo",
+    "sample": 0,
+    "recordIndex": 569
+  },
+  {
+    "model": "gemini-3.8-flash",
+    "phase": "test",
+    "id": "rubric_eval_931",
+    "contestant": "pair-ledger",
+    "sample": 0,
+    "recordIndex": 574
+  },
+  {
+    "model": "gemini-3.8-flash",
+    "phase": "test",
+    "id": "rubric_eval_931",
+    "contestant": "promptfoo",
+    "sample": 0,
+    "recordIndex": 575
+  },
+  {
+    "model": "gemini-3.8-flash",
+    "phase": "test",
+    "id": "rubric_eval_620",
+    "contestant": "pair-ledger",
+    "sample": 0,
+    "recordIndex": 580
+  },
+  {
+    "model": "gemini-3.8-flash",
+    "phase": "test",
+    "id": "rubric_eval_620",
+    "contestant": "promptfoo",
+    "sample": 0,
+    "recordIndex": 581
+  },
+  {
+    "model": "gemini-3.8-flash",
+    "phase": "test",
+    "id": "rubric_eval_880",
+    "contestant": "pair-ledger",
+    "sample": 0,
+    "recordIndex": 586
+  },
+  {
+    "model": "gemini-3.8-flash",
+    "phase": "test",
+    "id": "rubric_eval_880",
+    "contestant": "promptfoo",
+    "sample": 0,
+    "recordIndex": 587
+  },
+  {
+    "model": "gemini-3.8-flash",
+    "phase": "test",
+    "id": "rubric_eval_1058",
+    "contestant": "pair-ledger",
+    "sample": 0,
+    "recordIndex": 592
+  },
+  {
+    "model": "gemini-3.8-flash",
+    "phase": "test",
+    "id": "rubric_eval_1058",
+    "contestant": "promptfoo",
+    "sample": 0,
+    "recordIndex": 593
+  },
+  {
+    "model": "gemini-3.8-flash",
+    "phase": "test",
+    "id": "rubric_eval_502",
+    "contestant": "pair-ledger",
+    "sample": 0,
+    "recordIndex": 598
+  },
+  {
+    "model": "gemini-3.8-flash",
+    "phase": "test",
+    "id": "rubric_eval_502",
+    "contestant": "promptfoo",
+    "sample": 0,
+    "recordIndex": 599
+  },
+  {
+    "model": "gemini-3.8-flash",
+    "phase": "test",
+    "id": "rubric_eval_693",
+    "contestant": "pair-ledger",
+    "sample": 0,
+    "recordIndex": 604
+  },
+  {
+    "model": "gemini-3.8-flash",
+    "phase": "test",
+    "id": "rubric_eval_693",
+    "contestant": "promptfoo",
+    "sample": 0,
+    "recordIndex": 605
+  },
+  {
+    "model": "gemini-3.8-flash",
+    "phase": "test",
+    "id": "rubric_eval_226",
+    "contestant": "pair-ledger",
+    "sample": 0,
+    "recordIndex": 610
+  },
+  {
+    "model": "gemini-3.8-flash",
+    "phase": "test",
+    "id": "rubric_eval_226",
+    "contestant": "promptfoo",
+    "sample": 0,
+    "recordIndex": 611
+  },
+  {
+    "model": "gemini-3.8-flash",
+    "phase": "test",
+    "id": "rubric_eval_330",
+    "contestant": "pair-ledger",
+    "sample": 0,
+    "recordIndex": 616
+  },
+  {
+    "model": "gemini-3.8-flash",
+    "phase": "test",
+    "id": "rubric_eval_330",
+    "contestant": "promptfoo",
+    "sample": 0,
+    "recordIndex": 617
+  },
+  {
+    "model": "gemini-3.8-flash",
+    "phase": "test",
+    "id": "rubric_eval_346",
+    "contestant": "pair-ledger",
+    "sample": 0,
+    "recordIndex": 622
+  },
+  {
+    "model": "gemini-3.8-flash",
+    "phase": "test",
+    "id": "rubric_eval_346",
+    "contestant": "promptfoo",
+    "sample": 0,
+    "recordIndex": 623
+  },
+  {
+    "model": "gemini-3.8-flash",
+    "phase": "test",
+    "id": "rubric_eval_9",
+    "contestant": "pair-ledger",
+    "sample": 0,
+    "recordIndex": 628
+  },
+  {
+    "model": "gemini-3.8-flash",
+    "phase": "test",
+    "id": "rubric_eval_9",
+    "contestant": "promptfoo",
+    "sample": 0,
+    "recordIndex": 629
+  },
+  {
+    "model": "gemini-3.8-flash",
+    "phase": "test",
+    "id": "rubric_eval_893",
+    "contestant": "pair-ledger",
+    "sample": 0,
+    "recordIndex": 634
+  },
+  {
+    "model": "gemini-3.8-flash",
+    "phase": "test",
+    "id": "rubric_eval_893",
+    "contestant": "promptfoo",
+    "sample": 0,
+    "recordIndex": 635
+  },
+  {
+    "model": "gemini-3.8-flash",
+    "phase": "test",
+    "id": "rubric_eval_266",
+    "contestant": "pair-ledger",
+    "sample": 0,
+    "recordIndex": 640
+  },
+  {
+    "model": "gemini-3.8-flash",
+    "phase": "test",
+    "id": "rubric_eval_266",
+    "contestant": "promptfoo",
+    "sample": 0,
+    "recordIndex": 641
+  },
+  {
+    "model": "gemini-3.8-flash",
+    "phase": "test",
+    "id": "rubric_eval_1071",
+    "contestant": "pair-ledger",
+    "sample": 0,
+    "recordIndex": 646
+  },
+  {
+    "model": "gemini-3.8-flash",
+    "phase": "test",
+    "id": "rubric_eval_1071",
+    "contestant": "promptfoo",
+    "sample": 0,
+    "recordIndex": 647
+  },
+  {
+    "model": "gemini-3.8-flash",
+    "phase": "test",
+    "id": "rubric_eval_447",
+    "contestant": "pair-ledger",
+    "sample": 0,
+    "recordIndex": 652
+  },
+  {
+    "model": "gemini-3.8-flash",
+    "phase": "test",
+    "id": "rubric_eval_447",
+    "contestant": "promptfoo",
+    "sample": 0,
+    "recordIndex": 653
+  },
+  {
+    "model": "gemini-3.8-flash",
+    "phase": "test",
+    "id": "rubric_eval_917",
+    "contestant": "pair-ledger",
+    "sample": 0,
+    "recordIndex": 658
+  },
+  {
+    "model": "gemini-3.8-flash",
+    "phase": "test",
+    "id": "rubric_eval_917",
+    "contestant": "promptfoo",
+    "sample": 0,
+    "recordIndex": 659
+  },
+  {
+    "model": "gemini-3.8-flash",
+    "phase": "test",
+    "id": "rubric_eval_137",
+    "contestant": "pair-ledger",
+    "sample": 0,
+    "recordIndex": 664
+  },
+  {
+    "model": "gemini-3.8-flash",
+    "phase": "test",
+    "id": "rubric_eval_137",
+    "contestant": "promptfoo",
+    "sample": 0,
+    "recordIndex": 665
+  },
+  {
+    "model": "gemini-3.8-flash",
+    "phase": "test",
+    "id": "rubric_eval_386",
+    "contestant": "pair-ledger",
+    "sample": 0,
+    "recordIndex": 670
+  },
+  {
+    "model": "gemini-3.8-flash",
+    "phase": "test",
+    "id": "rubric_eval_386",
+    "contestant": "promptfoo",
+    "sample": 0,
+    "recordIndex": 671
+  },
+  {
+    "model": "gemini-3.8-flash",
+    "phase": "test",
+    "id": "rubric_eval_966",
+    "contestant": "pair-ledger",
+    "sample": 0,
+    "recordIndex": 676
+  },
+  {
+    "model": "gemini-3.8-flash",
+    "phase": "test",
+    "id": "rubric_eval_966",
+    "contestant": "promptfoo",
+    "sample": 0,
+    "recordIndex": 677
+  },
+  {
+    "model": "gemini-3.8-flash",
+    "phase": "test",
+    "id": "rubric_eval_68",
+    "contestant": "pair-ledger",
+    "sample": 0,
+    "recordIndex": 682
+  },
+  {
+    "model": "gemini-3.8-flash",
+    "phase": "test",
+    "id": "rubric_eval_68",
+    "contestant": "promptfoo",
+    "sample": 0,
+    "recordIndex": 683
+  },
+  {
+    "model": "gemini-3.8-flash",
+    "phase": "test",
+    "id": "rubric_eval_561",
+    "contestant": "pair-ledger",
+    "sample": 0,
+    "recordIndex": 688
+  },
+  {
+    "model": "gemini-3.8-flash",
+    "phase": "test",
+    "id": "rubric_eval_561",
+    "contestant": "promptfoo",
+    "sample": 0,
+    "recordIndex": 689
+  },
+  {
+    "model": "gemini-3.8-flash",
+    "phase": "test",
+    "id": "rubric_eval_760",
+    "contestant": "pair-ledger",
+    "sample": 0,
+    "recordIndex": 694
+  },
+  {
+    "model": "gemini-3.8-flash",
+    "phase": "test",
+    "id": "rubric_eval_760",
+    "contestant": "promptfoo",
+    "sample": 0,
+    "recordIndex": 695
+  },
+  {
+    "model": "gemini-3.8-flash",
+    "phase": "test",
+    "id": "rubric_eval_903",
+    "contestant": "pair-ledger",
+    "sample": 0,
+    "recordIndex": 700
+  },
+  {
+    "model": "gemini-3.8-flash",
+    "phase": "test",
+    "id": "rubric_eval_903",
+    "contestant": "promptfoo",
+    "sample": 0,
+    "recordIndex": 701
+  },
+  {
+    "model": "gemini-3.8-flash",
+    "phase": "test",
+    "id": "rubric_eval_1096",
+    "contestant": "pair-ledger",
+    "sample": 0,
+    "recordIndex": 706
+  },
+  {
+    "model": "gemini-3.8-flash",
+    "phase": "test",
+    "id": "rubric_eval_1096",
+    "contestant": "promptfoo",
+    "sample": 0,
+    "recordIndex": 707
+  },
+  {
+    "model": "gemini-3.8-flash",
+    "phase": "test",
+    "id": "rubric_eval_641",
+    "contestant": "pair-ledger",
+    "sample": 0,
+    "recordIndex": 712
+  },
+  {
+    "model": "gemini-3.8-flash",
+    "phase": "test",
+    "id": "rubric_eval_641",
+    "contestant": "promptfoo",
+    "sample": 0,
+    "recordIndex": 713
+  },
+  {
+    "model": "gemini-3.8-flash",
+    "phase": "test",
+    "id": "rubric_eval_765",
+    "contestant": "pair-ledger",
+    "sample": 0,
+    "recordIndex": 718
+  },
+  {
+    "model": "gemini-3.8-flash",
+    "phase": "test",
+    "id": "rubric_eval_765",
+    "contestant": "promptfoo",
+    "sample": 0,
+    "recordIndex": 719
+  },
+  {
+    "model": "gemini-3.8-flash",
+    "phase": "test",
+    "id": "rubric_eval_907",
+    "contestant": "pair-ledger",
+    "sample": 0,
+    "recordIndex": 724
+  },
+  {
+    "model": "gemini-3.8-flash",
+    "phase": "test",
+    "id": "rubric_eval_907",
+    "contestant": "promptfoo",
+    "sample": 0,
+    "recordIndex": 725
+  },
+  {
+    "model": "gemini-3.8-flash",
+    "phase": "test",
+    "id": "rubric_eval_1121",
+    "contestant": "pair-ledger",
+    "sample": 0,
+    "recordIndex": 730
+  },
+  {
+    "model": "gemini-3.8-flash",
+    "phase": "test",
+    "id": "rubric_eval_1121",
+    "contestant": "promptfoo",
+    "sample": 0,
+    "recordIndex": 731
+  },
+  {
+    "model": "gemini-3.8-flash",
+    "phase": "test",
+    "id": "rubric_eval_133",
+    "contestant": "pair-ledger",
+    "sample": 0,
+    "recordIndex": 736
+  },
+  {
+    "model": "gemini-3.8-flash",
+    "phase": "test",
+    "id": "rubric_eval_1034",
+    "contestant": "pair-ledger",
+    "sample": 0,
+    "recordIndex": 742
+  }
+]
