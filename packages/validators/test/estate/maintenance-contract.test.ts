@@ -1,5 +1,5 @@
-import { parseSpecText } from '@driftbench/core';
-import * as estate from '@driftbench/estate';
+import { parseSpecText } from '@agent-nexus/driftbench-core';
+import * as estate from '@agent-nexus/driftbench-estate';
 import { beforeAll, describe, expect, it, vi } from 'vitest';
 import type { ItemResult } from '../../src/ladders/estate/bank/frame';
 import { impactFamily } from '../../src/ladders/estate/bank/loop';
