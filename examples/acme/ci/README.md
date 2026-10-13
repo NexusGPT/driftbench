@@ -56,7 +56,7 @@ With `--strict --margin 30`, the identity control on the 10-golden suite reads `
 
 `action/action.yml` at the repository root is a composite action around the command. Inputs: `specs`, `target`, `baseline`, `store`, `margin` (default `auto`), `min-goldens` (default 30), `strict`, `repeats`, `mode`, `budget-usd`, `faults`, `route` (one `tag=target` per line), `report-path`, `working-directory`, `driftbench` (the command that runs the CLI). Outputs: `verdict` and `report-path`. The step exits with the CLI exit code, so any verdict but parity fails the job.
 
-`driftbench-ci.yml` in this folder is a complete workflow. Copy it to `.github/workflows/`. It checks out the pull request's base and head, runs the baseline campaign on the base, runs the action on the head, and uploads the summary.
+`driftbench-ci.yml` in this folder is a complete workflow. Copy it to `.github/workflows/`. It checks out the pull request's base and head, runs the baseline campaign on the base, runs the action on the head, and uploads the summary. Both steps pass `--route flow:price-sheet=process:acme-ops`: the suite holds price-sheet tasks for the ops agent, and without the route `--target function:acme-sales` runs them on the chat agent, where they fail (171 of 195 cells pass instead of 195).
 
 ## Watching a store over time: `driftbench monitor`
 
