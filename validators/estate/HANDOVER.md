@@ -22,7 +22,7 @@ The tenth-fix full sweep completes on committed b32e618f, before iterations 23 a
 
 ### Completed tenth-fix full sweep, source iteration 22
 
-The immutable source is commit b32e618f446e69e25911621b4d66cc173747abf1 in .cache/full-22, local and not pushed. Its source-resolution stamp confirms estate and generate imports remain inside that snapshot. Seeds 1 to 20 and hidden {'seed': 7161295, 'source': 'head', 'head': 'b32e618f446e69e25911621b4d66cc173747abf1'} all remain at level 0. Exactly 924 of 1170 items pass on every seed; per-seed passing counts range from 933 to 947. Captures: .cache/estate-executor/full-22.json, full-22.state.json, full-22.source.json and full-22.stderr. They are local, not pushed.
+The immutable source is commit b32e618f446e69e25911621b4d66cc173747abf1 in .cache/full-22, local and not pushed. Its source-resolution stamp confirms estate and generate imports remain inside that snapshot. Seeds 1 to 20 and hidden 7161295 all remain at level 0. Exactly 924 of 1170 items pass on every seed; per-seed passing counts range from 933 to 947. Captures: .cache/estate-executor/full-22.json, full-22.state.json, full-22.source.json and full-22.stderr. They are local, not pushed.
 
 This source predates the quoted-path and scalar-rule fixes and the current unquoted-path candidate. It is not a current-branch full-score claim. The previous full sweep passes 911 of 1170 on c415e845, with hidden 290770053. The baseline passes 845 of 1170 with hidden 401483072. Their different sources, bank instruments and hidden cohorts remain explicit; do not credit their whole numerical differences to executor fixes.
 
