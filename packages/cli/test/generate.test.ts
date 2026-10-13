@@ -113,19 +113,19 @@ describe('driftbench generate', () => {
     const first = await run(['generate', '--map', `${ACME}map/approved.yaml`, '--out', 'a', '--t', '2'], dir);
     // Exit 1: the suite is written, and blocks whose value has no approved phrase are placeholders.
     expect(first.code).toBe(1);
-    expect(first.out.split('\n')[0]).toMatch(/^Actual axis-map coverage .*pairs 637 of 637 \(100\.0%\)/);
+    expect(first.out.split('\n')[0]).toMatch(/^Actual axis-map coverage .*pairs 701 of 701 \(100\.0%\)/);
     expect(first.out.split('\n')[1]).toContain('Candidate t-wise array');
     expect(first.out).toContain('Stage graph: 18 of 23 edges covered in 12 paths from needs.');
     expect(first.out).toContain(
-      'Candidate t-wise array (before the total cap): covering array of 132 rows over 5 dimensions',
+      'Candidate t-wise array (before the total cap): covering array of 156 rows over 5 dimensions',
     );
-    expect(first.out).toContain('Constraints applied: 457.');
+    expect(first.out).toContain('Constraints applied: 471.');
     expect(first.out).toContain(
-      '  Most frequent reasons:\n     1  it needs coverage_result in no-service; the cell holds none',
+      '  Most frequent reasons:\n     3  it needs user_type in existing-customer; the cell holds new-customer',
     );
     const before = await tree(join(dir, 'a'));
     expect(Object.keys(before)).toContain('generate-report.json');
-    expect(Object.keys(before).filter((path) => path.startsWith('specs/'))).toHaveLength(259);
+    expect(Object.keys(before).filter((path) => path.startsWith('specs/'))).toHaveLength(303);
 
     const refused = await run(
       ['generate', '--map', `${ACME}map/approved.yaml`, '--out', 'a', '--t', '2'],
@@ -204,7 +204,7 @@ describe('driftbench generate', () => {
     const result = await run(['generate', '--map', `${ACME}map/proposal.yaml`, '--out', 'out'], dir);
     expect(result.code).toBe(2);
     expect(result.err).toContain('MAP_NOT_APPROVED');
-    expect(result.err).toContain('284 of 284 entries are not approved');
+    expect(result.err).toContain('290 of 290 entries are not approved');
     expect(await readdir(dir)).toEqual([]);
   });
 

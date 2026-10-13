@@ -20,7 +20,7 @@ given:
     estate:
       runtime: claude-code
       map_hash: be2e7a0919cb31aecf73102cd271e7611cb439be814983a47b9dc39e38775f10
-    session_state: after_compaction
+    session_state: after_restart
     event: process_restart
     workspace_seed: northwind-ops
   world:
@@ -64,10 +64,10 @@ rules:
     grounded_values:
       block: 0
 perturbations:
-  - id: deviation-D10_return
-    class: D10_return
+  - id: deviation-D7_silence_or_burst
+    class: D7_silence_or_burst
     inject_at: 0
-    user: I'm back. Where were we?
+    user: Hello? Hello? Are you there?
     recovery:
       within_blocks: 1
 metadata:
@@ -76,11 +76,11 @@ metadata:
       - instruction.weekly-report.count-only-the-last-seven-days
     planRow: pairwise.0997
     cell:
-      ask_class: operate
-      ask_shape: ambiguous
-      session_state: after_compaction
-      owner_signal: hold
-      deviation: D10_return
+      ask_class: debug
+      ask_shape: multi_part
+      session_state: after_restart
+      owner_signal: keep_going
+      deviation: D7_silence_or_burst
       estate_hazard: process_restart
       atoms.instruction: instruction.weekly-report.count-only-the-last-seven-days
     seeder: estate

@@ -243,22 +243,22 @@
     }
   ],
   "coverage": {
-    "allowed": 637,
+    "allowed": 701,
     "covered": 306,
-    "share": 0.48,
+    "share": 0.437,
     "pool_covered": 598,
     "tway": [
       {
         "t": 2,
-        "allowed": 637,
+        "allowed": 701,
         "covered": 306,
-        "share": 0.48
+        "share": 0.437
       },
       {
         "t": 3,
-        "allowed": 3510,
+        "allowed": 4044,
         "covered": 794,
-        "share": 0.226
+        "share": 0.196
       }
     ],
     "required": [
