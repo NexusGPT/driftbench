@@ -99,16 +99,40 @@ Items fixed per pilot iteration: 19, 20, 9, 10, 8, 4, 4, 4, 3, 5; mean 8.6; none
 
 See `validators/floors.json`; `pnpm driftbench validate floors` prints it. The estate has no floor. Its current bank contains 1170 items; a floor waits for the hardness gate and the audit.
 
+## Local artifacts, not pushed
+
+Files under .cache are local, not pushed. They exist only in the canonical executor worktree; they are absent from Git clones and frozen handover archives unless copied explicitly. A frozen archive under .cache/handover-18 reaches the canonical root through ../.. Source and capture paths below are relative to that canonical root.
+
+The pending test packages/estate/test/scan/routing-names.test.ts is local, not pushed while iteration 19 runs. Its candidate .cache/s19candidate is also local, not pushed. The live canonical test now includes an extra red-first case for a skill and helper sharing a name. These files are absent from handover-18. The test joins the iteration 19 fix commit; the candidate remains local evidence.
+
+The sweep source .cache/full-17 is local, not pushed and is absent from handover-18. Read the canonical .cache/estate-executor/full-17.state.json, full-17.source.json, full-17.json and full-17.stderr for it. The directory is immutable source c415e845. A missing directory in a frozen archive is not proof that the named canonical sweep stopped.
+
 ## Open items
 
-The first failing level is reader and graph (scan.*). After the pilot, the causes with the most failing items (the full list: `driftbench validate estate --items`, each item names its cause):
+The published row 18 capture is iteration-18.json at source 37f55b91. It has 246 failures of 1170; reader has 83 failures of 641. The table reports that measured version, while iteration 19 remains local work.
+
+| Level | Passing | Failing |
+|---|---|---|
+| reader | 558/641 | 83 |
+| lint | 45/46 | 1 |
+| plan | 44/65 | 21 |
+| generation | 196/270 | 74 |
+| agent-mutants | 22/75 | 53 |
+| maintenance | 42/53 | 11 |
+| scale | 17/20 | 3 |
+
+All 25 bench.defects items, all 25 determinism items and all 37 stats items pass. None belongs in the current open list. The unit input mismatch and the documented closed-list conflicts remain in the defect section below. Seven maintenance oracle corrections are already merged on main in PR 133 and await import with the scope fix, without executor credit.
+
+### Historical pilot gap list
+
+
+The pilot lists these gaps before the later executor fixes. This list is historical and superseded by the current capture above:
 
 * Level 1, reader: routing cells without backticks, a slash command, a link to the skill file, a table whose first column names the skill, a table without outer pipes, routing as a list or a sentence or a heading (scan.standing, code.ts); standing files in subfolders and imported files (claude-code.ts); paths in quotes, bare, in bold, with backslashes, as @imports, as wiki links, with a line number, from the project folder variable, with a space (scan.paths); gate forms then, without, only after, a question, prior to, two on a line, act verbs updating and renaming (scan.gates); hazard synonyms and decoys with an outside owner (scan.hazards); negations, change notes, form numbers and quoted guard messages (scan.decoys). HTML comments and empty files are already handled; reader timing and the remaining hostile shapes stay open.
 * Level 4, generation: a registered custom check (44 items), a "some call matches" check (30 items), distinct positive phrases per route (6), no outside trigger row for a rule that applies always (6), guard message and timing checks (4 each), a stage reach check (3).
 * Level 3, plan: each situation crossed only with the atom kinds it acts on (plan.relevance, 20 items, one cause).
 * Level 5 and 6: deleted registers and gates that no test notices; maintenance retires a test only when every named atom leaves (7 items).
 * Level 7, scale: plan and generate over their time budget; at 5000 atoms lint reports 1132 findings on a clean estate, because a routing table longer than one prose chunk loses its rows past the chunk's end (bench.defects.long-routing-table holds the same cause at 400 rows).
-* bench.defects: the reference index offers files under ignored folders (hooks tests, skills/synced, __pycache__); a delete mutant of a guard or an env setting in settings.json is refused; `estate run --map` on a mutant folder drops the original pin; a phrase bank with no situation is refused; a registry row naming its guard by the adapter's short name, and an id cell holding two ids.
 * blind.*: "never read X before Y" is read as a gate; plural hazard words, characters counted in code units, list order as next edges and a helper named without backticks remain. HTML comments and tilde fences are masked as source examples; those comment items pass after iteration 16.
 
 ## Hypotheses tried
@@ -132,9 +156,11 @@ Then the owner-flagged output items: lint codes, scan order, approve counts (122
 
 ## Pitfalls
 
-Current rows measure the full bank afresh. Row 16 has 25 determinism items with one failing Node 22 lint comparison, 37 stats items all passing, 41 unit.runner items awaiting the input-contract review, and 25 bench.defects items all passing. gen.task is reinstated, not quarantined. The current bank has 1170 items. The current executor does not carry the pilot's scale measurements into its rows.
+Current row 18 measures the full bank afresh. All 25 determinism items pass, including all five Node 22 comparisons. All 37 stats items and all 25 bench.defects items pass. The 41 unit.runner items still await the input-contract review. gen.task is reinstated, not quarantined. The bank has 1170 items. Rows 17 and 18 record fresh scale measurements and retain their different timing outcomes.
 
 ### Historical pilot notes
+
+The former pilot bench gap list includes ignored reference folders, refused guard or setting mutants, the runtime pin, a phrase bank without a situation, short guard names and two ids in a registry cell. It is superseded: all 25 bench items pass at row 18.
 
 The following notes preserve the pilot's inputs, timings and earlier family sizes. They are historical observations, not the current open-item count or a current passing claim. Use the latest journal row and the measurements above for current values.
 
@@ -144,7 +170,7 @@ The following notes preserve the pilot's inputs, timings and earlier family size
 * kill.fake fails on all 31: the fake runtime knows only the Northwind proof asks, so most specs naming an atom fail on the original, and the specs that pass do not change on the mutant (D15 of the bench).
 * The bank holds bench.defects (20 items from a model-free bench run: D2, D5, D6, D7, D9 and the long routing table) and five blind.* families (176 items) written by a breaker that never read packages/estate. The bench items D6 and D7 run the CLI as a child process, so a row takes several minutes on a loaded machine.
 * The scale run of this measurement ran at a load average above 100: scale.scan-250 took 7 s against 4 s. A quieter run earlier passed the scan through 2500 atoms. Measure scale alone on a quiet machine.
-* A measurement of every item except scale on seeds 1 to 20 and the hidden seed takes under a minute with six seed groups in parallel (`SKIP=scale` in `_captures/v-estate/measure-par.mts`). The scale family alone takes about 70 minutes and depends on machine load: measure it alone, on a quiet machine. Every journal row holds the scale results of the one run at iteration 0, so no load difference counts as a fix.
+* A measurement of every item except scale on seeds 1 to 20 and the hidden seed takes under a minute with six seed groups in parallel (`SKIP=scale` in `_captures/v-estate/measure-par.mts`). The scale family alone takes about 70 minutes and depends on machine load: measure it alone, on a quiet machine. This is a historical pilot note about reused initial scale results. It does not describe the current executor rows. Rows 17 and 18 contain separate fresh scale runs; their measured timing gains and losses stay in their respective captures and journal rows.
 * The pilot fixed the hidden seed at 523931547 for every row, so rows compare item by item.
 * An item that turned out wrong is fixed by the bank's author in a commit of its own (section 12.3): a step of a named process may be qualified `<process>/<id>`, and the oracle compared it with the bare id (commit c14526b).
 * Several items can share one cause; the cause of each item is in bank/causes.ts. The largest causes (a registered custom check, a "some call matches" check, the plan's relevance table) hold 94 of the 237 failing items.
