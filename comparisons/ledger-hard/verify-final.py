@@ -6,10 +6,11 @@ d=load_module('dialect_verification',HERE/'dialect-run.py')
 
 def read(path):return [json.loads(s) for s in path.read_text().splitlines()] if path.exists() else []
 def main():
-    parser=argparse.ArgumentParser();parser.add_argument('--require-complete',action='store_true');args=parser.parse_args()
+    parser=argparse.ArgumentParser();parser.add_argument('--require-complete',action='store_true');parser.add_argument('--require-available',action='store_true');args=parser.parse_args()
+    settled=args.require_complete or args.require_available
     # Live reads span two journals. Use a common settled cutoff to avoid mixing
     # an earlier primary snapshot with later dialect dispatches.
-    observation_through=None if args.require_complete else (datetime.datetime.now(datetime.timezone.utc)-datetime.timedelta(seconds=5)).isoformat()
+    observation_through=None if settled else (datetime.datetime.now(datetime.timezone.utc)-datetime.timedelta(seconds=5)).isoformat()
     run.verify_seal();d.verify()
     recovery=json.loads((HERE/'crash-recovery.json').read_text())
     audit=json.loads((HERE/'construction-cue-audit.json').read_text())
@@ -58,7 +59,7 @@ def main():
         replay=json.loads((directory/'peer-native-decoder.json').read_text())
         assert all(by[k]['outcome']==v for k,v in replay.items())
         native_expected={k for k,a in by.items() if a['success'] and a['side'].startswith('peer')}
-        if args.require_complete:assert set(replay)==native_expected
+        if settled:assert set(replay)==native_expected
         attempt_events=read(directory/'recovery-attempts.jsonl')
         active=collections.Counter();maximum=collections.Counter()
         for a in attempt_events:
@@ -83,9 +84,12 @@ def main():
             for a in ms:
                 for field,value in (a.get('usage') or {}).items():
                     if isinstance(value,(float,int)):sums[field]+=value
-            usage[model]={'calls':len(ms),'usage_totals':dict(sums),'measured_usd':sum(run.priced(a) or 0 if model=='gpt-6-luna' else a.get('measured_usd') or 0 for a in ms)}
+            usage[model]={'calls':len(ms),'planned_calls':sum(r['model']==model for r in unique.values()),'usage_totals':dict(sums),'measured_usd':sum(run.priced(a) or 0 if model=='gpt-6-luna' else a.get('measured_usd') or 0 for a in ms)}
         complete=set(by)==set(unique)
         if args.require_complete:assert complete and not any(active.values())
+        if args.require_available:
+            assert not any(active.values())
+            assert all(unique[k]['model']=='gemini-3.8-flash' for k in set(unique)-set(by))
         assert all((a.get('error') or {}).get('status') not in (402,429) for a in answers),'Billing and quota errors must never be scored'
         details[experiment]={'complete':complete,'recorded_unique':len(by),'planned_unique':len(unique),'native_peer_decodes':len(replay),
             'recovery_max_concurrent':dict(maximum),'unanswered_started':len(set(start_counts)-set(by)),
@@ -105,13 +109,13 @@ def main():
         combined_active+=delta;combined_max=max(combined_max,combined_active)
         assert combined_active>=0
     assert combined_max<=4
-    if args.require_complete:assert combined_active==0
+    if settled:assert combined_active==0
     gemini_active=gemini_max=0
     for time,delta in sorted(quota_events):
         gemini_active+=delta;gemini_max=max(gemini_max,gemini_active)
         assert gemini_active>=0
     assert gemini_max<=2
-    if args.require_complete:assert gemini_active==0
+    if settled:assert gemini_active==0
     pacing_active=collections.Counter();pacing_max=collections.Counter();pacing_total_max=0
     for time,delta,model in sorted(pacing_events):
         pacing_active[model]+=delta
@@ -119,11 +123,13 @@ def main():
         pacing_max[model]=max(pacing_max[model],pacing_active[model])
         pacing_total_max=max(pacing_total_max,sum(pacing_active.values()))
     assert pacing_total_max<=sum(pacing['per_model_limits'].values())
-    if args.require_complete:assert not any(pacing_active.values())
+    if settled:assert not any(pacing_active.values())
+    available_complete=all(p['by_model'][m]['calls']==p['by_model'][m]['planned_calls'] for p in details.values() for m in ('haiku','gpt-6-luna'))
+    if args.require_available:assert available_complete
     result={'verified_at':stamp(),'concurrency_observation_through':observation_through,'experiments':details,'construction_audit_sha256':digest(HERE/'construction-cue-audit.json'),
-        'crash_reasked_recorded':len(reasked),'crash_authorised':len(authorised),'measured_usd':total,
+        'crash_reasked_recorded':len(reasked),'crash_reasked_keys':sorted(reasked),'crash_authorised':len(authorised),'measured_usd':total,
         'lost_attempt_reserve_usd':recovery['lost_attempt_reserve_usd'],'measured_plus_lost_reserve_usd':total+recovery['lost_attempt_reserve_usd'],
-        'complete':all(v['complete'] for v in details.values()),'no_request_key_overlap':True,
+        'complete':all(v['complete'] for v in details.values()),'available_models_complete':available_complete,'no_request_key_overlap':True,
         'combined_call_limit_from':boundary,'combined_max_concurrent_after_amendment':combined_max,
         'combined_four_call_limit_until':pacing_boundary,
         'gemini_call_limit_from':quota_boundary,'gemini_max_concurrent_after_amendment':gemini_max,
