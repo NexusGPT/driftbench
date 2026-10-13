@@ -55,7 +55,7 @@ type Turn = {
 
 A session's history starts as a copy of the prefix, whatever the adapter can do with it. The `seedPrefix` capability says whether the agent itself sees the prefix.
 
-Adapters can use `historyView(history)` from `@driftbench/core` for a read-only, point-in-time view. Creating a view captures the length without visiting earlier messages. The owner can append; it must not change messages already in the history. A retained view keeps its original length and content.
+Adapters can use `historyView(history)` from `@agent-nexus/driftbench-core` for a read-only, point-in-time view. Creating a view captures the length without visiting earlier messages. The owner can append; it must not change messages already in the history. A retained view keeps its original length and content.
 
 The view uses copy-on-write. A legacy array write makes a private shallow copy; a write to a message or its nested JSON makes a private deep copy. Neither changes the owner's history. `copyOnWriteHistory(history)` exposes the same view as `Message[]` for existing mutable callback signatures. Array methods, enumeration and JSON serialization work as before. To pass the view to an API that requires a plain object, such as `structuredClone`, first materialize it with `cloneJson(view)`. Freezing the proxy or changing its prototype is unsupported.
 

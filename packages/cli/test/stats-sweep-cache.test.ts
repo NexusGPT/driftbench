@@ -1,4 +1,4 @@
-import { defineLadder, runSeeds } from '@driftbench/validators';
+import { defineLadder, runSeeds } from '@agent-nexus/driftbench-validators';
 import { describe, expect, it } from 'vitest';
 import { createStatsMeasurementCache } from '../src/commands/stats-sweep-cache';
 

@@ -2,7 +2,7 @@ import { AsyncLocalStorage } from 'node:async_hooks';
 import { execFileSync } from 'node:child_process';
 import { createHash } from 'node:crypto';
 import { appendFileSync } from 'node:fs';
-import { type Ladder, type LadderReport, runSeeds, type SeedSpec } from '@driftbench/validators';
+import { type Ladder, type LadderReport, runSeeds, type SeedSpec } from '@agent-nexus/driftbench-validators';
 
 type CacheEvent = { key: string; cached: boolean; reportHash: string };
 

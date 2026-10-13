@@ -10,7 +10,7 @@
 
 Baseline on main a303a3f2 merged into codex/system-v3: bank version 5, 2384 items, 2355 passing, 29 failing, score 0.9878355704697986. Only seed 1 is complete. Do not extrapolate to other seeds. Older journals remain in journal-v2.jsonl, journal-v3.jsonl and journal-v4.jsonl.
 
-Latest committed measurement: source 6310d232 (iteration 4, canonical prefix text and mutable-list digests), bank version 5, seed 1 level 7, 2361 of 2384 passing (score 0.9903523489932886). Current-code coverage is 1 of 21 seeds. The earlier copy-only stage covers 5 of 21 at a different version and cannot be combined with this result.
+Latest committed measurement: source 6310d232 (iteration 4, canonical prefix text and mutable-list digests), bank version 5, seed 1 level 7, 2361 of 2384 passing (score 0.9903523489932886). Coverage at that measured source is 1 of 21 seeds. The earlier copy-only stage covers 5 of 21 at a different version and cannot be combined with this result.
 
 ## Floor
 
@@ -43,7 +43,7 @@ Iteration 4 commits the prefix-text implementation with packages/core/test/canon
 ## Pitfalls
 
 * No paid model calls, no git stash, no secrets, no bank edits. Commit trailer: Co-Authored-By: GPT-6.1 Sol (Codex) <noreply@openai.com>. <!-- guard:allow public commit attribution address -->
-* Vitest uses `--maxWorkers=2`; typecheck and lint must pass before each push.
+* Vitest uses `--maxWorkers=2`; after each main merge run `node tools/rename-scope.mjs`, then typecheck and lint before pushing.
 * The owner stages sweeps: seed 1 plus four more first; report completed seeds as N of 21. Run remaining seeds only while time remains before 06:00 local. The work ends at 07:00 local or 100 percent.
 * Nested stats measurements are cached by stats revision and seed only within one sweep. Dirty stats/bank code measures fresh. Disclose cache use and verify fresh/cached report equality.
 * The scale bank times CPU and keeps the minimum of repeated timings. One green micro-run is insufficient when another run fails the bound.
