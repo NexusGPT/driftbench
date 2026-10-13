@@ -1,5 +1,4 @@
 import JSZip from 'jszip';
-import mammoth from 'mammoth';
 import {
   countHolds,
   describeCount,
@@ -22,6 +21,7 @@ import {
 } from './document';
 import { matchList } from './match';
 import { mainPart, readXmlPart, relationships, targetOf } from './opc';
+import { loadReaderLibrary } from './optional';
 import { squash, TEXT_CHECKS, textEqual } from './text';
 import { attribute, childElement, childElements, type XmlElement } from './xml';
 
@@ -305,6 +305,8 @@ export const docxReader: KindReader = {
   kind: 'docx',
   checkNames: Object.keys(DOCX_CHECKS),
   async open(bytes, path) {
+    // mammoth loads on first use. A missing package fails here, outside the catch that reports an unreadable file.
+    const mammoth = await loadReaderLibrary('mammoth', 'docx', async () => (await import('mammoth')).default);
     try {
       const zip = await JSZip.loadAsync(ownBuffer(bytes));
       const data = await readStructure(zip);

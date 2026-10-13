@@ -1,4 +1,4 @@
-import { PDFParse } from 'pdf-parse';
+import type { PDFParse as PdfParser } from 'pdf-parse';
 import { countHolds, describeCount, parseCount } from './args';
 import {
   type CheckTable,
@@ -7,6 +7,7 @@ import {
   type StructureCheck,
   unreadable,
 } from './document';
+import { loadReaderLibrary } from './optional';
 import { TEXT_CHECKS } from './text';
 
 /** The pdf reader, on pdf-parse: the text of each page, and the page count. */
@@ -42,7 +43,9 @@ export const pdfReader: KindReader = {
   kind: 'pdf',
   checkNames: Object.keys(PDF_CHECKS),
   async open(bytes, path) {
-    let parser: PDFParse | undefined;
+    // pdf-parse loads on first use. A missing package fails here, outside the catch that reports an unreadable file.
+    const { PDFParse } = await loadReaderLibrary('pdf-parse', 'pdf', () => import('pdf-parse'));
+    let parser: PdfParser | undefined;
     try {
       parser = new PDFParse({ data: new Uint8Array(bytes), verbosity: 0 });
       const result = await parser.getText();
