@@ -3,8 +3,8 @@ import datetime,json,os,re,subprocess,time
 from pathlib import Path
 BASE=Path(__file__).resolve().parent
 CONTROL=BASE/'evidence/network-control.json';STATE=BASE/'evidence/network-admission.json';LOG=BASE/'evidence/network-probes.jsonl'
-HOSTS={'haiku':'api.anthropic.com','claude-sonnet-5-5':'api.anthropic.com','gpt-6.1-sol':'api.openai.com'}
-CONNECTION=re.compile(r'ENOTFOUND|ECONNRESET|ETIMEDOUT|EAI_AGAIN|UND_ERR_CONNECT_TIMEOUT|connect(?:ion)?[^\n]{0,40}(?:timeout|reset|refused|closed)|fetch failed|ran past \d+ ms|socket hang up|DNS',re.I)
+HOSTS={'gpt-6-luna':'api.openai.com','haiku':'api.anthropic.com','claude-sonnet-5-5':'api.anthropic.com','gpt-6.1-sol':'api.openai.com'}
+CONNECTION=re.compile(r'ENOTFOUND|ECONNRESET|ETIMEDOUT|EAI_AGAIN|UND_ERR_CONNECT_TIMEOUT|connect(?:ion)?[^\n]{0,40}(?:timeout|reset|refused|closed)|fetch failed|could not be reached|ran past \d+ ms|socket hang up|DNS',re.I)
 def now():return datetime.datetime.now(datetime.timezone.utc).isoformat()
 def read(p):return json.loads(p.read_text())
 def save(value):

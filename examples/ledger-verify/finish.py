@@ -69,9 +69,8 @@ for key in ['OPENAI_API_KEY', 'GEMINI_API_KEY', 'ANTHROPIC_API_KEY', 'VERIFY_OPE
     env.pop(key, None)
 env['TMPDIR'] = str(ROOT / '.tmp')
 commands = [
-    [str(ROOT / 'node_modules/.bin/tsx'), '--tsconfig', 'examples/ledger-verify/tsconfig.json', 'examples/ledger-verify/trace-requests.ts', '--all'],
+    ['python3', 'examples/ledger-verify/validate-replay-artifacts.py'],
     ['python3', 'examples/ledger-verify/output_limits.py'],
-    ['python3', 'examples/ledger-verify/check-replays.py'],
     ['python3', 'examples/ledger-verify/summarize.py'],
 ]
 try:
@@ -106,6 +105,13 @@ try:
     test_recovery_path = BASE / 'evidence/haiku-test-timeout-recovery.json'
     if test_recovery_path.exists():
         test_recovery = json.loads(test_recovery_path.read_text())
+        targets = {r['fingerprint'] for r in test_recovery['requests']}
+        original_ids = {r['id'] for r in json.loads((BASE / 'evidence/haiku-test-timeouts.json').read_text())['calls']}
+        physical = [r for r in map(json.loads, (BASE / 'receipts/calls.jsonl').read_text().splitlines()) if r.get('model') == 'haiku' and r.get('phase') == 'test' and r.get('fingerprint') in targets and r['id'] not in original_ids]
+        test_recovery['newReceiptIds'] = [r['id'] for r in physical]
+        test_recovery['newSettledUsd'] = sum(r['costUsd'] for r in physical)
+        test_recovery['feeAttributionPolicy'] = 'All physical recovery receipts, including responses reused after a scheduler restart'
+        test_recovery_path.write_text(json.dumps(test_recovery, indent=2) + '\n')
         cells['haikuTestTimeoutRecovery'] = test_recovery
         for name in ['haiku-test-timeouts.json', 'haiku-test-timeout-execution.json', 'haiku-test-timeout-recovery.json']:
             rel = 'evidence/' + name
