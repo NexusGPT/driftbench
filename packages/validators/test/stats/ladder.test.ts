@@ -1,11 +1,19 @@
+import * as childProcess from 'node:child_process';
+import { fileURLToPath } from 'node:url';
 import * as stats from '@agent-nexus/driftbench-stats';
-import { describe, expect, it } from 'vitest';
-import { runLadder } from '../../src/ladder';
+import { describe, expect, it, vi } from 'vitest';
+import { defineLadder, runLadder } from '../../src/ladder';
 import { registeredLadders } from '../../src/ladders/index';
 import { BANK_LEVELS, runInProcess, statsBank } from '../../src/ladders/stats/bank/index';
 import { runIsolated } from '../../src/ladders/stats/bank/isolate';
 import { STATS_LADDER_VERSION, statsLadder } from '../../src/ladders/stats/index';
+import { isolatedFixtureItems } from './fixtures/isolated-items';
 import { ROOT, SLOW } from './support';
+
+vi.mock('node:child_process', async (importOriginal) => {
+  const actual = await importOriginal<typeof import('node:child_process')>();
+  return { ...actual, spawn: vi.fn(actual.spawn) };
+});
 
 describe('the stats ladder, version 2', { timeout: SLOW }, () => {
   const bank = statsBank(ROOT);
@@ -92,22 +100,51 @@ describe('the stats ladder, version 2', { timeout: SLOW }, () => {
   });
 
   it('stops an item that does not finish and goes on with the next one', async () => {
-    const items = bank.filter(
-      (item) => item.id === 'degenerate.ksTest.nan-in-data' || item.id === 'degenerate.mean.single',
-    );
-    const run = await runIsolated(items, 1, ROOT, () => 3_000, 1);
-    expect(run.get('degenerate.ksTest.nan-in-data')).toMatchObject({ pass: false });
-    expect(run.get('degenerate.ksTest.nan-in-data')?.detail).toMatch(
-      /^did not finish within 3000 ms on seed 1/,
-    );
-    expect(run.get('degenerate.mean.single')).toMatchObject({ pass: true });
+    const { spawn } = await vi.importActual<typeof childProcess>('node:child_process');
+    const fixture = fileURLToPath(new URL('./fixtures/isolated-items.ts', import.meta.url));
+    // Keep the real subprocess and timeout machinery; substitute only its controlled bank.
+    const child = vi
+      .mocked(childProcess.spawn)
+      .mockClear()
+      .mockImplementation((command, args, options) =>
+        spawn(command, [...(args ?? []).slice(0, 2), fixture, ...(args ?? []).slice(3)], options),
+      );
+    try {
+      const run = await runIsolated(isolatedFixtureItems, 1, ROOT, () => 3_000, 1);
+      expect(run.get('fixture.never-finishes')).toMatchObject({ pass: false });
+      expect(run.get('fixture.never-finishes')?.detail).toMatch(/^did not finish within 3000 ms on seed 1/);
+      expect(run.get('fixture.finishes')).toMatchObject({ pass: true, detail: 'fixture completed' });
+      // The timed-out process is replaced and resumes at the following item.
+      expect(child).toHaveBeenCalledTimes(2);
+      expect(child.mock.calls.map((call) => call[1]?.at(-1))).toEqual(['0', '1']);
+    } finally {
+      child.mockImplementation(spawn);
+      child.mockClear();
+    }
   });
 
-  it('runs the registered bank on seed 1 and stops at the degenerate level', async () => {
-    const ladder = registeredLadders().stats as NonNullable<ReturnType<typeof registeredLadders>['stats']>;
+  it('stops at the degenerate level when its fixture fails', async () => {
+    const calls: string[] = [];
+    const failingItem = { id: 'fixture.degenerate', component: 'fixture/stats', detail: 'planted failure' };
+    const ladder = defineLadder({
+      component: 'stats',
+      version: STATS_LADDER_VERSION,
+      levels: BANK_LEVELS.map((id) => ({
+        id,
+        name: id,
+        metric: 'passed / planted',
+        threshold: 1,
+        compute: () => {
+          calls.push(id);
+          return id === 'degenerate' ? { value: 0, items: [failingItem] } : { value: 1, items: [] };
+        },
+      })),
+    });
     const run = await runLadder(ladder, { seed: 1, root: ROOT });
     expect(run.rows[0]?.pass).toBe(true);
-    expect(run.failing?.id).toBe('degenerate');
+    expect(run.failing).toMatchObject({ id: 'degenerate', level: 2, items: [failingItem] });
     expect(run.level).toBe(1);
-  }, 900_000);
+    expect(calls).toEqual(['reference', 'degenerate']);
+    expect(run.rows.slice(2).every((row) => row.pass === null)).toBe(true);
+  });
 });
