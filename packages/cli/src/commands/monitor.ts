@@ -233,7 +233,7 @@ export async function monitorTracesCommand(
   const series = traceSeries(traces, metric, every);
   if (series.points.length < 2 * window) {
     io.err(
-      `The traces fill ${count(series.points.length, 'window')} of ${options.every ?? '1h'} with ${metric}; --window ${window} needs at least ${2 * window}.\n`,
+      `The traces fill ${count(series.points.length, 'window')} of ${options.every ?? '1h'} with ${metric}; --window ${window} needs at least ${2 * window}. ${tooFewPoints(series.points.length, 'traces', 'Read more traces, or pass a shorter --every')}\n`,
     );
     return 2;
   }
@@ -299,7 +299,7 @@ export async function monitorCommand(
   }
   if (points.length < 2 * window) {
     io.err(
-      `The store holds ${count(points.length, 'campaign')} with runs; --window ${window} needs at least ${2 * window}.\n`,
+      `The store holds ${count(points.length, 'campaign')} with runs; --window ${window} needs at least ${2 * window}. ${tooFewPoints(points.length, 'store', 'Run more campaigns into it')}\n`,
     );
     return 2;
   }
@@ -585,4 +585,20 @@ function display(path: string, io: Io): string {
 
 function count(n: number, noun: string): string {
   return `${n} ${noun}${n === 1 ? '' : 's'}`;
+}
+
+/** The smallest `--window`: the series needs twice as many points. */
+const MIN_WINDOW = 2;
+
+/**
+ * What to do about a series shorter than two windows. It is refused as bad input (exit 2), yet the usual
+ * cause is a young store, so the message says that nothing is broken and names a window that fits.
+ */
+function tooFewPoints(points: number, source: string, more: string): string {
+  const fits = Math.floor(points / 2);
+  const next =
+    fits >= MIN_WINDOW
+      ? `${more}, or pass a window that fits: --window ${fits} at most.`
+      : `${more}: the smallest window, --window ${MIN_WINDOW}, needs ${2 * MIN_WINDOW}.`;
+  return `Nothing is wrong with the ${source}: the monitor cannot decide on so few points. ${next}`;
 }
