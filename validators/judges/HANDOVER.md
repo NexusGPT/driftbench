@@ -153,6 +153,7 @@ The `coverage_before_offer` criterion was ambiguous: its rubric said "a coverage
 Iteration 135 (cause: ambiguous x5 rubric, see HANDOVER)
 Iteration 136 (main merged PR 167 without its race fix and without my Gemini schema; both reapplied. googleSchema now also turns a null member of a multi-member anyOf (146's evidence spans) into nullable.)
 Iteration 137 (the evidence field is now anyOf string or spans (PR 146); the item expects nullable true with a string member)
+Iteration 138 (main merged; pinned google body hash updated for the nullable schema; escalation.ts narrowed on a/b.)
 
 ## Next actions
 
