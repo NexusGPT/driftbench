@@ -2,7 +2,7 @@ import { mkdir, mkdtemp, readFile, rm, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { registeredLadders } from '@driftbench/validators';
+import { readFloors, registeredLadders } from '@driftbench/validators';
 import { afterAll, describe, expect, it } from 'vitest';
 import {
   bankLadder,
@@ -14,6 +14,7 @@ import {
 import { USAGE_EXIT, type ValidateDeps, validateCommand } from '../src/commands/validate';
 import { main } from '../src/index';
 import type { Io } from '../src/io';
+import { committedFloorRun } from './support/committed-floor';
 
 const made: string[] = [];
 afterAll(async () => {
@@ -326,12 +327,16 @@ describe('driftbench validate through main', () => {
 
   // One test per registered ladder, so each has its own time and a slow ladder is named. The validators
   // workflow also runs `validate all --seeds 1..3 --hidden --check-floor`, which checks the floors file as a whole.
-  it.each(Object.keys(registeredLadders()))(
+  it.for(Object.keys(registeredLadders()))(
     'holds the committed floor of the %s ladder',
-    async (component) => {
-      expect((await run(['validate', component, '--seed', '1', '--check-floor'])).code).toBe(0);
+    { timeout: 600_000 },
+    async (component, context) => {
+      const ladder = registeredLadders()[component];
+      if (!ladder) throw new Error(`Missing registered ladder ${component}`);
+      const { floor, run } = await committedFloorRun(ladder, readFloors(ROOT), ROOT);
+      if (!run) context.skip(`No floor applies to ${component} version ${ladder.version}`);
+      expect(run?.level).toBeGreaterThanOrEqual(floor);
     },
-    600_000,
   );
 
   it('holds the committed handovers, as CI checks them', async () => {
