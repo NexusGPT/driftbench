@@ -1,0 +1,21 @@
+{
+  "seed": "astra-planted-truth-2026-10-13-v1",
+  "verifyPairs": 95,
+  "rubricPairs": 60,
+  "verifySourceTemplates": 10,
+  "rubricSourceTemplates": 10,
+  "noiseItemsPerBenchmark": 30,
+  "noiseRepeats": 3,
+  "scope": "Seeded re-instantiations of executable DEV templates. Rubric items project one verbatim objective expert requirement; not full-rubric accuracy.",
+  "labels": "Construction code only. No model or official label used for bank truth.",
+  "noiseScope": "Seeded restricted DEV cohorts: math and fictional logic for verify; math and MBPP for RubricBench. Results do not estimate all-domain variability.",
+  "files": {
+    "bank-verify.json": "06d6dd42d545886f739c653064b2d82348c398f7a13773da836de6881fcb8e59",
+    "bank-rb.json": "edc44ecf3d83cf83dff0b4bedb8380fbcc3ad5880af9eae176e31bcedc55f0f8",
+    "noise-cohorts.json": "138458606cce3f7248a48d7c2404a268b855f189da4e90fd6147ee401037fcc5"
+  },
+  "noiseEligible": {
+    "verify": 38,
+    "rb": 30
+  }
+}

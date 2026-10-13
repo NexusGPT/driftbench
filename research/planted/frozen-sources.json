@@ -1,0 +1,63 @@
+{
+  "verify": {
+    "sourceWorktree": "codex-verify",
+    "judgeFreezeCommit": "558d75de017ecbf243852f5669a1bffeb8d511b9",
+    "copiedHead": "74a0b7dc64a07a6a28dd2e7765a136733e8d0c59",
+    "files": {
+      "verify-domain.ts": "269cdce5bf8e12154741f4b9c07466653219130821fe5b97d633e1cdb99f85c9",
+      "score.ts": "6edd315117e69756cb0705e4335dfb7675805374a1d3aee357ac477123f6e827",
+      "data.ts": "0ad8c198e952608eb0c3959c6147d98e07253265b72e196d270ddff57ebfdc00",
+      "verify-label-audit.py": "6fd61d9bd6ff393d7b32ade1465eb6dca6b7ee434d611a92afb8397ca7080e0c",
+      "verify-test.ts": "2223eb1aa68b18ae6d4c5a368c651ad85f2681f9435de523a8bcf194c832e79d",
+      "call.ts": "d8a69d68ab0fbf54e0dd9696878037706305b1ae9b28e04e94ccf42225a855af",
+      "verify.ts": "bfa07110400973fbce2e93752c0a88ed192bb2a37142d59197ae7e8a8d1cf35d",
+      "verify-summary.ts": "8c544ba6c3ba6a25f4987fc9e3f1018782bb8fcd8e90eeb52e05e887026234a5",
+      "verify-tools.py": "92b52ba7027a6970b2c734dc3652472db7a80d34962f5dbd0655ba6d4f4ae045",
+      "verify-freeze.ts": "9ae6f0a22daa1ff5c7a8558e8fecdcef9b73437945401105e8fb7441204af20f",
+      "chart.ts": "8c25cdef2e36a9eac87096ce343ffda66a8e0b90fcd44cb826adfb97c48c1300",
+      "verify-test-metrics.ts": "631ec8cc21d9629643523e1fd9a56585463c602b995155520a94f80c61924432",
+      "verify-tools.ts": "b6ddaae7e150fc3ad18872e23e25ddb7613ea5ac03c46bfe3a8270783db35c23",
+      "verify-extraction.ts": "f1f2717b7815f9aa44da283e3360e5c87b42be63d6b17d0012f2f86a79d76cce",
+      "verify-dossier.ts": "33dcafaf06990eb37cb1e4502d35d033c00fc00fb201ebf9ef1fb54835b5dafb",
+      "verify-experiment.ts": "283988e5f65ef45a40676e9f6cc443ad23b7f3d245e267c2597159857a9383f3",
+      "charts.ts": "0c1315a9b55c8a5349d4a3f40a591e6b549cfaada381447a07f6e72a4301c8ec",
+      "contestants.ts": "7f6c6e9a3ab8b7f6ff49ce5b032fce1bfd6c8d5e04e1c949444d0110d040f43a",
+      "guard-allow.ts": "fb1f997b841467d751c41cd2025245a99768cd1d90e1bdd942b1bfb2ec7d0e7f",
+      "run.ts": "41d295290938673a96c796be95391ef2a6b1b71039145d3a18cfcc77507dfed0",
+      "extras.ts": "ecfffad279bbe7a99e95a5761a18a577dbf9fad1122cd35777418c97dd9f54fa"
+    }
+  },
+  "rb": {
+    "sourceWorktree": "codex-rb",
+    "judgeFreezeCommit": "3a005038df792afc724de338ae733529b06e03d9",
+    "copiedHead": "76f4f6a6a3acaf105a9f1e0849becf9cf9a3efc5",
+    "files": {
+      "score.ts": "6edd315117e69756cb0705e4335dfb7675805374a1d3aee357ac477123f6e827",
+      "data.ts": "0ad8c198e952608eb0c3959c6147d98e07253265b72e196d270ddff57ebfdc00",
+      "code-evidence.ts": "7552ea80f292ca33c292142910b2556094a19cf44d7d85942a2de98f92bc0929",
+      "json.ts": "c90d969e2b454052187f451c83f1a3f640b720a29a6d71c181a4a81a32d3e395",
+      "call.ts": "807f6842f62616b3d482fbf5536ac84abd5bf0478cbaab564e0a878e890852f0",
+      "rubric-quote-audit.ts": "b8613c9d563cef2384903ed967f96255313bd937e50fd4f069d5a7f15b4cf14e",
+      "rubric-audit.ts": "f16c088d7b2cfe96d160837187f8c70d440495979e49f2f10c8756f0c1899f42",
+      "recording-shard.ts": "509bb89fe80057317bcb7259f0ed676caa62628075be1819251e5c05076ebaee",
+      "rubric-execute.ts": "4f9e8777a427dd163b12188500888ac484d4578b4f4f367d4b66a110f360975c",
+      "rubric-night.ts": "3853a6641d4675ebcc3d882f7a896283a72c329faab25f08c652fb192227aaeb",
+      "rubric-experiment.ts": "bf2bb95abfb34de3081c044adde61a06b651dd69574d05efedff326d9729c2f0",
+      "rubric-atomic.ts": "0009d0ba79ad509898ada626e7e09d8b6734ba4ae615a8c1d8c9ba462ac97ea3",
+      "quote-matching.ts": "5d4e99d24df84a86252976563c665eff9730aababcae95b8d820f0fab98d8569",
+      "rubric-items.ts": "b23fcd163c36d9d01e2ddbb669f0b746eca70f22d1cfc7cfcfde744db9aefe6a",
+      "chart.ts": "8c25cdef2e36a9eac87096ce343ffda66a8e0b90fcd44cb826adfb97c48c1300",
+      "rubric-report.ts": "9cbe2b5124276eac109b6b19d47035e6877d927ceb2d071ee6191f711f28accf",
+      "recording-files.ts": "47697e2895feb9923819b81bd5813ddccd914d8c071249a04214d0ae327b95ee",
+      "rubric-engine.ts": "0102ff5cd89ccda25935879782c1ffbc02ce56ead37eec19a77f90438b334e48",
+      "charts.ts": "0c1315a9b55c8a5349d4a3f40a591e6b549cfaada381447a07f6e72a4301c8ec",
+      "rubric-official-test.ts": "b4caed4087844613fc3c853b29f5efa6603e64a2bbd7e2b7decbaa8e0337235e",
+      "contestants.ts": "c18abba781d96ee2a55c335920d347fb2e143a7916812aa2dc6bb1760a16230a",
+      "quote-contract.ts": "3ca204b6b6a656b499f9410c2003dc2fb8bf2bc7de59b77d9446a7cc1a65f6c3",
+      "guard-allow.ts": "e999ff67424918eb345b61f53ef658e82405a598f3713b756be87572069af1d5",
+      "rubric-campaign.ts": "87aca7636456016220358e8b6f7fa3b64f581c2d5efe03a332b25d89c291d57e",
+      "run.ts": "94f18785330dea171d7e6194f21f37a5ea2c3cd17348a0009b04dc1e9204b642",
+      "extras.ts": "4d3913680625636689b6a85d4c05d98728aa50fbee44f47d60d954f11052bdef"
+    }
+  }
+}
