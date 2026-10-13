@@ -25,7 +25,7 @@ export const SETTINGS = {
   concurrency: 14, testOrderSeed: 'ledger-rb-test-order-v1',
   modelConcurrency: { 'claude-haiku-5-5': 4, 'gpt-6-luna': 8, 'gemini-3.8-flash': 2 },
   haikuPacing: { maximum: 4, fallback: 2, loadOneMinuteThreshold: 60,
-    errorTrigger: 'Any new Haiku transport or parse error after this runner starts. Reduction remains latched for the run; in-flight calls drain.' },
+    errorTrigger: 'Two Haiku timeout, network or CLI process failures within ten minutes, using completion timestamps. Parse errors are judge results and never affect pacing. Reduction remains latched for the run; in-flight calls drain.' },
   rateLimitWaitMs: [60000, 120000, 240000],
   dailyQuotaWindow: GEMINI_WINDOW,
   providerBlockPolicy: 'An empty model answer with an explicit provider block/refusal reason is provider-blocked. Any blocked request makes the whole item an error for that contestant in the headline score, identically for ledger and promptfoo. The second score removes an item from both contestants on that model if either was provider-blocked. Nonempty model refusals are ordinary returned answers. Provider blocks are never retried.',
@@ -306,15 +306,13 @@ async function main() {
   const selectedJobs = jobs.filter((j) => models.includes(j.model));
   const todo = selectedJobs.filter((j) => !done.has(decisionKey({ ...j, id: j.item.id })));
   let writes = Promise.resolve();
-  const haikuErrors = () => calls.rows.filter((r) => r.model === 'claude-haiku-5-5' && r.status === 'error').length;
-  let newHaikuParseErrors = 0;
-  const pacing = new HaikuPacing(haikuErrors());
+  const pacing = new HaikuPacing();
   const currentLimit = (model: string, maximum: number) => {
     if (model !== 'claude-haiku-5-5') return maximum;
-    const load = loadavg()[0]!, errors = haikuErrors() + newHaikuParseErrors;
-    const state = pacing.update(load, errors);
+    const load = loadavg()[0]!;
+    const state = pacing.update(load, calls.rows);
     if (state.newlyReduced) console.error(JSON.stringify({ event: 'haiku-pacing-reduced', at: new Date().toISOString(),
-      limit: state.limit, reason: state.reason, loadOneMinute: load, errors }));
+      limit: state.limit, reason: state.reason, loadOneMinute: load, recentTransportFailures: state.recentTransportFailures }));
     return Math.min(maximum, state.limit);
   };
   process.once('SIGUSR2', () => { stopped = true; console.error('Stop requested; draining in-flight work'); });
@@ -322,7 +320,6 @@ async function main() {
       try {
         const requirements = reqs.get(job.item.id) ?? [{ name: 'rb_1', rubric: job.item.criterion! }];
         const row = classifyProviderBlock(await evaluate(job.item, requirements, job.model, job.phase, job.sample, job.contestant, transports.get(job.model)!, calls, execute, undefined, billingEpoch, job.model === 'gemini-3.8-flash' && execute ? 1 : undefined), calls.rows);
-        if (row.model === 'claude-haiku-5-5' && row.status === 'unparsed') newHaikuParseErrors++;
         writes = writes.then(() => appendRecording(resultPath, row)); await writes;
         completed++;
         console.log(JSON.stringify({ phase, model: job.model, contestant: job.contestant, completed: done.size + completed, target: selectedJobs.length, chargedUsd: calls.chargedUsd, status: row.status }));

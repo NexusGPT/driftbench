@@ -47,6 +47,7 @@ export type LedgerCall = {
   httpStatus?: number;
   retryAfterMs?: number;
   reservationReleasedUsd?: number;
+  completedAt?: string;
 };
 export class LedgerBudgetStop extends Error {}
 export class LedgerRateLimitStop extends Error {}
@@ -187,6 +188,7 @@ export class LedgerCalls {
         error: reason, retryable, ...(httpStatus === undefined ? {} : { httpStatus }),
         ...(retryAfterMs === undefined ? {} : { retryAfterMs }) };
     }
+    row.completedAt = new Date().toISOString();
     // A sibling job may still be finishing an answer. It can retain that answer,
     // but its next order must not start after this provider rejects prepayment.
     if (isPrepaymentRejection(row)) this.prepaymentStoppedModels.add(identity.model);
