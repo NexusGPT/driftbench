@@ -1,0 +1,1 @@
+Scenario source, commit ad220e6a641c3aa38484cbb94d60566d5c9a2c10, Apache-2.0. The Python source is copied unchanged. prompts.json extracts original literal prompt bytes and replaces interpolation expressions with placeholders. The TypeScript transport is a modified implementation, not the Scenario runtime.

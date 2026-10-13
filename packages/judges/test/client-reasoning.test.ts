@@ -104,10 +104,18 @@ describe('explicit reasoning on chat clients', () => {
   it('rejects unsupported Anthropic reasoning before any request', () => {
     expect(() => createAnthropicJudge({ env, reasoning: 'high' })).toThrow(/reasoning.*not supported/i);
   });
-  it('rejects unsupported HTTP reasoning before any request', () => {
-    expect(() =>
-      createHttpJudge({ url: 'https://judge.example.test', family: 'custom', reasoning: 'high' }),
-    ).toThrow('reasoning is not supported by the HTTP judge client');
+  it('rejects HTTP reasoning on a non-ledger request before sending it', async () => {
+    const client = createHttpJudge({
+      url: 'https://judge.example.test',
+      family: 'custom',
+      reasoning: 'high',
+      fetch: async () => {
+        throw new Error('Unexpected network request');
+      },
+    });
+    await expect(client.judge(REQUEST)).rejects.toThrow(
+      'reasoning is supported only by HTTP pair-ledger requests',
+    );
   });
   for (const [name, make] of [
     ['Jev', createJevJudge],

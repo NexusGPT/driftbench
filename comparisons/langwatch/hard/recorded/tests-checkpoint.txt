@@ -1,0 +1,13 @@
+
+ RUN  v5.0.3 /Users/assem/Documents/GitHub/driftbench/.worktrees/codex-pairwise
+
+
+ Test Files  3 passed (3)
+      Tests  11 passed (11)
+   Start at  06:32:20
+   Duration  4.27s (transform 59%, import 27%, tests 13%)
+
+  Transform  transforming modules took 4.00s · 59% of tracked time, re-done on every run
+             persist transforms across runs with fsModuleCache: true
+             learn more: https://vitest.dev/guide/improving-performance#caching-between-reruns
+

@@ -3,6 +3,12 @@ import { inconclusive, type JudgeRequest, type JudgeResult } from './contract';
 import { groundEvidence, groundEvidenceSpan } from './evidence';
 
 export type CriterionRequirement = { readonly id: string; readonly requirement: string };
+/**
+ * Decoder identity is separate from the unchanged model-facing prompt. The default stays strict
+ * version 1, so default requests keep their bytes, keys and verdicts. Version 2 is opt-in.
+ */
+export const CRITERION_DECODER_VERSION = 1;
+export type CriterionDecoderVersion = 1 | 2;
 
 /** The caller owns the requirement set; an unsplit criterion is one complete requirement. */
 export function requirementsFor(request: JudgeRequest): readonly CriterionRequirement[] {
@@ -42,6 +48,8 @@ export const CriterionLedger = z.strictObject({
     .min(1),
 });
 export type CriterionLedger = z.infer<typeof CriterionLedger>;
+/** Grounding diagnostics are decoder output, never fields requested from the model. */
+export type CriterionCheck = CriterionLedger['checks'][number] & { readonly grounded?: false };
 
 /** Every requested id must be present once. Unknown ids are ignored and retained as diagnostics. */
 export function parseCriterionLedger(value: unknown, request: JudgeRequest, raw: string): JudgeResult {
@@ -74,11 +82,12 @@ export function parseCriterionLedger(value: unknown, request: JudgeRequest, raw:
   });
   const parsed = CriterionLedger.safeParse(known);
   if (!parsed.success) return invalid(parsed.error.issues[0]?.message ?? 'invalid structure');
-  const checks = parsed.data.checks;
+  const checks: CriterionCheck[] = parsed.data.checks;
   if (new Set(checks.map((check) => check.id)).size !== checks.length)
     return invalid('duplicate requirement id');
   const missing = expected.filter((r) => !checks.some((check) => check.id === r.id)).map((r) => r.id);
   if (missing.length) return invalid(`missing requirement ids: ${missing.join(', ')}`);
+  let evidenceUnverified = 0;
   for (const check of checks) {
     if (check.met === true && check.evidence === null)
       return invalid('a met requirement needs grounded evidence');
@@ -88,8 +97,14 @@ export function parseCriterionLedger(value: unknown, request: JudgeRequest, raw:
         ? groundEvidence(request, { outcome: 'inconclusive', reasoning: '', evidence: check.evidence })
             .grounded
         : check.evidence.every((span) => groundEvidenceSpan(request, span).grounded))
-    )
-      return invalid('the evidence quote is not in the supplied data');
+    ) {
+      if (request.criterionDecoderVersion !== 2 || typeof check.evidence !== 'string')
+        return invalid('the evidence quote is not in the supplied data');
+      // Preserve the model's met value, but never present an unverified string as a quote.
+      check.evidence = null;
+      Object.assign(check, { grounded: false });
+      evidenceUnverified++;
+    }
   }
   const evidence = checks.flatMap((check) =>
     check.evidence === null
@@ -106,6 +121,7 @@ export function parseCriterionLedger(value: unknown, request: JudgeRequest, raw:
   return {
     raw,
     checks,
+    ...(evidenceUnverified ? { evidenceUnverified } : {}),
     ...diagnostics,
     answer: {
       outcome,

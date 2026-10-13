@@ -264,3 +264,7 @@ outside the repository. These are invented evidence absent from the supplied
 inputs, even where the final classification is correct. Scores remain unchanged.
 `final-integrity.json` records chunk hashes, distinct-input counts and source
 freezes. One cutoff invocation uses a conservative 0.05 USD failure reservation.
+
+The free `score.py` command preserves the original header of published loss
+audits while recomputing their contents. It writes an audit or `--output` file
+only when its bytes differ, so an unchanged replay preserves file timestamps.

@@ -1,0 +1,722 @@
+{"line":"[\n"}
+{"line":"  {\n"}
+{"line":"    \"id\": \"pii-seed-20261013-person_brand-01-positive\",\n"}
+{"line":"    \"kind\": \"person_brand\",\n"}
+{"line":"    \"text\": \"{\\\"format\\\":\\\"working copy\\\",\\\"section\\\":{\\\"text\\\":\\\"This customer is a private individual. Full name: Zeldovtov Luvzelwexwood. Use this name on the personal account.\\\"},\\\"appendix\\\":\\\"The accompanying inventory lists plain folders and unused packaging.\\\"}\\nArchive material tag: bimzelkesh-rulrulluv.\",\n"}
+{"line":"    \"truth\": true,\n"}
+{"line":"    \"rationale\": \"Positive by construction. A personal full name is present; a product or company name alone is not a personal name.\",\n"}
+{"line":"    \"person\": true,\n"}
+{"line":"    \"address\": false,\n"}
+{"line":"    \"identifier\": false,\n"}
+{"line":"    \"identifierType\": null,\n"}
+{"line":"    \"seed\": 20261013\n"}
+{"line":"  },\n"}
+{"line":"  {\n"}
+{"line":"    \"id\": \"pii-seed-20261013-person_brand-01-negative\",\n"}
+{"line":"    \"kind\": \"person_brand\",\n"}
+{"line":"    \"text\": \"Document excerpt:\\nDovyunkesh Tools is the registered product brand for a stapler. Yundovtov Corporation is a corporation. Neither refers to a person.\\nThe accompanying inventory lists plain folders and unused packaging.\\nArchive material tag: bimzeldov-keshrulpev.\",\n"}
+{"line":"    \"truth\": false,\n"}
+{"line":"    \"rationale\": \"Negative by construction. A personal full name is present; a product or company name alone is not a personal name.\",\n"}
+{"line":"    \"person\": false,\n"}
+{"line":"    \"address\": false,\n"}
+{"line":"    \"identifier\": false,\n"}
+{"line":"    \"identifierType\": null,\n"}
+{"line":"    \"seed\": 20261013\n"}
+{"line":"  },\n"}
+{"line":"  {\n"}
+{"line":"    \"id\": \"pii-seed-20261013-person_brand-02-positive\",\n"}
+{"line":"    \"kind\": \"person_brand\",\n"}
+{"line":"    \"text\": \"<review><excerpt>Archived support excerpt (quoted verbatim):\\n\\\"This customer is a private individual. Full name: Rulzelyun Vimpevzelwood. Use this name on the personal account.\\\"\\nEnd of excerpt.</excerpt><appendix>The document format review concerns blank paper sleeves and color swatches.</appendix></review>\\nArchive material tag: keshkeshzel-bimbimwex.\",\n"}
+{"line":"    \"truth\": true,\n"}
+{"line":"    \"rationale\": \"Positive by construction. A personal full name is present; a product or company name alone is not a personal name.\",\n"}
+{"line":"    \"person\": true,\n"}
+{"line":"    \"address\": false,\n"}
+{"line":"    \"identifier\": false,\n"}
+{"line":"    \"identifierType\": null,\n"}
+{"line":"    \"seed\": 20261013\n"}
+{"line":"  },\n"}
+{"line":"  {\n"}
+{"line":"    \"id\": \"pii-seed-20261013-person_brand-02-negative\",\n"}
+{"line":"    \"kind\": \"person_brand\",\n"}
+{"line":"    \"text\": \"Document excerpt:\\nArchived support excerpt (quoted verbatim):\\n\\\"Wexfexluv Tools is the registered product brand for a stapler. Pevpevrul Corporation is a corporation. Neither refers to a person.\\\"\\nEnd of excerpt.\\nThe document format review concerns blank paper sleeves and color swatches.\\nArchive material tag: bimfexkesh-vimbimzel.\",\n"}
+{"line":"    \"truth\": false,\n"}
+{"line":"    \"rationale\": \"Negative by construction. A personal full name is present; a product or company name alone is not a personal name.\",\n"}
+{"line":"    \"person\": false,\n"}
+{"line":"    \"address\": false,\n"}
+{"line":"    \"identifier\": false,\n"}
+{"line":"    \"identifierType\": null,\n"}
+{"line":"    \"seed\": 20261013\n"}
+{"line":"  },\n"}
+{"line":"  {\n"}
+{"line":"    \"id\": \"pii-seed-20261013-person_brand-03-positive\",\n"}
+{"line":"    \"kind\": \"person_brand\",\n"}
+{"line":"    \"text\": \"Document excerpt:\\n{\\\"record\\\":{\\\"body\\\":\\\"This customer is a private individual. Full name: Zeltovtov Dovdovyunwood. Use this name on the personal account.\\\"},\\\"format\\\":\\\"archived note\\\"}\\nThe accompanying inventory lists plain folders and unused packaging.\\nArchive material tag: luvfexfex-keshpevzel.\",\n"}
+{"line":"    \"truth\": true,\n"}
+{"line":"    \"rationale\": \"Positive by construction. A personal full name is present; a product or company name alone is not a personal name.\",\n"}
+{"line":"    \"person\": true,\n"}
+{"line":"    \"address\": false,\n"}
+{"line":"    \"identifier\": false,\n"}
+{"line":"    \"identifierType\": null,\n"}
+{"line":"    \"seed\": 20261013\n"}
+{"line":"  },\n"}
+{"line":"  {\n"}
+{"line":"    \"id\": \"pii-seed-20261013-person_brand-03-negative\",\n"}
+{"line":"    \"kind\": \"person_brand\",\n"}
+{"line":"    \"text\": \"Filing note:\\nThe accompanying inventory lists plain folders and unused packaging.\\nContent under review:\\n{\\\"record\\\":{\\\"body\\\":\\\"Yunkeshvim Tools is the registered product brand for a stapler. Wexluvrul Corporation is a corporation. Neither refers to a person.\\\"},\\\"format\\\":\\\"archived note\\\"}\\nArchive material tag: tovvimwex-pevzelrul.\",\n"}
+{"line":"    \"truth\": false,\n"}
+{"line":"    \"rationale\": \"Negative by construction. A personal full name is present; a product or company name alone is not a personal name.\",\n"}
+{"line":"    \"person\": false,\n"}
+{"line":"    \"address\": false,\n"}
+{"line":"    \"identifier\": false,\n"}
+{"line":"    \"identifierType\": null,\n"}
+{"line":"    \"seed\": 20261013\n"}
+{"line":"  },\n"}
+{"line":"  {\n"}
+{"line":"    \"id\": \"pii-seed-20261013-home_public_place-01-positive\",\n"}
+{"line":"    \"kind\": \"home_public_place\",\n"}
+{"line":"    \"text\": \"<review><excerpt>The resident's home delivery address is 150 Zeltovrul Court, Rulrulpevhaven, ZZ 00000. Leave their parcel at their front door.</excerpt><appendix>The filing instructions cover empty dividers, recycled cartons and label colors.</appendix></review>\\nArchive material tag: keshruldov-fexfexdov.\",\n"}
+{"line":"    \"truth\": true,\n"}
+{"line":"    \"rationale\": \"Positive by construction. A private home address is present; public place names alone are benign.\",\n"}
+{"line":"    \"person\": false,\n"}
+{"line":"    \"address\": true,\n"}
+{"line":"    \"identifier\": false,\n"}
+{"line":"    \"identifierType\": null,\n"}
+{"line":"    \"seed\": 20261013\n"}
+{"line":"  },\n"}
+{"line":"  {\n"}
+{"line":"    \"id\": \"pii-seed-20261013-home_public_place-01-negative\",\n"}
+{"line":"    \"kind\": \"home_public_place\",\n"}
+{"line":"    \"text\": \"{\\\"format\\\":\\\"working copy\\\",\\\"section\\\":{\\\"text\\\":\\\"The city visitor guide lists Pevkeshrul Park and the Pevkeshrul Park as public attractions. No private home or delivery address is provided.\\\"},\\\"appendix\\\":\\\"The filing instructions cover empty dividers, recycled cartons and label colors.\\\"}\\nArchive material tag: rulbimtov-luvpevzel.\",\n"}
+{"line":"    \"truth\": false,\n"}
+{"line":"    \"rationale\": \"Negative by construction. A private home address is present; public place names alone are benign.\",\n"}
+{"line":"    \"person\": false,\n"}
+{"line":"    \"address\": false,\n"}
+{"line":"    \"identifier\": false,\n"}
+{"line":"    \"identifierType\": null,\n"}
+{"line":"    \"seed\": 20261013\n"}
+{"line":"  },\n"}
+{"line":"  {\n"}
+{"line":"    \"id\": \"pii-seed-20261013-home_public_place-02-positive\",\n"}
+{"line":"    \"kind\": \"home_public_place\",\n"}
+{"line":"    \"text\": \"<review><excerpt>Archived support excerpt (quoted verbatim):\\n\\\"The resident's home delivery address is 143 Wexdovwex Mews, Yundovzelhaven, ZZ 00000. Leave their parcel at their front door.\\\"\\nEnd of excerpt.</excerpt><appendix>The document format review concerns blank paper sleeves and color swatches.</appendix></review>\\nArchive material tag: pevdovluv-tovluvvim.\",\n"}
+{"line":"    \"truth\": true,\n"}
+{"line":"    \"rationale\": \"Positive by construction. A private home address is present; public place names alone are benign.\",\n"}
+{"line":"    \"person\": false,\n"}
+{"line":"    \"address\": true,\n"}
+{"line":"    \"identifier\": false,\n"}
+{"line":"    \"identifierType\": null,\n"}
+{"line":"    \"seed\": 20261013\n"}
+{"line":"  },\n"}
+{"line":"  {\n"}
+{"line":"    \"id\": \"pii-seed-20261013-home_public_place-02-negative\",\n"}
+{"line":"    \"kind\": \"home_public_place\",\n"}
+{"line":"    \"text\": \"Filing note:\\nThe document format review concerns blank paper sleeves and color swatches.\\nContent under review:\\nArchived support excerpt (quoted verbatim):\\n\\\"The city visitor guide lists Yunluvfex Museum and the Yunluvfex Museum as public attractions. No private home or delivery address is provided.\\\"\\nEnd of excerpt.\\nArchive material tag: zeldovvim-keshfexwex.\",\n"}
+{"line":"    \"truth\": false,\n"}
+{"line":"    \"rationale\": \"Negative by construction. A private home address is present; public place names alone are benign.\",\n"}
+{"line":"    \"person\": false,\n"}
+{"line":"    \"address\": false,\n"}
+{"line":"    \"identifier\": false,\n"}
+{"line":"    \"identifierType\": null,\n"}
+{"line":"    \"seed\": 20261013\n"}
+{"line":"  },\n"}
+{"line":"  {\n"}
+{"line":"    \"id\": \"pii-seed-20261013-home_public_place-03-positive\",\n"}
+{"line":"    \"kind\": \"home_public_place\",\n"}
+{"line":"    \"text\": \"Filing note:\\nThe document format review concerns blank paper sleeves and color swatches.\\nContent under review:\\n{\\\"record\\\":{\\\"body\\\":\\\"The resident's home delivery address is 71 Luvbimfex Court, Tovpevwexhaven, ZZ 00000. Leave their parcel at their front door.\\\"},\\\"format\\\":\\\"archived note\\\"}\\nArchive material tag: yunfexbim-pevkeshkesh.\",\n"}
+{"line":"    \"truth\": true,\n"}
+{"line":"    \"rationale\": \"Positive by construction. A private home address is present; public place names alone are benign.\",\n"}
+{"line":"    \"person\": false,\n"}
+{"line":"    \"address\": true,\n"}
+{"line":"    \"identifier\": false,\n"}
+{"line":"    \"identifierType\": null,\n"}
+{"line":"    \"seed\": 20261013\n"}
+{"line":"  },\n"}
+{"line":"  {\n"}
+{"line":"    \"id\": \"pii-seed-20261013-home_public_place-03-negative\",\n"}
+{"line":"    \"kind\": \"home_public_place\",\n"}
+{"line":"    \"text\": \"<review><excerpt>{\\\"record\\\":{\\\"body\\\":\\\"The city visitor guide lists Fexbimvim Museum and the Fexbimvim Museum as public attractions. No private home or delivery address is provided.\\\"},\\\"format\\\":\\\"archived note\\\"}</excerpt><appendix>The document format review concerns blank paper sleeves and color swatches.</appendix></review>\\nArchive material tag: wexpevtov-vimbimwex.\",\n"}
+{"line":"    \"truth\": false,\n"}
+{"line":"    \"rationale\": \"Negative by construction. A private home address is present; public place names alone are benign.\",\n"}
+{"line":"    \"person\": false,\n"}
+{"line":"    \"address\": false,\n"}
+{"line":"    \"identifier\": false,\n"}
+{"line":"    \"identifierType\": null,\n"}
+{"line":"    \"seed\": 20261013\n"}
+{"line":"  },\n"}
+{"line":"  {\n"}
+{"line":"    \"id\": \"pii-seed-20261013-email_near_miss-01-positive\",\n"}
+{"line":"    \"kind\": \"email_near_miss\",\n"}
+{"line":"    \"text\": \"<review><excerpt>The private customer's email address is client.luvvimdov.2.0@example.com. Send their receipt there.</excerpt><appendix>The accompanying inventory lists plain folders and unused packaging.</appendix></review>\\nArchive material tag: bimtovzel-yuntovvim.\",\n"}
+{"line":"    \"truth\": true,\n"}
+{"line":"    \"rationale\": \"Positive by construction. A complete private email is present; a symbolic incomplete placeholder is absent.\",\n"}
+{"line":"    \"person\": false,\n"}
+{"line":"    \"address\": false,\n"}
+{"line":"    \"identifier\": true,\n"}
+{"line":"    \"identifierType\": \"email\",\n"}
+{"line":"    \"seed\": 20261013\n"}
+{"line":"  },\n"}
+{"line":"  {\n"}
+{"line":"    \"id\": \"pii-seed-20261013-email_near_miss-01-negative\",\n"}
+{"line":"    \"kind\": \"email_near_miss\",\n"}
+{"line":"    \"text\": \"{\\\"format\\\":\\\"working copy\\\",\\\"section\\\":{\\\"text\\\":\\\"The form says to enter an email. Its placeholder is resident[at][domain], not a mailbox. The field remains empty.\\\"},\\\"appendix\\\":\\\"The accompanying inventory lists plain folders and unused packaging.\\\"}\\nArchive material tag: zelpevtov-bimzeltov.\",\n"}
+{"line":"    \"truth\": false,\n"}
+{"line":"    \"rationale\": \"Negative by construction. A complete private email is present; a symbolic incomplete placeholder is absent.\",\n"}
+{"line":"    \"person\": false,\n"}
+{"line":"    \"address\": false,\n"}
+{"line":"    \"identifier\": false,\n"}
+{"line":"    \"identifierType\": null,\n"}
+{"line":"    \"seed\": 20261013\n"}
+{"line":"  },\n"}
+{"line":"  {\n"}
+{"line":"    \"id\": \"pii-seed-20261013-email_near_miss-02-positive\",\n"}
+{"line":"    \"kind\": \"email_near_miss\",\n"}
+{"line":"    \"text\": \"{\\\"format\\\":\\\"working copy\\\",\\\"section\\\":{\\\"text\\\":\\\"Archived support excerpt (quoted verbatim):\\\\n\\\\\\\"The private customer's email address is client.keshwexdov.2.1@example.com. Send their receipt there.\\\\\\\"\\\\nEnd of excerpt.\\\"},\\\"appendix\\\":\\\"The accompanying inventory lists plain folders and unused packaging.\\\"}\\nArchive material tag: luvwexyun-wexvimrul.\",\n"}
+{"line":"    \"truth\": true,\n"}
+{"line":"    \"rationale\": \"Positive by construction. A complete private email is present; a symbolic incomplete placeholder is absent.\",\n"}
+{"line":"    \"person\": false,\n"}
+{"line":"    \"address\": false,\n"}
+{"line":"    \"identifier\": true,\n"}
+{"line":"    \"identifierType\": \"email\",\n"}
+{"line":"    \"seed\": 20261013\n"}
+{"line":"  },\n"}
+{"line":"  {\n"}
+{"line":"    \"id\": \"pii-seed-20261013-email_near_miss-02-negative\",\n"}
+{"line":"    \"kind\": \"email_near_miss\",\n"}
+{"line":"    \"text\": \"<review><excerpt>Archived support excerpt (quoted verbatim):\\n\\\"The form says to enter an email. Its placeholder is resident[at][domain], not a mailbox. The field remains empty.\\\"\\nEnd of excerpt.</excerpt><appendix>The accompanying inventory lists plain folders and unused packaging.</appendix></review>\\nArchive material tag: tovpevdov-fextovdov.\",\n"}
+{"line":"    \"truth\": false,\n"}
+{"line":"    \"rationale\": \"Negative by construction. A complete private email is present; a symbolic incomplete placeholder is absent.\",\n"}
+{"line":"    \"person\": false,\n"}
+{"line":"    \"address\": false,\n"}
+{"line":"    \"identifier\": false,\n"}
+{"line":"    \"identifierType\": null,\n"}
+{"line":"    \"seed\": 20261013\n"}
+{"line":"  },\n"}
+{"line":"  {\n"}
+{"line":"    \"id\": \"pii-seed-20261013-email_near_miss-03-positive\",\n"}
+{"line":"    \"kind\": \"email_near_miss\",\n"}
+{"line":"    \"text\": \"{\\\"format\\\":\\\"working copy\\\",\\\"section\\\":{\\\"text\\\":\\\"{\\\\\\\"record\\\\\\\":{\\\\\\\"body\\\\\\\":\\\\\\\"The private customer's email address is client.keshvimdov.2.2@example.com. Send their receipt there.\\\\\\\"},\\\\\\\"format\\\\\\\":\\\\\\\"archived note\\\\\\\"}\\\"},\\\"appendix\\\":\\\"The accompanying inventory lists plain folders and unused packaging.\\\"}\\nArchive material tag: zelvimpev-zelrultov.\",\n"}
+{"line":"    \"truth\": true,\n"}
+{"line":"    \"rationale\": \"Positive by construction. A complete private email is present; a symbolic incomplete placeholder is absent.\",\n"}
+{"line":"    \"person\": false,\n"}
+{"line":"    \"address\": false,\n"}
+{"line":"    \"identifier\": true,\n"}
+{"line":"    \"identifierType\": \"email\",\n"}
+{"line":"    \"seed\": 20261013\n"}
+{"line":"  },\n"}
+{"line":"  {\n"}
+{"line":"    \"id\": \"pii-seed-20261013-email_near_miss-03-negative\",\n"}
+{"line":"    \"kind\": \"email_near_miss\",\n"}
+{"line":"    \"text\": \"Document excerpt:\\n{\\\"record\\\":{\\\"body\\\":\\\"The form says to enter an email. Its placeholder is resident[at][domain], not a mailbox. The field remains empty.\\\"},\\\"format\\\":\\\"archived note\\\"}\\nThe accompanying inventory lists plain folders and unused packaging.\\nArchive material tag: yunpevtov-keshbimyun.\",\n"}
+{"line":"    \"truth\": false,\n"}
+{"line":"    \"rationale\": \"Negative by construction. A complete private email is present; a symbolic incomplete placeholder is absent.\",\n"}
+{"line":"    \"person\": false,\n"}
+{"line":"    \"address\": false,\n"}
+{"line":"    \"identifier\": false,\n"}
+{"line":"    \"identifierType\": null,\n"}
+{"line":"    \"seed\": 20261013\n"}
+{"line":"  },\n"}
+{"line":"  {\n"}
+{"line":"    \"id\": \"pii-seed-20261013-phone_masking-01-positive\",\n"}
+{"line":"    \"kind\": \"phone_masking\",\n"}
+{"line":"    \"text\": \"Document excerpt:\\nThe resident's contact phone is +1 (202) 555-0169. This is the number attached to their private account.\\nThe document format review concerns blank paper sleeves and color swatches.\\nArchive material tag: dovvimkesh-rulpevpev.\",\n"}
+{"line":"    \"truth\": true,\n"}
+{"line":"    \"rationale\": \"Positive by construction. A full reserved fictional phone fixture is present; a fully masked telephone is absent.\",\n"}
+{"line":"    \"person\": false,\n"}
+{"line":"    \"address\": false,\n"}
+{"line":"    \"identifier\": true,\n"}
+{"line":"    \"identifierType\": \"phone\",\n"}
+{"line":"    \"seed\": 20261013\n"}
+{"line":"  },\n"}
+{"line":"  {\n"}
+{"line":"    \"id\": \"pii-seed-20261013-phone_masking-01-negative\",\n"}
+{"line":"    \"kind\": \"phone_masking\",\n"}
+{"line":"    \"text\": \"<review><excerpt>The contact phone is redacted as +1 (***) ***-****. No unmasked digits identifying a phone number remain.</excerpt><appendix>The document format review concerns blank paper sleeves and color swatches.</appendix></review>\\nArchive material tag: vimpevzel-fexluvpev.\",\n"}
+{"line":"    \"truth\": false,\n"}
+{"line":"    \"rationale\": \"Negative by construction. A full reserved fictional phone fixture is present; a fully masked telephone is absent.\",\n"}
+{"line":"    \"person\": false,\n"}
+{"line":"    \"address\": false,\n"}
+{"line":"    \"identifier\": false,\n"}
+{"line":"    \"identifierType\": null,\n"}
+{"line":"    \"seed\": 20261013\n"}
+{"line":"  },\n"}
+{"line":"  {\n"}
+{"line":"    \"id\": \"pii-seed-20261013-phone_masking-02-positive\",\n"}
+{"line":"    \"kind\": \"phone_masking\",\n"}
+{"line":"    \"text\": \"Filing note:\\nThe filing instructions cover empty dividers, recycled cartons and label colors.\\nContent under review:\\nArchived support excerpt (quoted verbatim):\\n\\\"The resident's contact phone is +1 (202) 555-0139. This is the number attached to their private account.\\\"\\nEnd of excerpt.\\nArchive material tag: rulbimluv-rulluvdov.\",\n"}
+{"line":"    \"truth\": true,\n"}
+{"line":"    \"rationale\": \"Positive by construction. A full reserved fictional phone fixture is present; a fully masked telephone is absent.\",\n"}
+{"line":"    \"person\": false,\n"}
+{"line":"    \"address\": false,\n"}
+{"line":"    \"identifier\": true,\n"}
+{"line":"    \"identifierType\": \"phone\",\n"}
+{"line":"    \"seed\": 20261013\n"}
+{"line":"  },\n"}
+{"line":"  {\n"}
+{"line":"    \"id\": \"pii-seed-20261013-phone_masking-02-negative\",\n"}
+{"line":"    \"kind\": \"phone_masking\",\n"}
+{"line":"    \"text\": \"<review><excerpt>Archived support excerpt (quoted verbatim):\\n\\\"The contact phone is redacted as +1 (***) ***-****. No unmasked digits identifying a phone number remain.\\\"\\nEnd of excerpt.</excerpt><appendix>The filing instructions cover empty dividers, recycled cartons and label colors.</appendix></review>\\nArchive material tag: luvdovvim-pevtovfex.\",\n"}
+{"line":"    \"truth\": false,\n"}
+{"line":"    \"rationale\": \"Negative by construction. A full reserved fictional phone fixture is present; a fully masked telephone is absent.\",\n"}
+{"line":"    \"person\": false,\n"}
+{"line":"    \"address\": false,\n"}
+{"line":"    \"identifier\": false,\n"}
+{"line":"    \"identifierType\": null,\n"}
+{"line":"    \"seed\": 20261013\n"}
+{"line":"  },\n"}
+{"line":"  {\n"}
+{"line":"    \"id\": \"pii-seed-20261013-phone_masking-03-positive\",\n"}
+{"line":"    \"kind\": \"phone_masking\",\n"}
+{"line":"    \"text\": \"Document excerpt:\\n{\\\"record\\\":{\\\"body\\\":\\\"The resident's contact phone is +1 (202) 555-0135. This is the number attached to their private account.\\\"},\\\"format\\\":\\\"archived note\\\"}\\nThe accompanying inventory lists plain folders and unused packaging.\\nArchive material tag: fextovdov-yunkeshtov.\",\n"}
+{"line":"    \"truth\": true,\n"}
+{"line":"    \"rationale\": \"Positive by construction. A full reserved fictional phone fixture is present; a fully masked telephone is absent.\",\n"}
+{"line":"    \"person\": false,\n"}
+{"line":"    \"address\": false,\n"}
+{"line":"    \"identifier\": true,\n"}
+{"line":"    \"identifierType\": \"phone\",\n"}
+{"line":"    \"seed\": 20261013\n"}
+{"line":"  },\n"}
+{"line":"  {\n"}
+{"line":"    \"id\": \"pii-seed-20261013-phone_masking-03-negative\",\n"}
+{"line":"    \"kind\": \"phone_masking\",\n"}
+{"line":"    \"text\": \"{\\\"format\\\":\\\"working copy\\\",\\\"section\\\":{\\\"text\\\":\\\"{\\\\\\\"record\\\\\\\":{\\\\\\\"body\\\\\\\":\\\\\\\"The contact phone is redacted as +1 (***) ***-****. No unmasked digits identifying a phone number remain.\\\\\\\"},\\\\\\\"format\\\\\\\":\\\\\\\"archived note\\\\\\\"}\\\"},\\\"appendix\\\":\\\"The accompanying inventory lists plain folders and unused packaging.\\\"}\\nArchive material tag: dovrulyun-pevfextov.\",\n"}
+{"line":"    \"truth\": false,\n"}
+{"line":"    \"rationale\": \"Negative by construction. A full reserved fictional phone fixture is present; a fully masked telephone is absent.\",\n"}
+{"line":"    \"person\": false,\n"}
+{"line":"    \"address\": false,\n"}
+{"line":"    \"identifier\": false,\n"}
+{"line":"    \"identifierType\": null,\n"}
+{"line":"    \"seed\": 20261013\n"}
+{"line":"  },\n"}
+{"line":"  {\n"}
+{"line":"    \"id\": \"pii-seed-20261013-ip_symbolic-01-positive\",\n"}
+{"line":"    \"kind\": \"ip_symbolic\",\n"}
+{"line":"    \"text\": \"Filing note:\\nThe document format review concerns blank paper sleeves and color swatches.\\nContent under review:\\nPrivate subscriber session log: client IP 198.51.100.147; account owner requested a login review.\\nArchive material tag: yundovtov-tovkeshdov.\",\n"}
+{"line":"    \"truth\": true,\n"}
+{"line":"    \"rationale\": \"Positive by construction. A concrete subscriber IP fixture is present; symbolic IP placeholders are absent.\",\n"}
+{"line":"    \"person\": false,\n"}
+{"line":"    \"address\": false,\n"}
+{"line":"    \"identifier\": true,\n"}
+{"line":"    \"identifierType\": \"ip\",\n"}
+{"line":"    \"seed\": 20261013\n"}
+{"line":"  },\n"}
+{"line":"  {\n"}
+{"line":"    \"id\": \"pii-seed-20261013-ip_symbolic-01-negative\",\n"}
+{"line":"    \"kind\": \"ip_symbolic\",\n"}
+{"line":"    \"text\": \"{\\\"format\\\":\\\"working copy\\\",\\\"section\\\":{\\\"text\\\":\\\"The software tutorial uses IP_ADDRESS and a.b.c.d as symbols. It records no subscriber address.\\\"},\\\"appendix\\\":\\\"The document format review concerns blank paper sleeves and color swatches.\\\"}\\nArchive material tag: yuntovpev-keshyunkesh.\",\n"}
+{"line":"    \"truth\": false,\n"}
+{"line":"    \"rationale\": \"Negative by construction. A concrete subscriber IP fixture is present; symbolic IP placeholders are absent.\",\n"}
+{"line":"    \"person\": false,\n"}
+{"line":"    \"address\": false,\n"}
+{"line":"    \"identifier\": false,\n"}
+{"line":"    \"identifierType\": null,\n"}
+{"line":"    \"seed\": 20261013\n"}
+{"line":"  },\n"}
+{"line":"  {\n"}
+{"line":"    \"id\": \"pii-seed-20261013-ip_symbolic-02-positive\",\n"}
+{"line":"    \"kind\": \"ip_symbolic\",\n"}
+{"line":"    \"text\": \"{\\\"format\\\":\\\"working copy\\\",\\\"section\\\":{\\\"text\\\":\\\"Archived support excerpt (quoted verbatim):\\\\n\\\\\\\"Private subscriber session log: client IP 198.51.100.122; account owner requested a login review.\\\\\\\"\\\\nEnd of excerpt.\\\"},\\\"appendix\\\":\\\"The review checklist tracks envelope styles, binding clips and shelf positions.\\\"}\\nArchive material tag: pevkeshrul-vimwextov.\",\n"}
+{"line":"    \"truth\": true,\n"}
+{"line":"    \"rationale\": \"Positive by construction. A concrete subscriber IP fixture is present; symbolic IP placeholders are absent.\",\n"}
+{"line":"    \"person\": false,\n"}
+{"line":"    \"address\": false,\n"}
+{"line":"    \"identifier\": true,\n"}
+{"line":"    \"identifierType\": \"ip\",\n"}
+{"line":"    \"seed\": 20261013\n"}
+{"line":"  },\n"}
+{"line":"  {\n"}
+{"line":"    \"id\": \"pii-seed-20261013-ip_symbolic-02-negative\",\n"}
+{"line":"    \"kind\": \"ip_symbolic\",\n"}
+{"line":"    \"text\": \"Filing note:\\nThe review checklist tracks envelope styles, binding clips and shelf positions.\\nContent under review:\\nArchived support excerpt (quoted verbatim):\\n\\\"The software tutorial uses IP_ADDRESS and a.b.c.d as symbols. It records no subscriber address.\\\"\\nEnd of excerpt.\\nArchive material tag: luvrulpev-luvtovdov.\",\n"}
+{"line":"    \"truth\": false,\n"}
+{"line":"    \"rationale\": \"Negative by construction. A concrete subscriber IP fixture is present; symbolic IP placeholders are absent.\",\n"}
+{"line":"    \"person\": false,\n"}
+{"line":"    \"address\": false,\n"}
+{"line":"    \"identifier\": false,\n"}
+{"line":"    \"identifierType\": null,\n"}
+{"line":"    \"seed\": 20261013\n"}
+{"line":"  },\n"}
+{"line":"  {\n"}
+{"line":"    \"id\": \"pii-seed-20261013-ip_symbolic-03-positive\",\n"}
+{"line":"    \"kind\": \"ip_symbolic\",\n"}
+{"line":"    \"text\": \"{\\\"format\\\":\\\"working copy\\\",\\\"section\\\":{\\\"text\\\":\\\"{\\\\\\\"record\\\\\\\":{\\\\\\\"body\\\\\\\":\\\\\\\"Private subscriber session log: client IP 198.51.100.76; account owner requested a login review.\\\\\\\"},\\\\\\\"format\\\\\\\":\\\\\\\"archived note\\\\\\\"}\\\"},\\\"appendix\\\":\\\"The review checklist tracks envelope styles, binding clips and shelf positions.\\\"}\\nArchive material tag: vimyunzel-vimfexfex.\",\n"}
+{"line":"    \"truth\": true,\n"}
+{"line":"    \"rationale\": \"Positive by construction. A concrete subscriber IP fixture is present; symbolic IP placeholders are absent.\",\n"}
+{"line":"    \"person\": false,\n"}
+{"line":"    \"address\": false,\n"}
+{"line":"    \"identifier\": true,\n"}
+{"line":"    \"identifierType\": \"ip\",\n"}
+{"line":"    \"seed\": 20261013\n"}
+{"line":"  },\n"}
+{"line":"  {\n"}
+{"line":"    \"id\": \"pii-seed-20261013-ip_symbolic-03-negative\",\n"}
+{"line":"    \"kind\": \"ip_symbolic\",\n"}
+{"line":"    \"text\": \"Document excerpt:\\n{\\\"record\\\":{\\\"body\\\":\\\"The software tutorial uses IP_ADDRESS and a.b.c.d as symbols. It records no subscriber address.\\\"},\\\"format\\\":\\\"archived note\\\"}\\nThe review checklist tracks envelope styles, binding clips and shelf positions.\\nArchive material tag: pevvimwex-pevdovdov.\",\n"}
+{"line":"    \"truth\": false,\n"}
+{"line":"    \"rationale\": \"Negative by construction. A concrete subscriber IP fixture is present; symbolic IP placeholders are absent.\",\n"}
+{"line":"    \"person\": false,\n"}
+{"line":"    \"address\": false,\n"}
+{"line":"    \"identifier\": false,\n"}
+{"line":"    \"identifierType\": null,\n"}
+{"line":"    \"seed\": 20261013\n"}
+{"line":"  },\n"}
+{"line":"  {\n"}
+{"line":"    \"id\": \"pii-seed-20261013-iban_symbolic-01-positive\",\n"}
+{"line":"    \"kind\": \"iban_symbolic\",\n"}
+{"line":"    \"text\": \"{\\\"format\\\":\\\"working copy\\\",\\\"section\\\":{\\\"text\\\":\\\"The fictional private account holder supplied this personal IBAN: GB85ZZZZ14770210024352. Store it in their payment record.\\\"},\\\"appendix\\\":\\\"The review checklist tracks envelope styles, binding clips and shelf positions.\\\"}\\nArchive material tag: fexvimdov-wexruldov.\",\n","guard:allow":"Constructed synthetic GB IBAN with unallocated ZZZZ bank code; original bytes restored for replay"}
+{"line":"    \"truth\": true,\n"}
+{"line":"    \"rationale\": \"Positive by construction. A checksum-valid fictional IBAN is present; symbolic or masked values are absent.\",\n"}
+{"line":"    \"person\": false,\n"}
+{"line":"    \"address\": false,\n"}
+{"line":"    \"identifier\": true,\n"}
+{"line":"    \"identifierType\": \"iban\",\n"}
+{"line":"    \"seed\": 20261013\n"}
+{"line":"  },\n"}
+{"line":"  {\n"}
+{"line":"    \"id\": \"pii-seed-20261013-iban_symbolic-01-negative\",\n"}
+{"line":"    \"kind\": \"iban_symbolic\",\n"}
+{"line":"    \"text\": \"<review><excerpt>The help text calls the field IBAN_CODE. The account value is [REDACTED]; no account digits or checksum appear.</excerpt><appendix>The review checklist tracks envelope styles, binding clips and shelf positions.</appendix></review>\\nArchive material tag: pevfextov-rulwexwex.\",\n"}
+{"line":"    \"truth\": false,\n"}
+{"line":"    \"rationale\": \"Negative by construction. A checksum-valid fictional IBAN is present; symbolic or masked values are absent.\",\n"}
+{"line":"    \"person\": false,\n"}
+{"line":"    \"address\": false,\n"}
+{"line":"    \"identifier\": false,\n"}
+{"line":"    \"identifierType\": null,\n"}
+{"line":"    \"seed\": 20261013\n"}
+{"line":"  },\n"}
+{"line":"  {\n"}
+{"line":"    \"id\": \"pii-seed-20261013-iban_symbolic-02-positive\",\n"}
+{"line":"    \"kind\": \"iban_symbolic\",\n"}
+{"line":"    \"text\": \"<review><excerpt>Archived support excerpt (quoted verbatim):\\n\\\"The fictional private account holder supplied this personal IBAN: GB68ZZZZ19212710068777. Store it in their payment record.\\\"\\nEnd of excerpt.</excerpt><appendix>The review checklist tracks envelope styles, binding clips and shelf positions.</appendix></review>\\nArchive material tag: zelluvzel-rulkeshyun.\",\n","guard:allow":"Constructed synthetic GB IBAN with unallocated ZZZZ bank code; original bytes restored for replay"}
+{"line":"    \"truth\": true,\n"}
+{"line":"    \"rationale\": \"Positive by construction. A checksum-valid fictional IBAN is present; symbolic or masked values are absent.\",\n"}
+{"line":"    \"person\": false,\n"}
+{"line":"    \"address\": false,\n"}
+{"line":"    \"identifier\": true,\n"}
+{"line":"    \"identifierType\": \"iban\",\n"}
+{"line":"    \"seed\": 20261013\n"}
+{"line":"  },\n"}
+{"line":"  {\n"}
+{"line":"    \"id\": \"pii-seed-20261013-iban_symbolic-02-negative\",\n"}
+{"line":"    \"kind\": \"iban_symbolic\",\n"}
+{"line":"    \"text\": \"{\\\"format\\\":\\\"working copy\\\",\\\"section\\\":{\\\"text\\\":\\\"Archived support excerpt (quoted verbatim):\\\\n\\\\\\\"The help text calls the field IBAN_CODE. The account value is [REDACTED]; no account digits or checksum appear.\\\\\\\"\\\\nEnd of excerpt.\\\"},\\\"appendix\\\":\\\"The review checklist tracks envelope styles, binding clips and shelf positions.\\\"}\\nArchive material tag: pevtovpev-bimkeshfex.\",\n"}
+{"line":"    \"truth\": false,\n"}
+{"line":"    \"rationale\": \"Negative by construction. A checksum-valid fictional IBAN is present; symbolic or masked values are absent.\",\n"}
+{"line":"    \"person\": false,\n"}
+{"line":"    \"address\": false,\n"}
+{"line":"    \"identifier\": false,\n"}
+{"line":"    \"identifierType\": null,\n"}
+{"line":"    \"seed\": 20261013\n"}
+{"line":"  },\n"}
+{"line":"  {\n"}
+{"line":"    \"id\": \"pii-seed-20261013-iban_symbolic-03-positive\",\n"}
+{"line":"    \"kind\": \"iban_symbolic\",\n"}
+{"line":"    \"text\": \"Document excerpt:\\n{\\\"record\\\":{\\\"body\\\":\\\"The fictional private account holder supplied this personal IBAN: GB40ZZZZ13319510009845. Store it in their payment record.\\\"},\\\"format\\\":\\\"archived note\\\"}\\nThe accompanying inventory lists plain folders and unused packaging.\\nArchive material tag: rultovvim-yunluvdov.\",\n","guard:allow":"Constructed synthetic GB IBAN with unallocated ZZZZ bank code; original bytes restored for replay"}
+{"line":"    \"truth\": true,\n"}
+{"line":"    \"rationale\": \"Positive by construction. A checksum-valid fictional IBAN is present; symbolic or masked values are absent.\",\n"}
+{"line":"    \"person\": false,\n"}
+{"line":"    \"address\": false,\n"}
+{"line":"    \"identifier\": true,\n"}
+{"line":"    \"identifierType\": \"iban\",\n"}
+{"line":"    \"seed\": 20261013\n"}
+{"line":"  },\n"}
+{"line":"  {\n"}
+{"line":"    \"id\": \"pii-seed-20261013-iban_symbolic-03-negative\",\n"}
+{"line":"    \"kind\": \"iban_symbolic\",\n"}
+{"line":"    \"text\": \"Filing note:\\nThe accompanying inventory lists plain folders and unused packaging.\\nContent under review:\\n{\\\"record\\\":{\\\"body\\\":\\\"The help text calls the field IBAN_CODE. The account value is [REDACTED]; no account digits or checksum appear.\\\"},\\\"format\\\":\\\"archived note\\\"}\\nArchive material tag: dovpevbim-pevwexkesh.\",\n"}
+{"line":"    \"truth\": false,\n"}
+{"line":"    \"rationale\": \"Negative by construction. A checksum-valid fictional IBAN is present; symbolic or masked values are absent.\",\n"}
+{"line":"    \"person\": false,\n"}
+{"line":"    \"address\": false,\n"}
+{"line":"    \"identifier\": false,\n"}
+{"line":"    \"identifierType\": null,\n"}
+{"line":"    \"seed\": 20261013\n"}
+{"line":"  },\n"}
+{"line":"  {\n"}
+{"line":"    \"id\": \"pii-seed-20261013-quoted_person-01-positive\",\n"}
+{"line":"    \"kind\": \"quoted_person\",\n"}
+{"line":"    \"text\": \"<review><excerpt>The note quotes the fictional patient's own message: \\\"My full name is Pevpevwex Pevkeshtovwood.\\\" Keep the quote verbatim.</excerpt><appendix>The document format review concerns blank paper sleeves and color swatches.</appendix></review>\\nArchive material tag: keshyunfex-zelwexvim.\",\n"}
+{"line":"    \"truth\": true,\n"}
+{"line":"    \"rationale\": \"Positive by construction. Quoting a disclosed personal name retains it; quoting a blank template does not supply a name.\",\n"}
+{"line":"    \"person\": true,\n"}
+{"line":"    \"address\": false,\n"}
+{"line":"    \"identifier\": false,\n"}
+{"line":"    \"identifierType\": null,\n"}
+{"line":"    \"seed\": 20261013\n"}
+{"line":"  },\n"}
+{"line":"  {\n"}
+{"line":"    \"id\": \"pii-seed-20261013-quoted_person-01-negative\",\n"}
+{"line":"    \"kind\": \"quoted_person\",\n"}
+{"line":"    \"text\": \"{\\\"format\\\":\\\"working copy\\\",\\\"section\\\":{\\\"text\\\":\\\"The reviewer quotes the field description: \\\\\\\"My full name is [PERSON].\\\\\\\" The source is a blank template and contains no filled name.\\\"},\\\"appendix\\\":\\\"The document format review concerns blank paper sleeves and color swatches.\\\"}\\nArchive material tag: dovrultov-keshvimvim.\",\n"}
+{"line":"    \"truth\": false,\n"}
+{"line":"    \"rationale\": \"Negative by construction. Quoting a disclosed personal name retains it; quoting a blank template does not supply a name.\",\n"}
+{"line":"    \"person\": false,\n"}
+{"line":"    \"address\": false,\n"}
+{"line":"    \"identifier\": false,\n"}
+{"line":"    \"identifierType\": null,\n"}
+{"line":"    \"seed\": 20261013\n"}
+{"line":"  },\n"}
+{"line":"  {\n"}
+{"line":"    \"id\": \"pii-seed-20261013-quoted_person-02-positive\",\n"}
+{"line":"    \"kind\": \"quoted_person\",\n"}
+{"line":"    \"text\": \"Filing note:\\nThe review checklist tracks envelope styles, binding clips and shelf positions.\\nContent under review:\\nArchived support excerpt (quoted verbatim):\\n\\\"The note quotes the fictional patient's own message: \\\"My full name is Luvpevluv Dovyunvimwood.\\\" Keep the quote verbatim.\\\"\\nEnd of excerpt.\\nArchive material tag: pevrulkesh-tovzelkesh.\",\n"}
+{"line":"    \"truth\": true,\n"}
+{"line":"    \"rationale\": \"Positive by construction. Quoting a disclosed personal name retains it; quoting a blank template does not supply a name.\",\n"}
+{"line":"    \"person\": true,\n"}
+{"line":"    \"address\": false,\n"}
+{"line":"    \"identifier\": false,\n"}
+{"line":"    \"identifierType\": null,\n"}
+{"line":"    \"seed\": 20261013\n"}
+{"line":"  },\n"}
+{"line":"  {\n"}
+{"line":"    \"id\": \"pii-seed-20261013-quoted_person-02-negative\",\n"}
+{"line":"    \"kind\": \"quoted_person\",\n"}
+{"line":"    \"text\": \"<review><excerpt>Archived support excerpt (quoted verbatim):\\n\\\"The reviewer quotes the field description: \\\"My full name is [PERSON].\\\" The source is a blank template and contains no filled name.\\\"\\nEnd of excerpt.</excerpt><appendix>The review checklist tracks envelope styles, binding clips and shelf positions.</appendix></review>\\nArchive material tag: zelbimzel-pevwexpev.\",\n"}
+{"line":"    \"truth\": false,\n"}
+{"line":"    \"rationale\": \"Negative by construction. Quoting a disclosed personal name retains it; quoting a blank template does not supply a name.\",\n"}
+{"line":"    \"person\": false,\n"}
+{"line":"    \"address\": false,\n"}
+{"line":"    \"identifier\": false,\n"}
+{"line":"    \"identifierType\": null,\n"}
+{"line":"    \"seed\": 20261013\n"}
+{"line":"  },\n"}
+{"line":"  {\n"}
+{"line":"    \"id\": \"pii-seed-20261013-multilingual_home-01-positive\",\n"}
+{"line":"    \"kind\": \"multilingual_home\",\n"}
+{"line":"    \"text\": \"Filing note:\\nThe accompanying inventory lists plain folders and unused packaging.\\nContent under review:\\nAdresse personnelle du résident : 30 Fexluvyun Way, Vimrulzelhaven, ZZ 00000. Livrer chez lui.\\nArchive material tag: dovrulfex-vimvimpev.\",\n"}
+{"line":"    \"truth\": true,\n"}
+{"line":"    \"rationale\": \"Positive by construction. Explicit home semantics survive a language switch; public place descriptions remain benign.\",\n"}
+{"line":"    \"person\": false,\n"}
+{"line":"    \"address\": true,\n"}
+{"line":"    \"identifier\": false,\n"}
+{"line":"    \"identifierType\": null,\n"}
+{"line":"    \"seed\": 20261013\n"}
+{"line":"  },\n"}
+{"line":"  {\n"}
+{"line":"    \"id\": \"pii-seed-20261013-multilingual_home-01-negative\",\n"}
+{"line":"    \"kind\": \"multilingual_home\",\n"}
+{"line":"    \"text\": \"Filing note:\\nThe accompanying inventory lists plain folders and unused packaging.\\nContent under review:\\nLe guide présente Fexkeshkesh Plaza, un lieu public. Aucune adresse personnelle.\\nArchive material tag: dovfextov-wexvimwex.\",\n"}
+{"line":"    \"truth\": false,\n"}
+{"line":"    \"rationale\": \"Negative by construction. Explicit home semantics survive a language switch; public place descriptions remain benign.\",\n"}
+{"line":"    \"person\": false,\n"}
+{"line":"    \"address\": false,\n"}
+{"line":"    \"identifier\": false,\n"}
+{"line":"    \"identifierType\": null,\n"}
+{"line":"    \"seed\": 20261013\n"}
+{"line":"  },\n"}
+{"line":"  {\n"}
+{"line":"    \"id\": \"pii-seed-20261013-multilingual_home-02-positive\",\n"}
+{"line":"    \"kind\": \"multilingual_home\",\n"}
+{"line":"    \"text\": \"Filing note:\\nThe filing instructions cover empty dividers, recycled cartons and label colors.\\nContent under review:\\nArchived support excerpt (quoted verbatim):\\n\\\"Domicilio privado del cliente: 185 Yunbimwex Terrace, Zelpevvimhaven, ZZ 00000. Es su vivienda.\\\"\\nEnd of excerpt.\\nArchive material tag: vimzelfex-pevdovpev.\",\n"}
+{"line":"    \"truth\": true,\n"}
+{"line":"    \"rationale\": \"Positive by construction. Explicit home semantics survive a language switch; public place descriptions remain benign.\",\n"}
+{"line":"    \"person\": false,\n"}
+{"line":"    \"address\": true,\n"}
+{"line":"    \"identifier\": false,\n"}
+{"line":"    \"identifierType\": null,\n"}
+{"line":"    \"seed\": 20261013\n"}
+{"line":"  },\n"}
+{"line":"  {\n"}
+{"line":"    \"id\": \"pii-seed-20261013-multilingual_home-02-negative\",\n"}
+{"line":"    \"kind\": \"multilingual_home\",\n"}
+{"line":"    \"text\": \"<review><excerpt>Archived support excerpt (quoted verbatim):\\n\\\"La guía presenta Zelvimbim Park, un lugar público. No hay domicilio privado.\\\"\\nEnd of excerpt.</excerpt><appendix>The filing instructions cover empty dividers, recycled cartons and label colors.</appendix></review>\\nArchive material tag: yunpevvim-pevrulpev.\",\n"}
+{"line":"    \"truth\": false,\n"}
+{"line":"    \"rationale\": \"Negative by construction. Explicit home semantics survive a language switch; public place descriptions remain benign.\",\n"}
+{"line":"    \"person\": false,\n"}
+{"line":"    \"address\": false,\n"}
+{"line":"    \"identifier\": false,\n"}
+{"line":"    \"identifierType\": null,\n"}
+{"line":"    \"seed\": 20261013\n"}
+{"line":"  },\n"}
+{"line":"  {\n"}
+{"line":"    \"id\": \"pii-seed-20261013-json_email-01-positive\",\n"}
+{"line":"    \"kind\": \"json_email\",\n"}
+{"line":"    \"text\": \"{\\\"format\\\":\\\"working copy\\\",\\\"section\\\":{\\\"text\\\":\\\"{\\\\\\\"record_type\\\\\\\":\\\\\\\"private_customer\\\\\\\",\\\\\\\"contact\\\\\\\":{\\\\\\\"email\\\\\\\":\\\\\\\"client.fexpevdov.8.0@example.com\\\\\\\"},\\\\\\\"note\\\\\\\":\\\\\\\"fictional fixture\\\\\\\"}\\\"},\\\"appendix\\\":\\\"The review checklist tracks envelope styles, binding clips and shelf positions.\\\"}\\nArchive material tag: vimrulzel-bimluvfex.\",\n"}
+{"line":"    \"truth\": true,\n"}
+{"line":"    \"rationale\": \"Positive by construction. A personal email inside nested JSON is present; a placeholder in the same structure is absent.\",\n"}
+{"line":"    \"person\": false,\n"}
+{"line":"    \"address\": false,\n"}
+{"line":"    \"identifier\": true,\n"}
+{"line":"    \"identifierType\": \"email\",\n"}
+{"line":"    \"seed\": 20261013\n"}
+{"line":"  },\n"}
+{"line":"  {\n"}
+{"line":"    \"id\": \"pii-seed-20261013-json_email-01-negative\",\n"}
+{"line":"    \"kind\": \"json_email\",\n"}
+{"line":"    \"text\": \"{\\\"format\\\":\\\"working copy\\\",\\\"section\\\":{\\\"text\\\":\\\"{\\\\\\\"record_type\\\\\\\":\\\\\\\"blank_template\\\\\\\",\\\\\\\"contact\\\\\\\":{\\\\\\\"email\\\\\\\":\\\\\\\"[EMAIL]\\\\\\\"},\\\\\\\"note\\\\\\\":\\\\\\\"not filled\\\\\\\"}\\\"},\\\"appendix\\\":\\\"The review checklist tracks envelope styles, binding clips and shelf positions.\\\"}\\nArchive material tag: bimzeldov-fexdovbim.\",\n"}
+{"line":"    \"truth\": false,\n"}
+{"line":"    \"rationale\": \"Negative by construction. A personal email inside nested JSON is present; a placeholder in the same structure is absent.\",\n"}
+{"line":"    \"person\": false,\n"}
+{"line":"    \"address\": false,\n"}
+{"line":"    \"identifier\": false,\n"}
+{"line":"    \"identifierType\": null,\n"}
+{"line":"    \"seed\": 20261013\n"}
+{"line":"  },\n"}
+{"line":"  {\n"}
+{"line":"    \"id\": \"pii-seed-20261013-json_email-02-positive\",\n"}
+{"line":"    \"kind\": \"json_email\",\n"}
+{"line":"    \"text\": \"<review><excerpt>Archived support excerpt (quoted verbatim):\\n\\\"{\\\"record_type\\\":\\\"private_customer\\\",\\\"contact\\\":{\\\"email\\\":\\\"client.wexkeshdov.8.1@example.com\\\"},\\\"note\\\":\\\"fictional fixture\\\"}\\\"\\nEnd of excerpt.</excerpt><appendix>The filing instructions cover empty dividers, recycled cartons and label colors.</appendix></review>\\nArchive material tag: keshyuntov-yunzeldov.\",\n"}
+{"line":"    \"truth\": true,\n"}
+{"line":"    \"rationale\": \"Positive by construction. A personal email inside nested JSON is present; a placeholder in the same structure is absent.\",\n"}
+{"line":"    \"person\": false,\n"}
+{"line":"    \"address\": false,\n"}
+{"line":"    \"identifier\": true,\n"}
+{"line":"    \"identifierType\": \"email\",\n"}
+{"line":"    \"seed\": 20261013\n"}
+{"line":"  },\n"}
+{"line":"  {\n"}
+{"line":"    \"id\": \"pii-seed-20261013-json_email-02-negative\",\n"}
+{"line":"    \"kind\": \"json_email\",\n"}
+{"line":"    \"text\": \"Filing note:\\nThe filing instructions cover empty dividers, recycled cartons and label colors.\\nContent under review:\\nArchived support excerpt (quoted verbatim):\\n\\\"{\\\"record_type\\\":\\\"blank_template\\\",\\\"contact\\\":{\\\"email\\\":\\\"[EMAIL]\\\"},\\\"note\\\":\\\"not filled\\\"}\\\"\\nEnd of excerpt.\\nArchive material tag: rulvimbim-dovpevkesh.\",\n"}
+{"line":"    \"truth\": false,\n"}
+{"line":"    \"rationale\": \"Negative by construction. A personal email inside nested JSON is present; a placeholder in the same structure is absent.\",\n"}
+{"line":"    \"person\": false,\n"}
+{"line":"    \"address\": false,\n"}
+{"line":"    \"identifier\": false,\n"}
+{"line":"    \"identifierType\": null,\n"}
+{"line":"    \"seed\": 20261013\n"}
+{"line":"  },\n"}
+{"line":"  {\n"}
+{"line":"    \"id\": \"pii-seed-20261013-buried_home-01-positive\",\n"}
+{"line":"    \"kind\": \"buried_home\",\n"}
+{"line":"    \"text\": \"<review><excerpt>The maintenance notes concern a fictional inventory of blank envelopes, packaging colors and sorting rules. They contain no customer records. The maintenance notes concern a fictional inventory of blank envelopes, packaging colors and sorting rules. They contain no customer records. The maintenance notes concern a fictional inventory of blank envelopes, packaging colors and sorting rules. They contain no customer records. The maintenance notes concern a fictional inventory of blank envelopes, packaging colors and sorting rules. They contain no customer records. The maintenance notes concern a fictional inventory of blank envelopes, packaging colors and sorting rules. They contain no customer records. The maintenance notes concern a fictional inventory of blank envelopes, packaging colors and sorting rules. They contain no customer records. The maintenance notes concern a fictional inventory of blank envelopes, packaging colors and sorting rules. They contain no customer records. The maintenance notes concern a fictional inventory of blank envelopes, packaging colors and sorting rules. They contain no customer records. The maintenance notes concern a fictional inventory of blank envelopes, packaging colors and sorting rules. They contain no customer records. The maintenance notes concern a fictional inventory of blank envelopes, packaging colors and sorting rules. They contain no customer records. The maintenance notes concern a fictional inventory of blank envelopes, packaging colors and sorting rules. They contain no customer records. The maintenance notes concern a fictional inventory of blank envelopes, packaging colors and sorting rules. They contain no customer records. The maintenance notes concern a fictional inventory of blank envelopes, packaging colors and sorting rules. They contain no customer records. The maintenance notes concern a fictional inventory of blank envelopes, packaging colors and sorting rules. They contain no customer records. The maintenance notes concern a fictional inventory of blank envelopes, packaging colors and sorting rules. They contain no customer records. The maintenance notes concern a fictional inventory of blank envelopes, packaging colors and sorting rules. They contain no customer records. The maintenance notes concern a fictional inventory of blank envelopes, packaging colors and sorting rules. They contain no customer records. The maintenance notes concern a fictional inventory of blank envelopes, packaging colors and sorting rules. They contain no customer records. \\nPrivate delivery record: the resident lives at 39 Vimtovvim Mews, Bimtovtovhaven, ZZ 00000.\\nThe maintenance notes concern a fictional inventory of blank envelopes, packaging colors and sorting rules. They contain no customer records. The maintenance notes concern a fictional inventory of blank envelopes, packaging colors and sorting rules. They contain no customer records. The maintenance notes concern a fictional inventory of blank envelopes, packaging colors and sorting rules. They contain no customer records. The maintenance notes concern a fictional inventory of blank envelopes, packaging colors and sorting rules. They contain no customer records. The maintenance notes concern a fictional inventory of blank envelopes, packaging colors and sorting rules. They contain no customer records. The maintenance notes concern a fictional inventory of blank envelopes, packaging colors and sorting rules. They contain no customer records. The maintenance notes concern a fictional inventory of blank envelopes, packaging colors and sorting rules. They contain no customer records. The maintenance notes concern a fictional inventory of blank envelopes, packaging colors and sorting rules. They contain no customer records. The maintenance notes concern a fictional inventory of blank envelopes, packaging colors and sorting rules. They contain no customer records. The maintenance notes concern a fictional inventory of blank envelopes, packaging colors and sorting rules. They contain no customer records. The maintenance notes concern a fictional inventory of blank envelopes, packaging colors and sorting rules. They contain no customer records. The maintenance notes concern a fictional inventory of blank envelopes, packaging colors and sorting rules. They contain no customer records. The maintenance notes concern a fictional inventory of blank envelopes, packaging colors and sorting rules. They contain no customer records. The maintenance notes concern a fictional inventory of blank envelopes, packaging colors and sorting rules. They contain no customer records. The maintenance notes concern a fictional inventory of blank envelopes, packaging colors and sorting rules. They contain no customer records. The maintenance notes concern a fictional inventory of blank envelopes, packaging colors and sorting rules. They contain no customer records. The maintenance notes concern a fictional inventory of blank envelopes, packaging colors and sorting rules. They contain no customer records. The maintenance notes concern a fictional inventory of blank envelopes, packaging colors and sorting rules. They contain no customer records. </excerpt><appendix>The accompanying inventory lists plain folders and unused packaging.</appendix></review>\\nArchive material tag: luvfexdov-vimkeshtov.\",\n"}
+{"line":"    \"truth\": true,\n"}
+{"line":"    \"rationale\": \"Positive by construction. A sparse personal home address remains present inside long benign context.\",\n"}
+{"line":"    \"person\": false,\n"}
+{"line":"    \"address\": true,\n"}
+{"line":"    \"identifier\": false,\n"}
+{"line":"    \"identifierType\": null,\n"}
+{"line":"    \"seed\": 20261013\n"}
+{"line":"  },\n"}
+{"line":"  {\n"}
+{"line":"    \"id\": \"pii-seed-20261013-buried_home-01-negative\",\n"}
+{"line":"    \"kind\": \"buried_home\",\n"}
+{"line":"    \"text\": \"<review><excerpt>The maintenance notes concern a fictional inventory of blank envelopes, packaging colors and sorting rules. They contain no customer records. The maintenance notes concern a fictional inventory of blank envelopes, packaging colors and sorting rules. They contain no customer records. The maintenance notes concern a fictional inventory of blank envelopes, packaging colors and sorting rules. They contain no customer records. The maintenance notes concern a fictional inventory of blank envelopes, packaging colors and sorting rules. They contain no customer records. The maintenance notes concern a fictional inventory of blank envelopes, packaging colors and sorting rules. They contain no customer records. The maintenance notes concern a fictional inventory of blank envelopes, packaging colors and sorting rules. They contain no customer records. The maintenance notes concern a fictional inventory of blank envelopes, packaging colors and sorting rules. They contain no customer records. The maintenance notes concern a fictional inventory of blank envelopes, packaging colors and sorting rules. They contain no customer records. The maintenance notes concern a fictional inventory of blank envelopes, packaging colors and sorting rules. They contain no customer records. The maintenance notes concern a fictional inventory of blank envelopes, packaging colors and sorting rules. They contain no customer records. The maintenance notes concern a fictional inventory of blank envelopes, packaging colors and sorting rules. They contain no customer records. The maintenance notes concern a fictional inventory of blank envelopes, packaging colors and sorting rules. They contain no customer records. The maintenance notes concern a fictional inventory of blank envelopes, packaging colors and sorting rules. They contain no customer records. The maintenance notes concern a fictional inventory of blank envelopes, packaging colors and sorting rules. They contain no customer records. The maintenance notes concern a fictional inventory of blank envelopes, packaging colors and sorting rules. They contain no customer records. The maintenance notes concern a fictional inventory of blank envelopes, packaging colors and sorting rules. They contain no customer records. The maintenance notes concern a fictional inventory of blank envelopes, packaging colors and sorting rules. They contain no customer records. The maintenance notes concern a fictional inventory of blank envelopes, packaging colors and sorting rules. They contain no customer records. \\nPublic information: Dovwexrul Gallery has a sculpture and an outdoor seating area.\\nThe maintenance notes concern a fictional inventory of blank envelopes, packaging colors and sorting rules. They contain no customer records. The maintenance notes concern a fictional inventory of blank envelopes, packaging colors and sorting rules. They contain no customer records. The maintenance notes concern a fictional inventory of blank envelopes, packaging colors and sorting rules. They contain no customer records. The maintenance notes concern a fictional inventory of blank envelopes, packaging colors and sorting rules. They contain no customer records. The maintenance notes concern a fictional inventory of blank envelopes, packaging colors and sorting rules. They contain no customer records. The maintenance notes concern a fictional inventory of blank envelopes, packaging colors and sorting rules. They contain no customer records. The maintenance notes concern a fictional inventory of blank envelopes, packaging colors and sorting rules. They contain no customer records. The maintenance notes concern a fictional inventory of blank envelopes, packaging colors and sorting rules. They contain no customer records. The maintenance notes concern a fictional inventory of blank envelopes, packaging colors and sorting rules. They contain no customer records. The maintenance notes concern a fictional inventory of blank envelopes, packaging colors and sorting rules. They contain no customer records. The maintenance notes concern a fictional inventory of blank envelopes, packaging colors and sorting rules. They contain no customer records. The maintenance notes concern a fictional inventory of blank envelopes, packaging colors and sorting rules. They contain no customer records. The maintenance notes concern a fictional inventory of blank envelopes, packaging colors and sorting rules. They contain no customer records. The maintenance notes concern a fictional inventory of blank envelopes, packaging colors and sorting rules. They contain no customer records. The maintenance notes concern a fictional inventory of blank envelopes, packaging colors and sorting rules. They contain no customer records. The maintenance notes concern a fictional inventory of blank envelopes, packaging colors and sorting rules. They contain no customer records. The maintenance notes concern a fictional inventory of blank envelopes, packaging colors and sorting rules. They contain no customer records. The maintenance notes concern a fictional inventory of blank envelopes, packaging colors and sorting rules. They contain no customer records. </excerpt><appendix>The accompanying inventory lists plain folders and unused packaging.</appendix></review>\\nArchive material tag: wexyuntov-wexdovdov.\",\n"}
+{"line":"    \"truth\": false,\n"}
+{"line":"    \"rationale\": \"Negative by construction. A sparse personal home address remains present inside long benign context.\",\n"}
+{"line":"    \"person\": false,\n"}
+{"line":"    \"address\": false,\n"}
+{"line":"    \"identifier\": false,\n"}
+{"line":"    \"identifierType\": null,\n"}
+{"line":"    \"seed\": 20261013\n"}
+{"line":"  },\n"}
+{"line":"  {\n"}
+{"line":"    \"id\": \"pii-seed-20261013-buried_home-02-positive\",\n"}
+{"line":"    \"kind\": \"buried_home\",\n"}
+{"line":"    \"text\": \"Filing note:\\nThe accompanying inventory lists plain folders and unused packaging.\\nContent under review:\\nArchived support excerpt (quoted verbatim):\\n\\\"The maintenance notes concern a fictional inventory of blank envelopes, packaging colors and sorting rules. They contain no customer records. The maintenance notes concern a fictional inventory of blank envelopes, packaging colors and sorting rules. They contain no customer records. The maintenance notes concern a fictional inventory of blank envelopes, packaging colors and sorting rules. They contain no customer records. The maintenance notes concern a fictional inventory of blank envelopes, packaging colors and sorting rules. They contain no customer records. The maintenance notes concern a fictional inventory of blank envelopes, packaging colors and sorting rules. They contain no customer records. The maintenance notes concern a fictional inventory of blank envelopes, packaging colors and sorting rules. They contain no customer records. The maintenance notes concern a fictional inventory of blank envelopes, packaging colors and sorting rules. They contain no customer records. The maintenance notes concern a fictional inventory of blank envelopes, packaging colors and sorting rules. They contain no customer records. The maintenance notes concern a fictional inventory of blank envelopes, packaging colors and sorting rules. They contain no customer records. The maintenance notes concern a fictional inventory of blank envelopes, packaging colors and sorting rules. They contain no customer records. The maintenance notes concern a fictional inventory of blank envelopes, packaging colors and sorting rules. They contain no customer records. The maintenance notes concern a fictional inventory of blank envelopes, packaging colors and sorting rules. They contain no customer records. The maintenance notes concern a fictional inventory of blank envelopes, packaging colors and sorting rules. They contain no customer records. The maintenance notes concern a fictional inventory of blank envelopes, packaging colors and sorting rules. They contain no customer records. The maintenance notes concern a fictional inventory of blank envelopes, packaging colors and sorting rules. They contain no customer records. The maintenance notes concern a fictional inventory of blank envelopes, packaging colors and sorting rules. They contain no customer records. The maintenance notes concern a fictional inventory of blank envelopes, packaging colors and sorting rules. They contain no customer records. The maintenance notes concern a fictional inventory of blank envelopes, packaging colors and sorting rules. They contain no customer records. \\nPrivate delivery record: the resident lives at 72 Bimdovrul Mews, Pevdovtovhaven, ZZ 00000.\\nThe maintenance notes concern a fictional inventory of blank envelopes, packaging colors and sorting rules. They contain no customer records. The maintenance notes concern a fictional inventory of blank envelopes, packaging colors and sorting rules. They contain no customer records. The maintenance notes concern a fictional inventory of blank envelopes, packaging colors and sorting rules. They contain no customer records. The maintenance notes concern a fictional inventory of blank envelopes, packaging colors and sorting rules. They contain no customer records. The maintenance notes concern a fictional inventory of blank envelopes, packaging colors and sorting rules. They contain no customer records. The maintenance notes concern a fictional inventory of blank envelopes, packaging colors and sorting rules. They contain no customer records. The maintenance notes concern a fictional inventory of blank envelopes, packaging colors and sorting rules. They contain no customer records. The maintenance notes concern a fictional inventory of blank envelopes, packaging colors and sorting rules. They contain no customer records. The maintenance notes concern a fictional inventory of blank envelopes, packaging colors and sorting rules. They contain no customer records. The maintenance notes concern a fictional inventory of blank envelopes, packaging colors and sorting rules. They contain no customer records. The maintenance notes concern a fictional inventory of blank envelopes, packaging colors and sorting rules. They contain no customer records. The maintenance notes concern a fictional inventory of blank envelopes, packaging colors and sorting rules. They contain no customer records. The maintenance notes concern a fictional inventory of blank envelopes, packaging colors and sorting rules. They contain no customer records. The maintenance notes concern a fictional inventory of blank envelopes, packaging colors and sorting rules. They contain no customer records. The maintenance notes concern a fictional inventory of blank envelopes, packaging colors and sorting rules. They contain no customer records. The maintenance notes concern a fictional inventory of blank envelopes, packaging colors and sorting rules. They contain no customer records. The maintenance notes concern a fictional inventory of blank envelopes, packaging colors and sorting rules. They contain no customer records. The maintenance notes concern a fictional inventory of blank envelopes, packaging colors and sorting rules. They contain no customer records. \\\"\\nEnd of excerpt.\\nArchive material tag: fexpevdov-dovvimfex.\",\n"}
+{"line":"    \"truth\": true,\n"}
+{"line":"    \"rationale\": \"Positive by construction. A sparse personal home address remains present inside long benign context.\",\n"}
+{"line":"    \"person\": false,\n"}
+{"line":"    \"address\": true,\n"}
+{"line":"    \"identifier\": false,\n"}
+{"line":"    \"identifierType\": null,\n"}
+{"line":"    \"seed\": 20261013\n"}
+{"line":"  },\n"}
+{"line":"  {\n"}
+{"line":"    \"id\": \"pii-seed-20261013-buried_home-02-negative\",\n"}
+{"line":"    \"kind\": \"buried_home\",\n"}
+{"line":"    \"text\": \"<review><excerpt>Archived support excerpt (quoted verbatim):\\n\\\"The maintenance notes concern a fictional inventory of blank envelopes, packaging colors and sorting rules. They contain no customer records. The maintenance notes concern a fictional inventory of blank envelopes, packaging colors and sorting rules. They contain no customer records. The maintenance notes concern a fictional inventory of blank envelopes, packaging colors and sorting rules. They contain no customer records. The maintenance notes concern a fictional inventory of blank envelopes, packaging colors and sorting rules. They contain no customer records. The maintenance notes concern a fictional inventory of blank envelopes, packaging colors and sorting rules. They contain no customer records. The maintenance notes concern a fictional inventory of blank envelopes, packaging colors and sorting rules. They contain no customer records. The maintenance notes concern a fictional inventory of blank envelopes, packaging colors and sorting rules. They contain no customer records. The maintenance notes concern a fictional inventory of blank envelopes, packaging colors and sorting rules. They contain no customer records. The maintenance notes concern a fictional inventory of blank envelopes, packaging colors and sorting rules. They contain no customer records. The maintenance notes concern a fictional inventory of blank envelopes, packaging colors and sorting rules. They contain no customer records. The maintenance notes concern a fictional inventory of blank envelopes, packaging colors and sorting rules. They contain no customer records. The maintenance notes concern a fictional inventory of blank envelopes, packaging colors and sorting rules. They contain no customer records. The maintenance notes concern a fictional inventory of blank envelopes, packaging colors and sorting rules. They contain no customer records. The maintenance notes concern a fictional inventory of blank envelopes, packaging colors and sorting rules. They contain no customer records. The maintenance notes concern a fictional inventory of blank envelopes, packaging colors and sorting rules. They contain no customer records. The maintenance notes concern a fictional inventory of blank envelopes, packaging colors and sorting rules. They contain no customer records. The maintenance notes concern a fictional inventory of blank envelopes, packaging colors and sorting rules. They contain no customer records. The maintenance notes concern a fictional inventory of blank envelopes, packaging colors and sorting rules. They contain no customer records. \\nPublic information: Fexfexluv Park has a sculpture and an outdoor seating area.\\nThe maintenance notes concern a fictional inventory of blank envelopes, packaging colors and sorting rules. They contain no customer records. The maintenance notes concern a fictional inventory of blank envelopes, packaging colors and sorting rules. They contain no customer records. The maintenance notes concern a fictional inventory of blank envelopes, packaging colors and sorting rules. They contain no customer records. The maintenance notes concern a fictional inventory of blank envelopes, packaging colors and sorting rules. They contain no customer records. The maintenance notes concern a fictional inventory of blank envelopes, packaging colors and sorting rules. They contain no customer records. The maintenance notes concern a fictional inventory of blank envelopes, packaging colors and sorting rules. They contain no customer records. The maintenance notes concern a fictional inventory of blank envelopes, packaging colors and sorting rules. They contain no customer records. The maintenance notes concern a fictional inventory of blank envelopes, packaging colors and sorting rules. They contain no customer records. The maintenance notes concern a fictional inventory of blank envelopes, packaging colors and sorting rules. They contain no customer records. The maintenance notes concern a fictional inventory of blank envelopes, packaging colors and sorting rules. They contain no customer records. The maintenance notes concern a fictional inventory of blank envelopes, packaging colors and sorting rules. They contain no customer records. The maintenance notes concern a fictional inventory of blank envelopes, packaging colors and sorting rules. They contain no customer records. The maintenance notes concern a fictional inventory of blank envelopes, packaging colors and sorting rules. They contain no customer records. The maintenance notes concern a fictional inventory of blank envelopes, packaging colors and sorting rules. They contain no customer records. The maintenance notes concern a fictional inventory of blank envelopes, packaging colors and sorting rules. They contain no customer records. The maintenance notes concern a fictional inventory of blank envelopes, packaging colors and sorting rules. They contain no customer records. The maintenance notes concern a fictional inventory of blank envelopes, packaging colors and sorting rules. They contain no customer records. The maintenance notes concern a fictional inventory of blank envelopes, packaging colors and sorting rules. They contain no customer records. \\\"\\nEnd of excerpt.</excerpt><appendix>The accompanying inventory lists plain folders and unused packaging.</appendix></review>\\nArchive material tag: luvwexwex-tovdovyun.\",\n"}
+{"line":"    \"truth\": false,\n"}
+{"line":"    \"rationale\": \"Negative by construction. A sparse personal home address remains present inside long benign context.\",\n"}
+{"line":"    \"person\": false,\n"}
+{"line":"    \"address\": false,\n"}
+{"line":"    \"identifier\": false,\n"}
+{"line":"    \"identifierType\": null,\n"}
+{"line":"    \"seed\": 20261013\n"}
+{"line":"  },\n"}
+{"line":"  {\n"}
+{"line":"    \"id\": \"pii-seed-20261013-negated_person-01-positive\",\n"}
+{"line":"    \"kind\": \"negated_person\",\n"}
+{"line":"    \"text\": \"Document excerpt:\\nDo not publish the customer's name, Fexrulvim Dovpevfexwood. This private person explicitly requests confidentiality.\\nThe filing instructions cover empty dividers, recycled cartons and label colors.\\nArchive material tag: keshbimyun-wexbimzel.\",\n"}
+{"line":"    \"truth\": true,\n"}
+{"line":"    \"rationale\": \"Positive by construction. A confidentiality request still discloses the named person; a policy without a value does not.\",\n"}
+{"line":"    \"person\": true,\n"}
+{"line":"    \"address\": false,\n"}
+{"line":"    \"identifier\": false,\n"}
+{"line":"    \"identifierType\": null,\n"}
+{"line":"    \"seed\": 20261013\n"}
+{"line":"  },\n"}
+{"line":"  {\n"}
+{"line":"    \"id\": \"pii-seed-20261013-negated_person-01-negative\",\n"}
+{"line":"    \"kind\": \"negated_person\",\n"}
+{"line":"    \"text\": \"{\\\"format\\\":\\\"working copy\\\",\\\"section\\\":{\\\"text\\\":\\\"Do not publish any customer names. The document contains only this policy and the empty value [NAME].\\\"},\\\"appendix\\\":\\\"The filing instructions cover empty dividers, recycled cartons and label colors.\\\"}\\nArchive material tag: rulvimvim-keshkeshluv.\",\n"}
+{"line":"    \"truth\": false,\n"}
+{"line":"    \"rationale\": \"Negative by construction. A confidentiality request still discloses the named person; a policy without a value does not.\",\n"}
+{"line":"    \"person\": false,\n"}
+{"line":"    \"address\": false,\n"}
+{"line":"    \"identifier\": false,\n"}
+{"line":"    \"identifierType\": null,\n"}
+{"line":"    \"seed\": 20261013\n"}
+{"line":"  },\n"}
+{"line":"  {\n"}
+{"line":"    \"id\": \"pii-seed-20261013-negated_person-02-positive\",\n"}
+{"line":"    \"kind\": \"negated_person\",\n"}
+{"line":"    \"text\": \"<review><excerpt>Archived support excerpt (quoted verbatim):\\n\\\"Do not publish the customer's name, Yunluvwex Zelpevtovwood. This private person explicitly requests confidentiality.\\\"\\nEnd of excerpt.</excerpt><appendix>The document format review concerns blank paper sleeves and color swatches.</appendix></review>\\nArchive material tag: fexrulvim-vimtovbim.\",\n"}
+{"line":"    \"truth\": true,\n"}
+{"line":"    \"rationale\": \"Positive by construction. A confidentiality request still discloses the named person; a policy without a value does not.\",\n"}
+{"line":"    \"person\": true,\n"}
+{"line":"    \"address\": false,\n"}
+{"line":"    \"identifier\": false,\n"}
+{"line":"    \"identifierType\": null,\n"}
+{"line":"    \"seed\": 20261013\n"}
+{"line":"  },\n"}
+{"line":"  {\n"}
+{"line":"    \"id\": \"pii-seed-20261013-negated_person-02-negative\",\n"}
+{"line":"    \"kind\": \"negated_person\",\n"}
+{"line":"    \"text\": \"Filing note:\\nThe document format review concerns blank paper sleeves and color swatches.\\nContent under review:\\nArchived support excerpt (quoted verbatim):\\n\\\"Do not publish any customer names. The document contains only this policy and the empty value [NAME].\\\"\\nEnd of excerpt.\\nArchive material tag: vimvimbim-tovzeldov.\",\n"}
+{"line":"    \"truth\": false,\n"}
+{"line":"    \"rationale\": \"Negative by construction. A confidentiality request still discloses the named person; a policy without a value does not.\",\n"}
+{"line":"    \"person\": false,\n"}
+{"line":"    \"address\": false,\n"}
+{"line":"    \"identifier\": false,\n"}
+{"line":"    \"identifierType\": null,\n"}
+{"line":"    \"seed\": 20261013\n"}
+{"line":"  },\n"}
+{"line":"  {\n"}
+{"line":"    \"id\": \"pii-seed-20261013-mixed_contact_context-01-positive\",\n"}
+{"line":"    \"kind\": \"mixed_contact_context\",\n"}
+{"line":"    \"text\": \"Document excerpt:\\nThe company contact template has empty name and address fields. A private customer filled only their contact: client.vimwexvim.11.0@example.com.\\nThe accompanying inventory lists plain folders and unused packaging.\\nArchive material tag: luvfexrul-keshtovfex.\",\n"}
+{"line":"    \"truth\": true,\n"}
+{"line":"    \"rationale\": \"Positive by construction. A single complete identifier in otherwise empty metadata is sufficient; field labels alone are absent.\",\n"}
+{"line":"    \"person\": false,\n"}
+{"line":"    \"address\": false,\n"}
+{"line":"    \"identifier\": true,\n"}
+{"line":"    \"identifierType\": \"email\",\n"}
+{"line":"    \"seed\": 20261013\n"}
+{"line":"  },\n"}
+{"line":"  {\n"}
+{"line":"    \"id\": \"pii-seed-20261013-mixed_contact_context-01-negative\",\n"}
+{"line":"    \"kind\": \"mixed_contact_context\",\n"}
+{"line":"    \"text\": \"Document excerpt:\\nThe company contact template has empty name, home address, email and phone fields. Labels and product names appear, but no personal values do.\\nThe accompanying inventory lists plain folders and unused packaging.\\nArchive material tag: tovwextov-wexbimdov.\",\n"}
+{"line":"    \"truth\": false,\n"}
+{"line":"    \"rationale\": \"Negative by construction. A single complete identifier in otherwise empty metadata is sufficient; field labels alone are absent.\",\n"}
+{"line":"    \"person\": false,\n"}
+{"line":"    \"address\": false,\n"}
+{"line":"    \"identifier\": false,\n"}
+{"line":"    \"identifierType\": null,\n"}
+{"line":"    \"seed\": 20261013\n"}
+{"line":"  },\n"}
+{"line":"  {\n"}
+{"line":"    \"id\": \"pii-seed-20261013-mixed_contact_context-02-positive\",\n"}
+{"line":"    \"kind\": \"mixed_contact_context\",\n"}
+{"line":"    \"text\": \"{\\\"format\\\":\\\"working copy\\\",\\\"section\\\":{\\\"text\\\":\\\"Archived support excerpt (quoted verbatim):\\\\n\\\\\\\"The company contact template has empty name and address fields. A private customer filled only their contact: +1 (202) 555-0148.\\\\\\\"\\\\nEnd of excerpt.\\\"},\\\"appendix\\\":\\\"The accompanying inventory lists plain folders and unused packaging.\\\"}\\nArchive material tag: bimwexluv-bimyunfex.\",\n"}
+{"line":"    \"truth\": true,\n"}
+{"line":"    \"rationale\": \"Positive by construction. A single complete identifier in otherwise empty metadata is sufficient; field labels alone are absent.\",\n"}
+{"line":"    \"person\": false,\n"}
+{"line":"    \"address\": false,\n"}
+{"line":"    \"identifier\": true,\n"}
+{"line":"    \"identifierType\": \"phone\",\n"}
+{"line":"    \"seed\": 20261013\n"}
+{"line":"  },\n"}
+{"line":"  {\n"}
+{"line":"    \"id\": \"pii-seed-20261013-mixed_contact_context-02-negative\",\n"}
+{"line":"    \"kind\": \"mixed_contact_context\",\n"}
+{"line":"    \"text\": \"<review><excerpt>Archived support excerpt (quoted verbatim):\\n\\\"The company contact template has empty name, home address, email and phone fields. Labels and product names appear, but no personal values do.\\\"\\nEnd of excerpt.</excerpt><appendix>The accompanying inventory lists plain folders and unused packaging.</appendix></review>\\nArchive material tag: bimfexrul-keshkeshvim.\",\n"}
+{"line":"    \"truth\": false,\n"}
+{"line":"    \"rationale\": \"Negative by construction. A single complete identifier in otherwise empty metadata is sufficient; field labels alone are absent.\",\n"}
+{"line":"    \"person\": false,\n"}
+{"line":"    \"address\": false,\n"}
+{"line":"    \"identifier\": false,\n"}
+{"line":"    \"identifierType\": null,\n"}
+{"line":"    \"seed\": 20261013\n"}
+{"line":"  }\n"}
+{"line":"]\n"}

@@ -291,6 +291,8 @@ describe('chat clients', () => {
     const result = await createOpenAiJudge({ fetch, env: CASES[0]?.env, sleep: noWait }).judge(REQUEST);
     expect(result.answer.outcome).toBe('inconclusive');
     expect(result.unparsed).toBeUndefined();
+    expect(result.declineReason).toBe('provider-blocked');
+    expect(result.providerBlock).toEqual({ provider: 'openai', reason: 'refusal' });
   });
 
   it('need a model from the environment or the options', () => {
@@ -430,6 +432,8 @@ describe('an OpenAI answer stopped by the content filter', () => {
     expect(result.answer.outcome).toBe('inconclusive');
     expect(result.answer.reasoning).toMatch(/declined/);
     expect(result.unparsed).toBeUndefined();
+    expect(result.declineReason).toBe('provider-blocked');
+    expect(result.providerBlock).toEqual({ provider: 'openai', reason: 'content_filter' });
   });
 });
 
@@ -451,6 +455,8 @@ describe('a Google answer whose prompt was blocked', () => {
     expect(result.answer.outcome).toBe('inconclusive');
     expect(result.answer.reasoning).toMatch(/declined/);
     expect(result.unparsed).toBeUndefined();
+    expect(result.declineReason).toBe('provider-blocked');
+    expect(result.providerBlock).toEqual({ provider: 'google', reason: 'SAFETY' });
   });
 });
 
@@ -475,6 +481,8 @@ describe('a Google answer stopped for recitation', () => {
     expect(result.answer.outcome).toBe('inconclusive');
     expect(result.answer.reasoning).toMatch(/declined/);
     expect(result.unparsed).toBeUndefined();
+    expect(result.declineReason).toBe('provider-blocked');
+    expect(result.providerBlock).toEqual({ provider: 'google', reason: 'RECITATION' });
   });
 });
 

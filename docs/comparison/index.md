@@ -28,6 +28,8 @@ Each benchmark has a slot on its own page. A slot shows "run in progress" until 
 | RubricBench | run in progress | [RubricBench](benchmarks/index.md#rubricbench) |
 | RubricEval | data not public | [RubricEval](benchmarks/index.md#rubriceval) |
 
+The method behind every chart of the README is on [how the README numbers were measured](methods.md).
+
 ## How each row was checked
 
 A row has one of these bases:
