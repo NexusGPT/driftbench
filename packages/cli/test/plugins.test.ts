@@ -16,7 +16,16 @@ import {
   type MainOptions,
   main,
 } from '../src/index';
-import { pluginArgs, pluginConfigPath, readPluginConfig, resetPlugins } from '../src/plugins';
+import {
+  applyPlugins,
+  pluginAdapter,
+  pluginAdapterNames,
+  pluginArgs,
+  pluginConfigPath,
+  pluginPairwiseJudge,
+  readPluginConfig,
+  resetPlugins,
+} from '../src/plugins';
 
 const ROOT = fileURLToPath(new URL('../../../', import.meta.url));
 const EXAMPLE = join(ROOT, 'examples/plugins');
@@ -256,6 +265,115 @@ describe('plugins', () => {
     expect(defaultRegistry.get('twice')).toBeUndefined();
   });
 
+  it.each([
+    ['adapter', 'adapter', '() => undefined'],
+    ['check', 'check', '() => []'],
+    ['pairwiseJudge', 'judge', "() => ({ id: 'custom' })"],
+  ])('refuses duplicate %s registrations with both module owners', async (method, kind, factory) => {
+    const dir = await temp({
+      'first.mjs': `export default api => api.${method}('duplicate', ${factory});`,
+      'second.mjs': `export default api => api.${method}('duplicate', ${factory});`,
+    });
+    const run = await cli([
+      '--help',
+      '--plugin',
+      join(dir, 'first.mjs'),
+      '--plugin',
+      join(dir, 'second.mjs'),
+    ]);
+    expect(run.code).toBe(2);
+    expect(run.err).toContain(`The plugin ${join(dir, 'second.mjs')} registers the ${kind} duplicate`);
+    expect(run.err).toContain(`the plugin ${join(dir, 'first.mjs')} already registered`);
+    expect(pluginAdapterNames()).toEqual([]);
+    expect(pluginPairwiseJudge('duplicate')).toBeUndefined();
+    expect(defaultRegistry.get('duplicate')).toBeUndefined();
+  });
+
+  it.each([3, 5])('restores all registries after each of %i alternating calls', async (count) => {
+    const keptCheck = () => [];
+    const keptJudge = { id: 'kept' } as JudgeClient;
+    const keptAdapter = functionAdapter({
+      respond: () => ({ segments: [], text: 'kept', toolCalls: [], cost: {}, latencyMs: 0 }),
+      deterministic: true,
+    });
+    await applyPlugins(
+      [
+        (api) => {
+          api.adapter('kept', () => keptAdapter);
+          api.check('kept', keptCheck);
+          api.pairwiseJudge('kept', () => keptJudge);
+        },
+      ],
+      ROOT,
+    );
+    const names = defaultRegistry.names();
+    const before = names.map((name) => defaultRegistry.get(name));
+    const plugin: DriftbenchPlugin = (api) => {
+      api.adapter('scoped', () => keptAdapter);
+      api.check('scoped', () => []);
+      api.pairwiseJudge('scoped', () => ({ id: 'scoped' }) as JudgeClient);
+    };
+    for (let index = 0; index < count; index++) {
+      const withPlugin = index % 2 === 0;
+      let observed = false;
+      const code = await main(
+        ['--help'],
+        {
+          cwd: ROOT,
+          err: () => {},
+          out: () => {
+            observed = true;
+            expect(defaultRegistry.get('scoped') !== undefined).toBe(withPlugin);
+            expect(pluginAdapterNames().includes('scoped')).toBe(withPlugin);
+            expect(pluginPairwiseJudge('scoped')?.id).toBe(withPlugin ? 'scoped' : undefined);
+          },
+        },
+        { plugins: withPlugin ? [plugin] : [] },
+      );
+      expect(code).toBe(0);
+      expect(observed).toBe(true);
+      expect(JSON.stringify(defaultRegistry.names())).toBe(JSON.stringify(names));
+      for (const [at, name] of names.entries()) expect(defaultRegistry.get(name)).toBe(before[at]);
+      expect(pluginAdapterNames()).toEqual(['kept']);
+      expect(await pluginAdapter({ adapter: 'kept', agent: 'demo' })).toBe(keptAdapter);
+      expect(pluginPairwiseJudge('kept')).toBe(keptJudge);
+      expect(pluginPairwiseJudge('scoped')).toBeUndefined();
+    }
+  });
+
+  it.each(['load', 'command', 'throw'])('restores all registries on %s failure', async (failure) => {
+    const before = defaultRegistry.names().map((name) => [name, defaultRegistry.get(name)]);
+    const plugins: DriftbenchPlugin[] = [
+      (api) => {
+        api.adapter('scoped', () => undefined);
+        api.check('scoped', () => []);
+        api.pairwiseJudge('scoped', () => ({ id: 'scoped' }) as JudgeClient);
+      },
+    ];
+    if (failure === 'load')
+      plugins.push((api) => {
+        api.adapter('partial', () => undefined);
+        api.check('partial', () => []);
+        throw new Error('registration interrupted');
+      });
+    const run = main(
+      failure === 'command' ? ['--plugin'] : ['--help'],
+      {
+        cwd: ROOT,
+        err: () => {},
+        out: () => {
+          if (failure === 'throw') throw new Error('output interrupted');
+        },
+      },
+      { plugins },
+    );
+    if (failure === 'throw') await expect(run).rejects.toThrow('output interrupted');
+    else expect(await run).toBe(2);
+    expect(defaultRegistry.names().map((name) => [name, defaultRegistry.get(name)])).toEqual(before);
+    expect(pluginAdapterNames()).toEqual([]);
+    expect(pluginPairwiseJudge('scoped')).toBeUndefined();
+  });
+
   it('a module named in the config and by the flag runs once', async () => {
     const run = await cli(['campaign', 'run', 'specs/hello.yaml', '--plugin', './plugin.mjs'], EXAMPLE);
     expect(run.err).toBe('');
@@ -267,7 +385,7 @@ describe('plugins', () => {
     defaultRegistry.register('kept', mine);
     try {
       await cli(['--help'], ROOT, { plugins: [(api) => api.check('added', () => [])] });
-      expect(defaultRegistry.get('added')).toBeDefined();
+      expect(defaultRegistry.get('added')).toBeUndefined();
       await cli(['--help']);
       expect(defaultRegistry.get('added')).toBeUndefined();
       expect(defaultRegistry.get('kept')).toBe(mine);
@@ -295,9 +413,17 @@ describe('plugins', () => {
 
   it('a plugin judge answers --pairwise-judge by its name; an unknown name is refused as before', async () => {
     const judge = { id: 'mine' } as JudgeClient;
-    await cli(['spec', 'lint', SPEC], ROOT, { plugins: [(api) => api.pairwiseJudge('mine', () => judge)] });
-    expect(defaultPairwiseClient('mine')).toBe(judge);
-    resetPlugins();
+    await main(
+      ['--help'],
+      {
+        cwd: ROOT,
+        err: () => {},
+        out: () => {
+          expect(defaultPairwiseClient('mine')).toBe(judge);
+        },
+      },
+      { plugins: [(api) => api.pairwiseJudge('mine', () => judge)] },
+    );
     expect(() => defaultPairwiseClient('mine')).toThrow(
       'unknown pairwise judge mine: use openai, anthropic or google',
     );

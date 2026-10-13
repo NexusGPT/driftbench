@@ -2,7 +2,7 @@ import { Command, CommanderError, Help } from 'commander';
 import { COMMAND_HELP, COMMAND_MODULES, type Register } from './command-index';
 import type { CampaignDeps } from './commands/campaign';
 import { type Io, processIo } from './io';
-import { applyPlugins, type DriftbenchPlugin, pluginsFromRun, resetPlugins } from './plugins';
+import { applyPlugins, beginPluginRun, type DriftbenchPlugin, pluginsFromRun } from './plugins';
 import { VERSION } from './version';
 
 /** What a caller in code may give `main` beside the arguments. */
@@ -26,32 +26,34 @@ export async function main(argv: string[], io: Io = processIo, options: MainOpti
   const setExit = (code: number) => {
     exitCode = code;
   };
-  resetPlugins();
-  const refused = options.plugins === undefined ? undefined : await applyPlugins(options.plugins, io.cwd);
-  const run =
-    refused === undefined ? await pluginsFromRun(argv, io) : { ok: false as const, message: refused };
-  if (!run.ok) {
-    // A run whose plugins did not all load keeps none of them.
-    resetPlugins();
-    io.err(`driftbench: ${run.message}\n`);
-    return 2;
-  }
-  const program = await createProgram(run.argv, io, setExit, options.deps);
-
+  const restorePlugins = beginPluginRun();
   try {
-    await program.parseAsync(run.argv, { from: 'user' });
-  } catch (cause) {
-    if (cause instanceof CommanderError) return cause.exitCode === 0 ? 0 : 2;
-    // A path the user gave that cannot be used as asked (a file where a folder must go, a folder where a file
-    // must go, a missing file) is an input error: exit 2 with the reason, never a stack trace.
-    const path = pathError(cause);
-    if (path !== undefined) {
-      io.err(`driftbench: ${path}\n`);
+    const refused = options.plugins === undefined ? undefined : await applyPlugins(options.plugins, io.cwd);
+    const run =
+      refused === undefined ? await pluginsFromRun(argv, io) : { ok: false as const, message: refused };
+    if (!run.ok) {
+      io.err(`driftbench: ${run.message}\n`);
       return 2;
     }
-    throw cause;
+    const program = await createProgram(run.argv, io, setExit, options.deps);
+
+    try {
+      await program.parseAsync(run.argv, { from: 'user' });
+    } catch (cause) {
+      if (cause instanceof CommanderError) return cause.exitCode === 0 ? 0 : 2;
+      // A path the user gave that cannot be used as asked (a file where a folder must go, a folder where a file
+      // must go, a missing file) is an input error: exit 2 with the reason, never a stack trace.
+      const path = pathError(cause);
+      if (path !== undefined) {
+        io.err(`driftbench: ${path}\n`);
+        return 2;
+      }
+      throw cause;
+    }
+    return exitCode;
+  } finally {
+    restorePlugins();
   }
-  return exitCode;
 }
 
 /** The arguments that only print the top-level help or the version: no command module is needed. */
