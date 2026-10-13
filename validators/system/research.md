@@ -79,3 +79,16 @@ Sources: packages/core/src/spec/hash.ts (canonicalList, sha256WithList); package
 Finding: an extended immutable prefix repeats every old WeakMap lookup before joining the same old texts. The red-first test observes 402 lookups after extending a 400-object prefix by one item. A second red-first test confirms the new-head bulk path incorrectly reuses the array-identity text after a mutable array grows. The plain canonical SHA-256 oracle disagrees.
 
 Mechanism: keep the last canonical prefix text with a copied list of item references, verify that prefix before appending new texts, and bypass the immutable-array identity cache for mutable digest callers. Seven exact-digest and prefix tests pass after the change. The whole seed-1 measurement is the acceptance evidence for the growth item, not the subsystem test.
+
+
+## 2026-10-13: avoid unused cache keys
+
+Question: which prefix work has no consumer in an uncached live run?
+
+Sources: packages/core/src/runner/run.ts (execute, liveChannel, remember); packages/core/src/runner/cache.ts (blockCacheKey); docs/running.md (optional cache and replay).
+
+Finding: liveChannel only passes the key to remember, which returns immediately without run.cache. execute still hashes it on every block. The key is not emitted in a block result. Empty string retains the end-state marker because the check is lastKey !== undefined.
+
+Mechanism: compute the block key only with a cache. Two red uncached tests see three calls each, then pass after the fix. A third case confirms cached live and replay keys stay identical. Full seed 1 moves from 2361 to 2362/2384, with all scale items passing. The five-seed stage completes 5 of 21 with 2359/2384 passing every completed seed; free-running seed 3 and teacher-forced seed 4 still exceed 25. The numeric registry prefix also fails seed 4. No bank or limit changes.
+
+Private follow-up probes: descending and sparse array construction have mixed results. Hybrid eager scalar-message copies slow actual teacher-forced flows and are rejected. Moving reply contact extraction before historical ledger scanning preserves exact verdict projections but fails to improve teacher-forced growth; it is not implemented. The remaining shared lazy-array allocation cost needs a different mechanism.
