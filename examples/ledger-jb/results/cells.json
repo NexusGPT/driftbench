@@ -2,13 +2,13 @@
   "sealSha256": "2aa831d8f08ea88ddddff87ba9aeb600f2c719725608815c09ddc699bd8aac12",
   "poolSha256": "489c47a0404e7e0929b52ffbe3e253bfebc8d04fa1e0ddac2f3b7ccd089f5236",
   "coreFreeze": "de1533e9d906b8a617798142863a2a2784ca454e1502c79160bec2387346abd6",
-  "totalCalls": 2282,
-  "receivedCalls": 2272,
-  "interruptedCalls": 10,
-  "interruptionReserveUsd": 0.45450825,
-  "measuredUsd": 1.5989382700000003,
-  "unresolvedCalls": 0,
-  "reservedUsd": 0,
+  "totalCalls": 2558,
+  "receivedCalls": 2547,
+  "interruptedCalls": 11,
+  "interruptionReserveUsd": 0.70450825,
+  "measuredUsd": 1.9043362700000017,
+  "unresolvedCalls": 2,
+  "reservedUsd": 0.5,
   "cells": [
     {
       "model": "claude-haiku-5-5",
@@ -56,47 +56,47 @@
       "noise": {
         "ledger": {
           "planned": 30,
-          "completed": 0,
-          "changedItems": 0,
-          "gameFlips": 0,
-          "comparisons": 0,
-          "rate": null,
+          "completed": 14,
+          "changedItems": 1,
+          "gameFlips": 2,
+          "comparisons": 56,
+          "rate": 0.03571428571428571,
           "method": "Each repeat compared to repeat zero, per order; all errors retain their null decisions."
         },
         "promptfoo": {
           "planned": 30,
-          "completed": 0,
-          "changedItems": 0,
-          "gameFlips": 0,
-          "comparisons": 0,
-          "rate": null,
+          "completed": 15,
+          "changedItems": 1,
+          "gameFlips": 2,
+          "comparisons": 60,
+          "rate": 0.03333333333333333,
           "method": "Each repeat compared to repeat zero, per order; all errors retain their null decisions."
         }
       },
       "fixtureEarning": {
         "livebench": {
           "expected": 18,
-          "measured": 8,
-          "correct": 5,
-          "kappa": null,
+          "measured": 18,
+          "correct": 15,
+          "kappa": 0.7142857142857144,
           "earned": false,
-          "status": "PENDING"
+          "status": "MEASURED"
         },
         "livecodebench": {
           "expected": 18,
-          "measured": 0,
-          "correct": 0,
-          "kappa": null,
-          "earned": false,
-          "status": "PENDING"
+          "measured": 18,
+          "correct": 18,
+          "kappa": 1,
+          "earned": true,
+          "status": "MEASURED"
         },
         "mmlu": {
           "expected": 18,
-          "measured": 0,
-          "correct": 0,
-          "kappa": null,
+          "measured": 18,
+          "correct": 16,
+          "kappa": 0.7894736842105262,
           "earned": false,
-          "status": "PENDING"
+          "status": "MEASURED"
         }
       },
       "pilot": {

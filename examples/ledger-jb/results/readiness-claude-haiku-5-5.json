@@ -3,7 +3,7 @@
   "freezeSha256": "de1533e9d906b8a617798142863a2a2784ca454e1502c79160bec2387346abd6",
   "pilotComplete": true,
   "noiseComplete": false,
-  "fixturesComplete": false,
+  "fixturesComplete": true,
   "validityPassed": false,
   "cheaterGate": false,
   "prepAccuracy": null,
@@ -87,27 +87,27 @@
   "fixtureEarning": {
     "livebench": {
       "expected": 18,
-      "measured": 8,
-      "correct": 5,
-      "kappa": null,
+      "measured": 18,
+      "correct": 15,
+      "kappa": 0.7142857142857144,
       "earned": false,
-      "status": "PENDING"
+      "status": "MEASURED"
     },
     "livecodebench": {
       "expected": 18,
-      "measured": 0,
-      "correct": 0,
-      "kappa": null,
-      "earned": false,
-      "status": "PENDING"
+      "measured": 18,
+      "correct": 18,
+      "kappa": 1,
+      "earned": true,
+      "status": "MEASURED"
     },
     "mmlu": {
       "expected": 18,
-      "measured": 0,
-      "correct": 0,
-      "kappa": null,
+      "measured": 18,
+      "correct": 16,
+      "kappa": 0.7894736842105262,
       "earned": false,
-      "status": "PENDING"
+      "status": "MEASURED"
     }
   }
 }

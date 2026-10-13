@@ -1,19 +1,21 @@
 {
-  "asOf": "2026-10-13T09:41:38.342242+00:00",
+  "asOf": "2026-10-13T10:10:31.334901+00:00",
   "core": "35f07309a4d1d1c8a7c5b176ff19e537d0ef8fdd",
   "freezeSha256": "de1533e9d906b8a617798142863a2a2784ca454e1502c79160bec2387346abd6",
   "allExpectedDecisionsComplete": false,
-  "starts": 2282,
-  "finishes": 2282,
-  "unresolvedCalls": 0,
+  "starts": 2560,
+  "finishes": 2558,
+  "unresolvedCalls": 2,
   "maximumHistoricalConcurrentCalls": 6,
-  "maximumCurrentFreezeConcurrentCalls": 0,
-  "maximumCurrentFreezeConcurrentCallsByModel": {},
-  "knownUsd": 1.59893827,
-  "unknownReserveUsd": 0.45450825,
-  "activeReserveUsd": 0,
-  "liabilityUsd": 2.0534465200000094,
-  "maximumLiabilityUsd": 2.6941678500000092,
+  "maximumCurrentFreezeConcurrentCalls": 2,
+  "maximumCurrentFreezeConcurrentCallsByModel": {
+    "claude-haiku-5-5": 2
+  },
+  "knownUsd": 1.90433627,
+  "unknownReserveUsd": 0.70450825,
+  "activeReserveUsd": 0.5,
+  "liabilityUsd": 3.1088445200000088,
+  "maximumLiabilityUsd": 3.1088445200000088,
   "models": {
     "gpt-6-luna": {
       "pilot": {
@@ -250,39 +252,39 @@
         "descriptiveGroups": {}
       },
       "fixtures": {
-        "decisions": 8,
+        "decisions": 54,
         "expectedDecisions": 54,
-        "complete": false,
-        "callsStarted": 20,
-        "callsFinished": 20,
+        "complete": true,
+        "callsStarted": 115,
+        "callsFinished": 115,
         "schemaReasks": 0,
         "schemaReaskPreviousResponse": {},
-        "transportRetryAttempts": 0,
+        "transportRetryAttempts": 1,
         "quotaResponses": 0,
         "billingRejections": 0,
         "decisionGraderErrors": 0,
         "transportSuppressedCoreReasks": 0,
         "schemaReasksSuppressed": 0,
-        "ledgerPairs": 8,
-        "ledgerPhysicalReads": 19,
+        "ledgerPairs": 54,
+        "ledgerPhysicalReads": 114,
         "ledgerMachinePairs": 0,
         "cost": {
           "ledger": {
-            "decisions": 8,
-            "knownUsd": 0.02280451,
-            "unknownReserveUsd": 0,
-            "knownPer100": 0.28505637500000003,
-            "upperPer100": 0.28505637500000003
+            "decisions": 54,
+            "knownUsd": 0.16063949,
+            "unknownReserveUsd": 0.25,
+            "knownPer100": 0.29748053703703703,
+            "upperPer100": 0.7604435
           }
         },
         "descriptiveGroups": {}
       },
       "noise": {
-        "decisions": 0,
+        "decisions": 89,
         "expectedDecisions": 180,
         "complete": false,
-        "callsStarted": 0,
-        "callsFinished": 0,
+        "callsStarted": 183,
+        "callsFinished": 181,
         "schemaReasks": 0,
         "schemaReaskPreviousResponse": {},
         "transportRetryAttempts": 0,
@@ -291,23 +293,23 @@
         "decisionGraderErrors": 0,
         "transportSuppressedCoreReasks": 0,
         "schemaReasksSuppressed": 0,
-        "ledgerPairs": 0,
-        "ledgerPhysicalReads": 0,
+        "ledgerPairs": 44,
+        "ledgerPhysicalReads": 90,
         "ledgerMachinePairs": 0,
         "cost": {
           "ledger": {
-            "decisions": 0,
-            "knownUsd": 0,
+            "decisions": 44,
+            "knownUsd": 0.12187962,
             "unknownReserveUsd": 0,
-            "knownPer100": null,
-            "upperPer100": null
+            "knownPer100": 0.2769991363636363,
+            "upperPer100": 0.2769991363636363
           },
           "promptfoo": {
-            "decisions": 0,
-            "knownUsd": 0,
+            "decisions": 45,
+            "knownUsd": 0.0456834,
             "unknownReserveUsd": 0,
-            "knownPer100": null,
-            "upperPer100": null
+            "knownPer100": 0.10151866666666667,
+            "upperPer100": 0.10151866666666667
           }
         },
         "descriptiveGroups": {}

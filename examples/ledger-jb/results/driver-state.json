@@ -1,28 +1,24 @@
 {
-  "status": "ready-haiku-only",
-  "pid": 11653,
+  "status": "running",
+  "pid": 6143,
   "core": "35f07309a4d1d1c8a7c5b176ff19e537d0ef8fdd",
-  "concurrency": 12,
+  "concurrency": 10,
   "models": {
+    "gemini-3.8-flash": {
+      "status": "paused-billing",
+      "reason": "Owner reports depleted prepayment credits. No calls until explicit top-up; resume missing-only.",
+      "concurrency": 0
+    },
     "gpt-6-luna": {
       "phase": "test",
       "status": "phase-finished",
       "concurrency": 8
     },
     "claude-haiku-5-5": {
-      "phase": "fixtures",
+      "phase": "noise",
       "status": "phase-running",
       "concurrency": 2
-    },
-    "gemini-3.8-flash": {
-      "status": "paused-billing",
-      "reason": "Owner reports depleted prepayment credits. No calls until explicit top-up; resume missing-only.",
-      "concurrency": 0
     }
   },
-  "at": "2026-10-13T09:32:21.225Z",
-  "error": "BUDGET_STOP: lane liability would exceed 25 USD",
-  "pausedModels": {
-    "gemini-3.8-flash": "Owner reports depleted prepayment credits. No calls until explicit top-up; resume missing-only."
-  }
+  "at": "2026-10-13T09:56:06.537Z"
 }

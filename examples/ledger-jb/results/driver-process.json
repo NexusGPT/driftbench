@@ -1,12 +1,20 @@
 {
-  "pid": 11653,
-  "at": "2026-10-13T09:28:56.406264+00:00",
-  "detached": true,
-  "target": "remaining sealed JudgeBench phases on all models, side by side",
-  "limits": {
-    "gpt-6-luna": 8,
-    "claude-haiku-5-5": 2,
-    "gemini-3.8-flash": 2
-  },
-  "stop": "completion, gate, error, cap or cutoff"
+  "pid": 6143,
+  "startedAt": "2026-10-13T09:42:11.081859+00:00",
+  "command": [
+    "node",
+    "--import",
+    "tsx",
+    "examples/ledger-jb/parallel-remaining.mjs",
+    "--execute",
+    "--core-dossier",
+    "/private/tmp/claude-501/-Users-assem-Documents-Doc-Assem-Claude-Code-nexus/649588d0-8d65-49cb-8d78-47b071cd71cb/scratchpad/codex/dossier-ledger-core.md",
+    "--spend-ledger",
+    "/private/tmp/claude-501/-Users-assem-Documents-Doc-Assem-Claude-Code-nexus/649588d0-8d65-49cb-8d78-47b071cd71cb/scratchpad/spend-ledger.md"
+  ],
+  "freezeVersion": 6,
+  "checkpoint": "4a7f30f0d83a7321ca78c3f2b52f5480b458070b",
+  "pausedModels": [
+    "gemini-3.8-flash"
+  ]
 }

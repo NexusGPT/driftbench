@@ -1,0 +1,10 @@
+{
+  "model": "gpt-6-luna",
+  "n": 270,
+  "ledgerCorrect": 235,
+  "promptfooCorrect": 229,
+  "wins": 18,
+  "losses": 12,
+  "exactTwoSidedMcNemar": 0.361594608053565,
+  "method": "Independent Python integer binomial sum; official net score reconstructed from every sealed pair decision."
+}
