@@ -1,5 +1,5 @@
 {
-  "note": "Design point of the planted effect (levels 6 and 7). Recomputed by packages/validators/test/system/design.test.ts and calibration.test.ts, except clustered.interval.below and above: the exact tail masses of the interval under the law of the mean of 100 campaigns, from a lattice convolution of the enumerated law (step 1e-4, values rounded down and up, the larger mass kept).",
+  "note": "Design point of the planted effect (levels 6 and 7). Recomputed by packages/validators/test/system/design.test.ts and calibration.test.ts, clustered.interval.below and above are upper bounds of the tail masses of the interval under the law of the mean of 100 campaigns: a lattice convolution of the enumerated law at step 1e-4, values rounded down for the lower tail and up for the upper tail.",
   "effect": {
     "campaigns": 100,
     "pairs": 50,
@@ -31,8 +31,8 @@
       "note": "Cornish-Fisher interval of the mean over 100 campaigns at alpha, each tail at most alpha / 2",
       "lower": 1.6215462475,
       "upper": 1.8647766124,
-      "below": 0.0004991387,
-      "above": 0.0004994548
+      "below": 0.0004991373,
+      "above": 0.0004994097
     }
   }
 }

@@ -60,16 +60,17 @@ export function referenceIcc(groups: readonly (readonly number[])[]): number {
 
 /**
  * The exact finite-sample law of the design effect 1 + (m - 1) rho with rho from referenceIcc, on one clustered
- * campaign of the plant: `clusters` specs of `size` runs, each spec passing with probability rate plus or minus
- * delta (one half each), delta squared over rate times one minus rate being the correlation. Every histogram of
- * pass counts over the specs is enumerated with its multinomial probability, so the moments are exact.
+ * campaign of the plant, as its outcomes with their probabilities: `clusters` specs of `size` runs, each spec
+ * passing with probability rate plus or minus delta (one half each), delta squared over rate times one minus
+ * rate being the correlation. Every histogram of pass counts over the specs is enumerated with its multinomial
+ * probability, so the law is exact.
  */
-export function exactDesignEffectLaw(
+export function designEffectOutcomes(
   clusters = CLUSTERS,
   size = CLUSTER_SIZE,
   rate = CLUSTER_RATE,
   rho = CLUSTER_RHO,
-): DesignEffectLaw {
+): Array<[probability: number, designEffect: number]> {
   const delta = Math.sqrt(rho * rate * (1 - rate));
   const choose = (n: number, k: number) => {
     let out = 1;
@@ -109,6 +110,17 @@ export function exactDesignEffectLaw(
     }
   };
   walk(0, clusters);
+  return outcomes;
+}
+
+/** The mean, standard deviation and skewness of designEffectOutcomes. */
+export function exactDesignEffectLaw(
+  clusters = CLUSTERS,
+  size = CLUSTER_SIZE,
+  rate = CLUSTER_RATE,
+  rho = CLUSTER_RHO,
+): DesignEffectLaw {
+  const outcomes = designEffectOutcomes(clusters, size, rate, rho);
   const total = outcomes.reduce((sum, [p]) => sum + p, 0);
   const mean = outcomes.reduce((sum, [p, value]) => sum + p * value, 0) / total;
   const moment = (k: number) =>
@@ -352,7 +364,7 @@ export function varianceItems(): BankItem[] {
     level: 7,
     component: SYSTEM_COMPONENTS.designEffect,
     source: 'research',
-    title: `on each of 100 clustered campaigns the design effect estimated on the stored runs equals one-way ANOVA on those runs, and their mean (m ${CLUSTER_SIZE}, rho ${CLUSTER_RHO}) lies in the ${1 - DEFF_ALPHA} interval of its exact finite-sample law`,
+    title: `on each of 100 clustered campaigns the design effect estimated on the stored runs equals one-way ANOVA on those runs, and their mean (m ${CLUSTER_SIZE}, rho ${CLUSTER_RHO}) lies in the ${1 - DEFF_ALPHA} interval of its exact finite-sample law, and the bootstrap interval of that mean has the width and centre of its level`,
     async check({ seed }) {
       const measure = designEffectCalibration(await effectFor(seed), seed, stats, designEffectOracle());
       if (measure.value === 1) return PASS;

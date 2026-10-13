@@ -3,6 +3,7 @@ import * as stats from '@agent-nexus/driftbench-stats';
 import { describe, expect, it } from 'vitest';
 import {
   designEffectOracle,
+  designEffectOutcomes,
   exactDesignEffectLaw,
   varianceItems,
 } from '../../src/ladders/system/bank/variance';
@@ -66,8 +67,6 @@ describe('the exact finite-sample law of the planted design effect (fixtures/sys
     expect(DEFF_ALPHA).toBe(0.001);
     expect(lower).toBeCloseTo(design.clustered.interval.lower, 9);
     expect(upper).toBeCloseTo(design.clustered.interval.upper, 9);
-    // The exact tails of the interval, from the lattice convolution recorded in the fixture, stay within alpha.
-    expect(design.clustered.interval.below + design.clustered.interval.above).toBeLessThanOrEqual(DEFF_ALPHA);
   });
 });
 
@@ -106,7 +105,16 @@ describe.each([7167, 1, 2])(
  * The clustered campaigns of a seed read from the plant itself, without the runner and the store: each spec's
  * behaviour answered CLUSTER_SIZE times in order, a run passing when the reply matches the spec's pattern.
  */
+const plantedStates = new Map<number, EffectState>();
 function plantedState(seed: number): EffectState {
+  let state = plantedStates.get(seed);
+  if (!state) {
+    state = readPlant(seed);
+    plantedStates.set(seed, state);
+  }
+  return state;
+}
+function readPlant(seed: number): EffectState {
   const plant = plantEffect(seed);
   const clusters = plant.clustered.map((campaign) =>
     campaign.specs.map((spec) => {
@@ -162,5 +170,134 @@ describe('the design-effect item against wrong estimators', { timeout: 120_000 }
         failing.push(seed);
     }
     expect(failing).toEqual([]);
+  });
+});
+
+/** Wrong bootstrap intervals (review of PR 183, R1): the old item used the bootstrap, so each must still fail. */
+const reshape =
+  (
+    f: (b: ReturnType<typeof stats.bootstrapCI>) => { lower: number; upper: number },
+  ): SystemStats['bootstrapCI'] =>
+  (values, options) => {
+    const b = stats.bootstrapCI(values, options);
+    return { ...b, ...f(b) };
+  };
+const WRONG_BOOTSTRAP: Array<[string, SystemStats]> = [
+  [
+    'a degenerate interval [estimate, estimate]',
+    { ...stats, bootstrapCI: reshape((b) => ({ lower: b.estimate, upper: b.estimate })) },
+  ],
+  [
+    'an interval that ignores alpha (always 0.05)',
+    { ...stats, bootstrapCI: (values, options) => stats.bootstrapCI(values, { ...options, alpha: 0.05 }) },
+  ],
+  [
+    'an interval of half the width',
+    {
+      ...stats,
+      bootstrapCI: reshape((b) => ({
+        lower: b.estimate - (b.estimate - b.lower) / 2,
+        upper: b.estimate + (b.upper - b.estimate) / 2,
+      })),
+    },
+  ],
+  [
+    'an interval shifted up by one standard error (0.037)',
+    { ...stats, bootstrapCI: reshape((b) => ({ lower: b.lower + 0.037, upper: b.upper + 0.037 })) },
+  ],
+];
+
+describe('the design-effect item against a wrong bootstrap interval', { timeout: 120_000 }, () => {
+  it.each(WRONG_BOOTSTRAP)(
+    'fails %s on seed 7167 and on every seed from 10000 to 10099',
+    async (_name, wrong) => {
+      expect(designEffectCalibration(await effectOf(7167), 7167, wrong, designEffectOracle()).value).toBe(0);
+      const passing: number[] = [];
+      for (let seed = 10000; seed <= 10099; seed += 1) {
+        if (designEffectCalibration(plantedState(seed), seed, wrong, designEffectOracle()).value !== 0)
+          passing.push(seed);
+      }
+      expect(passing).toEqual([]);
+    },
+  );
+});
+
+/** In-place radix-2 transform of a complex signal (re, im); inverse without the 1 / n scale when sign is 1. */
+function fft(re: Float64Array, im: Float64Array, sign: -1 | 1): void {
+  const n = re.length;
+  for (let i = 1, j = 0; i < n; i += 1) {
+    let bit = n >> 1;
+    for (; j & bit; bit >>= 1) j ^= bit;
+    j ^= bit;
+    if (i < j) {
+      [re[i], re[j]] = [re[j] as number, re[i] as number];
+      [im[i], im[j]] = [im[j] as number, im[i] as number];
+    }
+  }
+  for (let len = 2; len <= n; len <<= 1) {
+    const half = len >> 1;
+    const step = (sign * 2 * Math.PI) / len;
+    for (let k = 0; k < half; k += 1) {
+      const wr = Math.cos(step * k);
+      const wi = Math.sin(step * k);
+      for (let i = k; i < n; i += len) {
+        const j = i + half;
+        const xr = (re[j] as number) * wr - (im[j] as number) * wi;
+        const xi = (re[j] as number) * wi + (im[j] as number) * wr;
+        re[j] = (re[i] as number) - xr;
+        im[j] = (im[i] as number) - xi;
+        re[i] = (re[i] as number) + xr;
+        im[i] = (im[i] as number) + xi;
+      }
+    }
+  }
+}
+
+/**
+ * The law of the sum of `copies` independent design effects, each first moved onto the lattice 1 + i step by
+ * `round` (down or up), as the mass of each lattice sum: the pmf to the power `copies` in the frequency domain.
+ */
+function latticeSum(round: (x: number) => number, step: number, copies: number): Float64Array {
+  const outcomes = designEffectOutcomes();
+  // A value on the lattice must stay on it: (x - 1) / step is off an integer by rounding error only.
+  const cell = (x: number) => round(Number(((x - 1) / step).toFixed(6)));
+  const top = Math.max(...outcomes.map(([, x]) => cell(x)));
+  const length = top * copies + 1;
+  let n = 1;
+  while (n < length) n <<= 1;
+  const re = new Float64Array(n);
+  const im = new Float64Array(n);
+  for (const [p, x] of outcomes) re[cell(x)] = (re[cell(x)] as number) + p;
+  fft(re, im, -1);
+  for (let i = 0; i < n; i += 1) {
+    const radius = Math.hypot(re[i] as number, im[i] as number) ** copies;
+    const angle = Math.atan2(im[i] as number, re[i] as number) * copies;
+    re[i] = radius * Math.cos(angle);
+    im[i] = radius * Math.sin(angle);
+  }
+  fft(re, im, 1);
+  return re.subarray(0, length).map((mass) => Math.max(0, mass / n));
+}
+
+describe('the error of the design-effect interval (fixtures/system/design.json, clustered.interval)', () => {
+  it('recomputes the two tail masses as upper bounds from the exact law, and their sum stays within alpha', {
+    timeout: 120_000,
+  }, () => {
+    const step = 1e-4;
+    const { lower, upper, below, above } = design.clustered.interval;
+    // Rounding every value down can only move the mean down: the mass under the lower bound is then an upper
+    // bound of the true one. Rounding up does the same for the mass over the upper bound.
+    const down = latticeSum(Math.floor, step, EFFECT_CAMPAIGNS);
+    const up = latticeSum(Math.ceil, step, EFFECT_CAMPAIGNS);
+    const meanAt = (i: number) => 1 + (i * step) / EFFECT_CAMPAIGNS;
+    let massBelow = 0;
+    for (let i = 0; meanAt(i) < lower; i += 1) massBelow += down[i] as number;
+    let massAbove = 0;
+    for (let i = up.length - 1; meanAt(i) > upper; i -= 1) massAbove += up[i] as number;
+    expect(massBelow).toBeCloseTo(below, 9);
+    expect(massAbove).toBeCloseTo(above, 9);
+    expect(massBelow).toBeLessThan(DEFF_ALPHA / 2);
+    expect(massAbove).toBeLessThan(DEFF_ALPHA / 2);
+    expect(below + above).toBeLessThanOrEqual(DEFF_ALPHA);
   });
 });

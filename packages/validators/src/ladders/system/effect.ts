@@ -361,7 +361,8 @@ const NAMED_MISSES = 3;
  *    the oracle's correlation of those runs, to 1e-9: a constant, scaled or shifted estimate fails here;
  * 2. the statistics' design effect at the planted correlation equals 1 + (m - 1) CLUSTER_RHO;
  * 3. the mean of the oracle's design effects over the campaigns lies in the DEFF_ALPHA interval of the exact
- *    finite-sample law: the runs the chain stored follow the plant.
+ *    finite-sample law: the runs the chain stored follow the plant;
+ * 4. the bootstrap interval of that mean behaves as an interval at its level (bootstrapShape).
  */
 export function designEffectCalibration(
   effect: EffectState,
@@ -417,7 +418,63 @@ export function designEffectCalibration(
       component,
       detail: `seed ${seed}: the mean design effect of the stored runs over ${references.length} clustered campaigns is ${showNumber(mean)}, outside the ${1 - DEFF_ALPHA} interval [${showNumber(lower)}, ${showNumber(upper)}] of its exact finite-sample law (mean ${showNumber(oracle.law.mean)}, sd ${showNumber(oracle.law.sd)}, m ${CLUSTER_SIZE}, rho ${CLUSTER_RHO})`,
     });
-  return { value: misses === 0 && formula && inside ? 1 : 0, items };
+  const shape = bootstrapShape(references, seed, s);
+  if (shape)
+    items.push({
+      id: 'design-effect/bootstrap',
+      component: SYSTEM_COMPONENTS.wilson,
+      detail: `seed ${seed}: ${shape}`,
+    });
+  return { value: misses === 0 && formula && inside && !shape ? 1 : 0, items };
+}
+
+/**
+ * Bands of the bootstrap interval of a mean, in units an implementation cannot move: the standard error
+ * sd / root n computed here. With 2000 resamples the 0.025 quantile sits 50 order statistics in, with a
+ * binomial spread of 7, which is 0.06 standard errors at each end. So the width at alpha 0.05 over
+ * 2 z(0.05) standard errors has a spread near 0.022 and the centre a spread near 0.05 standard errors; the
+ * bands are about 8 spreads wide (3000 seeds of the plant gave 0.91 to 1.07 and -0.15 to 0.20). The DEFF_ALPHA
+ * bounds are the outermost resample means, so their width over the 0.05 width is near z(0.001) / z(0.05) = 1.68
+ * with a wider spread (1.40 to 1.98 on the same seeds).
+ */
+export const BOOTSTRAP_WIDTH = [0.8, 1.2] as const;
+export const BOOTSTRAP_CENTRE = 0.4;
+export const BOOTSTRAP_WIDENING = [1.2, 2.4] as const;
+const BOOTSTRAP_ALPHA = 0.05;
+
+/**
+ * What is wrong with the bootstrap interval of the mean of the values, or undefined. The old item asked whether
+ * the DEFF_ALPHA bootstrap interval holds the population design effect; a correct interval misses even the exact
+ * expected value on about 4 seeds in 1000, so the item asks instead what a single seed can decide: the interval
+ * has a positive width and holds the mean, the DEFF_ALPHA interval strictly holds the 0.05 one, and the widths and
+ * the centre lie in the bands above.
+ */
+export function bootstrapShape(values: readonly number[], seed: number, s: SystemStats): string | undefined {
+  const mean = stats.mean(values);
+  const se = Math.sqrt(values.reduce((sum, value) => sum + (value - mean) ** 2, 0)) / values.length;
+  const inner = s.bootstrapCI(values, { alpha: BOOTSTRAP_ALPHA, seed });
+  const outer = s.bootstrapCI(values, { alpha: DEFF_ALPHA, seed });
+  const show = (ci: { lower: number; upper: number }) => `[${showNumber(ci.lower)}, ${showNumber(ci.upper)}]`;
+  const said = `the bootstrap interval of the mean ${showNumber(mean)} of ${values.length} design effects`;
+  for (const [alpha, ci] of [
+    [BOOTSTRAP_ALPHA, inner],
+    [DEFF_ALPHA, outer],
+  ] as const) {
+    if (!(ci.lower < mean && mean < ci.upper))
+      return `${said} at ${1 - alpha} is ${show(ci)}, which has no width or does not hold the mean`;
+  }
+  if (!(outer.lower < inner.lower && inner.upper < outer.upper))
+    return `${said} at ${1 - DEFF_ALPHA} is ${show(outer)}, which does not strictly hold the one at ${1 - BOOTSTRAP_ALPHA}, ${show(inner)}`;
+  const width = (inner.upper - inner.lower) / (2 * stats.normalQuantile(1 - BOOTSTRAP_ALPHA / 2) * se);
+  if (!(BOOTSTRAP_WIDTH[0] <= width && width <= BOOTSTRAP_WIDTH[1]))
+    return `${said} at ${1 - BOOTSTRAP_ALPHA} is ${show(inner)}, ${showNumber(width)} times the width of its level (standard error ${showNumber(se)}), outside ${BOOTSTRAP_WIDTH.join(' to ')}`;
+  const centre = ((inner.upper + inner.lower) / 2 - mean) / se;
+  if (Math.abs(centre) > BOOTSTRAP_CENTRE)
+    return `${said} at ${1 - BOOTSTRAP_ALPHA} is ${show(inner)}, centred ${showNumber(centre)} standard errors from the mean, beyond ${BOOTSTRAP_CENTRE}`;
+  const widening = (outer.upper - outer.lower) / (inner.upper - inner.lower);
+  if (!(BOOTSTRAP_WIDENING[0] <= widening && widening <= BOOTSTRAP_WIDENING[1]))
+    return `${said} at ${1 - DEFF_ALPHA} is ${show(outer)}, ${showNumber(widening)} times as wide as at ${1 - BOOTSTRAP_ALPHA}, outside ${BOOTSTRAP_WIDENING.join(' to ')}`;
+  return undefined;
 }
 
 function problemItems(effect: EffectState): Item[] {
