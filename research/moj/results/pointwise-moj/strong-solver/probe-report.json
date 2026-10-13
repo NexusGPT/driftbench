@@ -1,0 +1,39 @@
+{
+  "sol": {
+    "healthy": 10,
+    "n": 10,
+    "usd": 0.06901499999999999,
+    "projection_95_usd": 0.6556424999999999,
+    "ids": [
+      "73fddce12aee4876a4877c3ec5db723f_583d9e36a2bd03fbf485b8a4019fc9b9",
+      "8dce745bcd66e7dc916e9f3549d8ebc1_4495bceb02b2986125965eb7cb6c2b98",
+      "aef693000b50d9b8e7d0ddeba51e3601_6a486339655ffd1769d793f87483e86d",
+      "be36325bac0fa5963c9cae9d74dab91a_3001a5b03a832d025f4e8b9b44ef99a1",
+      "9d9b9827b9c7f258b3b21b1c42a2d0ab_eff2f462cb62e139749f5a7aa067a8a6",
+      "6a3431d6cab874b5d26e1963a5952a89_58a69db1ee812fe90dcc48f6d0534f3d",
+      "662cc73cee1fdf39a1094a764dfd3e9f_4fb33ca6bf4220a5115d35eeddd6702b",
+      "c79635cb392bd0cff8e73bb148ed437f_4725ee3614c57d1a8271e3350be4f05d",
+      "ce9c5a2a8a4bcee73556a9bc58edc434_f621234c0a48bfc2cef1d0e9feb927a6",
+      "9d4c782a67b4228b731a91cc3bf87657_0f6ea49ff3dbd1e15e81461f46f5192b"
+    ]
+  },
+  "sonnet": {
+    "healthy": 10,
+    "n": 10,
+    "usd": 0.15967,
+    "projection_95_usd": 1.5168650000000001,
+    "ids": [
+      "73fddce12aee4876a4877c3ec5db723f_583d9e36a2bd03fbf485b8a4019fc9b9",
+      "8dce745bcd66e7dc916e9f3549d8ebc1_4495bceb02b2986125965eb7cb6c2b98",
+      "aef693000b50d9b8e7d0ddeba51e3601_6a486339655ffd1769d793f87483e86d",
+      "be36325bac0fa5963c9cae9d74dab91a_3001a5b03a832d025f4e8b9b44ef99a1",
+      "9d9b9827b9c7f258b3b21b1c42a2d0ab_eff2f462cb62e139749f5a7aa067a8a6",
+      "6a3431d6cab874b5d26e1963a5952a89_58a69db1ee812fe90dcc48f6d0534f3d",
+      "662cc73cee1fdf39a1094a764dfd3e9f_4fb33ca6bf4220a5115d35eeddd6702b",
+      "c79635cb392bd0cff8e73bb148ed437f_4725ee3614c57d1a8271e3350be4f05d",
+      "ce9c5a2a8a4bcee73556a9bc58edc434_f621234c0a48bfc2cef1d0e9feb927a6",
+      "9d4c782a67b4228b731a91cc3bf87657_0f6ea49ff3dbd1e15e81461f46f5192b"
+    ]
+  },
+  "budget_accounted_usd": 0.228685
+}
