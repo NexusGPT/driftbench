@@ -1,7 +1,7 @@
 import { readdir, readFile, realpath, stat } from 'node:fs/promises';
 import { basename, join, posix } from 'node:path';
 import { parse as parseYaml } from 'yaml';
-import { chunkLines, fileNames, guardName, locateNamed, namedPaths } from './code';
+import { chunkLines, fileNames, guardName, locateNamed, namedPaths, positiveMention } from './code';
 import type {
   CheckDecl,
   EstateFile,
@@ -232,12 +232,13 @@ export class ClaudeCodeReader implements EstateReader {
       if (file.kind === 'standing' || file.kind === 'memory')
         addProse(estate, file, 1, lastLine(file.text), budget);
       // A markdown file beside a skill (a reference, a template) is prose the skill loads on demand.
-      if (file.kind === 'skill_file' && /\.(md|markdown)$/i.test(file.path)) {
+      if (file.kind === 'skill_file' && PROSE_FILE.test(file.path)) {
         const frontmatter = readFrontmatter(file.text);
         addProse(estate, file, frontmatter.bodyLine, lastLine(file.text), budget);
       }
     }
     noteSharedNames(estate);
+    readNamedDocuments(estate, budget);
     await readRootReferences(root, estate, ignored, budget);
     // The registry comes last: a row names its guard by a script, a check id or an id the script holds,
     // so every guard is known before a row is matched to one.
@@ -249,6 +250,36 @@ export class ClaudeCodeReader implements EstateReader {
     const scripts = new Set(estate.guards.flatMap((guard) => (guard.script ? [guard.script] : [])));
     for (const file of files) if (scripts.has(file.path)) file.kind = 'guard_script';
     return estate;
+  }
+}
+
+/** A file of prose: markdown or plain text. */
+const PROSE_FILE = /\.(md|markdown|txt)$/i;
+
+/**
+ * A document of the estate outside any skill (`.claude/docs/policy.md`) that prose asks to read is prose the
+ * agent loads on demand: its lines are read like a reference beside a skill. A document it names in turn is
+ * read too; a document nothing names is not, nor an alias table (code reads it).
+ */
+function readNamedDocuments(estate: RawEstate, budget: number): void {
+  const files = new Map(estate.files.map((file) => [file.path, file]));
+  const byName = fileNames(files);
+  const read = new Set(estate.prose.map((chunk) => chunk.file));
+  for (let index = 0; index < estate.prose.length; index++) {
+    const chunk = estate.prose[index];
+    if (!chunk) continue;
+    for (const line of chunkLines(chunk, files.get(chunk.file))) {
+      for (const name of namedPaths(line.text)) {
+        if (!positiveMention(line.text, name, ['read', 'open', 'load'])) continue;
+        const target = locateNamed(name, chunk.file, files, { bases: estate.bases ?? [], byName });
+        const file = files.get(target.path);
+        if (file?.kind !== 'other' || !PROSE_FILE.test(file.path) || read.has(file.path)) continue;
+        // An alias table is configuration code reads, not prose.
+        if (/alias/i.test(basename(file.path))) continue;
+        read.add(file.path);
+        addProse(estate, file, 1, lastLine(file.text), budget);
+      }
+    }
   }
 }
 
