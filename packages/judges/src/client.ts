@@ -35,6 +35,8 @@ export interface JudgeClient {
 
 /** What every provider client takes. Keys are read from `env` only, never from an option. */
 export type ClientOptions = HttpOptions & {
+  /** Opt-in framing of user material as a quoted assessment source. */
+  quotedMaterial?: boolean;
   /** Where variables are read. Default `process.env`. */
   env?: Record<string, string | undefined>;
   /** The vote name. Default the client kind, such as `openai`. */

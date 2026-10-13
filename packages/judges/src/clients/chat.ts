@@ -4,6 +4,7 @@ import { inconclusive, type JudgeRequest, type JudgeResult, MAX_TOKENS } from '.
 import { isRecord, JudgeError, postJson, requireEnv } from '../http';
 import { buildPrompt } from '../prompt';
 import { googleResponseSchema, isPairLedgerRequest, JUDGE_DIALECTS, withJudgeDialect } from './dialects';
+import { assertNotProviderBlocked, quoteAssessmentMaterial } from './provider-block';
 import { buildDialectRequest } from './transport';
 
 /**
@@ -70,11 +71,12 @@ export function createOpenAiJudge(options: ClientOptions = {}): JudgeClient {
       temperatureRetry: 'drop on a 400 that names it',
       responseFormat: 'json_schema',
       ...(reasoning === undefined ? {} : { reasoning }),
+      ...(options.quotedMaterial ? { quotedMaterial: true } : {}),
     }),
     async judge(original) {
       const request = withJudgeDialect(original, JUDGE_DIALECTS.openai.id, options.reasoning);
       const reasoning = request.reasoning ?? options.reasoning;
-      const prompt = buildPrompt(request);
+      const prompt = quoteAssessmentMaterial(buildPrompt(request), options.quotedMaterial);
       const ledgerPayload = isPairLedgerRequest(request)
         ? buildDialectRequest('openai', { ...prompt, schema: responseSchema(request), reasoning }).payload
         : undefined;
@@ -118,6 +120,7 @@ export function createOpenAiJudge(options: ClientOptions = {}): JudgeClient {
         payload = await send(false);
       }
 
+      assertNotProviderBlocked('openai', payload);
       const choice = isRecord(payload) && Array.isArray(payload.choices) ? payload.choices[0] : undefined;
       const message = isRecord(choice) ? choice.message : undefined;
       const raw = JSON.stringify(payload);
@@ -155,10 +158,13 @@ export function createAnthropicJudge(options: ClientOptions = {}): JudgeClient {
     model,
     dialect: JUDGE_DIALECTS.anthropic.id,
     cost: options.cost ?? CHAT_COST,
-    settings: settingsOf('anthropic-messages', { anthropicVersion: '2023-06-01' }),
+    settings: settingsOf('anthropic-messages', {
+      anthropicVersion: '2023-06-01',
+      ...(options.quotedMaterial ? { quotedMaterial: true } : {}),
+    }),
     async judge(original) {
       const request = withJudgeDialect(original, JUDGE_DIALECTS.anthropic.id);
-      const prompt = buildPrompt(request);
+      const prompt = quoteAssessmentMaterial(buildPrompt(request), options.quotedMaterial);
       const ledgerPayload = isPairLedgerRequest(request)
         ? buildDialectRequest('anthropic', prompt).payload
         : undefined;
@@ -176,6 +182,7 @@ export function createAnthropicJudge(options: ClientOptions = {}): JudgeClient {
             },
         options,
       );
+      assertNotProviderBlocked('anthropic', payload);
       const raw = JSON.stringify(payload);
       if (!isRecord(payload) || !Array.isArray(payload.content)) {
         return { answer: inconclusive(`${model} answered without a content list`), raw, unparsed: true };
@@ -219,11 +226,12 @@ export function createGoogleJudge(options: ClientOptions = {}): JudgeClient {
     settings: settingsOf('google-generate-content', {
       responseMimeType: 'application/json',
       ...(reasoning === undefined ? {} : { reasoning }),
+      ...(options.quotedMaterial ? { quotedMaterial: true } : {}),
     }),
     async judge(original) {
       const request = withJudgeDialect(original, JUDGE_DIALECTS.google.id, options.reasoning);
       const reasoning = request.reasoning ?? options.reasoning;
-      const prompt = buildPrompt(request);
+      const prompt = quoteAssessmentMaterial(buildPrompt(request), options.quotedMaterial);
       const ledgerPayload = isPairLedgerRequest(request)
         ? buildDialectRequest('google', { ...prompt, schema: responseSchema(request), reasoning }).payload
         : undefined;
@@ -254,6 +262,7 @@ export function createGoogleJudge(options: ClientOptions = {}): JudgeClient {
             },
         options,
       );
+      assertNotProviderBlocked('google', payload);
       const raw = JSON.stringify(payload);
       const candidate =
         isRecord(payload) && Array.isArray(payload.candidates) ? payload.candidates[0] : undefined;

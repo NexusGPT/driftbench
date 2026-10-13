@@ -286,11 +286,11 @@ describe('chat clients', () => {
     expect(result.answer.reasoning).toContain('token limit');
   });
 
-  it('read a refusal as inconclusive and not unparsed: a bigger budget would not change it', async () => {
+  it('reports a provider refusal as a grader error', async () => {
     const { fetch } = fakeFetch([[200, { choices: [{ message: { content: null, refusal: 'no' } }] }]]);
-    const result = await createOpenAiJudge({ fetch, env: CASES[0]?.env, sleep: noWait }).judge(REQUEST);
-    expect(result.answer.outcome).toBe('inconclusive');
-    expect(result.unparsed).toBeUndefined();
+    await expect(
+      createOpenAiJudge({ fetch, env: CASES[0]?.env, sleep: noWait }).judge(REQUEST),
+    ).rejects.toMatchObject({ code: 'provider-blocked', retryable: false });
   });
 
   it('need a model from the environment or the options', () => {
@@ -410,7 +410,7 @@ describe('an OpenAI answer whose content is a list of parts', () => {
 });
 
 describe('an OpenAI answer stopped by the content filter', () => {
-  it('is a decline: inconclusive, not unparsed', async () => {
+  it('is a provider-blocked grader error', async () => {
     const client = createOpenAiJudge({
       env: { OPENAI_API_KEY: 'k', OPENAI_JUDGE_MODEL: 'm' },
       maxRetries: 0,
@@ -423,18 +423,17 @@ describe('an OpenAI answer stopped by the content filter', () => {
           },
         ),
     });
-    const result = await client.judge({
-      criterion: { name: 'c', rubric: 'r' },
-      transcript: [{ role: 'user', text: 'hi' }],
-    });
-    expect(result.answer.outcome).toBe('inconclusive');
-    expect(result.answer.reasoning).toMatch(/declined/);
-    expect(result.unparsed).toBeUndefined();
+    await expect(
+      client.judge({
+        criterion: { name: 'c', rubric: 'r' },
+        transcript: [{ role: 'user', text: 'hi' }],
+      }),
+    ).rejects.toMatchObject({ code: 'provider-blocked', retryable: false });
   });
 });
 
 describe('a Google answer whose prompt was blocked', () => {
-  it('is a decline: inconclusive, not unparsed', async () => {
+  it('is a provider-blocked grader error', async () => {
     const client = createGoogleJudge({
       env: { GEMINI_API_KEY: 'k', GOOGLE_JUDGE_MODEL: 'm' },
       maxRetries: 0,
@@ -444,18 +443,17 @@ describe('a Google answer whose prompt was blocked', () => {
           headers: { 'content-type': 'application/json' },
         }),
     });
-    const result = await client.judge({
-      criterion: { name: 'c', rubric: 'r' },
-      transcript: [{ role: 'user', text: 'hi' }],
-    });
-    expect(result.answer.outcome).toBe('inconclusive');
-    expect(result.answer.reasoning).toMatch(/declined/);
-    expect(result.unparsed).toBeUndefined();
+    await expect(
+      client.judge({
+        criterion: { name: 'c', rubric: 'r' },
+        transcript: [{ role: 'user', text: 'hi' }],
+      }),
+    ).rejects.toMatchObject({ code: 'provider-blocked', retryable: false });
   });
 });
 
 describe('a Google answer stopped for recitation', () => {
-  it('is a decline: inconclusive, not unparsed', async () => {
+  it('is a provider-blocked grader error', async () => {
     const client = createGoogleJudge({
       env: { GEMINI_API_KEY: 'k', GOOGLE_JUDGE_MODEL: 'm' },
       maxRetries: 0,
@@ -468,13 +466,12 @@ describe('a Google answer stopped for recitation', () => {
           },
         ),
     });
-    const result = await client.judge({
-      criterion: { name: 'c', rubric: 'r' },
-      transcript: [{ role: 'user', text: 'hi' }],
-    });
-    expect(result.answer.outcome).toBe('inconclusive');
-    expect(result.answer.reasoning).toMatch(/declined/);
-    expect(result.unparsed).toBeUndefined();
+    await expect(
+      client.judge({
+        criterion: { name: 'c', rubric: 'r' },
+        transcript: [{ role: 'user', text: 'hi' }],
+      }),
+    ).rejects.toMatchObject({ code: 'provider-blocked', retryable: false });
   });
 });
 
