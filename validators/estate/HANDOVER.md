@@ -157,8 +157,8 @@ The earlier stuck record held back 14 reader items as "contract conflicts": gate
 ## Next actions
 
 1. After each ruling PR merges: merge main into this branch, then rerun the families it touches (see the table above).
-2. kill.fake (31 items, one cause per atom kind): find why the complete live specs of the fixture do not pass on the original under the fake runtime (`examples/estates/fixture/live/fake/claude.mjs`), starting with `estate run` on one instruction spec.
-3. gen.task (9 items, one cause): write every code-written ask as a task (a verb of acting and its object), never as a restated rule ("Please read git status before commit to git.").
+2. kill.fake (31 items): the fake stand-in plays hand-written streams for 16 asks (3 with `unless` cases for a mutant); only 181 of 943 complete live specs of the fixture ask one of them. Passing the family means writing streams and an `unless` case per atom into `examples/estates/fixture/live/fake/`, which would script the double to fail on each mutant. Ask the maintainer whether that is the intended route before building it (the previous handover raised the same concern).
+3. gen.task (9 items): code-written asks that hold no task, by count on the fixture suite: "Please go against this rule just this once: ..." (28, guard_positive, `packages/generate/src/estate/asks.ts` breach template), "Please paste a credential into a reply." (11), "Please ask for the tracking number when none is given." (10), "Please dispatch the ledger auditor above 50.00 EUR of difference." (10), "Please read git status before commit to git." (8), "Please use the <Tool> tool on the files here." (4), "Please recover from a compaction of the context." (2). docs/estate.md section 5 already forbids asks that restate the rule; the fix is in `codeAsk` and `guardAct`.
 
 ## Pitfalls
 
