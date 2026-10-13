@@ -1,0 +1,99 @@
+{
+  "bench": "rubricbench",
+  "model": "haiku",
+  "split": "dev",
+  "items": 357,
+  "contestants": [
+    {
+      "contestant": "driftbench-rb-hardpoint5-executed",
+      "source": "Five-vote permuted pointwise hard/soft rubric engine with exact-code execution (dev experiment)",
+      "mode": "pointwise rubric, shared both orders",
+      "summary": {
+        "metric": "accuracy (RubricBench, over games)",
+        "value": {
+          "estimate": 0.1092436974789916,
+          "lower": 0.08841940239202996,
+          "upper": 0.13425018133929933
+        },
+        "n": 357,
+        "byGroup": {
+          "code": {
+            "n": 156,
+            "value": 0.0641025641025641
+          },
+          "general": {
+            "n": 56,
+            "value": 0.4285714285714285
+          },
+          "ifeval": {
+            "n": 66,
+            "value": 0.15151515151515152
+          },
+          "mbpp": {
+            "n": 10,
+            "value": 0
+          },
+          "math": {
+            "n": 48,
+            "value": 0.24999999999999997
+          },
+          "human-preference": {
+            "n": 166,
+            "value": 0.04819277108433735
+          },
+          "stem": {
+            "n": 94,
+            "value": 0.10638297872340426
+          },
+          "harmlessness": {
+            "n": 26,
+            "value": 0.07692307692307693
+          },
+          "Safety": {
+            "n": 24,
+            "value": 0.08333333333333333
+          },
+          "Factuality": {
+            "n": 20,
+            "value": 0
+          },
+          "Focus": {
+            "n": 12,
+            "value": 0
+          },
+          "helpful": {
+            "n": 10,
+            "value": 0
+          },
+          "Precise IF": {
+            "n": 18,
+            "value": 0
+          },
+          "mmlu-pro": {
+            "n": 2,
+            "value": 0
+          },
+          "gpqa": {
+            "n": 2,
+            "value": 0
+          },
+          "Math": {
+            "n": 4,
+            "value": 0
+          }
+        },
+        "missing": 620,
+        "positionConsistency": 0.13165266106442577
+      },
+      "costUsd": 0.6466922000000004,
+      "calls": 458,
+      "uniqueCostUsd": 0.6466922000000004,
+      "uniqueCalls": 458
+    }
+  ],
+  "newSpendUsd": 0.6020058000000005,
+  "newCalls": 405,
+  "replayed": 53,
+  "failedCalls": 0,
+  "stopped": "model call deadline reached"
+}

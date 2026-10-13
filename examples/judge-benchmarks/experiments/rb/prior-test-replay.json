@@ -1,0 +1,271 @@
+{
+  "bench": "rubricbench",
+  "model": "haiku",
+  "split": "test",
+  "items": 790,
+  "contestants": [
+    {
+      "contestant": "driftbench-adaptive",
+      "source": "the shipped prompt with reasoning, solve-first and symmetric pairwise rules, three judgements, and a reference answer when the question is checkable (tuned on dev)",
+      "mode": "pairwise, both orders",
+      "summary": {
+        "metric": "accuracy (RubricBench, over games)",
+        "value": {
+          "estimate": 0.4708860759493671,
+          "lower": 0.4463741606818345,
+          "upper": 0.4955392173980006
+        },
+        "n": 790,
+        "byGroup": {
+          "code": {
+            "n": 360,
+            "value": 0.45277777777777783
+          },
+          "general": {
+            "n": 160,
+            "value": 0.55625
+          },
+          "ifeval": {
+            "n": 136,
+            "value": 0.5073529411764706
+          },
+          "stem": {
+            "n": 240,
+            "value": 0.3958333333333333
+          },
+          "Factuality": {
+            "n": 68,
+            "value": 0.45588235294117635
+          },
+          "math": {
+            "n": 94,
+            "value": 0.49999999999999983
+          },
+          "Precise IF": {
+            "n": 28,
+            "value": 0.39285714285714285
+          },
+          "harmlessness": {
+            "n": 64,
+            "value": 0.578125
+          },
+          "human-preference": {
+            "n": 304,
+            "value": 0.4342105263157894
+          },
+          "Math": {
+            "n": 6,
+            "value": 0.3333333333333333
+          },
+          "Safety": {
+            "n": 46,
+            "value": 0.6304347826086957
+          },
+          "mmlu-pro": {
+            "n": 8,
+            "value": 0.5
+          },
+          "Focus": {
+            "n": 32,
+            "value": 0.4375000000000001
+          },
+          "helpful": {
+            "n": 16,
+            "value": 0.875
+          },
+          "mbpp": {
+            "n": 16,
+            "value": 0.4375
+          },
+          "gpqa": {
+            "n": 2,
+            "value": 0
+          }
+        },
+        "missing": 686,
+        "positionConsistency": 0.5151898734177215
+      },
+      "costUsd": 2.978046169999998,
+      "calls": 3220,
+      "uniqueCostUsd": 2.978046169999998,
+      "uniqueCalls": 3220
+    },
+    {
+      "contestant": "deepeval",
+      "source": "DeepEval 4598fe8: ArenaGEval (pairs) and GEval (single responses)",
+      "mode": "pairwise, both orders",
+      "summary": {
+        "metric": "accuracy (RubricBench, over games)",
+        "value": {
+          "estimate": 0.8044303797468354,
+          "lower": 0.7841442431922311,
+          "upper": 0.8232397816686229
+        },
+        "n": 790,
+        "byGroup": {
+          "code": {
+            "n": 360,
+            "value": 0.8250000000000002
+          },
+          "general": {
+            "n": 160,
+            "value": 0.875
+          },
+          "ifeval": {
+            "n": 136,
+            "value": 0.8897058823529411
+          },
+          "stem": {
+            "n": 240,
+            "value": 0.7583333333333333
+          },
+          "Factuality": {
+            "n": 68,
+            "value": 0.9705882352941176
+          },
+          "math": {
+            "n": 94,
+            "value": 0.925531914893617
+          },
+          "Precise IF": {
+            "n": 28,
+            "value": 0.6785714285714286
+          },
+          "harmlessness": {
+            "n": 64,
+            "value": 0.71875
+          },
+          "human-preference": {
+            "n": 304,
+            "value": 0.6644736842105267
+          },
+          "Math": {
+            "n": 6,
+            "value": 0.3333333333333333
+          },
+          "Safety": {
+            "n": 46,
+            "value": 0.9565217391304348
+          },
+          "mmlu-pro": {
+            "n": 8,
+            "value": 0.875
+          },
+          "Focus": {
+            "n": 32,
+            "value": 0.96875
+          },
+          "helpful": {
+            "n": 16,
+            "value": 0.875
+          },
+          "mbpp": {
+            "n": 16,
+            "value": 0.75
+          },
+          "gpqa": {
+            "n": 2,
+            "value": 0.5
+          }
+        },
+        "missing": 0,
+        "positionConsistency": 0.8822784810126583
+      },
+      "costUsd": 2.2323374900000017,
+      "calls": 2370,
+      "uniqueCostUsd": 2.2323374900000017,
+      "uniqueCalls": 2370
+    },
+    {
+      "contestant": "promptfoo",
+      "source": "promptfoo 8014282: select-best (pairs) and llm-rubric (single responses)",
+      "mode": "pairwise, both orders",
+      "summary": {
+        "metric": "accuracy (RubricBench, over games)",
+        "value": {
+          "estimate": 0.779746835443038,
+          "lower": 0.7586476658898247,
+          "upper": 0.7994890056039332
+        },
+        "n": 790,
+        "byGroup": {
+          "code": {
+            "n": 360,
+            "value": 0.7361111111111116
+          },
+          "general": {
+            "n": 160,
+            "value": 0.80625
+          },
+          "ifeval": {
+            "n": 136,
+            "value": 0.8308823529411765
+          },
+          "stem": {
+            "n": 240,
+            "value": 0.775
+          },
+          "Factuality": {
+            "n": 68,
+            "value": 0.8823529411764706
+          },
+          "math": {
+            "n": 94,
+            "value": 0.8936170212765957
+          },
+          "Precise IF": {
+            "n": 28,
+            "value": 0.7142857142857142
+          },
+          "harmlessness": {
+            "n": 64,
+            "value": 0.859375
+          },
+          "human-preference": {
+            "n": 304,
+            "value": 0.6809210526315788
+          },
+          "Math": {
+            "n": 6,
+            "value": 0.5
+          },
+          "Safety": {
+            "n": 46,
+            "value": 1
+          },
+          "mmlu-pro": {
+            "n": 8,
+            "value": 0.875
+          },
+          "Focus": {
+            "n": 32,
+            "value": 0.90625
+          },
+          "helpful": {
+            "n": 16,
+            "value": 0.8125
+          },
+          "mbpp": {
+            "n": 16,
+            "value": 0.875
+          },
+          "gpqa": {
+            "n": 2,
+            "value": 0.5
+          }
+        },
+        "missing": 3,
+        "positionConsistency": 0.7860759493670886
+      },
+      "costUsd": 0.9599960000000006,
+      "calls": 1577,
+      "uniqueCostUsd": 0.9599960000000006,
+      "uniqueCalls": 1577
+    }
+  ],
+  "newSpendUsd": 0,
+  "newCalls": 0,
+  "replayed": 7167,
+  "failedCalls": 2738,
+  "purpose": "Verify previously recorded test results; no new model calls"
+}

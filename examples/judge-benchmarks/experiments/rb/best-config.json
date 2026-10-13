@@ -1,0 +1,14 @@
+{
+  "contestant": "driftbench-rb-binary-canonical-executed",
+  "model": "haiku",
+  "split": "dev",
+  "samples": 1,
+  "rubricEngine": null,
+  "canonicalOrder": true,
+  "source": "Expert rubric, evidence per atomic requirement, binary aggregation (dev experiment); canonical presentation with exact candidate-code execution",
+  "devScore": 0.8235294117647058,
+  "usdPer100": 0.16717063025210088,
+  "newTaskSpendUsd": 2.9415234700000017,
+  "measuredAt": "2026-10-13T02:28:06.580Z",
+  "testEvaluated": false
+}

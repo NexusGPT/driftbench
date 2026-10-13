@@ -1,0 +1,235 @@
+import { spawn } from 'node:child_process';
+import { createHash } from 'node:crypto';
+import { mkdir, mkdtemp } from 'node:fs/promises';
+import { join, resolve } from 'node:path';
+import type { Prompt } from './contestants';
+import { appendRecording, readRecordingRows } from './recording-files';
+
+/**
+ * Model calls through the local claude command, recorded. A recording is keyed by a hash of the model and
+ * the exact prompt, so a rerun of the same prompt reads the recording and costs nothing, and any change to
+ * a prompt, a template or a criterion misses it and calls again.
+ */
+
+export type Recorded = {
+  readonly key: string;
+  readonly model: string;
+  readonly text: string;
+  readonly costUsd: number;
+  /** Labels for a reader of the file; the key alone decides the match. */
+  readonly bench?: string;
+  readonly contestant?: string;
+  readonly item?: string;
+  readonly order?: string;
+};
+
+export function promptKey(model: string, prompt: Prompt): string {
+  return createHash('sha256')
+    .update(JSON.stringify([model, prompt.system, prompt.user]))
+    .digest('hex')
+    .slice(0, 20);
+}
+
+export class Recordings {
+  private readonly byKey = new Map<string, Recorded>();
+  private pending: Promise<void> = Promise.resolve();
+  constructor(private readonly file: string) {}
+
+  async load(): Promise<this> {
+    for (const entry of await readRecordingRows(this.file)) {
+      this.byKey.set(entry.key, entry);
+    }
+    return this;
+  }
+
+  get(key: string): Recorded | undefined {
+    return this.byKey.get(key);
+  }
+
+  get size(): number {
+    return this.byKey.size;
+  }
+
+  async add(entry: Recorded): Promise<void> {
+    const write = this.pending.then(async () => {
+      await appendRecording(this.file, entry);
+      this.byKey.set(entry.key, entry);
+    });
+    this.pending = write.catch(() => undefined);
+    await write;
+  }
+}
+
+export type CallOptions = {
+  readonly model: string;
+  readonly command?: string;
+  readonly timeoutMs?: number;
+  /** Passed as --max-budget-usd on every call. */
+  readonly maxCallUsd?: number;
+  readonly deadlineMs?: number;
+};
+
+export type Caller = {
+  /** Answers a prompt from the recordings, or calls the model and records the answer. */
+  call(prompt: Prompt, labels: Omit<Recorded, 'key' | 'model' | 'text' | 'costUsd'>): Promise<Recorded>;
+  readonly spent: () => number;
+  readonly calls: () => number;
+  readonly replayed: () => number;
+};
+
+export class SpendCapReached extends Error {}
+
+/** One call that failed after its retries: its item lacks this answer, and the run goes on. */
+export class CallFailed extends Error {}
+
+export function createCaller(
+  recordings: Recordings,
+  options: CallOptions,
+  limits: { capUsd?: number; replayOnly?: boolean | 'lenient'; deadlineMs?: number } = {},
+): Caller {
+  let spent = 0;
+  let calls = 0;
+  let replayed = 0;
+  let folder: string | undefined;
+  return {
+    spent: () => spent,
+    calls: () => calls,
+    replayed: () => replayed,
+    async call(prompt, labels) {
+      const key = promptKey(options.model, prompt);
+      const hit = recordings.get(key);
+      if (hit) {
+        replayed += 1;
+        return hit;
+      }
+      if (limits.replayOnly) {
+        const why = `no recording for ${labels.contestant} ${labels.item} ${labels.order ?? ''}`;
+        // Lenient replay counts the answer as missing; strict replay stops the run.
+        throw limits.replayOnly === 'lenient' ? new CallFailed(why) : new Error(why);
+      }
+      if (limits.capUsd !== undefined && spent >= limits.capUsd)
+        throw new SpendCapReached(`spend cap ${limits.capUsd} USD reached`);
+      if (limits.deadlineMs !== undefined && Date.now() >= limits.deadlineMs)
+        throw new SpendCapReached('model call deadline reached');
+      if (!folder) {
+        const root = resolve('.cache/judge-benchmarks/calls');
+        await mkdir(root, { recursive: true });
+        folder = await mkdtemp(join(root, 'claude-'));
+      }
+      const result = await runClaude(
+        prompt,
+        { ...options, ...(limits.deadlineMs === undefined ? {} : { deadlineMs: limits.deadlineMs }) },
+        folder,
+      );
+      spent += result.costUsd;
+      calls += 1;
+      const entry: Recorded = {
+        key,
+        model: options.model,
+        text: result.text,
+        costUsd: result.costUsd,
+        ...labels,
+      };
+      await recordings.add(entry);
+      return entry;
+    },
+  };
+}
+
+async function runClaude(
+  prompt: Prompt,
+  options: CallOptions,
+  cwd: string,
+): Promise<{ text: string; costUsd: number }> {
+  const args = [
+    '-p',
+    '--output-format',
+    'json',
+    '--model',
+    options.model,
+    '--system-prompt',
+    prompt.system,
+    '--tools',
+    '',
+    '--setting-sources',
+    '',
+    '--strict-mcp-config',
+    '--no-session-persistence',
+    '--max-turns',
+    '1',
+    ...(options.maxCallUsd === undefined ? [] : ['--max-budget-usd', String(options.maxCallUsd)]),
+  ];
+  for (let attempt = 1; ; attempt += 1) {
+    const remaining = options.deadlineMs === undefined ? Infinity : options.deadlineMs - Date.now();
+    if (remaining <= 0) throw new SpendCapReached('model call deadline reached');
+    let ran: { stdout: string; stderr: string };
+    try {
+      ran = await spawnOnce(
+        options.command ?? 'claude',
+        args,
+        prompt.user,
+        cwd,
+        Math.min(options.timeoutMs ?? 300_000, remaining),
+      );
+    } catch (cause) {
+      if (options.deadlineMs !== undefined && Date.now() >= options.deadlineMs)
+        throw new SpendCapReached('model call deadline reached');
+      // A call past its timeout is tried once more, then its answer is missing and the run goes on.
+      if (attempt >= 2) throw new CallFailed(cause instanceof Error ? cause.message : String(cause));
+      continue;
+    }
+    let payload:
+      | { result?: unknown; total_cost_usd?: unknown; is_error?: unknown; subtype?: unknown }
+      | undefined;
+    try {
+      payload = JSON.parse(ran.stdout) as typeof payload;
+    } catch {
+      payload = undefined;
+    }
+    const cost = typeof payload?.total_cost_usd === 'number' ? payload.total_cost_usd : 0;
+    if (payload && payload.is_error !== true) {
+      return { text: typeof payload.result === 'string' ? payload.result : '', costUsd: cost };
+    }
+    const why = payload ? String(payload.result) : (ran.stderr || ran.stdout).slice(0, 300);
+    // A session or rate limit is not retried: the run stops and reports it.
+    if (/limit/i.test(why)) throw new Error(`claude stopped: ${why}`);
+    if (attempt >= 3) throw new CallFailed(`claude failed ${attempt} times: ${why}`);
+    await new Promise((resolve) => setTimeout(resolve, 2000 * attempt));
+  }
+}
+
+function spawnOnce(
+  command: string,
+  args: readonly string[],
+  input: string,
+  cwd: string,
+  timeoutMs: number,
+): Promise<{ stdout: string; stderr: string }> {
+  return new Promise((resolve, reject) => {
+    const child = spawn(command, args, { cwd, stdio: ['pipe', 'pipe', 'pipe'] });
+    let stdout = '';
+    let stderr = '';
+    const timer = setTimeout(() => {
+      child.kill('SIGKILL');
+      reject(new Error(`claude ran past ${timeoutMs} ms`));
+    }, timeoutMs);
+    child.stdout.on('data', (chunk: Buffer) => {
+      stdout += chunk.toString('utf8');
+    });
+    child.stderr.on('data', (chunk: Buffer) => {
+      stderr += chunk.toString('utf8');
+    });
+    child.once('error', (cause) => {
+      clearTimeout(timer);
+      reject(cause);
+    });
+    child.once('close', () => {
+      clearTimeout(timer);
+      resolve({ stdout, stderr });
+    });
+    child.stdin.on('error', () => {
+      // The process closed its input early; its output says why.
+    });
+    child.stdin.end(input);
+  });
+}

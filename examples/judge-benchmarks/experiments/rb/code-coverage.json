@@ -1,0 +1,2262 @@
+{
+  "items": 83,
+  "rows": [
+    {
+      "id": "rubric_eval_2",
+      "domain": "code",
+      "attempted": true,
+      "evidence": {
+        "A": [
+          {
+            "language": "javascript",
+            "status": "runtime_or_syntax_error",
+            "stdout": "{\"status\":\"runtime_or_syntax_error\",\"error\":\"SyntaxError: Identifier 'arraysByAge' has already been declared\",\"note\":\"\"}",
+            "stderr": "",
+            "code": 0
+          }
+        ],
+        "B": []
+      }
+    },
+    {
+      "id": "rubric_eval_4",
+      "domain": "code",
+      "attempted": true,
+      "evidence": {
+        "A": [
+          {
+            "language": "c",
+            "status": "process_error",
+            "stdout": "",
+            "stderr": "No input specified\n\u0000To",
+            "code": 1
+          }
+        ],
+        "B": []
+      }
+    },
+    {
+      "id": "rubric_eval_43",
+      "domain": "code",
+      "attempted": true,
+      "evidence": {
+        "A": [
+          {
+            "language": "shell",
+            "status": "timeout",
+            "stdout": "",
+            "stderr": "",
+            "code": null
+          },
+          {
+            "language": "shell",
+            "status": "timeout",
+            "stdout": "",
+            "stderr": "",
+            "code": null
+          },
+          {
+            "language": "prisma",
+            "status": "unsupported_language"
+          },
+          {
+            "language": "shell",
+            "status": "timeout",
+            "stdout": "",
+            "stderr": "",
+            "code": null
+          },
+          {
+            "language": "dockerfile",
+            "status": "unsupported_language"
+          },
+          {
+            "language": "yaml",
+            "status": "unsupported_language"
+          }
+        ],
+        "B": []
+      }
+    },
+    {
+      "id": "rubric_eval_45",
+      "domain": "code",
+      "attempted": false
+    },
+    {
+      "id": "rubric_eval_49",
+      "domain": "mbpp",
+      "attempted": true,
+      "evidence": {
+        "A": [
+          {
+            "language": "python",
+            "status": "executed",
+            "stdout": "Varsha\nDawood\nAyesha\n{\"status\": \"executed\", \"tests\": [{\"function\": \"index_minimum\", \"pass\": true, \"expected\": \"'Varsha'\", \"actual\": \"'Varsha'\"}, {\"function\": \"index_minimum\", \"pass\": true, \"expected\": \"'Dawood'\", \"actual\": \"'Dawood'\"}, {\"function\": \"index_minimum\", \"pass\": true, \"expected\": \"'Ayesha'\", \"actual\": \"'Ayesha'\"}], \"note\": \"Tests from supplied examples; examples can themselves be wrong\"}",
+            "stderr": "",
+            "code": 0
+          }
+        ],
+        "B": [
+          {
+            "language": "python",
+            "status": "executed",
+            "stdout": "{\"status\": \"executed\", \"tests\": [{\"function\": \"index_minimum\", \"pass\": true, \"expected\": \"'Varsha'\", \"actual\": \"'Varsha'\"}, {\"function\": \"index_minimum\", \"pass\": true, \"expected\": \"'Dawood'\", \"actual\": \"'Dawood'\"}, {\"function\": \"index_minimum\", \"pass\": true, \"expected\": \"'Ayesha'\", \"actual\": \"'Ayesha'\"}], \"note\": \"Tests from supplied examples; examples can themselves be wrong\"}",
+            "stderr": "",
+            "code": 0
+          }
+        ]
+      }
+    },
+    {
+      "id": "rubric_eval_52",
+      "domain": "code",
+      "attempted": true,
+      "evidence": {
+        "A": [
+          {
+            "language": "vue",
+            "status": "unsupported_language"
+          },
+          {
+            "language": "vue",
+            "status": "unsupported_language"
+          }
+        ],
+        "B": [
+          {
+            "language": "vue",
+            "status": "unsupported_language"
+          }
+        ]
+      }
+    },
+    {
+      "id": "rubric_eval_94",
+      "domain": "code",
+      "attempted": true,
+      "evidence": {
+        "A": [
+          {
+            "language": "html",
+            "status": "unsupported_language"
+          },
+          {
+            "language": "css",
+            "status": "unsupported_language"
+          },
+          {
+            "language": "javascript",
+            "status": "runtime_or_syntax_error",
+            "stdout": "{\"status\":\"runtime_or_syntax_error\",\"error\":\"ReferenceError: document is not defined\",\"note\":\"Environment may lack a required dependency\"}",
+            "stderr": "",
+            "code": 0
+          }
+        ],
+        "B": [
+          {
+            "language": "html",
+            "status": "unsupported_language"
+          },
+          {
+            "language": "css",
+            "status": "unsupported_language"
+          },
+          {
+            "language": "javascript",
+            "status": "runtime_or_syntax_error",
+            "stdout": "{\"status\":\"runtime_or_syntax_error\",\"error\":\"ReferenceError: document is not defined\",\"note\":\"Environment may lack a required dependency\"}",
+            "stderr": "",
+            "code": 0
+          },
+          {
+            "language": "html",
+            "status": "unsupported_language"
+          }
+        ]
+      }
+    },
+    {
+      "id": "rubric_eval_105",
+      "domain": "code",
+      "attempted": true,
+      "evidence": {
+        "A": [
+          {
+            "language": "unlabelled",
+            "status": "unsupported_language"
+          },
+          {
+            "language": "unlabelled",
+            "status": "unsupported_language"
+          },
+          {
+            "language": "unlabelled",
+            "status": "unsupported_language"
+          },
+          {
+            "language": "dockerfile",
+            "status": "unsupported_language"
+          },
+          {
+            "language": "unlabelled",
+            "status": "unsupported_language"
+          },
+          {
+            "language": "unlabelled",
+            "status": "unsupported_language"
+          }
+        ],
+        "B": []
+      }
+    },
+    {
+      "id": "rubric_eval_153",
+      "domain": "code",
+      "attempted": true,
+      "evidence": {
+        "A": [
+          {
+            "language": "javascript",
+            "status": "runtime_or_syntax_error",
+            "stdout": "{\"status\":\"runtime_or_syntax_error\",\"error\":\"ReferenceError: fetch is not defined\",\"note\":\"Environment may lack a required dependency\"}",
+            "stderr": "",
+            "code": 0
+          }
+        ],
+        "B": [
+          {
+            "language": "javascript",
+            "status": "runtime_or_syntax_error",
+            "stdout": "{\"status\":\"runtime_or_syntax_error\",\"error\":\"ReferenceError: XMLHttpRequest is not defined\",\"note\":\"Environment may lack a required dependency\"}",
+            "stderr": "",
+            "code": 0
+          }
+        ]
+      }
+    },
+    {
+      "id": "rubric_eval_165",
+      "domain": "code",
+      "attempted": true,
+      "evidence": {
+        "A": [
+          {
+            "language": "java",
+            "status": "process_error",
+            "stdout": "Enter the first country:",
+            "stderr": "Exception in thread \"main\" java.util.NoSuchElementException: No line found\n\tat java.base/java.util.Scanner.nextLine(Scanner.java:1651)\n\tat PopulationDensityComparator.main(PopulationDensityComparator.java:29)",
+            "code": 1
+          }
+        ],
+        "B": [
+          {
+            "language": "xml",
+            "status": "unsupported_language"
+          },
+          {
+            "language": "java",
+            "status": "process_error",
+            "stdout": "",
+            "stderr": "<scratch>/ComparePopulationDensities.java:1: error: package com.github.cliftonlabs.json_simple does not exist\nimport com.github.cliftonlabs.json_simple.Jsoner;\n                                         ^\n<scratch>/ComparePopulationDensities.java:2: error: package com.github.cliftonlabs.json_simple does not exist\nimport com.github.cliftonlabs.json_simple.JsonObject;\n                                         ^\n<scratch>/ComparePopulationDensities.java:3: error: package com.github.cliftonlabs.json_simple does not exist\nimport com.github.cliftonlabs.json_simple.JsonArray;\n                                         ^\n<scratch>/ComparePopulationDensities.java:50: error: cannot find symbol\n    private static JsonObject getCountryData(String country) throws IOException, InterruptedException {\n                   ^\n  symbol:   class JsonObject\n  location: class ComparePopulationDensities\n<scratch>/ComparePopulationDensities.java:22: error: cannot find symbol\n        JsonObject countryData1 = getCountryData(country1);\n        ^\n  symbol:   class JsonObject\n  location: class ComparePopulationDensities\n<scratch>/ComparePopulationDensities.java:23: error: cannot find symbol\n        JsonObject countryData2 = getCountryData(country2);\n        ^\n  symbol:   class JsonObject\n  location: class ComparePopulationDensities\n<scratch>/ComparePopulationDensities.java:53: error: cannot find symbol\n                .uri(URI.create(API_URL + country))\n                     ^\n  symbol:   variable URI\n  location: class ComparePopulationDensities\n<scratch>/ComparePopulationDensities.java:63: error: cannot find symbol\n        JsonObject countryData = (JsonObject) Jsoner.deserialize(response.body());\n        ^\n  symbol:   class JsonObject\n  location: class ComparePopulationDensities\n<scratch>/ComparePopulationDensities.java:63: error: cannot find symbol\n        JsonObject countryData = (JsonObject) Jsoner.deserialize(response.body());\n                                  ^\n  symbol:   class JsonObject\n  location: class ComparePopulationDensities\n<scratch>/ComparePopulationDensities.java:63: error: cannot find symbol\n        JsonObject countryDa",
+            "code": 1
+          }
+        ]
+      }
+    },
+    {
+      "id": "rubric_eval_178",
+      "domain": "mbpp",
+      "attempted": true,
+      "evidence": {
+        "A": [
+          {
+            "language": "python",
+            "status": "executed",
+            "stdout": "{\"status\": \"executed\", \"tests\": [{\"function\": \"freq_count\", \"pass\": true, \"expected\": \"{10: 4, 20: 4, 40: 2, 50: 2, 30: 1}\", \"actual\": \"{10: 4, 20: 4, 40: 2, 50: 2, 30: 1}\"}, {\"function\": \"freq_count\", \"pass\": true, \"expected\": \"{1: 3, 2: 2, 3: 3, 4: 3}\", \"actual\": \"{1: 3, 2: 2, 3: 3, 4: 3}\"}, {\"function\": \"freq_count\", \"pass\": true, \"expected\": \"{10: 1, 5: 3, 6: 2, 7: 2, 4: 2, 9: 2}\", \"actual\": \"{5: 3, 6: 2, 7: 2, 4: 2, 9: 2, 10: 1}\"}], \"note\": \"Tests from supplied examples; examples can themselves be wrong\"}",
+            "stderr": "",
+            "code": 0
+          }
+        ],
+        "B": [
+          {
+            "language": "python",
+            "status": "executed",
+            "stdout": "{10: 4, 20: 4, 40: 2, 50: 2, 30: 1}\n{1: 3, 2: 2, 3: 3, 4: 3}\n{5: 3, 6: 2, 7: 2, 4: 2, 9: 2, 10: 1}\n{\"status\": \"executed\", \"tests\": [{\"function\": \"freq_count\", \"pass\": true, \"expected\": \"{10: 4, 20: 4, 40: 2, 50: 2, 30: 1}\", \"actual\": \"{10: 4, 20: 4, 40: 2, 50: 2, 30: 1}\"}, {\"function\": \"freq_count\", \"pass\": true, \"expected\": \"{1: 3, 2: 2, 3: 3, 4: 3}\", \"actual\": \"{1: 3, 2: 2, 3: 3, 4: 3}\"}, {\"function\": \"freq_count\", \"pass\": true, \"expected\": \"{10: 1, 5: 3, 6: 2, 7: 2, 4: 2, 9: 2}\", \"actual\": \"{5: 3, 6: 2, 7: 2, 4: 2, 9: 2, 10: 1}\"}], \"note\": \"Tests from supplied examples; examples can themselves be wrong\"}",
+            "stderr": "",
+            "code": 0
+          }
+        ]
+      }
+    },
+    {
+      "id": "rubric_eval_181",
+      "domain": "code",
+      "attempted": true,
+      "evidence": {
+        "A": [
+          {
+            "language": "python",
+            "status": "unsupported_dependency_or_operation",
+            "stdout": "{\"status\": \"unsupported_dependency_or_operation\", \"details\": [\"input\"]}",
+            "stderr": "",
+            "code": 0
+          }
+        ],
+        "B": [
+          {
+            "language": "python",
+            "status": "unsupported_dependency_or_operation",
+            "stdout": "{\"status\": \"unsupported_dependency_or_operation\", \"details\": [\"input\"]}",
+            "stderr": "",
+            "code": 0
+          }
+        ]
+      }
+    },
+    {
+      "id": "rubric_eval_185",
+      "domain": "code",
+      "attempted": false
+    },
+    {
+      "id": "rubric_eval_193",
+      "domain": "mbpp",
+      "attempted": true,
+      "evidence": {
+        "A": [
+          {
+            "language": "python",
+            "status": "executed",
+            "stdout": "{\"status\": \"executed\", \"tests\": [{\"function\": \"tuple_to_dict\", \"pass\": true, \"expected\": \"{1: 5, 7: 10, 13: 5}\", \"actual\": \"{1: 5, 7: 10, 13: 5}\"}, {\"function\": \"tuple_to_dict\", \"pass\": true, \"expected\": \"{1: 2, 3: 4, 5: 6}\", \"actual\": \"{1: 2, 3: 4, 5: 6}\"}, {\"function\": \"tuple_to_dict\", \"pass\": true, \"expected\": \"{7: 8, 9: 10, 11: 12}\", \"actual\": \"{7: 8, 9: 10, 11: 12}\"}], \"note\": \"Tests from supplied examples; examples can themselves be wrong\"}",
+            "stderr": "",
+            "code": 0
+          }
+        ],
+        "B": [
+          {
+            "language": "python",
+            "status": "executed",
+            "stdout": "{1: 5, 7: 10, 13: 5}\n{1: 2, 3: 4, 5: 6}\n{7: 8, 9: 10, 11: 12}\n{\"status\": \"executed\", \"tests\": [{\"function\": \"tuple_to_dict\", \"pass\": true, \"expected\": \"{1: 5, 7: 10, 13: 5}\", \"actual\": \"{1: 5, 7: 10, 13: 5}\"}, {\"function\": \"tuple_to_dict\", \"pass\": true, \"expected\": \"{1: 2, 3: 4, 5: 6}\", \"actual\": \"{1: 2, 3: 4, 5: 6}\"}, {\"function\": \"tuple_to_dict\", \"pass\": true, \"expected\": \"{7: 8, 9: 10, 11: 12}\", \"actual\": \"{7: 8, 9: 10, 11: 12}\"}], \"note\": \"Tests from supplied examples; examples can themselves be wrong\"}",
+            "stderr": "",
+            "code": 0
+          }
+        ]
+      }
+    },
+    {
+      "id": "rubric_eval_199",
+      "domain": "code",
+      "attempted": true,
+      "evidence": {
+        "A": [
+          {
+            "language": "html",
+            "status": "unsupported_language"
+          }
+        ],
+        "B": [
+          {
+            "language": "javascript",
+            "status": "runtime_or_syntax_error",
+            "stdout": "{\"status\":\"runtime_or_syntax_error\",\"error\":\"ReferenceError: document is not defined\",\"note\":\"Environment may lack a required dependency\"}",
+            "stderr": "",
+            "code": 0
+          },
+          {
+            "language": "html",
+            "status": "unsupported_language"
+          }
+        ]
+      }
+    },
+    {
+      "id": "rubric_eval_214",
+      "domain": "code",
+      "attempted": true,
+      "evidence": {
+        "A": [
+          {
+            "language": "java",
+            "status": "process_error",
+            "stdout": "",
+            "stderr": "<scratch>/WordCounter.java:18: error: cannot find symbol\n        Scanner scanner = new Scanner(System.in);\n        ^\n  symbol:   class Scanner\n  location: class WordCounter\n<scratch>/WordCounter.java:18: error: cannot find symbol\n        Scanner scanner = new Scanner(System.in);\n                              ^\n  symbol:   class Scanner\n  location: class WordCounter\n2 errors",
+            "code": 1
+          }
+        ],
+        "B": [
+          {
+            "language": "java",
+            "status": "process_error",
+            "stdout": "",
+            "stderr": "Exception in thread \"main\" java.lang.ExceptionInInitializerError\nCaused by: java.util.regex.PatternSyntaxException: Illegal character range near index 12\n[0123456789-&,./']\n            ^\n\tat java.base/java.util.regex.Pattern.error(Pattern.java:2055)\n\tat java.base/java.util.regex.Pattern.range(Pattern.java:2847)\n\tat java.base/java.util.regex.Pattern.clazz(Pattern.java:2735)\n\tat java.base/java.util.regex.Pattern.sequence(Pattern.java:2166)\n\tat java.base/java.util.regex.Pattern.expr(Pattern.java:2096)\n\tat java.base/java.util.regex.Pattern.compile(Pattern.java:1810)\n\tat java.base/java.util.regex.Pattern.<init>(Pattern.java:1441)\n\tat java.base/java.util.regex.Pattern.compile(Pattern.java:1069)\n\tat WordCounter.<clinit>(WordCounter.java:10)",
+            "code": 1
+          }
+        ]
+      }
+    },
+    {
+      "id": "rubric_eval_221",
+      "domain": "code",
+      "attempted": true,
+      "evidence": {
+        "A": [
+          {
+            "language": "shell",
+            "status": "process_error",
+            "stdout": "",
+            "stderr": "<scratch>/answer.sh: line 1: pip: command not found",
+            "code": 127
+          },
+          {
+            "language": "json",
+            "status": "unsupported_language"
+          },
+          {
+            "language": "python",
+            "status": "unsupported_dependency_or_operation",
+            "stdout": "{\"status\": \"unsupported_dependency_or_operation\", \"details\": [\"json\", \"open\", \"pydantic\"]}",
+            "stderr": "",
+            "code": 0
+          },
+          {
+            "language": "shell",
+            "status": "process_error",
+            "stdout": "",
+            "stderr": "<scratch>/answer.sh: line 1: uvicorn: command not found",
+            "code": 127
+          }
+        ],
+        "B": [
+          {
+            "language": "shell",
+            "status": "process_error",
+            "stdout": "",
+            "stderr": "<scratch>/answer.sh: line 1: pip: command not found",
+            "code": 127
+          },
+          {
+            "language": "python",
+            "status": "unsupported_dependency_or_operation",
+            "stdout": "{\"status\": \"unsupported_dependency_or_operation\", \"details\": [\"fastapi\", \"json\", \"models\", \"open\", \"pydantic\", \"vars\"]}",
+            "stderr": "",
+            "code": 0
+          },
+          {
+            "language": "shell",
+            "status": "process_error",
+            "stdout": "",
+            "stderr": "<scratch>/answer.sh: line 1: uvicorn: command not found",
+            "code": 127
+          }
+        ]
+      }
+    },
+    {
+      "id": "rubric_eval_234",
+      "domain": "code",
+      "attempted": true,
+      "evidence": {
+        "A": [
+          {
+            "language": "python",
+            "status": "unsupported_dependency_or_operation",
+            "stdout": "{\"status\": \"unsupported_dependency_or_operation\", \"details\": [\"pandas\"]}",
+            "stderr": "",
+            "code": 0
+          }
+        ],
+        "B": []
+      }
+    },
+    {
+      "id": "rubric_eval_258",
+      "domain": "code",
+      "attempted": true,
+      "evidence": {
+        "A": [
+          {
+            "language": "python",
+            "status": "unsupported_dependency_or_operation",
+            "stdout": "{\"status\": \"unsupported_dependency_or_operation\", \"details\": [\"__name__\"]}",
+            "stderr": "",
+            "code": 0
+          }
+        ],
+        "B": [
+          {
+            "language": "python",
+            "status": "unsupported_dependency_or_operation",
+            "stdout": "{\"status\": \"unsupported_dependency_or_operation\", \"details\": [\"random\"]}",
+            "stderr": "",
+            "code": 0
+          }
+        ]
+      }
+    },
+    {
+      "id": "rubric_eval_280",
+      "domain": "code",
+      "attempted": true,
+      "evidence": {
+        "A": [
+          {
+            "language": "go",
+            "status": "unsupported_language"
+          }
+        ],
+        "B": [
+          {
+            "language": "go",
+            "status": "unsupported_language"
+          },
+          {
+            "language": "go",
+            "status": "unsupported_language"
+          }
+        ]
+      }
+    },
+    {
+      "id": "rubric_eval_310",
+      "domain": "code",
+      "attempted": true,
+      "evidence": {
+        "A": [
+          {
+            "language": "csharp",
+            "status": "unsupported_language"
+          },
+          {
+            "language": "csharp",
+            "status": "unsupported_language"
+          },
+          {
+            "language": "csharp",
+            "status": "unsupported_language"
+          },
+          {
+            "language": "csharp",
+            "status": "unsupported_language"
+          },
+          {
+            "language": "razor",
+            "status": "unsupported_language"
+          }
+        ],
+        "B": [
+          {
+            "language": "shell",
+            "status": "process_error",
+            "stdout": "",
+            "stderr": "<scratch>/answer.sh: line 1: dotnet: command not found\n<scratch>/answer.sh: line 2: cd: InventoryManagement: No such file or directory\n<scratch>/answer.sh: line 3: dotnet: command not found\n<scratch>/answer.sh: line 4: dotnet: command not found",
+            "code": 127
+          },
+          {
+            "language": "csharp",
+            "status": "unsupported_language"
+          },
+          {
+            "language": "csharp",
+            "status": "unsupported_language"
+          },
+          {
+            "language": "json",
+            "status": "unsupported_language"
+          },
+          {
+            "language": "csharp",
+            "status": "unsupported_language"
+          },
+          {
+            "language": "csharp",
+            "status": "unsupported_language"
+          },
+          {
+            "language": "csharp",
+            "status": "unsupported_language"
+          }
+        ]
+      }
+    },
+    {
+      "id": "rubric_eval_315",
+      "domain": "code",
+      "attempted": true,
+      "evidence": {
+        "A": [
+          {
+            "language": "html",
+            "status": "unsupported_language"
+          }
+        ],
+        "B": [
+          {
+            "language": "html",
+            "status": "unsupported_language"
+          },
+          {
+            "language": "html",
+            "status": "unsupported_language"
+          }
+        ]
+      }
+    },
+    {
+      "id": "rubric_eval_327",
+      "domain": "code",
+      "attempted": true,
+      "evidence": {
+        "A": [
+          {
+            "language": "json",
+            "status": "unsupported_language"
+          }
+        ],
+        "B": []
+      }
+    },
+    {
+      "id": "rubric_eval_329",
+      "domain": "code",
+      "attempted": true,
+      "evidence": {
+        "A": [
+          {
+            "language": "javascript",
+            "status": "runtime_or_syntax_error",
+            "stdout": "{\"status\":\"runtime_or_syntax_error\",\"error\":\"ReferenceError: document is not defined\",\"note\":\"Environment may lack a required dependency\"}",
+            "stderr": "",
+            "code": 0
+          }
+        ],
+        "B": [
+          {
+            "language": "html",
+            "status": "unsupported_language"
+          }
+        ]
+      }
+    },
+    {
+      "id": "rubric_eval_354",
+      "domain": "code",
+      "attempted": true,
+      "evidence": {
+        "A": [
+          {
+            "language": "powershell",
+            "status": "unsupported_language"
+          },
+          {
+            "language": "powershell",
+            "status": "unsupported_language"
+          }
+        ],
+        "B": [
+          {
+            "language": "powershell",
+            "status": "unsupported_language"
+          }
+        ]
+      }
+    },
+    {
+      "id": "rubric_eval_375",
+      "domain": "code",
+      "attempted": false
+    },
+    {
+      "id": "rubric_eval_387",
+      "domain": "code",
+      "attempted": true,
+      "evidence": {
+        "A": [
+          {
+            "language": "shell",
+            "status": "timeout",
+            "stdout": "",
+            "stderr": "",
+            "code": null
+          },
+          {
+            "language": "typescript",
+            "status": "process_error",
+            "stdout": "",
+            "stderr": "node:internal/modules/package_json_reader:301\n  throw new ERR_MODULE_NOT_FOUND(packageName, fileURLToPath(base), null);\n        ^\n\nError [ERR_MODULE_NOT_FOUND]: Cannot find package '@salesforce/commerce-sdk-types' imported from <scratch>/answer.ts\n    at Object.getPackageJSONURL (node:internal/modules/package_json_reader:301:9)\n    at packageResolve (node:internal/modules/esm/resolve:768:81)\n    at moduleResolve (node:internal/modules/esm/resolve:859:18)\n    at defaultResolve (node:internal/modules/esm/resolve:992:11)\n    at #cachedDefaultResolve (node:internal/modules/esm/loader:701:20)\n    at #resolveAndMaybeBlockOnLoaderThread (node:internal/modules/esm/loader:721:38)\n    at ModuleLoader.resolveSync (node:internal/modules/esm/loader:759:56)\n    at #resolve (node:internal/modules/esm/loader:683:17)\n    at ModuleLoader.getOrCreateModuleJob (node:internal/modules/esm/loader:603:35)\n    at ModuleJob.syncLink (node:internal/modules/esm/module_job:163:33) {\n  code: 'ERR_MODULE_NOT_FOUND'\n}\n\nNode.js v24.18.0",
+            "code": 1
+          }
+        ],
+        "B": [
+          {
+            "language": "unlabelled",
+            "status": "unsupported_language"
+          }
+        ]
+      }
+    },
+    {
+      "id": "rubric_eval_415",
+      "domain": "code",
+      "attempted": false
+    },
+    {
+      "id": "rubric_eval_424",
+      "domain": "code",
+      "attempted": true,
+      "evidence": {
+        "A": [
+          {
+            "language": "python",
+            "status": "runtime_or_syntax_error",
+            "stdout": "{\"status\": \"runtime_or_syntax_error\", \"error\": \"NameError: name 'generics' is not defined\"}",
+            "stderr": "",
+            "code": 0
+          }
+        ],
+        "B": [
+          {
+            "language": "unlabelled",
+            "status": "unsupported_language"
+          },
+          {
+            "language": "unlabelled",
+            "status": "unsupported_language"
+          },
+          {
+            "language": "python",
+            "status": "runtime_or_syntax_error",
+            "stdout": "{\"status\": \"runtime_or_syntax_error\", \"error\": \"NameError: name 'permissions' is not defined\"}",
+            "stderr": "",
+            "code": 0
+          }
+        ]
+      }
+    },
+    {
+      "id": "rubric_eval_433",
+      "domain": "code",
+      "attempted": true,
+      "evidence": {
+        "A": [
+          {
+            "language": "go",
+            "status": "unsupported_language"
+          },
+          {
+            "language": "go",
+            "status": "unsupported_language"
+          },
+          {
+            "language": "go",
+            "status": "unsupported_language"
+          },
+          {
+            "language": "go",
+            "status": "unsupported_language"
+          }
+        ],
+        "B": [
+          {
+            "language": "go",
+            "status": "unsupported_language"
+          },
+          {
+            "language": "go",
+            "status": "unsupported_language"
+          }
+        ]
+      }
+    },
+    {
+      "id": "rubric_eval_446",
+      "domain": "code",
+      "attempted": true,
+      "evidence": {
+        "A": [
+          {
+            "language": "java",
+            "status": "missing_class_context"
+          }
+        ],
+        "B": [
+          {
+            "language": "xml",
+            "status": "unsupported_language"
+          },
+          {
+            "language": "java",
+            "status": "process_error",
+            "stdout": "",
+            "stderr": "<scratch>/SppSettlementsClient.java:1: error: package org.apache.cxf.jaxws does not exist\nimport org.apache.cxf.jaxws.JaxWsProxyFactoryBean;\n                           ^\n<scratch>/SppSettlementsClient.java:2: error: package org.tempuri does not exist\nimport org.tempuri.SppSettlementsService;\n                  ^\n<scratch>/SppSettlementsClient.java:3: error: package org.tempuri does not exist\nimport org.tempuri.SppSettlementsServiceSoap;\n                  ^\n<scratch>/SppSettlementsClient.java:17: error: cannot find symbol\n        JaxWsProxyFactoryBean factory = new JaxWsProxyFactoryBean();\n        ^\n  symbol:   class JaxWsProxyFactoryBean\n  location: class SppSettlementsClient\n<scratch>/SppSettlementsClient.java:17: error: cannot find symbol\n        JaxWsProxyFactoryBean factory = new JaxWsProxyFactoryBean();\n                                            ^\n  symbol:   class JaxWsProxyFactoryBean\n  location: class SppSettlementsClient\n<scratch>/SppSettlementsClient.java:18: error: cannot find symbol\n        factory.setServiceClass(SppSettlementsServiceSoap.class);\n                                ^\n  symbol:   class SppSettlementsServiceSoap\n  location: class SppSettlementsClient\n<scratch>/SppSettlementsClient.java:21: error: cannot find symbol\n        SppSettlementsServiceSoap client = (SppSettlementsServiceSoap) factory.create();\n        ^\n  symbol:   class SppSettlementsServiceSoap\n  location: class SppSettlementsClient\n<scratch>/SppSettlementsClient.java:21: error: cannot find symbol\n        SppSettlementsServiceSoap client = (SppSettlementsServiceSoap) factory.create();\n                                            ^\n  symbol:   class SppSettlementsServiceSoap\n  location: class SppSettlementsClient\n<scratch>/SppSettlementsClient.java:32: error: package org.tempuri does not exist\n        org.tempuri.ArrayOfSppSettlementData settlementData = client.getSppSettlementData(marketParticipant, xmlStartDate, xmlEndDate);\n                   ^\n<scratch>/SppSettlementsClient.java:35: error: package org.tempuri does not exist\n        for (org.tempuri.SppSettlementData data : settlementData.getSppSettlementData()) {\n   ",
+            "code": 1
+          }
+        ]
+      }
+    },
+    {
+      "id": "rubric_eval_468",
+      "domain": "code",
+      "attempted": true,
+      "evidence": {
+        "A": [
+          {
+            "language": "python",
+            "status": "unsupported_dependency_or_operation",
+            "stdout": "{\"status\": \"unsupported_dependency_or_operation\", \"details\": [\"pyautogui\", \"time\"]}",
+            "stderr": "",
+            "code": 0
+          },
+          {
+            "language": "shell",
+            "status": "process_error",
+            "stdout": "",
+            "stderr": "<scratch>/answer.sh: line 1: pip: command not found",
+            "code": 127
+          }
+        ],
+        "B": [
+          {
+            "language": "python",
+            "status": "unsupported_dependency_or_operation",
+            "stdout": "{\"status\": \"unsupported_dependency_or_operation\", \"details\": [\"pyautogui\"]}",
+            "stderr": "",
+            "code": 0
+          }
+        ]
+      }
+    },
+    {
+      "id": "rubric_eval_491",
+      "domain": "code",
+      "attempted": false
+    },
+    {
+      "id": "rubric_eval_503",
+      "domain": "code",
+      "attempted": true,
+      "evidence": {
+        "A": [
+          {
+            "language": "python",
+            "status": "unsupported_dependency_or_operation",
+            "stdout": "{\"status\": \"unsupported_dependency_or_operation\", \"details\": [\"__name__\", \"flask\", \"pdfminer.high_level\"]}",
+            "stderr": "",
+            "code": 0
+          }
+        ],
+        "B": [
+          {
+            "language": "javascript",
+            "status": "runtime_or_syntax_error",
+            "stdout": "{\"status\":\"runtime_or_syntax_error\",\"error\":\"SyntaxError: Cannot use import statement outside a module\",\"note\":\"\"}",
+            "stderr": "",
+            "code": 0
+          }
+        ]
+      }
+    },
+    {
+      "id": "rubric_eval_506",
+      "domain": "code",
+      "attempted": true,
+      "evidence": {
+        "A": [
+          {
+            "language": "csharp",
+            "status": "unsupported_language"
+          },
+          {
+            "language": "csharp",
+            "status": "unsupported_language"
+          }
+        ],
+        "B": [
+          {
+            "language": "csharp",
+            "status": "unsupported_language"
+          },
+          {
+            "language": "csharp",
+            "status": "unsupported_language"
+          },
+          {
+            "language": "unlabelled",
+            "status": "unsupported_language"
+          }
+        ]
+      }
+    },
+    {
+      "id": "rubric_eval_557",
+      "domain": "code",
+      "attempted": true,
+      "evidence": {
+        "A": [
+          {
+            "language": "sql",
+            "status": "ran",
+            "stdout": "",
+            "stderr": "",
+            "code": 0
+          }
+        ],
+        "B": [
+          {
+            "language": "sql",
+            "status": "ran",
+            "stdout": "",
+            "stderr": "",
+            "code": 0
+          }
+        ]
+      }
+    },
+    {
+      "id": "rubric_eval_569",
+      "domain": "code",
+      "attempted": true,
+      "evidence": {
+        "A": [
+          {
+            "language": "python",
+            "status": "unsupported_dependency_or_operation",
+            "stdout": "{\"status\": \"unsupported_dependency_or_operation\", \"details\": [\"pyomo.environ\"]}",
+            "stderr": "",
+            "code": 0
+          }
+        ],
+        "B": [
+          {
+            "language": "python",
+            "status": "unsupported_dependency_or_operation",
+            "stdout": "{\"status\": \"unsupported_dependency_or_operation\", \"details\": [\"pyomo.environ\"]}",
+            "stderr": "",
+            "code": 0
+          }
+        ]
+      }
+    },
+    {
+      "id": "rubric_eval_596",
+      "domain": "code",
+      "attempted": true,
+      "evidence": {
+        "A": [
+          {
+            "language": "javascript",
+            "status": "executed",
+            "stdout": "{\"status\":\"executed\",\"output\":[\"#ca0033\"],\"note\":\"Executed candidate output\"}",
+            "stderr": "",
+            "code": 0
+          }
+        ],
+        "B": [
+          {
+            "language": "javascript",
+            "status": "executed",
+            "stdout": "{\"status\":\"executed\",\"output\":[\"[object Object],[object Object],[object Object]\"],\"note\":\"Executed candidate output\"}",
+            "stderr": "",
+            "code": 0
+          }
+        ]
+      }
+    },
+    {
+      "id": "rubric_eval_629",
+      "domain": "code",
+      "attempted": true,
+      "evidence": {
+        "A": [
+          {
+            "language": "python",
+            "status": "unsupported_dependency_or_operation",
+            "stdout": "{\"status\": \"unsupported_dependency_or_operation\", \"details\": [\"__init__\", \"__name__\", \"contextlib\", \"logging\"]}",
+            "stderr": "",
+            "code": 0
+          }
+        ],
+        "B": [
+          {
+            "language": "python",
+            "status": "unsupported_dependency_or_operation",
+            "stdout": "{\"status\": \"unsupported_dependency_or_operation\", \"details\": [\"__name__\", \"http.server\", \"open\", \"random\", \"threading\", \"time\", \"tkinter\"]}",
+            "stderr": "",
+            "code": 0
+          }
+        ]
+      }
+    },
+    {
+      "id": "rubric_eval_634",
+      "domain": "code",
+      "attempted": true,
+      "evidence": {
+        "A": [
+          {
+            "language": "python",
+            "status": "unsupported_dependency_or_operation",
+            "stdout": "{\"status\": \"unsupported_dependency_or_operation\", \"details\": [\"matplotlib.pyplot\", \"pandas\"]}",
+            "stderr": "",
+            "code": 0
+          }
+        ],
+        "B": [
+          {
+            "language": "python",
+            "status": "unsupported_dependency_or_operation",
+            "stdout": "{\"status\": \"unsupported_dependency_or_operation\", \"details\": [\"matplotlib.pyplot\", \"pandas\", \"seaborn\"]}",
+            "stderr": "",
+            "code": 0
+          },
+          {
+            "language": "shell",
+            "status": "process_error",
+            "stdout": "",
+            "stderr": "<scratch>/answer.sh: line 1: pip: command not found",
+            "code": 127
+          }
+        ]
+      }
+    },
+    {
+      "id": "rubric_eval_637",
+      "domain": "code",
+      "attempted": true,
+      "evidence": {
+        "A": [
+          {
+            "language": "sql",
+            "status": "process_error",
+            "stdout": "",
+            "stderr": "Parse error near line 1: near \"(\": syntax error\n  d_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW(),     user_id INTEGER, -- \n                                      error here ---^\nParse error near line 10: near \"OR\": syntax error\n  CREATE OR REPLACE FUNCTION log_table_name_changes() RETURNS TRIGGER AS $$ BEGI\n         ^--- error here\nParse error near line 16: near \"RETURN\": syntax error\n  RETURN NEW;\n  ^--- error here\nParse error near line 17: near \"ELSIF\": syntax error\n  ELSIF (TG_OP = 'UPDATE') THEN         INSERT INTO table_name_log (operation, o\n  ^--- error here\nParse error near line 20: near \"RETURN\": syntax error\n  RETURN NEW;\n  ^--- error here\nParse error near line 21: near \"ELSIF\": syntax error\n  ELSIF (TG_OP = 'DELETE') THEN         INSERT INTO table_name_log (operation, o\n  ^--- error here\nParse error near line 24: near \"RETURN\": syntax error\n  RETURN OLD;\n  ^--- error here\nParse error near line 25: near \"IF\": syntax error\n  END IF;\n      ^--- error here\nRuntime error near line 26: cannot commit - no transaction is active\nParse error near line 27: near \"$$\": syntax error\n  $$ LANGUAGE plpgsql;\n  ^--- error here\nParse error near line 29: near \"OR\": syntax error\n  REATE TRIGGER table_name_log_trigger AFTER INSERT OR UPDATE OR DELETE ON table\n                                      error here ---^",
+            "code": 1
+          }
+        ],
+        "B": [
+          {
+            "language": "sql",
+            "status": "process_error",
+            "stdout": "",
+            "stderr": "Parse error near line 1: near \"(\": syntax error\n  ,     change_time TIMESTAMPTZ NOT NULL DEFAULT NOW(),     table_name TEXT NOT \n                                      error here ---^\nParse error near line 11: near \"OR\": syntax error\n  CREATE OR REPLACE FUNCTION log_changes() RETURNS TRIGGER AS $$ BEGIN     IF TG\n         ^--- error here\nParse error near line 17: near \"ELSIF\": syntax error\n  ELSIF TG_OP = 'UPDATE' THEN         INSERT INTO change_log (operation, table_n\n  ^--- error here\nParse error near line 20: near \"ELSIF\": syntax error\n  ELSIF TG_OP = 'DELETE' THEN         INSERT INTO change_log (operation, table_n\n  ^--- error here\nParse error near line 23: near \"IF\": syntax error\n  END IF;\n      ^--- error here\nParse error near line 24: near \"RETURN\": syntax error\n  RETURN NEW;\n  ^--- error here\nRuntime error near line 25: cannot commit - no transaction is active\nParse error near line 26: near \"$$\": syntax error\n  $$ LANGUAGE plpgsql;\n  ^--- error here\nParse error near line 28: near \"OR\": syntax error\n  CREATE TRIGGER log_changes_trigger AFTER INSERT OR UPDATE OR DELETE ON your_ta\n                                    error here ---^\nParse error near line 64: near \"$$\": syntax error\n  $$ LANGUAGE plpgsql;\n  ^--- error here\nParse error near line 66: near \"OR\": syntax error\n  EATE TRIGGER log_changes_trigger     AFTER INSERT OR UPDATE OR DELETE ON your_\n                                      error here ---^",
+            "code": 1
+          }
+        ]
+      }
+    },
+    {
+      "id": "rubric_eval_643",
+      "domain": "code",
+      "attempted": true,
+      "evidence": {
+        "A": [
+          {
+            "language": "javascript",
+            "status": "executed",
+            "stdout": "{\"status\":\"executed\",\"output\":[\"Error: ReferenceError: fetch is not defined\"],\"note\":\"Executed candidate output\"}",
+            "stderr": "",
+            "code": 0
+          }
+        ],
+        "B": [
+          {
+            "language": "javascript",
+            "status": "executed",
+            "stdout": "{\"status\":\"executed\",\"output\":[],\"note\":\"Definitions loaded; no supplied behavior test\"}",
+            "stderr": "",
+            "code": 0
+          }
+        ]
+      }
+    },
+    {
+      "id": "rubric_eval_644",
+      "domain": "mbpp",
+      "attempted": true,
+      "evidence": {
+        "A": [
+          {
+            "language": "python",
+            "status": "executed",
+            "stdout": "{\"status\": \"executed\", \"tests\": [{\"function\": \"cube_nums\", \"pass\": true, \"expected\": \"[1, 8, 27, 64, 125, 216, 343, 512, 729, 1000]\", \"actual\": \"[1, 8, 27, 64, 125, 216, 343, 512, 729, 1000]\"}, {\"function\": \"cube_nums\", \"pass\": true, \"expected\": \"[1000, 8000, 27000]\", \"actual\": \"[1000, 8000, 27000]\"}, {\"function\": \"cube_nums\", \"pass\": true, \"expected\": \"[1728, 3375]\", \"actual\": \"[1728, 3375]\"}], \"note\": \"Tests from supplied examples; examples can themselves be wrong\"}",
+            "stderr": "",
+            "code": 0
+          }
+        ],
+        "B": [
+          {
+            "language": "python",
+            "status": "executed",
+            "stdout": "[1, 8, 27, 64, 125, 216, 343, 512, 729, 1000]\n[1000, 8000, 27000]\n[1728, 3375]\n{\"status\": \"executed\", \"tests\": [{\"function\": \"cube_nums\", \"pass\": true, \"expected\": \"[1, 8, 27, 64, 125, 216, 343, 512, 729, 1000]\", \"actual\": \"[1, 8, 27, 64, 125, 216, 343, 512, 729, 1000]\"}, {\"function\": \"cube_nums\", \"pass\": true, \"expected\": \"[1000, 8000, 27000]\", \"actual\": \"[1000, 8000, 27000]\"}, {\"function\": \"cube_nums\", \"pass\": true, \"expected\": \"[1728, 3375]\", \"actual\": \"[1728, 3375]\"}], \"note\": \"Tests from supplied examples; examples can themselves be wrong\"}",
+            "stderr": "",
+            "code": 0
+          }
+        ]
+      }
+    },
+    {
+      "id": "rubric_eval_645",
+      "domain": "code",
+      "attempted": true,
+      "evidence": {
+        "A": [
+          {
+            "language": "python",
+            "status": "unsupported_dependency_or_operation",
+            "stdout": "{\"status\": \"unsupported_dependency_or_operation\", \"details\": [\"numpy\", \"os\"]}",
+            "stderr": "",
+            "code": 0
+          }
+        ],
+        "B": [
+          {
+            "language": "python",
+            "status": "unsupported_dependency_or_operation",
+            "stdout": "{\"status\": \"unsupported_dependency_or_operation\", \"details\": [\"numpy\", \"os\"]}",
+            "stderr": "",
+            "code": 0
+          }
+        ]
+      }
+    },
+    {
+      "id": "rubric_eval_656",
+      "domain": "code",
+      "attempted": true,
+      "evidence": {
+        "A": [
+          {
+            "language": "python",
+            "status": "unsupported_dependency_or_operation",
+            "stdout": "{\"status\": \"unsupported_dependency_or_operation\", \"details\": [\"__name__\", \"numpy\"]}",
+            "stderr": "",
+            "code": 0
+          }
+        ],
+        "B": [
+          {
+            "language": "python",
+            "status": "unsupported_dependency_or_operation",
+            "stdout": "{\"status\": \"unsupported_dependency_or_operation\", \"details\": [\"__name__\", \"numpy\"]}",
+            "stderr": "",
+            "code": 0
+          }
+        ]
+      }
+    },
+    {
+      "id": "rubric_eval_694",
+      "domain": "code",
+      "attempted": true,
+      "evidence": {
+        "A": [],
+        "B": [
+          {
+            "language": "python",
+            "status": "unsupported_dependency_or_operation",
+            "stdout": "{\"status\": \"unsupported_dependency_or_operation\", \"details\": [\"json\", \"matplotlib.pyplot\", \"open\", \"pandas\", \"requests\"]}",
+            "stderr": "",
+            "code": 0
+          }
+        ]
+      }
+    },
+    {
+      "id": "rubric_eval_703",
+      "domain": "code",
+      "attempted": true,
+      "evidence": {
+        "A": [
+          {
+            "language": "r",
+            "status": "unsupported_language"
+          }
+        ],
+        "B": [
+          {
+            "language": "r",
+            "status": "unsupported_language"
+          },
+          {
+            "language": "r",
+            "status": "unsupported_language"
+          }
+        ]
+      }
+    },
+    {
+      "id": "rubric_eval_711",
+      "domain": "code",
+      "attempted": true,
+      "evidence": {
+        "A": [
+          {
+            "language": "unlabelled",
+            "status": "unsupported_language"
+          }
+        ],
+        "B": [
+          {
+            "language": "cpp",
+            "status": "process_error",
+            "stdout": "",
+            "stderr": "clang++: error: couldn't create cache file '/var/folders/r2/k83h9fg92j7f6pfxshk0nn280000gn/T/xcrun_db-3haxKIl1' (errno=Operation not permitted)\nsh: /dev/null: Operation not permitted\nclang++: error: sh -c '/Applications/Xcode.app/Contents/Developer/usr/bin/xcodebuild -sdk /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk -find clang++ 2> /dev/null' failed with exit code 256: (null) (errno=Invalid argument)\nxcode-select: Failed to locate 'clang++', requesting installation of command line developer tools.",
+            "code": 72
+          },
+          {
+            "language": "cpp",
+            "status": "process_error",
+            "stdout": "",
+            "stderr": "clang++: error: couldn't create cache file '/var/folders/r2/k83h9fg92j7f6pfxshk0nn280000gn/T/xcrun_db-fg8CEwTO' (errno=Operation not permitted)\nsh: /dev/null: Operation not permitted\nclang++: error: sh -c '/Applications/Xcode.app/Contents/Developer/usr/bin/xcodebuild -sdk /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk -find clang++ 2> /dev/null' failed with exit code 256: (null) (errno=Invalid argument)\nxcode-select: Failed to locate 'clang++', requesting installation of command line developer tools.",
+            "code": 72
+          },
+          {
+            "language": "unlabelled",
+            "status": "unsupported_language"
+          }
+        ]
+      }
+    },
+    {
+      "id": "rubric_eval_720",
+      "domain": "code",
+      "attempted": true,
+      "evidence": {
+        "A": [
+          {
+            "language": "jsx",
+            "status": "unsupported_language"
+          },
+          {
+            "language": "css",
+            "status": "unsupported_language"
+          },
+          {
+            "language": "shell",
+            "status": "timeout",
+            "stdout": "",
+            "stderr": "",
+            "code": null
+          },
+          {
+            "language": "shell",
+            "status": "process_error",
+            "stdout": "",
+            "stderr": "npm error code EPERM\nnpm error syscall open\nnpm error path /Users/assem/Documents/GitHub/driftbench/.worktrees/codex-rb/package.json\nnpm error errno -1\nnpm error Error: Could not read package.json: Error: EPERM: operation not permitted, open '/Users/assem/Documents/GitHub/driftbench/.worktrees/codex-rb/package.json'\nnpm error     at async open (node:internal/fs/promises:640:25)\nnpm error     at async readFile (node:internal/fs/promises:1290:14)\nnpm error     at async read (/opt/homebrew/Cellar/node@24/24.18.0/lib/node_modules/npm/node_modules/@npmcli/package-json/lib/read-package.js:9:18)\nnpm error     at async PackageJson.load (/opt/homebrew/Cellar/node@24/24.18.0/lib/node_modules/npm/node_modules/@npmcli/package-json/lib/index.js:131:31)\nnpm error     at async PackageJson.normalize (/opt/homebrew/Cellar/node@24/24.18.0/lib/node_modules/npm/node_modules/@npmcli/package-json/lib/index.js:117:5)\nnpm error     at async #run (/opt/homebrew/Cellar/node@24/24.18.0/lib/node_modules/npm/lib/commands/run.js:90:13)\nnpm error     at async RunScript.exec (/opt/homebrew/Cellar/node@24/24.18.0/lib/node_modules/npm/lib/commands/run.js:44:7)\nnpm error     at async Npm.exec (/opt/homebrew/Cellar/node@24/24.18.0/lib/node_modules/npm/lib/npm.js:193:9)\nnpm error     at async module.exports (/opt/homebrew/Cellar/node@24/24.18.0/lib/node_modules/npm/lib/cli/entry.js:67:5) {\nnpm error   errno: -1,\nnpm error   code: 'EPERM',\nnpm error   syscall: 'open',\nnpm error   path: '/Users/assem/Documents/GitHub/driftbench/.worktrees/codex-rb/package.json'\nnpm error }\nnpm error\nnpm error The operation was rejected by your operating system.\nnpm error It is likely you do not have the permissions to access this file as the current user\nnpm error\nnpm error If you believe this might be a permissions issue, please double-check the permissions of the file and its containing directories, or try running the command again as root/Administrator.\nnpm error Log files were not written due to an error writing to the directory: /Users/assem/.npm/_logs\nnpm error You can rerun the command with `--loglevel=verbose` to see the logs in your terminal",
+            "code": 255
+          }
+        ],
+        "B": [
+          {
+            "language": "shell",
+            "status": "timeout",
+            "stdout": "",
+            "stderr": "",
+            "code": null
+          },
+          {
+            "language": "jsx",
+            "status": "unsupported_language"
+          },
+          {
+            "language": "css",
+            "status": "unsupported_language"
+          },
+          {
+            "language": "shell",
+            "status": "process_error",
+            "stdout": "",
+            "stderr": "npm error code EPERM\nnpm error syscall open\nnpm error path /Users/assem/Documents/GitHub/driftbench/.worktrees/codex-rb/package.json\nnpm error errno -1\nnpm error Error: Could not read package.json: Error: EPERM: operation not permitted, open '/Users/assem/Documents/GitHub/driftbench/.worktrees/codex-rb/package.json'\nnpm error     at async open (node:internal/fs/promises:640:25)\nnpm error     at async readFile (node:internal/fs/promises:1290:14)\nnpm error     at async read (/opt/homebrew/Cellar/node@24/24.18.0/lib/node_modules/npm/node_modules/@npmcli/package-json/lib/read-package.js:9:18)\nnpm error     at async PackageJson.load (/opt/homebrew/Cellar/node@24/24.18.0/lib/node_modules/npm/node_modules/@npmcli/package-json/lib/index.js:131:31)\nnpm error     at async PackageJson.normalize (/opt/homebrew/Cellar/node@24/24.18.0/lib/node_modules/npm/node_modules/@npmcli/package-json/lib/index.js:117:5)\nnpm error     at async #run (/opt/homebrew/Cellar/node@24/24.18.0/lib/node_modules/npm/lib/commands/run.js:90:13)\nnpm error     at async RunScript.exec (/opt/homebrew/Cellar/node@24/24.18.0/lib/node_modules/npm/lib/commands/run.js:44:7)\nnpm error     at async Npm.exec (/opt/homebrew/Cellar/node@24/24.18.0/lib/node_modules/npm/lib/npm.js:193:9)\nnpm error     at async module.exports (/opt/homebrew/Cellar/node@24/24.18.0/lib/node_modules/npm/lib/cli/entry.js:67:5) {\nnpm error   errno: -1,\nnpm error   code: 'EPERM',\nnpm error   syscall: 'open',\nnpm error   path: '/Users/assem/Documents/GitHub/driftbench/.worktrees/codex-rb/package.json'\nnpm error }\nnpm error\nnpm error The operation was rejected by your operating system.\nnpm error It is likely you do not have the permissions to access this file as the current user\nnpm error\nnpm error If you believe this might be a permissions issue, please double-check the permissions of the file and its containing directories, or try running the command again as root/Administrator.\nnpm error Log files were not written due to an error writing to the directory: /Users/assem/.npm/_logs\nnpm error You can rerun the command with `--loglevel=verbose` to see the logs in your terminal",
+            "code": 255
+          }
+        ]
+      }
+    },
+    {
+      "id": "rubric_eval_730",
+      "domain": "code",
+      "attempted": true,
+      "evidence": {
+        "A": [
+          {
+            "language": "shell",
+            "status": "process_error",
+            "stdout": "",
+            "stderr": "<scratch>/answer.sh: line 1: Install-Package: command not found\n<scratch>/answer.sh: line 2: Install-Package: command not found",
+            "code": 127
+          },
+          {
+            "language": "shell",
+            "status": "process_error",
+            "stdout": "",
+            "stderr": "<scratch>/answer.sh: line 1: dotnet: command not found",
+            "code": 127
+          },
+          {
+            "language": "csharp",
+            "status": "unsupported_language"
+          },
+          {
+            "language": "shell",
+            "status": "process_error",
+            "stdout": "",
+            "stderr": "<scratch>/answer.sh: line 1: dotnet: command not found",
+            "code": 127
+          }
+        ],
+        "B": [
+          {
+            "language": "unlabelled",
+            "status": "unsupported_language"
+          },
+          {
+            "language": "csharp",
+            "status": "unsupported_language"
+          },
+          {
+            "language": "csharp",
+            "status": "unsupported_language"
+          },
+          {
+            "language": "csharp",
+            "status": "unsupported_language"
+          },
+          {
+            "language": "xml",
+            "status": "unsupported_language"
+          }
+        ]
+      }
+    },
+    {
+      "id": "rubric_eval_733",
+      "domain": "code",
+      "attempted": true,
+      "evidence": {
+        "A": [
+          {
+            "language": "go",
+            "status": "unsupported_language"
+          },
+          {
+            "language": "dockerfile",
+            "status": "unsupported_language"
+          },
+          {
+            "language": "shell",
+            "status": "process_error",
+            "stdout": "",
+            "stderr": "<scratch>/answer.sh: line 1: docker: command not found",
+            "code": 127
+          },
+          {
+            "language": "shell",
+            "status": "process_error",
+            "stdout": "",
+            "stderr": "<scratch>/answer.sh: line 1: fission: command not found",
+            "code": 127
+          },
+          {
+            "language": "shell",
+            "status": "process_error",
+            "stdout": "",
+            "stderr": "<scratch>/answer.sh: line 1: fission: command not found",
+            "code": 127
+          },
+          {
+            "language": "python",
+            "status": "unsupported_dependency_or_operation",
+            "stdout": "{\"status\": \"unsupported_dependency_or_operation\", \"details\": [\"requests\"]}",
+            "stderr": "",
+            "code": 0
+          }
+        ],
+        "B": [
+          {
+            "language": "shell",
+            "status": "ran",
+            "stdout": "",
+            "stderr": "",
+            "code": 0
+          },
+          {
+            "language": "shell",
+            "status": "ran",
+            "stdout": "",
+            "stderr": "go: creating new go.mod: module go-fission-function",
+            "code": 0
+          },
+          {
+            "language": "go",
+            "status": "unsupported_language"
+          },
+          {
+            "language": "dockerfile",
+            "status": "unsupported_language"
+          },
+          {
+            "language": "shell",
+            "status": "process_error",
+            "stdout": "",
+            "stderr": "<scratch>/answer.sh: line 1: docker: command not found\n<scratch>/answer.sh: line 2: docker: command not found",
+            "code": 127
+          },
+          {
+            "language": "shell",
+            "status": "process_error",
+            "stdout": "",
+            "stderr": "<scratch>/answer.sh: line 1: fission: command not found",
+            "code": 127
+          },
+          {
+            "language": "shell",
+            "status": "process_error",
+            "stdout": "",
+            "stderr": "<scratch>/answer.sh: line 1: fission: command not found",
+            "code": 127
+          },
+          {
+            "language": "shell",
+            "status": "process_error",
+            "stdout": "",
+            "stderr": "<scratch>/answer.sh: line 1: fission: command not found",
+            "code": 127
+          },
+          {
+            "language": "shell",
+            "status": "process_error",
+            "stdout": "",
+            "stderr": "<scratch>/answer.sh: line 1: Fission-Router-IP: No such file or directory",
+            "code": 1
+          },
+          {
+            "language": "shell",
+            "status": "process_error",
+            "stdout": "",
+            "stderr": "<scratch>/answer.sh: line 1: Kafka-Server-IP: No such file or directory",
+            "code": 1
+          },
+          {
+            "language": "shell",
+            "status": "process_error",
+            "stdout": "",
+            "stderr": "<scratch>/answer.sh: line 1: pip: command not found",
+            "code": 127
+          },
+          {
+            "language": "python",
+            "status": "runtime_or_syntax_error",
+            "stdout": "{\"status\": \"runtime_or_syntax_error\", \"error\": \"IndentationError: unexpected indent (<unknown>, line 2)\"}",
+            "stderr": "",
+            "code": 0
+          },
+          {
+            "language": "shell",
+            "status": "process_error",
+            "stdout": "",
+            "stderr": "<scratch>/answer.sh: line 1: python: command not found",
+            "code": 127
+          },
+          {
+            "language": "unlabelled",
+            "status": "unsupported_language"
+          }
+        ]
+      }
+    },
+    {
+      "id": "rubric_eval_746",
+      "domain": "code",
+      "attempted": true,
+      "evidence": {
+        "A": [
+          {
+            "language": "unlabelled",
+            "status": "unsupported_language"
+          }
+        ],
+        "B": [
+          {
+            "language": "unlabelled",
+            "status": "unsupported_language"
+          },
+          {
+            "language": "unlabelled",
+            "status": "unsupported_language"
+          },
+          {
+            "language": "unlabelled",
+            "status": "unsupported_language"
+          }
+        ]
+      }
+    },
+    {
+      "id": "rubric_eval_761",
+      "domain": "code",
+      "attempted": true,
+      "evidence": {
+        "A": [
+          {
+            "language": "typescript",
+            "status": "ran",
+            "stdout": "19\n20",
+            "stderr": "",
+            "code": 0
+          }
+        ],
+        "B": [
+          {
+            "language": "typesyntax",
+            "status": "unsupported_language"
+          },
+          {
+            "language": "typesyntax",
+            "status": "unsupported_language"
+          },
+          {
+            "language": "unlabelled",
+            "status": "unsupported_language"
+          }
+        ]
+      }
+    },
+    {
+      "id": "rubric_eval_790",
+      "domain": "code",
+      "attempted": false
+    },
+    {
+      "id": "rubric_eval_801",
+      "domain": "code",
+      "attempted": true,
+      "evidence": {
+        "A": [
+          {
+            "language": "csharp",
+            "status": "unsupported_language"
+          },
+          {
+            "language": "csharp",
+            "status": "unsupported_language"
+          }
+        ],
+        "B": [
+          {
+            "language": "csharp",
+            "status": "unsupported_language"
+          }
+        ]
+      }
+    },
+    {
+      "id": "rubric_eval_802",
+      "domain": "code",
+      "attempted": true,
+      "evidence": {
+        "A": [
+          {
+            "language": "unlabelled",
+            "status": "unsupported_language"
+          },
+          {
+            "language": "unlabelled",
+            "status": "unsupported_language"
+          },
+          {
+            "language": "unlabelled",
+            "status": "unsupported_language"
+          },
+          {
+            "language": "unlabelled",
+            "status": "unsupported_language"
+          },
+          {
+            "language": "unlabelled",
+            "status": "unsupported_language"
+          },
+          {
+            "language": "python",
+            "status": "runtime_or_syntax_error",
+            "stdout": "{\"status\": \"runtime_or_syntax_error\", \"error\": \"IndentationError: expected an indented block after function definition on line 6 (<unknown>, line 10)\"}",
+            "stderr": "",
+            "code": 0
+          }
+        ],
+        "B": []
+      }
+    },
+    {
+      "id": "rubric_eval_803",
+      "domain": "code",
+      "attempted": true,
+      "evidence": {
+        "A": [
+          {
+            "language": "c",
+            "status": "process_error",
+            "stdout": "",
+            "stderr": "clang: error: couldn't create cache file '/var/folders/r2/k83h9fg92j7f6pfxshk0nn280000gn/T/xcrun_db-SNtLuv3F' (errno=Operation not permitted)\n<scratch>/answer.c:3:15: error: unknown type name 'Node'\n    3 | int getHeight(Node n) {\n      |               ^\n<scratch>/answer.c:9:22: error: unknown type name 'Node'\n    9 | int getBalanceFactor(Node n) {\n      |                      ^\n<scratch>/answer.c:15:16: error: unknown type name 'Node'\n   15 | void fixHeight(Node n) {\n      |                ^\n<scratch>/answer.c:19:1: error: unknown type name 'Node'\n   19 | Node rotateRight(Node y) {\n      | ^\n<scratch>/answer.c:19:18: error: unknown type name 'Node'\n   19 | Node rotateRight(Node y) {\n      |                  ^\n<scratch>/answer.c:20:5: error: use of undeclared identifier 'Node'\n   20 |     Node x = y->left;\n      |     ^~~~\n<scratch>/answer.c:21:5: error: use of undeclared identifier 'Node'\n   21 |     Node T2 = x->right;\n      |     ^~~~\n<scratch>/answer.c:23:5: error: use of undeclared identifier 'x'\n   23 |     x->right = y;\n      |     ^\n<scratch>/answer.c:24:15: error: use of undeclared identifier 'T2'\n   24 |     y->left = T2;\n      |               ^~\n<scratch>/answer.c:27:15: error: use of undeclared identifier 'x'\n   27 |     fixHeight(x);\n      |               ^\n<scratch>/answer.c:29:12: error: use of undeclared identifier 'x'\n   29 |     return x;\n      |            ^\n<scratch>/answer.c:32:1: error: unknown type name 'Node'\n   32 | Node rotateLeft(Node x) {\n      | ^\n<scratch>/answer.c:32:17: error: unknown type name 'Node'\n   32 | Node rotateLeft(Node x) {\n      |                 ^\n<scratch>/answer.c:33:5: error: use of undeclared identifier 'Node'\n   33 |     Node y = x->right;\n      |     ^~~~\n/Users/assem/Documents/GitHub/driftbench/.worktrees/codex-rb/",
+            "code": 1
+          }
+        ],
+        "B": [
+          {
+            "language": "c",
+            "status": "process_error",
+            "stdout": "",
+            "stderr": "clang: error: couldn't create cache file '/var/folders/r2/k83h9fg92j7f6pfxshk0nn280000gn/T/xcrun_db-xsrwAXyT' (errno=Operation not permitted)\n<scratch>/answer.c:5:12: error: unknown type name 'Node'\n    5 | int height(Node node) {\n      |            ^\n<scratch>/answer.c:13:19: error: unknown type name 'Node'\n   13 | int balanceFactor(Node node) {\n      |                   ^\n<scratch>/answer.c:21:19: error: unknown type name 'Node'\n   21 | void updateHeight(Node node) {\n      |                   ^\n<scratch>/answer.c:22:24: error: call to undeclared function 'max'; ISO C99 and later do not support implicit function declarations [-Wimplicit-function-declaration]\n   22 |     node->height = 1 + max(height(node->left), height(node->right));\n      |                        ^\n<scratch>/answer.c:26:1: error: unknown type name 'Node'\n   26 | Node rightRotate(Node node) {\n      | ^\n<scratch>/answer.c:26:18: error: unknown type name 'Node'\n   26 | Node rightRotate(Node node) {\n      |                  ^\n<scratch>/answer.c:27:5: error: use of undeclared identifier 'Node'; did you mean 'node'?\n   27 |     Node temp = node->left;\n      |     ^~~~\n      |     node\n<scratch>/answer.c:26:23: note: 'node' declared here\n   26 | Node rightRotate(Node node) {\n      |                       ^\n<scratch>/answer.c:27:9: error: expected ';' after expression\n   27 |     Node temp = node->left;\n      |         ^\n      |         ;\n<scratch>/answer.c:27:10: error: use of undeclared identifier 'temp'\n   27 |     Node temp = node->left;\n      |          ^~~~\n<scratch>/answer.c:28:18: error: use of undeclared identifier 'temp'\n   28 |     node->left = temp->right;\n      |                  ^~~~\n<scratch>/answer.c:29:5: error: use of undeclared identifier 'temp'\n   29 |     temp->right = node;\n      |     ^~~~\n<scratch>/answer.c:31:18: error: use of undeclared identifier 'temp'\n   31 |  ",
+            "code": 1
+          }
+        ]
+      }
+    },
+    {
+      "id": "rubric_eval_836",
+      "domain": "code",
+      "attempted": false
+    },
+    {
+      "id": "rubric_eval_843",
+      "domain": "code",
+      "attempted": true,
+      "evidence": {
+        "A": [
+          {
+            "language": "cpp",
+            "status": "process_error",
+            "stdout": "",
+            "stderr": "clang++: error: couldn't create cache file '/var/folders/r2/k83h9fg92j7f6pfxshk0nn280000gn/T/xcrun_db-thkMeGrQ' (errno=Operation not permitted)\nsh: /dev/null: Operation not permitted\nclang++: error: sh -c '/Applications/Xcode.app/Contents/Developer/usr/bin/xcodebuild -sdk /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk -find clang++ 2> /dev/null' failed with exit code 256: (null) (errno=Invalid argument)\nxcode-select: Failed to locate 'clang++', requesting installation of command line developer tools.",
+            "code": 72
+          }
+        ],
+        "B": [
+          {
+            "language": "cpp",
+            "status": "process_error",
+            "stdout": "",
+            "stderr": "clang++: error: couldn't create cache file '/var/folders/r2/k83h9fg92j7f6pfxshk0nn280000gn/T/xcrun_db-ny5AYsLG' (errno=Operation not permitted)\nsh: /dev/null: Operation not permitted\nclang++: error: sh -c '/Applications/Xcode.app/Contents/Developer/usr/bin/xcodebuild -sdk /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk -find clang++ 2> /dev/null' failed with exit code 256: (null) (errno=Invalid argument)\nxcode-select: Failed to locate 'clang++', requesting installation of command line developer tools.",
+            "code": 72
+          },
+          {
+            "language": "unlabelled",
+            "status": "unsupported_language"
+          }
+        ]
+      }
+    },
+    {
+      "id": "rubric_eval_850",
+      "domain": "code",
+      "attempted": true,
+      "evidence": {
+        "A": [],
+        "B": [
+          {
+            "language": "csharp",
+            "status": "unsupported_language"
+          },
+          {
+            "language": "csharp",
+            "status": "unsupported_language"
+          }
+        ]
+      }
+    },
+    {
+      "id": "rubric_eval_874",
+      "domain": "code",
+      "attempted": false
+    },
+    {
+      "id": "rubric_eval_911",
+      "domain": "code",
+      "attempted": true,
+      "evidence": {
+        "A": [],
+        "B": [
+          {
+            "language": "shell",
+            "status": "process_error",
+            "stdout": "",
+            "stderr": "<scratch>/answer.sh: line 1: pip: command not found",
+            "code": 127
+          },
+          {
+            "language": "python",
+            "status": "unsupported_dependency_or_operation",
+            "stdout": "{\"status\": \"unsupported_dependency_or_operation\", \"details\": [\"selenium\", \"selenium.webdriver.common.by\", \"selenium.webdriver.support\", \"selenium.webdriver.support.ui\", \"time\", \"webdriver_manager.chrome\"]}",
+            "stderr": "",
+            "code": 0
+          },
+          {
+            "language": "shell",
+            "status": "process_error",
+            "stdout": "",
+            "stderr": "<scratch>/answer.sh: line 1: python: command not found",
+            "code": 127
+          }
+        ]
+      }
+    },
+    {
+      "id": "rubric_eval_924",
+      "domain": "code",
+      "attempted": true,
+      "evidence": {
+        "A": [
+          {
+            "language": "csharp",
+            "status": "unsupported_language"
+          }
+        ],
+        "B": [
+          {
+            "language": "csharp",
+            "status": "unsupported_language"
+          }
+        ]
+      }
+    },
+    {
+      "id": "rubric_eval_926",
+      "domain": "code",
+      "attempted": true,
+      "evidence": {
+        "A": [
+          {
+            "language": "python",
+            "status": "unsupported_dependency_or_operation",
+            "stdout": "{\"status\": \"unsupported_dependency_or_operation\", \"details\": [\"keras.backend\", \"keras.layers\", \"keras.models\"]}",
+            "stderr": "",
+            "code": 0
+          }
+        ],
+        "B": [
+          {
+            "language": "python",
+            "status": "unsupported_dependency_or_operation",
+            "stdout": "{\"status\": \"unsupported_dependency_or_operation\", \"details\": [\"keras.layers\", \"keras.models\", \"numpy\", \"sklearn.model_selection\", \"sklearn.preprocessing\"]}",
+            "stderr": "",
+            "code": 0
+          }
+        ]
+      }
+    },
+    {
+      "id": "rubric_eval_934",
+      "domain": "code",
+      "attempted": true,
+      "evidence": {
+        "A": [
+          {
+            "language": "shell",
+            "status": "ran",
+            "stdout": "",
+            "stderr": "",
+            "code": 0
+          },
+          {
+            "language": "shell",
+            "status": "timeout",
+            "stdout": "",
+            "stderr": "",
+            "code": null
+          },
+          {
+            "language": "shell",
+            "status": "process_error",
+            "stdout": "",
+            "stderr": "<scratch>/answer.sh: line 1: venvScriptsactivate: command not found",
+            "code": 127
+          },
+          {
+            "language": "shell",
+            "status": "process_error",
+            "stdout": "",
+            "stderr": "<scratch>/answer.sh: line 1: venv/bin/activate: No such file or directory",
+            "code": 1
+          },
+          {
+            "language": "shell",
+            "status": "process_error",
+            "stdout": "",
+            "stderr": "<scratch>/answer.sh: line 1: pip: command not found",
+            "code": 127
+          },
+          {
+            "language": "python",
+            "status": "unsupported_dependency_or_operation",
+            "stdout": "{\"status\": \"unsupported_dependency_or_operation\", \"details\": [\"pytest\"]}",
+            "stderr": "",
+            "code": 0
+          },
+          {
+            "language": "shell",
+            "status": "process_error",
+            "stdout": "",
+            "stderr": "<scratch>/answer.sh: line 1: pytest: command not found",
+            "code": 127
+          },
+          {
+            "language": "python",
+            "status": "executed",
+            "stdout": "{\"status\": \"executed\", \"tests\": [], \"note\": \"No supplied function tests\"}",
+            "stderr": "",
+            "code": 0
+          }
+        ],
+        "B": [
+          {
+            "language": "shell",
+            "status": "timeout",
+            "stdout": "",
+            "stderr": "",
+            "code": null
+          },
+          {
+            "language": "python",
+            "status": "unsupported_dependency_or_operation",
+            "stdout": "{\"status\": \"unsupported_dependency_or_operation\", \"details\": [\"calculator\", \"pytest\"]}",
+            "stderr": "",
+            "code": 0
+          },
+          {
+            "language": "shell",
+            "status": "process_error",
+            "stdout": "",
+            "stderr": "<scratch>/answer.sh: line 1: pytest: command not found",
+            "code": 127
+          }
+        ]
+      }
+    },
+    {
+      "id": "rubric_eval_936",
+      "domain": "code",
+      "attempted": true,
+      "evidence": {
+        "A": [
+          {
+            "language": "json",
+            "status": "unsupported_language"
+          },
+          {
+            "language": "shell",
+            "status": "process_error",
+            "stdout": "",
+            "stderr": "<scratch>/answer.sh: line 1: ng: command not found\n<scratch>/answer.sh: line 3: ng: command not found",
+            "code": 127
+          }
+        ],
+        "B": [
+          {
+            "language": "html",
+            "status": "unsupported_language"
+          },
+          {
+            "language": "json",
+            "status": "unsupported_language"
+          },
+          {
+            "language": "json",
+            "status": "unsupported_language"
+          },
+          {
+            "language": "unlabelled",
+            "status": "unsupported_language"
+          }
+        ]
+      }
+    },
+    {
+      "id": "rubric_eval_938",
+      "domain": "code",
+      "attempted": true,
+      "evidence": {
+        "A": [
+          {
+            "language": "typescript",
+            "status": "process_error",
+            "stdout": "",
+            "stderr": "file://<scratch>/answer.ts:1\nconst user = await User.findOne();\n             ^\n\nReferenceError: User is not defined\n    at file://<scratch>/answer.ts:1:14\n    at ModuleJob.run (node:internal/modules/esm/module_job:439:25)\n    at async onImport.tracePromise.__proto__ (node:internal/modules/esm/loader:643:26)\n    at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:101:5)\n\nNode.js v24.18.0",
+            "code": 1
+          },
+          {
+            "language": "typescript",
+            "status": "process_error",
+            "stdout": "",
+            "stderr": "file://<scratch>/answer.ts:1\nconst user = await User.findOne();\n             ^\n\nReferenceError: User is not defined\n    at file://<scratch>/answer.ts:1:14\n    at ModuleJob.run (node:internal/modules/esm/module_job:439:25)\n    at async onImport.tracePromise.__proto__ (node:internal/modules/esm/loader:643:26)\n    at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:101:5)\n\nNode.js v24.18.0",
+            "code": 1
+          }
+        ],
+        "B": [
+          {
+            "language": "typescript",
+            "status": "process_error",
+            "stdout": "",
+            "stderr": "node:internal/modules/package_json_reader:301\n  throw new ERR_MODULE_NOT_FOUND(packageName, fileURLToPath(base), null);\n        ^\n\nError [ERR_MODULE_NOT_FOUND]: Cannot find package 'sequelize' imported from <scratch>/answer.ts\n    at Object.getPackageJSONURL (node:internal/modules/package_json_reader:301:9)\n    at packageResolve (node:internal/modules/esm/resolve:768:81)\n    at moduleResolve (node:internal/modules/esm/resolve:859:18)\n    at defaultResolve (node:internal/modules/esm/resolve:992:11)\n    at #cachedDefaultResolve (node:internal/modules/esm/loader:701:20)\n    at #resolveAndMaybeBlockOnLoaderThread (node:internal/modules/esm/loader:721:38)\n    at ModuleLoader.resolveSync (node:internal/modules/esm/loader:759:56)\n    at #resolve (node:internal/modules/esm/loader:683:17)\n    at ModuleLoader.getOrCreateModuleJob (node:internal/modules/esm/loader:603:35)\n    at ModuleJob.syncLink (node:internal/modules/esm/module_job:163:33) {\n  code: 'ERR_MODULE_NOT_FOUND'\n}\n\nNode.js v24.18.0",
+            "code": 1
+          },
+          {
+            "language": "typescript",
+            "status": "process_error",
+            "stdout": "",
+            "stderr": "<scratch>/answer.ts:1\nconst user = await User.findOne();\n             ^^^^^\n\nSyntaxError: await is only valid in async functions and the top level bodies of modules\n    at wrapSafe (node:internal/modules/cjs/loader:1804:18)\n    at Module._compile (node:internal/modules/cjs/loader:1845:20)\n    at Module._extensions..js (node:internal/modules/cjs/loader:2002:10)\n    at Module.load (node:internal/modules/cjs/loader:1594:32)\n    at Module._load (node:internal/modules/cjs/loader:1396:12)\n    at wrapModuleLoad (node:internal/modules/cjs/loader:255:19)\n    at Module.executeUserEntryPoint [as runMain] (node:internal/modules/run_main:154:5)\n    at node:internal/main/run_main_module:33:47\n\nNode.js v24.18.0",
+            "code": 1
+          },
+          {
+            "language": "typescript",
+            "status": "process_error",
+            "stdout": "",
+            "stderr": "node:internal/modules/package_json_reader:301\n  throw new ERR_MODULE_NOT_FOUND(packageName, fileURLToPath(base), null);\n        ^\n\nError [ERR_MODULE_NOT_FOUND]: Cannot find package 'sequelize' imported from <scratch>/answer.ts\n    at Object.getPackageJSONURL (node:internal/modules/package_json_reader:301:9)\n    at packageResolve (node:internal/modules/esm/resolve:768:81)\n    at moduleResolve (node:internal/modules/esm/resolve:859:18)\n    at defaultResolve (node:internal/modules/esm/resolve:992:11)\n    at #cachedDefaultResolve (node:internal/modules/esm/loader:701:20)\n    at #resolveAndMaybeBlockOnLoaderThread (node:internal/modules/esm/loader:721:38)\n    at ModuleLoader.resolveSync (node:internal/modules/esm/loader:759:56)\n    at #resolve (node:internal/modules/esm/loader:683:17)\n    at ModuleLoader.getOrCreateModuleJob (node:internal/modules/esm/loader:603:35)\n    at ModuleJob.syncLink (node:internal/modules/esm/module_job:163:33) {\n  code: 'ERR_MODULE_NOT_FOUND'\n}\n\nNode.js v24.18.0",
+            "code": 1
+          }
+        ]
+      }
+    },
+    {
+      "id": "rubric_eval_941",
+      "domain": "code",
+      "attempted": false
+    },
+    {
+      "id": "rubric_eval_974",
+      "domain": "code",
+      "attempted": true,
+      "evidence": {
+        "A": [
+          {
+            "language": "html",
+            "status": "unsupported_language"
+          }
+        ],
+        "B": [
+          {
+            "language": "html",
+            "status": "unsupported_language"
+          }
+        ]
+      }
+    },
+    {
+      "id": "rubric_eval_991",
+      "domain": "code",
+      "attempted": false
+    },
+    {
+      "id": "rubric_eval_1009",
+      "domain": "code",
+      "attempted": false
+    },
+    {
+      "id": "rubric_eval_1011",
+      "domain": "code",
+      "attempted": true,
+      "evidence": {
+        "A": [
+          {
+            "language": "python",
+            "status": "unsupported_dependency_or_operation",
+            "stdout": "{\"status\": \"unsupported_dependency_or_operation\", \"details\": [\"bs4\", \"open\", \"pandas\"]}",
+            "stderr": "",
+            "code": 0
+          }
+        ],
+        "B": [
+          {
+            "language": "python",
+            "status": "unsupported_dependency_or_operation",
+            "stdout": "{\"status\": \"unsupported_dependency_or_operation\", \"details\": [\"pandas\"]}",
+            "stderr": "",
+            "code": 0
+          }
+        ]
+      }
+    },
+    {
+      "id": "rubric_eval_1012",
+      "domain": "code",
+      "attempted": true,
+      "evidence": {
+        "A": [],
+        "B": [
+          {
+            "language": "python",
+            "status": "executed",
+            "stdout": "{\"status\": \"executed\", \"tests\": [], \"note\": \"No supplied function tests\"}",
+            "stderr": "",
+            "code": 0
+          },
+          {
+            "language": "sql",
+            "status": "process_error",
+            "stdout": "",
+            "stderr": "Parse error near line 1: near \"SYSTEM\": syntax error\n  ALTER SYSTEM SET idle_in_transaction_session_timeout = 0;\n        ^--- error here\nParse error near line 3: near \"SYSTEM\": syntax error\n  ALTER SYSTEM SET statement_timeout = 0;\n        ^--- error here\nParse error near line 5: near \"SYSTEM\": syntax error\n  ALTER SYSTEM SET client_encoding = 'UTF8';\n        ^--- error here\nParse error near line 7: near \"SYSTEM\": syntax error\n  ALTER SYSTEM SET standard_conforming_strings = off;\n        ^--- error here",
+            "code": 1
+          }
+        ]
+      }
+    },
+    {
+      "id": "rubric_eval_1024",
+      "domain": "code",
+      "attempted": true,
+      "evidence": {
+        "A": [
+          {
+            "language": "shell",
+            "status": "process_error",
+            "stdout": "",
+            "stderr": "<scratch>/answer.sh: line 1: pip: command not found",
+            "code": 127
+          },
+          {
+            "language": "python",
+            "status": "unsupported_dependency_or_operation",
+            "stdout": "{\"status\": \"unsupported_dependency_or_operation\", \"details\": [\"PyQt5.QtWidgets\", \"__init__\", \"__name__\", \"bs4\", \"pyperclip\", \"requests\", \"sys\"]}",
+            "stderr": "",
+            "code": 0
+          },
+          {
+            "language": "shell",
+            "status": "process_error",
+            "stdout": "",
+            "stderr": "<scratch>/answer.sh: line 1: pip: command not found",
+            "code": 127
+          },
+          {
+            "language": "shell",
+            "status": "process_error",
+            "stdout": "",
+            "stderr": "<scratch>/answer.sh: line 1: pyinstaller: command not found",
+            "code": 127
+          }
+        ],
+        "B": [
+          {
+            "language": "unlabelled",
+            "status": "unsupported_language"
+          },
+          {
+            "language": "python",
+            "status": "runtime_or_syntax_error",
+            "stdout": "{\"status\": \"runtime_or_syntax_error\", \"error\": \"IndentationError: unexpected indent (<unknown>, line 2)\"}",
+            "stderr": "",
+            "code": 0
+          },
+          {
+            "language": "unlabelled",
+            "status": "unsupported_language"
+          },
+          {
+            "language": "unlabelled",
+            "status": "unsupported_language"
+          }
+        ]
+      }
+    },
+    {
+      "id": "rubric_eval_1048",
+      "domain": "code",
+      "attempted": false
+    },
+    {
+      "id": "rubric_eval_1051",
+      "domain": "mbpp",
+      "attempted": true,
+      "evidence": {
+        "A": [
+          {
+            "language": "python",
+            "status": "executed",
+            "stdout": "30\n37\n44\n{\"status\": \"executed\", \"tests\": [{\"function\": \"cummulative_sum\", \"pass\": true, \"expected\": \"30\", \"actual\": \"30\"}, {\"function\": \"cummulative_sum\", \"pass\": true, \"expected\": \"37\", \"actual\": \"37\"}, {\"function\": \"cummulative_sum\", \"pass\": true, \"expected\": \"44\", \"actual\": \"44\"}], \"note\": \"Tests from supplied examples; examples can themselves be wrong\"}",
+            "stderr": "",
+            "code": 0
+          }
+        ],
+        "B": [
+          {
+            "language": "python",
+            "status": "executed",
+            "stdout": "{\"status\": \"executed\", \"tests\": [{\"function\": \"cummulative_sum\", \"pass\": true, \"expected\": \"30\", \"actual\": \"30\"}, {\"function\": \"cummulative_sum\", \"pass\": true, \"expected\": \"37\", \"actual\": \"37\"}, {\"function\": \"cummulative_sum\", \"pass\": true, \"expected\": \"44\", \"actual\": \"44\"}], \"note\": \"Tests from supplied examples; examples can themselves be wrong\"}",
+            "stderr": "",
+            "code": 0
+          }
+        ]
+      }
+    },
+    {
+      "id": "rubric_eval_1072",
+      "domain": "code",
+      "attempted": true,
+      "evidence": {
+        "A": [
+          {
+            "language": "shell",
+            "status": "timeout",
+            "stdout": "",
+            "stderr": "",
+            "code": null
+          },
+          {
+            "language": "jsx",
+            "status": "unsupported_language"
+          },
+          {
+            "language": "jsx",
+            "status": "unsupported_language"
+          }
+        ],
+        "B": [
+          {
+            "language": "shell",
+            "status": "timeout",
+            "stdout": "",
+            "stderr": "",
+            "code": null
+          },
+          {
+            "language": "shell",
+            "status": "timeout",
+            "stdout": "",
+            "stderr": "",
+            "code": null
+          },
+          {
+            "language": "javascript",
+            "status": "runtime_or_syntax_error",
+            "stdout": "{\"status\":\"runtime_or_syntax_error\",\"error\":\"SyntaxError: Cannot use import statement outside a module\",\"note\":\"\"}",
+            "stderr": "",
+            "code": 0
+          }
+        ]
+      }
+    },
+    {
+      "id": "rubric_eval_1082",
+      "domain": "code",
+      "attempted": false
+    },
+    {
+      "id": "rubric_eval_1084",
+      "domain": "code",
+      "attempted": true,
+      "evidence": {
+        "A": [
+          {
+            "language": "jsx",
+            "status": "unsupported_language"
+          }
+        ],
+        "B": []
+      }
+    },
+    {
+      "id": "rubric_eval_1086",
+      "domain": "code",
+      "attempted": true,
+      "evidence": {
+        "A": [
+          {
+            "language": "python",
+            "status": "unsupported_dependency_or_operation",
+            "stdout": "{\"status\": \"unsupported_dependency_or_operation\", \"details\": [\"pandas\"]}",
+            "stderr": "",
+            "code": 0
+          }
+        ],
+        "B": [
+          {
+            "language": "python",
+            "status": "unsupported_dependency_or_operation",
+            "stdout": "{\"status\": \"unsupported_dependency_or_operation\", \"details\": [\"pandas\"]}",
+            "stderr": "",
+            "code": 0
+          }
+        ]
+      }
+    },
+    {
+      "id": "rubric_eval_1099",
+      "domain": "code",
+      "attempted": true,
+      "evidence": {
+        "A": [
+          {
+            "language": "python",
+            "status": "runtime_or_syntax_error",
+            "stdout": "[(1, 'python'), (2, 'wiley'), (3, 'dictionaries')]\n{1: 'python', 2: 'wiley', 3: 'dictionaries'}\n{'age': None, 'date': None}\n{'age': 0, 'date': 0}\nvalue1\nvalue2\nNone\n{\"status\": \"runtime_or_syntax_error\", \"error\": \"TypeError: dict.get() takes no keyword arguments\"}",
+            "stderr": "",
+            "code": 0
+          }
+        ],
+        "B": [
+          {
+            "language": "python",
+            "status": "runtime_or_syntax_error",
+            "stdout": "{1: 'python', 2: 'wiley', 3: 'dictionaries'}\n{'python': 1, 'wiley': 2, 'dictionaries': 3}\nvalue1\nvalue2\nNone\n{\"status\": \"runtime_or_syntax_error\", \"error\": \"TypeError: dict.get() takes no keyword arguments\"}",
+            "stderr": "",
+            "code": 0
+          }
+        ]
+      }
+    },
+    {
+      "id": "rubric_eval_1131",
+      "domain": "code",
+      "attempted": true,
+      "evidence": {
+        "A": [
+          {
+            "language": "javascript",
+            "status": "runtime_or_syntax_error",
+            "stdout": "{\"status\":\"runtime_or_syntax_error\",\"error\":\"ReferenceError: document is not defined\",\"note\":\"Environment may lack a required dependency\"}",
+            "stderr": "",
+            "code": 0
+          }
+        ],
+        "B": [
+          {
+            "language": "html",
+            "status": "unsupported_language"
+          },
+          {
+            "language": "javascript",
+            "status": "runtime_or_syntax_error",
+            "stdout": "{\"status\":\"runtime_or_syntax_error\",\"error\":\"ReferenceError: $ is not defined\",\"note\":\"Environment may lack a required dependency\"}",
+            "stderr": "",
+            "code": 0
+          }
+        ]
+      }
+    },
+    {
+      "id": "rubric_eval_1139",
+      "domain": "code",
+      "attempted": true,
+      "evidence": {
+        "A": [
+          {
+            "language": "csharp",
+            "status": "unsupported_language"
+          }
+        ],
+        "B": [
+          {
+            "language": "csharp",
+            "status": "unsupported_language"
+          },
+          {
+            "language": "csharp",
+            "status": "unsupported_language"
+          },
+          {
+            "language": "unlabelled",
+            "status": "unsupported_language"
+          }
+        ]
+      }
+    }
+  ]
+}

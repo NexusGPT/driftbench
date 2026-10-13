@@ -1,0 +1,355 @@
+{
+  "bench": "rubricbench",
+  "model": "haiku",
+  "items": 357,
+  "contestants": [
+    {
+      "contestant": "driftbench-rb-binary-canonical",
+      "source": "Expert rubric, evidence per atomic requirement, binary aggregation (dev experiment); content-hash presentation mapped back to both caller orders",
+      "mode": "pairwise, both orders",
+      "summary": {
+        "metric": "accuracy (RubricBench, over games)",
+        "value": {
+          "estimate": 0.8151260504201681,
+          "lower": 0.7849918976778161,
+          "upper": 0.8418874702807893
+        },
+        "n": 357,
+        "byGroup": {
+          "code": {
+            "n": 156,
+            "value": 0.8076923076923079
+          },
+          "general": {
+            "n": 56,
+            "value": 0.8571428571428571
+          },
+          "ifeval": {
+            "n": 66,
+            "value": 0.8787878787878788
+          },
+          "mbpp": {
+            "n": 10,
+            "value": 0.4
+          },
+          "math": {
+            "n": 48,
+            "value": 0.9583333333333334
+          },
+          "human-preference": {
+            "n": 166,
+            "value": 0.6987951807228915
+          },
+          "stem": {
+            "n": 94,
+            "value": 0.8723404255319149
+          },
+          "harmlessness": {
+            "n": 26,
+            "value": 0.8461538461538461
+          },
+          "Safety": {
+            "n": 24,
+            "value": 1
+          },
+          "Factuality": {
+            "n": 20,
+            "value": 0.9
+          },
+          "Focus": {
+            "n": 12,
+            "value": 1
+          },
+          "helpful": {
+            "n": 10,
+            "value": 1
+          },
+          "Precise IF": {
+            "n": 18,
+            "value": 0.5555555555555556
+          },
+          "mmlu-pro": {
+            "n": 2,
+            "value": 1
+          },
+          "gpqa": {
+            "n": 2,
+            "value": 1
+          },
+          "Math": {
+            "n": 4,
+            "value": 0.5
+          }
+        },
+        "missing": 0,
+        "positionConsistency": 0.9663865546218487
+      },
+      "costUsd": 1.1677065199999987,
+      "calls": 714,
+      "uniqueCostUsd": 0.5838532600000006,
+      "uniqueCalls": 357
+    },
+    {
+      "contestant": "driftbench-rb-equal-canonical",
+      "source": "Expert rubric, evidence per atomic requirement, equal aggregation (dev experiment); content-hash presentation mapped back to both caller orders",
+      "mode": "pairwise, both orders",
+      "summary": {
+        "metric": "accuracy (RubricBench, over games)",
+        "value": {
+          "estimate": 0.8179271708683473,
+          "lower": 0.7879444088182281,
+          "upper": 0.8445072201888981
+        },
+        "n": 357,
+        "byGroup": {
+          "code": {
+            "n": 156,
+            "value": 0.8461538461538458
+          },
+          "general": {
+            "n": 56,
+            "value": 0.8571428571428571
+          },
+          "ifeval": {
+            "n": 66,
+            "value": 0.8181818181818182
+          },
+          "mbpp": {
+            "n": 10,
+            "value": 0.4
+          },
+          "math": {
+            "n": 48,
+            "value": 0.9583333333333334
+          },
+          "human-preference": {
+            "n": 166,
+            "value": 0.7108433734939759
+          },
+          "stem": {
+            "n": 94,
+            "value": 0.8297872340425534
+          },
+          "harmlessness": {
+            "n": 26,
+            "value": 0.8461538461538461
+          },
+          "Safety": {
+            "n": 24,
+            "value": 1
+          },
+          "Factuality": {
+            "n": 20,
+            "value": 0.9
+          },
+          "Focus": {
+            "n": 12,
+            "value": 1
+          },
+          "helpful": {
+            "n": 10,
+            "value": 1
+          },
+          "Precise IF": {
+            "n": 18,
+            "value": 0.6666666666666666
+          },
+          "mmlu-pro": {
+            "n": 2,
+            "value": 1
+          },
+          "gpqa": {
+            "n": 2,
+            "value": 1
+          },
+          "Math": {
+            "n": 4,
+            "value": 0.5
+          }
+        },
+        "missing": 0,
+        "positionConsistency": 0.9663865546218487
+      },
+      "costUsd": 1.1677065199999987,
+      "calls": 714,
+      "uniqueCostUsd": 0.5838532600000006,
+      "uniqueCalls": 357
+    },
+    {
+      "contestant": "driftbench-rb-weighted-canonical",
+      "source": "Expert rubric, evidence per atomic requirement, weighted aggregation (dev experiment); content-hash presentation mapped back to both caller orders",
+      "mode": "pairwise, both orders",
+      "summary": {
+        "metric": "accuracy (RubricBench, over games)",
+        "value": {
+          "estimate": 0.8179271708683473,
+          "lower": 0.7879444088182281,
+          "upper": 0.8445072201888981
+        },
+        "n": 357,
+        "byGroup": {
+          "code": {
+            "n": 156,
+            "value": 0.8461538461538458
+          },
+          "general": {
+            "n": 56,
+            "value": 0.8571428571428571
+          },
+          "ifeval": {
+            "n": 66,
+            "value": 0.7878787878787878
+          },
+          "mbpp": {
+            "n": 10,
+            "value": 0.4
+          },
+          "math": {
+            "n": 48,
+            "value": 0.9583333333333334
+          },
+          "human-preference": {
+            "n": 166,
+            "value": 0.7108433734939759
+          },
+          "stem": {
+            "n": 94,
+            "value": 0.851063829787234
+          },
+          "harmlessness": {
+            "n": 26,
+            "value": 0.8461538461538461
+          },
+          "Safety": {
+            "n": 24,
+            "value": 1
+          },
+          "Factuality": {
+            "n": 20,
+            "value": 0.9
+          },
+          "Focus": {
+            "n": 12,
+            "value": 1
+          },
+          "helpful": {
+            "n": 10,
+            "value": 1
+          },
+          "Precise IF": {
+            "n": 18,
+            "value": 0.6666666666666666
+          },
+          "mmlu-pro": {
+            "n": 2,
+            "value": 1
+          },
+          "gpqa": {
+            "n": 2,
+            "value": 1
+          },
+          "Math": {
+            "n": 4,
+            "value": 0.5
+          }
+        },
+        "missing": 0,
+        "positionConsistency": 0.9635854341736695
+      },
+      "costUsd": 1.1677065199999987,
+      "calls": 714,
+      "uniqueCostUsd": 0.5838532600000006,
+      "uniqueCalls": 357
+    },
+    {
+      "contestant": "driftbench-rb-holistic-canonical",
+      "source": "Expert rubric, evidence per atomic requirement, holistic aggregation (dev experiment); content-hash presentation mapped back to both caller orders",
+      "mode": "pairwise, both orders",
+      "summary": {
+        "metric": "accuracy (RubricBench, over games)",
+        "value": {
+          "estimate": 0.8179271708683473,
+          "lower": 0.7879444088182281,
+          "upper": 0.8445072201888981
+        },
+        "n": 357,
+        "byGroup": {
+          "code": {
+            "n": 156,
+            "value": 0.8461538461538458
+          },
+          "general": {
+            "n": 56,
+            "value": 0.8571428571428571
+          },
+          "ifeval": {
+            "n": 66,
+            "value": 0.7878787878787878
+          },
+          "mbpp": {
+            "n": 10,
+            "value": 0.4
+          },
+          "math": {
+            "n": 48,
+            "value": 0.9583333333333334
+          },
+          "human-preference": {
+            "n": 166,
+            "value": 0.7108433734939759
+          },
+          "stem": {
+            "n": 94,
+            "value": 0.851063829787234
+          },
+          "harmlessness": {
+            "n": 26,
+            "value": 0.8461538461538461
+          },
+          "Safety": {
+            "n": 24,
+            "value": 1
+          },
+          "Factuality": {
+            "n": 20,
+            "value": 0.9
+          },
+          "Focus": {
+            "n": 12,
+            "value": 1
+          },
+          "helpful": {
+            "n": 10,
+            "value": 1
+          },
+          "Precise IF": {
+            "n": 18,
+            "value": 0.6666666666666666
+          },
+          "mmlu-pro": {
+            "n": 2,
+            "value": 1
+          },
+          "gpqa": {
+            "n": 2,
+            "value": 1
+          },
+          "Math": {
+            "n": 4,
+            "value": 0.5
+          }
+        },
+        "missing": 0,
+        "positionConsistency": 0.9635854341736695
+      },
+      "costUsd": 1.1677065199999987,
+      "calls": 714,
+      "uniqueCostUsd": 0.5838532600000006,
+      "uniqueCalls": 357
+    }
+  ],
+  "newSpendUsd": 0.5355205500000007,
+  "newCalls": 326,
+  "replayed": 2530,
+  "failedCalls": 0
+}

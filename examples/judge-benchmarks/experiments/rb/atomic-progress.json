@@ -1,0 +1,316 @@
+{
+  "bench": "rubricbench",
+  "model": "haiku",
+  "items": 80,
+  "sample": 80,
+  "contestants": [
+    {
+      "contestant": "driftbench-rb-binary",
+      "source": "Expert rubric, evidence per atomic requirement, binary aggregation (dev experiment)",
+      "mode": "pairwise, both orders",
+      "summary": {
+        "metric": "accuracy (RubricBench, over games)",
+        "value": {
+          "estimate": 0.0625,
+          "lower": 0.034299666746119624,
+          "upper": 0.11121575402894743
+        },
+        "n": 80,
+        "byGroup": {
+          "Math": {
+            "n": 2,
+            "value": 1
+          },
+          "code": {
+            "n": 36,
+            "value": 0.1111111111111111
+          },
+          "human-preference": {
+            "n": 38,
+            "value": 0.10526315789473684
+          },
+          "ifeval": {
+            "n": 14,
+            "value": 0
+          },
+          "stem": {
+            "n": 22,
+            "value": 0
+          },
+          "harmlessness": {
+            "n": 6,
+            "value": 0
+          },
+          "general": {
+            "n": 12,
+            "value": 0
+          },
+          "Safety": {
+            "n": 6,
+            "value": 0
+          },
+          "math": {
+            "n": 10,
+            "value": 0
+          },
+          "mbpp": {
+            "n": 2,
+            "value": 0
+          },
+          "Precise IF": {
+            "n": 4,
+            "value": 0
+          },
+          "Focus": {
+            "n": 2,
+            "value": 0
+          },
+          "helpful": {
+            "n": 2,
+            "value": 0
+          },
+          "Factuality": {
+            "n": 4,
+            "value": 0
+          }
+        },
+        "missing": 147,
+        "positionConsistency": 0.075
+      },
+      "costUsd": 0.022500820000000005,
+      "calls": 13
+    },
+    {
+      "contestant": "driftbench-rb-equal",
+      "source": "Expert rubric, evidence per atomic requirement, equal aggregation (dev experiment)",
+      "mode": "pairwise, both orders",
+      "summary": {
+        "metric": "accuracy (RubricBench, over games)",
+        "value": {
+          "estimate": 0.06875,
+          "lower": 0.0388194209109128,
+          "upper": 0.11890292242451043
+        },
+        "n": 80,
+        "byGroup": {
+          "Math": {
+            "n": 2,
+            "value": 1
+          },
+          "code": {
+            "n": 36,
+            "value": 0.1388888888888889
+          },
+          "human-preference": {
+            "n": 38,
+            "value": 0.10526315789473684
+          },
+          "ifeval": {
+            "n": 14,
+            "value": 0
+          },
+          "stem": {
+            "n": 22,
+            "value": 0
+          },
+          "harmlessness": {
+            "n": 6,
+            "value": 0
+          },
+          "general": {
+            "n": 12,
+            "value": 0
+          },
+          "Safety": {
+            "n": 6,
+            "value": 0
+          },
+          "math": {
+            "n": 10,
+            "value": 0
+          },
+          "mbpp": {
+            "n": 2,
+            "value": 0
+          },
+          "Precise IF": {
+            "n": 4,
+            "value": 0
+          },
+          "Focus": {
+            "n": 2,
+            "value": 0
+          },
+          "helpful": {
+            "n": 2,
+            "value": 0
+          },
+          "Factuality": {
+            "n": 4,
+            "value": 0
+          }
+        },
+        "missing": 147,
+        "positionConsistency": 0.075
+      },
+      "costUsd": 0.022500820000000005,
+      "calls": 13
+    },
+    {
+      "contestant": "driftbench-rb-weighted",
+      "source": "Expert rubric, evidence per atomic requirement, weighted aggregation (dev experiment)",
+      "mode": "pairwise, both orders",
+      "summary": {
+        "metric": "accuracy (RubricBench, over games)",
+        "value": {
+          "estimate": 0.06875,
+          "lower": 0.0388194209109128,
+          "upper": 0.11890292242451043
+        },
+        "n": 80,
+        "byGroup": {
+          "Math": {
+            "n": 2,
+            "value": 1
+          },
+          "code": {
+            "n": 36,
+            "value": 0.1388888888888889
+          },
+          "human-preference": {
+            "n": 38,
+            "value": 0.10526315789473684
+          },
+          "ifeval": {
+            "n": 14,
+            "value": 0
+          },
+          "stem": {
+            "n": 22,
+            "value": 0
+          },
+          "harmlessness": {
+            "n": 6,
+            "value": 0
+          },
+          "general": {
+            "n": 12,
+            "value": 0
+          },
+          "Safety": {
+            "n": 6,
+            "value": 0
+          },
+          "math": {
+            "n": 10,
+            "value": 0
+          },
+          "mbpp": {
+            "n": 2,
+            "value": 0
+          },
+          "Precise IF": {
+            "n": 4,
+            "value": 0
+          },
+          "Focus": {
+            "n": 2,
+            "value": 0
+          },
+          "helpful": {
+            "n": 2,
+            "value": 0
+          },
+          "Factuality": {
+            "n": 4,
+            "value": 0
+          }
+        },
+        "missing": 147,
+        "positionConsistency": 0.075
+      },
+      "costUsd": 0.022500820000000005,
+      "calls": 13
+    },
+    {
+      "contestant": "driftbench-rb-holistic",
+      "source": "Expert rubric, evidence per atomic requirement, holistic aggregation (dev experiment)",
+      "mode": "pairwise, both orders",
+      "summary": {
+        "metric": "accuracy (RubricBench, over games)",
+        "value": {
+          "estimate": 0.06875,
+          "lower": 0.0388194209109128,
+          "upper": 0.11890292242451043
+        },
+        "n": 80,
+        "byGroup": {
+          "Math": {
+            "n": 2,
+            "value": 1
+          },
+          "code": {
+            "n": 36,
+            "value": 0.1388888888888889
+          },
+          "human-preference": {
+            "n": 38,
+            "value": 0.10526315789473684
+          },
+          "ifeval": {
+            "n": 14,
+            "value": 0
+          },
+          "stem": {
+            "n": 22,
+            "value": 0
+          },
+          "harmlessness": {
+            "n": 6,
+            "value": 0
+          },
+          "general": {
+            "n": 12,
+            "value": 0
+          },
+          "Safety": {
+            "n": 6,
+            "value": 0
+          },
+          "math": {
+            "n": 10,
+            "value": 0
+          },
+          "mbpp": {
+            "n": 2,
+            "value": 0
+          },
+          "Precise IF": {
+            "n": 4,
+            "value": 0
+          },
+          "Focus": {
+            "n": 2,
+            "value": 0
+          },
+          "helpful": {
+            "n": 2,
+            "value": 0
+          },
+          "Factuality": {
+            "n": 4,
+            "value": 0
+          }
+        },
+        "missing": 147,
+        "positionConsistency": 0.075
+      },
+      "costUsd": 0.022500820000000005,
+      "calls": 13
+    }
+  ],
+  "newSpendUsd": 0,
+  "newCalls": 0,
+  "replayed": 52,
+  "failedCalls": 588
+}

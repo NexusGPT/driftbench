@@ -1,0 +1,970 @@
+{
+  "startedAt": "2026-10-13T04:10:44.398Z",
+  "frozenCommit": "76f4f6a6a3acaf105a9f1e0849becf9cf9a3efc5",
+  "authorization": "Owner doubles task cap to USD16; six simultaneous calls; fill remaining test pairs through 06:35",
+  "previousItems": 434,
+  "remainingItems": 356,
+  "population": 790,
+  "concurrency": 6,
+  "deadline": "2026-10-13T06:35:00+02:00",
+  "taskCapUsd": 16,
+  "reserveUsd": 0.3,
+  "recordedSpendBefore": 3.678640070000001,
+  "capUsd": 12.02135993,
+  "remainingIds": [
+    "rubric_eval_1001",
+    "rubric_eval_1002",
+    "rubric_eval_1004",
+    "rubric_eval_101",
+    "rubric_eval_1014",
+    "rubric_eval_1016",
+    "rubric_eval_1025",
+    "rubric_eval_103",
+    "rubric_eval_1032",
+    "rubric_eval_104",
+    "rubric_eval_1042",
+    "rubric_eval_1043",
+    "rubric_eval_1044",
+    "rubric_eval_1050",
+    "rubric_eval_1057",
+    "rubric_eval_106",
+    "rubric_eval_1060",
+    "rubric_eval_1066",
+    "rubric_eval_1067",
+    "rubric_eval_1073",
+    "rubric_eval_1078",
+    "rubric_eval_1081",
+    "rubric_eval_1083",
+    "rubric_eval_1092",
+    "rubric_eval_1095",
+    "rubric_eval_1096",
+    "rubric_eval_1097",
+    "rubric_eval_110",
+    "rubric_eval_1100",
+    "rubric_eval_1101",
+    "rubric_eval_1103",
+    "rubric_eval_1104",
+    "rubric_eval_1105",
+    "rubric_eval_1107",
+    "rubric_eval_111",
+    "rubric_eval_1116",
+    "rubric_eval_1117",
+    "rubric_eval_1121",
+    "rubric_eval_1126",
+    "rubric_eval_1127",
+    "rubric_eval_1133",
+    "rubric_eval_1140",
+    "rubric_eval_1142",
+    "rubric_eval_1146",
+    "rubric_eval_1147",
+    "rubric_eval_116",
+    "rubric_eval_117",
+    "rubric_eval_121",
+    "rubric_eval_127",
+    "rubric_eval_132",
+    "rubric_eval_136",
+    "rubric_eval_138",
+    "rubric_eval_141",
+    "rubric_eval_143",
+    "rubric_eval_144",
+    "rubric_eval_145",
+    "rubric_eval_147",
+    "rubric_eval_148",
+    "rubric_eval_15",
+    "rubric_eval_150",
+    "rubric_eval_154",
+    "rubric_eval_157",
+    "rubric_eval_158",
+    "rubric_eval_160",
+    "rubric_eval_163",
+    "rubric_eval_166",
+    "rubric_eval_168",
+    "rubric_eval_169",
+    "rubric_eval_17",
+    "rubric_eval_170",
+    "rubric_eval_171",
+    "rubric_eval_172",
+    "rubric_eval_174",
+    "rubric_eval_175",
+    "rubric_eval_183",
+    "rubric_eval_184",
+    "rubric_eval_19",
+    "rubric_eval_190",
+    "rubric_eval_197",
+    "rubric_eval_200",
+    "rubric_eval_205",
+    "rubric_eval_206",
+    "rubric_eval_210",
+    "rubric_eval_23",
+    "rubric_eval_233",
+    "rubric_eval_235",
+    "rubric_eval_236",
+    "rubric_eval_238",
+    "rubric_eval_24",
+    "rubric_eval_240",
+    "rubric_eval_243",
+    "rubric_eval_248",
+    "rubric_eval_249",
+    "rubric_eval_252",
+    "rubric_eval_254",
+    "rubric_eval_256",
+    "rubric_eval_259",
+    "rubric_eval_260",
+    "rubric_eval_264",
+    "rubric_eval_265",
+    "rubric_eval_272",
+    "rubric_eval_273",
+    "rubric_eval_274",
+    "rubric_eval_275",
+    "rubric_eval_277",
+    "rubric_eval_286",
+    "rubric_eval_29",
+    "rubric_eval_294",
+    "rubric_eval_297",
+    "rubric_eval_307",
+    "rubric_eval_31",
+    "rubric_eval_314",
+    "rubric_eval_316",
+    "rubric_eval_321",
+    "rubric_eval_333",
+    "rubric_eval_335",
+    "rubric_eval_337",
+    "rubric_eval_340",
+    "rubric_eval_344",
+    "rubric_eval_346",
+    "rubric_eval_347",
+    "rubric_eval_348",
+    "rubric_eval_351",
+    "rubric_eval_352",
+    "rubric_eval_355",
+    "rubric_eval_357",
+    "rubric_eval_359",
+    "rubric_eval_361",
+    "rubric_eval_362",
+    "rubric_eval_365",
+    "rubric_eval_366",
+    "rubric_eval_372",
+    "rubric_eval_373",
+    "rubric_eval_374",
+    "rubric_eval_378",
+    "rubric_eval_380",
+    "rubric_eval_381",
+    "rubric_eval_390",
+    "rubric_eval_392",
+    "rubric_eval_394",
+    "rubric_eval_396",
+    "rubric_eval_399",
+    "rubric_eval_400",
+    "rubric_eval_401",
+    "rubric_eval_402",
+    "rubric_eval_404",
+    "rubric_eval_406",
+    "rubric_eval_407",
+    "rubric_eval_408",
+    "rubric_eval_41",
+    "rubric_eval_410",
+    "rubric_eval_411",
+    "rubric_eval_414",
+    "rubric_eval_416",
+    "rubric_eval_42",
+    "rubric_eval_420",
+    "rubric_eval_422",
+    "rubric_eval_425",
+    "rubric_eval_429",
+    "rubric_eval_435",
+    "rubric_eval_437",
+    "rubric_eval_441",
+    "rubric_eval_443",
+    "rubric_eval_447",
+    "rubric_eval_448",
+    "rubric_eval_457",
+    "rubric_eval_459",
+    "rubric_eval_461",
+    "rubric_eval_463",
+    "rubric_eval_464",
+    "rubric_eval_465",
+    "rubric_eval_466",
+    "rubric_eval_467",
+    "rubric_eval_469",
+    "rubric_eval_472",
+    "rubric_eval_473",
+    "rubric_eval_475",
+    "rubric_eval_480",
+    "rubric_eval_481",
+    "rubric_eval_485",
+    "rubric_eval_492",
+    "rubric_eval_497",
+    "rubric_eval_50",
+    "rubric_eval_500",
+    "rubric_eval_502",
+    "rubric_eval_507",
+    "rubric_eval_508",
+    "rubric_eval_509",
+    "rubric_eval_51",
+    "rubric_eval_512",
+    "rubric_eval_514",
+    "rubric_eval_517",
+    "rubric_eval_518",
+    "rubric_eval_519",
+    "rubric_eval_521",
+    "rubric_eval_522",
+    "rubric_eval_526",
+    "rubric_eval_527",
+    "rubric_eval_541",
+    "rubric_eval_546",
+    "rubric_eval_548",
+    "rubric_eval_549",
+    "rubric_eval_553",
+    "rubric_eval_560",
+    "rubric_eval_572",
+    "rubric_eval_575",
+    "rubric_eval_576",
+    "rubric_eval_577",
+    "rubric_eval_578",
+    "rubric_eval_579",
+    "rubric_eval_581",
+    "rubric_eval_582",
+    "rubric_eval_583",
+    "rubric_eval_584",
+    "rubric_eval_587",
+    "rubric_eval_589",
+    "rubric_eval_59",
+    "rubric_eval_593",
+    "rubric_eval_597",
+    "rubric_eval_598",
+    "rubric_eval_60",
+    "rubric_eval_601",
+    "rubric_eval_607",
+    "rubric_eval_609",
+    "rubric_eval_611",
+    "rubric_eval_612",
+    "rubric_eval_613",
+    "rubric_eval_618",
+    "rubric_eval_619",
+    "rubric_eval_624",
+    "rubric_eval_626",
+    "rubric_eval_627",
+    "rubric_eval_631",
+    "rubric_eval_633",
+    "rubric_eval_638",
+    "rubric_eval_639",
+    "rubric_eval_642",
+    "rubric_eval_647",
+    "rubric_eval_651",
+    "rubric_eval_659",
+    "rubric_eval_66",
+    "rubric_eval_663",
+    "rubric_eval_664",
+    "rubric_eval_665",
+    "rubric_eval_670",
+    "rubric_eval_674",
+    "rubric_eval_68",
+    "rubric_eval_685",
+    "rubric_eval_688",
+    "rubric_eval_692",
+    "rubric_eval_693",
+    "rubric_eval_698",
+    "rubric_eval_7",
+    "rubric_eval_702",
+    "rubric_eval_704",
+    "rubric_eval_708",
+    "rubric_eval_71",
+    "rubric_eval_713",
+    "rubric_eval_714",
+    "rubric_eval_721",
+    "rubric_eval_722",
+    "rubric_eval_723",
+    "rubric_eval_725",
+    "rubric_eval_727",
+    "rubric_eval_728",
+    "rubric_eval_74",
+    "rubric_eval_741",
+    "rubric_eval_743",
+    "rubric_eval_748",
+    "rubric_eval_751",
+    "rubric_eval_752",
+    "rubric_eval_756",
+    "rubric_eval_759",
+    "rubric_eval_762",
+    "rubric_eval_763",
+    "rubric_eval_764",
+    "rubric_eval_765",
+    "rubric_eval_768",
+    "rubric_eval_77",
+    "rubric_eval_770",
+    "rubric_eval_773",
+    "rubric_eval_775",
+    "rubric_eval_778",
+    "rubric_eval_779",
+    "rubric_eval_78",
+    "rubric_eval_780",
+    "rubric_eval_786",
+    "rubric_eval_796",
+    "rubric_eval_80",
+    "rubric_eval_804",
+    "rubric_eval_808",
+    "rubric_eval_809",
+    "rubric_eval_81",
+    "rubric_eval_813",
+    "rubric_eval_816",
+    "rubric_eval_82",
+    "rubric_eval_820",
+    "rubric_eval_826",
+    "rubric_eval_834",
+    "rubric_eval_835",
+    "rubric_eval_840",
+    "rubric_eval_842",
+    "rubric_eval_845",
+    "rubric_eval_846",
+    "rubric_eval_854",
+    "rubric_eval_858",
+    "rubric_eval_859",
+    "rubric_eval_86",
+    "rubric_eval_861",
+    "rubric_eval_862",
+    "rubric_eval_867",
+    "rubric_eval_87",
+    "rubric_eval_870",
+    "rubric_eval_875",
+    "rubric_eval_876",
+    "rubric_eval_877",
+    "rubric_eval_88",
+    "rubric_eval_883",
+    "rubric_eval_893",
+    "rubric_eval_898",
+    "rubric_eval_90",
+    "rubric_eval_902",
+    "rubric_eval_904",
+    "rubric_eval_905",
+    "rubric_eval_91",
+    "rubric_eval_913",
+    "rubric_eval_914",
+    "rubric_eval_917",
+    "rubric_eval_920",
+    "rubric_eval_925",
+    "rubric_eval_93",
+    "rubric_eval_935",
+    "rubric_eval_945",
+    "rubric_eval_948",
+    "rubric_eval_95",
+    "rubric_eval_953",
+    "rubric_eval_955",
+    "rubric_eval_956",
+    "rubric_eval_958",
+    "rubric_eval_959",
+    "rubric_eval_96",
+    "rubric_eval_960",
+    "rubric_eval_962",
+    "rubric_eval_963",
+    "rubric_eval_965",
+    "rubric_eval_966",
+    "rubric_eval_967",
+    "rubric_eval_969",
+    "rubric_eval_98",
+    "rubric_eval_981",
+    "rubric_eval_983",
+    "rubric_eval_987",
+    "rubric_eval_988",
+    "rubric_eval_990",
+    "rubric_eval_998",
+    "rubric_eval_999"
+  ],
+  "measuredAt": "2026-10-13T04:26:44.423Z",
+  "newCalls": 355,
+  "newSpendUsd": 0.6171690500000001,
+  "complete": false,
+  "runs": [
+    {
+      "lane": 0,
+      "run": {
+        "bench": "rubricbench",
+        "model": "haiku",
+        "split": "test",
+        "items": 60,
+        "contestants": [
+          {
+            "contestant": "driftbench-rb-binary-canonical-executed",
+            "source": "Expert rubric, evidence per atomic requirement, binary aggregation (dev experiment); canonical presentation with exact candidate-code execution",
+            "mode": "pairwise, both orders",
+            "summary": {
+              "metric": "accuracy (RubricBench, over games)",
+              "value": {
+                "estimate": 0.8,
+                "lower": 0.7196332649371805,
+                "upper": 0.8617552352115975
+              },
+              "n": 60,
+              "byGroup": {
+                "general": {
+                  "n": 10,
+                  "value": 0.8
+                },
+                "stem": {
+                  "n": 24,
+                  "value": 0.6666666666666666
+                },
+                "math": {
+                  "n": 12,
+                  "value": 0.8333333333333334
+                },
+                "human-preference": {
+                  "n": 16,
+                  "value": 0.5
+                },
+                "ifeval": {
+                  "n": 8,
+                  "value": 1
+                },
+                "code": {
+                  "n": 18,
+                  "value": 0.8888888888888888
+                },
+                "Precise IF": {
+                  "n": 4,
+                  "value": 0.5
+                },
+                "Safety": {
+                  "n": 4,
+                  "value": 1
+                },
+                "mbpp": {
+                  "n": 4,
+                  "value": 1
+                },
+                "harmlessness": {
+                  "n": 4,
+                  "value": 1
+                },
+                "helpful": {
+                  "n": 6,
+                  "value": 1
+                },
+                "Factuality": {
+                  "n": 4,
+                  "value": 1
+                },
+                "Focus": {
+                  "n": 6,
+                  "value": 1
+                }
+              },
+              "missing": 0,
+              "positionConsistency": 0.9666666666666667
+            },
+            "costUsd": 0.21058352000000014,
+            "calls": 120,
+            "uniqueCostUsd": 0.10529176,
+            "uniqueCalls": 60
+          }
+        ],
+        "newSpendUsd": 0.10529176,
+        "newCalls": 60,
+        "replayed": 60,
+        "failedCalls": 0
+      }
+    },
+    {
+      "lane": 1,
+      "run": {
+        "bench": "rubricbench",
+        "model": "haiku",
+        "split": "test",
+        "items": 60,
+        "contestants": [
+          {
+            "contestant": "driftbench-rb-binary-canonical-executed",
+            "source": "Expert rubric, evidence per atomic requirement, binary aggregation (dev experiment); canonical presentation with exact candidate-code execution",
+            "mode": "pairwise, both orders",
+            "summary": {
+              "metric": "accuracy (RubricBench, over games)",
+              "value": {
+                "estimate": 0.6666666666666666,
+                "lower": 0.5783110162063498,
+                "upper": 0.7446825949874156
+              },
+              "n": 60,
+              "byGroup": {
+                "Precise IF": {
+                  "n": 6,
+                  "value": 0
+                },
+                "stem": {
+                  "n": 18,
+                  "value": 0.4444444444444444
+                },
+                "Factuality": {
+                  "n": 6,
+                  "value": 1
+                },
+                "code": {
+                  "n": 30,
+                  "value": 0.8
+                },
+                "human-preference": {
+                  "n": 20,
+                  "value": 0.6
+                },
+                "general": {
+                  "n": 14,
+                  "value": 0.8571428571428571
+                },
+                "Safety": {
+                  "n": 2,
+                  "value": 1
+                },
+                "harmlessness": {
+                  "n": 4,
+                  "value": 1
+                },
+                "math": {
+                  "n": 8,
+                  "value": 0.75
+                },
+                "ifeval": {
+                  "n": 8,
+                  "value": 0.75
+                },
+                "mbpp": {
+                  "n": 2,
+                  "value": 0
+                },
+                "Focus": {
+                  "n": 2,
+                  "value": 0
+                }
+              },
+              "missing": 2,
+              "positionConsistency": 0.9333333333333333
+            },
+            "costUsd": 0.20610338,
+            "calls": 118,
+            "uniqueCostUsd": 0.10305169000000003,
+            "uniqueCalls": 59
+          }
+        ],
+        "newSpendUsd": 0.10305169000000003,
+        "newCalls": 59,
+        "replayed": 59,
+        "failedCalls": 2
+      }
+    },
+    {
+      "lane": 2,
+      "run": {
+        "bench": "rubricbench",
+        "model": "haiku",
+        "split": "test",
+        "items": 59,
+        "contestants": [
+          {
+            "contestant": "driftbench-rb-binary-canonical-executed",
+            "source": "Expert rubric, evidence per atomic requirement, binary aggregation (dev experiment); canonical presentation with exact candidate-code execution",
+            "mode": "pairwise, both orders",
+            "summary": {
+              "metric": "accuracy (RubricBench, over games)",
+              "value": {
+                "estimate": 0.847457627118644,
+                "lower": 0.771728055334007,
+                "upper": 0.901277675175785
+              },
+              "n": 59,
+              "byGroup": {
+                "code": {
+                  "n": 22,
+                  "value": 0.9090909090909091
+                },
+                "human-preference": {
+                  "n": 34,
+                  "value": 0.7058823529411765
+                },
+                "ifeval": {
+                  "n": 10,
+                  "value": 1
+                },
+                "Safety": {
+                  "n": 10,
+                  "value": 1
+                },
+                "Precise IF": {
+                  "n": 2,
+                  "value": 1
+                },
+                "harmlessness": {
+                  "n": 4,
+                  "value": 1
+                },
+                "general": {
+                  "n": 10,
+                  "value": 1
+                },
+                "stem": {
+                  "n": 14,
+                  "value": 0.7142857142857143
+                },
+                "math": {
+                  "n": 6,
+                  "value": 1
+                },
+                "Factuality": {
+                  "n": 4,
+                  "value": 1
+                },
+                "gpqa": {
+                  "n": 2,
+                  "value": 0
+                }
+              },
+              "missing": 0,
+              "positionConsistency": 0.9661016949152542
+            },
+            "costUsd": 0.21152857999999986,
+            "calls": 118,
+            "uniqueCostUsd": 0.10576429000000007,
+            "uniqueCalls": 59
+          }
+        ],
+        "newSpendUsd": 0.10576429000000007,
+        "newCalls": 59,
+        "replayed": 59,
+        "failedCalls": 0
+      }
+    },
+    {
+      "lane": 3,
+      "run": {
+        "bench": "rubricbench",
+        "model": "haiku",
+        "split": "test",
+        "items": 59,
+        "contestants": [
+          {
+            "contestant": "driftbench-rb-binary-canonical-executed",
+            "source": "Expert rubric, evidence per atomic requirement, binary aggregation (dev experiment); canonical presentation with exact candidate-code execution",
+            "mode": "pairwise, both orders",
+            "summary": {
+              "metric": "accuracy (RubricBench, over games)",
+              "value": {
+                "estimate": 0.7796610169491526,
+                "lower": 0.6967223270508931,
+                "upper": 0.8449652121399152
+              },
+              "n": 59,
+              "byGroup": {
+                "stem": {
+                  "n": 16,
+                  "value": 0.75
+                },
+                "general": {
+                  "n": 10,
+                  "value": 0.8
+                },
+                "human-preference": {
+                  "n": 28,
+                  "value": 0.7142857142857143
+                },
+                "code": {
+                  "n": 36,
+                  "value": 0.8333333333333334
+                },
+                "ifeval": {
+                  "n": 10,
+                  "value": 0.8
+                },
+                "Factuality": {
+                  "n": 6,
+                  "value": 1
+                },
+                "helpful": {
+                  "n": 2,
+                  "value": 1
+                },
+                "math": {
+                  "n": 6,
+                  "value": 0.6666666666666666
+                },
+                "harmlessness": {
+                  "n": 2,
+                  "value": 0
+                },
+                "Safety": {
+                  "n": 2,
+                  "value": 1
+                }
+              },
+              "missing": 0,
+              "positionConsistency": 0.9661016949152542
+            },
+            "costUsd": 0.20568486000000005,
+            "calls": 118,
+            "uniqueCostUsd": 0.10284243000000005,
+            "uniqueCalls": 59
+          }
+        ],
+        "newSpendUsd": 0.10284243000000005,
+        "newCalls": 59,
+        "replayed": 59,
+        "failedCalls": 0
+      }
+    },
+    {
+      "lane": 4,
+      "run": {
+        "bench": "rubricbench",
+        "model": "haiku",
+        "split": "test",
+        "items": 59,
+        "contestants": [
+          {
+            "contestant": "driftbench-rb-binary-canonical-executed",
+            "source": "Expert rubric, evidence per atomic requirement, binary aggregation (dev experiment); canonical presentation with exact candidate-code execution",
+            "mode": "pairwise, both orders",
+            "summary": {
+              "metric": "accuracy (RubricBench, over games)",
+              "value": {
+                "estimate": 0.7796610169491526,
+                "lower": 0.6967223270508931,
+                "upper": 0.8449652121399152
+              },
+              "n": 59,
+              "byGroup": {
+                "code": {
+                  "n": 22,
+                  "value": 0.8181818181818182
+                },
+                "ifeval": {
+                  "n": 10,
+                  "value": 0.8
+                },
+                "stem": {
+                  "n": 12,
+                  "value": 0.8333333333333334
+                },
+                "human-preference": {
+                  "n": 34,
+                  "value": 0.5294117647058824
+                },
+                "general": {
+                  "n": 16,
+                  "value": 1
+                },
+                "harmlessness": {
+                  "n": 6,
+                  "value": 1
+                },
+                "math": {
+                  "n": 6,
+                  "value": 1
+                },
+                "mbpp": {
+                  "n": 2,
+                  "value": 1
+                },
+                "mmlu-pro": {
+                  "n": 4,
+                  "value": 1
+                },
+                "Math": {
+                  "n": 2,
+                  "value": 0
+                },
+                "Factuality": {
+                  "n": 2,
+                  "value": 1
+                },
+                "Focus": {
+                  "n": 2,
+                  "value": 1
+                }
+              },
+              "missing": 0,
+              "positionConsistency": 0.9661016949152542
+            },
+            "costUsd": 0.21364518,
+            "calls": 118,
+            "uniqueCostUsd": 0.10682259,
+            "uniqueCalls": 59
+          }
+        ],
+        "newSpendUsd": 0.10682259,
+        "newCalls": 59,
+        "replayed": 59,
+        "failedCalls": 0
+      }
+    },
+    {
+      "lane": 5,
+      "run": {
+        "bench": "rubricbench",
+        "model": "haiku",
+        "split": "test",
+        "items": 59,
+        "contestants": [
+          {
+            "contestant": "driftbench-rb-binary-canonical-executed",
+            "source": "Expert rubric, evidence per atomic requirement, binary aggregation (dev experiment); canonical presentation with exact candidate-code execution",
+            "mode": "pairwise, both orders",
+            "summary": {
+              "metric": "accuracy (RubricBench, over games)",
+              "value": {
+                "estimate": 0.8305084745762712,
+                "lower": 0.7526592831457405,
+                "upper": 0.8875168995343056
+              },
+              "n": 59,
+              "byGroup": {
+                "code": {
+                  "n": 34,
+                  "value": 0.8235294117647058
+                },
+                "Factuality": {
+                  "n": 8,
+                  "value": 1
+                },
+                "math": {
+                  "n": 4,
+                  "value": 1
+                },
+                "stem": {
+                  "n": 24,
+                  "value": 0.9166666666666666
+                },
+                "general": {
+                  "n": 12,
+                  "value": 1
+                },
+                "ifeval": {
+                  "n": 16,
+                  "value": 0.625
+                },
+                "human-preference": {
+                  "n": 6,
+                  "value": 0.6666666666666666
+                },
+                "Safety": {
+                  "n": 2,
+                  "value": 0
+                },
+                "Focus": {
+                  "n": 4,
+                  "value": 1
+                },
+                "harmlessness": {
+                  "n": 8,
+                  "value": 0.75
+                }
+              },
+              "missing": 0,
+              "positionConsistency": 1
+            },
+            "costUsd": 0.18679258000000007,
+            "calls": 118,
+            "uniqueCostUsd": 0.09339628999999998,
+            "uniqueCalls": 59
+          }
+        ],
+        "newSpendUsd": 0.09339628999999998,
+        "newCalls": 59,
+        "replayed": 59,
+        "failedCalls": 0
+      }
+    }
+  ],
+  "run": {
+    "bench": "rubricbench",
+    "model": "haiku",
+    "split": "test",
+    "items": 790,
+    "contestants": [
+      {
+        "contestant": "driftbench-rb-binary-canonical-executed",
+        "source": "Expert rubric, evidence per atomic requirement, binary aggregation (dev experiment); canonical presentation with exact candidate-code execution",
+        "mode": "pairwise, both orders",
+        "summary": {
+          "metric": "accuracy (RubricBench, over games)",
+          "value": {
+            "estimate": 0.8113924050632911,
+            "lower": 0.7913565430902878,
+            "upper": 0.8299177609253883
+          },
+          "n": 790,
+          "byGroup": {
+            "code": {
+              "n": 360,
+              "value": 0.8388888888888889
+            },
+            "general": {
+              "n": 160,
+              "value": 0.9
+            },
+            "ifeval": {
+              "n": 136,
+              "value": 0.8235294117647058
+            },
+            "stem": {
+              "n": 240,
+              "value": 0.7750000000000004
+            },
+            "Factuality": {
+              "n": 68,
+              "value": 0.911764705882353
+            },
+            "math": {
+              "n": 94,
+              "value": 0.8936170212765957
+            },
+            "Precise IF": {
+              "n": 28,
+              "value": 0.6428571428571429
+            },
+            "harmlessness": {
+              "n": 64,
+              "value": 0.875
+            },
+            "human-preference": {
+              "n": 304,
+              "value": 0.6907894736842105
+            },
+            "Math": {
+              "n": 6,
+              "value": 0
+            },
+            "Safety": {
+              "n": 46,
+              "value": 0.9130434782608695
+            },
+            "mmlu-pro": {
+              "n": 8,
+              "value": 1
+            },
+            "Focus": {
+              "n": 32,
+              "value": 0.9375
+            },
+            "helpful": {
+              "n": 16,
+              "value": 1
+            },
+            "mbpp": {
+              "n": 16,
+              "value": 0.75
+            },
+            "gpqa": {
+              "n": 2,
+              "value": 0
+            }
+          },
+          "missing": 2,
+          "positionConsistency": 0.9696202531645569
+        },
+        "costUsd": 2.708571299999991,
+        "calls": 1578,
+        "uniqueCostUsd": 1.3542856499999998,
+        "uniqueCalls": 789
+      }
+    ],
+    "newSpendUsd": 0,
+    "newCalls": 0,
+    "replayed": 1578,
+    "failedCalls": 2
+  }
+}

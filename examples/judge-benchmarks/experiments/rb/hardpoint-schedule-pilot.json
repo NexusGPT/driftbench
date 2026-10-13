@@ -1,0 +1,184 @@
+{
+  "bench": "rubricbench",
+  "model": "haiku",
+  "split": "dev",
+  "items": 357,
+  "contestants": [
+    {
+      "contestant": "driftbench-rb-hardpoint",
+      "source": "Pointwise quoted Boolean checks, hard/soft planning and code aggregation (dev experiment)",
+      "mode": "pointwise rubric, shared both orders",
+      "summary": {
+        "metric": "accuracy (RubricBench, over games)",
+        "value": {
+          "estimate": 0.20168067226890757,
+          "lower": 0.17388059784719606,
+          "upper": 0.2326736004853242
+        },
+        "n": 357,
+        "byGroup": {
+          "code": {
+            "n": 156,
+            "value": 0.14102564102564102
+          },
+          "general": {
+            "n": 56,
+            "value": 0.5000000000000002
+          },
+          "ifeval": {
+            "n": 66,
+            "value": 0.24242424242424238
+          },
+          "mbpp": {
+            "n": 10,
+            "value": 0.4
+          },
+          "math": {
+            "n": 48,
+            "value": 0.375
+          },
+          "human-preference": {
+            "n": 166,
+            "value": 0.15662650602409642
+          },
+          "stem": {
+            "n": 94,
+            "value": 0.14893617021276606
+          },
+          "harmlessness": {
+            "n": 26,
+            "value": 0.3076923076923077
+          },
+          "Safety": {
+            "n": 24,
+            "value": 0.16666666666666666
+          },
+          "Factuality": {
+            "n": 20,
+            "value": 0.1
+          },
+          "Focus": {
+            "n": 12,
+            "value": 0.16666666666666666
+          },
+          "helpful": {
+            "n": 10,
+            "value": 0
+          },
+          "Precise IF": {
+            "n": 18,
+            "value": 0
+          },
+          "mmlu-pro": {
+            "n": 2,
+            "value": 0
+          },
+          "gpqa": {
+            "n": 2,
+            "value": 0
+          },
+          "Math": {
+            "n": 4,
+            "value": 0
+          }
+        },
+        "missing": 544,
+        "positionConsistency": 0.23809523809523808
+      },
+      "costUsd": 0.32388789999999984,
+      "calls": 275,
+      "uniqueCostUsd": 0.32388789999999984,
+      "uniqueCalls": 275
+    },
+    {
+      "contestant": "driftbench-rb-quotedcounts",
+      "source": "Quoted pointwise Boolean checks, unweighted count comparison (dev ablation)",
+      "mode": "pointwise rubric, shared both orders",
+      "summary": {
+        "metric": "accuracy (RubricBench, over games)",
+        "value": {
+          "estimate": 0.19047619047619047,
+          "lower": 0.16335926933478082,
+          "upper": 0.22090588480365567
+        },
+        "n": 357,
+        "byGroup": {
+          "code": {
+            "n": 156,
+            "value": 0.15384615384615363
+          },
+          "general": {
+            "n": 56,
+            "value": 0.4642857142857143
+          },
+          "ifeval": {
+            "n": 66,
+            "value": 0.24242424242424238
+          },
+          "mbpp": {
+            "n": 10,
+            "value": 0.4
+          },
+          "math": {
+            "n": 48,
+            "value": 0.3333333333333333
+          },
+          "human-preference": {
+            "n": 166,
+            "value": 0.15662650602409642
+          },
+          "stem": {
+            "n": 94,
+            "value": 0.14893617021276606
+          },
+          "harmlessness": {
+            "n": 26,
+            "value": 0.23076923076923078
+          },
+          "Safety": {
+            "n": 24,
+            "value": 0.08333333333333333
+          },
+          "Factuality": {
+            "n": 20,
+            "value": 0
+          },
+          "Focus": {
+            "n": 12,
+            "value": 0.16666666666666666
+          },
+          "helpful": {
+            "n": 10,
+            "value": 0
+          },
+          "Precise IF": {
+            "n": 18,
+            "value": 0
+          },
+          "mmlu-pro": {
+            "n": 2,
+            "value": 0
+          },
+          "gpqa": {
+            "n": 2,
+            "value": 0
+          },
+          "Math": {
+            "n": 4,
+            "value": 0
+          }
+        },
+        "missing": 551,
+        "positionConsistency": 0.2184873949579832
+      },
+      "costUsd": 0.32388789999999984,
+      "calls": 275,
+      "uniqueCostUsd": 0.32388789999999984,
+      "uniqueCalls": 275
+    }
+  ],
+  "newSpendUsd": 0,
+  "newCalls": 0,
+  "replayed": 550,
+  "failedCalls": 553
+}

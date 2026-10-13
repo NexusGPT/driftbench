@@ -1,0 +1,86 @@
+{
+  "bench": "rubricbench",
+  "model": "haiku",
+  "split": "test",
+  "items": 60,
+  "contestants": [
+    {
+      "contestant": "driftbench-rb-binary-canonical-executed",
+      "source": "Expert rubric, evidence per atomic requirement, binary aggregation (dev experiment); canonical presentation with exact candidate-code execution",
+      "mode": "pairwise, both orders",
+      "summary": {
+        "metric": "accuracy (RubricBench, over games)",
+        "value": {
+          "estimate": 0.8,
+          "lower": 0.7196332649371805,
+          "upper": 0.8617552352115975
+        },
+        "n": 60,
+        "byGroup": {
+          "general": {
+            "n": 10,
+            "value": 0.8
+          },
+          "stem": {
+            "n": 24,
+            "value": 0.6666666666666666
+          },
+          "math": {
+            "n": 12,
+            "value": 0.8333333333333334
+          },
+          "human-preference": {
+            "n": 16,
+            "value": 0.5
+          },
+          "ifeval": {
+            "n": 8,
+            "value": 1
+          },
+          "code": {
+            "n": 18,
+            "value": 0.8888888888888888
+          },
+          "Precise IF": {
+            "n": 4,
+            "value": 0.5
+          },
+          "Safety": {
+            "n": 4,
+            "value": 1
+          },
+          "mbpp": {
+            "n": 4,
+            "value": 1
+          },
+          "harmlessness": {
+            "n": 4,
+            "value": 1
+          },
+          "helpful": {
+            "n": 6,
+            "value": 1
+          },
+          "Factuality": {
+            "n": 4,
+            "value": 1
+          },
+          "Focus": {
+            "n": 6,
+            "value": 1
+          }
+        },
+        "missing": 0,
+        "positionConsistency": 0.9666666666666667
+      },
+      "costUsd": 0.21058352000000014,
+      "calls": 120,
+      "uniqueCostUsd": 0.10529176,
+      "uniqueCalls": 60
+    }
+  ],
+  "newSpendUsd": 0.10529176,
+  "newCalls": 60,
+  "replayed": 60,
+  "failedCalls": 0
+}

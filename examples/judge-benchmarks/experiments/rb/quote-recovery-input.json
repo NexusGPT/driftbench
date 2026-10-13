@@ -1,0 +1,338 @@
+{
+  "matchingCommit": "8195902dd20c84267f85feba268c17868e00dfbe",
+  "observedAt": "2026-10-13T00:14:13.440Z",
+  "originalUnanchoredQuotes": 55,
+  "originalAffectedItems": 41,
+  "entries": [
+    {
+      "id": "rubric_eval_13",
+      "domain": "general",
+      "key": "fc858e827786e0c9f4c9",
+      "quoteIndexWithinKey": 0
+    },
+    {
+      "id": "rubric_eval_13",
+      "domain": "general",
+      "key": "fdfc84a39559dc4eb0cc",
+      "quoteIndexWithinKey": 0
+    },
+    {
+      "id": "rubric_eval_30",
+      "domain": "general",
+      "key": "a7c1cde725ed626e6dfc",
+      "quoteIndexWithinKey": 0
+    },
+    {
+      "id": "rubric_eval_32",
+      "domain": "general",
+      "key": "40a7d686f2f7f81f3631",
+      "quoteIndexWithinKey": 0
+    },
+    {
+      "id": "rubric_eval_36",
+      "domain": "general",
+      "key": "dd9d24bd9f90ae9f5361",
+      "quoteIndexWithinKey": 0
+    },
+    {
+      "id": "rubric_eval_37",
+      "domain": "general",
+      "key": "cdf66be27ff00dff58a9",
+      "quoteIndexWithinKey": 0
+    },
+    {
+      "id": "rubric_eval_89",
+      "domain": "stem",
+      "key": "eeeaeeca8206b6c7a800",
+      "quoteIndexWithinKey": 0
+    },
+    {
+      "id": "rubric_eval_94",
+      "domain": "code",
+      "key": "29d8af9ae3eb26cc6cc7",
+      "quoteIndexWithinKey": 0
+    },
+    {
+      "id": "rubric_eval_126",
+      "domain": "math",
+      "key": "fab77a0069c91cb47e96",
+      "quoteIndexWithinKey": 0
+    },
+    {
+      "id": "rubric_eval_142",
+      "domain": "stem",
+      "key": "0540e290d849d55e9083",
+      "quoteIndexWithinKey": 0
+    },
+    {
+      "id": "rubric_eval_164",
+      "domain": "stem",
+      "key": "1563dabd6d09edab9f3a",
+      "quoteIndexWithinKey": 0
+    },
+    {
+      "id": "rubric_eval_164",
+      "domain": "stem",
+      "key": "1563dabd6d09edab9f3a",
+      "quoteIndexWithinKey": 1
+    },
+    {
+      "id": "rubric_eval_164",
+      "domain": "stem",
+      "key": "1563dabd6d09edab9f3a",
+      "quoteIndexWithinKey": 2
+    },
+    {
+      "id": "rubric_eval_185",
+      "domain": "code",
+      "key": "d3522092241a40cae377",
+      "quoteIndexWithinKey": 0
+    },
+    {
+      "id": "rubric_eval_185",
+      "domain": "code",
+      "key": "d3522092241a40cae377",
+      "quoteIndexWithinKey": 1
+    },
+    {
+      "id": "rubric_eval_186",
+      "domain": "human-preference",
+      "key": "c260c664d8089ff5164b",
+      "quoteIndexWithinKey": 0
+    },
+    {
+      "id": "rubric_eval_186",
+      "domain": "human-preference",
+      "key": "61489f6d058e926b8353",
+      "quoteIndexWithinKey": 0
+    },
+    {
+      "id": "rubric_eval_188",
+      "domain": "general",
+      "key": "33270109be587356d6c2",
+      "quoteIndexWithinKey": 0
+    },
+    {
+      "id": "rubric_eval_195",
+      "domain": "Factuality",
+      "key": "2aa98569459c507b2805",
+      "quoteIndexWithinKey": 0
+    },
+    {
+      "id": "rubric_eval_201",
+      "domain": "ifeval",
+      "key": "15a70893cb0d00e3c7a6",
+      "quoteIndexWithinKey": 0
+    },
+    {
+      "id": "rubric_eval_234",
+      "domain": "code",
+      "key": "d264df6f9eee36f6c3b7",
+      "quoteIndexWithinKey": 0
+    },
+    {
+      "id": "rubric_eval_267",
+      "domain": "Focus",
+      "key": "a22214cc63fd4f81dfb5",
+      "quoteIndexWithinKey": 0
+    },
+    {
+      "id": "rubric_eval_298",
+      "domain": "ifeval",
+      "key": "5d9758ba3bac279e6b1b",
+      "quoteIndexWithinKey": 0
+    },
+    {
+      "id": "rubric_eval_409",
+      "domain": "ifeval",
+      "key": "eb1e704fd30c2294e627",
+      "quoteIndexWithinKey": 0
+    },
+    {
+      "id": "rubric_eval_432",
+      "domain": "math",
+      "key": "d9ecc7cbe597db352bf7",
+      "quoteIndexWithinKey": 0
+    },
+    {
+      "id": "rubric_eval_445",
+      "domain": "human-preference",
+      "key": "e5302ef2b45dc389222e",
+      "quoteIndexWithinKey": 0
+    },
+    {
+      "id": "rubric_eval_491",
+      "domain": "code",
+      "key": "2b609a5bedbfc59ddbbb",
+      "quoteIndexWithinKey": 0
+    },
+    {
+      "id": "rubric_eval_493",
+      "domain": "stem",
+      "key": "71d20065c543c3af156a",
+      "quoteIndexWithinKey": 0
+    },
+    {
+      "id": "rubric_eval_499",
+      "domain": "math",
+      "key": "2e98d2b808faacc3ee94",
+      "quoteIndexWithinKey": 0
+    },
+    {
+      "id": "rubric_eval_591",
+      "domain": "stem",
+      "key": "a2044687760e3b3ace39",
+      "quoteIndexWithinKey": 0
+    },
+    {
+      "id": "rubric_eval_602",
+      "domain": "human-preference",
+      "key": "fae59cdd0d79fb867659",
+      "quoteIndexWithinKey": 0
+    },
+    {
+      "id": "rubric_eval_661",
+      "domain": "general",
+      "key": "14bec033912393776bb3",
+      "quoteIndexWithinKey": 0
+    },
+    {
+      "id": "rubric_eval_687",
+      "domain": "math",
+      "key": "e07262d6cc4654e4af20",
+      "quoteIndexWithinKey": 0
+    },
+    {
+      "id": "rubric_eval_755",
+      "domain": "human-preference",
+      "key": "9650a698f2b6506bb05e",
+      "quoteIndexWithinKey": 0
+    },
+    {
+      "id": "rubric_eval_767",
+      "domain": "harmlessness",
+      "key": "9655e63c5e55f04887f5",
+      "quoteIndexWithinKey": 0
+    },
+    {
+      "id": "rubric_eval_803",
+      "domain": "code",
+      "key": "b9736427fa48cd1935ad",
+      "quoteIndexWithinKey": 0
+    },
+    {
+      "id": "rubric_eval_805",
+      "domain": "general",
+      "key": "716ff2ab58ae5553fcf6",
+      "quoteIndexWithinKey": 0
+    },
+    {
+      "id": "rubric_eval_817",
+      "domain": "ifeval",
+      "key": "0d99559a8bce083d2c8e",
+      "quoteIndexWithinKey": 0
+    },
+    {
+      "id": "rubric_eval_817",
+      "domain": "ifeval",
+      "key": "0d99559a8bce083d2c8e",
+      "quoteIndexWithinKey": 1
+    },
+    {
+      "id": "rubric_eval_817",
+      "domain": "ifeval",
+      "key": "0d99559a8bce083d2c8e",
+      "quoteIndexWithinKey": 2
+    },
+    {
+      "id": "rubric_eval_864",
+      "domain": "gpqa",
+      "key": "be0f80877e71881e029d",
+      "quoteIndexWithinKey": 0
+    },
+    {
+      "id": "rubric_eval_933",
+      "domain": "Precise IF",
+      "key": "aa30f9a2465da1a210a2",
+      "quoteIndexWithinKey": 0
+    },
+    {
+      "id": "rubric_eval_937",
+      "domain": "general",
+      "key": "3e01d0c7e68b40613b27",
+      "quoteIndexWithinKey": 0
+    },
+    {
+      "id": "rubric_eval_937",
+      "domain": "general",
+      "key": "3e01d0c7e68b40613b27",
+      "quoteIndexWithinKey": 1
+    },
+    {
+      "id": "rubric_eval_937",
+      "domain": "general",
+      "key": "3e01d0c7e68b40613b27",
+      "quoteIndexWithinKey": 2
+    },
+    {
+      "id": "rubric_eval_937",
+      "domain": "general",
+      "key": "d88c0ec67e3d8b379e95",
+      "quoteIndexWithinKey": 0
+    },
+    {
+      "id": "rubric_eval_942",
+      "domain": "human-preference",
+      "key": "bd795e2bae83fbe0b0f3",
+      "quoteIndexWithinKey": 0
+    },
+    {
+      "id": "rubric_eval_942",
+      "domain": "human-preference",
+      "key": "bd795e2bae83fbe0b0f3",
+      "quoteIndexWithinKey": 1
+    },
+    {
+      "id": "rubric_eval_942",
+      "domain": "human-preference",
+      "key": "bd795e2bae83fbe0b0f3",
+      "quoteIndexWithinKey": 2
+    },
+    {
+      "id": "rubric_eval_942",
+      "domain": "human-preference",
+      "key": "bd795e2bae83fbe0b0f3",
+      "quoteIndexWithinKey": 3
+    },
+    {
+      "id": "rubric_eval_991",
+      "domain": "code",
+      "key": "a877cf53e3f7732986c3",
+      "quoteIndexWithinKey": 0
+    },
+    {
+      "id": "rubric_eval_1009",
+      "domain": "code",
+      "key": "a482a001d4b765b8d5bc",
+      "quoteIndexWithinKey": 0
+    },
+    {
+      "id": "rubric_eval_1009",
+      "domain": "code",
+      "key": "a482a001d4b765b8d5bc",
+      "quoteIndexWithinKey": 1
+    },
+    {
+      "id": "rubric_eval_1024",
+      "domain": "code",
+      "key": "92e6a271eef60eee04db",
+      "quoteIndexWithinKey": 0
+    },
+    {
+      "id": "rubric_eval_1037",
+      "domain": "stem",
+      "key": "27fda9506b2ad0b814d1",
+      "quoteIndexWithinKey": 0
+    }
+  ]
+}
