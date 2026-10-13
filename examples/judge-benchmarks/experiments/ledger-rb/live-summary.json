@@ -1,5 +1,5 @@
 {
-  "createdAt": "2026-10-13T07:53:43.166Z",
+  "createdAt": "2026-10-13T09:29:22.290Z",
   "settings": {
     "coreCommit": "35f07309a4d1d1c8a7c5b176ff19e537d0ef8fdd",
     "corePr": 168,
@@ -14,12 +14,30 @@
       "gemini-3.8-flash": "medium"
     },
     "maxTokens": 8192,
-    "timeoutMs": 180000,
+    "timeoutMs": 300000,
+    "transportTries": 3,
     "maxRetries": 0,
-    "capUsd": 20,
+    "capUsd": 45,
     "reserveUsd": 0.1,
-    "concurrency": 4,
+    "concurrency": 12,
     "testOrderSeed": "ledger-rb-test-order-v1",
+    "modelConcurrency": {
+      "claude-haiku-5-5": 2,
+      "gpt-6-luna": 8,
+      "gemini-3.8-flash": 2
+    },
+    "rateLimitWaitMs": [
+      60000,
+      120000,
+      240000
+    ],
+    "providerBlockPolicy": "An empty model answer with an explicit provider block/refusal reason is provider-blocked. Any blocked request makes the whole item an error for that contestant in the headline score, identically for ledger and promptfoo. The second score removes an item from both contestants on that model if either was provider-blocked. Nonempty model refusals are ordinary returned answers. Provider blocks are never retried.",
+    "providerBlockProbe": {
+      "id": "rubric_eval_1008",
+      "model": "gemini-3.8-flash",
+      "contestant": "promptfoo",
+      "orders": 2
+    },
     "stage0": {
       "correctness": false,
       "compute": false
@@ -39,13 +57,59 @@
     "priceSource": "Core PR 168 llm-shim.mjs and dossier-ledger-core.md; official pricing verified 2026-10-13: developers.openai.com/api/docs/pricing and ai.google.dev/gemini-api/docs/pricing. Gemini uses conservative uncached input pricing.",
     "seatPolicy": "Only the model under test is eligible. No cross-vendor seat. Six distinct DEV fixtures, each correct on all three independent reads, kappa >= 0.8. Failed or undersized domains use the same base model. Earning changes seat eligibility, never prompt or model settings.",
     "validityScope": "20 planted arithmetic or supplied-reference facts with exact labels. Measures the pipeline on these fixtures only; not broad natural-data validity.",
-    "retryPolicy": "No HTTP retries or content retries. One schema reask only inside the frozen core contract. Recorded transport errors are not retried."
+    "retryPolicy": "Owner amendment: at most three ordinary transport attempts, 300-second timeout. HTTP 429 is no answer: wait 60, 120, then 240 seconds before retrying; after exhaustion stop incomplete without a judge verdict. Never retry a returned answer, including unparsed answers. Core schema reasks are suppressed. Unknown failed or interrupted attempts retain their reservations; confirmed 429 attempts cost zero."
   },
-  "chargedUsd": 0.6558745399999993,
+  "providerBlockProbe": [
+    {
+      "contestant": "pair-ledger",
+      "sample": 0,
+      "providerBlocked": true,
+      "status": "provider-blocked",
+      "blockedCalls": 2,
+      "callKeys": [
+        "6a93961fd0c0601eb6196b273cd2ec4e1694dc024f156936983232b0dd7a6c85",
+        "049ce175a5a59ef3fb0470998c8f986be650cec9704724c783a6c90de8ed3714"
+      ]
+    },
+    {
+      "contestant": "pair-ledger",
+      "sample": 1,
+      "providerBlocked": true,
+      "status": "provider-blocked",
+      "blockedCalls": 2,
+      "callKeys": [
+        "8c4c7b469dc5f02ba9807a754c41b75b21a8f33c492b8ccc80548c1cd39b588a",
+        "d661e12d962beecf690a563959edc1bfd19ec0cc387c91b420d8706dc5da8015"
+      ]
+    },
+    {
+      "contestant": "pair-ledger",
+      "sample": 2,
+      "providerBlocked": true,
+      "status": "provider-blocked",
+      "blockedCalls": 2,
+      "callKeys": [
+        "78fbb970c33385cafa22c91e33ff3610780b0963c4b48b1f931e2e1cb6f50777",
+        "3c8ee18873620222ce769a60443d1c5f1f98007a9d4916cbeddeb2139958f1fd"
+      ]
+    },
+    {
+      "contestant": "promptfoo",
+      "sample": 0,
+      "providerBlocked": false,
+      "status": "decided",
+      "blockedCalls": 0,
+      "callKeys": [
+        "3b6a9157674317c4f0e03895ebdcd96ae8d6e7d49b3ab5d90ff1462ee717a712",
+        "7dc66f4fa1125d691bab641608e1328ab707823a2b04d94d10124a5ef5061ba1"
+      ]
+    }
+  ],
+  "chargedUsd": 7.039195819999996,
   "uncertainCalls": 0,
-  "uniqueCalls": 246,
-  "knownCostUsd": 0.6558745399999996,
-  "reservedUnknownUsd": 0,
+  "uniqueCalls": 2013,
+  "knownCostUsd": 5.2391958199999955,
+  "reservedUnknownUsd": 1.8000000000000005,
   "cells": [
     {
       "model": "claude-haiku-5-5",
@@ -62,9 +126,12 @@
           "reportedOrUsageUsd": 0,
           "reservedUnknownUsd": 0,
           "transportErrors": 0,
+          "rateLimits": 0,
           "pairs": 0,
           "per100GamesUsd": null,
           "unparsedOrError": 0,
+          "providerBlockedPairs": 0,
+          "providerBlockedCalls": 0,
           "tiesOrMissing": 0
         },
         "promptfoo": {
@@ -73,11 +140,23 @@
           "reportedOrUsageUsd": 0,
           "reservedUnknownUsd": 0,
           "transportErrors": 0,
+          "rateLimits": 0,
           "pairs": 0,
           "per100GamesUsd": null,
           "unparsedOrError": 0,
+          "providerBlockedPairs": 0,
+          "providerBlockedCalls": 0,
           "tiesOrMissing": 0
         }
+      },
+      "providerBlockExcluded": {
+        "matchedPairs": 0,
+        "excludedPairs": 0,
+        "ledgerOnly": 0,
+        "promptfooOnly": 0,
+        "both": 0,
+        "stats": null,
+        "status": "Secondary score on the identical, model-specific unblocked item intersection; headline verdict and 18-cell correction use all sealed items."
       },
       "baseOnlyIneligibleTotal": {
         "pairs": 24,
@@ -120,7 +199,7 @@
       "earnedRoutedMeasured": 0,
       "gates": {
         "model": "claude-haiku-5-5",
-        "allowTest": false,
+        "allowTest": true,
         "pilot": {
           "pair-ledger": {
             "pairs": 20,
@@ -130,6 +209,7 @@
             "reportedOrUsageUsd": 0.08764272000000001,
             "reservedUnknownUsd": 0,
             "transportErrors": 0,
+            "rateLimits": 0,
             "per100PairsUsd": 0.4382136,
             "projected790Usd": 3.46188744,
             "accuracy": 0.8,
@@ -143,6 +223,7 @@
             "reportedOrUsageUsd": 0.0294723,
             "reservedUnknownUsd": 0,
             "transportErrors": 0,
+            "rateLimits": 0,
             "per100PairsUsd": 0.1473615,
             "projected790Usd": 1.16415585,
             "accuracy": 0.75,
@@ -153,22 +234,22 @@
           {
             "group": "Factuality",
             "eligible": true,
-            "rows": 0,
+            "rows": 18,
             "expected": 18,
-            "correct": 0,
-            "kappa": 0,
-            "earned": false,
-            "route": "base model"
+            "correct": 18,
+            "kappa": 1,
+            "earned": true,
+            "route": "earned same-model seat"
           },
           {
             "group": "Focus",
             "eligible": true,
-            "rows": 0,
+            "rows": 18,
             "expected": 18,
-            "correct": 0,
-            "kappa": 0,
-            "earned": false,
-            "route": "base model"
+            "correct": 18,
+            "kappa": 1,
+            "earned": true,
+            "route": "earned same-model seat"
           },
           {
             "group": "Math",
@@ -183,40 +264,40 @@
           {
             "group": "Precise IF",
             "eligible": true,
-            "rows": 0,
+            "rows": 18,
             "expected": 18,
-            "correct": 0,
-            "kappa": 0,
+            "correct": 5,
+            "kappa": -0.08333333333333327,
             "earned": false,
             "route": "base model"
           },
           {
             "group": "Safety",
             "eligible": true,
-            "rows": 0,
+            "rows": 18,
             "expected": 18,
-            "correct": 0,
-            "kappa": 0,
-            "earned": false,
-            "route": "base model"
+            "correct": 18,
+            "kappa": 1,
+            "earned": true,
+            "route": "earned same-model seat"
           },
           {
             "group": "code",
             "eligible": true,
-            "rows": 0,
+            "rows": 18,
             "expected": 18,
-            "correct": 0,
-            "kappa": 0,
+            "correct": 12,
+            "kappa": -0.20000000000000007,
             "earned": false,
             "route": "base model"
           },
           {
             "group": "general",
             "eligible": true,
-            "rows": 0,
+            "rows": 18,
             "expected": 18,
-            "correct": 0,
-            "kappa": 0,
+            "correct": 12,
+            "kappa": 0.4193548387096773,
             "earned": false,
             "route": "base model"
           },
@@ -233,9 +314,9 @@
           {
             "group": "harmlessness",
             "eligible": true,
-            "rows": 0,
+            "rows": 18,
             "expected": 18,
-            "correct": 0,
+            "correct": 14,
             "kappa": 0,
             "earned": false,
             "route": "base model"
@@ -253,32 +334,32 @@
           {
             "group": "human-preference",
             "eligible": true,
-            "rows": 0,
+            "rows": 18,
             "expected": 18,
-            "correct": 0,
-            "kappa": 0,
+            "correct": 12,
+            "kappa": 0.4193548387096773,
             "earned": false,
             "route": "base model"
           },
           {
             "group": "ifeval",
             "eligible": true,
-            "rows": 0,
+            "rows": 18,
             "expected": 18,
-            "correct": 0,
-            "kappa": 0,
+            "correct": 16,
+            "kappa": 0.7692307692307692,
             "earned": false,
             "route": "base model"
           },
           {
             "group": "math",
             "eligible": true,
-            "rows": 0,
+            "rows": 18,
             "expected": 18,
-            "correct": 0,
-            "kappa": 0,
-            "earned": false,
-            "route": "base model"
+            "correct": 18,
+            "kappa": 1,
+            "earned": true,
+            "route": "earned same-model seat"
           },
           {
             "group": "mbpp",
@@ -303,66 +384,66 @@
           {
             "group": "stem",
             "eligible": true,
-            "rows": 0,
+            "rows": 18,
             "expected": 18,
-            "correct": 0,
-            "kappa": 0,
+            "correct": 10,
+            "kappa": 0.2941176470588236,
             "earned": false,
             "route": "base model"
           }
         ],
         "noise": {
-          "pairs": 0,
+          "pairs": 30,
           "expectedPairs": 30,
-          "readings": 0,
-          "comparisonsToFirst": 0,
-          "flipsFromFirst": 0,
-          "unstablePairs": 0,
-          "accuracy": null
+          "readings": 90,
+          "comparisonsToFirst": 60,
+          "flipsFromFirst": 1,
+          "unstablePairs": 1,
+          "accuracy": 0.8555555555555555
         },
         "validity": {
           "baseline": {
-            "pairs": 0,
+            "pairs": 20,
             "expected": 20,
-            "correct": 0,
-            "accuracy": null,
-            "consistent": 0,
-            "consistency": null
+            "correct": 20,
+            "accuracy": 1,
+            "consistent": 20,
+            "consistency": 1
           },
           "relabel": {
-            "pairs": 0,
+            "pairs": 20,
             "expected": 20,
-            "correct": 0,
-            "accuracy": null,
-            "consistent": 0,
-            "consistency": null
+            "correct": 20,
+            "accuracy": 1,
+            "consistent": 20,
+            "consistency": 1
           },
           "markdown": {
-            "pairs": 0,
+            "pairs": 20,
             "expected": 20,
-            "correct": 0,
-            "accuracy": null,
-            "consistent": 0,
-            "consistency": null
+            "correct": 20,
+            "accuracy": 1,
+            "consistent": 20,
+            "consistency": 1
           },
           "changedFinal": {
-            "pairs": 0,
+            "pairs": 20,
             "expected": 20,
-            "correct": 0,
-            "accuracy": null,
-            "consistent": 0,
-            "consistency": null
+            "correct": 20,
+            "accuracy": 1,
+            "consistent": 20,
+            "consistency": 1
           },
           "injection": {
-            "pairs": 0,
+            "pairs": 20,
             "expected": 20,
-            "correct": 0,
-            "accuracy": null,
-            "consistent": 0,
-            "consistency": null
+            "correct": 20,
+            "accuracy": 1,
+            "consistent": 20,
+            "consistency": 1
           }
         },
-        "validityPass": false,
+        "validityPass": true,
         "cheaters": {
           "constantFirstGameAccuracy": 0.5,
           "longerWinsAccuracy": 0.4677871148459384,
@@ -427,9 +508,12 @@
           "reportedOrUsageUsd": 0,
           "reservedUnknownUsd": 0,
           "transportErrors": 0,
+          "rateLimits": 0,
           "pairs": 0,
           "per100GamesUsd": null,
           "unparsedOrError": 0,
+          "providerBlockedPairs": 0,
+          "providerBlockedCalls": 0,
           "tiesOrMissing": 0
         },
         "promptfoo": {
@@ -438,11 +522,23 @@
           "reportedOrUsageUsd": 0,
           "reservedUnknownUsd": 0,
           "transportErrors": 0,
+          "rateLimits": 0,
           "pairs": 0,
           "per100GamesUsd": null,
           "unparsedOrError": 0,
+          "providerBlockedPairs": 0,
+          "providerBlockedCalls": 0,
           "tiesOrMissing": 0
         }
+      },
+      "providerBlockExcluded": {
+        "matchedPairs": 0,
+        "excludedPairs": 0,
+        "ledgerOnly": 0,
+        "promptfooOnly": 0,
+        "both": 0,
+        "stats": null,
+        "status": "Secondary score on the identical, model-specific unblocked item intersection; headline verdict and 18-cell correction use all sealed items."
       },
       "baseOnlyIneligibleTotal": {
         "pairs": 24,
@@ -485,7 +581,7 @@
       "earnedRoutedMeasured": 0,
       "gates": {
         "model": "gpt-6-luna",
-        "allowTest": false,
+        "allowTest": true,
         "pilot": {
           "pair-ledger": {
             "pairs": 20,
@@ -495,6 +591,7 @@
             "reportedOrUsageUsd": 0.03521507000000001,
             "reservedUnknownUsd": 0,
             "transportErrors": 0,
+            "rateLimits": 0,
             "per100PairsUsd": 0.17607535000000005,
             "projected790Usd": 1.3909952650000004,
             "accuracy": 0.8,
@@ -508,6 +605,7 @@
             "reportedOrUsageUsd": 0.008729699999999998,
             "reservedUnknownUsd": 0,
             "transportErrors": 0,
+            "rateLimits": 0,
             "per100PairsUsd": 0.04364849999999999,
             "projected790Usd": 0.3448231499999999,
             "accuracy": 0.8,
@@ -518,20 +616,20 @@
           {
             "group": "Factuality",
             "eligible": true,
-            "rows": 0,
+            "rows": 18,
             "expected": 18,
-            "correct": 0,
-            "kappa": 0,
-            "earned": false,
-            "route": "base model"
+            "correct": 18,
+            "kappa": 1,
+            "earned": true,
+            "route": "earned same-model seat"
           },
           {
             "group": "Focus",
             "eligible": true,
-            "rows": 0,
+            "rows": 18,
             "expected": 18,
-            "correct": 0,
-            "kappa": 0,
+            "correct": 17,
+            "kappa": 0.8846153846153846,
             "earned": false,
             "route": "base model"
           },
@@ -548,40 +646,40 @@
           {
             "group": "Precise IF",
             "eligible": true,
-            "rows": 0,
+            "rows": 18,
             "expected": 18,
-            "correct": 0,
-            "kappa": 0,
+            "correct": 11,
+            "kappa": 0.44000000000000006,
             "earned": false,
             "route": "base model"
           },
           {
             "group": "Safety",
             "eligible": true,
-            "rows": 0,
+            "rows": 18,
             "expected": 18,
-            "correct": 0,
-            "kappa": 0,
-            "earned": false,
-            "route": "base model"
+            "correct": 18,
+            "kappa": 1,
+            "earned": true,
+            "route": "earned same-model seat"
           },
           {
             "group": "code",
             "eligible": true,
-            "rows": 0,
+            "rows": 18,
             "expected": 18,
-            "correct": 0,
-            "kappa": 0,
+            "correct": 12,
+            "kappa": -0.20000000000000007,
             "earned": false,
             "route": "base model"
           },
           {
             "group": "general",
             "eligible": true,
-            "rows": 0,
+            "rows": 18,
             "expected": 18,
-            "correct": 0,
-            "kappa": 0,
+            "correct": 16,
+            "kappa": 0.7857142857142856,
             "earned": false,
             "route": "base model"
           },
@@ -598,9 +696,9 @@
           {
             "group": "harmlessness",
             "eligible": true,
-            "rows": 0,
+            "rows": 18,
             "expected": 18,
-            "correct": 0,
+            "correct": 13,
             "kappa": 0,
             "earned": false,
             "route": "base model"
@@ -618,30 +716,30 @@
           {
             "group": "human-preference",
             "eligible": true,
-            "rows": 0,
+            "rows": 18,
             "expected": 18,
-            "correct": 0,
-            "kappa": 0,
+            "correct": 12,
+            "kappa": 0.4193548387096773,
             "earned": false,
             "route": "base model"
           },
           {
             "group": "ifeval",
             "eligible": true,
-            "rows": 0,
+            "rows": 18,
             "expected": 18,
-            "correct": 0,
-            "kappa": 0,
-            "earned": false,
-            "route": "base model"
+            "correct": 18,
+            "kappa": 1,
+            "earned": true,
+            "route": "earned same-model seat"
           },
           {
             "group": "math",
             "eligible": true,
-            "rows": 0,
+            "rows": 18,
             "expected": 18,
-            "correct": 0,
-            "kappa": 0,
+            "correct": 16,
+            "kappa": 0.7777777777777777,
             "earned": false,
             "route": "base model"
           },
@@ -668,66 +766,66 @@
           {
             "group": "stem",
             "eligible": true,
-            "rows": 0,
+            "rows": 18,
             "expected": 18,
-            "correct": 0,
-            "kappa": 0,
+            "correct": 13,
+            "kappa": 0.5161290322580645,
             "earned": false,
             "route": "base model"
           }
         ],
         "noise": {
-          "pairs": 0,
+          "pairs": 30,
           "expectedPairs": 30,
-          "readings": 0,
-          "comparisonsToFirst": 0,
-          "flipsFromFirst": 0,
-          "unstablePairs": 0,
-          "accuracy": null
+          "readings": 90,
+          "comparisonsToFirst": 60,
+          "flipsFromFirst": 4,
+          "unstablePairs": 2,
+          "accuracy": 0.8
         },
         "validity": {
           "baseline": {
-            "pairs": 0,
+            "pairs": 20,
             "expected": 20,
-            "correct": 0,
-            "accuracy": null,
-            "consistent": 0,
-            "consistency": null
+            "correct": 20,
+            "accuracy": 1,
+            "consistent": 20,
+            "consistency": 1
           },
           "relabel": {
-            "pairs": 0,
+            "pairs": 20,
             "expected": 20,
-            "correct": 0,
-            "accuracy": null,
-            "consistent": 0,
-            "consistency": null
+            "correct": 20,
+            "accuracy": 1,
+            "consistent": 20,
+            "consistency": 1
           },
           "markdown": {
-            "pairs": 0,
+            "pairs": 20,
             "expected": 20,
-            "correct": 0,
-            "accuracy": null,
-            "consistent": 0,
-            "consistency": null
+            "correct": 20,
+            "accuracy": 1,
+            "consistent": 20,
+            "consistency": 1
           },
           "changedFinal": {
-            "pairs": 0,
+            "pairs": 20,
             "expected": 20,
-            "correct": 0,
-            "accuracy": null,
-            "consistent": 0,
-            "consistency": null
+            "correct": 20,
+            "accuracy": 1,
+            "consistent": 20,
+            "consistency": 1
           },
           "injection": {
-            "pairs": 0,
+            "pairs": 20,
             "expected": 20,
-            "correct": 0,
-            "accuracy": null,
-            "consistent": 0,
-            "consistency": null
+            "correct": 20,
+            "accuracy": 1,
+            "consistent": 20,
+            "consistency": 1
           }
         },
-        "validityPass": false,
+        "validityPass": true,
         "cheaters": {
           "constantFirstGameAccuracy": 0.5,
           "longerWinsAccuracy": 0.4677871148459384,
@@ -792,9 +890,12 @@
           "reportedOrUsageUsd": 0,
           "reservedUnknownUsd": 0,
           "transportErrors": 0,
+          "rateLimits": 0,
           "pairs": 0,
           "per100GamesUsd": null,
           "unparsedOrError": 0,
+          "providerBlockedPairs": 0,
+          "providerBlockedCalls": 0,
           "tiesOrMissing": 0
         },
         "promptfoo": {
@@ -803,11 +904,23 @@
           "reportedOrUsageUsd": 0,
           "reservedUnknownUsd": 0,
           "transportErrors": 0,
+          "rateLimits": 0,
           "pairs": 0,
           "per100GamesUsd": null,
           "unparsedOrError": 0,
+          "providerBlockedPairs": 0,
+          "providerBlockedCalls": 0,
           "tiesOrMissing": 0
         }
+      },
+      "providerBlockExcluded": {
+        "matchedPairs": 0,
+        "excludedPairs": 0,
+        "ledgerOnly": 0,
+        "promptfooOnly": 0,
+        "both": 0,
+        "stats": null,
+        "status": "Secondary score on the identical, model-specific unblocked item intersection; headline verdict and 18-cell correction use all sealed items."
       },
       "baseOnlyIneligibleTotal": {
         "pairs": 24,
@@ -850,7 +963,7 @@
       "earnedRoutedMeasured": 0,
       "gates": {
         "model": "gemini-3.8-flash",
-        "allowTest": false,
+        "allowTest": true,
         "pilot": {
           "pair-ledger": {
             "pairs": 20,
@@ -860,6 +973,7 @@
             "reportedOrUsageUsd": 0.35052825,
             "reservedUnknownUsd": 0,
             "transportErrors": 0,
+            "rateLimits": 0,
             "per100PairsUsd": 1.7526412499999997,
             "projected790Usd": 13.845865874999998,
             "accuracy": 0.8,
@@ -873,6 +987,7 @@
             "reportedOrUsageUsd": 0.1442865,
             "reservedUnknownUsd": 0,
             "transportErrors": 0,
+            "rateLimits": 0,
             "per100PairsUsd": 0.7214325,
             "projected790Usd": 5.69931675,
             "accuracy": 0.85,
@@ -883,22 +998,22 @@
           {
             "group": "Factuality",
             "eligible": true,
-            "rows": 0,
+            "rows": 18,
             "expected": 18,
-            "correct": 0,
-            "kappa": 0,
-            "earned": false,
-            "route": "base model"
+            "correct": 18,
+            "kappa": 1,
+            "earned": true,
+            "route": "earned same-model seat"
           },
           {
             "group": "Focus",
             "eligible": true,
-            "rows": 0,
+            "rows": 18,
             "expected": 18,
-            "correct": 0,
-            "kappa": 0,
-            "earned": false,
-            "route": "base model"
+            "correct": 18,
+            "kappa": 1,
+            "earned": true,
+            "route": "earned same-model seat"
           },
           {
             "group": "Math",
@@ -913,40 +1028,40 @@
           {
             "group": "Precise IF",
             "eligible": true,
-            "rows": 0,
+            "rows": 18,
             "expected": 18,
-            "correct": 0,
-            "kappa": 0,
+            "correct": 9,
+            "kappa": 0.25,
             "earned": false,
             "route": "base model"
           },
           {
             "group": "Safety",
             "eligible": true,
-            "rows": 0,
+            "rows": 18,
             "expected": 18,
-            "correct": 0,
-            "kappa": 0,
+            "correct": 17,
+            "kappa": 0.8947368421052632,
             "earned": false,
             "route": "base model"
           },
           {
             "group": "code",
             "eligible": true,
-            "rows": 0,
+            "rows": 18,
             "expected": 18,
-            "correct": 0,
-            "kappa": 0,
+            "correct": 11,
+            "kappa": -0.07692307692307664,
             "earned": false,
             "route": "base model"
           },
           {
             "group": "general",
             "eligible": true,
-            "rows": 0,
+            "rows": 18,
             "expected": 18,
-            "correct": 0,
-            "kappa": 0,
+            "correct": 16,
+            "kappa": 0.7857142857142856,
             "earned": false,
             "route": "base model"
           },
@@ -963,9 +1078,9 @@
           {
             "group": "harmlessness",
             "eligible": true,
-            "rows": 0,
+            "rows": 18,
             "expected": 18,
-            "correct": 0,
+            "correct": 17,
             "kappa": 0,
             "earned": false,
             "route": "base model"
@@ -983,30 +1098,30 @@
           {
             "group": "human-preference",
             "eligible": true,
-            "rows": 0,
+            "rows": 18,
             "expected": 18,
-            "correct": 0,
-            "kappa": 0,
+            "correct": 10,
+            "kappa": 0.2500000000000001,
             "earned": false,
             "route": "base model"
           },
           {
             "group": "ifeval",
             "eligible": true,
-            "rows": 0,
+            "rows": 18,
             "expected": 18,
-            "correct": 0,
-            "kappa": 0,
+            "correct": 16,
+            "kappa": 0.7857142857142856,
             "earned": false,
             "route": "base model"
           },
           {
             "group": "math",
             "eligible": true,
-            "rows": 0,
+            "rows": 18,
             "expected": 18,
-            "correct": 0,
-            "kappa": 0,
+            "correct": 13,
+            "kappa": 0.5652173913043479,
             "earned": false,
             "route": "base model"
           },
@@ -1033,66 +1148,66 @@
           {
             "group": "stem",
             "eligible": true,
-            "rows": 0,
+            "rows": 18,
             "expected": 18,
-            "correct": 0,
-            "kappa": 0,
+            "correct": 12,
+            "kappa": 0.39999999999999997,
             "earned": false,
             "route": "base model"
           }
         ],
         "noise": {
-          "pairs": 0,
+          "pairs": 30,
           "expectedPairs": 30,
-          "readings": 0,
-          "comparisonsToFirst": 0,
-          "flipsFromFirst": 0,
-          "unstablePairs": 0,
-          "accuracy": null
+          "readings": 90,
+          "comparisonsToFirst": 60,
+          "flipsFromFirst": 1,
+          "unstablePairs": 1,
+          "accuracy": 0.7111111111111111
         },
         "validity": {
           "baseline": {
-            "pairs": 0,
+            "pairs": 20,
             "expected": 20,
-            "correct": 0,
-            "accuracy": null,
-            "consistent": 0,
-            "consistency": null
+            "correct": 20,
+            "accuracy": 1,
+            "consistent": 20,
+            "consistency": 1
           },
           "relabel": {
-            "pairs": 0,
+            "pairs": 20,
             "expected": 20,
-            "correct": 0,
-            "accuracy": null,
-            "consistent": 0,
-            "consistency": null
+            "correct": 20,
+            "accuracy": 1,
+            "consistent": 20,
+            "consistency": 1
           },
           "markdown": {
-            "pairs": 0,
+            "pairs": 20,
             "expected": 20,
-            "correct": 0,
-            "accuracy": null,
-            "consistent": 0,
-            "consistency": null
+            "correct": 20,
+            "accuracy": 1,
+            "consistent": 20,
+            "consistency": 1
           },
           "changedFinal": {
-            "pairs": 0,
+            "pairs": 20,
             "expected": 20,
-            "correct": 0,
-            "accuracy": null,
-            "consistent": 0,
-            "consistency": null
+            "correct": 20,
+            "accuracy": 1,
+            "consistent": 20,
+            "consistency": 1
           },
           "injection": {
-            "pairs": 0,
+            "pairs": 20,
             "expected": 20,
-            "correct": 0,
-            "accuracy": null,
-            "consistent": 0,
-            "consistency": null
+            "correct": 20,
+            "accuracy": 1,
+            "consistent": 20,
+            "consistency": 1
           }
         },
-        "validityPass": false,
+        "validityPass": true,
         "cheaters": {
           "constantFirstGameAccuracy": 0.5,
           "longerWinsAccuracy": 0.4677871148459384,
