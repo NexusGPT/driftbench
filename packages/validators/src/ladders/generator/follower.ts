@@ -174,9 +174,39 @@ export function createFollower(spec: HiddenSpec, mutation: Mutation = {}): () =>
         return seen;
       },
     });
-    return {
+    let initialized = false;
+    let activeMutation = mutation;
+    const session: FaultSession = {
       payloads: () => payloads,
       async respond(messages: Message[], world: WorldState): Promise<Observed> {
+        if (!initialized) {
+          initialized = true;
+          // A fresh teacher-forced session receives completed turns before its current turn.
+          // Replay those turns under the reference rules, using each recorded tool response.
+          // Historical actions establish state; they are not new actions or mutation opportunities.
+          activeMutation = {};
+          try {
+            const prefix: Message[] = [];
+            for (const message of messages) {
+              if (message.role === 'assistant' && prefix.at(-1)?.role === 'user') {
+                const priorTools: NonNullable<WorldState['tools']> = {};
+                for (const call of message.tool_calls ?? []) {
+                  priorTools[call.label] =
+                    call.error !== undefined
+                      ? { error: call.error }
+                      : call.output !== undefined
+                        ? { result: call.output }
+                        : {};
+                }
+                await session.respond(prefix, { tools: priorTools });
+              }
+              prefix.push(message);
+            }
+          } finally {
+            activeMutation = mutation;
+            payloads.length = 0;
+          }
+        }
         const text = userTurn(messages).trim();
         const segments: Segment[] = [];
         const toolCalls: ToolCall[] = [];
@@ -207,8 +237,8 @@ export function createFollower(spec: HiddenSpec, mutation: Mutation = {}): () =>
           const field = tool.input[0]?.name;
           if (field !== undefined && memory[tool.slot] !== undefined) wanted[field] = memory[tool.slot];
           Object.assign(wanted, stated);
-          const input = mutation.input?.(tool, wanted, ctx()) ?? wanted;
-          const times = mutation.calls?.(tool, 1, ctx()) ?? 1;
+          const input = activeMutation.input?.(tool, wanted, ctx()) ?? wanted;
+          const times = activeMutation.calls?.(tool, 1, ctx()) ?? 1;
           if (times === 0) {
             facts.push(
               ...tool.output.map((property) => ({
@@ -222,7 +252,7 @@ export function createFollower(spec: HiddenSpec, mutation: Mutation = {}): () =>
           const override = world.tools?.[tool.name];
           if (override?.error !== undefined) {
             const rule = tool.sideEffect ? 'stop' : 'retry';
-            const choice = mutation.failure?.(tool, rule, ctx()) ?? rule;
+            const choice = activeMutation.failure?.(tool, rule, ctx()) ?? rule;
             const attempts = choice === 'retry' ? 2 : choice === 'retry-many' ? 4 : 1;
             for (let attempt = 0; attempt < attempts; attempt += 1)
               record(tool.name, input, null, override.error);
@@ -258,14 +288,14 @@ export function createFollower(spec: HiddenSpec, mutation: Mutation = {}): () =>
             .map((line) => readTurn(spec, line))
             .find((found) => found !== undefined);
         for (const [name, value] of Object.entries(read?.slots ?? {})) {
-          memory[name] = mutation.slot?.(name, value, memory[name], ctx()) ?? value;
+          memory[name] = activeMutation.slot?.(name, value, memory[name], ctx()) ?? value;
         }
         const intent = read?.intent;
         switch (intent?.kind) {
           case 'transition': {
             const edge = spec.transitions.find((candidate) => candidate.id === intent.edge);
             if (edge && edge.from === stage) {
-              const target = mutation.move?.(stage, edge.to, ctx()) ?? edge.to;
+              const target = activeMutation.move?.(stage, edge.to, ctx()) ?? edge.to;
               enter(target);
               said = 'Thank you, noted.';
             } else {
@@ -278,7 +308,7 @@ export function createFollower(spec: HiddenSpec, mutation: Mutation = {}): () =>
               intent.class === 'D2_goal_shift'
                 ? { stage: spec.goal, enter: true, said: DETOUR_TEXT.D2_goal_shift }
                 : { stage, enter: false, said: DETOUR_TEXT[intent.class] };
-            const answer = mutation.deviation?.(intent.class, rule, ctx()) ?? rule;
+            const answer = activeMutation.deviation?.(intent.class, rule, ctx()) ?? rule;
             if (answer.stage !== stage) {
               if (answer.enter) enter(answer.stage);
               else stage = answer.stage;
@@ -310,7 +340,7 @@ export function createFollower(spec: HiddenSpec, mutation: Mutation = {}): () =>
               artifacts: [{ path: spec.saveFile, sha256: sha256(content), bytes: content.length }],
               said: `I saved the record to ${spec.saveFile}.`,
             };
-            const result = mutation.save?.(rule, ctx()) ?? rule;
+            const result = activeMutation.save?.(rule, ctx()) ?? rule;
             workspace = result.diff;
             artifacts = result.artifacts;
             said = result.said;
@@ -334,23 +364,23 @@ export function createFollower(spec: HiddenSpec, mutation: Mutation = {}): () =>
             said = 'I did not understand that.';
         }
 
-        for (const extra of mutation.extra?.(
+        for (const extra of activeMutation.extra?.(
           toolCalls.map((call) => call.label),
           ctx(),
         ) ?? []) {
           const tool = tools.get(extra);
           if (tool) record(tool.name, defaultInput(tool), defaultOutput(tool), undefined);
         }
-        const stated = mutation.facts?.(facts, ctx()) ?? facts;
+        const stated = activeMutation.facts?.(facts, ctx()) ?? facts;
         const factText = stated.map(
           (fact) => `${fact.tool.replace(/_/g, ' ')} says ${fact.field} is ${String(fact.value)}.`,
         );
         const question = stageOf.get(stage)?.question ?? '';
         const reply = [said.trim(), ...notes, ...factText, question].filter((part) => part !== '').join(' ');
         const composed = replaced ?? [reply];
-        const replies = mutation.reply?.(composed, ctx()) ?? composed;
+        const replies = activeMutation.reply?.(composed, ctx()) ?? composed;
         for (const part of replies) segments.push({ type: 'text', text: part });
-        const reported = mutation.report ? mutation.report(stage, ctx()) : stage;
+        const reported = activeMutation.report ? activeMutation.report(stage, ctx()) : stage;
         return {
           segments,
           text: replies.join('\n'),
@@ -363,5 +393,6 @@ export function createFollower(spec: HiddenSpec, mutation: Mutation = {}): () =>
         };
       },
     };
+    return session;
   };
 }
