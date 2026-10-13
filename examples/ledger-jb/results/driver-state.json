@@ -1,8 +1,8 @@
 {
-  "status": "stopped-on-error",
-  "pid": 52936,
+  "status": "finished-available-models",
+  "pid": 98686,
   "core": "35f07309a4d1d1c8a7c5b176ff19e537d0ef8fdd",
-  "concurrency": 10,
+  "concurrency": 12,
   "models": {
     "gemini-3.8-flash": {
       "status": "paused-daily-quota",
@@ -16,10 +16,13 @@
     },
     "claude-haiku-5-5": {
       "phase": "test",
-      "status": "phase-running",
-      "concurrency": 2
+      "status": "phase-finished",
+      "concurrency": 4
     }
   },
-  "at": "2026-10-13T11:54:25.692Z",
-  "error": "OPERATOR_DRAIN: finish active requests and stop dispatching"
+  "at": "2026-10-13T12:12:25.462Z",
+  "pausedModels": {
+    "gemini-3.8-flash": "not run: daily quota; resume only on owner word or after 2026-10-14T00:00:00Z in a committed unpause amendment"
+  },
+  "blocked": []
 }

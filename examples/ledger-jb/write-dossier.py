@@ -33,6 +33,9 @@ if driver.get('models', {}).get('gemini-3.8-flash', {}).get('status') == 'paused
 elif driver.get('pausedModels') or driver.get('models', {}).get('gemini-3.8-flash', {}).get('status') == 'paused-billing':
     finished = all(audit['models'][model]['test']['complete'] for model in ['gpt-6-luna', 'claude-haiku-5-5'])
     status = ('Luna and Haiku complete; ' if finished else 'Haiku in progress; Luna complete; ') + 'Gemini paused pending owner top-up'
+if 'gemini-3.5-flash-lite' in audit['models']:
+    lite = audit['models']['gemini-3.5-flash-lite']['test']
+    status += f"; separate Flash Lite cell {'complete' if lite['complete'] else 'in progress'} ({lite['decisions']}/540 contestant decisions)"
 text = TARGET.read_text()
 lines = text.splitlines()
 lines[2] = f"Status: {status}. Receipt audit: {audit['asOf']}. Source checkpoint: {head}."
@@ -43,10 +46,13 @@ out = ['## Cell table', '', 'The registered pool is TIE-only for win claims. An 
        '|---|---|---|---|---|---|---|---|---|']
 for c in cells['cells']:
     result = c['status'] if c['status'] == 'not run: daily quota' else 'PENDING' if c['n'] < c['planned'] else 'LOSS' if c['losses'] > c['wins'] and c['p'] < .05 else 'TIE, registered win restriction'
-    out.append(f"| {c['model']} | {c['n']}/{c['planned']} | {interval(c['ledger'])} | {interval(c['promptfoo'])} | {interval(c['difference'])} | {c['wins']} / {c['losses']} | {c['p']:.8g} | pending 18-cell family | {result} |")
+    exact = f"{c['p']:.8g}" if c['n'] else 'pending'
+    family = 'pending family assignment' if c['model']=='gemini-3.5-flash-lite' else 'pending 18-cell family'
+    out.append(f"| {c['model']} | {c['n']}/{c['planned']} | {interval(c['ledger'])} | {interval(c['promptfoo'])} | {interval(c['difference'])} | {c['wins']} / {c['losses']} | {exact} | {family} | {result} |")
 out += ['', 'Difference is ledger minus promptfoo, in percentage points. The seeded bootstrap uses 10,000 pair resamples.',
         'Exact p is two-sided McNemar. No correction over an incomplete family is substituted for global Holm.',
         'TIE is not proof of equivalence or noninferiority. All 270 pairs remain in the official result.', '',
+        'Flash Lite is an additional model cell, authorized after the original cells began. It never replaces or pools responses with Gemini 3.8. Its multiplicity-family assignment belongs to the parent comparison.', '',
         '## Costs and noise', '',
         '| Model | Known USD per 100 ledger / peer | Unknown reserve per test contestant | Noise flips ledger / peer | Repeated noise pairs per contestant |',
         '|---|---|---|---|---|']

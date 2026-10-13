@@ -1,0 +1,55 @@
+{
+  "at": "2026-10-13T12:14:24.580289+00:00",
+  "historicalReceiptsPreservedExceptAuthorized402Correction": true,
+  "unresolvedCalls": 0,
+  "liabilityUsd": 7.918090519999992,
+  "cells": [
+    {
+      "model": "claude-haiku-5-5",
+      "n": 270,
+      "ledgerCorrect": 240,
+      "promptfooCorrect": 224,
+      "wins": 27,
+      "losses": 11,
+      "exactTwoSidedMcNemar": 0.013852965261321515
+    },
+    {
+      "model": "gpt-6-luna",
+      "n": 270,
+      "ledgerCorrect": 235,
+      "promptfooCorrect": 229,
+      "wins": 18,
+      "losses": 12,
+      "exactTwoSidedMcNemar": 0.361594608053565
+    }
+  ],
+  "pending": {
+    "gemini-3.8-flash": {
+      "reason": "not run: daily quota; resume only on owner word or after 2026-10-14T00:00:00Z in a committed unpause amendment",
+      "phases": {
+        "pilot": {
+          "decisions": 40,
+          "expectedDecisions": 40
+        },
+        "fixtures": {
+          "decisions": 54,
+          "expectedDecisions": 54
+        },
+        "noise": {
+          "decisions": 173,
+          "expectedDecisions": 180
+        },
+        "validity": {
+          "decisions": 0,
+          "expectedDecisions": 50
+        },
+        "test": {
+          "decisions": 0,
+          "expectedDecisions": 540
+        }
+      }
+    }
+  },
+  "outageHoldsReleasedUsd": 1.0,
+  "method": "Independent Python integer binomial sum and official net score reconstructed from every sealed pair decision."
+}

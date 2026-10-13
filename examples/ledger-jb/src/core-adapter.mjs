@@ -9,6 +9,7 @@ export const PROVIDERS = {
   'claude-haiku-5-5': { provider:'claude-cli', family:'anthropic', dialect:'scratchpad-json' },
   'gpt-6-luna': { provider:'openai', family:'openai', dialect:'openai-json-schema' },
   'gemini-3.8-flash': { provider:'google', family:'google', dialect:'google-response-schema' },
+  'gemini-3.5-flash-lite': { provider:'google', family:'google', dialect:'google-response-schema' },
 };
 // Verified by PR 168 on 2026-10-13. Standard USD per million tokens.
 // https://developers.openai.com/api/docs/models/gpt-6-luna
@@ -16,8 +17,9 @@ export const PROVIDERS = {
 export const PRICES = {
   'gpt-6-luna': { input:.1, cached:.01, output:.5, longContext:272000 },
   'gemini-3.8-flash': { input:.75, output:3.75 },
+  'gemini-3.5-flash-lite': { input:.30, output:2.50 },
 };
-export const settingsFor = model => ({ reasoning:FROZEN_BENCHMARK_REASONING[model] ?? null,
+export const settingsFor = model => ({ reasoning:model==='gemini-3.5-flash-lite'?'medium':FROZEN_BENCHMARK_REASONING[model] ?? null,
   timeoutMs:300000, maxTokens:8192, maxBudgetUsd:.1, provider:PROVIDERS[model].provider,
   dialect:PROVIDERS[model].dialect, nativeReservationUsd:.25 });
 
@@ -37,7 +39,7 @@ export async function createTransport({ model, settings }) {
   for(const key of ['OPENAI_JUDGE_MODEL','GOOGLE_JUDGE_MODEL','CLAUDE_JUDGE_MODEL','ANTHROPIC_JUDGE_MODEL',
     'OPENAI_BASE_URL','GOOGLE_BASE_URL','ANTHROPIC_BASE_URL','CLAUDECODE','ANTHROPIC_API_KEY','GOOGLE_API_KEY','GEMINI_API_KEY','OPENAI_API_KEY']) delete env[key];
   if(model==='gpt-6-luna') env.OPENAI_API_KEY=readFileSync(join(homedir(),'.nexus-secrets/openai.key'),'utf8').trim();
-  if(model==='gemini-3.8-flash') env.GEMINI_API_KEY=readFileSync(join(homedir(),'.nexus-secrets/gemini-driftbench.key'),'utf8').trim();
+  if(PROVIDERS[model].provider==='google') env.GEMINI_API_KEY=readFileSync(join(homedir(),'.nexus-secrets/gemini-driftbench.key'),'utf8').trim();
   const transport=createDialectTransport({ provider:settings.provider, model, env, maxRetries:0,
     timeoutMs:settings.timeoutMs, maxTokens:settings.maxTokens, maxBudgetUsd:settings.maxBudgetUsd,
     ...(settings.reasoning?{reasoning:settings.reasoning}:{}) });

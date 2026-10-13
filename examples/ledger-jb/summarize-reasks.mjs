@@ -4,7 +4,7 @@ import {fileURLToPath} from 'node:url';
 const root=dirname(fileURLToPath(import.meta.url)),r=join(root,'results');
 const read=p=>existsSync(p)?readFileSync(p,'utf8').trim().split('\n').filter(Boolean).map(JSON.parse):[];
 const calls=read(join(r,'calls.jsonl'));
-const models=['gpt-6-luna','claude-haiku-5-5','gemini-3.8-flash'];
+const models=Object.keys(JSON.parse(readFileSync(join(root,'freeze.json'),'utf8')).models);
 const output={asOf:new Date().toISOString(),definition:'Schema re-ask is the frozen core ledger.reask after malformed output. It is distinct from a transport retry of a request with no returned answer.',models:{}};
 for(const model of models){
   const phases={};

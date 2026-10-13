@@ -4,9 +4,10 @@ Pool: 270 Claude-response pairs. 159 source-question IDs overlap earlier GPT eva
 
 | Model | Coverage | Ledger accuracy (Wilson 95%) | promptfoo accuracy (Wilson 95%) | Wins / losses | Exact p | Holm p | USD per 100 ledger / peer | Noise ledger / peer | Status |
 |---|---|---|---|---|---|---|---|---|---|
-| claude-haiku-5-5 | 184/270 | 88.04% (82.56% to 91.97%) | 81.52% (75.29% to 86.46%) | 19 / 7 | 0.02895927429199223 | pending global family | 0.7382 / 0.2812 | 1.67% / 8.33% | PARTIAL |
+| claude-haiku-5-5 | 270/270 | 88.89% (84.58% to 92.11%) | 82.96% (78.02% to 86.98%) | 27 / 11 | 0.013852965261321556 | pending global family | 0.3301 / 0.1474 | 1.67% / 8.33% | MEASURED |
 | gpt-6-luna | 270/270 | 87.04% (82.51% to 90.53%) | 84.81% (80.05% to 88.60%) | 18 / 12 | 0.3615946080535645 | pending global family | 0.1566 / 0.0558 | 0.00% / 4.17% | MEASURED |
 | gemini-3.8-flash | 0/270 | pending | pending | pending | pending | pending global family | pending / pending | 0.00% / 2.59% | not run: daily quota |
+| gemini-3.5-flash-lite | 0/270 | pending | pending | pending | pending | pending global family | pending / pending | pending / pending | PENDING_MEASUREMENT |
 
 | Cheater | GPT dev accuracy | Claude test-pool accuracy |
 |---|---|---|
@@ -15,7 +16,7 @@ Pool: 270 Claude-response pairs. 159 source-question IDs overlap earlier GPT eva
 | longer-wins | 55/121 (45.45%) | 118/270 (43.70%) |
 | refusal-wins | 0/121 (0.00%) | 0/270 (0.00%) |
 
-Measured spend: 6.36967870 USD. Received calls: 4033. Unpriced or interrupted attempts: 21, reserved liability 2.13521900 USD. Unresolved calls: 0.
+Measured spend: 6.78287152 USD. Received calls: 4386. Unpriced or interrupted attempts: 17, reserved liability 1.13521900 USD. Unresolved calls: 0.
 
 TIE-only: fewer than 440 pairs; no powered per-cell WIN claim expected.
 

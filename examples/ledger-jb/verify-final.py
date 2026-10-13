@@ -51,7 +51,7 @@ audit = load(results / 'receipt-audit.json')
 assert audit['liabilityUsd'] <= 25 and audit['unresolvedCalls'] == 0
 assert audit['billingRejectionsStillMissing'] == 0
 freeze = load(root / 'freeze.json')
-models = ['gpt-6-luna', 'claude-haiku-5-5', 'gemini-3.8-flash']
+models = list(freeze['models'])
 pending = {}
 if args.available:
     paused = freeze.get('pausedModels', {})

@@ -1,0 +1,48 @@
+{
+  "at": "2026-10-13T12:04:56.493Z",
+  "model": "gemini-3.8-flash",
+  "phases": {
+    "pilot": {
+      "remainingDecisions": 0,
+      "machineDecisions": 0,
+      "cachedPrimaryReads": 0,
+      "minimumNewRequests": 0,
+      "maximumIncludingCoreReasks": 0
+    },
+    "fixtures": {
+      "remainingDecisions": 0,
+      "machineDecisions": 0,
+      "cachedPrimaryReads": 0,
+      "minimumNewRequests": 0,
+      "maximumIncludingCoreReasks": 0
+    },
+    "noise": {
+      "remainingDecisions": 7,
+      "machineDecisions": 0,
+      "cachedPrimaryReads": 1,
+      "minimumNewRequests": 13,
+      "maximumIncludingCoreReasks": 28
+    },
+    "validity": {
+      "remainingDecisions": 50,
+      "machineDecisions": 0,
+      "cachedPrimaryReads": 0,
+      "minimumNewRequests": 100,
+      "maximumIncludingCoreReasks": 300
+    },
+    "test": {
+      "remainingDecisions": 540,
+      "machineDecisions": 1,
+      "cachedPrimaryReads": 0,
+      "minimumNewRequests": 1078,
+      "maximumIncludingCoreReasks": 2154
+    }
+  },
+  "minimumNewRequests": 1191,
+  "remainingLedgerJobs": 323,
+  "maximumIncludingCoreReasks": 2482,
+  "planningEstimate": 1212,
+  "estimatedCanonicalReads": 7,
+  "estimatedSchemaReasks": 14,
+  "estimateBasis": "Gemini fixture/noise observations: 3 canonical reads per 140 completed ledger decisions; 6 schema re-asks per 284 primary/canonical returned reads. Excludes crash-recovery pilot. Transport retries are not included. Exact future canonical reads and re-asks depend on returned answers."
+}

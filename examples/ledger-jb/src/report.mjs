@@ -10,7 +10,7 @@ const data = Object.fromEntries(['pool','dev','fixtures','pilot','noise','validi
 const calls = readJsonl(join(root,'results/calls.jsonl'));
 const freeze = existsSync(join(root,'freeze.json')) ? readJson(join(root,'freeze.json')) : {};
 const cells = [];
-for (const model of ['claude-haiku-5-5','gpt-6-luna','gemini-3.8-flash']) {
+for (const model of Object.keys(freeze.models)) {
   const phases = Object.fromEntries(['fixtures','pilot','noise','validity','test'].map(phase=>[phase,readJsonl(join(root,`results/decisions-${phase}-${model}.jsonl`))]));
   const summary = compare(data.pool, phases.test.filter(x=>x.contestant==='ledger'), phases.test.filter(x=>x.contestant==='promptfoo'));
   const fixtureEarning = Object.fromEntries([...new Set(data.fixtures.map(x=>x.group))].map(group=>{
@@ -44,7 +44,7 @@ for (const model of ['claude-haiku-5-5','gpt-6-luna','gemini-3.8-flash']) {
     cheaterGate, prepAccuracy, prepCheaters, checks, fixtureEarning };
   writeFileSync(join(root,`results/readiness-${model}.json`),JSON.stringify(readiness,null,2)+'\n');
   const pausedDaily=freeze.dailyQuotaPause?.model===model && freeze.pausedModels?.[model];
-  const cell={model,status:pausedDaily?'not run: daily quota':summary.n===data.pool.length?'MEASURED':summary.n?'PARTIAL':'PENDING_MEASUREMENT',...summary,cost,noise,fixtureEarning,pilot,validity:checks,cheaterGate,prepAccuracy,
+  const cell={model,status:pausedDaily?'not run: daily quota':summary.n===data.pool.length?'MEASURED':summary.n?'PARTIAL':'PENDING_MEASUREMENT',registration:freeze.additionalCells?.[model]??'Original preregistered model cell',...summary,cost,noise,fixtureEarning,pilot,validity:checks,cheaterGate,prepAccuracy,
     cheaters:{dev:cheaters(data.dev),test:cheaters(data.pool)},powerRegistration:seal.powerRegistration,familyDisclosure:seal.familyDisclosure};
   cells.push(cell);
   writeFileSync(join(root,`results/items-${model}.json`),JSON.stringify(summary.decisions,null,2)+'\n');

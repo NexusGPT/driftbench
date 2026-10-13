@@ -1,23 +1,219 @@
 {
-  "asOf": "2026-10-13T11:48:03.434860+00:00",
+  "asOf": "2026-10-13T12:16:08.147758+00:00",
   "core": "35f07309a4d1d1c8a7c5b176ff19e537d0ef8fdd",
-  "freezeSha256": "0fb7bc3a8e362500168bb48bc160643d4ac5effcadfd0aa72c4595f1034c94d3",
+  "freezeSha256": "d03365eefe8e63f4106a0c7d8ae8e0dd60ca824248a8cb170ab1b73a276576b7",
   "allExpectedDecisionsComplete": false,
-  "starts": 3984,
-  "finishes": 3982,
-  "unresolvedCalls": 2,
+  "starts": 4403,
+  "finishes": 4403,
+  "unresolvedCalls": 0,
   "maximumHistoricalConcurrentCalls": 6,
-  "maximumCurrentFreezeConcurrentCalls": 2,
-  "maximumCurrentFreezeConcurrentCallsByModel": {
-    "claude-haiku-5-5": 2
-  },
-  "knownUsd": 6.27908854,
-  "unknownReserveUsd": 2.135219,
-  "activeReserveUsd": 0.5,
-  "liabilityUsd": 8.914307540000015,
+  "maximumCurrentFreezeConcurrentCalls": 0,
+  "maximumCurrentFreezeConcurrentCallsByModel": {},
+  "knownUsd": 6.78287152,
+  "unknownReserveUsd": 1.135219,
+  "activeReserveUsd": 0,
+  "liabilityUsd": 7.918090519999992,
   "billingRejectionsStillMissing": 0,
-  "maximumLiabilityUsd": 8.914307540000015,
+  "maximumLiabilityUsd": 8.91093831999999,
   "models": {
+    "claude-haiku-5-5": {
+      "pilot": {
+        "decisions": 40,
+        "expectedDecisions": 40,
+        "complete": true,
+        "callsStarted": 81,
+        "callsFinished": 81,
+        "schemaReasks": 1,
+        "schemaReaskPreviousResponse": {
+          "returned_nonempty_text": 1
+        },
+        "transportRetryAttempts": 0,
+        "quotaResponses": 0,
+        "billingRejections": 0,
+        "decisionGraderErrors": 0,
+        "transportSuppressedCoreReasks": 0,
+        "schemaReasksSuppressed": 0,
+        "ledgerPairs": 20,
+        "ledgerPhysicalReads": 41,
+        "ledgerMachinePairs": 0,
+        "cost": {
+          "ledger": {
+            "decisions": 20,
+            "knownUsd": 0.0747975,
+            "unknownReserveUsd": 0,
+            "knownPer100": 0.37398750000000003,
+            "upperPer100": 0.37398750000000003
+          },
+          "promptfoo": {
+            "decisions": 20,
+            "knownUsd": 0.0349139,
+            "unknownReserveUsd": 0,
+            "knownPer100": 0.1745695,
+            "upperPer100": 0.1745695
+          }
+        },
+        "descriptiveGroups": {}
+      },
+      "fixtures": {
+        "decisions": 54,
+        "expectedDecisions": 54,
+        "complete": true,
+        "callsStarted": 115,
+        "callsFinished": 115,
+        "schemaReasks": 0,
+        "schemaReaskPreviousResponse": {},
+        "transportRetryAttempts": 1,
+        "quotaResponses": 0,
+        "billingRejections": 0,
+        "decisionGraderErrors": 0,
+        "transportSuppressedCoreReasks": 0,
+        "schemaReasksSuppressed": 0,
+        "ledgerPairs": 54,
+        "ledgerPhysicalReads": 114,
+        "ledgerMachinePairs": 0,
+        "cost": {
+          "ledger": {
+            "decisions": 54,
+            "knownUsd": 0.16063949,
+            "unknownReserveUsd": 0.25,
+            "knownPer100": 0.29748053703703703,
+            "upperPer100": 0.7604435
+          }
+        },
+        "descriptiveGroups": {}
+      },
+      "noise": {
+        "decisions": 180,
+        "expectedDecisions": 180,
+        "complete": true,
+        "callsStarted": 362,
+        "callsFinished": 362,
+        "schemaReasks": 0,
+        "schemaReaskPreviousResponse": {},
+        "transportRetryAttempts": 0,
+        "quotaResponses": 0,
+        "billingRejections": 0,
+        "decisionGraderErrors": 2,
+        "transportSuppressedCoreReasks": 0,
+        "schemaReasksSuppressed": 0,
+        "ledgerPairs": 90,
+        "ledgerPhysicalReads": 182,
+        "ledgerMachinePairs": 0,
+        "cost": {
+          "ledger": {
+            "decisions": 90,
+            "knownUsd": 0.25334164,
+            "unknownReserveUsd": 0,
+            "knownPer100": 0.28149071111111107,
+            "upperPer100": 0.28149071111111107
+          },
+          "promptfoo": {
+            "decisions": 90,
+            "knownUsd": 0.09523438000000001,
+            "unknownReserveUsd": 0,
+            "knownPer100": 0.10581597777777778,
+            "upperPer100": 0.10581597777777778
+          }
+        },
+        "descriptiveGroups": {}
+      },
+      "validity": {
+        "decisions": 50,
+        "expectedDecisions": 50,
+        "complete": true,
+        "callsStarted": 100,
+        "callsFinished": 100,
+        "schemaReasks": 0,
+        "schemaReaskPreviousResponse": {},
+        "transportRetryAttempts": 0,
+        "quotaResponses": 0,
+        "billingRejections": 0,
+        "decisionGraderErrors": 0,
+        "transportSuppressedCoreReasks": 0,
+        "schemaReasksSuppressed": 0,
+        "ledgerPairs": 50,
+        "ledgerPhysicalReads": 100,
+        "ledgerMachinePairs": 0,
+        "cost": {
+          "ledger": {
+            "decisions": 50,
+            "knownUsd": 0.05775405,
+            "unknownReserveUsd": 0,
+            "knownPer100": 0.1155081,
+            "upperPer100": 0.1155081
+          }
+        },
+        "descriptiveGroups": {}
+      },
+      "test": {
+        "decisions": 540,
+        "expectedDecisions": 540,
+        "complete": true,
+        "callsStarted": 1107,
+        "callsFinished": 1107,
+        "schemaReasks": 3,
+        "schemaReaskPreviousResponse": {
+          "returned_nonempty_text": 3
+        },
+        "transportRetryAttempts": 4,
+        "quotaResponses": 0,
+        "billingRejections": 0,
+        "decisionGraderErrors": 11,
+        "transportSuppressedCoreReasks": 0,
+        "schemaReasksSuppressed": 0,
+        "ledgerPairs": 270,
+        "ledgerPhysicalReads": 563,
+        "ledgerMachinePairs": 1,
+        "cost": {
+          "ledger": {
+            "decisions": 270,
+            "knownUsd": 0.891166,
+            "unknownReserveUsd": 0,
+            "knownPer100": 0.3300614814814815,
+            "upperPer100": 0.3300614814814815
+          },
+          "promptfoo": {
+            "decisions": 270,
+            "knownUsd": 0.39785195,
+            "unknownReserveUsd": 0,
+            "knownPer100": 0.14735257407407407,
+            "upperPer100": 0.14735257407407407
+          }
+        },
+        "descriptiveGroups": {
+          "livebench": {
+            "ledger": {
+              "n": 85,
+              "correct": 78
+            },
+            "promptfoo": {
+              "n": 85,
+              "correct": 76
+            }
+          },
+          "livecodebench": {
+            "ledger": {
+              "n": 31,
+              "correct": 29
+            },
+            "promptfoo": {
+              "n": 31,
+              "correct": 29
+            }
+          },
+          "mmlu": {
+            "ledger": {
+              "n": 154,
+              "correct": 133
+            },
+            "promptfoo": {
+              "n": 154,
+              "correct": 119
+            }
+          }
+        }
+      }
+    },
     "gpt-6-luna": {
       "pilot": {
         "decisions": 40,
@@ -209,204 +405,6 @@
             "promptfoo": {
               "n": 154,
               "correct": 122
-            }
-          }
-        }
-      }
-    },
-    "claude-haiku-5-5": {
-      "pilot": {
-        "decisions": 40,
-        "expectedDecisions": 40,
-        "complete": true,
-        "callsStarted": 81,
-        "callsFinished": 81,
-        "schemaReasks": 1,
-        "schemaReaskPreviousResponse": {
-          "returned_nonempty_text": 1
-        },
-        "transportRetryAttempts": 0,
-        "quotaResponses": 0,
-        "billingRejections": 0,
-        "decisionGraderErrors": 0,
-        "transportSuppressedCoreReasks": 0,
-        "schemaReasksSuppressed": 0,
-        "ledgerPairs": 20,
-        "ledgerPhysicalReads": 41,
-        "ledgerMachinePairs": 0,
-        "cost": {
-          "ledger": {
-            "decisions": 20,
-            "knownUsd": 0.0747975,
-            "unknownReserveUsd": 0,
-            "knownPer100": 0.37398750000000003,
-            "upperPer100": 0.37398750000000003
-          },
-          "promptfoo": {
-            "decisions": 20,
-            "knownUsd": 0.0349139,
-            "unknownReserveUsd": 0,
-            "knownPer100": 0.1745695,
-            "upperPer100": 0.1745695
-          }
-        },
-        "descriptiveGroups": {}
-      },
-      "fixtures": {
-        "decisions": 54,
-        "expectedDecisions": 54,
-        "complete": true,
-        "callsStarted": 115,
-        "callsFinished": 115,
-        "schemaReasks": 0,
-        "schemaReaskPreviousResponse": {},
-        "transportRetryAttempts": 1,
-        "quotaResponses": 0,
-        "billingRejections": 0,
-        "decisionGraderErrors": 0,
-        "transportSuppressedCoreReasks": 0,
-        "schemaReasksSuppressed": 0,
-        "ledgerPairs": 54,
-        "ledgerPhysicalReads": 114,
-        "ledgerMachinePairs": 0,
-        "cost": {
-          "ledger": {
-            "decisions": 54,
-            "knownUsd": 0.16063949,
-            "unknownReserveUsd": 0.25,
-            "knownPer100": 0.29748053703703703,
-            "upperPer100": 0.7604435
-          }
-        },
-        "descriptiveGroups": {}
-      },
-      "noise": {
-        "decisions": 180,
-        "expectedDecisions": 180,
-        "complete": true,
-        "callsStarted": 362,
-        "callsFinished": 362,
-        "schemaReasks": 0,
-        "schemaReaskPreviousResponse": {},
-        "transportRetryAttempts": 0,
-        "quotaResponses": 0,
-        "billingRejections": 0,
-        "decisionGraderErrors": 2,
-        "transportSuppressedCoreReasks": 0,
-        "schemaReasksSuppressed": 0,
-        "ledgerPairs": 90,
-        "ledgerPhysicalReads": 182,
-        "ledgerMachinePairs": 0,
-        "cost": {
-          "ledger": {
-            "decisions": 90,
-            "knownUsd": 0.25334164,
-            "unknownReserveUsd": 0,
-            "knownPer100": 0.28149071111111107,
-            "upperPer100": 0.28149071111111107
-          },
-          "promptfoo": {
-            "decisions": 90,
-            "knownUsd": 0.09523438000000001,
-            "unknownReserveUsd": 0,
-            "knownPer100": 0.10581597777777778,
-            "upperPer100": 0.10581597777777778
-          }
-        },
-        "descriptiveGroups": {}
-      },
-      "validity": {
-        "decisions": 50,
-        "expectedDecisions": 50,
-        "complete": true,
-        "callsStarted": 100,
-        "callsFinished": 100,
-        "schemaReasks": 0,
-        "schemaReaskPreviousResponse": {},
-        "transportRetryAttempts": 0,
-        "quotaResponses": 0,
-        "billingRejections": 0,
-        "decisionGraderErrors": 0,
-        "transportSuppressedCoreReasks": 0,
-        "schemaReasksSuppressed": 0,
-        "ledgerPairs": 50,
-        "ledgerPhysicalReads": 100,
-        "ledgerMachinePairs": 0,
-        "cost": {
-          "ledger": {
-            "decisions": 50,
-            "knownUsd": 0.05775405,
-            "unknownReserveUsd": 0,
-            "knownPer100": 0.1155081,
-            "upperPer100": 0.1155081
-          }
-        },
-        "descriptiveGroups": {}
-      },
-      "test": {
-        "decisions": 333,
-        "expectedDecisions": 540,
-        "complete": false,
-        "callsStarted": 688,
-        "callsFinished": 686,
-        "schemaReasks": 1,
-        "schemaReaskPreviousResponse": {
-          "returned_nonempty_text": 1
-        },
-        "transportRetryAttempts": 4,
-        "quotaResponses": 0,
-        "billingRejections": 0,
-        "decisionGraderErrors": 4,
-        "transportSuppressedCoreReasks": 0,
-        "schemaReasksSuppressed": 0,
-        "ledgerPairs": 166,
-        "ledgerPhysicalReads": 347,
-        "ledgerMachinePairs": 0,
-        "cost": {
-          "ledger": {
-            "decisions": 166,
-            "knownUsd": 0.54574237,
-            "unknownReserveUsd": 0.75,
-            "knownPer100": 0.32876046385542174,
-            "upperPer100": 0.7805676927710844
-          },
-          "promptfoo": {
-            "decisions": 167,
-            "knownUsd": 0.2394926,
-            "unknownReserveUsd": 0.25,
-            "knownPer100": 0.14340874251497004,
-            "upperPer100": 0.29310934131736527
-          }
-        },
-        "descriptiveGroups": {
-          "livebench": {
-            "ledger": {
-              "n": 48,
-              "correct": 44
-            },
-            "promptfoo": {
-              "n": 48,
-              "correct": 44
-            }
-          },
-          "livecodebench": {
-            "ledger": {
-              "n": 18,
-              "correct": 17
-            },
-            "promptfoo": {
-              "n": 18,
-              "correct": 17
-            }
-          },
-          "mmlu": {
-            "ledger": {
-              "n": 100,
-              "correct": 83
-            },
-            "promptfoo": {
-              "n": 101,
-              "correct": 77
             }
           }
         }
@@ -611,7 +609,210 @@
           }
         }
       }
+    },
+    "gemini-3.5-flash-lite": {
+      "pilot": {
+        "decisions": 0,
+        "expectedDecisions": 40,
+        "complete": false,
+        "callsStarted": 0,
+        "callsFinished": 0,
+        "schemaReasks": 0,
+        "schemaReaskPreviousResponse": {},
+        "transportRetryAttempts": 0,
+        "quotaResponses": 0,
+        "billingRejections": 0,
+        "decisionGraderErrors": 0,
+        "transportSuppressedCoreReasks": 0,
+        "schemaReasksSuppressed": 0,
+        "ledgerPairs": 0,
+        "ledgerPhysicalReads": 0,
+        "ledgerMachinePairs": 0,
+        "cost": {
+          "ledger": {
+            "decisions": 0,
+            "knownUsd": 0,
+            "unknownReserveUsd": 0,
+            "knownPer100": null,
+            "upperPer100": null
+          },
+          "promptfoo": {
+            "decisions": 0,
+            "knownUsd": 0,
+            "unknownReserveUsd": 0,
+            "knownPer100": null,
+            "upperPer100": null
+          }
+        },
+        "descriptiveGroups": {}
+      },
+      "fixtures": {
+        "decisions": 0,
+        "expectedDecisions": 54,
+        "complete": false,
+        "callsStarted": 0,
+        "callsFinished": 0,
+        "schemaReasks": 0,
+        "schemaReaskPreviousResponse": {},
+        "transportRetryAttempts": 0,
+        "quotaResponses": 0,
+        "billingRejections": 0,
+        "decisionGraderErrors": 0,
+        "transportSuppressedCoreReasks": 0,
+        "schemaReasksSuppressed": 0,
+        "ledgerPairs": 0,
+        "ledgerPhysicalReads": 0,
+        "ledgerMachinePairs": 0,
+        "cost": {
+          "ledger": {
+            "decisions": 0,
+            "knownUsd": 0,
+            "unknownReserveUsd": 0,
+            "knownPer100": null,
+            "upperPer100": null
+          }
+        },
+        "descriptiveGroups": {}
+      },
+      "noise": {
+        "decisions": 0,
+        "expectedDecisions": 180,
+        "complete": false,
+        "callsStarted": 0,
+        "callsFinished": 0,
+        "schemaReasks": 0,
+        "schemaReaskPreviousResponse": {},
+        "transportRetryAttempts": 0,
+        "quotaResponses": 0,
+        "billingRejections": 0,
+        "decisionGraderErrors": 0,
+        "transportSuppressedCoreReasks": 0,
+        "schemaReasksSuppressed": 0,
+        "ledgerPairs": 0,
+        "ledgerPhysicalReads": 0,
+        "ledgerMachinePairs": 0,
+        "cost": {
+          "ledger": {
+            "decisions": 0,
+            "knownUsd": 0,
+            "unknownReserveUsd": 0,
+            "knownPer100": null,
+            "upperPer100": null
+          },
+          "promptfoo": {
+            "decisions": 0,
+            "knownUsd": 0,
+            "unknownReserveUsd": 0,
+            "knownPer100": null,
+            "upperPer100": null
+          }
+        },
+        "descriptiveGroups": {}
+      },
+      "validity": {
+        "decisions": 0,
+        "expectedDecisions": 50,
+        "complete": false,
+        "callsStarted": 0,
+        "callsFinished": 0,
+        "schemaReasks": 0,
+        "schemaReaskPreviousResponse": {},
+        "transportRetryAttempts": 0,
+        "quotaResponses": 0,
+        "billingRejections": 0,
+        "decisionGraderErrors": 0,
+        "transportSuppressedCoreReasks": 0,
+        "schemaReasksSuppressed": 0,
+        "ledgerPairs": 0,
+        "ledgerPhysicalReads": 0,
+        "ledgerMachinePairs": 0,
+        "cost": {
+          "ledger": {
+            "decisions": 0,
+            "knownUsd": 0,
+            "unknownReserveUsd": 0,
+            "knownPer100": null,
+            "upperPer100": null
+          }
+        },
+        "descriptiveGroups": {}
+      },
+      "test": {
+        "decisions": 0,
+        "expectedDecisions": 540,
+        "complete": false,
+        "callsStarted": 0,
+        "callsFinished": 0,
+        "schemaReasks": 0,
+        "schemaReaskPreviousResponse": {},
+        "transportRetryAttempts": 0,
+        "quotaResponses": 0,
+        "billingRejections": 0,
+        "decisionGraderErrors": 0,
+        "transportSuppressedCoreReasks": 0,
+        "schemaReasksSuppressed": 0,
+        "ledgerPairs": 0,
+        "ledgerPhysicalReads": 0,
+        "ledgerMachinePairs": 0,
+        "cost": {
+          "ledger": {
+            "decisions": 0,
+            "knownUsd": 0,
+            "unknownReserveUsd": 0,
+            "knownPer100": null,
+            "upperPer100": null
+          },
+          "promptfoo": {
+            "decisions": 0,
+            "knownUsd": 0,
+            "unknownReserveUsd": 0,
+            "knownPer100": null,
+            "upperPer100": null
+          }
+        },
+        "descriptiveGroups": {
+          "livebench": {
+            "ledger": {
+              "n": 0,
+              "correct": 0
+            },
+            "promptfoo": {
+              "n": 0,
+              "correct": 0
+            }
+          },
+          "livecodebench": {
+            "ledger": {
+              "n": 0,
+              "correct": 0
+            },
+            "promptfoo": {
+              "n": 0,
+              "correct": 0
+            }
+          },
+          "mmlu": {
+            "ledger": {
+              "n": 0,
+              "correct": 0
+            },
+            "promptfoo": {
+              "n": 0,
+              "correct": 0
+            }
+          }
+        }
+      }
     }
+  },
+  "modelLiabilityUsd": {
+    "claude-haiku-5-5": 2.21569891,
+    "gpt-6-luna": 0.93643036,
+    "gemini-3.8-flash": 4.76596125,
+    "gemini-3.5-flash-lite": 0
+  },
+  "modelCapsUsd": {
+    "gemini-3.5-flash-lite": 6
   },
   "scope": "Postprocessing integrity audit. Descriptive group counts do not replace the registered endpoint."
 }

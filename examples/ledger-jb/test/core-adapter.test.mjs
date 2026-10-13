@@ -26,6 +26,14 @@ test('missing usage is never zero cost, cached input is priced separately',()=>{
   assert.ok(Math.abs(cost-.000105)<1e-12);
 });
 
+test('new Flash Lite cell applies medium and its own published token prices',()=>{
+  const settings=settingsFor('gemini-3.5-flash-lite');
+  assert.equal(settings.reasoning,'medium');assert.equal(settings.provider,'google');
+  assert.equal(settings.dialect,'google-response-schema');assert.equal(settings.timeoutMs,300000);
+  assert.ok(Math.abs(costFromCompletion('gemini-3.5-flash-lite',{usage:{input:1000,output:100}})-.00055)<1e-12);
+  assert.notEqual(costFromCompletion('gemini-3.5-flash-lite',{usage:{input:1000,output:100}}),costFromCompletion('gemini-3.8-flash',{usage:{input:1000,output:100}}));
+});
+
 
 test('exhausted transport failures never gain more tries through core re-ask',async()=>{
   const attempts=[];

@@ -1,12 +1,12 @@
 {
-  "version": 10,
-  "createdAt": "2026-10-13T11:57:25.781679+00:00",
+  "version": 11,
+  "createdAt": "2026-10-13T12:15:48.505781+00:00",
   "corePr": "https://github.com/achammah/driftbench/pull/168",
   "coreCommit": "35f07309a4d1d1c8a7c5b176ff19e537d0ef8fdd",
   "sealSha256": "2aa831d8f08ea88ddddff87ba9aeb600f2c719725608815c09ddc699bd8aac12",
   "adapter": "examples/ledger-jb/src/core-adapter.mjs",
   "capUsd": 25,
-  "concurrency": 14,
+  "concurrency": 22,
   "lastCallCutoff": "2026-10-14T00:00:00Z",
   "models": {
     "claude-haiku-5-5": {
@@ -35,6 +35,15 @@
       "provider": "google",
       "dialect": "google-response-schema",
       "nativeReservationUsd": 0.25
+    },
+    "gemini-3.5-flash-lite": {
+      "reasoning": "medium",
+      "timeoutMs": 300000,
+      "maxTokens": 8192,
+      "maxBudgetUsd": 0.1,
+      "provider": "google",
+      "dialect": "google-response-schema",
+      "nativeReservationUsd": 0.25
     }
   },
   "prices": {
@@ -47,6 +56,10 @@
     "gemini-3.8-flash": {
       "input": 0.75,
       "output": 3.75
+    },
+    "gemini-3.5-flash-lite": {
+      "input": 0.3,
+      "output": 2.5
     }
   },
   "geminiAuthorization": "Owner enabled billing and explicitly authorized the cell before any paid call.",
@@ -54,14 +67,14 @@
   "ledgerEndpoint": "Code-reconciled decision in both games; raw order decisions also published. Canonical third read uses the same model. No unearned cross-vendor seat.",
   "hashes": {
     "examples/judge-benchmarks/src/llm-shim.mjs": "376105a7240ba6ad265fb2acc629a2c251ce5debdfca353a0b4c40aca41fe2a5",
-    "examples/ledger-jb/src/core-adapter.mjs": "ca4bb42eba778c3489fd4ef337d6482d570cf7d4acc552158159cad7add7381d",
-    "examples/ledger-jb/src/harness.mjs": "ff6895e31625a40d0a50c42544cdab0427fb9f8565170c26c7974ae612f22feb",
-    "examples/ledger-jb/src/report.mjs": "c1639581f30bd420126a6b3fa3e2813849a2067bb90dfe27ab770ffcd1935fe5",
+    "examples/ledger-jb/src/core-adapter.mjs": "5ebe14f87effb737c0a69657be2847e07098543ac3fc6418a2f9f6eb567d3bb6",
+    "examples/ledger-jb/src/harness.mjs": "178d5d395d6f71cfe8f2d41b36cc56a9587cf26073cf2685645328508a2b91eb",
+    "examples/ledger-jb/src/report.mjs": "13e2eae4d696eba72c3b044f928d904731214ac2620848ba23ae6720567cf366",
     "examples/ledger-jb/src/run.mjs": "0db131e49fa0b1f1bdc8bad88665c52708d3eabe2b77f0fb83a0f3cf88867070",
     "examples/ledger-jb/src/seal.py": "67996a4242a2856364eb193f3912708848c41a29972979941f0fcbe0a05ec706",
     "examples/ledger-jb/src/statistics.mjs": "898081d2408c2045ac9efe3d3b550ff6b45cacb2493f192d96b2328175e9db6f",
-    "examples/ledger-jb/test/core-adapter.test.mjs": "8397d704df9a49e8e902a6adfe48b220983a0c4a523b63523ab3656ef07a1181",
-    "examples/ledger-jb/test/harness.test.mjs": "1ae8633d3e9397425bd6cc50e54105a6d2f32f17693d6fcd1799818187d1ed82",
+    "examples/ledger-jb/test/core-adapter.test.mjs": "06d7a489b8a071beeb474ffc7d0a0ec922553d3d9756dfb7a7bb8c06f1c275ef",
+    "examples/ledger-jb/test/harness.test.mjs": "1543d524a1a63284eadb255c08fa951d15b1a1ec59061f0cda37dcd45bf8d814",
     "examples/ledger-jb/test/statistics.test.mjs": "5e150346ca3a38310b2f7f59b267fee4c52cccab239fbdc15f746cb0bd6d1e53",
     "packages/checks/src/checks/artifacts.ts": "92958e17bd8b47cca97eebe1641c56241d59a73f7b7f39feaa84e9584d00fad1",
     "packages/checks/src/checks/budget.ts": "b63238ecb106d9c9e68a4116c9f3a04dda9c5f7f2ab41a6e7710c0a714b6ceef",
@@ -161,20 +174,24 @@
     "pnpm-lock.yaml": "f7178145e417f8f11e28bc7cf1943db901077492226de4d172bd49994e213e04",
     "tsconfig.base.json": "2e3b79ea124cafbe3de51fcd53123471d8ab3ce5dabdd641e1d06ad300a24a8a",
     "examples/ledger-jb/run-driver.py": "162639c760a66ee0483b0ccd2bf0ea30154bb53f073530c2917bce9c1e97060c",
-    "examples/ledger-jb/summarize-reasks.mjs": "e1b1378d21912b6899bc181904442cb74a2b568493f67d3ecadd98f61998c482",
-    "examples/ledger-jb/parallel-remaining.mjs": "ecae5816bb0f18b97b405142f9372bd1df8e2dd1855d2fdcb5397e888b215067",
-    "examples/ledger-jb/test/parallel.test.mjs": "dd88a464e67002e765b07eec18d852376724b2ff785d6e522a159d335ae704b7",
-    "examples/ledger-jb/audit-results.py": "d8a38d2e4a0ac72e4f6c2c274b01b0f9c3f3dd633ec3644388c0880246479c4b",
-    "examples/ledger-jb/write-dossier.py": "83e32a5eb154c0ccad8a99aba619457544050716b06767e0d93478b4595bbe52",
+    "examples/ledger-jb/summarize-reasks.mjs": "22a6543b66294276ffa5860555354059e702faa2ef2335b173dcd1c40dbfa9f4",
+    "examples/ledger-jb/parallel-remaining.mjs": "7c166d2d8a7d1b92ab78c1c3ca3aae81b9d6265a2a4ad0f91720b24040ad7096",
+    "examples/ledger-jb/test/parallel.test.mjs": "21d165ca34166a1ebc5dd29bfc367ac85e567c6447bffaa17e5631f81c5fbf14",
+    "examples/ledger-jb/audit-results.py": "e13aa015259ab3f4b070e4707fe14d1e865578c86906baf87cd37f4659e1db39",
+    "examples/ledger-jb/write-dossier.py": "7d3ea6d249715a5786a59e77fc6c96894e51f3d3824263770b4cf79fb58c2ac9",
     "examples/ledger-jb/reconcile-billing.py": "c199ac726b15bac0980cc37d4980fb54c2c51f43c3ba8b220c11a009787a839b",
     "examples/ledger-jb/probe-gemini.mjs": "11f03dd5687a69e7dc46239978d045593043e8d38785a7615a88dff2b114c248",
-    "examples/ledger-jb/reconcile-outage.py": "ffb1aafd3b68c613e079b232929173d9b6de44c55aeab60cedbc834eb89791e8"
+    "examples/ledger-jb/reconcile-outage.py": "ffb1aafd3b68c613e079b232929173d9b6de44c55aeab60cedbc834eb89791e8",
+    "examples/ledger-jb/probe-lite.mjs": "44b73140eb9fa7ec2634f9b8e395dd3e26a26e9459297f68724b56caef277bfe",
+    "examples/ledger-jb/gemini-lite-price.json": "57b56d4304b6568690aa775b481367f12f4aa7324560f9ee0085e2fa7cd7251c",
+    "examples/ledger-jb/verify-final.py": "04de6a7d1d9bf6a332627d751cf1c3cf5ac790c9f6a372986018f82faeb62b25",
+    "examples/ledger-jb/audit-retries.py": "01cf8798cdd0647ef1c9d7fc8d63c14ffd7ccf19e5d40a0a4b4f4707dd74b160"
   },
   "amendment": {
-    "previousFreezeSha256": "0fb7bc3a8e362500168bb48bc160643d4ac5effcadfd0aa72c4595f1034c94d3",
-    "reason": "Owner raises Haiku to four workers; fallback to two only when host load exceeds 60 or after two transport failures within ten minutes. Parse errors do not alter pacing.",
-    "boundary": "PID 52936 drains without unresolved calls. All four authorized outage requests have one priced replacement answer. Their 1.00 USD holds are released after drain; replacement costs remain counted.",
-    "core": "Unchanged 35f07309; prompts, schema re-ask, scoring, reasoning, sealed order and 25 USD cap unchanged. Gemini daily quota pause and cutoff unchanged."
+    "previousFreezeSha256": "b37cbe17336f5dd250c5e3a8800ef27438243cec9ac5a0346c4b1bc46a2a257c",
+    "reason": "Owner authorizes a separate Gemini 3.5 Flash Lite cell with medium reasoning, 8 workers, 20/60/180-second quota waits and a 6 USD sub-cap. Gemini 3.8 resumes only on owner word.",
+    "boundary": "Prior scheduler finishes all Haiku and Luna measurements with zero unresolved calls at 2026-10-13T12:12:25.462Z. No Flash Lite call exists before this freeze.",
+    "core": "Core 35f07309, original model settings/cache identities, sealed pool/order, contestant prompts, scoring, schema re-ask and total 25 USD cap unchanged."
   },
   "cacheIdentityModels": {
     "claude-haiku-5-5": {
@@ -203,6 +220,15 @@
       "provider": "google",
       "dialect": "google-response-schema",
       "nativeReservationUsd": 0.25
+    },
+    "gemini-3.5-flash-lite": {
+      "reasoning": "medium",
+      "timeoutMs": 300000,
+      "maxTokens": 8192,
+      "maxBudgetUsd": 0.1,
+      "provider": "google",
+      "dialect": "google-response-schema",
+      "nativeReservationUsd": 0.25
     }
   },
   "transportPolicy": {
@@ -218,12 +244,13 @@
     "schemaReask": "PR 168 single schema re-ask retained after malformed JSON. Exhausted no-answer transport failures cannot trigger additional core re-ask calls.",
     "costPolicy": "Measured usage or conservative reservation per attempt, except proven rejected prepayment requests release the hold.",
     "billingExhaustion": "HTTP 402 immediately pauses the model, with no retry or judge decision. Proven prepayment rejection costs zero; other unknown holds remain reserved.",
-    "dailyQuota": "No Gemini calls, waits or retries before owner word or reset. Known old no-answer 429 keys advance to a new attempt on authorized resumption; old holds remain reserved."
+    "dailyQuota": "Gemini 3.8 is parked until explicit owner word. No automatic reset resumption. Original no-answer keys stay eligible; holds remain reserved."
   },
   "modelConcurrency": {
     "gpt-6-luna": 8,
     "claude-haiku-5-5": 4,
-    "gemini-3.8-flash": 2
+    "gemini-3.8-flash": 2,
+    "gemini-3.5-flash-lite": 8
   },
   "runtimeEntrypoint": "examples/ledger-jb/parallel-remaining.mjs",
   "billingResumption": {
@@ -560,7 +587,7 @@
     }
   },
   "pausedModels": {
-    "gemini-3.8-flash": "not run: daily quota; resume only on owner word or after 2026-10-14T00:00:00Z in a committed unpause amendment"
+    "gemini-3.8-flash": "not run: daily quota; resume only on explicit owner word in a committed unpause amendment; no reset watcher"
   },
   "modelLastCallCutoff": {
     "gemini-3.8-flash": "2026-10-14T12:00:00Z"
@@ -571,7 +598,7 @@
     "metric": "generate_requests_per_model_per_day",
     "limit": 10000,
     "resetNear": "2026-10-14T00:00:00Z",
-    "resumeCondition": "Owner word or after reset; missing-only, never resend answered requests. Unpause requires committed freeze amendment.",
+    "resumeCondition": "Explicit owner word only, missing-only after a committed unpause amendment. No reset watcher. Never resend answered requests.",
     "noAnswerKeys": [
       "noise:gemini-3.8-flash:ca91b783-54e9-5fb6-9c30-a7ebf3ee7258:0:ledger:AB:0:dbfcf8b19b9fbbd80f4f1fbee442024adca99b3fe4f71ec3bd18b50aba09e339",
       "noise:gemini-3.8-flash:91cd748e-db11-5764-8727-34ef39a9594f:2:ledger:BA:0:3fe5c083e9110934862e57c6fae8525bd2b03bbba5b735da1f93629ef164232d",
@@ -617,5 +644,40 @@
     "fallback": "Latched for the current process; already active jobs drain, and new jobs wait until active count is below two. No automatic ramp-up.",
     "evaluated": "Before each new job dispatch; queue retains sealed order.",
     "events": "results/pacing-events.jsonl"
+  },
+  "modelCapsUsd": {
+    "gemini-3.5-flash-lite": 6
+  },
+  "modelTransportPolicy": {
+    "gemini-3.5-flash-lite": {
+      "quotaBackoffMs": [
+        20000,
+        60000,
+        180000
+      ],
+      "timeoutMs": 300000,
+      "maxNonQuotaAttempts": 3,
+      "billingExhaustion": "HTTP 402 stops new calls immediately; no retry or judge failure. Active receipts drain."
+    }
+  },
+  "additionalCells": {
+    "gemini-3.5-flash-lite": {
+      "authorization": "Owner: run Gemini on gemini-3.5-flash-lite now as a NEW model cell; both contestants, same practice checks and full sealed TEST, same win rule, 6 USD cap.",
+      "reasoningRequested": "medium",
+      "reasoningFallback": "Only if rejected as unsupported, apply model default in a new freeze before any replacement request; record applied setting.",
+      "priceRecord": "examples/ledger-jb/gemini-lite-price.json",
+      "capUsd": 6,
+      "registration": "Additional model cell authorized after original cell results were available; never pooled with or substituted for Gemini 3.8.",
+      "phases": [
+        "pilot",
+        "fixtures",
+        "noise",
+        "validity",
+        "test"
+      ],
+      "testPairs": 270,
+      "winRule": "Original TIE-only win restriction unchanged. Significant observed loss reportable; no noninferiority claim.",
+      "multiplicity": "Additional-cell family assignment awaits parent comparison; original 18-cell family unchanged."
+    }
   }
 }

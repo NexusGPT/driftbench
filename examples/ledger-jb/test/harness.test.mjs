@@ -16,6 +16,30 @@ test('noise cache identity differs by repeat and contestant', () => {
   assert.equal(planned.length, 12); assert.equal(new Set(planned.map(x => x.key)).size, 12);
   assert.throws(() => jobs({noise:[]}, 'noise', 'gpt-5.4-mini'));
 });
+
+test('Flash Lite job identities cannot reuse the parked Gemini cell',()=>{
+  const data={pool:[{id:'same-sealed-pair'}]};
+  const old=jobs(data,'test','gemini-3.8-flash'),added=jobs(data,'test','gemini-3.5-flash-lite');
+  assert.deepEqual(added.map(x=>x.contestant),['ledger','promptfoo']);
+  assert.equal(added.some(x=>old.some(y=>y.key===x.key)),false);
+});
+
+test('per-model cap reserves concurrent calls without consuming another model allowance',async()=>{
+  const path=join(mkdtempSync(join(temp,'jb-modelcap-')),'calls.jsonl');
+  const journal=new Journal(path,{capUsd:25,modelCapsUsd:{lite:6}});let release;
+  const pending=journal.call('first',5,()=>new Promise(resolve=>{release=resolve;}),{model:'lite'});
+  await assert.rejects(journal.call('second',2,async()=>({costUsd:0}),{model:'lite'}),/MODEL_BUDGET_STOP/);
+  await journal.call('other',2,async()=>({costUsd:.1}),{model:'haiku'});
+  release({costUsd:1,text:'saved'});await pending;
+  assert.equal(journal.liability('lite'),1);assert.equal(journal.liability('haiku'),.1);
+  await journal.call('first',5,async()=>{throw new Error('reissued');},{model:'lite'});
+});
+
+test('Flash Lite quota waits are model-specific and no-answer only',async()=>{
+  const path=join(mkdtempSync(join(temp,'jb-litequota-')),'calls.jsonl');const journal=new Journal(path);const waits=[];
+  await assert.rejects(journal.transportCall('quota',.01,async()=>{throw Object.assign(new Error('quota'),{code:'http',status:429,retryable:true});},{model:'gemini-3.5-flash-lite'},{quotaBackoffMs:[20000,60000,180000],sleep:async ms=>waits.push(ms)}),/QUOTA_STOP/);
+  assert.deepEqual(waits,[20000,60000,180000]);assert.equal([...journal.finishes.values()].every(x=>!x.graderError),true);
+});
 test('fixed prompt rendering preserves dollar sequences and handles order', () => {
   const item={question:'why $&',a:'A $`',b:'B $\''};
   assert.equal(promptfooPrompt('{{criteria}}|{{a}}|{{b}}',item,'BA').system.endsWith('|B $\'|A $`'),true);

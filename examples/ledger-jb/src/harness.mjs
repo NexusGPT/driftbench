@@ -27,7 +27,7 @@ export function parsePromptfoo(text, order) {
 }
 
 export function jobs(data, phase, model) {
-  if (!['claude-haiku-5-5', 'gpt-6-luna', 'gemini-3.8-flash'].includes(model)) throw new Error(`Cell unavailable: ${model}`);
+  if (!['claude-haiku-5-5', 'gpt-6-luna', 'gemini-3.8-flash', 'gemini-3.5-flash-lite'].includes(model)) throw new Error(`Cell unavailable: ${model}`);
   const file = { fixtures: 'fixtures', pilot: 'pilot', noise: 'noise', test: 'pool', validity: 'validity' }[phase];
   if (!file) throw new Error(`Unknown phase ${phase}`);
   const repeats = ['fixtures', 'noise'].includes(phase) ? 3 : 1;
@@ -70,8 +70,9 @@ export function verifyFreeze(root, repo, freeze, dossierText) {
 }
 
 export class Journal {
-  constructor(path, { capUsd = 25, appendSpend, billingResumeKeys = [], quotaResumeKeys = [], outageResumeKeys = [] } = {}) {
+  constructor(path, { capUsd = 25, modelCapsUsd = {}, appendSpend, billingResumeKeys = [], quotaResumeKeys = [], outageResumeKeys = [] } = {}) {
     this.path = path; this.capUsd = capUsd; this.appendSpend = appendSpend;
+    this.modelCapsUsd = modelCapsUsd;
     this.rows = readJsonl(path);
     this.starts = new Map(); this.finishes = new Map();
     for (const row of this.rows) {
@@ -101,8 +102,8 @@ export class Journal {
         throw new Error('Outage resumption may authorize only recorded no-answer Haiku receipts');
     }
   }
-  liability() {
-    return [...this.starts.values()].reduce((sum, row) => sum + (this.finishes.get(row.key)?.costUsd ?? row.reserveUsd), 0);
+  liability(model) {
+    return [...this.starts.values()].filter(row=>model===undefined||row.model===model).reduce((sum, row) => sum + (this.finishes.get(row.key)?.costUsd ?? row.reserveUsd), 0);
   }
   append(row) { appendFileSync(this.path, `${JSON.stringify(row)}\n`); this.rows.push(row); }
   async transportCall(key, reserveUsd, operation, metadata, { maxAttempts = 3, quotaBackoffMs = [60000, 120000, 240000], sleep = ms => new Promise(resolve => setTimeout(resolve, ms)), beforeDispatch = () => {} } = {}) {
@@ -156,6 +157,9 @@ export class Journal {
     if (this.starts.has(key)) throw new Error(`Unresolved earlier call ${key}; refusing a billed retry`);
     if (!Number.isFinite(reserveUsd) || reserveUsd <= 0) throw new Error('Call requires a verified upper cost bound');
     if (this.liability() + reserveUsd > this.capUsd) throw new Error('BUDGET_STOP: lane liability would exceed 25 USD');
+    const modelCap = this.modelCapsUsd[metadata?.model];
+    if (modelCap !== undefined && this.liability(metadata.model) + reserveUsd > modelCap)
+      throw new Error(`MODEL_BUDGET_STOP: ${metadata.model} liability would exceed ${modelCap} USD`);
     const start = { type: 'start', key, reserveUsd, at: new Date().toISOString(), ...metadata };
     this.append(start); this.starts.set(key, start);
     // Thrown errors retain the full reservation. They never become free successful calls.

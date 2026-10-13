@@ -63,14 +63,14 @@ async function main(){
   if(!freeze.hashes['examples/ledger-jb/parallel-remaining.mjs'])throw new Error('Parallel scheduler is not frozen');
   const lock=join(r,'.paid-run.lock'),fd=openSync(lock,'wx');
   process.on('exit',()=>{closeSync(fd);unlinkSync(lock);});
-  const allModels=['gpt-6-luna','claude-haiku-5-5','gemini-3.8-flash'];
+  const allModels=Object.keys(freeze.models);
   const models=allModels.filter(model=>!freeze.pausedModels?.[model]);
-  const limits={'gpt-6-luna':8,'claude-haiku-5-5':4,'gemini-3.8-flash':2};
+  const limits={'gpt-6-luna':8,'claude-haiku-5-5':4,'gemini-3.8-flash':2,'gemini-3.5-flash-lite':8};
   if(allModels.some(model=>freeze.modelConcurrency[model]!==limits[model]))throw new Error('Frozen concurrency does not match the owner pacing amendment');
   const data=Object.fromEntries(['fixtures','pilot','noise','pool','validity'].map(name=>[name,readJson(join(root,`data/${name}.json`))]));
   const adapter=await import(pathToFileURL(resolve(repo,freeze.adapter)).href);
   const transports=Object.fromEntries(await Promise.all(models.map(async model=>[model,await adapter.createTransport({model,settings:freeze.models[model],root})])));
-  const journal=new Journal(join(r,'calls.jsonl'),{capUsd:25,billingResumeKeys:freeze.billingResumption?.rejectedKeys??[],quotaResumeKeys:freeze.dailyQuotaPause?.noAnswerKeys??[],outageResumeKeys:freeze.outageResumption?.noAnswerKeys??[],appendSpend(row){
+  const journal=new Journal(join(r,'calls.jsonl'),{capUsd:25,modelCapsUsd:freeze.modelCapsUsd??{},billingResumeKeys:freeze.billingResumption?.rejectedKeys??[],quotaResumeKeys:freeze.dailyQuotaPause?.noAnswerKeys??[],outageResumeKeys:freeze.outageResumption?.noAnswerKeys??[],appendSpend(row){
     appendFileSync(flag('--spend-ledger'),`| ${row.at} | ledger-jb ${row.phase} ${row.contestant} ${row.itemId} ${row.order} | ${row.model} | 1 call | ${row.costUsd.toFixed(8)} USD${row.costEstimated?' reserved, actual unknown':''} | lane liability ${journal.liability().toFixed(8)} USD |\n`);
   }});
   const template=readFileSync(join(root,'data/promptfoo-select-best.txt'),'utf8'),stop={},backoffAbort=new AbortController();
@@ -113,7 +113,7 @@ async function main(){
         guard();
         const key=`${job.key}:${order}:${attempt}:${hash(JSON.stringify({prompt,schema,settings:(freeze.cacheIdentityModels??freeze.models)[model]}))}`;
         const reserveUsd=transport.maximumCostUsd(prompt,schema);
-        return journal.transportCall(key,reserveUsd,()=>transport.call(prompt,{schema,reserveUsd}),{phase,model,contestant:job.contestant,itemId:job.itemId,repeat:job.repeat,order,attempt},{beforeDispatch:guard,sleep:ms=>sleep(ms,undefined,{signal:backoffAbort.signal})});
+        return journal.transportCall(key,reserveUsd,()=>transport.call(prompt,{schema,reserveUsd}),{phase,model,contestant:job.contestant,itemId:job.itemId,repeat:job.repeat,order,attempt},{beforeDispatch:guard,quotaBackoffMs:freeze.modelTransportPolicy?.[model]?.quotaBackoffMs??freeze.transportPolicy.quotaBackoffMs,sleep:ms=>sleep(ms,undefined,{signal:backoffAbort.signal})});
       };
       let result;
       if(job.contestant==='ledger')result=await adapter.judgePair({item:job.item,requirements:REQUIREMENTS,model,call,settings:freeze.models[model]});

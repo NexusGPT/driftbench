@@ -2,9 +2,9 @@ import {test} from 'node:test';
 import assert from 'node:assert/strict';
 import {runModels,drainQueue,createHaikuPacer} from '../parallel-remaining.mjs';
 
-test('three models keep dependency order and respect 8, 4, 2 call limits',async()=>{
+test('four separate models keep dependency order and respect 8, 4, 2, 8 call limits',async()=>{
   const done=new Map(),activeByModel=new Map(),maxByModel=new Map();let active=0,max=0;
-  const stop={},limits={luna:8,haiku:4,gemini:2};
+  const stop={},limits={luna:8,haiku:4,gemini:2,lite:8};
   async function phase(model,phase){
     const previous=done.get(model)??[];
     assert.equal(['pilot','fixtures','noise','validity','test'][previous.length],phase);
@@ -17,9 +17,9 @@ test('three models keep dependency order and respect 8, 4, 2 call limits',async(
     },limits[model],stop);
     done.set(model,[...previous,phase]);
   }
-  assert.deepEqual(await runModels(['luna','haiku','gemini'],phase,model=>done.get(model)?.at(-1)==='validity'),[]);
-  assert.equal(max,14);assert.equal(maxByModel.get('luna'),8);assert.equal(maxByModel.get('haiku'),4);assert.equal(maxByModel.get('gemini'),2);
-  assert.equal(done.get('luna').length,5);assert.equal(done.get('haiku').length,5);assert.equal(done.get('gemini').length,5);
+  assert.deepEqual(await runModels(['luna','haiku','gemini','lite'],phase,model=>done.get(model)?.at(-1)==='validity'),[]);
+  assert.equal(max,22);assert.equal(maxByModel.get('luna'),8);assert.equal(maxByModel.get('haiku'),4);assert.equal(maxByModel.get('gemini'),2);assert.equal(maxByModel.get('lite'),8);
+  assert.equal(done.get('luna').length,5);assert.equal(done.get('haiku').length,5);assert.equal(done.get('gemini').length,5);assert.equal(done.get('lite').length,5);
 });
 
 test('failed readiness prevents only that model test phase',async()=>{

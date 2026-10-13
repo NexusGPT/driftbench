@@ -25,6 +25,7 @@ def correct(games, label):
 
 
 freeze = read_json(ROOT / 'freeze.json')
+MODELS = list(freeze['models'])
 calls = read_rows(RESULTS / 'calls.jsonl')
 starts = {}; finishes = {}; active = set(); max_active = 0; max_current_active = 0
 active_by_model = Counter(); max_current_by_model = Counter(); liability = 0; max_liability = 0
@@ -52,6 +53,9 @@ for row in calls:
                 assert row['costUsd'] == 0 and not row.get('costEstimated'), ('rejected_call_hold', key)
     max_liability = max(max_liability, liability)
 assert max_current_active <= sum(freeze['modelConcurrency'].values())
+model_liabilities = {model: sum(finishes.get(key, {}).get('costUsd', row['reserveUsd']) for key, row in starts.items() if row['model'] == model) for model in MODELS}
+for model, cap in freeze.get('modelCapsUsd', {}).items():
+    assert model_liabilities[model] <= cap + 1e-8, ('model_budget_exceeded', model)
 for model, limit in freeze['modelConcurrency'].items():
     assert max_current_by_model[model] <= limit
 
@@ -133,6 +137,7 @@ audit = {'asOf': datetime.now(timezone.utc).isoformat(), 'core': freeze['coreCom
          'activeReserveUsd': sum(starts[key]['reserveUsd'] for key in active), 'liabilityUsd': liability,
          'billingRejectionsStillMissing': len(unresolved_billing),
          'maximumLiabilityUsd': max_liability, 'models': models,
+         'modelLiabilityUsd': model_liabilities, 'modelCapsUsd': freeze.get('modelCapsUsd', {}),
          'scope': 'Postprocessing integrity audit. Descriptive group counts do not replace the registered endpoint.'}
 (RESULTS / 'receipt-audit.json').write_text(json.dumps(audit, indent=2) + '\n')
 print(json.dumps({k: v for k, v in audit.items() if k != 'models'}, indent=2))
