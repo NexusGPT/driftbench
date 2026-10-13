@@ -1,6 +1,5 @@
 import { AsyncLocalStorage } from 'node:async_hooks';
 import {
-  buildPrompt,
   createClaudeCliJudge,
   createGoogleJudge,
   createOpenAiJudge,
@@ -119,8 +118,57 @@ export function makeRecordingClient(
     if (env[key]?.trim()) throw new Error(`${key} override is not allowed in a default bench recording`);
   }
   const actualModel = model === 'haiku' ? (options.haikuModel ?? 'claude-haiku-5-5') : model;
-  const meter = new AsyncLocalStorage<{ cost?: number; model?: string; input?: number; output?: number }>();
+  type Meter = {
+    cost?: number;
+    model?: string;
+    input?: number;
+    output?: number;
+    charged: number;
+    unmetered: boolean;
+    attempted?: boolean;
+    failure?: unknown;
+    pending?: { token: symbol; amount: number; rejected?: boolean };
+  };
+  const meter = new AsyncLocalStorage<Meter>();
+  const rates = model === 'gemini-3.8-flash' ? GEMINI_RATES : LUNA_RATES;
+  const settle = (current: Meter, actual: number | undefined) => {
+    const pending = current.pending;
+    if (!pending) return;
+    current.pending = undefined;
+    try {
+      budget.settle(pending.token, actual);
+    } catch (cause) {
+      current.failure = cause;
+      throw cause;
+    } finally {
+      current.charged += actual ?? pending.amount;
+      current.unmetered ||= actual === undefined;
+    }
+  };
   const observedFetch = async (url: string, init: RequestInit) => {
+    const current = meter.getStore();
+    if (!current) throw new Error('Missing cost scope');
+    try {
+      if (typeof init.body !== 'string') throw new Error('Recorder requires a JSON request body');
+      const body = JSON.parse(init.body) as { max_completion_tokens?: number };
+      // Reserve each wire request, including a recovery with a larger output allowance.
+      // Gemini thinking may overshoot the requested cap, so reserve its full model ceiling.
+      // https://ai.google.dev/gemini-api/docs/models/gemini-3.8-flash
+      const outputLimit = model === 'gemini-3.8-flash' ? 65_536 : body.max_completion_tokens;
+      if (outputLimit === undefined || !Number.isSafeInteger(outputLimit) || outputLimit <= 0)
+        throw new Error('Recorder requires a bounded output allowance');
+      const amount =
+        ((Buffer.byteLength(init.body) + 8192) * rates.input + outputLimit * rates.output) / 1_000_000;
+      // Rejected HTTP attempts can reuse their held allowance. A terminal error retains it.
+      if (current.pending && (!current.pending.rejected || current.pending.amount < amount))
+        settle(current, current.pending.rejected ? 0 : undefined);
+      current.pending ??= { token: budget.reserve(amount), amount };
+      current.pending.rejected = false;
+    } catch (cause) {
+      current.failure = cause;
+      throw cause;
+    }
+    current.attempted = true;
     // Observe the response; do not rewrite the public client's request or answer.
     const response = await (options.fetch ?? fetch)(url, init);
     if (response.ok) {
@@ -130,22 +178,27 @@ export function makeRecordingClient(
         usageMetadata?: GeminiUsage;
         modelVersion?: string;
       };
-      const current = meter.getStore();
-      if (!current) throw new Error('Missing cost scope');
+      let cost: number;
       if (model === 'gemini-3.8-flash') {
         if (!payload.usageMetadata) throw new Error('Gemini response has no usage');
-        current.cost = geminiCost(payload.usageMetadata);
+        cost = geminiCost(payload.usageMetadata);
         current.model = payload.modelVersion;
-        current.input = payload.usageMetadata.promptTokenCount;
+        current.input = (current.input ?? 0) + (payload.usageMetadata.promptTokenCount ?? 0);
         current.output =
-          (payload.usageMetadata.candidatesTokenCount ?? 0) + (payload.usageMetadata.thoughtsTokenCount ?? 0);
+          (current.output ?? 0) +
+          (payload.usageMetadata.candidatesTokenCount ?? 0) +
+          (payload.usageMetadata.thoughtsTokenCount ?? 0);
       } else {
         if (!payload.usage) throw new Error('OpenAI response has no usage');
-        current.cost = openAiCost(payload.usage);
+        cost = openAiCost(payload.usage);
         current.model = payload.model;
-        current.input = payload.usage.prompt_tokens;
-        current.output = payload.usage.completion_tokens;
+        current.input = (current.input ?? 0) + (payload.usage.prompt_tokens ?? 0);
+        current.output = (current.output ?? 0) + (payload.usage.completion_tokens ?? 0);
       }
+      current.cost = (current.cost ?? 0) + cost;
+      settle(current, cost);
+    } else if (current.pending) {
+      current.pending.rejected = true;
     }
     return response;
   };
@@ -170,24 +223,16 @@ export function makeRecordingClient(
             maxRetries: 0,
             fetch: observedFetch,
           });
-  const rates = model === 'gemini-3.8-flash' ? GEMINI_RATES : LUNA_RATES;
   return {
     ...base,
     async judge(request) {
       if (model === 'gemini-3.8-flash' && Date.now() >= Date.parse('2027-01-01T00:00:00Z'))
         throw new Error('Gemini introductory pricing expired; update the metered rates before recording');
-      const prompt = buildPrompt(request);
-      // One UTF-8 byte per token bounds input, including protocol/schema overhead.
-      // Reserve Gemini's full model output ceiling because thinking may overshoot the requested cap.
-      // https://ai.google.dev/gemini-api/docs/models/gemini-3.8-flash
-      const reservation =
-        model === 'haiku'
-          ? 0.02
-          : ((Buffer.byteLength(prompt.system + prompt.user) + 8192) * rates.input +
-              (model === 'gemini-3.8-flash' ? 65_536 : 1024) * rates.output) /
-            1_000_000;
-      const token = budget.reserve(reservation);
-      const data: { cost?: number; model?: string; input?: number; output?: number } = {};
+      const data: Meter = { charged: 0, unmetered: false };
+      if (model === 'haiku') {
+        data.pending = { token: budget.reserve(0.02), amount: 0.02 };
+        data.attempted = true;
+      }
       let status: 'ok' | 'error' = 'error';
       try {
         return await meter.run(data, async () => {
@@ -199,6 +244,7 @@ export function makeRecordingClient(
               result = await base.judge(request);
               break;
             } catch (cause) {
+              if (data.failure) throw data.failure;
               if (
                 model !== 'gemini-3.8-flash' ||
                 !(cause instanceof Error) ||
@@ -225,19 +271,19 @@ export function makeRecordingClient(
       } finally {
         // Even an overrun must reach the append-only spend ledger before it stops the run.
         try {
-          budget.settle(token, data.cost);
+          settle(data, model === 'haiku' ? data.cost : undefined);
         } finally {
-          log({
-            at: new Date().toISOString(),
-            model,
-            resolvedModel: data.model ?? actualModel,
-            costUsd: data.cost ?? 0,
-            chargedUsd: data.cost ?? reservation,
-            accounting:
-              data.cost === undefined ? 'reserved-on-error' : model === 'haiku' ? 'provider' : 'tokens',
-            status,
-            ...(data.input === undefined ? {} : { inputTokens: data.input, outputTokens: data.output }),
-          });
+          if (data.attempted)
+            log({
+              at: new Date().toISOString(),
+              model,
+              resolvedModel: data.model ?? actualModel,
+              costUsd: data.cost ?? 0,
+              chargedUsd: data.charged,
+              accounting: data.unmetered ? 'reserved-on-error' : model === 'haiku' ? 'provider' : 'tokens',
+              status,
+              ...(data.input === undefined ? {} : { inputTokens: data.input, outputTokens: data.output }),
+            });
         }
       }
     },
