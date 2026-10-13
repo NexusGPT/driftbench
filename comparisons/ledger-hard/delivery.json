@@ -1,13 +1,31 @@
 {
-  "created": "2026-10-13T12:52:47.416258+00:00",
+  "created": "2026-10-13T14:51:11.943750+00:00",
   "dossier": "/private/tmp/claude-501/-Users-assem-Documents-Doc-Assem-Claude-Code-nexus/649588d0-8d65-49cb-8d78-47b071cd71cb/scratchpad/codex/dossier-ledger-hard.md",
-  "dossier_sha256": "24b7b5fdfeec8c882680a8d2ea821912b4e2d127834ef180fd1a5033680be61b",
-  "local_final_sha256": "24b7b5fdfeec8c882680a8d2ea821912b4e2d127834ef180fd1a5033680be61b",
+  "dossier_sha256": "111a23f7626f7d831fbfe6f39f461903cc2ba9ea89056e49c0db0f468d7e0c38",
+  "local_final_sha256": "111a23f7626f7d831fbfe6f39f461903cc2ba9ea89056e49c0db0f468d7e0c38",
   "full_coverage": false,
-  "available_models_complete": true,
-  "measured_usd": 17.1796732,
-  "lost_attempt_reserve_usd": 0.4,
-  "unique_recorded_requests": 22698,
+  "available_models_complete": false,
+  "measured_usd": 19.587648700000003,
+  "lost_attempt_reserve_usd": 4.25,
+  "unique_recorded_requests": 23758,
   "flash_lite_complete": true,
-  "overall_cap_usd": 21
+  "added_models": {
+    "sonnet-5-5": {
+      "model": "claude-sonnet-5-5",
+      "complete": false,
+      "unique_calls": 159,
+      "measured_usd": 0.805057,
+      "lost_unique_requests": null,
+      "token_limited_entries": null
+    },
+    "gpt-6.1-sol": {
+      "model": "gpt-6.1-sol",
+      "complete": false,
+      "unique_calls": 901,
+      "measured_usd": 1.6011145,
+      "lost_unique_requests": null,
+      "token_limited_entries": null
+    }
+  },
+  "overall_cap_usd": 91
 }

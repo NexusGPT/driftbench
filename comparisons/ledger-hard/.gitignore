@@ -5,3 +5,5 @@ recovery-process.json
 finish-process.json
 finish-state.json
 recovery-drain
+network-process.json
+network-hold

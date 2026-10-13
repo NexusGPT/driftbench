@@ -1,10 +1,10 @@
 # Ledger hard-row dossier
 
-Haiku and Luna complete; Gemini 3.8 262 requests not run: daily quota. Recording analysis generated 2026-10-13T12:52:47.382145+00:00. All case and result counts come from the linked files in `comparisons/ledger-hard/`.
+Haiku and Luna complete; Gemini 3.8 262 requests not run: daily quota. Recording analysis generated 2026-10-13T14:51:11.355555+00:00. All case and result counts come from the linked files in `comparisons/ledger-hard/`.
 
 - Haiku and Luna have full coverage in both experiments: 384 cases per row. Gemini 3.8 has 262 requests not run: daily quota. Its unfinished cells carry no final verdict.
 - 6560 primary and 9578 dialect unique recorded requests, including the goal equal-evidence ablation.
-- Measured spend across all published cells: USD 17.17967320. Lost-attempt reserve: USD 0.40. Combined: USD 17.57967320, within the owner-amended USD 21 cap.
+- Measured spend across all reported cells: USD 19.58764870. Unreported-attempt reserve: USD 4.25000000. Combined: USD 23.83764870. Separate authorized allocations total USD 91; each model allocation is enforced independently.
 - The construction audit passes. No pool is withdrawn. This is synthetic evidence on the original construction families.
 - Primary and dialect results remain separate. The dialect run uses the same cases and is not an independent replication.
 
@@ -24,7 +24,37 @@ Haiku has a nominal pooled equal-evidence lead in both experiments, with family 
 | Primary | gemini-3.5-flash-lite | 384/384 | 236/19 | 83/12 | 3.211394e-14 | nominal lead |
 | Dialect | gemini-3.5-flash-lite | 384/384 | 227/14 | 74/12 | 4.6897605e-12 | nominal lead |
 
-The separate Flash-Lite cell records 6560/6560 unique requests, at USD 8.18203290. Its amended USD 9 allocation raises the overall cap to USD 21. It uses medium reasoning as accepted by the API, with separate results and no reused Gemini 3.8 answers.
+The separate Flash-Lite cell records 6560/6560 unique requests, at USD 8.18203290. Its amended USD 9 allocation raises the original work cap to USD 21. It uses medium reasoning as accepted by the API, with separate results and no reused Gemini 3.8 answers.
+
+## Added Sonnet and GPT model cells
+
+The owner requests claude-sonnet-5-5 and gpt-6.1-sol on the same sealed cases. Each model carries both experiments and the equal-state goal ablation, totaling 6560 unique requests. Seal commit `afbd8abf` precedes every added-model call. The first five calls are retained once; continuation is gated only on measured cost, model identity and transport integrity.
+
+| Model | Recorded / planned | Cost USD | Reserved USD | Lost requests | Token-limited entries | Coverage |
+|---|---:|---:|---:|---:|---:|---|
+| claude-sonnet-5-5 | 159/6560 | 0.80505700 | 0.60000000 | Pending | Pending | network pause; awaiting ten-probe gate; no score while missing |
+| gpt-6.1-sol | 901/6560 | 1.60111450 | 3.25000000 | Pending | Pending | probe gate; no score while missing |
+
+| Model | Experiment | Ours USD | Default peer USD | Equal-state peer USD |
+|---|---|---:|---:|---:|
+| claude-sonnet-5-5 | primary | 0.19189990 | 0.15623600 | 0.03980400 |
+| claude-sonnet-5-5 | dialect | 0.27206800 | 0.14504910 | 0.00000000 |
+| gpt-6.1-sol | primary | 0.44950050 | 0.30259800 | 0.08987000 |
+| gpt-6.1-sol | dialect | 0.50911400 | 0.25003200 | 0.00000000 |
+
+Contestant costs count unique recorded calls. Reserved costs remain separate. Unanswered transport requests stay pending and receive no judge score. Full per-row scores, discordant wins/losses, exact tests, intervals and lost keys appear below only for fully answered model cells.
+
+The network amendment pauses both paid drivers, then permits automatic resumption only after ten consecutive unpaid provider reachability probes spaced thirty seconds apart. Only one model runs at a time, with two concurrent calls. Three consecutive connection failures cause a ten-minute pause and a fresh ten-probe gate. Recovery cycles are unlimited within the unchanged caps and cutoff; answered requests are never resent. Unknown charges keep their reserves. Gemini 3.8 stays parked.
+
+Sonnet receives an owner-approved USD 45 cap including holds. Its first five calls cost USD 0.028311; the next five with prompt caching disabled cost USD 0.025412. The cheaper no-cache route applies to both contestants. These disjoint pilot prefixes differ in request mix; their cost comparison is approximate. All ten model answers count once. One CLI transport envelope is archived verbatim, classified as no answer, and recovered on its second attempt.
+
+The zero-token CLI API-error audit checks 6560 Haiku, 6560 Luna and 6560 Flash-Lite recorded requests. It finds zero matching envelopes in those earlier cells. Their answers remain unchanged. `api-error-envelope-audit.json` holds counts and journal hashes.
+
+
+## Luna cache-write fee reconciliation
+
+The published Standard cache-write price is USD 0.125 per million tokens versus USD 0.10 for ordinary input. The fee-only reconciliation adds USD 0.001804 for 72160 written tokens in the recorded Luna receipts. The original answers and frozen statistics are unchanged. Historical tables below retain their original cost fields; this additional fee is included in the current overall spend above. Source: `luna-cache-write-fees.json`, [OpenAI pricing](https://developers.openai.com/api/docs/pricing), checked 2026-10-13.
+
 
 ## Construction-cue audit
 
@@ -130,6 +160,20 @@ Focused protocol/recovery tests pass; `test-output.txt` retains the test result.
 | `flash-lite/pricing.json` | `ac8269b65b41e8db47c60349987c796741118df14390a0ad1da364262bff34fa` |
 | `flash-lite/reasoning-applied.json` | `d37718bb39d54c5a81cd64e4b8b6cac9c47d812ab45adb43301dfa7613b9d881` |
 | `flash-lite/scores.json` | `b8d9321b82a82ff6f9d204e76dce489be6de633e870ea5c27a2e7454e7c21874` |
+| `extended-runtime-amendment.json` | `21f0312c0a8dafd4f43fe628df635d03576f774aeb5d41a6149867c2b2145028` |
+| `network-amendment.json` | `30fef07f613d492d8daa4def62bd7a05cf92c1b6838f81a40203d2f845bed69b` |
+| `api-error-envelope-audit.json` | `761d82e1713b7f9ef1e28aa7fe91103ed3097a065309f520d2860f1934368731` |
+| `luna-cache-write-fees.json` | `8dc8e999c36c56e6047d118dc3691470c45d84864fe9ed78600fd0df2428fd8d` |
+| `sonnet-5-5/seal.json` | `0f9a30095c9eb53a201d28bf440462862f3ae043b430ae08249017d3a76595c5` |
+| `sonnet-5-5/pricing.json` | `00cfb936f27a78787e18a6de3d73f9cb3a34369f1fbb6685f5217fe56a409fd8` |
+| `sonnet-5-5/pilot.json` | `787fabc4c202494523c00f3bc901cf68ac70f7207068bc778a158fdb8ee49490` |
+| `sonnet-5-5/cache-pilot.json` | `aabb84a1a730cd069952093c835f83401bc1246773d37ccf87638c2dbcf03b0c` |
+| `sonnet-5-5/cache-choice.json` | `5ee1e9ecd123dc231989356c8716efd82aa4b359124d2969b7ec41578812280a` |
+| `sonnet-5-5/budget-amendment.json` | `25be91c20ee2ab813e3163e41b856a6feb2950caf6981255fd8ca4075af28a3e` |
+| `sonnet-5-5/transport-reconciliation.json` | `7881758f88d38dade69aa27e1d640f7d6f8431e0c71cd44ddf789d6410c0ae81` |
+| `gpt-6.1-sol/seal.json` | `d71218174c21f9ca4146e55ea1f5ff22ff88a01fa6eb3cfaa0be48609fa3318d` |
+| `gpt-6.1-sol/pricing.json` | `9e34faa1a5e372521d5789d0962ce059eb502889daab0abcd51cab466d874d97` |
+| `gpt-6.1-sol/pilot.json` | `cc0331aab66dc66b6be33c2e1513839fda11cfe4dd96fa43bd7b935c6ab62c1f` |
 
 Candidate procedure: `d7f5e226bf5afe7b955ee0f2247835cd19953001c196dcc7260d1f0c37922587`. Original seal commit: `eeb7875e`. Core dialect source: `2bb0a7a787ca4466ff69d204f2380a7ad19cc056`; dialect seal commit: `a7954b1b`. The per-file source hash maps remain inside the seals and operational amendments.
 

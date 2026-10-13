@@ -135,8 +135,10 @@ def main():
     if lite:
         for name in ['flash-lite/seal.json','flash-lite/budget-amendment.json','flash-lite/pricing.json','flash-lite/reasoning-applied.json','flash-lite/scores.json']:
             lines.append(f'| `{name}` | `{digest(HERE/name)}` |')
+    for name in ('extended-runtime-amendment.json','network-amendment.json','api-error-envelope-audit.json','luna-cache-write-fees.json'):
+        if (HERE/name).exists():lines.append(f'| `{name}` | `{digest(HERE/name)}` |')
     for cell in added:
-        for artifact in ('seal.json','pricing.json','pilot.json','scores.json','verification.json','budget-amendment.json'):
+        for artifact in ('seal.json','pricing.json','pilot.json','cache-pilot.json','cache-choice.json','scores.json','verification.json','budget-amendment.json','transport-reconciliation.json'):
             name=f'{cell}/{artifact}'
             if (HERE/name).exists():lines.append(f'| `{name}` | `{digest(HERE/name)}` |')
     lines+=['',f'Candidate procedure: `{seal["candidate_procedure_sha256"]}`. Original seal commit: `eeb7875e`. Core dialect source: `{variant["core_commit"]}`; dialect seal commit: `a7954b1b`. The per-file source hash maps remain inside the seals and operational amendments.','',
