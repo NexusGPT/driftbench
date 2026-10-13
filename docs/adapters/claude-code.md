@@ -158,7 +158,7 @@ It exits 1, since four specs fail. The negative control runs on the faulty gate-
 
 A session that is not a transcript stops the command before any spec runs, with exit 2 and the `NotATranscriptError` message after `Cannot read the session <name>:`.
 
-The default `pii` check flags any personal data in the visible text, so a replay of the owner's own sessions fails on the address they typed. `--owner` gives the owner's own values, and `--owner-file` a file of them, one per line, where a line starting with `#` is a comment:
+The default `pii` check flags matching email addresses, phone numbers, IBANs and national register numbers in visible text. Names and personal addresses require `expect.pii_judge: true` and a configured judge. Replaying an owner's email address can therefore fail the regex check. `--owner` gives the owner's own values, and `--owner-file` a file of them, one per line, where a line starting with `#` is a comment:
 
 ```sh
 pnpm -s driftbench replay sessions/*.jsonl --suite specs --owner-file owner.txt

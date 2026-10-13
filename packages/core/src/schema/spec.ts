@@ -431,6 +431,12 @@ export const Expect = z
       .optional()
       .describe('Facts given earlier that the block must not ask for again, and may have to use.'),
     lang: Lang.optional().describe('The language of the reply.'),
+    pii_judge: z
+      .boolean()
+      .optional()
+      .describe(
+        'Opt in to judged detection of personal names and addresses in the visible reply. Requires a configured personal-data judge; absent or false makes no model calls. Missing or failed judging is gating inconclusive.',
+      ),
     cards: z.array(CardExpect).optional().describe('The cards expected in the block.'),
     criteria: z
       .array(z.string().min(1))
