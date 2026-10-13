@@ -27,5 +27,18 @@ class RecoveryTests(unittest.TestCase):
     def test_http_content_error_never_retried(self):
         result,events,n,delays=self.invoke([{'success':False,'text':'','error':{'status':400}}])
         self.assertEqual((n,delays),(1,[]))
+    def test_429_uses_quota_waits_then_records_only_answer(self):
+        errors=[{'success':False,'text':'','error':{'status':429}} for _ in range(3)]
+        result,events,n,delays=self.invoke(errors+[{'success':True,'text':'malformed','provider_response':{}}])
+        self.assertEqual((n,delays),(4,[60,120,240]))
+        self.assertEqual(sum(p=='calls.jsonl' for p,x in events),1)
+        self.assertNotIn('quota_pending',result)
+    def test_exhausted_429_stays_pending_and_unscored(self):
+        result,events,n,delays=self.invoke([{'success':False,'text':'','error':{'status':429}} for _ in range(4)])
+        self.assertEqual((n,delays),(4,[60,120,240]))
+        self.assertEqual(sum(p=='calls.jsonl' for p,x in events),0)
+        self.assertEqual(sum(p=='quota-pending.jsonl' for p,x in events),1)
+        self.assertNotIn('outcome',result)
+        self.assertTrue(result['quota_pending'])
 
 if __name__=='__main__':unittest.main()

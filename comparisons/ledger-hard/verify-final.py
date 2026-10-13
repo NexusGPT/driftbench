@@ -12,7 +12,7 @@ def main():
     audit=json.loads((HERE/'construction-cue-audit.json').read_text())
     assert audit['blocking_cues']==[] and audit['verdict'].startswith('PASS')
     source_hashes={}
-    for amendment in ('recovery-amendment.json','concurrency-amendment.json'):
+    for amendment in ('recovery-amendment.json','concurrency-amendment.json','quota-amendment.json'):
         source_hashes.update(json.loads((HERE/amendment).read_text())['sha256'])
     for path,value in source_hashes.items():assert digest(ROOT/path)==value,path
     authorised={i['request_sha256']:i for i in recovery['items']}
@@ -52,8 +52,8 @@ def main():
         attempt_events=read(directory/'recovery-attempts.jsonl')
         active=collections.Counter();maximum=collections.Counter()
         for a in attempt_events:
-            if a['event']=='backoff':assert a['seconds'] in (10,30);continue
-            assert a.get('attempt_count',a.get('attempt',1))<=3
+            if a['event']=='backoff':assert a['seconds'] in (10,30,60,120,240);continue
+            assert a.get('attempt_count',a.get('attempt',1))<=6
             model=a['model']
             active[model]+=1 if a['event']=='start' else -1
             assert active[model]>=0
@@ -73,6 +73,7 @@ def main():
             usage[model]={'calls':len(ms),'usage_totals':dict(sums),'measured_usd':sum(run.priced(a) or 0 if model=='gpt-6-luna' else a.get('measured_usd') or 0 for a in ms)}
         complete=set(by)==set(unique)
         if args.require_complete:assert complete and not any(active.values())
+        assert all((a.get('error') or {}).get('status')!=429 for a in answers),'Quota errors must never be scored'
         details[experiment]={'complete':complete,'recorded_unique':len(by),'planned_unique':len(unique),'native_peer_decodes':len(replay),
             'recovery_max_concurrent':dict(maximum),'unanswered_started':len(set(start_counts)-set(by)),
             'final_failed_calls':sum(not a['success'] for a in answers),'measured_usd':cost,'by_model':usage,

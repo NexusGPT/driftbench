@@ -15,7 +15,9 @@ def main():
             with (directory/'runner.lock').open('a') as lock:
                 try:fcntl.flock(lock,fcntl.LOCK_EX|fcntl.LOCK_NB)
                 except BlockingIOError:running=True
-        if not running:break
+        if not running:
+            state=json.loads((HERE/'recovery-state.json').read_text())
+            if state.get('stop_reason')!='drain requested':break
         time.sleep(30)
     state=json.loads((HERE/'recovery-state.json').read_text())
     assert sum(state['remaining'].values())==0 and state['inflight']==0,state
@@ -23,7 +25,8 @@ def main():
     dump(HERE/'finish-state.json',{'stamp':stamp(),'status':'verifying'})
     tsx='/Users/assem/Documents/GitHub/driftbench/node_modules/.bin/tsx'
     call(['python3','comparisons/ledger-hard/check-audit.py'])
-    call(['python3','-m','unittest','discover','-s','comparisons/ledger-hard','-p','test_*.py'])
+    tests=call(['python3','-m','unittest','discover','-s','comparisons/ledger-hard','-p','test_*.py'])
+    (HERE/'test-output.txt').write_text(tests)
     call([tsx,'comparisons/ledger-hard/peer-decoder-parity.mts'])
     call([tsx,'comparisons/ledger-hard/peer-decoder-parity.mts','--dialect'])
     call([tsx,'comparisons/ledger-hard/trajectory-parity.mts'])
