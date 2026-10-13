@@ -1,0 +1,9 @@
+{
+  "path": "packages/judges/src/reader-first-features.ts",
+  "measuredCommit": "c50b2dc3f0c6c3e9bc3b82d848fb9bc1a98451c4",
+  "beforeSha256": "ac0e1b2bb309b4dacb7cf8f29fea0bb658545a3f2f5296bf947a07cf737a7612",
+  "afterSha256": "74dbcc5c83da17ad2d8abce21be637cc93a85645cafdc7e52a366fe5588df23f",
+  "emittedJavaScriptAstIdentical": true,
+  "method": "Compare TypeScript-emitted JavaScript syntax-tree kinds, literal values, operators and ordered children; exclude whole-file source text, positions and formatting trivia.",
+  "at": "2026-10-13T04:51:03.476Z"
+}

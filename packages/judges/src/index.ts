@@ -216,6 +216,21 @@ export {
   readQueue,
   writeQueue,
 } from './queue';
+export {
+  createReaderFirstJudge,
+  READER_FIRST_CRITERIA,
+  READER_FIRST_THRESHOLDS,
+  type ReaderBallot,
+  type ReaderChoice,
+  type ReaderCriterion,
+  type ReaderFirstOptions,
+  type ReaderScore,
+  readerBallot,
+  readerFirstRequest,
+  readerRiskFlags,
+  resolveReaderFirst,
+} from './reader-first';
+export { type ReaderFeatures, readerFeatures } from './reader-first-features';
 export { type ReferenceOptions, type ReferenceSolve, withReferenceConsensus } from './reference';
 export { judgeResponseRelevance, ResponseRelevanceAnswer } from './response-relevance';
 export { type ScreenFinding, type ScreenReport, screenData } from './screen';
