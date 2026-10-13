@@ -1,0 +1,21 @@
+{
+  "round": "post-confirmation DEV only",
+  "authorization": "Result recorded as a loss to promptfoo (62.7 against 58.96). Finish the push. Next round, dev only, with no more test runs tonight",
+  "population": 90,
+  "games": 180,
+  "candidate": "promptfoo verbatim select-best template, existing benchmark loop expansion and user transport message",
+  "combination": "Same prompt; three judgments per order, six normalized ballots pooled with existing majorityPair; ties remain wrong",
+  "threshold": "At least 3 percentage points above holistic64.4444%, therefore67.4444% or higher",
+  "thresholdAccuracy": 0.6744444444444445,
+  "newSpendCapUsd": 1.5,
+  "newCallsSerial": true,
+  "futureTestOnly": "No TEST calls, scoring, or selection after this preregistration",
+  "portVerifiedPrompts": 180,
+  "baseMissingRecordings": 0,
+  "measuredBaseCostPer100": 0.42136144444444423,
+  "projectedColdPooledCostPer100": 1.2640843333333327,
+  "projectedNewSpend": 0.7584505999999996,
+  "sourceSha256": "65f63ee48199922865e615d7408f94acae0fded8287118e2b6e4d24cc0cd6de8",
+  "upstreamTemplateSha256": "1eb5db398b36270da1561afdc1557cf884e7efc5bea5f894834d72c533f76e7f",
+  "semanticSelection": "Fixed six-vote majority; no weighted combination, confidence inference or label-derived tie break"
+}

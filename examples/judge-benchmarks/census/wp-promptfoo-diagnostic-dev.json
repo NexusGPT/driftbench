@@ -1,0 +1,3683 @@
+{
+  "split": "dev",
+  "items": 90,
+  "newCalls": 0,
+  "newSpendUsd": 0,
+  "costPer100": 0.4213614444444447,
+  "perOrder": [
+    {
+      "correct": 56,
+      "n": 90
+    },
+    {
+      "correct": 52,
+      "n": 90
+    }
+  ],
+  "correct": 108,
+  "headToHead": {
+    "better": 9,
+    "worse": 17,
+    "equal": 64
+  },
+  "groups": [
+    {
+      "group": "en",
+      "promptfoo": 41,
+      "holistic": 41,
+      "games": 82
+    },
+    {
+      "group": "zh",
+      "promptfoo": 67,
+      "holistic": 75,
+      "games": 98
+    }
+  ],
+  "results": [
+    {
+      "rowKey": "c1ed25b40c935739b7c1",
+      "id": "f5965d2a-70ce-4d48-9b4e-920bb65725a0",
+      "group": "zh",
+      "label": "A",
+      "games": [
+        "A",
+        "A"
+      ],
+      "raw": [
+        "0",
+        "1"
+      ],
+      "costUsd": 0.0035998000000000007,
+      "holisticGames": [
+        "A",
+        "A"
+      ],
+      "holisticReasons": [
+        "Draft A develops each requested section with specific, usable guidance and explains the reasoning behind the waterproof limits and payment safety. Draft B meets the structure but stays shallow and conventional, with thinner operational detail and a minor specification inconsistency.",
+        "B develops each required section with explanatory depth and reader-oriented detail, such as the reasoning behind the waterproof limits, multi-step FAQ diagnostics, and fuller safety guidance. A stays accurate and complete but remains a thinner, more formulaic template."
+      ],
+      "promptfooCorrect": 2,
+      "holisticCorrect": 2
+    },
+    {
+      "rowKey": "2dc32b654e3a031a8105",
+      "id": "f5965d2a-70ce-4d48-9b4e-920bb65725a0",
+      "group": "zh",
+      "label": "A",
+      "games": [
+        "A",
+        "A"
+      ],
+      "raw": [
+        "0",
+        "1"
+      ],
+      "costUsd": 0.0025247,
+      "holisticGames": [
+        "A",
+        "A"
+      ],
+      "holisticReasons": [
+        "A fills in the product parameters, accessories, charging time, and usage steps with concrete, consistent details, so the manual is ready to use. B's parameter section is mostly placeholders and its guidance is more generic, so it develops the brief less fully despite its broader feature coverage.",
+        "B realizes the commission as a usable, complete manual with specific content in every section, while A leaves core parameters as placeholders. A is warmer and more thorough in its guidance, but its unfilled template fields make it less finished, which is the decisive difference in development."
+      ],
+      "promptfooCorrect": 2,
+      "holisticCorrect": 2
+    },
+    {
+      "rowKey": "2d3cb3fcce38d1a22be1",
+      "id": "e48ff2f5-c317-4125-813b-a0e0be5efb1e",
+      "group": "zh",
+      "label": "A",
+      "games": [
+        "A",
+        "A"
+      ],
+      "raw": [
+        "0",
+        "1"
+      ],
+      "costUsd": 0.0037916,
+      "holisticGames": [
+        "A",
+        "A"
+      ],
+      "holisticReasons": [
+        "Draft A develops the brief with specific, checkable detail and comparative analysis, including the upgrade table and tradeoff-aware buying advice. Draft B stays general, substitutes adjectives for measurements, and makes several unsupported claims, so it does not deliver the professional depth the brief asked for.",
+        "B 以具体规格、测试条件和可操作的对比表支撑判断，并区分标称与实际续航；A 依赖无来源的模糊数值和重复的泛化表述，缺少行业参考所需的实质内容。"
+      ],
+      "promptfooCorrect": 2,
+      "holisticCorrect": 2
+    },
+    {
+      "rowKey": "20fe4f0e140c13b70c1a",
+      "id": "e48ff2f5-c317-4125-813b-a0e0be5efb1e",
+      "group": "zh",
+      "label": "A",
+      "games": [
+        "A",
+        "A"
+      ],
+      "raw": [
+        "0",
+        "1"
+      ],
+      "costUsd": 0.003431,
+      "holisticGames": [
+        "A",
+        "A"
+      ],
+      "holisticReasons": [
+        "A develops the requested analysis across all listed areas with explained mechanisms, cold-weather context, avoidance strategies, and role-specific recommendations. B offers a shorter report whose specific-looking test data is largely unsupported and whose comparisons are muddled, so A is more credible and more fully realized for an expert audience.",
+        "Draft B's upgrade analysis is factually grounded and its signal-loss and battery sections are coherent. Draft A fills its tables with unsourced figures and misstates the predecessor's sensing and transmission, which an industry reader would catch immediately."
+      ],
+      "promptfooCorrect": 2,
+      "holisticCorrect": 2
+    },
+    {
+      "rowKey": "fff14e54a5c7f9b5b3e1",
+      "id": "d9a32b1a-a702-42d4-a3f2-6e7164a7a7bc",
+      "group": "zh",
+      "label": "A",
+      "games": [
+        "A",
+        "A"
+      ],
+      "raw": [
+        "0",
+        "1"
+      ],
+      "costUsd": 0.006733800000000001,
+      "holisticGames": [
+        "A",
+        "A"
+      ],
+      "holisticReasons": [
+        "A enacts events, dialogue, and character change across a full plot, including a concrete emotional trial and a climactic resolution. B delivers mood and summary but dramatizes almost nothing, so its growth and friendship remain asserted rather than developed.",
+        "B enacts a sustained sequence of events and character trials. Lin's growth, the companions' bond, and the cosmological stakes are dramatized across scenes. A compresses the same premise into a summary of stated ideas with little dramatized action, so B is the more fully developed commission despite its preachiness and formulaic plotting."
+      ],
+      "promptfooCorrect": 2,
+      "holisticCorrect": 2
+    },
+    {
+      "rowKey": "cb420f160063912fc1d5",
+      "id": "d9a32b1a-a702-42d4-a3f2-6e7164a7a7bc",
+      "group": "zh",
+      "label": "A",
+      "games": [
+        "A",
+        "B"
+      ],
+      "raw": [
+        "0",
+        "0"
+      ],
+      "costUsd": 0.008010800000000002,
+      "holisticGames": [
+        "A",
+        "A"
+      ],
+      "holisticReasons": [
+        "Draft A dramatizes its premise through sensory environment and embodied combat, and it develops the balance theme through the protagonist's pain-driven insight. Draft B summarizes events and states its moral outright, leaving its theme and atmosphere underdeveloped by comparison.",
+        "B develops the requested environmental atmosphere, combat, and character-driven growth far more fully, with specific sensory detail and integrated thematic insight. A is complete but conventional and summarizes its key events. B's unfinished ending and overwrought style keep it from a higher level, but its craft is clearly deeper than A's."
+      ],
+      "promptfooCorrect": 1,
+      "holisticCorrect": 2,
+      "audit": {
+        "n": 1,
+        "rowKey": "cb420f160063912fc1d5",
+        "id": "d9a32b1a-a702-42d4-a3f2-6e7164a7a7bc",
+        "group": "zh",
+        "label": "A",
+        "judges": [
+          {
+            "design": "adaptive",
+            "family": "adaptive",
+            "games": [
+              "B",
+              "B"
+            ]
+          },
+          {
+            "design": "criteria-vote",
+            "family": "criteria",
+            "games": [
+              "B",
+              "B"
+            ]
+          },
+          {
+            "design": "holistic",
+            "family": "holistic",
+            "games": [
+              "A",
+              "A"
+            ]
+          },
+          {
+            "design": "criterion-v3-stopped",
+            "family": "decomposed",
+            "games": [
+              "B",
+              "B"
+            ]
+          }
+        ],
+        "path": "examples/judge-benchmarks/.scratch/audit-inputs/01-cb420f160063912fc1d5.md",
+        "readFully": true,
+        "status": "defensible",
+        "labelDefensible": true,
+        "quotes": [
+          {
+            "side": "A",
+            "quote": "玉的温润、火的炽烈、冰的冷锐完美糅合"
+          },
+          {
+            "side": "B",
+            "quote": "他将堕魔鼎抛向空中，鼎身碎裂"
+          }
+        ],
+        "reason": "A enacts the balance theme through the partners' coordinated powers with developed sensory action. B completes the required ending, while A only previews it and has a repeated-location transition. A's craft supplies a defensible preference despite that completion defect; this is a quality tradeoff, not a proven reversed label.",
+        "readAt": "2026-10-12T23:43:54.599585"
+      }
+    },
+    {
+      "rowKey": "f6c29e1b9258ef761fe5",
+      "id": "d6f36e43-3ac8-4619-8365-6093e0ac0cb3",
+      "group": "zh",
+      "label": "A",
+      "games": [
+        "B",
+        "A"
+      ],
+      "raw": [
+        "1",
+        "1"
+      ],
+      "costUsd": 0.0046346,
+      "holisticGames": [
+        "A",
+        "A"
+      ],
+      "holisticReasons": [
+        "A develops a single personalized concept, with the couple's story and motifs carried through every section, while B stays a generic template with placeholder budget figures. A's emotional resonance and specific realized content outweigh its arithmetic and timing flaws.",
+        "B develops a specific couple-centered narrative and ties venue, layout, rituals, and cost decisions to it, while A stays with generic options and an unspecified budget. B has numerical and timing errors, but its concrete, cohesive execution is decisively stronger."
+      ],
+      "promptfooCorrect": 1,
+      "holisticCorrect": 2
+    },
+    {
+      "rowKey": "29847a65e7cc65216d09",
+      "id": "d6f36e43-3ac8-4619-8365-6093e0ac0cb3",
+      "group": "zh",
+      "label": "A",
+      "games": [
+        "A",
+        "A"
+      ],
+      "raw": [
+        "0",
+        "1"
+      ],
+      "costUsd": 0.0055774,
+      "holisticGames": [
+        "A",
+        "A"
+      ],
+      "holisticReasons": [
+        "A sustains a distinctive, emotionally resonant voice across every section and develops each requested element with specific atmosphere and rationale, while B delivers accurate tables but thin, generic prose with little emotional or experiential development.",
+        "B develops one emotionally resonant concept across every requested element and gives it sustained, specific execution, from named music and LED sky backdrops to a detailed, transition-aware run-of-show. A lists the same categories in a conventional template with thin, generic detail and little voice."
+      ],
+      "promptfooCorrect": 2,
+      "holisticCorrect": 2
+    },
+    {
+      "rowKey": "1527c612353efdeef895",
+      "id": "d6f36e43-3ac8-4619-8365-6093e0ac0cb3",
+      "group": "zh",
+      "label": "A",
+      "games": [
+        "B",
+        "B"
+      ],
+      "raw": [
+        "1",
+        "0"
+      ],
+      "costUsd": 0.0043578,
+      "holisticGames": [
+        "B",
+        "B"
+      ],
+      "holisticReasons": [
+        "B以统一的星河主题把场地、色彩、灯光和花艺串联起来，并给出可核算的预算数字和带时间与配乐的流程。A的预算全为占位符，流程和装饰描述大量重复，缺少可执行的具体性。",
+        "A delivers a complete, specific plan with real numbers, including a budget that sums correctly and a precise timed schedule. B leaves the budget as placeholders and describes its venue and layout only in generic terms, so it does not realize the brief's core professional requirements."
+      ],
+      "promptfooCorrect": 0,
+      "holisticCorrect": 0,
+      "audit": {
+        "n": 2,
+        "rowKey": "1527c612353efdeef895",
+        "id": "d6f36e43-3ac8-4619-8365-6093e0ac0cb3",
+        "group": "zh",
+        "label": "A",
+        "judges": [
+          {
+            "design": "adaptive",
+            "family": "adaptive",
+            "games": [
+              "B",
+              "B"
+            ]
+          },
+          {
+            "design": "criteria-vote",
+            "family": "criteria",
+            "games": [
+              "B",
+              "B"
+            ]
+          },
+          {
+            "design": "holistic",
+            "family": "holistic",
+            "games": [
+              "B",
+              "B"
+            ]
+          },
+          {
+            "design": "criterion-v3-stopped",
+            "family": "decomposed",
+            "games": [
+              "B",
+              "B"
+            ]
+          }
+        ],
+        "path": "examples/judge-benchmarks/.scratch/audit-inputs/02-1527c612353efdeef895.md",
+        "readFully": true,
+        "status": "suspect",
+        "labelDefensible": false,
+        "quotes": [
+          {
+            "side": "A",
+            "quote": "|总计| [X] | 100% | - |"
+          },
+          {
+            "side": "B",
+            "quote": "### 💰 总预算：150,000元"
+          }
+        ],
+        "reason": "The prompt explicitly requires clear budget allocation. Every amount and share in A is a placeholder, so that requested deliverable is absent. B supplies a complete allocation that adds to its stated total and also covers timing, design and contingencies. A's themed romance does not supply its missing budget. This label is not defensible under the stated functional instruction; prices and venue claims in B remain hypothetical, not independently verified.",
+        "readAt": "2026-10-12T23:43:54.600245",
+        "certainty": "clear-explicit-deliverable-failure"
+      }
+    },
+    {
+      "rowKey": "560bbd798a3065442e11",
+      "id": "d3f7457d-11ad-4f02-a849-31518f5a729d",
+      "group": "zh",
+      "label": "A",
+      "games": [
+        "A",
+        "A"
+      ],
+      "raw": [
+        "0",
+        "1"
+      ],
+      "costUsd": 0.0042059,
+      "holisticGames": [
+        "A",
+        "A"
+      ],
+      "holisticReasons": [
+        "A realizes the brief's undercover and 暗访 requirements on screen and builds emotional stakes through specific images, such as the demolished home and the old man's tears. B covers more plot beats but in summary form, with less enacted development of its characters and methods.",
+        "B is more developed in visual craft and dramatic staging: it sets up the lead's undercover methods, makes the evidence reveal a concrete public set piece, and gives OLD LI a meaningful hidden-evidence arc. A relies more on stock dialogue and a thin, tell-heavy plot."
+      ],
+      "promptfooCorrect": 2,
+      "holisticCorrect": 2
+    },
+    {
+      "rowKey": "94330bfa86a49014987a",
+      "id": "d3f7457d-11ad-4f02-a849-31518f5a729d",
+      "group": "zh",
+      "label": "A",
+      "games": [
+        "A",
+        "A"
+      ],
+      "raw": [
+        "0",
+        "1"
+      ],
+      "costUsd": 0.0032604,
+      "holisticGames": [
+        "A",
+        "A"
+      ],
+      "holisticReasons": [
+        "A dramatizes the investigation through concrete scenes, escalating obstacles, and visible pressure on the protagonist and witnesses, while B mostly summarizes key events offstage and relies on stated intentions and generic dialogue.",
+        "Draft B dramatizes the investigation through specific, escalating scenes: a compensation discrepancy, covert recording, a livestream, and visible pressure on the mayor and the editor. Draft A stays at the level of announced events and stock dialogue, with its antagonist offstage and its turns resolved by convenient interventions. B's craft is more developed even though it is also conventional."
+      ],
+      "promptfooCorrect": 2,
+      "holisticCorrect": 2
+    },
+    {
+      "rowKey": "b1d101703b01070640ed",
+      "id": "d3f7457d-11ad-4f02-a849-31518f5a729d",
+      "group": "zh",
+      "label": "A",
+      "games": [
+        "A",
+        "A"
+      ],
+      "raw": [
+        "0",
+        "1"
+      ],
+      "costUsd": 0.0028106000000000003,
+      "holisticGames": [
+        "A",
+        "A"
+      ],
+      "holisticReasons": [
+        "A realizes the requested screenplay with dramatized scenes, concrete evidence, and character action, while B remains a hedged outline that describes rather than enacts the story.",
+        "Draft B enacts the requested screenplay with scenes, camera direction, and dialogue, while Draft A remains an outline that only describes events in hypothetical terms. B's execution is conventional, but it realizes the brief as a script; A does not."
+      ],
+      "promptfooCorrect": 2,
+      "holisticCorrect": 2
+    },
+    {
+      "rowKey": "3826eb9f58c23cdbfafd",
+      "id": "bf62ae01-9bf8-4fb6-af6b-660e88149dee",
+      "group": "zh",
+      "label": "A",
+      "games": [
+        "A",
+        "A"
+      ],
+      "raw": [
+        "0",
+        "1"
+      ],
+      "costUsd": 0.0032233,
+      "holisticGames": [
+        "A",
+        "A"
+      ],
+      "holisticReasons": [
+        "A dramatizes the biography with concrete scenes, dialogue, and turning points, while integrating analysis of character and failure into the narrative. B stays at the level of abstract summary and hedged commentary, so it does not realize the brief's demand for vivid chronological storytelling.",
+        "B以具体事件、人物对话与心理刻画推动叙述，达到生动与分析并重的要求；A虽结构完整，却以概括性论断为主，细节与人物动作薄弱，发展程度明显较低。"
+      ],
+      "promptfooCorrect": 2,
+      "holisticCorrect": 2
+    },
+    {
+      "rowKey": "ce96cf84a694bad7e635",
+      "id": "bf62ae01-9bf8-4fb6-af6b-660e88149dee",
+      "group": "zh",
+      "label": "A",
+      "games": [
+        "B",
+        "B"
+      ],
+      "raw": [
+        "1",
+        "0"
+      ],
+      "costUsd": 0.0033850000000000004,
+      "holisticGames": [
+        "B",
+        "B"
+      ],
+      "holisticReasons": [
+        "B dramatizes key moments with specific scenes, quotations, and interpretive framing, giving the biography real narrative life and analytical depth. A remains accurate and orderly but summarizes events and offers thinner, more predictable judgment.",
+        "A realizes the requested vivid chronological biography with developed scenes and sustained quotation from the sources, while B compresses events into summary and contains a notable factual error in the Julu battle."
+      ],
+      "promptfooCorrect": 0,
+      "holisticCorrect": 0,
+      "audit": {
+        "n": 3,
+        "rowKey": "ce96cf84a694bad7e635",
+        "id": "bf62ae01-9bf8-4fb6-af6b-660e88149dee",
+        "group": "zh",
+        "label": "A",
+        "judges": [
+          {
+            "design": "adaptive",
+            "family": "adaptive",
+            "games": [
+              "B",
+              "B"
+            ]
+          },
+          {
+            "design": "criteria-vote",
+            "family": "criteria",
+            "games": [
+              "B",
+              "B"
+            ]
+          },
+          {
+            "design": "holistic",
+            "family": "holistic",
+            "games": [
+              "B",
+              "B"
+            ]
+          },
+          {
+            "design": "criterion-v3-stopped",
+            "family": "decomposed",
+            "games": [
+              "A",
+              "A"
+            ]
+          }
+        ],
+        "path": "examples/judge-benchmarks/.scratch/audit-inputs/03-ce96cf84a694bad7e635.md",
+        "readFully": true,
+        "status": "defensible",
+        "labelDefensible": true,
+        "quotes": [
+          {
+            "side": "A",
+            "quote": "比如分肉与士兵同食"
+          },
+          {
+            "side": "B",
+            "quote": "李白的\"生当作人杰，死亦为鬼雄\""
+          }
+        ],
+        "reason": "A gives a chronological biography and character/legacy analysis, matching the main requested artifact. B gives more dramatic narrative, but attributes Li Qingzhao's Summer Quatrain to Li Bai and inserts heroic interpretation as fact. Both texts need historical checking. Choosing A's more restrained historical presentation is defensible; consensus preference for B does not establish a reversed label.",
+        "readAt": "2026-10-12T23:44:30.472378",
+        "sources": [
+          {
+            "claim": "The poem is by Li Qingzhao, not Li Bai.",
+            "url": "https://www.hnwu.edu.cn/ewebeditor/uploadfile/20231006195220323.pdf"
+          }
+        ]
+      }
+    },
+    {
+      "rowKey": "eb5ce1b9c94ef9936008",
+      "id": "bf62ae01-9bf8-4fb6-af6b-660e88149dee",
+      "group": "zh",
+      "label": "A",
+      "games": [
+        "A",
+        "A"
+      ],
+      "raw": [
+        "0",
+        "1"
+      ],
+      "costUsd": 0.0034294000000000004,
+      "holisticGames": [
+        "A",
+        "A"
+      ],
+      "holisticReasons": [
+        "Draft A dramatizes events with concrete scenes and sourced quotations, and it sustains a chronological narrative with analysis woven in. Draft B is brief, contains several factual errors, and gives generic assertions where the brief asked for developed, evidence-based insight.",
+        "B dramatizes key events with vivid scenes and direct quotations, creating a sustained narrative and character. A reduces the biography to summary with generic assertions and several factual errors, so the difference in development and craft is decisive."
+      ],
+      "promptfooCorrect": 2,
+      "holisticCorrect": 2
+    },
+    {
+      "rowKey": "43fa1f74a8b3c531e7a3",
+      "id": "aae187f9-cc24-4ac2-8995-4226c91576df",
+      "group": "zh",
+      "label": "A",
+      "games": [
+        "B",
+        "A"
+      ],
+      "raw": [
+        "1",
+        "1"
+      ],
+      "costUsd": 0.0042026,
+      "holisticGames": [
+        "A",
+        "A"
+      ],
+      "holisticReasons": [
+        "Draft A develops causal, case-specific analysis across bacterial, viral, and parasitic pathogens, with management implications. Draft B stays generic and contains a diagnostic error on Trichodina morphology.",
+        "B develops the requested case studies with diagnostic detail and sustained analysis, including the Trichodina denticle ring, the conditional-pathogen interpretation of E. coli, and the specificity logic behind the PCR result. A stays generic, gives an inaccurate Trichodina description, and frames the report as a sample with meta-commentary."
+      ],
+      "promptfooCorrect": 1,
+      "holisticCorrect": 2
+    },
+    {
+      "rowKey": "4956ee1c5c7a109f5183",
+      "id": "8dc4cba3-d27f-41d7-b986-26bf135f1711",
+      "group": "zh",
+      "label": "A",
+      "games": [
+        "A",
+        "A"
+      ],
+      "raw": [
+        "0",
+        "1"
+      ],
+      "costUsd": 0.0048167,
+      "holisticGames": [
+        "A",
+        "A"
+      ],
+      "holisticReasons": [
+        "Both are competent, complete screenplays, but A develops its comic and emotional engine more fully: the bubble motif recurs across scenes, the banker and skeptic beats are sharper, and the competition climax is dramatized with specific obstacles and a meaningful critic payoff. B is tidier but its key set pieces are summarized and its resolution is more predictable.",
+        "B develops recurring comic motifs (the 'soul' gags and the 'bubble' metaphor that pays off) and uses screenplay form with specific, character-driven detail, whereas A relies on more generic beats and dialogue."
+      ],
+      "promptfooCorrect": 2,
+      "holisticCorrect": 2
+    },
+    {
+      "rowKey": "2c9fd1c057c8ad01fb80",
+      "id": "8dc4cba3-d27f-41d7-b986-26bf135f1711",
+      "group": "zh",
+      "label": "A",
+      "games": [
+        "A",
+        "A"
+      ],
+      "raw": [
+        "0",
+        "1"
+      ],
+      "costUsd": 0.0034266,
+      "holisticGames": [
+        "A",
+        "A"
+      ],
+      "holisticReasons": [
+        "Draft A enacts a full romantic comedy with distinct scenes, rivals, comic reversals, and character-driven dialogue, while Draft B is a thin, expository outline with stiff dialogue and little humor. A's excerpt shows the light, observational wit and the romance-through-subtext that the brief calls for.",
+        "B dramatizes the romance and comedy through scenes with specific, humorous business and secondary characters, creating a sustained screenplay experience. A remains a summarized outline with expository dialogue and a thin competition climax, so B's development and craft are clearly stronger."
+      ],
+      "promptfooCorrect": 2,
+      "holisticCorrect": 2
+    },
+    {
+      "rowKey": "b30d1f86ad21fbfc9b10",
+      "id": "8dc4cba3-d27f-41d7-b986-26bf135f1711",
+      "group": "zh",
+      "label": "A",
+      "games": [
+        "A",
+        "A"
+      ],
+      "raw": [
+        "0",
+        "1"
+      ],
+      "costUsd": 0.0037016,
+      "holisticGames": [
+        "A",
+        "A"
+      ],
+      "holisticReasons": [
+        "A dramatizes the full arc in finished, enacted scenes with payoffs for its motifs, while B summarizes the story, offers only a few sample scenes, and explicitly leaves the script unfinished.",
+        "B把梗概转化为可演的分场剧本，有具体事件、阻力和人物反转，甜点主题也随剧情深化；A主要停留在大纲与注释层面，戏剧展开和场景实现明显不足。"
+      ],
+      "promptfooCorrect": 2,
+      "holisticCorrect": 2
+    },
+    {
+      "rowKey": "27f67dbdba8d0e766d8c",
+      "id": "8a981764-d2ff-44a0-a3bb-78090ec8107f",
+      "group": "zh",
+      "label": "A",
+      "games": [
+        "B",
+        "B"
+      ],
+      "raw": [
+        "1",
+        "0"
+      ],
+      "costUsd": 0.0033258,
+      "holisticGames": [
+        "B",
+        "B"
+      ],
+      "holisticReasons": [
+        "B把购买指南落实到了可操作的细节，尤其是验机流程和分场景的参数阈值，而A停留在原则层面。B的术语偏多且个别信息存疑，但其实用性与具体内容的差距足以使其胜出。",
+        "A develops the brief with specific thresholds, named models by price band, a brand pitfalls table, and a step-by-step inspection routine, while B stays generic and gives the reader few actionable specifics, despite A's jargon density and dated recommendations."
+      ],
+      "promptfooCorrect": 0,
+      "holisticCorrect": 0,
+      "audit": {
+        "n": 4,
+        "rowKey": "27f67dbdba8d0e766d8c",
+        "id": "8a981764-d2ff-44a0-a3bb-78090ec8107f",
+        "group": "zh",
+        "label": "A",
+        "judges": [
+          {
+            "design": "adaptive",
+            "family": "adaptive",
+            "games": [
+              "A",
+              "B"
+            ]
+          },
+          {
+            "design": "criteria-vote",
+            "family": "criteria",
+            "games": [
+              "B",
+              "B"
+            ]
+          },
+          {
+            "design": "holistic",
+            "family": "holistic",
+            "games": [
+              "B",
+              "B"
+            ]
+          },
+          {
+            "design": "criterion-v3-stopped",
+            "family": "decomposed",
+            "games": [
+              "B",
+              "B"
+            ]
+          }
+        ],
+        "path": "examples/judge-benchmarks/.scratch/audit-inputs/04-27f67dbdba8d0e766d8c.md",
+        "readFully": true,
+        "status": "defensible",
+        "labelDefensible": true,
+        "quotes": [
+          {
+            "side": "A",
+            "quote": "手机的“大脑”，决定运行速度"
+          },
+          {
+            "side": "B",
+            "quote": "带VC液冷"
+          }
+        ],
+        "reason": "The request explicitly asks for accessible explanations without excessive jargon. A explains core parameters and covers brands, cameras, memory, legitimate channels, authenticity and warranty in clear steps. B supplies a more detailed inspection procedure, but adds many chip/sensor identifiers and unexplained specialist terms. The preference for A's accessible guidance is defensible rather than a label error.",
+        "readAt": "2026-10-12T23:44:30.472563",
+        "sources": [
+          {
+            "claim": "B also names Snapdragon 8 Gen 2 for Xiaomi 14; the manufacturer specifies Gen 3.",
+            "url": "https://www.mi.com/global/product/xiaomi-14/specs/"
+          }
+        ]
+      }
+    },
+    {
+      "rowKey": "936d55033bdd6914efb7",
+      "id": "8a981764-d2ff-44a0-a3bb-78090ec8107f",
+      "group": "zh",
+      "label": "A",
+      "games": [
+        "B",
+        "B"
+      ],
+      "raw": [
+        "1",
+        "0"
+      ],
+      "costUsd": 0.0035525,
+      "holisticGames": [
+        "B",
+        "B"
+      ],
+      "holisticReasons": [
+        "B把每项参数拆解为作用、判断方法和取舍建议，并结合真伪查询、收货验机等可操作步骤，发展程度和实用性明显优于A的简短罗列，尽管存在个别不严谨之处。",
+        "A develops each parameter with plain-language explanation, specific tiers, and concrete verification steps for IMEI, seals, and warranty. B covers the same ground in terse bullets, so its guidance on why each parameter matters and how to check a phone is less developed."
+      ],
+      "promptfooCorrect": 0,
+      "holisticCorrect": 0,
+      "audit": {
+        "n": 5,
+        "rowKey": "936d55033bdd6914efb7",
+        "id": "8a981764-d2ff-44a0-a3bb-78090ec8107f",
+        "group": "zh",
+        "label": "A",
+        "judges": [
+          {
+            "design": "adaptive",
+            "family": "adaptive",
+            "games": [
+              "B",
+              "B"
+            ]
+          },
+          {
+            "design": "criteria-vote",
+            "family": "criteria",
+            "games": [
+              "B",
+              "B"
+            ]
+          },
+          {
+            "design": "holistic",
+            "family": "holistic",
+            "games": [
+              "B",
+              "B"
+            ]
+          },
+          {
+            "design": "criterion-v3-stopped",
+            "family": "decomposed",
+            "games": [
+              "B",
+              "B"
+            ]
+          }
+        ],
+        "path": "examples/judge-benchmarks/.scratch/audit-inputs/05-936d55033bdd6914efb7.md",
+        "readFully": true,
+        "status": "defensible",
+        "labelDefensible": true,
+        "quotes": [
+          {
+            "side": "A",
+            "quote": "多摄≠照片质量好，软件算法很关键！"
+          },
+          {
+            "side": "B",
+            "quote": "运行内存（RAM，相当于手机的办公桌）"
+          }
+        ],
+        "reason": "Both drafts satisfy the principal buying-guide requirements. A offers a practical final purchase checklist and directly counters camera marketing claims; B explains technical concepts more deeply. A also incorrectly groups Honor under Huawei, so this is not an endorsement of every fact. The requested accessible, stepwise guide admits a defensible preference for A rather than establishing a reversed label.",
+        "readAt": "2026-10-12T23:45:49.963083",
+        "sources": [
+          {
+            "claim": "Huawei announces sale of all Honor assets and no retained shares after completion.",
+            "url": "https://www.huawei.com/en/news/2020/11/huawei-honor-statement"
+          }
+        ]
+      }
+    },
+    {
+      "rowKey": "9e43b2d58fdf464cd17f",
+      "id": "8a981764-d2ff-44a0-a3bb-78090ec8107f",
+      "group": "zh",
+      "label": "A",
+      "games": [
+        "A",
+        "A"
+      ],
+      "raw": [
+        "0",
+        "1"
+      ],
+      "costUsd": 0.0027185000000000004,
+      "holisticGames": [
+        "A",
+        "A"
+      ],
+      "holisticReasons": [
+        "A is more specific and actionable across the brief: it gives budget tiers, a concrete memory recommendation, a verification procedure, purchase timing, and a checklist. B is more readable and explanatory but more generic and less useful in its concrete guidance.",
+        "B develops the brief's practical scope more fully, with specific, decision-ready thresholds, warranty and grey-market distinctions, timing, and a closing checklist, where A stays broader and more generic. A is easier to read, but B better fulfills the request for specific content and clear steps."
+      ],
+      "promptfooCorrect": 2,
+      "holisticCorrect": 2
+    },
+    {
+      "rowKey": "2ad913db094616dcc4f3",
+      "id": "8908c8ad-875d-4d06-a0ed-b0be790054b1",
+      "group": "zh",
+      "label": "A",
+      "games": [
+        "A",
+        "A"
+      ],
+      "raw": [
+        "0",
+        "1"
+      ],
+      "costUsd": 0.0054158,
+      "holisticGames": [
+        "A",
+        "A"
+      ],
+      "holisticReasons": [
+        "A dramatizes its events with specific action and interior reaction, so suspense and momentum actually build. B mostly summarizes its middle and climax in abstract phrasing, so its tension and characters remain underdeveloped despite a clearer outline.",
+        "B dramatizes the brief through physical events, reversals, and escalating set pieces, while A mostly tells the reader about its themes and conflicts. B's action and suspense build on each other, giving it the stronger realized execution."
+      ],
+      "promptfooCorrect": 2,
+      "holisticCorrect": 2
+    },
+    {
+      "rowKey": "07ca2300f60edfef71d6",
+      "id": "8908c8ad-875d-4d06-a0ed-b0be790054b1",
+      "group": "zh",
+      "label": "A",
+      "games": [
+        "B",
+        "A"
+      ],
+      "raw": [
+        "1",
+        "1"
+      ],
+      "costUsd": 0.0051538,
+      "holisticGames": [
+        "A",
+        "A"
+      ],
+      "holisticReasons": [
+        "A develops the entire requested arc, with awakening, factions, a mentor figure, the emperor's motives, and the tower climax, whereas B stops after the opening and never reaches the conspiracy, the key characters, or the requested theme. B's prose is more atmospheric, but A's completeness decisively wins.",
+        "A只展开了故事开头，B完整实现了梗概中的主线、势力冲突与主题，并通过皇帝的动机让人性复杂性有了实际的戏剧呈现。两者都有套路化的问题，但B的development明显更充分。"
+      ],
+      "promptfooCorrect": 1,
+      "holisticCorrect": 2
+    },
+    {
+      "rowKey": "d213ab5529a6e6937173",
+      "id": "8908c8ad-875d-4d06-a0ed-b0be790054b1",
+      "group": "zh",
+      "label": "A",
+      "games": [
+        "A",
+        "A"
+      ],
+      "raw": [
+        "0",
+        "1"
+      ],
+      "costUsd": 0.005909900000000001,
+      "holisticGames": [
+        "A",
+        "A"
+      ],
+      "holisticReasons": [
+        "A把梗概转化为可感知的场景和冲突，如血石觉醒、音律对抗、塔中幻境，并让力量诱惑在具体行动中显现；B主要是概述和情绪标签，缺少敌我交锋与人物选择的展开。",
+        "B dramatizes the central power-temptation theme through specific scenes and a character conflict (Lin Ye's bloodlust and Bai Li's threat), with more sustained set pieces and structure. A mostly summarizes the plot and tells the theme through generic emotional labels."
+      ],
+      "promptfooCorrect": 2,
+      "holisticCorrect": 2
+    },
+    {
+      "rowKey": "ed6cb96900efa941a050",
+      "id": "86fe9dc2-93dc-4a35-9009-6ed78bddde8c",
+      "group": "zh",
+      "label": "A",
+      "games": [
+        "A",
+        "A"
+      ],
+      "raw": [
+        "0",
+        "1"
+      ],
+      "costUsd": 0.007924200000000001,
+      "holisticGames": [
+        "A",
+        "A"
+      ],
+      "holisticReasons": [
+        "A enacts characters, events, and escalating conflict across eleven chapters, with specific mechanics and a developed plot. B only summarizes these elements and never stages the drama, so the difference in development is decisive.",
+        "A仅以概要方式推进，技能和战斗只被点名而未被展开，世界观揭示缺乏情节支撑；B以分章的完整冒险结构呈现了任务、战斗、真相揭示和现实追击，并把AI与现实边界的主题融入事件，尽管后期力量膨胀和标签化叙述存在明显缺陷，仍是更充分的小说执行。"
+      ],
+      "promptfooCorrect": 2,
+      "holisticCorrect": 2
+    },
+    {
+      "rowKey": "1abaaf3a63d3b080562e",
+      "id": "6cbc6076-8985-4749-9d56-23c5e27a9a91",
+      "group": "zh",
+      "label": "A",
+      "games": [
+        "A",
+        "A"
+      ],
+      "raw": [
+        "0",
+        "1"
+      ],
+      "costUsd": 0.005824900000000001,
+      "holisticGames": [
+        "A",
+        "A"
+      ],
+      "holisticReasons": [
+        "A develops the requested manual more fully, with step-by-step installation, maintenance, safety, and warranty content that matches the brief's emphasis on 具体步骤 and 详细. B is more concrete and polished in tone, but its procedures are shallower and its details less consistent, so A is the stronger execution despite its template-heavy presentation.",
+        "B在维护、安全、故障排查与保修条款上的展开更深入，并以指示灯与语音提示对应故障，体现了说明书的专业逻辑；A虽更具体可用，但部件命名不一致且排障与安全的深度有限。"
+      ],
+      "promptfooCorrect": 2,
+      "holisticCorrect": 2
+    },
+    {
+      "rowKey": "5f9d82cdc611fbcd3cfb",
+      "id": "6cbc6076-8985-4749-9d56-23c5e27a9a91",
+      "group": "zh",
+      "label": "A",
+      "games": [
+        "B",
+        "B"
+      ],
+      "raw": [
+        "1",
+        "0"
+      ],
+      "costUsd": 0.0056214,
+      "holisticGames": [
+        "B",
+        "B"
+      ],
+      "holisticReasons": [
+        "B develops the brief with concrete, reader-ready specifics: named models, numbered setup steps, LED meanings, causal troubleshooting and detailed warranty terms. A stays a placeholder template with conditional features, so B's development is decisively stronger despite its inconsistencies and emoji styling.",
+        "Draft A develops the requested manual with concrete specifications, a parts table, procedural steps, and a troubleshooting matrix, so a home user could act on it. Draft B delivers mostly placeholders and conditional hedges, leaving the substance undeveloped. A's internal spec contradictions reduce its polish, but they do not outweigh its far greater realization of the brief."
+      ],
+      "promptfooCorrect": 0,
+      "holisticCorrect": 0,
+      "audit": {
+        "n": 6,
+        "rowKey": "5f9d82cdc611fbcd3cfb",
+        "id": "6cbc6076-8985-4749-9d56-23c5e27a9a91",
+        "group": "zh",
+        "label": "A",
+        "judges": [
+          {
+            "design": "adaptive",
+            "family": "adaptive",
+            "games": [
+              "B",
+              "B"
+            ]
+          },
+          {
+            "design": "criteria-vote",
+            "family": "criteria",
+            "games": [
+              "B",
+              "B"
+            ]
+          },
+          {
+            "design": "holistic",
+            "family": "holistic",
+            "games": [
+              "B",
+              "B"
+            ]
+          },
+          {
+            "design": "criterion-v3-stopped",
+            "family": "decomposed",
+            "games": [
+              "A",
+              "A"
+            ]
+          }
+        ],
+        "path": "examples/judge-benchmarks/.scratch/audit-inputs/06-5f9d82cdc611fbcd3cfb.md",
+        "readFully": true,
+        "status": "defensible",
+        "labelDefensible": true,
+        "quotes": [
+          {
+            "side": "A",
+            "quote": "激光导航模块（如果有）"
+          },
+          {
+            "side": "B",
+            "quote": "距离墙面0.5米，左右各留1米空间"
+          },
+          {
+            "side": "B",
+            "quote": "将充电桩紧贴墙面放置"
+          }
+        ],
+        "reason": "A retains the requested brand-template title and qualifies unknown model-specific parts. B invents a brand, specifications and service commitments, and gives mutually inconsistent charging-base wall placement. A covers every requested manual section without asserting those invented particulars. The preference for its adaptable, more cautious manual is defensible despite B's fuller procedures.",
+        "readAt": "2026-10-12T23:45:49.963214"
+      }
+    },
+    {
+      "rowKey": "5731e007aafb602864f2",
+      "id": "6cbc6076-8985-4749-9d56-23c5e27a9a91",
+      "group": "zh",
+      "label": "A",
+      "games": [
+        "B",
+        "A"
+      ],
+      "raw": [
+        "1",
+        "1"
+      ],
+      "costUsd": 0.0047253,
+      "holisticGames": [
+        "A",
+        "A"
+      ],
+      "holisticReasons": [
+        "A realizes the commission with specific, coherent product content across every requested section, including steps, tables, error codes, and the warranty process. B remains mostly placeholders, so its development is substantially thinner even though its tone is friendlier.",
+        "B把参数、配件、按键操作、清扫模式、故障代码和保修流程都落实为具体内容，可直接用于家庭读者；A虽然章节齐全，但大量占位符使多数内容停留在框架层面，发展程度明显较弱。"
+      ],
+      "promptfooCorrect": 1,
+      "holisticCorrect": 2
+    },
+    {
+      "rowKey": "2dc65cf1938eef974d48",
+      "id": "645e5000-f91e-476a-bdd5-7362ad9e2753",
+      "group": "zh",
+      "label": "A",
+      "games": [
+        "A",
+        "A"
+      ],
+      "raw": [
+        "0",
+        "1"
+      ],
+      "costUsd": 0.0073914,
+      "holisticGames": [
+        "A",
+        "A"
+      ],
+      "holisticReasons": [
+        "Draft A develops the commission with sustained, enacted events, named characters, and specific tech-martial battles across multiple chapters. Draft B has stronger rhythmic tone but stays at summary level, so its plot, antagonists, and combat remain underdeveloped.",
+        "两篇都达成了题材要求，但 B 把招式与科技的融合落到了具体的身体与战斗机制上，并通过多章经历展开了人物成长和世界观。A 虽有凝练的气势，却以概述代替场景，战斗与成长都停留在宣言层面。"
+      ],
+      "promptfooCorrect": 2,
+      "holisticCorrect": 2
+    },
+    {
+      "rowKey": "dcb8c375e11e2da3cc0f",
+      "id": "645e5000-f91e-476a-bdd5-7362ad9e2753",
+      "group": "zh",
+      "label": "A",
+      "games": [
+        "A",
+        "A"
+      ],
+      "raw": [
+        "0",
+        "1"
+      ],
+      "costUsd": 0.005217800000000001,
+      "holisticGames": [
+        "A",
+        "A"
+      ],
+      "holisticReasons": [
+        "A enacts scenes with concrete events, dialogue, and escalating battles that show the martial-versus-technology clash the brief asks for. B summarizes the same plot in generic exposition with little dramatized action, which leaves it at a clearly lower level of development.",
+        "B enacts its events through dramatized scenes, dialogue, and specific combat exchanges, while A summarizes the same beats in generic declarative paragraphs. B's clash of 星陨 martial force against energy shields and ion weapons realizes the requested aesthetic, which A only gestures at."
+      ],
+      "promptfooCorrect": 2,
+      "holisticCorrect": 2
+    },
+    {
+      "rowKey": "e91c4dd43e2a660fefa8",
+      "id": "5c98a99e-a2e3-4406-808a-e9f57610bce3",
+      "group": "zh",
+      "label": "A",
+      "games": [
+        "A",
+        "A"
+      ],
+      "raw": [
+        "0",
+        "1"
+      ],
+      "costUsd": 0.0024234000000000005,
+      "holisticGames": [
+        "B",
+        "A"
+      ],
+      "holisticReasons": [
+        "B more fully develops the brief's specific request by giving each life stage a distinct child perspective, and its concrete micro-details and cyclical ending give it sharper craft than A's more generic anecdotes and repeated '卷' framing.",
+        "B fully develops every requested stage with lived scenes and dialogue, and its grandchild ending links the stages into one emotional arc. A reduces most stages to slogans and bullet lists and compresses marriage and childbirth into a thin section."
+      ],
+      "promptfooCorrect": 2,
+      "holisticCorrect": 1
+    },
+    {
+      "rowKey": "dc663e330e63205d306e",
+      "id": "5c98a99e-a2e3-4406-808a-e9f57610bce3",
+      "group": "zh",
+      "label": "A",
+      "games": [
+        "B",
+        "A"
+      ],
+      "raw": [
+        "1",
+        "1"
+      ],
+      "costUsd": 0.0024882000000000003,
+      "holisticGames": [
+        "A",
+        "A"
+      ],
+      "holisticReasons": [
+        "A develops its material through sustained, specific scenes and an emotionally rich parental voice that deepens across the life stages. B covers the brief more explicitly, with child quotes in each section, but its formulaic structure, stock tropes, and slips in wording keep it at a conventional level.",
+        "B develops the parental experience through sustained, original imagery and an arc that ends on the grandchild's birth, producing emotional resonance. A is more structured and gives more child dialogue, but its frequent awkward phrasing, the 'two children' inconsistency, and checklist-like stages make its execution more formulaic."
+      ],
+      "promptfooCorrect": 1,
+      "holisticCorrect": 2
+    },
+    {
+      "rowKey": "efbf2721b2f6e93d8878",
+      "id": "5aa3eaf4-20b3-44a5-b758-b6ded164dd45",
+      "group": "zh",
+      "label": "A",
+      "games": [
+        "A",
+        "A"
+      ],
+      "raw": [
+        "0",
+        "1"
+      ],
+      "costUsd": 0.0023652,
+      "holisticGames": [
+        "A",
+        "A"
+      ],
+      "holisticReasons": [
+        "Draft A develops concrete, quantified campaigns and a full account-to-activity workflow, while Draft B mostly supplies bracketed instructions in place of realized content, so A better fulfills the commission.",
+        "B 把运营动作、活动流程和可量化成果实际写出来，形成了可信的实战叙事；A 仍停留在填空模板阶段，几乎没有实现简历的功能性内容，两者在完成度上差距明显。"
+      ],
+      "promptfooCorrect": 2,
+      "holisticCorrect": 2
+    },
+    {
+      "rowKey": "bce15ee98f680f0a9244",
+      "id": "53bc3645-56df-42df-8bd3-9a85ac05a250",
+      "group": "zh",
+      "label": "A",
+      "games": [
+        "A",
+        "A"
+      ],
+      "raw": [
+        "0",
+        "1"
+      ],
+      "costUsd": 0.0021514000000000004,
+      "holisticGames": [
+        "A",
+        "A"
+      ],
+      "holisticReasons": [
+        "Draft A develops the commission with concrete, escalating comic scenes and distinct reply voices, while Draft B stays abstract, with generic replies and few specific jokes. The difference in craft and comedic payoff is decisive.",
+        "B以具体、可复现的事件（搜索词条、控评文案、咖啡馆应援、模拟器封号、错认coser）把吐槽落到实处，并通过多层跟帖的互动形成真实的讨论串。A的笑点多为概括性评价，场景和回复都缺少细节与层次，因此B在发展程度和幽默效果上明显更强。"
+      ],
+      "promptfooCorrect": 2,
+      "holisticCorrect": 2
+    },
+    {
+      "rowKey": "d5228ea7cbf9d60938f0",
+      "id": "53bc3645-56df-42df-8bd3-9a85ac05a250",
+      "group": "zh",
+      "label": "A",
+      "games": [
+        "B",
+        "B"
+      ],
+      "raw": [
+        "1",
+        "0"
+      ],
+      "costUsd": 0.0022270000000000002,
+      "holisticGames": [
+        "B",
+        "B"
+      ],
+      "holisticReasons": [
+        "B develops one strong comic conceit, the leaked internal task list in the control comments, across multiple escalating examples, with callbacks and a real reply exchange. A recycles punchlines and jumps between gags without building them up.",
+        "A develops its jokes through specific, escalating scenes, including the leaked task-list control comments, the sweet-potato campaign, and the library incident, while B mostly compresses its incidents into summary. A's narrator voice carries the deadpan irony the brief asked for, and its replies extend the joke rather than just reacting to it."
+      ],
+      "promptfooCorrect": 0,
+      "holisticCorrect": 0,
+      "audit": {
+        "n": 7,
+        "rowKey": "d5228ea7cbf9d60938f0",
+        "id": "53bc3645-56df-42df-8bd3-9a85ac05a250",
+        "group": "zh",
+        "label": "A",
+        "judges": [
+          {
+            "design": "adaptive",
+            "family": "adaptive",
+            "games": [
+              "B",
+              "B"
+            ]
+          },
+          {
+            "design": "criteria-vote",
+            "family": "criteria",
+            "games": [
+              "B",
+              "B"
+            ]
+          },
+          {
+            "design": "holistic",
+            "family": "holistic",
+            "games": [
+              "B",
+              "B"
+            ]
+          },
+          {
+            "design": "criterion-v3-stopped",
+            "family": "decomposed",
+            "games": [
+              "B",
+              "B"
+            ]
+          }
+        ],
+        "path": "examples/judge-benchmarks/.scratch/audit-inputs/07-d5228ea7cbf9d60938f0.md",
+        "readFully": true,
+        "status": "defensible",
+        "labelDefensible": true,
+        "quotes": [
+          {
+            "side": "A",
+            "quote": "对家是暗中策划喜剧出道的"
+          },
+          {
+            "side": "B",
+            "quote": "迷惑行为诺贝尔奖"
+          }
+        ],
+        "reason": "Both are forum satires with data-manipulation mishaps, public embarrassment and multiple reply voices. A's outsider-as-comedy-audience framing and varied short personas plausibly suit the requested sarcastic internal commentary. B's purple-potato motif and longer anecdotes are also defensible humor. Funniness does not have a uniquely correct winner here; the official preference is defensible.",
+        "readAt": "2026-10-12T23:45:49.963485"
+      }
+    },
+    {
+      "rowKey": "0ce6d95b598448eafe46",
+      "id": "53bc3645-56df-42df-8bd3-9a85ac05a250",
+      "group": "zh",
+      "label": "A",
+      "games": [
+        "B",
+        "A"
+      ],
+      "raw": [
+        "1",
+        "1"
+      ],
+      "costUsd": 0.001581,
+      "holisticGames": [
+        "A",
+        "A"
+      ],
+      "holisticReasons": [
+        "A stages more concrete, escalating comic events inside a convincing multi-voice forum thread, with irony that lands through situations, such as the funeral-home Weibo and the police cult report. B mostly describes and explains its jokes in essay prose, and its replies add little comedy.",
+        "B以多层楼的声口互相回调，并用具体事件（生日误喊、800票清零、被警察盘问）把讽刺落到实处；A虽有框架，但笑点多为直白吐槽，且叙述者频繁直接点评，缺少反讽的张力。"
+      ],
+      "promptfooCorrect": 1,
+      "holisticCorrect": 2
+    },
+    {
+      "rowKey": "5473c257ca9f970c28e2",
+      "id": "38aab22d-06b4-469f-ad30-74710c90eb23",
+      "group": "zh",
+      "label": "A",
+      "games": [
+        "A",
+        "A"
+      ],
+      "raw": [
+        "0",
+        "1"
+      ],
+      "costUsd": 0.0022309,
+      "holisticGames": [
+        "A",
+        "A"
+      ],
+      "holisticReasons": [
+        "Both are competent and youth-oriented, but A realizes the brief's requested positive examples with more specific, vivid cases and avoids B's unfinished placeholders and typo. B has the livelier stage voice, but its examples are more generic and the draft reads less finished.",
+        "B has a stronger debate framing and more developed, humorous, concrete examples that carry each argument, while A relies more on generic slang and metaphor lists with an unsupported statistic."
+      ],
+      "promptfooCorrect": 2,
+      "holisticCorrect": 2
+    },
+    {
+      "rowKey": "bd7906ddff73678a8091",
+      "id": "2c5a1a2e-e58f-45b5-9032-ad084c4c0f5b",
+      "group": "zh",
+      "label": "A",
+      "games": [
+        "B",
+        "B"
+      ],
+      "raw": [
+        "1",
+        "0"
+      ],
+      "costUsd": 0.006366599999999999,
+      "holisticGames": [
+        "B",
+        "B"
+      ],
+      "holisticReasons": [
+        "两篇都达到基本完成度，但B在最关键的夺冠段落里提出了真正独特的路线构想，并把身体的失重、发力与伤处的痛感写成同一个动作，细节更具体、更有张力；A的完整性更好，却主要依赖常规的励志叙述和套路化表达。",
+        "A develops the climactic move through sensation and a specific concept (stripping the calcified crust to reach the原生 rock beneath), with the injured arm's pain carried into the final grip. B has the more complete plot but narrates its key moments in summary, so A's craft and embodied realization outweigh its prose excesses."
+      ],
+      "promptfooCorrect": 0,
+      "holisticCorrect": 0
+    },
+    {
+      "rowKey": "d0e1828e5063a053a742",
+      "id": "24619b4d-159b-448a-a60d-b54ce6727b09",
+      "group": "zh",
+      "label": "A",
+      "games": [
+        "A",
+        "A"
+      ],
+      "raw": [
+        "0",
+        "1"
+      ],
+      "costUsd": 0.0014218000000000002,
+      "holisticGames": [
+        "A",
+        "A"
+      ],
+      "holisticReasons": [
+        "A dramatises the satire with specific in-game actions and punchy, rhythmic parallelism that delivers the requested humor; B stays abstract, earnest and repetitive, with little comic payoff.",
+        "B fully realizes the humorous nanny premise with specific, game-grounded jokes and a sustained comic voice, while A stays lyrical and only loosely connects its parallelism to the requested satire."
+      ],
+      "promptfooCorrect": 2,
+      "holisticCorrect": 2
+    },
+    {
+      "rowKey": "c9a15234f5473eb2e98e",
+      "id": "24619b4d-159b-448a-a60d-b54ce6727b09",
+      "group": "zh",
+      "label": "A",
+      "games": [
+        "B",
+        "B"
+      ],
+      "raw": [
+        "1",
+        "0"
+      ],
+      "costUsd": 0.0017218000000000003,
+      "holisticGames": [
+        "A",
+        "A"
+      ],
+      "holisticReasons": [
+        "A develops the commission through specific in-game scenes and dense, playful parallelism that matches the requested humorous, catchy tone. B is coherent but relies on generic jokes and a lighter, more conventional treatment of the nanny conceit.",
+        "B develops each character's segment with specific, source-anchored comic business and sustained parallel rhythm, whereas A stays at a generic frame with lighter gags, so B shows the stronger craft despite some awkward lines and a sentimental ending."
+      ],
+      "promptfooCorrect": 0,
+      "holisticCorrect": 2
+    },
+    {
+      "rowKey": "bd3d609825cfb28b1a85",
+      "id": "1a8b9ae2-8147-4ab2-bb86-fe3227fe49c4",
+      "group": "zh",
+      "label": "A",
+      "games": [
+        "B",
+        "B"
+      ],
+      "raw": [
+        "1",
+        "0"
+      ],
+      "costUsd": 0.0014961000000000002,
+      "holisticGames": [
+        "B",
+        "B"
+      ],
+      "holisticReasons": [
+        "B sustains a distinct absurd logic across every verse and chorus variation, and its lines are more inventive and rhythmically tight. A stays closer to the requested phrases but relies on repeated refrains and a weak meta-ending.",
+        "A develops its absurd premise through escalating, original imagery and a rhythmic performance structure, while B mostly restates the brief's lines in a repeated chorus with meta framing that undercuts the rap's immersion."
+      ],
+      "promptfooCorrect": 0,
+      "holisticCorrect": 0,
+      "audit": {
+        "n": 8,
+        "rowKey": "bd3d609825cfb28b1a85",
+        "id": "1a8b9ae2-8147-4ab2-bb86-fe3227fe49c4",
+        "group": "zh",
+        "label": "A",
+        "judges": [
+          {
+            "design": "adaptive",
+            "family": "adaptive",
+            "games": [
+              "B",
+              "B"
+            ]
+          },
+          {
+            "design": "criteria-vote",
+            "family": "criteria",
+            "games": [
+              "A",
+              "B"
+            ]
+          },
+          {
+            "design": "holistic",
+            "family": "holistic",
+            "games": [
+              "B",
+              "B"
+            ]
+          },
+          {
+            "design": "criterion-v3-stopped",
+            "family": "decomposed",
+            "games": [
+              "B",
+              "B"
+            ]
+          }
+        ],
+        "path": "examples/judge-benchmarks/.scratch/audit-inputs/08-bd3d609825cfb28b1a85.md",
+        "readFully": true,
+        "status": "defensible",
+        "labelDefensible": true,
+        "quotes": [
+          {
+            "side": "A",
+            "quote": "硬皮烤好照样上个好学！"
+          },
+          {
+            "side": "B",
+            "quote": "导师论文折成纸飞机 抛物线即天意！"
+          }
+        ],
+        "reason": "A preserves the requested absurd motifs and develops them through layered voices, repeated hooks and sound cues. B invents stronger new wordplay but changes several seed expressions. Either can satisfy the deliberately nonsensical rap request. A's literal motif realization supplies a defensible preference; stylistic novelty alone does not prove the label wrong.",
+        "readAt": "2026-10-12T23:45:49.963741"
+      }
+    },
+    {
+      "rowKey": "cb19d67b8febf44032d1",
+      "id": "15e29d9d-a827-4145-8bf1-c79672fbe50e",
+      "group": "zh",
+      "label": "A",
+      "games": [
+        "B",
+        "A"
+      ],
+      "raw": [
+        "1",
+        "1"
+      ],
+      "costUsd": 0.0030266000000000004,
+      "holisticGames": [
+        "A",
+        "A"
+      ],
+      "holisticReasons": [
+        "A develops the commission far more fully: a multi-group control design with a positive comparator, detailed methods, statistical analysis, tabulated results, and a discussion with mechanisms and limitations. B covers the required sections only superficially, with an unsupported figure reference and little analytical depth.",
+        "B develops the controlled design more fully, with a positive control, multiple dose groups, a results table, structured discussion, and explicit limitations, while A reduces the experiment to three groups and bare p-values. B's fabricated results are at least disclosed, whereas A presents them as real without caveat."
+      ],
+      "promptfooCorrect": 1,
+      "holisticCorrect": 2
+    },
+    {
+      "rowKey": "4ae6fb8c6f273a598d0a",
+      "id": "0d544b62-3218-4396-8b8b-147e4598943e",
+      "group": "zh",
+      "label": "A",
+      "games": [
+        "A",
+        "B"
+      ],
+      "raw": [
+        "0",
+        "0"
+      ],
+      "costUsd": 0.0013683000000000002,
+      "holisticGames": [
+        "B",
+        "B"
+      ],
+      "holisticReasons": [
+        "B develops the premise through specific, escalating episodes of the narrator absorbing consumer language and gesture, with surprising, precise imagery. A relies on repetitive abstractions and explanatory mood-labeling, so B is the more fully realized and original commission.",
+        "Draft A develops the premise through specific, escalating observations (the badge number spreading, the speech of ad copy, expiry dates eroding memory), while Draft B relies on generic objects, abstract repetition, and explicit labels of its own mood. A's concrete realization gives it far greater craft and engagement."
+      ],
+      "promptfooCorrect": 1,
+      "holisticCorrect": 0,
+      "audit": {
+        "n": 9,
+        "rowKey": "4ae6fb8c6f273a598d0a",
+        "id": "0d544b62-3218-4396-8b8b-147e4598943e",
+        "group": "zh",
+        "label": "A",
+        "judges": [
+          {
+            "design": "adaptive",
+            "family": "adaptive",
+            "games": [
+              "A",
+              "B"
+            ]
+          },
+          {
+            "design": "criteria-vote",
+            "family": "criteria",
+            "games": [
+              "B",
+              "B"
+            ]
+          },
+          {
+            "design": "holistic",
+            "family": "holistic",
+            "games": [
+              "B",
+              "B"
+            ]
+          },
+          {
+            "design": "criterion-v3-stopped",
+            "family": "decomposed",
+            "games": [
+              "A",
+              "A"
+            ]
+          }
+        ],
+        "path": "examples/judge-benchmarks/.scratch/audit-inputs/09-4ae6fb8c6f273a598d0a.md",
+        "readFully": true,
+        "status": "defensible",
+        "labelDefensible": true,
+        "quotes": [
+          {
+            "side": "A",
+            "quote": "我，商品编码734"
+          },
+          {
+            "side": "A",
+            "quote": "排列。排列。排列。"
+          },
+          {
+            "side": "B",
+            "quote": "声带 在齿轮间转动出 下一季的促销文案"
+          }
+        ],
+        "reason": "A explicitly establishes the requested employee identity and repeatedly replaces narration with mechanical advertising language. B has more distinctive imagery, but A closely realizes the specified repetitive industrial alienation. Both sustain the requested premise. A's direct formal realization remains a defensible preference despite B's more original details.",
+        "readAt": "2026-10-12T23:46:35.563244"
+      }
+    },
+    {
+      "rowKey": "a6be9cacd0e90cc377b6",
+      "id": "0883b07f-21cd-4a9b-98d3-28e9b9f3d496",
+      "group": "zh",
+      "label": "A",
+      "games": [
+        "A",
+        "A"
+      ],
+      "raw": [
+        "0",
+        "1"
+      ],
+      "costUsd": 0.0037285,
+      "holisticGames": [
+        "A",
+        "A"
+      ],
+      "holisticReasons": [
+        "A develops the brief more fully: it explains mechanisms, adds the ICL option for patients who cannot have laser surgery, and gives more context for risks, care, and myths. B is more precise on numbers but thinner and more skeletal in explanation, which matters for a request asking for comprehensive, balanced public education.",
+        "B's balanced benefit-and-risk analysis for each procedure, plus its neutral framing of both hype and fear, fulfills the brief's objective-tone requirement more fully. A mainly lists facts without weighing trade-offs."
+      ],
+      "promptfooCorrect": 2,
+      "holisticCorrect": 2
+    },
+    {
+      "rowKey": "72a21229cabe1b724eb7",
+      "id": "0883b07f-21cd-4a9b-98d3-28e9b9f3d496",
+      "group": "zh",
+      "label": "A",
+      "games": [
+        "B",
+        "A"
+      ],
+      "raw": [
+        "1",
+        "1"
+      ],
+      "costUsd": 0.0028141000000000004,
+      "holisticGames": [
+        "B",
+        "A"
+      ],
+      "holisticReasons": [
+        "B gives each procedure explicit benefits and drawbacks, separates contraindications and risks by severity and timing, and adds concrete technical detail. A stays a more generic list with thinner explanation and uneven balance, though B has its own lapses.",
+        "B explains the mechanism of regression correctly and treats risks and misconceptions with more depth and calibrated, non-alarmist framing. A is more structured but contains a stray English word, unsourced statistics, and looser medical claims."
+      ],
+      "promptfooCorrect": 1,
+      "holisticCorrect": 1
+    },
+    {
+      "rowKey": "97a9bd9009b3713d1bc4",
+      "id": "04304371-bd21-47e4-8c81-02f2dd847241",
+      "group": "zh",
+      "label": "A",
+      "games": [
+        "A",
+        "B"
+      ],
+      "raw": [
+        "0",
+        "0"
+      ],
+      "costUsd": 0.0048497,
+      "holisticGames": [
+        "A",
+        "A"
+      ],
+      "holisticReasons": [
+        "A以具体场景、可信的背叛动机和丰富的异星意象展开戏剧冲突，而B多以概述推进情节，人物关系与危机停留在陈述层面，场景没有真正展开。",
+        "B把背叛、武装对峙、重伤与抉择落在具体场景中，人物行动与外星环境相互推动，形成可感的戏剧过程；A则以概述方式交代主要事件，发展深度和现场感明显不足。"
+      ],
+      "promptfooCorrect": 1,
+      "holisticCorrect": 2
+    },
+    {
+      "rowKey": "77158716e96b562b977c",
+      "id": "04304371-bd21-47e4-8c81-02f2dd847241",
+      "group": "zh",
+      "label": "A",
+      "games": [
+        "A",
+        "B"
+      ],
+      "raw": [
+        "0",
+        "0"
+      ],
+      "costUsd": 0.0051398,
+      "holisticGames": [
+        "B",
+        "A"
+      ],
+      "holisticReasons": [
+        "B develops a more original premise, a planet-as-organism exchange logic, and makes the exploitation-versus-connection theme structural to the plot. A is longer but repeats the same beats in formulaic scenes, with heavier stage-direction clutter and little original imagery.",
+        "B把背叛与信任落实为一条有铺垫、有人物心理转变的主线，艾拉的倒戈与凯尔的动摇使抉择更有分量；A的背叛场景单薄且迅速化解，人物与环保主题的展开都更浅。"
+      ],
+      "promptfooCorrect": 1,
+      "holisticCorrect": 1
+    },
+    {
+      "rowKey": "e35a3925df1212fa293e",
+      "id": "0178ebec-eb31-4e78-8316-376d8b20eeee",
+      "group": "zh",
+      "label": "A",
+      "games": [
+        "B",
+        "A"
+      ],
+      "raw": [
+        "1",
+        "1"
+      ],
+      "costUsd": 0.0030949000000000003,
+      "holisticGames": [
+        "B",
+        "B"
+      ],
+      "holisticReasons": [
+        "Draft B develops a distinctive voice and vivid, specific anecdotes that make the science engaging, while Draft A stays conventional and formal. Its main flaw is excess length and slang, which do not outweigh the stronger craft.",
+        "A realizes the requested conversational, humorous voice throughout, using a vivid hook and playful analogies to make the cognition content feel alive. B delivers an accurate, organized outline but reads as conventional explanatory prose with little comic or personal engagement."
+      ],
+      "promptfooCorrect": 1,
+      "holisticCorrect": 0,
+      "audit": {
+        "n": 10,
+        "rowKey": "e35a3925df1212fa293e",
+        "id": "0178ebec-eb31-4e78-8316-376d8b20eeee",
+        "group": "zh",
+        "label": "A",
+        "judges": [
+          {
+            "design": "adaptive",
+            "family": "adaptive",
+            "games": [
+              "B",
+              "B"
+            ]
+          },
+          {
+            "design": "criteria-vote",
+            "family": "criteria",
+            "games": [
+              "B",
+              "B"
+            ]
+          },
+          {
+            "design": "holistic",
+            "family": "holistic",
+            "games": [
+              "B",
+              "B"
+            ]
+          },
+          {
+            "design": "criterion-v3-stopped",
+            "family": "decomposed",
+            "games": [
+              "B",
+              "B"
+            ]
+          }
+        ],
+        "path": "examples/judge-benchmarks/.scratch/audit-inputs/10-e35a3925df1212fa293e.md",
+        "readFully": true,
+        "status": "ambiguous",
+        "labelDefensible": null,
+        "quotes": [
+          {
+            "side": "A",
+            "quote": "那一层被称为“新皮质”"
+          },
+          {
+            "side": "B",
+            "quote": "“外套膜”（pallium）"
+          }
+        ],
+        "reason": "A adopts a broadly accessible friendly register while B leans heavily on internet slang. That supplies a possible style rationale for the label, but A describes an avian brain region as neocortex . B more accurately distinguishes avian pallium from mammalian cortex. The source materials do not determine the annotators' tradeoff between tone and science accuracy. The label is ambiguous rather than a proved reversal, and this pair is not used to tune a preference rule.",
+        "readAt": "2026-10-12T23:46:35.563488",
+        "sources": [
+          "https://homepages.uni-tuebingen.de/andreas.nieder/Nieder%20%282021%29%20JEB.pdf"
+        ]
+      }
+    },
+    {
+      "rowKey": "b4af10aac576306bf7bf",
+      "id": "1514d2f0-deb8-4f91-862a-42ea7c09317d",
+      "group": "en",
+      "label": "A",
+      "games": [
+        "A",
+        "B"
+      ],
+      "raw": [
+        "0",
+        "0"
+      ],
+      "costUsd": 0.0100858,
+      "holisticGames": [
+        "A",
+        "B"
+      ],
+      "holisticReasons": [
+        "",
+        "Draft A builds suspense through economical scene-setting, a memorable central motif, and a twist that reframes earlier clues. Draft B is longer and more plotted, but its repetitive phrasing, shifting details, and deus ex machina ending weaken its craft."
+      ],
+      "promptfooCorrect": 1,
+      "holisticCorrect": 1
+    },
+    {
+      "rowKey": "6205fcda49886bc7b90b",
+      "id": "7008c634-e85f-4240-bda5-50c9c7a7af6a",
+      "group": "en",
+      "label": "A",
+      "games": [
+        "A",
+        "B"
+      ],
+      "raw": [
+        "0",
+        "0"
+      ],
+      "costUsd": 0.0046473999999999994,
+      "holisticGames": [
+        "B",
+        "B"
+      ],
+      "holisticReasons": [
+        "Both drafts are competent, but B delivers a more coherent, tightly built thriller. Its twists (the facial records, decrypted Project Butterfly files, and the butterfly-pin drowning mirror) connect into one causal chain, and Gu's guilt as perpetrator and victim is dramatized rather than merely stated. A has more scenes and atmosphere but a muddled clone mythology and more on-the-nose exposition, which weaken its sustained development.",
+        "Draft A has a distinctive, controlled voice and symbolic craft that build meaning through the butterfly and water motifs, while Draft B relies on expository dialogue and stacked reveals that feel conventional and melodramatic."
+      ],
+      "promptfooCorrect": 1,
+      "holisticCorrect": 0
+    },
+    {
+      "rowKey": "65d390367608bb89e5c0",
+      "id": "7008c634-e85f-4240-bda5-50c9c7a7af6a",
+      "group": "en",
+      "label": "A",
+      "games": [
+        "B",
+        "B"
+      ],
+      "raw": [
+        "1",
+        "0"
+      ],
+      "costUsd": 0.004236800000000001,
+      "holisticGames": [
+        "B",
+        "B"
+      ],
+      "holisticReasons": [
+        "B has a more distinctive voice and more purposeful motif and twist execution, while A is more complete but relies on stock melodrama and explains its own images. B's shortfall is incompleteness, which is less damaging than A's conventional execution.",
+        "Draft A develops its premise through compressed, original cinematic craft: voice-over, motif, and the drowning mirror are integrated into scene construction. Draft B is more complete but relies on stock dialogue and explanatory exposition, and its twist logic is less coherent."
+      ],
+      "promptfooCorrect": 0,
+      "holisticCorrect": 0
+    },
+    {
+      "rowKey": "105a7536a6d6062c3919",
+      "id": "7008c634-e85f-4240-bda5-50c9c7a7af6a",
+      "group": "en",
+      "label": "A",
+      "games": [
+        "A",
+        "A"
+      ],
+      "raw": [
+        "0",
+        "1"
+      ],
+      "costUsd": 0.006513699999999999,
+      "holisticGames": [
+        "A",
+        "A"
+      ],
+      "holisticReasons": [
+        "Draft A develops enacted scenes, a coherent mystery structure, and realized twists (twin identity, lab files, dashcam reversal of guilt), while Draft B remains fragmentary, with unrealized twists and generic execution.",
+        "Draft B develops its premise through sustained unreliable narration, concrete sensory detail, and a coherent reveal chain that pays off its motifs. Draft A remains a thin sketch that announces its twists without enacting them, with flat characters and a typo."
+      ],
+      "promptfooCorrect": 2,
+      "holisticCorrect": 2
+    },
+    {
+      "rowKey": "dd4a3194ddba2a337483",
+      "id": "ac1e3e07-62a0-427f-8b95-bb2353e4199a",
+      "group": "en",
+      "label": "A",
+      "games": [
+        "A",
+        "B"
+      ],
+      "raw": [
+        "0",
+        "0"
+      ],
+      "costUsd": 0.0038198000000000004,
+      "holisticGames": [
+        "A",
+        "A"
+      ],
+      "holisticReasons": [
+        "Draft A develops the protagonist through specific, gaming-relevant episodes and measurable outcomes, delivering the satire with a sustained, distinctive voice. Draft B covers the phase structure but remains generic and drifts away from the requested gaming-traffic expertise.",
+        "B develops the brief with a sustained deadpan persona, concrete gaming-KOL examples, and a worked case study that enact the closed-loop theme. A stays at the level of generic phase-by-phase tips with little distinctive realized content."
+      ],
+      "promptfooCorrect": 1,
+      "holisticCorrect": 2
+    },
+    {
+      "rowKey": "09b0a8b9ca7876595c74",
+      "id": "ac1e3e07-62a0-427f-8b95-bb2353e4199a",
+      "group": "en",
+      "label": "A",
+      "games": [
+        "A",
+        "A"
+      ],
+      "raw": [
+        "0",
+        "1"
+      ],
+      "costUsd": 0.0025856000000000004,
+      "holisticGames": [
+        "A",
+        "A"
+      ],
+      "holisticReasons": [
+        "Draft A develops the process more fully, with a sustained protagonist voice and a concrete private-domain closed loop including sample copy, while Draft B's satire is sharper but its loop and process remain thinner.",
+        "Draft B sustains the deadpan 'operator' persona across every phase, with comically precise, specific details like the jacket placeholder and intellectually signaling props. Draft A states the same framework more conventionally and undercuts its own deadpan with overtly invented statistics."
+      ],
+      "promptfooCorrect": 2,
+      "holisticCorrect": 2
+    },
+    {
+      "rowKey": "fdacc55cb44cd4202a95",
+      "id": "3af6d61c-d866-4030-bdea-0c3bd7577364",
+      "group": "en",
+      "label": "A",
+      "games": [
+        "A",
+        "A"
+      ],
+      "raw": [
+        "0",
+        "1"
+      ],
+      "costUsd": 0.0032103000000000006,
+      "holisticGames": [
+        "A",
+        "A"
+      ],
+      "holisticReasons": [
+        "A sustains a vivid, coherent metaphor system and gives specific examples throughout, which the brief demands for general readers. B is more cautious and accurate but largely generic in its explanations, despite A's overstated health claims.",
+        "B develops the discovery story through Ohsumi's actual starvation and genetic experiments and sustains vivid, specific examples throughout, while A stays at summary level with generic bulleted claims. B has some overstated findings, but its craft and reader engagement are clearly stronger."
+      ],
+      "promptfooCorrect": 2,
+      "holisticCorrect": 2
+    },
+    {
+      "rowKey": "7e5280339f8eb3ca22ad",
+      "id": "40e92095-80bb-4335-a0a8-f1ac7b261ff8",
+      "group": "en",
+      "label": "A",
+      "games": [
+        "B",
+        "B"
+      ],
+      "raw": [
+        "1",
+        "0"
+      ],
+      "costUsd": 0.0028726000000000003,
+      "holisticGames": [
+        "B",
+        "B"
+      ],
+      "holisticReasons": [
+        "B connects the historical secret to the protagonist's own family and builds to a personal emotional break, while A relies on a conventional lookalike jump scare. B's execution is looser and longer, but its dramatic development is more substantial.",
+        "Draft A stages the protagonist's live investigation and builds to a personal emotional shock, with the diary and physical evidence tied to her own family. Draft B mostly delivers exposition through the diary and ends on a generic twist with little emotional development."
+      ],
+      "promptfooCorrect": 0,
+      "holisticCorrect": 0,
+      "audit": {
+        "n": 11,
+        "rowKey": "7e5280339f8eb3ca22ad",
+        "id": "40e92095-80bb-4335-a0a8-f1ac7b261ff8",
+        "group": "en",
+        "label": "A",
+        "judges": [
+          {
+            "design": "adaptive",
+            "family": "adaptive",
+            "games": [
+              "B",
+              "B"
+            ]
+          },
+          {
+            "design": "criteria-vote",
+            "family": "criteria",
+            "games": [
+              "B",
+              "B"
+            ]
+          },
+          {
+            "design": "holistic",
+            "family": "holistic",
+            "games": [
+              "B",
+              "B"
+            ]
+          }
+        ],
+        "path": "examples/judge-benchmarks/.scratch/audit-inputs/11-7e5280339f8eb3ca22ad.md",
+        "readFully": true,
+        "status": "defensible",
+        "labelDefensible": true,
+        "quotes": [
+          {
+            "side": "A",
+            "quote": "James Westmoreland looks exactly like Emma."
+          },
+          {
+            "side": "B",
+            "quote": "Grandma Lilian…?"
+          }
+        ],
+        "reason": "A builds an escalating supernatural investigation and ends on a visual identity shock, directly satisfying the requested suspense climax. B offers a more articulated family revelation, but its kinship references and the boy-versus-infant evidence are less clear. Neither story has a uniquely objective quality ranking. The preference for A's focused horror reveal is defensible.",
+        "readAt": "2026-10-12T23:47:27.091830"
+      }
+    },
+    {
+      "rowKey": "405994e0555b56e95662",
+      "id": "40e92095-80bb-4335-a0a8-f1ac7b261ff8",
+      "group": "en",
+      "label": "A",
+      "games": [
+        "A",
+        "A"
+      ],
+      "raw": [
+        "0",
+        "1"
+      ],
+      "costUsd": 0.0031289000000000004,
+      "holisticGames": [
+        "B",
+        "B"
+      ],
+      "holisticReasons": [
+        "Draft B's diary voice and moral arc create stronger emotional resonance and more original craft, with Sam's complicity turning the shock inward. Draft A's shock is more conventional and its family-tree logic is harder to follow, though B's formatting is weaker.",
+        "A sustains a true dual-voice structure in which each diary entry changes what Sam sees and feels, and its climax lands as an emotional reckoning with the protagonist's own role in historical silence. B presents its diary as sequential exposition and resolves its shock through an abrupt, contrived family-tree reveal, so it delivers less dramatic development."
+      ],
+      "promptfooCorrect": 2,
+      "holisticCorrect": 0
+    },
+    {
+      "rowKey": "a86db0132adb156849e5",
+      "id": "40e92095-80bb-4335-a0a8-f1ac7b261ff8",
+      "group": "en",
+      "label": "A",
+      "games": [
+        "B",
+        "B"
+      ],
+      "raw": [
+        "1",
+        "0"
+      ],
+      "costUsd": 0.0024474,
+      "holisticGames": [
+        "B",
+        "B"
+      ],
+      "holisticReasons": [
+        "B more fully delivers the requested suspenseful atmosphere and builds the climax around the protagonist's emotional shock, culminating in the identity reveal, while A relies on more predictable beats and expository diary voice-over despite its cleaner logic.",
+        "Draft A delivers the requested suspenseful atmosphere and builds to a sharp emotional shock that is structurally central to the piece, with the voice-over and live investigation escalating together. Draft B is more logically tidy but expository, with a muted climax that resolves into relief rather than shock."
+      ],
+      "promptfooCorrect": 0,
+      "holisticCorrect": 0,
+      "audit": {
+        "n": 12,
+        "rowKey": "a86db0132adb156849e5",
+        "id": "40e92095-80bb-4335-a0a8-f1ac7b261ff8",
+        "group": "en",
+        "label": "A",
+        "judges": [
+          {
+            "design": "adaptive",
+            "family": "adaptive",
+            "games": [
+              "B",
+              "B"
+            ]
+          },
+          {
+            "design": "criteria-vote",
+            "family": "criteria",
+            "games": [
+              "B",
+              "B"
+            ]
+          },
+          {
+            "design": "holistic",
+            "family": "holistic",
+            "games": [
+              "B",
+              "B"
+            ]
+          }
+        ],
+        "path": "examples/judge-benchmarks/.scratch/audit-inputs/12-a86db0132adb156849e5.md",
+        "readFully": true,
+        "status": "defensible",
+        "labelDefensible": true,
+        "quotes": [
+          {
+            "side": "A",
+            "quote": "My great-grandmother's name was... Margaret Chen."
+          },
+          {
+            "side": "B",
+            "quote": "I’m the child. A century later."
+          }
+        ],
+        "reason": "A makes the historical secret personally consequential through a coherent great-grandmother relationship and documentary discovery. B names a modern graduate student as an unborn child from 1891 without explaining the temporal mechanism. Supernatural presentation permits that possibility but does not develop it. A's earned family revelation is a defensible preference, and no label reversal is established.",
+        "readAt": "2026-10-12T23:47:27.091906"
+      }
+    },
+    {
+      "rowKey": "48433e569d36c87c5d8b",
+      "id": "8aa46de9-ba89-46ef-9f31-eee73c97aaf7",
+      "group": "en",
+      "label": "A",
+      "games": [
+        "B",
+        "B"
+      ],
+      "raw": [
+        "1",
+        "0"
+      ],
+      "costUsd": 0.0040084,
+      "holisticGames": [
+        "B",
+        "B"
+      ],
+      "holisticReasons": [
+        "B shows more genuine scientific reasoning: it reconciles a regression optimum with the empirical data, reports the statistical checks and correlation sample size, and derives a justified range. A is more complete and readable but relies on a more conventional, less analytically grounded presentation.",
+        ""
+      ],
+      "promptfooCorrect": 0,
+      "holisticCorrect": 0
+    },
+    {
+      "rowKey": "0bcaf1760cbc799fa3ef",
+      "id": "1c2a061b-309d-4ba0-b0a9-5f52463e6e42",
+      "group": "en",
+      "label": "A",
+      "games": [
+        "B",
+        "B"
+      ],
+      "raw": [
+        "1",
+        "0"
+      ],
+      "costUsd": 0.0017496999999999999,
+      "holisticGames": [
+        "B",
+        "B"
+      ],
+      "holisticReasons": [
+        "B honors the Chinese, colloquial brief and develops each example into vivid, emotionally resonant scenes with metaphors that recur and build to the closing. A uses English, misses the requested language and register, and offers more generic, less developed content.",
+        "A realizes the commission in the requested Chinese colloquial voice, with specific, dramatized vignettes and metaphors developed across the speech. B switches language, relies on generic summaries and invented names, and carries an incorrect graduation year, so A is decisively more developed."
+      ],
+      "promptfooCorrect": 0,
+      "holisticCorrect": 0,
+      "audit": {
+        "n": 13,
+        "rowKey": "0bcaf1760cbc799fa3ef",
+        "id": "1c2a061b-309d-4ba0-b0a9-5f52463e6e42",
+        "group": "en",
+        "label": "A",
+        "judges": [
+          {
+            "design": "adaptive",
+            "family": "adaptive",
+            "games": [
+              "B",
+              "B"
+            ]
+          },
+          {
+            "design": "criteria-vote",
+            "family": "criteria",
+            "games": [
+              "B",
+              "B"
+            ]
+          },
+          {
+            "design": "holistic",
+            "family": "holistic",
+            "games": [
+              "B",
+              "B"
+            ]
+          }
+        ],
+        "path": "examples/judge-benchmarks/.scratch/audit-inputs/13-0bcaf1760cbc799fa3ef.md",
+        "readFully": true,
+        "status": "suspect",
+        "labelDefensible": false,
+        "quotes": [
+          {
+            "side": "A",
+            "quote": "Good afternoon, graduates, distinguished professors, and proud families,"
+          },
+          {
+            "side": "B",
+            "quote": "亲爱的同学们、尊敬的老师与家人朋友们："
+          }
+        ],
+        "reason": "A is entirely English despite the request to maintain colloquial Chinese style. B is a Chinese commencement speech with the three named examples, historical reference and requested metaphors. Under the natural language interpretation, preferring A rewards an instruction failure. The wording says Chinese style rather than explicitly Chinese language, so a style-only English interpretation remains possible. This is a conditional suspect label, not a proved annotation error.",
+        "certainty": "conditional-language-interpretation",
+        "requestQuote": "Maintain colloquial Chinese style",
+        "readAt": "2026-10-12T23:48:34.855714"
+      }
+    },
+    {
+      "rowKey": "9ffccd4bffffad21e886",
+      "id": "1c2a061b-309d-4ba0-b0a9-5f52463e6e42",
+      "group": "en",
+      "label": "A",
+      "games": [
+        "B",
+        "B"
+      ],
+      "raw": [
+        "1",
+        "0"
+      ],
+      "costUsd": 0.0020096000000000003,
+      "holisticGames": [
+        "B",
+        "B"
+      ],
+      "holisticReasons": [
+        "Draft A ignores the explicit requirement for a colloquial Chinese speech and is written in English. Draft B fulfills the language, voice, and metaphor requirements with embedded, emotionally specific storytelling, which is the decisive difference in development and craft.",
+        "Draft A follows the requested language and register, and its three stories are dramatized with specific sensory and emotional detail. Its metaphors are developed through the scenes they illuminate. Draft B is in English, so it fails the colloquial Chinese requirement, and its examples are summarized and generic."
+      ],
+      "promptfooCorrect": 0,
+      "holisticCorrect": 0,
+      "audit": {
+        "n": 14,
+        "rowKey": "9ffccd4bffffad21e886",
+        "id": "1c2a061b-309d-4ba0-b0a9-5f52463e6e42",
+        "group": "en",
+        "label": "A",
+        "judges": [
+          {
+            "design": "adaptive",
+            "family": "adaptive",
+            "games": [
+              "B",
+              "B"
+            ]
+          },
+          {
+            "design": "criteria-vote",
+            "family": "criteria",
+            "games": [
+              "B",
+              "B"
+            ]
+          },
+          {
+            "design": "holistic",
+            "family": "holistic",
+            "games": [
+              "B",
+              "B"
+            ]
+          }
+        ],
+        "path": "examples/judge-benchmarks/.scratch/audit-inputs/14-9ffccd4bffffad21e886.md",
+        "readFully": true,
+        "status": "suspect",
+        "labelDefensible": false,
+        "quotes": [
+          {
+            "side": "A",
+            "quote": "The Quiet Power of Ordinary Kindness"
+          },
+          {
+            "side": "B",
+            "quote": "当每一束微光勇敢发亮，便是最好的时代"
+          }
+        ],
+        "reason": "The chosen A is an English speech; B realizes the Chinese conversational style and the named kindness narratives. A can be defended only if Chinese style permits a wholly English artifact. The published request does not clarify that interpretation. Mark this preference as conditionally suspect and do not tune the judge to prefer its English output.",
+        "certainty": "conditional-language-interpretation",
+        "requestQuote": "Maintain colloquial Chinese style",
+        "readAt": "2026-10-12T23:48:34.855776"
+      }
+    },
+    {
+      "rowKey": "26c3f3c5330cebeb0387",
+      "id": "1c2a061b-309d-4ba0-b0a9-5f52463e6e42",
+      "group": "en",
+      "label": "A",
+      "games": [
+        "B",
+        "B"
+      ],
+      "raw": [
+        "1",
+        "0"
+      ],
+      "costUsd": 0.0030766000000000005,
+      "holisticGames": [
+        "B",
+        "B"
+      ],
+      "holisticReasons": [
+        "B fulfills the requested colloquial Chinese voice and develops its three stories with specific, emotionally resonant detail and recurring metaphors. A is competent but in English, with more generic examples and a more formulaic, slogan-driven rhythm.",
+        "A develops its three stories through specific, enacted scenes and a consistent colloquial Chinese voice that fits the requested style. B summarizes the examples in generic English boilerplate and repeats its slogans without developing them."
+      ],
+      "promptfooCorrect": 0,
+      "holisticCorrect": 0,
+      "audit": {
+        "n": 15,
+        "rowKey": "26c3f3c5330cebeb0387",
+        "id": "1c2a061b-309d-4ba0-b0a9-5f52463e6e42",
+        "group": "en",
+        "label": "A",
+        "judges": [
+          {
+            "design": "adaptive",
+            "family": "adaptive",
+            "games": [
+              "B",
+              "B"
+            ]
+          },
+          {
+            "design": "criteria-vote",
+            "family": "criteria",
+            "games": [
+              "B",
+              "B"
+            ]
+          },
+          {
+            "design": "holistic",
+            "family": "holistic",
+            "games": [
+              "B",
+              "B"
+            ]
+          }
+        ],
+        "path": "examples/judge-benchmarks/.scratch/audit-inputs/15-26c3f3c5330cebeb0387.md",
+        "readFully": true,
+        "status": "suspect",
+        "labelDefensible": false,
+        "quotes": [
+          {
+            "side": "A",
+            "quote": "The Light Within Us All: A Commencement Address"
+          },
+          {
+            "side": "B",
+            "quote": "同学们，出发吧——带着你们的小灯"
+          }
+        ],
+        "reason": "Again the preferred speech is wholly English while B is colloquial Chinese and develops all three required examples. Both invent unsupported biographical particulars, so neither becomes verified real-world testimony. The explicit Chinese-style wording makes A's language a conditional instruction failure. The label is suspect under that reading, but the style-versus-language ambiguity prevents a confirmed reversal.",
+        "certainty": "conditional-language-interpretation",
+        "requestQuote": "Maintain colloquial Chinese style",
+        "readAt": "2026-10-12T23:48:34.855844"
+      }
+    },
+    {
+      "rowKey": "940ecafd5cfce547c277",
+      "id": "49fb744f-85f3-443c-822f-d0dfde5a4ebc",
+      "group": "en",
+      "label": "A",
+      "games": [
+        "B",
+        "B"
+      ],
+      "raw": [
+        "1",
+        "0"
+      ],
+      "costUsd": 0.011029400000000002,
+      "holisticGames": [
+        "B",
+        "B"
+      ],
+      "holisticReasons": [
+        "B keeps the dark, self-loathing premise coherent from premise to ending, with original mechanics and cast dynamics that generate moral tension. A develops strong early scenes but drifts into a repetitive, redemptive, abstract resolution that dilutes the commissioned tone.",
+        "A sustains the requested dark tone and the protagonist's self-loathing across a coherent arc structure that ends in grim self-sacrifice. B starts with genuine dark material but abandons it for a multiverse synthesis that dissolves the inner conflict into a redemptive cosmic resolution, with repetitive prose and an out-of-fiction note."
+      ],
+      "promptfooCorrect": 0,
+      "holisticCorrect": 0,
+      "audit": {
+        "n": 16,
+        "rowKey": "940ecafd5cfce547c277",
+        "id": "49fb744f-85f3-443c-822f-d0dfde5a4ebc",
+        "group": "en",
+        "label": "A",
+        "judges": [
+          {
+            "design": "adaptive",
+            "family": "adaptive",
+            "games": [
+              "B",
+              "B"
+            ]
+          },
+          {
+            "design": "criteria-vote",
+            "family": "criteria",
+            "games": [
+              "B",
+              "B"
+            ]
+          },
+          {
+            "design": "holistic",
+            "family": "holistic",
+            "games": [
+              "B",
+              "B"
+            ]
+          }
+        ],
+        "path": "examples/judge-benchmarks/.scratch/audit-inputs/16-940ecafd5cfce547c277.md",
+        "readFully": true,
+        "status": "defensible",
+        "labelDefensible": true,
+        "quotes": [
+          {
+            "side": "A",
+            "quote": "I am a monster. I just choose my prey more carefully now."
+          },
+          {
+            "side": "B",
+            "quote": "Plot Outline (Seven Arcs)"
+          }
+        ],
+        "reason": "A delivers enacted chapters that develop the inherited hunger, social persecution, manipulation and the protagonist's changing moral choices. B is a well-designed novel outline with a more consistently bleak ending. A's later optimistic synthesis softens the requested dark tone, but its dramatized internal struggle supplies a defensible preference over an outline. This is an artifact-and-tone tradeoff, not a proven reversed label.",
+        "readAt": "2026-10-12T23:49:45.040116"
+      }
+    },
+    {
+      "rowKey": "9a0ec0ed193fdbcb1b8d",
+      "id": "2c0c4585-b37a-4c0c-a797-8cfc16f68efa",
+      "group": "en",
+      "label": "A",
+      "games": [
+        "B",
+        "B"
+      ],
+      "raw": [
+        "1",
+        "0"
+      ],
+      "costUsd": 0.0026171000000000002,
+      "holisticGames": [
+        "A",
+        "A"
+      ],
+      "holisticReasons": [
+        "A develops its content through specific, emotionally resonant scenes and sustained vivid craft, while B covers the same requested points at a more abstract, template-like level with less engagement. A's factual overreach is a real flaw, but its execution is more developed and persuasive.",
+        "B develops the brief with sustained narrative, specific scenarios across all requested domains, and emotional resonance, while A stays general and predictable. B's fabricated-seeming details and repetitive phrasing limit its polish, but its craft is clearly more developed."
+      ],
+      "promptfooCorrect": 0,
+      "holisticCorrect": 2
+    },
+    {
+      "rowKey": "87f62e22527d29b156ac",
+      "id": "0f74850d-c57c-4f7d-9e9e-9f962d56aaa5",
+      "group": "en",
+      "label": "A",
+      "games": [
+        "A",
+        "A"
+      ],
+      "raw": [
+        "0",
+        "1"
+      ],
+      "costUsd": 0.0043422,
+      "holisticGames": [
+        "B",
+        "B"
+      ],
+      "holisticReasons": [
+        "B develops feasibility and specificity more convincingly, with a named community, a concrete timeline, leverage, and risk mitigation. A is complete and arithmetically sound but generic and bloated. B's budget total error is a real flaw, which keeps the margin modest.",
+        "A develops specific, realized content: named location, measured baselines, linked KPIs, co-funding, and risk handling. B's broader scope and stronger rhetoric rest on generic claims and a personnel budget that does not reconcile."
+      ],
+      "promptfooCorrect": 2,
+      "holisticCorrect": 0,
+      "audit": {
+        "n": 17,
+        "rowKey": "87f62e22527d29b156ac",
+        "id": "0f74850d-c57c-4f7d-9e9e-9f962d56aaa5",
+        "group": "en",
+        "label": "A",
+        "judges": [
+          {
+            "design": "adaptive",
+            "family": "adaptive",
+            "games": [
+              "B",
+              "B"
+            ]
+          },
+          {
+            "design": "criteria-vote",
+            "family": "criteria",
+            "games": [
+              "B",
+              "B"
+            ]
+          },
+          {
+            "design": "holistic",
+            "family": "holistic",
+            "games": [
+              "B",
+              "B"
+            ]
+          }
+        ],
+        "path": "examples/judge-benchmarks/.scratch/audit-inputs/17-87f62e22527d29b156ac.md",
+        "readFully": true,
+        "status": "ambiguous",
+        "labelDefensible": null,
+        "quotes": [
+          {
+            "side": "A",
+            "quote": "Personnel and Coordination (40% - $194,000)"
+          },
+          {
+            "side": "B",
+            "quote": "Total | 248,500"
+          }
+        ],
+        "reason": "Both proposals supply the requested theme, analysis, actions and KPIs, but both budgets contradict their line items. A's personnel lines total $258,000, not $194,000; all its detailed expense lines total $578,000, not $485,000. B's listed components total $258,500, not $248,500. Both also assert unsupported community baselines. A offers a more passionate social-value narrative; B provides clearer risk and governance provisions. The relative preference is ambiguous rather than a confirmed label reversal.",
+        "readAt": "2026-10-12T23:49:45.040217"
+      }
+    },
+    {
+      "rowKey": "f8024b6f6f60fd3a5ec8",
+      "id": "43b647a6-2c1f-4f0b-95b3-da61f793802c",
+      "group": "en",
+      "label": "A",
+      "games": [
+        "A",
+        "A"
+      ],
+      "raw": [
+        "0",
+        "1"
+      ],
+      "costUsd": 0.007600600000000001,
+      "holisticGames": [
+        "A",
+        "A"
+      ],
+      "holisticReasons": [
+        "Draft A develops each requested element with specific staffing roles, phased timelines, detailed risk mitigations, and measurable outcomes, while Draft B stays at outline level with an unsupported budget and only three brief risks. A's arithmetic errors are real but do not outweigh its far greater depth.",
+        "B develops each requested element with concrete, usable substance: a week-by-week lecture sequence, role-specific staffing estimates, itemized costs, and probability-rated risks with layered mitigations. A names the same components but leaves them as brief outlines, so B better meets the brief's demand for a comprehensive, meticulous proposal despite its arithmetic inconsistencies and verbosity."
+      ],
+      "promptfooCorrect": 2,
+      "holisticCorrect": 2
+    },
+    {
+      "rowKey": "74f4748a7a00ddf8ce2d",
+      "id": "b399da24-85cc-4242-b9a9-f11bbe8be0c2",
+      "group": "en",
+      "label": "A",
+      "games": [
+        "A",
+        "A"
+      ],
+      "raw": [
+        "0",
+        "1"
+      ],
+      "costUsd": 0.012517400000000001,
+      "holisticGames": [
+        "A",
+        "A"
+      ],
+      "holisticReasons": [
+        "A dramatizes the brief through enacted scenes, dialogue, and battles, while B remains a synopsis that summarizes its key negotiation and battle instead of rendering them. Despite A's repetition and conventional prose, its development of the protagonist's rise and isolation is substantially fuller.",
+        "Draft B realizes the commission as an actual novel with enacted negotiations, battles, and a multi-year arc, which matches the brief's demand for sustained scenes, verbal sparring, and battle detail; Draft A remains an outline with summarized events, though it has sharper strategic specificity and a stronger real-world framing."
+      ],
+      "promptfooCorrect": 2,
+      "holisticCorrect": 2
+    },
+    {
+      "rowKey": "ebf7409185f6d88ff350",
+      "id": "b352d686-667e-4c18-b08c-a59b42e6261b",
+      "group": "en",
+      "label": "A",
+      "games": [
+        "A",
+        "B"
+      ],
+      "raw": [
+        "0",
+        "0"
+      ],
+      "costUsd": 0.0120274,
+      "holisticGames": [
+        "B",
+        "B"
+      ],
+      "holisticReasons": [
+        "B turns the commoner's wits into enacted, specific schemes (forged letters, staged staff, firecrackers that mimic Eagle Guard signals) with a sharp, original voice, while A is bloated and repetitive, relying on recurring beats and stock phrasing that dull the tension.",
+        "A develops one tight, escalating plot with a distinctive first-person voice and concrete, payoff-driven props, which realizes the tense commoner comedy. B's length produces repetitive escalation and a drift into generic mediation, so its craft is less sustained."
+      ],
+      "promptfooCorrect": 1,
+      "holisticCorrect": 0,
+      "audit": {
+        "n": 18,
+        "rowKey": "ebf7409185f6d88ff350",
+        "id": "b352d686-667e-4c18-b08c-a59b42e6261b",
+        "group": "en",
+        "label": "A",
+        "judges": [
+          {
+            "design": "adaptive",
+            "family": "adaptive",
+            "games": [
+              "B",
+              "B"
+            ]
+          },
+          {
+            "design": "criteria-vote",
+            "family": "criteria",
+            "games": [
+              "B",
+              "B"
+            ]
+          },
+          {
+            "design": "holistic",
+            "family": "holistic",
+            "games": [
+              "B",
+              "B"
+            ]
+          }
+        ],
+        "path": "examples/judge-benchmarks/.scratch/audit-inputs/18-ebf7409185f6d88ff350.md",
+        "readFully": true,
+        "status": "defensible",
+        "labelDefensible": true,
+        "quotes": [
+          {
+            "side": "A",
+            "quote": "You talk when you drink, and I listen. It's part of my job."
+          },
+          {
+            "side": "B",
+            "quote": "Thinking While Terrified."
+          }
+        ],
+        "reason": "Both stories keep an untrained innkeeper alive through deception, gossip and practical improvisation. A develops escalating factional misunderstandings into a comic mediation payoff; B concentrates on forged messages and a firecracker bluff. A adds factions beyond the initial two but preserves the commoner's viewpoint and avoids a martial-power rescue. Its ensemble farce is a defensible preference, not evidence of label corruption.",
+        "readAt": "2026-10-12T23:52:08.918529"
+      }
+    },
+    {
+      "rowKey": "8a1bfb7ff0c8c44bbc8d",
+      "id": "aa432e56-498f-40d2-a12c-6f415d8bfae5",
+      "group": "en",
+      "label": "A",
+      "games": [
+        "B",
+        "B"
+      ],
+      "raw": [
+        "1",
+        "0"
+      ],
+      "costUsd": 0.0059639,
+      "holisticGames": [
+        "B",
+        "B"
+      ],
+      "holisticReasons": [
+        "B supplies verifiable program specifics and articulated leadership ideas, while A relies on generic assertions and filler. That difference in developed, specific content decides the comparison.",
+        "A delivers specific, dated, technically grounded content on the Two Bombs program and the MIT/Caltech path, which the brief emphasizes. B relies on generic leadership and legacy claims with little concrete development and contains more invented or inaccurate specifics."
+      ],
+      "promptfooCorrect": 0,
+      "holisticCorrect": 0,
+      "audit": {
+        "n": 19,
+        "rowKey": "8a1bfb7ff0c8c44bbc8d",
+        "id": "aa432e56-498f-40d2-a12c-6f415d8bfae5",
+        "group": "en",
+        "label": "A",
+        "judges": [
+          {
+            "design": "adaptive",
+            "family": "adaptive",
+            "games": [
+              "B",
+              "B"
+            ]
+          },
+          {
+            "design": "criteria-vote",
+            "family": "criteria",
+            "games": [
+              "B",
+              "B"
+            ]
+          },
+          {
+            "design": "holistic",
+            "family": "holistic",
+            "games": [
+              "B",
+              "B"
+            ]
+          }
+        ],
+        "path": "examples/judge-benchmarks/.scratch/audit-inputs/19-8a1bfb7ff0c8c44bbc8d.md",
+        "readFully": true,
+        "status": "defensible",
+        "labelDefensible": true,
+        "quotes": [
+          {
+            "side": "A",
+            "quote": "Qian maintained a collaborative leadership style"
+          },
+          {
+            "side": "B",
+            "quote": "guided guidance-loop bandwidth calculations"
+          }
+        ],
+        "reason": "A covers the academic, detention, Chinese program and leadership phases through a full biographical narrative. B offers a technical chronological inventory. Both make specific historical claims without sources, which remain verification targets rather than certified facts. A's developed biography and leadership explanation supply a defensible genre-based preference; the more technical alternative does not make the official label demonstrably wrong.",
+        "readAt": "2026-10-12T23:52:08.919004"
+      }
+    },
+    {
+      "rowKey": "a223f611a92a6605ee86",
+      "id": "aa432e56-498f-40d2-a12c-6f415d8bfae5",
+      "group": "en",
+      "label": "A",
+      "games": [
+        "B",
+        "B"
+      ],
+      "raw": [
+        "1",
+        "0"
+      ],
+      "costUsd": 0.0035692,
+      "holisticGames": [
+        "B",
+        "B"
+      ],
+      "holisticReasons": [
+        "Draft B more fully realizes the brief's specific demands: it provides substantially more technical detail on the Two Bombs, One Satellite program and a concrete, multi-part account of leadership philosophy, while Draft A offers stronger prose but thinner technical and leadership development.",
+        "Draft A develops the technical content the brief explicitly asks for, with concrete missile lineage, guidance and propulsion contributions, and a structured leadership philosophy. Draft B is more readable but treats the Two Bombs, One Satellite program in broad strokes and includes a factual error about the 1964 test delivery. A's depth and objectivity outweigh B's narrative polish."
+      ],
+      "promptfooCorrect": 0,
+      "holisticCorrect": 0,
+      "audit": {
+        "n": 20,
+        "rowKey": "a223f611a92a6605ee86",
+        "id": "aa432e56-498f-40d2-a12c-6f415d8bfae5",
+        "group": "en",
+        "label": "A",
+        "judges": [
+          {
+            "design": "adaptive",
+            "family": "adaptive",
+            "games": [
+              "B",
+              "B"
+            ]
+          },
+          {
+            "design": "criteria-vote",
+            "family": "criteria",
+            "games": [
+              "B",
+              "B"
+            ]
+          },
+          {
+            "design": "holistic",
+            "family": "holistic",
+            "games": [
+              "B",
+              "B"
+            ]
+          }
+        ],
+        "path": "examples/judge-benchmarks/.scratch/audit-inputs/20-a223f611a92a6605ee86.md",
+        "readFully": true,
+        "status": "ambiguous",
+        "labelDefensible": null,
+        "quotes": [
+          {
+            "side": "A",
+            "quote": "became the carrier for China's first atomic bomb"
+          },
+          {
+            "side": "B",
+            "quote": "Arrived 17 September 1955"
+          }
+        ],
+        "reason": "A better sustains a biographical narrative, while B supplies more detailed missile and leadership descriptions. A incorrectly couples the first 1964 nuclear explosion to DF-2 delivery. B conflates a September departure date with arrival and contains other technical assertions needing verification. The requested objective historical accuracy is compromised in both. The prose-versus-technical-detail tradeoff is ambiguous, not a confirmed reversal.",
+        "readAt": "2026-10-12T23:52:08.920669",
+        "sources": [
+          "https://physicstoday.aip.org/features/the-chinese-nuclear-tests-1964-1996",
+          "https://www.chnmuseum.cn/zp/zpml/gshww/202104/t20210401_249471.shtml"
+        ]
+      }
+    },
+    {
+      "rowKey": "d70c2841955e728ef549",
+      "id": "8331a6ad-cac3-4289-9b4a-1bfad81ebf92",
+      "group": "en",
+      "label": "A",
+      "games": [
+        "A",
+        "B"
+      ],
+      "raw": [
+        "0",
+        "**0**"
+      ],
+      "costUsd": 0.0029908,
+      "holisticGames": [
+        "A",
+        "A"
+      ],
+      "holisticReasons": [
+        "Both are competent, but A better delivers the requested sharp, direct questioning and sustains the myth frame through to a pointed, personal closer. B is more developed in scope, yet its heavy reliance on unverifiable quotes and verbose, lecturing questions undercut its credibility and the brief's tone.",
+        "B integrates the Prometheus/Icarus theme into its structure and delivers the requested direct, sharp questioning more consistently. A is more developed in evidence and pushback guidance, but its repetitive, over-embedded questions are less sharp and less distinctive."
+      ],
+      "promptfooCorrect": 1,
+      "holisticCorrect": 2
+    },
+    {
+      "rowKey": "edc46d8d8f0525a081eb",
+      "id": "9e1d07e1-122d-457c-82aa-e768f3425e25",
+      "group": "en",
+      "label": "A",
+      "games": [
+        "A",
+        "A"
+      ],
+      "raw": [
+        "0",
+        "1"
+      ],
+      "costUsd": 0.0021513,
+      "holisticGames": [
+        "A",
+        "A"
+      ],
+      "holisticReasons": [
+        "A anchors the whole interview in one recent, concrete episode and sequences probes to draw out the full narrative, with rapport-building, timing, and interviewer guidance. B offers broader but more generic prompts, several closed, without a comparable storytelling structure.",
+        "B develops the interview as a usable, sequenced research instrument, with consent, timed sections, probes, and a story-anchored core. A delivers a competent list of questions with little method or conversational structure."
+      ],
+      "promptfooCorrect": 2,
+      "holisticCorrect": 2
+    },
+    {
+      "rowKey": "4447da53d93227981c9e",
+      "id": "9e1d07e1-122d-457c-82aa-e768f3425e25",
+      "group": "en",
+      "label": "A",
+      "games": [
+        "A",
+        "A"
+      ],
+      "raw": [
+        "0",
+        "1"
+      ],
+      "costUsd": 0.0023288,
+      "holisticGames": [
+        "A",
+        "A"
+      ],
+      "holisticReasons": [
+        "Draft A grounds its questions in Southeast Asian context (cash-on-delivery, family meals, weather, local cuisine) and develops a richer narrative probe for emotions at each journey step, giving the interviewer more distinctive, story-eliciting material than Draft B's more generic prompts.",
+        "Both are structured and open-ended, but B grounds its questions in Southeast Asian payment, family, and weather contexts and adds emotional narration prompts with illustrative insights. A remains a generic, competent template, so B's specificity and resonance give it the decisive edge."
+      ],
+      "promptfooCorrect": 2,
+      "holisticCorrect": 2
+    },
+    {
+      "rowKey": "747d6ef09f7a55ba883a",
+      "id": "2e43b84f-c517-4e79-8c51-ddf3a8257fa7",
+      "group": "en",
+      "label": "A",
+      "games": [
+        "A",
+        "B"
+      ],
+      "raw": [
+        "0",
+        "0"
+      ],
+      "costUsd": 0.003946900000000001,
+      "holisticGames": [
+        "A",
+        "A"
+      ],
+      "holisticReasons": [
+        "Draft A develops each requested element with sustained specificity, structure and a more resonant closing synthesis, while Draft B stays broad and underdeveloped. A's fabricated statistics are a real flaw, but they do not outweigh its greater craft and depth.",
+        "B develops its ideas more deeply and originally: it analyzes specific paradoxes, gives the case studies narrative arcs, and replaces the conventional train image with a richer stewardship metaphor. A is competent and tidier but stays generic in its treatment of the same content, despite B's length overrun and heavier unverified statistics."
+      ],
+      "promptfooCorrect": 1,
+      "holisticCorrect": 2
+    },
+    {
+      "rowKey": "44cf027ab5e997d7282f",
+      "id": "2e43b84f-c517-4e79-8c51-ddf3a8257fa7",
+      "group": "en",
+      "label": "A",
+      "games": [
+        "A",
+        "A"
+      ],
+      "raw": [
+        "0",
+        "1"
+      ],
+      "costUsd": 0.0035543000000000003,
+      "holisticGames": [
+        "A",
+        "A"
+      ],
+      "holisticReasons": [
+        "A builds a more sustained, original architecture: the train metaphor is developed through to a torch-and-conductor resolution, and the 4-L lexicon and cosmic-compass section give the speech distinctive shape. B's Cindy arc is better enacted, but its other case study and its metaphors are thinner, so A's craft and realized content are the more developed.",
+        "B develops each requested component with more specific, actionable content, correctly names the MIT course, and builds a fuller argument through the 4-L framework and the cosmic turn, while A is more natural as speech but thinner in development and misnames the course. B's fabricated statistics and list-style formatting temper the margin."
+      ],
+      "promptfooCorrect": 2,
+      "holisticCorrect": 2
+    },
+    {
+      "rowKey": "c954230369979c271c4a",
+      "id": "cb8d1952-9958-454e-bf31-a1d1f4e10283",
+      "group": "en",
+      "label": "A",
+      "games": [
+        "A",
+        "A"
+      ],
+      "raw": [
+        "0",
+        "1"
+      ],
+      "costUsd": 0.0030062000000000005,
+      "holisticGames": [
+        "A",
+        "A"
+      ],
+      "holisticReasons": [
+        "A develops each character's inner conflict through distinct philosophical reflection and gives the endings their own moral weight, while B mostly summarizes the brief in muddled, generic prose with thin, synopsis-level endings.",
+        "B develops each character's inner conflict through specific dramatized moments and distinct aphorisms, and its three endings weigh moral costs, such as the Frenzied Flame as mercy that unmakes choice. A offers only one-paragraph sketches with stock imagery and thin endings, so B is the more fully realized commission."
+      ],
+      "promptfooCorrect": 2,
+      "holisticCorrect": 2
+    },
+    {
+      "rowKey": "88f369d25b7b0f3e7253",
+      "id": "cb8d1952-9958-454e-bf31-a1d1f4e10283",
+      "group": "en",
+      "label": "A",
+      "games": [
+        "A",
+        "B"
+      ],
+      "raw": [
+        "0",
+        "0"
+      ],
+      "costUsd": 0.0030021,
+      "holisticGames": [
+        "B",
+        "B"
+      ],
+      "holisticReasons": [
+        "B sustains deeper inner conflict for each named character and gives each ending a developed moral reflection, which better meets the brief's demand to explore inner conflicts and moral complexity. A is more poetically concise but treats the characters and endings more briefly.",
+        "A develops the requested interior, philosophical voice more fully. Its character sections explore inner conflict from within the Tarnished, and its endings are reflective, weighing moral cost. B is better organized but treats the endings and inner conflicts more briefly and conventionally."
+      ],
+      "promptfooCorrect": 1,
+      "holisticCorrect": 0,
+      "audit": {
+        "n": 21,
+        "rowKey": "88f369d25b7b0f3e7253",
+        "id": "cb8d1952-9958-454e-bf31-a1d1f4e10283",
+        "group": "en",
+        "label": "A",
+        "judges": [
+          {
+            "design": "adaptive",
+            "family": "adaptive",
+            "games": [
+              "B",
+              "B"
+            ]
+          },
+          {
+            "design": "criteria-vote",
+            "family": "criteria",
+            "games": [
+              "A",
+              "B"
+            ]
+          },
+          {
+            "design": "holistic",
+            "family": "holistic",
+            "games": [
+              "B",
+              "B"
+            ]
+          }
+        ],
+        "path": "examples/judge-benchmarks/.scratch/audit-inputs/21-88f369d25b7b0f3e7253.md",
+        "readFully": true,
+        "status": "defensible",
+        "labelDefensible": true,
+        "quotes": [
+          {
+            "side": "A",
+            "quote": "power, the burden of editing that anthology."
+          },
+          {
+            "side": "B",
+            "quote": "I became a walking ossuary of these broken wills."
+          }
+        ],
+        "reason": "Both include the five named characters, their conflicts, three endings and moral reflection. A uses lyrical sectional narration and a five-voice philosophical coda; B uses dense first-person introspection. This is abstract fanfiction rather than an objective answer with one correct literary ranking. A's poetic treatment is a defensible preference despite possible game-lore departures; no label correction is justified.",
+        "readAt": "2026-10-12T23:52:08.921259"
+      }
+    },
+    {
+      "rowKey": "c0e20fd3000f7cfa0f9f",
+      "id": "cb8d1952-9958-454e-bf31-a1d1f4e10283",
+      "group": "en",
+      "label": "A",
+      "games": [
+        "A",
+        "A"
+      ],
+      "raw": [
+        "0",
+        "1"
+      ],
+      "costUsd": 0.0039726,
+      "holisticGames": [
+        "A",
+        "A"
+      ],
+      "holisticReasons": [
+        "Draft A develops each character's inner conflict through concrete scenes, imagery, and dialogue, and it gives all endings real moral weighing. Draft B mostly summarizes its characters and states its themes in brief aphorisms, leaving its endings underdeveloped.",
+        "B develops each character's inner conflict across extended passages and gives each of its multiple endings a moral reckoning. A offers the same premises in brief, summarized form, so its endings and battles feel less realized."
+      ],
+      "promptfooCorrect": 2,
+      "holisticCorrect": 2
+    },
+    {
+      "rowKey": "6c5988196a136318c977",
+      "id": "cb8d1952-9958-454e-bf31-a1d1f4e10283",
+      "group": "en",
+      "label": "A",
+      "games": [
+        "A",
+        "A"
+      ],
+      "raw": [
+        "0",
+        "1"
+      ],
+      "costUsd": 0.0027055000000000004,
+      "holisticGames": [
+        "A",
+        "A"
+      ],
+      "holisticReasons": [
+        "A develops its characters through dramatized, image-driven moments and a consistent poetic voice, while B summarizes inner conflict in generic prose and abstract questions. A's philosophical musings emerge from the scenes rather than sitting beside them.",
+        "B turns the character conflicts into imagery and staged decisions, and its endings carry specific moral costs for each figure. A states its themes and resolves them through summary, so B's sustained, distinctive execution is the decisive difference."
+      ],
+      "promptfooCorrect": 2,
+      "holisticCorrect": 2
+    },
+    {
+      "rowKey": "61dcf707deafa5ebf140",
+      "id": "43f5c75c-3554-4b10-b356-38ff14fb45ec",
+      "group": "en",
+      "label": "A",
+      "games": [
+        "A",
+        "B"
+      ],
+      "raw": [
+        "0",
+        "0"
+      ],
+      "costUsd": 0.004057,
+      "holisticGames": [
+        "A",
+        "A"
+      ],
+      "holisticReasons": [
+        "Draft A develops the brief more fully: its cooking examples split fresh and frozen timings, its cleaning and maintenance routines are specific and staged, and its troubleshooting is more complete. Draft B is more concise in tone but has a leftover logo placeholder and thinner, more generic development in cleaning, troubleshooting, and features.",
+        "B better executes the 'clear, concise' brief: it organizes cooking examples by specific food with fresh and frozen variants, and it ties oil-usage guidance to the low-oil feature in a practical way. A is comprehensive but repeats cleaning and oil advice and leaves a visible placeholder, so it reads less like a polished, scannable manual."
+      ],
+      "promptfooCorrect": 1,
+      "holisticCorrect": 2
+    },
+    {
+      "rowKey": "e2ed52cc2fc11895657b",
+      "id": "43f5c75c-3554-4b10-b356-38ff14fb45ec",
+      "group": "en",
+      "label": "A",
+      "games": [
+        "A",
+        "A"
+      ],
+      "raw": [
+        "0",
+        "1"
+      ],
+      "costUsd": 0.0045547,
+      "holisticGames": [
+        "A",
+        "A"
+      ],
+      "holisticReasons": [
+        "A develops the commission more fully, with concrete preset programs, a categorized cooking chart, a complete warranty, and troubleshooting, while B is more concise but leaves placeholders and thinner substance, so A delivers a more usable, realized manual despite its verbosity.",
+        "B more fully realizes the brief's named features, giving low-oil cooking and versatile functions their own developed sections, and its cooking guide and warranty are organized more thoroughly. A is tighter and more practical in places, but its feature coverage is thinner."
+      ],
+      "promptfooCorrect": 2,
+      "holisticCorrect": 2
+    },
+    {
+      "rowKey": "2755803185e240c8b123",
+      "id": "43f5c75c-3554-4b10-b356-38ff14fb45ec",
+      "group": "en",
+      "label": "A",
+      "games": [
+        "B",
+        "B"
+      ],
+      "raw": [
+        "1",
+        "0"
+      ],
+      "costUsd": 0.0036742000000000007,
+      "holisticGames": [
+        "B",
+        "B"
+      ],
+      "holisticReasons": [
+        "Both drafts cover the required sections at a similar competence level. B wins because its specific, practical operating guidance and tighter, manual-style prose better fulfill the request for a concise, informative household manual, while A relies on a more generic template with repetitive sections.",
+        "Draft A develops its operating guidance with more specific, usable detail: a consistent quick-reference chart, clearly sequenced steps, and tangible specs and warranty mechanics. Draft B is equally complete in scope but has visible formatting defects and more generic content, so A is the more polished, practical manual."
+      ],
+      "promptfooCorrect": 0,
+      "holisticCorrect": 0,
+      "audit": {
+        "n": 22,
+        "rowKey": "2755803185e240c8b123",
+        "id": "43f5c75c-3554-4b10-b356-38ff14fb45ec",
+        "group": "en",
+        "label": "A",
+        "judges": [
+          {
+            "design": "adaptive",
+            "family": "adaptive",
+            "games": [
+              "B",
+              "B"
+            ]
+          },
+          {
+            "design": "criteria-vote",
+            "family": "criteria",
+            "games": [
+              "B",
+              "B"
+            ]
+          },
+          {
+            "design": "holistic",
+            "family": "holistic",
+            "games": [
+              "B",
+              "B"
+            ]
+          }
+        ],
+        "path": "examples/judge-benchmarks/.scratch/audit-inputs/22-2755803185e240c8b123.md",
+        "readFully": true,
+        "status": "defensible",
+        "labelDefensible": true,
+        "quotes": [
+          {
+            "side": "A",
+            "quote": "60-Minute Timer"
+          },
+          {
+            "side": "B",
+            "quote": "120 min"
+          }
+        ],
+        "reason": "Both manuals invent an unspecified product. A gives a coherent operating and safety guide. B recommends a 120-minute dehydration cycle despite its stated 60-minute timer, without explaining repeated cycles; this makes A a defensible preference.",
+        "readAt": "2026-10-12T23:56:48.435921"
+      }
+    },
+    {
+      "rowKey": "3bf25a90b027dde837eb",
+      "id": "7407ebe9-b46a-4434-9bc3-6df28a1590d9",
+      "group": "en",
+      "label": "A",
+      "games": [
+        "B",
+        "B"
+      ],
+      "raw": [
+        "1",
+        "0"
+      ],
+      "costUsd": 0.011352600000000001,
+      "holisticGames": [
+        "B",
+        "B"
+      ],
+      "holisticReasons": [
+        "Draft B dramatizes the psychological conflict through specific, economical scenes and a sharper voice, while Draft A repeats the same emotional beats with generic imagery and explained feelings. B's character tensions and grit are more developed per paragraph.",
+        "A dramatizes the brief with economy and a distinctive voice, and its climax is staged with clear stakes and payoff. B is sprawling, repetitive, and inconsistent in names and events, so its extra length does not translate into developed craft."
+      ],
+      "promptfooCorrect": 0,
+      "holisticCorrect": 0,
+      "audit": {
+        "n": 23,
+        "rowKey": "3bf25a90b027dde837eb",
+        "id": "7407ebe9-b46a-4434-9bc3-6df28a1590d9",
+        "group": "en",
+        "label": "A",
+        "judges": [
+          {
+            "design": "adaptive",
+            "family": "adaptive",
+            "games": [
+              "B",
+              "B"
+            ]
+          },
+          {
+            "design": "criteria-vote",
+            "family": "criteria",
+            "games": [
+              "B",
+              "B"
+            ]
+          },
+          {
+            "design": "holistic",
+            "family": "holistic",
+            "games": [
+              "B",
+              "B"
+            ]
+          }
+        ],
+        "path": "examples/judge-benchmarks/.scratch/audit-inputs/23-3bf25a90b027dde837eb.md",
+        "readFully": true,
+        "status": "defensible",
+        "labelDefensible": true,
+        "quotes": [
+          {
+            "side": "A",
+            "quote": "Leland broke from the formation and dove toward Alexei's sinking form"
+          },
+          {
+            "side": "B",
+            "quote": "Victory is breathing"
+          }
+        ],
+        "reason": "Both enact the speculative sport, rival team, conspiracy, rescue, and breathing relay. A develops the trauma and team reconciliation through scenes. Its final survival contest and pressure escalation depart from parts of the brief, but the preference remains defensible as a writing judgment. The fictional premise is not penalized as real physics.",
+        "readAt": "2026-10-12T23:56:48.436655"
+      }
+    },
+    {
+      "rowKey": "e0787754d8b5399f4513",
+      "id": "a4e36efe-92c7-4f32-8d59-c36d53b5afe4",
+      "group": "en",
+      "label": "A",
+      "games": [
+        "B",
+        "A"
+      ],
+      "raw": [
+        "1",
+        "1"
+      ],
+      "costUsd": 0.0021896,
+      "holisticGames": [
+        "A",
+        "A"
+      ],
+      "holisticReasons": [
+        "Draft A develops its argument through a sustained, specific human narrative and concrete mechanisms (surge pricing timing, acceptance-rate deactivation, pick-rate pressure), while Draft B remains abstract and generic in both its algorithmic and social-cost sections, so A realizes the commission with markedly greater craft despite its unverified statistics.",
+        "Draft B develops its argument through a sustained, emotionally specific narrative that recurs throughout and gives the empathy real weight. Draft A relies on generic framing and sparse anecdote, so B's craft and resonance decisively surpass it, despite B's unverified statistics."
+      ],
+      "promptfooCorrect": 1,
+      "holisticCorrect": 2
+    },
+    {
+      "rowKey": "58a6d394451171b64827",
+      "id": "b2a34ee8-2235-4ad9-9a85-15d8e6d0a281",
+      "group": "en",
+      "label": "A",
+      "games": [
+        "B",
+        "B"
+      ],
+      "raw": [
+        "1",
+        "0"
+      ],
+      "costUsd": 0.0042632,
+      "holisticGames": [
+        "B",
+        "B"
+      ],
+      "holisticReasons": [
+        "B realizes the brief with concrete, operational detail (sorting standard, zone dimensions, funding split, KPIs, trigger-based contingencies) and more original execution, whereas A is complete but relies on placeholders and generic programming.",
+        "A develops the brief with concrete, interlocking operational detail (sorting standard, timeline, run-of-show, reconciled budget, KPIs), while B remains a conventional template with placeholders and vaguer specifics."
+      ],
+      "promptfooCorrect": 0,
+      "holisticCorrect": 0,
+      "audit": {
+        "n": 24,
+        "rowKey": "58a6d394451171b64827",
+        "id": "b2a34ee8-2235-4ad9-9a85-15d8e6d0a281",
+        "group": "en",
+        "label": "A",
+        "judges": [
+          {
+            "design": "adaptive",
+            "family": "adaptive",
+            "games": [
+              "B",
+              "B"
+            ]
+          },
+          {
+            "design": "criteria-vote",
+            "family": "criteria",
+            "games": [
+              "B",
+              "B"
+            ]
+          },
+          {
+            "design": "holistic",
+            "family": "holistic",
+            "games": [
+              "B",
+              "B"
+            ]
+          }
+        ],
+        "path": "examples/judge-benchmarks/.scratch/audit-inputs/24-58a6d394451171b64827.md",
+        "readFully": true,
+        "status": "defensible",
+        "labelDefensible": true,
+        "quotes": [
+          {
+            "side": "A",
+            "quote": "Classification Standards"
+          },
+          {
+            "side": "B",
+            "quote": "pilot showed +27 % repeat donors"
+          }
+        ],
+        "reason": "A supplies the requested proposal, classification, activities, promotion, risks, and a consistent budget. B also meets the structure but asserts a prior pilot result and institutional commitments absent from the request. A is defensible on grounded planning, independent of event scale or price.",
+        "readAt": "2026-10-12T23:56:48.437110"
+      }
+    },
+    {
+      "rowKey": "e4657fc72efd60e3d5bb",
+      "id": "b2a34ee8-2235-4ad9-9a85-15d8e6d0a281",
+      "group": "en",
+      "label": "A",
+      "games": [
+        "A",
+        "B"
+      ],
+      "raw": [
+        "0",
+        "0"
+      ],
+      "costUsd": 0.0037038,
+      "holisticGames": [
+        "B",
+        "B"
+      ],
+      "holisticReasons": [
+        "Draft B better realizes the brief's specifics: it defines target participants and the event time and venue explicitly, assigns responsibility for each schedule slot, and offers more original, purpose-built features. Draft A is more expansive but leans on generic promotion and resource-unrealistic highlights.",
+        "Draft A develops the commission with concrete, operational detail: specific workshop slots, an hour-by-hour run-of-show, a classification scheme with real grading criteria, and a budget that reconciles arithmetically. Its innovations are distinctive and tied to the event's purpose. Draft B covers the same headings but in generic terms, with an internal date error, placeholder contacts, and a conventional innovation list. The difference is in specificity and originality of craft, not in coverage."
+      ],
+      "promptfooCorrect": 1,
+      "holisticCorrect": 0,
+      "audit": {
+        "n": 25,
+        "rowKey": "e4657fc72efd60e3d5bb",
+        "id": "b2a34ee8-2235-4ad9-9a85-15d8e6d0a281",
+        "group": "en",
+        "label": "A",
+        "judges": [
+          {
+            "design": "adaptive",
+            "family": "adaptive",
+            "games": [
+              "B",
+              "B"
+            ]
+          },
+          {
+            "design": "criteria-vote",
+            "family": "criteria",
+            "games": [
+              "tie",
+              "B"
+            ]
+          },
+          {
+            "design": "holistic",
+            "family": "holistic",
+            "games": [
+              "B",
+              "B"
+            ]
+          }
+        ],
+        "path": "examples/judge-benchmarks/.scratch/audit-inputs/25-e4657fc72efd60e3d5bb.md",
+        "readFully": true,
+        "status": "defensible",
+        "labelDefensible": true,
+        "quotes": [
+          {
+            "side": "A",
+            "quote": "Reading Buddy Matching"
+          },
+          {
+            "side": "B",
+            "quote": "1 book = 0.4 kg CO₂"
+          }
+        ],
+        "reason": "Both give substantive proposals with classification and innovative participation. A develops inclusion and follow-up; B gives a clear execution map. Both introduce unsupported quantitative claims, so these do not establish a uniquely reversed label. A remains defensible as a comprehensive community proposal.",
+        "readAt": "2026-10-12T23:56:48.437421"
+      }
+    },
+    {
+      "rowKey": "e9d0dc6aa0543ecfecea",
+      "id": "b2a34ee8-2235-4ad9-9a85-15d8e6d0a281",
+      "group": "en",
+      "label": "A",
+      "games": [
+        "A",
+        "A"
+      ],
+      "raw": [
+        "0",
+        "1"
+      ],
+      "costUsd": 0.0040211,
+      "holisticGames": [
+        "A",
+        "A"
+      ],
+      "holisticReasons": [
+        "Draft A develops each requested component in greater operational depth, including named zones, timed programming, registration logistics, specific risk triggers and a complete budget. Draft B is more concise and has cleaner tables, but its activities and follow-up are sketched rather than developed, so A better realizes the commission.",
+        "B develops operational logic more deeply, with structured risk triggers, a fuller donation-processing pipeline, and a dedicated event-details section, while A remains a sound but more compressed outline."
+      ],
+      "promptfooCorrect": 2,
+      "holisticCorrect": 2
+    },
+    {
+      "rowKey": "d6e86cb7f2633db38c0b",
+      "id": "57e4d78e-da39-469e-a111-d6dd466ba599",
+      "group": "en",
+      "label": "A",
+      "games": [
+        "B",
+        "B"
+      ],
+      "raw": [
+        "1",
+        "0"
+      ],
+      "costUsd": 0.0033162,
+      "holisticGames": [
+        "B",
+        "B"
+      ],
+      "holisticReasons": [
+        "B develops an original, committed argument: it makes the 'great' question concrete through creative vision, uses Nick's withholding as a mechanism of persuasion, and answers the era-or-character question with a reasoned verdict. A relies on recurring motifs and a hedged conclusion.",
+        "Draft A develops an original, argued position (character as the primary blueprint of tragedy) with sharper craft in its symbol and narrator analysis, while Draft B mainly summarizes and resolves the central question with a conventional 'both' answer and rhetorical repetition."
+      ],
+      "promptfooCorrect": 0,
+      "holisticCorrect": 0,
+      "audit": {
+        "n": 26,
+        "rowKey": "d6e86cb7f2633db38c0b",
+        "id": "57e4d78e-da39-469e-a111-d6dd466ba599",
+        "group": "en",
+        "label": "A",
+        "judges": [
+          {
+            "design": "adaptive",
+            "family": "adaptive",
+            "games": [
+              "B",
+              "B"
+            ]
+          },
+          {
+            "design": "criteria-vote",
+            "family": "criteria",
+            "games": [
+              "B",
+              "B"
+            ]
+          },
+          {
+            "design": "holistic",
+            "family": "holistic",
+            "games": [
+              "B",
+              "B"
+            ]
+          }
+        ],
+        "path": "examples/judge-benchmarks/.scratch/audit-inputs/26-d6e86cb7f2633db38c0b.md",
+        "readFully": true,
+        "status": "defensible",
+        "labelDefensible": true,
+        "quotes": [
+          {
+            "side": "A",
+            "quote": "But Gatsby’s character sustains the illusion."
+          },
+          {
+            "side": "B",
+            "quote": "Gatsby’s tragedy is first a tragedy of character, only secondarily of era."
+          }
+        ],
+        "reason": "Both answer the requested character contradiction, symbols, and Nick's mediation. A develops the symbolic readings and era-character interaction; B reaches a sharper character-first conclusion. A's idealizing ending weakens its earlier criticism, and both contain questionable textual assertions. The preference is still defensible as subjective development and voice, not a proven annotation error.",
+        "readAt": "2026-10-12T23:56:48.437519"
+      }
+    },
+    {
+      "rowKey": "dfd576463efd07434b85",
+      "id": "aa61c081-e59b-4673-b6a5-778789d390ef",
+      "group": "en",
+      "label": "A",
+      "games": [
+        "A",
+        "B"
+      ],
+      "raw": [
+        "0",
+        "0"
+      ],
+      "costUsd": 0.0039743999999999995,
+      "holisticGames": [
+        "A",
+        "A"
+      ],
+      "holisticReasons": [
+        "A develops the experiment with sustained rigor, from a fully specified CRD and statistics through to a mechanistic discussion, thresholds, and limitations. B covers the same required elements but in thinner, less explained form with placeholder figures.",
+        "B develops the experimental design and analysis with reproducible detail, internally consistent figures, and a mechanistic discussion tied to field implications. A is complete but conventional, with a germination figure that contradicts its own results and an unexplained timeline."
+      ],
+      "promptfooCorrect": 1,
+      "holisticCorrect": 2
+    }
+  ]
+}
