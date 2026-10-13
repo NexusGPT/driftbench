@@ -296,7 +296,7 @@ export async function runSeeds(
   ladder: Ladder,
   seeds: readonly SeedSpec[],
   root?: string,
-  options: { full?: boolean } = {},
+  options: { full?: boolean; maxLevel?: number } = {},
 ): Promise<LadderReport> {
   if (seeds.length === 0) throw new RangeError('runSeeds needs at least one seed.');
   const runs: SeedRun[] = [];
@@ -307,6 +307,7 @@ export async function runSeeds(
         hiddenSeed: spec.hidden,
         ...(root ? { root } : {}),
         ...(options.full ? { full: true } : {}),
+        ...(options.maxLevel === undefined ? {} : { maxLevel: options.maxLevel }),
       }),
     );
   }
