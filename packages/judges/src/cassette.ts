@@ -1,15 +1,11 @@
 import { readFile, writeFile } from 'node:fs/promises';
 import { contentHash } from '@agent-nexus/driftbench-core';
 import { z } from 'zod';
+import { parseJudgeText, parseJudgeValue } from './assessment';
 import type { JudgeClient } from './client';
-import {
-  JudgeClass,
-  type JudgeRequest,
-  type JudgeResult,
-  parseAnswerText,
-  parseAnswerValue,
-} from './contract';
+import { JudgeClass, type JudgeRequest, type JudgeResult, parseAnswerValue } from './contract';
 import { JudgeError } from './http';
+import { PROMPT_FINGERPRINT as LEGACY_PROMPT_FINGERPRINT } from './legacy-prompt';
 import { PROMPT_FINGERPRINT } from './prompt';
 
 /**
@@ -38,6 +34,8 @@ export const CassetteEntry = z.strictObject({
   key: z.string().min(1),
   /** The criterion name, for a reader of the file. The key decides the match. */
   criterion: z.string().optional(),
+  /** Model-facing contract recorded with this entry. Missing on pre-ledger cassettes means legacy. */
+  answerContract: z.enum(['ledger', 'legacy']).optional(),
   note: z.string().optional(),
   answer: z.unknown().optional(),
   raw: z.string().optional(),
@@ -65,11 +63,19 @@ export type KeyClient = { readonly cls: JudgeClass; readonly model?: string; rea
  */
 export function dataKey(request: JudgeRequest): string {
   return contentHash({
+    ...(request.answerContract !== 'legacy' && request.requirements
+      ? { requirements: request.requirements }
+      : {}),
+    ...(request.answerContract !== 'legacy' && request.assessment ? { assessment: request.assessment } : {}),
+    ...(request.answerContract !== 'legacy' && request.candidates ? { candidates: request.candidates } : {}),
+    ...(request.answerContract !== 'legacy' && request.factAudit ? { factAudit: request.factAudit } : {}),
+    ...(request.answerContract !== 'legacy' && request.system ? { system: request.system } : {}),
     criterion: request.criterion,
     transcript: request.transcript,
     artifact: request.artifact,
     inputs: request.inputs,
     given: request.given,
+    reference: request.reference,
     budget: request.budget === 'large' ? 'large' : undefined,
   });
 }
@@ -79,14 +85,12 @@ export function dataKey(request: JudgeRequest): string {
  * class, model and settings. A changed prompt, model or setting gives another key: a cassette miss, never a
  * silent replay of an answer to another question.
  */
-export function requestKey(
-  request: JudgeRequest,
-  client?: KeyClient,
-  prompt: string = PROMPT_FINGERPRINT,
-): string {
+export function requestKey(request: JudgeRequest, client?: KeyClient, prompt?: string): string {
+  const effective = client?.cls === 'system1' ? { ...request, answerContract: 'legacy' as const } : request;
   return contentHash({
-    data: dataKey(request),
-    prompt,
+    data: dataKey(effective),
+    prompt:
+      prompt ?? (effective.answerContract === 'legacy' ? LEGACY_PROMPT_FINGERPRINT : PROMPT_FINGERPRINT),
     client: client ? { cls: client.cls, model: client.model, settings: client.settings } : undefined,
   });
 }
@@ -111,14 +115,20 @@ export function recordingClient(client: JudgeClient, cassette: Cassette): JudgeC
     cost: client.cost,
     ...(client.settings === undefined ? {} : { settings: client.settings }),
     async judge(request) {
-      const base = { judge: client.id, key: requestKey(request, client), criterion: request.criterion.name };
+      const base = {
+        judge: client.id,
+        key: requestKey(request, client),
+        criterion: request.criterion.name,
+        answerContract:
+          request.answerContract ?? (client.cls === 'system1' ? ('legacy' as const) : ('ledger' as const)),
+      };
       const cost = (result: JudgeResult) =>
         result.costUsd === undefined ? {} : { cost_usd: result.costUsd };
       try {
         const result = await client.judge(request);
         // An unparsed answer is kept as raw text only, so its replay is unparsed too and is re-judged.
         cassette.entries.push(
-          result.unparsed
+          result.unparsed || request.assessment || result.checks
             ? { ...base, raw: result.raw, ...cost(result) }
             : {
                 ...base,
@@ -141,11 +151,16 @@ export function recordingClient(client: JudgeClient, cassette: Cassette): JudgeC
 export function playerClient(
   cassette: Cassette,
   judgeId: string,
-  options: { readonly prompt?: string } = {},
+  options: { readonly prompt?: string; readonly answerContract?: 'ledger' | 'legacy' } = {},
 ): JudgeClient {
   const judge = cassette.judges.find((candidate) => candidate.id === judgeId);
   if (!judge) throw new JudgeError('config', `the cassette lists no judge "${judgeId}"`);
   const used = new Map<string, number>();
+  const recordedContract =
+    options.answerContract ??
+    (cassette.entries.some((entry) => entry.judge === judgeId && entry.answerContract === 'ledger')
+      ? 'ledger'
+      : 'legacy');
   return {
     id: judge.id,
     family: judge.family,
@@ -154,7 +169,8 @@ export function playerClient(
     cost: judge.cost,
     ...(judge.settings === undefined ? {} : { settings: judge.settings }),
     async judge(request) {
-      const key = requestKey(request, judge, options.prompt);
+      const effective = !request.answerContract ? { ...request, answerContract: recordedContract } : request;
+      const key = requestKey(effective, judge, options.prompt);
       const matches = cassette.entries.filter((entry) => entry.judge === judgeId && entry.key === key);
       if (matches.length === 0) {
         throw new JudgeError(
@@ -164,24 +180,39 @@ export function playerClient(
       }
       const index = used.get(key) ?? 0;
       used.set(key, index + 1);
-      return replay(matches[Math.min(index, matches.length - 1)] as CassetteEntry);
+      return replay(matches[Math.min(index, matches.length - 1)] as CassetteEntry, effective);
     },
   };
 }
 
 /** Every judge of a cassette, as players. */
-export function cassettePlayers(cassette: Cassette): JudgeClient[] {
-  return cassette.judges.map((judge) => playerClient(cassette, judge.id));
+export function cassettePlayers(
+  cassette: Cassette,
+  options: { readonly answerContract?: 'ledger' | 'legacy' } = {},
+): JudgeClient[] {
+  return cassette.judges.map((judge) => playerClient(cassette, judge.id, options));
 }
 
-function replay(entry: CassetteEntry): JudgeResult {
+function replay(entry: CassetteEntry, request: JudgeRequest): JudgeResult {
   if (entry.error !== undefined) throw new JudgeError('http', `recorded failure: ${entry.error}`);
   const cost = {
     ...(entry.cost_usd === undefined ? {} : { costUsd: entry.cost_usd }),
     ...(entry.repaired ? { repaired: true } : {}),
   };
-  if (entry.answer !== undefined) return { ...parseAnswerValue(entry.answer, entry.raw), ...cost };
-  if (entry.raw !== undefined) return { ...parseAnswerText(entry.raw), ...cost };
+  if (request.assessment && entry.raw !== undefined)
+    return { ...parseJudgeText(entry.raw, request), ...cost };
+  if (entry.answer !== undefined)
+    return {
+      ...(request.answerContract === 'legacy'
+        ? parseJudgeValue(entry.answer, request, entry.raw)
+        : parseAnswerValue(entry.answer, entry.raw)),
+      ...cost,
+    };
+  if (entry.raw !== undefined)
+    return {
+      ...parseJudgeText(entry.raw, request),
+      ...cost,
+    };
   throw new JudgeError(
     'bad_response',
     `the recording for key ${entry.key} holds no answer, raw text or error`,
@@ -211,6 +242,24 @@ export async function loadCassette(path: string): Promise<Cassette> {
       'config',
       `${path}: ${issue?.path.join('.') || '(root)'} ${issue?.message ?? ''}`.trim(),
     );
+  }
+  const seen = new Set<string>();
+  for (const judge of parsed.data.judges) {
+    if (seen.has(judge.id)) throw new JudgeError('config', `${path}: judge ${judge.id} is listed twice`);
+    seen.add(judge.id);
+  }
+  for (const entry of parsed.data.entries) {
+    if (!seen.has(entry.judge))
+      throw new JudgeError(
+        'config',
+        `${path}: an entry names judge ${entry.judge}, which the cassette does not list`,
+      );
+    if (!/^[0-9a-f]{12}$/.test(entry.key))
+      throw new JudgeError('config', `${path}: key ${entry.key} is not a 12-character hex request hash`);
+    if (entry.error !== undefined && entry.answer !== undefined)
+      throw new JudgeError('config', `${path}: an entry holds both an answer and an error`);
+    if (entry.answer === undefined && entry.raw === undefined && entry.error === undefined)
+      throw new JudgeError('config', `${path}: an entry is empty: it has no answer, raw text or error`);
   }
   return parsed.data;
 }

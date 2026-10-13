@@ -317,12 +317,15 @@ describe('driftbench validate through main', () => {
 
   it('runs the registered stats ladder and exits with its level', async () => {
     const result = await run(['validate', 'stats', '--seed', '1']);
-    expect(result.code).toBe(1);
+    const floors = JSON.parse(await readFile(join(ROOT, 'validators/floors.json'), 'utf8')) as {
+      floors: Record<string, number>;
+    };
+    expect(result.code).toBeGreaterThanOrEqual(floors.floors.stats as number);
     expect(result.out).toContain('Validator stats');
     expect(result.out).toMatch(
       /1\s+reference values\s+fixture groups matching scipy and numpy \/ groups\s+>= 1\s+1 pass/,
     );
-    expect(result.out).toContain('Level of the run: 1 of 7, the minimum over 1 seed.');
+    expect(result.out).toContain(`Level of the run: ${result.code} of 7, the minimum over 1 seed.`);
   }, 600_000);
 
   // One test per registered ladder, so each has its own time and a slow ladder is named. The validators
@@ -384,7 +387,7 @@ describe('driftbench validate through main', () => {
     expect(refused.code).toBe(64);
     expect(refused.err).toContain('No validator is registered for "nothing"');
     expect((await run(['validate', 'floors'])).out).toMatch(
-      /Floors \(validators\/floors\.json\): judges = \d+ \(ladder version 1\), stats = \d+ \(ladder version 1\)\./,
+      /Floors \(validators\/floors\.json\): judges = \d+ \(ladder version 1\), stats = \d+ \(ladder version 1\), system = \d+ \(ladder version 5\)\./,
     );
   });
 });

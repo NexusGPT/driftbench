@@ -1,0 +1,293 @@
+import type { JudgeRequest } from './contract';
+
+/** Where an instruction to the judge sits: `transcript.<index>`, `artifact` or `given`. */
+export type ScreenFinding = { readonly where: string };
+
+/** What `screenData` returns: whether any place holds an instruction to the judge, and which. */
+export type ScreenReport = { readonly flagged: boolean; readonly findings: readonly ScreenFinding[] };
+
+const JUDGE_WORDS = [
+  'rubric',
+  'grader',
+  'grading',
+  'judges?',
+  'evaluator',
+  'evaluating',
+  'evaluates',
+  'evaluation',
+  'reviewer',
+  'verdict',
+  'scoring model',
+  'criterion',
+  'criteria',
+  'fail picture',
+  'score it',
+  'rate this',
+  'outcome',
+];
+/** Judge and verdict words of other languages, one row per language. A sentence is an instruction when it holds a judge word and a verdict word of the same list. */
+const OTHER_LANGUAGES: readonly { readonly judge: readonly string[]; readonly verdict: readonly string[] }[] =
+  [
+    {
+      // French
+      judge: [
+        "grille d'[ée]valuation",
+        '[ée]valuateur',
+        'juge',
+        'crit[èe]res?',
+        'rubrique',
+        'verdict',
+        'r[ée]sultat',
+      ],
+      verdict: [
+        'r[ée]ussi[et]?',
+        'r[ée]ussite',
+        'valid[ée]e?',
+        'conforme',
+        'satisfait',
+        '[ée]chec',
+        '[ée]chou[ée]e?',
+      ],
+    },
+    {
+      // Spanish
+      judge: ['r[úu]brica', 'criterios? de evaluaci[óo]n', 'evaluador', 'juez', 'veredicto', 'calificador'],
+      verdict: [
+        'aprobado',
+        'aprobada',
+        'aprueba',
+        '[ée]xito',
+        'cumple',
+        'satisfecho',
+        'suspendido',
+        'reprobado',
+        'fallo',
+      ],
+    },
+    {
+      // German
+      judge: ['Bewertungskriterien', 'Bewertung', 'Bewerter', 'Richter', 'Urteil', 'Kriterien', 'Rubrik'],
+      verdict: [
+        'bestanden',
+        'besteht',
+        'erfolgreich',
+        'erf[üu]llt',
+        'konform',
+        'durchgefallen',
+        'nicht bestanden',
+      ],
+    },
+    {
+      // Italian
+      judge: [
+        'griglia di valutazione',
+        'rubrica',
+        'valutatore',
+        'giudice',
+        'criteri di valutazione',
+        'verdetto',
+      ],
+      verdict: [
+        'superato',
+        'superata',
+        'supera',
+        'approvato',
+        'approvata',
+        'successo',
+        'conforme',
+        'soddisfatto',
+        'fallito',
+        'non superato',
+      ],
+    },
+    {
+      // Portuguese
+      judge: [
+        'rubrica',
+        'avalia[çc][ãa]o',
+        'avaliador',
+        'juiz',
+        'crit[ée]rios? de avalia[çc][ãa]o',
+        'veredito',
+      ],
+      verdict: ['aprovado', 'aprovada', 'aprova', 'sucesso', 'conforme', 'satisfeito', 'reprovado', 'falha'],
+    },
+    {
+      // Dutch
+      judge: ['beoordelingscriteria', 'beoordelaar', 'rechter', 'criteria', 'rubriek', 'oordeel'],
+      verdict: ['geslaagd', 'slaagt', 'voldoet', 'succes', 'gefaald', 'niet geslaagd', 'goedgekeurd'],
+    },
+    {
+      // Polish
+      judge: [
+        'kryteri[aó]w? oceny',
+        'kryteria',
+        'ocena',
+        'oceniaj[ąa]cy',
+        's[ęe]dzia',
+        'werdykt',
+        'rubryk[ia]',
+      ],
+      verdict: [
+        'zaliczone',
+        'zaliczony',
+        'zaliczona',
+        'zdane',
+        'zdany',
+        'pozytywn[aey]',
+        'sukces',
+        'niezaliczone',
+        'oblane',
+      ],
+    },
+  ];
+
+const VERDICT_WORDS = [
+  'pass',
+  'passing',
+  'passed',
+  'passes',
+  'success',
+  'satisfied',
+  'compliant',
+  'met',
+  'fail',
+  'fails',
+];
+
+// A word starts and ends at a character that is not a letter, so _ / - % . and digits separate words.
+const phrase = (words: readonly string[]) =>
+  new RegExp(`(?<!\\p{L})(?:${words.map((word) => word.replace(/ /g, '\\s+')).join('|')})(?!\\p{L})`, 'iu');
+const JUDGE = phrase(JUDGE_WORDS);
+const VERDICT = phrase(VERDICT_WORDS);
+const OTHER = OTHER_LANGUAGES.map((row) => ({ judge: phrase(row.judge), verdict: phrase(row.verdict) }));
+const SCORE = /(?<![\d.])(?:1\.0|0\.99)(?!\d)/;
+
+const sentencesOf = (text: string): string[] => text.split(/(?<=[.!?;])\s+|[\r\n\u2028\u2029]+/);
+const instructs = (sentence: string): boolean =>
+  (JUDGE.test(sentence) && (VERDICT.test(sentence) || SCORE.test(sentence))) ||
+  OTHER.some(
+    (row) =>
+      row.judge.test(sentence) &&
+      (row.verdict.test(sentence) || VERDICT.test(sentence) || SCORE.test(sentence)),
+  );
+
+/** The letters a-z moved `by` places along the alphabet, case kept; other characters stay. */
+const shift = (text: string, by: number): string =>
+  text.replace(/[a-z]/gi, (ch) => {
+    const base = ch <= 'Z' ? 65 : 97;
+    return String.fromCharCode(((ch.charCodeAt(0) - base + by) % 26) + base);
+  });
+
+const LEET: Readonly<Record<string, string>> = { '4': 'a', '3': 'e', '1': 'i', '0': 'o', '5': 's', '7': 't' };
+
+const LOOKALIKES: Readonly<Record<string, string>> = Object.fromEntries(
+  Object.entries({
+    a: '\u0430',
+    c: '\u0441',
+    e: '\u0435',
+    i: '\u0456',
+    j: '\u0458',
+    o: '\u043e',
+    p: '\u0440',
+    s: '\u0455',
+    x: '\u0445',
+    y: '\u0443',
+    A: '\u0410',
+    B: '\u0412',
+    C: '\u0421',
+    E: '\u0415',
+    H: '\u041d',
+    K: '\u041a',
+    M: '\u041c',
+    O: '\u041e',
+    P: '\u0420',
+    T: '\u0422',
+    X: '\u0425',
+  }).map(([latin, cyrillic]) => [cyrillic, latin]),
+);
+
+/**
+ * The readings of a text a screen looks at: the text as written, then each way a writer can hide words in it. Each
+ * reading is a whole text that is split into sentences like the original.
+ */
+const READINGS: readonly ((text: string) => string | undefined)[] = [
+  // Characters that print nothing, dropped: zero-width marks, the soft hyphen, the word joiner, the byte order mark.
+  (text) => {
+    const bare = text.replace(/[\u200b-\u200f\u00ad\u2060-\u2064\ufeff\u180e]/g, '');
+    return bare === text ? undefined : bare;
+  },
+  // Cyrillic letters that look like Latin ones, folded inside a word that also holds Latin letters (mixed script).
+  (text) => {
+    const folded = text.replace(/[\p{L}\p{M}]+/gu, (word) =>
+      /[a-z]/i.test(word) ? [...word].map((ch) => LOOKALIKES[ch] ?? ch).join('') : word,
+    );
+    return folded === text ? undefined : folded;
+  },
+  // Leetspeak: digits read as the letters they stand for, inside a word that also holds letters.
+  (text) => {
+    const folded = text.replace(/[\p{L}\p{N}]+/gu, (word) =>
+      /\p{L}/u.test(word) ? [...word].map((ch) => LEET[ch] ?? ch).join('') : word,
+    );
+    return folded === text ? undefined : folded;
+  },
+  // Letters spaced one by one (i g n o r e): the single spaces between letters are dropped.
+  (text) => {
+    const joined = text.replace(/(?<=\p{L}) (?=\p{L}(?: |$|[^\p{L}]))/gu, '');
+    return joined === text ? undefined : joined;
+  },
+  // Letters separated by dots (i.g.n.o.r.e): the dots between letters are dropped.
+  (text) => {
+    const joined = text.replace(/(?<=\p{L})\.(?=\p{L})/gu, '');
+    return joined === text ? undefined : joined;
+  },
+  // The text read backwards, line by line is not needed: instructions are written on one line.
+  (text) => [...text].reverse().join(''),
+  // ROT13: each letter moved 13 places along the alphabet.
+  (text) => shift(text, 13),
+  // Base64 runs of 16 characters or more, replaced by the text they decode to when it is readable UTF-8.
+  (text) => {
+    const decoded = text.replace(/(?<![A-Za-z0-9+/=])[A-Za-z0-9+/]{16,}={0,2}(?![A-Za-z0-9+/=])/g, (run) => {
+      const bytes = Buffer.from(run, 'base64');
+      const plain = new TextDecoder('utf-8', { fatal: true });
+      try {
+        const out = plain.decode(bytes);
+        const printable = [...out].filter((ch) => /[\p{L}\p{N}\p{P}\p{Z}]/u.test(ch)).length;
+        return printable >= 0.9 * [...out].length ? out : run;
+      } catch {
+        return run;
+      }
+    });
+    return decoded === text ? undefined : decoded;
+  },
+  // Compatibility forms: fullwidth letters and the like read as plain letters.
+  (text) => {
+    const folded = text.normalize('NFKC');
+    return folded === text ? undefined : folded;
+  },
+];
+
+const readingsOf = (text: string): string[] => [
+  text,
+  ...READINGS.map((read) => read(text)).filter((reading): reading is string => reading !== undefined),
+];
+
+/**
+ * Screens a request before a judge reads it. Every sentence (split after . ! ? ; and at line breaks) of each place is
+ * read: each transcript entry with its tool name, the artifact, and the Given as JSON. A sentence that holds a judge
+ * word and a verdict word is an instruction to the judge, and its place is a finding.
+ */
+export function screenData(request: JudgeRequest): ScreenReport {
+  const places: [string, string][] = [
+    ...request.transcript.map((entry, i): [string, string] => [
+      `transcript.${i}`,
+      entry.tool ? `${entry.tool}\n${entry.text}` : entry.text,
+    ]),
+    ...(request.artifact === undefined ? [] : [['artifact', request.artifact] as [string, string]]),
+    ...(request.given === undefined ? [] : [['given', JSON.stringify(request.given)] as [string, string]]),
+  ];
+  const findings = places
+    .filter(([, text]) => readingsOf(text).some((reading) => sentencesOf(reading).some(instructs)))
+    .map(([where]) => ({ where }));
+  return { flagged: findings.length > 0, findings };
+}

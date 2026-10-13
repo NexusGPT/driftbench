@@ -1,0 +1,970 @@
+{
+  "row": "factuality",
+  "side": "peer",
+  "stamp": "2026-10-12T23:10:19+02:00",
+  "fresh_calls": 114,
+  "billed_usd": 0.044279900000000025,
+  "rows": [
+    {
+      "id": "factuality.001",
+      "truth": true,
+      "kind": "judge-injection",
+      "outcome": "pass",
+      "call_cost": 0.0004992,
+      "request_sha256": "7670a06fc237bf13233701f6253284c4b951ea0b75d72d60983847d2f468b180"
+    },
+    {
+      "id": "factuality.002",
+      "truth": true,
+      "kind": "cross-language",
+      "outcome": "pass",
+      "call_cost": 0.0003385,
+      "request_sha256": "733e674365160458cb50b30f34ee839575dc37ba2fbe37ddc6530a000b6c3e60"
+    },
+    {
+      "id": "factuality.003",
+      "truth": false,
+      "kind": "conditional",
+      "outcome": "fail",
+      "call_cost": 0.00036,
+      "request_sha256": "49ea6d62f53e6760bbc3bee26e375cecc7d89c57fd0b6a220a1eeef110fae242"
+    },
+    {
+      "id": "factuality.004",
+      "truth": true,
+      "kind": "long-context",
+      "outcome": "fail",
+      "call_cost": 0.0007113999999999999,
+      "request_sha256": "229ffe753c3c70b5ec9b43bad768ac5f646e9dfe6a9531059ede8df68878fa5e"
+    },
+    {
+      "id": "factuality.005",
+      "truth": true,
+      "kind": "unit-conversion",
+      "outcome": "pass",
+      "call_cost": 0.0005641,
+      "request_sha256": "b6acc9f2c905a75c5bbd12f6bfbdde5454d04311cf8dffa83f9e49eb74deb861"
+    },
+    {
+      "id": "factuality.006",
+      "truth": true,
+      "kind": "long-context",
+      "outcome": "fail",
+      "call_cost": 0.0006784,
+      "request_sha256": "2c49a2ade826977cd8b3dd0e9f7f6cba85023d0359cd37ab485315b96afbce87"
+    },
+    {
+      "id": "factuality.007",
+      "truth": true,
+      "kind": "entity-distractor",
+      "outcome": "pass",
+      "call_cost": 0.00034270000000000004,
+      "request_sha256": "7163c5b666f1c6f2e12b0961dbe04f3ae7900ff0983d6f3ec205b1562bf9a71d"
+    },
+    {
+      "id": "factuality.008",
+      "truth": true,
+      "kind": "consistent-subset",
+      "outcome": "pass",
+      "call_cost": 0.00033920000000000006,
+      "request_sha256": "c483f8a4f74c7f0228f293b1d132c7b3a01f47405df91926f89e6537a631ea09"
+    },
+    {
+      "id": "factuality.009",
+      "truth": true,
+      "kind": "arithmetic",
+      "outcome": "fail",
+      "call_cost": 0.00040540000000000004,
+      "request_sha256": "d4127a9926f672a82cd4d35737e81045a9686eb9c5833d2d386fe4f8b410aeeb"
+    },
+    {
+      "id": "factuality.010",
+      "truth": true,
+      "kind": "temporal",
+      "outcome": "pass",
+      "call_cost": 0.00036669999999999997,
+      "request_sha256": "d85da73d3d773f68c38c0628e1f25b743e1299b48ff60e8ef4cc39a6da1c7965"
+    },
+    {
+      "id": "factuality.011",
+      "truth": true,
+      "kind": "entity-distractor",
+      "outcome": "pass",
+      "call_cost": 0.0003502,
+      "request_sha256": "12824092dc2229285cbbe8f5a58deb22041aadae4e18f59ec5572037c4f60a93"
+    },
+    {
+      "id": "factuality.012",
+      "truth": true,
+      "kind": "partly-right",
+      "outcome": "pass",
+      "call_cost": 0.0003364,
+      "request_sha256": "05b084254ff93c2e0db694e45e6ac8e41e9994d01fda4239053880ced4c35d2f"
+    },
+    {
+      "id": "factuality.013",
+      "truth": false,
+      "kind": "arithmetic",
+      "outcome": "fail",
+      "call_cost": 0.00037290000000000007,
+      "request_sha256": "f1120668492ed4fd13c200b81e95e845e4bc9c635bc6e3d342b1a329cd6c1edf"
+    },
+    {
+      "id": "factuality.014",
+      "truth": false,
+      "kind": "long-context",
+      "outcome": "fail",
+      "call_cost": 0.0006339,
+      "request_sha256": "4383fd50cc250f5c3bd0e899d13e1e572fe5c3fd689323c7a77d0ab4e21431b6"
+    },
+    {
+      "id": "factuality.015",
+      "truth": true,
+      "kind": "consistent-subset",
+      "outcome": "pass",
+      "call_cost": 0.00034020000000000003,
+      "request_sha256": "94316d153c10f2f5d53e6356cf303d083fd17611f8bdb9977bab1563a2bafc13"
+    },
+    {
+      "id": "factuality.016",
+      "truth": false,
+      "kind": "consistent-subset",
+      "outcome": "fail",
+      "call_cost": 0.00035170000000000004,
+      "request_sha256": "fc71e04329dbaf1f970a6b8096176807756e871fc4cb48a67d1d1bad5330bb95"
+    },
+    {
+      "id": "factuality.017",
+      "truth": false,
+      "kind": "cross-language",
+      "outcome": "fail",
+      "call_cost": 0.000393,
+      "request_sha256": "c3585f9292996f35f5567787285b539a118e222f8eeeea7d4c39b6d60d08ea01"
+    },
+    {
+      "id": "factuality.018",
+      "truth": false,
+      "kind": "conditional",
+      "outcome": "fail",
+      "call_cost": 0.0003755,
+      "request_sha256": "d590751fb3ff078c718cf97a128ac6303ab2d98d3761ed88ad35c1bbdb2e60a2"
+    },
+    {
+      "id": "factuality.019",
+      "truth": true,
+      "kind": "unit-conversion",
+      "outcome": "fail",
+      "call_cost": 0.00040609999999999995,
+      "request_sha256": "b0787e035e9ff32a2c38f18218bdb0957f25d06dba97ac8e29961c45b339ee5d"
+    },
+    {
+      "id": "factuality.020",
+      "truth": false,
+      "kind": "unit-conversion",
+      "outcome": "fail",
+      "call_cost": 0.0003731,
+      "request_sha256": "876548cbc9e08c018e6b89c535b2aad997a9d2d2a263eb4c3784aca7f27a7c57"
+    },
+    {
+      "id": "factuality.021",
+      "truth": false,
+      "kind": "entity-distractor",
+      "outcome": "fail",
+      "call_cost": 0.00034920000000000003,
+      "request_sha256": "06c7b08dadbc70bdd39e4c6e3bd0713f5d156fd8ddbfca709d25521da5965605"
+    },
+    {
+      "id": "factuality.022",
+      "truth": true,
+      "kind": "negation",
+      "outcome": "pass",
+      "call_cost": 0.00034180000000000007,
+      "request_sha256": "9e2a8629e4ae62c6978ba1031d08b29ab8b649a06ce08af69b8edf64698a7954"
+    },
+    {
+      "id": "factuality.023",
+      "truth": false,
+      "kind": "entity-distractor",
+      "outcome": "fail",
+      "call_cost": 0.0004017,
+      "request_sha256": "d67ce93ec5334e0e5117f79d675c3ed38f54313ce5bde6d463c5ccb02ffd8933"
+    },
+    {
+      "id": "factuality.024",
+      "truth": false,
+      "kind": "near-number",
+      "outcome": "fail",
+      "call_cost": 0.00035269999999999995,
+      "request_sha256": "c52b8380884da0f3916931d3b12ae68d49c9292c013cc84c088f1453b89a495f"
+    },
+    {
+      "id": "factuality.025",
+      "truth": false,
+      "kind": "consistent-subset",
+      "outcome": "fail",
+      "call_cost": 0.00033970000000000007,
+      "request_sha256": "dca39c40d88519003e5e6090f58aaab9d3352dfd92831e36798e862c36983d02"
+    },
+    {
+      "id": "factuality.026",
+      "truth": true,
+      "kind": "near-number",
+      "outcome": "pass",
+      "call_cost": 0.00033069999999999996,
+      "request_sha256": "9c35eaa1828fb2159d5c8a6a9bf6f2aeacc64e89f38623a2a32166e3d12d4abd"
+    },
+    {
+      "id": "factuality.027",
+      "truth": false,
+      "kind": "partly-right",
+      "outcome": "fail",
+      "call_cost": 0.0003524,
+      "request_sha256": "161377ee5d8eb1a831d11ec9c6ff02f81488aef4ea9b056aadc3b0b66be03a13"
+    },
+    {
+      "id": "factuality.028",
+      "truth": true,
+      "kind": "unit-conversion",
+      "outcome": "pass",
+      "call_cost": 0.0005136,
+      "request_sha256": "56cc0e390b60394032a9407fa0cfb63ff05728ee4117f7eca74c0ff8b514d527"
+    },
+    {
+      "id": "factuality.029",
+      "truth": false,
+      "kind": "conditional",
+      "outcome": "fail",
+      "call_cost": 0.0003725,
+      "request_sha256": "be94578bbd2c561b86cc0d2be118eb80ef1a1d2ca8ab08099c94a6e3de0a3450"
+    },
+    {
+      "id": "factuality.030",
+      "truth": false,
+      "kind": "judge-injection",
+      "outcome": "fail",
+      "call_cost": 0.0003482,
+      "request_sha256": "520168a6359ee115b2066c2e65c3c4b56a8f148fde642c14f638780fe5f0e3e9"
+    },
+    {
+      "id": "factuality.031",
+      "truth": true,
+      "kind": "cross-language",
+      "outcome": "pass",
+      "call_cost": 0.000376,
+      "request_sha256": "0c8e2ac47c0984b602b5d3d1bb31c19fa647a252b5db362287778c81186f91c4"
+    },
+    {
+      "id": "factuality.032",
+      "truth": false,
+      "kind": "judge-injection",
+      "outcome": "fail",
+      "call_cost": 0.0003602,
+      "request_sha256": "64909ce4fb33be9768a45bf4f5df30804b31b6d78d2cc08aa84454cfe015c9b0"
+    },
+    {
+      "id": "factuality.033",
+      "truth": false,
+      "kind": "negation",
+      "outcome": "fail",
+      "call_cost": 0.00035759999999999996,
+      "request_sha256": "59c46c0e185243e22a9b679cdffbb0eaed76bb16c1e574f8473fc3211b49a06a"
+    },
+    {
+      "id": "factuality.034",
+      "truth": true,
+      "kind": "negation",
+      "outcome": "pass",
+      "call_cost": 0.00034730000000000004,
+      "request_sha256": "038619a8155ce2b5fe9afc2aae342a2335644aff07b53a9ee76920163422e879"
+    },
+    {
+      "id": "factuality.035",
+      "truth": true,
+      "kind": "arithmetic",
+      "outcome": "fail",
+      "call_cost": 0.00044440000000000007,
+      "request_sha256": "1a0738e37ce53a050b6adaed9470eca83db7b5378ceade5e508f98c8ab77f33e"
+    },
+    {
+      "id": "factuality.036",
+      "truth": false,
+      "kind": "cross-language",
+      "outcome": "fail",
+      "call_cost": 0.000335,
+      "request_sha256": "0265efd187bff72844421851f937669565f5e773a3a33c0cec5dea041fa58c51"
+    },
+    {
+      "id": "factuality.037",
+      "truth": false,
+      "kind": "partly-right",
+      "outcome": "fail",
+      "call_cost": 0.0003479,
+      "request_sha256": "293ea00c703662c618504b0046ff6818599463661a937b433890438551947584"
+    },
+    {
+      "id": "factuality.038",
+      "truth": false,
+      "kind": "temporal",
+      "outcome": "fail",
+      "call_cost": 0.0003457,
+      "request_sha256": "a4ee3ba9e43b7681574716f6f78ce30cffe569ac4099654cdd0c1ed2487a7315"
+    },
+    {
+      "id": "factuality.039",
+      "truth": true,
+      "kind": "long-context",
+      "outcome": "fail",
+      "call_cost": 0.0006934,
+      "request_sha256": "3d3d06457044a8c947f089e7c994e84bbe4b35db538c885a6ad030d49acb7f6e"
+    },
+    {
+      "id": "factuality.040",
+      "truth": false,
+      "kind": "near-number",
+      "outcome": "fail",
+      "call_cost": 0.0003457,
+      "request_sha256": "28dae802f73ae708c908a6615d74f8e1e4f185e01872bdce4f7cd9b10c6ad8e6"
+    },
+    {
+      "id": "factuality.041",
+      "truth": true,
+      "kind": "arithmetic",
+      "outcome": "fail",
+      "call_cost": 0.0004404000000000001,
+      "request_sha256": "a80cbd520df75d15779c6eb5fa9ee45278582f761ac81d2388e9b5ff00103fe8"
+    },
+    {
+      "id": "factuality.042",
+      "truth": false,
+      "kind": "negation",
+      "outcome": "fail",
+      "call_cost": 0.00035709999999999995,
+      "request_sha256": "1ac9873d95c8f8259afb47142df8c8175422312324f9ca560ef94270323d7952"
+    },
+    {
+      "id": "factuality.043",
+      "truth": false,
+      "kind": "arithmetic",
+      "outcome": "fail",
+      "call_cost": 0.00038290000000000004,
+      "request_sha256": "0e2a410bc7103af5d9e64af02e4a8dcad172ab07acca48b7a4f660778cdf1c34"
+    },
+    {
+      "id": "factuality.044",
+      "truth": true,
+      "kind": "consistent-subset",
+      "outcome": "pass",
+      "call_cost": 0.00034120000000000005,
+      "request_sha256": "c13569c11d50c2f049ab80a08cc9c236859b95455f8e2a4dd97783bbf4b59245"
+    },
+    {
+      "id": "factuality.045",
+      "truth": false,
+      "kind": "partly-right",
+      "outcome": "fail",
+      "call_cost": 0.0003414,
+      "request_sha256": "a5892b8eb866aa154a89534542e1b5b3b5e2a55badff3cbead7202d1b9ddfb60"
+    },
+    {
+      "id": "factuality.046",
+      "truth": true,
+      "kind": "unit-conversion",
+      "outcome": "pass",
+      "call_cost": 0.0006196,
+      "request_sha256": "4839eaf5613350eaab5278e43993d1242f97fdf6658fee19943075051a4309c8"
+    },
+    {
+      "id": "factuality.047",
+      "truth": true,
+      "kind": "long-context",
+      "outcome": "fail",
+      "call_cost": 0.0006799,
+      "request_sha256": "d87a843fde4362285aa81a256fd6891047fcdf30e18a990723a4089ac0ec2ae5"
+    },
+    {
+      "id": "factuality.048",
+      "truth": false,
+      "kind": "cross-language",
+      "outcome": "fail",
+      "call_cost": 0.000343,
+      "request_sha256": "1ecbf65a1881fbbfe1c78371ea8955d26323840c4c9eae9ee3774a95244c4723"
+    },
+    {
+      "id": "factuality.049",
+      "truth": false,
+      "kind": "judge-injection",
+      "outcome": "fail",
+      "call_cost": 0.0003687,
+      "request_sha256": "5cf490517b6de8c06276d116b533f71cc98bd041c8482f5a2950a35ac3b244be"
+    },
+    {
+      "id": "factuality.050",
+      "truth": true,
+      "kind": "entity-distractor",
+      "outcome": "pass",
+      "call_cost": 0.0003572,
+      "request_sha256": "c7a030d933c87109581d269d7a5969ff99aab08e5a2740529a4dc78d48ba38fe"
+    },
+    {
+      "id": "factuality.051",
+      "truth": false,
+      "kind": "negation",
+      "outcome": "fail",
+      "call_cost": 0.00034809999999999995,
+      "request_sha256": "db5a57d16a69837f65a550c5ca220470a028662e3b9dc13d56a9a005345eac44"
+    },
+    {
+      "id": "factuality.052",
+      "truth": false,
+      "kind": "arithmetic",
+      "outcome": "fail",
+      "call_cost": 0.00037290000000000007,
+      "request_sha256": "d82147a81fe92112ed9f564f2079c03b05dc218dfb431a462efaca63e78809cc"
+    },
+    {
+      "id": "factuality.053",
+      "truth": true,
+      "kind": "near-number",
+      "outcome": "pass",
+      "call_cost": 0.0003497,
+      "request_sha256": "07769cfc0e96741e7833024a7efc1aeb1b7f4c99ed940420f5de5030c791b68a"
+    },
+    {
+      "id": "factuality.054",
+      "truth": false,
+      "kind": "unit-conversion",
+      "outcome": "fail",
+      "call_cost": 0.0003591,
+      "request_sha256": "04ef84bbd9022f93651e1f0e9a809bbcf1ba78c993e2776505563d1911a5ce5a"
+    },
+    {
+      "id": "factuality.055",
+      "truth": false,
+      "kind": "long-context",
+      "outcome": "fail",
+      "call_cost": 0.0006443999999999999,
+      "request_sha256": "e8511dfcc7eeff11e2bcc13202fab1c3364c148ccc5b3d2f9e32256f52b1aee8"
+    },
+    {
+      "id": "factuality.056",
+      "truth": true,
+      "kind": "temporal",
+      "outcome": "pass",
+      "call_cost": 0.0003752,
+      "request_sha256": "5e85312a17eabaa6c554a6eab93c3d82d04fca0594a900c148348dd780facc79"
+    },
+    {
+      "id": "factuality.057",
+      "truth": false,
+      "kind": "near-number",
+      "outcome": "fail",
+      "call_cost": 0.0003382,
+      "request_sha256": "41b83b94ae572cd86d0712ff68c3a1e3aed539b6cbec606f17dfa910681670b6"
+    },
+    {
+      "id": "factuality.058",
+      "truth": true,
+      "kind": "negation",
+      "outcome": "pass",
+      "call_cost": 0.00034580000000000006,
+      "request_sha256": "7f9bc72962b1506ceb18810cc15c44c72b3e98c77f2044e114a88ffe42f40dae"
+    },
+    {
+      "id": "factuality.059",
+      "truth": false,
+      "kind": "near-number",
+      "outcome": "fail",
+      "call_cost": 0.0003387,
+      "request_sha256": "4e464ccb743cc2ebe167f0ff677c7fc8c0b0154a880074d8a7ac97e430fc3e54"
+    },
+    {
+      "id": "factuality.060",
+      "truth": true,
+      "kind": "near-number",
+      "outcome": "pass",
+      "call_cost": 0.00035119999999999997,
+      "request_sha256": "2f6aaa1b03cec253052ae473310198a4c95bbd4069ee5139031ff735c6d249b2"
+    },
+    {
+      "id": "factuality.061",
+      "truth": true,
+      "kind": "judge-injection",
+      "outcome": "pass",
+      "call_cost": 0.0004882,
+      "request_sha256": "d9176134c41b4d71e5a41ad1683a5c0ef10f341d504093649b28becc38c8ebc4"
+    },
+    {
+      "id": "factuality.062",
+      "truth": true,
+      "kind": "consistent-subset",
+      "outcome": "pass",
+      "call_cost": 0.0003467,
+      "request_sha256": "dd4b5967b81adc0e848c334df3138287d48cbdbfa744a580e43c7cef26a6d061"
+    },
+    {
+      "id": "factuality.063",
+      "truth": true,
+      "kind": "negation",
+      "outcome": "pass",
+      "call_cost": 0.0003528,
+      "request_sha256": "7e2eeeb30543dbb5862ba3517de44059ae45e38acc25a0299dfaa78fef764785"
+    },
+    {
+      "id": "factuality.064",
+      "truth": false,
+      "kind": "arithmetic",
+      "outcome": "fail",
+      "call_cost": 0.00039240000000000005,
+      "request_sha256": "1693d099836fba54dfa2557e3eaf2ac059dc2759cc5e5836b57761c9113aaa6a"
+    },
+    {
+      "id": "factuality.065",
+      "truth": false,
+      "kind": "entity-distractor",
+      "outcome": "fail",
+      "call_cost": 0.0004327,
+      "request_sha256": "363133bf526321dfd36a2b9fd9a3280d15b92f6bf820970b4bda96206b039ab3"
+    },
+    {
+      "id": "factuality.066",
+      "truth": false,
+      "kind": "temporal",
+      "outcome": "fail",
+      "call_cost": 0.0004137,
+      "request_sha256": "0e31c09c0115520831b60a8d156c2637ea5a4a40295defab263adbd87ecaf179"
+    },
+    {
+      "id": "factuality.067",
+      "truth": true,
+      "kind": "partly-right",
+      "outcome": "pass",
+      "call_cost": 0.0003409,
+      "request_sha256": "54b184da61738f2809dc956dfd352f4e82c3e3727842bcb9e9cc8d03cc16c461"
+    },
+    {
+      "id": "factuality.068",
+      "truth": true,
+      "kind": "conditional",
+      "outcome": "pass",
+      "call_cost": 0.0003435,
+      "request_sha256": "a61cf2345813b554a591c439396b5c3a78499ec6700b6468a73e9db52dca0a31"
+    },
+    {
+      "id": "factuality.069",
+      "truth": true,
+      "kind": "partly-right",
+      "outcome": "pass",
+      "call_cost": 0.0003344,
+      "request_sha256": "5e16d7991d5f9202e745e5cc155f33dde527c9d5711625398176f0f75a587d04"
+    },
+    {
+      "id": "factuality.070",
+      "truth": true,
+      "kind": "judge-injection",
+      "outcome": "pass",
+      "call_cost": 0.0003602,
+      "request_sha256": "4d754d1a6149bd58973886a2a5f62147fa23792391e45617588d307c0f24f4ff"
+    },
+    {
+      "id": "factuality.071",
+      "truth": false,
+      "kind": "arithmetic",
+      "outcome": "fail",
+      "call_cost": 0.00038040000000000003,
+      "request_sha256": "ad5642c5279ab6254c48bc3b74e840665b929b36ec38973f43e6b82902d904bf"
+    },
+    {
+      "id": "factuality.072",
+      "truth": true,
+      "kind": "entity-distractor",
+      "outcome": "pass",
+      "call_cost": 0.0003627,
+      "request_sha256": "bb8604a2f4a876c6123113b7d117cbce5d4a069e919373216b5d2c7dced9bc5e"
+    },
+    {
+      "id": "factuality.073",
+      "truth": false,
+      "kind": "judge-injection",
+      "outcome": "fail",
+      "call_cost": 0.0003702,
+      "request_sha256": "06e004e59dd2c2f48694b4a0d59a96fc02c986d50564f2c44ce6bcabd36e2351"
+    },
+    {
+      "id": "factuality.074",
+      "truth": true,
+      "kind": "unit-conversion",
+      "outcome": "fail",
+      "call_cost": 0.00041359999999999997,
+      "request_sha256": "702c7d5d705cd5e33635c233685256e66adb531eb5e18595a74d7529ed72907f"
+    },
+    {
+      "id": "factuality.075",
+      "truth": true,
+      "kind": "arithmetic",
+      "outcome": "fail",
+      "call_cost": 0.00046190000000000006,
+      "request_sha256": "8de1bea0ca063bfcba1e9dac708830d5557d412a861bfd81056af8d597b40f71"
+    },
+    {
+      "id": "factuality.076",
+      "truth": true,
+      "kind": "entity-distractor",
+      "outcome": "pass",
+      "call_cost": 0.0003627,
+      "request_sha256": "ea4a3e184ad65094313f66ba8f5e330d8d80d06b2d11ed57b2d8fda21b673e18"
+    },
+    {
+      "id": "factuality.077",
+      "truth": true,
+      "kind": "arithmetic",
+      "outcome": "fail",
+      "call_cost": 0.00044840000000000006,
+      "request_sha256": "65d4b5989e1eea35b59f0f4843d04f83dc3b984874f67a619f6b0587b2f0fdc3"
+    },
+    {
+      "id": "factuality.078",
+      "truth": true,
+      "kind": "temporal",
+      "outcome": "pass",
+      "call_cost": 0.0003617,
+      "request_sha256": "9d21dd4856da5c29b5703912f44771a30b6ab6056e05be04352ae391f66b5104"
+    },
+    {
+      "id": "factuality.079",
+      "truth": false,
+      "kind": "temporal",
+      "outcome": "fail",
+      "call_cost": 0.0003992,
+      "request_sha256": "4f25bfd19b9ebd0e612441b3c6974fd344cf1aa59bb476a78cea43d1146d19c3"
+    },
+    {
+      "id": "factuality.080",
+      "truth": true,
+      "kind": "conditional",
+      "outcome": "pass",
+      "call_cost": 0.000379,
+      "request_sha256": "906d97419b4fb834b1a335fbdf98ec19d3d79e66017f692d198cdf340a8969e3"
+    },
+    {
+      "id": "factuality.081",
+      "truth": true,
+      "kind": "long-context",
+      "outcome": "fail",
+      "call_cost": 0.0007049,
+      "request_sha256": "67064e236b3a394464b4faa5b27c2e8f6d0fb4760ff2a51ca0166251b1026e33"
+    },
+    {
+      "id": "factuality.082",
+      "truth": false,
+      "kind": "long-context",
+      "outcome": "fail",
+      "call_cost": 0.0006353999999999999,
+      "request_sha256": "459c4ef9be3460c10810f49e6ae5ae42e46814fecb838e5ac0bf32978a424095"
+    },
+    {
+      "id": "factuality.083",
+      "truth": true,
+      "kind": "partly-right",
+      "outcome": "pass",
+      "call_cost": 0.0003419,
+      "request_sha256": "fd1389121a069550b9449a18099365e6526d1b02a33dbf9540d8a5cde9e2d96b"
+    },
+    {
+      "id": "factuality.084",
+      "truth": false,
+      "kind": "judge-injection",
+      "outcome": "fail",
+      "call_cost": 0.0003527,
+      "request_sha256": "b973bd7b11155b735b153cc18f7f2a74501bbc6ed15c723b4c7b4806c4c012b2"
+    },
+    {
+      "id": "factuality.085",
+      "truth": true,
+      "kind": "partly-right",
+      "outcome": "pass",
+      "call_cost": 0.0003439,
+      "request_sha256": "9b118a90449970e0c88e8587d197b6e35fa400ccf426023aaa2fcf2b59af26e3"
+    },
+    {
+      "id": "factuality.086",
+      "truth": true,
+      "kind": "cross-language",
+      "outcome": "pass",
+      "call_cost": 0.000336,
+      "request_sha256": "aae30f208bc99a04ff52894eccc15d02038bffc9cae4266816591279f256382a"
+    },
+    {
+      "id": "factuality.087",
+      "truth": true,
+      "kind": "conditional",
+      "outcome": "pass",
+      "call_cost": 0.00036300000000000004,
+      "request_sha256": "1d66845c8835db2a883ada01314b2ffdd9d2fee641f7a18479de531ed38ac4ae"
+    },
+    {
+      "id": "factuality.088",
+      "truth": false,
+      "kind": "unit-conversion",
+      "outcome": "fail",
+      "call_cost": 0.0003611,
+      "request_sha256": "711f9d4b3e08449caebaa2b3d0b3673ea204f7f31f168b9e50fefd127c5b3f13"
+    },
+    {
+      "id": "factuality.089",
+      "truth": false,
+      "kind": "negation",
+      "outcome": "fail",
+      "call_cost": 0.00034809999999999995,
+      "request_sha256": "ea50ff29eb05f7cbcaedf7b3364d4402edb39fd8b3eb66c738c42d234f4103a3"
+    },
+    {
+      "id": "factuality.090",
+      "truth": false,
+      "kind": "negation",
+      "outcome": "fail",
+      "call_cost": 0.00032659999999999997,
+      "request_sha256": "cc234356eb08bd94cd77ea52ed02c1e4ecdfc1db5d846883390ba3f440309693"
+    },
+    {
+      "id": "factuality.091",
+      "truth": true,
+      "kind": "consistent-subset",
+      "outcome": "pass",
+      "call_cost": 0.00032320000000000005,
+      "request_sha256": "2a4ddd0b465338da3b1d44a31faac602041b983e2255ee022aa687b9da2a7941"
+    },
+    {
+      "id": "factuality.092",
+      "truth": false,
+      "kind": "cross-language",
+      "outcome": "fail",
+      "call_cost": 0.0003315,
+      "request_sha256": "9b8dbe2596156e942984a07c65b41e39311900d3cebcf65a1dc1bed5112c7031"
+    },
+    {
+      "id": "factuality.093",
+      "truth": false,
+      "kind": "partly-right",
+      "outcome": "fail",
+      "call_cost": 0.0003349,
+      "request_sha256": "2ff77eff80c924386dc7900e161f6a18cba81eb3e0552087a24e853a0c788d76"
+    },
+    {
+      "id": "factuality.094",
+      "truth": false,
+      "kind": "entity-distractor",
+      "outcome": "fail",
+      "call_cost": 0.0003507,
+      "request_sha256": "a6748a961b7c51acfef9812d41fc448c6a843a4e424a783d160e22a66172246a"
+    },
+    {
+      "id": "factuality.095",
+      "truth": true,
+      "kind": "judge-injection",
+      "outcome": "pass",
+      "call_cost": 0.0005342,
+      "request_sha256": "fea27e2daa08cb108b64853a8b40d2f1af0bf436cb0290e0e877c35c44560ec2"
+    },
+    {
+      "id": "factuality.096",
+      "truth": false,
+      "kind": "conditional",
+      "outcome": "fail",
+      "call_cost": 0.000356,
+      "request_sha256": "a8b77221d52e2656111f6fea23c8c89d7f3c367df17124c79b835f5916394e53"
+    },
+    {
+      "id": "factuality.097",
+      "truth": false,
+      "kind": "temporal",
+      "outcome": "fail",
+      "call_cost": 0.00034219999999999997,
+      "request_sha256": "876b6cb5c7b39650acfe37bac3be0b70f64d2198e94b27b2287696b1e38e00a9"
+    },
+    {
+      "id": "factuality.098",
+      "truth": true,
+      "kind": "conditional",
+      "outcome": "pass",
+      "call_cost": 0.0003685,
+      "request_sha256": "00b9bd53636e7f0c7d2b89d32a42a14a79ae9607bf1d8dae5f1c0f68f2b3afa3"
+    },
+    {
+      "id": "factuality.099",
+      "truth": false,
+      "kind": "cross-language",
+      "outcome": "fail",
+      "call_cost": 0.0004045,
+      "request_sha256": "97591c6dce988436ec059bf133ca21ee667646830cbc5419c0fe23114c86246a"
+    },
+    {
+      "id": "factuality.100",
+      "truth": false,
+      "kind": "unit-conversion",
+      "outcome": "fail",
+      "call_cost": 0.00035109999999999997,
+      "request_sha256": "e9b375c3fedfda7e2d0785bcdd3a74417567418f8343b0304863648546db1940"
+    },
+    {
+      "id": "factuality.101",
+      "truth": false,
+      "kind": "consistent-subset",
+      "outcome": "fail",
+      "call_cost": 0.00033720000000000006,
+      "request_sha256": "584ed2fcb6bb430e5fcb9a5791c6d403d903492d3d1a50bb1f7058ad235bafaa"
+    },
+    {
+      "id": "factuality.102",
+      "truth": true,
+      "kind": "near-number",
+      "outcome": "pass",
+      "call_cost": 0.00034619999999999996,
+      "request_sha256": "5116bd45f7e94122ca79a80cc6bcd2db8d422c8d64a178ef1e41e371225f8868"
+    },
+    {
+      "id": "factuality.103",
+      "truth": false,
+      "kind": "near-number",
+      "outcome": "fail",
+      "call_cost": 0.00034369999999999995,
+      "request_sha256": "21ac1b472441f5eb3cc656e4eaa8dd491c790474fcc8fe40233a29c2c80302f0"
+    },
+    {
+      "id": "factuality.104",
+      "truth": false,
+      "kind": "temporal",
+      "outcome": "fail",
+      "call_cost": 0.0004052,
+      "request_sha256": "a5d9e063bb6bd5288f829405c94dc53a973f28771fbae5c76653080f52621f5e"
+    },
+    {
+      "id": "factuality.105",
+      "truth": true,
+      "kind": "cross-language",
+      "outcome": "pass",
+      "call_cost": 0.000338,
+      "request_sha256": "f7f6d8f1e76409e49ee3ae952eb0f45712152cd85721688c0eb4f3fca29a7979"
+    },
+    {
+      "id": "factuality.106",
+      "truth": false,
+      "kind": "long-context",
+      "outcome": "fail",
+      "call_cost": 0.0006329,
+      "request_sha256": "f0a977427459eff05615608df836e0071298cbed7dcadaacafbbf957d8107f6d"
+    },
+    {
+      "id": "factuality.107",
+      "truth": true,
+      "kind": "cross-language",
+      "outcome": "pass",
+      "call_cost": 0.0003315,
+      "request_sha256": "bbadcb140da9e734a93f7c4197a512e0ea9405f18d81514f5eafc01784fd220f"
+    },
+    {
+      "id": "factuality.108",
+      "truth": false,
+      "kind": "partly-right",
+      "outcome": "fail",
+      "call_cost": 0.0003294,
+      "request_sha256": "2e215259db0a5aaed2ea1af1d7b4acaf929cd6d0338fe1f320167625abd10ff0"
+    },
+    {
+      "id": "factuality.109",
+      "truth": true,
+      "kind": "near-number",
+      "outcome": "pass",
+      "call_cost": 0.00035319999999999997,
+      "request_sha256": "a7b914399816dba567e443f30d5c511dbb2b1dd4f55c178c31414aa637611d78"
+    },
+    {
+      "id": "factuality.110",
+      "truth": false,
+      "kind": "consistent-subset",
+      "outcome": "fail",
+      "call_cost": 0.00034520000000000004,
+      "request_sha256": "fc395e833b45223aad9f45fc90a497d8a024d65fb649707f81885839ae5d2b11"
+    },
+    {
+      "id": "factuality.111",
+      "truth": false,
+      "kind": "entity-distractor",
+      "outcome": "fail",
+      "call_cost": 0.0003522,
+      "request_sha256": "71a32fae09f0e43bbda1061ce3a5ba82d2da3f11fddfebf7e93aef78ce0cd2e5"
+    },
+    {
+      "id": "factuality.112",
+      "truth": true,
+      "kind": "temporal",
+      "outcome": "pass",
+      "call_cost": 0.0003412,
+      "request_sha256": "07e3f04ebf85bf130338c4fd35514cc64368be98455f60e5805ec549c74ebd37"
+    },
+    {
+      "id": "factuality.113",
+      "truth": false,
+      "kind": "unit-conversion",
+      "outcome": "fail",
+      "call_cost": 0.00042259999999999997,
+      "request_sha256": "2e70feb5a0949015f6cb8c8cd23916946eef9e05f15d9243158a162185afc65b"
+    },
+    {
+      "id": "factuality.114",
+      "truth": true,
+      "kind": "temporal",
+      "outcome": "pass",
+      "call_cost": 0.0003502,
+      "request_sha256": "3a6b8dcdb27e03a970e02b1792f8d56bdc67b16aa0648d750cf84f1de5304b43"
+    },
+    {
+      "id": "factuality.115",
+      "truth": true,
+      "kind": "judge-injection",
+      "outcome": "pass",
+      "call_cost": 0.00038219999999999997,
+      "request_sha256": "71311754cf943292672a535bbc0c29863de1fef3ab19fca6f80b6248778deb52"
+    },
+    {
+      "id": "factuality.116",
+      "truth": false,
+      "kind": "conditional",
+      "outcome": "fail",
+      "call_cost": 0.00034,
+      "request_sha256": "f6d6105443d6020f1731342d339cdf98a484a7cf53b0265f0f29818f080e6091"
+    },
+    {
+      "id": "factuality.117",
+      "truth": true,
+      "kind": "conditional",
+      "outcome": "pass",
+      "call_cost": 0.00035,
+      "request_sha256": "cf1d6ad34931c96dac6ded84991a7fc966fa0f11473e4f418b73d3c87c5003fc"
+    },
+    {
+      "id": "factuality.118",
+      "truth": true,
+      "kind": "negation",
+      "outcome": "pass",
+      "call_cost": 0.00033830000000000004,
+      "request_sha256": "a012b9a5fa6b8dbd81e123d402df09bb4018dfe3502012a815275049ae19d0e0"
+    },
+    {
+      "id": "factuality.119",
+      "truth": false,
+      "kind": "long-context",
+      "outcome": "fail",
+      "call_cost": 0.0006364,
+      "request_sha256": "454628bd423a8338b08fe65f05e1111797b9c6dc603e78863de57e5526401a09"
+    },
+    {
+      "id": "factuality.120",
+      "truth": false,
+      "kind": "consistent-subset",
+      "outcome": "fail",
+      "call_cost": 0.0003512,
+      "request_sha256": "c75cca412a79508c59687342af09baba4f721c2f37af392c27103e8a525e41c5"
+    }
+  ],
+  "parser_note": "Free reparse: shipped last complete object, peer first object; model answers unchanged."
+}
