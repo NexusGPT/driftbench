@@ -1,8 +1,8 @@
 {
   "model": "gpt-6.1-sol",
   "at": "2026-10-13T14:23:34.663Z",
-  "freezeSha256": "74c2aaf848dbb36da10684efd440c5e8c3dd53add4201ac338d32e088974c035",
-  "status": "NETWORK_PAUSED",
+  "freezeSha256": "bf7ad7712291baba6c324644273936f294b4671acc4d66948bdfd69c265077b6",
+  "status": "QUEUED_AFTER_SONNET",
   "n": 30,
   "planned": 270,
   "coverage": 0.1111111111111111,
@@ -229,7 +229,7 @@
     "test": 0
   },
   "budget": {
-    "capUsd": 25,
+    "capUsd": 35,
     "measuredUsd": 3.8430674000000034,
     "holdsUsd": 17.94620499999998,
     "pending": 0,

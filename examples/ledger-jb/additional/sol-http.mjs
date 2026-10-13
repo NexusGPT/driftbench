@@ -21,8 +21,14 @@ export async function postOne(url, headers, body, {timeoutMs=300000,fetchFn=fetc
     complete=true;
   }catch(cause){
     const partialModelOutput=response?.ok && /"type"\s*:\s*"(?:output_text|reasoning|message)"/.test(raw);
-    const error=new JudgeError(partialModelOutput?'bad_response':'network',
-      `OpenAI connection failed (${cause.name}; ${cause.cause?.code ?? cause.code ?? 'cause unavailable'})`,{retryable:!partialModelOutput});
+    if(partialModelOutput){
+      let value;try{value=JSON.parse(raw);}catch{}
+      // This is a returned answer. Keeping it on the answer path also preserves
+      // the core's single schema re-ask after malformed model JSON.
+      return {value,raw:scrub(raw),receipt:receipt(cause),partial:true};
+    }
+    const error=new JudgeError('network',
+      `OpenAI connection failed (${cause.name}; ${cause.cause?.code ?? cause.code ?? 'cause unavailable'})`,{retryable:true});
     error.raw=JSON.stringify(receipt(cause));throw error;
   }
   let value;try{value=JSON.parse(raw);}catch{}

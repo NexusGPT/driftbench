@@ -11,7 +11,7 @@ export function createTransport(model,settings){
   return {maximumCostUsd:original.maximumCostUsd,async call(prompt,{schema}){
     const started=Date.now();
     const result=await postOne(settings.route,{authorization:`Bearer ${key}`},responsesBody(prompt,schema,settings),{timeoutMs:settings.timeoutMs});
-    if(result.value===undefined)return {text:result.raw,rawProvider:result.raw,returnedAnswer:true,graderError:true,finishReason:'invalid-provider-json',elapsedMs:Date.now()-started};
+    if(result.value===undefined)return {text:result.raw,rawProvider:result.raw,httpReceipt:result.receipt,returnedAnswer:true,graderError:true,finishReason:'invalid-provider-json',elapsedMs:Date.now()-started};
     return {...readResponses(result.value),httpReceipt:result.receipt,elapsedMs:Date.now()-started};
   }};
 }

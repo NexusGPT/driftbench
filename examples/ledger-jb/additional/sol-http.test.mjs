@@ -23,6 +23,7 @@ test('any echoed secret is removed from error receipts',async()=>{
 });
 test('partial model output never becomes a retryable connection failure',async()=>{
   let count=0;const stream=new ReadableStream({pull(c){if(!count++)c.enqueue(new TextEncoder().encode('{"output":[{"type":"message","content":[{"type":"output_text","text":"A'));else c.error(new Error('disconnect'));}});
-  try{await postOne('https://example.invalid',headers,{}, {fetchFn:async()=>new Response(stream,{status:200})});assert.fail('should reject');}
-  catch(error){assert.equal(error.code,'bad_response');assert.equal(error.retryable,false);assert.ok(JSON.parse(error.raw).providerBody.includes('output_text'));}
+  const result=await postOne('https://example.invalid',headers,{}, {fetchFn:async()=>new Response(stream,{status:200})});
+  assert.equal(result.value,undefined);assert.equal(result.partial,true);assert.ok(result.raw.includes('output_text'));
+  assert.equal(result.receipt.bodyComplete,false);assert.equal(result.receipt.networkCause.message,'disconnect');
 });

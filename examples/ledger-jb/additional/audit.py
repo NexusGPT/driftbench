@@ -3,6 +3,7 @@ import hashlib
 import json
 import math
 import subprocess
+from datetime import datetime
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -59,6 +60,25 @@ for model in ('claude-sonnet-5-5', 'gpt-6.1-sol'):
                 assert not finishes[previous].get('text')
     assert max_active <= (8 if model == 'gpt-6.1-sol' else 4)
     assert not active, 'Audit requires settled calls'
+    health = rows(cell / 'network-health.jsonl')
+    controls = [x for x in health if x['status'] in ('health-gate-passed', 'network-paused')]
+    for start in starts.values():
+        if not start.get('recoveryAmendment'):
+            continue
+        preceding = [x for x in controls if x['at'] <= start['at']]
+        assert preceding and preceding[-1]['status'] == 'health-gate-passed'
+    for index, event in enumerate(health):
+        if event['status'] != 'health-gate-passed':
+            continue
+        probes = [x for x in health[:index] if x['status'] == 'health-probe'][-10:]
+        assert len(probes) == 10 and all(x['healthy'] for x in probes)
+        times = [datetime.fromisoformat(x['at'].replace('Z', '+00:00')).timestamp() - x['elapsedMs']/1000 for x in probes]
+        assert all(b-a >= 29.9 for a,b in zip(times,times[1:]))
+    if model == 'gpt-6.1-sol':
+        for row in finishes.values():
+            if row.get('recoveryAmendment') and row.get('transportFailure'):
+                receipt = json.loads(row['rawProvider'])
+                assert all(key in receipt for key in ('networkCause', 'providerBody', 'bodyComplete', 'requestId', 'responseId'))
     pool = read(ROOT / 'data/pool.json')
     test = rows(cell / 'decisions-test.jsonl')
     assert len(test) == len({x['key'] for x in test})
