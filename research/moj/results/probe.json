@@ -1,0 +1,121 @@
+{
+ "P1_gateway": {
+  "AB": {
+   "better": 0.92
+  },
+  "BA": {
+   "better": 0.08
+  },
+  "seconds": [
+   0.423,
+   0.747
+  ],
+  "error": null,
+  "answer_keys": [
+   "answers",
+   "model",
+   "usage"
+  ]
+ },
+ "P1_typesafe": {
+  "AB": {
+   "better": 0.93
+  },
+  "BA": {
+   "better": 0.08
+  },
+  "seconds": [
+   0.411,
+   0.28
+  ],
+  "error": null,
+  "answer_keys": [
+   "answers",
+   "model",
+   "usage"
+  ]
+ },
+ "P2_multi": {
+  "p": {
+   "correct": 0.99,
+   "refuses": 0.01,
+   "long": 0
+  },
+  "seconds": 0.368,
+  "error": null
+ },
+ "P3_2000": {
+  "p": {
+   "correct": 0.98
+  },
+  "seconds": 0.302,
+  "error": null
+ },
+ "P3_8000": {
+  "p": {
+   "correct": 0.98
+  },
+  "seconds": 0.524,
+  "error": null
+ },
+ "P3_16000": {
+  "p": {
+   "correct": 0.98
+  },
+  "seconds": 0.41,
+  "error": null
+ },
+ "P3_32000": {
+  "p": {
+   "correct": 0.98
+  },
+  "seconds": 0.351,
+  "error": null
+ },
+ "P3_64000": {
+  "p": {
+   "correct": 0.98
+  },
+  "seconds": 0.444,
+  "error": null
+ },
+ "P3_128000": {
+  "p": {
+   "correct": 0.97
+  },
+  "seconds": 0.586,
+  "error": null
+ },
+ "P4_de": {
+  "AB": {
+   "better": 0.79
+  },
+  "BA": {
+   "better": 0.14
+  }
+ },
+ "P4_zh": {
+  "AB": {
+   "better": 0.82
+  },
+  "BA": {
+   "better": 0.15
+  }
+ },
+ "P4_ar": {
+  "AB": {
+   "better": 0.75
+  },
+  "BA": {
+   "better": 0.18
+  }
+ },
+ "P6_arithmetic": {
+  "right_answer_395": {
+   "ok": 0.78
+  },
+  "wrong_answer_385": {
+   "ok": 0.09
+  }
+ }
+}

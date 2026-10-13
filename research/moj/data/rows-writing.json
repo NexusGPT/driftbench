@@ -1,0 +1,22 @@
+[
+ [
+  "instruction_adherence",
+  "Does the reply satisfy all explicit requirements about the topic, format, audience, tone, and requested content?"
+ ],
+ [
+  "substantive_coverage",
+  "Does the reply develop the requested subject or narrative enough to fulfill the instruction\u2019s purpose?"
+ ],
+ [
+  "organization",
+  "Is the material arranged in a clear, purposeful sequence suited to the requested form?"
+ ],
+ [
+  "internal_coherence",
+  "Are the reply\u2019s claims, events, and details consistent with one another and logically connected?"
+ ],
+ [
+  "prose_effectiveness",
+  "Does the reply use effective language suited to the requested genre and audience?"
+ ]
+]

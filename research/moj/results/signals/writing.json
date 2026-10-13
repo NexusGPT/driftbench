@@ -1,0 +1,670 @@
+{
+"5731e007aafb602864f22672a5b672310b87662f91acd67b2a254a9f5c7f4d07": {
+"s1p": {
+"pA": 0.22999999999999998,
+"detail": {
+"AB": 0.25,
+"BA": 0.79,
+"first_bias": 0.040000000000000036,
+"split": false
+},
+"calls": {
+"jev": 2,
+"luna": 0
+},
+"usd": 0.0,
+"seconds": {
+"jev": 1.854,
+"luna": 0
+},
+"missing": 0
+},
+"s1pr": {
+"pA": 0.20400000000000001,
+"detail": {
+"rows": {
+"instruction_adherence": 0.23000000000000004,
+"substantive_coverage": 0.16999999999999998,
+"organization": 0.15499999999999997,
+"internal_coherence": 0.27499999999999997,
+"prose_effectiveness": 0.19
+},
+"conflict": false
+},
+"calls": {
+"jev": 2,
+"luna": 0
+},
+"usd": 0.0,
+"seconds": {
+"jev": 1.359,
+"luna": 0
+},
+"missing": 0
+},
+"s1r": {
+"pA": 0.497,
+"detail": {
+"a": {
+"instruction_adherence": 0.89,
+"substantive_coverage": 0.9,
+"organization": 0.96,
+"internal_coherence": 0.94,
+"prose_effectiveness": 0.93,
+"fact_refuses": 0.02,
+"fact_harmful": 0.05,
+"fact_complete": 0.68,
+"fact_flaw": 0.1
+},
+"b": {
+"instruction_adherence": 0.86,
+"substantive_coverage": 0.96,
+"organization": 0.97,
+"internal_coherence": 0.91,
+"prose_effectiveness": 0.95,
+"fact_refuses": 0.02,
+"fact_harmful": 0.06,
+"fact_complete": 0.94,
+"fact_flaw": 0.12
+},
+"rows": {
+"instruction_adherence": 0.515,
+"substantive_coverage": 0.47000000000000003,
+"organization": 0.495,
+"internal_coherence": 0.5149999999999999,
+"prose_effectiveness": 0.49000000000000005
+}
+},
+"calls": {
+"jev": 2,
+"luna": 0
+},
+"usd": 0.0,
+"seconds": {
+"jev": 1.292,
+"luna": 0
+},
+"missing": 0
+},
+"s1cf": {
+"pA": 0.19,
+"detail": {
+"AB": 0.2,
+"BA": 0.82,
+"first_bias": 0.020000000000000018,
+"split": false
+},
+"calls": {
+"jev": 2,
+"luna": 0
+},
+"usd": 0.0,
+"seconds": {
+"jev": 1.791,
+"luna": 0
+},
+"missing": 0
+},
+"route": {
+"pA": null,
+"detail": {
+"needs_reasoning": 0.31,
+"safety_case": 0.02,
+"checkable_answer": 0.05,
+"subjective_writing": 0.15,
+"near_identical": 0.13,
+"undecidable": 0.45,
+"injection": 0.03,
+"has_code": 0.02,
+"has_reference": 0.21,
+"chars": 12660,
+"length_gap": 0.29261635048450935,
+"non_latin": 0.98
+},
+"calls": {
+"jev": 1,
+"luna": 0
+},
+"usd": 0.0,
+"seconds": {
+"jev": 0.895,
+"luna": 0
+},
+"missing": 0
+},
+"ref": {
+"pA": 0.525,
+"detail": {
+"kind": "open",
+"reference": "提供中文家庭用户版说明书，标题为《[品牌名称] 智能扫地机器人产品说明书》，涵盖产品信息与特点、配件、部件功能、安装设置、使用步骤、维护、安全、故障排查及保修条款；参数和保修细则注明以具体型号及厂家政策为准。",
+"a": 0.9,
+"b": 0.85
+},
+"calls": {
+"jev": 2,
+"luna": 1
+},
+"usd": 0.000104,
+"seconds": {
+"jev": 1.082,
+"luna": 3.231
+},
+"missing": 0
+},
+"adv": {
+"pA": 0.49500000000000005,
+"detail": {
+"a": {
+"objection": "说明书大量关键内容仍是占位符，却把长按按键回充/关机、可更换电池等未经确认的操作写成步骤；用户照做可能无法操作或损坏设备，未达到可供家庭用户使用的详细说明书要求。",
+"p": 0.94
+},
+"b": {
+"objection": "说明书把未提供的型号参数、故障代码和保修期限写成确定事实，还给出占位客服号码；用户可能据此错误操作或无法获得售后，未满足“专业准确”。",
+"p": 0.93
+}
+},
+"calls": {
+"jev": 2,
+"luna": 2
+},
+"usd": 0.001113,
+"seconds": {
+"jev": 1.274,
+"luna": 10.284
+},
+"missing": 0
+},
+"debate": {
+"pA": 0.6399999999999999,
+"detail": {
+"AB": 0.63,
+"BA": 0.35,
+"first_bias": -0.020000000000000018,
+"split": false,
+"cases": {
+"a": "MINE更贴合指令：它使用指定题目《[品牌名称] 智能扫地机器人产品说明书》，并涵盖配件、部件、安装使用、维护、安全、故障排查和保修等全部要求；未知参数以占位符标明。OTHER擅自设定“CleanMaster CM-X5”及具体规格、保修和联系方式，可能误导家庭用户。",
+"b": "MINE更符合“详细产品说明书”的要求：它提供了具体型号、参数、配件数量，并逐步说明安装、使用和保养；故障表还列出原因与处理方法，保修条款也写明期限和流程。OTHER多处保留“[具体型号]”“[指定时间]”等占位符，内容不够完整，可读性和实用性较弱。"
+}
+},
+"calls": {
+"jev": 2,
+"luna": 2
+},
+"usd": 0.001803,
+"seconds": {
+"jev": 0.681,
+"luna": 8.324
+},
+"missing": 0
+},
+"s2v": {
+"pA": 1.0,
+"detail": {
+"games": [
+"A",
+"A"
+],
+"source": "recorded",
+"recorded_calls": 2
+},
+"calls": {
+"jev": 0,
+"luna": 0
+},
+"usd": 0.0,
+"seconds": {
+"jev": 0,
+"luna": 0
+},
+"missing": 0
+},
+"s2h": {
+"pA": 0.5,
+"detail": {
+"a": {
+"instruction_adherence": false,
+"substantive_coverage": true,
+"organization": true,
+"internal_coherence": true,
+"prose_effectiveness": true
+},
+"b": {
+"instruction_adherence": false,
+"substantive_coverage": true,
+"organization": true,
+"internal_coherence": true,
+"prose_effectiveness": true
+},
+"rows": {
+"instruction_adherence": 0.5,
+"substantive_coverage": 0.5,
+"organization": 0.5,
+"internal_coherence": 0.5,
+"prose_effectiveness": 0.5
+}
+},
+"calls": {
+"jev": 0,
+"luna": 2
+},
+"usd": 0.001613,
+"seconds": {
+"jev": 0,
+"luna": 22.13
+},
+"missing": 0
+},
+"s2l": {
+"pA": 0.0,
+"detail": {
+"games": [
+"B",
+"B"
+],
+"source": "recorded",
+"recorded_calls": 2
+},
+"calls": {
+"jev": 0,
+"luna": 0
+},
+"usd": 0.0,
+"seconds": {
+"jev": 0,
+"luna": 0
+},
+"missing": 0
+},
+"length": {
+"pA": 1.0,
+"detail": {
+"a": 7327,
+"b": 5183
+},
+"calls": {
+"jev": 0,
+"luna": 0
+},
+"usd": 0.0,
+"seconds": {
+"jev": 0,
+"luna": 0
+},
+"missing": 0
+},
+"first": {
+"pA": 0.5,
+"detail": {},
+"calls": {
+"jev": 0,
+"luna": 0
+},
+"usd": 0.0,
+"seconds": {
+"jev": 0,
+"luna": 0
+},
+"missing": 0
+},
+"_meta": {
+"label": "B",
+"half": "valid",
+"split": "pilot",
+"group": "产品说明书",
+"language": "zh",
+"swapped": true,
+"baselines": {
+"promptfoo": {
+"games": [
+"A",
+"A"
+],
+"calls": 2,
+"costUsd": 0.0016016000000000001
+},
+"ledger": {
+"games": [
+"B",
+"B"
+],
+"calls": 2,
+"costUsd": 0.0021357
+}
+}
+}
+},
+"3c301b381c57a8cfad47642d0f7a27b62883154ff2347de6a75a6f43352fd4fe": {
+"s1p": {
+"pA": 0.82,
+"detail": {
+"AB": 0.92,
+"BA": 0.28,
+"first_bias": 0.20000000000000018,
+"split": false
+},
+"calls": {
+"jev": 2,
+"luna": 0
+},
+"usd": 0.0,
+"seconds": {
+"jev": 1.789,
+"luna": 0
+},
+"missing": 0
+},
+"s1pr": {
+"pA": 0.788,
+"detail": {
+"rows": {
+"instruction_adherence": 0.7799999999999999,
+"substantive_coverage": 0.825,
+"organization": 0.775,
+"internal_coherence": 0.78,
+"prose_effectiveness": 0.78
+},
+"conflict": false
+},
+"calls": {
+"jev": 2,
+"luna": 0
+},
+"usd": 0.0,
+"seconds": {
+"jev": 1.294,
+"luna": 0
+},
+"missing": 0
+},
+"s1r": {
+"pA": 0.507,
+"detail": {
+"a": {
+"instruction_adherence": 0.91,
+"substantive_coverage": 0.95,
+"organization": 0.95,
+"internal_coherence": 0.89,
+"prose_effectiveness": 0.95,
+"fact_refuses": 0.01,
+"fact_harmful": 0.03,
+"fact_complete": 0.93,
+"fact_flaw": 0.1
+},
+"b": {
+"instruction_adherence": 0.91,
+"substantive_coverage": 0.93,
+"organization": 0.94,
+"internal_coherence": 0.86,
+"prose_effectiveness": 0.94,
+"fact_refuses": 0.01,
+"fact_harmful": 0.02,
+"fact_complete": 0.92,
+"fact_flaw": 0.12
+},
+"rows": {
+"instruction_adherence": 0.5,
+"substantive_coverage": 0.51,
+"organization": 0.505,
+"internal_coherence": 0.515,
+"prose_effectiveness": 0.505
+}
+},
+"calls": {
+"jev": 2,
+"luna": 0
+},
+"usd": 0.0,
+"seconds": {
+"jev": 0.998,
+"luna": 0
+},
+"missing": 0
+},
+"s1cf": {
+"pA": 0.31000000000000005,
+"detail": {
+"AB": 0.37,
+"BA": 0.75,
+"first_bias": 0.1200000000000001,
+"split": false
+},
+"calls": {
+"jev": 2,
+"luna": 0
+},
+"usd": 0.0,
+"seconds": {
+"jev": 1.717,
+"luna": 0
+},
+"missing": 0
+},
+"route": {
+"pA": null,
+"detail": {
+"needs_reasoning": 0.25,
+"safety_case": 0.02,
+"checkable_answer": 0.03,
+"subjective_writing": 0.97,
+"near_identical": 0.15,
+"undecidable": 0.56,
+"injection": 0.04,
+"has_code": 0.01,
+"has_reference": 0.45,
+"chars": 27225,
+"length_gap": 0.6888426888426888,
+"non_latin": 0.0013568521031207597
+},
+"calls": {
+"jev": 1,
+"luna": 0
+},
+"usd": 0.0,
+"seconds": {
+"jev": 0.823,
+"luna": 0
+},
+"missing": 0
+},
+"ref": {
+"pA": 0.505,
+"detail": {
+"kind": "open",
+"reference": "A poetic, introspective Elden Ring fanfiction following the Tarnished and featuring Melina, Ranni, Godrick, Malenia, and the Fire Giant. Explore their conflicts, choice, fate, and power; present the Golden Order, Age of Stars, and Frenzied Flame endings with moral nuance.",
+"a": 0.97,
+"b": 0.96
+},
+"calls": {
+"jev": 2,
+"luna": 1
+},
+"usd": 8.5e-05,
+"seconds": {
+"jev": 1.253,
+"luna": 2.371
+},
+"missing": 0
+},
+"adv": {
+"pA": 0.5449999999999999,
+"detail": {
+"a": {
+"objection": "Ranni’s plan is misrepresented as abolishing rules and predetermined paths; in the game, she removes Order from direct worldly reach, making it distant and uncertain—not eliminating Order or guaranteeing self-determination.",
+"p": 0.73
+},
+"b": {
+"objection": "The Frenzied Flame ending has Melina consumed with the world, but in the game she survives that ending and vows to hunt the Tarnished; this reverses a key consequence of the choice.",
+"p": 0.82
+}
+},
+"calls": {
+"jev": 2,
+"luna": 2
+},
+"usd": 0.001398,
+"seconds": {
+"jev": 1.914,
+"luna": 20.913
+},
+"missing": 0
+},
+"debate": {
+"pA": 0.53,
+"detail": {
+"AB": 0.45,
+"BA": 0.39,
+"first_bias": -0.15999999999999992,
+"split": true,
+"cases": {
+"a": "MINE is stronger because it develops each character’s inner conflict in depth: Melina questions a life defined by sacrifice, Ranni doubts whether cosmic exile is freedom, and Godrick recognizes the terror beneath his ambition. Its three endings also examine moral costs—restored order’s safety, the Age of Stars’ uncertainty, and Frenzied Flame’s “mercy”—in a sustained, introspective poetic voice.",
+"b": "MINE is the better fit because it directly gives the Tarnished’s journey a clear arc—from meeting Melina, Ranni, Godrick, Malenia, and the Fire Giant to choosing an ending—and explicitly explores all three requested outcomes. Its compact, poetic scenes make each conflict legible, while lines such as “Freedom is cold” and “Was this liberation… or surrender?” preserve moral ambiguity without the OTHER’s much longer digressions."
+}
+},
+"calls": {
+"jev": 2,
+"luna": 2
+},
+"usd": 0.001468,
+"seconds": {
+"jev": 1.162,
+"luna": 6.806
+},
+"missing": 0
+},
+"s2v": {
+"pA": 1.0,
+"detail": {
+"games": [
+"A",
+"A"
+],
+"source": "recorded",
+"recorded_calls": 2
+},
+"calls": {
+"jev": 0,
+"luna": 0
+},
+"usd": 0.0,
+"seconds": {
+"jev": 0,
+"luna": 0
+},
+"missing": 0
+},
+"s2h": {
+"pA": 0.4,
+"detail": {
+"a": {
+"instruction_adherence": true,
+"substantive_coverage": true,
+"organization": true,
+"internal_coherence": false,
+"prose_effectiveness": true
+},
+"b": {
+"instruction_adherence": true,
+"substantive_coverage": true,
+"organization": true,
+"internal_coherence": true,
+"prose_effectiveness": true
+},
+"rows": {
+"instruction_adherence": 0.5,
+"substantive_coverage": 0.5,
+"organization": 0.5,
+"internal_coherence": 0.0,
+"prose_effectiveness": 0.5
+}
+},
+"calls": {
+"jev": 0,
+"luna": 2
+},
+"usd": 0.0013,
+"seconds": {
+"jev": 0,
+"luna": 17.376
+},
+"missing": 0
+},
+"s2l": {
+"pA": 1.0,
+"detail": {
+"games": [
+"A",
+"A"
+],
+"source": "recorded",
+"recorded_calls": 3
+},
+"calls": {
+"jev": 0,
+"luna": 0
+},
+"usd": 0.0,
+"seconds": {
+"jev": 0,
+"luna": 0
+},
+"missing": 0
+},
+"length": {
+"pA": 1.0,
+"detail": {
+"a": 20202,
+"b": 6286
+},
+"calls": {
+"jev": 0,
+"luna": 0
+},
+"usd": 0.0,
+"seconds": {
+"jev": 0,
+"luna": 0
+},
+"missing": 0
+},
+"first": {
+"pA": 0.5,
+"detail": {},
+"calls": {
+"jev": 0,
+"luna": 0
+},
+"usd": 0.0,
+"seconds": {
+"jev": 0,
+"luna": 0
+},
+"missing": 0
+},
+"_meta": {
+"label": "A",
+"half": "tune",
+"split": "pilot",
+"group": "二次元抽象文学-同人创作",
+"language": "en",
+"swapped": false,
+"baselines": {
+"promptfoo": {
+"games": [
+"A",
+"A"
+],
+"calls": 2,
+"costUsd": 0.0013014
+},
+"ledger": {
+"games": [
+"A",
+"A"
+],
+"calls": 3,
+"costUsd": 0.00274317
+}
+}
+}
+}
+}

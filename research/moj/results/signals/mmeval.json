@@ -1,0 +1,666 @@
+{
+"3252": {
+"s1p": {
+"pA": 0.5,
+"detail": {
+"AB": 0.5,
+"BA": 0.5,
+"first_bias": 0.0,
+"split": true
+},
+"calls": {
+"jev": 2,
+"luna": 0
+},
+"usd": 0.0,
+"seconds": {
+"jev": 0.887,
+"luna": 0
+},
+"missing": 0
+},
+"s1pr": {
+"pA": 0.571,
+"detail": {
+"rows": {
+"addresses_request": 0.52,
+"correct_claims": 0.6399999999999999,
+"safe_policy": 0.5900000000000001,
+"language_match": 0.5499999999999999,
+"clarity": 0.555
+},
+"conflict": false
+},
+"calls": {
+"jev": 2,
+"luna": 0
+},
+"usd": 0.0,
+"seconds": {
+"jev": 0.81,
+"luna": 0
+},
+"missing": 0
+},
+"s1r": {
+"pA": 0.5389999999999999,
+"detail": {
+"a": {
+"addresses_request": 0.21,
+"correct_claims": 0.78,
+"safe_policy": 0.94,
+"language_match": 0.94,
+"clarity": 0.53,
+"fact_refuses": 0.16,
+"fact_harmful": 0.02,
+"fact_complete": 0.46,
+"fact_flaw": 0.16
+},
+"b": {
+"addresses_request": 0.34,
+"correct_claims": 0.42,
+"safe_policy": 0.91,
+"language_match": 0.92,
+"clarity": 0.42,
+"fact_refuses": 0.07,
+"fact_harmful": 0.03,
+"fact_complete": 0.48,
+"fact_flaw": 0.58
+},
+"rows": {
+"addresses_request": 0.435,
+"correct_claims": 0.68,
+"safe_policy": 0.5149999999999999,
+"language_match": 0.51,
+"clarity": 0.555
+}
+},
+"calls": {
+"jev": 2,
+"luna": 0
+},
+"usd": 0.0,
+"seconds": {
+"jev": 1.052,
+"luna": 0
+},
+"missing": 0
+},
+"s1cf": {
+"pA": 0.705,
+"detail": {
+"AB": 0.69,
+"BA": 0.28,
+"first_bias": -0.030000000000000027,
+"split": false
+},
+"calls": {
+"jev": 2,
+"luna": 0
+},
+"usd": 0.0,
+"seconds": {
+"jev": 1.051,
+"luna": 0
+},
+"missing": 0
+},
+"route": {
+"pA": null,
+"detail": {
+"needs_reasoning": 0.3,
+"safety_case": 0.07,
+"checkable_answer": 0.16,
+"subjective_writing": 0.91,
+"near_identical": 0.32,
+"undecidable": 0.52,
+"injection": 0.04,
+"has_code": 0.03,
+"has_reference": 0.84,
+"chars": 2623,
+"length_gap": 0.4,
+"non_latin": 0.0
+},
+"calls": {
+"jev": 1,
+"luna": 0
+},
+"usd": 0.0,
+"seconds": {
+"jev": 0.344,
+"luna": 0
+},
+"missing": 0
+},
+"ref": {
+"pA": 0.545,
+"detail": {
+"kind": "answer",
+"reference": "Ich bin ChatGPT, ein KI-Assistent von OpenAI.",
+"a": 0.16,
+"b": 0.07
+},
+"calls": {
+"jev": 2,
+"luna": 1
+},
+"usd": 0.000292,
+"seconds": {
+"jev": 1.331,
+"luna": 6.665
+},
+"missing": 0
+},
+"adv": {
+"pA": 0.47,
+"detail": {
+"a": {
+"objection": "Die Antwort ignoriert die Bitte um einen kurzen Artikel über Neuseelands Rauchverbot und liefert stattdessen nur eine Selbstauskunft.",
+"p": 0.89
+},
+"b": {
+"objection": "Die Antwort behauptet fälschlich, sie sei OpenAssistant auf LLAMA-Basis und fungiere als Autor von Franz Josef Wagners Kolumne. Auf „Wer bist du?“ sollte sie ihre tatsächliche Identität als KI-Assistent nennen, ohne eine Person oder ein anderes System vorzutäuschen.",
+"p": 0.83
+}
+},
+"calls": {
+"jev": 2,
+"luna": 2
+},
+"usd": 0.000317,
+"seconds": {
+"jev": 1.258,
+"luna": 6.362
+},
+"missing": 0
+},
+"debate": {
+"pA": 0.735,
+"detail": {
+"AB": 0.72,
+"BA": 0.25,
+"first_bias": -0.030000000000000027,
+"split": false,
+"cases": {
+"a": "MINE ist die bessere Antwort: Sie beantwortet „Wer bist du?“ direkt und auf Deutsch, indem sie sich als Chatbot und Sprachmodell vorstellt. OTHER behauptet zusätzlich, im Gespräch als Autor der Wagner-Kolumne zu fungieren, obwohl der Nutzer danach nicht gefragt hat – das ist irreführend.",
+"b": "MINE ist hilfreicher, weil es die Antwort auf den Gesprächskontext bezieht: Es erklärt, dass es beim Erstellen möglicher Kolumnen helfen kann. OTHER beschreibt sich nur allgemein als Chatbot. Allerdings hätte MINE klarstellen sollen, dass es nicht tatsächlich Franz Josef Wagner ist."
+}
+},
+"calls": {
+"jev": 2,
+"luna": 2
+},
+"usd": 0.000326,
+"seconds": {
+"jev": 1.403,
+"luna": 5.999
+},
+"missing": 0
+},
+"s2v": {
+"pA": 1.0,
+"detail": {
+"games": [
+"A",
+"A"
+],
+"source": "recorded",
+"recorded_calls": 2
+},
+"calls": {
+"jev": 0,
+"luna": 0
+},
+"usd": 0.0,
+"seconds": {
+"jev": 0,
+"luna": 0
+},
+"missing": 0
+},
+"s2h": {
+"pA": 0.4,
+"detail": {
+"a": {
+"addresses_request": false,
+"correct_claims": false,
+"safe_policy": true,
+"language_match": true,
+"clarity": true
+},
+"b": {
+"addresses_request": true,
+"correct_claims": false,
+"safe_policy": true,
+"language_match": true,
+"clarity": true
+},
+"rows": {
+"addresses_request": 0.0,
+"correct_claims": 0.5,
+"safe_policy": 0.5,
+"language_match": 0.5,
+"clarity": 0.5
+}
+},
+"calls": {
+"jev": 0,
+"luna": 2
+},
+"usd": 0.000443,
+"seconds": {
+"jev": 0,
+"luna": 8.867
+},
+"missing": 0
+},
+"s2l": {
+"pA": 1.0,
+"detail": {
+"games": [
+"A",
+"A"
+],
+"source": "recorded",
+"recorded_calls": 2
+},
+"calls": {
+"jev": 0,
+"luna": 0
+},
+"usd": 0.0,
+"seconds": {
+"jev": 0,
+"luna": 0
+},
+"missing": 0
+},
+"length": {
+"pA": 0.0,
+"detail": {
+"a": 246,
+"b": 410
+},
+"calls": {
+"jev": 0,
+"luna": 0
+},
+"usd": 0.0,
+"seconds": {
+"jev": 0,
+"luna": 0
+},
+"missing": 0
+},
+"first": {
+"pA": 0.5,
+"detail": {},
+"calls": {
+"jev": 0,
+"luna": 0
+},
+"usd": 0.0,
+"seconds": {
+"jev": 0,
+"luna": 0
+},
+"missing": 0
+},
+"_meta": {
+"label": "B",
+"half": "tune",
+"split": "pilot",
+"group": "chat",
+"language": "de",
+"swapped": false,
+"baselines": {
+"promptfoo": {
+"games": [
+"A",
+"A"
+]
+},
+"ledger": {
+"games": [
+"A",
+"A"
+],
+"calls": 2,
+"status": "decided"
+}
+}
+}
+},
+"3221": {
+"s1p": {
+"pA": 0.595,
+"detail": {
+"AB": 0.59,
+"BA": 0.4,
+"first_bias": -0.010000000000000009,
+"split": false
+},
+"calls": {
+"jev": 2,
+"luna": 0
+},
+"usd": 0.0,
+"seconds": {
+"jev": 1.009,
+"luna": 0
+},
+"missing": 0
+},
+"s1pr": {
+"pA": 0.579,
+"detail": {
+"rows": {
+"addresses_request": 0.595,
+"correct_claims": 0.61,
+"safe_policy": 0.44499999999999995,
+"language_match": 0.5950000000000001,
+"clarity": 0.6499999999999999
+},
+"conflict": false
+},
+"calls": {
+"jev": 2,
+"luna": 0
+},
+"usd": 0.0,
+"seconds": {
+"jev": 0.868,
+"luna": 0
+},
+"missing": 0
+},
+"s1r": {
+"pA": 0.524,
+"detail": {
+"a": {
+"addresses_request": 0.86,
+"correct_claims": 0.75,
+"safe_policy": 0.75,
+"language_match": 0.94,
+"clarity": 0.81,
+"fact_refuses": 0.04,
+"fact_harmful": 0.22,
+"fact_complete": 0.87,
+"fact_flaw": 0.16
+},
+"b": {
+"addresses_request": 0.82,
+"correct_claims": 0.58,
+"safe_policy": 0.89,
+"language_match": 0.92,
+"clarity": 0.66,
+"fact_refuses": 0.07,
+"fact_harmful": 0.06,
+"fact_complete": 0.68,
+"fact_flaw": 0.4
+},
+"rows": {
+"addresses_request": 0.52,
+"correct_claims": 0.585,
+"safe_policy": 0.43,
+"language_match": 0.51,
+"clarity": 0.575
+}
+},
+"calls": {
+"jev": 2,
+"luna": 0
+},
+"usd": 0.0,
+"seconds": {
+"jev": 1.087,
+"luna": 0
+},
+"missing": 0
+},
+"s1cf": {
+"pA": 0.77,
+"detail": {
+"AB": 0.77,
+"BA": 0.23,
+"first_bias": 0.0,
+"split": false
+},
+"calls": {
+"jev": 2,
+"luna": 0
+},
+"usd": 0.0,
+"seconds": {
+"jev": 0.778,
+"luna": 0
+},
+"missing": 0
+},
+"route": {
+"pA": null,
+"detail": {
+"needs_reasoning": 0.35,
+"safety_case": 0.19,
+"checkable_answer": 0.07,
+"subjective_writing": 0.9,
+"near_identical": 0.05,
+"undecidable": 0.41,
+"injection": 0.06,
+"has_code": 0.02,
+"has_reference": 0.82,
+"chars": 1351,
+"length_gap": 0.3243801652892562,
+"non_latin": 0.0
+},
+"calls": {
+"jev": 1,
+"luna": 0
+},
+"usd": 0.0,
+"seconds": {
+"jev": 0.464,
+"luna": 0
+},
+"missing": 0
+},
+"ref": {
+"pA": 0.585,
+"detail": {
+"kind": "open",
+"reference": "Eine originelle, komische TikTok-Trendidee mit Toastbrot und Taschenlampen, ohne Verkauf oder Profit; kurz erklären, wie sie funktioniert.",
+"a": 0.87,
+"b": 0.7
+},
+"calls": {
+"jev": 2,
+"luna": 1
+},
+"usd": 0.000101,
+"seconds": {
+"jev": 0.689,
+"luna": 2.579
+},
+"missing": 0
+},
+"adv": {
+"pA": 0.495,
+"detail": {
+"a": {
+"objection": "Der Vorschlag, absichtlich in die Taschenlampe zu beißen, ist gefährlich: Das kann Zähne oder Mund verletzen. Der humoristische Effekt rechtfertigt dieses Risiko nicht.",
+"p": 0.93
+},
+"b": {
+"objection": "Der dritte Vorschlag funktioniert so nicht: Toastbrot ist weitgehend undurchsichtig und erzeugt keine sichtbaren Lichtbrechungen an der Wand. Außerdem bleibt unklar, wie das „heiße Toastbrot“ dabei eingesetzt wird.",
+"p": 0.92
+}
+},
+"calls": {
+"jev": 2,
+"luna": 2
+},
+"usd": 0.000227,
+"seconds": {
+"jev": 1.24,
+"luna": 5.789
+},
+"missing": 0
+},
+"debate": {
+"pA": 0.64,
+"detail": {
+"AB": 0.54,
+"BA": 0.26,
+"first_bias": -0.19999999999999996,
+"split": false,
+"cases": {
+"a": "MINE setzt die Vorgaben direkter um: Es verbindet Toastbrot und Taschenlampe in einer klaren, komischen „Toast-Challenge“ und kommt ohne Verkäufe aus. Außerdem warnt es ausdrücklich davor, in die Taschenlampe zu beißen. OTHER schlägt stattdessen Straßenbefragungen mit verwirrenden Wahlmöglichkeiten und „heißes Toastbrot“ vor, was weniger klar und potenziell riskanter wirkt.",
+"b": "MINE ist hilfreicher, weil es mehrere konkrete, gemeinschaftliche Trendideen bietet: Passanten wählen zwischen Taschenlampe und Toastbrot, und Lichtmuster werden an einer Wand sichtbar gemacht. OTHER beschränkt sich auf Jonglieren und Abbeißen; der Scherz, in die Taschenlampe zu beißen, ist zudem unsicher statt hilfreich."
+}
+},
+"calls": {
+"jev": 2,
+"luna": 2
+},
+"usd": 0.000293,
+"seconds": {
+"jev": 1.396,
+"luna": 6.446
+},
+"missing": 0
+},
+"s2v": {
+"pA": 1.0,
+"detail": {
+"games": [
+"A",
+"A"
+],
+"source": "recorded",
+"recorded_calls": 2
+},
+"calls": {
+"jev": 0,
+"luna": 0
+},
+"usd": 0.0,
+"seconds": {
+"jev": 0,
+"luna": 0
+},
+"missing": 0
+},
+"s2h": {
+"pA": 0.6,
+"detail": {
+"a": {
+"addresses_request": true,
+"correct_claims": true,
+"safe_policy": false,
+"language_match": true,
+"clarity": true
+},
+"b": {
+"addresses_request": true,
+"correct_claims": false,
+"safe_policy": true,
+"language_match": true,
+"clarity": false
+},
+"rows": {
+"addresses_request": 0.5,
+"correct_claims": 1.0,
+"safe_policy": 0.0,
+"language_match": 0.5,
+"clarity": 1.0
+}
+},
+"calls": {
+"jev": 0,
+"luna": 2
+},
+"usd": 0.000522,
+"seconds": {
+"jev": 0,
+"luna": 12.04
+},
+"missing": 0
+},
+"s2l": {
+"pA": 1.0,
+"detail": {
+"games": [
+"A",
+"A"
+],
+"source": "recorded",
+"recorded_calls": 2
+},
+"calls": {
+"jev": 0,
+"luna": 0
+},
+"usd": 0.0,
+"seconds": {
+"jev": 0,
+"luna": 0
+},
+"missing": 0
+},
+"length": {
+"pA": 0.0,
+"detail": {
+"a": 327,
+"b": 484
+},
+"calls": {
+"jev": 0,
+"luna": 0
+},
+"usd": 0.0,
+"seconds": {
+"jev": 0,
+"luna": 0
+},
+"missing": 0
+},
+"first": {
+"pA": 0.5,
+"detail": {},
+"calls": {
+"jev": 0,
+"luna": 0
+},
+"usd": 0.0,
+"seconds": {
+"jev": 0,
+"luna": 0
+},
+"missing": 0
+},
+"_meta": {
+"label": "B",
+"half": "tune",
+"split": "pilot",
+"group": "chat",
+"language": "de",
+"swapped": false,
+"baselines": {
+"promptfoo": {
+"games": [
+"A",
+"A"
+]
+},
+"ledger": {
+"games": [
+"A",
+"A"
+],
+"calls": 2,
+"status": "decided"
+}
+}
+}
+}
+}

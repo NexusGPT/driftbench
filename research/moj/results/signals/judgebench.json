@@ -1,0 +1,638 @@
+{
+"cae46f34-3909-5086-9b39-dd0aa53e4063": {
+"s1p": {
+"pA": 0.37,
+"detail": {
+"AB": 0.48,
+"BA": 0.74,
+"first_bias": 0.21999999999999997,
+"split": false
+},
+"calls": {
+"jev": 2,
+"luna": 0
+},
+"usd": 0.0,
+"seconds": {
+"jev": 2.601,
+"luna": 0
+},
+"missing": 0
+},
+"s1pr": {
+"pA": 0.37999999999999995,
+"detail": {
+"rows": {
+"final_correct": 0.365,
+"format_followed": 0.43999999999999995,
+"derivation_sound": 0.33499999999999996
+},
+"conflict": false
+},
+"calls": {
+"jev": 2,
+"luna": 0
+},
+"usd": 0.0,
+"seconds": {
+"jev": 2.594,
+"luna": 0
+},
+"missing": 0
+},
+"s1r": {
+"pA": 0.49833333333333335,
+"detail": {
+"a": {
+"final_correct": 0.92,
+"format_followed": 0.86,
+"derivation_sound": 0.93,
+"fact_refuses": 0.02,
+"fact_harmful": 0.01,
+"fact_complete": 0.95,
+"fact_flaw": 0.08
+},
+"b": {
+"final_correct": 0.95,
+"format_followed": 0.82,
+"derivation_sound": 0.95,
+"fact_refuses": 0.02,
+"fact_harmful": 0.01,
+"fact_complete": 0.93,
+"fact_flaw": 0.07
+},
+"rows": {
+"final_correct": 0.48500000000000004,
+"format_followed": 0.52,
+"derivation_sound": 0.49000000000000005
+}
+},
+"calls": {
+"jev": 2,
+"luna": 0
+},
+"usd": 0.0,
+"seconds": {
+"jev": 2.622,
+"luna": 0
+},
+"missing": 0
+},
+"s1cf": {
+"pA": 0.04500000000000004,
+"detail": {
+"AB": 0.04,
+"BA": 0.95,
+"first_bias": -0.010000000000000009,
+"split": false
+},
+"calls": {
+"jev": 2,
+"luna": 0
+},
+"usd": 0.0,
+"seconds": {
+"jev": 2.609,
+"luna": 0
+},
+"missing": 0
+},
+"route": {
+"pA": null,
+"detail": {
+"needs_reasoning": 0.98,
+"safety_case": 0.03,
+"checkable_answer": 0.95,
+"subjective_writing": 0.02,
+"near_identical": 0.22,
+"undecidable": 0.11,
+"injection": 0.18,
+"has_code": 0.03,
+"has_reference": 0.89,
+"chars": 4918,
+"length_gap": 0.20407315045719035,
+"non_latin": 0.0
+},
+"calls": {
+"jev": 1,
+"luna": 0
+},
+"usd": 0.0,
+"seconds": {
+"jev": 1.192,
+"luna": 0
+},
+"missing": 0
+},
+"ref": {
+"pA": 0.9450000000000001,
+"detail": {
+"kind": "answer",
+"reference": "DDDDD",
+"a": 0.98,
+"b": 0.09
+},
+"calls": {
+"jev": 2,
+"luna": 1
+},
+"usd": 0.000105,
+"seconds": {
+"jev": 1.318,
+"luna": 2.882
+},
+"missing": 0
+},
+"adv": {
+"pA": 0.9450000000000001,
+"detail": {
+"a": {
+"objection": "NO OBJECTION",
+"p": 0.0
+},
+"b": {
+"objection": "The first equation is simplified incorrectly: it gives \\(S=10n-n^2\\), not \\(11n-n^2\\). The correct mean is \\(7\\), so the requested string is DDDDD.",
+"p": 0.89
+}
+},
+"calls": {
+"jev": 1,
+"luna": 2
+},
+"usd": 0.000815,
+"seconds": {
+"jev": 0.441,
+"luna": 13.994
+},
+"missing": 0
+},
+"debate": {
+"pA": 0.535,
+"detail": {
+"AB": 0.51,
+"BA": 0.44,
+"first_bias": -0.050000000000000044,
+"split": false,
+"cases": {
+"a": "MINE is correct: its first scenario correctly yields \\(S=10n-n^2\\), and combining that with the three-quiz condition gives \\(n=3\\), total \\(S=21\\), and current mean \\(7\\) (choice D, “DDDDD”). OTHER omits the \\(+n\\) term in its first-scenario algebra, leading to the incorrect mean of 5.",
+"b": "MINE is not the better reply on correctness. It drops the \\(+n\\) term in its first equation, leading to \\(S=11n-n^2\\). The correct equation gives \\(S=10n-n^2\\), and using the second scenario yields a current mean of \\(7\\), as OTHER concludes."
+}
+},
+"calls": {
+"jev": 2,
+"luna": 2
+},
+"usd": 0.00084,
+"seconds": {
+"jev": 1.415,
+"luna": 9.018
+},
+"missing": 0
+},
+"s2v": {
+"pA": 1.0,
+"detail": {
+"games": [
+"A",
+"A"
+],
+"source": "recorded",
+"recorded_calls": 2
+},
+"calls": {
+"jev": 0,
+"luna": 0
+},
+"usd": 0.0,
+"seconds": {
+"jev": 0,
+"luna": 0
+},
+"missing": 0
+},
+"s2h": {
+"pA": 0.5,
+"detail": {
+"a": {
+"final_correct": true,
+"format_followed": false,
+"derivation_sound": true
+},
+"b": {
+"final_correct": true,
+"format_followed": false,
+"derivation_sound": true
+},
+"rows": {
+"final_correct": 0.5,
+"format_followed": 0.5,
+"derivation_sound": 0.5
+}
+},
+"calls": {
+"jev": 0,
+"luna": 2
+},
+"usd": 0.000613,
+"seconds": {
+"jev": 0,
+"luna": 8.205
+},
+"missing": 0
+},
+"s2l": {
+"pA": 1.0,
+"detail": {
+"games": [
+"A",
+"A"
+],
+"source": "recorded",
+"recorded_calls": 2
+},
+"calls": {
+"jev": 0,
+"luna": 0
+},
+"usd": 0.0,
+"seconds": {
+"jev": 0,
+"luna": 0
+},
+"missing": 0
+},
+"length": {
+"pA": 1.0,
+"detail": {
+"a": 2406,
+"b": 1915
+},
+"calls": {
+"jev": 0,
+"luna": 0
+},
+"usd": 0.0,
+"seconds": {
+"jev": 0,
+"luna": 0
+},
+"missing": 0
+},
+"first": {
+"pA": 0.5,
+"detail": {},
+"calls": {
+"jev": 0,
+"luna": 0
+},
+"usd": 0.0,
+"seconds": {
+"jev": 0,
+"luna": 0
+},
+"missing": 0
+},
+"_meta": {
+"label": "A",
+"half": "tune",
+"split": "pilot",
+"group": "livebench",
+"language": "en",
+"swapped": false,
+"baselines": {
+"promptfoo": {
+"games": [
+"A",
+"A"
+]
+},
+"ledger": {
+"games": [
+"A",
+"A"
+],
+"calls": 2,
+"status": "decided"
+}
+}
+}
+},
+"c5d13fd8-9d91-5e82-9ac9-3d5b372ea856": {
+"s1p": {
+"pA": 0.76,
+"detail": {
+"AB": 0.73,
+"BA": 0.21,
+"first_bias": -0.06000000000000005,
+"split": false
+},
+"calls": {
+"jev": 2,
+"luna": 0
+},
+"usd": 0.0,
+"seconds": {
+"jev": 2.592,
+"luna": 0
+},
+"missing": 0
+},
+"s1pr": {
+"pA": 0.7266666666666667,
+"detail": {
+"rows": {
+"final_correct": 0.765,
+"format_followed": 0.685,
+"derivation_sound": 0.73
+},
+"conflict": false
+},
+"calls": {
+"jev": 2,
+"luna": 0
+},
+"usd": 0.0,
+"seconds": {
+"jev": 2.607,
+"luna": 0
+},
+"missing": 0
+},
+"s1r": {
+"pA": 0.5683333333333334,
+"detail": {
+"a": {
+"final_correct": 0.88,
+"format_followed": 0.55,
+"derivation_sound": 0.72,
+"fact_refuses": 0.02,
+"fact_harmful": 0.01,
+"fact_complete": 0.9,
+"fact_flaw": 0.13
+},
+"b": {
+"final_correct": 0.65,
+"format_followed": 0.48,
+"derivation_sound": 0.61,
+"fact_refuses": 0.02,
+"fact_harmful": 0.02,
+"fact_complete": 0.57,
+"fact_flaw": 0.6
+},
+"rows": {
+"final_correct": 0.615,
+"format_followed": 0.535,
+"derivation_sound": 0.5549999999999999
+}
+},
+"calls": {
+"jev": 2,
+"luna": 0
+},
+"usd": 0.0,
+"seconds": {
+"jev": 2.606,
+"luna": 0
+},
+"missing": 0
+},
+"s1cf": {
+"pA": 0.85,
+"detail": {
+"AB": 0.86,
+"BA": 0.16,
+"first_bias": 0.020000000000000018,
+"split": false
+},
+"calls": {
+"jev": 2,
+"luna": 0
+},
+"usd": 0.0,
+"seconds": {
+"jev": 2.679,
+"luna": 0
+},
+"missing": 0
+},
+"route": {
+"pA": null,
+"detail": {
+"needs_reasoning": 0.86,
+"safety_case": 0.02,
+"checkable_answer": 0.66,
+"subjective_writing": 0.02,
+"near_identical": 0.88,
+"undecidable": 0.37,
+"injection": 0.03,
+"has_code": 0.91,
+"has_reference": 0.86,
+"chars": 2266,
+"length_gap": 0.10762331838565023,
+"non_latin": 0.0
+},
+"calls": {
+"jev": 1,
+"luna": 0
+},
+"usd": 0.0,
+"seconds": {
+"jev": 0.845,
+"luna": 0
+},
+"missing": 0
+},
+"ref": {
+"pA": 0.465,
+"detail": {
+"kind": "open",
+"reference": "Explain a greedy scan: match each str2 character, in order, to the earliest remaining str1 character that already equals it or becomes it after one cyclic increment; return whether all of str2 is matched. Include O(n+m) time and O(1) space.",
+"a": 0.5,
+"b": 0.57
+},
+"calls": {
+"jev": 2,
+"luna": 1
+},
+"usd": 0.000178,
+"seconds": {
+"jev": 0.727,
+"luna": 4.728
+},
+"missing": 0
+},
+"adv": {
+"pA": 0.99,
+"detail": {
+"a": {
+"objection": "NO OBJECTION",
+"p": 0.0
+},
+"b": {
+"objection": "The code uses `str1.length` and `str2.length`, but Python strings have no `.length` attribute, so the method raises `AttributeError`. Use `len(str1)` and `len(str2)`.",
+"p": 0.98
+}
+},
+"calls": {
+"jev": 1,
+"luna": 2
+},
+"usd": 0.000229,
+"seconds": {
+"jev": 0.479,
+"luna": 5.216
+},
+"missing": 0
+},
+"debate": {
+"pA": 0.515,
+"detail": {
+"AB": 0.25,
+"BA": 0.22,
+"first_bias": -0.53,
+"split": true,
+"cases": {
+"a": "MINE is correct Python: it uses `len(str1)` and `len(str2)` and greedily matches each target character either directly or by one cyclic increment. OTHER uses `str1.length` and `str2.length`, attributes Python strings do not have, so it raises an error instead of returning an answer.",
+"b": "OTHER is more correct: it uses Python’s `len()` and checks `j < m` before accessing `str2[j]`. MINE uses `str1.length` and `str2.length`, which are not valid Python string attributes, so it raises an error instead of returning the answer."
+}
+},
+"calls": {
+"jev": 2,
+"luna": 2
+},
+"usd": 0.00038,
+"seconds": {
+"jev": 0.904,
+"luna": 7.001
+},
+"missing": 0
+},
+"s2v": {
+"pA": 1.0,
+"detail": {
+"games": [
+"A",
+"A"
+],
+"source": "recorded",
+"recorded_calls": 2
+},
+"calls": {
+"jev": 0,
+"luna": 0
+},
+"usd": 0.0,
+"seconds": {
+"jev": 0,
+"luna": 0
+},
+"missing": 0
+},
+"s2h": {
+"pA": 0.8333333333333334,
+"detail": {
+"a": {
+"final_correct": true,
+"format_followed": true,
+"derivation_sound": true
+},
+"b": {
+"final_correct": false,
+"format_followed": true,
+"derivation_sound": false
+},
+"rows": {
+"final_correct": 1.0,
+"format_followed": 0.5,
+"derivation_sound": 1.0
+}
+},
+"calls": {
+"jev": 0,
+"luna": 2
+},
+"usd": 0.000388,
+"seconds": {
+"jev": 0,
+"luna": 7.939
+},
+"missing": 0
+},
+"s2l": {
+"pA": 1.0,
+"detail": {
+"games": [
+"A",
+"A"
+],
+"source": "recorded",
+"recorded_calls": 2
+},
+"calls": {
+"jev": 0,
+"luna": 0
+},
+"usd": 0.0,
+"seconds": {
+"jev": 0,
+"luna": 0
+},
+"missing": 0
+},
+"length": {
+"pA": 0.0,
+"detail": {
+"a": 398,
+"b": 446
+},
+"calls": {
+"jev": 0,
+"luna": 0
+},
+"usd": 0.0,
+"seconds": {
+"jev": 0,
+"luna": 0
+},
+"missing": 0
+},
+"first": {
+"pA": 0.5,
+"detail": {},
+"calls": {
+"jev": 0,
+"luna": 0
+},
+"usd": 0.0,
+"seconds": {
+"jev": 0,
+"luna": 0
+},
+"missing": 0
+},
+"_meta": {
+"label": "A",
+"half": "tune",
+"split": "pilot",
+"group": "livecodebench",
+"language": "en",
+"swapped": true,
+"baselines": {
+"promptfoo": {
+"games": [
+"A",
+"A"
+]
+},
+"ledger": {
+"games": [
+"A",
+"A"
+],
+"calls": 2,
+"status": "decided"
+}
+}
+}
+}
+}

@@ -1,0 +1,7 @@
+{
+  "name": "r0-s1p-only",
+  "note": "Round 0. System-1 pairwise alone, no escalation.",
+  "stage1": ["s1p"],
+  "hi": 0.0,
+  "lo": 0.0
+}

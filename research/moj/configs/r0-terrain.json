@@ -1,0 +1,14 @@
+{
+  "name": "r0-terrain",
+  "note": "Round 0. Terrain router: capability cards pick the expert added at the middle level; the low level adds the System-2 verdict.",
+  "stage1": ["s1p"],
+  "hi": 0.85,
+  "lo": 0.65,
+  "cards": [
+    {"expert": "ref", "terrain": {"checkable_answer": 0.6}},
+    {"expert": "ref", "terrain": {"safety_case": 0.6}},
+    {"expert": "s1cf", "terrain": {"length_gap": 0.5}},
+    {"expert": "s1r", "terrain": {}}
+  ],
+  "low": ["s2v"]
+}
