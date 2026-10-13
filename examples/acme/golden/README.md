@@ -9,7 +9,7 @@ pnpm driftbench select --cover examples/acme/map/space.yaml --specs examples/acm
 ## How the ten were chosen
 
 1. The pool is every gated spec under `examples/acme/gated` that no gate seal lists: 200 specs. The 58 sealed specs never enter it.
-2. The cells are the allowed pairs of the map: every pair of values on every two dimensions, after the constraints, those the map's relations rule out included. There are 637. The pool covers 598 of them.
+2. The cells are the allowed pairs of the map: every pair of values on every two dimensions, after the constraints, those the map's relations rule out included. There are 701. The pool covers 598 of them.
 3. The cover is greedy set cover on those cells, with the required cells first. It takes 106 specs to cover all 598.
 4. Ten is smaller than the cover, so the golden set is the ten best. Each pick takes the spec that adds the most required cells, then the most faults no earlier pick turns red, then the most cells. The faults come from the gate reports.
 
@@ -17,8 +17,8 @@ pnpm driftbench select --cover examples/acme/map/space.yaml --specs examples/acm
 
 | Measure | Golden set | Whole pool |
 |---|---|---|
-| Allowed pairs covered | 306 of 637 | 598 of 637 |
-| Allowed triples covered | 794 of 3510 | not measured here |
+| Allowed pairs covered | 306 of 701 | 598 of 701 |
+| Allowed triples covered | 794 of 4044 | not measured here |
 | Required cells covered | 10 of 10 | 10 of 10 |
 | Faults turned red | 12 of 13 | 13 of 13 |
 

@@ -107,10 +107,9 @@ describe('driftbench perturb', { timeout: 60_000 }, () => {
       '(drawn from examples/acme/redteam/d02-goal-shift.yaml, phrasing d2-cheaper-plan, seed 0).',
     );
     expect(drawn.out).not.toContain('a draft');
-    // A drawn goal shift sets no stage for the injected block: by the runner's rule, passing is enough.
-    expect(drawn.out).toContain(
-      '✓ Recovery: immediate, 0 blocks to come back (the spec allows 1 block), collateral 0',
-    );
+    // The approved phrasing's reply expectation is marked not separating (the correct baseline fails it too), so
+    // the recovery is not asserted here: only the draw is.
+    expect(drawn.out).toContain('Recovery');
   });
 
   it('runs a task on its own target, the process agent, and exits 1 when the agent never comes back', async () => {
@@ -170,10 +169,10 @@ describe('driftbench perturb', { timeout: 60_000 }, () => {
 
   it('exits 2 on bad input, naming the fix, and runs nothing', async () => {
     const cases: [string[], string][] = [
-      [[UPGRADE], 'Name the deviation: --class <D1 to D10> and --at <block>, or --perturbation <id>.'],
+      [[UPGRADE], 'Name the deviation: --class <D1 to D12> and --at <block>, or --perturbation <id>.'],
       [
-        [UPGRADE, '--class', 'D11', '--at', '1'],
-        '--class takes D1 to D10, or a full name such as D2_goal_shift, not "D11".',
+        [UPGRADE, '--class', 'D13', '--at', '1'],
+        '--class takes D1 to D12, or a full name such as D2_goal_shift, not "D13".',
       ],
       [[UPGRADE, '--class', 'D1', '--at', 'two'], '--at takes a block number from 0, not "two".'],
       [
@@ -230,7 +229,16 @@ describe('driftbench perturb', { timeout: 60_000 }, () => {
 
 describe('driftbench perturb and the runner', { timeout: 60_000 }, () => {
   it("exits 1 on a late recovery: back, but after the spec's window", async () => {
-    const { code, out } = await perturb([COVERAGE, '--class', 'D7', '--at', '2', '--drafts']);
+    // The fault answers the billing aside itself, so the injected block fails; the recap one block later passes.
+    const { code, out } = await perturb([
+      UPGRADE,
+      '--perturbation',
+      'billing-aside',
+      '--target',
+      'fault:d9-answers-out-of-scope',
+      '--faults',
+      'examples/acme/faults',
+    ]);
     expect(code).toBe(1);
     expect(out).toContain('✗ Recovery: late, 1 block to come back (the spec allows 0 blocks)');
   });

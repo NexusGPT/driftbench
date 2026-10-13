@@ -469,7 +469,7 @@ describe('the committed suite', () => {
         line.startsWith('  - {') ? line.replace('status: proposed', 'status: approved') : line,
       ),
     );
-    expect(approved.filter((line) => line.startsWith('  - {'))).toHaveLength(1383);
+    expect(approved.filter((line) => line.startsWith('  - {'))).toHaveLength(1568);
     expect(approved.filter((line) => line.startsWith('  - {') && !line.includes('status: approved'))).toEqual(
       [],
     );
@@ -481,11 +481,11 @@ describe('the committed suite', () => {
     expect(Object.keys(committed).sort()).toEqual(result.files.map((file) => file.path).sort());
     for (const file of result.files) expect(committed[file.path], file.path).toBe(file.text);
     expect(result.report.summary).toEqual({
-      specs: 1383,
-      blocks: 1378,
-      complete: 1200,
-      incomplete: 183,
-      judged: 312,
+      specs: 1568,
+      blocks: 1563,
+      complete: 1360,
+      incomplete: 208,
+      judged: 348,
     });
     expect(result.report.invalid).toEqual([]);
     expect(result.report.lint).toEqual([]);

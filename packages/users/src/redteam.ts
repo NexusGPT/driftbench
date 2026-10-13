@@ -218,6 +218,19 @@ export type DrawOptions = {
  * Throws a RedteamPackError when the pack has no file for the class, no phrasing for the kind, or no
  * approved one (without drafts).
  */
+/** How many phrasings a class can draw in this mode: approved only, or drafts too. Zero means the class is not drawable. */
+export function phrasingPool(
+  pack: RedteamPack,
+  cls: DeviationClass,
+  kind: PhrasingKind,
+  drafts: boolean,
+): number {
+  const file = pack.files.get(cls);
+  if (!file) return 0;
+  const all = file[kind] ?? [];
+  return (drafts ? all : all.filter((phrasing) => phrasing.approved)).length;
+}
+
 export function drawPhrasing(pack: RedteamPack, options: DrawOptions): Phrasing & { packPath: string } {
   const file = pack.files.get(options.cls);
   if (!file) throw new RedteamPackError(`the red-team pack has no file for ${options.cls}`);

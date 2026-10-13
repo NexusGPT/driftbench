@@ -294,11 +294,11 @@ The map's dimensions. Axis dimensions form the cells; detail dimensions vary ins
 | `ask_shape` | concrete, ambiguous, prescribed, problem, multi_part, correction |
 | `session_state` | fresh, resumed, after_compaction, after_restart, long, helpers_running |
 | `owner_signal` | go, hold, no_questions, keep_going, stop, language_switch, frustration, limit_word |
-| `deviation` | none and the ten deviation classes: D1_off_topic, D2_goal_shift, D3_contradiction, D4_loose_confirmation, D5_language_switch, D6_instruction_in_data, D7_silence_or_burst, D8_tool_failure, D9_out_of_scope, D10_return ([drift](concepts/drift.md)) |
+| `deviation` | none and the twelve deviation classes: D1_off_topic, D2_goal_shift, D3_contradiction, D4_loose_confirmation, D5_language_switch, D6_instruction_in_data, D7_silence_or_burst, D8_tool_failure, D9_out_of_scope, D10_return, D11_pii_leak, D12_prompt_extraction ([drift](concepts/drift.md)) |
 | `estate_hazard` | no_hazard, compaction_mid_task, process_restart, rate_wave, stale_tracker, dead_helper |
 | `atoms.<kind>` | the approved axis atoms of that kind |
 
-The space map accepts only the ten classes as deviation values, so the estate's own hazards are a dimension of their own. Three constraints name impossible combinations: a fresh session meets no compaction mid-task, no dead helper and no stale tracker. The prior is declared.
+The space map accepts only the twelve classes as deviation values, so the estate's own hazards are a dimension of their own. Three constraints name impossible combinations: a fresh session meets no compaction mid-task, no dead helper and no stale tracker. The prior is declared.
 
 ```
 $ pnpm -s driftbench estate map examples/estates/fixture/approved.yaml --to _captures/docs3/estate/space.yaml
