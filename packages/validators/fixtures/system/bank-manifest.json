@@ -3698,7 +3698,7 @@
       "level": 1,
       "source": "adversarial",
       "component": "driftbench view",
-      "cause": "driftbench view: the full Host, Origin, Referer and token-location matrix follows the documented write rule"
+      "cause": "driftbench view: every discovered write route obeys the method, Host, Origin, Referer and token matrix without refused writes"
     },
     {
       "id": "breaker2/viewer/label-path-traversal",

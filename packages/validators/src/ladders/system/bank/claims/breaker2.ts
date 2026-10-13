@@ -3264,6 +3264,136 @@ add(
   },
 );
 
+// These helpers belong to the write-protection item, not the other viewer contracts.
+function viewerHtmlText(value: string): string {
+  return value.replace(/&(#x[\da-f]+|#\d+|amp|quot|apos|lt|gt);/gi, (_, entity: string) => {
+    if (entity.startsWith('#')) {
+      return String.fromCodePoint(
+        entity[1]?.toLowerCase() === 'x' ? Number.parseInt(entity.slice(2), 16) : Number(entity.slice(1)),
+      );
+    }
+    return ({ amp: '&', quot: '"', apos: "'", lt: '<', gt: '>' } as Record<string, string>)[entity] ?? entity;
+  });
+}
+
+function viewerAttributes(tag: string): Record<string, string> {
+  return Object.fromEntries(
+    [...tag.matchAll(/\s([\w-]+)(?:\s*=\s*(?:"([^"]*)"|'([^']*)'|([^\s>]+)))?/g)].map((match) => [
+      (match[1] as string).toLowerCase(),
+      viewerHtmlText(match[2] ?? match[3] ?? match[4] ?? ''),
+    ]),
+  );
+}
+
+type ViewerForm = {
+  page: string;
+  index: number;
+  action: string;
+  method: string;
+  fields: Record<string, string>;
+};
+
+/** Submit the generated HTML controls, choosing the first offered radio when none is checked. */
+function viewerForms(html: string, page: string, base: string): ViewerForm[] {
+  return [...html.matchAll(/<form\b[^>]*>([\s\S]*?)<\/form>/gi)].map((match, index) => {
+    const attrs = viewerAttributes(match[0].slice(0, match[0].indexOf('>') + 1));
+    const action = new URL(attrs.action ?? page, base + page);
+    if (action.origin !== base) throw new Error('viewer form action must stay on its own origin');
+    const fields: Record<string, string> = {};
+    const body = match[1] as string;
+    for (const input of body.matchAll(/<input\b[^>]*>/gi)) {
+      const a = viewerAttributes(input[0]);
+      if (!a.name || 'disabled' in a || ['submit', 'button', 'reset', 'file'].includes(a.type ?? ''))
+        continue;
+      if (a.type === 'checkbox' && !('checked' in a)) continue;
+      if (a.type === 'radio' && a.name in fields && !('checked' in a)) continue;
+      fields[a.name] = a.value ?? (a.type === 'checkbox' ? 'on' : '');
+    }
+    for (const select of body.matchAll(/<select\b[^>]*>([\s\S]*?)<\/select>/gi)) {
+      const a = viewerAttributes(select[0].slice(0, select[0].indexOf('>') + 1));
+      if (!a.name || 'disabled' in a) continue;
+      const options = [...(select[1] as string).matchAll(/<option\b[^>]*>([\s\S]*?)<\/option>/gi)]
+        .map((option) => ({
+          attrs: viewerAttributes(option[0].slice(0, option[0].indexOf('>') + 1)),
+          text: viewerHtmlText(option[1] as string),
+        }))
+        .filter((option) => !('disabled' in option.attrs));
+      const selected = options.find((option) => 'selected' in option.attrs) ?? options[0];
+      if (selected) fields[a.name] = selected.attrs.value ?? selected.text;
+    }
+    for (const textarea of body.matchAll(/<textarea\b[^>]*>([\s\S]*?)<\/textarea>/gi)) {
+      const a = viewerAttributes(textarea[0].slice(0, textarea[0].indexOf('>') + 1));
+      if (a.name && !('disabled' in a)) fields[a.name] = viewerHtmlText(textarea[1] as string);
+    }
+    return {
+      page,
+      index,
+      action: action.pathname + action.search,
+      method: (attrs.method ?? 'get').toLowerCase(),
+      fields,
+    };
+  });
+}
+
+/**
+ * Crawl every linked viewer page, including GET-form destinations. Read every POST form and group by
+ * action, not a maintained route list. A write route added to a viewer page joins the matrix without
+ * editing this item. server.ts at PR 298 serves index, compare, keys, queue, campaign and run pages;
+ * navigation plus campaign/run links reach all of them. Seed the queue so its Take forms are present.
+ */
+async function viewerWriteForms(base: string): Promise<Map<string, ViewerForm[]>> {
+  const pending = ['/'];
+  const visited = new Set<string>();
+  const routes = new Map<string, ViewerForm[]>();
+  const enqueue = (href: string, from: string) => {
+    const url = new URL(href, base + from);
+    if (url.origin !== base) return;
+    url.hash = '';
+    url.searchParams.sort();
+    const path = url.pathname + url.search;
+    if (!visited.has(path) && !pending.includes(path)) pending.push(path);
+  };
+  while (pending.length > 0) {
+    const page = pending.shift() as string;
+    visited.add(page);
+    if (visited.size > 1000) throw new Error('viewer page crawl did not converge');
+    const response = await http(base, page);
+    if (response.status !== 200) throw new Error(`viewer page ${page}: expected 200, got ${response.status}`);
+    for (const link of response.text.matchAll(/<a\b[^>]*>/gi)) {
+      const href = viewerAttributes(link[0]).href;
+      if (href !== undefined) enqueue(href, page);
+    }
+    for (const form of viewerForms(response.text, page, base)) {
+      if (form.method === 'post') {
+        const forms = routes.get(form.action) ?? [];
+        forms.push(form);
+        routes.set(form.action, forms);
+      } else if (form.method === 'get') {
+        const url = new URL(form.action, base);
+        url.search = new URLSearchParams(form.fields).toString();
+        enqueue(url.href, page);
+      } else throw new Error(`unsupported page form method: ${form.method}`);
+    }
+  }
+  if (routes.size === 0) throw new Error('viewer crawl found no POST forms');
+  return routes;
+}
+
+/** Exact names and bytes, recursively: includes queue.json, labels, and unexpected temporary files. */
+function viewerFilesSnapshot(path: string): string {
+  if (!existsSync(path)) return 'absent';
+  return JSON.stringify(
+    readdirSync(path, { withFileTypes: true })
+      .sort((a, b) => a.name.localeCompare(b.name))
+      .map((entry) => [
+        entry.name,
+        entry.isDirectory()
+          ? viewerFilesSnapshot(join(path, entry.name))
+          : readFileSync(join(path, entry.name)).toString('base64'),
+      ]),
+  );
+}
+
 add(
   FV,
   'label-write-requires-token-and-origin',
@@ -3271,118 +3401,158 @@ add(
   1,
   'adversarial',
   'driftbench view',
-  `${QVW} (exact Host, own Origin or same-origin Referer fallback, and a hidden form token; rejected requests return 403 and write nothing)`,
-  'the full Host, Origin, Referer and token-location matrix follows the documented write rule',
+  `${QVW} (every form write route: exact Host, own Origin or Referer fallback, body token, POST only)`,
+  'every discovered write route obeys the method, Host, Origin, Referer and token matrix without refused writes',
   async (ctx) => {
     const { request } = await import('node:http');
     const f = await judged(ctx.scratch);
     const checks: [boolean, string][] = [];
-    const cases = (['own', 'foreign', 'different-port'] as const).flatMap((host) =>
-      (['own', 'foreign', 'absent'] as const).flatMap((origin) =>
-        (['own', 'foreign', 'absent', 'malformed'] as const).flatMap((referer) =>
-          (['body', 'missing', 'wrong', 'query-only', 'header-only'] as const).map((token) => ({
-            host,
-            origin,
-            referer,
-            token,
-          })),
-        ),
-      ),
+    const fixture = freshLabels(f);
+    const created = await cli(
+      ['queue', 'create', '--store', f.store, '--campaign', 'q1', '--labels', fixture],
+      f.dir,
     );
-    for (const { host, origin, referer, token } of cases) {
-      // docs/viewer.md: "Requests must use the exact `127.0.0.1:<port>` address printed at startup."
-      // "Other Host headers are refused to block DNS rebinding."
-      // "Writes also require the viewer's own Origin, or a same-origin Referer when Origin is absent,
-      // and a hidden form token generated at each start."
-      // "Rejected requests return HTTP 403 with a plain message and write nothing."
-      // The form token belongs in the form body. Origin takes precedence over Referer.
-      const allowed =
-        host === 'own' &&
-        (origin === 'own' || (origin === 'absent' && referer === 'own')) &&
-        token === 'body';
-      const context = `Host=${host}, Origin=${origin}, Referer=${referer}, token=${token}`;
-      const labels = freshLabels(f);
-      const run = f.runIds[0] as string;
-      const block = String(ctx.seed % f.blocks);
-      const note = 'Fictional matrix label.';
-      let status = 0;
-      const signals = ['SIGINT', 'SIGTERM'] as const;
+    if (created.code !== 0) return fail(`queue fixture failed: ${created.err}`);
+    const queue = readFileSync(join(fixture, 'queue.json'), 'utf8');
+    const signals = ['SIGINT', 'SIGTERM'] as const;
+    const isolatedViewer = async (labels: string, body: (base: string) => Promise<void>) => {
       const listeners = new Map(signals.map((signal) => [signal, new Set(process.listeners(signal))]));
       try {
-        await withViewer(['--store', f.store, '--port', '0', '--labels', labels], f.dir, async (base) => {
-          const form = await labelForm(base, {
-            campaign: 'q1',
-            run,
-            block,
-            criterion: 'polite',
-            label: 'fail',
-            note,
-          });
-          const csrf = form.csrf ?? '';
-          checks.push([csrf.length > 0, `${context}: page form must supply a csrf token`]);
-          if (token !== 'body') delete form.csrf;
-          if (token === 'wrong') form.csrf = `${csrf}-wrong`;
-          const url = new URL(`${base}/labels`);
-          if (token === 'query-only') url.searchParams.set('csrf', csrf);
-          const address = new URL(base);
-          const otherPort = Number(address.port) === 65535 ? 1 : Number(address.port) + 1;
-          const headers: Record<string, string> = {
-            'content-type': 'application/x-www-form-urlencoded',
-            Host:
-              host === 'own'
-                ? address.host
-                : host === 'foreign'
-                  ? 'foreign.example'
-                  : `${address.hostname}:${otherPort}`,
-          };
-          if (origin !== 'absent') headers.Origin = origin === 'own' ? base : 'https://foreign.example';
-          if (referer !== 'absent') {
-            headers.Referer =
-              referer === 'own'
-                ? `${base}/campaign/q1/run/${run}`
-                : referer === 'foreign'
-                  ? 'https://foreign.example/review'
-                  : 'not a URL';
-          }
-          if (token === 'header-only') headers['X-CSRF-Token'] = csrf;
-          // node:http preserves an explicit Host; fetch may replace it.
-          status = await new Promise<number>((resolve, reject) => {
-            const req = request(url, { method: 'POST', headers }, (res) => {
-              res.on('error', reject);
-              res.on('end', () => resolve(res.statusCode ?? 0));
-              res.resume();
-            });
-            req.on('error', reject);
-            req.end(new URLSearchParams(form).toString());
-          });
-        });
+        const result = await withViewer(['--store', f.store, '--port', '0', '--labels', labels], f.dir, body);
+        if (!result.stopped) throw new Error(`viewer did not start and stop cleanly: ${result.code}`);
       } finally {
-        // Each combination owns a fresh viewer and labels directory, including its stop handlers.
         for (const signal of signals) {
           for (const listener of process.listeners(signal)) {
             if (!listeners.get(signal)?.has(listener)) process.removeListener(signal, listener);
           }
         }
       }
-      const files = existsSync(labels) ? readdirSync(labels) : [];
-      checks.push([
-        status === (allowed ? 303 : 403),
-        `${context}: expected ${allowed ? 303 : 403}, got ${status}`,
-      ]);
-      if (allowed) {
-        const saved = readLabels(labels, 'polite');
-        checks.push([
-          files.length === 1 &&
-            files[0] === 'polite.yaml' &&
-            saved?.criterion === 'polite' &&
-            saved.blocks.length === 1 &&
-            saved.blocks[0]?.id === `${run}.b${block}` &&
-            saved.blocks[0]?.label === 'fail' &&
-            saved.blocks[0]?.note === note,
-          `${context}: expected the submitted label in polite.yaml`,
-        ]);
+    };
+    let routes = new Map<string, ViewerForm[]>();
+    await isolatedViewer(fixture, async (base) => {
+      routes = await viewerWriteForms(base);
+    });
+    if (routes.size === 0) return fail('viewer discovery found no write routes');
+    const cases = [...routes.values()].flatMap((forms) =>
+      (['POST', 'PUT', 'DELETE', 'PATCH'] as const).flatMap((method) =>
+        (['own', 'foreign', 'different-port'] as const).flatMap((host) =>
+          (['own', 'foreign', 'absent'] as const).flatMap((origin) =>
+            (['own', 'foreign', 'absent', 'malformed'] as const).flatMap((referer) =>
+              (['body', 'missing', 'wrong', 'query-only', 'header-only'] as const).map((token) => ({
+                form: forms[Math.abs(ctx.seed) % forms.length] as ViewerForm,
+                method,
+                host,
+                origin,
+                referer,
+                token,
+              })),
+            ),
+          ),
+        ),
+      ),
+    );
+    for (const { form: source, method, host, origin, referer, token } of cases) {
+      // docs/viewer.md: "Requests must use the exact `127.0.0.1:<port>` address printed at startup."
+      // "Other Host headers are refused to block DNS rebinding."
+      // "Writes also require the viewer's own Origin, or a same-origin Referer when Origin is absent,
+      // and a hidden form token generated at each start."
+      // "Rejected requests return HTTP 403 with a plain message and write nothing."
+      // "The write routes (`/labels` and `/queue/assign`) accept POST only; after the Host and origin
+      // checks, PUT, DELETE and PATCH return HTTP 405 and write nothing."
+      // Origin takes precedence over Referer. Non-POST bodies are never token-checked or written.
+      const trusted = host === 'own' && (origin === 'own' || (origin === 'absent' && referer === 'own'));
+      const expected = !trusted ? 403 : method !== 'POST' ? 405 : token === 'body' ? 303 : 403;
+      const context = `${method} ${source.action}, Host=${host}, Origin=${origin}, Referer=${referer}, token=${token}`;
+      const labels = freshLabels(f);
+      put(join(labels, 'queue.json'), queue);
+      // A pre-existing label also has to survive refusals, not merely remain absent.
+      put(
+        join(labels, 'preserved.yaml'),
+        'criterion: preserved\nlabelled_by: Fictional Reviewer\nblocks: []\n',
+      );
+      const before = viewerFilesSnapshot(labels);
+      let status = 0;
+      let submitted: Record<string, string> = {};
+      await isolatedViewer(labels, async (base) => {
+        const page = await http(base, source.page);
+        if (page.status !== 200) throw new Error(`form page: expected 200, got ${page.status}`);
+        const live = viewerForms(page.text, source.page, base)[source.index];
+        if (!live || live.action !== source.action || live.method !== 'post') {
+          throw new Error(`discovered form changed at ${source.page}`);
+        }
+        const form = { ...live.fields };
+        submitted = { ...form };
+        const csrf = form.csrf ?? '';
+        checks.push([csrf.length > 0, `${context}: page form must supply a csrf token`]);
+        if (token !== 'body') delete form.csrf;
+        if (token === 'wrong') form.csrf = `${csrf}-wrong`;
+        const url = new URL(source.action, base);
+        if (token === 'query-only') url.searchParams.set('csrf', csrf);
+        const address = new URL(base);
+        const otherPort = Number(address.port) === 65535 ? 1 : Number(address.port) + 1;
+        const headers: Record<string, string> = {
+          'content-type': 'application/x-www-form-urlencoded',
+          Host:
+            host === 'own'
+              ? address.host
+              : host === 'foreign'
+                ? 'foreign.example'
+                : `${address.hostname}:${otherPort}`,
+        };
+        if (origin !== 'absent') headers.Origin = origin === 'own' ? base : 'https://foreign.example';
+        if (referer !== 'absent') {
+          headers.Referer =
+            referer === 'own'
+              ? base + source.page
+              : referer === 'foreign'
+                ? 'https://foreign.example/review'
+                : 'not a URL';
+        }
+        if (token === 'header-only') headers['X-CSRF-Token'] = csrf;
+        // node:http preserves an explicit Host; fetch may replace it. Send a body for every method.
+        const body = new URLSearchParams(form).toString();
+        headers['content-length'] = String(Buffer.byteLength(body));
+        status = await new Promise<number>((resolve, reject) => {
+          const req = request(url, { method, headers }, (res) => {
+            res.on('error', reject);
+            res.on('end', () => resolve(res.statusCode ?? 0));
+            res.resume();
+          });
+          req.on('error', reject);
+          req.end(body);
+        });
+      });
+      const after = viewerFilesSnapshot(labels);
+      checks.push([status === expected, `${context}: expected ${expected}, got ${status}`]);
+      if (expected === 303) {
+        checks.push([after !== before, `${context}: expected a persisted write from the valid page form`]);
+        if ('label' in submitted && 'run' in submitted && 'block' in submitted) {
+          const saved = readLabels(labels, submitted.criterion as string);
+          checks.push([
+            saved !== null &&
+              saved.criterion === submitted.criterion &&
+              saved.blocks.length === 1 &&
+              saved.blocks[0]?.id === `${submitted.run}.b${submitted.block}` &&
+              saved.blocks[0]?.label === submitted.label,
+            `${context}: expected the submitted label under the documented YAML keys`,
+          ]);
+        } else if ('id' in submitted && 'criterion' in submitted) {
+          const saved = JSON.parse(readFileSync(join(labels, 'queue.json'), 'utf8')) as {
+            entries: { id: string; criterion: string; state: string; assignee?: string }[];
+          };
+          checks.push([
+            saved.entries.some(
+              (entry) =>
+                entry.id === submitted.id &&
+                entry.criterion === submitted.criterion &&
+                entry.state === 'assigned' &&
+                entry.assignee === 'a reviewer, in driftbench view',
+            ),
+            `${context}: expected the submitted queue item assigned to the viewer`,
+          ]);
+        }
       } else {
-        checks.push([files.length === 0, `${context}: expected no writes, found ${files.join(', ')}`]);
+        checks.push([after === before, `${context}: refused request changed labels or queue.json`]);
       }
     }
     const failures = checks.filter(([pass]) => !pass).map(([, detail]) => detail);
