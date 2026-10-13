@@ -2611,7 +2611,7 @@ function campaignItems(): BankItem[] {
       tier: 3,
       component: 'driftbench campaign plan',
       title:
-        'running.md "driftbench campaign plan": T, F and P modes give one P cell per perturbation and repeat; plan-upgrade with 2 repeats is "8 cells, 44 blocks"',
+        'running.md "driftbench campaign plan": T, F and P modes give one P cell per perturbation and repeat; plan-upgrade with 2 repeats is "10 cells, 54 blocks"',
       cause:
         'driftbench campaign plan prints "Plan: N specs, M targets, modes T, F, P, R repeats: C cells, B blocks." with one P cell per perturbation and repeat',
       async check(ctx) {
@@ -2631,8 +2631,9 @@ function campaignItems(): BankItem[] {
           ],
           dir,
         );
-        const cells = 4 * r;
-        const blocks = 22 * r;
+        // plan-upgrade: per repeat one T and one F cell of 5 blocks, and one P cell per perturbation (3): 6, 5, 6.
+        const cells = 5 * r;
+        const blocks = 27 * r;
         const want = `Plan: 1 spec, 1 target, modes T, F, P, ${r} repeat${r === 1 ? '' : 's'}: ${cells} cells, ${blocks} blocks.`;
         return c.code === 0 && c.out.includes(want) ? PASS : fail(`expected "${want}"; got ${shown(c)}`);
       },
@@ -3149,9 +3150,9 @@ function campaignItems(): BankItem[] {
         const pOk = (j?.cells ?? [])
           .filter((x) => x.mode === 'P')
           .every((x) => typeof x.perturbationId === 'string' && x.perturbationId.length > 0);
-        return modes === 'TFPP' && pOk
+        return modes === 'TFPPP' && pOk
           ? PASS
-          : fail(`expected modes in the order T F P P, each P with a perturbation; got "${modes}"`);
+          : fail(`expected modes in the order T F P P P, each P with a perturbation; got "${modes}"`);
       },
     }),
     cl({
