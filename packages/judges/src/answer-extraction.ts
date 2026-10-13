@@ -41,23 +41,29 @@ export function extractFinalAnswer(response: string): ExtractedAnswer | undefine
 
 /** Optional extraction annotation. Original transcript data is preserved for ambiguous and multi-part answers. */
 export function withFinalAnswer(client: JudgeClient): JudgeClient {
+  const prepare = (request: JudgeRequest): JudgeRequest => {
+    const response = [...request.transcript].reverse().find((entry) => entry.role === 'agent')?.text;
+    const extracted = response === undefined ? undefined : extractFinalAnswer(response);
+    return extracted === undefined
+      ? request
+      : {
+          ...request,
+          transcript: [
+            ...request.transcript,
+            { role: 'tool_result', tool: 'judge.final_answer', text: JSON.stringify(extracted) },
+          ],
+        };
+  };
+  const compare = client.judgeComparison?.bind(client);
   return {
     ...client,
-    async judge(request: JudgeRequest) {
-      const response = [...request.transcript].reverse().find((entry) => entry.role === 'agent')?.text;
-      const extracted = response === undefined ? undefined : extractFinalAnswer(response);
-      return client.judge(
-        extracted === undefined
-          ? request
-          : {
-              ...request,
-              transcript: [
-                ...request.transcript,
-                { role: 'tool_result', tool: 'judge.final_answer', text: JSON.stringify(extracted) },
-              ],
-            },
-      );
-    },
+    judge: (request) => client.judge(prepare(request)),
+    ...(compare
+      ? {
+          judgeComparison: (ordered: JudgeRequest, swapped: JudgeRequest) =>
+            compare(prepare(ordered), prepare(swapped)),
+        }
+      : {}),
   };
 }
 

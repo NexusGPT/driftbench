@@ -159,7 +159,7 @@ describe('tracesFromOtel: edge cases', () => {
       {
         spanId: tool.spanId,
         label: 'lookup',
-        input: {},
+        input: null,
         error: 'timeout',
         startedAt: '1970-01-01T00:00:10.500Z',
         latencyMs: 100,

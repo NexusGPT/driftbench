@@ -4,3 +4,8 @@
 # comparisons/langwatch/hard/recorded/calls.jsonl: fictional token in a recorded model response
 4cdcfdfb626d0364a0812caaded60c17baa9cfde:comparisons/langwatch/hard/recorded/calls.jsonl:generic-api-key:5058
 4cdcfdfb626d0364a0812caaded60c17baa9cfde:comparisons/langwatch/hard/recorded/calls.jsonl:generic-api-key:5058
+# examples/escalation/fixtures/mm-dev400.jsonl: two recorded request hashes, recomputed from
+# SHA256(JSON.stringify([model, system, user])).slice(0, 20) for items 4141 and 4234, order AB.
+# Pinned prompt code 0278595c and recordings 140f406a produce identical hashes; no credentials.
+714af9eacb10f6fe268dd829c254505d40f6d39b:examples/escalation/fixtures/mm-dev400.jsonl:generic-api-key:31
+714af9eacb10f6fe268dd829c254505d40f6d39b:examples/escalation/fixtures/mm-dev400.jsonl:generic-api-key:86

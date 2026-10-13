@@ -158,7 +158,7 @@ export function mapItems(items: readonly RunItemLike[], toolLabels: ToolLabels):
         const id = call(
           raw,
           label,
-          raw.arguments === undefined ? (raw.action ?? {}) : parseArguments(raw.arguments),
+          raw.arguments === undefined ? (raw.action ?? null) : parseArguments(raw.arguments),
         );
         if (raw.output !== undefined) result(id, label, readOutput(raw.output));
         break;

@@ -18,10 +18,12 @@ import {
   TOOL_FAILURE,
   TOOL_FAILURE_ERROR,
 } from './deviation';
+import { Feasibility } from './feasible';
 import { type Edge, type StageGraph, stageGraph, walkGraph } from './graph';
 import { dimensionId, type PreparedMap, partitionOf, phraseKey, valueId } from './map';
+import { impossibleConstraints } from './possible';
 import { pick, type Rng, range, rngFor, shuffle, streamSeed } from './random';
-import { buildScenario, type ProbeRequest } from './scenario';
+import { buildScenario, type ProbeRequest, type ScenarioRequest } from './scenario';
 import { type AllowedCheck, coveringArray } from './twise';
 import { concreteValue, INVALID_PARTITIONS, inputAssertion, toolAnswer } from './values';
 
@@ -74,7 +76,12 @@ function scenarioDraft(
   prefix: string,
   fixed: readonly Pick[],
   candidates: { preferred: PathRelation[]; others: PathRelation[] },
-  options: { probe?: ProbeRequest; force?: ProposalPhrase; rngLabel?: string } = {},
+  options: {
+    probe?: ProbeRequest;
+    force?: ProposalPhrase;
+    rngLabel?: string;
+    turn?: ScenarioRequest['turn'];
+  } = {},
 ): PathTry {
   const rng = rngFor(context.seed, options.rngLabel ?? id);
   const order = [...shuffle(rng, candidates.preferred), ...shuffle(rng, candidates.others)];
@@ -85,6 +92,7 @@ function scenarioDraft(
       fixed,
       ...(options.probe ? { probe: options.probe } : {}),
       ...(options.force ? { force: options.force } : {}),
+      ...(options.turn ? { turn: options.turn } : {}),
     });
     if (!built.ok) {
       reasons.push(built.reason);
@@ -108,6 +116,13 @@ function scenarioDraft(
         prepared.space.dimensions[dimension]?.kind === 'behaviour' && dimension !== prepared.transition,
     );
     const criteria = behaviours.map((entry) => draftCriterion(prepared, entry));
+    // Only reply-bound outputs need an injected answer. Other output partitions can describe
+    // a real fixture's business state without being synthetic JSON Schema partitions.
+    const world = worldFor(prepared, built.replyData, { useBindings: true });
+    if (world.unsupported.length > 0) {
+      reasons.push(...world.unsupported);
+      continue;
+    }
     const blocks = built.blocks;
     const first = blocks[0];
     if (first && criteria.length > 0) first.criteria = criteria.map((criterion) => criterion.name);
@@ -128,6 +143,7 @@ function scenarioDraft(
         blocks,
         criteria,
         path: path.id,
+        ...(world.world ? { world: world.world } : {}),
         ...(built.rules ? { rules: built.rules } : {}),
         ...(built.endState ? { end_state: built.endState } : {}),
         ...(built.perturbations ? { perturbations: built.perturbations } : {}),
@@ -338,6 +354,8 @@ export type TwiseSummary = {
   allowed: number;
   covered: number;
   share: number;
+  /** Pairs of the array's dimensions no path of the map reaches, so the target leaves them out. */
+  unreachable: string[];
 };
 
 /**
@@ -427,6 +445,27 @@ function withDetails(prepared: PreparedMap, cell: readonly Pick[], rng: Rng): Pi
 }
 
 /**
+ * The feasibility the t-wise target is counted with: the written constraints plus the pairs no path of the
+ * map can reach, so the report counts only the tuples a possible cell holds.
+ */
+export function reachableFeasibility(prepared: PreparedMap): Feasibility {
+  const extra = unreachablePairs(prepared);
+  if (extra.length === 0) return prepared.feasibility;
+  return new Feasibility({ ...prepared.space, constraints: [...prepared.space.constraints, ...extra] });
+}
+
+const unreachableMemo = new WeakMap<PreparedMap, ReturnType<typeof impossibleConstraints>>();
+
+function unreachablePairs(prepared: PreparedMap): ReturnType<typeof impossibleConstraints> {
+  let known = unreachableMemo.get(prepared);
+  if (!known) {
+    known = impossibleConstraints(prepared, flowsOfBehaviour);
+    unreachableMemo.set(prepared, known);
+  }
+  return known;
+}
+
+/**
  * The conversation drafts of a set of rows: one cell per row, its path (when the map holds approved
  * paths), or a carrier when no path builds. `label` names the rows in their titles.
  */
@@ -491,10 +530,11 @@ function conversationOf(prepared: PreparedMap): {
     const empty = dimension?.index.get(NONE);
     return dimension?.kind === 'task' && empty !== undefined ? [[index, empty]] : [];
   });
+  const reachable = reachableFeasibility(prepared);
   return {
     dimensions,
     sizes,
-    allowed: { allowed: (picks: readonly Pick[]) => prepared.feasibility.allowed([...picks, ...taskNones]) },
+    allowed: { allowed: (picks: readonly Pick[]) => reachable.allowed([...picks, ...taskNones]) },
   };
 }
 
@@ -516,6 +556,16 @@ export function twiseSeeder(
     allowed: array.allowed,
     covered: array.covered,
     share: array.allowed === 0 ? 0 : array.covered / array.allowed,
+    unreachable: unreachablePairs(prepared)
+      .filter((pair) => pair.every(([dimension]) => dimensions.includes(dimension)))
+      .map((pair) =>
+        pair
+          .map(
+            ([dimension, value]) =>
+              `${dimensionId(prepared, dimension)}=${valueId(prepared, dimension, value)}`,
+          )
+          .join(' & '),
+      ),
   };
   return { drafts, summary };
 }
@@ -633,6 +683,16 @@ export function budgetSeeder(
     allowed: selection.pairs.allowed,
     covered: selection.pairs.covered,
     share,
+    unreachable: unreachablePairs(prepared)
+      .filter((pair) => pair.every(([dimension]) => dimensions.includes(dimension)))
+      .map((pair) =>
+        pair
+          .map(
+            ([dimension, value]) =>
+              `${dimensionId(prepared, dimension)}=${valueId(prepared, dimension, value)}`,
+          )
+          .join(' & '),
+      ),
   };
   const values = dimensions.map((dimension, column) => {
     const allowedCount = selection.allowedValues[column] ?? 0;
@@ -813,10 +873,11 @@ function failingTool(prepared: PreparedMap, rng: Rng, cell: Pick[]): string | un
 export function worldFor(
   prepared: PreparedMap,
   cell: readonly Pick[],
+  options: { useBindings?: boolean } = {},
 ): { world?: WorldState; unsupported: string[] } {
   const byTool = new Map<
     string,
-    Array<{ path: string[]; schema: Record<string, unknown>; partition: string }>
+    Array<{ path: string[]; schema: Record<string, unknown>; partition: string; bindings?: string[] }>
   >();
   for (const [dimension, value] of cell) {
     const found = prepared.toolDimensions.get(dimension);
@@ -824,7 +885,20 @@ export function worldFor(
     const partition = partitionOf(dimensionId(prepared, dimension), valueId(prepared, dimension, value));
     byTool.set(found.tool.name, [
       ...(byTool.get(found.tool.name) ?? []),
-      { path: found.path, schema: found.schema, partition },
+      {
+        path: found.path,
+        schema: found.schema,
+        partition,
+        ...(options.useBindings
+          ? {
+              bindings: Object.values(
+                prepared.relations.binds.get(
+                  `${dimensionId(prepared, dimension)}=${valueId(prepared, dimension, value)}`,
+                ) ?? {},
+              ),
+            }
+          : {}),
+      },
     ]);
   }
   if (byTool.size === 0) return { unsupported: [] };
@@ -945,7 +1019,31 @@ export function boundarySeeder(
       cell.push(...contextAxes(prepared, cell, rng));
       unsupported.push(...world.unsupported.filter((entry) => !unsupported.includes(entry)));
       const criteria = found ? [] : [draftCriterion(prepared, target)];
-      drafts.push({
+      // A block whose every call count is 0 asserts nothing a reply that does nothing fails: a constant,
+      // an echo and a copy of the Given all pass it. The map supplies no word or stage for a refusal, so
+      // the spec has no machine Then and goes to incomplete/.
+      const forbidsOnly = found !== undefined && tools.length > 0 && tools.every((tool) => tool.count === 0);
+      if (forbidsOnly && hasPaths(prepared)) {
+        // A request that only forbids calls is passed by a reply that does nothing. Said after the walk's
+        // first move, the conversation must also stay on the stage it reached: a reply that does nothing
+        // for the walk fails.
+        const built = scenarioDraft(
+          prepared,
+          context,
+          id,
+          'boundary',
+          `Boundary value ${value.id}`,
+          [target],
+          { preferred: prepared.relations.paths.filter((path) => path.stages.length >= 3), others: [] },
+          { turn: { stimulus: choosePhrase(prepared, rng, [target]), carries: [target], tools } },
+        );
+        if ('draft' in built) {
+          if (Object.keys(concrete).length > 0) built.draft.concrete = concrete;
+          drafts.push(built.draft);
+          return;
+        }
+      }
+      const draft: SpecDraft = {
         id,
         seeder: 'boundary',
         title: `Boundary value ${value.id}: ${value.title}`,
@@ -957,13 +1055,23 @@ export function boundarySeeder(
             stimulus: choosePhrase(prepared, rng, [target]),
             carries: [target],
             ...(tools.length > 0 ? { tools } : {}),
+            ...(prepared.relations.replyLanguage === undefined
+              ? {}
+              : { lang: prepared.relations.replyLanguage }),
             ...(criteria.length > 0 ? { criteria: criteria.map((criterion) => criterion.name) } : {}),
           },
         ],
         ...(world.world ? { world: world.world } : {}),
         criteria,
         ...(Object.keys(concrete).length > 0 ? { concrete } : {}),
-      });
+      };
+      drafts.push(
+        forbidsOnly
+          ? withReasons(draft, [
+              `${value.id}: the block only forbids tool calls, which a reply that does nothing passes`,
+            ])
+          : draft,
+      );
     });
   });
   return { drafts, summary: { values: drafts.length, tools: toolValues, unsupported } };
@@ -1122,12 +1230,32 @@ export function deviationSeeder(
         drafts.push(built.draft);
         const injected = built.draft.blocks.findIndex((block) => block.injection === value.id);
         const path = built.path.stages;
-        probes.push({
-          class: value.id,
-          stage: injected < 0 ? null : (path[injected] ?? null),
-          spec: id,
-          phrase,
-        });
+        const first = injected < 0 ? null : (path[injected] ?? null);
+        probes.push({ class: value.id, stage: first, spec: id, phrase });
+        // The class again at the latest other stage a path allows: a recovery that goes to the goal stage
+        // looks the same as staying when the probe is already at the goal, so one stage proves nothing.
+        const stages = prepared.space.dimensions[prepared.stage ?? -1]?.values.map((entry) => entry.id) ?? [];
+        for (const stage of [...stages].reverse()) {
+          if (stage === first || drafts.length >= context.max) continue;
+          const again = `gen-deviation-${pad(drafts.length + 1)}`;
+          const other = scenarioDraft(
+            prepared,
+            context,
+            again,
+            'deviation',
+            `Deviation probe ${value.id} at ${stage}`,
+            [],
+            {
+              preferred: prepared.relations.paths.filter((path) => required.has(path.flow)),
+              others: prepared.relations.paths.filter((path) => !required.has(path.flow)),
+            },
+            { probe: { classId: value.id, stage } },
+          );
+          if (!('draft' in other)) continue;
+          other.draft.cell.push(deviation);
+          drafts.push(other.draft);
+          break;
+        }
         continue;
       }
       const fallback = probeDraft(prepared, context, id, 'deviation', deviation, anchors);
@@ -1309,6 +1437,9 @@ function metamorphicOnPaths(
       } else if (first.dimension === deviationKey) {
         candidates = prepared.relations.paths;
         probe = { classId: first.value };
+      } else if (first.dimension === 'flow') {
+        // A flow phrase opens a path of its flow: the first turn says it in place of the opening move.
+        candidates = prepared.relations.paths.filter((path) => path.flow === first.value);
       }
       families += 1;
       values.push(key);

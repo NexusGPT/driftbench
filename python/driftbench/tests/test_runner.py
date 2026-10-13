@@ -67,3 +67,27 @@ def test_the_cli_command_comes_from_the_argument_the_environment_or_the_path(mon
     assert cli_command() == ["/opt/node", "/opt/bin.js"]
     monkeypatch.delenv("DRIFTBENCH_CLI")
     assert cli_command() == ["driftbench"]
+
+
+def test_stage_reported_requires_this_python_block_to_report_a_stage(tmp_path):
+    spec = {
+        "id": "current-python-stage",
+        "stages": ["echoed"],
+        "blocks": [
+            {"user": "first", "expect": {"stage": "echoed", "stage_reported": True}},
+            {"user": "second", "expect": {"stage": "echoed", "stage_reported": True}},
+        ],
+    }
+    path = tmp_path / "current-stage.yaml"
+    path.write_text(json.dumps(spec))
+    missing = run_specs([str(path)], agent="echo_agent:echo_first_stage", python_path=[str(FIXTURES)])
+    assert [block.passed for block in missing.cells[0].blocks] == [True, False]
+    assert [verdict.id for verdict in missing.cells[0].blocks[1].failing] == ["stage.reported"]
+
+    restored = run_specs([str(path)], agent="echo_agent:echo_with_history", python_path=[str(FIXTURES)])
+    assert restored.passed
+    for block in spec["blocks"]:
+        del block["expect"]["stage_reported"]
+    path.write_text(json.dumps(spec))
+    legacy = run_specs([str(path)], agent="echo_agent:echo_first_stage", python_path=[str(FIXTURES)])
+    assert legacy.passed
