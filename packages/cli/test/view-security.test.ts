@@ -1,5 +1,5 @@
 import { existsSync } from 'node:fs';
-import { mkdtemp, rm } from 'node:fs/promises';
+import { mkdtemp, readFile, rm } from 'node:fs/promises';
 import { request } from 'node:http';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
@@ -81,6 +81,18 @@ async function post(path: string, body: URLSearchParams, headers: Record<string,
 
 for (const path of ['/labels', '/queue/assign']) {
   describe(`request protection on ${path}`, () => {
+    it.each(['PUT', 'DELETE', 'PATCH'])('refuses %s with 405 and no write', async (method) => {
+      const queueBefore = await readFile(join(labels, 'queue.json'), 'utf8');
+      const response = await fetch(`${viewer.url}${path}`, {
+        method,
+        redirect: 'manual',
+        headers: { origin: viewer.url },
+        body: fields(await token()),
+      });
+      expect(response.status).toBe(405);
+      expect(await readFile(join(labels, 'queue.json'), 'utf8')).toBe(queueBefore);
+      expect(existsSync(join(labels, 'no_invented_data.yaml'))).toBe(false);
+    });
     for (const attack of [
       'foreign origin',
       'null origin',

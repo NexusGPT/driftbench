@@ -4,7 +4,7 @@
 
 The viewer listens on `127.0.0.1` only. Its pages use the scorecard's renderer and style, in light and dark, at phone width. They load no external asset. A content security policy allows only the optional keyboard scripts described below; all forms work without JavaScript.
 
-Requests must use the exact `127.0.0.1:<port>` address printed at startup. Other Host headers are refused to block DNS rebinding. Writes also require the viewer's own Origin, or a same-origin Referer when Origin is absent, and a hidden form token generated at each start. Rejected requests return HTTP 403 with a plain message and write nothing. Reload an old form after restarting the viewer. These checks need no JavaScript.
+Requests must use the exact `127.0.0.1:<port>` address printed at startup. Other Host headers are refused to block DNS rebinding. Writes also require the viewer's own Origin, or a same-origin Referer when Origin is absent, and a hidden form token generated at each start. Rejected requests return HTTP 403 with a plain message and write nothing. The write routes (`/labels` and `/queue/assign`) accept POST only; after the Host and origin checks, PUT, DELETE and PATCH return HTTP 405 and write nothing. Reload an old form after restarting the viewer. These checks need no JavaScript.
 
 ## Start it
 
