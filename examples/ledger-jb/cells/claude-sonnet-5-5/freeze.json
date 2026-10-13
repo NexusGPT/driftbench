@@ -1,6 +1,6 @@
 {
-  "version": 3,
-  "createdAt": "2026-10-13T14:01:17.046603+00:00",
+  "version": 4,
+  "createdAt": "2026-10-13T14:03:46.503172+00:00",
   "model": "claude-sonnet-5-5",
   "coreCommit": "35f07309a4d1d1c8a7c5b176ff19e537d0ef8fdd",
   "corePr": "https://github.com/achammah/driftbench/pull/168",
@@ -197,9 +197,10 @@
     "examples/ledger-jb/cells/claude-sonnet-5-5/price.json": "d52af7ab2841b7397b0fba167c1e371b89ed22f594acd40deab25e44954ded62",
     "examples/ledger-jb/additional/run-sonnet.mjs": "c0f02d7538586dd6e3df47c7f320cc56b0edeaa6e56f79c814e9c71c95aee737",
     "examples/ledger-jb/additional/budget.test.mjs": "1bfbe1a8fbeea61f95b3a9da9f806af8177ef0d68faa3ede63f1a107d201e077",
-    "examples/ledger-jb/additional/sonnet-transport.mjs": "b059d9a508a3b7a19170f135161487794b712db61231224ff18fb0926219a70c"
+    "examples/ledger-jb/additional/sonnet-transport.mjs": "b059d9a508a3b7a19170f135161487794b712db61231224ff18fb0926219a70c",
+    "examples/ledger-jb/cells/claude-sonnet-5-5/cache-route-selection.json": "2f91cb63855daa55b02847c9efb6ef82253c1644547352845f5a3588cbdf2bb2"
   },
-  "priorCellFreezeSha256": "58fab4121a457ead02d79cc9891324d27b190ecdb1ccc7573d474e31c2e2d79c",
+  "priorCellFreezeSha256": "2017a20810ba61885c9e4b5b77f9a0a04bdc3dea8d5ce08697809f1129237d49",
   "nativeEnv": {
     "DISABLE_PROMPT_CACHING": "1"
   },
@@ -213,5 +214,18 @@
   "cacheSource": "https://code.claude.com/docs/en/env-vars",
   "runner": "examples/ledger-jb/additional/run-sonnet.mjs",
   "transportReceiptAmendment": "The observed CLI terminal_reason=api_error envelope contains a provider error string, not a model answer. One zero-token zero-cost ECONNRESET receipt is reclassified from returnedAnswer to no-answer transport, with immutable before receipt and manifest. Retry within the existing three-try policy.",
-  "reconciliationManifest": "examples/ledger-jb/cells/claude-sonnet-5-5/transport-reconciliation/manifest.json"
+  "reconciliationManifest": "examples/ledger-jb/cells/claude-sonnet-5-5/transport-reconciliation/manifest.json",
+  "cacheRouteSelection": {
+    "at": "2026-10-13T14:03:46.501540+00:00",
+    "selected": "cache-disabled",
+    "DISABLE_PROMPT_CACHING": "1",
+    "defaultRequests": 5,
+    "defaultUsd": 0.1004504,
+    "cacheDisabledAnswers": 5,
+    "cacheDisabledUsd": 0.052646,
+    "defaultProjectionUsd": 36.9352339008,
+    "cacheDisabledProjectionUsd": 19.189768736,
+    "zeroCostTransportRejections": 1,
+    "limitation": "Different practice inputs; descriptive cost comparison, not a matched causal estimate. All five disabled-cache answers show zero cache tokens."
+  }
 }

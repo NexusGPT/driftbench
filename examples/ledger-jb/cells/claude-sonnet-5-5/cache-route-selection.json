@@ -1,0 +1,13 @@
+{
+  "at": "2026-10-13T14:03:46.501540+00:00",
+  "selected": "cache-disabled",
+  "DISABLE_PROMPT_CACHING": "1",
+  "defaultRequests": 5,
+  "defaultUsd": 0.1004504,
+  "cacheDisabledAnswers": 5,
+  "cacheDisabledUsd": 0.052646,
+  "defaultProjectionUsd": 36.9352339008,
+  "cacheDisabledProjectionUsd": 19.189768736,
+  "zeroCostTransportRejections": 1,
+  "limitation": "Different practice inputs; descriptive cost comparison, not a matched causal estimate. All five disabled-cache answers show zero cache tokens."
+}

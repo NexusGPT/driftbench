@@ -1,7 +1,7 @@
 {
   "model": "claude-sonnet-5-5",
-  "at": "2026-10-13T13:56:39.359Z",
-  "freezeSha256": "58fab4121a457ead02d79cc9891324d27b190ecdb1ccc7573d474e31c2e2d79c",
+  "at": "2026-10-13T14:02:16.450Z",
+  "freezeSha256": "2017a20810ba61885c9e4b5b77f9a0a04bdc3dea8d5ce08697809f1129237d49",
   "status": "NOT_RUN",
   "n": 0,
   "planned": 270,
@@ -164,13 +164,13 @@
   "cost": {
     "ledger": {
       "testUsd": 0,
-      "allPhasesUsd": 0.09921239999999999,
+      "allPhasesUsd": 0.11418239999999999,
       "testRequests": 0,
-      "allRequests": 6,
+      "allRequests": 7,
       "unknownCostHoldsUsd": 0,
       "tokens": {
-        "input": 16924,
-        "output": 4969,
+        "input": 19794,
+        "output": 5892,
         "cached": 1824,
         "cacheWrite": 9570,
         "reasoning": 0
@@ -213,17 +213,17 @@
   },
   "budget": {
     "capUsd": 45,
-    "measuredUsd": 0.13812639999999998,
+    "measuredUsd": 0.1530964,
     "holdsUsd": 0,
     "pending": 0,
     "pendingReserveUsd": 0,
-    "liabilityUsd": 0.13812639999999998
+    "liabilityUsd": 0.1530964
   },
-  "requests": 10,
+  "requests": 11,
   "modelActual": [
     "claude-sonnet-5-5"
   ],
-  "transportFailures": 0,
+  "transportFailures": 1,
   "tokenCapCalls": 0,
   "powerRegistration": "TIE-only: fewer than 440 pairs; no powered per-cell WIN claim expected."
 }

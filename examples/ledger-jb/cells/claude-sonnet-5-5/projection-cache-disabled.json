@@ -1,16 +1,16 @@
 {
   "model": "claude-sonnet-5-5",
-  "at": "2026-10-13T13:56:39.342Z",
+  "at": "2026-10-13T14:02:16.442Z",
   "basisRequests": 5,
   "parts": {
     "ledger": {
       "sampleRequests": 3,
-      "sampleUsd": 0.030428,
-      "meanRequestUsd": 0.010142666666666666,
+      "sampleUsd": 0.045398,
+      "meanRequestUsd": 0.015132666666666668,
       "plannedDecisions": 484,
       "expectedReadsPerDecision": 2.244,
       "projectedRequests": 1086.096,
-      "projectedUsd": 11.015909696000001
+      "projectedUsd": 16.435528736000002
     },
     "promptfoo": {
       "sampleRequests": 2,
@@ -23,6 +23,6 @@
     }
   },
   "capUsd": 45,
-  "projectedUsd": 13.770149696,
+  "projectedUsd": 19.189768736,
   "method": "Mean measured request cost per contestant times all planned decisions; ledger starts at 2.2 reads plus 2% schema re-asks, then uses a larger observed pilot rate. Small-sample projection, not a guarantee. Hard reservation cap remains authoritative."
 }
