@@ -1,0 +1,190 @@
+[
+  {
+    "id": "fixture-en-name",
+    "requestId": "fixture-en-name",
+    "language": "en",
+    "question": "Write a short story. You must include the name Ada.",
+    "a": "Ada found a brass key under the old apple tree. She opened the garden gate and discovered the flowers her mother had planted. At sunset, she left the gate open for the neighbors.",
+    "b": "Bea found a brass key under the old apple tree. She opened the garden gate and discovered the flowers her mother had planted. At sunset, she left the gate open for the neighbors.",
+    "label": "A",
+    "requirements": [
+      {
+        "id": "form",
+        "hard": true,
+        "quotes": [
+          "Write a short story."
+        ],
+        "definition": "Follow only the explicit form constraint in these verbatim request excerpts. Do not invent a constraint: [\"Write a short story.\"]"
+      },
+      {
+        "id": "named_element",
+        "hard": true,
+        "quotes": [
+          "You must include the name Ada."
+        ],
+        "definition": "Follow only the explicit named element constraint in these verbatim request excerpts. Do not invent a constraint: [\"You must include the name Ada.\"]"
+      },
+      {
+        "id": "better_piece",
+        "hard": false,
+        "quotes": [],
+        "definition": "Holistically evaluate the complete piece for the actual writing request and intended reader: fulfillment, developed content, coherence, effective genre and style. This is the primary quality row. Length alone is neither a merit nor a defect. Respect requested repetition, invention and form; do not impose an unrelated writing style."
+      }
+    ],
+    "plantedTruth": "One candidate satisfies the literal named element, exact length, or language requirement; the other does not."
+  },
+  {
+    "id": "fixture-en-count",
+    "requestId": "fixture-en-count",
+    "language": "en",
+    "question": "Write exactly 5 words.",
+    "a": "Morning rain quietly wakes the garden.",
+    "b": "Morning rain wakes the garden.",
+    "label": "B",
+    "requirements": [
+      {
+        "id": "length",
+        "hard": true,
+        "quotes": [
+          "Write exactly 5 words."
+        ],
+        "definition": "Follow only the explicit length constraint in these verbatim request excerpts. Do not invent a constraint: [\"Write exactly 5 words.\"]"
+      },
+      {
+        "id": "better_piece",
+        "hard": false,
+        "quotes": [],
+        "definition": "Holistically evaluate the complete piece for the actual writing request and intended reader: fulfillment, developed content, coherence, effective genre and style. This is the primary quality row. Length alone is neither a merit nor a defect. Respect requested repetition, invention and form; do not impose an unrelated writing style."
+      }
+    ],
+    "plantedTruth": "One candidate satisfies the literal named element, exact length, or language requirement; the other does not."
+  },
+  {
+    "id": "fixture-en-language",
+    "requestId": "fixture-en-language",
+    "language": "en",
+    "question": "Write a short poem in English.",
+    "a": "Rain touches the sleeping stone.\nA sparrow shakes the morning free.",
+    "b": "细雨轻敲沉睡的石头。\n麻雀抖落清晨的寂静。",
+    "label": "A",
+    "requirements": [
+      {
+        "id": "language",
+        "hard": true,
+        "quotes": [
+          "Write a short poem in English."
+        ],
+        "definition": "Follow only the explicit language constraint in these verbatim request excerpts. Do not invent a constraint: [\"Write a short poem in English.\"]"
+      },
+      {
+        "id": "form",
+        "hard": true,
+        "quotes": [
+          "Write a short poem in English."
+        ],
+        "definition": "Follow only the explicit form constraint in these verbatim request excerpts. Do not invent a constraint: [\"Write a short poem in English.\"]"
+      },
+      {
+        "id": "better_piece",
+        "hard": false,
+        "quotes": [],
+        "definition": "Holistically evaluate the complete piece for the actual writing request and intended reader: fulfillment, developed content, coherence, effective genre and style. This is the primary quality row. Length alone is neither a merit nor a defect. Respect requested repetition, invention and form; do not impose an unrelated writing style."
+      }
+    ],
+    "plantedTruth": "One candidate satisfies the literal named element, exact length, or language requirement; the other does not."
+  },
+  {
+    "id": "fixture-zh-name",
+    "requestId": "fixture-zh-name",
+    "language": "zh",
+    "question": "写一个短故事，必须包含小明这个名字。",
+    "a": "小红在老树下发现一把铜钥匙。他打开花园的门，看见母亲留下的花。傍晚，他把门留给路过的邻居。",
+    "b": "小明在老树下发现一把铜钥匙。他打开花园的门，看见母亲留下的花。傍晚，他把门留给路过的邻居。",
+    "label": "B",
+    "requirements": [
+      {
+        "id": "named_element",
+        "hard": true,
+        "quotes": [
+          "写一个短故事，必须包含小明这个名字。"
+        ],
+        "definition": "Follow only the explicit named element constraint in these verbatim request excerpts. Do not invent a constraint: [\"写一个短故事，必须包含小明这个名字。\"]"
+      },
+      {
+        "id": "better_piece",
+        "hard": false,
+        "quotes": [],
+        "definition": "Holistically evaluate the complete piece for the actual writing request and intended reader: fulfillment, developed content, coherence, effective genre and style. This is the primary quality row. Length alone is neither a merit nor a defect. Respect requested repetition, invention and form; do not impose an unrelated writing style."
+      }
+    ],
+    "plantedTruth": "One candidate satisfies the literal named element, exact length, or language requirement; the other does not."
+  },
+  {
+    "id": "fixture-zh-count",
+    "requestId": "fixture-zh-count",
+    "language": "zh",
+    "question": "用中文写一句话，恰好6字，不要标点。",
+    "a": "春风吹醒大地",
+    "b": "春风轻轻吹醒大地",
+    "label": "A",
+    "requirements": [
+      {
+        "id": "length",
+        "hard": true,
+        "quotes": [
+          "用中文写一句话，恰好6字，不要标点。"
+        ],
+        "definition": "Follow only the explicit length constraint in these verbatim request excerpts. Do not invent a constraint: [\"用中文写一句话，恰好6字，不要标点。\"]"
+      },
+      {
+        "id": "language",
+        "hard": true,
+        "quotes": [
+          "用中文写一句话，恰好6字，不要标点。"
+        ],
+        "definition": "Follow only the explicit language constraint in these verbatim request excerpts. Do not invent a constraint: [\"用中文写一句话，恰好6字，不要标点。\"]"
+      },
+      {
+        "id": "better_piece",
+        "hard": false,
+        "quotes": [],
+        "definition": "Holistically evaluate the complete piece for the actual writing request and intended reader: fulfillment, developed content, coherence, effective genre and style. This is the primary quality row. Length alone is neither a merit nor a defect. Respect requested repetition, invention and form; do not impose an unrelated writing style."
+      }
+    ],
+    "plantedTruth": "One candidate satisfies the literal named element, exact length, or language requirement; the other does not."
+  },
+  {
+    "id": "fixture-zh-language",
+    "requestId": "fixture-zh-language",
+    "language": "zh",
+    "question": "用中文创作诗歌。",
+    "a": "Rain touches the sleeping stone.\nA sparrow shakes the morning free.",
+    "b": "细雨轻敲沉睡的石头。\n麻雀抖落清晨的寂静。",
+    "label": "B",
+    "requirements": [
+      {
+        "id": "language",
+        "hard": true,
+        "quotes": [
+          "用中文创作诗歌。"
+        ],
+        "definition": "Follow only the explicit language constraint in these verbatim request excerpts. Do not invent a constraint: [\"用中文创作诗歌。\"]"
+      },
+      {
+        "id": "form",
+        "hard": true,
+        "quotes": [
+          "用中文创作诗歌。"
+        ],
+        "definition": "Follow only the explicit form constraint in these verbatim request excerpts. Do not invent a constraint: [\"用中文创作诗歌。\"]"
+      },
+      {
+        "id": "better_piece",
+        "hard": false,
+        "quotes": [],
+        "definition": "Holistically evaluate the complete piece for the actual writing request and intended reader: fulfillment, developed content, coherence, effective genre and style. This is the primary quality row. Length alone is neither a merit nor a defect. Respect requested repetition, invention and form; do not impose an unrelated writing style."
+      }
+    ],
+    "plantedTruth": "One candidate satisfies the literal named element, exact length, or language requirement; the other does not."
+  }
+]

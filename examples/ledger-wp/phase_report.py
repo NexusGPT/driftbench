@@ -32,12 +32,27 @@ def main():
                     flips=sum(g[s]['games'][order]!=g[0]['games'][order] for g in complete for s in [1,2] for order in [0,1])
                     denom=4*len(complete)
                     report['noise']={'completeTriplePairs':len(complete),'repeatGameFlips':flips,'comparisons':denom,'flipPercent':100*flips/denom if denom else None}
-                    fixtures=items[:6]
-                    report['sixFixturesThreeOfThree']={item['id']:all(s in by_id[item['id']] and all(g==item['label'] for g in by_id[item['id']][s]['games']) for s in [0,1,2]) for item in fixtures}
-                    report['earnedFixtureSeat']=all(report['sixFixturesThreeOfThree'].values()) and len(complete)==30
+                    fixtures=json.loads((HERE/'seals/fixtures.json').read_text())
+                    fixture_rows={ (r['id'],r.get('sample',0)):r for r in rows if r['split']=='fixtures' and r['model']==model and r['contestant']==contestant }
+                    report['sixFixturesThreeOfThree']={item['id']:all((item['id'],s) in fixture_rows and all(g==item['label'] for g in fixture_rows[(item['id'],s)]['games']) for s in [0,1,2]) for item in fixtures}
+                    observations=[(item['label'],g) for item in fixtures for s in [0,1,2] for g in fixture_rows.get((item['id'],s),{}).get('games',[])]
+                    if observations:
+                        n=len(observations);agree=sum(a==b for a,b in observations)/n
+                        chance=sum(sum(a==label for a,b in observations)*sum(b==label for a,b in observations)/n**2 for label in ['A','B','tie'])
+                        kappa=(agree-chance)/(1-chance) if chance<1 else None
+                    else:kappa=None
+                    report['fixtureKappa']=kappa
+                    report['earnedFixtureSeat']=all(report['sixFixturesThreeOfThree'].values()) and kappa is not None and kappa>=.8
                     report['cheaterBarPass']=len(first)==30 and all(c['judgeLeadPoints'] is not None and c['judgeLeadPoints']>=10 for c in controls.values() if c['accuracy']>50)
-                    report['labelPreservingEdits']='pending separately sealed cases'
-                    report['labelFlippingEdits']='pending separately sealed cases'
+                    variants=json.loads((HERE/'seals/validity.json').read_text())
+                    variant_rows={r['id']:r for r in rows if r['split']=='validity' and r['model']==model and r['contestant']==contestant}
+                    checks={}
+                    for kind in ['relabel','markdown','injection','label-flip']:
+                        expected=[v for v in variants if v['variant']==kind]
+                        measured=[v for v in expected if v['id'] in variant_rows]
+                        correct=sum(g==v['label'] for v in measured for g in variant_rows[v['id']]['games'])
+                        checks[kind]={'expectedPairs':len(expected),'coveredPairs':len(measured),'correctGames':correct,'games':2*len(measured),'accuracy':100*correct/(2*len(measured)) if measured else None}
+                    report['plantedEditChecks']=checks
                 output[split].append(report)
     (HERE/'results/phase-report.json').write_text(json.dumps(output,indent=2)+'\n')
     print(json.dumps(output,indent=2))

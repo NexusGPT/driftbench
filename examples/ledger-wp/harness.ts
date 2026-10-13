@@ -92,7 +92,7 @@ async function runClaude(prompt: {system:string;user:string}, cwd:string): Promi
 async function main() {
   const arg=(name:string)=>{const i=process.argv.indexOf('--'+name);return i<0?undefined:process.argv[i+1];};
   if(process.argv.includes('--help')) {
-    console.log('harness.ts --cheaters | --phase pilot|dev|test [--model haiku|gpt-6-luna] [--concurrency N] [--replay-only]');return;
+    console.log('harness.ts --cheaters | --phase pilot|dev|fixtures|validity|test [--model haiku|gpt-6-luna] [--concurrency N] [--replay-only]');return;
   }
   mkdirSync(resolve(HERE,'results'),{recursive:true});mkdirSync(resolve(HERE,'runtime/empty'),{recursive:true});
   if(process.argv.includes('--cheaters')) {
@@ -103,7 +103,7 @@ async function main() {
     }
     console.log('Machine controls recorded. No model calls.');return;
   }
-  const phase=arg('phase');if(!['pilot','dev','test'].includes(phase??''))throw Error('Explicit phase required');
+  const phase=arg('phase');if(!['pilot','dev','fixtures','validity','test'].includes(phase??''))throw Error('Explicit phase required');
   const freeze=load('freeze.json');verifyFreeze(freeze);
   const core:any=await import(pathToFileURL(resolve(ROOT,'packages/judges/src/pair-ledger.ts')).href);
   const promptModule:any=await import(pathToFileURL(resolve(ROOT,'packages/judges/src/prompt.ts')).href);
@@ -152,7 +152,7 @@ async function main() {
   };
   const items=load('seals/'+phase+'.json');
   const jobs:any[]=[];
-  for(let sample=0;sample<(phase==='dev'?3:1);sample++)for(const item of items)for(const model of models)for(const contestant of ['pair-ledger','reader-first-c50b2dc3','promptfoo']) {
+  for(let sample=0;sample<(['dev','fixtures'].includes(phase!)?3:1);sample++)for(const item of items)for(const model of models)for(const contestant of ['pair-ledger','reader-first-c50b2dc3','promptfoo']) {
     const job={split:phase,model,contestant,id:item.id,requestId:item.requestId,sample};
     if(!done.has(decisionKey(job)))jobs.push({job,item});
   }
