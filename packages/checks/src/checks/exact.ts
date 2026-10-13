@@ -25,18 +25,18 @@ function numberOf(text: string): number | undefined {
   return Number.isFinite(value) ? value : undefined;
 }
 
-/** Keep digits and separators between digits, except strictly grouped thousands commas. */
+/** Use Unicode decimal digits for both separator neighbors and strict thousands grouping. */
 function digitSignature(text: string): string {
-  const ungrouped = text.replace(/\d+(?:,\d+)*/g, (run) =>
-    /^\d{1,3}(?:,\d{3})+$/.test(run) ? run.replace(/,/g, '') : run,
+  const ungrouped = text.replace(/\p{Nd}+(?:,\p{Nd}+)*/gu, (run) =>
+    /^\p{Nd}{1,3}(?:,\p{Nd}{3})+$/u.test(run) ? run.replace(/,/g, '') : run,
   );
   return [...ungrouped]
     .filter(
       (char, index, chars) =>
-        /\d/.test(char) ||
+        /\p{Nd}/u.test(char) ||
         ((char === '.' || char === ',') &&
-          /\d/.test(chars[index - 1] ?? '') &&
-          /\d/.test(chars[index + 1] ?? '')),
+          /\p{Nd}/u.test(chars[index - 1] ?? '') &&
+          /\p{Nd}/u.test(chars[index + 1] ?? '')),
     )
     .join('');
 }

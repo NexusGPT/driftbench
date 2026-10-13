@@ -4,7 +4,7 @@ All notable changes to driftbench are listed here. The format follows [Keep a Ch
 
 ## [Unreleased]
 
-* `expect.exact`: a dot or comma between two digits now counts: 3,5 no longer equals 3.5 or 35.
+* `expect.exact`: a dot or comma between two digits now counts: 3,5 no longer equals 3.5 or 35. Decimal digits and strict thousands grouping support every Unicode script.
 
 * Opt-in answer audit in the judges package: `judgeAnswerAudit`, or `assessment: { kind: 'answer-audit' }`, grades a submission against a criterion and an optional trusted reference. The request is role-separated JSON; the model settles each condition with a quote before its status and code computes the outcome. It has its own prompt fingerprint; default and legacy prompts and cassette keys are unchanged.
 * Opt-in `createEscalation` routes reference disagreement, order splits, inconclusive results and low confidence to a cross-family council. It preserves comparison diagnostics and recorded replay, supports deployable-route calibration and checks constituent model families. The offline MM-Eval DEV400 example reproduces 91.16 from pinned recordings, with unknown historical generator families disclosed.
