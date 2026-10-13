@@ -582,6 +582,8 @@ The committed Haiku regression cassettes retain four fresh responses for each of
 
 ## Pairwise comparison
 
+`council.judge(pairwiseRequest(criterion, transcript, first, second))` seats the named-winner contract directly. Every vote carries `winner`, and the council counts that field even if a custom client's binary outcome contradicts it. A majority of explicit ties returns `winner: 'tie'` with an inconclusive binary outcome, without another round. Missing winners and unparseable responses abstain. The council returns a winner for that presentation only; use `judgePairwise` when both orders must be checked.
+
 `judgePairwise(client, criterion, transcript, first, second, options)` compares both candidate orders and reconciles their identities in code. Its public `choice`, `ordered`, `swapped`, `consistent` and `positionBias` fields remain available. A disagreement remains a tie. `calls` counts the actual calls; `recovered` marks a fact-ledger recovery.
 
 Chat models now return a named winner instead of translating a winner into pass or fail:

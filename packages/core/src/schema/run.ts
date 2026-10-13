@@ -186,6 +186,8 @@ export type Observed = z.infer<typeof Observed>;
 export const Vote = z.strictObject({
   judge: z.string().min(1),
   outcome: Outcome,
+  /** The explicitly named candidate on a pairwise request. A tie differs from missing evidence. */
+  winner: z.enum(['A', 'B', 'tie', 'inconclusive']).optional(),
   score: z.number().optional(),
   reasoning: z.string().optional(),
   /** Every retry the judge's call took. Absent when none. */

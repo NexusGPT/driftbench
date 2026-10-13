@@ -7,7 +7,7 @@ import {
 import type { z } from 'zod';
 import { type JudgeCheckOptions, judgeCheck } from './check';
 import type { JudgeClient } from './client';
-import type { Budget, JudgeClass, JudgeOutcome, JudgeRequest } from './contract';
+import type { Budget, JudgeClass, JudgeOutcome, JudgeRequest, JudgeResult } from './contract';
 import { normalizeFamily, sameFamily } from './family';
 import { screenData } from './screen';
 
@@ -75,6 +75,7 @@ export type CouncilConfig = {
 export type RoundOutcome = JudgeOutcome | 'split';
 
 export type CouncilRound = {
+  readonly winner?: JudgeResult['winner'];
   readonly cls: JudgeClass;
   readonly budget: Budget;
   readonly votes: readonly Vote[];
@@ -83,6 +84,8 @@ export type CouncilRound = {
 };
 
 export type CouncilResult = {
+  /** Named pairwise decision, present only for a pairwise assessment. */
+  readonly winner?: JudgeResult['winner'];
   readonly criterion: string;
   readonly outcome: JudgeOutcome;
   /** The class whose round decided, or the assigned class when nothing decided. */
@@ -238,6 +241,9 @@ export function createCouncil(config: CouncilConfig): Council {
           ? agreeing.reduce((sum, vote) => sum + (vote.score as number), 0) / agreeing.length
           : undefined;
       return {
+        ...(request.assessment?.kind === 'pairwise'
+          ? { winner: decided?.winner ?? ('inconclusive' as const) }
+          : {}),
         criterion: request.criterion.name,
         outcome,
         cls: decided?.cls ?? row.cls,
@@ -390,9 +396,23 @@ async function runRound(
   } else {
     votes.push(...(await Promise.all(ordered.map((judge) => castVote(request, judge, budget, counter)))));
   }
-  const outcome: RoundOutcome = cascaded
+  let outcome: RoundOutcome = cascaded
     ? 'pass'
     : majority(votes, weights === undefined ? {} : { weights: { ...weights } });
+  if (request.assessment?.kind === 'pairwise') {
+    // An explicit tie can win a majority; missing evidence cannot. Reuse the same quorum and weights.
+    const tied =
+      majority(
+        votes.map((vote) => ({
+          ...vote,
+          outcome: vote.winner === 'tie' ? ('pass' as const) : ('inconclusive' as const),
+        })),
+        weights === undefined ? {} : { weights: { ...weights } },
+      ) === 'pass';
+    if (!cascaded && outcome === 'split' && tied) outcome = 'inconclusive';
+    const winner = outcome === 'pass' ? 'A' : outcome === 'fail' ? 'B' : tied ? 'tie' : 'inconclusive';
+    return { cls, budget, votes, outcome, cascaded, winner };
+  }
   return { cls, budget, votes, outcome, cascaded };
 }
 
@@ -467,9 +487,19 @@ async function castVote(
     }
     if (result.repaired) note += 'answer repaired (unescaped quotes escaped); ';
     const { answer } = result;
+    const pairwise = request.assessment?.kind === 'pairwise';
+    const winner = result.unparsed ? 'inconclusive' : (result.winner ?? 'inconclusive');
+    const outcome = pairwise
+      ? winner === 'A'
+        ? 'pass'
+        : winner === 'B'
+          ? 'fail'
+          : 'inconclusive'
+      : answer.outcome;
     return {
       judge: name,
-      outcome: answer.outcome,
+      outcome,
+      ...(pairwise ? { winner } : {}),
       ...(answer.score === undefined ? {} : { score: answer.score }),
       reasoning: `${note}${answer.reasoning}${answer.evidence ? ` (evidence: ${answer.evidence})` : ''}`,
       ...retries(),
@@ -477,7 +507,13 @@ async function castVote(
   } catch (cause) {
     counter.errors += 1;
     const why = cause instanceof Error ? cause.message : String(cause);
-    return { judge: name, outcome: 'inconclusive', reasoning: `no answer: ${why}`, ...retries() };
+    return {
+      judge: name,
+      outcome: 'inconclusive',
+      reasoning: `no answer: ${why}`,
+      ...retries(),
+      ...(request.assessment?.kind === 'pairwise' ? { winner: 'inconclusive' as const } : {}),
+    };
   }
 }
 
