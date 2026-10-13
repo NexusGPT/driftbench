@@ -1,0 +1,32 @@
+{
+  "registered_at": "2026-10-13T03:40:29.772794+00:00",
+  "case_registration_commit": "9c1c2ff8783b02d7dffa1b9dcd9b638405f6dce4",
+  "seed": 20261217,
+  "cases_per_row": 192,
+  "new_calls": 384,
+  "sides": [
+    "candidate"
+  ],
+  "reuse": "The primary peer answers are reused unchanged; no peer reruns.",
+  "bar": "Candidate exact one-sided paired p below 0.05 with higher accuracy; otherwise equal.",
+  "bootstrap": {
+    "clusters": "construction family",
+    "iterations": 20000,
+    "seed": 2619092984
+  },
+  "cap_usd_primary_plus_candidate": 10,
+  "sha256": {
+    "comparisons/astra-hard/candidates/.gitignore": "fdcd0183a4babd894e7cce83ec87bd24f385c424cc83571009ed07ab34722d9f",
+    "comparisons/astra-hard/candidates/prompts.json": "5ee446e26e5c4b96f84306abd2ad8d87ecb98ce1150b88a141d149846e7bd1b9",
+    "comparisons/astra-hard/candidates/run.py": "294b939a78f3bd8e6e60cfe12da99f26d7a058a2a5f037761b1bce2863ff7f0c",
+    "comparisons/astra-hard/langfuse-reference-cases.json": "a09ae84d04bbe731990bd4d1831b8cdae213df5532b7794901951e7fd4cacdbf",
+    "comparisons/astra-hard/prepare_candidates.py": "13bc536e4522c3bbae0b9d74411c534d014e5fba1403867a1dc7b91529ef5f34",
+    "comparisons/astra-hard/promptfoo-rubric-cases.json": "d4f3917e293d94ff35ff51b454369a09f3e81adb637a5138bc6dabefc3860276",
+    "comparisons/astra-hard/supplement.mts": "fcbfb2e422914f6f6148adc97898a10eb7614603e0f9d4cec07baf835fa597c3",
+    "comparisons/langfuse/hard/audit.txt": "5ab527bec76758641fcfd13ebe7c576486ae145fb2cce183a25d9b2838621ca8",
+    "comparisons/langfuse/hard/run.py": "efbc56c55ada3cd40b5fd3d8fcaf1c6bf94419b5a8c07d2031732c1e79939a81",
+    "comparisons/promptfoo/hard/candidate-freeze.json": "0b3312d67cdd8cff58dde7c78bc085ab99ab83610c527046643d77ecb8e94bee",
+    "comparisons/promptfoo/hard/run.py": "84f25edbca4dec01c53d96802ab9fe1f507f8713fd3af189d427d4a1d80f1606",
+    "comparisons/astra-hard/preregistration.json": "b5f436ed51cbb9f7edeb51115c2714434d060732a2847658d7178ea21f070571"
+  }
+}
