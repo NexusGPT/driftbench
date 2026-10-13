@@ -46,7 +46,7 @@ export type GraphAnalysis = {
   unenforced: string[];
   /** Reference atoms whose file does not exist. */
   missingReferences: string[];
-  /** Guard atoms whose script does not exist. */
+  /** Guard atoms whose script does not exist, or whose dispatcher is handed a hook that does not. */
   missingScripts: string[];
 };
 
@@ -128,7 +128,9 @@ export function analyzeGraph(
     missingScripts: atoms
       .filter(
         (atom) =>
-          atom.kind === 'guard' && typeof atom.fields?.script === 'string' && !kinds.has(atom.fields.script),
+          atom.kind === 'guard' &&
+          ((typeof atom.fields?.script === 'string' && !kinds.has(atom.fields.script)) ||
+            typeof atom.fields?.missingTarget === 'string'),
       )
       .map((atom) => atom.id),
   };

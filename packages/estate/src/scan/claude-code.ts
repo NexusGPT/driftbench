@@ -909,6 +909,10 @@ function readGuards(
         };
         if (matcher !== undefined) guard.matcher = matcher;
         if (typeof hook.timeout === 'number') guard.timeout = hook.timeout;
+        if (!prompt && guard.dispatcher === undefined && guard.script !== undefined) {
+          const missing = handedHook(words, guard.script);
+          if (missing !== undefined) guard.missingTarget = missing;
+        }
         estate.guards.push(guard);
       }
     }
@@ -971,6 +975,22 @@ function changeFolder(folder: string | undefined, target: string): string | unde
   if (anchor.test(target)) return posix.normalize(target.replace(anchor, '') || '.').replace(/^\.$/, '');
   if (folder === undefined || target === '' || /^[/~$-]/.test(target)) return undefined;
   return posix.normalize(posix.join(folder, target)).replace(/^\.$/, '');
+}
+
+/**
+ * The hook a script is handed by name as its first argument (`run.py gone-hook`, `run.py gone.py`), read
+ * when no file of the estate is that hook: a hyphenated name or a script file name, never a flag, its value
+ * or a bare id.
+ */
+function handedHook(command: string, script: string): string | undefined {
+  for (const segment of segments(command)) {
+    const words = segment.map((token) => stripAnchor(token.replace(/["']/g, '')));
+    const at = words.findIndex((word) => posix.normalize(word) === script);
+    if (at < 0) continue;
+    const next = words[at + 1] ?? '';
+    return /^[a-z][a-z0-9]*(?:[-_][a-z0-9]+)+$/.test(next) || SCRIPT_EXTENSION.test(next) ? next : undefined;
+  }
+  return undefined;
 }
 
 /** A command line cut into its parts at the shell's list and pipe operators. */
