@@ -1,0 +1,36 @@
+{
+  "at": "2026-10-13T18:33:49.422468+00:00",
+  "model": "gemini-3.8-flash",
+  "status": "dropped by the owner on 13 Oct 2026, partial data kept, not reported as a score",
+  "authorization": "Owner decision, by card: Drop Gemini 3.8. No calls. Flash Lite stays the Gemini result.",
+  "pendingWork": false,
+  "futureRequests": 0,
+  "files": {
+    "examples/ledger-jb/results/cells.json": {
+      "beforeSha256": "f806abe9ad4354e2bc5433b627a91ee528813dec19ae1e032783d26f7d4ee101",
+      "afterSha256": "bfbf3790ac9fcb0fbc745ad3b19e27e109623c055940eae5e2df4cfc360a1e34"
+    },
+    "examples/ledger-jb/results/driver-state.json": {
+      "beforeSha256": "6cfaa3b5144df865808ba7096c5d2c1bc28415e913a7ec5b1a9e797f0dd292d9",
+      "afterSha256": "00b6820189694a1e834ca1b0caaf1e9f5fb21012c7770da1d6a913afca387866"
+    },
+    "examples/ledger-jb/results/gemini-3.8-request-budget.json": {
+      "beforeSha256": "47a376be7c55604125c246b5fc46f564b64d01f6e9876bff562114fa37aa50bc",
+      "afterSha256": "a658a72bef2b2f84857d2de852b08c54092b5f17202b3a4c2d1ad7972c9e691b"
+    },
+    "examples/ledger-jb/results/cells.md": {
+      "beforeSha256": "fbbe2ceb8246d9282f5eca64cd7847640939a8847de72c8863f5539db0e5f5de",
+      "afterSha256": "ed77d2645009d686bf996e4832a57b052950e6761c57da9be1ed91bfe87d3b7d"
+    },
+    "examples/ledger-jb/results/available-independent-audit.json": {
+      "beforeSha256": "72eb41344a3cbf3ca03dbae96b81f5ef77c14273a919eebf70bac8a88d4eb169",
+      "afterSha256": "357ecb2b4ac0f77c8c2b36b833e4bbcdb787d218e92d1b407d2a0288467a5c1e"
+    }
+  },
+  "preservedRecordings": {
+    "examples/ledger-jb/results/calls.jsonl": "9f44a0f3760903b0494b4efd260b6aee0b465e9908b72a8494fe32176c8a129f",
+    "examples/ledger-jb/results/decisions-fixtures-gemini-3.8-flash.jsonl": "e196556f4683f6b737a539bdb6c617be4729bbf696b1a7605c24f169a62542e9",
+    "examples/ledger-jb/results/decisions-noise-gemini-3.8-flash.jsonl": "cf9b345a8d3d9d8afd68500c0def804d530d2159a36247cec177ebf059ea904a",
+    "examples/ledger-jb/results/decisions-pilot-gemini-3.8-flash.jsonl": "2f16847b83054757f71796ddb586d6e168bd6790f5b5ccdf5d3419372594a682"
+  }
+}

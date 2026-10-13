@@ -5,9 +5,10 @@
   "concurrency": 20,
   "models": {
     "gemini-3.8-flash": {
-      "status": "paused-daily-quota",
-      "reason": "not run: daily quota; resume only on explicit owner word in a committed unpause amendment; no reset watcher",
-      "concurrency": 0
+      "status": "dropped-by-owner",
+      "reason": "dropped by the owner on 13 Oct 2026, partial data kept, not reported as a score",
+      "concurrency": 0,
+      "pendingWork": false
     },
     "claude-haiku-5-5": {
       "phase": "test",
@@ -26,8 +27,10 @@
     }
   },
   "at": "2026-10-13T12:44:34.529Z",
-  "pausedModels": {
-    "gemini-3.8-flash": "not run: daily quota; resume only on explicit owner word in a committed unpause amendment; no reset watcher"
+  "pausedModels": {},
+  "blocked": [],
+  "droppedModels": {
+    "gemini-3.8-flash": "dropped by the owner on 13 Oct 2026, partial data kept, not reported as a score"
   },
-  "blocked": []
+  "ownerDropAt": "2026-10-13T18:33:49.422468+00:00"
 }

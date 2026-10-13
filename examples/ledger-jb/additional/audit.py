@@ -130,17 +130,37 @@ for model in models:
     for contestant in ('ledger', 'promptfoo'):
         paid = [x for x in finishes.values() if x['contestant'] == contestant and x['phase'] == 'test']
         assert abs(sum(x['costUsd'] for x in paid) - report['cost'][contestant]['testUsd']) < 1e-8
-    # Check the exact existing result files against the prior completed checkpoint.
-    old_files = ['examples/ledger-jb/freeze.json', 'examples/ledger-jb/results/calls.jsonl',
-                 'examples/ledger-jb/results/cells.json', 'examples/ledger-jb/results/driver-state.json']
+    # Preserve prior answers and completed scores, allowing only the owner drop metadata.
+    old_files = ['examples/ledger-jb/freeze.json', 'examples/ledger-jb/results/calls.jsonl']
     for path in old_files:
         original = subprocess.check_output(['git', 'show', f'ed441207:{path}'], cwd=REPO, stderr=subprocess.STDOUT)
         assert hashlib.sha256(original).hexdigest() == digest(REPO / path), path
+    drop = read(ROOT / 'results/gemini-3.8-owner-drop.json')
+    for path, expected in drop['preservedRecordings'].items():
+        assert digest(REPO / path) == expected
+    for path, expected in drop['files'].items():
+        assert digest(REPO / path) == expected['afterSha256']
+        original = subprocess.check_output(['git', 'show', f'ed441207:{path}'], cwd=REPO, stderr=subprocess.STDOUT)
+        assert hashlib.sha256(original).hexdigest() == expected['beforeSha256']
+    before = json.loads(subprocess.check_output(['git', 'show', 'ed441207:examples/ledger-jb/results/cells.json'], cwd=REPO, stderr=subprocess.STDOUT))
+    after = read(ROOT / 'results/cells.json')
+    assert {k:v for k,v in before.items() if k != 'cells'} == {k:v for k,v in after.items() if k != 'cells'}
+    assert [x for x in before['cells'] if x['model'] != drop['model']] == [x for x in after['cells'] if x['model'] != drop['model']]
+    original_cell = next(x for x in before['cells'] if x['model'] == drop['model'])
+    assert read(ROOT / 'results/gemini-3.8-dropped/partial-cell-before.json')['historicalPartialData'] == original_cell
+    dropped_cell = next(x for x in after['cells'] if x['model'] == drop['model'])
+    assert dropped_cell['status'] == drop['status'] and dropped_cell['pendingWork'] is False
+    assert dropped_cell['scoreReported'] is False and dropped_cell['p'] is None
+    assert dropped_cell['ledger'] is None and dropped_cell['promptfoo'] is None
+    driver = read(ROOT / 'results/driver-state.json')
+    assert driver['models'][drop['model']]['status'] == 'dropped-by-owner'
+    assert drop['model'] not in driver['pausedModels']
     result = {'model': model, 'matched': len(matched), 'ledgerCorrect': a, 'promptfooCorrect': b,
               'wins': wins, 'losses': losses, 'exactMcNemarP': p, 'starts': len(starts), 'finishes': len(finishes),
               'active': len(active), 'maximumActive': max_active, 'maximumRecoveryActive': recovery_max_active,
               'transportMissingTestRequests': 0, 'knownUsd': known, 'holdsUsd': held,
-              'answeredTransportRetries': 0, 'outputAbove8192': 0, 'existingCellsUnchanged': True,
+              'answeredTransportRetries': 0, 'outputAbove8192': 0, 'existingCompletedCellsUnchanged': True,
+              'existingAnswersUnchanged': True, 'ownerDropApplied': True,
               'freezeSha256': digest(cell / 'freeze.json'), 'callsSha256': digest(cell / 'calls.jsonl'),
               'reportSha256': digest(cell / 'report.json'),
               'sonnetTestCachingOff': model == 'claude-sonnet-5-5'}

@@ -72,13 +72,15 @@ out += ['', 'Error or unparsed items are counted separately from missing transpo
         '|---|---|---|---|---|']
 for model,r in reports.items():
     noise=' / '.join(f"{r['noise'][c]['gameFlips']}/{r['noise'][c]['comparisons']}" for c in ('ledger','promptfoo'))
-    fixtures=' / '.join(f"{r['fixtures'][g]['correct']}/{r['fixtures'][g]['expected']}" for g in ('mmlu','livebench','livecodebench'))
+    fixtures=' / '.join(f"{r['fixtures'][g]['correct']}/{r['fixtures'][g]['expected']}, kappa {r['fixtures'][g]['kappa']:.6f}, {'earned' if r['fixtures'][g]['earned'] else 'unearned'}" for g in ('mmlu','livebench','livecodebench'))
     out.append(f"| {model} | {noise} | {fixtures} | {'pass' if r['readiness']['validityPassed'] else 'fail'} | {'pass' if r['cheaterGate'] else 'fail'} |")
 out += ['', 'Limitations and receipt evidence:', '',
         '- The shared host network outage interrupts both providers. Failed transport attempts are preserved and recovered only after the frozen health gate.',
         '- Ten provider HTTP probes, 30 seconds apart, precede recovery. Each cell runs alone with two workers; connection-failure pauses remain recorded.',
         '- Sonnet caching is off for both contestants throughout TEST. Its first five practice requests use the original cache setting; the subsequent five-call comparison uses different inputs.',
         '- The original Sonnet ECONNRESET envelope and its retry remain preserved in transport-reconciliation/.',
+        '- Sonnet session-quota rejections report zero tokens and zero cost. Missing requests resume after the provider-stated reset and another health gate.',
+        '- Sonnet peer error examples contain actual explanatory answers. The frozen promptfoo parser uses the first integer, which can precede the final index in those explanations. No content retry or post-hoc rescore is applied.',
         '- GPT retains the original unknown-cost holds accepted by the owner. New HTTP errors retain provider bodies, network causes and response identifiers when received.',
         '- Sonnet shares the Anthropic family with the Claude-generated answers. Both models were added after the original cells were measured.',
         '- The 270 pairs contain 269 distinct questions. Prior evaluations overlap on 159 source-question IDs and 91 exact question texts.', '',
@@ -88,7 +90,8 @@ for model,r in reports.items():
 out += ['- Core commit: 35f07309a4d1d1c8a7c5b176ff19e537d0ef8fdd. Prompts, scoring, sealed order and the core single schema re-ask remain unchanged.',
         '- Pool SHA-256: 489c47a0404e7e0929b52ffbe3e253bfebc8d04fa1e0ddac2f3b7ccd089f5236.',
         '- Seal SHA-256: 2aa831d8f08ea88ddddff87ba9aeb600f2c719725608815c09ddc699bd8aac12.',
-        '- Old cells and parked Gemini 3.8 files remain byte-identical to checkpoint ed441207.', '']
+        '- Old recordings and completed model scores remain unchanged from checkpoint ed441207. Gemini 3.8 reporting metadata reflects the owner decision.',
+        '- Gemini 3.8: dropped by the owner on 13 Oct 2026, partial data kept, not reported as a score. No pending work or future calls. Flash Lite stays the Gemini result.', '']
 with DOSSIER.open('a') as stream:
     stream.write('\n'+'\n'.join(out)+'\n')
 print('Final additional-model tables appended after receipt and score audit.')

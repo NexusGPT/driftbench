@@ -32,10 +32,13 @@
       "exactTwoSidedMcNemar": 1
     }
   ],
-  "pending": {
+  "pending": {},
+  "outageHoldsReleasedUsd": 1.0,
+  "method": "Independent Python integer binomial sum and official net score reconstructed from every sealed pair decision.",
+  "dropped": {
     "gemini-3.8-flash": {
-      "reason": "not run: daily quota; resume only on explicit owner word in a committed unpause amendment; no reset watcher",
-      "phases": {
+      "status": "dropped by the owner on 13 Oct 2026, partial data kept, not reported as a score",
+      "historicalPartialCoverage": {
         "pilot": {
           "decisions": 40,
           "expectedDecisions": 40
@@ -56,9 +59,9 @@
           "decisions": 0,
           "expectedDecisions": 540
         }
-      }
+      },
+      "pendingWork": false,
+      "scoreReported": false
     }
-  },
-  "outageHoldsReleasedUsd": 1.0,
-  "method": "Independent Python integer binomial sum and official net score reconstructed from every sealed pair decision."
+  }
 }
