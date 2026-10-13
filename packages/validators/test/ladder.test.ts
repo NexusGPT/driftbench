@@ -3,6 +3,52 @@ import { defineLadder, formatLadder, passes, runLadder, runSeeds } from '../src/
 import { plantedLadder } from './support';
 
 describe('runLadder', () => {
+  for (const full of [false, true]) {
+    it(`caps computation at level 4 even when all seven levels pass (full=${full})`, async () => {
+      const calls: number[] = [];
+      const ladder = defineLadder({
+        component: 'capped',
+        levels: Array.from({ length: 7 }, (_, index) => ({
+          id: `level-${index + 1}`,
+          name: `level ${index + 1}`,
+          metric: 'found / planted',
+          threshold: 1,
+          compute: () => {
+            calls.push(index + 1);
+            return { value: 1, items: [] };
+          },
+        })),
+      });
+      const run = await runLadder(ladder, { seed: 1, maxLevel: 4, full });
+      expect(calls).toEqual([1, 2, 3, 4]);
+      expect(run.level).toBe(4);
+      expect(run.top).toBe(7);
+      expect(run.failing).toBeNull();
+      expect(run.rows.map((row) => row.pass)).toEqual([true, true, true, true, null, null, null]);
+      expect(run.rows.slice(4).map((row) => [row.observed, row.itemCount])).toEqual([
+        [null, null],
+        [null, null],
+        [null, null],
+      ]);
+    });
+  }
+
+  it('still stops at a failure below the cap and preserves its diagnostics', async () => {
+    const { ladder, calls } = plantedLadder([4]);
+    const run = await runLadder(ladder, { seed: 4, maxLevel: 3 });
+    expect(run.level).toBe(1);
+    expect(run.failing?.items.map((item) => item.id)).toEqual(['plant-4-a', 'plant-4-b']);
+    expect(calls).toEqual({ first: 1, second: 1, third: 0 });
+  });
+
+  it('rejects invalid caps before computing any level', async () => {
+    const { ladder, calls } = plantedLadder([]);
+    for (const maxLevel of [0, -1, 1.5, Number.NaN, Number.POSITIVE_INFINITY, 4]) {
+      await expect(runLadder(ladder, { seed: 1, maxLevel })).rejects.toThrow(/maxLevel/);
+    }
+    expect(calls).toEqual({ first: 0, second: 0, third: 0 });
+  });
+
   it('stops at the first failing level and returns its items, without computing the levels above', async () => {
     const { ladder, calls } = plantedLadder([4]);
     const run = await runLadder(ladder, { seed: 4 });
