@@ -1,7 +1,7 @@
 # RubricBench pair-ledger experiment
 
-This directory contains the free replay and model-independent preparation for the RubricBench row.
-It contains no new pair-ledger model result.
+This directory contains the historical replay and the frozen pair-ledger experiment for the RubricBench row.
+Live coverage and cost are read from `live-summary.json`; incomplete coverage is not a final cell result.
 
 - `sample434-replay.json` reproduces the historical binary canonical executed judge against promptfoo.
 - `sample434-decisions.json` retains both mapped games per pair and missing-answer counts.
@@ -34,9 +34,41 @@ Downloads, if needed, go into this worktree's ignored `.cache/ledger-rb/data` di
 Recordings and the executor journal originate from `8c1d1ca707d6505028a4e0db80c937dd6cfaef71` on `origin/codex/rb-judge`.
 Package imports are updated for the current repository namespace; historical prompt templates remain unchanged.
 
-## Paid-run gate
+## Frozen live experiment
 
-The pushed `research/pair-ledger-core` contract and its PR must exist before any contestant call.
-Haiku and gpt-6-luna remain pending that integration, source/dialect freeze, validity gates and pilots.
-Gemini remains pending billing. The lane cap is USD 20.
-Pool hashes are preliminary experiment artifacts, not a claim that the new contestant has been frozen.
+Core PR 168 is pinned at `35f07309a4d1d1c8a7c5b176ff19e537d0ef8fdd`.
+`contestant-freeze.json` binds source, requirements, statistics, model settings and controlled validity fixtures.
+The freeze commit precedes every new model call. The cap is USD 20, including uncertain-call reserves.
+There are at most four simultaneous calls, 180-second timeouts and no transport retries.
+The core's one schema reask per failed reading remains enabled and recorded.
+
+Models are `claude-haiku-5-5` through the native CLI account, `gpt-6-luna` and `gemini-3.8-flash`.
+Luna and Gemini use medium reasoning for both contestants. Keys are read only within the executing process,
+from the owner's two authorized files: `~/.nexus-secrets/openai.key` and `~/.nexus-secrets/gemini-driftbench.key`.
+Gemini billing is authorized. No key value appears in a recording.
+
+```sh
+pnpm exec tsx --no-cache examples/judge-benchmarks/src/rubric-ledger-live.ts --phase pilot --execute
+pnpm exec tsx --no-cache examples/judge-benchmarks/src/rubric-ledger-report.ts
+pnpm exec tsx --no-cache examples/judge-benchmarks/src/rubric-ledger-live.ts --phase fixtures --execute
+pnpm exec tsx --no-cache examples/judge-benchmarks/src/rubric-ledger-live.ts --phase noise --execute
+pnpm exec tsx --no-cache examples/judge-benchmarks/src/rubric-ledger-live.ts --phase validity --execute
+pnpm exec tsx --no-cache examples/judge-benchmarks/src/rubric-ledger-report.ts
+pnpm exec tsx --no-cache examples/judge-benchmarks/src/rubric-ledger-live.ts --phase test --execute
+pnpm exec tsx --no-cache examples/judge-benchmarks/src/rubric-ledger-report.ts
+```
+
+Run only one phase process at a time. A restart reuses completed decisions and call keys.
+Unfinished reservations require inspection; they cannot trigger a silent repeat.
+The TEST command rejects incomplete or failed gates. `--models` restricts execution to named frozen models.
+TEST order is outcome-blind and interleaves models and contestants by pair. Budget exhaustion leaves explicit partial coverage.
+
+`live/starts-*.jsonl` records reservations; `live/calls-*.jsonl` preserves provider output and usage.
+`decisions-<phase>-*.jsonl` records mapped decisions, parser repairs, machine observations and call keys.
+Sampling identity includes phase, repeat and read ordinal, so a canonical third read cannot reuse the first vote.
+Code observations are shared between orders with FIRST/SECOND evidence mapped to actual candidate content.
+
+Only the model under test is considered for its own seat. Earning changes eligibility, not its prompt or model.
+Failed and undersized categories use that same base model. There is no cross-vendor routing claim.
+Controlled validity uses 20 planted arithmetic or supplied-reference facts. It does not establish validity on arbitrary natural-language edits.
+Noise uses 30 DEV pairs with three fresh full-procedure repeats. Seat earning uses six distinct DEV pairs with three independent readings each.
