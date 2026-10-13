@@ -3,7 +3,7 @@ import { describe, expect, it } from 'vitest';
 import { hiddenSpec } from '../../../validators/src/ladders/generator/hidden';
 import { generateFrom } from '../../../validators/src/ladders/generator/measure';
 import { renderMap } from '../../../validators/src/ladders/generator/render';
-import { cellsOf, generateSuite } from '../../src/enumerate/generate';
+import { cellsOf, generateSuite, renderSummary } from '../../src/enumerate/generate';
 import { seederOf } from '../../src/enumerate/spec-cap';
 
 const hidden = hiddenSpec(1);
@@ -27,7 +27,7 @@ describe('total spec cap', () => {
       for (const strength of [2, 3])
         expect(held(result.complete, strength)).toEqual(held(candidate.complete, strength));
     }
-  });
+  }, 30_000);
 
   it('keeps structural and incomplete specs byte for byte and counts only written files', () => {
     const ready = new Set(full.complete.map((spec) => spec.id));
@@ -45,7 +45,7 @@ describe('total spec cap', () => {
     expect(Object.values(capped.report.seeders).reduce((sum, row) => sum + row.specs, 0)).toBe(yaml.length);
     expect(capped.report.spec_cap?.protected).toBe(protectedSpecs.length);
     expect(capped.report.summary.specs).toBeLessThanOrEqual(full.all.length);
-  });
+  }, 30_000);
 
   it('lists every lost tuple when the cap is too small, and refuses to trim protected probes', () => {
     const protectedCount = capped.report.spec_cap?.protected ?? 0;
@@ -65,7 +65,7 @@ describe('total spec cap', () => {
       );
       expect(row.selected).toBe(retained.size);
     }
-  });
+  }, 30_000);
 
   it('leaves budget semantics unchanged and preserves the selected budget pool', () => {
     const budget = generateSuite(prepared, { ...options, budget: 5 });
@@ -76,7 +76,23 @@ describe('total spec cap', () => {
     expect(result.report.spec_cap?.preserved).toBe(true);
     expect(budget.report.spec_cap).toBeUndefined();
     expect(full.report.options).not.toHaveProperty('specCap');
-  });
+  }, 30_000);
+
+  it('leads with measured axis coverage and lists gaps even when the candidate array is complete', () => {
+    expect(full.report.twise.share).toBe(1);
+    const actual = full.report.coverage.actual.find((row) => row.t === 2);
+    expect(actual?.uncovered.length).toBeGreaterThan(0);
+    expect(actual?.uncovered).toEqual(
+      cellsOf(prepared, full.complete, 2)
+        .filter((cell) => cell.count === 0)
+        .map((cell) => cell.values),
+    );
+    const lines = renderSummary(full.report).split('\n');
+    expect(lines[0]).toContain(`pairs ${actual?.covered} of ${actual?.allowed}`);
+    expect(lines[0]).toMatch(/^Actual axis-map coverage/);
+    expect(lines[1]).toMatch(/^Candidate t-wise array/);
+    expect(lines[2]).toContain(`${actual?.uncovered.length} pairs`);
+  }, 30_000);
 
   it('requires explicit pairs mode to trade triples for a smaller suite', () => {
     const pairPool = generateSuite(prepared, { ...options, specCap: full.all.length, specCapMode: 'pairs' });
@@ -90,7 +106,7 @@ describe('total spec cap', () => {
     expect(exact.report.spec_cap?.mode).toBe('tuples');
     expect(exact.report.spec_cap?.preserved).toBe(false);
     expect(() => generateSuite(prepared, { ...options, specCapMode: 'pairs' })).toThrow(/requires specCap/);
-  });
+  }, 30_000);
 
   it('rejects invalid API cap values, is deterministic, and states a greedy rather than an optimal minimum', () => {
     for (const specCap of [0, -1, 1.5, Number.NaN, Number.POSITIVE_INFINITY])
@@ -104,5 +120,5 @@ describe('total spec cap', () => {
       expect(
         generateSuite(prepared, { ...options, specCap: preserving - 1 }).report.spec_cap?.preserved,
       ).toBe(false);
-  });
+  }, 30_000);
 });

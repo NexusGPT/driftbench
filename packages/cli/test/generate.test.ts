@@ -113,8 +113,12 @@ describe('driftbench generate', () => {
     const first = await run(['generate', '--map', `${ACME}map/approved.yaml`, '--out', 'a', '--t', '2'], dir);
     // Exit 1: the suite is written, and blocks whose value has no approved phrase are placeholders.
     expect(first.code).toBe(1);
+    expect(first.out.split('\n')[0]).toMatch(/^Actual axis-map coverage .*pairs 622 of 637 \(97\.6%\)/);
+    expect(first.out.split('\n')[1]).toContain('Candidate t-wise array');
     expect(first.out).toContain('Stage graph: 18 of 23 edges covered in 12 paths from needs.');
-    expect(first.out).toContain('t-wise: covering array of 132 rows over 5 dimensions');
+    expect(first.out).toContain(
+      'Candidate t-wise array (before the total cap): covering array of 132 rows over 5 dimensions',
+    );
     expect(first.out).toContain('Constraints applied: 457.');
     expect(first.out).toContain(
       '  Most frequent reasons:\n     1  it needs coverage_result in no-service; the cell holds none',

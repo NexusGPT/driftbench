@@ -147,6 +147,8 @@ export type GenerateReport = {
   /** Specs with a block the map supports no machine Then for, and why when a path could not be walked. */
   no_then: Array<{ spec: string; blocks: string[]; reasons: string[] }>;
   coverage: {
+    /** Actual axis-map coverage of the written complete specs, independent of the candidate array. */
+    actual: Array<MeasuredCoverage & { uncovered: Record<string, string>[] }>;
     t: number;
     allowed: number;
     complete: MeasuredCoverage;
@@ -482,6 +484,20 @@ export function generateSuite(prepared: PreparedMap, options: GenerateOptions): 
     no_phrase: [...gaps.values()],
     no_then: noThen,
     coverage: {
+      actual: [
+        ...new Set([2, 3].map((strength) => Math.min(strength, prepared.axisMap.dimensions.length))),
+      ].map((strength) => {
+        const cells = cellsOf(prepared, complete, strength);
+        const uncovered = cells.filter((cell) => cell.count === 0).map((cell) => cell.values);
+        return {
+          t: strength,
+          specs: complete.length,
+          allowed: cells.length,
+          covered: cells.length - uncovered.length,
+          share: cells.length === 0 ? 0 : (cells.length - uncovered.length) / cells.length,
+          uncovered,
+        };
+      }),
       t,
       allowed: completeCoverage.allowed,
       complete: completeCoverage,
@@ -698,6 +714,11 @@ function dataValues(prepared: PreparedMap): number {
 export function renderSummary(report: GenerateReport): string {
   const percent = (share: number) => `${(share * 100).toFixed(1)}%`;
   const lines = [
+    `Actual axis-map coverage (written complete specs): ${report.coverage.actual.map((entry) => `${entry.t === 2 ? 'pairs' : entry.t === 3 ? 'triples' : 'values'} ${entry.covered} of ${entry.allowed} (${percent(entry.share)})`).join('; ')}.`,
+    report.budget
+      ? `Candidate budget array (before the total cap), budget ${report.budget.budget}: ${report.budget.picked} cells of ${report.budget.pool} allowed, pairs covered ${report.budget.pairs.covered} of ${report.budget.pairs.allowed} (${percent(report.budget.pairs.share)}), max deviation from fair share ${report.budget.maxDeviation.toFixed(2)}.`
+      : `Candidate t-wise array (before the total cap): covering array of ${report.twise.rows} rows over ${report.twise.dimensions.length} dimensions, ${report.twise.covered} of ${report.twise.allowed} allowed ${report.twise.t}-tuples (${percent(report.twise.share)}); ${report.twise.unreachable.length} pairs no path reaches are left out.`,
+    `Uncovered on the axis map: ${report.coverage.actual.map((entry) => `${entry.uncovered.length} ${entry.t === 2 ? 'pairs' : entry.t === 3 ? 'triples' : 'values'}`).join(', ')} (see coverage.actual[].uncovered).`,
     `Map ${report.map.agent} (${report.map.path}), hash ${report.map.hash}: ${report.map.dimensions} dimensions, ${report.map.values} values, ${report.map.constraints} constraints, ${report.map.phrases} approved phrases.`,
     `Seed ${report.options.seed}, t = ${report.options.t}${report.options.max === null ? '' : `, at most ${report.options.max} specs per seeder`}.`,
     '',
@@ -716,9 +737,6 @@ export function renderSummary(report: GenerateReport): string {
         ? ` Paths no cell can walk: ${report.graph.unwalked.map((entry) => entry.path).join(', ')}.`
         : ''
     }`,
-    report.budget
-      ? `Budget ${report.budget.budget}: ${report.budget.picked} cells of ${report.budget.pool} allowed, pairs covered ${report.budget.pairs.covered} of ${report.budget.pairs.allowed} (${percent(report.budget.pairs.share)}), max deviation from fair share ${report.budget.maxDeviation.toFixed(2)}.`
-      : `t-wise: covering array of ${report.twise.rows} rows over ${report.twise.dimensions.length} dimensions, ${report.twise.covered} of ${report.twise.allowed} allowed ${report.twise.t}-tuples (${percent(report.twise.share)}); ${report.twise.unreachable.length} pairs no path reaches are left out.`,
     `Constraints applied: ${report.constraints.applied}.`,
     `Deviation probes: ${report.deviation.probes.length} of ${report.deviation.classes} classes. Metamorphic families: ${report.metamorphic.families}.`,
     `Coverage on the axis map at t = ${report.coverage.t}: complete specs ${report.coverage.complete.covered} of ${report.coverage.allowed} (${percent(report.coverage.complete.share)}), all specs ${report.coverage.all.covered} (${percent(report.coverage.all.share)})${report.coverage.baseline ? `, ${report.coverage.baseline.label} ${report.coverage.baseline.covered} (${percent(report.coverage.baseline.share)})` : ''}.`,
@@ -729,7 +747,7 @@ export function renderSummary(report: GenerateReport): string {
     );
   if (report.cover.unbuilt.length > 0)
     lines.push(
-      `Allowed pairs no spec could be built for: ${report.cover.unbuilt.length} (see cover.unbuilt).`,
+      `Allowed tuples no spec could be built for: ${report.cover.unbuilt.length} (see cover.unbuilt).`,
     );
   if (report.cover.unreachable.length > 0)
     lines.push(
