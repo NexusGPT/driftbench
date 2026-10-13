@@ -5,33 +5,6 @@
  * hanging the validator.
  * Usage: node --import tsx child.ts <seed> <root> <start>, with the item ids as a JSON array on stdin.
  */
-import { realApi, runItem } from './bank';
-import { judgesBank } from './index';
+import { judgesBankChild } from './run-child';
 
-async function main(): Promise<void> {
-  const [seedText, root, startText] = process.argv.slice(2);
-  const seed = Number(seedText);
-  const start = Number(startText ?? 0);
-  const chunks: Buffer[] = [];
-  for await (const chunk of process.stdin) chunks.push(chunk as Buffer);
-  const ids = JSON.parse(Buffer.concat(chunks).toString('utf8')) as string[];
-  const byId = new Map(judgesBank({ quarantined: true }).map((entry) => [entry.id, entry]));
-  for (let index = start; index < ids.length; index += 1) {
-    const entry = byId.get(ids[index] as string);
-    if (!entry) throw new Error(`no bank item ${ids[index]}`);
-    process.stdout.write(`${JSON.stringify({ start: index, id: entry.id })}\n`);
-    const result = await runItem(entry, seed, root as string, realApi);
-    process.stdout.write(
-      `${JSON.stringify({ done: index, id: entry.id, pass: result.pass, detail: result.detail })}\n`,
-    );
-  }
-}
-
-main().then(
-  // Exit when every line has left the process: an exit with output still queued would drop it.
-  () => process.stdout.write('', () => process.exit(0)),
-  (cause) => {
-    process.stderr.write(`bank child failed: ${cause instanceof Error ? cause.stack : String(cause)}\n`);
-    process.exit(1);
-  },
-);
+await judgesBankChild(process.argv.slice(2));

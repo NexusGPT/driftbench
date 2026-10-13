@@ -1,0 +1,25 @@
+{
+  "createdAt": "2026-10-12T23:17:58.273Z",
+  "label": "not yet the shipped default",
+  "seed": 20261017,
+  "cases": 60,
+  "designData": "Only recorded hard-set failures of audit v1; no held-out outcome used for design",
+  "promptSha256": "b36b7659e1c391ffef11790d8655d395068fdab91a055d2c43918cf78ea6274c",
+  "decoderSha256": "cdbab104cd6765b9d0ee8706cc27bad925ef9272cce44a8e68563b6734c2e605",
+  "fixtureSha256": "7280d96ff882da89a268cba25c10ce9c43c8fe6951a642d48fd98e56fd599cfd",
+  "hardFixtureSha256": "feaa0dba9e67114e23fa56bb808433231fee49c72f76326ec3c03b4a3b2a14a1",
+  "sourceHashes": {
+    "injection-attempt.mts": "6948b4fc58abe2d7689ec826f81267023bcf516944bb569c4c75bb08c178d70e",
+    "injection/generate.mjs": "e7a71d875d30cd3dde023d286be5ee5d97915bb947a32a93177475cfda491535"
+  },
+  "seedSelection": "first seed from 20261015 onward with zero input overlap against hard and first fresh; no model outcomes used",
+  "storageMigration": {
+    "measuredAt": "2026-10-13T01:22:54.883Z",
+    "originalManifest": "pre-storage-rename/frozen.json",
+    "beforeCallsOriginalFreeze": "2026-10-12T22:04:29.608Z",
+    "promptHashesUnchanged": true,
+    "decoderHashesUnchanged": true,
+    "fixtureHashesUnchanged": true,
+    "reason": "Lead-approved request digest field rename; no outcome, input, prompt, decoder, label or CLI setting changes"
+  }
+}

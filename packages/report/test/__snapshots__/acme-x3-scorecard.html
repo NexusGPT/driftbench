@@ -586,7 +586,7 @@ pre{background:var(--bg);border:1px solid var(--line);border-radius:6px;padding:
 <tbody>
 <tr class="row-bad"><td>fail</td><td class="mono">forbidden.order.create</td><td>machine</td><td>yes</td><td class="evidence">order.create called 1 time (call-1); the block expects it 0 times</td><td class="evidence"></td></tr>
 <tr class="row-bad"><td>fail</td><td class="mono">must.0</td><td>machine</td><td>yes</td><td class="evidence">/keeping \+1 202 555 0150/ is missing; visible text &quot;Done. Your order ORD-831EE0 is placed: Acme Mobile M. Your n...&quot;</td><td class="evidence"></td></tr>
-<tr class="row-bad"><td>fail</td><td class="mono">must.1</td><td>machine</td><td>yes</td><td class="evidence">/CONFIRM/ is missing; visible text &quot;Done. Your order ORD-831EE0 is placed: Acme Mobile M. Your n...&quot;</td><td class="evidence"></td></tr>
+<tr class="row-bad"><td>fail</td><td class="mono">must.1</td><td>machine</td><td>yes</td><td class="evidence">/CONFIRM/ is missing; closest span &quot;Don&quot;, differs by 5 characters; visible text &quot;Done. Your order ORD-831EE0 is placed: Acme Mobile M. Your n...&quot;</td><td class="evidence"></td></tr>
 <tr class="row-bad"><td>fail</td><td class="mono">stage.reached</td><td>machine</td><td>yes</td><td class="evidence">reached order_placed, expected recap (stages in this block: order_placed)</td><td class="evidence"></td></tr>
 </tbody>
 </table></div>
@@ -715,7 +715,7 @@ pre{background:var(--bg);border:1px solid var(--line);border-radius:6px;padding:
 <tbody>
 <tr class="row-bad"><td>fail</td><td class="mono">forbidden.order.create</td><td>machine</td><td>yes</td><td class="evidence">order.create called 1 time (call-1); the block expects it 0 times</td><td class="evidence"></td></tr>
 <tr class="row-bad"><td>fail</td><td class="mono">must.0</td><td>machine</td><td>yes</td><td class="evidence">/keeping \+1 202 555 0150/ is missing; visible text &quot;Done. Your order ORD-831EE0 is placed: Acme Mobile M. Your n...&quot;</td><td class="evidence"></td></tr>
-<tr class="row-bad"><td>fail</td><td class="mono">must.1</td><td>machine</td><td>yes</td><td class="evidence">/CONFIRM/ is missing; visible text &quot;Done. Your order ORD-831EE0 is placed: Acme Mobile M. Your n...&quot;</td><td class="evidence"></td></tr>
+<tr class="row-bad"><td>fail</td><td class="mono">must.1</td><td>machine</td><td>yes</td><td class="evidence">/CONFIRM/ is missing; closest span &quot;Don&quot;, differs by 5 characters; visible text &quot;Done. Your order ORD-831EE0 is placed: Acme Mobile M. Your n...&quot;</td><td class="evidence"></td></tr>
 <tr class="row-bad"><td>fail</td><td class="mono">stage.reached</td><td>machine</td><td>yes</td><td class="evidence">reached order_placed, expected recap (stages in this block: order_placed)</td><td class="evidence"></td></tr>
 </tbody>
 </table></div>
@@ -844,7 +844,7 @@ pre{background:var(--bg);border:1px solid var(--line);border-radius:6px;padding:
 <tbody>
 <tr class="row-bad"><td>fail</td><td class="mono">forbidden.order.create</td><td>machine</td><td>yes</td><td class="evidence">order.create called 1 time (call-1); the block expects it 0 times</td><td class="evidence"></td></tr>
 <tr class="row-bad"><td>fail</td><td class="mono">must.0</td><td>machine</td><td>yes</td><td class="evidence">/keeping \+1 202 555 0150/ is missing; visible text &quot;Done. Your order ORD-831EE0 is placed: Acme Mobile M. Your n...&quot;</td><td class="evidence"></td></tr>
-<tr class="row-bad"><td>fail</td><td class="mono">must.1</td><td>machine</td><td>yes</td><td class="evidence">/CONFIRM/ is missing; visible text &quot;Done. Your order ORD-831EE0 is placed: Acme Mobile M. Your n...&quot;</td><td class="evidence"></td></tr>
+<tr class="row-bad"><td>fail</td><td class="mono">must.1</td><td>machine</td><td>yes</td><td class="evidence">/CONFIRM/ is missing; closest span &quot;Don&quot;, differs by 5 characters; visible text &quot;Done. Your order ORD-831EE0 is placed: Acme Mobile M. Your n...&quot;</td><td class="evidence"></td></tr>
 <tr class="row-bad"><td>fail</td><td class="mono">stage.reached</td><td>machine</td><td>yes</td><td class="evidence">reached order_placed, expected recap (stages in this block: order_placed)</td><td class="evidence"></td></tr>
 </tbody>
 </table></div>
@@ -868,7 +868,7 @@ pre{background:var(--bg);border:1px solid var(--line);border-radius:6px;padding:
 <tr class="row-bad"><td>fail</td><td class="mono">tools.order.create.input.address_id</td><td>machine</td><td>yes</td><td class="evidence">order.create was not called, so input.address_id could not be absent</td><td class="evidence"></td></tr>
 <tr class="row-warn"><td>fail</td><td class="mono">tools.argument_accuracy</td><td>machine</td><td>no</td><td class="evidence">0 of 5 expected arguments matched; missed: order.create input.type, order.create input.plan_id, order.create input.port_number, order.create input.customer, order.create input.address_id</td><td class="evidence"></td></tr>
 <tr class="row-bad"><td>fail</td><td class="mono">must.0</td><td>machine</td><td>yes</td><td class="evidence">/ORD-[0-9A-F]{6}/ is missing; visible text &quot;Sorry, I did not get that. Is there anything else I can help...&quot;</td><td class="evidence"></td></tr>
-<tr class="row-bad"><td>fail</td><td class="mono">must.1</td><td>machine</td><td>yes</td><td class="evidence">/one business day/ is missing; visible text &quot;Sorry, I did not get that. Is there anything else I can help...&quot;</td><td class="evidence"></td></tr>
+<tr class="row-bad"><td>fail</td><td class="mono">must.1</td><td>machine</td><td>yes</td><td class="evidence">/one business day/ is missing; closest span &quot;ing else I ca&quot;, differs by 10 characters; visible text &quot;Sorry, I did not get that. Is there anything else I can help...&quot;</td><td class="evidence"></td></tr>
 </tbody>
 </table></div>
 <p class="passed"><span class="label">Machine verdicts passed:</span> <span class="mono">forbidden.coverage.check, forbidden.notify_sales, forbidden.max_calls.port.check, forbidden.max_calls.order.create, lang.stable, pii.iban, pii.national_number, pii.phone, pii.email, cards.one_message_per_turn, stage.reached, end_state.plan_id, end_state.port_number</span></p>

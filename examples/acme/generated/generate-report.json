@@ -16,9 +16,9 @@
     "max": null
   },
   "summary": {
-    "specs": 325,
-    "blocks": 1212,
-    "complete": 252,
+    "specs": 332,
+    "blocks": 1253,
+    "complete": 259,
     "incomplete": 73
   },
   "seeders": {
@@ -44,8 +44,8 @@
       "needs_then": 1,
       "cut": false,
       "measures": {
-        "hill_q0": 563,
-        "pielou": 0.8849125971139721,
+        "hill_q0": 573,
+        "pielou": 0.8844148873524045,
         "machine_then_share": 1,
         "judged_only_blocks": 0
       }
@@ -72,8 +72,8 @@
       "needs_then": 0,
       "cut": false,
       "measures": {
-        "hill_q0": 172,
-        "pielou": 0.9218853791770059,
+        "hill_q0": 175,
+        "pielou": 0.9220016410673131,
         "machine_then_share": 1,
         "judged_only_blocks": 0
       }
@@ -107,15 +107,15 @@
       }
     },
     "cover": {
-      "specs": 7,
-      "blocks": 38,
-      "complete": 7,
+      "specs": 14,
+      "blocks": 79,
+      "complete": 14,
       "needs_phrase": 0,
       "needs_then": 0,
       "cut": false,
       "measures": {
-        "hill_q0": 133,
-        "pielou": 0.953152543774304,
+        "hill_q0": 225,
+        "pielou": 0.9302937604524028,
         "machine_then_share": 1,
         "judged_only_blocks": 0
       }
@@ -189,7 +189,7 @@
       },
       {
         "class": "D6_instruction_in_data",
-        "stage": "address",
+        "stage": "needs",
         "spec": "gen-deviation-008",
         "phrase": true
       },
@@ -245,738 +245,9 @@
     ]
   },
   "cover": {
-    "cells": 20,
-    "covered": 7,
-    "unbuilt": [
-      {
-        "cell": {
-          "behaviour": "B-001",
-          "stage": "needs"
-        },
-        "reasons": [
-          "path upgrade-order: the first-turn recovery of D1_off_topic stays at needs without a required tool call; it cannot distinguish an idle or echo reply",
-          "path upgrade-plan-not-in-catalog: the first-turn recovery of D1_off_topic stays at needs without a required tool call; it cannot distinguish an idle or echo reply",
-          "path upgrade-unknown-email: the first-turn recovery of D1_off_topic stays at needs without a required tool call; it cannot distinguish an idle or echo reply",
-          "path home-order: the constraints allow no value of user_type it needs with this cell",
-          "path order-named-plan: the constraints allow no value of coverage_result it needs with this cell",
-          "path home-no-coverage: the constraints allow no value of user_type it needs with this cell",
-          "path porting-locked-number: the constraints allow no value of user_type it needs with this cell",
-          "path order-single-plan: the constraints allow no value of coverage_result it needs with this cell",
-          "path home-callback: the constraints allow no value of user_type it needs with this cell",
-          "path home-address-not-found: the constraints allow no value of user_type it needs with this cell",
-          "path upgrade-most-data: the first-turn recovery of D1_off_topic stays at needs without a required tool call; it cannot distinguish an idle or echo reply",
-          "path porting-keep-number: the constraints allow no value of user_type it needs with this cell",
-          "path upgrade-order: the first-turn recovery of D5_language_switch stays at needs without a required tool call; it cannot distinguish an idle or echo reply",
-          "path upgrade-plan-not-in-catalog: the first-turn recovery of D5_language_switch stays at needs without a required tool call; it cannot distinguish an idle or echo reply",
-          "path upgrade-unknown-email: the first-turn recovery of D5_language_switch stays at needs without a required tool call; it cannot distinguish an idle or echo reply",
-          "path home-order: the constraints allow no value of user_type it needs with this cell",
-          "path order-named-plan: the constraints allow no value of coverage_result it needs with this cell",
-          "path home-no-coverage: the constraints allow no value of user_type it needs with this cell",
-          "path porting-locked-number: the constraints allow no value of user_type it needs with this cell",
-          "path order-single-plan: the constraints allow no value of coverage_result it needs with this cell",
-          "path home-callback: the constraints allow no value of user_type it needs with this cell",
-          "path home-address-not-found: the constraints allow no value of user_type it needs with this cell",
-          "path upgrade-most-data: the first-turn recovery of D5_language_switch stays at needs without a required tool call; it cannot distinguish an idle or echo reply",
-          "path porting-keep-number: the constraints allow no value of user_type it needs with this cell",
-          "path upgrade-order: the first-turn recovery of D6_instruction_in_data stays at needs without a required tool call; it cannot distinguish an idle or echo reply",
-          "path upgrade-plan-not-in-catalog: the first-turn recovery of D6_instruction_in_data stays at needs without a required tool call; it cannot distinguish an idle or echo reply",
-          "path upgrade-unknown-email: the first-turn recovery of D6_instruction_in_data stays at needs without a required tool call; it cannot distinguish an idle or echo reply",
-          "path home-order: the constraints allow no value of user_type it needs with this cell",
-          "path order-named-plan: the constraints allow no value of coverage_result it needs with this cell",
-          "path home-no-coverage: the constraints allow no value of user_type it needs with this cell",
-          "path porting-locked-number: the constraints allow no value of user_type it needs with this cell",
-          "path order-single-plan: the constraints allow no value of coverage_result it needs with this cell",
-          "path home-callback: the constraints allow no value of user_type it needs with this cell",
-          "path home-address-not-found: the constraints allow no value of user_type it needs with this cell",
-          "path upgrade-most-data: the first-turn recovery of D6_instruction_in_data stays at needs without a required tool call; it cannot distinguish an idle or echo reply",
-          "path porting-keep-number: the constraints allow no value of user_type it needs with this cell",
-          "path upgrade-order: the first-turn recovery of D9_out_of_scope stays at needs without a required tool call; it cannot distinguish an idle or echo reply",
-          "path upgrade-plan-not-in-catalog: the first-turn recovery of D9_out_of_scope stays at needs without a required tool call; it cannot distinguish an idle or echo reply",
-          "path upgrade-unknown-email: the first-turn recovery of D9_out_of_scope stays at needs without a required tool call; it cannot distinguish an idle or echo reply",
-          "path home-order: the constraints allow no value of user_type it needs with this cell",
-          "path order-named-plan: the constraints allow no value of coverage_result it needs with this cell",
-          "path home-no-coverage: the constraints allow no value of user_type it needs with this cell",
-          "path porting-locked-number: the constraints allow no value of user_type it needs with this cell",
-          "path order-single-plan: the constraints allow no value of coverage_result it needs with this cell",
-          "path home-callback: the constraints allow no value of user_type it needs with this cell",
-          "path home-address-not-found: the constraints allow no value of user_type it needs with this cell",
-          "path upgrade-most-data: the first-turn recovery of D9_out_of_scope stays at needs without a required tool call; it cannot distinguish an idle or echo reply",
-          "path porting-keep-number: the constraints allow no value of user_type it needs with this cell"
-        ]
-      },
-      {
-        "cell": {
-          "behaviour": "B-003",
-          "stage": "needs"
-        },
-        "reasons": [
-          "path home-order: the first-turn recovery of D1_off_topic stays at needs without a required tool call; it cannot distinguish an idle or echo reply",
-          "path home-address-not-found: the first-turn recovery of D1_off_topic stays at needs without a required tool call; it cannot distinguish an idle or echo reply",
-          "path home-no-coverage: the first-turn recovery of D1_off_topic stays at needs without a required tool call; it cannot distinguish an idle or echo reply",
-          "path upgrade-unknown-email: the constraints allow no value of user_type it needs with this cell",
-          "path order-named-plan: the constraints allow no value of coverage_result it needs with this cell",
-          "path upgrade-most-data: the constraints allow no value of user_type it needs with this cell",
-          "path porting-locked-number: the constraints allow no value of user_type it needs with this cell",
-          "path order-single-plan: the constraints allow no value of coverage_result it needs with this cell",
-          "path home-callback: the first-turn recovery of D1_off_topic stays at needs without a required tool call; it cannot distinguish an idle or echo reply",
-          "path upgrade-plan-not-in-catalog: the constraints allow no value of user_type it needs with this cell",
-          "path upgrade-order: the constraints allow no value of user_type it needs with this cell",
-          "path porting-keep-number: the constraints allow no value of user_type it needs with this cell",
-          "path home-order: the first-turn recovery of D5_language_switch stays at needs without a required tool call; it cannot distinguish an idle or echo reply",
-          "path home-address-not-found: the first-turn recovery of D5_language_switch stays at needs without a required tool call; it cannot distinguish an idle or echo reply",
-          "path home-no-coverage: the first-turn recovery of D5_language_switch stays at needs without a required tool call; it cannot distinguish an idle or echo reply",
-          "path upgrade-unknown-email: the constraints allow no value of user_type it needs with this cell",
-          "path order-named-plan: the constraints allow no value of coverage_result it needs with this cell",
-          "path upgrade-most-data: the constraints allow no value of user_type it needs with this cell",
-          "path porting-locked-number: the constraints allow no value of user_type it needs with this cell",
-          "path order-single-plan: the constraints allow no value of coverage_result it needs with this cell",
-          "path home-callback: the first-turn recovery of D5_language_switch stays at needs without a required tool call; it cannot distinguish an idle or echo reply",
-          "path upgrade-plan-not-in-catalog: the constraints allow no value of user_type it needs with this cell",
-          "path upgrade-order: the constraints allow no value of user_type it needs with this cell",
-          "path porting-keep-number: the constraints allow no value of user_type it needs with this cell",
-          "path home-order: the first-turn recovery of D6_instruction_in_data stays at needs without a required tool call; it cannot distinguish an idle or echo reply",
-          "path home-address-not-found: the first-turn recovery of D6_instruction_in_data stays at needs without a required tool call; it cannot distinguish an idle or echo reply",
-          "path home-no-coverage: the first-turn recovery of D6_instruction_in_data stays at needs without a required tool call; it cannot distinguish an idle or echo reply",
-          "path upgrade-unknown-email: the constraints allow no value of user_type it needs with this cell",
-          "path order-named-plan: the constraints allow no value of coverage_result it needs with this cell",
-          "path upgrade-most-data: the constraints allow no value of user_type it needs with this cell",
-          "path porting-locked-number: the constraints allow no value of user_type it needs with this cell",
-          "path order-single-plan: the constraints allow no value of coverage_result it needs with this cell",
-          "path home-callback: the first-turn recovery of D6_instruction_in_data stays at needs without a required tool call; it cannot distinguish an idle or echo reply",
-          "path upgrade-plan-not-in-catalog: the constraints allow no value of user_type it needs with this cell",
-          "path upgrade-order: the constraints allow no value of user_type it needs with this cell",
-          "path porting-keep-number: the constraints allow no value of user_type it needs with this cell",
-          "path home-order: the first-turn recovery of D9_out_of_scope stays at needs without a required tool call; it cannot distinguish an idle or echo reply",
-          "path home-address-not-found: the first-turn recovery of D9_out_of_scope stays at needs without a required tool call; it cannot distinguish an idle or echo reply",
-          "path home-no-coverage: the first-turn recovery of D9_out_of_scope stays at needs without a required tool call; it cannot distinguish an idle or echo reply",
-          "path upgrade-unknown-email: the constraints allow no value of user_type it needs with this cell",
-          "path order-named-plan: the constraints allow no value of coverage_result it needs with this cell",
-          "path upgrade-most-data: the constraints allow no value of user_type it needs with this cell",
-          "path porting-locked-number: the constraints allow no value of user_type it needs with this cell",
-          "path order-single-plan: the constraints allow no value of coverage_result it needs with this cell",
-          "path home-callback: the first-turn recovery of D9_out_of_scope stays at needs without a required tool call; it cannot distinguish an idle or echo reply",
-          "path upgrade-plan-not-in-catalog: the constraints allow no value of user_type it needs with this cell",
-          "path upgrade-order: the constraints allow no value of user_type it needs with this cell",
-          "path porting-keep-number: the constraints allow no value of user_type it needs with this cell"
-        ]
-      },
-      {
-        "cell": {
-          "behaviour": "B-004",
-          "stage": "needs"
-        },
-        "reasons": [
-          "path home-callback: the first-turn recovery of D1_off_topic stays at needs without a required tool call; it cannot distinguish an idle or echo reply",
-          "path home-order: the first-turn recovery of D1_off_topic stays at needs without a required tool call; it cannot distinguish an idle or echo reply",
-          "path upgrade-unknown-email: the constraints allow no value of user_type it needs with this cell",
-          "path porting-locked-number: the constraints allow no value of user_type it needs with this cell",
-          "path upgrade-most-data: the constraints allow no value of user_type it needs with this cell",
-          "path porting-keep-number: the constraints allow no value of user_type it needs with this cell",
-          "path order-single-plan: the constraints allow no value of coverage_result it needs with this cell",
-          "path home-no-coverage: the first-turn recovery of D1_off_topic stays at needs without a required tool call; it cannot distinguish an idle or echo reply",
-          "path upgrade-plan-not-in-catalog: the constraints allow no value of user_type it needs with this cell",
-          "path upgrade-order: the constraints allow no value of user_type it needs with this cell",
-          "path home-address-not-found: the first-turn recovery of D1_off_topic stays at needs without a required tool call; it cannot distinguish an idle or echo reply",
-          "path order-named-plan: the constraints allow no value of coverage_result it needs with this cell",
-          "path home-callback: the first-turn recovery of D5_language_switch stays at needs without a required tool call; it cannot distinguish an idle or echo reply",
-          "path home-order: the first-turn recovery of D5_language_switch stays at needs without a required tool call; it cannot distinguish an idle or echo reply",
-          "path upgrade-unknown-email: the constraints allow no value of user_type it needs with this cell",
-          "path porting-locked-number: the constraints allow no value of user_type it needs with this cell",
-          "path upgrade-most-data: the constraints allow no value of user_type it needs with this cell",
-          "path porting-keep-number: the constraints allow no value of user_type it needs with this cell",
-          "path order-single-plan: the constraints allow no value of coverage_result it needs with this cell",
-          "path home-no-coverage: the first-turn recovery of D5_language_switch stays at needs without a required tool call; it cannot distinguish an idle or echo reply",
-          "path upgrade-plan-not-in-catalog: the constraints allow no value of user_type it needs with this cell",
-          "path upgrade-order: the constraints allow no value of user_type it needs with this cell",
-          "path home-address-not-found: the first-turn recovery of D5_language_switch stays at needs without a required tool call; it cannot distinguish an idle or echo reply",
-          "path order-named-plan: the constraints allow no value of coverage_result it needs with this cell",
-          "path home-callback: the first-turn recovery of D6_instruction_in_data stays at needs without a required tool call; it cannot distinguish an idle or echo reply",
-          "path home-order: the first-turn recovery of D6_instruction_in_data stays at needs without a required tool call; it cannot distinguish an idle or echo reply",
-          "path upgrade-unknown-email: the constraints allow no value of user_type it needs with this cell",
-          "path porting-locked-number: the constraints allow no value of user_type it needs with this cell",
-          "path upgrade-most-data: the constraints allow no value of user_type it needs with this cell",
-          "path porting-keep-number: the constraints allow no value of user_type it needs with this cell",
-          "path order-single-plan: the constraints allow no value of coverage_result it needs with this cell",
-          "path home-no-coverage: the first-turn recovery of D6_instruction_in_data stays at needs without a required tool call; it cannot distinguish an idle or echo reply",
-          "path upgrade-plan-not-in-catalog: the constraints allow no value of user_type it needs with this cell",
-          "path upgrade-order: the constraints allow no value of user_type it needs with this cell",
-          "path home-address-not-found: the first-turn recovery of D6_instruction_in_data stays at needs without a required tool call; it cannot distinguish an idle or echo reply",
-          "path order-named-plan: the constraints allow no value of coverage_result it needs with this cell",
-          "path home-callback: the first-turn recovery of D9_out_of_scope stays at needs without a required tool call; it cannot distinguish an idle or echo reply",
-          "path home-order: the first-turn recovery of D9_out_of_scope stays at needs without a required tool call; it cannot distinguish an idle or echo reply",
-          "path upgrade-unknown-email: the constraints allow no value of user_type it needs with this cell",
-          "path porting-locked-number: the constraints allow no value of user_type it needs with this cell",
-          "path upgrade-most-data: the constraints allow no value of user_type it needs with this cell",
-          "path porting-keep-number: the constraints allow no value of user_type it needs with this cell",
-          "path order-single-plan: the constraints allow no value of coverage_result it needs with this cell",
-          "path home-no-coverage: the first-turn recovery of D9_out_of_scope stays at needs without a required tool call; it cannot distinguish an idle or echo reply",
-          "path upgrade-plan-not-in-catalog: the constraints allow no value of user_type it needs with this cell",
-          "path upgrade-order: the constraints allow no value of user_type it needs with this cell",
-          "path home-address-not-found: the first-turn recovery of D9_out_of_scope stays at needs without a required tool call; it cannot distinguish an idle or echo reply",
-          "path order-named-plan: the constraints allow no value of coverage_result it needs with this cell"
-        ]
-      },
-      {
-        "cell": {
-          "behaviour": "B-005",
-          "stage": "needs"
-        },
-        "reasons": [
-          "path home-callback: the first-turn recovery of D1_off_topic stays at needs without a required tool call; it cannot distinguish an idle or echo reply",
-          "path home-no-coverage: the first-turn recovery of D1_off_topic stays at needs without a required tool call; it cannot distinguish an idle or echo reply",
-          "path upgrade-unknown-email: the constraints allow no value of user_type it needs with this cell",
-          "path porting-locked-number: the constraints allow no value of user_type it needs with this cell",
-          "path upgrade-most-data: the constraints allow no value of user_type it needs with this cell",
-          "path porting-keep-number: the constraints allow no value of user_type it needs with this cell",
-          "path order-single-plan: the constraints allow no value of coverage_result it needs with this cell",
-          "path home-order: the first-turn recovery of D1_off_topic stays at needs without a required tool call; it cannot distinguish an idle or echo reply",
-          "path upgrade-plan-not-in-catalog: the constraints allow no value of user_type it needs with this cell",
-          "path upgrade-order: the constraints allow no value of user_type it needs with this cell",
-          "path home-address-not-found: the first-turn recovery of D1_off_topic stays at needs without a required tool call; it cannot distinguish an idle or echo reply",
-          "path order-named-plan: the constraints allow no value of coverage_result it needs with this cell",
-          "path home-callback: the first-turn recovery of D5_language_switch stays at needs without a required tool call; it cannot distinguish an idle or echo reply",
-          "path home-no-coverage: the first-turn recovery of D5_language_switch stays at needs without a required tool call; it cannot distinguish an idle or echo reply",
-          "path upgrade-unknown-email: the constraints allow no value of user_type it needs with this cell",
-          "path porting-locked-number: the constraints allow no value of user_type it needs with this cell",
-          "path upgrade-most-data: the constraints allow no value of user_type it needs with this cell",
-          "path porting-keep-number: the constraints allow no value of user_type it needs with this cell",
-          "path order-single-plan: the constraints allow no value of coverage_result it needs with this cell",
-          "path home-order: the first-turn recovery of D5_language_switch stays at needs without a required tool call; it cannot distinguish an idle or echo reply",
-          "path upgrade-plan-not-in-catalog: the constraints allow no value of user_type it needs with this cell",
-          "path upgrade-order: the constraints allow no value of user_type it needs with this cell",
-          "path home-address-not-found: the first-turn recovery of D5_language_switch stays at needs without a required tool call; it cannot distinguish an idle or echo reply",
-          "path order-named-plan: the constraints allow no value of coverage_result it needs with this cell",
-          "path home-callback: the first-turn recovery of D6_instruction_in_data stays at needs without a required tool call; it cannot distinguish an idle or echo reply",
-          "path home-no-coverage: the first-turn recovery of D6_instruction_in_data stays at needs without a required tool call; it cannot distinguish an idle or echo reply",
-          "path upgrade-unknown-email: the constraints allow no value of user_type it needs with this cell",
-          "path porting-locked-number: the constraints allow no value of user_type it needs with this cell",
-          "path upgrade-most-data: the constraints allow no value of user_type it needs with this cell",
-          "path porting-keep-number: the constraints allow no value of user_type it needs with this cell",
-          "path order-single-plan: the constraints allow no value of coverage_result it needs with this cell",
-          "path home-order: the first-turn recovery of D6_instruction_in_data stays at needs without a required tool call; it cannot distinguish an idle or echo reply",
-          "path upgrade-plan-not-in-catalog: the constraints allow no value of user_type it needs with this cell",
-          "path upgrade-order: the constraints allow no value of user_type it needs with this cell",
-          "path home-address-not-found: the first-turn recovery of D6_instruction_in_data stays at needs without a required tool call; it cannot distinguish an idle or echo reply",
-          "path order-named-plan: the constraints allow no value of coverage_result it needs with this cell",
-          "path home-callback: the first-turn recovery of D9_out_of_scope stays at needs without a required tool call; it cannot distinguish an idle or echo reply",
-          "path home-no-coverage: the first-turn recovery of D9_out_of_scope stays at needs without a required tool call; it cannot distinguish an idle or echo reply",
-          "path upgrade-unknown-email: the constraints allow no value of user_type it needs with this cell",
-          "path porting-locked-number: the constraints allow no value of user_type it needs with this cell",
-          "path upgrade-most-data: the constraints allow no value of user_type it needs with this cell",
-          "path porting-keep-number: the constraints allow no value of user_type it needs with this cell",
-          "path order-single-plan: the constraints allow no value of coverage_result it needs with this cell",
-          "path home-order: the first-turn recovery of D9_out_of_scope stays at needs without a required tool call; it cannot distinguish an idle or echo reply",
-          "path upgrade-plan-not-in-catalog: the constraints allow no value of user_type it needs with this cell",
-          "path upgrade-order: the constraints allow no value of user_type it needs with this cell",
-          "path home-address-not-found: the first-turn recovery of D9_out_of_scope stays at needs without a required tool call; it cannot distinguish an idle or echo reply",
-          "path order-named-plan: the constraints allow no value of coverage_result it needs with this cell"
-        ]
-      },
-      {
-        "cell": {
-          "behaviour": "B-006",
-          "stage": "needs"
-        },
-        "reasons": [
-          "path porting-locked-number: the first-turn recovery of D1_off_topic stays at needs without a required tool call; it cannot distinguish an idle or echo reply",
-          "path porting-keep-number: the first-turn recovery of D1_off_topic stays at needs without a required tool call; it cannot distinguish an idle or echo reply",
-          "path upgrade-unknown-email: the constraints allow no value of user_type it needs with this cell",
-          "path home-callback: the constraints allow no value of user_type it needs with this cell",
-          "path upgrade-most-data: the constraints allow no value of user_type it needs with this cell",
-          "path home-address-not-found: the constraints allow no value of user_type it needs with this cell",
-          "path order-single-plan: the constraints allow no value of coverage_result it needs with this cell",
-          "path home-order: the constraints allow no value of user_type it needs with this cell",
-          "path upgrade-plan-not-in-catalog: the constraints allow no value of user_type it needs with this cell",
-          "path upgrade-order: the constraints allow no value of user_type it needs with this cell",
-          "path home-no-coverage: the constraints allow no value of user_type it needs with this cell",
-          "path order-named-plan: the constraints allow no value of coverage_result it needs with this cell",
-          "path porting-locked-number: the first-turn recovery of D5_language_switch stays at needs without a required tool call; it cannot distinguish an idle or echo reply",
-          "path porting-keep-number: the first-turn recovery of D5_language_switch stays at needs without a required tool call; it cannot distinguish an idle or echo reply",
-          "path upgrade-unknown-email: the constraints allow no value of user_type it needs with this cell",
-          "path home-callback: the constraints allow no value of user_type it needs with this cell",
-          "path upgrade-most-data: the constraints allow no value of user_type it needs with this cell",
-          "path home-address-not-found: the constraints allow no value of user_type it needs with this cell",
-          "path order-single-plan: the constraints allow no value of coverage_result it needs with this cell",
-          "path home-order: the constraints allow no value of user_type it needs with this cell",
-          "path upgrade-plan-not-in-catalog: the constraints allow no value of user_type it needs with this cell",
-          "path upgrade-order: the constraints allow no value of user_type it needs with this cell",
-          "path home-no-coverage: the constraints allow no value of user_type it needs with this cell",
-          "path order-named-plan: the constraints allow no value of coverage_result it needs with this cell",
-          "path porting-locked-number: the first-turn recovery of D6_instruction_in_data stays at needs without a required tool call; it cannot distinguish an idle or echo reply",
-          "path porting-keep-number: the first-turn recovery of D6_instruction_in_data stays at needs without a required tool call; it cannot distinguish an idle or echo reply",
-          "path upgrade-unknown-email: the constraints allow no value of user_type it needs with this cell",
-          "path home-callback: the constraints allow no value of user_type it needs with this cell",
-          "path upgrade-most-data: the constraints allow no value of user_type it needs with this cell",
-          "path home-address-not-found: the constraints allow no value of user_type it needs with this cell",
-          "path order-single-plan: the constraints allow no value of coverage_result it needs with this cell",
-          "path home-order: the constraints allow no value of user_type it needs with this cell",
-          "path upgrade-plan-not-in-catalog: the constraints allow no value of user_type it needs with this cell",
-          "path upgrade-order: the constraints allow no value of user_type it needs with this cell",
-          "path home-no-coverage: the constraints allow no value of user_type it needs with this cell",
-          "path order-named-plan: the constraints allow no value of coverage_result it needs with this cell",
-          "path porting-locked-number: the first-turn recovery of D9_out_of_scope stays at needs without a required tool call; it cannot distinguish an idle or echo reply",
-          "path porting-keep-number: the first-turn recovery of D9_out_of_scope stays at needs without a required tool call; it cannot distinguish an idle or echo reply",
-          "path upgrade-unknown-email: the constraints allow no value of user_type it needs with this cell",
-          "path home-callback: the constraints allow no value of user_type it needs with this cell",
-          "path upgrade-most-data: the constraints allow no value of user_type it needs with this cell",
-          "path home-address-not-found: the constraints allow no value of user_type it needs with this cell",
-          "path order-single-plan: the constraints allow no value of coverage_result it needs with this cell",
-          "path home-order: the constraints allow no value of user_type it needs with this cell",
-          "path upgrade-plan-not-in-catalog: the constraints allow no value of user_type it needs with this cell",
-          "path upgrade-order: the constraints allow no value of user_type it needs with this cell",
-          "path home-no-coverage: the constraints allow no value of user_type it needs with this cell",
-          "path order-named-plan: the constraints allow no value of coverage_result it needs with this cell"
-        ]
-      },
-      {
-        "cell": {
-          "behaviour": "B-007",
-          "stage": "needs"
-        },
-        "reasons": [
-          "path porting-locked-number: the first-turn recovery of D1_off_topic stays at needs without a required tool call; it cannot distinguish an idle or echo reply",
-          "path upgrade-unknown-email: the constraints allow no value of user_type it needs with this cell",
-          "path home-callback: the constraints allow no value of user_type it needs with this cell",
-          "path upgrade-most-data: the constraints allow no value of user_type it needs with this cell",
-          "path home-address-not-found: the constraints allow no value of user_type it needs with this cell",
-          "path order-named-plan: the constraints allow no value of coverage_result it needs with this cell",
-          "path home-order: the constraints allow no value of user_type it needs with this cell",
-          "path order-single-plan: the constraints allow no value of coverage_result it needs with this cell",
-          "path upgrade-order: the constraints allow no value of user_type it needs with this cell",
-          "path home-no-coverage: the constraints allow no value of user_type it needs with this cell",
-          "path porting-keep-number: the first-turn recovery of D1_off_topic stays at needs without a required tool call; it cannot distinguish an idle or echo reply",
-          "path upgrade-plan-not-in-catalog: the constraints allow no value of user_type it needs with this cell",
-          "path porting-locked-number: the first-turn recovery of D5_language_switch stays at needs without a required tool call; it cannot distinguish an idle or echo reply",
-          "path upgrade-unknown-email: the constraints allow no value of user_type it needs with this cell",
-          "path home-callback: the constraints allow no value of user_type it needs with this cell",
-          "path upgrade-most-data: the constraints allow no value of user_type it needs with this cell",
-          "path home-address-not-found: the constraints allow no value of user_type it needs with this cell",
-          "path order-named-plan: the constraints allow no value of coverage_result it needs with this cell",
-          "path home-order: the constraints allow no value of user_type it needs with this cell",
-          "path order-single-plan: the constraints allow no value of coverage_result it needs with this cell",
-          "path upgrade-order: the constraints allow no value of user_type it needs with this cell",
-          "path home-no-coverage: the constraints allow no value of user_type it needs with this cell",
-          "path porting-keep-number: the first-turn recovery of D5_language_switch stays at needs without a required tool call; it cannot distinguish an idle or echo reply",
-          "path upgrade-plan-not-in-catalog: the constraints allow no value of user_type it needs with this cell",
-          "path porting-locked-number: the first-turn recovery of D6_instruction_in_data stays at needs without a required tool call; it cannot distinguish an idle or echo reply",
-          "path upgrade-unknown-email: the constraints allow no value of user_type it needs with this cell",
-          "path home-callback: the constraints allow no value of user_type it needs with this cell",
-          "path upgrade-most-data: the constraints allow no value of user_type it needs with this cell",
-          "path home-address-not-found: the constraints allow no value of user_type it needs with this cell",
-          "path order-named-plan: the constraints allow no value of coverage_result it needs with this cell",
-          "path home-order: the constraints allow no value of user_type it needs with this cell",
-          "path order-single-plan: the constraints allow no value of coverage_result it needs with this cell",
-          "path upgrade-order: the constraints allow no value of user_type it needs with this cell",
-          "path home-no-coverage: the constraints allow no value of user_type it needs with this cell",
-          "path porting-keep-number: the first-turn recovery of D6_instruction_in_data stays at needs without a required tool call; it cannot distinguish an idle or echo reply",
-          "path upgrade-plan-not-in-catalog: the constraints allow no value of user_type it needs with this cell",
-          "path porting-locked-number: the first-turn recovery of D9_out_of_scope stays at needs without a required tool call; it cannot distinguish an idle or echo reply",
-          "path upgrade-unknown-email: the constraints allow no value of user_type it needs with this cell",
-          "path home-callback: the constraints allow no value of user_type it needs with this cell",
-          "path upgrade-most-data: the constraints allow no value of user_type it needs with this cell",
-          "path home-address-not-found: the constraints allow no value of user_type it needs with this cell",
-          "path order-named-plan: the constraints allow no value of coverage_result it needs with this cell",
-          "path home-order: the constraints allow no value of user_type it needs with this cell",
-          "path order-single-plan: the constraints allow no value of coverage_result it needs with this cell",
-          "path upgrade-order: the constraints allow no value of user_type it needs with this cell",
-          "path home-no-coverage: the constraints allow no value of user_type it needs with this cell",
-          "path porting-keep-number: the first-turn recovery of D9_out_of_scope stays at needs without a required tool call; it cannot distinguish an idle or echo reply",
-          "path upgrade-plan-not-in-catalog: the constraints allow no value of user_type it needs with this cell"
-        ]
-      },
-      {
-        "cell": {
-          "behaviour": "B-008",
-          "stage": "needs"
-        },
-        "reasons": [
-          "path porting-locked-number: the first-turn recovery of D1_off_topic stays at needs without a required tool call; it cannot distinguish an idle or echo reply",
-          "path upgrade-order: the first-turn recovery of D1_off_topic stays at needs without a required tool call; it cannot distinguish an idle or echo reply",
-          "path order-single-plan: the first-turn recovery of D1_off_topic stays at needs without a required tool call; it cannot distinguish an idle or echo reply",
-          "path order-named-plan: the first-turn recovery of D1_off_topic stays at needs without a required tool call; it cannot distinguish an idle or echo reply",
-          "path porting-keep-number: the first-turn recovery of D1_off_topic stays at needs without a required tool call; it cannot distinguish an idle or echo reply",
-          "path upgrade-most-data: the first-turn recovery of D1_off_topic stays at needs without a required tool call; it cannot distinguish an idle or echo reply",
-          "path upgrade-unknown-email: the first-turn recovery of D1_off_topic stays at needs without a required tool call; it cannot distinguish an idle or echo reply",
-          "path upgrade-plan-not-in-catalog: the first-turn recovery of D1_off_topic stays at needs without a required tool call; it cannot distinguish an idle or echo reply",
-          "path home-callback: the constraints allow no value of user_type it needs with this cell",
-          "path home-address-not-found: the constraints allow no value of user_type it needs with this cell",
-          "path home-no-coverage: the constraints allow no value of user_type it needs with this cell",
-          "path home-order: the constraints allow no value of user_type it needs with this cell",
-          "path porting-locked-number: the first-turn recovery of D5_language_switch stays at needs without a required tool call; it cannot distinguish an idle or echo reply",
-          "path upgrade-order: the first-turn recovery of D5_language_switch stays at needs without a required tool call; it cannot distinguish an idle or echo reply",
-          "path order-single-plan: the first-turn recovery of D5_language_switch stays at needs without a required tool call; it cannot distinguish an idle or echo reply",
-          "path order-named-plan: the first-turn recovery of D5_language_switch stays at needs without a required tool call; it cannot distinguish an idle or echo reply",
-          "path porting-keep-number: the first-turn recovery of D5_language_switch stays at needs without a required tool call; it cannot distinguish an idle or echo reply",
-          "path upgrade-most-data: the first-turn recovery of D5_language_switch stays at needs without a required tool call; it cannot distinguish an idle or echo reply",
-          "path upgrade-unknown-email: the first-turn recovery of D5_language_switch stays at needs without a required tool call; it cannot distinguish an idle or echo reply",
-          "path upgrade-plan-not-in-catalog: the first-turn recovery of D5_language_switch stays at needs without a required tool call; it cannot distinguish an idle or echo reply",
-          "path home-callback: the constraints allow no value of user_type it needs with this cell",
-          "path home-address-not-found: the constraints allow no value of user_type it needs with this cell",
-          "path home-no-coverage: the constraints allow no value of user_type it needs with this cell",
-          "path home-order: the constraints allow no value of user_type it needs with this cell",
-          "path porting-locked-number: the first-turn recovery of D6_instruction_in_data stays at needs without a required tool call; it cannot distinguish an idle or echo reply",
-          "path upgrade-order: the first-turn recovery of D6_instruction_in_data stays at needs without a required tool call; it cannot distinguish an idle or echo reply",
-          "path order-single-plan: the first-turn recovery of D6_instruction_in_data stays at needs without a required tool call; it cannot distinguish an idle or echo reply",
-          "path order-named-plan: the first-turn recovery of D6_instruction_in_data stays at needs without a required tool call; it cannot distinguish an idle or echo reply",
-          "path porting-keep-number: the first-turn recovery of D6_instruction_in_data stays at needs without a required tool call; it cannot distinguish an idle or echo reply",
-          "path upgrade-most-data: the first-turn recovery of D6_instruction_in_data stays at needs without a required tool call; it cannot distinguish an idle or echo reply",
-          "path upgrade-unknown-email: the first-turn recovery of D6_instruction_in_data stays at needs without a required tool call; it cannot distinguish an idle or echo reply",
-          "path upgrade-plan-not-in-catalog: the first-turn recovery of D6_instruction_in_data stays at needs without a required tool call; it cannot distinguish an idle or echo reply",
-          "path home-callback: the constraints allow no value of user_type it needs with this cell",
-          "path home-address-not-found: the constraints allow no value of user_type it needs with this cell",
-          "path home-no-coverage: the constraints allow no value of user_type it needs with this cell",
-          "path home-order: the constraints allow no value of user_type it needs with this cell",
-          "path porting-locked-number: the first-turn recovery of D9_out_of_scope stays at needs without a required tool call; it cannot distinguish an idle or echo reply",
-          "path upgrade-order: the first-turn recovery of D9_out_of_scope stays at needs without a required tool call; it cannot distinguish an idle or echo reply",
-          "path order-single-plan: the first-turn recovery of D9_out_of_scope stays at needs without a required tool call; it cannot distinguish an idle or echo reply",
-          "path order-named-plan: the first-turn recovery of D9_out_of_scope stays at needs without a required tool call; it cannot distinguish an idle or echo reply",
-          "path porting-keep-number: the first-turn recovery of D9_out_of_scope stays at needs without a required tool call; it cannot distinguish an idle or echo reply",
-          "path upgrade-most-data: the first-turn recovery of D9_out_of_scope stays at needs without a required tool call; it cannot distinguish an idle or echo reply",
-          "path upgrade-unknown-email: the first-turn recovery of D9_out_of_scope stays at needs without a required tool call; it cannot distinguish an idle or echo reply",
-          "path upgrade-plan-not-in-catalog: the first-turn recovery of D9_out_of_scope stays at needs without a required tool call; it cannot distinguish an idle or echo reply",
-          "path home-callback: the constraints allow no value of user_type it needs with this cell",
-          "path home-address-not-found: the constraints allow no value of user_type it needs with this cell",
-          "path home-no-coverage: the constraints allow no value of user_type it needs with this cell",
-          "path home-order: the constraints allow no value of user_type it needs with this cell"
-        ]
-      },
-      {
-        "cell": {
-          "behaviour": "B-009",
-          "stage": "needs"
-        },
-        "reasons": [
-          "path upgrade-plan-not-in-catalog: the first-turn recovery of D1_off_topic stays at needs without a required tool call; it cannot distinguish an idle or echo reply",
-          "path upgrade-order: the first-turn recovery of D1_off_topic stays at needs without a required tool call; it cannot distinguish an idle or echo reply",
-          "path home-order: the constraints allow no value of user_type it needs with this cell",
-          "path home-no-coverage: the constraints allow no value of user_type it needs with this cell",
-          "path order-named-plan: the first-turn recovery of D1_off_topic stays at needs without a required tool call; it cannot distinguish an idle or echo reply",
-          "path order-single-plan: the first-turn recovery of D1_off_topic stays at needs without a required tool call; it cannot distinguish an idle or echo reply",
-          "path upgrade-most-data: the first-turn recovery of D1_off_topic stays at needs without a required tool call; it cannot distinguish an idle or echo reply",
-          "path home-callback: the constraints allow no value of user_type it needs with this cell",
-          "path porting-keep-number: the constraints allow no value of user_type it needs with this cell",
-          "path porting-locked-number: the constraints allow no value of user_type it needs with this cell",
-          "path upgrade-unknown-email: the first-turn recovery of D1_off_topic stays at needs without a required tool call; it cannot distinguish an idle or echo reply",
-          "path home-address-not-found: the constraints allow no value of user_type it needs with this cell",
-          "path upgrade-plan-not-in-catalog: the first-turn recovery of D5_language_switch stays at needs without a required tool call; it cannot distinguish an idle or echo reply",
-          "path upgrade-order: the first-turn recovery of D5_language_switch stays at needs without a required tool call; it cannot distinguish an idle or echo reply",
-          "path home-order: the constraints allow no value of user_type it needs with this cell",
-          "path home-no-coverage: the constraints allow no value of user_type it needs with this cell",
-          "path order-named-plan: the first-turn recovery of D5_language_switch stays at needs without a required tool call; it cannot distinguish an idle or echo reply",
-          "path order-single-plan: the first-turn recovery of D5_language_switch stays at needs without a required tool call; it cannot distinguish an idle or echo reply",
-          "path upgrade-most-data: the first-turn recovery of D5_language_switch stays at needs without a required tool call; it cannot distinguish an idle or echo reply",
-          "path home-callback: the constraints allow no value of user_type it needs with this cell",
-          "path porting-keep-number: the constraints allow no value of user_type it needs with this cell",
-          "path porting-locked-number: the constraints allow no value of user_type it needs with this cell",
-          "path upgrade-unknown-email: the first-turn recovery of D5_language_switch stays at needs without a required tool call; it cannot distinguish an idle or echo reply",
-          "path home-address-not-found: the constraints allow no value of user_type it needs with this cell",
-          "path upgrade-plan-not-in-catalog: the first-turn recovery of D6_instruction_in_data stays at needs without a required tool call; it cannot distinguish an idle or echo reply",
-          "path upgrade-order: the first-turn recovery of D6_instruction_in_data stays at needs without a required tool call; it cannot distinguish an idle or echo reply",
-          "path home-order: the constraints allow no value of user_type it needs with this cell",
-          "path home-no-coverage: the constraints allow no value of user_type it needs with this cell",
-          "path order-named-plan: the first-turn recovery of D6_instruction_in_data stays at needs without a required tool call; it cannot distinguish an idle or echo reply",
-          "path order-single-plan: the first-turn recovery of D6_instruction_in_data stays at needs without a required tool call; it cannot distinguish an idle or echo reply",
-          "path upgrade-most-data: the first-turn recovery of D6_instruction_in_data stays at needs without a required tool call; it cannot distinguish an idle or echo reply",
-          "path home-callback: the constraints allow no value of user_type it needs with this cell",
-          "path porting-keep-number: the constraints allow no value of user_type it needs with this cell",
-          "path porting-locked-number: the constraints allow no value of user_type it needs with this cell",
-          "path upgrade-unknown-email: the first-turn recovery of D6_instruction_in_data stays at needs without a required tool call; it cannot distinguish an idle or echo reply",
-          "path home-address-not-found: the constraints allow no value of user_type it needs with this cell",
-          "path upgrade-plan-not-in-catalog: the first-turn recovery of D9_out_of_scope stays at needs without a required tool call; it cannot distinguish an idle or echo reply",
-          "path upgrade-order: the first-turn recovery of D9_out_of_scope stays at needs without a required tool call; it cannot distinguish an idle or echo reply",
-          "path home-order: the constraints allow no value of user_type it needs with this cell",
-          "path home-no-coverage: the constraints allow no value of user_type it needs with this cell",
-          "path order-named-plan: the first-turn recovery of D9_out_of_scope stays at needs without a required tool call; it cannot distinguish an idle or echo reply",
-          "path order-single-plan: the first-turn recovery of D9_out_of_scope stays at needs without a required tool call; it cannot distinguish an idle or echo reply",
-          "path upgrade-most-data: the first-turn recovery of D9_out_of_scope stays at needs without a required tool call; it cannot distinguish an idle or echo reply",
-          "path home-callback: the constraints allow no value of user_type it needs with this cell",
-          "path porting-keep-number: the constraints allow no value of user_type it needs with this cell",
-          "path porting-locked-number: the constraints allow no value of user_type it needs with this cell",
-          "path upgrade-unknown-email: the first-turn recovery of D9_out_of_scope stays at needs without a required tool call; it cannot distinguish an idle or echo reply",
-          "path home-address-not-found: the constraints allow no value of user_type it needs with this cell"
-        ]
-      },
-      {
-        "cell": {
-          "behaviour": "B-010",
-          "stage": "needs"
-        },
-        "reasons": [
-          "path order-named-plan: the first-turn recovery of D1_off_topic stays at needs without a required tool call; it cannot distinguish an idle or echo reply",
-          "path upgrade-order: the constraints allow no value of user_type it needs with this cell",
-          "path home-order: the first-turn recovery of D1_off_topic stays at needs without a required tool call; it cannot distinguish an idle or echo reply",
-          "path upgrade-plan-not-in-catalog: the constraints allow no value of user_type it needs with this cell",
-          "path order-single-plan: the first-turn recovery of D1_off_topic stays at needs without a required tool call; it cannot distinguish an idle or echo reply",
-          "path upgrade-most-data: the constraints allow no value of user_type it needs with this cell",
-          "path porting-locked-number: the constraints allow no value of user_type it needs with this cell",
-          "path home-address-not-found: the first-turn recovery of D1_off_topic stays at needs without a required tool call; it cannot distinguish an idle or echo reply",
-          "path home-callback: the first-turn recovery of D1_off_topic stays at needs without a required tool call; it cannot distinguish an idle or echo reply",
-          "path porting-keep-number: the constraints allow no value of user_type it needs with this cell",
-          "path upgrade-unknown-email: the constraints allow no value of user_type it needs with this cell",
-          "path home-no-coverage: the first-turn recovery of D1_off_topic stays at needs without a required tool call; it cannot distinguish an idle or echo reply",
-          "path order-named-plan: the first-turn recovery of D5_language_switch stays at needs without a required tool call; it cannot distinguish an idle or echo reply",
-          "path upgrade-order: the constraints allow no value of user_type it needs with this cell",
-          "path home-order: the first-turn recovery of D5_language_switch stays at needs without a required tool call; it cannot distinguish an idle or echo reply",
-          "path upgrade-plan-not-in-catalog: the constraints allow no value of user_type it needs with this cell",
-          "path order-single-plan: the first-turn recovery of D5_language_switch stays at needs without a required tool call; it cannot distinguish an idle or echo reply",
-          "path upgrade-most-data: the constraints allow no value of user_type it needs with this cell",
-          "path porting-locked-number: the constraints allow no value of user_type it needs with this cell",
-          "path home-address-not-found: the first-turn recovery of D5_language_switch stays at needs without a required tool call; it cannot distinguish an idle or echo reply",
-          "path home-callback: the first-turn recovery of D5_language_switch stays at needs without a required tool call; it cannot distinguish an idle or echo reply",
-          "path porting-keep-number: the constraints allow no value of user_type it needs with this cell",
-          "path upgrade-unknown-email: the constraints allow no value of user_type it needs with this cell",
-          "path home-no-coverage: the first-turn recovery of D5_language_switch stays at needs without a required tool call; it cannot distinguish an idle or echo reply",
-          "path order-named-plan: the first-turn recovery of D6_instruction_in_data stays at needs without a required tool call; it cannot distinguish an idle or echo reply",
-          "path upgrade-order: the constraints allow no value of user_type it needs with this cell",
-          "path home-order: the first-turn recovery of D6_instruction_in_data stays at needs without a required tool call; it cannot distinguish an idle or echo reply",
-          "path upgrade-plan-not-in-catalog: the constraints allow no value of user_type it needs with this cell",
-          "path order-single-plan: the first-turn recovery of D6_instruction_in_data stays at needs without a required tool call; it cannot distinguish an idle or echo reply",
-          "path upgrade-most-data: the constraints allow no value of user_type it needs with this cell",
-          "path porting-locked-number: the constraints allow no value of user_type it needs with this cell",
-          "path home-address-not-found: the first-turn recovery of D6_instruction_in_data stays at needs without a required tool call; it cannot distinguish an idle or echo reply",
-          "path home-callback: the first-turn recovery of D6_instruction_in_data stays at needs without a required tool call; it cannot distinguish an idle or echo reply",
-          "path porting-keep-number: the constraints allow no value of user_type it needs with this cell",
-          "path upgrade-unknown-email: the constraints allow no value of user_type it needs with this cell",
-          "path home-no-coverage: the first-turn recovery of D6_instruction_in_data stays at needs without a required tool call; it cannot distinguish an idle or echo reply",
-          "path order-named-plan: the first-turn recovery of D9_out_of_scope stays at needs without a required tool call; it cannot distinguish an idle or echo reply",
-          "path upgrade-order: the constraints allow no value of user_type it needs with this cell",
-          "path home-order: the first-turn recovery of D9_out_of_scope stays at needs without a required tool call; it cannot distinguish an idle or echo reply",
-          "path upgrade-plan-not-in-catalog: the constraints allow no value of user_type it needs with this cell",
-          "path order-single-plan: the first-turn recovery of D9_out_of_scope stays at needs without a required tool call; it cannot distinguish an idle or echo reply",
-          "path upgrade-most-data: the constraints allow no value of user_type it needs with this cell",
-          "path porting-locked-number: the constraints allow no value of user_type it needs with this cell",
-          "path home-address-not-found: the first-turn recovery of D9_out_of_scope stays at needs without a required tool call; it cannot distinguish an idle or echo reply",
-          "path home-callback: the first-turn recovery of D9_out_of_scope stays at needs without a required tool call; it cannot distinguish an idle or echo reply",
-          "path porting-keep-number: the constraints allow no value of user_type it needs with this cell",
-          "path upgrade-unknown-email: the constraints allow no value of user_type it needs with this cell",
-          "path home-no-coverage: the first-turn recovery of D9_out_of_scope stays at needs without a required tool call; it cannot distinguish an idle or echo reply"
-        ]
-      },
-      {
-        "cell": {
-          "behaviour": "B-011",
-          "stage": "needs"
-        },
-        "reasons": [
-          "path upgrade-plan-not-in-catalog: the constraints allow no value of user_type it needs with this cell",
-          "path upgrade-order: the constraints allow no value of user_type it needs with this cell",
-          "path home-order: the first-turn recovery of D1_off_topic stays at needs without a required tool call; it cannot distinguish an idle or echo reply",
-          "path home-no-coverage: the first-turn recovery of D1_off_topic stays at needs without a required tool call; it cannot distinguish an idle or echo reply",
-          "path order-named-plan: the constraints allow no value of coverage_result it needs with this cell",
-          "path order-single-plan: the constraints allow no value of coverage_result it needs with this cell",
-          "path upgrade-most-data: the constraints allow no value of user_type it needs with this cell",
-          "path home-callback: the first-turn recovery of D1_off_topic stays at needs without a required tool call; it cannot distinguish an idle or echo reply",
-          "path porting-keep-number: the constraints allow no value of user_type it needs with this cell",
-          "path porting-locked-number: the constraints allow no value of user_type it needs with this cell",
-          "path upgrade-unknown-email: the constraints allow no value of user_type it needs with this cell",
-          "path home-address-not-found: the first-turn recovery of D1_off_topic stays at needs without a required tool call; it cannot distinguish an idle or echo reply",
-          "path upgrade-plan-not-in-catalog: the constraints allow no value of user_type it needs with this cell",
-          "path upgrade-order: the constraints allow no value of user_type it needs with this cell",
-          "path home-order: the first-turn recovery of D5_language_switch stays at needs without a required tool call; it cannot distinguish an idle or echo reply",
-          "path home-no-coverage: the first-turn recovery of D5_language_switch stays at needs without a required tool call; it cannot distinguish an idle or echo reply",
-          "path order-named-plan: the constraints allow no value of coverage_result it needs with this cell",
-          "path order-single-plan: the constraints allow no value of coverage_result it needs with this cell",
-          "path upgrade-most-data: the constraints allow no value of user_type it needs with this cell",
-          "path home-callback: the first-turn recovery of D5_language_switch stays at needs without a required tool call; it cannot distinguish an idle or echo reply",
-          "path porting-keep-number: the constraints allow no value of user_type it needs with this cell",
-          "path porting-locked-number: the constraints allow no value of user_type it needs with this cell",
-          "path upgrade-unknown-email: the constraints allow no value of user_type it needs with this cell",
-          "path home-address-not-found: the first-turn recovery of D5_language_switch stays at needs without a required tool call; it cannot distinguish an idle or echo reply",
-          "path upgrade-plan-not-in-catalog: the constraints allow no value of user_type it needs with this cell",
-          "path upgrade-order: the constraints allow no value of user_type it needs with this cell",
-          "path home-order: the first-turn recovery of D6_instruction_in_data stays at needs without a required tool call; it cannot distinguish an idle or echo reply",
-          "path home-no-coverage: the first-turn recovery of D6_instruction_in_data stays at needs without a required tool call; it cannot distinguish an idle or echo reply",
-          "path order-named-plan: the constraints allow no value of coverage_result it needs with this cell",
-          "path order-single-plan: the constraints allow no value of coverage_result it needs with this cell",
-          "path upgrade-most-data: the constraints allow no value of user_type it needs with this cell",
-          "path home-callback: the first-turn recovery of D6_instruction_in_data stays at needs without a required tool call; it cannot distinguish an idle or echo reply",
-          "path porting-keep-number: the constraints allow no value of user_type it needs with this cell",
-          "path porting-locked-number: the constraints allow no value of user_type it needs with this cell",
-          "path upgrade-unknown-email: the constraints allow no value of user_type it needs with this cell",
-          "path home-address-not-found: the first-turn recovery of D6_instruction_in_data stays at needs without a required tool call; it cannot distinguish an idle or echo reply",
-          "path upgrade-plan-not-in-catalog: the constraints allow no value of user_type it needs with this cell",
-          "path upgrade-order: the constraints allow no value of user_type it needs with this cell",
-          "path home-order: the first-turn recovery of D9_out_of_scope stays at needs without a required tool call; it cannot distinguish an idle or echo reply",
-          "path home-no-coverage: the first-turn recovery of D9_out_of_scope stays at needs without a required tool call; it cannot distinguish an idle or echo reply",
-          "path order-named-plan: the constraints allow no value of coverage_result it needs with this cell",
-          "path order-single-plan: the constraints allow no value of coverage_result it needs with this cell",
-          "path upgrade-most-data: the constraints allow no value of user_type it needs with this cell",
-          "path home-callback: the first-turn recovery of D9_out_of_scope stays at needs without a required tool call; it cannot distinguish an idle or echo reply",
-          "path porting-keep-number: the constraints allow no value of user_type it needs with this cell",
-          "path porting-locked-number: the constraints allow no value of user_type it needs with this cell",
-          "path upgrade-unknown-email: the constraints allow no value of user_type it needs with this cell",
-          "path home-address-not-found: the first-turn recovery of D9_out_of_scope stays at needs without a required tool call; it cannot distinguish an idle or echo reply"
-        ]
-      },
-      {
-        "cell": {
-          "behaviour": "B-012",
-          "stage": "needs"
-        },
-        "reasons": [
-          "path upgrade-plan-not-in-catalog: the first-turn recovery of D1_off_topic stays at needs without a required tool call; it cannot distinguish an idle or echo reply",
-          "path upgrade-order: the first-turn recovery of D1_off_topic stays at needs without a required tool call; it cannot distinguish an idle or echo reply",
-          "path home-order: the constraints allow no value of user_type it needs with this cell",
-          "path home-no-coverage: the constraints allow no value of user_type it needs with this cell",
-          "path order-named-plan: the constraints allow no value of coverage_result it needs with this cell",
-          "path order-single-plan: the constraints allow no value of coverage_result it needs with this cell",
-          "path upgrade-most-data: the first-turn recovery of D1_off_topic stays at needs without a required tool call; it cannot distinguish an idle or echo reply",
-          "path home-callback: the constraints allow no value of user_type it needs with this cell",
-          "path porting-keep-number: the constraints allow no value of user_type it needs with this cell",
-          "path porting-locked-number: the constraints allow no value of user_type it needs with this cell",
-          "path upgrade-unknown-email: the first-turn recovery of D1_off_topic stays at needs without a required tool call; it cannot distinguish an idle or echo reply",
-          "path home-address-not-found: the constraints allow no value of user_type it needs with this cell",
-          "path upgrade-plan-not-in-catalog: the first-turn recovery of D5_language_switch stays at needs without a required tool call; it cannot distinguish an idle or echo reply",
-          "path upgrade-order: the first-turn recovery of D5_language_switch stays at needs without a required tool call; it cannot distinguish an idle or echo reply",
-          "path home-order: the constraints allow no value of user_type it needs with this cell",
-          "path home-no-coverage: the constraints allow no value of user_type it needs with this cell",
-          "path order-named-plan: the constraints allow no value of coverage_result it needs with this cell",
-          "path order-single-plan: the constraints allow no value of coverage_result it needs with this cell",
-          "path upgrade-most-data: the first-turn recovery of D5_language_switch stays at needs without a required tool call; it cannot distinguish an idle or echo reply",
-          "path home-callback: the constraints allow no value of user_type it needs with this cell",
-          "path porting-keep-number: the constraints allow no value of user_type it needs with this cell",
-          "path porting-locked-number: the constraints allow no value of user_type it needs with this cell",
-          "path upgrade-unknown-email: the first-turn recovery of D5_language_switch stays at needs without a required tool call; it cannot distinguish an idle or echo reply",
-          "path home-address-not-found: the constraints allow no value of user_type it needs with this cell",
-          "path upgrade-plan-not-in-catalog: the first-turn recovery of D6_instruction_in_data stays at needs without a required tool call; it cannot distinguish an idle or echo reply",
-          "path upgrade-order: the first-turn recovery of D6_instruction_in_data stays at needs without a required tool call; it cannot distinguish an idle or echo reply",
-          "path home-order: the constraints allow no value of user_type it needs with this cell",
-          "path home-no-coverage: the constraints allow no value of user_type it needs with this cell",
-          "path order-named-plan: the constraints allow no value of coverage_result it needs with this cell",
-          "path order-single-plan: the constraints allow no value of coverage_result it needs with this cell",
-          "path upgrade-most-data: the first-turn recovery of D6_instruction_in_data stays at needs without a required tool call; it cannot distinguish an idle or echo reply",
-          "path home-callback: the constraints allow no value of user_type it needs with this cell",
-          "path porting-keep-number: the constraints allow no value of user_type it needs with this cell",
-          "path porting-locked-number: the constraints allow no value of user_type it needs with this cell",
-          "path upgrade-unknown-email: the first-turn recovery of D6_instruction_in_data stays at needs without a required tool call; it cannot distinguish an idle or echo reply",
-          "path home-address-not-found: the constraints allow no value of user_type it needs with this cell",
-          "path upgrade-plan-not-in-catalog: the first-turn recovery of D9_out_of_scope stays at needs without a required tool call; it cannot distinguish an idle or echo reply",
-          "path upgrade-order: the first-turn recovery of D9_out_of_scope stays at needs without a required tool call; it cannot distinguish an idle or echo reply",
-          "path home-order: the constraints allow no value of user_type it needs with this cell",
-          "path home-no-coverage: the constraints allow no value of user_type it needs with this cell",
-          "path order-named-plan: the constraints allow no value of coverage_result it needs with this cell",
-          "path order-single-plan: the constraints allow no value of coverage_result it needs with this cell",
-          "path upgrade-most-data: the first-turn recovery of D9_out_of_scope stays at needs without a required tool call; it cannot distinguish an idle or echo reply",
-          "path home-callback: the constraints allow no value of user_type it needs with this cell",
-          "path porting-keep-number: the constraints allow no value of user_type it needs with this cell",
-          "path porting-locked-number: the constraints allow no value of user_type it needs with this cell",
-          "path upgrade-unknown-email: the first-turn recovery of D9_out_of_scope stays at needs without a required tool call; it cannot distinguish an idle or echo reply",
-          "path home-address-not-found: the constraints allow no value of user_type it needs with this cell"
-        ]
-      },
-      {
-        "cell": {
-          "stage": "needs",
-          "coverage_result": "fiber"
-        },
-        "reasons": [
-          "path home-order: the first-turn recovery of D1_off_topic stays at needs without a required tool call; it cannot distinguish an idle or echo reply",
-          "path upgrade-unknown-email: the constraints forbid the stage identify with this cell",
-          "path upgrade-most-data: the constraints forbid the stage identify with this cell",
-          "path porting-locked-number: the constraints forbid the stage port_number with this cell",
-          "path porting-keep-number: the constraints forbid the stage port_number with this cell",
-          "path home-address-not-found: it needs coverage_result in not-in-map; the cell holds fiber",
-          "path home-callback: the first-turn recovery of D1_off_topic stays at needs without a required tool call; it cannot distinguish an idle or echo reply",
-          "path upgrade-plan-not-in-catalog: the constraints forbid the stage identify with this cell",
-          "path home-no-coverage: it needs coverage_result in no-service; the cell holds fiber",
-          "path upgrade-order: the constraints forbid the stage identify with this cell",
-          "path order-single-plan: it needs coverage_result in 5g-only; the cell holds fiber",
-          "path order-named-plan: the first-turn recovery of D1_off_topic stays at needs without a required tool call; it cannot distinguish an idle or echo reply",
-          "path home-order: the first-turn recovery of D5_language_switch stays at needs without a required tool call; it cannot distinguish an idle or echo reply",
-          "path upgrade-unknown-email: the constraints forbid the stage identify with this cell",
-          "path upgrade-most-data: the constraints forbid the stage identify with this cell",
-          "path porting-locked-number: the constraints forbid the stage port_number with this cell",
-          "path porting-keep-number: the constraints forbid the stage port_number with this cell",
-          "path home-address-not-found: it needs coverage_result in not-in-map; the cell holds fiber",
-          "path home-callback: the first-turn recovery of D5_language_switch stays at needs without a required tool call; it cannot distinguish an idle or echo reply",
-          "path upgrade-plan-not-in-catalog: the constraints forbid the stage identify with this cell",
-          "path home-no-coverage: it needs coverage_result in no-service; the cell holds fiber",
-          "path upgrade-order: the constraints forbid the stage identify with this cell",
-          "path order-single-plan: it needs coverage_result in 5g-only; the cell holds fiber",
-          "path order-named-plan: the first-turn recovery of D5_language_switch stays at needs without a required tool call; it cannot distinguish an idle or echo reply",
-          "path home-order: the first-turn recovery of D6_instruction_in_data stays at needs without a required tool call; it cannot distinguish an idle or echo reply",
-          "path upgrade-unknown-email: the constraints forbid the stage identify with this cell",
-          "path upgrade-most-data: the constraints forbid the stage identify with this cell",
-          "path porting-locked-number: the constraints forbid the stage port_number with this cell",
-          "path porting-keep-number: the constraints forbid the stage port_number with this cell",
-          "path home-address-not-found: it needs coverage_result in not-in-map; the cell holds fiber",
-          "path home-callback: the first-turn recovery of D6_instruction_in_data stays at needs without a required tool call; it cannot distinguish an idle or echo reply",
-          "path upgrade-plan-not-in-catalog: the constraints forbid the stage identify with this cell",
-          "path home-no-coverage: it needs coverage_result in no-service; the cell holds fiber",
-          "path upgrade-order: the constraints forbid the stage identify with this cell",
-          "path order-single-plan: it needs coverage_result in 5g-only; the cell holds fiber",
-          "path order-named-plan: the first-turn recovery of D6_instruction_in_data stays at needs without a required tool call; it cannot distinguish an idle or echo reply",
-          "path home-order: the first-turn recovery of D9_out_of_scope stays at needs without a required tool call; it cannot distinguish an idle or echo reply",
-          "path upgrade-unknown-email: the constraints forbid the stage identify with this cell",
-          "path upgrade-most-data: the constraints forbid the stage identify with this cell",
-          "path porting-locked-number: the constraints forbid the stage port_number with this cell",
-          "path porting-keep-number: the constraints forbid the stage port_number with this cell",
-          "path home-address-not-found: it needs coverage_result in not-in-map; the cell holds fiber",
-          "path home-callback: the first-turn recovery of D9_out_of_scope stays at needs without a required tool call; it cannot distinguish an idle or echo reply",
-          "path upgrade-plan-not-in-catalog: the constraints forbid the stage identify with this cell",
-          "path home-no-coverage: it needs coverage_result in no-service; the cell holds fiber",
-          "path upgrade-order: the constraints forbid the stage identify with this cell",
-          "path order-single-plan: it needs coverage_result in 5g-only; the cell holds fiber",
-          "path order-named-plan: the first-turn recovery of D9_out_of_scope stays at needs without a required tool call; it cannot distinguish an idle or echo reply"
-        ]
-      },
-      {
-        "cell": {
-          "stage": "needs",
-          "coverage_result": "no-service"
-        },
-        "reasons": [
-          "path home-order: it needs coverage_result in fiber, 5g-only; the cell holds no-service",
-          "path upgrade-unknown-email: the constraints allow no value of user_type it needs with this cell",
-          "path upgrade-most-data: the constraints allow no value of user_type it needs with this cell",
-          "path porting-locked-number: the constraints allow no value of user_type it needs with this cell",
-          "path porting-keep-number: the constraints allow no value of user_type it needs with this cell",
-          "path home-address-not-found: it needs coverage_result in not-in-map; the cell holds no-service",
-          "path home-callback: it needs coverage_result in fiber, 5g-only; the cell holds no-service",
-          "path upgrade-plan-not-in-catalog: the constraints allow no value of user_type it needs with this cell",
-          "path home-no-coverage: the first-turn recovery of D1_off_topic stays at needs without a required tool call; it cannot distinguish an idle or echo reply",
-          "path upgrade-order: the constraints allow no value of user_type it needs with this cell",
-          "path order-single-plan: it needs coverage_result in 5g-only; the cell holds no-service",
-          "path order-named-plan: it needs coverage_result in fiber; the cell holds no-service",
-          "path home-order: it needs coverage_result in fiber, 5g-only; the cell holds no-service",
-          "path upgrade-unknown-email: the constraints allow no value of user_type it needs with this cell",
-          "path upgrade-most-data: the constraints allow no value of user_type it needs with this cell",
-          "path porting-locked-number: the constraints allow no value of user_type it needs with this cell",
-          "path porting-keep-number: the constraints allow no value of user_type it needs with this cell",
-          "path home-address-not-found: it needs coverage_result in not-in-map; the cell holds no-service",
-          "path home-callback: it needs coverage_result in fiber, 5g-only; the cell holds no-service",
-          "path upgrade-plan-not-in-catalog: the constraints allow no value of user_type it needs with this cell",
-          "path home-no-coverage: the first-turn recovery of D5_language_switch stays at needs without a required tool call; it cannot distinguish an idle or echo reply",
-          "path upgrade-order: the constraints allow no value of user_type it needs with this cell",
-          "path order-single-plan: it needs coverage_result in 5g-only; the cell holds no-service",
-          "path order-named-plan: it needs coverage_result in fiber; the cell holds no-service",
-          "path home-order: it needs coverage_result in fiber, 5g-only; the cell holds no-service",
-          "path upgrade-unknown-email: the constraints allow no value of user_type it needs with this cell",
-          "path upgrade-most-data: the constraints allow no value of user_type it needs with this cell",
-          "path porting-locked-number: the constraints allow no value of user_type it needs with this cell",
-          "path porting-keep-number: the constraints allow no value of user_type it needs with this cell",
-          "path home-address-not-found: it needs coverage_result in not-in-map; the cell holds no-service",
-          "path home-callback: it needs coverage_result in fiber, 5g-only; the cell holds no-service",
-          "path upgrade-plan-not-in-catalog: the constraints allow no value of user_type it needs with this cell",
-          "path home-no-coverage: the first-turn recovery of D6_instruction_in_data stays at needs without a required tool call; it cannot distinguish an idle or echo reply",
-          "path upgrade-order: the constraints allow no value of user_type it needs with this cell",
-          "path order-single-plan: it needs coverage_result in 5g-only; the cell holds no-service",
-          "path order-named-plan: it needs coverage_result in fiber; the cell holds no-service",
-          "path home-order: it needs coverage_result in fiber, 5g-only; the cell holds no-service",
-          "path upgrade-unknown-email: the constraints allow no value of user_type it needs with this cell",
-          "path upgrade-most-data: the constraints allow no value of user_type it needs with this cell",
-          "path porting-locked-number: the constraints allow no value of user_type it needs with this cell",
-          "path porting-keep-number: the constraints allow no value of user_type it needs with this cell",
-          "path home-address-not-found: it needs coverage_result in not-in-map; the cell holds no-service",
-          "path home-callback: it needs coverage_result in fiber, 5g-only; the cell holds no-service",
-          "path upgrade-plan-not-in-catalog: the constraints allow no value of user_type it needs with this cell",
-          "path home-no-coverage: the first-turn recovery of D9_out_of_scope stays at needs without a required tool call; it cannot distinguish an idle or echo reply",
-          "path upgrade-order: the constraints allow no value of user_type it needs with this cell",
-          "path order-single-plan: it needs coverage_result in 5g-only; the cell holds no-service",
-          "path order-named-plan: it needs coverage_result in fiber; the cell holds no-service"
-        ]
-      }
-    ],
+    "cells": 14,
+    "covered": 14,
+    "unbuilt": [],
     "unreachable": [
       {
         "dimension": "workspace_start",
@@ -4715,71 +3986,18 @@
     "actual": [
       {
         "t": 2,
-        "specs": 252,
+        "specs": 259,
         "allowed": 637,
-        "covered": 624,
-        "share": 0.9795918367346939,
-        "uncovered": [
-          {
-            "behaviour": "B-001",
-            "stage": "needs"
-          },
-          {
-            "behaviour": "B-003",
-            "stage": "needs"
-          },
-          {
-            "behaviour": "B-004",
-            "stage": "needs"
-          },
-          {
-            "behaviour": "B-005",
-            "stage": "needs"
-          },
-          {
-            "behaviour": "B-006",
-            "stage": "needs"
-          },
-          {
-            "behaviour": "B-007",
-            "stage": "needs"
-          },
-          {
-            "behaviour": "B-008",
-            "stage": "needs"
-          },
-          {
-            "behaviour": "B-009",
-            "stage": "needs"
-          },
-          {
-            "behaviour": "B-010",
-            "stage": "needs"
-          },
-          {
-            "behaviour": "B-011",
-            "stage": "needs"
-          },
-          {
-            "behaviour": "B-012",
-            "stage": "needs"
-          },
-          {
-            "stage": "needs",
-            "coverage_result": "fiber"
-          },
-          {
-            "stage": "needs",
-            "coverage_result": "no-service"
-          }
-        ]
+        "covered": 637,
+        "share": 1,
+        "uncovered": []
       },
       {
         "t": 3,
-        "specs": 252,
+        "specs": 259,
         "allowed": 3510,
-        "covered": 2529,
-        "share": 0.7205128205128205,
+        "covered": 2582,
+        "share": 0.7356125356125356,
         "uncovered": [
           {
             "behaviour": "B-002",
@@ -5108,6 +4326,11 @@
           },
           {
             "behaviour": "B-008",
+            "deviation": "D10_return",
+            "channel": "chat"
+          },
+          {
+            "behaviour": "B-008",
             "deviation": "D7_silence_or_burst",
             "channel": "whatsapp"
           },
@@ -5359,11 +4582,6 @@
           {
             "behaviour": "B-001",
             "deviation": "D6_instruction_in_data",
-            "stage": "needs"
-          },
-          {
-            "behaviour": "B-001",
-            "deviation": "D6_instruction_in_data",
             "stage": "identify"
           },
           {
@@ -5489,7 +4707,7 @@
           {
             "behaviour": "B-002",
             "deviation": "D6_instruction_in_data",
-            "stage": "needs"
+            "stage": "identify"
           },
           {
             "behaviour": "B-002",
@@ -5519,16 +4737,16 @@
           {
             "behaviour": "B-002",
             "deviation": "D10_return",
-            "stage": "identify"
-          },
-          {
-            "behaviour": "B-002",
-            "deviation": "D7_silence_or_burst",
             "stage": "identify"
           },
           {
             "behaviour": "B-002",
             "deviation": "D7_silence_or_burst",
+            "stage": "identify"
+          },
+          {
+            "behaviour": "B-002",
+            "deviation": "D7_silence_or_burst",
             "stage": "offer"
           },
           {
@@ -5639,7 +4857,7 @@
           {
             "behaviour": "B-003",
             "deviation": "D6_instruction_in_data",
-            "stage": "needs"
+            "stage": "address"
           },
           {
             "behaviour": "B-003",
@@ -5859,7 +5077,7 @@
           {
             "behaviour": "B-004",
             "deviation": "D6_instruction_in_data",
-            "stage": "needs"
+            "stage": "address"
           },
           {
             "behaviour": "B-004",
@@ -6069,17 +5287,7 @@
           {
             "behaviour": "B-005",
             "deviation": "D6_instruction_in_data",
-            "stage": "needs"
-          },
-          {
-            "behaviour": "B-005",
-            "deviation": "D6_instruction_in_data",
             "stage": "address"
-          },
-          {
-            "behaviour": "B-005",
-            "deviation": "D6_instruction_in_data",
-            "stage": "offer"
           },
           {
             "behaviour": "B-005",
@@ -6095,6 +5303,11 @@
             "behaviour": "B-005",
             "deviation": "D6_instruction_in_data",
             "stage": "order_placed"
+          },
+          {
+            "behaviour": "B-005",
+            "deviation": "D6_instruction_in_data",
+            "stage": "callback"
           },
           {
             "behaviour": "B-005",
@@ -6269,17 +5482,12 @@
           {
             "behaviour": "B-006",
             "deviation": "D6_instruction_in_data",
-            "stage": "needs"
-          },
-          {
-            "behaviour": "B-006",
-            "deviation": "D6_instruction_in_data",
             "stage": "port_number"
           },
           {
             "behaviour": "B-006",
             "deviation": "D6_instruction_in_data",
-            "stage": "offer"
+            "stage": "details"
           },
           {
             "behaviour": "B-006",
@@ -6424,11 +5632,6 @@
           {
             "behaviour": "B-007",
             "deviation": "D6_instruction_in_data",
-            "stage": "needs"
-          },
-          {
-            "behaviour": "B-007",
-            "deviation": "D6_instruction_in_data",
             "stage": "port_number"
           },
           {
@@ -6439,7 +5642,7 @@
           {
             "behaviour": "B-007",
             "deviation": "D6_instruction_in_data",
-            "stage": "details"
+            "stage": "recap"
           },
           {
             "behaviour": "B-007",
@@ -6584,11 +5787,6 @@
           {
             "behaviour": "B-008",
             "deviation": "D5_language_switch",
-            "stage": "offer"
-          },
-          {
-            "behaviour": "B-008",
-            "deviation": "D5_language_switch",
             "stage": "details"
           },
           {
@@ -6604,12 +5802,12 @@
           {
             "behaviour": "B-008",
             "deviation": "D6_instruction_in_data",
-            "stage": "needs"
+            "stage": "identify"
           },
           {
             "behaviour": "B-008",
             "deviation": "D6_instruction_in_data",
-            "stage": "identify"
+            "stage": "address"
           },
           {
             "behaviour": "B-008",
@@ -6650,6 +5848,11 @@
             "behaviour": "B-008",
             "deviation": "D8_tool_failure",
             "stage": "recap"
+          },
+          {
+            "behaviour": "B-008",
+            "deviation": "D10_return",
+            "stage": "identify"
           },
           {
             "behaviour": "B-008",
@@ -6810,11 +6013,6 @@
             "behaviour": "B-009",
             "deviation": "D5_language_switch",
             "stage": "closing"
-          },
-          {
-            "behaviour": "B-009",
-            "deviation": "D6_instruction_in_data",
-            "stage": "needs"
           },
           {
             "behaviour": "B-009",
@@ -7019,11 +6217,6 @@
           {
             "behaviour": "B-010",
             "deviation": "D6_instruction_in_data",
-            "stage": "needs"
-          },
-          {
-            "behaviour": "B-010",
-            "deviation": "D6_instruction_in_data",
             "stage": "offer"
           },
           {
@@ -7234,7 +6427,7 @@
           {
             "behaviour": "B-011",
             "deviation": "D6_instruction_in_data",
-            "stage": "needs"
+            "stage": "address"
           },
           {
             "behaviour": "B-011",
@@ -7424,22 +6617,12 @@
           {
             "behaviour": "B-012",
             "deviation": "D6_instruction_in_data",
-            "stage": "needs"
-          },
-          {
-            "behaviour": "B-012",
-            "deviation": "D6_instruction_in_data",
             "stage": "identify"
           },
           {
             "behaviour": "B-012",
             "deviation": "D6_instruction_in_data",
             "stage": "offer"
-          },
-          {
-            "behaviour": "B-012",
-            "deviation": "D6_instruction_in_data",
-            "stage": "recap"
           },
           {
             "behaviour": "B-012",
@@ -7520,11 +6703,6 @@
             "behaviour": "B-008",
             "deviation": "D4_loose_confirmation",
             "user_type": "new-customer"
-          },
-          {
-            "behaviour": "B-008",
-            "deviation": "D5_language_switch",
-            "user_type": "existing-customer"
           },
           {
             "behaviour": "B-008",
@@ -7894,11 +7072,6 @@
           {
             "behaviour": "B-005",
             "deviation": "D6_instruction_in_data",
-            "coverage_result": "no-service"
-          },
-          {
-            "behaviour": "B-005",
-            "deviation": "D6_instruction_in_data",
             "coverage_result": "not-in-map"
           },
           {
@@ -7994,11 +7167,6 @@
           {
             "behaviour": "B-008",
             "deviation": "D5_language_switch",
-            "coverage_result": "none"
-          },
-          {
-            "behaviour": "B-008",
-            "deviation": "D5_language_switch",
             "coverage_result": "5g-only"
           },
           {
@@ -8015,6 +7183,11 @@
             "behaviour": "B-008",
             "deviation": "D8_tool_failure",
             "coverage_result": "fiber"
+          },
+          {
+            "behaviour": "B-008",
+            "deviation": "D10_return",
+            "coverage_result": "none"
           },
           {
             "behaviour": "B-008",
@@ -8085,11 +7258,6 @@
             "behaviour": "B-009",
             "deviation": "D6_instruction_in_data",
             "coverage_result": "none"
-          },
-          {
-            "behaviour": "B-009",
-            "deviation": "D6_instruction_in_data",
-            "coverage_result": "5g-only"
           },
           {
             "behaviour": "B-009",
@@ -8165,11 +7333,6 @@
             "behaviour": "B-010",
             "deviation": "D5_language_switch",
             "coverage_result": "no-service"
-          },
-          {
-            "behaviour": "B-010",
-            "deviation": "D6_instruction_in_data",
-            "coverage_result": "fiber"
           },
           {
             "behaviour": "B-010",
@@ -8353,11 +7516,6 @@
           },
           {
             "behaviour": "B-003",
-            "channel": "chat",
-            "stage": "needs"
-          },
-          {
-            "behaviour": "B-003",
             "channel": "whatsapp",
             "stage": "needs"
           },
@@ -8370,11 +7528,6 @@
             "behaviour": "B-004",
             "channel": "chat",
             "stage": "closing"
-          },
-          {
-            "behaviour": "B-004",
-            "channel": "whatsapp",
-            "stage": "needs"
           },
           {
             "behaviour": "B-005",
@@ -8433,12 +7586,7 @@
           },
           {
             "behaviour": "B-008",
-            "channel": "whatsapp",
-            "stage": "needs"
-          },
-          {
-            "behaviour": "B-008",
-            "channel": "whatsapp",
+            "channel": "chat",
             "stage": "identify"
           },
           {
@@ -8484,11 +7632,6 @@
           {
             "behaviour": "B-011",
             "channel": "whatsapp",
-            "stage": "needs"
-          },
-          {
-            "behaviour": "B-011",
-            "channel": "whatsapp",
             "stage": "closing"
           },
           {
@@ -8527,11 +7670,6 @@
             "coverage_result": "no-service"
           },
           {
-            "behaviour": "B-008",
-            "channel": "whatsapp",
-            "coverage_result": "none"
-          },
-          {
             "behaviour": "B-009",
             "channel": "whatsapp",
             "coverage_result": "none"
@@ -8555,41 +7693,6 @@
             "behaviour": "B-011",
             "channel": "whatsapp",
             "coverage_result": "5g-only"
-          },
-          {
-            "behaviour": "B-001",
-            "stage": "needs",
-            "user_type": "existing-customer"
-          },
-          {
-            "behaviour": "B-003",
-            "stage": "needs",
-            "user_type": "new-customer"
-          },
-          {
-            "behaviour": "B-004",
-            "stage": "needs",
-            "user_type": "new-customer"
-          },
-          {
-            "behaviour": "B-005",
-            "stage": "needs",
-            "user_type": "new-customer"
-          },
-          {
-            "behaviour": "B-006",
-            "stage": "needs",
-            "user_type": "new-customer"
-          },
-          {
-            "behaviour": "B-007",
-            "stage": "needs",
-            "user_type": "new-customer"
-          },
-          {
-            "behaviour": "B-008",
-            "stage": "needs",
-            "user_type": "existing-customer"
           },
           {
             "behaviour": "B-008",
@@ -8622,21 +7725,6 @@
             "user_type": "existing-customer"
           },
           {
-            "behaviour": "B-011",
-            "stage": "needs",
-            "user_type": "new-customer"
-          },
-          {
-            "behaviour": "B-012",
-            "stage": "needs",
-            "user_type": "existing-customer"
-          },
-          {
-            "behaviour": "B-001",
-            "stage": "needs",
-            "coverage_result": "none"
-          },
-          {
             "behaviour": "B-003",
             "stage": "needs",
             "coverage_result": "fiber"
@@ -8645,11 +7733,6 @@
             "behaviour": "B-003",
             "stage": "needs",
             "coverage_result": "5g-only"
-          },
-          {
-            "behaviour": "B-003",
-            "stage": "needs",
-            "coverage_result": "no-service"
           },
           {
             "behaviour": "B-003",
@@ -8689,11 +7772,6 @@
           {
             "behaviour": "B-004",
             "stage": "needs",
-            "coverage_result": "5g-only"
-          },
-          {
-            "behaviour": "B-004",
-            "stage": "needs",
             "coverage_result": "no-service"
           },
           {
@@ -8715,11 +7793,6 @@
             "behaviour": "B-005",
             "stage": "needs",
             "coverage_result": "5g-only"
-          },
-          {
-            "behaviour": "B-005",
-            "stage": "needs",
-            "coverage_result": "no-service"
           },
           {
             "behaviour": "B-005",
@@ -8742,24 +7815,9 @@
             "coverage_result": "5g-only"
           },
           {
-            "behaviour": "B-006",
-            "stage": "needs",
-            "coverage_result": "none"
-          },
-          {
-            "behaviour": "B-007",
-            "stage": "needs",
-            "coverage_result": "none"
-          },
-          {
             "behaviour": "B-008",
             "stage": "needs",
             "coverage_result": "none"
-          },
-          {
-            "behaviour": "B-008",
-            "stage": "needs",
-            "coverage_result": "fiber"
           },
           {
             "behaviour": "B-008",
@@ -8775,11 +7833,6 @@
             "behaviour": "B-009",
             "stage": "needs",
             "coverage_result": "fiber"
-          },
-          {
-            "behaviour": "B-009",
-            "stage": "needs",
-            "coverage_result": "5g-only"
           },
           {
             "behaviour": "B-009",
@@ -8809,11 +7862,6 @@
           {
             "behaviour": "B-010",
             "stage": "needs",
-            "coverage_result": "fiber"
-          },
-          {
-            "behaviour": "B-010",
-            "stage": "needs",
             "coverage_result": "5g-only"
           },
           {
@@ -8853,73 +7901,8 @@
           },
           {
             "behaviour": "B-011",
-            "stage": "needs",
-            "coverage_result": "not-in-map"
-          },
-          {
-            "behaviour": "B-011",
             "stage": "closing",
             "coverage_result": "5g-only"
-          },
-          {
-            "behaviour": "B-012",
-            "stage": "needs",
-            "coverage_result": "none"
-          },
-          {
-            "behaviour": "B-001",
-            "stage": "needs",
-            "workspace_start": "none"
-          },
-          {
-            "behaviour": "B-003",
-            "stage": "needs",
-            "workspace_start": "none"
-          },
-          {
-            "behaviour": "B-004",
-            "stage": "needs",
-            "workspace_start": "none"
-          },
-          {
-            "behaviour": "B-005",
-            "stage": "needs",
-            "workspace_start": "none"
-          },
-          {
-            "behaviour": "B-006",
-            "stage": "needs",
-            "workspace_start": "none"
-          },
-          {
-            "behaviour": "B-007",
-            "stage": "needs",
-            "workspace_start": "none"
-          },
-          {
-            "behaviour": "B-008",
-            "stage": "needs",
-            "workspace_start": "none"
-          },
-          {
-            "behaviour": "B-009",
-            "stage": "needs",
-            "workspace_start": "none"
-          },
-          {
-            "behaviour": "B-010",
-            "stage": "needs",
-            "workspace_start": "none"
-          },
-          {
-            "behaviour": "B-011",
-            "stage": "needs",
-            "workspace_start": "none"
-          },
-          {
-            "behaviour": "B-012",
-            "stage": "needs",
-            "workspace_start": "none"
           },
           {
             "behaviour": "B-009",
@@ -8964,6 +7947,11 @@
           {
             "deviation": "D5_language_switch",
             "channel": "chat",
+            "stage": "port_number"
+          },
+          {
+            "deviation": "D5_language_switch",
+            "channel": "chat",
             "stage": "order_placed"
           },
           {
@@ -8973,18 +7961,13 @@
           },
           {
             "deviation": "D5_language_switch",
+            "channel": "chat",
+            "stage": "handover"
+          },
+          {
+            "deviation": "D5_language_switch",
             "channel": "whatsapp",
             "stage": "identify"
-          },
-          {
-            "deviation": "D5_language_switch",
-            "channel": "whatsapp",
-            "stage": "port_number"
-          },
-          {
-            "deviation": "D5_language_switch",
-            "channel": "whatsapp",
-            "stage": "handover"
           },
           {
             "deviation": "D5_language_switch",
@@ -8999,32 +7982,47 @@
           {
             "deviation": "D6_instruction_in_data",
             "channel": "chat",
-            "stage": "callback"
-          },
-          {
-            "deviation": "D6_instruction_in_data",
-            "channel": "chat",
-            "stage": "handover"
-          },
-          {
-            "deviation": "D6_instruction_in_data",
-            "channel": "chat",
-            "stage": "closing"
-          },
-          {
-            "deviation": "D6_instruction_in_data",
-            "channel": "whatsapp",
             "stage": "port_number"
           },
           {
             "deviation": "D6_instruction_in_data",
-            "channel": "whatsapp",
+            "channel": "chat",
             "stage": "offer"
+          },
+          {
+            "deviation": "D6_instruction_in_data",
+            "channel": "chat",
+            "stage": "order_placed"
+          },
+          {
+            "deviation": "D6_instruction_in_data",
+            "channel": "chat",
+            "stage": "handover"
+          },
+          {
+            "deviation": "D6_instruction_in_data",
+            "channel": "chat",
+            "stage": "closing"
+          },
+          {
+            "deviation": "D6_instruction_in_data",
+            "channel": "whatsapp",
+            "stage": "address"
+          },
+          {
+            "deviation": "D6_instruction_in_data",
+            "channel": "whatsapp",
+            "stage": "details"
           },
           {
             "deviation": "D6_instruction_in_data",
             "channel": "whatsapp",
             "stage": "recap"
+          },
+          {
+            "deviation": "D6_instruction_in_data",
+            "channel": "whatsapp",
+            "stage": "callback"
           },
           {
             "deviation": "D8_tool_failure",
@@ -9044,17 +8042,17 @@
           {
             "deviation": "D7_silence_or_burst",
             "channel": "chat",
-            "stage": "identify"
-          },
-          {
-            "deviation": "D7_silence_or_burst",
-            "channel": "chat",
             "stage": "callback"
           },
           {
             "deviation": "D7_silence_or_burst",
             "channel": "chat",
             "stage": "closing"
+          },
+          {
+            "deviation": "D7_silence_or_burst",
+            "channel": "whatsapp",
+            "stage": "identify"
           },
           {
             "deviation": "D7_silence_or_burst",
@@ -9168,13 +8166,18 @@
           },
           {
             "deviation": "D6_instruction_in_data",
-            "stage": "needs",
-            "user_type": "new-customer"
+            "stage": "address",
+            "user_type": "existing-customer"
           },
           {
             "deviation": "D6_instruction_in_data",
             "stage": "offer",
             "user_type": "existing-customer"
+          },
+          {
+            "deviation": "D6_instruction_in_data",
+            "stage": "recap",
+            "user_type": "new-customer"
           },
           {
             "deviation": "D6_instruction_in_data",
@@ -9364,7 +8367,7 @@
           {
             "deviation": "D5_language_switch",
             "stage": "handover",
-            "coverage_result": "no-service"
+            "coverage_result": "5g-only"
           },
           {
             "deviation": "D5_language_switch",
@@ -9378,28 +8381,13 @@
           },
           {
             "deviation": "D6_instruction_in_data",
-            "stage": "needs",
-            "coverage_result": "fiber"
-          },
-          {
-            "deviation": "D6_instruction_in_data",
-            "stage": "needs",
+            "stage": "address",
             "coverage_result": "5g-only"
           },
           {
             "deviation": "D6_instruction_in_data",
-            "stage": "needs",
+            "stage": "address",
             "coverage_result": "no-service"
-          },
-          {
-            "deviation": "D6_instruction_in_data",
-            "stage": "needs",
-            "coverage_result": "not-in-map"
-          },
-          {
-            "deviation": "D6_instruction_in_data",
-            "stage": "offer",
-            "coverage_result": "none"
           },
           {
             "deviation": "D6_instruction_in_data",
@@ -9424,7 +8412,7 @@
           {
             "deviation": "D6_instruction_in_data",
             "stage": "callback",
-            "coverage_result": "5g-only"
+            "coverage_result": "fiber"
           },
           {
             "deviation": "D6_instruction_in_data",
@@ -9637,24 +8625,9 @@
             "coverage_result": "fiber"
           },
           {
-            "channel": "chat",
-            "stage": "needs",
-            "coverage_result": "no-service"
-          },
-          {
-            "channel": "whatsapp",
-            "stage": "needs",
-            "coverage_result": "fiber"
-          },
-          {
             "channel": "whatsapp",
             "stage": "needs",
             "coverage_result": "no-service"
-          },
-          {
-            "stage": "needs",
-            "user_type": "existing-customer",
-            "coverage_result": "fiber"
           },
           {
             "stage": "needs",
@@ -9662,29 +8635,9 @@
             "coverage_result": "5g-only"
           },
           {
-            "stage": "needs",
-            "user_type": "new-customer",
-            "coverage_result": "fiber"
-          },
-          {
-            "stage": "needs",
-            "user_type": "new-customer",
-            "coverage_result": "no-service"
-          },
-          {
             "stage": "details",
             "user_type": "existing-customer",
             "coverage_result": "none"
-          },
-          {
-            "stage": "needs",
-            "coverage_result": "fiber",
-            "workspace_start": "none"
-          },
-          {
-            "stage": "needs",
-            "coverage_result": "no-service",
-            "workspace_start": "none"
           }
         ]
       }
@@ -9693,30 +8646,30 @@
     "allowed": 637,
     "complete": {
       "t": 2,
-      "specs": 252,
+      "specs": 259,
       "allowed": 637,
-      "covered": 624,
-      "share": 0.9795918367346939
+      "covered": 637,
+      "share": 1
     },
     "all": {
       "t": 2,
-      "specs": 325,
+      "specs": 332,
       "allowed": 637,
-      "covered": 624,
-      "share": 0.9795918367346939
+      "covered": 637,
+      "share": 1
     },
     "measures": {
-      "discovery": 0.013891625615763547,
-      "chao_coverage": 0.9861094615474246,
-      "chao1": 801.4914400070373,
-      "hill_q0": 624,
-      "hill_q1": 271.4356965954405,
-      "hill_q2": 169.26172004639704,
-      "pielou": 0.870664130830296,
-      "t3_share": 0.7205128205128205,
+      "discovery": 0.013883569513596324,
+      "chao_coverage": 0.9861175306434617,
+      "chao1": 812.1915573535044,
+      "hill_q0": 637,
+      "hill_q1": 275.43036349132467,
+      "hill_q2": 171.2507473184456,
+      "pielou": 0.8701463939784995,
+      "t3_share": 0.7356125356125356,
       "t3_allowed": 3510,
-      "weighted_share": 0.9938480467549022,
-      "effective_sample_size": 185.25731052949183,
+      "weighted_share": 1.000000000000058,
+      "effective_sample_size": 190.12418305695937,
       "required_covered": 10,
       "required_total": 10,
       "axis_behaviour": 14,

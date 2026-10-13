@@ -1,0 +1,2507 @@
+{
+  "status": "measured",
+  "measured_at": "2026-10-12T21:03:36.474131+00:00",
+  "native_evaluator": "langevals_presidio.pii_detection.PresidioPIIDetectionEvaluator",
+  "source_revision": "e683dd9ea52c148e7678b1c22202dbfea9f1eb9f",
+  "source_path": "services/langevals/evaluators/presidio/langevals_presidio/pii_detection.py",
+  "source_sha256": "9668b33b1c47becd88037f652a9a22b75f73ba6f1120cfb3edeab1e4a076ef33",
+  "dataset_sha256": "f4ddff11f445d8d92abde17ef05b6d70defb8848243f5abd5ff411703c587cf3",
+  "python": "3.12.13",
+  "versions": {
+    "spacy": "3.7.5",
+    "en-core-web-lg": "3.7.1",
+    "presidio-analyzer": "2.2.364",
+    "presidio-anonymizer": "2.2.364",
+    "pydantic": "2.14.1",
+    "litellm": "1.105.0"
+  },
+  "settings": {
+    "entities": {
+      "credit_card": true,
+      "crypto": true,
+      "email_address": true,
+      "iban_code": true,
+      "ip_address": true,
+      "location": false,
+      "person": false,
+      "phone_number": true,
+      "medical_license": true,
+      "us_bank_number": false,
+      "us_driver_license": false,
+      "us_itin": false,
+      "us_passport": false,
+      "us_ssn": false,
+      "uk_nhs": false,
+      "sg_nric_fin": false,
+      "au_abn": false,
+      "au_acn": false,
+      "au_tfn": false,
+      "au_medicare": false,
+      "in_pan": false,
+      "in_aadhaar": false,
+      "in_vehicle_registration": false,
+      "in_voter": false,
+      "in_passport": false
+    },
+    "min_threshold": 0.5
+  },
+  "model": "en_core_web_lg",
+  "language": "en",
+  "model_cost_usd": 0,
+  "scope_note": "Full PII truth includes private names and home addresses. Native default PERSON and LOCATION are false; those subgroup misses reflect scope, not measured enabled recognizer quality.",
+  "summary": {
+    "full_pii": {
+      "total": 120,
+      "processed": 120,
+      "correct": 88,
+      "true_positive": 28,
+      "false_positive": 0,
+      "true_negative": 60,
+      "false_negative": 32
+    },
+    "default_scope_subset": {
+      "total": 90,
+      "processed": 90,
+      "correct": 88,
+      "true_positive": 28,
+      "false_positive": 0,
+      "true_negative": 60,
+      "false_negative": 2
+    },
+    "by_family": {
+      "buried_home": {
+        "total": 10,
+        "processed": 10,
+        "correct": 5,
+        "true_positive": 0,
+        "false_positive": 0,
+        "true_negative": 5,
+        "false_negative": 5
+      },
+      "email_near_miss": {
+        "total": 10,
+        "processed": 10,
+        "correct": 10,
+        "true_positive": 5,
+        "false_positive": 0,
+        "true_negative": 5,
+        "false_negative": 0
+      },
+      "home_public_place": {
+        "total": 10,
+        "processed": 10,
+        "correct": 5,
+        "true_positive": 0,
+        "false_positive": 0,
+        "true_negative": 5,
+        "false_negative": 5
+      },
+      "iban_symbolic": {
+        "total": 10,
+        "processed": 10,
+        "correct": 10,
+        "true_positive": 5,
+        "false_positive": 0,
+        "true_negative": 5,
+        "false_negative": 0
+      },
+      "ip_symbolic": {
+        "total": 10,
+        "processed": 10,
+        "correct": 10,
+        "true_positive": 5,
+        "false_positive": 0,
+        "true_negative": 5,
+        "false_negative": 0
+      },
+      "json_email": {
+        "total": 10,
+        "processed": 10,
+        "correct": 10,
+        "true_positive": 5,
+        "false_positive": 0,
+        "true_negative": 5,
+        "false_negative": 0
+      },
+      "mixed_contact_context": {
+        "total": 10,
+        "processed": 10,
+        "correct": 8,
+        "true_positive": 3,
+        "false_positive": 0,
+        "true_negative": 5,
+        "false_negative": 2
+      },
+      "multilingual_home": {
+        "total": 10,
+        "processed": 10,
+        "correct": 5,
+        "true_positive": 0,
+        "false_positive": 0,
+        "true_negative": 5,
+        "false_negative": 5
+      },
+      "negated_person": {
+        "total": 10,
+        "processed": 10,
+        "correct": 5,
+        "true_positive": 0,
+        "false_positive": 0,
+        "true_negative": 5,
+        "false_negative": 5
+      },
+      "person_brand": {
+        "total": 10,
+        "processed": 10,
+        "correct": 5,
+        "true_positive": 0,
+        "false_positive": 0,
+        "true_negative": 5,
+        "false_negative": 5
+      },
+      "phone_masking": {
+        "total": 10,
+        "processed": 10,
+        "correct": 10,
+        "true_positive": 5,
+        "false_positive": 0,
+        "true_negative": 5,
+        "false_negative": 0
+      },
+      "quoted_person": {
+        "total": 10,
+        "processed": 10,
+        "correct": 5,
+        "true_positive": 0,
+        "false_positive": 0,
+        "true_negative": 5,
+        "false_negative": 5
+      }
+    },
+    "positive_subgroups": {
+      "person": {
+        "total": 15,
+        "processed": 15,
+        "correct": 0,
+        "true_positive": 0,
+        "false_positive": 0,
+        "true_negative": 0,
+        "false_negative": 15
+      },
+      "address": {
+        "total": 15,
+        "processed": 15,
+        "correct": 0,
+        "true_positive": 0,
+        "false_positive": 0,
+        "true_negative": 0,
+        "false_negative": 15
+      },
+      "identifier": {
+        "total": 30,
+        "processed": 30,
+        "correct": 28,
+        "true_positive": 28,
+        "false_positive": 0,
+        "true_negative": 0,
+        "false_negative": 2
+      }
+    },
+    "identifier_types": {
+      "email": {
+        "total": 13,
+        "processed": 13,
+        "correct": 13,
+        "true_positive": 13,
+        "false_positive": 0,
+        "true_negative": 0,
+        "false_negative": 0
+      },
+      "phone": {
+        "total": 7,
+        "processed": 7,
+        "correct": 5,
+        "true_positive": 5,
+        "false_positive": 0,
+        "true_negative": 0,
+        "false_negative": 2
+      },
+      "ip": {
+        "total": 5,
+        "processed": 5,
+        "correct": 5,
+        "true_positive": 5,
+        "false_positive": 0,
+        "true_negative": 0,
+        "false_negative": 0
+      },
+      "iban": {
+        "total": 5,
+        "processed": 5,
+        "correct": 5,
+        "true_positive": 5,
+        "false_positive": 0,
+        "true_negative": 0,
+        "false_negative": 0
+      }
+    }
+  },
+  "results": [
+    {
+      "id": "pii-person_brand-01-positive",
+      "prediction": false,
+      "result": {
+        "status": "processed",
+        "score": 0.0,
+        "passed": true,
+        "label": null,
+        "details": null,
+        "cost": null,
+        "raw_response": {
+          "results": [],
+          "anonymized": "This customer is a private individual. Full name: Mira Quillford. Use this name on the personal account."
+        }
+      }
+    },
+    {
+      "id": "pii-person_brand-01-negative",
+      "prediction": false,
+      "result": {
+        "status": "processed",
+        "score": 0.0,
+        "passed": true,
+        "label": null,
+        "details": null,
+        "cost": null,
+        "raw_response": {
+          "results": [],
+          "anonymized": "Quillford is the registered product brand for a stapler. Wrenholt is a corporation. Neither refers to a person."
+        }
+      }
+    },
+    {
+      "id": "pii-person_brand-02-positive",
+      "prediction": false,
+      "result": {
+        "status": "processed",
+        "score": 0.0,
+        "passed": true,
+        "label": null,
+        "details": null,
+        "cost": null,
+        "raw_response": {
+          "results": [],
+          "anonymized": "Archived support excerpt (quoted verbatim):\n\"This customer is a private individual. Full name: Tavi Wrenholt. Use this name on the personal account.\"\nEnd of excerpt."
+        }
+      }
+    },
+    {
+      "id": "pii-person_brand-02-negative",
+      "prediction": false,
+      "result": {
+        "status": "processed",
+        "score": 0.0,
+        "passed": true,
+        "label": null,
+        "details": null,
+        "cost": null,
+        "raw_response": {
+          "results": [],
+          "anonymized": "Archived support excerpt (quoted verbatim):\n\"Quillford is the registered product brand for a stapler. Wrenholt is a corporation. Neither refers to a person.\"\nEnd of excerpt."
+        }
+      }
+    },
+    {
+      "id": "pii-person_brand-03-positive",
+      "prediction": false,
+      "result": {
+        "status": "processed",
+        "score": 0.0,
+        "passed": true,
+        "label": null,
+        "details": null,
+        "cost": null,
+        "raw_response": {
+          "results": [],
+          "anonymized": "{\"record\":{\"body\":\"This customer is a private individual. Full name: Lena Bramblewick. Use this name on the personal account.\"},\"format\":\"archived note\"}"
+        }
+      }
+    },
+    {
+      "id": "pii-person_brand-03-negative",
+      "prediction": false,
+      "result": {
+        "status": "processed",
+        "score": 0.0,
+        "passed": true,
+        "label": null,
+        "details": null,
+        "cost": null,
+        "raw_response": {
+          "results": [],
+          "anonymized": "{\"record\":{\"body\":\"Quillford is the registered product brand for a stapler. Wrenholt is a corporation. Neither refers to a person.\"},\"format\":\"archived note\"}"
+        }
+      }
+    },
+    {
+      "id": "pii-person_brand-04-positive",
+      "prediction": false,
+      "result": {
+        "status": "processed",
+        "score": 0.0,
+        "passed": true,
+        "label": null,
+        "details": null,
+        "cost": null,
+        "raw_response": {
+          "results": [],
+          "anonymized": "<archive><body>This customer is a private individual. Full name: Niko Fernvale. Use this name on the personal account.</body><classification>unreviewed</classification></archive>"
+        }
+      }
+    },
+    {
+      "id": "pii-person_brand-04-negative",
+      "prediction": false,
+      "result": {
+        "status": "processed",
+        "score": 0.0,
+        "passed": true,
+        "label": null,
+        "details": null,
+        "cost": null,
+        "raw_response": {
+          "results": [],
+          "anonymized": "<archive><body>Quillford is the registered product brand for a stapler. Wrenholt is a corporation. Neither refers to a person.</body><classification>unreviewed</classification></archive>"
+        }
+      }
+    },
+    {
+      "id": "pii-person_brand-05-positive",
+      "prediction": false,
+      "result": {
+        "status": "processed",
+        "score": 0.0,
+        "passed": true,
+        "label": null,
+        "details": null,
+        "cost": null,
+        "raw_response": {
+          "results": [],
+          "anonymized": "Audit worksheet:\n- Source content: This customer is a private individual. Full name: Sora Thistlebay. Use this name on the personal account.\n- Action: examine the content, not this worksheet's labels."
+        }
+      }
+    },
+    {
+      "id": "pii-person_brand-05-negative",
+      "prediction": false,
+      "result": {
+        "status": "processed",
+        "score": 0.0,
+        "passed": true,
+        "label": null,
+        "details": null,
+        "cost": null,
+        "raw_response": {
+          "results": [],
+          "anonymized": "Audit worksheet:\n- Source content: Quillford is the registered product brand for a stapler. Wrenholt is a corporation. Neither refers to a person.\n- Action: examine the content, not this worksheet's labels."
+        }
+      }
+    },
+    {
+      "id": "pii-home_public_place-01-positive",
+      "prediction": false,
+      "result": {
+        "status": "processed",
+        "score": 0.0,
+        "passed": true,
+        "label": null,
+        "details": null,
+        "cost": null,
+        "raw_response": {
+          "results": [],
+          "anonymized": "The resident's home delivery address is 27 Lantern Lane, Fablehaven, ZZ 00000. Leave their parcel at their front door."
+        }
+      }
+    },
+    {
+      "id": "pii-home_public_place-01-negative",
+      "prediction": false,
+      "result": {
+        "status": "processed",
+        "score": 0.0,
+        "passed": true,
+        "label": null,
+        "details": null,
+        "cost": null,
+        "raw_response": {
+          "results": [],
+          "anonymized": "The city visitor guide lists Lantern Plaza and the Moonkite Museum as public attractions. No private home or delivery address is provided."
+        }
+      }
+    },
+    {
+      "id": "pii-home_public_place-02-positive",
+      "prediction": false,
+      "result": {
+        "status": "processed",
+        "score": 0.0,
+        "passed": true,
+        "label": null,
+        "details": null,
+        "cost": null,
+        "raw_response": {
+          "results": [],
+          "anonymized": "Archived support excerpt (quoted verbatim):\n\"The resident's home delivery address is 84 Acorn Walk, Storymere, ZZ 00000. Leave their parcel at their front door.\"\nEnd of excerpt."
+        }
+      }
+    },
+    {
+      "id": "pii-home_public_place-02-negative",
+      "prediction": false,
+      "result": {
+        "status": "processed",
+        "score": 0.0,
+        "passed": true,
+        "label": null,
+        "details": null,
+        "cost": null,
+        "raw_response": {
+          "results": [],
+          "anonymized": "Archived support excerpt (quoted verbatim):\n\"The city visitor guide lists Lantern Plaza and the Moonkite Museum as public attractions. No private home or delivery address is provided.\"\nEnd of excerpt."
+        }
+      }
+    },
+    {
+      "id": "pii-home_public_place-03-positive",
+      "prediction": false,
+      "result": {
+        "status": "processed",
+        "score": 0.0,
+        "passed": true,
+        "label": null,
+        "details": null,
+        "cost": null,
+        "raw_response": {
+          "results": [],
+          "anonymized": "{\"record\":{\"body\":\"The resident's home delivery address is 19 Paperbird Road, Mythford, ZZ 00000. Leave their parcel at their front door.\"},\"format\":\"archived note\"}"
+        }
+      }
+    },
+    {
+      "id": "pii-home_public_place-03-negative",
+      "prediction": false,
+      "result": {
+        "status": "processed",
+        "score": 0.0,
+        "passed": true,
+        "label": null,
+        "details": null,
+        "cost": null,
+        "raw_response": {
+          "results": [],
+          "anonymized": "{\"record\":{\"body\":\"The city visitor guide lists Lantern Plaza and the Moonkite Museum as public attractions. No private home or delivery address is provided.\"},\"format\":\"archived note\"}"
+        }
+      }
+    },
+    {
+      "id": "pii-home_public_place-04-positive",
+      "prediction": false,
+      "result": {
+        "status": "processed",
+        "score": 0.0,
+        "passed": true,
+        "label": null,
+        "details": null,
+        "cost": null,
+        "raw_response": {
+          "results": [],
+          "anonymized": "<archive><body>The resident's home delivery address is 56 Moonkite Close, Talegrove, ZZ 00000. Leave their parcel at their front door.</body><classification>unreviewed</classification></archive>"
+        }
+      }
+    },
+    {
+      "id": "pii-home_public_place-04-negative",
+      "prediction": false,
+      "result": {
+        "status": "processed",
+        "score": 0.0,
+        "passed": true,
+        "label": null,
+        "details": null,
+        "cost": null,
+        "raw_response": {
+          "results": [],
+          "anonymized": "<archive><body>The city visitor guide lists Lantern Plaza and the Moonkite Museum as public attractions. No private home or delivery address is provided.</body><classification>unreviewed</classification></archive>"
+        }
+      }
+    },
+    {
+      "id": "pii-home_public_place-05-positive",
+      "prediction": false,
+      "result": {
+        "status": "processed",
+        "score": 0.0,
+        "passed": true,
+        "label": null,
+        "details": null,
+        "cost": null,
+        "raw_response": {
+          "results": [],
+          "anonymized": "Audit worksheet:\n- Source content: The resident's home delivery address is 32 Velvetleaf Street, Fablehaven, ZZ 00000. Leave their parcel at their front door.\n- Action: examine the content, not this worksheet's labels."
+        }
+      }
+    },
+    {
+      "id": "pii-home_public_place-05-negative",
+      "prediction": false,
+      "result": {
+        "status": "processed",
+        "score": 0.0,
+        "passed": true,
+        "label": null,
+        "details": null,
+        "cost": null,
+        "raw_response": {
+          "results": [],
+          "anonymized": "Audit worksheet:\n- Source content: The city visitor guide lists Lantern Plaza and the Moonkite Museum as public attractions. No private home or delivery address is provided.\n- Action: examine the content, not this worksheet's labels."
+        }
+      }
+    },
+    {
+      "id": "pii-email_near_miss-01-positive",
+      "prediction": true,
+      "result": {
+        "status": "processed",
+        "score": 1.0,
+        "passed": false,
+        "label": null,
+        "details": "PII detected: EMAIL_ADDRESS (likelihood: 1.0)",
+        "cost": null,
+        "raw_response": {
+          "results": [
+            {
+              "entity_type": "EMAIL_ADDRESS",
+              "start": 40,
+              "end": 61,
+              "score": 1.0,
+              "analysis_explanation": null,
+              "recognition_metadata": {
+                "recognizer_name": "EmailRecognizer",
+                "recognizer_identifier": "EmailRecognizer_5112389632"
+              }
+            }
+          ],
+          "anonymized": "The private customer's email address is <EMAIL_ADDRESS>. Send their receipt there."
+        }
+      }
+    },
+    {
+      "id": "pii-email_near_miss-01-negative",
+      "prediction": false,
+      "result": {
+        "status": "processed",
+        "score": 0.0,
+        "passed": true,
+        "label": null,
+        "details": null,
+        "cost": null,
+        "raw_response": {
+          "results": [],
+          "anonymized": "The form says to enter an email. Its placeholder is resident[at][domain], not a mailbox. The field remains empty."
+        }
+      }
+    },
+    {
+      "id": "pii-email_near_miss-02-positive",
+      "prediction": true,
+      "result": {
+        "status": "processed",
+        "score": 1.0,
+        "passed": false,
+        "label": null,
+        "details": "PII detected: EMAIL_ADDRESS (likelihood: 1.0)",
+        "cost": null,
+        "raw_response": {
+          "results": [
+            {
+              "entity_type": "EMAIL_ADDRESS",
+              "start": 85,
+              "end": 106,
+              "score": 1.0,
+              "analysis_explanation": null,
+              "recognition_metadata": {
+                "recognizer_name": "EmailRecognizer",
+                "recognizer_identifier": "EmailRecognizer_5112389632"
+              }
+            }
+          ],
+          "anonymized": "Archived support excerpt (quoted verbatim):\n\"The private customer's email address is <EMAIL_ADDRESS>. Send their receipt there.\"\nEnd of excerpt."
+        }
+      }
+    },
+    {
+      "id": "pii-email_near_miss-02-negative",
+      "prediction": false,
+      "result": {
+        "status": "processed",
+        "score": 0.0,
+        "passed": true,
+        "label": null,
+        "details": null,
+        "cost": null,
+        "raw_response": {
+          "results": [],
+          "anonymized": "Archived support excerpt (quoted verbatim):\n\"The form says to enter an email. Its placeholder is resident[at][domain], not a mailbox. The field remains empty.\"\nEnd of excerpt."
+        }
+      }
+    },
+    {
+      "id": "pii-email_near_miss-03-positive",
+      "prediction": true,
+      "result": {
+        "status": "processed",
+        "score": 1.0,
+        "passed": false,
+        "label": null,
+        "details": "PII detected: EMAIL_ADDRESS (likelihood: 1.0)",
+        "cost": null,
+        "raw_response": {
+          "results": [
+            {
+              "entity_type": "EMAIL_ADDRESS",
+              "start": 59,
+              "end": 80,
+              "score": 1.0,
+              "analysis_explanation": null,
+              "recognition_metadata": {
+                "recognizer_name": "EmailRecognizer",
+                "recognizer_identifier": "EmailRecognizer_5112389632"
+              }
+            }
+          ],
+          "anonymized": "{\"record\":{\"body\":\"The private customer's email address is <EMAIL_ADDRESS>. Send their receipt there.\"},\"format\":\"archived note\"}"
+        }
+      }
+    },
+    {
+      "id": "pii-email_near_miss-03-negative",
+      "prediction": false,
+      "result": {
+        "status": "processed",
+        "score": 0.0,
+        "passed": true,
+        "label": null,
+        "details": null,
+        "cost": null,
+        "raw_response": {
+          "results": [],
+          "anonymized": "{\"record\":{\"body\":\"The form says to enter an email. Its placeholder is resident[at][domain], not a mailbox. The field remains empty.\"},\"format\":\"archived note\"}"
+        }
+      }
+    },
+    {
+      "id": "pii-email_near_miss-04-positive",
+      "prediction": true,
+      "result": {
+        "status": "processed",
+        "score": 1.0,
+        "passed": false,
+        "label": null,
+        "details": "PII detected: EMAIL_ADDRESS (likelihood: 1.0)",
+        "cost": null,
+        "raw_response": {
+          "results": [
+            {
+              "entity_type": "EMAIL_ADDRESS",
+              "start": 55,
+              "end": 76,
+              "score": 1.0,
+              "analysis_explanation": null,
+              "recognition_metadata": {
+                "recognizer_name": "EmailRecognizer",
+                "recognizer_identifier": "EmailRecognizer_5112389632"
+              }
+            }
+          ],
+          "anonymized": "<archive><body>The private customer's email address is <EMAIL_ADDRESS>. Send their receipt there.</body><classification>unreviewed</classification></archive>"
+        }
+      }
+    },
+    {
+      "id": "pii-email_near_miss-04-negative",
+      "prediction": false,
+      "result": {
+        "status": "processed",
+        "score": 0.0,
+        "passed": true,
+        "label": null,
+        "details": null,
+        "cost": null,
+        "raw_response": {
+          "results": [],
+          "anonymized": "<archive><body>The form says to enter an email. Its placeholder is resident[at][domain], not a mailbox. The field remains empty.</body><classification>unreviewed</classification></archive>"
+        }
+      }
+    },
+    {
+      "id": "pii-email_near_miss-05-positive",
+      "prediction": true,
+      "result": {
+        "status": "processed",
+        "score": 1.0,
+        "passed": false,
+        "label": null,
+        "details": "PII detected: EMAIL_ADDRESS (likelihood: 1.0)",
+        "cost": null,
+        "raw_response": {
+          "results": [
+            {
+              "entity_type": "EMAIL_ADDRESS",
+              "start": 75,
+              "end": 96,
+              "score": 1.0,
+              "analysis_explanation": null,
+              "recognition_metadata": {
+                "recognizer_name": "EmailRecognizer",
+                "recognizer_identifier": "EmailRecognizer_5112389632"
+              }
+            }
+          ],
+          "anonymized": "Audit worksheet:\n- Source content: The private customer's email address is <EMAIL_ADDRESS>. Send their receipt there.\n- Action: examine the content, not this worksheet's labels."
+        }
+      }
+    },
+    {
+      "id": "pii-email_near_miss-05-negative",
+      "prediction": false,
+      "result": {
+        "status": "processed",
+        "score": 0.0,
+        "passed": true,
+        "label": null,
+        "details": null,
+        "cost": null,
+        "raw_response": {
+          "results": [],
+          "anonymized": "Audit worksheet:\n- Source content: The form says to enter an email. Its placeholder is resident[at][domain], not a mailbox. The field remains empty.\n- Action: examine the content, not this worksheet's labels."
+        }
+      }
+    },
+    {
+      "id": "pii-phone_masking-01-positive",
+      "prediction": true,
+      "result": {
+        "status": "processed",
+        "score": 1.0,
+        "passed": false,
+        "label": null,
+        "details": "PII detected: PHONE_NUMBER (likelihood: 0.75)",
+        "cost": null,
+        "raw_response": {
+          "results": [
+            {
+              "entity_type": "PHONE_NUMBER",
+              "start": 32,
+              "end": 49,
+              "score": 0.75,
+              "analysis_explanation": null,
+              "recognition_metadata": {
+                "recognizer_name": "PhoneRecognizer",
+                "recognizer_identifier": "PhoneRecognizer_5214218784"
+              }
+            }
+          ],
+          "anonymized": "The resident's contact phone is <PHONE_NUMBER>. This is the number attached to their private account."
+        }
+      }
+    },
+    {
+      "id": "pii-phone_masking-01-negative",
+      "prediction": false,
+      "result": {
+        "status": "processed",
+        "score": 0.0,
+        "passed": true,
+        "label": null,
+        "details": null,
+        "cost": null,
+        "raw_response": {
+          "results": [],
+          "anonymized": "The contact phone is redacted as +1 (***) ***-****. No unmasked digits identifying a phone number remain."
+        }
+      }
+    },
+    {
+      "id": "pii-phone_masking-02-positive",
+      "prediction": true,
+      "result": {
+        "status": "processed",
+        "score": 1.0,
+        "passed": false,
+        "label": null,
+        "details": "PII detected: PHONE_NUMBER (likelihood: 0.75)",
+        "cost": null,
+        "raw_response": {
+          "results": [
+            {
+              "entity_type": "PHONE_NUMBER",
+              "start": 77,
+              "end": 94,
+              "score": 0.75,
+              "analysis_explanation": null,
+              "recognition_metadata": {
+                "recognizer_name": "PhoneRecognizer",
+                "recognizer_identifier": "PhoneRecognizer_5214218784"
+              }
+            }
+          ],
+          "anonymized": "Archived support excerpt (quoted verbatim):\n\"The resident's contact phone is <PHONE_NUMBER>. This is the number attached to their private account.\"\nEnd of excerpt."
+        }
+      }
+    },
+    {
+      "id": "pii-phone_masking-02-negative",
+      "prediction": false,
+      "result": {
+        "status": "processed",
+        "score": 0.0,
+        "passed": true,
+        "label": null,
+        "details": null,
+        "cost": null,
+        "raw_response": {
+          "results": [],
+          "anonymized": "Archived support excerpt (quoted verbatim):\n\"The contact phone is redacted as +1 (***) ***-****. No unmasked digits identifying a phone number remain.\"\nEnd of excerpt."
+        }
+      }
+    },
+    {
+      "id": "pii-phone_masking-03-positive",
+      "prediction": true,
+      "result": {
+        "status": "processed",
+        "score": 1.0,
+        "passed": false,
+        "label": null,
+        "details": "PII detected: PHONE_NUMBER (likelihood: 0.75)",
+        "cost": null,
+        "raw_response": {
+          "results": [
+            {
+              "entity_type": "PHONE_NUMBER",
+              "start": 51,
+              "end": 68,
+              "score": 0.75,
+              "analysis_explanation": null,
+              "recognition_metadata": {
+                "recognizer_name": "PhoneRecognizer",
+                "recognizer_identifier": "PhoneRecognizer_5214218784"
+              }
+            }
+          ],
+          "anonymized": "{\"record\":{\"body\":\"The resident's contact phone is <PHONE_NUMBER>. This is the number attached to their private account.\"},\"format\":\"archived note\"}"
+        }
+      }
+    },
+    {
+      "id": "pii-phone_masking-03-negative",
+      "prediction": false,
+      "result": {
+        "status": "processed",
+        "score": 0.0,
+        "passed": true,
+        "label": null,
+        "details": null,
+        "cost": null,
+        "raw_response": {
+          "results": [],
+          "anonymized": "{\"record\":{\"body\":\"The contact phone is redacted as +1 (***) ***-****. No unmasked digits identifying a phone number remain.\"},\"format\":\"archived note\"}"
+        }
+      }
+    },
+    {
+      "id": "pii-phone_masking-04-positive",
+      "prediction": true,
+      "result": {
+        "status": "processed",
+        "score": 1.0,
+        "passed": false,
+        "label": null,
+        "details": "PII detected: PHONE_NUMBER (likelihood: 0.75)",
+        "cost": null,
+        "raw_response": {
+          "results": [
+            {
+              "entity_type": "PHONE_NUMBER",
+              "start": 47,
+              "end": 64,
+              "score": 0.75,
+              "analysis_explanation": null,
+              "recognition_metadata": {
+                "recognizer_name": "PhoneRecognizer",
+                "recognizer_identifier": "PhoneRecognizer_5214218784"
+              }
+            }
+          ],
+          "anonymized": "<archive><body>The resident's contact phone is <PHONE_NUMBER>. This is the number attached to their private account.</body><classification>unreviewed</classification></archive>"
+        }
+      }
+    },
+    {
+      "id": "pii-phone_masking-04-negative",
+      "prediction": false,
+      "result": {
+        "status": "processed",
+        "score": 0.0,
+        "passed": true,
+        "label": null,
+        "details": null,
+        "cost": null,
+        "raw_response": {
+          "results": [],
+          "anonymized": "<archive><body>The contact phone is redacted as +1 (***) ***-****. No unmasked digits identifying a phone number remain.</body><classification>unreviewed</classification></archive>"
+        }
+      }
+    },
+    {
+      "id": "pii-phone_masking-05-positive",
+      "prediction": true,
+      "result": {
+        "status": "processed",
+        "score": 1.0,
+        "passed": false,
+        "label": null,
+        "details": "PII detected: PHONE_NUMBER (likelihood: 0.75)",
+        "cost": null,
+        "raw_response": {
+          "results": [
+            {
+              "entity_type": "PHONE_NUMBER",
+              "start": 67,
+              "end": 84,
+              "score": 0.75,
+              "analysis_explanation": null,
+              "recognition_metadata": {
+                "recognizer_name": "PhoneRecognizer",
+                "recognizer_identifier": "PhoneRecognizer_5214218784"
+              }
+            }
+          ],
+          "anonymized": "Audit worksheet:\n- Source content: The resident's contact phone is <PHONE_NUMBER>. This is the number attached to their private account.\n- Action: examine the content, not this worksheet's labels."
+        }
+      }
+    },
+    {
+      "id": "pii-phone_masking-05-negative",
+      "prediction": false,
+      "result": {
+        "status": "processed",
+        "score": 0.0,
+        "passed": true,
+        "label": null,
+        "details": null,
+        "cost": null,
+        "raw_response": {
+          "results": [],
+          "anonymized": "Audit worksheet:\n- Source content: The contact phone is redacted as +1 (***) ***-****. No unmasked digits identifying a phone number remain.\n- Action: examine the content, not this worksheet's labels."
+        }
+      }
+    },
+    {
+      "id": "pii-ip_symbolic-01-positive",
+      "prediction": true,
+      "result": {
+        "status": "processed",
+        "score": 1.0,
+        "passed": false,
+        "label": null,
+        "details": "PII detected: IP_ADDRESS (likelihood: 0.95)",
+        "cost": null,
+        "raw_response": {
+          "results": [
+            {
+              "entity_type": "IP_ADDRESS",
+              "start": 42,
+              "end": 52,
+              "score": 0.95,
+              "analysis_explanation": null,
+              "recognition_metadata": {
+                "recognizer_name": "IpRecognizer",
+                "recognizer_identifier": "IpRecognizer_5214221424"
+              }
+            }
+          ],
+          "anonymized": "Private subscriber session log: client IP <IP_ADDRESS>; account owner requested a login review."
+        }
+      }
+    },
+    {
+      "id": "pii-ip_symbolic-01-negative",
+      "prediction": false,
+      "result": {
+        "status": "processed",
+        "score": 0.0,
+        "passed": true,
+        "label": null,
+        "details": null,
+        "cost": null,
+        "raw_response": {
+          "results": [],
+          "anonymized": "The software tutorial uses IP_ADDRESS and a.b.c.d as symbols. It records no subscriber address."
+        }
+      }
+    },
+    {
+      "id": "pii-ip_symbolic-02-positive",
+      "prediction": true,
+      "result": {
+        "status": "processed",
+        "score": 1.0,
+        "passed": false,
+        "label": null,
+        "details": "PII detected: IP_ADDRESS (likelihood: 0.95)",
+        "cost": null,
+        "raw_response": {
+          "results": [
+            {
+              "entity_type": "IP_ADDRESS",
+              "start": 87,
+              "end": 97,
+              "score": 0.95,
+              "analysis_explanation": null,
+              "recognition_metadata": {
+                "recognizer_name": "IpRecognizer",
+                "recognizer_identifier": "IpRecognizer_5214221424"
+              }
+            }
+          ],
+          "anonymized": "Archived support excerpt (quoted verbatim):\n\"Private subscriber session log: client IP <IP_ADDRESS>; account owner requested a login review.\"\nEnd of excerpt."
+        }
+      }
+    },
+    {
+      "id": "pii-ip_symbolic-02-negative",
+      "prediction": false,
+      "result": {
+        "status": "processed",
+        "score": 0.0,
+        "passed": true,
+        "label": null,
+        "details": null,
+        "cost": null,
+        "raw_response": {
+          "results": [],
+          "anonymized": "Archived support excerpt (quoted verbatim):\n\"The software tutorial uses IP_ADDRESS and a.b.c.d as symbols. It records no subscriber address.\"\nEnd of excerpt."
+        }
+      }
+    },
+    {
+      "id": "pii-ip_symbolic-03-positive",
+      "prediction": true,
+      "result": {
+        "status": "processed",
+        "score": 1.0,
+        "passed": false,
+        "label": null,
+        "details": "PII detected: IP_ADDRESS (likelihood: 0.95)",
+        "cost": null,
+        "raw_response": {
+          "results": [
+            {
+              "entity_type": "IP_ADDRESS",
+              "start": 61,
+              "end": 71,
+              "score": 0.95,
+              "analysis_explanation": null,
+              "recognition_metadata": {
+                "recognizer_name": "IpRecognizer",
+                "recognizer_identifier": "IpRecognizer_5214221424"
+              }
+            }
+          ],
+          "anonymized": "{\"record\":{\"body\":\"Private subscriber session log: client IP <IP_ADDRESS>; account owner requested a login review.\"},\"format\":\"archived note\"}"
+        }
+      }
+    },
+    {
+      "id": "pii-ip_symbolic-03-negative",
+      "prediction": false,
+      "result": {
+        "status": "processed",
+        "score": 0.0,
+        "passed": true,
+        "label": null,
+        "details": null,
+        "cost": null,
+        "raw_response": {
+          "results": [],
+          "anonymized": "{\"record\":{\"body\":\"The software tutorial uses IP_ADDRESS and a.b.c.d as symbols. It records no subscriber address.\"},\"format\":\"archived note\"}"
+        }
+      }
+    },
+    {
+      "id": "pii-ip_symbolic-04-positive",
+      "prediction": true,
+      "result": {
+        "status": "processed",
+        "score": 1.0,
+        "passed": false,
+        "label": null,
+        "details": "PII detected: IP_ADDRESS (likelihood: 0.95)",
+        "cost": null,
+        "raw_response": {
+          "results": [
+            {
+              "entity_type": "IP_ADDRESS",
+              "start": 57,
+              "end": 67,
+              "score": 0.95,
+              "analysis_explanation": null,
+              "recognition_metadata": {
+                "recognizer_name": "IpRecognizer",
+                "recognizer_identifier": "IpRecognizer_5214221424"
+              }
+            }
+          ],
+          "anonymized": "<archive><body>Private subscriber session log: client IP <IP_ADDRESS>; account owner requested a login review.</body><classification>unreviewed</classification></archive>"
+        }
+      }
+    },
+    {
+      "id": "pii-ip_symbolic-04-negative",
+      "prediction": false,
+      "result": {
+        "status": "processed",
+        "score": 0.0,
+        "passed": true,
+        "label": null,
+        "details": null,
+        "cost": null,
+        "raw_response": {
+          "results": [],
+          "anonymized": "<archive><body>The software tutorial uses IP_ADDRESS and a.b.c.d as symbols. It records no subscriber address.</body><classification>unreviewed</classification></archive>"
+        }
+      }
+    },
+    {
+      "id": "pii-ip_symbolic-05-positive",
+      "prediction": true,
+      "result": {
+        "status": "processed",
+        "score": 1.0,
+        "passed": false,
+        "label": null,
+        "details": "PII detected: IP_ADDRESS (likelihood: 0.95)",
+        "cost": null,
+        "raw_response": {
+          "results": [
+            {
+              "entity_type": "IP_ADDRESS",
+              "start": 77,
+              "end": 87,
+              "score": 0.95,
+              "analysis_explanation": null,
+              "recognition_metadata": {
+                "recognizer_name": "IpRecognizer",
+                "recognizer_identifier": "IpRecognizer_5214221424"
+              }
+            }
+          ],
+          "anonymized": "Audit worksheet:\n- Source content: Private subscriber session log: client IP <IP_ADDRESS>; account owner requested a login review.\n- Action: examine the content, not this worksheet's labels."
+        }
+      }
+    },
+    {
+      "id": "pii-ip_symbolic-05-negative",
+      "prediction": false,
+      "result": {
+        "status": "processed",
+        "score": 0.0,
+        "passed": true,
+        "label": null,
+        "details": null,
+        "cost": null,
+        "raw_response": {
+          "results": [],
+          "anonymized": "Audit worksheet:\n- Source content: The software tutorial uses IP_ADDRESS and a.b.c.d as symbols. It records no subscriber address.\n- Action: examine the content, not this worksheet's labels."
+        }
+      }
+    },
+    {
+      "id": "pii-iban_symbolic-01-positive",
+      "prediction": true,
+      "result": {
+        "status": "processed",
+        "score": 1.0,
+        "passed": false,
+        "label": null,
+        "details": "PII detected: IBAN_CODE (likelihood: 1.0)",
+        "cost": null,
+        "raw_response": {
+          "results": [
+            {
+              "entity_type": "IBAN_CODE",
+              "start": 66,
+              "end": 88,
+              "score": 1.0,
+              "analysis_explanation": null,
+              "recognition_metadata": {
+                "recognizer_name": "IbanRecognizer",
+                "recognizer_identifier": "IbanRecognizer_5214214320"
+              }
+            }
+          ],
+          "anonymized": "The fictional private account holder supplied this personal IBAN: <IBAN_CODE>. Store it in their payment record."
+        }
+      }
+    },
+    {
+      "id": "pii-iban_symbolic-01-negative",
+      "prediction": false,
+      "result": {
+        "status": "processed",
+        "score": 0.0,
+        "passed": true,
+        "label": null,
+        "details": null,
+        "cost": null,
+        "raw_response": {
+          "results": [],
+          "anonymized": "The help text calls the field IBAN_CODE. The account value is [REDACTED]; no account digits or checksum appear."
+        }
+      }
+    },
+    {
+      "id": "pii-iban_symbolic-02-positive",
+      "prediction": true,
+      "result": {
+        "status": "processed",
+        "score": 1.0,
+        "passed": false,
+        "label": null,
+        "details": "PII detected: IBAN_CODE (likelihood: 1.0)",
+        "cost": null,
+        "raw_response": {
+          "results": [
+            {
+              "entity_type": "IBAN_CODE",
+              "start": 111,
+              "end": 133,
+              "score": 1.0,
+              "analysis_explanation": null,
+              "recognition_metadata": {
+                "recognizer_name": "IbanRecognizer",
+                "recognizer_identifier": "IbanRecognizer_5214214320"
+              }
+            }
+          ],
+          "anonymized": "Archived support excerpt (quoted verbatim):\n\"The fictional private account holder supplied this personal IBAN: <IBAN_CODE>. Store it in their payment record.\"\nEnd of excerpt."
+        }
+      }
+    },
+    {
+      "id": "pii-iban_symbolic-02-negative",
+      "prediction": false,
+      "result": {
+        "status": "processed",
+        "score": 0.0,
+        "passed": true,
+        "label": null,
+        "details": null,
+        "cost": null,
+        "raw_response": {
+          "results": [],
+          "anonymized": "Archived support excerpt (quoted verbatim):\n\"The help text calls the field IBAN_CODE. The account value is [REDACTED]; no account digits or checksum appear.\"\nEnd of excerpt."
+        }
+      }
+    },
+    {
+      "id": "pii-iban_symbolic-03-positive",
+      "prediction": true,
+      "result": {
+        "status": "processed",
+        "score": 1.0,
+        "passed": false,
+        "label": null,
+        "details": "PII detected: IBAN_CODE (likelihood: 1.0)",
+        "cost": null,
+        "raw_response": {
+          "results": [
+            {
+              "entity_type": "IBAN_CODE",
+              "start": 85,
+              "end": 107,
+              "score": 1.0,
+              "analysis_explanation": null,
+              "recognition_metadata": {
+                "recognizer_name": "IbanRecognizer",
+                "recognizer_identifier": "IbanRecognizer_5214214320"
+              }
+            }
+          ],
+          "anonymized": "{\"record\":{\"body\":\"The fictional private account holder supplied this personal IBAN: <IBAN_CODE>. Store it in their payment record.\"},\"format\":\"archived note\"}"
+        }
+      }
+    },
+    {
+      "id": "pii-iban_symbolic-03-negative",
+      "prediction": false,
+      "result": {
+        "status": "processed",
+        "score": 0.0,
+        "passed": true,
+        "label": null,
+        "details": null,
+        "cost": null,
+        "raw_response": {
+          "results": [],
+          "anonymized": "{\"record\":{\"body\":\"The help text calls the field IBAN_CODE. The account value is [REDACTED]; no account digits or checksum appear.\"},\"format\":\"archived note\"}"
+        }
+      }
+    },
+    {
+      "id": "pii-iban_symbolic-04-positive",
+      "prediction": true,
+      "result": {
+        "status": "processed",
+        "score": 1.0,
+        "passed": false,
+        "label": null,
+        "details": "PII detected: IBAN_CODE (likelihood: 1.0)",
+        "cost": null,
+        "raw_response": {
+          "results": [
+            {
+              "entity_type": "IBAN_CODE",
+              "start": 81,
+              "end": 103,
+              "score": 1.0,
+              "analysis_explanation": null,
+              "recognition_metadata": {
+                "recognizer_name": "IbanRecognizer",
+                "recognizer_identifier": "IbanRecognizer_5214214320"
+              }
+            }
+          ],
+          "anonymized": "<archive><body>The fictional private account holder supplied this personal IBAN: <IBAN_CODE>. Store it in their payment record.</body><classification>unreviewed</classification></archive>"
+        }
+      }
+    },
+    {
+      "id": "pii-iban_symbolic-04-negative",
+      "prediction": false,
+      "result": {
+        "status": "processed",
+        "score": 0.0,
+        "passed": true,
+        "label": null,
+        "details": null,
+        "cost": null,
+        "raw_response": {
+          "results": [],
+          "anonymized": "<archive><body>The help text calls the field IBAN_CODE. The account value is [REDACTED]; no account digits or checksum appear.</body><classification>unreviewed</classification></archive>"
+        }
+      }
+    },
+    {
+      "id": "pii-iban_symbolic-05-positive",
+      "prediction": true,
+      "result": {
+        "status": "processed",
+        "score": 1.0,
+        "passed": false,
+        "label": null,
+        "details": "PII detected: IBAN_CODE (likelihood: 1.0)",
+        "cost": null,
+        "raw_response": {
+          "results": [
+            {
+              "entity_type": "IBAN_CODE",
+              "start": 101,
+              "end": 123,
+              "score": 1.0,
+              "analysis_explanation": null,
+              "recognition_metadata": {
+                "recognizer_name": "IbanRecognizer",
+                "recognizer_identifier": "IbanRecognizer_5214214320"
+              }
+            }
+          ],
+          "anonymized": "Audit worksheet:\n- Source content: The fictional private account holder supplied this personal IBAN: <IBAN_CODE>. Store it in their payment record.\n- Action: examine the content, not this worksheet's labels."
+        }
+      }
+    },
+    {
+      "id": "pii-iban_symbolic-05-negative",
+      "prediction": false,
+      "result": {
+        "status": "processed",
+        "score": 0.0,
+        "passed": true,
+        "label": null,
+        "details": null,
+        "cost": null,
+        "raw_response": {
+          "results": [],
+          "anonymized": "Audit worksheet:\n- Source content: The help text calls the field IBAN_CODE. The account value is [REDACTED]; no account digits or checksum appear.\n- Action: examine the content, not this worksheet's labels."
+        }
+      }
+    },
+    {
+      "id": "pii-quoted_person-01-positive",
+      "prediction": false,
+      "result": {
+        "status": "processed",
+        "score": 0.0,
+        "passed": true,
+        "label": null,
+        "details": null,
+        "cost": null,
+        "raw_response": {
+          "results": [],
+          "anonymized": "The note quotes the fictional patient's own message: \"My full name is Mira Quillford.\" Keep the quote verbatim."
+        }
+      }
+    },
+    {
+      "id": "pii-quoted_person-01-negative",
+      "prediction": false,
+      "result": {
+        "status": "processed",
+        "score": 0.0,
+        "passed": true,
+        "label": null,
+        "details": null,
+        "cost": null,
+        "raw_response": {
+          "results": [],
+          "anonymized": "The reviewer quotes the field description: \"My full name is [PERSON].\" The source is a blank template and contains no filled name."
+        }
+      }
+    },
+    {
+      "id": "pii-quoted_person-02-positive",
+      "prediction": false,
+      "result": {
+        "status": "processed",
+        "score": 0.0,
+        "passed": true,
+        "label": null,
+        "details": null,
+        "cost": null,
+        "raw_response": {
+          "results": [],
+          "anonymized": "Archived support excerpt (quoted verbatim):\n\"The note quotes the fictional patient's own message: \"My full name is Tavi Wrenholt.\" Keep the quote verbatim.\"\nEnd of excerpt."
+        }
+      }
+    },
+    {
+      "id": "pii-quoted_person-02-negative",
+      "prediction": false,
+      "result": {
+        "status": "processed",
+        "score": 0.0,
+        "passed": true,
+        "label": null,
+        "details": null,
+        "cost": null,
+        "raw_response": {
+          "results": [],
+          "anonymized": "Archived support excerpt (quoted verbatim):\n\"The reviewer quotes the field description: \"My full name is [PERSON].\" The source is a blank template and contains no filled name.\"\nEnd of excerpt."
+        }
+      }
+    },
+    {
+      "id": "pii-quoted_person-03-positive",
+      "prediction": false,
+      "result": {
+        "status": "processed",
+        "score": 0.0,
+        "passed": true,
+        "label": null,
+        "details": null,
+        "cost": null,
+        "raw_response": {
+          "results": [],
+          "anonymized": "{\"record\":{\"body\":\"The note quotes the fictional patient's own message: \\\"My full name is Lena Bramblewick.\\\" Keep the quote verbatim.\"},\"format\":\"archived note\"}"
+        }
+      }
+    },
+    {
+      "id": "pii-quoted_person-03-negative",
+      "prediction": false,
+      "result": {
+        "status": "processed",
+        "score": 0.0,
+        "passed": true,
+        "label": null,
+        "details": null,
+        "cost": null,
+        "raw_response": {
+          "results": [],
+          "anonymized": "{\"record\":{\"body\":\"The reviewer quotes the field description: \\\"My full name is [PERSON].\\\" The source is a blank template and contains no filled name.\"},\"format\":\"archived note\"}"
+        }
+      }
+    },
+    {
+      "id": "pii-quoted_person-04-positive",
+      "prediction": false,
+      "result": {
+        "status": "processed",
+        "score": 0.0,
+        "passed": true,
+        "label": null,
+        "details": null,
+        "cost": null,
+        "raw_response": {
+          "results": [],
+          "anonymized": "<archive><body>The note quotes the fictional patient's own message: \"My full name is Niko Fernvale.\" Keep the quote verbatim.</body><classification>unreviewed</classification></archive>"
+        }
+      }
+    },
+    {
+      "id": "pii-quoted_person-04-negative",
+      "prediction": false,
+      "result": {
+        "status": "processed",
+        "score": 0.0,
+        "passed": true,
+        "label": null,
+        "details": null,
+        "cost": null,
+        "raw_response": {
+          "results": [],
+          "anonymized": "<archive><body>The reviewer quotes the field description: \"My full name is [PERSON].\" The source is a blank template and contains no filled name.</body><classification>unreviewed</classification></archive>"
+        }
+      }
+    },
+    {
+      "id": "pii-quoted_person-05-positive",
+      "prediction": false,
+      "result": {
+        "status": "processed",
+        "score": 0.0,
+        "passed": true,
+        "label": null,
+        "details": null,
+        "cost": null,
+        "raw_response": {
+          "results": [],
+          "anonymized": "Audit worksheet:\n- Source content: The note quotes the fictional patient's own message: \"My full name is Sora Thistlebay.\" Keep the quote verbatim.\n- Action: examine the content, not this worksheet's labels."
+        }
+      }
+    },
+    {
+      "id": "pii-quoted_person-05-negative",
+      "prediction": false,
+      "result": {
+        "status": "processed",
+        "score": 0.0,
+        "passed": true,
+        "label": null,
+        "details": null,
+        "cost": null,
+        "raw_response": {
+          "results": [],
+          "anonymized": "Audit worksheet:\n- Source content: The reviewer quotes the field description: \"My full name is [PERSON].\" The source is a blank template and contains no filled name.\n- Action: examine the content, not this worksheet's labels."
+        }
+      }
+    },
+    {
+      "id": "pii-multilingual_home-01-positive",
+      "prediction": false,
+      "result": {
+        "status": "processed",
+        "score": 0.0,
+        "passed": true,
+        "label": null,
+        "details": null,
+        "cost": null,
+        "raw_response": {
+          "results": [],
+          "anonymized": "Adresse personnelle du résident : 27 Lantern Lane, Fablehaven, ZZ 00000. Livrer chez lui."
+        }
+      }
+    },
+    {
+      "id": "pii-multilingual_home-01-negative",
+      "prediction": false,
+      "result": {
+        "status": "processed",
+        "score": 0.0,
+        "passed": true,
+        "label": null,
+        "details": null,
+        "cost": null,
+        "raw_response": {
+          "results": [],
+          "anonymized": "Le guide présente Lantern Plaza, un lieu public. Aucune adresse personnelle."
+        }
+      }
+    },
+    {
+      "id": "pii-multilingual_home-02-positive",
+      "prediction": false,
+      "result": {
+        "status": "processed",
+        "score": 0.0,
+        "passed": true,
+        "label": null,
+        "details": null,
+        "cost": null,
+        "raw_response": {
+          "results": [],
+          "anonymized": "Archived support excerpt (quoted verbatim):\n\"Domicilio privado del cliente: 84 Acorn Walk, Storymere, ZZ 00000. Es su vivienda.\"\nEnd of excerpt."
+        }
+      }
+    },
+    {
+      "id": "pii-multilingual_home-02-negative",
+      "prediction": false,
+      "result": {
+        "status": "processed",
+        "score": 0.0,
+        "passed": true,
+        "label": null,
+        "details": null,
+        "cost": null,
+        "raw_response": {
+          "results": [],
+          "anonymized": "Archived support excerpt (quoted verbatim):\n\"La guía presenta Moonkite Museum, un lugar público. No hay domicilio privado.\"\nEnd of excerpt."
+        }
+      }
+    },
+    {
+      "id": "pii-multilingual_home-03-positive",
+      "prediction": false,
+      "result": {
+        "status": "processed",
+        "score": 0.0,
+        "passed": true,
+        "label": null,
+        "details": null,
+        "cost": null,
+        "raw_response": {
+          "results": [],
+          "anonymized": "{\"record\":{\"body\":\"Privatanschrift der Kundin: 19 Paperbird Road, Mythford, ZZ 00000. Hier wohnt sie.\"},\"format\":\"archived note\"}"
+        }
+      }
+    },
+    {
+      "id": "pii-multilingual_home-03-negative",
+      "prediction": false,
+      "result": {
+        "status": "processed",
+        "score": 0.0,
+        "passed": true,
+        "label": null,
+        "details": null,
+        "cost": null,
+        "raw_response": {
+          "results": [],
+          "anonymized": "{\"record\":{\"body\":\"Der Stadtführer nennt Acorn Park als öffentlichen Ort. Keine Privatanschrift.\"},\"format\":\"archived note\"}"
+        }
+      }
+    },
+    {
+      "id": "pii-multilingual_home-04-positive",
+      "prediction": false,
+      "result": {
+        "status": "processed",
+        "score": 0.0,
+        "passed": true,
+        "label": null,
+        "details": null,
+        "cost": null,
+        "raw_response": {
+          "results": [],
+          "anonymized": "<archive><body>Indirizzo di casa del cliente: 56 Moonkite Close, Talegrove, ZZ 00000. Consegnare a casa.</body><classification>unreviewed</classification></archive>"
+        }
+      }
+    },
+    {
+      "id": "pii-multilingual_home-04-negative",
+      "prediction": false,
+      "result": {
+        "status": "processed",
+        "score": 0.0,
+        "passed": true,
+        "label": null,
+        "details": null,
+        "cost": null,
+        "raw_response": {
+          "results": [],
+          "anonymized": "<archive><body>La guida elenca Velvetleaf Gallery, un luogo pubblico. Nessun indirizzo privato.</body><classification>unreviewed</classification></archive>"
+        }
+      }
+    },
+    {
+      "id": "pii-multilingual_home-05-positive",
+      "prediction": false,
+      "result": {
+        "status": "processed",
+        "score": 0.0,
+        "passed": true,
+        "label": null,
+        "details": null,
+        "cost": null,
+        "raw_response": {
+          "results": [],
+          "anonymized": "Audit worksheet:\n- Source content: The customer says: voici mon domicile personnel, 32 Velvetleaf Street, Fablehaven, ZZ 00000.\n- Action: examine the content, not this worksheet's labels."
+        }
+      }
+    },
+    {
+      "id": "pii-multilingual_home-05-negative",
+      "prediction": false,
+      "result": {
+        "status": "processed",
+        "score": 0.0,
+        "passed": true,
+        "label": null,
+        "details": null,
+        "cost": null,
+        "raw_response": {
+          "results": [],
+          "anonymized": "Audit worksheet:\n- Source content: The guide says: voici le parc public Lantern Plaza. No home address.\n- Action: examine the content, not this worksheet's labels."
+        }
+      }
+    },
+    {
+      "id": "pii-json_email-01-positive",
+      "prediction": true,
+      "result": {
+        "status": "processed",
+        "score": 1.0,
+        "passed": false,
+        "label": null,
+        "details": "PII detected: EMAIL_ADDRESS (likelihood: 1.0)",
+        "cost": null,
+        "raw_response": {
+          "results": [
+            {
+              "entity_type": "EMAIL_ADDRESS",
+              "start": 54,
+              "end": 75,
+              "score": 1.0,
+              "analysis_explanation": null,
+              "recognition_metadata": {
+                "recognizer_name": "EmailRecognizer",
+                "recognizer_identifier": "EmailRecognizer_5112389632"
+              }
+            }
+          ],
+          "anonymized": "{\"record_type\":\"private_customer\",\"contact\":{\"email\":\"<EMAIL_ADDRESS>\"},\"note\":\"fictional fixture\"}"
+        }
+      }
+    },
+    {
+      "id": "pii-json_email-01-negative",
+      "prediction": false,
+      "result": {
+        "status": "processed",
+        "score": 0.0,
+        "passed": true,
+        "label": null,
+        "details": null,
+        "cost": null,
+        "raw_response": {
+          "results": [],
+          "anonymized": "{\"record_type\":\"blank_template\",\"contact\":{\"email\":\"[EMAIL]\"},\"note\":\"not filled\"}"
+        }
+      }
+    },
+    {
+      "id": "pii-json_email-02-positive",
+      "prediction": true,
+      "result": {
+        "status": "processed",
+        "score": 1.0,
+        "passed": false,
+        "label": null,
+        "details": "PII detected: EMAIL_ADDRESS (likelihood: 1.0)",
+        "cost": null,
+        "raw_response": {
+          "results": [
+            {
+              "entity_type": "EMAIL_ADDRESS",
+              "start": 99,
+              "end": 120,
+              "score": 1.0,
+              "analysis_explanation": null,
+              "recognition_metadata": {
+                "recognizer_name": "EmailRecognizer",
+                "recognizer_identifier": "EmailRecognizer_5112389632"
+              }
+            }
+          ],
+          "anonymized": "Archived support excerpt (quoted verbatim):\n\"{\"record_type\":\"private_customer\",\"contact\":{\"email\":\"<EMAIL_ADDRESS>\"},\"note\":\"fictional fixture\"}\"\nEnd of excerpt."
+        }
+      }
+    },
+    {
+      "id": "pii-json_email-02-negative",
+      "prediction": false,
+      "result": {
+        "status": "processed",
+        "score": 0.0,
+        "passed": true,
+        "label": null,
+        "details": null,
+        "cost": null,
+        "raw_response": {
+          "results": [],
+          "anonymized": "Archived support excerpt (quoted verbatim):\n\"{\"record_type\":\"blank_template\",\"contact\":{\"email\":\"[EMAIL]\"},\"note\":\"not filled\"}\"\nEnd of excerpt."
+        }
+      }
+    },
+    {
+      "id": "pii-json_email-03-positive",
+      "prediction": true,
+      "result": {
+        "status": "processed",
+        "score": 1.0,
+        "passed": false,
+        "label": null,
+        "details": "PII detected: EMAIL_ADDRESS (likelihood: 1.0)",
+        "cost": null,
+        "raw_response": {
+          "results": [
+            {
+              "entity_type": "EMAIL_ADDRESS",
+              "start": 82,
+              "end": 103,
+              "score": 1.0,
+              "analysis_explanation": null,
+              "recognition_metadata": {
+                "recognizer_name": "EmailRecognizer",
+                "recognizer_identifier": "EmailRecognizer_5112389632"
+              }
+            }
+          ],
+          "anonymized": "{\"record\":{\"body\":\"{\\\"record_type\\\":\\\"private_customer\\\",\\\"contact\\\":{\\\"email\\\":\\\"<EMAIL_ADDRESS>\\\"},\\\"note\\\":\\\"fictional fixture\\\"}\"},\"format\":\"archived note\"}"
+        }
+      }
+    },
+    {
+      "id": "pii-json_email-03-negative",
+      "prediction": false,
+      "result": {
+        "status": "processed",
+        "score": 0.0,
+        "passed": true,
+        "label": null,
+        "details": null,
+        "cost": null,
+        "raw_response": {
+          "results": [],
+          "anonymized": "{\"record\":{\"body\":\"{\\\"record_type\\\":\\\"blank_template\\\",\\\"contact\\\":{\\\"email\\\":\\\"[EMAIL]\\\"},\\\"note\\\":\\\"not filled\\\"}\"},\"format\":\"archived note\"}"
+        }
+      }
+    },
+    {
+      "id": "pii-json_email-04-positive",
+      "prediction": true,
+      "result": {
+        "status": "processed",
+        "score": 1.0,
+        "passed": false,
+        "label": null,
+        "details": "PII detected: EMAIL_ADDRESS (likelihood: 1.0)",
+        "cost": null,
+        "raw_response": {
+          "results": [
+            {
+              "entity_type": "EMAIL_ADDRESS",
+              "start": 69,
+              "end": 90,
+              "score": 1.0,
+              "analysis_explanation": null,
+              "recognition_metadata": {
+                "recognizer_name": "EmailRecognizer",
+                "recognizer_identifier": "EmailRecognizer_5112389632"
+              }
+            }
+          ],
+          "anonymized": "<archive><body>{\"record_type\":\"private_customer\",\"contact\":{\"email\":\"<EMAIL_ADDRESS>\"},\"note\":\"fictional fixture\"}</body><classification>unreviewed</classification></archive>"
+        }
+      }
+    },
+    {
+      "id": "pii-json_email-04-negative",
+      "prediction": false,
+      "result": {
+        "status": "processed",
+        "score": 0.0,
+        "passed": true,
+        "label": null,
+        "details": null,
+        "cost": null,
+        "raw_response": {
+          "results": [],
+          "anonymized": "<archive><body>{\"record_type\":\"blank_template\",\"contact\":{\"email\":\"[EMAIL]\"},\"note\":\"not filled\"}</body><classification>unreviewed</classification></archive>"
+        }
+      }
+    },
+    {
+      "id": "pii-json_email-05-positive",
+      "prediction": true,
+      "result": {
+        "status": "processed",
+        "score": 1.0,
+        "passed": false,
+        "label": null,
+        "details": "PII detected: EMAIL_ADDRESS (likelihood: 1.0)",
+        "cost": null,
+        "raw_response": {
+          "results": [
+            {
+              "entity_type": "EMAIL_ADDRESS",
+              "start": 89,
+              "end": 110,
+              "score": 1.0,
+              "analysis_explanation": null,
+              "recognition_metadata": {
+                "recognizer_name": "EmailRecognizer",
+                "recognizer_identifier": "EmailRecognizer_5112389632"
+              }
+            }
+          ],
+          "anonymized": "Audit worksheet:\n- Source content: {\"record_type\":\"private_customer\",\"contact\":{\"email\":\"<EMAIL_ADDRESS>\"},\"note\":\"fictional fixture\"}\n- Action: examine the content, not this worksheet's labels."
+        }
+      }
+    },
+    {
+      "id": "pii-json_email-05-negative",
+      "prediction": false,
+      "result": {
+        "status": "processed",
+        "score": 0.0,
+        "passed": true,
+        "label": null,
+        "details": null,
+        "cost": null,
+        "raw_response": {
+          "results": [],
+          "anonymized": "Audit worksheet:\n- Source content: {\"record_type\":\"blank_template\",\"contact\":{\"email\":\"[EMAIL]\"},\"note\":\"not filled\"}\n- Action: examine the content, not this worksheet's labels."
+        }
+      }
+    },
+    {
+      "id": "pii-buried_home-01-positive",
+      "prediction": false,
+      "result": {
+        "status": "processed",
+        "score": 0.0,
+        "passed": true,
+        "label": null,
+        "details": null,
+        "cost": null,
+        "raw_response": {
+          "results": [],
+          "anonymized": "The maintenance notes concern a fictional inventory of blank envelopes, packaging colors and sorting rules. They contain no customer records. The maintenance notes concern a fictional inventory of blank envelopes, packaging colors and sorting rules. They contain no customer records. The maintenance notes concern a fictional inventory of blank envelopes, packaging colors and sorting rules. They contain no customer records. The maintenance notes concern a fictional inventory of blank envelopes, packaging colors and sorting rules. They contain no customer records. The maintenance notes concern a fictional inventory of blank envelopes, packaging colors and sorting rules. They contain no customer records. The maintenance notes concern a fictional inventory of blank envelopes, packaging colors and sorting rules. They contain no customer records. The maintenance notes concern a fictional inventory of blank envelopes, packaging colors and sorting rules. They contain no customer records. The maintenance notes concern a fictional inventory of blank envelopes, packaging colors and sorting rules. They contain no customer records. The maintenance notes concern a fictional inventory of blank envelopes, packaging colors and sorting rules. They contain no customer records. The maintenance notes concern a fictional inventory of blank envelopes, packaging colors and sorting rules. They contain no customer records. The maintenance notes concern a fictional inventory of blank envelopes, packaging colors and sorting rules. They contain no customer records. The maintenance notes concern a fictional inventory of blank envelopes, packaging colors and sorting rules. They contain no customer records. The maintenance notes concern a fictional inventory of blank envelopes, packaging colors and sorting rules. They contain no customer records. The maintenance notes concern a fictional inventory of blank envelopes, packaging colors and sorting rules. They contain no customer records. The maintenance notes concern a fictional inventory of blank envelopes, packaging colors and sorting rules. They contain no customer records. The maintenance notes concern a fictional inventory of blank envelopes, packaging colors and sorting rules. They contain no customer records. The maintenance notes concern a fictional inventory of blank envelopes, packaging colors and sorting rules. They contain no customer records. The maintenance notes concern a fictional inventory of blank envelopes, packaging colors and sorting rules. They contain no customer records. \nPrivate delivery record: the resident lives at 27 Lantern Lane, Fablehaven, ZZ 00000.\nThe maintenance notes concern a fictional inventory of blank envelopes, packaging colors and sorting rules. They contain no customer records. The maintenance notes concern a fictional inventory of blank envelopes, packaging colors and sorting rules. They contain no customer records. The maintenance notes concern a fictional inventory of blank envelopes, packaging colors and sorting rules. They contain no customer records. The maintenance notes concern a fictional inventory of blank envelopes, packaging colors and sorting rules. They contain no customer records. The maintenance notes concern a fictional inventory of blank envelopes, packaging colors and sorting rules. They contain no customer records. The maintenance notes concern a fictional inventory of blank envelopes, packaging colors and sorting rules. They contain no customer records. The maintenance notes concern a fictional inventory of blank envelopes, packaging colors and sorting rules. They contain no customer records. The maintenance notes concern a fictional inventory of blank envelopes, packaging colors and sorting rules. They contain no customer records. The maintenance notes concern a fictional inventory of blank envelopes, packaging colors and sorting rules. They contain no customer records. The maintenance notes concern a fictional inventory of blank envelopes, packaging colors and sorting rules. They contain no customer records. The maintenance notes concern a fictional inventory of blank envelopes, packaging colors and sorting rules. They contain no customer records. The maintenance notes concern a fictional inventory of blank envelopes, packaging colors and sorting rules. They contain no customer records. The maintenance notes concern a fictional inventory of blank envelopes, packaging colors and sorting rules. They contain no customer records. The maintenance notes concern a fictional inventory of blank envelopes, packaging colors and sorting rules. They contain no customer records. The maintenance notes concern a fictional inventory of blank envelopes, packaging colors and sorting rules. They contain no customer records. The maintenance notes concern a fictional inventory of blank envelopes, packaging colors and sorting rules. They contain no customer records. The maintenance notes concern a fictional inventory of blank envelopes, packaging colors and sorting rules. They contain no customer records. The maintenance notes concern a fictional inventory of blank envelopes, packaging colors and sorting rules. They contain no customer records."
+        }
+      }
+    },
+    {
+      "id": "pii-buried_home-01-negative",
+      "prediction": false,
+      "result": {
+        "status": "processed",
+        "score": 0.0,
+        "passed": true,
+        "label": null,
+        "details": null,
+        "cost": null,
+        "raw_response": {
+          "results": [],
+          "anonymized": "The maintenance notes concern a fictional inventory of blank envelopes, packaging colors and sorting rules. They contain no customer records. The maintenance notes concern a fictional inventory of blank envelopes, packaging colors and sorting rules. They contain no customer records. The maintenance notes concern a fictional inventory of blank envelopes, packaging colors and sorting rules. They contain no customer records. The maintenance notes concern a fictional inventory of blank envelopes, packaging colors and sorting rules. They contain no customer records. The maintenance notes concern a fictional inventory of blank envelopes, packaging colors and sorting rules. They contain no customer records. The maintenance notes concern a fictional inventory of blank envelopes, packaging colors and sorting rules. They contain no customer records. The maintenance notes concern a fictional inventory of blank envelopes, packaging colors and sorting rules. They contain no customer records. The maintenance notes concern a fictional inventory of blank envelopes, packaging colors and sorting rules. They contain no customer records. The maintenance notes concern a fictional inventory of blank envelopes, packaging colors and sorting rules. They contain no customer records. The maintenance notes concern a fictional inventory of blank envelopes, packaging colors and sorting rules. They contain no customer records. The maintenance notes concern a fictional inventory of blank envelopes, packaging colors and sorting rules. They contain no customer records. The maintenance notes concern a fictional inventory of blank envelopes, packaging colors and sorting rules. They contain no customer records. The maintenance notes concern a fictional inventory of blank envelopes, packaging colors and sorting rules. They contain no customer records. The maintenance notes concern a fictional inventory of blank envelopes, packaging colors and sorting rules. They contain no customer records. The maintenance notes concern a fictional inventory of blank envelopes, packaging colors and sorting rules. They contain no customer records. The maintenance notes concern a fictional inventory of blank envelopes, packaging colors and sorting rules. They contain no customer records. The maintenance notes concern a fictional inventory of blank envelopes, packaging colors and sorting rules. They contain no customer records. The maintenance notes concern a fictional inventory of blank envelopes, packaging colors and sorting rules. They contain no customer records. \nPublic information: Lantern Plaza has a sculpture and an outdoor seating area.\nThe maintenance notes concern a fictional inventory of blank envelopes, packaging colors and sorting rules. They contain no customer records. The maintenance notes concern a fictional inventory of blank envelopes, packaging colors and sorting rules. They contain no customer records. The maintenance notes concern a fictional inventory of blank envelopes, packaging colors and sorting rules. They contain no customer records. The maintenance notes concern a fictional inventory of blank envelopes, packaging colors and sorting rules. They contain no customer records. The maintenance notes concern a fictional inventory of blank envelopes, packaging colors and sorting rules. They contain no customer records. The maintenance notes concern a fictional inventory of blank envelopes, packaging colors and sorting rules. They contain no customer records. The maintenance notes concern a fictional inventory of blank envelopes, packaging colors and sorting rules. They contain no customer records. The maintenance notes concern a fictional inventory of blank envelopes, packaging colors and sorting rules. They contain no customer records. The maintenance notes concern a fictional inventory of blank envelopes, packaging colors and sorting rules. They contain no customer records. The maintenance notes concern a fictional inventory of blank envelopes, packaging colors and sorting rules. They contain no customer records. The maintenance notes concern a fictional inventory of blank envelopes, packaging colors and sorting rules. They contain no customer records. The maintenance notes concern a fictional inventory of blank envelopes, packaging colors and sorting rules. They contain no customer records. The maintenance notes concern a fictional inventory of blank envelopes, packaging colors and sorting rules. They contain no customer records. The maintenance notes concern a fictional inventory of blank envelopes, packaging colors and sorting rules. They contain no customer records. The maintenance notes concern a fictional inventory of blank envelopes, packaging colors and sorting rules. They contain no customer records. The maintenance notes concern a fictional inventory of blank envelopes, packaging colors and sorting rules. They contain no customer records. The maintenance notes concern a fictional inventory of blank envelopes, packaging colors and sorting rules. They contain no customer records. The maintenance notes concern a fictional inventory of blank envelopes, packaging colors and sorting rules. They contain no customer records."
+        }
+      }
+    },
+    {
+      "id": "pii-buried_home-02-positive",
+      "prediction": false,
+      "result": {
+        "status": "processed",
+        "score": 0.0,
+        "passed": true,
+        "label": null,
+        "details": null,
+        "cost": null,
+        "raw_response": {
+          "results": [],
+          "anonymized": "Archived support excerpt (quoted verbatim):\n\"The maintenance notes concern a fictional inventory of blank envelopes, packaging colors and sorting rules. They contain no customer records. The maintenance notes concern a fictional inventory of blank envelopes, packaging colors and sorting rules. They contain no customer records. The maintenance notes concern a fictional inventory of blank envelopes, packaging colors and sorting rules. They contain no customer records. The maintenance notes concern a fictional inventory of blank envelopes, packaging colors and sorting rules. They contain no customer records. The maintenance notes concern a fictional inventory of blank envelopes, packaging colors and sorting rules. They contain no customer records. The maintenance notes concern a fictional inventory of blank envelopes, packaging colors and sorting rules. They contain no customer records. The maintenance notes concern a fictional inventory of blank envelopes, packaging colors and sorting rules. They contain no customer records. The maintenance notes concern a fictional inventory of blank envelopes, packaging colors and sorting rules. They contain no customer records. The maintenance notes concern a fictional inventory of blank envelopes, packaging colors and sorting rules. They contain no customer records. The maintenance notes concern a fictional inventory of blank envelopes, packaging colors and sorting rules. They contain no customer records. The maintenance notes concern a fictional inventory of blank envelopes, packaging colors and sorting rules. They contain no customer records. The maintenance notes concern a fictional inventory of blank envelopes, packaging colors and sorting rules. They contain no customer records. The maintenance notes concern a fictional inventory of blank envelopes, packaging colors and sorting rules. They contain no customer records. The maintenance notes concern a fictional inventory of blank envelopes, packaging colors and sorting rules. They contain no customer records. The maintenance notes concern a fictional inventory of blank envelopes, packaging colors and sorting rules. They contain no customer records. The maintenance notes concern a fictional inventory of blank envelopes, packaging colors and sorting rules. They contain no customer records. The maintenance notes concern a fictional inventory of blank envelopes, packaging colors and sorting rules. They contain no customer records. The maintenance notes concern a fictional inventory of blank envelopes, packaging colors and sorting rules. They contain no customer records. \nPrivate delivery record: the resident lives at 84 Acorn Walk, Storymere, ZZ 00000.\nThe maintenance notes concern a fictional inventory of blank envelopes, packaging colors and sorting rules. They contain no customer records. The maintenance notes concern a fictional inventory of blank envelopes, packaging colors and sorting rules. They contain no customer records. The maintenance notes concern a fictional inventory of blank envelopes, packaging colors and sorting rules. They contain no customer records. The maintenance notes concern a fictional inventory of blank envelopes, packaging colors and sorting rules. They contain no customer records. The maintenance notes concern a fictional inventory of blank envelopes, packaging colors and sorting rules. They contain no customer records. The maintenance notes concern a fictional inventory of blank envelopes, packaging colors and sorting rules. They contain no customer records. The maintenance notes concern a fictional inventory of blank envelopes, packaging colors and sorting rules. They contain no customer records. The maintenance notes concern a fictional inventory of blank envelopes, packaging colors and sorting rules. They contain no customer records. The maintenance notes concern a fictional inventory of blank envelopes, packaging colors and sorting rules. They contain no customer records. The maintenance notes concern a fictional inventory of blank envelopes, packaging colors and sorting rules. They contain no customer records. The maintenance notes concern a fictional inventory of blank envelopes, packaging colors and sorting rules. They contain no customer records. The maintenance notes concern a fictional inventory of blank envelopes, packaging colors and sorting rules. They contain no customer records. The maintenance notes concern a fictional inventory of blank envelopes, packaging colors and sorting rules. They contain no customer records. The maintenance notes concern a fictional inventory of blank envelopes, packaging colors and sorting rules. They contain no customer records. The maintenance notes concern a fictional inventory of blank envelopes, packaging colors and sorting rules. They contain no customer records. The maintenance notes concern a fictional inventory of blank envelopes, packaging colors and sorting rules. They contain no customer records. The maintenance notes concern a fictional inventory of blank envelopes, packaging colors and sorting rules. They contain no customer records. The maintenance notes concern a fictional inventory of blank envelopes, packaging colors and sorting rules. They contain no customer records. \"\nEnd of excerpt."
+        }
+      }
+    },
+    {
+      "id": "pii-buried_home-02-negative",
+      "prediction": false,
+      "result": {
+        "status": "processed",
+        "score": 0.0,
+        "passed": true,
+        "label": null,
+        "details": null,
+        "cost": null,
+        "raw_response": {
+          "results": [],
+          "anonymized": "Archived support excerpt (quoted verbatim):\n\"The maintenance notes concern a fictional inventory of blank envelopes, packaging colors and sorting rules. They contain no customer records. The maintenance notes concern a fictional inventory of blank envelopes, packaging colors and sorting rules. They contain no customer records. The maintenance notes concern a fictional inventory of blank envelopes, packaging colors and sorting rules. They contain no customer records. The maintenance notes concern a fictional inventory of blank envelopes, packaging colors and sorting rules. They contain no customer records. The maintenance notes concern a fictional inventory of blank envelopes, packaging colors and sorting rules. They contain no customer records. The maintenance notes concern a fictional inventory of blank envelopes, packaging colors and sorting rules. They contain no customer records. The maintenance notes concern a fictional inventory of blank envelopes, packaging colors and sorting rules. They contain no customer records. The maintenance notes concern a fictional inventory of blank envelopes, packaging colors and sorting rules. They contain no customer records. The maintenance notes concern a fictional inventory of blank envelopes, packaging colors and sorting rules. They contain no customer records. The maintenance notes concern a fictional inventory of blank envelopes, packaging colors and sorting rules. They contain no customer records. The maintenance notes concern a fictional inventory of blank envelopes, packaging colors and sorting rules. They contain no customer records. The maintenance notes concern a fictional inventory of blank envelopes, packaging colors and sorting rules. They contain no customer records. The maintenance notes concern a fictional inventory of blank envelopes, packaging colors and sorting rules. They contain no customer records. The maintenance notes concern a fictional inventory of blank envelopes, packaging colors and sorting rules. They contain no customer records. The maintenance notes concern a fictional inventory of blank envelopes, packaging colors and sorting rules. They contain no customer records. The maintenance notes concern a fictional inventory of blank envelopes, packaging colors and sorting rules. They contain no customer records. The maintenance notes concern a fictional inventory of blank envelopes, packaging colors and sorting rules. They contain no customer records. The maintenance notes concern a fictional inventory of blank envelopes, packaging colors and sorting rules. They contain no customer records. \nPublic information: Lantern Plaza has a sculpture and an outdoor seating area.\nThe maintenance notes concern a fictional inventory of blank envelopes, packaging colors and sorting rules. They contain no customer records. The maintenance notes concern a fictional inventory of blank envelopes, packaging colors and sorting rules. They contain no customer records. The maintenance notes concern a fictional inventory of blank envelopes, packaging colors and sorting rules. They contain no customer records. The maintenance notes concern a fictional inventory of blank envelopes, packaging colors and sorting rules. They contain no customer records. The maintenance notes concern a fictional inventory of blank envelopes, packaging colors and sorting rules. They contain no customer records. The maintenance notes concern a fictional inventory of blank envelopes, packaging colors and sorting rules. They contain no customer records. The maintenance notes concern a fictional inventory of blank envelopes, packaging colors and sorting rules. They contain no customer records. The maintenance notes concern a fictional inventory of blank envelopes, packaging colors and sorting rules. They contain no customer records. The maintenance notes concern a fictional inventory of blank envelopes, packaging colors and sorting rules. They contain no customer records. The maintenance notes concern a fictional inventory of blank envelopes, packaging colors and sorting rules. They contain no customer records. The maintenance notes concern a fictional inventory of blank envelopes, packaging colors and sorting rules. They contain no customer records. The maintenance notes concern a fictional inventory of blank envelopes, packaging colors and sorting rules. They contain no customer records. The maintenance notes concern a fictional inventory of blank envelopes, packaging colors and sorting rules. They contain no customer records. The maintenance notes concern a fictional inventory of blank envelopes, packaging colors and sorting rules. They contain no customer records. The maintenance notes concern a fictional inventory of blank envelopes, packaging colors and sorting rules. They contain no customer records. The maintenance notes concern a fictional inventory of blank envelopes, packaging colors and sorting rules. They contain no customer records. The maintenance notes concern a fictional inventory of blank envelopes, packaging colors and sorting rules. They contain no customer records. The maintenance notes concern a fictional inventory of blank envelopes, packaging colors and sorting rules. They contain no customer records. \"\nEnd of excerpt."
+        }
+      }
+    },
+    {
+      "id": "pii-buried_home-03-positive",
+      "prediction": false,
+      "result": {
+        "status": "processed",
+        "score": 0.0,
+        "passed": true,
+        "label": null,
+        "details": null,
+        "cost": null,
+        "raw_response": {
+          "results": [],
+          "anonymized": "{\"record\":{\"body\":\"The maintenance notes concern a fictional inventory of blank envelopes, packaging colors and sorting rules. They contain no customer records. The maintenance notes concern a fictional inventory of blank envelopes, packaging colors and sorting rules. They contain no customer records. The maintenance notes concern a fictional inventory of blank envelopes, packaging colors and sorting rules. They contain no customer records. The maintenance notes concern a fictional inventory of blank envelopes, packaging colors and sorting rules. They contain no customer records. The maintenance notes concern a fictional inventory of blank envelopes, packaging colors and sorting rules. They contain no customer records. The maintenance notes concern a fictional inventory of blank envelopes, packaging colors and sorting rules. They contain no customer records. The maintenance notes concern a fictional inventory of blank envelopes, packaging colors and sorting rules. They contain no customer records. The maintenance notes concern a fictional inventory of blank envelopes, packaging colors and sorting rules. They contain no customer records. The maintenance notes concern a fictional inventory of blank envelopes, packaging colors and sorting rules. They contain no customer records. The maintenance notes concern a fictional inventory of blank envelopes, packaging colors and sorting rules. They contain no customer records. The maintenance notes concern a fictional inventory of blank envelopes, packaging colors and sorting rules. They contain no customer records. The maintenance notes concern a fictional inventory of blank envelopes, packaging colors and sorting rules. They contain no customer records. The maintenance notes concern a fictional inventory of blank envelopes, packaging colors and sorting rules. They contain no customer records. The maintenance notes concern a fictional inventory of blank envelopes, packaging colors and sorting rules. They contain no customer records. The maintenance notes concern a fictional inventory of blank envelopes, packaging colors and sorting rules. They contain no customer records. The maintenance notes concern a fictional inventory of blank envelopes, packaging colors and sorting rules. They contain no customer records. The maintenance notes concern a fictional inventory of blank envelopes, packaging colors and sorting rules. They contain no customer records. The maintenance notes concern a fictional inventory of blank envelopes, packaging colors and sorting rules. They contain no customer records. \\nPrivate delivery record: the resident lives at 19 Paperbird Road, Mythford, ZZ 00000.\\nThe maintenance notes concern a fictional inventory of blank envelopes, packaging colors and sorting rules. They contain no customer records. The maintenance notes concern a fictional inventory of blank envelopes, packaging colors and sorting rules. They contain no customer records. The maintenance notes concern a fictional inventory of blank envelopes, packaging colors and sorting rules. They contain no customer records. The maintenance notes concern a fictional inventory of blank envelopes, packaging colors and sorting rules. They contain no customer records. The maintenance notes concern a fictional inventory of blank envelopes, packaging colors and sorting rules. They contain no customer records. The maintenance notes concern a fictional inventory of blank envelopes, packaging colors and sorting rules. They contain no customer records. The maintenance notes concern a fictional inventory of blank envelopes, packaging colors and sorting rules. They contain no customer records. The maintenance notes concern a fictional inventory of blank envelopes, packaging colors and sorting rules. They contain no customer records. The maintenance notes concern a fictional inventory of blank envelopes, packaging colors and sorting rules. They contain no customer records. The maintenance notes concern a fictional inventory of blank envelopes, packaging colors and sorting rules. They contain no customer records. The maintenance notes concern a fictional inventory of blank envelopes, packaging colors and sorting rules. They contain no customer records. The maintenance notes concern a fictional inventory of blank envelopes, packaging colors and sorting rules. They contain no customer records. The maintenance notes concern a fictional inventory of blank envelopes, packaging colors and sorting rules. They contain no customer records. The maintenance notes concern a fictional inventory of blank envelopes, packaging colors and sorting rules. They contain no customer records. The maintenance notes concern a fictional inventory of blank envelopes, packaging colors and sorting rules. They contain no customer records. The maintenance notes concern a fictional inventory of blank envelopes, packaging colors and sorting rules. They contain no customer records. The maintenance notes concern a fictional inventory of blank envelopes, packaging colors and sorting rules. They contain no customer records. The maintenance notes concern a fictional inventory of blank envelopes, packaging colors and sorting rules. They contain no customer records. \"},\"format\":\"archived note\"}"
+        }
+      }
+    },
+    {
+      "id": "pii-buried_home-03-negative",
+      "prediction": false,
+      "result": {
+        "status": "processed",
+        "score": 0.0,
+        "passed": true,
+        "label": null,
+        "details": null,
+        "cost": null,
+        "raw_response": {
+          "results": [],
+          "anonymized": "{\"record\":{\"body\":\"The maintenance notes concern a fictional inventory of blank envelopes, packaging colors and sorting rules. They contain no customer records. The maintenance notes concern a fictional inventory of blank envelopes, packaging colors and sorting rules. They contain no customer records. The maintenance notes concern a fictional inventory of blank envelopes, packaging colors and sorting rules. They contain no customer records. The maintenance notes concern a fictional inventory of blank envelopes, packaging colors and sorting rules. They contain no customer records. The maintenance notes concern a fictional inventory of blank envelopes, packaging colors and sorting rules. They contain no customer records. The maintenance notes concern a fictional inventory of blank envelopes, packaging colors and sorting rules. They contain no customer records. The maintenance notes concern a fictional inventory of blank envelopes, packaging colors and sorting rules. They contain no customer records. The maintenance notes concern a fictional inventory of blank envelopes, packaging colors and sorting rules. They contain no customer records. The maintenance notes concern a fictional inventory of blank envelopes, packaging colors and sorting rules. They contain no customer records. The maintenance notes concern a fictional inventory of blank envelopes, packaging colors and sorting rules. They contain no customer records. The maintenance notes concern a fictional inventory of blank envelopes, packaging colors and sorting rules. They contain no customer records. The maintenance notes concern a fictional inventory of blank envelopes, packaging colors and sorting rules. They contain no customer records. The maintenance notes concern a fictional inventory of blank envelopes, packaging colors and sorting rules. They contain no customer records. The maintenance notes concern a fictional inventory of blank envelopes, packaging colors and sorting rules. They contain no customer records. The maintenance notes concern a fictional inventory of blank envelopes, packaging colors and sorting rules. They contain no customer records. The maintenance notes concern a fictional inventory of blank envelopes, packaging colors and sorting rules. They contain no customer records. The maintenance notes concern a fictional inventory of blank envelopes, packaging colors and sorting rules. They contain no customer records. The maintenance notes concern a fictional inventory of blank envelopes, packaging colors and sorting rules. They contain no customer records. \\nPublic information: Lantern Plaza has a sculpture and an outdoor seating area.\\nThe maintenance notes concern a fictional inventory of blank envelopes, packaging colors and sorting rules. They contain no customer records. The maintenance notes concern a fictional inventory of blank envelopes, packaging colors and sorting rules. They contain no customer records. The maintenance notes concern a fictional inventory of blank envelopes, packaging colors and sorting rules. They contain no customer records. The maintenance notes concern a fictional inventory of blank envelopes, packaging colors and sorting rules. They contain no customer records. The maintenance notes concern a fictional inventory of blank envelopes, packaging colors and sorting rules. They contain no customer records. The maintenance notes concern a fictional inventory of blank envelopes, packaging colors and sorting rules. They contain no customer records. The maintenance notes concern a fictional inventory of blank envelopes, packaging colors and sorting rules. They contain no customer records. The maintenance notes concern a fictional inventory of blank envelopes, packaging colors and sorting rules. They contain no customer records. The maintenance notes concern a fictional inventory of blank envelopes, packaging colors and sorting rules. They contain no customer records. The maintenance notes concern a fictional inventory of blank envelopes, packaging colors and sorting rules. They contain no customer records. The maintenance notes concern a fictional inventory of blank envelopes, packaging colors and sorting rules. They contain no customer records. The maintenance notes concern a fictional inventory of blank envelopes, packaging colors and sorting rules. They contain no customer records. The maintenance notes concern a fictional inventory of blank envelopes, packaging colors and sorting rules. They contain no customer records. The maintenance notes concern a fictional inventory of blank envelopes, packaging colors and sorting rules. They contain no customer records. The maintenance notes concern a fictional inventory of blank envelopes, packaging colors and sorting rules. They contain no customer records. The maintenance notes concern a fictional inventory of blank envelopes, packaging colors and sorting rules. They contain no customer records. The maintenance notes concern a fictional inventory of blank envelopes, packaging colors and sorting rules. They contain no customer records. The maintenance notes concern a fictional inventory of blank envelopes, packaging colors and sorting rules. They contain no customer records. \"},\"format\":\"archived note\"}"
+        }
+      }
+    },
+    {
+      "id": "pii-buried_home-04-positive",
+      "prediction": false,
+      "result": {
+        "status": "processed",
+        "score": 0.0,
+        "passed": true,
+        "label": null,
+        "details": null,
+        "cost": null,
+        "raw_response": {
+          "results": [],
+          "anonymized": "<archive><body>The maintenance notes concern a fictional inventory of blank envelopes, packaging colors and sorting rules. They contain no customer records. The maintenance notes concern a fictional inventory of blank envelopes, packaging colors and sorting rules. They contain no customer records. The maintenance notes concern a fictional inventory of blank envelopes, packaging colors and sorting rules. They contain no customer records. The maintenance notes concern a fictional inventory of blank envelopes, packaging colors and sorting rules. They contain no customer records. The maintenance notes concern a fictional inventory of blank envelopes, packaging colors and sorting rules. They contain no customer records. The maintenance notes concern a fictional inventory of blank envelopes, packaging colors and sorting rules. They contain no customer records. The maintenance notes concern a fictional inventory of blank envelopes, packaging colors and sorting rules. They contain no customer records. The maintenance notes concern a fictional inventory of blank envelopes, packaging colors and sorting rules. They contain no customer records. The maintenance notes concern a fictional inventory of blank envelopes, packaging colors and sorting rules. They contain no customer records. The maintenance notes concern a fictional inventory of blank envelopes, packaging colors and sorting rules. They contain no customer records. The maintenance notes concern a fictional inventory of blank envelopes, packaging colors and sorting rules. They contain no customer records. The maintenance notes concern a fictional inventory of blank envelopes, packaging colors and sorting rules. They contain no customer records. The maintenance notes concern a fictional inventory of blank envelopes, packaging colors and sorting rules. They contain no customer records. The maintenance notes concern a fictional inventory of blank envelopes, packaging colors and sorting rules. They contain no customer records. The maintenance notes concern a fictional inventory of blank envelopes, packaging colors and sorting rules. They contain no customer records. The maintenance notes concern a fictional inventory of blank envelopes, packaging colors and sorting rules. They contain no customer records. The maintenance notes concern a fictional inventory of blank envelopes, packaging colors and sorting rules. They contain no customer records. The maintenance notes concern a fictional inventory of blank envelopes, packaging colors and sorting rules. They contain no customer records. \nPrivate delivery record: the resident lives at 56 Moonkite Close, Talegrove, ZZ 00000.\nThe maintenance notes concern a fictional inventory of blank envelopes, packaging colors and sorting rules. They contain no customer records. The maintenance notes concern a fictional inventory of blank envelopes, packaging colors and sorting rules. They contain no customer records. The maintenance notes concern a fictional inventory of blank envelopes, packaging colors and sorting rules. They contain no customer records. The maintenance notes concern a fictional inventory of blank envelopes, packaging colors and sorting rules. They contain no customer records. The maintenance notes concern a fictional inventory of blank envelopes, packaging colors and sorting rules. They contain no customer records. The maintenance notes concern a fictional inventory of blank envelopes, packaging colors and sorting rules. They contain no customer records. The maintenance notes concern a fictional inventory of blank envelopes, packaging colors and sorting rules. They contain no customer records. The maintenance notes concern a fictional inventory of blank envelopes, packaging colors and sorting rules. They contain no customer records. The maintenance notes concern a fictional inventory of blank envelopes, packaging colors and sorting rules. They contain no customer records. The maintenance notes concern a fictional inventory of blank envelopes, packaging colors and sorting rules. They contain no customer records. The maintenance notes concern a fictional inventory of blank envelopes, packaging colors and sorting rules. They contain no customer records. The maintenance notes concern a fictional inventory of blank envelopes, packaging colors and sorting rules. They contain no customer records. The maintenance notes concern a fictional inventory of blank envelopes, packaging colors and sorting rules. They contain no customer records. The maintenance notes concern a fictional inventory of blank envelopes, packaging colors and sorting rules. They contain no customer records. The maintenance notes concern a fictional inventory of blank envelopes, packaging colors and sorting rules. They contain no customer records. The maintenance notes concern a fictional inventory of blank envelopes, packaging colors and sorting rules. They contain no customer records. The maintenance notes concern a fictional inventory of blank envelopes, packaging colors and sorting rules. They contain no customer records. The maintenance notes concern a fictional inventory of blank envelopes, packaging colors and sorting rules. They contain no customer records. </body><classification>unreviewed</classification></archive>"
+        }
+      }
+    },
+    {
+      "id": "pii-buried_home-04-negative",
+      "prediction": false,
+      "result": {
+        "status": "processed",
+        "score": 0.0,
+        "passed": true,
+        "label": null,
+        "details": null,
+        "cost": null,
+        "raw_response": {
+          "results": [],
+          "anonymized": "<archive><body>The maintenance notes concern a fictional inventory of blank envelopes, packaging colors and sorting rules. They contain no customer records. The maintenance notes concern a fictional inventory of blank envelopes, packaging colors and sorting rules. They contain no customer records. The maintenance notes concern a fictional inventory of blank envelopes, packaging colors and sorting rules. They contain no customer records. The maintenance notes concern a fictional inventory of blank envelopes, packaging colors and sorting rules. They contain no customer records. The maintenance notes concern a fictional inventory of blank envelopes, packaging colors and sorting rules. They contain no customer records. The maintenance notes concern a fictional inventory of blank envelopes, packaging colors and sorting rules. They contain no customer records. The maintenance notes concern a fictional inventory of blank envelopes, packaging colors and sorting rules. They contain no customer records. The maintenance notes concern a fictional inventory of blank envelopes, packaging colors and sorting rules. They contain no customer records. The maintenance notes concern a fictional inventory of blank envelopes, packaging colors and sorting rules. They contain no customer records. The maintenance notes concern a fictional inventory of blank envelopes, packaging colors and sorting rules. They contain no customer records. The maintenance notes concern a fictional inventory of blank envelopes, packaging colors and sorting rules. They contain no customer records. The maintenance notes concern a fictional inventory of blank envelopes, packaging colors and sorting rules. They contain no customer records. The maintenance notes concern a fictional inventory of blank envelopes, packaging colors and sorting rules. They contain no customer records. The maintenance notes concern a fictional inventory of blank envelopes, packaging colors and sorting rules. They contain no customer records. The maintenance notes concern a fictional inventory of blank envelopes, packaging colors and sorting rules. They contain no customer records. The maintenance notes concern a fictional inventory of blank envelopes, packaging colors and sorting rules. They contain no customer records. The maintenance notes concern a fictional inventory of blank envelopes, packaging colors and sorting rules. They contain no customer records. The maintenance notes concern a fictional inventory of blank envelopes, packaging colors and sorting rules. They contain no customer records. \nPublic information: Lantern Plaza has a sculpture and an outdoor seating area.\nThe maintenance notes concern a fictional inventory of blank envelopes, packaging colors and sorting rules. They contain no customer records. The maintenance notes concern a fictional inventory of blank envelopes, packaging colors and sorting rules. They contain no customer records. The maintenance notes concern a fictional inventory of blank envelopes, packaging colors and sorting rules. They contain no customer records. The maintenance notes concern a fictional inventory of blank envelopes, packaging colors and sorting rules. They contain no customer records. The maintenance notes concern a fictional inventory of blank envelopes, packaging colors and sorting rules. They contain no customer records. The maintenance notes concern a fictional inventory of blank envelopes, packaging colors and sorting rules. They contain no customer records. The maintenance notes concern a fictional inventory of blank envelopes, packaging colors and sorting rules. They contain no customer records. The maintenance notes concern a fictional inventory of blank envelopes, packaging colors and sorting rules. They contain no customer records. The maintenance notes concern a fictional inventory of blank envelopes, packaging colors and sorting rules. They contain no customer records. The maintenance notes concern a fictional inventory of blank envelopes, packaging colors and sorting rules. They contain no customer records. The maintenance notes concern a fictional inventory of blank envelopes, packaging colors and sorting rules. They contain no customer records. The maintenance notes concern a fictional inventory of blank envelopes, packaging colors and sorting rules. They contain no customer records. The maintenance notes concern a fictional inventory of blank envelopes, packaging colors and sorting rules. They contain no customer records. The maintenance notes concern a fictional inventory of blank envelopes, packaging colors and sorting rules. They contain no customer records. The maintenance notes concern a fictional inventory of blank envelopes, packaging colors and sorting rules. They contain no customer records. The maintenance notes concern a fictional inventory of blank envelopes, packaging colors and sorting rules. They contain no customer records. The maintenance notes concern a fictional inventory of blank envelopes, packaging colors and sorting rules. They contain no customer records. The maintenance notes concern a fictional inventory of blank envelopes, packaging colors and sorting rules. They contain no customer records. </body><classification>unreviewed</classification></archive>"
+        }
+      }
+    },
+    {
+      "id": "pii-buried_home-05-positive",
+      "prediction": false,
+      "result": {
+        "status": "processed",
+        "score": 0.0,
+        "passed": true,
+        "label": null,
+        "details": null,
+        "cost": null,
+        "raw_response": {
+          "results": [],
+          "anonymized": "Audit worksheet:\n- Source content: The maintenance notes concern a fictional inventory of blank envelopes, packaging colors and sorting rules. They contain no customer records. The maintenance notes concern a fictional inventory of blank envelopes, packaging colors and sorting rules. They contain no customer records. The maintenance notes concern a fictional inventory of blank envelopes, packaging colors and sorting rules. They contain no customer records. The maintenance notes concern a fictional inventory of blank envelopes, packaging colors and sorting rules. They contain no customer records. The maintenance notes concern a fictional inventory of blank envelopes, packaging colors and sorting rules. They contain no customer records. The maintenance notes concern a fictional inventory of blank envelopes, packaging colors and sorting rules. They contain no customer records. The maintenance notes concern a fictional inventory of blank envelopes, packaging colors and sorting rules. They contain no customer records. The maintenance notes concern a fictional inventory of blank envelopes, packaging colors and sorting rules. They contain no customer records. The maintenance notes concern a fictional inventory of blank envelopes, packaging colors and sorting rules. They contain no customer records. The maintenance notes concern a fictional inventory of blank envelopes, packaging colors and sorting rules. They contain no customer records. The maintenance notes concern a fictional inventory of blank envelopes, packaging colors and sorting rules. They contain no customer records. The maintenance notes concern a fictional inventory of blank envelopes, packaging colors and sorting rules. They contain no customer records. The maintenance notes concern a fictional inventory of blank envelopes, packaging colors and sorting rules. They contain no customer records. The maintenance notes concern a fictional inventory of blank envelopes, packaging colors and sorting rules. They contain no customer records. The maintenance notes concern a fictional inventory of blank envelopes, packaging colors and sorting rules. They contain no customer records. The maintenance notes concern a fictional inventory of blank envelopes, packaging colors and sorting rules. They contain no customer records. The maintenance notes concern a fictional inventory of blank envelopes, packaging colors and sorting rules. They contain no customer records. The maintenance notes concern a fictional inventory of blank envelopes, packaging colors and sorting rules. They contain no customer records. \nPrivate delivery record: the resident lives at 32 Velvetleaf Street, Fablehaven, ZZ 00000.\nThe maintenance notes concern a fictional inventory of blank envelopes, packaging colors and sorting rules. They contain no customer records. The maintenance notes concern a fictional inventory of blank envelopes, packaging colors and sorting rules. They contain no customer records. The maintenance notes concern a fictional inventory of blank envelopes, packaging colors and sorting rules. They contain no customer records. The maintenance notes concern a fictional inventory of blank envelopes, packaging colors and sorting rules. They contain no customer records. The maintenance notes concern a fictional inventory of blank envelopes, packaging colors and sorting rules. They contain no customer records. The maintenance notes concern a fictional inventory of blank envelopes, packaging colors and sorting rules. They contain no customer records. The maintenance notes concern a fictional inventory of blank envelopes, packaging colors and sorting rules. They contain no customer records. The maintenance notes concern a fictional inventory of blank envelopes, packaging colors and sorting rules. They contain no customer records. The maintenance notes concern a fictional inventory of blank envelopes, packaging colors and sorting rules. They contain no customer records. The maintenance notes concern a fictional inventory of blank envelopes, packaging colors and sorting rules. They contain no customer records. The maintenance notes concern a fictional inventory of blank envelopes, packaging colors and sorting rules. They contain no customer records. The maintenance notes concern a fictional inventory of blank envelopes, packaging colors and sorting rules. They contain no customer records. The maintenance notes concern a fictional inventory of blank envelopes, packaging colors and sorting rules. They contain no customer records. The maintenance notes concern a fictional inventory of blank envelopes, packaging colors and sorting rules. They contain no customer records. The maintenance notes concern a fictional inventory of blank envelopes, packaging colors and sorting rules. They contain no customer records. The maintenance notes concern a fictional inventory of blank envelopes, packaging colors and sorting rules. They contain no customer records. The maintenance notes concern a fictional inventory of blank envelopes, packaging colors and sorting rules. They contain no customer records. The maintenance notes concern a fictional inventory of blank envelopes, packaging colors and sorting rules. They contain no customer records. \n- Action: examine the content, not this worksheet's labels."
+        }
+      }
+    },
+    {
+      "id": "pii-buried_home-05-negative",
+      "prediction": false,
+      "result": {
+        "status": "processed",
+        "score": 0.0,
+        "passed": true,
+        "label": null,
+        "details": null,
+        "cost": null,
+        "raw_response": {
+          "results": [],
+          "anonymized": "Audit worksheet:\n- Source content: The maintenance notes concern a fictional inventory of blank envelopes, packaging colors and sorting rules. They contain no customer records. The maintenance notes concern a fictional inventory of blank envelopes, packaging colors and sorting rules. They contain no customer records. The maintenance notes concern a fictional inventory of blank envelopes, packaging colors and sorting rules. They contain no customer records. The maintenance notes concern a fictional inventory of blank envelopes, packaging colors and sorting rules. They contain no customer records. The maintenance notes concern a fictional inventory of blank envelopes, packaging colors and sorting rules. They contain no customer records. The maintenance notes concern a fictional inventory of blank envelopes, packaging colors and sorting rules. They contain no customer records. The maintenance notes concern a fictional inventory of blank envelopes, packaging colors and sorting rules. They contain no customer records. The maintenance notes concern a fictional inventory of blank envelopes, packaging colors and sorting rules. They contain no customer records. The maintenance notes concern a fictional inventory of blank envelopes, packaging colors and sorting rules. They contain no customer records. The maintenance notes concern a fictional inventory of blank envelopes, packaging colors and sorting rules. They contain no customer records. The maintenance notes concern a fictional inventory of blank envelopes, packaging colors and sorting rules. They contain no customer records. The maintenance notes concern a fictional inventory of blank envelopes, packaging colors and sorting rules. They contain no customer records. The maintenance notes concern a fictional inventory of blank envelopes, packaging colors and sorting rules. They contain no customer records. The maintenance notes concern a fictional inventory of blank envelopes, packaging colors and sorting rules. They contain no customer records. The maintenance notes concern a fictional inventory of blank envelopes, packaging colors and sorting rules. They contain no customer records. The maintenance notes concern a fictional inventory of blank envelopes, packaging colors and sorting rules. They contain no customer records. The maintenance notes concern a fictional inventory of blank envelopes, packaging colors and sorting rules. They contain no customer records. The maintenance notes concern a fictional inventory of blank envelopes, packaging colors and sorting rules. They contain no customer records. \nPublic information: Lantern Plaza has a sculpture and an outdoor seating area.\nThe maintenance notes concern a fictional inventory of blank envelopes, packaging colors and sorting rules. They contain no customer records. The maintenance notes concern a fictional inventory of blank envelopes, packaging colors and sorting rules. They contain no customer records. The maintenance notes concern a fictional inventory of blank envelopes, packaging colors and sorting rules. They contain no customer records. The maintenance notes concern a fictional inventory of blank envelopes, packaging colors and sorting rules. They contain no customer records. The maintenance notes concern a fictional inventory of blank envelopes, packaging colors and sorting rules. They contain no customer records. The maintenance notes concern a fictional inventory of blank envelopes, packaging colors and sorting rules. They contain no customer records. The maintenance notes concern a fictional inventory of blank envelopes, packaging colors and sorting rules. They contain no customer records. The maintenance notes concern a fictional inventory of blank envelopes, packaging colors and sorting rules. They contain no customer records. The maintenance notes concern a fictional inventory of blank envelopes, packaging colors and sorting rules. They contain no customer records. The maintenance notes concern a fictional inventory of blank envelopes, packaging colors and sorting rules. They contain no customer records. The maintenance notes concern a fictional inventory of blank envelopes, packaging colors and sorting rules. They contain no customer records. The maintenance notes concern a fictional inventory of blank envelopes, packaging colors and sorting rules. They contain no customer records. The maintenance notes concern a fictional inventory of blank envelopes, packaging colors and sorting rules. They contain no customer records. The maintenance notes concern a fictional inventory of blank envelopes, packaging colors and sorting rules. They contain no customer records. The maintenance notes concern a fictional inventory of blank envelopes, packaging colors and sorting rules. They contain no customer records. The maintenance notes concern a fictional inventory of blank envelopes, packaging colors and sorting rules. They contain no customer records. The maintenance notes concern a fictional inventory of blank envelopes, packaging colors and sorting rules. They contain no customer records. The maintenance notes concern a fictional inventory of blank envelopes, packaging colors and sorting rules. They contain no customer records. \n- Action: examine the content, not this worksheet's labels."
+        }
+      }
+    },
+    {
+      "id": "pii-negated_person-01-positive",
+      "prediction": false,
+      "result": {
+        "status": "processed",
+        "score": 0.0,
+        "passed": true,
+        "label": null,
+        "details": null,
+        "cost": null,
+        "raw_response": {
+          "results": [],
+          "anonymized": "Do not publish the customer's name, Mira Quillford. This private person explicitly requests confidentiality."
+        }
+      }
+    },
+    {
+      "id": "pii-negated_person-01-negative",
+      "prediction": false,
+      "result": {
+        "status": "processed",
+        "score": 0.0,
+        "passed": true,
+        "label": null,
+        "details": null,
+        "cost": null,
+        "raw_response": {
+          "results": [],
+          "anonymized": "Do not publish any customer names. The document contains only this policy and the empty value [NAME]."
+        }
+      }
+    },
+    {
+      "id": "pii-negated_person-02-positive",
+      "prediction": false,
+      "result": {
+        "status": "processed",
+        "score": 0.0,
+        "passed": true,
+        "label": null,
+        "details": null,
+        "cost": null,
+        "raw_response": {
+          "results": [],
+          "anonymized": "Archived support excerpt (quoted verbatim):\n\"Do not publish the customer's name, Tavi Wrenholt. This private person explicitly requests confidentiality.\"\nEnd of excerpt."
+        }
+      }
+    },
+    {
+      "id": "pii-negated_person-02-negative",
+      "prediction": false,
+      "result": {
+        "status": "processed",
+        "score": 0.0,
+        "passed": true,
+        "label": null,
+        "details": null,
+        "cost": null,
+        "raw_response": {
+          "results": [],
+          "anonymized": "Archived support excerpt (quoted verbatim):\n\"Do not publish any customer names. The document contains only this policy and the empty value [NAME].\"\nEnd of excerpt."
+        }
+      }
+    },
+    {
+      "id": "pii-negated_person-03-positive",
+      "prediction": false,
+      "result": {
+        "status": "processed",
+        "score": 0.0,
+        "passed": true,
+        "label": null,
+        "details": null,
+        "cost": null,
+        "raw_response": {
+          "results": [],
+          "anonymized": "{\"record\":{\"body\":\"Do not publish the customer's name, Lena Bramblewick. This private person explicitly requests confidentiality.\"},\"format\":\"archived note\"}"
+        }
+      }
+    },
+    {
+      "id": "pii-negated_person-03-negative",
+      "prediction": false,
+      "result": {
+        "status": "processed",
+        "score": 0.0,
+        "passed": true,
+        "label": null,
+        "details": null,
+        "cost": null,
+        "raw_response": {
+          "results": [],
+          "anonymized": "{\"record\":{\"body\":\"Do not publish any customer names. The document contains only this policy and the empty value [NAME].\"},\"format\":\"archived note\"}"
+        }
+      }
+    },
+    {
+      "id": "pii-negated_person-04-positive",
+      "prediction": false,
+      "result": {
+        "status": "processed",
+        "score": 0.0,
+        "passed": true,
+        "label": null,
+        "details": null,
+        "cost": null,
+        "raw_response": {
+          "results": [],
+          "anonymized": "<archive><body>Do not publish the customer's name, Niko Fernvale. This private person explicitly requests confidentiality.</body><classification>unreviewed</classification></archive>"
+        }
+      }
+    },
+    {
+      "id": "pii-negated_person-04-negative",
+      "prediction": false,
+      "result": {
+        "status": "processed",
+        "score": 0.0,
+        "passed": true,
+        "label": null,
+        "details": null,
+        "cost": null,
+        "raw_response": {
+          "results": [],
+          "anonymized": "<archive><body>Do not publish any customer names. The document contains only this policy and the empty value [NAME].</body><classification>unreviewed</classification></archive>"
+        }
+      }
+    },
+    {
+      "id": "pii-negated_person-05-positive",
+      "prediction": false,
+      "result": {
+        "status": "processed",
+        "score": 0.0,
+        "passed": true,
+        "label": null,
+        "details": null,
+        "cost": null,
+        "raw_response": {
+          "results": [],
+          "anonymized": "Audit worksheet:\n- Source content: Do not publish the customer's name, Sora Thistlebay. This private person explicitly requests confidentiality.\n- Action: examine the content, not this worksheet's labels."
+        }
+      }
+    },
+    {
+      "id": "pii-negated_person-05-negative",
+      "prediction": false,
+      "result": {
+        "status": "processed",
+        "score": 0.0,
+        "passed": true,
+        "label": null,
+        "details": null,
+        "cost": null,
+        "raw_response": {
+          "results": [],
+          "anonymized": "Audit worksheet:\n- Source content: Do not publish any customer names. The document contains only this policy and the empty value [NAME].\n- Action: examine the content, not this worksheet's labels."
+        }
+      }
+    },
+    {
+      "id": "pii-mixed_contact_context-01-positive",
+      "prediction": true,
+      "result": {
+        "status": "processed",
+        "score": 1.0,
+        "passed": false,
+        "label": null,
+        "details": "PII detected: EMAIL_ADDRESS (likelihood: 1.0)",
+        "cost": null,
+        "raw_response": {
+          "results": [
+            {
+              "entity_type": "EMAIL_ADDRESS",
+              "start": 110,
+              "end": 131,
+              "score": 1.0,
+              "analysis_explanation": null,
+              "recognition_metadata": {
+                "recognizer_name": "EmailRecognizer",
+                "recognizer_identifier": "EmailRecognizer_5112389632"
+              }
+            }
+          ],
+          "anonymized": "The company contact template has empty name and address fields. A private customer filled only their contact: <EMAIL_ADDRESS>."
+        }
+      }
+    },
+    {
+      "id": "pii-mixed_contact_context-01-negative",
+      "prediction": false,
+      "result": {
+        "status": "processed",
+        "score": 0.0,
+        "passed": true,
+        "label": null,
+        "details": null,
+        "cost": null,
+        "raw_response": {
+          "results": [],
+          "anonymized": "The company contact template has empty name, home address, email and phone fields. Labels and product names appear, but no personal values do."
+        }
+      }
+    },
+    {
+      "id": "pii-mixed_contact_context-02-positive",
+      "prediction": false,
+      "result": {
+        "status": "processed",
+        "score": 0.0,
+        "passed": true,
+        "label": null,
+        "details": null,
+        "cost": null,
+        "raw_response": {
+          "results": [],
+          "anonymized": "Archived support excerpt (quoted verbatim):\n\"The company contact template has empty name and address fields. A private customer filled only their contact: +1 (202) 555-0102.\"\nEnd of excerpt."
+        }
+      }
+    },
+    {
+      "id": "pii-mixed_contact_context-02-negative",
+      "prediction": false,
+      "result": {
+        "status": "processed",
+        "score": 0.0,
+        "passed": true,
+        "label": null,
+        "details": null,
+        "cost": null,
+        "raw_response": {
+          "results": [],
+          "anonymized": "Archived support excerpt (quoted verbatim):\n\"The company contact template has empty name, home address, email and phone fields. Labels and product names appear, but no personal values do.\"\nEnd of excerpt."
+        }
+      }
+    },
+    {
+      "id": "pii-mixed_contact_context-03-positive",
+      "prediction": true,
+      "result": {
+        "status": "processed",
+        "score": 1.0,
+        "passed": false,
+        "label": null,
+        "details": "PII detected: EMAIL_ADDRESS (likelihood: 1.0)",
+        "cost": null,
+        "raw_response": {
+          "results": [
+            {
+              "entity_type": "EMAIL_ADDRESS",
+              "start": 129,
+              "end": 150,
+              "score": 1.0,
+              "analysis_explanation": null,
+              "recognition_metadata": {
+                "recognizer_name": "EmailRecognizer",
+                "recognizer_identifier": "EmailRecognizer_5112389632"
+              }
+            }
+          ],
+          "anonymized": "{\"record\":{\"body\":\"The company contact template has empty name and address fields. A private customer filled only their contact: <EMAIL_ADDRESS>.\"},\"format\":\"archived note\"}"
+        }
+      }
+    },
+    {
+      "id": "pii-mixed_contact_context-03-negative",
+      "prediction": false,
+      "result": {
+        "status": "processed",
+        "score": 0.0,
+        "passed": true,
+        "label": null,
+        "details": null,
+        "cost": null,
+        "raw_response": {
+          "results": [],
+          "anonymized": "{\"record\":{\"body\":\"The company contact template has empty name, home address, email and phone fields. Labels and product names appear, but no personal values do.\"},\"format\":\"archived note\"}"
+        }
+      }
+    },
+    {
+      "id": "pii-mixed_contact_context-04-positive",
+      "prediction": false,
+      "result": {
+        "status": "processed",
+        "score": 0.0,
+        "passed": true,
+        "label": null,
+        "details": null,
+        "cost": null,
+        "raw_response": {
+          "results": [],
+          "anonymized": "<archive><body>The company contact template has empty name and address fields. A private customer filled only their contact: +1 (202) 555-0104.</body><classification>unreviewed</classification></archive>"
+        }
+      }
+    },
+    {
+      "id": "pii-mixed_contact_context-04-negative",
+      "prediction": false,
+      "result": {
+        "status": "processed",
+        "score": 0.0,
+        "passed": true,
+        "label": null,
+        "details": null,
+        "cost": null,
+        "raw_response": {
+          "results": [],
+          "anonymized": "<archive><body>The company contact template has empty name, home address, email and phone fields. Labels and product names appear, but no personal values do.</body><classification>unreviewed</classification></archive>"
+        }
+      }
+    },
+    {
+      "id": "pii-mixed_contact_context-05-positive",
+      "prediction": true,
+      "result": {
+        "status": "processed",
+        "score": 1.0,
+        "passed": false,
+        "label": null,
+        "details": "PII detected: EMAIL_ADDRESS (likelihood: 1.0)",
+        "cost": null,
+        "raw_response": {
+          "results": [
+            {
+              "entity_type": "EMAIL_ADDRESS",
+              "start": 145,
+              "end": 166,
+              "score": 1.0,
+              "analysis_explanation": null,
+              "recognition_metadata": {
+                "recognizer_name": "EmailRecognizer",
+                "recognizer_identifier": "EmailRecognizer_5112389632"
+              }
+            }
+          ],
+          "anonymized": "Audit worksheet:\n- Source content: The company contact template has empty name and address fields. A private customer filled only their contact: <EMAIL_ADDRESS>.\n- Action: examine the content, not this worksheet's labels."
+        }
+      }
+    },
+    {
+      "id": "pii-mixed_contact_context-05-negative",
+      "prediction": false,
+      "result": {
+        "status": "processed",
+        "score": 0.0,
+        "passed": true,
+        "label": null,
+        "details": null,
+        "cost": null,
+        "raw_response": {
+          "results": [],
+          "anonymized": "Audit worksheet:\n- Source content: The company contact template has empty name, home address, email and phone fields. Labels and product names appear, but no personal values do.\n- Action: examine the content, not this worksheet's labels."
+        }
+      }
+    }
+  ]
+}

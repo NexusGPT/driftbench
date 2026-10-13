@@ -33,7 +33,7 @@ describe('budget', () => {
     );
     expect(verdict(dear, 'budget.cost_usd')).toMatchObject({
       outcome: 'fail',
-      evidence: 'cost 0.02 USD, at most 0.01',
+      evidence: 'cost 0.02 USD, at most 0.01, over by 0.01 USD (100% above the limit)',
     });
   });
 

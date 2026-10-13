@@ -1,0 +1,4 @@
+Flagged distinct token values: 1
+Every value occurs in our frozen synthetic fixture inputs: True
+Matching fixture files: ['longtrace-v2/hard.json']
+No token value printed.

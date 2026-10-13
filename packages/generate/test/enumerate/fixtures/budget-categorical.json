@@ -1,11 +1,11 @@
 {
-  "source": "Options A and B (a1462f30) with cap PR 155 and speed PR 158 merged (01d617cc); spec files match the A/B pin, only the report's opening-pair reasons differ; baseline coverage 237 of 637 after the plan-upgrade handover perturbation (report only, spec files unchanged)",
+  "source": "Required opening policy traces with main e3d0e926 and generator validator contracts merged",
   "mapHash": "ed9e4089e9c5",
   "hashes": {
-    "pairwise": "dc1bff31939ecd8951283065b8dbe01127204075edaae890b10a92f044435c7e",
-    "budget-20": "543be2e53185a08989ea96a3b26626b4d45428e4cbae348affa4b2f2828405ec",
-    "budget-50": "ac6b613f6d70852f95b61f025bc3958246ce22b0f911286db592f4b7e1606e6f",
-    "budget-100": "0e01be637aa3bc14fe16b7638841079a01e87485d2d6b953c2a47d2359f64dbb",
-    "budget-200": "fee81429e71a190243cad33440d633d941b2bf5e2c93def00bf7e2da295d522b"
+    "pairwise": "0869e2576e19972630cb294d453bd75488aeed883d6288b6561f5c79d447b7d1",
+    "budget-20": "6297a729d819bb703132093b8cca0ec43e581935aac0e2a565aa519e32d80096",
+    "budget-50": "153a3b3769440430dcf63fc7cd8d3c06e75c8e76e86423744938387dcbb1f3db",
+    "budget-100": "72b94df96aede06177e3557762187c1bedb2c35b4602d51fe44b8bab37921b1a",
+    "budget-200": "a6d35914c3f31a99aa1ab551fe3daae105091af3f9e90f980c0f43593f5cb099"
   }
 }

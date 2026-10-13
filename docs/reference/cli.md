@@ -4,7 +4,7 @@
 
 ## Running it
 
-The package is not on npm yet: version 0.1.0 is prepared as `@agent-nexus/driftbench` and not published (see [Releasing](../releasing.md)). From a clone of the repository:
+Version 0.1.0 is on npm: `npm install @agent-nexus/driftbench`, then `npx driftbench <command>`. From a clone of the repository:
 
 ```sh
 pnpm install

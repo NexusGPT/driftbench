@@ -8,6 +8,14 @@ from run import CALLS, ROOT, ROWS, paired_p, wilson
 from recordings import records
 
 
+def write_if_changed(path, content):
+    if path.exists():
+        previous = path.read_text()
+        if previous == content or (path.suffix == '.json' and json.loads(previous) == json.loads(content)):
+            return
+    path.write_text(content)
+
+
 def tally(recording, require_complete=True):
     grouped = collections.defaultdict(list)
     for r in recording["rows"]:
@@ -58,9 +66,15 @@ def main():
     for r in scores:
         print(f"| {r['row']} | {r['n']} | {r['ours']}/{r['n']} ({r['ours_ci'][0]} to {r['ours_ci'][1]}%; {r['ours_distinct_inputs']} distinct inputs) | {r['theirs']}/{r['n']} ({r['theirs_ci'][0]} to {r['theirs_ci'][1]}%; {r['theirs_distinct_inputs']} distinct inputs) | {r['outcome']} | {r['paired_p']:.6g} | {r['cost_usd']:.6f} |")
     if args.output:
-        args.output.write_text(json.dumps(scores, indent=2)+"\n")
+        write_if_changed(args.output, json.dumps(scores, indent=2)+"\n")
     calls = {r.get("request_sha256",r.get("key")): r for r in records(CALLS)}
-    audit = [f"# {recording['variant']} loss audit", "", "Inputs and privacy-redacted answers are preserved in the JSONL recording stream.", ""]
+    audit_path = args.recording.parent / f"losses-{args.recording.stem}.md"
+    description = "Inputs and privacy-redacted answers are preserved in the JSONL recording stream."
+    # Older published audits retain their original header; recompute their full body.
+    legacy = "Raw inputs and answers are preserved in calls.jsonl."
+    if audit_path.exists() and audit_path.read_text().splitlines()[2:3] == [legacy]:
+        description = legacy
+    audit = [f"# {recording['variant']} loss audit", "", description, ""]
     for r in recording["rows"]:
         if r["ours"]["prediction"] is not r["truth"]:
             audit.extend([f"## {r['row']}: {r['id']}", "", f"Construction truth: {r['truth']}", ""])
@@ -69,7 +83,7 @@ def main():
                 for key in r[side].get("request_sha256s",r[side].get("keys",[])):
                     audit.extend(["", f"Call `{key}`", "", "```json", calls[key]["result"], "```"])
             audit.append("")
-    (args.recording.parent / f"losses-{args.recording.stem}.md").write_text("\n".join(audit)+"\n")
+    write_if_changed(audit_path, "\n".join(audit)+"\n")
 
 
 if __name__ == "__main__":

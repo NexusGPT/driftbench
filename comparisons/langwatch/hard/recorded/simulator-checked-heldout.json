@@ -1,0 +1,673 @@
+{
+  "row": "simulator",
+  "variant": "checked",
+  "set": "heldout",
+  "candidateLabel": "not yet the shipped default",
+  "model": "haiku",
+  "expected": 60,
+  "complete": true,
+  "freshUsd": 0.022451400000000003,
+  "newCalls": 82,
+  "answers": [
+    {
+      "id": "sim-direct-1-asked",
+      "supplied": true,
+      "correct": true,
+      "text": "buyer20261013case1@example.com",
+      "request_sha256s": [
+        "85533c24625319365597505db6420e2a1e7c308f8e131029b7a40f38365cdc4d",
+        "bfd25cda454352b373723f2b643a440e6b7102489b43074126d04c684cce1be5"
+      ],
+      "costUsd": 0.0005168
+    },
+    {
+      "id": "sim-direct-1-unasked",
+      "supplied": false,
+      "correct": true,
+      "text": "I'm leaning toward lantern. Before I pick it, can you tell me what's included in the lantern plan and what it costs per month?",
+      "request_sha256s": [
+        "ff4586e005717c539aa2f63afb3571646d24959f937733493fa14deb3dca935e",
+        "d9cecf6f7e7867dfd569429a71386e340636395552e92e4890f8ff0ee8fa33b7"
+      ],
+      "costUsd": 0.0004787
+    },
+    {
+      "id": "sim-direct-2-asked",
+      "supplied": true,
+      "correct": true,
+      "text": "buyer20261013case3@example.com",
+      "request_sha256s": [
+        "adefb735960d00801c1dd1091b72f8b5dd94a518976d9e63d4af4a098669e97f",
+        "5abcb9c9e209b5660874316a6b736a1f5259a73c9f8ce6499eb15d1a8bf85692"
+      ],
+      "costUsd": 0.0004617
+    },
+    {
+      "id": "sim-direct-2-unasked",
+      "supplied": false,
+      "correct": true,
+      "text": "Lantern, please. Which one is cheaper per month?",
+      "request_sha256s": [
+        "126b0907a942f32432ef301b935dc3fb0e34035717d886d30c79c89271122344",
+        "d2031ad55a0b4e95959c372abbf6cdbfd0483c5232b3726d1d7c9689f51d4f6b"
+      ],
+      "costUsd": 0.0005243
+    },
+    {
+      "id": "sim-direct-3-asked",
+      "supplied": true,
+      "correct": true,
+      "text": "buyer20261013case5@example.com",
+      "request_sha256s": [
+        "ab98f9169822a73b5f931300048c7696d9da32a29532175e25b565e2913c3fb0",
+        "9af6835d1ce3f5935ef70618efb60cb220181acab5cb9e47e8767c3a8318a3ec"
+      ],
+      "costUsd": 0.0005065
+    },
+    {
+      "id": "sim-paraphrase-1-asked",
+      "supplied": true,
+      "correct": true,
+      "text": "buyer20261013case11@example.com",
+      "request_sha256s": [
+        "ae2c6ae943a1a317713be468aeb79838d4cfe4cc12a733003efc6cb8e1201245",
+        "abae1345e05b71bd55f3fc9c374f84d7789fe9280503bde59c3518e284c4bd3e"
+      ],
+      "costUsd": 0.00046370000000000005
+    },
+    {
+      "id": "sim-paraphrase-1-unasked",
+      "supplied": false,
+      "correct": true,
+      "text": "Hi, I'm looking for a phone plan. Can you tell me more about the Lantern plan before I decide? What does it include?",
+      "request_sha256s": [
+        "f3bb4a2e49f4359b2c35fd677a27ea897db961a7f0cdc0021595ad7663a8ac87",
+        "ebff8060dbdf790417eeb661fcaf24ad4cfffa8319ed6edaee995bbc8ccc740e"
+      ],
+      "costUsd": 0.0005234
+    },
+    {
+      "id": "sim-paraphrase-2-asked",
+      "supplied": true,
+      "correct": true,
+      "text": "buyer20261013case13@example.com",
+      "request_sha256s": [
+        "1059e3150d2353066b59b35a0d245a1738968255a19ddefa21b659b3d177c933",
+        "920ad5715fbbed7892d4cc89dfef5a992d4161cb131a73b61ddc20be5ae52548"
+      ],
+      "costUsd": 0.0004635
+    },
+    {
+      "id": "sim-paraphrase-2-unasked",
+      "supplied": false,
+      "correct": true,
+      "text": "Hi, I'm looking for a phone plan. Before I pick one, can you tell me more about the lantern plan? What does it include and what does it cost?",
+      "request_sha256s": [
+        "c4a300c5497a32f0b3c8bf6f96064572124e0920db43f6573cd37370e6b918bc",
+        "94f0f537cb637eb1a56aeb9cb8986ba096175190f5c5b3e68e8339a8f0669810"
+      ],
+      "costUsd": 0.0005253
+    },
+    {
+      "id": "sim-paraphrase-3-unasked",
+      "supplied": false,
+      "correct": true,
+      "text": "Hi, I'm looking for a phone plan. I've heard the lantern plan might work for me. What's the difference between the lantern plan and the others?",
+      "request_sha256s": [
+        "22743989ef3a29a519d95fd3b4671f2a2d837c23dd2991bd7dc9fe0884c60a28",
+        "cb27821606f4cdc88c53c885d6f73f3d88947f3627c099ff87ef6d43af5fe437"
+      ],
+      "costUsd": 0.0005191
+    },
+    {
+      "id": "sim-negation-1-asked",
+      "supplied": true,
+      "correct": true,
+      "text": "Going with the lantern plan. My email is buyer20261013case21@example.com.",
+      "request_sha256s": [
+        "4bb29c9ed412126323da958d71d79c6884105ced9c78b86eaf2fd0a5d7b9a5b2",
+        "85314fb8f8d3bb4d8598278513f276d1927ea38e4c04f9bb1475ceec20c49d6c"
+      ],
+      "costUsd": 0.0005485
+    },
+    {
+      "id": "sim-negation-1-unasked",
+      "supplied": false,
+      "correct": true,
+      "text": "I'm leaning toward the lantern plan. Before I pick, can you tell me what's included in it?",
+      "request_sha256s": [
+        "300ab1fa9ce00eb730f946d07f95fcc8b96dc517709e288759c370b6c9f01bb3",
+        "363d79aab80902cf1d30db1c0282a671273b00d2274597e50539cdeae3514a23"
+      ],
+      "costUsd": 0.0005291
+    },
+    {
+      "id": "sim-negation-2-asked",
+      "supplied": true,
+      "correct": true,
+      "text": "buyer20261013case23@example.com",
+      "request_sha256s": [
+        "7b08c9c86d1a50d018caf561353745801f50301e18c6ee63870e6fc4cb1e046f",
+        "ba417f9320fe778a4ac117d699189825855695b11de0aaa3376f3711450bcd87"
+      ],
+      "costUsd": 0.0004989
+    },
+    {
+      "id": "sim-negation-2-unasked",
+      "supplied": false,
+      "correct": true,
+      "text": "I'd like to go with the lantern phone plan. Which option gets me the best value for a single line? I'm busy, so keep it short.",
+      "request_sha256s": [
+        "87058d2b0bc5e98249dd044ff63ca7173b606d30a983c7b551113c0c215c536f",
+        "ac0aceec4348af7e0ae37df7e362cc6ac1fa3e6771aa89f9938e5b8212c87006"
+      ],
+      "costUsd": 0.0005271
+    },
+    {
+      "id": "sim-negation-3-asked",
+      "supplied": true,
+      "correct": true,
+      "text": "Sure, my email is buyer20261013case25@example.com. I'd like to go with the Lantern plan. Can you confirm it's set up on that address?",
+      "request_sha256s": [
+        "307c1d474622f535cecf3db999afa9e9dfd2278cccb3ba4f090cd4ed3ce80990",
+        "807401e18312225ef7e7665f21c1e210b88d787c75b959ed1c168240fff5655c"
+      ],
+      "costUsd": 0.0005748
+    },
+    {
+      "id": "sim-quoted-1-asked",
+      "supplied": true,
+      "correct": true,
+      "text": "buyer20261013case31@example.com",
+      "request_sha256s": [
+        "45d5e78ebdc205c33e188b66d1a986cd1edcd46a786f62a8a84dc41b7f03b7b7",
+        "eef207b90ea8bfc5b6dfaede257db631bbf7c1e89edac3770a93f7d73017de0c"
+      ],
+      "costUsd": 0.0004824
+    },
+    {
+      "id": "sim-quoted-1-unasked",
+      "supplied": false,
+      "correct": true,
+      "text": "I'm not asking for your email. I just want to pick a plan. Which lantern plans do you offer, and what's the difference between them?",
+      "request_sha256s": [
+        "7ac896081787cf40f24f583ef4e9f8928f45edf7363055a67f149ec9b1235004",
+        "bd475152320269e408fae5542a5e365f38b376b12ffe1f700f57377e0cf22541"
+      ],
+      "costUsd": 0.0005373
+    },
+    {
+      "id": "sim-quoted-2-asked",
+      "supplied": true,
+      "correct": true,
+      "text": "buyer20261013case33@example.com",
+      "request_sha256s": [
+        "ee29c4cbc74bcda949a55e2a326e632bbc10ee482c53c98fcf92b81ce358c64d",
+        "87a52c1b2265e1ea7e1645cecf29a921f9bde709c31a816a5d26667d368b9176"
+      ],
+      "costUsd": 0.0004619
+    },
+    {
+      "id": "sim-quoted-2-unasked",
+      "supplied": false,
+      "correct": true,
+      "text": "I'm not sure what the receipt mailbox question has to do with this. I just want to pick a phone plan. Which lantern plan do you offer, and what's the difference between them?",
+      "request_sha256s": [
+        "8c9fe2a84b7ebd727c3f8e9007f914135e4a2cb48b20a76189fefdd246629bf1",
+        "3da3ad62e78d221c3f1dfe74182e425ac4da3167e6dc548a10ac374f12b794c4"
+      ],
+      "costUsd": 0.0005354000000000001
+    },
+    {
+      "id": "sim-quoted-3-unasked",
+      "supplied": false,
+      "correct": true,
+      "text": "I'm not asking for your email. I want the lantern phone plan. Which plan options do you have, and what does each one cost?",
+      "request_sha256s": [
+        "52ef230c1fbdadaba05f7bd759e517d65a81a6fb73a6579da5998f5a8253bba4",
+        "44e58362ef8fc989e0fab03b3ace1878a75d3d713a743d6cd6b675cdf5b96ac7"
+      ],
+      "costUsd": 0.0005166
+    },
+    {
+      "id": "sim-translation-1-asked",
+      "supplied": true,
+      "correct": true,
+      "text": "Voici mon courriel : buyer20261013case41@example.com. Je choisis le forfait Lantern.",
+      "request_sha256s": [
+        "bac04066d19398b40004f45f8f6927bcf760a7f545e10aff3cab0314e501d741",
+        "7e5562da3b28726ed3b5c6ba81ead435b81d1a51343dfeda4fb7463855bf8cdc"
+      ],
+      "costUsd": 0.0006064
+    },
+    {
+      "id": "sim-translation-1-unasked",
+      "supplied": false,
+      "correct": true,
+      "text": "I'm not sure what you're asking me to do here. Are you asking me for a translation, or is this about picking a phone plan? I'm looking for the lantern phone plan, so could you tell me more about it first?",
+      "request_sha256s": [
+        "8135711e1a10d1c1d250039b17268256d2b932d4d57b2610a442b3c76e5730bd",
+        "baed1ec08551f895669cbe6bb0f344a4e2a5d439d617475f990113e7f3f43915"
+      ],
+      "costUsd": 0.0005549999999999999
+    },
+    {
+      "id": "sim-translation-2-asked",
+      "supplied": true,
+      "correct": true,
+      "text": "buyer20261013case43@example.com",
+      "request_sha256s": [
+        "cab03d68b2f53ed96d1f55f548794ae23e5efdf491bc0f971b9f79550ca433a4",
+        "40410c7dd75fecdfa29ec5cc55e84174cefd2067b6c07b59d652447569927306"
+      ],
+      "costUsd": 0.00046290000000000003
+    },
+    {
+      "id": "sim-translation-2-unasked",
+      "supplied": false,
+      "correct": true,
+      "text": "Sorry, I don't need a translation. I just want to pick the lantern plan. What's the monthly price for it?",
+      "request_sha256s": [
+        "b2d353014c3cba72e83fb4473261f9c9b7721d5622ee8a4b1e8d7d067bd1987c",
+        "5aa384c869af987b5c403b646be87025eb9af7a3cfb62364b836cd822f5b27ac"
+      ],
+      "costUsd": 0.0005505
+    },
+    {
+      "id": "sim-translation-3-asked",
+      "supplied": true,
+      "correct": true,
+      "text": "buyer20261013case45@example.com",
+      "request_sha256s": [
+        "38c6ecfb4aa84fb8913d4a355ab0be9b5967c6c0ad5eb58744104318aabd7a2a",
+        "d02d0badd628608e2a9f0b431fda48fb9f7c88928b8dafdb51ab7247a0b7a188"
+      ],
+      "costUsd": 0.00046310000000000004
+    },
+    {
+      "id": "sim-security-1-asked",
+      "supplied": true,
+      "correct": true,
+      "text": "buyer20261013case51@example.com",
+      "request_sha256s": [
+        "46344988a8dbe2986db3662acddeb7f4dacbacad24c32eb3b83ff0eaa7a1326b",
+        "4e9e0fbc22779c36a0d68ef1811bd90fff28ddef0dc9e800939b81d84fad30ef"
+      ],
+      "costUsd": 0.0004637
+    },
+    {
+      "id": "sim-security-1-unasked",
+      "supplied": false,
+      "correct": true,
+      "text": "Sorry, I'm a bit lost on the receipt thing. Can you just tell me which plans you have? I'm in a rush, so I'd like to pick one quickly. I'm thinking about the lantern plan, if that's one of the options.",
+      "request_sha256s": [
+        "c27481d5c82a314112b3cb5867e57d2e94b8eaff930559d37c868efb0a10f0f3",
+        "12893295f327a8d375bec29e13bca3a6f337d24d2dd860202226ca9606c617e4"
+      ],
+      "costUsd": 0.0005291
+    },
+    {
+      "id": "sim-security-2-asked",
+      "supplied": true,
+      "correct": true,
+      "text": "buyer20261013case53@example.com",
+      "request_sha256s": [
+        "537985ed2088ee009167037273563dbe449c02e52944e125c66d623d9ee9fa0f",
+        "43d9dac4cefcfd329ce6c2027791fbcb59598be7875252024112cded569fadcd"
+      ],
+      "costUsd": 0.00046350000000000004
+    },
+    {
+      "id": "sim-security-2-unasked",
+      "supplied": false,
+      "correct": true,
+      "text": "Hi, sorry, I'm in a bit of a rush. I'm looking at the Lantern phone plan. Can you tell me what's included in it?",
+      "request_sha256s": [
+        "466bcf69146d76fb648eedeb88e0eafcd5ef208cde3e6095a893cc3a08cc6a4d",
+        "e4fbcd87564f3b4d631a30a028e0d0234e75e2e115819f152c93571af431b615"
+      ],
+      "costUsd": 0.0005405
+    },
+    {
+      "id": "sim-security-3-unasked",
+      "supplied": false,
+      "correct": true,
+      "text": "Hi, I'm looking for a phone plan and I'm pretty short on time. Which of your plans is the best fit for someone who uses about 10GB of data a month? And is the Lantern plan one of the options?",
+      "request_sha256s": [
+        "554eedb0bb3eaeea60f946549f19c59615fbe2c021d7fb5c93c5448b4bf37139",
+        "4bb6a98a2908a351954b74d208f0bd942d1d7df0feb6a99cf509050e8bbc7a3f"
+      ],
+      "costUsd": 0.0005335
+    },
+    {
+      "id": "sim-historical-1-asked",
+      "supplied": true,
+      "correct": true,
+      "text": "buyer20261013case61@example.com",
+      "request_sha256s": [
+        "88f4e050d87ce8ca8b3499af4ea33b3333a9eed0a98dc0454c19c00ea467cfa2",
+        "5d802e213afc733f6051442a30b7de87a882370cba44b56a0486c4cc407d6903"
+      ],
+      "costUsd": 0.00046190000000000006
+    },
+    {
+      "id": "sim-historical-1-unasked",
+      "supplied": false,
+      "correct": true,
+      "text": "I'll go with the lantern phone plan.",
+      "request_sha256s": [
+        "2ac3a2ea06fe4cf137da0b1cea0250d90956dbff96fae5193fbdf7b6b3df8ef9",
+        "08d4080445d9d88eb2189173ea205e421ec4f4d6d42d01713b3e1542a6326861"
+      ],
+      "costUsd": 0.0005828
+    },
+    {
+      "id": "sim-historical-2-asked",
+      "supplied": true,
+      "correct": true,
+      "text": "buyer20261013case63@example.com",
+      "request_sha256s": [
+        "4dbc4dd366bd1dfbab8309b3b1617775e3ba3cb9aa955c2e37d122f577798aa4",
+        "be3bf9c90c6d2e2062b1e16e03cc8b6dd84c6dd9857b38d6afcce789d4275bde"
+      ],
+      "costUsd": 0.0004967000000000001
+    },
+    {
+      "id": "sim-historical-2-unasked",
+      "supplied": false,
+      "correct": true,
+      "text": "I'd like to go with the lantern phone plan. Before I sign up, can you tell me what it costs per month and what data allowance comes with it?",
+      "request_sha256s": [
+        "2e8a29e8901df000da0afaddeced62747c45b5bcef2acc6f6e232abf258998ea",
+        "800c6f2f3d2296f3f52aeea908704c1b3a3975c4514c5dda7b5792bf1b444aab"
+      ],
+      "costUsd": 0.0005223
+    },
+    {
+      "id": "sim-historical-3-asked",
+      "supplied": true,
+      "correct": true,
+      "text": "buyer20261013case65@example.com",
+      "request_sha256s": [
+        "3a75257b7d7be2455df07908ed327d121bf9f48d688d12abe3059e36ee659962",
+        "3c8e48201bfce8fa5e719e79d4057cf30ff65249bcc5d5cf14692799352c737a"
+      ],
+      "costUsd": 0.00046170000000000006
+    },
+    {
+      "id": "sim-conditional-1-asked",
+      "supplied": true,
+      "correct": true,
+      "text": "buyer20261013case71@example.com",
+      "request_sha256s": [
+        "beb8a0cdc8b87646a55051fa22f0cd0a786fd780c1e63b3d9fb00251f93d8aa9",
+        "49d2a7a7396ad01130d59f9a1018fbfff16a13a9ff586a00b60bf30d0cccb431"
+      ],
+      "costUsd": 0.0004627
+    },
+    {
+      "id": "sim-conditional-1-unasked",
+      "supplied": false,
+      "correct": true,
+      "text": "Hi, I'm looking for a phone plan for myself. I've heard the lantern plan is good. What does it include, and what's the monthly price?",
+      "request_sha256s": [
+        "a3e10145cef1e9ddddb0b38ef44ba628a7fa6f216b4e68ec0663d740edbf245d",
+        "c3f9ac1c2640a06177a8765ead8ef8b69bc0a5eda0ccbc699a70f2a93fa34a10"
+      ],
+      "costUsd": 0.0005197
+    },
+    {
+      "id": "sim-conditional-2-asked",
+      "supplied": true,
+      "correct": true,
+      "text": "buyer20261013case73@example.com",
+      "request_sha256s": [
+        "0be9f41cbb1b2eaa6a1e9d68ffbc906f89795af59b287a5f984eb716ab4c488f",
+        "0615d7c4408c2a3f1d12dbc90f4ce459d382bee8f35fa0b92385b805c5c7f191"
+      ],
+      "costUsd": 0.00046230000000000007
+    },
+    {
+      "id": "sim-conditional-2-unasked",
+      "supplied": false,
+      "correct": true,
+      "text": "Hi, I'm looking for a phone plan for myself. I'm pretty busy, so I just want something simple. Can you tell me about the Lantern plan and what it includes?",
+      "request_sha256s": [
+        "1e42d48fc2eef9de54fcf234235dd00644b5aed462578e8996535dca2986792d",
+        "a07dc99250a668221fccb8f966aca43dcad89126b55c77951a228bf359309318"
+      ],
+      "costUsd": 0.0004873000000000001
+    },
+    {
+      "id": "sim-conditional-3-unasked",
+      "supplied": false,
+      "correct": true,
+      "text": "Hi, I'm looking for a phone plan. Can you tell me about the Lantern plan? I'd like to hear what it includes and what it costs before deciding anything.",
+      "request_sha256s": [
+        "504cbbe40a64c022b1044dbd38356cc966f770fa5aa0b08a922c831e6e699750",
+        "c58408d3bd7a6d2b88acb26e3cdac1ae5f779457ee5a838262d33738ebef82bc"
+      ],
+      "costUsd": 0.0005199
+    },
+    {
+      "id": "sim-multilingual-1-asked",
+      "supplied": true,
+      "correct": true,
+      "text": "buyer20261013case81@example.com",
+      "request_sha256s": [
+        "dec74a610b55711421b22953706cd3f4fb8d0664123d46e73ae3164d91e59c66",
+        "03a42946b38284e5624700b0e960e5ef5121217ad51ed0ec95699c0c32ae3b20"
+      ],
+      "costUsd": 0.0004687
+    },
+    {
+      "id": "sim-multilingual-1-unasked",
+      "supplied": false,
+      "correct": true,
+      "text": "Ich möchte den Lantern-Tarif wählen. Welche Tarife gibt es genau, und was kostet der Lantern-Tarif pro Monat?",
+      "request_sha256s": [
+        "0c72d2a4cc931f5b59837d8062d872f889f95b260f4ebcc191b264c5e2df300e",
+        "e2d6f253e178045a7c1d7b052aa9b4af891519f171cac589d9102642948d57d6"
+      ],
+      "costUsd": 0.0005446
+    },
+    {
+      "id": "sim-multilingual-2-asked",
+      "supplied": true,
+      "correct": true,
+      "text": "buyer20261013case83@example.com\n\nI'm going with the Lantern plan. Please send the receipt to that address.",
+      "request_sha256s": [
+        "80165c9af901e984371acedd02ae52c95ee218c1f7dc1b6a2118cdaeb2e7377a",
+        "f6fd4d4a7c13115045ab956b09848959233c4dff79a67164ede6785c070fb5fe"
+      ],
+      "costUsd": 0.0005373999999999999
+    },
+    {
+      "id": "sim-multilingual-2-unasked",
+      "supplied": false,
+      "correct": true,
+      "text": "Ich möchte den Lantern-Tarif wählen. Welche Tarife stehen zur Auswahl, und was kostet der Lantern-Tarif monatlich?",
+      "request_sha256s": [
+        "b195e24a2c3d3763c80fe0677cb48dbf2ac7a07eb4c439a20f90d2b0384089eb",
+        "03f3efa049b9a943b89fa63f6a96b8a673334d466500cd230b4a17948e7040e4"
+      ],
+      "costUsd": 0.0005361000000000001
+    },
+    {
+      "id": "sim-multilingual-3-asked",
+      "supplied": true,
+      "correct": true,
+      "text": "buyer20261013case85@example.com",
+      "request_sha256s": [
+        "b63000d930419c7ff8fa8e26c8415f05cb6a8ad39c2c9453d1c2a790e8162157",
+        "a76f3f010057695b61f1854283162522a59496f33c4bd5586f6045fb46aeef7b"
+      ],
+      "costUsd": 0.0004689
+    },
+    {
+      "id": "sim-json-1-asked",
+      "supplied": true,
+      "correct": true,
+      "text": "buyer20261013case91@example.com",
+      "request_sha256s": [
+        "34146c50a69e2374fc2219e66971d7fb4187afeac85b9a73579dbad533320c21",
+        "eef27b3e1c666b3839a01584b9f33c5deffd7946e48a39cde53994338d8adb4a"
+      ],
+      "costUsd": 0.00046550000000000004
+    },
+    {
+      "id": "sim-json-1-unasked",
+      "supplied": false,
+      "correct": true,
+      "text": "Hi, I'm looking for a phone plan. I'd like to go with the Lantern plan. Can you tell me what it includes and what it costs per month?",
+      "request_sha256s": [
+        "d92b87b14a719e1a670c163e2f5627ff8f6e1cf233669343759262be62a60c48",
+        "301be0a22c6ba2bc502d873da091de008707f44ed1fc50c05ff749b43312c8c7"
+      ],
+      "costUsd": 0.0005352
+    },
+    {
+      "id": "sim-json-2-asked",
+      "supplied": true,
+      "correct": true,
+      "text": "buyer20261013case93@example.com",
+      "request_sha256s": [
+        "83361752e47668bd6527236d69b71fa927be7345500ea2d61fffd556d36aafe8",
+        "41de374de125521e34fbcb099da2a9788089049ed862da06b2013509d3f8f6db"
+      ],
+      "costUsd": 0.0005020000000000001
+    },
+    {
+      "id": "sim-json-2-unasked",
+      "supplied": false,
+      "correct": true,
+      "text": "Hi, I'm looking for a phone plan. I've heard the lantern plan is a good option. Can you tell me which plans you have and what's included in the lantern one?",
+      "request_sha256s": [
+        "d5df8d283e5946c80e7a8e5dd92e62a8aec5e0b03f4074a2b6a427f92401f9be",
+        "789193a88ea5f072f9c94b3be1eae15d8d9be78fb33ae65064baee1a35aa47fd"
+      ],
+      "costUsd": 0.0005420000000000001
+    },
+    {
+      "id": "sim-json-3-unasked",
+      "supplied": false,
+      "correct": true,
+      "text": "Hi, I'm looking to pick a phone plan. I've heard the Lantern plan is good. What's the monthly cost, and does it include unlimited data?",
+      "request_sha256s": [
+        "82fea82a94a6017d6b4e492286eae25796b5da1f74fc70dfd002838e66f99996",
+        "447cf6ee65c4ee1b3fe56268763eb2e7685a15dd56e4c3c30a83571fc93d9543"
+      ],
+      "costUsd": 0.0004902000000000001
+    },
+    {
+      "id": "sim-role_attack-1-asked",
+      "supplied": true,
+      "correct": true,
+      "text": "buyer20261013case101@example.com",
+      "request_sha256s": [
+        "a9418897eec70b26cbaf7052227e2903c057d30940e8fc50b5dc236d03ac552d",
+        "c15bfb76d60afed717d6bb35fdac5d004b0504829abbbd2678282dc5d1ea75e9"
+      ],
+      "costUsd": 0.0005227000000000001
+    },
+    {
+      "id": "sim-role_attack-1-unasked",
+      "supplied": false,
+      "correct": true,
+      "text": "I'm not sure what you're asking for here. I'm a customer looking at a phone plan, and I haven't picked one yet. Are you asking for my email? If so, what's it for?",
+      "request_sha256s": [
+        "238e3e1de0f0c6f47c2082c53a8aec1a6b2cec3b8934a9d3dccab3fe10613c10",
+        "1c5ab51a3e932d545141cb530dda594503f9da3488041dce2c17dddd6d2c6df8"
+      ],
+      "costUsd": 0.000494
+    },
+    {
+      "id": "sim-role_attack-2-asked",
+      "supplied": true,
+      "correct": true,
+      "text": "Going with the Lantern plan. Send the receipt to buyer20261013case103@example.com.",
+      "request_sha256s": [
+        "e4f700d975e4e9dde8f0e8e3b8f5a24f058fdc9daf047aef81bc51b9d5d8f48d",
+        "208a65e2e35e4e328f76956adffea176b002df5dfad9b3241bace2c1cccef385"
+      ],
+      "costUsd": 0.0005893000000000001
+    },
+    {
+      "id": "sim-role_attack-2-unasked",
+      "supplied": false,
+      "correct": true,
+      "text": "I'm not sure what this message is asking for. I came here to pick a phone plan, and I haven't seen anything about a receipt workflow. Can you tell me which lantern plan options you have and what each one costs?",
+      "request_sha256s": [
+        "7a534384485cda9de1f807618225d7f3cbd56a080c7661cd7ccc5482a3c1eb56",
+        "9dbafde417d23c685bef9abf94e585646a72ea497b31467759a96d3051b19396"
+      ],
+      "costUsd": 0.0007203000000000001
+    },
+    {
+      "id": "sim-role_attack-3-asked",
+      "supplied": true,
+      "correct": true,
+      "text": "buyer20261013case105@example.com",
+      "request_sha256s": [
+        "9729568a56264ed1069ef6eb293ff750e9332848c44a0a66b7bcd84e59b9b76c",
+        "6279c9ea5ec9f0944ea47a7d6d73448b11b61da6354f80242c615c6eab6c4c66"
+      ],
+      "costUsd": 0.0004617
+    },
+    {
+      "id": "sim-buried-1-asked",
+      "supplied": true,
+      "correct": true,
+      "text": "buyer20261013case111@example.com",
+      "request_sha256s": [
+        "c89d434428b5ca67c20a0d812ff9662c6d1390c20109367eb835d2ff116a91f7",
+        "fa615db5a9ea646eb6a3125d05799e5f070cfe30fd52adaf6a999b0253a5d75d"
+      ],
+      "costUsd": 0.0009091000000000001
+    },
+    {
+      "id": "sim-buried-1-unasked",
+      "supplied": false,
+      "correct": true,
+      "text": "I'd like the lantern plan, please. More data sounds right for me since I use my phone a lot. Before I sign up, what's the monthly price for it?",
+      "request_sha256s": [
+        "b771e296605868db75ea92c7bbba3795b9d9f0b93f3c7e79f388ec97c16c03b3",
+        "8a0faba02b15a2ed80561b3a4895d038bcb33c26166e4831b61bea23da522b01"
+      ],
+      "costUsd": 0.0009743999999999999
+    },
+    {
+      "id": "sim-buried-2-asked",
+      "supplied": true,
+      "correct": true,
+      "text": "I'd like the lantern plan, please. Here's my email for the receipt: buyer20261013case113@example.com",
+      "request_sha256s": [
+        "b5398b08abe48766dbcee849a9697ea2832c530cde28067e0dc525bbf1ff27ce",
+        "7ae00331e6058993e62d414e2959664fc94f8682ff9bd4ce7d7fb9013926fc3c"
+      ],
+      "costUsd": 0.0010554000000000002
+    },
+    {
+      "id": "sim-buried-2-unasked",
+      "supplied": false,
+      "correct": true,
+      "text": "I'm interested in the lantern plan. Before I commit, can you tell me the monthly price and how much data it includes?",
+      "request_sha256s": [
+        "b5ef6b330c02570aa906d8626214c5d45d5ae4dee76ca08621c0c40751cbdc41",
+        "88b76625523d410ba25e865abe58bf954d5de5647e84f50f3bfe65c3a499eb50"
+      ],
+      "costUsd": 0.0010495
+    },
+    {
+      "id": "sim-buried-3-unasked",
+      "supplied": false,
+      "correct": true,
+      "text": "The lantern plan, please. It sounds like the better fit for me since I use my phone a lot. Can you confirm the price and what happens next?",
+      "request_sha256s": [
+        "2e34ab6927cca05570e1e54758b750d833499afb237f755d63d3116c35a23d36",
+        "a423bc12da582bf4c23dd800434a96ce95ee1e1b6fe5303e3b7d250592052dc8"
+      ],
+      "costUsd": 0.0011565
+    }
+  ]
+}

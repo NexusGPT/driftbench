@@ -109,6 +109,7 @@ export {
   type Tier,
 } from './ladder';
 export { registeredLadders } from './ladders/index';
+export { judgesBankChild } from './ladders/judges/v2/run-child';
 export {
   REFERENCE_TOLERANCE,
   referenceCases,
@@ -124,6 +125,7 @@ export {
   WILSON_SIZES,
   wilsonLevel,
 } from './ladders/stats';
+export { statsBankChild } from './ladders/stats/bank/run-child';
 export {
   type DiffReader,
   EXECUTOR_BRANCH_PREFIX,

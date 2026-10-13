@@ -1,0 +1,306 @@
+{
+  "measuredAt": "2026-10-13T01:22:59.127Z",
+  "changes": [
+    {
+      "path": "comparisons/langwatch/hard/runner.mts",
+      "beforeSha256": "125dbf71ce38a3404eff394ee56827a8f996eb907707d28b68012e83cc89c4d8",
+      "afterSha256": "efbf4af9393f785e2d2956b74cc4448214c690ec8fdf55f5aa40472ed912aaf5",
+      "identifierEdits": 8
+    },
+    {
+      "path": "comparisons/langwatch/hard/judges.mts",
+      "beforeSha256": "7794acf09c37455dcdf14935a443fc9a51fd0640ac2a62db42ac63cea2b4a88e",
+      "afterSha256": "587313d04a6a67f26d1cde89633b4316bb7af58ed1e8e11a9bc516984cc37012",
+      "identifierEdits": 8
+    },
+    {
+      "path": "comparisons/langwatch/hard/measure.mts",
+      "beforeSha256": "54a47a12698e61be0b53070da4dc3231a33b222d7b514b49cef032531f3d1986",
+      "afterSha256": "187a54709b1de4b8cdefdf52822e671bc7b117498d55ef3ba772e84e42222e44",
+      "identifierEdits": 6
+    },
+    {
+      "path": "comparisons/langwatch/hard/simulator.mts",
+      "beforeSha256": "f31d573f49faa01502032d07b19d6676a1b58df5a368e3c8bd8177e69b39c4a3",
+      "afterSha256": "63f663f10cc75036d9e5215f928e86386c672179e5a15c2f6c30c9a1363419ab",
+      "identifierEdits": 8
+    },
+    {
+      "path": "comparisons/langwatch/hard/pairwise.mts",
+      "beforeSha256": "ad431ee8812f56baff4271cf169f03196f9c6c75726e504f05b944b9a51d6725",
+      "afterSha256": "693af01bded94edeb85cc9932e4dcfa539dda2d825121259207bb1416061b89e",
+      "identifierEdits": 8
+    },
+    {
+      "path": "comparisons/langwatch/hard/longtrace.mts",
+      "beforeSha256": "930d676493426098f980906ff2e0b0bc305ba1625524e0b014bd4b4ec70cabd7",
+      "afterSha256": "3ae783d04a04f154b559a7b20cc0aac97672bdd66207a471127d7f227d899e1d",
+      "identifierEdits": 8
+    },
+    {
+      "path": "comparisons/langwatch/hard/recover-transport.mts",
+      "beforeSha256": "4b5dd148e0e982ba53228e53c9758017a385cd2a9a01ca4f74d7c18d5b2c7bd7",
+      "afterSha256": "4a4e17c7530016a1a8a6fab3d33d201a1c3fdf13272fd2167bbae080deb04970",
+      "identifierEdits": 4
+    },
+    {
+      "path": "comparisons/langwatch/hard/injection-attempt.mts",
+      "beforeSha256": "c91b0cbf5444b972cd95d51f2761d7d746249a10bcd46d2f0c1bebf0ff526e7e",
+      "afterSha256": "6948b4fc58abe2d7689ec826f81267023bcf516944bb569c4c75bb08c178d70e",
+      "identifierEdits": 2
+    },
+    {
+      "path": "comparisons/langwatch/hard/pr115.mts",
+      "beforeSha256": "4676e7c95d31555a428ef5479dc233d0c4e9ffd0c79dc1474404289fb9b13555",
+      "afterSha256": "f76197690251a52ec5f944ff8a8a583b87ffc846736353a83b4ce6255ba4e762",
+      "identifierEdits": 3
+    },
+    {
+      "path": "comparisons/langwatch/hard/pr115-criteria.mts",
+      "beforeSha256": "73cfb9b531b7690fe5e8db8564e3099368cc18ae7f9449969b2bfde76044f46c",
+      "afterSha256": "21bb38681676b4393449669b5b11ff395e7f06565b6a9b986e8af9b789b0376b",
+      "identifierEdits": 1
+    },
+    {
+      "path": "comparisons/langwatch/hard/compliance.mts",
+      "beforeSha256": "34c97b96d6dd26ba82c8e4179fabbbfdf5182c61687be7698c301572b66d28ea",
+      "afterSha256": "77feb3b7e553fecbcd0c18214216e18f0cb7666a18e65aacbef915bb401e2006",
+      "identifierEdits": 4
+    },
+    {
+      "path": "comparisons/langwatch/hard/fresh-judges.mts",
+      "beforeSha256": "ba7369270d32e3b2327e5790856f6de96cd129ab750a8241673c0325140660ae",
+      "afterSha256": "63ff9e017caec299ce3b163e9656c47a78c1b645d5bd7dbb6689c43b64d4c25d",
+      "identifierEdits": 8
+    },
+    {
+      "path": "comparisons/langwatch/pairwise/audit-runner.mts",
+      "beforeSha256": "5462628d57c856961ec1065231b98723b51f650053019ae6b2b0e2a42e4c89bb",
+      "afterSha256": "a227a97c24fbeff5a8be6909bc3ece27627d186628259fdef909c4ac01817b9a",
+      "identifierEdits": 20
+    },
+    {
+      "path": "comparisons/langwatch/pairwise/audit.test.ts",
+      "beforeSha256": "09a51c024f4edbcef2c0d32aea048a6e5fea1d3bd5099db402a95a7e4426965f",
+      "afterSha256": "db79c388c42fd420cf3cff5b1fa07d20ddaf9a616981b85a3c647318d22234aa",
+      "identifierEdits": 1
+    },
+    {
+      "path": "comparisons/langwatch/hard/recorded/calls.jsonl",
+      "beforeSha256": "76c134d53db19ef6488c449d3c56837a8e62fdd61d69b29934e7a42bc1e0f19e",
+      "afterSha256": "a580a6409ddd46d773b3d77b035fa594c63833325d759a15afb9f26b89305b6d",
+      "storageOnly": true
+    },
+    {
+      "path": "comparisons/langwatch/hard/recorded/injection-audit-heldout.json",
+      "beforeSha256": "a37050aeb46925d452c43717904ea549d7cb7168f170f65a49dfc18789abcf12",
+      "afterSha256": "de17de86c335b7d470b60f8ae336d4e5de891b22d116bdca22266bb4eb751177",
+      "storageOnly": true
+    },
+    {
+      "path": "comparisons/langwatch/hard/recorded/injection-audit.json",
+      "beforeSha256": "d38e463e18882d8652ba0c9750ca457afab70e51a31903961f762df4f525188e",
+      "afterSha256": "dbed8499e9e0979dcce0f452e5cce0fcfdbe013555933a06423715a8548396d6",
+      "storageOnly": true
+    },
+    {
+      "path": "comparisons/langwatch/hard/recorded/injection-ours-heldout.json",
+      "beforeSha256": "49cd111e47f1b002dbec4431c530aa9d38ef64080d8dbdb21be448bdcad385e5",
+      "afterSha256": "84515c51dd38973a4ccd74fbb4499348c991645e70d6495776dc5448ba3b2772",
+      "storageOnly": true
+    },
+    {
+      "path": "comparisons/langwatch/hard/recorded/injection-ours.json",
+      "beforeSha256": "1849e479652216fdf1b171117c076493c80ba5f639e50dab92fe703e03e7ef0c",
+      "afterSha256": "29bb1e9b60b22528ee6991ef55cf18413631f99ff91f8d4d83c5c9340d3b81c5",
+      "storageOnly": true
+    },
+    {
+      "path": "comparisons/langwatch/hard/recorded/judges-audit-heldout.json",
+      "beforeSha256": "5526ed009b84317f95eba4449da52c3d1ab126aecd4d2786a65c9168383012c9",
+      "afterSha256": "71df2de774e393a64353f5e4555197c9699340cab1350fb2d4989c9cae083f6d",
+      "storageOnly": true
+    },
+    {
+      "path": "comparisons/langwatch/hard/recorded/judges-audit.json",
+      "beforeSha256": "ca49d6a1c7f187a3ee3e7f35002b556ce407893c417630174f31a381e192d532",
+      "afterSha256": "615cd7bf5e0042d6a63f6f7475a641255ca4dfbd7da7f6e8567d4f256719fb4e",
+      "storageOnly": true
+    },
+    {
+      "path": "comparisons/langwatch/hard/recorded/judges-ours-heldout.json",
+      "beforeSha256": "291e7f546e3a13327ab5cafcfe4abb1be6ce24bb0920c931f540d00b36c49c78",
+      "afterSha256": "352869dcb223bf54fcc9e122fad8260218ef206d2a4d20cfcf8dde5a11dbe481",
+      "storageOnly": true
+    },
+    {
+      "path": "comparisons/langwatch/hard/recorded/judges-ours.json",
+      "beforeSha256": "de92bc2f5c4a4dbd60984822b5c15119d9bf7c0064ba31b275a8d91998407b59",
+      "afterSha256": "ec9fba8d6ad9359473be8906b84d412a6a0d4868a2fce826443b2209a01e35f7",
+      "storageOnly": true
+    },
+    {
+      "path": "comparisons/langwatch/hard/recorded/judges-theirs-heldout.json",
+      "beforeSha256": "8d0e16ebf8c8458d7e2f84406671b823c3ae6b1ce5a210ea754b397967cd42dd",
+      "afterSha256": "d892531c55e12bf3c927cb9fe7b68333a6439f6279bf5b8dbbc81dae7c484805",
+      "storageOnly": true
+    },
+    {
+      "path": "comparisons/langwatch/hard/recorded/judges-theirs.json",
+      "beforeSha256": "bb56d29d120cb94736fafaa9f5aaf7616e84a6ad660c070fa284b50293f331f4",
+      "afterSha256": "996bbd2f7ed775628f6e6332a23d6f6f69455ca545baf5bba8d912050b49194b",
+      "storageOnly": true
+    },
+    {
+      "path": "comparisons/langwatch/hard/recorded/pairwise-checked-heldout.json",
+      "beforeSha256": "2fc6696e8502cd8dc1752645682834b99c7bce6eacb5b32006a49e4a6a0f5596",
+      "afterSha256": "28fd47a84de75aded152a6da34c4a13605f0113ff5a0ff0a1c5a94516bee8b91",
+      "storageOnly": true
+    },
+    {
+      "path": "comparisons/langwatch/hard/recorded/pairwise-ours-heldout.json",
+      "beforeSha256": "12a0b1d5f049f3c0a1be7abe185b80b225a8566fb569f9646f98508e8da63e4b",
+      "afterSha256": "ab58a62c4370d49c485af2c0bed8c5b1f99fdd81fb8ea5d05e7d3007aaff24e9",
+      "storageOnly": true
+    },
+    {
+      "path": "comparisons/langwatch/hard/recorded/pairwise-theirs-heldout.json",
+      "beforeSha256": "6a534980b2f5ab9488dd360cde591ec9b8ab9b00a118885de09c3ab6af3c1252",
+      "afterSha256": "1780b15ee0dccc9a7103e82211dcec7a33e1e7e559714a33a65bd7aeb6460cb6",
+      "storageOnly": true
+    },
+    {
+      "path": "comparisons/langwatch/hard/recorded/pii-audit-heldout.json",
+      "beforeSha256": "424cd360715c4d2dbff147d55581b540a1c875e648adb0b940e3ce3c4beec2d3",
+      "afterSha256": "bb6e48cd2c360352fcf2a55def75fd5045bbe02167d2ffca14ff2bc60006c88d",
+      "storageOnly": true
+    },
+    {
+      "path": "comparisons/langwatch/hard/recorded/pii-audit.json",
+      "beforeSha256": "7754e983d9ab9b9bafd6c479cae47967a1655d3c72fc3deae789a6bba3e12e7d",
+      "afterSha256": "2ee966953bac6e34a49b14a5210933b9f2229fa10a59e5b2313fd709e401328a",
+      "storageOnly": true
+    },
+    {
+      "path": "comparisons/langwatch/hard/recorded/pii-ours-heldout.json",
+      "beforeSha256": "cd82c9f47edad654b6f7e768e4d1607ba3e2d24142bcfbcbd3376f263c67ab86",
+      "afterSha256": "09353a910c48639e117900a881ee75ae11835c8f31cc1fd3bbb84c58a128e9bc",
+      "storageOnly": true
+    },
+    {
+      "path": "comparisons/langwatch/hard/recorded/pii-ours.json",
+      "beforeSha256": "d92b8e815f61f075712203e7cb7dce6c1c24cfc8964d6a346b98e9de44946e63",
+      "afterSha256": "ce64d55386a9c75d14721275b8624afc01814a41476d9ae15c6c7401420d49e7",
+      "storageOnly": true
+    },
+    {
+      "path": "comparisons/langwatch/hard/recorded/prototype-v1/judges-theirs.json",
+      "beforeSha256": "b8d7f1dfd075ab0dd330eaa962673d2db95e93b415a15476d0da627ef1a32598",
+      "afterSha256": "41100e62314ca3d13d132110de2fc277603cfe6c8f5f3e67ec26c56ea1676127",
+      "storageOnly": true
+    },
+    {
+      "path": "comparisons/langwatch/hard/recorded/prototype-v2/judges-ours.json",
+      "beforeSha256": "ff2eef59478360b97a775b037cd1a67e59b69a3936c0f01715898b8c73b81723",
+      "afterSha256": "e5591e6dd5eb8a5ca06cca22e786b02e5624b45e76b397757e1a881bb26c4d36",
+      "storageOnly": true
+    },
+    {
+      "path": "comparisons/langwatch/hard/recorded/prototype-v2/judges-theirs.json",
+      "beforeSha256": "7c4e009311009a30a2bbd877b7010ad9095faa7f0b632f9948d3f24219a31667",
+      "afterSha256": "2c215ae244f57317891d60f3fae58e929f421aa2cdf041e3c13b32d1daa362de",
+      "storageOnly": true
+    },
+    {
+      "path": "comparisons/langwatch/hard/recorded/prototype-v3/judges-theirs.json",
+      "beforeSha256": "e31ec6e85e8a44afa64bb77f00716681028ca13893eba596f6e7f8c74115017e",
+      "afterSha256": "47d5320c697a0a1bf920de0fcb7178389c3d19d6aa4a7ce1e8146533c2b5faba",
+      "storageOnly": true
+    },
+    {
+      "path": "comparisons/langwatch/hard/recorded/simulator-checked-heldout.json",
+      "beforeSha256": "13aca4cdc21b4d5bbb5a5eacef9a72c5322051ad58ec002ae3ef03401e855e8a",
+      "afterSha256": "dc331332d4301e1094dfdb4a896f8bc6f08c016811502ba5c9488a0ae9f2802f",
+      "storageOnly": true
+    },
+    {
+      "path": "comparisons/langwatch/hard/recorded/simulator-checked.json",
+      "beforeSha256": "6c3637067342b0ec8ce360db554365898cd68d7894a36f2a4d5df85a11db3f5a",
+      "afterSha256": "f207d9ae32b8294c6bfc127caa47d91f8d6bd382ed69180d6b10894c1b6ebe00",
+      "storageOnly": true
+    },
+    {
+      "path": "comparisons/langwatch/hard/recorded/simulator-ours-heldout.json",
+      "beforeSha256": "b32e351ce1046771c741d91b7446002e0af3561ab1ac50526da3f34c57580e38",
+      "afterSha256": "95d696db93a0e6dd05e9c0f998c0a2657175e25ef10e2cbfcc2bfebb96e672b0",
+      "storageOnly": true
+    },
+    {
+      "path": "comparisons/langwatch/hard/recorded/simulator-ours.json",
+      "beforeSha256": "9527cf810dc2b901a441c713e131e73c7a9353e48e0c81fb5e261d0c47065cd4",
+      "afterSha256": "7994b5dcd57fe0b999964fc37a97c57ecc8b0d1dce00ab0e136d50020955abc6",
+      "storageOnly": true
+    },
+    {
+      "path": "comparisons/langwatch/hard/recorded/simulator-theirs-heldout.json",
+      "beforeSha256": "6e5a718f6a57d4063c192d4384d4402e22ba549e4f9447ac9dff89af0d35980a",
+      "afterSha256": "d50d90a7a11a0ad0b77bd49a88eb9e100513a4f1007a16c0b7dc77546b6281e8",
+      "storageOnly": true
+    },
+    {
+      "path": "comparisons/langwatch/hard/recorded/simulator-theirs.json",
+      "beforeSha256": "0a59c02648566760c752f6b8032c968a4a2f1f178d83213e5bb8c698bfec0b03",
+      "afterSha256": "3b7199bc225dcd0afbf97942b5b74089a9e304aa928e3aa95c6949a629a8c182",
+      "storageOnly": true
+    },
+    {
+      "path": "comparisons/langwatch/hard/recorded/transport-recovery.json",
+      "beforeSha256": "3488a59c8f5ff78c199966690fb4665bc87fc566009e895c2a40a2845747cfca",
+      "afterSha256": "37acf943819385dccc832759674c6cbbe4013923a1be17bc77075e166975f01f",
+      "storageOnly": true
+    },
+    {
+      "path": "comparisons/langwatch/pairwise/fixtures/audit-tie.json",
+      "beforeSha256": "d4c0c2074b23f3769a76400a200b27e49cbacdfed5bc2261157f712e10e74af6",
+      "afterSha256": "c4ba27632df627c8a9bdb95bc2384bb2aa8481f2996854244e3d3c9fe0e9c012",
+      "storageOnly": true
+    },
+    {
+      "path": "comparisons/langwatch/pairwise/recorded/audit-calls.jsonl",
+      "beforeSha256": "65b18b6e2908b97b3418a8ea2bd9eceac9ebe8d8f0ba6d1fe1d809f1ba5ec85f",
+      "afterSha256": "b10bad0125fad5db7a037bf3c732a2d0ef4bebec5e44c17f2ed2ccc8a8805143",
+      "storageOnly": true
+    },
+    {
+      "path": "comparisons/langwatch/pairwise/recorded/ours-audit-checked-haiku-hard.json",
+      "beforeSha256": "279beee6112d4669be3729d73db3ffb0ed1487755127bfbeb337c7bec4c13d2b",
+      "afterSha256": "8eaee33933095116baeafdaab75272316b681fd255d888108cf71f2db6a636a7",
+      "storageOnly": true
+    },
+    {
+      "path": "comparisons/langwatch/pairwise/recorded/ours-audit-checked-haiku.json",
+      "beforeSha256": "05b437afcb0c321232c1f20df95ea609d1433b4032c99a511d15373bcb7938a9",
+      "afterSha256": "2682e99e2951ff2b311113723416198d34d16d51aa1c0db5776b8e6b7441cff6",
+      "storageOnly": true
+    },
+    {
+      "path": "comparisons/langwatch/pairwise/recorded/ours-audit-haiku-hard.json",
+      "beforeSha256": "a1ed60891dca344cd01991f79b0f37eca29ceef98c81975e0059c2f997008cd5",
+      "afterSha256": "c97d39e5de25c95469be6aaa8ecafba24032d7cdf5fca70e86be14215273c9c9",
+      "storageOnly": true
+    },
+    {
+      "path": "comparisons/langwatch/pairwise/recorded/ours-audit-haiku.json",
+      "beforeSha256": "e9270a0bc068b62e44b0152665f72d319ee7e7477d00f5d4ae4d5c037969f3be",
+      "afterSha256": "c81e74281335c67b95fd2f1f0e1daebe6276a770caee39cea30997bd6b602a62",
+      "storageOnly": true
+    },
+    {
+      "path": "comparisons/langwatch/hard/check-records.py",
+      "beforeSha256": "b19431052a463557053a0cfedc48ce71542d237add0811e14b7db6b63e2eb5e8",
+      "afterSha256": "0a55b7aac71cb741f77e54d19cde9dffaf8218e597871ac3fe5e8b8bf4a8ea8d",
+      "storageOnly": true
+    }
+  ],
+  "promptsDecodersAndFixturesUnchanged": true
+}

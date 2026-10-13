@@ -186,6 +186,17 @@ describe('canonical pairwise presentation', () => {
 });
 
 describe('canonical options and bounded repair', () => {
+  it('rejects canonical-only presentation for the pair ledger before calling the client', async () => {
+    const { client, requests } = clientReturning((request) => named(request, 'tie'));
+    await expect(
+      judgePairwise(client, criterion, transcript, ...replies, {
+        ...canonical,
+        answerContract: 'ledger',
+      }),
+    ).rejects.toThrow('pair ledger requires both-orders presentation');
+    expect(requests).toHaveLength(0);
+  });
+
   it.each([undefined, false] as const)(
     'keeps the reference with audit=%s and never recovers a tie through a fact ledger',
     async (audit) => {
