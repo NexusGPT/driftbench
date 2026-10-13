@@ -10,7 +10,7 @@ const root = fileURLToPath(new URL('../..', import.meta.url));
 const base = resolve(root,'examples/ledger-verify');
 const argv = process.argv.slice(2);
 const value = (flag:string) => argv[argv.indexOf(flag)+1];
-const model = value('--model');
+const model = value('--model') ?? '';
 const system = value('--system-prompt') ?? '';
 const chunks=[];
 for await (const chunk of process.stdin) chunks.push(chunk);
@@ -23,7 +23,7 @@ const budget = (action:string,amount=0.5) => JSON.parse(execFileSync('python3',[
 try {
   const freeze=JSON.parse(await readFile(resolve(base,'evidence/runtime-freeze.json'),'utf8'));
   if (Date.now() >= freeze.deadlineAt) throw new Error('Last-call cutoff reached');
-  if (!['haiku','gpt-6-luna'].includes(model)) throw new Error('Unauthorized model');
+  if (!['haiku','gpt-6-luna','gemini-3.8-flash'].includes(model)) throw new Error('Unauthorized model');
   if (Buffer.byteLength(system+user)>500_000) throw new Error('Prompt exceeds frozen transport input bound');
   for (const [path,hash] of Object.entries(freeze.hashes)) {
     const actual=createHash('sha256').update(await readFile(resolve(root,path))).digest('hex');
@@ -31,14 +31,14 @@ try {
   }
   const schema=schemaFor(system);
   await mkdir(resolve(base,'receipts'),{recursive:true});
-  budget('reserve');
+  budget('reserve',model.startsWith('gemini-')?1:0.5);
   reservation=true;
   let result:any;
   let metadata:any;
   if (model==='haiku') {
     const { createDialectTransport }=await import('../../packages/judges/src/clients/transport');
     // Frozen Haiku prompts already own their output instructions, including scratchpad where applicable.
-    const env={...process.env,CLAUDE_JUDGE_MODEL:'claude-haiku-5-5',CLAUDE_CODE_MAX_OUTPUT_TOKENS:'16384'};
+    const env:Record<string,string|undefined>={...process.env,CLAUDE_JUDGE_MODEL:'claude-haiku-5-5',CLAUDE_CODE_MAX_OUTPUT_TOKENS:'16384'};
     delete env.OPENAI_API_KEY;
     delete env.ANTHROPIC_API_KEY;
     delete env.GEMINI_API_KEY;
@@ -49,23 +49,30 @@ try {
     result={result:response.text,total_cost_usd:response.costUsd,is_error:false};
     metadata={...response,raw:undefined,text:undefined};
   } else {
-    const keyFile=process.env.VERIFY_OPENAI_KEY_FILE;
-    if (!keyFile) throw new Error('VERIFY_OPENAI_KEY_FILE is required');
+    const isGoogle=model.startsWith('gemini-');
+    const keyFile=isGoogle ? process.env.VERIFY_GEMINI_KEY_FILE : process.env.VERIFY_OPENAI_KEY_FILE;
+    if (!keyFile) throw new Error('Provider key file path is required');
+    const allowed=resolve(process.env.HOME!,'.nexus-secrets',isGoogle?'gemini-driftbench.key':'openai.key');
+    if(resolve(keyFile)!==allowed) throw new Error('Only the owner-authorized key file may be used');
     const key=(await readFile(keyFile,'utf8')).trim();
-    const { runShim }=await import('../judge-benchmarks/src/llm-shim.mjs');
-    result=await runShim({argv:[...argv,'--reasoning-effort','medium',
-      ...(schema ? ['--json-schema',JSON.stringify(schema)] : [])],input:user,
-      env:{OPENAI_API_KEY:key},
-      fetch:async (url:any,options:any) => {
-        const body=JSON.parse(options.body);
-        body.max_completion_tokens=32768;
-        const response=await fetch(url,{...options,body:JSON.stringify(body),signal:AbortSignal.timeout(240000)});
-        const clone=response.clone();
-        try { const raw=await clone.json();metadata={usage:raw.usage,finishReason:raw.choices?.[0]?.finish_reason}; }
-        catch { metadata={httpStatus:response.status}; }
-        return response;
-      }});
-    if (result.is_error) throw new Error('Provider error; reservation retained, inspect receipt');
+    const { createDialectTransport }=await import('../../packages/judges/src/clients/transport');
+    const transport=createDialectTransport({provider:isGoogle?'google':'openai',model,
+      env:isGoogle?{GEMINI_API_KEY:key}:{OPENAI_API_KEY:key}, reasoning:'medium',
+      timeoutMs:isGoogle?180000:240000,maxTokens:32768,maxRetries:0});
+    const response=await transport.complete({system,user,...(schema?{schema}:{})});
+    const raw=JSON.parse(response.raw);
+    const usage=isGoogle?raw.usageMetadata:raw.usage;
+    if(!usage) throw new Error('Provider omitted token usage; reservation retained');
+    // Frozen prices and source URLs are inherited from PR 168's verified shim price table.
+    const input=isGoogle?usage.promptTokenCount:usage.prompt_tokens;
+    const output=isGoogle?(usage.candidatesTokenCount??0)+(usage.thoughtsTokenCount??0):usage.completion_tokens;
+    if(!Number.isFinite(input)||!Number.isFinite(output)) throw new Error('Incomplete token usage');
+    const cached=isGoogle?0:Math.min(input,usage.prompt_tokens_details?.cached_tokens??0);
+    const long=!isGoogle&&input>272000;
+    const cost=isGoogle?(input*0.75+output*3.75)/1e6:
+      ((input-cached)*0.10*(long?2:1)+cached*0.01*(long?2:1)+output*0.50*(long?1.5:1))/1e6;
+    result={result:response.text,total_cost_usd:cost,is_error:false};
+    metadata={...response,raw:undefined,text:undefined,usage};
   }
   const state=budget('settle',result.total_cost_usd);
   reservation=false;

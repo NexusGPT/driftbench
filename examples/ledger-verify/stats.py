@@ -90,7 +90,7 @@ def main():
         report = HERE/'results'/f'{model}.json'
         if not report.exists():
             rows.append(dict(model=model, status='pending',
-                reason='billing blocked' if model.startswith('gemini') else 'core contract PR and execution required',
+                reason='authorized; execution and validation pending',
                 official=None, audited=None))
             continue
         data = json.loads(report.read_text())

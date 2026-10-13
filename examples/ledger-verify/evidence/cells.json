@@ -3,21 +3,21 @@
     {
       "model": "haiku",
       "status": "pending",
-      "reason": "core contract PR and execution required",
+      "reason": "authorized; execution and validation pending",
       "official": null,
       "audited": null
     },
     {
       "model": "gpt-6-luna",
       "status": "pending",
-      "reason": "core contract PR and execution required",
+      "reason": "authorized; execution and validation pending",
       "official": null,
       "audited": null
     },
     {
       "model": "gemini-3.8-flash",
       "status": "pending",
-      "reason": "billing blocked",
+      "reason": "authorized; execution and validation pending",
       "official": null,
       "audited": null
     }

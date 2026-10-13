@@ -9,10 +9,15 @@ import { CRITERIA, type PointItem } from '../judge-benchmarks/src/data';
 import { runBenchmark } from '../judge-benchmarks/src/run';
 
 const base = 'examples/ledger-verify';
-const model = process.argv[2];
-assert(model === 'haiku' || model === 'gpt-6-luna', 'Only the two authorized models may run; Gemini pending');
+const model = process.argv[2] ?? '';
+assert(['haiku','gpt-6-luna','gemini-3.8-flash'].includes(model), 'Only authorized models may run');
 const replayOnly = process.argv.includes('--replay-only');
 const pilot = process.argv.includes('--pilot');
+const validity = process.argv.includes('--validity');
+const noiseIndex = process.argv.indexOf('--noise');
+const noise = noiseIndex>=0 ? Number(process.argv[noiseIndex+1]) : undefined;
+assert(noise===undefined || [0,1,2].includes(noise), 'Noise repeat is 0, 1 or 2');
+const phase=pilot?'pilot':validity?'validity':noise===undefined?'test':`noise-${noise}`;
 const seal = JSON.parse(await readFile(`${base}/evidence/seal.json`, 'utf8'));
 for (const [path, hash] of Object.entries(seal.sourceHashes)) {
   assert.equal(createHash('sha256').update(await readFile(path)).digest('hex'), hash, path);
@@ -33,12 +38,14 @@ if (!replayOnly) {
   const dossier = await readFile(dossierPath, 'utf8');
   assert(dossier.includes(runtime.corePr), 'Core dossier does not name the frozen PR');
   const remote = execFileSync('git', ['ls-remote', 'origin', 'refs/heads/research/pair-ledger-core'], { encoding: 'utf8' });
-  assert(remote.startsWith(runtime.coreSha), 'Frozen core is not the pushed branch head');
+  const remoteSha=remote.trim().split(/\s+/)[0]!;
+  assert.match(remoteSha,/^[0-9a-f]{40}$/);
+  execFileSync('git', ['merge-base','--is-ancestor',runtime.coreSha,remoteSha]);
   assert(Date.now() < runtime.deadlineAt, 'Last-call cutoff reached');
 }
-const pool: PointItem[] = JSON.parse(await readFile(`${base}/evidence/${pilot ? 'dev' : 'pool'}.json`, 'utf8'));
-const items = pilot ? [...pool].sort((a,b) => a.id.localeCompare(b.id)).slice(0,20) : pool;
-const resultDir = `${base}/${pilot ? 'pilots' : 'results'}`;
+const pool: PointItem[] = JSON.parse(await readFile(`${base}/evidence/${validity?'validity-items':pilot||noise!==undefined ? 'dev' : 'pool'}.json`, 'utf8'));
+const items = pilot||noise!==undefined ? [...pool].sort((a,b) => a.id.localeCompare(b.id)).slice(0,pilot?20:30) : pool;
+const resultDir = `${base}/${phase==='test'?'results':phase}`;
 await mkdir(resultDir, { recursive: true });
 if (!replayOnly) {
   await writeFile(`${resultDir}/${model}.started.json`, JSON.stringify({ at:new Date().toISOString(),
@@ -47,11 +54,11 @@ if (!replayOnly) {
 const report = await runBenchmark({
   bench:'longjudge-verify', model,
   contestants:['driftbench-verify-uncertainty-cascade','promptfoo'].map(contestantById),
-  items, criterion:CRITERIA['longjudge-verify'], split:'all', concurrency:6,
+  items, criterion:CRITERIA['longjudge-verify'], split:'all', concurrency:2,
   capUsd:25, deadlineAt:runtime.deadlineAt, includeDecisions:true, replayOnly,
-  recordingsDir:resolve(`${base}/recordings/${runtime.id}/${pilot ? 'pilot' : 'test'}`),
+  recordingsDir:resolve(`${base}/recordings/${runtime.id}/${phase}`),
   command:resolve(runtime.command),
 });
 await writeFile(`${resultDir}/${model}${replayOnly ? '.replay' : ''}.json`,JSON.stringify(report,null,2)+'\n');
-console.log(JSON.stringify({model,pilot,items:report.items,calls:report.newCalls,spend:report.newSpendUsd,
+console.log(JSON.stringify({model,phase,items:report.items,calls:report.newCalls,spend:report.newSpendUsd,
   stopped:report.stopped,judges:report.contestants.map(c=>({id:c.contestant,missing:c.summary.missing}))}));

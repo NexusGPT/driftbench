@@ -4,7 +4,7 @@
 - This is a previously evaluated split. It is not an unseen holdout.
 - The 23-correction audit map is unchanged. Official labels remain the primary endpoint.
 - The frozen uncertainty cascade comes from `codex/verify-judge`, head `f13242f2`, freeze `558d75de`.
-- Haiku and gpt-6-luna await the core contract PR. Gemini remains pending because billing is blocked.
+- Haiku, gpt-6-luna and gemini-3.8-flash use the pushed core contract PR 168.
 
 ## Evidence
 
@@ -28,14 +28,14 @@ The local TypeScript config resolves their historical package aliases without ch
 No paid call is authorized until the pushed core contract PR appears in the core dossier.
 The runtime freeze must bind that PR, commit, reasoning settings, dialect transport, prices and runner hashes.
 The fixed settings are inherited from the core contract without tuning on these items.
-The runner admits only Haiku and gpt-6-luna and uses six concurrent calls.
+The runner admits the three authorized models, with two concurrent calls each and six total.
 The lane-wide cap is 25 USD, including pilots and validation calls.
 The transport reserves in-flight costs atomically across both models and all phases.
 Failed calls with unknown charges retain their reservation and halt new work for review.
 The last-call cutoff is fixed in the runtime freeze before the first call.
 No content-driven retry or outcome-driven item selection is permitted.
 Pilot items are the first 20 DEV ids in lexical order and do not belong to TEST.
-The pool is committed before the pilot; the final runtime freeze follows the cost pilot without judge tuning.
+Both pool and runtime are committed before the pilot. Pilot measurements cannot change the judge.
 
 ## Offline commands
 
