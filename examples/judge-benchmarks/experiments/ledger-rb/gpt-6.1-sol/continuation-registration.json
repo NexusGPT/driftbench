@@ -1,0 +1,26 @@
+{
+  "at": "2026-10-13T16:02:34.607803+00:00",
+  "paidSettingsChanged": false,
+  "ownerAuthority": "Existing full Sol cell authorization under USD 50 including holds, with network gate, two calls and one cell at a time",
+  "driverPid": 38372,
+  "statePath": ".cache/ledger-rb/sol-finish-driver.json",
+  "target": "named driver self-terminates on final push or any failed gate",
+  "flow": [
+    "wait for current pre-TEST report",
+    "verify all validity and no-answer gates",
+    "seal and commit TEST before first TEST call",
+    "one missing-only sealed TEST pass",
+    "offline report, integrity, token-loss and content checks",
+    "dossier and cost ledger",
+    "commit, push, verify remote SHA"
+  ],
+  "scripts": {
+    ".cache/ledger-rb/finish-sol.py": "a9cc4bd6df619c6f19554f43f412c833530787878df400f325c8911bc532a39e",
+    ".cache/ledger-rb/verify-sol-final.py": "abb9f1372695151fb111419ba39ed6eaa2f30f1b8ad23270ed0cd311b12805cd",
+    ".cache/ledger-rb/write-sol-final.py": "d0f280980918e8fb6d1f686cd722bace45bbe2d5dd0178c8200e7d4396cb7d22",
+    ".cache/ledger-rb/audit-token-loss.py": "4c868aa3d9758330c1e2229d8c1bffdb7e4576defe8980655b0ecf9f79d57de0",
+    ".cache/ledger-rb/audit-cell-blocks.py": "4db46ceae8f6de19a644cc49b93035fb4d9ecd605d51e477ea24c44e52cc97c3"
+  },
+  "offlineAuditClarification": "Token losses require token-limit evidence; provider blocks alone do not count. Saved request comparisons cover each new cell. Sol report carries the subsequent Sonnet approval.",
+  "updatedAt": "2026-10-13T16:26:17.492271+00:00"
+}
