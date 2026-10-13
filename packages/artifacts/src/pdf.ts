@@ -1,4 +1,4 @@
-import { PDFParse } from 'pdf-parse';
+import type { PDFParse } from 'pdf-parse';
 import { countHolds, describeCount, parseCount } from './args';
 import {
   type CheckTable,
@@ -42,9 +42,11 @@ export const pdfReader: KindReader = {
   kind: 'pdf',
   checkNames: Object.keys(PDF_CHECKS),
   async open(bytes, path) {
+    // pdf-parse loads a native canvas library: it loads when the first PDF opens, not when this package does.
+    const pdf = await import('pdf-parse');
     let parser: PDFParse | undefined;
     try {
-      parser = new PDFParse({ data: new Uint8Array(bytes), verbosity: 0 });
+      parser = new pdf.PDFParse({ data: new Uint8Array(bytes), verbosity: 0 });
       const result = await parser.getText();
       const data: PdfData = {
         total: result.total,

@@ -33,4 +33,12 @@ describe('what loads at start', () => {
       expect(packages[name], name).toBeUndefined();
     }
   }, 120_000);
+
+  it('loads no PDF parser and no native canvas library with the artifacts package', () => {
+    const { status, packages } = loaded(importOnly('packages/artifacts/src/index.ts'));
+    expect(status).toBe(0);
+    for (const name of ['pdf-parse', 'pdfjs-dist', '@napi-rs/canvas']) {
+      expect(packages[name], name).toBeUndefined();
+    }
+  }, 120_000);
 });
