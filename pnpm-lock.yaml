@@ -188,24 +188,15 @@ importers:
       '@agent-nexus/driftbench-artifacts':
         specifier: workspace:*
         version: link:../artifacts
-      '@agent-nexus/driftbench-checks':
-        specifier: workspace:*
-        version: link:../checks
       '@agent-nexus/driftbench-core':
         specifier: workspace:*
         version: link:../core
-      '@agent-nexus/driftbench-sandbox':
-        specifier: workspace:*
-        version: link:../sandbox
       '@agent-nexus/driftbench-space':
         specifier: workspace:*
         version: link:../space
       '@agent-nexus/driftbench-stats':
         specifier: workspace:*
         version: link:../stats
-      '@agent-nexus/driftbench-store':
-        specifier: workspace:*
-        version: link:../store
       '@agent-nexus/driftbench-users':
         specifier: workspace:*
         version: link:../users
@@ -218,6 +209,16 @@ importers:
       zod:
         specifier: ^4.6.5
         version: 4.6.5
+    devDependencies:
+      '@agent-nexus/driftbench-checks':
+        specifier: workspace:*
+        version: link:../checks
+      '@agent-nexus/driftbench-sandbox':
+        specifier: workspace:*
+        version: link:../sandbox
+      '@agent-nexus/driftbench-store':
+        specifier: workspace:*
+        version: link:../store
 
   packages/judges:
     dependencies:
@@ -245,12 +246,13 @@ importers:
       '@agent-nexus/driftbench-stats':
         specifier: workspace:*
         version: link:../stats
-      '@agent-nexus/driftbench-store':
-        specifier: workspace:*
-        version: link:../store
       zod:
         specifier: ^4.6.5
         version: 4.6.5
+    devDependencies:
+      '@agent-nexus/driftbench-store':
+        specifier: workspace:*
+        version: link:../store
 
   packages/sandbox:
     dependencies:
