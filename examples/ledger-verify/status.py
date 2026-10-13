@@ -15,7 +15,7 @@ result=dict(at=datetime.now(timezone.utc).isoformat(),settledUsd=budget['spentUs
 for model in ['haiku','gpt-6-luna','gemini-3.8-flash']:
     progress=json.loads((BASE/f'{model}.progress.json').read_text())
     phase=progress['phase'];cassette_phase='test' if phase=='results' else phase
-    namespace=runtime['pilotRecordingsId'] if phase=='pilot' else runtime['id']
+    namespace=runtime['pilotRecordingsId'] if phase=='pilot' else runtime.get('recordingsId',runtime['id'])
     path=BASE/'recordings'/namespace/cassette_phase/'longjudge-verify'/f'{model}.jsonl'
     rows=[json.loads(line) for line in path.read_text().splitlines() if line] if path.exists() else []
     result['models'][model]=dict(phase=phase,status=progress['status'],

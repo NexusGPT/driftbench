@@ -22,10 +22,11 @@ def transact(path, action, token, amount=0.5, model='', pid=None):
             for key,entry in list(active.items()):
                 try: os.kill(entry['pid'],0)
                 except ProcessLookupError: del active[key]
-            busy=len(active)>=4 or (model in ('haiku','gpt-6-luna','gemini-3.8-flash') and sum(r['model']==model for r in active.values())>=2)
+            limits={'haiku':2,'gpt-6-luna':8,'gemini-3.8-flash':2}
+            busy=sum(r['model']==model for r in active.values())>=limits.get(model,4)
             if busy:
                 if action=='try-acquire':return dict(acquired=False)
-                raise RuntimeError('Concurrency limit: four total or two model calls are active')
+                raise RuntimeError('Concurrency limit: the model has no available provider slot')
             assert token not in active and isinstance(pid,int) and pid>0
             active[token]=dict(pid=pid,model=model,at=datetime.now(timezone.utc).isoformat())
             state['peakActiveCalls']=max(state.get('peakActiveCalls',0),len(active))

@@ -6,6 +6,7 @@ import { fileURLToPath } from 'node:url';
 import { resolve } from 'node:path';
 import { schemaFor } from './schemas';
 import { QuotaPending, withQuotaBackoff } from './quota';
+import { isBillingRejection } from './billing';
 
 const root = fileURLToPath(new URL('../..', import.meta.url));
 const base = resolve(root,'examples/ledger-verify');
@@ -42,7 +43,7 @@ try {
     const prior=JSON.parse(await readFile(resolve(base,'evidence/pilot-runtime-freeze.json'),'utf8'));
     const lines=(await readFile(resolve(base,'receipts/calls.jsonl'),'utf8')).trim().split('\n');
     const allowed=[callFingerprint,...(process.env.VERIFY_PHASE==='pilot'?[fingerprint(prior.coreSha)]:[])];
-    const hit=lines.filter(Boolean).map(line=>JSON.parse(line)).find(r=>r.status!=='quota-pending'&&r.phase===process.env.VERIFY_PHASE&&allowed.includes(r.fingerprint));
+    const hit=lines.filter(Boolean).map(line=>JSON.parse(line)).find(r=>!['quota-pending','billing-pending'].includes(r.status)&&r.phase===process.env.VERIFY_PHASE&&allowed.includes(r.fingerprint));
     if(hit) {
       await appendFile(resolve(base,'receipts/recovered.jsonl'),JSON.stringify({originalReceipt:hit.id,at:new Date().toISOString(),model})+'\n');
       process.stdout.write(JSON.stringify(hit.status==='transport-failure'
@@ -132,17 +133,18 @@ try {
     catch(e:any){if(e.code!=='ENOENT'&&!(e instanceof SyntaxError))throw e;}
     if(typeof native?.total_cost_usd==='number'&&Number.isFinite(native.total_cost_usd)&&native.total_cost_usd>=0)knownCost=native.total_cost_usd;
   }
-  if(error instanceof QuotaPending)knownCost=0;
+  const billingPending=isBillingRejection(error);
+  if(error instanceof QuotaPending||billingPending)knownCost=0;
   if(reservation&&knownCost!==undefined){
     const state=budget('settle',knownCost);reservation=false;
     await appendFile(resolve(base,'receipts/calls.jsonl'),JSON.stringify({id,at:new Date().toISOString(),model,
       fingerprint:callFingerprint,phase:process.env.VERIFY_PHASE,costUsd:knownCost,state,
-      status:error instanceof QuotaPending?'quota-pending':'transport-failure',error:message,
+      status:billingPending?'billing-pending':error instanceof QuotaPending?'quota-pending':'transport-failure',error:message,
       text:typeof native?.result==='string'?native.result:'',nativeReceipt})+'\n');
   }
   await appendFile(resolve(base,'receipts/errors.jsonl'),JSON.stringify({id,model,at:new Date().toISOString(),
     message,fingerprint:callFingerprint,phase:process.env.VERIFY_PHASE,reservationRetained:reservation,nativeReceipt})+'\n');
-  const category=error instanceof QuotaPending?'quota':started?'missing':'limit';
+  const category=billingPending?'limit':error instanceof QuotaPending?'quota':started?'missing':'limit';
   process.stdout.write(JSON.stringify({is_error:true,total_cost_usd:0,result:`Transport ${category}: ${message}`}));
 }
 

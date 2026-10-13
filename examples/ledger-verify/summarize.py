@@ -53,7 +53,7 @@ def main():
                 phases[model][phase]={'status':'pending'};continue
             report=json.loads(path.read_text())
             cassette_phase='test' if phase=='results' else phase
-            namespace=runtime['pilotRecordingsId'] if phase=='pilot' else runtime['id']
+            namespace=runtime['pilotRecordingsId'] if phase=='pilot' else runtime.get('recordingsId',runtime['id'])
             recording=BASE/'recordings'/namespace/cassette_phase/'longjudge-verify'/f'{model}.jsonl'
             recordings=rows(recording)
             # A duplicate key can carry two actually billed concurrent calls. Keep both costs visible.

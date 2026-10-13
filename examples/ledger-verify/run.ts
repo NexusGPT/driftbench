@@ -76,7 +76,7 @@ const report = await runBenchmark({
   contestants:['driftbench-verify-uncertainty-cascade','promptfoo'].map(contestantById),
   items, criterion:CRITERIA['longjudge-verify'], split:'all', concurrency:runtime.modelConcurrency[model],
   capUsd:runtime.capUsd, deadlineAt, includeDecisions:true, replayOnly,
-  recordingsDir:resolve(`${base}/recordings/${pilot?runtime.pilotRecordingsId:runtime.id}/${phase}`),
+  recordingsDir:resolve(`${base}/recordings/${pilot?runtime.pilotRecordingsId:(runtime.recordingsId??runtime.id)}/${phase}`),
   command:resolve(runtime.command),
 });
 await writeFile(`${resultDir}/${model}${replayOnly ? '.replay' : ''}.json`,JSON.stringify(report,null,2)+'\n');

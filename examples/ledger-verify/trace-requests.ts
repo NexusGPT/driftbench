@@ -36,7 +36,7 @@ for(const model of ['haiku','gpt-6-luna','gemini-3.8-flash'])for(const phase of 
   let items=JSON.parse(await readFile(resolve(base,'evidence',`${poolName}.json`),'utf8'));
   if(poolName==='dev')items=items.sort((a:any,b:any)=>a.id.localeCompare(b.id)).slice(0,phase==='pilot'?20:30);
   trace.phase=phase==='results'?'test':phase;
-  const report=await runBenchmark({bench:'longjudge-verify',model,contestants:['driftbench-verify-uncertainty-cascade','promptfoo'].map(contestantById),items,criterion:CRITERIA['longjudge-verify'],split:'all',concurrency:1,includeDecisions:true,replayOnly:'lenient',recordingsDir:resolve(base,'recordings',phase==='pilot'?runtime.pilotRecordingsId:runtime.id,trace.phase),command:'/no-paid-command'});
+  const report=await runBenchmark({bench:'longjudge-verify',model,contestants:['driftbench-verify-uncertainty-cascade','promptfoo'].map(contestantById),items,criterion:CRITERIA['longjudge-verify'],split:'all',concurrency:1,includeDecisions:true,replayOnly:'lenient',recordingsDir:resolve(base,'recordings',phase==='pilot'?runtime.pilotRecordingsId:(runtime.recordingsId??runtime.id),trace.phase),command:'/no-paid-command'});
   assert.equal(report.newCalls,0);assert.equal(report.newSpendUsd,0);decisions+=items.length*2;
 }
 const target=resolve(base,'evidence/request-attribution.json');

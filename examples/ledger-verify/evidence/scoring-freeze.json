@@ -30,12 +30,18 @@
   "implementationFrozenAt": "2026-10-13T09:17:02.885632+00:00",
   "implementationHashes": {
     "examples/ledger-verify/output_limits.py": "e497c931f8a4f395cd5edb9d3bf7ec8250b334d358d758d605cb3a23dfa2d8c6",
-    "examples/ledger-verify/trace-requests.ts": "cc0dedcd6e29adfd62ef61fb8065fd62959a1e2f52f870928145b6de733e3e69",
-    "examples/ledger-verify/summarize.py": "7814fec63c14e071fa7b7c5b555b15e64af921e45c71c62333763b0505bf5376",
-    "examples/ledger-verify/render_report.py": "4396d7bbec7214b609a529f6bb04038d4e2a2e2b04e3ecd76f2771482e575feb",
+    "examples/ledger-verify/trace-requests.ts": "72e5253798d6d3b23f7a866a51b450027b23ce71fe240d775b3709d5318dd33e",
+    "examples/ledger-verify/summarize.py": "1cd18ffa8da398404528c3ffd71c351c6f67248e67b2110cd612789168dcf840",
+    "examples/ledger-verify/render_report.py": "686438bb111e36f37744e2a457a8babfdfc80f074b5326e4141d23a1ffe016cb",
     "examples/ledger-verify/test_output_limits.py": "7fa2fcdcb82a720af7d78f6de052a6ee6d6cb347d545bac35b4a148c7b3cb726"
   },
   "costAccounting": "Known native error fees are included in the affected contestant unique-prompt cost. Unknown charges are disclosed separately, including a conservative budget hold.",
   "costAccountingFrozenAt": "2026-10-13T09:06:16.729905+00:00",
-  "nativeLimitCaveat": "Native truncated=true can indicate a turn or budget limit; only explicit output-token evidence counts as an output-limit error."
+  "nativeLimitCaveat": "Native truncated=true can indicate a turn or budget limit; only explicit output-token evidence counts as an output-limit error.",
+  "pacingAmendment": {
+    "at": "2026-10-13T09:27:36.280118+00:00",
+    "runtime": "ee96e47757aa837860fe",
+    "change": "Stable recording namespace preserved across runtime pacing change. Scoring rules unchanged."
+  },
+  "runtimePolicyFinalizedAt": "2026-10-13T09:34:20.523734+00:00"
 }

@@ -28,7 +28,7 @@ The local TypeScript config resolves their historical package aliases without ch
 No paid call is authorized until the pushed core contract PR appears in the core dossier.
 The runtime freeze must bind that PR, commit, reasoning settings, dialect transport, prices and runner hashes.
 The fixed settings are inherited from the core contract without tuning on these items.
-The runner admits the three authorized models, with at most four provider calls in total: two per model, with Gemini capped at two. Atomic call slots enforce the global limit.
+The runtime pacing amendment permits eight gpt-6-luna HTTP calls, two Gemini calls and two native Haiku calls concurrently. Atomic slots enforce each model limit; the earlier global four-call limit is retired.
 The lane-wide cap is 40 USD, including pilots and validation calls.
 The transport reserves in-flight costs atomically across all three models and all phases.
 Failed calls with unknown charges retain their reservation; terminal missing outputs stay separate from judge answers.
@@ -53,3 +53,5 @@ Dependencies are linked to existing installations. No `node_modules` tree is cop
 All three resumed models use 300-second timeouts after owner-authorized recovery. Partial pilot reports and earlier runtime manifests remain preserved. No returned answer is retried.
 
 HTTP 429 has no judge answer: wait 60, 120 and 240 seconds, then retain a pending transport state. Each actual provider attempt has a 300-second timeout. The outer wrapper allows queueing and backoff.
+
+HTTP 402 is a billing rejection with no completion. It releases only that request's reservation and stops the model run. Missing-only recovery waits for prepaid credit replenishment; cached model answers are never retried.
