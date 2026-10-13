@@ -1,0 +1,74 @@
+{
+  "registeredAt": "2026-10-13",
+  "capUsd": 40,
+  "concurrency": 2,
+  "codeCommit": "a90c9d8b60d5bf73c73bd5d5c18b33c80c4b60ec",
+  "models": [
+    "gpt-6.1-sol",
+    "gpt-6-luna",
+    "gemini-3.5-flash-lite"
+  ],
+  "claude": {
+    "model": "claude-haiku-5-5",
+    "phase": "fresh writing only",
+    "pairs": 50,
+    "maximumCalls": 400,
+    "disablePromptCaching": true,
+    "sessionLimit": "stop and wait"
+  },
+  "devCounts": {
+    "jb": 30,
+    "mm": 20,
+    "wp": 30
+  },
+  "freshCounts": {
+    "mm": 92,
+    "wp": 80
+  },
+  "freshMMCounts": {
+    "chat": 12,
+    "reasoning": 20,
+    "safety": 20,
+    "linguistics": 20,
+    "language mixing": 20
+  },
+  "selectionRule": "Choose higher mean official dev accuracy over 9 equally weighted model-by-benchmark cells; exact ties choose direct. No per-model routing.",
+  "variants": [
+    "direct",
+    "reasoning"
+  ],
+  "baseline": "Off; same cached base calls reused across variants.",
+  "promptfoo": "Frozen select-best default prompt; same model and settings both sides, both orders. Not promptfoo default model selection.",
+  "freshness": "Unseen response pairs after all enumerated ledger and System1 exposures. Writing questions may have appeared before.",
+  "judgeBenchHeldout": "None remains; no sealed JudgeBench test reuse.",
+  "inference": "Two-sided exact paired sign test, unique pair as unit. MM official score is equal-weight subset macro; writing counts two directional games; JB pair net score. Report conditional detectable net-pair margin and 80-percent power, and MM safety separately.",
+  "scope": "Core final-tie change only. MM compute port retained uniformly; no harm-policy seat enabled because none is calibrated for this new configuration. No model-name judging rules.",
+  "inputHashes": {
+    "dev.json": "ab2ded9718d0015bef76a8cbdcf0a8f20f890b48e6772702ff42a2cdeb7c83f3",
+    "heldout.json": "750d64e641213d0ea55692bd26c92749fb30b2edc99d6c2a446eba5702598e78",
+    "manifest.json": "270eaf22a73176935eeefb013dd32431d142ea6051fe4b15efcf8c89c39f9aef",
+    "compute.py": "c868942d6c22b027720e040e04e545874f4ebff97f25418e1254e674adf2cb8f",
+    "promptfoo-select-best.txt": "f5d991e93bb0f5fefba9eb241f0feddae57276f8196f3c4e53137b5f4177562c"
+  },
+  "codeHashes": {
+    "pair-ledger.ts": "f75be4f7458cd27c9a883314e4cc3f795dd4e8b023f32d675d259847d037a52e",
+    "pair-ledger-followup.ts": "8461ae6d3abe1d8693b7ee3a538522628072aa72fe8535fa58482db0dd82bd36",
+    "pair-ledger-contract.ts": "6d2a52e44f047b333d613521d499c7e27e4af15badfb4fa15944ff21c21a2dff",
+    "pair-stage0.ts": "46a00e957f047722268eefafe9eeb41878ccea53dbc680e57ea6bfd82dc72de1",
+    "prompt.ts": "18f0c1798882ab01afd6556823519fabbfda0bd26b5ed0949d959d102b76682b",
+    "assessment.ts": "2e2f2feee68651abd93356ead977807a307e36a7638fd355445ec9f22d14a4ef",
+    "contract.ts": "2569472d8ab472fb77f29269a0721781aac89ead42d68ce0f956177d5e6b4848"
+  },
+  "runtimeHashes": {
+    "experiment.ts": "a59f73863164ab70721f4fb361e777401616b518b579a1054226c2a2e49a6d6e",
+    "statistics.ts": "380351ef06ae175c3206bb34d64446466b809e9fdfef0800848ffadd8c8125ba",
+    "statistics.test.ts": "8e5e1934f0b9e895216994be35cd5d59681588612f12a1543c03a712f0c637f5",
+    "transport.ts": "2148fcbccb0849b14c9b0261bda1f3a847ecc851971ccb464abeb6789922d20c",
+    "transport.test.ts": "87155020eff3d7a935eda1cd49b17c8f3d224ce7fb60df9ad439ebaecf37bc0c"
+  },
+  "reserveBeforeRuns": {
+    "devUsd": 12,
+    "freshUsd": 28,
+    "note": "Global receipts enforce USD40. These are planned allocations, not additional charges; unused allocation remains available under the global cap."
+  }
+}
