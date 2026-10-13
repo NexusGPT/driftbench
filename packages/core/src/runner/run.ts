@@ -328,17 +328,21 @@ async function execute(run: RunContext, channel: Channel): Promise<RunResult | u
         ...(planned.budget ? { budget: planned.budget } : {}),
         retry: run.policy,
       };
-      const key = blockCacheKey({
-        specHash: run.cacheSpecHash,
-        repeat: run.repeat,
-        position,
-        given,
-        stimulus: planned.stimulus,
-        target: run.target,
-        adapter: run.adapter.id,
-        adapterVersion: run.adapter.version,
-        ...(run.suite === undefined ? {} : { suite: run.suite }),
-      });
+      // A live channel without a cache does not consume the key. Keep the block marker without hashing
+      // its entire prefix again; cached and replayed runs retain their exact existing identities.
+      const key = run.cache
+        ? blockCacheKey({
+            specHash: run.cacheSpecHash,
+            repeat: run.repeat,
+            position,
+            given,
+            stimulus: planned.stimulus,
+            target: run.target,
+            adapter: run.adapter.id,
+            adapterVersion: run.adapter.version,
+            ...(run.suite === undefined ? {} : { suite: run.suite }),
+          })
+        : '';
       run.onEvent?.({ type: 'block_start', index: position, at: new Date().toISOString() });
       const observed = await channel.observe(turn, user, key);
       if (!observed) return undefined;
