@@ -1,5 +1,5 @@
-import { readFile, stat, writeFile } from 'node:fs/promises';
-import { relative } from 'node:path';
+import { readdir, readFile, stat, writeFile } from 'node:fs/promises';
+import { join, relative } from 'node:path';
 import { findSpecFiles, isPlainObject, loadSpecFile, parseSpecText } from '@agent-nexus/driftbench-core';
 import { shortQuote } from '@agent-nexus/driftbench-generate';
 import { parseDocument } from 'yaml';
@@ -18,7 +18,8 @@ import { Regression, regressionNeeds, renderRegression } from './regression';
  * - retire: every test whose atoms are all removed, with the reason `atom <id> removed` written into the
  *   spec's metadata as `retired` (on `--write`);
  * - new: every added atom no live test names; its tests are generated and wait for approval.
- * A moved atom (the same quote at another span) touches no test. A spec already carrying `metadata.retired`
+ * A static check record (`static/**.json`, one atom each) is a test like a spec; its retirement reason is
+ * written as its `retired` field. A moved atom (the same quote at another span) touches no test. A spec already carrying `metadata.retired`
  * is not a live test: it is counted and left alone.
  */
 
@@ -78,7 +79,46 @@ export async function loadEstateTests(dir: string): Promise<LoadedTests> {
       ...(retired === undefined ? {} : { retired }),
     });
   }
+  for (const path of await staticRecords(dir)) {
+    const record = await readStatic(path);
+    if (!record) continue;
+    tests.push({
+      id: record.id,
+      path,
+      file: relative(dir, path),
+      atoms: [record.atom],
+      ...(record.retired === undefined ? {} : { retired: record.retired }),
+    });
+  }
   return errors.length > 0 ? { ok: false, errors } : { ok: true, tests, others };
+}
+
+/**
+ * A static check record (`static/**.json`, written by `estate generate` for a setting or an invariant): a
+ * JSON object with an `id`, the `atom` it checks and a `check`. It is a test of that one atom.
+ */
+async function readStatic(path: string): Promise<{ id: string; atom: string; retired?: string } | undefined> {
+  try {
+    const value: unknown = JSON.parse(await readFile(path, 'utf8'));
+    if (!isPlainObject(value) || !isPlainObject(value.check)) return undefined;
+    if (typeof value.id !== 'string' || typeof value.atom !== 'string') return undefined;
+    return {
+      id: value.id,
+      atom: value.atom,
+      ...(typeof value.retired === 'string' ? { retired: value.retired } : {}),
+    };
+  } catch {
+    return undefined;
+  }
+}
+
+/** Every JSON file under a folder, sorted by path. */
+async function staticRecords(dir: string): Promise<string[]> {
+  const entries = await readdir(dir, { withFileTypes: true, recursive: true }).catch(() => []);
+  return entries
+    .filter((entry) => entry.isFile() && entry.name.endsWith('.json'))
+    .map((entry) => join(entry.parentPath, entry.name))
+    .sort();
 }
 
 export const RegenerateWhy = z.enum(['whitespace', 'semantic', 'restated', 'removed', 'guard_state']);
@@ -289,6 +329,18 @@ export async function writeRetirements(
     }
     try {
       const text = await readFile(test.path, 'utf8');
+      if (test.path.endsWith('.json')) {
+        // A static check record: the reason is a field of the record.
+        const record: unknown = JSON.parse(text);
+        if (!isPlainObject(record)) {
+          results.push({ file: entry.file, ok: false, message: 'the record is not a JSON object' });
+          continue;
+        }
+        await writeFile(test.path, `${JSON.stringify({ ...record, retired: entry.reason }, null, 2)}\n`);
+        entry.state = 'written';
+        results.push({ file: entry.file, ok: true });
+        continue;
+      }
       const doc = parseDocument(text, { uniqueKeys: true });
       const current: unknown = doc.toJS();
       const metadata = isPlainObject(current) ? current.metadata : undefined;
