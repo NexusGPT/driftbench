@@ -8,6 +8,7 @@ const immutableSources = new WeakSet<readonly Message[]>();
 export function immutableHistorySource<T extends Message[]>(history: T): T {
   immutableSources.add(history);
   for (const message of history) {
+    if (messageTemplates.has(message)) continue;
     const template = messageTemplate(message);
     if (template) messageTemplates.set(message, template);
   }
