@@ -8,7 +8,7 @@ DOSSIER=Path('/private/tmp/claude-501/-Users-assem-Documents-Doc-Assem-Claude-Co
 def read(p):return json.loads(p.read_text())
 for b in [BASE,LITE]:assert read(b/'evidence/finalizer-state.json')['status']=='offline evidence ready for review'
 original=read(BASE/'evidence/cells.json');extra=read(LITE/'evidence/cells.json')
-assert extra['fees']['maximumAccountedUsd']<=18
+assert extra['fees']['maximumAccountedUsd']<=24
 assert not extra['outputLimitErrors']['unmappedLimits']
 assert len(extra['cells'])==1 and extra['cells'][0]['model']=='gemini-3.5-flash-lite'
 assert read(LITE/f"gemini-3.5-flash-lite.progress.json")['status']=='complete', 'No partial handoff before authorized cap is reached'
@@ -24,9 +24,9 @@ for key in ['limits','unmappedLimits','unclassifiedHistoricalNativeErrors']:
  original['outputLimitErrors'][key]=[x for x in original['outputLimitErrors'][key] if x.get('model')!='gemini-3.5-flash-lite']+extra['outputLimitErrors'][key]
 original['additionalCellFees']=extra['fees'];original['additionalCellEvidence']='lite/evidence/cells.json'
 original['overallAccountedMaximumUsd']=original['fees']['maximumAccountedUsd']+extra['fees']['maximumAccountedUsd']
-original['originalBudgetCapUsd']=40;original['additionalCellCapUsd']=18
+original['originalBudgetCapUsd']=40;original['additionalCellCapUsd']=24
 original['at']=datetime.datetime.now(datetime.timezone.utc).isoformat()
-for name in ['model-amendment.json','cap12-amendment.json','runtime-freeze.json','reporting-freeze.json','reasoning-applied.json','network-recovery-amendment.json','network-recovery-execution.json','replay-reconstruction-amendment.json','network-diagnostics-amendment.json','first-final-preservation.json','first-final-replay-amendment.json']:
+for name in ['model-amendment.json','cap12-amendment.json','cap24-amendment.json','runtime-freeze.json','reporting-freeze.json','reasoning-applied.json','network-recovery-amendment.json','network-recovery-execution.json','replay-reconstruction-amendment.json','network-diagnostics-amendment.json','first-final-preservation.json','first-final-replay-amendment.json']:
  path=LITE/'evidence'/name;original['freeze']['hashes']['lite/evidence/'+name]=hashlib.sha256(path.read_bytes()).hexdigest()
 (BASE/'evidence/cells.json').write_text(json.dumps(original,indent=2)+'\n')
 subprocess.run([sys.executable,str(BASE/'render_report.py'),str(DOSSIER)],cwd=ROOT,check=True)
@@ -38,11 +38,11 @@ text=text.replace('| gemini-3.8-flash | pending | pending | pending | pending | 
 text=text.replace('| gemini-3.8-flash | 20 items; missing 0/0 | 48 items; missing 0/0 | 30 items; missing 0/0 | 30 items; missing 0/0 | 30 items; missing 0/10; stopped | pending |', '| gemini-3.8-flash | 20 items; missing 0/0 | 48 items; missing 0/0 | 30 items; missing 0/0 | 30 items; missing 0/0 | 30 cascade, 20 peer; 10 quota pending | not run: daily quota, 0/221 each |')
 f=extra['fees']
 addition='\n## Separate Flash Lite cell\n\n'
-addition+='- Owner adds gemini-3.5-flash-lite, then raises its separate cap from 6 USD to 12 USD, then 18 USD with unknown-charge holds retained. Original model budgets and answers remain separate.\n'
+addition+='- Owner adds gemini-3.5-flash-lite, then raises its separate cap from 6 USD to 12 USD, 18 USD, then 24 USD with unknown-charge holds retained. Original model budgets and answers remain separate.\n'
 addition+='- Medium reasoning is accepted and applied to both contestants. Provider attempts have a 300-second timeout, eight workers, 429 waits of 20/60/180 seconds and an immediate HTTP 402 admission stop.\n'
 addition+='- Published Standard price is 0.30 USD per million input tokens and 2.50 USD per million output tokens, including thinking. Source: https://ai.google.dev/gemini-api/docs/pricing#gemini-3.5-flash-lite. Medium support: https://ai.google.dev/gemini-api/docs/thinking. Read 13 October 2026.\n'
 addition+='- The 20-item pilot costs 0.5183653 USD. Its linear projection is 9.823022435 USD across 379 units; actual fees below supersede that estimate.\n'
-addition+=f"- Flash Lite actual settled fees: {f['settledUsd']:.8f} USD. Unknown-charge holds: {f['unresolvedMaximumUsd']:.8f} USD. Accounted maximum: {f['maximumAccountedUsd']:.8f} USD, cap 18 USD.\n"
+addition+=f"- Flash Lite actual settled fees: {f['settledUsd']:.8f} USD. Unknown-charge holds: {f['unresolvedMaximumUsd']:.8f} USD. Accounted maximum: {f['maximumAccountedUsd']:.8f} USD, cap 24 USD.\n"
 addition+='- Host overload recovery keeps all 35 original uncertain-charge holds (10.50 USD). All 35 missing requests return on one additional submission each, costing 0.1725274 USD. Connectivity probes pass first.\n'
 addition+='- Upstream recovery creates new downstream keys for six already completed noise items. Their first product-final verdicts stay primary; all continuation answers and charges remain archived. Two continuation verdicts differ and are excluded symmetrically by the first-answer rule. Offline replay reproduces the selected original chains.\n'
 addition+='- Flash Lite files live under lite/: receipts, recordings, per-item strict and product-final decisions, request attribution, validation and exact replay evidence. The shared pool and audit map are symbolic links to the identical sealed originals.\n'
@@ -52,6 +52,6 @@ addition+='- The additional cell does not establish the unmeasured full DEV chea
 text+=supplement+addition
 assert '\u2014' not in text and '\u2013' not in text
 for p in [BASE/'REPORT.md',DOSSIER]:p.write_text(text)
-state=read(BASE/'evidence/finalizer-state.json');state['additionalCompletedModels']=['gemini-3.5-flash-lite'];state['additionalPhases']=6;state['additionalCellCapUsd']=18
+state=read(BASE/'evidence/finalizer-state.json');state['additionalCompletedModels']=['gemini-3.5-flash-lite'];state['additionalPhases']=6;state['additionalCellCapUsd']=24
 (BASE/'evidence/finalizer-state.json').write_text(json.dumps(state,indent=2)+'\n')
 print(json.dumps(dict(models=[c['model'] for c in original['cells']],originalBudget=original['fees']['maximumAccountedUsd'],additionalBudget=f['maximumAccountedUsd'],providerCalls=0)))

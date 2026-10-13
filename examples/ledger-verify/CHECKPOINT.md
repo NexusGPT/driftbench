@@ -118,3 +118,9 @@
 - All six first completed verdicts remain primary. Both generations and every actual fee remain in the evidence.
 - Offline replay reproduces pilot, mutations and the first two noise repeats exactly, with zero provider calls.
 - The original model partial-report audit finds no changed completed verdicts across nine archived reports. Source: evidence/first-final-audit.json.
+
+## 2026-10-13T12:55:43.901640+00:00 Flash Lite cap24 amendment
+
+- Owner raises the separate Flash Lite cap from 18 USD to 24 USD to finish all 221 sealed TEST items.
+- Every existing uncertain-charge hold remains. Model, medium reasoning, 300-second timeout, eight workers, sealed order and scoring stay fixed.
+- Source: lite/evidence/cap24-amendment.json.
