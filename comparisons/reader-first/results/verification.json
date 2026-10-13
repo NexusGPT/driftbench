@@ -1,5 +1,5 @@
 {
-  "at": "2026-10-13T04:32:13.091754+00:00",
+  "at": "2026-10-13T04:52:39.550803+00:00",
   "frozenCommit": "c50b2dc3f0c6c3e9bc3b82d848fb9bc1a98451c4",
   "checks": [
     {
@@ -66,10 +66,36 @@
       "allCallsBeforeCutoff": true,
       "publicBenchmarkEmailQuotesVerified": 3,
       "frozenSourceHashesStillMatch": 49
+    },
+    {
+      "check": "Final frozen TEST",
+      "completedPairs": 173,
+      "games": 346,
+      "correct": 248,
+      "lengthCorrect": 242,
+      "fallbackPairs": 74,
+      "all49MeasuredHashesMatchFreeze": true,
+      "successfulPromptKeysUnique": 526,
+      "successfulCalls": 526,
+      "peakRecordedConcurrentCalls": 6,
+      "lastStartedAt": "2026-10-13T04:48:06.993Z",
+      "lastFinishedAt": "2026-10-13T04:48:25.482Z"
+    },
+    {
+      "check": "Post-TEST formatting",
+      "emittedJavaScriptAstIdentical": true,
+      "unchangedOtherFrozenSourceFiles": 48,
+      "newFixtureTestsPassed": 20,
+      "targetedBiomeExit": 0,
+      "targetedBiomeWarnings": 15
+    },
+    {
+      "check": "Fresh existing golden and cassette tests after formatting",
+      "files": 4,
+      "testsPassed": 38,
+      "legacyCassetteEntries": 1028
     }
   ],
-  "openChecks": [
-    "One formatting-only Biome error in reader-first-features.ts remains until TEST completes; no judging source change after freeze."
-  ],
+  "openChecks": [],
   "timeoutDisclosure": "Two runs with the default five-second timeout hit a dynamic-import timeout in unchanged pairwise.test.ts. The same suite passes with a60-second timeout and two workers."
 }

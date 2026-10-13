@@ -255,7 +255,12 @@ export function readerFeatures(text: string, language?: 'en' | 'zh'): ReaderFeat
   const paragraphs =
     normalized === '' ? [] : normalized.split(/\n\s*\n/u).filter((part) => part.trim() !== '');
   const parts = sentenceParts(normalized, lang);
-  const sentenceKeys = parts.map((part) => part.toLowerCase().replace(/[^\p{L}\p{N}]+/gu, ' ').trim());
+  const sentenceKeys = parts.map((part) =>
+    part
+      .toLowerCase()
+      .replace(/[^\p{L}\p{N}]+/gu, ' ')
+      .trim(),
+  );
   const lexical = lexicalWords(normalized);
   const grade =
     lang === 'en' && lexical.length > 0 && parts.length > 0
