@@ -242,3 +242,29 @@ The first command measures every bank item on seed 1; it takes 8 to 20 minutes h
 * Bank generators under `packages/validators/src/ladders/estate/bank/` plant inputs in temporary folders. Read them to diagnose; never edit them.
 * `examples/estates/fixture`, `fixture-v2` and `reader-cases` hold committed fictional estates and their recorded answers. `scan/cases.test.ts` checks that `reader-cases/map.yaml` matches a fresh scan.
 * Regression tests for this takeover are under `packages/estate/test/scan/`, plus `test/lint-characters.test.ts`. Their fake ports make no model calls.
+
+## v4 rulings: generation measured at 59f4b083b
+
+The production checks already include guard_message, guard_finished and stage_seen. Adding those names does not fix these items. The isolated seed 1 report lists the failures below. A read-only reproduction used estateRun(1), specVerdicts(run), the generated spec and the follower trace. No validator file was changed.
+
+| Item suffix under gen.complete | Evidence | Ruling needed |
+|---|---|---|
+| guard_negative-guard-reply-length-py | The guard has no registry verdict; its generated negative check counts any verdict as zero. follower.ts emits a Stop guard allow decision on every reply, including the outside ask. | Decide whether the negative means no denial or no invocation, then align the planted metadata and follower. |
+| guard_register-guard-read-before-edit-py | follower.ts guardRow emits only at/event/check/verdict/session. It provides no stdout, stderr or reason. guard_message correctly reports no runtime output. | Supply the guard output the message check needs. |
+| guard_register-guard-reply-length-py | The planted guard verdict is allow; guard_message correctly says it did not block. Its trace also lacks message output. | Supply a blocking case and its message, or define an allow-message contract. |
+| hazard_recovery-hazard-after-compaction | replayOnFollower passes only asks to follow, ignoring the spec event. The returned transcript contains no compaction record. | Plant the event, so recovery can be observed. |
+| journey-route-table; read_when-reference-skill | The planted menu-review supplier-recipes reference has exists:false; the file is absent by design. The generator reports needs-existing-file. | Exclude a deliberately missing target from complete-read requirements, or supply it. |
+| read_when-reference-standing | The bank claims the menu task covers .claude/steps.json; the follower never reads that file. | Make the declared situation exercise the reference. |
+| skip_pressure-gate-fixed-gate | Both skill pressure situations claim the fixed repair-ticket gate. The documented first matching situation is menu-review-pressure. Its follower reads menu files only. | Correct the situation membership for the scoped gate. |
+| stage_anytime-stage-anytime; stage_order-stage-anytime | Every skill situation names stage:note. follower.ts walkOf explicitly filters out anytime stages, so note never appears. | Give the anytime stage a reachable situation and trace event. |
+| tool_boundary-tool-allow | Every skill situation claims every permission. The selected menu task calls neither Grep nor Bash(git status). | Supply tasks that exercise each allowed call. |
+| tool_boundary-tool-declared | The bank claims declared Glob on the menu task, whose follower never calls Glob. | Supply the helper/tool act the bank claims. |
+| tool_boundary-tool-ask | The trace has no permission-prompt record. Production intentionally reports needs-registered-check for ask permission; docs/estate.md section 5 explicitly keeps ask as a gap. | Define an observable permission prompt and check contract. |
+| tool_denied-tool-deny | The generated WebFetch exclusion is correct; the follower adapter reports no offered tools. Absence of a call cannot prove absence from offered tools. | Supply offered-tool metadata to the replay adapter. |
+
+Sources: packages/validators/src/ladders/estate/{pipeline.ts,follower.ts,situations.ts}; packages/generate/src/estate/{then.ts,build-row.ts}; packages/checks/src/checks/estate.ts. The fixture input problems cannot be fixed by deleting expectations or accepting nonexistent observations in product code.
+
+### v4 product fixes after the baseline
+
+- f263fd3ef: match skill folder moves through a unique declared name. Rename regression red first, then 4/4; existing diff 10/10; maintain.impact 33/33. The validator planted-rename regression also passes.
+- Gate ordering now binds a named Read to its file and an unqualified read-before-edit gate to the edited file. Saved regression red first, then 3/3; then 34/34; generate 32/32. mutant.agent 38/44, up from 37/44. Full sweep pending.
