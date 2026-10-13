@@ -1,0 +1,31 @@
+{
+  "changes": [
+    {
+      "id": "9eeb0aa3c4d5607cf62dac86e1b9eca4_75b2a58542259d851176d51275ee3259",
+      "before": true,
+      "after": false,
+      "official": true,
+      "audited": true
+    },
+    {
+      "id": "8725986b8def7d6dc2430b5a82ebe768_d892147f21a603cf006be26ac0db27cb",
+      "before": true,
+      "after": false,
+      "official": false,
+      "audited": false
+    },
+    {
+      "id": "5f981c74919500aeaaae8b6d69ce31b8_c01d363627aeded9eee9e3f19ad99d21",
+      "before": true,
+      "after": false,
+      "official": false,
+      "audited": false
+    }
+  ],
+  "newCalls": 4,
+  "timing": {
+    "startedAt": "2026-10-13T02:11:24.795Z",
+    "endedAt": "2026-10-13T02:12:03.914Z",
+    "elapsedSeconds": 39.119
+  }
+}

@@ -16,6 +16,21 @@ import {
 import { testMetrics, testSample } from '../src/verify-test-metrics';
 import { deterministicEvidence } from '../src/verify-tools';
 
+it('does not mistake a presentation-policy reminder for admitted missing premises', () => {
+  const review = contestantById('driftbench-verify-uncertainty-cascade').postPoint;
+  expect(
+    review?.when({ pass: true }, [
+      'Judge the assertion, not to add an unstated request for transformation details.',
+    ]),
+  ).toBe(false);
+  expect(
+    review?.when({ pass: true }, [
+      'The cup count is unstated. Do not invent an unstated request for presentation details.',
+    ]),
+  ).toBe(true);
+  expect(review?.when({ pass: false }, ['The cup count is unstated.'])).toBe(false);
+});
+
 it('reviews only accepted answers with admitted assumptions and preserves strict replay', async () => {
   const folder = await mkdtemp(join(tmpdir(), 'verify-cascade-test-'));
   try {

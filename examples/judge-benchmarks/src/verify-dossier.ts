@@ -141,6 +141,25 @@ export function dossierContestants(
       prompt: strictPoint,
     },
   };
+  const cautiousCascade: Contestant = {
+    ...cascade,
+    id: 'driftbench-verify-uncertainty-cascade',
+    source: `${cascade.source}; exclude reminders not to invent unrequested outputs from uncertainty detection`,
+    postPoint: {
+      ...cascade.postPoint,
+      prompt: strictPoint,
+      when: (decision, texts) =>
+        cascade.postPoint?.when(
+          decision,
+          texts.map((t) =>
+            t.replace(
+              /\b(?:not to add|do not add|don't add|not to invent|do not invent|don't invent)[^\n.]{0,160}\b(?:request|requirement|detail)s?[^\n.]{0,80}/gi,
+              '',
+            ),
+          ),
+        ) ?? false,
+    },
+  };
   return [
     quoted,
     aided,
@@ -149,6 +168,7 @@ export function dossierContestants(
     recoveredFive,
     context,
     cascade,
+    cautiousCascade,
     withBoardgameConvention(
       literal(recovered, 'driftbench-verify-program-backward-step-literal'),
       'driftbench-verify-program-backward-step-literal',
