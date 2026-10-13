@@ -111,10 +111,10 @@ probabilities) and `chars`, `length_gap`, `non_latin` (code). A route reads cont
 
 | File | State |
 |---|---|
-| `results/signals/judgebench.json` | core 68 pairs: every expert. Enlargement to 250 in progress (main experts first) |
-| `results/signals/mmeval.json` | core 45 pairs: every expert. Enlargement to 300 in progress. The recorded ledger baseline covers a subset only (the pairs whose `_meta.baselines` holds `ledger`) |
-| `results/signals/writing.json` | core 50 pairs: every expert. Enlargement to 300 in progress |
-| `recordings/jev.jsonl`, `recordings/luna.jsonl` | complete for the above; `python3 -m moj.collect --offline` replays them |
+| `results/signals/judgebench.json` | complete, split v2: 250 practice pairs (68 core, 182 ext). Main experts (s1p, s1pr, s1r, s1cf, route, ref, s2v, s2l, length, first) on all; adv, debate, s2h on the core only |
+| `results/signals/mmeval.json` | complete, split v2: 300 pairs (45 core, 255 ext), same expert coverage. The recorded ledger baseline covers only the pairs whose `_meta.baselines` holds `ledger` |
+| `results/signals/writing.json` | complete, split v2: 300 pairs (50 core, 250 ext), same expert coverage. One pair (`07ca2300...`) has no System-1 answer: the gateway answers HTTP 403 to it on every submission |
+| `recordings/jev.jsonl`, `recordings/luna.jsonl` | complete for the above; `python3 -m moj.collect --offline --experts s1p,s1pr,s1r,s1cf,route,ref,s2v,s2l,length,first` replays them |
 
 Each signal file maps a pair id to `{<expert>: {pA, detail, calls, usd, seconds}, _meta: {label, half, split, group, language, baselines}}`.
 
