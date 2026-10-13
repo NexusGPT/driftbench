@@ -2,11 +2,13 @@
   "version": 2,
   "ladderVersion": {
     "judges": 1,
-    "stats": 1
+    "stats": 1,
+    "system": 5
   },
   "floors": {
     "judges": 7,
-    "stats": 1
+    "stats": 1,
+    "system": 7
   },
   "evidence": {
     "judges": {
@@ -66,6 +68,13 @@
       "hiddenSeed": 707151630,
       "head": "2a1704ce6f752251b12985a23e109056de8c6953",
       "ladderVersion": 1
+    },
+    "system": {
+      "level": 7,
+      "seeds": ["1", "2", "3", "4", "5", "hidden"],
+      "hiddenSeed": 293302998,
+      "head": "c43c8e96b0031edc4217499f65f3cf54b5eb604e",
+      "ladderVersion": 5
     }
   }
 }

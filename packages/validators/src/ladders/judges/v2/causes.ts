@@ -139,7 +139,7 @@ const RULES: readonly (readonly [RegExp, string])[] = [
   ],
   [
     /^clients\/openai-asks-for-the-answer-schema$/,
-    'In createOpenAiJudge: send response_format { type: json_schema, json_schema: { name, schema } } with the answer contract (outcome, score, reasoning, evidence).',
+    'In createOpenAiJudge: send response_format { type: json_schema, json_schema: { name, schema } } with the default checks ledger (id, reasoning, grounded evidence or null, met or null).',
   ],
   [
     /^clients\/google-gives-a-response-schema$/,
@@ -194,6 +194,10 @@ const RULES: readonly (readonly [RegExp, string])[] = [
   [
     /^check\/council-that-throws-is-inconclusive$/,
     'In judgeCheck: turn a council that throws into one inconclusive verdict per criterion.',
+  ],
+  [
+    /^render\/as-written-code-in-the-reply$/,
+    `In ${S}/src/transcript.ts: JSON-decode the frame text to the exact submitted code; JSON quoting must not alter its content.`,
   ],
   [
     /^render\/as-written-/,
@@ -374,17 +378,20 @@ const RULES: readonly (readonly [RegExp, string])[] = [
   ],
   [
     /^render\/forged-entry-in-tool-name$/,
-    `In ${S}/src/prompt.ts renderEntry: keep a tool name on its line (no line break, no closing bracket).`,
+    `In ${S}/src/transcript.ts: keep tool metadata in the JSON frame; a tool name containing bracket labels or separators cannot create another entry.`,
   ],
   [
     /^render\/forged-entry-/,
-    'In renderEntry: keep each entry on one line: replace every line-break character (\\n, \\r, U+2028, U+2029, U+0085, \\v, \\f) in its text with a visible marker.',
+    'In transcript.ts: render indexed JSON entries with authoritative role fields; separators and bracket labels inside text remain decoded string content, never new entries.',
   ],
   [
     /^render\/closing-tag-/,
     'In escapeData: guard data tags written with lookalike characters: fold compatibility forms (NFKC) and drop invisible characters before escaping.',
   ],
-  [/^render\//, 'Keep rendering entries as they render today.'],
+  [
+    /^render\//,
+    'Render indexed JSON entries with separate role and text fields, preserving the planted transcript verdict after decoding.',
+  ],
   [/^budget\/singular-marker$/, 'In fitPrompt: write "[1 earlier entry omitted]" for one dropped entry.'],
   [/^budget\/tool-result-not-orphaned$/, 'In fitPrompt: also drop a tool result whose call was dropped.'],
   [
@@ -504,7 +511,7 @@ const RULES: readonly (readonly [RegExp, string])[] = [
   [/^attacks\/injection-probability-mid-conversation$/, SCREEN],
   [
     /^council\/majority-size-/,
-    `In ${S}/src/council.ts majority: an outcome wins only with more than half of all votes cast, inconclusive votes counted in the total; otherwise split.`,
+    `In ${S}/src/council.ts majority: default to three seated judges: two supporting votes and strictly more support than the other side; otherwise split. Explicit numeric seats set the quorum; weighted options keep their cast-weight denominator.`,
   ],
   [
     /^council\/weight-(negative|not-finite)-refused$/,

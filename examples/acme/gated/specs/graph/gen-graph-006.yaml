@@ -2,7 +2,7 @@
 # Each block passed or was rejected by the nine stages; metadata.gate says which and why.
 # Do not edit it by hand: gate the candidates again. Fictional data only.
 id: gen-graph-006
-version: b583de68c530
+version: 6d29ed7a7539
 kind: conversation
 title: "Stage path 6: Path home-no-coverage of new-home: needs > address > callback > handover > closing"
 channel: whatsapp
@@ -114,7 +114,7 @@ metadata:
       path: ../map/approved.yaml
       agent: acme
       version: "1"
-      hash: b583de68c530
+      hash: 6d29ed7a7539
     path: home-no-coverage
     cell:
       flow: new-home

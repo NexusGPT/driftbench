@@ -1,0 +1,45 @@
+{
+  "repository": "https://github.com/promptfoo/promptfoo",
+  "commit": "801428268b5e421b2f6994332f6a06f86b27bb1f",
+  "source": "src/prompts/grading.ts",
+  "license": "MIT",
+  "exports": ["DEFAULT_GRADING_PROMPT", "PROMPTFOO_FACTUALITY_PROMPT", "TRAJECTORY_GOAL_SUCCESS_PROMPT"],
+  "note": "Content strings extracted without rewriting. Normalization verified using upstream dedent 1.7.2.",
+  "dedent_version": "1.7.2",
+  "source_sha256": "66413428d9d5c0a952e78e53f6ee4f4859522134f9611274d2b620a649fa6e43",
+  "resolved_strings_sha256": "c38a65a31caeb3142a8facf488aae5f6ee302519fbddf2007685a03fed0ccc64",
+  "helper_sources": {
+    "trajectoryUtils": {
+      "source": "src/assertions/trajectoryUtils.ts",
+      "sha256": "9078196169fec538974254701ec97613eaad2a4027ab08a108aa5341cad41f60"
+    },
+    "toolAttributes": {
+      "source": "src/tracing/toolAttributes.ts",
+      "sha256": "081c550abdfa43a94b080e35e9b8949a072baadb7398d64bf769707b452614eb"
+    }
+  },
+  "decoder_sources": {
+    "json": {
+      "source": "src/util/json.ts",
+      "sha256": "6a3e50ba736a90c5338688b012f91c1745df61ed50f3db488a742194d9b050f0"
+    },
+    "llmGrading": {
+      "source": "src/matchers/llmGrading.ts",
+      "sha256": "5553faa86bc1eb1e9d538b31b2d9f03970af7277a8d8d2f37d2e3b68b951b4e7"
+    },
+    "rubric": {
+      "source": "src/matchers/rubric.ts",
+      "sha256": "1a109cb444c141e61a49f51d37254ba5ed45fbea947509b5c22f8ecbc2c891f9"
+    }
+  },
+  "scope_sources": {
+    "trajectory": {
+      "source": "src/assertions/trajectory.ts",
+      "sha256": "c00323cf858186c81a73282541b23d9c330d3116c11339dd0d64178fa4a2e278"
+    },
+    "agent": {
+      "source": "src/matchers/agent.ts",
+      "sha256": "c564ea3062a4a488ec841fb9600c6584a4f4080d8718194deced91b4c3277986"
+    }
+  }
+}

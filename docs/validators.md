@@ -131,7 +131,7 @@ Option errors that the argument parser itself reports (an unknown flag) exit 2, 
 `registeredLadders()` in `packages/validators/src/ladders/index.ts` returns two validators today: `judges` and `stats`. `validate floors` prints their floors:
 
 ```
-Floors (validators/floors.json): judges = 7 (ladder version 1), stats = 1 (ladder version 1).
+Floors (validators/floors.json): judges = 7 (ladder version 1), stats = 1 (ladder version 1), system = 7 (ladder version 5).
 ```
 
 The CI command, run from the repository root at the commit that merged main into this docs branch, printed this and exited 0. The hidden seed changes with every commit.
