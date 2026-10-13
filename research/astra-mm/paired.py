@@ -1,5 +1,5 @@
 """Paired complete-cohort estimates. No fitting, calls or imputation of missing panels."""
-import collections,json,math,pathlib
+import collections,json,math,pathlib,sys
 import numpy as np
 ROOT=pathlib.Path(__file__).resolve().parent
 D=ROOT/'data'
@@ -26,10 +26,12 @@ def estimate(rs,kind='macro5'):
  m=wins+losses;k=min(wins,losses);p=min(1,2*sum(math.comb(m,i) for i in range(k+1))/2**m) if m else 1
  return {'n':n,'metric':'five-subset macro' if kind=='macro5' else 'item mean among full-panel escalations only','base':float(tb),'cascade':float(tc),'difference':float(tc-tb),'paired95':[float(lo),float(hi)],'wins':wins,'losses':losses,'unchanged':n-m,'signTestP':p,'subsets':{g:{'n':len(by[g]),'base':float(by[g][:,0].mean()*100),'cascade':float(by[g][:,1].mean()*100),'difference':float((by[g][:,1]-by[g][:,0]).mean()*100)} if g in by else {'n':0,'base':None,'cascade':None,'difference':None} for g in GROUPS}}
 if __name__=='__main__':
- complete=rows(D/'dev-decisions.jsonl');full=rows(D/'dev-full-panel-decisions.jsonl');excluded=json.loads((D/'dev-excluded.json').read_text())
- is_full=len(complete)==1052 and not excluded
- out={'label':'Full 1,052-item DEV replication' if is_full else 'Partial replication: complete cases only; missing panels excluded from both paired arms','completeCascadeCohort':estimate(complete),'fullPanelEscalationsOnly':estimate(full,'item'),'excludedItems':len(excluded),'testGateEvaluated':is_full,'reason':'Frozen DEV cohort complete.' if is_full else 'Frozen 1,052-item DEV replication is incomplete; partial estimates do not authorize TEST.','bootstrap':{'draws':20000,'seed':20261013,'strata':'subset','percentiles':[2.5,97.5],'note':'The complete-cascade cohort includes Haiku agreements with no panel required, plus escalations with all panel requests recorded. The strict full-panel cohort contains only the latter.'}}
- if is_full:
+ prefix=sys.argv[1] if len(sys.argv)>1 else 'dev'
+ complete=rows(D/f'{prefix}-decisions.jsonl');full=rows(D/f'{prefix}-full-panel-decisions.jsonl');excluded=json.loads((D/f'{prefix}-excluded.json').read_text())
+ expected=len(json.loads((D/f'{prefix}.json').read_text()))
+ is_full=len(complete)==expected and not excluded
+ out={'label':f'Full {expected:,}-item {prefix.upper()} replication' if is_full else 'Partial replication: complete cases only; missing panels excluded from both paired arms','completeCascadeCohort':estimate(complete),'fullPanelEscalationsOnly':estimate(full,'item'),'excludedItems':len(excluded),'testGateEvaluated':is_full and prefix=='dev','reason':f'Frozen {prefix.upper()} cohort complete.' if is_full else 'Frozen 1,052-item DEV replication is incomplete; partial estimates do not authorize TEST.','bootstrap':{'draws':20000,'seed':20261013,'strata':'subset','percentiles':[2.5,97.5],'note':'The complete-cascade cohort includes Haiku agreements with no panel required, plus escalations with all panel requests recorded. The strict full-panel cohort contains only the latter.'}}
+ if is_full and prefix=='dev':
   a=out['completeCascadeCohort'];out['testGatePassed']=a['difference']>=1.0 and a['paired95'][0]>0
- (D/('paired-full.json' if is_full else 'paired-partial.json')).write_text(json.dumps(out,indent=2)+'\n')
+ (D/(('paired-full.json' if is_full else 'paired-partial.json') if prefix=='dev' else f'{prefix}-paired.json')).write_text(json.dumps(out,indent=2)+'\n')
  print(json.dumps(out,indent=2))
