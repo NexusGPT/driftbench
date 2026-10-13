@@ -246,6 +246,17 @@ export function actOf(
     const tooled = toolAct(head);
     if (tooled) return withContext(tooled, `${head.id} (tool rule)`);
   }
+  if (
+    head?.kind === 'hazard' &&
+    head.evidence.some((item) => item.type === 'custom' && item.name === 'hazard_recovery')
+  ) {
+    // The runner supplies the interruption. Ask for useful work after it, leaving the agent to recover
+    // from its own instructions instead of telling it the recovery steps under test.
+    return {
+      act: 'review the interrupted task and report the next action',
+      source: `${head.id} (recovery task)`,
+    };
+  }
   // A route's situation or a unit's description gives a task only when it starts with a verb: "Read-only
   // audit lane for ledger checks" describes the unit, and asking for help with it names nothing to do.
   let described: string | undefined;
