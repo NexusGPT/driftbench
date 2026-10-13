@@ -217,6 +217,7 @@ export async function judgePairLedger(
     const run = async (question: JudgeRequest) => {
       calls++;
       const response = await reader.judge(question);
+      calls += (response.thinkingRecovery?.requestCount ?? 1) - 1;
       // Parse the recorded text ourselves too: every custom client obeys the same ledger contract.
       const parsed = parseJudgeText(response.raw, question);
       const result = { ...response, ...parsed };
