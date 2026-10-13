@@ -80,6 +80,7 @@ import type { Io } from '../io';
 import { optionNumber } from '../number';
 import { pluginAdapter, pluginAdapterNames } from '../plugins';
 import { noStoreAt } from '../store-path';
+import { BUILTIN_TARGETS_NOTE, builtinTarget, builtinTargetHint } from '../targets';
 import { pricesFromConfig } from '../token-prices';
 import { agentFamilyOf, describeSource, loadPersonas, portFor, userFactory, userSource } from './personas';
 
@@ -232,7 +233,10 @@ export const defaultDeps: CampaignDeps = {
       return acmeFunctionAdapter();
     }
     if (target.adapter === 'process' && target.agent === 'acme-ops') return acmeOpsAdapter(scope);
-    return pluginAdapter(target, scope);
+    const plugged = await pluginAdapter(target, scope);
+    if (plugged !== undefined) return plugged;
+    const builtin = builtinTarget(target);
+    return builtin !== undefined && 'adapter' in builtin ? builtin.adapter : undefined;
   },
   checks: defaultChecks(),
   artifacts: defaultReaders(),
@@ -1504,7 +1508,9 @@ export function noAdapter(target: TargetRef, specIds: readonly string[] = []): s
   const whose = specIds.length === 0 ? '' : `, the target of ${specIds.join(', ')}`;
   const added = pluginAdapterNames();
   const plugins = added.length === 0 ? '' : ` Plugins add the adapters ${added.join(', ')}.`;
-  return `No adapter is set up for ${showTarget(target)}${whose}. ${KNOWN_TARGETS}${plugins}`;
+  const hint = pluginAdapterNames().includes(target.adapter) ? undefined : builtinTargetHint(target);
+  const needs = hint === undefined ? '' : ` ${hint}`;
+  return `No adapter is set up for ${showTarget(target)}${whose}.${needs} ${KNOWN_TARGETS} ${BUILTIN_TARGETS_NOTE}${plugins}`;
 }
 
 /** The target of the first route whose tag the spec carries, if any. */
