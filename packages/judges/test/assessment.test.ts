@@ -53,7 +53,7 @@ describe('itemized rubric aggregation', () => {
     expect(result.rubric?.second).toBeCloseTo(2 / 3);
     expect(result.rubric?.items.map((i) => i.name)).toEqual(['correct', 'format']);
   });
-  it('refuses missing, duplicated, invented or out-of-range item scores', () => {
+  it('refuses missing, duplicated or out-of-range requested item scores', () => {
     for (const items of [
       [{ name: 'correct', a: 0, b: 4, reasoning: 'r' }],
       [

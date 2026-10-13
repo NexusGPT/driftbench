@@ -1,0 +1,15 @@
+{
+  "frozenAt": "2026-10-12T21:47:29.225148+00:00",
+  "seed": 20261013,
+  "casesPerRow": 60,
+  "candidate": "comparison-only audit, not yet the shipped default",
+  "labelsFixedBeforeRun": true,
+  "sha256": {
+    "audit.ts": "5f86ab76b380435ba59db417093daedd027a32da9f55d48f702e67345e1338a6",
+    "generate.mts": "1c39b4b9adf554acef4ced1a352a3510c88591e74a9056f3e87305ef976ba61f",
+    "qa-heldout.json": "261fdca5bc00280d1ebad22035024e33e19678e794e8a9c3e568a4f04b927c1e",
+    "fact-heldout.json": "f775a656de4af27a556c6cb753bd741d2fa3ee53ecb49aa949407a4ad77b539b",
+    "panel-heldout.json": "2455955d5a2d9d83bc17f8b75ebae535bfffdce0b78d3526eaac719998285dfb",
+    "borderline-heldout.json": "4f4662cb8e93447c97823c78a4093ec91d194ec5a895870ef19222ca05d0000b"
+  }
+}
