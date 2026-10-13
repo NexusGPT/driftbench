@@ -1,4 +1,4 @@
-import type { PerturbationSpec, ToolExpect, WorldState } from '@agent-nexus/driftbench-core';
+import type { PerturbationSpec, ToolExpect } from '@agent-nexus/driftbench-core';
 import { NONE } from '@agent-nexus/driftbench-space';
 import type { PathRelation, ProposalPhrase } from '../extract/proposal';
 import {
@@ -26,7 +26,10 @@ import { pick, type Rng, range, rngFor, shuffle, streamSeed } from './random';
 import { slotsOf } from './relations';
 import { buildScenario, type ProbeRequest, type ScenarioRequest } from './scenario';
 import { type AllowedCheck, coveringArray } from './twise';
-import { concreteValue, INVALID_PARTITIONS, inputAssertion, toolAnswer } from './values';
+import { concreteValue, INVALID_PARTITIONS, inputAssertion } from './values';
+import { worldFor } from './world';
+
+export { worldFor } from './world';
 
 /**
  * The five seeders. Each one is deterministic code over the approved map: the stage graph walk, the
@@ -868,51 +871,6 @@ function failingTool(prepared: PreparedMap, rng: Rng, cell: Pick[]): string | un
     rng,
     prepared.tools.filter((tool) => tool.output).map((tool) => tool.name),
   );
-}
-
-/** The tool answers a cell's output values state, as `world.tools.<tool>.result`. */
-export function worldFor(
-  prepared: PreparedMap,
-  cell: readonly Pick[],
-  options: { useBindings?: boolean } = {},
-): { world?: WorldState; unsupported: string[] } {
-  const byTool = new Map<
-    string,
-    Array<{ path: string[]; schema: Record<string, unknown>; partition: string; bindings?: string[] }>
-  >();
-  for (const [dimension, value] of cell) {
-    const found = prepared.toolDimensions.get(dimension);
-    if (found?.direction !== 'out') continue;
-    const partition = partitionOf(dimensionId(prepared, dimension), valueId(prepared, dimension, value));
-    byTool.set(found.tool.name, [
-      ...(byTool.get(found.tool.name) ?? []),
-      {
-        path: found.path,
-        schema: found.schema,
-        partition,
-        ...(options.useBindings
-          ? {
-              bindings: Object.values(
-                prepared.relations.binds.get(
-                  `${dimensionId(prepared, dimension)}=${valueId(prepared, dimension, value)}`,
-                ) ?? {},
-              ),
-            }
-          : {}),
-      },
-    ]);
-  }
-  if (byTool.size === 0) return { unsupported: [] };
-  const tools: NonNullable<WorldState['tools']> = {};
-  const unsupported: string[] = [];
-  for (const tool of prepared.tools) {
-    const partitions = byTool.get(tool.name);
-    if (!partitions) continue;
-    const answer = toolAnswer(tool, partitions);
-    tools[tool.name] = { result: answer.answer as never };
-    unsupported.push(...answer.unsupported.map((entry) => `${tool.name}.out.${entry}`));
-  }
-  return { world: { tools }, unsupported };
 }
 
 // Boundary and equivalence values ----------------------------------------------------------------------

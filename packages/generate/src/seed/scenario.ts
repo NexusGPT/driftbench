@@ -5,6 +5,7 @@ import type {
   PerturbationSpec,
   Rules,
   ToolExpect,
+  WorldState,
 } from '@agent-nexus/driftbench-core';
 import type { PathRelation, ProposalPhrase, Slots } from '../extract/proposal';
 import type { BlockDraft, Pick, Stimulus } from './assemble';
@@ -24,6 +25,8 @@ import {
   stageAfter,
   toolExpect,
 } from './relations';
+import { toolAnswer } from './values';
+import { worldFor } from './world';
 
 /**
  * A scenario: one approved path of a flow, walked in a cell, with every Then derived by code from the map.
@@ -78,6 +81,9 @@ export type Scenario =
   | { ok: false; reason: string };
 
 type Built = Extract<Scenario, { ok: true }>;
+
+/** One tool's forced answer in a Given world. */
+type ToolAnswer = NonNullable<WorldState['tools']>[string];
 
 /** True when a phrase belongs to `dimension=value`. */
 function isOf(phrase: ProposalPhrase, dimension: string, value: string): boolean {
@@ -405,7 +411,14 @@ export function buildScenario(prepared: PreparedMap, rng: Rng, request: Scenario
   let placed: Built['probe'];
   let truncated = turnPlaced;
   if (probe && probe.classId === TOOL_FAILURE) {
-    const failed = toolFailure(prepared, rng, path, blocks, cell, probe);
+    // The answer a tool gives once it works again: the bound values the replies state, else its defaults.
+    const answering = (tool: string): ToolAnswer => {
+      const bound = worldFor(prepared, unique(replyData), { useBindings: true }).world?.tools?.[tool];
+      if (bound) return bound;
+      const schema = prepared.tools.find((entry) => entry.name === tool);
+      return { result: (schema ? toolAnswer(schema, []).answer : {}) as never };
+    };
+    const failed = toolFailure(prepared, rng, path, blocks, cell, probe, answering);
     if (!failed.ok) return fail(failed.reason);
     placed = failed.placed;
     truncated = true;
@@ -596,6 +609,7 @@ function toolFailure(
   blocks: BlockDraft[],
   cell: Pick[],
   probe: ProbeRequest,
+  answering: (tool: string) => ToolAnswer,
 ): { ok: true; placed: { classId: string; stage: string; tool: string } } | { ok: false; reason: string } {
   const recoverable = failureTools(prepared.relations, TOOL_FAILURE, path.flow);
   const named = cell
@@ -618,6 +632,8 @@ function toolFailure(
   }
   const recovery = recoveryFor(prepared.relations, TOOL_FAILURE, path.flow, chosen.tool) as Recovery;
   const block = blocks[chosen.index] as BlockDraft;
+  // The turn as the walk says it, before it becomes the probe: the user says it again once the tool works.
+  const again = structuredClone(block);
   const at = path.stages[chosen.index] as string;
   const after = stageAfter(recovery, at);
   // The turn calls its tools in the order the map lists them: the ones before the failing tool still run,
@@ -660,7 +676,16 @@ function toolFailure(
   else delete block.must_not;
   const deviation = prepared.space.dimensions[prepared.deviation ?? -1]?.index.get(TOOL_FAILURE);
   if (deviation !== undefined) block.carries = [[prepared.deviation as number, deviation], ...block.carries];
-  blocks.splice(chosen.index + 1);
+  // A recovery that keeps the conversation on the stage the turn left: the user asks again, the tool answers,
+  // and the walk goes on from there with every later turn as it was. One that moves it elsewhere stops it.
+  const rest = blocks.splice(chosen.index + 1);
+  if (after === at) {
+    again.given = { world: { tools: { [chosen.tool]: answering(chosen.tool) } } };
+    blocks.push(again, ...rest);
+    blocks.forEach((entry, index) => {
+      entry.id = entry.id.replace(/^b\d+-/, `b${index + 1}-`);
+    });
+  }
   // The failing tool as a data value of the cell, when the map names tools as data (Acme's failing_tool).
   if (named === undefined) {
     prepared.space.dimensions.forEach((dimension, index) => {
