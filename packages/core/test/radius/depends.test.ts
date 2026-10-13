@@ -34,7 +34,8 @@ describe('blockDependencies', () => {
       { label: 'catalog.search', count: 'some', input: true },
       { label: 'order.create', count: 'zero', input: false },
     ]);
-    expect(deps.fields).toEqual(['tools', 'stage', 'text', 'lang']);
+    // The walk declares a nudge as a perturbation, so it holds the one-message rule: the format field.
+    expect(deps.fields).toEqual(['tools', 'stage', 'text', 'lang', 'format']);
     expect(deps.stages.sort()).toEqual(['identify', 'offer']);
     expect(deps.cell.stage_transition).toBe('identify-to-offer');
     expect(deps.cell.flow).toBe('upgrade');
