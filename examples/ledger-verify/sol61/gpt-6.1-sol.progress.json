@@ -1,8 +1,8 @@
 {
-  "phase": "pilot",
+  "phase": "results",
   "status": "running",
   "concurrency": 2,
-  "at": "2026-10-13T19:34:39.260376+00:00",
+  "at": "2026-10-13T21:22:54.722764+00:00",
   "model": "gpt-6.1-sol",
   "pid": 73927
 }

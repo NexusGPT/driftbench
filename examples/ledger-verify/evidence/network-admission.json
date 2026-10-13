@@ -1,13 +1,13 @@
 {
-  "at": "2026-10-13T19:35:09.691856+00:00",
-  "lastProbeEpoch": 1791920109.6918669,
+  "at": "2026-10-13T22:48:46.040603+00:00",
+  "lastProbeEpoch": 1791931726.040611,
   "pid": 52934,
   "model": "gpt-6.1-sol",
-  "open": false,
-  "healthyStreak": 2,
+  "open": true,
+  "healthyStreak": 389,
   "connectionFailureStreak": 0,
   "paidConnectionFailureStreak": 0,
   "concurrency": 2,
-  "status": "health gate",
+  "status": "open",
   "cooldownUntil": 0
 }

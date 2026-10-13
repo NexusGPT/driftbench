@@ -1,6 +1,6 @@
 # LongJudge verify confirmation
 
-Evidence timestamp: 2026-10-13T19:35:10.468757+00:00.
+Evidence timestamp: 2026-10-13T22:47:34.619679+00:00.
 
 Gemini 3.8 Flash: dropped by the owner on 13 Oct 2026, partial data kept, not reported as a score. It is removed from pending work. Flash Lite remains the Gemini result.
 
@@ -195,6 +195,7 @@ Fee sources: receipts/budget.json and receipts/calls.jsonl. Historical replay co
 | sonnet/evidence/native-quota-continuation-state.json | 128fa4600e9db10382ae312ce9e874e5467d6c4effa6c5eef3e7268c7f4d8321 |
 | evidence/closed-output-limit-audit.json | 43af6ef30137e3deb770715e9c3789b40d443f281fc094f841463292c055d8ce |
 | evidence/gemini-owner-drop.json | bb5ffda38ecfd49b1da0e59930e1ca67e84e19a38bb596a918067beb862e8959 |
+| sol61/evidence/pilot-projection.json | 11e8e597a3ffb538fc39b8c24e6d42361e6c9ccfc32764fd7c0569b02985f146 |
 
 Active runtime id: d49a333a9d4e6dd0ffd6. Frozen core: 35f07309a4d1d1c8a7c5b176ff19e537d0ef8fdd.
 Offline checks cover source/pool hashes, exact schemas, strict replay, fail-closed missing replay and restricted Python execution.
@@ -322,7 +323,7 @@ Evidence and unchanged-file hashes: evidence/closed-output-limit-audit.json. The
 | Model | Status | Five-call cost USD | Projected 379-unit cost USD | Settled USD | Reserved or unknown holds USD | Evidence folder |
 |---|---|---|---|---|---|---|
 | claude-sonnet-5-5 | offline evidence ready for review | 0.06976800 | 29.08003000 | 34.11367200 | 0.50000000 | sonnet/ |
-| gpt-6.1-sol | running | 0.06966100 | 36.19988950 | 0.06966100 | 0.00000000 | sol61/ |
+| gpt-6.1-sol | running | 0.06966100 | 36.19988950 | 11.17274000 | 0.68233000 | sol61/ |
 
 claude-sonnet-5-5 cost projection breakdown:
 
@@ -360,6 +361,8 @@ gpt-6.1-sol cost projection breakdown:
 
 Five-call measured cost by contestant: cascade 0.04914650 USD; promptfoo 0.02051450 USD.
 Projection uses the original full Luna request counts, with the highest sampled cascade fee assigned to unsampled stages. It is an estimate, not a measured full-cell cost.
+
+Completed 20-item pilot projection for gpt-6.1-sol: 21.90878667 USD. Calibration fees and holds remain in the hard-cap ledger.
 
 
 | Model | Contestant | Constant-fail official / audited | TEST unique-key cost USD | All-phase attributed settled USD | TEST strict missing / product-final missing | TEST output-limit answers | TEST refusal responses | TEST refused items |

@@ -3295,10 +3295,11 @@
       "sonnet/evidence/native-quota-recovery-state.json": "0c857c53e3463c4687ff92a581f232ad3a0740299d58f56149d6859b30ca26fb",
       "sonnet/evidence/native-quota-continuation-state.json": "128fa4600e9db10382ae312ce9e874e5467d6c4effa6c5eef3e7268c7f4d8321",
       "evidence/closed-output-limit-audit.json": "43af6ef30137e3deb770715e9c3789b40d443f281fc094f841463292c055d8ce",
-      "evidence/gemini-owner-drop.json": "bb5ffda38ecfd49b1da0e59930e1ca67e84e19a38bb596a918067beb862e8959"
+      "evidence/gemini-owner-drop.json": "bb5ffda38ecfd49b1da0e59930e1ca67e84e19a38bb596a918067beb862e8959",
+      "sol61/evidence/pilot-projection.json": "11e8e597a3ffb538fc39b8c24e6d42361e6c9ccfc32764fd7c0569b02985f146"
     }
   },
-  "at": "2026-10-13T19:35:10.468757+00:00",
+  "at": "2026-10-13T22:47:34.619679+00:00",
   "cheaterGateAuditFile": "evidence/cheater-gate-audit.json",
   "predeclaredCheaterMarginEstablished": false,
   "lunaFeeReconciliation": {
@@ -9148,9 +9149,9 @@
       "capUsd": 45
     },
     "gpt-6.1-sol": {
-      "settledUsd": 0.069661,
-      "unresolvedMaximumUsd": 0,
-      "maximumAccountedUsd": 0.069661,
+      "settledUsd": 11.172739999999996,
+      "unresolvedMaximumUsd": 0.68233,
+      "maximumAccountedUsd": 11.855069999999996,
       "capUsd": 40
     }
   },

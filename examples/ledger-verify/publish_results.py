@@ -58,11 +58,18 @@ def main():
     status = git('status', '--short', '--', 'examples/ledger-verify')
     print(status)
     candidates = set(git('ls-files', '--cached', '--others', '--exclude-standard', '--', 'examples/ledger-verify').splitlines())
-    secret = re.compile(rb'(?:sk-[A-Za-z0-9_-]{30,}|AIza[A-Za-z0-9_-]{30,}|nxs_[A-Za-z0-9_-]{30,})')
+    # Random encrypted reasoning can contain a key-like prefix inside base64.
+    # Match a token boundary and also check the two authorized keys exactly.
+    secret = re.compile(rb'(?<![A-Za-z0-9_-])(?:sk-[A-Za-z0-9_-]{30,}|AIza[A-Za-z0-9_-]{30,}|nxs_[A-Za-z0-9_-]{30,})')
+    authorized_keys = [Path(p).expanduser().read_bytes().strip() for p in
+                       ['~/.nexus-secrets/openai.key', '~/.nexus-secrets/gemini-driftbench.key']]
+    assert all(authorized_keys), 'Authorized key files must be nonempty for the exact scan'
     for rel in candidates:
         path = ROOT / rel
         if path.is_file():
-            assert not secret.search(path.read_bytes()), f'Credential-shaped text requires review: {rel}'
+            content = path.read_bytes()
+            assert not any(key in content for key in authorized_keys), f'Authorized credential requires review: {rel}'
+            assert not secret.search(content), f'Credential-shaped text requires review: {rel}'
     report = (BASE / 'REPORT.md').read_text()
     assert report == DOSSIER.read_text(), 'Report copies differ before publication'
     assert '\u2014' not in report and '\u2013' not in report

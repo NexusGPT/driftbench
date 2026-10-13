@@ -254,3 +254,9 @@
 - Completed models: haiku, gpt-6-luna. Offline replay covers 16 finished phases, with zero new provider calls.
 - Gemini 3.8 is dropped by the owner on 13 Oct 2026. Partial data stays archived; no score or pending continuation is reported.
 - Fee reconciliation and frozen source hashes pass. No confirmed output-limit envelope remains unmapped.
+
+## 2026-10-13T22:48:52.645211+00:00 verified report publication
+
+- Completed models: haiku, gpt-6-luna. Offline replay covers 16 finished phases, with zero new provider calls.
+- Gemini 3.8 is dropped by the owner on 13 Oct 2026. Partial data stays archived; no score or pending continuation is reported.
+- Fee reconciliation and frozen source hashes pass. No confirmed output-limit envelope remains unmapped.
