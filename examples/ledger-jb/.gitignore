@@ -1,3 +1,4 @@
 results/.test-tmp/
+results/.paid-run.lock
 __pycache__/
 src/__pycache__/
