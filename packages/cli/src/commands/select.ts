@@ -27,8 +27,11 @@ import {
   type SpaceCoverage,
 } from '@agent-nexus/driftbench-space';
 import type { Command } from 'commander';
+import { exists } from '../files';
 import type { Io } from '../io';
 import { optionNumber } from '../number';
+
+export { exists };
 
 export const GOLDEN_FILE = 'golden.json';
 export const GOLDEN_SPECS_DIR = 'specs';
@@ -501,10 +504,6 @@ async function readJson(file: string): Promise<unknown> {
   } catch (cause) {
     return { unreadable: cause instanceof Error ? cause.message : String(cause) };
   }
-}
-
-export async function exists(path: string): Promise<boolean> {
-  return (await stat(path).catch(() => undefined)) !== undefined;
 }
 
 /** True when `path` is `folder` or inside it. */

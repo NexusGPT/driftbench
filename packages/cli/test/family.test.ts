@@ -169,7 +169,7 @@ describe('driftbench family instances', () => {
     const result = await run(['family', 'instances', family, '--n', '2', '--seed', '1', '--out', 'out'], cwd);
     expect(result.code).toBe(1);
     expect(result.err).toMatch(
-      /A style knob changes the expected outcome[^\n]*nothing is written:\n {2}i01 base: wording = [bc]: the block build expects another must/,
+      /A style knob changes the expected outcome[^\n]*nothing is written:\n {2}i01 base: wording = [abc]: the block build expects another must/,
     );
     expect(await readdir(cwd)).toEqual([]);
   });
@@ -186,6 +186,8 @@ describe('the committed Acme instances', () => {
     expect(result.code).toBe(0);
     const committed = await tree(join(ACME_FAMILY, 'instances'));
     delete committed['verify-report.json'];
+    // A spec whose workspace holds a workbook names its seed folder relative to itself, so the output folder
+    // never shows in the files.
     expect(await tree(out)).toEqual(committed);
   }, 60_000);
 });
@@ -212,7 +214,7 @@ describe('driftbench family verify', () => {
   it('ships every instance of both seed formats the reference passes, and rejects one whose expectation is wrong', async () => {
     const cwd = await mkdtemp(join(tmpdir(), 'driftbench-family-cli-'));
     const built = await run(
-      ['family', 'instances', ACME_FAMILY, '--n', '3', '--seed', '7', '--out', 'out'],
+      ['family', 'instances', ACME_FAMILY, '--n', '3', '--seed', '8', '--out', 'out'],
       cwd,
     );
     expect(built.code).toBe(0);

@@ -1,4 +1,4 @@
-export { type CampaignDeps, type CampaignScope, campaignRunCommand, defaultDeps } from './commands/campaign';
+export type { CampaignDeps, CampaignScope } from './commands/campaign';
 export { type CoverageOptions, coverageCommand } from './commands/coverage';
 export { lintCommand, validateCommand } from './commands/spec';
 export { type Io, processIo } from './io';
@@ -11,3 +11,13 @@ export {
   type PluginScope,
 } from './plugins';
 export { VERSION } from './version';
+
+/**
+ * The campaign commands' own exports, loaded on demand so that importing this package stays light:
+ * `defaultDeps`, what the commands run with, and `campaignRunCommand(paths, options, io, deps)`, one campaign
+ * without the argument parser.
+ */
+export async function campaignCommands() {
+  const { campaignRunCommand, defaultDeps } = await import('./commands/campaign');
+  return { campaignRunCommand, defaultDeps };
+}

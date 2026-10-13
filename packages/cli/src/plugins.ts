@@ -3,10 +3,9 @@ import { readFile } from 'node:fs/promises';
 import { createRequire } from 'node:module';
 import { dirname, isAbsolute, join, resolve } from 'node:path';
 import { pathToFileURL } from 'node:url';
-import { type CustomCheckFunction, defaultRegistry } from '@agent-nexus/driftbench-checks';
+import type { CustomCheckFunction } from '@agent-nexus/driftbench-checks';
 import type { AgentAdapter, TargetRef } from '@agent-nexus/driftbench-core';
 import type { JudgeClient } from '@agent-nexus/driftbench-judges';
-import { isMap, isScalar, isSeq, parseDocument } from 'yaml';
 import type { Io } from './io';
 
 /**
@@ -53,14 +52,21 @@ export function definePlugin(plugin: DriftbenchPlugin): DriftbenchPlugin {
 
 const adapters = new Map<string, PluginAdapterFactory>();
 const judges = new Map<string, () => JudgeClient>();
+/** Checks a plugin named, not yet in the registry of the checks package, which loads only when one exists. */
+const pendingChecks = new Map<string, CustomCheckFunction>();
+/** The registry of the checks package, once a plugin check made it load, and the names registered in it. */
+let checkRegistry:
+  | { register(name: string, check: CustomCheckFunction): unknown; unregister(name: string): boolean }
+  | undefined;
 const checks = new Set<string>();
 
 /** Forgets every adapter, judge and check the plugins registered. `main` calls it before it loads plugins. */
 export function resetPlugins(): void {
   adapters.clear();
   judges.clear();
-  for (const name of checks) defaultRegistry.unregister(name);
+  for (const name of checks) checkRegistry?.unregister(name);
   checks.clear();
+  pendingChecks.clear();
 }
 
 /** The adapter a plugin registered for the target, or undefined. */
@@ -94,8 +100,7 @@ function apiFor(cwd: string): PluginApi {
       adapters.set(name, factory);
     },
     check(name, check) {
-      defaultRegistry.register(name, check);
-      checks.add(name);
+      pendingChecks.set(name, check);
     },
     pairwiseJudge(name, factory) {
       if (typeof factory !== 'function') throw new Error(`the judge ${name} needs a factory function`);
@@ -104,10 +109,23 @@ function apiFor(cwd: string): PluginApi {
   };
 }
 
+/** Puts the checks the plugins named into the registry of the checks package; a later name replaces an earlier one. */
+async function registerPendingChecks(): Promise<void> {
+  if (pendingChecks.size === 0) return;
+  checkRegistry ??= (await import('@agent-nexus/driftbench-checks')).defaultRegistry;
+  for (const [name, check] of pendingChecks) {
+    checkRegistry.unregister(name);
+    checkRegistry.register(name, check);
+    checks.add(name);
+  }
+  pendingChecks.clear();
+}
+
 /** Runs plugins given in code, in order. Throws what a plugin throws. */
 export async function applyPlugins(plugins: readonly DriftbenchPlugin[], cwd: string): Promise<void> {
   const api = apiFor(cwd);
   for (const plugin of plugins) await plugin(api);
+  await registerPendingChecks();
 }
 
 /** One plugin to load: the module as written, and the folder a relative path starts from. */
@@ -135,6 +153,7 @@ export async function loadPlugins(
     }
     try {
       await (plugin as DriftbenchPlugin)(api);
+      await registerPendingChecks();
     } catch (cause) {
       return `The plugin ${source.module} failed: ${reason(cause)}`;
     }
@@ -211,6 +230,7 @@ export async function readPluginConfig(path: string): Promise<PluginConfig> {
   } catch {
     return { ok: true, sources: [] };
   }
+  const { isMap, isScalar, isSeq, parseDocument } = await import('yaml');
   const doc = parseDocument(text);
   const root = doc.contents;
   if (doc.errors.length > 0 || !isMap(root)) return { ok: true, sources: [] };

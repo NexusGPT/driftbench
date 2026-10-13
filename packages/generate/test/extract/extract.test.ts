@@ -454,7 +454,10 @@ describe('extractMap with a model: the answer contract', () => {
     const { result, proposal } = await run([stages, rules, PERSONAS, DATA, PHRASES]);
     expect(result.refusals.map((refusal) => [refusal.entry, refusal.reason])).toEqual([
       ['dimension phase', 'a map holds one stage dimension: add the values to "stage"'],
-      ['deviation/D11_shouting', '"D11_shouting" is not a deviation class: use D1_off_topic to D10_return'],
+      [
+        'deviation/D11_shouting',
+        '"D11_shouting" is not a deviation class: use D1_off_topic to D12_prompt_extraction',
+      ],
       [
         'rule/B-001',
         '"B-001" is already a value of behaviour: a spec names a behaviour value without its dimension, so the id must be unique',

@@ -41,10 +41,10 @@ export default function plugin(api) {
 
 The adapter factory receives the target (`{ adapter, agent, ... }`) and, in a campaign, a scope whose `tempDir()` is the campaign's temporary folder. It returns any [`AgentAdapter`](adapters/index.md): one of the built-in ones with your options (`httpAdapter`, `litellmAdapter`, `nexusAdapter`, `processAdapter`, the SDK adapters) or your own. It may return `undefined` for an agent name it does not serve.
 
-In TypeScript, `definePlugin` from `@agent-nexus/driftbench-cli` gives the function its types:
+In TypeScript, `definePlugin` from `@agent-nexus/driftbench` gives the function its types:
 
 ```ts
-import { definePlugin } from '@agent-nexus/driftbench-cli';
+import { definePlugin } from '@agent-nexus/driftbench';
 
 export default definePlugin((api) => {
   // api.adapter, api.check, api.pairwiseJudge, api.cwd
@@ -93,7 +93,7 @@ A plugin is code. It runs in the command line's process with the rights of the p
 `main` takes the same things without a config file, and the dependencies of the commands:
 
 ```ts
-import { defaultDeps, main, processIo } from '@agent-nexus/driftbench-cli';
+import { main, processIo } from '@agent-nexus/driftbench';
 
 await main(['campaign', 'run', 'specs/'], processIo, {
   plugins: [(api) => api.adapter('http', () => myAdapter)],
@@ -101,8 +101,8 @@ await main(['campaign', 'run', 'specs/'], processIo, {
 
 // Or replace what the commands run with: the adapters, the checks, the driver, the store.
 await main(['smoke', 'specs/a.yaml'], processIo, {
-  deps: { ...defaultDeps, adapterFor: async (target) => myAdapterFor(target) },
+  deps: { adapterFor: async (target) => myAdapterFor(target) },
 });
 ```
 
-`deps` is a `CampaignDeps`; campaign, smoke, family, perturb, simulate, attack, ci and monitor read it. `campaignRunCommand(paths, options, io, deps)` runs one campaign without the argument parser.
+`deps` is a partial `CampaignDeps`, laid over the defaults; campaign, smoke, family, perturb, simulate, attack, ci and monitor read it. `await campaignCommands()` gives `defaultDeps` and `campaignRunCommand(paths, options, io, deps)`, which runs one campaign without the argument parser. They load on demand, so importing the package stays as light as before.
