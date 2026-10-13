@@ -1,4 +1,4 @@
-import { mkdir, readFile, stat, writeFile } from 'node:fs/promises';
+import { mkdir, readFile, writeFile } from 'node:fs/promises';
 import { basename, dirname, isAbsolute, relative, resolve, sep } from 'node:path';
 import {
   approveAll,
@@ -23,6 +23,7 @@ import {
 } from '@agent-nexus/driftbench-generate';
 import { formatSpaceMap, validateSpaceMap } from '@agent-nexus/driftbench-space';
 import type { Command } from 'commander';
+import { exists, reason, showPath as show } from '../files';
 import type { Io } from '../io';
 
 export type ExtractOptions = {
@@ -390,19 +391,6 @@ function collect(value: string, previous: string[] | undefined): string[] {
   return [...(previous ?? []), value];
 }
 
-async function exists(path: string): Promise<boolean> {
-  return (await stat(path).catch(() => undefined)) !== undefined;
-}
-
-function show(path: string, io: Io): string {
-  const rel = relative(io.cwd, path);
-  return rel === '' || rel.startsWith('..') ? path : rel;
-}
-
 function plural(count: number, one: string, many: string): string {
   return count === 1 ? one : many;
-}
-
-function reason(cause: unknown): string {
-  return cause instanceof Error ? (cause.message.split('\n')[0] ?? '') : String(cause);
 }

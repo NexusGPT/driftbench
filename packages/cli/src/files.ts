@@ -40,3 +40,14 @@ export async function exists(path: string): Promise<boolean> {
     return false;
   }
 }
+
+/** A path as the user typed it: relative to the working folder when it sits inside it, else the path itself. */
+export function showPath(path: string, io: Io): string {
+  const rel = relative(io.cwd, path);
+  return rel === '' || rel.startsWith('..') ? path : rel;
+}
+
+/** The first line of an error's message, for a one-line report. */
+export function reason(cause: unknown): string {
+  return cause instanceof Error ? (cause.message.split('\n')[0] ?? '') : String(cause);
+}
