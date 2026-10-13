@@ -102,6 +102,7 @@ export {
 } from './clients/system1';
 export {
   buildDialectRequest,
+  ClaudeTransportError,
   createDialectTransport,
   type DialectCompletion,
   type DialectCompletionRequest,

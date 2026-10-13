@@ -57,6 +57,36 @@ export type DialectTransport = {
   complete(request: DialectCompletionRequest): Promise<DialectCompletion>;
 };
 
+/** A completed Claude CLI process failed; retain its receipt so failed calls remain accountable. */
+export class ClaudeTransportError extends JudgeError {
+  readonly raw: string;
+  readonly exitCode: number | null;
+  /** Original provider counters, including cache creation and cache read usage. */
+  readonly usage?: Readonly<Record<string, unknown>>;
+  readonly costUsd?: number;
+
+  constructor(
+    code: 'http' | 'bad_response',
+    message: string,
+    processResult: { readonly stdout: string; readonly code: number | null },
+    payload?: unknown,
+  ) {
+    super(code, message);
+    this.name = 'ClaudeTransportError';
+    this.raw = processResult.stdout;
+    this.exitCode = processResult.code;
+    if (isRecord(payload)) {
+      if (isRecord(payload.usage)) this.usage = payload.usage;
+      if (
+        typeof payload.total_cost_usd === 'number' &&
+        Number.isFinite(payload.total_cost_usd) &&
+        payload.total_cost_usd >= 0
+      )
+        this.costUsd = payload.total_cost_usd;
+    }
+  }
+}
+
 /** Provider payload only: it carries no model, credentials, token budget or assessment contract. */
 export function buildDialectRequest(
   provider: DialectProvider,
@@ -212,12 +242,16 @@ export function createDialectTransport(options: DialectTransportOptions): Dialec
         try {
           value = JSON.parse(ran.stdout);
         } catch {
-          throw new JudgeError('bad_response', `claude exited ${ran.code} without a JSON result`);
+          throw new ClaudeTransportError(
+            'bad_response',
+            `claude exited ${ran.code} without a JSON result`,
+            ran,
+          );
         }
         if (!isRecord(value) || value.type !== 'result')
-          throw new JudgeError('bad_response', 'claude returned no result');
+          throw new ClaudeTransportError('bad_response', 'claude returned no result', ran, value);
         if (value.is_error === true || ran.code !== 0)
-          throw new JudgeError('http', 'claude returned an error result');
+          throw new ClaudeTransportError('http', 'claude returned an error result', ran, value);
         const cost =
           typeof value.total_cost_usd === 'number' &&
           Number.isFinite(value.total_cost_usd) &&

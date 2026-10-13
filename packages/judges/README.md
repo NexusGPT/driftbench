@@ -78,6 +78,11 @@ Transport errors throw. Every attempt remains in `result.reads`.
 usage where supplied, and a fingerprint. It does not select a judge schema or parse a verdict.
 `buildDialectRequest(provider, request)` exposes the same payload construction for caller-owned HTTP.
 
+Failed Claude CLI results throw `ClaudeTransportError` (a `JudgeError`) with exact stdout in `raw`,
+the process `exitCode`, and the original `usage` counters and `costUsd` when supplied.
+Cache counters are retained so failed calls can be charged. Invalid result envelopes also retain
+raw output and exit code; absent usage or cost is left undefined.
+
 | Provider | Schema transport | Reasoning field |
 |---|---|---|
 | openai | strict json_schema | reasoning_effort |
