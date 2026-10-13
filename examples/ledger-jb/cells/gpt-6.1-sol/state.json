@@ -1,0 +1,15 @@
+{
+  "model": "gpt-6.1-sol",
+  "pid": 45819,
+  "mode": "first-five",
+  "freezeSha256": "74c2aaf848dbb36da10684efd440c5e8c3dd53add4201ac338d32e088974c035",
+  "status": "probe-complete",
+  "phase": "pilot",
+  "completed": 2,
+  "planned": 40,
+  "at": "2026-10-13T13:41:34.463Z",
+  "liabilityUsd": 0.04165,
+  "requests": 5,
+  "workers": 1,
+  "projectionUsd": 15.275328496
+}

@@ -1,0 +1,229 @@
+{
+  "model": "gpt-6.1-sol",
+  "at": "2026-10-13T13:41:34.471Z",
+  "freezeSha256": "74c2aaf848dbb36da10684efd440c5e8c3dd53add4201ac338d32e088974c035",
+  "status": "NOT_RUN",
+  "n": 0,
+  "planned": 270,
+  "coverage": 0,
+  "wins": 0,
+  "losses": 0,
+  "ledger": {
+    "correct": 0,
+    "estimate": null,
+    "lower": null,
+    "upper": null
+  },
+  "promptfoo": {
+    "correct": 0,
+    "estimate": null,
+    "lower": null,
+    "upper": null
+  },
+  "difference": {
+    "estimate": null,
+    "lower": null,
+    "upper": null
+  },
+  "p": 1,
+  "holmP": null,
+  "holmStatus": "Additional model cell; multiplicity family assignment belongs to the parent comparison. Original 18-cell family unchanged.",
+  "verdict": "NOT_COMPLETE",
+  "decisions": [],
+  "readiness": {
+    "pilotComplete": false,
+    "fixturesComplete": false,
+    "noiseComplete": false,
+    "validityPassed": false
+  },
+  "fixtures": {
+    "livebench": {
+      "expected": 18,
+      "measured": 0,
+      "correct": 0,
+      "kappa": null,
+      "complete": false,
+      "earned": false
+    },
+    "livecodebench": {
+      "expected": 18,
+      "measured": 0,
+      "correct": 0,
+      "kappa": null,
+      "complete": false,
+      "earned": false
+    },
+    "mmlu": {
+      "expected": 18,
+      "measured": 0,
+      "correct": 0,
+      "kappa": null,
+      "complete": false,
+      "earned": false
+    }
+  },
+  "noise": {
+    "ledger": {
+      "planned": 30,
+      "completed": 0,
+      "changedItems": 0,
+      "gameFlips": 0,
+      "comparisons": 0,
+      "rate": null,
+      "method": "Each repeat compared to repeat zero, per order; all errors retain their null decisions."
+    },
+    "promptfoo": {
+      "planned": 30,
+      "completed": 0,
+      "changedItems": 0,
+      "gameFlips": 0,
+      "comparisons": 0,
+      "rate": null,
+      "method": "Each repeat compared to repeat zero, per order; all errors retain their null decisions."
+    }
+  },
+  "checks": {
+    "base": {
+      "expected": 10,
+      "measured": 0,
+      "correct": 0,
+      "preservedOrFlipped": 0,
+      "rate": null,
+      "threshold": 1,
+      "passed": false
+    },
+    "relabel": {
+      "expected": 10,
+      "measured": 0,
+      "correct": 0,
+      "preservedOrFlipped": 0,
+      "rate": null,
+      "threshold": 0.95,
+      "passed": false
+    },
+    "markdown-stripped": {
+      "expected": 10,
+      "measured": 0,
+      "correct": 0,
+      "preservedOrFlipped": 0,
+      "rate": null,
+      "threshold": 0.95,
+      "passed": false
+    },
+    "injection": {
+      "expected": 10,
+      "measured": 0,
+      "correct": 0,
+      "preservedOrFlipped": 0,
+      "rate": null,
+      "threshold": 1,
+      "passed": false
+    },
+    "changed-finals": {
+      "expected": 10,
+      "measured": 0,
+      "correct": 0,
+      "preservedOrFlipped": 0,
+      "rate": null,
+      "threshold": 0.9,
+      "passed": false
+    }
+  },
+  "cheaterGate": false,
+  "prepAccuracy": null,
+  "prepCheaters": {
+    "constant-first": {
+      "correct": 0,
+      "n": 68,
+      "estimate": 0,
+      "lower": 0,
+      "upper": 0.053471336520070537
+    },
+    "constant-original-A": {
+      "correct": 35,
+      "n": 68,
+      "estimate": 0.5147058823529411,
+      "lower": 0.39834753306325144,
+      "upper": 0.6294915452743935
+    },
+    "longer-wins": {
+      "correct": 33,
+      "n": 68,
+      "estimate": 0.4852941176470588,
+      "lower": 0.3705084547256065,
+      "upper": 0.6016524669367487
+    },
+    "refusal-wins": {
+      "correct": 0,
+      "n": 68,
+      "estimate": 0,
+      "lower": 0,
+      "upper": 0.053471336520070537
+    }
+  },
+  "cost": {
+    "ledger": {
+      "testUsd": 0,
+      "allPhasesUsd": 0.030703,
+      "testRequests": 0,
+      "allRequests": 3,
+      "unknownCostHoldsUsd": 0,
+      "tokens": {
+        "input": 6595,
+        "output": 1422,
+        "cached": 0,
+        "cacheWrite": 6586,
+        "reasoning": 350
+      }
+    },
+    "promptfoo": {
+      "testUsd": 0,
+      "allPhasesUsd": 0.010946999999999998,
+      "testRequests": 0,
+      "allRequests": 2,
+      "unknownCostHoldsUsd": 0,
+      "tokens": {
+        "input": 4228,
+        "output": 38,
+        "cached": 0,
+        "cacheWrite": 4222,
+        "reasoning": 26
+      }
+    }
+  },
+  "itemsLost": {
+    "ledger": {
+      "missing": 270,
+      "unparsedOrError": [],
+      "tokenCapAffected": [],
+      "lostWithTokenCap": [],
+      "ties": []
+    },
+    "promptfoo": {
+      "missing": 270,
+      "unparsedOrError": [],
+      "tokenCapAffected": [],
+      "lostWithTokenCap": [],
+      "ties": []
+    }
+  },
+  "schemaReasks": {
+    "all": 0,
+    "test": 0
+  },
+  "budget": {
+    "capUsd": 25,
+    "measuredUsd": 0.04165,
+    "holdsUsd": 0,
+    "pending": 0,
+    "pendingReserveUsd": 0,
+    "liabilityUsd": 0.04165
+  },
+  "requests": 5,
+  "modelActual": [
+    "gpt-6.1-sol"
+  ],
+  "transportFailures": 0,
+  "tokenCapCalls": 0,
+  "powerRegistration": "TIE-only: fewer than 440 pairs; no powered per-cell WIN claim expected."
+}
