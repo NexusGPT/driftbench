@@ -27,7 +27,7 @@ import {
   recordingClient,
   saveCassette,
   writeAssignmentTable,
-} from '@driftbench/judges';
+} from '@agent-nexus/driftbench-judges';
 import type { Command } from 'commander';
 import type { Io } from '../io';
 import { optionNumber } from '../number';

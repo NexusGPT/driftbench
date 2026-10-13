@@ -1,9 +1,10 @@
+import { spawnSync } from 'node:child_process';
 import { existsSync } from 'node:fs';
-import { chmod, cp, readdir, readFile, writeFile } from 'node:fs/promises';
+import { chmod, cp, mkdir, readdir, readFile, writeFile } from 'node:fs/promises';
 import { homedir } from 'node:os';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { type UnitTest, unitTestOf } from '@driftbench/generate';
+import { type UnitTest, unitTestOf } from '@agent-nexus/driftbench-generate';
 import { describe, expect, it } from 'vitest';
 import {
   ClaudeCodeReader,
@@ -97,6 +98,70 @@ async function record(root: string, tests: UnitTest[]): Promise<UnitTest[]> {
 }
 
 const status = (results: readonly UnitResult[]) => results.map((result) => [result.testType, result.status]);
+
+/** The ids of running processes whose command line holds the marker. */
+function running(marker: string): number[] {
+  const ps = spawnSync('ps', ['-A', '-ww', '-o', 'pid=,command='], { encoding: 'utf8' });
+  if (ps.status !== 0) throw new Error(`ps failed: ${ps.stderr}`);
+  return ps.stdout
+    .split('\n')
+    .filter((line) => line.includes(marker) && !line.includes('-o pid=,command='))
+    .map((line) => Number.parseInt(line.trim(), 10));
+}
+
+describe('the estate unit runner leaves no process behind', () => {
+  it('ends a background child and a daemon that left its process group, when the run ends', async () => {
+    const marker = `unit-daemon-${Date.now()}`;
+    // A guard that starts a helper in the background and a daemon in its own session, from its own folder,
+    // as an estate's session daemon does, then answers at once.
+    const LEAKY = `#!/bin/sh
+here=$(dirname "$0")
+sleep 600 ${marker}-group-placeholder >/dev/null 2>&1 &
+python3 "$here/daemon.py" ${marker} </dev/null >/dev/null 2>&1
+input=$(cat)
+case "$input" in
+  *"git push --force"*) echo "Force pushes are not allowed." >&2; exit 2 ;;
+esac
+exit 0
+`.replace(`sleep 600 ${marker}-group-placeholder`, `sh -c 'sleep 600; : ${marker}-group'`);
+    const DAEMON = `import os, sys, time
+child = os.fork()
+if child > 0:
+    # The first child leaves the session before this one returns: the caller's group can go at once.
+    os.waitpid(child, 0)
+    sys.exit(0)
+os.setsid()
+if os.fork() > 0:
+    sys.exit(0)
+null = os.open(os.devnull, os.O_RDWR)
+for fd in (0, 1, 2):
+    os.dup2(null, fd)
+time.sleep(600)
+`;
+    const root = await estate({
+      'CLAUDE.md': RULES,
+      '.claude/settings.json': SETTINGS({
+        PreToolUse: [
+          {
+            matcher: 'Bash',
+            hooks: [{ type: 'command', command: '"$CLAUDE_PROJECT_DIR"/.claude/hooks/leaky.sh' }],
+          },
+        ],
+      }),
+      '.claude/hooks/leaky.sh': LEAKY,
+      '.claude/hooks/daemon.py': DAEMON,
+    });
+    const tests = await unitTests(root, ['guard_positive']);
+    expect(tests).toHaveLength(1);
+    try {
+      const run = await runUnitTests(tests, { root, reader: new ClaudeCodeReader(), record: true });
+      expect(run.results.map((result) => result.cases.length)).toEqual([1]);
+      expect(running(marker)).toEqual([]);
+    } finally {
+      for (const pid of running(marker)) process.kill(pid, 'SIGKILL');
+    }
+  }, 60_000);
+});
 
 describe('the estate unit runner on a guard', () => {
   it('records the guard on the original, passes on it again, and fails on a copy that dropped the guard', async () => {
@@ -451,6 +516,45 @@ describe('a script with declared fixtures', () => {
 });
 
 describe('a TypeScript script', () => {
+  it('runs when the temporary path is longer than a Unix socket path allows', async () => {
+    const root = await estate({
+      'CLAUDE.md': RULES,
+      '.claude/skills/sum/scripts/sum.ts':
+        'const total: number = Number(process.argv[2]) + Number(process.argv[3]);\nconsole.log(total);\n',
+      'driftbench.estate.yaml':
+        'scripts:\n  .claude/skills/sum/scripts/sum.ts:\n    - { args: ["2", "3"], expect: { stdout: "5" } }\n',
+    });
+    const temporary = join(root, 'long-socket-path-'.repeat(12));
+    await mkdir(temporary);
+    const previous = process.env.TMPDIR;
+    process.env.TMPDIR = temporary;
+    try {
+      const run = await runUnitTests(
+        [
+          {
+            id: 'unit.script_fixture.sum-ts-long-path',
+            planRow: 'row',
+            testType: 'script_fixture',
+            atom: 'script.sum.sum-ts',
+            title: 'sum',
+            mapHash: 'x',
+            target: { kind: 'script', path: '.claude/skills/sum/scripts/sum.ts' },
+            cases: [],
+          },
+        ],
+        { root, reader: new ClaudeCodeReader() },
+      );
+      expect([run.results[0]?.status, run.results[0]?.detail]).toEqual([
+        'pass',
+        '1 of 1 fixtures as declared',
+      ]);
+      expect(run.results[0]?.cases[0]?.outcome.output).toBe('5');
+    } finally {
+      if (previous === undefined) delete process.env.TMPDIR;
+      else process.env.TMPDIR = previous;
+    }
+  }, 60_000);
+
   it('runs offline in the sandbox, with no package fetched, in well under its timeout', async () => {
     const root = await estate({
       'CLAUDE.md': RULES,

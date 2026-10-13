@@ -3,10 +3,10 @@ import { mkdtemp, readFile, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { processAdapter } from '@driftbench/adapters';
-import { defaultReaders } from '@driftbench/artifacts';
-import { defaultChecks } from '@driftbench/checks';
-import { localProvider } from '@driftbench/sandbox';
+import { processAdapter } from '@agent-nexus/driftbench-adapters';
+import { defaultReaders } from '@agent-nexus/driftbench-artifacts';
+import { defaultChecks } from '@agent-nexus/driftbench-checks';
+import { localProvider } from '@agent-nexus/driftbench-sandbox';
 import { beforeAll, describe, expect, it } from 'vitest';
 import {
   type BuildOptions,

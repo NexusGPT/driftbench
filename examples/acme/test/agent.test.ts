@@ -1,4 +1,4 @@
-import { type Message, Observed } from '@driftbench/core';
+import { type Message, Observed } from '@agent-nexus/driftbench-core';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { createAcmeAgent } from '../src/agent';
 import { createStore } from '../src/store';

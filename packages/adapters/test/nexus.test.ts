@@ -1,4 +1,9 @@
-import { AdapterTransportError, AgentFailure, type Session, type TargetRef } from '@driftbench/core';
+import {
+  AdapterTransportError,
+  AgentFailure,
+  type Session,
+  type TargetRef,
+} from '@agent-nexus/driftbench-core';
 import { describe, expect, it } from 'vitest';
 import { type NexusAdapterOptions, nexusAdapter } from '../src/nexus/index';
 import {

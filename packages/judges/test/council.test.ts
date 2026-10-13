@@ -1,4 +1,4 @@
-import { retrying } from '@driftbench/core';
+import { retrying } from '@agent-nexus/driftbench-core';
 import { describe, expect, it } from 'vitest';
 import {
   type CouncilConfig,

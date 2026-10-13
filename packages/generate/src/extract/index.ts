@@ -44,6 +44,7 @@ export {
   type LoadedProposal,
   loadProposal,
   MAX_QUOTE_LENGTH,
+  NumericSetting,
   ORIGINS,
   Origin,
   PROPOSAL_VERSION,

@@ -1,7 +1,7 @@
-import { contentHash, type Inventory, isPlainObject } from '@driftbench/core';
-import { type CompiledSpace, compileSpace, NONE, type SpaceMap } from '@driftbench/space';
+import { contentHash, type Inventory, isPlainObject } from '@agent-nexus/driftbench-core';
+import { type CompiledSpace, compileSpace, NONE, type SpaceMap } from '@agent-nexus/driftbench-space';
 import { parse as parseYaml } from 'yaml';
-import { type Proposal, type ProposalPhrase, valueApproved } from '../extract/proposal';
+import { type NumericSetting, type Proposal, type ProposalPhrase, valueApproved } from '../extract/proposal';
 import { toSpaceMap } from '../extract/space';
 import { toolSlug } from '../extract/tools';
 import { Feasibility } from './feasible';
@@ -61,6 +61,8 @@ export type PreparedMap = {
   transition: number | undefined;
   /** The approved relations: paths, tool calls, slot values, recoveries, the reply language. */
   relations: Relations;
+  /** Approved numeric ranges, sampled only by budget mode and delivered as runtime vars. */
+  numericSettings?: readonly NumericSetting[];
 };
 
 /** The dimension id the extractor gives the stage graph's edges, `<from>-to-<to>` (extract handoff). */
@@ -127,6 +129,7 @@ export function prepareMap(
     return found !== undefined && entry !== undefined && valueApproved(found, entry);
   };
   const relations = readRelations(proposal, approvedValue);
+  const numericSettings = (proposal.numeric_settings ?? []).filter((setting) => setting.approved);
   const hash = contentHash({
     map,
     axes: [...axisIds],
@@ -138,6 +141,13 @@ export function prepareMap(
       ...(when ? { when } : {}),
       ...(binds ? { binds } : {}),
     })),
+    ...(numericSettings.length === 0
+      ? {}
+      : {
+          numeric_settings: numericSettings.map(
+            ({ evidence: _evidence, produced_by: _by, approved: _approved, ...range }) => range,
+          ),
+        }),
     ...(relations.paths.length +
       relations.usesTools.length +
       relations.states.length +
@@ -171,6 +181,7 @@ export function prepareMap(
     channel: find('channel'),
     transition: find('behaviour', TRANSITION_DIMENSION),
     relations,
+    ...(numericSettings.length === 0 ? {} : { numericSettings }),
   };
 }
 

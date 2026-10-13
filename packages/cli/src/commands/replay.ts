@@ -1,8 +1,13 @@
 import { readFile } from 'node:fs/promises';
 import { basename, dirname, resolve } from 'node:path';
-import { orderedCheck, type ReplaySession, readSession, replayAdapter } from '@driftbench/adapters';
-import { defaultReaders } from '@driftbench/artifacts';
-import { CheckRegistry, defaultChecks, defaultRegistry, ESTATE_CHECKS } from '@driftbench/checks';
+import {
+  orderedCheck,
+  type ReplaySession,
+  readSession,
+  replayAdapter,
+} from '@agent-nexus/driftbench-adapters';
+import { defaultReaders } from '@agent-nexus/driftbench-artifacts';
+import { CheckRegistry, defaultChecks, defaultRegistry, ESTATE_CHECKS } from '@agent-nexus/driftbench-checks';
 import {
   type Campaign,
   type Check,
@@ -13,10 +18,10 @@ import {
   runSpec,
   type Store,
   type TargetRef,
-} from '@driftbench/core';
-import { noJudgeCheck } from '@driftbench/judges';
-import { openMemoryStore, openStore } from '@driftbench/store';
-import { createScriptedDriver } from '@driftbench/users';
+} from '@agent-nexus/driftbench-core';
+import { noJudgeCheck } from '@agent-nexus/driftbench-judges';
+import { openMemoryStore, openStore } from '@agent-nexus/driftbench-store';
+import { createScriptedDriver } from '@agent-nexus/driftbench-users';
 import type { Command } from 'commander';
 import type { Io } from '../io';
 import { loadValidSpecs } from './campaign';

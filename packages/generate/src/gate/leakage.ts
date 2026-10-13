@@ -1,4 +1,4 @@
-import { type Assertion, type EndStateSpec, isPlainObject, type Spec } from '@driftbench/core';
+import { type Assertion, type EndStateSpec, isPlainObject, type Spec } from '@agent-nexus/driftbench-core';
 import { generatorFamily, stimulusText } from './then';
 import type { GateOptions, StageVerdict } from './types';
 

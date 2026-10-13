@@ -11,7 +11,7 @@ import {
   RunResult,
   Segment,
   Verdict,
-} from '@driftbench/core';
+} from '@agent-nexus/driftbench-core';
 import { describe, expect, it } from 'vitest';
 
 const observed = {

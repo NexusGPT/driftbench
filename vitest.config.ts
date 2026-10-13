@@ -24,7 +24,7 @@ export default defineConfig({
   resolve: {
     alias: Object.fromEntries(
       packages.map((name) => [
-        `@driftbench/${name}`,
+        name === 'cli' ? '@agent-nexus/driftbench' : `@agent-nexus/driftbench-${name}`,
         fileURLToPath(new URL(`./packages/${name}/src/index.ts`, import.meta.url)),
       ]),
     ),

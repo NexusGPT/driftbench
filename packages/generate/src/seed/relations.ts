@@ -1,5 +1,5 @@
-import type { Assertion, EndStateSpec, GuardExpect, ToolExpect } from '@driftbench/core';
-import { isPlainObject } from '@driftbench/core';
+import type { Assertion, EndStateSpec, GuardExpect, ToolExpect } from '@agent-nexus/driftbench-core';
+import { isPlainObject } from '@agent-nexus/driftbench-core';
 import {
   type PathRelation,
   PENDING_STAGE,

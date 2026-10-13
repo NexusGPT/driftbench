@@ -1,4 +1,4 @@
-import { DimensionId, ValueId } from '@driftbench/generate';
+import { DimensionId, ValueId } from '@agent-nexus/driftbench-generate';
 import { describe, expect, it } from 'vitest';
 import type { CodeEntry } from '../../src/ladders/map/bank/facts';
 import { mapBank, mapQuarantine } from '../../src/ladders/map/bank/index';

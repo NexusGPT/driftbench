@@ -1,7 +1,7 @@
 import { readdir, readFile, stat, writeFile } from 'node:fs/promises';
 import { join, relative, resolve } from 'node:path';
-import { RUNTIMES, readerFor, runUnitTests, type UnitResult } from '@driftbench/estate';
-import { formatJson, UnitTest } from '@driftbench/generate';
+import { RUNTIMES, readerFor, runUnitTests, type UnitResult } from '@agent-nexus/driftbench-estate';
+import { formatJson, UnitTest } from '@agent-nexus/driftbench-generate';
 import type { Command } from 'commander';
 import type { Io } from '../io';
 

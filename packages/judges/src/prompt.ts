@@ -1,4 +1,4 @@
-import { contentHash } from '@driftbench/core';
+import { contentHash } from '@agent-nexus/driftbench-core';
 import type { JudgeRequest, TranscriptEntry } from './contract';
 
 /**

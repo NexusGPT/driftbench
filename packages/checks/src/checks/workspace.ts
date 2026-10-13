@@ -1,4 +1,4 @@
-import { type Check, machineVerdict, type Verdict, type WorkspaceDiff } from '@driftbench/core';
+import { type Check, machineVerdict, type Verdict, type WorkspaceDiff } from '@agent-nexus/driftbench-core';
 import { listed, normalizePath as normalize } from '../support/values';
 
 const NAME = 'workspace';

@@ -1,8 +1,13 @@
 import { rm } from 'node:fs/promises';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { defaultReaders } from '@driftbench/artifacts';
-import { type ArtifactReaderRegistry, type CheckContext, type Spec, Verdict } from '@driftbench/core';
+import { defaultReaders } from '@agent-nexus/driftbench-artifacts';
+import {
+  type ArtifactReaderRegistry,
+  type CheckContext,
+  type Spec,
+  Verdict,
+} from '@agent-nexus/driftbench-core';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { bytesOf, docx, para, pdf, pptx, workbook } from '../../artifacts/test/fixtures';
 import {

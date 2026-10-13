@@ -1,5 +1,5 @@
 import { relative, resolve } from 'node:path';
-import { loadSpecs } from '@driftbench/core';
+import { loadSpecs } from '@agent-nexus/driftbench-core';
 import {
   diffFiles,
   openStore,
@@ -10,7 +10,7 @@ import {
   readTree,
   restoreFiles,
   type SqliteStore,
-} from '@driftbench/store';
+} from '@agent-nexus/driftbench-store';
 import type { Command } from 'commander';
 import type { Io } from '../io';
 

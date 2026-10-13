@@ -1,4 +1,4 @@
-import { type CheckContext, machineVerdict, type Observed, type Verdict } from '@driftbench/core';
+import { type CheckContext, machineVerdict, type Observed, type Verdict } from '@agent-nexus/driftbench-core';
 import { isRecord } from './format';
 import type { ReplayRaw } from './session';
 

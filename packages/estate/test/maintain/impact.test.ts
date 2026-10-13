@@ -1,6 +1,6 @@
 import { readFile } from 'node:fs/promises';
 import { join } from 'node:path';
-import { loadSpecFile } from '@driftbench/core';
+import { loadSpecFile } from '@agent-nexus/driftbench-core';
 import { describe, expect, it } from 'vitest';
 import {
   diffEstateMaps,

@@ -1,5 +1,10 @@
-import { defaultReaders, kindForPath } from '@driftbench/artifacts';
-import type { ArtifactKind, ArtifactReaderRegistry, CheckContext, WorkspaceDiff } from '@driftbench/core';
+import { defaultReaders, kindForPath } from '@agent-nexus/driftbench-artifacts';
+import type {
+  ArtifactKind,
+  ArtifactReaderRegistry,
+  CheckContext,
+  WorkspaceDiff,
+} from '@agent-nexus/driftbench-core';
 
 /**
  * What a judge reads of a task block (P2.5): the files the block produced, as the artifact readers render
@@ -13,7 +18,7 @@ import type { ArtifactKind, ArtifactReaderRegistry, CheckContext, WorkspaceDiff 
  */
 
 export type TaskArtifactOptions = {
-  /** Readers used when the context carries none. Default: every reader of @driftbench/artifacts. */
+  /** Readers used when the context carries none. Default: every reader of @agent-nexus/driftbench-artifacts. */
   readonly readers?: ArtifactReaderRegistry;
   /** The most characters of one file's text the judge reads. Default 20000. */
   readonly maxChars?: number;

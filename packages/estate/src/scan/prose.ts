@@ -8,7 +8,7 @@ import {
   type ModelRequest,
   retryNote,
   shortQuote,
-} from '@driftbench/generate';
+} from '@agent-nexus/driftbench-generate';
 import { parse as parseYaml } from 'yaml';
 import { z } from 'zod';
 import { type Atom, EvidencePredicate } from '../schema';

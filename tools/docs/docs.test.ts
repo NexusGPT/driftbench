@@ -7,7 +7,7 @@ import {
   IssueCodes,
   type LoadResult,
   parseSpecText,
-} from '@driftbench/core';
+} from '@agent-nexus/driftbench-core';
 import { describe, expect, it } from 'vitest';
 import { DOCS, markdownFiles } from './check-links';
 

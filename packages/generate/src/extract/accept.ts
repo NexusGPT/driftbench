@@ -1,5 +1,5 @@
-import { canonicalJson, DeviationClass } from '@driftbench/core';
-import { NONE } from '@driftbench/space';
+import { canonicalJson, DeviationClass } from '@agent-nexus/driftbench-core';
+import { NONE } from '@agent-nexus/driftbench-space';
 import {
   type Answer,
   AnswerConstraint,

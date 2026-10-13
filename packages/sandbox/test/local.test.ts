@@ -3,7 +3,7 @@ import { existsSync } from 'node:fs';
 import { mkdir, mkdtemp, readdir, readFile, realpath, rm, symlink, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
-import { ExecutionRecord, WorkspaceDiff, type WorkspaceSnapshot } from '@driftbench/core';
+import { ExecutionRecord, WorkspaceDiff, type WorkspaceSnapshot } from '@agent-nexus/driftbench-core';
 import {
   DEFAULT_MAX_OUTPUT_BYTES,
   DEFAULT_MAX_READ_BYTES,
@@ -14,7 +14,7 @@ import {
   SandboxLimitError,
   SandboxPathError,
   TIMEOUT_EXIT_CODE,
-} from '@driftbench/sandbox';
+} from '@agent-nexus/driftbench-sandbox';
 import { afterAll, afterEach, beforeAll, describe, expect, it } from 'vitest';
 
 const sha256 = (data: string | Buffer) => createHash('sha256').update(data).digest('hex');

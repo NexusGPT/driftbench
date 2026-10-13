@@ -1,6 +1,6 @@
 import { readFile } from 'node:fs/promises';
 import { resolve } from 'node:path';
-import type { RunMode, RunResult, Stimulus, Store } from '@driftbench/core';
+import type { RunMode, RunResult, Stimulus, Store } from '@agent-nexus/driftbench-core';
 import {
   createAnthropicJudge,
   createGoogleJudge,
@@ -8,7 +8,7 @@ import {
   type JudgeClient,
   judgePairwise,
   readPairwiseCriterion,
-} from '@driftbench/judges';
+} from '@agent-nexus/driftbench-judges';
 import {
   autoMargin,
   type CampaignData,
@@ -19,8 +19,8 @@ import {
   MIN_GOLDENS,
   ReportInputError,
   replyPairs,
-} from '@driftbench/report';
-import { openStore } from '@driftbench/store';
+} from '@agent-nexus/driftbench-report';
+import { openStore } from '@agent-nexus/driftbench-store';
 import type { Command } from 'commander';
 import type { Io } from '../io';
 import { optionNumber } from '../number';

@@ -1,5 +1,5 @@
-import { jsonReader, parsePath } from '@driftbench/artifacts';
-import type { ArtifactDocument } from '@driftbench/core';
+import { jsonReader, parsePath } from '@agent-nexus/driftbench-artifacts';
+import type { ArtifactDocument } from '@agent-nexus/driftbench-core';
 import { describe, expect, it } from 'vitest';
 import { bytesOf, runCases } from './fixtures';
 

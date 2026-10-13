@@ -1,4 +1,4 @@
-import { type Check, type ExecutionRecord, machineVerdict, type Verdict } from '@driftbench/core';
+import { type Check, type ExecutionRecord, machineVerdict, type Verdict } from '@agent-nexus/driftbench-core';
 import { agentProcess, commandsOf } from '../support/executions';
 import { plural } from '../support/values';
 
