@@ -733,7 +733,7 @@ Cells: 20, 44 model turns to request, 0 cells dropped by the map.
 The `import` command also reads tables: see [`driftbench import`](#driftbench-import) for `import csv` and `import xlsx`. These two subcommands draft specs from production traces: OpenTelemetry spans with the GenAI semantic conventions, Nexus platform traces, or a recorded Claude Code session. See [production traces](../traces.md).
 
 ```
-driftbench import traces <path> --from otel|nexus|claude-code --out <dir> [--prices <file>] [--no-redact] [--force]
+driftbench import traces <path> --from otel|nexus|claude-code --out <dir> [--select <ids>] [--prices <file>] [--no-redact] [--force] [--dataset <name> --store <file>]
 driftbench import approve <path> [--all]
 ```
 
@@ -750,6 +750,8 @@ driftbench import approve <path> [--all]
 | `--prices <file>` | JSON prices in USD per million tokens by model, for spans that carry tokens and no cost |
 | `--no-redact` | keep personal data; by default the intake privacy rules redact it |
 | `--force` | replace drafts that already exist |
+| `--select <ids>` | draft only these traces: comma-separated trace ids. An id that names no trace exits 2 and writes nothing |
+| `--dataset <name>`, `--store <file>` | after drafting, push the drafts as the next version of this dataset in the store, as `dataset push` does. See [traces](../traces.md) |
 
 | Exit code | When |
 |---|---|
@@ -1148,16 +1150,17 @@ $ pnpm -s driftbench replay examples/estates/sessions/clean-build.jsonl examples
 ## `driftbench validate`
 
 ```
-driftbench validate <component|all> [--seed <n>] [--seeds <a..b>] [--hidden] [--json]
+driftbench validate <component|all> [--seed <n>] [--seeds <a..b>] [--hidden] [--json] [--items] [--all-levels] [--blind]
+driftbench validate <component> --hardness
 driftbench validate <component|all> --check-floor [seed options]
 driftbench validate <component> --brief [--fresh] [seed options]
 driftbench validate <component> --journal <row.json>
 driftbench validate <component|all> --check-handover
-driftbench validate floors [--raise <component> <level> --evidence <json>]
+driftbench validate floors [--raise <component> <level> --evidence <json> [--ladder-version <n>]]
 driftbench validate protect --branch <name> --base <ref>
 ```
 
-Runs a validator ladder: the levels in order, stopping at the first failing level, and exits with the level reached. The registered component is `stats`, the statistics validator; `all` runs every registered validator. `floors` and `protect` are not validators: they read and raise the floors, and check a pull request. The ladders, the floors, the loop files and the CI job are on the [validators](../validators.md) page, section 8.2.
+Runs a validator ladder: the levels in order, stopping at the first failing level, and exits with the level reached. The registered components are `estate`, `generator`, `judges`, `map`, `stats` and `system`; `all` runs every registered validator. `floors` and `protect` are not validators: they read and raise the floors, and check a pull request. The ladders, the floors, the loop files and the CI job are on the [validators](../validators.md) page, section 8.2.
 
 | Option | Effect |
 |---|---|
@@ -1168,6 +1171,11 @@ Runs a validator ladder: the levels in order, stopping at the first failing leve
 | `--check-floor` | compute through each positive applicable floor in `validators/floors.json`; floor 0 keeps the ordinary walk; exit 1 below a floor, else 0 |
 | `--raise <component>` | with `floors`: raise the floor of this component to `<level>` |
 | `--evidence <json>` | with `floors --raise`: the `--json` run that reaches the level |
+| `--ladder-version <n>` | with `floors --raise`: the ladder version the floor is for |
+| `--items` | also list the whole bank per family and tier, pass or fail per seed, from the same run |
+| `--all-levels` | compute every level and list every failing item with its level, family, tier and cause |
+| `--blind` | the auditor view: strip every cause and trailing `Fix:` hint from items, text and JSON |
+| `--hardness` | print the hardness measurement of [validators](../validators.md) section 12.4 from the journal |
 | `--brief` | print `validators/EXECUTOR.md` with the live state of the loop embedded |
 | `--fresh` | with `--brief`: leave out the handover's hypotheses (the handover test) |
 | `--journal <row.json>` | append a validated journal row and rewrite the handover's level table |
@@ -1179,21 +1187,26 @@ Runs a validator ladder: the levels in order, stopping at the first failing leve
 
 ```
 $ pnpm -s driftbench validate stats
-Validator stats
-Level  Name              Metric                                                                             Threshold  seed 1
-1      reference values  fixture cases matched / fixture cases compared                                     >= 1       1 pass
-2      Wilson coverage   intervals containing the truth / intervals computed, lowest over n of 20, 50, 200  >= 0.93    0.947 pass
-Level per seed: 1 = 2
-Level of the run: 2 of 2, the minimum over 1 seed.
-Floor: 1. At or above the floor.
+Validator stats (ladder version 2)
+Level  Name                 Metric                                                                                      Threshold  seed 1
+1      reference values     fixture groups matching scipy and numpy / groups                                            >= 1       1 pass
+2      degenerate inputs    empty, NaN, infinite, out-of-domain, single and all-equal cases handled / cases             >= 1       1 pass
+3      reproducibility      same seed same bits, other seed other draw, order invariance / items                        >= 1       1 pass
+4      analytic truth       estimators and tests matching a constructed truth, enumeration or textbook formula / items  >= 1       1 pass
+5      simulation coverage  planted designs whose coverage, recovery, error or power holds / designs                    >= 1       1 pass
+6      scale and stability  one-million-row calls under budget and shift-stable results / items                         >= 1       1 pass
+7      roadmap methods      methods the dossiers name, matching scipy, degenerate-safe, scaling / items                 >= 1       1 pass
+Level per seed: 1 = 7
+Level of the run: 7 of 7, the minimum over 1 seed.
+Floor: 7. At or above the floor.
 No level failed.
 ```
 
-The run reaches level 2, so the command exits 2.
+The run reaches level 7, so the command exits 7.
 
 ```
 $ pnpm -s driftbench validate floors
-Floors (validators/floors.json): judges = 7 (ladder version 1), stats = 7 (ladder version 2), system = 7 (ladder version 5).
+Floors (validators/floors.json): judges = 7 (ladder version 1), map = 8 (ladder version 2), stats = 7 (ladder version 2), system = 7 (ladder version 5).
 ```
 
 | Exit code | When |
@@ -1262,11 +1275,11 @@ Recovery record (runner): {"injectedAt":2,"turnsToRecover":0,"label":"immediate"
 ## `driftbench report` and `driftbench compare`
 
 ```
-driftbench report [campaign] --store <db> --out <file.html> [--junit <file.xml>] [--baseline <campaign>] [--margin <points|auto>] [--min-goldens <n>] [--strict] [--pilot <path>] [--by <dimensions>] [--spread-mode <mode>] [--max-runs <n>] [--aggregate <name:op threshold>]... [--json]
-driftbench compare --baseline <campaign> --candidate <campaign> --store <db> [--margin <points|auto>] [--min-goldens <n>] [--strict] [--mode <modes>] [--q <rate>] [--json] [--pairwise <criterion.yaml>] [--pairwise-judge <openai|anthropic|google>]
+driftbench report [campaign] --store <db> --out <file.html> [--junit <file.xml>] [--baseline <campaign>] [--margin <points|auto>] [--min-goldens <n>] [--strict] [--pilot <path>] [--by <dimensions>] [--spread-mode <mode>] [--max-runs <n>] [--withhold-incomplete] [--config <file>] [--aggregate <name:op threshold>]... [--json]
+driftbench compare --baseline <campaign> --candidate <campaign> --store <db> [--margin <points|auto>] [--min-goldens <n>] [--strict] [--mode <modes>] [--q <rate>] [--json] [--pairwise <criterion.yaml>] [--pairwise-judge <openai|anthropic|google>] [--pairwise-reference <file>]
 ```
 
-`report` writes the scorecard of a stored campaign as one HTML file, with no script and no external asset: every metric with its interval, the compare diff with `--baseline`, the spread view, the pilot report with `--pilot`, and the per-block drilldown. `--junit` also writes JUnit XML. `--aggregate` (repeatable) scores a campaign-level criterion over every run, such as `pass-rate:>=0.8` or `broken-share:<=0.2`, and prints each result; see [campaign-level criteria](../aggregates.md). Exit 0 when written, 2 on bad input. The [example scorecards](../scorecards.md) were written by it.
+`report` writes the scorecard of a stored campaign as one HTML file, with no script and no external asset: every metric with its interval, the compare diff with `--baseline`, the spread view, the pilot report with `--pilot`, and the per-block drilldown. `--junit` also writes JUnit XML. `--aggregate` (repeatable) scores a campaign-level criterion over every run, such as `pass-rate:>=0.8` or `broken-share:<=0.2`, and prints each result; see [campaign-level criteria](../aggregates.md). `--config <file>` names the project config whose `aggregates:` it also scores; default `driftbench.yaml` in the working folder. `--withhold-incomplete` withholds the pass^k and pass@k value of a line with incomplete runs, instead of reporting it with the range of its missing outcomes; see [statistics](../concepts/statistics.md). Exit 0 when written, 2 on bad input. The [example scorecards](../scorecards.md) were written by it.
 
 `compare` pairs the goldens both campaigns ran and gives the non-inferiority verdict: McNemar on the all-pass flag, Wilcoxon on drift counts, the paired effect with its interval, Benjamini-Hochberg across criteria. Per criterion and for the all-pass flag it also prints three planning numbers: the floor (the smallest margin its goldens can show when nothing changed), the drop its goldens detect at 80% power, and the goldens a 10 point margin needs. Exit 0 non-inferior, 1 regressed or not shown non-inferior, 2 on bad input. The rule is on the [statistics](../concepts/statistics.md#the-campaign-verdict) page. The [reports README](../../examples/acme/reports/README.md) gives the commands and their output on the Acme campaigns.
 
@@ -1280,7 +1293,7 @@ driftbench compare --baseline <campaign> --candidate <campaign> --store <db> [--
 
 New flags always gate, and so does an underpowered criterion whose regression Benjamini-Hochberg keeps.
 
-`compare --pairwise <criterion.yaml>` also judges, for every block both campaigns ran, which of the two replies better meets one criterion. The criterion file holds a `name` and a `rubric`, and optionally `pass` and `fail`. `--pairwise-judge` picks the provider judge, `openai` by default; its key is read from the environment. Each pair is judged twice, in both orders, so a judge that favours a position is caught: the printed line counts the baseline and candidate wins, the ties, the calls whose two orders disagreed, and the calls where the judge chose a position. A judge that gives no answer fails the command with its reason. The pairwise line never changes the exit code.
+`compare --pairwise <criterion.yaml>` also judges, for every block both campaigns ran, which of the two replies better meets one criterion. The criterion file holds a `name` and a `rubric`, and optionally `pass` and `fail`. `--pairwise-judge` picks the provider judge, `openai` by default; its key is read from the environment. `--pairwise-reference <file>` asks which reply matches the reference answer in the file better, instead of which reply is better; see [judges](../concepts/judges.md#factual-audit-and-ledger-recovery). Each pair is judged twice, in both orders, so a judge that favours a position is caught: the printed line counts the baseline and candidate wins, the ties, the calls whose two orders disagreed, and the calls where the judge chose a position. A judge that gives no answer fails the command with its reason. The pairwise line never changes the exit code.
 
 ## `driftbench ci`
 
