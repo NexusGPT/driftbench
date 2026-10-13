@@ -10,7 +10,7 @@ Rewritten by the executor every iteration (docs/validators.md section 10). A str
 | 1 | 5 |
 <!-- level-table:end -->
 
-The fresh options A and B measurement reaches level 5 on seed 1. Levels 1 through 5 pass; level 6 passes 19 of 22 items. This stop-at-first-failure run measures 145 of 148 items passing, not the full bank score. Evidence: [seed-1 level report](evidence/options-ab-seed-1-level.json), source code `8359f453`. The full bank holds 2033 items in 26 families and 22 levels; its 21-seed sweep remains active. Row 17 (1551 of 2033 on source `4d94b132`) is the pre-change full-bank baseline. [SWEEP-JOURNAL.md](SWEEP-JOURNAL.md) records the partial measurement and test limitations until the full bank row is available.
+The fresh options A and B measurement reaches level 5 on seed 1. Levels 1 through 5 pass; level 6 passes 19 of 22 items. This stop-at-first-failure run measures 145 of 148 items passing, not the full bank score. Evidence: [seed-1 level report](evidence/options-ab-seed-1-level.json), source code `8359f453`. Seed 2 also reaches level 5, with 1791 of 2009 seed-dependent items passing; the 24 global items are pending. The full bank holds 2033 items in 26 families and 22 levels; its 21-seed sweep remains active. Row 17 (1551 of 2033 on source `4d94b132`) is the pre-change full-bank baseline. [SWEEP-JOURNAL.md](SWEEP-JOURNAL.md) records the partial measurement and test limitations until the full bank row is available.
 
 ## Floor
 
@@ -86,7 +86,7 @@ Rows 1 to 10 are the pilot (branch `exec/generator-pilot`, merged). Rows 11 to 1
 - Main is merged at `e2a5acdf` (upstream `7c0b3592`); `node tools/rename-scope.mjs` reports no remaining changes. The separate performance PRs are not merged.
 - Acme generated fixtures are refreshed. Its inline-email flow phrase now carries the existing `first_message=says-everything` context, so it is not treated as equivalent to a greeting that gives no email.
 - Read-only review found that a bound numeric reply value could disagree with the synthetic tool answer. The repair injects the exact typed scalar binding and refuses ambiguous or inconsistent bindings. The bound-reply and related scenario/value tests pass (71 tests); the six-class integration recheck also passes.
-- Final typecheck and lint pass at `8359f453`. Full repository tests and the 21-seed sweep are running. Acme extraction, generation and budget rechecks pass all 30 tests. The 7 CLI generation tests and isolated CI action test also pass. The exact system-floor recheck also passes all 1297 items through level 7 on `cf271ae8`. Every failure reported so far has a passing focused recheck, but the full run remains active and no full-suite pass is claimed.
+- Final typecheck and lint pass at `8359f453`. Full repository tests and the 21-seed sweep are running. Acme extraction, generation and budget rechecks pass all 30 tests. The 7 CLI generation tests, isolated CI action test, and 10 gate/pilot rechecks also pass. The exact system-floor recheck also passes all 1297 items through level 7 on `cf271ae8`. Every failure reported so far has a passing focused recheck, but the full run remains active and no full-suite pass is claimed.
 - No external model API calls are made by this work.
 
 ## Validator item defects (logged, not edited)
