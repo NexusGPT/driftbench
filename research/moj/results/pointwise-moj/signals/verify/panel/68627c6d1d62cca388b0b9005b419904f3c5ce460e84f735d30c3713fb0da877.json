@@ -1,0 +1,48 @@
+{
+  "pA": 0.3333333333333333,
+  "confidence": 0.6666666666666666,
+  "agreement": 0.6666666666666666,
+  "complete": true,
+  "detail": {
+    "members": {
+      "luna": {
+        "pA": 0.0,
+        "key": "1bbeba6ed14c8b850f8b673266f35accdecdbce52ced2e500480679be154f114",
+        "reason": "The rules derive that the mouse does not shout at the beetle, so the answer to whether it shouts is “disproved,” not “proved.”",
+        "usd": 0.0002571
+      },
+      "gemini": {
+        "pA": 1.0,
+        "key": "7ce152513dd47a3ce93b919f84763ea8babb85eebf4a2c6df47330e4ba36cc1a",
+        "reason": "The response correctly applies the rules, handles the preference priorities correctly, and arrives at the conclusion that the mouse does not shout at the beetle.",
+        "usd": 0.001131
+      },
+      "haiku": {
+        "pA": 0.0,
+        "key": "38706132cca031f3c61058890538613f57ff2287160ce87faf3f250911f4749a",
+        "reason": "The reply's final answer is wrong. Rules 1 and 2 correctly derive that the mouse does not shout at the beetle, so the correct label is 'disproved', not 'proved'. The reply also wrongly claims the mouse is not in Africa, though Nigeria is in Africa, which triggers Rule 4. That error doesn't change the outcome, since Rule 5 still can't fire without the mouse hugging the dinosaur, but the reasoning is flawed.",
+        "usd": 0.0008817
+      }
+    }
+  },
+  "usage": [
+    {
+      "provider": "luna",
+      "key": "1bbeba6ed14c8b850f8b673266f35accdecdbce52ced2e500480679be154f114",
+      "count": 1,
+      "usd": 0.0002571
+    },
+    {
+      "provider": "gemini",
+      "key": "7ce152513dd47a3ce93b919f84763ea8babb85eebf4a2c6df47330e4ba36cc1a",
+      "count": 1,
+      "usd": 0.001131
+    },
+    {
+      "provider": "haiku",
+      "key": "38706132cca031f3c61058890538613f57ff2287160ce87faf3f250911f4749a",
+      "count": 1,
+      "usd": 0.0008817
+    }
+  ]
+}

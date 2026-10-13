@@ -1,0 +1,29 @@
+{
+  "pA": 0.83,
+  "confidence": 0.83,
+  "detail": {
+    "eligible": true,
+    "with_reference": true,
+    "kind": "pointwise",
+    "points": [
+      "The reply is factually consistent with the reference. Omitting a detail is allowed; changing a fact, number, entity or condition is not."
+    ],
+    "scores": {
+      "a": 0.83
+    },
+    "rows": {
+      "a": {
+        "point_0": 0.83
+      }
+    },
+    "reference_source": "dataset"
+  },
+  "usage": [
+    {
+      "provider": "jev",
+      "key": "2e1399d3c547aee6bebf82b2df804cbce09ea7126dedf847b2e6eae3fc760ac2",
+      "seconds": 0.821,
+      "usd": 0
+    }
+  ]
+}

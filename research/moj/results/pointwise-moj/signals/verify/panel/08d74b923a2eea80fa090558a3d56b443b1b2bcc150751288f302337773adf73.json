@@ -1,0 +1,48 @@
+{
+  "pA": null,
+  "confidence": null,
+  "agreement": null,
+  "complete": false,
+  "detail": {
+    "members": {
+      "luna": {
+        "pA": null,
+        "key": "79756ee01e11900dc5e58768c11343f4b2049ef7d8aa764e29dab4fecdd48598",
+        "reason": null,
+        "usd": 0.0001854
+      },
+      "gemini": {
+        "pA": 1.0,
+        "key": "273418fb89146d40bc1beaa51725a7b8e9463bb73d8dc433b090e5ad991bc6b7",
+        "reason": "The provided reply successfully identifies the function and its relationship to the graph of y = 2^x, completing the statement appropriately with the correct expression.",
+        "usd": 0.000996
+      },
+      "haiku": {
+        "pA": 0.0,
+        "key": "4db72004116f3e9d566b4e2e47d42f22ca5a9c87e7eff2ba84a9e3f2ecd03473",
+        "reason": "The reply repeatedly says y = 2^(x-1)+2 is obtained by shifting y = 2^x right by 1 unit alone, which contradicts the function: the graph also moves up 2 units. The text is also highly repetitive and circular, and its final 'answer' just restates the function without clearly confirming the translation.",
+        "usd": 0.0006828
+      }
+    }
+  },
+  "usage": [
+    {
+      "provider": "luna",
+      "key": "79756ee01e11900dc5e58768c11343f4b2049ef7d8aa764e29dab4fecdd48598",
+      "count": 1,
+      "usd": 0.0001854
+    },
+    {
+      "provider": "gemini",
+      "key": "273418fb89146d40bc1beaa51725a7b8e9463bb73d8dc433b090e5ad991bc6b7",
+      "count": 1,
+      "usd": 0.000996
+    },
+    {
+      "provider": "haiku",
+      "key": "4db72004116f3e9d566b4e2e47d42f22ca5a9c87e7eff2ba84a9e3f2ecd03473",
+      "count": 1,
+      "usd": 0.0006828
+    }
+  ]
+}

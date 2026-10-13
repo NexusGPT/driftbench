@@ -1,0 +1,48 @@
+{
+  "pA": 0.6666666666666666,
+  "confidence": 0.6666666666666666,
+  "agreement": 0.6666666666666666,
+  "complete": true,
+  "detail": {
+    "members": {
+      "luna": {
+        "pA": 1.0,
+        "key": "205bd7f9ac958e7668b6d81a50d91bcc9f4d0b0ee7a75452f658dd69a8b40bea",
+        "reason": "The proposed spelling **alapt’k** places the apostrophe between t and k, matching the examples where that position corresponds to [ə] (as in n’st → [nəst]).",
+        "usd": 0.0007835
+      },
+      "gemini": {
+        "pA": 1.0,
+        "key": "cbb17cb22bed42e155607d1c453d636509040d67d2b58c8aefb78e84b0349a03",
+        "reason": "The response correctly derives the Listuguj orthography 'alapt'k' based on the provided phonetic transcription and morphological patterns of the Listuguj Micmac orthography.",
+        "usd": 0.00466875
+      },
+      "haiku": {
+        "pA": 0.0,
+        "key": "2ef32a2bbe45fe31c804b88fcafaa0f51e807284820dcf8d469198a19ced4e6c",
+        "reason": "The final answer 'alapt’k' uses 'k', but every reference example writes the [k] sound as 'g' (e.g., 'teg' = [tek], 'jg' = [ck], 'epsaqtejg' = [epsaxteck]), so the reply contradicts the orthography it was asked to apply. Its derivation is also internally inconsistent: it claims the apostrophe inserts a schwa but then writes the final consonant as 'k', and it misreads 'tplutaqan' as showing a schwa before initial 't'. The answer is not supported by the examples.",
+        "usd": 0.0021544
+      }
+    }
+  },
+  "usage": [
+    {
+      "provider": "luna",
+      "key": "205bd7f9ac958e7668b6d81a50d91bcc9f4d0b0ee7a75452f658dd69a8b40bea",
+      "count": 1,
+      "usd": 0.0007835
+    },
+    {
+      "provider": "gemini",
+      "key": "cbb17cb22bed42e155607d1c453d636509040d67d2b58c8aefb78e84b0349a03",
+      "count": 1,
+      "usd": 0.00466875
+    },
+    {
+      "provider": "haiku",
+      "key": "2ef32a2bbe45fe31c804b88fcafaa0f51e807284820dcf8d469198a19ced4e6c",
+      "count": 1,
+      "usd": 0.0021544
+    }
+  ]
+}

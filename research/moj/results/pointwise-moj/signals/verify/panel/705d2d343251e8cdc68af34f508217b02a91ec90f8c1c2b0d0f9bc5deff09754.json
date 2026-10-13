@@ -1,0 +1,48 @@
+{
+  "pA": null,
+  "confidence": null,
+  "agreement": null,
+  "complete": false,
+  "detail": {
+    "members": {
+      "luna": {
+        "pA": null,
+        "key": "ac28edbce98675de52fa1f137f14120f18446fcd4d79f3742e4925e9c5ce310b",
+        "reason": null,
+        "usd": 0.0002899
+      },
+      "gemini": {
+        "pA": null,
+        "key": "1bdc83c02998145426b1a20cc19372fabdb591f8061965621e6f605ca1021774",
+        "reason": null,
+        "usd": 0.00245175
+      },
+      "haiku": {
+        "pA": 0.0,
+        "key": "8af3d31c10ecfe48303f2218deb40e4b8820d1e72809ccb873f93aedea78d82e",
+        "reason": "The boxed answer 16 is incorrect. With p=0.5 and the normal approximation, P(|X̄−p|<0.1)≥0.9 requires 0.2√n ≥ 1.645, so n ≥ 68. The worst case p=0.5 gives the largest variance, so 68 is the CLT answer; the Chebyshev bound gives 250. The reasoning is also self-contradictory: it finds n≈0.025, then p=0.05, and abandons both without reaching a valid conclusion that supports 16.",
+        "usd": 0.0008866
+      }
+    }
+  },
+  "usage": [
+    {
+      "provider": "luna",
+      "key": "ac28edbce98675de52fa1f137f14120f18446fcd4d79f3742e4925e9c5ce310b",
+      "count": 1,
+      "usd": 0.0002899
+    },
+    {
+      "provider": "gemini",
+      "key": "1bdc83c02998145426b1a20cc19372fabdb591f8061965621e6f605ca1021774",
+      "count": 1,
+      "usd": 0.00245175
+    },
+    {
+      "provider": "haiku",
+      "key": "8af3d31c10ecfe48303f2218deb40e4b8820d1e72809ccb873f93aedea78d82e",
+      "count": 1,
+      "usd": 0.0008866
+    }
+  ]
+}

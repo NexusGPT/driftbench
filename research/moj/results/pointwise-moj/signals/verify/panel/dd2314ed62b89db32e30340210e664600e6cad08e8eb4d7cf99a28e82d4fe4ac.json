@@ -1,0 +1,48 @@
+{
+  "pA": null,
+  "confidence": null,
+  "agreement": null,
+  "complete": false,
+  "detail": {
+    "members": {
+      "luna": {
+        "pA": 0.0,
+        "key": "1e07709c9690f82104d350459d9cf51b97bf2f5615f8755eb6aaa565a6040b0d",
+        "reason": "The system has two solutions, (0,0,0) and (1,1,1), but the reply gives only 1 as its final answer and does not provide all solutions.",
+        "usd": 0.0002483
+      },
+      "gemini": {
+        "pA": null,
+        "key": "80d6ccc3db3fa319376c8b1593e11eed96cd4cf771b34eb03a196601fbfe4eb7",
+        "reason": null,
+        "usd": 0.00134175
+      },
+      "haiku": {
+        "pA": 0.0,
+        "key": "91d3db841b14b9b8200b4e5b7841550fe9a6565e0b64f715e3503efd28865652",
+        "reason": "The reply's final answer is \\boxed{1}, which is incomplete and wrong. Its own text verifies (0,0,0) as a solution, and the set of real solutions is {(0,0,0), (1,1,1)}. The reply also includes no proof that these are the only solutions. The 'x_1 = 1' and 'x_1 = 0' checks only test single values and don't establish completeness.",
+        "usd": 0.0008661
+      }
+    }
+  },
+  "usage": [
+    {
+      "provider": "luna",
+      "key": "1e07709c9690f82104d350459d9cf51b97bf2f5615f8755eb6aaa565a6040b0d",
+      "count": 1,
+      "usd": 0.0002483
+    },
+    {
+      "provider": "gemini",
+      "key": "80d6ccc3db3fa319376c8b1593e11eed96cd4cf771b34eb03a196601fbfe4eb7",
+      "count": 1,
+      "usd": 0.00134175
+    },
+    {
+      "provider": "haiku",
+      "key": "91d3db841b14b9b8200b4e5b7841550fe9a6565e0b64f715e3503efd28865652",
+      "count": 1,
+      "usd": 0.0008661
+    }
+  ]
+}

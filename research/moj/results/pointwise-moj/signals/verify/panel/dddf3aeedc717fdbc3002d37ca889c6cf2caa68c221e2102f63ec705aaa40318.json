@@ -1,0 +1,48 @@
+{
+  "pA": 0.3333333333333333,
+  "confidence": 0.6666666666666666,
+  "agreement": 0.6666666666666666,
+  "complete": true,
+  "detail": {
+    "members": {
+      "luna": {
+        "pA": 0.0,
+        "key": "e168025f91c593898eb03ea5f5811c06cbf96581298f32ab62222fbb89b1297c",
+        "reason": "The answer assumes, without support in the question, that A–E are equally spaced around the loop and that they start at A. Without the diagram or the locations of those points, the nearest labeled point cannot be determined.",
+        "usd": 0.0007937
+      },
+      "gemini": {
+        "pA": 1.0,
+        "key": "61634b950a7f619d8838cb7e7a1c9c304c40b94da4b736bd3f7b7e1a9d1fa17d",
+        "reason": "The response correctly determines Jane's speed relative to Hector, calculates the distances they walk before meeting (20.25 and 6.75 blocks), finds the location of the meeting point in relation to the evenly-spaced points around the 27-block loop (closer to E), and correctly selects option E.",
+        "usd": 0.00564075
+      },
+      "haiku": {
+        "pA": 0.0,
+        "key": "2816c3d3c1ecb2c894b888405662a66652fd8cdb704d319f6c65c0ddf448f690",
+        "reason": "The distance calculations are correct (Jane walks 81/4 = 20.25 blocks, Hector 27/4 = 6.75 blocks), but the final answer depends on an unjustified assumption that A–E are equally spaced at 5.4-block intervals starting from A. The problem refers to a figure that is not provided, so the choice of E is unsupported and cannot be verified.",
+        "usd": 0.0024361
+      }
+    }
+  },
+  "usage": [
+    {
+      "provider": "luna",
+      "key": "e168025f91c593898eb03ea5f5811c06cbf96581298f32ab62222fbb89b1297c",
+      "count": 1,
+      "usd": 0.0007937
+    },
+    {
+      "provider": "gemini",
+      "key": "61634b950a7f619d8838cb7e7a1c9c304c40b94da4b736bd3f7b7e1a9d1fa17d",
+      "count": 1,
+      "usd": 0.00564075
+    },
+    {
+      "provider": "haiku",
+      "key": "2816c3d3c1ecb2c894b888405662a66652fd8cdb704d319f6c65c0ddf448f690",
+      "count": 1,
+      "usd": 0.0024361
+    }
+  ]
+}

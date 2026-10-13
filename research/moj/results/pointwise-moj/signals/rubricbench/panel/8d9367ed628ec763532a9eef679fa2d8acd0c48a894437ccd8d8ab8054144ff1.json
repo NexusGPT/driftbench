@@ -1,0 +1,48 @@
+{
+  "pA": 0.6666666666666666,
+  "confidence": 0.6666666666666666,
+  "agreement": 0.6666666666666666,
+  "complete": true,
+  "detail": {
+    "members": {
+      "luna": {
+        "pA": 1.0,
+        "key": "90bae28d4005e80fcec0b5e28abc9b6f8ae1ddec137d92fce77dbe3c4cef19d5",
+        "reason": "A clearly says W does not directly affect stencil operations and explains its indirect effect on depth through perspective division. Its numerical depth example is more technically relevant than B’s unexplained, artificially inserted 1, 2, and 3.",
+        "usd": 0.000171
+      },
+      "gemini": {
+        "pA": 0.0,
+        "key": "4ad939dac1e7600370a01894338f7bb5ca8462302c603e18c3d54a3130c5a304",
+        "reason": "Response B correctly explains the role of perspective division in depth calculations and naturally integrates exactly 3 numbers into its technical explanation (referring to steps 1, 2, and 3), whereas Response A fails the number constraint by including digits in examples ('0.5', '1.0') and containing more than 3 numbers total.",
+        "usd": 0.00069075
+      },
+      "haiku": {
+        "pA": 1.0,
+        "key": "8b93dad8f25991e11b9628b7a5001b4eaa9734c08ddd74ef5108f42a25d0d40b",
+        "reason": "Response A clearly states that W and stencil operations are not directly related (rb_1) and gives a concrete numerical example for depth effects (rb_4). Its numbers (3D, 0.5, 1.0) are woven into the explanation. Response B's '1, 2, and 3' are inserted only to satisfy the count and are explicitly called irrelevant, which fails rb_3. B's perspective-division explanation is more accurate (rb_2), and A's claim that W=0.5 looks 'closer' is technically dubious, but A still satisfies more of the rubric.",
+        "usd": 0.0007475000000000001
+      }
+    }
+  },
+  "usage": [
+    {
+      "provider": "luna",
+      "key": "90bae28d4005e80fcec0b5e28abc9b6f8ae1ddec137d92fce77dbe3c4cef19d5",
+      "count": 1,
+      "usd": 0.000171
+    },
+    {
+      "provider": "gemini",
+      "key": "4ad939dac1e7600370a01894338f7bb5ca8462302c603e18c3d54a3130c5a304",
+      "count": 1,
+      "usd": 0.00069075
+    },
+    {
+      "provider": "haiku",
+      "key": "8b93dad8f25991e11b9628b7a5001b4eaa9734c08ddd74ef5108f42a25d0d40b",
+      "count": 1,
+      "usd": 0.0007475000000000001
+    }
+  ]
+}

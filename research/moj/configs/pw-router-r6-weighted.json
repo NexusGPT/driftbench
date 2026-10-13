@@ -1,0 +1,11 @@
+{
+  "name": "pw-router-r6-weighted",
+  "reference": true,
+  "reasoning_guard": true,
+  "panel": true,
+  "panel_below": 0.7,
+  "typed": "blend",
+  "weighted_panel": true,
+  "hypothesis": "A tuning-fitted mixture of stage-one, Luna and panel votes improves the unweighted panel.",
+  "split_version": "moj-split-v2"
+}

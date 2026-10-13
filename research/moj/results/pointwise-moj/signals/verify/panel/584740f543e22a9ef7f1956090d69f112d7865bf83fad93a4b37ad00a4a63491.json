@@ -1,0 +1,48 @@
+{
+  "pA": 0.3333333333333333,
+  "confidence": 0.6666666666666666,
+  "agreement": 0.6666666666666666,
+  "complete": true,
+  "detail": {
+    "members": {
+      "luna": {
+        "pA": 0.0,
+        "key": "6108b59de8d53dd966daa87142afbb023cae7e0d999544bf915eda9c3c7141c0",
+        "reason": "The final choice (B) is correct, but the reply also explicitly claims that (A) evaluates to true. In fact (A) is false, so that claim contradicts the answer and the prompt’s statement that only one expression is true.",
+        "usd": 0.000562
+      },
+      "gemini": {
+        "pA": 0.0,
+        "key": "0fc7ca4bb63f7d94d50110a0023b7a011546df533751e4d35d57c7c324cf173b",
+        "reason": "The model's selected answer is (B), but option (B) evaluates to False. Furthermore, the assistant's internal reasoning shows it evaluated the wrong text/expressions compared to the prompt's options.",
+        "usd": 0.0027795
+      },
+      "haiku": {
+        "pA": 1.0,
+        "key": "0653eef6c2fbb11ba47ed7a572a1b7111a78e992572aea34fb251dd6bcdc7e42",
+        "reason": "Evaluating the expressions from the original request gives (A) False, since its trailing conjunction is False. (B) is True: the first disjunct reduces to not(notnot(a and b) or notnotnot(C2)) with a = notnotnot(True) = False, so the first disjunct is True. (E) is False, and I did not fully re-check (C) and (D), which the reply also marks False. (B) is therefore the unique true option and the boxed answer is correct. However, the reply's intermediate reasoning is garbled: it claims (A) is True and (B) is False, which contradicts its own final answer.",
+        "usd": 0.0056248
+      }
+    }
+  },
+  "usage": [
+    {
+      "provider": "luna",
+      "key": "6108b59de8d53dd966daa87142afbb023cae7e0d999544bf915eda9c3c7141c0",
+      "count": 1,
+      "usd": 0.000562
+    },
+    {
+      "provider": "gemini",
+      "key": "0fc7ca4bb63f7d94d50110a0023b7a011546df533751e4d35d57c7c324cf173b",
+      "count": 1,
+      "usd": 0.0027795
+    },
+    {
+      "provider": "haiku",
+      "key": "0653eef6c2fbb11ba47ed7a572a1b7111a78e992572aea34fb251dd6bcdc7e42",
+      "count": 1,
+      "usd": 0.0056248
+    }
+  ]
+}

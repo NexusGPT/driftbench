@@ -1,0 +1,48 @@
+{
+  "pA": 0.3333333333333333,
+  "confidence": 0.6666666666666666,
+  "agreement": 0.6666666666666666,
+  "complete": true,
+  "detail": {
+    "members": {
+      "luna": {
+        "pA": 0.0,
+        "key": "f318b937494ad2801e7d6fec55672a249180d5fe392e18c5f39edf21f3b985b7",
+        "reason": "Solving the derivative condition gives \\(2\\theta=\\pi/6+k\\pi\\), hence \\(\\theta=\\pi/12+k\\pi/2\\)—not the values stated. The maximum occurs at \\(\\theta=\\pi/12\\) modulo \\(\\pi\\); on \\([0,\\pi]\\), it is \\(\\pi/12\\).",
+        "usd": 0.0002983
+      },
+      "gemini": {
+        "pA": 1.0,
+        "key": "f4a0bfa90cc89f5d864c1f91c14bafcac52039287db381b681d85c341fb02d70",
+        "reason": "The response correctly computes the derivative of the area function, sets it to zero, uses the double-angle formulas correctly to obtain $\\cot(2\\theta) = \\sqrt{3}$, and correctly identifies the critical values of $\\theta$.",
+        "usd": 0.00121575
+      },
+      "haiku": {
+        "pA": 0.0,
+        "key": "2f49be2f5f045a8b978c808d0aaab96c91a7865ab132b23a495b11b21357453f",
+        "reason": "The derivative is correct, but the solving step is wrong. cot(2θ)=√3 gives 2θ=π/6+kπ, not π/3+kπ, so θ=π/12+kπ/2. Rewriting A as r²[sin(2θ+π/3)−√3/2] shows the maximum occurs at θ=π/12 (mod π), not π/6. The reply also gives π/6 and 2π/3 as maximizers, and neither is correct: 2π/3 is not a critical point, and π/6 gives a value below the maximum.",
+        "usd": 0.0008371000000000001
+      }
+    }
+  },
+  "usage": [
+    {
+      "provider": "luna",
+      "key": "f318b937494ad2801e7d6fec55672a249180d5fe392e18c5f39edf21f3b985b7",
+      "count": 1,
+      "usd": 0.0002983
+    },
+    {
+      "provider": "gemini",
+      "key": "f4a0bfa90cc89f5d864c1f91c14bafcac52039287db381b681d85c341fb02d70",
+      "count": 1,
+      "usd": 0.00121575
+    },
+    {
+      "provider": "haiku",
+      "key": "2f49be2f5f045a8b978c808d0aaab96c91a7865ab132b23a495b11b21357453f",
+      "count": 1,
+      "usd": 0.0008371000000000001
+    }
+  ]
+}

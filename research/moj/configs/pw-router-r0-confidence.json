@@ -1,0 +1,6 @@
+{
+  "name": "pw-router-r0-confidence",
+  "reference": false,
+  "hypothesis": "Calibrated confidence below 0.8 selects the recorded Luna grader.",
+  "split_version": "moj-split-v2"
+}

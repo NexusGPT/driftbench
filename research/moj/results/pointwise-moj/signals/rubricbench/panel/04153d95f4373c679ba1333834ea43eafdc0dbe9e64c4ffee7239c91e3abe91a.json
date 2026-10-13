@@ -1,0 +1,48 @@
+{
+  "pA": null,
+  "confidence": null,
+  "agreement": null,
+  "complete": false,
+  "detail": {
+    "members": {
+      "luna": {
+        "pA": 0.0,
+        "key": "219455ec87330d50e18d4920800da600c64eecccefbe17a0cf990c82bbedc694",
+        "reason": "B better covers the requested architecture workflow, including gap analysis, network and deployment blueprints, interfaces, and an end-to-end roadmap. A gives more concrete component choices and illustrative code, but omits the gap analysis and most of the requested blueprint categories; neither provides complete class-level code or specific interface definitions.",
+        "usd": 0.00014738
+      },
+      "gemini": {
+        "pA": null,
+        "key": "69ad13ccab19dd4f7bf51b50052f36898255180b5215e44db0c69b768fa3aab2",
+        "reason": null,
+        "usd": 0.001614
+      },
+      "haiku": {
+        "pA": 1.0,
+        "key": "3cb27514395ea0dd9559a36a7e0e6059cc0bf4eee93e68bf5c9b45e520cea450",
+        "reason": "Response A covers more of the rubric: it has concrete C# snippets (though not full class context), specifies the queue, database, and push provider, and gives a data flow and API confirmation endpoint. Response B is a generic checklist with no code of substance beyond a mention of SDKs, though it does touch on gap analysis and the blueprint categories. A is stronger on rb_3, rb_4, rb_5, and rb_6; B is only marginally better on rb_1 and rb_2.",
+        "usd": 0.0007735000000000001
+      }
+    }
+  },
+  "usage": [
+    {
+      "provider": "luna",
+      "key": "219455ec87330d50e18d4920800da600c64eecccefbe17a0cf990c82bbedc694",
+      "count": 2,
+      "usd": 0.00014738
+    },
+    {
+      "provider": "gemini",
+      "key": "69ad13ccab19dd4f7bf51b50052f36898255180b5215e44db0c69b768fa3aab2",
+      "count": 1,
+      "usd": 0.001614
+    },
+    {
+      "provider": "haiku",
+      "key": "3cb27514395ea0dd9559a36a7e0e6059cc0bf4eee93e68bf5c9b45e520cea450",
+      "count": 1,
+      "usd": 0.0007735000000000001
+    }
+  ]
+}

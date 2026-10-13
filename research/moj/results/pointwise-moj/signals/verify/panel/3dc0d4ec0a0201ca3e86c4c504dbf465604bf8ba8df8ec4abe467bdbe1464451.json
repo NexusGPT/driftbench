@@ -1,0 +1,48 @@
+{
+  "pA": 1.0,
+  "confidence": 1.0,
+  "agreement": 1.0,
+  "complete": true,
+  "detail": {
+    "members": {
+      "luna": {
+        "pA": 1.0,
+        "key": "04e0567953084ea63fc162968b0f552357845df1320f9df72f8c01d79fcce4c3",
+        "reason": "The final answer is correct: the equations give x+y=4 and x−y=1/4, so xy=(17/8)(15/8)=255/64.",
+        "usd": 0.0002232
+      },
+      "gemini": {
+        "pA": 1.0,
+        "key": "b9e894c92164e05288c1e483ea58880b4ac83cf6eb29f76dd71c8b12e29690b0",
+        "reason": "The response correctly solves the system of equations $3^{x+y}=81$ and $81^{x-y}=3$ to find $x+y=4$ and $4(x-y)=1$, yielding $x=\frac{17}{8}$ and $y=\frac{15}{8}$, and correctly computes their product as $\frac{255}{64}$.",
+        "usd": 0.00167925
+      },
+      "haiku": {
+        "pA": 1.0,
+        "key": "a74ebec1f7ecb8a2f7a9325c587620e1c67948ac9b2c3566a34d881dd002e486",
+        "reason": "Independent check: 3^(x+y)=81 gives x+y=4, and 81^(x-y)=3 gives 3^(4(x-y))=3, so x-y=1/4. Then x=17/8, y=15/8, and xy=255/64, which matches the boxed final answer. The reply is messy, with an earlier wrong claim of xy=4 that it later abandons, but its final answer is correct.",
+        "usd": 0.0008463000000000001
+      }
+    }
+  },
+  "usage": [
+    {
+      "provider": "luna",
+      "key": "04e0567953084ea63fc162968b0f552357845df1320f9df72f8c01d79fcce4c3",
+      "count": 1,
+      "usd": 0.0002232
+    },
+    {
+      "provider": "gemini",
+      "key": "b9e894c92164e05288c1e483ea58880b4ac83cf6eb29f76dd71c8b12e29690b0",
+      "count": 1,
+      "usd": 0.00167925
+    },
+    {
+      "provider": "haiku",
+      "key": "a74ebec1f7ecb8a2f7a9325c587620e1c67948ac9b2c3566a34d881dd002e486",
+      "count": 1,
+      "usd": 0.0008463000000000001
+    }
+  ]
+}

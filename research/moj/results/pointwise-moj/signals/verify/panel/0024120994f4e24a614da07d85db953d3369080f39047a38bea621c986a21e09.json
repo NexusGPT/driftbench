@@ -1,0 +1,48 @@
+{
+  "pA": 0.6666666666666666,
+  "confidence": 0.6666666666666666,
+  "agreement": 0.6666666666666666,
+  "complete": true,
+  "detail": {
+    "members": {
+      "luna": {
+        "pA": 0.0,
+        "key": "c8b7489ef288b009b2f33f23a004f5e460ebe9c477dfaba2d4b55141bb8ec390",
+        "reason": "D follows from the necessary-condition chain, but C reverses the implication: from capital requiring high savings (Q → P), we can infer ¬P → ¬Q, not ¬Q → ¬P. So the reply incorrectly selects C as well.",
+        "usd": 0.0003844
+      },
+      "gemini": {
+        "pA": 1.0,
+        "key": "ca010da84967985dee78b12669ed0e554cf112cb76c27bb8b4d92d3087a89491",
+        "reason": "The response correctly analyzes the logical necessary conditions in the passage using formal logic (contrapositives) and identifies both C and D as correct inferences.",
+        "usd": 0.002499
+      },
+      "haiku": {
+        "pA": 1.0,
+        "key": "6dc34848a43d184c6e8dbe5ddd6594a9bbb4551d03f1be7711df14bb45969778",
+        "reason": "The passage gives R→Q (capital is necessary for development) and Q→P (a high savings rate is necessary for capital). Their contrapositives are ¬Q→¬P, which is option C, and, via R→P, ¬P→¬R, which is option D. Both follow logically, and the reply's final answer of C and D is correct. Its visible reasoning is hesitant, but the conclusion is clearly stated and logically sound.",
+        "usd": 0.0012966
+      }
+    }
+  },
+  "usage": [
+    {
+      "provider": "luna",
+      "key": "c8b7489ef288b009b2f33f23a004f5e460ebe9c477dfaba2d4b55141bb8ec390",
+      "count": 1,
+      "usd": 0.0003844
+    },
+    {
+      "provider": "gemini",
+      "key": "ca010da84967985dee78b12669ed0e554cf112cb76c27bb8b4d92d3087a89491",
+      "count": 1,
+      "usd": 0.002499
+    },
+    {
+      "provider": "haiku",
+      "key": "6dc34848a43d184c6e8dbe5ddd6594a9bbb4551d03f1be7711df14bb45969778",
+      "count": 1,
+      "usd": 0.0012966
+    }
+  ]
+}

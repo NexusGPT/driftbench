@@ -1,0 +1,48 @@
+{
+  "pA": 0.3333333333333333,
+  "confidence": 0.6666666666666666,
+  "agreement": 0.6666666666666666,
+  "complete": true,
+  "detail": {
+    "members": {
+      "luna": {
+        "pA": 0.0,
+        "key": "e01cb19537a45c5d762f110001474521742c673cf442f9bbeb180458125c2cdb",
+        "reason": "The constraints allow 8 orderings, not 6. For example, the reply itself lists 8 distinct valid sequences, then selects E despite its own count.",
+        "usd": 0.0018151
+      },
+      "gemini": {
+        "pA": 1.0,
+        "key": "ec7ff52a414575ec79a09ee93a366fe739bb3d90771b345efaaff2a12e5e516f",
+        "reason": "The correct number of valid house orderings satisfying all conditions is 6.",
+        "usd": 0.01900575
+      },
+      "haiku": {
+        "pA": 0.0,
+        "key": "f51d6f6f2c6a54cce16f87feecb974a8488dbe5110c02f2495ef44f8ac67a135",
+        "reason": "The reply's final answer, E) 6, is unsupported. Its own enumeration produced 8 valid orderings, which it then discarded without justification. Recounting independently: with R last among {B,G,O,R} and B<G<R, O<R, B<Y, and B,Y non-adjacent, R=5 gives 5 orderings and R=4 (Y forced to position 5) gives 3, for a total of 8. The answer 6 is incorrect, and the reply's reasoning ends in an unexplained guess.",
+        "usd": 0.005289100000000001
+      }
+    }
+  },
+  "usage": [
+    {
+      "provider": "luna",
+      "key": "e01cb19537a45c5d762f110001474521742c673cf442f9bbeb180458125c2cdb",
+      "count": 1,
+      "usd": 0.0018151
+    },
+    {
+      "provider": "gemini",
+      "key": "ec7ff52a414575ec79a09ee93a366fe739bb3d90771b345efaaff2a12e5e516f",
+      "count": 1,
+      "usd": 0.01900575
+    },
+    {
+      "provider": "haiku",
+      "key": "f51d6f6f2c6a54cce16f87feecb974a8488dbe5110c02f2495ef44f8ac67a135",
+      "count": 1,
+      "usd": 0.005289100000000001
+    }
+  ]
+}

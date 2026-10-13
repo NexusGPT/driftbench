@@ -1,0 +1,48 @@
+{
+  "pA": 0.0,
+  "confidence": 1.0,
+  "agreement": 1.0,
+  "complete": true,
+  "detail": {
+    "members": {
+      "luna": {
+        "pA": 0.0,
+        "key": "2bc1310ffe0ff77c938e31b05c7116da37b5571d85e31a64b4c3552cf9379492",
+        "reason": "The reply does not find or state the minimum; it concludes that it cannot solve the problem. Its purported expansion is also incorrect.",
+        "usd": 0.00016519999999999998
+      },
+      "gemini": {
+        "pA": 0.0,
+        "key": "8ed4c6f5cbaece88af937ebc24ddfa579a0fa09a026ef4e3d136bc38d0907c66",
+        "reason": "The model failed to provide a final answer or solve the problem, instead giving up in the middle of the response and stating it cannot find the minimum value.",
+        "usd": 0.00101775
+      },
+      "haiku": {
+        "pA": 0.0,
+        "key": "40345457b8c12d0d3d69557cb2f176713df2bf63e9126da8108dd8059d74671b",
+        "reason": "The reply never produces a minimum value. It sets up an expansion, abandons it, and concludes that the minimum 'cannot be accurately found.' Its intermediate expansion is also unreliable, so it does not satisfy the criterion of giving the correct final answer.",
+        "usd": 0.0006096000000000001
+      }
+    }
+  },
+  "usage": [
+    {
+      "provider": "luna",
+      "key": "2bc1310ffe0ff77c938e31b05c7116da37b5571d85e31a64b4c3552cf9379492",
+      "count": 1,
+      "usd": 0.00016519999999999998
+    },
+    {
+      "provider": "gemini",
+      "key": "8ed4c6f5cbaece88af937ebc24ddfa579a0fa09a026ef4e3d136bc38d0907c66",
+      "count": 1,
+      "usd": 0.00101775
+    },
+    {
+      "provider": "haiku",
+      "key": "40345457b8c12d0d3d69557cb2f176713df2bf63e9126da8108dd8059d74671b",
+      "count": 1,
+      "usd": 0.0006096000000000001
+    }
+  ]
+}

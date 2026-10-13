@@ -1,0 +1,48 @@
+{
+  "pA": 0.3333333333333333,
+  "confidence": 0.6666666666666666,
+  "agreement": 0.6666666666666666,
+  "complete": true,
+  "detail": {
+    "members": {
+      "luna": {
+        "pA": 0.0,
+        "key": "fad8fe4af80eb9f0c6aff027f6f85bf08de15c62c94c12ea40360d1a7ede7e75",
+        "reason": "The proposed pentagons are not closed: the claimed convex pentagon lacks a bottom edge, and the negative-coordinate chain does not close either. The lines do form the square with corners (10.06858, 25.18474), (16.06858, 25.18474), (16.06858, 31.18474), and (10.06858, 31.18474), so the correct choice is (C), only 2.",
+        "usd": 0.00075875
+      },
+      "gemini": {
+        "pA": 1.0,
+        "key": "47ee1293d7aaf69ecfc6ae9d3480f55ad490927302ff9beaadd7990da1937cc7",
+        "reason": "The final answer correctly identifies option (P) 7 and 8 based on the provided SVG path analysis.",
+        "usd": 0.01370175
+      },
+      "haiku": {
+        "pA": 0.0,
+        "key": "2a44d79395ff42121144525efc13a6b5c057c89338a381082a9fa4b2a72e1ee2",
+        "reason": "The reply's central claim is a closed pentagon from segments 27, 4, 34, 31, and 30, but those segments do not close it. Segment 30 runs vertically from (10.07,6.44) to (10.07,0), so the bottom edge (0,0)-(10.07,0) is missing. The reply itself rejects the analogous rectangle for lacking a side, which is inconsistent. The concave pentagon on the left is also never closed: (0,25.18) and (0,17.90) are not joined. The answer (P) therefore rests on unverified and self-contradictory geometry.",
+        "usd": 0.0051815
+      }
+    }
+  },
+  "usage": [
+    {
+      "provider": "luna",
+      "key": "fad8fe4af80eb9f0c6aff027f6f85bf08de15c62c94c12ea40360d1a7ede7e75",
+      "count": 2,
+      "usd": 0.00075875
+    },
+    {
+      "provider": "gemini",
+      "key": "47ee1293d7aaf69ecfc6ae9d3480f55ad490927302ff9beaadd7990da1937cc7",
+      "count": 1,
+      "usd": 0.01370175
+    },
+    {
+      "provider": "haiku",
+      "key": "2a44d79395ff42121144525efc13a6b5c057c89338a381082a9fa4b2a72e1ee2",
+      "count": 1,
+      "usd": 0.0051815
+    }
+  ]
+}

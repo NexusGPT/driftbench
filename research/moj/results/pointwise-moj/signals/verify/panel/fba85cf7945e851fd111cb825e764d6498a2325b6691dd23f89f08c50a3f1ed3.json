@@ -1,0 +1,48 @@
+{
+  "pA": 0.0,
+  "confidence": 1.0,
+  "agreement": 1.0,
+  "complete": true,
+  "detail": {
+    "members": {
+      "luna": {
+        "pA": 0.0,
+        "key": "7134252357b7d82ce430db4e3802a27d983e9b2378baea747a7252b1f1ed4195",
+        "reason": "The correct values are Q2 = Sunday, Q3 = Saturday, and Q4 = Wednesday. The reply gives different answers and incorrectly says Q4 is unanswerable.",
+        "usd": 0.0002598
+      },
+      "gemini": {
+        "pA": 0.0,
+        "key": "bb907259a4f2ec647956fe2baba61ce65f3038f4131b89cc0245ec42c037af9b",
+        "reason": "The model made errors in calculating the day of the week in Question 2 and Question 3 (subtracting 3 days from Monday incorrectly yielded Friday instead of Friday minus 3 = Friday? Wait, Monday minus 3 days is Friday, but its text says \"Monday - Sunday - Saturday - Friday = Friday\", which is confused. Then in Q3 it shifted the starting day from Monday to Friday, and for Q4 it failed to compute the hour-based question correctly).",
+        "usd": 0.00150075
+      },
+      "haiku": {
+        "pA": 0.0,
+        "key": "0f9c055a56343ca4b945b7ed7261b397ed7abde2ac0ef2b64ada3bfd2cbbb6e2",
+        "reason": "Q1 gives 05/13/2021, so X=5 and X'=29, not 24 as the reply used. Q2 then gives Sunday (29 mod 7 = 1, Monday minus 1 day), not Friday. Continuing: P'=Thursday, Y'=12, Q=Saturday, Z'=24, Q'=Wednesday. The day 24 hours after Wednesday is unambiguously Thursday, so the reply's 'unanswerable' is wrong.",
+        "usd": 0.0009683000000000001
+      }
+    }
+  },
+  "usage": [
+    {
+      "provider": "luna",
+      "key": "7134252357b7d82ce430db4e3802a27d983e9b2378baea747a7252b1f1ed4195",
+      "count": 1,
+      "usd": 0.0002598
+    },
+    {
+      "provider": "gemini",
+      "key": "bb907259a4f2ec647956fe2baba61ce65f3038f4131b89cc0245ec42c037af9b",
+      "count": 1,
+      "usd": 0.00150075
+    },
+    {
+      "provider": "haiku",
+      "key": "0f9c055a56343ca4b945b7ed7261b397ed7abde2ac0ef2b64ada3bfd2cbbb6e2",
+      "count": 1,
+      "usd": 0.0009683000000000001
+    }
+  ]
+}

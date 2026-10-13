@@ -1,0 +1,14 @@
+....../Users/assem/Documents/GitHub/driftbench/.worktrees/moj-pointwise-router/research/moj/moj/benches.py:131: ResourceWarning: unclosed file <_io.TextIOWrapper name='/Users/assem/Documents/GitHub/driftbench/.worktrees/moj-pointwise-router/research/moj/data/rubricbench.json' mode='r' encoding='UTF-8'>
+  items = json.load(open(os.path.join(HERE, 'data', f'{bench}.json')))
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/Users/assem/Documents/GitHub/driftbench/.worktrees/moj-pointwise-router/research/moj/moj/benches.py:131: ResourceWarning: unclosed file <_io.TextIOWrapper name='/Users/assem/Documents/GitHub/driftbench/.worktrees/moj-pointwise-router/research/moj/data/hardrows.json' mode='r' encoding='UTF-8'>
+  items = json.load(open(os.path.join(HERE, 'data', f'{bench}.json')))
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/Users/assem/Documents/GitHub/driftbench/.worktrees/moj-pointwise-router/research/moj/moj/benches.py:131: ResourceWarning: unclosed file <_io.TextIOWrapper name='/Users/assem/Documents/GitHub/driftbench/.worktrees/moj-pointwise-router/research/moj/data/verify.json' mode='r' encoding='UTF-8'>
+  items = json.load(open(os.path.join(HERE, 'data', f'{bench}.json')))
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+...
+----------------------------------------------------------------------
+Ran 9 tests in 0.071s
+
+OK

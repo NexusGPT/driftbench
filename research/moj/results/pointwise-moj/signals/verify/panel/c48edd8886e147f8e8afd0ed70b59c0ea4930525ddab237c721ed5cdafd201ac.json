@@ -1,0 +1,48 @@
+{
+  "pA": 1.0,
+  "confidence": 1.0,
+  "agreement": 1.0,
+  "complete": true,
+  "detail": {
+    "members": {
+      "luna": {
+        "pA": 1.0,
+        "key": "0431f1d27d08199572ef40548326c94a5da2654f1670152e3500ca4ac5871257",
+        "reason": "It correctly states that Bernhard’s color is not specified; the context provides no color for him.",
+        "usd": 0.00020970000000000003
+      },
+      "gemini": {
+        "pA": 1.0,
+        "key": "f3b9c2ec8d9b72e32fa7b3189239cfaac763958bc0b16d2c9dc41163ba764e4d",
+        "reason": "The model correctly analyzed the provided text and concluded that Bernhard's color is not specified in the context, while also addressing possible inferences.",
+        "usd": 0.0015345
+      },
+      "haiku": {
+        "pA": 1.0,
+        "key": "a1e5a97226b18ef9e13c7133abc804dbecff6e3219165b14a42cca710c7a8af8",
+        "reason": "The context never states Bernhard's color. The reply correctly concludes that it is not specified, and it accurately restates the colors given for Julius (yellow), Brian (white), and Greg (white). Its hedged 'closest guess white' is explicitly labeled as an inference beyond the data, so it does not contradict the context. The reply is verbose and includes a stray '</think>' artifact, but the final answer is correct.",
+        "usd": 0.0008671000000000001
+      }
+    }
+  },
+  "usage": [
+    {
+      "provider": "luna",
+      "key": "0431f1d27d08199572ef40548326c94a5da2654f1670152e3500ca4ac5871257",
+      "count": 1,
+      "usd": 0.00020970000000000003
+    },
+    {
+      "provider": "gemini",
+      "key": "f3b9c2ec8d9b72e32fa7b3189239cfaac763958bc0b16d2c9dc41163ba764e4d",
+      "count": 1,
+      "usd": 0.0015345
+    },
+    {
+      "provider": "haiku",
+      "key": "a1e5a97226b18ef9e13c7133abc804dbecff6e3219165b14a42cca710c7a8af8",
+      "count": 1,
+      "usd": 0.0008671000000000001
+    }
+  ]
+}

@@ -1,0 +1,6 @@
+{
+  "name": "pw-router-r1-reference",
+  "reference": true,
+  "hypothesis": "Reference-first comparison improves balanced accuracy over the confidence cascade.",
+  "split_version": "moj-split-v2"
+}

@@ -1,0 +1,8 @@
+{
+  "name": "pw-router-r2-panel",
+  "reference": true,
+  "panel": true,
+  "panel_below": 0.7,
+  "hypothesis": "A cross-family panel below calibrated confidence 0.7 improves balanced accuracy.",
+  "split_version": "moj-split-v2"
+}

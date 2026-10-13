@@ -1,0 +1,48 @@
+{
+  "pA": null,
+  "confidence": null,
+  "agreement": null,
+  "complete": false,
+  "detail": {
+    "members": {
+      "luna": {
+        "pA": null,
+        "key": "887bcb57c8bbf779485b5230582be14fec8870ae0edd500d504f4f2501643328",
+        "reason": null,
+        "usd": 0.0005161
+      },
+      "gemini": {
+        "pA": 0.0,
+        "key": "c092b144ef7b605b22908d322f376db056d777fc2cce1719292f1c62e25c0710",
+        "reason": "The provided solution is nonsensical, contains multiple algebraic errors, infinite loops of repeated text, and fails to correctly solve the problem regarding the curve y^2 = x^3.",
+        "usd": 0.00162675
+      },
+      "haiku": {
+        "pA": 1.0,
+        "key": "c1746f6f62a25b773b76bec8fabd5fcd9fc12f66bbfc851aacfd9ff7c394fd8c",
+        "reason": "Parametrizing the curve as (t², t³) and requiring the tangent at t to pass through a normal point at s gives ts = -4/9 and 81t⁴ - 36t² - 32 = 0, so t² = 8/9. This yields two distinct lines, so the final answer 2 is correct. However, the written derivation is invalid: it has false discriminant and substitution steps, contradictory claims, and repeated blocks, so the reasoning does not support the answer.",
+        "usd": 0.001929
+      }
+    }
+  },
+  "usage": [
+    {
+      "provider": "luna",
+      "key": "887bcb57c8bbf779485b5230582be14fec8870ae0edd500d504f4f2501643328",
+      "count": 1,
+      "usd": 0.0005161
+    },
+    {
+      "provider": "gemini",
+      "key": "c092b144ef7b605b22908d322f376db056d777fc2cce1719292f1c62e25c0710",
+      "count": 1,
+      "usd": 0.00162675
+    },
+    {
+      "provider": "haiku",
+      "key": "c1746f6f62a25b773b76bec8fabd5fcd9fc12f66bbfc851aacfd9ff7c394fd8c",
+      "count": 1,
+      "usd": 0.001929
+    }
+  ]
+}

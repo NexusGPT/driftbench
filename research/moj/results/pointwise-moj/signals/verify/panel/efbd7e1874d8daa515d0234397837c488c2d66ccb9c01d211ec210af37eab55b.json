@@ -1,0 +1,48 @@
+{
+  "pA": 0.3333333333333333,
+  "confidence": 0.6666666666666666,
+  "agreement": 0.6666666666666666,
+  "complete": true,
+  "detail": {
+    "members": {
+      "luna": {
+        "pA": 0.0,
+        "key": "f16cd80716f4b9dee4c352b0c3e3c1bc4a10e09d231015b3fa99766ffe1cec02",
+        "reason": "The proposed form tapɨ is unsupported: the examples show final *-a becoming à in forms such as *bala → pilà and *bara → pirà. The likely Phan Rang Cham form is tapà, not tapɨ.",
+        "usd": 0.0009372
+      },
+      "gemini": {
+        "pA": 1.0,
+        "key": "e68f276d92ce12ee712a986f04966552577d1b2d1ff7afc962cedb798e92b75a",
+        "reason": "The response correctly deduces the Phan Rang Cham equivalent for Proto-Chamic *dəpa based on regular sound correspondences (initial *d- to t-, and vowel adjustments matching forms like *lima -> limɨ resulting in tapɨ).",
+        "usd": 0.00567975
+      },
+      "haiku": {
+        "pA": 0.0,
+        "key": "a128f28818eb1d8d2505e765064f56a4eb85090e78639215ed9744c4569d45a7",
+        "reason": "The answer 'tapɨ' is not well supported by the data. The reply's own cited pattern is inconsistent: final *-a is retained as -a with tone in most examples (*bala→pilà, *paday→patày, *padam→patàm, *jalaːn→calàn), and only *lima→limɨ and *mata→mɨta show ɨ, so the claimed final-vowel rule is not regular. The reply also admits uncertainty about the schwa rule and never checks the result against a consistent correspondence set. A reflex such as 'tapa' with a tone mark fits the pattern better, so the final answer is unlikely to be correct.",
+        "usd": 0.0026545
+      }
+    }
+  },
+  "usage": [
+    {
+      "provider": "luna",
+      "key": "f16cd80716f4b9dee4c352b0c3e3c1bc4a10e09d231015b3fa99766ffe1cec02",
+      "count": 1,
+      "usd": 0.0009372
+    },
+    {
+      "provider": "gemini",
+      "key": "e68f276d92ce12ee712a986f04966552577d1b2d1ff7afc962cedb798e92b75a",
+      "count": 1,
+      "usd": 0.00567975
+    },
+    {
+      "provider": "haiku",
+      "key": "a128f28818eb1d8d2505e765064f56a4eb85090e78639215ed9744c4569d45a7",
+      "count": 1,
+      "usd": 0.0026545
+    }
+  ]
+}

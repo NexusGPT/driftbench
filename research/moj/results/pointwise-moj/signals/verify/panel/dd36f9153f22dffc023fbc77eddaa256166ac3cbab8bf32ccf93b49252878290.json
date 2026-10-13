@@ -1,0 +1,48 @@
+{
+  "pA": null,
+  "confidence": null,
+  "agreement": null,
+  "complete": false,
+  "detail": {
+    "members": {
+      "luna": {
+        "pA": null,
+        "key": "7876106a4479c1e434af4aff9a000098f26769e3703ecf4013f2f754e5a43f90",
+        "reason": null,
+        "usd": 0.0002939
+      },
+      "gemini": {
+        "pA": 0.0,
+        "key": "084c9b5dedef805e7f5fe6833de2c97b3cc041be5edf1974ecc7b054b7025a8e",
+        "reason": "The response computes inconsistent values for $c$ multiple times (e.g., using $-19/24$ then $-49/24$), fails to actually factor the polynomial $k(x)$ into linear factors or a product of polynomials as requested, and instead puts the unfactored polynomial as the final boxed answer.",
+        "usd": 0.0018195
+      },
+      "haiku": {
+        "pA": 0.0,
+        "key": "46504967a4c8af6602aeafa880f60fe5c31c57939111a0551353f2d422384270",
+        "reason": "The correct value is c = 20/(-24) - (2 + -3) = -5/6 + 1 = 1/6, so k(x) = x^3/4 - x^2/2 + x/4 = x(x-1)^2/4. The reply miscalculates c several times (first as -19/24, then -49/24), gets k(x) wrong, contradicts itself, and its final boxed answer is an unfactored, incorrect polynomial.",
+        "usd": 0.0008629
+      }
+    }
+  },
+  "usage": [
+    {
+      "provider": "luna",
+      "key": "7876106a4479c1e434af4aff9a000098f26769e3703ecf4013f2f754e5a43f90",
+      "count": 1,
+      "usd": 0.0002939
+    },
+    {
+      "provider": "gemini",
+      "key": "084c9b5dedef805e7f5fe6833de2c97b3cc041be5edf1974ecc7b054b7025a8e",
+      "count": 1,
+      "usd": 0.0018195
+    },
+    {
+      "provider": "haiku",
+      "key": "46504967a4c8af6602aeafa880f60fe5c31c57939111a0551353f2d422384270",
+      "count": 1,
+      "usd": 0.0008629
+    }
+  ]
+}

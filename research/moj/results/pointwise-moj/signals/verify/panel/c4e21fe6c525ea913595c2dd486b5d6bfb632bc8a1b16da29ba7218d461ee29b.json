@@ -1,0 +1,48 @@
+{
+  "pA": 1.0,
+  "confidence": 1.0,
+  "agreement": 1.0,
+  "complete": true,
+  "detail": {
+    "members": {
+      "luna": {
+        "pA": 1.0,
+        "key": "f7ef25dbbeadeb16f547a742d7b464cf09e028a17f2227ef5cd2cadec87340ab",
+        "reason": "The reply identifies B and C, both of which follow the adjective ordering supported by the examples; the other options place adjectives out of order.",
+        "usd": 0.0009887000000000001
+      },
+      "gemini": {
+        "pA": 1.0,
+        "key": "0ab34cc270e13160ed4ec3f204bc0d7559b79fe21d314d5fba7b5462b07bd715",
+        "reason": "The reply correctly analyzes the adjective order from the examples (Opinion -> Size -> Age -> Material -> Shape -> Origin -> Color -> Purpose) and correctly identifies options B and C as the ones following this order, concluding with the correct final answer 'BC'.",
+        "usd": 0.00677325
+      },
+      "haiku": {
+        "pA": 1.0,
+        "key": "7fcab0480e7a9cfc28aaee9ac2c6616f2f5aa9353dd419ceac709a12338a5bca",
+        "reason": "The examples imply the order Opinion, Size, Age, Material, Shape, Origin, Color, Purpose. Material precedes Shape (leather pyramidal), Age precedes Material (brand-new cardboard), Shape precedes Origin (little spherical indian), Origin precedes Color (japanese maroon), and Purpose comes last. Only B (big new fiberglass rectangular egyptian gray walking key) and C (large ancient leather prismlike filipino yellow bowl) fit this order. The others misplace Opinion, Purpose, Size/Age, or Material. The reply's final answer 'BC' is correct, though its reasoning is verbose and partly self-revising.",
+        "usd": 0.0034758000000000002
+      }
+    }
+  },
+  "usage": [
+    {
+      "provider": "luna",
+      "key": "f7ef25dbbeadeb16f547a742d7b464cf09e028a17f2227ef5cd2cadec87340ab",
+      "count": 1,
+      "usd": 0.0009887000000000001
+    },
+    {
+      "provider": "gemini",
+      "key": "0ab34cc270e13160ed4ec3f204bc0d7559b79fe21d314d5fba7b5462b07bd715",
+      "count": 1,
+      "usd": 0.00677325
+    },
+    {
+      "provider": "haiku",
+      "key": "7fcab0480e7a9cfc28aaee9ac2c6616f2f5aa9353dd419ceac709a12338a5bca",
+      "count": 1,
+      "usd": 0.0034758000000000002
+    }
+  ]
+}

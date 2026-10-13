@@ -1,0 +1,48 @@
+{
+  "pA": 0.3333333333333333,
+  "confidence": 0.6666666666666666,
+  "agreement": 0.6666666666666666,
+  "complete": true,
+  "detail": {
+    "members": {
+      "luna": {
+        "pA": 0.0,
+        "key": "0a093a9ce817c30a28bdce247d09f35930ed183f95b36cae68e5ff40c57220ff",
+        "reason": "The rules support that the crab does not swear, so the answer to whether it swears is **disproved**, not “proven.”",
+        "usd": 0.00038730000000000004
+      },
+      "gemini": {
+        "pA": 1.0,
+        "key": "f121c1d3c2a9055a67012c5a8ba826f17555b02596423d2f03a82c849aaa45eb",
+        "reason": "The model correctly analyzed the rules, game state, and preferences to determine that the crab does not swear to the beetle, concluding correctly that it is proven.",
+        "usd": 0.00187875
+      },
+      "haiku": {
+        "pA": 0.0,
+        "key": "6899f6af6bad6f4fe37f15f7f4873a09bef7432db7996e1bcbcede95ae9004aa",
+        "reason": "The reasoning is sound: Rule1 needs the dugong's trade, which isn't stated, so Rule3 applies, the songbird smiles, Rule2 applies, and the crab does not swear. But the question asks whether the crab swears to the beetle, and the correct label is 'disproved'. The reply answers 'Proved' and frames the conclusion as proven, which is the wrong label.",
+        "usd": 0.0011610000000000001
+      }
+    }
+  },
+  "usage": [
+    {
+      "provider": "luna",
+      "key": "0a093a9ce817c30a28bdce247d09f35930ed183f95b36cae68e5ff40c57220ff",
+      "count": 1,
+      "usd": 0.00038730000000000004
+    },
+    {
+      "provider": "gemini",
+      "key": "f121c1d3c2a9055a67012c5a8ba826f17555b02596423d2f03a82c849aaa45eb",
+      "count": 1,
+      "usd": 0.00187875
+    },
+    {
+      "provider": "haiku",
+      "key": "6899f6af6bad6f4fe37f15f7f4873a09bef7432db7996e1bcbcede95ae9004aa",
+      "count": 1,
+      "usd": 0.0011610000000000001
+    }
+  ]
+}

@@ -1,0 +1,48 @@
+{
+  "pA": 0.3333333333333333,
+  "confidence": 0.6666666666666666,
+  "agreement": 0.6666666666666666,
+  "complete": true,
+  "detail": {
+    "members": {
+      "luna": {
+        "pA": 0.0,
+        "key": "2a7b4b8ce910ca399294fc79363ac9d8c2fc8b2c46cf04d61327093b0eb93f61",
+        "reason": "The reply asserts A, C, and D, but A does not follow: being unable to volunteer does not establish that Xiao Liu was not qualified. The response also gives conflicting answers despite the question asking for an inference.",
+        "usd": 0.00037410000000000004
+      },
+      "gemini": {
+        "pA": 1.0,
+        "key": "fd69d13552cf01d74e755edd9a3c6d7e120e64a0827f33865ff388d6f0a96fef",
+        "reason": "The model correctly identifies that options A, C, and D are logically inferrable from the premises, with A being the most direct statement.",
+        "usd": 0.00149625
+      },
+      "haiku": {
+        "pA": 0.0,
+        "key": "d3c64642d33bada4c944bacaf66f3dc15787d35657fabe4675b73e0df3a589dc",
+        "reason": "The reply hedges between three options (A, C, D) and then says a single answer (A) may be expected, so it never commits to one final answer. Its reasoning is also self-contradictory: it first rejects D as unsupported, then accepts it. B is correctly rejected, since volunteers need not all be members. The response is not a clear, correct answer to the question.",
+        "usd": 0.0011057000000000003
+      }
+    }
+  },
+  "usage": [
+    {
+      "provider": "luna",
+      "key": "2a7b4b8ce910ca399294fc79363ac9d8c2fc8b2c46cf04d61327093b0eb93f61",
+      "count": 1,
+      "usd": 0.00037410000000000004
+    },
+    {
+      "provider": "gemini",
+      "key": "fd69d13552cf01d74e755edd9a3c6d7e120e64a0827f33865ff388d6f0a96fef",
+      "count": 1,
+      "usd": 0.00149625
+    },
+    {
+      "provider": "haiku",
+      "key": "d3c64642d33bada4c944bacaf66f3dc15787d35657fabe4675b73e0df3a589dc",
+      "count": 1,
+      "usd": 0.0011057000000000003
+    }
+  ]
+}

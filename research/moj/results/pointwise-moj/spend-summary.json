@@ -1,0 +1,25 @@
+{
+  "system2": {
+    "luna": {
+      "returned_answers": 97,
+      "known_usd": 0.05225483
+    },
+    "gemini": {
+      "returned_answers": 97,
+      "known_usd": 0.3319545
+    },
+    "haiku": {
+      "returned_answers": 97,
+      "known_usd": 0.18984990000000002
+    }
+  },
+  "reserved_plus_known_usd": 0.7502442300000001,
+  "budget_usd": 15,
+  "system1": {
+    "submissions": 677,
+    "returned_answers": 643,
+    "budget_ceiling": null,
+    "price_usd": null
+  },
+  "note": "USD is the inherited harness estimate plus retained unanswered-attempt reservations. System 1 has no budget ceiling and an unspecified price."
+}

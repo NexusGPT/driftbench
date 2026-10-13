@@ -1,0 +1,48 @@
+{
+  "pA": 0.0,
+  "confidence": 1.0,
+  "agreement": 1.0,
+  "complete": true,
+  "detail": {
+    "members": {
+      "luna": {
+        "pA": 0.0,
+        "key": "e5e8688871d7663ac0c8b67864f89d2cad3cf912f79ed5fe95d52762500069b0",
+        "reason": "The condition implies \\(\\operatorname{arsinh}(x)+\\operatorname{arsinh}(y)=0\\), so \\(y=-x\\) and \\(x+y=0\\). The reply never gives this result and includes incorrect hyperbolic-function claims.",
+        "usd": 0.0002531
+      },
+      "gemini": {
+        "pA": 0.0,
+        "key": "792ad02e5397674c2ae250e77f5ce6ad7ea1741449ef583e850d72c8e956d793",
+        "reason": "The model rambles extensively about hyperbolic functions and mistakes in the approach, but completely fails to provide a final answer or the actual value/expression for x + y (which is 0).",
+        "usd": 0.00151575
+      },
+      "haiku": {
+        "pA": 0.0,
+        "key": "18aea5a47cf21c1dda71fdeb74a563bc77348ab87e61581b0505bef6b1812d7c",
+        "reason": "The reply never gives a final expression for x+y. The correct answer is x+y=0: since 1/(x+√(x²+1)) = √(x²+1)−x, the equation forces f(y)=f(−x) where f(t)=t+√(t²+1), and f is strictly increasing, so y=−x. The reply instead circles through unproductive algebra, asserts an incorrect tanh/sech substitution, and admits it has no answer.",
+        "usd": 0.0008743000000000001
+      }
+    }
+  },
+  "usage": [
+    {
+      "provider": "luna",
+      "key": "e5e8688871d7663ac0c8b67864f89d2cad3cf912f79ed5fe95d52762500069b0",
+      "count": 1,
+      "usd": 0.0002531
+    },
+    {
+      "provider": "gemini",
+      "key": "792ad02e5397674c2ae250e77f5ce6ad7ea1741449ef583e850d72c8e956d793",
+      "count": 1,
+      "usd": 0.00151575
+    },
+    {
+      "provider": "haiku",
+      "key": "18aea5a47cf21c1dda71fdeb74a563bc77348ab87e61581b0505bef6b1812d7c",
+      "count": 1,
+      "usd": 0.0008743000000000001
+    }
+  ]
+}

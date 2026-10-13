@@ -1,0 +1,48 @@
+{
+  "pA": 0.0,
+  "confidence": 1.0,
+  "agreement": 1.0,
+  "complete": true,
+  "detail": {
+    "members": {
+      "luna": {
+        "pA": 0.0,
+        "key": "4456ee1b6b7899d1c19306ce3a08b565f06f457597653afe568b4e79c3dcc6a2",
+        "reason": "The expression simplifies to 36x√(35x) (for x ≥ 0), not 36√35; the reply substitutes x = 1 and omits the variable.",
+        "usd": 0.0003705
+      },
+      "gemini": {
+        "pA": 0.0,
+        "key": "608be4cc975ad99bea6f0595173108d456cd2e1177ec028afcc76c61315fa7aa",
+        "reason": "The response arrives at $36\\sqrt{35}$, dropping the $x$ variable entirely in the end, and contains numerous redundant, contradictory, and incorrect algebraic manipulations regarding $x$ (e.g., combining $\\sqrt{60x}\\sqrt{12x}\\sqrt{63x}$ into $\\sqrt{60\\cdot 12\\cdot 63 \\cdot x^3} = \\sqrt{45360 x^3} = 12x \\sqrt{315x}$ or similar correctly, but incorrectly setting $x=1$ to evaluate it as a constant).",
+        "usd": 0.0026055
+      },
+      "haiku": {
+        "pA": 0.0,
+        "key": "34064808cbcafa8b8263fa9daaf3a441eb8dfcaf61885c32745242a05b694e89",
+        "reason": "The product is √(60·12·63·x³) = √(45360·x³) = √(1296·35·x³) = 36x√(35x). The reply's final answer, 36√35, drops the x entirely, so it is wrong. Its work also contains contradictory steps, such as writing x³ and then setting x=1, and it never states the x-dependence.",
+        "usd": 0.0011033
+      }
+    }
+  },
+  "usage": [
+    {
+      "provider": "luna",
+      "key": "4456ee1b6b7899d1c19306ce3a08b565f06f457597653afe568b4e79c3dcc6a2",
+      "count": 1,
+      "usd": 0.0003705
+    },
+    {
+      "provider": "gemini",
+      "key": "608be4cc975ad99bea6f0595173108d456cd2e1177ec028afcc76c61315fa7aa",
+      "count": 1,
+      "usd": 0.0026055
+    },
+    {
+      "provider": "haiku",
+      "key": "34064808cbcafa8b8263fa9daaf3a441eb8dfcaf61885c32745242a05b694e89",
+      "count": 1,
+      "usd": 0.0011033
+    }
+  ]
+}

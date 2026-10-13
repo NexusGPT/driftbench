@@ -1,0 +1,48 @@
+{
+  "pA": 0.3333333333333333,
+  "confidence": 0.6666666666666666,
+  "agreement": 0.6666666666666666,
+  "complete": true,
+  "detail": {
+    "members": {
+      "luna": {
+        "pA": 0.0,
+        "key": "27ceff82663931c23255aa6096ea5f9fb5e29c689fa66de56b7170a7f40a6917",
+        "reason": "The path clearly contains a non-square rectangle (shape 1) and a right triangle (shape 4), in addition to the concave pentagon (shape 8). Since no listed option combines these shapes, the correct choice is (G) none of the above, not (E).",
+        "usd": 0.0015844000000000001
+      },
+      "gemini": {
+        "pA": 1.0,
+        "key": "b3c54f7adfa57502b3a6f64950eed086398d132015d2e593c7962e5b75f53788",
+        "reason": "The model correctly evaluated the SVG path segments, identifying the shapes formed by the lines, and chose option (E) only 8.",
+        "usd": 0.00757125
+      },
+      "haiku": {
+        "pA": 0.0,
+        "key": "2159e0dbd880329d73c2d5da2213dc5a9a5867c649d561af9da91fc76e55bdbc",
+        "reason": "The path contains a complete equilateral triangle with vertices (12.75,10.61), (18.81218,14.11117), and (12.75,17.61117). Its three sides are drawn by M 12.75,10.61117 L 18.81218,14.11117, the collinear pair M 18.81218,14.11117 L 16.20544,15.61617 plus M 16.20544,15.61617 L 12.75,17.61117, and the vertical segment along x=12.75. All sides are 7 units long, so option 3 (a non-right triangle) is present. The reply's answer (E, only 8) omits this shape, so it is incorrect.",
+        "usd": 0.0038429000000000002
+      }
+    }
+  },
+  "usage": [
+    {
+      "provider": "luna",
+      "key": "27ceff82663931c23255aa6096ea5f9fb5e29c689fa66de56b7170a7f40a6917",
+      "count": 1,
+      "usd": 0.0015844000000000001
+    },
+    {
+      "provider": "gemini",
+      "key": "b3c54f7adfa57502b3a6f64950eed086398d132015d2e593c7962e5b75f53788",
+      "count": 1,
+      "usd": 0.00757125
+    },
+    {
+      "provider": "haiku",
+      "key": "2159e0dbd880329d73c2d5da2213dc5a9a5867c649d561af9da91fc76e55bdbc",
+      "count": 1,
+      "usd": 0.0038429000000000002
+    }
+  ]
+}

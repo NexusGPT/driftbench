@@ -1,0 +1,48 @@
+{
+  "pA": 1.0,
+  "confidence": 1.0,
+  "agreement": 1.0,
+  "complete": true,
+  "detail": {
+    "members": {
+      "luna": {
+        "pA": 1.0,
+        "key": "c2e855b2bfb89fe07b6211ab4785631cb0531d180beb4a0d139cb1fe14ce6e07",
+        "reason": "The reply gives D as its final answer, which best matches the passage’s explanation of questioning’s meaning and practical value.",
+        "usd": 0.00032060000000000004
+      },
+      "gemini": {
+        "pA": 1.0,
+        "key": "0b2c3df62fea283621ba2d6d5cd14cb8de2c7f6dd987287b26e0108e5ba5c3ab",
+        "reason": "The model correctly analyzes the options based on the provided passage, identifies errors in the framing of incorrect options, and correctly deduces that option D is the comprehensive and correct answer.",
+        "usd": 0.00169875
+      },
+      "haiku": {
+        "pA": 1.0,
+        "key": "e6db25ad442800242c8c9f809af6db09ad387105a1e6228442f4fb0f6e0d05db",
+        "reason": "The final answer is D (connotation and practical value), which matches the passage: it defines questioning as critical examination rather than doubt or negation, and states its purpose of finding loopholes and defects. The reply's A rejection is sound. It is messy, though: it calls C 'correct' before settling on D, and it leaks reasoning tags.",
+        "usd": 0.0009853000000000002
+      }
+    }
+  },
+  "usage": [
+    {
+      "provider": "luna",
+      "key": "c2e855b2bfb89fe07b6211ab4785631cb0531d180beb4a0d139cb1fe14ce6e07",
+      "count": 1,
+      "usd": 0.00032060000000000004
+    },
+    {
+      "provider": "gemini",
+      "key": "0b2c3df62fea283621ba2d6d5cd14cb8de2c7f6dd987287b26e0108e5ba5c3ab",
+      "count": 1,
+      "usd": 0.00169875
+    },
+    {
+      "provider": "haiku",
+      "key": "e6db25ad442800242c8c9f809af6db09ad387105a1e6228442f4fb0f6e0d05db",
+      "count": 1,
+      "usd": 0.0009853000000000002
+    }
+  ]
+}

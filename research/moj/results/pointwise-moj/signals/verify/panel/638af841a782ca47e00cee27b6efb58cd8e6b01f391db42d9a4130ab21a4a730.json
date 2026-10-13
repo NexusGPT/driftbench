@@ -1,0 +1,48 @@
+{
+  "pA": 0.6666666666666666,
+  "confidence": 0.6666666666666666,
+  "agreement": 0.6666666666666666,
+  "complete": true,
+  "detail": {
+    "members": {
+      "luna": {
+        "pA": 0.0,
+        "key": "06ca97834a6585e422549f9bd2c6912db6fae080e367b97d39b54b41eb00029a",
+        "reason": "The work only shows that \u0003p\\mathbf b+q\\mathbf c\u0003 lies in the span of the first two vectors (a coplanarity condition), not that all three vectors are collinear. Also, its equations give a family \u0003(p,q)=(7y,-10y)\u0003, so choosing \u0003y=1\u0003 is unjustified as a unique answer.",
+        "usd": 0.00037860000000000004
+      },
+      "gemini": {
+        "pA": 1.0,
+        "key": "8833d17178833e05c185bd9359e225851ae379f3ccd77d95ede21c3f642e9c8b",
+        "reason": "The response correctly sets up the linear combination, solves the system of equations for p and q in terms of y, and arrives at the correct answer (7, -10).",
+        "usd": 0.00100275
+      },
+      "haiku": {
+        "pA": 1.0,
+        "key": "515238487faebffa981ba1d3eb2dbb0a001a9693794f969e5cef89685b563955",
+        "reason": "Checked directly: -2(a-2b+3c) + (2a+3b-4c) = 7b-10c, so p=7 and q=-10 make the third vector a combination of the first two. The reply's derivation and boxed answer (7,-10) are correct.",
+        "usd": 0.0007008
+      }
+    }
+  },
+  "usage": [
+    {
+      "provider": "luna",
+      "key": "06ca97834a6585e422549f9bd2c6912db6fae080e367b97d39b54b41eb00029a",
+      "count": 1,
+      "usd": 0.00037860000000000004
+    },
+    {
+      "provider": "gemini",
+      "key": "8833d17178833e05c185bd9359e225851ae379f3ccd77d95ede21c3f642e9c8b",
+      "count": 1,
+      "usd": 0.00100275
+    },
+    {
+      "provider": "haiku",
+      "key": "515238487faebffa981ba1d3eb2dbb0a001a9693794f969e5cef89685b563955",
+      "count": 1,
+      "usd": 0.0007008
+    }
+  ]
+}

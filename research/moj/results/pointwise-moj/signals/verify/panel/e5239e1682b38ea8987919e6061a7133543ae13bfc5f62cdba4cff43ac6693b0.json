@@ -1,0 +1,48 @@
+{
+  "pA": 0.6666666666666666,
+  "confidence": 0.6666666666666666,
+  "agreement": 0.6666666666666666,
+  "complete": true,
+  "detail": {
+    "members": {
+      "luna": {
+        "pA": 0.0,
+        "key": "14317f5bb8e15c2149a12b69267324fc6486d60f80bb20e317d37969ee7809da",
+        "reason": "The reply concludes E, which asserts shapes 1, 5, 7, and 8, but its own shape analysis says only shape 1 is formed and explicitly rejects 5, 7, and 8.",
+        "usd": 0.0005164
+      },
+      "gemini": {
+        "pA": 1.0,
+        "key": "224cfc2057ec2a0b1864021c00a935f033902245d033a4ce6f01e238cc88a69f",
+        "reason": "The response correctly identifies that shape 1 is formed and correctly selects option F (or evaluates the shapes correctly based on the provided SVG path, matching option F).",
+        "usd": 0.00247575
+      },
+      "haiku": {
+        "pA": 1.0,
+        "key": "9ed771c61ea7f9d217f80c9331d00806a0b01816e3b78c6c5d5be20fd3024fce",
+        "reason": "Tracing the segments gives a 10.35×7 rectangle (shape 1), a parallelogram with vertices near (10.35,0), (20.49,-21.75), (20.49,-28.85), (10.35,-7.10) and no diagonals (shape 5), a concave pentagon with vertices (0,-7.10), (10.35,-7.10), (10.35,0), (0,0), (6.15,-3.55) (shape 8), and a convex irregular pentagon (20.49,-21.75), (34.99,-14.99), (24.85,6.76), (11.75,15.94), (10.35,0) (shape 7). No other listed shape appears, so the correct answer is E. The reply's final answer E is correct, but its shape analysis is wrong: it claims only the rectangle is present and dismisses the other shapes.",
+        "usd": 0.0055964
+      }
+    }
+  },
+  "usage": [
+    {
+      "provider": "luna",
+      "key": "14317f5bb8e15c2149a12b69267324fc6486d60f80bb20e317d37969ee7809da",
+      "count": 1,
+      "usd": 0.0005164
+    },
+    {
+      "provider": "gemini",
+      "key": "224cfc2057ec2a0b1864021c00a935f033902245d033a4ce6f01e238cc88a69f",
+      "count": 1,
+      "usd": 0.00247575
+    },
+    {
+      "provider": "haiku",
+      "key": "9ed771c61ea7f9d217f80c9331d00806a0b01816e3b78c6c5d5be20fd3024fce",
+      "count": 1,
+      "usd": 0.0055964
+    }
+  ]
+}

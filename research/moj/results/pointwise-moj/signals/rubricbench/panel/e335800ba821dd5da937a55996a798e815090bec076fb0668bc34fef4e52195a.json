@@ -1,0 +1,48 @@
+{
+  "pA": 1.0,
+  "confidence": 1.0,
+  "agreement": 1.0,
+  "complete": true,
+  "detail": {
+    "members": {
+      "luna": {
+        "pA": 1.0,
+        "key": "6efd64c18458608a07896f8906afabfb349c9f1158116e7528be13bcaf0d19a9",
+        "reason": "A gives the requested Z,Z,Z,d,d pattern and describes the initial Li–Br exchange and subsequent deprotonation. B instead assigns a C3 proton and gives an undeuterated product, inconsistent with the requested final signals and deuterium quench.",
+        "usd": 0.0004675
+      },
+      "gemini": {
+        "pA": 1.0,
+        "key": "861ab7aae97b44e15bd99a91b6ab781b917259bafd27ed73cf431d4d0ff4ee4d",
+        "reason": "Response A correctly identifies the structure and IUPAC name of product X (3-bromo-2-chloro-4-deuteriopyridine), provides the correct NMR multiplicities (Z,Z,Z,d,d), and accurately outlines the halogen dance mechanism involving intermolecular proton abstraction followed by deuteration. Response B incorrectly structures product X.",
+        "usd": 0.0040155
+      },
+      "haiku": {
+        "pA": 1.0,
+        "key": "2ce4807c88c94ac06304b5155b111c2d0bc39a81e1046f883ebce6ba89045f38",
+        "reason": "Response A gives the required final signal string Z,Z,Z,d,d (rb_1), which Response B misses with Z,s,Z,d,d. A also correctly identifies the Li–Br exchange step, the C5/C6 doublet reasoning, the C2 Cl and C3 Z assignments, and a quench mechanism. Its deuterium position (C4 rather than C3) and naming are wrong, but B's signal answer is wrong too, and B's Step 2 is mislabelled as trans-metalation rather than deprotonation.",
+        "usd": 0.0015018000000000002
+      }
+    }
+  },
+  "usage": [
+    {
+      "provider": "luna",
+      "key": "6efd64c18458608a07896f8906afabfb349c9f1158116e7528be13bcaf0d19a9",
+      "count": 1,
+      "usd": 0.0004675
+    },
+    {
+      "provider": "gemini",
+      "key": "861ab7aae97b44e15bd99a91b6ab781b917259bafd27ed73cf431d4d0ff4ee4d",
+      "count": 1,
+      "usd": 0.0040155
+    },
+    {
+      "provider": "haiku",
+      "key": "2ce4807c88c94ac06304b5155b111c2d0bc39a81e1046f883ebce6ba89045f38",
+      "count": 1,
+      "usd": 0.0015018000000000002
+    }
+  ]
+}

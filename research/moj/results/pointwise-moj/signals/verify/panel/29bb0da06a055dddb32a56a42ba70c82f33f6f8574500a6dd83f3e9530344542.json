@@ -1,0 +1,48 @@
+{
+  "pA": 0.0,
+  "confidence": 1.0,
+  "agreement": 1.0,
+  "complete": true,
+  "detail": {
+    "members": {
+      "luna": {
+        "pA": 0.0,
+        "key": "bdafc5e860bc982e02763b9b22218bdc593ca13a4f60ac50790670868c6e32b3",
+        "reason": "The interval with no root is C, $(0,1)$, but the reply’s final answer is A, $(-2,-1)$. In fact, $f(x)<0$ throughout $(0,1)$. The reply also contradicts itself by claiming both that $(0,1)$ has no root and that it does.",
+        "usd": 0.0002599
+      },
+      "gemini": {
+        "pA": 0.0,
+        "key": "632859ae9c9de8d57c9b91c156c4893d71fcbada20a789291421a437892722fe",
+        "reason": "The text correctly identifies that there is no sign change and thus no root in interval (0, 1) through the Intermediate Value Theorem, but then incorrectly outputs (-2, -1) as the final answer.",
+        "usd": 0.00145125
+      },
+      "haiku": {
+        "pA": 0.0,
+        "key": "7293486193c66559f64504d2e8aabd2b9fe06fccf977172de709813ca55429a9",
+        "reason": "The correct answer is C, (0, 1). f(0) = -1 and f(1) = -1, and f has local extrema at about -1.215 and 0.548 with f(0.548) ≈ -1.63, so f < 0 on all of (0, 1) and it has no roots there. The reply instead boxes A, (-2, -1), even though its own computations show f(-2) = -1 and f(-1) = 1, which guarantees a root in A. The final answer is wrong.",
+        "usd": 0.0008277
+      }
+    }
+  },
+  "usage": [
+    {
+      "provider": "luna",
+      "key": "bdafc5e860bc982e02763b9b22218bdc593ca13a4f60ac50790670868c6e32b3",
+      "count": 1,
+      "usd": 0.0002599
+    },
+    {
+      "provider": "gemini",
+      "key": "632859ae9c9de8d57c9b91c156c4893d71fcbada20a789291421a437892722fe",
+      "count": 1,
+      "usd": 0.00145125
+    },
+    {
+      "provider": "haiku",
+      "key": "7293486193c66559f64504d2e8aabd2b9fe06fccf977172de709813ca55429a9",
+      "count": 1,
+      "usd": 0.0008277
+    }
+  ]
+}

@@ -1,0 +1,5220 @@
+{
+  "config": {
+    "name": "pw-router-r1-reference",
+    "reference": true,
+    "hypothesis": "Reference-first comparison improves balanced accuracy over the confidence cascade."
+  },
+  "tune_oof": {
+    "rubricbench": {
+      "n": 54,
+      "accuracy": 0.8333333333333334,
+      "balanced": 0.834478021978022,
+      "sensitivity": 0.8653846153846154,
+      "specificity": 0.8035714285714286,
+      "positive_n": 26,
+      "negative_n": 28,
+      "ci95": [
+        0.7126323220121027,
+        0.9097571001338962
+      ],
+      "s2_per_100": 66.66666666666667,
+      "s1_per_100": 300.0,
+      "known_usd_per_100": 0.015542592592592592,
+      "hypothesis_applied": false
+    },
+    "hardrows": {
+      "n": 42,
+      "accuracy": 0.9523809523809523,
+      "balanced": 0.9565217391304348,
+      "sensitivity": 1.0,
+      "specificity": 0.9130434782608695,
+      "positive_n": 19,
+      "negative_n": 23,
+      "ci95": [
+        0.8420986468452026,
+        0.9868427513607937
+      ],
+      "s2_per_100": 0.0,
+      "s1_per_100": 242.85714285714286,
+      "known_usd_per_100": 0.0,
+      "hypothesis_applied": true
+    },
+    "verify": {
+      "n": 46,
+      "accuracy": 0.6086956521739131,
+      "balanced": 0.6055555555555556,
+      "sensitivity": 0.6,
+      "specificity": 0.6111111111111112,
+      "positive_n": 10,
+      "negative_n": 36,
+      "ci95": [
+        0.4645658371764493,
+        0.7360697764475116
+      ],
+      "s2_per_100": 169.56521739130434,
+      "s1_per_100": 276.0869565217391,
+      "known_usd_per_100": 0.15262826086956524,
+      "hypothesis_applied": true
+    }
+  },
+  "decisions": {
+    "rubricbench|rubric_eval_165": {
+      "pA": 0.25750000000000006,
+      "verdict": "B",
+      "initial_confidence": 1.0,
+      "pre_panel_confidence": 1.0,
+      "path": [
+        "pw_rows"
+      ],
+      "usage": [
+        {
+          "provider": "jev",
+          "count": 2,
+          "usd": 0
+        },
+        {
+          "provider": "luna",
+          "count": 0,
+          "usd": 0.0
+        },
+        {
+          "provider": "jev",
+          "key": "2f84348d5ea4af30a68cb5c3747be66cc685c1c5f0993b6a3cc11825ffb32963",
+          "seconds": 1.233,
+          "usd": 0
+        }
+      ],
+      "missing_final": false
+    },
+    "rubricbench|rubric_eval_349": {
+      "pA": 0.0,
+      "verdict": "B",
+      "initial_confidence": 0.6,
+      "pre_panel_confidence": 0.8235294117647058,
+      "path": [
+        "pw_rows",
+        "luna"
+      ],
+      "usage": [
+        {
+          "provider": "jev",
+          "count": 2,
+          "usd": 0
+        },
+        {
+          "provider": "luna",
+          "count": 0,
+          "usd": 0.0
+        },
+        {
+          "provider": "jev",
+          "key": "f8c35a092cc548e18680b3b3336e6eb215a062c84c371d25cd85b93ad67bd28c",
+          "seconds": 1.419,
+          "usd": 0
+        },
+        {
+          "provider": "jev",
+          "count": 0,
+          "usd": 0
+        },
+        {
+          "provider": "luna",
+          "count": 2,
+          "usd": 0.000371
+        }
+      ],
+      "missing_final": false
+    },
+    "rubricbench|rubric_eval_432": {
+      "pA": 0.3033333333333334,
+      "verdict": "B",
+      "initial_confidence": 0.9602053915275992,
+      "pre_panel_confidence": 0.9602053915275992,
+      "path": [
+        "pw_rows"
+      ],
+      "usage": [
+        {
+          "provider": "jev",
+          "count": 2,
+          "usd": 0
+        },
+        {
+          "provider": "luna",
+          "count": 0,
+          "usd": 0.0
+        },
+        {
+          "provider": "jev",
+          "key": "596d3462e8c55cc410f197ed137729c1872cf90aa00da4ca84e584bcb31d39e4",
+          "seconds": 0.674,
+          "usd": 0
+        }
+      ],
+      "missing_final": false
+    },
+    "rubricbench|rubric_eval_852": {
+      "pA": 0.8666666666666667,
+      "verdict": "A",
+      "initial_confidence": 1.0,
+      "pre_panel_confidence": 1.0,
+      "path": [
+        "pw_rows"
+      ],
+      "usage": [
+        {
+          "provider": "jev",
+          "count": 2,
+          "usd": 0
+        },
+        {
+          "provider": "luna",
+          "count": 0,
+          "usd": 0.0
+        },
+        {
+          "provider": "jev",
+          "key": "b85d17a2ef5b6e870d2580071308ae18ced84fc448dde011ae6e5896ec8854e7",
+          "seconds": 1.283,
+          "usd": 0
+        }
+      ],
+      "missing_final": false
+    },
+    "rubricbench|rubric_eval_43": {
+      "pA": 0.36125,
+      "verdict": "B",
+      "initial_confidence": 0.9473684210526315,
+      "pre_panel_confidence": 0.9473684210526315,
+      "path": [
+        "pw_rows"
+      ],
+      "usage": [
+        {
+          "provider": "jev",
+          "count": 2,
+          "usd": 0
+        },
+        {
+          "provider": "luna",
+          "count": 0,
+          "usd": 0.0
+        },
+        {
+          "provider": "jev",
+          "key": "6236c041db5c823ae013e6de0613d5bdf4d8ef21ee22a02145e2cd0ccb1e54f0",
+          "seconds": 0.504,
+          "usd": 0
+        }
+      ],
+      "missing_final": false
+    },
+    "rubricbench|rubric_eval_594": {
+      "pA": 1.0,
+      "verdict": "A",
+      "initial_confidence": 0.5708333333333355,
+      "pre_panel_confidence": 0.8235294117647058,
+      "path": [
+        "pw_rows",
+        "luna"
+      ],
+      "usage": [
+        {
+          "provider": "jev",
+          "count": 2,
+          "usd": 0
+        },
+        {
+          "provider": "luna",
+          "count": 0,
+          "usd": 0.0
+        },
+        {
+          "provider": "jev",
+          "key": "e44708f6fc2676c81ade5d3a5ff34e6425715cd56d0f727416d4688dd34019bb",
+          "seconds": 2.896,
+          "usd": 0
+        },
+        {
+          "provider": "jev",
+          "count": 0,
+          "usd": 0
+        },
+        {
+          "provider": "luna",
+          "count": 2,
+          "usd": 0.000185
+        }
+      ],
+      "missing_final": false
+    },
+    "rubricbench|rubric_eval_109": {
+      "pA": 0.37374999999999997,
+      "verdict": "B",
+      "initial_confidence": 0.9473684210526315,
+      "pre_panel_confidence": 0.9473684210526315,
+      "path": [
+        "pw_rows"
+      ],
+      "usage": [
+        {
+          "provider": "jev",
+          "count": 2,
+          "usd": 0
+        },
+        {
+          "provider": "luna",
+          "count": 0,
+          "usd": 0.0
+        },
+        {
+          "provider": "jev",
+          "key": "560b1d5691fbe3f59a5dc8a6442d350d1760daec4ec1711fcd02e7dd0fa1178c",
+          "seconds": 1.299,
+          "usd": 0
+        }
+      ],
+      "missing_final": false
+    },
+    "rubricbench|rubric_eval_801": {
+      "pA": 0.415,
+      "verdict": "B",
+      "initial_confidence": 0.9473684210526315,
+      "pre_panel_confidence": 0.9473684210526315,
+      "path": [
+        "pw_rows"
+      ],
+      "usage": [
+        {
+          "provider": "jev",
+          "count": 2,
+          "usd": 0
+        },
+        {
+          "provider": "luna",
+          "count": 0,
+          "usd": 0.0
+        },
+        {
+          "provider": "jev",
+          "key": "bb14274d4dbd67e011439f7615e124b75c5c119c6105dd7b92aeabf78745f27c",
+          "seconds": 0.559,
+          "usd": 0
+        }
+      ],
+      "missing_final": false
+    },
+    "rubricbench|rubric_eval_405": {
+      "pA": 0.5062500000000001,
+      "verdict": "A",
+      "initial_confidence": 0.6,
+      "pre_panel_confidence": 0.6,
+      "path": [
+        "pw_rows"
+      ],
+      "usage": [
+        {
+          "provider": "jev",
+          "count": 2,
+          "usd": 0
+        },
+        {
+          "provider": "luna",
+          "count": 0,
+          "usd": 0.0
+        },
+        {
+          "provider": "jev",
+          "key": "a4137735f17ed5be279b02685ab473336400b7e0fba804065b27902e08b07c69",
+          "seconds": 0.561,
+          "usd": 0
+        }
+      ],
+      "missing_final": false
+    },
+    "rubricbench|rubric_eval_1134": {
+      "pA": 0.4175,
+      "verdict": "B",
+      "initial_confidence": 0.9473684210526315,
+      "pre_panel_confidence": 0.9473684210526315,
+      "path": [
+        "pw_rows"
+      ],
+      "usage": [
+        {
+          "provider": "jev",
+          "count": 2,
+          "usd": 0
+        },
+        {
+          "provider": "luna",
+          "count": 0,
+          "usd": 0.0
+        },
+        {
+          "provider": "jev",
+          "key": "9bbce6bb4a3c468a1e6161730c6acabdd6b3982c168f52970172d2d5071c8e22",
+          "seconds": 0.551,
+          "usd": 0
+        }
+      ],
+      "missing_final": false
+    },
+    "rubricbench|rubric_eval_603": {
+      "pA": 0.22125,
+      "verdict": "B",
+      "initial_confidence": 1.0,
+      "pre_panel_confidence": 1.0,
+      "path": [
+        "pw_rows"
+      ],
+      "usage": [
+        {
+          "provider": "jev",
+          "count": 2,
+          "usd": 0
+        },
+        {
+          "provider": "luna",
+          "count": 0,
+          "usd": 0.0
+        },
+        {
+          "provider": "jev",
+          "key": "40c5a9cf7780ce5e094834e27ca54fefdbbbf10b94a12a9d6e9c1f35e9ab1827",
+          "seconds": 1.408,
+          "usd": 0
+        }
+      ],
+      "missing_final": false
+    },
+    "rubricbench|rubric_eval_580": {
+      "pA": 0.42,
+      "verdict": "B",
+      "initial_confidence": 0.9473684210526315,
+      "pre_panel_confidence": 0.9473684210526315,
+      "path": [
+        "pw_rows"
+      ],
+      "usage": [
+        {
+          "provider": "jev",
+          "count": 2,
+          "usd": 0
+        },
+        {
+          "provider": "luna",
+          "count": 0,
+          "usd": 0.0
+        },
+        {
+          "provider": "jev",
+          "key": "f11bdac783ae209caaa337585cb0fb98af95f5328361e7a01651d001cb754a8f",
+          "seconds": 1.247,
+          "usd": 0
+        }
+      ],
+      "missing_final": false
+    },
+    "rubricbench|rubric_eval_719": {
+      "pA": 0.5,
+      "verdict": "tie",
+      "initial_confidence": 0.6,
+      "pre_panel_confidence": 0.5,
+      "path": [
+        "pw_rows",
+        "luna"
+      ],
+      "usage": [
+        {
+          "provider": "jev",
+          "count": 2,
+          "usd": 0
+        },
+        {
+          "provider": "luna",
+          "count": 0,
+          "usd": 0.0
+        },
+        {
+          "provider": "jev",
+          "key": "f9b048f80686b13ac6f58795b736ba7d54cd78b21a5eb1a5b875f4bf2ffb513f",
+          "seconds": 1.541,
+          "usd": 0
+        },
+        {
+          "provider": "jev",
+          "count": 0,
+          "usd": 0
+        },
+        {
+          "provider": "luna",
+          "count": 2,
+          "usd": 0.000488
+        }
+      ],
+      "missing_final": false
+    },
+    "rubricbench|rubric_eval_446": {
+      "pA": 0.602,
+      "verdict": "A",
+      "initial_confidence": 0.9473684210526315,
+      "pre_panel_confidence": 0.9473684210526315,
+      "path": [
+        "pw_rows"
+      ],
+      "usage": [
+        {
+          "provider": "jev",
+          "count": 2,
+          "usd": 0
+        },
+        {
+          "provider": "luna",
+          "count": 0,
+          "usd": 0.0
+        },
+        {
+          "provider": "jev",
+          "key": "5d32e1d45fd5f244dd61e76f821c27512151c0f7a8f9b08da062fee6fbeb830a",
+          "seconds": 23.373,
+          "usd": 0
+        }
+      ],
+      "missing_final": false
+    },
+    "rubricbench|rubric_eval_258": {
+      "pA": 0.4066666666666666,
+      "verdict": "B",
+      "initial_confidence": 0.9473684210526315,
+      "pre_panel_confidence": 0.9473684210526315,
+      "path": [
+        "pw_rows"
+      ],
+      "usage": [
+        {
+          "provider": "jev",
+          "count": 2,
+          "usd": 0
+        },
+        {
+          "provider": "luna",
+          "count": 0,
+          "usd": 0.0
+        },
+        {
+          "provider": "jev",
+          "key": "39417b97333918bd27fcb09023c2e73b97eace91f6c511a2412686435954c0a2",
+          "seconds": 22.447,
+          "usd": 0
+        }
+      ],
+      "missing_final": false
+    },
+    "rubricbench|rubric_eval_1053": {
+      "pA": 0.5640000000000001,
+      "verdict": "A",
+      "initial_confidence": 0.8888888888888888,
+      "pre_panel_confidence": 0.8888888888888888,
+      "path": [
+        "pw_rows"
+      ],
+      "usage": [
+        {
+          "provider": "jev",
+          "count": 2,
+          "usd": 0
+        },
+        {
+          "provider": "luna",
+          "count": 0,
+          "usd": 0.0
+        },
+        {
+          "provider": "jev",
+          "key": "a59103262a0a55932af2fb747f709cf5978cbc3776f1e6a4354ba64ab06d5183",
+          "seconds": 25.069,
+          "usd": 0
+        }
+      ],
+      "missing_final": false
+    },
+    "hardrows|rubric.098": {
+      "pA": 0.275,
+      "verdict": "B",
+      "initial_confidence": 0.8461538461538461,
+      "pre_panel_confidence": 0.8461538461538461,
+      "path": [
+        "pw_rows"
+      ],
+      "usage": [
+        {
+          "provider": "jev",
+          "count": 1,
+          "usd": 0
+        },
+        {
+          "provider": "luna",
+          "count": 0,
+          "usd": 0.0
+        },
+        {
+          "provider": "jev",
+          "key": "d54e5fda17261635540dcff0bd682b1f7d45b94c823de400ef701fd895077dbd",
+          "seconds": 21.322,
+          "usd": 0
+        }
+      ],
+      "missing_final": false
+    },
+    "hardrows|rubric.028": {
+      "pA": 0.905,
+      "verdict": "A",
+      "initial_confidence": 0.9711538461538461,
+      "pre_panel_confidence": 0.9711538461538461,
+      "path": [
+        "pw_rows"
+      ],
+      "usage": [
+        {
+          "provider": "jev",
+          "count": 1,
+          "usd": 0
+        },
+        {
+          "provider": "luna",
+          "count": 0,
+          "usd": 0.0
+        },
+        {
+          "provider": "jev",
+          "key": "9594cdbdabbd02d28c9254e783e36a1da1b01e934c61940747ff565451342dfd",
+          "seconds": 23.375,
+          "usd": 0
+        }
+      ],
+      "missing_final": false
+    },
+    "hardrows|rubric.071": {
+      "pA": 0.9625,
+      "verdict": "A",
+      "initial_confidence": 1.0,
+      "pre_panel_confidence": 1.0,
+      "path": [
+        "pw_rows"
+      ],
+      "usage": [
+        {
+          "provider": "jev",
+          "count": 1,
+          "usd": 0
+        },
+        {
+          "provider": "luna",
+          "count": 0,
+          "usd": 0.0
+        },
+        {
+          "provider": "jev",
+          "key": "d60e2afd4b31670f248ac9274246279371c46d8f2f5090608966d3d856151545",
+          "seconds": 33.479,
+          "usd": 0
+        }
+      ],
+      "missing_final": false
+    },
+    "hardrows|rubric.038": {
+      "pA": 0.9899999999999999,
+      "verdict": "A",
+      "initial_confidence": 1.0,
+      "pre_panel_confidence": 1.0,
+      "path": [
+        "pw_rows"
+      ],
+      "usage": [
+        {
+          "provider": "jev",
+          "count": 1,
+          "usd": 0
+        },
+        {
+          "provider": "luna",
+          "count": 0,
+          "usd": 0.0
+        },
+        {
+          "provider": "jev",
+          "key": "bf79983d21a2d14ac0d21f0abd6811f77427a2659d22cfa6af1ceae07db88be2",
+          "seconds": 77.304,
+          "usd": 0
+        }
+      ],
+      "missing_final": false
+    },
+    "hardrows|rubric.057": {
+      "pA": 0.27,
+      "verdict": "B",
+      "initial_confidence": 0.8461538461538461,
+      "pre_panel_confidence": 0.8461538461538461,
+      "path": [
+        "pw_rows"
+      ],
+      "usage": [
+        {
+          "provider": "jev",
+          "count": 1,
+          "usd": 0
+        },
+        {
+          "provider": "luna",
+          "count": 0,
+          "usd": 0.0
+        },
+        {
+          "provider": "jev",
+          "key": "8b6d6fe2217e2252e06bd242c679c96feff5be4c2852fb0123718a52d643f057",
+          "seconds": 58.386,
+          "usd": 0
+        }
+      ],
+      "missing_final": false
+    },
+    "hardrows|rubric.045": {
+      "pA": 0.97,
+      "verdict": "A",
+      "initial_confidence": 1.0,
+      "pre_panel_confidence": 1.0,
+      "path": [
+        "pw_rows"
+      ],
+      "usage": [
+        {
+          "provider": "jev",
+          "count": 1,
+          "usd": 0
+        },
+        {
+          "provider": "luna",
+          "count": 0,
+          "usd": 0.0
+        },
+        {
+          "provider": "jev",
+          "key": "5c24c1defc44701c6e93067e26ceebe55bc863857c8b1371ec3d37fab8ebf2b8",
+          "seconds": 0.624,
+          "usd": 0
+        }
+      ],
+      "missing_final": false
+    },
+    "hardrows|factuality.025": {
+      "pA": 0.02,
+      "verdict": "B",
+      "initial_confidence": 1.0,
+      "pre_panel_confidence": 1.0,
+      "path": [
+        "pw_rows",
+        "reference"
+      ],
+      "usage": [
+        {
+          "provider": "jev",
+          "count": 1,
+          "usd": 0
+        },
+        {
+          "provider": "luna",
+          "count": 0,
+          "usd": 0.0
+        },
+        {
+          "provider": "jev",
+          "key": "535056dbec5f876cd861114be833b4598692565967cbdfb95b6fabb87e1dee68",
+          "seconds": 1.521,
+          "usd": 0
+        },
+        {
+          "provider": "jev",
+          "key": "f55b5f4b2cbe2fd473575d43cb76304edb597017c2e3498941076ab8cd3c6dcb",
+          "seconds": 1.484,
+          "usd": 0
+        }
+      ],
+      "missing_final": false
+    },
+    "hardrows|factuality.036": {
+      "pA": 0.04,
+      "verdict": "B",
+      "initial_confidence": 1.0,
+      "pre_panel_confidence": 1.0,
+      "path": [
+        "pw_rows",
+        "reference"
+      ],
+      "usage": [
+        {
+          "provider": "jev",
+          "count": 1,
+          "usd": 0
+        },
+        {
+          "provider": "luna",
+          "count": 0,
+          "usd": 0.0
+        },
+        {
+          "provider": "jev",
+          "key": "358172139f376b7bfca8592315b0eab81a84f33be0851f5138e7127992f81d07",
+          "seconds": 1.75,
+          "usd": 0
+        },
+        {
+          "provider": "jev",
+          "key": "1d33510c6ef992778d2536e9ffe9ab018f9c7e462622a6237e468cba1f42f4ea",
+          "seconds": 0.888,
+          "usd": 0
+        }
+      ],
+      "missing_final": false
+    },
+    "hardrows|factuality.021": {
+      "pA": 0.03,
+      "verdict": "B",
+      "initial_confidence": 1.0,
+      "pre_panel_confidence": 1.0,
+      "path": [
+        "pw_rows",
+        "reference"
+      ],
+      "usage": [
+        {
+          "provider": "jev",
+          "count": 1,
+          "usd": 0
+        },
+        {
+          "provider": "luna",
+          "count": 0,
+          "usd": 0.0
+        },
+        {
+          "provider": "jev",
+          "key": "8cdd4d64096061fdd0e737cc1b43a65f9c5f39f08cb108377f560e604f1779ea",
+          "seconds": 0.277,
+          "usd": 0
+        },
+        {
+          "provider": "jev",
+          "key": "aa725ba2908e5cd9ff33c2a8a2f3d950a9b083b739bb9d1d8ede88b17533b564",
+          "seconds": 0.776,
+          "usd": 0
+        }
+      ],
+      "missing_final": false
+    },
+    "hardrows|factuality.073": {
+      "pA": 0.05,
+      "verdict": "B",
+      "initial_confidence": 1.0,
+      "pre_panel_confidence": 1.0,
+      "path": [
+        "pw_rows",
+        "reference"
+      ],
+      "usage": [
+        {
+          "provider": "jev",
+          "count": 1,
+          "usd": 0
+        },
+        {
+          "provider": "luna",
+          "count": 0,
+          "usd": 0.0
+        },
+        {
+          "provider": "jev",
+          "key": "30bf236928c4dcd2a50cbfeea85044b9f47b83cc0f27877fc180cf165e44bbf6",
+          "seconds": 4.22,
+          "usd": 0
+        },
+        {
+          "provider": "jev",
+          "key": "12a9bfcf9853da831bbfba987ffdbbfe11eddc4452aac1177ebf182103c860cd",
+          "seconds": 0.319,
+          "usd": 0
+        }
+      ],
+      "missing_final": false
+    },
+    "hardrows|factuality.118": {
+      "pA": 0.98,
+      "verdict": "A",
+      "initial_confidence": 1.0,
+      "pre_panel_confidence": 1.0,
+      "path": [
+        "pw_rows",
+        "reference"
+      ],
+      "usage": [
+        {
+          "provider": "jev",
+          "count": 1,
+          "usd": 0
+        },
+        {
+          "provider": "luna",
+          "count": 0,
+          "usd": 0.0
+        },
+        {
+          "provider": "jev",
+          "key": "1996eff07bd18ef55422837851cf56090c3444f015f35dc4b88343cd542f6074",
+          "seconds": 2.056,
+          "usd": 0
+        },
+        {
+          "provider": "jev",
+          "key": "78bbb09a9864ce730c75d470dd29711816e04c214db0e8735e438ce738192b00",
+          "seconds": 1.41,
+          "usd": 0
+        }
+      ],
+      "missing_final": false
+    },
+    "hardrows|factuality.038": {
+      "pA": 0.03,
+      "verdict": "B",
+      "initial_confidence": 1.0,
+      "pre_panel_confidence": 1.0,
+      "path": [
+        "pw_rows",
+        "reference"
+      ],
+      "usage": [
+        {
+          "provider": "jev",
+          "count": 1,
+          "usd": 0
+        },
+        {
+          "provider": "luna",
+          "count": 0,
+          "usd": 0.0
+        },
+        {
+          "provider": "jev",
+          "key": "e66085f37f1e4bc90bcf7a194dc513c9bfcf1c72cf5ff11e4d1cb75cd69a3c46",
+          "seconds": 2.064,
+          "usd": 0
+        },
+        {
+          "provider": "jev",
+          "key": "a2a1c8919afc30542c968efded008746df976b076e74b545eeaa73310346c346",
+          "seconds": 0.322,
+          "usd": 0
+        }
+      ],
+      "missing_final": false
+    },
+    "verify|045503cb808f8344ae4972c147441517_90dddf89d761d5515d371d5d883e15ec": {
+      "pA": 0.97,
+      "verdict": "A",
+      "initial_confidence": 0.7142857142857143,
+      "pre_panel_confidence": 0.6129032258064516,
+      "path": [
+        "pw_rows",
+        "generated_reference",
+        "luna"
+      ],
+      "usage": [
+        {
+          "provider": "jev",
+          "count": 1,
+          "usd": 0
+        },
+        {
+          "provider": "luna",
+          "count": 0,
+          "usd": 0.0
+        },
+        {
+          "provider": "jev",
+          "key": "7e67e50b6fb7906bd6f43cf9520f158343bcbf648bd95033554e76828bd4a416",
+          "seconds": 1.931,
+          "usd": 0
+        },
+        {
+          "provider": "jev",
+          "count": 1,
+          "usd": 0
+        },
+        {
+          "provider": "luna",
+          "count": 1,
+          "usd": 0.000302
+        },
+        {
+          "provider": "jev",
+          "count": 0,
+          "usd": 0
+        },
+        {
+          "provider": "luna",
+          "count": 1,
+          "usd": 0.000365
+        }
+      ],
+      "missing_final": false
+    },
+    "verify|2c0b811d86ed6140f5f9811cf3a320fa_4e375ba613e31acadbdf76cf9dcb95ad": {
+      "pA": 1.0,
+      "verdict": "A",
+      "initial_confidence": 0.5930735930735932,
+      "pre_panel_confidence": 0.6129032258064516,
+      "path": [
+        "pw_rows",
+        "luna"
+      ],
+      "usage": [
+        {
+          "provider": "jev",
+          "count": 1,
+          "usd": 0
+        },
+        {
+          "provider": "luna",
+          "count": 0,
+          "usd": 0.0
+        },
+        {
+          "provider": "jev",
+          "key": "ffff5da4a35ccb1160d3380f19bae911328049940637e34d7c92248fde3dc2da",
+          "seconds": 3.413,
+          "usd": 0
+        },
+        {
+          "provider": "jev",
+          "count": 0,
+          "usd": 0
+        },
+        {
+          "provider": "luna",
+          "count": 1,
+          "usd": 0.000487
+        }
+      ],
+      "missing_final": false
+    },
+    "verify|4e962b5781cb54bc20844b76f48015bf_5030f4551098b9ae90f2f5e090b46346": {
+      "pA": 0.0,
+      "verdict": "B",
+      "initial_confidence": 0.27499999999999997,
+      "pre_panel_confidence": 0.6129032258064516,
+      "path": [
+        "pw_rows",
+        "luna"
+      ],
+      "usage": [
+        {
+          "provider": "jev",
+          "count": 1,
+          "usd": 0
+        },
+        {
+          "provider": "luna",
+          "count": 0,
+          "usd": 0.0
+        },
+        {
+          "provider": "jev",
+          "key": "0c175ac19490b9e6baf8381e133e5cb9e227d2e7b3e60ef77bafce2f0ed36077",
+          "seconds": 0.295,
+          "usd": 0
+        },
+        {
+          "provider": "jev",
+          "count": 0,
+          "usd": 0
+        },
+        {
+          "provider": "luna",
+          "count": 1,
+          "usd": 0.000392
+        }
+      ],
+      "missing_final": false
+    },
+    "verify|542a4a7aed316e1a799d1c145b101ea9_c10967faf71a528ab33e138f74ffb1cf": {
+      "pA": 0.0,
+      "verdict": "B",
+      "initial_confidence": 0.7142857142857143,
+      "pre_panel_confidence": 0.6129032258064516,
+      "path": [
+        "pw_rows",
+        "generated_reference",
+        "luna"
+      ],
+      "usage": [
+        {
+          "provider": "jev",
+          "count": 1,
+          "usd": 0
+        },
+        {
+          "provider": "luna",
+          "count": 0,
+          "usd": 0.0
+        },
+        {
+          "provider": "jev",
+          "key": "5db8e0c362fed83cee1e72a6222edae9808aa9e279ff9cda0aa24e99bbe9ec45",
+          "seconds": 3.825,
+          "usd": 0
+        },
+        {
+          "provider": "jev",
+          "count": 1,
+          "usd": 0
+        },
+        {
+          "provider": "luna",
+          "count": 1,
+          "usd": 0.000527
+        },
+        {
+          "provider": "jev",
+          "count": 0,
+          "usd": 0
+        },
+        {
+          "provider": "luna",
+          "count": 1,
+          "usd": 0.001264
+        }
+      ],
+      "missing_final": false
+    },
+    "verify|6a3431d6cab874b5d26e1963a5952a89_58a69db1ee812fe90dcc48f6d0534f3d": {
+      "pA": 1.0,
+      "verdict": "A",
+      "initial_confidence": 0.2222222222222222,
+      "pre_panel_confidence": 0.6129032258064516,
+      "path": [
+        "pw_rows",
+        "luna"
+      ],
+      "usage": [
+        {
+          "provider": "jev",
+          "count": 1,
+          "usd": 0
+        },
+        {
+          "provider": "luna",
+          "count": 0,
+          "usd": 0.0
+        },
+        {
+          "provider": "jev",
+          "key": "a8ebb4f0b3bdb8bd6f9cb55f2512e0ec6bfc49617fb2e2758db1a842bb8bb1fe",
+          "seconds": 2.141,
+          "usd": 0
+        },
+        {
+          "provider": "jev",
+          "count": 0,
+          "usd": 0
+        },
+        {
+          "provider": "luna",
+          "count": 1,
+          "usd": 0.000898
+        }
+      ],
+      "missing_final": false
+    },
+    "verify|799919e29bafa202e0028952ff76d912_deee86a59cea577b40827ba2735e51f2": {
+      "pA": 1.0,
+      "verdict": "A",
+      "initial_confidence": 0.7142857142857143,
+      "pre_panel_confidence": 0.6129032258064516,
+      "path": [
+        "pw_rows",
+        "generated_reference",
+        "luna"
+      ],
+      "usage": [
+        {
+          "provider": "jev",
+          "count": 1,
+          "usd": 0
+        },
+        {
+          "provider": "luna",
+          "count": 0,
+          "usd": 0.0
+        },
+        {
+          "provider": "jev",
+          "key": "18c0c1712794e8c0ef8679c798575d3201cdbb86689a400f549b7299e013b92d",
+          "seconds": 2.145,
+          "usd": 0
+        },
+        {
+          "provider": "jev",
+          "count": 1,
+          "usd": 0
+        },
+        {
+          "provider": "luna",
+          "count": 1,
+          "usd": 0.00031
+        },
+        {
+          "provider": "jev",
+          "count": 0,
+          "usd": 0
+        },
+        {
+          "provider": "luna",
+          "count": 1,
+          "usd": 0.000345
+        }
+      ],
+      "missing_final": false
+    },
+    "verify|8afa540116fbcf61b6a65125a1272a82_10a36a85dc46ca3ce4659c52bd553f22": {
+      "pA": 0.01,
+      "verdict": "B",
+      "initial_confidence": 0.8571428571428571,
+      "pre_panel_confidence": 0.8571428571428571,
+      "path": [
+        "pw_rows",
+        "generated_reference"
+      ],
+      "usage": [
+        {
+          "provider": "jev",
+          "count": 1,
+          "usd": 0
+        },
+        {
+          "provider": "luna",
+          "count": 0,
+          "usd": 0.0
+        },
+        {
+          "provider": "jev",
+          "key": "8b91e9b6610b3baf83f8f52ab2d118786bba13528b0700b1ebd813d23eeb556d",
+          "seconds": 2.197,
+          "usd": 0
+        },
+        {
+          "provider": "jev",
+          "count": 1,
+          "usd": 0
+        },
+        {
+          "provider": "luna",
+          "count": 1,
+          "usd": 0.000218
+        }
+      ],
+      "missing_final": false
+    },
+    "verify|b399132127b57ffbf6fe2023a8971cf0_5489558bf570728f589efe731e286105": {
+      "pA": 0.0,
+      "verdict": "B",
+      "initial_confidence": 0.7142857142857143,
+      "pre_panel_confidence": 0.6129032258064516,
+      "path": [
+        "pw_rows",
+        "generated_reference",
+        "luna"
+      ],
+      "usage": [
+        {
+          "provider": "jev",
+          "count": 1,
+          "usd": 0
+        },
+        {
+          "provider": "luna",
+          "count": 0,
+          "usd": 0.0
+        },
+        {
+          "provider": "jev",
+          "key": "dada50e4158683d5c0e7feea840625bb2bda7f9bdd7dedde0f4283e9f99f56aa",
+          "seconds": 0.978,
+          "usd": 0
+        },
+        {
+          "provider": "jev",
+          "count": 1,
+          "usd": 0
+        },
+        {
+          "provider": "luna",
+          "count": 1,
+          "usd": 0.000833
+        },
+        {
+          "provider": "jev",
+          "count": 0,
+          "usd": 0
+        },
+        {
+          "provider": "luna",
+          "count": 1,
+          "usd": 0.001344
+        }
+      ],
+      "missing_final": false
+    },
+    "verify|ce9c5a2a8a4bcee73556a9bc58edc434_f621234c0a48bfc2cef1d0e9feb927a6": {
+      "pA": 0.0,
+      "verdict": "B",
+      "initial_confidence": 0.7142857142857143,
+      "pre_panel_confidence": 0.6129032258064516,
+      "path": [
+        "pw_rows",
+        "generated_reference",
+        "luna"
+      ],
+      "usage": [
+        {
+          "provider": "jev",
+          "count": 1,
+          "usd": 0
+        },
+        {
+          "provider": "luna",
+          "count": 0,
+          "usd": 0.0
+        },
+        {
+          "provider": "jev",
+          "key": "1a236e6d3c00a9677831666a93069635f51f9b4706a93b7694cb2de03adaf53d",
+          "seconds": 0.899,
+          "usd": 0
+        },
+        {
+          "provider": "jev",
+          "count": 1,
+          "usd": 0
+        },
+        {
+          "provider": "luna",
+          "count": 1,
+          "usd": 0.002361
+        },
+        {
+          "provider": "jev",
+          "count": 0,
+          "usd": 0
+        },
+        {
+          "provider": "luna",
+          "count": 1,
+          "usd": 0.003053
+        }
+      ],
+      "missing_final": false
+    },
+    "verify|d39f096bb2596eb7d8955356ef44a14e_cc7a467fa14f91c15dd31328e13f485e": {
+      "pA": 1,
+      "verdict": "A",
+      "initial_confidence": 0.8571428571428571,
+      "pre_panel_confidence": 0.8571428571428571,
+      "path": [
+        "pw_rows",
+        "generated_reference"
+      ],
+      "usage": [
+        {
+          "provider": "jev",
+          "count": 1,
+          "usd": 0
+        },
+        {
+          "provider": "luna",
+          "count": 0,
+          "usd": 0.0
+        },
+        {
+          "provider": "jev",
+          "key": "6357610eb4381025258c8bac007e8f5ce290075ea4fcc388ae68c5030a811404",
+          "seconds": 1.797,
+          "usd": 0
+        },
+        {
+          "provider": "jev",
+          "count": 1,
+          "usd": 0
+        },
+        {
+          "provider": "luna",
+          "count": 1,
+          "usd": 0.000284
+        }
+      ],
+      "missing_final": false
+    },
+    "verify|daafa66d5d745cf90a6a9f7e7476456e_ee51a4efa53adaad8c8b234938587bc9": {
+      "pA": 0.0,
+      "verdict": "B",
+      "initial_confidence": 0.7142857142857143,
+      "pre_panel_confidence": 0.6129032258064516,
+      "path": [
+        "pw_rows",
+        "generated_reference",
+        "luna"
+      ],
+      "usage": [
+        {
+          "provider": "jev",
+          "count": 1,
+          "usd": 0
+        },
+        {
+          "provider": "luna",
+          "count": 0,
+          "usd": 0.0
+        },
+        {
+          "provider": "jev",
+          "key": "40d686d91a903856991b78aecffb4041d2a2c81e3db1829281f78ab0c3bc3a24",
+          "seconds": 0.954,
+          "usd": 0
+        },
+        {
+          "provider": "jev",
+          "count": 1,
+          "usd": 0
+        },
+        {
+          "provider": "luna",
+          "count": 1,
+          "usd": 0.000187
+        },
+        {
+          "provider": "jev",
+          "count": 0,
+          "usd": 0
+        },
+        {
+          "provider": "luna",
+          "count": 1,
+          "usd": 0.000403
+        }
+      ],
+      "missing_final": false
+    },
+    "verify|e33318504a7ac7627d557aa1c8a28757_2773ef67563d0ff7b53513d4038a7626": {
+      "pA": 0.0,
+      "verdict": "B",
+      "initial_confidence": 0.7142857142857143,
+      "pre_panel_confidence": 0.6129032258064516,
+      "path": [
+        "pw_rows",
+        "generated_reference",
+        "luna"
+      ],
+      "usage": [
+        {
+          "provider": "jev",
+          "count": 1,
+          "usd": 0
+        },
+        {
+          "provider": "luna",
+          "count": 0,
+          "usd": 0.0
+        },
+        {
+          "provider": "jev",
+          "key": "3c3637efe43c4a3b49cd0f2ab6e3624a34a1c6c46ad97e09526a7529afc644b2",
+          "seconds": 1.415,
+          "usd": 0
+        },
+        {
+          "provider": "jev",
+          "count": 1,
+          "usd": 0
+        },
+        {
+          "provider": "luna",
+          "count": 1,
+          "usd": 0.000286
+        },
+        {
+          "provider": "jev",
+          "count": 0,
+          "usd": 0
+        },
+        {
+          "provider": "luna",
+          "count": 1,
+          "usd": 0.001928
+        }
+      ],
+      "missing_final": false
+    },
+    "verify|ea0320de605869a0838201660ae8105e_1e8bfac1a4b21fd6f1399ff208f493fd": {
+      "pA": 1.0,
+      "verdict": "A",
+      "initial_confidence": 0.7142857142857143,
+      "pre_panel_confidence": 0.6129032258064516,
+      "path": [
+        "pw_rows",
+        "generated_reference",
+        "luna"
+      ],
+      "usage": [
+        {
+          "provider": "jev",
+          "count": 1,
+          "usd": 0
+        },
+        {
+          "provider": "luna",
+          "count": 0,
+          "usd": 0.0
+        },
+        {
+          "provider": "jev",
+          "key": "91e46d693d7e7ba1a9289b584e723787c7a7fac52b5b7260158450c0d6ad0e61",
+          "seconds": 1.138,
+          "usd": 0
+        },
+        {
+          "provider": "jev",
+          "count": 1,
+          "usd": 0
+        },
+        {
+          "provider": "luna",
+          "count": 1,
+          "usd": 0.000177
+        },
+        {
+          "provider": "jev",
+          "count": 0,
+          "usd": 0
+        },
+        {
+          "provider": "luna",
+          "count": 1,
+          "usd": 0.000339
+        }
+      ],
+      "missing_final": false
+    },
+    "rubricbench|rubric_eval_1055": {
+      "pA": 0.5,
+      "verdict": "tie",
+      "initial_confidence": 0.75,
+      "pre_panel_confidence": 0.5,
+      "path": [
+        "pw_rows",
+        "luna"
+      ],
+      "usage": [
+        {
+          "provider": "jev",
+          "count": 2,
+          "usd": 0
+        },
+        {
+          "provider": "luna",
+          "count": 0,
+          "usd": 0.0
+        },
+        {
+          "provider": "jev",
+          "key": "06630e3d7fee606ff316394013598843fc07acf18f64d79d901b5df2dd03fd2b",
+          "seconds": 0.792,
+          "usd": 0
+        },
+        {
+          "provider": "jev",
+          "count": 0,
+          "usd": 0
+        },
+        {
+          "provider": "luna",
+          "count": 2,
+          "usd": 0.00085
+        }
+      ],
+      "missing_final": false
+    },
+    "rubricbench|rubric_eval_901": {
+      "pA": 1.0,
+      "verdict": "A",
+      "initial_confidence": 0.75,
+      "pre_panel_confidence": 0.8974358974358975,
+      "path": [
+        "pw_rows",
+        "luna"
+      ],
+      "usage": [
+        {
+          "provider": "jev",
+          "count": 2,
+          "usd": 0
+        },
+        {
+          "provider": "luna",
+          "count": 0,
+          "usd": 0.0
+        },
+        {
+          "provider": "jev",
+          "key": "b04a1d47dcfaa89ebf44500bfa5a015d5e2a273ab3d83ad56ec135ff970feb4e",
+          "seconds": 3.194,
+          "usd": 0
+        },
+        {
+          "provider": "jev",
+          "count": 0,
+          "usd": 0
+        },
+        {
+          "provider": "luna",
+          "count": 2,
+          "usd": 0.000153
+        }
+      ],
+      "missing_final": false
+    },
+    "rubricbench|rubric_eval_327": {
+      "pA": 0.0,
+      "verdict": "B",
+      "initial_confidence": 0.75,
+      "pre_panel_confidence": 0.8974358974358975,
+      "path": [
+        "pw_rows",
+        "luna"
+      ],
+      "usage": [
+        {
+          "provider": "jev",
+          "count": 2,
+          "usd": 0
+        },
+        {
+          "provider": "luna",
+          "count": 0,
+          "usd": 0.0
+        },
+        {
+          "provider": "jev",
+          "key": "35a973ae8d6ac59d2945aa297b9b35d1a5aa4bc4c64f7cb6ffb93c88b663621c",
+          "seconds": 1.578,
+          "usd": 0
+        },
+        {
+          "provider": "jev",
+          "count": 0,
+          "usd": 0
+        },
+        {
+          "provider": "luna",
+          "count": 2,
+          "usd": 0.000349
+        }
+      ],
+      "missing_final": false
+    },
+    "rubricbench|rubric_eval_164": {
+      "pA": 0.6725,
+      "verdict": "A",
+      "initial_confidence": 1.0,
+      "pre_panel_confidence": 1.0,
+      "path": [
+        "pw_rows"
+      ],
+      "usage": [
+        {
+          "provider": "jev",
+          "count": 2,
+          "usd": 0
+        },
+        {
+          "provider": "luna",
+          "count": 0,
+          "usd": 0.0
+        },
+        {
+          "provider": "jev",
+          "key": "3d4d32052a9434ae5e145e441fdad467129390301e374200c32d3ddfec692f20",
+          "seconds": 1.558,
+          "usd": 0
+        }
+      ],
+      "missing_final": false
+    },
+    "rubricbench|rubric_eval_139": {
+      "pA": 0.6883333333333334,
+      "verdict": "A",
+      "initial_confidence": 1.0,
+      "pre_panel_confidence": 1.0,
+      "path": [
+        "pw_rows"
+      ],
+      "usage": [
+        {
+          "provider": "jev",
+          "count": 2,
+          "usd": 0
+        },
+        {
+          "provider": "luna",
+          "count": 0,
+          "usd": 0.0
+        },
+        {
+          "provider": "jev",
+          "key": "a50fda210ca046e49a7e66bfd9120902916ee676988b9d9f5cbbbecac1806abc",
+          "seconds": 0.674,
+          "usd": 0
+        }
+      ],
+      "missing_final": false
+    },
+    "rubricbench|rubric_eval_218": {
+      "pA": 0.5842857142857143,
+      "verdict": "A",
+      "initial_confidence": 1.0,
+      "pre_panel_confidence": 1.0,
+      "path": [
+        "pw_rows"
+      ],
+      "usage": [
+        {
+          "provider": "jev",
+          "count": 2,
+          "usd": 0
+        },
+        {
+          "provider": "luna",
+          "count": 0,
+          "usd": 0.0
+        },
+        {
+          "provider": "jev",
+          "key": "996aab3bca7932a0440e88ce6a3f1b6b09935abc906c9e8ba9bbd8fcfd811d37",
+          "seconds": 0.445,
+          "usd": 0
+        }
+      ],
+      "missing_final": false
+    },
+    "rubricbench|rubric_eval_1040": {
+      "pA": 0.5814285714285714,
+      "verdict": "A",
+      "initial_confidence": 0.75,
+      "pre_panel_confidence": 0.75,
+      "path": [
+        "pw_rows"
+      ],
+      "usage": [
+        {
+          "provider": "jev",
+          "count": 2,
+          "usd": 0
+        },
+        {
+          "provider": "luna",
+          "count": 0,
+          "usd": 0.0
+        },
+        {
+          "provider": "jev",
+          "key": "b58ef88e3fa829da8fcbbf18c5ae38ff9b778f1b9fc53c89ac16c0bf30939d97",
+          "seconds": 35.607,
+          "usd": 0
+        }
+      ],
+      "missing_final": false
+    },
+    "rubricbench|rubric_eval_1135": {
+      "pA": 0.0,
+      "verdict": "B",
+      "initial_confidence": 0.75,
+      "pre_panel_confidence": 0.8974358974358975,
+      "path": [
+        "pw_rows",
+        "luna"
+      ],
+      "usage": [
+        {
+          "provider": "jev",
+          "count": 2,
+          "usd": 0
+        },
+        {
+          "provider": "luna",
+          "count": 0,
+          "usd": 0.0
+        },
+        {
+          "provider": "jev",
+          "key": "2637b1e11d55d0bdf34f015a0d5112dfdead36ebadd44d640f7378c4cda98346",
+          "seconds": 6.906,
+          "usd": 0
+        },
+        {
+          "provider": "jev",
+          "count": 0,
+          "usd": 0
+        },
+        {
+          "provider": "luna",
+          "count": 2,
+          "usd": 0.000611
+        }
+      ],
+      "missing_final": false
+    },
+    "rubricbench|rubric_eval_1086": {
+      "pA": 1.0,
+      "verdict": "A",
+      "initial_confidence": 0.75,
+      "pre_panel_confidence": 0.8974358974358975,
+      "path": [
+        "pw_rows",
+        "luna"
+      ],
+      "usage": [
+        {
+          "provider": "jev",
+          "count": 2,
+          "usd": 0
+        },
+        {
+          "provider": "luna",
+          "count": 0,
+          "usd": 0.0
+        },
+        {
+          "provider": "jev",
+          "key": "24404cab91e308d2e5f6a17dd233c2c282ee7fffa639ad377ae911f324c19e98",
+          "seconds": 51.042,
+          "usd": 0
+        },
+        {
+          "provider": "jev",
+          "count": 0,
+          "usd": 0
+        },
+        {
+          "provider": "luna",
+          "count": 2,
+          "usd": 0.000452
+        }
+      ],
+      "missing_final": false
+    },
+    "hardrows|rubric.006": {
+      "pA": 0.9866666666666667,
+      "verdict": "A",
+      "initial_confidence": 1.0,
+      "pre_panel_confidence": 1.0,
+      "path": [
+        "pw_rows"
+      ],
+      "usage": [
+        {
+          "provider": "jev",
+          "count": 1,
+          "usd": 0
+        },
+        {
+          "provider": "luna",
+          "count": 0,
+          "usd": 0.0
+        },
+        {
+          "provider": "jev",
+          "key": "e09a1fa4d81a2ecb191a2fee479c4e5fd78eee6e4b726e01c26242f71c925479",
+          "seconds": 92.321,
+          "usd": 0
+        }
+      ],
+      "missing_final": false
+    },
+    "hardrows|rubric.033": {
+      "pA": 0.9824999999999999,
+      "verdict": "A",
+      "initial_confidence": 1.0,
+      "pre_panel_confidence": 1.0,
+      "path": [
+        "pw_rows"
+      ],
+      "usage": [
+        {
+          "provider": "jev",
+          "count": 1,
+          "usd": 0
+        },
+        {
+          "provider": "luna",
+          "count": 0,
+          "usd": 0.0
+        },
+        {
+          "provider": "jev",
+          "key": "1b6a5518d3264f4d952013fb859f9c6b580146b1e5ea52930371158b66027ff1",
+          "seconds": 0.999,
+          "usd": 0
+        }
+      ],
+      "missing_final": false
+    },
+    "hardrows|rubric.052": {
+      "pA": 0.31,
+      "verdict": "B",
+      "initial_confidence": 1.0,
+      "pre_panel_confidence": 1.0,
+      "path": [
+        "pw_rows"
+      ],
+      "usage": [
+        {
+          "provider": "jev",
+          "count": 1,
+          "usd": 0
+        },
+        {
+          "provider": "luna",
+          "count": 0,
+          "usd": 0.0
+        },
+        {
+          "provider": "jev",
+          "key": "70372d5cfc887fd6d89ff9171d0c9449a5e134ddc1dc4f93d09a7f007e9ac09b",
+          "seconds": 0.96,
+          "usd": 0
+        }
+      ],
+      "missing_final": false
+    },
+    "hardrows|rubric.018": {
+      "pA": 0.96,
+      "verdict": "A",
+      "initial_confidence": 1.0,
+      "pre_panel_confidence": 1.0,
+      "path": [
+        "pw_rows"
+      ],
+      "usage": [
+        {
+          "provider": "jev",
+          "count": 1,
+          "usd": 0
+        },
+        {
+          "provider": "luna",
+          "count": 0,
+          "usd": 0.0
+        },
+        {
+          "provider": "jev",
+          "key": "53a5f28bf2a0569c8f4a7fad8e656afa7ad7513c95b5644f950a1269a4b155b1",
+          "seconds": 4.082,
+          "usd": 0
+        }
+      ],
+      "missing_final": false
+    },
+    "hardrows|factuality.029": {
+      "pA": 0.04,
+      "verdict": "B",
+      "initial_confidence": 1.0,
+      "pre_panel_confidence": 1.0,
+      "path": [
+        "pw_rows",
+        "reference"
+      ],
+      "usage": [
+        {
+          "provider": "jev",
+          "count": 1,
+          "usd": 0
+        },
+        {
+          "provider": "luna",
+          "count": 0,
+          "usd": 0.0
+        },
+        {
+          "provider": "jev",
+          "key": "aafc52e2874b4df1cf4fd4bc352e6641885be38b83d587d6e6039e915b23919f",
+          "seconds": 0.434,
+          "usd": 0
+        },
+        {
+          "provider": "jev",
+          "key": "55309ed050f670947d66dbdd320763f1375f492123f872fdccb4808e69b96a62",
+          "seconds": 2.081,
+          "usd": 0
+        }
+      ],
+      "missing_final": false
+    },
+    "hardrows|factuality.098": {
+      "pA": 0.98,
+      "verdict": "A",
+      "initial_confidence": 1.0,
+      "pre_panel_confidence": 1.0,
+      "path": [
+        "pw_rows",
+        "reference"
+      ],
+      "usage": [
+        {
+          "provider": "jev",
+          "count": 1,
+          "usd": 0
+        },
+        {
+          "provider": "luna",
+          "count": 0,
+          "usd": 0.0
+        },
+        {
+          "provider": "jev",
+          "key": "881258dfc5617ede44ab838a24f283e4afc02337b55241f31a68a40e7b1ba67d",
+          "seconds": 0.309,
+          "usd": 0
+        },
+        {
+          "provider": "jev",
+          "key": "47f68a593c7034204e5b3b0c926e31cf9da497ce6351f09fe48700370cc2fc5d",
+          "seconds": 2.06,
+          "usd": 0
+        }
+      ],
+      "missing_final": false
+    },
+    "hardrows|factuality.007": {
+      "pA": 0.98,
+      "verdict": "A",
+      "initial_confidence": 1.0,
+      "pre_panel_confidence": 1.0,
+      "path": [
+        "pw_rows",
+        "reference"
+      ],
+      "usage": [
+        {
+          "provider": "jev",
+          "count": 1,
+          "usd": 0
+        },
+        {
+          "provider": "luna",
+          "count": 0,
+          "usd": 0.0
+        },
+        {
+          "provider": "jev",
+          "key": "8ed77130bc7e6563c3902adff3254cb7d2ba2f3b7a4bf79454cd1062bd4cf29c",
+          "seconds": 7.301,
+          "usd": 0
+        },
+        {
+          "provider": "jev",
+          "key": "abacc691b7449c6fe9d85450421bba4d5d143cd4c692e92e8d59bea8e25cac42",
+          "seconds": 0.274,
+          "usd": 0
+        }
+      ],
+      "missing_final": false
+    },
+    "hardrows|factuality.055": {
+      "pA": 0.08,
+      "verdict": "B",
+      "initial_confidence": 1.0,
+      "pre_panel_confidence": 1.0,
+      "path": [
+        "pw_rows",
+        "reference"
+      ],
+      "usage": [
+        {
+          "provider": "jev",
+          "count": 1,
+          "usd": 0
+        },
+        {
+          "provider": "luna",
+          "count": 0,
+          "usd": 0.0
+        },
+        {
+          "provider": "jev",
+          "key": "e25101d9c57fa8acac09a7104290b72bd648939f6aec49d24af4ff7ca1295066",
+          "seconds": 2.398,
+          "usd": 0
+        },
+        {
+          "provider": "jev",
+          "key": "16ad69626074eb4c844d298147e42b51221cc03fdc9da0a0051a25d52ddaba3d",
+          "seconds": 0.343,
+          "usd": 0
+        }
+      ],
+      "missing_final": false
+    },
+    "hardrows|factuality.114": {
+      "pA": 0.98,
+      "verdict": "A",
+      "initial_confidence": 1.0,
+      "pre_panel_confidence": 1.0,
+      "path": [
+        "pw_rows",
+        "reference"
+      ],
+      "usage": [
+        {
+          "provider": "jev",
+          "count": 1,
+          "usd": 0
+        },
+        {
+          "provider": "luna",
+          "count": 0,
+          "usd": 0.0
+        },
+        {
+          "provider": "jev",
+          "key": "6113db687c0cd900c8bcc0e0a7bf8898492a4812dd500040ff755fa2020e6530",
+          "seconds": 0.314,
+          "usd": 0
+        },
+        {
+          "provider": "jev",
+          "key": "1721fdc6429abdf8b2e340d07475fc17b4e0108829946aa0659e27b398856f1d",
+          "seconds": 0.326,
+          "usd": 0
+        }
+      ],
+      "missing_final": false
+    },
+    "hardrows|factuality.113": {
+      "pA": 0.83,
+      "verdict": "A",
+      "initial_confidence": 1.0,
+      "pre_panel_confidence": 1.0,
+      "path": [
+        "pw_rows",
+        "reference"
+      ],
+      "usage": [
+        {
+          "provider": "jev",
+          "count": 1,
+          "usd": 0
+        },
+        {
+          "provider": "luna",
+          "count": 0,
+          "usd": 0.0
+        },
+        {
+          "provider": "jev",
+          "key": "41be69b6e4cf38b5050e208ff8a5ddab18d9d52580a0b4061089a157684a15a4",
+          "seconds": 3.389,
+          "usd": 0
+        },
+        {
+          "provider": "jev",
+          "key": "2e1399d3c547aee6bebf82b2df804cbce09ea7126dedf847b2e6eae3fc760ac2",
+          "seconds": 0.821,
+          "usd": 0
+        }
+      ],
+      "missing_final": false
+    },
+    "hardrows|factuality.054": {
+      "pA": 0.84,
+      "verdict": "A",
+      "initial_confidence": 1.0,
+      "pre_panel_confidence": 1.0,
+      "path": [
+        "pw_rows",
+        "reference"
+      ],
+      "usage": [
+        {
+          "provider": "jev",
+          "count": 1,
+          "usd": 0
+        },
+        {
+          "provider": "luna",
+          "count": 0,
+          "usd": 0.0
+        },
+        {
+          "provider": "jev",
+          "key": "fce731490f8276b3dc425cbb09d42ffbfbc1ab2873abb576c7d6287de600926a",
+          "seconds": 0.272,
+          "usd": 0
+        },
+        {
+          "provider": "jev",
+          "key": "95e6ae70ac2be5c125cc42ee87fabe73aa4597c5f824177c74aac8afb33363db",
+          "seconds": 0.612,
+          "usd": 0
+        }
+      ],
+      "missing_final": false
+    },
+    "verify|0693b094973e7e926583c76785af77ca_5a776264cbecc67bd81bf1bea7505338": {
+      "pA": 0.0,
+      "verdict": "B",
+      "initial_confidence": 0.16666666666666666,
+      "pre_panel_confidence": 0.59375,
+      "path": [
+        "pw_rows",
+        "luna"
+      ],
+      "usage": [
+        {
+          "provider": "jev",
+          "count": 1,
+          "usd": 0
+        },
+        {
+          "provider": "luna",
+          "count": 0,
+          "usd": 0.0
+        },
+        {
+          "provider": "jev",
+          "key": "17aa870beb4cce9bc50a4bea2b61cdf8a4e3790b50f87e6589056d78340cef37",
+          "seconds": 0.31,
+          "usd": 0
+        },
+        {
+          "provider": "jev",
+          "count": 0,
+          "usd": 0
+        },
+        {
+          "provider": "luna",
+          "count": 1,
+          "usd": 0.001268
+        }
+      ],
+      "missing_final": false
+    },
+    "verify|1548f1e34026a5988f77c35cbc1e2528_c39553e7f10dd1483084dd94954eb1ec": {
+      "pA": 1.0,
+      "verdict": "A",
+      "initial_confidence": 0.16666666666666666,
+      "pre_panel_confidence": 0.59375,
+      "path": [
+        "pw_rows",
+        "generated_reference",
+        "luna"
+      ],
+      "usage": [
+        {
+          "provider": "jev",
+          "count": 1,
+          "usd": 0
+        },
+        {
+          "provider": "luna",
+          "count": 0,
+          "usd": 0.0
+        },
+        {
+          "provider": "jev",
+          "key": "fcf636f58b38c95b669533322e285d1a57e7743bb438c56df120edf1861c36e5",
+          "seconds": 1.823,
+          "usd": 0
+        },
+        {
+          "provider": "jev",
+          "count": 1,
+          "usd": 0
+        },
+        {
+          "provider": "luna",
+          "count": 1,
+          "usd": 0.005013
+        },
+        {
+          "provider": "jev",
+          "count": 0,
+          "usd": 0
+        },
+        {
+          "provider": "luna",
+          "count": 1,
+          "usd": 0.002758
+        }
+      ],
+      "missing_final": false
+    },
+    "verify|426cee0607fecfe6c4787ef3291d8484_e0eb041693a1eaaba4375c74e5eb344b": {
+      "pA": 1.0,
+      "verdict": "A",
+      "initial_confidence": 0.16666666666666666,
+      "pre_panel_confidence": 0.59375,
+      "path": [
+        "pw_rows",
+        "luna"
+      ],
+      "usage": [
+        {
+          "provider": "jev",
+          "count": 1,
+          "usd": 0
+        },
+        {
+          "provider": "luna",
+          "count": 0,
+          "usd": 0.0
+        },
+        {
+          "provider": "jev",
+          "key": "6245a2ac5d62b964a680f9c332110940fbf664a1113c61aa6505d00da2bbfa88",
+          "seconds": 1.877,
+          "usd": 0
+        },
+        {
+          "provider": "jev",
+          "count": 0,
+          "usd": 0
+        },
+        {
+          "provider": "luna",
+          "count": 1,
+          "usd": 0.000798
+        }
+      ],
+      "missing_final": false
+    },
+    "verify|465fc22785286db5dd33b22506c32cb7_167ebe0d73af5771692e25d41290c636": {
+      "pA": 0.0,
+      "verdict": "B",
+      "initial_confidence": 0.7142857142857143,
+      "pre_panel_confidence": 0.59375,
+      "path": [
+        "pw_rows",
+        "generated_reference",
+        "luna"
+      ],
+      "usage": [
+        {
+          "provider": "jev",
+          "count": 1,
+          "usd": 0
+        },
+        {
+          "provider": "luna",
+          "count": 0,
+          "usd": 0.0
+        },
+        {
+          "provider": "jev",
+          "key": "ac213b82d00ad9f9e5c213dfe2873ada707b65aec3db307951132dd4fc885a56",
+          "seconds": 1.872,
+          "usd": 0
+        },
+        {
+          "provider": "jev",
+          "count": 1,
+          "usd": 0
+        },
+        {
+          "provider": "luna",
+          "count": 1,
+          "usd": 0.001118
+        },
+        {
+          "provider": "jev",
+          "count": 0,
+          "usd": 0
+        },
+        {
+          "provider": "luna",
+          "count": 1,
+          "usd": 0.000163
+        }
+      ],
+      "missing_final": false
+    },
+    "verify|4b4809afe76dd8c903f188bf277830c2_564014cd48e8406e59bd7edae9b402f5": {
+      "pA": 0.0,
+      "verdict": "B",
+      "initial_confidence": 0.6111111111111112,
+      "pre_panel_confidence": 0.59375,
+      "path": [
+        "pw_rows",
+        "generated_reference",
+        "luna"
+      ],
+      "usage": [
+        {
+          "provider": "jev",
+          "count": 1,
+          "usd": 0
+        },
+        {
+          "provider": "luna",
+          "count": 0,
+          "usd": 0.0
+        },
+        {
+          "provider": "jev",
+          "key": "5e8f42416d57ce9f0843388011135e0d326828e86473e22354d3070076f2130a",
+          "seconds": 3.601,
+          "usd": 0
+        },
+        {
+          "provider": "jev",
+          "count": 1,
+          "usd": 0
+        },
+        {
+          "provider": "luna",
+          "count": 1,
+          "usd": 0.000653
+        },
+        {
+          "provider": "jev",
+          "count": 0,
+          "usd": 0
+        },
+        {
+          "provider": "luna",
+          "count": 1,
+          "usd": 0.000505
+        }
+      ],
+      "missing_final": false
+    },
+    "verify|5f981c74919500aeaaae8b6d69ce31b8_c01d363627aeded9eee9e3f19ad99d21": {
+      "pA": 0.0,
+      "verdict": "B",
+      "initial_confidence": 0.16666666666666666,
+      "pre_panel_confidence": 0.59375,
+      "path": [
+        "pw_rows",
+        "luna"
+      ],
+      "usage": [
+        {
+          "provider": "jev",
+          "count": 1,
+          "usd": 0
+        },
+        {
+          "provider": "luna",
+          "count": 0,
+          "usd": 0.0
+        },
+        {
+          "provider": "jev",
+          "key": "1005d17b3deee84cb1ab5881c7b73bd8f033a9f7147ab5a8c0212144f9a71e95",
+          "seconds": 0.309,
+          "usd": 0
+        },
+        {
+          "provider": "jev",
+          "count": 0,
+          "usd": 0
+        },
+        {
+          "provider": "luna",
+          "count": 1,
+          "usd": 0.000445
+        }
+      ],
+      "missing_final": false
+    },
+    "verify|876a5a4c146362bead527dec85ffd338_523e2ac6241ab9c964a3a5116ebd7389": {
+      "pA": 0.98,
+      "verdict": "A",
+      "initial_confidence": 0.6111111111111112,
+      "pre_panel_confidence": 0.59375,
+      "path": [
+        "pw_rows",
+        "generated_reference",
+        "luna"
+      ],
+      "usage": [
+        {
+          "provider": "jev",
+          "count": 1,
+          "usd": 0
+        },
+        {
+          "provider": "luna",
+          "count": 0,
+          "usd": 0.0
+        },
+        {
+          "provider": "jev",
+          "key": "797b8dfca0d529f71a4830436db128b984d9a05ad6d82821c572281241546ee6",
+          "seconds": 2.104,
+          "usd": 0
+        },
+        {
+          "provider": "jev",
+          "count": 1,
+          "usd": 0
+        },
+        {
+          "provider": "luna",
+          "count": 1,
+          "usd": 0.000208
+        },
+        {
+          "provider": "jev",
+          "count": 0,
+          "usd": 0
+        },
+        {
+          "provider": "luna",
+          "count": 1,
+          "usd": 0.00033
+        }
+      ],
+      "missing_final": false
+    },
+    "verify|9627c5098f4185184311edb8a3ccb640_116a5adea8a225f8c8542f0576808a6e": {
+      "pA": 0.0,
+      "verdict": "B",
+      "initial_confidence": 0.6111111111111112,
+      "pre_panel_confidence": 0.59375,
+      "path": [
+        "pw_rows",
+        "generated_reference",
+        "luna"
+      ],
+      "usage": [
+        {
+          "provider": "jev",
+          "count": 1,
+          "usd": 0
+        },
+        {
+          "provider": "luna",
+          "count": 0,
+          "usd": 0.0
+        },
+        {
+          "provider": "jev",
+          "key": "ef221b36a9536cff0e2d3f207e158f564f53c7d39116148e1627c44e49f28931",
+          "seconds": 1.64,
+          "usd": 0
+        },
+        {
+          "provider": "jev",
+          "count": 1,
+          "usd": 0
+        },
+        {
+          "provider": "luna",
+          "count": 1,
+          "usd": 0.002742
+        },
+        {
+          "provider": "jev",
+          "count": 0,
+          "usd": 0
+        },
+        {
+          "provider": "luna",
+          "count": 1,
+          "usd": 0.001884
+        }
+      ],
+      "missing_final": false
+    },
+    "verify|97420293b650b40bab24bbf45949eb76_daa4f21cc7788af3b8e863453b68e590": {
+      "pA": 0.0,
+      "verdict": "B",
+      "initial_confidence": 0.6111111111111112,
+      "pre_panel_confidence": 0.59375,
+      "path": [
+        "pw_rows",
+        "generated_reference",
+        "luna"
+      ],
+      "usage": [
+        {
+          "provider": "jev",
+          "count": 1,
+          "usd": 0
+        },
+        {
+          "provider": "luna",
+          "count": 0,
+          "usd": 0.0
+        },
+        {
+          "provider": "jev",
+          "key": "121d2e3e992eef626b4a5784412066c7d1ef64eb616d14c99c549bfb232a783f",
+          "seconds": 2.104,
+          "usd": 0
+        },
+        {
+          "provider": "jev",
+          "count": 1,
+          "usd": 0
+        },
+        {
+          "provider": "luna",
+          "count": 1,
+          "usd": 0.000472
+        },
+        {
+          "provider": "jev",
+          "count": 0,
+          "usd": 0
+        },
+        {
+          "provider": "luna",
+          "count": 1,
+          "usd": 0.000661
+        }
+      ],
+      "missing_final": false
+    },
+    "verify|9d9b9827b9c7f258b3b21b1c42a2d0ab_eff2f462cb62e139749f5a7aa067a8a6": {
+      "pA": 1.0,
+      "verdict": "A",
+      "initial_confidence": 0.16666666666666666,
+      "pre_panel_confidence": 0.59375,
+      "path": [
+        "pw_rows",
+        "luna"
+      ],
+      "usage": [
+        {
+          "provider": "jev",
+          "count": 1,
+          "usd": 0
+        },
+        {
+          "provider": "luna",
+          "count": 0,
+          "usd": 0.0
+        },
+        {
+          "provider": "jev",
+          "key": "fb909304de0290e600a776c968d1c0260996e1b3b91e92c7091607ffad172adc",
+          "seconds": 0.918,
+          "usd": 0
+        },
+        {
+          "provider": "jev",
+          "count": 0,
+          "usd": 0
+        },
+        {
+          "provider": "luna",
+          "count": 1,
+          "usd": 0.00084
+        }
+      ],
+      "missing_final": false
+    },
+    "verify|be36325bac0fa5963c9cae9d74dab91a_3001a5b03a832d025f4e8b9b44ef99a1": {
+      "pA": 0.0,
+      "verdict": "B",
+      "initial_confidence": 0.7142857142857143,
+      "pre_panel_confidence": 0.59375,
+      "path": [
+        "pw_rows",
+        "generated_reference",
+        "luna"
+      ],
+      "usage": [
+        {
+          "provider": "jev",
+          "count": 1,
+          "usd": 0
+        },
+        {
+          "provider": "luna",
+          "count": 0,
+          "usd": 0.0
+        },
+        {
+          "provider": "jev",
+          "key": "90382ceb5b87c434488642eabc84422a01da339b71be48b94b0eaa6f3931ed5e",
+          "seconds": 1.014,
+          "usd": 0
+        },
+        {
+          "provider": "jev",
+          "count": 1,
+          "usd": 0
+        },
+        {
+          "provider": "luna",
+          "count": 1,
+          "usd": 0.000924
+        },
+        {
+          "provider": "jev",
+          "count": 0,
+          "usd": 0
+        },
+        {
+          "provider": "luna",
+          "count": 1,
+          "usd": 0.001628
+        }
+      ],
+      "missing_final": false
+    },
+    "rubricbench|rubric_eval_12": {
+      "pA": 0.0,
+      "verdict": "B",
+      "initial_confidence": 0.7142857142857143,
+      "pre_panel_confidence": 0.8571428571428571,
+      "path": [
+        "pw_rows",
+        "luna"
+      ],
+      "usage": [
+        {
+          "provider": "jev",
+          "count": 2,
+          "usd": 0
+        },
+        {
+          "provider": "luna",
+          "count": 0,
+          "usd": 0.0
+        },
+        {
+          "provider": "jev",
+          "key": "ce9a1436cd892f542b79af24e32093a8d407853344767bc802b7ab27c5e4cdd9",
+          "seconds": 1.732,
+          "usd": 0
+        },
+        {
+          "provider": "jev",
+          "count": 0,
+          "usd": 0
+        },
+        {
+          "provider": "luna",
+          "count": 2,
+          "usd": 0.000174
+        }
+      ],
+      "missing_final": false
+    },
+    "rubricbench|rubric_eval_736": {
+      "pA": 0.59,
+      "verdict": "A",
+      "initial_confidence": 0.9333333333333333,
+      "pre_panel_confidence": 0.9333333333333333,
+      "path": [
+        "pw_rows"
+      ],
+      "usage": [
+        {
+          "provider": "jev",
+          "count": 2,
+          "usd": 0
+        },
+        {
+          "provider": "luna",
+          "count": 0,
+          "usd": 0.0
+        },
+        {
+          "provider": "jev",
+          "key": "0299af10c689382258c07117fc7c983ac268489a11fd89d774c6c72b8d8c94de",
+          "seconds": 1.645,
+          "usd": 0
+        }
+      ],
+      "missing_final": false
+    },
+    "rubricbench|rubric_eval_676": {
+      "pA": 1.0,
+      "verdict": "A",
+      "initial_confidence": 0.7142857142857143,
+      "pre_panel_confidence": 0.8571428571428571,
+      "path": [
+        "pw_rows",
+        "luna"
+      ],
+      "usage": [
+        {
+          "provider": "jev",
+          "count": 2,
+          "usd": 0
+        },
+        {
+          "provider": "luna",
+          "count": 0,
+          "usd": 0.0
+        },
+        {
+          "provider": "jev",
+          "key": "e8a991c9567bfe0ec9241736953882faa5c30407068a269d7903b01fe27d2e8e",
+          "seconds": 0.521,
+          "usd": 0
+        },
+        {
+          "provider": "jev",
+          "count": 0,
+          "usd": 0
+        },
+        {
+          "provider": "luna",
+          "count": 2,
+          "usd": 0.0002
+        }
+      ],
+      "missing_final": false
+    },
+    "rubricbench|rubric_eval_711": {
+      "pA": 1.0,
+      "verdict": "A",
+      "initial_confidence": 0.7142857142857143,
+      "pre_panel_confidence": 0.8571428571428571,
+      "path": [
+        "pw_rows",
+        "luna"
+      ],
+      "usage": [
+        {
+          "provider": "jev",
+          "count": 2,
+          "usd": 0
+        },
+        {
+          "provider": "luna",
+          "count": 0,
+          "usd": 0.0
+        },
+        {
+          "provider": "jev",
+          "key": "dabdc1cc656554a9992827f98f5d67853f78ecee8d8e39efcfaa65875985e161",
+          "seconds": 1.164,
+          "usd": 0
+        },
+        {
+          "provider": "jev",
+          "count": 0,
+          "usd": 0
+        },
+        {
+          "provider": "luna",
+          "count": 2,
+          "usd": 0.000619
+        }
+      ],
+      "missing_final": false
+    },
+    "rubricbench|rubric_eval_13": {
+      "pA": 0.4166666666666667,
+      "verdict": "B",
+      "initial_confidence": 0.9022222222222194,
+      "pre_panel_confidence": 0.9022222222222194,
+      "path": [
+        "pw_rows"
+      ],
+      "usage": [
+        {
+          "provider": "jev",
+          "count": 2,
+          "usd": 0
+        },
+        {
+          "provider": "luna",
+          "count": 0,
+          "usd": 0.0
+        },
+        {
+          "provider": "jev",
+          "key": "284c686f9878f341f1cb10617669617b5ccf0c8c88d0ae4225dbd0ab0496e04d",
+          "seconds": 3.279,
+          "usd": 0
+        }
+      ],
+      "missing_final": false
+    },
+    "rubricbench|rubric_eval_320": {
+      "pA": 0.40399999999999997,
+      "verdict": "B",
+      "initial_confidence": 0.9333333333333333,
+      "pre_panel_confidence": 0.9333333333333333,
+      "path": [
+        "pw_rows"
+      ],
+      "usage": [
+        {
+          "provider": "jev",
+          "count": 2,
+          "usd": 0
+        },
+        {
+          "provider": "luna",
+          "count": 0,
+          "usd": 0.0
+        },
+        {
+          "provider": "jev",
+          "key": "11e3ddc4245f02bebc5292187caf20f1356748a816febc3768918e87a9e0961c",
+          "seconds": 1.129,
+          "usd": 0
+        }
+      ],
+      "missing_final": false
+    },
+    "hardrows|rubric.029": {
+      "pA": 0.94,
+      "verdict": "A",
+      "initial_confidence": 1.0,
+      "pre_panel_confidence": 1.0,
+      "path": [
+        "pw_rows"
+      ],
+      "usage": [
+        {
+          "provider": "jev",
+          "count": 1,
+          "usd": 0
+        },
+        {
+          "provider": "luna",
+          "count": 0,
+          "usd": 0.0
+        },
+        {
+          "provider": "jev",
+          "key": "78b895d7db92c6aa01aa64479197ce64212b375c091615a733cf97509cfb2894",
+          "seconds": 30.608,
+          "usd": 0
+        }
+      ],
+      "missing_final": false
+    },
+    "hardrows|rubric.017": {
+      "pA": 0.3225,
+      "verdict": "B",
+      "initial_confidence": 0.8461538461538461,
+      "pre_panel_confidence": 0.8461538461538461,
+      "path": [
+        "pw_rows"
+      ],
+      "usage": [
+        {
+          "provider": "jev",
+          "count": 1,
+          "usd": 0
+        },
+        {
+          "provider": "luna",
+          "count": 0,
+          "usd": 0.0
+        },
+        {
+          "provider": "jev",
+          "key": "0b5ffa0aff3edae7188b18f6a7138cb4d2d66eb0b3f7b49310bdf300157e8230",
+          "seconds": 0.34,
+          "usd": 0
+        }
+      ],
+      "missing_final": false
+    },
+    "hardrows|rubric.101": {
+      "pA": 0.27749999999999997,
+      "verdict": "B",
+      "initial_confidence": 0.8461538461538461,
+      "pre_panel_confidence": 0.8461538461538461,
+      "path": [
+        "pw_rows"
+      ],
+      "usage": [
+        {
+          "provider": "jev",
+          "count": 1,
+          "usd": 0
+        },
+        {
+          "provider": "luna",
+          "count": 0,
+          "usd": 0.0
+        },
+        {
+          "provider": "jev",
+          "key": "52c8e4564a8f9f6a61dcd5e3a419911fb2cafc0eef4e55fb940d884c87ad71a2",
+          "seconds": 1.666,
+          "usd": 0
+        }
+      ],
+      "missing_final": false
+    },
+    "hardrows|rubric.003": {
+      "pA": 0.925,
+      "verdict": "A",
+      "initial_confidence": 1.0,
+      "pre_panel_confidence": 1.0,
+      "path": [
+        "pw_rows"
+      ],
+      "usage": [
+        {
+          "provider": "jev",
+          "count": 1,
+          "usd": 0
+        },
+        {
+          "provider": "luna",
+          "count": 0,
+          "usd": 0.0
+        },
+        {
+          "provider": "jev",
+          "key": "d66fc5f53c6122bec924fe662e96906a5b04d94486fac1fda3e2722e196ff81e",
+          "seconds": 1.667,
+          "usd": 0
+        }
+      ],
+      "missing_final": false
+    },
+    "verify|1bd8144011c39f410df900a04d6e156a_f0ff48079a16eda16a3925eb5c78c21a": {
+      "pA": 0.0,
+      "verdict": "B",
+      "initial_confidence": 0.6923076923076923,
+      "pre_panel_confidence": 0.5833333333333334,
+      "path": [
+        "pw_rows",
+        "generated_reference",
+        "luna"
+      ],
+      "usage": [
+        {
+          "provider": "jev",
+          "count": 1,
+          "usd": 0
+        },
+        {
+          "provider": "luna",
+          "count": 0,
+          "usd": 0.0
+        },
+        {
+          "provider": "jev",
+          "key": "858a56cff7030dd4d7c53cad9a9d1fc23a30df8fa3a9912f297637482d1f7d53",
+          "seconds": 0.358,
+          "usd": 0
+        },
+        {
+          "provider": "jev",
+          "count": 1,
+          "usd": 0
+        },
+        {
+          "provider": "luna",
+          "count": 1,
+          "usd": 0.000511
+        },
+        {
+          "provider": "jev",
+          "count": 0,
+          "usd": 0
+        },
+        {
+          "provider": "luna",
+          "count": 1,
+          "usd": 0.000634
+        }
+      ],
+      "missing_final": false
+    },
+    "verify|3c59c6f19c05e74596f075c311a4cded_e864f7a031ed4f8dc9c0983cec0121f8": {
+      "pA": 0.0,
+      "verdict": "B",
+      "initial_confidence": 0.3333333333333333,
+      "pre_panel_confidence": 0.5833333333333334,
+      "path": [
+        "pw_rows",
+        "generated_reference",
+        "luna"
+      ],
+      "usage": [
+        {
+          "provider": "jev",
+          "count": 1,
+          "usd": 0
+        },
+        {
+          "provider": "luna",
+          "count": 0,
+          "usd": 0.0
+        },
+        {
+          "provider": "jev",
+          "key": "ae0ada7cc4e4626c7b060d8adfd649f5883882410b56626a0470aaa38fa2fe81",
+          "seconds": 3.464,
+          "usd": 0
+        },
+        {
+          "provider": "jev",
+          "count": 1,
+          "usd": 0
+        },
+        {
+          "provider": "luna",
+          "count": 1,
+          "usd": 0.000235
+        },
+        {
+          "provider": "jev",
+          "count": 0,
+          "usd": 0
+        },
+        {
+          "provider": "luna",
+          "count": 1,
+          "usd": 0.000262
+        }
+      ],
+      "missing_final": false
+    },
+    "verify|9d4c782a67b4228b731a91cc3bf87657_0f6ea49ff3dbd1e15e81461f46f5192b": {
+      "pA": 0.0,
+      "verdict": "B",
+      "initial_confidence": 0.6923076923076923,
+      "pre_panel_confidence": 0.5833333333333334,
+      "path": [
+        "pw_rows",
+        "generated_reference",
+        "luna"
+      ],
+      "usage": [
+        {
+          "provider": "jev",
+          "count": 1,
+          "usd": 0
+        },
+        {
+          "provider": "luna",
+          "count": 0,
+          "usd": 0.0
+        },
+        {
+          "provider": "jev",
+          "key": "e16931e441934256f89bffec39d50b30d719ebdb2ca79440abe22aad6faf4f10",
+          "seconds": 1.37,
+          "usd": 0
+        },
+        {
+          "provider": "jev",
+          "count": 1,
+          "usd": 0
+        },
+        {
+          "provider": "luna",
+          "count": 1,
+          "usd": 0.00171
+        },
+        {
+          "provider": "jev",
+          "count": 0,
+          "usd": 0
+        },
+        {
+          "provider": "luna",
+          "count": 1,
+          "usd": 0.000449
+        }
+      ],
+      "missing_final": false
+    },
+    "verify|a9bf5e02651e58020b9f909519b5e4b2_1f4b04cd993f71f517fac248bc184f7e": {
+      "pA": 0.0,
+      "verdict": "B",
+      "initial_confidence": 0.1,
+      "pre_panel_confidence": 0.5833333333333334,
+      "path": [
+        "pw_rows",
+        "generated_reference",
+        "luna"
+      ],
+      "usage": [
+        {
+          "provider": "jev",
+          "count": 1,
+          "usd": 0
+        },
+        {
+          "provider": "luna",
+          "count": 0,
+          "usd": 0.0
+        },
+        {
+          "provider": "jev",
+          "key": "50fede4e340fd34b4405d950404f69512c6f3d32c1b637323a77bde5b470ce68",
+          "seconds": 0.27,
+          "usd": 0
+        },
+        {
+          "provider": "jev",
+          "count": 1,
+          "usd": 0
+        },
+        {
+          "provider": "luna",
+          "count": 1,
+          "usd": 0.000229
+        },
+        {
+          "provider": "jev",
+          "count": 0,
+          "usd": 0
+        },
+        {
+          "provider": "luna",
+          "count": 1,
+          "usd": 0.000518
+        }
+      ],
+      "missing_final": false
+    },
+    "verify|c79635cb392bd0cff8e73bb148ed437f_4725ee3614c57d1a8271e3350be4f05d": {
+      "pA": 1.0,
+      "verdict": "A",
+      "initial_confidence": 0.6923076923076923,
+      "pre_panel_confidence": 0.5833333333333334,
+      "path": [
+        "pw_rows",
+        "generated_reference",
+        "luna"
+      ],
+      "usage": [
+        {
+          "provider": "jev",
+          "count": 1,
+          "usd": 0
+        },
+        {
+          "provider": "luna",
+          "count": 0,
+          "usd": 0.0
+        },
+        {
+          "provider": "jev",
+          "key": "a166a884f453b0eccb4e03eca71e60df24ddea7074e78117dd96105299b55853",
+          "seconds": 1.108,
+          "usd": 0
+        },
+        {
+          "provider": "jev",
+          "count": 1,
+          "usd": 0
+        },
+        {
+          "provider": "luna",
+          "count": 1,
+          "usd": 0.002547
+        },
+        {
+          "provider": "jev",
+          "count": 0,
+          "usd": 0
+        },
+        {
+          "provider": "luna",
+          "count": 1,
+          "usd": 0.001002
+        }
+      ],
+      "missing_final": false
+    },
+    "verify|e05c879fa8330428d5f4c60e2165c671_a1cf5c7e22209a7dde60b811f14dcfa3": {
+      "pA": 0.0,
+      "verdict": "B",
+      "initial_confidence": 0.4144927536231882,
+      "pre_panel_confidence": 0.5833333333333334,
+      "path": [
+        "pw_rows",
+        "luna"
+      ],
+      "usage": [
+        {
+          "provider": "jev",
+          "count": 1,
+          "usd": 0
+        },
+        {
+          "provider": "luna",
+          "count": 0,
+          "usd": 0.0
+        },
+        {
+          "provider": "jev",
+          "key": "25e5a0dbed2cc77964720042b22b15ebfe47b0aa1715e120570fa31572b89cf5",
+          "seconds": 1.092,
+          "usd": 0
+        },
+        {
+          "provider": "jev",
+          "count": 0,
+          "usd": 0
+        },
+        {
+          "provider": "luna",
+          "count": 1,
+          "usd": 0.000311
+        }
+      ],
+      "missing_final": false
+    },
+    "verify|f7f4f5882b9c712068cbeac5acb4a0a4_7294b3b236c33212fbbe5aa24dbd47f4": {
+      "pA": 0.01,
+      "verdict": "B",
+      "initial_confidence": 0.75,
+      "pre_panel_confidence": 0.5833333333333334,
+      "path": [
+        "pw_rows",
+        "generated_reference",
+        "luna"
+      ],
+      "usage": [
+        {
+          "provider": "jev",
+          "count": 1,
+          "usd": 0
+        },
+        {
+          "provider": "luna",
+          "count": 0,
+          "usd": 0.0
+        },
+        {
+          "provider": "jev",
+          "key": "773953369028eaa2f5a3ebf8b6e088cd3f49e91f07afab734da6d3550e3d8f5c",
+          "seconds": 1.092,
+          "usd": 0
+        },
+        {
+          "provider": "jev",
+          "count": 1,
+          "usd": 0
+        },
+        {
+          "provider": "luna",
+          "count": 1,
+          "usd": 0.000816
+        },
+        {
+          "provider": "jev",
+          "count": 0,
+          "usd": 0
+        },
+        {
+          "provider": "luna",
+          "count": 1,
+          "usd": 0.000411
+        }
+      ],
+      "missing_final": false
+    },
+    "rubricbench|rubric_eval_484": {
+      "pA": 1.0,
+      "verdict": "A",
+      "initial_confidence": 0.6,
+      "pre_panel_confidence": 0.9142857142857143,
+      "path": [
+        "pw_rows",
+        "luna"
+      ],
+      "usage": [
+        {
+          "provider": "jev",
+          "count": 2,
+          "usd": 0
+        },
+        {
+          "provider": "luna",
+          "count": 0,
+          "usd": 0.0
+        },
+        {
+          "provider": "jev",
+          "key": "dea24a758e0037b2be6d78aff5dbe0d635eab0f6d3174c07a49820861b7da42f",
+          "seconds": 0.751,
+          "usd": 0
+        },
+        {
+          "provider": "jev",
+          "count": 0,
+          "usd": 0
+        },
+        {
+          "provider": "luna",
+          "count": 2,
+          "usd": 0.000411
+        }
+      ],
+      "missing_final": false
+    },
+    "rubricbench|rubric_eval_53": {
+      "pA": 0.5766666666666667,
+      "verdict": "A",
+      "initial_confidence": 0.875,
+      "pre_panel_confidence": 0.875,
+      "path": [
+        "pw_rows"
+      ],
+      "usage": [
+        {
+          "provider": "jev",
+          "count": 2,
+          "usd": 0
+        },
+        {
+          "provider": "luna",
+          "count": 0,
+          "usd": 0.0
+        },
+        {
+          "provider": "jev",
+          "key": "c935587f8dbac45200b9e015770441a5787a8ffe1396f0d7f55ff240a6979c3d",
+          "seconds": 0.748,
+          "usd": 0
+        }
+      ],
+      "missing_final": false
+    },
+    "rubricbench|rubric_eval_468": {
+      "pA": 0.6175,
+      "verdict": "A",
+      "initial_confidence": 0.9230769230769231,
+      "pre_panel_confidence": 0.9230769230769231,
+      "path": [
+        "pw_rows"
+      ],
+      "usage": [
+        {
+          "provider": "jev",
+          "count": 2,
+          "usd": 0
+        },
+        {
+          "provider": "luna",
+          "count": 0,
+          "usd": 0.0
+        },
+        {
+          "provider": "jev",
+          "key": "2df5b90ed83ce999fb191f15d6bf590a2c3708221304c3477d0ebc3a6b755d31",
+          "seconds": 1.221,
+          "usd": 0
+        }
+      ],
+      "missing_final": false
+    },
+    "rubricbench|rubric_eval_129": {
+      "pA": 0.0,
+      "verdict": "B",
+      "initial_confidence": 0.7500000000000054,
+      "pre_panel_confidence": 0.9142857142857143,
+      "path": [
+        "pw_rows",
+        "luna"
+      ],
+      "usage": [
+        {
+          "provider": "jev",
+          "count": 2,
+          "usd": 0
+        },
+        {
+          "provider": "luna",
+          "count": 0,
+          "usd": 0.0
+        },
+        {
+          "provider": "jev",
+          "key": "99a1ef58f17f306bfcc10eab0d7116c8753ef311a235ce572e431a5299237e8a",
+          "seconds": 2.251,
+          "usd": 0
+        },
+        {
+          "provider": "jev",
+          "count": 0,
+          "usd": 0
+        },
+        {
+          "provider": "luna",
+          "count": 2,
+          "usd": 0.000548
+        }
+      ],
+      "missing_final": false
+    },
+    "rubricbench|rubric_eval_436": {
+      "pA": 0.43125,
+      "verdict": "B",
+      "initial_confidence": 0.875,
+      "pre_panel_confidence": 0.875,
+      "path": [
+        "pw_rows"
+      ],
+      "usage": [
+        {
+          "provider": "jev",
+          "count": 2,
+          "usd": 0
+        },
+        {
+          "provider": "luna",
+          "count": 0,
+          "usd": 0.0
+        },
+        {
+          "provider": "jev",
+          "key": "c42900477e53a79ef34582be405b30757dbfe16896ad95af842bccdc4eec6d72",
+          "seconds": 1.427,
+          "usd": 0
+        }
+      ],
+      "missing_final": false
+    },
+    "rubricbench|rubric_eval_251": {
+      "pA": 0.27749999999999997,
+      "verdict": "B",
+      "initial_confidence": 1.0,
+      "pre_panel_confidence": 1.0,
+      "path": [
+        "pw_rows"
+      ],
+      "usage": [
+        {
+          "provider": "jev",
+          "count": 2,
+          "usd": 0
+        },
+        {
+          "provider": "luna",
+          "count": 0,
+          "usd": 0.0
+        },
+        {
+          "provider": "jev",
+          "key": "a009a09ddceb7b81a89923ff31235d366826a4bb9f971072e4c0cdb7d07adc53",
+          "seconds": 1.199,
+          "usd": 0
+        }
+      ],
+      "missing_final": false
+    },
+    "rubricbench|rubric_eval_112": {
+      "pA": 0.5249999999999999,
+      "verdict": "A",
+      "initial_confidence": 0.875,
+      "pre_panel_confidence": 0.875,
+      "path": [
+        "pw_rows"
+      ],
+      "usage": [
+        {
+          "provider": "jev",
+          "count": 2,
+          "usd": 0
+        },
+        {
+          "provider": "luna",
+          "count": 0,
+          "usd": 0.0
+        },
+        {
+          "provider": "jev",
+          "key": "338db29ed9f413aa42146eb8a5bd130895511aaf61a3245e89d9db786b804760",
+          "seconds": 1.137,
+          "usd": 0
+        }
+      ],
+      "missing_final": false
+    },
+    "rubricbench|rubric_eval_837": {
+      "pA": 0.59,
+      "verdict": "A",
+      "initial_confidence": 0.9230769230769231,
+      "pre_panel_confidence": 0.9230769230769231,
+      "path": [
+        "pw_rows"
+      ],
+      "usage": [
+        {
+          "provider": "jev",
+          "count": 2,
+          "usd": 0
+        },
+        {
+          "provider": "luna",
+          "count": 0,
+          "usd": 0.0
+        },
+        {
+          "provider": "jev",
+          "key": "242a1e2610accd58cd10f3a6a7338b2cff4cc3241cd9d991a87fd14ee74c792b",
+          "seconds": 1.323,
+          "usd": 0
+        }
+      ],
+      "missing_final": false
+    },
+    "rubricbench|rubric_eval_888": {
+      "pA": 0.21625,
+      "verdict": "B",
+      "initial_confidence": 1.0,
+      "pre_panel_confidence": 1.0,
+      "path": [
+        "pw_rows"
+      ],
+      "usage": [
+        {
+          "provider": "jev",
+          "count": 2,
+          "usd": 0
+        },
+        {
+          "provider": "luna",
+          "count": 0,
+          "usd": 0.0
+        },
+        {
+          "provider": "jev",
+          "key": "5e8b32163b06c9c3ef54ffdca58da2805d94bdaa2b6107919d11f30f7200f98c",
+          "seconds": 1.424,
+          "usd": 0
+        }
+      ],
+      "missing_final": false
+    },
+    "rubricbench|rubric_eval_895": {
+      "pA": 0.65625,
+      "verdict": "A",
+      "initial_confidence": 0.9230769230769231,
+      "pre_panel_confidence": 0.9230769230769231,
+      "path": [
+        "pw_rows"
+      ],
+      "usage": [
+        {
+          "provider": "jev",
+          "count": 2,
+          "usd": 0
+        },
+        {
+          "provider": "luna",
+          "count": 0,
+          "usd": 0.0
+        },
+        {
+          "provider": "jev",
+          "key": "03d008a203270673319daa0528b341af392bcd4ec9dac6235aedf2ee8cf09ce3",
+          "seconds": 0.463,
+          "usd": 0
+        }
+      ],
+      "missing_final": false
+    },
+    "rubricbench|rubric_eval_1030": {
+      "pA": 0.603,
+      "verdict": "A",
+      "initial_confidence": 0.9230769230769231,
+      "pre_panel_confidence": 0.9230769230769231,
+      "path": [
+        "pw_rows"
+      ],
+      "usage": [
+        {
+          "provider": "jev",
+          "count": 2,
+          "usd": 0
+        },
+        {
+          "provider": "luna",
+          "count": 0,
+          "usd": 0.0
+        },
+        {
+          "provider": "jev",
+          "key": "05e7fef6a4faead445a66ce336cafae78c77d2b47f5982938243af9be005284a",
+          "seconds": 2.81,
+          "usd": 0
+        }
+      ],
+      "missing_final": false
+    },
+    "rubricbench|rubric_eval_654": {
+      "pA": 0.643,
+      "verdict": "A",
+      "initial_confidence": 0.9230769230769231,
+      "pre_panel_confidence": 0.9230769230769231,
+      "path": [
+        "pw_rows"
+      ],
+      "usage": [
+        {
+          "provider": "jev",
+          "count": 2,
+          "usd": 0
+        },
+        {
+          "provider": "luna",
+          "count": 0,
+          "usd": 0.0
+        },
+        {
+          "provider": "jev",
+          "key": "31dbbf606f6c373187e6de778e3639cae57b9a54543e47cb169930e270bce5c3",
+          "seconds": 11.463,
+          "usd": 0
+        }
+      ],
+      "missing_final": false
+    },
+    "rubricbench|rubric_eval_661": {
+      "pA": 0.5341666666666667,
+      "verdict": "A",
+      "initial_confidence": 0.875,
+      "pre_panel_confidence": 0.875,
+      "path": [
+        "pw_rows"
+      ],
+      "usage": [
+        {
+          "provider": "jev",
+          "count": 2,
+          "usd": 0
+        },
+        {
+          "provider": "luna",
+          "count": 0,
+          "usd": 0.0
+        },
+        {
+          "provider": "jev",
+          "key": "24901a44e16d3324fcb3c36f0bc8d7bb92cd456d2832720e94671aded16994ea",
+          "seconds": 3.373,
+          "usd": 0
+        }
+      ],
+      "missing_final": false
+    },
+    "hardrows|rubric.063": {
+      "pA": 0.35000000000000003,
+      "verdict": "B",
+      "initial_confidence": 0.8333333333333334,
+      "pre_panel_confidence": 0.8333333333333334,
+      "path": [
+        "pw_rows"
+      ],
+      "usage": [
+        {
+          "provider": "jev",
+          "count": 1,
+          "usd": 0
+        },
+        {
+          "provider": "luna",
+          "count": 0,
+          "usd": 0.0
+        },
+        {
+          "provider": "jev",
+          "key": "d28605fb2d42eaf6e2ac24a173edf9a3616d379314eb98a5fd8270933d9b6498",
+          "seconds": 49.095,
+          "usd": 0
+        }
+      ],
+      "missing_final": false
+    },
+    "hardrows|rubric.070": {
+      "pA": 0.9525,
+      "verdict": "A",
+      "initial_confidence": 1.0,
+      "pre_panel_confidence": 1.0,
+      "path": [
+        "pw_rows"
+      ],
+      "usage": [
+        {
+          "provider": "jev",
+          "count": 1,
+          "usd": 0
+        },
+        {
+          "provider": "luna",
+          "count": 0,
+          "usd": 0.0
+        },
+        {
+          "provider": "jev",
+          "key": "9ad55a18937f971f94d3593ef404b0e2bc5ed03a44224bbc3fcab6d8d65de07e",
+          "seconds": 35.425,
+          "usd": 0
+        }
+      ],
+      "missing_final": false
+    },
+    "hardrows|rubric.089": {
+      "pA": 0.29500000000000004,
+      "verdict": "B",
+      "initial_confidence": 0.8333333333333334,
+      "pre_panel_confidence": 0.8333333333333334,
+      "path": [
+        "pw_rows"
+      ],
+      "usage": [
+        {
+          "provider": "jev",
+          "count": 1,
+          "usd": 0
+        },
+        {
+          "provider": "luna",
+          "count": 0,
+          "usd": 0.0
+        },
+        {
+          "provider": "jev",
+          "key": "698583d7a407b078c2b91e7d9fa4fa9e51d33cc449057904ec73908aea7d77fe",
+          "seconds": 2.905,
+          "usd": 0
+        }
+      ],
+      "missing_final": false
+    },
+    "hardrows|factuality.005": {
+      "pA": 0.84,
+      "verdict": "A",
+      "initial_confidence": 0.8333333333333334,
+      "pre_panel_confidence": 0.8333333333333334,
+      "path": [
+        "pw_rows",
+        "reference"
+      ],
+      "usage": [
+        {
+          "provider": "jev",
+          "count": 1,
+          "usd": 0
+        },
+        {
+          "provider": "luna",
+          "count": 0,
+          "usd": 0.0
+        },
+        {
+          "provider": "jev",
+          "key": "7e2b2d8cf98cfc66bcf12c76db1e84eea1fd1d84843e1df5ff226c655616759e",
+          "seconds": 3.406,
+          "usd": 0
+        },
+        {
+          "provider": "jev",
+          "key": "00e68617d0bab53c8dbaaa3b5a2adb1aa8f9de29f184d8790a040c4ca2684989",
+          "seconds": 0.268,
+          "usd": 0
+        }
+      ],
+      "missing_final": false
+    },
+    "verify|4f8faed01fbb8264519d9f4ae8989a36_45f94dc55ea05eafeb903b1266bfe98e": {
+      "pA": 0.0,
+      "verdict": "B",
+      "initial_confidence": 0.6666666666666666,
+      "pre_panel_confidence": 0.6764705882352942,
+      "path": [
+        "pw_rows",
+        "generated_reference",
+        "luna"
+      ],
+      "usage": [
+        {
+          "provider": "jev",
+          "count": 1,
+          "usd": 0
+        },
+        {
+          "provider": "luna",
+          "count": 0,
+          "usd": 0.0
+        },
+        {
+          "provider": "jev",
+          "key": "d864f76da5fe808d82659ff20a035e58ed9ba1fff58491664c4c7be7e953ac98",
+          "seconds": 0.336,
+          "usd": 0
+        },
+        {
+          "provider": "jev",
+          "count": 1,
+          "usd": 0
+        },
+        {
+          "provider": "luna",
+          "count": 1,
+          "usd": 0.000856
+        },
+        {
+          "provider": "jev",
+          "count": 0,
+          "usd": 0
+        },
+        {
+          "provider": "luna",
+          "count": 1,
+          "usd": 0.001283
+        }
+      ],
+      "missing_final": false
+    },
+    "verify|662cc73cee1fdf39a1094a764dfd3e9f_4fb33ca6bf4220a5115d35eeddd6702b": {
+      "pA": 1.0,
+      "verdict": "A",
+      "initial_confidence": 0.631578947368421,
+      "pre_panel_confidence": 0.6764705882352942,
+      "path": [
+        "pw_rows",
+        "generated_reference",
+        "luna"
+      ],
+      "usage": [
+        {
+          "provider": "jev",
+          "count": 1,
+          "usd": 0
+        },
+        {
+          "provider": "luna",
+          "count": 0,
+          "usd": 0.0
+        },
+        {
+          "provider": "jev",
+          "key": "86fe016b080fedb9d45b0f00c6d606ac13c9d4a7b21306e8145193c3dc08c45d",
+          "seconds": 2.134,
+          "usd": 0
+        },
+        {
+          "provider": "jev",
+          "count": 1,
+          "usd": 0
+        },
+        {
+          "provider": "luna",
+          "count": 1,
+          "usd": 0.000967
+        },
+        {
+          "provider": "jev",
+          "count": 0,
+          "usd": 0
+        },
+        {
+          "provider": "luna",
+          "count": 1,
+          "usd": 0.002721
+        }
+      ],
+      "missing_final": false
+    },
+    "verify|81f7ad90f1eb2aa5a53b7f7294f91e47_91920d2eadb3e994802e37bc89e15014": {
+      "pA": 0.0,
+      "verdict": "B",
+      "initial_confidence": 0.15384615384615385,
+      "pre_panel_confidence": 0.6764705882352942,
+      "path": [
+        "pw_rows",
+        "generated_reference",
+        "luna"
+      ],
+      "usage": [
+        {
+          "provider": "jev",
+          "count": 1,
+          "usd": 0
+        },
+        {
+          "provider": "luna",
+          "count": 0,
+          "usd": 0.0
+        },
+        {
+          "provider": "jev",
+          "key": "4d56fdb73df1bfdd4a289b17adddcee5e24a6a4ec56b6424e5d2ac287dcf540b",
+          "seconds": 2.173,
+          "usd": 0
+        },
+        {
+          "provider": "jev",
+          "count": 1,
+          "usd": 0
+        },
+        {
+          "provider": "luna",
+          "count": 1,
+          "usd": 0.000503
+        },
+        {
+          "provider": "jev",
+          "count": 0,
+          "usd": 0
+        },
+        {
+          "provider": "luna",
+          "count": 1,
+          "usd": 0.00041
+        }
+      ],
+      "missing_final": false
+    },
+    "verify|8a7107d6fa68c57dd6608f90208a6f61_bd6387db3ba7707f36a144a4530b7914": {
+      "pA": 1.0,
+      "verdict": "A",
+      "initial_confidence": 0.15384615384615385,
+      "pre_panel_confidence": 0.6764705882352942,
+      "path": [
+        "pw_rows",
+        "generated_reference",
+        "luna"
+      ],
+      "usage": [
+        {
+          "provider": "jev",
+          "count": 1,
+          "usd": 0
+        },
+        {
+          "provider": "luna",
+          "count": 0,
+          "usd": 0.0
+        },
+        {
+          "provider": "jev",
+          "key": "a3aa3db501ded82f27f144a491c63afc2c0fceebec4dbc111ff48f45aefd3b4c",
+          "seconds": 2.031,
+          "usd": 0
+        },
+        {
+          "provider": "jev",
+          "count": 1,
+          "usd": 0
+        },
+        {
+          "provider": "luna",
+          "count": 1,
+          "usd": 0.000368
+        },
+        {
+          "provider": "jev",
+          "count": 0,
+          "usd": 0
+        },
+        {
+          "provider": "luna",
+          "count": 1,
+          "usd": 0.000488
+        }
+      ],
+      "missing_final": false
+    },
+    "verify|8d5e34bb0c4ae72f49a999d4950d0d50_b386787e81fc71a19aeff29ecb5b7cae": {
+      "pA": 1.0,
+      "verdict": "A",
+      "initial_confidence": 0.6666666666666666,
+      "pre_panel_confidence": 0.6764705882352942,
+      "path": [
+        "pw_rows",
+        "generated_reference",
+        "luna"
+      ],
+      "usage": [
+        {
+          "provider": "jev",
+          "count": 1,
+          "usd": 0
+        },
+        {
+          "provider": "luna",
+          "count": 0,
+          "usd": 0.0
+        },
+        {
+          "provider": "jev",
+          "key": "5a4ca953506f1f780364dd7460c5f08c9e3aa0e8cd88557bf97d12397fa34954",
+          "seconds": 1.974,
+          "usd": 0
+        },
+        {
+          "provider": "jev",
+          "count": 1,
+          "usd": 0
+        },
+        {
+          "provider": "luna",
+          "count": 1,
+          "usd": 0.005588
+        },
+        {
+          "provider": "jev",
+          "count": 0,
+          "usd": 0
+        },
+        {
+          "provider": "luna",
+          "count": 1,
+          "usd": 0.001549
+        }
+      ],
+      "missing_final": false
+    },
+    "verify|a11d83cb0b8f07278223b4d659d85643_5518ab7ab0dd13c3c4a7e58909335b50": {
+      "pA": 1.0,
+      "verdict": "A",
+      "initial_confidence": 0.6666666666666666,
+      "pre_panel_confidence": 0.6764705882352942,
+      "path": [
+        "pw_rows",
+        "generated_reference",
+        "luna"
+      ],
+      "usage": [
+        {
+          "provider": "jev",
+          "count": 1,
+          "usd": 0
+        },
+        {
+          "provider": "luna",
+          "count": 0,
+          "usd": 0.0
+        },
+        {
+          "provider": "jev",
+          "key": "2b6bd72098d95550df9d58799ae65eac7f3bbdde6268cecaad6969cb0e51b333",
+          "seconds": 0.982,
+          "usd": 0
+        },
+        {
+          "provider": "jev",
+          "count": 1,
+          "usd": 0
+        },
+        {
+          "provider": "luna",
+          "count": 1,
+          "usd": 8.6e-05
+        },
+        {
+          "provider": "jev",
+          "count": 0,
+          "usd": 0
+        },
+        {
+          "provider": "luna",
+          "count": 1,
+          "usd": 0.000229
+        }
+      ],
+      "missing_final": false
+    },
+    "verify|aef693000b50d9b8e7d0ddeba51e3601_6a486339655ffd1769d793f87483e86d": {
+      "pA": 1.0,
+      "verdict": "A",
+      "initial_confidence": 0.631578947368421,
+      "pre_panel_confidence": 0.6764705882352942,
+      "path": [
+        "pw_rows",
+        "generated_reference",
+        "luna"
+      ],
+      "usage": [
+        {
+          "provider": "jev",
+          "count": 1,
+          "usd": 0
+        },
+        {
+          "provider": "luna",
+          "count": 0,
+          "usd": 0.0
+        },
+        {
+          "provider": "jev",
+          "key": "8dfb907f19004f070505e3f5b718e73fe7c4c31e2b546746d5c71db90c18704d",
+          "seconds": 0.945,
+          "usd": 0
+        },
+        {
+          "provider": "jev",
+          "count": 1,
+          "usd": 0
+        },
+        {
+          "provider": "luna",
+          "count": 1,
+          "usd": 0.000131
+        },
+        {
+          "provider": "jev",
+          "count": 0,
+          "usd": 0
+        },
+        {
+          "provider": "luna",
+          "count": 1,
+          "usd": 0.00023
+        }
+      ],
+      "missing_final": false
+    },
+    "verify|aeffde6db44b11ba884385c6d3330778_86ab71bcb255a4099f268a5af4548add": {
+      "pA": 0.0,
+      "verdict": "B",
+      "initial_confidence": 0.631578947368421,
+      "pre_panel_confidence": 0.6764705882352942,
+      "path": [
+        "pw_rows",
+        "generated_reference",
+        "luna"
+      ],
+      "usage": [
+        {
+          "provider": "jev",
+          "count": 1,
+          "usd": 0
+        },
+        {
+          "provider": "luna",
+          "count": 0,
+          "usd": 0.0
+        },
+        {
+          "provider": "jev",
+          "key": "8177ee44bcffce0c04f21e2fcb44aae2195ea09cf32fd6e18772446ed4f39252",
+          "seconds": 0.953,
+          "usd": 0
+        },
+        {
+          "provider": "jev",
+          "count": 1,
+          "usd": 0
+        },
+        {
+          "provider": "luna",
+          "count": 1,
+          "usd": 0.000441
+        },
+        {
+          "provider": "jev",
+          "count": 0,
+          "usd": 0
+        },
+        {
+          "provider": "luna",
+          "count": 1,
+          "usd": 0.001017
+        }
+      ],
+      "missing_final": false
+    },
+    "rubricbench|rubric_eval_30": {
+      "pA": 0.37700000000000006,
+      "verdict": "B",
+      "initial_confidence": 0.9375,
+      "pre_panel_confidence": 0.9375,
+      "path": [
+        "pw_rows"
+      ],
+      "usage": [
+        {
+          "provider": "jev",
+          "count": 2,
+          "usd": 0
+        },
+        {
+          "provider": "luna",
+          "count": 0,
+          "usd": 0.0
+        },
+        {
+          "provider": "jev",
+          "key": "802a285f01a940eb99b75ba71623be432a738c214b5b5f3173e9dde8234a8427",
+          "seconds": 1.423,
+          "usd": 0
+        }
+      ],
+      "missing_final": false
+    },
+    "rubricbench|rubric_eval_730": {
+      "pA": 0.42900000000000005,
+      "verdict": "B",
+      "initial_confidence": 0.8241758241758239,
+      "pre_panel_confidence": 0.8241758241758239,
+      "path": [
+        "pw_rows"
+      ],
+      "usage": [
+        {
+          "provider": "jev",
+          "count": 2,
+          "usd": 0
+        },
+        {
+          "provider": "luna",
+          "count": 0,
+          "usd": 0.0
+        },
+        {
+          "provider": "jev",
+          "key": "06dcf8c2b9c5669a69da65c9bab38e6a6ce95c7c2c19b60888e22e2092903ccb",
+          "seconds": 2.546,
+          "usd": 0
+        }
+      ],
+      "missing_final": false
+    },
+    "rubricbench|rubric_eval_199": {
+      "pA": 1.0,
+      "verdict": "A",
+      "initial_confidence": 0.7142857142857143,
+      "pre_panel_confidence": 0.868421052631579,
+      "path": [
+        "pw_rows",
+        "luna"
+      ],
+      "usage": [
+        {
+          "provider": "jev",
+          "count": 2,
+          "usd": 0
+        },
+        {
+          "provider": "luna",
+          "count": 0,
+          "usd": 0.0
+        },
+        {
+          "provider": "jev",
+          "key": "b3a4d2d90fd889a1d93e1f780bc39a96af7b65f7ac0e930be81828bd105eb061",
+          "seconds": 0,
+          "usd": 0
+        },
+        {
+          "provider": "jev",
+          "count": 0,
+          "usd": 0
+        },
+        {
+          "provider": "luna",
+          "count": 2,
+          "usd": 0.000729
+        }
+      ],
+      "missing_final": false
+    },
+    "rubricbench|rubric_eval_376": {
+      "pA": 0.0,
+      "verdict": "B",
+      "initial_confidence": 0.7142857142857143,
+      "pre_panel_confidence": 0.868421052631579,
+      "path": [
+        "pw_rows",
+        "luna"
+      ],
+      "usage": [
+        {
+          "provider": "jev",
+          "count": 2,
+          "usd": 0
+        },
+        {
+          "provider": "luna",
+          "count": 0,
+          "usd": 0.0
+        },
+        {
+          "provider": "jev",
+          "key": "d5ecf7966012c23f8b1f10f1233191379d8a96bf479f9d7a19fa4d394127c608",
+          "seconds": 1.457,
+          "usd": 0
+        },
+        {
+          "provider": "jev",
+          "count": 0,
+          "usd": 0
+        },
+        {
+          "provider": "luna",
+          "count": 2,
+          "usd": 0.000289
+        }
+      ],
+      "missing_final": false
+    },
+    "rubricbench|rubric_eval_850": {
+      "pA": 0.3975,
+      "verdict": "B",
+      "initial_confidence": 0.9375,
+      "pre_panel_confidence": 0.9375,
+      "path": [
+        "pw_rows"
+      ],
+      "usage": [
+        {
+          "provider": "jev",
+          "count": 2,
+          "usd": 0
+        },
+        {
+          "provider": "luna",
+          "count": 0,
+          "usd": 0.0
+        },
+        {
+          "provider": "jev",
+          "key": "f040cee66585ab10c28848d5e7cf53b456f29025770d3e9e0fb34630c6adfb3a",
+          "seconds": 0.463,
+          "usd": 0
+        }
+      ],
+      "missing_final": false
+    },
+    "rubricbench|rubric_eval_1091": {
+      "pA": 0.445625,
+      "verdict": "B",
+      "initial_confidence": 0.75,
+      "pre_panel_confidence": 0.75,
+      "path": [
+        "pw_rows"
+      ],
+      "usage": [
+        {
+          "provider": "jev",
+          "count": 2,
+          "usd": 0
+        },
+        {
+          "provider": "luna",
+          "count": 0,
+          "usd": 0.0
+        },
+        {
+          "provider": "jev",
+          "key": "126753bb5cea7621652b24b4109961b8e9ecb6497d6f5abba21519e8eccbe2d9",
+          "seconds": 1.656,
+          "usd": 0
+        }
+      ],
+      "missing_final": false
+    },
+    "rubricbench|rubric_eval_442": {
+      "pA": 1.0,
+      "verdict": "A",
+      "initial_confidence": 0.7142857142857143,
+      "pre_panel_confidence": 0.868421052631579,
+      "path": [
+        "pw_rows",
+        "luna"
+      ],
+      "usage": [
+        {
+          "provider": "jev",
+          "count": 2,
+          "usd": 0
+        },
+        {
+          "provider": "luna",
+          "count": 0,
+          "usd": 0.0
+        },
+        {
+          "provider": "jev",
+          "key": "4527822fb4c08736c6c5d967acf2dbae131d5898cc8116afce1d141bbda3419c",
+          "seconds": 1.688,
+          "usd": 0
+        },
+        {
+          "provider": "jev",
+          "count": 0,
+          "usd": 0
+        },
+        {
+          "provider": "luna",
+          "count": 2,
+          "usd": 0.000534
+        }
+      ],
+      "missing_final": false
+    },
+    "rubricbench|rubric_eval_1005": {
+      "pA": 0.96,
+      "verdict": "A",
+      "initial_confidence": 1.0,
+      "pre_panel_confidence": 1.0,
+      "path": [
+        "pw_rows"
+      ],
+      "usage": [
+        {
+          "provider": "jev",
+          "count": 2,
+          "usd": 0
+        },
+        {
+          "provider": "luna",
+          "count": 0,
+          "usd": 0.0
+        },
+        {
+          "provider": "jev",
+          "key": "5466191fcf09a981d78a4c0f74ba2aae2ac21a8d4e90c92848c96b8c4e1d6507",
+          "seconds": 16.988,
+          "usd": 0
+        }
+      ],
+      "missing_final": false
+    },
+    "rubricbench|rubric_eval_1098": {
+      "pA": 0.0,
+      "verdict": "B",
+      "initial_confidence": 0.7142857142857143,
+      "pre_panel_confidence": 0.868421052631579,
+      "path": [
+        "pw_rows",
+        "luna"
+      ],
+      "usage": [
+        {
+          "provider": "jev",
+          "count": 2,
+          "usd": 0
+        },
+        {
+          "provider": "luna",
+          "count": 0,
+          "usd": 0.0
+        },
+        {
+          "provider": "jev",
+          "key": "21d289f62d03d558e3aee2723f84d3bdd62674c352d20cc897318d350d5ee4d9",
+          "seconds": 7.025,
+          "usd": 0
+        },
+        {
+          "provider": "jev",
+          "count": 0,
+          "usd": 0
+        },
+        {
+          "provider": "luna",
+          "count": 2,
+          "usd": 0.000565
+        }
+      ],
+      "missing_final": false
+    },
+    "rubricbench|rubric_eval_276": {
+      "pA": 1.0,
+      "verdict": "A",
+      "initial_confidence": 0.75,
+      "pre_panel_confidence": 0.868421052631579,
+      "path": [
+        "pw_rows",
+        "luna"
+      ],
+      "usage": [
+        {
+          "provider": "jev",
+          "count": 2,
+          "usd": 0
+        },
+        {
+          "provider": "luna",
+          "count": 0,
+          "usd": 0.0
+        },
+        {
+          "provider": "jev",
+          "key": "c04b282cfc2e08474d4bddd334b6ca32aec2513819a6a81a541bb000395a6db2",
+          "seconds": 3.307,
+          "usd": 0
+        },
+        {
+          "provider": "jev",
+          "count": 0,
+          "usd": 0
+        },
+        {
+          "provider": "luna",
+          "count": 2,
+          "usd": 0.000865
+        }
+      ],
+      "missing_final": false
+    },
+    "hardrows|rubric.103": {
+      "pA": 0.9866666666666667,
+      "verdict": "A",
+      "initial_confidence": 1.0,
+      "pre_panel_confidence": 1.0,
+      "path": [
+        "pw_rows"
+      ],
+      "usage": [
+        {
+          "provider": "jev",
+          "count": 1,
+          "usd": 0
+        },
+        {
+          "provider": "luna",
+          "count": 0,
+          "usd": 0.0
+        },
+        {
+          "provider": "jev",
+          "key": "345a8f2e5ee46620514f2d74d2598c8e45c3b3f76a5086421af2726d481fd6de",
+          "seconds": 23.092,
+          "usd": 0
+        }
+      ],
+      "missing_final": false
+    },
+    "hardrows|rubric.027": {
+      "pA": 0.275,
+      "verdict": "B",
+      "initial_confidence": 0.8,
+      "pre_panel_confidence": 0.8,
+      "path": [
+        "pw_rows"
+      ],
+      "usage": [
+        {
+          "provider": "jev",
+          "count": 1,
+          "usd": 0
+        },
+        {
+          "provider": "luna",
+          "count": 0,
+          "usd": 0.0
+        },
+        {
+          "provider": "jev",
+          "key": "cfb7f92409e1c9692c455c827c47097438c1da4fd17a03b90bd4ec2e6d223124",
+          "seconds": 18.129,
+          "usd": 0
+        }
+      ],
+      "missing_final": false
+    },
+    "hardrows|rubric.054": {
+      "pA": 0.33666666666666667,
+      "verdict": "B",
+      "initial_confidence": 0.8,
+      "pre_panel_confidence": 0.8,
+      "path": [
+        "pw_rows"
+      ],
+      "usage": [
+        {
+          "provider": "jev",
+          "count": 1,
+          "usd": 0
+        },
+        {
+          "provider": "luna",
+          "count": 0,
+          "usd": 0.0
+        },
+        {
+          "provider": "jev",
+          "key": "7384241fe45b30ab644aee9a63e842b6a3b3f50d2432fe98e5563c7f904e81ac",
+          "seconds": 44.973,
+          "usd": 0
+        }
+      ],
+      "missing_final": false
+    },
+    "hardrows|rubric.040": {
+      "pA": 0.27,
+      "verdict": "B",
+      "initial_confidence": 0.8,
+      "pre_panel_confidence": 0.8,
+      "path": [
+        "pw_rows"
+      ],
+      "usage": [
+        {
+          "provider": "jev",
+          "count": 1,
+          "usd": 0
+        },
+        {
+          "provider": "luna",
+          "count": 0,
+          "usd": 0.0
+        },
+        {
+          "provider": "jev",
+          "key": "1930e4d818984ab3d5e78a2b57213aaaa695812888372efad82df68e296742a1",
+          "seconds": 2.593,
+          "usd": 0
+        }
+      ],
+      "missing_final": false
+    },
+    "hardrows|rubric.010": {
+      "pA": 0.34,
+      "verdict": "B",
+      "initial_confidence": 0.8,
+      "pre_panel_confidence": 0.8,
+      "path": [
+        "pw_rows"
+      ],
+      "usage": [
+        {
+          "provider": "jev",
+          "count": 1,
+          "usd": 0
+        },
+        {
+          "provider": "luna",
+          "count": 0,
+          "usd": 0.0
+        },
+        {
+          "provider": "jev",
+          "key": "4f29b0f0338a9bec29906a9f10e2964f75da9ee170971e441ed926f04da9d4f7",
+          "seconds": 35.628,
+          "usd": 0
+        }
+      ],
+      "missing_final": false
+    },
+    "hardrows|rubric.060": {
+      "pA": 0.2675,
+      "verdict": "B",
+      "initial_confidence": 0.8,
+      "pre_panel_confidence": 0.8,
+      "path": [
+        "pw_rows"
+      ],
+      "usage": [
+        {
+          "provider": "jev",
+          "count": 1,
+          "usd": 0
+        },
+        {
+          "provider": "luna",
+          "count": 0,
+          "usd": 0.0
+        },
+        {
+          "provider": "jev",
+          "key": "90cc4bf52624d993a86068bbd970651a9669cf6cf9c77962480bfc245421b79c",
+          "seconds": 54.824,
+          "usd": 0
+        }
+      ],
+      "missing_final": false
+    },
+    "hardrows|rubric.097": {
+      "pA": 0.9824999999999999,
+      "verdict": "A",
+      "initial_confidence": 1.0,
+      "pre_panel_confidence": 1.0,
+      "path": [
+        "pw_rows"
+      ],
+      "usage": [
+        {
+          "provider": "jev",
+          "count": 1,
+          "usd": 0
+        },
+        {
+          "provider": "luna",
+          "count": 0,
+          "usd": 0.0
+        },
+        {
+          "provider": "jev",
+          "key": "2eda77c3408c12e5f67207968f046e06eadca7e772ecf2814a034dd32af18b5b",
+          "seconds": 51.018,
+          "usd": 0
+        }
+      ],
+      "missing_final": false
+    },
+    "hardrows|factuality.057": {
+      "pA": 0.04,
+      "verdict": "B",
+      "initial_confidence": 1.0,
+      "pre_panel_confidence": 1.0,
+      "path": [
+        "pw_rows",
+        "reference"
+      ],
+      "usage": [
+        {
+          "provider": "jev",
+          "count": 1,
+          "usd": 0
+        },
+        {
+          "provider": "luna",
+          "count": 0,
+          "usd": 0.0
+        },
+        {
+          "provider": "jev",
+          "key": "a5a0a90c9a15fc9a747b537b3a696a7ad26d824add7558e459f5513c0b0154b7",
+          "seconds": 2.126,
+          "usd": 0
+        },
+        {
+          "provider": "jev",
+          "key": "266127e8e0e8c07b4dfdfa0727ef3ec8960e0d5d1c5533c860aea058da7a5225",
+          "seconds": 1.212,
+          "usd": 0
+        }
+      ],
+      "missing_final": false
+    },
+    "hardrows|factuality.060": {
+      "pA": 0.98,
+      "verdict": "A",
+      "initial_confidence": 1.0,
+      "pre_panel_confidence": 1.0,
+      "path": [
+        "pw_rows",
+        "reference"
+      ],
+      "usage": [
+        {
+          "provider": "jev",
+          "count": 1,
+          "usd": 0
+        },
+        {
+          "provider": "luna",
+          "count": 0,
+          "usd": 0.0
+        },
+        {
+          "provider": "jev",
+          "key": "08327e44e57284222468f4c695a7ffbe7f4fc1d57c1c9f7f69884293e488e39f",
+          "seconds": 0.297,
+          "usd": 0
+        },
+        {
+          "provider": "jev",
+          "key": "8505d0a8b8d63d9b7ec4b3041aaa3c520ce928ce3b4611b855fe224b2d719cd1",
+          "seconds": 1.387,
+          "usd": 0
+        }
+      ],
+      "missing_final": false
+    },
+    "hardrows|factuality.102": {
+      "pA": 0.98,
+      "verdict": "A",
+      "initial_confidence": 1.0,
+      "pre_panel_confidence": 1.0,
+      "path": [
+        "pw_rows",
+        "reference"
+      ],
+      "usage": [
+        {
+          "provider": "jev",
+          "count": 1,
+          "usd": 0
+        },
+        {
+          "provider": "luna",
+          "count": 0,
+          "usd": 0.0
+        },
+        {
+          "provider": "jev",
+          "key": "a9574e8177aafdd5e55661e2317652b3f9581dce3d8f84c7ad888efcb0f1ee96",
+          "seconds": 0.948,
+          "usd": 0
+        },
+        {
+          "provider": "jev",
+          "key": "919f1fdba1721e233f8b6af495b83591b6f7f2c34d4bc025503805edc5335088",
+          "seconds": 0.306,
+          "usd": 0
+        }
+      ],
+      "missing_final": false
+    },
+    "hardrows|factuality.090": {
+      "pA": 0.02,
+      "verdict": "B",
+      "initial_confidence": 1.0,
+      "pre_panel_confidence": 1.0,
+      "path": [
+        "pw_rows",
+        "reference"
+      ],
+      "usage": [
+        {
+          "provider": "jev",
+          "count": 1,
+          "usd": 0
+        },
+        {
+          "provider": "luna",
+          "count": 0,
+          "usd": 0.0
+        },
+        {
+          "provider": "jev",
+          "key": "ae08bde22e0fc868721a2f5e9ec27643d25ae38298f062b4bc04fabada71803b",
+          "seconds": 3.632,
+          "usd": 0
+        },
+        {
+          "provider": "jev",
+          "key": "10300cf00c365328bdcfeff24ad5e236cd5eaf4a6a4129f4b2785f7b7b986b2f",
+          "seconds": 0.277,
+          "usd": 0
+        }
+      ],
+      "missing_final": false
+    },
+    "verify|081833aa552befb57c837abfaa3e82c6_3687dcc53ca83b415f453e9939ed2277": {
+      "pA": 0.0,
+      "verdict": "B",
+      "initial_confidence": 0.2222222222222222,
+      "pre_panel_confidence": 0.6285714285714286,
+      "path": [
+        "pw_rows",
+        "luna"
+      ],
+      "usage": [
+        {
+          "provider": "jev",
+          "count": 1,
+          "usd": 0
+        },
+        {
+          "provider": "luna",
+          "count": 0,
+          "usd": 0.0
+        },
+        {
+          "provider": "jev",
+          "key": "40085a64670f430b26a66cd06981cc63729b80e784a955149b6f17fe10171353",
+          "seconds": 0.364,
+          "usd": 0
+        },
+        {
+          "provider": "jev",
+          "count": 0,
+          "usd": 0
+        },
+        {
+          "provider": "luna",
+          "count": 1,
+          "usd": 0.001226
+        }
+      ],
+      "missing_final": false
+    },
+    "verify|579e9027b927781718b789a8b67f44d4_12804c09750686ba0cee118dcdb5524e": {
+      "pA": 1.0,
+      "verdict": "A",
+      "initial_confidence": 0.3333333333333333,
+      "pre_panel_confidence": 0.6285714285714286,
+      "path": [
+        "pw_rows",
+        "luna"
+      ],
+      "usage": [
+        {
+          "provider": "jev",
+          "count": 1,
+          "usd": 0
+        },
+        {
+          "provider": "luna",
+          "count": 0,
+          "usd": 0.0
+        },
+        {
+          "provider": "jev",
+          "key": "9846ae0d877132ff2ebf27458760d3ce9b17a9e9708ee764709ed1d4c5ecc70b",
+          "seconds": 1.986,
+          "usd": 0
+        },
+        {
+          "provider": "jev",
+          "count": 0,
+          "usd": 0
+        },
+        {
+          "provider": "luna",
+          "count": 1,
+          "usd": 0.000255
+        }
+      ],
+      "missing_final": false
+    },
+    "verify|7225b2d4f79d885c8321c58e2d6c5726_fc8966d593a7ee92993b32d9ce4520e0": {
+      "pA": 1.0,
+      "verdict": "A",
+      "initial_confidence": 0.5555555555555556,
+      "pre_panel_confidence": 0.6285714285714286,
+      "path": [
+        "pw_rows",
+        "generated_reference",
+        "luna"
+      ],
+      "usage": [
+        {
+          "provider": "jev",
+          "count": 1,
+          "usd": 0
+        },
+        {
+          "provider": "luna",
+          "count": 0,
+          "usd": 0.0
+        },
+        {
+          "provider": "jev",
+          "key": "25e56d635b56524093c984e99c89c0599f99571013b6d4bc50418f7d06aaf177",
+          "seconds": 0.337,
+          "usd": 0
+        },
+        {
+          "provider": "jev",
+          "count": 1,
+          "usd": 0
+        },
+        {
+          "provider": "luna",
+          "count": 1,
+          "usd": 0.000183
+        },
+        {
+          "provider": "jev",
+          "count": 0,
+          "usd": 0
+        },
+        {
+          "provider": "luna",
+          "count": 1,
+          "usd": 0.000451
+        }
+      ],
+      "missing_final": false
+    },
+    "verify|73fddce12aee4876a4877c3ec5db723f_583d9e36a2bd03fbf485b8a4019fc9b9": {
+      "pA": 0.0,
+      "verdict": "B",
+      "initial_confidence": 0.5555555555555556,
+      "pre_panel_confidence": 0.6285714285714286,
+      "path": [
+        "pw_rows",
+        "generated_reference",
+        "luna"
+      ],
+      "usage": [
+        {
+          "provider": "jev",
+          "count": 1,
+          "usd": 0
+        },
+        {
+          "provider": "luna",
+          "count": 0,
+          "usd": 0.0
+        },
+        {
+          "provider": "jev",
+          "key": "9b7a0f9a76f4740288b6c96cba28dc68f1fa83764caab3a3b14a32834d486a52",
+          "seconds": 2.196,
+          "usd": 0
+        },
+        {
+          "provider": "jev",
+          "count": 1,
+          "usd": 0
+        },
+        {
+          "provider": "luna",
+          "count": 1,
+          "usd": 0.00054
+        },
+        {
+          "provider": "jev",
+          "count": 0,
+          "usd": 0
+        },
+        {
+          "provider": "luna",
+          "count": 1,
+          "usd": 0.000734
+        }
+      ],
+      "missing_final": false
+    },
+    "verify|8dce745bcd66e7dc916e9f3549d8ebc1_4495bceb02b2986125965eb7cb6c2b98": {
+      "pA": 0.99,
+      "verdict": "A",
+      "initial_confidence": 0.875,
+      "pre_panel_confidence": 0.875,
+      "path": [
+        "pw_rows",
+        "generated_reference"
+      ],
+      "usage": [
+        {
+          "provider": "jev",
+          "count": 1,
+          "usd": 0
+        },
+        {
+          "provider": "luna",
+          "count": 0,
+          "usd": 0.0
+        },
+        {
+          "provider": "jev",
+          "key": "c7de18882123c46da1e2ebbb41e7884b76cab289518c3d321b9c8ab834eb98d8",
+          "seconds": 1.896,
+          "usd": 0
+        },
+        {
+          "provider": "jev",
+          "count": 1,
+          "usd": 0
+        },
+        {
+          "provider": "luna",
+          "count": 1,
+          "usd": 0.000387
+        }
+      ],
+      "missing_final": false
+    },
+    "verify|be73eb99a5ea91d6c472aa92c6fae571_5068cdce1c8e345dd0640c60d72950d1": {
+      "pA": 1.0,
+      "verdict": "A",
+      "initial_confidence": 0.2222222222222222,
+      "pre_panel_confidence": 0.6285714285714286,
+      "path": [
+        "pw_rows",
+        "luna"
+      ],
+      "usage": [
+        {
+          "provider": "jev",
+          "count": 1,
+          "usd": 0
+        },
+        {
+          "provider": "luna",
+          "count": 0,
+          "usd": 0.0
+        },
+        {
+          "provider": "jev",
+          "key": "5156acf4cce8284288d49e10506d8cfaeb5812e6b13ea6781ac6c36c006d365b",
+          "seconds": 0.903,
+          "usd": 0
+        },
+        {
+          "provider": "jev",
+          "count": 0,
+          "usd": 0
+        },
+        {
+          "provider": "luna",
+          "count": 1,
+          "usd": 0.000747
+        }
+      ],
+      "missing_final": false
+    },
+    "verify|c3e51f4a45069f8d7553d30d1bc8b35d_7817bb9c553c6bb83b982f47843e0f54": {
+      "pA": 0.0,
+      "verdict": "B",
+      "initial_confidence": 0.5555555555555556,
+      "pre_panel_confidence": 0.6285714285714286,
+      "path": [
+        "pw_rows",
+        "generated_reference",
+        "luna"
+      ],
+      "usage": [
+        {
+          "provider": "jev",
+          "count": 1,
+          "usd": 0
+        },
+        {
+          "provider": "luna",
+          "count": 0,
+          "usd": 0.0
+        },
+        {
+          "provider": "jev",
+          "key": "afdf623c09e0f7aa55cb27a02373a4e77fac039432c7b0e37eb65bbb9b7349eb",
+          "seconds": 0.854,
+          "usd": 0
+        },
+        {
+          "provider": "jev",
+          "count": 1,
+          "usd": 0
+        },
+        {
+          "provider": "luna",
+          "count": 1,
+          "usd": 0.000103
+        },
+        {
+          "provider": "jev",
+          "count": 0,
+          "usd": 0
+        },
+        {
+          "provider": "luna",
+          "count": 1,
+          "usd": 0.000368
+        }
+      ],
+      "missing_final": false
+    }
+  }
+}

@@ -1,0 +1,48 @@
+{
+  "pA": 1.0,
+  "confidence": 1.0,
+  "agreement": 1.0,
+  "complete": true,
+  "detail": {
+    "members": {
+      "luna": {
+        "pA": 1.0,
+        "key": "415160fc121b8b80a7a7274de6e49a9bdc7f118ec047e34e636e7fa7ccdcbbbb",
+        "reason": "The final answer, “Disproven,” is correct: the reindeer is in Germany, so Rule1 applies; its blue card triggers Rule2; together these trigger Rule4, which says it does not acquire the photograph. Rule7’s additional condition is not established.",
+        "usd": 0.0005369000000000001
+      },
+      "gemini": {
+        "pA": 1.0,
+        "key": "e18344041435eb8166f32c3f3caa3878b1accbdec21bcd55c8aa322224fbf48c",
+        "reason": "The response correctly determines that Rule 7 overrides Rule 1 so the reindeer does not create the castle, meaning the condition for Rule 4 (both creating the castle and investing) is not met. However, the model ultimately concludes 'Disproven' (meaning it does not acquire the photo, wait, let's trace: Rule 4 says if both, it *will surely not* acquire. Since both do not happen, Rule 4 doesn't trigger a negative, but the prompt asks if it acquires it. Wait, the model's text says 'Disproven' regarding the question 'does the reindeer acquire...?', which aligns with the final answer sentence stating it's not acquired. But wait, let's look at the logic: Rule 4 only states 'if both... it will not acquire'. It doesn't state it *will* acquire otherwise, making it 'unknown' logically. However, let's check the verdict: the response concludes 'Disproven' as requested by the prompt format (proved, disproved, or unknown). The reasoning correctly evaluates the rules and game state steps.)",
+        "usd": 0.0033885
+      },
+      "haiku": {
+        "pA": 1.0,
+        "key": "639926625945935597394324e743989441755eb6edd85590fb28d9543b6a74f2",
+        "reason": "The final answer 'Disproven' matches the correct label. Rule2 gives investment (blue card), and Rule7 blocks the castle under closed-world reading, so Rule4 cannot fire. Under open-world reading Rule1 yields the castle and Rule4 blocks the photo. Either way the photo is not acquired, so 'disproved' holds. The reasoning is muddled and contradicts itself (it first says the photo is 'proven' acquired), but the final verdict is correct.",
+        "usd": 0.0020767
+      }
+    }
+  },
+  "usage": [
+    {
+      "provider": "luna",
+      "key": "415160fc121b8b80a7a7274de6e49a9bdc7f118ec047e34e636e7fa7ccdcbbbb",
+      "count": 1,
+      "usd": 0.0005369000000000001
+    },
+    {
+      "provider": "gemini",
+      "key": "e18344041435eb8166f32c3f3caa3878b1accbdec21bcd55c8aa322224fbf48c",
+      "count": 1,
+      "usd": 0.0033885
+    },
+    {
+      "provider": "haiku",
+      "key": "639926625945935597394324e743989441755eb6edd85590fb28d9543b6a74f2",
+      "count": 1,
+      "usd": 0.0020767
+    }
+  ]
+}

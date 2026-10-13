@@ -1,0 +1,48 @@
+{
+  "pA": 1.0,
+  "confidence": 1.0,
+  "agreement": 1.0,
+  "complete": true,
+  "detail": {
+    "members": {
+      "luna": {
+        "pA": 1.0,
+        "key": "c8d084811b492039e83c186d31fa52ac24e90fe6e4ba718e313aaed6e4c14c3d",
+        "reason": "The final answer, $4,698, is correct using the stated percentages: $157.5\\times$12 + $292.5\\times$9.60. The response contains some incorrect intermediate arithmetic, but reaches the correct total.",
+        "usd": 0.0003053
+      },
+      "gemini": {
+        "pA": 1.0,
+        "key": "1cae6fd138a839f635effe2adc93788269b74a3511ab85db3827edd79661146d",
+        "reason": "The response correctly calculates the total revenue as 4698 by using $157.5 \\times 12 + 292.5 \\times 9.6 = 1890 + 2808 = 4698$.",
+        "usd": 0.001614
+      },
+      "haiku": {
+        "pA": 1.0,
+        "key": "fd9b2ea6c23dda6686afc27d2a05d47a26111e248df1012efb66d59ff83d0f48",
+        "reason": "The final answer of $4698 is correct. Independent check: 35% of 450 is 157.5 gerbils sold at $12 = $1890; the remaining 292.5 sold at $9.60 = $2808; total $4698. The reply is cluttered, with several inconsistent intermediate totals (4696.8, 4699.2, 4704) and an arbitrary averaging step, but the boxed result is correct.",
+        "usd": 0.000845
+      }
+    }
+  },
+  "usage": [
+    {
+      "provider": "luna",
+      "key": "c8d084811b492039e83c186d31fa52ac24e90fe6e4ba718e313aaed6e4c14c3d",
+      "count": 1,
+      "usd": 0.0003053
+    },
+    {
+      "provider": "gemini",
+      "key": "1cae6fd138a839f635effe2adc93788269b74a3511ab85db3827edd79661146d",
+      "count": 1,
+      "usd": 0.001614
+    },
+    {
+      "provider": "haiku",
+      "key": "fd9b2ea6c23dda6686afc27d2a05d47a26111e248df1012efb66d59ff83d0f48",
+      "count": 1,
+      "usd": 0.000845
+    }
+  ]
+}

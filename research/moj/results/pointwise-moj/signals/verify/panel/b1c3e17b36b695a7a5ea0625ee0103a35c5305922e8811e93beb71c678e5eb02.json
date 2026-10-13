@@ -1,0 +1,48 @@
+{
+  "pA": 0.3333333333333333,
+  "confidence": 0.6666666666666666,
+  "agreement": 0.6666666666666666,
+  "complete": true,
+  "detail": {
+    "members": {
+      "luna": {
+        "pA": 1.0,
+        "key": "b28bea52c36886fc9a7c492d851232f84908e44fc7551ce8423ffeb74ffbb77d",
+        "reason": "The final choice, (I) 4 and 5, is correct: the lines show a right triangle and a nonrectangular parallelogram.",
+        "usd": 0.00035210000000000005
+      },
+      "gemini": {
+        "pA": 0.0,
+        "key": "ebd44e6d90493dd58931ffaa34cf55291fb445c11fc6954629c0e684681327dd",
+        "reason": "The LLM's final boxed answer 'I' does not match the correct option corresponding to '4 and 5' in the prompt's listing, and the text itself is inconsistent and hallucinates options that differ from the standard choice labels.",
+        "usd": 0.00208875
+      },
+      "haiku": {
+        "pA": 0.0,
+        "key": "d40645dfb49c98bcf8084389cf7b058f3d0d89f9e69f4f191d4261d56c5d1e8a",
+        "reason": "The boxed letter I is correct: the lines form a right triangle (origin, (4.5,4.718), (12.43,-11.855) have a right angle at the origin) and a non-rectangular parallelogram (origin, (-5.667,-10.376), (12.43,-11.855), (6.763,-22.231), with the collinear point (3.656,-19.267) on one side). But the reply says option (I) is '4, 5 and 10', which misquotes the option (I is '4 and 5'), and its shape analysis is a generic list that never checks the segments, including shape 10 (regular hexagon), which it asserts without support.",
+        "usd": 0.0022927
+      }
+    }
+  },
+  "usage": [
+    {
+      "provider": "luna",
+      "key": "b28bea52c36886fc9a7c492d851232f84908e44fc7551ce8423ffeb74ffbb77d",
+      "count": 1,
+      "usd": 0.00035210000000000005
+    },
+    {
+      "provider": "gemini",
+      "key": "ebd44e6d90493dd58931ffaa34cf55291fb445c11fc6954629c0e684681327dd",
+      "count": 1,
+      "usd": 0.00208875
+    },
+    {
+      "provider": "haiku",
+      "key": "d40645dfb49c98bcf8084389cf7b058f3d0d89f9e69f4f191d4261d56c5d1e8a",
+      "count": 1,
+      "usd": 0.0022927
+    }
+  ]
+}

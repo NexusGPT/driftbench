@@ -1,0 +1,48 @@
+{
+  "pA": 0.3333333333333333,
+  "confidence": 0.6666666666666666,
+  "agreement": 0.6666666666666666,
+  "complete": true,
+  "detail": {
+    "members": {
+      "luna": {
+        "pA": 0.0,
+        "key": "b4643f6ca6a76770ef289dff6307cbaf1a7df98b24612549d102852263a409d4",
+        "reason": "The facts and rules do not derive either that the finch captures the king of the pigeon or that it does not. Rule 10 has no established antecedent (no animal is shown to want to see the goat), so the truth value is unknown, not disproved.",
+        "usd": 0.00036420000000000007
+      },
+      "gemini": {
+        "pA": 1.0,
+        "key": "ae67aa4de50ce0ae9a69993dd3645f404d87a2f67868bac187c10b78bac516cf",
+        "reason": "The response correctly applies the logical rules and gives the expected final answer 'disproved'.",
+        "usd": 0.0016695
+      },
+      "haiku": {
+        "pA": 0.0,
+        "key": "ada8a52de18b1a3e8b0881211d1b15d7ab0fedddd5558d2ffc9ee746ed48e3fa",
+        "reason": "The reply answers 'disproved' but its reasoning is about whether the frog captures the king of the pigeon, which no rule connects to the finch. The only finch rule is Rule10, which needs an animal that wants to see the goat, and the reply never establishes that. It also asserts facts without support, such as the frog refusing to help the badger. The correct answer is most likely 'unknown', since the chain to 'wants to see goat' (Rule4 needs beetle trades with stork, which needs someone unites with ostrich) is not derivable from the stated facts.",
+        "usd": 0.0017911999999999997
+      }
+    }
+  },
+  "usage": [
+    {
+      "provider": "luna",
+      "key": "b4643f6ca6a76770ef289dff6307cbaf1a7df98b24612549d102852263a409d4",
+      "count": 1,
+      "usd": 0.00036420000000000007
+    },
+    {
+      "provider": "gemini",
+      "key": "ae67aa4de50ce0ae9a69993dd3645f404d87a2f67868bac187c10b78bac516cf",
+      "count": 1,
+      "usd": 0.0016695
+    },
+    {
+      "provider": "haiku",
+      "key": "ada8a52de18b1a3e8b0881211d1b15d7ab0fedddd5558d2ffc9ee746ed48e3fa",
+      "count": 1,
+      "usd": 0.0017911999999999997
+    }
+  ]
+}

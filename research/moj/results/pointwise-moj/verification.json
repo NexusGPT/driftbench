@@ -1,0 +1,11 @@
+{
+  "offline_report_identical": true,
+  "recordings_unchanged": true,
+  "frozen_config_unchanged": true,
+  "baseline_cells_matched": 16,
+  "sha256": {
+    "results/pointwise-moj/validation.json": "63744524056ca227f818bc46624e2337206fa4fb1089921df56476b3460f3c17",
+    "results/pointwise-moj/validation-decisions.json": "b00c09c408a8218117a7bc819a62c310de40624afdc3eddacdfd91f3cbd3848f",
+    "configs/pw-router-frozen.json": "d3ceaf39980df38b89c106a55ef42cdae7ade9d1470a1420e9c0198e51883dbf"
+  }
+}

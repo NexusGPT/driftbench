@@ -1,0 +1,48 @@
+{
+  "pA": null,
+  "confidence": null,
+  "agreement": null,
+  "complete": false,
+  "detail": {
+    "members": {
+      "luna": {
+        "pA": 0.0,
+        "key": "43fd01d6f3e9450963a49f20d9634cb6f794eb0d9a5ae5d8874a1fe86ba95f4c",
+        "reason": "The condition is that all but one angle sum to 1070°, not that the total does. For a convex n-gon, the omitted angle is less than 180°, so the total lies between 1070° and 1250°. The possible interior-angle sums are multiples of 180°; none lie in that interval (1080° would require a 10° omitted angle, but a convex polygon’s omitted angle need not be ruled out? Actually 1080° gives n=8 and omitted angle 10°, which is possible).",
+        "usd": 0.0002486
+      },
+      "gemini": {
+        "pA": null,
+        "key": "587ca5e3ff13bb64ac10cf1bb16575a7109161ebc566300eac0020117b9bc614",
+        "reason": null,
+        "usd": 0.00202275
+      },
+      "haiku": {
+        "pA": 0.0,
+        "key": "33177cd8bd7101e441c28d64b4f4fe0b09de5a2571dfdcc7374acd4921bc7144",
+        "reason": "The boxed answer 8 is correct: with the missing angle x in (0,180), (n-2)·180 − x = 1070 forces (n-2)·180 = 1080, so n = 8 and x = 10. But the reply never derives this. It repeatedly computes n = 143/18, declares the problem flawed or non-integer, and then asserts 8 with no justification. The reasoning contradicts its own conclusion.",
+        "usd": 0.0009914
+      }
+    }
+  },
+  "usage": [
+    {
+      "provider": "luna",
+      "key": "43fd01d6f3e9450963a49f20d9634cb6f794eb0d9a5ae5d8874a1fe86ba95f4c",
+      "count": 1,
+      "usd": 0.0002486
+    },
+    {
+      "provider": "gemini",
+      "key": "587ca5e3ff13bb64ac10cf1bb16575a7109161ebc566300eac0020117b9bc614",
+      "count": 1,
+      "usd": 0.00202275
+    },
+    {
+      "provider": "haiku",
+      "key": "33177cd8bd7101e441c28d64b4f4fe0b09de5a2571dfdcc7374acd4921bc7144",
+      "count": 1,
+      "usd": 0.0009914
+    }
+  ]
+}

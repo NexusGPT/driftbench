@@ -1,0 +1,45 @@
+{
+  "pA": null,
+  "confidence": null,
+  "agreement": null,
+  "complete": false,
+  "detail": {
+    "members": {
+      "luna": {
+        "pA": null,
+        "key": "5d3634e51067653bcf4c2c59621dc27d54d466ef0a9b13385c827ca32f07ebc4",
+        "reason": null,
+        "usd": 0.00032910000000000003
+      },
+      "gemini": {
+        "pA": 1.0,
+        "key": "7074b5ed7e40fb6ff2277865da845dbf4f5d810417e81732890b99fa8f1b7187",
+        "reason": "The response correctly computes the inverse of the matrix A, adds the identity matrix, squares the result, and then finds the inverse of that squared matrix, yielding the correct final answer.",
+        "usd": 0.0017175
+      },
+      "haiku": {
+        "pA": 1.0,
+        "key": "cbee5af801c36f0c582f29801c58a73cea38a6beaf496f03d679833f161a3e03",
+        "reason": "The reply's final answer [[11.5, -6], [2, -0.5]] is correct. From A^{-1}, A = [[-4/5, 3/5], [-1/5, 2/5]], so A+I = [[1/5, 3/5], [-1/5, 7/5]]. Squaring gives B = [[-2/25, 24/25], [-8/25, 46/25]] with det B = 4/25, and B^{-1} = [[11.5, -6], [2, -0.5]]. An independent check via (A+I)^{-1} = (I+A^{-1})^{-1}A^{-1} = [[3.5, -1.5], [0.5, 0.5]], whose square is [[11.5, -6], [2, -0.5]], agrees.",
+        "usd": 0.0014190000000000001
+      }
+    }
+  },
+  "usage": [
+    {
+      "provider": "luna",
+      "key": "5d3634e51067653bcf4c2c59621dc27d54d466ef0a9b13385c827ca32f07ebc4",
+      "usd": 0.00032910000000000003
+    },
+    {
+      "provider": "gemini",
+      "key": "7074b5ed7e40fb6ff2277865da845dbf4f5d810417e81732890b99fa8f1b7187",
+      "usd": 0.0017175
+    },
+    {
+      "provider": "haiku",
+      "key": "cbee5af801c36f0c582f29801c58a73cea38a6beaf496f03d679833f161a3e03",
+      "usd": 0.0014190000000000001
+    }
+  ]
+}

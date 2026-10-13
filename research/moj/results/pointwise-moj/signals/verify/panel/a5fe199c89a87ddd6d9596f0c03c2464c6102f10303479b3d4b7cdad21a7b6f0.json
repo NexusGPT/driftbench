@@ -1,0 +1,48 @@
+{
+  "pA": 0.0,
+  "confidence": 1.0,
+  "agreement": 1.0,
+  "complete": true,
+  "detail": {
+    "members": {
+      "luna": {
+        "pA": 0.0,
+        "key": "4c236b392eabe2ed0284b5289f1608eb26a08676f58216c4db37c15f9ab62d11",
+        "reason": "The integral is \\(\\frac{2\\pi}{3}(1/2)^2=\\frac{\\pi}{6}\\), not zero. The residue calculation incorrectly evaluates a removable factor as zero.",
+        "usd": 0.0002151
+      },
+      "gemini": {
+        "pA": 0.0,
+        "key": "ef58a841caaa6d28477be08c5099ca9c7d8a198dc1d12f2cb628ede6c5e85b5f",
+        "reason": "The residue calculation at z = -1/2 contains a mistake: the factor (2z + 1) in the denominator has a coefficient of 2, so (z + 1/2) = (2z+1)/2, leading to division by 2 rather than multiplying by 0 incorrectly as written, and the pole at z=0 (of order 3) was ignored or incorrectly cancelled. The correct value of the integral is nonzero (specifically, \\(\\pi / 6\\)).",
+        "usd": 0.0014655
+      },
+      "haiku": {
+        "pA": 0.0,
+        "key": "ed629573abe7a16c7fff4f594f48fffea7377c25c22cafb90c571a17e652376d",
+        "reason": "The correct value is π/6, not 0. Using ∫₀^{2π} cos(nx)/(a+b cos x) dx = (2π/√(a²−b²))·r^n with a=5, b=4, r=(3−5)/4=−1/2 gives (2π/3)(1/4)=π/6. The reply's residue step is invalid: it divides by a factor that vanishes at z=−1/2 and then writes 0/0 as 0, and it ignores the pole of order 3 at z=0 inside the contour.",
+        "usd": 0.0008329000000000001
+      }
+    }
+  },
+  "usage": [
+    {
+      "provider": "luna",
+      "key": "4c236b392eabe2ed0284b5289f1608eb26a08676f58216c4db37c15f9ab62d11",
+      "count": 1,
+      "usd": 0.0002151
+    },
+    {
+      "provider": "gemini",
+      "key": "ef58a841caaa6d28477be08c5099ca9c7d8a198dc1d12f2cb628ede6c5e85b5f",
+      "count": 1,
+      "usd": 0.0014655
+    },
+    {
+      "provider": "haiku",
+      "key": "ed629573abe7a16c7fff4f594f48fffea7377c25c22cafb90c571a17e652376d",
+      "count": 1,
+      "usd": 0.0008329000000000001
+    }
+  ]
+}

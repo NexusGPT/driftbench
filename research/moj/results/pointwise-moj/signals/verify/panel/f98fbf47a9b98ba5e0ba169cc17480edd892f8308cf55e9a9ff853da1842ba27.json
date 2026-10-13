@@ -1,0 +1,48 @@
+{
+  "pA": 1.0,
+  "confidence": 1.0,
+  "agreement": 1.0,
+  "complete": true,
+  "detail": {
+    "members": {
+      "luna": {
+        "pA": 1.0,
+        "key": "5561adf2d9a7572b98fc443e66c4856477bf0773969a04db1519cec9f74fa1f7",
+        "reason": "Both parts are correct: the favorable ordered outcomes with replacement give 8/81, and without replacement P(A)=2/3, P(B)=1/3, while P(A∩B)=2/9=P(A)P(B), so A and B are independent.",
+        "usd": 0.0005713000000000001
+      },
+      "gemini": {
+        "pA": 1.0,
+        "key": "727ef71f880efb17584eed712c919a1f88562775841503550f14205cd49bb6bb",
+        "reason": "The response correctly computes the probabilities for both parts and successfully determines independence, matching the exact reasoning and final answers.",
+        "usd": 0.00439725
+      },
+      "haiku": {
+        "pA": 1.0,
+        "key": "599a86ba0309ba03d0c6392f9d92812b53e0868647dc7a8e51e10946737b57ab",
+        "reason": "Part (1): favorable cases are red1-then-blue2 (2/9·2/9) and blue1-then-red2 (1/9·4/9), totaling 8/81, which matches. Part (2): P(A)=6/9=2/3 and P(B)=3/9=1/3. P(A∩B)=16/72=2/9=P(A)P(B), so A and B are independent. All final answers are correct, though the scratch work contains some wandering intermediate statements.",
+        "usd": 0.0019039
+      }
+    }
+  },
+  "usage": [
+    {
+      "provider": "luna",
+      "key": "5561adf2d9a7572b98fc443e66c4856477bf0773969a04db1519cec9f74fa1f7",
+      "count": 1,
+      "usd": 0.0005713000000000001
+    },
+    {
+      "provider": "gemini",
+      "key": "727ef71f880efb17584eed712c919a1f88562775841503550f14205cd49bb6bb",
+      "count": 1,
+      "usd": 0.00439725
+    },
+    {
+      "provider": "haiku",
+      "key": "599a86ba0309ba03d0c6392f9d92812b53e0868647dc7a8e51e10946737b57ab",
+      "count": 1,
+      "usd": 0.0019039
+    }
+  ]
+}

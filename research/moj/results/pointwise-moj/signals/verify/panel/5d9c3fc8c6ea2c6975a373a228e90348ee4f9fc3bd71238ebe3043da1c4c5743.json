@@ -1,0 +1,48 @@
+{
+  "pA": null,
+  "confidence": null,
+  "agreement": null,
+  "complete": false,
+  "detail": {
+    "members": {
+      "luna": {
+        "pA": null,
+        "key": "fad0d9607d5e49311c13cacc5554c59286328965ba51723d262b38ea96a787eb",
+        "reason": null,
+        "usd": 0.0002642
+      },
+      "gemini": {
+        "pA": 1.0,
+        "key": "5e6cb687138882367cb51830d766e6824f5d32a67f5adda10f37307ecafd4856",
+        "reason": "The response correctly solves both parts of the calculus problem. Part 1 finds the tangent line equation as y = x - 1. Part 2 uses the standard isolated-parameter method, isolates a < (x+1)ln x / (x-1), takes the limit as x -> 1+ to find the lower bound 2, and correctly concludes that a <= 2 (or a < 2 depending on strictness, but the limit approach yields the critical threshold 2).",
+        "usd": 0.00148275
+      },
+      "haiku": {
+        "pA": 0.0,
+        "key": "4924f8f2323844e645e47175678555cdcbeceaf4d528b2a57fce060627a84c45",
+        "reason": "Part (1) is correct (y = x - 1). Part (2) is wrong. The condition is a < g(x) = (x+1)ln x/(x-1) for all x>1. Let h(x)=x^2-1-2x ln x; h(1)=0, h'(x)=2x-2ln x-2 with h'(1)=0, and h''(x)=2-2/x>0 for x>1, so h'>0 and h>0 on (1,∞). Thus g is strictly increasing with infimum 2 (not attained), and g(x)>2 for all x>1. So a=2 also works, giving the range (-∞, 2], not (-∞, 2). The reply's claim that 'minimum is 2, hence a<2' misses that the infimum is not attained.",
+        "usd": 0.0009105000000000001
+      }
+    }
+  },
+  "usage": [
+    {
+      "provider": "luna",
+      "key": "fad0d9607d5e49311c13cacc5554c59286328965ba51723d262b38ea96a787eb",
+      "count": 1,
+      "usd": 0.0002642
+    },
+    {
+      "provider": "gemini",
+      "key": "5e6cb687138882367cb51830d766e6824f5d32a67f5adda10f37307ecafd4856",
+      "count": 1,
+      "usd": 0.00148275
+    },
+    {
+      "provider": "haiku",
+      "key": "4924f8f2323844e645e47175678555cdcbeceaf4d528b2a57fce060627a84c45",
+      "count": 1,
+      "usd": 0.0009105000000000001
+    }
+  ]
+}

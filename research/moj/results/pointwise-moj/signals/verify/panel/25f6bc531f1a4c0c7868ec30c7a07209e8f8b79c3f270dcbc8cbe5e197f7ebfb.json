@@ -1,0 +1,48 @@
+{
+  "pA": 0.6666666666666666,
+  "confidence": 0.6666666666666666,
+  "agreement": 0.6666666666666666,
+  "complete": true,
+  "detail": {
+    "members": {
+      "luna": {
+        "pA": 0.0,
+        "key": "96a5a1e5c0acbba53f1205f28be8d876df295b2809e35a79210b5971a7896c0c",
+        "reason": "The reply selects C, but A is also invalid: having Hunan residents who dislike pepper does not imply that any pepper-lovers live outside Hunan. D is invalid for the same reason: southerners who are not Cantonese do not show that any Cantonese are not southerners. The reply also incorrectly claims these inferences are valid.",
+        "usd": 0.0006531
+      },
+      "gemini": {
+        "pA": 1.0,
+        "key": "695a7f196308d23da550ab54dec3698af1e751a851eb5b683f7fe2dbae2ebe0e",
+        "reason": "The response correctly identifies that option C contains a logical fallacy regarding the reversal of cause and effect (confusing the direction of implication between motive/effect and result/motivation), rendering it invalid and not matching the structural or logical soundness of the other comparative forms.",
+        "usd": 0.00500925
+      },
+      "haiku": {
+        "pA": 1.0,
+        "key": "be7ef3a582c88d4e69cb1c06c348de3178f5f5aeab4e5926545627c16f4c6be9",
+        "reason": "The final answer C is correct. The original inference has the form 'some X are not Y, therefore some Y are not X.' Options A and D share this form, and B is a direct restatement. C has a different structure, confusing motives with results, so it is the one not valid in the same way. The response's intermediate reasoning is messy and contradicts itself, but its final answer matches.",
+        "usd": 0.0029077
+      }
+    }
+  },
+  "usage": [
+    {
+      "provider": "luna",
+      "key": "96a5a1e5c0acbba53f1205f28be8d876df295b2809e35a79210b5971a7896c0c",
+      "count": 1,
+      "usd": 0.0006531
+    },
+    {
+      "provider": "gemini",
+      "key": "695a7f196308d23da550ab54dec3698af1e751a851eb5b683f7fe2dbae2ebe0e",
+      "count": 1,
+      "usd": 0.00500925
+    },
+    {
+      "provider": "haiku",
+      "key": "be7ef3a582c88d4e69cb1c06c348de3178f5f5aeab4e5926545627c16f4c6be9",
+      "count": 1,
+      "usd": 0.0029077
+    }
+  ]
+}

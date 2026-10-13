@@ -1,0 +1,29 @@
+{
+  "pA": 0.12,
+  "confidence": 0.88,
+  "detail": {
+    "eligible": true,
+    "with_reference": true,
+    "kind": "pointwise",
+    "points": [
+      "The final answer matches the reference solution."
+    ],
+    "scores": {
+      "a": 0.12
+    },
+    "rows": {
+      "a": {
+        "point_0": 0.12
+      }
+    },
+    "reference_source": "dataset"
+  },
+  "usage": [
+    {
+      "provider": "jev",
+      "key": "e9dd9b51e80ffbb6210c44b93e7ad721c943897650cb1aded229ac99dfd88b6a",
+      "seconds": 0.301,
+      "usd": 0
+    }
+  ]
+}

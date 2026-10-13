@@ -1,0 +1,48 @@
+{
+  "pA": 0.3333333333333333,
+  "confidence": 0.6666666666666666,
+  "agreement": 0.6666666666666666,
+  "complete": true,
+  "detail": {
+    "members": {
+      "luna": {
+        "pA": 0.0,
+        "key": "279bf11d7e06adaa1bae0a4eb20405bf82bcda9bf0ad52d1a92d577df49f51fd",
+        "reason": "The input already ends with `}`, which closes the remaining `{`. Only `>` is needed to close the outer `<`; the reply incorrectly adds an extra `}`.",
+        "usd": 0.000321
+      },
+      "gemini": {
+        "pA": 1.0,
+        "key": "d8437c3a09f5bd21c6c6101d7ba6a0d2f9298a48bf745104c245dbfd649612c1",
+        "reason": "The final answer correctly identifies the missing closing brackets needed to balance the bracket sequence and provides the correct completed sequence.",
+        "usd": 0.00194775
+      },
+      "haiku": {
+        "pA": 0.0,
+        "key": "1e7c2e323759cbd21366fb37bdc8ca4e9c9be8367953bd39d6e4810bc4b6f25d",
+        "reason": "The reply miscounts the input. The given string < { ( { } ) < > } already ends with a '}' that closes the first '{', so the stack after the input is just ['<']. The only missing bracket is '>', giving < { ( { } ) < > } >. The reply's answer < { ( { } ) < > } } > adds an extra '}' and is incorrect, even though its stack trace shows the closing '}' being consumed at step 9.",
+        "usd": 0.0009851
+      }
+    }
+  },
+  "usage": [
+    {
+      "provider": "luna",
+      "key": "279bf11d7e06adaa1bae0a4eb20405bf82bcda9bf0ad52d1a92d577df49f51fd",
+      "count": 1,
+      "usd": 0.000321
+    },
+    {
+      "provider": "gemini",
+      "key": "d8437c3a09f5bd21c6c6101d7ba6a0d2f9298a48bf745104c245dbfd649612c1",
+      "count": 1,
+      "usd": 0.00194775
+    },
+    {
+      "provider": "haiku",
+      "key": "1e7c2e323759cbd21366fb37bdc8ca4e9c9be8367953bd39d6e4810bc4b6f25d",
+      "count": 1,
+      "usd": 0.0009851
+    }
+  ]
+}
