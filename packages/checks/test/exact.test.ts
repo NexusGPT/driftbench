@@ -72,6 +72,43 @@ describe('exact: the reply equals the reference after normalising', () => {
     expect(await judge('3,50', '3,5')).toBe('fail');
   });
 
+  it.each([
+    // The independent review's 18 probes, with the prose regression corrected to pass.
+    ['1,000', '1000', 'pass'],
+    ['12,345,678', '12345678', 'pass'],
+    ['1,00', '100', 'fail'],
+    ['3,5', '3.5', 'fail'],
+    ['1,000,5', '10005', 'fail'],
+    ['€1,000', '1000', 'pass'],
+    ['£1,000', '1000', 'pass'],
+    ['1,000 items', '1000 items', 'pass'],
+    ['$1,000.50', '1000.50', 'pass'],
+    ['v1.2', 'v12', 'fail'],
+    ['3.', '3', 'pass'],
+    ['-5', '5', 'fail'],
+    ['5-6', '56', 'fail'],
+    ['The value is 5.', 'The value is 5', 'pass'],
+    ['3.50', '3.5', 'pass'],
+    ['1e3', '1000', 'pass'],
+    ['1.2.3', '123', 'fail'],
+    ['2026-10-13', '20261013', 'fail'],
+    // Additional prose cases exercise grouping, currency and signs in the numeric guard.
+    ['$1,000.50 total', '1000.50 total', 'pass'],
+    ['12,345,678.50 total', '12345678.50 total', 'pass'],
+    ['-$1,000 items', '$1,000 items', 'fail'],
+    ['1,000.50', '1000.5', 'fail'],
+  ])(
+    'preserves prose matching unless number values differ: %s versus %s',
+    async (reply, reference, outcome) => {
+      expect(await judge(reply, reference)).toBe(outcome);
+      expect(await judge(reference, reply)).toBe(outcome);
+    },
+  );
+
+  it('retains the original letter-digit-space normalisation for prose', () => {
+    expect(normaliseExact('  V1.2: -$1,000.50, 3,5!  ')).toBe('v12 100050 35');
+  });
+
   it('reads true and false as 1 and 0 when the other side is a number', async () => {
     expect(await judge('true', '1')).toBe('pass');
     expect(await judge('false', '1')).toBe('fail');

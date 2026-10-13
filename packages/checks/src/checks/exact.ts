@@ -4,18 +4,12 @@ import { quote, visibleText } from '../support/text';
 const NAME = 'exact';
 
 /**
- * Ignores punctuation except numeric separators and signs, trims, and lowers case.
- * Grouped numbers are handled separately; other commas remain literal.
+ * Drops everything that is not a letter, a digit or a space, trims, and lowers case. Both sides of an exact
+ * comparison pass through it.
  */
 export function normaliseExact(text: string): string {
   return [...text.trim()]
-    .filter((char, index, chars) => {
-      if (/[\p{L}\p{N}\s]/u.test(char)) return true;
-      const next = chars[index + 1] ?? '';
-      // Keep leading decimals (.5), internal separators (3,5), and exponent signs (1e-3).
-      if (/[.,+-]/.test(char) && /\d/.test(next)) return true;
-      return /[+-]/.test(char) && /[.,]/.test(next) && /\d/.test(chars[index + 2] ?? '');
-    })
+    .filter((char) => /[\p{L}\p{N}\s]/u.test(char))
     .join('')
     .replace(/\s+/g, ' ')
     .toLowerCase();
@@ -27,15 +21,21 @@ function numberOf(text: string): number | undefined {
   if (trimmed === 'true') return 1;
   if (trimmed === 'false') return 0;
   if (trimmed === '') return undefined;
-  // Only unambiguous three-digit comma groups allow a currency symbol and comma removal.
-  const grouped = /^[+-]?\p{Sc}?\d{1,3}(?:,\d{3})+(?:\.\d+)?$/u.test(trimmed);
-  const value = Number(grouped ? trimmed.replace(/[,\p{Sc}]/gu, '') : trimmed);
+  const value = Number(trimmed);
   return Number.isFinite(value) ? value : undefined;
+}
+
+/** Original-text number values: malformed comma groups split tokens instead of erasing commas. */
+function numberTokens(text: string): number[] {
+  const tokens =
+    /[+-]?\p{Sc}?(?:\d{1,3}(?:,\d{3})+(?:\.\d+)?(?!\d)|(?:\d+(?:\.\d*)?|\.\d+)(?:[eE][+-]?\d+)?)/gu;
+  return Array.from(text.matchAll(tokens), ([token]) => Number(token.replace(/[,\p{Sc}]/gu, '')));
 }
 
 /**
  * `expect.exact`: the visible text of the reply equals the reference (`exact_strict: true` compares byte for byte). Two numbers compare as numbers, so
- * `42.0` equals `42`; anything else compares after normalising. An empty reply never equals a reference,
+ * `42.0` equals `42`; other text must have equal number sequences before comparing after normalising.
+ * An empty reply never equals a reference,
  * because the spec refuses an empty reference.
  */
 export const exact: Check = {
@@ -68,6 +68,21 @@ export const exact: Check = {
           same
             ? `${reply.trim()} equals ${reference.trim()} as a number`
             : `${reply.trim()} is not ${reference.trim()} as a number`,
+        ),
+      ];
+    }
+    const replyNumbers = numberTokens(reply);
+    const referenceNumbers = numberTokens(reference);
+    if (
+      replyNumbers.length !== referenceNumbers.length ||
+      replyNumbers.some((value, index) => value !== referenceNumbers[index])
+    ) {
+      return [
+        machineVerdict(
+          NAME,
+          '0',
+          'fail',
+          `number tokens [${replyNumbers.join(', ')}] differ from [${referenceNumbers.join(', ')}]`,
         ),
       ];
     }

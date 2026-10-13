@@ -381,7 +381,7 @@ export const Expect = z
       .min(1)
       .optional()
       .describe(
-        'The reply must equal this text after normalising: case, surrounding space and nonnumeric punctuation ignored; two numbers compare as numbers. Decimal commas stay literal.',
+        'The reply must equal this text after normalising: case, surrounding space and punctuation ignored; two numbers compare as numbers. Texts with different number sequences cannot compare equal.',
       ),
     exact_strict: z
       .boolean()
