@@ -1,6 +1,6 @@
 {
   "model": "claude-sonnet-5-5",
-  "pid": 35615,
+  "pid": 92241,
   "mode": "network-recovery",
   "freezeSha256": "8513ea3ba8cecb2f04b25b10af72ce10eaeabef69cc926124779a11f13834236",
   "workers": 2,
@@ -9,13 +9,12 @@
     "consecutive": 10,
     "workers": 2
   },
-  "status": "stopped",
-  "at": "2026-10-13T16:35:28.007Z",
+  "status": "finished",
+  "at": "2026-10-13T17:39:15.347Z",
   "phase": "test",
-  "completed": 208,
+  "completed": 540,
   "planned": 540,
   "reopened": 0,
-  "liabilityUsd": 16.060982399999972,
-  "requests": 1103,
-  "error": "QUOTA_STOP: no answer; recovery remains eligible"
+  "liabilityUsd": 24.8383864,
+  "requests": 1787
 }
