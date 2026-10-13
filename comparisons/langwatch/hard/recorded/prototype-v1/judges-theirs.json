@@ -1,0 +1,233 @@
+{
+  "row": "criteria-and-verdict",
+  "variant": "theirs",
+  "model": "haiku",
+  "expected": 120,
+  "complete": false,
+  "freshUsd": 0.03456710000000001,
+  "newCalls": 36,
+  "answers": [
+    {
+      "id": "judge-near_price-01",
+      "predictions": ["pass", "pass"],
+      "request_sha256s": ["be7fc72d5bfc928bd3c0e910be923561740b559e2af068148b1cec49de0bf5aa"],
+      "costUsd": 0.0008989
+    },
+    {
+      "id": "judge-near_price-02",
+      "predictions": ["fail", "fail"],
+      "request_sha256s": ["80d3bae10e7dedd9461532ea3dbc170094ac3f1491621988a948ab13da7cec7f"],
+      "costUsd": 0.0008673000000000001
+    },
+    {
+      "id": "judge-near_price-03",
+      "predictions": ["fail", "pass"],
+      "request_sha256s": ["54548c9c932b41a5bf218a8daa33620ca5702ab88f1aea9f0c4d8950930de68c"],
+      "costUsd": 0.0009878
+    },
+    {
+      "id": "judge-near_price-04",
+      "predictions": ["pass", "fail"],
+      "request_sha256s": ["68aad4ccdb98517e716b0cc5168a6afe001b028549f3225825d38b91f27670c8"],
+      "costUsd": 0.0009034
+    },
+    {
+      "id": "judge-near_price-05",
+      "predictions": ["fail", "pass"],
+      "request_sha256s": ["fbfde630b5f3ba6917c1f48cb40e33094119afeaf2172d7b647318f9ccee6713"],
+      "costUsd": 0.0008861000000000001
+    },
+    {
+      "id": "judge-near_price-06",
+      "predictions": ["pass", "fail"],
+      "request_sha256s": ["c1aad938730438c4f9e12dbbf34f4e6053075dfb4039d0cd518cec103cc8ceba"],
+      "costUsd": 0.0009152
+    },
+    {
+      "id": "judge-near_price-07",
+      "predictions": ["fail", "pass"],
+      "request_sha256s": ["bfd19f42501a7169ed2697642b60a7f7fb5359d71cdb82ce1e20211f8b78469e"],
+      "costUsd": 0.0009023
+    },
+    {
+      "id": "judge-near_price-08",
+      "predictions": ["fail", "fail"],
+      "request_sha256s": ["dc15ef62a496ddbe0baa4eef2ea297ed39768189f6c03aa8b5a055b9b9d6c60e"],
+      "costUsd": 0.0009565000000000001
+    },
+    {
+      "id": "judge-near_price-09",
+      "predictions": ["pass", "pass"],
+      "request_sha256s": ["8a07116dc0741bbd4eb753d7852618573c0baf7ef69bee5f5c6ae4feb27acee0"],
+      "costUsd": 0.0011524
+    },
+    {
+      "id": "judge-near_price-10",
+      "predictions": ["fail", "fail"],
+      "request_sha256s": ["55b27f945012f8b91678d506986300c58194cee44c8314c29b53923ab238bb32"],
+      "costUsd": 0.0008798
+    },
+    {
+      "id": "judge-units-01",
+      "predictions": ["pass", "pass"],
+      "request_sha256s": ["7f5833d8aa014aada6a1a8de57533214b8f2fabd6021e3f12b80cf55658c86d3"],
+      "costUsd": 0.0009262000000000001
+    },
+    {
+      "id": "judge-units-02",
+      "predictions": ["fail", "fail"],
+      "request_sha256s": ["817ecd7fb484e70a68b2eaa7bc5ec116c37259b53648e04126b0b4473630873f"],
+      "costUsd": 0.0008764
+    },
+    {
+      "id": "judge-units-03",
+      "predictions": ["fail", "pass"],
+      "request_sha256s": ["460a03a10cd22684f546d668cdb42125a638f80e13ac5ba3924469074197f38f"],
+      "costUsd": 0.0009663
+    },
+    {
+      "id": "judge-units-04",
+      "predictions": ["pass", "fail"],
+      "request_sha256s": ["e2be187ff2786b20096797b05fc95fb541ceb7695fa83d7a82c35a28c7da7a3b"],
+      "costUsd": 0.0009363000000000002
+    },
+    {
+      "id": "judge-units-05",
+      "predictions": ["fail", "pass"],
+      "request_sha256s": ["1a278c3cd9ae4e8dcaac0101d674d11425c951fdf20a54a8ade689f1df594eb0"],
+      "costUsd": 0.0008707
+    },
+    {
+      "id": "judge-units-06",
+      "predictions": ["pass", "fail"],
+      "request_sha256s": ["e3adc644cdb24c1f6f77b874d728cc52d0de413c7ba5c2ec116a3034b42ae12b"],
+      "costUsd": 0.0009361
+    },
+    {
+      "id": "judge-units-07",
+      "predictions": ["fail", "pass"],
+      "request_sha256s": ["ffa2be00b6d7e44f2b15b62f3b9a0efa16ebcb511d4a179fb3bc1bb9a7cc62ab"],
+      "costUsd": 0.0009342
+    },
+    {
+      "id": "judge-units-08",
+      "predictions": ["fail", "fail"],
+      "request_sha256s": ["d9d1a4e2eeb83493f3d34cd426426abd71ccd51ad9ae9a64bf892ad59a914501"],
+      "costUsd": 0.0009661000000000001
+    },
+    {
+      "id": "judge-units-09",
+      "predictions": ["pass", "pass"],
+      "request_sha256s": ["a8d6f445fb14b6307ebea40671e5a802886937aabf813e095a1871ce5424d4c8"],
+      "costUsd": 0.0009074
+    },
+    {
+      "id": "judge-units-10",
+      "predictions": ["fail", "fail"],
+      "request_sha256s": ["b63b7b15e5aa9e474cb5004b11ec50c0c9385e5ca150b39a1232840b2bee3551"],
+      "costUsd": 0.0008874000000000001
+    },
+    {
+      "id": "judge-coverage_order-01",
+      "predictions": ["pass", "pass"],
+      "request_sha256s": ["556a7763d0c28057b792fe0c93c997efa7de029deaede59e6c0c222c25153cf1"],
+      "costUsd": 0.0009257
+    },
+    {
+      "id": "judge-coverage_order-02",
+      "predictions": ["fail", "fail"],
+      "request_sha256s": ["e2ef535d4bf18de3644a7033673411210a5be262e99622f2e778ecbb771af55a"],
+      "costUsd": 0.0010158
+    },
+    {
+      "id": "judge-coverage_order-03",
+      "predictions": ["inconclusive", "pass"],
+      "request_sha256s": ["5c094937f88465418b76fd9e59591de3f16e8cfb67620c40069cd2d6bb641ee9"],
+      "costUsd": 0.0011501
+    },
+    {
+      "id": "judge-coverage_order-04",
+      "predictions": ["pass", "fail"],
+      "request_sha256s": ["c5cb2c87abaa7b310fb6410a69767fd3cb0fca1745cf598fdfb0c1e060061984"],
+      "costUsd": 0.0009680000000000001
+    },
+    {
+      "id": "judge-coverage_order-05",
+      "predictions": ["fail", "pass"],
+      "request_sha256s": ["5ca1420a35a8567dcfdadd64f954707b5cc6662416c9aebac195abccbd400aa4"],
+      "costUsd": 0.0009006000000000001
+    },
+    {
+      "id": "judge-coverage_order-06",
+      "predictions": ["pass", "fail"],
+      "request_sha256s": ["a2385dec6b509d5db00ad167a8e85f8b7f6f0bab69b2215a458355cdd8e23eaf"],
+      "costUsd": 0.0009737000000000001
+    },
+    {
+      "id": "judge-coverage_order-07",
+      "predictions": ["fail", "pass"],
+      "request_sha256s": ["c0bc7fe91c777dd56a4e13139fc7c551135d9685e3564fff64ebbc76b73905ed"],
+      "costUsd": 0.0009326000000000001
+    },
+    {
+      "id": "judge-coverage_order-08",
+      "predictions": ["inconclusive", "fail"],
+      "request_sha256s": ["5b3abf1e8af0c8576df6d3d3059f3e00e5d3f9301b4c79e4c1bc64f984133f79"],
+      "costUsd": 0.0010902
+    },
+    {
+      "id": "judge-coverage_order-09",
+      "predictions": ["pass", "pass"],
+      "request_sha256s": ["ad9c201a46e126b298b234d1ba4e481ecef1fe5d4f3d8191dd2da42121b2815f"],
+      "costUsd": 0.0009170000000000001
+    },
+    {
+      "id": "judge-coverage_order-10",
+      "predictions": ["fail", "fail"],
+      "request_sha256s": ["459b7cf0bd9f426fe33758ae9d9af5d7cf4ef8c94d4a5d707006e9eeb5056866"],
+      "costUsd": 0.0010023
+    },
+    {
+      "id": "judge-fail_only-01",
+      "predictions": ["pass", "pass"],
+      "request_sha256s": ["0a8ee723e3e3400849e54577aac1bc62183ba72963877c7db885b118927db405"],
+      "costUsd": 0.0009478
+    },
+    {
+      "id": "judge-fail_only-02",
+      "predictions": ["fail", "fail"],
+      "request_sha256s": ["7850825fdeee2f13c0cc8db734a9cbdf1510b7988252cdc9d2014054e39efdd6"],
+      "costUsd": 0.0011113
+    },
+    {
+      "id": "judge-fail_only-03",
+      "predictions": ["pass", "pass"],
+      "request_sha256s": ["15cf0fbf5aa96a6715b28dcd7fcf074c524ac3843a9e62ecaf70923c16995fe4"],
+      "costUsd": 0.0009472
+    },
+    {
+      "id": "judge-fail_only-04",
+      "predictions": ["pass", "fail"],
+      "request_sha256s": ["e27513aa63702859c7a52fd7a42781f52e7dfc66dc0b70bdc35d93c4c9961aca"],
+      "costUsd": 0.0009952000000000001
+    },
+    {
+      "id": "judge-fail_only-05",
+      "predictions": ["fail", "pass"],
+      "request_sha256s": ["9a661371f71363a1dcc03b93e43d50a8f2cce544c6b7fbac4878f2b900a9e223"],
+      "costUsd": 0.0010220000000000001
+    },
+    {
+      "id": "judge-fail_only-06",
+      "predictions": ["pass", "fail"],
+      "request_sha256s": ["f4bfe7a39f291745e4447f44acb4f231dbe925d670d1c716d0113c479b2f5d0f"],
+      "costUsd": 0.0009882
+    },
+    {
+      "id": "judge-fail_only-07",
+      "predictions": ["fail", "pass"],
+      "request_sha256s": ["7cfdde467ad9e1726397cfea2ee8d5f0a6037228ee6c35ec21b987cbd27096de"],
+      "costUsd": 0.0010215
+    }
+  ]
+}
