@@ -311,7 +311,7 @@ describe('built-in targets keep secrets out of results', () => {
       const run = await cli(['campaign', 'run', path, '--json', '--store', store, '--retry-attempts', '1']);
       expect(run.code).toBe(1);
       expect(run.out).toContain('answered 500');
-      expect(run.out).toContain('[redacted]');
+      expect(run.out).toContain('upstream body and headers are not shown');
       expect(run.out + run.err).not.toContain(SENTINEL);
       expect(readFileSync(store).includes(SENTINEL)).toBe(false);
     } finally {
@@ -331,7 +331,7 @@ describe('built-in targets keep secrets out of results', () => {
       const run = await cli(['campaign', 'run', path, '--json', '--retry-attempts', '1']);
       expect(run.code).toBe(1);
       expect(run.out).toContain('answered 403');
-      expect(run.out).toContain('the response body of an authentication failure is not shown');
+      expect(run.out).toContain('upstream body and headers are not shown');
       expect(run.out).not.toContain('rejected');
       expect(run.out + run.err).not.toContain(SENTINEL);
     } finally {
@@ -372,7 +372,7 @@ describe('built-in targets refuse redirects', () => {
       expect(run.code).toBe(1);
       expect(other.hits()).toBe(0);
       expect(other.key()).toBeUndefined();
-      expect(run.out).toContain(`redirects to another origin (${otherUrl}), which is refused`);
+      expect(run.out).toContain('redirects to another origin or credentials are refused');
     } finally {
       await close(first);
       await close(other.server);
