@@ -1,0 +1,134 @@
+# Gated by driftbench gate from boundary/gen-boundary-072.yaml.
+# Each block passed or was rejected by the nine stages; metadata.gate says which and why.
+# Do not edit it by hand: gate the candidates again. Fictional data only.
+id: gen-boundary-072
+version: 6d29ed7a7539
+kind: conversation
+title: "Boundary value failing_tool=catalog.search: Path home-order of new-home: needs > address > offer > details > recap > order_placed, D8_tool_failure of catalog.search at address"
+channel: whatsapp
+lang: EN
+tier: generated
+tags:
+  - flow:new-home
+  - persona:new-customer
+  - data:fiber
+stages:
+  - needs
+  - identify
+  - address
+  - port_number
+  - offer
+  - details
+  - recap
+  - order_placed
+  - callback
+  - handover
+  - closing
+  - build_sheet
+  - add_summary
+criteria:
+  - name: flow.new-home
+    rubric: A new customer asks for home internet at an address
+    gating: false
+    scope: conversation
+  - name: deviation.D8_tool_failure
+    rubric: An honest fallback and one retry; never a success that did not happen.
+    gating: false
+    scope: block
+blocks:
+  - id: b1-needs-to-address
+    when:
+      user: Do you have home internet where I live?
+    expect:
+      stage: address
+      tools:
+        - label: coverage.check
+          count: 0
+        - label: catalog.search
+          count: 0
+      lang: EN
+      criteria:
+        - flow.new-home
+  - id: b2-D8_tool_failure
+    when:
+      injection:
+        class: D8_tool_failure
+        user: The address is 14 Harbor Road, Acmeville.
+    given:
+      world:
+        tools:
+          catalog.search:
+            error: service unavailable (generated tool failure)
+    expect:
+      stage: callback
+      tools:
+        - label: coverage.check
+          count: 1
+          input:
+            address: 14 Harbor Road, Acmeville
+        - label: catalog.search
+          count: 2
+          input:
+            category: home
+            address_id: addr-101
+      lang: EN
+      criteria:
+        - deviation.D8_tool_failure
+metadata:
+  generated:
+    by: driftbench generate
+    seeder: boundary
+    seed: 1
+    stream: 1884878049
+    map:
+      path: ../map/approved.yaml
+      agent: acme
+      version: "1"
+      hash: 6d29ed7a7539
+    path: home-order
+    cell:
+      failing_tool: catalog.search
+      flow: new-home
+      user_type: new-customer
+      coverage_result: fiber
+      plan_choice: names-one
+      customer_details: name-and-email
+      channel: whatsapp
+    blocks:
+      - block: b1-needs-to-address
+        seeder: boundary
+        cell:
+          spec: metadata.generated.cell
+          stage_transition: needs-to-address
+          stage: address
+        phrase:
+          dimension: stage_transition
+          value: needs-to-address
+      - block: b2-D8_tool_failure
+        seeder: boundary
+        cell:
+          spec: metadata.generated.cell
+          deviation: D8_tool_failure
+          stage_transition: address-to-offer
+          coverage_result: fiber
+          stage: callback
+        phrase:
+          dimension: stage_transition
+          value: address-to-offer
+  gate:
+    by: driftbench gate
+    date: 2026-10-11
+    blocks:
+      - block: b1-needs-to-address
+        status: accepted
+        pass_k: 1
+        pass_probability: 0.692
+      - block: b2-D8_tool_failure
+        status: accepted
+        pass_k: 1
+        pass_probability: 0.538
+rules:
+  forbidden_tools:
+    - port.check
+    - order.create
+    - notify_sales

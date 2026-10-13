@@ -24,7 +24,7 @@ describe('the map ladder on the current extractor', () => {
 
   it('reaches level 1 and more on seeds 1 to 3: every planted entity, atom and constraint is recovered', async () => {
     for (const seed of [1, 2, 3]) {
-      const run = await runLadder(mapLadder(), { seed });
+      const run = await runLadder(mapLadder(), { seed, maxLevel: 4 });
       expect(run.rows.slice(0, 4).map((row) => [row.id, row.observed, row.pass])).toEqual([
         ['structured', 1, true],
         ['prose-atoms', 1, true],

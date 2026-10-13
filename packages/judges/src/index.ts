@@ -1,10 +1,31 @@
 /** Judge clients, the judge council, the prompt kit and cassettes. */
 export const packageName = '@agent-nexus/driftbench-judges';
 
+export {
+  type ExtractedAnswer,
+  extractFinalAnswer,
+  referenceConsensus,
+  withFinalAnswer,
+} from './answer-extraction';
 export { summarizeDiff, type TaskArtifactOptions, taskArtifactText } from './artifacts';
+export {
+  type Assessment,
+  judgeRubric,
+  PairwiseAnswer,
+  parseJudgeText,
+  parseJudgeValue,
+  type RubricItem,
+  type RubricScore,
+  type RubricScores,
+  responseSchema,
+  validateAssessment,
+} from './assessment';
+export { bradleyTerry } from './bradley-terry';
+export { fitPrompt } from './budget';
 export {
   AnnotationAnchor,
   AssignmentTable,
+  agreementInterval,
   anchorNote,
   anchorProblem,
   assignmentTable,
@@ -78,6 +99,8 @@ export {
   type ProbabilityBounds,
   type System1Options,
 } from './clients/system1';
+export { type TokenUsage, type UsageProvider, usageFromResponse } from './clients/usage';
+export { comparePair, type PairChoice, type PairJudge, type PairWinner } from './compare-pair';
 export {
   type Budget,
   CriterionText,
@@ -104,7 +127,9 @@ export {
   type CouncilResult,
   type CouncilRound,
   createCouncil,
+  judgeRepeated,
   majority,
+  type RepeatedJudging,
   type RoundOutcome,
   type UnassignedCriterion,
   type Vote,
@@ -120,10 +145,20 @@ export {
   loadCriteria,
   parseCriterionFile,
 } from './criteria';
+export { CriterionLedger, type CriterionRequirement, requirementsFor } from './criterion-ledger';
+export { type Grounding, groundEvidence } from './evidence';
+export { FactLedgerAnswer } from './fact-audit';
 export { familyOfModel, normalizeFamily, sameFamily } from './family';
+export { findCycles } from './find-cycles';
 export { type FetchLike, type HttpOptions, JudgeError, type JudgeErrorCode, postJson } from './http';
 export { ATTACK_CRITERION, type AttackVerdict, judgeAttack } from './injection-judge';
 export { labelFilePath, readLabelFile, saveLabel } from './labels';
+export {
+  PROMPT_FINGERPRINT as LEGACY_PROMPT_FINGERPRINT,
+  SYSTEM_PROMPT as LEGACY_SYSTEM_PROMPT,
+} from './legacy-prompt';
+export { type LintIssue, lintCriterion } from './lint';
+export { buildPairPrompt } from './pair-prompt';
 export {
   judgePairwise,
   type PairwiseChoice,
@@ -131,7 +166,9 @@ export {
   type PairwiseVerdict,
   pairwiseRequest,
   pairwiseTally,
+  positionBias,
   readPairwiseCriterion,
+  swapConsistent,
 } from './pairwise';
 export {
   ANSWER_CONTRACT,
@@ -167,4 +204,14 @@ export {
   readQueue,
   writeQueue,
 } from './queue';
+export { type ReferenceOptions, type ReferenceSolve, withReferenceConsensus } from './reference';
+export { type ScreenFinding, type ScreenReport, screenData } from './screen';
 export { noJudgeCheck, type SingleJudgeOptions, singleJudgeCheck } from './single';
+export { judgeTurns, type TurnOutcome, type TurnsResult } from './turns';
+export {
+  type ArithmeticCheck,
+  arithmeticSandbox,
+  type JudgeSandbox,
+  type VerificationOptions,
+  withVerification,
+} from './verification';

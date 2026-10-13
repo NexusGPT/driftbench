@@ -1,0 +1,11 @@
+{
+  "source": "Options A and B (a1462f30) merged with main (7c0b3592)",
+  "mapHash": "6d29ed7a7539",
+  "hashes": {
+    "pairwise": "2b7644a79a1688a7c0a478ef8c05ce76a6c55ef5d5f0ff0d79c67bdc6ba09cde",
+    "budget-20": "3e27a7b7a289e6c00b6f669df384e825208ee0b83a4c0e6ef8f806aa3fa2d384",
+    "budget-50": "6225623b91062b6ed0539a060bdc34687e2ceb5c50e22770c7c155a35f8f1663",
+    "budget-100": "85b1416481c64ed9899537d24115eebada711926f95c4c4d5e5f73ea88630a2e",
+    "budget-200": "74b0e3be347f2614c26803717ce8a688247d7363aff7afa6972366f2bfedb778"
+  }
+}

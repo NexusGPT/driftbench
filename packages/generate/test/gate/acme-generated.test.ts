@@ -48,7 +48,7 @@ beforeAll(async () => {
 
 describe('the generated Acme suite on the real agent', () => {
   it('passes every block of every complete spec on the reference agent', async () => {
-    expect(specs.length).toBe(267);
+    expect(specs.length).toBe(256);
     const failing: string[] = [];
     for (const spec of specs) {
       // A price-sheet task runs on the ops agent its family names, as the gate routes it.

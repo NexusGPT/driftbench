@@ -3,7 +3,7 @@
  * Neyman allocation of a fixed pool across strata, and the repeats per block for a noise floor.
  */
 
-import { assertProbability } from './basics';
+import { assertFinite, assertProbability } from './basics';
 import { Z95 } from './intervals';
 
 export interface Observation {
@@ -76,17 +76,22 @@ export function varianceComponents(
   const residual = options.residual ?? 'repeat';
   const L = levels.length;
   const N = observations.length;
-  if (N === 0) throw new RangeError('varianceComponents: no observations');
-  const ys = observations.map((o) => (typeof o.value === 'boolean' ? (o.value ? 1 : 0) : o.value));
+  if (N === 0) throw new RangeError('varianceComponents: observations must not be empty');
+  const raw = observations.map((o) => (typeof o.value === 'boolean' ? (o.value ? 1 : 0) : o.value));
   observations.forEach((o, i) => {
     if (o.path.length !== L) {
       throw new RangeError(
-        `varianceComponents: observation ${i} has ${o.path.length} path entries, expected ${L}`,
+        `varianceComponents: observations[${i}].path has ${o.path.length} entries, expected ${L}`,
       );
     }
-    if (!Number.isFinite(ys[i] as number))
-      throw new RangeError(`varianceComponents: observation ${i} is not finite`);
+    if (!Number.isFinite(raw[i] as number))
+      throw new RangeError(`varianceComponents: observations[${i}].value must be finite, got ${raw[i]}`);
   });
+
+  // Shift by the first value: the variances do not depend on the shift, the differences of nearby values are exact,
+  // so a large common offset costs no digits and equal values give exact zeros (a grand mean would not).
+  const center = raw[0] as number;
+  const ys = raw.map((y) => y - center);
 
   // Group sizes and sums per level; level 0 is the grand group.
   const sizes: Map<string, number>[] = [];
@@ -201,7 +206,14 @@ export function varianceComponents(
     if (new Set(children.values()).size > 1) balanced = false;
   }
 
-  return { method: 'anova', balanced, n: N, mean: (sums[0]?.get('') as number) / N, components, total };
+  return {
+    method: 'anova',
+    balanced,
+    n: N,
+    mean: center + (sums[0]?.get('') as number) / N,
+    components,
+    total,
+  };
 }
 
 /**
@@ -321,6 +333,7 @@ export function neymanAllocation(input: NeymanInput): NeymanResult {
   if (!Number.isInteger(total) || total < 0)
     throw new RangeError(`neymanAllocation: total must be a non-negative integer, got ${total}`);
   sizes.forEach((v, i) => {
+    if (!Number.isFinite(v)) throw new RangeError(`neymanAllocation: sizes[${i}] must be finite, got ${v}`);
     if (!(v >= 0)) throw new RangeError(`neymanAllocation: sizes[${i}] must be non-negative`);
   });
   sds.forEach((v, i) => {
@@ -342,18 +355,35 @@ export function neymanAllocation(input: NeymanInput): NeymanResult {
   let left = total - Math.min(total, positive.length);
   // The objective is separable and convex in n_h, so adding one at a time where it removes the most
   // variance, w^2 / (n (n + 1)), reaches the integer optimum. Ties go to the lower index.
-  while (left > 0) {
-    let best = -1;
-    let bestGain = -1;
-    for (const [w, i] of positive) {
-      const n = allocated[i] as number;
-      const gain = (w * w) / (n * (n + 1));
-      if (gain > bestGain || (gain === bestGain && i < best)) {
-        best = i;
-        bestGain = gain;
-      }
+  // A binary heap keeps the largest gain on top (ties to the lower index), so each unit costs O(log strata).
+  const gainOf = (i: number, w: number): number => {
+    const n = allocated[i] as number;
+    return (w * w) / (n * (n + 1));
+  };
+  const heap = positive.map(([w, i]) => ({ i, gain: gainOf(i, w), w }));
+  const before = (x: (typeof heap)[number], y: (typeof heap)[number]): boolean =>
+    x.gain > y.gain || (x.gain === y.gain && x.i < y.i);
+  const siftDown = (start: number): void => {
+    let k = start;
+    for (;;) {
+      const l = 2 * k + 1;
+      const r = l + 1;
+      let top = k;
+      if (l < heap.length && before(heap[l] as (typeof heap)[number], heap[top] as (typeof heap)[number]))
+        top = l;
+      if (r < heap.length && before(heap[r] as (typeof heap)[number], heap[top] as (typeof heap)[number]))
+        top = r;
+      if (top === k) return;
+      [heap[k], heap[top]] = [heap[top] as (typeof heap)[number], heap[k] as (typeof heap)[number]];
+      k = top;
     }
-    allocated[best] = (allocated[best] as number) + 1;
+  };
+  for (let k = Math.floor(heap.length / 2) - 1; k >= 0; k -= 1) siftDown(k);
+  while (left > 0 && heap.length > 0) {
+    const top = heap[0] as (typeof heap)[number];
+    allocated[top.i] = (allocated[top.i] as number) + 1;
+    top.gain = gainOf(top.i, top.w);
+    siftDown(0);
     left -= 1;
   }
   return { exact, allocated };
@@ -392,9 +422,11 @@ export function repeatsForFloor(input: RepeatsForFloorInput): RepeatsForFloorRes
   let variance: number;
   if (input.variance !== undefined) variance = input.variance;
   else if (input.flipRate !== undefined) {
-    assertProbability('flipRate', input.flipRate);
+    assertProbability('repeatsForFloor', 'flipRate', input.flipRate);
     variance = input.flipRate * (1 - input.flipRate);
   } else throw new RangeError('repeatsForFloor: give variance or flipRate');
+  assertFinite('repeatsForFloor', 'variance', variance);
+  assertFinite('repeatsForFloor', 'blocks', blocks);
   if (!(variance >= 0)) throw new RangeError('repeatsForFloor: variance must be non-negative');
   if (!(input.floor > 0)) throw new RangeError('repeatsForFloor: floor must be positive');
   if (!(blocks >= 1)) throw new RangeError('repeatsForFloor: blocks must be at least 1');
