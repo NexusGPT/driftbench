@@ -2,7 +2,16 @@ import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
-import { compare, quantile, runNode, summarize, table, treeHash, writeProbe } from './perf-baseline.mjs';
+import {
+  compare,
+  maskClock,
+  quantile,
+  runNode,
+  summarize,
+  table,
+  treeHash,
+  writeProbe,
+} from './perf-baseline.mjs';
 
 let folder;
 beforeAll(() => {
@@ -51,12 +60,12 @@ describe('perf-baseline statistics', () => {
       join(two, 'b.txt'),
       'at 2026-01-02T03:04:09Z "latencyMs": 7.5, latency 7.5 ms, at most 900',
     );
-    expect(treeHash(two, { clock: 'masked' })).toEqual(treeHash(one, { clock: 'masked' }));
+    expect(treeHash(two, { mask: maskClock })).toEqual(treeHash(one, { mask: maskClock }));
     writeFileSync(
       join(two, 'b.txt'),
       'at 2026-01-02T03:04:09Z "latencyMs": 7.5, latency 7.5 ms, at most 901',
     );
-    expect(treeHash(two, { clock: 'masked' })).not.toEqual(treeHash(one, { clock: 'masked' }));
+    expect(treeHash(two, { mask: maskClock })).not.toEqual(treeHash(one, { mask: maskClock }));
   });
 });
 

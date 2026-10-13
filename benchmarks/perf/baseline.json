@@ -2886,7 +2886,7 @@
       "outputs": {
         "stdout_sha256": "3cce6476a1e40eb5309da019e1cd207b594b99eac997f554d7c39b1c70495593",
         "run_records": 22,
-        "campaign_sha256": "9b915f094273b7a154ad92501a247617d21bc1a1a5908805f41f69948c6b4bff"
+        "campaign_sha256": "c26aa7e8e9034197d2c1e8db7a4b18342f501d9e2ef8f46c034e8e07474e9b69"
       },
       "output_stable": true
     },
@@ -3106,7 +3106,7 @@
       "outputs": {
         "stdout_sha256": "61edacde18f49f5347f7075df2c0d7b73298a7933644a622631b5fc7c039f0be",
         "run_records": 19,
-        "campaign_sha256": "a563150f6dc72d8e11eb0fb30ac7b9e2df181e77d4270c3d5c4cd69ac5be4383"
+        "campaign_sha256": "373d0bf06aaf7670f94fb60ac7a1b29592de6a010510045479aa080639dae8ec"
       },
       "output_stable": true
     },

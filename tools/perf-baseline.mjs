@@ -302,9 +302,9 @@ export const maskClock = (text) =>
 
 /**
  * One hash for a folder: every file's path and content hash, in path order. `skip` names files left out, and
- * `clock: 'masked'` replaces the clock values first, for files that record when they were made.
+ * `mask` rewrites the text of each file first, for files that record when or where they were made.
  */
-export function treeHash(folder, { skip = [], clock } = {}) {
+export function treeHash(folder, { skip = [], mask } = {}) {
   const rows = [];
   const walk = (current) => {
     for (const entry of readdirSync(current, { withFileTypes: true }).sort((a, b) =>
@@ -313,7 +313,7 @@ export function treeHash(folder, { skip = [], clock } = {}) {
       const path = join(current, entry.name);
       if (entry.isDirectory()) walk(path);
       else if (!skip.includes(relative(folder, path))) {
-        const content = clock === 'masked' ? maskClock(readFileSync(path, 'utf8')) : readFileSync(path);
+        const content = mask === undefined ? readFileSync(path) : mask(readFileSync(path, 'utf8'));
         rows.push(`${relative(folder, path)}\0${sha256(content)}`);
       }
     }
@@ -373,7 +373,8 @@ const portable = (text) =>
 
 /**
  * The hash of a stored campaign: its exported bundle (the campaign, every run record, every spec) with the
- * clock values masked. The manifest is left out, because it holds the hashes of the files before the mask.
+ * clock values and the path of the tree masked (a run record names its spec file by absolute path). The
+ * manifest is left out, because it holds the hashes of the files before the mask.
  */
 function campaignHash(bin, id, work) {
   const exported = runNode([
@@ -387,7 +388,10 @@ function campaignHash(bin, id, work) {
     join(work, 'export'),
   ]);
   if (exported.status !== 0) throw new Error(`campaign export failed\n${exported.stderr}`);
-  const tree = treeHash(join(work, 'export', id), { skip: ['manifest.json'], clock: 'masked' });
+  const tree = treeHash(join(work, 'export', id), {
+    skip: ['manifest.json'],
+    mask: (text) => portable(maskClock(text)),
+  });
   return { run_records: tree.files, campaign_sha256: tree.sha256 };
 }
 
