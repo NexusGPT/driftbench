@@ -37,17 +37,34 @@ blocks:
         - label: catalog.search
           count: 0
       lang: EN
-  - id: b2-value
+  - id: b2-identify-to-offer
     when:
-      user: "[no approved phrase for catalog.search.in.customer_email=catalog.search.in.customer_email.at-min-length]"
+      user: It's sam.rivera@example.com.
     expect:
-      stage: identify
+      stage: offer
       stage_reported: true
       tools:
         - label: catalog.search
-          count:
-            min: 1
+          count: 1
           input:
+            category: mobile
+            customer_email: sam.rivera@example.com
+      must:
+        - Acme Mobile S, 10 GB for \$15 a month
+        - Acme Mobile M, 40 GB for \$25 a month
+        - Acme Mobile L, unlimited data for \$35 a month
+      lang: EN
+  - id: b3-value
+    when:
+      user: "[no approved phrase for catalog.search.in.customer_email=catalog.search.in.customer_email.at-min-length]"
+    expect:
+      stage: offer
+      stage_reported: true
+      tools:
+        - label: catalog.search
+          count: 1
+          input:
+            category: mobile
             customer_email:
               regex: ^[\s\S]{1}$
         - label: coverage.check
@@ -97,12 +114,22 @@ metadata:
         phrase:
           dimension: stage_transition
           value: needs-to-identify
-      - block: b2-value
+      - block: b2-identify-to-offer
+        seeder: boundary
+        cell:
+          spec: metadata.generated.cell
+          stage_transition: identify-to-offer
+          account_lookup: found
+          stage: identify
+        phrase:
+          dimension: stage_transition
+          value: identify-to-offer
+      - block: b3-value
         seeder: boundary
         cell:
           spec: metadata.generated.cell
           catalog.search.in.customer_email: catalog.search.in.customer_email.at-min-length
-          stage: identify
+          stage: offer
         phrase: null
     concrete:
       catalog.search.in.customer_email.at-min-length: x

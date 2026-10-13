@@ -1,4 +1,5 @@
 import type {
+  Assertion,
   Count,
   EndStateSpec,
   Expect,
@@ -60,7 +61,16 @@ export type ScenarioRequest = {
    * refuses or defers (a value outside what a tool accepts, a write asked for before the confirmation).
    * Its Then is the stage the walk had reached, with the tool counts given; the walk ends there.
    */
-  turn?: { stimulus: Stimulus; carries: Pick[]; tools: ToolExpect[] };
+  turn?: {
+    stimulus: Stimulus;
+    carries: Pick[];
+    tools: ToolExpect[];
+    /**
+     * A request that makes a call: the turn is said right after the walk's move that calls the tool, and the
+     * call carries that move's arguments with `field` set to `value`, so every argument and the count hold.
+     */
+    call?: { tool: string; field: string; value: Assertion };
+  };
   /**
    * A turn said after the walk's first move that names a context value (who the user is) and asks for nothing:
    * the conversation stays on the stage it reached, no tool runs, and the walk goes on after it.
@@ -264,7 +274,7 @@ export function buildScenario(prepared: PreparedMap, rng: Rng, request: Scenario
   let movedAway = false;
   let turnPlaced = false;
   for (let index = 0; index < path.stages.length; index += 1) {
-    if (request.turn && index === 1) {
+    if (request.turn && !request.turn.call && index === 1) {
       blocks.push({
         id: `b${blocks.length + 1}-value`,
         stimulus: request.turn.stimulus,
@@ -425,7 +435,25 @@ export function buildScenario(prepared: PreparedMap, rng: Rng, request: Scenario
       ...(unstated.length > 0 ? { must_not: unstated } : {}),
       ...(lang === undefined ? {} : { lang }),
     });
+    const asked = request.turn?.call;
+    const made = asked ? tools.find((tool) => tool.label === asked.tool && calls(tool)) : undefined;
+    if (request.turn && asked && made) {
+      blocks.push({
+        id: `b${blocks.length + 1}-value`,
+        stimulus: request.turn.stimulus,
+        stage: to,
+        carries: request.turn.carries,
+        tools: [
+          { ...made, input: { ...made.input, [asked.field]: asked.value } },
+          ...request.turn.tools.filter((tool) => tool.label !== asked.tool),
+        ],
+        ...(lang === undefined ? {} : { lang }),
+      });
+      turnPlaced = true;
+      break;
+    }
   }
+  if (request.turn?.call && !turnPlaced) return fail(`no move of the path calls ${request.turn.call.tool}`);
 
   let placed: Built['probe'];
   let truncated = turnPlaced;

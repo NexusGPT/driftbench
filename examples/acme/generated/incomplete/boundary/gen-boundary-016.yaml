@@ -5,13 +5,14 @@
 id: gen-boundary-016
 version: ed9e4089e9c5
 kind: conversation
-title: "Boundary value coverage.check.in.address.at-min-length: Path porting-locked-number of porting: needs > port_number > offer > details > recap > order_placed > closing"
+title: "Boundary value coverage.check.in.address.at-min-length: Path order-single-plan of order: needs > address > offer > details > recap > order_placed > closing"
 channel: chat
 lang: EN
 tier: generated
 tags:
-  - flow:porting
-  - persona:new-customer
+  - flow:order
+  - data:5g-only
+  - persona:existing-customer
 stages:
   - needs
   - identify
@@ -27,29 +28,51 @@ stages:
   - build_sheet
   - add_summary
 blocks:
-  - id: b1-needs-to-port_number
+  - id: b1-needs-to-address
     when:
-      user: I'd like to move to Acme and keep my phone number.
+      user: Do you have home internet where I live?
     expect:
-      stage: port_number
+      stage: address
       stage_reported: true
       tools:
         - label: coverage.check
           count: 0
+        - label: catalog.search
+          count: 0
       lang: EN
-  - id: b2-value
+  - id: b2-address-to-offer
     when:
-      user: "[no approved phrase for coverage.check.in.address=coverage.check.in.address.at-min-length]"
+      user: The address is 88 Summit Avenue, Acmeville.
     expect:
-      stage: port_number
+      stage: offer
       stage_reported: true
       tools:
         - label: coverage.check
-          count:
-            min: 1
+          count: 1
+          input:
+            address: 88 Summit Avenue, Acmeville
+          input_closed: true
+        - label: catalog.search
+          count: 1
+          input:
+            category: home
+            address_id: addr-103
+      must:
+        - Acme Air 5G, up to 200 Mbps for \$35 a month
+      lang: EN
+  - id: b3-value
+    when:
+      user: "[no approved phrase for coverage.check.in.address=coverage.check.in.address.at-min-length]"
+    expect:
+      stage: offer
+      stage_reported: true
+      tools:
+        - label: coverage.check
+          count: 1
           input:
             address:
               regex: ^[\s\S]{1}$
+          input_closed: true
         - label: catalog.search
           count: 0
         - label: port.check
@@ -63,7 +86,6 @@ blocks:
         - needs-approved-phrase
 rules:
   forbidden_tools:
-    - catalog.search
     - port.check
     - order.create
     - notify_sales
@@ -78,32 +100,41 @@ metadata:
       agent: acme
       version: "1"
       hash: ed9e4089e9c5
-    path: porting-locked-number
+    path: order-single-plan
     cell:
       coverage.check.in.address: coverage.check.in.address.at-min-length
-      flow: porting
-      user_type: new-customer
-      port_result: locked
-      plan_choice: names-one
+      flow: order
+      coverage_result: 5g-only
+      plan_choice: loose-yes-to-single-offer
       customer_details: name-and-email
       channel: chat
-      coverage_result: none
+      user_type: existing-customer
     blocks:
-      - block: b1-needs-to-port_number
+      - block: b1-needs-to-address
         seeder: boundary
         cell:
           spec: metadata.generated.cell
-          stage_transition: needs-to-port_number
+          stage_transition: needs-to-address
           stage: needs
         phrase:
           dimension: stage_transition
-          value: needs-to-port_number
-      - block: b2-value
+          value: needs-to-address
+      - block: b2-address-to-offer
+        seeder: boundary
+        cell:
+          spec: metadata.generated.cell
+          stage_transition: address-to-offer
+          coverage_result: 5g-only
+          stage: address
+        phrase:
+          dimension: stage_transition
+          value: address-to-offer
+      - block: b3-value
         seeder: boundary
         cell:
           spec: metadata.generated.cell
           coverage.check.in.address: coverage.check.in.address.at-min-length
-          stage: port_number
+          stage: offer
         phrase: null
     concrete:
       coverage.check.in.address.at-min-length: x

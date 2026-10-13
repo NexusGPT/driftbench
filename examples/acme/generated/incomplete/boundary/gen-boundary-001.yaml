@@ -5,14 +5,13 @@
 id: gen-boundary-001
 version: ed9e4089e9c5
 kind: conversation
-title: "Boundary value catalog.search.in.category.mobile: Path home-no-coverage of new-home: needs > address > callback > handover > closing"
-channel: whatsapp
+title: "Boundary value catalog.search.in.category.mobile: Path porting-locked-number of porting: needs > port_number > offer > details > recap > order_placed > closing"
+channel: chat
 lang: EN
 tier: generated
 tags:
-  - flow:new-home
+  - flow:porting
   - persona:new-customer
-  - data:no-service
 stages:
   - needs
   - identify
@@ -28,26 +27,48 @@ stages:
   - build_sheet
   - add_summary
 blocks:
-  - id: b1-needs-to-address
+  - id: b1-needs-to-port_number
     when:
-      user: Hello, I'm looking for home internet.
+      user: I'd like to move to Acme and keep my phone number.
     expect:
-      stage: address
+      stage: port_number
       stage_reported: true
       tools:
+        - label: port.check
+          count: 0
         - label: catalog.search
           count: 0
       lang: EN
-  - id: b2-value
+  - id: b2-port_number-to-offer
+    when:
+      user: My number is +1 202 555 0160.
+    expect:
+      stage: offer
+      stage_reported: true
+      tools:
+        - label: port.check
+          count: 1
+          input:
+            number: "+12025550160"
+          input_closed: true
+        - label: catalog.search
+          count: 1
+          input:
+            category: mobile
+      must:
+        - Acme Mobile S, 10 GB for \$15 a month
+        - Acme Mobile M, 40 GB for \$25 a month
+        - Acme Mobile L, unlimited data for \$35 a month
+      lang: EN
+  - id: b3-value
     when:
       user: "[no approved phrase for catalog.search.in.category=catalog.search.in.category.mobile]"
     expect:
-      stage: address
+      stage: offer
       stage_reported: true
       tools:
         - label: catalog.search
-          count:
-            min: 1
+          count: 1
           input:
             category: mobile
         - label: coverage.check
@@ -64,7 +85,6 @@ blocks:
 rules:
   forbidden_tools:
     - coverage.check
-    - port.check
     - order.create
     - notify_sales
 metadata:
@@ -78,30 +98,42 @@ metadata:
       agent: acme
       version: "1"
       hash: ed9e4089e9c5
-    path: home-no-coverage
+    path: porting-locked-number
     cell:
       catalog.search.in.category: catalog.search.in.category.mobile
-      flow: new-home
+      flow: porting
       user_type: new-customer
-      coverage_result: no-service
-      callback_phone: given
-      channel: whatsapp
+      port_result: locked
+      plan_choice: names-one
+      customer_details: name-and-email
+      channel: chat
+      coverage_result: none
     blocks:
-      - block: b1-needs-to-address
+      - block: b1-needs-to-port_number
         seeder: boundary
         cell:
           spec: metadata.generated.cell
-          stage_transition: needs-to-address
+          stage_transition: needs-to-port_number
           stage: needs
         phrase:
           dimension: stage_transition
-          value: needs-to-address
-      - block: b2-value
+          value: needs-to-port_number
+      - block: b2-port_number-to-offer
+        seeder: boundary
+        cell:
+          spec: metadata.generated.cell
+          stage_transition: port_number-to-offer
+          port_result: locked
+          stage: port_number
+        phrase:
+          dimension: stage_transition
+          value: port_number-to-offer
+      - block: b3-value
         seeder: boundary
         cell:
           spec: metadata.generated.cell
           catalog.search.in.category: catalog.search.in.category.mobile
-          stage: address
+          stage: offer
         phrase: null
     concrete:
       catalog.search.in.category.mobile: mobile

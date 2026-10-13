@@ -1,11 +1,11 @@
 {
-  "source": "A walk perturbed by a nudge holds the one-message rule (exec/generator-v3)",
+  "source": "A valid read input is asked right after the move that calls the tool (exec/generator-v3)",
   "mapHash": "ed9e4089e9c5",
   "hashes": {
-    "pairwise": "d92f9c363d28da3b4c27c661c5ab1f38c930f4f8a0dc98cea5d394bae01ecccb",
-    "budget-20": "9cad46d19a68c0fcbdcda5af616c31f01ee0461bb42f7650c6c28dfdc76db999",
-    "budget-50": "e972a296a86f8a5cd84cd45f57f4b848541ed5ff0d126472cd71277c4fe87381",
-    "budget-100": "5f4e2d8f04238c4027dd2940cda8206d0a58ef6c8101a23250c0c993309ba57f",
-    "budget-200": "58c5b08a395f8b293c6c255f14ee5d6f7d386f9dd3214c397a01ad51864ba07b"
+    "pairwise": "ac4f4cbd022706b5fd837e475b4f03a54888a1857df9e46a0edfb2a14fc57873",
+    "budget-20": "adeda9b11d563df929bc44c0ccb7c84422466b99e1dc87fdb2083d7f7a221356",
+    "budget-50": "4c266fd572e2c6440d1db747d561181a3bda6b0dccb44648616b6967706bc0a8",
+    "budget-100": "532a9bf1308a62bdc546fd9b892005af056f528b2318425f18336a9039c7858c",
+    "budget-200": "4cf6e98ed526f826225eeebe571b6d203b08846485c5aeee1572b566952f100c"
   }
 }

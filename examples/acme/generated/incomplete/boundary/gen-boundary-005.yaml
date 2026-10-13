@@ -12,7 +12,7 @@ tier: generated
 tags:
   - flow:order
   - data:5g-only
-  - persona:existing-customer
+  - persona:new-customer
 stages:
   - needs
   - identify
@@ -35,22 +35,46 @@ blocks:
       stage: address
       stage_reported: true
       tools:
+        - label: coverage.check
+          count: 0
         - label: catalog.search
           count: 0
       lang: EN
-  - id: b2-value
+  - id: b2-address-to-offer
+    when:
+      user: The address is 88 Summit Avenue, Acmeville.
+    expect:
+      stage: offer
+      stage_reported: true
+      tools:
+        - label: coverage.check
+          count: 1
+          input:
+            address: 88 Summit Avenue, Acmeville
+          input_closed: true
+        - label: catalog.search
+          count: 1
+          input:
+            category: home
+            address_id: addr-103
+      must:
+        - Acme Air 5G, up to 200 Mbps for \$35 a month
+      lang: EN
+  - id: b3-value
     when:
       user: "[no approved phrase for catalog.search.in.customer_email=catalog.search.in.customer_email.absent]"
     expect:
-      stage: address
+      stage: offer
       stage_reported: true
       tools:
         - label: catalog.search
-          count:
-            min: 1
+          count: 1
           input:
+            category: home
+            address_id: addr-103
             customer_email:
               absent: true
+          input_closed: true
         - label: coverage.check
           count: 0
         - label: port.check
@@ -64,7 +88,6 @@ blocks:
         - needs-approved-phrase
 rules:
   forbidden_tools:
-    - coverage.check
     - port.check
     - order.create
     - notify_sales
@@ -87,7 +110,7 @@ metadata:
       plan_choice: loose-yes-to-single-offer
       customer_details: name-and-email
       channel: whatsapp
-      user_type: existing-customer
+      user_type: new-customer
     blocks:
       - block: b1-needs-to-address
         seeder: boundary
@@ -98,12 +121,22 @@ metadata:
         phrase:
           dimension: stage_transition
           value: needs-to-address
-      - block: b2-value
+      - block: b2-address-to-offer
+        seeder: boundary
+        cell:
+          spec: metadata.generated.cell
+          stage_transition: address-to-offer
+          coverage_result: 5g-only
+          stage: address
+        phrase:
+          dimension: stage_transition
+          value: address-to-offer
+      - block: b3-value
         seeder: boundary
         cell:
           spec: metadata.generated.cell
           catalog.search.in.customer_email: catalog.search.in.customer_email.absent
-          stage: address
+          stage: offer
         phrase: null
     concrete:
       catalog.search.in.customer_email.absent: (absent)

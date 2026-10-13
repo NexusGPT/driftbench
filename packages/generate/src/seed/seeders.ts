@@ -1,4 +1,4 @@
-import type { PerturbationSpec, ToolExpect } from '@agent-nexus/driftbench-core';
+import type { Assertion, PerturbationSpec, ToolExpect } from '@agent-nexus/driftbench-core';
 import { NONE } from '@agent-nexus/driftbench-space';
 import type { PathRelation, ProposalPhrase } from '../extract/proposal';
 import {
@@ -996,6 +996,42 @@ export function boundarySeeder(
       // an echo and a copy of the Given all pass it. The map supplies no word or stage for a refusal, so
       // the spec has no machine Then and goes to incomplete/.
       const forbidsOnly = found !== undefined && tools.length > 0 && tools.every((tool) => tool.count === 0);
+      const asked = tools.find((tool) => tool.label === found?.tool.name && tool.count !== 0);
+      const field = found?.path[0];
+      if (found && asked?.input && field !== undefined && hasPaths(prepared)) {
+        // A request that makes a call is said right after the walk's move that calls the tool: the call
+        // carries the arguments that move gives it, with this value in its field, and is made once.
+        const calling = new Set(
+          prepared.relations.usesTools
+            .filter((use) => use.tool === found.tool.name && use.subject.dimension === 'flow')
+            .map((use) => use.subject.value),
+        );
+        const built = scenarioDraft(
+          prepared,
+          context,
+          id,
+          'boundary',
+          `Boundary value ${value.id}`,
+          [target],
+          {
+            preferred: prepared.relations.paths.filter((path) => calling.has(path.flow)),
+            others: [],
+          },
+          {
+            turn: {
+              stimulus: choosePhrase(prepared, rng, [target]),
+              carries: [target],
+              tools: tools.filter((tool) => tool !== asked),
+              call: { tool: found.tool.name, field, value: asked.input[field] as Assertion },
+            },
+          },
+        );
+        if ('draft' in built) {
+          if (Object.keys(concrete).length > 0) built.draft.concrete = concrete;
+          drafts.push(built.draft);
+          return;
+        }
+      }
       if (found !== undefined && hasPaths(prepared)) {
         // A request that only forbids calls is passed by a reply that does nothing. Said after the walk's
         // first move, the conversation must also stay on the stage it reached: a reply that does nothing

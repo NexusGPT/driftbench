@@ -5,14 +5,14 @@
 id: gen-boundary-007
 version: ed9e4089e9c5
 kind: conversation
-title: "Boundary value catalog.search.in.address_id.absent: Path home-address-not-found of new-home: needs > address > address"
+title: "Boundary value catalog.search.in.address_id.absent: Path home-order of new-home: needs > address > offer > details > recap > order_placed"
 channel: whatsapp
 lang: EN
 tier: generated
 tags:
   - flow:new-home
   - persona:new-customer
-  - data:not-in-map
+  - data:5g-only
 stages:
   - needs
   - identify
@@ -35,20 +35,42 @@ blocks:
       stage: address
       stage_reported: true
       tools:
+        - label: coverage.check
+          count: 0
         - label: catalog.search
           count: 0
       lang: EN
-  - id: b2-value
+  - id: b2-address-to-offer
+    when:
+      user: The address is 88 Summit Avenue, Acmeville.
+    expect:
+      stage: offer
+      stage_reported: true
+      tools:
+        - label: coverage.check
+          count: 1
+          input:
+            address: 88 Summit Avenue, Acmeville
+          input_closed: true
+        - label: catalog.search
+          count: 1
+          input:
+            category: home
+            address_id: addr-103
+      must:
+        - Acme Air 5G, up to 200 Mbps for \$35 a month
+      lang: EN
+  - id: b3-value
     when:
       user: "[no approved phrase for catalog.search.in.address_id=catalog.search.in.address_id.absent]"
     expect:
-      stage: address
+      stage: offer
       stage_reported: true
       tools:
         - label: catalog.search
-          count:
-            min: 1
+          count: 1
           input:
+            category: home
             address_id:
               absent: true
         - label: coverage.check
@@ -64,7 +86,6 @@ blocks:
         - needs-approved-phrase
 rules:
   forbidden_tools:
-    - coverage.check
     - port.check
     - order.create
     - notify_sales
@@ -79,12 +100,14 @@ metadata:
       agent: acme
       version: "1"
       hash: ed9e4089e9c5
-    path: home-address-not-found
+    path: home-order
     cell:
       catalog.search.in.address_id: catalog.search.in.address_id.absent
       flow: new-home
       user_type: new-customer
-      coverage_result: not-in-map
+      coverage_result: 5g-only
+      plan_choice: names-one
+      customer_details: name-and-email
       channel: whatsapp
     blocks:
       - block: b1-needs-to-address
@@ -96,12 +119,22 @@ metadata:
         phrase:
           dimension: stage_transition
           value: needs-to-address
-      - block: b2-value
+      - block: b2-address-to-offer
+        seeder: boundary
+        cell:
+          spec: metadata.generated.cell
+          stage_transition: address-to-offer
+          coverage_result: 5g-only
+          stage: address
+        phrase:
+          dimension: stage_transition
+          value: address-to-offer
+      - block: b3-value
         seeder: boundary
         cell:
           spec: metadata.generated.cell
           catalog.search.in.address_id: catalog.search.in.address_id.absent
-          stage: address
+          stage: offer
         phrase: null
     concrete:
       catalog.search.in.address_id.absent: (absent)
