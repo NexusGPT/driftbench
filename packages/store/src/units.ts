@@ -1,4 +1,4 @@
-import type { CostUnit, Observed, RunResult } from '@driftbench/core';
+import type { CostUnit, Observed, RunResult } from '@agent-nexus/driftbench-core';
 
 /** The metric of a unit that prices one block of an agent run. */
 export const BLOCK_METRIC = 'block';

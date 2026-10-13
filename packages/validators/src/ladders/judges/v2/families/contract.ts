@@ -1,4 +1,4 @@
-import type { JudgeResult } from '@driftbench/judges';
+import type { JudgeResult } from '@agent-nexus/driftbench-judges';
 import { type BankItem, between, filler, fn, item, type Tier } from '../bank';
 
 /**

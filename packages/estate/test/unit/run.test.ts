@@ -4,7 +4,7 @@ import { chmod, cp, readdir, readFile, writeFile } from 'node:fs/promises';
 import { homedir } from 'node:os';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { type UnitTest, unitTestOf } from '@driftbench/generate';
+import { type UnitTest, unitTestOf } from '@agent-nexus/driftbench-generate';
 import { describe, expect, it } from 'vitest';
 import {
   ClaudeCodeReader,

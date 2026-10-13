@@ -1,6 +1,6 @@
 # Statistics
 
-One run proves nothing. driftbench repeats runs, reports every rate with an interval, and compares two versions of an agent with paired tests. The functions on this page ship in `@driftbench/stats`. Each matches a reference value computed in Python with scipy and numpy and committed as a test fixture (`packages/stats/test/reference`).
+One run proves nothing. driftbench repeats runs, reports every rate with an interval, and compares two versions of an agent with paired tests. The functions on this page ship in `@agent-nexus/driftbench-stats`. Each matches a reference value computed in Python with scipy and numpy and committed as a test fixture (`packages/stats/test/reference`).
 
 What is built and what is not:
 
@@ -12,7 +12,7 @@ What is built and what is not:
 The same statistics serve conversations and tasks. One conversation, or one task, is one cluster. An artifact check is a pass or a fail per repeat, so pass^k reads the same way for a workbook as for a reply.
 
 ```ts
-import { mde, nonInferiority, passK, repeatsForFloor, wilson, zeroFailureBound } from '@driftbench/stats';
+import { mde, nonInferiority, passK, repeatsForFloor, wilson, zeroFailureBound } from '@agent-nexus/driftbench-stats';
 
 console.log(wilson(18, 20));
 console.log(passK(4, 5, 2), zeroFailureBound(0.05));
@@ -112,7 +112,7 @@ Many criteria are compared at once, so a report applies Benjamini-Hochberg acros
 
 `nonInferiority({ baseline, candidate, margin, pairs, alpha, gatingFlags })` judges one gating criterion. `baseline` and `candidate` hold the all-pass flag of each spec, in the same order. The candidate is non-inferior when the upper bound of the interval on the regression effect, at level `1 - alpha` (default 0.05), is below the `margin` set before the campaign, and no gating flag fires for the candidate where the baseline had none (`gatingFlags`, one flag per spec for each version). `pairs` names the specs, so the result lists the regressed ones and the new flags, with the discordant counts and the reason. Zero regressed pairs in one run is not parity: it is one draw.
 
-The function judges one criterion. `compareCampaigns` in `@driftbench/report` combines the criteria of a campaign into one verdict, below.
+The function judges one criterion. `compareCampaigns` in `@agent-nexus/driftbench-report` combines the criteria of a campaign into one verdict, below.
 
 ## The campaign verdict
 

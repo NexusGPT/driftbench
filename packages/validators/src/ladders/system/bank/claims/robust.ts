@@ -14,7 +14,7 @@ import {
 } from 'node:fs';
 import { join } from 'node:path';
 import type * as Sqlite from 'node:sqlite';
-import { functionAdapter } from '@driftbench/adapters';
+import { functionAdapter } from '@agent-nexus/driftbench-adapters';
 import {
   type Campaign,
   type CellOutcome,
@@ -29,9 +29,15 @@ import {
   runSpec,
   type TargetRef,
   validateSpec,
-} from '@driftbench/core';
-import { openStore, readCampaignBundle, restoreFiles, type SqliteStore, StoreError } from '@driftbench/store';
-import { createScriptedDriver } from '@driftbench/users';
+} from '@agent-nexus/driftbench-core';
+import {
+  openStore,
+  readCampaignBundle,
+  restoreFiles,
+  type SqliteStore,
+  StoreError,
+} from '@agent-nexus/driftbench-store';
+import { createScriptedDriver } from '@agent-nexus/driftbench-users';
 import { migrateFloors, raiseFloor, readFloors, writeFloors } from '../../../../floors';
 import { type BankItem, expectAll, fail, type ItemContext, type ItemResult, PASS, type Tier } from '../types';
 import { behavioursFor, plantedFlow, runScenario } from '../world';

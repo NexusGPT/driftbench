@@ -1,5 +1,5 @@
-import { type Inventory, validateInventory, validateSpec } from '@driftbench/core';
-import { coverage, type SpaceCoverage } from '@driftbench/space';
+import { type Inventory, validateInventory, validateSpec } from '@agent-nexus/driftbench-core';
+import { coverage, type SpaceCoverage } from '@agent-nexus/driftbench-space';
 import { describe, expect, it } from 'vitest';
 import { at, HAND, map, S1, S2, S3, spec } from './support';
 

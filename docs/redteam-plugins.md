@@ -57,8 +57,8 @@ The plugins are written for the agent under test, so each one names its purpose 
 Turn a plugin into a driftbench spec with `await pluginToSpec`. Supply a generator port that implements `UserModelPort`. It receives the attack-generation template and returns a JSON array containing one non-empty attack string. The returned spec is checked with the spec loader.
 
 ```ts
-import { FakeModelPort } from '@driftbench/generate';
-import { pluginToSpec, REDTEAM_PLUGINS } from '@driftbench/users';
+import { FakeModelPort } from '@agent-nexus/driftbench-generate';
+import { pluginToSpec, REDTEAM_PLUGINS } from '@agent-nexus/driftbench-users';
 
 const plugin = REDTEAM_PLUGINS.find((candidate) => candidate.id === 'sql-injection');
 if (!plugin) throw new Error('no such plugin');

@@ -1,5 +1,5 @@
-import { functionAdapter } from '@driftbench/adapters';
-import type { RunResult } from '@driftbench/core';
+import { functionAdapter } from '@agent-nexus/driftbench-adapters';
+import type { RunResult } from '@agent-nexus/driftbench-core';
 import { lastUserText } from '../agent';
 import type { Behaviour } from '../plant';
 import { withPerturbation } from './reach';

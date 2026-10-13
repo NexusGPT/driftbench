@@ -1,4 +1,4 @@
-import type { ExecutionRecord, RuntimeTrace } from '@driftbench/core';
+import type { ExecutionRecord, RuntimeTrace } from '@agent-nexus/driftbench-core';
 
 /**
  * The two optional line protocols a code agent can write in its workspace during a block. Each line is

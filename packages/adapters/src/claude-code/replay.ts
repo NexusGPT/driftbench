@@ -8,7 +8,7 @@ import {
   type ResolvedGiven,
   type Session,
   type Turn,
-} from '@driftbench/core';
+} from '@agent-nexus/driftbench-core';
 import type { ReplaySession } from './session';
 
 export const CLAUDE_CODE_REPLAY_VERSION = '0.1.0';

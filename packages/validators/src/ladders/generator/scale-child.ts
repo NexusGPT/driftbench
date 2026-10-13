@@ -4,7 +4,7 @@
  * follower on every complete spec, and prints one JSON line (a ScaleReport). The time it reports is the CPU
  * time of the two generations; the parent kills it only at a wall-clock cap well above the budget.
  */
-import { blockOutcome, runOnce, thenFields } from '@driftbench/generate';
+import { blockOutcome, runOnce, thenFields } from '@agent-nexus/driftbench-generate';
 import { createFollower } from './follower';
 import { followerAdapter, generateFrom, runContext } from './measure';
 import { renderMap } from './render';

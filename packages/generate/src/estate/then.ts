@@ -6,7 +6,7 @@ import type {
   SkillExpect,
   SubagentExpect,
   ToolExpect,
-} from '@driftbench/core';
+} from '@agent-nexus/driftbench-core';
 import type { EstateAtom, EstateEvidence } from './inputs';
 import { literal } from './literal';
 import { compilePredicate } from './predicates';

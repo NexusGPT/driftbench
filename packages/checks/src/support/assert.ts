@@ -1,4 +1,4 @@
-import { type Assertion, matchAssertion } from '@driftbench/core';
+import { type Assertion, matchAssertion } from '@agent-nexus/driftbench-core';
 import { show } from './values';
 
 /**

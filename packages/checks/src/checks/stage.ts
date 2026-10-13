@@ -1,4 +1,4 @@
-import { type Check, type CheckContext, machineVerdict } from '@driftbench/core';
+import { type Check, type CheckContext, machineVerdict } from '@agent-nexus/driftbench-core';
 import { listed } from '../support/values';
 
 const NAME = 'stage';

@@ -1,6 +1,6 @@
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
-import type { TranscriptEntry } from '@driftbench/judges';
+import type { TranscriptEntry } from '@agent-nexus/driftbench-judges';
 import { parse as parseYaml } from 'yaml';
 import { z } from 'zod';
 import type { Item } from './pool';

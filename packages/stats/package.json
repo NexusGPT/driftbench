@@ -1,5 +1,5 @@
 {
-  "name": "@driftbench/stats",
+  "name": "@agent-nexus/driftbench-stats",
   "version": "0.1.0",
   "description": "Statistics for agent evaluation: intervals, reliability, paired tests, multiple comparisons, power, non-inferiority, drift, agreement and variance components.",
   "keywords": [

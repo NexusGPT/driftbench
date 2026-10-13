@@ -1,5 +1,5 @@
 import { fileURLToPath } from 'node:url';
-import { functionAdapter } from '@driftbench/adapters';
+import { functionAdapter } from '@agent-nexus/driftbench-adapters';
 import {
   type AdapterCapabilities,
   type AgentAdapter,
@@ -16,7 +16,7 @@ import {
   type Spec,
   type Store,
   validateSpec,
-} from '@driftbench/core';
+} from '@agent-nexus/driftbench-core';
 import {
   type AcmeAgent,
   type AcmeStore,
@@ -224,7 +224,7 @@ export function acmeAdapter(options: AcmeAdapterOptions = {}): AcmeAdapter {
   };
 }
 
-/** The Acme agent behind the real function adapter of @driftbench/adapters, wired as the CLI wires it. */
+/** The Acme agent behind the real function adapter of @agent-nexus/driftbench-adapters, wired as the CLI wires it. */
 export function realAcmeAdapter(wrap?: (agent: AcmeAgent) => AcmeAgent): AgentAdapter {
   type Session = { store: AcmeStore; agent: AcmeAgent };
   return functionAdapter<Session>({

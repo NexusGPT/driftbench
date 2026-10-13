@@ -1,8 +1,8 @@
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { defaultRegistry, ESTATE_CHECKS } from '@driftbench/checks';
-import { type Check, machineVerdict, parseSpecText, type Spec } from '@driftbench/core';
+import { defaultRegistry, ESTATE_CHECKS } from '@agent-nexus/driftbench-checks';
+import { type Check, machineVerdict, parseSpecText, type Spec } from '@agent-nexus/driftbench-core';
 import { describe, expect, it, vi } from 'vitest';
 import { parse } from 'yaml';
 import { context, observed } from '../../../checks/test/support/context';

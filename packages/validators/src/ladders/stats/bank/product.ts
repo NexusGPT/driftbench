@@ -104,7 +104,7 @@ function runOf(specId: string, repeat: number, pass: boolean, mode = 'F') {
   };
 }
 
-/** Campaign data as @driftbench/report reads it, over synthetic runs. */
+/** Campaign data as @agent-nexus/driftbench-report reads it, over synthetic runs. */
 function dataOf(runs: ReturnType<typeof runOf>[]) {
   const ids = [...new Set(runs.map((run) => run.specId))];
   return {
@@ -171,7 +171,7 @@ function planMde(n: number, repeats: number, baselineRate: number): BankItem['ch
     return same
       ? ok()
       : fail(
-          `planCampaign on ${n} specs x ${repeats} repeats at a baseline rate of ${baselineRate} gives a minimum detectable effect of ${show(effect)}; stats.mde({ n: ${n}, repeats: ${repeats}, baselineRate: ${baselineRate} }) gives ${show(want)}${want === null ? ' (no drop below the baseline is detectable)' : ''}. Compute the plan's effect with mde of @driftbench/stats (a null effect when none is detectable). Need: ${STATISTICS_NEED}.`,
+          `planCampaign on ${n} specs x ${repeats} repeats at a baseline rate of ${baselineRate} gives a minimum detectable effect of ${show(effect)}; stats.mde({ n: ${n}, repeats: ${repeats}, baselineRate: ${baselineRate} }) gives ${show(want)}${want === null ? ' (no drop below the baseline is detectable)' : ''}. Compute the plan's effect with mde of @agent-nexus/driftbench-stats (a null effect when none is detectable). Need: ${STATISTICS_NEED}.`,
         );
   };
 }
@@ -270,11 +270,11 @@ type SessionRate = (
   options: { rho: number },
 ) => Record<string, number>;
 
-const SESSION_CAUSE = '@driftbench/estate has no sessionRate (the session as the unit)';
+const SESSION_CAUSE = '@agent-nexus/driftbench-estate has no sessionRate (the session as the unit)';
 const SESSION_NEED =
   'docs/estate.md, section 7, "Not built yet": "The session as the unit (one cluster), with the design effect from the measured correlation of the variance pilot"';
 const SESSION_CONTRACT =
-  'Export sessionRate(runs, { rho }) from @driftbench/estate: runs are { session, pass }; m = runs / sessions; designEffect = 1 + (m - 1) rho; effectiveRuns = runs / designEffect; the interval is Wilson on round(effectiveRuns) runs with round(rate x round(effectiveRuns)) passes, as the pilot prints its pass rate (docs/generating.md); return { estimate, lower, upper, sessions, runs, designEffect, effectiveRuns }.';
+  'Export sessionRate(runs, { rho }) from @agent-nexus/driftbench-estate: runs are { session, pass }; m = runs / sessions; designEffect = 1 + (m - 1) rho; effectiveRuns = runs / designEffect; the interval is Wilson on round(effectiveRuns) runs with round(rate x round(effectiveRuns)) passes, as the pilot prints its pass rate (docs/generating.md); return { estimate, lower, upper, sessions, runs, designEffect, effectiveRuns }.';
 
 function sessionWant(s: StatsImpl, sizes: readonly number[], passes: readonly number[], rho: number) {
   const runs = sizes.reduce((a, b) => a + b, 0);
@@ -300,7 +300,7 @@ function sessionCheck(sizes: readonly number[], passes: readonly number[], rho: 
     const f = (await load(root, ESTATE)).sessionRate as SessionRate | undefined;
     if (typeof f !== 'function')
       return fail(
-        `@driftbench/estate exports no function sessionRate. ${SESSION_CONTRACT} Need: ${SESSION_NEED}.`,
+        `@agent-nexus/driftbench-estate exports no function sessionRate. ${SESSION_CONTRACT} Need: ${SESSION_NEED}.`,
       );
     const runs = sizes.flatMap((size, i) =>
       Array.from({ length: size }, (_, r) => ({ session: `session-${i}`, pass: r < (passes[i] as number) })),
@@ -325,7 +325,7 @@ function sessionCheck(sizes: readonly number[], passes: readonly number[], rho: 
 const sessionRange: BankItem['check'] = async ({ root }) => {
   const f = (await load(root, ESTATE)).sessionRate as SessionRate | undefined;
   if (typeof f !== 'function')
-    return fail(`@driftbench/estate exports no function sessionRate. ${SESSION_CONTRACT}`);
+    return fail(`@agent-nexus/driftbench-estate exports no function sessionRate. ${SESSION_CONTRACT}`);
   const got = attempt(() =>
     f(
       [

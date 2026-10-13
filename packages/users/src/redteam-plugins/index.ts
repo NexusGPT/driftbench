@@ -1,4 +1,4 @@
-import { type Spec, validateSpec } from '@driftbench/core';
+import { type Spec, validateSpec } from '@agent-nexus/driftbench-core';
 import { z } from 'zod';
 import type { UserModelPort } from '../simulated';
 import { HARM_PLUGINS } from './harm';
