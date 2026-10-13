@@ -3,6 +3,7 @@ import tempfile
 import os
 import threading
 import unittest
+from unittest.mock import patch
 from budget import transact
 
 
@@ -25,18 +26,19 @@ class BudgetChecks(unittest.TestCase):
             self.assertEqual(state['reservedUsd'],40)
             self.assertEqual(len(failures),10)
 
-    def test_per_model_limits_without_global_four_cap(self):
+    @patch('pacing.os.getloadavg', return_value=(20,20,20))
+    def test_per_model_limits_without_global_four_cap(self, _load):
         cache=Path(__file__).parent/'cache';cache.mkdir(exist_ok=True)
         with tempfile.TemporaryDirectory(dir=cache) as folder:
             p=Path(folder)/'state.json'
-            for model,limit in [('gpt-6-luna',8),('gemini-3.8-flash',2),('haiku',2)]:
+            for model,limit in [('gpt-6-luna',8),('gemini-3.8-flash',2),('haiku',4)]:
                 for i in range(limit):transact(p,'acquire',f'{model}-{i}',model=model,pid=os.getpid())
                 with self.assertRaises(RuntimeError):transact(p,'acquire',f'{model}-excess',model=model,pid=os.getpid())
             transact(p,'release','gpt-6-luna-0')
             transact(p,'acquire','replacement',model='gpt-6-luna',pid=os.getpid())
             import json
-            state=json.loads(p.read_text());self.assertEqual(state['peakActiveCalls'],12)
-            self.assertEqual(len(state['activeCalls']),12)
+            state=json.loads(p.read_text());self.assertEqual(state['peakActiveCalls'],14)
+            self.assertEqual(len(state['activeCalls']),14)
 
     def test_gemini_two_call_limit_and_nonblocking_wait(self):
         cache=Path(__file__).parent/'cache';cache.mkdir(exist_ok=True)

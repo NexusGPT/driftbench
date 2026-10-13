@@ -80,8 +80,15 @@ def main():
             time.sleep(min(30, timestamp(amendment['automaticResumeNotBefore']) - time.time()))
         assert window(amendment, time.time()) == 'eligible', 'Completion deadline reached; no calls allowed'
         runtime_path = BASE / 'evidence/runtime-freeze.json'
-        assert hashlib.sha256(runtime_path.read_bytes()).hexdigest() == amendment['runtimeSha256']
+        current_hash = hashlib.sha256(runtime_path.read_bytes()).hexdigest()
+        if current_hash != amendment['runtimeSha256']:
+            pacing = json.loads((BASE / 'evidence/haiku-pacing-amendment.json').read_text())
+            assert pacing['priorRuntimeSha256'] == amendment['runtimeSha256']
+            assert pacing['runtimeSha256'] == current_hash
         runtime = json.loads(runtime_path.read_text())
+        assert runtime['modelConcurrency'][MODEL] == 2
+        assert runtime['models'][MODEL]['reasoning'] == 'medium'
+        assert runtime['models'][MODEL]['timeoutMs'] == 300000
         env = dict(os.environ)
         for name in ['OPENAI_API_KEY', 'GEMINI_API_KEY', 'ANTHROPIC_API_KEY']:
             env.pop(name, None)

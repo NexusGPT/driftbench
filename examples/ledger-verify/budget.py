@@ -5,7 +5,9 @@ import math
 import os
 from pathlib import Path
 import sys
+import time
 from datetime import datetime, timezone
+from pacing import observe
 
 
 def transact(path, action, token, amount=0.5, model='', pid=None):
@@ -22,7 +24,15 @@ def transact(path, action, token, amount=0.5, model='', pid=None):
             for key,entry in list(active.items()):
                 try: os.kill(entry['pid'],0)
                 except ProcessLookupError: del active[key]
-            limits={'haiku':2,'gpt-6-luna':8,'gemini-3.8-flash':2}
+            limits={'haiku':4,'gpt-6-luna':8,'gemini-3.8-flash':2}
+            if model=='haiku':
+                pacing=state.get('haikuPacing',{})
+                if time.time()-pacing.get('observedAt',0)>=5:
+                    pacing=observe(path.parent)
+                    if pacing['limit']!=state.get('haikuPacing',{}).get('limit'):
+                        state.setdefault('haikuPacingEvents',[]).append(pacing)
+                    state['haikuPacing']=pacing
+                limits['haiku']=pacing['limit']
             busy=sum(r['model']==model for r in active.values())>=limits.get(model,4)
             if busy:
                 if action=='try-acquire':return dict(acquired=False)
