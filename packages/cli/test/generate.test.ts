@@ -113,8 +113,12 @@ describe('driftbench generate', () => {
     const first = await run(['generate', '--map', `${ACME}map/approved.yaml`, '--out', 'a', '--t', '2'], dir);
     // Exit 1: the suite is written, and blocks whose value has no approved phrase are placeholders.
     expect(first.code).toBe(1);
+    expect(first.out.split('\n')[0]).toMatch(/^Actual axis-map coverage .*pairs 624 of 637 \(98\.0%\)/);
+    expect(first.out.split('\n')[1]).toContain('Candidate t-wise array');
     expect(first.out).toContain('Stage graph: 18 of 23 edges covered in 12 paths from needs.');
-    expect(first.out).toContain('t-wise: covering array of 132 rows over 5 dimensions');
+    expect(first.out).toContain(
+      'Candidate t-wise array (before the total cap): covering array of 132 rows over 5 dimensions',
+    );
     expect(first.out).toContain('Constraints applied: 457.');
     expect(first.out).toContain(
       '  Most frequent reasons:\n     1  it needs coverage_result in no-service; the cell holds none',
@@ -150,6 +154,50 @@ describe('driftbench generate', () => {
       );
     expect(strip(moved)).toEqual(strip(before));
   }, 120_000);
+
+  it('writes a capped suite and keeps --budget a row budget', async () => {
+    const dir = await mkdtemp(join(tmpdir(), 'driftbench-spec-cap-'));
+    await writeFile(join(dir, 'prompt.md'), PROMPT);
+    await writeFile(join(dir, 'map.yaml'), PHRASED_MAP);
+    const result = await run(
+      [
+        'generate',
+        '--map',
+        'map.yaml',
+        '--out',
+        'capped',
+        '--budget',
+        '5',
+        '--spec-cap',
+        '100',
+        '--spec-cap-mode',
+        'pairs',
+        '--json',
+      ],
+      dir,
+    );
+    expect(result.err).toBe('');
+    expect(result.code).toBe(0);
+    const report = JSON.parse(result.out);
+    const files = await tree(join(dir, 'capped'));
+    const yaml = Object.keys(files).filter((path) => path.endsWith('.yaml'));
+    expect(report.options.budget).toBe(5);
+    expect(report.budget.budget).toBe(5);
+    expect(report.spec_cap.mode).toBe('pairs');
+    expect(report.spec_cap.preserved).toBe(true);
+    expect(yaml.length).toBe(report.summary.specs);
+    expect(yaml.length).toBeLessThanOrEqual(100);
+    expect(JSON.parse(files['generate-report.json'] ?? '')).toEqual(report);
+    for (const args of [
+      ['--spec-cap', '0'],
+      ['--spec-cap-mode', 'pairs'],
+      ['--spec-cap', '100', '--spec-cap-mode', 'wrong'],
+    ]) {
+      const refused = await run(['generate', '--map', 'map.yaml', '--out', 'invalid', ...args], dir);
+      expect(refused.code).toBe(2);
+      expect(refused.err).toMatch(/spec-cap/);
+    }
+  });
 
   it('refuses a map with unapproved entries, naming the count', async () => {
     const dir = await mkdtemp(join(tmpdir(), 'driftbench-generate-'));

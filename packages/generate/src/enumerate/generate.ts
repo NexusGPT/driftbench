@@ -43,6 +43,7 @@ import {
 } from '../seed/seeders';
 import { type TaskInput, taskSpecs } from '../seed/tasks';
 import { formatJson } from './json';
+import { capSpecPool, type SpecCapMode, type SpecCapReport, seederOf } from './spec-cap';
 
 /** t-wise coverage of a set of specs on the axis map, as `driftbench space coverage --t` counts it. */
 export type MeasuredCoverage = { t: number; specs: number; allowed: number; covered: number; share: number };
@@ -75,6 +76,10 @@ export type GenerateOptions = {
    * The other seeders are unchanged.
    */
   budget?: number;
+  /** Total written specs. Keeps structural probes and selects actual pair/triple coverage. */
+  specCap?: number;
+  /** Tuple-exact by default. Pairs mode explicitly permits triple losses, which remain reported. */
+  specCapMode?: SpecCapMode;
   /** The map path as the specs and the report record it (relative to the output folder). */
   mapPath: string;
   /** Specs to measure on the same map for comparison, such as the hand-written suite. */
@@ -113,13 +118,22 @@ export type GenerateReport = {
     constraints: number;
     phrases: number;
   };
-  options: { t: number; seed: number; max: number | null; budget?: number };
+  options: {
+    t: number;
+    seed: number;
+    max: number | null;
+    budget?: number;
+    specCap?: number;
+    specCapMode?: SpecCapMode;
+  };
   summary: { specs: number; blocks: number; complete: number; incomplete: number };
   seeders: Record<Seeder, SeederTotals>;
   graph: GraphSummary;
   twise: TwiseSummary;
   /** Budget mode only: the pick, the pair coverage and the value balance of the twise seeder's replacement. */
   budget?: BudgetSummary;
+  /** Total cap, including all gaps and any loss relative to the uncapped candidate pool. */
+  spec_cap?: SpecCapReport;
   boundary: BoundarySummary;
   deviation: DeviationSummary;
   metamorphic: MetamorphicSummary;
@@ -133,6 +147,8 @@ export type GenerateReport = {
   /** Specs with a block the map supports no machine Then for, and why when a path could not be walked. */
   no_then: Array<{ spec: string; blocks: string[]; reasons: string[] }>;
   coverage: {
+    /** Actual axis-map coverage of the written complete specs, independent of the candidate array. */
+    actual: Array<MeasuredCoverage & { uncovered: Record<string, string>[] }>;
     t: number;
     allowed: number;
     complete: MeasuredCoverage;
@@ -169,6 +185,10 @@ export type GenerateResult = {
 };
 
 export function generateSuite(prepared: PreparedMap, options: GenerateOptions): GenerateResult {
+  if (options.specCapMode !== undefined && options.specCap === undefined)
+    throw new RangeError('specCapMode requires specCap');
+  if (options.specCap !== undefined && (!Number.isSafeInteger(options.specCap) || options.specCap < 1))
+    throw new RangeError('specCap must be a whole number of at least 1');
   if ((prepared.numericSettings?.length ?? 0) > 0 && options.budget === undefined)
     throw new RangeError(
       'numeric_settings requires --budget; the other seeders do not sample numeric ranges',
@@ -207,6 +227,7 @@ export function generateSuite(prepared: PreparedMap, options: GenerateOptions): 
   };
 
   const files: GeneratedFile[] = [];
+  const cappedText = new Map<string, () => string>();
   const complete: Spec[] = [];
   const all: Spec[] = [];
   const invalid: GenerateReport['invalid'] = [];
@@ -216,7 +237,9 @@ export function generateSuite(prepared: PreparedMap, options: GenerateOptions): 
   const seeders = {} as Record<Seeder, SeederTotals>;
   const completeBy: Partial<Record<Seeder, Spec[]>> = {};
   const keep = (seeder: Seeder, spec: Spec): void => {
-    completeBy[seeder] = [...(completeBy[seeder] ?? []), spec];
+    const kept = completeBy[seeder] ?? [];
+    completeBy[seeder] = kept;
+    kept.push(spec);
   };
 
   /** Renders drafts of one seeder, adds them to the suite and the seeder's totals; returns the complete ones. */
@@ -232,7 +255,9 @@ export function generateSuite(prepared: PreparedMap, options: GenerateOptions): 
     };
     for (const draft of list) {
       const rendered: Rendered = renderDraft(prepared, draft, run);
-      const text = specText(rendered, run, prepared.hash);
+      const renderText = () => specText(rendered, run, prepared.hash);
+      const text = options.specCap === undefined ? renderText() : '';
+      if (options.specCap !== undefined) cappedText.set(rendered.id, renderText);
       const loaded = validateSpec(rendered.spec, rendered.id);
       if (!loaded.ok) {
         invalid.push({ id: rendered.id, errors: loaded.errors });
@@ -288,7 +313,9 @@ export function generateSuite(prepared: PreparedMap, options: GenerateOptions): 
     '# Do not edit it by hand: change the family or the map and generate again. Fictional data only.',
   ].join('\n');
   for (const { id, spec } of taskSpecs(prepared, options.tasks ?? [], run)) {
-    const text = `${header}\n${stringify(spec, { lineWidth: 0, aliasDuplicateObjects: false })}`;
+    const renderText = () => `${header}\n${stringify(spec, { lineWidth: 0, aliasDuplicateObjects: false })}`;
+    const text = options.specCap === undefined ? renderText() : '';
+    if (options.specCap !== undefined) cappedText.set(id, renderText);
     const loaded = validateSpec(spec, id);
     const totals = seeders.task;
     if (!loaded.ok) {
@@ -348,6 +375,62 @@ export function generateSuite(prepared: PreparedMap, options: GenerateOptions): 
     ),
   };
 
+  let specCap: SpecCapReport | undefined;
+  if (options.specCap !== undefined) {
+    const strengths = [
+      ...new Set([2, 3, t].map((strength) => Math.min(strength, prepared.axisMap.dimensions.length))),
+    ];
+    const capped = capSpecPool(
+      all,
+      complete,
+      options.specCap,
+      strengths.map((strength) => gridAt(prepared, strength)),
+      options.specCapMode,
+    );
+    specCap = capped.report;
+    const retain = (specs: Spec[]) => {
+      const kept = specs.filter((spec) => capped.ids.has(spec.id));
+      specs.splice(0, specs.length, ...kept);
+    };
+    retain(all);
+    retain(complete);
+    for (const seeder of SEEDERS) {
+      const own = all.filter((spec) => seederOf(spec) === seeder);
+      const ready = complete.filter((spec) => seederOf(spec) === seeder);
+      completeBy[seeder] = ready;
+      seeders[seeder].specs = own.length;
+      seeders[seeder].blocks = own.reduce((sum, spec) => sum + spec.blocks.length, 0);
+      seeders[seeder].complete = ready.length;
+    }
+    const keptFiles = files.filter((file) =>
+      capped.ids.has(
+        file.path
+          .split('/')
+          .at(-1)
+          ?.replace(/\.yaml$/, '') ?? '',
+      ),
+    );
+    files.splice(0, files.length, ...keptFiles);
+    for (const file of files) {
+      const id =
+        file.path
+          .split('/')
+          .at(-1)
+          ?.replace(/\.yaml$/, '') ?? '';
+      file.text = cappedText.get(id)?.() ?? file.text;
+    }
+    const finalKeys = new Set(
+      cellsOf(prepared, complete, t)
+        .filter((cell) => cell.count > 0)
+        .map((cell) => cellKey(cell.values)),
+    );
+    coverSummary.covered = uncovered.filter((cell) => finalKeys.has(cellKey(cell.values))).length;
+    for (const cell of specCap.coverage.find(
+      (entry) => entry.t === Math.min(t, prepared.axisMap.dimensions.length),
+    )?.lost ?? [])
+      coverSummary.unbuilt.push({ cell, reasons: ['cut by --spec-cap'] });
+  }
+
   const measure = (specs: Spec[]) => measured(prepared, specs, t);
   const completeCoverage = measure(complete);
   const baseline = options.baseline
@@ -374,6 +457,9 @@ export function generateSuite(prepared: PreparedMap, options: GenerateOptions): 
       seed,
       max: Number.isFinite(max) ? max : null,
       ...(options.budget === undefined ? {} : { budget: options.budget }),
+      ...(options.specCap === undefined
+        ? {}
+        : { specCap: options.specCap, specCapMode: options.specCapMode ?? 'tuples' }),
     },
     summary: {
       specs: totals.reduce((sum, entry) => sum + entry.specs, 0),
@@ -385,6 +471,7 @@ export function generateSuite(prepared: PreparedMap, options: GenerateOptions): 
     graph: graph.summary,
     twise: twise.summary,
     ...(budgeted ? { budget: budgeted.budget } : {}),
+    ...(specCap ? { spec_cap: specCap } : {}),
     boundary: boundary.summary,
     deviation: deviation.summary,
     metamorphic: metamorphic.summary,
@@ -399,10 +486,24 @@ export function generateSuite(prepared: PreparedMap, options: GenerateOptions): 
     no_phrase: [...gaps.values()],
     no_then: noThen,
     coverage: {
+      actual: [
+        ...new Set([2, 3].map((strength) => Math.min(strength, prepared.axisMap.dimensions.length))),
+      ].map((strength) => {
+        const cells = cellsOf(prepared, complete, strength);
+        const uncovered = cells.filter((cell) => cell.count === 0).map((cell) => cell.values);
+        return {
+          t: strength,
+          specs: complete.length,
+          allowed: cells.length,
+          covered: cells.length - uncovered.length,
+          share: cells.length === 0 ? 0 : (cells.length - uncovered.length) / cells.length,
+          uncovered,
+        };
+      }),
       t,
       allowed: completeCoverage.allowed,
       complete: completeCoverage,
-      all: measure(all),
+      all: all.length === complete.length ? { ...completeCoverage } : measure(all),
       measures: coverageMeasures(prepared, complete),
       ...(baseline ? { baseline } : {}),
     },
@@ -535,10 +636,8 @@ export function coverageMeasures(prepared: PreparedMap, specs: readonly Spec[]):
     t: 2,
     ...(prepared.inventory ? { inventory: prepared.inventory } : {}),
   });
-  const three =
-    axisMap.dimensions.length >= 3
-      ? coverage(axisMap, results, { t: 3, maxCells: MAX_GRID_CELLS })
-      : undefined;
+  // A coverage result already tallies every pair and triple, independently of the requested grid t.
+  const three = two.tway.find((level) => level.t === 3);
   const counts = two.grid.cells.map((cell) => cell.count).filter((count) => count > 0);
   const n = counts.reduce((sum, count) => sum + count, 0);
   const f1 = counts.filter((count) => count === 1).length;
@@ -560,8 +659,8 @@ export function coverageMeasures(prepared: PreparedMap, specs: readonly Spec[]):
         shares.reduce((sum, share) => sum + share * share, 0),
       ),
     pielou: counts.length > 1 ? entropy / Math.log(counts.length) : 1,
-    t3_share: three?.grid.share ?? 0,
-    t3_allowed: three?.grid.allowed ?? 0,
+    t3_share: three?.share ?? 0,
+    t3_allowed: three?.allowed ?? 0,
     weighted_share: two.grid.weighted ?? 0,
     effective_sample_size: two.grid.effectiveSampleSize ?? 0,
     required_covered: two.required.filter((cell) => cell.covered).length,
@@ -615,6 +714,11 @@ function dataValues(prepared: PreparedMap): number {
 export function renderSummary(report: GenerateReport): string {
   const percent = (share: number) => `${(share * 100).toFixed(1)}%`;
   const lines = [
+    `Actual axis-map coverage (written complete specs): ${report.coverage.actual.map((entry) => `${entry.t === 2 ? 'pairs' : entry.t === 3 ? 'triples' : 'values'} ${entry.covered} of ${entry.allowed} (${percent(entry.share)})`).join('; ')}.`,
+    report.budget
+      ? `Candidate budget array (before the total cap), budget ${report.budget.budget}: ${report.budget.picked} cells of ${report.budget.pool} allowed, pairs covered ${report.budget.pairs.covered} of ${report.budget.pairs.allowed} (${percent(report.budget.pairs.share)}), max deviation from fair share ${report.budget.maxDeviation.toFixed(2)}.`
+      : `Candidate t-wise array (before the total cap): covering array of ${report.twise.rows} rows over ${report.twise.dimensions.length} dimensions, ${report.twise.covered} of ${report.twise.allowed} allowed ${report.twise.t}-tuples (${percent(report.twise.share)}); ${report.twise.unreachable.length} pairs no path reaches are left out.`,
+    `Uncovered on the axis map: ${report.coverage.actual.map((entry) => `${entry.uncovered.length} ${entry.t === 2 ? 'pairs' : entry.t === 3 ? 'triples' : 'values'}`).join(', ')} (see coverage.actual[].uncovered).`,
     `Map ${report.map.agent} (${report.map.path}), hash ${report.map.hash}: ${report.map.dimensions} dimensions, ${report.map.values} values, ${report.map.constraints} constraints, ${report.map.phrases} approved phrases.`,
     `Seed ${report.options.seed}, t = ${report.options.t}${report.options.max === null ? '' : `, at most ${report.options.max} specs per seeder`}.`,
     '',
@@ -633,16 +737,17 @@ export function renderSummary(report: GenerateReport): string {
         ? ` Paths no cell can walk: ${report.graph.unwalked.map((entry) => entry.path).join(', ')}.`
         : ''
     }`,
-    report.budget
-      ? `Budget ${report.budget.budget}: ${report.budget.picked} cells of ${report.budget.pool} allowed, pairs covered ${report.budget.pairs.covered} of ${report.budget.pairs.allowed} (${percent(report.budget.pairs.share)}), max deviation from fair share ${report.budget.maxDeviation.toFixed(2)}.`
-      : `t-wise: covering array of ${report.twise.rows} rows over ${report.twise.dimensions.length} dimensions, ${report.twise.covered} of ${report.twise.allowed} allowed ${report.twise.t}-tuples (${percent(report.twise.share)}); ${report.twise.unreachable.length} pairs no path reaches are left out.`,
     `Constraints applied: ${report.constraints.applied}.`,
     `Deviation probes: ${report.deviation.probes.length} of ${report.deviation.classes} classes. Metamorphic families: ${report.metamorphic.families}.`,
     `Coverage on the axis map at t = ${report.coverage.t}: complete specs ${report.coverage.complete.covered} of ${report.coverage.allowed} (${percent(report.coverage.complete.share)}), all specs ${report.coverage.all.covered} (${percent(report.coverage.all.share)})${report.coverage.baseline ? `, ${report.coverage.baseline.label} ${report.coverage.baseline.covered} (${percent(report.coverage.baseline.share)})` : ''}.`,
   );
+  if (report.spec_cap)
+    lines.push(
+      `Spec cap ${report.spec_cap.limit}: ${report.spec_cap.written} of ${report.spec_cap.candidates} candidate specs written; ${report.spec_cap.protected} structural, fault and incomplete specs protected. ${report.spec_cap.preserved ? (report.spec_cap.mode === 'pairs' ? 'Every candidate pair retained; triple losses are listed in spec_cap.coverage.' : 'Every candidate pair and triple retained.') : 'Coverage lost: see spec_cap.coverage[].lost.'}`,
+    );
   if (report.cover.unbuilt.length > 0)
     lines.push(
-      `Allowed pairs no spec could be built for: ${report.cover.unbuilt.length} (see cover.unbuilt).`,
+      `Allowed tuples no spec could be built for: ${report.cover.unbuilt.length} (see cover.unbuilt).`,
     );
   if (report.cover.unreachable.length > 0)
     lines.push(

@@ -11,7 +11,7 @@ type ObservedStage = { name: string; block: number; own: string[] };
  * free-running or perturbed run the session carries on, so the last stage reported by an earlier block
  * still holds. When no stage was ever reported the check does not apply: the stage classifier of phase 3
  * owns that case. `stage_reported: true` separately requires a stage in this block, even without an
- * expected stage name. History and the classifier cannot satisfy that assertion.
+ * expected stage name. Entries marked carried, history and the classifier cannot satisfy that assertion.
  */
 export const stage: Check = {
   name: NAME,
@@ -22,6 +22,7 @@ export const stage: Check = {
     const verdicts: Verdict[] = [];
     if (ctx.expect.stage_reported === true) {
       const own = (ctx.observed.runtime?.stages ?? [])
+        .filter((entry) => entry.carried !== true)
         .map((entry) => entry.name)
         .filter((name) => name.trim().length > 0);
       verdicts.push(

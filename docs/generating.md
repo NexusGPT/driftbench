@@ -444,6 +444,16 @@ The output is identical to the committed `examples/acme/generated`. Exit 1 is th
 
 `generate-report.json` holds the generator and map identity, the options, the summary (specs, blocks, complete, incomplete), one entry per seeder, the stage graph, the covering array, the boundary values, the deviation probes, the metamorphic families, the constraints applied, the values with no phrase (`no_phrase`), the blocks with no machine Then and why (`no_then`), the coverage, and any invalid spec or lint finding. `generate` exits 0 when every block has an approved phrase and a Then, 1 when the suite is written with incomplete specs, a seeder cut by `--max` or a generator defect, 2 on a usage or input error (nothing written).
 
+## Total spec cap
+
+`generate --spec-cap N` limits all written specs, independently of `--budget N`, which still limits only the budget seeder's rows. The cap keeps every graph, boundary, deviation, metamorphic and task spec, plus every incomplete spec. It selects complete t-wise and cover specs by their actual axis-map placements. A limit below the protected spec count is refused.
+
+The default `--spec-cap-mode tuples` preserves the uncapped candidate pool's pairs, triples and requested strength when the cap permits it. Explicit `--spec-cap-mode pairs` preserves pairs and permits triple losses. Both modes report the exact missing tuples in `spec_cap.coverage`; existing gaps stay visible. The `preserving` count is the deterministic greedy selection size, not a proof of the global minimum.
+
+A cap below that selection size writes the best selection it can, names the lost target tuples and exits 1. Losing triples in explicit pairs mode is reported without failing the pair target. Selection preserves tuple coverage, not fault detection on every possible agent: compare planted faults before adopting a smaller suite. A cap does not repair gaps already present in the candidate pool, and changing `--budget` also changes that pool.
+
+The report leads with actual pair and triple coverage of the written complete specs. The candidate array is a separate measurement, before total-cap selection. `coverage.actual[].uncovered` lists every allowed tuple that the written complete specs miss.
+
 ## Budget mode
 
 `driftbench generate --budget N` selects conversation rows from the allowed pool, in place of the t-wise rows. Use it to spend a fixed number of selections on coverage and balance. It covers pairs regardless of `--t`.

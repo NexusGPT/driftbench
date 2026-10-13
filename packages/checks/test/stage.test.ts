@@ -48,6 +48,41 @@ describe('stage', () => {
     expect(stage.applies({ ...ctx, history: [], expect: { stage_reported: false } })).toBe(false);
   });
 
+  it('a carried runtime entry cannot satisfy reporting, but still supplies the reached stage', async () => {
+    const carried = { runtime: { stages: [{ name: 'offer', carried: true }] } };
+    for (const mode of ['T', 'F', 'P'] as const) {
+      const ctx = context(coverage, 1, observed(offer, [], carried), {
+        mode,
+        expect: { stage: 'offer', stage_reported: true },
+      });
+      expect(outcomes(await run(stage, ctx))).toEqual({ 'stage.reported': 'fail', 'stage.reached': 'pass' });
+      for (const flag of [undefined, false]) {
+        const legacy = {
+          ...ctx,
+          expect: { stage: 'offer', ...(flag === undefined ? {} : { stage_reported: flag }) },
+        };
+        expect(await run(stage, legacy)).toEqual(
+          await run(stage, { ...legacy, observed: observed(offer, [], at('offer')) }),
+        );
+      }
+    }
+  });
+
+  it('counts a current stage alongside carried stages, including an explicit false carried flag', async () => {
+    for (const carried of [undefined, false]) {
+      const runtime = {
+        stages: [
+          { name: 'address', carried: true },
+          { name: 'offer', ...(carried === undefined ? {} : { carried }) },
+        ],
+      };
+      const ctx = context(coverage, 1, observed(offer, [], { runtime }), {
+        expect: { stage: 'offer', stage_reported: true },
+      });
+      expect(outcomes(await run(stage, ctx))).toEqual({ 'stage.reported': 'pass', 'stage.reached': 'pass' });
+    }
+  });
+
   it('passes block 1 of acme-new-customer-coverage: the runtime reports offer', async () => {
     const verdicts = await run(stage, context(coverage, 1, observed(offer, [], at('offer'))));
     expect(verdicts.map((item) => [item.id, item.outcome, item.evidence])).toEqual([
