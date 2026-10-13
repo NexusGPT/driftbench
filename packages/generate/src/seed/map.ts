@@ -1,5 +1,5 @@
-import { contentHash, type Inventory, isPlainObject } from '@driftbench/core';
-import { type CompiledSpace, compileSpace, NONE, type SpaceMap } from '@driftbench/space';
+import { contentHash, type Inventory, isPlainObject } from '@agent-nexus/driftbench-core';
+import { type CompiledSpace, compileSpace, NONE, type SpaceMap } from '@agent-nexus/driftbench-space';
 import { parse as parseYaml } from 'yaml';
 import { type NumericSetting, type Proposal, type ProposalPhrase, valueApproved } from '../extract/proposal';
 import { toSpaceMap } from '../extract/space';

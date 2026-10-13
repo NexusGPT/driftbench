@@ -1,6 +1,6 @@
 import { mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
-import { defaultChecks } from '@driftbench/checks';
+import { defaultChecks } from '@agent-nexus/driftbench-checks';
 import {
   type Campaign,
   type CellOutcome,
@@ -15,15 +15,15 @@ import {
   type Store,
   type TargetRef,
   validateSpec,
-} from '@driftbench/core';
+} from '@agent-nexus/driftbench-core';
 import {
   openMemoryStore,
   openStore,
   projectCost,
   readCampaignBundle,
   type SqliteStore,
-} from '@driftbench/store';
-import { createScriptedDriver } from '@driftbench/users';
+} from '@agent-nexus/driftbench-store';
+import { createScriptedDriver } from '@agent-nexus/driftbench-users';
 import { SYSTEM_COMPONENTS } from '../components';
 import type { Behaviour } from '../plant';
 import { between, rngFor } from '../random';

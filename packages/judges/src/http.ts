@@ -1,4 +1,10 @@
-import { parseRetryAfter, type RetryLayer, retryableStatus, retrying, retryPolicy } from '@driftbench/core';
+import {
+  parseRetryAfter,
+  type RetryLayer,
+  retryableStatus,
+  retrying,
+  retryPolicy,
+} from '@agent-nexus/driftbench-core';
 
 /** The fetch a client calls. Tests pass their own; the default is the global fetch. */
 export type FetchLike = (url: string, init: RequestInit) => Promise<Response>;

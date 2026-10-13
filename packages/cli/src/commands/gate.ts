@@ -10,7 +10,7 @@ import {
   type SandboxProvider,
   type Spec,
   type UserDriver,
-} from '@driftbench/core';
+} from '@agent-nexus/driftbench-core';
 import {
   AUDIT_FILE,
   type Candidate,
@@ -26,8 +26,8 @@ import {
   REVIEW_FILE,
   renderFunnel,
   runGate,
-} from '@driftbench/generate';
-import { localProvider } from '@driftbench/sandbox';
+} from '@agent-nexus/driftbench-generate';
+import { localProvider } from '@agent-nexus/driftbench-sandbox';
 import type { Command } from 'commander';
 import type { Io } from '../io';
 import { optionNumber } from '../number';

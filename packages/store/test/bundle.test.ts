@@ -1,6 +1,6 @@
 import { readdir, readFile, rm, writeFile } from 'node:fs/promises';
 import { join, relative } from 'node:path';
-import type { RunResult } from '@driftbench/core';
+import type { RunResult } from '@agent-nexus/driftbench-core';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import {
   BUNDLE_FORMAT,

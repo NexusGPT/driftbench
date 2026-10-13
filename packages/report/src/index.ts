@@ -1,5 +1,5 @@
 /** Scorecards, run diffs, drilldowns and JUnit output, from a stored campaign. */
-export const packageName = '@driftbench/report';
+export const packageName = '@agent-nexus/driftbench-report';
 
 export {
   type AggregateCriterion,

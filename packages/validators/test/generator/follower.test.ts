@@ -1,5 +1,5 @@
-import type { DeviationClass, Message, Observed, WorldState } from '@driftbench/core';
-import { blockOutcome, type FaultSession, runOnce } from '@driftbench/generate';
+import type { DeviationClass, Message, Observed, WorldState } from '@agent-nexus/driftbench-core';
+import { blockOutcome, type FaultSession, runOnce } from '@agent-nexus/driftbench-generate';
 import { describe, expect, it } from 'vitest';
 import { baselineSuite } from '../../src/ladders/generator/baseline';
 import { combinedFault, FAULT_CLASSES, faultFamily } from '../../src/ladders/generator/faults';

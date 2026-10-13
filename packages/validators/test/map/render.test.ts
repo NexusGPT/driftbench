@@ -1,5 +1,5 @@
-import { parseInventoryText } from '@driftbench/core';
-import { AtomKind } from '@driftbench/estate';
+import { parseInventoryText } from '@agent-nexus/driftbench-core';
+import { AtomKind } from '@agent-nexus/driftbench-estate';
 import { describe, expect, it } from 'vitest';
 import { parse as parseYaml } from 'yaml';
 import { baseOrder, DECOYS, render, SYNONYMS, sectionKeys } from '../../src/ladders/map/render';

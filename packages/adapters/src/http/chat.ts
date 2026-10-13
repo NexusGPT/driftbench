@@ -1,4 +1,4 @@
-import { isPlainObject, type Message } from '@driftbench/core';
+import { isPlainObject, type Message } from '@agent-nexus/driftbench-core';
 import { contentText, parseArguments } from '../shared';
 
 /**

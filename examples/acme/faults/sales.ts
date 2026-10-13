@@ -1,5 +1,5 @@
-import type { Message, Observed, WorldState } from '@driftbench/core';
-import type { FaultDef, FaultSession } from '@driftbench/generate';
+import type { Message, Observed, WorldState } from '@agent-nexus/driftbench-core';
+import type { FaultDef, FaultSession } from '@agent-nexus/driftbench-generate';
 import { createAcmeAgent } from '../src/agent';
 import { createStore } from '../src/store';
 

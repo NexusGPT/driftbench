@@ -7,8 +7,8 @@ import {
   TRACE_SOURCES,
   type Trace,
   type TraceSource,
-} from '@driftbench/adapters';
-import { approveDrafts, draftSpec, pendingDrafts } from '@driftbench/generate';
+} from '@agent-nexus/driftbench-adapters';
+import { approveDrafts, draftSpec, pendingDrafts } from '@agent-nexus/driftbench-generate';
 import type { Command } from 'commander';
 import type { Io } from '../io';
 import { pushCommand } from './registry';

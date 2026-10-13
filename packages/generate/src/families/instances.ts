@@ -1,6 +1,6 @@
 import { mkdir, readdir, rm, stat, writeFile } from 'node:fs/promises';
 import { dirname, join } from 'node:path';
-import { canonicalJson, validateSpec } from '@driftbench/core';
+import { canonicalJson, validateSpec } from '@agent-nexus/driftbench-core';
 import { stringify } from 'yaml';
 import { formatJson } from '../enumerate/json';
 import { rngFor, streamSeed } from '../seed/random';

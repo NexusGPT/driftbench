@@ -2,7 +2,7 @@ import { execFileSync } from 'node:child_process';
 import { cp, mkdir, mkdtemp, readFile, rm, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
-import { type EstateMap, loadEstateMap } from '@driftbench/estate';
+import { type EstateMap, loadEstateMap } from '@agent-nexus/driftbench-estate';
 import { cli, REPO } from './bench';
 import { FIXTURE, fixtureSuite } from './fixture-suite';
 import { type Family, type ItemResult, itemsOf, type Tier } from './frame';

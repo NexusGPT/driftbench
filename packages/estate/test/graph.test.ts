@@ -1,4 +1,4 @@
-import { FakeModelPort } from '@driftbench/generate';
+import { FakeModelPort } from '@agent-nexus/driftbench-generate';
 import { describe, expect, it } from 'vitest';
 import { analyzeGraph, ClaudeCodeReader, declaredLabels, literals, scanEstate } from '../src/index';
 import { answer, estate, NOW, scanFixture } from './support';

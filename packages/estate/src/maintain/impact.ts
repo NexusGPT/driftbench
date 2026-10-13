@@ -1,7 +1,7 @@
 import { readFile, stat, writeFile } from 'node:fs/promises';
 import { relative } from 'node:path';
-import { findSpecFiles, isPlainObject, loadSpecFile, parseSpecText } from '@driftbench/core';
-import { shortQuote } from '@driftbench/generate';
+import { findSpecFiles, isPlainObject, loadSpecFile, parseSpecText } from '@agent-nexus/driftbench-core';
+import { shortQuote } from '@agent-nexus/driftbench-generate';
 import { parseDocument } from 'yaml';
 import { z } from 'zod';
 import { AtomKind } from '../schema';

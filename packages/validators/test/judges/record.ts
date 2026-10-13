@@ -9,7 +9,7 @@ import {
   type JudgeRequest,
   type KeyClient,
   requestKey,
-} from '@driftbench/judges';
+} from '@agent-nexus/driftbench-judges';
 import { loadPool } from '../../src/ladders/judges/pool';
 import {
   allEdits,

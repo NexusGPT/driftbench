@@ -1,5 +1,5 @@
 import { createHash } from 'node:crypto';
-import { foldQuote, QuoteIndex } from '@driftbench/generate';
+import { foldQuote, QuoteIndex } from '@agent-nexus/driftbench-generate';
 import { parse as parseYaml } from 'yaml';
 
 /**

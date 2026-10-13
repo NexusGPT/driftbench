@@ -1,4 +1,4 @@
-import { mulberry32 } from '@driftbench/stats';
+import { mulberry32 } from '@agent-nexus/driftbench-stats';
 
 /**
  * Seeded draws for the system validator. Every draw of a plant comes from one generator per purpose, mixed
