@@ -4,6 +4,10 @@ import { join } from 'node:path';
 import type { ClientOptions } from '../client';
 import { isRecord, JudgeError, postJson, requireEnv } from '../http';
 import { promptFingerprint } from '../prompt';
+import { type ClaudeRetryReceipt, ClaudeTransportError, withClaudeErrorRetries } from './claude-errors';
+
+export { ClaudeTransportError } from './claude-errors';
+
 import { CLAUDE_JUDGE_FLAGS, CLAUDE_SETTINGS, runClaudeCommand } from './claude-cli';
 import { googleResponseSchema, JUDGE_DIALECTS, type JudgeDialect } from './dialects';
 import { type TokenUsage, usageFromResponse } from './usage';
@@ -27,6 +31,8 @@ export type DialectCompletionRequest = {
 };
 
 export type DialectCompletion = {
+  readonly retryReceipts?: readonly ClaudeRetryReceipt[];
+  readonly requestCount?: number;
   readonly text: string;
   readonly raw: string;
   readonly dialect: JudgeDialect;
@@ -56,36 +62,6 @@ export type DialectTransport = {
   readonly fingerprint: string;
   complete(request: DialectCompletionRequest): Promise<DialectCompletion>;
 };
-
-/** A completed Claude CLI process failed; retain its receipt so failed calls remain accountable. */
-export class ClaudeTransportError extends JudgeError {
-  readonly raw: string;
-  readonly exitCode: number | null;
-  /** Original provider counters, including cache creation and cache read usage. */
-  readonly usage?: Readonly<Record<string, unknown>>;
-  readonly costUsd?: number;
-
-  constructor(
-    code: 'http' | 'bad_response',
-    message: string,
-    processResult: { readonly stdout: string; readonly code: number | null },
-    payload?: unknown,
-  ) {
-    super(code, message);
-    this.name = 'ClaudeTransportError';
-    this.raw = processResult.stdout;
-    this.exitCode = processResult.code;
-    if (isRecord(payload)) {
-      if (isRecord(payload.usage)) this.usage = payload.usage;
-      if (
-        typeof payload.total_cost_usd === 'number' &&
-        Number.isFinite(payload.total_cost_usd) &&
-        payload.total_cost_usd >= 0
-      )
-        this.costUsd = payload.total_cost_usd;
-    }
-  }
-}
 
 /** Provider payload only: it carries no model, credentials, token budget or assessment contract. */
 export function buildDialectRequest(
@@ -221,23 +197,31 @@ export function createDialectTransport(options: DialectTransportOptions): Dialec
       };
       if (provider === 'claude-cli') {
         folder ??= mkdtempSync(join(tmpdir(), 'driftbench-claude-transport-'));
-        const ran = await runClaudeCommand(
-          options.command ?? 'claude',
-          [
-            ...(options.commandArgs ?? []),
-            '-p',
-            '--output-format',
-            'json',
-            '--model',
-            model,
-            '--system-prompt',
-            request.system,
-            ...CLAUDE_JUDGE_FLAGS,
-            ...(options.maxBudgetUsd === undefined ? [] : ['--max-budget-usd', String(options.maxBudgetUsd)]),
-          ],
-          built.payload.user as string,
-          { cwd: folder, env, timeoutMs: options.timeoutMs ?? 120_000 },
+        const sent = await withClaudeErrorRetries(
+          () =>
+            runClaudeCommand(
+              options.command ?? 'claude',
+              [
+                ...(options.commandArgs ?? []),
+                '-p',
+                '--output-format',
+                'json',
+                '--model',
+                model,
+                '--system-prompt',
+                request.system,
+                ...CLAUDE_JUDGE_FLAGS,
+                ...(options.maxBudgetUsd === undefined
+                  ? []
+                  : ['--max-budget-usd', String(options.maxBudgetUsd)]),
+              ],
+              built.payload.user as string,
+              { cwd: folder as string, env, timeoutMs: options.timeoutMs ?? 120_000 },
+            ),
+          { system: request.system, user: built.payload.user as string, env },
+          options,
         );
+        const ran = sent.ran;
         let value: unknown;
         try {
           value = JSON.parse(ran.stdout);
@@ -263,6 +247,9 @@ export function createDialectTransport(options: DialectTransportOptions): Dialec
           raw: ran.stdout,
           text: typeof value.result === 'string' ? value.result : '',
           ...(cost === undefined ? {} : { costUsd: cost }),
+          ...(sent.retryReceipts
+            ? { retryReceipts: sent.retryReceipts, requestCount: sent.requestCount, costUsd: sent.costUsd }
+            : {}),
           ...(typeof value.subtype === 'string' ? { finishReason: value.subtype } : {}),
           ...(value.subtype === 'success' ? {} : { truncated: true }),
         };
