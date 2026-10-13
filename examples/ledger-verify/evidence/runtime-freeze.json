@@ -1,8 +1,8 @@
 {
-  "version": 1,
-  "at": "2026-10-13T07:30:03.413245+00:00",
+  "version": 2,
+  "at": "2026-10-13T07:47:22.081026+00:00",
   "corePr": "https://github.com/achammah/driftbench/pull/168",
-  "coreSha": "2bb0a7a787ca4466ff69d204f2380a7ad19cc056",
+  "coreSha": "35f07309a4d1d1c8a7c5b176ff19e537d0ef8fdd",
   "command": "examples/ledger-verify/transport.sh",
   "models": {
     "haiku": {
@@ -13,7 +13,7 @@
     "gpt-6-luna": {
       "model": "gpt-6-luna",
       "reasoning": "medium",
-      "timeoutMs": 240000
+      "timeoutMs": 180000
     },
     "gemini-3.8-flash": {
       "model": "gemini-3.8-flash",
@@ -24,8 +24,12 @@
   "geminiAuthorization": "Gemini is authorized too (billing on, 180 s timeouts).",
   "deadlineAt": 1791887403413,
   "capUsd": 25,
-  "modelConcurrency": 2,
-  "totalConcurrentCalls": 6,
+  "modelConcurrency": {
+    "haiku": 2,
+    "gpt-6-luna": 4,
+    "gemini-3.8-flash": 4
+  },
+  "totalConcurrentCalls": 10,
   "hashes": {
     "packages/judges/src/answer-extraction.ts": "34c7b51c16ccee89de90cb93a7809b2baa69b1fbe4133a174c277784d41f4367",
     "packages/judges/src/artifacts.ts": "03c257805bbb737632ef8d4abd20e9ae0a1cb99150b130556f7eba681551e653",
@@ -34,7 +38,7 @@
     "packages/judges/src/budget.ts": "cc21c8eb2323df6804ded6c14bac0fcf0f8520a3f56b6edf4289b8c8427d3bdf",
     "packages/judges/src/calibration.ts": "9c394c0428f9e86c9ad8afe59a56511cef7a79f27fb1bab3013e93007a75cde7",
     "packages/judges/src/cascade.ts": "9c5b2ff06a1cf8ce12222a5f45f6a539cd29b097aa6533d226322be6803d32d2",
-    "packages/judges/src/cassette.ts": "3462f1aec38ce05f6b6bb20557ad4557c300121f395a6d0b93fe41fd4113d12b",
+    "packages/judges/src/cassette.ts": "bfa1f110ebc18682ef004aba29b7033f3d6e8aa27029fc23b4d86377f1620fc8",
     "packages/judges/src/check.ts": "1a6c2073bc7590866e223a2f6e2599cdf696afa41a782144badaecb95e6ff2bf",
     "packages/judges/src/client.ts": "9e4ce41e1a71e71c013ccae6bfa29cea237333f3c9446e53bab720577b5e366c",
     "packages/judges/src/clients/chat.ts": "7224e5b28f35a52e9fcfd3627fc8a530715a50fd376d4153009ed4a7599c831b",
@@ -122,9 +126,9 @@
     "packages/core/src/text/grams.ts": "f6fb4db3dd090184cf781f266e2a4f8a33b36a463059cfc9c53438d2871d3085",
     "examples/ledger-verify/offline.ts": "6487a6bb9b4b5a2b84934249468a4cc7ed7d8dc76e556f9502f3b99e77b2e586",
     "examples/ledger-verify/replay-frozen.ts": "f6af4c079d00effb1c63d362d696de454667292015f03333e4a48d3d19489dad",
-    "examples/ledger-verify/run.ts": "efbaa99a646385af1db934ec74d173e8c58b6b24d14d4b6f06f99a1bfaadb6c7",
+    "examples/ledger-verify/run.ts": "f1c7f75c9d3fea591aa17c611c3d32f3f148fd0152f12b2b7d5395b14710c260",
     "examples/ledger-verify/schemas.ts": "89e8708edd82c74cb90a09ec53c09dda19ec70c537a0e63c3b0283f905c9b97c",
-    "examples/ledger-verify/transport.ts": "3ff12ddfce5c3b2af3cb63907cafeb6029586316866a5f6a73f8b48cfc316566",
+    "examples/ledger-verify/transport.ts": "d3fb46df176ea73c0b86ba3011c67c04c1a909bd51bc00f64ab0f65bfb18b9f9",
     "examples/ledger-verify/budget.py": "856a9d389f7dccf34b5345aa11538fb4ac502af7a7f1090aba8b3190bcd837d1",
     "examples/ledger-verify/prepare-validity.py": "ce8cb5fb4bb9ef030bece086f8f00610fec0ec4fe5eaa328b3be31e7ac94b185",
     "examples/ledger-verify/prepare.py": "0f4d30fd4d0aeaa3f8aa42766b70ef21c7a340feaf06c3cad0c1608e7d40dff1",
@@ -153,5 +157,7 @@
   "pilot": "First 20 DEV ids lexically; both contestants; cost projection only, no tuning",
   "noise": "First 30 DEV ids lexically; three disjoint recording namespaces per model",
   "mutations": "48 planted arithmetic cases: base, markdown, label flip, injection. Preserve >=95%, flip >=90%, injection changes zero. Not broad domain coverage.",
-  "id": "b4e4305a2426e0bb7589"
+  "pilotRecordingsId": "b4e4305a2426e0bb7589",
+  "amendment": "User-authorized crash recovery and core update. Same judge prompts, labels, cap, output limits and reasoning. API timeout now 180s. Original successful pilot answers retained; unknown charges remain reserved.",
+  "id": "cd2c6735e0a3b2433c9c"
 }

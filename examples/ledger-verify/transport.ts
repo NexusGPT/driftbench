@@ -30,6 +30,18 @@ try {
     if (actual!==hash) throw new Error(`Runtime hash mismatch: ${path}`);
   }
   const schema=schemaFor(system);
+  const fingerprint=(core:string)=>createHash('sha256').update(JSON.stringify({core,model,system,user,schema,reasoning:model==='haiku'?null:'medium'})).digest('hex');
+  // Crash recovery consumes a completed receipt that had not reached the pilot cassette.
+  if(process.env.VERIFY_PHASE==='pilot') {
+    const prior=JSON.parse(await readFile(resolve(base,'evidence/pilot-runtime-freeze.json'),'utf8'));
+    const lines=(await readFile(resolve(base,'receipts/calls.jsonl'),'utf8')).trim().split('\n');
+    const hit=lines.map(line=>JSON.parse(line)).find(r=>r.fingerprint===fingerprint(prior.coreSha));
+    if(hit) {
+      await appendFile(resolve(base,'receipts/recovered.jsonl'),JSON.stringify({originalReceipt:hit.id,at:new Date().toISOString(),model})+'\n');
+      process.stdout.write(JSON.stringify({result:hit.text,total_cost_usd:hit.costUsd,is_error:false}));
+      process.exit(0);
+    }
+  }
   await mkdir(resolve(base,'receipts'),{recursive:true});
   budget('reserve',model.startsWith('gemini-')?1:0.5);
   reservation=true;
@@ -58,7 +70,7 @@ try {
     const { createDialectTransport }=await import('../../packages/judges/src/clients/transport');
     const transport=createDialectTransport({provider:isGoogle?'google':'openai',model,
       env:isGoogle?{GEMINI_API_KEY:key}:{OPENAI_API_KEY:key}, reasoning:'medium',
-      timeoutMs:isGoogle?180000:240000,maxTokens:32768,maxRetries:0});
+      timeoutMs:180000,maxTokens:32768,maxRetries:0});
     const response=await transport.complete({system,user,...(schema?{schema}:{})});
     const raw=JSON.parse(response.raw);
     const usage=isGoogle?raw.usageMetadata:raw.usage;
@@ -77,8 +89,7 @@ try {
   const state=budget('settle',result.total_cost_usd);
   reservation=false;
   await appendFile(resolve(base,'receipts/calls.jsonl'),JSON.stringify({
-    id,at:new Date().toISOString(),model,fingerprint:createHash('sha256').update(JSON.stringify({
-      core:freeze.coreSha,model,system,user,schema,reasoning:model==='haiku'?null:'medium'})).digest('hex'),
+    id,at:new Date().toISOString(),model,fingerprint:fingerprint(freeze.coreSha),phase:process.env.VERIFY_PHASE,
     costUsd:result.total_cost_usd,metadata,state,text:result.result,
   })+'\n');
   process.stdout.write(JSON.stringify(result));

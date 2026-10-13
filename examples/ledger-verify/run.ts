@@ -2,7 +2,7 @@
 import assert from 'node:assert/strict';
 import { execFileSync } from 'node:child_process';
 import { createHash } from 'node:crypto';
-import { mkdir, readFile, writeFile } from 'node:fs/promises';
+import { mkdir, readFile, writeFile, unlink, access } from 'node:fs/promises';
 import { resolve } from 'node:path';
 import { contestantById } from '../judge-benchmarks/src/contestants';
 import { CRITERIA, type PointItem } from '../judge-benchmarks/src/data';
@@ -47,18 +47,37 @@ const pool: PointItem[] = JSON.parse(await readFile(`${base}/evidence/${validity
 const items = pilot||noise!==undefined ? [...pool].sort((a,b) => a.id.localeCompare(b.id)).slice(0,pilot?20:30) : pool;
 const resultDir = `${base}/${phase==='test'?'results':phase}`;
 await mkdir(resultDir, { recursive: true });
+const activeFile=`${resultDir}/${model}.active.json`;
 if (!replayOnly) {
-  await writeFile(`${resultDir}/${model}.started.json`, JSON.stringify({ at:new Date().toISOString(),
+  try {
+    const active=JSON.parse(await readFile(activeFile,'utf8'));
+    let alive=false;
+    try { process.kill(active.pid,0); alive=true; } catch (e:any) { if(e.code!=='ESRCH') throw e; }
+    assert(!alive, 'A runner for this model and phase is already active');
+    await unlink(activeFile);
+  } catch(e:any) { if(e.code!=='ENOENT') throw e; }
+  await writeFile(activeFile,JSON.stringify({pid:process.pid,at:new Date().toISOString()}),{flag:'wx'});
+  if(process.argv.includes('--resume-interrupted')) {
+    const prior=JSON.parse(await readFile(`${resultDir}/${model}.started.json`,'utf8'));
+    assert.equal(prior.items,items.length);
+    let finished=false; try { await access(`${resultDir}/${model}.json`); finished=true; } catch(e:any) { if(e.code!=='ENOENT') throw e; }
+    assert(!finished,'Completed result cannot be resumed');
+    await writeFile(`${resultDir}/${model}.resumed-${runtime.id}.json`,JSON.stringify({prior,at:new Date().toISOString(),runtime:runtime.id},null,2)+'\n',{flag:'wx'});
+  } else await writeFile(`${resultDir}/${model}.started.json`, JSON.stringify({ at:new Date().toISOString(),
     items:items.length, coreSha:runtime.coreSha, runtime:runtime.id }, null,2)+'\n', { flag:'wx' });
 }
+process.env.VERIFY_PHASE=phase;
+try {
 const report = await runBenchmark({
   bench:'longjudge-verify', model,
   contestants:['driftbench-verify-uncertainty-cascade','promptfoo'].map(contestantById),
-  items, criterion:CRITERIA['longjudge-verify'], split:'all', concurrency:2,
+  items, criterion:CRITERIA['longjudge-verify'], split:'all', concurrency:pilot?2:runtime.modelConcurrency[model],
   capUsd:25, deadlineAt:runtime.deadlineAt, includeDecisions:true, replayOnly,
-  recordingsDir:resolve(`${base}/recordings/${runtime.id}/${phase}`),
+  recordingsDir:resolve(`${base}/recordings/${pilot?runtime.pilotRecordingsId:runtime.id}/${phase}`),
   command:resolve(runtime.command),
 });
 await writeFile(`${resultDir}/${model}${replayOnly ? '.replay' : ''}.json`,JSON.stringify(report,null,2)+'\n');
 console.log(JSON.stringify({model,phase,items:report.items,calls:report.newCalls,spend:report.newSpendUsd,
   stopped:report.stopped,judges:report.contestants.map(c=>({id:c.contestant,missing:c.summary.missing}))}));
+
+} finally { if(!replayOnly) await unlink(activeFile); }
