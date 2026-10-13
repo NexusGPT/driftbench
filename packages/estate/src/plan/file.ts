@@ -1,6 +1,6 @@
 import { readFile } from 'node:fs/promises';
-import { isPlainObject } from '@driftbench/core';
-import { formatJson } from '@driftbench/generate';
+import { isPlainObject } from '@agent-nexus/driftbench-core';
+import { formatJson } from '@agent-nexus/driftbench-generate';
 import { Document, isMap, isSeq, parseDocument } from 'yaml';
 import type { z } from 'zod';
 import { Plan } from '../schema';

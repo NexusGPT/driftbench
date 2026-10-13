@@ -1,4 +1,10 @@
-import { type Check, machineVerdict, parseCriterionRef, type Stimulus, wordsOf } from '@driftbench/core';
+import {
+  type Check,
+  machineVerdict,
+  parseCriterionRef,
+  type Stimulus,
+  wordsOf,
+} from '@agent-nexus/driftbench-core';
 import { fold, keyTerms, termMatches } from '../support/terms';
 import { visibleText } from '../support/text';
 

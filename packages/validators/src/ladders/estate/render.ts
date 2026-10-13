@@ -1,4 +1,4 @@
-import type { AtomKind, EstateRecording } from '@driftbench/estate';
+import type { AtomKind, EstateRecording } from '@agent-nexus/driftbench-estate';
 import {
   type Evidence,
   type HiddenEstate,

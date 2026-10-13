@@ -1,5 +1,5 @@
 import { fileURLToPath } from 'node:url';
-import type { Spec } from '@driftbench/core';
+import type { Spec } from '@agent-nexus/driftbench-core';
 import type { Proposal, ProposalPhrase } from '../../src/extract/proposal';
 import { type PreparedMap, prepareMap, type ToolSchema } from '../../src/seed/map';
 

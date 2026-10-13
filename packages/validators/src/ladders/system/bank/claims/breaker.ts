@@ -1,4 +1,4 @@
-import { INFORMATION, LINT_CODES } from '@driftbench/estate';
+import { INFORMATION, LINT_CODES } from '@agent-nexus/driftbench-estate';
 import { DOCUMENTED_CHECKS } from '../documented';
 /**
  * Blind-breaker claims: executable claims taken from the documentation pages and the command-line help

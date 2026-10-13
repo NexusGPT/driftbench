@@ -1,7 +1,7 @@
 import { mkdtemp, readdir, readFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
-import { canonicalJson, loadSpecFile, type Spec, validateSpec } from '@driftbench/core';
+import { canonicalJson, loadSpecFile, type Spec, validateSpec } from '@agent-nexus/driftbench-core';
 import { describe, expect, it } from 'vitest';
 import {
   type BuildOptions,

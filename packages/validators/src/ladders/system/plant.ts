@@ -1,4 +1,4 @@
-import type { Observed } from '@driftbench/core';
+import type { Observed } from '@agent-nexus/driftbench-core';
 import { type BlockTruth, FORBIDDEN, GUARD, LOOKUP } from './family';
 import { between, type Rng } from './random';
 

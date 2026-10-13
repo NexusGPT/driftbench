@@ -1,10 +1,10 @@
 /**
- * @driftbench/sandbox: the workspace a code agent works in for one run. A local sandbox is a temporary
+ * @agent-nexus/driftbench-sandbox: the workspace a code agent works in for one run. A local sandbox is a temporary
  * folder (weak isolation); a docker sandbox is a container with that folder mounted (strong isolation).
  * Both seed the folder from the Given, snapshot it before and after a block, diff the snapshots, run
  * commands with bounded output and a timeout, read files with a bound, and remove the folder at the end.
  */
-export const packageName = '@driftbench/sandbox';
+export const packageName = '@agent-nexus/driftbench-sandbox';
 export { trackFolder, trackGroup, untrackFolder, untrackGroup } from './cleanup';
 export { DOCKER_WORKSPACE, type DockerProviderOptions, DockerSandbox, dockerProvider } from './docker';
 export {

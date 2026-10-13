@@ -1,7 +1,7 @@
 import { createHash } from 'node:crypto';
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
-import { functionAdapter } from '@driftbench/adapters';
+import { functionAdapter } from '@agent-nexus/driftbench-adapters';
 import {
   type AgentAdapter,
   findSpecFiles,
@@ -19,7 +19,7 @@ import {
   type Spec,
   type TargetRef,
   validateSpec,
-} from '@driftbench/core';
+} from '@agent-nexus/driftbench-core';
 import type { RawSpec } from '../../plant';
 import { type BankItem, expectAll, fail, type ItemResult, type ItemSource, PASS, type Tier } from '../types';
 import { runScenario } from '../world';

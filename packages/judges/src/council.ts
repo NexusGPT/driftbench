@@ -1,4 +1,9 @@
-import { type Check, type RetryEvent, retriesInto, type Vote as VoteSchema } from '@driftbench/core';
+import {
+  type Check,
+  type RetryEvent,
+  retriesInto,
+  type Vote as VoteSchema,
+} from '@agent-nexus/driftbench-core';
 import type { z } from 'zod';
 import { type JudgeCheckOptions, judgeCheck } from './check';
 import type { JudgeClient } from './client';

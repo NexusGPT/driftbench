@@ -5,8 +5,8 @@ import {
   rngFor,
   stageGraph,
   walkGraph,
-} from '@driftbench/generate';
-import { compileSpace, type SpaceMap } from '@driftbench/space';
+} from '@agent-nexus/driftbench-generate';
+import { compileSpace, type SpaceMap } from '@agent-nexus/driftbench-space';
 import type { Atom, Edge, EstateMap } from '../schema';
 
 /**

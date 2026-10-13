@@ -1,5 +1,5 @@
 import { relative, resolve } from 'node:path';
-import { type Issue, type LoadResult, loadSpecs } from '@driftbench/core';
+import { type Issue, type LoadResult, loadSpecs } from '@agent-nexus/driftbench-core';
 import type { Command } from 'commander';
 import type { Io } from '../io';
 import { coverageCommand } from './coverage';

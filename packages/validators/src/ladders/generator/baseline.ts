@@ -1,5 +1,5 @@
-import { type LoadedSpec, parseSpecText, type Spec } from '@driftbench/core';
-import { DETOURS } from '@driftbench/generate';
+import { type LoadedSpec, parseSpecText, type Spec } from '@agent-nexus/driftbench-core';
+import { DETOURS } from '@agent-nexus/driftbench-generate';
 import { stringify } from 'yaml';
 import { defaultValue } from './follower';
 import type { HiddenSpec } from './hidden';

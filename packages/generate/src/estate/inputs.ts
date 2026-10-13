@@ -2,7 +2,7 @@ import { z } from 'zod';
 
 /**
  * What the estate generator reads. The estate map and the plan follow the estate contract
- * (`@driftbench/estate`, schema.ts); that package depends on this one, so the generator reads the parts it
+ * (`@agent-nexus/driftbench-estate`, schema.ts); that package depends on this one, so the generator reads the parts it
  * needs structurally and the command validates both files with the estate's own schemas first. The phrase
  * bank and the session index are this module's own formats, validated here.
  */

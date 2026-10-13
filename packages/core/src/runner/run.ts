@@ -49,7 +49,7 @@ export type RunOptions = {
   /** Keeps the events on the run record (its events field), in order. Off by default: a run record stays as it was. */
   recordEvents?: boolean;
   adapter: AgentAdapter;
-  /** Decides each block's stimulus. The scripted driver of `@driftbench/users` replays the spec's blocks. */
+  /** Decides each block's stimulus. The scripted driver of `@agent-nexus/driftbench-users` replays the spec's blocks. */
   driver: UserDriver;
   /** Applied to every block, in order. */
   checks: CheckSet;

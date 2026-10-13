@@ -1,6 +1,6 @@
 import { mkdir, readFile, rm, stat, writeFile } from 'node:fs/promises';
 import { dirname, isAbsolute, join, relative, resolve, sep } from 'node:path';
-import { type LoadedSpec, loadSpecs } from '@driftbench/core';
+import { type LoadedSpec, loadSpecs } from '@agent-nexus/driftbench-core';
 import {
   buildTaskInputs,
   COMPLETE_DIR,
@@ -14,7 +14,7 @@ import {
   REPORT_FILE,
   renderSummary,
   type SpecProposal,
-} from '@driftbench/generate';
+} from '@agent-nexus/driftbench-generate';
 import type { Command } from 'commander';
 import type { Io } from '../io';
 import { optionNumber } from '../number';

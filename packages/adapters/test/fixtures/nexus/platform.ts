@@ -1,5 +1,5 @@
 import { readFileSync } from 'node:fs';
-import type { Message } from '@driftbench/core';
+import type { Message } from '@agent-nexus/driftbench-core';
 import { type AcmeStore, createAcmeAgent, createStore } from '../../../../../examples/acme/src/index';
 import type { FetchLike } from '../../../src/http/index';
 

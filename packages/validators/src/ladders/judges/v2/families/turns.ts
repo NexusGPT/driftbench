@@ -1,4 +1,9 @@
-import { FakeJudge, type JudgeAnswer, type JudgeRequest, type TranscriptEntry } from '@driftbench/judges';
+import {
+  FakeJudge,
+  type JudgeAnswer,
+  type JudgeRequest,
+  type TranscriptEntry,
+} from '@agent-nexus/driftbench-judges';
 import { loadPool } from '../../pool';
 import { type BankItem, between, filler, fn, type JudgesApi, pick, type Tier } from '../bank';
 import { ruleVerdict } from '../rules';

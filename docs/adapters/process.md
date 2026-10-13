@@ -7,8 +7,8 @@ The process adapter runs a code-interpreter agent as a command in a sandbox, one
 ## Options
 
 ```ts
-import { processAdapter } from '@driftbench/adapters';
-import { localProvider } from '@driftbench/sandbox';
+import { processAdapter } from '@agent-nexus/driftbench-adapters';
+import { localProvider } from '@agent-nexus/driftbench-sandbox';
 
 const adapter = processAdapter({
   command: process.execPath,
@@ -21,7 +21,7 @@ const adapter = processAdapter({
 |---|---|
 | `command` | the agent command: a binary on the sandbox's `PATH`, or a path to one |
 | `args` | its arguments |
-| `provider` | where sandboxes come from: `localProvider()` or `dockerProvider({ image })` of `@driftbench/sandbox` |
+| `provider` | where sandboxes come from: `localProvider()` or `dockerProvider({ image })` of `@agent-nexus/driftbench-sandbox` |
 | `keep` | leave each sandbox on disk after `close`, for inspection |
 | `image` | the docker image, when it differs from the provider's |
 | `stimulus` | how the instruction reaches the agent: `stdin` (the default) or `file` |

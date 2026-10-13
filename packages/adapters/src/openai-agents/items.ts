@@ -1,4 +1,4 @@
-import { isPlainObject, type Message, type Segment } from '@driftbench/core';
+import { isPlainObject, type Message, type Segment } from '@agent-nexus/driftbench-core';
 import { errorOf, outputText, readToolText, type ToolLabels, type ToolOutcome } from '../anthropic/common';
 import { contentText, parseArguments } from '../shared';
 

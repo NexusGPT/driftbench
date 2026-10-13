@@ -2,9 +2,9 @@
 
 An adapter connects driftbench to the agent under test. The runner, the checks and the judges never call an agent directly; they go through an adapter. The core package imports no vendor SDK, and Nexus is one adapter among others.
 
-The contract lives in `packages/core/src/contracts/adapter.ts`. Every adapter ships in `@driftbench/adapters`. The function, http, nexus and process adapters (phase 1) and the openai-agents, anthropic, google and langgraph adapters (release phase) each pass the contract suite. The Claude Code adapter replays a recorded session, with no model call.
+The contract lives in `packages/core/src/contracts/adapter.ts`. Every adapter ships in `@agent-nexus/driftbench-adapters`. The function, http, nexus and process adapters (phase 1) and the openai-agents, anthropic, google and langgraph adapters (release phase) each pass the contract suite. The Claude Code adapter replays a recorded session, with no model call.
 
-`@driftbench/adapters` imports no vendor SDK either. The four SDK adapters take the vendor's client, runner or graph from you, and `@driftbench/adapters` declares `@openai/agents`, `@anthropic-ai/sdk`, `@google/genai` and `@langchain/langgraph` as optional peer dependencies, with the versions the shapes were proven against.
+`@agent-nexus/driftbench-adapters` imports no vendor SDK either. The four SDK adapters take the vendor's client, runner or graph from you, and `@agent-nexus/driftbench-adapters` declares `@openai/agents`, `@anthropic-ai/sdk`, `@google/genai` and `@langchain/langgraph` as optional peer dependencies, with the versions the shapes were proven against.
 
 ## The contract
 

@@ -1,4 +1,4 @@
-import type { Atom } from '@driftbench/estate';
+import type { Atom } from '@agent-nexus/driftbench-estate';
 import { STANDING, skillFile } from '../layout';
 import { lintLevel } from '../levels';
 import { type EstateRun, estateRun } from '../pipeline';

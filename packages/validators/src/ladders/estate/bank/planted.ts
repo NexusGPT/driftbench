@@ -10,8 +10,8 @@ import {
   type RawEstate,
   readerFor,
   scanEstate,
-} from '@driftbench/estate';
-import type { ModelPort, ModelRequest } from '@driftbench/generate';
+} from '@agent-nexus/driftbench-estate';
+import type { ModelPort, ModelRequest } from '@agent-nexus/driftbench-generate';
 import { RUNTIME } from '../layout';
 import { matchAtoms } from '../pipeline';
 import type { ExpectedAtom, ProseEntry } from '../render';

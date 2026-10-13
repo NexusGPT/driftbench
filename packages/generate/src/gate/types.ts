@@ -1,4 +1,11 @@
-import type { DeviationClass, DriftClass, Message, Observed, Spec, WorldState } from '@driftbench/core';
+import type {
+  DeviationClass,
+  DriftClass,
+  Message,
+  Observed,
+  Spec,
+  WorldState,
+} from '@agent-nexus/driftbench-core';
 
 /**
  * The contracts of the validity gate: its nine stages, the fields a Then reads, the fault set it plants,

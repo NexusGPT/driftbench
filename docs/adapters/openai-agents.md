@@ -2,13 +2,13 @@
 
 Status: shipped, release phase. It passes the [contract suite](index.md#the-contract-suite) in chat mode, on a fake runner that plays the Acme example agent, and on the real `@openai/agents` package driven through a fake model. It has not run against a live model yet.
 
-The openai-agents adapter runs an agent built with the OpenAI Agents SDK. The SDK is not a dependency of driftbench: the adapter takes your runner and your agent, and types them with a local interface that mirrors the SDK's call shape. `@openai/agents` is an optional peer dependency of `@driftbench/adapters`; the shapes match version 0.20.0.
+The openai-agents adapter runs an agent built with the OpenAI Agents SDK. The SDK is not a dependency of driftbench: the adapter takes your runner and your agent, and types them with a local interface that mirrors the SDK's call shape. `@openai/agents` is an optional peer dependency of `@agent-nexus/driftbench-adapters`; the shapes match version 0.20.0.
 
 ## Options
 
 ```ts
 import { Runner } from '@openai/agents';
-import { openaiAgentsAdapter } from '@driftbench/adapters';
+import { openaiAgentsAdapter } from '@agent-nexus/driftbench-adapters';
 import { buildSalesAgent } from './agent'; // your own Agent, built with new Agent({ ... })
 
 const adapter = openaiAgentsAdapter({

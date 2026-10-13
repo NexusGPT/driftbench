@@ -1,7 +1,7 @@
 import { cp, mkdtemp, readdir, readFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
-import { loadSpecFile, type Spec } from '@driftbench/core';
+import { loadSpecFile, type Spec } from '@agent-nexus/driftbench-core';
 import { cli, REPO } from './bench';
 
 /**

@@ -1,4 +1,4 @@
-import { mulberry32 } from '@driftbench/stats';
+import { mulberry32 } from '@agent-nexus/driftbench-stats';
 
 /**
  * The seeded generators the simulation levels draw from. Each level and each design inside it draws from its

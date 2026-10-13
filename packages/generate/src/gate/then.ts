@@ -5,7 +5,7 @@ import {
   isPlainObject,
   type Spec,
   type Stimulus,
-} from '@driftbench/core';
+} from '@agent-nexus/driftbench-core';
 import {
   type GateOptions,
   OBSERVED_FIELDS,

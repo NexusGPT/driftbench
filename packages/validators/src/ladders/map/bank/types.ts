@@ -1,4 +1,4 @@
-import type { ExtractResult, SourceText } from '@driftbench/generate';
+import type { ExtractResult, SourceText } from '@agent-nexus/driftbench-generate';
 import type { Extract } from '../run';
 import type { CodeEntry } from './facts';
 import type { Planted } from './perfect';

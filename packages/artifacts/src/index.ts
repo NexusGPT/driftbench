@@ -1,10 +1,10 @@
 /**
- * @driftbench/artifacts: readers for the files a code agent produces (xlsx, docx, pptx, pdf, csv, json,
+ * @agent-nexus/driftbench-artifacts: readers for the files a code agent produces (xlsx, docx, pptx, pdf, csv, json,
  * text, code). Each reader opens one kind of file and answers the checks a spec declares on it
  * (`expect.artifacts[].checks`) with evidence that names what was found; `text()` is what a judge reads.
  * The artifact check in the checks package delegates to them through `defaultReaders()`.
  */
-export const packageName = '@driftbench/artifacts';
+export const packageName = '@agent-nexus/driftbench-artifacts';
 
 export { type Assertion, isSubset, parseAssertion } from './assertion';
 export { type CsvGrid, csvReader, parseCsv } from './csv';
