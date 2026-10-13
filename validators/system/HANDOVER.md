@@ -48,7 +48,7 @@ Iteration 5 commits packages/core/test/runner/uncached-key-cost.test.ts with the
 
 1. Merge main after PR 128 lands, run node tools/rename-scope.mjs, typecheck and remeasure seed 1. Report any remaining red item. For the remaining shared growing-history cause, the first file is packages/core/src/contracts/history.ts. Keep mutable plain arrays and structuredClone compatibility. The earlier private hybrid-copy and copied-runner timings are withdrawn: CommonJS copies duplicated the ownership marker. Repeat private probes as ESM before judging them.
 2. Continue growing-history research from packages/core/src/contracts/history.ts. The current CPU profile puts snapshot allocation and garbage collection above ledger work. Private literal-accessor construction is slower and rejected; the native projection probe still exceeds the bound in some cases, so neither is accepted as a cure.
-3. Watch separate main PRs 149 (stats measurement cache) and 150 (CLI positive-floor caps). PR 143 is merged. Merge main at a measurement boundary, run the codemod, typecheck and lint, then run the final first five seeds. Report N of 21; continue remaining seeds only before 06:00 local.
+3. Main PRs 149 (stats measurement cache), 150 (CLI positive-floor caps) and 143 (system floor) are merged. Merge main at a measurement boundary, run the codemod, typecheck and lint, then run the final first five seeds. Report N of 21; continue remaining seeds only before 06:00 local.
 
 
 ## Pitfalls
@@ -59,7 +59,7 @@ Iteration 5 commits packages/core/test/runner/uncached-key-cost.test.ts with the
 * Nested stats measurements are cached by stats revision and seed only within one sweep. Dirty stats/bank code measures fresh. Disclose cache use and verify fresh/cached report equality.
 * The scale bank times CPU and keeps the minimum of repeated timings. One green micro-run is insufficient when another run fails the bound.
 * The owner skips the local estate-floor rerun: 616 seconds against 600 seconds at host load 150 is judged by CI. Do not raise the timeout.
-* This branch includes main bace403d. The namespace codemod changes zero files; typecheck and lint pass before pushing. New pushes create fresh CI; cancelled runs are not rerun. The public commit-attribution address has a scoped guard:allow marker; keep it when editing this handover.
+* This branch includes main 64cc35e8, merged as c36468ca. The latest full bank measurement remains the separately stamped iteration 8 source; the merged head has not yet had a full bank measurement. The namespace codemod changes zero files; typecheck and lint pass before pushing. New pushes create fresh CI; cancelled runs are not rerun. The public commit-attribution address has a scoped guard:allow marker; keep it when editing this handover.
 
 ## How to run
 
@@ -82,8 +82,16 @@ The unchanged bank is packages/validators/src/ladders/system/bank. Its manifest 
 
 ## Local work, not pushed
 
-No uncommitted paths remain after this handover commit. Before each later handover push, compare the complete git status with this inventory and mark every remaining path local, not pushed.
+No uncommitted repository paths remain after this handover commit. Before each later handover push, compare the complete git status with this inventory and mark every remaining path local, not pushed.
+
+Rejected ordinary role/content object-literal candidate, local, not pushed: the following files are private snapshots, outside the repository. The expanded red-first Node 22 growth test fails seeds 2, 3 and 4 before the candidate. After it, seed 2 still fails at 38.5 against 25; 417 tests pass and 36 skip. The repository source and tests are restored to the committed versions, so no iteration 9 fix or bank score is claimed.
+
+* /private/tmp/claude-501/-Users-assem-Documents-Doc-Assem-Claude-Code-nexus/649588d0-8d65-49cb-8d78-47b071cd71cb/scratchpad/codex/system-measurements/rejected-role-content/packages/core/src/contracts/history.ts, local, not pushed.
+* /private/tmp/claude-501/-Users-assem-Documents-Doc-Assem-Claude-Code-nexus/649588d0-8d65-49cb-8d78-47b071cd71cb/scratchpad/codex/system-measurements/rejected-role-content/packages/core/test/history-fields.test.ts, local, not pushed.
+* /private/tmp/claude-501/-Users-assem-Documents-Doc-Assem-Claude-Code-nexus/649588d0-8d65-49cb-8d78-47b071cd71cb/scratchpad/codex/system-measurements/rejected-role-content/packages/core/test/runner/history-growth.test.ts, local, not pushed.
 
 ## Pull requests, as of
 
-As of 2026-10-13 04:35 CEST: GitHub reports PR 118 open and draft at 39340a7c, targeting main; its Node 22 growth check fails 27.5 against 25 and Node 24 passes. PR 128 is open at 8250c148, targeting main; PRs 130, 137, 139, 140 and 143 are merged. These are dated GitHub observations, not journal results. Recheck current heads and CI before acting.
+As of 2026-10-13 06:27 CEST: GitHub reports PR 118 open and draft at c36468ca, targeting main; Node 22, Node 24 and validators CI are in progress. Its body records previous head 415d0ee4 Node 22 failures at packages/core/test/runner/history-growth.test.ts:14:70: seed 1 growth 25.7 and seed 2 growth 32.3 against 25. PR 128 is open at df42a5b4, targeting main; it includes main 64cc35e8, the namespace codemod, passing typecheck and lint, and a fresh CI run on the capped command. PRs 130, 137, 139, 140, 143, 149 and 150 are merged. These are dated GitHub observations, not journal results. Recheck current heads and CI before acting.
+
+As of 2026-10-13 06:28 CEST: separate main PR 159 is open at afce297d with queued CI. It extracts only the bank maintainer PR 128 clustered interval oracle correction, at the owner's urgent request after PR 152 fails on main. Both items reproduce exactly on main seeds 1, 2 and 3; four red seeded test cases include hidden seed 692104744. Eight tests pass after the correction, including interval-only mutations and report coverage tests; typecheck and lint pass. No system bank seed sweep is claimed by those targeted tests. The executor branch bank stays untouched.
