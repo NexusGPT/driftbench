@@ -1343,6 +1343,8 @@ driftbench monitor --source traces <path> --metric latency|cost|tokens|tool_call
 | 1 | a shift: two or three detectors alarmed |
 | 2 | bad input: an unknown metric for the source, no store or no path, a bad `--every` or `--window`, too few points |
 
+Too few points is what a young store answers, not a broken one: the series needs two windows, 40 campaigns at the default `--window 20`. The message names the largest window the store allows, and the smallest window, `--window 2`, needs 4 campaigns. The example below runs on a store of six campaigns with `--window 2`.
+
 On a store:
 
 ```
