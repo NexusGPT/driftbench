@@ -172,6 +172,13 @@ export function generateEstateSuite(
 
   const files: GeneratedFile[] = [];
   const records: EstateSpecRecord[] = [];
+  /** The ask and the cell of each spec, by id: a focus variant that repeats one is no new chance. */
+  const askAndCell = new Map<string, string>();
+  const keyOf = (built: Built, row: EstatePlanRow): string => {
+    const blocks = built.spec.blocks;
+    const first = Array.isArray(blocks) ? (blocks[0] as { when?: unknown } | undefined) : undefined;
+    return JSON.stringify([first?.when ?? null, row.cell]);
+  };
   const perTestType: Record<string, Totals> = {};
   const perMode: Record<string, Totals> = {};
   const gaps = new Map<string, { specs: Set<string>; atoms: Set<string>; details: Set<string> }>();
@@ -203,6 +210,7 @@ export function generateEstateSuite(
     // By mode first, so a replay run takes `specs/replay` and nothing else.
     const path = `${folder}/${row.mode}/${row.testType}/${built.id}.yaml`;
     files.push({ path, text });
+    askAndCell.set(built.id, keyOf(built, row));
     records.push({
       id: built.id,
       path,
@@ -306,7 +314,13 @@ export function generateEstateSuite(
   // Focus atoms: variants of their rows, another ask and another situation each, until FOCUS_MIN complete
   // specs name the atom (a mutant of it then has several chances to turn one red).
   for (const atom of options.focus ? [...new Set(options.focus)] : []) {
-    const doneOf = () => records.filter((record) => record.complete && record.atoms.includes(atom)).length;
+    // Complete specs naming the atom, counted once per ask and cell.
+    const doneOf = () =>
+      new Set(
+        records
+          .filter((record) => record.complete && record.atoms.includes(atom))
+          .map((record) => askAndCell.get(record.id)),
+      ).size;
     if (doneOf() >= FOCUS_MIN) continue;
     const rows = input.plan.rows.filter(
       (row) =>
@@ -330,6 +344,12 @@ export function generateEstateSuite(
         const use = useOf(varied);
         const situation = use === 'none' ? undefined : findSituation(ctx.bank, use, varied);
         const built = build(varied, atoms, ctx, used, situation, undefined, false, variant);
+        // Two rows varied in the same situation can pick the same ask: the second spec would repeat the first.
+        const key = keyOf(built, varied);
+        const repeats = records.some(
+          (record) => record.complete && record.atoms.includes(atom) && askAndCell.get(record.id) === key,
+        );
+        if (repeats) continue;
         emit(built, varied, totalsFor(perTestType, row.testType), totalsFor(perMode, row.mode));
       }
     }

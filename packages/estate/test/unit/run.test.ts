@@ -284,7 +284,14 @@ describe('the estate unit runner on a guard', () => {
     const [test] = await record(root, await unitTests(root, ['guard_positive']));
     const output = JSON.parse(test?.cases[0]?.expected?.output ?? '{}');
     expect(output).toEqual({
-      keys: ['hook_event_name', 'last_assistant_message', 'permission_mode', 'stop_hook_active'],
+      // The test file's own name for the reply stays beside the runtime's: a guard may read either.
+      keys: [
+        'hook_event_name',
+        'last_assistant_message',
+        'last_reply',
+        'permission_mode',
+        'stop_hook_active',
+      ],
       event: 'Stop',
       obviously: true,
       last: true,

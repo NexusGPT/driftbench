@@ -169,7 +169,12 @@ export async function estateGenerateCommand(options: EstateGenerateOptions, io: 
   const lister = readerFor(loaded.map.runtime, { ignore: loaded.map.ignore ?? [] });
   if (lister?.listFiles && (await stat(root).catch(() => undefined))?.isDirectory()) {
     files = await lister.listFiles(root);
-  } else if (!options.json) {
+    // A folder that holds none of the files the map was read from is not the estate (the map was copied
+    // away from it): the files the map knows stand in, as when no folder is found.
+    const known = new Set(loaded.map.atoms.map((atom) => atom.provenance.file));
+    if (!files.some((file) => known.has(file))) files = undefined;
+  }
+  if (files === undefined && !options.json) {
     io.out(
       `The estate folder ${display(root, io)} cannot be listed: reads are checked against the files the map knows.\n`,
     );

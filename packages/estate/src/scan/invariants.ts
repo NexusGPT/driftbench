@@ -68,7 +68,12 @@ export function measureInvariants(
   const rows = new Set(listed.map((row) => row.guard.split('/').pop() ?? row.guard));
   return {
     ceiling,
-    standingCharacters: standingFiles(raw).reduce((sum, file) => sum + file.text.length, 0),
+    // A standing file of a subfolder loads when the agent works there, not at the start: it is not counted.
+    standingCharacters: standingFiles(raw)
+      .filter(
+        (file) => !(file.kind === 'standing' && file.path.includes('/') && !file.path.startsWith('.claude/')),
+      )
+      .reduce((sum, file) => sum + characters(file.text), 0),
     orphans: [...orphans],
     unanchored: raw.guards.filter((guard) => guard.script && !guard.anchored).map((guard) => guard.command),
     guardsWithoutRow: listed.length === 0 ? [] : [...runtime].filter((name) => !rows.has(name)).sort(),
@@ -155,4 +160,11 @@ function firstLine(file: EstateFile): Located {
     endLine: line?.line ?? 1,
     quote: line?.text ?? file.path,
   };
+}
+
+/** Characters as a reader counts them: an emoji or any letter outside the basic plane is one, not two. */
+export function characters(text: string): number {
+  let count = 0;
+  for (const _code of text) count += 1;
+  return count;
 }

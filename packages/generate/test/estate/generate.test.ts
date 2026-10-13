@@ -129,7 +129,8 @@ describe('estate generate on the Northwind fixture and the hand plan', () => {
     expect(only(byId, 'estate.p24').blocks[0]?.expect?.tools).toEqual([{ label: 'WebFetch', count: 0 }]);
     expect(only(byId, 'estate.p09').blocks[0]?.expect?.must).toEqual(['late']);
     expect(only(byId, 'estate.p13').rules?.custom).toEqual({
-      ordered: { pairs: [{ before: 'Read', after: 'Edit' }] },
+      // "Read a file before you edit it": the read is of the file edited.
+      ordered: { pairs: [{ before: 'Read', after: 'Edit', key: 'file_path' }] },
     });
     const stageSkip = only(byId, 'estate.p27');
     expect(stageSkip.blocks[0]?.expect?.stage).toBe('report');
@@ -469,11 +470,24 @@ describe('the committed suite', () => {
         line.startsWith('  - {') ? line.replace('status: proposed', 'status: approved') : line,
       ),
     );
-    expect(approved.filter((line) => line.startsWith('  - {'))).toHaveLength(1568);
+    expect(approved.filter((line) => line.startsWith('  - {'))).toHaveLength(1301);
     expect(approved.filter((line) => line.startsWith('  - {') && !line.includes('status: approved'))).toEqual(
       [],
     );
   });
+
+  it('lets a journey through a conditional atom wait until an approved situation sets the condition off', async () => {
+    const result = generateEstateSuite(await fixtureInputs(APPROVED_PLAN), { paths: PLANNER_PATHS });
+    const currency = 'reference.invoice-reconcile.read-references-currency-table-md';
+    const journeys = result.specs.filter(
+      (record) => record.testType === 'journey' && record.atoms.includes(currency),
+    );
+    expect(journeys.length).toBeGreaterThan(0);
+    for (const record of journeys) {
+      expect(record.complete, record.id).toBe(false);
+      expect(record.markers, record.id).toContain(MARKERS.phrase);
+    }
+  }, 120_000);
 
   it("is byte for byte what the generator writes for the planner's plan, seed 1", async () => {
     const result = generateEstateSuite(await fixtureInputs(APPROVED_PLAN), { paths: PLANNER_PATHS });
@@ -481,11 +495,12 @@ describe('the committed suite', () => {
     expect(Object.keys(committed).sort()).toEqual(result.files.map((file) => file.path).sort());
     for (const file of result.files) expect(committed[file.path], file.path).toBe(file.text);
     expect(result.report.summary).toEqual({
-      specs: 1568,
-      blocks: 1563,
-      complete: 1360,
-      incomplete: 208,
-      judged: 348,
+      // An ask that would restate the rule under test is refused (needs-askable-act): fewer complete specs.
+      specs: 1301,
+      blocks: 1296,
+      complete: 958,
+      incomplete: 343,
+      judged: 283,
     });
     expect(result.report.invalid).toEqual([]);
     expect(result.report.lint).toEqual([]);
@@ -499,7 +514,7 @@ describe('domain predicates judged from the rule own words', () => {
     const all = specs(result);
     const judged = specRecords(result).filter((record) => record.complete && record.judged.length > 0);
     expect(judged.length).toBe(result.report.sources.judged);
-    expect(judged.length).toBeGreaterThan(150);
+    expect(judged.length).toBeGreaterThan(140);
     for (const record of judged) {
       const spec = only(all, record.id);
       expect(spec.tags, record.id).toContain('judged');

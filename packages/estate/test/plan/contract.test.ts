@@ -102,6 +102,17 @@ describe('the contract per atom kind', () => {
     expect(read.map((row) => row.testType)).toEqual(['tool_boundary', 'tool_deferred']);
   });
 
+  it('loads the skill that declares a tool on its boundary row, and no unit for a settings rule', async () => {
+    const rows = contractRows(await approvedFixture(), ['tool'], OPTIONS);
+    const declared = rows.find((row) => row.atomIds[0] === 'tool.invoice-reconcile.declared-bash');
+    expect(declared?.atomIds).toEqual([
+      'tool.invoice-reconcile.declared-bash',
+      'skill.invoice-reconcile.skill-invoice-reconcile',
+    ]);
+    const settings = rows.find((row) => row.atomIds[0] === 'tool.settings.allow-read');
+    expect(settings?.atomIds).toEqual(['tool.settings.allow-read']);
+  });
+
   it('gives a stage its order and skip rows, and a step allowed at any point its own test only', async () => {
     const rows = contractRows(await approvedFixture(), ['stage'], OPTIONS);
     expect(

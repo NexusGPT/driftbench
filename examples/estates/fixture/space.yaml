@@ -1,7 +1,7 @@
 # The space map of approved.yaml: the situation axes of an estate and its approved axis atoms by kind.
 # Written by driftbench estate map; approve atoms in the estate map and write it again rather than editing this file.
 version: be2e7a0919cb
-agent: northwind
+agent: fixture
 dimensions:
   - id: ask_class
     title: What the owner asks for
@@ -204,5 +204,1549 @@ constraints:
     reason: a dead helper needs helpers that were running
   - forbid: { session_state: fresh, estate_hazard: stale_tracker }
     reason: a stale tracker needs a tracker opened earlier
+  - forbid: { session_state: resumed, atoms.subagent: subagent.inbox-triager.helper-inbox-triager }
+    reason: resumed cannot act on a subagent
+  - forbid: { session_state: resumed, atoms.subagent: subagent.ledger-auditor.helper-ledger-auditor }
+    reason: resumed cannot act on a subagent
+  - forbid: { session_state: resumed, atoms.subagent: subagent.route-planner.helper-route-planner }
+    reason: resumed cannot act on a subagent
+  - forbid: { session_state: resumed, atoms.guard: guard.settings.pretooluse-bash-guard-block-force-push }
+    reason: resumed cannot act on a guard
+  - forbid: { session_state: resumed, atoms.guard: guard.settings.pretooluse-edit-write-guard-read-before }
+    reason: resumed cannot act on a guard
+  - forbid: { session_state: resumed, atoms.guard: guard.settings.posttooluse-bash-guard-ledger-guard-py }
+    reason: resumed cannot act on a guard
+  - forbid: { session_state: resumed, atoms.guard: guard.settings.userpromptsubmit-guard-stop-word-sh }
+    reason: resumed cannot act on a guard
+  - forbid: { session_state: resumed, atoms.guard: guard.settings.stop-guard-reply-length-py }
+    reason: resumed cannot act on a guard
+  - forbid: { session_state: resumed, atoms.guard: guard.shipment-tracker.pretooluse-bash-guard-check-carrier-sh }
+    reason: resumed cannot act on a guard
+  - forbid: { session_state: resumed, atoms.register: register.standing.answer-in-the-language-of-the }
+    reason: resumed cannot act on a register
+  - forbid: { session_state: resumed, atoms.register: register.standing.at-most-one-question-per-reply }
+    reason: resumed cannot act on a register
+  - forbid: { session_state: resumed, atoms.register: register.standing.replies-under-1-200-characters }
+    reason: resumed cannot act on a register
+  - forbid: { session_state: resumed, atoms.register: register.standing.lead-with-the-result }
+    reason: resumed cannot act on a register
+  - forbid: { session_state: resumed, atoms.register: register.standing.bullets-for-three-or-more-parallel }
+    reason: resumed cannot act on a register
+  - forbid: { session_state: resumed, atoms.register: register.standing.never-use-obviously-or-simply }
+    reason: resumed cannot act on a register
+  - forbid: { session_state: resumed, atoms.register: register.standing.currency-code-after-the-amount }
+    reason: resumed cannot act on a register
+  - forbid: { session_state: resumed, atoms.register: register.ledger-auditor.the-auditor-answers-with-one-json }
+    reason: resumed cannot act on a register
+  - forbid: { session_state: resumed, atoms.register: register.route-planner.the-plan-is-a-table-of }
+    reason: resumed cannot act on a register
+  - forbid: { session_state: resumed, atoms.register: register.invoice-reconcile.one-closing-line-per-invoice }
+    reason: resumed cannot act on a register
+  - forbid: { session_state: after_compaction, atoms.subagent: subagent.inbox-triager.helper-inbox-triager }
+    reason: after_compaction cannot act on a subagent
+  - forbid: { session_state: after_compaction, atoms.subagent: subagent.ledger-auditor.helper-ledger-auditor }
+    reason: after_compaction cannot act on a subagent
+  - forbid: { session_state: after_compaction, atoms.subagent: subagent.route-planner.helper-route-planner }
+    reason: after_compaction cannot act on a subagent
+  - forbid: { session_state: after_compaction, atoms.guard: guard.settings.pretooluse-bash-guard-block-force-push }
+    reason: after_compaction cannot act on a guard
+  - forbid: { session_state: after_compaction, atoms.guard: guard.settings.pretooluse-edit-write-guard-read-before }
+    reason: after_compaction cannot act on a guard
+  - forbid: { session_state: after_compaction, atoms.guard: guard.settings.posttooluse-bash-guard-ledger-guard-py }
+    reason: after_compaction cannot act on a guard
+  - forbid: { session_state: after_compaction, atoms.guard: guard.settings.userpromptsubmit-guard-stop-word-sh }
+    reason: after_compaction cannot act on a guard
+  - forbid: { session_state: after_compaction, atoms.guard: guard.settings.stop-guard-reply-length-py }
+    reason: after_compaction cannot act on a guard
+  - forbid: { session_state: after_compaction, atoms.guard: guard.shipment-tracker.pretooluse-bash-guard-check-carrier-sh }
+    reason: after_compaction cannot act on a guard
+  - forbid: { session_state: after_restart, atoms.route: route.invoice-reconcile.an-ask-that-fits-invoice-reconcile }
+    reason: after_restart cannot act on a route
+  - forbid: { session_state: after_restart, atoms.route: route.shipment-tracker.an-ask-that-fits-shipment-tracker }
+    reason: after_restart cannot act on a route
+  - forbid: { session_state: after_restart, atoms.route: route.supplier-email.an-ask-that-fits-supplier-email }
+    reason: after_restart cannot act on a route
+  - forbid: { session_state: after_restart, atoms.route: route.weekly-report.an-ask-that-fits-weekly-report }
+    reason: after_restart cannot act on a route
+  - forbid: { session_state: after_restart, atoms.route: route.inbox-triager.an-ask-that-fits-inbox-triager }
+    reason: after_restart cannot act on a route
+  - forbid: { session_state: after_restart, atoms.route: route.ledger-auditor.an-ask-that-fits-ledger-auditor }
+    reason: after_restart cannot act on a route
+  - forbid: { session_state: after_restart, atoms.route: route.route-planner.an-ask-that-fits-route-planner }
+    reason: after_restart cannot act on a route
+  - forbid: { session_state: after_restart, atoms.route: route.standing.an-ask-to-reconcile-an-invoice }
+    reason: after_restart cannot act on a route
+  - forbid: { session_state: after_restart, atoms.route: route.standing.an-ask-to-know-where-a }
+    reason: after_restart cannot act on a route
+  - forbid: { session_state: after_restart, atoms.route: route.standing.an-ask-to-write-to-or }
+    reason: after_restart cannot act on a route
+  - forbid: { session_state: after_restart, atoms.route: route.standing.an-ask-to-prepare-the-weekly }
+    reason: after_restart cannot act on a route
+  - forbid: { session_state: after_restart, atoms.route: route.standing.an-ask-to-audit-the-ledger }
+    reason: after_restart cannot act on a route
+  - forbid: { session_state: after_restart, atoms.route: route.standing.an-ask-to-plan-the-delivery }
+    reason: after_restart cannot act on a route
+  - forbid: { session_state: after_restart, atoms.skill: skill.invoice-reconcile.skill-invoice-reconcile }
+    reason: after_restart cannot act on a skill
+  - forbid: { session_state: after_restart, atoms.skill: skill.shipment-tracker.skill-shipment-tracker }
+    reason: after_restart cannot act on a skill
+  - forbid: { session_state: after_restart, atoms.skill: skill.supplier-email.skill-supplier-email }
+    reason: after_restart cannot act on a skill
+  - forbid: { session_state: after_restart, atoms.skill: skill.weekly-report.skill-weekly-report }
+    reason: after_restart cannot act on a skill
+  - forbid: { session_state: after_restart, atoms.guard: guard.settings.pretooluse-bash-guard-block-force-push }
+    reason: after_restart cannot act on a guard
+  - forbid: { session_state: after_restart, atoms.guard: guard.settings.pretooluse-edit-write-guard-read-before }
+    reason: after_restart cannot act on a guard
+  - forbid: { session_state: after_restart, atoms.guard: guard.settings.posttooluse-bash-guard-ledger-guard-py }
+    reason: after_restart cannot act on a guard
+  - forbid: { session_state: after_restart, atoms.guard: guard.settings.userpromptsubmit-guard-stop-word-sh }
+    reason: after_restart cannot act on a guard
+  - forbid: { session_state: after_restart, atoms.guard: guard.settings.stop-guard-reply-length-py }
+    reason: after_restart cannot act on a guard
+  - forbid: { session_state: after_restart, atoms.guard: guard.shipment-tracker.pretooluse-bash-guard-check-carrier-sh }
+    reason: after_restart cannot act on a guard
+  - forbid: { session_state: after_restart, atoms.register: register.standing.answer-in-the-language-of-the }
+    reason: after_restart cannot act on a register
+  - forbid: { session_state: after_restart, atoms.register: register.standing.at-most-one-question-per-reply }
+    reason: after_restart cannot act on a register
+  - forbid: { session_state: after_restart, atoms.register: register.standing.replies-under-1-200-characters }
+    reason: after_restart cannot act on a register
+  - forbid: { session_state: after_restart, atoms.register: register.standing.lead-with-the-result }
+    reason: after_restart cannot act on a register
+  - forbid: { session_state: after_restart, atoms.register: register.standing.bullets-for-three-or-more-parallel }
+    reason: after_restart cannot act on a register
+  - forbid: { session_state: after_restart, atoms.register: register.standing.never-use-obviously-or-simply }
+    reason: after_restart cannot act on a register
+  - forbid: { session_state: after_restart, atoms.register: register.standing.currency-code-after-the-amount }
+    reason: after_restart cannot act on a register
+  - forbid: { session_state: after_restart, atoms.register: register.ledger-auditor.the-auditor-answers-with-one-json }
+    reason: after_restart cannot act on a register
+  - forbid: { session_state: after_restart, atoms.register: register.route-planner.the-plan-is-a-table-of }
+    reason: after_restart cannot act on a register
+  - forbid: { session_state: after_restart, atoms.register: register.invoice-reconcile.one-closing-line-per-invoice }
+    reason: after_restart cannot act on a register
+  - forbid: { session_state: helpers_running, atoms.instruction: instruction.standing.never-send-a-supplier-email-without }
+    reason: helpers_running cannot act on a instruction
+  - forbid: { session_state: helpers_running, atoms.instruction: instruction.standing.never-delete-a-ledger-file-archive }
+    reason: helpers_running cannot act on a instruction
+  - forbid: { session_state: helpers_running, atoms.instruction: instruction.standing.never-force-push }
+    reason: helpers_running cannot act on a instruction
+  - forbid: { session_state: helpers_running, atoms.instruction: instruction.standing.tell-the-user-about-a-late }
+    reason: helpers_running cannot act on a instruction
+  - forbid: { session_state: helpers_running, atoms.instruction: instruction.standing.never-invent-order-numbers-prices-or }
+    reason: helpers_running cannot act on a instruction
+  - forbid: { session_state: helpers_running, atoms.instruction: instruction.standing.on-stop-stop-all-work-and }
+    reason: helpers_running cannot act on a instruction
+  - forbid: { session_state: helpers_running, atoms.instruction: instruction.standing.never-paste-a-credential-into-a }
+    reason: helpers_running cannot act on a instruction
+  - forbid: { session_state: helpers_running, atoms.instruction: instruction.standing.keep-an-unconfirmed-draft-unsent }
+    reason: helpers_running cannot act on a instruction
+  - forbid: { session_state: helpers_running, atoms.instruction: instruction.standing.after-a-compaction-re-read-the }
+    reason: helpers_running cannot act on a instruction
+  - forbid: { session_state: helpers_running, atoms.instruction: instruction.standing.after-two-failures-of-a-tool }
+    reason: helpers_running cannot act on a instruction
+  - forbid: { session_state: helpers_running, atoms.instruction: instruction.standing.report-only-numbers-read-during-the }
+    reason: helpers_running cannot act on a instruction
+  - forbid: { session_state: helpers_running, atoms.instruction: instruction.standing.read-the-memory-index-at-the }
+    reason: helpers_running cannot act on a instruction
+  - forbid: { session_state: helpers_running, atoms.instruction: instruction.inbox-triager.a-message-that-fits-no-folder }
+    reason: helpers_running cannot act on a instruction
+  - forbid: { session_state: helpers_running, atoms.instruction: instruction.inbox-triager.the-triager-never-answers-or-deletes }
+    reason: helpers_running cannot act on a instruction
+  - forbid: { session_state: helpers_running, atoms.instruction: instruction.ledger-auditor.the-auditor-never-edits-a-file }
+    reason: helpers_running cannot act on a instruction
+  - forbid: { session_state: helpers_running, atoms.instruction: instruction.ledger-auditor.a-brief-missing-a-number-gets }
+    reason: helpers_running cannot act on a instruction
+  - forbid: { session_state: helpers_running, atoms.instruction: instruction.ledger-auditor.look-for-double-payments-and-unapplied }
+    reason: helpers_running cannot act on a instruction
+  - forbid: { session_state: helpers_running, atoms.instruction: instruction.route-planner.never-load-a-route-over-the }
+    reason: helpers_running cannot act on a instruction
+  - forbid: { session_state: helpers_running, atoms.instruction: instruction.route-planner.no-delivery-planned-on-a-public }
+    reason: helpers_running cannot act on a instruction
+  - forbid: { session_state: helpers_running, atoms.instruction: instruction.memory-memory.the-weekly-report-is-due-monday }
+    reason: helpers_running cannot act on a instruction
+  - forbid: { session_state: helpers_running, atoms.instruction: instruction.memory-memory.no-delivery-on-a-public-holiday }
+    reason: helpers_running cannot act on a instruction
+  - forbid: { session_state: helpers_running, atoms.instruction: instruction.memory-supplier-languages.write-to-each-supplier-in-its }
+    reason: helpers_running cannot act on a instruction
+  - forbid: { session_state: helpers_running, atoms.instruction: instruction.memory-supplier-languages.an-unlisted-supplier-gets-english-and }
+    reason: helpers_running cannot act on a instruction
+  - forbid: { session_state: helpers_running, atoms.instruction: instruction.invoice-reconcile.convert-a-foreign-currency-invoice-with }
+    reason: helpers_running cannot act on a instruction
+  - forbid: { session_state: helpers_running, atoms.instruction: instruction.invoice-reconcile.run-the-reconcile-script-and-show }
+    reason: helpers_running cannot act on a instruction
+  - forbid: { session_state: helpers_running, atoms.instruction: instruction.invoice-reconcile.never-change-an-invoice-amount-report }
+    reason: helpers_running cannot act on a instruction
+  - forbid: { session_state: helpers_running, atoms.instruction: instruction.invoice-reconcile.dispatch-the-ledger-auditor-above-50 }
+    reason: helpers_running cannot act on a instruction
+  - forbid: { session_state: helpers_running, atoms.instruction: instruction.invoice-reconcile.a-line-matches-on-article-code }
+    reason: helpers_running cannot act on a instruction
+  - forbid: { session_state: helpers_running, atoms.instruction: instruction.invoice-reconcile.under-0-05-eur-per-unit }
+    reason: helpers_running cannot act on a instruction
+  - forbid: { session_state: helpers_running, atoms.instruction: instruction.invoice-reconcile.an-invoice-line-with-no-order }
+    reason: helpers_running cannot act on a instruction
+  - forbid: { session_state: helpers_running, atoms.instruction: instruction.shipment-tracker.ask-for-the-tracking-number-when }
+    reason: helpers_running cannot act on a instruction
+  - forbid: { session_state: helpers_running, atoms.instruction: instruction.shipment-tracker.always-pass-the-carrier-code-to }
+    reason: helpers_running cannot act on a instruction
+  - forbid: { session_state: helpers_running, atoms.instruction: instruction.shipment-tracker.late-means-past-the-promised-date }
+    reason: helpers_running cannot act on a instruction
+  - forbid: { session_state: helpers_running, atoms.instruction: instruction.shipment-tracker.on-a-carrier-error-say-so }
+    reason: helpers_running cannot act on a instruction
+  - forbid: { session_state: helpers_running, atoms.instruction: instruction.shipment-tracker.never-guess-a-shipment-status }
+    reason: helpers_running cannot act on a instruction
+  - forbid: { session_state: helpers_running, atoms.instruction: instruction.supplier-email.write-in-the-supplier-s-language }
+    reason: helpers_running cannot act on a instruction
+  - forbid: { session_state: helpers_running, atoms.instruction: instruction.supplier-email.a-draft-has-a-subject-a }
+    reason: helpers_running cannot act on a instruction
+  - forbid: { session_state: helpers_running, atoms.instruction: instruction.supplier-email.a-draft-stays-under-120-words }
+    reason: helpers_running cannot act on a instruction
+  - forbid: { session_state: helpers_running, atoms.instruction: instruction.supplier-email.a-loose-yes-is-not-a }
+    reason: helpers_running cannot act on a instruction
+  - forbid: { session_state: helpers_running, atoms.instruction: instruction.supplier-email.no-price-or-date-in-a }
+    reason: helpers_running cannot act on a instruction
+  - forbid: { session_state: helpers_running, atoms.instruction: instruction.weekly-report.fill-the-report-sections-in-the }
+    reason: helpers_running cannot act on a instruction
+  - forbid: { session_state: helpers_running, atoms.instruction: instruction.weekly-report.count-only-the-last-seven-days }
+    reason: helpers_running cannot act on a instruction
+  - forbid: { session_state: helpers_running, atoms.instruction: instruction.weekly-report.save-the-report-by-week-and }
+    reason: helpers_running cannot act on a instruction
+  - forbid: { session_state: helpers_running, atoms.gate: gate.standing.read-claude-skills-invoice-reconcile-references }
+    reason: helpers_running cannot act on a gate
+  - forbid: { session_state: helpers_running, atoms.gate: gate.standing.read-git-status-before-commit-to }
+    reason: helpers_running cannot act on a gate
+  - forbid: { session_state: helpers_running, atoms.gate: gate.invoice-reconcile.read-references-matching-rules-md-before }
+    reason: helpers_running cannot act on a gate
+  - forbid: { session_state: helpers_running, atoms.gate: gate.weekly-report.read-templates-report-md-before-writing }
+    reason: helpers_running cannot act on a gate
+  - forbid: { session_state: helpers_running, atoms.gate: gate.standing.read-a-file-before-editing-it }
+    reason: helpers_running cannot act on a gate
+  - forbid: { session_state: helpers_running, atoms.gate: gate.standing.write-a-helper-s-brief-before }
+    reason: helpers_running cannot act on a gate
+  - forbid: { session_state: helpers_running, atoms.gate: gate.standing.never-report-done-before-verify-passed }
+    reason: helpers_running cannot act on a gate
+  - forbid: { session_state: helpers_running, atoms.gate: gate.supplier-email.show-the-draft-and-get-an }
+    reason: helpers_running cannot act on a gate
+  - forbid: { session_state: helpers_running, atoms.route: route.invoice-reconcile.an-ask-that-fits-invoice-reconcile }
+    reason: helpers_running cannot act on a route
+  - forbid: { session_state: helpers_running, atoms.route: route.shipment-tracker.an-ask-that-fits-shipment-tracker }
+    reason: helpers_running cannot act on a route
+  - forbid: { session_state: helpers_running, atoms.route: route.supplier-email.an-ask-that-fits-supplier-email }
+    reason: helpers_running cannot act on a route
+  - forbid: { session_state: helpers_running, atoms.route: route.weekly-report.an-ask-that-fits-weekly-report }
+    reason: helpers_running cannot act on a route
+  - forbid: { session_state: helpers_running, atoms.route: route.standing.an-ask-to-reconcile-an-invoice }
+    reason: helpers_running cannot act on a route
+  - forbid: { session_state: helpers_running, atoms.route: route.standing.an-ask-to-know-where-a }
+    reason: helpers_running cannot act on a route
+  - forbid: { session_state: helpers_running, atoms.route: route.standing.an-ask-to-write-to-or }
+    reason: helpers_running cannot act on a route
+  - forbid: { session_state: helpers_running, atoms.route: route.standing.an-ask-to-prepare-the-weekly }
+    reason: helpers_running cannot act on a route
+  - forbid: { session_state: helpers_running, atoms.skill: skill.invoice-reconcile.skill-invoice-reconcile }
+    reason: helpers_running cannot act on a skill
+  - forbid: { session_state: helpers_running, atoms.skill: skill.shipment-tracker.skill-shipment-tracker }
+    reason: helpers_running cannot act on a skill
+  - forbid: { session_state: helpers_running, atoms.skill: skill.supplier-email.skill-supplier-email }
+    reason: helpers_running cannot act on a skill
+  - forbid: { session_state: helpers_running, atoms.skill: skill.weekly-report.skill-weekly-report }
+    reason: helpers_running cannot act on a skill
+  - forbid: { session_state: helpers_running, atoms.guard: guard.settings.pretooluse-bash-guard-block-force-push }
+    reason: helpers_running cannot act on a guard
+  - forbid: { session_state: helpers_running, atoms.guard: guard.settings.pretooluse-edit-write-guard-read-before }
+    reason: helpers_running cannot act on a guard
+  - forbid: { session_state: helpers_running, atoms.guard: guard.settings.posttooluse-bash-guard-ledger-guard-py }
+    reason: helpers_running cannot act on a guard
+  - forbid: { session_state: helpers_running, atoms.guard: guard.settings.userpromptsubmit-guard-stop-word-sh }
+    reason: helpers_running cannot act on a guard
+  - forbid: { session_state: helpers_running, atoms.guard: guard.settings.stop-guard-reply-length-py }
+    reason: helpers_running cannot act on a guard
+  - forbid: { session_state: helpers_running, atoms.guard: guard.shipment-tracker.pretooluse-bash-guard-check-carrier-sh }
+    reason: helpers_running cannot act on a guard
+  - forbid: { session_state: helpers_running, atoms.stage: stage.steps.stage-plan-restate-the-ask-and }
+    reason: helpers_running cannot act on a stage
+  - forbid: { session_state: helpers_running, atoms.stage: stage.steps.stage-do-make-the-change }
+    reason: helpers_running cannot act on a stage
+  - forbid: { session_state: helpers_running, atoms.stage: stage.steps.stage-verify-run-the-check-that }
+    reason: helpers_running cannot act on a stage
+  - forbid: { session_state: helpers_running, atoms.stage: stage.steps.stage-report-tell-the-user-what }
+    reason: helpers_running cannot act on a stage
+  - forbid: { session_state: helpers_running, atoms.stage: stage.steps.stage-note-write-a-tracker-note }
+    reason: helpers_running cannot act on a stage
+  - forbid: { session_state: helpers_running, atoms.register: register.standing.answer-in-the-language-of-the }
+    reason: helpers_running cannot act on a register
+  - forbid: { session_state: helpers_running, atoms.register: register.standing.at-most-one-question-per-reply }
+    reason: helpers_running cannot act on a register
+  - forbid: { session_state: helpers_running, atoms.register: register.standing.replies-under-1-200-characters }
+    reason: helpers_running cannot act on a register
+  - forbid: { session_state: helpers_running, atoms.register: register.standing.lead-with-the-result }
+    reason: helpers_running cannot act on a register
+  - forbid: { session_state: helpers_running, atoms.register: register.standing.bullets-for-three-or-more-parallel }
+    reason: helpers_running cannot act on a register
+  - forbid: { session_state: helpers_running, atoms.register: register.standing.never-use-obviously-or-simply }
+    reason: helpers_running cannot act on a register
+  - forbid: { session_state: helpers_running, atoms.register: register.standing.currency-code-after-the-amount }
+    reason: helpers_running cannot act on a register
+  - forbid: { session_state: helpers_running, atoms.register: register.ledger-auditor.the-auditor-answers-with-one-json }
+    reason: helpers_running cannot act on a register
+  - forbid: { session_state: helpers_running, atoms.register: register.route-planner.the-plan-is-a-table-of }
+    reason: helpers_running cannot act on a register
+  - forbid: { session_state: helpers_running, atoms.register: register.invoice-reconcile.one-closing-line-per-invoice }
+    reason: helpers_running cannot act on a register
+  - forbid: { owner_signal: no_questions, atoms.route: route.invoice-reconcile.an-ask-that-fits-invoice-reconcile }
+    reason: no_questions cannot act on a route
+  - forbid: { owner_signal: no_questions, atoms.route: route.shipment-tracker.an-ask-that-fits-shipment-tracker }
+    reason: no_questions cannot act on a route
+  - forbid: { owner_signal: no_questions, atoms.route: route.supplier-email.an-ask-that-fits-supplier-email }
+    reason: no_questions cannot act on a route
+  - forbid: { owner_signal: no_questions, atoms.route: route.weekly-report.an-ask-that-fits-weekly-report }
+    reason: no_questions cannot act on a route
+  - forbid: { owner_signal: no_questions, atoms.route: route.inbox-triager.an-ask-that-fits-inbox-triager }
+    reason: no_questions cannot act on a route
+  - forbid: { owner_signal: no_questions, atoms.route: route.ledger-auditor.an-ask-that-fits-ledger-auditor }
+    reason: no_questions cannot act on a route
+  - forbid: { owner_signal: no_questions, atoms.route: route.route-planner.an-ask-that-fits-route-planner }
+    reason: no_questions cannot act on a route
+  - forbid: { owner_signal: no_questions, atoms.route: route.standing.an-ask-to-reconcile-an-invoice }
+    reason: no_questions cannot act on a route
+  - forbid: { owner_signal: no_questions, atoms.route: route.standing.an-ask-to-know-where-a }
+    reason: no_questions cannot act on a route
+  - forbid: { owner_signal: no_questions, atoms.route: route.standing.an-ask-to-write-to-or }
+    reason: no_questions cannot act on a route
+  - forbid: { owner_signal: no_questions, atoms.route: route.standing.an-ask-to-prepare-the-weekly }
+    reason: no_questions cannot act on a route
+  - forbid: { owner_signal: no_questions, atoms.route: route.standing.an-ask-to-audit-the-ledger }
+    reason: no_questions cannot act on a route
+  - forbid: { owner_signal: no_questions, atoms.route: route.standing.an-ask-to-plan-the-delivery }
+    reason: no_questions cannot act on a route
+  - forbid: { owner_signal: no_questions, atoms.skill: skill.invoice-reconcile.skill-invoice-reconcile }
+    reason: no_questions cannot act on a skill
+  - forbid: { owner_signal: no_questions, atoms.skill: skill.shipment-tracker.skill-shipment-tracker }
+    reason: no_questions cannot act on a skill
+  - forbid: { owner_signal: no_questions, atoms.skill: skill.supplier-email.skill-supplier-email }
+    reason: no_questions cannot act on a skill
+  - forbid: { owner_signal: no_questions, atoms.skill: skill.weekly-report.skill-weekly-report }
+    reason: no_questions cannot act on a skill
+  - forbid: { owner_signal: no_questions, atoms.subagent: subagent.inbox-triager.helper-inbox-triager }
+    reason: no_questions cannot act on a subagent
+  - forbid: { owner_signal: no_questions, atoms.subagent: subagent.ledger-auditor.helper-ledger-auditor }
+    reason: no_questions cannot act on a subagent
+  - forbid: { owner_signal: no_questions, atoms.subagent: subagent.route-planner.helper-route-planner }
+    reason: no_questions cannot act on a subagent
+  - forbid: { owner_signal: no_questions, atoms.guard: guard.settings.pretooluse-bash-guard-block-force-push }
+    reason: no_questions cannot act on a guard
+  - forbid: { owner_signal: no_questions, atoms.guard: guard.settings.pretooluse-edit-write-guard-read-before }
+    reason: no_questions cannot act on a guard
+  - forbid: { owner_signal: no_questions, atoms.guard: guard.settings.posttooluse-bash-guard-ledger-guard-py }
+    reason: no_questions cannot act on a guard
+  - forbid: { owner_signal: no_questions, atoms.guard: guard.settings.userpromptsubmit-guard-stop-word-sh }
+    reason: no_questions cannot act on a guard
+  - forbid: { owner_signal: no_questions, atoms.guard: guard.settings.stop-guard-reply-length-py }
+    reason: no_questions cannot act on a guard
+  - forbid: { owner_signal: no_questions, atoms.guard: guard.shipment-tracker.pretooluse-bash-guard-check-carrier-sh }
+    reason: no_questions cannot act on a guard
+  - forbid: { owner_signal: no_questions, atoms.stage: stage.steps.stage-plan-restate-the-ask-and }
+    reason: no_questions cannot act on a stage
+  - forbid: { owner_signal: no_questions, atoms.stage: stage.steps.stage-do-make-the-change }
+    reason: no_questions cannot act on a stage
+  - forbid: { owner_signal: no_questions, atoms.stage: stage.steps.stage-verify-run-the-check-that }
+    reason: no_questions cannot act on a stage
+  - forbid: { owner_signal: no_questions, atoms.stage: stage.steps.stage-report-tell-the-user-what }
+    reason: no_questions cannot act on a stage
+  - forbid: { owner_signal: no_questions, atoms.stage: stage.steps.stage-note-write-a-tracker-note }
+    reason: no_questions cannot act on a stage
+  - forbid: { owner_signal: stop, atoms.gate: gate.standing.read-claude-skills-invoice-reconcile-references }
+    reason: stop cannot act on a gate
+  - forbid: { owner_signal: stop, atoms.gate: gate.standing.read-git-status-before-commit-to }
+    reason: stop cannot act on a gate
+  - forbid: { owner_signal: stop, atoms.gate: gate.invoice-reconcile.read-references-matching-rules-md-before }
+    reason: stop cannot act on a gate
+  - forbid: { owner_signal: stop, atoms.gate: gate.weekly-report.read-templates-report-md-before-writing }
+    reason: stop cannot act on a gate
+  - forbid: { owner_signal: stop, atoms.gate: gate.standing.read-a-file-before-editing-it }
+    reason: stop cannot act on a gate
+  - forbid: { owner_signal: stop, atoms.gate: gate.standing.write-a-helper-s-brief-before }
+    reason: stop cannot act on a gate
+  - forbid: { owner_signal: stop, atoms.gate: gate.standing.never-report-done-before-verify-passed }
+    reason: stop cannot act on a gate
+  - forbid: { owner_signal: stop, atoms.gate: gate.supplier-email.show-the-draft-and-get-an }
+    reason: stop cannot act on a gate
+  - forbid: { owner_signal: stop, atoms.route: route.invoice-reconcile.an-ask-that-fits-invoice-reconcile }
+    reason: stop cannot act on a route
+  - forbid: { owner_signal: stop, atoms.route: route.shipment-tracker.an-ask-that-fits-shipment-tracker }
+    reason: stop cannot act on a route
+  - forbid: { owner_signal: stop, atoms.route: route.supplier-email.an-ask-that-fits-supplier-email }
+    reason: stop cannot act on a route
+  - forbid: { owner_signal: stop, atoms.route: route.weekly-report.an-ask-that-fits-weekly-report }
+    reason: stop cannot act on a route
+  - forbid: { owner_signal: stop, atoms.route: route.inbox-triager.an-ask-that-fits-inbox-triager }
+    reason: stop cannot act on a route
+  - forbid: { owner_signal: stop, atoms.route: route.ledger-auditor.an-ask-that-fits-ledger-auditor }
+    reason: stop cannot act on a route
+  - forbid: { owner_signal: stop, atoms.route: route.route-planner.an-ask-that-fits-route-planner }
+    reason: stop cannot act on a route
+  - forbid: { owner_signal: stop, atoms.route: route.standing.an-ask-to-reconcile-an-invoice }
+    reason: stop cannot act on a route
+  - forbid: { owner_signal: stop, atoms.route: route.standing.an-ask-to-know-where-a }
+    reason: stop cannot act on a route
+  - forbid: { owner_signal: stop, atoms.route: route.standing.an-ask-to-write-to-or }
+    reason: stop cannot act on a route
+  - forbid: { owner_signal: stop, atoms.route: route.standing.an-ask-to-prepare-the-weekly }
+    reason: stop cannot act on a route
+  - forbid: { owner_signal: stop, atoms.route: route.standing.an-ask-to-audit-the-ledger }
+    reason: stop cannot act on a route
+  - forbid: { owner_signal: stop, atoms.route: route.standing.an-ask-to-plan-the-delivery }
+    reason: stop cannot act on a route
+  - forbid: { owner_signal: stop, atoms.skill: skill.invoice-reconcile.skill-invoice-reconcile }
+    reason: stop cannot act on a skill
+  - forbid: { owner_signal: stop, atoms.skill: skill.shipment-tracker.skill-shipment-tracker }
+    reason: stop cannot act on a skill
+  - forbid: { owner_signal: stop, atoms.skill: skill.supplier-email.skill-supplier-email }
+    reason: stop cannot act on a skill
+  - forbid: { owner_signal: stop, atoms.skill: skill.weekly-report.skill-weekly-report }
+    reason: stop cannot act on a skill
+  - forbid: { owner_signal: stop, atoms.register: register.standing.answer-in-the-language-of-the }
+    reason: stop cannot act on a register
+  - forbid: { owner_signal: stop, atoms.register: register.standing.at-most-one-question-per-reply }
+    reason: stop cannot act on a register
+  - forbid: { owner_signal: stop, atoms.register: register.standing.replies-under-1-200-characters }
+    reason: stop cannot act on a register
+  - forbid: { owner_signal: stop, atoms.register: register.standing.lead-with-the-result }
+    reason: stop cannot act on a register
+  - forbid: { owner_signal: stop, atoms.register: register.standing.bullets-for-three-or-more-parallel }
+    reason: stop cannot act on a register
+  - forbid: { owner_signal: stop, atoms.register: register.standing.never-use-obviously-or-simply }
+    reason: stop cannot act on a register
+  - forbid: { owner_signal: stop, atoms.register: register.standing.currency-code-after-the-amount }
+    reason: stop cannot act on a register
+  - forbid: { owner_signal: stop, atoms.register: register.ledger-auditor.the-auditor-answers-with-one-json }
+    reason: stop cannot act on a register
+  - forbid: { owner_signal: stop, atoms.register: register.route-planner.the-plan-is-a-table-of }
+    reason: stop cannot act on a register
+  - forbid: { owner_signal: stop, atoms.register: register.invoice-reconcile.one-closing-line-per-invoice }
+    reason: stop cannot act on a register
+  - forbid: { owner_signal: language_switch, atoms.gate: gate.standing.read-claude-skills-invoice-reconcile-references }
+    reason: language_switch cannot act on a gate
+  - forbid: { owner_signal: language_switch, atoms.gate: gate.standing.read-git-status-before-commit-to }
+    reason: language_switch cannot act on a gate
+  - forbid: { owner_signal: language_switch, atoms.gate: gate.invoice-reconcile.read-references-matching-rules-md-before }
+    reason: language_switch cannot act on a gate
+  - forbid: { owner_signal: language_switch, atoms.gate: gate.weekly-report.read-templates-report-md-before-writing }
+    reason: language_switch cannot act on a gate
+  - forbid: { owner_signal: language_switch, atoms.gate: gate.standing.read-a-file-before-editing-it }
+    reason: language_switch cannot act on a gate
+  - forbid: { owner_signal: language_switch, atoms.gate: gate.standing.write-a-helper-s-brief-before }
+    reason: language_switch cannot act on a gate
+  - forbid: { owner_signal: language_switch, atoms.gate: gate.standing.never-report-done-before-verify-passed }
+    reason: language_switch cannot act on a gate
+  - forbid: { owner_signal: language_switch, atoms.gate: gate.supplier-email.show-the-draft-and-get-an }
+    reason: language_switch cannot act on a gate
+  - forbid: { owner_signal: language_switch, atoms.route: route.invoice-reconcile.an-ask-that-fits-invoice-reconcile }
+    reason: language_switch cannot act on a route
+  - forbid: { owner_signal: language_switch, atoms.route: route.shipment-tracker.an-ask-that-fits-shipment-tracker }
+    reason: language_switch cannot act on a route
+  - forbid: { owner_signal: language_switch, atoms.route: route.supplier-email.an-ask-that-fits-supplier-email }
+    reason: language_switch cannot act on a route
+  - forbid: { owner_signal: language_switch, atoms.route: route.weekly-report.an-ask-that-fits-weekly-report }
+    reason: language_switch cannot act on a route
+  - forbid: { owner_signal: language_switch, atoms.route: route.inbox-triager.an-ask-that-fits-inbox-triager }
+    reason: language_switch cannot act on a route
+  - forbid: { owner_signal: language_switch, atoms.route: route.ledger-auditor.an-ask-that-fits-ledger-auditor }
+    reason: language_switch cannot act on a route
+  - forbid: { owner_signal: language_switch, atoms.route: route.route-planner.an-ask-that-fits-route-planner }
+    reason: language_switch cannot act on a route
+  - forbid: { owner_signal: language_switch, atoms.route: route.standing.an-ask-to-reconcile-an-invoice }
+    reason: language_switch cannot act on a route
+  - forbid: { owner_signal: language_switch, atoms.route: route.standing.an-ask-to-know-where-a }
+    reason: language_switch cannot act on a route
+  - forbid: { owner_signal: language_switch, atoms.route: route.standing.an-ask-to-write-to-or }
+    reason: language_switch cannot act on a route
+  - forbid: { owner_signal: language_switch, atoms.route: route.standing.an-ask-to-prepare-the-weekly }
+    reason: language_switch cannot act on a route
+  - forbid: { owner_signal: language_switch, atoms.route: route.standing.an-ask-to-audit-the-ledger }
+    reason: language_switch cannot act on a route
+  - forbid: { owner_signal: language_switch, atoms.route: route.standing.an-ask-to-plan-the-delivery }
+    reason: language_switch cannot act on a route
+  - forbid: { owner_signal: language_switch, atoms.skill: skill.invoice-reconcile.skill-invoice-reconcile }
+    reason: language_switch cannot act on a skill
+  - forbid: { owner_signal: language_switch, atoms.skill: skill.shipment-tracker.skill-shipment-tracker }
+    reason: language_switch cannot act on a skill
+  - forbid: { owner_signal: language_switch, atoms.skill: skill.supplier-email.skill-supplier-email }
+    reason: language_switch cannot act on a skill
+  - forbid: { owner_signal: language_switch, atoms.skill: skill.weekly-report.skill-weekly-report }
+    reason: language_switch cannot act on a skill
+  - forbid: { owner_signal: language_switch, atoms.subagent: subagent.inbox-triager.helper-inbox-triager }
+    reason: language_switch cannot act on a subagent
+  - forbid: { owner_signal: language_switch, atoms.subagent: subagent.ledger-auditor.helper-ledger-auditor }
+    reason: language_switch cannot act on a subagent
+  - forbid: { owner_signal: language_switch, atoms.subagent: subagent.route-planner.helper-route-planner }
+    reason: language_switch cannot act on a subagent
+  - forbid: { owner_signal: language_switch, atoms.guard: guard.settings.pretooluse-bash-guard-block-force-push }
+    reason: language_switch cannot act on a guard
+  - forbid: { owner_signal: language_switch, atoms.guard: guard.settings.pretooluse-edit-write-guard-read-before }
+    reason: language_switch cannot act on a guard
+  - forbid: { owner_signal: language_switch, atoms.guard: guard.settings.posttooluse-bash-guard-ledger-guard-py }
+    reason: language_switch cannot act on a guard
+  - forbid: { owner_signal: language_switch, atoms.guard: guard.settings.userpromptsubmit-guard-stop-word-sh }
+    reason: language_switch cannot act on a guard
+  - forbid: { owner_signal: language_switch, atoms.guard: guard.settings.stop-guard-reply-length-py }
+    reason: language_switch cannot act on a guard
+  - forbid: { owner_signal: language_switch, atoms.guard: guard.shipment-tracker.pretooluse-bash-guard-check-carrier-sh }
+    reason: language_switch cannot act on a guard
+  - forbid: { owner_signal: language_switch, atoms.stage: stage.steps.stage-plan-restate-the-ask-and }
+    reason: language_switch cannot act on a stage
+  - forbid: { owner_signal: language_switch, atoms.stage: stage.steps.stage-do-make-the-change }
+    reason: language_switch cannot act on a stage
+  - forbid: { owner_signal: language_switch, atoms.stage: stage.steps.stage-verify-run-the-check-that }
+    reason: language_switch cannot act on a stage
+  - forbid: { owner_signal: language_switch, atoms.stage: stage.steps.stage-report-tell-the-user-what }
+    reason: language_switch cannot act on a stage
+  - forbid: { owner_signal: language_switch, atoms.stage: stage.steps.stage-note-write-a-tracker-note }
+    reason: language_switch cannot act on a stage
+  - forbid: { deviation: D1_off_topic, atoms.gate: gate.standing.read-claude-skills-invoice-reconcile-references }
+    reason: D1_off_topic cannot act on a gate
+  - forbid: { deviation: D1_off_topic, atoms.gate: gate.standing.read-git-status-before-commit-to }
+    reason: D1_off_topic cannot act on a gate
+  - forbid: { deviation: D1_off_topic, atoms.gate: gate.invoice-reconcile.read-references-matching-rules-md-before }
+    reason: D1_off_topic cannot act on a gate
+  - forbid: { deviation: D1_off_topic, atoms.gate: gate.weekly-report.read-templates-report-md-before-writing }
+    reason: D1_off_topic cannot act on a gate
+  - forbid: { deviation: D1_off_topic, atoms.gate: gate.standing.read-a-file-before-editing-it }
+    reason: D1_off_topic cannot act on a gate
+  - forbid: { deviation: D1_off_topic, atoms.gate: gate.standing.write-a-helper-s-brief-before }
+    reason: D1_off_topic cannot act on a gate
+  - forbid: { deviation: D1_off_topic, atoms.gate: gate.standing.never-report-done-before-verify-passed }
+    reason: D1_off_topic cannot act on a gate
+  - forbid: { deviation: D1_off_topic, atoms.gate: gate.supplier-email.show-the-draft-and-get-an }
+    reason: D1_off_topic cannot act on a gate
+  - forbid: { deviation: D1_off_topic, atoms.subagent: subagent.inbox-triager.helper-inbox-triager }
+    reason: D1_off_topic cannot act on a subagent
+  - forbid: { deviation: D1_off_topic, atoms.subagent: subagent.ledger-auditor.helper-ledger-auditor }
+    reason: D1_off_topic cannot act on a subagent
+  - forbid: { deviation: D1_off_topic, atoms.subagent: subagent.route-planner.helper-route-planner }
+    reason: D1_off_topic cannot act on a subagent
+  - forbid: { deviation: D1_off_topic, atoms.guard: guard.settings.pretooluse-bash-guard-block-force-push }
+    reason: D1_off_topic cannot act on a guard
+  - forbid: { deviation: D1_off_topic, atoms.guard: guard.settings.pretooluse-edit-write-guard-read-before }
+    reason: D1_off_topic cannot act on a guard
+  - forbid: { deviation: D1_off_topic, atoms.guard: guard.settings.posttooluse-bash-guard-ledger-guard-py }
+    reason: D1_off_topic cannot act on a guard
+  - forbid: { deviation: D1_off_topic, atoms.guard: guard.settings.userpromptsubmit-guard-stop-word-sh }
+    reason: D1_off_topic cannot act on a guard
+  - forbid: { deviation: D1_off_topic, atoms.guard: guard.settings.stop-guard-reply-length-py }
+    reason: D1_off_topic cannot act on a guard
+  - forbid: { deviation: D1_off_topic, atoms.guard: guard.shipment-tracker.pretooluse-bash-guard-check-carrier-sh }
+    reason: D1_off_topic cannot act on a guard
+  - forbid: { deviation: D2_goal_shift, atoms.gate: gate.standing.read-claude-skills-invoice-reconcile-references }
+    reason: D2_goal_shift cannot act on a gate
+  - forbid: { deviation: D2_goal_shift, atoms.gate: gate.standing.read-git-status-before-commit-to }
+    reason: D2_goal_shift cannot act on a gate
+  - forbid: { deviation: D2_goal_shift, atoms.gate: gate.invoice-reconcile.read-references-matching-rules-md-before }
+    reason: D2_goal_shift cannot act on a gate
+  - forbid: { deviation: D2_goal_shift, atoms.gate: gate.weekly-report.read-templates-report-md-before-writing }
+    reason: D2_goal_shift cannot act on a gate
+  - forbid: { deviation: D2_goal_shift, atoms.gate: gate.standing.read-a-file-before-editing-it }
+    reason: D2_goal_shift cannot act on a gate
+  - forbid: { deviation: D2_goal_shift, atoms.gate: gate.standing.write-a-helper-s-brief-before }
+    reason: D2_goal_shift cannot act on a gate
+  - forbid: { deviation: D2_goal_shift, atoms.gate: gate.standing.never-report-done-before-verify-passed }
+    reason: D2_goal_shift cannot act on a gate
+  - forbid: { deviation: D2_goal_shift, atoms.gate: gate.supplier-email.show-the-draft-and-get-an }
+    reason: D2_goal_shift cannot act on a gate
+  - forbid: { deviation: D2_goal_shift, atoms.subagent: subagent.inbox-triager.helper-inbox-triager }
+    reason: D2_goal_shift cannot act on a subagent
+  - forbid: { deviation: D2_goal_shift, atoms.subagent: subagent.ledger-auditor.helper-ledger-auditor }
+    reason: D2_goal_shift cannot act on a subagent
+  - forbid: { deviation: D2_goal_shift, atoms.subagent: subagent.route-planner.helper-route-planner }
+    reason: D2_goal_shift cannot act on a subagent
+  - forbid: { deviation: D2_goal_shift, atoms.guard: guard.settings.pretooluse-bash-guard-block-force-push }
+    reason: D2_goal_shift cannot act on a guard
+  - forbid: { deviation: D2_goal_shift, atoms.guard: guard.settings.pretooluse-edit-write-guard-read-before }
+    reason: D2_goal_shift cannot act on a guard
+  - forbid: { deviation: D2_goal_shift, atoms.guard: guard.settings.posttooluse-bash-guard-ledger-guard-py }
+    reason: D2_goal_shift cannot act on a guard
+  - forbid: { deviation: D2_goal_shift, atoms.guard: guard.settings.userpromptsubmit-guard-stop-word-sh }
+    reason: D2_goal_shift cannot act on a guard
+  - forbid: { deviation: D2_goal_shift, atoms.guard: guard.settings.stop-guard-reply-length-py }
+    reason: D2_goal_shift cannot act on a guard
+  - forbid: { deviation: D2_goal_shift, atoms.guard: guard.shipment-tracker.pretooluse-bash-guard-check-carrier-sh }
+    reason: D2_goal_shift cannot act on a guard
+  - forbid: { deviation: D2_goal_shift, atoms.register: register.standing.answer-in-the-language-of-the }
+    reason: D2_goal_shift cannot act on a register
+  - forbid: { deviation: D2_goal_shift, atoms.register: register.standing.at-most-one-question-per-reply }
+    reason: D2_goal_shift cannot act on a register
+  - forbid: { deviation: D2_goal_shift, atoms.register: register.standing.replies-under-1-200-characters }
+    reason: D2_goal_shift cannot act on a register
+  - forbid: { deviation: D2_goal_shift, atoms.register: register.standing.lead-with-the-result }
+    reason: D2_goal_shift cannot act on a register
+  - forbid: { deviation: D2_goal_shift, atoms.register: register.standing.bullets-for-three-or-more-parallel }
+    reason: D2_goal_shift cannot act on a register
+  - forbid: { deviation: D2_goal_shift, atoms.register: register.standing.never-use-obviously-or-simply }
+    reason: D2_goal_shift cannot act on a register
+  - forbid: { deviation: D2_goal_shift, atoms.register: register.standing.currency-code-after-the-amount }
+    reason: D2_goal_shift cannot act on a register
+  - forbid: { deviation: D2_goal_shift, atoms.register: register.ledger-auditor.the-auditor-answers-with-one-json }
+    reason: D2_goal_shift cannot act on a register
+  - forbid: { deviation: D2_goal_shift, atoms.register: register.route-planner.the-plan-is-a-table-of }
+    reason: D2_goal_shift cannot act on a register
+  - forbid: { deviation: D2_goal_shift, atoms.register: register.invoice-reconcile.one-closing-line-per-invoice }
+    reason: D2_goal_shift cannot act on a register
+  - forbid: { deviation: D4_loose_confirmation, atoms.route: route.invoice-reconcile.an-ask-that-fits-invoice-reconcile }
+    reason: D4_loose_confirmation cannot act on a route
+  - forbid: { deviation: D4_loose_confirmation, atoms.route: route.shipment-tracker.an-ask-that-fits-shipment-tracker }
+    reason: D4_loose_confirmation cannot act on a route
+  - forbid: { deviation: D4_loose_confirmation, atoms.route: route.supplier-email.an-ask-that-fits-supplier-email }
+    reason: D4_loose_confirmation cannot act on a route
+  - forbid: { deviation: D4_loose_confirmation, atoms.route: route.weekly-report.an-ask-that-fits-weekly-report }
+    reason: D4_loose_confirmation cannot act on a route
+  - forbid: { deviation: D4_loose_confirmation, atoms.route: route.inbox-triager.an-ask-that-fits-inbox-triager }
+    reason: D4_loose_confirmation cannot act on a route
+  - forbid: { deviation: D4_loose_confirmation, atoms.route: route.ledger-auditor.an-ask-that-fits-ledger-auditor }
+    reason: D4_loose_confirmation cannot act on a route
+  - forbid: { deviation: D4_loose_confirmation, atoms.route: route.route-planner.an-ask-that-fits-route-planner }
+    reason: D4_loose_confirmation cannot act on a route
+  - forbid: { deviation: D4_loose_confirmation, atoms.route: route.standing.an-ask-to-reconcile-an-invoice }
+    reason: D4_loose_confirmation cannot act on a route
+  - forbid: { deviation: D4_loose_confirmation, atoms.route: route.standing.an-ask-to-know-where-a }
+    reason: D4_loose_confirmation cannot act on a route
+  - forbid: { deviation: D4_loose_confirmation, atoms.route: route.standing.an-ask-to-write-to-or }
+    reason: D4_loose_confirmation cannot act on a route
+  - forbid: { deviation: D4_loose_confirmation, atoms.route: route.standing.an-ask-to-prepare-the-weekly }
+    reason: D4_loose_confirmation cannot act on a route
+  - forbid: { deviation: D4_loose_confirmation, atoms.route: route.standing.an-ask-to-audit-the-ledger }
+    reason: D4_loose_confirmation cannot act on a route
+  - forbid: { deviation: D4_loose_confirmation, atoms.route: route.standing.an-ask-to-plan-the-delivery }
+    reason: D4_loose_confirmation cannot act on a route
+  - forbid: { deviation: D4_loose_confirmation, atoms.skill: skill.invoice-reconcile.skill-invoice-reconcile }
+    reason: D4_loose_confirmation cannot act on a skill
+  - forbid: { deviation: D4_loose_confirmation, atoms.skill: skill.shipment-tracker.skill-shipment-tracker }
+    reason: D4_loose_confirmation cannot act on a skill
+  - forbid: { deviation: D4_loose_confirmation, atoms.skill: skill.supplier-email.skill-supplier-email }
+    reason: D4_loose_confirmation cannot act on a skill
+  - forbid: { deviation: D4_loose_confirmation, atoms.skill: skill.weekly-report.skill-weekly-report }
+    reason: D4_loose_confirmation cannot act on a skill
+  - forbid: { deviation: D4_loose_confirmation, atoms.subagent: subagent.inbox-triager.helper-inbox-triager }
+    reason: D4_loose_confirmation cannot act on a subagent
+  - forbid: { deviation: D4_loose_confirmation, atoms.subagent: subagent.ledger-auditor.helper-ledger-auditor }
+    reason: D4_loose_confirmation cannot act on a subagent
+  - forbid: { deviation: D4_loose_confirmation, atoms.subagent: subagent.route-planner.helper-route-planner }
+    reason: D4_loose_confirmation cannot act on a subagent
+  - forbid: { deviation: D4_loose_confirmation, atoms.stage: stage.steps.stage-plan-restate-the-ask-and }
+    reason: D4_loose_confirmation cannot act on a stage
+  - forbid: { deviation: D4_loose_confirmation, atoms.stage: stage.steps.stage-do-make-the-change }
+    reason: D4_loose_confirmation cannot act on a stage
+  - forbid: { deviation: D4_loose_confirmation, atoms.stage: stage.steps.stage-verify-run-the-check-that }
+    reason: D4_loose_confirmation cannot act on a stage
+  - forbid: { deviation: D4_loose_confirmation, atoms.stage: stage.steps.stage-report-tell-the-user-what }
+    reason: D4_loose_confirmation cannot act on a stage
+  - forbid: { deviation: D4_loose_confirmation, atoms.stage: stage.steps.stage-note-write-a-tracker-note }
+    reason: D4_loose_confirmation cannot act on a stage
+  - forbid: { deviation: D4_loose_confirmation, atoms.register: register.standing.answer-in-the-language-of-the }
+    reason: D4_loose_confirmation cannot act on a register
+  - forbid: { deviation: D4_loose_confirmation, atoms.register: register.standing.at-most-one-question-per-reply }
+    reason: D4_loose_confirmation cannot act on a register
+  - forbid: { deviation: D4_loose_confirmation, atoms.register: register.standing.replies-under-1-200-characters }
+    reason: D4_loose_confirmation cannot act on a register
+  - forbid: { deviation: D4_loose_confirmation, atoms.register: register.standing.lead-with-the-result }
+    reason: D4_loose_confirmation cannot act on a register
+  - forbid: { deviation: D4_loose_confirmation, atoms.register: register.standing.bullets-for-three-or-more-parallel }
+    reason: D4_loose_confirmation cannot act on a register
+  - forbid: { deviation: D4_loose_confirmation, atoms.register: register.standing.never-use-obviously-or-simply }
+    reason: D4_loose_confirmation cannot act on a register
+  - forbid: { deviation: D4_loose_confirmation, atoms.register: register.standing.currency-code-after-the-amount }
+    reason: D4_loose_confirmation cannot act on a register
+  - forbid: { deviation: D4_loose_confirmation, atoms.register: register.ledger-auditor.the-auditor-answers-with-one-json }
+    reason: D4_loose_confirmation cannot act on a register
+  - forbid: { deviation: D4_loose_confirmation, atoms.register: register.route-planner.the-plan-is-a-table-of }
+    reason: D4_loose_confirmation cannot act on a register
+  - forbid: { deviation: D4_loose_confirmation, atoms.register: register.invoice-reconcile.one-closing-line-per-invoice }
+    reason: D4_loose_confirmation cannot act on a register
+  - forbid: { deviation: D5_language_switch, atoms.gate: gate.standing.read-claude-skills-invoice-reconcile-references }
+    reason: D5_language_switch cannot act on a gate
+  - forbid: { deviation: D5_language_switch, atoms.gate: gate.standing.read-git-status-before-commit-to }
+    reason: D5_language_switch cannot act on a gate
+  - forbid: { deviation: D5_language_switch, atoms.gate: gate.invoice-reconcile.read-references-matching-rules-md-before }
+    reason: D5_language_switch cannot act on a gate
+  - forbid: { deviation: D5_language_switch, atoms.gate: gate.weekly-report.read-templates-report-md-before-writing }
+    reason: D5_language_switch cannot act on a gate
+  - forbid: { deviation: D5_language_switch, atoms.gate: gate.standing.read-a-file-before-editing-it }
+    reason: D5_language_switch cannot act on a gate
+  - forbid: { deviation: D5_language_switch, atoms.gate: gate.standing.write-a-helper-s-brief-before }
+    reason: D5_language_switch cannot act on a gate
+  - forbid: { deviation: D5_language_switch, atoms.gate: gate.standing.never-report-done-before-verify-passed }
+    reason: D5_language_switch cannot act on a gate
+  - forbid: { deviation: D5_language_switch, atoms.gate: gate.supplier-email.show-the-draft-and-get-an }
+    reason: D5_language_switch cannot act on a gate
+  - forbid: { deviation: D5_language_switch, atoms.route: route.invoice-reconcile.an-ask-that-fits-invoice-reconcile }
+    reason: D5_language_switch cannot act on a route
+  - forbid: { deviation: D5_language_switch, atoms.route: route.shipment-tracker.an-ask-that-fits-shipment-tracker }
+    reason: D5_language_switch cannot act on a route
+  - forbid: { deviation: D5_language_switch, atoms.route: route.supplier-email.an-ask-that-fits-supplier-email }
+    reason: D5_language_switch cannot act on a route
+  - forbid: { deviation: D5_language_switch, atoms.route: route.weekly-report.an-ask-that-fits-weekly-report }
+    reason: D5_language_switch cannot act on a route
+  - forbid: { deviation: D5_language_switch, atoms.route: route.inbox-triager.an-ask-that-fits-inbox-triager }
+    reason: D5_language_switch cannot act on a route
+  - forbid: { deviation: D5_language_switch, atoms.route: route.ledger-auditor.an-ask-that-fits-ledger-auditor }
+    reason: D5_language_switch cannot act on a route
+  - forbid: { deviation: D5_language_switch, atoms.route: route.route-planner.an-ask-that-fits-route-planner }
+    reason: D5_language_switch cannot act on a route
+  - forbid: { deviation: D5_language_switch, atoms.route: route.standing.an-ask-to-reconcile-an-invoice }
+    reason: D5_language_switch cannot act on a route
+  - forbid: { deviation: D5_language_switch, atoms.route: route.standing.an-ask-to-know-where-a }
+    reason: D5_language_switch cannot act on a route
+  - forbid: { deviation: D5_language_switch, atoms.route: route.standing.an-ask-to-write-to-or }
+    reason: D5_language_switch cannot act on a route
+  - forbid: { deviation: D5_language_switch, atoms.route: route.standing.an-ask-to-prepare-the-weekly }
+    reason: D5_language_switch cannot act on a route
+  - forbid: { deviation: D5_language_switch, atoms.route: route.standing.an-ask-to-audit-the-ledger }
+    reason: D5_language_switch cannot act on a route
+  - forbid: { deviation: D5_language_switch, atoms.route: route.standing.an-ask-to-plan-the-delivery }
+    reason: D5_language_switch cannot act on a route
+  - forbid: { deviation: D5_language_switch, atoms.skill: skill.invoice-reconcile.skill-invoice-reconcile }
+    reason: D5_language_switch cannot act on a skill
+  - forbid: { deviation: D5_language_switch, atoms.skill: skill.shipment-tracker.skill-shipment-tracker }
+    reason: D5_language_switch cannot act on a skill
+  - forbid: { deviation: D5_language_switch, atoms.skill: skill.supplier-email.skill-supplier-email }
+    reason: D5_language_switch cannot act on a skill
+  - forbid: { deviation: D5_language_switch, atoms.skill: skill.weekly-report.skill-weekly-report }
+    reason: D5_language_switch cannot act on a skill
+  - forbid: { deviation: D5_language_switch, atoms.subagent: subagent.inbox-triager.helper-inbox-triager }
+    reason: D5_language_switch cannot act on a subagent
+  - forbid: { deviation: D5_language_switch, atoms.subagent: subagent.ledger-auditor.helper-ledger-auditor }
+    reason: D5_language_switch cannot act on a subagent
+  - forbid: { deviation: D5_language_switch, atoms.subagent: subagent.route-planner.helper-route-planner }
+    reason: D5_language_switch cannot act on a subagent
+  - forbid: { deviation: D5_language_switch, atoms.guard: guard.settings.pretooluse-bash-guard-block-force-push }
+    reason: D5_language_switch cannot act on a guard
+  - forbid: { deviation: D5_language_switch, atoms.guard: guard.settings.pretooluse-edit-write-guard-read-before }
+    reason: D5_language_switch cannot act on a guard
+  - forbid: { deviation: D5_language_switch, atoms.guard: guard.settings.posttooluse-bash-guard-ledger-guard-py }
+    reason: D5_language_switch cannot act on a guard
+  - forbid: { deviation: D5_language_switch, atoms.guard: guard.settings.userpromptsubmit-guard-stop-word-sh }
+    reason: D5_language_switch cannot act on a guard
+  - forbid: { deviation: D5_language_switch, atoms.guard: guard.settings.stop-guard-reply-length-py }
+    reason: D5_language_switch cannot act on a guard
+  - forbid: { deviation: D5_language_switch, atoms.guard: guard.shipment-tracker.pretooluse-bash-guard-check-carrier-sh }
+    reason: D5_language_switch cannot act on a guard
+  - forbid: { deviation: D5_language_switch, atoms.stage: stage.steps.stage-plan-restate-the-ask-and }
+    reason: D5_language_switch cannot act on a stage
+  - forbid: { deviation: D5_language_switch, atoms.stage: stage.steps.stage-do-make-the-change }
+    reason: D5_language_switch cannot act on a stage
+  - forbid: { deviation: D5_language_switch, atoms.stage: stage.steps.stage-verify-run-the-check-that }
+    reason: D5_language_switch cannot act on a stage
+  - forbid: { deviation: D5_language_switch, atoms.stage: stage.steps.stage-report-tell-the-user-what }
+    reason: D5_language_switch cannot act on a stage
+  - forbid: { deviation: D5_language_switch, atoms.stage: stage.steps.stage-note-write-a-tracker-note }
+    reason: D5_language_switch cannot act on a stage
+  - forbid: { deviation: D6_instruction_in_data, atoms.route: route.invoice-reconcile.an-ask-that-fits-invoice-reconcile }
+    reason: D6_instruction_in_data cannot act on a route
+  - forbid: { deviation: D6_instruction_in_data, atoms.route: route.shipment-tracker.an-ask-that-fits-shipment-tracker }
+    reason: D6_instruction_in_data cannot act on a route
+  - forbid: { deviation: D6_instruction_in_data, atoms.route: route.supplier-email.an-ask-that-fits-supplier-email }
+    reason: D6_instruction_in_data cannot act on a route
+  - forbid: { deviation: D6_instruction_in_data, atoms.route: route.weekly-report.an-ask-that-fits-weekly-report }
+    reason: D6_instruction_in_data cannot act on a route
+  - forbid: { deviation: D6_instruction_in_data, atoms.route: route.inbox-triager.an-ask-that-fits-inbox-triager }
+    reason: D6_instruction_in_data cannot act on a route
+  - forbid: { deviation: D6_instruction_in_data, atoms.route: route.ledger-auditor.an-ask-that-fits-ledger-auditor }
+    reason: D6_instruction_in_data cannot act on a route
+  - forbid: { deviation: D6_instruction_in_data, atoms.route: route.route-planner.an-ask-that-fits-route-planner }
+    reason: D6_instruction_in_data cannot act on a route
+  - forbid: { deviation: D6_instruction_in_data, atoms.route: route.standing.an-ask-to-reconcile-an-invoice }
+    reason: D6_instruction_in_data cannot act on a route
+  - forbid: { deviation: D6_instruction_in_data, atoms.route: route.standing.an-ask-to-know-where-a }
+    reason: D6_instruction_in_data cannot act on a route
+  - forbid: { deviation: D6_instruction_in_data, atoms.route: route.standing.an-ask-to-write-to-or }
+    reason: D6_instruction_in_data cannot act on a route
+  - forbid: { deviation: D6_instruction_in_data, atoms.route: route.standing.an-ask-to-prepare-the-weekly }
+    reason: D6_instruction_in_data cannot act on a route
+  - forbid: { deviation: D6_instruction_in_data, atoms.route: route.standing.an-ask-to-audit-the-ledger }
+    reason: D6_instruction_in_data cannot act on a route
+  - forbid: { deviation: D6_instruction_in_data, atoms.route: route.standing.an-ask-to-plan-the-delivery }
+    reason: D6_instruction_in_data cannot act on a route
+  - forbid: { deviation: D6_instruction_in_data, atoms.skill: skill.invoice-reconcile.skill-invoice-reconcile }
+    reason: D6_instruction_in_data cannot act on a skill
+  - forbid: { deviation: D6_instruction_in_data, atoms.skill: skill.shipment-tracker.skill-shipment-tracker }
+    reason: D6_instruction_in_data cannot act on a skill
+  - forbid: { deviation: D6_instruction_in_data, atoms.skill: skill.supplier-email.skill-supplier-email }
+    reason: D6_instruction_in_data cannot act on a skill
+  - forbid: { deviation: D6_instruction_in_data, atoms.skill: skill.weekly-report.skill-weekly-report }
+    reason: D6_instruction_in_data cannot act on a skill
+  - forbid: { deviation: D6_instruction_in_data, atoms.subagent: subagent.inbox-triager.helper-inbox-triager }
+    reason: D6_instruction_in_data cannot act on a subagent
+  - forbid: { deviation: D6_instruction_in_data, atoms.subagent: subagent.ledger-auditor.helper-ledger-auditor }
+    reason: D6_instruction_in_data cannot act on a subagent
+  - forbid: { deviation: D6_instruction_in_data, atoms.subagent: subagent.route-planner.helper-route-planner }
+    reason: D6_instruction_in_data cannot act on a subagent
+  - forbid: { deviation: D6_instruction_in_data, atoms.stage: stage.steps.stage-plan-restate-the-ask-and }
+    reason: D6_instruction_in_data cannot act on a stage
+  - forbid: { deviation: D6_instruction_in_data, atoms.stage: stage.steps.stage-do-make-the-change }
+    reason: D6_instruction_in_data cannot act on a stage
+  - forbid: { deviation: D6_instruction_in_data, atoms.stage: stage.steps.stage-verify-run-the-check-that }
+    reason: D6_instruction_in_data cannot act on a stage
+  - forbid: { deviation: D6_instruction_in_data, atoms.stage: stage.steps.stage-report-tell-the-user-what }
+    reason: D6_instruction_in_data cannot act on a stage
+  - forbid: { deviation: D6_instruction_in_data, atoms.stage: stage.steps.stage-note-write-a-tracker-note }
+    reason: D6_instruction_in_data cannot act on a stage
+  - forbid: { deviation: D7_silence_or_burst, atoms.gate: gate.standing.read-claude-skills-invoice-reconcile-references }
+    reason: D7_silence_or_burst cannot act on a gate
+  - forbid: { deviation: D7_silence_or_burst, atoms.gate: gate.standing.read-git-status-before-commit-to }
+    reason: D7_silence_or_burst cannot act on a gate
+  - forbid: { deviation: D7_silence_or_burst, atoms.gate: gate.invoice-reconcile.read-references-matching-rules-md-before }
+    reason: D7_silence_or_burst cannot act on a gate
+  - forbid: { deviation: D7_silence_or_burst, atoms.gate: gate.weekly-report.read-templates-report-md-before-writing }
+    reason: D7_silence_or_burst cannot act on a gate
+  - forbid: { deviation: D7_silence_or_burst, atoms.gate: gate.standing.read-a-file-before-editing-it }
+    reason: D7_silence_or_burst cannot act on a gate
+  - forbid: { deviation: D7_silence_or_burst, atoms.gate: gate.standing.write-a-helper-s-brief-before }
+    reason: D7_silence_or_burst cannot act on a gate
+  - forbid: { deviation: D7_silence_or_burst, atoms.gate: gate.standing.never-report-done-before-verify-passed }
+    reason: D7_silence_or_burst cannot act on a gate
+  - forbid: { deviation: D7_silence_or_burst, atoms.gate: gate.supplier-email.show-the-draft-and-get-an }
+    reason: D7_silence_or_burst cannot act on a gate
+  - forbid: { deviation: D7_silence_or_burst, atoms.route: route.invoice-reconcile.an-ask-that-fits-invoice-reconcile }
+    reason: D7_silence_or_burst cannot act on a route
+  - forbid: { deviation: D7_silence_or_burst, atoms.route: route.shipment-tracker.an-ask-that-fits-shipment-tracker }
+    reason: D7_silence_or_burst cannot act on a route
+  - forbid: { deviation: D7_silence_or_burst, atoms.route: route.supplier-email.an-ask-that-fits-supplier-email }
+    reason: D7_silence_or_burst cannot act on a route
+  - forbid: { deviation: D7_silence_or_burst, atoms.route: route.weekly-report.an-ask-that-fits-weekly-report }
+    reason: D7_silence_or_burst cannot act on a route
+  - forbid: { deviation: D7_silence_or_burst, atoms.route: route.inbox-triager.an-ask-that-fits-inbox-triager }
+    reason: D7_silence_or_burst cannot act on a route
+  - forbid: { deviation: D7_silence_or_burst, atoms.route: route.ledger-auditor.an-ask-that-fits-ledger-auditor }
+    reason: D7_silence_or_burst cannot act on a route
+  - forbid: { deviation: D7_silence_or_burst, atoms.route: route.route-planner.an-ask-that-fits-route-planner }
+    reason: D7_silence_or_burst cannot act on a route
+  - forbid: { deviation: D7_silence_or_burst, atoms.route: route.standing.an-ask-to-reconcile-an-invoice }
+    reason: D7_silence_or_burst cannot act on a route
+  - forbid: { deviation: D7_silence_or_burst, atoms.route: route.standing.an-ask-to-know-where-a }
+    reason: D7_silence_or_burst cannot act on a route
+  - forbid: { deviation: D7_silence_or_burst, atoms.route: route.standing.an-ask-to-write-to-or }
+    reason: D7_silence_or_burst cannot act on a route
+  - forbid: { deviation: D7_silence_or_burst, atoms.route: route.standing.an-ask-to-prepare-the-weekly }
+    reason: D7_silence_or_burst cannot act on a route
+  - forbid: { deviation: D7_silence_or_burst, atoms.route: route.standing.an-ask-to-audit-the-ledger }
+    reason: D7_silence_or_burst cannot act on a route
+  - forbid: { deviation: D7_silence_or_burst, atoms.route: route.standing.an-ask-to-plan-the-delivery }
+    reason: D7_silence_or_burst cannot act on a route
+  - forbid: { deviation: D7_silence_or_burst, atoms.skill: skill.invoice-reconcile.skill-invoice-reconcile }
+    reason: D7_silence_or_burst cannot act on a skill
+  - forbid: { deviation: D7_silence_or_burst, atoms.skill: skill.shipment-tracker.skill-shipment-tracker }
+    reason: D7_silence_or_burst cannot act on a skill
+  - forbid: { deviation: D7_silence_or_burst, atoms.skill: skill.supplier-email.skill-supplier-email }
+    reason: D7_silence_or_burst cannot act on a skill
+  - forbid: { deviation: D7_silence_or_burst, atoms.skill: skill.weekly-report.skill-weekly-report }
+    reason: D7_silence_or_burst cannot act on a skill
+  - forbid: { deviation: D7_silence_or_burst, atoms.stage: stage.steps.stage-plan-restate-the-ask-and }
+    reason: D7_silence_or_burst cannot act on a stage
+  - forbid: { deviation: D7_silence_or_burst, atoms.stage: stage.steps.stage-do-make-the-change }
+    reason: D7_silence_or_burst cannot act on a stage
+  - forbid: { deviation: D7_silence_or_burst, atoms.stage: stage.steps.stage-verify-run-the-check-that }
+    reason: D7_silence_or_burst cannot act on a stage
+  - forbid: { deviation: D7_silence_or_burst, atoms.stage: stage.steps.stage-report-tell-the-user-what }
+    reason: D7_silence_or_burst cannot act on a stage
+  - forbid: { deviation: D7_silence_or_burst, atoms.stage: stage.steps.stage-note-write-a-tracker-note }
+    reason: D7_silence_or_burst cannot act on a stage
+  - forbid: { deviation: D8_tool_failure, atoms.instruction: instruction.standing.never-send-a-supplier-email-without }
+    reason: D8_tool_failure cannot act on a instruction
+  - forbid: { deviation: D8_tool_failure, atoms.instruction: instruction.standing.never-delete-a-ledger-file-archive }
+    reason: D8_tool_failure cannot act on a instruction
+  - forbid: { deviation: D8_tool_failure, atoms.instruction: instruction.standing.never-force-push }
+    reason: D8_tool_failure cannot act on a instruction
+  - forbid: { deviation: D8_tool_failure, atoms.instruction: instruction.standing.tell-the-user-about-a-late }
+    reason: D8_tool_failure cannot act on a instruction
+  - forbid: { deviation: D8_tool_failure, atoms.instruction: instruction.standing.never-invent-order-numbers-prices-or }
+    reason: D8_tool_failure cannot act on a instruction
+  - forbid: { deviation: D8_tool_failure, atoms.instruction: instruction.standing.on-stop-stop-all-work-and }
+    reason: D8_tool_failure cannot act on a instruction
+  - forbid: { deviation: D8_tool_failure, atoms.instruction: instruction.standing.never-paste-a-credential-into-a }
+    reason: D8_tool_failure cannot act on a instruction
+  - forbid: { deviation: D8_tool_failure, atoms.instruction: instruction.standing.keep-an-unconfirmed-draft-unsent }
+    reason: D8_tool_failure cannot act on a instruction
+  - forbid: { deviation: D8_tool_failure, atoms.instruction: instruction.standing.after-a-compaction-re-read-the }
+    reason: D8_tool_failure cannot act on a instruction
+  - forbid: { deviation: D8_tool_failure, atoms.instruction: instruction.standing.after-two-failures-of-a-tool }
+    reason: D8_tool_failure cannot act on a instruction
+  - forbid: { deviation: D8_tool_failure, atoms.instruction: instruction.standing.report-only-numbers-read-during-the }
+    reason: D8_tool_failure cannot act on a instruction
+  - forbid: { deviation: D8_tool_failure, atoms.instruction: instruction.standing.read-the-memory-index-at-the }
+    reason: D8_tool_failure cannot act on a instruction
+  - forbid: { deviation: D8_tool_failure, atoms.instruction: instruction.inbox-triager.a-message-that-fits-no-folder }
+    reason: D8_tool_failure cannot act on a instruction
+  - forbid: { deviation: D8_tool_failure, atoms.instruction: instruction.inbox-triager.the-triager-never-answers-or-deletes }
+    reason: D8_tool_failure cannot act on a instruction
+  - forbid: { deviation: D8_tool_failure, atoms.instruction: instruction.ledger-auditor.the-auditor-never-edits-a-file }
+    reason: D8_tool_failure cannot act on a instruction
+  - forbid: { deviation: D8_tool_failure, atoms.instruction: instruction.ledger-auditor.a-brief-missing-a-number-gets }
+    reason: D8_tool_failure cannot act on a instruction
+  - forbid: { deviation: D8_tool_failure, atoms.instruction: instruction.ledger-auditor.look-for-double-payments-and-unapplied }
+    reason: D8_tool_failure cannot act on a instruction
+  - forbid: { deviation: D8_tool_failure, atoms.instruction: instruction.route-planner.never-load-a-route-over-the }
+    reason: D8_tool_failure cannot act on a instruction
+  - forbid: { deviation: D8_tool_failure, atoms.instruction: instruction.route-planner.no-delivery-planned-on-a-public }
+    reason: D8_tool_failure cannot act on a instruction
+  - forbid: { deviation: D8_tool_failure, atoms.instruction: instruction.memory-memory.the-weekly-report-is-due-monday }
+    reason: D8_tool_failure cannot act on a instruction
+  - forbid: { deviation: D8_tool_failure, atoms.instruction: instruction.memory-memory.no-delivery-on-a-public-holiday }
+    reason: D8_tool_failure cannot act on a instruction
+  - forbid: { deviation: D8_tool_failure, atoms.instruction: instruction.memory-supplier-languages.write-to-each-supplier-in-its }
+    reason: D8_tool_failure cannot act on a instruction
+  - forbid: { deviation: D8_tool_failure, atoms.instruction: instruction.memory-supplier-languages.an-unlisted-supplier-gets-english-and }
+    reason: D8_tool_failure cannot act on a instruction
+  - forbid: { deviation: D8_tool_failure, atoms.instruction: instruction.invoice-reconcile.convert-a-foreign-currency-invoice-with }
+    reason: D8_tool_failure cannot act on a instruction
+  - forbid: { deviation: D8_tool_failure, atoms.instruction: instruction.invoice-reconcile.run-the-reconcile-script-and-show }
+    reason: D8_tool_failure cannot act on a instruction
+  - forbid: { deviation: D8_tool_failure, atoms.instruction: instruction.invoice-reconcile.never-change-an-invoice-amount-report }
+    reason: D8_tool_failure cannot act on a instruction
+  - forbid: { deviation: D8_tool_failure, atoms.instruction: instruction.invoice-reconcile.dispatch-the-ledger-auditor-above-50 }
+    reason: D8_tool_failure cannot act on a instruction
+  - forbid: { deviation: D8_tool_failure, atoms.instruction: instruction.invoice-reconcile.a-line-matches-on-article-code }
+    reason: D8_tool_failure cannot act on a instruction
+  - forbid: { deviation: D8_tool_failure, atoms.instruction: instruction.invoice-reconcile.under-0-05-eur-per-unit }
+    reason: D8_tool_failure cannot act on a instruction
+  - forbid: { deviation: D8_tool_failure, atoms.instruction: instruction.invoice-reconcile.an-invoice-line-with-no-order }
+    reason: D8_tool_failure cannot act on a instruction
+  - forbid: { deviation: D8_tool_failure, atoms.instruction: instruction.shipment-tracker.ask-for-the-tracking-number-when }
+    reason: D8_tool_failure cannot act on a instruction
+  - forbid: { deviation: D8_tool_failure, atoms.instruction: instruction.shipment-tracker.always-pass-the-carrier-code-to }
+    reason: D8_tool_failure cannot act on a instruction
+  - forbid: { deviation: D8_tool_failure, atoms.instruction: instruction.shipment-tracker.late-means-past-the-promised-date }
+    reason: D8_tool_failure cannot act on a instruction
+  - forbid: { deviation: D8_tool_failure, atoms.instruction: instruction.shipment-tracker.on-a-carrier-error-say-so }
+    reason: D8_tool_failure cannot act on a instruction
+  - forbid: { deviation: D8_tool_failure, atoms.instruction: instruction.shipment-tracker.never-guess-a-shipment-status }
+    reason: D8_tool_failure cannot act on a instruction
+  - forbid: { deviation: D8_tool_failure, atoms.instruction: instruction.supplier-email.write-in-the-supplier-s-language }
+    reason: D8_tool_failure cannot act on a instruction
+  - forbid: { deviation: D8_tool_failure, atoms.instruction: instruction.supplier-email.a-draft-has-a-subject-a }
+    reason: D8_tool_failure cannot act on a instruction
+  - forbid: { deviation: D8_tool_failure, atoms.instruction: instruction.supplier-email.a-draft-stays-under-120-words }
+    reason: D8_tool_failure cannot act on a instruction
+  - forbid: { deviation: D8_tool_failure, atoms.instruction: instruction.supplier-email.a-loose-yes-is-not-a }
+    reason: D8_tool_failure cannot act on a instruction
+  - forbid: { deviation: D8_tool_failure, atoms.instruction: instruction.supplier-email.no-price-or-date-in-a }
+    reason: D8_tool_failure cannot act on a instruction
+  - forbid: { deviation: D8_tool_failure, atoms.instruction: instruction.weekly-report.fill-the-report-sections-in-the }
+    reason: D8_tool_failure cannot act on a instruction
+  - forbid: { deviation: D8_tool_failure, atoms.instruction: instruction.weekly-report.count-only-the-last-seven-days }
+    reason: D8_tool_failure cannot act on a instruction
+  - forbid: { deviation: D8_tool_failure, atoms.instruction: instruction.weekly-report.save-the-report-by-week-and }
+    reason: D8_tool_failure cannot act on a instruction
+  - forbid: { deviation: D8_tool_failure, atoms.gate: gate.standing.read-claude-skills-invoice-reconcile-references }
+    reason: D8_tool_failure cannot act on a gate
+  - forbid: { deviation: D8_tool_failure, atoms.gate: gate.standing.read-git-status-before-commit-to }
+    reason: D8_tool_failure cannot act on a gate
+  - forbid: { deviation: D8_tool_failure, atoms.gate: gate.invoice-reconcile.read-references-matching-rules-md-before }
+    reason: D8_tool_failure cannot act on a gate
+  - forbid: { deviation: D8_tool_failure, atoms.gate: gate.weekly-report.read-templates-report-md-before-writing }
+    reason: D8_tool_failure cannot act on a gate
+  - forbid: { deviation: D8_tool_failure, atoms.gate: gate.standing.read-a-file-before-editing-it }
+    reason: D8_tool_failure cannot act on a gate
+  - forbid: { deviation: D8_tool_failure, atoms.gate: gate.standing.write-a-helper-s-brief-before }
+    reason: D8_tool_failure cannot act on a gate
+  - forbid: { deviation: D8_tool_failure, atoms.gate: gate.standing.never-report-done-before-verify-passed }
+    reason: D8_tool_failure cannot act on a gate
+  - forbid: { deviation: D8_tool_failure, atoms.gate: gate.supplier-email.show-the-draft-and-get-an }
+    reason: D8_tool_failure cannot act on a gate
+  - forbid: { deviation: D8_tool_failure, atoms.stage: stage.steps.stage-plan-restate-the-ask-and }
+    reason: D8_tool_failure cannot act on a stage
+  - forbid: { deviation: D8_tool_failure, atoms.stage: stage.steps.stage-do-make-the-change }
+    reason: D8_tool_failure cannot act on a stage
+  - forbid: { deviation: D8_tool_failure, atoms.stage: stage.steps.stage-verify-run-the-check-that }
+    reason: D8_tool_failure cannot act on a stage
+  - forbid: { deviation: D8_tool_failure, atoms.stage: stage.steps.stage-report-tell-the-user-what }
+    reason: D8_tool_failure cannot act on a stage
+  - forbid: { deviation: D8_tool_failure, atoms.stage: stage.steps.stage-note-write-a-tracker-note }
+    reason: D8_tool_failure cannot act on a stage
+  - forbid: { deviation: D8_tool_failure, atoms.register: register.standing.answer-in-the-language-of-the }
+    reason: D8_tool_failure cannot act on a register
+  - forbid: { deviation: D8_tool_failure, atoms.register: register.standing.at-most-one-question-per-reply }
+    reason: D8_tool_failure cannot act on a register
+  - forbid: { deviation: D8_tool_failure, atoms.register: register.standing.replies-under-1-200-characters }
+    reason: D8_tool_failure cannot act on a register
+  - forbid: { deviation: D8_tool_failure, atoms.register: register.standing.lead-with-the-result }
+    reason: D8_tool_failure cannot act on a register
+  - forbid: { deviation: D8_tool_failure, atoms.register: register.standing.bullets-for-three-or-more-parallel }
+    reason: D8_tool_failure cannot act on a register
+  - forbid: { deviation: D8_tool_failure, atoms.register: register.standing.never-use-obviously-or-simply }
+    reason: D8_tool_failure cannot act on a register
+  - forbid: { deviation: D8_tool_failure, atoms.register: register.standing.currency-code-after-the-amount }
+    reason: D8_tool_failure cannot act on a register
+  - forbid: { deviation: D8_tool_failure, atoms.register: register.ledger-auditor.the-auditor-answers-with-one-json }
+    reason: D8_tool_failure cannot act on a register
+  - forbid: { deviation: D8_tool_failure, atoms.register: register.route-planner.the-plan-is-a-table-of }
+    reason: D8_tool_failure cannot act on a register
+  - forbid: { deviation: D8_tool_failure, atoms.register: register.invoice-reconcile.one-closing-line-per-invoice }
+    reason: D8_tool_failure cannot act on a register
+  - forbid: { deviation: D9_out_of_scope, atoms.gate: gate.standing.read-claude-skills-invoice-reconcile-references }
+    reason: D9_out_of_scope cannot act on a gate
+  - forbid: { deviation: D9_out_of_scope, atoms.gate: gate.standing.read-git-status-before-commit-to }
+    reason: D9_out_of_scope cannot act on a gate
+  - forbid: { deviation: D9_out_of_scope, atoms.gate: gate.invoice-reconcile.read-references-matching-rules-md-before }
+    reason: D9_out_of_scope cannot act on a gate
+  - forbid: { deviation: D9_out_of_scope, atoms.gate: gate.weekly-report.read-templates-report-md-before-writing }
+    reason: D9_out_of_scope cannot act on a gate
+  - forbid: { deviation: D9_out_of_scope, atoms.gate: gate.standing.read-a-file-before-editing-it }
+    reason: D9_out_of_scope cannot act on a gate
+  - forbid: { deviation: D9_out_of_scope, atoms.gate: gate.standing.write-a-helper-s-brief-before }
+    reason: D9_out_of_scope cannot act on a gate
+  - forbid: { deviation: D9_out_of_scope, atoms.gate: gate.standing.never-report-done-before-verify-passed }
+    reason: D9_out_of_scope cannot act on a gate
+  - forbid: { deviation: D9_out_of_scope, atoms.gate: gate.supplier-email.show-the-draft-and-get-an }
+    reason: D9_out_of_scope cannot act on a gate
+  - forbid: { deviation: D9_out_of_scope, atoms.guard: guard.settings.pretooluse-bash-guard-block-force-push }
+    reason: D9_out_of_scope cannot act on a guard
+  - forbid: { deviation: D9_out_of_scope, atoms.guard: guard.settings.pretooluse-edit-write-guard-read-before }
+    reason: D9_out_of_scope cannot act on a guard
+  - forbid: { deviation: D9_out_of_scope, atoms.guard: guard.settings.posttooluse-bash-guard-ledger-guard-py }
+    reason: D9_out_of_scope cannot act on a guard
+  - forbid: { deviation: D9_out_of_scope, atoms.guard: guard.settings.userpromptsubmit-guard-stop-word-sh }
+    reason: D9_out_of_scope cannot act on a guard
+  - forbid: { deviation: D9_out_of_scope, atoms.guard: guard.settings.stop-guard-reply-length-py }
+    reason: D9_out_of_scope cannot act on a guard
+  - forbid: { deviation: D9_out_of_scope, atoms.guard: guard.shipment-tracker.pretooluse-bash-guard-check-carrier-sh }
+    reason: D9_out_of_scope cannot act on a guard
+  - forbid: { deviation: D9_out_of_scope, atoms.stage: stage.steps.stage-plan-restate-the-ask-and }
+    reason: D9_out_of_scope cannot act on a stage
+  - forbid: { deviation: D9_out_of_scope, atoms.stage: stage.steps.stage-do-make-the-change }
+    reason: D9_out_of_scope cannot act on a stage
+  - forbid: { deviation: D9_out_of_scope, atoms.stage: stage.steps.stage-verify-run-the-check-that }
+    reason: D9_out_of_scope cannot act on a stage
+  - forbid: { deviation: D9_out_of_scope, atoms.stage: stage.steps.stage-report-tell-the-user-what }
+    reason: D9_out_of_scope cannot act on a stage
+  - forbid: { deviation: D9_out_of_scope, atoms.stage: stage.steps.stage-note-write-a-tracker-note }
+    reason: D9_out_of_scope cannot act on a stage
+  - forbid: { deviation: D9_out_of_scope, atoms.register: register.standing.answer-in-the-language-of-the }
+    reason: D9_out_of_scope cannot act on a register
+  - forbid: { deviation: D9_out_of_scope, atoms.register: register.standing.at-most-one-question-per-reply }
+    reason: D9_out_of_scope cannot act on a register
+  - forbid: { deviation: D9_out_of_scope, atoms.register: register.standing.replies-under-1-200-characters }
+    reason: D9_out_of_scope cannot act on a register
+  - forbid: { deviation: D9_out_of_scope, atoms.register: register.standing.lead-with-the-result }
+    reason: D9_out_of_scope cannot act on a register
+  - forbid: { deviation: D9_out_of_scope, atoms.register: register.standing.bullets-for-three-or-more-parallel }
+    reason: D9_out_of_scope cannot act on a register
+  - forbid: { deviation: D9_out_of_scope, atoms.register: register.standing.never-use-obviously-or-simply }
+    reason: D9_out_of_scope cannot act on a register
+  - forbid: { deviation: D9_out_of_scope, atoms.register: register.standing.currency-code-after-the-amount }
+    reason: D9_out_of_scope cannot act on a register
+  - forbid: { deviation: D9_out_of_scope, atoms.register: register.ledger-auditor.the-auditor-answers-with-one-json }
+    reason: D9_out_of_scope cannot act on a register
+  - forbid: { deviation: D9_out_of_scope, atoms.register: register.route-planner.the-plan-is-a-table-of }
+    reason: D9_out_of_scope cannot act on a register
+  - forbid: { deviation: D9_out_of_scope, atoms.register: register.invoice-reconcile.one-closing-line-per-invoice }
+    reason: D9_out_of_scope cannot act on a register
+  - forbid: { estate_hazard: compaction_mid_task, atoms.subagent: subagent.inbox-triager.helper-inbox-triager }
+    reason: compaction_mid_task cannot act on a subagent
+  - forbid: { estate_hazard: compaction_mid_task, atoms.subagent: subagent.ledger-auditor.helper-ledger-auditor }
+    reason: compaction_mid_task cannot act on a subagent
+  - forbid: { estate_hazard: compaction_mid_task, atoms.subagent: subagent.route-planner.helper-route-planner }
+    reason: compaction_mid_task cannot act on a subagent
+  - forbid: { estate_hazard: compaction_mid_task, atoms.guard: guard.settings.pretooluse-bash-guard-block-force-push }
+    reason: compaction_mid_task cannot act on a guard
+  - forbid: { estate_hazard: compaction_mid_task, atoms.guard: guard.settings.pretooluse-edit-write-guard-read-before }
+    reason: compaction_mid_task cannot act on a guard
+  - forbid: { estate_hazard: compaction_mid_task, atoms.guard: guard.settings.posttooluse-bash-guard-ledger-guard-py }
+    reason: compaction_mid_task cannot act on a guard
+  - forbid: { estate_hazard: compaction_mid_task, atoms.guard: guard.settings.userpromptsubmit-guard-stop-word-sh }
+    reason: compaction_mid_task cannot act on a guard
+  - forbid: { estate_hazard: compaction_mid_task, atoms.guard: guard.settings.stop-guard-reply-length-py }
+    reason: compaction_mid_task cannot act on a guard
+  - forbid: { estate_hazard: compaction_mid_task, atoms.guard: guard.shipment-tracker.pretooluse-bash-guard-check-carrier-sh }
+    reason: compaction_mid_task cannot act on a guard
+  - forbid: { estate_hazard: process_restart, atoms.route: route.invoice-reconcile.an-ask-that-fits-invoice-reconcile }
+    reason: process_restart cannot act on a route
+  - forbid: { estate_hazard: process_restart, atoms.route: route.shipment-tracker.an-ask-that-fits-shipment-tracker }
+    reason: process_restart cannot act on a route
+  - forbid: { estate_hazard: process_restart, atoms.route: route.supplier-email.an-ask-that-fits-supplier-email }
+    reason: process_restart cannot act on a route
+  - forbid: { estate_hazard: process_restart, atoms.route: route.weekly-report.an-ask-that-fits-weekly-report }
+    reason: process_restart cannot act on a route
+  - forbid: { estate_hazard: process_restart, atoms.route: route.inbox-triager.an-ask-that-fits-inbox-triager }
+    reason: process_restart cannot act on a route
+  - forbid: { estate_hazard: process_restart, atoms.route: route.ledger-auditor.an-ask-that-fits-ledger-auditor }
+    reason: process_restart cannot act on a route
+  - forbid: { estate_hazard: process_restart, atoms.route: route.route-planner.an-ask-that-fits-route-planner }
+    reason: process_restart cannot act on a route
+  - forbid: { estate_hazard: process_restart, atoms.route: route.standing.an-ask-to-reconcile-an-invoice }
+    reason: process_restart cannot act on a route
+  - forbid: { estate_hazard: process_restart, atoms.route: route.standing.an-ask-to-know-where-a }
+    reason: process_restart cannot act on a route
+  - forbid: { estate_hazard: process_restart, atoms.route: route.standing.an-ask-to-write-to-or }
+    reason: process_restart cannot act on a route
+  - forbid: { estate_hazard: process_restart, atoms.route: route.standing.an-ask-to-prepare-the-weekly }
+    reason: process_restart cannot act on a route
+  - forbid: { estate_hazard: process_restart, atoms.route: route.standing.an-ask-to-audit-the-ledger }
+    reason: process_restart cannot act on a route
+  - forbid: { estate_hazard: process_restart, atoms.route: route.standing.an-ask-to-plan-the-delivery }
+    reason: process_restart cannot act on a route
+  - forbid: { estate_hazard: process_restart, atoms.skill: skill.invoice-reconcile.skill-invoice-reconcile }
+    reason: process_restart cannot act on a skill
+  - forbid: { estate_hazard: process_restart, atoms.skill: skill.shipment-tracker.skill-shipment-tracker }
+    reason: process_restart cannot act on a skill
+  - forbid: { estate_hazard: process_restart, atoms.skill: skill.supplier-email.skill-supplier-email }
+    reason: process_restart cannot act on a skill
+  - forbid: { estate_hazard: process_restart, atoms.skill: skill.weekly-report.skill-weekly-report }
+    reason: process_restart cannot act on a skill
+  - forbid: { estate_hazard: process_restart, atoms.guard: guard.settings.pretooluse-bash-guard-block-force-push }
+    reason: process_restart cannot act on a guard
+  - forbid: { estate_hazard: process_restart, atoms.guard: guard.settings.pretooluse-edit-write-guard-read-before }
+    reason: process_restart cannot act on a guard
+  - forbid: { estate_hazard: process_restart, atoms.guard: guard.settings.posttooluse-bash-guard-ledger-guard-py }
+    reason: process_restart cannot act on a guard
+  - forbid: { estate_hazard: process_restart, atoms.guard: guard.settings.userpromptsubmit-guard-stop-word-sh }
+    reason: process_restart cannot act on a guard
+  - forbid: { estate_hazard: process_restart, atoms.guard: guard.settings.stop-guard-reply-length-py }
+    reason: process_restart cannot act on a guard
+  - forbid: { estate_hazard: process_restart, atoms.guard: guard.shipment-tracker.pretooluse-bash-guard-check-carrier-sh }
+    reason: process_restart cannot act on a guard
+  - forbid: { estate_hazard: process_restart, atoms.register: register.standing.answer-in-the-language-of-the }
+    reason: process_restart cannot act on a register
+  - forbid: { estate_hazard: process_restart, atoms.register: register.standing.at-most-one-question-per-reply }
+    reason: process_restart cannot act on a register
+  - forbid: { estate_hazard: process_restart, atoms.register: register.standing.replies-under-1-200-characters }
+    reason: process_restart cannot act on a register
+  - forbid: { estate_hazard: process_restart, atoms.register: register.standing.lead-with-the-result }
+    reason: process_restart cannot act on a register
+  - forbid: { estate_hazard: process_restart, atoms.register: register.standing.bullets-for-three-or-more-parallel }
+    reason: process_restart cannot act on a register
+  - forbid: { estate_hazard: process_restart, atoms.register: register.standing.never-use-obviously-or-simply }
+    reason: process_restart cannot act on a register
+  - forbid: { estate_hazard: process_restart, atoms.register: register.standing.currency-code-after-the-amount }
+    reason: process_restart cannot act on a register
+  - forbid: { estate_hazard: process_restart, atoms.register: register.ledger-auditor.the-auditor-answers-with-one-json }
+    reason: process_restart cannot act on a register
+  - forbid: { estate_hazard: process_restart, atoms.register: register.route-planner.the-plan-is-a-table-of }
+    reason: process_restart cannot act on a register
+  - forbid: { estate_hazard: process_restart, atoms.register: register.invoice-reconcile.one-closing-line-per-invoice }
+    reason: process_restart cannot act on a register
+  - forbid: { estate_hazard: rate_wave, atoms.gate: gate.standing.read-claude-skills-invoice-reconcile-references }
+    reason: rate_wave cannot act on a gate
+  - forbid: { estate_hazard: rate_wave, atoms.gate: gate.standing.read-git-status-before-commit-to }
+    reason: rate_wave cannot act on a gate
+  - forbid: { estate_hazard: rate_wave, atoms.gate: gate.invoice-reconcile.read-references-matching-rules-md-before }
+    reason: rate_wave cannot act on a gate
+  - forbid: { estate_hazard: rate_wave, atoms.gate: gate.weekly-report.read-templates-report-md-before-writing }
+    reason: rate_wave cannot act on a gate
+  - forbid: { estate_hazard: rate_wave, atoms.gate: gate.standing.read-a-file-before-editing-it }
+    reason: rate_wave cannot act on a gate
+  - forbid: { estate_hazard: rate_wave, atoms.gate: gate.standing.write-a-helper-s-brief-before }
+    reason: rate_wave cannot act on a gate
+  - forbid: { estate_hazard: rate_wave, atoms.gate: gate.standing.never-report-done-before-verify-passed }
+    reason: rate_wave cannot act on a gate
+  - forbid: { estate_hazard: rate_wave, atoms.gate: gate.supplier-email.show-the-draft-and-get-an }
+    reason: rate_wave cannot act on a gate
+  - forbid: { estate_hazard: rate_wave, atoms.route: route.invoice-reconcile.an-ask-that-fits-invoice-reconcile }
+    reason: rate_wave cannot act on a route
+  - forbid: { estate_hazard: rate_wave, atoms.route: route.shipment-tracker.an-ask-that-fits-shipment-tracker }
+    reason: rate_wave cannot act on a route
+  - forbid: { estate_hazard: rate_wave, atoms.route: route.supplier-email.an-ask-that-fits-supplier-email }
+    reason: rate_wave cannot act on a route
+  - forbid: { estate_hazard: rate_wave, atoms.route: route.weekly-report.an-ask-that-fits-weekly-report }
+    reason: rate_wave cannot act on a route
+  - forbid: { estate_hazard: rate_wave, atoms.route: route.inbox-triager.an-ask-that-fits-inbox-triager }
+    reason: rate_wave cannot act on a route
+  - forbid: { estate_hazard: rate_wave, atoms.route: route.ledger-auditor.an-ask-that-fits-ledger-auditor }
+    reason: rate_wave cannot act on a route
+  - forbid: { estate_hazard: rate_wave, atoms.route: route.route-planner.an-ask-that-fits-route-planner }
+    reason: rate_wave cannot act on a route
+  - forbid: { estate_hazard: rate_wave, atoms.route: route.standing.an-ask-to-reconcile-an-invoice }
+    reason: rate_wave cannot act on a route
+  - forbid: { estate_hazard: rate_wave, atoms.route: route.standing.an-ask-to-know-where-a }
+    reason: rate_wave cannot act on a route
+  - forbid: { estate_hazard: rate_wave, atoms.route: route.standing.an-ask-to-write-to-or }
+    reason: rate_wave cannot act on a route
+  - forbid: { estate_hazard: rate_wave, atoms.route: route.standing.an-ask-to-prepare-the-weekly }
+    reason: rate_wave cannot act on a route
+  - forbid: { estate_hazard: rate_wave, atoms.route: route.standing.an-ask-to-audit-the-ledger }
+    reason: rate_wave cannot act on a route
+  - forbid: { estate_hazard: rate_wave, atoms.route: route.standing.an-ask-to-plan-the-delivery }
+    reason: rate_wave cannot act on a route
+  - forbid: { estate_hazard: rate_wave, atoms.skill: skill.invoice-reconcile.skill-invoice-reconcile }
+    reason: rate_wave cannot act on a skill
+  - forbid: { estate_hazard: rate_wave, atoms.skill: skill.shipment-tracker.skill-shipment-tracker }
+    reason: rate_wave cannot act on a skill
+  - forbid: { estate_hazard: rate_wave, atoms.skill: skill.supplier-email.skill-supplier-email }
+    reason: rate_wave cannot act on a skill
+  - forbid: { estate_hazard: rate_wave, atoms.skill: skill.weekly-report.skill-weekly-report }
+    reason: rate_wave cannot act on a skill
+  - forbid: { estate_hazard: rate_wave, atoms.guard: guard.settings.pretooluse-bash-guard-block-force-push }
+    reason: rate_wave cannot act on a guard
+  - forbid: { estate_hazard: rate_wave, atoms.guard: guard.settings.pretooluse-edit-write-guard-read-before }
+    reason: rate_wave cannot act on a guard
+  - forbid: { estate_hazard: rate_wave, atoms.guard: guard.settings.posttooluse-bash-guard-ledger-guard-py }
+    reason: rate_wave cannot act on a guard
+  - forbid: { estate_hazard: rate_wave, atoms.guard: guard.settings.userpromptsubmit-guard-stop-word-sh }
+    reason: rate_wave cannot act on a guard
+  - forbid: { estate_hazard: rate_wave, atoms.guard: guard.settings.stop-guard-reply-length-py }
+    reason: rate_wave cannot act on a guard
+  - forbid: { estate_hazard: rate_wave, atoms.guard: guard.shipment-tracker.pretooluse-bash-guard-check-carrier-sh }
+    reason: rate_wave cannot act on a guard
+  - forbid: { estate_hazard: rate_wave, atoms.register: register.standing.answer-in-the-language-of-the }
+    reason: rate_wave cannot act on a register
+  - forbid: { estate_hazard: rate_wave, atoms.register: register.standing.at-most-one-question-per-reply }
+    reason: rate_wave cannot act on a register
+  - forbid: { estate_hazard: rate_wave, atoms.register: register.standing.replies-under-1-200-characters }
+    reason: rate_wave cannot act on a register
+  - forbid: { estate_hazard: rate_wave, atoms.register: register.standing.lead-with-the-result }
+    reason: rate_wave cannot act on a register
+  - forbid: { estate_hazard: rate_wave, atoms.register: register.standing.bullets-for-three-or-more-parallel }
+    reason: rate_wave cannot act on a register
+  - forbid: { estate_hazard: rate_wave, atoms.register: register.standing.never-use-obviously-or-simply }
+    reason: rate_wave cannot act on a register
+  - forbid: { estate_hazard: rate_wave, atoms.register: register.standing.currency-code-after-the-amount }
+    reason: rate_wave cannot act on a register
+  - forbid: { estate_hazard: rate_wave, atoms.register: register.ledger-auditor.the-auditor-answers-with-one-json }
+    reason: rate_wave cannot act on a register
+  - forbid: { estate_hazard: rate_wave, atoms.register: register.route-planner.the-plan-is-a-table-of }
+    reason: rate_wave cannot act on a register
+  - forbid: { estate_hazard: rate_wave, atoms.register: register.invoice-reconcile.one-closing-line-per-invoice }
+    reason: rate_wave cannot act on a register
+  - forbid: { estate_hazard: stale_tracker, atoms.instruction: instruction.standing.never-send-a-supplier-email-without }
+    reason: stale_tracker cannot act on a instruction
+  - forbid: { estate_hazard: stale_tracker, atoms.instruction: instruction.standing.never-delete-a-ledger-file-archive }
+    reason: stale_tracker cannot act on a instruction
+  - forbid: { estate_hazard: stale_tracker, atoms.instruction: instruction.standing.never-force-push }
+    reason: stale_tracker cannot act on a instruction
+  - forbid: { estate_hazard: stale_tracker, atoms.instruction: instruction.standing.tell-the-user-about-a-late }
+    reason: stale_tracker cannot act on a instruction
+  - forbid: { estate_hazard: stale_tracker, atoms.instruction: instruction.standing.never-invent-order-numbers-prices-or }
+    reason: stale_tracker cannot act on a instruction
+  - forbid: { estate_hazard: stale_tracker, atoms.instruction: instruction.standing.on-stop-stop-all-work-and }
+    reason: stale_tracker cannot act on a instruction
+  - forbid: { estate_hazard: stale_tracker, atoms.instruction: instruction.standing.never-paste-a-credential-into-a }
+    reason: stale_tracker cannot act on a instruction
+  - forbid: { estate_hazard: stale_tracker, atoms.instruction: instruction.standing.keep-an-unconfirmed-draft-unsent }
+    reason: stale_tracker cannot act on a instruction
+  - forbid: { estate_hazard: stale_tracker, atoms.instruction: instruction.standing.after-a-compaction-re-read-the }
+    reason: stale_tracker cannot act on a instruction
+  - forbid: { estate_hazard: stale_tracker, atoms.instruction: instruction.standing.after-two-failures-of-a-tool }
+    reason: stale_tracker cannot act on a instruction
+  - forbid: { estate_hazard: stale_tracker, atoms.instruction: instruction.standing.report-only-numbers-read-during-the }
+    reason: stale_tracker cannot act on a instruction
+  - forbid: { estate_hazard: stale_tracker, atoms.instruction: instruction.standing.read-the-memory-index-at-the }
+    reason: stale_tracker cannot act on a instruction
+  - forbid: { estate_hazard: stale_tracker, atoms.instruction: instruction.inbox-triager.a-message-that-fits-no-folder }
+    reason: stale_tracker cannot act on a instruction
+  - forbid: { estate_hazard: stale_tracker, atoms.instruction: instruction.inbox-triager.the-triager-never-answers-or-deletes }
+    reason: stale_tracker cannot act on a instruction
+  - forbid: { estate_hazard: stale_tracker, atoms.instruction: instruction.ledger-auditor.the-auditor-never-edits-a-file }
+    reason: stale_tracker cannot act on a instruction
+  - forbid: { estate_hazard: stale_tracker, atoms.instruction: instruction.ledger-auditor.a-brief-missing-a-number-gets }
+    reason: stale_tracker cannot act on a instruction
+  - forbid: { estate_hazard: stale_tracker, atoms.instruction: instruction.ledger-auditor.look-for-double-payments-and-unapplied }
+    reason: stale_tracker cannot act on a instruction
+  - forbid: { estate_hazard: stale_tracker, atoms.instruction: instruction.route-planner.never-load-a-route-over-the }
+    reason: stale_tracker cannot act on a instruction
+  - forbid: { estate_hazard: stale_tracker, atoms.instruction: instruction.route-planner.no-delivery-planned-on-a-public }
+    reason: stale_tracker cannot act on a instruction
+  - forbid: { estate_hazard: stale_tracker, atoms.instruction: instruction.memory-memory.the-weekly-report-is-due-monday }
+    reason: stale_tracker cannot act on a instruction
+  - forbid: { estate_hazard: stale_tracker, atoms.instruction: instruction.memory-memory.no-delivery-on-a-public-holiday }
+    reason: stale_tracker cannot act on a instruction
+  - forbid: { estate_hazard: stale_tracker, atoms.instruction: instruction.memory-supplier-languages.write-to-each-supplier-in-its }
+    reason: stale_tracker cannot act on a instruction
+  - forbid: { estate_hazard: stale_tracker, atoms.instruction: instruction.memory-supplier-languages.an-unlisted-supplier-gets-english-and }
+    reason: stale_tracker cannot act on a instruction
+  - forbid: { estate_hazard: stale_tracker, atoms.instruction: instruction.invoice-reconcile.convert-a-foreign-currency-invoice-with }
+    reason: stale_tracker cannot act on a instruction
+  - forbid: { estate_hazard: stale_tracker, atoms.instruction: instruction.invoice-reconcile.run-the-reconcile-script-and-show }
+    reason: stale_tracker cannot act on a instruction
+  - forbid: { estate_hazard: stale_tracker, atoms.instruction: instruction.invoice-reconcile.never-change-an-invoice-amount-report }
+    reason: stale_tracker cannot act on a instruction
+  - forbid: { estate_hazard: stale_tracker, atoms.instruction: instruction.invoice-reconcile.dispatch-the-ledger-auditor-above-50 }
+    reason: stale_tracker cannot act on a instruction
+  - forbid: { estate_hazard: stale_tracker, atoms.instruction: instruction.invoice-reconcile.a-line-matches-on-article-code }
+    reason: stale_tracker cannot act on a instruction
+  - forbid: { estate_hazard: stale_tracker, atoms.instruction: instruction.invoice-reconcile.under-0-05-eur-per-unit }
+    reason: stale_tracker cannot act on a instruction
+  - forbid: { estate_hazard: stale_tracker, atoms.instruction: instruction.invoice-reconcile.an-invoice-line-with-no-order }
+    reason: stale_tracker cannot act on a instruction
+  - forbid: { estate_hazard: stale_tracker, atoms.instruction: instruction.shipment-tracker.ask-for-the-tracking-number-when }
+    reason: stale_tracker cannot act on a instruction
+  - forbid: { estate_hazard: stale_tracker, atoms.instruction: instruction.shipment-tracker.always-pass-the-carrier-code-to }
+    reason: stale_tracker cannot act on a instruction
+  - forbid: { estate_hazard: stale_tracker, atoms.instruction: instruction.shipment-tracker.late-means-past-the-promised-date }
+    reason: stale_tracker cannot act on a instruction
+  - forbid: { estate_hazard: stale_tracker, atoms.instruction: instruction.shipment-tracker.on-a-carrier-error-say-so }
+    reason: stale_tracker cannot act on a instruction
+  - forbid: { estate_hazard: stale_tracker, atoms.instruction: instruction.shipment-tracker.never-guess-a-shipment-status }
+    reason: stale_tracker cannot act on a instruction
+  - forbid: { estate_hazard: stale_tracker, atoms.instruction: instruction.supplier-email.write-in-the-supplier-s-language }
+    reason: stale_tracker cannot act on a instruction
+  - forbid: { estate_hazard: stale_tracker, atoms.instruction: instruction.supplier-email.a-draft-has-a-subject-a }
+    reason: stale_tracker cannot act on a instruction
+  - forbid: { estate_hazard: stale_tracker, atoms.instruction: instruction.supplier-email.a-draft-stays-under-120-words }
+    reason: stale_tracker cannot act on a instruction
+  - forbid: { estate_hazard: stale_tracker, atoms.instruction: instruction.supplier-email.a-loose-yes-is-not-a }
+    reason: stale_tracker cannot act on a instruction
+  - forbid: { estate_hazard: stale_tracker, atoms.instruction: instruction.supplier-email.no-price-or-date-in-a }
+    reason: stale_tracker cannot act on a instruction
+  - forbid: { estate_hazard: stale_tracker, atoms.instruction: instruction.weekly-report.fill-the-report-sections-in-the }
+    reason: stale_tracker cannot act on a instruction
+  - forbid: { estate_hazard: stale_tracker, atoms.instruction: instruction.weekly-report.count-only-the-last-seven-days }
+    reason: stale_tracker cannot act on a instruction
+  - forbid: { estate_hazard: stale_tracker, atoms.instruction: instruction.weekly-report.save-the-report-by-week-and }
+    reason: stale_tracker cannot act on a instruction
+  - forbid: { estate_hazard: stale_tracker, atoms.gate: gate.standing.read-claude-skills-invoice-reconcile-references }
+    reason: stale_tracker cannot act on a gate
+  - forbid: { estate_hazard: stale_tracker, atoms.gate: gate.standing.read-git-status-before-commit-to }
+    reason: stale_tracker cannot act on a gate
+  - forbid: { estate_hazard: stale_tracker, atoms.gate: gate.invoice-reconcile.read-references-matching-rules-md-before }
+    reason: stale_tracker cannot act on a gate
+  - forbid: { estate_hazard: stale_tracker, atoms.gate: gate.weekly-report.read-templates-report-md-before-writing }
+    reason: stale_tracker cannot act on a gate
+  - forbid: { estate_hazard: stale_tracker, atoms.gate: gate.standing.read-a-file-before-editing-it }
+    reason: stale_tracker cannot act on a gate
+  - forbid: { estate_hazard: stale_tracker, atoms.gate: gate.standing.write-a-helper-s-brief-before }
+    reason: stale_tracker cannot act on a gate
+  - forbid: { estate_hazard: stale_tracker, atoms.gate: gate.standing.never-report-done-before-verify-passed }
+    reason: stale_tracker cannot act on a gate
+  - forbid: { estate_hazard: stale_tracker, atoms.gate: gate.supplier-email.show-the-draft-and-get-an }
+    reason: stale_tracker cannot act on a gate
+  - forbid: { estate_hazard: stale_tracker, atoms.route: route.invoice-reconcile.an-ask-that-fits-invoice-reconcile }
+    reason: stale_tracker cannot act on a route
+  - forbid: { estate_hazard: stale_tracker, atoms.route: route.shipment-tracker.an-ask-that-fits-shipment-tracker }
+    reason: stale_tracker cannot act on a route
+  - forbid: { estate_hazard: stale_tracker, atoms.route: route.supplier-email.an-ask-that-fits-supplier-email }
+    reason: stale_tracker cannot act on a route
+  - forbid: { estate_hazard: stale_tracker, atoms.route: route.weekly-report.an-ask-that-fits-weekly-report }
+    reason: stale_tracker cannot act on a route
+  - forbid: { estate_hazard: stale_tracker, atoms.route: route.inbox-triager.an-ask-that-fits-inbox-triager }
+    reason: stale_tracker cannot act on a route
+  - forbid: { estate_hazard: stale_tracker, atoms.route: route.ledger-auditor.an-ask-that-fits-ledger-auditor }
+    reason: stale_tracker cannot act on a route
+  - forbid: { estate_hazard: stale_tracker, atoms.route: route.route-planner.an-ask-that-fits-route-planner }
+    reason: stale_tracker cannot act on a route
+  - forbid: { estate_hazard: stale_tracker, atoms.route: route.standing.an-ask-to-reconcile-an-invoice }
+    reason: stale_tracker cannot act on a route
+  - forbid: { estate_hazard: stale_tracker, atoms.route: route.standing.an-ask-to-know-where-a }
+    reason: stale_tracker cannot act on a route
+  - forbid: { estate_hazard: stale_tracker, atoms.route: route.standing.an-ask-to-write-to-or }
+    reason: stale_tracker cannot act on a route
+  - forbid: { estate_hazard: stale_tracker, atoms.route: route.standing.an-ask-to-prepare-the-weekly }
+    reason: stale_tracker cannot act on a route
+  - forbid: { estate_hazard: stale_tracker, atoms.route: route.standing.an-ask-to-audit-the-ledger }
+    reason: stale_tracker cannot act on a route
+  - forbid: { estate_hazard: stale_tracker, atoms.route: route.standing.an-ask-to-plan-the-delivery }
+    reason: stale_tracker cannot act on a route
+  - forbid: { estate_hazard: stale_tracker, atoms.skill: skill.invoice-reconcile.skill-invoice-reconcile }
+    reason: stale_tracker cannot act on a skill
+  - forbid: { estate_hazard: stale_tracker, atoms.skill: skill.shipment-tracker.skill-shipment-tracker }
+    reason: stale_tracker cannot act on a skill
+  - forbid: { estate_hazard: stale_tracker, atoms.skill: skill.supplier-email.skill-supplier-email }
+    reason: stale_tracker cannot act on a skill
+  - forbid: { estate_hazard: stale_tracker, atoms.skill: skill.weekly-report.skill-weekly-report }
+    reason: stale_tracker cannot act on a skill
+  - forbid: { estate_hazard: stale_tracker, atoms.subagent: subagent.inbox-triager.helper-inbox-triager }
+    reason: stale_tracker cannot act on a subagent
+  - forbid: { estate_hazard: stale_tracker, atoms.subagent: subagent.ledger-auditor.helper-ledger-auditor }
+    reason: stale_tracker cannot act on a subagent
+  - forbid: { estate_hazard: stale_tracker, atoms.subagent: subagent.route-planner.helper-route-planner }
+    reason: stale_tracker cannot act on a subagent
+  - forbid: { estate_hazard: stale_tracker, atoms.guard: guard.settings.pretooluse-bash-guard-block-force-push }
+    reason: stale_tracker cannot act on a guard
+  - forbid: { estate_hazard: stale_tracker, atoms.guard: guard.settings.pretooluse-edit-write-guard-read-before }
+    reason: stale_tracker cannot act on a guard
+  - forbid: { estate_hazard: stale_tracker, atoms.guard: guard.settings.posttooluse-bash-guard-ledger-guard-py }
+    reason: stale_tracker cannot act on a guard
+  - forbid: { estate_hazard: stale_tracker, atoms.guard: guard.settings.userpromptsubmit-guard-stop-word-sh }
+    reason: stale_tracker cannot act on a guard
+  - forbid: { estate_hazard: stale_tracker, atoms.guard: guard.settings.stop-guard-reply-length-py }
+    reason: stale_tracker cannot act on a guard
+  - forbid: { estate_hazard: stale_tracker, atoms.guard: guard.shipment-tracker.pretooluse-bash-guard-check-carrier-sh }
+    reason: stale_tracker cannot act on a guard
+  - forbid: { estate_hazard: stale_tracker, atoms.register: register.standing.answer-in-the-language-of-the }
+    reason: stale_tracker cannot act on a register
+  - forbid: { estate_hazard: stale_tracker, atoms.register: register.standing.at-most-one-question-per-reply }
+    reason: stale_tracker cannot act on a register
+  - forbid: { estate_hazard: stale_tracker, atoms.register: register.standing.replies-under-1-200-characters }
+    reason: stale_tracker cannot act on a register
+  - forbid: { estate_hazard: stale_tracker, atoms.register: register.standing.lead-with-the-result }
+    reason: stale_tracker cannot act on a register
+  - forbid: { estate_hazard: stale_tracker, atoms.register: register.standing.bullets-for-three-or-more-parallel }
+    reason: stale_tracker cannot act on a register
+  - forbid: { estate_hazard: stale_tracker, atoms.register: register.standing.never-use-obviously-or-simply }
+    reason: stale_tracker cannot act on a register
+  - forbid: { estate_hazard: stale_tracker, atoms.register: register.standing.currency-code-after-the-amount }
+    reason: stale_tracker cannot act on a register
+  - forbid: { estate_hazard: stale_tracker, atoms.register: register.ledger-auditor.the-auditor-answers-with-one-json }
+    reason: stale_tracker cannot act on a register
+  - forbid: { estate_hazard: stale_tracker, atoms.register: register.route-planner.the-plan-is-a-table-of }
+    reason: stale_tracker cannot act on a register
+  - forbid: { estate_hazard: stale_tracker, atoms.register: register.invoice-reconcile.one-closing-line-per-invoice }
+    reason: stale_tracker cannot act on a register
+  - forbid: { estate_hazard: dead_helper, atoms.instruction: instruction.standing.never-send-a-supplier-email-without }
+    reason: dead_helper cannot act on a instruction
+  - forbid: { estate_hazard: dead_helper, atoms.instruction: instruction.standing.never-delete-a-ledger-file-archive }
+    reason: dead_helper cannot act on a instruction
+  - forbid: { estate_hazard: dead_helper, atoms.instruction: instruction.standing.never-force-push }
+    reason: dead_helper cannot act on a instruction
+  - forbid: { estate_hazard: dead_helper, atoms.instruction: instruction.standing.tell-the-user-about-a-late }
+    reason: dead_helper cannot act on a instruction
+  - forbid: { estate_hazard: dead_helper, atoms.instruction: instruction.standing.never-invent-order-numbers-prices-or }
+    reason: dead_helper cannot act on a instruction
+  - forbid: { estate_hazard: dead_helper, atoms.instruction: instruction.standing.on-stop-stop-all-work-and }
+    reason: dead_helper cannot act on a instruction
+  - forbid: { estate_hazard: dead_helper, atoms.instruction: instruction.standing.never-paste-a-credential-into-a }
+    reason: dead_helper cannot act on a instruction
+  - forbid: { estate_hazard: dead_helper, atoms.instruction: instruction.standing.keep-an-unconfirmed-draft-unsent }
+    reason: dead_helper cannot act on a instruction
+  - forbid: { estate_hazard: dead_helper, atoms.instruction: instruction.standing.after-a-compaction-re-read-the }
+    reason: dead_helper cannot act on a instruction
+  - forbid: { estate_hazard: dead_helper, atoms.instruction: instruction.standing.after-two-failures-of-a-tool }
+    reason: dead_helper cannot act on a instruction
+  - forbid: { estate_hazard: dead_helper, atoms.instruction: instruction.standing.report-only-numbers-read-during-the }
+    reason: dead_helper cannot act on a instruction
+  - forbid: { estate_hazard: dead_helper, atoms.instruction: instruction.standing.read-the-memory-index-at-the }
+    reason: dead_helper cannot act on a instruction
+  - forbid: { estate_hazard: dead_helper, atoms.instruction: instruction.inbox-triager.a-message-that-fits-no-folder }
+    reason: dead_helper cannot act on a instruction
+  - forbid: { estate_hazard: dead_helper, atoms.instruction: instruction.inbox-triager.the-triager-never-answers-or-deletes }
+    reason: dead_helper cannot act on a instruction
+  - forbid: { estate_hazard: dead_helper, atoms.instruction: instruction.ledger-auditor.the-auditor-never-edits-a-file }
+    reason: dead_helper cannot act on a instruction
+  - forbid: { estate_hazard: dead_helper, atoms.instruction: instruction.ledger-auditor.a-brief-missing-a-number-gets }
+    reason: dead_helper cannot act on a instruction
+  - forbid: { estate_hazard: dead_helper, atoms.instruction: instruction.ledger-auditor.look-for-double-payments-and-unapplied }
+    reason: dead_helper cannot act on a instruction
+  - forbid: { estate_hazard: dead_helper, atoms.instruction: instruction.route-planner.never-load-a-route-over-the }
+    reason: dead_helper cannot act on a instruction
+  - forbid: { estate_hazard: dead_helper, atoms.instruction: instruction.route-planner.no-delivery-planned-on-a-public }
+    reason: dead_helper cannot act on a instruction
+  - forbid: { estate_hazard: dead_helper, atoms.instruction: instruction.memory-memory.the-weekly-report-is-due-monday }
+    reason: dead_helper cannot act on a instruction
+  - forbid: { estate_hazard: dead_helper, atoms.instruction: instruction.memory-memory.no-delivery-on-a-public-holiday }
+    reason: dead_helper cannot act on a instruction
+  - forbid: { estate_hazard: dead_helper, atoms.instruction: instruction.memory-supplier-languages.write-to-each-supplier-in-its }
+    reason: dead_helper cannot act on a instruction
+  - forbid: { estate_hazard: dead_helper, atoms.instruction: instruction.memory-supplier-languages.an-unlisted-supplier-gets-english-and }
+    reason: dead_helper cannot act on a instruction
+  - forbid: { estate_hazard: dead_helper, atoms.instruction: instruction.invoice-reconcile.convert-a-foreign-currency-invoice-with }
+    reason: dead_helper cannot act on a instruction
+  - forbid: { estate_hazard: dead_helper, atoms.instruction: instruction.invoice-reconcile.run-the-reconcile-script-and-show }
+    reason: dead_helper cannot act on a instruction
+  - forbid: { estate_hazard: dead_helper, atoms.instruction: instruction.invoice-reconcile.never-change-an-invoice-amount-report }
+    reason: dead_helper cannot act on a instruction
+  - forbid: { estate_hazard: dead_helper, atoms.instruction: instruction.invoice-reconcile.dispatch-the-ledger-auditor-above-50 }
+    reason: dead_helper cannot act on a instruction
+  - forbid: { estate_hazard: dead_helper, atoms.instruction: instruction.invoice-reconcile.a-line-matches-on-article-code }
+    reason: dead_helper cannot act on a instruction
+  - forbid: { estate_hazard: dead_helper, atoms.instruction: instruction.invoice-reconcile.under-0-05-eur-per-unit }
+    reason: dead_helper cannot act on a instruction
+  - forbid: { estate_hazard: dead_helper, atoms.instruction: instruction.invoice-reconcile.an-invoice-line-with-no-order }
+    reason: dead_helper cannot act on a instruction
+  - forbid: { estate_hazard: dead_helper, atoms.instruction: instruction.shipment-tracker.ask-for-the-tracking-number-when }
+    reason: dead_helper cannot act on a instruction
+  - forbid: { estate_hazard: dead_helper, atoms.instruction: instruction.shipment-tracker.always-pass-the-carrier-code-to }
+    reason: dead_helper cannot act on a instruction
+  - forbid: { estate_hazard: dead_helper, atoms.instruction: instruction.shipment-tracker.late-means-past-the-promised-date }
+    reason: dead_helper cannot act on a instruction
+  - forbid: { estate_hazard: dead_helper, atoms.instruction: instruction.shipment-tracker.on-a-carrier-error-say-so }
+    reason: dead_helper cannot act on a instruction
+  - forbid: { estate_hazard: dead_helper, atoms.instruction: instruction.shipment-tracker.never-guess-a-shipment-status }
+    reason: dead_helper cannot act on a instruction
+  - forbid: { estate_hazard: dead_helper, atoms.instruction: instruction.supplier-email.write-in-the-supplier-s-language }
+    reason: dead_helper cannot act on a instruction
+  - forbid: { estate_hazard: dead_helper, atoms.instruction: instruction.supplier-email.a-draft-has-a-subject-a }
+    reason: dead_helper cannot act on a instruction
+  - forbid: { estate_hazard: dead_helper, atoms.instruction: instruction.supplier-email.a-draft-stays-under-120-words }
+    reason: dead_helper cannot act on a instruction
+  - forbid: { estate_hazard: dead_helper, atoms.instruction: instruction.supplier-email.a-loose-yes-is-not-a }
+    reason: dead_helper cannot act on a instruction
+  - forbid: { estate_hazard: dead_helper, atoms.instruction: instruction.supplier-email.no-price-or-date-in-a }
+    reason: dead_helper cannot act on a instruction
+  - forbid: { estate_hazard: dead_helper, atoms.instruction: instruction.weekly-report.fill-the-report-sections-in-the }
+    reason: dead_helper cannot act on a instruction
+  - forbid: { estate_hazard: dead_helper, atoms.instruction: instruction.weekly-report.count-only-the-last-seven-days }
+    reason: dead_helper cannot act on a instruction
+  - forbid: { estate_hazard: dead_helper, atoms.instruction: instruction.weekly-report.save-the-report-by-week-and }
+    reason: dead_helper cannot act on a instruction
+  - forbid: { estate_hazard: dead_helper, atoms.gate: gate.standing.read-claude-skills-invoice-reconcile-references }
+    reason: dead_helper cannot act on a gate
+  - forbid: { estate_hazard: dead_helper, atoms.gate: gate.standing.read-git-status-before-commit-to }
+    reason: dead_helper cannot act on a gate
+  - forbid: { estate_hazard: dead_helper, atoms.gate: gate.invoice-reconcile.read-references-matching-rules-md-before }
+    reason: dead_helper cannot act on a gate
+  - forbid: { estate_hazard: dead_helper, atoms.gate: gate.weekly-report.read-templates-report-md-before-writing }
+    reason: dead_helper cannot act on a gate
+  - forbid: { estate_hazard: dead_helper, atoms.gate: gate.standing.read-a-file-before-editing-it }
+    reason: dead_helper cannot act on a gate
+  - forbid: { estate_hazard: dead_helper, atoms.gate: gate.standing.write-a-helper-s-brief-before }
+    reason: dead_helper cannot act on a gate
+  - forbid: { estate_hazard: dead_helper, atoms.gate: gate.standing.never-report-done-before-verify-passed }
+    reason: dead_helper cannot act on a gate
+  - forbid: { estate_hazard: dead_helper, atoms.gate: gate.supplier-email.show-the-draft-and-get-an }
+    reason: dead_helper cannot act on a gate
+  - forbid: { estate_hazard: dead_helper, atoms.route: route.invoice-reconcile.an-ask-that-fits-invoice-reconcile }
+    reason: dead_helper cannot act on a route
+  - forbid: { estate_hazard: dead_helper, atoms.route: route.shipment-tracker.an-ask-that-fits-shipment-tracker }
+    reason: dead_helper cannot act on a route
+  - forbid: { estate_hazard: dead_helper, atoms.route: route.supplier-email.an-ask-that-fits-supplier-email }
+    reason: dead_helper cannot act on a route
+  - forbid: { estate_hazard: dead_helper, atoms.route: route.weekly-report.an-ask-that-fits-weekly-report }
+    reason: dead_helper cannot act on a route
+  - forbid: { estate_hazard: dead_helper, atoms.route: route.standing.an-ask-to-reconcile-an-invoice }
+    reason: dead_helper cannot act on a route
+  - forbid: { estate_hazard: dead_helper, atoms.route: route.standing.an-ask-to-know-where-a }
+    reason: dead_helper cannot act on a route
+  - forbid: { estate_hazard: dead_helper, atoms.route: route.standing.an-ask-to-write-to-or }
+    reason: dead_helper cannot act on a route
+  - forbid: { estate_hazard: dead_helper, atoms.route: route.standing.an-ask-to-prepare-the-weekly }
+    reason: dead_helper cannot act on a route
+  - forbid: { estate_hazard: dead_helper, atoms.skill: skill.invoice-reconcile.skill-invoice-reconcile }
+    reason: dead_helper cannot act on a skill
+  - forbid: { estate_hazard: dead_helper, atoms.skill: skill.shipment-tracker.skill-shipment-tracker }
+    reason: dead_helper cannot act on a skill
+  - forbid: { estate_hazard: dead_helper, atoms.skill: skill.supplier-email.skill-supplier-email }
+    reason: dead_helper cannot act on a skill
+  - forbid: { estate_hazard: dead_helper, atoms.skill: skill.weekly-report.skill-weekly-report }
+    reason: dead_helper cannot act on a skill
+  - forbid: { estate_hazard: dead_helper, atoms.guard: guard.settings.pretooluse-bash-guard-block-force-push }
+    reason: dead_helper cannot act on a guard
+  - forbid: { estate_hazard: dead_helper, atoms.guard: guard.settings.pretooluse-edit-write-guard-read-before }
+    reason: dead_helper cannot act on a guard
+  - forbid: { estate_hazard: dead_helper, atoms.guard: guard.settings.posttooluse-bash-guard-ledger-guard-py }
+    reason: dead_helper cannot act on a guard
+  - forbid: { estate_hazard: dead_helper, atoms.guard: guard.settings.userpromptsubmit-guard-stop-word-sh }
+    reason: dead_helper cannot act on a guard
+  - forbid: { estate_hazard: dead_helper, atoms.guard: guard.settings.stop-guard-reply-length-py }
+    reason: dead_helper cannot act on a guard
+  - forbid: { estate_hazard: dead_helper, atoms.guard: guard.shipment-tracker.pretooluse-bash-guard-check-carrier-sh }
+    reason: dead_helper cannot act on a guard
+  - forbid: { estate_hazard: dead_helper, atoms.stage: stage.steps.stage-plan-restate-the-ask-and }
+    reason: dead_helper cannot act on a stage
+  - forbid: { estate_hazard: dead_helper, atoms.stage: stage.steps.stage-do-make-the-change }
+    reason: dead_helper cannot act on a stage
+  - forbid: { estate_hazard: dead_helper, atoms.stage: stage.steps.stage-verify-run-the-check-that }
+    reason: dead_helper cannot act on a stage
+  - forbid: { estate_hazard: dead_helper, atoms.stage: stage.steps.stage-report-tell-the-user-what }
+    reason: dead_helper cannot act on a stage
+  - forbid: { estate_hazard: dead_helper, atoms.stage: stage.steps.stage-note-write-a-tracker-note }
+    reason: dead_helper cannot act on a stage
+  - forbid: { estate_hazard: dead_helper, atoms.register: register.standing.answer-in-the-language-of-the }
+    reason: dead_helper cannot act on a register
+  - forbid: { estate_hazard: dead_helper, atoms.register: register.standing.at-most-one-question-per-reply }
+    reason: dead_helper cannot act on a register
+  - forbid: { estate_hazard: dead_helper, atoms.register: register.standing.replies-under-1-200-characters }
+    reason: dead_helper cannot act on a register
+  - forbid: { estate_hazard: dead_helper, atoms.register: register.standing.lead-with-the-result }
+    reason: dead_helper cannot act on a register
+  - forbid: { estate_hazard: dead_helper, atoms.register: register.standing.bullets-for-three-or-more-parallel }
+    reason: dead_helper cannot act on a register
+  - forbid: { estate_hazard: dead_helper, atoms.register: register.standing.never-use-obviously-or-simply }
+    reason: dead_helper cannot act on a register
+  - forbid: { estate_hazard: dead_helper, atoms.register: register.standing.currency-code-after-the-amount }
+    reason: dead_helper cannot act on a register
+  - forbid: { estate_hazard: dead_helper, atoms.register: register.ledger-auditor.the-auditor-answers-with-one-json }
+    reason: dead_helper cannot act on a register
+  - forbid: { estate_hazard: dead_helper, atoms.register: register.route-planner.the-plan-is-a-table-of }
+    reason: dead_helper cannot act on a register
+  - forbid: { estate_hazard: dead_helper, atoms.register: register.invoice-reconcile.one-closing-line-per-invoice }
+    reason: dead_helper cannot act on a register
 prior:
   kind: declared

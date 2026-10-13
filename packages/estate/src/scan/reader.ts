@@ -65,9 +65,13 @@ export type GuardDecl = {
   anchored: boolean;
   /** The script the shell runs when it hands the guard's own script to it as an argument (a dispatcher). */
   dispatcher?: string;
+  /** The hook a dispatcher is handed by name when no file of the estate is that hook. */
+  missingTarget?: string;
   /** `estate` for a guard of the settings, `catalogue` for a catalogue check, else the declaring skill's name. */
   scope: string;
   timeout?: number;
+  /** `prompt` for a hook that hands its words to a model, not to a script: the command holds the words. */
+  type?: 'prompt';
   /** A check a catalogue declares: its id, its enforcement state and the steps it watches. */
   check?: CheckDecl;
   at: Located;

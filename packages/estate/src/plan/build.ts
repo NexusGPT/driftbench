@@ -5,7 +5,7 @@ import { toEstateSpaceMap } from '../map/space';
 import { AtomKind, type EstateMap, type Plan, type PlanRow, TestType } from '../schema';
 import { contractRows, type DraftRow, MODE_OF, NO_CONTRACT, PRIMARY_TYPE } from './contract';
 import { JOURNEY_DEFAULTS, type JourneyResult, planJourneys } from './journeys';
-import { type PairwiseResult, pairwiseCells, TARGET_PREFIX } from './pairwise';
+import { mergedSpace, type PairwiseResult, pairwiseCells, TARGET_PREFIX } from './pairwise';
 
 /**
  * The plan of design section 4, derived from the approved map by code: the mandatory rows of every
@@ -173,13 +173,16 @@ type Fit = (draft: DraftRow, adjusted: PlanDetails['adjusted']) => Record<string
  * values the constraint list forbids with the target (the target is kept). Every change is listed.
  */
 function cellFitter(space: SpaceMap): Fit {
-  const compiled = compileSpace(space);
+  // A row holds one target: its cell is judged in the space of the situation axes and one merged target
+  // dimension, as the covering array is, so a constraint on another atom never touches it.
+  const { merged, target } = mergedSpace(space);
+  const compiled = compileSpace(merged);
   const feasibility = new Feasibility(compiled);
   const position = new Map(compiled.dimensions.map((dimension, index) => [dimension.id, index]));
   return (draft, adjusted) => {
     const pairs: Array<[number, number, string, string]> = [];
     for (const [dimension, value] of Object.entries(draft.cell)) {
-      const at = position.get(dimension);
+      const at = position.get(dimension.startsWith(TARGET_PREFIX) ? target : dimension);
       const index = at === undefined ? undefined : compiled.dimensions[at]?.index.get(value);
       if (at === undefined || index === undefined) {
         if (!dimension.startsWith(TARGET_PREFIX)) {

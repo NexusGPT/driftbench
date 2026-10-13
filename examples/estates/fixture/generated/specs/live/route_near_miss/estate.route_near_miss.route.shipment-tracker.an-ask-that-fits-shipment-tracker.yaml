@@ -24,7 +24,7 @@ given:
 blocks:
   - id: ask
     when:
-      user: "No need to do anything: just tell me in one sentence what it would mean to help me with a delivery, a tracking number or a late shipment."
+      user: "No need to do anything: just tell me in one sentence what it would mean to look up where a shipment is and whether it is late."
     expect:
       skills:
         - name: shipment-tracker
@@ -50,5 +50,5 @@ metadata:
     situation: null
     phrase: null
     ask: code
-    askFrom: route.shipment-tracker.an-ask-that-fits-shipment-tracker (asks it names)
+    askFrom: route.shipment-tracker.an-ask-that-fits-shipment-tracker (description task)
     outcome: no-change:negative

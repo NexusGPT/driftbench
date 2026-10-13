@@ -45,15 +45,28 @@ export const HAZARDS = [
     pattern:
       /\b(compactions?|compacted|auto-?compact)\b|\b(?:conversation|context) is summari[sz]ed\b|\bcontext window (?:fills? up|is full)\b/i,
   },
-  { id: 'restart', title: 'A process restart', pattern: /\brestart(s|ed)?\b/i },
-  { id: 'rate_wave', title: 'A wave of rate limits', pattern: /\brate[- ]limit/i },
+  { id: 'restart', title: 'A process restart', pattern: /\b(?:restart|reboot)(s|ed)?\b/i },
+  {
+    id: 'rate_wave',
+    title: 'A wave of rate limits',
+    // A 429 is a rate limit only where it is a status: after a word that answers, returns or names a code.
+    pattern:
+      /\brate[- ]limit|\b(?:HTTP|status|code|error)\s+429\b|\b(?:answers?|returns?|responds?(?: with)?|gets?|got|hits?)\s+(?:an?\s+)?429\b|\b429\s+(?:error|response|status|too many)/i,
+  },
   {
     id: 'session_boundary',
     title: 'A new session',
-    pattern: /\b(start of (every|each|a) session|new session|session start)/i,
+    pattern:
+      /\b(start of (every|each|a) session|new session|session start)|\bsession\s+(?:is\s+|was\s+|gets\s+)?resumed\b|\bresum(?:e|es|ed|ing)\s+(?:a|the)\s+session\b/i,
   },
   { id: 'notification', title: 'A helper notification', pattern: /\bnotification/i },
-  { id: 'nudge_storm', title: 'Repeated guard nudges', pattern: /\bnudges?\b/i },
+  {
+    id: 'nudge_storm',
+    title: 'Repeated guard nudges',
+    // The noun, not the verb: "nudges repeat", "a guard nudge"; "nudge the price" moves a value.
+    pattern:
+      /\bnudges\b|\b(?:a|the|each|every|one|same|guard|hook)\s+nudge\b|\bnudge\s+(?:storm|wave|burst)s?\b/i,
+  },
 ] as const;
 
 /** Extensions a named file needs to count as a reference when it does not exist. */
@@ -233,7 +246,9 @@ export function codeAtoms(raw: RawEstate, builder: AtomBuilder): void {
         ...(guard.matcher ? { matcher: guard.matcher } : {}),
         ...(guard.script ? { script: guard.script, scriptExists: files.has(guard.script) } : {}),
         ...(guard.dispatcher ? { dispatcher: guard.dispatcher } : {}),
+        ...(guard.missingTarget ? { missingTarget: guard.missingTarget } : {}),
         ...(guard.timeout !== undefined ? { timeout: guard.timeout } : {}),
+        ...(guard.type !== undefined ? { type: guard.type } : {}),
         ...(row ? { registry: row.id } : {}),
         ...(rows.length > 1 ? { registryRows: rows.map((entry) => entry.id) } : {}),
         ...(row?.state !== undefined ? { state: row.state } : {}),
@@ -332,6 +347,7 @@ export function codeAtoms(raw: RawEstate, builder: AtomBuilder): void {
   for (const chunk of raw.prose) {
     referenceAtoms(chunk, files, raw, builder);
     routeAtoms(chunk, files, names, raw, builder);
+    proseRouteAtoms(chunk, files, names, raw, builder);
     gateAtoms(chunk, files, raw, builder);
     hazardAtoms(chunk, files, builder);
   }
@@ -355,7 +371,12 @@ function scriptAtoms(
     const relative = posix.relative(folder, file.path);
     if (!SCRIPT.test(file.path) && !relative.startsWith('scripts/')) continue;
     const name = basename(file.path);
-    const mention = body.find((line) => line.text.includes(name));
+    // The line that names the script best: by its path from the skill, then by its name in backticks, then
+    // any mention of its name.
+    const mention =
+      body.find((line) => line.text.includes(relative)) ??
+      body.find((line) => new RegExp(`\`[^\`]*\\b${escapeRegExp(name)}[^\`]*\``).test(line.text)) ??
+      body.find((line) => line.text.includes(name));
     const at: Located = mention
       ? { file: definition, startLine: mention.line, endLine: mention.line, quote: mention.quote }
       : firstLine(file);
@@ -369,13 +390,27 @@ function scriptAtoms(
   }
 }
 
-/** Paths a line names: literal quoted file names and markdown link destinations. */
+/** Paths a line names: relative file names, literal quotes, markdown link destinations and wiki links. */
 export function namedPaths(line: string): string[] {
   const found: string[] = [];
   const claimed: Array<[number, number]> = [];
-  // A section anchor or a query names the same file; a web address is no path.
-  const bare = (path: string) => path.replace(/[#?].*$/, '');
+  // A section anchor or a query names the same file; a web address is no path. A path may be written with
+  // backslashes, from the project folder variable, or with a line (and column) after it: the same file.
+  const bare = (path: string) => {
+    let clean = path.replace(/[#?].*$/, '');
+    if (!/\s/.test(clean) && clean.includes('\\')) clean = clean.replace(/\\+/g, '/');
+    clean = clean.replace(/^\$\{?CLAUDE_PROJECT_DIR\}?\//, '');
+    return clean.replace(/(\.[A-Za-z][A-Za-z0-9]*):\d+(?::\d+)?$/, '$1');
+  };
+  // A wiki link names a markdown file without its extension: [[references/guide]], [[guide|the guide]].
+  for (const match of line.matchAll(/\[\[([^\]|#\n]+)(?:[#|][^\]\n]*)?\]\]/g)) {
+    claimed.push([match.index, match.index + match[0].length]);
+    const target = match[1]?.trim();
+    if (target && !/^[a-z]+:/i.test(target))
+      found.push(/\.[A-Za-z0-9]+$/.test(target) ? bare(target) : `${bare(target)}.md`);
+  }
   for (const match of line.matchAll(/`([^`\n]+)`/g)) {
+    if (claimed.some(([start, end]) => match.index >= start && match.index < end)) continue;
     claimed.push([match.index, match.index + match[0].length]);
     const token = match[1]?.trim();
     // A quoted shell command is an example, not one file name. Spaces within a file name stay.
@@ -392,12 +427,27 @@ export function namedPaths(line: string): string[] {
       found.push(bare(token));
   }
   for (const match of line.matchAll(/\]\((?:<([^>\n]+)>|([^\s)]+))(?:\s+"[^"]*")?\)/g)) {
-    claimed.push([match.index, match.index + match[0].length]);
+    let start = match.index;
+    let depth = 0;
+    for (let index = match.index; index >= 0; index -= 1) {
+      const char = line[index];
+      if (char !== '[' && char !== ']') continue;
+      let slashes = 0;
+      for (let before = index - 1; before >= 0 && line[before] === '\\'; before -= 1) slashes += 1;
+      if (slashes % 2 !== 0) continue;
+      depth += char === ']' ? 1 : -1;
+      if (depth === 0) {
+        start = index;
+        break;
+      }
+    }
+    claimed.push([start, match.index + match[0].length]);
     const target = match[1] ?? match[2];
     if (target && !/^[a-z]+:/i.test(target)) found.push(bare(target));
   }
   for (const match of line.matchAll(/"([^"\n]+)"|'([^'\n]+)'/g)) {
     if (claimed.some(([start, end]) => match.index >= start && match.index < end)) continue;
+    claimed.push([match.index, match.index + match[0].length]);
     const token = (match[1] ?? match[2])?.trim();
     const execution = /\b(?:run|execute)(?: the command)?\s*$|\bexample:\s*$/i.test(
       line.slice(0, match.index),
@@ -410,6 +460,13 @@ export function namedPaths(line: string): string[] {
       !(execution && /\s/.test(token))
     )
       found.push(bare(token));
+  }
+  for (const match of line.matchAll(/(?<![\w./\\:])((?:[\w.-]+\/)+[\w.-]+\.[A-Za-z][A-Za-z0-9]*)/g)) {
+    if (claimed.some(([start, end]) => match.index >= start && match.index < end)) continue;
+    const prefix = line.slice(0, match.index);
+    if (/\b(?:run|execute)(?: the command)?\s+\S+\s+[^.;!?]*$|\bexample:\s*[^.;!?]*$/i.test(prefix)) continue;
+    const token = match[1];
+    if (token && !found.includes(token)) found.push(token);
   }
   return found.filter((path) => !/[<>*?{}$]/.test(path) && /\.[A-Za-z0-9]+$/.test(path));
 }
@@ -564,6 +621,13 @@ function names(raw: RawEstate, files: ReadonlyMap<string, EstateFile>): Map<stri
   return built;
 }
 
+/** The heading of a section of change notes. */
+const CHANGE_HEADING =
+  /^(?:changes|changelog|change log|history|version history|release notes|what changed)\b/i;
+/** A line saying what was done to a file: removed, deleted, renamed, replaced, retired, dropped, moved. */
+const CHANGE_DONE =
+  /\b(?:was|were|has been|have been)\s+(?:removed|deleted|renamed|replaced|retired|dropped|moved)\b|\b(?:removed|deleted|renamed|replaced|retired|dropped)\s+(?:the\s+(?:file\s+)?)?`/i;
+
 function referenceAtoms(
   chunk: ProseChunk,
   files: ReadonlyMap<string, EstateFile>,
@@ -571,9 +635,20 @@ function referenceAtoms(
   builder: AtomBuilder,
 ): void {
   const skipped = new Set(raw.ignored?.paths ?? []);
+  const kind = files.get(chunk.file)?.kind;
+  const standing = kind === 'standing' || kind === 'memory';
+  let notes = false;
   for (const line of chunkLines(chunk, files.get(chunk.file))) {
+    const heading = /^#{1,6}\s+(.*)$/.exec(line.text);
+    if (heading) notes = CHANGE_HEADING.test(heading[1] ?? '');
+    // A change note says what happened to a file; it asks for no read.
+    if (notes || CHANGE_DONE.test(line.text)) continue;
     for (const named of namedPaths(line.text)) {
-      if (!positiveMention(line.text, named, ['read', 'open', 'load'])) continue;
+      // A path written in another form (backslashes, a wiki link) is looked for by its file name's stem.
+      const written = line.text.includes(named) ? named : basename(named).replace(/\.[A-Za-z0-9]+$/, '');
+      if (!positiveMention(line.text, written, ['read', 'open', 'load'])) continue;
+      // In a standing file, `@path` imports the file into the standing instructions: no read to ask for.
+      if (standing && new RegExp(`(?:^|\\s)@${escapeRegExp(named)}(?![\\w./-])`).test(line.text)) continue;
       const located = locateNamed(named, chunk.file, files, {
         bases: raw.bases ?? [],
         skipped,
@@ -586,6 +661,9 @@ function referenceAtoms(
       const isSkipped = target === undefined && skipped.has(path);
       if (!target && !isSkipped && !DOCUMENT.test(path)) continue;
       if (target && (target.kind === 'guard_script' || SCRIPT.test(path))) continue;
+      // A routing row that links to a skill's or a helper's file routes to it; it asks for no read.
+      if (target && (target.kind === 'skill' || target.kind === 'subagent') && line.text.startsWith('|'))
+        continue;
       builder.add({
         kind: 'reference',
         title: `Read ${named}`,
@@ -607,6 +685,65 @@ function referenceAtoms(
   }
 }
 
+/** A sentence or list item that routes an ask: "To X: load `y`", "When the user wants to X, load the `y` skill". */
+const PROSE_ROUTE =
+  /^(?:[-*]\s+)?(?:to|when(?: the user wants to)?|if(?: the user (?:asks|wants) to)?)\s+([^,:;]+?)\s*[,:]\s*(?:load|use|run|dispatch|call)\s+(?:the\s+)?`\/?([^`\s]+)`(?:\s+(?:skill|agent|helper))?\s*\.?$/i;
+/** The ask a line under a skill's heading gives: "Use it when the user wants to X." */
+const HEADING_ASK =
+  /^(?:use it|load it|use this skill|run it)\s+when\s+(?:the user (?:wants|asks) to\s+)?(.+?)\.?$/i;
+
+/**
+ * Routing written in the standing instructions as prose: a sentence or a list item (`To X: load \`y\``), or a
+ * heading per skill (\`### \`y\`\`) whose next line says when to use it. The target must be a skill or helper of
+ * the estate; a negated line routes nothing.
+ */
+function proseRouteAtoms(
+  chunk: ProseChunk,
+  files: ReadonlyMap<string, EstateFile>,
+  names: { skills: Set<string>; subagents: Set<string> },
+  raw: RawEstate,
+  builder: AtomBuilder,
+): void {
+  const file = files.get(chunk.file);
+  if (file?.kind !== 'standing' && file?.kind !== 'memory') return;
+  const lines = chunkLines(chunk, file);
+  const route = (line: (typeof lines)[number], target: string, ask: string) => {
+    const isSkill = names.skills.has(target);
+    if (!isSkill && !names.subagents.has(target)) return;
+    builder.add({
+      kind: 'route',
+      title: `An ask to ${ask} ${isSkill ? 'loads' : 'dispatches'} ${target}`,
+      at: { file: chunk.file, startLine: line.line, endLine: line.line, quote: line.quote },
+      evidence: [
+        isSkill
+          ? { type: 'skill_loaded', name: target }
+          : { type: 'tool_called', label: raw.labels.dispatch, input: { subagent_type: target } },
+      ],
+      situation: ask,
+      fields: { target, targetKind: isSkill ? 'skill' : 'subagent', via: 'prose', ask },
+    });
+  };
+  lines.forEach((line, index) => {
+    const sentence = PROSE_ROUTE.exec(line.text.replace(/\*\*/g, ''));
+    if (sentence?.[1] && sentence[2]) {
+      if (/\b(?:never|not|don't)\b/i.test(line.text)) return;
+      route(line, sentence[2], sentence[1].trim());
+      return;
+    }
+    const heading = /^#{2,6}\s+`?\/?([\w.-]+)`?\s*$/.exec(line.text);
+    const target = heading?.[1];
+    if (!target || (!names.skills.has(target) && !names.subagents.has(target))) return;
+    const next = lines[index + 1];
+    const ask = next ? HEADING_ASK.exec(next.text)?.[1] : undefined;
+    if (ask) route(line, target, ask.trim());
+  });
+}
+
+/** A routing table's ask column, by its header. */
+const ASK_HEADER = /\b(?:when|wants?|asks?|if|situation|trigger)\b/i;
+/** A first column of people: such a table says who keeps a skill, not when to load it. */
+const PEOPLE_HEADER = /^(?:owners?|maintainers?|authors?|people|persons?|who|teams?|contacts?|reviewers?)\b/i;
+
 function routeAtoms(
   chunk: ProseChunk,
   files: ReadonlyMap<string, EstateFile>,
@@ -617,17 +754,34 @@ function routeAtoms(
   const file = files.get(chunk.file);
   if (!file) return;
   for (const table of readTables(file.text, chunk.startLine, chunk.endLine)) {
+    const header = table.header.map((cell) => cell.replace(/[`*]/g, '').trim());
+    // The ask sits in the column whose header says when (`When the user wants to`, `Use when`), else the
+    // first. A table whose first column names people (owners, maintainers) routes nothing.
+    const named = header.findIndex((cell) => ASK_HEADER.test(cell));
+    if (named < 0 && PEOPLE_HEADER.test(header[0] ?? '')) continue;
+    const askAt = Math.max(0, named);
     for (const row of table.rows) {
-      const ask = row.cells[0]?.replace(/[`*]/g, '').trim() ?? '';
-      for (const cell of row.cells.slice(1)) {
-        const targets = new Set(Array.from(cell.matchAll(/`([^`]+)`/g), (match) => match[1] ?? ''));
+      const ask = row.cells[askAt]?.replace(/[`*]/g, '').trim() ?? '';
+      for (const cell of row.cells.filter((_, index) => index !== askAt)) {
+        // A target and the words it is written with in the cell, to check the cell does not negate it.
+        const written = new Map<string, string>();
+        for (const match of cell.matchAll(/`\/?([^`]+)`/g)) written.set(match[1] ?? '', match[1] ?? '');
         const plain = cell.replace(/[`*]/g, '').trim();
-        if (names.skills.has(plain) || names.subagents.has(plain)) targets.add(plain);
+        if (names.skills.has(plain) || names.subagents.has(plain)) written.set(plain, plain);
         const helper = /^(?:the )?(.+) agent$/.exec(plain)?.[1];
-        if (helper && names.subagents.has(helper)) targets.add(helper);
-        for (const target of targets) {
-          if (!positiveMention(cell, target, ['load', 'dispatch', 'call'], true)) continue;
-          const isSkill = !(target === helper && names.subagents.has(helper)) && names.skills.has(target);
+        if (helper && names.subagents.has(helper)) written.set(helper, helper);
+        // A link to a skill's or a helper's own file names that skill or helper.
+        let linkedHelper: string | undefined;
+        for (const match of cell.matchAll(/\[([^\]\n]*)\]\(([^)\s]+)\)/g)) {
+          const unit = unitOfFile(resolveNamed(match[2] ?? '', chunk.file, files, raw.bases ?? []), raw);
+          if (!unit) continue;
+          written.set(unit.name, match[0]);
+          if (unit.kind === 'subagent') linkedHelper = unit.name;
+        }
+        for (const [target, mention] of written) {
+          if (!positiveMention(cell, mention, ['load', 'dispatch', 'call'], true)) continue;
+          const asHelper = (target === helper || target === linkedHelper) && names.subagents.has(target);
+          const isSkill = !asHelper && names.skills.has(target);
           if (!isSkill && !names.subagents.has(target)) continue;
           builder.add({
             kind: 'route',
@@ -647,18 +801,98 @@ function routeAtoms(
   }
 }
 
-/** The fixed forms of a gate, each giving the thing to read first and the act it comes before. */
+/** The skill or helper whose definition file a path is. */
+function unitOfFile(path: string, raw: RawEstate): { name: string; kind: 'skill' | 'subagent' } | undefined {
+  const skill = raw.skills.find((unit) => unit.file === path);
+  if (skill) return { name: skill.name, kind: 'skill' };
+  const helper = raw.subagents.find((unit) => unit.file === path);
+  return helper ? { name: helper.name, kind: 'subagent' } : undefined;
+}
+
+/** What a gate names to read: a backticked or double-quoted name, a markdown link, or one word. */
+const TARGET = '(`[^`]+`|"[^"\\n]+"|\\[[^\\]\\n]*\\]\\([^)\\s]+\\)|\\S+)';
+/** A quoted target only: the forms beyond the first four take no bare word, so prose never reads as a gate. */
+const QUOTED = '(`[^`]+`|"[^"\\n]+"|\\[[^\\]\\n]*\\]\\([^)\\s]+\\))';
+/** Where a sentence starts: the line start (after a list marker) or after a stop. */
+const START = '(?:^|[.;!?]\\s+)(?:[-*]\\s+)?';
+
+/**
+ * The fixed forms of a gate, each giving the thing to read first and the act it comes before. The first four
+ * are the documented forms; the others say the same order in other words.
+ */
 const GATE_FORMS: Array<{ form: string; pattern: RegExp; read: number; act: number }> = [
-  { form: 'before-colon-read', pattern: /\bbefore ([^:]+?):\s*read\s+(`[^`]+`|\S+)/i, read: 2, act: 1 },
-  { form: 'before-comma-read', pattern: /\bbefore ([^,:]+?),\s*read\s+(`[^`]+`)/i, read: 2, act: 1 },
-  { form: 'read-before', pattern: /\bread\s+(`[^`]+`)\s+before\s+([^.;!]+)/i, read: 1, act: 2 },
+  {
+    form: 'before-colon-read',
+    pattern: new RegExp(`\\bbefore ([^:;]+?):\\s*read\\s+${TARGET}`, 'i'),
+    read: 2,
+    act: 1,
+  },
+  {
+    form: 'before-comma-read',
+    pattern: new RegExp(`\\bbefore ([^,:;]+?),\\s*read\\s+${QUOTED}`, 'i'),
+    read: 2,
+    act: 1,
+  },
+  {
+    form: 'read-before',
+    pattern: new RegExp(`\\bread\\s+${QUOTED}\\s+before\\s+([^.;!]+)`, 'i'),
+    read: 1,
+    act: 2,
+  },
   {
     form: 'not-until-read',
     pattern: /\bdo not ([^.;]+?) until you have read (?:the output of )?(`[^`]+`|[^.;]+)/i,
     read: 2,
     act: 1,
   },
+  {
+    form: 'read-first-then',
+    pattern: new RegExp(`\\bread\\s+${QUOTED}\\s+first,?\\s+then\\s+([^.;!?]+)`, 'i'),
+    read: 1,
+    act: 2,
+  },
+  {
+    form: 'never-without-reading',
+    pattern: new RegExp(
+      `\\b(?:never|do not|don't)\\s+([^.;!?]+?)\\s+without\\s+(?:first\\s+)?reading\\s+${QUOTED}`,
+      'i',
+    ),
+    read: 2,
+    act: 1,
+  },
+  {
+    form: 'only-after-reading',
+    pattern: new RegExp(
+      `${START}([^.;!?]+?)\\s+only\\s+after\\s+(?:you\\s+(?:have\\s+)?)?(?:reading|read)\\s+${QUOTED}`,
+      'i',
+    ),
+    read: 2,
+    act: 1,
+  },
+  {
+    form: 'question-read-first',
+    pattern: new RegExp(`${START}([^.;!?]+?)\\?\\s*read\\s+${QUOTED}\\s+first`, 'i'),
+    read: 2,
+    act: 1,
+  },
+  {
+    form: 'prior-to-read',
+    pattern: new RegExp(`\\bprior to ([^,:;]+?)[,:]\\s*read\\s+${QUOTED}`, 'i'),
+    read: 2,
+    act: 1,
+  },
 ];
+
+/** The name a gate's target gives: a link's destination, without quotes, markup or a closing stop. */
+function gateTarget(raw: string): string {
+  const link = /^\[[^\]]*\]\(([^)\s]+)\)$/.exec(raw.trim());
+  const name = link?.[1] ?? raw;
+  return name
+    .replace(/[`*"]/g, '')
+    .replace(/[.,;:!?]+$/, '')
+    .replace(/[#?].*$/, '')
+    .trim();
+}
 
 function gateAtoms(
   chunk: ProseChunk,
@@ -667,13 +901,33 @@ function gateAtoms(
   builder: AtomBuilder,
 ): void {
   for (const line of chunkLines(chunk, files.get(chunk.file))) {
-    for (const { form, pattern, read, act } of GATE_FORMS) {
-      const match = pattern.exec(line.text);
-      if (!match) continue;
-      // Markup around the words (bold, backticks) is not part of the act or of what is read.
-      const first = (match[read] ?? '').replace(/[`*]/g, '').trim();
+    // A form quoted as an example ("before editing: read the notes") is no rule of the line.
+    const quoted = Array.from(line.text.matchAll(/"[^"\n]*"|\u201c[^\u201d\n]*\u201d/g), (match) => [
+      match.index,
+      match.index + match[0].length,
+    ]);
+    const matches = GATE_FORMS.flatMap(({ pattern, ...form }) =>
+      Array.from(line.text.matchAll(new RegExp(pattern.source, `${pattern.flags}g`)), (match) => ({
+        ...form,
+        match,
+      })),
+    ).sort((a, b) => a.match.index - b.match.index);
+    let coveredUntil = 0;
+    for (const { form, read, act, match } of matches) {
+      if (match.index < coveredUntil) continue;
+      const at = match.index + match[0].search(/\S/);
+      if (quoted.some(([start, end]) => at > (start as number) && at < (end as number))) continue;
+      // "Never read Y before X" forbids the read: no order to keep.
+      if (
+        form === 'read-before' &&
+        /\b(?:never|not|don't|must not|should not)\s*$/i.test(line.text.slice(0, at))
+      )
+        continue;
+      // Markup around the words (bold, backticks, quotes, a link) is not part of the act or of what is read.
+      const first = gateTarget(match[read] ?? '');
       const trigger = (match[act] ?? '').replace(/[`*]/g, '').trim();
       if (first === '' || trigger === '' || !isAct(trigger)) continue;
+      coveredUntil = match.index + match[0].length;
       const isFile = /\.[A-Za-z0-9]+$/.test(first) && !/\s/.test(first);
       // The file to read first is found as a reference's is: its place, an alias, then its ending.
       const located = isFile
@@ -710,7 +964,6 @@ function gateAtoms(
           ...(located?.via === 'external' ? { external: true } : {}),
         },
       });
-      break;
     }
   }
 }
@@ -768,18 +1021,22 @@ function isAct(trigger: string): boolean {
 /** The tool an act names: editing is an edit, committing or running is a shell call; else the act itself. */
 function actLabel(act: string, raw: RawEstate): string {
   const verb = act.toLowerCase();
-  if (/\b(edit|editing|change|changing|modify)\b/.test(verb)) return raw.labels.edit;
+  if (/\b(edit|editing|change|changing|modify|modifying|update|updating)\b/.test(verb))
+    return raw.labels.edit;
   if (/\b(write|writing|save|saving|create|creating)\b/.test(verb)) return raw.labels.write;
-  if (/\b(commit|committing|push|pushing|run|running|deploy)\b/.test(verb)) return raw.labels.shell;
-  if (/\b(dispatch|dispatching|delegate)\b/.test(verb)) return raw.labels.dispatch;
+  if (/\b(commit|committing|push|pushing|run|running|deploy|deploying|rename|renaming)\b/.test(verb))
+    return raw.labels.shell;
+  if (/\b(dispatch|dispatching|delegate|delegating)\b/.test(verb)) return raw.labels.dispatch;
   return act;
 }
 
 function hazardAtoms(chunk: ProseChunk, files: ReadonlyMap<string, EstateFile>, builder: AtomBuilder): void {
   if (!files.has(chunk.file)) return;
   for (const line of chunkLines(chunk, files.get(chunk.file))) {
+    // Words quoted as an example (an error message, a phrase) are not the line's own words.
+    const own = line.text.replace(/"[^"\n]*"|\u201c[^\u201d\n]*\u201d/g, ' ');
     for (const hazard of HAZARDS) {
-      if (!hazard.pattern.test(line.text) || !runtimeHazard(hazard.id, line.text)) continue;
+      if (!hazard.pattern.test(own) || !runtimeHazard(hazard.id, own)) continue;
       builder.add({
         kind: 'hazard',
         title: `Recover from ${hazard.title.toLowerCase()}`,
@@ -808,7 +1065,7 @@ function runtimeHazard(id: (typeof HAZARDS)[number]['id'], text: string): boolea
       return HAZARDS.find((hazard) => hazard.id === id)?.pattern.test(runtime) ?? false;
     }
     case 'restart':
-      return !/\b(?:restart\s+button|(?:printer|device|equipment|appliance)(?:'s)?\s+restarts?)\b/i.test(
+      return !/\b(?:restart\s+button|(?:printer|device|equipment|appliance)(?:'s)?\s+(?:restart|reboot)s?|(?:restart|reboot)\s+the\s+(?:[\w-]+\s+)?(?:printer|device|equipment|appliance))\b/i.test(
         line,
       );
     case 'rate_wave':
@@ -874,6 +1131,10 @@ function firstLine(file: EstateFile): Located {
     endLine: chosen?.line ?? 1,
     quote: chosen?.text ?? basename(file.path),
   };
+}
+
+function escapeRegExp(text: string): string {
+  return text.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 }
 
 function capital(text: string): string {

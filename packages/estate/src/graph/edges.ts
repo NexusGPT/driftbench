@@ -8,9 +8,10 @@ import type { Atom, Edge } from '../schema';
  * is a node of its own, named `event.<name>`, since no file states an event as an atom.
  *
  *   route      a route atom to the skill or helper it loads
- *   reference  a skill or helper to a file its body names (a reference atom)
+ *   reference  a skill or helper to a file its body names (a reference atom), and a skill to a file that
+ *              a file beside it names
  *   script     a skill to a script it ships
- *   dispatch   a skill or helper to a helper its body names
+ *   dispatch   a skill or helper to a helper its body names (in backticks, or by its plain name)
  *   enforces   a guard to a rule it checks
  *   event      a guard to the event it runs on
  *   allows     a skill or helper to a tool or skill it may use
@@ -18,12 +19,13 @@ import type { Atom, Edge } from '../schema';
  *   cites      a rule to a rule its words name by label
  *
  * How `enforces` is decided, by code, in this order (the method is recorded on the guard atom):
- *   1. registry: a check registry row names the guard's script and lists rule labels (R5) or quoted
- *      passages; a rule is enforced when its line carries the label or its quote holds the passage.
+ *   1. registry: a check registry row names the guard's script and lists rule labels (R5, in any case) or
+ *      quoted passages; a rule is enforced when its line carries the label or its quote holds the passage.
  *   2. id: the guard's own source says `Enforces: R3, R5` (or `enforces R3`), or cites a rule as `R#3`
  *      anywhere in its text; same label match (a rule labelled `R#3` has the label R3).
- *   3. quote: a string in the guard's source of at least 16 characters equals a rule's quote, or one holds
- *      the other, compared without markup, case or final punctuation.
+ *   3. quote: a string in the guard's source of at least 16 characters equals a rule's quote, holds it, is
+ *      part of it covering at least 60 percent of it, or equals a span the rule itself quotes (`git push
+ *      --force`), compared without markup, case or final punctuation.
  * Only instruction, gate and register atoms are enforced. `enforcement` on each rule lists its guards.
  */
 
@@ -67,8 +69,16 @@ export function buildGraph(atoms: readonly Atom[], raw: RawEstate): Graph {
     if (target) add(route.id, target.id, 'route');
   }
 
+  // A file beside a skill (a reference that names another) belongs to the skill whose folder holds it.
+  const skillOfFolder = (path: string) =>
+    byKind('skill').find((skill) => {
+      const folder = skill.fields?.folder;
+      return typeof folder === 'string' && path.startsWith(`${folder}/`);
+    });
   for (const reference of byKind('reference')) {
-    const unit = unitOfFile.get(reference.provenance.file);
+    const file = reference.provenance.file;
+    const unit =
+      unitOfFile.get(file) ?? (files.get(file)?.kind === 'skill_file' ? skillOfFolder(file) : undefined);
     if (unit) add(unit.id, reference.id, 'reference');
   }
 
@@ -86,7 +96,10 @@ export function buildGraph(atoms: readonly Atom[], raw: RawEstate): Graph {
       .join('\n');
     for (const helper of helpers) {
       const name = String(helper.fields?.name ?? '');
-      if (name !== '' && positiveMention(visible, `\`${name}\``, ['dispatch', 'call', 'delegate', 'invoke']))
+      if (name === '') continue;
+      const verbs = ['dispatch', 'call', 'delegate', 'invoke'];
+      if (positiveMention(visible, `\`${name}\``, verbs)) add(unit.id, helper.id, 'dispatch');
+      else if (plainMention(visible, name) && positiveMention(visible, name, verbs))
         add(unit.id, helper.id, 'dispatch');
     }
   }
@@ -124,9 +137,12 @@ export function buildGraph(atoms: readonly Atom[], raw: RawEstate): Graph {
   const withLabel = (label: string) => rules.filter((rule) => labels.get(rule.id) === label);
   for (const rule of rules) {
     const own = labels.get(rule.id);
-    for (const match of rule.provenance.quote.matchAll(/\b([A-Z]{1,3})#?(\d{1,3})\b/g)) {
+    const quote = rule.provenance.quote;
+    for (const match of quote.matchAll(/\b([A-Z]{1,3})#?(\d{1,3})\b/g)) {
       const label = `${match[1]}${match[2]}`;
       if (label === own) continue;
+      // "tax form R1", "invoice R1": a label after the noun of a thing numbers that thing, not a rule.
+      if (THING_NUMBER.test(quote.slice(0, match.index))) continue;
       for (const cited of withLabel(label)) add(rule.id, cited.id, 'cites');
     }
   }
@@ -141,7 +157,8 @@ export function buildGraph(atoms: readonly Atom[], raw: RawEstate): Graph {
     const decl = raw.guards.find((candidate) => guardName(candidate) === guard.fields?.name);
     const row = decl ? registryRowOf(decl, raw.registry) : undefined;
     for (const entry of row?.enforces ?? []) {
-      if ('id' in entry) for (const rule of withLabel(entry.id)) take(rule, 'registry');
+      // A registry may write a label in lower case (`r5`); a rule's own label is always in capitals.
+      if ('id' in entry) for (const rule of withLabel(entry.id.toUpperCase())) take(rule, 'registry');
       else for (const rule of rules) if (holds(rule.provenance.quote, entry.quote)) take(rule, 'registry');
     }
     const script = typeof guard.fields?.script === 'string' ? files.get(guard.fields.script) : undefined;
@@ -150,7 +167,7 @@ export function buildGraph(atoms: readonly Atom[], raw: RawEstate): Graph {
         for (const rule of withLabel(label)) take(rule, 'id');
       }
       for (const literal of literals(script.text)) {
-        for (const rule of rules) if (holds(rule.provenance.quote, literal)) take(rule, 'quote');
+        for (const rule of rules) if (statesRule(rule.provenance.quote, literal)) take(rule, 'quote');
       }
     }
     for (const entry of found) add(guard.id, entry.atom, 'enforces');
@@ -158,6 +175,38 @@ export function buildGraph(atoms: readonly Atom[], raw: RawEstate): Graph {
   }
 
   return { edges: sortEdges(edges), enforces };
+}
+
+/** Nouns of numbered things: a label written after one of them numbers the thing (form R1), not a rule. */
+const THING_NUMBER =
+  /\b(?:form|forms|invoice|invoices|order|orders|page|room|bay|aisle|shelf|zone|box|slot|code|model|version|sheet|table|ticket|item|unit|part|serial|lot|batch|door|floor|barcode|sticker|label|labels)\s+$/i;
+
+/** The least share of a rule's words a guard literal must state to enforce it by quote. */
+const LITERAL_SHARE = 0.6;
+
+/**
+ * True when a guard's string literal states the rule: the same words, or most of them. A literal that only
+ * quotes a small part of the rule (a message that mentions its subject) states nothing.
+ */
+function statesRule(quote: string, literal: string): boolean {
+  if (!holds(quote, literal)) return false;
+  const a = plain(quote);
+  const b = plain(literal);
+  if (b.includes(a) || b.length >= a.length * LITERAL_SHARE) return true;
+  // The thing the rule quotes itself (`git push --force`), matched by the guard, is the rule's own subject.
+  return Array.from(quote.matchAll(/`([^`]+)`|"([^"]+)"/g), (match) =>
+    plain(match[1] ?? match[2] ?? ''),
+  ).includes(b);
+}
+
+/**
+ * A helper named without backticks: its name as a whole word. A name that could be a common word (no digit,
+ * no hyphen) must be followed by agent, helper or subagent.
+ */
+function plainMention(text: string, name: string): boolean {
+  const word = name.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  const tail = /[\d-]/.test(name) ? '' : '\\s+(?:agent|helper|subagent)\\b';
+  return new RegExp(`(?<![\\w-])${word}(?![\\w-])${tail}`, 'i').test(text);
 }
 
 /** True when two passages say the same words, or one holds the other, compared without markup. */

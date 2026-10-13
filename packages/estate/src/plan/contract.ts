@@ -196,7 +196,7 @@ function rowsOf(
         }),
         row('misroute', {
           cell: { ask_shape: 'concrete' },
-          note: 'The ask names the wrong skill or helper; the right target loads, or the agent says why not.',
+          note: 'The ask describes the act and names no skill; the route decides, and the right target loads.',
         }),
       ];
     }
@@ -306,7 +306,9 @@ function owners(atoms: readonly Atom[], edges: readonly Edge[]): Map<string, str
   }
   for (const atom of atoms) {
     if (out.has(atom.id) || atom.kind === 'skill' || atom.kind === 'subagent') continue;
-    if (!['instruction', 'gate', 'register', 'hazard', 'reference'].includes(atom.kind)) continue;
+    const declaredTool = atom.kind === 'tool' && atom.fields?.effect === 'declared';
+    if (!declaredTool && !['instruction', 'gate', 'register', 'hazard', 'reference'].includes(atom.kind))
+      continue;
     const unit = unitOfFile.get(atom.provenance.file);
     if (unit) out.set(atom.id, unit);
   }

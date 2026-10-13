@@ -29,7 +29,7 @@ criteria:
 blocks:
   - id: ask
     when:
-      user: Please help me with the delivery plan of a day.
+      user: Please plan tomorrow's delivery routes from the open orders and the van capacity.
     expect:
       subagents:
         - name: route-planner
@@ -60,5 +60,5 @@ metadata:
     situation: null
     phrase: null
     ask: code
-    askFrom: subagent.route-planner.helper-route-planner (asks it names)
+    askFrom: subagent.route-planner.helper-route-planner (description task)
     outcome: no-delete

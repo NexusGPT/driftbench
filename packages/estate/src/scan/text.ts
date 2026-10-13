@@ -188,7 +188,8 @@ export function readFrontmatter(text: string): Frontmatter {
   if (lines[0]?.trim() !== '---') return { fields: {}, bodyLine: 1 };
   const close = lines.findIndex((line, index) => index > 0 && line.trim() === '---');
   if (close < 0) return { fields: {}, bodyLine: 1, error: 'the frontmatter block is never closed' };
-  const block = lines.slice(1, close);
+  // A carriage return before the line end (a file saved with CRLF) is no part of a key or a value.
+  const block = lines.slice(1, close).map((line) => line.replace(/\r$/, ''));
   try {
     const parsed: unknown = parseYaml(block.join('\n'));
     const fields =
@@ -226,7 +227,10 @@ export function tolerantFields(block: readonly string[]): Record<string, unknown
   const fields: Record<string, unknown> = {};
   for (const { key, lines } of entries) {
     try {
-      const parsed: unknown = parseYaml(lines.join('\n'));
+      // YAML refuses a tab as indentation; people still indent a list with one. Each leading tab reads as
+      // two spaces.
+      const spaced = lines.map((line) => line.replace(/^\t+/, (tabs) => '  '.repeat(tabs.length)));
+      const parsed: unknown = parseYaml(spaced.join('\n'));
       if (parsed !== null && typeof parsed === 'object' && !Array.isArray(parsed) && key in parsed) {
         fields[key] = (parsed as Record<string, unknown>)[key];
         continue;
@@ -278,14 +282,17 @@ export function readTables(text: string, fromLine = 1, toLine = Number.POSITIVE_
     const head = lines[index];
     const rule = lines[index + 1];
     if (!head || !rule || head.line < fromLine || head.line > toLine) continue;
-    if (!head.text.startsWith('|') || !/^\|?\s*:?-{3,}/.test(rule.text)) continue;
-    const table: Table = { header: cells(head.text), headerLine: head.line, rows: [] };
+    if (!head.text.includes('|')) continue;
+    const header = cells(head.text);
+    const delimiter = cells(rule.text);
+    if (delimiter.length !== header.length || !delimiter.every((cell) => /^:?-{3,}:?$/.test(cell))) continue;
+    const table: Table = { header, headerLine: head.line, rows: [] };
     let next = index + 2;
     for (; next < lines.length; next++) {
       const row = lines[next];
       // A table belongs to the range that holds its header, and runs to its last row: a chunk that ends
       // inside a table must not cut it, and the next chunk never sees its header, so it would lose the rest.
-      if (!row?.text.startsWith('|')) break;
+      if (!row?.text.includes('|')) break;
       table.rows.push({
         line: row.line,
         text: originals[row.line - 1]?.text ?? row.text,

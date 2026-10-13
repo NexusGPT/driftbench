@@ -23,7 +23,7 @@ given:
 blocks:
   - id: ask
     when:
-      user: Please use the Glob tool on the files here.
+      user: Please find files here with the Glob tool.
     expect:
       workspace:
         deleted: []

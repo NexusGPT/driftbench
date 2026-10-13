@@ -207,6 +207,52 @@ export function hostileForms(material: string): string[] {
   return [...new Set(forms)].filter((form) => form !== material);
 }
 
+/** A payload that breaks a rule: a reply (`text`) or a shell command (`command`), and how the report names it. */
+export type Breach = { on: 'text' | 'command'; text: string; label: string };
+
+const FILLER = 'word';
+
+/**
+ * Breaches a rule's own words imply without quoting one. A rule that caps a length ("under 1,200
+ * characters", "at most 50 words") is broken by a reply one over the cap. A rule that forbids deleting under
+ * a folder it names in backticks is broken by a removal of a file there.
+ */
+export function breachesOf(quote: string): Breach[] {
+  const found: Breach[] = [];
+  const cap =
+    /\b(?:under|below|at most|no more than|a maximum of)\s+([\d][\d,]*)\s+(characters|chars|words)\b/i.exec(
+      quote,
+    );
+  if (cap?.[1]) {
+    const limit = Number(cap[1].replace(/,/g, ''));
+    const words = /^w/i.test(cap[2] ?? '');
+    if (Number.isInteger(limit) && limit > 0 && limit <= 100_000) {
+      const over = limit + 1;
+      const text = words
+        ? Array.from({ length: over }, () => FILLER).join(' ')
+        : `${FILLER} `
+            .repeat(Math.ceil(over / (FILLER.length + 1)))
+            .slice(0, over - 1)
+            .concat('.');
+      found.push({ on: 'text', text, label: `a reply of ${over} ${words ? 'words' : 'characters'}` });
+    }
+  }
+  for (const clause of quote.split(/(?<=[.!?])\s+|\n|;/)) {
+    if (
+      !FORBIDS.test(clause) ||
+      !/\b(?:delet(?:e|es|ed|ing)|remov(?:e|es|ed|ing)|eras(?:e|es|ed|ing))\b/i.test(clause)
+    )
+      continue;
+    for (const match of clause.matchAll(/`([^`\s]+)`/g)) {
+      const path = match[1] ?? '';
+      if (!path.includes('/')) continue;
+      const command = `rm ${path}${path.endsWith('/') ? 'example.txt' : ''}`;
+      found.push({ on: 'command', text: command, label: command });
+    }
+  }
+  return found;
+}
+
 /** The unit test of a row, or the reason it has none. */
 export function unitTestOf(
   row: EstatePlanRow,
@@ -279,12 +325,15 @@ export function unitTestOf(
       }),
     ),
   ].filter((item) => item.trim() !== '');
+  // What breaks a rule that gives no example of its breach: a reply over the limit it sets, a removal under
+  // the folder it protects.
+  const breaches = enforced.flatMap((ruleId) => breachesOf(atoms.get(ruleId)?.provenance?.quote ?? ''));
   const cases: GuardCase[] = [];
-  const add = (tool: string | undefined, text: string) => {
+  const add = (tool: string | undefined, text: string, label = text) => {
     cases.push({
       id: `case-${String(cases.length + 1).padStart(2, '0')}`,
       payload: payloadOf(event, tool, text),
-      material: text,
+      material: label,
     });
   };
   if (testType === 'guard_negative') {
@@ -295,6 +344,12 @@ export function unitTestOf(
       for (const text of material) {
         if (testType === 'guard_hostile') for (const form of hostileForms(text)) add(tool, form);
         else add(tool, text);
+      }
+      for (const breach of breaches) {
+        if (breach.on === 'text' ? !textEvent : tool !== 'Bash') continue;
+        if (testType === 'guard_hostile' && breach.on === 'command') {
+          for (const form of hostileForms(breach.text)) add(tool, form);
+        } else add(tool, breach.text, breach.label);
       }
     }
   }

@@ -24,12 +24,12 @@ export { literal };
  * | tool_not_called on a setting that denies the whole tool | also `expect.tools_offered.exclude` |
  * | tool_called Read with a path (equal or contained) | `expect.references`, a glob ending in the path |
  * | tool_called Agent with a helper name | `expect.subagents` with a count |
- * | ordered | the ordered-pair custom check, `rules.custom.ordered` |
+ * | ordered | the ordered-pair custom check, `rules.custom.ordered`; a gate's read is tied to the file it names (`Read~<path>`) or to the file acted on (`key: file_path`) |
  * | stage_reached | `expect.stage` on the closing stage, and an ordered pair when the stage is not the last |
  * | workspace, artifact | `expect.workspace`, `expect.artifacts` |
  * | text | `expect.must`, `expect.must_not` (the words as literal text), `expect.lang` |
  * | tool_called with any other input, when `some_call` is registered | `rules.custom.some_call` |
- * | custom grounded_values, hazard_recovery, permission (allow, declared, deny) | the registered check |
+ * | custom grounded_values, hazard_recovery, permission (allow, declared, deny, ask) | the registered check |
  * | custom with a name `predicates.ts` compiles | must, must_not, lang, safety, execution |
  * | custom on a register atom | a judged criterion whose rubric is the atom's title, not gating |
  *
@@ -70,7 +70,8 @@ export const MARKER_NAMES: ReadonlySet<string> = new Set(Object.values(MARKERS))
 
 export type Gap = { marker: Marker; atom: string; detail: string };
 
-export type OrderedPair = { before: string; after: string };
+/** `key`: the two ends must carry the same value in that input field (the same file read, then edited). */
+export type OrderedPair = { before: string; after: string; key?: string };
 
 export type SomeCall = { label: string; input: Record<string, unknown>; count: 0 | { min: number } };
 
@@ -226,7 +227,7 @@ function positive(then: ThenParts, atom: EstateAtom, evidence: EstateEvidence, c
     case 'ordered': {
       const pair = anchorPair(evidence.before, evidence.after, ctx, atom.fields);
       if (typeof pair === 'string') gap(then, MARKERS.anchor, atom, pair);
-      else addPair(then, pair);
+      else addPair(then, gatePair(pair, atom));
       return;
     }
     case 'stage_reached':
@@ -313,7 +314,10 @@ function positive(then: ThenParts, atom: EstateAtom, evidence: EstateEvidence, c
       if (evidence.name === 'permission' && ctx.customChecks.has('permission')) {
         const effect = evidence.options?.effect;
         const rule = evidence.options?.rule;
-        if (typeof rule === 'string' && (effect === 'allow' || effect === 'declared' || effect === 'deny')) {
+        if (
+          typeof rule === 'string' &&
+          (effect === 'allow' || effect === 'declared' || effect === 'deny' || effect === 'ask')
+        ) {
           const known = (then.custom.permission?.rules ?? []) as unknown[];
           then.custom.permission = { rules: [...known, { effect, rule }], block: 0 };
           return;
@@ -322,7 +326,7 @@ function positive(then: ThenParts, atom: EstateAtom, evidence: EstateEvidence, c
           then,
           MARKERS.registered,
           atom,
-          `permission ${String(effect)}: the trace does not show the prompt`,
+          `permission ${String(effect)}: unsupported effect or missing rule`,
         );
         return;
       }
@@ -359,11 +363,13 @@ function negative(then: ThenParts, atom: EstateAtom, evidence: EstateEvidence, c
       return;
     case 'guard':
       if (untraced(then, atom, evidence.name, ctx)) return;
-      addGuard(then, {
-        name: evidence.name,
-        ...(evidence.verdict === undefined ? {} : { verdict: evidence.verdict }),
-        count: 0,
-      });
+      // The runtime can invoke a guard on every matching event and report allow when it is quiet.
+      // A negative control forbids an intervention, not that ordinary invocation. An explicit
+      // verdict remains authoritative, including a runtime-specific one.
+      for (const verdict of evidence.verdict === undefined
+        ? ['deny', 'ask', 'warn', 'nudge']
+        : [evidence.verdict])
+        addGuard(then, { name: evidence.name, verdict, count: 0 });
       return;
     case 'tool_called':
       if (hasInput(evidence.input)) {
@@ -438,6 +444,31 @@ export function anchorPair(
   if (a === b)
     return `${before} before ${after}: both ends are ${a}, so the pair cannot tell the two acts apart`;
   return { before: a, after: b };
+}
+
+/** A gate that says to read "a file" or "the file" before acting on "it": the read is of the file acted on. */
+const SAME_FILE = /\bread\s+(?:a|the|each|every|any)\s+file\s+before\b[^.;]*\bit\b/i;
+
+/**
+ * The pair of a gate whose first act is a read, made as exact as the gate is. A gate that names a file of
+ * the estate asks for a read of that file (`Read~<path>`): another read before the act does not meet it. A
+ * gate that names no file but says to read a file before acting on it asks for a read of the same file
+ * (`key: file_path`). Any other pair stays as it is.
+ */
+function gatePair(pair: OrderedPair, atom: EstateAtom): OrderedPair {
+  if (atom.kind !== 'gate' || pair.before !== 'Read') return pair;
+  const fields = atom.fields ?? {};
+  if (typeof fields.path === 'string' && fields.path !== '' && fields.external !== true) {
+    return { ...pair, before: `Read~${fields.path}` };
+  }
+  if (
+    fields.path === undefined &&
+    (pair.after === 'Edit' || pair.after === 'Write') &&
+    SAME_FILE.test(atom.provenance?.quote ?? atom.title)
+  ) {
+    return { ...pair, key: 'file_path' };
+  }
+  return pair;
 }
 
 function anchor(name: string, ctx: ThenContext): string | undefined {
@@ -610,7 +641,11 @@ export function pathsOf(atom: EstateAtom): string[] {
 }
 
 export function addPair(then: ThenParts, pair: OrderedPair): void {
-  if (!then.ordered.some((known) => known.before === pair.before && known.after === pair.after)) {
+  if (
+    !then.ordered.some(
+      (known) => known.before === pair.before && known.after === pair.after && known.key === pair.key,
+    )
+  ) {
     then.ordered.push(pair);
   }
 }

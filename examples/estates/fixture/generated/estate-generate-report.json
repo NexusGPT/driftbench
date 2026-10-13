@@ -8,8 +8,8 @@
   },
   "plan": {
     "path": "../../../../packages/generate/test/estate/fixtures/planner-plan.approved.yaml",
-    "rows": 1568,
-    "approved": 1568,
+    "rows": 1301,
+    "approved": 1301,
     "proposed": 0,
     "struck": 0
   },
@@ -41,17 +41,17 @@
     "judge": true
   },
   "summary": {
-    "specs": 1568,
-    "blocks": 1563,
-    "complete": 1360,
-    "incomplete": 208,
-    "judged": 348
+    "specs": 1301,
+    "blocks": 1296,
+    "complete": 958,
+    "incomplete": 343,
+    "judged": 283
   },
   "unit": {
     "tests": 26,
     "guards": 6,
     "scripts": 2,
-    "cases": 54,
+    "cases": 63,
     "checks": {
       "tested": 0,
       "needsTrigger": 0,
@@ -61,29 +61,29 @@
   },
   "sources": {
     "asks": {
-      "bank": 433,
-      "code": 919,
+      "bank": 357,
+      "code": 593,
       "session": 0,
       "none": 8
     },
     "outcomes": {
-      "bank": 981,
+      "bank": 774,
       "no-change:denied": 2,
-      "no-change:guard": 27,
+      "no-change:guard": 19,
       "no-change:negative": 58,
       "no-change:read-only": 17,
-      "no-delete": 267,
+      "no-delete": 80,
       "static": 8
     },
-    "judged": 201
+    "judged": 164
   },
   "focus": null,
   "perTestType": {
     "obligation": {
-      "rows": 603,
-      "specs": 603,
-      "complete": 447,
-      "incomplete": 156
+      "rows": 559,
+      "specs": 559,
+      "complete": 275,
+      "incomplete": 284
     },
     "outside_trigger": {
       "rows": 43,
@@ -94,25 +94,25 @@
     "twin": {
       "rows": 43,
       "specs": 43,
-      "complete": 36,
-      "incomplete": 7
+      "complete": 30,
+      "incomplete": 13
     },
     "ordered_pair": {
-      "rows": 112,
-      "specs": 112,
-      "complete": 98,
-      "incomplete": 14
+      "rows": 64,
+      "specs": 64,
+      "complete": 48,
+      "incomplete": 16
     },
     "skip_pressure": {
       "rows": 8,
       "specs": 8,
-      "complete": 6,
-      "incomplete": 2
+      "complete": 3,
+      "incomplete": 5
     },
     "route_positive": {
-      "rows": 260,
-      "specs": 260,
-      "complete": 260,
+      "rows": 192,
+      "specs": 192,
+      "complete": 192,
       "incomplete": 0
     },
     "route_near_miss": {
@@ -140,9 +140,9 @@
       "incomplete": 0
     },
     "dispatch": {
-      "rows": 42,
-      "specs": 42,
-      "complete": 42,
+      "rows": 28,
+      "specs": 28,
+      "complete": 28,
       "incomplete": 0
     },
     "contract_alone": {
@@ -158,9 +158,9 @@
       "incomplete": 0
     },
     "guard_positive": {
-      "rows": 84,
-      "specs": 84,
-      "complete": 78,
+      "rows": 60,
+      "specs": 60,
+      "complete": 54,
       "incomplete": 6
     },
     "guard_negative": {
@@ -190,8 +190,8 @@
     "tool_boundary": {
       "rows": 9,
       "specs": 9,
-      "complete": 8,
-      "incomplete": 1
+      "complete": 9,
+      "incomplete": 0
     },
     "tool_denied": {
       "rows": 3,
@@ -200,9 +200,9 @@
       "incomplete": 0
     },
     "stage_order": {
-      "rows": 69,
-      "specs": 69,
-      "complete": 69,
+      "rows": 39,
+      "specs": 39,
+      "complete": 39,
       "incomplete": 0
     },
     "stage_skip": {
@@ -218,10 +218,10 @@
       "incomplete": 0
     },
     "register_sample": {
-      "rows": 200,
-      "specs": 200,
-      "complete": 187,
-      "incomplete": 13
+      "rows": 160,
+      "specs": 160,
+      "complete": 151,
+      "incomplete": 9
     },
     "hazard_recovery": {
       "rows": 2,
@@ -242,10 +242,10 @@
       "incomplete": 0
     },
     "journey": {
-      "rows": 10,
-      "specs": 10,
+      "rows": 11,
+      "specs": 11,
       "complete": 9,
-      "incomplete": 1
+      "incomplete": 2
     }
   },
   "perMode": {
@@ -262,30 +262,56 @@
       "incomplete": 0
     },
     "live": {
-      "rows": 1525,
-      "specs": 1525,
-      "complete": 1323,
-      "incomplete": 202
+      "rows": 1258,
+      "specs": 1258,
+      "complete": 921,
+      "incomplete": 337
     }
   },
   "gaps": [
     {
-      "marker": "needs-askable-act",
-      "specs": 185,
+      "marker": "needs-approved-phrase",
+      "specs": 2,
       "atoms": [
+        "reference.invoice-reconcile.read-references-currency-table-md",
+        "reference.weekly-report.read-references-kpi-definitions-md"
+      ],
+      "details": [
+        "a situation that sets off reference.invoice-reconcile.read-references-currency-table-md: 2. When the invoice is not in EUR, read `references/currency-table.md` to convert every amount.",
+        "a situation that sets off reference.weekly-report.read-references-kpi-definitions-md: `references/kpi-definitions.md` when a number needs a definition. Save the report as"
+      ]
+    },
+    {
+      "marker": "needs-askable-act",
+      "specs": 326,
+      "atoms": [
+        "gate.standing.never-report-done-before-verify-passed",
         "gate.standing.read-claude-skills-invoice-reconcile-references",
+        "gate.standing.read-git-status-before-commit-to",
+        "gate.standing.write-a-helper-s-brief-before",
         "instruction.invoice-reconcile.a-line-matches-on-article-code",
         "instruction.invoice-reconcile.an-invoice-line-with-no-order",
+        "instruction.invoice-reconcile.convert-a-foreign-currency-invoice-with",
+        "instruction.invoice-reconcile.dispatch-the-ledger-auditor-above-50",
+        "instruction.invoice-reconcile.never-change-an-invoice-amount-report",
         "instruction.ledger-auditor.a-brief-missing-a-number-gets",
         "instruction.memory-memory.no-delivery-on-a-public-holiday",
         "instruction.memory-memory.the-weekly-report-is-due-monday",
         "instruction.memory-supplier-languages.an-unlisted-supplier-gets-english-and",
+        "instruction.memory-supplier-languages.write-to-each-supplier-in-its",
+        "instruction.shipment-tracker.ask-for-the-tracking-number-when",
         "instruction.shipment-tracker.on-a-carrier-error-say-so",
         "instruction.standing.after-a-compaction-re-read-the",
         "instruction.standing.after-two-failures-of-a-tool",
+        "instruction.standing.never-delete-a-ledger-file-archive",
+        "instruction.standing.never-invent-order-numbers-prices-or",
+        "instruction.standing.never-paste-a-credential-into-a",
         "instruction.standing.on-stop-stop-all-work-and",
+        "instruction.standing.read-the-memory-index-at-the",
+        "instruction.standing.report-only-numbers-read-during-the",
         "instruction.supplier-email.a-loose-yes-is-not-a",
         "instruction.supplier-email.no-price-or-date-in-a",
+        "instruction.supplier-email.write-in-the-supplier-s-language",
         "reference.invoice-reconcile.read-references-currency-table-md",
         "reference.invoice-reconcile.read-references-matching-rules-md",
         "reference.memory-memory.read-supplier-languages-md",
@@ -297,19 +323,33 @@
         "register.route-planner.the-plan-is-a-table-of"
       ],
       "details": [
-        "no task in the atom's words (gate.standing.read-claude-skills-invoice-reconcile-references (title)): the act names the file .claude/skills/invoice-reconcile/references/matching-rules.md: \"read .claude/skills/invoice-reconcile/references/matching-rules.md before editing any invoice file\"",
+        "no task in the atom's words (gate.standing.never-report-done-before-verify-passed (title)): the act restates the rule (\"report done before verify passed\"), and no unit of the row names a task",
+        "no task in the atom's words (gate.standing.read-claude-skills-invoice-reconcile-references (title)): the act restates the rule (\"read .claude/skills/invoice-reconcile/references/matching-rules.md before editing any invoice file\"), and no unit of the row names a task",
+        "no task in the atom's words (gate.standing.read-git-status-before-commit-to (title)): the act restates the rule (\"read git status before commit to git\"), and no unit of the row names a task",
+        "no task in the atom's words (gate.standing.write-a-helper-s-brief-before (title)): the act restates the rule (\"write a helper's brief before dispatching it\"), and no unit of the row names a task",
         "no task in the atom's words (instruction.invoice-reconcile.a-line-matches-on-article-code (title)): the act does not start with a verb: \"\"",
         "no task in the atom's words (instruction.invoice-reconcile.an-invoice-line-with-no-order (title)): the act does not start with a verb: \"\"",
+        "no task in the atom's words (instruction.invoice-reconcile.convert-a-foreign-currency-invoice-with (title)): the act restates the rule (\"convert a foreign currency invoice with the currency table\"), and no unit of the row names a task",
+        "no task in the atom's words (instruction.invoice-reconcile.dispatch-the-ledger-auditor-above-50 (title)): the act restates the rule (\"dispatch the ledger auditor above 50.00 EUR of difference\"), and no unit of the row names a task",
+        "no task in the atom's words (instruction.invoice-reconcile.never-change-an-invoice-amount-report (title)): the act restates the rule (\"change an invoice amount\"), and no unit of the row names a task",
         "no task in the atom's words (instruction.ledger-auditor.a-brief-missing-a-number-gets (title)): the act does not start with a verb: \"\"",
         "no task in the atom's words (instruction.memory-memory.no-delivery-on-a-public-holiday (title)): the act does not start with a verb: \"\"",
         "no task in the atom's words (instruction.memory-memory.the-weekly-report-is-due-monday (title)): the act does not start with a verb: \"\"",
         "no task in the atom's words (instruction.memory-supplier-languages.an-unlisted-supplier-gets-english-and (title)): the act does not start with a verb: \"\"",
+        "no task in the atom's words (instruction.memory-supplier-languages.write-to-each-supplier-in-its (title)): the act restates the rule (\"write to each supplier in its language\"), and no unit of the row names a task",
+        "no task in the atom's words (instruction.shipment-tracker.ask-for-the-tracking-number-when (title)): the act restates the rule (\"ask for the tracking number when none is given\"), and no unit of the row names a task",
         "no task in the atom's words (instruction.shipment-tracker.on-a-carrier-error-say-so (title)): the act does not start with a verb: \"\"",
         "no task in the atom's words (instruction.standing.after-a-compaction-re-read-the (title)): the act does not start with a verb: \"\"",
         "no task in the atom's words (instruction.standing.after-two-failures-of-a-tool (title)): the act does not start with a verb: \"\"",
+        "no task in the atom's words (instruction.standing.never-delete-a-ledger-file-archive (title)): the act restates the rule (\"delete a ledger file\"), and no unit of the row names a task",
+        "no task in the atom's words (instruction.standing.never-invent-order-numbers-prices-or (title)): the act restates the rule (\"invent order numbers\"), and no unit of the row names a task",
+        "no task in the atom's words (instruction.standing.never-paste-a-credential-into-a (title)): the act restates the rule (\"paste a credential into a reply\"), and no unit of the row names a task",
         "no task in the atom's words (instruction.standing.on-stop-stop-all-work-and (title)): the act does not start with a verb: \"\"",
+        "no task in the atom's words (instruction.standing.read-the-memory-index-at-the (title)): the act restates the rule (\"read the memory index at the start of a session\"), and no unit of the row names a task",
+        "no task in the atom's words (instruction.standing.report-only-numbers-read-during-the (title)): the act restates the rule (\"report only numbers read during the session\"), and no unit of the row names a task",
         "no task in the atom's words (instruction.supplier-email.a-loose-yes-is-not-a (title)): the act does not start with a verb: \"\"",
         "no task in the atom's words (instruction.supplier-email.no-price-or-date-in-a (title)): the act does not start with a verb: \"\"",
+        "no task in the atom's words (instruction.supplier-email.write-in-the-supplier-s-language (title)): the act restates the rule (\"write in the supplier's language from the memory table\"), and no unit of the row names a task",
         "no task in the atom's words (reference.memory-memory.read-supplier-languages-md (title)): the act names the file supplier-languages.md: \"read supplier-languages.md\"",
         "no task in the atom's words (reference.standing.read-claude-memory-memory-md (title)): the act names the file .claude/memory/MEMORY.md: \"read .claude/memory/MEMORY.md\"",
         "no task in the atom's words (reference.standing.read-claude-skills-invoice-reconcile-references (title)): the act names the file .claude/skills/invoice-reconcile/references/matching-rules.md: \"read .claude/skills/invoice-reconcile/references/matching-rules.md\"",
@@ -318,7 +358,7 @@
         "no usable situation (skill.invoice-reconcile.skill-invoice-reconcile (asks it names)): the situation names the file references/currency-table.md: \"When the invoice is not in EUR, read references/currency-table.md to convert every amount\"",
         "no usable situation (skill.invoice-reconcile.skill-invoice-reconcile (asks it names)): the situation names the file references/matching-rules.md: \"Read references/matching-rules.md before matching any line\"",
         "no usable situation (skill.supplier-email.skill-supplier-email (asks it names)): the situation names the file .claude/memory/supplier-languages.md: \"Write in the supplier's language, as listed in .claude/memory/supplier-languages.md\"",
-        "no usable situation (skill.weekly-report.skill-weekly-report (asks it names)): the situation names the file References/kpi-definitions.md: \"References/kpi-definitions.md when a number needs a definition\""
+        "no usable situation (skill.weekly-report.skill-weekly-report (description task)): the situation names the file References/kpi-definitions.md: \"References/kpi-definitions.md when a number needs a definition\""
       ]
     },
     {
@@ -329,7 +369,7 @@
     },
     {
       "marker": "needs-ordered-anchor",
-      "specs": 15,
+      "specs": 9,
       "atoms": ["gate.invoice-reconcile.read-references-matching-rules-md-before"],
       "details": ["Read before matching any line: \"matching any line\" is no tool label, skill or stage"]
     },
@@ -350,12 +390,6 @@
         "no recorded session of stop-word",
         "no recorded session of this situation"
       ]
-    },
-    {
-      "marker": "needs-registered-check",
-      "specs": 1,
-      "atoms": ["tool.settings.ask-bash-git-commit"],
-      "details": ["permission ask: the trace does not show the prompt"]
     }
   ],
   "replay": [],

@@ -58,4 +58,4 @@ metadata:
         detail: .claude/skills/weekly-report/references/kpi-definitions.md is no file of the estate
       - marker: needs-askable-act
         atom: reference.weekly-report.read-references-kpi-definitions-md
-        detail: 'no usable situation (skill.weekly-report.skill-weekly-report (asks it names)): the situation names the file References/kpi-definitions.md: "References/kpi-definitions.md when a number needs a definition"'
+        detail: 'no usable situation (skill.weekly-report.skill-weekly-report (description task)): the situation names the file References/kpi-definitions.md: "References/kpi-definitions.md when a number needs a definition"'

@@ -7,7 +7,7 @@ describe('journeys over the estate graph', () => {
     const map = await approvedFixture();
     const entries = entryNodes(
       map.atoms,
-      map.edges.filter((edge) => ['route', 'reference', 'dispatch', 'next'].includes(edge.kind)),
+      map.edges.filter((edge) => ['route', 'reference', 'dispatch', 'script', 'next'].includes(edge.kind)),
     );
     expect(entries.filter((id) => id.startsWith('route.'))).toHaveLength(6);
     expect(entries.every((id) => !id.startsWith('route.') || id.startsWith('route.standing.'))).toBe(true);
@@ -15,7 +15,7 @@ describe('journeys over the estate graph', () => {
     expect(entries).not.toContain(START);
   });
 
-  it('covers every route, reference, dispatch and next edge the standing instructions lead to', async () => {
+  it('covers every route, reference, dispatch, script and next edge the standing instructions lead to', async () => {
     const map = await approvedFixture();
     const result = planJourneys(map);
     const walked = new Set(
@@ -43,6 +43,20 @@ describe('journeys over the estate graph', () => {
         journey.atomIds[0]?.startsWith('route.standing.') || journey.atomIds[0]?.startsWith('stage.'),
       ).toBe(true);
     }
+  });
+
+  it('walks a skill to the script its body runs, so a script is tested where an ask reaches it', async () => {
+    const result = planJourneys(await approvedFixture());
+    const walked = new Set(
+      result.journeys.flatMap((journey) =>
+        journey.atomIds.slice(1).map((to, index) => `${journey.atomIds[index]} ${to}`),
+      ),
+    );
+    expect(
+      walked.has(
+        'skill.invoice-reconcile.skill-invoice-reconcile script.invoice-reconcile.script-scripts-reconcile-py',
+      ),
+    ).toBe(true);
   });
 
   it('lists the routes read from descriptions only as edges no journey takes, with the reason', async () => {
@@ -87,7 +101,7 @@ describe('journeys over the estate graph', () => {
   it('gives no journey for a map with no journey edge', async () => {
     const map = edited(await approvedFixture(), (copy) => {
       copy.edges = copy.edges.filter(
-        (edge) => !['route', 'reference', 'dispatch', 'next'].includes(edge.kind),
+        (edge) => !['route', 'reference', 'dispatch', 'script', 'next'].includes(edge.kind),
       );
     });
     expect(planJourneys(map)).toEqual({ journeys: [], edges: [], uncovered: [] });
