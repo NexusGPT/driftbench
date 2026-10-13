@@ -3,6 +3,7 @@ import { contentHash } from '@agent-nexus/driftbench-core';
 import { z } from 'zod';
 import { parseJudgeText, parseJudgeValue } from './assessment';
 import type { JudgeClient } from './client';
+import { CONFORMANCE_PROMPT_FINGERPRINT } from './conformance';
 import {
   JudgeAnswer,
   JudgeClass,
@@ -164,7 +165,12 @@ export function requestKey(
     data: procedure ? fullKey(effective) : dataKey(effective),
     ...(swapped ? { comparison: fullKey(swapped) } : {}),
     prompt:
-      prompt ?? (effective.answerContract === 'legacy' ? LEGACY_PROMPT_FINGERPRINT : PROMPT_FINGERPRINT),
+      prompt ??
+      (effective.answerContract === 'legacy'
+        ? LEGACY_PROMPT_FINGERPRINT
+        : effective.assessment?.kind === 'conformance'
+          ? CONFORMANCE_PROMPT_FINGERPRINT
+          : PROMPT_FINGERPRINT),
     client: client ? { cls: client.cls, model: client.model, settings: client.settings } : undefined,
   });
 }

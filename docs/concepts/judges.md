@@ -696,7 +696,44 @@ Code validates that every item appears exactly once, then computes the weighted 
 
 `referenceConsensus(answers, { minAgreement, normalize })` includes failed or missing solve attempts in its denominator. Its default requires agreement of at least 0.8 across at least two attempts. It never uses a mere plurality or removes decimal points. A caller may supply an equivalence normalizer. Agreement is a consistency signal, not a correctness guarantee.
 
-`withReferenceConsensus(client, { solve, samples })` wraps pointwise judgement with sequential blind solves. The solver receives the user question only, never the candidate response. Only an agreed answer becomes `reference`; an explicit caller reference remains intact. The result records agreement and reported solve costs. The solve port is opt-in, and no provider or solver model is selected automatically. Pairwise callers can collect blind solves once, apply `referenceConsensus`, then pass its reference to `judgePairwise`.
+`withReferenceConsensus(client, { solve, samples })` wraps a judge with sequential blind solves. The solver receives the user question only, never the candidate response, caller rubric or benchmark label. Only an agreed answer becomes `reference`; an explicit caller reference remains intact. The default stays five solves, with agreement of at least 0.8. The solve port is opt-in, and no provider or solver model is selected automatically.
+
+#### One solve and automatic routing
+
+Set `samples: 1` to use one nonempty blind solve. Its complete text becomes the reference, including any reasoning. This saves solve calls but provides no independent agreement check. The standalone `referenceConsensus` helper still needs at least two attempts.
+
+```ts
+import { withReferenceConsensus } from '@agent-nexus/driftbench-judges';
+
+// client and request are your existing judge and request.
+// solve(question, attempt) returns { answer?: string, costUsd?: number }.
+const routed = withReferenceConsensus(client, {
+  solve,
+  samples: 1,
+  route: 'auto',
+});
+const result = await routed.judge(request);
+```
+
+`route: 'auto'` first asks whether the question has one checkable correct answer: a number, option, fact, proof result or code behavior. Creative writing, advice, opinion, style and open-ended requests skip the solve. Without `route`, the wrapper always attempts the configured solves.
+
+The default route uses the wrapped client and its existing answer contract: pass means YES, fail means NO, and an unparsed or inconclusive result skips solving. The routing request contains only its fixed checkability criterion and the user question. It never receives candidate answers, caller system instructions, artifacts, inputs or labels. Multiple user entries are joined in transcript order.
+
+For a separate classifier or replay of one-word recordings, supply `check(question)`, which returns `{ answer: 'YES' | 'NO', costUsd? }`. It receives only the question and requires `route: 'auto'`. Only a complete YES, ignoring case and surrounding whitespace, enables solving. A missing or malformed answer, thrown error or invalid cost skips solving. The original judgement still runs without a generated reference. A failed or blank solve also leaves the reference absent; neither step manufactures a pass.
+
+| Result field | Meaning |
+| --- | --- |
+| `referenceAgreement.routed` | `true` when auto routing selects solving, `false` when it skips. Absent without auto routing. |
+| `referenceAgreement.attempts` | Number of solve attempts, including failures. Zero when routing skips. |
+| `referenceAgreement.agreement` | Winning answer's share of all attempts. A successful single solve records 1, which is not proof of correctness. |
+| `referenceAgreement.used` | Whether a generated reference reaches the judge. A positive route with a failed solve records `false`. |
+| `costUsd` | The final judgement's reported cost plus reported solve costs and any new routing call's cost. |
+
+Each wrapper caches route decisions by exact question, including concurrent and failed calls, for its lifetime. It charges a routing call only to the request that starts it. A later request reuses the decision without adding that cost again. A new wrapper starts an empty cache. Solves are not cached. An explicit caller reference, even an empty string, or a missing user question bypasses both steps and returns the original judge result.
+
+For repeated or pairwise judging, supply a caller-owned memoized solver when all verdicts should share one reference. Return its cost only when that solve runs. `samples` here counts blind solves, not verdict samples; `judgeRepeated` controls repeated judgements separately. Pairwise callers can also collect multiple blind solves once, apply `referenceConsensus`, then pass its reference to `judgePairwise`.
+
+The feature does not change `PROMPT_FINGERPRINT`. The generated reference and the separate route request use the existing request keys. See the [offline reference replay](https://github.com/achammah/driftbench/tree/main/examples/reference-replay) for historical reference3 and adaptive recordings through this API. That replay checks recorded behavior, not a fresh accuracy estimate for a different prompt or model.
 
 ## Repeat reducers
 

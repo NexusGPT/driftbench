@@ -104,6 +104,12 @@ export { type TokenUsage, type UsageProvider, usageFromResponse } from './client
 export { comparePair, type PairChoice, type PairJudge, type PairWinner } from './compare-pair';
 export type { ComparisonResult, EscalationRecord, EscalationTrigger } from './contract';
 export {
+  CONFORMANCE_PROMPT_FINGERPRINT,
+  CONFORMANCE_SYSTEM_PROMPT,
+  ConformanceAudit,
+  judgeConformance,
+} from './conformance';
+export {
   type Budget,
   CriterionText,
   inconclusive,

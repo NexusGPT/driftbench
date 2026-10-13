@@ -54,6 +54,63 @@ function escalation(first: JudgeClient, next: JudgeClient) {
 const evidence = [{ expression: '2+2', claimed: 5, actual: 4, matches: false }];
 
 describe('escalation wrapper composition', () => {
+  it.each(['YES', 'NO'] as const)(
+    'routes both comparison orders once with checkability %s',
+    async (checkability) => {
+      const first = seat('first', 'anthropic', (r) => answer(r.candidates?.A === 'one' ? 'pass' : 'fail'));
+      const next = seat('next', 'google');
+      let checks = 0;
+      let solves = 0;
+      const client = withReferenceConsensus(
+        createEscalation({
+          first: first.client,
+          // biome-ignore lint/suspicious/noThenProperty: escalation seats are a non-callable list.
+          then: [next.client],
+          agentFamily: 'meta',
+          on: ['reference-disagreement'],
+          decide: 'majority',
+        }),
+        {
+          route: 'auto',
+          samples: 1,
+          async check(question) {
+            expect(question).toBe('2+2?');
+            checks += 1;
+            return { answer: checkability, costUsd: 0.25 };
+          },
+          async solve(question) {
+            expect(question).toBe('2+2?');
+            solves += 1;
+            return { answer: '4', costUsd: 0.5 };
+          },
+        },
+      );
+      const a = pairwiseRequest(criterion, transcript, 'one', 'two');
+      const b = pairwiseRequest(criterion, transcript, 'two', 'one');
+      const result = await client.judgeComparison?.(a, b);
+      expect(checks).toBe(1);
+      expect(solves).toBe(checkability === 'YES' ? 1 : 0);
+      expect(first.requests.map((r) => r.reference)).toEqual(
+        checkability === 'YES' ? ['4', '4'] : [undefined, undefined],
+      );
+      expect(next.requests).toHaveLength(0);
+      expect(result).toMatchObject({
+        costUsd: checkability === 'YES' ? 2.75 : 2.25,
+        referenceAgreement: {
+          attempts: checkability === 'YES' ? 1 : 0,
+          agreement: checkability === 'YES' ? 1 : 0,
+          used: checkability === 'YES',
+          routed: checkability === 'YES',
+        },
+        escalation: { escalated: false, triggers: [] },
+      });
+      const second = await client.judgeComparison?.(a, b);
+      expect(checks).toBe(1);
+      expect(solves).toBe(checkability === 'YES' ? 2 : 0);
+      expect(second?.costUsd).toBe(checkability === 'YES' ? 2.5 : 2);
+    },
+  );
+
   it.each(['first', 'outer'] as const)(
     'runs verification around %s without double escalation',
     async (position) => {
