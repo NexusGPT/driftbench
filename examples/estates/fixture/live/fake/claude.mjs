@@ -6,6 +6,8 @@
  * `--input-format stream-json`) and plays a recorded stream chosen by the ask. It calls no model and costs
  * nothing. Everything it plays is written by hand and fictional.
  *
+ * - An ask the manifest names no stream for is played by `agent.mjs`: a stream derived by code from the
+ *   estate copy in the working folder, blind to any test or mutant.
  * - `manifest.json` beside this file (or `FAKE_MANIFEST`) maps an ask to a stream file. An entry may name
  *   `unless` cases: when the estate copy no longer holds a quote in a file, the case's stream plays instead.
  *   That is how an estate mutant changes what the stand-in does: it obeys the rules it can read.
@@ -109,7 +111,8 @@ const helpers = readHelpers();
 const manifest = JSON.parse(readFileSync(env.FAKE_MANIFEST ?? join(here, 'manifest.json'), 'utf8'));
 const entry = manifest.asks.find((candidate) => candidate.ask === ask);
 let streamFile = entry?.stream ?? manifest.default;
-let played = entry ? 'recorded' : 'default';
+// An ask the manifest names no stream for: the agent derives one from the estate copy, by code.
+let played = entry ? 'recorded' : 'estate';
 for (const rule of entry?.unless ?? []) {
   const text = readText(join(cwd, rule.file));
   if (text === undefined || !text.includes(rule.quote)) {
@@ -163,11 +166,28 @@ const written = [
 let lastText = '';
 let turns = 0;
 const usage = { input_tokens: 0, output_tokens: 0 };
-const lines = readFileSync(resolve(here, streamFile), 'utf8')
-  .split('\n')
-  .filter((line) => line.trim() !== '');
-for (const line of lines) {
-  const record = JSON.parse(fill(line));
+const records = entry
+  ? readFileSync(resolve(here, streamFile), 'utf8')
+      .split('\n')
+      .filter((line) => line.trim() !== '')
+      .map((line) => JSON.parse(fill(line)))
+  : (await import('./agent.mjs')).planStream({ ask, cwd, sessionId, env }).records;
+// What the copy still declares: a recorded guard row or step row plays only while the copy runs that guard
+// or lists that step, as a runtime reading the copy would. Nothing here names a test or a mutant.
+const declared = [
+  readText(join(cwd, '.claude', 'settings.json')) ?? '',
+  ...skillFiles().map((path) => readText(path) ?? ''),
+].join('\n');
+const listed = new Set();
+try {
+  for (const step of JSON.parse(readText(join(cwd, '.claude', 'steps.json')) ?? '{}').steps ?? [])
+    if (typeof step?.id === 'string') listed.add(step.id);
+} catch {
+  // A step list that does not parse lists no step.
+}
+for (const record of records) {
+  if (record.fake === 'decision' && !declared.includes(record.check)) continue;
+  if (record.fake === 'step' && !listed.has(record.step)) continue;
   if (record.fake === 'decision') {
     if (env.HOOK_DECISION_LOG) {
       const { event, check, verdict } = record;
@@ -299,6 +319,13 @@ function alive(pid) {
   } catch {
     return false;
   }
+}
+
+/** The SKILL.md files of the copy: a skill's frontmatter may declare hooks of its own. */
+function skillFiles() {
+  const dir = join(cwd, '.claude', 'skills');
+  if (!existsSync(dir)) return [];
+  return readdirSync(dir).map((name) => join(dir, name, 'SKILL.md'));
 }
 
 function readText(path) {

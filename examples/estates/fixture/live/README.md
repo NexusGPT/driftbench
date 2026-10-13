@@ -6,6 +6,14 @@ Everything here is fictional and written by hand. Nothing calls a model and noth
   `-p <ask>` (or from its input with `--input-format stream-json`) and plays the recorded stream
   that `fake/manifest.json` names for that ask. Its first lines carry the stand-in marker, so
   `driftbench estate run` lets it run without `--allow-billed`.
+- `fake/agent.mjs` plays an ask the manifest names no stream for. It derives a stream by code from the
+  estate copy in its working folder: it routes the ask by the words it shares with a routing row or a
+  unit's description, loads the skill (reading the files its body names and dispatching the helpers it
+  names) or dispatches the helper, runs a command the ask spells out, reads a file before editing it when a
+  standing rule says so, edits the file the ask names, walks the step list, and runs every hook the copy's
+  settings declare on its tool calls. It knows nothing of any test or mutant.
+- A recorded guard row or step row plays only while the copy still runs that guard or lists that step, as a
+  runtime reading the copy would.
 - `fake/streams/` holds the recorded streams. Besides stream records, a stream holds directives the
   fake performs: a guard row, a step row, a file write or a file edit in the workspace.
 - A manifest entry can name `unless` cases. When the estate copy no longer holds a quote, the case's
