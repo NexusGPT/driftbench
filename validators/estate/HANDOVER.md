@@ -1,6 +1,6 @@
 # Handover: validator estate
 
-Continue on `exec/estate-v3`, draft PR 154, in `.worktrees/exec-estate-v2`. Main is merged at `7cc677ae` before this run. Never edit the validator or bank.
+Continue on `exec/estate-v3`, draft PR 154, in `.worktrees/exec-estate-v2`. The baseline starts after main merge `7cc677ae`. Main, including PR 185, is merged again at `b2d34246` before iteration 28; that merge changes neither the estate product nor its bank. Never edit the validator or bank.
 
 ## Level per seed
 
@@ -10,11 +10,11 @@ Continue on `exec/estate-v3`, draft PR 154, in `.worktrees/exec-estate-v2`. Main
 | 1 | 0 |
 <!-- level-table:end -->
 
-Iteration 27: seed 1 passes 956 of 1170 items. The fresh post-main baseline passes 955 of 1170. The supplied last-known count was 956; the old handover records 952. The fresh baseline gains only wide-folder, generate-1000 and generate-2500 timing items over that handover. Timing changes receive no component credit.
+Iteration 28: seed 1 passes 957 of 1170 items. The fresh post-main baseline passes 955 of 1170. The supplied last-known count was 956; the old handover records 952. The fresh baseline gains only wide-folder, generate-1000 and generate-2500 timing items over that handover. Timing changes receive no component credit.
 
-Current capture: `.cache/estate-executor/codex-27.json`. Source stamp and patch: `codex-27-source.json` and `codex-27.patch` in that folder. Captures are local and are not in a fresh clone. The source is held unchanged throughout each measurement.
+Current capture: `.cache/estate-executor/codex-28.json`. Source stamp and patch: `codex-28-source.json` and `codex-28.patch` in that folder. Captures are local and are not in a fresh clone. The source is held unchanged throughout each measurement.
 
-The separate `.cache/estate-executor/codex-27-seeds.json` sweep runs visible seeds 1 to 20 and hidden seed 512967926. It stops at the first failing level. It proves the reader results and level 0 across those seeds, not an all-level bank score across seeds.
+The separate `.cache/estate-executor/codex-28-seeds.json` sweep runs visible seeds 1 to 20 and hidden seed 1189510. It stops at the first failing level. It proves the reader results and level 0 across those seeds, not an all-level bank score across seeds.
 
 | Sweep seed | Level |
 |---|---|
@@ -50,7 +50,7 @@ Seed 1, all levels, from the current capture:
 
 | Level | Passing |
 |---|---|
-| reader | 583/641 |
+| reader | 584/641 |
 | lint | 45/46 |
 | plan | 44/65 |
 | generation | 196/270 |
@@ -66,8 +66,8 @@ Seed 1, all levels, from the current capture:
 | plan.relevance | 20 |
 | gen.complete | 14 |
 | gen.task | 9 |
-| scan.gates | 8 |
 | scan.standing | 8 |
+| scan.gates | 7 |
 | scan.steps | 7 |
 | scan.decoys | 6 |
 | gen.coverage | 5 |
@@ -109,7 +109,6 @@ First failing level, reader, exact unresolved ids:
 - `scan.reference-prose.chained`: `packages/estate/src/scan/claude-code.ts`.
 - `scan.reference-prose.outside-skill`: `packages/estate/src/scan/claude-code.ts`.
 - `scan.gates.markdown-link`: `packages/estate/src/scan/code.ts`.
-- `scan.gates.two-on-one-line`: `packages/estate/src/scan/code.ts`.
 - `scan.gates.decoy-example`: `packages/estate/src/scan/code.ts`.
 - `scan.gates.then-form`: `packages/estate/src/scan/code.ts`.
 - `scan.gates.without-form`: `packages/estate/src/scan/code.ts`.
@@ -171,14 +170,27 @@ Question: Why does a routing table without outer pipes lose its routes? The cell
 - Sources: docs/adapters/claude-code.md: routing tables and check registries; packages/estate/src/scan/text.ts: readTables and cells; packages/estate/test/scan/tables.test.ts: chunk-boundary ownership.
 - Gains: scan.standing.no-outer-pipes.
 - Losses: none.
+### Iteration 28
+
+956/1170 to 957/1170.
+
+Question: Why is the second fixed-form gate on a line omitted? gateAtoms takes one exec match per form and stops after its first accepted match. Collect every match, order by source position, and skip overlapping interpretations. Bound colon and comma triggers at semicolons so one clause cannot consume the next. Keep the four documented forms and the original line provenance. Three tests fail before the change and one overlap control passes; all four pass after the fix, with 27 focused assertions passing.
+
+- Sources: docs/estate.md: four fixed gate forms; packages/estate/src/scan/code.ts: GATE_FORMS and gateAtoms; packages/estate/test/scan/pilot.test.ts: gate controls.
+- Gains: scan.gates.two-on-one-line.
+- Losses: none.
 
 Older iterations and research remain in the append-only journal. The pre-takeover and previous full sweeps are historical measurements on different source versions, not current branch results.
 
+### Stuck record
+
+Iterations 26 to 28 improve individual capabilities but leave level 0 unchanged. Section 10.3 requires a maintainer handoff after three unchanged levels. The remaining reader items below keep the level at 0. The fixes address distinct causes: runtime tool labels, optional table borders, and repeated gate matches. No broader forms are added to satisfy disputed oracles.
+
 ## Next actions
 
-1. Fix the remaining gate reader cause: more than one fixed-form gate on a line. Preserve source order and provenance.
-2. Re-measure seed 1 and visible plus hidden reader seeds, journal and commit that separate cause.
-3. Keep the prepared object-valued registry test for a later separate iteration. It is untracked and red.
+1. Read the stuck record below and arbitrate the documented bank-contract conflicts before expanding code beyond the documented source forms.
+2. Resume with the largest actionable reader family. The prepared object-valued registry test is red and remains a separate cause.
+3. Run a current all-level, all-seed sweep before claiming a whole-bank result across seeds. The current cross-seed sweep stops at the reader.
 
 ## Pitfalls
 
@@ -211,3 +223,11 @@ The first command measures every bank item on seed 1. The second measures levels
 - Bank generators under `packages/validators/src/ladders/estate/bank/` create planted inputs in temporary folders. Read them to diagnose; never edit them.
 - `examples/estates/fixture` and `fixture-v2` hold the committed fictional estate and its recorded answers.
 - New regression tests are under `packages/estate/test/scan/`. Their fake ports make no model calls.
+
+## Verification and maintainer handoff
+
+- The current estate unit suite passes 343 assertions across 48 files with `--maxWorkers=2`. The pre-existing untracked object-rules test is excluded and remains red.
+- Typecheck and scoped formatting checks pass after the main merge containing PR 185.
+- The fresh brief is saved locally at `.cache/estate-executor/codex-28-fresh-brief.md`. Its seed 1 run reproduces level 0.
+- Section 10.4's independent fresh-session reproduction remains a maintainer action. This executor generates the brief without making model calls.
+- The latest continuation improves four correctness items, from a fresh 955/1170 baseline to 957/1170. Two scale timing losses remain counted in the result.

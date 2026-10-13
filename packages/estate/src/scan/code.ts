@@ -671,8 +671,8 @@ function routeAtoms(
 
 /** The fixed forms of a gate, each giving the thing to read first and the act it comes before. */
 const GATE_FORMS: Array<{ form: string; pattern: RegExp; read: number; act: number }> = [
-  { form: 'before-colon-read', pattern: /\bbefore ([^:]+?):\s*read\s+(`[^`]+`|\S+)/i, read: 2, act: 1 },
-  { form: 'before-comma-read', pattern: /\bbefore ([^,:]+?),\s*read\s+(`[^`]+`)/i, read: 2, act: 1 },
+  { form: 'before-colon-read', pattern: /\bbefore ([^:;]+?):\s*read\s+(`[^`]+`|\S+)/i, read: 2, act: 1 },
+  { form: 'before-comma-read', pattern: /\bbefore ([^,:;]+?),\s*read\s+(`[^`]+`)/i, read: 2, act: 1 },
   { form: 'read-before', pattern: /\bread\s+(`[^`]+`)\s+before\s+([^.;!]+)/i, read: 1, act: 2 },
   {
     form: 'not-until-read',
@@ -689,13 +689,20 @@ function gateAtoms(
   builder: AtomBuilder,
 ): void {
   for (const line of chunkLines(chunk, files.get(chunk.file))) {
-    for (const { form, pattern, read, act } of GATE_FORMS) {
-      const match = pattern.exec(line.text);
-      if (!match) continue;
+    const matches = GATE_FORMS.flatMap(({ pattern, ...form }) =>
+      Array.from(line.text.matchAll(new RegExp(pattern.source, `${pattern.flags}g`)), (match) => ({
+        ...form,
+        match,
+      })),
+    ).sort((a, b) => a.match.index - b.match.index);
+    let coveredUntil = 0;
+    for (const { form, read, act, match } of matches) {
+      if (match.index < coveredUntil) continue;
       // Markup around the words (bold, backticks) is not part of the act or of what is read.
       const first = (match[read] ?? '').replace(/[`*]/g, '').trim();
       const trigger = (match[act] ?? '').replace(/[`*]/g, '').trim();
       if (first === '' || trigger === '' || !isAct(trigger)) continue;
+      coveredUntil = match.index + match[0].length;
       const isFile = /\.[A-Za-z0-9]+$/.test(first) && !/\s/.test(first);
       // The file to read first is found as a reference's is: its place, an alias, then its ending.
       const located = isFile
@@ -732,7 +739,6 @@ function gateAtoms(
           ...(located?.via === 'external' ? { external: true } : {}),
         },
       });
-      break;
     }
   }
 }
