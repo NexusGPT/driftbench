@@ -8,7 +8,7 @@
 version: 1
 runtime: claude-code
 root: .
-readAt: 2026-10-12T04:24:56.539Z
+readAt: 2026-10-12T22:29:49.184Z
 atoms:
   - id: skill.parcel-claims.skill-parcel-claims
     kind: skill
@@ -907,16 +907,14 @@ atoms:
     approved: true
     situation: "- Carrier habits are in `notes.md`."
     evidence:
-      - { type: tool_called, label: Read, input: { file_path: { contains: .claude/skills/shipment-tracker/notes.md } } }
+      - { type: tool_called, label: Read, input: { file_path: { contains: .claude/skills/shipment-tracker/references/notes.md } } }
     enforcement: []
     fields:
-      path: .claude/skills/shipment-tracker/notes.md
-      exists: false
+      path: .claude/skills/shipment-tracker/references/notes.md
+      exists: true
       readWhen: "- Carrier habits are in `notes.md`."
       from: .claude/skills/shipment-tracker/SKILL.md
-      candidates:
-        - .claude/skills/parcel-claims/references/notes.md
-        - .claude/skills/shipment-tracker/references/notes.md
+      resolvedBy: suffix
   - id: instruction.standing.never-force-push
     kind: instruction
     title: Never force-push
@@ -1249,9 +1247,8 @@ atoms:
     enforcement: []
     fields:
       check: no_orphans
-      orphans:
-        - .claude/skills/shipment-tracker/references/notes.md
-      holds: false
+      orphans: []
+      holds: true
   - id: invariant.settings.every-guard-finds-its-script-from
     kind: invariant
     title: Every guard finds its script from an anchor
@@ -1326,5 +1323,5 @@ ignore:
 producedBy:
   family: lane
   model: claude-opus-5-5 as the reader lane, by hand
-  at: 2026-10-12T04:24:56.539Z
+  at: 2026-10-12T22:29:49.184Z
 hash: b6d05156e9a077659318ddd3d5b31b461f924e5bb332f6077b1bef059c271dc5
