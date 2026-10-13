@@ -50,6 +50,20 @@ def main():
         failures.append('Spend cap exceeded')
     if len({r['key'] for r in calls}) != len(calls):
         failures.append('Duplicate returned call keys')
+    successful_keys = collections.Counter(r.get('logicalKey', r['key']) for r in calls if not r.get('providerError'))
+    if any(count > 1 for count in successful_keys.values()):
+        failures.append('An answered logical call was resubmitted')
+    resume = freeze.get('geminiResumeAmendment', {})
+    gemini_resumed = sorted([r for r in calls if r['model'] == 'gemini-3.8-flash'
+                            and resume and r['startedAt'] >= resume['at']], key=lambda r: r['startedAt'])
+    probe_verified = None
+    if gemini_resumed:
+        first_answer = next((r for r in gemini_resumed if not r.get('providerError')), None)
+        probe_key = gemini_resumed[0].get('logicalKey', gemini_resumed[0]['key'])
+        probe_verified = all(r.get('logicalKey', r['key']) == probe_key or
+                             (first_answer is not None and r['startedAt'] >= first_answer['finishedAt'])
+                             for r in gemini_resumed)
+        if not probe_verified: failures.append('Gemini queue opened before the probe answered')
     job_key = lambda r: (r['split'], r['model'], r['contestant'], r['id'], r.get('sample', 0))
     if len({job_key(r) for r in decisions}) != len(decisions):
         failures.append('Duplicate decision keys')
@@ -78,6 +92,8 @@ def main():
     output = {'at': datetime.datetime.now(datetime.timezone.utc).isoformat(), 'failures': failures,
               'complete': complete, 'modelsChecked': required_models, 'sourceHashes': len(freeze['files']), 'sealHashes': len(seals),
               'actualUsd': actual, 'uncertainOrInflightUsd': sum(pending.values()), 'capUsd': freeze['capUsd'],
+              'duplicateSuccessfulLogicalCalls': sum(count-1 for count in successful_keys.values()),
+              'geminiSingleProbeVerified': probe_verified,
               'returnedCalls': len(calls), 'completedDecisions': len(decisions), 'coverage': coverage}
     (HERE / 'results/verification.json').write_text(json.dumps(output, indent=2) + '\n')
     print(json.dumps({k: v for k, v in output.items() if k != 'coverage'}))

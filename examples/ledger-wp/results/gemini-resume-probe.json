@@ -1,0 +1,11 @@
+{
+  "amendmentAt": "2026-10-13T10:19:24.908634+00:00",
+  "status": "answered",
+  "key": "36024af58126e30cf90d7dfc3286b2844fe4e57a117d2d4aefecb14c9ce75a25",
+  "logicalKey": "36024af58126e30cf90d7dfc3286b2844fe4e57a117d2d4aefecb14c9ce75a25",
+  "transportAttempt": 1,
+  "startedAt": "2026-10-13T10:20:36.216Z",
+  "finishedAt": "2026-10-13T10:20:56.699Z",
+  "costUsd": 0.00050625,
+  "policy": "First missing sealed call; returned answer retained regardless of content validity."
+}
