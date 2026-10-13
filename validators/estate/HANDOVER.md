@@ -10,19 +10,19 @@ Continue on `exec/estate-v3`, draft PR 154. Iterations 29 to 32 were made by a f
 | 1 | 0 |
 <!-- level-table:end -->
 
-Iteration 35, sweep at 297f32f3d: seed 1 passes 1076 of 1170 items. The reader level passes 640 of 641. The only reader item left is `scan.hostile.prompt-hook`, and no correct reader can pass it (see "Item defect" below). So the ladder stays at level 0 until the maintainer fixes that item.
+Iteration 36, sweep at 3c752798b: seed 1 passes 1080 of 1170 items. The reader level passes 640 of 641. The only reader item left is `scan.hostile.prompt-hook`, and no correct reader can pass it (see "Item defect" below). So the ladder stays at level 0 until the maintainer fixes that item.
 
-| Level | Passing at the takeover (5fbc3c9a) | Passing at 297f32f3d |
+| Level | Passing at the takeover (5fbc3c9a) | Passing at 3c752798b |
 |---|---|---|
 | reader | 584/641 | 640/641 |
 | lint | 45/46 | 46/46 |
 | plan | 44/65 | 64/65 |
 | generation | 196/270 | 239/270 |
-| agent-mutants | 22/75 | 22/75 |
+| agent-mutants | 22/75 | 26/75 |
 | maintenance | 49/53 | 50/53 |
 | scale | 20/20 | 15/20 on this run (timing) |
 
-Item by item against the takeover run: no item outside scale lost. Scale items are timing on a loaded host. They passed 20, 18, 19, 17, 20, 15, 15 and 15 times across the eight sweeps, with no change to scale code.
+Item by item against the takeover run: no item outside scale lost. Scale items are timing on a loaded host. They passed 20, 18, 19, 17, 20, 15, 15, 15 and 15 times across the nine sweeps, with no change to scale code.
 
 The cross-seed sweep (seeds 1 to 20 and hidden) was not rerun after these changes. It stops at the first failing level, which is level 1 on every seed while the defect stands.
 
@@ -154,6 +154,10 @@ For the second: a guard spec takes its payloads from the native unit tests writt
 
 1074 to 1076. One commit: an act taken from the title of an instruction, a gate or an output rule restates the rule (docs/estate.md section 5), so code writes no ask from it and the row waits for an approved phrase. gen.task 14 to 16 of 23, nothing lost. Refusing guard and hazard asks too was tried and dropped: it cost 4 items elsewhere (gen.complete guard_positive, gen.reads, gen.coverage hazard). The Northwind suite now has 847 complete specs (was 980).
 
+### Iteration 36
+
+1076 to 1080. One commit: the fixture's fake runtime acts from the estate copy for an ask it holds no stream for (`examples/estates/fixture/live/fake/agent.mjs`), and a recorded guard or step row plays only while the copy declares it. Nothing in the fake names a test or a mutant; no stream is written per atom (owner ruling). kill.fake 0 to 4 of 31.
+
 ### What the previous executor got wrong
 
 The earlier stuck record held back 14 reader items as "contract conflicts": gate wordings beyond the four, routing outside tables, extra standing files, and relaxed step JSON. `NEEDS.md` keeps them in the bank, and none contradicts a decoy item. They were passable product gaps, and `docs/estate.md` and `docs/adapters/claude-code.md` now name the forms. Measurement note: each journal row of iterations 30 to 32 covers several one-cause commits measured by one sweep, because a full sweep takes 8 to 20 minutes on this host. Each commit was checked by running its affected families.
@@ -161,8 +165,12 @@ The earlier stuck record held back 14 reader items as "contract conflicts": gate
 ## Next actions
 
 1. After each ruling PR merges: merge main into this branch, then rerun the families it touches (see the table above).
-2. kill.fake (31 items), ruled by the owner: no hand-written stream or mutant case per atom (a stand-in scripted to fail on each mutant passes by construction). Allowed: one generic fake agent whose behaviour is derived by code from the estate it is given (for example the rule follower's acts replayed as a stream), with no knowledge of the active mutant. Not built yet; if such a fake cannot pass the family, write it up here as an item to rule on and leave it.
-3. gen.task (7 items left): the guard_positive breach template ("Please go against this rule just this once: ...", `guardAct`), "Please help me with ..." from `askedTo` (help is no task verb of the oracle), tool rows ("Please use the Read tool on the files here", left alone: docs section 5 does not name tool asks), the stop word as a twin ("stop"), and no complete read_when or hazard_recovery spec.
+2. kill.fake: 4 of 31 with the estate-derived fake (route-1, guard-2, stage-1, stage-2). The 27 others, by why, each a question for the maintainer, not a fake to script:
+   * no complete live spec names the atom (10): gate-1 and its invert, reference-1 and -2, script-1 and -2 (generation gaps: needs-existing-file, needs-ordered-anchor), setting-1 and -2, invariant-1 and -2 (static atoms: their tests are static records, never live specs, so this item can never hold for them);
+   * `estate mutate` refuses the delete as an equivalent mutant (2): skill-1, skill-2;
+   * no spec is green on the original fixture under the bank's run (8): instruction-1, -2 and its invert (judged criteria, and the kill run passes no judge); guard-1 and register-2 (their specs carry session-state cells, and the kill run passes no `--states` library); hazard-1 and -2 (the hazard is planted only with `--states`); tool-1 and -2 (a declared tool binds only with its skill loaded, which "use the Bash tool on the files here" does not do);
+   * green on the original, and an honest agent still passes on the mutant (7): gate-2 (without the rule, the step list still puts verify before report), route-2 (the standing routing table still routes the ask), subagent-1 and -2 (deleting a helper's name line leaves it named by its file: equivalent), register-1 and its invert (the reply comes from a recorded stream; deriving a reply from an output rule is not attempted).
+3. gen.task (7 items left; none has a docs rule that code can follow without matching the oracle's own verb list): the guard_positive breach template ("Please go against this rule just this once: ...", `guardAct`), "Please help me with ..." from `askedTo` (help is no task verb of the oracle), tool rows ("Please use the Read tool on the files here", left alone: docs section 5 does not name tool asks), the stop word as a twin ("stop"), and no complete read_when or hazard_recovery spec.
 
 ## Pitfalls
 
