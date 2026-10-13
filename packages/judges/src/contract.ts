@@ -95,6 +95,8 @@ export type JudgeResult = {
     readonly attempts: number;
     readonly agreement: number;
     readonly used: boolean;
+    /** Auto route selected solving (true) or skipped it (false). Absent when routing was not requested. */
+    readonly routed?: boolean;
   };
   readonly answer: JudgeAnswer;
   /** The provider's answer as received: the model text, or the JSON body of a system 1 answer. */
