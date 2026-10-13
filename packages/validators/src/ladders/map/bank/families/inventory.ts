@@ -235,7 +235,8 @@ export const FORMS: readonly Form[] = [
     write: (inventory) => yaml({ behaviours: inventory.behaviours, flows: inventory.flows }),
     code: (inventory) => {
       const named = [...new Set(inventory.behaviours.flatMap((behaviour) => behaviour.channels ?? []))];
-      return inventoryCode({ ...inventory, channels: named }).filter((entry) => entry.type !== 'constraint');
+      // Only the channel declaration is omitted; flow membership still constrains behaviours.
+      return inventoryCode({ ...inventory, channels: named });
     },
   },
   {
