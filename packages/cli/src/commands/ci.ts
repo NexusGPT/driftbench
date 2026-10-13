@@ -26,6 +26,7 @@ import { localProvider } from '@agent-nexus/driftbench-sandbox';
 import { pairedRateDifference } from '@agent-nexus/driftbench-stats';
 import type { Command } from 'commander';
 import { criteriaFromConfig } from '../aggregate-config';
+import { applyCampaignConfig } from '../campaign-config';
 import type { Io } from '../io';
 import { type CampaignDeps, campaignRunCommand, defaultDeps, parseTarget } from './campaign';
 import { parseGate } from './compare';
@@ -242,7 +243,18 @@ export function registerCiCommand(
       collect,
       [] as string[],
     )
-    .action(async (options: CiCommandOptions) => {
+    .action(async (options: CiCommandOptions, command: Command) => {
+      // The run settings ci shares with campaign run; what ci requires on the command line stays there.
+      const shared = [
+        'route',
+        'mode',
+        'repeats',
+        'concurrency',
+        'budgetUsd',
+        'processCommand',
+        'agentVersion',
+      ];
+      if ((await applyCampaignConfig(command, options, io, shared)) === false) return setExit(2);
       setExit(await ciCommand(options, io, deps));
     });
 }
