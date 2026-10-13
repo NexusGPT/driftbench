@@ -10,7 +10,8 @@ title: Build the Acme price sheet from the catalog file
 description: >
   A code agent works in a workspace seeded with the plan catalog. It builds an Excel price sheet, one sheet
   per category with a yearly price, and in instances with a summary adds a Summary sheet in a second block.
-  No other file in the workspace may change.
+  In instances that start from an existing workbook, the price sheet is already there and the agent only
+  adds the Summary sheet. No other file in the workspace may change.
 target: { adapter: process, agent: acme-ops }
 spec:
   channel: chat
@@ -49,6 +50,10 @@ knobs:
     class: structure
     values: [out/acme-price-sheet.xlsx, out/price-sheet.xlsx, out/acme-prices.xlsx]
     description: The workbook the instruction names; a path the expected outcome holds, so not a style knob.
+  start:
+    class: structure
+    values: [catalog-only, existing-workbook]
+    description: The workspace holds the catalog only, or also the price sheet already built from it; then the task is the summary alone.
   planted:
     class: structure
     values: [with, without]
@@ -79,6 +84,12 @@ constraints:
     compare: { left: categories, op: '<=', right: plans }
   - id: json-has-no-line-endings-knob
     implies: { when: { seed_format: json }, require: { line_endings: lf } }
+  - id: an-existing-workbook-gets-its-summary
+    implies: { when: { start: existing-workbook }, require: { summary: with } }
+  - id: an-existing-workbook-holds-values
+    implies: { when: { start: existing-workbook }, require: { yearly: value } }
+  - id: the-planted-note-goes-with-the-build
+    implies: { when: { start: existing-workbook }, require: { planted: without } }
 
 wording_knob: wording
 
@@ -121,6 +132,17 @@ files:
       column_order_knob: column_order
   - path: '{readme_name}'
     text: { phrase: readme }
+  - path: '{workbook}'
+    when: { start: existing-workbook }
+    xlsx:
+      table: plans
+      sheet_by: category
+      sheet_name: title
+      columns:
+        - { header: Plan, column: name }
+        - { header: Allowance, column: allowance }
+        - { header: Monthly price (USD), column: monthly_usd }
+        - { header: Yearly price (USD), column: monthly_usd, times: 12 }
 
 corners:
   per_instance: 3
@@ -194,6 +216,7 @@ phrases:
 
 blocks:
   - id: build
+    when: { start: catalog-only }
     stage: build_sheet
     parts:
       - phrases: [build.intro.a, build.intro.b, build.intro.c]

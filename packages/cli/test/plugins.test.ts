@@ -8,8 +8,8 @@ import { afterEach, describe, expect, it } from 'vitest';
 import { readAggregateConfig } from '../src/aggregate-config';
 import { defaultPairwiseClient } from '../src/commands/compare';
 import {
+  campaignCommands,
   type DriftbenchPlugin,
-  defaultDeps,
   definePlugin,
   type Io,
   type MainOptions,
@@ -196,7 +196,6 @@ describe('plugins', () => {
     let asked = '';
     const withDeps = await cli(['smoke', SPEC], ROOT, {
       deps: {
-        ...defaultDeps,
         adapterFor: async (target) => {
           asked = `${target.adapter}:${target.agent}`;
           return undefined;
@@ -205,6 +204,12 @@ describe('plugins', () => {
     });
     expect(asked).toBe('echo:demo');
     expect(withDeps.code).toBe(2);
+  });
+
+  it('the campaign commands load on demand', async () => {
+    const { campaignRunCommand, defaultDeps } = await campaignCommands();
+    expect(typeof campaignRunCommand).toBe('function');
+    expect((await defaultDeps.adapterFor({ adapter: 'function', agent: 'acme-sales' }))?.id).toBe('function');
   });
 
   it('a plugin judge answers --pairwise-judge by its name; an unknown name is refused as before', async () => {

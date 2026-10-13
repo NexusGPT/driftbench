@@ -31,6 +31,8 @@
  * Step feed (optional). A JSONL file, one row per stage reached: `{ at, step }`.
  */
 
+import { isRecord } from '../shared/records';
+
 /** One parsed line of a JSONL file: the record, or the text and the reason it did not parse. */
 export type JsonlLine =
   | { line: number; ok: true; value: unknown }
@@ -72,9 +74,7 @@ export type DecisionRow = {
 /** One row of a step feed. */
 export type StepRow = { at: string; step: string };
 
-export function isRecord(value: unknown): value is Record<string, unknown> {
-  return typeof value === 'object' && value !== null && !Array.isArray(value);
-}
+export { isRecord };
 
 export function stringField(record: Record<string, unknown>, key: string): string | undefined {
   const value = record[key];

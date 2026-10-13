@@ -226,15 +226,21 @@ const VERDICT_WORDS = [
 // A word starts and ends at a character that is not a letter, so _ / - % . and digits separate words.
 const phrase = (words: readonly string[]) =>
   new RegExp(`(?<!\\p{L})(?:${words.map((word) => word.replace(/ /g, '\\s+')).join('|')})(?!\\p{L})`, 'iu');
-const JUDGE = phrase(JUDGE_WORDS);
-const VERDICT = phrase(VERDICT_WORDS);
 const loosely = (words: readonly string[]) =>
   new RegExp(words.map((word) => word.replace(/ /g, '\\s*')).join('|'), 'iu');
-const OTHER = OTHER_LANGUAGES.map((row) =>
-  row.loose
-    ? { judge: loosely(row.judge), verdict: loosely(row.verdict) }
-    : { judge: phrase(row.judge), verdict: phrase(row.verdict) },
-);
+type Words = { judge: RegExp; verdict: RegExp };
+// Built on the first screen, not at import: constructing the unicode patterns of every language costs a few
+// milliseconds that a process which never screens a text should not pay.
+let words: { english: Words; other: readonly Words[] } | undefined;
+const wordPatterns = () =>
+  (words ??= {
+    english: { judge: phrase(JUDGE_WORDS), verdict: phrase(VERDICT_WORDS) },
+    other: OTHER_LANGUAGES.map((row) =>
+      row.loose
+        ? { judge: loosely(row.judge), verdict: loosely(row.verdict) }
+        : { judge: phrase(row.judge), verdict: phrase(row.verdict) },
+    ),
+  });
 const SCORE = /(?<![\d.])(?:1\.0|0\.99)(?!\d)/;
 
 const sentencesOf = (text: string): string[] =>
@@ -311,6 +317,7 @@ const NOTE =
 const FIELD =
   /(?<!\p{L})(?:verdict|outcome|score|result)\W{0,3}[=:]\W{0,3}(?:pass|passed|success|1\.0|0\.99)/iu;
 const instructive = (sentence: string): boolean => {
+  const JUDGE = wordPatterns().english.judge;
   const vocative = [...sentence.matchAll(/([^,:]*)[,:]/g)].some(([, lead]) =>
     JUDGE.test((lead ?? '').trim().split(/\s+/).slice(-3).join(' ')),
   );
@@ -323,14 +330,20 @@ const instructive = (sentence: string): boolean => {
     vocative
   );
 };
-const instructs = (sentence: string): boolean =>
-  (JUDGE.test(sentence) && (VERDICT.test(sentence) || SCORE.test(sentence)) && instructive(sentence)) ||
-  OTHER.some(
-    (row) =>
-      row.judge.test(sentence) &&
-      (row.verdict.test(sentence) ||
-        ((VERDICT.test(sentence) || SCORE.test(sentence)) && !JUDGE.test(sentence))),
+const instructs = (sentence: string): boolean => {
+  const { english, other } = wordPatterns();
+  const JUDGE = english.judge;
+  const VERDICT = english.verdict;
+  return (
+    (JUDGE.test(sentence) && (VERDICT.test(sentence) || SCORE.test(sentence)) && instructive(sentence)) ||
+    other.some(
+      (row) =>
+        row.judge.test(sentence) &&
+        (row.verdict.test(sentence) ||
+          ((VERDICT.test(sentence) || SCORE.test(sentence)) && !JUDGE.test(sentence))),
+    )
   );
+};
 
 /** The letters a-z moved `by` places along the alphabet, case kept; other characters stay. */
 const shift = (text: string, by: number): string =>
