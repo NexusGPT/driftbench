@@ -58,9 +58,18 @@ it.each([
   ['auth', { is_error: true, result: 'API Error: 401 authentication_error' }, false, 1],
   ['other', { is_error: true, result: 'unrecognized failure' }, false, 1],
 ] as const)('classifies %s and bounds submissions', async (category, body, retryable, count) => {
-  await expect(
-    transport({ type: 'result', subtype: 'success', ...body }).complete(prompt),
-  ).rejects.toMatchObject({ category, retryable, requestCount: count });
+  const error = await transport({ type: 'result', subtype: 'success', ...body })
+    .complete(prompt)
+    .then(
+      () => undefined,
+      (e: unknown) => e as { requestCount: number; retryReceipts: unknown[]; thinkingRecovery?: unknown },
+    );
+  expect(error).toMatchObject({ category, retryable, requestCount: count });
+  if (category === 'output-limit') {
+    // Both submissions belong to the thinking recovery: the retry layer made zero retries.
+    expect(error?.thinkingRecovery).toMatchObject({ requestCount: 2 });
+    expect(error?.retryReceipts).toEqual([]);
+  }
 });
 it('recovers transient no-answer calls under the existing policy', async () => {
   const r = await transport(
