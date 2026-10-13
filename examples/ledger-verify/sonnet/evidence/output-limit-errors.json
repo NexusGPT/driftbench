@@ -1,0 +1,163 @@
+{
+  "counts": {
+    "claude-sonnet-5-5": {
+      "driftbench-verify-uncertainty-cascade": {
+        "all": {
+          "answerEnvelopes": 0,
+          "affectedItems": 0,
+          "items": []
+        },
+        "test": {
+          "answerEnvelopes": 0,
+          "affectedItems": 0,
+          "items": []
+        }
+      },
+      "promptfoo": {
+        "all": {
+          "answerEnvelopes": 0,
+          "affectedItems": 0,
+          "items": []
+        },
+        "test": {
+          "answerEnvelopes": 0,
+          "affectedItems": 0,
+          "items": []
+        }
+      }
+    }
+  },
+  "limits": [],
+  "unmappedLimits": [],
+  "unclassifiedHistoricalNativeErrors": [],
+  "refusals": [
+    {
+      "receipt": "a1eee2a3-ace2-41bd-9ce3-fa7301f7cc44",
+      "model": "claude-sonnet-5-5",
+      "phase": "pilot",
+      "reason": "native refusal",
+      "at": "2026-10-13T16:13:43.445Z",
+      "consumers": [
+        {
+          "phase": "pilot",
+          "model": "claude-sonnet-5-5",
+          "key": "7e8cb3d950178d87e29f",
+          "fingerprint": "d8f7ff824f57e8703a325711079998f3bb311c659c923bc28cbeb46634d9a21d",
+          "bench": "longjudge-verify",
+          "contestant": "promptfoo",
+          "item": "0693b094973e7e926583c76785af77ca_5a776264cbecc67bd81bf1bea7505338",
+          "order": "single",
+          "selection": "original item-labelled answer"
+        }
+      ]
+    },
+    {
+      "receipt": "15d7e22f-9289-4c88-86a3-402c81e1c8f1",
+      "model": "claude-sonnet-5-5",
+      "phase": "pilot",
+      "reason": "native refusal",
+      "at": "2026-10-13T16:13:47.679Z",
+      "consumers": [
+        {
+          "phase": "pilot",
+          "model": "claude-sonnet-5-5",
+          "key": "d3323825806059e8be78",
+          "fingerprint": "2568fc9d8de1a3a0c4153c2628452a77f473af4e0572ee104e15347b7d635fa8",
+          "bench": "longjudge-verify",
+          "contestant": "promptfoo",
+          "item": "0af2a305f4c4e44a69c7fd5e03d7f74e_7ff87a43db7f15aa80827e2230dd95a1",
+          "order": "single",
+          "selection": "original item-labelled answer"
+        }
+      ]
+    },
+    {
+      "receipt": "cd02deac-1e18-4f42-a4bb-1b0f6068612b",
+      "model": "claude-sonnet-5-5",
+      "phase": "pilot",
+      "reason": "native refusal",
+      "at": "2026-10-13T16:14:09.863Z",
+      "consumers": [
+        {
+          "phase": "pilot",
+          "model": "claude-sonnet-5-5",
+          "key": "8f2d0b8bb79c506e6e7e",
+          "fingerprint": "dbb9332fe77cdfe272979c667dae84a8ac86bc749de45aa799495e3094a83436",
+          "bench": "longjudge-verify",
+          "contestant": "promptfoo",
+          "item": "251325e4d8bd19d38d1481ec5bb6b952_b0e0faf620816637683d6cefbc8d905d",
+          "order": "single",
+          "selection": "original item-labelled answer"
+        }
+      ]
+    },
+    {
+      "receipt": "a882a226-19bc-46b5-872e-f4e0ab899a4e",
+      "model": "claude-sonnet-5-5",
+      "phase": "pilot",
+      "reason": "native refusal",
+      "at": "2026-10-13T16:14:11.119Z",
+      "consumers": [
+        {
+          "phase": "pilot",
+          "model": "claude-sonnet-5-5",
+          "key": "490271048331d7548e3e",
+          "fingerprint": "2e200136e0b12032896a12f4315f098c6284001716fde815b69250d0485802e1",
+          "bench": "longjudge-verify",
+          "contestant": "promptfoo",
+          "item": "2c0b811d86ed6140f5f9811cf3a320fa_4e375ba613e31acadbdf76cf9dcb95ad",
+          "order": "single",
+          "selection": "original item-labelled answer"
+        }
+      ]
+    }
+  ],
+  "refusalCounts": {
+    "claude-sonnet-5-5": {
+      "driftbench-verify-uncertainty-cascade": {
+        "all": {
+          "answerEnvelopes": 0,
+          "affectedItems": 0,
+          "items": []
+        },
+        "test": {
+          "answerEnvelopes": 0,
+          "affectedItems": 0,
+          "items": []
+        }
+      },
+      "promptfoo": {
+        "all": {
+          "answerEnvelopes": 4,
+          "affectedItems": 4,
+          "items": [
+            {
+              "phase": "pilot",
+              "id": "0693b094973e7e926583c76785af77ca_5a776264cbecc67bd81bf1bea7505338"
+            },
+            {
+              "phase": "pilot",
+              "id": "0af2a305f4c4e44a69c7fd5e03d7f74e_7ff87a43db7f15aa80827e2230dd95a1"
+            },
+            {
+              "phase": "pilot",
+              "id": "251325e4d8bd19d38d1481ec5bb6b952_b0e0faf620816637683d6cefbc8d905d"
+            },
+            {
+              "phase": "pilot",
+              "id": "2c0b811d86ed6140f5f9811cf3a320fa_4e375ba613e31acadbdf76cf9dcb95ad"
+            }
+          ]
+        },
+        "test": {
+          "answerEnvelopes": 0,
+          "affectedItems": 0,
+          "items": []
+        }
+      }
+    }
+  },
+  "unmappedRefusals": [],
+  "rule": "Strict is primary; any confirmed output limit makes every consuming contestant/item an error. Product-final preserves the original verdict, including fallback.",
+  "source": "evidence/scoring-freeze.json; evidence/request-attribution.json; receipts/calls.jsonl; receipts/errors.jsonl; receipts/native/*.json"
+}

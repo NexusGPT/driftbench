@@ -1,6 +1,6 @@
 # LongJudge verify confirmation
 
-Evidence timestamp: 2026-10-13T16:15:41.001856+00:00.
+Evidence timestamp: 2026-10-13T16:24:08.975229+00:00.
 
 - Branch: research/ledger-verify. Core contract: PR 168 at 35f07309a4d1d1c8a7c5b176ff19e537d0ef8fdd.
 - All 221 TEST items are sealed. This is a previously evaluated split, not an unseen holdout.
@@ -19,39 +19,39 @@ The output-limit column counts observed TEST completion envelopes, cascade / pro
 
 ### Strict headline, official labels
 
-| Model | Cascade accuracy [95% CI] | promptfoo accuracy [95% CI] | Output-limit answers: cascade / promptfoo | Paired difference [95% CI] | Wins / losses | Exact p | Holm p | Status |
-|---|---|---|---|---|---|---|---|---|
-| haiku | 164/221, 74.21% [68.06%, 79.53%] | 159/221, 71.95% [65.69%, 77.46%] | 7 / 0 | 2.26% [-2.73%, 7.62%] | 19 / 14 | 0.48685024 | pending | TIE |
-| gpt-6-luna | 165/221, 74.66% [68.54%, 79.94%] | 160/221, 72.40% [66.16%, 77.87%] | 0 / 0 | 2.26% [-2.73%, 7.21%] | 18 / 13 | 0.47312966 | pending | TIE |
-| gemini-3.8-flash | pending | pending | pending | pending | pending | pending | pending | TEST pending |
-| gemini-3.5-flash-lite | 138/221, 62.44% [55.90%, 68.56%] | 127/221, 57.47% [50.88%, 63.80%] | 5 / 0 | 4.98% [-2.24%, 11.87%] | 39 / 28 | 0.22154873 | pending | TIE |
+| Model | Cascade accuracy [95% CI] | promptfoo accuracy [95% CI] | Output-limit answers: cascade / promptfoo | Native refusals: cascade / promptfoo | Paired difference [95% CI] | Wins / losses | Exact p | Holm p | Status |
+|---|---|---|---|---|---|---|---|---|---|
+| haiku | 164/221, 74.21% [68.06%, 79.53%] | 159/221, 71.95% [65.69%, 77.46%] | 7 / 0 | not audited | 2.26% [-2.73%, 7.62%] | 19 / 14 | 0.48685024 | pending | TIE |
+| gpt-6-luna | 165/221, 74.66% [68.54%, 79.94%] | 160/221, 72.40% [66.16%, 77.87%] | 0 / 0 | not audited | 2.26% [-2.73%, 7.21%] | 18 / 13 | 0.47312966 | pending | TIE |
+| gemini-3.8-flash | pending | pending | pending | not audited | pending | pending | pending | pending | TEST pending |
+| gemini-3.5-flash-lite | 138/221, 62.44% [55.90%, 68.56%] | 127/221, 57.47% [50.88%, 63.80%] | 5 / 0 | not audited | 4.98% [-2.24%, 11.87%] | 39 / 28 | 0.22154873 | pending | TIE |
 
 ### Strict headline, audited labels
 
-| Model | Cascade accuracy [95% CI] | promptfoo accuracy [95% CI] | Output-limit answers: cascade / promptfoo | Paired difference [95% CI] | Wins / losses | Exact p | Holm p | Status |
-|---|---|---|---|---|---|---|---|---|
-| haiku | 185/221, 83.71% [78.27%, 88.00%] | 180/221, 81.45% [75.80%, 86.02%] | 7 / 0 | 2.26% [-2.74%, 7.27%] | 19 / 14 | 0.48685024 | pending | TIE |
-| gpt-6-luna | 188/221, 85.07% [79.77%, 89.17%] | 181/221, 81.90% [76.29%, 86.42%] | 0 / 0 | 3.17% [-1.80%, 8.11%] | 19 / 12 | 0.28104152 | pending | TIE |
-| gemini-3.8-flash | pending | pending | pending | pending | pending | pending | pending | TEST pending |
-| gemini-3.5-flash-lite | 158/221, 71.49% [65.21%, 77.04%] | 142/221, 64.25% [57.74%, 70.28%] | 5 / 0 | 7.24% [0.00%, 14.16%] | 42 / 26 | 0.068118674 | pending | TIE |
+| Model | Cascade accuracy [95% CI] | promptfoo accuracy [95% CI] | Output-limit answers: cascade / promptfoo | Native refusals: cascade / promptfoo | Paired difference [95% CI] | Wins / losses | Exact p | Holm p | Status |
+|---|---|---|---|---|---|---|---|---|---|
+| haiku | 185/221, 83.71% [78.27%, 88.00%] | 180/221, 81.45% [75.80%, 86.02%] | 7 / 0 | not audited | 2.26% [-2.74%, 7.27%] | 19 / 14 | 0.48685024 | pending | TIE |
+| gpt-6-luna | 188/221, 85.07% [79.77%, 89.17%] | 181/221, 81.90% [76.29%, 86.42%] | 0 / 0 | not audited | 3.17% [-1.80%, 8.11%] | 19 / 12 | 0.28104152 | pending | TIE |
+| gemini-3.8-flash | pending | pending | pending | not audited | pending | pending | pending | pending | TEST pending |
+| gemini-3.5-flash-lite | 158/221, 71.49% [65.21%, 77.04%] | 142/221, 64.25% [57.74%, 70.28%] | 5 / 0 | not audited | 7.24% [0.00%, 14.16%] | 42 / 26 | 0.068118674 | pending | TIE |
 
 ### Product-final sensitivity, official labels
 
-| Model | Cascade accuracy [95% CI] | promptfoo accuracy [95% CI] | Output-limit answers: cascade / promptfoo | Paired difference [95% CI] | Wins / losses | Exact p | Holm p | Status |
-|---|---|---|---|---|---|---|---|---|
-| haiku | 168/221, 76.02% [69.97%, 81.17%] | 159/221, 71.95% [65.69%, 77.46%] | 7 / 0 | 4.07% [-0.45%, 9.01%] | 19 / 10 | 0.13604595 | pending | TIE |
-| gpt-6-luna | 165/221, 74.66% [68.54%, 79.94%] | 160/221, 72.40% [66.16%, 77.87%] | 0 / 0 | 2.26% [-2.73%, 7.21%] | 18 / 13 | 0.47312966 | pending | TIE |
-| gemini-3.8-flash | pending | pending | pending | pending | pending | pending | pending | TEST pending |
-| gemini-3.5-flash-lite | 138/221, 62.44% [55.90%, 68.56%] | 127/221, 57.47% [50.88%, 63.80%] | 5 / 0 | 4.98% [-2.24%, 11.87%] | 39 / 28 | 0.22154873 | pending | TIE |
+| Model | Cascade accuracy [95% CI] | promptfoo accuracy [95% CI] | Output-limit answers: cascade / promptfoo | Native refusals: cascade / promptfoo | Paired difference [95% CI] | Wins / losses | Exact p | Holm p | Status |
+|---|---|---|---|---|---|---|---|---|---|
+| haiku | 168/221, 76.02% [69.97%, 81.17%] | 159/221, 71.95% [65.69%, 77.46%] | 7 / 0 | not audited | 4.07% [-0.45%, 9.01%] | 19 / 10 | 0.13604595 | pending | TIE |
+| gpt-6-luna | 165/221, 74.66% [68.54%, 79.94%] | 160/221, 72.40% [66.16%, 77.87%] | 0 / 0 | not audited | 2.26% [-2.73%, 7.21%] | 18 / 13 | 0.47312966 | pending | TIE |
+| gemini-3.8-flash | pending | pending | pending | not audited | pending | pending | pending | pending | TEST pending |
+| gemini-3.5-flash-lite | 138/221, 62.44% [55.90%, 68.56%] | 127/221, 57.47% [50.88%, 63.80%] | 5 / 0 | not audited | 4.98% [-2.24%, 11.87%] | 39 / 28 | 0.22154873 | pending | TIE |
 
 ### Product-final sensitivity, audited labels
 
-| Model | Cascade accuracy [95% CI] | promptfoo accuracy [95% CI] | Output-limit answers: cascade / promptfoo | Paired difference [95% CI] | Wins / losses | Exact p | Holm p | Status |
-|---|---|---|---|---|---|---|---|---|
-| haiku | 189/221, 85.52% [80.27%, 89.55%] | 180/221, 81.45% [75.80%, 86.02%] | 7 / 0 | 4.07% [-0.46%, 8.68%] | 19 / 10 | 0.13604595 | pending | TIE |
-| gpt-6-luna | 188/221, 85.07% [79.77%, 89.17%] | 181/221, 81.90% [76.29%, 86.42%] | 0 / 0 | 3.17% [-1.80%, 8.11%] | 19 / 12 | 0.28104152 | pending | TIE |
-| gemini-3.8-flash | pending | pending | pending | pending | pending | pending | pending | TEST pending |
-| gemini-3.5-flash-lite | 158/221, 71.49% [65.21%, 77.04%] | 142/221, 64.25% [57.74%, 70.28%] | 5 / 0 | 7.24% [0.00%, 14.16%] | 42 / 26 | 0.068118674 | pending | TIE |
+| Model | Cascade accuracy [95% CI] | promptfoo accuracy [95% CI] | Output-limit answers: cascade / promptfoo | Native refusals: cascade / promptfoo | Paired difference [95% CI] | Wins / losses | Exact p | Holm p | Status |
+|---|---|---|---|---|---|---|---|---|---|
+| haiku | 189/221, 85.52% [80.27%, 89.55%] | 180/221, 81.45% [75.80%, 86.02%] | 7 / 0 | not audited | 4.07% [-0.46%, 8.68%] | 19 / 10 | 0.13604595 | pending | TIE |
+| gpt-6-luna | 188/221, 85.07% [79.77%, 89.17%] | 181/221, 81.90% [76.29%, 86.42%] | 0 / 0 | not audited | 3.17% [-1.80%, 8.11%] | 19 / 12 | 0.28104152 | pending | TIE |
+| gemini-3.8-flash | pending | pending | pending | not audited | pending | pending | pending | pending | TEST pending |
+| gemini-3.5-flash-lite | 158/221, 71.49% [65.21%, 77.04%] | 142/221, 64.25% [57.74%, 70.28%] | 5 / 0 | not audited | 7.24% [0.00%, 14.16%] | 42 / 26 | 0.068118674 | pending | TIE |
 
 The original three models belong to the prespecified 18-cell family. Flash Lite, Sonnet and Sol are additional cells. Multiplicity adjustment remains pending with the collator. No overall superiority claim is made.
 Per-item strict decisions: results/<model>.strict.json. Original product-final decisions: results/<model>.json.
@@ -159,17 +159,19 @@ Fee sources: receipts/budget.json and receipts/calls.jsonl. Historical replay co
 | luna-addendum/state.json | e7ee3a57c98a7c1073bebd127989b45b0117c048a63e3493d0531097fc5f8ea0 |
 | luna-addendum/metrics.json | 7004cb786c920dc5b97783d2032ad4732eab3168dbe009497c4c231df9f4757e |
 | sonnet/evidence/model-amendment.json | ab0906dbc937581d5d846a1912bf81d2b4b69794ef13c58ceaf475df4d7ae3f4 |
-| sonnet/evidence/runtime-freeze.json | b12daf35c06fa99430abeec5ed52751ba8f93b5dff086c40c0e7e6a36747547c |
-| sonnet/evidence/reporting-freeze.json | 92b4c089629fb8a12e4b4bc014a0c363456057003a906152e0e9b1293e2e53a0 |
+| sonnet/evidence/runtime-freeze.json | 6367ef409f542628dd5017dabb978ed8811b1890d7f99b73c015492f199659f5 |
+| sonnet/evidence/reporting-freeze.json | ca936a947292582fcdcbebece33b103f84ab9511aace4ad3ff9fe45665be7592 |
 | sonnet/evidence/cost-sample.json | 1c416e1bfd884e17f5f6d6ec024ed1ce6f44417d3b0798b33a8f63d72faba26d |
 | sonnet/evidence/cache-off-amendment.json | d4f4d057bd41d197b8d69189358882b09d3594f81e6aae0ce8f74a7e4b49b01a |
 | sonnet/evidence/cache-off-cost-selection.json | cb4dfb0b06dd180ffa0941973fb2e4ff8a9f017e1d6b82b160a2edda5cafe246 |
 | sol61/evidence/model-amendment.json | 5112f06d9111c55b8468f4d78e2626284d77ff2415bbd7df3f80520d5945f913 |
-| sol61/evidence/runtime-freeze.json | 7bd9573b0ed9b9273896563295dae18fd6020e459bf5c54d6e9fb4d43093e95e |
-| sol61/evidence/reporting-freeze.json | a7563ea875f1037a4798129120a4a879fd52ab195ddf0309578eca9ac48ff315 |
+| sol61/evidence/runtime-freeze.json | 35ef2c06561977e03255c8030c6893039e0bd7b5e9d995199236c9fcffbb7e33 |
+| sol61/evidence/reporting-freeze.json | 5c1387e3fcf96b93710a378990af83b97dac82e971d4a8e39b97e6762dedd685 |
 | sonnet/evidence/cache-off-cost-sample.json | b415b3b1cecef4c287a680d040d331065ad5900924c6f4e8cdb01a90852aaa6b |
 | sonnet/evidence/cap45-activation.json | 09e2e68e7c4b20e5f08a87274d64a9750247ad8b44c5dbbd7a94118d85a4de5e |
 | sonnet/evidence/pilot-projection.json | 37f41ab06e0424b716a6d6e531fceec984c05438973ec7be64a4cf4a72d68ce0 |
+| sonnet/evidence/refusal-amendment.json | a845ddc6626bc8a5201759bbdde6b71a158d0f221b510981c373bcaf47724b31 |
+| sol61/evidence/refusal-amendment.json | e491b299318ea66f2bf6a55b7eab78ce8812f9c8ebed724b802646983b2f5375 |
 
 Active runtime id: d49a333a9d4e6dd0ffd6. Frozen core: 35f07309a4d1d1c8a7c5b176ff19e537d0ef8fdd.
 Offline checks cover source/pool hashes, exact schemas, strict replay, fail-closed missing replay and restricted Python execution.
@@ -279,7 +281,7 @@ Sources: evidence/offline-checks.json, evidence/frozen-replay.json, test_stats.p
 
 | Model | Status | Five-call cost USD | Projected 379-unit cost USD | Settled USD | Unknown holds USD | Evidence folder |
 |---|---|---|---|---|---|---|
-| claude-sonnet-5-5 | running | 0.06976800 | 29.08003000 | 2.50554000 | 0.50000000 | sonnet/ |
+| claude-sonnet-5-5 | running | 0.06976800 | 29.08003000 | 3.08642600 | 0.00000000 | sonnet/ |
 | gpt-6.1-sol | waiting for Haiku, its authorized recovery and Flash Lite | pending | pending | 0.00000000 | 0.00000000 | sol61/ |
 
 claude-sonnet-5-5 cost projection breakdown:
@@ -299,9 +301,18 @@ Five-call measured cost by contestant: cascade 0.04348400 USD; promptfoo 0.02628
 Additional conservative allowance: all calibration fees 0.20361400 USD plus holds 0.00000000 USD. Cache writes observed in the five new calls: 0 tokens.
 Projection uses the original full Luna request counts, with the highest sampled cascade fee assigned to unsampled stages. It is an estimate, not a measured full-cell cost.
 
+Completed 20-item pilot projection for claude-sonnet-5-5: 42.47418890 USD. Calibration fees and holds remain in the hard-cap ledger.
 
-| Model | Contestant | Constant-fail official / audited | TEST unique-key cost USD | All-phase attributed settled USD | TEST strict missing / product-final missing | TEST output-limit answers |
-|---|---|---|---|---|---|---|
+
+| Model | Contestant | Constant-fail official / audited | TEST unique-key cost USD | All-phase attributed settled USD | TEST strict missing / product-final missing | TEST output-limit answers | TEST refusal responses | TEST refused items |
+|---|---|---|---|---|---|---|---|---|
+
+Native-refusal rule fixed after the Sonnet pilot and before TEST. No original product verdict changes. A native refusal is terminal at any token count and is never recovered as a transport no-answer. Strict scoring counts every consuming contestant/item as an error; product-final retains the frozen product fallback. The rule applies identically to both contestants.
+
+| Model | Contestant | TEST refusal responses | TEST refused items | All-phase refusal responses | All-phase refused items |
+|---|---|---|---|---|---|
+| claude-sonnet-5-5 | driftbench-verify-uncertainty-cascade | pending | pending | 0 | 0 |
+| claude-sonnet-5-5 | promptfoo | pending | pending | 4 | 4 |
 
 Sources per model folder: evidence/model-amendment.json, evidence/cost-sample.json, evidence/cells.json, evidence/output-limit-errors.json and receipts/native/.
 Scores, paired exact p values and strict/product-final endpoints appear in the tables above for every completed cell. Pending cells have no sealed TEST score.

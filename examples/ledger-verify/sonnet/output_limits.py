@@ -19,13 +19,16 @@ def limit_reason(receipt, native=None):
         return 'API output truncated'
     return None
 
-def strict_decisions(decisions, affected):
+def native_refusal(native):
+    return bool(native) and (native.get('stop_reason')=='refusal' or native.get('finish_reason')=='refusal' or bool(native.get('refusal')) or any(c.get('type')=='refusal' for m in native.get('output',[]) for c in m.get('content',[])))
+
+def strict_decisions(decisions, affected, refused=()):
     result=copy.deepcopy(decisions)
     for row in result:
-        if row['id'] in affected:
+        if row['id'] in affected or row['id'] in refused:
             row.pop('pass',None)
             row['missing']=max(1,row.get('missing',0))
-            row['error']='output_limit'
+            row['error']='output_limit' if row['id'] in affected else 'native_refusal'
     return result
 
 def rows(path):
@@ -40,7 +43,7 @@ def main():
     receipts={r['id']:r for r in rows(BASE/'receipts/calls.jsonl')}
     for error in rows(BASE/'receipts/errors.jsonl'):
         receipts[error['id']]={**receipts.get(error['id'],{}),**error}
-    limits=[];unmapped=[];unclassified=[]
+    limits=[];unmapped=[];unclassified=[];refusals=[];unmapped_refusals=[]
     for receipt in receipts.values():
         native=None
         if receipt.get('nativeReceipt'):
@@ -48,6 +51,11 @@ def main():
             if path.exists():
                 try:native=json.loads(path.read_text())
                 except json.JSONDecodeError:pass
+        if native_refusal(native):
+            matched=list(index.get((receipt['model'],receipt.get('phase'),receipt.get('fingerprint')),{}).values())
+            entry=dict(receipt=receipt['id'],model=receipt['model'],phase=receipt.get('phase'),reason='native refusal',at=receipt['at'],consumers=matched)
+            refusals.append(entry)
+            if not matched:unmapped_refusals.append(entry)
         reason=limit_reason(receipt,native)
         if reason is None:
             if receipt.get('message')=='claude returned an error result' and not native:
@@ -67,7 +75,16 @@ def main():
                 affected=sorted({(r['phase'],c['item']) for r in hits for c in r['consumers'] if c['contestant']==contestant})
                 count[scope]=dict(answerEnvelopes=len(hits),affectedItems=len(affected),items=[dict(phase=p,id=i) for p,i in affected])
             counts[model][contestant]=count
-    output=dict(counts=counts,limits=limits,unmappedLimits=unmapped,unclassifiedHistoricalNativeErrors=unclassified,
+    refusal_counts={}
+    for model in MODELS:
+        refusal_counts[model]={}
+        for contestant in CONTESTANTS:
+            refusal_counts[model][contestant]={}
+            for scope in ['all','test']:
+                hits=[r for r in refusals if r['model']==model and (scope=='all' or r['phase']=='test') and any(c['contestant']==contestant for c in r['consumers'])]
+                affected=sorted({(r['phase'],c['item']) for r in hits for c in r['consumers'] if c['contestant']==contestant})
+                refusal_counts[model][contestant][scope]=dict(answerEnvelopes=len(hits),affectedItems=len(affected),items=[dict(phase=p,id=i) for p,i in affected])
+    output=dict(counts=counts,limits=limits,unmappedLimits=unmapped,unclassifiedHistoricalNativeErrors=unclassified,refusals=refusals,refusalCounts=refusal_counts,unmappedRefusals=unmapped_refusals,
         rule='Strict is primary; any confirmed output limit makes every consuming contestant/item an error. Product-final preserves the original verdict, including fallback.',
         source='evidence/scoring-freeze.json; evidence/request-attribution.json; receipts/calls.jsonl; receipts/errors.jsonl; receipts/native/*.json')
     (BASE/'evidence/output-limit-errors.json').write_text(json.dumps(output,indent=2)+'\n')
@@ -78,7 +95,8 @@ def main():
             original=json.loads(path.read_text());strict=copy.deepcopy(original)
             for contestant in strict['contestants']:
                 affected={x['id'] for x in counts[model][contestant['contestant']]['all']['items'] if x['phase']==('test' if phase=='results' else phase)}
-                contestant['decisions']=strict_decisions(contestant['decisions'],affected)
+                refused={x['id'] for x in refusal_counts[model][contestant['contestant']]['all']['items'] if x['phase']==('test' if phase=='results' else phase)}
+                contestant['decisions']=strict_decisions(contestant['decisions'],affected,refused)
                 # Summary is an original product field; scored comparisons recompute from decisions only.
                 contestant.pop('summary',None)
             strict['scoreVariant']='strict';strict['productFinalSource']=path.name

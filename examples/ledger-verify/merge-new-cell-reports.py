@@ -37,7 +37,7 @@ def main():
   status=final['status'] if final else progress['status']
   sections.append(f"| {model} | {status} | {gate['costUsd']:.8f} | {gate['projected379UnitsUsd']:.8f} | {settled:.8f} | {held:.8f} | {folder}/ |" if gate else f'| {model} | {status} | pending | pending | {settled:.8f} | {held:.8f} | {folder}/ |')
   original['newModelFees'][model]=dict(settledUsd=settled,unresolvedMaximumUsd=held,maximumAccountedUsd=settled+held,capUsd=cap)
-  for name in ['model-amendment.json','runtime-freeze.json','reporting-freeze.json','cost-sample.json','pilot-projection.json','cache-off-amendment.json','cache-off-cost-selection.json','cache-off-cost-sample.json','cap45-activation.json']:
+  for name in ['model-amendment.json','runtime-freeze.json','reporting-freeze.json','cost-sample.json','pilot-projection.json','cache-off-amendment.json','cache-off-cost-selection.json','cache-off-cost-sample.json','cap45-activation.json','refusal-amendment.json']:
    p=base/'evidence'/name
    if p.exists():original['freeze']['hashes'][f'{folder}/evidence/{name}']=hashlib.sha256(p.read_bytes()).hexdigest()
   if gate:
@@ -48,6 +48,8 @@ def main():
    projection_sections.append(f"\nFive-call measured cost by contestant: cascade {measured[CONTESTANTS[0]]:.8f} USD; promptfoo {measured['promptfoo']:.8f} USD.")
    if remeasure:projection_sections.append(f"Additional conservative allowance: all calibration fees {gate['priorAndCalibrationSettledUsd']:.8f} USD plus holds {gate['holdsUsd']:.8f} USD. Cache writes observed in the five new calls: {gate['cacheCreationTokens']} tokens.")
    projection_sections.append('Projection uses the original full Luna request counts, with the highest sampled cascade fee assigned to unsampled stages. It is an estimate, not a measured full-cell cost.\n')
+  pilot_gate=base/'evidence/pilot-projection.json'
+  if pilot_gate.exists():projection_sections.append(f"Completed 20-item pilot projection for {model}: {read(pilot_gate)['projected379UnitsUsd']:.8f} USD. Calibration fees and holds remain in the hard-cap ledger.\n")
   if not final:continue
   assert final['status']=='offline evidence ready for review' and final['complete']
   for path,h in read(base/'evidence/reporting-freeze.json')['sourceHashes'].items():assert hashlib.sha256((ROOT/path).read_bytes()).hexdigest()==h,path
@@ -56,7 +58,7 @@ def main():
   original['noiseFloor'].update(extra['noiseFloor']);original['outputLimitErrors']['counts'].update(extra['outputLimitErrors']['counts'])
   for key in ['limits','unmappedLimits','unclassifiedHistoricalNativeErrors']:
    original['outputLimitErrors'][key]=[x for x in original['outputLimitErrors'][key] if x.get('model')!=model]+extra['outputLimitErrors'][key]
-  cell=extra['cells'][0];mapping=collections.defaultdict(set)
+  cell=extra['cells'][0];cell['refusalErrors']=extra['outputLimitErrors'].get('refusalCounts',{}).get(model,{});mapping=collections.defaultdict(set)
   for r in read(base/'evidence/request-attribution.json')['rows']:mapping[(r['phase'],r['fingerprint'])].add(r['contestant'])
   calls=rows(base/'receipts/calls.jsonl');sample=read(BASE/'evidence/new-model-cost-sample.json')['requests']
   by_id={r['id']:r for r in calls}
@@ -81,19 +83,43 @@ def main():
  original['newModelCostAttribution']=[{k:v for k,v in x.items() if k!='cell'} for x in evidence]
  original['at']=datetime.datetime.now(datetime.timezone.utc).isoformat();(BASE/'evidence/cells.json').write_text(json.dumps(original,indent=2)+'\n')
  sections+=projection_sections
- sections+=['','| Model | Contestant | Constant-fail official / audited | TEST unique-key cost USD | All-phase attributed settled USD | TEST strict missing / product-final missing | TEST output-limit answers |','|---|---|---|---|---|---|---|']
+ sections+=['','| Model | Contestant | Constant-fail official / audited | TEST unique-key cost USD | All-phase attributed settled USD | TEST strict missing / product-final missing | TEST output-limit answers | TEST refusal responses | TEST refused items |','|---|---|---|---|---|---|---|---|---|']
  for entry in evidence:
   cell=entry['cell'];ch=original['cheaters'];baseline=f"{round(ch['alwaysFailOfficial']*221)}/221 / {round(ch['alwaysFailAudited']*221)}/221"
   for i,c in enumerate(CONTESTANTS):
    strict=read(BASE/entry['folder']/f"results/{entry['model']}.strict.json")['contestants'][i]['decisions'];product=read(BASE/entry['folder']/f"results/{entry['model']}.json")['contestants'][i]['decisions']
    missing=lambda ds:sum(d.get('missing',0)>0 or type(d.get('pass')) is not bool for d in ds)
    cost=cell['costPer100UniqueKeys'][c]*221/100;limits=cell['outputLimitErrors'][c]['test']['answerEnvelopes']
-   sections.append(f"| {entry['model']} | {c} | {baseline} | {cost:.8f} | {entry['costs'].get(c,0):.8f} | {missing(strict)} / {missing(product)} | {limits} |")
+   sections.append(f"| {entry['model']} | {c} | {baseline} | {cost:.8f} | {entry['costs'].get(c,0):.8f} | {missing(strict)} / {missing(product)} | {limits} | {cell.get('refusalErrors',{}).get(c,{}).get('test',{}).get('answerEnvelopes',0)} | {cell.get('refusalErrors',{}).get(c,{}).get('test',{}).get('affectedItems',0)} |")
   sections.append(f"\n{entry['model']}: unattributed settled cost {entry['unassignedUsd']:.8f} USD. Exact tokens and receipt attribution: evidence/cells.json newModelCostAttribution.\n")
+ sections+=['','Native-refusal rule fixed after the Sonnet pilot and before TEST. No original product verdict changes. A native refusal is terminal at any token count and is never recovered as a transport no-answer. Strict scoring counts every consuming contestant/item as an error; product-final retains the frozen product fallback. The rule applies identically to both contestants.','','| Model | Contestant | TEST refusal responses | TEST refused items | All-phase refusal responses | All-phase refused items |','|---|---|---|---|---|---|']
+ for model,folder in MODELS.items():
+  p=BASE/folder/'evidence/output-limit-errors.json'
+  if not p.exists():continue
+  counts=read(p).get('refusalCounts',{}).get(model,{})
+  for contestant,v in counts.items():
+   complete=(BASE/folder/f'results/{model}.json').exists()
+   test_answers=str(v['test']['answerEnvelopes']) if complete else 'pending'
+   test_items=str(v['test']['affectedItems']) if complete else 'pending'
+   sections.append(f"| {model} | {contestant} | {test_answers} | {test_items} | {v['all']['answerEnvelopes']} | {v['all']['affectedItems']} |")
  sections+=['','Sources per model folder: evidence/model-amendment.json, evidence/cost-sample.json, evidence/cells.json, evidence/output-limit-errors.json and receipts/native/.','Scores, paired exact p values and strict/product-final endpoints appear in the tables above for every completed cell. Pending cells have no sealed TEST score.','']
  subprocess.run([sys.executable,str(BASE/'render_report.py'),str(DOSSIER)],cwd=ROOT,check=True)
  result=(BASE/'REPORT.md').read_text()+supplement+'\n'.join(sections)
  result=result.replace('Holm correction belongs to the prespecified 18-cell family and remains pending at this handoff. No local WIN or overall superiority claim is made.','The original three models belong to the prespecified 18-cell family. Flash Lite, Sonnet and Sol are additional cells. Multiplicity adjustment remains pending with the collator. No overall superiority claim is made.')
+ # Add the requested separate refusal column without changing the frozen renderer or old scores.
+ table=False;out=[];lookup={c['model']:c for c in original['cells']}
+ for line in result.splitlines():
+  if line.startswith('| Model | Cascade accuracy'):
+   table=True;line=line.replace('| Paired difference', '| Native refusals: cascade / promptfoo | Paired difference')
+  elif table and line.startswith('|---'):
+   line=line+'---|'
+  elif table and line.startswith('| '):
+   columns=line.split('|');model=columns[1].strip();counts=lookup.get(model,{}).get('refusalErrors')
+   counts_text=' / '.join(str(counts[c]['test']['answerEnvelopes']) for c in CONTESTANTS) if counts else 'not audited'
+   columns.insert(5,' '+counts_text+' ');line='|'.join(columns)
+  elif table:table=False
+  out.append(line)
+ result='\n'.join(out)+'\n'
  assert '\u2014' not in result and '\u2013' not in result
  for p in [BASE/'REPORT.md',DOSSIER]:p.write_text(result)
  print(json.dumps(dict(completedNewModels=[e['model'] for e in evidence],newModelFees=original['newModelFees'],providerCalls=0)))

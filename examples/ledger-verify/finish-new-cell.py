@@ -14,7 +14,16 @@ for i,cmd in enumerate(cmds):
  if i==0:
   r=read(BASE/'evidence/item-history-replay.json');assert len(r['phases'])==6 and all(p['identicalDecisions'] and p['newCalls']==0 for p in r['phases'])
   (BASE/'evidence/phase-replay-checks.json').write_text(json.dumps(r,indent=2)+'\n');(BASE/'evidence/request-attribution.json').write_bytes((BASE/'evidence/history-request-attribution.json').read_bytes())
-cells=read(BASE/'evidence/cells.json');assert cells['fees']['maximumAccountedUsd']<=read(BASE/'evidence/runtime-freeze.json')['capUsd'];assert not cells['outputLimitErrors']['unmappedLimits']
+# A final result cannot hide a transport-missing request behind a terminal refusal.
+def rows(p):return [json.loads(x) for x in p.read_text().splitlines() if x.strip()] if p.exists() else []
+def refused(r):
+ p=Path(r['nativeReceipt']) if r.get('nativeReceipt') else None
+ if not p or not p.exists() or not p.stat().st_size:return False
+ v=read(p);return v.get('stop_reason')=='refusal' or any(c.get('type')=='refusal' for m in v.get('output',[]) for c in m.get('content',[]))
+answered={(r['phase'],r['fingerprint']) for r in rows(BASE/'receipts/calls.jsonl') if r.get('output',{}).get('verify_answered') or refused(r)}
+unresolved=[r for r in rows(BASE/'receipts/errors.jsonl') if r.get('noAnswer') and not refused(r) and (r['phase'],r['fingerprint']) not in answered]
+assert not unresolved, 'Transport-missing requests remain; result cannot be final'
+cells=read(BASE/'evidence/cells.json');assert cells['fees']['maximumAccountedUsd']<=read(BASE/'evidence/runtime-freeze.json')['capUsd'];assert not cells['outputLimitErrors']['unmappedLimits'];assert not cells['outputLimitErrors'].get('unmappedRefusals',[])
 for p,h in read(BASE/'evidence/reporting-freeze.json')['sourceHashes'].items():assert hashlib.sha256((ROOT/p).read_bytes()).hexdigest()==h,p
 for c in cells['cells']:
  c['additionalCell']=True;c['validityPassedScope']='Planted mutation checks only; full DEV cheater margin not established';c['claimStatus']='Additional cell; multiplicity policy pending collator'

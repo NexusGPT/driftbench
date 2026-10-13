@@ -186,3 +186,9 @@
 - Completed models: haiku, gpt-6-luna. Offline replay covers 16 finished phases, with zero new provider calls.
 - Gemini pending status, if present, is an authorized daily-quota pause. See evidence/gemini-daily-quota-amendment.json and evidence/gemini-reset-watcher.json.
 - Fee reconciliation and frozen source hashes pass. No confirmed output-limit envelope remains unmapped.
+
+## 2026-10-13T16:24:41.258658+00:00 verified report publication
+
+- Completed models: haiku, gpt-6-luna. Offline replay covers 16 finished phases, with zero new provider calls.
+- Gemini pending status, if present, is an authorized daily-quota pause. See evidence/gemini-daily-quota-amendment.json and evidence/gemini-reset-watcher.json.
+- Fee reconciliation and frozen source hashes pass. No confirmed output-limit envelope remains unmapped.
