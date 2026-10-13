@@ -51,7 +51,7 @@ export async function readScaleConfig(path: string): Promise<ScaleLoad> {
   return { ok: true, scales };
 }
 
-const KEYS = new Set(['aggregates', 'scales']);
+const KEYS = new Set(['aggregates', 'scales', 'campaign']);
 
 function lineOf(text: string, offset: number): number {
   return text.slice(0, offset).split('\n').length;
@@ -78,7 +78,7 @@ export async function readAggregateConfig(path: string): Promise<ConfigLoad> {
       const at = pair.key && 'range' in pair.key && pair.key.range ? pair.key.range[0] : 0;
       return {
         ok: false,
-        message: `${path}:${lineOf(text, at)}: unknown key ${key}; the config defines aggregates and scales only`,
+        message: `${path}:${lineOf(text, at)}: unknown key ${key}; the config defines aggregates, scales and campaign only`,
       };
     }
   }
