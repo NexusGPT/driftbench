@@ -11,8 +11,8 @@ import {
   runSpec,
   type Spec,
   type TargetRef,
-} from '@driftbench/core';
-import { createScriptedDriver } from '@driftbench/users';
+} from '@agent-nexus/driftbench-core';
+import { createScriptedDriver } from '@agent-nexus/driftbench-users';
 
 /**
  * The cheat() rule: before an instance ships, the reference build must pass it, through the real runner

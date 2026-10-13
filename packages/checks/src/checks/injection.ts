@@ -1,4 +1,4 @@
-import { type Check, machineVerdict, type Stimulus } from '@driftbench/core';
+import { type Check, machineVerdict, type Stimulus } from '@agent-nexus/driftbench-core';
 import { visibleText } from '../support/text';
 
 /**

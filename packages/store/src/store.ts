@@ -11,7 +11,7 @@ import {
   RunResult,
   type Store,
   validateSpec,
-} from '@driftbench/core';
+} from '@agent-nexus/driftbench-core';
 import { type BundleSource, type CampaignBundle, readCampaignBundle, writeCampaignBundle } from './bundle';
 import { describeCause, describeIssues, StoreError } from './errors';
 import {

@@ -1,4 +1,4 @@
-import type { BlockResult, Check, CheckContext, Observed, Spec, Verdict } from '@driftbench/core';
+import type { BlockResult, Check, CheckContext, Observed, Spec, Verdict } from '@agent-nexus/driftbench-core';
 import { describe, expect, it } from 'vitest';
 import * as checks from '../src';
 import { defaultChecks } from '../src/defaults';

@@ -1,4 +1,4 @@
-import type { CriterionText } from '@driftbench/judges';
+import type { CriterionText } from '@agent-nexus/driftbench-judges';
 import { type BankItem, fn, pick, type Tier } from '../bank';
 
 /**

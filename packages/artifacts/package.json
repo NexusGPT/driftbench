@@ -1,5 +1,5 @@
 {
-  "name": "@driftbench/artifacts",
+  "name": "@agent-nexus/driftbench-artifacts",
   "version": "0.1.0",
   "description": "Readers for the files a code agent produces (xlsx, docx, pptx, pdf, csv, json, text, code), answering artifact checks with evidence.",
   "keywords": [
@@ -43,7 +43,7 @@
     "build": "tsup src/index.ts --format esm --dts --clean --target node22"
   },
   "dependencies": {
-    "@driftbench/core": "workspace:*",
+    "@agent-nexus/driftbench-core": "workspace:*",
     "exceljs": "^4.4.0",
     "jszip": "^3.10.2",
     "mammoth": "^1.13.0",

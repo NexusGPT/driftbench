@@ -1,4 +1,4 @@
-import * as stats from '@driftbench/stats';
+import * as stats from '@agent-nexus/driftbench-stats';
 import { describe, expect, it } from 'vitest';
 import { runLadder } from '../../src/ladder';
 import { registeredLadders } from '../../src/ladders/index';
@@ -30,7 +30,7 @@ describe('the stats ladder, version 2', { timeout: SLOW }, () => {
     const anova = new Set(
       bank.filter((item) => item.id.split('.')[1] === 'oneWayAnova').map((item) => item.cause),
     );
-    expect([...anova]).toEqual(['oneWayAnova is missing from @driftbench/stats']);
+    expect([...anova]).toEqual(['oneWayAnova is missing from @agent-nexus/driftbench-stats']);
   });
 
   it('gives a stub method nothing: its generated items wait for one correct case', async () => {

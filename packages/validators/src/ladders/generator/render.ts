@@ -1,6 +1,6 @@
-import type { Inventory } from '@driftbench/core';
-import { type Proposal, type ProposalDimension, renderProposal } from '@driftbench/generate';
-import { NONE, type SpaceMap } from '@driftbench/space';
+import type { Inventory } from '@agent-nexus/driftbench-core';
+import { type Proposal, type ProposalDimension, renderProposal } from '@agent-nexus/driftbench-generate';
+import { NONE, type SpaceMap } from '@agent-nexus/driftbench-space';
 import type { HiddenProperty, HiddenSpec } from './hidden';
 import { DEVIATION_RULES } from './hidden';
 import { impossiblePairs } from './possible';

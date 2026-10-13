@@ -5,7 +5,7 @@ import {
   type JudgeRequest,
   type JudgeResult,
   type TranscriptEntry,
-} from '@driftbench/judges';
+} from '@agent-nexus/driftbench-judges';
 import { type BankItem, filler, fn, type JudgesApi, type Tier } from '../bank';
 
 /**

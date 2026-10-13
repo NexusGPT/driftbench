@@ -1,5 +1,5 @@
-import type { RunResult } from '@driftbench/core';
-import { parseRepeatReducer, type RepeatReducer, reduceRepeats } from '@driftbench/stats';
+import type { RunResult } from '@agent-nexus/driftbench-core';
+import { parseRepeatReducer, type RepeatReducer, reduceRepeats } from '@agent-nexus/driftbench-stats';
 import { type CampaignData, lineKey } from './data';
 
 /**

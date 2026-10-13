@@ -1,4 +1,4 @@
-import { canonicalJson, type RunMode, type RunResult, type Verdict } from '@driftbench/core';
+import { canonicalJson, type RunMode, type RunResult, type Verdict } from '@agent-nexus/driftbench-core';
 import {
   benjaminiHochberg,
   type McNemarResult,
@@ -10,7 +10,7 @@ import {
   pairedRateDifference,
   type WilcoxonResult,
   wilcoxonSignedRank,
-} from '@driftbench/stats';
+} from '@agent-nexus/driftbench-stats';
 import { type CampaignData, groupBy, runPassed, showTarget } from './data';
 import type { Estimate, Rate } from './estimate';
 import { rate } from './estimate';

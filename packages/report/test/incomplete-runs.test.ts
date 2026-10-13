@@ -1,4 +1,4 @@
-import { passAtK, passK } from '@driftbench/stats';
+import { passAtK, passK } from '@agent-nexus/driftbench-stats';
 import { describe, expect, it } from 'vitest';
 import { incompleteRange, withheldAtK } from '../src/reliability';
 

@@ -1,4 +1,4 @@
-import type { ArtifactReader } from '@driftbench/core';
+import type { ArtifactReader } from '@agent-nexus/driftbench-core';
 import { describe, expect, it } from 'vitest';
 import { artifacts } from '../src/checks/artifacts';
 import { acme } from './support/acme';

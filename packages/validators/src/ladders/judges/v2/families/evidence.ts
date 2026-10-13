@@ -1,4 +1,4 @@
-import type { JudgeAnswer, JudgeRequest } from '@driftbench/judges';
+import type { JudgeAnswer, JudgeRequest } from '@agent-nexus/driftbench-judges';
 import { loadPool } from '../../pool';
 import { type BankItem, fn, pick, type Tier } from '../bank';
 

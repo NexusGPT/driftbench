@@ -1,5 +1,5 @@
-import { validateSpec } from '@driftbench/core';
-import { FakeModelPort } from '@driftbench/generate';
+import { validateSpec } from '@agent-nexus/driftbench-core';
+import { FakeModelPort } from '@agent-nexus/driftbench-generate';
 import { describe, expect, it } from 'vitest';
 import {
   loadRedteamPlugins,

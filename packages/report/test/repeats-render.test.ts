@@ -1,4 +1,4 @@
-import { parseRepeatReducer } from '@driftbench/stats';
+import { parseRepeatReducer } from '@agent-nexus/driftbench-stats';
 import { describe, expect, it } from 'vitest';
 import { repeatsSection } from '../src/html';
 import { criterionRepeats } from '../src/repeats';

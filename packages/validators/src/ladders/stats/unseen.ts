@@ -1,5 +1,5 @@
-import { type LoadResult, validateSpec } from '@driftbench/core';
-import { completeness, type SpaceMap, validateSpaceMap } from '@driftbench/space';
+import { type LoadResult, validateSpec } from '@agent-nexus/driftbench-core';
+import { completeness, type SpaceMap, validateSpaceMap } from '@agent-nexus/driftbench-space';
 import { showNumber } from '../../format';
 import type { Item, Measure } from '../../ladder';
 import type { UnseenDesigns } from './designs';

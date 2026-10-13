@@ -1,4 +1,4 @@
-import { defaultChecks } from '@driftbench/checks';
+import { defaultChecks } from '@agent-nexus/driftbench-checks';
 import {
   type Check,
   type CheckContext,
@@ -6,10 +6,10 @@ import {
   type Message,
   RunResult,
   type UserDriver,
-} from '@driftbench/core';
-import { bootstrapCI } from '@driftbench/stats';
-import { openMemoryStore } from '@driftbench/store';
-import { createScriptedDriver } from '@driftbench/users';
+} from '@agent-nexus/driftbench-core';
+import { bootstrapCI } from '@agent-nexus/driftbench-stats';
+import { openMemoryStore } from '@agent-nexus/driftbench-store';
+import { createScriptedDriver } from '@agent-nexus/driftbench-users';
 import { describe, expect, it } from 'vitest';
 import type { AcmeAgent } from '../../../../examples/acme/src/index';
 import {

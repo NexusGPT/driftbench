@@ -1,4 +1,4 @@
-import { type DriverStep, validateSpec } from '@driftbench/core';
+import { type DriverStep, validateSpec } from '@agent-nexus/driftbench-core';
 import { describe, expect, it } from 'vitest';
 import { createScriptedDriver } from '../src/index';
 
