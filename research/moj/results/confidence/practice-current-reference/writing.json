@@ -1,0 +1,6273 @@
+{
+  "practice_n": 50,
+  "complete_n": 50,
+  "excluded_n": 0,
+  "tune_n": 22,
+  "valid_n": 28,
+  "missing_experts": {
+    "s1p": 0,
+    "ref": 0,
+    "s1r": 0,
+    "s2v": 0,
+    "s2h": 0
+  },
+  "group_metadata_complete": false,
+  "split_versions": [
+    "legacy-unspecified"
+  ],
+  "calibration": {
+    "adv": {
+      "tune_n": 22,
+      "validation_n": 28,
+      "map": {
+        "x": [
+          0.445,
+          0.455,
+          0.47000000000000003,
+          0.48,
+          0.48000000000000004,
+          0.49,
+          0.495,
+          0.5,
+          0.505,
+          0.515,
+          0.53,
+          0.54,
+          0.5449999999999999,
+          0.5549999999999999,
+          0.565,
+          0.6950000000000001
+        ],
+        "y": [
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.4,
+          0.4,
+          0.5833333333333334,
+          0.5833333333333334,
+          0.5833333333333334,
+          0.5833333333333334,
+          0.5833333333333334,
+          0.5833333333333334,
+          0.5833333333333334,
+          0.5833333333333334,
+          0.5833333333333334,
+          1.0
+        ]
+      },
+      "before": {
+        "n": 28,
+        "ece": 0.14017857142857143,
+        "curve": [
+          {
+            "low": 0.0,
+            "high": 0.1,
+            "n": 0,
+            "mean_probability": null,
+            "frequency_A": null
+          },
+          {
+            "low": 0.1,
+            "high": 0.2,
+            "n": 0,
+            "mean_probability": null,
+            "frequency_A": null
+          },
+          {
+            "low": 0.2,
+            "high": 0.3,
+            "n": 0,
+            "mean_probability": null,
+            "frequency_A": null
+          },
+          {
+            "low": 0.3,
+            "high": 0.4,
+            "n": 0,
+            "mean_probability": null,
+            "frequency_A": null
+          },
+          {
+            "low": 0.4,
+            "high": 0.5,
+            "n": 14,
+            "mean_probability": 0.4685714285714285,
+            "frequency_A": 0.35714285714285715
+          },
+          {
+            "low": 0.5,
+            "high": 0.6,
+            "n": 14,
+            "mean_probability": 0.5260714285714286,
+            "frequency_A": 0.35714285714285715
+          },
+          {
+            "low": 0.6,
+            "high": 0.7,
+            "n": 0,
+            "mean_probability": null,
+            "frequency_A": null
+          },
+          {
+            "low": 0.7,
+            "high": 0.8,
+            "n": 0,
+            "mean_probability": null,
+            "frequency_A": null
+          },
+          {
+            "low": 0.8,
+            "high": 0.9,
+            "n": 0,
+            "mean_probability": null,
+            "frequency_A": null
+          },
+          {
+            "low": 0.9,
+            "high": 1.0,
+            "n": 0,
+            "mean_probability": null,
+            "frequency_A": null
+          }
+        ],
+        "brier": 0.2513133928571429
+      },
+      "after": {
+        "n": 28,
+        "ece": 0.15936355311355313,
+        "curve": [
+          {
+            "low": 0.0,
+            "high": 0.1,
+            "n": 0,
+            "mean_probability": null,
+            "frequency_A": null
+          },
+          {
+            "low": 0.1,
+            "high": 0.2,
+            "n": 0,
+            "mean_probability": null,
+            "frequency_A": null
+          },
+          {
+            "low": 0.2,
+            "high": 0.3,
+            "n": 9,
+            "mean_probability": 0.25,
+            "frequency_A": 0.2222222222222222
+          },
+          {
+            "low": 0.3,
+            "high": 0.4,
+            "n": 0,
+            "mean_probability": null,
+            "frequency_A": null
+          },
+          {
+            "low": 0.4,
+            "high": 0.5,
+            "n": 1,
+            "mean_probability": 0.4,
+            "frequency_A": 1.0
+          },
+          {
+            "low": 0.5,
+            "high": 0.6,
+            "n": 17,
+            "mean_probability": 0.5842760180995475,
+            "frequency_A": 0.4117647058823529
+          },
+          {
+            "low": 0.6,
+            "high": 0.7,
+            "n": 1,
+            "mean_probability": 0.6794871794871795,
+            "frequency_A": 0.0
+          },
+          {
+            "low": 0.7,
+            "high": 0.8,
+            "n": 0,
+            "mean_probability": null,
+            "frequency_A": null
+          },
+          {
+            "low": 0.8,
+            "high": 0.9,
+            "n": 0,
+            "mean_probability": null,
+            "frequency_A": null
+          },
+          {
+            "low": 0.9,
+            "high": 1.0,
+            "n": 0,
+            "mean_probability": null,
+            "frequency_A": null
+          }
+        ],
+        "brier": 0.25075756375035224
+      },
+      "signal_kind": "probability_or_recorded_vote_fraction"
+    },
+    "debate": {
+      "tune_n": 22,
+      "validation_n": 28,
+      "map": {
+        "x": [
+          0.26999999999999996,
+          0.285,
+          0.3499999999999999,
+          0.385,
+          0.395,
+          0.41500000000000004,
+          0.41999999999999993,
+          0.42500000000000004,
+          0.43499999999999994,
+          0.44499999999999995,
+          0.44999999999999996,
+          0.45500000000000007,
+          0.46499999999999997,
+          0.475,
+          0.48,
+          0.505,
+          0.53,
+          0.5549999999999999,
+          0.63,
+          0.65,
+          0.665
+        ],
+        "y": [
+          0.0,
+          0.0,
+          0.5,
+          0.5,
+          0.5,
+          0.5,
+          0.5,
+          0.5,
+          0.5,
+          0.5,
+          0.5,
+          0.5,
+          0.5,
+          0.5,
+          0.5,
+          0.5,
+          0.5,
+          0.5,
+          0.5,
+          1.0,
+          1.0
+        ]
+      },
+      "before": {
+        "n": 28,
+        "ece": 0.1905357142857143,
+        "curve": [
+          {
+            "low": 0.0,
+            "high": 0.1,
+            "n": 0,
+            "mean_probability": null,
+            "frequency_A": null
+          },
+          {
+            "low": 0.1,
+            "high": 0.2,
+            "n": 0,
+            "mean_probability": null,
+            "frequency_A": null
+          },
+          {
+            "low": 0.2,
+            "high": 0.3,
+            "n": 0,
+            "mean_probability": null,
+            "frequency_A": null
+          },
+          {
+            "low": 0.3,
+            "high": 0.4,
+            "n": 2,
+            "mean_probability": 0.36250000000000004,
+            "frequency_A": 0.5
+          },
+          {
+            "low": 0.4,
+            "high": 0.5,
+            "n": 7,
+            "mean_probability": 0.4628571428571429,
+            "frequency_A": 0.42857142857142855
+          },
+          {
+            "low": 0.5,
+            "high": 0.6,
+            "n": 15,
+            "mean_probability": 0.5496666666666667,
+            "frequency_A": 0.26666666666666666
+          },
+          {
+            "low": 0.6,
+            "high": 0.7,
+            "n": 4,
+            "mean_probability": 0.6437499999999999,
+            "frequency_A": 0.5
+          },
+          {
+            "low": 0.7,
+            "high": 0.8,
+            "n": 0,
+            "mean_probability": null,
+            "frequency_A": null
+          },
+          {
+            "low": 0.8,
+            "high": 0.9,
+            "n": 0,
+            "mean_probability": null,
+            "frequency_A": null
+          },
+          {
+            "low": 0.9,
+            "high": 1.0,
+            "n": 0,
+            "mean_probability": null,
+            "frequency_A": null
+          }
+        ],
+        "brier": 0.27245089285714286
+      },
+      "after": {
+        "n": 28,
+        "ece": 0.21085164835164824,
+        "curve": [
+          {
+            "low": 0.0,
+            "high": 0.1,
+            "n": 0,
+            "mean_probability": null,
+            "frequency_A": null
+          },
+          {
+            "low": 0.1,
+            "high": 0.2,
+            "n": 0,
+            "mean_probability": null,
+            "frequency_A": null
+          },
+          {
+            "low": 0.2,
+            "high": 0.3,
+            "n": 0,
+            "mean_probability": null,
+            "frequency_A": null
+          },
+          {
+            "low": 0.3,
+            "high": 0.4,
+            "n": 1,
+            "mean_probability": 0.34615384615384676,
+            "frequency_A": 1.0
+          },
+          {
+            "low": 0.4,
+            "high": 0.5,
+            "n": 0,
+            "mean_probability": null,
+            "frequency_A": null
+          },
+          {
+            "low": 0.5,
+            "high": 0.6,
+            "n": 25,
+            "mean_probability": 0.5,
+            "frequency_A": 0.32
+          },
+          {
+            "low": 0.6,
+            "high": 0.7,
+            "n": 0,
+            "mean_probability": null,
+            "frequency_A": null
+          },
+          {
+            "low": 0.7,
+            "high": 0.8,
+            "n": 1,
+            "mean_probability": 0.7499999999999972,
+            "frequency_A": 0.0
+          },
+          {
+            "low": 0.8,
+            "high": 0.9,
+            "n": 0,
+            "mean_probability": null,
+            "frequency_A": null
+          },
+          {
+            "low": 0.9,
+            "high": 1.0,
+            "n": 1,
+            "mean_probability": 1.0,
+            "frequency_A": 1.0
+          }
+        ],
+        "brier": 0.25857195688926443
+      },
+      "signal_kind": "probability_or_recorded_vote_fraction"
+    },
+    "first": {
+      "tune_n": 22,
+      "validation_n": 28,
+      "map": {
+        "x": [
+          0.5
+        ],
+        "y": [
+          0.5
+        ]
+      },
+      "before": {
+        "n": 28,
+        "ece": 0.14285714285714285,
+        "curve": [
+          {
+            "low": 0.0,
+            "high": 0.1,
+            "n": 0,
+            "mean_probability": null,
+            "frequency_A": null
+          },
+          {
+            "low": 0.1,
+            "high": 0.2,
+            "n": 0,
+            "mean_probability": null,
+            "frequency_A": null
+          },
+          {
+            "low": 0.2,
+            "high": 0.3,
+            "n": 0,
+            "mean_probability": null,
+            "frequency_A": null
+          },
+          {
+            "low": 0.3,
+            "high": 0.4,
+            "n": 0,
+            "mean_probability": null,
+            "frequency_A": null
+          },
+          {
+            "low": 0.4,
+            "high": 0.5,
+            "n": 0,
+            "mean_probability": null,
+            "frequency_A": null
+          },
+          {
+            "low": 0.5,
+            "high": 0.6,
+            "n": 28,
+            "mean_probability": 0.5,
+            "frequency_A": 0.35714285714285715
+          },
+          {
+            "low": 0.6,
+            "high": 0.7,
+            "n": 0,
+            "mean_probability": null,
+            "frequency_A": null
+          },
+          {
+            "low": 0.7,
+            "high": 0.8,
+            "n": 0,
+            "mean_probability": null,
+            "frequency_A": null
+          },
+          {
+            "low": 0.8,
+            "high": 0.9,
+            "n": 0,
+            "mean_probability": null,
+            "frequency_A": null
+          },
+          {
+            "low": 0.9,
+            "high": 1.0,
+            "n": 0,
+            "mean_probability": null,
+            "frequency_A": null
+          }
+        ],
+        "brier": 0.25
+      },
+      "after": {
+        "n": 28,
+        "ece": 0.14285714285714285,
+        "curve": [
+          {
+            "low": 0.0,
+            "high": 0.1,
+            "n": 0,
+            "mean_probability": null,
+            "frequency_A": null
+          },
+          {
+            "low": 0.1,
+            "high": 0.2,
+            "n": 0,
+            "mean_probability": null,
+            "frequency_A": null
+          },
+          {
+            "low": 0.2,
+            "high": 0.3,
+            "n": 0,
+            "mean_probability": null,
+            "frequency_A": null
+          },
+          {
+            "low": 0.3,
+            "high": 0.4,
+            "n": 0,
+            "mean_probability": null,
+            "frequency_A": null
+          },
+          {
+            "low": 0.4,
+            "high": 0.5,
+            "n": 0,
+            "mean_probability": null,
+            "frequency_A": null
+          },
+          {
+            "low": 0.5,
+            "high": 0.6,
+            "n": 28,
+            "mean_probability": 0.5,
+            "frequency_A": 0.35714285714285715
+          },
+          {
+            "low": 0.6,
+            "high": 0.7,
+            "n": 0,
+            "mean_probability": null,
+            "frequency_A": null
+          },
+          {
+            "low": 0.7,
+            "high": 0.8,
+            "n": 0,
+            "mean_probability": null,
+            "frequency_A": null
+          },
+          {
+            "low": 0.8,
+            "high": 0.9,
+            "n": 0,
+            "mean_probability": null,
+            "frequency_A": null
+          },
+          {
+            "low": 0.9,
+            "high": 1.0,
+            "n": 0,
+            "mean_probability": null,
+            "frequency_A": null
+          }
+        ],
+        "brier": 0.25
+      },
+      "signal_kind": "probability_or_recorded_vote_fraction"
+    },
+    "length": {
+      "tune_n": 22,
+      "validation_n": 28,
+      "map": {
+        "x": [
+          0.0,
+          1.0
+        ],
+        "y": [
+          0.2857142857142857,
+          0.875
+        ]
+      },
+      "before": {
+        "n": 28,
+        "ece": 0.35714285714285715,
+        "curve": [
+          {
+            "low": 0.0,
+            "high": 0.1,
+            "n": 16,
+            "mean_probability": 0.0,
+            "frequency_A": 0.25
+          },
+          {
+            "low": 0.1,
+            "high": 0.2,
+            "n": 0,
+            "mean_probability": null,
+            "frequency_A": null
+          },
+          {
+            "low": 0.2,
+            "high": 0.3,
+            "n": 0,
+            "mean_probability": null,
+            "frequency_A": null
+          },
+          {
+            "low": 0.3,
+            "high": 0.4,
+            "n": 0,
+            "mean_probability": null,
+            "frequency_A": null
+          },
+          {
+            "low": 0.4,
+            "high": 0.5,
+            "n": 0,
+            "mean_probability": null,
+            "frequency_A": null
+          },
+          {
+            "low": 0.5,
+            "high": 0.6,
+            "n": 0,
+            "mean_probability": null,
+            "frequency_A": null
+          },
+          {
+            "low": 0.6,
+            "high": 0.7,
+            "n": 0,
+            "mean_probability": null,
+            "frequency_A": null
+          },
+          {
+            "low": 0.7,
+            "high": 0.8,
+            "n": 0,
+            "mean_probability": null,
+            "frequency_A": null
+          },
+          {
+            "low": 0.8,
+            "high": 0.9,
+            "n": 0,
+            "mean_probability": null,
+            "frequency_A": null
+          },
+          {
+            "low": 0.9,
+            "high": 1.0,
+            "n": 12,
+            "mean_probability": 1.0,
+            "frequency_A": 0.5
+          }
+        ],
+        "brier": 0.35714285714285715
+      },
+      "after": {
+        "n": 28,
+        "ece": 0.18112244897959182,
+        "curve": [
+          {
+            "low": 0.0,
+            "high": 0.1,
+            "n": 0,
+            "mean_probability": null,
+            "frequency_A": null
+          },
+          {
+            "low": 0.1,
+            "high": 0.2,
+            "n": 0,
+            "mean_probability": null,
+            "frequency_A": null
+          },
+          {
+            "low": 0.2,
+            "high": 0.3,
+            "n": 16,
+            "mean_probability": 0.2857142857142857,
+            "frequency_A": 0.25
+          },
+          {
+            "low": 0.3,
+            "high": 0.4,
+            "n": 0,
+            "mean_probability": null,
+            "frequency_A": null
+          },
+          {
+            "low": 0.4,
+            "high": 0.5,
+            "n": 0,
+            "mean_probability": null,
+            "frequency_A": null
+          },
+          {
+            "low": 0.5,
+            "high": 0.6,
+            "n": 0,
+            "mean_probability": null,
+            "frequency_A": null
+          },
+          {
+            "low": 0.6,
+            "high": 0.7,
+            "n": 0,
+            "mean_probability": null,
+            "frequency_A": null
+          },
+          {
+            "low": 0.7,
+            "high": 0.8,
+            "n": 0,
+            "mean_probability": null,
+            "frequency_A": null
+          },
+          {
+            "low": 0.8,
+            "high": 0.9,
+            "n": 12,
+            "mean_probability": 0.875,
+            "frequency_A": 0.5
+          },
+          {
+            "low": 0.9,
+            "high": 1.0,
+            "n": 0,
+            "mean_probability": null,
+            "frequency_A": null
+          }
+        ],
+        "brier": 0.2752824344023324
+      },
+      "signal_kind": "probability_or_recorded_vote_fraction"
+    },
+    "ref": {
+      "tune_n": 22,
+      "validation_n": 28,
+      "map": {
+        "x": [
+          0.405,
+          0.42000000000000004,
+          0.44,
+          0.48000000000000004,
+          0.49,
+          0.495,
+          0.5,
+          0.505,
+          0.51,
+          0.52,
+          0.5249999999999999,
+          0.525
+        ],
+        "y": [
+          0.0,
+          0.4444444444444444,
+          0.4444444444444444,
+          0.4444444444444444,
+          0.4444444444444444,
+          0.4444444444444444,
+          0.4444444444444444,
+          0.4444444444444444,
+          0.4444444444444444,
+          1.0,
+          1.0,
+          1.0
+        ]
+      },
+      "before": {
+        "n": 28,
+        "ece": 0.14267857142857138,
+        "curve": [
+          {
+            "low": 0.0,
+            "high": 0.1,
+            "n": 0,
+            "mean_probability": null,
+            "frequency_A": null
+          },
+          {
+            "low": 0.1,
+            "high": 0.2,
+            "n": 0,
+            "mean_probability": null,
+            "frequency_A": null
+          },
+          {
+            "low": 0.2,
+            "high": 0.3,
+            "n": 0,
+            "mean_probability": null,
+            "frequency_A": null
+          },
+          {
+            "low": 0.3,
+            "high": 0.4,
+            "n": 0,
+            "mean_probability": null,
+            "frequency_A": null
+          },
+          {
+            "low": 0.4,
+            "high": 0.5,
+            "n": 12,
+            "mean_probability": 0.4779166666666667,
+            "frequency_A": 0.3333333333333333
+          },
+          {
+            "low": 0.5,
+            "high": 0.6,
+            "n": 16,
+            "mean_probability": 0.5162499999999999,
+            "frequency_A": 0.375
+          },
+          {
+            "low": 0.6,
+            "high": 0.7,
+            "n": 0,
+            "mean_probability": null,
+            "frequency_A": null
+          },
+          {
+            "low": 0.7,
+            "high": 0.8,
+            "n": 0,
+            "mean_probability": null,
+            "frequency_A": null
+          },
+          {
+            "low": 0.8,
+            "high": 0.9,
+            "n": 0,
+            "mean_probability": null,
+            "frequency_A": null
+          },
+          {
+            "low": 0.9,
+            "high": 1.0,
+            "n": 0,
+            "mean_probability": null,
+            "frequency_A": null
+          }
+        ],
+        "brier": 0.25119732142857143
+      },
+      "after": {
+        "n": 28,
+        "ece": 0.21626984126984108,
+        "curve": [
+          {
+            "low": 0.0,
+            "high": 0.1,
+            "n": 0,
+            "mean_probability": null,
+            "frequency_A": null
+          },
+          {
+            "low": 0.1,
+            "high": 0.2,
+            "n": 0,
+            "mean_probability": null,
+            "frequency_A": null
+          },
+          {
+            "low": 0.2,
+            "high": 0.3,
+            "n": 0,
+            "mean_probability": null,
+            "frequency_A": null
+          },
+          {
+            "low": 0.3,
+            "high": 0.4,
+            "n": 0,
+            "mean_probability": null,
+            "frequency_A": null
+          },
+          {
+            "low": 0.4,
+            "high": 0.5,
+            "n": 21,
+            "mean_probability": 0.4444444444444445,
+            "frequency_A": 0.3333333333333333
+          },
+          {
+            "low": 0.5,
+            "high": 0.6,
+            "n": 0,
+            "mean_probability": null,
+            "frequency_A": null
+          },
+          {
+            "low": 0.6,
+            "high": 0.7,
+            "n": 0,
+            "mean_probability": null,
+            "frequency_A": null
+          },
+          {
+            "low": 0.7,
+            "high": 0.8,
+            "n": 1,
+            "mean_probability": 0.722222222222216,
+            "frequency_A": 0.0
+          },
+          {
+            "low": 0.8,
+            "high": 0.9,
+            "n": 0,
+            "mean_probability": null,
+            "frequency_A": null
+          },
+          {
+            "low": 0.9,
+            "high": 1.0,
+            "n": 6,
+            "mean_probability": 1.0,
+            "frequency_A": 0.5
+          }
+        ],
+        "brier": 0.3016975308641972
+      },
+      "signal_kind": "probability_or_recorded_vote_fraction"
+    },
+    "s1cf": {
+      "tune_n": 22,
+      "validation_n": 28,
+      "map": {
+        "x": [
+          0.21500000000000002,
+          0.22000000000000003,
+          0.28,
+          0.30000000000000004,
+          0.31000000000000005,
+          0.385,
+          0.39499999999999996,
+          0.46,
+          0.48999999999999994,
+          0.5800000000000001,
+          0.71,
+          0.7549999999999999,
+          0.765,
+          0.7699999999999999,
+          0.79,
+          0.8,
+          0.845,
+          0.895,
+          0.915,
+          0.9299999999999999,
+          0.945
+        ],
+        "y": [
+          0.0,
+          0.5,
+          0.5,
+          0.5,
+          0.5,
+          0.5,
+          0.5,
+          0.5,
+          0.5,
+          0.5,
+          0.5,
+          0.5,
+          0.5,
+          0.5,
+          0.5,
+          0.5,
+          0.5,
+          0.5,
+          0.6666666666666666,
+          0.6666666666666666,
+          0.6666666666666666
+        ]
+      },
+      "before": {
+        "n": 28,
+        "ece": 0.33875,
+        "curve": [
+          {
+            "low": 0.0,
+            "high": 0.1,
+            "n": 0,
+            "mean_probability": null,
+            "frequency_A": null
+          },
+          {
+            "low": 0.1,
+            "high": 0.2,
+            "n": 5,
+            "mean_probability": 0.16499999999999998,
+            "frequency_A": 0.4
+          },
+          {
+            "low": 0.2,
+            "high": 0.3,
+            "n": 3,
+            "mean_probability": 0.2816666666666667,
+            "frequency_A": 0.0
+          },
+          {
+            "low": 0.3,
+            "high": 0.4,
+            "n": 3,
+            "mean_probability": 0.3433333333333333,
+            "frequency_A": 0.3333333333333333
+          },
+          {
+            "low": 0.4,
+            "high": 0.5,
+            "n": 2,
+            "mean_probability": 0.4775,
+            "frequency_A": 1.0
+          },
+          {
+            "low": 0.5,
+            "high": 0.6,
+            "n": 1,
+            "mean_probability": 0.58,
+            "frequency_A": 0.0
+          },
+          {
+            "low": 0.6,
+            "high": 0.7,
+            "n": 2,
+            "mean_probability": 0.6775,
+            "frequency_A": 0.5
+          },
+          {
+            "low": 0.7,
+            "high": 0.8,
+            "n": 7,
+            "mean_probability": 0.735,
+            "frequency_A": 0.42857142857142855
+          },
+          {
+            "low": 0.8,
+            "high": 0.9,
+            "n": 4,
+            "mean_probability": 0.8424999999999999,
+            "frequency_A": 0.25
+          },
+          {
+            "low": 0.9,
+            "high": 1.0,
+            "n": 1,
+            "mean_probability": 0.94,
+            "frequency_A": 0.0
+          }
+        ],
+        "brier": 0.33361696428571436
+      },
+      "after": {
+        "n": 28,
+        "ece": 0.20238095238095238,
+        "curve": [
+          {
+            "low": 0.0,
+            "high": 0.1,
+            "n": 5,
+            "mean_probability": 0.0,
+            "frequency_A": 0.4
+          },
+          {
+            "low": 0.1,
+            "high": 0.2,
+            "n": 0,
+            "mean_probability": null,
+            "frequency_A": null
+          },
+          {
+            "low": 0.2,
+            "high": 0.3,
+            "n": 0,
+            "mean_probability": null,
+            "frequency_A": null
+          },
+          {
+            "low": 0.3,
+            "high": 0.4,
+            "n": 0,
+            "mean_probability": null,
+            "frequency_A": null
+          },
+          {
+            "low": 0.4,
+            "high": 0.5,
+            "n": 0,
+            "mean_probability": null,
+            "frequency_A": null
+          },
+          {
+            "low": 0.5,
+            "high": 0.6,
+            "n": 22,
+            "mean_probability": 0.5,
+            "frequency_A": 0.36363636363636365
+          },
+          {
+            "low": 0.6,
+            "high": 0.7,
+            "n": 1,
+            "mean_probability": 0.6666666666666666,
+            "frequency_A": 0.0
+          },
+          {
+            "low": 0.7,
+            "high": 0.8,
+            "n": 0,
+            "mean_probability": null,
+            "frequency_A": null
+          },
+          {
+            "low": 0.8,
+            "high": 0.9,
+            "n": 0,
+            "mean_probability": null,
+            "frequency_A": null
+          },
+          {
+            "low": 0.9,
+            "high": 1.0,
+            "n": 0,
+            "mean_probability": null,
+            "frequency_A": null
+          }
+        ],
+        "brier": 0.2837301587301587
+      },
+      "signal_kind": "probability_or_recorded_vote_fraction"
+    },
+    "s1p": {
+      "tune_n": 22,
+      "validation_n": 28,
+      "map": {
+        "x": [
+          0.07000000000000006,
+          0.11999999999999994,
+          0.12,
+          0.21500000000000002,
+          0.29999999999999993,
+          0.355,
+          0.42500000000000004,
+          0.5449999999999999,
+          0.55,
+          0.555,
+          0.6,
+          0.61,
+          0.64,
+          0.655,
+          0.69,
+          0.765,
+          0.77,
+          0.82,
+          0.8450000000000001,
+          0.855,
+          0.885,
+          0.9149999999999999
+        ],
+        "y": [
+          0.0,
+          0.0,
+          0.2,
+          0.2,
+          0.2,
+          0.2,
+          0.2,
+          0.42857142857142855,
+          0.42857142857142855,
+          0.42857142857142855,
+          0.42857142857142855,
+          0.42857142857142855,
+          0.42857142857142855,
+          0.42857142857142855,
+          0.8333333333333334,
+          0.8333333333333334,
+          0.8333333333333334,
+          0.8333333333333334,
+          0.8333333333333334,
+          0.8333333333333334,
+          1.0,
+          1.0
+        ]
+      },
+      "before": {
+        "n": 28,
+        "ece": 0.24303571428571433,
+        "curve": [
+          {
+            "low": 0.0,
+            "high": 0.1,
+            "n": 1,
+            "mean_probability": 0.08000000000000007,
+            "frequency_A": 1.0
+          },
+          {
+            "low": 0.1,
+            "high": 0.2,
+            "n": 5,
+            "mean_probability": 0.153,
+            "frequency_A": 0.2
+          },
+          {
+            "low": 0.2,
+            "high": 0.3,
+            "n": 3,
+            "mean_probability": 0.24166666666666667,
+            "frequency_A": 0.0
+          },
+          {
+            "low": 0.3,
+            "high": 0.4,
+            "n": 4,
+            "mean_probability": 0.355,
+            "frequency_A": 0.25
+          },
+          {
+            "low": 0.4,
+            "high": 0.5,
+            "n": 2,
+            "mean_probability": 0.4375,
+            "frequency_A": 0.5
+          },
+          {
+            "low": 0.5,
+            "high": 0.6,
+            "n": 2,
+            "mean_probability": 0.5375,
+            "frequency_A": 0.0
+          },
+          {
+            "low": 0.6,
+            "high": 0.7,
+            "n": 2,
+            "mean_probability": 0.655,
+            "frequency_A": 0.5
+          },
+          {
+            "low": 0.7,
+            "high": 0.8,
+            "n": 4,
+            "mean_probability": 0.7675000000000001,
+            "frequency_A": 0.25
+          },
+          {
+            "low": 0.8,
+            "high": 0.9,
+            "n": 2,
+            "mean_probability": 0.8550000000000001,
+            "frequency_A": 0.5
+          },
+          {
+            "low": 0.9,
+            "high": 1.0,
+            "n": 3,
+            "mean_probability": 0.9283333333333332,
+            "frequency_A": 1.0
+          }
+        ],
+        "brier": 0.24175446428571426
+      },
+      "after": {
+        "n": 28,
+        "ece": 0.18721655328798187,
+        "curve": [
+          {
+            "low": 0.0,
+            "high": 0.1,
+            "n": 1,
+            "mean_probability": 0.0,
+            "frequency_A": 1.0
+          },
+          {
+            "low": 0.1,
+            "high": 0.2,
+            "n": 0,
+            "mean_probability": null,
+            "frequency_A": null
+          },
+          {
+            "low": 0.2,
+            "high": 0.3,
+            "n": 14,
+            "mean_probability": 0.20340136054421773,
+            "frequency_A": 0.21428571428571427
+          },
+          {
+            "low": 0.3,
+            "high": 0.4,
+            "n": 1,
+            "mean_probability": 0.3714285714285713,
+            "frequency_A": 0.0
+          },
+          {
+            "low": 0.4,
+            "high": 0.5,
+            "n": 2,
+            "mean_probability": 0.42857142857142855,
+            "frequency_A": 0.0
+          },
+          {
+            "low": 0.5,
+            "high": 0.6,
+            "n": 0,
+            "mean_probability": null,
+            "frequency_A": null
+          },
+          {
+            "low": 0.6,
+            "high": 0.7,
+            "n": 0,
+            "mean_probability": null,
+            "frequency_A": null
+          },
+          {
+            "low": 0.7,
+            "high": 0.8,
+            "n": 0,
+            "mean_probability": null,
+            "frequency_A": null
+          },
+          {
+            "low": 0.8,
+            "high": 0.9,
+            "n": 7,
+            "mean_probability": 0.8373015873015873,
+            "frequency_A": 0.42857142857142855
+          },
+          {
+            "low": 0.9,
+            "high": 1.0,
+            "n": 3,
+            "mean_probability": 1.0,
+            "frequency_A": 1.0
+          }
+        ],
+        "brier": 0.24059175125076493
+      },
+      "signal_kind": "probability_or_recorded_vote_fraction"
+    },
+    "s1pr": {
+      "tune_n": 22,
+      "validation_n": 28,
+      "map": {
+        "x": [
+          0.095,
+          0.14700000000000002,
+          0.168,
+          0.26999999999999996,
+          0.271,
+          0.394,
+          0.45499999999999996,
+          0.483,
+          0.542,
+          0.562,
+          0.568,
+          0.594,
+          0.5970000000000001,
+          0.626,
+          0.6849999999999999,
+          0.689,
+          0.72,
+          0.786,
+          0.788,
+          0.7929999999999999,
+          0.85,
+          0.876
+        ],
+        "y": [
+          0.0,
+          0.0,
+          0.2,
+          0.2,
+          0.2,
+          0.2,
+          0.2,
+          0.42857142857142855,
+          0.42857142857142855,
+          0.42857142857142855,
+          0.42857142857142855,
+          0.42857142857142855,
+          0.42857142857142855,
+          0.42857142857142855,
+          0.8333333333333334,
+          0.8333333333333334,
+          0.8333333333333334,
+          0.8333333333333334,
+          0.8333333333333334,
+          0.8333333333333334,
+          1.0,
+          1.0
+        ]
+      },
+      "before": {
+        "n": 28,
+        "ece": 0.18710714285714283,
+        "curve": [
+          {
+            "low": 0.0,
+            "high": 0.1,
+            "n": 0,
+            "mean_probability": null,
+            "frequency_A": null
+          },
+          {
+            "low": 0.1,
+            "high": 0.2,
+            "n": 5,
+            "mean_probability": 0.15639999999999998,
+            "frequency_A": 0.2
+          },
+          {
+            "low": 0.2,
+            "high": 0.3,
+            "n": 4,
+            "mean_probability": 0.239,
+            "frequency_A": 0.25
+          },
+          {
+            "low": 0.3,
+            "high": 0.4,
+            "n": 4,
+            "mean_probability": 0.3705,
+            "frequency_A": 0.25
+          },
+          {
+            "low": 0.4,
+            "high": 0.5,
+            "n": 3,
+            "mean_probability": 0.4646666666666666,
+            "frequency_A": 0.3333333333333333
+          },
+          {
+            "low": 0.5,
+            "high": 0.6,
+            "n": 2,
+            "mean_probability": 0.556,
+            "frequency_A": 0.0
+          },
+          {
+            "low": 0.6,
+            "high": 0.7,
+            "n": 1,
+            "mean_probability": 0.6439999999999999,
+            "frequency_A": 1.0
+          },
+          {
+            "low": 0.7,
+            "high": 0.8,
+            "n": 5,
+            "mean_probability": 0.7575999999999998,
+            "frequency_A": 0.4
+          },
+          {
+            "low": 0.8,
+            "high": 0.9,
+            "n": 2,
+            "mean_probability": 0.8355,
+            "frequency_A": 0.5
+          },
+          {
+            "low": 0.9,
+            "high": 1.0,
+            "n": 2,
+            "mean_probability": 0.913,
+            "frequency_A": 1.0
+          }
+        ],
+        "brier": 0.2321853214285714
+      },
+      "after": {
+        "n": 28,
+        "ece": 0.2231305520806513,
+        "curve": [
+          {
+            "low": 0.0,
+            "high": 0.1,
+            "n": 3,
+            "mean_probability": 0.01587301587301572,
+            "frequency_A": 0.3333333333333333
+          },
+          {
+            "low": 0.1,
+            "high": 0.2,
+            "n": 0,
+            "mean_probability": null,
+            "frequency_A": null
+          },
+          {
+            "low": 0.2,
+            "high": 0.3,
+            "n": 12,
+            "mean_probability": 0.20612244897959187,
+            "frequency_A": 0.25
+          },
+          {
+            "low": 0.3,
+            "high": 0.4,
+            "n": 0,
+            "mean_probability": null,
+            "frequency_A": null
+          },
+          {
+            "low": 0.4,
+            "high": 0.5,
+            "n": 3,
+            "mean_probability": 0.42857142857142855,
+            "frequency_A": 0.0
+          },
+          {
+            "low": 0.5,
+            "high": 0.6,
+            "n": 1,
+            "mean_probability": 0.5520581113801447,
+            "frequency_A": 1.0
+          },
+          {
+            "low": 0.6,
+            "high": 0.7,
+            "n": 0,
+            "mean_probability": null,
+            "frequency_A": null
+          },
+          {
+            "low": 0.7,
+            "high": 0.8,
+            "n": 0,
+            "mean_probability": null,
+            "frequency_A": null
+          },
+          {
+            "low": 0.8,
+            "high": 0.9,
+            "n": 6,
+            "mean_probability": 0.8391812865497076,
+            "frequency_A": 0.3333333333333333
+          },
+          {
+            "low": 0.9,
+            "high": 1.0,
+            "n": 3,
+            "mean_probability": 1.0,
+            "frequency_A": 1.0
+          }
+        ],
+        "brier": 0.24338680933968965
+      },
+      "signal_kind": "probability_or_recorded_vote_fraction"
+    },
+    "s1r": {
+      "tune_n": 22,
+      "validation_n": 28,
+      "map": {
+        "x": [
+          0.382,
+          0.45999999999999996,
+          0.47800000000000004,
+          0.487,
+          0.49000000000000005,
+          0.491,
+          0.492,
+          0.496,
+          0.497,
+          0.499,
+          0.501,
+          0.502,
+          0.507,
+          0.51,
+          0.511,
+          0.512,
+          0.517,
+          0.525,
+          0.5349999999999999,
+          0.536,
+          0.538,
+          0.58
+        ],
+        "y": [
+          0.0,
+          0.0,
+          0.0,
+          0.4444444444444444,
+          0.4444444444444444,
+          0.4444444444444444,
+          0.4444444444444444,
+          0.4444444444444444,
+          0.4444444444444444,
+          0.4444444444444444,
+          0.4444444444444444,
+          0.4444444444444444,
+          0.5,
+          0.5,
+          0.5,
+          0.5,
+          0.5,
+          0.5,
+          1.0,
+          1.0,
+          1.0,
+          1.0
+        ]
+      },
+      "before": {
+        "n": 28,
+        "ece": 0.14471428571428563,
+        "curve": [
+          {
+            "low": 0.0,
+            "high": 0.1,
+            "n": 0,
+            "mean_probability": null,
+            "frequency_A": null
+          },
+          {
+            "low": 0.1,
+            "high": 0.2,
+            "n": 0,
+            "mean_probability": null,
+            "frequency_A": null
+          },
+          {
+            "low": 0.2,
+            "high": 0.3,
+            "n": 0,
+            "mean_probability": null,
+            "frequency_A": null
+          },
+          {
+            "low": 0.3,
+            "high": 0.4,
+            "n": 0,
+            "mean_probability": null,
+            "frequency_A": null
+          },
+          {
+            "low": 0.4,
+            "high": 0.5,
+            "n": 10,
+            "mean_probability": 0.47829999999999995,
+            "frequency_A": 0.2
+          },
+          {
+            "low": 0.5,
+            "high": 0.6,
+            "n": 18,
+            "mean_probability": 0.5149444444444443,
+            "frequency_A": 0.4444444444444444
+          },
+          {
+            "low": 0.6,
+            "high": 0.7,
+            "n": 0,
+            "mean_probability": null,
+            "frequency_A": null
+          },
+          {
+            "low": 0.7,
+            "high": 0.8,
+            "n": 0,
+            "mean_probability": null,
+            "frequency_A": null
+          },
+          {
+            "low": 0.8,
+            "high": 0.9,
+            "n": 0,
+            "mean_probability": null,
+            "frequency_A": null
+          },
+          {
+            "low": 0.9,
+            "high": 1.0,
+            "n": 0,
+            "mean_probability": null,
+            "frequency_A": null
+          }
+        ],
+        "brier": 0.2485467142857143
+      },
+      "after": {
+        "n": 28,
+        "ece": 0.23419312169312162,
+        "curve": [
+          {
+            "low": 0.0,
+            "high": 0.1,
+            "n": 5,
+            "mean_probability": 0.0,
+            "frequency_A": 0.4
+          },
+          {
+            "low": 0.1,
+            "high": 0.2,
+            "n": 0,
+            "mean_probability": null,
+            "frequency_A": null
+          },
+          {
+            "low": 0.2,
+            "high": 0.3,
+            "n": 1,
+            "mean_probability": 0.29629629629629534,
+            "frequency_A": 0.0
+          },
+          {
+            "low": 0.3,
+            "high": 0.4,
+            "n": 0,
+            "mean_probability": null,
+            "frequency_A": null
+          },
+          {
+            "low": 0.4,
+            "high": 0.5,
+            "n": 11,
+            "mean_probability": 0.45555555555555566,
+            "frequency_A": 0.2727272727272727
+          },
+          {
+            "low": 0.5,
+            "high": 0.6,
+            "n": 8,
+            "mean_probability": 0.5,
+            "frequency_A": 0.375
+          },
+          {
+            "low": 0.6,
+            "high": 0.7,
+            "n": 0,
+            "mean_probability": null,
+            "frequency_A": null
+          },
+          {
+            "low": 0.7,
+            "high": 0.8,
+            "n": 1,
+            "mean_probability": 0.7500000000000028,
+            "frequency_A": 1.0
+          },
+          {
+            "low": 0.8,
+            "high": 0.9,
+            "n": 0,
+            "mean_probability": null,
+            "frequency_A": null
+          },
+          {
+            "low": 0.9,
+            "high": 1.0,
+            "n": 2,
+            "mean_probability": 1.0,
+            "frequency_A": 0.5
+          }
+        ],
+        "brier": 0.27115679502253565
+      },
+      "signal_kind": "probability_or_recorded_vote_fraction"
+    },
+    "s2h": {
+      "tune_n": 22,
+      "validation_n": 28,
+      "map": {
+        "x": [
+          0.3,
+          0.4,
+          0.5,
+          0.6,
+          0.7
+        ],
+        "y": [
+          0.0,
+          0.5,
+          0.5,
+          0.5,
+          1.0
+        ]
+      },
+      "before": {
+        "n": 28,
+        "ece": 0.2857142857142857,
+        "curve": [
+          {
+            "low": 0.0,
+            "high": 0.1,
+            "n": 0,
+            "mean_probability": null,
+            "frequency_A": null
+          },
+          {
+            "low": 0.1,
+            "high": 0.2,
+            "n": 0,
+            "mean_probability": null,
+            "frequency_A": null
+          },
+          {
+            "low": 0.2,
+            "high": 0.3,
+            "n": 1,
+            "mean_probability": 0.2,
+            "frequency_A": 0.0
+          },
+          {
+            "low": 0.3,
+            "high": 0.4,
+            "n": 2,
+            "mean_probability": 0.3,
+            "frequency_A": 0.5
+          },
+          {
+            "low": 0.4,
+            "high": 0.5,
+            "n": 6,
+            "mean_probability": 0.39999999999999997,
+            "frequency_A": 0.6666666666666666
+          },
+          {
+            "low": 0.5,
+            "high": 0.6,
+            "n": 11,
+            "mean_probability": 0.5,
+            "frequency_A": 0.2727272727272727
+          },
+          {
+            "low": 0.6,
+            "high": 0.7,
+            "n": 4,
+            "mean_probability": 0.6,
+            "frequency_A": 0.25
+          },
+          {
+            "low": 0.7,
+            "high": 0.8,
+            "n": 3,
+            "mean_probability": 0.6999999999999998,
+            "frequency_A": 0.3333333333333333
+          },
+          {
+            "low": 0.8,
+            "high": 0.9,
+            "n": 1,
+            "mean_probability": 0.8,
+            "frequency_A": 0.0
+          },
+          {
+            "low": 0.9,
+            "high": 1.0,
+            "n": 0,
+            "mean_probability": null,
+            "frequency_A": null
+          }
+        ],
+        "brier": 0.28857142857142865
+      },
+      "after": {
+        "n": 28,
+        "ece": 0.23214285714285715,
+        "curve": [
+          {
+            "low": 0.0,
+            "high": 0.1,
+            "n": 3,
+            "mean_probability": 0.0,
+            "frequency_A": 0.3333333333333333
+          },
+          {
+            "low": 0.1,
+            "high": 0.2,
+            "n": 0,
+            "mean_probability": null,
+            "frequency_A": null
+          },
+          {
+            "low": 0.2,
+            "high": 0.3,
+            "n": 0,
+            "mean_probability": null,
+            "frequency_A": null
+          },
+          {
+            "low": 0.3,
+            "high": 0.4,
+            "n": 0,
+            "mean_probability": null,
+            "frequency_A": null
+          },
+          {
+            "low": 0.4,
+            "high": 0.5,
+            "n": 0,
+            "mean_probability": null,
+            "frequency_A": null
+          },
+          {
+            "low": 0.5,
+            "high": 0.6,
+            "n": 21,
+            "mean_probability": 0.5,
+            "frequency_A": 0.38095238095238093
+          },
+          {
+            "low": 0.6,
+            "high": 0.7,
+            "n": 0,
+            "mean_probability": null,
+            "frequency_A": null
+          },
+          {
+            "low": 0.7,
+            "high": 0.8,
+            "n": 0,
+            "mean_probability": null,
+            "frequency_A": null
+          },
+          {
+            "low": 0.8,
+            "high": 0.9,
+            "n": 0,
+            "mean_probability": null,
+            "frequency_A": null
+          },
+          {
+            "low": 0.9,
+            "high": 1.0,
+            "n": 4,
+            "mean_probability": 1.0,
+            "frequency_A": 0.25
+          }
+        ],
+        "brier": 0.33035714285714285
+      },
+      "signal_kind": "probability_or_recorded_vote_fraction"
+    },
+    "s2l": {
+      "tune_n": 22,
+      "validation_n": 28,
+      "map": {
+        "x": [
+          0.0,
+          0.5,
+          1.0
+        ],
+        "y": [
+          0.4,
+          0.4,
+          0.5833333333333334
+        ]
+      },
+      "before": {
+        "n": 28,
+        "ece": 0.42857142857142855,
+        "curve": [
+          {
+            "low": 0.0,
+            "high": 0.1,
+            "n": 12,
+            "mean_probability": 0.0,
+            "frequency_A": 0.25
+          },
+          {
+            "low": 0.1,
+            "high": 0.2,
+            "n": 0,
+            "mean_probability": null,
+            "frequency_A": null
+          },
+          {
+            "low": 0.2,
+            "high": 0.3,
+            "n": 0,
+            "mean_probability": null,
+            "frequency_A": null
+          },
+          {
+            "low": 0.3,
+            "high": 0.4,
+            "n": 0,
+            "mean_probability": null,
+            "frequency_A": null
+          },
+          {
+            "low": 0.4,
+            "high": 0.5,
+            "n": 0,
+            "mean_probability": null,
+            "frequency_A": null
+          },
+          {
+            "low": 0.5,
+            "high": 0.6,
+            "n": 0,
+            "mean_probability": null,
+            "frequency_A": null
+          },
+          {
+            "low": 0.6,
+            "high": 0.7,
+            "n": 0,
+            "mean_probability": null,
+            "frequency_A": null
+          },
+          {
+            "low": 0.7,
+            "high": 0.8,
+            "n": 0,
+            "mean_probability": null,
+            "frequency_A": null
+          },
+          {
+            "low": 0.8,
+            "high": 0.9,
+            "n": 0,
+            "mean_probability": null,
+            "frequency_A": null
+          },
+          {
+            "low": 0.9,
+            "high": 1.0,
+            "n": 16,
+            "mean_probability": 1.0,
+            "frequency_A": 0.4375
+          }
+        ],
+        "brier": 0.42857142857142855
+      },
+      "after": {
+        "n": 28,
+        "ece": 0.14761904761904768,
+        "curve": [
+          {
+            "low": 0.0,
+            "high": 0.1,
+            "n": 0,
+            "mean_probability": null,
+            "frequency_A": null
+          },
+          {
+            "low": 0.1,
+            "high": 0.2,
+            "n": 0,
+            "mean_probability": null,
+            "frequency_A": null
+          },
+          {
+            "low": 0.2,
+            "high": 0.3,
+            "n": 0,
+            "mean_probability": null,
+            "frequency_A": null
+          },
+          {
+            "low": 0.3,
+            "high": 0.4,
+            "n": 0,
+            "mean_probability": null,
+            "frequency_A": null
+          },
+          {
+            "low": 0.4,
+            "high": 0.5,
+            "n": 12,
+            "mean_probability": 0.4000000000000001,
+            "frequency_A": 0.25
+          },
+          {
+            "low": 0.5,
+            "high": 0.6,
+            "n": 16,
+            "mean_probability": 0.5833333333333334,
+            "frequency_A": 0.4375
+          },
+          {
+            "low": 0.6,
+            "high": 0.7,
+            "n": 0,
+            "mean_probability": null,
+            "frequency_A": null
+          },
+          {
+            "low": 0.7,
+            "high": 0.8,
+            "n": 0,
+            "mean_probability": null,
+            "frequency_A": null
+          },
+          {
+            "low": 0.8,
+            "high": 0.9,
+            "n": 0,
+            "mean_probability": null,
+            "frequency_A": null
+          },
+          {
+            "low": 0.9,
+            "high": 1.0,
+            "n": 0,
+            "mean_probability": null,
+            "frequency_A": null
+          }
+        ],
+        "brier": 0.2427777777777778
+      },
+      "signal_kind": "probability_or_recorded_vote_fraction"
+    },
+    "s2v": {
+      "tune_n": 22,
+      "validation_n": 28,
+      "map": {
+        "x": [
+          0.0,
+          0.5,
+          1.0
+        ],
+        "y": [
+          0.4444444444444444,
+          0.5384615384615384,
+          0.5384615384615384
+        ]
+      },
+      "before": {
+        "n": 28,
+        "ece": 0.4107142857142857,
+        "curve": [
+          {
+            "low": 0.0,
+            "high": 0.1,
+            "n": 10,
+            "mean_probability": 0.0,
+            "frequency_A": 0.3
+          },
+          {
+            "low": 0.1,
+            "high": 0.2,
+            "n": 0,
+            "mean_probability": null,
+            "frequency_A": null
+          },
+          {
+            "low": 0.2,
+            "high": 0.3,
+            "n": 0,
+            "mean_probability": null,
+            "frequency_A": null
+          },
+          {
+            "low": 0.3,
+            "high": 0.4,
+            "n": 0,
+            "mean_probability": null,
+            "frequency_A": null
+          },
+          {
+            "low": 0.4,
+            "high": 0.5,
+            "n": 0,
+            "mean_probability": null,
+            "frequency_A": null
+          },
+          {
+            "low": 0.5,
+            "high": 0.6,
+            "n": 5,
+            "mean_probability": 0.5,
+            "frequency_A": 0.2
+          },
+          {
+            "low": 0.6,
+            "high": 0.7,
+            "n": 0,
+            "mean_probability": null,
+            "frequency_A": null
+          },
+          {
+            "low": 0.7,
+            "high": 0.8,
+            "n": 0,
+            "mean_probability": null,
+            "frequency_A": null
+          },
+          {
+            "low": 0.8,
+            "high": 0.9,
+            "n": 0,
+            "mean_probability": null,
+            "frequency_A": null
+          },
+          {
+            "low": 0.9,
+            "high": 1.0,
+            "n": 13,
+            "mean_probability": 1.0,
+            "frequency_A": 0.46153846153846156
+          }
+        ],
+        "brier": 0.4017857142857143
+      },
+      "after": {
+        "n": 28,
+        "ece": 0.14774114774114772,
+        "curve": [
+          {
+            "low": 0.0,
+            "high": 0.1,
+            "n": 0,
+            "mean_probability": null,
+            "frequency_A": null
+          },
+          {
+            "low": 0.1,
+            "high": 0.2,
+            "n": 0,
+            "mean_probability": null,
+            "frequency_A": null
+          },
+          {
+            "low": 0.2,
+            "high": 0.3,
+            "n": 0,
+            "mean_probability": null,
+            "frequency_A": null
+          },
+          {
+            "low": 0.3,
+            "high": 0.4,
+            "n": 0,
+            "mean_probability": null,
+            "frequency_A": null
+          },
+          {
+            "low": 0.4,
+            "high": 0.5,
+            "n": 10,
+            "mean_probability": 0.4444444444444445,
+            "frequency_A": 0.3
+          },
+          {
+            "low": 0.5,
+            "high": 0.6,
+            "n": 18,
+            "mean_probability": 0.5384615384615384,
+            "frequency_A": 0.3888888888888889
+          },
+          {
+            "low": 0.6,
+            "high": 0.7,
+            "n": 0,
+            "mean_probability": null,
+            "frequency_A": null
+          },
+          {
+            "low": 0.7,
+            "high": 0.8,
+            "n": 0,
+            "mean_probability": null,
+            "frequency_A": null
+          },
+          {
+            "low": 0.8,
+            "high": 0.9,
+            "n": 0,
+            "mean_probability": null,
+            "frequency_A": null
+          },
+          {
+            "low": 0.9,
+            "high": 1.0,
+            "n": 0,
+            "mean_probability": null,
+            "frequency_A": null
+          }
+        ],
+        "brier": 0.24961126243177525
+      },
+      "signal_kind": "probability_or_recorded_vote_fraction"
+    }
+  },
+  "status": "measured",
+  "model": {
+    "full_experts": [
+      "s1p",
+      "s1r",
+      "ref",
+      "s2v",
+      "s2h"
+    ],
+    "extra": "ref",
+    "s1": "s1p",
+    "full_weights": [
+      1.5680294494096205,
+      0.33642782519864206,
+      0.0,
+      -0.38141903891733386,
+      0.3387649059681305
+    ],
+    "middle_weights": [
+      1.3495912103102023,
+      0.0
+    ],
+    "calibrator": {
+      "x": [
+        0.545,
+        0.55,
+        0.5549999999999999,
+        0.575,
+        0.6000000000000001,
+        0.61,
+        0.64,
+        0.645,
+        0.655,
+        0.69,
+        0.7,
+        0.765,
+        0.77,
+        0.785,
+        0.8200000000000001,
+        0.845,
+        0.855,
+        0.88,
+        0.885,
+        0.915,
+        0.9299999999999999
+      ],
+      "y": [
+        0.5555555555555556,
+        0.5555555555555556,
+        0.5555555555555556,
+        0.5555555555555556,
+        0.5555555555555556,
+        0.5555555555555556,
+        0.5555555555555556,
+        0.5555555555555556,
+        0.5555555555555556,
+        0.8,
+        0.8,
+        0.8,
+        0.8,
+        0.8,
+        0.8,
+        0.8,
+        0.8,
+        0.8,
+        1.0,
+        1.0,
+        1.0
+      ]
+    },
+    "s2_weight": 10.0,
+    "reference_version": "a3955e10367b317737d5b2df8d24c087bcc52d56b51c45802edc7b5c27282f0a",
+    "neutralize_open_reference": true
+  },
+  "certified_model": {
+    "full_experts": [
+      "s1p",
+      "s1r",
+      "ref",
+      "s2v",
+      "s2h"
+    ],
+    "extra": "ref",
+    "s1": "s1p",
+    "full_weights": [
+      1.1626984904495252,
+      0.08865018587260468,
+      0.0,
+      -0.496145109958073,
+      0.2834643710369376
+    ],
+    "middle_weights": [
+      0.9101809861619439,
+      0.0
+    ],
+    "calibrator": {
+      "x": [
+        0.545,
+        0.55,
+        0.575,
+        0.645,
+        0.77,
+        0.785,
+        0.8200000000000001,
+        0.845,
+        0.855,
+        0.88
+      ],
+      "y": [
+        0.8181818181818182,
+        0.8181818181818182,
+        0.8181818181818182,
+        0.8181818181818182,
+        0.8181818181818182,
+        0.8181818181818182,
+        0.8181818181818182,
+        0.8181818181818182,
+        0.8181818181818182,
+        0.8181818181818182
+      ]
+    },
+    "s2_weight": 10.0,
+    "reference_version": "a3955e10367b317737d5b2df8d24c087bcc52d56b51c45802edc7b5c27282f0a",
+    "neutralize_open_reference": true
+  },
+  "certificate": {
+    "hi": 1.01,
+    "lo": 1.01,
+    "target_full_agreement": 0.9,
+    "risk": 0.05,
+    "comparisons": 72,
+    "per_bound_risk": 0.0006944444444444445,
+    "bounds": {
+      "stop": {
+        "n": 0,
+        "successes": 0,
+        "lower": 0.0,
+        "enabled": false
+      },
+      "one_more": {
+        "n": 0,
+        "successes": 0,
+        "lower": 0.0,
+        "enabled": false
+      }
+    },
+    "minimum_error_free_labels_per_enabled_exit": 70,
+    "nontrivial": false,
+    "model_signature": "8b5c595e9c85a73693ce03d22adef58d3009a7b47def2c2b95e6d7dab040cd33",
+    "method": "exact_binomial_bonferroni",
+    "calibration_n": 11,
+    "repeated_calibration_groups": false
+  },
+  "fit_ids": [
+    "0bcaf1760cbc799fa3efada17bf47a85fc4ba0d6e258de1c886d6dd889e422de",
+    "1b959325df2d9f3497f7834cccfb7ac3c1cc6be7be8e8a5e0adfc5938995af2e",
+    "3c301b381c57a8cfad47642d0f7a27b62883154ff2347de6a75a6f43352fd4fe",
+    "49c333d62c0daf38363d1c97bed49f7c62d3ee4ae23a93edb1c55e6512d08e71",
+    "60be46d533f5bdca32613f3cd1c924c08d479378707e62d073187b748f648454",
+    "97a9bd9009b3713d1bc4f2aebf7a6640e0c091115adf0cf4ef1143b16c90f3f6",
+    "b30d1f86ad21fbfc9b10e55acebb51e32b61acffe54474728165b123bb40ddf5",
+    "b4af10aac576306bf7bfd2a67ae2a3cb22dab49e598c3d7ba388782461e884e2",
+    "bf75af224353ba97c6052e35cbb60bf0a2526ad0dec15d36cc820c7a6a20c95e",
+    "c9a15234f5473eb2e98e82649deb8be0d3cfbec3eb98457b0e6d532eb52a6d83",
+    "dc663e330e63205d306e84cebd87a0c37463b85ec343ae7051f4665659bf3337"
+  ],
+  "certification_ids": [
+    "1c94b45439bf8d360523fed6d8085650c7fb8aa1cb5c7cbc11aee7347bcf2dc1",
+    "606aa13b77b6c497cb9d05856c6cf9a7e9e500f9e51ccb12e8699742fefca000",
+    "74f4748a7a00ddf8ce2dc04b6e892d4f837bdbf397e4c170cc97545e7f775042",
+    "87f62e22527d29b156acec8f3cefba990c7204e9196dfe1b9bc34e3eb84ee8ba",
+    "940ecafd5cfce547c277f21514627bbf11ac0285ba95c2937a888e3d3a7623fa",
+    "9d51af63b4eed47b00e15fdf243a717c809527750b7a9fdb1529b95c804cc4d6",
+    "c506bebd5047b6fd7661dc4afd99690906d64ad97885041406224de598e686fb",
+    "d6e86cb7f2633db38c0b6bbb0176fe8f96d4f3735964cd487eaa60c91be02dab",
+    "e35a3925df1212fa293e54df75f676dd9053ba5fc5402f204c79ad266bd64180",
+    "eb5ce1b9c94ef99360084c9d52fee65288a9c3f2f7ac51a5bcd03c3ad2820fde",
+    "f958b6aaf3968d4d6225cb70e796d0850bd10f17ca23e4af73088b2dcf7cca9f"
+  ],
+  "validation_ids": [
+    "0bec34cfe26f929662d0fafd6b8ebd10170b3a3e7f42cc33d073016ad3aaa1b6",
+    "0fc139b32b725f51edd0119dcc1051221ca6739ce8bb4d793029b391d50a02ff",
+    "1527c612353efdeef8950c2ca86b27bc299546a61227ae286a69b5cff6f068dc",
+    "1c20cc603fdd725523cb7c79a155a6d13b1e0262e91a6160b5f583ac38c3c27f",
+    "2dc65cf1938eef974d48f548ca167cab38c2c89410ca11b99006513c1041b36b",
+    "3039c668f2ee09c4e35a6d960fb718fe6be342fc00dcf75f1626777874241510",
+    "436b82ca93e64cb2438b014b887c6f74494469c2f0a004fea52e357893629ac7",
+    "5731e007aafb602864f22672a5b672310b87662f91acd67b2a254a9f5c7f4d07",
+    "61dcf707deafa5ebf140770571b991a89d79b7336957e055cfbf5b1fa18c7fa2",
+    "699a97a19d4f4499174bc546bd102724b3969a1ab45770fafbe1d373b326e995",
+    "7e5280339f8eb3ca22ad0db5e2959252fdd5636fe5f0b8719d2e9c2ae42444a5",
+    "80f0721acaea756305c3ceea82135ad4e304e915c1b2f1443eacf66de0d27e45",
+    "936d55033bdd6914efb739394c115e8df9f008591b45e1ea932661d9f8aa33e8",
+    "94330bfa86a49014987ac21fe4ff6cdddb0ec9b3c6a18d158977320f385cfa37",
+    "9b47d1e912c937c6045fed44d20b38d445e739f6b1b1b6157105209061364c13",
+    "9e43b2d58fdf464cd17fb376eef52f4dafb3f1fe64ee2c85805531679e2d8daf",
+    "a223f611a92a6605ee86ddc75437255b40a1f1399490dc15e3775a81731b1844",
+    "b636290747dbca93d871f37f2b8ee6abab3cd93cc196d5222f19ea081c4055a3",
+    "ca72195f65fad110a3065529557eb344e875334d7764b06e1d731535306d10ba",
+    "d1503d97eaf48bdbd5063942388629ffa0c36970598efeb189ed83a22b1be85d",
+    "dc386ca798775957ddaff89254023a077cde1bc57533e65cf987e06b9772600e",
+    "dd4a3194ddba2a33748383cde7f5e8727c2d3fa73a89f97c127fbc0fb76cf926",
+    "e4657fc72efd60e3d5bba9c46fab1262f6172266c93d256ca5f647b52ef0e0b4",
+    "eb5922169cd364767a73b4b5768d5c3b688230c5408f24b07ac0970047bbb9b3",
+    "ebf7409185f6d88ff350f985e4d5a7445f369eba50e0648ccf5320d59a310c71",
+    "ed6cb96900efa941a0504f5f61be8165d2a489a989172f3e9a52ecb7670dfe18",
+    "f65abab6a71dffd068e5fbbe916682ecc706163c3dea205584b9d78dd1dbd49f",
+    "f6c29e1b9258ef761fe5576d6845d0586b9896fc1ca858fd248eefffaf9872ae"
+  ],
+  "operating_points": {
+    "cheapest": {
+      "hi": 0.5,
+      "lo": 0.5,
+      "tuning": {
+        "n": 22,
+        "hi": 0.5,
+        "lo": 0.5,
+        "raw_gate": false,
+        "gold_accuracy": 0.7272727272727273,
+        "full_agreement": 1.0,
+        "cost_units": 16.727272727272727,
+        "jev": 3.090909090909091,
+        "luna": 1.3636363636363635,
+        "recorded_luna_usd": 0.0004780454545454546,
+        "levels": {
+          "stop": {
+            "n": 16,
+            "share": 0.7272727272727273,
+            "gold_accuracy": 0.6875,
+            "full_agreement": 1.0
+          },
+          "one_more": {
+            "n": 0,
+            "share": 0.0,
+            "gold_accuracy": null,
+            "full_agreement": null
+          },
+          "full": {
+            "n": 6,
+            "share": 0.2727272727272727,
+            "gold_accuracy": 0.8333333333333334,
+            "full_agreement": 1.0
+          }
+        }
+      },
+      "target_feasible": null,
+      "validation": {
+        "n": 28,
+        "hi": 0.5,
+        "lo": 0.5,
+        "raw_gate": false,
+        "gold_accuracy": 0.6785714285714286,
+        "full_agreement": 0.9642857142857143,
+        "cost_units": 7.785714285714286,
+        "jev": 2.4285714285714284,
+        "luna": 0.5357142857142857,
+        "recorded_luna_usd": 0.00020439285714285714,
+        "levels": {
+          "stop": {
+            "n": 25,
+            "share": 0.8928571428571429,
+            "gold_accuracy": 0.68,
+            "full_agreement": 0.96
+          },
+          "one_more": {
+            "n": 0,
+            "share": 0.0,
+            "gold_accuracy": null,
+            "full_agreement": null
+          },
+          "full": {
+            "n": 3,
+            "share": 0.10714285714285714,
+            "gold_accuracy": 0.6666666666666666,
+            "full_agreement": 1.0
+          }
+        }
+      }
+    },
+    "balanced": {
+      "hi": 0.5,
+      "lo": 0.5,
+      "tuning": {
+        "n": 22,
+        "hi": 0.5,
+        "lo": 0.5,
+        "raw_gate": false,
+        "gold_accuracy": 0.7272727272727273,
+        "full_agreement": 1.0,
+        "cost_units": 16.727272727272727,
+        "jev": 3.090909090909091,
+        "luna": 1.3636363636363635,
+        "recorded_luna_usd": 0.0004780454545454546,
+        "levels": {
+          "stop": {
+            "n": 16,
+            "share": 0.7272727272727273,
+            "gold_accuracy": 0.6875,
+            "full_agreement": 1.0
+          },
+          "one_more": {
+            "n": 0,
+            "share": 0.0,
+            "gold_accuracy": null,
+            "full_agreement": null
+          },
+          "full": {
+            "n": 6,
+            "share": 0.2727272727272727,
+            "gold_accuracy": 0.8333333333333334,
+            "full_agreement": 1.0
+          }
+        }
+      },
+      "target_feasible": false,
+      "validation": {
+        "n": 28,
+        "hi": 0.5,
+        "lo": 0.5,
+        "raw_gate": false,
+        "gold_accuracy": 0.6785714285714286,
+        "full_agreement": 0.9642857142857143,
+        "cost_units": 7.785714285714286,
+        "jev": 2.4285714285714284,
+        "luna": 0.5357142857142857,
+        "recorded_luna_usd": 0.00020439285714285714,
+        "levels": {
+          "stop": {
+            "n": 25,
+            "share": 0.8928571428571429,
+            "gold_accuracy": 0.68,
+            "full_agreement": 0.96
+          },
+          "one_more": {
+            "n": 0,
+            "share": 0.0,
+            "gold_accuracy": null,
+            "full_agreement": null
+          },
+          "full": {
+            "n": 3,
+            "share": 0.10714285714285714,
+            "gold_accuracy": 0.6666666666666666,
+            "full_agreement": 1.0
+          }
+        }
+      }
+    },
+    "most_accurate": {
+      "hi": 0.5,
+      "lo": 0.5,
+      "tuning": {
+        "n": 22,
+        "hi": 0.5,
+        "lo": 0.5,
+        "raw_gate": false,
+        "gold_accuracy": 0.7272727272727273,
+        "full_agreement": 1.0,
+        "cost_units": 16.727272727272727,
+        "jev": 3.090909090909091,
+        "luna": 1.3636363636363635,
+        "recorded_luna_usd": 0.0004780454545454546,
+        "levels": {
+          "stop": {
+            "n": 16,
+            "share": 0.7272727272727273,
+            "gold_accuracy": 0.6875,
+            "full_agreement": 1.0
+          },
+          "one_more": {
+            "n": 0,
+            "share": 0.0,
+            "gold_accuracy": null,
+            "full_agreement": null
+          },
+          "full": {
+            "n": 6,
+            "share": 0.2727272727272727,
+            "gold_accuracy": 0.8333333333333334,
+            "full_agreement": 1.0
+          }
+        }
+      },
+      "target_feasible": null,
+      "validation": {
+        "n": 28,
+        "hi": 0.5,
+        "lo": 0.5,
+        "raw_gate": false,
+        "gold_accuracy": 0.6785714285714286,
+        "full_agreement": 0.9642857142857143,
+        "cost_units": 7.785714285714286,
+        "jev": 2.4285714285714284,
+        "luna": 0.5357142857142857,
+        "recorded_luna_usd": 0.00020439285714285714,
+        "levels": {
+          "stop": {
+            "n": 25,
+            "share": 0.8928571428571429,
+            "gold_accuracy": 0.68,
+            "full_agreement": 0.96
+          },
+          "one_more": {
+            "n": 0,
+            "share": 0.0,
+            "gold_accuracy": null,
+            "full_agreement": null
+          },
+          "full": {
+            "n": 3,
+            "share": 0.10714285714285714,
+            "gold_accuracy": 0.6666666666666666,
+            "full_agreement": 1.0
+          }
+        }
+      }
+    }
+  },
+  "methods": {
+    "fixed_0.9": {
+      "n": 28,
+      "hi": 0.9,
+      "lo": 0.7,
+      "raw_gate": true,
+      "gold_accuracy": 0.6428571428571429,
+      "full_agreement": 1.0,
+      "cost_units": 27.285714285714285,
+      "jev": 4.428571428571429,
+      "luna": 2.2857142857142856,
+      "recorded_luna_usd": 0.0005849999999999999,
+      "levels": {
+        "stop": {
+          "n": 4,
+          "share": 0.14285714285714285,
+          "gold_accuracy": 0.75,
+          "full_agreement": 1.0
+        },
+        "one_more": {
+          "n": 14,
+          "share": 0.5,
+          "gold_accuracy": 0.6428571428571429,
+          "full_agreement": 1.0
+        },
+        "full": {
+          "n": 10,
+          "share": 0.35714285714285715,
+          "gold_accuracy": 0.6,
+          "full_agreement": 1.0
+        }
+      }
+    },
+    "guaranteed": {
+      "n": 28,
+      "hi": 1.01,
+      "lo": 1.01,
+      "raw_gate": false,
+      "gold_accuracy": 0.6071428571428571,
+      "full_agreement": 1.0,
+      "cost_units": 56.0,
+      "jev": 6.0,
+      "luna": 5.0,
+      "recorded_luna_usd": 0.0016188928571428572,
+      "levels": {
+        "stop": {
+          "n": 0,
+          "share": 0.0,
+          "gold_accuracy": null,
+          "full_agreement": null
+        },
+        "one_more": {
+          "n": 0,
+          "share": 0.0,
+          "gold_accuracy": null,
+          "full_agreement": null
+        },
+        "full": {
+          "n": 28,
+          "share": 1.0,
+          "gold_accuracy": 0.6071428571428571,
+          "full_agreement": 1.0
+        }
+      }
+    },
+    "cross_validated": {
+      "n": 28,
+      "hi": 0.5,
+      "lo": 0.5,
+      "raw_gate": false,
+      "gold_accuracy": 0.6785714285714286,
+      "full_agreement": 0.9642857142857143,
+      "cost_units": 7.785714285714286,
+      "jev": 2.4285714285714284,
+      "luna": 0.5357142857142857,
+      "recorded_luna_usd": 0.00020439285714285714,
+      "levels": {
+        "stop": {
+          "n": 25,
+          "share": 0.8928571428571429,
+          "gold_accuracy": 0.68,
+          "full_agreement": 0.96
+        },
+        "one_more": {
+          "n": 0,
+          "share": 0.0,
+          "gold_accuracy": null,
+          "full_agreement": null
+        },
+        "full": {
+          "n": 3,
+          "share": 0.10714285714285714,
+          "gold_accuracy": 0.6666666666666666,
+          "full_agreement": 1.0
+        }
+      }
+    }
+  },
+  "curve_tuning_oof": [
+    {
+      "n": 22,
+      "hi": 0.5,
+      "lo": 0.5,
+      "raw_gate": false,
+      "gold_accuracy": 0.7272727272727273,
+      "full_agreement": 1.0,
+      "cost_units": 16.727272727272727,
+      "jev": 3.090909090909091,
+      "luna": 1.3636363636363635,
+      "recorded_luna_usd": 0.0004780454545454546,
+      "levels": {
+        "stop": {
+          "n": 16,
+          "share": 0.7272727272727273,
+          "gold_accuracy": 0.6875,
+          "full_agreement": 1.0
+        },
+        "one_more": {
+          "n": 0,
+          "share": 0.0,
+          "gold_accuracy": null,
+          "full_agreement": null
+        },
+        "full": {
+          "n": 6,
+          "share": 0.2727272727272727,
+          "gold_accuracy": 0.8333333333333334,
+          "full_agreement": 1.0
+        }
+      }
+    },
+    {
+      "n": 22,
+      "hi": 0.6,
+      "lo": 0.5,
+      "raw_gate": false,
+      "gold_accuracy": 0.7272727272727273,
+      "full_agreement": 1.0,
+      "cost_units": 16.727272727272727,
+      "jev": 3.090909090909091,
+      "luna": 1.3636363636363635,
+      "recorded_luna_usd": 0.0004780454545454546,
+      "levels": {
+        "stop": {
+          "n": 16,
+          "share": 0.7272727272727273,
+          "gold_accuracy": 0.6875,
+          "full_agreement": 1.0
+        },
+        "one_more": {
+          "n": 0,
+          "share": 0.0,
+          "gold_accuracy": null,
+          "full_agreement": null
+        },
+        "full": {
+          "n": 6,
+          "share": 0.2727272727272727,
+          "gold_accuracy": 0.8333333333333334,
+          "full_agreement": 1.0
+        }
+      }
+    },
+    {
+      "n": 22,
+      "hi": 0.6,
+      "lo": 0.6,
+      "raw_gate": false,
+      "gold_accuracy": 0.7272727272727273,
+      "full_agreement": 1.0,
+      "cost_units": 16.727272727272727,
+      "jev": 3.090909090909091,
+      "luna": 1.3636363636363635,
+      "recorded_luna_usd": 0.0004780454545454546,
+      "levels": {
+        "stop": {
+          "n": 16,
+          "share": 0.7272727272727273,
+          "gold_accuracy": 0.6875,
+          "full_agreement": 1.0
+        },
+        "one_more": {
+          "n": 0,
+          "share": 0.0,
+          "gold_accuracy": null,
+          "full_agreement": null
+        },
+        "full": {
+          "n": 6,
+          "share": 0.2727272727272727,
+          "gold_accuracy": 0.8333333333333334,
+          "full_agreement": 1.0
+        }
+      }
+    },
+    {
+      "n": 22,
+      "hi": 0.7,
+      "lo": 0.5,
+      "raw_gate": false,
+      "gold_accuracy": 0.7272727272727273,
+      "full_agreement": 1.0,
+      "cost_units": 17.818181818181817,
+      "jev": 3.272727272727273,
+      "luna": 1.4545454545454546,
+      "recorded_luna_usd": 0.00048699999999999997,
+      "levels": {
+        "stop": {
+          "n": 14,
+          "share": 0.6363636363636364,
+          "gold_accuracy": 0.7857142857142857,
+          "full_agreement": 1.0
+        },
+        "one_more": {
+          "n": 2,
+          "share": 0.09090909090909091,
+          "gold_accuracy": 0.0,
+          "full_agreement": 1.0
+        },
+        "full": {
+          "n": 6,
+          "share": 0.2727272727272727,
+          "gold_accuracy": 0.8333333333333334,
+          "full_agreement": 1.0
+        }
+      }
+    },
+    {
+      "n": 22,
+      "hi": 0.7,
+      "lo": 0.6,
+      "raw_gate": false,
+      "gold_accuracy": 0.7272727272727273,
+      "full_agreement": 1.0,
+      "cost_units": 17.818181818181817,
+      "jev": 3.272727272727273,
+      "luna": 1.4545454545454546,
+      "recorded_luna_usd": 0.00048699999999999997,
+      "levels": {
+        "stop": {
+          "n": 14,
+          "share": 0.6363636363636364,
+          "gold_accuracy": 0.7857142857142857,
+          "full_agreement": 1.0
+        },
+        "one_more": {
+          "n": 2,
+          "share": 0.09090909090909091,
+          "gold_accuracy": 0.0,
+          "full_agreement": 1.0
+        },
+        "full": {
+          "n": 6,
+          "share": 0.2727272727272727,
+          "gold_accuracy": 0.8333333333333334,
+          "full_agreement": 1.0
+        }
+      }
+    },
+    {
+      "n": 22,
+      "hi": 0.7,
+      "lo": 0.7,
+      "raw_gate": false,
+      "gold_accuracy": 0.7272727272727273,
+      "full_agreement": 1.0,
+      "cost_units": 21.636363636363637,
+      "jev": 3.4545454545454546,
+      "luna": 1.8181818181818181,
+      "recorded_luna_usd": 0.0005865,
+      "levels": {
+        "stop": {
+          "n": 14,
+          "share": 0.6363636363636364,
+          "gold_accuracy": 0.7857142857142857,
+          "full_agreement": 1.0
+        },
+        "one_more": {
+          "n": 0,
+          "share": 0.0,
+          "gold_accuracy": null,
+          "full_agreement": null
+        },
+        "full": {
+          "n": 8,
+          "share": 0.36363636363636365,
+          "gold_accuracy": 0.625,
+          "full_agreement": 1.0
+        }
+      }
+    },
+    {
+      "n": 22,
+      "hi": 0.8,
+      "lo": 0.5,
+      "raw_gate": false,
+      "gold_accuracy": 0.7272727272727273,
+      "full_agreement": 1.0,
+      "cost_units": 18.90909090909091,
+      "jev": 3.4545454545454546,
+      "luna": 1.5454545454545454,
+      "recorded_luna_usd": 0.0004961818181818182,
+      "levels": {
+        "stop": {
+          "n": 12,
+          "share": 0.5454545454545454,
+          "gold_accuracy": 0.75,
+          "full_agreement": 1.0
+        },
+        "one_more": {
+          "n": 4,
+          "share": 0.18181818181818182,
+          "gold_accuracy": 0.5,
+          "full_agreement": 1.0
+        },
+        "full": {
+          "n": 6,
+          "share": 0.2727272727272727,
+          "gold_accuracy": 0.8333333333333334,
+          "full_agreement": 1.0
+        }
+      }
+    },
+    {
+      "n": 22,
+      "hi": 0.8,
+      "lo": 0.6,
+      "raw_gate": false,
+      "gold_accuracy": 0.7272727272727273,
+      "full_agreement": 1.0,
+      "cost_units": 18.90909090909091,
+      "jev": 3.4545454545454546,
+      "luna": 1.5454545454545454,
+      "recorded_luna_usd": 0.0004961818181818182,
+      "levels": {
+        "stop": {
+          "n": 12,
+          "share": 0.5454545454545454,
+          "gold_accuracy": 0.75,
+          "full_agreement": 1.0
+        },
+        "one_more": {
+          "n": 4,
+          "share": 0.18181818181818182,
+          "gold_accuracy": 0.5,
+          "full_agreement": 1.0
+        },
+        "full": {
+          "n": 6,
+          "share": 0.2727272727272727,
+          "gold_accuracy": 0.8333333333333334,
+          "full_agreement": 1.0
+        }
+      }
+    },
+    {
+      "n": 22,
+      "hi": 0.8,
+      "lo": 0.7,
+      "raw_gate": false,
+      "gold_accuracy": 0.7272727272727273,
+      "full_agreement": 1.0,
+      "cost_units": 22.727272727272727,
+      "jev": 3.6363636363636362,
+      "luna": 1.9090909090909092,
+      "recorded_luna_usd": 0.0005956818181818182,
+      "levels": {
+        "stop": {
+          "n": 12,
+          "share": 0.5454545454545454,
+          "gold_accuracy": 0.75,
+          "full_agreement": 1.0
+        },
+        "one_more": {
+          "n": 2,
+          "share": 0.09090909090909091,
+          "gold_accuracy": 1.0,
+          "full_agreement": 1.0
+        },
+        "full": {
+          "n": 8,
+          "share": 0.36363636363636365,
+          "gold_accuracy": 0.625,
+          "full_agreement": 1.0
+        }
+      }
+    },
+    {
+      "n": 22,
+      "hi": 0.8,
+      "lo": 0.8,
+      "raw_gate": false,
+      "gold_accuracy": 0.7272727272727273,
+      "full_agreement": 1.0,
+      "cost_units": 26.545454545454547,
+      "jev": 3.8181818181818183,
+      "luna": 2.272727272727273,
+      "recorded_luna_usd": 0.0007720454545454545,
+      "levels": {
+        "stop": {
+          "n": 12,
+          "share": 0.5454545454545454,
+          "gold_accuracy": 0.75,
+          "full_agreement": 1.0
+        },
+        "one_more": {
+          "n": 0,
+          "share": 0.0,
+          "gold_accuracy": null,
+          "full_agreement": null
+        },
+        "full": {
+          "n": 10,
+          "share": 0.45454545454545453,
+          "gold_accuracy": 0.7,
+          "full_agreement": 1.0
+        }
+      }
+    },
+    {
+      "n": 22,
+      "hi": 0.9,
+      "lo": 0.5,
+      "raw_gate": false,
+      "gold_accuracy": 0.7272727272727273,
+      "full_agreement": 1.0,
+      "cost_units": 23.818181818181817,
+      "jev": 4.2727272727272725,
+      "luna": 1.9545454545454546,
+      "recorded_luna_usd": 0.0005414090909090909,
+      "levels": {
+        "stop": {
+          "n": 3,
+          "share": 0.13636363636363635,
+          "gold_accuracy": 0.6666666666666666,
+          "full_agreement": 1.0
+        },
+        "one_more": {
+          "n": 13,
+          "share": 0.5909090909090909,
+          "gold_accuracy": 0.6923076923076923,
+          "full_agreement": 1.0
+        },
+        "full": {
+          "n": 6,
+          "share": 0.2727272727272727,
+          "gold_accuracy": 0.8333333333333334,
+          "full_agreement": 1.0
+        }
+      }
+    },
+    {
+      "n": 22,
+      "hi": 0.9,
+      "lo": 0.6,
+      "raw_gate": false,
+      "gold_accuracy": 0.7272727272727273,
+      "full_agreement": 1.0,
+      "cost_units": 23.818181818181817,
+      "jev": 4.2727272727272725,
+      "luna": 1.9545454545454546,
+      "recorded_luna_usd": 0.0005414090909090909,
+      "levels": {
+        "stop": {
+          "n": 3,
+          "share": 0.13636363636363635,
+          "gold_accuracy": 0.6666666666666666,
+          "full_agreement": 1.0
+        },
+        "one_more": {
+          "n": 13,
+          "share": 0.5909090909090909,
+          "gold_accuracy": 0.6923076923076923,
+          "full_agreement": 1.0
+        },
+        "full": {
+          "n": 6,
+          "share": 0.2727272727272727,
+          "gold_accuracy": 0.8333333333333334,
+          "full_agreement": 1.0
+        }
+      }
+    },
+    {
+      "n": 22,
+      "hi": 0.9,
+      "lo": 0.7,
+      "raw_gate": false,
+      "gold_accuracy": 0.7272727272727273,
+      "full_agreement": 1.0,
+      "cost_units": 27.636363636363637,
+      "jev": 4.454545454545454,
+      "luna": 2.3181818181818183,
+      "recorded_luna_usd": 0.0006409090909090909,
+      "levels": {
+        "stop": {
+          "n": 3,
+          "share": 0.13636363636363635,
+          "gold_accuracy": 0.6666666666666666,
+          "full_agreement": 1.0
+        },
+        "one_more": {
+          "n": 11,
+          "share": 0.5,
+          "gold_accuracy": 0.8181818181818182,
+          "full_agreement": 1.0
+        },
+        "full": {
+          "n": 8,
+          "share": 0.36363636363636365,
+          "gold_accuracy": 0.625,
+          "full_agreement": 1.0
+        }
+      }
+    },
+    {
+      "n": 22,
+      "hi": 0.9,
+      "lo": 0.8,
+      "raw_gate": false,
+      "gold_accuracy": 0.7272727272727273,
+      "full_agreement": 1.0,
+      "cost_units": 31.454545454545453,
+      "jev": 4.636363636363637,
+      "luna": 2.6818181818181817,
+      "recorded_luna_usd": 0.0008172727272727272,
+      "levels": {
+        "stop": {
+          "n": 3,
+          "share": 0.13636363636363635,
+          "gold_accuracy": 0.6666666666666666,
+          "full_agreement": 1.0
+        },
+        "one_more": {
+          "n": 9,
+          "share": 0.4090909090909091,
+          "gold_accuracy": 0.7777777777777778,
+          "full_agreement": 1.0
+        },
+        "full": {
+          "n": 10,
+          "share": 0.45454545454545453,
+          "gold_accuracy": 0.7,
+          "full_agreement": 1.0
+        }
+      }
+    },
+    {
+      "n": 22,
+      "hi": 0.9,
+      "lo": 0.9,
+      "raw_gate": false,
+      "gold_accuracy": 0.7272727272727273,
+      "full_agreement": 1.0,
+      "cost_units": 48.63636363636363,
+      "jev": 5.454545454545454,
+      "luna": 4.318181818181818,
+      "recorded_luna_usd": 0.0013539545454545453,
+      "levels": {
+        "stop": {
+          "n": 3,
+          "share": 0.13636363636363635,
+          "gold_accuracy": 0.6666666666666666,
+          "full_agreement": 1.0
+        },
+        "one_more": {
+          "n": 0,
+          "share": 0.0,
+          "gold_accuracy": null,
+          "full_agreement": null
+        },
+        "full": {
+          "n": 19,
+          "share": 0.8636363636363636,
+          "gold_accuracy": 0.7368421052631579,
+          "full_agreement": 1.0
+        }
+      }
+    },
+    {
+      "n": 22,
+      "hi": 0.95,
+      "lo": 0.5,
+      "raw_gate": false,
+      "gold_accuracy": 0.7272727272727273,
+      "full_agreement": 1.0,
+      "cost_units": 23.818181818181817,
+      "jev": 4.2727272727272725,
+      "luna": 1.9545454545454546,
+      "recorded_luna_usd": 0.0005414090909090909,
+      "levels": {
+        "stop": {
+          "n": 3,
+          "share": 0.13636363636363635,
+          "gold_accuracy": 0.6666666666666666,
+          "full_agreement": 1.0
+        },
+        "one_more": {
+          "n": 13,
+          "share": 0.5909090909090909,
+          "gold_accuracy": 0.6923076923076923,
+          "full_agreement": 1.0
+        },
+        "full": {
+          "n": 6,
+          "share": 0.2727272727272727,
+          "gold_accuracy": 0.8333333333333334,
+          "full_agreement": 1.0
+        }
+      }
+    },
+    {
+      "n": 22,
+      "hi": 0.95,
+      "lo": 0.6,
+      "raw_gate": false,
+      "gold_accuracy": 0.7272727272727273,
+      "full_agreement": 1.0,
+      "cost_units": 23.818181818181817,
+      "jev": 4.2727272727272725,
+      "luna": 1.9545454545454546,
+      "recorded_luna_usd": 0.0005414090909090909,
+      "levels": {
+        "stop": {
+          "n": 3,
+          "share": 0.13636363636363635,
+          "gold_accuracy": 0.6666666666666666,
+          "full_agreement": 1.0
+        },
+        "one_more": {
+          "n": 13,
+          "share": 0.5909090909090909,
+          "gold_accuracy": 0.6923076923076923,
+          "full_agreement": 1.0
+        },
+        "full": {
+          "n": 6,
+          "share": 0.2727272727272727,
+          "gold_accuracy": 0.8333333333333334,
+          "full_agreement": 1.0
+        }
+      }
+    },
+    {
+      "n": 22,
+      "hi": 0.95,
+      "lo": 0.7,
+      "raw_gate": false,
+      "gold_accuracy": 0.7272727272727273,
+      "full_agreement": 1.0,
+      "cost_units": 27.636363636363637,
+      "jev": 4.454545454545454,
+      "luna": 2.3181818181818183,
+      "recorded_luna_usd": 0.0006409090909090909,
+      "levels": {
+        "stop": {
+          "n": 3,
+          "share": 0.13636363636363635,
+          "gold_accuracy": 0.6666666666666666,
+          "full_agreement": 1.0
+        },
+        "one_more": {
+          "n": 11,
+          "share": 0.5,
+          "gold_accuracy": 0.8181818181818182,
+          "full_agreement": 1.0
+        },
+        "full": {
+          "n": 8,
+          "share": 0.36363636363636365,
+          "gold_accuracy": 0.625,
+          "full_agreement": 1.0
+        }
+      }
+    },
+    {
+      "n": 22,
+      "hi": 0.95,
+      "lo": 0.8,
+      "raw_gate": false,
+      "gold_accuracy": 0.7272727272727273,
+      "full_agreement": 1.0,
+      "cost_units": 31.454545454545453,
+      "jev": 4.636363636363637,
+      "luna": 2.6818181818181817,
+      "recorded_luna_usd": 0.0008172727272727272,
+      "levels": {
+        "stop": {
+          "n": 3,
+          "share": 0.13636363636363635,
+          "gold_accuracy": 0.6666666666666666,
+          "full_agreement": 1.0
+        },
+        "one_more": {
+          "n": 9,
+          "share": 0.4090909090909091,
+          "gold_accuracy": 0.7777777777777778,
+          "full_agreement": 1.0
+        },
+        "full": {
+          "n": 10,
+          "share": 0.45454545454545453,
+          "gold_accuracy": 0.7,
+          "full_agreement": 1.0
+        }
+      }
+    },
+    {
+      "n": 22,
+      "hi": 0.95,
+      "lo": 0.9,
+      "raw_gate": false,
+      "gold_accuracy": 0.7272727272727273,
+      "full_agreement": 1.0,
+      "cost_units": 48.63636363636363,
+      "jev": 5.454545454545454,
+      "luna": 4.318181818181818,
+      "recorded_luna_usd": 0.0013539545454545453,
+      "levels": {
+        "stop": {
+          "n": 3,
+          "share": 0.13636363636363635,
+          "gold_accuracy": 0.6666666666666666,
+          "full_agreement": 1.0
+        },
+        "one_more": {
+          "n": 0,
+          "share": 0.0,
+          "gold_accuracy": null,
+          "full_agreement": null
+        },
+        "full": {
+          "n": 19,
+          "share": 0.8636363636363636,
+          "gold_accuracy": 0.7368421052631579,
+          "full_agreement": 1.0
+        }
+      }
+    },
+    {
+      "n": 22,
+      "hi": 0.95,
+      "lo": 0.95,
+      "raw_gate": false,
+      "gold_accuracy": 0.7272727272727273,
+      "full_agreement": 1.0,
+      "cost_units": 48.63636363636363,
+      "jev": 5.454545454545454,
+      "luna": 4.318181818181818,
+      "recorded_luna_usd": 0.0013539545454545453,
+      "levels": {
+        "stop": {
+          "n": 3,
+          "share": 0.13636363636363635,
+          "gold_accuracy": 0.6666666666666666,
+          "full_agreement": 1.0
+        },
+        "one_more": {
+          "n": 0,
+          "share": 0.0,
+          "gold_accuracy": null,
+          "full_agreement": null
+        },
+        "full": {
+          "n": 19,
+          "share": 0.8636363636363636,
+          "gold_accuracy": 0.7368421052631579,
+          "full_agreement": 1.0
+        }
+      }
+    },
+    {
+      "n": 22,
+      "hi": 1.0,
+      "lo": 0.5,
+      "raw_gate": false,
+      "gold_accuracy": 0.7272727272727273,
+      "full_agreement": 1.0,
+      "cost_units": 23.818181818181817,
+      "jev": 4.2727272727272725,
+      "luna": 1.9545454545454546,
+      "recorded_luna_usd": 0.0005414090909090909,
+      "levels": {
+        "stop": {
+          "n": 3,
+          "share": 0.13636363636363635,
+          "gold_accuracy": 0.6666666666666666,
+          "full_agreement": 1.0
+        },
+        "one_more": {
+          "n": 13,
+          "share": 0.5909090909090909,
+          "gold_accuracy": 0.6923076923076923,
+          "full_agreement": 1.0
+        },
+        "full": {
+          "n": 6,
+          "share": 0.2727272727272727,
+          "gold_accuracy": 0.8333333333333334,
+          "full_agreement": 1.0
+        }
+      }
+    },
+    {
+      "n": 22,
+      "hi": 1.0,
+      "lo": 0.6,
+      "raw_gate": false,
+      "gold_accuracy": 0.7272727272727273,
+      "full_agreement": 1.0,
+      "cost_units": 23.818181818181817,
+      "jev": 4.2727272727272725,
+      "luna": 1.9545454545454546,
+      "recorded_luna_usd": 0.0005414090909090909,
+      "levels": {
+        "stop": {
+          "n": 3,
+          "share": 0.13636363636363635,
+          "gold_accuracy": 0.6666666666666666,
+          "full_agreement": 1.0
+        },
+        "one_more": {
+          "n": 13,
+          "share": 0.5909090909090909,
+          "gold_accuracy": 0.6923076923076923,
+          "full_agreement": 1.0
+        },
+        "full": {
+          "n": 6,
+          "share": 0.2727272727272727,
+          "gold_accuracy": 0.8333333333333334,
+          "full_agreement": 1.0
+        }
+      }
+    },
+    {
+      "n": 22,
+      "hi": 1.0,
+      "lo": 0.7,
+      "raw_gate": false,
+      "gold_accuracy": 0.7272727272727273,
+      "full_agreement": 1.0,
+      "cost_units": 27.636363636363637,
+      "jev": 4.454545454545454,
+      "luna": 2.3181818181818183,
+      "recorded_luna_usd": 0.0006409090909090909,
+      "levels": {
+        "stop": {
+          "n": 3,
+          "share": 0.13636363636363635,
+          "gold_accuracy": 0.6666666666666666,
+          "full_agreement": 1.0
+        },
+        "one_more": {
+          "n": 11,
+          "share": 0.5,
+          "gold_accuracy": 0.8181818181818182,
+          "full_agreement": 1.0
+        },
+        "full": {
+          "n": 8,
+          "share": 0.36363636363636365,
+          "gold_accuracy": 0.625,
+          "full_agreement": 1.0
+        }
+      }
+    },
+    {
+      "n": 22,
+      "hi": 1.0,
+      "lo": 0.8,
+      "raw_gate": false,
+      "gold_accuracy": 0.7272727272727273,
+      "full_agreement": 1.0,
+      "cost_units": 31.454545454545453,
+      "jev": 4.636363636363637,
+      "luna": 2.6818181818181817,
+      "recorded_luna_usd": 0.0008172727272727272,
+      "levels": {
+        "stop": {
+          "n": 3,
+          "share": 0.13636363636363635,
+          "gold_accuracy": 0.6666666666666666,
+          "full_agreement": 1.0
+        },
+        "one_more": {
+          "n": 9,
+          "share": 0.4090909090909091,
+          "gold_accuracy": 0.7777777777777778,
+          "full_agreement": 1.0
+        },
+        "full": {
+          "n": 10,
+          "share": 0.45454545454545453,
+          "gold_accuracy": 0.7,
+          "full_agreement": 1.0
+        }
+      }
+    },
+    {
+      "n": 22,
+      "hi": 1.0,
+      "lo": 0.9,
+      "raw_gate": false,
+      "gold_accuracy": 0.7272727272727273,
+      "full_agreement": 1.0,
+      "cost_units": 48.63636363636363,
+      "jev": 5.454545454545454,
+      "luna": 4.318181818181818,
+      "recorded_luna_usd": 0.0013539545454545453,
+      "levels": {
+        "stop": {
+          "n": 3,
+          "share": 0.13636363636363635,
+          "gold_accuracy": 0.6666666666666666,
+          "full_agreement": 1.0
+        },
+        "one_more": {
+          "n": 0,
+          "share": 0.0,
+          "gold_accuracy": null,
+          "full_agreement": null
+        },
+        "full": {
+          "n": 19,
+          "share": 0.8636363636363636,
+          "gold_accuracy": 0.7368421052631579,
+          "full_agreement": 1.0
+        }
+      }
+    },
+    {
+      "n": 22,
+      "hi": 1.0,
+      "lo": 0.95,
+      "raw_gate": false,
+      "gold_accuracy": 0.7272727272727273,
+      "full_agreement": 1.0,
+      "cost_units": 48.63636363636363,
+      "jev": 5.454545454545454,
+      "luna": 4.318181818181818,
+      "recorded_luna_usd": 0.0013539545454545453,
+      "levels": {
+        "stop": {
+          "n": 3,
+          "share": 0.13636363636363635,
+          "gold_accuracy": 0.6666666666666666,
+          "full_agreement": 1.0
+        },
+        "one_more": {
+          "n": 0,
+          "share": 0.0,
+          "gold_accuracy": null,
+          "full_agreement": null
+        },
+        "full": {
+          "n": 19,
+          "share": 0.8636363636363636,
+          "gold_accuracy": 0.7368421052631579,
+          "full_agreement": 1.0
+        }
+      }
+    },
+    {
+      "n": 22,
+      "hi": 1.0,
+      "lo": 1.0,
+      "raw_gate": false,
+      "gold_accuracy": 0.7272727272727273,
+      "full_agreement": 1.0,
+      "cost_units": 48.63636363636363,
+      "jev": 5.454545454545454,
+      "luna": 4.318181818181818,
+      "recorded_luna_usd": 0.0013539545454545453,
+      "levels": {
+        "stop": {
+          "n": 3,
+          "share": 0.13636363636363635,
+          "gold_accuracy": 0.6666666666666666,
+          "full_agreement": 1.0
+        },
+        "one_more": {
+          "n": 0,
+          "share": 0.0,
+          "gold_accuracy": null,
+          "full_agreement": null
+        },
+        "full": {
+          "n": 19,
+          "share": 0.8636363636363636,
+          "gold_accuracy": 0.7368421052631579,
+          "full_agreement": 1.0
+        }
+      }
+    },
+    {
+      "n": 22,
+      "hi": 1.01,
+      "lo": 0.5,
+      "raw_gate": false,
+      "gold_accuracy": 0.7272727272727273,
+      "full_agreement": 1.0,
+      "cost_units": 25.454545454545453,
+      "jev": 4.545454545454546,
+      "luna": 2.090909090909091,
+      "recorded_luna_usd": 0.0005570454545454546,
+      "levels": {
+        "stop": {
+          "n": 0,
+          "share": 0.0,
+          "gold_accuracy": null,
+          "full_agreement": null
+        },
+        "one_more": {
+          "n": 16,
+          "share": 0.7272727272727273,
+          "gold_accuracy": 0.6875,
+          "full_agreement": 1.0
+        },
+        "full": {
+          "n": 6,
+          "share": 0.2727272727272727,
+          "gold_accuracy": 0.8333333333333334,
+          "full_agreement": 1.0
+        }
+      }
+    },
+    {
+      "n": 22,
+      "hi": 1.01,
+      "lo": 0.6,
+      "raw_gate": false,
+      "gold_accuracy": 0.7272727272727273,
+      "full_agreement": 1.0,
+      "cost_units": 25.454545454545453,
+      "jev": 4.545454545454546,
+      "luna": 2.090909090909091,
+      "recorded_luna_usd": 0.0005570454545454546,
+      "levels": {
+        "stop": {
+          "n": 0,
+          "share": 0.0,
+          "gold_accuracy": null,
+          "full_agreement": null
+        },
+        "one_more": {
+          "n": 16,
+          "share": 0.7272727272727273,
+          "gold_accuracy": 0.6875,
+          "full_agreement": 1.0
+        },
+        "full": {
+          "n": 6,
+          "share": 0.2727272727272727,
+          "gold_accuracy": 0.8333333333333334,
+          "full_agreement": 1.0
+        }
+      }
+    },
+    {
+      "n": 22,
+      "hi": 1.01,
+      "lo": 0.7,
+      "raw_gate": false,
+      "gold_accuracy": 0.7272727272727273,
+      "full_agreement": 1.0,
+      "cost_units": 29.272727272727273,
+      "jev": 4.7272727272727275,
+      "luna": 2.4545454545454546,
+      "recorded_luna_usd": 0.0006565454545454545,
+      "levels": {
+        "stop": {
+          "n": 0,
+          "share": 0.0,
+          "gold_accuracy": null,
+          "full_agreement": null
+        },
+        "one_more": {
+          "n": 14,
+          "share": 0.6363636363636364,
+          "gold_accuracy": 0.7857142857142857,
+          "full_agreement": 1.0
+        },
+        "full": {
+          "n": 8,
+          "share": 0.36363636363636365,
+          "gold_accuracy": 0.625,
+          "full_agreement": 1.0
+        }
+      }
+    },
+    {
+      "n": 22,
+      "hi": 1.01,
+      "lo": 0.8,
+      "raw_gate": false,
+      "gold_accuracy": 0.7272727272727273,
+      "full_agreement": 1.0,
+      "cost_units": 33.09090909090909,
+      "jev": 4.909090909090909,
+      "luna": 2.8181818181818183,
+      "recorded_luna_usd": 0.0008329090909090909,
+      "levels": {
+        "stop": {
+          "n": 0,
+          "share": 0.0,
+          "gold_accuracy": null,
+          "full_agreement": null
+        },
+        "one_more": {
+          "n": 12,
+          "share": 0.5454545454545454,
+          "gold_accuracy": 0.75,
+          "full_agreement": 1.0
+        },
+        "full": {
+          "n": 10,
+          "share": 0.45454545454545453,
+          "gold_accuracy": 0.7,
+          "full_agreement": 1.0
+        }
+      }
+    },
+    {
+      "n": 22,
+      "hi": 1.01,
+      "lo": 0.9,
+      "raw_gate": false,
+      "gold_accuracy": 0.7272727272727273,
+      "full_agreement": 1.0,
+      "cost_units": 50.27272727272727,
+      "jev": 5.7272727272727275,
+      "luna": 4.454545454545454,
+      "recorded_luna_usd": 0.001369590909090909,
+      "levels": {
+        "stop": {
+          "n": 0,
+          "share": 0.0,
+          "gold_accuracy": null,
+          "full_agreement": null
+        },
+        "one_more": {
+          "n": 3,
+          "share": 0.13636363636363635,
+          "gold_accuracy": 0.6666666666666666,
+          "full_agreement": 1.0
+        },
+        "full": {
+          "n": 19,
+          "share": 0.8636363636363636,
+          "gold_accuracy": 0.7368421052631579,
+          "full_agreement": 1.0
+        }
+      }
+    },
+    {
+      "n": 22,
+      "hi": 1.01,
+      "lo": 0.95,
+      "raw_gate": false,
+      "gold_accuracy": 0.7272727272727273,
+      "full_agreement": 1.0,
+      "cost_units": 50.27272727272727,
+      "jev": 5.7272727272727275,
+      "luna": 4.454545454545454,
+      "recorded_luna_usd": 0.001369590909090909,
+      "levels": {
+        "stop": {
+          "n": 0,
+          "share": 0.0,
+          "gold_accuracy": null,
+          "full_agreement": null
+        },
+        "one_more": {
+          "n": 3,
+          "share": 0.13636363636363635,
+          "gold_accuracy": 0.6666666666666666,
+          "full_agreement": 1.0
+        },
+        "full": {
+          "n": 19,
+          "share": 0.8636363636363636,
+          "gold_accuracy": 0.7368421052631579,
+          "full_agreement": 1.0
+        }
+      }
+    },
+    {
+      "n": 22,
+      "hi": 1.01,
+      "lo": 1.0,
+      "raw_gate": false,
+      "gold_accuracy": 0.7272727272727273,
+      "full_agreement": 1.0,
+      "cost_units": 50.27272727272727,
+      "jev": 5.7272727272727275,
+      "luna": 4.454545454545454,
+      "recorded_luna_usd": 0.001369590909090909,
+      "levels": {
+        "stop": {
+          "n": 0,
+          "share": 0.0,
+          "gold_accuracy": null,
+          "full_agreement": null
+        },
+        "one_more": {
+          "n": 3,
+          "share": 0.13636363636363635,
+          "gold_accuracy": 0.6666666666666666,
+          "full_agreement": 1.0
+        },
+        "full": {
+          "n": 19,
+          "share": 0.8636363636363636,
+          "gold_accuracy": 0.7368421052631579,
+          "full_agreement": 1.0
+        }
+      }
+    },
+    {
+      "n": 22,
+      "hi": 1.01,
+      "lo": 1.01,
+      "raw_gate": false,
+      "gold_accuracy": 0.7272727272727273,
+      "full_agreement": 1.0,
+      "cost_units": 56.0,
+      "jev": 6.0,
+      "luna": 5.0,
+      "recorded_luna_usd": 0.0015677272727272725,
+      "levels": {
+        "stop": {
+          "n": 0,
+          "share": 0.0,
+          "gold_accuracy": null,
+          "full_agreement": null
+        },
+        "one_more": {
+          "n": 0,
+          "share": 0.0,
+          "gold_accuracy": null,
+          "full_agreement": null
+        },
+        "full": {
+          "n": 22,
+          "share": 1.0,
+          "gold_accuracy": 0.7272727272727273,
+          "full_agreement": 1.0
+        }
+      }
+    }
+  ],
+  "curve_validation": [
+    {
+      "n": 28,
+      "hi": 0.5,
+      "lo": 0.5,
+      "raw_gate": false,
+      "gold_accuracy": 0.6785714285714286,
+      "full_agreement": 0.9642857142857143,
+      "cost_units": 7.785714285714286,
+      "jev": 2.4285714285714284,
+      "luna": 0.5357142857142857,
+      "recorded_luna_usd": 0.00020439285714285714,
+      "levels": {
+        "stop": {
+          "n": 25,
+          "share": 0.8928571428571429,
+          "gold_accuracy": 0.68,
+          "full_agreement": 0.96
+        },
+        "one_more": {
+          "n": 0,
+          "share": 0.0,
+          "gold_accuracy": null,
+          "full_agreement": null
+        },
+        "full": {
+          "n": 3,
+          "share": 0.10714285714285714,
+          "gold_accuracy": 0.6666666666666666,
+          "full_agreement": 1.0
+        }
+      }
+    },
+    {
+      "n": 28,
+      "hi": 0.6,
+      "lo": 0.5,
+      "raw_gate": false,
+      "gold_accuracy": 0.6785714285714286,
+      "full_agreement": 0.9642857142857143,
+      "cost_units": 9.928571428571429,
+      "jev": 2.7857142857142856,
+      "luna": 0.7142857142857143,
+      "recorded_luna_usd": 0.00022182142857142857,
+      "levels": {
+        "stop": {
+          "n": 20,
+          "share": 0.7142857142857143,
+          "gold_accuracy": 0.7,
+          "full_agreement": 1.0
+        },
+        "one_more": {
+          "n": 5,
+          "share": 0.17857142857142858,
+          "gold_accuracy": 0.6,
+          "full_agreement": 0.8
+        },
+        "full": {
+          "n": 3,
+          "share": 0.10714285714285714,
+          "gold_accuracy": 0.6666666666666666,
+          "full_agreement": 1.0
+        }
+      }
+    },
+    {
+      "n": 28,
+      "hi": 0.6,
+      "lo": 0.6,
+      "raw_gate": false,
+      "gold_accuracy": 0.6428571428571429,
+      "full_agreement": 1.0,
+      "cost_units": 17.428571428571427,
+      "jev": 3.142857142857143,
+      "luna": 1.4285714285714286,
+      "recorded_luna_usd": 0.0004229642857142857,
+      "levels": {
+        "stop": {
+          "n": 20,
+          "share": 0.7142857142857143,
+          "gold_accuracy": 0.7,
+          "full_agreement": 1.0
+        },
+        "one_more": {
+          "n": 0,
+          "share": 0.0,
+          "gold_accuracy": null,
+          "full_agreement": null
+        },
+        "full": {
+          "n": 8,
+          "share": 0.2857142857142857,
+          "gold_accuracy": 0.5,
+          "full_agreement": 1.0
+        }
+      }
+    },
+    {
+      "n": 28,
+      "hi": 0.7,
+      "lo": 0.5,
+      "raw_gate": false,
+      "gold_accuracy": 0.6785714285714286,
+      "full_agreement": 0.9642857142857143,
+      "cost_units": 9.928571428571429,
+      "jev": 2.7857142857142856,
+      "luna": 0.7142857142857143,
+      "recorded_luna_usd": 0.00022182142857142857,
+      "levels": {
+        "stop": {
+          "n": 20,
+          "share": 0.7142857142857143,
+          "gold_accuracy": 0.7,
+          "full_agreement": 1.0
+        },
+        "one_more": {
+          "n": 5,
+          "share": 0.17857142857142858,
+          "gold_accuracy": 0.6,
+          "full_agreement": 0.8
+        },
+        "full": {
+          "n": 3,
+          "share": 0.10714285714285714,
+          "gold_accuracy": 0.6666666666666666,
+          "full_agreement": 1.0
+        }
+      }
+    },
+    {
+      "n": 28,
+      "hi": 0.7,
+      "lo": 0.6,
+      "raw_gate": false,
+      "gold_accuracy": 0.6428571428571429,
+      "full_agreement": 1.0,
+      "cost_units": 17.428571428571427,
+      "jev": 3.142857142857143,
+      "luna": 1.4285714285714286,
+      "recorded_luna_usd": 0.0004229642857142857,
+      "levels": {
+        "stop": {
+          "n": 20,
+          "share": 0.7142857142857143,
+          "gold_accuracy": 0.7,
+          "full_agreement": 1.0
+        },
+        "one_more": {
+          "n": 0,
+          "share": 0.0,
+          "gold_accuracy": null,
+          "full_agreement": null
+        },
+        "full": {
+          "n": 8,
+          "share": 0.2857142857142857,
+          "gold_accuracy": 0.5,
+          "full_agreement": 1.0
+        }
+      }
+    },
+    {
+      "n": 28,
+      "hi": 0.7,
+      "lo": 0.7,
+      "raw_gate": false,
+      "gold_accuracy": 0.6428571428571429,
+      "full_agreement": 1.0,
+      "cost_units": 17.428571428571427,
+      "jev": 3.142857142857143,
+      "luna": 1.4285714285714286,
+      "recorded_luna_usd": 0.0004229642857142857,
+      "levels": {
+        "stop": {
+          "n": 20,
+          "share": 0.7142857142857143,
+          "gold_accuracy": 0.7,
+          "full_agreement": 1.0
+        },
+        "one_more": {
+          "n": 0,
+          "share": 0.0,
+          "gold_accuracy": null,
+          "full_agreement": null
+        },
+        "full": {
+          "n": 8,
+          "share": 0.2857142857142857,
+          "gold_accuracy": 0.5,
+          "full_agreement": 1.0
+        }
+      }
+    },
+    {
+      "n": 28,
+      "hi": 0.8,
+      "lo": 0.5,
+      "raw_gate": false,
+      "gold_accuracy": 0.6785714285714286,
+      "full_agreement": 0.9642857142857143,
+      "cost_units": 10.357142857142858,
+      "jev": 2.857142857142857,
+      "luna": 0.75,
+      "recorded_luna_usd": 0.00022600000000000002,
+      "levels": {
+        "stop": {
+          "n": 19,
+          "share": 0.6785714285714286,
+          "gold_accuracy": 0.6842105263157895,
+          "full_agreement": 1.0
+        },
+        "one_more": {
+          "n": 6,
+          "share": 0.21428571428571427,
+          "gold_accuracy": 0.6666666666666666,
+          "full_agreement": 0.8333333333333334
+        },
+        "full": {
+          "n": 3,
+          "share": 0.10714285714285714,
+          "gold_accuracy": 0.6666666666666666,
+          "full_agreement": 1.0
+        }
+      }
+    },
+    {
+      "n": 28,
+      "hi": 0.8,
+      "lo": 0.6,
+      "raw_gate": false,
+      "gold_accuracy": 0.6428571428571429,
+      "full_agreement": 1.0,
+      "cost_units": 17.857142857142858,
+      "jev": 3.2142857142857144,
+      "luna": 1.4642857142857142,
+      "recorded_luna_usd": 0.00042714285714285716,
+      "levels": {
+        "stop": {
+          "n": 19,
+          "share": 0.6785714285714286,
+          "gold_accuracy": 0.6842105263157895,
+          "full_agreement": 1.0
+        },
+        "one_more": {
+          "n": 1,
+          "share": 0.03571428571428571,
+          "gold_accuracy": 1.0,
+          "full_agreement": 1.0
+        },
+        "full": {
+          "n": 8,
+          "share": 0.2857142857142857,
+          "gold_accuracy": 0.5,
+          "full_agreement": 1.0
+        }
+      }
+    },
+    {
+      "n": 28,
+      "hi": 0.8,
+      "lo": 0.7,
+      "raw_gate": false,
+      "gold_accuracy": 0.6428571428571429,
+      "full_agreement": 1.0,
+      "cost_units": 17.857142857142858,
+      "jev": 3.2142857142857144,
+      "luna": 1.4642857142857142,
+      "recorded_luna_usd": 0.00042714285714285716,
+      "levels": {
+        "stop": {
+          "n": 19,
+          "share": 0.6785714285714286,
+          "gold_accuracy": 0.6842105263157895,
+          "full_agreement": 1.0
+        },
+        "one_more": {
+          "n": 1,
+          "share": 0.03571428571428571,
+          "gold_accuracy": 1.0,
+          "full_agreement": 1.0
+        },
+        "full": {
+          "n": 8,
+          "share": 0.2857142857142857,
+          "gold_accuracy": 0.5,
+          "full_agreement": 1.0
+        }
+      }
+    },
+    {
+      "n": 28,
+      "hi": 0.8,
+      "lo": 0.8,
+      "raw_gate": false,
+      "gold_accuracy": 0.6428571428571429,
+      "full_agreement": 1.0,
+      "cost_units": 19.357142857142858,
+      "jev": 3.2857142857142856,
+      "luna": 1.6071428571428572,
+      "recorded_luna_usd": 0.0004707857142857143,
+      "levels": {
+        "stop": {
+          "n": 19,
+          "share": 0.6785714285714286,
+          "gold_accuracy": 0.6842105263157895,
+          "full_agreement": 1.0
+        },
+        "one_more": {
+          "n": 0,
+          "share": 0.0,
+          "gold_accuracy": null,
+          "full_agreement": null
+        },
+        "full": {
+          "n": 9,
+          "share": 0.32142857142857145,
+          "gold_accuracy": 0.5555555555555556,
+          "full_agreement": 1.0
+        }
+      }
+    },
+    {
+      "n": 28,
+      "hi": 0.9,
+      "lo": 0.5,
+      "raw_gate": false,
+      "gold_accuracy": 0.6785714285714286,
+      "full_agreement": 0.9642857142857143,
+      "cost_units": 16.785714285714285,
+      "jev": 3.9285714285714284,
+      "luna": 1.2857142857142858,
+      "recorded_luna_usd": 0.00028225,
+      "levels": {
+        "stop": {
+          "n": 4,
+          "share": 0.14285714285714285,
+          "gold_accuracy": 0.75,
+          "full_agreement": 1.0
+        },
+        "one_more": {
+          "n": 21,
+          "share": 0.75,
+          "gold_accuracy": 0.6666666666666666,
+          "full_agreement": 0.9523809523809523
+        },
+        "full": {
+          "n": 3,
+          "share": 0.10714285714285714,
+          "gold_accuracy": 0.6666666666666666,
+          "full_agreement": 1.0
+        }
+      }
+    },
+    {
+      "n": 28,
+      "hi": 0.9,
+      "lo": 0.6,
+      "raw_gate": false,
+      "gold_accuracy": 0.6428571428571429,
+      "full_agreement": 1.0,
+      "cost_units": 24.285714285714285,
+      "jev": 4.285714285714286,
+      "luna": 2.0,
+      "recorded_luna_usd": 0.00048339285714285715,
+      "levels": {
+        "stop": {
+          "n": 4,
+          "share": 0.14285714285714285,
+          "gold_accuracy": 0.75,
+          "full_agreement": 1.0
+        },
+        "one_more": {
+          "n": 16,
+          "share": 0.5714285714285714,
+          "gold_accuracy": 0.6875,
+          "full_agreement": 1.0
+        },
+        "full": {
+          "n": 8,
+          "share": 0.2857142857142857,
+          "gold_accuracy": 0.5,
+          "full_agreement": 1.0
+        }
+      }
+    },
+    {
+      "n": 28,
+      "hi": 0.9,
+      "lo": 0.7,
+      "raw_gate": false,
+      "gold_accuracy": 0.6428571428571429,
+      "full_agreement": 1.0,
+      "cost_units": 24.285714285714285,
+      "jev": 4.285714285714286,
+      "luna": 2.0,
+      "recorded_luna_usd": 0.00048339285714285715,
+      "levels": {
+        "stop": {
+          "n": 4,
+          "share": 0.14285714285714285,
+          "gold_accuracy": 0.75,
+          "full_agreement": 1.0
+        },
+        "one_more": {
+          "n": 16,
+          "share": 0.5714285714285714,
+          "gold_accuracy": 0.6875,
+          "full_agreement": 1.0
+        },
+        "full": {
+          "n": 8,
+          "share": 0.2857142857142857,
+          "gold_accuracy": 0.5,
+          "full_agreement": 1.0
+        }
+      }
+    },
+    {
+      "n": 28,
+      "hi": 0.9,
+      "lo": 0.8,
+      "raw_gate": false,
+      "gold_accuracy": 0.6428571428571429,
+      "full_agreement": 1.0,
+      "cost_units": 25.785714285714285,
+      "jev": 4.357142857142857,
+      "luna": 2.142857142857143,
+      "recorded_luna_usd": 0.0005270357142857144,
+      "levels": {
+        "stop": {
+          "n": 4,
+          "share": 0.14285714285714285,
+          "gold_accuracy": 0.75,
+          "full_agreement": 1.0
+        },
+        "one_more": {
+          "n": 15,
+          "share": 0.5357142857142857,
+          "gold_accuracy": 0.6666666666666666,
+          "full_agreement": 1.0
+        },
+        "full": {
+          "n": 9,
+          "share": 0.32142857142857145,
+          "gold_accuracy": 0.5555555555555556,
+          "full_agreement": 1.0
+        }
+      }
+    },
+    {
+      "n": 28,
+      "hi": 0.9,
+      "lo": 0.9,
+      "raw_gate": false,
+      "gold_accuracy": 0.6428571428571429,
+      "full_agreement": 1.0,
+      "cost_units": 48.285714285714285,
+      "jev": 5.428571428571429,
+      "luna": 4.285714285714286,
+      "recorded_luna_usd": 0.0013695357142857142,
+      "levels": {
+        "stop": {
+          "n": 4,
+          "share": 0.14285714285714285,
+          "gold_accuracy": 0.75,
+          "full_agreement": 1.0
+        },
+        "one_more": {
+          "n": 0,
+          "share": 0.0,
+          "gold_accuracy": null,
+          "full_agreement": null
+        },
+        "full": {
+          "n": 24,
+          "share": 0.8571428571428571,
+          "gold_accuracy": 0.625,
+          "full_agreement": 1.0
+        }
+      }
+    },
+    {
+      "n": 28,
+      "hi": 0.95,
+      "lo": 0.5,
+      "raw_gate": false,
+      "gold_accuracy": 0.6785714285714286,
+      "full_agreement": 0.9642857142857143,
+      "cost_units": 16.785714285714285,
+      "jev": 3.9285714285714284,
+      "luna": 1.2857142857142858,
+      "recorded_luna_usd": 0.00028225,
+      "levels": {
+        "stop": {
+          "n": 4,
+          "share": 0.14285714285714285,
+          "gold_accuracy": 0.75,
+          "full_agreement": 1.0
+        },
+        "one_more": {
+          "n": 21,
+          "share": 0.75,
+          "gold_accuracy": 0.6666666666666666,
+          "full_agreement": 0.9523809523809523
+        },
+        "full": {
+          "n": 3,
+          "share": 0.10714285714285714,
+          "gold_accuracy": 0.6666666666666666,
+          "full_agreement": 1.0
+        }
+      }
+    },
+    {
+      "n": 28,
+      "hi": 0.95,
+      "lo": 0.6,
+      "raw_gate": false,
+      "gold_accuracy": 0.6428571428571429,
+      "full_agreement": 1.0,
+      "cost_units": 24.285714285714285,
+      "jev": 4.285714285714286,
+      "luna": 2.0,
+      "recorded_luna_usd": 0.00048339285714285715,
+      "levels": {
+        "stop": {
+          "n": 4,
+          "share": 0.14285714285714285,
+          "gold_accuracy": 0.75,
+          "full_agreement": 1.0
+        },
+        "one_more": {
+          "n": 16,
+          "share": 0.5714285714285714,
+          "gold_accuracy": 0.6875,
+          "full_agreement": 1.0
+        },
+        "full": {
+          "n": 8,
+          "share": 0.2857142857142857,
+          "gold_accuracy": 0.5,
+          "full_agreement": 1.0
+        }
+      }
+    },
+    {
+      "n": 28,
+      "hi": 0.95,
+      "lo": 0.7,
+      "raw_gate": false,
+      "gold_accuracy": 0.6428571428571429,
+      "full_agreement": 1.0,
+      "cost_units": 24.285714285714285,
+      "jev": 4.285714285714286,
+      "luna": 2.0,
+      "recorded_luna_usd": 0.00048339285714285715,
+      "levels": {
+        "stop": {
+          "n": 4,
+          "share": 0.14285714285714285,
+          "gold_accuracy": 0.75,
+          "full_agreement": 1.0
+        },
+        "one_more": {
+          "n": 16,
+          "share": 0.5714285714285714,
+          "gold_accuracy": 0.6875,
+          "full_agreement": 1.0
+        },
+        "full": {
+          "n": 8,
+          "share": 0.2857142857142857,
+          "gold_accuracy": 0.5,
+          "full_agreement": 1.0
+        }
+      }
+    },
+    {
+      "n": 28,
+      "hi": 0.95,
+      "lo": 0.8,
+      "raw_gate": false,
+      "gold_accuracy": 0.6428571428571429,
+      "full_agreement": 1.0,
+      "cost_units": 25.785714285714285,
+      "jev": 4.357142857142857,
+      "luna": 2.142857142857143,
+      "recorded_luna_usd": 0.0005270357142857144,
+      "levels": {
+        "stop": {
+          "n": 4,
+          "share": 0.14285714285714285,
+          "gold_accuracy": 0.75,
+          "full_agreement": 1.0
+        },
+        "one_more": {
+          "n": 15,
+          "share": 0.5357142857142857,
+          "gold_accuracy": 0.6666666666666666,
+          "full_agreement": 1.0
+        },
+        "full": {
+          "n": 9,
+          "share": 0.32142857142857145,
+          "gold_accuracy": 0.5555555555555556,
+          "full_agreement": 1.0
+        }
+      }
+    },
+    {
+      "n": 28,
+      "hi": 0.95,
+      "lo": 0.9,
+      "raw_gate": false,
+      "gold_accuracy": 0.6428571428571429,
+      "full_agreement": 1.0,
+      "cost_units": 48.285714285714285,
+      "jev": 5.428571428571429,
+      "luna": 4.285714285714286,
+      "recorded_luna_usd": 0.0013695357142857142,
+      "levels": {
+        "stop": {
+          "n": 4,
+          "share": 0.14285714285714285,
+          "gold_accuracy": 0.75,
+          "full_agreement": 1.0
+        },
+        "one_more": {
+          "n": 0,
+          "share": 0.0,
+          "gold_accuracy": null,
+          "full_agreement": null
+        },
+        "full": {
+          "n": 24,
+          "share": 0.8571428571428571,
+          "gold_accuracy": 0.625,
+          "full_agreement": 1.0
+        }
+      }
+    },
+    {
+      "n": 28,
+      "hi": 0.95,
+      "lo": 0.95,
+      "raw_gate": false,
+      "gold_accuracy": 0.6428571428571429,
+      "full_agreement": 1.0,
+      "cost_units": 48.285714285714285,
+      "jev": 5.428571428571429,
+      "luna": 4.285714285714286,
+      "recorded_luna_usd": 0.0013695357142857142,
+      "levels": {
+        "stop": {
+          "n": 4,
+          "share": 0.14285714285714285,
+          "gold_accuracy": 0.75,
+          "full_agreement": 1.0
+        },
+        "one_more": {
+          "n": 0,
+          "share": 0.0,
+          "gold_accuracy": null,
+          "full_agreement": null
+        },
+        "full": {
+          "n": 24,
+          "share": 0.8571428571428571,
+          "gold_accuracy": 0.625,
+          "full_agreement": 1.0
+        }
+      }
+    },
+    {
+      "n": 28,
+      "hi": 1.0,
+      "lo": 0.5,
+      "raw_gate": false,
+      "gold_accuracy": 0.6785714285714286,
+      "full_agreement": 0.9642857142857143,
+      "cost_units": 16.785714285714285,
+      "jev": 3.9285714285714284,
+      "luna": 1.2857142857142858,
+      "recorded_luna_usd": 0.00028225,
+      "levels": {
+        "stop": {
+          "n": 4,
+          "share": 0.14285714285714285,
+          "gold_accuracy": 0.75,
+          "full_agreement": 1.0
+        },
+        "one_more": {
+          "n": 21,
+          "share": 0.75,
+          "gold_accuracy": 0.6666666666666666,
+          "full_agreement": 0.9523809523809523
+        },
+        "full": {
+          "n": 3,
+          "share": 0.10714285714285714,
+          "gold_accuracy": 0.6666666666666666,
+          "full_agreement": 1.0
+        }
+      }
+    },
+    {
+      "n": 28,
+      "hi": 1.0,
+      "lo": 0.6,
+      "raw_gate": false,
+      "gold_accuracy": 0.6428571428571429,
+      "full_agreement": 1.0,
+      "cost_units": 24.285714285714285,
+      "jev": 4.285714285714286,
+      "luna": 2.0,
+      "recorded_luna_usd": 0.00048339285714285715,
+      "levels": {
+        "stop": {
+          "n": 4,
+          "share": 0.14285714285714285,
+          "gold_accuracy": 0.75,
+          "full_agreement": 1.0
+        },
+        "one_more": {
+          "n": 16,
+          "share": 0.5714285714285714,
+          "gold_accuracy": 0.6875,
+          "full_agreement": 1.0
+        },
+        "full": {
+          "n": 8,
+          "share": 0.2857142857142857,
+          "gold_accuracy": 0.5,
+          "full_agreement": 1.0
+        }
+      }
+    },
+    {
+      "n": 28,
+      "hi": 1.0,
+      "lo": 0.7,
+      "raw_gate": false,
+      "gold_accuracy": 0.6428571428571429,
+      "full_agreement": 1.0,
+      "cost_units": 24.285714285714285,
+      "jev": 4.285714285714286,
+      "luna": 2.0,
+      "recorded_luna_usd": 0.00048339285714285715,
+      "levels": {
+        "stop": {
+          "n": 4,
+          "share": 0.14285714285714285,
+          "gold_accuracy": 0.75,
+          "full_agreement": 1.0
+        },
+        "one_more": {
+          "n": 16,
+          "share": 0.5714285714285714,
+          "gold_accuracy": 0.6875,
+          "full_agreement": 1.0
+        },
+        "full": {
+          "n": 8,
+          "share": 0.2857142857142857,
+          "gold_accuracy": 0.5,
+          "full_agreement": 1.0
+        }
+      }
+    },
+    {
+      "n": 28,
+      "hi": 1.0,
+      "lo": 0.8,
+      "raw_gate": false,
+      "gold_accuracy": 0.6428571428571429,
+      "full_agreement": 1.0,
+      "cost_units": 25.785714285714285,
+      "jev": 4.357142857142857,
+      "luna": 2.142857142857143,
+      "recorded_luna_usd": 0.0005270357142857144,
+      "levels": {
+        "stop": {
+          "n": 4,
+          "share": 0.14285714285714285,
+          "gold_accuracy": 0.75,
+          "full_agreement": 1.0
+        },
+        "one_more": {
+          "n": 15,
+          "share": 0.5357142857142857,
+          "gold_accuracy": 0.6666666666666666,
+          "full_agreement": 1.0
+        },
+        "full": {
+          "n": 9,
+          "share": 0.32142857142857145,
+          "gold_accuracy": 0.5555555555555556,
+          "full_agreement": 1.0
+        }
+      }
+    },
+    {
+      "n": 28,
+      "hi": 1.0,
+      "lo": 0.9,
+      "raw_gate": false,
+      "gold_accuracy": 0.6428571428571429,
+      "full_agreement": 1.0,
+      "cost_units": 48.285714285714285,
+      "jev": 5.428571428571429,
+      "luna": 4.285714285714286,
+      "recorded_luna_usd": 0.0013695357142857142,
+      "levels": {
+        "stop": {
+          "n": 4,
+          "share": 0.14285714285714285,
+          "gold_accuracy": 0.75,
+          "full_agreement": 1.0
+        },
+        "one_more": {
+          "n": 0,
+          "share": 0.0,
+          "gold_accuracy": null,
+          "full_agreement": null
+        },
+        "full": {
+          "n": 24,
+          "share": 0.8571428571428571,
+          "gold_accuracy": 0.625,
+          "full_agreement": 1.0
+        }
+      }
+    },
+    {
+      "n": 28,
+      "hi": 1.0,
+      "lo": 0.95,
+      "raw_gate": false,
+      "gold_accuracy": 0.6428571428571429,
+      "full_agreement": 1.0,
+      "cost_units": 48.285714285714285,
+      "jev": 5.428571428571429,
+      "luna": 4.285714285714286,
+      "recorded_luna_usd": 0.0013695357142857142,
+      "levels": {
+        "stop": {
+          "n": 4,
+          "share": 0.14285714285714285,
+          "gold_accuracy": 0.75,
+          "full_agreement": 1.0
+        },
+        "one_more": {
+          "n": 0,
+          "share": 0.0,
+          "gold_accuracy": null,
+          "full_agreement": null
+        },
+        "full": {
+          "n": 24,
+          "share": 0.8571428571428571,
+          "gold_accuracy": 0.625,
+          "full_agreement": 1.0
+        }
+      }
+    },
+    {
+      "n": 28,
+      "hi": 1.0,
+      "lo": 1.0,
+      "raw_gate": false,
+      "gold_accuracy": 0.6428571428571429,
+      "full_agreement": 1.0,
+      "cost_units": 48.285714285714285,
+      "jev": 5.428571428571429,
+      "luna": 4.285714285714286,
+      "recorded_luna_usd": 0.0013695357142857142,
+      "levels": {
+        "stop": {
+          "n": 4,
+          "share": 0.14285714285714285,
+          "gold_accuracy": 0.75,
+          "full_agreement": 1.0
+        },
+        "one_more": {
+          "n": 0,
+          "share": 0.0,
+          "gold_accuracy": null,
+          "full_agreement": null
+        },
+        "full": {
+          "n": 24,
+          "share": 0.8571428571428571,
+          "gold_accuracy": 0.625,
+          "full_agreement": 1.0
+        }
+      }
+    },
+    {
+      "n": 28,
+      "hi": 1.01,
+      "lo": 0.5,
+      "raw_gate": false,
+      "gold_accuracy": 0.6785714285714286,
+      "full_agreement": 0.9642857142857143,
+      "cost_units": 18.5,
+      "jev": 4.214285714285714,
+      "luna": 1.4285714285714286,
+      "recorded_luna_usd": 0.0002974642857142857,
+      "levels": {
+        "stop": {
+          "n": 0,
+          "share": 0.0,
+          "gold_accuracy": null,
+          "full_agreement": null
+        },
+        "one_more": {
+          "n": 25,
+          "share": 0.8928571428571429,
+          "gold_accuracy": 0.68,
+          "full_agreement": 0.96
+        },
+        "full": {
+          "n": 3,
+          "share": 0.10714285714285714,
+          "gold_accuracy": 0.6666666666666666,
+          "full_agreement": 1.0
+        }
+      }
+    },
+    {
+      "n": 28,
+      "hi": 1.01,
+      "lo": 0.6,
+      "raw_gate": false,
+      "gold_accuracy": 0.6428571428571429,
+      "full_agreement": 1.0,
+      "cost_units": 26.0,
+      "jev": 4.571428571428571,
+      "luna": 2.142857142857143,
+      "recorded_luna_usd": 0.0004986071428571429,
+      "levels": {
+        "stop": {
+          "n": 0,
+          "share": 0.0,
+          "gold_accuracy": null,
+          "full_agreement": null
+        },
+        "one_more": {
+          "n": 20,
+          "share": 0.7142857142857143,
+          "gold_accuracy": 0.7,
+          "full_agreement": 1.0
+        },
+        "full": {
+          "n": 8,
+          "share": 0.2857142857142857,
+          "gold_accuracy": 0.5,
+          "full_agreement": 1.0
+        }
+      }
+    },
+    {
+      "n": 28,
+      "hi": 1.01,
+      "lo": 0.7,
+      "raw_gate": false,
+      "gold_accuracy": 0.6428571428571429,
+      "full_agreement": 1.0,
+      "cost_units": 26.0,
+      "jev": 4.571428571428571,
+      "luna": 2.142857142857143,
+      "recorded_luna_usd": 0.0004986071428571429,
+      "levels": {
+        "stop": {
+          "n": 0,
+          "share": 0.0,
+          "gold_accuracy": null,
+          "full_agreement": null
+        },
+        "one_more": {
+          "n": 20,
+          "share": 0.7142857142857143,
+          "gold_accuracy": 0.7,
+          "full_agreement": 1.0
+        },
+        "full": {
+          "n": 8,
+          "share": 0.2857142857142857,
+          "gold_accuracy": 0.5,
+          "full_agreement": 1.0
+        }
+      }
+    },
+    {
+      "n": 28,
+      "hi": 1.01,
+      "lo": 0.8,
+      "raw_gate": false,
+      "gold_accuracy": 0.6428571428571429,
+      "full_agreement": 1.0,
+      "cost_units": 27.5,
+      "jev": 4.642857142857143,
+      "luna": 2.2857142857142856,
+      "recorded_luna_usd": 0.00054225,
+      "levels": {
+        "stop": {
+          "n": 0,
+          "share": 0.0,
+          "gold_accuracy": null,
+          "full_agreement": null
+        },
+        "one_more": {
+          "n": 19,
+          "share": 0.6785714285714286,
+          "gold_accuracy": 0.6842105263157895,
+          "full_agreement": 1.0
+        },
+        "full": {
+          "n": 9,
+          "share": 0.32142857142857145,
+          "gold_accuracy": 0.5555555555555556,
+          "full_agreement": 1.0
+        }
+      }
+    },
+    {
+      "n": 28,
+      "hi": 1.01,
+      "lo": 0.9,
+      "raw_gate": false,
+      "gold_accuracy": 0.6428571428571429,
+      "full_agreement": 1.0,
+      "cost_units": 50.0,
+      "jev": 5.714285714285714,
+      "luna": 4.428571428571429,
+      "recorded_luna_usd": 0.00138475,
+      "levels": {
+        "stop": {
+          "n": 0,
+          "share": 0.0,
+          "gold_accuracy": null,
+          "full_agreement": null
+        },
+        "one_more": {
+          "n": 4,
+          "share": 0.14285714285714285,
+          "gold_accuracy": 0.75,
+          "full_agreement": 1.0
+        },
+        "full": {
+          "n": 24,
+          "share": 0.8571428571428571,
+          "gold_accuracy": 0.625,
+          "full_agreement": 1.0
+        }
+      }
+    },
+    {
+      "n": 28,
+      "hi": 1.01,
+      "lo": 0.95,
+      "raw_gate": false,
+      "gold_accuracy": 0.6428571428571429,
+      "full_agreement": 1.0,
+      "cost_units": 50.0,
+      "jev": 5.714285714285714,
+      "luna": 4.428571428571429,
+      "recorded_luna_usd": 0.00138475,
+      "levels": {
+        "stop": {
+          "n": 0,
+          "share": 0.0,
+          "gold_accuracy": null,
+          "full_agreement": null
+        },
+        "one_more": {
+          "n": 4,
+          "share": 0.14285714285714285,
+          "gold_accuracy": 0.75,
+          "full_agreement": 1.0
+        },
+        "full": {
+          "n": 24,
+          "share": 0.8571428571428571,
+          "gold_accuracy": 0.625,
+          "full_agreement": 1.0
+        }
+      }
+    },
+    {
+      "n": 28,
+      "hi": 1.01,
+      "lo": 1.0,
+      "raw_gate": false,
+      "gold_accuracy": 0.6428571428571429,
+      "full_agreement": 1.0,
+      "cost_units": 50.0,
+      "jev": 5.714285714285714,
+      "luna": 4.428571428571429,
+      "recorded_luna_usd": 0.00138475,
+      "levels": {
+        "stop": {
+          "n": 0,
+          "share": 0.0,
+          "gold_accuracy": null,
+          "full_agreement": null
+        },
+        "one_more": {
+          "n": 4,
+          "share": 0.14285714285714285,
+          "gold_accuracy": 0.75,
+          "full_agreement": 1.0
+        },
+        "full": {
+          "n": 24,
+          "share": 0.8571428571428571,
+          "gold_accuracy": 0.625,
+          "full_agreement": 1.0
+        }
+      }
+    },
+    {
+      "n": 28,
+      "hi": 1.01,
+      "lo": 1.01,
+      "raw_gate": false,
+      "gold_accuracy": 0.6428571428571429,
+      "full_agreement": 1.0,
+      "cost_units": 56.0,
+      "jev": 6.0,
+      "luna": 5.0,
+      "recorded_luna_usd": 0.0016188928571428572,
+      "levels": {
+        "stop": {
+          "n": 0,
+          "share": 0.0,
+          "gold_accuracy": null,
+          "full_agreement": null
+        },
+        "one_more": {
+          "n": 0,
+          "share": 0.0,
+          "gold_accuracy": null,
+          "full_agreement": null
+        },
+        "full": {
+          "n": 28,
+          "share": 1.0,
+          "gold_accuracy": 0.6428571428571429,
+          "full_agreement": 1.0
+        }
+      }
+    }
+  ],
+  "pair_signals_validation": [
+    {
+      "id": "0bec34cfe26f929662d0fafd6b8ebd10170b3a3e7f42cc33d073016ad3aaa1b6",
+      "group_key": "0bec34cfe26f929662d0fafd6b8ebd10170b3a3e7f42cc33d073016ad3aaa1b6",
+      "confidence": 0.5555555555555556,
+      "raw_confidence": 0.565,
+      "forced_full": false,
+      "order_disagreement": false,
+      "order_gap": 0.02999999999999997,
+      "margin": 0.1299999999999999,
+      "predictions": [
+        "B",
+        "B",
+        "A"
+      ],
+      "gold": "B",
+      "costs": [
+        {
+          "jev": 2.0,
+          "luna": 0.0,
+          "recorded_luna_usd": 0.0
+        },
+        {
+          "jev": 4.0,
+          "luna": 1.0,
+          "recorded_luna_usd": 0.000108
+        },
+        {
+          "jev": 6.0,
+          "luna": 5.0,
+          "recorded_luna_usd": 0.00086
+        }
+      ],
+      "units": [
+        2.0,
+        14.0,
+        56.0
+      ]
+    },
+    {
+      "id": "0fc139b32b725f51edd0119dcc1051221ca6739ce8bb4d793029b391d50a02ff",
+      "group_key": "0fc139b32b725f51edd0119dcc1051221ca6739ce8bb4d793029b391d50a02ff",
+      "confidence": 0.5555555555555556,
+      "raw_confidence": 0.56,
+      "forced_full": true,
+      "order_disagreement": true,
+      "order_gap": 0.29999999999999993,
+      "margin": 0.1200000000000001,
+      "predictions": [
+        "A",
+        "A",
+        "B"
+      ],
+      "gold": "B",
+      "costs": [
+        {
+          "jev": 2.0,
+          "luna": 0.0,
+          "recorded_luna_usd": 0.0
+        },
+        {
+          "jev": 4.0,
+          "luna": 1.0,
+          "recorded_luna_usd": 0.000112
+        },
+        {
+          "jev": 6.0,
+          "luna": 5.0,
+          "recorded_luna_usd": 0.0015129999999999998
+        }
+      ],
+      "units": [
+        2.0,
+        14.0,
+        56.0
+      ]
+    },
+    {
+      "id": "1527c612353efdeef8950c2ca86b27bc299546a61227ae286a69b5cff6f068dc",
+      "group_key": "1527c612353efdeef8950c2ca86b27bc299546a61227ae286a69b5cff6f068dc",
+      "confidence": 1.0,
+      "raw_confidence": 0.9199999999999999,
+      "forced_full": false,
+      "order_disagreement": false,
+      "order_gap": 0.059999999999999956,
+      "margin": 0.84,
+      "predictions": [
+        "B",
+        "B",
+        "B"
+      ],
+      "gold": "A",
+      "costs": [
+        {
+          "jev": 2.0,
+          "luna": 0.0,
+          "recorded_luna_usd": 0.0
+        },
+        {
+          "jev": 4.0,
+          "luna": 1.0,
+          "recorded_luna_usd": 9.7e-05
+        },
+        {
+          "jev": 6.0,
+          "luna": 5.0,
+          "recorded_luna_usd": 0.001614
+        }
+      ],
+      "units": [
+        2.0,
+        14.0,
+        56.0
+      ]
+    },
+    {
+      "id": "1c20cc603fdd725523cb7c79a155a6d13b1e0262e91a6160b5f583ac38c3c27f",
+      "group_key": "1c20cc603fdd725523cb7c79a155a6d13b1e0262e91a6160b5f583ac38c3c27f",
+      "confidence": 1.0,
+      "raw_confidence": 0.95,
+      "forced_full": false,
+      "order_disagreement": false,
+      "order_gap": 0.040000000000000036,
+      "margin": 0.8999999999999999,
+      "predictions": [
+        "A",
+        "A",
+        "A"
+      ],
+      "gold": "A",
+      "costs": [
+        {
+          "jev": 2.0,
+          "luna": 0.0,
+          "recorded_luna_usd": 0.0
+        },
+        {
+          "jev": 4.0,
+          "luna": 1.0,
+          "recorded_luna_usd": 0.000113
+        },
+        {
+          "jev": 6.0,
+          "luna": 5.0,
+          "recorded_luna_usd": 0.001815
+        }
+      ],
+      "units": [
+        2.0,
+        14.0,
+        56.0
+      ]
+    },
+    {
+      "id": "2dc65cf1938eef974d48f548ca167cab38c2c89410ca11b99006513c1041b36b",
+      "group_key": "2dc65cf1938eef974d48f548ca167cab38c2c89410ca11b99006513c1041b36b",
+      "confidence": 0.8,
+      "raw_confidence": 0.745,
+      "forced_full": false,
+      "order_disagreement": false,
+      "order_gap": 0.29000000000000004,
+      "margin": 0.49,
+      "predictions": [
+        "B",
+        "B",
+        "B"
+      ],
+      "gold": "B",
+      "costs": [
+        {
+          "jev": 2.0,
+          "luna": 0.0,
+          "recorded_luna_usd": 0.0
+        },
+        {
+          "jev": 4.0,
+          "luna": 1.0,
+          "recorded_luna_usd": 0.000113
+        },
+        {
+          "jev": 6.0,
+          "luna": 5.0,
+          "recorded_luna_usd": 0.002486
+        }
+      ],
+      "units": [
+        2.0,
+        14.0,
+        56.0
+      ]
+    },
+    {
+      "id": "3039c668f2ee09c4e35a6d960fb718fe6be342fc00dcf75f1626777874241510",
+      "group_key": "3039c668f2ee09c4e35a6d960fb718fe6be342fc00dcf75f1626777874241510",
+      "confidence": 0.5555555555555556,
+      "raw_confidence": 0.61,
+      "forced_full": false,
+      "order_disagreement": false,
+      "order_gap": 0.0,
+      "margin": 0.21999999999999997,
+      "predictions": [
+        "B",
+        "B",
+        "B"
+      ],
+      "gold": "B",
+      "costs": [
+        {
+          "jev": 2.0,
+          "luna": 0.0,
+          "recorded_luna_usd": 0.0
+        },
+        {
+          "jev": 4.0,
+          "luna": 1.0,
+          "recorded_luna_usd": 0.000109
+        },
+        {
+          "jev": 6.0,
+          "luna": 5.0,
+          "recorded_luna_usd": 0.001557
+        }
+      ],
+      "units": [
+        2.0,
+        14.0,
+        56.0
+      ]
+    },
+    {
+      "id": "436b82ca93e64cb2438b014b887c6f74494469c2f0a004fea52e357893629ac7",
+      "group_key": "436b82ca93e64cb2438b014b887c6f74494469c2f0a004fea52e357893629ac7",
+      "confidence": 0.8,
+      "raw_confidence": 0.73,
+      "forced_full": false,
+      "order_disagreement": false,
+      "order_gap": 0.040000000000000036,
+      "margin": 0.45999999999999996,
+      "predictions": [
+        "A",
+        "A",
+        "A"
+      ],
+      "gold": "A",
+      "costs": [
+        {
+          "jev": 2.0,
+          "luna": 0.0,
+          "recorded_luna_usd": 0.0
+        },
+        {
+          "jev": 4.0,
+          "luna": 1.0,
+          "recorded_luna_usd": 0.000105
+        },
+        {
+          "jev": 6.0,
+          "luna": 5.0,
+          "recorded_luna_usd": 0.001562
+        }
+      ],
+      "units": [
+        2.0,
+        14.0,
+        56.0
+      ]
+    },
+    {
+      "id": "5731e007aafb602864f22672a5b672310b87662f91acd67b2a254a9f5c7f4d07",
+      "group_key": "5731e007aafb602864f22672a5b672310b87662f91acd67b2a254a9f5c7f4d07",
+      "confidence": 0.8,
+      "raw_confidence": 0.77,
+      "forced_full": false,
+      "order_disagreement": false,
+      "order_gap": 0.040000000000000036,
+      "margin": 0.54,
+      "predictions": [
+        "B",
+        "B",
+        "B"
+      ],
+      "gold": "B",
+      "costs": [
+        {
+          "jev": 2.0,
+          "luna": 0.0,
+          "recorded_luna_usd": 0.0
+        },
+        {
+          "jev": 4.0,
+          "luna": 1.0,
+          "recorded_luna_usd": 0.000104
+        },
+        {
+          "jev": 6.0,
+          "luna": 5.0,
+          "recorded_luna_usd": 0.001717
+        }
+      ],
+      "units": [
+        2.0,
+        14.0,
+        56.0
+      ]
+    },
+    {
+      "id": "61dcf707deafa5ebf140770571b991a89d79b7336957e055cfbf5b1fa18c7fa2",
+      "group_key": "61dcf707deafa5ebf140770571b991a89d79b7336957e055cfbf5b1fa18c7fa2",
+      "confidence": 0.8,
+      "raw_confidence": 0.69,
+      "forced_full": false,
+      "order_disagreement": false,
+      "order_gap": 0.07999999999999996,
+      "margin": 0.3799999999999999,
+      "predictions": [
+        "A",
+        "A",
+        "A"
+      ],
+      "gold": "A",
+      "costs": [
+        {
+          "jev": 2.0,
+          "luna": 0.0,
+          "recorded_luna_usd": 0.0
+        },
+        {
+          "jev": 4.0,
+          "luna": 1.0,
+          "recorded_luna_usd": 8e-05
+        },
+        {
+          "jev": 6.0,
+          "luna": 5.0,
+          "recorded_luna_usd": 0.001703
+        }
+      ],
+      "units": [
+        2.0,
+        14.0,
+        56.0
+      ]
+    },
+    {
+      "id": "699a97a19d4f4499174bc546bd102724b3969a1ab45770fafbe1d373b326e995",
+      "group_key": "699a97a19d4f4499174bc546bd102724b3969a1ab45770fafbe1d373b326e995",
+      "confidence": 0.8,
+      "raw_confidence": 0.8600000000000001,
+      "forced_full": false,
+      "order_disagreement": false,
+      "order_gap": 0.09999999999999998,
+      "margin": 0.7200000000000002,
+      "predictions": [
+        "A",
+        "A",
+        "A"
+      ],
+      "gold": "B",
+      "costs": [
+        {
+          "jev": 2.0,
+          "luna": 0.0,
+          "recorded_luna_usd": 0.0
+        },
+        {
+          "jev": 4.0,
+          "luna": 1.0,
+          "recorded_luna_usd": 0.000117
+        },
+        {
+          "jev": 6.0,
+          "luna": 5.0,
+          "recorded_luna_usd": 0.001116
+        }
+      ],
+      "units": [
+        2.0,
+        14.0,
+        56.0
+      ]
+    },
+    {
+      "id": "7e5280339f8eb3ca22ad0db5e2959252fdd5636fe5f0b8719d2e9c2ae42444a5",
+      "group_key": "7e5280339f8eb3ca22ad0db5e2959252fdd5636fe5f0b8719d2e9c2ae42444a5",
+      "confidence": 0.8,
+      "raw_confidence": 0.78,
+      "forced_full": false,
+      "order_disagreement": false,
+      "order_gap": 0.22000000000000008,
+      "margin": 0.56,
+      "predictions": [
+        "A",
+        "A",
+        "A"
+      ],
+      "gold": "B",
+      "costs": [
+        {
+          "jev": 2.0,
+          "luna": 0.0,
+          "recorded_luna_usd": 0.0
+        },
+        {
+          "jev": 4.0,
+          "luna": 1.0,
+          "recorded_luna_usd": 9.1e-05
+        },
+        {
+          "jev": 6.0,
+          "luna": 5.0,
+          "recorded_luna_usd": 0.001645
+        }
+      ],
+      "units": [
+        2.0,
+        14.0,
+        56.0
+      ]
+    },
+    {
+      "id": "80f0721acaea756305c3ceea82135ad4e304e915c1b2f1443eacf66de0d27e45",
+      "group_key": "80f0721acaea756305c3ceea82135ad4e304e915c1b2f1443eacf66de0d27e45",
+      "confidence": 0.8,
+      "raw_confidence": 0.855,
+      "forced_full": false,
+      "order_disagreement": false,
+      "order_gap": 0.09000000000000002,
+      "margin": 0.71,
+      "predictions": [
+        "B",
+        "B",
+        "B"
+      ],
+      "gold": "B",
+      "costs": [
+        {
+          "jev": 2.0,
+          "luna": 0.0,
+          "recorded_luna_usd": 0.0
+        },
+        {
+          "jev": 4.0,
+          "luna": 1.0,
+          "recorded_luna_usd": 0.000111
+        },
+        {
+          "jev": 6.0,
+          "luna": 5.0,
+          "recorded_luna_usd": 0.001605
+        }
+      ],
+      "units": [
+        2.0,
+        14.0,
+        56.0
+      ]
+    },
+    {
+      "id": "936d55033bdd6914efb739394c115e8df9f008591b45e1ea932661d9f8aa33e8",
+      "group_key": "936d55033bdd6914efb739394c115e8df9f008591b45e1ea932661d9f8aa33e8",
+      "confidence": 0.8,
+      "raw_confidence": 0.7749999999999999,
+      "forced_full": false,
+      "order_disagreement": false,
+      "order_gap": 0.08999999999999997,
+      "margin": 0.5499999999999998,
+      "predictions": [
+        "A",
+        "A",
+        "A"
+      ],
+      "gold": "B",
+      "costs": [
+        {
+          "jev": 2.0,
+          "luna": 0.0,
+          "recorded_luna_usd": 0.0
+        },
+        {
+          "jev": 4.0,
+          "luna": 1.0,
+          "recorded_luna_usd": 0.000117
+        },
+        {
+          "jev": 6.0,
+          "luna": 5.0,
+          "recorded_luna_usd": 0.00165
+        }
+      ],
+      "units": [
+        2.0,
+        14.0,
+        56.0
+      ]
+    },
+    {
+      "id": "94330bfa86a49014987ac21fe4ff6cdddb0ec9b3c6a18d158977320f385cfa37",
+      "group_key": "94330bfa86a49014987ac21fe4ff6cdddb0ec9b3c6a18d158977320f385cfa37",
+      "confidence": 0.8,
+      "raw_confidence": 0.88,
+      "forced_full": false,
+      "order_disagreement": false,
+      "order_gap": 0.040000000000000036,
+      "margin": 0.76,
+      "predictions": [
+        "B",
+        "B",
+        "B"
+      ],
+      "gold": "B",
+      "costs": [
+        {
+          "jev": 2.0,
+          "luna": 0.0,
+          "recorded_luna_usd": 0.0
+        },
+        {
+          "jev": 4.0,
+          "luna": 1.0,
+          "recorded_luna_usd": 0.000108
+        },
+        {
+          "jev": 6.0,
+          "luna": 5.0,
+          "recorded_luna_usd": 0.001336
+        }
+      ],
+      "units": [
+        2.0,
+        14.0,
+        56.0
+      ]
+    },
+    {
+      "id": "9b47d1e912c937c6045fed44d20b38d445e739f6b1b1b6157105209061364c13",
+      "group_key": "9b47d1e912c937c6045fed44d20b38d445e739f6b1b1b6157105209061364c13",
+      "confidence": 0.5555555555555556,
+      "raw_confidence": 0.56,
+      "forced_full": true,
+      "order_disagreement": true,
+      "order_gap": 0.22000000000000008,
+      "margin": 0.12,
+      "predictions": [
+        "B",
+        "B",
+        "B"
+      ],
+      "gold": "A",
+      "costs": [
+        {
+          "jev": 2.0,
+          "luna": 0.0,
+          "recorded_luna_usd": 0.0
+        },
+        {
+          "jev": 4.0,
+          "luna": 1.0,
+          "recorded_luna_usd": 9.1e-05
+        },
+        {
+          "jev": 6.0,
+          "luna": 5.0,
+          "recorded_luna_usd": 0.0013369999999999999
+        }
+      ],
+      "units": [
+        2.0,
+        14.0,
+        56.0
+      ]
+    },
+    {
+      "id": "9e43b2d58fdf464cd17fb376eef52f4dafb3f1fe64ee2c85805531679e2d8daf",
+      "group_key": "9e43b2d58fdf464cd17fb376eef52f4dafb3f1fe64ee2c85805531679e2d8daf",
+      "confidence": 0.765079365079365,
+      "raw_confidence": 0.6849999999999999,
+      "forced_full": false,
+      "order_disagreement": false,
+      "order_gap": 0.009999999999999953,
+      "margin": 0.3699999999999999,
+      "predictions": [
+        "B",
+        "B",
+        "B"
+      ],
+      "gold": "B",
+      "costs": [
+        {
+          "jev": 2.0,
+          "luna": 0.0,
+          "recorded_luna_usd": 0.0
+        },
+        {
+          "jev": 4.0,
+          "luna": 1.0,
+          "recorded_luna_usd": 0.000117
+        },
+        {
+          "jev": 6.0,
+          "luna": 5.0,
+          "recorded_luna_usd": 0.001339
+        }
+      ],
+      "units": [
+        2.0,
+        14.0,
+        56.0
+      ]
+    },
+    {
+      "id": "a223f611a92a6605ee86ddc75437255b40a1f1399490dc15e3775a81731b1844",
+      "group_key": "a223f611a92a6605ee86ddc75437255b40a1f1399490dc15e3775a81731b1844",
+      "confidence": 0.8,
+      "raw_confidence": 0.81,
+      "forced_full": false,
+      "order_disagreement": false,
+      "order_gap": 0.09999999999999998,
+      "margin": 0.62,
+      "predictions": [
+        "B",
+        "B",
+        "B"
+      ],
+      "gold": "A",
+      "costs": [
+        {
+          "jev": 2.0,
+          "luna": 0.0,
+          "recorded_luna_usd": 0.0
+        },
+        {
+          "jev": 4.0,
+          "luna": 1.0,
+          "recorded_luna_usd": 0.000111
+        },
+        {
+          "jev": 6.0,
+          "luna": 5.0,
+          "recorded_luna_usd": 0.001483
+        }
+      ],
+      "units": [
+        2.0,
+        14.0,
+        56.0
+      ]
+    },
+    {
+      "id": "b636290747dbca93d871f37f2b8ee6abab3cd93cc196d5222f19ea081c4055a3",
+      "group_key": "b636290747dbca93d871f37f2b8ee6abab3cd93cc196d5222f19ea081c4055a3",
+      "confidence": 1.0,
+      "raw_confidence": 0.935,
+      "forced_full": false,
+      "order_disagreement": false,
+      "order_gap": 0.04999999999999993,
+      "margin": 0.8700000000000001,
+      "predictions": [
+        "A",
+        "A",
+        "A"
+      ],
+      "gold": "A",
+      "costs": [
+        {
+          "jev": 2.0,
+          "luna": 0.0,
+          "recorded_luna_usd": 0.0
+        },
+        {
+          "jev": 4.0,
+          "luna": 1.0,
+          "recorded_luna_usd": 0.000107
+        },
+        {
+          "jev": 6.0,
+          "luna": 5.0,
+          "recorded_luna_usd": 0.00182
+        }
+      ],
+      "units": [
+        2.0,
+        14.0,
+        56.0
+      ]
+    },
+    {
+      "id": "ca72195f65fad110a3065529557eb344e875334d7764b06e1d731535306d10ba",
+      "group_key": "ca72195f65fad110a3065529557eb344e875334d7764b06e1d731535306d10ba",
+      "confidence": 0.5555555555555556,
+      "raw_confidence": 0.655,
+      "forced_full": false,
+      "order_disagreement": false,
+      "order_gap": 0.14999999999999997,
+      "margin": 0.31000000000000005,
+      "predictions": [
+        "B",
+        "B",
+        "B"
+      ],
+      "gold": "B",
+      "costs": [
+        {
+          "jev": 2.0,
+          "luna": 0.0,
+          "recorded_luna_usd": 0.0
+        },
+        {
+          "jev": 4.0,
+          "luna": 1.0,
+          "recorded_luna_usd": 8e-05
+        },
+        {
+          "jev": 6.0,
+          "luna": 5.0,
+          "recorded_luna_usd": 0.000793
+        }
+      ],
+      "units": [
+        2.0,
+        14.0,
+        56.0
+      ]
+    },
+    {
+      "id": "d1503d97eaf48bdbd5063942388629ffa0c36970598efeb189ed83a22b1be85d",
+      "group_key": "d1503d97eaf48bdbd5063942388629ffa0c36970598efeb189ed83a22b1be85d",
+      "confidence": 0.8,
+      "raw_confidence": 0.7849999999999999,
+      "forced_full": false,
+      "order_disagreement": false,
+      "order_gap": 0.10999999999999999,
+      "margin": 0.5699999999999998,
+      "predictions": [
+        "A",
+        "A",
+        "A"
+      ],
+      "gold": "B",
+      "costs": [
+        {
+          "jev": 2.0,
+          "luna": 0.0,
+          "recorded_luna_usd": 0.0
+        },
+        {
+          "jev": 4.0,
+          "luna": 1.0,
+          "recorded_luna_usd": 9e-05
+        },
+        {
+          "jev": 6.0,
+          "luna": 5.0,
+          "recorded_luna_usd": 0.0020039999999999997
+        }
+      ],
+      "units": [
+        2.0,
+        14.0,
+        56.0
+      ]
+    },
+    {
+      "id": "dc386ca798775957ddaff89254023a077cde1bc57533e65cf987e06b9772600e",
+      "group_key": "dc386ca798775957ddaff89254023a077cde1bc57533e65cf987e06b9772600e",
+      "confidence": 0.8,
+      "raw_confidence": 0.8500000000000001,
+      "forced_full": false,
+      "order_disagreement": false,
+      "order_gap": 0.12,
+      "margin": 0.7000000000000002,
+      "predictions": [
+        "A",
+        "A",
+        "A"
+      ],
+      "gold": "A",
+      "costs": [
+        {
+          "jev": 2.0,
+          "luna": 0.0,
+          "recorded_luna_usd": 0.0
+        },
+        {
+          "jev": 4.0,
+          "luna": 1.0,
+          "recorded_luna_usd": 8.7e-05
+        },
+        {
+          "jev": 6.0,
+          "luna": 5.0,
+          "recorded_luna_usd": 0.001371
+        }
+      ],
+      "units": [
+        2.0,
+        14.0,
+        56.0
+      ]
+    },
+    {
+      "id": "dd4a3194ddba2a33748383cde7f5e8727c2d3fa73a89f97c127fbc0fb76cf926",
+      "group_key": "dd4a3194ddba2a33748383cde7f5e8727c2d3fa73a89f97c127fbc0fb76cf926",
+      "confidence": 0.8,
+      "raw_confidence": 0.8200000000000001,
+      "forced_full": false,
+      "order_disagreement": false,
+      "order_gap": 0.12,
+      "margin": 0.64,
+      "predictions": [
+        "B",
+        "B",
+        "B"
+      ],
+      "gold": "B",
+      "costs": [
+        {
+          "jev": 2.0,
+          "luna": 0.0,
+          "recorded_luna_usd": 0.0
+        },
+        {
+          "jev": 4.0,
+          "luna": 1.0,
+          "recorded_luna_usd": 0.000138
+        },
+        {
+          "jev": 6.0,
+          "luna": 5.0,
+          "recorded_luna_usd": 0.001552
+        }
+      ],
+      "units": [
+        2.0,
+        14.0,
+        56.0
+      ]
+    },
+    {
+      "id": "e4657fc72efd60e3d5bba9c46fab1262f6172266c93d256ca5f647b52ef0e0b4",
+      "group_key": "e4657fc72efd60e3d5bba9c46fab1262f6172266c93d256ca5f647b52ef0e0b4",
+      "confidence": 0.5555555555555556,
+      "raw_confidence": 0.62,
+      "forced_full": false,
+      "order_disagreement": false,
+      "order_gap": 0.15999999999999992,
+      "margin": 0.24,
+      "predictions": [
+        "A",
+        "A",
+        "A"
+      ],
+      "gold": "B",
+      "costs": [
+        {
+          "jev": 2.0,
+          "luna": 0.0,
+          "recorded_luna_usd": 0.0
+        },
+        {
+          "jev": 4.0,
+          "luna": 1.0,
+          "recorded_luna_usd": 9.6e-05
+        },
+        {
+          "jev": 6.0,
+          "luna": 5.0,
+          "recorded_luna_usd": 0.001508
+        }
+      ],
+      "units": [
+        2.0,
+        14.0,
+        56.0
+      ]
+    },
+    {
+      "id": "eb5922169cd364767a73b4b5768d5c3b688230c5408f24b07ac0970047bbb9b3",
+      "group_key": "eb5922169cd364767a73b4b5768d5c3b688230c5408f24b07ac0970047bbb9b3",
+      "confidence": 0.5555555555555556,
+      "raw_confidence": 0.63,
+      "forced_full": false,
+      "order_disagreement": false,
+      "order_gap": 0.10000000000000003,
+      "margin": 0.26,
+      "predictions": [
+        "B",
+        "B",
+        "B"
+      ],
+      "gold": "A",
+      "costs": [
+        {
+          "jev": 2.0,
+          "luna": 0.0,
+          "recorded_luna_usd": 0.0
+        },
+        {
+          "jev": 4.0,
+          "luna": 1.0,
+          "recorded_luna_usd": 9.5e-05
+        },
+        {
+          "jev": 6.0,
+          "luna": 5.0,
+          "recorded_luna_usd": 0.001402
+        }
+      ],
+      "units": [
+        2.0,
+        14.0,
+        56.0
+      ]
+    },
+    {
+      "id": "ebf7409185f6d88ff350f985e4d5a7445f369eba50e0648ccf5320d59a310c71",
+      "group_key": "ebf7409185f6d88ff350f985e4d5a7445f369eba50e0648ccf5320d59a310c71",
+      "confidence": 0.5555555555555556,
+      "raw_confidence": 0.515,
+      "forced_full": true,
+      "order_disagreement": true,
+      "order_gap": 0.22999999999999998,
+      "margin": 0.030000000000000027,
+      "predictions": [
+        "A",
+        "A",
+        "B"
+      ],
+      "gold": "B",
+      "costs": [
+        {
+          "jev": 2.0,
+          "luna": 0.0,
+          "recorded_luna_usd": 0.0
+        },
+        {
+          "jev": 4.0,
+          "luna": 1.0,
+          "recorded_luna_usd": 8.2e-05
+        },
+        {
+          "jev": 6.0,
+          "luna": 5.0,
+          "recorded_luna_usd": 0.002873
+        }
+      ],
+      "units": [
+        2.0,
+        14.0,
+        56.0
+      ]
+    },
+    {
+      "id": "ed6cb96900efa941a0504f5f61be8165d2a489a989172f3e9a52ecb7670dfe18",
+      "group_key": "ed6cb96900efa941a0504f5f61be8165d2a489a989172f3e9a52ecb7670dfe18",
+      "confidence": 0.8,
+      "raw_confidence": 0.87,
+      "forced_full": false,
+      "order_disagreement": false,
+      "order_gap": 0.15999999999999995,
+      "margin": 0.74,
+      "predictions": [
+        "B",
+        "B",
+        "B"
+      ],
+      "gold": "B",
+      "costs": [
+        {
+          "jev": 2.0,
+          "luna": 0.0,
+          "recorded_luna_usd": 0.0
+        },
+        {
+          "jev": 4.0,
+          "luna": 1.0,
+          "recorded_luna_usd": 0.000106
+        },
+        {
+          "jev": 6.0,
+          "luna": 5.0,
+          "recorded_luna_usd": 0.0023480000000000003
+        }
+      ],
+      "units": [
+        2.0,
+        14.0,
+        56.0
+      ]
+    },
+    {
+      "id": "f65abab6a71dffd068e5fbbe916682ecc706163c3dea205584b9d78dd1dbd49f",
+      "group_key": "f65abab6a71dffd068e5fbbe916682ecc706163c3dea205584b9d78dd1dbd49f",
+      "confidence": 1.0,
+      "raw_confidence": 0.9,
+      "forced_full": false,
+      "order_disagreement": false,
+      "order_gap": 0.020000000000000018,
+      "margin": 0.8,
+      "predictions": [
+        "A",
+        "A",
+        "A"
+      ],
+      "gold": "A",
+      "costs": [
+        {
+          "jev": 2.0,
+          "luna": 0.0,
+          "recorded_luna_usd": 0.0
+        },
+        {
+          "jev": 4.0,
+          "luna": 1.0,
+          "recorded_luna_usd": 0.000109
+        },
+        {
+          "jev": 6.0,
+          "luna": 5.0,
+          "recorded_luna_usd": 0.001733
+        }
+      ],
+      "units": [
+        2.0,
+        14.0,
+        56.0
+      ]
+    },
+    {
+      "id": "f6c29e1b9258ef761fe5576d6845d0586b9896fc1ca858fd248eefffaf9872ae",
+      "group_key": "f6c29e1b9258ef761fe5576d6845d0586b9896fc1ca858fd248eefffaf9872ae",
+      "confidence": 0.8,
+      "raw_confidence": 0.76,
+      "forced_full": false,
+      "order_disagreement": false,
+      "order_gap": 0.18,
+      "margin": 0.52,
+      "predictions": [
+        "B",
+        "B",
+        "B"
+      ],
+      "gold": "B",
+      "costs": [
+        {
+          "jev": 2.0,
+          "luna": 0.0,
+          "recorded_luna_usd": 0.0
+        },
+        {
+          "jev": 4.0,
+          "luna": 1.0,
+          "recorded_luna_usd": 9.7e-05
+        },
+        {
+          "jev": 6.0,
+          "luna": 5.0,
+          "recorded_luna_usd": 0.001587
+        }
+      ],
+      "units": [
+        2.0,
+        14.0,
+        56.0
+      ]
+    }
+  ],
+  "random_audit": {
+    "status": "practice sensitivity only; overlapping random splits",
+    "summary": {
+      "fixed_0.9": {
+        "splits": 1000,
+        "overall_target_held": 744,
+        "nonempty_early_splits": 1000,
+        "early_target_held": 665,
+        "nontrivial_certificates": 0,
+        "mean_gold_accuracy": 0.61966,
+        "mean_full_agreement": 0.92172,
+        "levels": {
+          "stop": {
+            "mean_share": 0.12108000000000001,
+            "gold_accuracy": 0.8348199537495871,
+            "full_agreement": 0.8619094813346547
+          },
+          "one_more": {
+            "mean_share": 0.4831600000000001,
+            "gold_accuracy": 0.6791539034688302,
+            "full_agreement": 0.8725887904627867
+          },
+          "full": {
+            "mean_share": 0.3957600000000001,
+            "gold_accuracy": 0.48120072771376593,
+            "full_agreement": 1.0
+          }
+        }
+      },
+      "cross_validated": {
+        "splits": 1000,
+        "overall_target_held": 851,
+        "nonempty_early_splits": 996,
+        "early_target_held": 809,
+        "nontrivial_certificates": 0,
+        "mean_gold_accuracy": 0.647,
+        "mean_full_agreement": 0.9558800000000001,
+        "levels": {
+          "stop": {
+            "mean_share": 0.7342799999999999,
+            "gold_accuracy": 0.6973361660402027,
+            "full_agreement": 0.9404586806123005
+          },
+          "one_more": {
+            "mean_share": 0.00076,
+            "gold_accuracy": 0.7894736842105263,
+            "full_agreement": 0.47368421052631576
+          },
+          "full": {
+            "mean_share": 0.26496000000000003,
+            "gold_accuracy": 0.5070954106280193,
+            "full_agreement": 1.0
+          }
+        }
+      },
+      "guaranteed": {
+        "splits": 1000,
+        "overall_target_held": 1000,
+        "nonempty_early_splits": 0,
+        "early_target_held": 0,
+        "nontrivial_certificates": 0,
+        "mean_gold_accuracy": 0.5704000000000001,
+        "mean_full_agreement": 1.0,
+        "levels": {
+          "stop": {
+            "mean_share": 0.0,
+            "gold_accuracy": null,
+            "full_agreement": null
+          },
+          "one_more": {
+            "mean_share": 0.0,
+            "gold_accuracy": null,
+            "full_agreement": null
+          },
+          "full": {
+            "mean_share": 1.0,
+            "gold_accuracy": 0.5704,
+            "full_agreement": 1.0
+          }
+        }
+      }
+    }
+  }
+}

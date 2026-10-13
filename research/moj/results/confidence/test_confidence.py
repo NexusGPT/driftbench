@@ -9,6 +9,7 @@ import numpy as np
 from moj.confidence import (ConfidenceModel, Isotonic, binomial_lower, calibrate_experts,
                             certify, choose_level, crossfit, minimum_labels, pair_confidence,
                             prepare, reliability, threshold_grid, validate_rows)
+from moj.policy import Combiner
 
 
 def synthetic(n=120, seed=77):
@@ -177,6 +178,43 @@ class ConfidenceTests(unittest.TestCase):
         record = prepare(rows[:1], model)[0]
         self.assertEqual(record['costs'][2]['jev'], 2)
         self.assertEqual(record['costs'][2]['luna'], 1)
+
+    def test_current_full_reference_transform_matches_harness(self):
+        rows = synthetic()
+        for r in rows:
+            r['ref']['detail']['kind'] = 'open'
+        model = ConfidenceModel(rows)
+        harness = Combiner(rows)
+        for r in rows[:10]:
+            self.assertAlmostEqual(model.combine(r, model.full_experts, model.full_weights),
+                                   harness.p(r, model.full_experts))
+
+    def test_source_groups_never_cross_cv_folds(self):
+        rows = synthetic(20)
+        for i, row in enumerate(rows):
+            row['_meta']['group_key'] = str(i // 2)
+        original = prepare
+        init = ConfidenceModel.__init__
+        def tagged(model, train, *args, **kwargs):
+            init(model, train, *args, **kwargs)
+            model.fit_groups = {r['_meta']['group_key'] for r in train}
+        def checked(eval_rows, model):
+            self.assertFalse(model.fit_groups & {r['_meta']['group_key'] for r in eval_rows})
+            return original(eval_rows, model)
+        with patch.object(ConfidenceModel, '__init__', tagged), patch('moj.confidence.prepare', checked):
+            self.assertEqual(len(crossfit(rows)), 20)
+
+    def test_correlated_calibration_groups_cannot_certify(self):
+        rows = synthetic(200)
+        model = ConfidenceModel(rows[:50])
+        records = prepare(rows[50:], model)
+        for r in records:
+            r['group_key'] = 'one-source'
+            r['predictions'] = ['A', 'A', 'A']
+            r['confidence'] = 0.99
+        cert = certify(records, model)
+        self.assertTrue(cert['repeated_calibration_groups'])
+        self.assertFalse(cert['nontrivial'])
 
 
 if __name__ == '__main__':

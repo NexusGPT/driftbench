@@ -25,7 +25,7 @@ Other helpers call this function after loading a saved model:
 import json
 from moj.confidence import ConfidenceModel, choose_level
 
-report = json.load(open('results/confidence/practice-final/judgebench.json'))
+report = json.load(open('results/confidence/practice-current-reference/judgebench.json'))
 model = ConfidenceModel.from_dict(report['certified_model'])
 certificate = report['certificate']
 decision = choose_level(item_signals, model,
@@ -155,9 +155,9 @@ The formula is `ceil(log(delta / comparisons) / log(X))`. These are optimistic
 minima, not adequate sample-size promises: disagreements require more labels.
 Two active exits need 70 accepted calibration items each, in disjoint regions.
 With the ideal 50/50 practice split and tuning split used here, one active exit
-needs at least 280 total practice items; two active exits need at least 560.
+corresponds to 280 total practice items; two active exits correspond to 560.
 Lower acceptance rates require more. In the measured fixed split, certification
-has only 21 JudgeBench, 11 MM-Eval, and 11 writing items. No nontrivial early-exit
+has only 20 JudgeBench, 11 MM-Eval, and 11 writing items. No nontrivial early-exit
 certificate is possible, even with zero errors. The method therefore returns
 full-only, explicitly marked `nontrivial: false`.
 
@@ -182,7 +182,7 @@ The module never calls the recorded USD field total cascade spend or reports
 an unsupported dollar saving. Calls count intended inference, including reused
 baseline calls, and deduplicate expert names on each path.
 
-`results/confidence/practice-final/` contains:
+`results/confidence/practice-current-reference/` contains:
 
 - Per-benchmark JSON: every expert's calibration, saved models, certificate,
   all thresholds, selected points, validation per-level shares, gold accuracy
@@ -200,6 +200,14 @@ cross-validation uses the complete random tuning half and its own frozen
 reference. Each agreement number is relative to its run's stated reference,
 not an assertion that all fitted references are identical.
 The 1,000 splits overlap and are not 1,000 independent replications.
+Source `group_key` values, when present, stay together across every fold and
+partition. Known repeated groups in certification block all nontrivial binomial
+certificates; group overlap in the fixed tune/validation split blocks evaluation.
+The supplied core snapshot has no group keys or split-version metadata. Its
+validation numbers are historical pair-split diagnostics, not split-v2 evidence.
+The original `practice-final` directory is retained as the earlier reference
+snapshot; use `practice-current-reference` with the current API. The newer
+reference neutralizes `ref.kind == open` exactly as the harness now does.
 Full-only matches the reference by identity. A 1,000/1,000 target success count
 with zero nontrivial certificates demonstrates fallback, not useful savings.
 

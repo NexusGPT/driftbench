@@ -14,7 +14,7 @@ from pathlib import Path
 
 import numpy as np
 
-from .policy import Combiner
+from .policy import Combiner, x_of
 
 FULL = ('s1p', 's1r', 'ref', 's2v', 's2h')
 LEVELS = ('stop', 'one_more', 'full')
@@ -127,6 +127,17 @@ def validate_rows(rows):
             raise ValueError('binary gold label required')
 
 
+def group_key(row):
+    return row['_meta'].get('group_key') or row['_id']
+
+
+def group_partition(rows, rng, parts=2):
+    """Keep source groups together. Legacy signals only have a pair identifier."""
+    groups = sorted({group_key(r) for r in rows})
+    chunks = np.array_split(rng.permutation(groups), parts)
+    return [[r for r in rows if group_key(r) in set(chunk.tolist())] for chunk in chunks]
+
+
 def cost_of(row, experts):
     """Counts are replayed inference cost; cached answers are not free inference."""
     out = {'jev': 0.0, 'luna': 0.0, 'recorded_luna_usd': 0.0}
@@ -157,6 +168,7 @@ class ConfidenceModel:
             raise ValueError('positive S2 call weight required')
         self.s2_weight = float(s2_weight)
         self.reference_version = reference_version or hashlib.sha256(Path(__file__).with_name('policy.py').read_bytes()).hexdigest()
+        self.neutralize_open_reference = x_of({'ref': {'pA': 1.0, 'detail': {'kind': 'open'}}}, 'ref') == 0
         self.required = tuple(dict.fromkeys((s1, extra) + self.full_experts))
         complete = [r for r in train if self.complete(r)]
         if not complete:
@@ -174,16 +186,18 @@ class ConfidenceModel:
     def complete(self, row):
         return all(valid_signal(row.get(name)) for name in self.required)
 
-    @staticmethod
-    def combine(row, experts, weights):
-        z = sum(w * (2 * row[e]['pA'] - 1) for e, w in zip(experts, weights))
+    def combine(self, row, experts, weights):
+        z = sum(w * (0.0 if self.neutralize_open_reference and e == 'ref' and
+                      (row[e].get('detail') or {}).get('kind') == 'open' else 2 * row[e]['pA'] - 1)
+                for e, w in zip(experts, weights))
         return 1 / (1 + math.exp(-max(-30, min(30, z))))
 
     def to_dict(self):
         return {'full_experts': list(self.full_experts), 'extra': self.extra, 's1': self.s1,
                 'full_weights': self.full_weights, 'middle_weights': self.middle_weights,
                 'calibrator': self.calibrator.to_dict(), 's2_weight': self.s2_weight,
-                'reference_version': self.reference_version}
+                'reference_version': self.reference_version,
+                'neutralize_open_reference': self.neutralize_open_reference}
 
     @classmethod
     def from_dict(cls, value):
@@ -193,6 +207,7 @@ class ConfidenceModel:
             setattr(obj, name, value[name])
         obj.required = tuple(dict.fromkeys((obj.s1, obj.extra) + obj.full_experts))
         obj.calibrator = Isotonic(**value['calibrator'])
+        obj.neutralize_open_reference = value.get('neutralize_open_reference', False)
         return obj
 
     @property
@@ -238,7 +253,8 @@ def prepare(rows, model):
                        verdict(model.combine(r, model.full_experts, model.full_weights))]
         costs = [cost_of(r, names) for names in ((model.s1,), (model.s1, model.extra),
                                                 (model.s1,) + model.full_experts)]
-        out.append({'id': r['_id'], 'confidence': first['confidence'], 'raw_confidence': first['raw_confidence'],
+        out.append({'id': r['_id'], 'group_key': group_key(r),
+                    'confidence': first['confidence'], 'raw_confidence': first['raw_confidence'],
                     'forced_full': bool(first['order_disagreement'] or first['order_tie'] or first['pA'] == 0.5),
                     'order_disagreement': first['order_disagreement'], 'order_gap': first['order_gap'],
                     'margin': first['margin'], 'predictions': predictions, 'gold': r['_meta']['label'],
@@ -319,6 +335,7 @@ def certify(records, model, target=0.9, risk=0.05):
     comparisons = 2 * len(grid)
     alpha = risk / comparisons
     minimum = minimum_labels(target, risk, comparisons)
+    repeated_groups = len({r.get('group_key', r['id']) for r in records}) != len(records)
     accepted = []
     for hi, lo in grid:
         idx = indices(records, hi, lo)
@@ -331,26 +348,28 @@ def certify(records, model, target=0.9, risk=0.05):
             bounds[name] = {'n': len(selected), 'successes': k, 'lower': lower, 'enabled': enabled}
             if enabled and lower < target:
                 ok = False
-        if ok:
+        if ok and (not repeated_groups or (hi > 1 and lo > 1)):
             accepted.append((metrics(records, hi, lo)['cost_units'] or 0, hi, lo, bounds))
     _, hi, lo, bounds = min(accepted, key=lambda x: (x[0], x[1], x[2]))
     return {'hi': hi, 'lo': lo, 'target_full_agreement': target, 'risk': risk,
             'comparisons': comparisons, 'per_bound_risk': alpha, 'bounds': bounds,
             'minimum_error_free_labels_per_enabled_exit': minimum,
             'nontrivial': hi <= 1 or lo <= 1, 'model_signature': model.signature,
-            'method': 'exact_binomial_bonferroni', 'calibration_n': len(records)}
+            'method': 'exact_binomial_bonferroni', 'calibration_n': len(records),
+            'repeated_calibration_groups': repeated_groups}
 
 
 def crossfit(rows, full_experts=FULL, extra='ref', s2_weight=10.0, seed=13):
-    if len(rows) < 2:
+    groups = sorted({group_key(r) for r in rows})
+    if len(groups) < 2:
         return []
-    order = np.random.default_rng(seed).permutation(len(rows))
+    order = np.random.default_rng(seed).permutation(groups)
     out = []
-    for held in np.array_split(order, min(5, len(rows))):
+    for held in np.array_split(order, min(5, len(groups))):
         hs = set(held.tolist())
-        train = [r for i, r in enumerate(rows) if i not in hs]
+        train = [r for r in rows if group_key(r) not in hs]
         model = ConfidenceModel(train, full_experts, extra, s2_weight=s2_weight)
-        out.extend(prepare([rows[int(i)] for i in held], model))
+        out.extend(prepare([r for r in rows if group_key(r) in hs], model))
     return out
 
 
@@ -372,23 +391,19 @@ def random_split_audit(rows, repetitions, full_experts, extra, s2_weight, target
     """Practice-only sensitivity audit; not 1000 independent experiments."""
     rng = np.random.default_rng(seed)
     results = []
-    if len(rows) < 4:
+    if len({group_key(r) for r in rows}) < 4:
         return {'status': 'insufficient practice rows', 'splits': [], 'summary': {}}
     for rep in range(repetitions):
-        perm = rng.permutation(len(rows))
-        # Random tune half: a fit portion and an independent certification portion.
-        tune_n = len(rows) // 2
-        train_n = max(1, tune_n // 2)
-        train = [rows[int(i)] for i in perm[:train_n]]
-        calibration = [rows[int(i)] for i in perm[train_n:tune_n]]
-        validation = [rows[int(i)] for i in perm[tune_n:]]
+        # Source groups, when present, never cross any fit/calibration/validation boundary.
+        tuning, validation = group_partition(rows, rng)
+        train, calibration = group_partition(tuning, rng)
         model = ConfidenceModel(train, full_experts, extra, s2_weight=s2_weight)
         cal, val = prepare(calibration, model), prepare(validation, model)
         certificate = certify(cal, model, target, risk)
-        cv = crossfit([rows[int(i)] for i in perm[:tune_n]], full_experts, extra, s2_weight, seed + rep)
+        cv = crossfit(tuning, full_experts, extra, s2_weight, seed + rep)
         points = operating_points([metrics(cv, hi, lo) for hi, lo in threshold_grid()], accuracy_target, budget)
         best = points['balanced']
-        cv_model = ConfidenceModel([rows[int(i)] for i in perm[:tune_n]], full_experts, extra, s2_weight=s2_weight)
+        cv_model = ConfidenceModel(tuning, full_experts, extra, s2_weight=s2_weight)
         cv_val = prepare(validation, cv_model)
         methods = {'fixed_0.9': metrics(val, 0.9, 0.7, raw=True),
                    'cross_validated': metrics(cv_val, best['hi'], best['lo']),
@@ -434,10 +449,14 @@ def run_benchmark(store, args):
     val = [r for r in usable if r['_meta']['half'] == 'valid']
     report = {'practice_n': len(rows), 'complete_n': len(usable), 'excluded_n': len(rows) - len(usable),
               'tune_n': len(train), 'valid_n': len(val), 'missing_experts': missing,
+              'group_metadata_complete': all(r['_meta'].get('group_key') for r in rows),
+              'split_versions': sorted({r['_meta'].get('split_version', 'legacy-unspecified') for r in rows}),
               'calibration': calibrate_experts([r for r in rows if r['_meta']['half'] == 'tune'],
                                                [r for r in rows if r['_meta']['half'] == 'valid'])}
     if not train:
         return {**report, 'status': 'missing complete tuning signals'}
+    if {group_key(r) for r in train} & {group_key(r) for r in val}:
+        return {**report, 'status': 'source groups overlap tuning and validation; corrected split required'}
     model = ConfidenceModel(train, args.full_experts, args.extra, s2_weight=args.s2_weight)
     validation = prepare(val, model)
     cv = crossfit(train, args.full_experts, args.extra, args.s2_weight, args.seed)
@@ -445,10 +464,7 @@ def run_benchmark(store, args):
     points = operating_points(curve, args.accuracy_target, args.cost_budget)
     for point in points.values():
         point['validation'] = metrics(validation, point['hi'], point['lo'])
-    perm = np.random.default_rng(args.seed).permutation(len(train))
-    fit_n = max(1, len(train) // 2)
-    fit = [train[int(i)] for i in perm[:fit_n]]
-    calibration = [train[int(i)] for i in perm[fit_n:]]
+    fit, calibration = group_partition(train, np.random.default_rng(args.seed))
     certified_model = ConfidenceModel(fit, args.full_experts, args.extra, s2_weight=args.s2_weight)
     certificate = certify(prepare(calibration, certified_model), certified_model, args.target, args.risk)
     methods = {'fixed_0.9': metrics(validation, 0.9, 0.7, raw=True),

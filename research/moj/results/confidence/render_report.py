@@ -10,6 +10,8 @@ def fmt(x):
 
 def render(directory):
     root = Path(directory)
+    manifest = json.loads((root / 'manifest.json').read_text())
+    settings = manifest['settings']
     reports = {b: json.loads((root / (b + '.json')).read_text()) for b in ('judgebench', 'mmeval', 'writing')}
     text = ['# Confidence experiment report', '',
             'All numbers use recorded practice signals. No model calls or sealed TEST data.', '',
@@ -17,7 +19,7 @@ def render(directory):
             'Thresholds and named points are selected on tuning only. Validation sweeps are descriptive.', '',
             '## Validation operating points', '', (root / 'summary.md').read_text(),
             'S1 ECE is the binary probability ECE for gold event A. It is separate from full-judge agreement.',
-            'Writing has no point meeting the requested 0.8 tuning gold-accuracy target. Balanced is explicitly infeasible.', '',
+            'A balanced point with target_feasible=false does not meet its requested tuning constraints.', '',
             '## Validation calibration of every expert', '',
             '| Benchmark | Expert | Tune / validation n | Gold-event ECE before | Gold-event ECE after | Full agreement target |',
             '|---|---|---:|---:|---:|---|']
@@ -32,8 +34,8 @@ def render(directory):
         for method, m in report['methods'].items():
             for level, c in m['levels'].items():
                 text.append(f"| {bench} | {method} | {level} | {c['n']} | {fmt(c['share'])} | {fmt(c['gold_accuracy'])} | {fmt(c['full_agreement'])} |")
-    text += ['', '## Random-split sensitivity, 1,000 practice splits per method', '',
-             '| Benchmark | Method | Mean gold accuracy | Mean full agreement | Full target >= 0.90, splits | Early target held / nonempty early splits | Nontrivial certificates |',
+    text += ['', f"## Random-split sensitivity, {settings['splits']} practice splits per method", '',
+             f"| Benchmark | Method | Mean gold accuracy | Mean full agreement | Full target >= {settings['target']}, splits | Early target held / nonempty early splits | Nontrivial certificates |",
              '|---|---|---:|---:|---:|---:|---:|']
     for bench, report in reports.items():
         for method, m in report['random_audit']['summary'].items():
@@ -47,8 +49,9 @@ def render(directory):
     for bench, r in reports.items():
         c = r['certificate']
         text.append(f"| {bench} | {r['practice_n']} | {r['tune_n']} / {r['valid_n']} | {c['calibration_n']} | {c['minimum_error_free_labels_per_enabled_exit']} | {c['target_full_agreement']} / {c['risk']} | None |")
-    text += ['', 'The grid uses 72 simultaneous one-sided binomial bounds. A single prespecified region needs at least 29 error-free labels; two prespecified regions need 36 each.',
-             'At the implemented split ratios, one enabled exit needs at least 280 practice items and two need at least 560, even before any disagreement.',
+    minima = manifest['guarantee_minimum_labels']
+    text += ['', f"The grid uses 72 simultaneous one-sided binomial bounds. One prespecified region needs {minima['one_frozen_region']} error-free labels; two prespecified regions need {minima['two_frozen_regions']} each.",
+             'These are per accepted calibration region, independent of model-fitting labels. They are best-case minima with zero disagreement.',
              'The guarantee assumes fixed judges and independent, identically distributed calibration and future items.', '',
              '## Missing signals and cost interpretation', '',
              '- MM-Eval contains 45 recorded pairs in this snapshot, not 50.',
@@ -56,6 +59,11 @@ def render(directory):
              '- Some recorded baseline costs and Jev prices are absent. Cost units use the declared S2 weight, not invented fees.',
              '- Per-benchmark SVG and CSV curves retain gold accuracy and full agreement as separate series.',
              '- The full reference and its calibration reserve stay frozen. Changing the reference requires recertification.', '']
+    if any(not r.get('group_metadata_complete', False) for r in reports.values()):
+        text += ['## Split provenance limitation', '',
+                 'This core signal snapshot has no source group keys. These are historical pair-split diagnostics, not evidence under moj-split-v2.',
+                 'The new harness split keeps common prompts together; updated signal metadata is required before claiming group-independent validation.',
+                 'The module now respects group_key when supplied and rejects overlapping fixed halves or correlated certification groups.', '']
     path = root / 'report.md'
     with path.open('x') as handle:
         handle.write('\n'.join(text))
