@@ -113,7 +113,7 @@ describe('the benchmark workflows', () => {
     expect(Object.keys(workflow.on)).toEqual(['workflow_dispatch']);
     const inputs = workflow.on.workflow_dispatch.inputs;
     expect(inputs.slice.required).toBe(true);
-    expect(inputs.model.options).toEqual(['haiku', 'gpt-6-luna']);
+    expect(inputs.model.options).toEqual(['haiku', 'gpt-6-luna', 'gemini-3.8-flash']);
     expect(inputs['spend-cap-usd'].required).toBe(true);
     expect(Object.keys(inputs).sort()).toEqual(['model', 'slice', 'spend-cap-usd']);
     expect(workflow.permissions).toEqual({ contents: 'read' });
