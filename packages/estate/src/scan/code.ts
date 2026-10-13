@@ -383,13 +383,27 @@ function scriptAtoms(
   }
 }
 
-/** Paths a line names: relative file names, literal quotes and markdown link destinations. */
+/** Paths a line names: relative file names, literal quotes, markdown link destinations and wiki links. */
 export function namedPaths(line: string): string[] {
   const found: string[] = [];
   const claimed: Array<[number, number]> = [];
-  // A section anchor or a query names the same file; a web address is no path.
-  const bare = (path: string) => path.replace(/[#?].*$/, '');
+  // A section anchor or a query names the same file; a web address is no path. A path may be written with
+  // backslashes, from the project folder variable, or with a line (and column) after it: the same file.
+  const bare = (path: string) => {
+    let clean = path.replace(/[#?].*$/, '');
+    if (!/\s/.test(clean) && clean.includes('\\')) clean = clean.replace(/\\+/g, '/');
+    clean = clean.replace(/^\$\{?CLAUDE_PROJECT_DIR\}?\//, '');
+    return clean.replace(/(\.[A-Za-z][A-Za-z0-9]*):\d+(?::\d+)?$/, '$1');
+  };
+  // A wiki link names a markdown file without its extension: [[references/guide]], [[guide|the guide]].
+  for (const match of line.matchAll(/\[\[([^\]|#\n]+)(?:[#|][^\]\n]*)?\]\]/g)) {
+    claimed.push([match.index, match.index + match[0].length]);
+    const target = match[1]?.trim();
+    if (target && !/^[a-z]+:/i.test(target))
+      found.push(/\.[A-Za-z0-9]+$/.test(target) ? bare(target) : `${bare(target)}.md`);
+  }
   for (const match of line.matchAll(/`([^`\n]+)`/g)) {
+    if (claimed.some(([start, end]) => match.index >= start && match.index < end)) continue;
     claimed.push([match.index, match.index + match[0].length]);
     const token = match[1]?.trim();
     // A quoted shell command is an example, not one file name. Spaces within a file name stay.
@@ -609,7 +623,11 @@ function referenceAtoms(
   const skipped = new Set(raw.ignored?.paths ?? []);
   for (const line of chunkLines(chunk, files.get(chunk.file))) {
     for (const named of namedPaths(line.text)) {
-      if (!positiveMention(line.text, named, ['read', 'open', 'load'])) continue;
+      // A path written in another form (backslashes, a wiki link) is looked for by its file name's stem.
+      const written = line.text.includes(named)
+        ? named
+        : basename(named).replace(/\.[A-Za-z0-9]+$/, '');
+      if (!positiveMention(line.text, written, ['read', 'open', 'load'])) continue;
       const located = locateNamed(named, chunk.file, files, {
         bases: raw.bases ?? [],
         skipped,
