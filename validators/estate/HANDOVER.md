@@ -18,7 +18,7 @@ The product CLI entry packages/cli/src/bin.ts filters only ExperimentalWarning w
 
 Six own component causes are complete, iterations 13 through 18. Since takeover, 51 new seed 1 bank items come from owned fixes; 11 new passes come from imported PR 124 and are excluded. Iteration 18 also restores a portability item that passes at the takeover baseline. There are 52 owned passing transitions across paired iterations, but only 51 net new bank passes relative to takeover. The fifth-fix full sweep remains on source c415e845, before this warning fix, with no completed score yet.
 
-CI for bfb8a652 fails typecheck at its merge ref 54426d9d: new protected maintenance, map and stats tests import the old npm scope. These files exist on newer main, not on the locally imported a624204b. The executor's typecheck passes and the required rename-scope script changes zero files. PR 133 is now merged at 4d54e92c; PR 140 supplies the protected scope fixes and is open at the last read. Import main with 133 and 140 together so protected files stay maintainer-owned. This CI failure is separate from the earlier local-name assertion, which has been fixed and tested.
+The earlier bfb8a652 merge-ref CI fails typecheck because new protected maintenance, map and stats tests use the old npm scope. Main 14225a2a, including PR 133 and PR 140, is now imported. The required rename-scope script changes zero files. Those protected corrections stay maintainer-owned; the seven maintenance corrections receive no executor progress credit. Row 18 and the running iteration 19 snapshot predate this import, so their scores remain stamped to their original instruments. Fresh checks and current CI determine the imported branch's state. This earlier CI failure is separate from the corrected local-name assertion.
 
 ### Previous executor measurement, iteration 17
 
@@ -121,7 +121,7 @@ The published row 18 capture is iteration-18.json at source 37f55b91. It has 246
 | maintenance | 42/53 | 11 |
 | scale | 17/20 | 3 |
 
-All 25 bench.defects items, all 25 determinism items and all 37 stats items pass. None belongs in the current open list. The unit input mismatch and the documented closed-list conflicts remain in the defect section below. Seven maintenance oracle corrections are already merged on main in PR 133 and await import with the scope fix, without executor credit.
+All 25 bench.defects items, all 25 determinism items and all 37 stats items pass. None belongs in the current open list. The unit input mismatch and the documented closed-list conflicts remain in the defect section below. Seven maintenance oracle corrections from PR 133 are imported with main 14225a2a. They receive no executor credit and are absent from the pre-import row 18 capture.
 
 ### Historical pilot gap list
 
@@ -142,7 +142,7 @@ The ten pilot iterations are the journal rows 1 to 10 and the commits of `exec/v
 ## Next actions
 
 1. Iteration 19: fix exact plain routing names in packages/estate/src/scan/code.ts, with packages/estate/test/scan/routing-names.test.ts from .cache/s19candidate. Apply only the routeAtoms target loop, preserving current comments and paths. The isolated tests have four red cases and one passing control. See the canonical test red before applying, measure seed 1, journal, commit and push.
-2. Import origin/main once PR 140's scope fix is merged; it also includes merged PR 133. Run node tools/rename-scope.mjs from this repo root, then fresh typecheck, lint and protection before push. Do not commit protected validator edits as executor work. The seven PR 133 maintenance corrections receive no own progress credit. Watch PR 110's current CI; its last failed merge-ref run is explained above.
+2. Main 14225a2a is imported, including PR 133 and PR 140. The required codemod changes zero files. Finish fresh typecheck, lint and estate tests, then push and watch PR 110's new CI. Keep protected changes attributed to the maintainer. Remeasure the bank after import; do not count the seven maintenance corrections as executor progress.
 3. The immutable fifth-fix sweep still runs from c415e845 in .cache/full-17. Read full-17.state.json, full-17.json and full-17.stderr for actual status and metrics. After the tenth own fix, take another immutable sweep snapshot. Next after routing: compaction synonyms in packages/estate/src/scan/code.ts and packages/estate/test/scan/compaction-names.test.ts, with the explicit outside-owner control from .cache/s20candidate. Stop at 07:00 Europe/Brussels on 2026-10-13 if the bank has not reached 1.
 
 ### Historical next actions before takeover
