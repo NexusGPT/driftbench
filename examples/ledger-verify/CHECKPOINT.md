@@ -102,3 +102,12 @@
 - Exact ordinary replay of mutation fixtures exposes concurrent duplicate-key answers. Offline item-aware replay is under verification, preserving every answer and the original verdicts.
 - Haiku continues in TEST under automatic load fallback. Original offline reporter session 18577 remains active.
 - Current branch checkpoint 19167375 is pushed. Gemini 3.8 stays parked under a persistent owner-only guard.
+
+## 2026-10-13T12:44:38.889306+00:00 Flash Lite recovery
+
+- All 35 authorized no-answer requests return after one additional submission each. No returned answer is resent.
+- Recovery costs 0.1725274 USD. All 35 original uncertain-charge holds, 10.50 USD total, remain reserved inside the 18 USD cap.
+- DNS and unauthenticated HTTP probes pass before submission. Exact requests, receipts and attempt claims are retained.
+- Noise resumes from preserved answers, followed by the remaining repeats and sealed TEST. Source: lite/evidence/network-recovery-result.json and network-recovery-execution.json.
+
+- Recovery driver PID 16732, exec session 10043. Original finalizer PID 2795; Flash Lite finalizer exec session 52960. Haiku TEST continues. Gemini 3.8 stays owner-held.

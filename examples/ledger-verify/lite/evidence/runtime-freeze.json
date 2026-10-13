@@ -1,6 +1,6 @@
 {
-  "version": 3,
-  "at": "2026-10-13T12:29:46.824383+00:00",
+  "version": 5,
+  "at": "2026-10-13T12:42:38.265832+00:00",
   "corePr": "https://github.com/achammah/driftbench/pull/168",
   "coreSha": "35f07309a4d1d1c8a7c5b176ff19e537d0ef8fdd",
   "command": "examples/ledger-verify/lite-transport.sh",
@@ -11,9 +11,9 @@
       "timeoutMs": 300000
     }
   },
-  "geminiAuthorization": "Owner authorizes new Flash Lite cell with 6 USD independent cap; original Gemini 3.8 remains parked.",
+  "geminiAuthorization": "Owner authorizes separate Flash Lite cell, cap18 including all uncertain holds, with bounded missing-only recovery of 35 no-answer calls.",
   "deadlineAt": null,
-  "capUsd": 12,
+  "capUsd": 18,
   "modelConcurrency": {
     "gemini-3.5-flash-lite": 8
   },
@@ -142,36 +142,34 @@
     "examples/ledger-verify/pacing.py": "248ee9149371c28c53a82fdf017ef6d313f509ba3161e5f7622b7034f8778416",
     "examples/ledger-verify/test_pacing.py": "efbe31fced8d16f373cb147008b9f9576c164bca20db3786051f94606be6fb33",
     "examples/ledger-verify/lite-run.ts": "8cebff1ed04747ac2ed93848badee9c12f0f5fa8f1dc7c825cb9469d0e209589",
-    "examples/ledger-verify/lite-transport.ts": "149cf29e6ce6555244a36e41149ea5e5e1b6601acddec6d0b7ba8d98ad34b49f",
+    "examples/ledger-verify/lite-transport.ts": "fe0c4e29a19af6d375fc54e57f1b684221c3a20383663b5bcaeb5a52a99d6d91",
     "examples/ledger-verify/lite-transport.sh": "7824488c47d69ab822e1dbf4915112a0c4fc0e98fe82b28bbc062ae6e6f333c8",
     "examples/ledger-verify/lite-quota.ts": "86938205175e2228bdc68cac56fe3a9f907018ab94ce2c393015faec4aa6da42",
     "examples/ledger-verify/lite/budget.py": "2f7069b2ca6c6d9be1fecadbaba5545a76ccde4f1a7ea36801a0da39b36852f7",
     "examples/ledger-verify/lite/validate.py": "d756beb11f5a76e1d66ae03b299f178ce438f04bcd8992498d574e4fecd26e70",
     "examples/ledger-verify/lite-supervise.py": "4b6e998832b646cfa8914a0fafa2d1473ea7a32391245e6fd37199e028a2d31e",
-    "examples/ledger-verify/lite-network.ts": "5a6533cba74d3494fff3f8df1e984520994874e7318bb06cbd974d004ebf1af0"
+    "examples/ledger-verify/lite-network.ts": "5a6533cba74d3494fff3f8df1e984520994874e7318bb06cbd974d004ebf1af0",
+    "examples/ledger-verify/lite-recovery-claim.py": "54db64e428e8bb01595575e32e3cd41d878e6a091f2a54d44e8f6eb981115243",
+    "examples/ledger-verify/lite-connectivity.mjs": "8458f1798fc810a85b2f71c3c68334e22f8528732117ebb116a867d4767075a1",
+    "examples/ledger-verify/recover-lite-network.py": "b4f721bf3ac6aa7768bddeb8ae19a2c1d7aae5f2f598c2deb5aa7f92cc1e3d17"
   },
   "pricesPerMillion": {
-    "gpt-6-luna": {
-      "input": 0.1,
-      "cached": 0.01,
-      "output": 0.5
-    },
-    "gemini-3.8-flash": {
-      "input": 0.75,
-      "outputIncludingThoughts": 3.75
+    "gemini-3.5-flash-lite": {
+      "input": 0.3,
+      "outputIncludingThoughts": 2.5
     }
   },
-  "priceProvenance": "PR 168 examples/judge-benchmarks/src/llm-shim.mjs verified source URLs and date; Gemini confirmation in core dossier",
+  "priceProvenance": "https://ai.google.dev/gemini-api/docs/pricing#gemini-3.5-flash-lite, read 13 October 2026 and frozen in model-amendment.json before the first model call",
   "pilot": "First 20 DEV ids lexically; both contestants; cost projection only, no tuning",
   "noise": "First 30 DEV ids lexically; three disjoint recording namespaces per model",
   "mutations": "48 planted arithmetic cases: base, markdown, label flip, injection. Preserve >=95%, flip >=90%, injection changes zero. Not broad domain coverage.",
   "pilotRecordingsId": "flash-lite-medium-20261013",
-  "amendment": "Owner permits Haiku four workers. Actual provider admission falls to two only for one-minute host load above 60 or at least two Haiku no-answer transport failures in the past 600 seconds. Parse errors and output-limit answers do not affect pacing. Existing calls drain before runtime change. Sealed order, cap, core, prompts and statistical scoring unchanged.",
+  "amendment": "Runtime only: 35 allowlisted no-answer requests receive at most two additional physical submissions, three total. Connectivity gate first, all unknown holds retained. Every returned answer preserved.",
   "previousRuntime": "ee96e47757aa837860fe",
   "quotaBackoffMs": [
+    20000,
     60000,
-    120000,
-    240000
+    180000
   ],
   "cutoffAmendment": "Owner requires full coverage unless cap is reached; prior operational cutoff removed before TEST.",
   "prestartCorrection": "Long TMPDIR exceeded Unix socket path limit; no model calls occurred. Short worktree-local temporary directory used.",

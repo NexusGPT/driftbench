@@ -28,7 +28,7 @@ def main():
     if final.get('additionalCompletedModels'):
         lite=json.loads((BASE/'lite/evidence/finalizer-state.json').read_text())
         assert lite['complete'] and lite['status']=='offline evidence ready for review'
-        assert cells['additionalCellFees']['maximumAccountedUsd']<=12
+        assert cells['additionalCellFees']['maximumAccountedUsd']<=18
         for path,h in json.loads((BASE/'lite/evidence/reporting-freeze.json').read_text())['sourceHashes'].items():
             assert hashlib.sha256((ROOT/path).read_bytes()).hexdigest()==h,path
     for model in final['completedModels']:
@@ -73,7 +73,7 @@ def main():
     if final.get('additionalCompletedModels'):
         with (DOSSIER.parent.parent/'spend-ledger.md').open('a') as stream:
             f=cells['additionalCellFees']
-            stream.write('| '+stamp+' | verify Flash Lite finish | '+str(f['settledUsd'])+' USD settled; '+str(f['unresolvedMaximumUsd'])+' USD unresolved maximum; cap 12 USD | full 379 units; additional cell, separate from original budget | '+head+' |\n')
+            stream.write('| '+stamp+' | verify Flash Lite finish | '+str(f['settledUsd'])+' USD settled; '+str(f['unresolvedMaximumUsd'])+' USD unresolved maximum; cap 18 USD | full 379 units; additional cell, separate from original budget | '+head+' |\n')
     print(json.dumps(dict(status='pushed and remote verified', head=head, completedModels=final['completedModels'])))
 
 

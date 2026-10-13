@@ -21,12 +21,15 @@ const replacement=`      const ctx=(globalThis as any).__itemHistory;
       if(!own&&ownStage.length===0&&candidates.length>1)ctx.branches.push({branch,n:candidates.length,index});
       const hit=own??(ownStage.length?undefined:candidates[index]);
       const fingerprint=createHash('sha256').update(JSON.stringify({core:ctx.core,model:options.model,system:prompt.system,user:prompt.user,schema:ctx.schemaFor(prompt.system),reasoning:'medium'})).digest('hex');
+      if(ctx.allowed.has(fingerprint))ctx.requests.set(fingerprint,{fingerprint,system:prompt.system,user:prompt.user,key});
       ctx.rows.push({phase:ctx.phase,model:options.model,key,fingerprint,...labels,selection:own?'original item-labelled answer':'ordinary cache fallback'});`;
 function imports(text:string,callPath?:string){return text.replace(/from '\.\/([^']+)'/g,(_all,name)=>`from '${callPath&&name==='call'?callPath:resolve(source,name)}'`);}
 await writeFile(resolve(generated,'call.ts'),imports(call.replace(anchor,replacement)));
 await writeFile(resolve(generated,'run.ts'),imports(run,resolve(generated,'call')));
 const {runBenchmark}=await import(pathToFileURL(resolve(generated,'run.ts')).href);
-const ctx={core:runtime.coreSha,schemaFor,entries:[] as any[],rows:[] as any[],phase:'',choice:{} as any,branches:[] as any[]};(globalThis as any).__itemHistory=ctx;
+const wave=JSON.parse(await readFile(resolve(base,'evidence/network-wave.json'),'utf8'));
+const allowed=new Set(wave.errors.map((r:any)=>r.fingerprint));
+const ctx={allowed,requests:new Map<string,any>(),core:runtime.coreSha,schemaFor,entries:[] as any[],rows:[] as any[],phase:'',choice:{} as any,branches:[] as any[]};(globalThis as any).__itemHistory=ctx;
 const phases=[];
 for(const phase of ['pilot','validity','noise-0','noise-1','noise-2','results']){
  const model='gemini-3.5-flash-lite';let saved:any;
@@ -69,5 +72,8 @@ for(const phase of ['pilot','validity','noise-0','noise-1','noise-2','results'])
 }
 await writeFile(resolve(base,'evidence/item-history-replay.json'),JSON.stringify({at:new Date().toISOString(),phases,sourceHashes:{call:createHash('sha256').update(call).digest('hex'),run:createHash('sha256').update(run).digest('hex')},mechanism:'Read-only copied caller prefers the original item/order answer among concurrently returned duplicate keys. Final decisions are recomputed, never replaced by expected labels.',providerCalls:0},null,2)+'\n');
 await writeFile(resolve(base,'evidence/history-request-attribution.json'),JSON.stringify({at:new Date().toISOString(),rows:ctx.rows,newModelCalls:0},null,2)+'\n');
+await mkdir(resolve(base,'cache/network-recovery'),{recursive:true});
+await writeFile(resolve(base,'cache/network-recovery/requests.json'),JSON.stringify([...ctx.requests.values()],null,2)+'\n');
+assert.equal(ctx.requests.size,allowed.size,'Every authorized request must be reconstructed exactly');
 console.log(JSON.stringify(phases.map(p=>({...p,changed:p.changed.length}))));
 assert(phases.filter(p=>!p.originalStopped).every(p=>p.identicalDecisions),'Completed phase differs; inspect without paid retries');

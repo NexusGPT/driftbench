@@ -97,7 +97,13 @@ try {
       env:isGoogle?{GEMINI_API_KEY:key}:{OPENAI_API_KEY:key}, reasoning:'medium',
       timeoutMs:freeze.models[model].timeoutMs,maxTokens:32768,maxRetries:0,fetch:observedFetch(e=>networkDiagnostics.push(e))});
     const response=await withQuotaBackoff(async()=>{
-      await acquire();started=true;
+      await acquire();
+      if(process.env.VERIFY_LITE_NETWORK_RECOVERY==='1') {
+        const claim=JSON.parse(execFileSync('python3',[resolve(base,'../lite-recovery-claim.py'),callFingerprint!,id],{encoding:'utf8'}));
+        // This invocation has only seen rejected 429s if its physical submission allowance is exhausted here.
+        if(!claim.allowed)throw new QuotaPending('Authorized recovery submission allowance exhausted; no judge answer');
+      }
+      started=true;
       return transport.complete({system,user,...(schema?{schema}:{})});
     },async event=>{
       await appendFile(resolve(base,'receipts/quota.jsonl'),JSON.stringify({id,at:new Date().toISOString(),model,phase:process.env.VERIFY_PHASE,fingerprint:callFingerprint,...event})+'\n');
