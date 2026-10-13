@@ -620,7 +620,7 @@ The standalone file contains the table below without the outer `prices:` key; it
 This example is **fictional**, including its model and rates. No vendor prices are bundled.
 Replace it with prices you verify for your model and the date you verified them:
 
-```yaml
+```text
 prices:
   as_of: '2026-10-13'
   models:
