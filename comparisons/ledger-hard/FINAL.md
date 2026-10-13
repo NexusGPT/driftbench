@@ -1,6 +1,6 @@
 # Ledger hard-row dossier
 
-Haiku and Luna complete; Gemini 262 requests not run: daily quota. Recording analysis generated 2026-10-13T11:20:33.946334+00:00. All case and result counts come from the linked files in `comparisons/ledger-hard/`.
+Haiku and Luna complete; Gemini 262 requests not run: daily quota. Recording analysis generated 2026-10-13T11:21:49.347084+00:00. All case and result counts come from the linked files in `comparisons/ledger-hard/`.
 
 - Haiku and Luna have full coverage in both experiments: 384 cases per row. Gemini has 262 requests not run: daily quota. Its unfinished cells carry no final verdict.
 - 6560 primary and 9578 dialect unique recorded requests, including the goal equal-evidence ablation.
@@ -11,6 +11,8 @@ Haiku and Luna complete; Gemini 262 requests not run: daily quota. Recording ana
 ## Interpretation and coverage
 
 The pooled default comparison includes a goal row where the candidate receives final state and the default peer does not. The pooled equal-evidence comparison supplies final state to both. It is the appropriate evidence-matched comparison. Per-row exact tests are nominal; family bootstrap intervals show construction-family uncertainty. A non-significant result does not establish equivalence. The global 18-cell Holm decision belongs to the collator.
+
+Haiku has a nominal pooled equal-evidence lead in both experiments, with family bootstrap difference intervals above zero. Luna has no significant pooled equal-evidence lead at provider default; its primary rubric row has a nominal loss. The medium dialect has a nominal Luna pooled lead, but its family bootstrap interval includes zero. These results do not establish superiority on every hard row. The exact counts and uncertainty intervals follow.
 
 | Experiment | Model | Cases in each row | Pooled default W/L | Pooled equal-evidence W/L | Equal-evidence exact two-sided p | Status |
 |---|---|---:|---:|---:|---:|---|
@@ -60,7 +62,7 @@ The plugin crash left 12 primary and 8 dialect calls without recorded answers. T
 | dialect | haiku | ledger-hard-goal-g1-016 | peer | `0eb042fc91a35341bf1859b8ef29a3a3516fe109ecc1d44e87318c3aa8e0292f` | Re-asked once after crash; one recorded answer |
 | dialect | gemini-3.8-flash | ledger-hard-goal-g1-015 | peer | `a0891e0f464fb6828464d1a10fe960da10dbc0a83ca307c52a939f87f357fc8f` | Re-asked once after crash; one recorded answer |
 
-Existing workers drained naturally before each runtime amendment. The combined four-call cap and adaptive Luna four/two pacing applied until the later pacing boundary. `pacing-amendment.json` then replaces those concurrency limits with shared per-model limits across both experiments: gpt-6-luna eight, Gemini two, Haiku two. Luna uses plain HTTP. Independent rotating queues preserve each sealed request order and keep all three models running side by side. Sources, cap and answer contracts remain unchanged.
+Existing HTTP calls drain before runtime amendments. The later daily-quota instruction explicitly abandons two workers during backoff, after their HTTP responses return. The combined four-call cap and adaptive Luna four/two pacing applied until the later pacing boundary. `pacing-amendment.json` then replaces those concurrency limits with shared per-model limits across both experiments: gpt-6-luna eight, Gemini two, Haiku two. Luna uses plain HTTP. Independent rotating queues preserve each sealed request order and keep all three models running side by side. Sources, cap and answer contracts remain unchanged.
 
 HTTP 429 receives waits of 60, 120 and 240 seconds. Exhausted quota retries remain pending and unscored, never judge failures. Other unanswered transport failures use at most three attempts with 10/30-second waits. Every transport failure and backoff remains recorded; content is never retried. `quota-amendment.json` retains this retry policy under the later per-model pacing amendment. Unanswered attempts have no reported usage; measured cost excludes unreported charges.
 
