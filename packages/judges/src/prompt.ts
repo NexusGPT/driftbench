@@ -1,5 +1,6 @@
 import { contentHash } from '@agent-nexus/driftbench-core';
 import { validateAssessment } from './assessment';
+import { CONFORMANCE_SYSTEM_PROMPT, conformanceUser } from './conformance';
 import type { JudgeRequest, TranscriptEntry } from './contract';
 import { requirementsFor } from './criterion-ledger';
 import { auditData, FACT_LEDGER_SYSTEM } from './fact-audit';
@@ -27,7 +28,9 @@ export type DataTag = (typeof DATA_TAGS)[number];
 /** The answer contract, as the judge is told to return it. */
 export const ANSWER_CONTRACT = [
   'Answer with one JSON object and nothing else, with exactly this structure:',
-  '{"checks":[{"id":"exact requested requirement id","reasoning":"what the supplied data shows","evidence":"a short exact quote from the data, or null when absent","met":true or false or null}]}',
+  '{"checks":[{"id":"exact requested requirement id","reasoning":"what the supplied data shows","evidence":[{"source":"transcript.0","quote":"a short exact quote from that entry text"}],"met":true or false or null}]}',
+  'Evidence is a nonempty list of spans, or null when absent. Keep separate quotations in separate spans; do not join them with a pipe or merge different entries. Each span must quote its named source exactly.',
+  'Source ids are transcript.<entry index> (the entry field), artifact, given, input.<file path>, or reference. Copy text from the source body, never a role, entry index, file label or renderer decoration.',
   'Check every requested id exactly once. Do not invent or omit ids. A requirement covers its entire supplied definition. Put reasoning and evidence before met. No overall verdict, outcome, score or other key is allowed.',
 ].join('\n');
 
@@ -159,6 +162,7 @@ export function renderTranscript(entries: readonly TranscriptEntry[]): string {
 /** The user prompt: the rubric, then every data section, then the closing instruction. */
 export function renderUser(request: JudgeRequest): string {
   if (isPairLedgerRequest(request)) return renderPairLedgerUser(request);
+  if (request.assessment?.kind === 'conformance') return conformanceUser(request);
   if (request.factAudit && request.assessment?.kind !== 'rubric') return auditData(request);
   const parts = [
     request.assessment
@@ -200,6 +204,8 @@ export function renderUser(request: JudgeRequest): string {
 
 /** The full prompt of one request. */
 export function buildPrompt(request: JudgeRequest): { system: string; user: string } {
+  if (request.assessment?.kind === 'conformance')
+    return { system: CONFORMANCE_SYSTEM_PROMPT, user: conformanceUser(request) };
   if (request.answerContract === 'legacy')
     return buildLegacyPrompt({
       ...request,

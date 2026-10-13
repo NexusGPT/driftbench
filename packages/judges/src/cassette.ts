@@ -4,6 +4,7 @@ import { z } from 'zod';
 import { parseJudgeText, parseJudgeValue } from './assessment';
 import type { JudgeClient } from './client';
 import { JUDGE_DIALECTS } from './clients/dialects';
+import { CONFORMANCE_PROMPT_FINGERPRINT } from './conformance';
 import { JudgeClass, type JudgeRequest, type JudgeResult, parseAnswerValue } from './contract';
 import { JudgeError } from './http';
 import { PROMPT_FINGERPRINT as LEGACY_PROMPT_FINGERPRINT } from './legacy-prompt';
@@ -123,7 +124,9 @@ export function requestKey(request: JudgeRequest, client?: KeyClient, prompt?: s
               dialect: effective.dialect,
               table: JUDGE_DIALECTS,
             })
-          : PROMPT_FINGERPRINT),
+          : effective.assessment?.kind === 'conformance'
+            ? CONFORMANCE_PROMPT_FINGERPRINT
+            : PROMPT_FINGERPRINT),
     client: client ? { cls: client.cls, model: client.model, settings: client.settings } : undefined,
   });
 }

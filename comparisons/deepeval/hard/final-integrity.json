@@ -1,0 +1,47 @@
+{
+  "source_freezes_verified": true,
+  "labels_fixed_before_calls": true,
+  "candidate_unchanged": true,
+  "counts": {
+    "task": {
+      "original_entries": 72,
+      "original_distinct": 54,
+      "additional_entries": 120,
+      "additional_distinct": 90,
+      "pooled_entries": 192,
+      "pooled_distinct": 144
+    },
+    "grounding": {
+      "original_entries": 72,
+      "original_distinct": 45,
+      "additional_entries": 120,
+      "additional_distinct": 75,
+      "pooled_entries": 192,
+      "pooled_distinct": 120
+    }
+  },
+  "unique_recorded_calls": 5757,
+  "usd": 2.89177456,
+  "invocation_errors": 1,
+  "reservation_usd": 0.05,
+  "operator_identifiers_redacted": 8,
+  "chunks": {
+    "calls-000.jsonl": {
+      "bytes": 8386448,
+      "sha256": "fceefe27e40b0fe37a43b13ac35194504b10312c977d87def14625363b7bc0d2"
+    },
+    "calls-001.jsonl": {
+      "bytes": 8274932,
+      "sha256": "b218c56ff6d4deda0f57ff803a1d38a9cfd6bef1590536f125409f4f88910840"
+    },
+    "calls-002.jsonl": {
+      "bytes": 8383817,
+      "sha256": "75ec624d0d46795d5cfc6bfcfaceaf6a503221d7aceb3ebde5334debe513e8c2"
+    },
+    "calls.jsonl": {
+      "bytes": 7915425,
+      "sha256": "ff7c69b3ff12398d1f57dfb61999098633edc96af9032043c9d77290027d46e8"
+    }
+  },
+  "last_call_started": "2026-10-13T06:29:52.543415+02:00"
+}

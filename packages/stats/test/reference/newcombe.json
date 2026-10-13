@@ -1,0 +1,144 @@
+{
+  "source": "https://raw.githubusercontent.com/statsmodels/statsmodels/35a8e0b7483211f5be7e60926be082136263cac3/statsmodels/stats/proportion.py",
+  "sha256": "0eec79790be22172ad1ed2e02e7b3e0362ea02d867f2bb21992a077dac83d854",
+  "method": "confint_proportions_paired, newcomb",
+  "dependencies": {
+    "statsmodels": "0.15.0",
+    "scipy": "1.18.1",
+    "numpy": "2.5.2"
+  },
+  "cases": [
+    {
+      "name": "published example",
+      "bothPass": 10,
+      "regressed": 5,
+      "improved": 2,
+      "bothFail": 20,
+      "alpha": 0.05,
+      "estimate": 0.08108108108108109,
+      "lower": -0.06439260507116965,
+      "upper": 0.22111601789582333
+    },
+    {
+      "name": "historical first miss",
+      "bothPass": 2,
+      "regressed": 5,
+      "improved": 0,
+      "bothFail": 23,
+      "alpha": 0.05,
+      "estimate": 0.16666666666666666,
+      "lower": 0.012535185886086514,
+      "upper": 0.33323262330914766
+    },
+    {
+      "name": "positive below correction",
+      "bothPass": 2,
+      "regressed": 1,
+      "improved": 1,
+      "bothFail": 1,
+      "alpha": 0.05,
+      "estimate": 0.0,
+      "lower": -0.4648683508092226,
+      "upper": 0.4648683508092226
+    },
+    {
+      "name": "zero covariance",
+      "bothPass": 1,
+      "regressed": 1,
+      "improved": 1,
+      "bothFail": 1,
+      "alpha": 0.05,
+      "estimate": 0.0,
+      "lower": -0.4949196078428281,
+      "upper": 0.4949196078428281
+    },
+    {
+      "name": "negative covariance",
+      "bothPass": 1,
+      "regressed": 5,
+      "improved": 4,
+      "bothFail": 2,
+      "alpha": 0.05,
+      "estimate": 0.08333333333333333,
+      "lower": -0.3595039173077174,
+      "upper": 0.49115796743621315
+    },
+    {
+      "name": "fully concordant balanced",
+      "bothPass": 15,
+      "regressed": 0,
+      "improved": 0,
+      "bothFail": 15,
+      "alpha": 0.05,
+      "estimate": 0.0,
+      "lower": -0.06151243591718361,
+      "upper": 0.06151243591718361
+    },
+    {
+      "name": "fully concordant unbalanced",
+      "bothPass": 50,
+      "regressed": 0,
+      "improved": 0,
+      "bothFail": 10,
+      "alpha": 0.05,
+      "estimate": 0.0,
+      "lower": -0.05110814784155871,
+      "upper": 0.05110814784155867
+    },
+    {
+      "name": "all baseline pass",
+      "bothPass": 20,
+      "regressed": 10,
+      "improved": 0,
+      "bothFail": 0,
+      "alpha": 0.05,
+      "estimate": 0.3333333333333333,
+      "lower": 0.1522966336347214,
+      "upper": 0.5121994835545616
+    },
+    {
+      "name": "all fail",
+      "bothPass": 0,
+      "regressed": 0,
+      "improved": 0,
+      "bothFail": 30,
+      "alpha": 0.05,
+      "estimate": 0.0,
+      "lower": -0.1135133931739688,
+      "upper": 0.1135133931739688
+    },
+    {
+      "name": "opposite arms",
+      "bothPass": 0,
+      "regressed": 30,
+      "improved": 0,
+      "bothFail": 0,
+      "alpha": 0.05,
+      "estimate": 1.0,
+      "lower": 0.8394678198623837,
+      "upper": 1.0
+    },
+    {
+      "name": "90 percent",
+      "bothPass": 12,
+      "regressed": 2,
+      "improved": 9,
+      "bothFail": 1,
+      "alpha": 0.1,
+      "estimate": -0.2916666666666667,
+      "lower": -0.4772688696956061,
+      "upper": -0.07387735203714535
+    },
+    {
+      "name": "99 percent",
+      "bothPass": 10,
+      "regressed": 5,
+      "improved": 2,
+      "bothFail": 20,
+      "alpha": 0.01,
+      "estimate": 0.08108108108108109,
+      "lower": -0.10668894700591064,
+      "upper": 0.2599315956899507
+    }
+  ]
+}
