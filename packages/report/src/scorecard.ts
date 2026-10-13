@@ -15,6 +15,8 @@ import { type CompareResult, compareCampaigns } from './compare';
 import {
   blocksWithSpec,
   type CampaignData,
+  type CarriedSummary,
+  carriedSummary,
   deviationOf,
   groupBy,
   runPassed,
@@ -105,6 +107,8 @@ export type RunDetail = {
   latencyMs: number;
   cost: number;
   cacheHit: boolean;
+  /** Set on a run carried from an earlier campaign: where it comes from and its age. Absent on a fresh run. */
+  carried?: NonNullable<RunResult['carried']>;
   endState?: RunResult['endState'];
   succession: RunResult['succession'];
   recovery?: RunResult['recovery'];
@@ -185,6 +189,8 @@ export type Scorecard = {
   /** Criteria with a repeat reducer, reduced over the repeats of each line. Empty when no criterion names one. */
   criterionRepeats: CriterionRepeat[];
   compare?: CompareResult;
+  /** Set when the campaign merges fresh runs with runs carried from earlier campaigns. Absent when all are fresh. */
+  carried?: CarriedSummary;
   pilot?: PilotReport;
   /** Campaign-level criteria, when the options asked for them. */
   aggregates?: AggregateResult[];
@@ -254,6 +260,7 @@ export function buildScorecard(data: CampaignData, options: ScorecardOptions = {
           }),
         }
       : {}),
+    ...optional('carried', carriedSummary(runs)),
     ...optional('pilot', options.pilot),
     ...(options.aggregates ? { aggregates: evaluateAggregates(data, options.aggregates) } : {}),
     drilldown: shown.map((run) => runDetailOf(data, run)),
@@ -283,6 +290,7 @@ export function runDetailOf(data: CampaignData, run: RunResult): RunDetail {
     latencyMs: run.latencyMs,
     cost: run.cost,
     cacheHit: run.cacheHit,
+    ...optional('carried', run.carried),
     ...optional('endState', run.endState),
     succession: run.succession,
     ...optional('recovery', run.recovery),

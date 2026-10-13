@@ -4,6 +4,7 @@ import type { RunMode } from '@agent-nexus/driftbench-core';
 import {
   buildScorecard,
   type CampaignData,
+  carriedLines,
   criterionRepeatsText,
   MIN_GOLDENS,
   type PilotReport,
@@ -203,6 +204,7 @@ export async function reportCommand(
     io.out(
       `Campaign ${c.campaignId}: ${c.runs} runs, ${c.passing} pass, ${c.failing} fail, ${c.broken} did not complete.\n`,
     );
+    for (const line of carriedLines(card.carried)) io.out(`${line}\n`);
     for (const line of criterionRepeatsText(card.criterionRepeats)) io.out(`${line}\n`);
     if (card.compare) {
       io.out(

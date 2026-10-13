@@ -2,7 +2,7 @@
 
 A change to one part of an agent has a blast radius: the blocks that part can affect. When you fix something related to a block, you do not need to run every test again, only the radius. driftbench computes it from what each block already says it reads.
 
-What is built today: the agent version of a run, the dependencies of a block, the radius of a change and the read-only command `driftbench radius`. Carrying the stored results of the blocks outside the radius into a new campaign is the next step, and is not built yet. See [what comes next](#what-comes-next).
+What is built today: the agent version of a run, the dependencies of a block, the radius of a change, the read-only command `driftbench radius`, and `campaign run --change`, which runs the radius and carries the stored results of the other cells. See [what comes next](#what-comes-next) for the parts that are not built yet.
 
 ## A change
 
@@ -114,6 +114,56 @@ The radius is the whole suite: rule:reply_language: the reply language rule hold
 exit 1
 ```
 
+## Fresh and carried
+
+`campaign run --change <manifest> --from <campaign>` plans the campaign as usual, then splits its cells. The cells in the radius run. For every other cell, the run the `--from` campaign stored is copied into the new campaign, under the new campaign's own cell id and target, and stamped:
+
+```
+carried:
+  fromCampaign: c-base
+  fromRun: 3f0c9a51d2e84b77
+  agentVersion: acme-v1
+  age: { campaigns: 1, days: 0.4 }
+```
+
+`fromCampaign` is the campaign that ran the cell fresh, however many campaigns carried it since. `agentVersion` is the version that produced the result. A carried run costs nothing against the budget and gives no cost sample.
+
+A cell is carried only when everything says the copy is a valid sample of the new agent. Any doubt runs it fresh:
+
+* Nothing is carried when the radius is the whole suite, when the campaign names no agent version (pass `--agent-version` or `--prompt`), when that version is not the manifest's `to`, or when the `--from` campaign holds no run of the manifest's `from`. The campaign then runs whole, and the first lines say why.
+* A cell outside the radius runs fresh when the `--from` campaign holds no run of it, when that run did not complete, or when it names another agent version.
+
+The cell lines and `campaign status` mark each carried cell. `campaign resume` reruns nothing that is carried: the copy is a completed run.
+
+```
+$ driftbench campaign run examples/acme/gated/specs --target function:acme-sales --route flow:price-sheet=process:acme-ops \
+    --agent-version acme-v2 --store runs.db --change examples/acme/radius/stage-recap.yaml --from c-base
+Blast radius of acme-v1 to acme-v2 (manifest edeee14e9937): stage:recap.
+102 of 195 cells in the radius. 102 cells run fresh, 93 carried from c-base.
+✓ gen-boundary-063 · function:acme-sales · F · repeat 0  pass  5 blocks
+✓ gen-boundary-064 · function:acme-sales · F · repeat 0  pass (carried from c-base, age 1 campaign)  2 blocks
+(193 more cells)
+195 cells: 195 pass, 0 fail, 0 failed, 93 carried. Spent $0.00.
+Fresh: 102 cells, 606 blocks sent to the agent. Carried from c-base: 93 cells, 261 blocks not sent (agent version acme-v1; this campaign runs acme-v2).
+Saved: 261 of 867 blocks, 30.1%. The pass and fail counts above merge fresh and carried results.
+```
+
+The 867 blocks are every block the 195 conversations and tasks send, the 6 a gate does not score included.
+
+### In the statistics and the report
+
+A carried result is the baseline result copied. Paired with the baseline it would agree by construction, and narrow the interval with no evidence. So:
+
+* `compare` and `ci` pair a candidate unit with a baseline unit only when the candidate side is fresh. A carried unit is listed under `unpaired`, with the campaign and the agent version it comes from and its age. McNemar, the Wilcoxon test, the criteria and the parity verdict read the fresh pairs only.
+* A rate over the campaign itself (the scorecard, `campaign status`) describes the agent, so it counts both, and says so: `Fresh and carried results are merged: 102 runs fresh, 93 runs carried.` When the carried results were measured on another agent version, the line names it: `93 runs carried from c-base, measured on another agent version, acme-v1 (this campaign runs acme-v2)`.
+* In the scorecard, each carried run says where it comes from in its own row.
+
+A radius that touches few goldens cannot show parity: the planning numbers of `compare` are over the fresh pairs, and say when they are too few.
+
+### End to end on Acme
+
+`packages/cli/test/radius-carry.test.ts` runs the whole chain with no model call. A baseline campaign runs the real agents as `acme-v1`: 195 cells pass. The sales assistant then suffers the planted fault that skips the recap and runs as `acme-v2`. The radius campaign of the recap change sends 606 of 867 blocks and carries 93 cells. A full campaign of the same faulty agent fails on 102 cells: the same 102 the radius campaign fails on, none of them carried.
+
 ## Measured on Acme
 
 The Acme gated suite holds 195 specs and 861 scored blocks: 171 conversations on the sales assistant and 24 tasks on the ops agent. The manifests are in [`examples/acme/radius`](../../examples/acme/radius/README.md). Mode F; the saving is the share of blocks a rerun of the radius does not send.
@@ -164,7 +214,6 @@ Mode T figures are a projection: the fault runs behind the gate report are free-
 
 Not built yet, in order:
 
-* Carry: `campaign run --change <manifest> --from <campaign>` runs the cells in the radius and copies the stored runs of the others, each stamped with the campaign it comes from and its age. A carried result needs an agent version on both sides.
-* The report says which results are fresh and which are carried. A carried result never enters a paired test: it is the baseline result copied, so it would agree with the baseline by construction.
 * An audit sample: cells drawn outside the radius are run fresh and compared with their carried result, which puts an interval on what the radius misses.
+* Staleness limits on a carried result, and `ci --change`.
 * Blocks as the unit in mode T, and a judged criterion change that judges again without calling the agent.
