@@ -163,3 +163,6 @@ __pycache__/
 .bench-run/
 benchmarks/**/*.partial.json
 benchmarks/**/*.tmp
+
+# Reader-first local run state
+.reader-first/
