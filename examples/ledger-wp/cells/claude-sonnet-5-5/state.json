@@ -1,20 +1,22 @@
 {
-  "pid": 39198,
+  "pid": 45238,
   "model": "claude-sonnet-5-5",
   "mode": "run",
   "status": "stopped",
-  "at": "2026-10-13T13:50:42.203Z",
-  "decisions": 44,
-  "submissions": 83,
+  "at": "2026-10-13T14:07:20.412Z",
+  "decisions": 48,
+  "submissions": 11,
   "spend": {
-    "actual": 0.8713863999999999,
-    "reserved": 1.25,
+    "actual": 0.9145964,
+    "reserved": 1.75,
     "pending": [
       "fd098f5718e563e4042ab645adcba2df856906ecaaae2b286cf62bcb17c8d316",
       "c49ce89afb1629d8a5f31c299fe50c55e32bfa9619d3c5d901b9d73de6153a05",
       "4100b78b4c25df71d98c376c8776f35748af489c9119133c847f560823baa911",
       "83164eb054f7440e158c653d8a9c1977c0cf7be14dc135ccbde4c9b194f29183",
-      "571bb10e2b9c85fac71f832b935988fbabc7e5a8a5abd18193a5409a63be4b72"
+      "571bb10e2b9c85fac71f832b935988fbabc7e5a8a5abd18193a5409a63be4b72",
+      "66201f609bf6dc037a9f73d3295e269ce7623e3b6e4aad818486eeac8539a72f",
+      "83569d02ee42f3b5dd60d393b83910e66df4bd67f6e016e03097258ccb7e5a5a"
     ]
   }
 }

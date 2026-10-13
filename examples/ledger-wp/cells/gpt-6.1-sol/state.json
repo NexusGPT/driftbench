@@ -1,14 +1,14 @@
 {
-  "pid": 1471,
+  "pid": 45239,
   "model": "gpt-6.1-sol",
   "mode": "run",
   "status": "stopped",
-  "at": "2026-10-13T14:01:14.513Z",
-  "decisions": 164,
-  "submissions": 410,
+  "at": "2026-10-13T14:08:23.341Z",
+  "decisions": 174,
+  "submissions": 21,
   "spend": {
-    "actual": 2.883638300000001,
-    "reserved": 14.5,
+    "actual": 3.017512900000001,
+    "reserved": 15.75,
     "pending": [
       "6a5f23957007f75d5f49aaf8e454b73ff5c28b2bc45c2a1ece7d3f83efa92d30",
       "f0632c2ad4cd24c8f41f112e7ff0ae8eb3277286f656370fb88f1f17c2d55770",
@@ -67,7 +67,12 @@
       "ebd4a0abde2b2b3d22f80a0439387fd95c663e433f29a5c2d6c8d15f055ea598",
       "5ec7b3c79546171cf3e69ea3bab789060c18ad9910b54a911773767f54f19cb8",
       "5eeaa560809da869d5aa827f43e395dc41a9c47ce8a9e9879b770b524c593ab5",
-      "6398f466d0703686cd1f3b74d89f3f5e08c2ac049d4cb6c47fee166c4d5b8ad2"
+      "6398f466d0703686cd1f3b74d89f3f5e08c2ac049d4cb6c47fee166c4d5b8ad2",
+      "738c3e4c983a0a0ad34dcf04c004f418fd0f9f6b874bfe5324140bd46a5ac3a0",
+      "5682ebffd0aff048e5073773be058f94ac58092297bef330539b1670082305af",
+      "cd197ede9c14b4bb7e533b75b321a7c93b4c8bff42391564631dcd1db6c9735f",
+      "b790f62a5b3a6ddd9a931d1c45030b75f4c534fbcb478e8f906ffd9163bf52ab",
+      "6f057093d6398b33a525fb9eb843e95803b9b6d4c92832ca80b6fb6e5e8feb98"
     ]
   }
 }

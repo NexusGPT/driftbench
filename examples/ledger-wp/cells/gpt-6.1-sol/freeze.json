@@ -10,7 +10,7 @@
   ],
   "reasoning": "medium",
   "maxOutputTokens": 4096,
-  "maxConcurrentCalls": 8,
+  "maxConcurrentCalls": 2,
   "timeoutSeconds": 300,
   "maxOtherTransportSubmissions": 3,
   "max429Submissions": 4,
@@ -56,9 +56,10 @@
   },
   "parentFreezeSha256": "c10437448cf3d17ead724ac4b12c4d2075787fa764711872a66d16f1748d41b0",
   "files": {
-    "examples/ledger-wp/frontier.ts": "ff0b506b086266f16365b4e8d71d4f6409789628ff5df76cdb6eeca8b6992459",
+    "examples/ledger-wp/frontier.ts": "3103fd629c74a1a950f9c4106bb3859b078ffaa44b829d6adae60d4e7a88f5a3",
     "examples/ledger-wp/frontier.test.ts": "38a1a3b92aaaed3f316ae75d100f1fec56a2331e65d82ee38d45c0c3ed974d4d",
-    "examples/ledger-wp/frontier-report.py": "014bb6f43e0dc6f60730c521a50aba895a8011747ef9c9ee3ff40c20e6886d19"
+    "examples/ledger-wp/frontier-report.py": "014bb6f43e0dc6f60730c521a50aba895a8011747ef9c9ee3ff40c20e6886d19",
+    "examples/ledger-wp/frontier-supervise.py": "cf4caaa853081f3ad29d82c873aef667cf0f005af4f4fa2f3135f13e9690722c"
   },
   "judgeContractChanged": false,
   "sealedOrderChanged": false,
@@ -116,5 +117,22 @@
     "judgeContractChanged": false,
     "sealedOrderChanged": false,
     "parentFreezeSha256": "b7330d4653e8310f164623dd0674ae11a1d8878c7930b219937dbe060800a9f8"
+  },
+  "networkSupervisionAmendment": {
+    "at": "2026-10-13T14:13:45.323285+00:00",
+    "authorization": "Owner instructs three successful probes spaced one minute apart for both providers before resuming, concurrency 2 per model, keep circuit break, wait 10 minutes after a new break then repeat probes, park after three such stops in one hour, TEST only after 20 consecutive healthy DEV calls. Answers, holds and caps unchanged.",
+    "providerProbeAuthentication": "none",
+    "probeSuccessHttpStatus": 401,
+    "probesRequired": 3,
+    "probeSpacingSeconds": 60,
+    "networkBreakWaitSeconds": 600,
+    "maxNewStopsPerHour": 3,
+    "stopCountScope": "New stops after the three-probe policy begins; prior failures remain in history.",
+    "healthyDevCallsBeforeTest": 20,
+    "healthyDevScope": "Per model in current healthy runtime epoch; no extra DEV calls or re-answering allowed.",
+    "midTestNetworkPolicy": "First connection failure stops all new submissions; tell owner before any TEST retry.",
+    "parentFreezeSha256": "2cc6722bd3641b5b2657219e88a789115bdcbf6758a8d39d423ac9ce7b9823ec",
+    "judgeContractChanged": false,
+    "sealedOrderChanged": false
   }
 }

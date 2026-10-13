@@ -1,6 +1,6 @@
 /** Independent offline replay. No network or provider process is available here. */
 import assert from 'node:assert/strict';
-import { readFileSync, writeFileSync } from 'node:fs';
+import { readFileSync, writeFileSync, existsSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { HERE, sha, promptfoo, parsePromptfoo, Budget } from './harness';
 import { verifyCell, solCost } from './frontier';
@@ -12,6 +12,7 @@ const rows=(p:string)=>readFileSync(p,'utf8').split('\n').filter(Boolean).map(x=
 const flip=(x:string)=>x==='A'?'B':x==='B'?'A':'tie';
 for(const model of process.argv.slice(2)) {
   const {dir,f}=verifyCell(model),calls=rows(resolve(dir,'calls.jsonl')),decisions=rows(resolve(dir,'decisions.jsonl'));
+  const missing=existsSync(resolve(dir,'missing.jsonl'))?rows(resolve(dir,'missing.jsonl')):[];
   const answers=calls.filter(r=>!r.providerError),byKey=new Map(answers.map(r=>[r.logicalKey,r]));
   assert.equal(byKey.size,answers.length,'An answered call was resubmitted');
   const decisionKey=(r:any)=>JSON.stringify([r.model,r.split,r.sample,r.contestant,r.id]);
@@ -20,7 +21,12 @@ for(const model of process.argv.slice(2)) {
   for(const split of f.phases) {
     const items=JSON.parse(readFileSync(resolve(HERE,'seals',split+'.json'),'utf8'));
     const selected=decisions.filter(r=>r.split===split);
-    assert.equal(selected.length,f.phaseComparisons[split],'Incomplete '+split);
+    if(split==='test')assert.equal(selected.length,f.phaseComparisons[split],'Incomplete TEST');
+    else if(selected.length!==f.phaseComparisons[split]) {
+      const done=new Set(selected.map(decisionKey));
+      const absent=new Set(missing.filter(r=>r.split===split&&!done.has(decisionKey(r))).map(decisionKey));
+      assert.equal(selected.length+absent.size,f.phaseComparisons[split],'Unaccounted development items');
+    }
     for(const result of selected) {
       const item=items.find((i:any)=>i.id===result.id);assert(item);
       const {model,split,sample,contestant,id,requestId}=result;
@@ -64,6 +70,7 @@ for(const model of process.argv.slice(2)) {
   const known=calls.reduce((n,r)=>n+(model==='gpt-6.1-sol'&&!r.providerError?solCost(r.usage):r.costUsd),0);
   assert(Math.abs(budget.actual-known)<1e-9);assert(budget.actual+budget.reserved<=f.capUsd);
   const audit={model,at:new Date().toISOString(),passed:true,replayedComparisons:replayed,answeredCalls:answers.length,
+    developmentMissingComparisons:new Set(missing.filter(r=>r.split!=='test'&&!decisions.some(d=>decisionKey(d)===decisionKey(r))).map(decisionKey)).size,
     noAnsweredResubmissions:true,sealedJobOrder:true,peakConcurrentCalls:peak,spend:budget,freezeSha256:sha(readFileSync(resolve(dir,'freeze.json'))),
     originalSourceAndSealHashes:'verified by verifyCell -> verifyFreeze',networkCalls:0};
   writeFileSync(resolve(dir,'audit.json'),JSON.stringify(audit,null,2)+'\n');console.log(JSON.stringify(audit));

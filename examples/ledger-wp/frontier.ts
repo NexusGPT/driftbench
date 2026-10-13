@@ -15,14 +15,16 @@ const append=(p:string,x:any)=>appendFileSync(p,JSON.stringify(x)+'\n');
 const flip=(x:string)=>x==='A'?'B':x==='B'?'A':'tie';
 const networkHold=resolve(HERE,'results/frontier-network-hold.json');
 const networkEvents=resolve(HERE,'results/frontier-network-events.jsonl');
+const networkControl=resolve(HERE,'results/frontier-network-control.json');
+const epochEvents=()=>rows(networkEvents).filter(e=>e.at>=(existsSync(networkControl)?load(networkControl).epochStart:''));
 export const connectionFailure=(entry:any)=>entry.httpStatus===503||/ECONNRESET|ECONNREFUSED|fetch failed|fetch failure|ETIMEDOUT|EAI_AGAIN|ENOTFOUND|EADDRNOTAVAIL|UND_ERR|timed? ?out|timeout|connection dropped|connection refused/iu.test(entry.text??'');
 export function shouldBreakNetwork(events:any[]) {
   // Latch any qualifying sequence, including a concurrent success appended before this reader runs.
   return events.some((event,i)=>event.connectionFailure&&(event.split==='test'||events[i-1]?.connectionFailure===true));
 }
 function observeNetwork(entry:any) {
-  append(networkEvents,{at:entry.finishedAt,model:entry.model,split:entry.split,key:entry.key,connectionFailure:entry.providerError&&connectionFailure(entry)});
-  if(shouldBreakNetwork(rows(networkEvents)))writeFileSync(networkHold,JSON.stringify({active:true,at:new Date().toISOString(),key:entry.key,model:entry.model,split:entry.split,
+  append(networkEvents,{at:entry.finishedAt,model:entry.model,split:entry.split,key:entry.key,healthy:!entry.providerError,connectionFailure:entry.providerError&&connectionFailure(entry)});
+  if(shouldBreakNetwork(epochEvents())&&!existsSync(networkHold))writeFileSync(networkHold,JSON.stringify({active:true,at:new Date().toISOString(),key:entry.key,model:entry.model,split:entry.split,
     reason:entry.split==='test'?'First TEST connection failure; no TEST retry without owner word':'Two consecutive connection failures; all new paid submissions stopped'},null,2)+'\n');
 }
 export function responsesBody(prompt:any,schema?:any) {
@@ -163,6 +165,14 @@ async function main() {
   }
   state('running');
   for(const split of mode==='calibrate'?['pilot']:f.phases) {
+    if(split==='test'&&mode!=='replay') {
+      let healthyDev=0;
+      for(const event of epochEvents().filter(e=>e.model===model)) {
+        if(!event.healthy)healthyDev=0;else if(event.split==='dev')healthyDev++;
+      }
+      writeFileSync(resolve(dir,'test-health-gate.json'),JSON.stringify({at:new Date().toISOString(),model,healthyDev,required:20,passed:healthyDev>=20,epochStart:load(networkControl).epochStart},null,2)+'\n');
+      if(healthyDev<20){stopped=true;state('stopped',{error:'TEST_HEALTH_GATE',healthyDev});break;}
+    }
     const jobs:any[]=[];
     for(let sample=0;sample<(['fixtures','dev'].includes(split)?3:1);sample++)for(const item of load(resolve(HERE,'seals',split+'.json')))for(const contestant of f.contestants) {
       const job={model,split,sample,contestant,id:item.id,requestId:item.requestId};

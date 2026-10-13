@@ -1,0 +1,8 @@
+{
+  "active": true,
+  "at": "2026-10-13T14:08:23.341Z",
+  "key": "6f057093d6398b33a525fb9eb843e95803b9b6d4c92832ca80b6fb6e5e8feb98",
+  "model": "gpt-6.1-sol",
+  "split": "dev",
+  "reason": "Two consecutive connection failures; all new paid submissions stopped"
+}

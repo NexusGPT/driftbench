@@ -1,0 +1,15 @@
+{
+  "at": "2026-10-13T14:06:29.081780+00:00",
+  "authentication": "none",
+  "paidCalls": 0,
+  "probes": [
+    {
+      "url": "https://api.openai.com/v1/models",
+      "status": 401
+    },
+    {
+      "url": "https://api.anthropic.com/v1/models",
+      "status": 401
+    }
+  ]
+}
