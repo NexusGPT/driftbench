@@ -473,5 +473,31 @@
     "totalDistinctRelatedTestsPassed": 122,
     "fullSuite": "left to CI per owner request due shared host load",
     "review": "Independent Astra review found no blocking findings."
+  },
+  "missingStageGuardRegression": {
+    "beforeCommit": "5f3201fa35d545ef6fde8eb64450a11f03e6ee5a",
+    "cause": "A null reported stage omitted the whole runtime and deleted policy guards.",
+    "fix": "Preserve runtime.guards and omit only runtime.stages when reported is null.",
+    "deviations": ["D1_off_topic", "D5_language_switch", "D6_instruction_in_data", "D9_out_of_scope"],
+    "faults": [["X3.no-report"], ["X3.no-report", "X4.narrate"], ["X4.narrate", "X3.no-report"]],
+    "red": {
+      "failed": 12,
+      "skipped": 12,
+      "reason": "All new cases fail on missing guard traces."
+    },
+    "green": {
+      "files": 3,
+      "passed": 28,
+      "filesRun": ["follower.test.ts", "opening.test.ts", "approved-replies.test.ts"]
+    },
+    "assertions": [
+      "named reference guards preserved",
+      "mutant stages absent",
+      "reply and segments unchanged relative to the same narration choice",
+      "tool calls unchanged including a later positive call"
+    ],
+    "typecheckExitCode": 0,
+    "bankAndOracleSourceHashesUnchanged": true,
+    "followerSourceSha256": "f8d3a0924c9d76fe37cb693cd9d0963aa7359786841655a6af5e083e004069c6"
   }
 }

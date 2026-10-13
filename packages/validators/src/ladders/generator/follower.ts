@@ -365,9 +365,14 @@ export function createFollower(spec: HiddenSpec, mutation: Mutation = {}): () =>
           segments,
           text: replies.join('\n'),
           toolCalls,
-          ...(reported === null
-            ? {}
-            : { runtime: { stages: [{ name: reported }], ...(guards.length > 0 ? { guards } : {}) } }),
+          ...(reported !== null || guards.length > 0
+            ? {
+                runtime: {
+                  ...(reported === null ? {} : { stages: [{ name: reported }] }),
+                  ...(guards.length > 0 ? { guards } : {}),
+                },
+              }
+            : {}),
           ...(workspace ? { workspaceDiff: workspace } : {}),
           ...(artifacts ? { artifacts } : {}),
           cost: { usd: 0 },
