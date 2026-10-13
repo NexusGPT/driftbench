@@ -150,11 +150,42 @@ Saved: 261 of 867 blocks, 30.1%. The pass and fail counts above merge fresh and 
 
 The 867 blocks are every block the 195 conversations and tasks send, the 6 a gate does not score included.
 
+### The audit sample
+
+The radius is sound when the manifest lists every change. The audit checks that claim on the run itself. `--audit <n>` draws n of the cells about to be carried, with a seed, runs them fresh before anything is carried, and compares each fresh run with the stored run it would have copied: the status, every gating verdict of every block, each block's pass, the end state. Wording, latency and cost are not compared.
+
+* One cell that differs is a radius miss: the change reaches a block the manifest left out. The gate fails closed. Nothing is carried, every cell runs, the output names the cell and what differed, and the command exits 1. `ci` gives the verdict `radius-miss`.
+* No miss in n audits bounds the share of carried cells the new agent would not reproduce, at 95% confidence, by `1 - 0.05^(1/n)`: under 13.9% for 20 audits, under 5% for 59.
+* The audited cells are fresh runs of the campaign: they are kept, paired in `compare`, and listed as outside the radius and run fresh, `drawn for the audit`.
+
+On the Acme sales conversations (171 cells), with no model call (`packages/cli/test/radius-audit.test.ts`):
+
+```
+Blast radius of acme-v1 to acme-v2 (manifest 346ce00f59e4): deviation:D4.
+Audit: 20 cells drawn from the 157 outside the radius (seed 1) and run fresh: 1 miss.
+  gen-twise-058: block 4 forbidden.order.create: pass then fail; block 4 must.0: pass then fail; (5 more)
+RADIUS MISS: the change reaches cells the manifest left out of the radius. The gate fails closed.
+Nothing is carried, every cell runs: the audit found 1 of 20 carried results the new agent does not reproduce.
+```
+
+That agent orders on a loose yes at the recap, and its manifest names the D4 handler alone. With the same agent unchanged and 59 audits, the output reads `0 misses. At 95% confidence, under 5.0% of the carried cells would disagree.`
+
+An audit is a sample. The fault above changes 11 of the 157 cells outside its radius, so 20 audits find it about four times in five (0.79); seed 1 does. A full run on a schedule is what finds the rest.
+
+### Staleness
+
+A carried result is one old draw of the agent. Two limits bring it back into the run:
+
+* `--max-carry <n>`, default 5: the most campaigns in a row a result is carried. A result carried again keeps the campaign that measured it and the version it was measured on, and its age counts from there.
+* `--max-age <days>`, default 7: the most days since the result was measured.
+
+A campaign with no `--change` carries nothing. Run the whole suite on a schedule, nightly for instance: every result is then fresh again, and every age starts from 0.
+
 ### In the statistics and the report
 
 A carried result is the baseline result copied. Paired with the baseline it would agree by construction, and narrow the interval with no evidence. So:
 
-* `compare` and `ci` pair a candidate unit with a baseline unit only when the candidate side is fresh. A carried unit is listed under `unpaired`, with the campaign and the agent version it comes from and its age. McNemar, the Wilcoxon test, the criteria and the parity verdict read the fresh pairs only.
+* `compare` and `ci --change` pair a candidate unit with a baseline unit only when the candidate side is fresh. A carried unit is listed under `unpaired`, with the campaign and the agent version it comes from and its age. McNemar, the Wilcoxon test, the criteria and the parity verdict read the fresh pairs only.
 * A rate over the campaign itself (the scorecard, `campaign status`) describes the agent, so it counts both, and says so: `Fresh and carried results are merged: 102 runs fresh, 93 runs carried.` When the carried results were measured on another agent version, the line names it: `93 runs carried from c-base, measured on another agent version, acme-v1 (this campaign runs acme-v2)`.
 * In the scorecard, each carried run says where it comes from in its own row.
 
@@ -214,6 +245,4 @@ Mode T figures are a projection: the fault runs behind the gate report are free-
 
 Not built yet, in order:
 
-* An audit sample: cells drawn outside the radius are run fresh and compared with their carried result, which puts an interval on what the radius misses.
-* Staleness limits on a carried result, and `ci --change`.
 * Blocks as the unit in mode T, and a judged criterion change that judges again without calling the agent.

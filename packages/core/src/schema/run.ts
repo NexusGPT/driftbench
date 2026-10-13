@@ -380,6 +380,25 @@ export const CampaignRadius = z.strictObject({
   outside: z.number().int().min(0),
   /** Why cells outside the radius ran fresh all the same, with how many. */
   refused: z.array(z.strictObject({ reason: z.string().min(1), cells: z.number().int().min(1) })),
+  /**
+   * The audit sample, when one was asked for: cells about to be carried, run fresh and compared with the
+   * stored run. One miss fails closed: the campaign then carried nothing.
+   */
+  audit: z
+    .strictObject({
+      sampled: z.number().int().min(0),
+      misses: z.number().int().min(0),
+      seed: z.number().int(),
+      /** The cells whose fresh run disagreed with the stored one, with what differed. */
+      missed: z.array(
+        z.strictObject({
+          specId: z.string().min(1),
+          cellId: z.string().min(1),
+          differing: z.array(z.string()),
+        }),
+      ),
+    })
+    .optional(),
 });
 export type CampaignRadius = z.infer<typeof CampaignRadius>;
 
