@@ -369,7 +369,12 @@ function scriptAtoms(
     const relative = posix.relative(folder, file.path);
     if (!SCRIPT.test(file.path) && !relative.startsWith('scripts/')) continue;
     const name = basename(file.path);
-    const mention = body.find((line) => line.text.includes(name));
+    // The line that names the script best: by its path from the skill, then by its name in backticks, then
+    // any mention of its name.
+    const mention =
+      body.find((line) => line.text.includes(relative)) ??
+      body.find((line) => new RegExp(`\`[^\`]*\\b${escapeRegExp(name)}[^\`]*\``).test(line.text)) ??
+      body.find((line) => line.text.includes(name));
     const at: Located = mention
       ? { file: definition, startLine: mention.line, endLine: mention.line, quote: mention.quote }
       : firstLine(file);
@@ -1021,6 +1026,10 @@ function firstLine(file: EstateFile): Located {
     endLine: chosen?.line ?? 1,
     quote: chosen?.text ?? basename(file.path),
   };
+}
+
+function escapeRegExp(text: string): string {
+  return text.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 }
 
 function capital(text: string): string {
