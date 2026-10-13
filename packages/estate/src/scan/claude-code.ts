@@ -1,7 +1,7 @@
 import { readdir, readFile, realpath, stat } from 'node:fs/promises';
 import { basename, join, posix } from 'node:path';
 import { parse as parseYaml } from 'yaml';
-import { fileNames, guardName, locateNamed, namedPaths } from './code';
+import { chunkLines, fileNames, guardName, locateNamed, namedPaths } from './code';
 import type {
   CheckDecl,
   EstateFile,
@@ -19,7 +19,7 @@ import type {
   StepDecl,
   SubagentDecl,
 } from './reader';
-import { blankFences, keyLine, type Located, lineAt, linesOf, readFrontmatter, readTables } from './text';
+import { keyLine, type Located, lineAt, linesOf, readFrontmatter, readTables } from './text';
 
 /**
  * The Claude Code reader: the runtime adapter of the estate scanner. It reads `CLAUDE.md` (and
@@ -264,7 +264,7 @@ async function readRootReferences(
   for (let index = 0; index < estate.prose.length; index++) {
     const chunk = estate.prose[index];
     if (!chunk) continue;
-    for (const name of namedPaths(blankFences(chunk.text))) {
+    for (const name of chunkLines(chunk, files.get(chunk.file)).flatMap((line) => namedPaths(line.text))) {
       if (name.includes('/') || files.has(name) || tried.has(name)) continue;
       const candidate: EstateFile = { path: name, text: '', kind: 'other' };
       // The resolver only needs a root placeholder for this synchronous choice. Avoid copying the
@@ -385,7 +385,19 @@ function inlineAliases(files: readonly EstateFile[]): Record<string, string[]> {
   const aliases: Record<string, string[]> = {};
   for (const file of files) {
     if (!/\.(md|markdown)$/i.test(file.path)) continue;
-    for (const match of file.text.matchAll(/`([A-Z][A-Z0-9_]{1,15})`\s*=\s*`([^`\s]+)`/g)) {
+    const visible = chunkLines(
+      {
+        id: file.path,
+        file: file.path,
+        text: file.text,
+        startLine: 1,
+        endLine: file.text.split('\n').length,
+      },
+      file,
+    )
+      .map((line) => line.text)
+      .join('\n');
+    for (const match of visible.matchAll(/`([A-Z][A-Z0-9_]{1,15})`\s*=\s*`([^`\s]+)`/g)) {
       const [, name, target] = match;
       if (!name || !target || /\.[A-Za-z0-9]+$/.test(target) || /[<>*?{}$]/.test(target)) continue;
       const folder = cleanFolder(target);

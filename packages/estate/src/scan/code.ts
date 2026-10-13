@@ -1,7 +1,15 @@
 import { basename, posix } from 'node:path';
 import type { Atom, AtomKind, EvidencePredicate } from '../schema';
 import type { EstateFile, GuardDecl, ProseChunk, RawEstate, RegistryRow } from './reader';
-import { blankFences, type Located, linesOf, provenanceHash, readTables, slug } from './text';
+import {
+  blankFences,
+  type Located,
+  linesOf,
+  provenanceHash,
+  readFrontmatter,
+  readTables,
+  slug,
+} from './text';
 
 /**
  * The code half of the scan: every atom whose source has structure. Skills, helpers, guards, permissions,
@@ -314,7 +322,7 @@ export function codeAtoms(raw: RawEstate, builder: AtomBuilder): void {
     });
   }
 
-  for (const skill of raw.skills) scriptAtoms(skill.name, skill.folder, skill.file, raw, builder);
+  for (const skill of raw.skills) scriptAtoms(skill.name, skill.folder, skill.file, raw, files, builder);
 
   const names = {
     skills: new Set(raw.skills.map((skill) => skill.name)),
@@ -334,10 +342,13 @@ function scriptAtoms(
   folder: string,
   definition: string,
   raw: RawEstate,
+  files: ReadonlyMap<string, EstateFile>,
   builder: AtomBuilder,
 ): void {
   // A long body may be cut into several chunks: the mention is looked for in each, in order.
-  const body = raw.prose.filter((chunk) => chunk.file === definition).flatMap((chunk) => chunkLines(chunk));
+  const body = raw.prose
+    .filter((chunk) => chunk.file === definition)
+    .flatMap((chunk) => chunkLines(chunk, files.get(definition)));
   for (const file of raw.files) {
     if (file.kind !== 'skill_file' || file.owner !== skill) continue;
     const relative = posix.relative(folder, file.path);
@@ -345,7 +356,7 @@ function scriptAtoms(
     const name = basename(file.path);
     const mention = body.find((line) => line.text.includes(name));
     const at: Located = mention
-      ? { file: definition, startLine: mention.line, endLine: mention.line, quote: mention.text }
+      ? { file: definition, startLine: mention.line, endLine: mention.line, quote: mention.quote }
       : firstLine(file);
     builder.add({
       kind: 'script',
@@ -502,7 +513,7 @@ function referenceAtoms(
   builder: AtomBuilder,
 ): void {
   const skipped = new Set(raw.ignored?.paths ?? []);
-  for (const line of chunkLines(chunk)) {
+  for (const line of chunkLines(chunk, files.get(chunk.file))) {
     for (const named of namedPaths(line.text)) {
       const located = locateNamed(named, chunk.file, files, {
         bases: raw.bases ?? [],
@@ -519,7 +530,7 @@ function referenceAtoms(
       builder.add({
         kind: 'reference',
         title: `Read ${named}`,
-        at: { file: chunk.file, startLine: line.line, endLine: line.line, quote: line.text },
+        at: { file: chunk.file, startLine: line.line, endLine: line.line, quote: line.quote },
         evidence: [{ type: 'tool_called', label: raw.labels.read, input: { file_path: { contains: path } } }],
         situation: line.text,
         fields: {
@@ -591,7 +602,7 @@ function gateAtoms(
   raw: RawEstate,
   builder: AtomBuilder,
 ): void {
-  for (const line of chunkLines(chunk)) {
+  for (const line of chunkLines(chunk, files.get(chunk.file))) {
     for (const { form, pattern, read, act } of GATE_FORMS) {
       const match = pattern.exec(line.text);
       if (!match) continue;
@@ -622,7 +633,7 @@ function gateAtoms(
       builder.add({
         kind: 'gate',
         title: `Read ${first} before ${trigger}`,
-        at: { file: chunk.file, startLine: line.line, endLine: line.line, quote: line.text },
+        at: { file: chunk.file, startLine: line.line, endLine: line.line, quote: line.quote },
         evidence,
         situation: trigger,
         fields: {
@@ -702,13 +713,13 @@ function actLabel(act: string, raw: RawEstate): string {
 
 function hazardAtoms(chunk: ProseChunk, files: ReadonlyMap<string, EstateFile>, builder: AtomBuilder): void {
   if (!files.has(chunk.file)) return;
-  for (const line of chunkLines(chunk)) {
+  for (const line of chunkLines(chunk, files.get(chunk.file))) {
     for (const hazard of HAZARDS) {
       if (!hazard.pattern.test(line.text) || !runtimeHazard(hazard.id, line.text)) continue;
       builder.add({
         kind: 'hazard',
         title: `Recover from ${hazard.title.toLowerCase()}`,
-        at: { file: chunk.file, startLine: line.line, endLine: line.line, quote: line.text },
+        at: { file: chunk.file, startLine: line.line, endLine: line.line, quote: line.quote },
         evidence: [{ type: 'custom', name: 'hazard_recovery', options: { hazard: hazard.id } }],
         situation: hazard.title,
         fields: { hazard: hazard.id },
@@ -748,10 +759,34 @@ function runtimeHazard(id: (typeof HAZARDS)[number]['id'], text: string): boolea
 }
 
 /** The non-blank lines of a chunk, numbered as lines of its file. */
-export function chunkLines(chunk: ProseChunk): Array<{ line: number; text: string }> {
-  return linesOf(blankFences(chunk.text))
+const MASKED_PROSE = new WeakMap<EstateFile, string[]>();
+export function chunkLines(
+  chunk: ProseChunk,
+  source?: EstateFile,
+): Array<{ line: number; text: string; quote: string }> {
+  let masked: string;
+  if (source) {
+    let lines = MASKED_PROSE.get(source);
+    if (!lines) {
+      const body = ['skill', 'skill_file', 'subagent'].includes(source.kind)
+        ? readFrontmatter(source.text).bodyLine
+        : 1;
+      const original = source.text.split('\n');
+      lines = blankFences(original.map((line, index) => (index < body - 1 ? '' : line)).join('\n')).split(
+        '\n',
+      );
+      MASKED_PROSE.set(source, lines);
+    }
+    masked = lines.slice(chunk.startLine - 1, chunk.endLine).join('\n');
+  } else masked = blankFences(chunk.text);
+  const original = chunk.text.split('\n');
+  return linesOf(masked)
     .filter((line) => line.text !== '')
-    .map((line) => ({ line: chunk.startLine + line.line - 1, text: line.text }));
+    .map((line) => ({
+      line: chunk.startLine + line.line - 1,
+      text: line.text,
+      quote: original[line.line - 1]?.trim() ?? line.text,
+    }));
 }
 
 /** `Bash` for `Bash(git status)`. */

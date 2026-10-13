@@ -1,6 +1,6 @@
-import { guardName, registryRowOf, toolBase } from '../scan/code';
+import { chunkLines, guardName, registryRowOf, toolBase } from '../scan/code';
 import type { EstateFile, RawEstate } from '../scan/reader';
-import { blankFences, labelOfLine, linesOf, plain } from '../scan/text';
+import { labelOfLine, linesOf, plain } from '../scan/text';
 import type { Atom, Edge } from '../schema';
 
 /**
@@ -81,9 +81,12 @@ export function buildGraph(atoms: readonly Atom[], raw: RawEstate): Graph {
   for (const chunk of raw.prose) {
     const unit = unitOfFile.get(chunk.file);
     if (!unit) continue;
+    const visible = chunkLines(chunk, files.get(chunk.file))
+      .map((line) => line.text)
+      .join('\n');
     for (const helper of helpers) {
       const name = String(helper.fields?.name ?? '');
-      if (name !== '' && blankFences(chunk.text).includes(`\`${name}\``)) add(unit.id, helper.id, 'dispatch');
+      if (name !== '' && visible.includes(`\`${name}\``)) add(unit.id, helper.id, 'dispatch');
     }
   }
 

@@ -121,19 +121,44 @@ export function slug(text: string, words = 6): string {
 
 /**
  * The text with every line inside a fenced code block (the fence lines included) left empty, so the line
- * numbers stay. Code read from prose never reads an example quoted in a fence.
+ * numbers stay. HTML comments are masked with spaces, including comments across lines.
+ * A comment inside a code example does not hide the prose after the fence.
  */
 export function blankFences(text: string): string {
   let inside = false;
+  let comment = false;
   return text
     .split('\n')
     .map((line) => {
-      const fence = /^\s*(```|~~~)/.test(line);
-      if (fence) {
-        inside = !inside;
+      if (inside) {
+        if (/^\s*(```|~~~)/.test(line)) inside = false;
         return '';
       }
-      return inside ? '' : line;
+      let visible = '';
+      let cursor = 0;
+      while (cursor < line.length) {
+        if (comment) {
+          const end = line.indexOf('-->', cursor);
+          const stop = end < 0 ? line.length : end + 3;
+          visible += ' '.repeat(stop - cursor);
+          cursor = stop;
+          if (end >= 0) comment = false;
+        } else {
+          const start = line.indexOf('<!--', cursor);
+          if (start < 0) {
+            visible += line.slice(cursor);
+            break;
+          }
+          visible += line.slice(cursor, start);
+          cursor = start;
+          comment = true;
+        }
+      }
+      if (/^\s*(```|~~~)/.test(visible)) {
+        inside = true;
+        return '';
+      }
+      return visible;
     })
     .join('\n');
 }
@@ -247,6 +272,7 @@ export type Table = { header: string[]; headerLine: number; rows: TableRow[] };
 /** Every markdown table of a text, between `fromLine` and `toLine`: header cells and data rows. */
 export function readTables(text: string, fromLine = 1, toLine = Number.POSITIVE_INFINITY): Table[] {
   const lines = linesOf(blankFences(text));
+  const originals = linesOf(text);
   const tables: Table[] = [];
   for (let index = 0; index < lines.length; index++) {
     const head = lines[index];
@@ -260,7 +286,11 @@ export function readTables(text: string, fromLine = 1, toLine = Number.POSITIVE_
       // A table belongs to the range that holds its header, and runs to its last row: a chunk that ends
       // inside a table must not cut it, and the next chunk never sees its header, so it would lose the rest.
       if (!row?.text.startsWith('|')) break;
-      table.rows.push({ line: row.line, text: row.text, cells: cells(row.text) });
+      table.rows.push({
+        line: row.line,
+        text: originals[row.line - 1]?.text ?? row.text,
+        cells: cells(row.text),
+      });
     }
     tables.push(table);
     index = next - 1;

@@ -10,7 +10,21 @@ Rewritten by the executor every iteration (docs/validators.md section 10). A str
 | 1 | 0 |
 <!-- level-table:end -->
 
-### Current executor measurement, iteration 15
+### Current executor measurement, iteration 16
+
+The final refined seed 1 run passes 919 of 1170 items (0.7854700854700855), level 0. The immutable before run passes 916. Exactly four comment items improve: scan.decoys.reference-in-comment and the three blind.gates comment decoys. The final run also fails scan.hostile.wide-folder at 5574 ms against 5000 ms; that loss is retained. Node 22 lint differs from current Node in both before and after, so it remains open and receives no attribution. The primary run also passes 919 but loses scale.generate-250 at 4067 ms against 4000 ms instead; the final run is the journal's instrument.
+
+Whole-file comment and fence masking is shared by references, gates, hazards, root discovery, inline aliases and helper dispatch edges. It preserves original source quotes, line positions and frontmatter data. The initial comment tests are red; two sibling tests for graph dispatch and inline aliases are red before their refinement. Final canonical scan and graph tests pass 125 assertions. Typecheck and lint pass. Captures: iteration-16-before.json, iteration-16.json and iteration-16-final.json. The final snapshot uses HEAD 33eeed9f with only this comment cause, and its package path stamp resolves inside .cache/s16measure.
+
+Four own iterations are complete including this row. Own component gains total 48 items (4 hazards, 37 stats, 3 names, 4 comments). Eleven imported PR 124 gains receive no executor credit. Timing and Node differences remain measured failures. The next fifth own iteration fixes spaced file names in packages/estate/src/scan/code.ts, with packages/estate/test/scan/spaced-paths.test.ts. The TypeScript portability change belongs to PR 119 and must arrive through main. It receives no executor credit. A current full sweep follows the spaced-path fix.
+
+### Fresh brief comparison after iteration 16
+
+The quiet canonical tree is held unchanged while `pnpm -s driftbench validate estate --brief --fresh` runs. Its reader has 86 failures of 641, while row 16's final capture has 87. The exact set difference is scan.hostile.wide-folder: it passes in the quiet brief and fails in row 16 at 5574 ms against 5000 ms. Every other reader verdict matches. The live brief reruns the reader; it does not copy its metric from the journal. The saved brief and row 16 therefore record two measurements with different timing outcomes, not an arithmetic error. Keep row 16 and its measured failure unchanged.
+
+Evidence: .cache/estate-executor/iteration-16-quiet-brief.md; failed ids in iteration-16-quiet-failed-ids.json and iteration-16-journal-failed-ids.json; exact diff in iteration-16-brief-diff.json. The earlier fresh review has no capture and ran while row 16 was appended, so its item set cannot be reconstructed. The quiet rerun identifies the actual difference without attributing it to a half-updated source tree.
+
+### Previous executor measurement, iteration 15
 
 The final refined seed 1 run passes 917 of 1170 items (0.7837606837606838), level 0. The merged pre-fix snapshot passes 902. Same-instrument before/after captures show three legitimate component gains: bench.defects.name-own-folder, name-below-folder and name-root-file. Node 22 lint also recovers without a diagnosed fix, and receives no credit. The final run includes PR 124's bank correction: eight registry items, one task item and two script mutant items improve. All eleven are maintainer work and receive no component credit.
 
@@ -59,19 +73,19 @@ Items fixed per pilot iteration: 19, 20, 9, 10, 8, 4, 4, 4, 3, 5; mean 8.6; none
 
 ## Floor
 
-See `validators/floors.json`; `pnpm driftbench validate floors` prints it. The estate has no floor. Its ladder version is the bank of 744 items; a floor waits for the hardness gate and the audit.
+See `validators/floors.json`; `pnpm driftbench validate floors` prints it. The estate has no floor. Its current bank contains 1170 items; a floor waits for the hardness gate and the audit.
 
 ## Open items
 
 The first failing level is reader and graph (scan.*). After the pilot, the causes with the most failing items (the full list: `driftbench validate estate --items`, each item names its cause):
 
-* Level 1, reader: routing cells without backticks, a slash command, a link to the skill file, a table whose first column names the skill, a table without outer pipes, routing as a list or a sentence or a heading (scan.standing, code.ts); standing files in subfolders and imported files (claude-code.ts); paths in quotes, bare, in bold, with backslashes, as @imports, as wiki links, with a line number, from the project folder variable, with a space (scan.paths); gate forms then, without, only after, a question, prior to, two on a line, act verbs updating and renaming (scan.gates); hazard synonyms and decoys with an outside owner (scan.hazards); negations, comments, change notes, form numbers, quoted guard messages (scan.decoys); an empty file crashes the scan (scan.hostile).
+* Level 1, reader: routing cells without backticks, a slash command, a link to the skill file, a table whose first column names the skill, a table without outer pipes, routing as a list or a sentence or a heading (scan.standing, code.ts); standing files in subfolders and imported files (claude-code.ts); paths in quotes, bare, in bold, with backslashes, as @imports, as wiki links, with a line number, from the project folder variable, with a space (scan.paths); gate forms then, without, only after, a question, prior to, two on a line, act verbs updating and renaming (scan.gates); hazard synonyms and decoys with an outside owner (scan.hazards); negations, change notes, form numbers and quoted guard messages (scan.decoys). HTML comments and empty files are already handled; reader timing and the remaining hostile shapes stay open.
 * Level 4, generation: a registered custom check (44 items), a "some call matches" check (30 items), distinct positive phrases per route (6), no outside trigger row for a rule that applies always (6), guard message and timing checks (4 each), a stage reach check (3).
 * Level 3, plan: each situation crossed only with the atom kinds it acts on (plan.relevance, 20 items, one cause).
 * Level 5 and 6: deleted registers and gates that no test notices; maintenance retires a test only when every named atom leaves (7 items).
 * Level 7, scale: plan and generate over their time budget; at 5000 atoms lint reports 1132 findings on a clean estate, because a routing table longer than one prose chunk loses its rows past the chunk's end (bench.defects.long-routing-table holds the same cause at 400 rows).
 * bench.defects: the reference index offers files under ignored folders (hooks tests, skills/synced, __pycache__); a delete mutant of a guard or an env setting in settings.json is refused; `estate run --map` on a mutant folder drops the original pin; a phrase bank with no situation is refused; a registry row naming its guard by the adapter's short name, and an id cell holding two ids.
-* blind.*: comments and tilde fences read as prose; "never read X before Y" read as a gate; plural hazard words; a link with a title; characters counted in code units; list order as next edges; a helper named without backticks.
+* blind.*: "never read X before Y" is read as a gate; plural hazard words, characters counted in code units, list order as next edges and a helper named without backticks remain. HTML comments and tilde fences are masked as source examples; those comment items pass after iteration 16.
 
 ## Hypotheses tried
 
@@ -79,9 +93,9 @@ The ten pilot iterations are the journal rows 1 to 10 and the commits of `exec/v
 
 ## Next actions
 
-1. Apply the already-tested HTML-comment fix from .cache/estate-executor/iteration-16.patch after iteration 15 is committed. The isolated candidate passes 112 scan tests. Preserve cross-chunk state, source quotes and frontmatter data markers. Do not rerun prepare-comments.py, which produces the earlier proposal.
-2. Fix the isolated offline TypeScript IPC failure as its own later iteration. The long-path test is red; the same script succeeds through Node's local tsx loader. Keep that test out of iteration 15 and 16 commits.
-3. After five new iterations, run seeds 1 to 20 and hidden in the background. Update this handover and inspect fresh PR CI. Merge main again after PR 133 lands. Stop at 07:00 Europe/Brussels on 2026-10-13 if the bank has not reached 1.
+1. Iteration 17: fix file names holding spaces in packages/estate/src/scan/code.ts, only namedPaths. Add packages/estate/test/scan/spaced-paths.test.ts from the isolated candidate .cache/s18candidate. Its red log is .cache/estate-executor/iteration-18-red.log; its 117-test green log is iteration-18-candidate-green.log. Apply only this function and its new test, preserving the final comment fixes. Measure seed 1, journal, commit and push.
+2. That is the fifth own fix. Start an immutable current-source sweep of seeds 1 to 20 and hidden in the background, then update validators/estate/HANDOVER.md and the allowed bank-scores file if produced. Next causes: exact plain routing targets in packages/estate/src/scan/code.ts with packages/estate/test/scan/routing-names.test.ts; compaction names in that same source with packages/estate/test/scan/compaction-names.test.ts. Keep one cause per iteration.
+3. Merge origin/main and push after PR 119 and PR 133 land, with fresh typecheck and lint. PR 119 owns packages/estate/src/unit/run.ts and its red-first test. Do not implement or commit a duplicate launcher fix. PR 133 owns the seven maintenance oracle corrections. Neither imported fix is executor progress. Watch PR 110's current CI. Stop at 07:00 Europe/Brussels on 2026-10-13 if the bank has not reached 1.
 
 ### Historical next actions before takeover
 
@@ -132,7 +146,7 @@ The ladder must be registered in packages/validators/src/ladders/index.ts (`esta
 
 ## Takeover test environment
 
-Temporary estates and captures are kept inside the worktree's ignored `.cache` folder. With this long absolute TMPDIR, the existing TypeScript unit-script test fails on both the pre-fix c27c96dd snapshot and the hazard-fix code. The test passes in the takeover's original estate run with the default temporary directory. The unit runner launches the tsx CLI with its own temporary directory; its Unix socket path is the next suspect. This is a pre-existing environment-sensitive failure, not evidence that the hazard fix changed unit execution. Preserve the test.
+Temporary estates and captures are kept inside the worktree's ignored `.cache` folder. With this long absolute TMPDIR, the existing TypeScript unit-script test fails on both the pre-fix c27c96dd snapshot and the hazard-fix code. The test passes in the takeover's original estate run with the default temporary directory. The cause is isolated: the tsx CLI Unix socket fails with listen EINVAL under the longer temporary path. The same script succeeds through Node with the local tsx loader; the probe is in typescript-loader-probe.json. This is a pre-existing environment-sensitive failure. PR 119 owns the fix; merge main after it lands and preserve its regression test. Do not create a duplicate launcher change.
 
 ## CI at the first executor push
 
