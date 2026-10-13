@@ -335,3 +335,31 @@ describe('estate generate with no phrase bank (bench defect D7)', () => {
     expect(named.err).toContain('the phrase bank cannot be read or is invalid');
   }, 120_000);
 });
+
+describe('the files of the estate when the map sits away from it', () => {
+  it('checks reads against the files the map knows when the folder beside the map holds no estate', async () => {
+    const dir = await mkdtemp(join(tmpdir(), 'estate-generate-away-'));
+    await copyFile(MAP, join(dir, 'approved.yaml'));
+    const plan = join(dir, 'plan.yaml');
+    await copyFile(join(FIXTURE, 'plan.yaml'), plan);
+    expect((await run(['estate', 'plan', 'approve', plan, '--all'])).code).toBe(0);
+    await copyFile(join(FIXTURE, 'phrases.yaml'), join(dir, 'phrases.yaml'));
+    const result = await run([
+      'estate',
+      'generate',
+      '--map',
+      join(dir, 'approved.yaml'),
+      '--plan',
+      plan,
+      '--out',
+      join(dir, 'out'),
+      '--json',
+    ]);
+    const report = JSON.parse(result.out);
+    const missing = (report.gaps as Array<{ marker: string; details: string[] }>).find(
+      (gap) => gap.marker === 'needs-existing-file',
+    );
+    // references/matching-rules.md exists in the estate the map was read from: no read of it is a gap.
+    expect(missing?.details.some((detail) => detail.includes('matching-rules.md')) ?? false).toBe(false);
+  }, 240_000);
+});
