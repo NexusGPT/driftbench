@@ -1,6 +1,9 @@
 # LongJudge verify confirmation
 
-Evidence timestamp: 2026-10-13T17:49:23.319779+00:00.
+Evidence timestamp: 2026-10-13T18:33:38.173829+00:00.
+
+Gemini 3.8 Flash: dropped by the owner on 13 Oct 2026, partial data kept, not reported as a score. It is removed from pending work. Flash Lite remains the Gemini result.
+
 
 - Branch: research/ledger-verify. Core contract: PR 168 at 35f07309a4d1d1c8a7c5b176ff19e537d0ef8fdd.
 - All 221 TEST items are sealed. This is a previously evaluated split, not an unseen holdout.
@@ -24,7 +27,7 @@ The output-limit column counts observed TEST completion envelopes, cascade / pro
 | haiku | 164/221, 74.21% [68.06%, 79.53%] | 159/221, 71.95% [65.69%, 77.46%] | 7 / 0 | not audited | 2.26% [-2.73%, 7.62%] | 19 / 14 | 0.48685024 | pending | TIE |
 | haiku (labelled audit correction) | 163/221, 73.76% [67.58%, 79.11%] | 159/221, 71.95% [65.69%, 77.46%] | 8 / 0 | not audited | 1.81% [-3.18%, 7.21%] | 19 / 15 | 0.60759136 | pending | TIE |
 | gpt-6-luna | 165/221, 74.66% [68.54%, 79.94%] | 160/221, 72.40% [66.16%, 77.87%] | 0 / 0 | not audited | 2.26% [-2.73%, 7.21%] | 18 / 13 | 0.47312966 | pending | TIE |
-| gemini-3.8-flash | not run: daily quota (0/221) | not run: daily quota (0/221) | 0 / 0 (not run) | not audited | pending | pending | pending | pending | owner-only restart |
+| gemini-3.8-flash | dropped by the owner on 13 Oct 2026, partial data kept, not reported as a score | not reported | not reported | not reported | not reported | not reported | not reported | not reported | not reported |
 | gemini-3.5-flash-lite | 138/221, 62.44% [55.90%, 68.56%] | 127/221, 57.47% [50.88%, 63.80%] | 5 / 0 | not audited | 4.98% [-2.24%, 11.87%] | 39 / 28 | 0.22154873 | pending | TIE |
 
 ### Strict headline, audited labels
@@ -34,7 +37,7 @@ The output-limit column counts observed TEST completion envelopes, cascade / pro
 | haiku | 185/221, 83.71% [78.27%, 88.00%] | 180/221, 81.45% [75.80%, 86.02%] | 7 / 0 | not audited | 2.26% [-2.74%, 7.27%] | 19 / 14 | 0.48685024 | pending | TIE |
 | haiku (labelled audit correction) | 184/221, 83.26% [77.78%, 87.60%] | 180/221, 81.45% [75.80%, 86.02%] | 8 / 0 | not audited | 1.81% [-3.60%, 6.85%] | 19 / 15 | 0.60759136 | pending | TIE |
 | gpt-6-luna | 188/221, 85.07% [79.77%, 89.17%] | 181/221, 81.90% [76.29%, 86.42%] | 0 / 0 | not audited | 3.17% [-1.80%, 8.11%] | 19 / 12 | 0.28104152 | pending | TIE |
-| gemini-3.8-flash | not run: daily quota (0/221) | not run: daily quota (0/221) | 0 / 0 (not run) | not audited | pending | pending | pending | pending | owner-only restart |
+| gemini-3.8-flash | dropped by the owner on 13 Oct 2026, partial data kept, not reported as a score | not reported | not reported | not reported | not reported | not reported | not reported | not reported | not reported |
 | gemini-3.5-flash-lite | 158/221, 71.49% [65.21%, 77.04%] | 142/221, 64.25% [57.74%, 70.28%] | 5 / 0 | not audited | 7.24% [0.00%, 14.16%] | 42 / 26 | 0.068118674 | pending | TIE |
 
 ### Product-final sensitivity, official labels
@@ -43,7 +46,7 @@ The output-limit column counts observed TEST completion envelopes, cascade / pro
 |---|---|---|---|---|---|---|---|---|---|
 | haiku | 168/221, 76.02% [69.97%, 81.17%] | 159/221, 71.95% [65.69%, 77.46%] | 7 / 0 | not audited | 4.07% [-0.45%, 9.01%] | 19 / 10 | 0.13604595 | pending | TIE |
 | gpt-6-luna | 165/221, 74.66% [68.54%, 79.94%] | 160/221, 72.40% [66.16%, 77.87%] | 0 / 0 | not audited | 2.26% [-2.73%, 7.21%] | 18 / 13 | 0.47312966 | pending | TIE |
-| gemini-3.8-flash | not run: daily quota (0/221) | not run: daily quota (0/221) | 0 / 0 (not run) | not audited | pending | pending | pending | pending | owner-only restart |
+| gemini-3.8-flash | dropped by the owner on 13 Oct 2026, partial data kept, not reported as a score | not reported | not reported | not reported | not reported | not reported | not reported | not reported | not reported |
 | gemini-3.5-flash-lite | 138/221, 62.44% [55.90%, 68.56%] | 127/221, 57.47% [50.88%, 63.80%] | 5 / 0 | not audited | 4.98% [-2.24%, 11.87%] | 39 / 28 | 0.22154873 | pending | TIE |
 
 ### Product-final sensitivity, audited labels
@@ -52,7 +55,7 @@ The output-limit column counts observed TEST completion envelopes, cascade / pro
 |---|---|---|---|---|---|---|---|---|---|
 | haiku | 189/221, 85.52% [80.27%, 89.55%] | 180/221, 81.45% [75.80%, 86.02%] | 7 / 0 | not audited | 4.07% [-0.46%, 8.68%] | 19 / 10 | 0.13604595 | pending | TIE |
 | gpt-6-luna | 188/221, 85.07% [79.77%, 89.17%] | 181/221, 81.90% [76.29%, 86.42%] | 0 / 0 | not audited | 3.17% [-1.80%, 8.11%] | 19 / 12 | 0.28104152 | pending | TIE |
-| gemini-3.8-flash | not run: daily quota (0/221) | not run: daily quota (0/221) | 0 / 0 (not run) | not audited | pending | pending | pending | pending | owner-only restart |
+| gemini-3.8-flash | dropped by the owner on 13 Oct 2026, partial data kept, not reported as a score | not reported | not reported | not reported | not reported | not reported | not reported | not reported | not reported |
 | gemini-3.5-flash-lite | 158/221, 71.49% [65.21%, 77.04%] | 142/221, 64.25% [57.74%, 70.28%] | 5 / 0 | not audited | 7.24% [0.00%, 14.16%] | 42 / 26 | 0.068118674 | pending | TIE |
 
 The original three models belong to the prespecified 18-cell family. Flash Lite, Sonnet and Sol are additional cells. Multiplicity adjustment remains pending with the collator. No overall superiority claim is made.
@@ -67,8 +70,8 @@ Exact intervals, balanced accuracy, valid-verdict coverage and paired difference
 | haiku | promptfoo | 0 | 0 | 0 | 0 |
 | gpt-6-luna | driftbench-verify-uncertainty-cascade | 0 | 0 | 0 | 0 |
 | gpt-6-luna | promptfoo | 0 | 0 | 0 | 0 |
-| gemini-3.8-flash | driftbench-verify-uncertainty-cascade | 0 | 0 | 0 | 0 |
-| gemini-3.8-flash | promptfoo | 0 | 0 | 0 | 0 |
+| gemini-3.8-flash | dropped by the owner on 13 Oct 2026, partial data kept, not reported as a score | not reported | not reported | not reported | not reported |
+| gemini-3.8-flash | dropped by the owner on 13 Oct 2026, partial data kept, not reported as a score | not reported | not reported | not reported | not reported |
 | gemini-3.5-flash-lite | driftbench-verify-uncertainty-cascade | 5 | 5 | 5 | 5 |
 | gemini-3.5-flash-lite | promptfoo | 0 | 0 | 2 | 2 |
 
@@ -82,7 +85,7 @@ Receipt ids, exact reasons and request-to-item attribution: evidence/output-limi
 |---|---|---|---|
 | haiku | 1.139292 / 0.187925 | 12/12, 12/12, 0 / 12/12, 12/12, 0 | 2/30 / 10/30 |
 | gpt-6-luna | 0.414580 / 0.067791 | 12/12, 12/12, 0 / 12/12, 12/12, 0 | 4/30 / 9/30 |
-| gemini-3.8-flash | pending / pending | 12/12, 12/12, 0 / 12/12, 12/12, 0 | pending / pending |
+| gemini-3.8-flash | dropped by the owner on 13 Oct 2026, partial data kept, not reported as a score | not reported | not reported |
 | gemini-3.5-flash-lite | 2.047560 / 0.349120 | 12/12, 12/12, 0 / 12/12, 12/12, 0 | 10/30 / 10/30 |
 
 Constant pass / fail: official 21.27% / 78.73%; audited 23.53% / 76.47%.
@@ -98,7 +101,7 @@ Fee sources: receipts/budget.json and receipts/calls.jsonl. Historical replay co
 |---|---|---|---|---|---|---|
 | haiku | 20 items; missing 0/0 | 48 items; missing 0/0 | 30 items; missing 0/0 | 30 items; missing 0/0 | 30 items; missing 0/0 | 221 items; missing 0/0 |
 | gpt-6-luna | 20 items; missing 0/0 | 48 items; missing 0/0 | 30 items; missing 2/2 | 30 items; missing 0/0 | 30 items; missing 0/0 | 221 items; missing 0/0 |
-| gemini-3.8-flash | 20 items; missing 0/0 | 48 items; missing 0/0 | 30 items; missing 0/0 | 30 items; missing 0/0 | 30 cascade, 20 peer; 10 quota pending | not run: daily quota, 0/221 each |
+| gemini-3.8-flash | dropped by the owner on 13 Oct 2026, partial data kept, not reported as a score | not reported | not reported | not reported | not reported | not reported |
 | gemini-3.5-flash-lite | 20 items; missing 0/0 | 48 items; missing 0/0 | 30 items; missing 0/1 | 30 items; missing 0/0 | 30 items; missing 0/1 | 221 items; missing 5/0 |
 
 ## Freeze and recovery
@@ -108,11 +111,11 @@ Fee sources: receipts/budget.json and receipts/calls.jsonl. Historical replay co
 - Original pilot runtime b4e4305a2426e0bb7589 is preserved. The plugin crash leaves five unknown-charge reservations totaling 3 USD.
 - Subsequent 180-second API timeouts and a 240-second Haiku timeout are preserved in pilot partial reports and error receipts.
 - The owner authorizes one resume of missing transport outputs for all models at 300 seconds. Returned answers are never retried.
-- Current admission: two calls and one model cell at a time, after ten healthy provider probes spaced 30 seconds apart. Gemini 3.8 remains parked.
+- Current admission: two calls and one model cell at a time, after ten healthy provider probes spaced 30 seconds apart. Gemini 3.8 is dropped by the owner; no resumption is authorized.
 - Both API models use medium. Haiku uses claude-haiku-5-5 through local Claude processes.
 - The outer process envelope includes queueing and quota backoff. Execution-only changes are recorded in evidence/execution-amendment.json.
 - HTTP 429 receives waits of 60, 120 and 240 seconds. Exhausted quota remains pending transport, never a judge failure.
-- HTTP 402 stops Gemini pending prepaid credit replenishment. Proven billing rejection holds are released; unknown network-error holds remain.
+- Historical Gemini billing rejections release only proven rejection holds; unknown network-error holds remain. The owner drop authorizes no further Gemini 3.8 calls.
 - The owner raises the cap to 40 USD and requires all 379 evaluation units per model: 20 pilot, 48 mutation, 90 noise and 221 TEST.
 - The previous operational cutoff is removed under that full-coverage instruction before TEST.
 - Native error bodies and known fees are retained. Two exhausted Haiku pilot outputs are terminal and never retried.
@@ -183,6 +186,7 @@ Fee sources: receipts/budget.json and receipts/calls.jsonl. Historical replay co
 | sonnet/evidence/native-quota-recovery-state.json | 0c857c53e3463c4687ff92a581f232ad3a0740299d58f56149d6859b30ca26fb |
 | sonnet/evidence/native-quota-continuation-state.json | 128fa4600e9db10382ae312ce9e874e5467d6c4effa6c5eef3e7268c7f4d8321 |
 | evidence/closed-output-limit-audit.json | 43af6ef30137e3deb770715e9c3789b40d443f281fc094f841463292c055d8ce |
+| evidence/gemini-owner-drop.json | bb5ffda38ecfd49b1da0e59930e1ca67e84e19a38bb596a918067beb862e8959 |
 
 Active runtime id: d49a333a9d4e6dd0ffd6. Frozen core: 35f07309a4d1d1c8a7c5b176ff19e537d0ef8fdd.
 Offline checks cover source/pool hashes, exact schemas, strict replay, fail-closed missing replay and restricted Python execution.
@@ -232,14 +236,11 @@ Sources: evidence/offline-checks.json, evidence/frozen-replay.json, test_stats.p
 - The recovery settles 0.09871296 USD. Returned answers, including output-limit errors, are never resubmitted.
 - Sources: evidence/haiku-test-timeouts.json, evidence/haiku-test-timeout-execution.json and evidence/haiku-test-timeout-recovery.json.
 
-## Daily quota runtime amendment
+## Historical daily quota amendment, superseded by owner drop
 
-- The owner identifies the Gemini daily request quota and permits missing-only completion after the reset near 14 October 00:00 UTC, through 12:00 UTC.
+- The earlier daily-quota completion permission is superseded by the owner drop. Partial receipts, recordings and fees remain retained.
 - Two proven quota holds settle at zero. Returned answers stay cached; unknown-charge holds remain.
 - Source and runtime amendment hash: evidence/gemini-daily-quota-amendment.json. Medium, 300-second attempts, two Gemini calls and the 40 USD cap remain unchanged.
-- Gemini TEST: not run: daily quota, 0/221 items per contestant. Noise 2 retains 30/30 cascade and 20/30 promptfoo verdicts; ten peer verdicts remain pending.
-- Pending quota requests count as no answer, never a judge failure. Gemini noise is pending until its third repeat finishes.
-- The reset driver is disarmed. Gemini 3.8 resumes only on owner instruction; the prior timed restart permission is superseded by evidence/gemini-owner-hold.json.
 
 ## Separate Flash Lite cell
 
@@ -254,7 +255,6 @@ Sources: evidence/offline-checks.json, evidence/frozen-replay.json, test_stats.p
 - TEST continuation preserves all 117 completed item outcomes, including five parse failures, before asking any remaining question. Original partial reports, exact answers, unused recovery answers and fees stay in the evidence.
 - Flash Lite files live under lite/: receipts, recordings, per-item strict and product-final decisions, request attribution, validation and exact replay evidence. The shared pool and audit map are symbolic links to the identical sealed originals.
 - Scoring algorithms match the original frozen functions exactly. lite/evidence/reporting-freeze.json records syntax hashes before TEST. The TEST contains 221 items per contestant; all six phases total 379 units.
-- Gemini 3.8 stays parked. Its disarmed driver cannot start on the clock; only a new owner instruction can release the hold. Its missing work has a 1472 judge-request upper bound, including at most 221 adaptive reviews, before extra rejected 429 attempts.
 - The additional cell does not establish the unmeasured full DEV cheater margin and does not alter the original multiplicity family silently.
 
 ## Luna noise addendum: official result preserved
@@ -313,7 +313,7 @@ Evidence and unchanged-file hashes: evidence/closed-output-limit-audit.json. The
 
 | Model | Status | Five-call cost USD | Projected 379-unit cost USD | Settled USD | Reserved or unknown holds USD | Evidence folder |
 |---|---|---|---|---|---|---|
-| claude-sonnet-5-5 | running | 0.06976800 | 29.08003000 | 14.47711400 | 1.00000000 | sonnet/ |
+| claude-sonnet-5-5 | running | 0.06976800 | 29.08003000 | 21.79002800 | 1.50000000 | sonnet/ |
 | gpt-6.1-sol | authorized at 40 USD; waiting for Sonnet to finish | 0.06966100 | 36.19988950 | 0.06966100 | 0.00000000 | sol61/ |
 
 claude-sonnet-5-5 cost projection breakdown:

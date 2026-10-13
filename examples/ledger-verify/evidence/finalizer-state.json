@@ -188,5 +188,10 @@
     "gemini-3.5-flash-lite"
   ],
   "additionalPhases": 6,
-  "additionalCellCapUsd": 24
+  "additionalCellCapUsd": 24,
+  "droppedModels": [
+    "gemini-3.8-flash"
+  ],
+  "pendingModels": [],
+  "dropAmendment": "evidence/gemini-owner-drop.json"
 }

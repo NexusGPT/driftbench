@@ -46,6 +46,15 @@ def main():
  for path,h in closed_audit['closedFileHashes'].items():assert hashlib.sha256((BASE/path).read_bytes()).hexdigest()==h,path
  original['closedOutputLimitAudit']=dict(path='evidence/closed-output-limit-audit.json',sha256=hashlib.sha256((BASE/'evidence/closed-output-limit-audit.json').read_bytes()).hexdigest(),officialFilesUnchanged=True)
  original['freeze']['hashes']['evidence/closed-output-limit-audit.json']=original['closedOutputLimitAudit']['sha256']
+ drop_path=BASE/'evidence/gemini-owner-drop.json'
+ drop=read(drop_path) if drop_path.exists() else None
+ if drop:
+  for cell in original['cells']:
+   if cell['model']=='gemini-3.8-flash':
+    cell.update(status=drop['status'],reason='Owner decision; no resumption and no score',official=None,audited=None,dropped=True)
+    cell.pop('pendingTestItemsPerContestant',None);cell.pop('pendingNoise2PerContestant',None)
+  original['freeze']['hashes']['evidence/gemini-owner-drop.json']=hashlib.sha256(drop_path.read_bytes()).hexdigest()
+  original['droppedModels']=['gemini-3.8-flash']
  sections=['\n## Additional Sonnet and Sol cells\n',
  '- Separate model cells use the same sealed 221 items, unchanged audit map, frozen contestants, 20-item pilot, 48 mutations and 30-by-3 noise checks.',
  '- Sol has an owner-authorized 40 USD cap including holds. Sonnet has an owner-authorized 45 USD cap only if its five cache-disabled DEV calls project at most 45 USD, including calibration fees and holds.',
@@ -168,6 +177,23 @@ def main():
   elif table:table=False
   out.append(line)
  result='\n'.join(out)+'\n'
+ if drop:
+  # Keep archived partial files; the current report has no pending Gemini work or scores.
+  revised=[]
+  for line in result.splitlines():
+   if line.startswith('| gemini-3.8-flash |'):
+    columns=line.split('|');columns[2]=' '+drop['status']+' '
+    for i in range(3,len(columns)-1):columns[i]=' not reported '
+    line='|'.join(columns)
+   if line.startswith('- Gemini TEST:') or line.startswith('- Pending quota requests count') or line.startswith('- The reset driver is disarmed.') or line.startswith('- Gemini 3.8 stays parked.'):
+    continue
+   line=line.replace('Gemini 3.8 remains parked.', 'Gemini 3.8 is dropped by the owner; no resumption is authorized.')
+   line=line.replace('## Daily quota runtime amendment','## Historical daily quota amendment, superseded by owner drop')
+   line=line.replace('- The owner identifies the Gemini daily request quota and permits missing-only completion after the reset near 14 October 00:00 UTC, through 12:00 UTC.', '- The earlier daily-quota completion permission is superseded by the owner drop. Partial receipts, recordings and fees remain retained.')
+   line=line.replace('- HTTP 402 stops Gemini pending prepaid credit replenishment. Proven billing rejection holds are released; unknown network-error holds remain.', '- Historical Gemini billing rejections release only proven rejection holds; unknown network-error holds remain. The owner drop authorizes no further Gemini 3.8 calls.')
+   revised.append(line)
+  revised.insert(3,'\nGemini 3.8 Flash: '+drop['status']+'. It is removed from pending work. Flash Lite remains the Gemini result.\n')
+  result='\n'.join(revised)+'\n'
  assert '\u2014' not in result and '\u2013' not in result
  for p in [BASE/'REPORT.md',DOSSIER]:p.write_text(result)
  print(json.dumps(dict(completedNewModels=[e['model'] for e in evidence],newModelFees=original['newModelFees'],providerCalls=0)))

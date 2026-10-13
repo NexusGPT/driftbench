@@ -1,16 +1,21 @@
 {
   "capUsd": 45,
-  "spentUsd": 14.47711400000001,
+  "spentUsd": 21.790028000000035,
   "reservations": {
-    "ee1b000a-69c0-420d-b56e-051d8b8e6958": {
+    "a8568031-366b-40e2-bb74-ad891f2a8378": {
       "usd": 0.5,
       "model": "claude-sonnet-5-5",
-      "at": "2026-10-13T17:49:01.455245+00:00"
+      "at": "2026-10-13T18:08:54.025883+00:00"
     },
-    "28b30002-b89d-41cc-97db-be2da7d55c64": {
+    "4ead0b74-83a1-45a7-b3d9-89a576d8d2b2": {
       "usd": 0.5,
       "model": "claude-sonnet-5-5",
-      "at": "2026-10-13T17:49:13.627763+00:00"
+      "at": "2026-10-13T18:33:24.875644+00:00"
+    },
+    "019c2098-dca3-4758-a565-22d655a6dd4c": {
+      "usd": 0.5,
+      "model": "claude-sonnet-5-5",
+      "at": "2026-10-13T18:33:37.431972+00:00"
     }
   },
   "receipts": [
@@ -5647,22 +5652,3016 @@
       "model": "claude-sonnet-5-5",
       "usd": 0.009352,
       "reservedUsd": 0.5
+    },
+    {
+      "id": "28b30002-b89d-41cc-97db-be2da7d55c64",
+      "model": "claude-sonnet-5-5",
+      "usd": 0.04211,
+      "reservedUsd": 0.5
+    },
+    {
+      "id": "3016f3b6-d775-4819-803d-7564c3b160c3",
+      "model": "claude-sonnet-5-5",
+      "usd": 0.008036,
+      "reservedUsd": 0.5
+    },
+    {
+      "id": "d5192171-34cb-474f-9aa5-f67964c7e94a",
+      "model": "claude-sonnet-5-5",
+      "usd": 0.01367,
+      "reservedUsd": 0.5
+    },
+    {
+      "id": "7159f70d-dabd-4d4f-82f6-2f208c649855",
+      "model": "claude-sonnet-5-5",
+      "usd": 0.009833999999999999,
+      "reservedUsd": 0.5
+    },
+    {
+      "id": "e9291b20-6a51-4229-b1ff-ca0b82cbea24",
+      "model": "claude-sonnet-5-5",
+      "usd": 0.009062,
+      "reservedUsd": 0.5
+    },
+    {
+      "id": "90a568b4-0bbc-46c7-9109-0a851d6d70fe",
+      "model": "claude-sonnet-5-5",
+      "usd": 0.027228,
+      "reservedUsd": 0.5
+    },
+    {
+      "id": "67d4457e-9403-4ce6-959e-b41c2adad0c8",
+      "model": "claude-sonnet-5-5",
+      "usd": 0.017396,
+      "reservedUsd": 0.5
+    },
+    {
+      "id": "29bf9873-b7cc-4380-8e31-745634d5bfe0",
+      "model": "claude-sonnet-5-5",
+      "usd": 0.015712,
+      "reservedUsd": 0.5
+    },
+    {
+      "id": "da9ad8ed-25c5-4c06-9510-ecc0a1567ace",
+      "model": "claude-sonnet-5-5",
+      "usd": 0.0066,
+      "reservedUsd": 0.5
+    },
+    {
+      "id": "ee1b000a-69c0-420d-b56e-051d8b8e6958",
+      "model": "claude-sonnet-5-5",
+      "usd": 0.163352,
+      "reservedUsd": 0.5
+    },
+    {
+      "id": "535a3a95-3baa-4783-99ce-51f6e723a0e3",
+      "model": "claude-sonnet-5-5",
+      "usd": 0.008952000000000002,
+      "reservedUsd": 0.5
+    },
+    {
+      "id": "06d2c5a1-5067-42f5-95b6-0ffeb6bf3b38",
+      "model": "claude-sonnet-5-5",
+      "usd": 0.00926,
+      "reservedUsd": 0.5
+    },
+    {
+      "id": "069268ad-702a-446c-8567-1938f98cb053",
+      "model": "claude-sonnet-5-5",
+      "usd": 0.00893,
+      "reservedUsd": 0.5
+    },
+    {
+      "id": "68a4cb7c-044f-4f1e-92a5-f9e597ff4823",
+      "model": "claude-sonnet-5-5",
+      "usd": 0.012556000000000001,
+      "reservedUsd": 0.5
+    },
+    {
+      "id": "b5ed878c-ac49-4f86-b069-64cb2fbbaefc",
+      "model": "claude-sonnet-5-5",
+      "usd": 0.012380000000000002,
+      "reservedUsd": 0.5
+    },
+    {
+      "id": "074bdb1e-6604-4692-97ec-f53b04bc87c1",
+      "model": "claude-sonnet-5-5",
+      "usd": 0.0074540000000000006,
+      "reservedUsd": 0.5
+    },
+    {
+      "id": "af7b76cf-7cfb-4663-ac61-8acbb8cecb82",
+      "model": "claude-sonnet-5-5",
+      "usd": 0.010606,
+      "reservedUsd": 0.5
+    },
+    {
+      "id": "55f0c26e-04ad-4405-8618-49c258739979",
+      "model": "claude-sonnet-5-5",
+      "usd": 0.004758,
+      "reservedUsd": 0.5
+    },
+    {
+      "id": "32690de1-0d50-4212-b42f-9f83920d982f",
+      "model": "claude-sonnet-5-5",
+      "usd": 0.01023,
+      "reservedUsd": 0.5
+    },
+    {
+      "id": "56d55e11-da3b-4f30-a212-575e4225d544",
+      "model": "claude-sonnet-5-5",
+      "usd": 0.012156,
+      "reservedUsd": 0.5
+    },
+    {
+      "id": "62ffce51-8d3b-4f93-8673-0cad518cea29",
+      "model": "claude-sonnet-5-5",
+      "usd": 0.011278,
+      "reservedUsd": 0.5
+    },
+    {
+      "id": "053322ca-b40d-4c43-940e-b2c2067b4240",
+      "model": "claude-sonnet-5-5",
+      "usd": 0.01193,
+      "reservedUsd": 0.5
+    },
+    {
+      "id": "215c404c-9bdd-4ccf-87e6-c1f7dd5c4502",
+      "model": "claude-sonnet-5-5",
+      "usd": 0.006664,
+      "reservedUsd": 0.5
+    },
+    {
+      "id": "aefb152c-a134-42de-ad84-69f5f6fc7cd0",
+      "model": "claude-sonnet-5-5",
+      "usd": 0.012988,
+      "reservedUsd": 0.5
+    },
+    {
+      "id": "a8a45526-ef55-4a4c-8509-7d6610c64b37",
+      "model": "claude-sonnet-5-5",
+      "usd": 0.0035960000000000002,
+      "reservedUsd": 0.5
+    },
+    {
+      "id": "dd45c85a-311f-403a-ace1-0a1f003873d7",
+      "model": "claude-sonnet-5-5",
+      "usd": 0.00989,
+      "reservedUsd": 0.5
+    },
+    {
+      "id": "5b192b2d-5b6c-4c23-af80-2d29d98ccedc",
+      "model": "claude-sonnet-5-5",
+      "usd": 0.007056,
+      "reservedUsd": 0.5
+    },
+    {
+      "id": "0f0bd41c-b20d-4a21-aff7-ee977dcd86d6",
+      "model": "claude-sonnet-5-5",
+      "usd": 0.010322000000000001,
+      "reservedUsd": 0.5
+    },
+    {
+      "id": "52a599ce-b434-46bf-b1cf-0eec0fe17d31",
+      "model": "claude-sonnet-5-5",
+      "usd": 0.012476,
+      "reservedUsd": 0.5
+    },
+    {
+      "id": "ee95009d-6e9c-424a-bb81-bc0f251a084f",
+      "model": "claude-sonnet-5-5",
+      "usd": 0.017706,
+      "reservedUsd": 0.5
+    },
+    {
+      "id": "72a2bbff-ea9d-46c5-8d95-344792c9ae6c",
+      "model": "claude-sonnet-5-5",
+      "usd": 0.011789999999999998,
+      "reservedUsd": 0.5
+    },
+    {
+      "id": "75f7e502-a1b1-470a-9cfb-a31b970734be",
+      "model": "claude-sonnet-5-5",
+      "usd": 0.016073999999999998,
+      "reservedUsd": 0.5
+    },
+    {
+      "id": "323e58a0-107f-4163-954b-797935cb8ddf",
+      "model": "claude-sonnet-5-5",
+      "usd": 0.006085999999999999,
+      "reservedUsd": 0.5
+    },
+    {
+      "id": "7841f378-3090-492e-844e-9e2b962b0a11",
+      "model": "claude-sonnet-5-5",
+      "usd": 0.006792,
+      "reservedUsd": 0.5
+    },
+    {
+      "id": "715f2af6-b4f9-4bb2-86c4-acbdd4895472",
+      "model": "claude-sonnet-5-5",
+      "usd": 0.019604,
+      "reservedUsd": 0.5
+    },
+    {
+      "id": "554a1f01-5340-4389-a62f-a77032c34d9b",
+      "model": "claude-sonnet-5-5",
+      "usd": 0.007862000000000001,
+      "reservedUsd": 0.5
+    },
+    {
+      "id": "c0ec4f76-296e-4c1b-bbbe-c04d8d73f8ee",
+      "model": "claude-sonnet-5-5",
+      "usd": 0.012538,
+      "reservedUsd": 0.5
+    },
+    {
+      "id": "998573d8-ee14-4284-a3c5-f2dcf65d9772",
+      "model": "claude-sonnet-5-5",
+      "usd": 0.006736,
+      "reservedUsd": 0.5
+    },
+    {
+      "id": "cf417748-8ec7-4fce-937d-740e924a3de3",
+      "model": "claude-sonnet-5-5",
+      "usd": 0.014624,
+      "reservedUsd": 0.5
+    },
+    {
+      "id": "f2735012-6096-44f1-b9af-47320b3306a7",
+      "model": "claude-sonnet-5-5",
+      "usd": 0.023536,
+      "reservedUsd": 0.5
+    },
+    {
+      "id": "1f6fc937-595c-441d-8091-0df926b64965",
+      "model": "claude-sonnet-5-5",
+      "usd": 0.021182,
+      "reservedUsd": 0.5
+    },
+    {
+      "id": "cf726a0b-9c7f-4fe7-b113-25bcd2dcdae5",
+      "model": "claude-sonnet-5-5",
+      "usd": 0.012506,
+      "reservedUsd": 0.5
+    },
+    {
+      "id": "3b61a1ed-6318-4422-bf7a-070fa0fd2264",
+      "model": "claude-sonnet-5-5",
+      "usd": 0.01961,
+      "reservedUsd": 0.5
+    },
+    {
+      "id": "69c8ce89-42ac-4880-8dbf-5076f7f6f0a5",
+      "model": "claude-sonnet-5-5",
+      "usd": 0.013283999999999999,
+      "reservedUsd": 0.5
+    },
+    {
+      "id": "237fd8c7-e74e-44ea-8e6c-06e2370e44bf",
+      "model": "claude-sonnet-5-5",
+      "usd": 0.010048000000000001,
+      "reservedUsd": 0.5
+    },
+    {
+      "id": "8bca0e73-ca02-4b7e-994d-8d2e12eab4e5",
+      "model": "claude-sonnet-5-5",
+      "usd": 0.013792,
+      "reservedUsd": 0.5
+    },
+    {
+      "id": "998d9946-5b4d-42c6-81b8-6d57a04cda35",
+      "model": "claude-sonnet-5-5",
+      "usd": 0.0039900000000000005,
+      "reservedUsd": 0.5
+    },
+    {
+      "id": "f7699903-dd2f-4b97-abea-6d3e8a838ce2",
+      "model": "claude-sonnet-5-5",
+      "usd": 0.010610000000000001,
+      "reservedUsd": 0.5
+    },
+    {
+      "id": "689eacf5-1519-46d4-a65e-244f1c3b25e6",
+      "model": "claude-sonnet-5-5",
+      "usd": 0.00705,
+      "reservedUsd": 0.5
+    },
+    {
+      "id": "e9387639-b406-4b12-8b5c-ab6e78efdfa5",
+      "model": "claude-sonnet-5-5",
+      "usd": 0.014459999999999999,
+      "reservedUsd": 0.5
+    },
+    {
+      "id": "8b9445d4-4bde-4415-93eb-b2fe9a26609b",
+      "model": "claude-sonnet-5-5",
+      "usd": 0.005948,
+      "reservedUsd": 0.5
+    },
+    {
+      "id": "2d90449f-4a05-45b7-bc19-bbda6b8cfc5b",
+      "model": "claude-sonnet-5-5",
+      "usd": 0.014376000000000002,
+      "reservedUsd": 0.5
+    },
+    {
+      "id": "d5ac7279-fb77-475c-a56e-8476fb6b8362",
+      "model": "claude-sonnet-5-5",
+      "usd": 0.017706,
+      "reservedUsd": 0.5
+    },
+    {
+      "id": "a788b06c-0462-45d1-a011-d2b1059ad3e1",
+      "model": "claude-sonnet-5-5",
+      "usd": 0.01138,
+      "reservedUsd": 0.5
+    },
+    {
+      "id": "c8011b17-d6ac-4a88-ba90-d9575d9fc42f",
+      "model": "claude-sonnet-5-5",
+      "usd": 0.007766,
+      "reservedUsd": 0.5
+    },
+    {
+      "id": "40bab336-edfa-499e-a595-7b4c85b146f2",
+      "model": "claude-sonnet-5-5",
+      "usd": 0.011536,
+      "reservedUsd": 0.5
+    },
+    {
+      "id": "22928ed5-a6b0-4263-afbd-1d1f8a83f30b",
+      "model": "claude-sonnet-5-5",
+      "usd": 0.014301999999999999,
+      "reservedUsd": 0.5
+    },
+    {
+      "id": "c793d989-6d67-495f-86fd-60735185ebd6",
+      "model": "claude-sonnet-5-5",
+      "usd": 0.018684000000000003,
+      "reservedUsd": 0.5
+    },
+    {
+      "id": "1afa3deb-bd74-4212-814a-a10dbfa6bb92",
+      "model": "claude-sonnet-5-5",
+      "usd": 0.010078,
+      "reservedUsd": 0.5
+    },
+    {
+      "id": "9bc7a490-d9a2-408e-8962-6e9c2c81667e",
+      "model": "claude-sonnet-5-5",
+      "usd": 0.01885,
+      "reservedUsd": 0.5
+    },
+    {
+      "id": "b78960ce-d1b8-41e5-b378-ccc13e240d50",
+      "model": "claude-sonnet-5-5",
+      "usd": 0.011685999999999998,
+      "reservedUsd": 0.5
+    },
+    {
+      "id": "19e52e82-63df-4f2a-ae1d-0df6d3ff957c",
+      "model": "claude-sonnet-5-5",
+      "usd": 0.010929999999999999,
+      "reservedUsd": 0.5
+    },
+    {
+      "id": "381400e2-8fa8-4b03-8985-495960286119",
+      "model": "claude-sonnet-5-5",
+      "usd": 0.016578,
+      "reservedUsd": 0.5
+    },
+    {
+      "id": "37951968-61e5-415e-b142-2c18d401e812",
+      "model": "claude-sonnet-5-5",
+      "usd": 0.00838,
+      "reservedUsd": 0.5
+    },
+    {
+      "id": "011e4ffa-91ab-4328-ac3d-d93781a45fa8",
+      "model": "claude-sonnet-5-5",
+      "usd": 0.013026,
+      "reservedUsd": 0.5
+    },
+    {
+      "id": "599296e2-c809-4d54-8cc4-bf360748ac83",
+      "model": "claude-sonnet-5-5",
+      "usd": 0.01089,
+      "reservedUsd": 0.5
+    },
+    {
+      "id": "02af24ad-ae7f-4ea5-aef9-81f42a1626f5",
+      "model": "claude-sonnet-5-5",
+      "usd": 0.014107999999999999,
+      "reservedUsd": 0.5
+    },
+    {
+      "id": "58684e4e-312a-4a50-ab85-7dea420ec383",
+      "model": "claude-sonnet-5-5",
+      "usd": 0.019483999999999998,
+      "reservedUsd": 0.5
+    },
+    {
+      "id": "25dcde68-1ca2-4280-8bbb-05e09ef1e162",
+      "model": "claude-sonnet-5-5",
+      "usd": 0.013044,
+      "reservedUsd": 0.5
+    },
+    {
+      "id": "fef3d675-d200-44ad-b27e-b0691dbd51e8",
+      "model": "claude-sonnet-5-5",
+      "usd": 0.014542,
+      "reservedUsd": 0.5
+    },
+    {
+      "id": "dd22d0c2-c5c3-4224-88e1-c3f89e7482ea",
+      "model": "claude-sonnet-5-5",
+      "usd": 0.01106,
+      "reservedUsd": 0.5
+    },
+    {
+      "id": "a421417f-502d-4226-bdc8-316bb403a792",
+      "model": "claude-sonnet-5-5",
+      "usd": 0.00917,
+      "reservedUsd": 0.5
+    },
+    {
+      "id": "558a575a-536f-4f50-a438-128aff4f64e8",
+      "model": "claude-sonnet-5-5",
+      "usd": 0.020518,
+      "reservedUsd": 0.5
+    },
+    {
+      "id": "755eed31-d8d3-4058-b58c-a1f05fac1ecf",
+      "model": "claude-sonnet-5-5",
+      "usd": 0.008922,
+      "reservedUsd": 0.5
+    },
+    {
+      "id": "65bcc810-b050-486e-8ecc-cb3449f8a304",
+      "model": "claude-sonnet-5-5",
+      "usd": 0.008892,
+      "reservedUsd": 0.5
+    },
+    {
+      "id": "722b3a95-2635-4016-9dfb-dbcecb1074a0",
+      "model": "claude-sonnet-5-5",
+      "usd": 0.00979,
+      "reservedUsd": 0.5
+    },
+    {
+      "id": "a87ac84d-4697-4071-a201-bb05483ff468",
+      "model": "claude-sonnet-5-5",
+      "usd": 0.010384000000000001,
+      "reservedUsd": 0.5
+    },
+    {
+      "id": "09bc87c5-30d0-47c2-bfcb-1fd977034009",
+      "model": "claude-sonnet-5-5",
+      "usd": 0.011014,
+      "reservedUsd": 0.5
+    },
+    {
+      "id": "8591b8c9-3b28-4547-ac99-4eacda7c1b0b",
+      "model": "claude-sonnet-5-5",
+      "usd": 0.014772,
+      "reservedUsd": 0.5
+    },
+    {
+      "id": "fd517ff1-73c9-478a-8eb8-26bd5be042ce",
+      "model": "claude-sonnet-5-5",
+      "usd": 0.007724,
+      "reservedUsd": 0.5
+    },
+    {
+      "id": "aa5b0ce5-c9dc-4ea1-9888-b1d71d98026d",
+      "model": "claude-sonnet-5-5",
+      "usd": 0.017148,
+      "reservedUsd": 0.5
+    },
+    {
+      "id": "07a71f4c-ff8b-430b-911b-684817caa0cb",
+      "model": "claude-sonnet-5-5",
+      "usd": 0.027985999999999997,
+      "reservedUsd": 0.5
+    },
+    {
+      "id": "cbb45b8c-7c82-4bea-880b-216ae91b7de9",
+      "model": "claude-sonnet-5-5",
+      "usd": 0.013868,
+      "reservedUsd": 0.5
+    },
+    {
+      "id": "b70e6da9-e229-4c04-a724-4ccb9b315cef",
+      "model": "claude-sonnet-5-5",
+      "usd": 0.008784,
+      "reservedUsd": 0.5
+    },
+    {
+      "id": "e76a62d2-e211-4d16-86ad-f55577a7da14",
+      "model": "claude-sonnet-5-5",
+      "usd": 0.007014,
+      "reservedUsd": 0.5
+    },
+    {
+      "id": "75f50643-c81d-4598-84fa-b62be18c3ace",
+      "model": "claude-sonnet-5-5",
+      "usd": 0.006916,
+      "reservedUsd": 0.5
+    },
+    {
+      "id": "b0c4a7de-bd4c-41d9-8d76-0bd5180971c6",
+      "model": "claude-sonnet-5-5",
+      "usd": 0.031396,
+      "reservedUsd": 0.5
+    },
+    {
+      "id": "876c2c7b-478b-4ee4-abdd-cf0e6de963e8",
+      "model": "claude-sonnet-5-5",
+      "usd": 0.026217999999999998,
+      "reservedUsd": 0.5
+    },
+    {
+      "id": "c02bbd68-76f9-4d97-b394-a34f1bae8117",
+      "model": "claude-sonnet-5-5",
+      "usd": 0.015476,
+      "reservedUsd": 0.5
+    },
+    {
+      "id": "e778623a-fb08-4ed2-875f-976423ae22b1",
+      "model": "claude-sonnet-5-5",
+      "usd": 0.031904,
+      "reservedUsd": 0.5
+    },
+    {
+      "id": "1d73037b-0238-4dc0-8498-d066038a662d",
+      "model": "claude-sonnet-5-5",
+      "usd": 0.015948,
+      "reservedUsd": 0.5
+    },
+    {
+      "id": "1087adad-b556-4342-bb7d-cddb2a12f7ea",
+      "model": "claude-sonnet-5-5",
+      "usd": 0.011438,
+      "reservedUsd": 0.5
+    },
+    {
+      "id": "165e8db8-d709-440f-b76b-f2aaac7a0ddf",
+      "model": "claude-sonnet-5-5",
+      "usd": 0.022581999999999998,
+      "reservedUsd": 0.5
+    },
+    {
+      "id": "0f6882f1-1e46-4eb9-9ec6-ad0d2aa3c35b",
+      "model": "claude-sonnet-5-5",
+      "usd": 0.007592,
+      "reservedUsd": 0.5
+    },
+    {
+      "id": "e50a6663-3220-49aa-b018-71fbb64ac6c3",
+      "model": "claude-sonnet-5-5",
+      "usd": 0.005432,
+      "reservedUsd": 0.5
+    },
+    {
+      "id": "a6e5b895-89df-4d2b-9db2-d0d276cf57ef",
+      "model": "claude-sonnet-5-5",
+      "usd": 0.01243,
+      "reservedUsd": 0.5
+    },
+    {
+      "id": "7e92336b-c15d-4ed2-b5e0-467d16d1e1e4",
+      "model": "claude-sonnet-5-5",
+      "usd": 0.02389,
+      "reservedUsd": 0.5
+    },
+    {
+      "id": "46535a0a-2f7a-4702-97fd-6c6011ca5982",
+      "model": "claude-sonnet-5-5",
+      "usd": 0.011948,
+      "reservedUsd": 0.5
+    },
+    {
+      "id": "1660d0c1-66c6-4cf8-a1be-581d7dfbb5c8",
+      "model": "claude-sonnet-5-5",
+      "usd": 0.0068059999999999996,
+      "reservedUsd": 0.5
+    },
+    {
+      "id": "515067e6-58a0-49ac-b45c-616558cb9375",
+      "model": "claude-sonnet-5-5",
+      "usd": 0.011716,
+      "reservedUsd": 0.5
+    },
+    {
+      "id": "69c4618a-11c1-4132-90ce-ab77b36520e8",
+      "model": "claude-sonnet-5-5",
+      "usd": 0.0034260000000000002,
+      "reservedUsd": 0.5
+    },
+    {
+      "id": "e47bf61f-46f3-4b09-a8ef-c2267119cad7",
+      "model": "claude-sonnet-5-5",
+      "usd": 0.008784,
+      "reservedUsd": 0.5
+    },
+    {
+      "id": "b0b07717-d1e4-4196-91e8-52cc6bde3f5f",
+      "model": "claude-sonnet-5-5",
+      "usd": 0.018104000000000002,
+      "reservedUsd": 0.5
+    },
+    {
+      "id": "2a451e23-4bc4-4740-b75a-4e848848d21c",
+      "model": "claude-sonnet-5-5",
+      "usd": 0.010356,
+      "reservedUsd": 0.5
+    },
+    {
+      "id": "7d47cb6b-3254-4591-9ed4-124b5f02ab00",
+      "model": "claude-sonnet-5-5",
+      "usd": 0.008222,
+      "reservedUsd": 0.5
+    },
+    {
+      "id": "cfaa5ca4-9311-4a1f-9b1a-6c7f5b4ff03c",
+      "model": "claude-sonnet-5-5",
+      "usd": 0.006728,
+      "reservedUsd": 0.5
+    },
+    {
+      "id": "1c7a7905-84a5-49ca-a3bb-39ca33dae62b",
+      "model": "claude-sonnet-5-5",
+      "usd": 0.005876,
+      "reservedUsd": 0.5
+    },
+    {
+      "id": "eda41a0d-ab51-4618-8303-4f978e4b0850",
+      "model": "claude-sonnet-5-5",
+      "usd": 0.003976,
+      "reservedUsd": 0.5
+    },
+    {
+      "id": "fb9d8e89-1b97-41d7-bae3-681d2c386c91",
+      "model": "claude-sonnet-5-5",
+      "usd": 0.008275999999999999,
+      "reservedUsd": 0.5
+    },
+    {
+      "id": "03c8bcae-afdb-44d9-b4ce-41c6f2b482de",
+      "model": "claude-sonnet-5-5",
+      "usd": 0.010706,
+      "reservedUsd": 0.5
+    },
+    {
+      "id": "d6948e77-a6f2-46d0-bbbe-838fc099be1e",
+      "model": "claude-sonnet-5-5",
+      "usd": 0.010308000000000001,
+      "reservedUsd": 0.5
+    },
+    {
+      "id": "7951ce76-9721-40e4-89fc-10dac6601bf8",
+      "model": "claude-sonnet-5-5",
+      "usd": 0.00912,
+      "reservedUsd": 0.5
+    },
+    {
+      "id": "44d948a5-bf2b-4c42-9dc0-670643325148",
+      "model": "claude-sonnet-5-5",
+      "usd": 0.016762,
+      "reservedUsd": 0.5
+    },
+    {
+      "id": "f5d3a533-592b-47ef-a572-c3bbae587e37",
+      "model": "claude-sonnet-5-5",
+      "usd": 0.007108,
+      "reservedUsd": 0.5
+    },
+    {
+      "id": "6167a4b6-25ad-4db6-9ffa-cc1382774d12",
+      "model": "claude-sonnet-5-5",
+      "usd": 0.005256,
+      "reservedUsd": 0.5
+    },
+    {
+      "id": "832b8bab-16e6-4002-9f03-4e57b056270f",
+      "model": "claude-sonnet-5-5",
+      "usd": 0.015562,
+      "reservedUsd": 0.5
+    },
+    {
+      "id": "bbf8f2eb-7c1a-475d-8947-28f136ac5503",
+      "model": "claude-sonnet-5-5",
+      "usd": 0.010296,
+      "reservedUsd": 0.5
+    },
+    {
+      "id": "c23da2c2-722d-43b5-8ffe-7ef6c74ff569",
+      "model": "claude-sonnet-5-5",
+      "usd": 0.008892,
+      "reservedUsd": 0.5
+    },
+    {
+      "id": "9251f997-9b13-4636-be50-8e995a7e8ea7",
+      "model": "claude-sonnet-5-5",
+      "usd": 0.0036899999999999997,
+      "reservedUsd": 0.5
+    },
+    {
+      "id": "06015c47-d7a6-4b74-9041-c63613888656",
+      "model": "claude-sonnet-5-5",
+      "usd": 0.014003999999999999,
+      "reservedUsd": 0.5
+    },
+    {
+      "id": "2657d3c6-3db4-4bcf-94d4-8dc674ce6c56",
+      "model": "claude-sonnet-5-5",
+      "usd": 0.008788,
+      "reservedUsd": 0.5
+    },
+    {
+      "id": "087eea8a-0ee4-4670-ad7c-8e25a3a0a861",
+      "model": "claude-sonnet-5-5",
+      "usd": 0.01669,
+      "reservedUsd": 0.5
+    },
+    {
+      "id": "72635c25-9bef-4f00-a9f6-bf0c11f83c81",
+      "model": "claude-sonnet-5-5",
+      "usd": 0.005714,
+      "reservedUsd": 0.5
+    },
+    {
+      "id": "5819d771-799b-4030-aede-2973f444e29e",
+      "model": "claude-sonnet-5-5",
+      "usd": 0.009228,
+      "reservedUsd": 0.5
+    },
+    {
+      "id": "ab107062-67f0-49ac-9fee-4612225873ca",
+      "model": "claude-sonnet-5-5",
+      "usd": 0.022188,
+      "reservedUsd": 0.5
+    },
+    {
+      "id": "df6c9917-0f11-4147-987a-892cce0c1a93",
+      "model": "claude-sonnet-5-5",
+      "usd": 0.018535999999999997,
+      "reservedUsd": 0.5
+    },
+    {
+      "id": "f9edd455-179c-4680-9629-c9d236c9dbcf",
+      "model": "claude-sonnet-5-5",
+      "usd": 0.01542,
+      "reservedUsd": 0.5
+    },
+    {
+      "id": "25f84f8d-9c2f-495e-b67b-1a1dfaa54d74",
+      "model": "claude-sonnet-5-5",
+      "usd": 0.013504,
+      "reservedUsd": 0.5
+    },
+    {
+      "id": "63e69a7a-1db0-436f-8926-293c8eb7ef6b",
+      "model": "claude-sonnet-5-5",
+      "usd": 0.011151999999999999,
+      "reservedUsd": 0.5
+    },
+    {
+      "id": "622181ad-ee41-46a6-9e63-0b9cceab5054",
+      "model": "claude-sonnet-5-5",
+      "usd": 0.003998,
+      "reservedUsd": 0.5
+    },
+    {
+      "id": "bf1ba1fc-fde0-4cd7-865b-894e10118fc8",
+      "model": "claude-sonnet-5-5",
+      "usd": 0.037768,
+      "reservedUsd": 0.5
+    },
+    {
+      "id": "01fe6ebb-c47f-4030-9f1d-7e09fa1997ea",
+      "model": "claude-sonnet-5-5",
+      "usd": 0.016334,
+      "reservedUsd": 0.5
+    },
+    {
+      "id": "6fa194b6-28b8-46ac-9a0e-79cba335e403",
+      "model": "claude-sonnet-5-5",
+      "usd": 0.011714,
+      "reservedUsd": 0.5
+    },
+    {
+      "id": "0bf7f8d9-1a03-40a8-8887-4e1de93a2338",
+      "model": "claude-sonnet-5-5",
+      "usd": 0.024918000000000003,
+      "reservedUsd": 0.5
+    },
+    {
+      "id": "277650a3-d103-4059-a4e8-0ba20c92837b",
+      "model": "claude-sonnet-5-5",
+      "usd": 0.050046,
+      "reservedUsd": 0.5
+    },
+    {
+      "id": "1fa74ccb-f0e3-4eca-a3fd-8f1d6fb04f2e",
+      "model": "claude-sonnet-5-5",
+      "usd": 0.008024,
+      "reservedUsd": 0.5
+    },
+    {
+      "id": "aeadbdc2-1f0f-4448-bcc2-fdfd04d330ab",
+      "model": "claude-sonnet-5-5",
+      "usd": 0.019156,
+      "reservedUsd": 0.5
+    },
+    {
+      "id": "f3f03111-7632-4ea4-9661-5abb4fc52b93",
+      "model": "claude-sonnet-5-5",
+      "usd": 0.010068,
+      "reservedUsd": 0.5
+    },
+    {
+      "id": "f4ddaf26-a609-44be-a7f1-550fc5f65003",
+      "model": "claude-sonnet-5-5",
+      "usd": 0.011786,
+      "reservedUsd": 0.5
+    },
+    {
+      "id": "0fed1cce-f380-48c1-9c98-93ce71cdc7ae",
+      "model": "claude-sonnet-5-5",
+      "usd": 0.016866,
+      "reservedUsd": 0.5
+    },
+    {
+      "id": "c7c1f0f2-be9b-4543-a322-cb9185352f7c",
+      "model": "claude-sonnet-5-5",
+      "usd": 0.013182,
+      "reservedUsd": 0.5
+    },
+    {
+      "id": "1c36f7aa-4f88-436d-b814-d93ab2dc64fb",
+      "model": "claude-sonnet-5-5",
+      "usd": 0.017154000000000003,
+      "reservedUsd": 0.5
+    },
+    {
+      "id": "a4319060-6f4e-4f98-9f71-75f836ce43de",
+      "model": "claude-sonnet-5-5",
+      "usd": 0.014528000000000003,
+      "reservedUsd": 0.5
+    },
+    {
+      "id": "6fd0be2d-c56b-43f2-aecf-bcb3f70713db",
+      "model": "claude-sonnet-5-5",
+      "usd": 0.010538,
+      "reservedUsd": 0.5
+    },
+    {
+      "id": "2f92639f-e181-40df-b3a5-b0b5ba5d5985",
+      "model": "claude-sonnet-5-5",
+      "usd": 0.005358,
+      "reservedUsd": 0.5
+    },
+    {
+      "id": "441d21cc-4460-45c3-aaf1-a97334a83045",
+      "model": "claude-sonnet-5-5",
+      "usd": 0.011594,
+      "reservedUsd": 0.5
+    },
+    {
+      "id": "d1413535-1bdc-427d-ad77-0df8a769526e",
+      "model": "claude-sonnet-5-5",
+      "usd": 0.02804,
+      "reservedUsd": 0.5
+    },
+    {
+      "id": "abc26ce3-953f-4e06-b353-3a4277d2cc21",
+      "model": "claude-sonnet-5-5",
+      "usd": 0.0197,
+      "reservedUsd": 0.5
+    },
+    {
+      "id": "59b05d11-33fe-4988-a34b-9a33ca489f05",
+      "model": "claude-sonnet-5-5",
+      "usd": 0.011216,
+      "reservedUsd": 0.5
+    },
+    {
+      "id": "2a5db0fb-c1a9-4710-a00e-be00a5167f11",
+      "model": "claude-sonnet-5-5",
+      "usd": 0.016308,
+      "reservedUsd": 0.5
+    },
+    {
+      "id": "73f77504-29fd-4953-ad7e-853128d4cd88",
+      "model": "claude-sonnet-5-5",
+      "usd": 0.014948,
+      "reservedUsd": 0.5
+    },
+    {
+      "id": "3e6f6fa4-fae4-4c7e-bf81-0546894eaa4a",
+      "model": "claude-sonnet-5-5",
+      "usd": 0.01923,
+      "reservedUsd": 0.5
+    },
+    {
+      "id": "af656494-806d-4650-a75d-92f01a4c87e1",
+      "model": "claude-sonnet-5-5",
+      "usd": 0.012492,
+      "reservedUsd": 0.5
+    },
+    {
+      "id": "caca2550-4fa8-4454-9b7b-87cbd5ee82f9",
+      "model": "claude-sonnet-5-5",
+      "usd": 0.01091,
+      "reservedUsd": 0.5
+    },
+    {
+      "id": "9fbfa160-a605-4ec6-b431-683145549695",
+      "model": "claude-sonnet-5-5",
+      "usd": 0.004656,
+      "reservedUsd": 0.5
+    },
+    {
+      "id": "5b89fe72-837c-4519-852e-77f65f183e9d",
+      "model": "claude-sonnet-5-5",
+      "usd": 0.012060000000000001,
+      "reservedUsd": 0.5
+    },
+    {
+      "id": "955fc2bf-f3f5-415a-a9db-98cdd1b7bd18",
+      "model": "claude-sonnet-5-5",
+      "usd": 0.006854000000000001,
+      "reservedUsd": 0.5
+    },
+    {
+      "id": "840ff125-0d16-47c2-9a40-5951bc45ee2f",
+      "model": "claude-sonnet-5-5",
+      "usd": 0.012662,
+      "reservedUsd": 0.5
+    },
+    {
+      "id": "e61b2b8b-ccb3-4081-86ab-e2d29f43fded",
+      "model": "claude-sonnet-5-5",
+      "usd": 0.010124000000000001,
+      "reservedUsd": 0.5
+    },
+    {
+      "id": "0760bda2-6ffe-4ecd-a515-c046dc159a70",
+      "model": "claude-sonnet-5-5",
+      "usd": 0.008407999999999999,
+      "reservedUsd": 0.5
+    },
+    {
+      "id": "e60e0381-a847-4a32-911b-bfd6c3938045",
+      "model": "claude-sonnet-5-5",
+      "usd": 0.0042179999999999995,
+      "reservedUsd": 0.5
+    },
+    {
+      "id": "6bf21b35-9380-4e9f-a7f0-c4ffdffbb4a2",
+      "model": "claude-sonnet-5-5",
+      "usd": 0.013583999999999999,
+      "reservedUsd": 0.5
+    },
+    {
+      "id": "2d0730b3-bcdb-4ec6-bf8d-53526c8d4580",
+      "model": "claude-sonnet-5-5",
+      "usd": 0.00894,
+      "reservedUsd": 0.5
+    },
+    {
+      "id": "3b4a1f25-9f6a-40f0-98f2-241c2e6561ac",
+      "model": "claude-sonnet-5-5",
+      "usd": 0.011947999999999999,
+      "reservedUsd": 0.5
+    },
+    {
+      "id": "21cc6cf5-f2cd-42d8-a4ba-2313d71d04d2",
+      "model": "claude-sonnet-5-5",
+      "usd": 0.00313,
+      "reservedUsd": 0.5
+    },
+    {
+      "id": "ae083db1-293f-4c56-bd67-ec6c8e362bf0",
+      "model": "claude-sonnet-5-5",
+      "usd": 0.007417999999999999,
+      "reservedUsd": 0.5
+    },
+    {
+      "id": "5a602204-fb13-4eeb-90d9-9fa02ffdc4d4",
+      "model": "claude-sonnet-5-5",
+      "usd": 0.020052,
+      "reservedUsd": 0.5
+    },
+    {
+      "id": "30cb3e95-f2b8-406b-bcb4-93b3372e60d0",
+      "model": "claude-sonnet-5-5",
+      "usd": 0.011616000000000001,
+      "reservedUsd": 0.5
+    },
+    {
+      "id": "41c10a31-b91f-4155-ad7f-867365010760",
+      "model": "claude-sonnet-5-5",
+      "usd": 0.006002,
+      "reservedUsd": 0.5
+    },
+    {
+      "id": "b2bb1783-3b10-48c5-bd38-8cb2613e0f73",
+      "model": "claude-sonnet-5-5",
+      "usd": 0.00343,
+      "reservedUsd": 0.5
+    },
+    {
+      "id": "ce09b217-bae4-4efb-934e-0e19261a73d0",
+      "model": "claude-sonnet-5-5",
+      "usd": 0.008924,
+      "reservedUsd": 0.5
+    },
+    {
+      "id": "356707b9-0f92-4de5-9457-ae371b0c33ed",
+      "model": "claude-sonnet-5-5",
+      "usd": 0.011992000000000001,
+      "reservedUsd": 0.5
+    },
+    {
+      "id": "e1531d9f-e106-49a7-8b82-5b55a3030558",
+      "model": "claude-sonnet-5-5",
+      "usd": 0.015718,
+      "reservedUsd": 0.5
+    },
+    {
+      "id": "2caa323a-736a-4e18-8937-1e42cddbee59",
+      "model": "claude-sonnet-5-5",
+      "usd": 0.009918,
+      "reservedUsd": 0.5
+    },
+    {
+      "id": "d646bd51-81de-4eb7-993c-1c1b4c7b2755",
+      "model": "claude-sonnet-5-5",
+      "usd": 0.008694,
+      "reservedUsd": 0.5
+    },
+    {
+      "id": "04acfb5c-35c2-45b8-8e49-46736fbb9903",
+      "model": "claude-sonnet-5-5",
+      "usd": 0.066514,
+      "reservedUsd": 0.5
+    },
+    {
+      "id": "cb1cf06f-3c40-4b5d-8615-879cadc1b8a2",
+      "model": "claude-sonnet-5-5",
+      "usd": 0.005418000000000001,
+      "reservedUsd": 0.5
+    },
+    {
+      "id": "3a7249a8-2624-424a-b906-754f54164d9c",
+      "model": "claude-sonnet-5-5",
+      "usd": 0.009522,
+      "reservedUsd": 0.5
+    },
+    {
+      "id": "8016ca85-cf16-4eac-a1de-37569698d13d",
+      "model": "claude-sonnet-5-5",
+      "usd": 0.010358000000000001,
+      "reservedUsd": 0.5
+    },
+    {
+      "id": "3a890838-3e5c-4289-9e8a-1dc9a2bd2ddd",
+      "model": "claude-sonnet-5-5",
+      "usd": 0.007298000000000001,
+      "reservedUsd": 0.5
+    },
+    {
+      "id": "db455159-fb04-49b7-bc61-1655c94275b2",
+      "model": "claude-sonnet-5-5",
+      "usd": 0.00447,
+      "reservedUsd": 0.5
+    },
+    {
+      "id": "1ee41b28-c7a6-4a4a-8cbe-40d86ace2b41",
+      "model": "claude-sonnet-5-5",
+      "usd": 0.008072,
+      "reservedUsd": 0.5
+    },
+    {
+      "id": "ac6edcf7-688a-4dd3-8ba4-4c4338a6b50b",
+      "model": "claude-sonnet-5-5",
+      "usd": 0.012060000000000001,
+      "reservedUsd": 0.5
+    },
+    {
+      "id": "44c8c20b-c047-47a0-9398-6a56cd6176a8",
+      "model": "claude-sonnet-5-5",
+      "usd": 0.016923999999999998,
+      "reservedUsd": 0.5
+    },
+    {
+      "id": "c6dde230-68dc-400b-81e7-869f8e298ceb",
+      "model": "claude-sonnet-5-5",
+      "usd": 0.010995999999999999,
+      "reservedUsd": 0.5
+    },
+    {
+      "id": "12aad6f3-844b-40ba-8889-abacf9d0b0b9",
+      "model": "claude-sonnet-5-5",
+      "usd": 0.0137,
+      "reservedUsd": 0.5
+    },
+    {
+      "id": "97ab85c0-df1c-48df-ad76-c06b9fb95d1d",
+      "model": "claude-sonnet-5-5",
+      "usd": 0.00587,
+      "reservedUsd": 0.5
+    },
+    {
+      "id": "4815845c-1269-4fa5-a779-edc73f9e43dd",
+      "model": "claude-sonnet-5-5",
+      "usd": 0.017987999999999997,
+      "reservedUsd": 0.5
+    },
+    {
+      "id": "559c2c08-372c-4c92-a16c-66e4d4b8ef4f",
+      "model": "claude-sonnet-5-5",
+      "usd": 0.00935,
+      "reservedUsd": 0.5
+    },
+    {
+      "id": "87be785d-589e-4586-8735-31dce3396150",
+      "model": "claude-sonnet-5-5",
+      "usd": 0.008884,
+      "reservedUsd": 0.5
+    },
+    {
+      "id": "6201c632-b08e-4acc-92b6-bf4ee2eb5fe7",
+      "model": "claude-sonnet-5-5",
+      "usd": 0.005142,
+      "reservedUsd": 0.5
+    },
+    {
+      "id": "07f81a75-e8ff-42e4-baf1-295416186b53",
+      "model": "claude-sonnet-5-5",
+      "usd": 0.015328,
+      "reservedUsd": 0.5
+    },
+    {
+      "id": "bd96b2e1-c792-4436-ad9e-1b3daa679011",
+      "model": "claude-sonnet-5-5",
+      "usd": 0.005792,
+      "reservedUsd": 0.5
+    },
+    {
+      "id": "d71d3910-6602-4ec0-bb7f-b268155c1ad1",
+      "model": "claude-sonnet-5-5",
+      "usd": 0.01858,
+      "reservedUsd": 0.5
+    },
+    {
+      "id": "9c0c70e1-a1a0-45b2-ae30-56b120c81836",
+      "model": "claude-sonnet-5-5",
+      "usd": 0.008,
+      "reservedUsd": 0.5
+    },
+    {
+      "id": "eee77f73-a3b3-4372-8371-9bde8c99b541",
+      "model": "claude-sonnet-5-5",
+      "usd": 0.18727,
+      "reservedUsd": 0.5
+    },
+    {
+      "id": "4b38f85c-0aae-480a-b76a-81288aa9e7dc",
+      "model": "claude-sonnet-5-5",
+      "usd": 0.011882,
+      "reservedUsd": 0.5
+    },
+    {
+      "id": "c35c90a7-cf8e-4fd9-a4c5-6f659e2deef3",
+      "model": "claude-sonnet-5-5",
+      "usd": 0.005638000000000001,
+      "reservedUsd": 0.5
+    },
+    {
+      "id": "2b58d0f7-55f0-4d56-8cbf-7a3c6d5da26d",
+      "model": "claude-sonnet-5-5",
+      "usd": 0.024238,
+      "reservedUsd": 0.5
+    },
+    {
+      "id": "ccebe92d-149f-4a6c-a792-c70d5929743b",
+      "model": "claude-sonnet-5-5",
+      "usd": 0.010172,
+      "reservedUsd": 0.5
+    },
+    {
+      "id": "db3e69b7-1a1b-498b-8a0a-824f569a015b",
+      "model": "claude-sonnet-5-5",
+      "usd": 0.060168,
+      "reservedUsd": 0.5
+    },
+    {
+      "id": "1d193b41-102d-499f-b92c-261c6bff14b3",
+      "model": "claude-sonnet-5-5",
+      "usd": 0.006114,
+      "reservedUsd": 0.5
+    },
+    {
+      "id": "d5dfc3f5-7a95-48a0-900d-9defcbb618ed",
+      "model": "claude-sonnet-5-5",
+      "usd": 0.031044000000000002,
+      "reservedUsd": 0.5
+    },
+    {
+      "id": "b082a5fb-67b8-46ca-8815-551505e970ca",
+      "model": "claude-sonnet-5-5",
+      "usd": 0.010145999999999999,
+      "reservedUsd": 0.5
+    },
+    {
+      "id": "a8d5f68c-9d3b-46bd-8d5a-18a49c35ed2c",
+      "model": "claude-sonnet-5-5",
+      "usd": 0.016492,
+      "reservedUsd": 0.5
+    },
+    {
+      "id": "b86df235-7187-46d7-82cb-ee2e66d44f1e",
+      "model": "claude-sonnet-5-5",
+      "usd": 0.00964,
+      "reservedUsd": 0.5
+    },
+    {
+      "id": "20ca7aa6-bdc7-41c0-955c-2482c84c4d91",
+      "model": "claude-sonnet-5-5",
+      "usd": 0.027564,
+      "reservedUsd": 0.5
+    },
+    {
+      "id": "14871afc-683b-45ff-9b81-11e02765705b",
+      "model": "claude-sonnet-5-5",
+      "usd": 0.015109999999999998,
+      "reservedUsd": 0.5
+    },
+    {
+      "id": "3d5e1791-6692-4023-bc93-fda8b269ac0a",
+      "model": "claude-sonnet-5-5",
+      "usd": 0.02237,
+      "reservedUsd": 0.5
+    },
+    {
+      "id": "f1645e2f-8c1e-40fd-ac48-2e97434543b0",
+      "model": "claude-sonnet-5-5",
+      "usd": 0.00969,
+      "reservedUsd": 0.5
+    },
+    {
+      "id": "0e65f2f9-f720-4df7-8d92-ea3c4c16c43c",
+      "model": "claude-sonnet-5-5",
+      "usd": 0.10930000000000001,
+      "reservedUsd": 0.5
+    },
+    {
+      "id": "c2d76dee-7858-4f50-874e-077304ccec68",
+      "model": "claude-sonnet-5-5",
+      "usd": 0.004698,
+      "reservedUsd": 0.5
+    },
+    {
+      "id": "712b9332-1a58-4189-842f-b8875c707780",
+      "model": "claude-sonnet-5-5",
+      "usd": 0.021322,
+      "reservedUsd": 0.5
+    },
+    {
+      "id": "61b2bd03-b5de-4c87-a00a-ca4f829328cc",
+      "model": "claude-sonnet-5-5",
+      "usd": 0.035036,
+      "reservedUsd": 0.5
+    },
+    {
+      "id": "c1ac2bff-4491-4316-9cfb-2b99f6925da8",
+      "model": "claude-sonnet-5-5",
+      "usd": 0.020844,
+      "reservedUsd": 0.5
+    },
+    {
+      "id": "147f6c7f-9b18-41c0-98e6-65edd77bb523",
+      "model": "claude-sonnet-5-5",
+      "usd": 0.029682000000000004,
+      "reservedUsd": 0.5
+    },
+    {
+      "id": "cf56f729-6903-42c3-be5f-1becb8e6c4c2",
+      "model": "claude-sonnet-5-5",
+      "usd": 0.049582,
+      "reservedUsd": 0.5
+    },
+    {
+      "id": "53ee0625-cf88-48c0-844c-83458d53d370",
+      "model": "claude-sonnet-5-5",
+      "usd": 0.024411999999999996,
+      "reservedUsd": 0.5
+    },
+    {
+      "id": "c3d6391a-5244-47bd-a56b-0cd9ec6a2c3d",
+      "model": "claude-sonnet-5-5",
+      "usd": 0.018411999999999998,
+      "reservedUsd": 0.5
+    },
+    {
+      "id": "289fcb98-2e9e-49e8-83a7-260826fce284",
+      "model": "claude-sonnet-5-5",
+      "usd": 0.0037319999999999996,
+      "reservedUsd": 0.5
+    },
+    {
+      "id": "c13cb951-b985-4cff-9ab2-5058bb260c79",
+      "model": "claude-sonnet-5-5",
+      "usd": 0.011118,
+      "reservedUsd": 0.5
+    },
+    {
+      "id": "61f56212-a75b-4fdd-ad6a-2630aedd906a",
+      "model": "claude-sonnet-5-5",
+      "usd": 0.021137999999999997,
+      "reservedUsd": 0.5
+    },
+    {
+      "id": "e26feae6-a3e5-4e08-bd33-0397deda98a8",
+      "model": "claude-sonnet-5-5",
+      "usd": 0.02629,
+      "reservedUsd": 0.5
+    },
+    {
+      "id": "2817e8cd-fde9-413b-b35a-9c14da0765b9",
+      "model": "claude-sonnet-5-5",
+      "usd": 0.010492,
+      "reservedUsd": 0.5
+    },
+    {
+      "id": "f90b9d82-07a4-4259-9e1b-1de404942e35",
+      "model": "claude-sonnet-5-5",
+      "usd": 0.006647999999999999,
+      "reservedUsd": 0.5
+    },
+    {
+      "id": "a469061b-9e0a-408c-9a9f-0c5301122cca",
+      "model": "claude-sonnet-5-5",
+      "usd": 0.020044,
+      "reservedUsd": 0.5
+    },
+    {
+      "id": "ce5d6377-8475-4a2e-9516-f590f5ca6ce6",
+      "model": "claude-sonnet-5-5",
+      "usd": 0.022912,
+      "reservedUsd": 0.5
+    },
+    {
+      "id": "f2a5d7ee-b8bd-4638-9260-590204a1c531",
+      "model": "claude-sonnet-5-5",
+      "usd": 0.020592,
+      "reservedUsd": 0.5
+    },
+    {
+      "id": "848a4ffe-56c8-45de-89e0-cc163f69387f",
+      "model": "claude-sonnet-5-5",
+      "usd": 0.018328,
+      "reservedUsd": 0.5
+    },
+    {
+      "id": "923f8a4e-d66c-45e9-9c6b-36b976b06aa6",
+      "model": "claude-sonnet-5-5",
+      "usd": 0.013974,
+      "reservedUsd": 0.5
+    },
+    {
+      "id": "690fa45e-a660-452c-bd78-dfc8ef31ab59",
+      "model": "claude-sonnet-5-5",
+      "usd": 0.009878000000000001,
+      "reservedUsd": 0.5
+    },
+    {
+      "id": "2d2770db-0499-4a1c-a362-5df9cd09378b",
+      "model": "claude-sonnet-5-5",
+      "usd": 0.044486000000000005,
+      "reservedUsd": 0.5
+    },
+    {
+      "id": "9a7814a4-a541-45d8-8019-4dfbc8ad65ac",
+      "model": "claude-sonnet-5-5",
+      "usd": 0.047314,
+      "reservedUsd": 0.5
+    },
+    {
+      "id": "045f86d4-0025-4042-915a-afabff4cfcbb",
+      "model": "claude-sonnet-5-5",
+      "usd": 0.046712,
+      "reservedUsd": 0.5
+    },
+    {
+      "id": "7f061ce2-9fc0-47cd-9348-f01d2d678463",
+      "model": "claude-sonnet-5-5",
+      "usd": 0.034928,
+      "reservedUsd": 0.5
+    },
+    {
+      "id": "06ffd428-75e7-4048-ae54-5298feebfaf9",
+      "model": "claude-sonnet-5-5",
+      "usd": 0.007074,
+      "reservedUsd": 0.5
+    },
+    {
+      "id": "67eb7f64-929f-47fd-b8ed-d6ea13ad03b1",
+      "model": "claude-sonnet-5-5",
+      "usd": 0.015034000000000002,
+      "reservedUsd": 0.5
+    },
+    {
+      "id": "f253f908-ce38-4f77-81b1-867e473fe69a",
+      "model": "claude-sonnet-5-5",
+      "usd": 0.015044,
+      "reservedUsd": 0.5
+    },
+    {
+      "id": "e201e333-c5b5-4a9e-a18c-c56b87e6d115",
+      "model": "claude-sonnet-5-5",
+      "usd": 0.012306000000000001,
+      "reservedUsd": 0.5
+    },
+    {
+      "id": "999d35ba-a31e-4946-8da3-d10962978919",
+      "model": "claude-sonnet-5-5",
+      "usd": 0.011099999999999999,
+      "reservedUsd": 0.5
+    },
+    {
+      "id": "663c74a6-2355-4584-b098-27a0c6281c84",
+      "model": "claude-sonnet-5-5",
+      "usd": 0.012456,
+      "reservedUsd": 0.5
+    },
+    {
+      "id": "195f81df-7bda-46e5-ba2f-0cea52cbf5f4",
+      "model": "claude-sonnet-5-5",
+      "usd": 0.012861999999999998,
+      "reservedUsd": 0.5
+    },
+    {
+      "id": "d7863209-abe6-4e40-bc8b-ba0c20458c39",
+      "model": "claude-sonnet-5-5",
+      "usd": 0.012822,
+      "reservedUsd": 0.5
+    },
+    {
+      "id": "0d406b9a-063f-47a1-a9f2-c46f683c32b5",
+      "model": "claude-sonnet-5-5",
+      "usd": 0.007232,
+      "reservedUsd": 0.5
+    },
+    {
+      "id": "1cf650b3-9b19-4547-be66-cb00de4e25f6",
+      "model": "claude-sonnet-5-5",
+      "usd": 0.073964,
+      "reservedUsd": 0.5
+    },
+    {
+      "id": "4a1f9131-0f84-4d46-898a-109931670b10",
+      "model": "claude-sonnet-5-5",
+      "usd": 0.037652,
+      "reservedUsd": 0.5
+    },
+    {
+      "id": "9fbc8c6f-0775-48d8-be01-04cd5853c11b",
+      "model": "claude-sonnet-5-5",
+      "usd": 0.08271600000000001,
+      "reservedUsd": 0.5
+    },
+    {
+      "id": "d52798e1-0b7f-41d5-b56d-7b593e9c28ae",
+      "model": "claude-sonnet-5-5",
+      "usd": 0.039362,
+      "reservedUsd": 0.5
+    },
+    {
+      "id": "2a55d67e-d378-49da-8b77-a3955e5c9754",
+      "model": "claude-sonnet-5-5",
+      "usd": 0.15026599999999998,
+      "reservedUsd": 0.5
+    },
+    {
+      "id": "5cbe7311-5af8-4e09-8bd6-ea859f46cf61",
+      "model": "claude-sonnet-5-5",
+      "usd": 0.016098,
+      "reservedUsd": 0.5
+    },
+    {
+      "id": "07eee4c4-0cff-4424-992f-24ea8ad45320",
+      "model": "claude-sonnet-5-5",
+      "usd": 0.00445,
+      "reservedUsd": 0.5
+    },
+    {
+      "id": "09072672-df56-41cd-95a9-c80b367fd832",
+      "model": "claude-sonnet-5-5",
+      "usd": 0.032884000000000004,
+      "reservedUsd": 0.5
+    },
+    {
+      "id": "f6f2d900-f51d-45f6-bc0d-be2db3dade65",
+      "model": "claude-sonnet-5-5",
+      "usd": 0.004382,
+      "reservedUsd": 0.5
+    },
+    {
+      "id": "e7c02953-885b-4c87-8ccb-a80eb5e26512",
+      "model": "claude-sonnet-5-5",
+      "usd": 0.011578,
+      "reservedUsd": 0.5
+    },
+    {
+      "id": "ac38a4e8-4b49-487b-ba49-e79ca294868e",
+      "model": "claude-sonnet-5-5",
+      "usd": 0.008691999999999998,
+      "reservedUsd": 0.5
+    },
+    {
+      "id": "e70e968b-f1c7-4b67-b2b5-14cf60adb8aa",
+      "model": "claude-sonnet-5-5",
+      "usd": 0.00801,
+      "reservedUsd": 0.5
+    },
+    {
+      "id": "0caaada0-c030-42a5-93e8-3adf94e763f7",
+      "model": "claude-sonnet-5-5",
+      "usd": 0.005976,
+      "reservedUsd": 0.5
+    },
+    {
+      "id": "b47163dd-6cdd-4c5a-a46f-a5edf5f0d5fe",
+      "model": "claude-sonnet-5-5",
+      "usd": 0.011678000000000001,
+      "reservedUsd": 0.5
+    },
+    {
+      "id": "f2240bfd-3eea-4711-968f-6a7baa296f70",
+      "model": "claude-sonnet-5-5",
+      "usd": 0.010996,
+      "reservedUsd": 0.5
+    },
+    {
+      "id": "5794e89b-b061-49b8-b69a-e63ef957e40b",
+      "model": "claude-sonnet-5-5",
+      "usd": 0.011914,
+      "reservedUsd": 0.5
+    },
+    {
+      "id": "4b8de9e5-8f68-4aee-affa-70d777c3773c",
+      "model": "claude-sonnet-5-5",
+      "usd": 0.007134000000000001,
+      "reservedUsd": 0.5
+    },
+    {
+      "id": "65b7fd73-e5da-4f50-8665-438b11b0f85c",
+      "model": "claude-sonnet-5-5",
+      "usd": 0.009874,
+      "reservedUsd": 0.5
+    },
+    {
+      "id": "fd8ef461-67a9-4cf8-8fb7-f56e560ab297",
+      "model": "claude-sonnet-5-5",
+      "usd": 0.013342,
+      "reservedUsd": 0.5
+    },
+    {
+      "id": "04efcc98-f740-4c1f-97ba-ef695a6dc843",
+      "model": "claude-sonnet-5-5",
+      "usd": 0.012792000000000001,
+      "reservedUsd": 0.5
+    },
+    {
+      "id": "df1774dc-fc52-4874-9e33-8534e1acff7d",
+      "model": "claude-sonnet-5-5",
+      "usd": 0.00938,
+      "reservedUsd": 0.5
+    },
+    {
+      "id": "0caa1568-4543-4533-8aed-8ebfb68136b6",
+      "model": "claude-sonnet-5-5",
+      "usd": 0.011664,
+      "reservedUsd": 0.5
+    },
+    {
+      "id": "dba2229a-8e5a-4e30-952c-0798f6bed0b6",
+      "model": "claude-sonnet-5-5",
+      "usd": 0.003402,
+      "reservedUsd": 0.5
+    },
+    {
+      "id": "78f5d9ec-53dc-4581-9ace-592ffd4eac60",
+      "model": "claude-sonnet-5-5",
+      "usd": 0.005468,
+      "reservedUsd": 0.5
+    },
+    {
+      "id": "37de32d5-ca70-4eac-9e08-c7fe335b1213",
+      "model": "claude-sonnet-5-5",
+      "usd": 0.019764,
+      "reservedUsd": 0.5
+    },
+    {
+      "id": "beedba0b-d5bd-4c9e-b2ab-f654bcd98abc",
+      "model": "claude-sonnet-5-5",
+      "usd": 0.008186,
+      "reservedUsd": 0.5
+    },
+    {
+      "id": "edbb67fe-402d-444a-90e0-874294e91137",
+      "model": "claude-sonnet-5-5",
+      "usd": 0.005448,
+      "reservedUsd": 0.5
+    },
+    {
+      "id": "11e4f232-4ac9-4d46-86a5-c0e478a3474b",
+      "model": "claude-sonnet-5-5",
+      "usd": 0.014034,
+      "reservedUsd": 0.5
+    },
+    {
+      "id": "84dae27e-25f8-42bc-aa35-b034da88b1f6",
+      "model": "claude-sonnet-5-5",
+      "usd": 0.00399,
+      "reservedUsd": 0.5
+    },
+    {
+      "id": "ab6cd29f-6404-4495-a4f4-0e5d118c04e7",
+      "model": "claude-sonnet-5-5",
+      "usd": 0.010066,
+      "reservedUsd": 0.5
+    },
+    {
+      "id": "61c454af-44af-4289-9f40-6f8446675dfb",
+      "model": "claude-sonnet-5-5",
+      "usd": 0.005,
+      "reservedUsd": 0.5
+    },
+    {
+      "id": "ae46f92b-c8b2-4065-869c-f7f121197353",
+      "model": "claude-sonnet-5-5",
+      "usd": 0.01103,
+      "reservedUsd": 0.5
+    },
+    {
+      "id": "c0ff097e-cf72-45bb-b6f0-14a9d986b446",
+      "model": "claude-sonnet-5-5",
+      "usd": 0.006840000000000001,
+      "reservedUsd": 0.5
+    },
+    {
+      "id": "cf197ef8-4062-4006-b929-f12370c03aaf",
+      "model": "claude-sonnet-5-5",
+      "usd": 0.01181,
+      "reservedUsd": 0.5
+    },
+    {
+      "id": "42634943-792c-450e-8f7a-17ba79c79e90",
+      "model": "claude-sonnet-5-5",
+      "usd": 0.006038,
+      "reservedUsd": 0.5
+    },
+    {
+      "id": "c8f01a7d-b47f-40a7-bf53-42468eee955b",
+      "model": "claude-sonnet-5-5",
+      "usd": 0.006116,
+      "reservedUsd": 0.5
+    },
+    {
+      "id": "f01576f5-b509-44d8-8cd2-76cebea89b17",
+      "model": "claude-sonnet-5-5",
+      "usd": 0.005204,
+      "reservedUsd": 0.5
+    },
+    {
+      "id": "e9dd008f-242d-4422-989b-a5865eb3be6e",
+      "model": "claude-sonnet-5-5",
+      "usd": 0.005548000000000001,
+      "reservedUsd": 0.5
+    },
+    {
+      "id": "a7fe051b-fe64-4e24-b360-b649bb39267f",
+      "model": "claude-sonnet-5-5",
+      "usd": 0.0035260000000000005,
+      "reservedUsd": 0.5
+    },
+    {
+      "id": "e48a97e8-2ba7-41b0-9699-a65b9ef2d213",
+      "model": "claude-sonnet-5-5",
+      "usd": 0.008982,
+      "reservedUsd": 0.5
+    },
+    {
+      "id": "dcbb8e05-bdbe-4ce2-9c39-51f1d29f757b",
+      "model": "claude-sonnet-5-5",
+      "usd": 0.005578,
+      "reservedUsd": 0.5
+    },
+    {
+      "id": "3837e2a3-19ba-46d9-aee5-ff027d9a886f",
+      "model": "claude-sonnet-5-5",
+      "usd": 0.009062,
+      "reservedUsd": 0.5
+    },
+    {
+      "id": "b36ec6b6-0308-450d-ac1d-07988de241da",
+      "model": "claude-sonnet-5-5",
+      "usd": 0.006794,
+      "reservedUsd": 0.5
+    },
+    {
+      "id": "d5c1d7e8-becf-4202-b593-a18fcc494139",
+      "model": "claude-sonnet-5-5",
+      "usd": 0.007304,
+      "reservedUsd": 0.5
+    },
+    {
+      "id": "8047958b-a4e4-485d-9acf-29519a7cacee",
+      "model": "claude-sonnet-5-5",
+      "usd": 0.006056000000000001,
+      "reservedUsd": 0.5
+    },
+    {
+      "id": "442caf81-5ab2-43ca-ad0d-e85680518dc9",
+      "model": "claude-sonnet-5-5",
+      "usd": 0.004808,
+      "reservedUsd": 0.5
+    },
+    {
+      "id": "295b5dc7-87b2-44bf-abf3-9c5d02047525",
+      "model": "claude-sonnet-5-5",
+      "usd": 0.003444,
+      "reservedUsd": 0.5
+    },
+    {
+      "id": "68dd3c63-245a-43b0-839d-805a9d726a8b",
+      "model": "claude-sonnet-5-5",
+      "usd": 0.00494,
+      "reservedUsd": 0.5
+    },
+    {
+      "id": "f0211360-f20d-4d28-9a68-5d96bd03fbb3",
+      "model": "claude-sonnet-5-5",
+      "usd": 0.007802,
+      "reservedUsd": 0.5
+    },
+    {
+      "id": "5e1454ab-0d67-42e2-9bca-39566ba8e396",
+      "model": "claude-sonnet-5-5",
+      "usd": 0.00553,
+      "reservedUsd": 0.5
+    },
+    {
+      "id": "e985a67b-5fb1-4e6b-98da-ff337ab341c0",
+      "model": "claude-sonnet-5-5",
+      "usd": 0.005314,
+      "reservedUsd": 0.5
+    },
+    {
+      "id": "eead4a7c-493f-40a8-9053-4aa61b9a4d5a",
+      "model": "claude-sonnet-5-5",
+      "usd": 0.01492,
+      "reservedUsd": 0.5
+    },
+    {
+      "id": "a7e7c82f-ee8e-4e10-8eb9-6b772d47c460",
+      "model": "claude-sonnet-5-5",
+      "usd": 0.006338,
+      "reservedUsd": 0.5
+    },
+    {
+      "id": "cddea537-9692-491b-9cbf-b07c54775ddc",
+      "model": "claude-sonnet-5-5",
+      "usd": 0.00746,
+      "reservedUsd": 0.5
+    },
+    {
+      "id": "5ffed3e5-6ac3-4646-b97d-82e4b3efd6df",
+      "model": "claude-sonnet-5-5",
+      "usd": 0.004402,
+      "reservedUsd": 0.5
+    },
+    {
+      "id": "c30f0d48-3777-42ae-8017-dc2759d8b5e4",
+      "model": "claude-sonnet-5-5",
+      "usd": 0.007116,
+      "reservedUsd": 0.5
+    },
+    {
+      "id": "28f73c61-db2b-454b-af3d-969a445bd95a",
+      "model": "claude-sonnet-5-5",
+      "usd": 0.009012,
+      "reservedUsd": 0.5
+    },
+    {
+      "id": "648e0262-dd43-4526-88e4-bcf3e9dc4cec",
+      "model": "claude-sonnet-5-5",
+      "usd": 0.004864,
+      "reservedUsd": 0.5
+    },
+    {
+      "id": "9f924b84-9b96-4ecb-aa9e-08c68d433af2",
+      "model": "claude-sonnet-5-5",
+      "usd": 0.006202,
+      "reservedUsd": 0.5
+    },
+    {
+      "id": "672cc58b-af76-4691-a2b1-2335335a8ab4",
+      "model": "claude-sonnet-5-5",
+      "usd": 0.0123,
+      "reservedUsd": 0.5
+    },
+    {
+      "id": "021a1a48-a4c3-4ff5-96c2-cc8f636a2806",
+      "model": "claude-sonnet-5-5",
+      "usd": 0.011416,
+      "reservedUsd": 0.5
+    },
+    {
+      "id": "e31a440b-44f1-443c-8c1f-74feecf1ab6b",
+      "model": "claude-sonnet-5-5",
+      "usd": 0.006316,
+      "reservedUsd": 0.5
+    },
+    {
+      "id": "96edce32-72b2-4ea5-8f95-ddafc05b4082",
+      "model": "claude-sonnet-5-5",
+      "usd": 0.007014,
+      "reservedUsd": 0.5
+    },
+    {
+      "id": "28addb6c-17b8-4c47-a466-16d6076c4862",
+      "model": "claude-sonnet-5-5",
+      "usd": 0.006138,
+      "reservedUsd": 0.5
+    },
+    {
+      "id": "78b58d92-ba31-4c07-bb67-44c75569f72b",
+      "model": "claude-sonnet-5-5",
+      "usd": 0.008048,
+      "reservedUsd": 0.5
+    },
+    {
+      "id": "61225288-667a-41dc-a5b3-b1c21f5b47f6",
+      "model": "claude-sonnet-5-5",
+      "usd": 0.0066099999999999996,
+      "reservedUsd": 0.5
+    },
+    {
+      "id": "8cfa8f42-6eaa-447a-ba76-b47a63473e86",
+      "model": "claude-sonnet-5-5",
+      "usd": 0.014884000000000001,
+      "reservedUsd": 0.5
+    },
+    {
+      "id": "81af9ce0-31b1-42d3-96f4-e09c55b4e5d3",
+      "model": "claude-sonnet-5-5",
+      "usd": 0.011326,
+      "reservedUsd": 0.5
+    },
+    {
+      "id": "6a339818-d3d4-464e-8f29-112f40712d9d",
+      "model": "claude-sonnet-5-5",
+      "usd": 0.014654,
+      "reservedUsd": 0.5
+    },
+    {
+      "id": "9a2a1615-5ec1-421f-b009-d0f8e437e11c",
+      "model": "claude-sonnet-5-5",
+      "usd": 0.011609999999999999,
+      "reservedUsd": 0.5
+    },
+    {
+      "id": "5efb87a2-ece1-4a84-95ed-40e91e0ea560",
+      "model": "claude-sonnet-5-5",
+      "usd": 0.007897999999999999,
+      "reservedUsd": 0.5
+    },
+    {
+      "id": "b388bd47-07d3-4d63-9524-539b8712ed49",
+      "model": "claude-sonnet-5-5",
+      "usd": 0.006644000000000001,
+      "reservedUsd": 0.5
+    },
+    {
+      "id": "6ed5da1b-4f77-4b0d-8684-f588e92def9e",
+      "model": "claude-sonnet-5-5",
+      "usd": 0.011224000000000001,
+      "reservedUsd": 0.5
+    },
+    {
+      "id": "7872fb9b-b551-4cc4-b7af-efee1796e480",
+      "model": "claude-sonnet-5-5",
+      "usd": 0.007826,
+      "reservedUsd": 0.5
+    },
+    {
+      "id": "7c037658-0e5b-4e22-a8ea-e27198d2ecd6",
+      "model": "claude-sonnet-5-5",
+      "usd": 0.005614,
+      "reservedUsd": 0.5
+    },
+    {
+      "id": "c317caa3-4ed8-4c7b-be22-be36dacbda2d",
+      "model": "claude-sonnet-5-5",
+      "usd": 0.011922,
+      "reservedUsd": 0.5
+    },
+    {
+      "id": "406a80c6-e033-4c07-b33b-d694f1a09b4f",
+      "model": "claude-sonnet-5-5",
+      "usd": 0.011472,
+      "reservedUsd": 0.5
+    },
+    {
+      "id": "0cda750d-2618-40e5-a6d7-b7394491f6db",
+      "model": "claude-sonnet-5-5",
+      "usd": 0.011829999999999999,
+      "reservedUsd": 0.5
+    },
+    {
+      "id": "53c8a9a8-59fd-4473-9332-bb13ced639ad",
+      "model": "claude-sonnet-5-5",
+      "usd": 0.006934,
+      "reservedUsd": 0.5
+    },
+    {
+      "id": "eaa2aed9-196d-4f94-ba82-2a699c2b3dd0",
+      "model": "claude-sonnet-5-5",
+      "usd": 0.0072440000000000004,
+      "reservedUsd": 0.5
+    },
+    {
+      "id": "36424492-3ee5-4c4d-914b-450fb0c5977a",
+      "model": "claude-sonnet-5-5",
+      "usd": 0.016256,
+      "reservedUsd": 0.5
+    },
+    {
+      "id": "f86beab0-87d6-4e41-9fa3-bbcf1dcc399a",
+      "model": "claude-sonnet-5-5",
+      "usd": 0.010662,
+      "reservedUsd": 0.5
+    },
+    {
+      "id": "56f1937a-1911-418d-9207-111d587d3ce2",
+      "model": "claude-sonnet-5-5",
+      "usd": 0.012691999999999998,
+      "reservedUsd": 0.5
+    },
+    {
+      "id": "d384d64a-ea17-4284-9239-1283f8a25e8e",
+      "model": "claude-sonnet-5-5",
+      "usd": 0.004988,
+      "reservedUsd": 0.5
+    },
+    {
+      "id": "f888071e-a08d-4f3a-abbd-cfe02587481f",
+      "model": "claude-sonnet-5-5",
+      "usd": 0.011312000000000001,
+      "reservedUsd": 0.5
+    },
+    {
+      "id": "d10d6b9f-9f80-4028-84dd-c4d7fdbe92ab",
+      "model": "claude-sonnet-5-5",
+      "usd": 0.00677,
+      "reservedUsd": 0.5
+    },
+    {
+      "id": "c4eac61f-672f-46a7-8c12-064aef3ebc60",
+      "model": "claude-sonnet-5-5",
+      "usd": 0.013064,
+      "reservedUsd": 0.5
+    },
+    {
+      "id": "145f0ffa-5ee7-4205-a4a5-2e1147f5e19d",
+      "model": "claude-sonnet-5-5",
+      "usd": 0.008412,
+      "reservedUsd": 0.5
+    },
+    {
+      "id": "130f7779-98d9-40ac-9895-4ab06eb99e9c",
+      "model": "claude-sonnet-5-5",
+      "usd": 0.009278,
+      "reservedUsd": 0.5
+    },
+    {
+      "id": "39fd3342-6b3f-446a-b6b0-53c123f377e6",
+      "model": "claude-sonnet-5-5",
+      "usd": 0.014260000000000002,
+      "reservedUsd": 0.5
+    },
+    {
+      "id": "5c85c129-822f-45d6-b0ca-24b2735adbcd",
+      "model": "claude-sonnet-5-5",
+      "usd": 0.007104,
+      "reservedUsd": 0.5
+    },
+    {
+      "id": "7f73d46c-a2d2-4adf-a811-3c7810b4aaa8",
+      "model": "claude-sonnet-5-5",
+      "usd": 0.014398,
+      "reservedUsd": 0.5
+    },
+    {
+      "id": "2f69ee7e-efaf-404a-ac3b-28852c1ee8f6",
+      "model": "claude-sonnet-5-5",
+      "usd": 0.015047999999999999,
+      "reservedUsd": 0.5
+    },
+    {
+      "id": "3bb4c4b2-5cac-4d6e-ba90-be217a4449b1",
+      "model": "claude-sonnet-5-5",
+      "usd": 0.010368,
+      "reservedUsd": 0.5
+    },
+    {
+      "id": "b1b3374a-02cd-4f2b-bdb0-8694795a6b29",
+      "model": "claude-sonnet-5-5",
+      "usd": 0.012496,
+      "reservedUsd": 0.5
+    },
+    {
+      "id": "24b119b0-07f0-4fc9-92c7-4bb1a2f5dd9e",
+      "model": "claude-sonnet-5-5",
+      "usd": 0.009314,
+      "reservedUsd": 0.5
+    },
+    {
+      "id": "9c5df582-9c0c-4701-8f12-05036864edf0",
+      "model": "claude-sonnet-5-5",
+      "usd": 0.018072,
+      "reservedUsd": 0.5
+    },
+    {
+      "id": "c1b9674a-6fc0-41c6-8282-0d407b7290a3",
+      "model": "claude-sonnet-5-5",
+      "usd": 0.01256,
+      "reservedUsd": 0.5
+    },
+    {
+      "id": "f451998c-71b2-4719-b4ed-676e14639333",
+      "model": "claude-sonnet-5-5",
+      "usd": 0.012874,
+      "reservedUsd": 0.5
+    },
+    {
+      "id": "6f791393-2295-467a-968a-c10d6c4cd960",
+      "model": "claude-sonnet-5-5",
+      "usd": 0.017788,
+      "reservedUsd": 0.5
+    },
+    {
+      "id": "4fb9ed1a-ebdf-4e08-85da-067b8d66e66f",
+      "model": "claude-sonnet-5-5",
+      "usd": 0.013808,
+      "reservedUsd": 0.5
+    },
+    {
+      "id": "bcf222b4-87f8-4adc-9e0b-7ad457e4d086",
+      "model": "claude-sonnet-5-5",
+      "usd": 0.007608,
+      "reservedUsd": 0.5
+    },
+    {
+      "id": "71cece11-5e9f-4aab-8cef-c7bb058aac94",
+      "model": "claude-sonnet-5-5",
+      "usd": 0.01744,
+      "reservedUsd": 0.5
+    },
+    {
+      "id": "fb229ea5-b155-49bc-9fc1-933a4f48a9ca",
+      "model": "claude-sonnet-5-5",
+      "usd": 0.00889,
+      "reservedUsd": 0.5
+    },
+    {
+      "id": "f2d773e4-1d51-499e-ae97-adb200770eb7",
+      "model": "claude-sonnet-5-5",
+      "usd": 0.00776,
+      "reservedUsd": 0.5
+    },
+    {
+      "id": "3171cf38-863c-4252-a79f-7fd197cd1a6a",
+      "model": "claude-sonnet-5-5",
+      "usd": 0.029888,
+      "reservedUsd": 0.5
+    },
+    {
+      "id": "8948a8a0-38b0-470d-a4dc-3ac43013ce54",
+      "model": "claude-sonnet-5-5",
+      "usd": 0.010146,
+      "reservedUsd": 0.5
+    },
+    {
+      "id": "3ead3763-f958-4c04-a59f-9b11c8f4d4b0",
+      "model": "claude-sonnet-5-5",
+      "usd": 0.012157999999999999,
+      "reservedUsd": 0.5
+    },
+    {
+      "id": "c92f441e-407b-4d42-85d9-c4707e225fcb",
+      "model": "claude-sonnet-5-5",
+      "usd": 0.016512,
+      "reservedUsd": 0.5
+    },
+    {
+      "id": "616bddb5-ed42-49a0-bf65-491cb1817b32",
+      "model": "claude-sonnet-5-5",
+      "usd": 0.0063479999999999995,
+      "reservedUsd": 0.5
+    },
+    {
+      "id": "b029d52d-e157-415c-9cef-1a978c4171f9",
+      "model": "claude-sonnet-5-5",
+      "usd": 0.011123999999999998,
+      "reservedUsd": 0.5
+    },
+    {
+      "id": "c80ac263-43d1-43df-afbd-f05337c288ef",
+      "model": "claude-sonnet-5-5",
+      "usd": 0.024598000000000002,
+      "reservedUsd": 0.5
+    },
+    {
+      "id": "c5978181-2c8d-4eb5-a5a5-1c7f56115998",
+      "model": "claude-sonnet-5-5",
+      "usd": 0.010034000000000001,
+      "reservedUsd": 0.5
+    },
+    {
+      "id": "a4564e6b-14ae-4a3d-90ca-eae4acb4a5e8",
+      "model": "claude-sonnet-5-5",
+      "usd": 0.013454,
+      "reservedUsd": 0.5
+    },
+    {
+      "id": "688911a1-7022-470c-9e81-94a434bb5d49",
+      "model": "claude-sonnet-5-5",
+      "usd": 0.012508000000000002,
+      "reservedUsd": 0.5
+    },
+    {
+      "id": "3b4f91ba-bf9f-4173-b4c4-db681b8f96e4",
+      "model": "claude-sonnet-5-5",
+      "usd": 0.015702,
+      "reservedUsd": 0.5
+    },
+    {
+      "id": "68c8e8b7-a6c3-4ab6-9079-6f2b8c763fe5",
+      "model": "claude-sonnet-5-5",
+      "usd": 0.006279999999999999,
+      "reservedUsd": 0.5
+    },
+    {
+      "id": "5cd49046-eeea-4ee2-b384-e276fb904092",
+      "model": "claude-sonnet-5-5",
+      "usd": 0.00872,
+      "reservedUsd": 0.5
+    },
+    {
+      "id": "c38d3f1b-936d-4bf9-b543-84bfd312b137",
+      "model": "claude-sonnet-5-5",
+      "usd": 0.009042,
+      "reservedUsd": 0.5
+    },
+    {
+      "id": "2fe46bc3-773a-4a1d-babe-2dc2eda02219",
+      "model": "claude-sonnet-5-5",
+      "usd": 0.005122,
+      "reservedUsd": 0.5
+    },
+    {
+      "id": "e957c687-243a-4e51-a7c7-b29773c0a7e6",
+      "model": "claude-sonnet-5-5",
+      "usd": 0.008084000000000001,
+      "reservedUsd": 0.5
+    },
+    {
+      "id": "e5417a8e-f208-498a-8454-e07a41bdb63f",
+      "model": "claude-sonnet-5-5",
+      "usd": 0.00886,
+      "reservedUsd": 0.5
+    },
+    {
+      "id": "66e65a5f-7eef-4ef3-9518-183dacf96dbe",
+      "model": "claude-sonnet-5-5",
+      "usd": 0.013419999999999998,
+      "reservedUsd": 0.5
+    },
+    {
+      "id": "7d0eafa8-7800-49cf-a6cb-66f856810f8e",
+      "model": "claude-sonnet-5-5",
+      "usd": 0.009021999999999999,
+      "reservedUsd": 0.5
+    },
+    {
+      "id": "fd7c709d-1b38-4ff1-9bf8-daafc2585d8f",
+      "model": "claude-sonnet-5-5",
+      "usd": 0.006843999999999999,
+      "reservedUsd": 0.5
+    },
+    {
+      "id": "f29e6cb1-3a89-40d0-a6fa-0819e2111c59",
+      "model": "claude-sonnet-5-5",
+      "usd": 0.015607999999999999,
+      "reservedUsd": 0.5
+    },
+    {
+      "id": "ef246cff-599f-4341-9181-6a606586cbc2",
+      "model": "claude-sonnet-5-5",
+      "usd": 0.006732,
+      "reservedUsd": 0.5
+    },
+    {
+      "id": "8b9ae844-eb55-4316-9f9d-66eb6124a71c",
+      "model": "claude-sonnet-5-5",
+      "usd": 0.012112,
+      "reservedUsd": 0.5
+    },
+    {
+      "id": "5b82cef2-4bb4-44ea-9fb6-28c44a3bd420",
+      "model": "claude-sonnet-5-5",
+      "usd": 0.020592,
+      "reservedUsd": 0.5
+    },
+    {
+      "id": "de69fe59-e57c-46af-a45a-9fdba7c05f12",
+      "model": "claude-sonnet-5-5",
+      "usd": 0.012778,
+      "reservedUsd": 0.5
+    },
+    {
+      "id": "269aee02-0f6a-4e3e-8015-614cedc57f4b",
+      "model": "claude-sonnet-5-5",
+      "usd": 0.008206,
+      "reservedUsd": 0.5
+    },
+    {
+      "id": "b077d376-eb0a-499e-9c7e-70a2cbf6cb03",
+      "model": "claude-sonnet-5-5",
+      "usd": 0.007353999999999999,
+      "reservedUsd": 0.5
+    },
+    {
+      "id": "cd2cdba8-5a29-4eaa-bfca-901a4bd9fcdf",
+      "model": "claude-sonnet-5-5",
+      "usd": 0.007666,
+      "reservedUsd": 0.5
+    },
+    {
+      "id": "13a6661e-29e7-4fce-803a-b0cb17002c4b",
+      "model": "claude-sonnet-5-5",
+      "usd": 0.007353999999999999,
+      "reservedUsd": 0.5
+    },
+    {
+      "id": "cb515a54-f1d4-4374-92df-aa7835246f33",
+      "model": "claude-sonnet-5-5",
+      "usd": 0.01616,
+      "reservedUsd": 0.5
+    },
+    {
+      "id": "ceda99fc-7fe0-4cfb-aee6-398f9dfaeb3a",
+      "model": "claude-sonnet-5-5",
+      "usd": 0.013439999999999999,
+      "reservedUsd": 0.5
+    },
+    {
+      "id": "a38eb861-dc4e-4fe1-b469-a068d5189638",
+      "model": "claude-sonnet-5-5",
+      "usd": 0.017256,
+      "reservedUsd": 0.5
+    },
+    {
+      "id": "a920ecfb-2649-41ab-9843-7767853d18c3",
+      "model": "claude-sonnet-5-5",
+      "usd": 0.0296,
+      "reservedUsd": 0.5
+    },
+    {
+      "id": "f6c7958b-8e81-4c6f-ac4c-d4a69918b739",
+      "model": "claude-sonnet-5-5",
+      "usd": 0.008955999999999999,
+      "reservedUsd": 0.5
+    },
+    {
+      "id": "cf7b689f-f3e8-4d18-bd2a-2e661d9b62a3",
+      "model": "claude-sonnet-5-5",
+      "usd": 0.004984000000000001,
+      "reservedUsd": 0.5
+    },
+    {
+      "id": "c979714c-609d-42cf-ba40-6478fe14bb4d",
+      "model": "claude-sonnet-5-5",
+      "usd": 0.020502,
+      "reservedUsd": 0.5
+    },
+    {
+      "id": "ad7d8e80-861e-4aaa-ab0c-45113338096e",
+      "model": "claude-sonnet-5-5",
+      "usd": 0.014646,
+      "reservedUsd": 0.5
+    },
+    {
+      "id": "d12c10f8-4d32-481b-b074-3f7309587054",
+      "model": "claude-sonnet-5-5",
+      "usd": 0.007564,
+      "reservedUsd": 0.5
+    },
+    {
+      "id": "d3fa566f-b382-4d9d-beb1-060e142033f6",
+      "model": "claude-sonnet-5-5",
+      "usd": 0.032364,
+      "reservedUsd": 0.5
+    },
+    {
+      "id": "5198e370-7da4-4e6f-8634-cde276a89322",
+      "model": "claude-sonnet-5-5",
+      "usd": 0.013892,
+      "reservedUsd": 0.5
+    },
+    {
+      "id": "81da4703-bb9f-4ee3-a2e2-46fb82e267a5",
+      "model": "claude-sonnet-5-5",
+      "usd": 0.015432,
+      "reservedUsd": 0.5
+    },
+    {
+      "id": "f82d8f58-7617-48f1-8588-3ba68d4e30b4",
+      "model": "claude-sonnet-5-5",
+      "usd": 0.009479999999999999,
+      "reservedUsd": 0.5
+    },
+    {
+      "id": "2d0365dd-d460-4e0c-9bc2-0518c0c54270",
+      "model": "claude-sonnet-5-5",
+      "usd": 0.004555999999999999,
+      "reservedUsd": 0.5
+    },
+    {
+      "id": "2891c4a5-e572-48f2-97e9-3b43d041b70f",
+      "model": "claude-sonnet-5-5",
+      "usd": 0.007514,
+      "reservedUsd": 0.5
+    },
+    {
+      "id": "481c1346-40a7-42ac-a29f-c4a5a10a6b87",
+      "model": "claude-sonnet-5-5",
+      "usd": 0.006934,
+      "reservedUsd": 0.5
+    },
+    {
+      "id": "17367517-2572-4a29-b943-1afa09e8ea0d",
+      "model": "claude-sonnet-5-5",
+      "usd": 0.012138,
+      "reservedUsd": 0.5
+    },
+    {
+      "id": "55bca123-d2e6-47f3-bc9f-c04e795ee1af",
+      "model": "claude-sonnet-5-5",
+      "usd": 0.0071920000000000005,
+      "reservedUsd": 0.5
+    },
+    {
+      "id": "77ca602f-7719-4050-9c01-8bb898017f23",
+      "model": "claude-sonnet-5-5",
+      "usd": 0.006478,
+      "reservedUsd": 0.5
+    },
+    {
+      "id": "bc504033-06fa-4ef4-8b62-51e330aa6dfc",
+      "model": "claude-sonnet-5-5",
+      "usd": 0.013666000000000001,
+      "reservedUsd": 0.5
+    },
+    {
+      "id": "85dd3ff0-57c7-448e-8769-3d7be788f529",
+      "model": "claude-sonnet-5-5",
+      "usd": 0.013083999999999998,
+      "reservedUsd": 0.5
+    },
+    {
+      "id": "36ebb6e2-4c66-4789-9e3a-3251e4041419",
+      "model": "claude-sonnet-5-5",
+      "usd": 0.011184,
+      "reservedUsd": 0.5
+    },
+    {
+      "id": "43f1683a-c5ca-4c1c-8efb-ca583acec70c",
+      "model": "claude-sonnet-5-5",
+      "usd": 0.03358,
+      "reservedUsd": 0.5
+    },
+    {
+      "id": "e507b3b6-00ea-4cae-bcd4-691e6dc3a92e",
+      "model": "claude-sonnet-5-5",
+      "usd": 0.005105999999999999,
+      "reservedUsd": 0.5
+    },
+    {
+      "id": "bff3fef7-1fb8-40c2-a13d-d54cd8052b32",
+      "model": "claude-sonnet-5-5",
+      "usd": 0.007287999999999999,
+      "reservedUsd": 0.5
+    },
+    {
+      "id": "793b5aca-9373-43bb-9de9-6ad7aca1a554",
+      "model": "claude-sonnet-5-5",
+      "usd": 0.008744,
+      "reservedUsd": 0.5
+    },
+    {
+      "id": "e03ffc40-8838-479d-b2fc-67ae2778348b",
+      "model": "claude-sonnet-5-5",
+      "usd": 0.008742,
+      "reservedUsd": 0.5
+    },
+    {
+      "id": "525c912d-c6ce-4047-88c9-cd58f05b3b0f",
+      "model": "claude-sonnet-5-5",
+      "usd": 0.012268,
+      "reservedUsd": 0.5
+    },
+    {
+      "id": "1082e1be-72f6-47cd-b375-c3cc0d1a8b0a",
+      "model": "claude-sonnet-5-5",
+      "usd": 0.007247999999999999,
+      "reservedUsd": 0.5
+    },
+    {
+      "id": "8cd63c89-816c-4977-8d53-8a87642084e2",
+      "model": "claude-sonnet-5-5",
+      "usd": 0.011312,
+      "reservedUsd": 0.5
+    },
+    {
+      "id": "35480dd9-1928-46b2-afed-4b970efc91cc",
+      "model": "claude-sonnet-5-5",
+      "usd": 0.011832,
+      "reservedUsd": 0.5
+    },
+    {
+      "id": "02c1c260-bd8e-46aa-8cbd-172d3f39f4e5",
+      "model": "claude-sonnet-5-5",
+      "usd": 0.01294,
+      "reservedUsd": 0.5
+    },
+    {
+      "id": "528b5f9f-b685-40e2-b737-34d479e6b4c5",
+      "model": "claude-sonnet-5-5",
+      "usd": 0.010738,
+      "reservedUsd": 0.5
+    },
+    {
+      "id": "7c483a89-7adb-4349-a147-341eb1715710",
+      "model": "claude-sonnet-5-5",
+      "usd": 0.015088,
+      "reservedUsd": 0.5
+    },
+    {
+      "id": "43bc9ca8-cc36-4cb4-a7af-167765d901fd",
+      "model": "claude-sonnet-5-5",
+      "usd": 0.014378,
+      "reservedUsd": 0.5
+    },
+    {
+      "id": "c4e76b6e-3fe7-4d6e-bd59-acd7cb612b20",
+      "model": "claude-sonnet-5-5",
+      "usd": 0.017658,
+      "reservedUsd": 0.5
+    },
+    {
+      "id": "3039ce52-661d-475d-9153-4971861894c1",
+      "model": "claude-sonnet-5-5",
+      "usd": 0.011848000000000001,
+      "reservedUsd": 0.5
+    },
+    {
+      "id": "40bc0e8f-b2cb-4af1-a51f-d7dc732043e1",
+      "model": "claude-sonnet-5-5",
+      "usd": 0.0086,
+      "reservedUsd": 0.5
+    },
+    {
+      "id": "af1ef808-c3f2-4a00-a5a8-b82490060ac6",
+      "model": "claude-sonnet-5-5",
+      "usd": 0.009772,
+      "reservedUsd": 0.5
+    },
+    {
+      "id": "31847592-43f1-4aab-b97f-ee7cccc4eaa3",
+      "model": "claude-sonnet-5-5",
+      "usd": 0.010324,
+      "reservedUsd": 0.5
+    },
+    {
+      "id": "23325ec1-4d63-472f-ba9d-03b1a7bfa24b",
+      "model": "claude-sonnet-5-5",
+      "usd": 0.023396,
+      "reservedUsd": 0.5
+    },
+    {
+      "id": "d9add380-929d-4c6f-8ff3-3369de894d5c",
+      "model": "claude-sonnet-5-5",
+      "usd": 0.008424,
+      "reservedUsd": 0.5
+    },
+    {
+      "id": "e7944efb-4403-4dec-afa0-7d6c0593ff65",
+      "model": "claude-sonnet-5-5",
+      "usd": 0.010104,
+      "reservedUsd": 0.5
+    },
+    {
+      "id": "78ad7006-303f-4d02-9d2d-8e4185ad53f2",
+      "model": "claude-sonnet-5-5",
+      "usd": 0.017345999999999997,
+      "reservedUsd": 0.5
+    },
+    {
+      "id": "e34a0d59-896e-48cb-8b32-63f6067e35bb",
+      "model": "claude-sonnet-5-5",
+      "usd": 0.008067999999999999,
+      "reservedUsd": 0.5
+    },
+    {
+      "id": "5e3a1d1b-ff55-4e09-9b75-563ced6f8414",
+      "model": "claude-sonnet-5-5",
+      "usd": 0.009049999999999999,
+      "reservedUsd": 0.5
+    },
+    {
+      "id": "cc6ff0de-ad13-4f66-a72f-2742d5c5adf2",
+      "model": "claude-sonnet-5-5",
+      "usd": 0.022742,
+      "reservedUsd": 0.5
+    },
+    {
+      "id": "aabd2488-e673-46f4-9d86-ed5805a9a01c",
+      "model": "claude-sonnet-5-5",
+      "usd": 0.008498,
+      "reservedUsd": 0.5
+    },
+    {
+      "id": "8b11eebd-728d-4182-9583-2f9dd05b6c58",
+      "model": "claude-sonnet-5-5",
+      "usd": 0.019156,
+      "reservedUsd": 0.5
+    },
+    {
+      "id": "c1e9f458-ca95-4988-92af-86f55d3a2b6b",
+      "model": "claude-sonnet-5-5",
+      "usd": 0.01508,
+      "reservedUsd": 0.5
+    },
+    {
+      "id": "c8240110-ad83-4ddc-a167-de1ff6c4b326",
+      "model": "claude-sonnet-5-5",
+      "usd": 0.015714,
+      "reservedUsd": 0.5
+    },
+    {
+      "id": "aecaacae-f498-45ee-b2b0-b2c45fe7f21c",
+      "model": "claude-sonnet-5-5",
+      "usd": 0.009976,
+      "reservedUsd": 0.5
+    },
+    {
+      "id": "7a5800ca-1852-4f62-8bb5-4fdead07e3cf",
+      "model": "claude-sonnet-5-5",
+      "usd": 0.006208,
+      "reservedUsd": 0.5
+    },
+    {
+      "id": "b9a3b50a-1a6b-48bd-8ebc-c7f2597f5b26",
+      "model": "claude-sonnet-5-5",
+      "usd": 0.008686,
+      "reservedUsd": 0.5
+    },
+    {
+      "id": "f168c0c2-34ef-4032-a6c3-150a862dc554",
+      "model": "claude-sonnet-5-5",
+      "usd": 0.011085999999999999,
+      "reservedUsd": 0.5
+    },
+    {
+      "id": "60c28314-0a34-46b6-8aea-9f1705571511",
+      "model": "claude-sonnet-5-5",
+      "usd": 0.006738000000000001,
+      "reservedUsd": 0.5
+    },
+    {
+      "id": "ff1b2a60-dce4-4165-a9a2-1a36312d45b3",
+      "model": "claude-sonnet-5-5",
+      "usd": 0.016154,
+      "reservedUsd": 0.5
+    },
+    {
+      "id": "9ed69341-237d-4b16-bddd-066ffae3dfee",
+      "model": "claude-sonnet-5-5",
+      "usd": 0.012826,
+      "reservedUsd": 0.5
+    },
+    {
+      "id": "48115a0a-d0f4-4362-80f5-e1d0ccdd27b6",
+      "model": "claude-sonnet-5-5",
+      "usd": 0.020814,
+      "reservedUsd": 0.5
+    },
+    {
+      "id": "001f3378-3460-4113-9102-34ad3fb24804",
+      "model": "claude-sonnet-5-5",
+      "usd": 0.018144,
+      "reservedUsd": 0.5
+    },
+    {
+      "id": "ca04e050-4ab2-4dfd-be7c-c08e6abdec00",
+      "model": "claude-sonnet-5-5",
+      "usd": 0.01166,
+      "reservedUsd": 0.5
+    },
+    {
+      "id": "1f7c6523-9a06-40db-bc5c-afb6888e1e4c",
+      "model": "claude-sonnet-5-5",
+      "usd": 0.008018,
+      "reservedUsd": 0.5
+    },
+    {
+      "id": "7deb2f07-24dd-4630-a67d-c812f5fb30e7",
+      "model": "claude-sonnet-5-5",
+      "usd": 0.011984,
+      "reservedUsd": 0.5
+    },
+    {
+      "id": "dc7f3701-9840-46a3-8f61-d9d8369deadb",
+      "model": "claude-sonnet-5-5",
+      "usd": 0.017342,
+      "reservedUsd": 0.5
+    },
+    {
+      "id": "35c33182-f209-4864-97dc-7dc7535c69d8",
+      "model": "claude-sonnet-5-5",
+      "usd": 0.007722,
+      "reservedUsd": 0.5
+    },
+    {
+      "id": "e390388c-fc55-46da-b237-35617ddc3579",
+      "model": "claude-sonnet-5-5",
+      "usd": 0.013683999999999998,
+      "reservedUsd": 0.5
+    },
+    {
+      "id": "32337864-b1c0-4e03-a83e-cf147ca61a43",
+      "model": "claude-sonnet-5-5",
+      "usd": 0.010440000000000001,
+      "reservedUsd": 0.5
+    },
+    {
+      "id": "decb481d-9dd1-4a8d-985a-fa6099c66ff4",
+      "model": "claude-sonnet-5-5",
+      "usd": 0.014627999999999999,
+      "reservedUsd": 0.5
+    },
+    {
+      "id": "85e858f2-eb80-4062-9bcf-9845066c3eb9",
+      "model": "claude-sonnet-5-5",
+      "usd": 0.011090000000000001,
+      "reservedUsd": 0.5
+    },
+    {
+      "id": "954d509e-78cf-47b9-bdf6-33dd3ae9d47e",
+      "model": "claude-sonnet-5-5",
+      "usd": 0.008284,
+      "reservedUsd": 0.5
+    },
+    {
+      "id": "b0561b32-b1c9-4e79-ac54-8f2182be55f6",
+      "model": "claude-sonnet-5-5",
+      "usd": 0.005644000000000001,
+      "reservedUsd": 0.5
+    },
+    {
+      "id": "0772e1b6-47b0-495d-8bc2-eedd412c34de",
+      "model": "claude-sonnet-5-5",
+      "usd": 0.029321999999999997,
+      "reservedUsd": 0.5
+    },
+    {
+      "id": "2b4fc7ba-1586-4b6e-9216-a8b5eed49f2a",
+      "model": "claude-sonnet-5-5",
+      "usd": 0.013522,
+      "reservedUsd": 0.5
+    },
+    {
+      "id": "e1b75fc0-1387-46d1-9da4-a2ba26fc0db1",
+      "model": "claude-sonnet-5-5",
+      "usd": 0.012469999999999998,
+      "reservedUsd": 0.5
+    },
+    {
+      "id": "e2f644a6-1278-40b9-b8ff-22307cf8196c",
+      "model": "claude-sonnet-5-5",
+      "usd": 0.014212,
+      "reservedUsd": 0.5
+    },
+    {
+      "id": "43b77397-ac2b-4098-a915-5123a2e75c74",
+      "model": "claude-sonnet-5-5",
+      "usd": 0.012124000000000001,
+      "reservedUsd": 0.5
+    },
+    {
+      "id": "30e383eb-fce2-4eda-b4fd-9f5179bfc2c6",
+      "model": "claude-sonnet-5-5",
+      "usd": 0.051651999999999997,
+      "reservedUsd": 0.5
+    },
+    {
+      "id": "63b69fc9-e4b6-41af-be38-6c4ddf033a60",
+      "model": "claude-sonnet-5-5",
+      "usd": 0.01162,
+      "reservedUsd": 0.5
+    },
+    {
+      "id": "c07365da-89de-4252-a387-8306066473c3",
+      "model": "claude-sonnet-5-5",
+      "usd": 0.00675,
+      "reservedUsd": 0.5
+    },
+    {
+      "id": "0e77f260-989a-41c7-a91e-1e73fdac81a9",
+      "model": "claude-sonnet-5-5",
+      "usd": 0.029108000000000002,
+      "reservedUsd": 0.5
+    },
+    {
+      "id": "996faadb-ebe5-4701-8b60-d3363184c0a1",
+      "model": "claude-sonnet-5-5",
+      "usd": 0.013026000000000001,
+      "reservedUsd": 0.5
+    },
+    {
+      "id": "b256b714-78ba-4729-9c37-a63be91b7189",
+      "model": "claude-sonnet-5-5",
+      "usd": 0.010272,
+      "reservedUsd": 0.5
+    },
+    {
+      "id": "f991ca60-1312-46fb-af8d-7a4d3db43521",
+      "model": "claude-sonnet-5-5",
+      "usd": 0.015556,
+      "reservedUsd": 0.5
+    },
+    {
+      "id": "4b9ab9b6-a2ef-4752-98e8-da2273342456",
+      "model": "claude-sonnet-5-5",
+      "usd": 0.007764,
+      "reservedUsd": 0.5
+    },
+    {
+      "id": "382ccb4e-ea7e-4dee-bdc4-7b8277a563cd",
+      "model": "claude-sonnet-5-5",
+      "usd": 0.055546,
+      "reservedUsd": 0.5
+    },
+    {
+      "id": "e2c8fa3a-714d-4269-9dad-4d4832c6e932",
+      "model": "claude-sonnet-5-5",
+      "usd": 0.007627999999999999,
+      "reservedUsd": 0.5
+    },
+    {
+      "id": "422b61dc-db39-4e18-b1dd-09dd82f1f037",
+      "model": "claude-sonnet-5-5",
+      "usd": 0.014584,
+      "reservedUsd": 0.5
+    },
+    {
+      "id": "f107ad54-685e-45e2-9603-2541ee6d273d",
+      "model": "claude-sonnet-5-5",
+      "usd": 0.009734,
+      "reservedUsd": 0.5
+    },
+    {
+      "id": "9fdb931e-a373-433c-847b-3a934887eb25",
+      "model": "claude-sonnet-5-5",
+      "usd": 0.009304,
+      "reservedUsd": 0.5
+    },
+    {
+      "id": "280e82c8-9371-4ce5-937c-afeeb81d61f1",
+      "model": "claude-sonnet-5-5",
+      "usd": 0.007016,
+      "reservedUsd": 0.5
+    },
+    {
+      "id": "c4ae10a8-245d-44bb-90bd-c5ccf5ab670c",
+      "model": "claude-sonnet-5-5",
+      "usd": 0.033478,
+      "reservedUsd": 0.5
+    },
+    {
+      "id": "f94448ff-a2d7-4b00-b520-5a2516f989cf",
+      "model": "claude-sonnet-5-5",
+      "usd": 0.057162,
+      "reservedUsd": 0.5
+    },
+    {
+      "id": "08a7e01d-10a3-4190-9968-d09cef51b9d5",
+      "model": "claude-sonnet-5-5",
+      "usd": 0.043798000000000004,
+      "reservedUsd": 0.5
+    },
+    {
+      "id": "a98906f0-0393-42b5-a205-6c06a32d9596",
+      "model": "claude-sonnet-5-5",
+      "usd": 0.024098,
+      "reservedUsd": 0.5
+    },
+    {
+      "id": "2e3c03f9-0314-4522-bb62-a72d6aa80867",
+      "model": "claude-sonnet-5-5",
+      "usd": 0.031212,
+      "reservedUsd": 0.5
+    },
+    {
+      "id": "585b6940-7abd-4ba4-b1d0-db284e47676a",
+      "model": "claude-sonnet-5-5",
+      "usd": 0.01522,
+      "reservedUsd": 0.5
+    },
+    {
+      "id": "5b56a74c-ef19-4cfb-ac84-0ae93d1ab920",
+      "model": "claude-sonnet-5-5",
+      "usd": 0.060503999999999995,
+      "reservedUsd": 0.5
+    },
+    {
+      "id": "d656dcec-8c9e-4315-acf2-dc27e255f479",
+      "model": "claude-sonnet-5-5",
+      "usd": 0.017942,
+      "reservedUsd": 0.5
+    },
+    {
+      "id": "b89b9c30-693f-400a-b03b-0a51530ec345",
+      "model": "claude-sonnet-5-5",
+      "usd": 0.0060420000000000005,
+      "reservedUsd": 0.5
+    },
+    {
+      "id": "d94d4393-c6c1-444a-a492-a31372bb2eda",
+      "model": "claude-sonnet-5-5",
+      "usd": 0.007596,
+      "reservedUsd": 0.5
+    },
+    {
+      "id": "71b3bb4f-c83d-4118-95c4-4d8858e17234",
+      "model": "claude-sonnet-5-5",
+      "usd": 0.011789999999999998,
+      "reservedUsd": 0.5
+    },
+    {
+      "id": "a96e9e2f-7c1e-4be4-88d9-b37efb4155d1",
+      "model": "claude-sonnet-5-5",
+      "usd": 0.011224000000000001,
+      "reservedUsd": 0.5
+    },
+    {
+      "id": "f2ea2c22-1558-4afa-9d8d-d4edc620fca0",
+      "model": "claude-sonnet-5-5",
+      "usd": 0.012960000000000001,
+      "reservedUsd": 0.5
+    },
+    {
+      "id": "d589e8e3-1018-451a-bbb4-6f0433c0924d",
+      "model": "claude-sonnet-5-5",
+      "usd": 0.00773,
+      "reservedUsd": 0.5
+    },
+    {
+      "id": "3a9dcc60-c232-4744-82d1-acd8dd312756",
+      "model": "claude-sonnet-5-5",
+      "usd": 0.013879999999999998,
+      "reservedUsd": 0.5
+    },
+    {
+      "id": "cc8feaad-c8b9-45b4-9af1-ec8dd82dabb9",
+      "model": "claude-sonnet-5-5",
+      "usd": 0.008620000000000001,
+      "reservedUsd": 0.5
+    },
+    {
+      "id": "c011a0ab-582e-4a48-92b2-d2f3a16221e8",
+      "model": "claude-sonnet-5-5",
+      "usd": 0.017104,
+      "reservedUsd": 0.5
+    },
+    {
+      "id": "da7ff02a-cb87-4b47-83e8-fc2b82fab672",
+      "model": "claude-sonnet-5-5",
+      "usd": 0.006412,
+      "reservedUsd": 0.5
+    },
+    {
+      "id": "72bf57e5-0ffd-40e3-80de-41b6aacb7fdb",
+      "model": "claude-sonnet-5-5",
+      "usd": 0.0071860000000000005,
+      "reservedUsd": 0.5
+    },
+    {
+      "id": "41708756-f97c-48d6-8fc0-ad3c6849be22",
+      "model": "claude-sonnet-5-5",
+      "usd": 0.018254,
+      "reservedUsd": 0.5
+    },
+    {
+      "id": "feeefacb-8a3d-470c-a40b-d2e668249e7b",
+      "model": "claude-sonnet-5-5",
+      "usd": 0.015394,
+      "reservedUsd": 0.5
+    },
+    {
+      "id": "787bade7-8196-4ebd-9110-591e940c5b7f",
+      "model": "claude-sonnet-5-5",
+      "usd": 0.023493999999999998,
+      "reservedUsd": 0.5
+    },
+    {
+      "id": "63548ba5-812a-4acd-bbaa-c0465aecab27",
+      "model": "claude-sonnet-5-5",
+      "usd": 0.01642,
+      "reservedUsd": 0.5
+    },
+    {
+      "id": "643438d0-42bd-47e7-8f0b-d40b1575ffd1",
+      "model": "claude-sonnet-5-5",
+      "usd": 0.006866000000000001,
+      "reservedUsd": 0.5
+    },
+    {
+      "id": "668c1151-3b39-46d3-afba-49c39fbe18df",
+      "model": "claude-sonnet-5-5",
+      "usd": 0.012432,
+      "reservedUsd": 0.5
+    },
+    {
+      "id": "71e2fc06-c110-42ac-bc4f-4f926f7ca2d7",
+      "model": "claude-sonnet-5-5",
+      "usd": 0.0059640000000000006,
+      "reservedUsd": 0.5
+    },
+    {
+      "id": "c6e53e03-84f8-4001-9fc7-d8e80efaec24",
+      "model": "claude-sonnet-5-5",
+      "usd": 0.013864000000000001,
+      "reservedUsd": 0.5
+    },
+    {
+      "id": "92f8c7f3-1856-43a4-a566-2a40eaba2e23",
+      "model": "claude-sonnet-5-5",
+      "usd": 0.012232,
+      "reservedUsd": 0.5
+    },
+    {
+      "id": "f88c0693-1af4-4f7b-a58e-b232637e67bd",
+      "model": "claude-sonnet-5-5",
+      "usd": 0.009637999999999999,
+      "reservedUsd": 0.5
+    },
+    {
+      "id": "f452c2ea-58b7-4448-be07-dd064440ea80",
+      "model": "claude-sonnet-5-5",
+      "usd": 0.014325999999999998,
+      "reservedUsd": 0.5
+    },
+    {
+      "id": "642ae777-fb3c-4462-9c94-a4fa20af3288",
+      "model": "claude-sonnet-5-5",
+      "usd": 0.008154,
+      "reservedUsd": 0.5
     }
   ],
   "activeCalls": {
-    "ee1b000a-69c0-420d-b56e-051d8b8e6958": {
-      "pid": 35157,
+    "4ead0b74-83a1-45a7-b3d9-89a576d8d2b2": {
+      "pid": 62791,
       "model": "claude-sonnet-5-5",
-      "at": "2026-10-13T17:49:01.342295+00:00"
+      "at": "2026-10-13T18:33:24.794836+00:00"
     },
-    "28b30002-b89d-41cc-97db-be2da7d55c64": {
-      "pid": 41674,
+    "019c2098-dca3-4758-a565-22d655a6dd4c": {
+      "pid": 69506,
       "model": "claude-sonnet-5-5",
-      "at": "2026-10-13T17:49:13.533875+00:00"
+      "at": "2026-10-13T18:33:37.369082+00:00"
     }
   },
   "pacing": {
-    "loadOneMinute": 43.00048828125,
+    "loadOneMinute": 18.6416015625,
     "recentNoAnswerIds": [],
     "limit": 2
   },

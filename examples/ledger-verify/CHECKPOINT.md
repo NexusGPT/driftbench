@@ -235,3 +235,16 @@
 - Sonnet TEST starts once at 17:47:11 UTC, after the detector amendment at 17:42:49 UTC. Its noise and mutation phases finish first.
 - Sol waits for Sonnet complete, then requires its fresh ten-probe gate under cap 40 USD. Sonnet cap is 45 USD.
 - Named publication driver waits for both finalizers, then publishes the complete reports and stops the health gate. Live process identities and exit predicates: evidence/new-model-active-drivers.json.
+
+## 2026-10-13T18:33:38.080487+00:00 owner drops Gemini 3.8
+
+- The owner drops Gemini 3.8 on 13 Oct 2026. This supersedes every earlier instruction to resume it or treat it as pending.
+- Partial reports, recordings, receipts, fees and unknown holds stay intact. No Gemini 3.8 score is reported and no further request is authorized.
+- Flash Lite remains the Gemini result. Continue Sonnet, then Sol under cap 40 USD.
+- Evidence: evidence/gemini-owner-drop.json, including retained-file hashes. The existing owner-only guard remains disarmed.
+
+## 2026-10-13T18:33:39.599550+00:00 verified report publication
+
+- Completed models: haiku, gpt-6-luna. Offline replay covers 16 finished phases, with zero new provider calls.
+- Gemini 3.8 is dropped by the owner on 13 Oct 2026. Partial data stays archived; no score or pending continuation is reported.
+- Fee reconciliation and frozen source hashes pass. No confirmed output-limit envelope remains unmapped.

@@ -846,8 +846,8 @@
     },
     {
       "model": "gemini-3.8-flash",
-      "status": "not run: daily quota",
-      "reason": "authorized; execution and validation pending",
+      "status": "dropped by the owner on 13 Oct 2026, partial data kept, not reported as a score",
+      "reason": "Owner decision; no resumption and no score",
       "official": null,
       "audited": null,
       "outputLimitErrors": {
@@ -997,11 +997,7 @@
         }
       },
       "validityPassedScope": "Planted mutation checks only; predeclared cheater margin not established",
-      "pendingTestItemsPerContestant": 221,
-      "pendingNoise2PerContestant": {
-        "driftbench-verify-uncertainty-cascade": 0,
-        "promptfoo": 10
-      }
+      "dropped": true
     },
     {
       "model": "gemini-3.5-flash-lite",
@@ -2516,10 +2512,11 @@
       "sol61/evidence/cap40-amendment.json": "e2b20a24a09cefd97c940022546eba6e0878246dceb36c195fc87674a53f7484",
       "sonnet/evidence/native-quota-recovery-state.json": "0c857c53e3463c4687ff92a581f232ad3a0740299d58f56149d6859b30ca26fb",
       "sonnet/evidence/native-quota-continuation-state.json": "128fa4600e9db10382ae312ce9e874e5467d6c4effa6c5eef3e7268c7f4d8321",
-      "evidence/closed-output-limit-audit.json": "43af6ef30137e3deb770715e9c3789b40d443f281fc094f841463292c055d8ce"
+      "evidence/closed-output-limit-audit.json": "43af6ef30137e3deb770715e9c3789b40d443f281fc094f841463292c055d8ce",
+      "evidence/gemini-owner-drop.json": "bb5ffda38ecfd49b1da0e59930e1ca67e84e19a38bb596a918067beb862e8959"
     }
   },
-  "at": "2026-10-13T17:49:23.319779+00:00",
+  "at": "2026-10-13T18:33:38.173829+00:00",
   "cheaterGateAuditFile": "evidence/cheater-gate-audit.json",
   "predeclaredCheaterMarginEstablished": false,
   "lunaFeeReconciliation": {
@@ -8363,9 +8360,9 @@
   },
   "newModelFees": {
     "claude-sonnet-5-5": {
-      "settledUsd": 14.47711400000001,
-      "unresolvedMaximumUsd": 1.0,
-      "maximumAccountedUsd": 15.47711400000001,
+      "settledUsd": 21.790028000000035,
+      "unresolvedMaximumUsd": 1.5,
+      "maximumAccountedUsd": 23.290028000000035,
       "capUsd": 45
     },
     "gpt-6.1-sol": {
@@ -8380,5 +8377,8 @@
     "path": "evidence/closed-output-limit-audit.json",
     "sha256": "43af6ef30137e3deb770715e9c3789b40d443f281fc094f841463292c055d8ce",
     "officialFilesUnchanged": true
-  }
+  },
+  "droppedModels": [
+    "gemini-3.8-flash"
+  ]
 }

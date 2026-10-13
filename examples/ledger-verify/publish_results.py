@@ -69,7 +69,10 @@ def main():
     with (BASE / 'CHECKPOINT.md').open('a') as stream:
         stream.write('\n## '+stamp+' verified report publication\n\n')
         stream.write('- Completed models: '+', '.join(final['completedModels'])+'. Offline replay covers '+str(final['phases'])+' finished phases, with zero new provider calls.\n')
-        stream.write('- Gemini pending status, if present, is an authorized daily-quota pause. See evidence/gemini-daily-quota-amendment.json and evidence/gemini-reset-watcher.json.\n')
+        if (BASE / 'evidence/gemini-owner-drop.json').exists():
+            stream.write('- Gemini 3.8 is dropped by the owner on 13 Oct 2026. Partial data stays archived; no score or pending continuation is reported.\n')
+        else:
+            stream.write('- Gemini pending status, if present, is an authorized daily-quota pause. See evidence/gemini-daily-quota-amendment.json and evidence/gemini-reset-watcher.json.\n')
         stream.write('- Fee reconciliation and frozen source hashes pass. No confirmed output-limit envelope remains unmapped.\n')
     git('add', '--', 'examples/ledger-verify')
     staged = git('diff', '--cached', '--name-only').splitlines()
