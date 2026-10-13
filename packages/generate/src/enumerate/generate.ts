@@ -1,5 +1,17 @@
-import { type Issue, type LoadResult, parseSpecText, type Spec } from '@agent-nexus/driftbench-core';
-import { coverage } from '@agent-nexus/driftbench-space';
+import { type Issue, type LoadResult, type Spec, validateSpec } from '@agent-nexus/driftbench-core';
+import {
+  assertGridSize,
+  type CompiledSpace,
+  combinations,
+  compileSpace,
+  cover,
+  coverage,
+  type Projection,
+  placeSpec,
+  projectGrid,
+  resolveT,
+  tupleValues,
+} from '@agent-nexus/driftbench-space';
 import { stringify } from 'yaml';
 import {
   NO_THEN_CRITERION,
@@ -31,6 +43,7 @@ import {
 } from '../seed/seeders';
 import { type TaskInput, taskSpecs } from '../seed/tasks';
 import { formatJson } from './json';
+import { capSpecPool, type SpecCapMode, type SpecCapReport, seederOf } from './spec-cap';
 
 /** t-wise coverage of a set of specs on the axis map, as `driftbench space coverage --t` counts it. */
 export type MeasuredCoverage = { t: number; specs: number; allowed: number; covered: number; share: number };
@@ -63,6 +76,10 @@ export type GenerateOptions = {
    * The other seeders are unchanged.
    */
   budget?: number;
+  /** Total written specs. Keeps structural probes and selects actual pair/triple coverage. */
+  specCap?: number;
+  /** Tuple-exact by default. Pairs mode explicitly permits triple losses, which remain reported. */
+  specCapMode?: SpecCapMode;
   /** The map path as the specs and the report record it (relative to the output folder). */
   mapPath: string;
   /** Specs to measure on the same map for comparison, such as the hand-written suite. */
@@ -85,6 +102,8 @@ export type SeederTotals = {
   /** Incomplete specs: a block with no Then the map supports. */
   needs_then: number;
   cut: boolean;
+  /** The diversity measures of this seeder's complete specs (see `coverageMeasures`). */
+  measures?: Record<string, number>;
 };
 
 export type GenerateReport = {
@@ -99,13 +118,22 @@ export type GenerateReport = {
     constraints: number;
     phrases: number;
   };
-  options: { t: number; seed: number; max: number | null; budget?: number };
+  options: {
+    t: number;
+    seed: number;
+    max: number | null;
+    budget?: number;
+    specCap?: number;
+    specCapMode?: SpecCapMode;
+  };
   summary: { specs: number; blocks: number; complete: number; incomplete: number };
   seeders: Record<Seeder, SeederTotals>;
   graph: GraphSummary;
   twise: TwiseSummary;
   /** Budget mode only: the pick, the pair coverage and the value balance of the twise seeder's replacement. */
   budget?: BudgetSummary;
+  /** Total cap, including all gaps and any loss relative to the uncapped candidate pool. */
+  spec_cap?: SpecCapReport;
   boundary: BoundarySummary;
   deviation: DeviationSummary;
   metamorphic: MetamorphicSummary;
@@ -119,10 +147,14 @@ export type GenerateReport = {
   /** Specs with a block the map supports no machine Then for, and why when a path could not be walked. */
   no_then: Array<{ spec: string; blocks: string[]; reasons: string[] }>;
   coverage: {
+    /** Actual axis-map coverage of the written complete specs, independent of the candidate array. */
+    actual: Array<MeasuredCoverage & { uncovered: Record<string, string>[] }>;
     t: number;
     allowed: number;
     complete: MeasuredCoverage;
     all: MeasuredCoverage;
+    /** The coverage and diversity measures of the complete specs. */
+    measures: Record<string, number>;
     baseline?: MeasuredCoverage & { label: string };
   };
   /** Specs the core loader refused: a generator defect. Never written. */
@@ -153,6 +185,10 @@ export type GenerateResult = {
 };
 
 export function generateSuite(prepared: PreparedMap, options: GenerateOptions): GenerateResult {
+  if (options.specCapMode !== undefined && options.specCap === undefined)
+    throw new RangeError('specCapMode requires specCap');
+  if (options.specCap !== undefined && (!Number.isSafeInteger(options.specCap) || options.specCap < 1))
+    throw new RangeError('specCap must be a whole number of at least 1');
   if ((prepared.numericSettings?.length ?? 0) > 0 && options.budget === undefined)
     throw new RangeError(
       'numeric_settings requires --budget; the other seeders do not sample numeric ranges',
@@ -191,6 +227,7 @@ export function generateSuite(prepared: PreparedMap, options: GenerateOptions): 
   };
 
   const files: GeneratedFile[] = [];
+  const cappedText = new Map<string, () => string>();
   const complete: Spec[] = [];
   const all: Spec[] = [];
   const invalid: GenerateReport['invalid'] = [];
@@ -198,6 +235,12 @@ export function generateSuite(prepared: PreparedMap, options: GenerateOptions): 
   const gaps = new Map<string, { dimension: string; value: string; blocks: number; specs: string[] }>();
   const noThen: GenerateReport['no_then'] = [];
   const seeders = {} as Record<Seeder, SeederTotals>;
+  const completeBy: Partial<Record<Seeder, Spec[]>> = {};
+  const keep = (seeder: Seeder, spec: Spec): void => {
+    const kept = completeBy[seeder] ?? [];
+    completeBy[seeder] = kept;
+    kept.push(spec);
+  };
 
   /** Renders drafts of one seeder, adds them to the suite and the seeder's totals; returns the complete ones. */
   const renderSeeder = (seeder: Seeder, list: readonly SpecDraft[]): Spec[] => {
@@ -212,8 +255,10 @@ export function generateSuite(prepared: PreparedMap, options: GenerateOptions): 
     };
     for (const draft of list) {
       const rendered: Rendered = renderDraft(prepared, draft, run);
-      const text = specText(rendered, run, prepared.hash);
-      const loaded = parseSpecText(text, 'yaml', rendered.id);
+      const renderText = () => specText(rendered, run, prepared.hash);
+      const text = options.specCap === undefined ? renderText() : '';
+      if (options.specCap !== undefined) cappedText.set(rendered.id, renderText);
+      const loaded = validateSpec(rendered.spec, rendered.id);
       if (!loaded.ok) {
         invalid.push({ id: rendered.id, errors: loaded.errors });
         continue;
@@ -250,6 +295,7 @@ export function generateSuite(prepared: PreparedMap, options: GenerateOptions): 
         totals.complete += 1;
         complete.push(loaded.spec);
         own.push(loaded.spec);
+        keep(seeder, loaded.spec);
       }
       const folder = needsPhrase || needsThen ? INCOMPLETE_DIR : COMPLETE_DIR;
       files.push({ path: `${folder}/${seeder}/${rendered.id}.yaml`, text });
@@ -267,8 +313,10 @@ export function generateSuite(prepared: PreparedMap, options: GenerateOptions): 
     '# Do not edit it by hand: change the family or the map and generate again. Fictional data only.',
   ].join('\n');
   for (const { id, spec } of taskSpecs(prepared, options.tasks ?? [], run)) {
-    const text = `${header}\n${stringify(spec, { lineWidth: 0, aliasDuplicateObjects: false })}`;
-    const loaded = parseSpecText(text, 'yaml', id);
+    const renderText = () => `${header}\n${stringify(spec, { lineWidth: 0, aliasDuplicateObjects: false })}`;
+    const text = options.specCap === undefined ? renderText() : '';
+    if (options.specCap !== undefined) cappedText.set(id, renderText);
+    const loaded = validateSpec(spec, id);
     const totals = seeders.task;
     if (!loaded.ok) {
       invalid.push({ id, errors: loaded.errors });
@@ -279,6 +327,7 @@ export function generateSuite(prepared: PreparedMap, options: GenerateOptions): 
     totals.complete += 1;
     all.push(loaded.spec);
     complete.push(loaded.spec);
+    keep('task', loaded.spec);
     files.push({ path: `${COMPLETE_DIR}/task/${id}.yaml`, text });
   }
 
@@ -303,7 +352,7 @@ export function generateSuite(prepared: PreparedMap, options: GenerateOptions): 
     }
     drafts.cover.push(built.draft);
     const made = renderSeeder('cover', [built.draft]);
-    for (const entry of cellsOf(prepared, made, t)) if (entry.count > 0) reached.add(cellKey(entry.values));
+    for (const values of reachedCells(prepared, made, t)) reached.add(cellKey(values));
     if (!reached.has(key))
       unbuilt.push({
         cell: cell.values,
@@ -326,11 +375,70 @@ export function generateSuite(prepared: PreparedMap, options: GenerateOptions): 
     ),
   };
 
+  let specCap: SpecCapReport | undefined;
+  if (options.specCap !== undefined) {
+    const strengths = [
+      ...new Set([2, 3, t].map((strength) => Math.min(strength, prepared.axisMap.dimensions.length))),
+    ];
+    const capped = capSpecPool(
+      all,
+      complete,
+      options.specCap,
+      strengths.map((strength) => gridAt(prepared, strength)),
+      options.specCapMode,
+    );
+    specCap = capped.report;
+    const retain = (specs: Spec[]) => {
+      const kept = specs.filter((spec) => capped.ids.has(spec.id));
+      specs.splice(0, specs.length, ...kept);
+    };
+    retain(all);
+    retain(complete);
+    for (const seeder of SEEDERS) {
+      const own = all.filter((spec) => seederOf(spec) === seeder);
+      const ready = complete.filter((spec) => seederOf(spec) === seeder);
+      completeBy[seeder] = ready;
+      seeders[seeder].specs = own.length;
+      seeders[seeder].blocks = own.reduce((sum, spec) => sum + spec.blocks.length, 0);
+      seeders[seeder].complete = ready.length;
+    }
+    const keptFiles = files.filter((file) =>
+      capped.ids.has(
+        file.path
+          .split('/')
+          .at(-1)
+          ?.replace(/\.yaml$/, '') ?? '',
+      ),
+    );
+    files.splice(0, files.length, ...keptFiles);
+    for (const file of files) {
+      const id =
+        file.path
+          .split('/')
+          .at(-1)
+          ?.replace(/\.yaml$/, '') ?? '';
+      file.text = cappedText.get(id)?.() ?? file.text;
+    }
+    const finalKeys = new Set(
+      cellsOf(prepared, complete, t)
+        .filter((cell) => cell.count > 0)
+        .map((cell) => cellKey(cell.values)),
+    );
+    coverSummary.covered = uncovered.filter((cell) => finalKeys.has(cellKey(cell.values))).length;
+    for (const cell of specCap.coverage.find(
+      (entry) => entry.t === Math.min(t, prepared.axisMap.dimensions.length),
+    )?.lost ?? [])
+      coverSummary.unbuilt.push({ cell, reasons: ['cut by --spec-cap'] });
+  }
+
   const measure = (specs: Spec[]) => measured(prepared, specs, t);
   const completeCoverage = measure(complete);
   const baseline = options.baseline
     ? { label: options.baseline.label, ...measure(options.baseline.specs) }
     : undefined;
+  for (const seeder of SEEDERS) {
+    (seeders[seeder] as SeederTotals).measures = seederMeasures(prepared, completeBy[seeder] ?? []);
+  }
   const totals = Object.values(seeders);
   const report: GenerateReport = {
     generator: 'driftbench generate',
@@ -349,6 +457,9 @@ export function generateSuite(prepared: PreparedMap, options: GenerateOptions): 
       seed,
       max: Number.isFinite(max) ? max : null,
       ...(options.budget === undefined ? {} : { budget: options.budget }),
+      ...(options.specCap === undefined
+        ? {}
+        : { specCap: options.specCap, specCapMode: options.specCapMode ?? 'tuples' }),
     },
     summary: {
       specs: totals.reduce((sum, entry) => sum + entry.specs, 0),
@@ -360,6 +471,7 @@ export function generateSuite(prepared: PreparedMap, options: GenerateOptions): 
     graph: graph.summary,
     twise: twise.summary,
     ...(budgeted ? { budget: budgeted.budget } : {}),
+    ...(specCap ? { spec_cap: specCap } : {}),
     boundary: boundary.summary,
     deviation: deviation.summary,
     metamorphic: metamorphic.summary,
@@ -374,10 +486,25 @@ export function generateSuite(prepared: PreparedMap, options: GenerateOptions): 
     no_phrase: [...gaps.values()],
     no_then: noThen,
     coverage: {
+      actual: [
+        ...new Set([2, 3].map((strength) => Math.min(strength, prepared.axisMap.dimensions.length))),
+      ].map((strength) => {
+        const cells = cellsOf(prepared, complete, strength);
+        const uncovered = cells.filter((cell) => cell.count === 0).map((cell) => cell.values);
+        return {
+          t: strength,
+          specs: complete.length,
+          allowed: cells.length,
+          covered: cells.length - uncovered.length,
+          share: cells.length === 0 ? 0 : (cells.length - uncovered.length) / cells.length,
+          uncovered,
+        };
+      }),
       t,
       allowed: completeCoverage.allowed,
       complete: completeCoverage,
-      all: measure(all),
+      all: all.length === complete.length ? { ...completeCoverage } : measure(all),
+      measures: coverageMeasures(prepared, complete),
       ...(baseline ? { baseline } : {}),
     },
     invalid,
@@ -388,27 +515,79 @@ export function generateSuite(prepared: PreparedMap, options: GenerateOptions): 
 }
 
 /**
- * Coverage on the space map of the approved axes, by the space package's own `coverage`: the same count
- * `driftbench space coverage --map <space.yaml> <specs> --t <t>` prints.
+ * The grid of the approved axis map at strength t, projected once per map: the projection is the costly
+ * part of the space package's `coverage` (it walks every allowed cell), and the cover seeder asks for the
+ * cells one spec reaches many times. The counts below are those `coverage` prints for the same specs.
  */
-/** The allowed cells of the axis map at strength t, each with how many of the specs cover it. */
-function cellsOf(
+/** The largest full grid the report counts coverage on: a map with a hundred times the behaviours stays inside it. */
+const MAX_GRID_CELLS = 4_000_000;
+
+type CachedGrid = { space: CompiledSpace; projections: Projection[] };
+const GRIDS = new WeakMap<PreparedMap, Map<number, CachedGrid>>();
+
+function gridAt(prepared: PreparedMap, strength: number): CachedGrid {
+  let byT = GRIDS.get(prepared);
+  if (!byT) {
+    byT = new Map();
+    GRIDS.set(prepared, byT);
+  }
+  const known = byT.get(strength);
+  if (known) return known;
+  assertGridSize(prepared.axisMap, MAX_GRID_CELLS);
+  const space = compileSpace(prepared.axisMap);
+  const t = resolveT(space, strength);
+  const projections = projectGrid(space, combinations(space.dimensions.length, t)).projections;
+  const grid = { space, projections };
+  byT.set(strength, grid);
+  return grid;
+}
+
+/** How many of the specs cover each allowed cell of the axis map at strength t, by the cached grid. */
+function cellCounts(
   prepared: PreparedMap,
   specs: readonly Spec[],
   t: number,
 ): Array<{ values: Record<string, string>; count: number }> {
-  const results: LoadResult[] = specs.map((spec) => ({
-    ok: true,
-    path: spec.id,
-    spec,
-    hash: '',
-    warnings: [],
-  }));
-  const grid = coverage(prepared.axisMap, results, {
-    t: Math.min(t, prepared.axisMap.dimensions.length),
-    ...(prepared.inventory ? { inventory: prepared.inventory } : {}),
-  }).grid;
-  return grid.cells.map((cell) => ({ values: { ...cell.values }, count: cell.count }));
+  const grid = gridAt(prepared, Math.min(t, prepared.axisMap.dimensions.length));
+  const placements = specs.map((spec) => placeSpec(grid.space, spec));
+  const out: Array<{ values: Record<string, string>; count: number }> = [];
+  for (const projection of grid.projections) {
+    const covered = cover(projection, placements);
+    projection.allowed.forEach((allowed, code) => {
+      if (!allowed) return;
+      out.push({
+        values: { ...tupleValues(projection, code, grid.space) },
+        count: covered.byCode.get(code)?.length ?? 0,
+      });
+    });
+  }
+  return out;
+}
+
+/** The allowed cells of the axis map at strength t that at least one of the specs covers. */
+function reachedCells(
+  prepared: PreparedMap,
+  specs: readonly Spec[],
+  t: number,
+): Array<Record<string, string>> {
+  const grid = gridAt(prepared, Math.min(t, prepared.axisMap.dimensions.length));
+  const placements = specs.map((spec) => placeSpec(grid.space, spec));
+  const out: Array<Record<string, string>> = [];
+  for (const projection of grid.projections) {
+    for (const code of cover(projection, placements).byCode.keys()) {
+      if (projection.allowed[code] === 1) out.push({ ...tupleValues(projection, code, grid.space) });
+    }
+  }
+  return out;
+}
+
+/** The allowed cells of the axis map at strength t, each with how many of the specs cover it. */
+export function cellsOf(
+  prepared: PreparedMap,
+  specs: readonly Spec[],
+  t: number,
+): Array<{ values: Record<string, string>; count: number }> {
+  return cellCounts(prepared, specs, t);
 }
 
 function cellKey(values: Readonly<Record<string, string>>): string {
@@ -419,6 +598,31 @@ function cellKey(values: Readonly<Record<string, string>>): string {
 }
 
 function measured(prepared: PreparedMap, specs: Spec[], t: number): MeasuredCoverage {
+  return measuredCoverage(prepared, specs, t);
+}
+
+/** t-wise coverage of the specs, read from the cached grid: the counts `coverage` states for the same specs. */
+export function measuredCoverage(prepared: PreparedMap, specs: Spec[], t: number): MeasuredCoverage {
+  const strength = Math.min(t, prepared.axisMap.dimensions.length);
+  const grid = gridAt(prepared, strength);
+  const placements = specs.map((spec) => placeSpec(grid.space, spec));
+  let allowed = 0;
+  let covered = 0;
+  for (const projection of grid.projections) {
+    for (const flag of projection.allowed) allowed += flag;
+    for (const code of cover(projection, placements).byCode.keys())
+      if (projection.allowed[code] === 1) covered += 1;
+  }
+  return { t: strength, specs: specs.length, allowed, covered, share: allowed > 0 ? covered / allowed : 0 };
+}
+
+/**
+ * The coverage and diversity measures of a set of specs on the axis map: Good-Turing discovery, Chao
+ * coverage and richness, Hill numbers of order 0, 1 and 2, Pielou evenness (all over the counts of the t = 2
+ * cells the specs cover), the t = 3 share, the weighted share and its effective sample size, the required
+ * cells, the values covered per axis, and the share of blocks with a machine Then.
+ */
+export function coverageMeasures(prepared: PreparedMap, specs: readonly Spec[]): Record<string, number> {
   const results: LoadResult[] = specs.map((spec) => ({
     ok: true,
     path: spec.id,
@@ -426,17 +630,77 @@ function measured(prepared: PreparedMap, specs: Spec[], t: number): MeasuredCove
     hash: '',
     warnings: [],
   }));
-  const strength = Math.min(t, prepared.axisMap.dimensions.length);
-  const grid = coverage(prepared.axisMap, results, {
-    t: strength,
+  const axisMap = prepared.axisMap;
+  const two = coverage(axisMap, results, {
+    maxCells: MAX_GRID_CELLS,
+    t: 2,
     ...(prepared.inventory ? { inventory: prepared.inventory } : {}),
-  }).grid;
+  });
+  // A coverage result already tallies every pair and triple, independently of the requested grid t.
+  const three = two.tway.find((level) => level.t === 3);
+  const counts = two.grid.cells.map((cell) => cell.count).filter((count) => count > 0);
+  const n = counts.reduce((sum, count) => sum + count, 0);
+  const f1 = counts.filter((count) => count === 1).length;
+  const f2 = counts.filter((count) => count === 2).length;
+  const shares = counts.map((count) => count / Math.max(1, n));
+  const entropy = -shares.reduce((sum, share) => sum + (share > 0 ? share * Math.log(share) : 0), 0);
+  const out: Record<string, number> = {
+    discovery: n === 0 ? 1 : f1 / n,
+    chao_coverage: n === 0 ? 0 : 1 - (f1 / n) * (((n - 1) * f1) / ((n - 1) * f1 + 2 * f2 || 1)),
+    chao1:
+      counts.length +
+      (n === 0 ? 0 : f2 > 0 ? ((n - 1) / n) * ((f1 * f1) / (2 * f2)) : ((n - 1) / n) * ((f1 * (f1 - 1)) / 2)),
+    hill_q0: counts.length,
+    hill_q1: Math.exp(entropy),
+    hill_q2:
+      1 /
+      Math.max(
+        Number.EPSILON,
+        shares.reduce((sum, share) => sum + share * share, 0),
+      ),
+    pielou: counts.length > 1 ? entropy / Math.log(counts.length) : 1,
+    t3_share: three?.share ?? 0,
+    t3_allowed: three?.allowed ?? 0,
+    weighted_share: two.grid.weighted ?? 0,
+    effective_sample_size: two.grid.effectiveSampleSize ?? 0,
+    required_covered: two.required.filter((cell) => cell.covered).length,
+    required_total: two.required.length,
+  };
+  for (const dimension of two.dimensions) out[`axis_${dimension.id}`] = dimension.covered;
+  Object.assign(out, machineShare(specs));
+  return out;
+}
+
+/** The share of blocks with a machine Then, and the blocks left to a judge. */
+function machineShare(specs: readonly Spec[]): { machine_then_share: number; judged_only_blocks: number } {
+  let blocks = 0;
+  let machine = 0;
+  for (const spec of specs) {
+    for (const block of spec.blocks) {
+      blocks += 1;
+      const expect = block.expect ?? {};
+      if (
+        Object.keys(expect).some((key) => key !== 'criteria' && key !== 'ledger_add') ||
+        spec.rules !== undefined
+      )
+        machine += 1;
+    }
+  }
+  return { machine_then_share: blocks === 0 ? 0 : machine / blocks, judged_only_blocks: blocks - machine };
+}
+
+/** The four measures a seeder states: richness and evenness over the t = 2 cells its specs cover, the Then share. */
+function seederMeasures(prepared: PreparedMap, specs: readonly Spec[]): Record<string, number> {
+  const counts = cellCounts(prepared, specs, 2)
+    .map((cell) => cell.count)
+    .filter((count) => count > 0);
+  const n = counts.reduce((sum, count) => sum + count, 0);
+  const shares = counts.map((count) => count / Math.max(1, n));
+  const entropy = -shares.reduce((sum, share) => sum + (share > 0 ? share * Math.log(share) : 0), 0);
   return {
-    t: strength,
-    specs: specs.length,
-    allowed: grid.allowed,
-    covered: grid.covered,
-    share: grid.share,
+    hill_q0: counts.length,
+    pielou: counts.length > 1 ? entropy / Math.log(counts.length) : 1,
+    ...machineShare(specs),
   };
 }
 
@@ -450,6 +714,11 @@ function dataValues(prepared: PreparedMap): number {
 export function renderSummary(report: GenerateReport): string {
   const percent = (share: number) => `${(share * 100).toFixed(1)}%`;
   const lines = [
+    `Actual axis-map coverage (written complete specs): ${report.coverage.actual.map((entry) => `${entry.t === 2 ? 'pairs' : entry.t === 3 ? 'triples' : 'values'} ${entry.covered} of ${entry.allowed} (${percent(entry.share)})`).join('; ')}.`,
+    report.budget
+      ? `Candidate budget array (before the total cap), budget ${report.budget.budget}: ${report.budget.picked} cells of ${report.budget.pool} allowed, pairs covered ${report.budget.pairs.covered} of ${report.budget.pairs.allowed} (${percent(report.budget.pairs.share)}), max deviation from fair share ${report.budget.maxDeviation.toFixed(2)}.`
+      : `Candidate t-wise array (before the total cap): covering array of ${report.twise.rows} rows over ${report.twise.dimensions.length} dimensions, ${report.twise.covered} of ${report.twise.allowed} allowed ${report.twise.t}-tuples (${percent(report.twise.share)}); ${report.twise.unreachable.length} pairs no path reaches are left out.`,
+    `Uncovered on the axis map: ${report.coverage.actual.map((entry) => `${entry.uncovered.length} ${entry.t === 2 ? 'pairs' : entry.t === 3 ? 'triples' : 'values'}`).join(', ')} (see coverage.actual[].uncovered).`,
     `Map ${report.map.agent} (${report.map.path}), hash ${report.map.hash}: ${report.map.dimensions} dimensions, ${report.map.values} values, ${report.map.constraints} constraints, ${report.map.phrases} approved phrases.`,
     `Seed ${report.options.seed}, t = ${report.options.t}${report.options.max === null ? '' : `, at most ${report.options.max} specs per seeder`}.`,
     '',
@@ -468,16 +737,17 @@ export function renderSummary(report: GenerateReport): string {
         ? ` Paths no cell can walk: ${report.graph.unwalked.map((entry) => entry.path).join(', ')}.`
         : ''
     }`,
-    report.budget
-      ? `Budget ${report.budget.budget}: ${report.budget.picked} cells of ${report.budget.pool} allowed, pairs covered ${report.budget.pairs.covered} of ${report.budget.pairs.allowed} (${percent(report.budget.pairs.share)}), max deviation from fair share ${report.budget.maxDeviation.toFixed(2)}.`
-      : `t-wise: covering array of ${report.twise.rows} rows over ${report.twise.dimensions.length} dimensions, ${report.twise.covered} of ${report.twise.allowed} allowed ${report.twise.t}-tuples (${percent(report.twise.share)}).`,
     `Constraints applied: ${report.constraints.applied}.`,
     `Deviation probes: ${report.deviation.probes.length} of ${report.deviation.classes} classes. Metamorphic families: ${report.metamorphic.families}.`,
     `Coverage on the axis map at t = ${report.coverage.t}: complete specs ${report.coverage.complete.covered} of ${report.coverage.allowed} (${percent(report.coverage.complete.share)}), all specs ${report.coverage.all.covered} (${percent(report.coverage.all.share)})${report.coverage.baseline ? `, ${report.coverage.baseline.label} ${report.coverage.baseline.covered} (${percent(report.coverage.baseline.share)})` : ''}.`,
   );
+  if (report.spec_cap)
+    lines.push(
+      `Spec cap ${report.spec_cap.limit}: ${report.spec_cap.written} of ${report.spec_cap.candidates} candidate specs written; ${report.spec_cap.protected} structural, fault and incomplete specs protected. ${report.spec_cap.preserved ? (report.spec_cap.mode === 'pairs' ? 'Every candidate pair retained; triple losses are listed in spec_cap.coverage.' : 'Every candidate pair and triple retained.') : 'Coverage lost: see spec_cap.coverage[].lost.'}`,
+    );
   if (report.cover.unbuilt.length > 0)
     lines.push(
-      `Allowed pairs no spec could be built for: ${report.cover.unbuilt.length} (see cover.unbuilt).`,
+      `Allowed tuples no spec could be built for: ${report.cover.unbuilt.length} (see cover.unbuilt).`,
     );
   if (report.cover.unreachable.length > 0)
     lines.push(

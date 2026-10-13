@@ -37,6 +37,7 @@ export const tools: Check = {
       const key = keys[index] ?? tool.label;
       const own = calls.filter((call) => call.label === tool.label);
       verdicts.push(countVerdict(key, tool, own, calls));
+      if (tool.input_closed === true) verdicts.push(closedInputVerdict(key, tool, own));
       for (const [field, assertion] of Object.entries(tool.input ?? {})) {
         argumentsExpected += 1;
         const verdict = inputVerdict(key, tool.label, field, own, assertion);
@@ -119,6 +120,27 @@ function inputVerdict(
     id,
     'pass',
     `${label} input.${field} is ${expected} on ${plural(own.length, 'call')}: ${[...new Set(values)].join(', ')}`,
+  );
+}
+
+/** Closing the input restricts top-level argument names, without changing the value assertions. */
+function closedInputVerdict(key: string, tool: ToolExpect, own: ToolCall[]): Verdict {
+  const allowed = new Set(Object.keys(tool.input ?? {}));
+  const failures: string[] = [];
+  own.forEach((call, index) => {
+    const at = `call ${index + 1}${callId(call)}`;
+    if (!isRecord(call.input)) {
+      failures.push(`${at}: input is not an object`);
+      return;
+    }
+    const extra = Object.keys(call.input).filter((field) => !allowed.has(field));
+    if (extra.length > 0) failures.push(`${at}: extra input keys ${listed(extra)}`);
+  });
+  return machineVerdict(
+    NAME,
+    `${key}.input_closed`,
+    failures.length === 0 ? 'pass' : 'fail',
+    `${tool.label} ${failures.length === 0 ? `only allowed input keys on ${plural(own.length, 'call')}` : failures.join('; ')}; allowed keys: ${listed([...allowed])}`,
   );
 }
 

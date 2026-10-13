@@ -13,6 +13,8 @@ export interface JudgeClient {
   readonly id: string;
   /** The model family, such as openai, anthropic or google. A judge never shares the agent's family. */
   readonly family: string;
+  /** All underlying model families of a composite client, for outer council protection. */
+  readonly families?: readonly string[];
   readonly cls: JudgeClass;
   readonly model?: string;
   /** Relative cost of one call. The cascade runs the cheapest first. */
@@ -27,6 +29,8 @@ export interface JudgeClient {
   /** A client default; an explicit request reasoning setting takes precedence. */
   readonly reasoning?: string;
   judge(request: JudgeRequest): Promise<JudgeResult>;
+  /** Own both supplied presentation orders as one comparison, preserving every request field. */
+  judgeComparison?(ordered: JudgeRequest, swapped: JudgeRequest): Promise<JudgeResult>;
 }
 
 /** What every provider client takes. Keys are read from `env` only, never from an option. */
