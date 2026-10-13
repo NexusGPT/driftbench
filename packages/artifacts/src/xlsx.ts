@@ -1,4 +1,4 @@
-import ExcelJS from 'exceljs';
+import type ExcelJS from 'exceljs';
 import { invalid, isRecord, mapping, missing, optionalString, parseOrder, requiredList } from './args';
 import { holds, jsonEqual, listed, parseAssertions } from './assertion';
 import {
@@ -317,7 +317,9 @@ export const XLSX_CHECKS: CheckTable<Workbook> = {
 
 /** Every sheet of a workbook, read once. Throws when the bytes are not a workbook. */
 export async function readWorkbook(bytes: Uint8Array): Promise<Sheet[]> {
-  const workbook = new ExcelJS.Workbook();
+  // exceljs is several hundred modules: it loads when the first workbook opens, not when this package does.
+  const { default: Excel } = await import('exceljs');
+  const workbook = new Excel.Workbook();
   await workbook.xlsx.load(ownBuffer(bytes));
   const read = workbook.worksheets.map(readSheet);
   if (read.length === 0) throw new Error('the file holds no worksheet');
