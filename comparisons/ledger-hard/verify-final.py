@@ -12,13 +12,14 @@ def main():
     audit=json.loads((HERE/'construction-cue-audit.json').read_text())
     assert audit['blocking_cues']==[] and audit['verdict'].startswith('PASS')
     source_hashes={}
-    for amendment in ('recovery-amendment.json','concurrency-amendment.json','quota-amendment.json'):
+    for amendment in ('recovery-amendment.json','concurrency-amendment.json','quota-amendment.json','pacing-amendment.json'):
         source_hashes.update(json.loads((HERE/amendment).read_text())['sha256'])
     for path,value in source_hashes.items():assert digest(ROOT/path)==value,path
     authorised={i['request_sha256']:i for i in recovery['items']}
-    all_keys=set();details={};reasked=[];total=0;combined_events=[];quota_events=[]
+    all_keys=set();details={};reasked=[];total=0;combined_events=[];quota_events=[];pacing_events=[]
     boundary=json.loads((HERE/'concurrency-amendment.json').read_text())['stamp']
     quota_boundary=json.loads((HERE/'quota-amendment.json').read_text())['stamp']
+    pacing=json.loads((HERE/'pacing-amendment.json').read_text());pacing_boundary=pacing['stamp']
     for experiment,directory,reqs,answers in [
         ('primary',HERE,run.requests(MODELS,None),records()),
         ('dialect',HERE/'dialect',d.all_requests(),d.variant_records())]:
@@ -60,9 +61,10 @@ def main():
             assert active[model]>=0
             maximum[model]=max(maximum[model],active[model])
             time=a['stamp'] if a['event']=='start' else a['finished']
-            if time>=boundary:combined_events.append((time,1 if a['event']=='start' else -1))
+            if boundary<=time<pacing_boundary:combined_events.append((time,1 if a['event']=='start' else -1))
             if time>=quota_boundary and model=='gemini-3.8-flash':quota_events.append((time,1 if a['event']=='start' else -1))
-        limits={'haiku':6,'gpt-6-luna':2 if experiment=='primary' else 4,'gemini-3.8-flash':4}
+            if time>=pacing_boundary:pacing_events.append((time,1 if a['event']=='start' else -1,model))
+        limits={'haiku':6,'gpt-6-luna':8,'gemini-3.8-flash':4}
         assert all(n<=limits[m] for m,n in maximum.items())
         cost=sum(run.priced(a) or 0 if a['model']=='gpt-6-luna' else a.get('measured_usd') or 0 for a in answers);total+=cost
         usage={}
@@ -101,12 +103,23 @@ def main():
         assert gemini_active>=0
     assert gemini_max<=2
     if args.require_complete:assert gemini_active==0
+    pacing_active=collections.Counter();pacing_max=collections.Counter();pacing_total_max=0
+    for time,delta,model in sorted(pacing_events):
+        pacing_active[model]+=delta
+        assert 0<=pacing_active[model]<=pacing['per_model_limits'][model],(model,pacing_active)
+        pacing_max[model]=max(pacing_max[model],pacing_active[model])
+        pacing_total_max=max(pacing_total_max,sum(pacing_active.values()))
+    assert pacing_total_max<=sum(pacing['per_model_limits'].values())
+    if args.require_complete:assert not any(pacing_active.values())
     result={'verified_at':stamp(),'experiments':details,'construction_audit_sha256':digest(HERE/'construction-cue-audit.json'),
         'crash_reasked_recorded':len(reasked),'crash_authorised':len(authorised),'measured_usd':total,
         'lost_attempt_reserve_usd':recovery['lost_attempt_reserve_usd'],'measured_plus_lost_reserve_usd':total+recovery['lost_attempt_reserve_usd'],
         'complete':all(v['complete'] for v in details.values()),'no_request_key_overlap':True,
         'combined_call_limit_from':boundary,'combined_max_concurrent_after_amendment':combined_max,
-        'gemini_call_limit_from':quota_boundary,'gemini_max_concurrent_after_amendment':gemini_max}
+        'combined_four_call_limit_until':pacing_boundary,
+        'gemini_call_limit_from':quota_boundary,'gemini_max_concurrent_after_amendment':gemini_max,
+        'per_model_limit_from':pacing_boundary,'per_model_limits':pacing['per_model_limits'],
+        'per_model_max_concurrent_after_pacing':dict(pacing_max),'total_max_concurrent_after_pacing':pacing_total_max}
     dump(HERE/'verification-final.json',result);print(json.dumps(result,indent=2))
 
 if __name__=='__main__':main()

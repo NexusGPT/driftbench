@@ -11,3 +11,5 @@ Sources and original seals stay fixed. Execution amendments describe only operat
 The combined USD 10 cap includes measured usage, the USD 0.40 lost-attempt reserve, and reservations for active calls. Only the two owner-named API key files are used, read inside each worker.
 
 Later quota amendment: Gemini is limited to two calls, within the combined four-call cap. HTTP 429 receives waits of 60, 120 and 240 seconds. Exhausted quota retries remain pending, never scored as judge failures. This overrides the general three-attempt rule for HTTP 429 only.
+
+Later pacing amendment: after a natural drain, per-model limits replace the combined four-call cap and earlier adaptive pacing. Shared across both experiments: gpt-6-luna eight plain HTTP calls, Gemini two calls, Haiku two calls. All three run side by side. The sealed order, USD 10 cap, contracts and quota retry waits remain unchanged. `pacing-amendment.json` freezes the runtime change.

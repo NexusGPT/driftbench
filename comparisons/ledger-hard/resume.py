@@ -5,13 +5,13 @@ import run as primary
 variant=load_module('dialect_resume', HERE/'dialect-run.py')
 LOCK=threading.RLock()
 STOP=threading.Event()
-WINDOW=collections.deque(maxlen=50)
-LIMITS={('primary','haiku'):6,('primary','gpt-6-luna'):2,
-        ('dialect','haiku'):6,('dialect','gpt-6-luna'):4,('dialect','gemini-3.8-flash'):2}
+MODEL_LIMITS={'gpt-6-luna':8,'gemini-3.8-flash':2,'haiku':2}
 
 def dest(experiment):return HERE if experiment=='primary' else HERE/'dialect'
 def readlines(path):return [json.loads(s) for s in path.read_text().splitlines()] if path.exists() else []
 def measured(a):return (primary.priced(a) if a['model']=='gpt-6-luna' else a.get('measured_usd')) or 0
+def model_slot_available(model,inflight):
+    return sum(r['model']==model for r in inflight.values())<MODEL_LIMITS[model]
 
 def work(r):
     experiment=r['experiment'];directory=dest(experiment)
@@ -28,11 +28,6 @@ def work(r):
         retryable=quota or (primary.transport_retryable(a) if experiment=='primary' else variant.retryable(a))
         with LOCK:
             primary.append(directory/'recovery-attempts.jsonl',{'event':'finish',**a})
-            if (experiment,r['model'])==('dialect','gpt-6-luna'):
-                WINDOW.append(bool(retryable))
-                if len(WINDOW)==50 and sum(WINDOW)>2 and LIMITS[(experiment,r['model'])]!=2:
-                    LIMITS[(experiment,r['model'])]=2
-                    primary.append(directory/'events.jsonl',{'stamp':stamp(),'event':'luna-concurrency-reduced','limit':2,'failures_last_50':sum(WINDOW)})
         if quota:
             quota_failures+=1
             if quota_failures>3:
@@ -56,13 +51,17 @@ def main():
     amendment=json.loads((HERE/'recovery-amendment.json').read_text())
     concurrency=json.loads((HERE/'concurrency-amendment.json').read_text())
     quota=json.loads((HERE/'quota-amendment.json').read_text())
-    for name,value in (amendment['sha256']|concurrency['sha256']|quota['sha256']).items():assert digest(ROOT/name)==value,name
+    pacing=json.loads((HERE/'pacing-amendment.json').read_text())
+    assert pacing['per_model_limits']==MODEL_LIMITS
+    for name,value in (amendment['sha256']|concurrency['sha256']|quota['sha256']|pacing['sha256']).items():assert digest(ROOT/name)==value,name
     committed=primary.subprocess.check_output(['git','show','HEAD:comparisons/ledger-hard/recovery-amendment.json'],cwd=ROOT)
     assert committed==(HERE/'recovery-amendment.json').read_bytes()
     committed=primary.subprocess.check_output(['git','show','HEAD:comparisons/ledger-hard/concurrency-amendment.json'],cwd=ROOT)
     assert committed==(HERE/'concurrency-amendment.json').read_bytes()
     committed=primary.subprocess.check_output(['git','show','HEAD:comparisons/ledger-hard/quota-amendment.json'],cwd=ROOT)
     assert committed==(HERE/'quota-amendment.json').read_bytes()
+    committed=primary.subprocess.check_output(['git','show','HEAD:comparisons/ledger-hard/pacing-amendment.json'],cwd=ROOT)
+    assert committed==(HERE/'pacing-amendment.json').read_bytes()
     recovery=json.loads((HERE/'crash-recovery.json').read_text())
     authorised={r['request_sha256'] for r in recovery['items']}
     locks=[]
@@ -81,17 +80,13 @@ def main():
         for r in reqs:unique.setdefault(r['request_sha256'],r)
         for key,r in unique.items():
             if key not in done:queues[(experiment,r['model'])].append(dict(r,experiment=experiment,crash_reask=key in authorised))
-    # Restore the rolling failure window from the durable variant attempt log.
-    old_attempts=[r for r in readlines(HERE/'dialect/attempts.jsonl')+readlines(HERE/'dialect/recovery-attempts.jsonl') if r.get('event')=='finish' and r.get('model')=='gpt-6-luna']
-    WINDOW.extend(bool(variant.retryable(r)) for r in old_attempts[-50:])
-    if readlines(HERE/'dialect/events.jsonl') or len(WINDOW)==50 and sum(WINDOW)>2:LIMITS[('dialect','gpt-6-luna')]=2
     print(json.dumps({'pending':{str(k):len(q) for k,q in queues.items()},'measured_usd':spent,'lost_reserve_usd':recovery['lost_attempt_reserve_usd'],'execute':args.execute}),flush=True)
     if not args.execute:return
     primary.ledger('crash recovery start; lost-attempt reserve USD 0.40',0,spent)
     signal.signal(signal.SIGTERM,lambda *_:STOP.set());signal.signal(signal.SIGINT,lambda *_:STOP.set())
     inflight={};fresh=0;stop=None;reserve=recovery['lost_attempt_reserve_usd'];quota_blocked=set()
     queue_order=collections.deque(queues)
-    global_limit=concurrency['combined_call_limit']
+    global_limit=sum(MODEL_LIMITS.values())
     with concurrent.futures.ThreadPoolExecutor(max_workers=global_limit) as pool:
         while any(queues.values()) or inflight:
             if (HERE/'recovery-drain').exists():STOP.set();stop='drain requested'
@@ -100,12 +95,11 @@ def main():
                 if len(inflight)>=global_limit or STOP.is_set():break
                 key=queue_order[0];queue_order.rotate(-1);queue=queues[key]
                 if key[1] in quota_blocked:continue
-                active=sum((r['experiment'],r['model'])==key for r in inflight.values())
-                if queue and active<LIMITS[key]:
+                if queue and model_slot_available(key[1],inflight):
                     if spent+reserve+.02*(len(inflight)+1)>10:STOP.set();stop='shared cap with lost-attempt reserve';break
                     r=queue.popleft()
                     with LOCK:primary.append(dest(r['experiment'])/'starts.jsonl',{k:v for k,v in r.items() if k not in ('prompt','built')}|{'started':stamp()})
-                    inflight[pool.submit(work,r)]=r;active+=1
+                    inflight[pool.submit(work,r)]=r
             if not inflight:break
             completed,_=concurrent.futures.wait(inflight,timeout=10,return_when=concurrent.futures.FIRST_COMPLETED)
             for f in completed:
@@ -115,8 +109,8 @@ def main():
                     quota_blocked.add(r['model']);stop='HTTP 429 quota pending; no judge failure'
                     continue
                 fresh+=1
-                if fresh%50==0:print(json.dumps({'stamp':stamp(),'fresh_completed':fresh,'remaining':{str(k):len(q) for k,q in queues.items()},'measured_usd':spent,'lost_reserve_usd':reserve,'limits':{str(k):v for k,v in LIMITS.items()}}),flush=True)
-            dump(HERE/'recovery-state.json',{'stamp':stamp(),'fresh_completed':fresh,'remaining':{str(k):len(q) for k,q in queues.items()},'inflight':len(inflight),'measured_usd':spent,'lost_reserve_usd':reserve,'stop_reason':stop,'global_limit':global_limit,'limits':{str(k):v for k,v in LIMITS.items()}})
+                if fresh%50==0:print(json.dumps({'stamp':stamp(),'fresh_completed':fresh,'remaining':{str(k):len(q) for k,q in queues.items()},'measured_usd':spent,'lost_reserve_usd':reserve,'limits':MODEL_LIMITS}),flush=True)
+            dump(HERE/'recovery-state.json',{'stamp':stamp(),'fresh_completed':fresh,'remaining':{str(k):len(q) for k,q in queues.items()},'inflight':len(inflight),'measured_usd':spent,'lost_reserve_usd':reserve,'stop_reason':stop,'global_limit':global_limit,'limits':MODEL_LIMITS})
     primary.ledger('crash recovery finish '+str(stop),fresh,spent)
     print(json.dumps({'finished':stamp(),'fresh_completed':fresh,'measured_usd':spent,'lost_reserve_usd':reserve,'stop_reason':stop}),flush=True)
 

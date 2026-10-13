@@ -4,6 +4,18 @@ from unittest.mock import patch
 import resume as r
 
 class RecoveryTests(unittest.TestCase):
+    def test_limits_are_shared_across_experiments(self):
+        active={i:{'experiment':'primary' if i%2 else 'dialect','model':'gpt-6-luna'} for i in range(8)}
+        self.assertFalse(r.model_slot_available('gpt-6-luna',active))
+        self.assertTrue(r.model_slot_available('haiku',active))
+        active[8]={'experiment':'primary','model':'haiku'}
+        self.assertTrue(r.model_slot_available('haiku',active))
+        active[9]={'experiment':'dialect','model':'haiku'}
+        self.assertFalse(r.model_slot_available('haiku',active))
+        for i in (10,11):active[i]={'experiment':'dialect','model':'gemini-3.8-flash'}
+        self.assertFalse(r.model_slot_available('gemini-3.8-flash',active))
+        active.pop(0)
+        self.assertTrue(r.model_slot_available('gpt-6-luna',active))
     def request(self):return {'experiment':'primary','model':'gpt-6-luna','request_sha256':'fixture','side':'audit','row':'rubric','crash_reask':True}
     def invoke(self,answers):
         events=[]
