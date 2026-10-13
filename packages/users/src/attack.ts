@@ -14,7 +14,7 @@ import {
 import { DEVIATIONS, isWorldClass } from './deviations';
 import { createPerturbingDriver, fromPhrasing, isWorldOnly } from './perturb';
 import { seededIndex } from './random';
-import { drawPhrasing, phrasingPool, type Phrasing, type RedteamPack } from './redteam';
+import { drawPhrasing, type Phrasing, phrasingPool, type RedteamPack } from './redteam';
 import { createScriptedDriver } from './scripted';
 import { checkUserFamilies, type UserModelPort } from './simulated';
 

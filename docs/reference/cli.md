@@ -455,8 +455,8 @@ Proposes the map of situations from an agent's prompt or policy, its inventory a
 
 ```
 $ pnpm -s driftbench extract approve examples/acme/map/proposal.yaml
-examples/acme/map/proposal.yaml: 284 of 284 decisions are open (51 dimensions, 111 constraints, 51 phrases, 71 relations).
-Axes: 7 of 51 dimensions, a full grid of 96096 cells (the space commands accept 250000).
+examples/acme/map/proposal.yaml: 290 of 290 decisions are open (51 dimensions, 111 constraints, 55 phrases, 73 relations).
+Axes: 7 of 51 dimensions, a full grid of 113568 cells (the space commands accept 250000).
   dimension   behaviour  behaviour axis, by code, 14 values: The behaviours the inventory lists
   dimension   flow  behaviour detail, by code, 5 values: The flows the inventory lists
   dimension   deviation  deviation axis, by code, 10 values: The deviation classes the flows must be perturbed with
@@ -469,7 +469,7 @@ The listing goes on with one line per open decision.
 
 ```
 $ pnpm -s driftbench extract map examples/acme/map/approved.yaml --to _captures/docs3/cli/space.yaml
-Wrote _captures/docs3/cli/space.yaml: 7 axes (behaviour, deviation, channel, stage, user_type, coverage_result, workspace_start), 374 constraints, a full grid of 180180 cells.
+Wrote _captures/docs3/cli/space.yaml: 7 axes (behaviour, deviation, channel, stage, user_type, coverage_result, workspace_start), 388 constraints, a full grid of 212940 cells.
 ```
 
 [`examples/acme/map`](../../examples/acme/map/README.md) holds the Acme proposal, its approved copy, its space map and the commands that made them.
@@ -1371,10 +1371,10 @@ driftbench holdout score --sealed <dir> --target <adapter:agent> [--budget <quer
 ```
 $ pnpm driftbench select --cover examples/acme/map/space.yaml --specs examples/acme/gated --out <dir> --k 10
 Pool: 200 unsealed specs; 58 sealed specs left out; 4 gate files that are not specs skipped.
-Cover: 106 conversations cover every cell the pool covers (598 of 637).
+Cover: 106 conversations cover every cell the pool covers (598 of 701).
 (the ranked table)
-Cells covered: 306 of 637 allowed pairs (48.0%); the pool covers 598.
-  t = 3: 794 of 3510 allowed (22.6%).
+Cells covered: 306 of 701 allowed pairs (43.7%); the pool covers 598.
+  t = 3: 794 of 4044 allowed (19.6%).
 Required cells: 10 of 10; the pool covers 10.
 Faults turned red: 12 of the 13 the pool turns red (13 counted faults in the gate report).
 (exit 0)

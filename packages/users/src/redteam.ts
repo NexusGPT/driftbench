@@ -219,7 +219,12 @@ export type DrawOptions = {
  * approved one (without drafts).
  */
 /** How many phrasings a class can draw in this mode: approved only, or drafts too. Zero means the class is not drawable. */
-export function phrasingPool(pack: RedteamPack, cls: DeviationClass, kind: PhrasingKind, drafts: boolean): number {
+export function phrasingPool(
+  pack: RedteamPack,
+  cls: DeviationClass,
+  kind: PhrasingKind,
+  drafts: boolean,
+): number {
   const file = pack.files.get(cls);
   if (!file) return 0;
   const all = file[kind] ?? [];

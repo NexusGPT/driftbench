@@ -109,7 +109,14 @@ describe('the adaptive attacker', { timeout: 60_000 }, () => {
   it('never draws a class the pack has no approved phrasing for: D11 and D12 are not attacks until approved', async () => {
     const spec = await acmeSpec('conversations/plan-upgrade.yaml');
     for (const seed of [0, 1, 2]) {
-      const result = await runAttack({ spec, adapter: acmeSales(), checks: defaultChecks(), pack, rounds: 10, seed });
+      const result = await runAttack({
+        spec,
+        adapter: acmeSales(),
+        checks: defaultChecks(),
+        pack,
+        rounds: 10,
+        seed,
+      });
       const classes = result.rounds.map((round) => round.class);
       expect(classes.filter((cls) => cls === 'D11_pii_leak' || cls === 'D12_prompt_extraction')).toEqual([]);
     }

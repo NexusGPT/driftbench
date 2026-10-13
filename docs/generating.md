@@ -172,7 +172,7 @@ Without `--no-model`, the extractor asks a model for the rest, one call per sect
 $ pnpm -s driftbench extract --prompt _captures/docs3/generating/acme/src/policy.ts --prompt _captures/docs3/generating/acme/README.md --prompt _captures/docs3/generating/acme/src/store.ts --inventory _captures/docs3/generating/acme/inventory.yaml --tools _captures/docs3/generating/acme/map/tools.yaml --replay _captures/docs3/generating/acme/map/answers.yaml --out _captures/docs3/generating/acme/map/proposal.yaml
 Wrote _captures/docs3/generating/acme/map/proposal.yaml: 51 dimensions, 182 values, 111 constraints, 51 phrases, 71 relations, none approved.
   Code pre-pass: 34 dimensions, 91 values, 55 constraints, 7 relations.
-  Roles: 7 axes (behaviour, deviation, channel, stage, user_type, coverage_result, workspace_start), 44 details; the axes make a full grid of 96096 cells.
+  Roles: 7 axes (behaviour, deviation, channel, stage, user_type, coverage_result, workspace_start), 44 details; the axes make a full grid of 113568 cells.
   Model lane claude-opus-5-5 as the extract and generate2 lanes, by hand: 6 sections, 6 calls.
     stages     added 37 entries
     rules      added 14 entries
@@ -212,8 +212,8 @@ A dimension has one `approved` flag, which its values inherit; a value may set i
 
 ```
 $ pnpm -s driftbench extract approve _captures/docs3/generating/acme/map/proposal.yaml
-_captures/docs3/generating/acme/map/proposal.yaml: 284 of 284 decisions are open (51 dimensions, 111 constraints, 51 phrases, 71 relations).
-Axes: 7 of 51 dimensions, a full grid of 96096 cells (the space commands accept 250000).
+_captures/docs3/generating/acme/map/proposal.yaml: 290 of 290 decisions are open (51 dimensions, 111 constraints, 55 phrases, 73 relations).
+Axes: 7 of 51 dimensions, a full grid of 113568 cells (the space commands accept 250000).
   dimension   behaviour  behaviour axis, by code, 14 values: The behaviours the inventory lists
   dimension   flow  behaviour detail, by code, 5 values: The flows the inventory lists
   dimension   deviation  deviation axis, by code, 10 values: The deviation classes the flows must be perturbed with
@@ -253,11 +253,11 @@ The Acme map was approved with `--all` on the owner's delegation, for the fictio
 * a data or task value is held only where the path's `when` or the family's `holds` states it; elsewhere the axis holds `none`, the value a data or task axis gets on a structured map;
 * a conversation holds no task setting, so a conversation event allows only `none` on the task axes.
 
-The inventory pre-pass also writes one constraint per flow a behaviour does not belong to. On Acme this leaves 637 allowed pairs, and `generate` covers all 637 with complete specs. A value no allowed pair holds is named in the report under `cover.unreachable`: on Acme, `workspace_start=existing-workbook`, which the price-sheet family has no knob for.
+The inventory pre-pass also writes one constraint per flow a behaviour does not belong to. On Acme this leaves 701 allowed pairs, and `generate` covers 688 of them with complete specs. A value no allowed pair holds is named in the report under `cover.unreachable`: on Acme, `workspace_start=existing-workbook`, which the price-sheet family has no knob for.
 
 ```
 $ pnpm -s driftbench extract map _captures/docs3/generating/acme/map/approved.yaml --to _captures/docs3/generating/acme/map/space.yaml
-Wrote _captures/docs3/generating/acme/map/space.yaml: 7 axes (behaviour, deviation, channel, stage, user_type, coverage_result, workspace_start), 374 constraints, a full grid of 180180 cells.
+Wrote _captures/docs3/generating/acme/map/space.yaml: 7 axes (behaviour, deviation, channel, stage, user_type, coverage_result, workspace_start), 388 constraints, a full grid of 212940 cells.
 exit 0
 ```
 
@@ -267,10 +267,10 @@ The result is identical to the committed `examples/acme/map/space.yaml`. Three c
 * `driftbench space complete <specs> --map <space.yaml> [--t <n>]` prints the completeness line: the share of the cells that have appeared and the chance that the next conversation shows a new one. It exits 1 when there are fewer conversations than cells.
 * `driftbench space declare <specs> --inventory <file> --out <file>` writes a first map from the inventory and the specs, for the owner to edit.
 
-On the Acme map, the hand-written specs cover 234 of 637 allowed pairs (exit 1, three required cells empty); the gated suite covers 591 and every required cell:
+On the Acme map, the hand-written specs cover 237 of 701 allowed pairs (exit 1, three required cells empty); the gated suite covers 592 and every required cell:
 
 ```
-Coverage: 10 of 10 required cells covered, 591 of 637 cells at t = 2 (92.8%).
+Coverage: 10 of 10 required cells covered, 592 of 701 cells at t = 2 (84.5%).
 ```
 
 That is the last line of `pnpm -s driftbench space coverage examples/acme/gated/specs --map examples/acme/map/space.yaml --t 2` (exit 0). The cells the gated specs miss are the ones only a sealed spec covers.

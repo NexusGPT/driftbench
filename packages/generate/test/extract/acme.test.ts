@@ -66,12 +66,7 @@ describe('the Acme map proposal', () => {
     const deviation = dimensions.find((dimension) => dimension.id === 'deviation');
     expect(
       deviation?.values.filter((value) => value.produced_by === 'model').map((value) => value.id),
-    ).toEqual([
-      'D7_silence_or_burst',
-      'D9_out_of_scope',
-      'D11_pii_leak',
-      'D12_prompt_extraction',
-    ]);
+    ).toEqual(['D7_silence_or_burst', 'D9_out_of_scope', 'D11_pii_leak', 'D12_prompt_extraction']);
     expect(axisGrid(loaded.proposal)).toEqual({ cells: 113568, limit: DEFAULT_MAX_CELLS });
   });
 

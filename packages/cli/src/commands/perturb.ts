@@ -11,7 +11,6 @@ import {
 } from '@agent-nexus/driftbench-users';
 import type { Command } from 'commander';
 import type { Io } from '../io';
-import { faultDeps } from './ci';
 import { optionNumber } from '../number';
 import {
   type CampaignDeps,
@@ -22,6 +21,7 @@ import {
   showTarget,
   specRuns,
 } from './campaign';
+import { faultDeps } from './ci';
 
 type PerturbOptions = {
   class?: string;
@@ -68,7 +68,10 @@ export function registerPerturbCommand(
       '--target <adapter[:agent]>',
       "the agent, such as function:acme-sales; without it, the spec's own",
     )
-    .option('--faults <path>', 'a fault set (module or folder) whose faults the target can name as fault:<id>')
+    .option(
+      '--faults <path>',
+      'a fault set (module or folder) whose faults the target can name as fault:<id>',
+    )
     .option('--seed <n>', 'the seed of the draw from the red-team pack', '0')
     .option('--pack <dir>', 'the red-team pack; default the nearest redteam/ folder at or above the spec')
     .option('--drafts', 'draw from phrasings nobody has approved yet')

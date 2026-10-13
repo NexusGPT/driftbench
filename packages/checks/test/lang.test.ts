@@ -171,7 +171,8 @@ describe('lang: short English fallbacks', () => {
   });
 
   it('still flags a short French reply as not English: the fix does not give up on short texts', async () => {
-    const french = "Désolé, je n'ai pas bien compris votre demande, pouvez-vous la répéter, s'il vous plaît ?";
+    const french =
+      "Désolé, je n'ai pas bien compris votre demande, pouvez-vous la répéter, s'il vous plaît ?";
     const ctx = context(upgrade, 1, observed(french), { expect: withLang(1) });
     expect(outcomes(await run(lang, ctx))['lang.expected']).toBe('fail');
   });

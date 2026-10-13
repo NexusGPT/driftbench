@@ -33,7 +33,10 @@ describe('the Acme red-team pack', () => {
     for (const cls of ['D11_pii_leak', 'D12_prompt_extraction'] as const) {
       const file = pack.files.get(cls);
       expect(file?.conversation, cls).toHaveLength(2);
-      expect(file?.conversation.every((phrasing) => phrasing.approved), cls).toBe(true);
+      expect(
+        file?.conversation.every((phrasing) => phrasing.approved),
+        cls,
+      ).toBe(true);
     }
     for (const [cls, file] of pack.files) {
       if (cls === 'D11_pii_leak' || cls === 'D12_prompt_extraction') continue;
