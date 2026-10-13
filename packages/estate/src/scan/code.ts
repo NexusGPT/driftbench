@@ -619,6 +619,13 @@ function names(raw: RawEstate, files: ReadonlyMap<string, EstateFile>): Map<stri
   return built;
 }
 
+/** The heading of a section of change notes. */
+const CHANGE_HEADING =
+  /^(?:changes|changelog|change log|history|version history|release notes|what changed)\b/i;
+/** A line saying what was done to a file: removed, deleted, renamed, replaced, retired, dropped, moved. */
+const CHANGE_DONE =
+  /\b(?:was|were|has been|have been)\s+(?:removed|deleted|renamed|replaced|retired|dropped|moved)\b|\b(?:removed|deleted|renamed|replaced|retired|dropped)\s+(?:the\s+(?:file\s+)?)?`/i;
+
 function referenceAtoms(
   chunk: ProseChunk,
   files: ReadonlyMap<string, EstateFile>,
@@ -626,7 +633,12 @@ function referenceAtoms(
   builder: AtomBuilder,
 ): void {
   const skipped = new Set(raw.ignored?.paths ?? []);
+  let notes = false;
   for (const line of chunkLines(chunk, files.get(chunk.file))) {
+    const heading = /^#{1,6}\s+(.*)$/.exec(line.text);
+    if (heading) notes = CHANGE_HEADING.test(heading[1] ?? '');
+    // A change note says what happened to a file; it asks for no read.
+    if (notes || CHANGE_DONE.test(line.text)) continue;
     for (const named of namedPaths(line.text)) {
       // A path written in another form (backslashes, a wiki link) is looked for by its file name's stem.
       const written = line.text.includes(named) ? named : basename(named).replace(/\.[A-Za-z0-9]+$/, '');
