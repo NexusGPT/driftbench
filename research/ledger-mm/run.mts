@@ -9,11 +9,13 @@ const root = resolve(here, '../..');
 const argv = process.argv.slice(2);
 const flag = (name: string, fallback?: string) => { const i = argv.indexOf(name); return i < 0 ? fallback : argv[i + 1]; };
 if (argv.includes('--help')) {
-  console.log('run.mts --phase fixture|pilot|noise|validity|test --model haiku|gpt-6-luna|gemini-3.8-flash [--workers 6] [--dry-run]\nPaid mode requires core-ready.json and a committed source freeze. TEST additionally requires runtime-freeze.json.');
+  console.log('run.mts --phase fixture|pilot|noise|validity|test --model haiku|gpt-6-luna|gemini-3.8-flash [--workers 4] [--dry-run]\nPaid mode requires core-ready.json and a committed source freeze. TEST additionally requires runtime-freeze.json.');
   process.exit(0);
 }
 const phase = flag('--phase', 'pilot')!;
 const model = flag('--model', 'haiku')!;
+const concurrency = Number(flag('--workers', '4'));
+if (!Number.isInteger(concurrency) || concurrency < 1 || concurrency > 4) throw new Error('workers must be 1 to 4');
 const models: Record<string, { model: string; provider: string; reasoning?: string }> = {
   haiku: { model: 'claude-haiku-5-5', provider: 'claude-cli' },
   'gpt-6-luna': { model: 'gpt-6-luna', provider: 'openai', reasoning: 'medium' },
@@ -218,7 +220,7 @@ if (phase === 'validity') {
   }
 }
 try {
-  await workers(tasks, Number(flag('--workers', '6')), async (task: any[]) => evaluate(task[0], task[1], task[2], task[3]));
+  await workers(tasks, concurrency, async (task: any[]) => evaluate(task[0], task[1], task[2], task[3]));
 } catch (error) {
   if (!capError(error)) throw error;
   console.log(redact(error));

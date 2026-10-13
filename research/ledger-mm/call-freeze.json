@@ -1,8 +1,8 @@
 {
-  "stage": "dev-calls",
+  "stage": "dev-calls-v2",
   "core": {
     "pr": "https://github.com/achammah/driftbench/pull/168",
-    "commit": "2bb0a7a787ca4466ff69d204f2380a7ad19cc056",
+    "commit": "35f07309a4d1d1c8a7c5b176ff19e537d0ef8fdd",
     "verifiedRemoteHead": true
   },
   "lastCallCutoff": "2026-10-13T11:26:51.288240+00:00",
@@ -31,7 +31,7 @@
     "packages/judges/src/reference.ts": "fdd0c343c4b03fe9687f945f16691012f7c1992e57fa8b5118f8aca142a7ac05",
     "packages/judges/src/family.ts": "02820330478ea1513fc8822bbd1598275487a8101f934b094aba60f9b5423963",
     "packages/judges/src/http.ts": "a9452be52d7b259a44041cd2e8ec04641f231f3a78dc4c2a3d9e2ab0e8e10fa1",
-    "packages/judges/src/cassette.ts": "3462f1aec38ce05f6b6bb20557ad4557c300121f395a6d0b93fe41fd4113d12b",
+    "packages/judges/src/cassette.ts": "bfa1f110ebc18682ef004aba29b7033f3d6e8aa27029fc23b4d86377f1620fc8",
     "packages/judges/src/pairwise.ts": "d4b47329a65f7cdc24962c09102bf57af88697e2a7f16eeb2772afef43f4106f",
     "packages/judges/src/turns.ts": "cdc5b926872fa7a0075155654580895e237a17dc7e31f84c73fe7f3932a45b25",
     "packages/judges/src/pair-prompt.ts": "c8c5d41ac1f310443f66a0a8435443073e4346ff778457712ad9185abcd3425f",
@@ -66,12 +66,12 @@
     "packages/judges/src/clients/chat.ts": "7224e5b28f35a52e9fcfd3627fc8a530715a50fd376d4153009ed4a7599c831b",
     "packages/judges/src/clients/transport.ts": "8f449672f9e4eb75c8f5f0a43c4f9563750f7fa2c1d9235c2a23fc97be60c56a",
     "packages/judges/src/clients/fake.ts": "baf56779cba6d6b27a6e08577b323ed54659477c41988fe1ff5e6912b1e92213",
-    "research/ledger-mm/run.mts": "2a85a1cc7119d26f42bba586db07be623dfe075f593b083b8af8f59e0ec9da32",
+    "research/ledger-mm/run.mts": "6ad3375481487192b18b6524b41510a3fe95268c0913601c9a40b9c86acfea11",
     "research/ledger-mm/harness.mjs": "b75d11d9e66c708bef5e9fd39c9582e2552d23fa093d9696d41b499ecf5e06e7",
     "research/ledger-mm/compute.py": "c868942d6c22b027720e040e04e545874f4ebff97f25418e1254e674adf2cb8f",
     "research/ledger-mm/stats.py": "9feb39927f50c122a1eb6055f3735492017e7e893681cda40326d30252a9b018",
     "research/ledger-mm/promptfoo-select-best.txt": "f5d991e93bb0f5fefba9eb241f0feddae57276f8196f3c4e53137b5f4177562c",
-    "research/ledger-mm/core-ready.json": "31debbcbf23d7da8b431a7cf75826c3623dae31cd3ed33d1b17bfc0bde843721",
+    "research/ledger-mm/core-ready.json": "dc8e3d9c6c9a90f45366ac84352926a2f97a84f9f342dc5854f2be1e41033124",
     "research/ledger-mm/artifacts/pool-seal.json": "a3cfb32a19a5cc36b446add7103a0ef92cba251bdaf102fbe2a3d136784f325c",
     "research/ledger-mm/artifacts/noise.json": "a113d5948c0a5385080d9569a54beeaf3c4756eb102f33f0ad2335a0f84e6161",
     "research/ledger-mm/artifacts/excluded-ids.json": "ac59b95ae8c5723882a592ff923cb9d556424ac08cf8e09d90d5f3054ddc8334",
@@ -79,5 +79,8 @@
     "research/ledger-mm/artifacts/pool.json": "c5d9b880f98a3cefcacdd5ac1417d0ce70fe526e358edecd890dcfa792f65aeb",
     "research/ledger-mm/artifacts/pilot.json": "1fa01e034f8fb2fe782bcf1fa6f6bc11c5856f5b69a9702fb4c2177169f5733a",
     "research/ledger-mm/artifacts/harm-fixtures.json": "cb26c07022016c8c0ecff5f1c7663991d673ed7d01c2cf50c9b82842a773467d"
-  }
+  },
+  "previousFreezeSha256": "bc13b69145ce327adb68ea43435f5e258c66b48bef1a2e02e7c77479f7184c73",
+  "amendment": "Owner-requested rebase onto core PR168 head35f07309 and maximum four concurrent calls after plugin crash. No prompt, criterion, pool or score policy changes.",
+  "maxConcurrentCalls": 4
 }

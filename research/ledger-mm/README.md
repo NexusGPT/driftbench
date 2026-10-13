@@ -19,6 +19,7 @@ No TEST result may change a prompt, route, threshold, model setting, or pool mem
 - Models: Haiku (`claude-haiku-5-5`), `gpt-6-luna`, `gemini-3.8-flash`.
 - Both vendor models use `medium` reasoning for both contestants. Gemini timeout is 180 seconds.
 - Maximum total spend: 20 USD. Reservations precede calls; errors with unknown usage retain their reservation.
+- At most four calls run at once, per the owner's recovery instruction. Model processes run serially against the shared budget.
 - No paid contestant call until the core dossier names its pushed PR and the worktree rebases onto that contract.
 - The pool seal is committed before any paid call. DEV-only pilot, fixture and noise runs precede the final runtime freeze.
 - The final runtime freeze includes the exact core commit, prompts, requirement IDs, transport, statistics, earned seats, prices, budget, and cutoff.
