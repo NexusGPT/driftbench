@@ -77,7 +77,7 @@ for model, phases in audit['models'].items():
 out += ['', 'Re-asks are one extra core read after parser failure. Their denominator includes canonical reads and re-asks.',
         'The empty-response pilot re-asks include crash recovery; they are separated from malformed nonempty model content.',
         'Transport retries have separate attempt keys and apply only to no-answer failures. HTTP 429 and 402 never become saved judge failures.',
-        f"HTTP 402 receipts retained as billing rejections: {sum(x['billingRejections'] for m in audit['models'].values() for x in m.values())}. Their affected decisions are missing until top-up.",
+        f"HTTP 402 receipts retained as billing rejections: {sum(x['billingRejections'] for m in audit['models'].values() for x in m.values())}. Rejected requests still missing: {audit['billingRejectionsStillMissing']}.",
         f"Suppressed malformed-content schema re-asks across saved decisions: {sum(x['schemaReasksSuppressed'] for m in audit['models'].values() for x in m.values())}.", '',
         '## Cheaters', '', '| Strategy | GPT dev | Claude test pool |', '|---|---|---|']
 cheaters = cells['cells'][0]['cheaters']

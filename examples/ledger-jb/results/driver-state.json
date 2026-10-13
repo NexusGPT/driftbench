@@ -1,13 +1,12 @@
 {
-  "status": "running",
+  "status": "ready-topup-probe",
   "pid": 6143,
   "core": "35f07309a4d1d1c8a7c5b176ff19e537d0ef8fdd",
   "concurrency": 10,
   "models": {
     "gemini-3.8-flash": {
-      "status": "paused-billing",
-      "reason": "Owner reports depleted prepayment credits. No calls until explicit top-up; resume missing-only.",
-      "concurrency": 0
+      "status": "probe-authorized",
+      "concurrency": 1
     },
     "gpt-6-luna": {
       "phase": "test",
@@ -20,5 +19,6 @@
       "concurrency": 2
     }
   },
-  "at": "2026-10-13T09:56:06.537Z"
+  "at": "2026-10-13T10:15:52.331Z",
+  "error": "OPERATOR_DRAIN_FOR_GEMINI_TOPUP"
 }

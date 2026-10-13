@@ -1,21 +1,20 @@
 {
-  "asOf": "2026-10-13T10:10:31.334901+00:00",
+  "asOf": "2026-10-13T10:20:12.562002+00:00",
   "core": "35f07309a4d1d1c8a7c5b176ff19e537d0ef8fdd",
-  "freezeSha256": "de1533e9d906b8a617798142863a2a2784ca454e1502c79160bec2387346abd6",
+  "freezeSha256": "fe4bcd5ac353d5c3251c6e4238a8d4fa8497a516876b016c81f6fbdc7b1785b7",
   "allExpectedDecisionsComplete": false,
-  "starts": 2560,
-  "finishes": 2558,
-  "unresolvedCalls": 2,
+  "starts": 2628,
+  "finishes": 2628,
+  "unresolvedCalls": 0,
   "maximumHistoricalConcurrentCalls": 6,
-  "maximumCurrentFreezeConcurrentCalls": 2,
-  "maximumCurrentFreezeConcurrentCallsByModel": {
-    "claude-haiku-5-5": 2
-  },
-  "knownUsd": 1.90433627,
+  "maximumCurrentFreezeConcurrentCalls": 0,
+  "maximumCurrentFreezeConcurrentCallsByModel": {},
+  "knownUsd": 1.97364849,
   "unknownReserveUsd": 0.70450825,
-  "activeReserveUsd": 0.5,
-  "liabilityUsd": 3.1088445200000088,
-  "maximumLiabilityUsd": 3.1088445200000088,
+  "activeReserveUsd": 0,
+  "liabilityUsd": 2.6781567400000097,
+  "billingRejectionsStillMissing": 318,
+  "maximumLiabilityUsd": 3.17587770000001,
   "models": {
     "gpt-6-luna": {
       "pilot": {
@@ -280,11 +279,11 @@
         "descriptiveGroups": {}
       },
       "noise": {
-        "decisions": 89,
+        "decisions": 124,
         "expectedDecisions": 180,
         "complete": false,
-        "callsStarted": 183,
-        "callsFinished": 181,
+        "callsStarted": 251,
+        "callsFinished": 251,
         "schemaReasks": 0,
         "schemaReaskPreviousResponse": {},
         "transportRetryAttempts": 0,
@@ -293,23 +292,23 @@
         "decisionGraderErrors": 0,
         "transportSuppressedCoreReasks": 0,
         "schemaReasksSuppressed": 0,
-        "ledgerPairs": 44,
-        "ledgerPhysicalReads": 90,
+        "ledgerPairs": 62,
+        "ledgerPhysicalReads": 126,
         "ledgerMachinePairs": 0,
         "cost": {
           "ledger": {
-            "decisions": 44,
-            "knownUsd": 0.12187962,
+            "decisions": 62,
+            "knownUsd": 0.17387342,
             "unknownReserveUsd": 0,
-            "knownPer100": 0.2769991363636363,
-            "upperPer100": 0.2769991363636363
+            "knownPer100": 0.280441,
+            "upperPer100": 0.280441
           },
           "promptfoo": {
-            "decisions": 45,
-            "knownUsd": 0.0456834,
+            "decisions": 62,
+            "knownUsd": 0.06300182,
             "unknownReserveUsd": 0,
-            "knownPer100": 0.10151866666666667,
-            "upperPer100": 0.10151866666666667
+            "knownPer100": 0.10161583870967743,
+            "upperPer100": 0.10161583870967743
           }
         },
         "descriptiveGroups": {}

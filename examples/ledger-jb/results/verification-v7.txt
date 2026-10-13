@@ -1,0 +1,37 @@
+✔ adapter runs the actual core in both orders and does not consume the label (62.120875ms)
+✔ core retains its one schema re-ask, independently of transport retries (1.422084ms)
+✔ missing usage is never zero cost, cached input is priced separately (0.121083ms)
+✔ exhausted transport failures never gain more tries through core re-ask (0.520541ms)
+✔ pool and all sealed artifacts retain their hashes (12.479042ms)
+✔ noise cache identity differs by repeat and contestant (0.198334ms)
+✔ fixed prompt rendering preserves dollar sequences and handles order (0.14ms)
+✔ budget is reserved before a call and identical replay is free (32.628209ms)
+✔ an interrupted call cannot silently retry or lose its cost reserve (8.717167ms)
+✔ unknown cost retains liability and concurrent reservations cannot overspend (0.53975ms)
+✔ transport retries stop at three and keep every failed reservation (0.670375ms)
+✔ three failed attempts exhaust and returned content is never retried (0.648625ms)
+✔ 429 waits 60, 120 and 240 seconds, then stops without a judge error (1.398208ms)
+✔ a successful quota retry returns exactly one answer and preserves accounting (0.445917ms)
+✔ 402 stops that model immediately, releases proven rejection, and persists across restart (0.513083ms)
+✔ unexplained 402 stops without releasing an unproven cost hold (0.272042ms)
+✔ 402 in a sibling call prevents a waiting 429 call from retrying (0.384625ms)
+✔ explicit top-up resumes only rejected keys and never reissues an answered call (53.48575ms)
+✔ three models keep dependency order and respect 8, 2, 2 call limits (276.197541ms)
+✔ failed readiness prevents only that model test phase (0.235708ms)
+✔ shared stop drains already started jobs and starts no later job (10.597709ms)
+✔ official net rule preserves ties, splits and grader errors (0.648542ms)
+✔ exact discordance tails and Wilson interval known answers (0.145417ms)
+✔ Holm is monotone in rank and rejects pending cells (0.705625ms)
+✔ balanced labels prevent trivial fixture earning (0.091416ms)
+✔ constant presented-first is not constant original-A (0.077916ms)
+✔ paired bootstrap and comparison retain matched units and errors (1.142875ms)
+✔ noise repeats count actual independent samples (0.1175ms)
+✔ invariance cannot pass by keeping the same wrong answer (0.221708ms)
+ℹ tests 29
+ℹ suites 0
+ℹ pass 29
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 3581.945917

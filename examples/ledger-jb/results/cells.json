@@ -1,14 +1,14 @@
 {
   "sealSha256": "2aa831d8f08ea88ddddff87ba9aeb600f2c719725608815c09ddc699bd8aac12",
   "poolSha256": "489c47a0404e7e0929b52ffbe3e253bfebc8d04fa1e0ddac2f3b7ccd089f5236",
-  "coreFreeze": "de1533e9d906b8a617798142863a2a2784ca454e1502c79160bec2387346abd6",
-  "totalCalls": 2558,
-  "receivedCalls": 2547,
+  "coreFreeze": "fe4bcd5ac353d5c3251c6e4238a8d4fa8497a516876b016c81f6fbdc7b1785b7",
+  "totalCalls": 2628,
+  "receivedCalls": 2617,
   "interruptedCalls": 11,
   "interruptionReserveUsd": 0.70450825,
-  "measuredUsd": 1.9043362700000017,
-  "unresolvedCalls": 2,
-  "reservedUsd": 0.5,
+  "measuredUsd": 1.9736484900000009,
+  "unresolvedCalls": 0,
+  "reservedUsd": 0,
   "cells": [
     {
       "model": "claude-haiku-5-5",
@@ -56,20 +56,20 @@
       "noise": {
         "ledger": {
           "planned": 30,
-          "completed": 14,
+          "completed": 20,
           "changedItems": 1,
           "gameFlips": 2,
-          "comparisons": 56,
-          "rate": 0.03571428571428571,
+          "comparisons": 80,
+          "rate": 0.025,
           "method": "Each repeat compared to repeat zero, per order; all errors retain their null decisions."
         },
         "promptfoo": {
           "planned": 30,
-          "completed": 15,
-          "changedItems": 1,
-          "gameFlips": 2,
-          "comparisons": 60,
-          "rate": 0.03333333333333333,
+          "completed": 20,
+          "changedItems": 3,
+          "gameFlips": 5,
+          "comparisons": 80,
+          "rate": 0.0625,
           "method": "Each repeat compared to repeat zero, per order; all errors retain their null decisions."
         }
       },

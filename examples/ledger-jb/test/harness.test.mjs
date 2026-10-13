@@ -119,3 +119,20 @@ test('402 in a sibling call prevents a waiting 429 call from retrying',async()=>
   }}),/BILLING_STOP/);
   assert.equal(calls,1);assert.equal(journal.liability(),.1);
 });
+
+test('explicit top-up resumes only rejected keys and never reissues an answered call',async()=>{
+  const path=join(mkdtempSync(join(temp,'jb-topup-')),'calls.jsonl');let calls=0;
+  const first=new Journal(path);
+  await first.transportCall('answered',.1,async()=>({text:'saved answer',costUsd:.01}),{model:'gemini'});
+  await assert.rejects(first.transportCall('rejected',.1,async()=>{throw Object.assign(new Error('prepayment credits are depleted'),{code:'http',status:402});},{model:'gemini'}),/BILLING_STOP/);
+  assert.throws(()=>new Journal(path,{billingResumeKeys:['answered']}),/only proven no-answer/);
+  const resumed=new Journal(path,{billingResumeKeys:['rejected']});
+  const operation=async()=>{calls++;return {text:'new answer',costUsd:.02};};
+  assert.equal((await resumed.transportCall('answered',.1,operation,{model:'gemini'})).text,'saved answer');
+  const response=await resumed.transportCall('rejected',.1,operation,{model:'gemini'});
+  assert.equal(response.key,'rejected:transport:2');assert.equal(response.text,'new answer');assert.equal(calls,1);
+  await resumed.transportCall('rejected',.1,operation,{model:'gemini'});assert.equal(calls,1);
+  await assert.rejects(resumed.transportCall('new-rejection',.1,async()=>{throw Object.assign(new Error('prepayment credits are depleted'),{code:'http',status:402});},{model:'gemini'}),/BILLING_STOP/);
+  await assert.rejects(new Journal(path,{billingResumeKeys:['rejected']}).transportCall('later',.1,operation,{model:'gemini'}),/BILLING_STOP/);
+  assert.equal(calls,1);
+});

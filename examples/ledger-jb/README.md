@@ -108,3 +108,10 @@ successful responses stay authoritative; any resumed work fills missing requests
 only. `results/billing-reconciliation/` preserves original receipts and decisions
 from the pre-amendment 402 wave, plus every corrected receipt and quarantined key.
 These billing failures are excluded from judge errors and measured decisions.
+
+The owner's subsequent top-up authorizes only the frozen list of rejected keys.
+One missing Gemini request probes billing before the concurrent run resumes.
+Its received answer is cached under the original request identity and is not
+sent again. Each old rejection advances to a new transport attempt only after
+this explicit authorization. Any new 402 restores the provider circuit break.
+SIGUSR2 drains the scheduler's active calls before a later runtime amendment.

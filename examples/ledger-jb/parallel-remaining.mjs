@@ -50,10 +50,12 @@ async function main(){
   const data=Object.fromEntries(['fixtures','pilot','noise','pool','validity'].map(name=>[name,readJson(join(root,`data/${name}.json`))]));
   const adapter=await import(pathToFileURL(resolve(repo,freeze.adapter)).href);
   const transports=Object.fromEntries(await Promise.all(models.map(async model=>[model,await adapter.createTransport({model,settings:freeze.models[model],root})])));
-  const journal=new Journal(join(r,'calls.jsonl'),{capUsd:25,appendSpend(row){
+  const journal=new Journal(join(r,'calls.jsonl'),{capUsd:25,billingResumeKeys:freeze.billingResumption?.rejectedKeys??[],appendSpend(row){
     appendFileSync(flag('--spend-ledger'),`| ${row.at} | ledger-jb ${row.phase} ${row.contestant} ${row.itemId} ${row.order} | ${row.model} | 1 call | ${row.costUsd.toFixed(8)} USD${row.costEstimated?' reserved, actual unknown':''} | lane liability ${journal.liability().toFixed(8)} USD |\n`);
   }});
   const template=readFileSync(join(root,'data/promptfoo-select-best.txt'),'utf8'),stop={};
+  // A runtime amendment can drain every owned call without losing its receipt.
+  process.on('SIGUSR2',()=>{stop.error??=new Error('OPERATOR_DRAIN: finish active requests and stop dispatching');});
   const state={status:'running',pid:process.pid,core:freeze.coreCommit,concurrency:models.reduce((sum,m)=>sum+limits[m],0),models:Object.fromEntries(allModels.filter(m=>freeze.pausedModels?.[m]).map(m=>[m,{status:'paused-billing',reason:freeze.pausedModels[m],concurrency:0}]))};
   function event(value){
     if(value.model)state.models[value.model]={phase:value.phase??state.models[value.model]?.phase,status:value.status,concurrency:limits[value.model]};

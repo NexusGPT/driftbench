@@ -55,6 +55,17 @@ assert max_current_active <= sum(freeze['modelConcurrency'].values())
 for model, limit in freeze['modelConcurrency'].items():
     assert max_current_by_model[model] <= limit
 
+unresolved_billing = []
+for rejection in finishes.values():
+    if rejection.get('status') != 402:
+        continue
+    resolved = any((not response.get('transportFailure') or response.get('returnedAnswer'))
+                   and response.get('transportAttempt', 1) > rejection.get('transportAttempt', 1)
+                   and all(response.get(k) == rejection.get(k) for k in ['phase', 'model', 'itemId', 'repeat', 'contestant', 'order', 'attempt'])
+                   for response in finishes.values())
+    if not resolved:
+        unresolved_billing.append(rejection)
+
 inputs = {phase: read_json(ROOT / 'data' / f"{'pool' if phase == 'test' else phase}.json") for phase in PHASES}
 models = {}
 for model in MODELS:
@@ -69,7 +80,7 @@ for model in MODELS:
         assert set(keys) <= expected, ('unexpected_decision', phase, model)
         by_id = {item['id']: item for item in inputs[phase]}
         for row in rows:
-            assert not any(x.get('status') == 402 and x['key'].startswith(row['key'] + ':') for x in finishes.values()), ('billing_rejection_in_decision', row['key'])
+            assert not any(x['key'].startswith(row['key'] + ':') for x in unresolved_billing), ('unresolved_billing_rejection_in_decision', row['key'])
             assert row['label'] == by_id[row['itemId']]['label'], ('label_mismatch', row['key'])
             assert len(row['games']) == 2 and all(game in ['A', 'B', 'tie', None] for game in row['games'])
         receipts = [x for x in finishes.values() if x['model'] == model and x['phase'] == phase]
@@ -120,6 +131,7 @@ audit = {'asOf': datetime.now(timezone.utc).isoformat(), 'core': freeze['coreCom
          'knownUsd': sum(x['costUsd'] for x in finishes.values() if not x.get('costEstimated')),
          'unknownReserveUsd': sum(x['costUsd'] for x in finishes.values() if x.get('costEstimated')),
          'activeReserveUsd': sum(starts[key]['reserveUsd'] for key in active), 'liabilityUsd': liability,
+         'billingRejectionsStillMissing': len(unresolved_billing),
          'maximumLiabilityUsd': max_liability, 'models': models,
          'scope': 'Postprocessing integrity audit. Descriptive group counts do not replace the registered endpoint.'}
 (RESULTS / 'receipt-audit.json').write_text(json.dumps(audit, indent=2) + '\n')
