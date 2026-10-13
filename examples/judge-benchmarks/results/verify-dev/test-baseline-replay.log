@@ -1,0 +1,74 @@
+[
+  {
+    contestant: 'driftbench-reference',
+    official: 0.7330316742081447,
+    audited: 0.832579185520362,
+    costPer100Usd: 0.3380079457013575,
+    sameCohortOfficial: 0.7777777777777778,
+    sameCohortAudited: 0.8611111111111112
+  },
+  {
+    contestant: 'driftbench-reference3',
+    official: 0.7420814479638009,
+    audited: 0.8461538461538461,
+    costPer100Usd: 0.6622489049773761,
+    sameCohortOfficial: 0.7777777777777778,
+    sameCohortAudited: 0.8611111111111112
+  },
+  {
+    contestant: 'driftbench-adaptive',
+    official: 0.7375565610859729,
+    audited: 0.8416289592760181,
+    costPer100Usd: 0.6730362352941184,
+    sameCohortOfficial: 0.7777777777777778,
+    sameCohortAudited: 0.8611111111111112
+  },
+  {
+    contestant: 'driftbench',
+    official: 0.7285067873303167,
+    audited: 0.8144796380090498,
+    costPer100Usd: 0.16492959276018102,
+    sameCohortOfficial: 0.7361111111111112,
+    sameCohortAudited: 0.8194444444444444
+  },
+  {
+    contestant: 'deepeval',
+    official: 0.5339366515837104,
+    audited: 0.6063348416289592,
+    costPer100Usd: 0.17631371040723987,
+    sameCohortOfficial: 0.5416666666666666,
+    sameCohortAudited: 0.6111111111111112
+  },
+  {
+    contestant: 'promptfoo',
+    official: 0.7104072398190046,
+    audited: 0.8054298642533937,
+    costPer100Usd: 0.18256167420814473,
+    sameCohortOfficial: 0.7777777777777778,
+    sameCohortAudited: 0.8611111111111112
+  },
+  {
+    contestant: 'inspect',
+    official: 0.7420814479638009,
+    audited: 0.8371040723981901,
+    costPer100Usd: 0.21906167420814482,
+    sameCohortOfficial: 0.8055555555555556,
+    sameCohortAudited: 0.8888888888888888
+  },
+  {
+    contestant: 'scenario',
+    official: 0.6832579185520362,
+    audited: 0.7782805429864253,
+    costPer100Usd: 0.1995497058823529,
+    sameCohortOfficial: 0.7222222222222222,
+    sameCohortAudited: 0.8055555555555556
+  },
+  {
+    contestant: 'langfuse',
+    official: 0.7330316742081447,
+    audited: 0.8371040723981901,
+    costPer100Usd: 0.18007751131221714,
+    sameCohortOfficial: 0.7638888888888888,
+    sameCohortAudited: 0.8472222222222222
+  }
+]

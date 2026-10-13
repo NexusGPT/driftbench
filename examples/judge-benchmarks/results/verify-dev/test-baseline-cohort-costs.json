@@ -1,0 +1,5409 @@
+{
+  "bench": "longjudge-verify",
+  "model": "haiku",
+  "items": 72,
+  "contestants": [
+    {
+      "contestant": "driftbench-reference",
+      "source": "driftbench-tuned plus a reference answer the judge works out first (tuning candidate)",
+      "mode": "pointwise",
+      "summary": {
+        "metric": "accuracy (LongJudgeBench verify, binary)",
+        "value": {
+          "estimate": 0.7777777777777778,
+          "lower": 0.6690904506199482,
+          "upper": 0.858325564604242
+        },
+        "n": 72,
+        "balancedAccuracy": 0.7859649122807018,
+        "byGroup": {
+          "incorrect": {
+            "n": 57,
+            "value": 0.7719298245614035
+          },
+          "correct": {
+            "n": 15,
+            "value": 0.8
+          }
+        },
+        "missing": 0
+      },
+      "costUsd": 0.23889622000000002,
+      "calls": 144,
+      "decisions": [
+        {
+          "id": "c8a3e6885808a25736dc974fcdf0b7e6_200630279e6321e06517a1e4736f816b",
+          "pass": false,
+          "score": 0.01,
+          "correct": false,
+          "responseChars": 4181,
+          "missing": 0
+        },
+        {
+          "id": "59be6e316c501c3c6f67c265ed7f469d_523d0604a8d9e02a61b7801e7cbe7911",
+          "pass": true,
+          "score": 0.6,
+          "correct": false,
+          "responseChars": 1946,
+          "missing": 0
+        },
+        {
+          "id": "6f2500baaab5dcd81bcfe5416249fce2_c03a2a2005994f41e018a041dafcf875",
+          "pass": false,
+          "score": 0.05,
+          "correct": false,
+          "responseChars": 8545,
+          "missing": 0
+        },
+        {
+          "id": "c9e95eb9b2dea93392edf99df248ef2e_8a06a3c9b84a9bf0744b4da79322ecd6",
+          "pass": true,
+          "score": 0.95,
+          "correct": false,
+          "responseChars": 13469,
+          "missing": 0
+        },
+        {
+          "id": "f48078b907465263df59e6cc261362e4_99fb5ec0153c30b2fe8ebb5a8cf10442",
+          "pass": false,
+          "score": 0.02,
+          "correct": false,
+          "responseChars": 3771,
+          "missing": 0
+        },
+        {
+          "id": "b463c91447475d675187efc7b7162c58_8cb2aa86a94d146813e12b58511acd99",
+          "pass": false,
+          "score": 0.02,
+          "correct": false,
+          "responseChars": 2398,
+          "missing": 0
+        },
+        {
+          "id": "e6c10b18f207583b72061ec57c1bbfca_a9b16b33657d2c39d4525c7592f8d3ea",
+          "pass": true,
+          "score": 0.6,
+          "correct": true,
+          "responseChars": 3217,
+          "missing": 0
+        },
+        {
+          "id": "f04d825c0f64ebab8f3900a7a2bd534e_aa682a019e40b7cfdd7d868eaf9f517a",
+          "pass": true,
+          "score": 0.9,
+          "correct": true,
+          "responseChars": 3150,
+          "missing": 0
+        },
+        {
+          "id": "615a0ba58690546856c0a873654c319c_30de5467c2e79b2000c569f8f4c05711",
+          "pass": false,
+          "score": 0.02,
+          "correct": false,
+          "responseChars": 3729,
+          "missing": 0
+        },
+        {
+          "id": "5399c58c3fe0c1714b4df513c5855f0f_252c188d4e3840900940a84561d16217",
+          "pass": false,
+          "score": 0.02,
+          "correct": false,
+          "responseChars": 1987,
+          "missing": 0
+        },
+        {
+          "id": "f68daac3a80dd3471e87677957a0bd74_e2584ff11780a2a9b044c5418f2be9c2",
+          "pass": false,
+          "score": 0.02,
+          "correct": false,
+          "responseChars": 2917,
+          "missing": 0
+        },
+        {
+          "id": "6061ecc894252effcbe9e5e3b4a57d7e_230882131a786700068536a11110c8bf",
+          "pass": true,
+          "score": 0.95,
+          "correct": false,
+          "responseChars": 10867,
+          "missing": 0
+        },
+        {
+          "id": "4b0b45efd75092f40124ceed7d3c4eae_99e86af7892b71cb13000162d1db91d6",
+          "pass": false,
+          "score": 0.03,
+          "correct": false,
+          "responseChars": 2282,
+          "missing": 0
+        },
+        {
+          "id": "9d43756ed5b99d1fb8c26187d4335ba8_fc279fe414a1d5d313cb366723ccdc81",
+          "pass": true,
+          "score": 0.93,
+          "correct": false,
+          "responseChars": 13052,
+          "missing": 0
+        },
+        {
+          "id": "c495006247d953ad1dcf39487417691c_9eda42d0f826b75cc80a9d6d9ee362c1",
+          "pass": true,
+          "score": 0.97,
+          "correct": true,
+          "responseChars": 11083,
+          "missing": 0
+        },
+        {
+          "id": "66f0ee34eb38fd4fa4bb06f056c0c359_0c2200e91f324ea5a912da84f9090638",
+          "pass": false,
+          "score": 0.03,
+          "correct": true,
+          "responseChars": 4356,
+          "missing": 0
+        },
+        {
+          "id": "025bb66cf7a25c1dd3f701a2a9e477c3_86939819f8b0733f73bb0a92d2215cf2",
+          "pass": false,
+          "score": 0.05,
+          "correct": false,
+          "responseChars": 28346,
+          "missing": 0
+        },
+        {
+          "id": "9985f48a923d8996047df22dc8311a6d_71f036e1fcb9f1f665be60c7508a5f5f",
+          "pass": true,
+          "score": 0.95,
+          "correct": true,
+          "responseChars": 9128,
+          "missing": 0
+        },
+        {
+          "id": "a0dcfb04617db2dca4ef11dbc56606f4_cbae2d7d0c224ee59b6c586524d32fef",
+          "pass": false,
+          "score": 0.02,
+          "correct": false,
+          "responseChars": 2379,
+          "missing": 0
+        },
+        {
+          "id": "d04086bb88417aeef28181ce6a4bb1c2_32f465d7d719f4836b825c54b8480804",
+          "correct": false,
+          "responseChars": 4384,
+          "missing": 0
+        },
+        {
+          "id": "5b848dd4cc4edd02fbfa53b336da0d29_12fe3f633de354b5dc426eaf77469921",
+          "pass": false,
+          "score": 0.03,
+          "correct": false,
+          "responseChars": 2255,
+          "missing": 0
+        },
+        {
+          "id": "745927e1a3422e7fd2cc18cb0a7e4d24_f20d3e0f0b887786d284d7f4344572d3",
+          "pass": true,
+          "score": 0.8,
+          "correct": true,
+          "responseChars": 5518,
+          "missing": 0
+        },
+        {
+          "id": "af2be5176b42b614654d5edc677ad8fa_88c3f2ae1e921c411fcc75e50bbcef2e",
+          "pass": true,
+          "score": 0.95,
+          "correct": false,
+          "responseChars": 7090,
+          "missing": 0
+        },
+        {
+          "id": "f87ce30d7dc54a92d2fd7a308e0f22cb_1c94d0a846cdd893dcaa5fc6ce2ec81a",
+          "pass": true,
+          "score": 0.95,
+          "correct": false,
+          "responseChars": 11649,
+          "missing": 0
+        },
+        {
+          "id": "09da6922b3644d663d219fa5c9ec70b2_406ea1ce461a71f5ec8a6ca34a8d6673",
+          "pass": false,
+          "score": 0.05,
+          "correct": false,
+          "responseChars": 2684,
+          "missing": 0
+        },
+        {
+          "id": "abd28b507d76944f9ba99803e8ec42a3_29a501f186912b9001d1d1e69bc8885b",
+          "pass": false,
+          "score": 0.02,
+          "correct": false,
+          "responseChars": 2462,
+          "missing": 0
+        },
+        {
+          "id": "61312ded17552fba089b4a01f6b5f285_08f62a8fb0fed84624239492a4a41bc1",
+          "pass": false,
+          "score": 0.02,
+          "correct": false,
+          "responseChars": 2738,
+          "missing": 0
+        },
+        {
+          "id": "45e256c0266cfbb6599087dbe1a9c223_a44b72d3d877c6ec0df9d1313c3e4a87",
+          "pass": true,
+          "score": 0.97,
+          "correct": false,
+          "responseChars": 31371,
+          "missing": 0
+        },
+        {
+          "id": "4718bcdd0a959f97111659684103c452_9dee35d8476032909dde4bb768981188",
+          "pass": false,
+          "score": 0.02,
+          "correct": false,
+          "responseChars": 3598,
+          "missing": 0
+        },
+        {
+          "id": "b13ad07dc41661f7708050b369269080_9006096e8e217b78b007bc7850259ed6",
+          "pass": false,
+          "score": 0.02,
+          "correct": false,
+          "responseChars": 4677,
+          "missing": 0
+        },
+        {
+          "id": "0392540a38af6a74d7dd8473fa0ba1a5_0a68ff276c1d5df9e87726e464ecc216",
+          "pass": false,
+          "score": 0.02,
+          "correct": false,
+          "responseChars": 56382,
+          "missing": 0
+        },
+        {
+          "id": "cb60c0e9bb12bf9828a3f26a779f0aa7_d8f60cd66753e6f4132be6abd6b91c99",
+          "pass": false,
+          "score": 0.02,
+          "correct": false,
+          "responseChars": 2166,
+          "missing": 0
+        },
+        {
+          "id": "ae064b1b098ba8a6fc88da570b97e217_a3e14b9979e1e72f3bfe5e939c03b8bf",
+          "pass": false,
+          "score": 0.02,
+          "correct": true,
+          "responseChars": 4311,
+          "missing": 0
+        },
+        {
+          "id": "b1ab584a7561726b4f51728444debc63_efa1872fe8924489aea4a9287b07fbb7",
+          "pass": false,
+          "score": 0.01,
+          "correct": false,
+          "responseChars": 1955,
+          "missing": 0
+        },
+        {
+          "id": "65d9f97790da392478b47895d92dcf2e_3b4120bcbb62645f6003d0b23cd1b578",
+          "pass": false,
+          "score": 0.02,
+          "correct": false,
+          "responseChars": 4694,
+          "missing": 0
+        },
+        {
+          "id": "8f069b7855423c3fc5313cac20850f1c_afd8e5c91bbfb4bb57b8d4764bd00a70",
+          "pass": false,
+          "score": 0.02,
+          "correct": false,
+          "responseChars": 33155,
+          "missing": 0
+        },
+        {
+          "id": "8e1c94d7d9a559574ae09a7be0a5fbda_b82d6989e850993cc34b985e38f634c9",
+          "pass": false,
+          "score": 0.02,
+          "correct": false,
+          "responseChars": 38393,
+          "missing": 0
+        },
+        {
+          "id": "f5b224f30b6a5d1ca6385823308429b8_2f6839650b046b79b72232ff0ba6dafb",
+          "pass": false,
+          "score": 0.02,
+          "correct": false,
+          "responseChars": 2599,
+          "missing": 0
+        },
+        {
+          "id": "9d3f4f6454f42220d174d0e16452fd3b_4ffcb868b8c9ff711f72fbc222b07b27",
+          "pass": false,
+          "score": 0.02,
+          "correct": false,
+          "responseChars": 4140,
+          "missing": 0
+        },
+        {
+          "id": "fa0cd84fd7ef3d92d399645d5e73e28b_393a8003c0e5b5552040197680f74156",
+          "pass": true,
+          "score": 0.85,
+          "correct": true,
+          "responseChars": 2992,
+          "missing": 0
+        },
+        {
+          "id": "b9bbd50a28dee4bce51b35f6615e9929_b239ce01ae5cc15d73ab875ffd6ca44a",
+          "pass": true,
+          "score": 0.97,
+          "correct": false,
+          "responseChars": 8899,
+          "missing": 0
+        },
+        {
+          "id": "3401fd97837e2e5142064a220ee4c443_e4aae36f193da905d6dca7185fc00d74",
+          "pass": false,
+          "score": 0.01,
+          "correct": false,
+          "responseChars": 2320,
+          "missing": 0
+        },
+        {
+          "id": "51cab744ffa25fb2b8e55462ba95d447_e72cc47f19d3f232740e4627961d79d8",
+          "pass": false,
+          "score": 0.02,
+          "correct": false,
+          "responseChars": 2764,
+          "missing": 0
+        },
+        {
+          "id": "d3375088280729c20950647504fd12ff_2e1f0637a26d5955d194f3a71f9ef000",
+          "pass": true,
+          "score": 0.7,
+          "correct": true,
+          "responseChars": 2990,
+          "missing": 0
+        },
+        {
+          "id": "5c0953ccc0fe13a7c7843f7c30711707_9b0a1f20fe1161ee7e459a347e2de29e",
+          "pass": false,
+          "score": 0.02,
+          "correct": false,
+          "responseChars": 32578,
+          "missing": 0
+        },
+        {
+          "id": "bfb9b703dc545801d8dc5da137b2739d_c5d655d5bb71bef56e18855b07feeae7",
+          "pass": false,
+          "score": 0.02,
+          "correct": false,
+          "responseChars": 4123,
+          "missing": 0
+        },
+        {
+          "id": "06a7b64808e0ff01fe98c4e3d7fd8373_3151468e2bce491c491ab7d6e464989c",
+          "pass": false,
+          "score": 0.02,
+          "correct": false,
+          "responseChars": 2464,
+          "missing": 0
+        },
+        {
+          "id": "12417566ea50ca18172fc263294c5f39_876d5bf34b0ae1cee736c455c7f6ae92",
+          "pass": true,
+          "score": 0.6,
+          "correct": false,
+          "responseChars": 3426,
+          "missing": 0
+        },
+        {
+          "id": "1a5e02f4c2b7cdbe6e6cdf79952ebf6b_d849833243ab3748654b844e6bfed7b8",
+          "pass": false,
+          "score": 0.05,
+          "correct": false,
+          "responseChars": 54691,
+          "missing": 0
+        },
+        {
+          "id": "1bf3b482c219ddab8984703e93118cf5_1fab9b86cd71c03c7bff6099f057820e",
+          "pass": true,
+          "score": 0.6,
+          "correct": false,
+          "responseChars": 15808,
+          "missing": 0
+        },
+        {
+          "id": "baf2a6dfb7a6af74f37ffd4abb3eaf45_a948bf168a7169eb9373a27f5d630870",
+          "pass": true,
+          "score": 0.7,
+          "correct": true,
+          "responseChars": 2610,
+          "missing": 0
+        },
+        {
+          "id": "03927b9bcf620c4ee68271a80692b351_dee2e96b000e11691c6a03d182193ec7",
+          "pass": false,
+          "score": 0.05,
+          "correct": false,
+          "responseChars": 25073,
+          "missing": 0
+        },
+        {
+          "id": "f284e29facabdfeb159e19ff53aa0242_83c1b053434c8f154938fe5559d4f4b8",
+          "pass": false,
+          "score": 0.1,
+          "correct": false,
+          "responseChars": 8297,
+          "missing": 0
+        },
+        {
+          "id": "a3214bdf6f261a6ac7acb7d79bf25df1_592fbad3b6f89c9f50098ea529f56dc1",
+          "pass": false,
+          "score": 0.02,
+          "correct": false,
+          "responseChars": 3740,
+          "missing": 0
+        },
+        {
+          "id": "90ff1112e578b41c75469baf8077d243_d11b1cafc9e9d0bc9b04688ecc9a604e",
+          "pass": true,
+          "score": 0.85,
+          "correct": true,
+          "responseChars": 2519,
+          "missing": 0
+        },
+        {
+          "id": "8e3ed1a096e996f4acacb9bd03fc10d9_ee5653381cba8076c18d1079587930c6",
+          "pass": true,
+          "score": 0.85,
+          "correct": true,
+          "responseChars": 2763,
+          "missing": 0
+        },
+        {
+          "id": "51a34ae09daf62b1743c88a1af5cdec9_5b7ba7dc2af6bb97966f0832cadd8fcb",
+          "pass": false,
+          "score": 0.05,
+          "correct": false,
+          "responseChars": 3598,
+          "missing": 0
+        },
+        {
+          "id": "f80aae6d83ccb375e49ea15bfd8ac5d1_66d1bbb20475c340d647519c9e4f5db8",
+          "pass": false,
+          "score": 0.12,
+          "correct": false,
+          "responseChars": 3322,
+          "missing": 0
+        },
+        {
+          "id": "b173752441e98eff08bc87251c0e70aa_433bf55c2f33df9369463e94b70a07dc",
+          "pass": false,
+          "score": 0.03,
+          "correct": true,
+          "responseChars": 44504,
+          "missing": 0
+        },
+        {
+          "id": "71e2d5758cd41f6229a8d2ee2a48fc3c_9f960a07f7eea3418e2582b40851d4fe",
+          "pass": true,
+          "score": 0.85,
+          "correct": false,
+          "responseChars": 14984,
+          "missing": 0
+        },
+        {
+          "id": "8549f4ef6a78c00928955dbc7c7f1fa7_4c541ce85b883a6d5c42c6edfc8828e7",
+          "pass": true,
+          "score": 0.85,
+          "correct": false,
+          "responseChars": 46169,
+          "missing": 0
+        },
+        {
+          "id": "d0c8badc5397366d9fa703aa3fc09539_f925e2381ebfaa1578d07a646aefde58",
+          "pass": true,
+          "score": 0.7,
+          "correct": true,
+          "responseChars": 2184,
+          "missing": 0
+        },
+        {
+          "id": "b2cce1e0d1c9d642c84c1475cab4dc7f_fbdf7e874d4a8623febf36a884552cc1",
+          "pass": false,
+          "score": 0.02,
+          "correct": false,
+          "responseChars": 34779,
+          "missing": 0
+        },
+        {
+          "id": "ad9e092461cee0aaa0ee713b1bcc5549_05ea9aa23a0312c963c74db80d16130b",
+          "pass": false,
+          "score": 0.2,
+          "correct": false,
+          "responseChars": 32162,
+          "missing": 0
+        },
+        {
+          "id": "93d0a48b6abc7839aa7f72e070868dd2_a5f5f24acd8daf76264d981d4db16c98",
+          "pass": false,
+          "score": 0.03,
+          "correct": false,
+          "responseChars": 3213,
+          "missing": 0
+        },
+        {
+          "id": "d9dff41d573180ecfb4a2a046051907f_be0778a6d01f7806fdb0ed6808d39678",
+          "pass": false,
+          "score": 0.2,
+          "correct": false,
+          "responseChars": 11373,
+          "missing": 0
+        },
+        {
+          "id": "02338a82954f78d15eced8c418b1ae6d_34d95fd1692d195b8e340f03640682d8",
+          "pass": false,
+          "score": 0.15,
+          "correct": false,
+          "responseChars": 4692,
+          "missing": 0
+        },
+        {
+          "id": "99b47ca9950710f76b893bd08a9e4fcb_07af34d411bad329fb6749b5cd80570f",
+          "pass": false,
+          "score": 0.03,
+          "correct": false,
+          "responseChars": 27577,
+          "missing": 0
+        },
+        {
+          "id": "94952c1218b51c4c88fdadb9b517e95d_b661ef47df07a4d6e291b16c25abdaaa",
+          "pass": true,
+          "score": 0.85,
+          "correct": true,
+          "responseChars": 2101,
+          "missing": 0
+        },
+        {
+          "id": "0f8f62a6885496b268128d754c7a338b_cd0cc2aea00a8d96fbe3b8e21f02d9f7",
+          "pass": false,
+          "score": 0.1,
+          "correct": false,
+          "responseChars": 6508,
+          "missing": 0
+        },
+        {
+          "id": "5a0820f68025b9d6ef3d3062af88c17a_2780135e37ae181dd8a83828a4c4512e",
+          "pass": false,
+          "score": 0.1,
+          "correct": false,
+          "responseChars": 2829,
+          "missing": 0
+        },
+        {
+          "id": "2e7f5b41a327fb39c97b9d5b06788f6b_194ce3fb21f0fb17e9c38159b1074591",
+          "pass": false,
+          "score": 0.03,
+          "correct": false,
+          "responseChars": 30998,
+          "missing": 0
+        }
+      ]
+    },
+    {
+      "contestant": "driftbench-reference3",
+      "source": "driftbench-reference with three independent judgements per prompt, the majority deciding (tuning candidate)",
+      "mode": "pointwise",
+      "summary": {
+        "metric": "accuracy (LongJudgeBench verify, binary)",
+        "value": {
+          "estimate": 0.7777777777777778,
+          "lower": 0.6690904506199482,
+          "upper": 0.858325564604242
+        },
+        "n": 72,
+        "balancedAccuracy": 0.7859649122807018,
+        "byGroup": {
+          "incorrect": {
+            "n": 57,
+            "value": 0.7719298245614035
+          },
+          "correct": {
+            "n": 15,
+            "value": 0.8
+          }
+        },
+        "missing": 0
+      },
+      "costUsd": 0.48540956000000013,
+      "calls": 288,
+      "decisions": [
+        {
+          "id": "c8a3e6885808a25736dc974fcdf0b7e6_200630279e6321e06517a1e4736f816b",
+          "pass": false,
+          "score": 0.01,
+          "correct": false,
+          "responseChars": 4181,
+          "missing": 0
+        },
+        {
+          "id": "59be6e316c501c3c6f67c265ed7f469d_523d0604a8d9e02a61b7801e7cbe7911",
+          "pass": true,
+          "score": 0.725,
+          "correct": false,
+          "responseChars": 1946,
+          "missing": 0
+        },
+        {
+          "id": "6f2500baaab5dcd81bcfe5416249fce2_c03a2a2005994f41e018a041dafcf875",
+          "pass": false,
+          "score": 0.05,
+          "correct": false,
+          "responseChars": 8545,
+          "missing": 0
+        },
+        {
+          "id": "c9e95eb9b2dea93392edf99df248ef2e_8a06a3c9b84a9bf0744b4da79322ecd6",
+          "pass": true,
+          "score": 0.9566666666666667,
+          "correct": false,
+          "responseChars": 13469,
+          "missing": 0
+        },
+        {
+          "id": "f48078b907465263df59e6cc261362e4_99fb5ec0153c30b2fe8ebb5a8cf10442",
+          "pass": false,
+          "score": 0.023333333333333334,
+          "correct": false,
+          "responseChars": 3771,
+          "missing": 0
+        },
+        {
+          "id": "b463c91447475d675187efc7b7162c58_8cb2aa86a94d146813e12b58511acd99",
+          "pass": false,
+          "score": 0.02,
+          "correct": false,
+          "responseChars": 2398,
+          "missing": 0
+        },
+        {
+          "id": "e6c10b18f207583b72061ec57c1bbfca_a9b16b33657d2c39d4525c7592f8d3ea",
+          "pass": true,
+          "score": 0.6333333333333333,
+          "correct": true,
+          "responseChars": 3217,
+          "missing": 0
+        },
+        {
+          "id": "f04d825c0f64ebab8f3900a7a2bd534e_aa682a019e40b7cfdd7d868eaf9f517a",
+          "pass": true,
+          "score": 0.8666666666666667,
+          "correct": true,
+          "responseChars": 3150,
+          "missing": 0
+        },
+        {
+          "id": "615a0ba58690546856c0a873654c319c_30de5467c2e79b2000c569f8f4c05711",
+          "pass": false,
+          "score": 0.02,
+          "correct": false,
+          "responseChars": 3729,
+          "missing": 0
+        },
+        {
+          "id": "5399c58c3fe0c1714b4df513c5855f0f_252c188d4e3840900940a84561d16217",
+          "pass": false,
+          "score": 0.02,
+          "correct": false,
+          "responseChars": 1987,
+          "missing": 0
+        },
+        {
+          "id": "f68daac3a80dd3471e87677957a0bd74_e2584ff11780a2a9b044c5418f2be9c2",
+          "pass": false,
+          "score": 0.023333333333333334,
+          "correct": false,
+          "responseChars": 2917,
+          "missing": 0
+        },
+        {
+          "id": "6061ecc894252effcbe9e5e3b4a57d7e_230882131a786700068536a11110c8bf",
+          "pass": true,
+          "score": 0.9633333333333333,
+          "correct": false,
+          "responseChars": 10867,
+          "missing": 0
+        },
+        {
+          "id": "4b0b45efd75092f40124ceed7d3c4eae_99e86af7892b71cb13000162d1db91d6",
+          "pass": false,
+          "score": 0.043333333333333335,
+          "correct": false,
+          "responseChars": 2282,
+          "missing": 0
+        },
+        {
+          "id": "9d43756ed5b99d1fb8c26187d4335ba8_fc279fe414a1d5d313cb366723ccdc81",
+          "pass": true,
+          "score": 0.92,
+          "correct": false,
+          "responseChars": 13052,
+          "missing": 0
+        },
+        {
+          "id": "c495006247d953ad1dcf39487417691c_9eda42d0f826b75cc80a9d6d9ee362c1",
+          "pass": true,
+          "score": 0.9566666666666667,
+          "correct": true,
+          "responseChars": 11083,
+          "missing": 0
+        },
+        {
+          "id": "66f0ee34eb38fd4fa4bb06f056c0c359_0c2200e91f324ea5a912da84f9090638",
+          "pass": false,
+          "score": 0.03666666666666667,
+          "correct": true,
+          "responseChars": 4356,
+          "missing": 0
+        },
+        {
+          "id": "025bb66cf7a25c1dd3f701a2a9e477c3_86939819f8b0733f73bb0a92d2215cf2",
+          "pass": false,
+          "score": 0.06666666666666667,
+          "correct": false,
+          "responseChars": 28346,
+          "missing": 0
+        },
+        {
+          "id": "9985f48a923d8996047df22dc8311a6d_71f036e1fcb9f1f665be60c7508a5f5f",
+          "pass": true,
+          "score": 0.9433333333333334,
+          "correct": true,
+          "responseChars": 9128,
+          "missing": 0
+        },
+        {
+          "id": "a0dcfb04617db2dca4ef11dbc56606f4_cbae2d7d0c224ee59b6c586524d32fef",
+          "pass": false,
+          "score": 0.016666666666666666,
+          "correct": false,
+          "responseChars": 2379,
+          "missing": 0
+        },
+        {
+          "id": "d04086bb88417aeef28181ce6a4bb1c2_32f465d7d719f4836b825c54b8480804",
+          "correct": false,
+          "responseChars": 4384,
+          "missing": 0
+        },
+        {
+          "id": "5b848dd4cc4edd02fbfa53b336da0d29_12fe3f633de354b5dc426eaf77469921",
+          "pass": false,
+          "score": 0.03,
+          "correct": false,
+          "responseChars": 2255,
+          "missing": 0
+        },
+        {
+          "id": "745927e1a3422e7fd2cc18cb0a7e4d24_f20d3e0f0b887786d284d7f4344572d3",
+          "pass": true,
+          "score": 0.7399999999999999,
+          "correct": true,
+          "responseChars": 5518,
+          "missing": 0
+        },
+        {
+          "id": "af2be5176b42b614654d5edc677ad8fa_88c3f2ae1e921c411fcc75e50bbcef2e",
+          "pass": true,
+          "score": 0.9633333333333333,
+          "correct": false,
+          "responseChars": 7090,
+          "missing": 0
+        },
+        {
+          "id": "f87ce30d7dc54a92d2fd7a308e0f22cb_1c94d0a846cdd893dcaa5fc6ce2ec81a",
+          "pass": true,
+          "score": 0.9400000000000001,
+          "correct": false,
+          "responseChars": 11649,
+          "missing": 0
+        },
+        {
+          "id": "09da6922b3644d663d219fa5c9ec70b2_406ea1ce461a71f5ec8a6ca34a8d6673",
+          "pass": false,
+          "score": 0.15,
+          "correct": false,
+          "responseChars": 2684,
+          "missing": 0
+        },
+        {
+          "id": "abd28b507d76944f9ba99803e8ec42a3_29a501f186912b9001d1d1e69bc8885b",
+          "pass": false,
+          "score": 0.023333333333333334,
+          "correct": false,
+          "responseChars": 2462,
+          "missing": 0
+        },
+        {
+          "id": "61312ded17552fba089b4a01f6b5f285_08f62a8fb0fed84624239492a4a41bc1",
+          "pass": false,
+          "score": 0.02,
+          "correct": false,
+          "responseChars": 2738,
+          "missing": 0
+        },
+        {
+          "id": "45e256c0266cfbb6599087dbe1a9c223_a44b72d3d877c6ec0df9d1313c3e4a87",
+          "pass": true,
+          "score": 0.9700000000000001,
+          "correct": false,
+          "responseChars": 31371,
+          "missing": 0
+        },
+        {
+          "id": "4718bcdd0a959f97111659684103c452_9dee35d8476032909dde4bb768981188",
+          "pass": false,
+          "score": 0.02,
+          "correct": false,
+          "responseChars": 3598,
+          "missing": 0
+        },
+        {
+          "id": "b13ad07dc41661f7708050b369269080_9006096e8e217b78b007bc7850259ed6",
+          "pass": false,
+          "score": 0.02,
+          "correct": false,
+          "responseChars": 4677,
+          "missing": 0
+        },
+        {
+          "id": "0392540a38af6a74d7dd8473fa0ba1a5_0a68ff276c1d5df9e87726e464ecc216",
+          "pass": false,
+          "score": 0.04,
+          "correct": false,
+          "responseChars": 56382,
+          "missing": 0
+        },
+        {
+          "id": "cb60c0e9bb12bf9828a3f26a779f0aa7_d8f60cd66753e6f4132be6abd6b91c99",
+          "pass": false,
+          "score": 0.02,
+          "correct": false,
+          "responseChars": 2166,
+          "missing": 0
+        },
+        {
+          "id": "ae064b1b098ba8a6fc88da570b97e217_a3e14b9979e1e72f3bfe5e939c03b8bf",
+          "pass": false,
+          "score": 0.02,
+          "correct": true,
+          "responseChars": 4311,
+          "missing": 0
+        },
+        {
+          "id": "b1ab584a7561726b4f51728444debc63_efa1872fe8924489aea4a9287b07fbb7",
+          "pass": false,
+          "score": 0.016666666666666666,
+          "correct": false,
+          "responseChars": 1955,
+          "missing": 0
+        },
+        {
+          "id": "65d9f97790da392478b47895d92dcf2e_3b4120bcbb62645f6003d0b23cd1b578",
+          "pass": false,
+          "score": 0.02666666666666667,
+          "correct": false,
+          "responseChars": 4694,
+          "missing": 0
+        },
+        {
+          "id": "8f069b7855423c3fc5313cac20850f1c_afd8e5c91bbfb4bb57b8d4764bd00a70",
+          "pass": false,
+          "score": 0.02,
+          "correct": false,
+          "responseChars": 33155,
+          "missing": 0
+        },
+        {
+          "id": "8e1c94d7d9a559574ae09a7be0a5fbda_b82d6989e850993cc34b985e38f634c9",
+          "pass": false,
+          "score": 0.02,
+          "correct": false,
+          "responseChars": 38393,
+          "missing": 0
+        },
+        {
+          "id": "f5b224f30b6a5d1ca6385823308429b8_2f6839650b046b79b72232ff0ba6dafb",
+          "pass": false,
+          "score": 0.02,
+          "correct": false,
+          "responseChars": 2599,
+          "missing": 0
+        },
+        {
+          "id": "9d3f4f6454f42220d174d0e16452fd3b_4ffcb868b8c9ff711f72fbc222b07b27",
+          "pass": false,
+          "score": 0.016666666666666666,
+          "correct": false,
+          "responseChars": 4140,
+          "missing": 0
+        },
+        {
+          "id": "fa0cd84fd7ef3d92d399645d5e73e28b_393a8003c0e5b5552040197680f74156",
+          "pass": true,
+          "score": 0.8333333333333334,
+          "correct": true,
+          "responseChars": 2992,
+          "missing": 0
+        },
+        {
+          "id": "b9bbd50a28dee4bce51b35f6615e9929_b239ce01ae5cc15d73ab875ffd6ca44a",
+          "pass": true,
+          "score": 0.9566666666666667,
+          "correct": false,
+          "responseChars": 8899,
+          "missing": 0
+        },
+        {
+          "id": "3401fd97837e2e5142064a220ee4c443_e4aae36f193da905d6dca7185fc00d74",
+          "pass": false,
+          "score": 0.01,
+          "correct": false,
+          "responseChars": 2320,
+          "missing": 0
+        },
+        {
+          "id": "51cab744ffa25fb2b8e55462ba95d447_e72cc47f19d3f232740e4627961d79d8",
+          "pass": false,
+          "score": 0.02,
+          "correct": false,
+          "responseChars": 2764,
+          "missing": 0
+        },
+        {
+          "id": "d3375088280729c20950647504fd12ff_2e1f0637a26d5955d194f3a71f9ef000",
+          "pass": true,
+          "score": 0.7333333333333334,
+          "correct": true,
+          "responseChars": 2990,
+          "missing": 0
+        },
+        {
+          "id": "5c0953ccc0fe13a7c7843f7c30711707_9b0a1f20fe1161ee7e459a347e2de29e",
+          "pass": false,
+          "score": 0.02,
+          "correct": false,
+          "responseChars": 32578,
+          "missing": 0
+        },
+        {
+          "id": "bfb9b703dc545801d8dc5da137b2739d_c5d655d5bb71bef56e18855b07feeae7",
+          "pass": false,
+          "score": 0.02,
+          "correct": false,
+          "responseChars": 4123,
+          "missing": 0
+        },
+        {
+          "id": "06a7b64808e0ff01fe98c4e3d7fd8373_3151468e2bce491c491ab7d6e464989c",
+          "pass": false,
+          "score": 0.013333333333333334,
+          "correct": false,
+          "responseChars": 2464,
+          "missing": 0
+        },
+        {
+          "id": "12417566ea50ca18172fc263294c5f39_876d5bf34b0ae1cee736c455c7f6ae92",
+          "pass": true,
+          "score": 0.4666666666666666,
+          "correct": false,
+          "responseChars": 3426,
+          "missing": 0
+        },
+        {
+          "id": "1a5e02f4c2b7cdbe6e6cdf79952ebf6b_d849833243ab3748654b844e6bfed7b8",
+          "pass": false,
+          "score": 0.08499999999999999,
+          "correct": false,
+          "responseChars": 54691,
+          "missing": 0
+        },
+        {
+          "id": "1bf3b482c219ddab8984703e93118cf5_1fab9b86cd71c03c7bff6099f057820e",
+          "pass": true,
+          "score": 0.4666666666666666,
+          "correct": false,
+          "responseChars": 15808,
+          "missing": 0
+        },
+        {
+          "id": "baf2a6dfb7a6af74f37ffd4abb3eaf45_a948bf168a7169eb9373a27f5d630870",
+          "pass": true,
+          "score": 0.6733333333333333,
+          "correct": true,
+          "responseChars": 2610,
+          "missing": 0
+        },
+        {
+          "id": "03927b9bcf620c4ee68271a80692b351_dee2e96b000e11691c6a03d182193ec7",
+          "pass": false,
+          "score": 0.03666666666666667,
+          "correct": false,
+          "responseChars": 25073,
+          "missing": 0
+        },
+        {
+          "id": "f284e29facabdfeb159e19ff53aa0242_83c1b053434c8f154938fe5559d4f4b8",
+          "pass": false,
+          "score": 0.06666666666666667,
+          "correct": false,
+          "responseChars": 8297,
+          "missing": 0
+        },
+        {
+          "id": "a3214bdf6f261a6ac7acb7d79bf25df1_592fbad3b6f89c9f50098ea529f56dc1",
+          "pass": false,
+          "score": 0.02,
+          "correct": false,
+          "responseChars": 3740,
+          "missing": 0
+        },
+        {
+          "id": "90ff1112e578b41c75469baf8077d243_d11b1cafc9e9d0bc9b04688ecc9a604e",
+          "pass": true,
+          "score": 0.7999999999999999,
+          "correct": true,
+          "responseChars": 2519,
+          "missing": 0
+        },
+        {
+          "id": "8e3ed1a096e996f4acacb9bd03fc10d9_ee5653381cba8076c18d1079587930c6",
+          "pass": true,
+          "score": 0.85,
+          "correct": true,
+          "responseChars": 2763,
+          "missing": 0
+        },
+        {
+          "id": "51a34ae09daf62b1743c88a1af5cdec9_5b7ba7dc2af6bb97966f0832cadd8fcb",
+          "pass": false,
+          "score": 0.05000000000000001,
+          "correct": false,
+          "responseChars": 3598,
+          "missing": 0
+        },
+        {
+          "id": "f80aae6d83ccb375e49ea15bfd8ac5d1_66d1bbb20475c340d647519c9e4f5db8",
+          "pass": false,
+          "score": 0.15666666666666668,
+          "correct": false,
+          "responseChars": 3322,
+          "missing": 0
+        },
+        {
+          "id": "b173752441e98eff08bc87251c0e70aa_433bf55c2f33df9369463e94b70a07dc",
+          "pass": false,
+          "score": 0.025,
+          "correct": true,
+          "responseChars": 44504,
+          "missing": 0
+        },
+        {
+          "id": "71e2d5758cd41f6229a8d2ee2a48fc3c_9f960a07f7eea3418e2582b40851d4fe",
+          "pass": true,
+          "score": 0.85,
+          "correct": false,
+          "responseChars": 14984,
+          "missing": 0
+        },
+        {
+          "id": "8549f4ef6a78c00928955dbc7c7f1fa7_4c541ce85b883a6d5c42c6edfc8828e7",
+          "pass": true,
+          "score": 0.8766666666666666,
+          "correct": false,
+          "responseChars": 46169,
+          "missing": 0
+        },
+        {
+          "id": "d0c8badc5397366d9fa703aa3fc09539_f925e2381ebfaa1578d07a646aefde58",
+          "pass": true,
+          "score": 0.7166666666666667,
+          "correct": true,
+          "responseChars": 2184,
+          "missing": 0
+        },
+        {
+          "id": "b2cce1e0d1c9d642c84c1475cab4dc7f_fbdf7e874d4a8623febf36a884552cc1",
+          "pass": false,
+          "score": 0.02,
+          "correct": false,
+          "responseChars": 34779,
+          "missing": 0
+        },
+        {
+          "id": "ad9e092461cee0aaa0ee713b1bcc5549_05ea9aa23a0312c963c74db80d16130b",
+          "pass": false,
+          "score": 0.16666666666666666,
+          "correct": false,
+          "responseChars": 32162,
+          "missing": 0
+        },
+        {
+          "id": "93d0a48b6abc7839aa7f72e070868dd2_a5f5f24acd8daf76264d981d4db16c98",
+          "pass": false,
+          "score": 0.03,
+          "correct": false,
+          "responseChars": 3213,
+          "missing": 0
+        },
+        {
+          "id": "d9dff41d573180ecfb4a2a046051907f_be0778a6d01f7806fdb0ed6808d39678",
+          "pass": false,
+          "score": 0.21666666666666667,
+          "correct": false,
+          "responseChars": 11373,
+          "missing": 0
+        },
+        {
+          "id": "02338a82954f78d15eced8c418b1ae6d_34d95fd1692d195b8e340f03640682d8",
+          "pass": false,
+          "score": 0.11666666666666665,
+          "correct": false,
+          "responseChars": 4692,
+          "missing": 0
+        },
+        {
+          "id": "99b47ca9950710f76b893bd08a9e4fcb_07af34d411bad329fb6749b5cd80570f",
+          "pass": false,
+          "score": 0.03666666666666667,
+          "correct": false,
+          "responseChars": 27577,
+          "missing": 0
+        },
+        {
+          "id": "94952c1218b51c4c88fdadb9b517e95d_b661ef47df07a4d6e291b16c25abdaaa",
+          "pass": true,
+          "score": 0.8333333333333334,
+          "correct": true,
+          "responseChars": 2101,
+          "missing": 0
+        },
+        {
+          "id": "0f8f62a6885496b268128d754c7a338b_cd0cc2aea00a8d96fbe3b8e21f02d9f7",
+          "pass": false,
+          "score": 0.13333333333333333,
+          "correct": false,
+          "responseChars": 6508,
+          "missing": 0
+        },
+        {
+          "id": "5a0820f68025b9d6ef3d3062af88c17a_2780135e37ae181dd8a83828a4c4512e",
+          "pass": false,
+          "score": 0.13333333333333333,
+          "correct": false,
+          "responseChars": 2829,
+          "missing": 0
+        },
+        {
+          "id": "2e7f5b41a327fb39c97b9d5b06788f6b_194ce3fb21f0fb17e9c38159b1074591",
+          "pass": false,
+          "score": 0.03666666666666667,
+          "correct": false,
+          "responseChars": 30998,
+          "missing": 0
+        }
+      ]
+    },
+    {
+      "contestant": "driftbench-adaptive",
+      "source": "the shipped prompt with reasoning, solve-first and symmetric pairwise rules, three judgements, and a reference answer when the question is checkable (tuned on dev)",
+      "mode": "pointwise",
+      "summary": {
+        "metric": "accuracy (LongJudgeBench verify, binary)",
+        "value": {
+          "estimate": 0.7777777777777778,
+          "lower": 0.6690904506199482,
+          "upper": 0.858325564604242
+        },
+        "n": 72,
+        "balancedAccuracy": 0.7859649122807018,
+        "byGroup": {
+          "incorrect": {
+            "n": 57,
+            "value": 0.7719298245614035
+          },
+          "correct": {
+            "n": 15,
+            "value": 0.8
+          }
+        },
+        "missing": 0
+      },
+      "costUsd": 0.49854726000000005,
+      "calls": 352,
+      "decisions": [
+        {
+          "id": "c8a3e6885808a25736dc974fcdf0b7e6_200630279e6321e06517a1e4736f816b",
+          "pass": false,
+          "score": 0.01,
+          "correct": false,
+          "responseChars": 4181,
+          "missing": 0
+        },
+        {
+          "id": "59be6e316c501c3c6f67c265ed7f469d_523d0604a8d9e02a61b7801e7cbe7911",
+          "pass": true,
+          "score": 0.725,
+          "correct": false,
+          "responseChars": 1946,
+          "missing": 0
+        },
+        {
+          "id": "6f2500baaab5dcd81bcfe5416249fce2_c03a2a2005994f41e018a041dafcf875",
+          "pass": false,
+          "score": 0.05,
+          "correct": false,
+          "responseChars": 8545,
+          "missing": 0
+        },
+        {
+          "id": "c9e95eb9b2dea93392edf99df248ef2e_8a06a3c9b84a9bf0744b4da79322ecd6",
+          "pass": true,
+          "score": 0.9566666666666667,
+          "correct": false,
+          "responseChars": 13469,
+          "missing": 0
+        },
+        {
+          "id": "f48078b907465263df59e6cc261362e4_99fb5ec0153c30b2fe8ebb5a8cf10442",
+          "pass": false,
+          "score": 0.023333333333333334,
+          "correct": false,
+          "responseChars": 3771,
+          "missing": 0
+        },
+        {
+          "id": "b463c91447475d675187efc7b7162c58_8cb2aa86a94d146813e12b58511acd99",
+          "pass": false,
+          "score": 0.02,
+          "correct": false,
+          "responseChars": 2398,
+          "missing": 0
+        },
+        {
+          "id": "e6c10b18f207583b72061ec57c1bbfca_a9b16b33657d2c39d4525c7592f8d3ea",
+          "pass": true,
+          "score": 0.6333333333333333,
+          "correct": true,
+          "responseChars": 3217,
+          "missing": 0
+        },
+        {
+          "id": "f04d825c0f64ebab8f3900a7a2bd534e_aa682a019e40b7cfdd7d868eaf9f517a",
+          "pass": true,
+          "score": 0.8666666666666667,
+          "correct": true,
+          "responseChars": 3150,
+          "missing": 0
+        },
+        {
+          "id": "615a0ba58690546856c0a873654c319c_30de5467c2e79b2000c569f8f4c05711",
+          "pass": false,
+          "score": 0.02,
+          "correct": false,
+          "responseChars": 3729,
+          "missing": 0
+        },
+        {
+          "id": "5399c58c3fe0c1714b4df513c5855f0f_252c188d4e3840900940a84561d16217",
+          "pass": false,
+          "score": 0.02,
+          "correct": false,
+          "responseChars": 1987,
+          "missing": 0
+        },
+        {
+          "id": "f68daac3a80dd3471e87677957a0bd74_e2584ff11780a2a9b044c5418f2be9c2",
+          "pass": false,
+          "score": 0.03,
+          "correct": false,
+          "responseChars": 2917,
+          "missing": 0
+        },
+        {
+          "id": "6061ecc894252effcbe9e5e3b4a57d7e_230882131a786700068536a11110c8bf",
+          "pass": true,
+          "score": 0.9499999999999998,
+          "correct": false,
+          "responseChars": 10867,
+          "missing": 0
+        },
+        {
+          "id": "4b0b45efd75092f40124ceed7d3c4eae_99e86af7892b71cb13000162d1db91d6",
+          "pass": false,
+          "score": 0.043333333333333335,
+          "correct": false,
+          "responseChars": 2282,
+          "missing": 0
+        },
+        {
+          "id": "9d43756ed5b99d1fb8c26187d4335ba8_fc279fe414a1d5d313cb366723ccdc81",
+          "pass": true,
+          "score": 0.92,
+          "correct": false,
+          "responseChars": 13052,
+          "missing": 0
+        },
+        {
+          "id": "c495006247d953ad1dcf39487417691c_9eda42d0f826b75cc80a9d6d9ee362c1",
+          "pass": true,
+          "score": 0.9566666666666667,
+          "correct": true,
+          "responseChars": 11083,
+          "missing": 0
+        },
+        {
+          "id": "66f0ee34eb38fd4fa4bb06f056c0c359_0c2200e91f324ea5a912da84f9090638",
+          "pass": false,
+          "score": 0.03666666666666667,
+          "correct": true,
+          "responseChars": 4356,
+          "missing": 0
+        },
+        {
+          "id": "025bb66cf7a25c1dd3f701a2a9e477c3_86939819f8b0733f73bb0a92d2215cf2",
+          "pass": false,
+          "score": 0.06666666666666667,
+          "correct": false,
+          "responseChars": 28346,
+          "missing": 0
+        },
+        {
+          "id": "9985f48a923d8996047df22dc8311a6d_71f036e1fcb9f1f665be60c7508a5f5f",
+          "pass": true,
+          "score": 0.9433333333333334,
+          "correct": true,
+          "responseChars": 9128,
+          "missing": 0
+        },
+        {
+          "id": "a0dcfb04617db2dca4ef11dbc56606f4_cbae2d7d0c224ee59b6c586524d32fef",
+          "pass": false,
+          "score": 0.02,
+          "correct": false,
+          "responseChars": 2379,
+          "missing": 0
+        },
+        {
+          "id": "d04086bb88417aeef28181ce6a4bb1c2_32f465d7d719f4836b825c54b8480804",
+          "correct": false,
+          "responseChars": 4384,
+          "missing": 0
+        },
+        {
+          "id": "5b848dd4cc4edd02fbfa53b336da0d29_12fe3f633de354b5dc426eaf77469921",
+          "pass": false,
+          "score": 0.03,
+          "correct": false,
+          "responseChars": 2255,
+          "missing": 0
+        },
+        {
+          "id": "745927e1a3422e7fd2cc18cb0a7e4d24_f20d3e0f0b887786d284d7f4344572d3",
+          "pass": true,
+          "score": 0.7399999999999999,
+          "correct": true,
+          "responseChars": 5518,
+          "missing": 0
+        },
+        {
+          "id": "af2be5176b42b614654d5edc677ad8fa_88c3f2ae1e921c411fcc75e50bbcef2e",
+          "pass": true,
+          "score": 0.9633333333333333,
+          "correct": false,
+          "responseChars": 7090,
+          "missing": 0
+        },
+        {
+          "id": "f87ce30d7dc54a92d2fd7a308e0f22cb_1c94d0a846cdd893dcaa5fc6ce2ec81a",
+          "pass": true,
+          "score": 0.9400000000000001,
+          "correct": false,
+          "responseChars": 11649,
+          "missing": 0
+        },
+        {
+          "id": "09da6922b3644d663d219fa5c9ec70b2_406ea1ce461a71f5ec8a6ca34a8d6673",
+          "pass": false,
+          "score": 0.15,
+          "correct": false,
+          "responseChars": 2684,
+          "missing": 0
+        },
+        {
+          "id": "abd28b507d76944f9ba99803e8ec42a3_29a501f186912b9001d1d1e69bc8885b",
+          "pass": false,
+          "score": 0.023333333333333334,
+          "correct": false,
+          "responseChars": 2462,
+          "missing": 0
+        },
+        {
+          "id": "61312ded17552fba089b4a01f6b5f285_08f62a8fb0fed84624239492a4a41bc1",
+          "pass": false,
+          "score": 0.013333333333333334,
+          "correct": false,
+          "responseChars": 2738,
+          "missing": 0
+        },
+        {
+          "id": "45e256c0266cfbb6599087dbe1a9c223_a44b72d3d877c6ec0df9d1313c3e4a87",
+          "pass": true,
+          "score": 0.9700000000000001,
+          "correct": false,
+          "responseChars": 31371,
+          "missing": 0
+        },
+        {
+          "id": "4718bcdd0a959f97111659684103c452_9dee35d8476032909dde4bb768981188",
+          "pass": false,
+          "score": 0.02,
+          "correct": false,
+          "responseChars": 3598,
+          "missing": 0
+        },
+        {
+          "id": "b13ad07dc41661f7708050b369269080_9006096e8e217b78b007bc7850259ed6",
+          "pass": false,
+          "score": 0.02,
+          "correct": false,
+          "responseChars": 4677,
+          "missing": 0
+        },
+        {
+          "id": "0392540a38af6a74d7dd8473fa0ba1a5_0a68ff276c1d5df9e87726e464ecc216",
+          "pass": false,
+          "score": 0.04,
+          "correct": false,
+          "responseChars": 56382,
+          "missing": 0
+        },
+        {
+          "id": "cb60c0e9bb12bf9828a3f26a779f0aa7_d8f60cd66753e6f4132be6abd6b91c99",
+          "pass": false,
+          "score": 0.02,
+          "correct": false,
+          "responseChars": 2166,
+          "missing": 0
+        },
+        {
+          "id": "ae064b1b098ba8a6fc88da570b97e217_a3e14b9979e1e72f3bfe5e939c03b8bf",
+          "pass": false,
+          "score": 0.02,
+          "correct": true,
+          "responseChars": 4311,
+          "missing": 0
+        },
+        {
+          "id": "b1ab584a7561726b4f51728444debc63_efa1872fe8924489aea4a9287b07fbb7",
+          "pass": false,
+          "score": 0.016666666666666666,
+          "correct": false,
+          "responseChars": 1955,
+          "missing": 0
+        },
+        {
+          "id": "65d9f97790da392478b47895d92dcf2e_3b4120bcbb62645f6003d0b23cd1b578",
+          "pass": false,
+          "score": 0.02666666666666667,
+          "correct": false,
+          "responseChars": 4694,
+          "missing": 0
+        },
+        {
+          "id": "8f069b7855423c3fc5313cac20850f1c_afd8e5c91bbfb4bb57b8d4764bd00a70",
+          "pass": false,
+          "score": 0.02,
+          "correct": false,
+          "responseChars": 33155,
+          "missing": 0
+        },
+        {
+          "id": "8e1c94d7d9a559574ae09a7be0a5fbda_b82d6989e850993cc34b985e38f634c9",
+          "pass": false,
+          "score": 0.02,
+          "correct": false,
+          "responseChars": 38393,
+          "missing": 0
+        },
+        {
+          "id": "f5b224f30b6a5d1ca6385823308429b8_2f6839650b046b79b72232ff0ba6dafb",
+          "pass": false,
+          "score": 0.02,
+          "correct": false,
+          "responseChars": 2599,
+          "missing": 0
+        },
+        {
+          "id": "9d3f4f6454f42220d174d0e16452fd3b_4ffcb868b8c9ff711f72fbc222b07b27",
+          "pass": false,
+          "score": 0.016666666666666666,
+          "correct": false,
+          "responseChars": 4140,
+          "missing": 0
+        },
+        {
+          "id": "fa0cd84fd7ef3d92d399645d5e73e28b_393a8003c0e5b5552040197680f74156",
+          "pass": true,
+          "score": 0.8333333333333334,
+          "correct": true,
+          "responseChars": 2992,
+          "missing": 0
+        },
+        {
+          "id": "b9bbd50a28dee4bce51b35f6615e9929_b239ce01ae5cc15d73ab875ffd6ca44a",
+          "pass": true,
+          "score": 0.9566666666666667,
+          "correct": false,
+          "responseChars": 8899,
+          "missing": 0
+        },
+        {
+          "id": "3401fd97837e2e5142064a220ee4c443_e4aae36f193da905d6dca7185fc00d74",
+          "pass": false,
+          "score": 0.01,
+          "correct": false,
+          "responseChars": 2320,
+          "missing": 0
+        },
+        {
+          "id": "51cab744ffa25fb2b8e55462ba95d447_e72cc47f19d3f232740e4627961d79d8",
+          "pass": false,
+          "score": 0.02,
+          "correct": false,
+          "responseChars": 2764,
+          "missing": 0
+        },
+        {
+          "id": "d3375088280729c20950647504fd12ff_2e1f0637a26d5955d194f3a71f9ef000",
+          "pass": true,
+          "score": 0.7333333333333334,
+          "correct": true,
+          "responseChars": 2990,
+          "missing": 0
+        },
+        {
+          "id": "5c0953ccc0fe13a7c7843f7c30711707_9b0a1f20fe1161ee7e459a347e2de29e",
+          "pass": false,
+          "score": 0.02,
+          "correct": false,
+          "responseChars": 32578,
+          "missing": 0
+        },
+        {
+          "id": "bfb9b703dc545801d8dc5da137b2739d_c5d655d5bb71bef56e18855b07feeae7",
+          "pass": false,
+          "score": 0.02,
+          "correct": false,
+          "responseChars": 4123,
+          "missing": 0
+        },
+        {
+          "id": "06a7b64808e0ff01fe98c4e3d7fd8373_3151468e2bce491c491ab7d6e464989c",
+          "pass": false,
+          "score": 0.013333333333333334,
+          "correct": false,
+          "responseChars": 2464,
+          "missing": 0
+        },
+        {
+          "id": "12417566ea50ca18172fc263294c5f39_876d5bf34b0ae1cee736c455c7f6ae92",
+          "pass": true,
+          "score": 0.4666666666666666,
+          "correct": false,
+          "responseChars": 3426,
+          "missing": 0
+        },
+        {
+          "id": "1a5e02f4c2b7cdbe6e6cdf79952ebf6b_d849833243ab3748654b844e6bfed7b8",
+          "pass": false,
+          "score": 0.08499999999999999,
+          "correct": false,
+          "responseChars": 54691,
+          "missing": 0
+        },
+        {
+          "id": "1bf3b482c219ddab8984703e93118cf5_1fab9b86cd71c03c7bff6099f057820e",
+          "pass": true,
+          "score": 0.4666666666666666,
+          "correct": false,
+          "responseChars": 15808,
+          "missing": 0
+        },
+        {
+          "id": "baf2a6dfb7a6af74f37ffd4abb3eaf45_a948bf168a7169eb9373a27f5d630870",
+          "pass": true,
+          "score": 0.6733333333333333,
+          "correct": true,
+          "responseChars": 2610,
+          "missing": 0
+        },
+        {
+          "id": "03927b9bcf620c4ee68271a80692b351_dee2e96b000e11691c6a03d182193ec7",
+          "pass": false,
+          "score": 0.03666666666666667,
+          "correct": false,
+          "responseChars": 25073,
+          "missing": 0
+        },
+        {
+          "id": "f284e29facabdfeb159e19ff53aa0242_83c1b053434c8f154938fe5559d4f4b8",
+          "pass": false,
+          "score": 0.06666666666666667,
+          "correct": false,
+          "responseChars": 8297,
+          "missing": 0
+        },
+        {
+          "id": "a3214bdf6f261a6ac7acb7d79bf25df1_592fbad3b6f89c9f50098ea529f56dc1",
+          "pass": false,
+          "score": 0.02,
+          "correct": false,
+          "responseChars": 3740,
+          "missing": 0
+        },
+        {
+          "id": "90ff1112e578b41c75469baf8077d243_d11b1cafc9e9d0bc9b04688ecc9a604e",
+          "pass": true,
+          "score": 0.7999999999999999,
+          "correct": true,
+          "responseChars": 2519,
+          "missing": 0
+        },
+        {
+          "id": "8e3ed1a096e996f4acacb9bd03fc10d9_ee5653381cba8076c18d1079587930c6",
+          "pass": true,
+          "score": 0.85,
+          "correct": true,
+          "responseChars": 2763,
+          "missing": 0
+        },
+        {
+          "id": "51a34ae09daf62b1743c88a1af5cdec9_5b7ba7dc2af6bb97966f0832cadd8fcb",
+          "pass": false,
+          "score": 0.05000000000000001,
+          "correct": false,
+          "responseChars": 3598,
+          "missing": 0
+        },
+        {
+          "id": "f80aae6d83ccb375e49ea15bfd8ac5d1_66d1bbb20475c340d647519c9e4f5db8",
+          "pass": false,
+          "score": 0.15,
+          "correct": false,
+          "responseChars": 3322,
+          "missing": 0
+        },
+        {
+          "id": "b173752441e98eff08bc87251c0e70aa_433bf55c2f33df9369463e94b70a07dc",
+          "pass": false,
+          "score": 0.025,
+          "correct": true,
+          "responseChars": 44504,
+          "missing": 0
+        },
+        {
+          "id": "71e2d5758cd41f6229a8d2ee2a48fc3c_9f960a07f7eea3418e2582b40851d4fe",
+          "pass": true,
+          "score": 0.85,
+          "correct": false,
+          "responseChars": 14984,
+          "missing": 0
+        },
+        {
+          "id": "8549f4ef6a78c00928955dbc7c7f1fa7_4c541ce85b883a6d5c42c6edfc8828e7",
+          "pass": true,
+          "score": 0.7166666666666667,
+          "correct": false,
+          "responseChars": 46169,
+          "missing": 0
+        },
+        {
+          "id": "d0c8badc5397366d9fa703aa3fc09539_f925e2381ebfaa1578d07a646aefde58",
+          "pass": true,
+          "score": 0.7166666666666667,
+          "correct": true,
+          "responseChars": 2184,
+          "missing": 0
+        },
+        {
+          "id": "b2cce1e0d1c9d642c84c1475cab4dc7f_fbdf7e874d4a8623febf36a884552cc1",
+          "pass": false,
+          "score": 0.02,
+          "correct": false,
+          "responseChars": 34779,
+          "missing": 0
+        },
+        {
+          "id": "ad9e092461cee0aaa0ee713b1bcc5549_05ea9aa23a0312c963c74db80d16130b",
+          "pass": false,
+          "score": 0.16666666666666666,
+          "correct": false,
+          "responseChars": 32162,
+          "missing": 0
+        },
+        {
+          "id": "93d0a48b6abc7839aa7f72e070868dd2_a5f5f24acd8daf76264d981d4db16c98",
+          "pass": false,
+          "score": 0.03,
+          "correct": false,
+          "responseChars": 3213,
+          "missing": 0
+        },
+        {
+          "id": "d9dff41d573180ecfb4a2a046051907f_be0778a6d01f7806fdb0ed6808d39678",
+          "pass": false,
+          "score": 0.21666666666666667,
+          "correct": false,
+          "responseChars": 11373,
+          "missing": 0
+        },
+        {
+          "id": "02338a82954f78d15eced8c418b1ae6d_34d95fd1692d195b8e340f03640682d8",
+          "pass": false,
+          "score": 0.11666666666666665,
+          "correct": false,
+          "responseChars": 4692,
+          "missing": 0
+        },
+        {
+          "id": "99b47ca9950710f76b893bd08a9e4fcb_07af34d411bad329fb6749b5cd80570f",
+          "pass": false,
+          "score": 0.03666666666666667,
+          "correct": false,
+          "responseChars": 27577,
+          "missing": 0
+        },
+        {
+          "id": "94952c1218b51c4c88fdadb9b517e95d_b661ef47df07a4d6e291b16c25abdaaa",
+          "pass": true,
+          "score": 0.92,
+          "correct": true,
+          "responseChars": 2101,
+          "missing": 0
+        },
+        {
+          "id": "0f8f62a6885496b268128d754c7a338b_cd0cc2aea00a8d96fbe3b8e21f02d9f7",
+          "pass": false,
+          "score": 0.13333333333333333,
+          "correct": false,
+          "responseChars": 6508,
+          "missing": 0
+        },
+        {
+          "id": "5a0820f68025b9d6ef3d3062af88c17a_2780135e37ae181dd8a83828a4c4512e",
+          "pass": false,
+          "score": 0.13333333333333333,
+          "correct": false,
+          "responseChars": 2829,
+          "missing": 0
+        },
+        {
+          "id": "2e7f5b41a327fb39c97b9d5b06788f6b_194ce3fb21f0fb17e9c38159b1074591",
+          "pass": false,
+          "score": 0.03666666666666667,
+          "correct": false,
+          "responseChars": 30998,
+          "missing": 0
+        }
+      ]
+    },
+    {
+      "contestant": "driftbench",
+      "source": "packages/judges/src/prompt.ts and pairwise.ts (this repository)",
+      "mode": "pointwise",
+      "summary": {
+        "metric": "accuracy (LongJudgeBench verify, binary)",
+        "value": {
+          "estimate": 0.7361111111111112,
+          "lower": 0.6242413795382338,
+          "upper": 0.824062233402328
+        },
+        "n": 72,
+        "balancedAccuracy": 0.7596491228070176,
+        "byGroup": {
+          "incorrect": {
+            "n": 57,
+            "value": 0.7192982456140351
+          },
+          "correct": {
+            "n": 15,
+            "value": 0.8
+          }
+        },
+        "missing": 0
+      },
+      "costUsd": 0.12871050000000006,
+      "calls": 72,
+      "decisions": [
+        {
+          "id": "c8a3e6885808a25736dc974fcdf0b7e6_200630279e6321e06517a1e4736f816b",
+          "pass": false,
+          "score": 0.02,
+          "correct": false,
+          "responseChars": 4181,
+          "missing": 0
+        },
+        {
+          "id": "59be6e316c501c3c6f67c265ed7f469d_523d0604a8d9e02a61b7801e7cbe7911",
+          "pass": true,
+          "score": 0.6,
+          "correct": false,
+          "responseChars": 1946,
+          "missing": 0
+        },
+        {
+          "id": "6f2500baaab5dcd81bcfe5416249fce2_c03a2a2005994f41e018a041dafcf875",
+          "pass": false,
+          "score": 0.05,
+          "correct": false,
+          "responseChars": 8545,
+          "missing": 0
+        },
+        {
+          "id": "c9e95eb9b2dea93392edf99df248ef2e_8a06a3c9b84a9bf0744b4da79322ecd6",
+          "pass": true,
+          "score": 0.95,
+          "correct": false,
+          "responseChars": 13469,
+          "missing": 0
+        },
+        {
+          "id": "f48078b907465263df59e6cc261362e4_99fb5ec0153c30b2fe8ebb5a8cf10442",
+          "pass": false,
+          "score": 0.03,
+          "correct": false,
+          "responseChars": 3771,
+          "missing": 0
+        },
+        {
+          "id": "b463c91447475d675187efc7b7162c58_8cb2aa86a94d146813e12b58511acd99",
+          "pass": false,
+          "score": 0.02,
+          "correct": false,
+          "responseChars": 2398,
+          "missing": 0
+        },
+        {
+          "id": "e6c10b18f207583b72061ec57c1bbfca_a9b16b33657d2c39d4525c7592f8d3ea",
+          "pass": true,
+          "score": 0.7,
+          "correct": true,
+          "responseChars": 3217,
+          "missing": 0
+        },
+        {
+          "id": "f04d825c0f64ebab8f3900a7a2bd534e_aa682a019e40b7cfdd7d868eaf9f517a",
+          "pass": true,
+          "score": 0.8,
+          "correct": true,
+          "responseChars": 3150,
+          "missing": 0
+        },
+        {
+          "id": "615a0ba58690546856c0a873654c319c_30de5467c2e79b2000c569f8f4c05711",
+          "pass": false,
+          "score": 0.05,
+          "correct": false,
+          "responseChars": 3729,
+          "missing": 0
+        },
+        {
+          "id": "5399c58c3fe0c1714b4df513c5855f0f_252c188d4e3840900940a84561d16217",
+          "pass": false,
+          "score": 0.02,
+          "correct": false,
+          "responseChars": 1987,
+          "missing": 0
+        },
+        {
+          "id": "f68daac3a80dd3471e87677957a0bd74_e2584ff11780a2a9b044c5418f2be9c2",
+          "correct": false,
+          "responseChars": 2917,
+          "missing": 0
+        },
+        {
+          "id": "6061ecc894252effcbe9e5e3b4a57d7e_230882131a786700068536a11110c8bf",
+          "pass": true,
+          "score": 0.93,
+          "correct": false,
+          "responseChars": 10867,
+          "missing": 0
+        },
+        {
+          "id": "4b0b45efd75092f40124ceed7d3c4eae_99e86af7892b71cb13000162d1db91d6",
+          "pass": false,
+          "score": 0.05,
+          "correct": false,
+          "responseChars": 2282,
+          "missing": 0
+        },
+        {
+          "id": "9d43756ed5b99d1fb8c26187d4335ba8_fc279fe414a1d5d313cb366723ccdc81",
+          "pass": true,
+          "score": 0.8,
+          "correct": false,
+          "responseChars": 13052,
+          "missing": 0
+        },
+        {
+          "id": "c495006247d953ad1dcf39487417691c_9eda42d0f826b75cc80a9d6d9ee362c1",
+          "pass": true,
+          "score": 0.96,
+          "correct": true,
+          "responseChars": 11083,
+          "missing": 0
+        },
+        {
+          "id": "66f0ee34eb38fd4fa4bb06f056c0c359_0c2200e91f324ea5a912da84f9090638",
+          "pass": false,
+          "score": 0.03,
+          "correct": true,
+          "responseChars": 4356,
+          "missing": 0
+        },
+        {
+          "id": "025bb66cf7a25c1dd3f701a2a9e477c3_86939819f8b0733f73bb0a92d2215cf2",
+          "pass": false,
+          "score": 0.25,
+          "correct": false,
+          "responseChars": 28346,
+          "missing": 0
+        },
+        {
+          "id": "9985f48a923d8996047df22dc8311a6d_71f036e1fcb9f1f665be60c7508a5f5f",
+          "pass": true,
+          "score": 0.93,
+          "correct": true,
+          "responseChars": 9128,
+          "missing": 0
+        },
+        {
+          "id": "a0dcfb04617db2dca4ef11dbc56606f4_cbae2d7d0c224ee59b6c586524d32fef",
+          "pass": false,
+          "score": 0.02,
+          "correct": false,
+          "responseChars": 2379,
+          "missing": 0
+        },
+        {
+          "id": "d04086bb88417aeef28181ce6a4bb1c2_32f465d7d719f4836b825c54b8480804",
+          "pass": false,
+          "score": 0.01,
+          "correct": false,
+          "responseChars": 4384,
+          "missing": 0
+        },
+        {
+          "id": "5b848dd4cc4edd02fbfa53b336da0d29_12fe3f633de354b5dc426eaf77469921",
+          "pass": false,
+          "score": 0.03,
+          "correct": false,
+          "responseChars": 2255,
+          "missing": 0
+        },
+        {
+          "id": "745927e1a3422e7fd2cc18cb0a7e4d24_f20d3e0f0b887786d284d7f4344572d3",
+          "pass": true,
+          "score": 0.7,
+          "correct": true,
+          "responseChars": 5518,
+          "missing": 0
+        },
+        {
+          "id": "af2be5176b42b614654d5edc677ad8fa_88c3f2ae1e921c411fcc75e50bbcef2e",
+          "pass": true,
+          "score": 0.93,
+          "correct": false,
+          "responseChars": 7090,
+          "missing": 0
+        },
+        {
+          "id": "f87ce30d7dc54a92d2fd7a308e0f22cb_1c94d0a846cdd893dcaa5fc6ce2ec81a",
+          "pass": true,
+          "score": 0.97,
+          "correct": false,
+          "responseChars": 11649,
+          "missing": 0
+        },
+        {
+          "id": "09da6922b3644d663d219fa5c9ec70b2_406ea1ce461a71f5ec8a6ca34a8d6673",
+          "pass": false,
+          "score": 0.3,
+          "correct": false,
+          "responseChars": 2684,
+          "missing": 0
+        },
+        {
+          "id": "abd28b507d76944f9ba99803e8ec42a3_29a501f186912b9001d1d1e69bc8885b",
+          "pass": false,
+          "score": 0.02,
+          "correct": false,
+          "responseChars": 2462,
+          "missing": 0
+        },
+        {
+          "id": "61312ded17552fba089b4a01f6b5f285_08f62a8fb0fed84624239492a4a41bc1",
+          "pass": false,
+          "score": 0.02,
+          "correct": false,
+          "responseChars": 2738,
+          "missing": 0
+        },
+        {
+          "id": "45e256c0266cfbb6599087dbe1a9c223_a44b72d3d877c6ec0df9d1313c3e4a87",
+          "pass": true,
+          "score": 0.97,
+          "correct": false,
+          "responseChars": 31371,
+          "missing": 0
+        },
+        {
+          "id": "4718bcdd0a959f97111659684103c452_9dee35d8476032909dde4bb768981188",
+          "pass": false,
+          "score": 0.02,
+          "correct": false,
+          "responseChars": 3598,
+          "missing": 0
+        },
+        {
+          "id": "b13ad07dc41661f7708050b369269080_9006096e8e217b78b007bc7850259ed6",
+          "pass": false,
+          "score": 0.02,
+          "correct": false,
+          "responseChars": 4677,
+          "missing": 0
+        },
+        {
+          "id": "0392540a38af6a74d7dd8473fa0ba1a5_0a68ff276c1d5df9e87726e464ecc216",
+          "pass": true,
+          "score": 0.95,
+          "correct": false,
+          "responseChars": 56382,
+          "missing": 0
+        },
+        {
+          "id": "cb60c0e9bb12bf9828a3f26a779f0aa7_d8f60cd66753e6f4132be6abd6b91c99",
+          "pass": false,
+          "score": 0.02,
+          "correct": false,
+          "responseChars": 2166,
+          "missing": 0
+        },
+        {
+          "id": "ae064b1b098ba8a6fc88da570b97e217_a3e14b9979e1e72f3bfe5e939c03b8bf",
+          "pass": false,
+          "score": 0.02,
+          "correct": true,
+          "responseChars": 4311,
+          "missing": 0
+        },
+        {
+          "id": "b1ab584a7561726b4f51728444debc63_efa1872fe8924489aea4a9287b07fbb7",
+          "pass": false,
+          "score": 0.02,
+          "correct": false,
+          "responseChars": 1955,
+          "missing": 0
+        },
+        {
+          "id": "65d9f97790da392478b47895d92dcf2e_3b4120bcbb62645f6003d0b23cd1b578",
+          "pass": false,
+          "score": 0.12,
+          "correct": false,
+          "responseChars": 4694,
+          "missing": 0
+        },
+        {
+          "id": "8f069b7855423c3fc5313cac20850f1c_afd8e5c91bbfb4bb57b8d4764bd00a70",
+          "pass": false,
+          "score": 0.02,
+          "correct": false,
+          "responseChars": 33155,
+          "missing": 0
+        },
+        {
+          "id": "8e1c94d7d9a559574ae09a7be0a5fbda_b82d6989e850993cc34b985e38f634c9",
+          "pass": false,
+          "score": 0.03,
+          "correct": false,
+          "responseChars": 38393,
+          "missing": 0
+        },
+        {
+          "id": "f5b224f30b6a5d1ca6385823308429b8_2f6839650b046b79b72232ff0ba6dafb",
+          "pass": false,
+          "score": 0.02,
+          "correct": false,
+          "responseChars": 2599,
+          "missing": 0
+        },
+        {
+          "id": "9d3f4f6454f42220d174d0e16452fd3b_4ffcb868b8c9ff711f72fbc222b07b27",
+          "pass": false,
+          "score": 0.02,
+          "correct": false,
+          "responseChars": 4140,
+          "missing": 0
+        },
+        {
+          "id": "fa0cd84fd7ef3d92d399645d5e73e28b_393a8003c0e5b5552040197680f74156",
+          "pass": true,
+          "score": 0.93,
+          "correct": true,
+          "responseChars": 2992,
+          "missing": 0
+        },
+        {
+          "id": "b9bbd50a28dee4bce51b35f6615e9929_b239ce01ae5cc15d73ab875ffd6ca44a",
+          "pass": true,
+          "score": 0.95,
+          "correct": false,
+          "responseChars": 8899,
+          "missing": 0
+        },
+        {
+          "id": "3401fd97837e2e5142064a220ee4c443_e4aae36f193da905d6dca7185fc00d74",
+          "pass": false,
+          "score": 0.01,
+          "correct": false,
+          "responseChars": 2320,
+          "missing": 0
+        },
+        {
+          "id": "51cab744ffa25fb2b8e55462ba95d447_e72cc47f19d3f232740e4627961d79d8",
+          "pass": false,
+          "score": 0.02,
+          "correct": false,
+          "responseChars": 2764,
+          "missing": 0
+        },
+        {
+          "id": "d3375088280729c20950647504fd12ff_2e1f0637a26d5955d194f3a71f9ef000",
+          "pass": true,
+          "score": 0.93,
+          "correct": true,
+          "responseChars": 2990,
+          "missing": 0
+        },
+        {
+          "id": "5c0953ccc0fe13a7c7843f7c30711707_9b0a1f20fe1161ee7e459a347e2de29e",
+          "pass": false,
+          "score": 0.02,
+          "correct": false,
+          "responseChars": 32578,
+          "missing": 0
+        },
+        {
+          "id": "bfb9b703dc545801d8dc5da137b2739d_c5d655d5bb71bef56e18855b07feeae7",
+          "pass": false,
+          "score": 0.02,
+          "correct": false,
+          "responseChars": 4123,
+          "missing": 0
+        },
+        {
+          "id": "06a7b64808e0ff01fe98c4e3d7fd8373_3151468e2bce491c491ab7d6e464989c",
+          "pass": false,
+          "score": 0.02,
+          "correct": false,
+          "responseChars": 2464,
+          "missing": 0
+        },
+        {
+          "id": "12417566ea50ca18172fc263294c5f39_876d5bf34b0ae1cee736c455c7f6ae92",
+          "pass": false,
+          "score": 0.05,
+          "correct": false,
+          "responseChars": 3426,
+          "missing": 0
+        },
+        {
+          "id": "1a5e02f4c2b7cdbe6e6cdf79952ebf6b_d849833243ab3748654b844e6bfed7b8",
+          "pass": true,
+          "score": 0.6,
+          "correct": false,
+          "responseChars": 54691,
+          "missing": 0
+        },
+        {
+          "id": "1bf3b482c219ddab8984703e93118cf5_1fab9b86cd71c03c7bff6099f057820e",
+          "pass": true,
+          "score": 0.65,
+          "correct": false,
+          "responseChars": 15808,
+          "missing": 0
+        },
+        {
+          "id": "baf2a6dfb7a6af74f37ffd4abb3eaf45_a948bf168a7169eb9373a27f5d630870",
+          "pass": true,
+          "score": 0.72,
+          "correct": true,
+          "responseChars": 2610,
+          "missing": 0
+        },
+        {
+          "id": "03927b9bcf620c4ee68271a80692b351_dee2e96b000e11691c6a03d182193ec7",
+          "pass": false,
+          "score": 0.35,
+          "correct": false,
+          "responseChars": 25073,
+          "missing": 0
+        },
+        {
+          "id": "f284e29facabdfeb159e19ff53aa0242_83c1b053434c8f154938fe5559d4f4b8",
+          "pass": false,
+          "score": 0.08,
+          "correct": false,
+          "responseChars": 8297,
+          "missing": 0
+        },
+        {
+          "id": "a3214bdf6f261a6ac7acb7d79bf25df1_592fbad3b6f89c9f50098ea529f56dc1",
+          "pass": false,
+          "score": 0.02,
+          "correct": false,
+          "responseChars": 3740,
+          "missing": 0
+        },
+        {
+          "id": "90ff1112e578b41c75469baf8077d243_d11b1cafc9e9d0bc9b04688ecc9a604e",
+          "pass": true,
+          "score": 0.95,
+          "correct": true,
+          "responseChars": 2519,
+          "missing": 0
+        },
+        {
+          "id": "8e3ed1a096e996f4acacb9bd03fc10d9_ee5653381cba8076c18d1079587930c6",
+          "pass": true,
+          "score": 0.85,
+          "correct": true,
+          "responseChars": 2763,
+          "missing": 0
+        },
+        {
+          "id": "51a34ae09daf62b1743c88a1af5cdec9_5b7ba7dc2af6bb97966f0832cadd8fcb",
+          "pass": false,
+          "score": 0.05,
+          "correct": false,
+          "responseChars": 3598,
+          "missing": 0
+        },
+        {
+          "id": "f80aae6d83ccb375e49ea15bfd8ac5d1_66d1bbb20475c340d647519c9e4f5db8",
+          "pass": false,
+          "score": 0.08,
+          "correct": false,
+          "responseChars": 3322,
+          "missing": 0
+        },
+        {
+          "id": "b173752441e98eff08bc87251c0e70aa_433bf55c2f33df9369463e94b70a07dc",
+          "pass": false,
+          "score": 0.02,
+          "correct": true,
+          "responseChars": 44504,
+          "missing": 0
+        },
+        {
+          "id": "71e2d5758cd41f6229a8d2ee2a48fc3c_9f960a07f7eea3418e2582b40851d4fe",
+          "pass": true,
+          "score": 0.8,
+          "correct": false,
+          "responseChars": 14984,
+          "missing": 0
+        },
+        {
+          "id": "8549f4ef6a78c00928955dbc7c7f1fa7_4c541ce85b883a6d5c42c6edfc8828e7",
+          "pass": true,
+          "score": 0.8,
+          "correct": false,
+          "responseChars": 46169,
+          "missing": 0
+        },
+        {
+          "id": "d0c8badc5397366d9fa703aa3fc09539_f925e2381ebfaa1578d07a646aefde58",
+          "pass": true,
+          "score": 0.9,
+          "correct": true,
+          "responseChars": 2184,
+          "missing": 0
+        },
+        {
+          "id": "b2cce1e0d1c9d642c84c1475cab4dc7f_fbdf7e874d4a8623febf36a884552cc1",
+          "pass": false,
+          "score": 0.05,
+          "correct": false,
+          "responseChars": 34779,
+          "missing": 0
+        },
+        {
+          "id": "ad9e092461cee0aaa0ee713b1bcc5549_05ea9aa23a0312c963c74db80d16130b",
+          "pass": false,
+          "score": 0.05,
+          "correct": false,
+          "responseChars": 32162,
+          "missing": 0
+        },
+        {
+          "id": "93d0a48b6abc7839aa7f72e070868dd2_a5f5f24acd8daf76264d981d4db16c98",
+          "pass": false,
+          "score": 0.2,
+          "correct": false,
+          "responseChars": 3213,
+          "missing": 0
+        },
+        {
+          "id": "d9dff41d573180ecfb4a2a046051907f_be0778a6d01f7806fdb0ed6808d39678",
+          "pass": true,
+          "score": 0.9,
+          "correct": false,
+          "responseChars": 11373,
+          "missing": 0
+        },
+        {
+          "id": "02338a82954f78d15eced8c418b1ae6d_34d95fd1692d195b8e340f03640682d8",
+          "pass": false,
+          "score": 0.3,
+          "correct": false,
+          "responseChars": 4692,
+          "missing": 0
+        },
+        {
+          "id": "99b47ca9950710f76b893bd08a9e4fcb_07af34d411bad329fb6749b5cd80570f",
+          "pass": false,
+          "score": 0.05,
+          "correct": false,
+          "responseChars": 27577,
+          "missing": 0
+        },
+        {
+          "id": "94952c1218b51c4c88fdadb9b517e95d_b661ef47df07a4d6e291b16c25abdaaa",
+          "pass": true,
+          "score": 0.93,
+          "correct": true,
+          "responseChars": 2101,
+          "missing": 0
+        },
+        {
+          "id": "0f8f62a6885496b268128d754c7a338b_cd0cc2aea00a8d96fbe3b8e21f02d9f7",
+          "pass": true,
+          "score": 0.93,
+          "correct": false,
+          "responseChars": 6508,
+          "missing": 0
+        },
+        {
+          "id": "5a0820f68025b9d6ef3d3062af88c17a_2780135e37ae181dd8a83828a4c4512e",
+          "pass": false,
+          "score": 0.02,
+          "correct": false,
+          "responseChars": 2829,
+          "missing": 0
+        },
+        {
+          "id": "2e7f5b41a327fb39c97b9d5b06788f6b_194ce3fb21f0fb17e9c38159b1074591",
+          "pass": false,
+          "score": 0.03,
+          "correct": false,
+          "responseChars": 30998,
+          "missing": 0
+        }
+      ]
+    },
+    {
+      "contestant": "deepeval",
+      "source": "DeepEval 4598fe8: ArenaGEval (pairs) and GEval (single responses)",
+      "mode": "pointwise",
+      "summary": {
+        "metric": "accuracy (LongJudgeBench verify, binary)",
+        "value": {
+          "estimate": 0.5416666666666666,
+          "lower": 0.4273986728598905,
+          "upper": 0.651713729423738
+        },
+        "n": 72,
+        "balancedAccuracy": 0.5385964912280702,
+        "byGroup": {
+          "incorrect": {
+            "n": 57,
+            "value": 0.543859649122807
+          },
+          "correct": {
+            "n": 15,
+            "value": 0.5333333333333333
+          }
+        },
+        "missing": 0
+      },
+      "costUsd": 0.1378013,
+      "calls": 73,
+      "decisions": [
+        {
+          "id": "c8a3e6885808a25736dc974fcdf0b7e6_200630279e6321e06517a1e4736f816b",
+          "pass": false,
+          "score": 0,
+          "correct": false,
+          "responseChars": 4181,
+          "missing": 0
+        },
+        {
+          "id": "59be6e316c501c3c6f67c265ed7f469d_523d0604a8d9e02a61b7801e7cbe7911",
+          "pass": false,
+          "score": 0.4,
+          "correct": false,
+          "responseChars": 1946,
+          "missing": 0
+        },
+        {
+          "id": "6f2500baaab5dcd81bcfe5416249fce2_c03a2a2005994f41e018a041dafcf875",
+          "pass": false,
+          "score": 0.2,
+          "correct": false,
+          "responseChars": 8545,
+          "missing": 0
+        },
+        {
+          "id": "c9e95eb9b2dea93392edf99df248ef2e_8a06a3c9b84a9bf0744b4da79322ecd6",
+          "pass": true,
+          "score": 0.9,
+          "correct": false,
+          "responseChars": 13469,
+          "missing": 0
+        },
+        {
+          "id": "f48078b907465263df59e6cc261362e4_99fb5ec0153c30b2fe8ebb5a8cf10442",
+          "correct": false,
+          "responseChars": 3771,
+          "missing": 0
+        },
+        {
+          "id": "b463c91447475d675187efc7b7162c58_8cb2aa86a94d146813e12b58511acd99",
+          "correct": false,
+          "responseChars": 2398,
+          "missing": 0
+        },
+        {
+          "id": "e6c10b18f207583b72061ec57c1bbfca_a9b16b33657d2c39d4525c7592f8d3ea",
+          "pass": true,
+          "score": 0.8,
+          "correct": true,
+          "responseChars": 3217,
+          "missing": 0
+        },
+        {
+          "id": "f04d825c0f64ebab8f3900a7a2bd534e_aa682a019e40b7cfdd7d868eaf9f517a",
+          "pass": true,
+          "score": 0.7,
+          "correct": true,
+          "responseChars": 3150,
+          "missing": 0
+        },
+        {
+          "id": "615a0ba58690546856c0a873654c319c_30de5467c2e79b2000c569f8f4c05711",
+          "pass": false,
+          "score": 0.1,
+          "correct": false,
+          "responseChars": 3729,
+          "missing": 0
+        },
+        {
+          "id": "5399c58c3fe0c1714b4df513c5855f0f_252c188d4e3840900940a84561d16217",
+          "pass": false,
+          "score": 0.1,
+          "correct": false,
+          "responseChars": 1987,
+          "missing": 0
+        },
+        {
+          "id": "f68daac3a80dd3471e87677957a0bd74_e2584ff11780a2a9b044c5418f2be9c2",
+          "pass": false,
+          "score": 0.1,
+          "correct": false,
+          "responseChars": 2917,
+          "missing": 0
+        },
+        {
+          "id": "6061ecc894252effcbe9e5e3b4a57d7e_230882131a786700068536a11110c8bf",
+          "correct": false,
+          "responseChars": 10867,
+          "missing": 0
+        },
+        {
+          "id": "4b0b45efd75092f40124ceed7d3c4eae_99e86af7892b71cb13000162d1db91d6",
+          "pass": false,
+          "score": 0.2,
+          "correct": false,
+          "responseChars": 2282,
+          "missing": 0
+        },
+        {
+          "id": "9d43756ed5b99d1fb8c26187d4335ba8_fc279fe414a1d5d313cb366723ccdc81",
+          "pass": true,
+          "score": 0.9,
+          "correct": false,
+          "responseChars": 13052,
+          "missing": 0
+        },
+        {
+          "id": "c495006247d953ad1dcf39487417691c_9eda42d0f826b75cc80a9d6d9ee362c1",
+          "pass": true,
+          "score": 0.9,
+          "correct": true,
+          "responseChars": 11083,
+          "missing": 0
+        },
+        {
+          "id": "66f0ee34eb38fd4fa4bb06f056c0c359_0c2200e91f324ea5a912da84f9090638",
+          "pass": false,
+          "score": 0.3,
+          "correct": true,
+          "responseChars": 4356,
+          "missing": 0
+        },
+        {
+          "id": "025bb66cf7a25c1dd3f701a2a9e477c3_86939819f8b0733f73bb0a92d2215cf2",
+          "pass": false,
+          "score": 0.3,
+          "correct": false,
+          "responseChars": 28346,
+          "missing": 0
+        },
+        {
+          "id": "9985f48a923d8996047df22dc8311a6d_71f036e1fcb9f1f665be60c7508a5f5f",
+          "pass": true,
+          "score": 1,
+          "correct": true,
+          "responseChars": 9128,
+          "missing": 0
+        },
+        {
+          "id": "a0dcfb04617db2dca4ef11dbc56606f4_cbae2d7d0c224ee59b6c586524d32fef",
+          "pass": false,
+          "score": 0,
+          "correct": false,
+          "responseChars": 2379,
+          "missing": 0
+        },
+        {
+          "id": "d04086bb88417aeef28181ce6a4bb1c2_32f465d7d719f4836b825c54b8480804",
+          "pass": false,
+          "score": 0.1,
+          "correct": false,
+          "responseChars": 4384,
+          "missing": 0
+        },
+        {
+          "id": "5b848dd4cc4edd02fbfa53b336da0d29_12fe3f633de354b5dc426eaf77469921",
+          "correct": false,
+          "responseChars": 2255,
+          "missing": 0
+        },
+        {
+          "id": "745927e1a3422e7fd2cc18cb0a7e4d24_f20d3e0f0b887786d284d7f4344572d3",
+          "correct": true,
+          "responseChars": 5518,
+          "missing": 0
+        },
+        {
+          "id": "af2be5176b42b614654d5edc677ad8fa_88c3f2ae1e921c411fcc75e50bbcef2e",
+          "pass": true,
+          "score": 0.9,
+          "correct": false,
+          "responseChars": 7090,
+          "missing": 0
+        },
+        {
+          "id": "f87ce30d7dc54a92d2fd7a308e0f22cb_1c94d0a846cdd893dcaa5fc6ce2ec81a",
+          "pass": true,
+          "score": 1,
+          "correct": false,
+          "responseChars": 11649,
+          "missing": 0
+        },
+        {
+          "id": "09da6922b3644d663d219fa5c9ec70b2_406ea1ce461a71f5ec8a6ca34a8d6673",
+          "pass": true,
+          "score": 1,
+          "correct": false,
+          "responseChars": 2684,
+          "missing": 0
+        },
+        {
+          "id": "abd28b507d76944f9ba99803e8ec42a3_29a501f186912b9001d1d1e69bc8885b",
+          "correct": false,
+          "responseChars": 2462,
+          "missing": 0
+        },
+        {
+          "id": "61312ded17552fba089b4a01f6b5f285_08f62a8fb0fed84624239492a4a41bc1",
+          "pass": false,
+          "score": 0,
+          "correct": false,
+          "responseChars": 2738,
+          "missing": 0
+        },
+        {
+          "id": "45e256c0266cfbb6599087dbe1a9c223_a44b72d3d877c6ec0df9d1313c3e4a87",
+          "pass": true,
+          "score": 1,
+          "correct": false,
+          "responseChars": 31371,
+          "missing": 0
+        },
+        {
+          "id": "4718bcdd0a959f97111659684103c452_9dee35d8476032909dde4bb768981188",
+          "pass": false,
+          "score": 0.1,
+          "correct": false,
+          "responseChars": 3598,
+          "missing": 0
+        },
+        {
+          "id": "b13ad07dc41661f7708050b369269080_9006096e8e217b78b007bc7850259ed6",
+          "pass": false,
+          "score": 0.1,
+          "correct": false,
+          "responseChars": 4677,
+          "missing": 0
+        },
+        {
+          "id": "0392540a38af6a74d7dd8473fa0ba1a5_0a68ff276c1d5df9e87726e464ecc216",
+          "pass": false,
+          "score": 0,
+          "correct": false,
+          "responseChars": 56382,
+          "missing": 0
+        },
+        {
+          "id": "cb60c0e9bb12bf9828a3f26a779f0aa7_d8f60cd66753e6f4132be6abd6b91c99",
+          "correct": false,
+          "responseChars": 2166,
+          "missing": 0
+        },
+        {
+          "id": "ae064b1b098ba8a6fc88da570b97e217_a3e14b9979e1e72f3bfe5e939c03b8bf",
+          "pass": false,
+          "score": 0.1,
+          "correct": true,
+          "responseChars": 4311,
+          "missing": 0
+        },
+        {
+          "id": "b1ab584a7561726b4f51728444debc63_efa1872fe8924489aea4a9287b07fbb7",
+          "pass": false,
+          "score": 0,
+          "correct": false,
+          "responseChars": 1955,
+          "missing": 0
+        },
+        {
+          "id": "65d9f97790da392478b47895d92dcf2e_3b4120bcbb62645f6003d0b23cd1b578",
+          "pass": false,
+          "score": 0.2,
+          "correct": false,
+          "responseChars": 4694,
+          "missing": 0
+        },
+        {
+          "id": "8f069b7855423c3fc5313cac20850f1c_afd8e5c91bbfb4bb57b8d4764bd00a70",
+          "correct": false,
+          "responseChars": 33155,
+          "missing": 0
+        },
+        {
+          "id": "8e1c94d7d9a559574ae09a7be0a5fbda_b82d6989e850993cc34b985e38f634c9",
+          "pass": false,
+          "score": 0,
+          "correct": false,
+          "responseChars": 38393,
+          "missing": 0
+        },
+        {
+          "id": "f5b224f30b6a5d1ca6385823308429b8_2f6839650b046b79b72232ff0ba6dafb",
+          "pass": false,
+          "score": 0.1,
+          "correct": false,
+          "responseChars": 2599,
+          "missing": 0
+        },
+        {
+          "id": "9d3f4f6454f42220d174d0e16452fd3b_4ffcb868b8c9ff711f72fbc222b07b27",
+          "correct": false,
+          "responseChars": 4140,
+          "missing": 0
+        },
+        {
+          "id": "fa0cd84fd7ef3d92d399645d5e73e28b_393a8003c0e5b5552040197680f74156",
+          "correct": true,
+          "responseChars": 2992,
+          "missing": 0
+        },
+        {
+          "id": "b9bbd50a28dee4bce51b35f6615e9929_b239ce01ae5cc15d73ab875ffd6ca44a",
+          "pass": true,
+          "score": 1,
+          "correct": false,
+          "responseChars": 8899,
+          "missing": 0
+        },
+        {
+          "id": "3401fd97837e2e5142064a220ee4c443_e4aae36f193da905d6dca7185fc00d74",
+          "pass": false,
+          "score": 0,
+          "correct": false,
+          "responseChars": 2320,
+          "missing": 0
+        },
+        {
+          "id": "51cab744ffa25fb2b8e55462ba95d447_e72cc47f19d3f232740e4627961d79d8",
+          "pass": false,
+          "score": 0,
+          "correct": false,
+          "responseChars": 2764,
+          "missing": 0
+        },
+        {
+          "id": "d3375088280729c20950647504fd12ff_2e1f0637a26d5955d194f3a71f9ef000",
+          "pass": false,
+          "score": 0.3,
+          "correct": true,
+          "responseChars": 2990,
+          "missing": 0
+        },
+        {
+          "id": "5c0953ccc0fe13a7c7843f7c30711707_9b0a1f20fe1161ee7e459a347e2de29e",
+          "pass": true,
+          "score": 1,
+          "correct": false,
+          "responseChars": 32578,
+          "missing": 0
+        },
+        {
+          "id": "bfb9b703dc545801d8dc5da137b2739d_c5d655d5bb71bef56e18855b07feeae7",
+          "pass": false,
+          "score": 0,
+          "correct": false,
+          "responseChars": 4123,
+          "missing": 0
+        },
+        {
+          "id": "06a7b64808e0ff01fe98c4e3d7fd8373_3151468e2bce491c491ab7d6e464989c",
+          "pass": false,
+          "score": 0,
+          "correct": false,
+          "responseChars": 2464,
+          "missing": 0
+        },
+        {
+          "id": "12417566ea50ca18172fc263294c5f39_876d5bf34b0ae1cee736c455c7f6ae92",
+          "correct": false,
+          "responseChars": 3426,
+          "missing": 0
+        },
+        {
+          "id": "1a5e02f4c2b7cdbe6e6cdf79952ebf6b_d849833243ab3748654b844e6bfed7b8",
+          "pass": true,
+          "score": 0.6,
+          "correct": false,
+          "responseChars": 54691,
+          "missing": 0
+        },
+        {
+          "id": "1bf3b482c219ddab8984703e93118cf5_1fab9b86cd71c03c7bff6099f057820e",
+          "correct": false,
+          "responseChars": 15808,
+          "missing": 0
+        },
+        {
+          "id": "baf2a6dfb7a6af74f37ffd4abb3eaf45_a948bf168a7169eb9373a27f5d630870",
+          "pass": true,
+          "score": 0.6,
+          "correct": true,
+          "responseChars": 2610,
+          "missing": 0
+        },
+        {
+          "id": "03927b9bcf620c4ee68271a80692b351_dee2e96b000e11691c6a03d182193ec7",
+          "pass": false,
+          "score": 0.1,
+          "correct": false,
+          "responseChars": 25073,
+          "missing": 0
+        },
+        {
+          "id": "f284e29facabdfeb159e19ff53aa0242_83c1b053434c8f154938fe5559d4f4b8",
+          "pass": false,
+          "score": 0.2,
+          "correct": false,
+          "responseChars": 8297,
+          "missing": 0
+        },
+        {
+          "id": "a3214bdf6f261a6ac7acb7d79bf25df1_592fbad3b6f89c9f50098ea529f56dc1",
+          "correct": false,
+          "responseChars": 3740,
+          "missing": 0
+        },
+        {
+          "id": "90ff1112e578b41c75469baf8077d243_d11b1cafc9e9d0bc9b04688ecc9a604e",
+          "pass": true,
+          "score": 0.9,
+          "correct": true,
+          "responseChars": 2519,
+          "missing": 0
+        },
+        {
+          "id": "8e3ed1a096e996f4acacb9bd03fc10d9_ee5653381cba8076c18d1079587930c6",
+          "pass": true,
+          "score": 0.9,
+          "correct": true,
+          "responseChars": 2763,
+          "missing": 0
+        },
+        {
+          "id": "51a34ae09daf62b1743c88a1af5cdec9_5b7ba7dc2af6bb97966f0832cadd8fcb",
+          "pass": false,
+          "score": 0.1,
+          "correct": false,
+          "responseChars": 3598,
+          "missing": 0
+        },
+        {
+          "id": "f80aae6d83ccb375e49ea15bfd8ac5d1_66d1bbb20475c340d647519c9e4f5db8",
+          "pass": false,
+          "score": 0.2,
+          "correct": false,
+          "responseChars": 3322,
+          "missing": 0
+        },
+        {
+          "id": "b173752441e98eff08bc87251c0e70aa_433bf55c2f33df9369463e94b70a07dc",
+          "pass": false,
+          "score": 0.1,
+          "correct": true,
+          "responseChars": 44504,
+          "missing": 0
+        },
+        {
+          "id": "71e2d5758cd41f6229a8d2ee2a48fc3c_9f960a07f7eea3418e2582b40851d4fe",
+          "pass": true,
+          "score": 0.7,
+          "correct": false,
+          "responseChars": 14984,
+          "missing": 0
+        },
+        {
+          "id": "8549f4ef6a78c00928955dbc7c7f1fa7_4c541ce85b883a6d5c42c6edfc8828e7",
+          "pass": true,
+          "score": 0.9,
+          "correct": false,
+          "responseChars": 46169,
+          "missing": 0
+        },
+        {
+          "id": "d0c8badc5397366d9fa703aa3fc09539_f925e2381ebfaa1578d07a646aefde58",
+          "pass": true,
+          "score": 1,
+          "correct": true,
+          "responseChars": 2184,
+          "missing": 0
+        },
+        {
+          "id": "b2cce1e0d1c9d642c84c1475cab4dc7f_fbdf7e874d4a8623febf36a884552cc1",
+          "pass": false,
+          "score": 0,
+          "correct": false,
+          "responseChars": 34779,
+          "missing": 0
+        },
+        {
+          "id": "ad9e092461cee0aaa0ee713b1bcc5549_05ea9aa23a0312c963c74db80d16130b",
+          "pass": false,
+          "score": 0.2,
+          "correct": false,
+          "responseChars": 32162,
+          "missing": 0
+        },
+        {
+          "id": "93d0a48b6abc7839aa7f72e070868dd2_a5f5f24acd8daf76264d981d4db16c98",
+          "correct": false,
+          "responseChars": 3213,
+          "missing": 0
+        },
+        {
+          "id": "d9dff41d573180ecfb4a2a046051907f_be0778a6d01f7806fdb0ed6808d39678",
+          "correct": false,
+          "responseChars": 11373,
+          "missing": 0
+        },
+        {
+          "id": "02338a82954f78d15eced8c418b1ae6d_34d95fd1692d195b8e340f03640682d8",
+          "pass": false,
+          "score": 0.2,
+          "correct": false,
+          "responseChars": 4692,
+          "missing": 0
+        },
+        {
+          "id": "99b47ca9950710f76b893bd08a9e4fcb_07af34d411bad329fb6749b5cd80570f",
+          "pass": false,
+          "score": 0.1,
+          "correct": false,
+          "responseChars": 27577,
+          "missing": 0
+        },
+        {
+          "id": "94952c1218b51c4c88fdadb9b517e95d_b661ef47df07a4d6e291b16c25abdaaa",
+          "correct": true,
+          "responseChars": 2101,
+          "missing": 0
+        },
+        {
+          "id": "0f8f62a6885496b268128d754c7a338b_cd0cc2aea00a8d96fbe3b8e21f02d9f7",
+          "pass": true,
+          "score": 0.9,
+          "correct": false,
+          "responseChars": 6508,
+          "missing": 0
+        },
+        {
+          "id": "5a0820f68025b9d6ef3d3062af88c17a_2780135e37ae181dd8a83828a4c4512e",
+          "correct": false,
+          "responseChars": 2829,
+          "missing": 0
+        },
+        {
+          "id": "2e7f5b41a327fb39c97b9d5b06788f6b_194ce3fb21f0fb17e9c38159b1074591",
+          "pass": false,
+          "score": 0.1,
+          "correct": false,
+          "responseChars": 30998,
+          "missing": 0
+        }
+      ]
+    },
+    {
+      "contestant": "promptfoo",
+      "source": "promptfoo 8014282: select-best (pairs) and llm-rubric (single responses)",
+      "mode": "pointwise",
+      "summary": {
+        "metric": "accuracy (LongJudgeBench verify, binary)",
+        "value": {
+          "estimate": 0.7777777777777778,
+          "lower": 0.6690904506199482,
+          "upper": 0.858325564604242
+        },
+        "n": 72,
+        "balancedAccuracy": 0.7859649122807018,
+        "byGroup": {
+          "incorrect": {
+            "n": 57,
+            "value": 0.7719298245614035
+          },
+          "correct": {
+            "n": 15,
+            "value": 0.8
+          }
+        },
+        "missing": 0
+      },
+      "costUsd": 0.13982890000000006,
+      "calls": 72,
+      "decisions": [
+        {
+          "id": "c8a3e6885808a25736dc974fcdf0b7e6_200630279e6321e06517a1e4736f816b",
+          "pass": false,
+          "score": 0,
+          "correct": false,
+          "responseChars": 4181,
+          "missing": 0
+        },
+        {
+          "id": "59be6e316c501c3c6f67c265ed7f469d_523d0604a8d9e02a61b7801e7cbe7911",
+          "pass": true,
+          "score": 0.7,
+          "correct": false,
+          "responseChars": 1946,
+          "missing": 0
+        },
+        {
+          "id": "6f2500baaab5dcd81bcfe5416249fce2_c03a2a2005994f41e018a041dafcf875",
+          "pass": false,
+          "score": 0,
+          "correct": false,
+          "responseChars": 8545,
+          "missing": 0
+        },
+        {
+          "id": "c9e95eb9b2dea93392edf99df248ef2e_8a06a3c9b84a9bf0744b4da79322ecd6",
+          "pass": true,
+          "score": 1,
+          "correct": false,
+          "responseChars": 13469,
+          "missing": 0
+        },
+        {
+          "id": "f48078b907465263df59e6cc261362e4_99fb5ec0153c30b2fe8ebb5a8cf10442",
+          "pass": false,
+          "score": 0,
+          "correct": false,
+          "responseChars": 3771,
+          "missing": 0
+        },
+        {
+          "id": "b463c91447475d675187efc7b7162c58_8cb2aa86a94d146813e12b58511acd99",
+          "pass": false,
+          "score": 0,
+          "correct": false,
+          "responseChars": 2398,
+          "missing": 0
+        },
+        {
+          "id": "e6c10b18f207583b72061ec57c1bbfca_a9b16b33657d2c39d4525c7592f8d3ea",
+          "pass": true,
+          "score": 0.8,
+          "correct": true,
+          "responseChars": 3217,
+          "missing": 0
+        },
+        {
+          "id": "f04d825c0f64ebab8f3900a7a2bd534e_aa682a019e40b7cfdd7d868eaf9f517a",
+          "pass": true,
+          "score": 0.8,
+          "correct": true,
+          "responseChars": 3150,
+          "missing": 0
+        },
+        {
+          "id": "615a0ba58690546856c0a873654c319c_30de5467c2e79b2000c569f8f4c05711",
+          "pass": false,
+          "score": 0,
+          "correct": false,
+          "responseChars": 3729,
+          "missing": 0
+        },
+        {
+          "id": "5399c58c3fe0c1714b4df513c5855f0f_252c188d4e3840900940a84561d16217",
+          "pass": false,
+          "score": 0,
+          "correct": false,
+          "responseChars": 1987,
+          "missing": 0
+        },
+        {
+          "id": "f68daac3a80dd3471e87677957a0bd74_e2584ff11780a2a9b044c5418f2be9c2",
+          "pass": false,
+          "score": 0,
+          "correct": false,
+          "responseChars": 2917,
+          "missing": 0
+        },
+        {
+          "id": "6061ecc894252effcbe9e5e3b4a57d7e_230882131a786700068536a11110c8bf",
+          "pass": true,
+          "score": 1,
+          "correct": false,
+          "responseChars": 10867,
+          "missing": 0
+        },
+        {
+          "id": "4b0b45efd75092f40124ceed7d3c4eae_99e86af7892b71cb13000162d1db91d6",
+          "pass": false,
+          "score": 0,
+          "correct": false,
+          "responseChars": 2282,
+          "missing": 0
+        },
+        {
+          "id": "9d43756ed5b99d1fb8c26187d4335ba8_fc279fe414a1d5d313cb366723ccdc81",
+          "pass": true,
+          "score": 1,
+          "correct": false,
+          "responseChars": 13052,
+          "missing": 0
+        },
+        {
+          "id": "c495006247d953ad1dcf39487417691c_9eda42d0f826b75cc80a9d6d9ee362c1",
+          "pass": true,
+          "score": 1,
+          "correct": true,
+          "responseChars": 11083,
+          "missing": 0
+        },
+        {
+          "id": "66f0ee34eb38fd4fa4bb06f056c0c359_0c2200e91f324ea5a912da84f9090638",
+          "pass": false,
+          "score": 0.1,
+          "correct": true,
+          "responseChars": 4356,
+          "missing": 0
+        },
+        {
+          "id": "025bb66cf7a25c1dd3f701a2a9e477c3_86939819f8b0733f73bb0a92d2215cf2",
+          "pass": false,
+          "score": 0.2,
+          "correct": false,
+          "responseChars": 28346,
+          "missing": 0
+        },
+        {
+          "id": "9985f48a923d8996047df22dc8311a6d_71f036e1fcb9f1f665be60c7508a5f5f",
+          "pass": true,
+          "score": 1,
+          "correct": true,
+          "responseChars": 9128,
+          "missing": 0
+        },
+        {
+          "id": "a0dcfb04617db2dca4ef11dbc56606f4_cbae2d7d0c224ee59b6c586524d32fef",
+          "pass": false,
+          "score": 0,
+          "correct": false,
+          "responseChars": 2379,
+          "missing": 0
+        },
+        {
+          "id": "d04086bb88417aeef28181ce6a4bb1c2_32f465d7d719f4836b825c54b8480804",
+          "pass": false,
+          "score": 0,
+          "correct": false,
+          "responseChars": 4384,
+          "missing": 0
+        },
+        {
+          "id": "5b848dd4cc4edd02fbfa53b336da0d29_12fe3f633de354b5dc426eaf77469921",
+          "pass": false,
+          "score": 0,
+          "correct": false,
+          "responseChars": 2255,
+          "missing": 0
+        },
+        {
+          "id": "745927e1a3422e7fd2cc18cb0a7e4d24_f20d3e0f0b887786d284d7f4344572d3",
+          "pass": true,
+          "score": 0.8,
+          "correct": true,
+          "responseChars": 5518,
+          "missing": 0
+        },
+        {
+          "id": "af2be5176b42b614654d5edc677ad8fa_88c3f2ae1e921c411fcc75e50bbcef2e",
+          "pass": true,
+          "score": 1,
+          "correct": false,
+          "responseChars": 7090,
+          "missing": 0
+        },
+        {
+          "id": "f87ce30d7dc54a92d2fd7a308e0f22cb_1c94d0a846cdd893dcaa5fc6ce2ec81a",
+          "pass": true,
+          "score": 1,
+          "correct": false,
+          "responseChars": 11649,
+          "missing": 0
+        },
+        {
+          "id": "09da6922b3644d663d219fa5c9ec70b2_406ea1ce461a71f5ec8a6ca34a8d6673",
+          "pass": false,
+          "score": 0.3,
+          "correct": false,
+          "responseChars": 2684,
+          "missing": 0
+        },
+        {
+          "id": "abd28b507d76944f9ba99803e8ec42a3_29a501f186912b9001d1d1e69bc8885b",
+          "pass": false,
+          "score": 0,
+          "correct": false,
+          "responseChars": 2462,
+          "missing": 0
+        },
+        {
+          "id": "61312ded17552fba089b4a01f6b5f285_08f62a8fb0fed84624239492a4a41bc1",
+          "pass": false,
+          "score": 0,
+          "correct": false,
+          "responseChars": 2738,
+          "missing": 0
+        },
+        {
+          "id": "45e256c0266cfbb6599087dbe1a9c223_a44b72d3d877c6ec0df9d1313c3e4a87",
+          "pass": true,
+          "score": 1,
+          "correct": false,
+          "responseChars": 31371,
+          "missing": 0
+        },
+        {
+          "id": "4718bcdd0a959f97111659684103c452_9dee35d8476032909dde4bb768981188",
+          "pass": false,
+          "score": 0,
+          "correct": false,
+          "responseChars": 3598,
+          "missing": 0
+        },
+        {
+          "id": "b13ad07dc41661f7708050b369269080_9006096e8e217b78b007bc7850259ed6",
+          "pass": false,
+          "score": 0,
+          "correct": false,
+          "responseChars": 4677,
+          "missing": 0
+        },
+        {
+          "id": "0392540a38af6a74d7dd8473fa0ba1a5_0a68ff276c1d5df9e87726e464ecc216",
+          "pass": false,
+          "score": 0,
+          "correct": false,
+          "responseChars": 56382,
+          "missing": 0
+        },
+        {
+          "id": "cb60c0e9bb12bf9828a3f26a779f0aa7_d8f60cd66753e6f4132be6abd6b91c99",
+          "pass": false,
+          "score": 0,
+          "correct": false,
+          "responseChars": 2166,
+          "missing": 0
+        },
+        {
+          "id": "ae064b1b098ba8a6fc88da570b97e217_a3e14b9979e1e72f3bfe5e939c03b8bf",
+          "pass": false,
+          "score": 0,
+          "correct": true,
+          "responseChars": 4311,
+          "missing": 0
+        },
+        {
+          "id": "b1ab584a7561726b4f51728444debc63_efa1872fe8924489aea4a9287b07fbb7",
+          "pass": false,
+          "score": 0,
+          "correct": false,
+          "responseChars": 1955,
+          "missing": 0
+        },
+        {
+          "id": "65d9f97790da392478b47895d92dcf2e_3b4120bcbb62645f6003d0b23cd1b578",
+          "pass": false,
+          "score": 0,
+          "correct": false,
+          "responseChars": 4694,
+          "missing": 0
+        },
+        {
+          "id": "8f069b7855423c3fc5313cac20850f1c_afd8e5c91bbfb4bb57b8d4764bd00a70",
+          "pass": false,
+          "score": 0,
+          "correct": false,
+          "responseChars": 33155,
+          "missing": 0
+        },
+        {
+          "id": "8e1c94d7d9a559574ae09a7be0a5fbda_b82d6989e850993cc34b985e38f634c9",
+          "pass": false,
+          "score": 0,
+          "correct": false,
+          "responseChars": 38393,
+          "missing": 0
+        },
+        {
+          "id": "f5b224f30b6a5d1ca6385823308429b8_2f6839650b046b79b72232ff0ba6dafb",
+          "pass": false,
+          "score": 0,
+          "correct": false,
+          "responseChars": 2599,
+          "missing": 0
+        },
+        {
+          "id": "9d3f4f6454f42220d174d0e16452fd3b_4ffcb868b8c9ff711f72fbc222b07b27",
+          "pass": false,
+          "score": 0,
+          "correct": false,
+          "responseChars": 4140,
+          "missing": 0
+        },
+        {
+          "id": "fa0cd84fd7ef3d92d399645d5e73e28b_393a8003c0e5b5552040197680f74156",
+          "pass": true,
+          "score": 0.9,
+          "correct": true,
+          "responseChars": 2992,
+          "missing": 0
+        },
+        {
+          "id": "b9bbd50a28dee4bce51b35f6615e9929_b239ce01ae5cc15d73ab875ffd6ca44a",
+          "pass": true,
+          "score": 1,
+          "correct": false,
+          "responseChars": 8899,
+          "missing": 0
+        },
+        {
+          "id": "3401fd97837e2e5142064a220ee4c443_e4aae36f193da905d6dca7185fc00d74",
+          "pass": false,
+          "score": 0,
+          "correct": false,
+          "responseChars": 2320,
+          "missing": 0
+        },
+        {
+          "id": "51cab744ffa25fb2b8e55462ba95d447_e72cc47f19d3f232740e4627961d79d8",
+          "pass": false,
+          "score": 0,
+          "correct": false,
+          "responseChars": 2764,
+          "missing": 0
+        },
+        {
+          "id": "d3375088280729c20950647504fd12ff_2e1f0637a26d5955d194f3a71f9ef000",
+          "pass": true,
+          "score": 0.8,
+          "correct": true,
+          "responseChars": 2990,
+          "missing": 0
+        },
+        {
+          "id": "5c0953ccc0fe13a7c7843f7c30711707_9b0a1f20fe1161ee7e459a347e2de29e",
+          "pass": true,
+          "score": 1,
+          "correct": false,
+          "responseChars": 32578,
+          "missing": 0
+        },
+        {
+          "id": "bfb9b703dc545801d8dc5da137b2739d_c5d655d5bb71bef56e18855b07feeae7",
+          "pass": false,
+          "score": 0,
+          "correct": false,
+          "responseChars": 4123,
+          "missing": 0
+        },
+        {
+          "id": "06a7b64808e0ff01fe98c4e3d7fd8373_3151468e2bce491c491ab7d6e464989c",
+          "pass": false,
+          "score": 0,
+          "correct": false,
+          "responseChars": 2464,
+          "missing": 0
+        },
+        {
+          "id": "12417566ea50ca18172fc263294c5f39_876d5bf34b0ae1cee736c455c7f6ae92",
+          "pass": true,
+          "score": 0.7,
+          "correct": false,
+          "responseChars": 3426,
+          "missing": 0
+        },
+        {
+          "id": "1a5e02f4c2b7cdbe6e6cdf79952ebf6b_d849833243ab3748654b844e6bfed7b8",
+          "pass": false,
+          "score": 0,
+          "correct": false,
+          "responseChars": 54691,
+          "missing": 0
+        },
+        {
+          "id": "1bf3b482c219ddab8984703e93118cf5_1fab9b86cd71c03c7bff6099f057820e",
+          "pass": false,
+          "score": 0.2,
+          "correct": false,
+          "responseChars": 15808,
+          "missing": 0
+        },
+        {
+          "id": "baf2a6dfb7a6af74f37ffd4abb3eaf45_a948bf168a7169eb9373a27f5d630870",
+          "pass": true,
+          "score": 0.7,
+          "correct": true,
+          "responseChars": 2610,
+          "missing": 0
+        },
+        {
+          "id": "03927b9bcf620c4ee68271a80692b351_dee2e96b000e11691c6a03d182193ec7",
+          "pass": false,
+          "score": 0,
+          "correct": false,
+          "responseChars": 25073,
+          "missing": 0
+        },
+        {
+          "id": "f284e29facabdfeb159e19ff53aa0242_83c1b053434c8f154938fe5559d4f4b8",
+          "pass": false,
+          "score": 0,
+          "correct": false,
+          "responseChars": 8297,
+          "missing": 0
+        },
+        {
+          "id": "a3214bdf6f261a6ac7acb7d79bf25df1_592fbad3b6f89c9f50098ea529f56dc1",
+          "pass": false,
+          "score": 0,
+          "correct": false,
+          "responseChars": 3740,
+          "missing": 0
+        },
+        {
+          "id": "90ff1112e578b41c75469baf8077d243_d11b1cafc9e9d0bc9b04688ecc9a604e",
+          "pass": true,
+          "score": 0.7,
+          "correct": true,
+          "responseChars": 2519,
+          "missing": 0
+        },
+        {
+          "id": "8e3ed1a096e996f4acacb9bd03fc10d9_ee5653381cba8076c18d1079587930c6",
+          "pass": true,
+          "score": 1,
+          "correct": true,
+          "responseChars": 2763,
+          "missing": 0
+        },
+        {
+          "id": "51a34ae09daf62b1743c88a1af5cdec9_5b7ba7dc2af6bb97966f0832cadd8fcb",
+          "pass": false,
+          "score": 0,
+          "correct": false,
+          "responseChars": 3598,
+          "missing": 0
+        },
+        {
+          "id": "f80aae6d83ccb375e49ea15bfd8ac5d1_66d1bbb20475c340d647519c9e4f5db8",
+          "pass": false,
+          "score": 0.1,
+          "correct": false,
+          "responseChars": 3322,
+          "missing": 0
+        },
+        {
+          "id": "b173752441e98eff08bc87251c0e70aa_433bf55c2f33df9369463e94b70a07dc",
+          "pass": false,
+          "score": 0,
+          "correct": true,
+          "responseChars": 44504,
+          "missing": 0
+        },
+        {
+          "id": "71e2d5758cd41f6229a8d2ee2a48fc3c_9f960a07f7eea3418e2582b40851d4fe",
+          "pass": true,
+          "score": 0.7,
+          "correct": false,
+          "responseChars": 14984,
+          "missing": 0
+        },
+        {
+          "id": "8549f4ef6a78c00928955dbc7c7f1fa7_4c541ce85b883a6d5c42c6edfc8828e7",
+          "pass": true,
+          "score": 0.8,
+          "correct": false,
+          "responseChars": 46169,
+          "missing": 0
+        },
+        {
+          "id": "d0c8badc5397366d9fa703aa3fc09539_f925e2381ebfaa1578d07a646aefde58",
+          "pass": true,
+          "score": 1,
+          "correct": true,
+          "responseChars": 2184,
+          "missing": 0
+        },
+        {
+          "id": "b2cce1e0d1c9d642c84c1475cab4dc7f_fbdf7e874d4a8623febf36a884552cc1",
+          "pass": false,
+          "score": 0,
+          "correct": false,
+          "responseChars": 34779,
+          "missing": 0
+        },
+        {
+          "id": "ad9e092461cee0aaa0ee713b1bcc5549_05ea9aa23a0312c963c74db80d16130b",
+          "pass": false,
+          "score": 0,
+          "correct": false,
+          "responseChars": 32162,
+          "missing": 0
+        },
+        {
+          "id": "93d0a48b6abc7839aa7f72e070868dd2_a5f5f24acd8daf76264d981d4db16c98",
+          "pass": false,
+          "score": 0,
+          "correct": false,
+          "responseChars": 3213,
+          "missing": 0
+        },
+        {
+          "id": "d9dff41d573180ecfb4a2a046051907f_be0778a6d01f7806fdb0ed6808d39678",
+          "pass": true,
+          "score": 0.9,
+          "correct": false,
+          "responseChars": 11373,
+          "missing": 0
+        },
+        {
+          "id": "02338a82954f78d15eced8c418b1ae6d_34d95fd1692d195b8e340f03640682d8",
+          "pass": false,
+          "score": 0,
+          "correct": false,
+          "responseChars": 4692,
+          "missing": 0
+        },
+        {
+          "id": "99b47ca9950710f76b893bd08a9e4fcb_07af34d411bad329fb6749b5cd80570f",
+          "pass": false,
+          "score": 0,
+          "correct": false,
+          "responseChars": 27577,
+          "missing": 0
+        },
+        {
+          "id": "94952c1218b51c4c88fdadb9b517e95d_b661ef47df07a4d6e291b16c25abdaaa",
+          "pass": true,
+          "score": 0.9,
+          "correct": true,
+          "responseChars": 2101,
+          "missing": 0
+        },
+        {
+          "id": "0f8f62a6885496b268128d754c7a338b_cd0cc2aea00a8d96fbe3b8e21f02d9f7",
+          "pass": false,
+          "score": 0,
+          "correct": false,
+          "responseChars": 6508,
+          "missing": 0
+        },
+        {
+          "id": "5a0820f68025b9d6ef3d3062af88c17a_2780135e37ae181dd8a83828a4c4512e",
+          "pass": false,
+          "score": 0.2,
+          "correct": false,
+          "responseChars": 2829,
+          "missing": 0
+        },
+        {
+          "id": "2e7f5b41a327fb39c97b9d5b06788f6b_194ce3fb21f0fb17e9c38159b1074591",
+          "pass": false,
+          "score": 0,
+          "correct": false,
+          "responseChars": 30998,
+          "missing": 0
+        }
+      ]
+    },
+    {
+      "contestant": "inspect",
+      "source": "Inspect a1dbea8: model_graded_qa default template",
+      "mode": "pointwise",
+      "summary": {
+        "metric": "accuracy (LongJudgeBench verify, binary)",
+        "value": {
+          "estimate": 0.8055555555555556,
+          "lower": 0.6996724105411147,
+          "upper": 0.8804852062054944
+        },
+        "n": 72,
+        "balancedAccuracy": 0.8035087719298246,
+        "byGroup": {
+          "incorrect": {
+            "n": 57,
+            "value": 0.8070175438596491
+          },
+          "correct": {
+            "n": 15,
+            "value": 0.8
+          }
+        },
+        "missing": 0
+      },
+      "costUsd": 0.16412939999999998,
+      "calls": 72,
+      "decisions": [
+        {
+          "id": "c8a3e6885808a25736dc974fcdf0b7e6_200630279e6321e06517a1e4736f816b",
+          "pass": false,
+          "score": 0,
+          "correct": false,
+          "responseChars": 4181,
+          "missing": 0
+        },
+        {
+          "id": "59be6e316c501c3c6f67c265ed7f469d_523d0604a8d9e02a61b7801e7cbe7911",
+          "pass": true,
+          "score": 1,
+          "correct": false,
+          "responseChars": 1946,
+          "missing": 0
+        },
+        {
+          "id": "6f2500baaab5dcd81bcfe5416249fce2_c03a2a2005994f41e018a041dafcf875",
+          "pass": false,
+          "score": 0,
+          "correct": false,
+          "responseChars": 8545,
+          "missing": 0
+        },
+        {
+          "id": "c9e95eb9b2dea93392edf99df248ef2e_8a06a3c9b84a9bf0744b4da79322ecd6",
+          "pass": true,
+          "score": 1,
+          "correct": false,
+          "responseChars": 13469,
+          "missing": 0
+        },
+        {
+          "id": "f48078b907465263df59e6cc261362e4_99fb5ec0153c30b2fe8ebb5a8cf10442",
+          "pass": false,
+          "score": 0,
+          "correct": false,
+          "responseChars": 3771,
+          "missing": 0
+        },
+        {
+          "id": "b463c91447475d675187efc7b7162c58_8cb2aa86a94d146813e12b58511acd99",
+          "pass": false,
+          "score": 0,
+          "correct": false,
+          "responseChars": 2398,
+          "missing": 0
+        },
+        {
+          "id": "e6c10b18f207583b72061ec57c1bbfca_a9b16b33657d2c39d4525c7592f8d3ea",
+          "pass": true,
+          "score": 1,
+          "correct": true,
+          "responseChars": 3217,
+          "missing": 0
+        },
+        {
+          "id": "f04d825c0f64ebab8f3900a7a2bd534e_aa682a019e40b7cfdd7d868eaf9f517a",
+          "pass": true,
+          "score": 1,
+          "correct": true,
+          "responseChars": 3150,
+          "missing": 0
+        },
+        {
+          "id": "615a0ba58690546856c0a873654c319c_30de5467c2e79b2000c569f8f4c05711",
+          "pass": false,
+          "score": 0,
+          "correct": false,
+          "responseChars": 3729,
+          "missing": 0
+        },
+        {
+          "id": "5399c58c3fe0c1714b4df513c5855f0f_252c188d4e3840900940a84561d16217",
+          "pass": false,
+          "score": 0,
+          "correct": false,
+          "responseChars": 1987,
+          "missing": 0
+        },
+        {
+          "id": "f68daac3a80dd3471e87677957a0bd74_e2584ff11780a2a9b044c5418f2be9c2",
+          "pass": false,
+          "score": 0,
+          "correct": false,
+          "responseChars": 2917,
+          "missing": 0
+        },
+        {
+          "id": "6061ecc894252effcbe9e5e3b4a57d7e_230882131a786700068536a11110c8bf",
+          "pass": true,
+          "score": 1,
+          "correct": false,
+          "responseChars": 10867,
+          "missing": 0
+        },
+        {
+          "id": "4b0b45efd75092f40124ceed7d3c4eae_99e86af7892b71cb13000162d1db91d6",
+          "pass": false,
+          "score": 0,
+          "correct": false,
+          "responseChars": 2282,
+          "missing": 0
+        },
+        {
+          "id": "9d43756ed5b99d1fb8c26187d4335ba8_fc279fe414a1d5d313cb366723ccdc81",
+          "pass": true,
+          "score": 1,
+          "correct": false,
+          "responseChars": 13052,
+          "missing": 0
+        },
+        {
+          "id": "c495006247d953ad1dcf39487417691c_9eda42d0f826b75cc80a9d6d9ee362c1",
+          "pass": true,
+          "score": 1,
+          "correct": true,
+          "responseChars": 11083,
+          "missing": 0
+        },
+        {
+          "id": "66f0ee34eb38fd4fa4bb06f056c0c359_0c2200e91f324ea5a912da84f9090638",
+          "pass": false,
+          "score": 0,
+          "correct": true,
+          "responseChars": 4356,
+          "missing": 0
+        },
+        {
+          "id": "025bb66cf7a25c1dd3f701a2a9e477c3_86939819f8b0733f73bb0a92d2215cf2",
+          "pass": false,
+          "score": 0,
+          "correct": false,
+          "responseChars": 28346,
+          "missing": 0
+        },
+        {
+          "id": "9985f48a923d8996047df22dc8311a6d_71f036e1fcb9f1f665be60c7508a5f5f",
+          "pass": true,
+          "score": 1,
+          "correct": true,
+          "responseChars": 9128,
+          "missing": 0
+        },
+        {
+          "id": "a0dcfb04617db2dca4ef11dbc56606f4_cbae2d7d0c224ee59b6c586524d32fef",
+          "pass": false,
+          "score": 0,
+          "correct": false,
+          "responseChars": 2379,
+          "missing": 0
+        },
+        {
+          "id": "d04086bb88417aeef28181ce6a4bb1c2_32f465d7d719f4836b825c54b8480804",
+          "pass": false,
+          "score": 0,
+          "correct": false,
+          "responseChars": 4384,
+          "missing": 0
+        },
+        {
+          "id": "5b848dd4cc4edd02fbfa53b336da0d29_12fe3f633de354b5dc426eaf77469921",
+          "pass": false,
+          "score": 0,
+          "correct": false,
+          "responseChars": 2255,
+          "missing": 0
+        },
+        {
+          "id": "745927e1a3422e7fd2cc18cb0a7e4d24_f20d3e0f0b887786d284d7f4344572d3",
+          "pass": true,
+          "score": 1,
+          "correct": true,
+          "responseChars": 5518,
+          "missing": 0
+        },
+        {
+          "id": "af2be5176b42b614654d5edc677ad8fa_88c3f2ae1e921c411fcc75e50bbcef2e",
+          "pass": true,
+          "score": 1,
+          "correct": false,
+          "responseChars": 7090,
+          "missing": 0
+        },
+        {
+          "id": "f87ce30d7dc54a92d2fd7a308e0f22cb_1c94d0a846cdd893dcaa5fc6ce2ec81a",
+          "pass": true,
+          "score": 1,
+          "correct": false,
+          "responseChars": 11649,
+          "missing": 0
+        },
+        {
+          "id": "09da6922b3644d663d219fa5c9ec70b2_406ea1ce461a71f5ec8a6ca34a8d6673",
+          "pass": false,
+          "score": 0,
+          "correct": false,
+          "responseChars": 2684,
+          "missing": 0
+        },
+        {
+          "id": "abd28b507d76944f9ba99803e8ec42a3_29a501f186912b9001d1d1e69bc8885b",
+          "pass": false,
+          "score": 0,
+          "correct": false,
+          "responseChars": 2462,
+          "missing": 0
+        },
+        {
+          "id": "61312ded17552fba089b4a01f6b5f285_08f62a8fb0fed84624239492a4a41bc1",
+          "pass": false,
+          "score": 0,
+          "correct": false,
+          "responseChars": 2738,
+          "missing": 0
+        },
+        {
+          "id": "45e256c0266cfbb6599087dbe1a9c223_a44b72d3d877c6ec0df9d1313c3e4a87",
+          "pass": true,
+          "score": 1,
+          "correct": false,
+          "responseChars": 31371,
+          "missing": 0
+        },
+        {
+          "id": "4718bcdd0a959f97111659684103c452_9dee35d8476032909dde4bb768981188",
+          "pass": false,
+          "score": 0,
+          "correct": false,
+          "responseChars": 3598,
+          "missing": 0
+        },
+        {
+          "id": "b13ad07dc41661f7708050b369269080_9006096e8e217b78b007bc7850259ed6",
+          "pass": false,
+          "score": 0,
+          "correct": false,
+          "responseChars": 4677,
+          "missing": 0
+        },
+        {
+          "id": "0392540a38af6a74d7dd8473fa0ba1a5_0a68ff276c1d5df9e87726e464ecc216",
+          "pass": false,
+          "score": 0,
+          "correct": false,
+          "responseChars": 56382,
+          "missing": 0
+        },
+        {
+          "id": "cb60c0e9bb12bf9828a3f26a779f0aa7_d8f60cd66753e6f4132be6abd6b91c99",
+          "pass": false,
+          "score": 0,
+          "correct": false,
+          "responseChars": 2166,
+          "missing": 0
+        },
+        {
+          "id": "ae064b1b098ba8a6fc88da570b97e217_a3e14b9979e1e72f3bfe5e939c03b8bf",
+          "pass": false,
+          "score": 0,
+          "correct": true,
+          "responseChars": 4311,
+          "missing": 0
+        },
+        {
+          "id": "b1ab584a7561726b4f51728444debc63_efa1872fe8924489aea4a9287b07fbb7",
+          "pass": false,
+          "score": 0,
+          "correct": false,
+          "responseChars": 1955,
+          "missing": 0
+        },
+        {
+          "id": "65d9f97790da392478b47895d92dcf2e_3b4120bcbb62645f6003d0b23cd1b578",
+          "pass": false,
+          "score": 0,
+          "correct": false,
+          "responseChars": 4694,
+          "missing": 0
+        },
+        {
+          "id": "8f069b7855423c3fc5313cac20850f1c_afd8e5c91bbfb4bb57b8d4764bd00a70",
+          "pass": false,
+          "score": 0,
+          "correct": false,
+          "responseChars": 33155,
+          "missing": 0
+        },
+        {
+          "id": "8e1c94d7d9a559574ae09a7be0a5fbda_b82d6989e850993cc34b985e38f634c9",
+          "pass": false,
+          "score": 0,
+          "correct": false,
+          "responseChars": 38393,
+          "missing": 0
+        },
+        {
+          "id": "f5b224f30b6a5d1ca6385823308429b8_2f6839650b046b79b72232ff0ba6dafb",
+          "pass": false,
+          "score": 0,
+          "correct": false,
+          "responseChars": 2599,
+          "missing": 0
+        },
+        {
+          "id": "9d3f4f6454f42220d174d0e16452fd3b_4ffcb868b8c9ff711f72fbc222b07b27",
+          "pass": false,
+          "score": 0,
+          "correct": false,
+          "responseChars": 4140,
+          "missing": 0
+        },
+        {
+          "id": "fa0cd84fd7ef3d92d399645d5e73e28b_393a8003c0e5b5552040197680f74156",
+          "pass": true,
+          "score": 1,
+          "correct": true,
+          "responseChars": 2992,
+          "missing": 0
+        },
+        {
+          "id": "b9bbd50a28dee4bce51b35f6615e9929_b239ce01ae5cc15d73ab875ffd6ca44a",
+          "pass": true,
+          "score": 1,
+          "correct": false,
+          "responseChars": 8899,
+          "missing": 0
+        },
+        {
+          "id": "3401fd97837e2e5142064a220ee4c443_e4aae36f193da905d6dca7185fc00d74",
+          "pass": false,
+          "score": 0,
+          "correct": false,
+          "responseChars": 2320,
+          "missing": 0
+        },
+        {
+          "id": "51cab744ffa25fb2b8e55462ba95d447_e72cc47f19d3f232740e4627961d79d8",
+          "pass": false,
+          "score": 0,
+          "correct": false,
+          "responseChars": 2764,
+          "missing": 0
+        },
+        {
+          "id": "d3375088280729c20950647504fd12ff_2e1f0637a26d5955d194f3a71f9ef000",
+          "pass": true,
+          "score": 1,
+          "correct": true,
+          "responseChars": 2990,
+          "missing": 0
+        },
+        {
+          "id": "5c0953ccc0fe13a7c7843f7c30711707_9b0a1f20fe1161ee7e459a347e2de29e",
+          "pass": false,
+          "score": 0,
+          "correct": false,
+          "responseChars": 32578,
+          "missing": 0
+        },
+        {
+          "id": "bfb9b703dc545801d8dc5da137b2739d_c5d655d5bb71bef56e18855b07feeae7",
+          "pass": false,
+          "score": 0,
+          "correct": false,
+          "responseChars": 4123,
+          "missing": 0
+        },
+        {
+          "id": "06a7b64808e0ff01fe98c4e3d7fd8373_3151468e2bce491c491ab7d6e464989c",
+          "pass": false,
+          "score": 0,
+          "correct": false,
+          "responseChars": 2464,
+          "missing": 0
+        },
+        {
+          "id": "12417566ea50ca18172fc263294c5f39_876d5bf34b0ae1cee736c455c7f6ae92",
+          "pass": false,
+          "score": 0,
+          "correct": false,
+          "responseChars": 3426,
+          "missing": 0
+        },
+        {
+          "id": "1a5e02f4c2b7cdbe6e6cdf79952ebf6b_d849833243ab3748654b844e6bfed7b8",
+          "pass": false,
+          "score": 0,
+          "correct": false,
+          "responseChars": 54691,
+          "missing": 0
+        },
+        {
+          "id": "1bf3b482c219ddab8984703e93118cf5_1fab9b86cd71c03c7bff6099f057820e",
+          "pass": false,
+          "score": 0,
+          "correct": false,
+          "responseChars": 15808,
+          "missing": 0
+        },
+        {
+          "id": "baf2a6dfb7a6af74f37ffd4abb3eaf45_a948bf168a7169eb9373a27f5d630870",
+          "pass": true,
+          "score": 1,
+          "correct": true,
+          "responseChars": 2610,
+          "missing": 0
+        },
+        {
+          "id": "03927b9bcf620c4ee68271a80692b351_dee2e96b000e11691c6a03d182193ec7",
+          "pass": false,
+          "score": 0,
+          "correct": false,
+          "responseChars": 25073,
+          "missing": 0
+        },
+        {
+          "id": "f284e29facabdfeb159e19ff53aa0242_83c1b053434c8f154938fe5559d4f4b8",
+          "pass": false,
+          "score": 0,
+          "correct": false,
+          "responseChars": 8297,
+          "missing": 0
+        },
+        {
+          "id": "a3214bdf6f261a6ac7acb7d79bf25df1_592fbad3b6f89c9f50098ea529f56dc1",
+          "pass": false,
+          "score": 0,
+          "correct": false,
+          "responseChars": 3740,
+          "missing": 0
+        },
+        {
+          "id": "90ff1112e578b41c75469baf8077d243_d11b1cafc9e9d0bc9b04688ecc9a604e",
+          "pass": true,
+          "score": 1,
+          "correct": true,
+          "responseChars": 2519,
+          "missing": 0
+        },
+        {
+          "id": "8e3ed1a096e996f4acacb9bd03fc10d9_ee5653381cba8076c18d1079587930c6",
+          "pass": true,
+          "score": 1,
+          "correct": true,
+          "responseChars": 2763,
+          "missing": 0
+        },
+        {
+          "id": "51a34ae09daf62b1743c88a1af5cdec9_5b7ba7dc2af6bb97966f0832cadd8fcb",
+          "pass": false,
+          "score": 0,
+          "correct": false,
+          "responseChars": 3598,
+          "missing": 0
+        },
+        {
+          "id": "f80aae6d83ccb375e49ea15bfd8ac5d1_66d1bbb20475c340d647519c9e4f5db8",
+          "pass": false,
+          "score": 0,
+          "correct": false,
+          "responseChars": 3322,
+          "missing": 0
+        },
+        {
+          "id": "b173752441e98eff08bc87251c0e70aa_433bf55c2f33df9369463e94b70a07dc",
+          "pass": false,
+          "score": 0,
+          "correct": true,
+          "responseChars": 44504,
+          "missing": 0
+        },
+        {
+          "id": "71e2d5758cd41f6229a8d2ee2a48fc3c_9f960a07f7eea3418e2582b40851d4fe",
+          "pass": true,
+          "score": 1,
+          "correct": false,
+          "responseChars": 14984,
+          "missing": 0
+        },
+        {
+          "id": "8549f4ef6a78c00928955dbc7c7f1fa7_4c541ce85b883a6d5c42c6edfc8828e7",
+          "pass": true,
+          "score": 1,
+          "correct": false,
+          "responseChars": 46169,
+          "missing": 0
+        },
+        {
+          "id": "d0c8badc5397366d9fa703aa3fc09539_f925e2381ebfaa1578d07a646aefde58",
+          "pass": true,
+          "score": 1,
+          "correct": true,
+          "responseChars": 2184,
+          "missing": 0
+        },
+        {
+          "id": "b2cce1e0d1c9d642c84c1475cab4dc7f_fbdf7e874d4a8623febf36a884552cc1",
+          "pass": false,
+          "score": 0,
+          "correct": false,
+          "responseChars": 34779,
+          "missing": 0
+        },
+        {
+          "id": "ad9e092461cee0aaa0ee713b1bcc5549_05ea9aa23a0312c963c74db80d16130b",
+          "pass": false,
+          "score": 0,
+          "correct": false,
+          "responseChars": 32162,
+          "missing": 0
+        },
+        {
+          "id": "93d0a48b6abc7839aa7f72e070868dd2_a5f5f24acd8daf76264d981d4db16c98",
+          "pass": false,
+          "score": 0,
+          "correct": false,
+          "responseChars": 3213,
+          "missing": 0
+        },
+        {
+          "id": "d9dff41d573180ecfb4a2a046051907f_be0778a6d01f7806fdb0ed6808d39678",
+          "pass": true,
+          "score": 1,
+          "correct": false,
+          "responseChars": 11373,
+          "missing": 0
+        },
+        {
+          "id": "02338a82954f78d15eced8c418b1ae6d_34d95fd1692d195b8e340f03640682d8",
+          "pass": false,
+          "score": 0,
+          "correct": false,
+          "responseChars": 4692,
+          "missing": 0
+        },
+        {
+          "id": "99b47ca9950710f76b893bd08a9e4fcb_07af34d411bad329fb6749b5cd80570f",
+          "pass": false,
+          "score": 0,
+          "correct": false,
+          "responseChars": 27577,
+          "missing": 0
+        },
+        {
+          "id": "94952c1218b51c4c88fdadb9b517e95d_b661ef47df07a4d6e291b16c25abdaaa",
+          "pass": true,
+          "score": 1,
+          "correct": true,
+          "responseChars": 2101,
+          "missing": 0
+        },
+        {
+          "id": "0f8f62a6885496b268128d754c7a338b_cd0cc2aea00a8d96fbe3b8e21f02d9f7",
+          "pass": false,
+          "score": 0,
+          "correct": false,
+          "responseChars": 6508,
+          "missing": 0
+        },
+        {
+          "id": "5a0820f68025b9d6ef3d3062af88c17a_2780135e37ae181dd8a83828a4c4512e",
+          "pass": false,
+          "score": 0,
+          "correct": false,
+          "responseChars": 2829,
+          "missing": 0
+        },
+        {
+          "id": "2e7f5b41a327fb39c97b9d5b06788f6b_194ce3fb21f0fb17e9c38159b1074591",
+          "pass": false,
+          "score": 0,
+          "correct": false,
+          "responseChars": 30998,
+          "missing": 0
+        }
+      ]
+    },
+    {
+      "contestant": "scenario",
+      "source": "LangWatch Scenario ad220e6: default judge prompt and finish_test schema",
+      "mode": "pointwise",
+      "summary": {
+        "metric": "accuracy (LongJudgeBench verify, binary)",
+        "value": {
+          "estimate": 0.7222222222222222,
+          "lower": 0.6095356707476457,
+          "upper": 0.8123971414317063
+        },
+        "n": 72,
+        "balancedAccuracy": 0.6771929824561403,
+        "byGroup": {
+          "incorrect": {
+            "n": 57,
+            "value": 0.7543859649122807
+          },
+          "correct": {
+            "n": 15,
+            "value": 0.6
+          }
+        },
+        "missing": 0
+      },
+      "costUsd": 0.14318309999999998,
+      "calls": 72,
+      "decisions": [
+        {
+          "id": "c8a3e6885808a25736dc974fcdf0b7e6_200630279e6321e06517a1e4736f816b",
+          "pass": false,
+          "score": 0,
+          "correct": false,
+          "responseChars": 4181,
+          "missing": 0
+        },
+        {
+          "id": "59be6e316c501c3c6f67c265ed7f469d_523d0604a8d9e02a61b7801e7cbe7911",
+          "pass": true,
+          "score": 1,
+          "correct": false,
+          "responseChars": 1946,
+          "missing": 0
+        },
+        {
+          "id": "6f2500baaab5dcd81bcfe5416249fce2_c03a2a2005994f41e018a041dafcf875",
+          "pass": false,
+          "score": 0,
+          "correct": false,
+          "responseChars": 8545,
+          "missing": 0
+        },
+        {
+          "id": "c9e95eb9b2dea93392edf99df248ef2e_8a06a3c9b84a9bf0744b4da79322ecd6",
+          "pass": true,
+          "score": 1,
+          "correct": false,
+          "responseChars": 13469,
+          "missing": 0
+        },
+        {
+          "id": "f48078b907465263df59e6cc261362e4_99fb5ec0153c30b2fe8ebb5a8cf10442",
+          "pass": false,
+          "score": 0,
+          "correct": false,
+          "responseChars": 3771,
+          "missing": 0
+        },
+        {
+          "id": "b463c91447475d675187efc7b7162c58_8cb2aa86a94d146813e12b58511acd99",
+          "pass": false,
+          "score": 0,
+          "correct": false,
+          "responseChars": 2398,
+          "missing": 0
+        },
+        {
+          "id": "e6c10b18f207583b72061ec57c1bbfca_a9b16b33657d2c39d4525c7592f8d3ea",
+          "pass": true,
+          "score": 1,
+          "correct": true,
+          "responseChars": 3217,
+          "missing": 0
+        },
+        {
+          "id": "f04d825c0f64ebab8f3900a7a2bd534e_aa682a019e40b7cfdd7d868eaf9f517a",
+          "correct": true,
+          "responseChars": 3150,
+          "missing": 0
+        },
+        {
+          "id": "615a0ba58690546856c0a873654c319c_30de5467c2e79b2000c569f8f4c05711",
+          "pass": false,
+          "score": 0,
+          "correct": false,
+          "responseChars": 3729,
+          "missing": 0
+        },
+        {
+          "id": "5399c58c3fe0c1714b4df513c5855f0f_252c188d4e3840900940a84561d16217",
+          "correct": false,
+          "responseChars": 1987,
+          "missing": 0
+        },
+        {
+          "id": "f68daac3a80dd3471e87677957a0bd74_e2584ff11780a2a9b044c5418f2be9c2",
+          "pass": false,
+          "score": 0,
+          "correct": false,
+          "responseChars": 2917,
+          "missing": 0
+        },
+        {
+          "id": "6061ecc894252effcbe9e5e3b4a57d7e_230882131a786700068536a11110c8bf",
+          "pass": true,
+          "score": 1,
+          "correct": false,
+          "responseChars": 10867,
+          "missing": 0
+        },
+        {
+          "id": "4b0b45efd75092f40124ceed7d3c4eae_99e86af7892b71cb13000162d1db91d6",
+          "correct": false,
+          "responseChars": 2282,
+          "missing": 0
+        },
+        {
+          "id": "9d43756ed5b99d1fb8c26187d4335ba8_fc279fe414a1d5d313cb366723ccdc81",
+          "pass": true,
+          "score": 1,
+          "correct": false,
+          "responseChars": 13052,
+          "missing": 0
+        },
+        {
+          "id": "c495006247d953ad1dcf39487417691c_9eda42d0f826b75cc80a9d6d9ee362c1",
+          "pass": true,
+          "score": 1,
+          "correct": true,
+          "responseChars": 11083,
+          "missing": 0
+        },
+        {
+          "id": "66f0ee34eb38fd4fa4bb06f056c0c359_0c2200e91f324ea5a912da84f9090638",
+          "pass": false,
+          "score": 0,
+          "correct": true,
+          "responseChars": 4356,
+          "missing": 0
+        },
+        {
+          "id": "025bb66cf7a25c1dd3f701a2a9e477c3_86939819f8b0733f73bb0a92d2215cf2",
+          "pass": false,
+          "score": 0,
+          "correct": false,
+          "responseChars": 28346,
+          "missing": 0
+        },
+        {
+          "id": "9985f48a923d8996047df22dc8311a6d_71f036e1fcb9f1f665be60c7508a5f5f",
+          "pass": true,
+          "score": 1,
+          "correct": true,
+          "responseChars": 9128,
+          "missing": 0
+        },
+        {
+          "id": "a0dcfb04617db2dca4ef11dbc56606f4_cbae2d7d0c224ee59b6c586524d32fef",
+          "pass": false,
+          "score": 0,
+          "correct": false,
+          "responseChars": 2379,
+          "missing": 0
+        },
+        {
+          "id": "d04086bb88417aeef28181ce6a4bb1c2_32f465d7d719f4836b825c54b8480804",
+          "pass": false,
+          "score": 0,
+          "correct": false,
+          "responseChars": 4384,
+          "missing": 0
+        },
+        {
+          "id": "5b848dd4cc4edd02fbfa53b336da0d29_12fe3f633de354b5dc426eaf77469921",
+          "pass": false,
+          "score": 0,
+          "correct": false,
+          "responseChars": 2255,
+          "missing": 0
+        },
+        {
+          "id": "745927e1a3422e7fd2cc18cb0a7e4d24_f20d3e0f0b887786d284d7f4344572d3",
+          "pass": true,
+          "score": 1,
+          "correct": true,
+          "responseChars": 5518,
+          "missing": 0
+        },
+        {
+          "id": "af2be5176b42b614654d5edc677ad8fa_88c3f2ae1e921c411fcc75e50bbcef2e",
+          "pass": true,
+          "score": 1,
+          "correct": false,
+          "responseChars": 7090,
+          "missing": 0
+        },
+        {
+          "id": "f87ce30d7dc54a92d2fd7a308e0f22cb_1c94d0a846cdd893dcaa5fc6ce2ec81a",
+          "pass": true,
+          "score": 1,
+          "correct": false,
+          "responseChars": 11649,
+          "missing": 0
+        },
+        {
+          "id": "09da6922b3644d663d219fa5c9ec70b2_406ea1ce461a71f5ec8a6ca34a8d6673",
+          "pass": false,
+          "score": 0,
+          "correct": false,
+          "responseChars": 2684,
+          "missing": 0
+        },
+        {
+          "id": "abd28b507d76944f9ba99803e8ec42a3_29a501f186912b9001d1d1e69bc8885b",
+          "pass": false,
+          "score": 0,
+          "correct": false,
+          "responseChars": 2462,
+          "missing": 0
+        },
+        {
+          "id": "61312ded17552fba089b4a01f6b5f285_08f62a8fb0fed84624239492a4a41bc1",
+          "pass": false,
+          "score": 0,
+          "correct": false,
+          "responseChars": 2738,
+          "missing": 0
+        },
+        {
+          "id": "45e256c0266cfbb6599087dbe1a9c223_a44b72d3d877c6ec0df9d1313c3e4a87",
+          "pass": true,
+          "score": 1,
+          "correct": false,
+          "responseChars": 31371,
+          "missing": 0
+        },
+        {
+          "id": "4718bcdd0a959f97111659684103c452_9dee35d8476032909dde4bb768981188",
+          "pass": false,
+          "score": 0,
+          "correct": false,
+          "responseChars": 3598,
+          "missing": 0
+        },
+        {
+          "id": "b13ad07dc41661f7708050b369269080_9006096e8e217b78b007bc7850259ed6",
+          "pass": false,
+          "score": 0,
+          "correct": false,
+          "responseChars": 4677,
+          "missing": 0
+        },
+        {
+          "id": "0392540a38af6a74d7dd8473fa0ba1a5_0a68ff276c1d5df9e87726e464ecc216",
+          "pass": false,
+          "score": 0,
+          "correct": false,
+          "responseChars": 56382,
+          "missing": 0
+        },
+        {
+          "id": "cb60c0e9bb12bf9828a3f26a779f0aa7_d8f60cd66753e6f4132be6abd6b91c99",
+          "pass": false,
+          "score": 0,
+          "correct": false,
+          "responseChars": 2166,
+          "missing": 0
+        },
+        {
+          "id": "ae064b1b098ba8a6fc88da570b97e217_a3e14b9979e1e72f3bfe5e939c03b8bf",
+          "pass": false,
+          "score": 0,
+          "correct": true,
+          "responseChars": 4311,
+          "missing": 0
+        },
+        {
+          "id": "b1ab584a7561726b4f51728444debc63_efa1872fe8924489aea4a9287b07fbb7",
+          "pass": false,
+          "score": 0,
+          "correct": false,
+          "responseChars": 1955,
+          "missing": 0
+        },
+        {
+          "id": "65d9f97790da392478b47895d92dcf2e_3b4120bcbb62645f6003d0b23cd1b578",
+          "pass": false,
+          "score": 0,
+          "correct": false,
+          "responseChars": 4694,
+          "missing": 0
+        },
+        {
+          "id": "8f069b7855423c3fc5313cac20850f1c_afd8e5c91bbfb4bb57b8d4764bd00a70",
+          "pass": false,
+          "score": 0,
+          "correct": false,
+          "responseChars": 33155,
+          "missing": 0
+        },
+        {
+          "id": "8e1c94d7d9a559574ae09a7be0a5fbda_b82d6989e850993cc34b985e38f634c9",
+          "pass": false,
+          "score": 0,
+          "correct": false,
+          "responseChars": 38393,
+          "missing": 0
+        },
+        {
+          "id": "f5b224f30b6a5d1ca6385823308429b8_2f6839650b046b79b72232ff0ba6dafb",
+          "pass": false,
+          "score": 0,
+          "correct": false,
+          "responseChars": 2599,
+          "missing": 0
+        },
+        {
+          "id": "9d3f4f6454f42220d174d0e16452fd3b_4ffcb868b8c9ff711f72fbc222b07b27",
+          "pass": false,
+          "score": 0,
+          "correct": false,
+          "responseChars": 4140,
+          "missing": 0
+        },
+        {
+          "id": "fa0cd84fd7ef3d92d399645d5e73e28b_393a8003c0e5b5552040197680f74156",
+          "pass": true,
+          "score": 1,
+          "correct": true,
+          "responseChars": 2992,
+          "missing": 0
+        },
+        {
+          "id": "b9bbd50a28dee4bce51b35f6615e9929_b239ce01ae5cc15d73ab875ffd6ca44a",
+          "pass": true,
+          "score": 1,
+          "correct": false,
+          "responseChars": 8899,
+          "missing": 0
+        },
+        {
+          "id": "3401fd97837e2e5142064a220ee4c443_e4aae36f193da905d6dca7185fc00d74",
+          "pass": false,
+          "score": 0,
+          "correct": false,
+          "responseChars": 2320,
+          "missing": 0
+        },
+        {
+          "id": "51cab744ffa25fb2b8e55462ba95d447_e72cc47f19d3f232740e4627961d79d8",
+          "pass": false,
+          "score": 0,
+          "correct": false,
+          "responseChars": 2764,
+          "missing": 0
+        },
+        {
+          "id": "d3375088280729c20950647504fd12ff_2e1f0637a26d5955d194f3a71f9ef000",
+          "pass": true,
+          "score": 1,
+          "correct": true,
+          "responseChars": 2990,
+          "missing": 0
+        },
+        {
+          "id": "5c0953ccc0fe13a7c7843f7c30711707_9b0a1f20fe1161ee7e459a347e2de29e",
+          "pass": false,
+          "score": 0,
+          "correct": false,
+          "responseChars": 32578,
+          "missing": 0
+        },
+        {
+          "id": "bfb9b703dc545801d8dc5da137b2739d_c5d655d5bb71bef56e18855b07feeae7",
+          "pass": false,
+          "score": 0,
+          "correct": false,
+          "responseChars": 4123,
+          "missing": 0
+        },
+        {
+          "id": "06a7b64808e0ff01fe98c4e3d7fd8373_3151468e2bce491c491ab7d6e464989c",
+          "pass": false,
+          "score": 0,
+          "correct": false,
+          "responseChars": 2464,
+          "missing": 0
+        },
+        {
+          "id": "12417566ea50ca18172fc263294c5f39_876d5bf34b0ae1cee736c455c7f6ae92",
+          "pass": false,
+          "score": 0,
+          "correct": false,
+          "responseChars": 3426,
+          "missing": 0
+        },
+        {
+          "id": "1a5e02f4c2b7cdbe6e6cdf79952ebf6b_d849833243ab3748654b844e6bfed7b8",
+          "pass": false,
+          "score": 0,
+          "correct": false,
+          "responseChars": 54691,
+          "missing": 0
+        },
+        {
+          "id": "1bf3b482c219ddab8984703e93118cf5_1fab9b86cd71c03c7bff6099f057820e",
+          "pass": false,
+          "score": 0,
+          "correct": false,
+          "responseChars": 15808,
+          "missing": 0
+        },
+        {
+          "id": "baf2a6dfb7a6af74f37ffd4abb3eaf45_a948bf168a7169eb9373a27f5d630870",
+          "correct": true,
+          "responseChars": 2610,
+          "missing": 0
+        },
+        {
+          "id": "03927b9bcf620c4ee68271a80692b351_dee2e96b000e11691c6a03d182193ec7",
+          "pass": false,
+          "score": 0,
+          "correct": false,
+          "responseChars": 25073,
+          "missing": 0
+        },
+        {
+          "id": "f284e29facabdfeb159e19ff53aa0242_83c1b053434c8f154938fe5559d4f4b8",
+          "pass": false,
+          "score": 0,
+          "correct": false,
+          "responseChars": 8297,
+          "missing": 0
+        },
+        {
+          "id": "a3214bdf6f261a6ac7acb7d79bf25df1_592fbad3b6f89c9f50098ea529f56dc1",
+          "pass": false,
+          "score": 0,
+          "correct": false,
+          "responseChars": 3740,
+          "missing": 0
+        },
+        {
+          "id": "90ff1112e578b41c75469baf8077d243_d11b1cafc9e9d0bc9b04688ecc9a604e",
+          "correct": true,
+          "responseChars": 2519,
+          "missing": 0
+        },
+        {
+          "id": "8e3ed1a096e996f4acacb9bd03fc10d9_ee5653381cba8076c18d1079587930c6",
+          "pass": true,
+          "score": 1,
+          "correct": true,
+          "responseChars": 2763,
+          "missing": 0
+        },
+        {
+          "id": "51a34ae09daf62b1743c88a1af5cdec9_5b7ba7dc2af6bb97966f0832cadd8fcb",
+          "pass": false,
+          "score": 0,
+          "correct": false,
+          "responseChars": 3598,
+          "missing": 0
+        },
+        {
+          "id": "f80aae6d83ccb375e49ea15bfd8ac5d1_66d1bbb20475c340d647519c9e4f5db8",
+          "pass": false,
+          "score": 0,
+          "correct": false,
+          "responseChars": 3322,
+          "missing": 0
+        },
+        {
+          "id": "b173752441e98eff08bc87251c0e70aa_433bf55c2f33df9369463e94b70a07dc",
+          "pass": false,
+          "score": 0,
+          "correct": true,
+          "responseChars": 44504,
+          "missing": 0
+        },
+        {
+          "id": "71e2d5758cd41f6229a8d2ee2a48fc3c_9f960a07f7eea3418e2582b40851d4fe",
+          "pass": true,
+          "score": 1,
+          "correct": false,
+          "responseChars": 14984,
+          "missing": 0
+        },
+        {
+          "id": "8549f4ef6a78c00928955dbc7c7f1fa7_4c541ce85b883a6d5c42c6edfc8828e7",
+          "pass": true,
+          "score": 1,
+          "correct": false,
+          "responseChars": 46169,
+          "missing": 0
+        },
+        {
+          "id": "d0c8badc5397366d9fa703aa3fc09539_f925e2381ebfaa1578d07a646aefde58",
+          "pass": true,
+          "score": 1,
+          "correct": true,
+          "responseChars": 2184,
+          "missing": 0
+        },
+        {
+          "id": "b2cce1e0d1c9d642c84c1475cab4dc7f_fbdf7e874d4a8623febf36a884552cc1",
+          "pass": false,
+          "score": 0,
+          "correct": false,
+          "responseChars": 34779,
+          "missing": 0
+        },
+        {
+          "id": "ad9e092461cee0aaa0ee713b1bcc5549_05ea9aa23a0312c963c74db80d16130b",
+          "correct": false,
+          "responseChars": 32162,
+          "missing": 0
+        },
+        {
+          "id": "93d0a48b6abc7839aa7f72e070868dd2_a5f5f24acd8daf76264d981d4db16c98",
+          "pass": false,
+          "score": 0,
+          "correct": false,
+          "responseChars": 3213,
+          "missing": 0
+        },
+        {
+          "id": "d9dff41d573180ecfb4a2a046051907f_be0778a6d01f7806fdb0ed6808d39678",
+          "pass": true,
+          "score": 1,
+          "correct": false,
+          "responseChars": 11373,
+          "missing": 0
+        },
+        {
+          "id": "02338a82954f78d15eced8c418b1ae6d_34d95fd1692d195b8e340f03640682d8",
+          "pass": false,
+          "score": 0,
+          "correct": false,
+          "responseChars": 4692,
+          "missing": 0
+        },
+        {
+          "id": "99b47ca9950710f76b893bd08a9e4fcb_07af34d411bad329fb6749b5cd80570f",
+          "pass": false,
+          "score": 0,
+          "correct": false,
+          "responseChars": 27577,
+          "missing": 0
+        },
+        {
+          "id": "94952c1218b51c4c88fdadb9b517e95d_b661ef47df07a4d6e291b16c25abdaaa",
+          "pass": true,
+          "score": 1,
+          "correct": true,
+          "responseChars": 2101,
+          "missing": 0
+        },
+        {
+          "id": "0f8f62a6885496b268128d754c7a338b_cd0cc2aea00a8d96fbe3b8e21f02d9f7",
+          "pass": false,
+          "score": 0,
+          "correct": false,
+          "responseChars": 6508,
+          "missing": 0
+        },
+        {
+          "id": "5a0820f68025b9d6ef3d3062af88c17a_2780135e37ae181dd8a83828a4c4512e",
+          "pass": false,
+          "score": 0,
+          "correct": false,
+          "responseChars": 2829,
+          "missing": 0
+        },
+        {
+          "id": "2e7f5b41a327fb39c97b9d5b06788f6b_194ce3fb21f0fb17e9c38159b1074591",
+          "pass": false,
+          "score": 0,
+          "correct": false,
+          "responseChars": 30998,
+          "missing": 0
+        }
+      ]
+    },
+    {
+      "contestant": "langfuse",
+      "source": "Langfuse cb2ceba: managed evaluator \"Simple Criteria\"",
+      "mode": "pointwise",
+      "summary": {
+        "metric": "accuracy (LongJudgeBench verify, binary)",
+        "value": {
+          "estimate": 0.7638888888888888,
+          "lower": 0.6540123102714637,
+          "upper": 0.8470329041915168
+        },
+        "n": 72,
+        "balancedAccuracy": 0.7526315789473683,
+        "byGroup": {
+          "incorrect": {
+            "n": 57,
+            "value": 0.7719298245614035
+          },
+          "correct": {
+            "n": 15,
+            "value": 0.7333333333333333
+          }
+        },
+        "missing": 0
+      },
+      "costUsd": 0.1359907,
+      "calls": 72,
+      "decisions": [
+        {
+          "id": "c8a3e6885808a25736dc974fcdf0b7e6_200630279e6321e06517a1e4736f816b",
+          "pass": false,
+          "score": 0,
+          "correct": false,
+          "responseChars": 4181,
+          "missing": 0
+        },
+        {
+          "id": "59be6e316c501c3c6f67c265ed7f469d_523d0604a8d9e02a61b7801e7cbe7911",
+          "pass": true,
+          "score": 0.7,
+          "correct": false,
+          "responseChars": 1946,
+          "missing": 0
+        },
+        {
+          "id": "6f2500baaab5dcd81bcfe5416249fce2_c03a2a2005994f41e018a041dafcf875",
+          "pass": false,
+          "score": 0,
+          "correct": false,
+          "responseChars": 8545,
+          "missing": 0
+        },
+        {
+          "id": "c9e95eb9b2dea93392edf99df248ef2e_8a06a3c9b84a9bf0744b4da79322ecd6",
+          "pass": true,
+          "score": 1,
+          "correct": false,
+          "responseChars": 13469,
+          "missing": 0
+        },
+        {
+          "id": "f48078b907465263df59e6cc261362e4_99fb5ec0153c30b2fe8ebb5a8cf10442",
+          "pass": false,
+          "score": 0,
+          "correct": false,
+          "responseChars": 3771,
+          "missing": 0
+        },
+        {
+          "id": "b463c91447475d675187efc7b7162c58_8cb2aa86a94d146813e12b58511acd99",
+          "pass": false,
+          "score": 0,
+          "correct": false,
+          "responseChars": 2398,
+          "missing": 0
+        },
+        {
+          "id": "e6c10b18f207583b72061ec57c1bbfca_a9b16b33657d2c39d4525c7592f8d3ea",
+          "pass": true,
+          "score": 1,
+          "correct": true,
+          "responseChars": 3217,
+          "missing": 0
+        },
+        {
+          "id": "f04d825c0f64ebab8f3900a7a2bd534e_aa682a019e40b7cfdd7d868eaf9f517a",
+          "pass": true,
+          "score": 1,
+          "correct": true,
+          "responseChars": 3150,
+          "missing": 0
+        },
+        {
+          "id": "615a0ba58690546856c0a873654c319c_30de5467c2e79b2000c569f8f4c05711",
+          "pass": false,
+          "score": 0,
+          "correct": false,
+          "responseChars": 3729,
+          "missing": 0
+        },
+        {
+          "id": "5399c58c3fe0c1714b4df513c5855f0f_252c188d4e3840900940a84561d16217",
+          "pass": false,
+          "score": 0,
+          "correct": false,
+          "responseChars": 1987,
+          "missing": 0
+        },
+        {
+          "id": "f68daac3a80dd3471e87677957a0bd74_e2584ff11780a2a9b044c5418f2be9c2",
+          "pass": false,
+          "score": 0,
+          "correct": false,
+          "responseChars": 2917,
+          "missing": 0
+        },
+        {
+          "id": "6061ecc894252effcbe9e5e3b4a57d7e_230882131a786700068536a11110c8bf",
+          "pass": true,
+          "score": 1,
+          "correct": false,
+          "responseChars": 10867,
+          "missing": 0
+        },
+        {
+          "id": "4b0b45efd75092f40124ceed7d3c4eae_99e86af7892b71cb13000162d1db91d6",
+          "pass": false,
+          "score": 0,
+          "correct": false,
+          "responseChars": 2282,
+          "missing": 0
+        },
+        {
+          "id": "9d43756ed5b99d1fb8c26187d4335ba8_fc279fe414a1d5d313cb366723ccdc81",
+          "pass": true,
+          "score": 1,
+          "correct": false,
+          "responseChars": 13052,
+          "missing": 0
+        },
+        {
+          "id": "c495006247d953ad1dcf39487417691c_9eda42d0f826b75cc80a9d6d9ee362c1",
+          "pass": true,
+          "score": 1,
+          "correct": true,
+          "responseChars": 11083,
+          "missing": 0
+        },
+        {
+          "id": "66f0ee34eb38fd4fa4bb06f056c0c359_0c2200e91f324ea5a912da84f9090638",
+          "pass": false,
+          "score": 0.4,
+          "correct": true,
+          "responseChars": 4356,
+          "missing": 0
+        },
+        {
+          "id": "025bb66cf7a25c1dd3f701a2a9e477c3_86939819f8b0733f73bb0a92d2215cf2",
+          "correct": false,
+          "responseChars": 28346,
+          "missing": 0
+        },
+        {
+          "id": "9985f48a923d8996047df22dc8311a6d_71f036e1fcb9f1f665be60c7508a5f5f",
+          "pass": true,
+          "score": 1,
+          "correct": true,
+          "responseChars": 9128,
+          "missing": 0
+        },
+        {
+          "id": "a0dcfb04617db2dca4ef11dbc56606f4_cbae2d7d0c224ee59b6c586524d32fef",
+          "pass": false,
+          "score": 0,
+          "correct": false,
+          "responseChars": 2379,
+          "missing": 0
+        },
+        {
+          "id": "d04086bb88417aeef28181ce6a4bb1c2_32f465d7d719f4836b825c54b8480804",
+          "pass": false,
+          "score": 0,
+          "correct": false,
+          "responseChars": 4384,
+          "missing": 0
+        },
+        {
+          "id": "5b848dd4cc4edd02fbfa53b336da0d29_12fe3f633de354b5dc426eaf77469921",
+          "pass": false,
+          "score": 0,
+          "correct": false,
+          "responseChars": 2255,
+          "missing": 0
+        },
+        {
+          "id": "745927e1a3422e7fd2cc18cb0a7e4d24_f20d3e0f0b887786d284d7f4344572d3",
+          "pass": true,
+          "score": 1,
+          "correct": true,
+          "responseChars": 5518,
+          "missing": 0
+        },
+        {
+          "id": "af2be5176b42b614654d5edc677ad8fa_88c3f2ae1e921c411fcc75e50bbcef2e",
+          "pass": true,
+          "score": 1,
+          "correct": false,
+          "responseChars": 7090,
+          "missing": 0
+        },
+        {
+          "id": "f87ce30d7dc54a92d2fd7a308e0f22cb_1c94d0a846cdd893dcaa5fc6ce2ec81a",
+          "pass": true,
+          "score": 1,
+          "correct": false,
+          "responseChars": 11649,
+          "missing": 0
+        },
+        {
+          "id": "09da6922b3644d663d219fa5c9ec70b2_406ea1ce461a71f5ec8a6ca34a8d6673",
+          "pass": false,
+          "score": 0,
+          "correct": false,
+          "responseChars": 2684,
+          "missing": 0
+        },
+        {
+          "id": "abd28b507d76944f9ba99803e8ec42a3_29a501f186912b9001d1d1e69bc8885b",
+          "pass": false,
+          "score": 0,
+          "correct": false,
+          "responseChars": 2462,
+          "missing": 0
+        },
+        {
+          "id": "61312ded17552fba089b4a01f6b5f285_08f62a8fb0fed84624239492a4a41bc1",
+          "pass": false,
+          "score": 0,
+          "correct": false,
+          "responseChars": 2738,
+          "missing": 0
+        },
+        {
+          "id": "45e256c0266cfbb6599087dbe1a9c223_a44b72d3d877c6ec0df9d1313c3e4a87",
+          "pass": true,
+          "score": 1,
+          "correct": false,
+          "responseChars": 31371,
+          "missing": 0
+        },
+        {
+          "id": "4718bcdd0a959f97111659684103c452_9dee35d8476032909dde4bb768981188",
+          "pass": false,
+          "score": 0,
+          "correct": false,
+          "responseChars": 3598,
+          "missing": 0
+        },
+        {
+          "id": "b13ad07dc41661f7708050b369269080_9006096e8e217b78b007bc7850259ed6",
+          "pass": false,
+          "score": 0,
+          "correct": false,
+          "responseChars": 4677,
+          "missing": 0
+        },
+        {
+          "id": "0392540a38af6a74d7dd8473fa0ba1a5_0a68ff276c1d5df9e87726e464ecc216",
+          "pass": false,
+          "score": 0,
+          "correct": false,
+          "responseChars": 56382,
+          "missing": 0
+        },
+        {
+          "id": "cb60c0e9bb12bf9828a3f26a779f0aa7_d8f60cd66753e6f4132be6abd6b91c99",
+          "pass": false,
+          "score": 0,
+          "correct": false,
+          "responseChars": 2166,
+          "missing": 0
+        },
+        {
+          "id": "ae064b1b098ba8a6fc88da570b97e217_a3e14b9979e1e72f3bfe5e939c03b8bf",
+          "pass": false,
+          "score": 0,
+          "correct": true,
+          "responseChars": 4311,
+          "missing": 0
+        },
+        {
+          "id": "b1ab584a7561726b4f51728444debc63_efa1872fe8924489aea4a9287b07fbb7",
+          "pass": false,
+          "score": 0,
+          "correct": false,
+          "responseChars": 1955,
+          "missing": 0
+        },
+        {
+          "id": "65d9f97790da392478b47895d92dcf2e_3b4120bcbb62645f6003d0b23cd1b578",
+          "pass": false,
+          "score": 0,
+          "correct": false,
+          "responseChars": 4694,
+          "missing": 0
+        },
+        {
+          "id": "8f069b7855423c3fc5313cac20850f1c_afd8e5c91bbfb4bb57b8d4764bd00a70",
+          "pass": false,
+          "score": 0,
+          "correct": false,
+          "responseChars": 33155,
+          "missing": 0
+        },
+        {
+          "id": "8e1c94d7d9a559574ae09a7be0a5fbda_b82d6989e850993cc34b985e38f634c9",
+          "pass": false,
+          "score": 0,
+          "correct": false,
+          "responseChars": 38393,
+          "missing": 0
+        },
+        {
+          "id": "f5b224f30b6a5d1ca6385823308429b8_2f6839650b046b79b72232ff0ba6dafb",
+          "pass": false,
+          "score": 0,
+          "correct": false,
+          "responseChars": 2599,
+          "missing": 0
+        },
+        {
+          "id": "9d3f4f6454f42220d174d0e16452fd3b_4ffcb868b8c9ff711f72fbc222b07b27",
+          "pass": false,
+          "score": 0,
+          "correct": false,
+          "responseChars": 4140,
+          "missing": 0
+        },
+        {
+          "id": "fa0cd84fd7ef3d92d399645d5e73e28b_393a8003c0e5b5552040197680f74156",
+          "pass": true,
+          "score": 1,
+          "correct": true,
+          "responseChars": 2992,
+          "missing": 0
+        },
+        {
+          "id": "b9bbd50a28dee4bce51b35f6615e9929_b239ce01ae5cc15d73ab875ffd6ca44a",
+          "pass": true,
+          "score": 1,
+          "correct": false,
+          "responseChars": 8899,
+          "missing": 0
+        },
+        {
+          "id": "3401fd97837e2e5142064a220ee4c443_e4aae36f193da905d6dca7185fc00d74",
+          "pass": false,
+          "score": 0,
+          "correct": false,
+          "responseChars": 2320,
+          "missing": 0
+        },
+        {
+          "id": "51cab744ffa25fb2b8e55462ba95d447_e72cc47f19d3f232740e4627961d79d8",
+          "pass": false,
+          "score": 0,
+          "correct": false,
+          "responseChars": 2764,
+          "missing": 0
+        },
+        {
+          "id": "d3375088280729c20950647504fd12ff_2e1f0637a26d5955d194f3a71f9ef000",
+          "pass": true,
+          "score": 1,
+          "correct": true,
+          "responseChars": 2990,
+          "missing": 0
+        },
+        {
+          "id": "5c0953ccc0fe13a7c7843f7c30711707_9b0a1f20fe1161ee7e459a347e2de29e",
+          "pass": false,
+          "score": 0,
+          "correct": false,
+          "responseChars": 32578,
+          "missing": 0
+        },
+        {
+          "id": "bfb9b703dc545801d8dc5da137b2739d_c5d655d5bb71bef56e18855b07feeae7",
+          "pass": false,
+          "score": 0,
+          "correct": false,
+          "responseChars": 4123,
+          "missing": 0
+        },
+        {
+          "id": "06a7b64808e0ff01fe98c4e3d7fd8373_3151468e2bce491c491ab7d6e464989c",
+          "pass": false,
+          "score": 0,
+          "correct": false,
+          "responseChars": 2464,
+          "missing": 0
+        },
+        {
+          "id": "12417566ea50ca18172fc263294c5f39_876d5bf34b0ae1cee736c455c7f6ae92",
+          "pass": false,
+          "score": 0,
+          "correct": false,
+          "responseChars": 3426,
+          "missing": 0
+        },
+        {
+          "id": "1a5e02f4c2b7cdbe6e6cdf79952ebf6b_d849833243ab3748654b844e6bfed7b8",
+          "pass": false,
+          "score": 0,
+          "correct": false,
+          "responseChars": 54691,
+          "missing": 0
+        },
+        {
+          "id": "1bf3b482c219ddab8984703e93118cf5_1fab9b86cd71c03c7bff6099f057820e",
+          "pass": false,
+          "score": 0,
+          "correct": false,
+          "responseChars": 15808,
+          "missing": 0
+        },
+        {
+          "id": "baf2a6dfb7a6af74f37ffd4abb3eaf45_a948bf168a7169eb9373a27f5d630870",
+          "pass": false,
+          "score": 0.3,
+          "correct": true,
+          "responseChars": 2610,
+          "missing": 0
+        },
+        {
+          "id": "03927b9bcf620c4ee68271a80692b351_dee2e96b000e11691c6a03d182193ec7",
+          "pass": false,
+          "score": 0,
+          "correct": false,
+          "responseChars": 25073,
+          "missing": 0
+        },
+        {
+          "id": "f284e29facabdfeb159e19ff53aa0242_83c1b053434c8f154938fe5559d4f4b8",
+          "pass": false,
+          "score": 0,
+          "correct": false,
+          "responseChars": 8297,
+          "missing": 0
+        },
+        {
+          "id": "a3214bdf6f261a6ac7acb7d79bf25df1_592fbad3b6f89c9f50098ea529f56dc1",
+          "pass": false,
+          "score": 0,
+          "correct": false,
+          "responseChars": 3740,
+          "missing": 0
+        },
+        {
+          "id": "90ff1112e578b41c75469baf8077d243_d11b1cafc9e9d0bc9b04688ecc9a604e",
+          "pass": true,
+          "score": 1,
+          "correct": true,
+          "responseChars": 2519,
+          "missing": 0
+        },
+        {
+          "id": "8e3ed1a096e996f4acacb9bd03fc10d9_ee5653381cba8076c18d1079587930c6",
+          "pass": true,
+          "score": 1,
+          "correct": true,
+          "responseChars": 2763,
+          "missing": 0
+        },
+        {
+          "id": "51a34ae09daf62b1743c88a1af5cdec9_5b7ba7dc2af6bb97966f0832cadd8fcb",
+          "pass": false,
+          "score": 0,
+          "correct": false,
+          "responseChars": 3598,
+          "missing": 0
+        },
+        {
+          "id": "f80aae6d83ccb375e49ea15bfd8ac5d1_66d1bbb20475c340d647519c9e4f5db8",
+          "pass": false,
+          "score": 0,
+          "correct": false,
+          "responseChars": 3322,
+          "missing": 0
+        },
+        {
+          "id": "b173752441e98eff08bc87251c0e70aa_433bf55c2f33df9369463e94b70a07dc",
+          "pass": false,
+          "score": 0,
+          "correct": true,
+          "responseChars": 44504,
+          "missing": 0
+        },
+        {
+          "id": "71e2d5758cd41f6229a8d2ee2a48fc3c_9f960a07f7eea3418e2582b40851d4fe",
+          "pass": true,
+          "score": 1,
+          "correct": false,
+          "responseChars": 14984,
+          "missing": 0
+        },
+        {
+          "id": "8549f4ef6a78c00928955dbc7c7f1fa7_4c541ce85b883a6d5c42c6edfc8828e7",
+          "pass": true,
+          "score": 1,
+          "correct": false,
+          "responseChars": 46169,
+          "missing": 0
+        },
+        {
+          "id": "d0c8badc5397366d9fa703aa3fc09539_f925e2381ebfaa1578d07a646aefde58",
+          "pass": true,
+          "score": 1,
+          "correct": true,
+          "responseChars": 2184,
+          "missing": 0
+        },
+        {
+          "id": "b2cce1e0d1c9d642c84c1475cab4dc7f_fbdf7e874d4a8623febf36a884552cc1",
+          "pass": false,
+          "score": 0,
+          "correct": false,
+          "responseChars": 34779,
+          "missing": 0
+        },
+        {
+          "id": "ad9e092461cee0aaa0ee713b1bcc5549_05ea9aa23a0312c963c74db80d16130b",
+          "pass": false,
+          "score": 0.2,
+          "correct": false,
+          "responseChars": 32162,
+          "missing": 0
+        },
+        {
+          "id": "93d0a48b6abc7839aa7f72e070868dd2_a5f5f24acd8daf76264d981d4db16c98",
+          "pass": false,
+          "score": 0,
+          "correct": false,
+          "responseChars": 3213,
+          "missing": 0
+        },
+        {
+          "id": "d9dff41d573180ecfb4a2a046051907f_be0778a6d01f7806fdb0ed6808d39678",
+          "pass": true,
+          "score": 0.55,
+          "correct": false,
+          "responseChars": 11373,
+          "missing": 0
+        },
+        {
+          "id": "02338a82954f78d15eced8c418b1ae6d_34d95fd1692d195b8e340f03640682d8",
+          "pass": false,
+          "score": 0,
+          "correct": false,
+          "responseChars": 4692,
+          "missing": 0
+        },
+        {
+          "id": "99b47ca9950710f76b893bd08a9e4fcb_07af34d411bad329fb6749b5cd80570f",
+          "pass": false,
+          "score": 0,
+          "correct": false,
+          "responseChars": 27577,
+          "missing": 0
+        },
+        {
+          "id": "94952c1218b51c4c88fdadb9b517e95d_b661ef47df07a4d6e291b16c25abdaaa",
+          "pass": true,
+          "score": 1,
+          "correct": true,
+          "responseChars": 2101,
+          "missing": 0
+        },
+        {
+          "id": "0f8f62a6885496b268128d754c7a338b_cd0cc2aea00a8d96fbe3b8e21f02d9f7",
+          "pass": true,
+          "score": 1,
+          "correct": false,
+          "responseChars": 6508,
+          "missing": 0
+        },
+        {
+          "id": "5a0820f68025b9d6ef3d3062af88c17a_2780135e37ae181dd8a83828a4c4512e",
+          "pass": false,
+          "score": 0,
+          "correct": false,
+          "responseChars": 2829,
+          "missing": 0
+        },
+        {
+          "id": "2e7f5b41a327fb39c97b9d5b06788f6b_194ce3fb21f0fb17e9c38159b1074591",
+          "pass": false,
+          "score": 0,
+          "correct": false,
+          "responseChars": 30998,
+          "missing": 0
+        }
+      ]
+    }
+  ],
+  "newSpendUsd": 0,
+  "newCalls": 0,
+  "replayed": 1217,
+  "failedCalls": 0
+}

@@ -1,0 +1,9 @@
+
+ RUN  v5.0.3 /Users/assem/Documents/GitHub/driftbench/.worktrees/codex-verify
+
+
+ Test Files  7 passed (7)
+      Tests  56 passed (56)
+   Start at  04:37:31
+   Duration  9.84s (tests 60%, transform 22%, import 19%)
+
