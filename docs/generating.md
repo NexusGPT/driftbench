@@ -253,7 +253,7 @@ The Acme map was approved with `--all` on the owner's delegation, for the fictio
 * a data or task value is held only where the path's `when` or the family's `holds` states it; elsewhere the axis holds `none`, the value a data or task axis gets on a structured map;
 * a conversation holds no task setting, so a conversation event allows only `none` on the task axes.
 
-The inventory pre-pass also writes one constraint per flow a behaviour does not belong to. On Acme this leaves 708 allowed pairs, and `generate` covers 695 of them with complete specs. A value no allowed pair holds is named in the report under `cover.unreachable`. On Acme there is none: the price-sheet family's `start` knob reaches `workspace_start=existing-workbook`.
+The inventory pre-pass also writes one constraint per flow a behaviour does not belong to. On Acme this leaves 708 allowed pairs, and `generate` covers all of them with complete specs. A value no allowed pair holds is named in the report under `cover.unreachable`. On Acme there is none: the price-sheet family's `start` knob reaches `workspace_start=existing-workbook`.
 
 ```
 $ pnpm -s driftbench extract map _captures/docs3/generating/acme/map/approved.yaml --to _captures/docs3/generating/acme/map/space.yaml
@@ -389,10 +389,10 @@ A block the map supports no machine Then for, or a value with no approved phrase
 
 ```
 $ pnpm -s driftbench generate --map examples/acme/map/approved.yaml --out generated --baseline examples/acme/specs --t 2
-Actual axis-map coverage (written complete specs): pairs 701 of 701 (100.0%); triples 2871 of 4044 (71.0%).
+Actual axis-map coverage (written complete specs): pairs 708 of 708 (100.0%); triples 2885 of 4064 (71.0%).
 Candidate t-wise array (before the total cap): covering array of 156 rows over 5 dimensions, 356 of 356 allowed 2-tuples (100.0%); 2 pairs no path reaches are left out.
-Uncovered on the axis map: 0 pairs, 1173 triples (see coverage.actual[].uncovered).
-Map acme (../examples/acme/map/approved.yaml), hash 0f897ba84410: 51 dimensions, 187 values, 471 constraints, 55 approved phrases.
+Uncovered on the axis map: 0 pairs, 1179 triples (see coverage.actual[].uncovered).
+Map acme (../examples/acme/map/approved.yaml), hash 7c05b9cee9cc: 51 dimensions, 187 values, 463 constraints, 55 approved phrases.
 Seed 1, t = 2.
 
 Seeder        specs  blocks  complete  incomplete
@@ -401,14 +401,13 @@ twise           156     793       153           3
 boundary         85     146        13          72
 deviation        21     111        21           0
 metamorphic      42     192        42           0
-task             34      47        34           0
+task             67      71        67           0
 cover            28     155        28           0
 
 Stage graph: 18 of 23 edges covered in 12 paths from needs.
-Constraints applied: 471.
+Constraints applied: 463.
 Deviation probes: 12 of 12 classes. Metamorphic families: 21.
-Coverage on the axis map at t = 2: complete specs 701 of 701 (100.0%), all specs 701 (100.0%), examples/acme/specs 237 (33.8%).
-Values no allowed pair holds, so no spec can cover them until the map gives them a path: workspace_start=existing-workbook.
+Coverage on the axis map at t = 2: complete specs 708 of 708 (100.0%), all specs 708 (100.0%), examples/acme/specs 237 (33.5%).
 
 Values with no approved phrase (72): their blocks are placeholders in incomplete/.
   catalog.search.in.category=catalog.search.in.category.mobile  1 block(s)
@@ -438,11 +437,11 @@ Specs with a block the map supports no machine Then for (18), in incomplete/: ge
      1  no approved path needs callback_phone=not-given
      1  no approved path needs catalog.search.in.unknown-key=catalog.search.in.unknown-key.sent
      1  no approved path needs coverage.check.in.unknown-key=coverage.check.in.unknown-key.sent
-Wrote 379 files to generated.
+Wrote 508 files to generated.
 exit 1
 ```
 
-The files match the committed `examples/acme/generated`, apart from the relative path of the map, which follows the output folder. Exit 1 is the exit for a suite written with incomplete specs: 303 specs are complete, 75 are incomplete. Complete specs cover all 701 allowed pairs. The price-sheet flow has no conversation path: its specs come from the map's `task_family` relation, so B-013, B-014 and `sales-operations` hold allowed pairs through the [task families](#task-families). `--baseline <specs>` measures other specs on the same map for comparison; `--max <n>` caps the specs per seeder.
+The files match the committed `examples/acme/generated`, apart from the relative path of the map, which follows the output folder. Exit 1 is the exit for a suite written with incomplete specs: 336 specs are complete, 75 are incomplete. Complete specs cover all 708 allowed pairs. The price-sheet flow has no conversation path: its specs come from the map's `task_family` relation, so B-013, B-014 and `sales-operations` hold allowed pairs through the [task families](#task-families). `--baseline <specs>` measures other specs on the same map for comparison; `--max <n>` caps the specs per seeder.
 
 `generate-report.json` holds the generator and map identity, the options, the summary (specs, blocks, complete, incomplete), one entry per seeder, the stage graph, the covering array, the boundary values, the deviation probes, the metamorphic families, the constraints applied, the values with no phrase (`no_phrase`), the blocks with no machine Then and why (`no_then`), the coverage, and any invalid spec or lint finding. `generate` exits 0 when every block has an approved phrase and a Then, 1 when the suite is written with incomplete specs, a seeder cut by `--max` or a generator defect, 2 on a usage or input error (nothing written).
 
