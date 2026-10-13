@@ -83,17 +83,17 @@
     },
     {
       "judge": "council-a",
-      "key": "4ac668c3e7c5",
+      "key": "1358810feeb3",
       "criterion": "coverage_before_offer",
       "answer": {
-        "outcome": "fail",
-        "score": 0.1,
-        "reasoning": "scripted miss: the offered plans follow the coverage check"
+        "outcome": "pass",
+        "score": 0.95,
+        "reasoning": "the offered plans follow the coverage check"
       }
     },
     {
       "judge": "council-b",
-      "key": "4ac668c3e7c5",
+      "key": "1358810feeb3",
       "criterion": "coverage_before_offer",
       "answer": {
         "outcome": "pass",
@@ -103,7 +103,7 @@
     },
     {
       "judge": "council-c",
-      "key": "4ac668c3e7c5",
+      "key": "1358810feeb3",
       "criterion": "coverage_before_offer",
       "answer": {
         "outcome": "pass",
@@ -113,17 +113,7 @@
     },
     {
       "judge": "council-a",
-      "key": "2c9776b7a3c5",
-      "criterion": "coverage_before_offer",
-      "answer": {
-        "outcome": "fail",
-        "score": 0.1,
-        "reasoning": "Acme Fiber 300 is not in the catalog result for the address"
-      }
-    },
-    {
-      "judge": "council-b",
-      "key": "2c9776b7a3c5",
+      "key": "a0891aa1f1a7",
       "criterion": "coverage_before_offer",
       "answer": {
         "outcome": "pass",
@@ -132,8 +122,18 @@
       }
     },
     {
+      "judge": "council-b",
+      "key": "a0891aa1f1a7",
+      "criterion": "coverage_before_offer",
+      "answer": {
+        "outcome": "fail",
+        "score": 0.1,
+        "reasoning": "Acme Fiber 300 is not in the catalog result for the address"
+      }
+    },
+    {
       "judge": "council-c",
-      "key": "2c9776b7a3c5",
+      "key": "a0891aa1f1a7",
       "criterion": "coverage_before_offer",
       "answer": {
         "outcome": "fail",
@@ -383,7 +383,7 @@
     },
     {
       "judge": "council-a",
-      "key": "1a3f62b00082",
+      "key": "270e730e193e",
       "criterion": "coverage_before_offer",
       "answer": {
         "outcome": "pass",
@@ -393,7 +393,7 @@
     },
     {
       "judge": "council-b",
-      "key": "1a3f62b00082",
+      "key": "270e730e193e",
       "criterion": "coverage_before_offer",
       "answer": {
         "outcome": "pass",
@@ -403,67 +403,7 @@
     },
     {
       "judge": "council-c",
-      "key": "1a3f62b00082",
-      "criterion": "coverage_before_offer",
-      "answer": {
-        "outcome": "fail",
-        "score": 0.1,
-        "reasoning": "scripted miss: the offered plans follow the coverage check"
-      }
-    },
-    {
-      "judge": "council-a",
-      "key": "e6f311d3a2ac",
-      "criterion": "coverage_before_offer",
-      "answer": {
-        "outcome": "fail",
-        "score": 0.1,
-        "reasoning": "Acme Fiber 1000 is offered with no coverage check"
-      }
-    },
-    {
-      "judge": "council-b",
-      "key": "e6f311d3a2ac",
-      "criterion": "coverage_before_offer",
-      "answer": {
-        "outcome": "fail",
-        "score": 0.1,
-        "reasoning": "Acme Fiber 1000 is offered with no coverage check"
-      }
-    },
-    {
-      "judge": "council-c",
-      "key": "e6f311d3a2ac",
-      "criterion": "coverage_before_offer",
-      "answer": {
-        "outcome": "fail",
-        "score": 0.1,
-        "reasoning": "Acme Fiber 1000 is offered with no coverage check"
-      }
-    },
-    {
-      "judge": "council-a",
-      "key": "1a3f976949b0",
-      "criterion": "coverage_before_offer",
-      "answer": {
-        "outcome": "pass",
-        "score": 0.95,
-        "reasoning": "the offered plans follow the coverage check"
-      }
-    },
-    {
-      "judge": "council-b",
-      "key": "1a3f976949b0",
-      "criterion": "coverage_before_offer",
-      "answer": {
-        "outcome": "pass",
-        "score": 0.95,
-        "reasoning": "the offered plans follow the coverage check"
-      }
-    },
-    {
-      "judge": "council-c",
-      "key": "1a3f976949b0",
+      "key": "270e730e193e",
       "criterion": "coverage_before_offer",
       "answer": {
         "outcome": "pass",
@@ -473,7 +413,7 @@
     },
     {
       "judge": "council-a",
-      "key": "b67cd4fd5f1e",
+      "key": "e58ebf7912d5",
       "criterion": "coverage_before_offer",
       "answer": {
         "outcome": "fail",
@@ -483,7 +423,67 @@
     },
     {
       "judge": "council-b",
-      "key": "b67cd4fd5f1e",
+      "key": "e58ebf7912d5",
+      "criterion": "coverage_before_offer",
+      "answer": {
+        "outcome": "pass",
+        "score": 0.6,
+        "reasoning": "scripted miss: Acme Fiber 1000 is offered with no coverage check"
+      }
+    },
+    {
+      "judge": "council-c",
+      "key": "e58ebf7912d5",
+      "criterion": "coverage_before_offer",
+      "answer": {
+        "outcome": "fail",
+        "score": 0.1,
+        "reasoning": "Acme Fiber 1000 is offered with no coverage check"
+      }
+    },
+    {
+      "judge": "council-a",
+      "key": "b399263830e1",
+      "criterion": "coverage_before_offer",
+      "answer": {
+        "outcome": "pass",
+        "score": 0.95,
+        "reasoning": "the offered plans follow the coverage check"
+      }
+    },
+    {
+      "judge": "council-b",
+      "key": "b399263830e1",
+      "criterion": "coverage_before_offer",
+      "answer": {
+        "outcome": "pass",
+        "score": 0.95,
+        "reasoning": "the offered plans follow the coverage check"
+      }
+    },
+    {
+      "judge": "council-c",
+      "key": "b399263830e1",
+      "criterion": "coverage_before_offer",
+      "answer": {
+        "outcome": "pass",
+        "score": 0.95,
+        "reasoning": "the offered plans follow the coverage check"
+      }
+    },
+    {
+      "judge": "council-a",
+      "key": "d6813a659f9e",
+      "criterion": "coverage_before_offer",
+      "answer": {
+        "outcome": "fail",
+        "score": 0.1,
+        "reasoning": "Acme Fiber 1000 is offered with no coverage check"
+      }
+    },
+    {
+      "judge": "council-b",
+      "key": "d6813a659f9e",
       "criterion": "coverage_before_offer",
       "answer": {
         "outcome": "fail",
@@ -493,7 +493,7 @@
     },
     {
       "judge": "council-c",
-      "key": "b67cd4fd5f1e",
+      "key": "d6813a659f9e",
       "criterion": "coverage_before_offer",
       "answer": {
         "outcome": "fail",
@@ -713,7 +713,7 @@
     },
     {
       "judge": "council-a",
-      "key": "12b422b97ef1",
+      "key": "f19e7b27d2e5",
       "criterion": "coverage_before_offer",
       "answer": {
         "outcome": "pass",
@@ -723,7 +723,7 @@
     },
     {
       "judge": "council-b",
-      "key": "12b422b97ef1",
+      "key": "f19e7b27d2e5",
       "criterion": "coverage_before_offer",
       "answer": {
         "outcome": "pass",
@@ -733,7 +733,47 @@
     },
     {
       "judge": "council-c",
-      "key": "12b422b97ef1",
+      "key": "f19e7b27d2e5",
+      "criterion": "coverage_before_offer",
+      "answer": {
+        "outcome": "pass",
+        "score": 0.95,
+        "reasoning": "the offered plans follow the coverage check"
+      }
+    },
+    {
+      "judge": "council-a",
+      "key": "3245cf7d267d",
+      "criterion": "coverage_before_offer",
+      "answer": {
+        "outcome": "fail",
+        "score": 0.1,
+        "reasoning": "Acme Fiber 300 is offered with no coverage check"
+      }
+    },
+    {
+      "judge": "council-b",
+      "key": "3245cf7d267d",
+      "criterion": "coverage_before_offer",
+      "answer": {
+        "outcome": "fail",
+        "score": 0.1,
+        "reasoning": "Acme Fiber 300 is offered with no coverage check"
+      }
+    },
+    {
+      "judge": "council-c",
+      "key": "3245cf7d267d",
+      "criterion": "coverage_before_offer",
+      "answer": {
+        "outcome": "fail",
+        "score": 0.1,
+        "reasoning": "Acme Fiber 300 is offered with no coverage check"
+      }
+    },
+    {
+      "judge": "council-a",
+      "key": "7e362a574176",
       "criterion": "coverage_before_offer",
       "answer": {
         "outcome": "fail",
@@ -742,48 +782,8 @@
       }
     },
     {
-      "judge": "council-a",
-      "key": "34ab4c954651",
-      "criterion": "coverage_before_offer",
-      "answer": {
-        "outcome": "fail",
-        "score": 0.1,
-        "reasoning": "Acme Fiber 300 is offered with no coverage check"
-      }
-    },
-    {
       "judge": "council-b",
-      "key": "34ab4c954651",
-      "criterion": "coverage_before_offer",
-      "answer": {
-        "outcome": "fail",
-        "score": 0.1,
-        "reasoning": "Acme Fiber 300 is offered with no coverage check"
-      }
-    },
-    {
-      "judge": "council-c",
-      "key": "34ab4c954651",
-      "criterion": "coverage_before_offer",
-      "answer": {
-        "outcome": "fail",
-        "score": 0.1,
-        "reasoning": "Acme Fiber 300 is offered with no coverage check"
-      }
-    },
-    {
-      "judge": "council-a",
-      "key": "db560667bcef",
-      "criterion": "coverage_before_offer",
-      "answer": {
-        "outcome": "pass",
-        "score": 0.95,
-        "reasoning": "the offered plans follow the coverage check"
-      }
-    },
-    {
-      "judge": "council-b",
-      "key": "db560667bcef",
+      "key": "7e362a574176",
       "criterion": "coverage_before_offer",
       "answer": {
         "outcome": "pass",
@@ -793,7 +793,7 @@
     },
     {
       "judge": "council-c",
-      "key": "db560667bcef",
+      "key": "7e362a574176",
       "criterion": "coverage_before_offer",
       "answer": {
         "outcome": "pass",
@@ -803,7 +803,7 @@
     },
     {
       "judge": "council-a",
-      "key": "a688af6491a5",
+      "key": "5891f722f968",
       "criterion": "coverage_before_offer",
       "answer": {
         "outcome": "fail",
@@ -813,7 +813,7 @@
     },
     {
       "judge": "council-b",
-      "key": "a688af6491a5",
+      "key": "5891f722f968",
       "criterion": "coverage_before_offer",
       "answer": {
         "outcome": "fail",
@@ -823,7 +823,7 @@
     },
     {
       "judge": "council-c",
-      "key": "a688af6491a5",
+      "key": "5891f722f968",
       "criterion": "coverage_before_offer",
       "answer": {
         "outcome": "fail",
@@ -1373,7 +1373,7 @@
     },
     {
       "judge": "council-a",
-      "key": "9fc9d9701dec",
+      "key": "aede46849846",
       "criterion": "coverage_before_offer",
       "answer": {
         "outcome": "pass",
@@ -1383,7 +1383,7 @@
     },
     {
       "judge": "council-b",
-      "key": "9fc9d9701dec",
+      "key": "aede46849846",
       "criterion": "coverage_before_offer",
       "answer": {
         "outcome": "pass",
@@ -1393,17 +1393,17 @@
     },
     {
       "judge": "council-c",
-      "key": "9fc9d9701dec",
+      "key": "aede46849846",
       "criterion": "coverage_before_offer",
       "answer": {
-        "outcome": "fail",
-        "score": 0.1,
-        "reasoning": "scripted miss: the offered plans follow the coverage check"
+        "outcome": "pass",
+        "score": 0.95,
+        "reasoning": "the offered plans follow the coverage check"
       }
     },
     {
       "judge": "council-a",
-      "key": "d7324ec4cb5c",
+      "key": "c1a9f5c7571a",
       "criterion": "coverage_before_offer",
       "answer": {
         "outcome": "fail",
@@ -1413,7 +1413,7 @@
     },
     {
       "judge": "council-b",
-      "key": "d7324ec4cb5c",
+      "key": "c1a9f5c7571a",
       "criterion": "coverage_before_offer",
       "answer": {
         "outcome": "fail",
@@ -1423,7 +1423,7 @@
     },
     {
       "judge": "council-c",
-      "key": "d7324ec4cb5c",
+      "key": "c1a9f5c7571a",
       "criterion": "coverage_before_offer",
       "answer": {
         "outcome": "fail",
@@ -1433,7 +1433,7 @@
     },
     {
       "judge": "council-a",
-      "key": "2d4e52b1471d",
+      "key": "51ae05d11433",
       "criterion": "coverage_before_offer",
       "answer": {
         "outcome": "pass",
@@ -1443,7 +1443,7 @@
     },
     {
       "judge": "council-b",
-      "key": "2d4e52b1471d",
+      "key": "51ae05d11433",
       "criterion": "coverage_before_offer",
       "answer": {
         "outcome": "pass",
@@ -1453,7 +1453,7 @@
     },
     {
       "judge": "council-c",
-      "key": "2d4e52b1471d",
+      "key": "51ae05d11433",
       "criterion": "coverage_before_offer",
       "answer": {
         "outcome": "pass",
@@ -1463,7 +1463,17 @@
     },
     {
       "judge": "council-a",
-      "key": "1a7c1c54d1a2",
+      "key": "ff2102736c79",
+      "criterion": "coverage_before_offer",
+      "answer": {
+        "outcome": "fail",
+        "score": 0.1,
+        "reasoning": "Acme Air 5G is offered with no coverage check"
+      }
+    },
+    {
+      "judge": "council-b",
+      "key": "ff2102736c79",
       "criterion": "coverage_before_offer",
       "answer": {
         "outcome": "pass",
@@ -1472,18 +1482,8 @@
       }
     },
     {
-      "judge": "council-b",
-      "key": "1a7c1c54d1a2",
-      "criterion": "coverage_before_offer",
-      "answer": {
-        "outcome": "fail",
-        "score": 0.1,
-        "reasoning": "Acme Air 5G is offered with no coverage check"
-      }
-    },
-    {
       "judge": "council-c",
-      "key": "1a7c1c54d1a2",
+      "key": "ff2102736c79",
       "criterion": "coverage_before_offer",
       "answer": {
         "outcome": "fail",
@@ -1613,17 +1613,17 @@
     },
     {
       "judge": "council-a",
-      "key": "7f508a8825c8",
+      "key": "57c8f23e9d58",
       "criterion": "coverage_before_offer",
       "answer": {
-        "outcome": "fail",
-        "score": 0.1,
-        "reasoning": "scripted miss: the offered plans follow the coverage check"
+        "outcome": "pass",
+        "score": 0.95,
+        "reasoning": "the offered plans follow the coverage check"
       }
     },
     {
       "judge": "council-b",
-      "key": "7f508a8825c8",
+      "key": "57c8f23e9d58",
       "criterion": "coverage_before_offer",
       "answer": {
         "outcome": "pass",
@@ -1633,7 +1633,7 @@
     },
     {
       "judge": "council-c",
-      "key": "7f508a8825c8",
+      "key": "57c8f23e9d58",
       "criterion": "coverage_before_offer",
       "answer": {
         "outcome": "pass",
@@ -1643,7 +1643,7 @@
     },
     {
       "judge": "council-a",
-      "key": "7d11497a6fb8",
+      "key": "678742c41494",
       "criterion": "coverage_before_offer",
       "answer": {
         "outcome": "fail",
@@ -1653,7 +1653,7 @@
     },
     {
       "judge": "council-b",
-      "key": "7d11497a6fb8",
+      "key": "678742c41494",
       "criterion": "coverage_before_offer",
       "answer": {
         "outcome": "fail",
@@ -1663,12 +1663,12 @@
     },
     {
       "judge": "council-c",
-      "key": "7d11497a6fb8",
+      "key": "678742c41494",
       "criterion": "coverage_before_offer",
       "answer": {
-        "outcome": "fail",
-        "score": 0.1,
-        "reasoning": "Acme Fiber 300 is offered with no coverage check"
+        "outcome": "pass",
+        "score": 0.6,
+        "reasoning": "scripted miss: Acme Fiber 300 is offered with no coverage check"
       }
     },
     {
@@ -1793,7 +1793,7 @@
     },
     {
       "judge": "council-a",
-      "key": "228c724a254b",
+      "key": "b807b46e4faa",
       "criterion": "coverage_before_offer",
       "answer": {
         "outcome": "fail",
@@ -1803,7 +1803,7 @@
     },
     {
       "judge": "council-b",
-      "key": "228c724a254b",
+      "key": "b807b46e4faa",
       "criterion": "coverage_before_offer",
       "answer": {
         "outcome": "pass",
@@ -1813,7 +1813,7 @@
     },
     {
       "judge": "council-c",
-      "key": "228c724a254b",
+      "key": "b807b46e4faa",
       "criterion": "coverage_before_offer",
       "answer": {
         "outcome": "pass",
@@ -1823,7 +1823,7 @@
     },
     {
       "judge": "council-a",
-      "key": "129fec6f0f5c",
+      "key": "a4e4bae66d01",
       "criterion": "coverage_before_offer",
       "answer": {
         "outcome": "pass",
@@ -1833,7 +1833,7 @@
     },
     {
       "judge": "council-b",
-      "key": "129fec6f0f5c",
+      "key": "a4e4bae66d01",
       "criterion": "coverage_before_offer",
       "answer": {
         "outcome": "fail",
@@ -1843,7 +1843,7 @@
     },
     {
       "judge": "council-c",
-      "key": "129fec6f0f5c",
+      "key": "a4e4bae66d01",
       "criterion": "coverage_before_offer",
       "answer": {
         "outcome": "fail",
@@ -2633,7 +2633,7 @@
     },
     {
       "judge": "council-a",
-      "key": "6e2971277ce1",
+      "key": "ae5e647a9e33",
       "criterion": "coverage_before_offer",
       "answer": {
         "outcome": "pass",
@@ -2643,7 +2643,7 @@
     },
     {
       "judge": "council-b",
-      "key": "6e2971277ce1",
+      "key": "ae5e647a9e33",
       "criterion": "coverage_before_offer",
       "answer": {
         "outcome": "fail",
@@ -2653,7 +2653,7 @@
     },
     {
       "judge": "council-c",
-      "key": "6e2971277ce1",
+      "key": "ae5e647a9e33",
       "criterion": "coverage_before_offer",
       "answer": {
         "outcome": "pass",
@@ -2663,7 +2663,7 @@
     },
     {
       "judge": "council-a",
-      "key": "687a76931677",
+      "key": "c0f365bc9848",
       "criterion": "coverage_before_offer",
       "answer": {
         "outcome": "fail",
@@ -2673,7 +2673,7 @@
     },
     {
       "judge": "council-b",
-      "key": "687a76931677",
+      "key": "c0f365bc9848",
       "criterion": "coverage_before_offer",
       "answer": {
         "outcome": "pass",
@@ -2683,7 +2683,7 @@
     },
     {
       "judge": "council-c",
-      "key": "687a76931677",
+      "key": "c0f365bc9848",
       "criterion": "coverage_before_offer",
       "answer": {
         "outcome": "pass",
@@ -2693,67 +2693,7 @@
     },
     {
       "judge": "council-a",
-      "key": "8e561c26fa05",
-      "criterion": "coverage_before_offer",
-      "answer": {
-        "outcome": "pass",
-        "score": 0.95,
-        "reasoning": "the offered plans follow the coverage check"
-      }
-    },
-    {
-      "judge": "council-b",
-      "key": "8e561c26fa05",
-      "criterion": "coverage_before_offer",
-      "answer": {
-        "outcome": "fail",
-        "score": 0.1,
-        "reasoning": "scripted miss: the offered plans follow the coverage check"
-      }
-    },
-    {
-      "judge": "council-c",
-      "key": "8e561c26fa05",
-      "criterion": "coverage_before_offer",
-      "answer": {
-        "outcome": "pass",
-        "score": 0.95,
-        "reasoning": "the offered plans follow the coverage check"
-      }
-    },
-    {
-      "judge": "council-a",
-      "key": "cd2061a85f4c",
-      "criterion": "coverage_before_offer",
-      "answer": {
-        "outcome": "pass",
-        "score": 0.95,
-        "reasoning": "the offered plans follow the coverage check"
-      }
-    },
-    {
-      "judge": "council-b",
-      "key": "cd2061a85f4c",
-      "criterion": "coverage_before_offer",
-      "answer": {
-        "outcome": "pass",
-        "score": 0.95,
-        "reasoning": "the offered plans follow the coverage check"
-      }
-    },
-    {
-      "judge": "council-c",
-      "key": "cd2061a85f4c",
-      "criterion": "coverage_before_offer",
-      "answer": {
-        "outcome": "pass",
-        "score": 0.95,
-        "reasoning": "the offered plans follow the coverage check"
-      }
-    },
-    {
-      "judge": "council-a",
-      "key": "03c7456e858c",
+      "key": "f2a2b3eccd37",
       "criterion": "coverage_before_offer",
       "answer": {
         "outcome": "fail",
@@ -2763,7 +2703,7 @@
     },
     {
       "judge": "council-b",
-      "key": "03c7456e858c",
+      "key": "f2a2b3eccd37",
       "criterion": "coverage_before_offer",
       "answer": {
         "outcome": "pass",
@@ -2773,7 +2713,7 @@
     },
     {
       "judge": "council-c",
-      "key": "03c7456e858c",
+      "key": "f2a2b3eccd37",
       "criterion": "coverage_before_offer",
       "answer": {
         "outcome": "pass",
@@ -2783,7 +2723,7 @@
     },
     {
       "judge": "council-a",
-      "key": "3b979412bdf2",
+      "key": "8767918e28c9",
       "criterion": "coverage_before_offer",
       "answer": {
         "outcome": "pass",
@@ -2793,7 +2733,7 @@
     },
     {
       "judge": "council-b",
-      "key": "3b979412bdf2",
+      "key": "8767918e28c9",
       "criterion": "coverage_before_offer",
       "answer": {
         "outcome": "pass",
@@ -2803,7 +2743,7 @@
     },
     {
       "judge": "council-c",
-      "key": "3b979412bdf2",
+      "key": "8767918e28c9",
       "criterion": "coverage_before_offer",
       "answer": {
         "outcome": "pass",
@@ -2813,7 +2753,7 @@
     },
     {
       "judge": "council-a",
-      "key": "49cd8c2a81c2",
+      "key": "b6b746e291ff",
       "criterion": "coverage_before_offer",
       "answer": {
         "outcome": "pass",
@@ -2823,7 +2763,7 @@
     },
     {
       "judge": "council-b",
-      "key": "49cd8c2a81c2",
+      "key": "b6b746e291ff",
       "criterion": "coverage_before_offer",
       "answer": {
         "outcome": "pass",
@@ -2833,7 +2773,97 @@
     },
     {
       "judge": "council-c",
-      "key": "49cd8c2a81c2",
+      "key": "b6b746e291ff",
+      "criterion": "coverage_before_offer",
+      "answer": {
+        "outcome": "pass",
+        "score": 0.95,
+        "reasoning": "the offered plans follow the coverage check"
+      }
+    },
+    {
+      "judge": "council-a",
+      "key": "e31ac3777cf4",
+      "criterion": "coverage_before_offer",
+      "answer": {
+        "outcome": "pass",
+        "score": 0.95,
+        "reasoning": "the offered plans follow the coverage check"
+      }
+    },
+    {
+      "judge": "council-b",
+      "key": "e31ac3777cf4",
+      "criterion": "coverage_before_offer",
+      "answer": {
+        "outcome": "pass",
+        "score": 0.95,
+        "reasoning": "the offered plans follow the coverage check"
+      }
+    },
+    {
+      "judge": "council-c",
+      "key": "e31ac3777cf4",
+      "criterion": "coverage_before_offer",
+      "answer": {
+        "outcome": "pass",
+        "score": 0.95,
+        "reasoning": "the offered plans follow the coverage check"
+      }
+    },
+    {
+      "judge": "council-a",
+      "key": "5d24b64b78fd",
+      "criterion": "coverage_before_offer",
+      "answer": {
+        "outcome": "pass",
+        "score": 0.95,
+        "reasoning": "the offered plans follow the coverage check"
+      }
+    },
+    {
+      "judge": "council-b",
+      "key": "5d24b64b78fd",
+      "criterion": "coverage_before_offer",
+      "answer": {
+        "outcome": "fail",
+        "score": 0.1,
+        "reasoning": "scripted miss: the offered plans follow the coverage check"
+      }
+    },
+    {
+      "judge": "council-c",
+      "key": "5d24b64b78fd",
+      "criterion": "coverage_before_offer",
+      "answer": {
+        "outcome": "pass",
+        "score": 0.95,
+        "reasoning": "the offered plans follow the coverage check"
+      }
+    },
+    {
+      "judge": "council-a",
+      "key": "70ca52df1239",
+      "criterion": "coverage_before_offer",
+      "answer": {
+        "outcome": "pass",
+        "score": 0.95,
+        "reasoning": "the offered plans follow the coverage check"
+      }
+    },
+    {
+      "judge": "council-b",
+      "key": "70ca52df1239",
+      "criterion": "coverage_before_offer",
+      "answer": {
+        "outcome": "pass",
+        "score": 0.95,
+        "reasoning": "the offered plans follow the coverage check"
+      }
+    },
+    {
+      "judge": "council-c",
+      "key": "70ca52df1239",
       "criterion": "coverage_before_offer",
       "answer": {
         "outcome": "fail",
@@ -2843,7 +2873,7 @@
     },
     {
       "judge": "council-a",
-      "key": "ee11f71dfd99",
+      "key": "4eb97d6fa7f3",
       "criterion": "coverage_before_offer",
       "answer": {
         "outcome": "pass",
@@ -2853,7 +2883,7 @@
     },
     {
       "judge": "council-b",
-      "key": "ee11f71dfd99",
+      "key": "4eb97d6fa7f3",
       "criterion": "coverage_before_offer",
       "answer": {
         "outcome": "pass",
@@ -2863,7 +2893,7 @@
     },
     {
       "judge": "council-c",
-      "key": "ee11f71dfd99",
+      "key": "4eb97d6fa7f3",
       "criterion": "coverage_before_offer",
       "answer": {
         "outcome": "pass",
@@ -2873,37 +2903,7 @@
     },
     {
       "judge": "council-a",
-      "key": "4900aeb4b05b",
-      "criterion": "coverage_before_offer",
-      "answer": {
-        "outcome": "pass",
-        "score": 0.95,
-        "reasoning": "the offered plans follow the coverage check"
-      }
-    },
-    {
-      "judge": "council-b",
-      "key": "4900aeb4b05b",
-      "criterion": "coverage_before_offer",
-      "answer": {
-        "outcome": "pass",
-        "score": 0.95,
-        "reasoning": "the offered plans follow the coverage check"
-      }
-    },
-    {
-      "judge": "council-c",
-      "key": "4900aeb4b05b",
-      "criterion": "coverage_before_offer",
-      "answer": {
-        "outcome": "fail",
-        "score": 0.1,
-        "reasoning": "scripted miss: the offered plans follow the coverage check"
-      }
-    },
-    {
-      "judge": "council-a",
-      "key": "fb87fabe97d6",
+      "key": "cee123377a4a",
       "criterion": "coverage_before_offer",
       "answer": {
         "outcome": "fail",
@@ -2913,7 +2913,7 @@
     },
     {
       "judge": "council-b",
-      "key": "fb87fabe97d6",
+      "key": "cee123377a4a",
       "criterion": "coverage_before_offer",
       "answer": {
         "outcome": "pass",
@@ -2923,7 +2923,7 @@
     },
     {
       "judge": "council-c",
-      "key": "fb87fabe97d6",
+      "key": "cee123377a4a",
       "criterion": "coverage_before_offer",
       "answer": {
         "outcome": "fail",
@@ -2933,7 +2933,67 @@
     },
     {
       "judge": "council-a",
-      "key": "f9bd118531d4",
+      "key": "c91c9e1a032a",
+      "criterion": "coverage_before_offer",
+      "answer": {
+        "outcome": "fail",
+        "score": 0.1,
+        "reasoning": "Acme Fiber 1000 is offered with no coverage check"
+      }
+    },
+    {
+      "judge": "council-b",
+      "key": "c91c9e1a032a",
+      "criterion": "coverage_before_offer",
+      "answer": {
+        "outcome": "fail",
+        "score": 0.1,
+        "reasoning": "Acme Fiber 1000 is offered with no coverage check"
+      }
+    },
+    {
+      "judge": "council-c",
+      "key": "c91c9e1a032a",
+      "criterion": "coverage_before_offer",
+      "answer": {
+        "outcome": "fail",
+        "score": 0.1,
+        "reasoning": "Acme Fiber 1000 is offered with no coverage check"
+      }
+    },
+    {
+      "judge": "council-a",
+      "key": "bc2a6951b44e",
+      "criterion": "coverage_before_offer",
+      "answer": {
+        "outcome": "fail",
+        "score": 0.1,
+        "reasoning": "Acme Fiber 1000 is offered with no coverage check"
+      }
+    },
+    {
+      "judge": "council-b",
+      "key": "bc2a6951b44e",
+      "criterion": "coverage_before_offer",
+      "answer": {
+        "outcome": "fail",
+        "score": 0.1,
+        "reasoning": "Acme Fiber 1000 is offered with no coverage check"
+      }
+    },
+    {
+      "judge": "council-c",
+      "key": "bc2a6951b44e",
+      "criterion": "coverage_before_offer",
+      "answer": {
+        "outcome": "fail",
+        "score": 0.1,
+        "reasoning": "Acme Fiber 1000 is offered with no coverage check"
+      }
+    },
+    {
+      "judge": "council-a",
+      "key": "75431e593314",
       "criterion": "coverage_before_offer",
       "answer": {
         "outcome": "pass",
@@ -2943,7 +3003,7 @@
     },
     {
       "judge": "council-b",
-      "key": "f9bd118531d4",
+      "key": "75431e593314",
       "criterion": "coverage_before_offer",
       "answer": {
         "outcome": "fail",
@@ -2953,7 +3013,7 @@
     },
     {
       "judge": "council-c",
-      "key": "f9bd118531d4",
+      "key": "75431e593314",
       "criterion": "coverage_before_offer",
       "answer": {
         "outcome": "fail",
@@ -2963,127 +3023,7 @@
     },
     {
       "judge": "council-a",
-      "key": "f177dfa92f52",
-      "criterion": "coverage_before_offer",
-      "answer": {
-        "outcome": "fail",
-        "score": 0.1,
-        "reasoning": "Acme Fiber 1000 is offered with no coverage check"
-      }
-    },
-    {
-      "judge": "council-b",
-      "key": "f177dfa92f52",
-      "criterion": "coverage_before_offer",
-      "answer": {
-        "outcome": "fail",
-        "score": 0.1,
-        "reasoning": "Acme Fiber 1000 is offered with no coverage check"
-      }
-    },
-    {
-      "judge": "council-c",
-      "key": "f177dfa92f52",
-      "criterion": "coverage_before_offer",
-      "answer": {
-        "outcome": "fail",
-        "score": 0.1,
-        "reasoning": "Acme Fiber 1000 is offered with no coverage check"
-      }
-    },
-    {
-      "judge": "council-a",
-      "key": "e128ff8ec8f9",
-      "criterion": "coverage_before_offer",
-      "answer": {
-        "outcome": "fail",
-        "score": 0.1,
-        "reasoning": "Acme Fiber 1000 is offered with no coverage check"
-      }
-    },
-    {
-      "judge": "council-b",
-      "key": "e128ff8ec8f9",
-      "criterion": "coverage_before_offer",
-      "answer": {
-        "outcome": "fail",
-        "score": 0.1,
-        "reasoning": "Acme Fiber 1000 is offered with no coverage check"
-      }
-    },
-    {
-      "judge": "council-c",
-      "key": "e128ff8ec8f9",
-      "criterion": "coverage_before_offer",
-      "answer": {
-        "outcome": "fail",
-        "score": 0.1,
-        "reasoning": "Acme Fiber 1000 is offered with no coverage check"
-      }
-    },
-    {
-      "judge": "council-a",
-      "key": "12e6ee415c46",
-      "criterion": "coverage_before_offer",
-      "answer": {
-        "outcome": "fail",
-        "score": 0.1,
-        "reasoning": "Acme Fiber 1000 is offered with no coverage check"
-      }
-    },
-    {
-      "judge": "council-b",
-      "key": "12e6ee415c46",
-      "criterion": "coverage_before_offer",
-      "answer": {
-        "outcome": "fail",
-        "score": 0.1,
-        "reasoning": "Acme Fiber 1000 is offered with no coverage check"
-      }
-    },
-    {
-      "judge": "council-c",
-      "key": "12e6ee415c46",
-      "criterion": "coverage_before_offer",
-      "answer": {
-        "outcome": "fail",
-        "score": 0.1,
-        "reasoning": "Acme Fiber 1000 is offered with no coverage check"
-      }
-    },
-    {
-      "judge": "council-a",
-      "key": "3e65a95a5c5c",
-      "criterion": "coverage_before_offer",
-      "answer": {
-        "outcome": "fail",
-        "score": 0.1,
-        "reasoning": "Acme Fiber 1000 is offered with no coverage check"
-      }
-    },
-    {
-      "judge": "council-b",
-      "key": "3e65a95a5c5c",
-      "criterion": "coverage_before_offer",
-      "answer": {
-        "outcome": "fail",
-        "score": 0.1,
-        "reasoning": "Acme Fiber 1000 is offered with no coverage check"
-      }
-    },
-    {
-      "judge": "council-c",
-      "key": "3e65a95a5c5c",
-      "criterion": "coverage_before_offer",
-      "answer": {
-        "outcome": "fail",
-        "score": 0.1,
-        "reasoning": "Acme Fiber 1000 is offered with no coverage check"
-      }
-    },
-    {
-      "judge": "council-a",
-      "key": "e2aeae553ce7",
+      "key": "44c02c90cab5",
       "criterion": "coverage_before_offer",
       "answer": {
         "outcome": "pass",
@@ -3093,7 +3033,7 @@
     },
     {
       "judge": "council-b",
-      "key": "e2aeae553ce7",
+      "key": "44c02c90cab5",
       "criterion": "coverage_before_offer",
       "answer": {
         "outcome": "fail",
@@ -3103,7 +3043,7 @@
     },
     {
       "judge": "council-c",
-      "key": "e2aeae553ce7",
+      "key": "44c02c90cab5",
       "criterion": "coverage_before_offer",
       "answer": {
         "outcome": "fail",
@@ -3113,7 +3053,7 @@
     },
     {
       "judge": "council-a",
-      "key": "e153d6bd1e95",
+      "key": "6965ae094507",
       "criterion": "coverage_before_offer",
       "answer": {
         "outcome": "fail",
@@ -3123,7 +3063,7 @@
     },
     {
       "judge": "council-b",
-      "key": "e153d6bd1e95",
+      "key": "6965ae094507",
       "criterion": "coverage_before_offer",
       "answer": {
         "outcome": "fail",
@@ -3133,317 +3073,17 @@
     },
     {
       "judge": "council-c",
-      "key": "e153d6bd1e95",
+      "key": "6965ae094507",
       "criterion": "coverage_before_offer",
       "answer": {
-        "outcome": "fail",
-        "score": 0.1,
-        "reasoning": "Acme Fiber 1000 is offered with no coverage check"
+        "outcome": "pass",
+        "score": 0.6,
+        "reasoning": "scripted miss: Acme Fiber 1000 is offered with no coverage check"
       }
     },
     {
       "judge": "council-a",
-      "key": "eb7e4bdcac09",
-      "criterion": "coverage_before_offer",
-      "answer": {
-        "outcome": "fail",
-        "score": 0.1,
-        "reasoning": "Acme Fiber 1000 is offered with no coverage check"
-      }
-    },
-    {
-      "judge": "council-b",
-      "key": "eb7e4bdcac09",
-      "criterion": "coverage_before_offer",
-      "answer": {
-        "outcome": "fail",
-        "score": 0.1,
-        "reasoning": "Acme Fiber 1000 is offered with no coverage check"
-      }
-    },
-    {
-      "judge": "council-c",
-      "key": "eb7e4bdcac09",
-      "criterion": "coverage_before_offer",
-      "answer": {
-        "outcome": "fail",
-        "score": 0.1,
-        "reasoning": "Acme Fiber 1000 is offered with no coverage check"
-      }
-    },
-    {
-      "judge": "council-a",
-      "key": "7b2558eb92bd",
-      "criterion": "coverage_before_offer",
-      "answer": {
-        "outcome": "pass",
-        "score": 0.95,
-        "reasoning": "the offered plans follow the coverage check"
-      }
-    },
-    {
-      "judge": "council-b",
-      "key": "7b2558eb92bd",
-      "criterion": "coverage_before_offer",
-      "answer": {
-        "outcome": "pass",
-        "score": 0.95,
-        "reasoning": "the offered plans follow the coverage check"
-      }
-    },
-    {
-      "judge": "council-c",
-      "key": "7b2558eb92bd",
-      "criterion": "coverage_before_offer",
-      "answer": {
-        "outcome": "pass",
-        "score": 0.95,
-        "reasoning": "the offered plans follow the coverage check"
-      }
-    },
-    {
-      "judge": "council-a",
-      "key": "1417981e5ce9",
-      "criterion": "coverage_before_offer",
-      "answer": {
-        "outcome": "fail",
-        "score": 0.1,
-        "reasoning": "scripted miss: the offered plans follow the coverage check"
-      }
-    },
-    {
-      "judge": "council-b",
-      "key": "1417981e5ce9",
-      "criterion": "coverage_before_offer",
-      "answer": {
-        "outcome": "pass",
-        "score": 0.95,
-        "reasoning": "the offered plans follow the coverage check"
-      }
-    },
-    {
-      "judge": "council-c",
-      "key": "1417981e5ce9",
-      "criterion": "coverage_before_offer",
-      "answer": {
-        "outcome": "pass",
-        "score": 0.95,
-        "reasoning": "the offered plans follow the coverage check"
-      }
-    },
-    {
-      "judge": "council-a",
-      "key": "8041686177c2",
-      "criterion": "coverage_before_offer",
-      "answer": {
-        "outcome": "pass",
-        "score": 0.95,
-        "reasoning": "the offered plans follow the coverage check"
-      }
-    },
-    {
-      "judge": "council-b",
-      "key": "8041686177c2",
-      "criterion": "coverage_before_offer",
-      "answer": {
-        "outcome": "pass",
-        "score": 0.95,
-        "reasoning": "the offered plans follow the coverage check"
-      }
-    },
-    {
-      "judge": "council-c",
-      "key": "8041686177c2",
-      "criterion": "coverage_before_offer",
-      "answer": {
-        "outcome": "pass",
-        "score": 0.95,
-        "reasoning": "the offered plans follow the coverage check"
-      }
-    },
-    {
-      "judge": "council-a",
-      "key": "f2d29be16dee",
-      "criterion": "coverage_before_offer",
-      "answer": {
-        "outcome": "pass",
-        "score": 0.95,
-        "reasoning": "the offered plans follow the coverage check"
-      }
-    },
-    {
-      "judge": "council-b",
-      "key": "f2d29be16dee",
-      "criterion": "coverage_before_offer",
-      "answer": {
-        "outcome": "fail",
-        "score": 0.1,
-        "reasoning": "scripted miss: the offered plans follow the coverage check"
-      }
-    },
-    {
-      "judge": "council-c",
-      "key": "f2d29be16dee",
-      "criterion": "coverage_before_offer",
-      "answer": {
-        "outcome": "pass",
-        "score": 0.95,
-        "reasoning": "the offered plans follow the coverage check"
-      }
-    },
-    {
-      "judge": "council-a",
-      "key": "b804907d0d09",
-      "criterion": "coverage_before_offer",
-      "answer": {
-        "outcome": "pass",
-        "score": 0.95,
-        "reasoning": "the offered plans follow the coverage check"
-      }
-    },
-    {
-      "judge": "council-b",
-      "key": "b804907d0d09",
-      "criterion": "coverage_before_offer",
-      "answer": {
-        "outcome": "fail",
-        "score": 0.1,
-        "reasoning": "scripted miss: the offered plans follow the coverage check"
-      }
-    },
-    {
-      "judge": "council-c",
-      "key": "b804907d0d09",
-      "criterion": "coverage_before_offer",
-      "answer": {
-        "outcome": "pass",
-        "score": 0.95,
-        "reasoning": "the offered plans follow the coverage check"
-      }
-    },
-    {
-      "judge": "council-a",
-      "key": "2808e7f51a75",
-      "criterion": "coverage_before_offer",
-      "answer": {
-        "outcome": "pass",
-        "score": 0.95,
-        "reasoning": "the offered plans follow the coverage check"
-      }
-    },
-    {
-      "judge": "council-b",
-      "key": "2808e7f51a75",
-      "criterion": "coverage_before_offer",
-      "answer": {
-        "outcome": "pass",
-        "score": 0.95,
-        "reasoning": "the offered plans follow the coverage check"
-      }
-    },
-    {
-      "judge": "council-c",
-      "key": "2808e7f51a75",
-      "criterion": "coverage_before_offer",
-      "answer": {
-        "outcome": "pass",
-        "score": 0.95,
-        "reasoning": "the offered plans follow the coverage check"
-      }
-    },
-    {
-      "judge": "council-a",
-      "key": "23485de1e826",
-      "criterion": "coverage_before_offer",
-      "answer": {
-        "outcome": "pass",
-        "score": 0.95,
-        "reasoning": "the offered plans follow the coverage check"
-      }
-    },
-    {
-      "judge": "council-b",
-      "key": "23485de1e826",
-      "criterion": "coverage_before_offer",
-      "answer": {
-        "outcome": "pass",
-        "score": 0.95,
-        "reasoning": "the offered plans follow the coverage check"
-      }
-    },
-    {
-      "judge": "council-c",
-      "key": "23485de1e826",
-      "criterion": "coverage_before_offer",
-      "answer": {
-        "outcome": "pass",
-        "score": 0.95,
-        "reasoning": "the offered plans follow the coverage check"
-      }
-    },
-    {
-      "judge": "council-a",
-      "key": "f781103def3b",
-      "criterion": "coverage_before_offer",
-      "answer": {
-        "outcome": "pass",
-        "score": 0.95,
-        "reasoning": "the offered plans follow the coverage check"
-      }
-    },
-    {
-      "judge": "council-b",
-      "key": "f781103def3b",
-      "criterion": "coverage_before_offer",
-      "answer": {
-        "outcome": "pass",
-        "score": 0.95,
-        "reasoning": "the offered plans follow the coverage check"
-      }
-    },
-    {
-      "judge": "council-c",
-      "key": "f781103def3b",
-      "criterion": "coverage_before_offer",
-      "answer": {
-        "outcome": "fail",
-        "score": 0.1,
-        "reasoning": "scripted miss: the offered plans follow the coverage check"
-      }
-    },
-    {
-      "judge": "council-a",
-      "key": "30a50910ce08",
-      "criterion": "coverage_before_offer",
-      "answer": {
-        "outcome": "fail",
-        "score": 0.1,
-        "reasoning": "scripted miss: the offered plans follow the coverage check"
-      }
-    },
-    {
-      "judge": "council-b",
-      "key": "30a50910ce08",
-      "criterion": "coverage_before_offer",
-      "answer": {
-        "outcome": "pass",
-        "score": 0.95,
-        "reasoning": "the offered plans follow the coverage check"
-      }
-    },
-    {
-      "judge": "council-c",
-      "key": "30a50910ce08",
-      "criterion": "coverage_before_offer",
-      "answer": {
-        "outcome": "pass",
-        "score": 0.95,
-        "reasoning": "the offered plans follow the coverage check"
-      }
-    },
-    {
-      "judge": "council-a",
-      "key": "96047c2b60d6",
+      "key": "81142044451c",
       "criterion": "coverage_before_offer",
       "answer": {
         "outcome": "fail",
@@ -3453,37 +3093,7 @@
     },
     {
       "judge": "council-b",
-      "key": "96047c2b60d6",
-      "criterion": "coverage_before_offer",
-      "answer": {
-        "outcome": "fail",
-        "score": 0.1,
-        "reasoning": "Acme Fiber 1000 is offered with no coverage check"
-      }
-    },
-    {
-      "judge": "council-c",
-      "key": "96047c2b60d6",
-      "criterion": "coverage_before_offer",
-      "answer": {
-        "outcome": "fail",
-        "score": 0.1,
-        "reasoning": "Acme Fiber 1000 is offered with no coverage check"
-      }
-    },
-    {
-      "judge": "council-a",
-      "key": "9a1b39d658ab",
-      "criterion": "coverage_before_offer",
-      "answer": {
-        "outcome": "fail",
-        "score": 0.1,
-        "reasoning": "Acme Fiber 1000 is offered with no coverage check"
-      }
-    },
-    {
-      "judge": "council-b",
-      "key": "9a1b39d658ab",
+      "key": "81142044451c",
       "criterion": "coverage_before_offer",
       "answer": {
         "outcome": "pass",
@@ -3493,7 +3103,7 @@
     },
     {
       "judge": "council-c",
-      "key": "9a1b39d658ab",
+      "key": "81142044451c",
       "criterion": "coverage_before_offer",
       "answer": {
         "outcome": "fail",
@@ -3503,7 +3113,347 @@
     },
     {
       "judge": "council-a",
-      "key": "c32618b9f6ed",
+      "key": "1fe08404fb33",
+      "criterion": "coverage_before_offer",
+      "answer": {
+        "outcome": "fail",
+        "score": 0.1,
+        "reasoning": "Acme Fiber 1000 is offered with no coverage check"
+      }
+    },
+    {
+      "judge": "council-b",
+      "key": "1fe08404fb33",
+      "criterion": "coverage_before_offer",
+      "answer": {
+        "outcome": "fail",
+        "score": 0.1,
+        "reasoning": "Acme Fiber 1000 is offered with no coverage check"
+      }
+    },
+    {
+      "judge": "council-c",
+      "key": "1fe08404fb33",
+      "criterion": "coverage_before_offer",
+      "answer": {
+        "outcome": "fail",
+        "score": 0.1,
+        "reasoning": "Acme Fiber 1000 is offered with no coverage check"
+      }
+    },
+    {
+      "judge": "council-a",
+      "key": "4d424b5b90c3",
+      "criterion": "coverage_before_offer",
+      "answer": {
+        "outcome": "fail",
+        "score": 0.1,
+        "reasoning": "Acme Fiber 1000 is offered with no coverage check"
+      }
+    },
+    {
+      "judge": "council-b",
+      "key": "4d424b5b90c3",
+      "criterion": "coverage_before_offer",
+      "answer": {
+        "outcome": "fail",
+        "score": 0.1,
+        "reasoning": "Acme Fiber 1000 is offered with no coverage check"
+      }
+    },
+    {
+      "judge": "council-c",
+      "key": "4d424b5b90c3",
+      "criterion": "coverage_before_offer",
+      "answer": {
+        "outcome": "fail",
+        "score": 0.1,
+        "reasoning": "Acme Fiber 1000 is offered with no coverage check"
+      }
+    },
+    {
+      "judge": "council-a",
+      "key": "e1c67d1f530c",
+      "criterion": "coverage_before_offer",
+      "answer": {
+        "outcome": "pass",
+        "score": 0.95,
+        "reasoning": "the offered plans follow the coverage check"
+      }
+    },
+    {
+      "judge": "council-b",
+      "key": "e1c67d1f530c",
+      "criterion": "coverage_before_offer",
+      "answer": {
+        "outcome": "pass",
+        "score": 0.95,
+        "reasoning": "the offered plans follow the coverage check"
+      }
+    },
+    {
+      "judge": "council-c",
+      "key": "e1c67d1f530c",
+      "criterion": "coverage_before_offer",
+      "answer": {
+        "outcome": "pass",
+        "score": 0.95,
+        "reasoning": "the offered plans follow the coverage check"
+      }
+    },
+    {
+      "judge": "council-a",
+      "key": "d0d9676805f5",
+      "criterion": "coverage_before_offer",
+      "answer": {
+        "outcome": "pass",
+        "score": 0.95,
+        "reasoning": "the offered plans follow the coverage check"
+      }
+    },
+    {
+      "judge": "council-b",
+      "key": "d0d9676805f5",
+      "criterion": "coverage_before_offer",
+      "answer": {
+        "outcome": "fail",
+        "score": 0.1,
+        "reasoning": "scripted miss: the offered plans follow the coverage check"
+      }
+    },
+    {
+      "judge": "council-c",
+      "key": "d0d9676805f5",
+      "criterion": "coverage_before_offer",
+      "answer": {
+        "outcome": "pass",
+        "score": 0.95,
+        "reasoning": "the offered plans follow the coverage check"
+      }
+    },
+    {
+      "judge": "council-a",
+      "key": "29d791845651",
+      "criterion": "coverage_before_offer",
+      "answer": {
+        "outcome": "pass",
+        "score": 0.95,
+        "reasoning": "the offered plans follow the coverage check"
+      }
+    },
+    {
+      "judge": "council-b",
+      "key": "29d791845651",
+      "criterion": "coverage_before_offer",
+      "answer": {
+        "outcome": "pass",
+        "score": 0.95,
+        "reasoning": "the offered plans follow the coverage check"
+      }
+    },
+    {
+      "judge": "council-c",
+      "key": "29d791845651",
+      "criterion": "coverage_before_offer",
+      "answer": {
+        "outcome": "pass",
+        "score": 0.95,
+        "reasoning": "the offered plans follow the coverage check"
+      }
+    },
+    {
+      "judge": "council-a",
+      "key": "35af915ac69f",
+      "criterion": "coverage_before_offer",
+      "answer": {
+        "outcome": "pass",
+        "score": 0.95,
+        "reasoning": "the offered plans follow the coverage check"
+      }
+    },
+    {
+      "judge": "council-b",
+      "key": "35af915ac69f",
+      "criterion": "coverage_before_offer",
+      "answer": {
+        "outcome": "pass",
+        "score": 0.95,
+        "reasoning": "the offered plans follow the coverage check"
+      }
+    },
+    {
+      "judge": "council-c",
+      "key": "35af915ac69f",
+      "criterion": "coverage_before_offer",
+      "answer": {
+        "outcome": "pass",
+        "score": 0.95,
+        "reasoning": "the offered plans follow the coverage check"
+      }
+    },
+    {
+      "judge": "council-a",
+      "key": "ff7149cfe5f3",
+      "criterion": "coverage_before_offer",
+      "answer": {
+        "outcome": "pass",
+        "score": 0.95,
+        "reasoning": "the offered plans follow the coverage check"
+      }
+    },
+    {
+      "judge": "council-b",
+      "key": "ff7149cfe5f3",
+      "criterion": "coverage_before_offer",
+      "answer": {
+        "outcome": "pass",
+        "score": 0.95,
+        "reasoning": "the offered plans follow the coverage check"
+      }
+    },
+    {
+      "judge": "council-c",
+      "key": "ff7149cfe5f3",
+      "criterion": "coverage_before_offer",
+      "answer": {
+        "outcome": "pass",
+        "score": 0.95,
+        "reasoning": "the offered plans follow the coverage check"
+      }
+    },
+    {
+      "judge": "council-a",
+      "key": "921f5364a606",
+      "criterion": "coverage_before_offer",
+      "answer": {
+        "outcome": "pass",
+        "score": 0.95,
+        "reasoning": "the offered plans follow the coverage check"
+      }
+    },
+    {
+      "judge": "council-b",
+      "key": "921f5364a606",
+      "criterion": "coverage_before_offer",
+      "answer": {
+        "outcome": "pass",
+        "score": 0.95,
+        "reasoning": "the offered plans follow the coverage check"
+      }
+    },
+    {
+      "judge": "council-c",
+      "key": "921f5364a606",
+      "criterion": "coverage_before_offer",
+      "answer": {
+        "outcome": "pass",
+        "score": 0.95,
+        "reasoning": "the offered plans follow the coverage check"
+      }
+    },
+    {
+      "judge": "council-a",
+      "key": "80b10df22227",
+      "criterion": "coverage_before_offer",
+      "answer": {
+        "outcome": "pass",
+        "score": 0.95,
+        "reasoning": "the offered plans follow the coverage check"
+      }
+    },
+    {
+      "judge": "council-b",
+      "key": "80b10df22227",
+      "criterion": "coverage_before_offer",
+      "answer": {
+        "outcome": "pass",
+        "score": 0.95,
+        "reasoning": "the offered plans follow the coverage check"
+      }
+    },
+    {
+      "judge": "council-c",
+      "key": "80b10df22227",
+      "criterion": "coverage_before_offer",
+      "answer": {
+        "outcome": "pass",
+        "score": 0.95,
+        "reasoning": "the offered plans follow the coverage check"
+      }
+    },
+    {
+      "judge": "council-a",
+      "key": "d825d212e1bc",
+      "criterion": "coverage_before_offer",
+      "answer": {
+        "outcome": "pass",
+        "score": 0.95,
+        "reasoning": "the offered plans follow the coverage check"
+      }
+    },
+    {
+      "judge": "council-b",
+      "key": "d825d212e1bc",
+      "criterion": "coverage_before_offer",
+      "answer": {
+        "outcome": "pass",
+        "score": 0.95,
+        "reasoning": "the offered plans follow the coverage check"
+      }
+    },
+    {
+      "judge": "council-c",
+      "key": "d825d212e1bc",
+      "criterion": "coverage_before_offer",
+      "answer": {
+        "outcome": "pass",
+        "score": 0.95,
+        "reasoning": "the offered plans follow the coverage check"
+      }
+    },
+    {
+      "judge": "council-a",
+      "key": "ca8771527c39",
+      "criterion": "coverage_before_offer",
+      "answer": {
+        "outcome": "pass",
+        "score": 0.95,
+        "reasoning": "the offered plans follow the coverage check"
+      }
+    },
+    {
+      "judge": "council-b",
+      "key": "ca8771527c39",
+      "criterion": "coverage_before_offer",
+      "answer": {
+        "outcome": "pass",
+        "score": 0.95,
+        "reasoning": "the offered plans follow the coverage check"
+      }
+    },
+    {
+      "judge": "council-c",
+      "key": "ca8771527c39",
+      "criterion": "coverage_before_offer",
+      "answer": {
+        "outcome": "fail",
+        "score": 0.1,
+        "reasoning": "scripted miss: the offered plans follow the coverage check"
+      }
+    },
+    {
+      "judge": "council-a",
+      "key": "09c91f1be41a",
+      "criterion": "coverage_before_offer",
+      "answer": {
+        "outcome": "fail",
+        "score": 0.1,
+        "reasoning": "Acme Fiber 1000 is offered with no coverage check"
+      }
+    },
+    {
+      "judge": "council-b",
+      "key": "09c91f1be41a",
       "criterion": "coverage_before_offer",
       "answer": {
         "outcome": "pass",
@@ -3512,18 +3462,8 @@
       }
     },
     {
-      "judge": "council-b",
-      "key": "c32618b9f6ed",
-      "criterion": "coverage_before_offer",
-      "answer": {
-        "outcome": "fail",
-        "score": 0.1,
-        "reasoning": "Acme Fiber 1000 is offered with no coverage check"
-      }
-    },
-    {
       "judge": "council-c",
-      "key": "c32618b9f6ed",
+      "key": "09c91f1be41a",
       "criterion": "coverage_before_offer",
       "answer": {
         "outcome": "fail",
@@ -3533,7 +3473,7 @@
     },
     {
       "judge": "council-a",
-      "key": "645f1a0f4bf9",
+      "key": "ac8edc9f5d6b",
       "criterion": "coverage_before_offer",
       "answer": {
         "outcome": "fail",
@@ -3543,7 +3483,7 @@
     },
     {
       "judge": "council-b",
-      "key": "645f1a0f4bf9",
+      "key": "ac8edc9f5d6b",
       "criterion": "coverage_before_offer",
       "answer": {
         "outcome": "fail",
@@ -3553,7 +3493,7 @@
     },
     {
       "judge": "council-c",
-      "key": "645f1a0f4bf9",
+      "key": "ac8edc9f5d6b",
       "criterion": "coverage_before_offer",
       "answer": {
         "outcome": "fail",
@@ -3563,7 +3503,7 @@
     },
     {
       "judge": "council-a",
-      "key": "338470a89771",
+      "key": "11d941d91eb2",
       "criterion": "coverage_before_offer",
       "answer": {
         "outcome": "fail",
@@ -3573,27 +3513,7 @@
     },
     {
       "judge": "council-b",
-      "key": "338470a89771",
-      "criterion": "coverage_before_offer",
-      "answer": {
-        "outcome": "fail",
-        "score": 0.1,
-        "reasoning": "Acme Fiber 1000 is offered with no coverage check"
-      }
-    },
-    {
-      "judge": "council-c",
-      "key": "338470a89771",
-      "criterion": "coverage_before_offer",
-      "answer": {
-        "outcome": "fail",
-        "score": 0.1,
-        "reasoning": "Acme Fiber 1000 is offered with no coverage check"
-      }
-    },
-    {
-      "judge": "council-a",
-      "key": "88b92004a0bd",
+      "key": "11d941d91eb2",
       "criterion": "coverage_before_offer",
       "answer": {
         "outcome": "pass",
@@ -3602,18 +3522,8 @@
       }
     },
     {
-      "judge": "council-b",
-      "key": "88b92004a0bd",
-      "criterion": "coverage_before_offer",
-      "answer": {
-        "outcome": "fail",
-        "score": 0.1,
-        "reasoning": "Acme Fiber 1000 is offered with no coverage check"
-      }
-    },
-    {
       "judge": "council-c",
-      "key": "88b92004a0bd",
+      "key": "11d941d91eb2",
       "criterion": "coverage_before_offer",
       "answer": {
         "outcome": "fail",
@@ -3623,7 +3533,7 @@
     },
     {
       "judge": "council-a",
-      "key": "5c9efc1a6514",
+      "key": "4bbef79696ae",
       "criterion": "coverage_before_offer",
       "answer": {
         "outcome": "fail",
@@ -3633,7 +3543,7 @@
     },
     {
       "judge": "council-b",
-      "key": "5c9efc1a6514",
+      "key": "4bbef79696ae",
       "criterion": "coverage_before_offer",
       "answer": {
         "outcome": "fail",
@@ -3643,7 +3553,7 @@
     },
     {
       "judge": "council-c",
-      "key": "5c9efc1a6514",
+      "key": "4bbef79696ae",
       "criterion": "coverage_before_offer",
       "answer": {
         "outcome": "fail",
@@ -3653,7 +3563,7 @@
     },
     {
       "judge": "council-a",
-      "key": "3de226e49e37",
+      "key": "f81cb53d3d52",
       "criterion": "coverage_before_offer",
       "answer": {
         "outcome": "fail",
@@ -3663,7 +3573,7 @@
     },
     {
       "judge": "council-b",
-      "key": "3de226e49e37",
+      "key": "f81cb53d3d52",
       "criterion": "coverage_before_offer",
       "answer": {
         "outcome": "fail",
@@ -3673,7 +3583,7 @@
     },
     {
       "judge": "council-c",
-      "key": "3de226e49e37",
+      "key": "f81cb53d3d52",
       "criterion": "coverage_before_offer",
       "answer": {
         "outcome": "fail",
@@ -3683,7 +3593,7 @@
     },
     {
       "judge": "council-a",
-      "key": "05f35fe27225",
+      "key": "bfd695e5864d",
       "criterion": "coverage_before_offer",
       "answer": {
         "outcome": "fail",
@@ -3693,7 +3603,7 @@
     },
     {
       "judge": "council-b",
-      "key": "05f35fe27225",
+      "key": "bfd695e5864d",
       "criterion": "coverage_before_offer",
       "answer": {
         "outcome": "fail",
@@ -3703,7 +3613,97 @@
     },
     {
       "judge": "council-c",
-      "key": "05f35fe27225",
+      "key": "bfd695e5864d",
+      "criterion": "coverage_before_offer",
+      "answer": {
+        "outcome": "fail",
+        "score": 0.1,
+        "reasoning": "Acme Fiber 1000 is offered with no coverage check"
+      }
+    },
+    {
+      "judge": "council-a",
+      "key": "09180e5bc856",
+      "criterion": "coverage_before_offer",
+      "answer": {
+        "outcome": "fail",
+        "score": 0.1,
+        "reasoning": "Acme Fiber 1000 is offered with no coverage check"
+      }
+    },
+    {
+      "judge": "council-b",
+      "key": "09180e5bc856",
+      "criterion": "coverage_before_offer",
+      "answer": {
+        "outcome": "fail",
+        "score": 0.1,
+        "reasoning": "Acme Fiber 1000 is offered with no coverage check"
+      }
+    },
+    {
+      "judge": "council-c",
+      "key": "09180e5bc856",
+      "criterion": "coverage_before_offer",
+      "answer": {
+        "outcome": "fail",
+        "score": 0.1,
+        "reasoning": "Acme Fiber 1000 is offered with no coverage check"
+      }
+    },
+    {
+      "judge": "council-a",
+      "key": "f6ad65637334",
+      "criterion": "coverage_before_offer",
+      "answer": {
+        "outcome": "fail",
+        "score": 0.1,
+        "reasoning": "Acme Fiber 1000 is offered with no coverage check"
+      }
+    },
+    {
+      "judge": "council-b",
+      "key": "f6ad65637334",
+      "criterion": "coverage_before_offer",
+      "answer": {
+        "outcome": "fail",
+        "score": 0.1,
+        "reasoning": "Acme Fiber 1000 is offered with no coverage check"
+      }
+    },
+    {
+      "judge": "council-c",
+      "key": "f6ad65637334",
+      "criterion": "coverage_before_offer",
+      "answer": {
+        "outcome": "pass",
+        "score": 0.6,
+        "reasoning": "scripted miss: Acme Fiber 1000 is offered with no coverage check"
+      }
+    },
+    {
+      "judge": "council-a",
+      "key": "6db2fd91a24d",
+      "criterion": "coverage_before_offer",
+      "answer": {
+        "outcome": "fail",
+        "score": 0.1,
+        "reasoning": "Acme Fiber 1000 is offered with no coverage check"
+      }
+    },
+    {
+      "judge": "council-b",
+      "key": "6db2fd91a24d",
+      "criterion": "coverage_before_offer",
+      "answer": {
+        "outcome": "fail",
+        "score": 0.1,
+        "reasoning": "Acme Fiber 1000 is offered with no coverage check"
+      }
+    },
+    {
+      "judge": "council-c",
+      "key": "6db2fd91a24d",
       "criterion": "coverage_before_offer",
       "answer": {
         "outcome": "fail",
@@ -5903,7 +5903,7 @@
     },
     {
       "judge": "council-a",
-      "key": "832c0c207b0b",
+      "key": "cbe1b4db7148",
       "criterion": "coverage_before_offer",
       "answer": {
         "outcome": "pass",
@@ -5913,7 +5913,7 @@
     },
     {
       "judge": "council-b",
-      "key": "832c0c207b0b",
+      "key": "cbe1b4db7148",
       "criterion": "coverage_before_offer",
       "answer": {
         "outcome": "pass",
@@ -5923,7 +5923,7 @@
     },
     {
       "judge": "council-c",
-      "key": "832c0c207b0b",
+      "key": "cbe1b4db7148",
       "criterion": "coverage_before_offer",
       "answer": {
         "outcome": "pass",
@@ -5933,7 +5933,7 @@
     },
     {
       "judge": "council-a",
-      "key": "606633aae256",
+      "key": "f98d36ef5fba",
       "criterion": "coverage_before_offer",
       "answer": {
         "outcome": "pass",
@@ -5943,97 +5943,7 @@
     },
     {
       "judge": "council-b",
-      "key": "606633aae256",
-      "criterion": "coverage_before_offer",
-      "answer": {
-        "outcome": "pass",
-        "score": 0.95,
-        "reasoning": "the offered plans follow the coverage check"
-      }
-    },
-    {
-      "judge": "council-c",
-      "key": "606633aae256",
-      "criterion": "coverage_before_offer",
-      "answer": {
-        "outcome": "pass",
-        "score": 0.95,
-        "reasoning": "the offered plans follow the coverage check"
-      }
-    },
-    {
-      "judge": "council-a",
-      "key": "17e221111ff3",
-      "criterion": "coverage_before_offer",
-      "answer": {
-        "outcome": "pass",
-        "score": 0.95,
-        "reasoning": "the offered plans follow the coverage check"
-      }
-    },
-    {
-      "judge": "council-b",
-      "key": "17e221111ff3",
-      "criterion": "coverage_before_offer",
-      "answer": {
-        "outcome": "pass",
-        "score": 0.95,
-        "reasoning": "the offered plans follow the coverage check"
-      }
-    },
-    {
-      "judge": "council-c",
-      "key": "17e221111ff3",
-      "criterion": "coverage_before_offer",
-      "answer": {
-        "outcome": "pass",
-        "score": 0.95,
-        "reasoning": "the offered plans follow the coverage check"
-      }
-    },
-    {
-      "judge": "council-a",
-      "key": "a36e10a648b8",
-      "criterion": "coverage_before_offer",
-      "answer": {
-        "outcome": "pass",
-        "score": 0.95,
-        "reasoning": "the offered plans follow the coverage check"
-      }
-    },
-    {
-      "judge": "council-b",
-      "key": "a36e10a648b8",
-      "criterion": "coverage_before_offer",
-      "answer": {
-        "outcome": "pass",
-        "score": 0.95,
-        "reasoning": "the offered plans follow the coverage check"
-      }
-    },
-    {
-      "judge": "council-c",
-      "key": "a36e10a648b8",
-      "criterion": "coverage_before_offer",
-      "answer": {
-        "outcome": "fail",
-        "score": 0.1,
-        "reasoning": "scripted miss: the offered plans follow the coverage check"
-      }
-    },
-    {
-      "judge": "council-a",
-      "key": "5d73650e34fd",
-      "criterion": "coverage_before_offer",
-      "answer": {
-        "outcome": "pass",
-        "score": 0.95,
-        "reasoning": "the offered plans follow the coverage check"
-      }
-    },
-    {
-      "judge": "council-b",
-      "key": "5d73650e34fd",
+      "key": "f98d36ef5fba",
       "criterion": "coverage_before_offer",
       "answer": {
         "outcome": "fail",
@@ -6043,7 +5953,7 @@
     },
     {
       "judge": "council-c",
-      "key": "5d73650e34fd",
+      "key": "f98d36ef5fba",
       "criterion": "coverage_before_offer",
       "answer": {
         "outcome": "pass",
@@ -6053,7 +5963,7 @@
     },
     {
       "judge": "council-a",
-      "key": "babe7ed4205e",
+      "key": "1cc743e02a99",
       "criterion": "coverage_before_offer",
       "answer": {
         "outcome": "pass",
@@ -6063,7 +5973,7 @@
     },
     {
       "judge": "council-b",
-      "key": "babe7ed4205e",
+      "key": "1cc743e02a99",
       "criterion": "coverage_before_offer",
       "answer": {
         "outcome": "pass",
@@ -6073,7 +5983,7 @@
     },
     {
       "judge": "council-c",
-      "key": "babe7ed4205e",
+      "key": "1cc743e02a99",
       "criterion": "coverage_before_offer",
       "answer": {
         "outcome": "pass",
@@ -6083,457 +5993,7 @@
     },
     {
       "judge": "council-a",
-      "key": "56f8a869ad3f",
-      "criterion": "coverage_before_offer",
-      "answer": {
-        "outcome": "pass",
-        "score": 0.95,
-        "reasoning": "the offered plans follow the coverage check"
-      }
-    },
-    {
-      "judge": "council-b",
-      "key": "56f8a869ad3f",
-      "criterion": "coverage_before_offer",
-      "answer": {
-        "outcome": "pass",
-        "score": 0.95,
-        "reasoning": "the offered plans follow the coverage check"
-      }
-    },
-    {
-      "judge": "council-c",
-      "key": "56f8a869ad3f",
-      "criterion": "coverage_before_offer",
-      "answer": {
-        "outcome": "pass",
-        "score": 0.95,
-        "reasoning": "the offered plans follow the coverage check"
-      }
-    },
-    {
-      "judge": "council-a",
-      "key": "2049ad46a1f2",
-      "criterion": "coverage_before_offer",
-      "answer": {
-        "outcome": "pass",
-        "score": 0.95,
-        "reasoning": "the offered plans follow the coverage check"
-      }
-    },
-    {
-      "judge": "council-b",
-      "key": "2049ad46a1f2",
-      "criterion": "coverage_before_offer",
-      "answer": {
-        "outcome": "fail",
-        "score": 0.1,
-        "reasoning": "scripted miss: the offered plans follow the coverage check"
-      }
-    },
-    {
-      "judge": "council-c",
-      "key": "2049ad46a1f2",
-      "criterion": "coverage_before_offer",
-      "answer": {
-        "outcome": "pass",
-        "score": 0.95,
-        "reasoning": "the offered plans follow the coverage check"
-      }
-    },
-    {
-      "judge": "council-a",
-      "key": "a023858ea76d",
-      "criterion": "coverage_before_offer",
-      "answer": {
-        "outcome": "pass",
-        "score": 0.95,
-        "reasoning": "the offered plans follow the coverage check"
-      }
-    },
-    {
-      "judge": "council-b",
-      "key": "a023858ea76d",
-      "criterion": "coverage_before_offer",
-      "answer": {
-        "outcome": "pass",
-        "score": 0.95,
-        "reasoning": "the offered plans follow the coverage check"
-      }
-    },
-    {
-      "judge": "council-c",
-      "key": "a023858ea76d",
-      "criterion": "coverage_before_offer",
-      "answer": {
-        "outcome": "pass",
-        "score": 0.95,
-        "reasoning": "the offered plans follow the coverage check"
-      }
-    },
-    {
-      "judge": "council-a",
-      "key": "59e7fed28820",
-      "criterion": "coverage_before_offer",
-      "answer": {
-        "outcome": "fail",
-        "score": 0.1,
-        "reasoning": "Acme Fiber 300 is offered with no coverage check"
-      }
-    },
-    {
-      "judge": "council-b",
-      "key": "59e7fed28820",
-      "criterion": "coverage_before_offer",
-      "answer": {
-        "outcome": "fail",
-        "score": 0.1,
-        "reasoning": "Acme Fiber 300 is offered with no coverage check"
-      }
-    },
-    {
-      "judge": "council-c",
-      "key": "59e7fed28820",
-      "criterion": "coverage_before_offer",
-      "answer": {
-        "outcome": "fail",
-        "score": 0.1,
-        "reasoning": "Acme Fiber 300 is offered with no coverage check"
-      }
-    },
-    {
-      "judge": "council-a",
-      "key": "0ccb7c8152aa",
-      "criterion": "coverage_before_offer",
-      "answer": {
-        "outcome": "fail",
-        "score": 0.1,
-        "reasoning": "Acme Fiber 300 is offered with no coverage check"
-      }
-    },
-    {
-      "judge": "council-b",
-      "key": "0ccb7c8152aa",
-      "criterion": "coverage_before_offer",
-      "answer": {
-        "outcome": "fail",
-        "score": 0.1,
-        "reasoning": "Acme Fiber 300 is offered with no coverage check"
-      }
-    },
-    {
-      "judge": "council-c",
-      "key": "0ccb7c8152aa",
-      "criterion": "coverage_before_offer",
-      "answer": {
-        "outcome": "fail",
-        "score": 0.1,
-        "reasoning": "Acme Fiber 300 is offered with no coverage check"
-      }
-    },
-    {
-      "judge": "council-a",
-      "key": "e92df01ba448",
-      "criterion": "coverage_before_offer",
-      "answer": {
-        "outcome": "pass",
-        "score": 0.6,
-        "reasoning": "scripted miss: Acme Fiber 300 is offered with no coverage check"
-      }
-    },
-    {
-      "judge": "council-b",
-      "key": "e92df01ba448",
-      "criterion": "coverage_before_offer",
-      "answer": {
-        "outcome": "fail",
-        "score": 0.1,
-        "reasoning": "Acme Fiber 300 is offered with no coverage check"
-      }
-    },
-    {
-      "judge": "council-c",
-      "key": "e92df01ba448",
-      "criterion": "coverage_before_offer",
-      "answer": {
-        "outcome": "fail",
-        "score": 0.1,
-        "reasoning": "Acme Fiber 300 is offered with no coverage check"
-      }
-    },
-    {
-      "judge": "council-a",
-      "key": "74eadbdda6bc",
-      "criterion": "coverage_before_offer",
-      "answer": {
-        "outcome": "fail",
-        "score": 0.1,
-        "reasoning": "Acme Fiber 300 is offered with no coverage check"
-      }
-    },
-    {
-      "judge": "council-b",
-      "key": "74eadbdda6bc",
-      "criterion": "coverage_before_offer",
-      "answer": {
-        "outcome": "fail",
-        "score": 0.1,
-        "reasoning": "Acme Fiber 300 is offered with no coverage check"
-      }
-    },
-    {
-      "judge": "council-c",
-      "key": "74eadbdda6bc",
-      "criterion": "coverage_before_offer",
-      "answer": {
-        "outcome": "fail",
-        "score": 0.1,
-        "reasoning": "Acme Fiber 300 is offered with no coverage check"
-      }
-    },
-    {
-      "judge": "council-a",
-      "key": "1f81ee1a3f12",
-      "criterion": "coverage_before_offer",
-      "answer": {
-        "outcome": "fail",
-        "score": 0.1,
-        "reasoning": "Acme Fiber 300 is offered with no coverage check"
-      }
-    },
-    {
-      "judge": "council-b",
-      "key": "1f81ee1a3f12",
-      "criterion": "coverage_before_offer",
-      "answer": {
-        "outcome": "fail",
-        "score": 0.1,
-        "reasoning": "Acme Fiber 300 is offered with no coverage check"
-      }
-    },
-    {
-      "judge": "council-c",
-      "key": "1f81ee1a3f12",
-      "criterion": "coverage_before_offer",
-      "answer": {
-        "outcome": "fail",
-        "score": 0.1,
-        "reasoning": "Acme Fiber 300 is offered with no coverage check"
-      }
-    },
-    {
-      "judge": "council-a",
-      "key": "975b42f0e9f9",
-      "criterion": "coverage_before_offer",
-      "answer": {
-        "outcome": "fail",
-        "score": 0.1,
-        "reasoning": "Acme Fiber 300 is offered with no coverage check"
-      }
-    },
-    {
-      "judge": "council-b",
-      "key": "975b42f0e9f9",
-      "criterion": "coverage_before_offer",
-      "answer": {
-        "outcome": "fail",
-        "score": 0.1,
-        "reasoning": "Acme Fiber 300 is offered with no coverage check"
-      }
-    },
-    {
-      "judge": "council-c",
-      "key": "975b42f0e9f9",
-      "criterion": "coverage_before_offer",
-      "answer": {
-        "outcome": "fail",
-        "score": 0.1,
-        "reasoning": "Acme Fiber 300 is offered with no coverage check"
-      }
-    },
-    {
-      "judge": "council-a",
-      "key": "9514e2a56bbb",
-      "criterion": "coverage_before_offer",
-      "answer": {
-        "outcome": "fail",
-        "score": 0.1,
-        "reasoning": "Acme Fiber 300 is offered with no coverage check"
-      }
-    },
-    {
-      "judge": "council-b",
-      "key": "9514e2a56bbb",
-      "criterion": "coverage_before_offer",
-      "answer": {
-        "outcome": "fail",
-        "score": 0.1,
-        "reasoning": "Acme Fiber 300 is offered with no coverage check"
-      }
-    },
-    {
-      "judge": "council-c",
-      "key": "9514e2a56bbb",
-      "criterion": "coverage_before_offer",
-      "answer": {
-        "outcome": "pass",
-        "score": 0.6,
-        "reasoning": "scripted miss: Acme Fiber 300 is offered with no coverage check"
-      }
-    },
-    {
-      "judge": "council-a",
-      "key": "b0690cced9ca",
-      "criterion": "coverage_before_offer",
-      "answer": {
-        "outcome": "fail",
-        "score": 0.1,
-        "reasoning": "Acme Fiber 300 is offered with no coverage check"
-      }
-    },
-    {
-      "judge": "council-b",
-      "key": "b0690cced9ca",
-      "criterion": "coverage_before_offer",
-      "answer": {
-        "outcome": "fail",
-        "score": 0.1,
-        "reasoning": "Acme Fiber 300 is offered with no coverage check"
-      }
-    },
-    {
-      "judge": "council-c",
-      "key": "b0690cced9ca",
-      "criterion": "coverage_before_offer",
-      "answer": {
-        "outcome": "fail",
-        "score": 0.1,
-        "reasoning": "Acme Fiber 300 is offered with no coverage check"
-      }
-    },
-    {
-      "judge": "council-a",
-      "key": "fb022529e3a7",
-      "criterion": "coverage_before_offer",
-      "answer": {
-        "outcome": "fail",
-        "score": 0.1,
-        "reasoning": "Acme Fiber 300 is offered with no coverage check"
-      }
-    },
-    {
-      "judge": "council-b",
-      "key": "fb022529e3a7",
-      "criterion": "coverage_before_offer",
-      "answer": {
-        "outcome": "fail",
-        "score": 0.1,
-        "reasoning": "Acme Fiber 300 is offered with no coverage check"
-      }
-    },
-    {
-      "judge": "council-c",
-      "key": "fb022529e3a7",
-      "criterion": "coverage_before_offer",
-      "answer": {
-        "outcome": "fail",
-        "score": 0.1,
-        "reasoning": "Acme Fiber 300 is offered with no coverage check"
-      }
-    },
-    {
-      "judge": "council-a",
-      "key": "c4d3fa8f4588",
-      "criterion": "coverage_before_offer",
-      "answer": {
-        "outcome": "pass",
-        "score": 0.95,
-        "reasoning": "the offered plans follow the coverage check"
-      }
-    },
-    {
-      "judge": "council-b",
-      "key": "c4d3fa8f4588",
-      "criterion": "coverage_before_offer",
-      "answer": {
-        "outcome": "pass",
-        "score": 0.95,
-        "reasoning": "the offered plans follow the coverage check"
-      }
-    },
-    {
-      "judge": "council-c",
-      "key": "c4d3fa8f4588",
-      "criterion": "coverage_before_offer",
-      "answer": {
-        "outcome": "fail",
-        "score": 0.1,
-        "reasoning": "scripted miss: the offered plans follow the coverage check"
-      }
-    },
-    {
-      "judge": "council-a",
-      "key": "0e92dcf94b39",
-      "criterion": "coverage_before_offer",
-      "answer": {
-        "outcome": "pass",
-        "score": 0.95,
-        "reasoning": "the offered plans follow the coverage check"
-      }
-    },
-    {
-      "judge": "council-b",
-      "key": "0e92dcf94b39",
-      "criterion": "coverage_before_offer",
-      "answer": {
-        "outcome": "fail",
-        "score": 0.1,
-        "reasoning": "scripted miss: the offered plans follow the coverage check"
-      }
-    },
-    {
-      "judge": "council-c",
-      "key": "0e92dcf94b39",
-      "criterion": "coverage_before_offer",
-      "answer": {
-        "outcome": "pass",
-        "score": 0.95,
-        "reasoning": "the offered plans follow the coverage check"
-      }
-    },
-    {
-      "judge": "council-a",
-      "key": "a7ec30912d26",
-      "criterion": "coverage_before_offer",
-      "answer": {
-        "outcome": "pass",
-        "score": 0.95,
-        "reasoning": "the offered plans follow the coverage check"
-      }
-    },
-    {
-      "judge": "council-b",
-      "key": "a7ec30912d26",
-      "criterion": "coverage_before_offer",
-      "answer": {
-        "outcome": "pass",
-        "score": 0.95,
-        "reasoning": "the offered plans follow the coverage check"
-      }
-    },
-    {
-      "judge": "council-c",
-      "key": "a7ec30912d26",
-      "criterion": "coverage_before_offer",
-      "answer": {
-        "outcome": "pass",
-        "score": 0.95,
-        "reasoning": "the offered plans follow the coverage check"
-      }
-    },
-    {
-      "judge": "council-a",
-      "key": "04d1de9eba09",
+      "key": "d563203c2252",
       "criterion": "coverage_before_offer",
       "answer": {
         "outcome": "fail",
@@ -6543,7 +6003,7 @@
     },
     {
       "judge": "council-b",
-      "key": "04d1de9eba09",
+      "key": "d563203c2252",
       "criterion": "coverage_before_offer",
       "answer": {
         "outcome": "pass",
@@ -6553,7 +6013,7 @@
     },
     {
       "judge": "council-c",
-      "key": "04d1de9eba09",
+      "key": "d563203c2252",
       "criterion": "coverage_before_offer",
       "answer": {
         "outcome": "pass",
@@ -6563,7 +6023,7 @@
     },
     {
       "judge": "council-a",
-      "key": "4953782f2135",
+      "key": "fe0873b1138c",
       "criterion": "coverage_before_offer",
       "answer": {
         "outcome": "pass",
@@ -6573,7 +6033,7 @@
     },
     {
       "judge": "council-b",
-      "key": "4953782f2135",
+      "key": "fe0873b1138c",
       "criterion": "coverage_before_offer",
       "answer": {
         "outcome": "pass",
@@ -6583,17 +6043,17 @@
     },
     {
       "judge": "council-c",
-      "key": "4953782f2135",
+      "key": "fe0873b1138c",
       "criterion": "coverage_before_offer",
       "answer": {
-        "outcome": "pass",
-        "score": 0.95,
-        "reasoning": "the offered plans follow the coverage check"
+        "outcome": "fail",
+        "score": 0.1,
+        "reasoning": "scripted miss: the offered plans follow the coverage check"
       }
     },
     {
       "judge": "council-a",
-      "key": "b68553580f45",
+      "key": "04d0db509784",
       "criterion": "coverage_before_offer",
       "answer": {
         "outcome": "pass",
@@ -6603,7 +6063,7 @@
     },
     {
       "judge": "council-b",
-      "key": "b68553580f45",
+      "key": "04d0db509784",
       "criterion": "coverage_before_offer",
       "answer": {
         "outcome": "pass",
@@ -6613,7 +6073,7 @@
     },
     {
       "judge": "council-c",
-      "key": "b68553580f45",
+      "key": "04d0db509784",
       "criterion": "coverage_before_offer",
       "answer": {
         "outcome": "pass",
@@ -6623,7 +6083,7 @@
     },
     {
       "judge": "council-a",
-      "key": "05708b06de0f",
+      "key": "b7fa2d5b482c",
       "criterion": "coverage_before_offer",
       "answer": {
         "outcome": "pass",
@@ -6633,7 +6093,607 @@
     },
     {
       "judge": "council-b",
-      "key": "05708b06de0f",
+      "key": "b7fa2d5b482c",
+      "criterion": "coverage_before_offer",
+      "answer": {
+        "outcome": "pass",
+        "score": 0.95,
+        "reasoning": "the offered plans follow the coverage check"
+      }
+    },
+    {
+      "judge": "council-c",
+      "key": "b7fa2d5b482c",
+      "criterion": "coverage_before_offer",
+      "answer": {
+        "outcome": "pass",
+        "score": 0.95,
+        "reasoning": "the offered plans follow the coverage check"
+      }
+    },
+    {
+      "judge": "council-a",
+      "key": "10ed29b7c7bc",
+      "criterion": "coverage_before_offer",
+      "answer": {
+        "outcome": "pass",
+        "score": 0.95,
+        "reasoning": "the offered plans follow the coverage check"
+      }
+    },
+    {
+      "judge": "council-b",
+      "key": "10ed29b7c7bc",
+      "criterion": "coverage_before_offer",
+      "answer": {
+        "outcome": "pass",
+        "score": 0.95,
+        "reasoning": "the offered plans follow the coverage check"
+      }
+    },
+    {
+      "judge": "council-c",
+      "key": "10ed29b7c7bc",
+      "criterion": "coverage_before_offer",
+      "answer": {
+        "outcome": "pass",
+        "score": 0.95,
+        "reasoning": "the offered plans follow the coverage check"
+      }
+    },
+    {
+      "judge": "council-a",
+      "key": "a87316198346",
+      "criterion": "coverage_before_offer",
+      "answer": {
+        "outcome": "pass",
+        "score": 0.95,
+        "reasoning": "the offered plans follow the coverage check"
+      }
+    },
+    {
+      "judge": "council-b",
+      "key": "a87316198346",
+      "criterion": "coverage_before_offer",
+      "answer": {
+        "outcome": "pass",
+        "score": 0.95,
+        "reasoning": "the offered plans follow the coverage check"
+      }
+    },
+    {
+      "judge": "council-c",
+      "key": "a87316198346",
+      "criterion": "coverage_before_offer",
+      "answer": {
+        "outcome": "pass",
+        "score": 0.95,
+        "reasoning": "the offered plans follow the coverage check"
+      }
+    },
+    {
+      "judge": "council-a",
+      "key": "ceda1c686b98",
+      "criterion": "coverage_before_offer",
+      "answer": {
+        "outcome": "fail",
+        "score": 0.1,
+        "reasoning": "Acme Fiber 300 is offered with no coverage check"
+      }
+    },
+    {
+      "judge": "council-b",
+      "key": "ceda1c686b98",
+      "criterion": "coverage_before_offer",
+      "answer": {
+        "outcome": "fail",
+        "score": 0.1,
+        "reasoning": "Acme Fiber 300 is offered with no coverage check"
+      }
+    },
+    {
+      "judge": "council-c",
+      "key": "ceda1c686b98",
+      "criterion": "coverage_before_offer",
+      "answer": {
+        "outcome": "fail",
+        "score": 0.1,
+        "reasoning": "Acme Fiber 300 is offered with no coverage check"
+      }
+    },
+    {
+      "judge": "council-a",
+      "key": "e09633627886",
+      "criterion": "coverage_before_offer",
+      "answer": {
+        "outcome": "pass",
+        "score": 0.6,
+        "reasoning": "scripted miss: Acme Fiber 300 is offered with no coverage check"
+      }
+    },
+    {
+      "judge": "council-b",
+      "key": "e09633627886",
+      "criterion": "coverage_before_offer",
+      "answer": {
+        "outcome": "fail",
+        "score": 0.1,
+        "reasoning": "Acme Fiber 300 is offered with no coverage check"
+      }
+    },
+    {
+      "judge": "council-c",
+      "key": "e09633627886",
+      "criterion": "coverage_before_offer",
+      "answer": {
+        "outcome": "fail",
+        "score": 0.1,
+        "reasoning": "Acme Fiber 300 is offered with no coverage check"
+      }
+    },
+    {
+      "judge": "council-a",
+      "key": "5e104882f761",
+      "criterion": "coverage_before_offer",
+      "answer": {
+        "outcome": "fail",
+        "score": 0.1,
+        "reasoning": "Acme Fiber 300 is offered with no coverage check"
+      }
+    },
+    {
+      "judge": "council-b",
+      "key": "5e104882f761",
+      "criterion": "coverage_before_offer",
+      "answer": {
+        "outcome": "fail",
+        "score": 0.1,
+        "reasoning": "Acme Fiber 300 is offered with no coverage check"
+      }
+    },
+    {
+      "judge": "council-c",
+      "key": "5e104882f761",
+      "criterion": "coverage_before_offer",
+      "answer": {
+        "outcome": "fail",
+        "score": 0.1,
+        "reasoning": "Acme Fiber 300 is offered with no coverage check"
+      }
+    },
+    {
+      "judge": "council-a",
+      "key": "e1b04359a8c8",
+      "criterion": "coverage_before_offer",
+      "answer": {
+        "outcome": "fail",
+        "score": 0.1,
+        "reasoning": "Acme Fiber 300 is offered with no coverage check"
+      }
+    },
+    {
+      "judge": "council-b",
+      "key": "e1b04359a8c8",
+      "criterion": "coverage_before_offer",
+      "answer": {
+        "outcome": "pass",
+        "score": 0.6,
+        "reasoning": "scripted miss: Acme Fiber 300 is offered with no coverage check"
+      }
+    },
+    {
+      "judge": "council-c",
+      "key": "e1b04359a8c8",
+      "criterion": "coverage_before_offer",
+      "answer": {
+        "outcome": "fail",
+        "score": 0.1,
+        "reasoning": "Acme Fiber 300 is offered with no coverage check"
+      }
+    },
+    {
+      "judge": "council-a",
+      "key": "e476114b3081",
+      "criterion": "coverage_before_offer",
+      "answer": {
+        "outcome": "fail",
+        "score": 0.1,
+        "reasoning": "Acme Fiber 300 is offered with no coverage check"
+      }
+    },
+    {
+      "judge": "council-b",
+      "key": "e476114b3081",
+      "criterion": "coverage_before_offer",
+      "answer": {
+        "outcome": "pass",
+        "score": 0.6,
+        "reasoning": "scripted miss: Acme Fiber 300 is offered with no coverage check"
+      }
+    },
+    {
+      "judge": "council-c",
+      "key": "e476114b3081",
+      "criterion": "coverage_before_offer",
+      "answer": {
+        "outcome": "fail",
+        "score": 0.1,
+        "reasoning": "Acme Fiber 300 is offered with no coverage check"
+      }
+    },
+    {
+      "judge": "council-a",
+      "key": "73c80e866b2c",
+      "criterion": "coverage_before_offer",
+      "answer": {
+        "outcome": "fail",
+        "score": 0.1,
+        "reasoning": "Acme Fiber 300 is offered with no coverage check"
+      }
+    },
+    {
+      "judge": "council-b",
+      "key": "73c80e866b2c",
+      "criterion": "coverage_before_offer",
+      "answer": {
+        "outcome": "fail",
+        "score": 0.1,
+        "reasoning": "Acme Fiber 300 is offered with no coverage check"
+      }
+    },
+    {
+      "judge": "council-c",
+      "key": "73c80e866b2c",
+      "criterion": "coverage_before_offer",
+      "answer": {
+        "outcome": "fail",
+        "score": 0.1,
+        "reasoning": "Acme Fiber 300 is offered with no coverage check"
+      }
+    },
+    {
+      "judge": "council-a",
+      "key": "9b26d58a7cb6",
+      "criterion": "coverage_before_offer",
+      "answer": {
+        "outcome": "fail",
+        "score": 0.1,
+        "reasoning": "Acme Fiber 300 is offered with no coverage check"
+      }
+    },
+    {
+      "judge": "council-b",
+      "key": "9b26d58a7cb6",
+      "criterion": "coverage_before_offer",
+      "answer": {
+        "outcome": "pass",
+        "score": 0.6,
+        "reasoning": "scripted miss: Acme Fiber 300 is offered with no coverage check"
+      }
+    },
+    {
+      "judge": "council-c",
+      "key": "9b26d58a7cb6",
+      "criterion": "coverage_before_offer",
+      "answer": {
+        "outcome": "fail",
+        "score": 0.1,
+        "reasoning": "Acme Fiber 300 is offered with no coverage check"
+      }
+    },
+    {
+      "judge": "council-a",
+      "key": "316320dbe310",
+      "criterion": "coverage_before_offer",
+      "answer": {
+        "outcome": "fail",
+        "score": 0.1,
+        "reasoning": "Acme Fiber 300 is offered with no coverage check"
+      }
+    },
+    {
+      "judge": "council-b",
+      "key": "316320dbe310",
+      "criterion": "coverage_before_offer",
+      "answer": {
+        "outcome": "fail",
+        "score": 0.1,
+        "reasoning": "Acme Fiber 300 is offered with no coverage check"
+      }
+    },
+    {
+      "judge": "council-c",
+      "key": "316320dbe310",
+      "criterion": "coverage_before_offer",
+      "answer": {
+        "outcome": "fail",
+        "score": 0.1,
+        "reasoning": "Acme Fiber 300 is offered with no coverage check"
+      }
+    },
+    {
+      "judge": "council-a",
+      "key": "134ced2f7494",
+      "criterion": "coverage_before_offer",
+      "answer": {
+        "outcome": "fail",
+        "score": 0.1,
+        "reasoning": "Acme Fiber 300 is offered with no coverage check"
+      }
+    },
+    {
+      "judge": "council-b",
+      "key": "134ced2f7494",
+      "criterion": "coverage_before_offer",
+      "answer": {
+        "outcome": "fail",
+        "score": 0.1,
+        "reasoning": "Acme Fiber 300 is offered with no coverage check"
+      }
+    },
+    {
+      "judge": "council-c",
+      "key": "134ced2f7494",
+      "criterion": "coverage_before_offer",
+      "answer": {
+        "outcome": "pass",
+        "score": 0.6,
+        "reasoning": "scripted miss: Acme Fiber 300 is offered with no coverage check"
+      }
+    },
+    {
+      "judge": "council-a",
+      "key": "17b2122660e1",
+      "criterion": "coverage_before_offer",
+      "answer": {
+        "outcome": "pass",
+        "score": 0.95,
+        "reasoning": "the offered plans follow the coverage check"
+      }
+    },
+    {
+      "judge": "council-b",
+      "key": "17b2122660e1",
+      "criterion": "coverage_before_offer",
+      "answer": {
+        "outcome": "pass",
+        "score": 0.95,
+        "reasoning": "the offered plans follow the coverage check"
+      }
+    },
+    {
+      "judge": "council-c",
+      "key": "17b2122660e1",
+      "criterion": "coverage_before_offer",
+      "answer": {
+        "outcome": "pass",
+        "score": 0.95,
+        "reasoning": "the offered plans follow the coverage check"
+      }
+    },
+    {
+      "judge": "council-a",
+      "key": "5c27ba0827ba",
+      "criterion": "coverage_before_offer",
+      "answer": {
+        "outcome": "pass",
+        "score": 0.95,
+        "reasoning": "the offered plans follow the coverage check"
+      }
+    },
+    {
+      "judge": "council-b",
+      "key": "5c27ba0827ba",
+      "criterion": "coverage_before_offer",
+      "answer": {
+        "outcome": "pass",
+        "score": 0.95,
+        "reasoning": "the offered plans follow the coverage check"
+      }
+    },
+    {
+      "judge": "council-c",
+      "key": "5c27ba0827ba",
+      "criterion": "coverage_before_offer",
+      "answer": {
+        "outcome": "fail",
+        "score": 0.1,
+        "reasoning": "scripted miss: the offered plans follow the coverage check"
+      }
+    },
+    {
+      "judge": "council-a",
+      "key": "b553ff40fff5",
+      "criterion": "coverage_before_offer",
+      "answer": {
+        "outcome": "fail",
+        "score": 0.1,
+        "reasoning": "scripted miss: the offered plans follow the coverage check"
+      }
+    },
+    {
+      "judge": "council-b",
+      "key": "b553ff40fff5",
+      "criterion": "coverage_before_offer",
+      "answer": {
+        "outcome": "pass",
+        "score": 0.95,
+        "reasoning": "the offered plans follow the coverage check"
+      }
+    },
+    {
+      "judge": "council-c",
+      "key": "b553ff40fff5",
+      "criterion": "coverage_before_offer",
+      "answer": {
+        "outcome": "pass",
+        "score": 0.95,
+        "reasoning": "the offered plans follow the coverage check"
+      }
+    },
+    {
+      "judge": "council-a",
+      "key": "7fcc5a09687c",
+      "criterion": "coverage_before_offer",
+      "answer": {
+        "outcome": "fail",
+        "score": 0.1,
+        "reasoning": "scripted miss: the offered plans follow the coverage check"
+      }
+    },
+    {
+      "judge": "council-b",
+      "key": "7fcc5a09687c",
+      "criterion": "coverage_before_offer",
+      "answer": {
+        "outcome": "pass",
+        "score": 0.95,
+        "reasoning": "the offered plans follow the coverage check"
+      }
+    },
+    {
+      "judge": "council-c",
+      "key": "7fcc5a09687c",
+      "criterion": "coverage_before_offer",
+      "answer": {
+        "outcome": "pass",
+        "score": 0.95,
+        "reasoning": "the offered plans follow the coverage check"
+      }
+    },
+    {
+      "judge": "council-a",
+      "key": "add818baafed",
+      "criterion": "coverage_before_offer",
+      "answer": {
+        "outcome": "pass",
+        "score": 0.95,
+        "reasoning": "the offered plans follow the coverage check"
+      }
+    },
+    {
+      "judge": "council-b",
+      "key": "add818baafed",
+      "criterion": "coverage_before_offer",
+      "answer": {
+        "outcome": "pass",
+        "score": 0.95,
+        "reasoning": "the offered plans follow the coverage check"
+      }
+    },
+    {
+      "judge": "council-c",
+      "key": "add818baafed",
+      "criterion": "coverage_before_offer",
+      "answer": {
+        "outcome": "pass",
+        "score": 0.95,
+        "reasoning": "the offered plans follow the coverage check"
+      }
+    },
+    {
+      "judge": "council-a",
+      "key": "e363beb7e410",
+      "criterion": "coverage_before_offer",
+      "answer": {
+        "outcome": "pass",
+        "score": 0.95,
+        "reasoning": "the offered plans follow the coverage check"
+      }
+    },
+    {
+      "judge": "council-b",
+      "key": "e363beb7e410",
+      "criterion": "coverage_before_offer",
+      "answer": {
+        "outcome": "pass",
+        "score": 0.95,
+        "reasoning": "the offered plans follow the coverage check"
+      }
+    },
+    {
+      "judge": "council-c",
+      "key": "e363beb7e410",
+      "criterion": "coverage_before_offer",
+      "answer": {
+        "outcome": "pass",
+        "score": 0.95,
+        "reasoning": "the offered plans follow the coverage check"
+      }
+    },
+    {
+      "judge": "council-a",
+      "key": "28e64d3a735a",
+      "criterion": "coverage_before_offer",
+      "answer": {
+        "outcome": "pass",
+        "score": 0.95,
+        "reasoning": "the offered plans follow the coverage check"
+      }
+    },
+    {
+      "judge": "council-b",
+      "key": "28e64d3a735a",
+      "criterion": "coverage_before_offer",
+      "answer": {
+        "outcome": "pass",
+        "score": 0.95,
+        "reasoning": "the offered plans follow the coverage check"
+      }
+    },
+    {
+      "judge": "council-c",
+      "key": "28e64d3a735a",
+      "criterion": "coverage_before_offer",
+      "answer": {
+        "outcome": "pass",
+        "score": 0.95,
+        "reasoning": "the offered plans follow the coverage check"
+      }
+    },
+    {
+      "judge": "council-a",
+      "key": "11d1b67b83b7",
+      "criterion": "coverage_before_offer",
+      "answer": {
+        "outcome": "fail",
+        "score": 0.1,
+        "reasoning": "scripted miss: the offered plans follow the coverage check"
+      }
+    },
+    {
+      "judge": "council-b",
+      "key": "11d1b67b83b7",
+      "criterion": "coverage_before_offer",
+      "answer": {
+        "outcome": "pass",
+        "score": 0.95,
+        "reasoning": "the offered plans follow the coverage check"
+      }
+    },
+    {
+      "judge": "council-c",
+      "key": "11d1b67b83b7",
+      "criterion": "coverage_before_offer",
+      "answer": {
+        "outcome": "pass",
+        "score": 0.95,
+        "reasoning": "the offered plans follow the coverage check"
+      }
+    },
+    {
+      "judge": "council-a",
+      "key": "19849249a403",
+      "criterion": "coverage_before_offer",
+      "answer": {
+        "outcome": "pass",
+        "score": 0.95,
+        "reasoning": "the offered plans follow the coverage check"
+      }
+    },
+    {
+      "judge": "council-b",
+      "key": "19849249a403",
       "criterion": "coverage_before_offer",
       "answer": {
         "outcome": "fail",
@@ -6643,7 +6703,7 @@
     },
     {
       "judge": "council-c",
-      "key": "05708b06de0f",
+      "key": "19849249a403",
       "criterion": "coverage_before_offer",
       "answer": {
         "outcome": "pass",
@@ -6653,67 +6713,7 @@
     },
     {
       "judge": "council-a",
-      "key": "56645aea8d65",
-      "criterion": "coverage_before_offer",
-      "answer": {
-        "outcome": "pass",
-        "score": 0.95,
-        "reasoning": "the offered plans follow the coverage check"
-      }
-    },
-    {
-      "judge": "council-b",
-      "key": "56645aea8d65",
-      "criterion": "coverage_before_offer",
-      "answer": {
-        "outcome": "pass",
-        "score": 0.95,
-        "reasoning": "the offered plans follow the coverage check"
-      }
-    },
-    {
-      "judge": "council-c",
-      "key": "56645aea8d65",
-      "criterion": "coverage_before_offer",
-      "answer": {
-        "outcome": "pass",
-        "score": 0.95,
-        "reasoning": "the offered plans follow the coverage check"
-      }
-    },
-    {
-      "judge": "council-a",
-      "key": "e860ff37466e",
-      "criterion": "coverage_before_offer",
-      "answer": {
-        "outcome": "pass",
-        "score": 0.95,
-        "reasoning": "the offered plans follow the coverage check"
-      }
-    },
-    {
-      "judge": "council-b",
-      "key": "e860ff37466e",
-      "criterion": "coverage_before_offer",
-      "answer": {
-        "outcome": "fail",
-        "score": 0.1,
-        "reasoning": "scripted miss: the offered plans follow the coverage check"
-      }
-    },
-    {
-      "judge": "council-c",
-      "key": "e860ff37466e",
-      "criterion": "coverage_before_offer",
-      "answer": {
-        "outcome": "pass",
-        "score": 0.95,
-        "reasoning": "the offered plans follow the coverage check"
-      }
-    },
-    {
-      "judge": "council-a",
-      "key": "7316311d07d6",
+      "key": "7648def31855",
       "criterion": "coverage_before_offer",
       "answer": {
         "outcome": "pass",
@@ -6723,7 +6723,7 @@
     },
     {
       "judge": "council-b",
-      "key": "7316311d07d6",
+      "key": "7648def31855",
       "criterion": "coverage_before_offer",
       "answer": {
         "outcome": "fail",
@@ -6733,7 +6733,7 @@
     },
     {
       "judge": "council-c",
-      "key": "7316311d07d6",
+      "key": "7648def31855",
       "criterion": "coverage_before_offer",
       "answer": {
         "outcome": "fail",
@@ -6743,17 +6743,17 @@
     },
     {
       "judge": "council-a",
-      "key": "cd09f8eeb988",
+      "key": "68c493fb721a",
       "criterion": "coverage_before_offer",
       "answer": {
-        "outcome": "pass",
-        "score": 0.6,
-        "reasoning": "scripted miss: Acme Fiber 300 is offered with no coverage check"
+        "outcome": "fail",
+        "score": 0.1,
+        "reasoning": "Acme Fiber 300 is offered with no coverage check"
       }
     },
     {
       "judge": "council-b",
-      "key": "cd09f8eeb988",
+      "key": "68c493fb721a",
       "criterion": "coverage_before_offer",
       "answer": {
         "outcome": "fail",
@@ -6763,7 +6763,7 @@
     },
     {
       "judge": "council-c",
-      "key": "cd09f8eeb988",
+      "key": "68c493fb721a",
       "criterion": "coverage_before_offer",
       "answer": {
         "outcome": "fail",
@@ -6773,37 +6773,7 @@
     },
     {
       "judge": "council-a",
-      "key": "1b3b78ad0210",
-      "criterion": "coverage_before_offer",
-      "answer": {
-        "outcome": "pass",
-        "score": 0.6,
-        "reasoning": "scripted miss: Acme Fiber 300 is offered with no coverage check"
-      }
-    },
-    {
-      "judge": "council-b",
-      "key": "1b3b78ad0210",
-      "criterion": "coverage_before_offer",
-      "answer": {
-        "outcome": "fail",
-        "score": 0.1,
-        "reasoning": "Acme Fiber 300 is offered with no coverage check"
-      }
-    },
-    {
-      "judge": "council-c",
-      "key": "1b3b78ad0210",
-      "criterion": "coverage_before_offer",
-      "answer": {
-        "outcome": "fail",
-        "score": 0.1,
-        "reasoning": "Acme Fiber 300 is offered with no coverage check"
-      }
-    },
-    {
-      "judge": "council-a",
-      "key": "8cad5bf99422",
+      "key": "ad279bdb27ea",
       "criterion": "coverage_before_offer",
       "answer": {
         "outcome": "fail",
@@ -6813,7 +6783,7 @@
     },
     {
       "judge": "council-b",
-      "key": "8cad5bf99422",
+      "key": "ad279bdb27ea",
       "criterion": "coverage_before_offer",
       "answer": {
         "outcome": "fail",
@@ -6823,37 +6793,7 @@
     },
     {
       "judge": "council-c",
-      "key": "8cad5bf99422",
-      "criterion": "coverage_before_offer",
-      "answer": {
-        "outcome": "fail",
-        "score": 0.1,
-        "reasoning": "Acme Fiber 300 is offered with no coverage check"
-      }
-    },
-    {
-      "judge": "council-a",
-      "key": "7b5955ad6a7f",
-      "criterion": "coverage_before_offer",
-      "answer": {
-        "outcome": "fail",
-        "score": 0.1,
-        "reasoning": "Acme Fiber 300 is offered with no coverage check"
-      }
-    },
-    {
-      "judge": "council-b",
-      "key": "7b5955ad6a7f",
-      "criterion": "coverage_before_offer",
-      "answer": {
-        "outcome": "fail",
-        "score": 0.1,
-        "reasoning": "Acme Fiber 300 is offered with no coverage check"
-      }
-    },
-    {
-      "judge": "council-c",
-      "key": "7b5955ad6a7f",
+      "key": "ad279bdb27ea",
       "criterion": "coverage_before_offer",
       "answer": {
         "outcome": "pass",
@@ -6863,7 +6803,7 @@
     },
     {
       "judge": "council-a",
-      "key": "0e45493432a0",
+      "key": "875e016752dc",
       "criterion": "coverage_before_offer",
       "answer": {
         "outcome": "fail",
@@ -6873,7 +6813,7 @@
     },
     {
       "judge": "council-b",
-      "key": "0e45493432a0",
+      "key": "875e016752dc",
       "criterion": "coverage_before_offer",
       "answer": {
         "outcome": "fail",
@@ -6883,7 +6823,7 @@
     },
     {
       "judge": "council-c",
-      "key": "0e45493432a0",
+      "key": "875e016752dc",
       "criterion": "coverage_before_offer",
       "answer": {
         "outcome": "fail",
@@ -6893,7 +6833,7 @@
     },
     {
       "judge": "council-a",
-      "key": "de26d8562846",
+      "key": "396d0c076142",
       "criterion": "coverage_before_offer",
       "answer": {
         "outcome": "fail",
@@ -6903,7 +6843,7 @@
     },
     {
       "judge": "council-b",
-      "key": "de26d8562846",
+      "key": "396d0c076142",
       "criterion": "coverage_before_offer",
       "answer": {
         "outcome": "fail",
@@ -6913,7 +6853,37 @@
     },
     {
       "judge": "council-c",
-      "key": "de26d8562846",
+      "key": "396d0c076142",
+      "criterion": "coverage_before_offer",
+      "answer": {
+        "outcome": "fail",
+        "score": 0.1,
+        "reasoning": "Acme Fiber 300 is offered with no coverage check"
+      }
+    },
+    {
+      "judge": "council-a",
+      "key": "149e8d0a847c",
+      "criterion": "coverage_before_offer",
+      "answer": {
+        "outcome": "fail",
+        "score": 0.1,
+        "reasoning": "Acme Fiber 300 is offered with no coverage check"
+      }
+    },
+    {
+      "judge": "council-b",
+      "key": "149e8d0a847c",
+      "criterion": "coverage_before_offer",
+      "answer": {
+        "outcome": "fail",
+        "score": 0.1,
+        "reasoning": "Acme Fiber 300 is offered with no coverage check"
+      }
+    },
+    {
+      "judge": "council-c",
+      "key": "149e8d0a847c",
       "criterion": "coverage_before_offer",
       "answer": {
         "outcome": "pass",
@@ -6923,37 +6893,7 @@
     },
     {
       "judge": "council-a",
-      "key": "1acf8e7bec93",
-      "criterion": "coverage_before_offer",
-      "answer": {
-        "outcome": "fail",
-        "score": 0.1,
-        "reasoning": "Acme Fiber 300 is offered with no coverage check"
-      }
-    },
-    {
-      "judge": "council-b",
-      "key": "1acf8e7bec93",
-      "criterion": "coverage_before_offer",
-      "answer": {
-        "outcome": "fail",
-        "score": 0.1,
-        "reasoning": "Acme Fiber 300 is offered with no coverage check"
-      }
-    },
-    {
-      "judge": "council-c",
-      "key": "1acf8e7bec93",
-      "criterion": "coverage_before_offer",
-      "answer": {
-        "outcome": "fail",
-        "score": 0.1,
-        "reasoning": "Acme Fiber 300 is offered with no coverage check"
-      }
-    },
-    {
-      "judge": "council-a",
-      "key": "939338e6f682",
+      "key": "733d679ec434",
       "criterion": "coverage_before_offer",
       "answer": {
         "outcome": "pass",
@@ -6963,7 +6903,7 @@
     },
     {
       "judge": "council-b",
-      "key": "939338e6f682",
+      "key": "733d679ec434",
       "criterion": "coverage_before_offer",
       "answer": {
         "outcome": "fail",
@@ -6973,7 +6913,67 @@
     },
     {
       "judge": "council-c",
-      "key": "939338e6f682",
+      "key": "733d679ec434",
+      "criterion": "coverage_before_offer",
+      "answer": {
+        "outcome": "fail",
+        "score": 0.1,
+        "reasoning": "Acme Fiber 300 is offered with no coverage check"
+      }
+    },
+    {
+      "judge": "council-a",
+      "key": "32456fef4810",
+      "criterion": "coverage_before_offer",
+      "answer": {
+        "outcome": "fail",
+        "score": 0.1,
+        "reasoning": "Acme Fiber 300 is offered with no coverage check"
+      }
+    },
+    {
+      "judge": "council-b",
+      "key": "32456fef4810",
+      "criterion": "coverage_before_offer",
+      "answer": {
+        "outcome": "fail",
+        "score": 0.1,
+        "reasoning": "Acme Fiber 300 is offered with no coverage check"
+      }
+    },
+    {
+      "judge": "council-c",
+      "key": "32456fef4810",
+      "criterion": "coverage_before_offer",
+      "answer": {
+        "outcome": "fail",
+        "score": 0.1,
+        "reasoning": "Acme Fiber 300 is offered with no coverage check"
+      }
+    },
+    {
+      "judge": "council-a",
+      "key": "401b7eff7909",
+      "criterion": "coverage_before_offer",
+      "answer": {
+        "outcome": "fail",
+        "score": 0.1,
+        "reasoning": "Acme Fiber 300 is offered with no coverage check"
+      }
+    },
+    {
+      "judge": "council-b",
+      "key": "401b7eff7909",
+      "criterion": "coverage_before_offer",
+      "answer": {
+        "outcome": "fail",
+        "score": 0.1,
+        "reasoning": "Acme Fiber 300 is offered with no coverage check"
+      }
+    },
+    {
+      "judge": "council-c",
+      "key": "401b7eff7909",
       "criterion": "coverage_before_offer",
       "answer": {
         "outcome": "fail",
@@ -12623,7 +12623,7 @@
     },
     {
       "judge": "council-a",
-      "key": "1c720e876e8a",
+      "key": "09db4fa9cef8",
       "criterion": "coverage_before_offer",
       "answer": {
         "outcome": "pass",
@@ -12633,67 +12633,7 @@
     },
     {
       "judge": "council-b",
-      "key": "1c720e876e8a",
-      "criterion": "coverage_before_offer",
-      "answer": {
-        "outcome": "pass",
-        "score": 0.95,
-        "reasoning": "the offered plans follow the coverage check"
-      }
-    },
-    {
-      "judge": "council-c",
-      "key": "1c720e876e8a",
-      "criterion": "coverage_before_offer",
-      "answer": {
-        "outcome": "pass",
-        "score": 0.95,
-        "reasoning": "the offered plans follow the coverage check"
-      }
-    },
-    {
-      "judge": "council-a",
-      "key": "da4e75e3fde2",
-      "criterion": "coverage_before_offer",
-      "answer": {
-        "outcome": "pass",
-        "score": 0.95,
-        "reasoning": "the offered plans follow the coverage check"
-      }
-    },
-    {
-      "judge": "council-b",
-      "key": "da4e75e3fde2",
-      "criterion": "coverage_before_offer",
-      "answer": {
-        "outcome": "pass",
-        "score": 0.95,
-        "reasoning": "the offered plans follow the coverage check"
-      }
-    },
-    {
-      "judge": "council-c",
-      "key": "da4e75e3fde2",
-      "criterion": "coverage_before_offer",
-      "answer": {
-        "outcome": "pass",
-        "score": 0.95,
-        "reasoning": "the offered plans follow the coverage check"
-      }
-    },
-    {
-      "judge": "council-a",
-      "key": "bd915eb5006e",
-      "criterion": "coverage_before_offer",
-      "answer": {
-        "outcome": "pass",
-        "score": 0.95,
-        "reasoning": "the offered plans follow the coverage check"
-      }
-    },
-    {
-      "judge": "council-b",
-      "key": "bd915eb5006e",
+      "key": "09db4fa9cef8",
       "criterion": "coverage_before_offer",
       "answer": {
         "outcome": "fail",
@@ -12703,7 +12643,7 @@
     },
     {
       "judge": "council-c",
-      "key": "bd915eb5006e",
+      "key": "09db4fa9cef8",
       "criterion": "coverage_before_offer",
       "answer": {
         "outcome": "pass",
@@ -12713,127 +12653,7 @@
     },
     {
       "judge": "council-a",
-      "key": "6f2332f6a5e7",
-      "criterion": "coverage_before_offer",
-      "answer": {
-        "outcome": "pass",
-        "score": 0.95,
-        "reasoning": "the offered plans follow the coverage check"
-      }
-    },
-    {
-      "judge": "council-b",
-      "key": "6f2332f6a5e7",
-      "criterion": "coverage_before_offer",
-      "answer": {
-        "outcome": "pass",
-        "score": 0.95,
-        "reasoning": "the offered plans follow the coverage check"
-      }
-    },
-    {
-      "judge": "council-c",
-      "key": "6f2332f6a5e7",
-      "criterion": "coverage_before_offer",
-      "answer": {
-        "outcome": "pass",
-        "score": 0.95,
-        "reasoning": "the offered plans follow the coverage check"
-      }
-    },
-    {
-      "judge": "council-a",
-      "key": "43794577ad2a",
-      "criterion": "coverage_before_offer",
-      "answer": {
-        "outcome": "pass",
-        "score": 0.95,
-        "reasoning": "the offered plans follow the coverage check"
-      }
-    },
-    {
-      "judge": "council-b",
-      "key": "43794577ad2a",
-      "criterion": "coverage_before_offer",
-      "answer": {
-        "outcome": "pass",
-        "score": 0.95,
-        "reasoning": "the offered plans follow the coverage check"
-      }
-    },
-    {
-      "judge": "council-c",
-      "key": "43794577ad2a",
-      "criterion": "coverage_before_offer",
-      "answer": {
-        "outcome": "pass",
-        "score": 0.95,
-        "reasoning": "the offered plans follow the coverage check"
-      }
-    },
-    {
-      "judge": "council-a",
-      "key": "ee3e0cd3ce36",
-      "criterion": "coverage_before_offer",
-      "answer": {
-        "outcome": "pass",
-        "score": 0.95,
-        "reasoning": "the offered plans follow the coverage check"
-      }
-    },
-    {
-      "judge": "council-b",
-      "key": "ee3e0cd3ce36",
-      "criterion": "coverage_before_offer",
-      "answer": {
-        "outcome": "pass",
-        "score": 0.95,
-        "reasoning": "the offered plans follow the coverage check"
-      }
-    },
-    {
-      "judge": "council-c",
-      "key": "ee3e0cd3ce36",
-      "criterion": "coverage_before_offer",
-      "answer": {
-        "outcome": "fail",
-        "score": 0.1,
-        "reasoning": "scripted miss: the offered plans follow the coverage check"
-      }
-    },
-    {
-      "judge": "council-a",
-      "key": "0a02036bd1b1",
-      "criterion": "coverage_before_offer",
-      "answer": {
-        "outcome": "pass",
-        "score": 0.95,
-        "reasoning": "the offered plans follow the coverage check"
-      }
-    },
-    {
-      "judge": "council-b",
-      "key": "0a02036bd1b1",
-      "criterion": "coverage_before_offer",
-      "answer": {
-        "outcome": "pass",
-        "score": 0.95,
-        "reasoning": "the offered plans follow the coverage check"
-      }
-    },
-    {
-      "judge": "council-c",
-      "key": "0a02036bd1b1",
-      "criterion": "coverage_before_offer",
-      "answer": {
-        "outcome": "pass",
-        "score": 0.95,
-        "reasoning": "the offered plans follow the coverage check"
-      }
-    },
-    {
-      "judge": "council-a",
-      "key": "035d8cd535bd",
+      "key": "9cea6d118943",
       "criterion": "coverage_before_offer",
       "answer": {
         "outcome": "fail",
@@ -12843,7 +12663,7 @@
     },
     {
       "judge": "council-b",
-      "key": "035d8cd535bd",
+      "key": "9cea6d118943",
       "criterion": "coverage_before_offer",
       "answer": {
         "outcome": "pass",
@@ -12853,7 +12673,7 @@
     },
     {
       "judge": "council-c",
-      "key": "035d8cd535bd",
+      "key": "9cea6d118943",
       "criterion": "coverage_before_offer",
       "answer": {
         "outcome": "pass",
@@ -12863,7 +12683,137 @@
     },
     {
       "judge": "council-a",
-      "key": "43988f46c77e",
+      "key": "31bf59e3e4b3",
+      "criterion": "coverage_before_offer",
+      "answer": {
+        "outcome": "pass",
+        "score": 0.95,
+        "reasoning": "the offered plans follow the coverage check"
+      }
+    },
+    {
+      "judge": "council-b",
+      "key": "31bf59e3e4b3",
+      "criterion": "coverage_before_offer",
+      "answer": {
+        "outcome": "pass",
+        "score": 0.95,
+        "reasoning": "the offered plans follow the coverage check"
+      }
+    },
+    {
+      "judge": "council-c",
+      "key": "31bf59e3e4b3",
+      "criterion": "coverage_before_offer",
+      "answer": {
+        "outcome": "pass",
+        "score": 0.95,
+        "reasoning": "the offered plans follow the coverage check"
+      }
+    },
+    {
+      "judge": "council-a",
+      "key": "f139c6206b75",
+      "criterion": "coverage_before_offer",
+      "answer": {
+        "outcome": "pass",
+        "score": 0.95,
+        "reasoning": "the offered plans follow the coverage check"
+      }
+    },
+    {
+      "judge": "council-b",
+      "key": "f139c6206b75",
+      "criterion": "coverage_before_offer",
+      "answer": {
+        "outcome": "pass",
+        "score": 0.95,
+        "reasoning": "the offered plans follow the coverage check"
+      }
+    },
+    {
+      "judge": "council-c",
+      "key": "f139c6206b75",
+      "criterion": "coverage_before_offer",
+      "answer": {
+        "outcome": "pass",
+        "score": 0.95,
+        "reasoning": "the offered plans follow the coverage check"
+      }
+    },
+    {
+      "judge": "council-a",
+      "key": "b31ba1193011",
+      "criterion": "coverage_before_offer",
+      "answer": {
+        "outcome": "pass",
+        "score": 0.95,
+        "reasoning": "the offered plans follow the coverage check"
+      }
+    },
+    {
+      "judge": "council-b",
+      "key": "b31ba1193011",
+      "criterion": "coverage_before_offer",
+      "answer": {
+        "outcome": "pass",
+        "score": 0.95,
+        "reasoning": "the offered plans follow the coverage check"
+      }
+    },
+    {
+      "judge": "council-c",
+      "key": "b31ba1193011",
+      "criterion": "coverage_before_offer",
+      "answer": {
+        "outcome": "pass",
+        "score": 0.95,
+        "reasoning": "the offered plans follow the coverage check"
+      }
+    },
+    {
+      "judge": "council-a",
+      "key": "1e207ddd8c64",
+      "criterion": "coverage_before_offer",
+      "answer": {
+        "outcome": "pass",
+        "score": 0.95,
+        "reasoning": "the offered plans follow the coverage check"
+      }
+    },
+    {
+      "judge": "council-b",
+      "key": "1e207ddd8c64",
+      "criterion": "coverage_before_offer",
+      "answer": {
+        "outcome": "pass",
+        "score": 0.95,
+        "reasoning": "the offered plans follow the coverage check"
+      }
+    },
+    {
+      "judge": "council-c",
+      "key": "1e207ddd8c64",
+      "criterion": "coverage_before_offer",
+      "answer": {
+        "outcome": "pass",
+        "score": 0.95,
+        "reasoning": "the offered plans follow the coverage check"
+      }
+    },
+    {
+      "judge": "council-a",
+      "key": "bfdbd0a34ab9",
+      "criterion": "coverage_before_offer",
+      "answer": {
+        "outcome": "pass",
+        "score": 0.95,
+        "reasoning": "the offered plans follow the coverage check"
+      }
+    },
+    {
+      "judge": "council-b",
+      "key": "bfdbd0a34ab9",
       "criterion": "coverage_before_offer",
       "answer": {
         "outcome": "fail",
@@ -12872,18 +12822,8 @@
       }
     },
     {
-      "judge": "council-b",
-      "key": "43988f46c77e",
-      "criterion": "coverage_before_offer",
-      "answer": {
-        "outcome": "pass",
-        "score": 0.95,
-        "reasoning": "the offered plans follow the coverage check"
-      }
-    },
-    {
       "judge": "council-c",
-      "key": "43988f46c77e",
+      "key": "bfdbd0a34ab9",
       "criterion": "coverage_before_offer",
       "answer": {
         "outcome": "pass",
@@ -12893,277 +12833,7 @@
     },
     {
       "judge": "council-a",
-      "key": "39cdb756a919",
-      "criterion": "coverage_before_offer",
-      "answer": {
-        "outcome": "fail",
-        "score": 0.1,
-        "reasoning": "Acme Air 5G is offered with no coverage check"
-      }
-    },
-    {
-      "judge": "council-b",
-      "key": "39cdb756a919",
-      "criterion": "coverage_before_offer",
-      "answer": {
-        "outcome": "pass",
-        "score": 0.6,
-        "reasoning": "scripted miss: Acme Air 5G is offered with no coverage check"
-      }
-    },
-    {
-      "judge": "council-c",
-      "key": "39cdb756a919",
-      "criterion": "coverage_before_offer",
-      "answer": {
-        "outcome": "fail",
-        "score": 0.1,
-        "reasoning": "Acme Air 5G is offered with no coverage check"
-      }
-    },
-    {
-      "judge": "council-a",
-      "key": "fc10056cc1a1",
-      "criterion": "coverage_before_offer",
-      "answer": {
-        "outcome": "pass",
-        "score": 0.6,
-        "reasoning": "scripted miss: Acme Air 5G is offered with no coverage check"
-      }
-    },
-    {
-      "judge": "council-b",
-      "key": "fc10056cc1a1",
-      "criterion": "coverage_before_offer",
-      "answer": {
-        "outcome": "fail",
-        "score": 0.1,
-        "reasoning": "Acme Air 5G is offered with no coverage check"
-      }
-    },
-    {
-      "judge": "council-c",
-      "key": "fc10056cc1a1",
-      "criterion": "coverage_before_offer",
-      "answer": {
-        "outcome": "fail",
-        "score": 0.1,
-        "reasoning": "Acme Air 5G is offered with no coverage check"
-      }
-    },
-    {
-      "judge": "council-a",
-      "key": "d9e7b74ffe7d",
-      "criterion": "coverage_before_offer",
-      "answer": {
-        "outcome": "fail",
-        "score": 0.1,
-        "reasoning": "Acme Air 5G is offered with no coverage check"
-      }
-    },
-    {
-      "judge": "council-b",
-      "key": "d9e7b74ffe7d",
-      "criterion": "coverage_before_offer",
-      "answer": {
-        "outcome": "fail",
-        "score": 0.1,
-        "reasoning": "Acme Air 5G is offered with no coverage check"
-      }
-    },
-    {
-      "judge": "council-c",
-      "key": "d9e7b74ffe7d",
-      "criterion": "coverage_before_offer",
-      "answer": {
-        "outcome": "fail",
-        "score": 0.1,
-        "reasoning": "Acme Air 5G is offered with no coverage check"
-      }
-    },
-    {
-      "judge": "council-a",
-      "key": "2e323993df10",
-      "criterion": "coverage_before_offer",
-      "answer": {
-        "outcome": "fail",
-        "score": 0.1,
-        "reasoning": "Acme Air 5G is offered with no coverage check"
-      }
-    },
-    {
-      "judge": "council-b",
-      "key": "2e323993df10",
-      "criterion": "coverage_before_offer",
-      "answer": {
-        "outcome": "fail",
-        "score": 0.1,
-        "reasoning": "Acme Air 5G is offered with no coverage check"
-      }
-    },
-    {
-      "judge": "council-c",
-      "key": "2e323993df10",
-      "criterion": "coverage_before_offer",
-      "answer": {
-        "outcome": "fail",
-        "score": 0.1,
-        "reasoning": "Acme Air 5G is offered with no coverage check"
-      }
-    },
-    {
-      "judge": "council-a",
-      "key": "49e9c74416e5",
-      "criterion": "coverage_before_offer",
-      "answer": {
-        "outcome": "fail",
-        "score": 0.1,
-        "reasoning": "Acme Air 5G is offered with no coverage check"
-      }
-    },
-    {
-      "judge": "council-b",
-      "key": "49e9c74416e5",
-      "criterion": "coverage_before_offer",
-      "answer": {
-        "outcome": "fail",
-        "score": 0.1,
-        "reasoning": "Acme Air 5G is offered with no coverage check"
-      }
-    },
-    {
-      "judge": "council-c",
-      "key": "49e9c74416e5",
-      "criterion": "coverage_before_offer",
-      "answer": {
-        "outcome": "pass",
-        "score": 0.6,
-        "reasoning": "scripted miss: Acme Air 5G is offered with no coverage check"
-      }
-    },
-    {
-      "judge": "council-a",
-      "key": "2a0ccbf1ecc7",
-      "criterion": "coverage_before_offer",
-      "answer": {
-        "outcome": "fail",
-        "score": 0.1,
-        "reasoning": "Acme Air 5G is offered with no coverage check"
-      }
-    },
-    {
-      "judge": "council-b",
-      "key": "2a0ccbf1ecc7",
-      "criterion": "coverage_before_offer",
-      "answer": {
-        "outcome": "fail",
-        "score": 0.1,
-        "reasoning": "Acme Air 5G is offered with no coverage check"
-      }
-    },
-    {
-      "judge": "council-c",
-      "key": "2a0ccbf1ecc7",
-      "criterion": "coverage_before_offer",
-      "answer": {
-        "outcome": "pass",
-        "score": 0.6,
-        "reasoning": "scripted miss: Acme Air 5G is offered with no coverage check"
-      }
-    },
-    {
-      "judge": "council-a",
-      "key": "a1607f4398bd",
-      "criterion": "coverage_before_offer",
-      "answer": {
-        "outcome": "fail",
-        "score": 0.1,
-        "reasoning": "Acme Air 5G is offered with no coverage check"
-      }
-    },
-    {
-      "judge": "council-b",
-      "key": "a1607f4398bd",
-      "criterion": "coverage_before_offer",
-      "answer": {
-        "outcome": "fail",
-        "score": 0.1,
-        "reasoning": "Acme Air 5G is offered with no coverage check"
-      }
-    },
-    {
-      "judge": "council-c",
-      "key": "a1607f4398bd",
-      "criterion": "coverage_before_offer",
-      "answer": {
-        "outcome": "fail",
-        "score": 0.1,
-        "reasoning": "Acme Air 5G is offered with no coverage check"
-      }
-    },
-    {
-      "judge": "council-a",
-      "key": "1a321cd34277",
-      "criterion": "coverage_before_offer",
-      "answer": {
-        "outcome": "fail",
-        "score": 0.1,
-        "reasoning": "Acme Air 5G is offered with no coverage check"
-      }
-    },
-    {
-      "judge": "council-b",
-      "key": "1a321cd34277",
-      "criterion": "coverage_before_offer",
-      "answer": {
-        "outcome": "fail",
-        "score": 0.1,
-        "reasoning": "Acme Air 5G is offered with no coverage check"
-      }
-    },
-    {
-      "judge": "council-c",
-      "key": "1a321cd34277",
-      "criterion": "coverage_before_offer",
-      "answer": {
-        "outcome": "fail",
-        "score": 0.1,
-        "reasoning": "Acme Air 5G is offered with no coverage check"
-      }
-    },
-    {
-      "judge": "council-a",
-      "key": "bbaf942b18b3",
-      "criterion": "coverage_before_offer",
-      "answer": {
-        "outcome": "fail",
-        "score": 0.1,
-        "reasoning": "Acme Air 5G is offered with no coverage check"
-      }
-    },
-    {
-      "judge": "council-b",
-      "key": "bbaf942b18b3",
-      "criterion": "coverage_before_offer",
-      "answer": {
-        "outcome": "fail",
-        "score": 0.1,
-        "reasoning": "Acme Air 5G is offered with no coverage check"
-      }
-    },
-    {
-      "judge": "council-c",
-      "key": "bbaf942b18b3",
-      "criterion": "coverage_before_offer",
-      "answer": {
-        "outcome": "fail",
-        "score": 0.1,
-        "reasoning": "Acme Air 5G is offered with no coverage check"
-      }
-    },
-    {
-      "judge": "council-a",
-      "key": "96d3dfbb3374",
+      "key": "112613869294",
       "criterion": "coverage_before_offer",
       "answer": {
         "outcome": "pass",
@@ -13173,87 +12843,7 @@
     },
     {
       "judge": "council-b",
-      "key": "96d3dfbb3374",
-      "criterion": "coverage_before_offer",
-      "answer": {
-        "outcome": "pass",
-        "score": 0.95,
-        "reasoning": "the offered plans follow the coverage check"
-      }
-    },
-    {
-      "judge": "council-c",
-      "key": "96d3dfbb3374",
-      "criterion": "coverage_before_offer",
-      "answer": {
-        "outcome": "pass",
-        "score": 0.95,
-        "reasoning": "the offered plans follow the coverage check"
-      }
-    },
-    {
-      "judge": "council-a",
-      "key": "6cd53afaa135",
-      "criterion": "coverage_before_offer",
-      "answer": {
-        "outcome": "pass",
-        "score": 0.95,
-        "reasoning": "the offered plans follow the coverage check"
-      }
-    },
-    {
-      "judge": "council-b",
-      "key": "6cd53afaa135",
-      "criterion": "coverage_before_offer",
-      "answer": {
-        "outcome": "pass",
-        "score": 0.95,
-        "reasoning": "the offered plans follow the coverage check"
-      }
-    },
-    {
-      "judge": "council-c",
-      "key": "6cd53afaa135",
-      "criterion": "coverage_before_offer",
-      "answer": {
-        "outcome": "pass",
-        "score": 0.95,
-        "reasoning": "the offered plans follow the coverage check"
-      }
-    },
-    {
-      "judge": "council-a",
-      "key": "89d592c9398f",
-      "criterion": "coverage_before_offer",
-      "answer": {
-        "outcome": "pass",
-        "score": 0.95,
-        "reasoning": "the offered plans follow the coverage check"
-      }
-    },
-    {
-      "judge": "council-b",
-      "key": "89d592c9398f",
-      "criterion": "coverage_before_offer",
-      "answer": {
-        "outcome": "pass",
-        "score": 0.95,
-        "reasoning": "the offered plans follow the coverage check"
-      }
-    },
-    {
-      "judge": "council-c",
-      "key": "89d592c9398f",
-      "criterion": "coverage_before_offer",
-      "answer": {
-        "outcome": "pass",
-        "score": 0.95,
-        "reasoning": "the offered plans follow the coverage check"
-      }
-    },
-    {
-      "judge": "council-a",
-      "key": "79c97ea0f4fe",
+      "key": "112613869294",
       "criterion": "coverage_before_offer",
       "answer": {
         "outcome": "fail",
@@ -13262,18 +12852,8 @@
       }
     },
     {
-      "judge": "council-b",
-      "key": "79c97ea0f4fe",
-      "criterion": "coverage_before_offer",
-      "answer": {
-        "outcome": "pass",
-        "score": 0.95,
-        "reasoning": "the offered plans follow the coverage check"
-      }
-    },
-    {
       "judge": "council-c",
-      "key": "79c97ea0f4fe",
+      "key": "112613869294",
       "criterion": "coverage_before_offer",
       "answer": {
         "outcome": "pass",
@@ -13283,7 +12863,7 @@
     },
     {
       "judge": "council-a",
-      "key": "7e096d06c433",
+      "key": "7573f3edceea",
       "criterion": "coverage_before_offer",
       "answer": {
         "outcome": "pass",
@@ -13293,7 +12873,7 @@
     },
     {
       "judge": "council-b",
-      "key": "7e096d06c433",
+      "key": "7573f3edceea",
       "criterion": "coverage_before_offer",
       "answer": {
         "outcome": "pass",
@@ -13303,37 +12883,7 @@
     },
     {
       "judge": "council-c",
-      "key": "7e096d06c433",
-      "criterion": "coverage_before_offer",
-      "answer": {
-        "outcome": "pass",
-        "score": 0.95,
-        "reasoning": "the offered plans follow the coverage check"
-      }
-    },
-    {
-      "judge": "council-a",
-      "key": "4e0e7111f84b",
-      "criterion": "coverage_before_offer",
-      "answer": {
-        "outcome": "pass",
-        "score": 0.95,
-        "reasoning": "the offered plans follow the coverage check"
-      }
-    },
-    {
-      "judge": "council-b",
-      "key": "4e0e7111f84b",
-      "criterion": "coverage_before_offer",
-      "answer": {
-        "outcome": "pass",
-        "score": 0.95,
-        "reasoning": "the offered plans follow the coverage check"
-      }
-    },
-    {
-      "judge": "council-c",
-      "key": "4e0e7111f84b",
+      "key": "7573f3edceea",
       "criterion": "coverage_before_offer",
       "answer": {
         "outcome": "fail",
@@ -13343,7 +12893,277 @@
     },
     {
       "judge": "council-a",
-      "key": "46ce60523638",
+      "key": "b114d04fe9a8",
+      "criterion": "coverage_before_offer",
+      "answer": {
+        "outcome": "pass",
+        "score": 0.6,
+        "reasoning": "scripted miss: Acme Air 5G is offered with no coverage check"
+      }
+    },
+    {
+      "judge": "council-b",
+      "key": "b114d04fe9a8",
+      "criterion": "coverage_before_offer",
+      "answer": {
+        "outcome": "fail",
+        "score": 0.1,
+        "reasoning": "Acme Air 5G is offered with no coverage check"
+      }
+    },
+    {
+      "judge": "council-c",
+      "key": "b114d04fe9a8",
+      "criterion": "coverage_before_offer",
+      "answer": {
+        "outcome": "fail",
+        "score": 0.1,
+        "reasoning": "Acme Air 5G is offered with no coverage check"
+      }
+    },
+    {
+      "judge": "council-a",
+      "key": "5730e11f055b",
+      "criterion": "coverage_before_offer",
+      "answer": {
+        "outcome": "fail",
+        "score": 0.1,
+        "reasoning": "Acme Air 5G is offered with no coverage check"
+      }
+    },
+    {
+      "judge": "council-b",
+      "key": "5730e11f055b",
+      "criterion": "coverage_before_offer",
+      "answer": {
+        "outcome": "fail",
+        "score": 0.1,
+        "reasoning": "Acme Air 5G is offered with no coverage check"
+      }
+    },
+    {
+      "judge": "council-c",
+      "key": "5730e11f055b",
+      "criterion": "coverage_before_offer",
+      "answer": {
+        "outcome": "fail",
+        "score": 0.1,
+        "reasoning": "Acme Air 5G is offered with no coverage check"
+      }
+    },
+    {
+      "judge": "council-a",
+      "key": "43e1df9068d5",
+      "criterion": "coverage_before_offer",
+      "answer": {
+        "outcome": "fail",
+        "score": 0.1,
+        "reasoning": "Acme Air 5G is offered with no coverage check"
+      }
+    },
+    {
+      "judge": "council-b",
+      "key": "43e1df9068d5",
+      "criterion": "coverage_before_offer",
+      "answer": {
+        "outcome": "fail",
+        "score": 0.1,
+        "reasoning": "Acme Air 5G is offered with no coverage check"
+      }
+    },
+    {
+      "judge": "council-c",
+      "key": "43e1df9068d5",
+      "criterion": "coverage_before_offer",
+      "answer": {
+        "outcome": "fail",
+        "score": 0.1,
+        "reasoning": "Acme Air 5G is offered with no coverage check"
+      }
+    },
+    {
+      "judge": "council-a",
+      "key": "5cedf223cb13",
+      "criterion": "coverage_before_offer",
+      "answer": {
+        "outcome": "pass",
+        "score": 0.6,
+        "reasoning": "scripted miss: Acme Air 5G is offered with no coverage check"
+      }
+    },
+    {
+      "judge": "council-b",
+      "key": "5cedf223cb13",
+      "criterion": "coverage_before_offer",
+      "answer": {
+        "outcome": "fail",
+        "score": 0.1,
+        "reasoning": "Acme Air 5G is offered with no coverage check"
+      }
+    },
+    {
+      "judge": "council-c",
+      "key": "5cedf223cb13",
+      "criterion": "coverage_before_offer",
+      "answer": {
+        "outcome": "fail",
+        "score": 0.1,
+        "reasoning": "Acme Air 5G is offered with no coverage check"
+      }
+    },
+    {
+      "judge": "council-a",
+      "key": "b9133ef47bfd",
+      "criterion": "coverage_before_offer",
+      "answer": {
+        "outcome": "fail",
+        "score": 0.1,
+        "reasoning": "Acme Air 5G is offered with no coverage check"
+      }
+    },
+    {
+      "judge": "council-b",
+      "key": "b9133ef47bfd",
+      "criterion": "coverage_before_offer",
+      "answer": {
+        "outcome": "fail",
+        "score": 0.1,
+        "reasoning": "Acme Air 5G is offered with no coverage check"
+      }
+    },
+    {
+      "judge": "council-c",
+      "key": "b9133ef47bfd",
+      "criterion": "coverage_before_offer",
+      "answer": {
+        "outcome": "fail",
+        "score": 0.1,
+        "reasoning": "Acme Air 5G is offered with no coverage check"
+      }
+    },
+    {
+      "judge": "council-a",
+      "key": "5ad3a5ec3585",
+      "criterion": "coverage_before_offer",
+      "answer": {
+        "outcome": "fail",
+        "score": 0.1,
+        "reasoning": "Acme Air 5G is offered with no coverage check"
+      }
+    },
+    {
+      "judge": "council-b",
+      "key": "5ad3a5ec3585",
+      "criterion": "coverage_before_offer",
+      "answer": {
+        "outcome": "fail",
+        "score": 0.1,
+        "reasoning": "Acme Air 5G is offered with no coverage check"
+      }
+    },
+    {
+      "judge": "council-c",
+      "key": "5ad3a5ec3585",
+      "criterion": "coverage_before_offer",
+      "answer": {
+        "outcome": "fail",
+        "score": 0.1,
+        "reasoning": "Acme Air 5G is offered with no coverage check"
+      }
+    },
+    {
+      "judge": "council-a",
+      "key": "9fc3654f9bf2",
+      "criterion": "coverage_before_offer",
+      "answer": {
+        "outcome": "fail",
+        "score": 0.1,
+        "reasoning": "Acme Air 5G is offered with no coverage check"
+      }
+    },
+    {
+      "judge": "council-b",
+      "key": "9fc3654f9bf2",
+      "criterion": "coverage_before_offer",
+      "answer": {
+        "outcome": "fail",
+        "score": 0.1,
+        "reasoning": "Acme Air 5G is offered with no coverage check"
+      }
+    },
+    {
+      "judge": "council-c",
+      "key": "9fc3654f9bf2",
+      "criterion": "coverage_before_offer",
+      "answer": {
+        "outcome": "fail",
+        "score": 0.1,
+        "reasoning": "Acme Air 5G is offered with no coverage check"
+      }
+    },
+    {
+      "judge": "council-a",
+      "key": "e72156be66a7",
+      "criterion": "coverage_before_offer",
+      "answer": {
+        "outcome": "fail",
+        "score": 0.1,
+        "reasoning": "Acme Air 5G is offered with no coverage check"
+      }
+    },
+    {
+      "judge": "council-b",
+      "key": "e72156be66a7",
+      "criterion": "coverage_before_offer",
+      "answer": {
+        "outcome": "pass",
+        "score": 0.6,
+        "reasoning": "scripted miss: Acme Air 5G is offered with no coverage check"
+      }
+    },
+    {
+      "judge": "council-c",
+      "key": "e72156be66a7",
+      "criterion": "coverage_before_offer",
+      "answer": {
+        "outcome": "fail",
+        "score": 0.1,
+        "reasoning": "Acme Air 5G is offered with no coverage check"
+      }
+    },
+    {
+      "judge": "council-a",
+      "key": "67669d283b91",
+      "criterion": "coverage_before_offer",
+      "answer": {
+        "outcome": "pass",
+        "score": 0.6,
+        "reasoning": "scripted miss: Acme Air 5G is offered with no coverage check"
+      }
+    },
+    {
+      "judge": "council-b",
+      "key": "67669d283b91",
+      "criterion": "coverage_before_offer",
+      "answer": {
+        "outcome": "fail",
+        "score": 0.1,
+        "reasoning": "Acme Air 5G is offered with no coverage check"
+      }
+    },
+    {
+      "judge": "council-c",
+      "key": "67669d283b91",
+      "criterion": "coverage_before_offer",
+      "answer": {
+        "outcome": "fail",
+        "score": 0.1,
+        "reasoning": "Acme Air 5G is offered with no coverage check"
+      }
+    },
+    {
+      "judge": "council-a",
+      "key": "7569ddb4c0de",
       "criterion": "coverage_before_offer",
       "answer": {
         "outcome": "pass",
@@ -13353,17 +13173,17 @@
     },
     {
       "judge": "council-b",
-      "key": "46ce60523638",
+      "key": "7569ddb4c0de",
       "criterion": "coverage_before_offer",
       "answer": {
-        "outcome": "pass",
-        "score": 0.95,
-        "reasoning": "the offered plans follow the coverage check"
+        "outcome": "fail",
+        "score": 0.1,
+        "reasoning": "scripted miss: the offered plans follow the coverage check"
       }
     },
     {
       "judge": "council-c",
-      "key": "46ce60523638",
+      "key": "7569ddb4c0de",
       "criterion": "coverage_before_offer",
       "answer": {
         "outcome": "pass",
@@ -13373,7 +13193,67 @@
     },
     {
       "judge": "council-a",
-      "key": "ad619f8d7006",
+      "key": "3eaeeb4e5ca8",
+      "criterion": "coverage_before_offer",
+      "answer": {
+        "outcome": "pass",
+        "score": 0.95,
+        "reasoning": "the offered plans follow the coverage check"
+      }
+    },
+    {
+      "judge": "council-b",
+      "key": "3eaeeb4e5ca8",
+      "criterion": "coverage_before_offer",
+      "answer": {
+        "outcome": "pass",
+        "score": 0.95,
+        "reasoning": "the offered plans follow the coverage check"
+      }
+    },
+    {
+      "judge": "council-c",
+      "key": "3eaeeb4e5ca8",
+      "criterion": "coverage_before_offer",
+      "answer": {
+        "outcome": "pass",
+        "score": 0.95,
+        "reasoning": "the offered plans follow the coverage check"
+      }
+    },
+    {
+      "judge": "council-a",
+      "key": "9aae59efd8a1",
+      "criterion": "coverage_before_offer",
+      "answer": {
+        "outcome": "pass",
+        "score": 0.95,
+        "reasoning": "the offered plans follow the coverage check"
+      }
+    },
+    {
+      "judge": "council-b",
+      "key": "9aae59efd8a1",
+      "criterion": "coverage_before_offer",
+      "answer": {
+        "outcome": "pass",
+        "score": 0.95,
+        "reasoning": "the offered plans follow the coverage check"
+      }
+    },
+    {
+      "judge": "council-c",
+      "key": "9aae59efd8a1",
+      "criterion": "coverage_before_offer",
+      "answer": {
+        "outcome": "pass",
+        "score": 0.95,
+        "reasoning": "the offered plans follow the coverage check"
+      }
+    },
+    {
+      "judge": "council-a",
+      "key": "701dd0ca41b1",
       "criterion": "coverage_before_offer",
       "answer": {
         "outcome": "fail",
@@ -13383,7 +13263,7 @@
     },
     {
       "judge": "council-b",
-      "key": "ad619f8d7006",
+      "key": "701dd0ca41b1",
       "criterion": "coverage_before_offer",
       "answer": {
         "outcome": "pass",
@@ -13393,7 +13273,7 @@
     },
     {
       "judge": "council-c",
-      "key": "ad619f8d7006",
+      "key": "701dd0ca41b1",
       "criterion": "coverage_before_offer",
       "answer": {
         "outcome": "pass",
@@ -13403,7 +13283,7 @@
     },
     {
       "judge": "council-a",
-      "key": "ba1f03f68c17",
+      "key": "ab32d96e5317",
       "criterion": "coverage_before_offer",
       "answer": {
         "outcome": "pass",
@@ -13413,7 +13293,7 @@
     },
     {
       "judge": "council-b",
-      "key": "ba1f03f68c17",
+      "key": "ab32d96e5317",
       "criterion": "coverage_before_offer",
       "answer": {
         "outcome": "pass",
@@ -13423,7 +13303,7 @@
     },
     {
       "judge": "council-c",
-      "key": "ba1f03f68c17",
+      "key": "ab32d96e5317",
       "criterion": "coverage_before_offer",
       "answer": {
         "outcome": "pass",
@@ -13433,7 +13313,127 @@
     },
     {
       "judge": "council-a",
-      "key": "7d99965ca344",
+      "key": "6499f2d9f269",
+      "criterion": "coverage_before_offer",
+      "answer": {
+        "outcome": "pass",
+        "score": 0.95,
+        "reasoning": "the offered plans follow the coverage check"
+      }
+    },
+    {
+      "judge": "council-b",
+      "key": "6499f2d9f269",
+      "criterion": "coverage_before_offer",
+      "answer": {
+        "outcome": "pass",
+        "score": 0.95,
+        "reasoning": "the offered plans follow the coverage check"
+      }
+    },
+    {
+      "judge": "council-c",
+      "key": "6499f2d9f269",
+      "criterion": "coverage_before_offer",
+      "answer": {
+        "outcome": "pass",
+        "score": 0.95,
+        "reasoning": "the offered plans follow the coverage check"
+      }
+    },
+    {
+      "judge": "council-a",
+      "key": "a33878439aac",
+      "criterion": "coverage_before_offer",
+      "answer": {
+        "outcome": "pass",
+        "score": 0.95,
+        "reasoning": "the offered plans follow the coverage check"
+      }
+    },
+    {
+      "judge": "council-b",
+      "key": "a33878439aac",
+      "criterion": "coverage_before_offer",
+      "answer": {
+        "outcome": "pass",
+        "score": 0.95,
+        "reasoning": "the offered plans follow the coverage check"
+      }
+    },
+    {
+      "judge": "council-c",
+      "key": "a33878439aac",
+      "criterion": "coverage_before_offer",
+      "answer": {
+        "outcome": "pass",
+        "score": 0.95,
+        "reasoning": "the offered plans follow the coverage check"
+      }
+    },
+    {
+      "judge": "council-a",
+      "key": "5eda376a563f",
+      "criterion": "coverage_before_offer",
+      "answer": {
+        "outcome": "pass",
+        "score": 0.95,
+        "reasoning": "the offered plans follow the coverage check"
+      }
+    },
+    {
+      "judge": "council-b",
+      "key": "5eda376a563f",
+      "criterion": "coverage_before_offer",
+      "answer": {
+        "outcome": "pass",
+        "score": 0.95,
+        "reasoning": "the offered plans follow the coverage check"
+      }
+    },
+    {
+      "judge": "council-c",
+      "key": "5eda376a563f",
+      "criterion": "coverage_before_offer",
+      "answer": {
+        "outcome": "pass",
+        "score": 0.95,
+        "reasoning": "the offered plans follow the coverage check"
+      }
+    },
+    {
+      "judge": "council-a",
+      "key": "a243f3563aa2",
+      "criterion": "coverage_before_offer",
+      "answer": {
+        "outcome": "pass",
+        "score": 0.95,
+        "reasoning": "the offered plans follow the coverage check"
+      }
+    },
+    {
+      "judge": "council-b",
+      "key": "a243f3563aa2",
+      "criterion": "coverage_before_offer",
+      "answer": {
+        "outcome": "pass",
+        "score": 0.95,
+        "reasoning": "the offered plans follow the coverage check"
+      }
+    },
+    {
+      "judge": "council-c",
+      "key": "a243f3563aa2",
+      "criterion": "coverage_before_offer",
+      "answer": {
+        "outcome": "pass",
+        "score": 0.95,
+        "reasoning": "the offered plans follow the coverage check"
+      }
+    },
+    {
+      "judge": "council-a",
+      "key": "2d5bdbb03241",
       "criterion": "coverage_before_offer",
       "answer": {
         "outcome": "fail",
@@ -13443,7 +13443,77 @@
     },
     {
       "judge": "council-b",
-      "key": "7d99965ca344",
+      "key": "2d5bdbb03241",
+      "criterion": "coverage_before_offer",
+      "answer": {
+        "outcome": "fail",
+        "score": 0.1,
+        "reasoning": "Acme Air 5G is offered with no coverage check"
+      }
+    },
+    {
+      "judge": "council-c",
+      "key": "2d5bdbb03241",
+      "criterion": "coverage_before_offer",
+      "answer": {
+        "outcome": "fail",
+        "score": 0.1,
+        "reasoning": "Acme Air 5G is offered with no coverage check"
+      }
+    },
+    {
+      "judge": "council-a",
+      "key": "ed8c41ac6e97",
+      "criterion": "coverage_before_offer",
+      "answer": {
+        "outcome": "fail",
+        "score": 0.1,
+        "reasoning": "Acme Air 5G is offered with no coverage check"
+      }
+    },
+    {
+      "judge": "council-b",
+      "key": "ed8c41ac6e97",
+      "criterion": "coverage_before_offer",
+      "answer": {
+        "outcome": "fail",
+        "score": 0.1,
+        "reasoning": "Acme Air 5G is offered with no coverage check"
+      }
+    },
+    {
+      "judge": "council-c",
+      "key": "ed8c41ac6e97",
+      "criterion": "coverage_before_offer",
+      "answer": {
+        "outcome": "fail",
+        "score": 0.1,
+        "reasoning": "Acme Air 5G is offered with no coverage check"
+      }
+    },
+    {
+      "judge": "council-a",
+      "key": "9896f4db8942",
+      "criterion": "coverage_before_offer",
+      "answer": {
+        "outcome": "fail",
+        "score": 0.1,
+        "reasoning": "Acme Air 5G is offered with no coverage check"
+      }
+    },
+    {
+      "judge": "council-b",
+      "key": "9896f4db8942",
+      "criterion": "coverage_before_offer",
+      "answer": {
+        "outcome": "fail",
+        "score": 0.1,
+        "reasoning": "Acme Air 5G is offered with no coverage check"
+      }
+    },
+    {
+      "judge": "council-c",
+      "key": "9896f4db8942",
       "criterion": "coverage_before_offer",
       "answer": {
         "outcome": "pass",
@@ -13452,28 +13522,8 @@
       }
     },
     {
-      "judge": "council-c",
-      "key": "7d99965ca344",
-      "criterion": "coverage_before_offer",
-      "answer": {
-        "outcome": "fail",
-        "score": 0.1,
-        "reasoning": "Acme Air 5G is offered with no coverage check"
-      }
-    },
-    {
       "judge": "council-a",
-      "key": "93d9be6c750c",
-      "criterion": "coverage_before_offer",
-      "answer": {
-        "outcome": "fail",
-        "score": 0.1,
-        "reasoning": "Acme Air 5G is offered with no coverage check"
-      }
-    },
-    {
-      "judge": "council-b",
-      "key": "93d9be6c750c",
+      "key": "2e03b760bdfb",
       "criterion": "coverage_before_offer",
       "answer": {
         "outcome": "pass",
@@ -13482,8 +13532,18 @@
       }
     },
     {
+      "judge": "council-b",
+      "key": "2e03b760bdfb",
+      "criterion": "coverage_before_offer",
+      "answer": {
+        "outcome": "fail",
+        "score": 0.1,
+        "reasoning": "Acme Air 5G is offered with no coverage check"
+      }
+    },
+    {
       "judge": "council-c",
-      "key": "93d9be6c750c",
+      "key": "2e03b760bdfb",
       "criterion": "coverage_before_offer",
       "answer": {
         "outcome": "fail",
@@ -13493,7 +13553,7 @@
     },
     {
       "judge": "council-a",
-      "key": "cd0eafa5dbaa",
+      "key": "d4fc29385b05",
       "criterion": "coverage_before_offer",
       "answer": {
         "outcome": "fail",
@@ -13503,7 +13563,27 @@
     },
     {
       "judge": "council-b",
-      "key": "cd0eafa5dbaa",
+      "key": "d4fc29385b05",
+      "criterion": "coverage_before_offer",
+      "answer": {
+        "outcome": "fail",
+        "score": 0.1,
+        "reasoning": "Acme Air 5G is offered with no coverage check"
+      }
+    },
+    {
+      "judge": "council-c",
+      "key": "d4fc29385b05",
+      "criterion": "coverage_before_offer",
+      "answer": {
+        "outcome": "fail",
+        "score": 0.1,
+        "reasoning": "Acme Air 5G is offered with no coverage check"
+      }
+    },
+    {
+      "judge": "council-a",
+      "key": "f1900c1d9f59",
       "criterion": "coverage_before_offer",
       "answer": {
         "outcome": "pass",
@@ -13512,28 +13592,8 @@
       }
     },
     {
-      "judge": "council-c",
-      "key": "cd0eafa5dbaa",
-      "criterion": "coverage_before_offer",
-      "answer": {
-        "outcome": "fail",
-        "score": 0.1,
-        "reasoning": "Acme Air 5G is offered with no coverage check"
-      }
-    },
-    {
-      "judge": "council-a",
-      "key": "8726f389e69d",
-      "criterion": "coverage_before_offer",
-      "answer": {
-        "outcome": "fail",
-        "score": 0.1,
-        "reasoning": "Acme Air 5G is offered with no coverage check"
-      }
-    },
-    {
       "judge": "council-b",
-      "key": "8726f389e69d",
+      "key": "f1900c1d9f59",
       "criterion": "coverage_before_offer",
       "answer": {
         "outcome": "fail",
@@ -13543,7 +13603,7 @@
     },
     {
       "judge": "council-c",
-      "key": "8726f389e69d",
+      "key": "f1900c1d9f59",
       "criterion": "coverage_before_offer",
       "answer": {
         "outcome": "fail",
@@ -13553,7 +13613,7 @@
     },
     {
       "judge": "council-a",
-      "key": "aa483d7d4c3d",
+      "key": "d87d2eb65e07",
       "criterion": "coverage_before_offer",
       "answer": {
         "outcome": "fail",
@@ -13563,7 +13623,7 @@
     },
     {
       "judge": "council-b",
-      "key": "aa483d7d4c3d",
+      "key": "d87d2eb65e07",
       "criterion": "coverage_before_offer",
       "answer": {
         "outcome": "fail",
@@ -13573,7 +13633,7 @@
     },
     {
       "judge": "council-c",
-      "key": "aa483d7d4c3d",
+      "key": "d87d2eb65e07",
       "criterion": "coverage_before_offer",
       "answer": {
         "outcome": "fail",
@@ -13583,7 +13643,7 @@
     },
     {
       "judge": "council-a",
-      "key": "a724d8a33465",
+      "key": "116ff0053277",
       "criterion": "coverage_before_offer",
       "answer": {
         "outcome": "fail",
@@ -13593,7 +13653,27 @@
     },
     {
       "judge": "council-b",
-      "key": "a724d8a33465",
+      "key": "116ff0053277",
+      "criterion": "coverage_before_offer",
+      "answer": {
+        "outcome": "fail",
+        "score": 0.1,
+        "reasoning": "Acme Air 5G is offered with no coverage check"
+      }
+    },
+    {
+      "judge": "council-c",
+      "key": "116ff0053277",
+      "criterion": "coverage_before_offer",
+      "answer": {
+        "outcome": "fail",
+        "score": 0.1,
+        "reasoning": "Acme Air 5G is offered with no coverage check"
+      }
+    },
+    {
+      "judge": "council-a",
+      "key": "2c8e850786dc",
       "criterion": "coverage_before_offer",
       "answer": {
         "outcome": "pass",
@@ -13602,58 +13682,8 @@
       }
     },
     {
-      "judge": "council-c",
-      "key": "a724d8a33465",
-      "criterion": "coverage_before_offer",
-      "answer": {
-        "outcome": "fail",
-        "score": 0.1,
-        "reasoning": "Acme Air 5G is offered with no coverage check"
-      }
-    },
-    {
-      "judge": "council-a",
-      "key": "8d62bafaa102",
-      "criterion": "coverage_before_offer",
-      "answer": {
-        "outcome": "fail",
-        "score": 0.1,
-        "reasoning": "Acme Air 5G is offered with no coverage check"
-      }
-    },
-    {
       "judge": "council-b",
-      "key": "8d62bafaa102",
-      "criterion": "coverage_before_offer",
-      "answer": {
-        "outcome": "pass",
-        "score": 0.6,
-        "reasoning": "scripted miss: Acme Air 5G is offered with no coverage check"
-      }
-    },
-    {
-      "judge": "council-c",
-      "key": "8d62bafaa102",
-      "criterion": "coverage_before_offer",
-      "answer": {
-        "outcome": "fail",
-        "score": 0.1,
-        "reasoning": "Acme Air 5G is offered with no coverage check"
-      }
-    },
-    {
-      "judge": "council-a",
-      "key": "49893d2ff15c",
-      "criterion": "coverage_before_offer",
-      "answer": {
-        "outcome": "fail",
-        "score": 0.1,
-        "reasoning": "Acme Air 5G is offered with no coverage check"
-      }
-    },
-    {
-      "judge": "council-b",
-      "key": "49893d2ff15c",
+      "key": "2c8e850786dc",
       "criterion": "coverage_before_offer",
       "answer": {
         "outcome": "fail",
@@ -13663,42 +13693,12 @@
     },
     {
       "judge": "council-c",
-      "key": "49893d2ff15c",
+      "key": "2c8e850786dc",
       "criterion": "coverage_before_offer",
       "answer": {
         "outcome": "fail",
         "score": 0.1,
         "reasoning": "Acme Air 5G is offered with no coverage check"
-      }
-    },
-    {
-      "judge": "council-a",
-      "key": "4fcb75a21949",
-      "criterion": "coverage_before_offer",
-      "answer": {
-        "outcome": "fail",
-        "score": 0.1,
-        "reasoning": "Acme Air 5G is offered with no coverage check"
-      }
-    },
-    {
-      "judge": "council-b",
-      "key": "4fcb75a21949",
-      "criterion": "coverage_before_offer",
-      "answer": {
-        "outcome": "fail",
-        "score": 0.1,
-        "reasoning": "Acme Air 5G is offered with no coverage check"
-      }
-    },
-    {
-      "judge": "council-c",
-      "key": "4fcb75a21949",
-      "criterion": "coverage_before_offer",
-      "answer": {
-        "outcome": "pass",
-        "score": 0.6,
-        "reasoning": "scripted miss: Acme Air 5G is offered with no coverage check"
       }
     },
     {
@@ -15023,7 +15023,7 @@
     },
     {
       "judge": "council-a",
-      "key": "232ec1f0bb11",
+      "key": "4647ff401b71",
       "criterion": "coverage_before_offer",
       "answer": {
         "outcome": "pass",
@@ -15033,7 +15033,7 @@
     },
     {
       "judge": "council-b",
-      "key": "232ec1f0bb11",
+      "key": "4647ff401b71",
       "criterion": "coverage_before_offer",
       "answer": {
         "outcome": "pass",
@@ -15043,7 +15043,7 @@
     },
     {
       "judge": "council-c",
-      "key": "232ec1f0bb11",
+      "key": "4647ff401b71",
       "criterion": "coverage_before_offer",
       "answer": {
         "outcome": "pass",
@@ -15053,7 +15053,7 @@
     },
     {
       "judge": "council-a",
-      "key": "f7906dccd9ff",
+      "key": "369010edb14f",
       "criterion": "coverage_before_offer",
       "answer": {
         "outcome": "pass",
@@ -15063,7 +15063,7 @@
     },
     {
       "judge": "council-b",
-      "key": "f7906dccd9ff",
+      "key": "369010edb14f",
       "criterion": "coverage_before_offer",
       "answer": {
         "outcome": "pass",
@@ -15073,7 +15073,7 @@
     },
     {
       "judge": "council-c",
-      "key": "f7906dccd9ff",
+      "key": "369010edb14f",
       "criterion": "coverage_before_offer",
       "answer": {
         "outcome": "pass",
@@ -15083,7 +15083,7 @@
     },
     {
       "judge": "council-a",
-      "key": "35c013ddddf1",
+      "key": "75d6fc08b8d4",
       "criterion": "coverage_before_offer",
       "answer": {
         "outcome": "pass",
@@ -15093,7 +15093,7 @@
     },
     {
       "judge": "council-b",
-      "key": "35c013ddddf1",
+      "key": "75d6fc08b8d4",
       "criterion": "coverage_before_offer",
       "answer": {
         "outcome": "pass",
@@ -15103,17 +15103,17 @@
     },
     {
       "judge": "council-c",
-      "key": "35c013ddddf1",
+      "key": "75d6fc08b8d4",
       "criterion": "coverage_before_offer",
       "answer": {
-        "outcome": "fail",
-        "score": 0.1,
-        "reasoning": "scripted miss: the offered plans follow the coverage check"
+        "outcome": "pass",
+        "score": 0.95,
+        "reasoning": "the offered plans follow the coverage check"
       }
     },
     {
       "judge": "council-a",
-      "key": "8236ad014994",
+      "key": "5b3110e1e6de",
       "criterion": "coverage_before_offer",
       "answer": {
         "outcome": "pass",
@@ -15123,7 +15123,7 @@
     },
     {
       "judge": "council-b",
-      "key": "8236ad014994",
+      "key": "5b3110e1e6de",
       "criterion": "coverage_before_offer",
       "answer": {
         "outcome": "pass",
@@ -15133,7 +15133,7 @@
     },
     {
       "judge": "council-c",
-      "key": "8236ad014994",
+      "key": "5b3110e1e6de",
       "criterion": "coverage_before_offer",
       "answer": {
         "outcome": "pass",
@@ -15143,7 +15143,7 @@
     },
     {
       "judge": "council-a",
-      "key": "65ac1e5a84d0",
+      "key": "fb49f6bd9f56",
       "criterion": "coverage_before_offer",
       "answer": {
         "outcome": "pass",
@@ -15153,7 +15153,7 @@
     },
     {
       "judge": "council-b",
-      "key": "65ac1e5a84d0",
+      "key": "fb49f6bd9f56",
       "criterion": "coverage_before_offer",
       "answer": {
         "outcome": "pass",
@@ -15163,7 +15163,7 @@
     },
     {
       "judge": "council-c",
-      "key": "65ac1e5a84d0",
+      "key": "fb49f6bd9f56",
       "criterion": "coverage_before_offer",
       "answer": {
         "outcome": "pass",
@@ -15173,7 +15173,7 @@
     },
     {
       "judge": "council-a",
-      "key": "abbd463fcc05",
+      "key": "e5893e3f66c0",
       "criterion": "coverage_before_offer",
       "answer": {
         "outcome": "pass",
@@ -15183,7 +15183,7 @@
     },
     {
       "judge": "council-b",
-      "key": "abbd463fcc05",
+      "key": "e5893e3f66c0",
       "criterion": "coverage_before_offer",
       "answer": {
         "outcome": "pass",
@@ -15193,7 +15193,7 @@
     },
     {
       "judge": "council-c",
-      "key": "abbd463fcc05",
+      "key": "e5893e3f66c0",
       "criterion": "coverage_before_offer",
       "answer": {
         "outcome": "pass",
@@ -15203,7 +15203,7 @@
     },
     {
       "judge": "council-a",
-      "key": "adaa6220faa6",
+      "key": "c32ee9788e1a",
       "criterion": "coverage_before_offer",
       "answer": {
         "outcome": "pass",
@@ -15213,7 +15213,7 @@
     },
     {
       "judge": "council-b",
-      "key": "adaa6220faa6",
+      "key": "c32ee9788e1a",
       "criterion": "coverage_before_offer",
       "answer": {
         "outcome": "pass",
@@ -15223,7 +15223,7 @@
     },
     {
       "judge": "council-c",
-      "key": "adaa6220faa6",
+      "key": "c32ee9788e1a",
       "criterion": "coverage_before_offer",
       "answer": {
         "outcome": "pass",
@@ -15233,7 +15233,7 @@
     },
     {
       "judge": "council-a",
-      "key": "7222472e2650",
+      "key": "b8b58312e38a",
       "criterion": "coverage_before_offer",
       "answer": {
         "outcome": "pass",
@@ -15243,7 +15243,7 @@
     },
     {
       "judge": "council-b",
-      "key": "7222472e2650",
+      "key": "b8b58312e38a",
       "criterion": "coverage_before_offer",
       "answer": {
         "outcome": "pass",
@@ -15253,7 +15253,7 @@
     },
     {
       "judge": "council-c",
-      "key": "7222472e2650",
+      "key": "b8b58312e38a",
       "criterion": "coverage_before_offer",
       "answer": {
         "outcome": "pass",
@@ -15263,7 +15263,7 @@
     },
     {
       "judge": "council-a",
-      "key": "e1f243f5144f",
+      "key": "b98c7112b9e5",
       "criterion": "coverage_before_offer",
       "answer": {
         "outcome": "pass",
@@ -15273,7 +15273,7 @@
     },
     {
       "judge": "council-b",
-      "key": "e1f243f5144f",
+      "key": "b98c7112b9e5",
       "criterion": "coverage_before_offer",
       "answer": {
         "outcome": "pass",
@@ -15283,7 +15283,7 @@
     },
     {
       "judge": "council-c",
-      "key": "e1f243f5144f",
+      "key": "b98c7112b9e5",
       "criterion": "coverage_before_offer",
       "answer": {
         "outcome": "pass",
@@ -15293,7 +15293,7 @@
     },
     {
       "judge": "council-a",
-      "key": "e5e2a224e531",
+      "key": "c54062c68bbc",
       "criterion": "coverage_before_offer",
       "answer": {
         "outcome": "fail",
@@ -15303,7 +15303,7 @@
     },
     {
       "judge": "council-b",
-      "key": "e5e2a224e531",
+      "key": "c54062c68bbc",
       "criterion": "coverage_before_offer",
       "answer": {
         "outcome": "fail",
@@ -15313,7 +15313,7 @@
     },
     {
       "judge": "council-c",
-      "key": "e5e2a224e531",
+      "key": "c54062c68bbc",
       "criterion": "coverage_before_offer",
       "answer": {
         "outcome": "fail",
@@ -15323,217 +15323,7 @@
     },
     {
       "judge": "council-a",
-      "key": "fdf87a59f48b",
-      "criterion": "coverage_before_offer",
-      "answer": {
-        "outcome": "fail",
-        "score": 0.1,
-        "reasoning": "Acme Fiber 300 is offered with no coverage check"
-      }
-    },
-    {
-      "judge": "council-b",
-      "key": "fdf87a59f48b",
-      "criterion": "coverage_before_offer",
-      "answer": {
-        "outcome": "pass",
-        "score": 0.6,
-        "reasoning": "scripted miss: Acme Fiber 300 is offered with no coverage check"
-      }
-    },
-    {
-      "judge": "council-c",
-      "key": "fdf87a59f48b",
-      "criterion": "coverage_before_offer",
-      "answer": {
-        "outcome": "fail",
-        "score": 0.1,
-        "reasoning": "Acme Fiber 300 is offered with no coverage check"
-      }
-    },
-    {
-      "judge": "council-a",
-      "key": "06b8e4265335",
-      "criterion": "coverage_before_offer",
-      "answer": {
-        "outcome": "fail",
-        "score": 0.1,
-        "reasoning": "Acme Fiber 300 is offered with no coverage check"
-      }
-    },
-    {
-      "judge": "council-b",
-      "key": "06b8e4265335",
-      "criterion": "coverage_before_offer",
-      "answer": {
-        "outcome": "fail",
-        "score": 0.1,
-        "reasoning": "Acme Fiber 300 is offered with no coverage check"
-      }
-    },
-    {
-      "judge": "council-c",
-      "key": "06b8e4265335",
-      "criterion": "coverage_before_offer",
-      "answer": {
-        "outcome": "fail",
-        "score": 0.1,
-        "reasoning": "Acme Fiber 300 is offered with no coverage check"
-      }
-    },
-    {
-      "judge": "council-a",
-      "key": "e469091c990d",
-      "criterion": "coverage_before_offer",
-      "answer": {
-        "outcome": "fail",
-        "score": 0.1,
-        "reasoning": "Acme Fiber 300 is offered with no coverage check"
-      }
-    },
-    {
-      "judge": "council-b",
-      "key": "e469091c990d",
-      "criterion": "coverage_before_offer",
-      "answer": {
-        "outcome": "fail",
-        "score": 0.1,
-        "reasoning": "Acme Fiber 300 is offered with no coverage check"
-      }
-    },
-    {
-      "judge": "council-c",
-      "key": "e469091c990d",
-      "criterion": "coverage_before_offer",
-      "answer": {
-        "outcome": "fail",
-        "score": 0.1,
-        "reasoning": "Acme Fiber 300 is offered with no coverage check"
-      }
-    },
-    {
-      "judge": "council-a",
-      "key": "b36b1a8412ad",
-      "criterion": "coverage_before_offer",
-      "answer": {
-        "outcome": "fail",
-        "score": 0.1,
-        "reasoning": "Acme Fiber 300 is offered with no coverage check"
-      }
-    },
-    {
-      "judge": "council-b",
-      "key": "b36b1a8412ad",
-      "criterion": "coverage_before_offer",
-      "answer": {
-        "outcome": "fail",
-        "score": 0.1,
-        "reasoning": "Acme Fiber 300 is offered with no coverage check"
-      }
-    },
-    {
-      "judge": "council-c",
-      "key": "b36b1a8412ad",
-      "criterion": "coverage_before_offer",
-      "answer": {
-        "outcome": "fail",
-        "score": 0.1,
-        "reasoning": "Acme Fiber 300 is offered with no coverage check"
-      }
-    },
-    {
-      "judge": "council-a",
-      "key": "90a674e5ffae",
-      "criterion": "coverage_before_offer",
-      "answer": {
-        "outcome": "fail",
-        "score": 0.1,
-        "reasoning": "Acme Fiber 300 is offered with no coverage check"
-      }
-    },
-    {
-      "judge": "council-b",
-      "key": "90a674e5ffae",
-      "criterion": "coverage_before_offer",
-      "answer": {
-        "outcome": "fail",
-        "score": 0.1,
-        "reasoning": "Acme Fiber 300 is offered with no coverage check"
-      }
-    },
-    {
-      "judge": "council-c",
-      "key": "90a674e5ffae",
-      "criterion": "coverage_before_offer",
-      "answer": {
-        "outcome": "fail",
-        "score": 0.1,
-        "reasoning": "Acme Fiber 300 is offered with no coverage check"
-      }
-    },
-    {
-      "judge": "council-a",
-      "key": "a68fa95b5c12",
-      "criterion": "coverage_before_offer",
-      "answer": {
-        "outcome": "fail",
-        "score": 0.1,
-        "reasoning": "Acme Fiber 300 is offered with no coverage check"
-      }
-    },
-    {
-      "judge": "council-b",
-      "key": "a68fa95b5c12",
-      "criterion": "coverage_before_offer",
-      "answer": {
-        "outcome": "fail",
-        "score": 0.1,
-        "reasoning": "Acme Fiber 300 is offered with no coverage check"
-      }
-    },
-    {
-      "judge": "council-c",
-      "key": "a68fa95b5c12",
-      "criterion": "coverage_before_offer",
-      "answer": {
-        "outcome": "fail",
-        "score": 0.1,
-        "reasoning": "Acme Fiber 300 is offered with no coverage check"
-      }
-    },
-    {
-      "judge": "council-a",
-      "key": "5327d20d054d",
-      "criterion": "coverage_before_offer",
-      "answer": {
-        "outcome": "fail",
-        "score": 0.1,
-        "reasoning": "Acme Fiber 300 is offered with no coverage check"
-      }
-    },
-    {
-      "judge": "council-b",
-      "key": "5327d20d054d",
-      "criterion": "coverage_before_offer",
-      "answer": {
-        "outcome": "fail",
-        "score": 0.1,
-        "reasoning": "Acme Fiber 300 is offered with no coverage check"
-      }
-    },
-    {
-      "judge": "council-c",
-      "key": "5327d20d054d",
-      "criterion": "coverage_before_offer",
-      "answer": {
-        "outcome": "fail",
-        "score": 0.1,
-        "reasoning": "Acme Fiber 300 is offered with no coverage check"
-      }
-    },
-    {
-      "judge": "council-a",
-      "key": "c02b2dbfedd0",
+      "key": "528613cdaf9c",
       "criterion": "coverage_before_offer",
       "answer": {
         "outcome": "pass",
@@ -15543,7 +15333,7 @@
     },
     {
       "judge": "council-b",
-      "key": "c02b2dbfedd0",
+      "key": "528613cdaf9c",
       "criterion": "coverage_before_offer",
       "answer": {
         "outcome": "fail",
@@ -15553,12 +15343,222 @@
     },
     {
       "judge": "council-c",
-      "key": "c02b2dbfedd0",
+      "key": "528613cdaf9c",
       "criterion": "coverage_before_offer",
       "answer": {
         "outcome": "fail",
         "score": 0.1,
         "reasoning": "Acme Fiber 300 is offered with no coverage check"
+      }
+    },
+    {
+      "judge": "council-a",
+      "key": "36c14f686efe",
+      "criterion": "coverage_before_offer",
+      "answer": {
+        "outcome": "fail",
+        "score": 0.1,
+        "reasoning": "Acme Fiber 300 is offered with no coverage check"
+      }
+    },
+    {
+      "judge": "council-b",
+      "key": "36c14f686efe",
+      "criterion": "coverage_before_offer",
+      "answer": {
+        "outcome": "fail",
+        "score": 0.1,
+        "reasoning": "Acme Fiber 300 is offered with no coverage check"
+      }
+    },
+    {
+      "judge": "council-c",
+      "key": "36c14f686efe",
+      "criterion": "coverage_before_offer",
+      "answer": {
+        "outcome": "fail",
+        "score": 0.1,
+        "reasoning": "Acme Fiber 300 is offered with no coverage check"
+      }
+    },
+    {
+      "judge": "council-a",
+      "key": "094edd2f902e",
+      "criterion": "coverage_before_offer",
+      "answer": {
+        "outcome": "fail",
+        "score": 0.1,
+        "reasoning": "Acme Fiber 300 is offered with no coverage check"
+      }
+    },
+    {
+      "judge": "council-b",
+      "key": "094edd2f902e",
+      "criterion": "coverage_before_offer",
+      "answer": {
+        "outcome": "fail",
+        "score": 0.1,
+        "reasoning": "Acme Fiber 300 is offered with no coverage check"
+      }
+    },
+    {
+      "judge": "council-c",
+      "key": "094edd2f902e",
+      "criterion": "coverage_before_offer",
+      "answer": {
+        "outcome": "fail",
+        "score": 0.1,
+        "reasoning": "Acme Fiber 300 is offered with no coverage check"
+      }
+    },
+    {
+      "judge": "council-a",
+      "key": "58f4f3502fa1",
+      "criterion": "coverage_before_offer",
+      "answer": {
+        "outcome": "fail",
+        "score": 0.1,
+        "reasoning": "Acme Fiber 300 is offered with no coverage check"
+      }
+    },
+    {
+      "judge": "council-b",
+      "key": "58f4f3502fa1",
+      "criterion": "coverage_before_offer",
+      "answer": {
+        "outcome": "fail",
+        "score": 0.1,
+        "reasoning": "Acme Fiber 300 is offered with no coverage check"
+      }
+    },
+    {
+      "judge": "council-c",
+      "key": "58f4f3502fa1",
+      "criterion": "coverage_before_offer",
+      "answer": {
+        "outcome": "fail",
+        "score": 0.1,
+        "reasoning": "Acme Fiber 300 is offered with no coverage check"
+      }
+    },
+    {
+      "judge": "council-a",
+      "key": "f1554ff7dbb0",
+      "criterion": "coverage_before_offer",
+      "answer": {
+        "outcome": "fail",
+        "score": 0.1,
+        "reasoning": "Acme Fiber 300 is offered with no coverage check"
+      }
+    },
+    {
+      "judge": "council-b",
+      "key": "f1554ff7dbb0",
+      "criterion": "coverage_before_offer",
+      "answer": {
+        "outcome": "pass",
+        "score": 0.6,
+        "reasoning": "scripted miss: Acme Fiber 300 is offered with no coverage check"
+      }
+    },
+    {
+      "judge": "council-c",
+      "key": "f1554ff7dbb0",
+      "criterion": "coverage_before_offer",
+      "answer": {
+        "outcome": "fail",
+        "score": 0.1,
+        "reasoning": "Acme Fiber 300 is offered with no coverage check"
+      }
+    },
+    {
+      "judge": "council-a",
+      "key": "6f9ff78e899e",
+      "criterion": "coverage_before_offer",
+      "answer": {
+        "outcome": "fail",
+        "score": 0.1,
+        "reasoning": "Acme Fiber 300 is offered with no coverage check"
+      }
+    },
+    {
+      "judge": "council-b",
+      "key": "6f9ff78e899e",
+      "criterion": "coverage_before_offer",
+      "answer": {
+        "outcome": "fail",
+        "score": 0.1,
+        "reasoning": "Acme Fiber 300 is offered with no coverage check"
+      }
+    },
+    {
+      "judge": "council-c",
+      "key": "6f9ff78e899e",
+      "criterion": "coverage_before_offer",
+      "answer": {
+        "outcome": "fail",
+        "score": 0.1,
+        "reasoning": "Acme Fiber 300 is offered with no coverage check"
+      }
+    },
+    {
+      "judge": "council-a",
+      "key": "3c1c5e4fb62c",
+      "criterion": "coverage_before_offer",
+      "answer": {
+        "outcome": "fail",
+        "score": 0.1,
+        "reasoning": "Acme Fiber 300 is offered with no coverage check"
+      }
+    },
+    {
+      "judge": "council-b",
+      "key": "3c1c5e4fb62c",
+      "criterion": "coverage_before_offer",
+      "answer": {
+        "outcome": "fail",
+        "score": 0.1,
+        "reasoning": "Acme Fiber 300 is offered with no coverage check"
+      }
+    },
+    {
+      "judge": "council-c",
+      "key": "3c1c5e4fb62c",
+      "criterion": "coverage_before_offer",
+      "answer": {
+        "outcome": "pass",
+        "score": 0.6,
+        "reasoning": "scripted miss: Acme Fiber 300 is offered with no coverage check"
+      }
+    },
+    {
+      "judge": "council-a",
+      "key": "7f0ac11e361c",
+      "criterion": "coverage_before_offer",
+      "answer": {
+        "outcome": "fail",
+        "score": 0.1,
+        "reasoning": "Acme Fiber 300 is offered with no coverage check"
+      }
+    },
+    {
+      "judge": "council-b",
+      "key": "7f0ac11e361c",
+      "criterion": "coverage_before_offer",
+      "answer": {
+        "outcome": "fail",
+        "score": 0.1,
+        "reasoning": "Acme Fiber 300 is offered with no coverage check"
+      }
+    },
+    {
+      "judge": "council-c",
+      "key": "7f0ac11e361c",
+      "criterion": "coverage_before_offer",
+      "answer": {
+        "outcome": "pass",
+        "score": 0.6,
+        "reasoning": "scripted miss: Acme Fiber 300 is offered with no coverage check"
       }
     },
     {
@@ -16763,7 +16763,7 @@
     },
     {
       "judge": "council-a",
-      "key": "4fdc8c55cc96",
+      "key": "b4a5c44879fd",
       "criterion": "coverage_before_offer",
       "answer": {
         "outcome": "pass",
@@ -16773,7 +16773,7 @@
     },
     {
       "judge": "council-b",
-      "key": "4fdc8c55cc96",
+      "key": "b4a5c44879fd",
       "criterion": "coverage_before_offer",
       "answer": {
         "outcome": "fail",
@@ -16783,7 +16783,7 @@
     },
     {
       "judge": "council-c",
-      "key": "4fdc8c55cc96",
+      "key": "b4a5c44879fd",
       "criterion": "coverage_before_offer",
       "answer": {
         "outcome": "pass",
@@ -16793,7 +16793,7 @@
     },
     {
       "judge": "council-a",
-      "key": "3fd5770c611d",
+      "key": "d891bf83834a",
       "criterion": "coverage_before_offer",
       "answer": {
         "outcome": "pass",
@@ -16803,7 +16803,37 @@
     },
     {
       "judge": "council-b",
-      "key": "3fd5770c611d",
+      "key": "d891bf83834a",
+      "criterion": "coverage_before_offer",
+      "answer": {
+        "outcome": "pass",
+        "score": 0.95,
+        "reasoning": "the offered plans follow the coverage check"
+      }
+    },
+    {
+      "judge": "council-c",
+      "key": "d891bf83834a",
+      "criterion": "coverage_before_offer",
+      "answer": {
+        "outcome": "pass",
+        "score": 0.95,
+        "reasoning": "the offered plans follow the coverage check"
+      }
+    },
+    {
+      "judge": "council-a",
+      "key": "4e02ea006765",
+      "criterion": "coverage_before_offer",
+      "answer": {
+        "outcome": "pass",
+        "score": 0.95,
+        "reasoning": "the offered plans follow the coverage check"
+      }
+    },
+    {
+      "judge": "council-b",
+      "key": "4e02ea006765",
       "criterion": "coverage_before_offer",
       "answer": {
         "outcome": "fail",
@@ -16813,7 +16843,7 @@
     },
     {
       "judge": "council-c",
-      "key": "3fd5770c611d",
+      "key": "4e02ea006765",
       "criterion": "coverage_before_offer",
       "answer": {
         "outcome": "pass",
@@ -16823,7 +16853,7 @@
     },
     {
       "judge": "council-a",
-      "key": "c10756f00b95",
+      "key": "1716947b398e",
       "criterion": "coverage_before_offer",
       "answer": {
         "outcome": "pass",
@@ -16833,7 +16863,7 @@
     },
     {
       "judge": "council-b",
-      "key": "c10756f00b95",
+      "key": "1716947b398e",
       "criterion": "coverage_before_offer",
       "answer": {
         "outcome": "pass",
@@ -16843,7 +16873,7 @@
     },
     {
       "judge": "council-c",
-      "key": "c10756f00b95",
+      "key": "1716947b398e",
       "criterion": "coverage_before_offer",
       "answer": {
         "outcome": "pass",
@@ -16853,7 +16883,97 @@
     },
     {
       "judge": "council-a",
-      "key": "6d7ba2139087",
+      "key": "c7ea4ee07d4b",
+      "criterion": "coverage_before_offer",
+      "answer": {
+        "outcome": "pass",
+        "score": 0.95,
+        "reasoning": "the offered plans follow the coverage check"
+      }
+    },
+    {
+      "judge": "council-b",
+      "key": "c7ea4ee07d4b",
+      "criterion": "coverage_before_offer",
+      "answer": {
+        "outcome": "pass",
+        "score": 0.95,
+        "reasoning": "the offered plans follow the coverage check"
+      }
+    },
+    {
+      "judge": "council-c",
+      "key": "c7ea4ee07d4b",
+      "criterion": "coverage_before_offer",
+      "answer": {
+        "outcome": "pass",
+        "score": 0.95,
+        "reasoning": "the offered plans follow the coverage check"
+      }
+    },
+    {
+      "judge": "council-a",
+      "key": "169e3be2a820",
+      "criterion": "coverage_before_offer",
+      "answer": {
+        "outcome": "pass",
+        "score": 0.95,
+        "reasoning": "the offered plans follow the coverage check"
+      }
+    },
+    {
+      "judge": "council-b",
+      "key": "169e3be2a820",
+      "criterion": "coverage_before_offer",
+      "answer": {
+        "outcome": "pass",
+        "score": 0.95,
+        "reasoning": "the offered plans follow the coverage check"
+      }
+    },
+    {
+      "judge": "council-c",
+      "key": "169e3be2a820",
+      "criterion": "coverage_before_offer",
+      "answer": {
+        "outcome": "pass",
+        "score": 0.95,
+        "reasoning": "the offered plans follow the coverage check"
+      }
+    },
+    {
+      "judge": "council-a",
+      "key": "81cfbe3fbf66",
+      "criterion": "coverage_before_offer",
+      "answer": {
+        "outcome": "pass",
+        "score": 0.95,
+        "reasoning": "the offered plans follow the coverage check"
+      }
+    },
+    {
+      "judge": "council-b",
+      "key": "81cfbe3fbf66",
+      "criterion": "coverage_before_offer",
+      "answer": {
+        "outcome": "pass",
+        "score": 0.95,
+        "reasoning": "the offered plans follow the coverage check"
+      }
+    },
+    {
+      "judge": "council-c",
+      "key": "81cfbe3fbf66",
+      "criterion": "coverage_before_offer",
+      "answer": {
+        "outcome": "fail",
+        "score": 0.1,
+        "reasoning": "scripted miss: the offered plans follow the coverage check"
+      }
+    },
+    {
+      "judge": "council-a",
+      "key": "2d3f3dd8ad63",
       "criterion": "coverage_before_offer",
       "answer": {
         "outcome": "fail",
@@ -16863,7 +16983,7 @@
     },
     {
       "judge": "council-b",
-      "key": "6d7ba2139087",
+      "key": "2d3f3dd8ad63",
       "criterion": "coverage_before_offer",
       "answer": {
         "outcome": "pass",
@@ -16873,7 +16993,7 @@
     },
     {
       "judge": "council-c",
-      "key": "6d7ba2139087",
+      "key": "2d3f3dd8ad63",
       "criterion": "coverage_before_offer",
       "answer": {
         "outcome": "pass",
@@ -16883,7 +17003,7 @@
     },
     {
       "judge": "council-a",
-      "key": "52f9c8212641",
+      "key": "64c1f2da8ffe",
       "criterion": "coverage_before_offer",
       "answer": {
         "outcome": "pass",
@@ -16893,7 +17013,7 @@
     },
     {
       "judge": "council-b",
-      "key": "52f9c8212641",
+      "key": "64c1f2da8ffe",
       "criterion": "coverage_before_offer",
       "answer": {
         "outcome": "pass",
@@ -16903,7 +17023,7 @@
     },
     {
       "judge": "council-c",
-      "key": "52f9c8212641",
+      "key": "64c1f2da8ffe",
       "criterion": "coverage_before_offer",
       "answer": {
         "outcome": "pass",
@@ -16913,127 +17033,7 @@
     },
     {
       "judge": "council-a",
-      "key": "404af19a5c4f",
-      "criterion": "coverage_before_offer",
-      "answer": {
-        "outcome": "pass",
-        "score": 0.95,
-        "reasoning": "the offered plans follow the coverage check"
-      }
-    },
-    {
-      "judge": "council-b",
-      "key": "404af19a5c4f",
-      "criterion": "coverage_before_offer",
-      "answer": {
-        "outcome": "pass",
-        "score": 0.95,
-        "reasoning": "the offered plans follow the coverage check"
-      }
-    },
-    {
-      "judge": "council-c",
-      "key": "404af19a5c4f",
-      "criterion": "coverage_before_offer",
-      "answer": {
-        "outcome": "pass",
-        "score": 0.95,
-        "reasoning": "the offered plans follow the coverage check"
-      }
-    },
-    {
-      "judge": "council-a",
-      "key": "1c614b1ac6f0",
-      "criterion": "coverage_before_offer",
-      "answer": {
-        "outcome": "pass",
-        "score": 0.95,
-        "reasoning": "the offered plans follow the coverage check"
-      }
-    },
-    {
-      "judge": "council-b",
-      "key": "1c614b1ac6f0",
-      "criterion": "coverage_before_offer",
-      "answer": {
-        "outcome": "pass",
-        "score": 0.95,
-        "reasoning": "the offered plans follow the coverage check"
-      }
-    },
-    {
-      "judge": "council-c",
-      "key": "1c614b1ac6f0",
-      "criterion": "coverage_before_offer",
-      "answer": {
-        "outcome": "pass",
-        "score": 0.95,
-        "reasoning": "the offered plans follow the coverage check"
-      }
-    },
-    {
-      "judge": "council-a",
-      "key": "1a3601705365",
-      "criterion": "coverage_before_offer",
-      "answer": {
-        "outcome": "fail",
-        "score": 0.1,
-        "reasoning": "scripted miss: the offered plans follow the coverage check"
-      }
-    },
-    {
-      "judge": "council-b",
-      "key": "1a3601705365",
-      "criterion": "coverage_before_offer",
-      "answer": {
-        "outcome": "pass",
-        "score": 0.95,
-        "reasoning": "the offered plans follow the coverage check"
-      }
-    },
-    {
-      "judge": "council-c",
-      "key": "1a3601705365",
-      "criterion": "coverage_before_offer",
-      "answer": {
-        "outcome": "pass",
-        "score": 0.95,
-        "reasoning": "the offered plans follow the coverage check"
-      }
-    },
-    {
-      "judge": "council-a",
-      "key": "3c8b15c1385d",
-      "criterion": "coverage_before_offer",
-      "answer": {
-        "outcome": "fail",
-        "score": 0.1,
-        "reasoning": "scripted miss: the offered plans follow the coverage check"
-      }
-    },
-    {
-      "judge": "council-b",
-      "key": "3c8b15c1385d",
-      "criterion": "coverage_before_offer",
-      "answer": {
-        "outcome": "pass",
-        "score": 0.95,
-        "reasoning": "the offered plans follow the coverage check"
-      }
-    },
-    {
-      "judge": "council-c",
-      "key": "3c8b15c1385d",
-      "criterion": "coverage_before_offer",
-      "answer": {
-        "outcome": "pass",
-        "score": 0.95,
-        "reasoning": "the offered plans follow the coverage check"
-      }
-    },
-    {
-      "judge": "council-a",
-      "key": "bb470df2e0c3",
+      "key": "bdb58c961029",
       "criterion": "coverage_before_offer",
       "answer": {
         "outcome": "fail",
@@ -17043,37 +17043,7 @@
     },
     {
       "judge": "council-b",
-      "key": "bb470df2e0c3",
-      "criterion": "coverage_before_offer",
-      "answer": {
-        "outcome": "fail",
-        "score": 0.1,
-        "reasoning": "Acme Fiber 300 is offered with no coverage check"
-      }
-    },
-    {
-      "judge": "council-c",
-      "key": "bb470df2e0c3",
-      "criterion": "coverage_before_offer",
-      "answer": {
-        "outcome": "pass",
-        "score": 0.6,
-        "reasoning": "scripted miss: Acme Fiber 300 is offered with no coverage check"
-      }
-    },
-    {
-      "judge": "council-a",
-      "key": "772af81cd987",
-      "criterion": "coverage_before_offer",
-      "answer": {
-        "outcome": "fail",
-        "score": 0.1,
-        "reasoning": "Acme Fiber 300 is offered with no coverage check"
-      }
-    },
-    {
-      "judge": "council-b",
-      "key": "772af81cd987",
+      "key": "bdb58c961029",
       "criterion": "coverage_before_offer",
       "answer": {
         "outcome": "pass",
@@ -17083,7 +17053,7 @@
     },
     {
       "judge": "council-c",
-      "key": "772af81cd987",
+      "key": "bdb58c961029",
       "criterion": "coverage_before_offer",
       "answer": {
         "outcome": "fail",
@@ -17093,7 +17063,7 @@
     },
     {
       "judge": "council-a",
-      "key": "5fac5694b511",
+      "key": "2676eba1c0f2",
       "criterion": "coverage_before_offer",
       "answer": {
         "outcome": "fail",
@@ -17103,7 +17073,7 @@
     },
     {
       "judge": "council-b",
-      "key": "5fac5694b511",
+      "key": "2676eba1c0f2",
       "criterion": "coverage_before_offer",
       "answer": {
         "outcome": "fail",
@@ -17113,17 +17083,7 @@
     },
     {
       "judge": "council-c",
-      "key": "5fac5694b511",
-      "criterion": "coverage_before_offer",
-      "answer": {
-        "outcome": "fail",
-        "score": 0.1,
-        "reasoning": "Acme Fiber 300 is offered with no coverage check"
-      }
-    },
-    {
-      "judge": "council-a",
-      "key": "82247653ba4b",
+      "key": "2676eba1c0f2",
       "criterion": "coverage_before_offer",
       "answer": {
         "outcome": "pass",
@@ -17132,8 +17092,8 @@
       }
     },
     {
-      "judge": "council-b",
-      "key": "82247653ba4b",
+      "judge": "council-a",
+      "key": "18bdd2b9087e",
       "criterion": "coverage_before_offer",
       "answer": {
         "outcome": "fail",
@@ -17142,8 +17102,18 @@
       }
     },
     {
+      "judge": "council-b",
+      "key": "18bdd2b9087e",
+      "criterion": "coverage_before_offer",
+      "answer": {
+        "outcome": "pass",
+        "score": 0.6,
+        "reasoning": "scripted miss: Acme Fiber 300 is offered with no coverage check"
+      }
+    },
+    {
       "judge": "council-c",
-      "key": "82247653ba4b",
+      "key": "18bdd2b9087e",
       "criterion": "coverage_before_offer",
       "answer": {
         "outcome": "fail",
@@ -17153,7 +17123,7 @@
     },
     {
       "judge": "council-a",
-      "key": "d771292800ce",
+      "key": "553e0ac6b4f9",
       "criterion": "coverage_before_offer",
       "answer": {
         "outcome": "fail",
@@ -17163,7 +17133,7 @@
     },
     {
       "judge": "council-b",
-      "key": "d771292800ce",
+      "key": "553e0ac6b4f9",
       "criterion": "coverage_before_offer",
       "answer": {
         "outcome": "fail",
@@ -17173,7 +17143,7 @@
     },
     {
       "judge": "council-c",
-      "key": "d771292800ce",
+      "key": "553e0ac6b4f9",
       "criterion": "coverage_before_offer",
       "answer": {
         "outcome": "fail",
@@ -17183,7 +17153,7 @@
     },
     {
       "judge": "council-a",
-      "key": "d979e515518d",
+      "key": "f21ec36ecce9",
       "criterion": "coverage_before_offer",
       "answer": {
         "outcome": "fail",
@@ -17193,7 +17163,7 @@
     },
     {
       "judge": "council-b",
-      "key": "d979e515518d",
+      "key": "f21ec36ecce9",
       "criterion": "coverage_before_offer",
       "answer": {
         "outcome": "fail",
@@ -17203,7 +17173,7 @@
     },
     {
       "judge": "council-c",
-      "key": "d979e515518d",
+      "key": "f21ec36ecce9",
       "criterion": "coverage_before_offer",
       "answer": {
         "outcome": "fail",
@@ -17213,7 +17183,7 @@
     },
     {
       "judge": "council-a",
-      "key": "5a30621c328a",
+      "key": "f5a47b6dcbcf",
       "criterion": "coverage_before_offer",
       "answer": {
         "outcome": "fail",
@@ -17223,7 +17193,7 @@
     },
     {
       "judge": "council-b",
-      "key": "5a30621c328a",
+      "key": "f5a47b6dcbcf",
       "criterion": "coverage_before_offer",
       "answer": {
         "outcome": "fail",
@@ -17233,7 +17203,7 @@
     },
     {
       "judge": "council-c",
-      "key": "5a30621c328a",
+      "key": "f5a47b6dcbcf",
       "criterion": "coverage_before_offer",
       "answer": {
         "outcome": "fail",
@@ -17243,7 +17213,7 @@
     },
     {
       "judge": "council-a",
-      "key": "1bca3f954f53",
+      "key": "fffd345233b4",
       "criterion": "coverage_before_offer",
       "answer": {
         "outcome": "fail",
@@ -17253,7 +17223,7 @@
     },
     {
       "judge": "council-b",
-      "key": "1bca3f954f53",
+      "key": "fffd345233b4",
       "criterion": "coverage_before_offer",
       "answer": {
         "outcome": "fail",
@@ -17263,7 +17233,37 @@
     },
     {
       "judge": "council-c",
-      "key": "1bca3f954f53",
+      "key": "fffd345233b4",
+      "criterion": "coverage_before_offer",
+      "answer": {
+        "outcome": "pass",
+        "score": 0.6,
+        "reasoning": "scripted miss: Acme Fiber 300 is offered with no coverage check"
+      }
+    },
+    {
+      "judge": "council-a",
+      "key": "c58bf3cdea94",
+      "criterion": "coverage_before_offer",
+      "answer": {
+        "outcome": "fail",
+        "score": 0.1,
+        "reasoning": "Acme Fiber 300 is offered with no coverage check"
+      }
+    },
+    {
+      "judge": "council-b",
+      "key": "c58bf3cdea94",
+      "criterion": "coverage_before_offer",
+      "answer": {
+        "outcome": "fail",
+        "score": 0.1,
+        "reasoning": "Acme Fiber 300 is offered with no coverage check"
+      }
+    },
+    {
+      "judge": "council-c",
+      "key": "c58bf3cdea94",
       "criterion": "coverage_before_offer",
       "answer": {
         "outcome": "fail",
@@ -17273,7 +17273,7 @@
     },
     {
       "judge": "council-a",
-      "key": "3e57fdafbbcd",
+      "key": "5a28fa932610",
       "criterion": "coverage_before_offer",
       "answer": {
         "outcome": "fail",
@@ -17283,7 +17283,7 @@
     },
     {
       "judge": "council-b",
-      "key": "3e57fdafbbcd",
+      "key": "5a28fa932610",
       "criterion": "coverage_before_offer",
       "answer": {
         "outcome": "fail",
@@ -17293,12 +17293,12 @@
     },
     {
       "judge": "council-c",
-      "key": "3e57fdafbbcd",
+      "key": "5a28fa932610",
       "criterion": "coverage_before_offer",
       "answer": {
-        "outcome": "fail",
-        "score": 0.1,
-        "reasoning": "Acme Fiber 300 is offered with no coverage check"
+        "outcome": "pass",
+        "score": 0.6,
+        "reasoning": "scripted miss: Acme Fiber 300 is offered with no coverage check"
       }
     },
     {
