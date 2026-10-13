@@ -131,6 +131,7 @@ Iteration 116 (cause: no Turkish words. OTHER_LANGUAGES row; also the Caesar rea
 Iteration 117 (cause: no Russian words. OTHER_LANGUAGES row (no rubrika: the Cyrillic-lookalike test keeps Russian text with pass unflagged). Test: screen.test.ts Russian.)
 Iteration 118 (cause: no Chinese words. OTHER_LANGUAGES rows take loose: true (match anywhere, no word edges) for scripts without spaces; sentences also end at the ideographic full stop, ! ? ;. Test: screen.test.ts Chinese.)
 Iteration 119 (cause: no Japanese words. OTHER_LANGUAGES row, loose. Test: screen.test.ts Japanese.)
+Iteration 120 (cause: no Korean words. OTHER_LANGUAGES row, loose. Test: screen.test.ts Korean.)
 
 ## Next actions
 
