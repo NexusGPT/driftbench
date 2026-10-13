@@ -11,6 +11,7 @@ import {
   rmSync,
   writeFileSync,
 } from 'node:fs';
+import { createRequire } from 'node:module';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -22,7 +23,7 @@ const run = (...args) => spawnSync(process.execPath, [TOOL, ...args], { encoding
 
 describe('public API', () => {
   it('matches the frozen list of exports', () => {
-    const check = run('--check');
+    const check = run('--build', '--check');
     expect(check.stderr).toBe('');
     expect(check.status).toBe(0);
   }, 120_000);
@@ -42,7 +43,7 @@ describe('public API', () => {
       expect(check.status).toBe(1);
       expect(check.stderr).toContain(`  added    stats: value ${removed}`);
       expect(check.stderr).toContain('  removed  stats: value zzNeverExported');
-      expect(check.stderr).toContain('node tools/structure/api-surface.mjs --write');
+      expect(check.stderr).toContain('node tools/structure/api-surface.mjs --build --write');
     } finally {
       rmSync(dir, { recursive: true, force: true });
     }
@@ -74,23 +75,55 @@ function fixture(entry) {
   const root = mkdtempSync(join(tmpdir(), 'driftbench-api-root-'));
   const src = join(root, 'packages/demo/src');
   mkdirSync(src, { recursive: true });
-  writeFileSync(join(root, 'packages/demo/package.json'), JSON.stringify({ name: '@fixture/demo' }));
+  writeFileSync(
+    join(root, 'packages/demo/package.json'),
+    JSON.stringify({
+      name: '@fixture/demo',
+      type: 'module',
+      exports: {
+        '.': { types: './dist/index.d.ts', import: './dist/index.js' },
+        './other': { types: './dist/other.d.ts', import: './dist/other.js' },
+      },
+    }),
+  );
   writeFileSync(
     join(src, 'impl.ts'),
     'export function make(): number {\n  return 1;\n}\nexport const VALUE = 1;\nexport type Shape = { a: number };\n',
   );
-  writeFileSync(join(src, 'types-only.ts'), "export type { make as madeType } from './impl';\n");
+  writeFileSync(join(src, 'types-only.ts'), "export type { make as madeType } from './impl.js';\n");
   writeFileSync(join(src, 'index.ts'), entry);
+  writeFileSync(join(src, 'other.ts'), 'export {};\n');
+  writeFileSync(
+    join(root, 'package.json'),
+    JSON.stringify({ type: 'module', scripts: { build: 'node build.mjs' } }),
+  );
+  const typescript = createRequire(import.meta.url).resolve('typescript');
+  writeFileSync(
+    join(root, 'build.mjs'),
+    `
+    import ts from ${JSON.stringify(typescript)};
+    import { readdirSync, rmSync } from 'node:fs';
+    rmSync('packages/demo/dist', { recursive: true, force: true });
+    const files = readdirSync('packages/demo/src').map(name => 'packages/demo/src/' + name);
+    const program = ts.createProgram(files, { target: ts.ScriptTarget.ES2023, module: ts.ModuleKind.ESNext,
+      moduleResolution: ts.ModuleResolutionKind.Bundler, declaration: true, skipLibCheck: true,
+      outDir: 'packages/demo/dist', types: [] });
+    const result = program.emit();
+    if (result.emitSkipped) process.exit(1);
+  `,
+  );
+  const built = spawnSync(process.execPath, [join(root, 'build.mjs')], { cwd: root, encoding: 'utf8' });
+  expect(built.status, built.stderr).toBe(0);
   return { root, entry: join(src, 'index.ts'), snapshot: join(root, 'api-surface.json') };
 }
 const kindsOf = (snapshot) => JSON.parse(readFileSync(snapshot, 'utf8')).packages.demo;
-const VALUE_ENTRY = "export { make, type Shape, VALUE, VALUE as ALIASED } from './impl';\n";
+const VALUE_ENTRY = "export { make, type Shape, VALUE, VALUE as ALIASED } from './impl.js';\n";
 
 describe('the kind of a public name is how the entry exports it', () => {
   it('records a value, a type, a value under an alias, and a value passed on as a type only', () => {
-    const repo = fixture(`${VALUE_ENTRY}export { madeType } from './types-only';\n`);
+    const repo = fixture(`${VALUE_ENTRY}export { madeType } from './types-only.js';\n`);
     try {
-      expect(run('--root', repo.root, '--snapshot', repo.snapshot, '--write').status).toBe(0);
+      expect(run('--build', '--root', repo.root, '--snapshot', repo.snapshot, '--write').status).toBe(0);
       expect(kindsOf(repo.snapshot)).toEqual({
         ALIASED: 'value',
         Shape: 'type',
@@ -106,13 +139,13 @@ describe('the kind of a public name is how the entry exports it', () => {
   it('fails when a value becomes a type-only export: the name stays, the run-time export is gone', () => {
     const repo = fixture(VALUE_ENTRY);
     try {
-      run('--root', repo.root, '--snapshot', repo.snapshot, '--write');
+      run('--build', '--root', repo.root, '--snapshot', repo.snapshot, '--write');
       for (const typeOnly of [
-        "export { type make, type Shape, VALUE, VALUE as ALIASED } from './impl';\n",
-        "export type { make } from './impl';\nexport { type Shape, VALUE, VALUE as ALIASED } from './impl';\n",
+        "export { type make, type Shape, VALUE, VALUE as ALIASED } from './impl.js';\n",
+        "export type { make } from './impl.js';\nexport { type Shape, VALUE, VALUE as ALIASED } from './impl.js';\n",
       ]) {
         writeFileSync(repo.entry, typeOnly);
-        const check = run('--root', repo.root, '--snapshot', repo.snapshot, '--check');
+        const check = run('--build', '--root', repo.root, '--snapshot', repo.snapshot, '--check');
         expect(check.status).toBe(1);
         expect(check.stderr).toContain('  added    demo: type make');
         expect(check.stderr).toContain('  removed  demo: value make');
@@ -123,12 +156,12 @@ describe('the kind of a public name is how the entry exports it', () => {
   }, 120_000);
 
   it('fails when a type-only export becomes a value', () => {
-    const repo = fixture("export { type make, type Shape, VALUE, VALUE as ALIASED } from './impl';\n");
+    const repo = fixture("export { type make, type Shape, VALUE, VALUE as ALIASED } from './impl.js';\n");
     try {
-      run('--root', repo.root, '--snapshot', repo.snapshot, '--write');
+      run('--build', '--root', repo.root, '--snapshot', repo.snapshot, '--write');
       expect(kindsOf(repo.snapshot).make).toBe('type');
       writeFileSync(repo.entry, VALUE_ENTRY);
-      const check = run('--root', repo.root, '--snapshot', repo.snapshot, '--check');
+      const check = run('--build', '--root', repo.root, '--snapshot', repo.snapshot, '--check');
       expect(check.status).toBe(1);
       expect(check.stderr).toContain('  added    demo: value make');
       expect(check.stderr).toContain('  removed  demo: type make');
@@ -140,13 +173,109 @@ describe('the kind of a public name is how the entry exports it', () => {
   it('fails when a value re-exported under an alias becomes type-only', () => {
     const repo = fixture(VALUE_ENTRY);
     try {
-      run('--root', repo.root, '--snapshot', repo.snapshot, '--write');
-      writeFileSync(repo.entry, "export { make, type Shape, VALUE, type VALUE as ALIASED } from './impl';\n");
-      const check = run('--root', repo.root, '--snapshot', repo.snapshot, '--check');
+      run('--build', '--root', repo.root, '--snapshot', repo.snapshot, '--write');
+      writeFileSync(
+        repo.entry,
+        "export { make, type Shape, VALUE, type VALUE as ALIASED } from './impl.js';\n",
+      );
+      const check = run('--build', '--root', repo.root, '--snapshot', repo.snapshot, '--check');
       expect(check.status).toBe(1);
       expect(check.stderr).toContain('  added    demo: type ALIASED');
       expect(check.stderr).toContain('  removed  demo: value ALIASED');
       expect(check.stderr).not.toContain('demo: type VALUE');
+    } finally {
+      rmSync(repo.root, { recursive: true, force: true });
+    }
+  }, 120_000);
+});
+
+describe('built runtime exports decide value names', () => {
+  it.each([
+    [
+      'declare const',
+      'export const direct = 1;',
+      'export declare const direct: number;',
+      'removed  demo: value direct',
+    ],
+    [
+      'declare enum',
+      'export enum Direct { One }',
+      'export declare enum Direct { One }',
+      'removed  demo: value Direct',
+    ],
+    [
+      'type-only function',
+      "export { make } from './impl.js';",
+      "export { type make } from './impl.js';",
+      'removed  demo: value make',
+    ],
+    [
+      'added value',
+      'export const direct = 1;',
+      'export const direct = 1; export const extra = 2;',
+      'added    demo: value extra',
+    ],
+    ['removed value', 'export const direct = 1;', 'export {};', 'removed  demo: value direct'],
+  ])(
+    'refuses %s after building the changed entry',
+    (_name, before, after, diagnostic) => {
+      const repo = fixture(before);
+      try {
+        expect(run('--build', '--root', repo.root, '--snapshot', repo.snapshot, '--write').status).toBe(0);
+        writeFileSync(repo.entry, after);
+        const check = run('--build', '--root', repo.root, '--snapshot', repo.snapshot, '--check');
+        expect(check.status, check.stderr).toBe(1);
+        expect(check.stderr).toContain(diagnostic);
+      } finally {
+        rmSync(repo.root, { recursive: true, force: true });
+      }
+    },
+    120_000,
+  );
+
+  it('sees a name moved between entries and a new name on a secondary entry', () => {
+    const repo = fixture('export const direct = 1;');
+    try {
+      expect(run('--build', '--root', repo.root, '--snapshot', repo.snapshot, '--write').status).toBe(0);
+      writeFileSync(
+        join(repo.root, 'packages/demo/src/other.ts'),
+        'export const direct = 1; export const extra = 2;',
+      );
+      writeFileSync(repo.entry, 'export {};');
+      const check = run('--build', '--root', repo.root, '--snapshot', repo.snapshot, '--check');
+      expect(check.status).toBe(1);
+      expect(check.stderr).toContain('removed  demo: value direct');
+      expect(check.stderr).toContain('added    demo/other: value direct');
+      expect(check.stderr).toContain('added    demo/other: value extra');
+    } finally {
+      rmSync(repo.root, { recursive: true, force: true });
+    }
+  }, 120_000);
+
+  it('freezes re-exports and namespace exports from the loaded entry', () => {
+    const repo = fixture("export * from './impl.js'; export * as ns from './impl.js';");
+    try {
+      expect(run('--build', '--root', repo.root, '--snapshot', repo.snapshot, '--write').status).toBe(0);
+      expect(kindsOf(repo.snapshot)).toEqual({ Shape: 'type', VALUE: 'value', make: 'value', ns: 'value' });
+      expect(JSON.parse(readFileSync(repo.snapshot, 'utf8')).packages['demo/other']).toEqual({});
+    } finally {
+      rmSync(repo.root, { recursive: true, force: true });
+    }
+  }, 120_000);
+
+  it('rejects stale source or altered dist without an explicit build', () => {
+    const repo = fixture('export const direct = 1;');
+    try {
+      expect(run('--build', '--root', repo.root, '--snapshot', repo.snapshot, '--write').status).toBe(0);
+      writeFileSync(repo.entry, 'export declare const direct: number;');
+      const stale = run('--root', repo.root, '--snapshot', repo.snapshot, '--check');
+      expect(stale.status).toBe(1);
+      expect(stale.stderr).toContain('stale');
+      writeFileSync(repo.entry, 'export const direct = 1;');
+      writeFileSync(join(repo.root, 'packages/demo/dist/index.js'), 'export {};');
+      const altered = run('--root', repo.root, '--snapshot', repo.snapshot, '--check');
+      expect(altered.status).toBe(1);
+      expect(altered.stderr).toContain('stale');
     } finally {
       rmSync(repo.root, { recursive: true, force: true });
     }

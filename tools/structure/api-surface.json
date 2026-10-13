@@ -1,5 +1,5 @@
 {
-  "note": "The public API of every package: the names packages/*/src/index.ts exports. A test compares it with the code, so adding or removing a public name changes this file in the same pull request. Regenerate: node tools/structure/api-surface.mjs --write",
+  "note": "The public API of every package export-map entry: values loaded from fresh built modules and type-only names cross-checked against built declarations. A test checks the build stamp and compares this list, so adding or removing a public name changes this file in the same pull request. Regenerate: node tools/structure/api-surface.mjs --build --write",
   "packages": {
     "adapters": {
       "ANTHROPIC_ADAPTER_VERSION": "value",
@@ -163,6 +163,26 @@
       "treeOf": "value",
       "vercelAiAdapter": "value"
     },
+    "adapters/contract": {
+      "AcmeAgent": "type",
+      "AcmeStore": "type",
+      "AdapterFactory": "type",
+      "COVERAGE_QUESTION": "value",
+      "ContractOptions": "type",
+      "ContractTask": "type",
+      "PLAN_CHOICE": "value",
+      "UPGRADE_CONVERSATION": "value",
+      "UPGRADE_PAYLOAD": "value",
+      "acmeGiven": "value",
+      "adapterContract": "value",
+      "converse": "value",
+      "createAcmeAgent": "value",
+      "createStore": "value",
+      "expectWholeObserved": "value",
+      "replyMessage": "value",
+      "sendUser": "value",
+      "userTurn": "value"
+    },
     "artifacts": {
       "Assertion": "type",
       "CheckTable": "type",
@@ -302,10 +322,19 @@
       "workspace": "value"
     },
     "cli": {
+      "CampaignDeps": "type",
+      "CampaignScope": "type",
       "CoverageOptions": "type",
+      "DriftbenchPlugin": "type",
       "Io": "type",
+      "MainOptions": "type",
+      "PluginAdapterFactory": "type",
+      "PluginApi": "type",
+      "PluginScope": "type",
       "VERSION": "value",
+      "campaignCommands": "value",
       "coverageCommand": "value",
+      "definePlugin": "value",
       "lintCommand": "value",
       "main": "value",
       "processIo": "value",
