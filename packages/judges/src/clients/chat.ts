@@ -207,32 +207,14 @@ function contentText(content: unknown): string {
     .join('');
 }
 
-/**
- * Gemini takes the OpenAPI subset: no additionalProperties or dialect declaration, and one type per schema with
- * `nullable` for null (a type list or a null type is a 400).
- */
+/** Gemini omits additionalProperties and JSON Schema dialect declarations at every level. */
 function googleSchema(value: unknown): unknown {
   if (Array.isArray(value)) return value.map(googleSchema);
-  if (value && typeof value === 'object') {
-    const object = Object.fromEntries(
+  if (value && typeof value === 'object')
+    return Object.fromEntries(
       Object.entries(value)
         .filter(([key]) => key !== 'additionalProperties' && key !== '$schema')
         .map(([key, nested]) => [key, googleSchema(nested)]),
-    ) as Record<string, unknown>;
-    const { type, anyOf } = object;
-    if (Array.isArray(type)) {
-      const kinds = type.filter((kind) => kind !== 'null');
-      const { type: _list, ...rest } = object;
-      return { ...rest, type: kinds[0], ...(kinds.length < type.length ? { nullable: true } : {}) };
-    }
-    if (Array.isArray(anyOf)) {
-      const kinds = anyOf.filter((member) => (member as { type?: unknown }).type !== 'null');
-      if (kinds.length === 1 && kinds.length < anyOf.length) {
-        const { anyOf: _any, ...rest } = object;
-        return { ...rest, ...(kinds[0] as Record<string, unknown>), nullable: true };
-      }
-    }
-    return object;
-  }
+    );
   return value;
 }
