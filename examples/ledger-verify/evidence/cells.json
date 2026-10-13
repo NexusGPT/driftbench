@@ -1,0 +1,35 @@
+{
+  "cells": [
+    {
+      "model": "haiku",
+      "status": "pending",
+      "reason": "core contract PR and execution required",
+      "official": null,
+      "audited": null
+    },
+    {
+      "model": "gpt-6-luna",
+      "status": "pending",
+      "reason": "core contract PR and execution required",
+      "official": null,
+      "audited": null
+    },
+    {
+      "model": "gemini-3.8-flash",
+      "status": "pending",
+      "reason": "billing blocked",
+      "official": null,
+      "audited": null
+    }
+  ],
+  "exposure": "previously evaluated split",
+  "unit": "item",
+  "auditedCorrections": 23,
+  "cheaters": {
+    "alwaysPassOfficial": 0.21266968325791855,
+    "alwaysFailOfficial": 0.7873303167420814,
+    "alwaysPassAudited": 0.23529411764705882
+  },
+  "noiseFloor": "pending; no fresh repeat measurements",
+  "primaryEndpoint": "Official labels; audited labels are a separately reported sensitivity analysis"
+}
