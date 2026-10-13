@@ -1,0 +1,11 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    "baseUrl": "../..",
+    "paths": {
+      "@agent-nexus/driftbench": ["./packages/cli/src/index.ts"],
+      "@agent-nexus/driftbench-*": ["./packages/*/src/index.ts"],
+      "@driftbench/*": ["../codex-mm/packages/*/src/index.ts"]
+    }
+  }
+}

@@ -207,14 +207,26 @@ function contentText(content: unknown): string {
     .join('');
 }
 
-/** Gemini omits additionalProperties and JSON Schema dialect declarations at every level. */
+/**
+ * Gemini omits additionalProperties and JSON Schema dialect declarations at every level, and takes one
+ * type per field: a live call refused `type: ['boolean', 'null']` ("Proto field is not repeating"), so a
+ * nullable union becomes its one other type with `nullable: true`.
+ */
 function googleSchema(value: unknown): unknown {
   if (Array.isArray(value)) return value.map(googleSchema);
-  if (value && typeof value === 'object')
-    return Object.fromEntries(
-      Object.entries(value)
-        .filter(([key]) => key !== 'additionalProperties' && key !== '$schema')
-        .map(([key, nested]) => [key, googleSchema(nested)]),
-    );
+  if (value && typeof value === 'object') {
+    const out: Record<string, unknown> = {};
+    for (const [key, nested] of Object.entries(value)) {
+      if (key === 'additionalProperties' || key === '$schema') continue;
+      if (key === 'type' && Array.isArray(nested)) {
+        const types = nested.filter((type) => type !== 'null');
+        out.type = types[0];
+        if (types.length !== nested.length) out.nullable = true;
+        continue;
+      }
+      out[key] = googleSchema(nested);
+    }
+    return out;
+  }
   return value;
 }

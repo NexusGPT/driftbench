@@ -11,6 +11,9 @@ import { buildPrompt, DATA_RULE, renderRubric, SYSTEM1_QUESTION } from '../promp
 
 const SYSTEM1_COST = 1;
 
+/** The Nexus gateway in front of Jev. */
+export const JEV_GATEWAY_URL = 'https://jev-gateway.nexus-orga.gpt.nexus/v1/systemone';
+
 /** Where a probability turns into pass or fail. Between the two the answer is inconclusive. */
 export type ProbabilityBounds = { passAt?: number; failAt?: number };
 
@@ -44,13 +47,19 @@ function fromProbability(
 /**
  * Jev, a system 1 judge: POST {JEV_URL} with `{ model, state, questions }`, one question `verdict` of type
  * `noul` (a yes or no question), and the answer `{ model, answers: { verdict: { noul: <probability of yes> } } }`.
- * Reads JEV_URL, JEV_API_KEY (sent as a bearer token) and JEV_MODEL (default jev-latest). UNVERIFIED in
- * this repository until a live call: the shape follows the provider's published request format.
+ * Reads JEV_URL, JEV_API_KEY (sent as a bearer token) and JEV_MODEL (default jev-latest), or JEV_GATEWAY_KEY
+ * (a Nexus key, sent as `api-key`) for the Nexus gateway. Live-confirmed on 2026-10-13 through both routes:
+ * the answer is `{ model: 'jev-1.13.0', answers: { verdict: { type: 'noul', noul } }, usage }`.
  */
 export function createJevJudge(options: System1Options = {}): JudgeClient {
   const env = options.env ?? process.env;
-  const url = requireEnv(env, 'JEV_URL');
-  const key = requireEnv(env, 'JEV_API_KEY');
+  // The Nexus gateway takes the caller's own Nexus key in an `api-key` header; the provider takes its key
+  // as a bearer token. Both answered live on 2026-10-13 with the same request and answer shapes.
+  const gatewayKey = env.JEV_GATEWAY_KEY?.trim();
+  const url = gatewayKey ? env.JEV_URL?.trim() || JEV_GATEWAY_URL : requireEnv(env, 'JEV_URL');
+  const auth: Record<string, string> = gatewayKey
+    ? { 'api-key': gatewayKey }
+    : { authorization: `Bearer ${requireEnv(env, 'JEV_API_KEY')}` };
   const model = env.JEV_MODEL?.trim() || options.model || 'jev-latest';
   const id = options.id ?? 'jev';
   return {
@@ -63,7 +72,7 @@ export function createJevJudge(options: System1Options = {}): JudgeClient {
       const prompt = buildPrompt({ ...request, answerContract: 'legacy' });
       const payload = await postJson(
         url,
-        { authorization: `Bearer ${key}` },
+        auth,
         {
           model,
           state: { criterion: request.criterion.name, data: prompt.user },

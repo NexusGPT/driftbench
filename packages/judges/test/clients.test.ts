@@ -604,3 +604,50 @@ describe('the default pointwise ledger at each chat provider', () => {
     });
   }
 });
+
+describe('the Google response schema', () => {
+  it('never sends a list as a type: a nullable field becomes one type with nullable true', async () => {
+    let sent: unknown;
+    const client = createGoogleJudge({
+      env: { GEMINI_API_KEY: 'k', GOOGLE_JUDGE_MODEL: 'm' },
+      maxRetries: 0,
+      fetch: async (_url, init) => {
+        sent = JSON.parse(String(init?.body));
+        return new Response(JSON.stringify({ candidates: [{ content: { parts: [{ text: '{}' }] } }] }), {
+          status: 200,
+          headers: { 'content-type': 'application/json' },
+        });
+      },
+    });
+    await client.judge({ criterion: { name: 'c', rubric: 'r' }, transcript: [{ role: 'user', text: 'hi' }] });
+    const lists: string[] = [];
+    const walk = (value: unknown, path: string): void => {
+      if (Array.isArray(value)) {
+        for (const [i, v] of value.entries()) walk(v, `${path}[${i}]`);
+      } else if (value && typeof value === 'object')
+        for (const [key, nested] of Object.entries(value)) {
+          if (key === 'type' && Array.isArray(nested)) lists.push(path);
+          walk(nested, `${path}.${key}`);
+        }
+    };
+    const schema = (sent as { generationConfig: { responseSchema: unknown } }).generationConfig
+      .responseSchema;
+    walk(schema, 'schema');
+    expect(lists).toEqual([]);
+    expect(JSON.stringify(schema)).toContain('"nullable":true');
+  });
+});
+
+describe('the Jev client through the Nexus gateway', () => {
+  it('sends the Nexus key in the api-key header to the gateway when JEV_GATEWAY_KEY is set', async () => {
+    const { fetch, calls } = fakeFetch([
+      [200, { model: 'jev-1.13.0', answers: { verdict: { type: 'noul', noul: 0.97 } } }],
+    ]);
+    const client = createJevJudge({ fetch, env: { JEV_GATEWAY_KEY: KEY }, sleep: noWait });
+    const result = await client.judge(REQUEST);
+    expect(calls[0]?.url).toBe('https://jev-gateway.nexus-orga.gpt.nexus/v1/systemone');
+    expect(calls[0]?.headers['api-key']).toBe(KEY);
+    expect(calls[0]?.headers.authorization).toBeUndefined();
+    expect(result.answer).toMatchObject({ outcome: 'pass', score: 0.97 });
+  });
+});
