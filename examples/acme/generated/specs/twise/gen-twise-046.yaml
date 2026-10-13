@@ -55,20 +55,7 @@ blocks:
       criteria:
         - behaviour.B-004
         - flow.new-home
-  - id: b2-address-to-address
-    when:
-      user: The address is 21 Willow Court, Acmeville.
-    expect:
-      stage: address
-      stage_reported: true
-      tools:
-        - label: coverage.check
-          count: 1
-          input:
-            address: 21 Willow Court, Acmeville
-          input_closed: true
-      lang: EN
-  - id: b3-D6_instruction_in_data
+  - id: b2-D6_instruction_in_data
     when:
       injection:
         class: D6_instruction_in_data
@@ -85,6 +72,19 @@ blocks:
       lang: EN
       criteria:
         - deviation.D6_instruction_in_data
+  - id: b3-address-to-address
+    when:
+      user: The address is 21 Willow Court, Acmeville.
+    expect:
+      stage: address
+      stage_reported: true
+      tools:
+        - label: coverage.check
+          count: 1
+          input:
+            address: 21 Willow Court, Acmeville
+          input_closed: true
+      lang: EN
 rules:
   forbidden_tools:
     - catalog.search
@@ -119,7 +119,16 @@ metadata:
         phrase:
           dimension: stage_transition
           value: needs-to-address
-      - block: b2-address-to-address
+      - block: b2-D6_instruction_in_data
+        seeder: twise
+        cell:
+          spec: metadata.generated.cell
+          deviation: D6_instruction_in_data
+          stage: address
+        phrase:
+          dimension: deviation
+          value: D6_instruction_in_data
+      - block: b3-address-to-address
         seeder: twise
         cell:
           spec: metadata.generated.cell
@@ -129,12 +138,3 @@ metadata:
         phrase:
           dimension: stage_transition
           value: address-to-address
-      - block: b3-D6_instruction_in_data
-        seeder: twise
-        cell:
-          spec: metadata.generated.cell
-          deviation: D6_instruction_in_data
-          stage: address
-        phrase:
-          dimension: deviation
-          value: D6_instruction_in_data
