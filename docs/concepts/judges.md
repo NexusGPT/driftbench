@@ -709,6 +709,29 @@ Item names are stable caller-owned requirement ids, not model-assigned row posit
 
 `judgeRubric(client, request, items, { threshold })` performs the pointwise version in one batched call. An invalid ledger gets one re-ask with the same caller requirements and the large budget, then remains inconclusive if still invalid. Reported `costUsd` includes both calls. Valid scores, including null, do not trigger a re-ask. Explicit legacy requests retain their previous one-call behavior. Its default threshold is full fulfillment. The result carries the individual scores and aggregate in `rubric`; a hard failure cannot be offset by soft points. No rubric is generated or applied to creative writing automatically. These APIs are code options; they do not add fields to the spec YAML schema.
 
+### Reader-first configuration (length-aware, opt-in)
+
+`createReaderFirstJudge(client, { configuration: 'reader-first' })` is a separate pairwise configuration. It favors the longer complete reply unless machine measurements and both model presentations support a substantial reader-facing failure. It never replaces the default judge, council, or pairwise rubric.
+
+```ts
+import { createClaudeCliJudge, createReaderFirstJudge } from '@agent-nexus/driftbench-judges';
+
+const reader = createReaderFirstJudge(
+  createClaudeCliJudge({ model: 'haiku' }),
+  { configuration: 'reader-first', language: 'en' },
+);
+const result = await reader.judgePair(request, firstReply, secondReply);
+console.log(result.choice, result.override, result.judgeValid);
+```
+
+Machine features measure length, paragraphs, headings, lists, filler, hedges, repeated sentences, repeated four-grams, litotes, undefined acronyms, jargon, context references, sentence length and an English readability estimate. Dictionaries and readability are heuristic signals, not factual or semantic checks. Chinese uses Han characters and has no English reading-grade estimate. `language` fixes one counting unit for both replies; otherwise both replies together determine it.
+
+The model scores five fixed criteria: structure, useful prose, direct expression, self-contained context and simple language for an inexperienced reader. Each criterion needs an exact quote from each reply. Both full presentation orders are scored, remapped and pooled. Code computes the verdict. Two sequential model calls are made per pair. Provider errors propagate; invalid scores or evidence are reported with `judgeValid: false` and retain the length fallback. Equal lengths tie.
+
+The returned `length` and `features` fields expose the two ablations; `choice` is the combined verdict. `flags`, `failures`, `means`, `thresholds`, `ordered` and `swapped` expose why an exception fires. `costUsd` sums provider-reported costs. Override thresholds are code options (`judgeMargin`, `featureMargin`, `minFailures`); changing them changes the configuration and invalidates its published benchmark result.
+
+This is an intentionally length-aware preference, useful only when that preference matches the caller's objective. It does not prove factual correctness or general writing quality. See the separate [benchmark report](../comparison/benchmarks/reader-first.md) for measurements, ablations and limitations.
+
 ### Optional verification and reference agreement
 
 `withVerification(client, { enabled: true, sandbox })` adds a provider-neutral verification step. It is off unless explicitly enabled. A sandbox implements `verify(request, signal)` and returns arithmetic checks. It must honor cancellation and isolate any general-purpose code it runs. Failure or timeout returns inconclusive, without running an unverified judgement.
