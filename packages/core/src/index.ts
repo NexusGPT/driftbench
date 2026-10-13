@@ -14,6 +14,7 @@ export * from './radius';
 export * from './retry';
 export * from './runner';
 export * from './schema/common';
+export * from './schema/config';
 export * from './schema/run';
 export * from './schema/spec';
 export * as script from './script';
