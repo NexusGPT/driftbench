@@ -2,6 +2,10 @@
 
 Continue on `exec/estate-v3`, draft PR 154. Iterations 29 to 38 were made by a fresh Opus takeover in a separate worktree (`.worktrees/exec-estate-fresh`, detached, pushed with `git push origin HEAD:exec/estate-v3`). The older worktree `.worktrees/exec-estate-v2` holds an unrelated local change to `research.md` and is not used. Never edit the validator or bank.
 
+## Current takeover baseline
+
+Iteration 40 at 59f4b083b merges main, including PR 274 and D11/D12. Seed 1, run alone: level 3, 1108/1169. Reader 641/641, lint 46/46, plan 65/65, generation 244/270, agent-mutants 46/74, maintenance 51/53, scale 15/20. The earlier sections below retain the prior executor history.
+
 ## Level per seed
 
 <!-- level-table:start -->
