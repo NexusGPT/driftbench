@@ -237,7 +237,9 @@ export function generateSuite(prepared: PreparedMap, options: GenerateOptions): 
   const seeders = {} as Record<Seeder, SeederTotals>;
   const completeBy: Partial<Record<Seeder, Spec[]>> = {};
   const keep = (seeder: Seeder, spec: Spec): void => {
-    completeBy[seeder] = [...(completeBy[seeder] ?? []), spec];
+    const kept = completeBy[seeder] ?? [];
+    completeBy[seeder] = kept;
+    kept.push(spec);
   };
 
   /** Renders drafts of one seeder, adds them to the suite and the seeder's totals; returns the complete ones. */
@@ -501,7 +503,7 @@ export function generateSuite(prepared: PreparedMap, options: GenerateOptions): 
       t,
       allowed: completeCoverage.allowed,
       complete: completeCoverage,
-      all: measure(all),
+      all: all.length === complete.length ? { ...completeCoverage } : measure(all),
       measures: coverageMeasures(prepared, complete),
       ...(baseline ? { baseline } : {}),
     },
@@ -634,10 +636,8 @@ export function coverageMeasures(prepared: PreparedMap, specs: readonly Spec[]):
     t: 2,
     ...(prepared.inventory ? { inventory: prepared.inventory } : {}),
   });
-  const three =
-    axisMap.dimensions.length >= 3
-      ? coverage(axisMap, results, { t: 3, maxCells: MAX_GRID_CELLS })
-      : undefined;
+  // A coverage result already tallies every pair and triple, independently of the requested grid t.
+  const three = two.tway.find((level) => level.t === 3);
   const counts = two.grid.cells.map((cell) => cell.count).filter((count) => count > 0);
   const n = counts.reduce((sum, count) => sum + count, 0);
   const f1 = counts.filter((count) => count === 1).length;
@@ -659,8 +659,8 @@ export function coverageMeasures(prepared: PreparedMap, specs: readonly Spec[]):
         shares.reduce((sum, share) => sum + share * share, 0),
       ),
     pielou: counts.length > 1 ? entropy / Math.log(counts.length) : 1,
-    t3_share: three?.grid.share ?? 0,
-    t3_allowed: three?.grid.allowed ?? 0,
+    t3_share: three?.share ?? 0,
+    t3_allowed: three?.allowed ?? 0,
     weighted_share: two.grid.weighted ?? 0,
     effective_sample_size: two.grid.effectiveSampleSize ?? 0,
     required_covered: two.required.filter((cell) => cell.covered).length,

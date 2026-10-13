@@ -213,3 +213,84 @@ The separate speed worker has the request to measure `--spec-cap 6127 --spec-cap
 The owner directs this PR to remain on its measured base before the outage. At the pre-outage checkpoint, GitHub reports conflicts against `exec/generator-v2` in `packages/generate/src/enumerate/generate.ts`, `packages/generate/src/seed/seeders.ts`, `packages/generate/test/enumerate/acme.test.ts` and this handover. The branch has not merged the newer A/B contracts.
 
 After network restoration, merge `origin/exec/generator-v2` into `exec/generator-cap` in this worktree, preserve both the new contracts and these cap/report invariants, and run `node tools/rename-scope.mjs`. Then re-measure the uncapped and capped suites against the new fault contracts. Recompute the smallest passing limits, retain every reached pair and protected probe, and compare the exact caught class sets. Commit the newly stamped evidence separately from the base merge. Re-run typecheck, lint and tests, and add the speed worker's completed result if supplied. Do not reuse this pre-A/B fault count as evidence for the combined implementation.
+
+## Speed: historical PR 158 evidence
+
+This section preserves the pre-integration record from PR 158. Its measurements apply to that source. The integrated measurements below supersede its performance figures for this branch.
+
+Speed work is based on `ffc1db8c3131d78bb1bf9e1befba05debf525711` from `origin/exec/generator-v2`. It changes neither spec selection nor the cap. The capped measurements use isolated copies of `8ce6daa7` inside the speed worktree, with the same four production changes applied to the after copy. No other branch or worktree is edited.
+
+Changes:
+- Unseeded feasibility search visits dimension values directly. Seeded search keeps its shuffle order and random draws.
+- Coverage enumerates event products without intermediate arrays and indexes specs by behaviour before channel filtering. Ordering and duplicate-id handling stay unchanged.
+- Seeder totals append to existing arrays. The report reuses the complete coverage when all specs are complete, and reuses the triple tally already computed in pair coverage.
+- `tools/generator-speed.ts` measures the complete scale window by stage, including both disk writes, both directory reads, every spec reload and cleanup. It hashes every generated file, including the report, after timing.
+
+Profiling precedes the changes. The initial `node --cpu-prof` run shows inclusive sample shares of 10.88% for spec serialization, 6.57% for feasibility completion, 4.90% for report coverage measures, and 18.78% for `loadSpecFile`. Cached YAML serialization preserves bytes but does not improve the measured 10x run; that experiment is reverted. The first retained search change reduces paired 10x generation CPU from 9.195 to 6.989 seconds, and the full window from 18.398 to 14.666 seconds.
+
+The final profiled 100x suite keeps all 32,068 file hashes. Its two generation calls take 66.598 CPU seconds, against 79.943 before. These profile runs are diagnostic, not an adjacent full-window comparison: total CPU is 196.315 before and 205.233 after while the one-minute load rises from 31.01 at the first start to 119.34 at the last end. Use the adjacent measurements below for the full-window comparison.
+
+Measurement method: Apple M4 Pro, Node v24.18.0, hidden seed 1, the same command on each revision, before immediately followed by after. Each command generates twice and checks that both runs match. CPU means process user plus system time in seconds. The output label only selects the measurement JSON filename. The two 100x comparison pairs overlap under the existing machine load; load averages are recorded at both ends of every run.
+
+```sh
+node --max-old-space-size=2048 --import tsx tools/generator-speed.ts 100 before
+node --max-old-space-size=2048 --import tsx tools/generator-speed.ts 100 after
+# On cap commit 8ce6daa7, then the same commit plus the speed changes:
+node --max-old-space-size=2048 --import tsx tools/generator-speed.ts 100 before --spec-cap 6127 --spec-cap-mode pairs
+node --max-old-space-size=2048 --import tsx tools/generator-speed.ts 100 after --spec-cap 6127 --spec-cap-mode pairs
+```
+
+Use factors `1` and `10` for the smaller maps. Add `--cpu-prof --cpu-prof-dir=.exec/speed` before `--max-old-space-size` to profile. Full measurements and per-file SHA-256 manifests remain under `.exec/speed/`, following this handover's measurement convention. No validator or bank file changes.
+
+Adjacent paired results: the capped full window falls from **68.666 to 54.079 CPU seconds**, a **21.24% reduction**, below the 60-second budget. The uncapped 100x window falls from **182.515 to 147.855 CPU seconds**, an **18.99% reduction**, with the same 32,067 specs. Its two generation calls fall from 80.855 to 53.186 seconds. The uncapped 10x window falls from 15.970 to 13.662 seconds. The 1x generation calls improve, but its full-window CPU rises from 2.445 to 2.753 seconds under load. The uncapped pair finishes at 06:40:26 local, before the expected outage; these completed measurements replace the pending update.
+
+CPU seconds by stage. Each cell is before / after.
+
+| Stage | 1x | 10x | 100x | 100x cap 6127 |
+|---|---:|---:|---:|---:|
+| render_map | 0.049 / 0.019 | 0.028 / 0.048 | 0.073 / 0.067 | 0.089 / 0.095 |
+| write_map | 0.029 / 0.002 | 0.004 / 0.053 | 0.017 / 0.027 | 0.083 / 0.027 |
+| load_map | 0.169 / 0.181 | 0.306 / 0.232 | 0.814 / 0.775 | 1.031 / 0.926 |
+| generate_first | 0.630 / 0.619 | 3.480 / 3.175 | 39.953 / 25.597 | 25.584 / 19.319 |
+| generate_second | 0.439 / 0.347 | 3.270 / 2.813 | 40.902 / 27.589 | 24.092 / 17.973 |
+| write_suites | 0.261 / 0.617 | 1.778 / 1.646 | 16.954 / 15.110 | 4.758 / 4.625 |
+| read_suites | 0.149 / 0.270 | 1.720 / 1.136 | 13.874 / 8.475 | 2.774 / 1.846 |
+| reload_specs | 0.591 / 0.602 | 4.705 / 4.018 | 63.784 / 63.366 | 9.053 / 8.012 |
+| normalize_specs | 0.002 / 0.015 | 0.007 / 0.010 | 0.079 / 0.767 | 0.013 / 0.017 |
+| cleanup | 0.100 / 0.075 | 0.671 / 0.527 | 6.058 / 6.075 | 1.185 / 1.185 |
+| **Full window** | **2.445 / 2.753** | **15.970 / 13.662** | **182.515 / 147.855** | **68.666 / 54.079** |
+| Wall seconds | 17.667 / 16.583 | 111.601 / 104.718 | 1141.659 / 470.234 | 358.736 / 261.863 |
+
+Load averages are 1 / 5 / 15 minutes. Timestamps identify when each run finishes, in UTC on 2026-10-13.
+
+| Map | Run | Finished UTC | Load at start | Load at end |
+|---|---|---|---|---|
+| 1x | before | 04:19:22.037 | 181.67 / 150.16 / 105.65 | 176.43 / 150.57 / 106.57 |
+| 1x | after | 04:19:45.109 | 173.19 / 150.69 / 107.13 | 165.51 / 150.08 / 107.67 |
+| 10x | before | 04:21:44.346 | 158.68 / 149.15 / 107.84 | 139.07 / 147.64 / 112.43 |
+| 10x | after | 04:23:37.184 | 139.72 / 147.52 / 112.80 | 144.39 / 147.48 / 116.66 |
+| 100x | before | 04:32:31.947 | 95.04 / 84.67 / 71.94 | 283.60 / 259.52 / 188.87 |
+| 100x | after | 04:40:26.236 | 285.71 / 260.36 / 189.58 | 117.04 / 162.97 / 171.16 |
+| 100x cap 6127 | before | 04:14:25.893 | 50.47 / 55.56 / 59.89 | 105.83 / 88.82 / 74.24 |
+| 100x cap 6127 | after | 04:18:58.232 | 108.92 / 90.06 / 74.85 | 186.17 / 150.50 / 105.51 |
+
+All per-file SHA-256 comparisons pass, including the JSON report. Both generations in each run also match.
+
+| Map | Specs | Blocks | Files compared | Changed hashes | Manifest SHA-256 |
+|---|---:|---:|---:|---:|---|
+| 1x | 434 | 2003 | 435 | 0 | `e3e69214ff0f4aea46ef958b8191ce1ef6eeafa58af373cc68fbe6c4480351a4` |
+| 10x | 3283 | 16284 | 3284 | 0 | `510bd91ada0c4ecee2347a87e2fc0dad47fd34969f0f6a3950639d2137992073` |
+| 100x | 32067 | 160817 | 32068 | 0 | `cded18f57e73e871e2c819e061864d84828f3f8e887b0ff77e285a17c52b3202` |
+| 100x cap 6127 | 6127 | 27092 | 6128 | 0 | `b0af985375bcb2a81a963173aa96a263f7ab18cb40007bf57be7e7dbc390fd2b` |
+
+Manifest hashes cover sorted `path<TAB>file-sha256<NEWLINE>` entries. The uncapped 100x file count remains 32,068, representing 32,067 specs plus the report.
+
+Verification after both full runs finish:
+- `pnpm typecheck` and the benchmark tool's separate TypeScript check pass.
+- `pnpm lint` passes with four pre-existing warnings.
+- Focused coverage, space, seed and generation tests: 18 files and 236 tests pass.
+- Full `pnpm exec vitest run --maxWorkers=2` completes on both revisions. Baseline: 352 test files pass and 8 fail; 4,138 tests pass, 15 fail and 38 skip. Speed: 355 files pass and 6 fail; 4,144 tests pass, 12 fail and 38 skip. Wall durations are 2,887.62 and 2,666.99 seconds respectively. Neither full run is green.
+- The speed run has five Acme assertion failures that also fail on the baseline, plus seven timeouts: two estate unit tests, the CLI-CI wrapper, the estate and generator CLI floors, the Acme coverage check, and the generator ladder check. The baseline has six Acme assertion failures, five timeouts and four archive-only docs failures. The Acme coverage assertion fails before the change and times out after it.
+- The estate file passes all 16 tests, and the CLI-select usage test passes, when retried with `--testTimeout=30000`. The CLI-CI wrapper retry still hits its explicit 120-second timeout and a cleanup race. No assertion in the added tests or focused coverage/search/generation checks fails.
+- Four baseline docs failures come from Git excluding the archive under `.exec/`; its checker finds zero pages. All 23 affected docs tests pass when retried with `GIT_CEILING_DIRECTORIES` set to the archive parent, so the checker uses its non-repository fallback. The actual speed worktree has 612 valid links across 50 pages.
+- `node tools/rename-scope.mjs` runs; it changes only three README copies in the ignored measurement archives. No merges are performed. `git diff --check` passes.
