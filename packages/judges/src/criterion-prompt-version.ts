@@ -1,8 +1,9 @@
 /**
- * Version 2 of the default criterion prompt: the version 1 system prompt plus three rules. It is opt-in.
- * The default stays version 1, so default requests keep their bytes, their fingerprint and their recordings.
+ * The versions of the default criterion system prompt. Version 2 is the default: version 1 plus three rules.
+ * Version 1 stays selectable by name (`criterionPromptVersion: 1`) with its own bytes and fingerprint, so a
+ * version 1 recording still replays under version 1 and never under version 2.
  */
-export const CRITERION_PROMPT_VERSION = 1;
+export const CRITERION_PROMPT_VERSION = 2;
 export type CriterionPromptVersion = 1 | 2;
 
 /** The rules version 2 adds, after the version 1 rules. */

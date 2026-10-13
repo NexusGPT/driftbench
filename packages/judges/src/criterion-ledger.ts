@@ -4,10 +4,11 @@ import { groundEvidence, groundEvidenceSpan } from './evidence';
 
 export type CriterionRequirement = { readonly id: string; readonly requirement: string };
 /**
- * Decoder identity is separate from the unchanged model-facing prompt. The default stays strict
- * version 1, so default requests keep their bytes, keys and verdicts. Version 2 is opt-in.
+ * Decoder identity is separate from the model-facing prompt. Version 2 is the default: an ungrounded
+ * string quote is dropped and the check keeps its met value. Version 1 is the strict decoder, selectable
+ * by name: any ungrounded quote voids the ledger. A version 1 recording keeps its key under version 1.
  */
-export const CRITERION_DECODER_VERSION = 1;
+export const CRITERION_DECODER_VERSION = 2;
 export type CriterionDecoderVersion = 1 | 2;
 
 /** The caller owns the requirement set; an unsplit criterion is one complete requirement. */
@@ -98,7 +99,10 @@ export function parseCriterionLedger(value: unknown, request: JudgeRequest, raw:
             .grounded
         : check.evidence.every((span) => groundEvidenceSpan(request, span).grounded))
     ) {
-      if (request.criterionDecoderVersion !== 2 || typeof check.evidence !== 'string')
+      if (
+        (request.criterionDecoderVersion ?? CRITERION_DECODER_VERSION) !== 2 ||
+        typeof check.evidence !== 'string'
+      )
         return invalid('the evidence quote is not in the supplied data');
       // Preserve the model's met value, but never present an unverified string as a quote.
       check.evidence = null;

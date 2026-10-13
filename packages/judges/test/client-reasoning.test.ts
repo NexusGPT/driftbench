@@ -7,9 +7,12 @@ import { createHttpJudge } from '../src/clients/http-json';
 import { createJevJudge, createOpenAiDecisionsJudge } from '../src/clients/system1';
 import type { JudgeRequest } from '../src/contract';
 
+// The baselines below were captured under prompt version 1 and decoder version 1, which stay selectable.
 const REQUEST: JudgeRequest = {
   criterion: { name: 'c', rubric: 'The reply is polite.' },
   transcript: [{ role: 'agent', text: 'Good morning.' }],
+  criterionPromptVersion: 1,
+  criterionDecoderVersion: 1,
 };
 const env = {
   OPENAI_API_KEY: 'k',

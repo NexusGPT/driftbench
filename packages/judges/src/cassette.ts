@@ -15,15 +15,11 @@ import {
   parseAnswerValue,
 } from './contract';
 import { CRITERION_DECODER_VERSION, type CriterionDecoderVersion } from './criterion-ledger';
+import type { CriterionPromptVersion } from './criterion-prompt-version';
 import { JudgeError } from './http';
 import { PROMPT_FINGERPRINT as LEGACY_PROMPT_FINGERPRINT } from './legacy-prompt';
 import { isPairLedgerRequest } from './pair-ledger-contract';
-import {
-  CRITERION_PROMPT_V2_FINGERPRINT,
-  PAIR_LEDGER_PROMPT_FINGERPRINT,
-  PROMPT_FINGERPRINT,
-  usesCriterionPromptV2,
-} from './prompt';
+import { criterionPromptFingerprint, PAIR_LEDGER_PROMPT_FINGERPRINT, PROMPT_FINGERPRINT } from './prompt';
 import {
   RESPONSE_RELEVANCE_PROMPT_FINGERPRINT,
   validateResponseRelevanceRequest,
@@ -99,6 +95,8 @@ export const CassetteEntry = z.strictObject({
   answerContract: z.enum(['ledger', 'legacy']).optional(),
   /** Missing means strict v1 for a historical default-ledger entry. */
   criterionDecoderVersion: z.union([z.literal(1), z.literal(2)]).optional(),
+  /** Missing means prompt version 1 for a historical default-ledger entry. */
+  criterionPromptVersion: z.literal(2).optional(),
   /** Separates the new pair contract from older explicit-winner recordings. */
   pairContract: z.literal('ledger').optional(),
   note: z.string().optional(),
@@ -225,9 +223,7 @@ export function requestKey(
               })
             : effective.assessment?.kind === 'conformance'
               ? CONFORMANCE_PROMPT_FINGERPRINT
-              : usesCriterionPromptV2(effective)
-                ? CRITERION_PROMPT_V2_FINGERPRINT
-                : PROMPT_FINGERPRINT),
+              : criterionPromptFingerprint(effective)),
     client: client ? { cls: client.cls, model: client.model, settings: client.settings } : undefined,
   });
 }
@@ -265,6 +261,12 @@ export function recordingClient(client: JudgeClient, cassette: Cassette): JudgeC
       (client.cls !== 'system1' || client.families || client.judgeComparison) &&
       (request.criterionDecoderVersion ?? client.criterionDecoderVersion ?? CRITERION_DECODER_VERSION) === 2
         ? { criterionDecoderVersion: 2 as const }
+        : {}),
+      // An ordinary criterion check names the prompt version it was asked under; version 1 omits the field.
+      ...(!isPairLedgerRequest(request) &&
+      (client.cls !== 'system1' || client.families || client.judgeComparison) &&
+      criterionPromptFingerprint(request) === PROMPT_FINGERPRINT
+        ? { criterionPromptVersion: 2 as const }
         : {}),
     };
     const cost = (result: JudgeResult) => (result.costUsd === undefined ? {} : { cost_usd: result.costUsd });
@@ -327,6 +329,7 @@ export function playerClient(
     readonly prompt?: string;
     readonly answerContract?: 'ledger' | 'legacy';
     readonly criterionDecoderVersion?: CriterionDecoderVersion;
+    readonly criterionPromptVersion?: CriterionPromptVersion;
   } = {},
 ): JudgeClient {
   const judge = cassette.judges.find((candidate) => candidate.id === judgeId);
@@ -347,6 +350,9 @@ export function playerClient(
   const recordedDecoder =
     options.criterionDecoderVersion ??
     ([...byKey.values()].some((list) => list.some((entry) => entry.criterionDecoderVersion === 2)) ? 2 : 1);
+  const recordedPrompt =
+    options.criterionPromptVersion ??
+    ([...byKey.values()].some((list) => list.some((entry) => entry.criterionPromptVersion === 2)) ? 2 : 1);
   const play = async (request: JudgeRequest, swapped?: JudgeRequest): Promise<JudgeResult> => {
     const oldWinnerContract =
       request.assessment?.kind === 'pairwise' &&
@@ -357,11 +363,12 @@ export function playerClient(
       !request.answerContract && !oldWinnerContract
         ? { ...request, answerContract: recordedContract }
         : request;
-    // A request without its own decoder version follows a cassette that records version 2.
-    const effective =
-      request.criterionDecoderVersion === undefined && recordedDecoder === 2
-        ? { ...contracted, criterionDecoderVersion: recordedDecoder }
-        : contracted;
+    // A request without its own decoder or prompt version follows the versions the cassette records.
+    const effective = {
+      ...contracted,
+      criterionDecoderVersion: request.criterionDecoderVersion ?? recordedDecoder,
+      criterionPromptVersion: request.criterionPromptVersion ?? recordedPrompt,
+    };
     const key = requestKey(effective, judge, options.prompt, swapped);
     const matches = byKey.get(key) ?? [];
     if (matches.length === 0)
@@ -381,7 +388,7 @@ export function playerClient(
     ...(judge.families ? { families: judge.families } : {}),
     ...(judge.model ? { model: judge.model } : {}),
     ...(judge.settings === undefined ? {} : { settings: judge.settings }),
-    ...(recordedDecoder === 2 ? { criterionDecoderVersion: recordedDecoder } : {}),
+    criterionDecoderVersion: recordedDecoder,
     ...(judge.dialect === undefined ? {} : { dialect: judge.dialect }),
     ...(judge.reasoning === undefined ? {} : { reasoning: judge.reasoning }),
     judge: (request) => play(request),
