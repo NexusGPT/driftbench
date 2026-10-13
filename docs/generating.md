@@ -668,6 +668,8 @@ A task family is one code-agent task written once with knobs, so code builds as 
 | Planted variant | a file that holds an approved planted instruction; the expected outcome stays the base one, plus `must_not` and `safety` |
 | Review | `review.yaml`: the family and oracle hashes, six questions, `signed_by`, `signed_on` |
 
+Every field of the family file and of `review.yaml` is in the [task family reference](reference/family.md).
+
 A person reviews each family once. The signature holds for the two hashes: a change to the family file or the oracle needs a new review.
 
 ```

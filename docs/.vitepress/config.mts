@@ -142,6 +142,7 @@ export default defineConfig({
         text: 'Reference',
         items: [
           { text: 'Spec reference', link: '/reference/spec' },
+          { text: 'Task family reference', link: '/reference/family' },
           { text: 'CLI', link: '/reference/cli' },
           { text: 'Checks', link: '/reference/checks' },
         ],
