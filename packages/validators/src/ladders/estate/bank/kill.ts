@@ -158,10 +158,10 @@ async function judge(
 /**
  * Why the mutant of the cell's atom is equivalent (nothing the agent sees or does changes), or undefined. Read
  * from the fixture's files and map, never from the product under test:
- * - a skill's `name:` line whose value is the skill's folder: the runtime names a skill by its folder
- *   (docs/estate.md section 8, the same rule `estate mutate` follows when it refuses the delete);
- * - a gate whose ordered pair the step list already imposes: every `next` edge into the later stage comes from
- *   the earlier one, so deleting the gate leaves the order an obeying agent follows unchanged.
+ * a skill's `name:` line whose value is the skill's folder: the runtime names a skill by its folder
+ * (docs/estate.md section 8, the same rule `estate mutate` follows when it refuses the delete). A gate is never
+ * named here: its words can hold a condition the step list does not (verify "has passed"), so a stronger
+ * product can kill its delete with a spec on the case the step list allows and the gate forbids.
  */
 export function equivalent(cell: Cell, atomId: string, estate: EstateMap): string | undefined {
   if (cell.op !== 'delete') return undefined;
@@ -172,21 +172,6 @@ export function equivalent(cell: Cell, atomId: string, estate: EstateMap): strin
     const name = /^name:\s*(\S+)\s*$/.exec(atom.provenance.quote.trim())?.[1];
     return folder && name === folder
       ? `the name line of ${atom.provenance.file} repeats its folder, ${folder}, and the runtime names a skill by its folder`
-      : undefined;
-  }
-  if (atom.kind === 'gate') {
-    const pair = atom.evidence.find((item) => item.type === 'ordered') as
-      | { type: 'ordered'; before: string; after: string }
-      | undefined;
-    if (!pair) return undefined;
-    const stageOf = (name: string) =>
-      estate.atoms.find((candidate) => candidate.kind === 'stage' && candidate.fields?.id === name);
-    const before = stageOf(pair.before);
-    const after = stageOf(pair.after);
-    if (!before || !after || after.fields?.anytime === true) return undefined;
-    const into = estate.edges.filter((edge) => edge.kind === 'next' && edge.to === after.id);
-    return into.length > 0 && into.every((edge) => edge.from === before.id)
-      ? `the step list reaches ${pair.after} only from ${pair.before}, the order the gate asks for`
       : undefined;
   }
   return undefined;

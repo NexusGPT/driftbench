@@ -46,19 +46,25 @@ describe('kill.fake: equivalent mutants are read from the fixture, not taken on 
     expect(equivalent({ ...del('skill'), op: 'invert' }, skill.id, map)).toBeUndefined();
   });
 
-  it('names a gate whose order the step list imposes, and not once another stage leads to the later one', async () => {
+  it('keeps delete-gate-2 a demand: the step list lets a failed verify reach report, the gate forbids it', async () => {
     const map = await fixtureMap();
-    const gate = 'gate.standing.never-report-done-before-verify-passed';
-    expect(equivalent(del('gate'), gate, map)).toMatch(/reaches report only from verify/);
+    const gate = map.atoms.find((atom) => atom.id === 'gate.standing.never-report-done-before-verify-passed');
+    if (!gate) throw new Error('the fixture has no verify gate');
+    expect(equivalent(del('gate'), gate.id, map)).toBeUndefined();
+    // The counter-example of the review of PR 274: the gate's words carry a condition, "has passed".
+    expect(gate.provenance.quote).toMatch(/before the verify step has passed/);
+    // verify leads to report and to do (the path after a failed check): report stays reachable right after a
+    // failed verify. A spec whose workspace fails the check and expects no done report passes on the original
+    // and goes red on the mutant, so the cell can be killed in principle.
+    const verify = map.atoms.find((atom) => atom.kind === 'stage' && atom.fields?.id === 'verify');
     const report = map.atoms.find((atom) => atom.kind === 'stage' && atom.fields?.id === 'report');
     const doStage = map.atoms.find((atom) => atom.kind === 'stage' && atom.fields?.id === 'do');
-    if (!report || !doStage) throw new Error('the fixture has no do or report stage');
-    const shortcut = { ...map, edges: [...map.edges, { from: doStage.id, kind: 'next', to: report.id }] };
-    expect(equivalent(del('gate'), gate, shortcut as typeof map)).toBeUndefined();
-    const other = map.atoms.find(
-      (atom) => atom.kind === 'gate' && !atom.evidence.some((item) => item.type === 'ordered'),
-    );
-    if (other) expect(equivalent(del('gate'), other.id, map)).toBeUndefined();
+    if (!verify || !report || !doStage) throw new Error('the fixture has no verify, report or do stage');
+    const next = map.edges
+      .filter((edge) => edge.kind === 'next' && edge.from === verify.id)
+      .map((edge) => edge.to);
+    expect(next).toContain(report.id);
+    expect(next).toContain(doStage.id);
   });
 });
 
