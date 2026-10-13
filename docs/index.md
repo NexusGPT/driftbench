@@ -23,6 +23,7 @@ Every page says what exists today and what is not built yet, with the phase that
 * [Retries](retries.md): the one retry policy of every model call (408, 429, 5xx and network errors, backoff with jitter, Retry-After), how to set it in a spec and on the command line, and where each retry is recorded.
 * [Running](running.md): `runSpec`, campaigns in modes T, F and P (`campaign plan`, `campaign run`, `campaign status`, `campaign resume`), the determinism smoke test, the cache, the budget and the run record.
 * [Simulated user](simulated-user.md): a persona played through the model port or a recording, `driftbench simulate` and `campaign run --driver simulated`.
+* [CLI plugins](plugins.md): load your own adapters, checks and judges into the command line, from `driftbench.yaml` or `--plugin`.
 * [Red-team plugins](redteam-plugins.md): 40 attack plugins, each with a generation template and a grader rubric.
 * [Adaptive attacker](attack.md): red-team attacks picked from the agent's last replies, scored by the recovery record, `driftbench attack`.
 * [Multi-turn red-team user](redteam-agent.md): an attacker with one objective over many turns, Crescendo or GOAT, scored each turn, stopping when the agent gives in.

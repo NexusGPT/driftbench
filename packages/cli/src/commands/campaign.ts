@@ -75,6 +75,7 @@ import { ACME_EXAMPLE_ABSENT, acmeExample, acmeExampleInstalled, requireAcmeExam
 import { applyCampaignConfig } from '../campaign-config';
 import type { Io } from '../io';
 import { optionNumber } from '../number';
+import { pluginAdapter, pluginAdapterNames } from '../plugins';
 import { noStoreAt } from '../store-path';
 import { agentFamilyOf, describeSource, loadPersonas, portFor, userFactory, userSource } from './personas';
 
@@ -240,7 +241,7 @@ export const defaultDeps: CampaignDeps = {
       return (await acmeExample()) === undefined ? undefined : acmeFunctionAdapter();
     }
     if (target.adapter === 'process' && target.agent === 'acme-ops') return acmeOpsAdapter(scope);
-    return undefined;
+    return pluginAdapter(target, scope);
   },
   checks: defaultChecks(),
   artifacts: defaultReaders(),
@@ -1491,8 +1492,10 @@ export function noAdapter(
       ? 'The pilot reaches function:acme (the Acme sales assistant) and function:acme-random or function:acme-random-<seed> (its seeded random control).'
       : `${ACME_EXAMPLE_ABSENT} The pilot runs on the example's agents only, so this install has no pilot target.`
     : knownTargets(installed);
+  const added = pluginAdapterNames();
+  const plugins = added.length === 0 ? '' : ` Plugins add the adapters ${added.join(', ')}.`;
   const suffix = context.unspent ? ': nothing ran, no query was spent.' : '.';
-  return `No adapter is set up for ${context.reference ? 'the reference ' : ''}${showTarget(target)}${whose}${suffix} ${reaches}`;
+  return `No adapter is set up for ${context.reference ? 'the reference ' : ''}${showTarget(target)}${whose}${suffix} ${reaches}${plugins}`;
 }
 
 /** The target of the first route whose tag the spec carries, if any. */
