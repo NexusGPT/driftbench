@@ -1,0 +1,107 @@
+"""Read-only independent checks; writes only each additional cell's audit artifact."""
+import hashlib
+import json
+import math
+import subprocess
+from pathlib import Path
+
+ROOT = Path(__file__).resolve().parents[1]
+REPO = ROOT.parents[1]
+
+def read(path):
+    return json.loads(path.read_text())
+
+def rows(path):
+    return [json.loads(line) for line in path.read_text().splitlines()] if path.exists() else []
+
+def digest(path):
+    return hashlib.sha256(path.read_bytes()).hexdigest()
+
+def correct(games, label):
+    return int(sum(1 if g == label else -1 if g in ('A', 'B') else 0 for g in games) > 0)
+
+for model in ('claude-sonnet-5-5', 'gpt-6.1-sol'):
+    cell = ROOT / 'cells' / model
+    freeze = read(cell / 'freeze.json')
+    report = read(cell / 'report.json')
+    assert digest(ROOT / 'data/seal.json') == freeze['sealSha256']
+    assert digest(ROOT / 'data/pool.json') == freeze['poolSha256']
+    for path, expected in freeze['hashes'].items():
+        assert digest(REPO / path) == expected, path
+    calls = rows(cell / 'calls.jsonl')
+    starts, finishes, active = {}, {}, set()
+    max_active = 0
+    for row in calls:
+        key = row['key']
+        assert row['model'] == model
+        if row['type'] == 'start':
+            assert key not in starts
+            starts[key] = row
+            active.add(key)
+            max_active = max(max_active, len(active))
+            liability = sum(finishes[k]['costUsd'] if k in finishes else s['reserveUsd'] for k, s in starts.items())
+            assert liability <= freeze['capUsd'] + 1e-8
+        else:
+            assert key in starts and key not in finishes
+            finishes[key] = row
+            active.remove(key)
+            assert row['costUsd'] <= starts[key]['reserveUsd'] + 1e-9
+            assert (row.get('usage') or {}).get('output', 0) <= 8192
+            if ':transport:' in key:
+                base, attempt = key.rsplit(':transport:', 1)
+                previous = base if int(attempt) == 2 else f'{base}:transport:{int(attempt)-1}'
+                assert finishes[previous].get('transportFailure')
+                assert not finishes[previous].get('returnedAnswer')
+                assert not finishes[previous].get('text')
+    assert max_active <= freeze['workers']
+    assert not active, 'Audit requires settled calls'
+    pool = read(ROOT / 'data/pool.json')
+    test = rows(cell / 'decisions-test.jsonl')
+    assert len(test) == len({x['key'] for x in test})
+    ledger = {x['itemId']: x for x in test if x['contestant'] == 'ledger'}
+    peer = {x['itemId']: x for x in test if x['contestant'] == 'promptfoo'}
+    matched = [x for x in pool if x['id'] in ledger and x['id'] in peer]
+    assert len(matched) == len(pool) == 270
+    assert len(test) == 540
+    assert set(ledger) == set(peer) == {x['id'] for x in pool}
+    if model == 'claude-sonnet-5-5':
+        for row in finishes.values():
+            if row['phase'] == 'test':
+                assert row['billingRoute'] == 'cache-disabled'
+                usage = row.get('usage') or {}
+                assert usage.get('cached', 0) == usage.get('cacheWrite', 0) == 0
+    a = b = wins = losses = 0
+    for item in matched:
+        x, y = correct(ledger[item['id']]['games'], item['label']), correct(peer[item['id']]['games'], item['label'])
+        a += x
+        b += y
+        wins += x > y
+        losses += x < y
+    n = wins + losses
+    p = min(1, 2 * sum(math.comb(n, k) for k in range(min(wins, losses) + 1)) / 2**n)
+    assert report['n'] == len(matched)
+    assert report['ledger']['correct'] == a and report['promptfoo']['correct'] == b
+    assert report['wins'] == wins and report['losses'] == losses
+    assert abs(report['p'] - p) < 1e-10
+    known = sum(x['costUsd'] for x in finishes.values() if not x.get('costEstimated'))
+    held = sum(x['costUsd'] for x in finishes.values() if x.get('costEstimated'))
+    assert abs(report['budget']['measuredUsd'] - known) < 1e-8
+    assert abs(report['budget']['holdsUsd'] - held) < 1e-8
+    for contestant in ('ledger', 'promptfoo'):
+        paid = [x for x in finishes.values() if x['contestant'] == contestant and x['phase'] == 'test']
+        assert abs(sum(x['costUsd'] for x in paid) - report['cost'][contestant]['testUsd']) < 1e-8
+    # Check the exact existing result files against the prior completed checkpoint.
+    old_files = ['examples/ledger-jb/freeze.json', 'examples/ledger-jb/results/calls.jsonl',
+                 'examples/ledger-jb/results/cells.json', 'examples/ledger-jb/results/driver-state.json']
+    for path in old_files:
+        original = subprocess.check_output(['git', 'show', f'ed441207:{path}'], cwd=REPO, stderr=subprocess.STDOUT)
+        assert hashlib.sha256(original).hexdigest() == digest(REPO / path), path
+    result = {'model': model, 'matched': len(matched), 'ledgerCorrect': a, 'promptfooCorrect': b,
+              'wins': wins, 'losses': losses, 'exactMcNemarP': p, 'starts': len(starts), 'finishes': len(finishes),
+              'active': len(active), 'maximumActive': max_active, 'knownUsd': known, 'holdsUsd': held,
+              'answeredTransportRetries': 0, 'outputAbove8192': 0, 'existingCellsUnchanged': True,
+              'freezeSha256': digest(cell / 'freeze.json'), 'callsSha256': digest(cell / 'calls.jsonl'),
+              'reportSha256': digest(cell / 'report.json'),
+              'sonnetTestCachingOff': model == 'claude-sonnet-5-5'}
+    (cell / 'independent-audit.json').write_text(json.dumps(result, indent=2) + '\n')
+    print(json.dumps(result))

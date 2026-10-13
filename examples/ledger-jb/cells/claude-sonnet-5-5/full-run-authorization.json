@@ -1,0 +1,8 @@
+{
+  "at": "2026-10-13T14:06:14.877043+00:00",
+  "authorization": "Confirmed: run the full Sonnet JudgeBench cell with DISABLE_PROMPT_CACHING=1 under the 45 USD stop (19.19 projected). Record in the cell that caching was off for both contestants and that the ECONNRESET envelope is kept as a no-answer receipt with its retry. TEST runs once. Report scores for both contestants with the paired test when done.",
+  "freezeSha256": "e7435a4f25ec66a330b59bef568c3dc62297580646323e83359801ee2b5cdca7",
+  "bothContestants": "cache-disabled",
+  "capUsd": 45,
+  "testPasses": 1
+}
