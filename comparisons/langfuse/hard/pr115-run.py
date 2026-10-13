@@ -16,13 +16,22 @@ COMMIT = '8195902dd20c84267f85feba268c17868e00dfbe'
 
 def validate_freeze():
     freeze = json.loads((ROOT / 'pr115-manifest.json').read_text())
+    snapshot = ROOT / 'pinned-judge'
+    provenance = json.loads((snapshot / 'manifest.json').read_text())
+    if provenance['commit'] != COMMIT:
+        raise RuntimeError('wrong replay judge commit')
+    for name, entry in provenance['sources'].items():
+        if hashlib.sha256((snapshot / entry['file']).read_bytes()).hexdigest() != entry['sha256']:
+            raise RuntimeError(f'pinned source changed: {name}')
     for name, expected in freeze['sha256'].items():
-        if hashlib.sha256((ROOT / name).read_bytes()).hexdigest() != expected:
+        # Preserve the original pre-call freeze, including the historical harness.
+        path = snapshot / (name + '.txt') if name in ['pr115-run.py', 'pr115.mts'] else ROOT / name
+        if hashlib.sha256(path.read_bytes()).hexdigest() != expected:
             raise RuntimeError(f'frozen input changed: {name}')
     if freeze['judge_commit'] != COMMIT:
         raise RuntimeError('wrong judge commit')
     for name, expected in freeze['native_sha256'].items():
-        if hashlib.sha256((ROOT.parents[2] / name).read_bytes()).hexdigest() != expected:
+        if hashlib.sha256((snapshot / provenance['sources'][name]['file']).read_bytes()).hexdigest() != expected:
             raise RuntimeError(f'pinned judge source changed: {name}')
     return freeze
 
@@ -54,6 +63,7 @@ def main():
     if not 0 <= args.cap_usd <= 1 or not 1 <= args.limit <= 240:
         raise SystemExit('cap must be zero to one USD; limit one to 240')
     freeze = validate_freeze()
+    print(f'Reproducing pinned judge {COMMIT}; recorded answers only when cap is zero.', flush=True)
     if args.cap_usd and subprocess.check_output(['git', 'rev-parse', 'HEAD'], cwd=ROOT, text=True).strip() != COMMIT:
         raise SystemExit('paid runs require the exact approved judge commit')
     uncertain = ROOT / 'runtime' / 'pr115-unknown-billing.json'
@@ -137,7 +147,17 @@ def main():
         cost = sum(row['cost_usd'] for row in subset)
         summary[set_name] = {'correct': correct, 'total': len(subset), 'ci95': wilson(correct, len(subset)), 'without_repair_correct': sum(row['without_repair'] == row['label'] for row in subset), 'quote_repaired': sum(row['quote_repaired'] for row in subset), 'unparsed': sum(row['prediction'] == 'unparsed' for row in subset), 'inconclusive': sum(row['prediction'] == 'inconclusive' for row in subset), 'evaluation_cost_usd': cost, 'usd_per_100': cost / len(subset) * 100}
     output = {'judge_commit': COMMIT, 'timestamp': datetime.datetime.now(datetime.timezone.utc).isoformat(), 'fresh_calls': fresh, 'fresh_cost_usd': spent - initial, 'round_cost_usd': spent, 'summary': summary, 'rows': results}
-    (ROOT / 'pr115-scores.json').write_text(json.dumps(output, indent=2) + '\n')
+    path = ROOT / 'pr115-scores.json'
+    if not args.cap_usd:
+        # A replay verifies every recorded value and preserves the measurement timestamp.
+        saved = json.loads(path.read_text())
+        output['timestamp'] = saved['timestamp']
+        if output != saved:
+            raise RuntimeError('pinned replay differs from published pr115-scores.json')
+    else:
+        content = json.dumps(output, indent=2) + '\n'
+        if not path.exists() or path.read_text() != content:
+            path.write_text(content)
     print(json.dumps({k: v for k, v in output.items() if k != 'rows'}, indent=2), flush=True)
 
 if __name__ == '__main__':

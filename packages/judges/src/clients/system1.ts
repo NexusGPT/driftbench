@@ -2,6 +2,7 @@ import type { ClientOptions, JudgeClient } from '../client';
 import { inconclusive, type JudgeRequest, type JudgeResult, outcomeFromProbability } from '../contract';
 import { isRecord, JudgeError, postJson, requireEnv } from '../http';
 import { buildPrompt, DATA_RULE, renderRubric, SYSTEM1_QUESTION } from '../prompt';
+import { JUDGE_DIALECTS } from './dialects';
 
 /**
  * The system 1 judges: a fixed binary question per criterion, answered with a probability. Both shapes
@@ -78,6 +79,7 @@ export function createJevJudge(options: System1Options = {}): JudgeClient {
   return {
     id,
     family: 'jev',
+    dialect: JUDGE_DIALECTS.jev.id,
     cls: 'system1',
     model,
     cost: options.cost ?? SYSTEM1_COST,
@@ -136,6 +138,7 @@ export function createOpenAiDecisionsJudge(options: System1Options = {}): JudgeC
   return {
     id,
     family: 'openai',
+    dialect: JUDGE_DIALECTS['openai-decisions'].id,
     cls: 'system1',
     model,
     cost: options.cost ?? SYSTEM1_COST,

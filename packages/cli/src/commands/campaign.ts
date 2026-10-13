@@ -40,6 +40,7 @@ import {
   type TargetPrompt,
   TargetRef,
   type UserDriver,
+  withAgentVersion,
 } from '@agent-nexus/driftbench-core';
 import { portFromEnv } from '@agent-nexus/driftbench-generate';
 import { textTable as table } from '@agent-nexus/driftbench-report';
@@ -249,6 +250,7 @@ type RunCommandOptions = {
   mode: string;
   repeats: string;
   campaign?: string;
+  agentVersion?: string;
   store?: string;
   cache: boolean;
   concurrency: string;
@@ -319,6 +321,10 @@ export function registerCampaignCommands(
     .option('--route <tag=target>', ROUTE_HELP, collect, [])
     .option('--mode <modes>', MODE_HELP, 'F')
     .option('--repeats <n>', 'runs per spec, target and mode', '1')
+    .option(
+      '--agent-version <label>',
+      'the version of the agent under test, written as the variant of every target that names none',
+    )
     .option('--campaign <id>', 'the campaign id; one is made from the content and the clock without it')
     .option('--store <file>', 'keep the campaign, its runs and the cache in this store')
     .option('--no-cache', 'neither replay runs from the cache nor write to it')
@@ -613,8 +619,12 @@ export async function campaignRunCommand(
     if (!read) return 2;
     // A spec restored from a dataset is stored under its dataset reference, never the temporary folder.
     const loaded = read.map((entry) => ({ ...entry, path: datasetPath(entry.path, registry.folders) }));
+    // --prompt pins the registry prompt; --agent-version names the agent under test where no variant does.
     const withPrompt = (target: TargetRef): TargetRef =>
-      registry.prompt === undefined ? target : { ...target, prompt: registry.prompt };
+      withAgentVersion(
+        registry.prompt === undefined ? target : { ...target, prompt: registry.prompt },
+        options.agentVersion,
+      );
     const targets = shape.targets.map(withPrompt);
     const runs = specRuns(loaded, targets, io, shape.routes)?.map((each) =>
       each.pinned === undefined

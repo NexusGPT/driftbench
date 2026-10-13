@@ -1,0 +1,27 @@
+{
+  "reason": "Empty structured CLI output is not a quality loss",
+  "results": [
+    {
+      "original_request_sha256": "d46312ca1ca2be249a8af749d0e388f6aff159952924c820b0fc9661ddc82e4a",
+      "originalTransportFailure": true,
+      "recovery_request_sha256": "8dc1d193e64f8ea2e58e4599a0cc6e32d1d651b5f20c20d3cdcefefcbfa9b638",
+      "recovered": true,
+      "recoveryCostUsd": 0.00047254
+    },
+    {
+      "original_request_sha256": "d2e634986714971a618a1ce249ce52476a392ce5437ac58efa27598d2e1ecddc",
+      "originalTransportFailure": true,
+      "recovery_request_sha256": "ca86818c8922b18dd4c7cde0d3478901d7514eb837055d19cc7af753d4282527",
+      "recovered": true,
+      "recoveryCostUsd": 0.0006514699999999999
+    },
+    {
+      "original_request_sha256": "8f2fe470aa67ea1c359f535e59e1fd35a36e2eae8af13613eaeccb04b39815ee",
+      "originalTransportFailure": true,
+      "recovery_request_sha256": "9284dd29249602ab8895c07f851d18850f62c341dc0b7a67d4714014ac44f608",
+      "recovered": true,
+      "recoveryCostUsd": 0.0005206200000000001
+    }
+  ],
+  "freshUsd": 0.00164463
+}

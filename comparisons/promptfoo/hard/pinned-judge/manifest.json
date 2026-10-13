@@ -1,0 +1,17 @@
+{
+  "commit": "c07c705cbd0275ec2c59ca8119fab09a539179e5",
+  "sources": {
+    "packages/judges/src/prompt.ts": {
+      "file": "prompt.ts.txt",
+      "sha256": "b916144fa5fadaa37a7adb7f0f7ea04d8e2a73ac7478504f0697d1b52f8f8b7e"
+    },
+    "packages/judges/src/contract.ts": {
+      "file": "contract.ts.txt",
+      "sha256": "77acf60444770dfaa811b7c86b8473a9d6198eb1ac1143d50d7488a13da47c0c"
+    },
+    "packages/core/src/spec/hash.ts": {
+      "file": "hash.ts.txt",
+      "sha256": "08ef6c9e5965ad2d5e3e4680a26b281a0200e3e69c5ffd6accdc0223dd675f4d"
+    }
+  }
+}

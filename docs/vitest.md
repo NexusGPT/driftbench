@@ -1,6 +1,6 @@
 # vitest
 
-`@agent-nexus/driftbench-vitest` runs a spec inside a vitest suite, one test per block. It is not on npm yet: version 0.1.0 is prepared (see [Releasing](releasing.md)).
+`@agent-nexus/driftbench-vitest` runs a spec inside a vitest suite, one test per block. Version 0.1.0 is on npm as `@agent-nexus/driftbench-vitest`.
 
 ```ts
 import { functionAdapter } from '@agent-nexus/driftbench-adapters';

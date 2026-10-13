@@ -1,7 +1,13 @@
-import { readFileSync, writeFileSync } from 'node:fs';
-import { parseJudgeValue } from '../../../packages/judges/src/assessment.ts';
+import { existsSync, readFileSync, writeFileSync } from 'node:fs';
+import type { parseJudgeValue as ParseJudgeValue } from '../../../packages/judges/src/assessment.ts';
 import type { JudgeRequest } from '../../../packages/judges/src/contract.ts';
-import { buildPrompt } from '../../../packages/judges/src/prompt.ts';
+import type { buildPrompt as BuildPrompt } from '../../../packages/judges/src/prompt.ts';
+import { pinnedJudge } from '../../pinned-judge';
+
+const pinned = pinnedJudge(new URL('./pinned-judge/', import.meta.url));
+const buildPrompt = pinned.load('packages/judges/src/prompt.ts').buildPrompt as typeof BuildPrompt;
+const parseJudgeValue = pinned.load('packages/judges/src/assessment.ts')
+  .parseJudgeValue as typeof ParseJudgeValue;
 
 const root = new URL('./', import.meta.url);
 type Case = { id: string; query: string; output: string; reference: string };
@@ -33,7 +39,12 @@ if (process.argv[2] === 'render') {
       return { set, id: row.id, request, ...buildPrompt(request) };
     });
   });
-  writeFileSync(new URL('pr115-prompts.json', root), `${JSON.stringify(rows, null, 2)}\n`);
+  const path = new URL('pr115-prompts.json', root);
+  const content = `${JSON.stringify(rows, null, 2)}\n`;
+  if (!existsSync(path) || JSON.stringify(JSON.parse(readFileSync(path, 'utf8'))) !== JSON.stringify(rows)) {
+    writeFileSync(path, content);
+  }
+  console.log(`Rendered pinned judge ${pinned.commit}.`);
 } else if (process.argv[2] === 'score') {
   // JSON decoding and the benchmark's uniform quote repair happen in Python first.
   // This calls the pinned production contract on that decoded value, without a new repair or model call.

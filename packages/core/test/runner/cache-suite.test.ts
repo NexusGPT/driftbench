@@ -1,11 +1,12 @@
 import { describe, expect, it } from 'vitest';
 import { type BlockKeyParts, blockCacheKey } from '../../src/runner/cache';
+import { resolveGiven } from '../../src/runner/given';
 
 const parts: BlockKeyParts = {
   specHash: 'hash-1',
   repeat: 0,
   position: 0,
-  given: { ledger: {}, prefix: [], world: {} } as never,
+  given: resolveGiven({ ledger: {}, world: {}, vars: {} }, [], { adapter: 'function', agent: 'demo' }),
   stimulus: { user: 'hi' },
   target: { adapter: 'function', agent: 'demo' },
   adapter: 'function',
@@ -33,5 +34,9 @@ describe('each block records the cache key it was stored under', () => {
       blockCacheKey({ ...parts, given: { ...parts.given, prefix: [{ role: 'user', content: 'x' }] } }),
     ).toMatch(/^block:[0-9a-f]{64}$/);
     expect(blockCacheKey(parts)).toMatch(/^block:[0-9a-f]{64}$/);
+    // The same holds for a Given the runner resolved itself.
+    expect(
+      blockCacheKey({ ...parts, given: resolveGiven({ ledger: {}, world: {}, vars: {} }, [], parts.target) }),
+    ).toMatch(/^block:[0-9a-f]{64}$/);
   });
 });

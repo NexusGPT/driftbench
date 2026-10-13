@@ -1,0 +1,268 @@
+import { spawn } from 'node:child_process';
+import { createHash } from 'node:crypto';
+import { appendFileSync, existsSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
+import { join } from 'node:path';
+import { AUDIT_SYSTEM, auditUser, combineAudit, LEDGER_SYSTEM, parseAudit, parseLedger } from './audit.ts';
+
+type Item = { id: string; task: string; golden: string; candidate_a: string; candidate_b: string };
+type Call = {
+  request_sha256: string;
+  model: string;
+  system: string;
+  user: string;
+  text: string;
+  costUsd: number;
+  failed: boolean;
+  diagnostic?: string;
+};
+
+// Every call is persisted before scoring. Cache identity includes full prompts and CLI settings.
+// Resuming uses historical call cost for cost/item, and counts fresh calls toward this run's cap.
+export async function runAudit(options: {
+  here: string;
+  items: Item[];
+  model: string;
+  setFile: string;
+  cap: number;
+  concurrency: number;
+  replayOnly: boolean;
+  checked?: boolean;
+}) {
+  const { here, items, model, setFile, cap, concurrency, replayOnly, checked = false } = options;
+  const variant = checked ? 'ours-audit-checked' : 'ours-audit';
+  if (!Number.isFinite(cap) || cap < 0 || cap > 8) throw new Error('--cap-usd must be between 0 and 8');
+  if (concurrency !== 1) throw new Error('--concurrency must be 1');
+  const callBudget = 0.03;
+  const flagsFor = (system: string) => [
+    '-p',
+    '--output-format',
+    'json',
+    '--model',
+    model,
+    '--system-prompt',
+    system,
+    '--tools',
+    '',
+    '--setting-sources',
+    '',
+    '--strict-mcp-config',
+    '--no-session-persistence',
+    '--max-turns',
+    '1',
+    '--max-budget-usd',
+    String(callBudget),
+  ];
+  const cachePath = join(here, 'recorded', 'audit-calls.jsonl');
+  const cache = new Map<string, Call>();
+  let historicalSpend = 0;
+  if (existsSync(cachePath)) {
+    for (const line of readFileSync(cachePath, 'utf8').split('\n').filter(Boolean)) {
+      const record = JSON.parse(line) as Call;
+      cache.set(record.request_sha256, record);
+      historicalSpend += record.costUsd;
+    }
+  }
+  let freshSpend = 0;
+  let reserved = 0;
+  let newCalls = 0;
+  let replayedCalls = 0;
+  const ask = async (user: string, system = AUDIT_SYSTEM): Promise<Call> => {
+    const flags = flagsFor(system);
+    const request_sha256 = createHash('sha256').update(JSON.stringify({ flags, user })).digest('hex');
+    const saved = cache.get(request_sha256);
+    if (saved) {
+      replayedCalls++;
+      return saved;
+    }
+    if (replayOnly) throw new Error(`Missing recording ${request_sha256}; replay makes no model calls`);
+    if (freshSpend + reserved + callBudget > cap) throw new Error(`Spend cap ${cap} USD reached`);
+    if (historicalSpend + freshSpend + reserved + callBudget > 8)
+      throw new Error('Cumulative task budget 8 USD reached');
+    reserved += callBudget;
+    newCalls++;
+    const folder = mkdtempSync(join(here, '.audit-call-'));
+    let record: Call;
+    try {
+      const output = await new Promise<{ code: number | null; stdout: string; stderr: string }>(
+        (resolve, reject) => {
+          const child = spawn('claude', flags, { cwd: folder, stdio: ['pipe', 'pipe', 'pipe'] });
+          let stdout = '';
+          let stderr = '';
+          const timer = setTimeout(() => {
+            child.kill('SIGKILL');
+            reject(new Error('Call timed out'));
+          }, 120_000);
+          child.stdout.on('data', (chunk) => {
+            stdout += chunk;
+          });
+          child.stderr.on('data', (chunk) => {
+            stderr += chunk;
+          });
+          child.stdin.on('error', (error) => {
+            stderr += `\nstdin: ${error.message}`;
+          });
+          child.once('error', (error) => {
+            clearTimeout(timer);
+            reject(error);
+          });
+          child.once('close', (code) => {
+            clearTimeout(timer);
+            resolve({ code, stdout, stderr });
+          });
+          child.stdin.end(user);
+        },
+      );
+      const payload = JSON.parse(output.stdout);
+      const knownCost =
+        typeof payload.total_cost_usd === 'number' &&
+        Number.isFinite(payload.total_cost_usd) &&
+        payload.total_cost_usd >= 0;
+      record = {
+        request_sha256,
+        model,
+        system,
+        user,
+        text: typeof payload.result === 'string' ? payload.result : '',
+        // A failed call without a cost is conservatively charged its reservation.
+        costUsd: knownCost ? payload.total_cost_usd : callBudget,
+        failed: output.code !== 0 || payload.is_error === true || payload.subtype !== 'success' || !knownCost,
+        diagnostic: output.stderr || undefined,
+      };
+    } catch (error) {
+      record = {
+        request_sha256,
+        model,
+        system,
+        user,
+        text: '',
+        costUsd: callBudget,
+        failed: true,
+        diagnostic: error instanceof Error ? error.message : String(error),
+      };
+    } finally {
+      rmSync(folder, { recursive: true, force: true });
+    }
+    reserved -= callBudget;
+    freshSpend += record.costUsd;
+    appendFileSync(cachePath, `${JSON.stringify(record)}\n`);
+    cache.set(request_sha256, record);
+    return record;
+  };
+
+  const answers: Array<
+    ReturnType<typeof combineAudit> & {
+      id: string;
+      costUsd: number;
+      ordered_request_sha256: string;
+      swapped_request_sha256: string;
+      orderedReasoning: string;
+      swappedReasoning: string;
+      recovery?: {
+        primary: ReturnType<typeof combineAudit>;
+        orderedReasoning: string;
+        swappedReasoning: string;
+        ordered_request_sha256: string;
+        swapped_request_sha256: string;
+      };
+    }
+  > = [];
+  let unanswered = 0;
+  const tag = setFile === 'set.json' ? '' : `-${setFile.replace(/\.json$/, '')}`;
+  const path = join(here, 'recorded', `${variant}-${model}${tag}.json`);
+  const save = () =>
+    writeFileSync(
+      path,
+      `${JSON.stringify(
+        {
+          system: variant,
+          model,
+          set: setFile,
+          expectedItems: items.length,
+          complete: answers.length === items.length,
+          promptSha256: createHash('sha256').update(AUDIT_SYSTEM).digest('hex'),
+          fallbackPromptSha256: checked
+            ? createHash('sha256').update(LEDGER_SYSTEM).digest('hex')
+            : undefined,
+          spentUsd: answers.reduce((sum, answer) => sum + answer.costUsd, 0),
+          freshSpendUsd: freshSpend,
+          newCalls,
+          replayedCalls,
+          unanswered,
+          answers,
+        },
+        null,
+        1,
+      )}\n`,
+    );
+  try {
+    for (const item of items) {
+      const prompts = [
+        auditUser(item.task, item.golden, item.candidate_a, item.candidate_b),
+        auditUser(item.task, item.golden, item.candidate_b, item.candidate_a),
+      ];
+      const results = [await settle(() => ask(prompts[0])), await settle(() => ask(prompts[1]))];
+      const failure = results.find((result) => result.status === 'rejected');
+      if (failure?.status === 'rejected') throw failure.reason;
+      const calls = results.map((result) => {
+        if (result.status === 'rejected') throw result.reason;
+        return result.value;
+      });
+      const parsed = calls.map((call) =>
+        call.failed
+          ? { outcome: 'inconclusive' as const, reasoning: '', unparsed: true }
+          : parseAudit(call.text),
+      );
+      unanswered += parsed.filter((answer) => answer.unparsed).length;
+      const primary = combineAudit(parsed[0].outcome, parsed[1].outcome);
+      let finalParsed = parsed;
+      let recovery: (typeof answers)[number]['recovery'];
+      if (checked && primary.choice === 'tie') {
+        const orderedLedger = await ask(prompts[0], LEDGER_SYSTEM);
+        const swappedLedger = await ask(prompts[1], LEDGER_SYSTEM);
+        recovery = {
+          primary,
+          orderedReasoning: parsed[0].reasoning,
+          swappedReasoning: parsed[1].reasoning,
+          ordered_request_sha256: orderedLedger.request_sha256,
+          swapped_request_sha256: swappedLedger.request_sha256,
+        };
+        calls.push(orderedLedger, swappedLedger);
+        finalParsed = [orderedLedger, swappedLedger].map((call) =>
+          call.failed
+            ? { outcome: 'inconclusive' as const, reasoning: '', unparsed: true }
+            : parseLedger(call.text),
+        );
+        unanswered += finalParsed.filter((answer) => answer.unparsed).length;
+      }
+      answers.push({
+        id: item.id,
+        ...combineAudit(finalParsed[0].outcome, finalParsed[1].outcome),
+        costUsd: calls.reduce((sum, call) => sum + call.costUsd, 0),
+        ordered_request_sha256: calls[0].request_sha256,
+        swapped_request_sha256: calls[1].request_sha256,
+        orderedReasoning: finalParsed[0].reasoning,
+        swappedReasoning: finalParsed[1].reasoning,
+        recovery,
+      });
+      save();
+      if (answers.length % 10 === 0 || answers.length === items.length) {
+        console.log(
+          `${variant} ${setFile}: ${answers.length}/${items.length}, fresh spend ${freshSpend.toFixed(6)} USD`,
+        );
+      }
+    }
+  } finally {
+    save();
+    console.log(
+      `New calls ${newCalls}, replayed calls ${replayedCalls}, fresh spend ${freshSpend.toFixed(6)} USD`,
+    );
+  }
+}
+
+async function settle<T>(fn: () => Promise<T>): Promise<PromiseSettledResult<T>> {
+  try {
+    return { status: 'fulfilled', value: await fn() };
+  } catch (reason) {
+    return { status: 'rejected', reason };
+  }
+}

@@ -3,6 +3,7 @@
 // positions swapped, a tie when the two calls disagree.
 //   ours:   npx tsx comparisons/langwatch/pairwise/measure.mts ours --model haiku --cap 1.0
 //   theirs: npx tsx comparisons/langwatch/pairwise/measure.mts theirs --model haiku --cap 1.0
+// Research variants ours-audit and ours-audit-checked use recorded calls. See AUDIT.md for run and replay commands.
 // "theirs" runs the competitor's golden-aware comparison prompt, copied verbatim, through the same claude command.
 // Their answer format (a winner A, B or tie) is read through our answer contract (pass = A, fail = B, inconclusive = tie).
 // Records go to recorded/<system>-<model>.json, keyed by case id. Scoring makes no model call.
@@ -16,6 +17,7 @@ import {
   createClaudeCliJudge,
   judgePairwise,
 } from '../../../packages/judges/src/index.ts';
+import { runAudit } from './audit-runner.mts';
 
 const here = dirname(fileURLToPath(import.meta.url));
 const setFile = process.argv.includes('--set') ? process.argv[process.argv.indexOf('--set') + 1] : 'set.json';
@@ -35,7 +37,22 @@ const opt = (name: string, fallback?: string) => {
   return i >= 0 ? args[i + 1] : fallback;
 };
 const model = opt('model', 'haiku')!;
-const cap = Number(opt('cap', '1.0'));
+const cap = Number(opt('cap-usd', opt('cap', '1.0')));
+
+// Opt-in research variant. Both legacy systems keep their original prompts and procedure.
+if (system === 'ours-audit' || system === 'ours-audit-checked') {
+  await runAudit({
+    here,
+    items,
+    model,
+    setFile,
+    cap,
+    concurrency: Number(opt('concurrency', '1')),
+    replayOnly: args.includes('--replay-only'),
+    checked: system === 'ours-audit-checked',
+  });
+  process.exit(0);
+}
 
 const CRITERION: CriterionText = {
   name: 'matches_golden',
@@ -188,7 +205,9 @@ for (const item of items) {
       costUsd: first.cost + second.cost,
     });
   } else {
-    throw new Error('usage: measure.mts ours|theirs --model <name> --cap <usd>');
+    throw new Error(
+      'usage: measure.mts ours|theirs|ours-audit|ours-audit-checked --model <name> --cap-usd <usd>',
+    );
   }
 }
 writeFileSync(

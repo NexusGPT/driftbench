@@ -88,11 +88,16 @@ export { createAnthropicJudge, createGoogleJudge, createOpenAiJudge } from './cl
 export {
   CLAUDE_SETTINGS,
   type ClaudeCliOptions,
+  ClaudeThinkingError,
+  type ClaudeThinkingRecovery,
   claudeCost,
   createClaudeCliJudge,
 } from './clients/claude-cli';
+export type { ClaudeFailureCategory, ClaudeRetryReceipt } from './clients/claude-errors';
+export { googleResponseSchema, JUDGE_DIALECTS, type JudgeDialect } from './clients/dialects';
 export { type FakeAnswer, FakeJudge } from './clients/fake';
 export { createHttpJudge, type HttpJudgeOptions } from './clients/http-json';
+export type { ProviderBlock, ProviderDecline } from './clients/provider-block';
 export {
   binaryQuestion,
   createJevJudge,
@@ -100,6 +105,17 @@ export {
   type ProbabilityBounds,
   type System1Options,
 } from './clients/system1';
+export {
+  buildDialectRequest,
+  ClaudeTransportError,
+  createDialectTransport,
+  type DialectCompletion,
+  type DialectCompletionRequest,
+  type DialectProvider,
+  type DialectTransport,
+  type DialectTransportOptions,
+  FROZEN_BENCHMARK_REASONING,
+} from './clients/transport';
 export { type TokenUsage, type UsageProvider, usageFromResponse } from './clients/usage';
 export { comparePair, type PairChoice, type PairJudge, type PairWinner } from './compare-pair';
 export {
@@ -153,7 +169,14 @@ export {
   loadCriteria,
   parseCriterionFile,
 } from './criteria';
-export { CriterionLedger, type CriterionRequirement, requirementsFor } from './criterion-ledger';
+export {
+  CRITERION_DECODER_VERSION,
+  type CriterionCheck,
+  type CriterionDecoderVersion,
+  CriterionLedger,
+  type CriterionRequirement,
+  requirementsFor,
+} from './criterion-ledger';
 export { createEscalation, type EscalationConfig } from './escalation';
 export { type Grounding, groundEvidence } from './evidence';
 export { FACT_LEDGER_POINTWISE, FactLedgerAnswer, PointwiseFactLedgerAnswer } from './fact-audit';
@@ -168,7 +191,40 @@ export {
   SYSTEM_PROMPT as LEGACY_SYSTEM_PROMPT,
 } from './legacy-prompt';
 export { type LintIssue, lintCriterion } from './lint';
+export {
+  canonicalPairOrder,
+  judgePairLedger,
+  type LedgerChoice,
+  type LedgerParseStep,
+  type LedgerReading,
+  type LedgerVerdict,
+  PairLedger,
+  type PairLedgerOptions,
+  type PairLedgerRead,
+  type PairLedgerResult,
+  pairLedgerRequest,
+  scoreLedger,
+  verdictFromLedger,
+} from './pair-ledger';
+export {
+  pairLedgerSchema,
+  pairRequirements,
+  parsePairLedgerText,
+  SHIM_SCHEMA_FLAG,
+} from './pair-ledger-contract';
 export { buildPairPrompt } from './pair-prompt';
+export {
+  type PairComputedSolution,
+  type PairComputeSandbox,
+  type PairFinalAnswer,
+  type PairFormatRule,
+  type PairHarmPolicyFacts,
+  type PairHarmPolicyInput,
+  type PairStage0Options,
+  type PairStage0Result,
+  type PairStage0Row,
+  runPairStage0,
+} from './pair-stage0';
 export {
   type CanonicalPairwiseVerdict,
   judgePairwise,
@@ -191,6 +247,7 @@ export {
   type DataTag,
   dataTag,
   escapeData,
+  PAIR_LEDGER_PROMPT_FINGERPRINT,
   PROMPT_FINGERPRINT,
   PROMPT_PARTS,
   promptFingerprint,
