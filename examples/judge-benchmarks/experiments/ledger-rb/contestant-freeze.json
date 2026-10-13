@@ -30,6 +30,13 @@
       120000,
       240000
     ],
+    "providerBlockPolicy": "An empty model answer with an explicit provider block/refusal reason is provider-blocked. Any blocked request makes the whole item an error for that contestant in the headline score, identically for ledger and promptfoo. The second score removes an item from both contestants on that model if either was provider-blocked. Nonempty model refusals are ordinary returned answers. Provider blocks are never retried.",
+    "providerBlockProbe": {
+      "id": "rubric_eval_1008",
+      "model": "gemini-3.8-flash",
+      "contestant": "promptfoo",
+      "orders": 2
+    },
     "stage0": {
       "correctness": false,
       "compute": false
@@ -52,11 +59,11 @@
     "retryPolicy": "Owner amendment: at most three ordinary transport attempts, 300-second timeout. HTTP 429 is no answer: wait 60, 120, then 240 seconds before retrying; after exhaustion stop incomplete without a judge verdict. Never retry a returned answer, including unparsed answers. Core schema reasks are suppressed. Unknown failed or interrupted attempts retain their reservations; confirmed 429 attempts cost zero."
   },
   "hashes": {
-    "examples/judge-benchmarks/src/rubric-ledger-live.ts": "aae1dfa7feec1e8c003f3e107c0b365fab5a58c6dec9f385a09f1ff8a7f66c80",
+    "examples/judge-benchmarks/src/rubric-ledger-live.ts": "18a266098bf8c86b572428fc66bd58677c380e0179ea600ccca85388e877e343",
     "examples/judge-benchmarks/src/rubric-ledger-calls.ts": "42741beb2a7a7ff474ac3ff7d001ffef1834a79980cd31eca3f28f2b38bf2d6e",
     "examples/judge-benchmarks/src/rubric-ledger-stats.ts": "2196e3bbb140b9ac2d3e4f9307945117fd92f698719ee3086d5b1d82022120d6",
     "examples/judge-benchmarks/src/contestants.ts": "8526f07c34720791108417e68f7848fcf5f6e7c0d3eaef1ece136b1ff6f3bca0",
-    "examples/judge-benchmarks/src/rubric-ledger-report.ts": "f543fd8a39e8a0c51a36103744c98db29566cfb201c290d21aafa1b400d26dec",
+    "examples/judge-benchmarks/src/rubric-ledger-report.ts": "45ce1db369f4ea47759c7e7c380791be916cf62c69503072861cee76208e37d3",
     "examples/judge-benchmarks/src/code-evidence.ts": "7552ea80f292ca33c292142910b2556094a19cf44d7d85942a2de98f92bc0929",
     "examples/judge-benchmarks/src/data.ts": "0ad8c198e952608eb0c3959c6147d98e07253265b72e196d270ddff57ebfdc00",
     "examples/judge-benchmarks/src/rubric-items.ts": "b23fcd163c36d9d01e2ddbb669f0b746eca70f22d1cfc7cfcfde744db9aefe6a",

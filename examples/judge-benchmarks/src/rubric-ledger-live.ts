@@ -10,7 +10,7 @@ import { buildPrompt, canonicalPairOrder, createDialectTransport, judgePairLedge
 import { codeEvidence } from './code-evidence';
 import { contestantById, type PairDecision } from './contestants';
 import { loadBenchmark, type PairItem } from './data';
-import { LedgerBudgetStop, LedgerRateLimitStop, LedgerCalls, transportRetryable, type LedgerCompletion } from './rubric-ledger-calls';
+import { LedgerBudgetStop, LedgerRateLimitStop, LedgerCalls, transportRetryable, type LedgerCall, type LedgerCompletion } from './rubric-ledger-calls';
 import { appendRecording, readRecordingRows } from './recording-files';
 
 export const DIRECTORY = 'examples/judge-benchmarks/experiments/ledger-rb';
@@ -23,6 +23,8 @@ export const SETTINGS = {
   concurrency: 12, testOrderSeed: 'ledger-rb-test-order-v1',
   modelConcurrency: { 'claude-haiku-5-5': 2, 'gpt-6-luna': 8, 'gemini-3.8-flash': 2 },
   rateLimitWaitMs: [60000, 120000, 240000],
+  providerBlockPolicy: 'An empty model answer with an explicit provider block/refusal reason is provider-blocked. Any blocked request makes the whole item an error for that contestant in the headline score, identically for ledger and promptfoo. The second score removes an item from both contestants on that model if either was provider-blocked. Nonempty model refusals are ordinary returned answers. Provider blocks are never retried.',
+  providerBlockProbe: { id: 'rubric_eval_1008', model: 'gemini-3.8-flash', contestant: 'promptfoo', orders: 2 },
   stage0: { correctness: false, compute: false }, tiePolicy: 'canonical',
   pricePerMillion: { 'gpt-6-luna': { input: 0.1, cached: 0.01, output: 0.5 },
     'gemini-3.8-flash': { input: 0.75, output: 3.75 } },
@@ -34,7 +36,8 @@ export const SETTINGS = {
 export const sha = (s: string) => createHash('sha256').update(s).digest('hex');
 export type DecisionRow = { model: Model; phase: string; id: string; group: string; sample: number;
   contestant: string; label: 'A' | 'B'; decisions: PairDecision[]; status: string; elapsedMs: number;
-  callKeys: string[]; detail?: unknown; error?: string };
+  callKeys: string[]; detail?: unknown; error?: string; providerBlocked?: boolean;
+  blockedCallKeys?: string[]; returnedDecisions?: PairDecision[] };
 export const flip = (x: PairDecision): PairDecision => x === 'A' ? 'B' : x === 'B' ? 'A' : 'tie';
 export const mapped = (choice: 'first' | 'second' | 'tie' | undefined, firstIsA: boolean): PairDecision =>
   choice === 'first' ? firstIsA ? 'A' : 'B' : choice === 'second' ? firstIsA ? 'B' : 'A' : 'tie';
@@ -42,6 +45,14 @@ export const decisionKey = (j: { phase: string; model: string; id: string; conte
 /** Retain the journal; a transport-recovered decision supersedes its interrupted attempt. */
 export const latestDecisions = (rows: readonly DecisionRow[]): DecisionRow[] =>
   [...new Map(rows.map((r) => [decisionKey(r), r])).values()];
+
+export function classifyProviderBlock(row: DecisionRow, calls: readonly LedgerCall[]): DecisionRow {
+  const keys = new Set(row.callKeys);
+  const blockedCallKeys = calls.filter((c) => keys.has(c.key) && c.status === 'ok' &&
+    !c.text.trim() && Boolean(c.completion?.refusal)).map((c) => c.key);
+  return blockedCallKeys.length ? { ...row, providerBlocked: true, blockedCallKeys,
+    returnedDecisions: row.returnedDecisions ?? row.decisions, decisions: ['tie', 'tie'], status: 'provider-blocked' } : row;
+}
 
 /** Separate provider queues preserve each model's sealed submission order without head-of-line blocking. */
 export async function scheduleModels<T extends { model: string }>(jobs: readonly T[], limits: Record<string, number>,
@@ -203,10 +214,10 @@ const sourcePaths = [
 
 async function main() {
   if (process.argv.includes('--help')) {
-    console.log('Usage: pnpm exec tsx --no-cache examples/judge-benchmarks/src/rubric-ledger-live.ts --phase seal|pilot|fixtures|noise|validity|test [--execute] [--models comma,list] [--recover-interrupted after verifying the prior runner stopped]'); return;
+    console.log('Usage: pnpm exec tsx --no-cache examples/judge-benchmarks/src/rubric-ledger-live.ts --phase seal|pilot|fixtures|noise|validity|provider-probe|test [--execute] [--models comma,list] [--recover-interrupted after verifying the prior runner stopped]'); return;
   }
   const phase = process.argv[process.argv.indexOf('--phase') + 1];
-  if (!['seal', 'pilot', 'fixtures', 'noise', 'validity', 'test'].includes(phase ?? '')) throw new Error('Select a phase; use --help');
+  if (!['seal', 'pilot', 'fixtures', 'noise', 'validity', 'provider-probe', 'test'].includes(phase ?? '')) throw new Error('Select a phase; use --help');
   const execute = process.argv.includes('--execute');
   process.env.DRIFTBENCH_BENCH_CACHE = resolve('.cache/ledger-rb/data');
   process.env.RB_EXECUTION_ROOT = resolve('.cache/ledger-rb/execution');
@@ -226,7 +237,7 @@ async function main() {
   const committed = execFileSync('git', ['show', `HEAD:${freezePath}`], { encoding: 'utf8' });
   if (committed !== await readFile(freezePath, 'utf8')) throw new Error('Freeze is not committed');
   const mArg = process.argv.indexOf('--models');
-  const models = mArg < 0 ? [...MODELS] : process.argv[mArg + 1]!.split(',') as Model[];
+  const models = phase === 'provider-probe' ? ['gemini-3.8-flash'] as Model[] : mArg < 0 ? [...MODELS] : process.argv[mArg + 1]!.split(',') as Model[];
   if (models.some((m) => !MODELS.includes(m))) throw new Error('Unregistered model');
   const all = (await loadBenchmark('rubricbench')).items as PairItem[];
   const plan = JSON.parse(await readFile(`${DIRECTORY}/development-plan.json`, 'utf8'));
@@ -247,6 +258,7 @@ async function main() {
   else if (phase === 'fixtures') for (const fixture of plan.fixtures) if (fixture.availableDevPairs >= 6)
     for (const id of fixture.ids) for (let sample = 0; sample < 3; sample++) add(pool.get(id)!, sample, ['seat']);
   if (phase === 'pilot') for (const id of plan.pilotIds) add(pool.get(id)!, 0, ['pair-ledger', 'promptfoo']);
+  if (phase === 'provider-probe') add(pool.get(SETTINGS.providerBlockProbe.id)!, 0, ['promptfoo']);
   if (phase === 'noise') for (const id of plan.noiseIds) for (let sample = 0; sample < 3; sample++) add(pool.get(id)!, sample, ['pair-ledger']);
   if (phase === 'test') for (const id of testIds.sort((a, b) => sha(SETTINGS.testOrderSeed + a).localeCompare(sha(SETTINGS.testOrderSeed + b)))) add(pool.get(id)!, 0, ['pair-ledger', 'promptfoo']);
   const calls = await new LedgerCalls(`${DIRECTORY}/live`, SETTINGS.capUsd).load();
@@ -262,7 +274,7 @@ async function main() {
   await scheduleModels(todo, SETTINGS.modelConcurrency, async (job) => {
       try {
         const requirements = reqs.get(job.item.id) ?? [{ name: 'rb_1', rubric: job.item.criterion! }];
-        const row = await evaluate(job.item, requirements, job.model, job.phase, job.sample, job.contestant, transports.get(job.model)!, calls, execute);
+        const row = classifyProviderBlock(await evaluate(job.item, requirements, job.model, job.phase, job.sample, job.contestant, transports.get(job.model)!, calls, execute), calls.rows);
         writes = writes.then(() => appendRecording(resultPath, row)); await writes;
         completed++;
         console.log(JSON.stringify({ phase, model: job.model, contestant: job.contestant, completed: done.size + completed, target: jobs.length, chargedUsd: calls.chargedUsd, status: row.status }));

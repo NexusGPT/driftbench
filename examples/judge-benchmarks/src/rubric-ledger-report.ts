@@ -1,7 +1,7 @@
 import { readFile, writeFile } from 'node:fs/promises';
 import { pathToFileURL } from 'node:url';
 import { resolve } from 'node:path';
-import { DIRECTORY, MODELS, SETTINGS, decisionKey, latestDecisions, validityFixtures, type DecisionRow } from './rubric-ledger-live';
+import { DIRECTORY, MODELS, SETTINGS, classifyProviderBlock, decisionKey, latestDecisions, validityFixtures, type DecisionRow } from './rubric-ledger-live';
 import { LedgerCalls } from './rubric-ledger-calls';
 import { readRecordingRows } from './recording-files';
 import { pairedStatistics } from './rubric-ledger-stats';
@@ -17,8 +17,8 @@ export function kappa(rows: readonly { label: string; decision: string }[]): num
 export async function report() {
   const plan = JSON.parse(await readFile(`${DIRECTORY}/development-plan.json`, 'utf8'));
   const calls = await new LedgerCalls(`${DIRECTORY}/live`, SETTINGS.capUsd).load();
-  const data: Record<string, DecisionRow[]> = Object.fromEntries(await Promise.all(['pilot', 'fixtures', 'noise', 'validity', 'test'].map(async (phase) => {
-    const rows = latestDecisions(await readRecordingRows<DecisionRow>(`${DIRECTORY}/decisions-${phase}.jsonl`));
+  const data: Record<string, DecisionRow[]> = Object.fromEntries(await Promise.all(['pilot', 'fixtures', 'noise', 'validity', 'provider-probe', 'test'].map(async (phase) => {
+    const rows = latestDecisions(await readRecordingRows<DecisionRow>(`${DIRECTORY}/decisions-${phase}.jsonl`)).map((r) => classifyProviderBlock(r, calls.rows));
     try {
       const ordered: (DecisionRow & { recordIndex: number })[] = JSON.parse(await readFile(`${DIRECTORY}/ordered-${phase}.json`, 'utf8'));
       const rank = new Map(ordered.map((r) => [decisionKey(r), r.recordIndex]));
@@ -102,24 +102,37 @@ export async function report() {
     const pairs = ids.flatMap((id) => {
       const ours = tests.find((r) => r.id === id && r.contestant === 'pair-ledger');
       const peer = tests.find((r) => r.id === id && r.contestant === 'promptfoo');
-      return ours && peer ? [{ id, ours: ours.decisions.map((d) => d === ours.label), peer: peer.decisions.map((d) => d === peer.label) }] : [];
+      return ours && peer ? [{ id, ours: ours.decisions.map((d) => d === ours.label), peer: peer.decisions.map((d) => d === peer.label),
+        oursBlocked: Boolean(ours.providerBlocked), peerBlocked: Boolean(peer.providerBlocked) }] : [];
     });
     const stats = pairs.length ? pairedStatistics(pairs) : null;
+    const sharedUnblocked = pairs.filter((r) => !r.oursBlocked && !r.peerBlocked);
+    const providerBlockExcluded = { matchedPairs: sharedUnblocked.length, excludedPairs: pairs.length - sharedUnblocked.length,
+      ledgerOnly: pairs.filter((r) => r.oursBlocked && !r.peerBlocked).length,
+      promptfooOnly: pairs.filter((r) => !r.oursBlocked && r.peerBlocked).length,
+      both: pairs.filter((r) => r.oursBlocked && r.peerBlocked).length,
+      stats: sharedUnblocked.length ? pairedStatistics(sharedUnblocked) : null,
+      status: 'Secondary score on the identical, model-specific unblocked item intersection; headline verdict and 18-cell correction use all sealed items.' };
     const allBaseGroups = new Set(fixtures.filter((f: { earned: boolean }) => !f.earned).map((f: { group: string }) => f.group));
     const costs = Object.fromEntries(['pair-ledger', 'promptfoo'].map((contestant) => {
       const rows = tests.filter((r) => r.contestant === contestant); const paid = cost(rows);
       return [contestant, { ...paid, pairs: rows.length, per100GamesUsd: rows.length ? paid.costUsd / (2 * rows.length) * 100 : null,
         unparsedOrError: rows.filter((r) => r.status === 'unparsed' || r.status === 'transport-error').length,
+        providerBlockedPairs: rows.filter((r) => r.providerBlocked).length,
+        providerBlockedCalls: new Set(rows.flatMap((r) => r.blockedCallKeys ?? [])).size,
         tiesOrMissing: rows.filter((r) => r.decisions.includes('tie')).length }];
     }));
     const uniqueOurs = tests.filter((r) => r.contestant === 'pair-ledger');
-    cells.push({ model, coverage: { matchedPairs: pairs.length, target: 790, complete: pairs.length === 790 }, stats, costs,
+    cells.push({ model, coverage: { matchedPairs: pairs.length, target: 790, complete: pairs.length === 790 }, stats, costs, providerBlockExcluded,
       baseOnlyIneligibleTotal: plan.baseOnlyTest, baseRoutedMeasured: uniqueOurs.filter((r) => allBaseGroups.has(r.group)).length,
       earnedRoutedMeasured: uniqueOurs.filter((r) => !allBaseGroups.has(r.group)).length, gates,
       verdict: pairs.length !== 790 ? 'PENDING: incomplete' : stats!.difference < 0 && stats!.gameMcNemarP < .05 ? 'LOSS' :
         stats!.difference > 0 && stats!.gamePBonferroni18UpperBound < .05 ? 'WIN even under Bonferroni; Holm pending matrix' : 'TIE or pending Holm matrix' });
   }
-  const summary = { createdAt: new Date().toISOString(), settings: SETTINGS, chargedUsd: calls.chargedUsd,
+  const providerBlockProbe = [...data.noise!, ...data['provider-probe']!].filter((r) => r.model === 'gemini-3.8-flash' && r.id === SETTINGS.providerBlockProbe.id)
+    .map((r) => ({ contestant: r.contestant, sample: r.sample, providerBlocked: Boolean(r.providerBlocked), status: r.status,
+      blockedCalls: r.blockedCallKeys?.length ?? 0, callKeys: r.callKeys }));
+  const summary = { createdAt: new Date().toISOString(), settings: SETTINGS, providerBlockProbe, chargedUsd: calls.chargedUsd,
     uncertainCalls: calls.uncertainKeys.length, uniqueCalls: calls.rows.length,
     knownCostUsd: calls.rows.filter((r) => r.costBasis !== 'reservation').reduce((s, r) => s + r.costUsd, 0),
     reservedUnknownUsd: calls.rows.filter((r) => r.costBasis === 'reservation').reduce((s, r) => s + r.costUsd, 0), cells };

@@ -2,10 +2,20 @@ import { mkdtemp } from 'node:fs/promises';
 import { resolve } from 'node:path';
 import { describe, expect, test } from 'vitest';
 import { type DialectTransport } from '@agent-nexus/driftbench-judges';
-import { LedgerCalls, LedgerRateLimitStop } from '../src/rubric-ledger-calls';
-import { evaluate, mapped, scheduleModels, usagePrice, validityFixtures, variants } from '../src/rubric-ledger-live';
+import { LedgerCalls, LedgerRateLimitStop, type LedgerCall } from '../src/rubric-ledger-calls';
+import { classifyProviderBlock, evaluate, mapped, scheduleModels, usagePrice, validityFixtures, variants, type DecisionRow } from '../src/rubric-ledger-live';
 
 describe('live pair-ledger harness', () => {
+  test('provider blocks make the entire item wrong for either contestant, retaining returned decisions', () => {
+    const calls = [{ key: 'blocked', status: 'ok', text: '', completion: { refusal: 'PROHIBITED_CONTENT' } },
+      { key: 'answer', status: 'ok', text: 'I cannot comply.', completion: { refusal: 'text-refusal' } }] as LedgerCall[];
+    for (const contestant of ['pair-ledger', 'promptfoo']) {
+      const base = { contestant, decisions: ['A', 'A'], status: 'decided', callKeys: ['blocked', 'answer'] } as DecisionRow;
+      expect(classifyProviderBlock(base, calls)).toMatchObject({ providerBlocked: true, status: 'provider-blocked',
+        decisions: ['tie', 'tie'], returnedDecisions: ['A', 'A'], blockedCallKeys: ['blocked'] });
+      expect(classifyProviderBlock({ ...base, callKeys: ['answer'] }, calls).providerBlocked).toBeUndefined();
+    }
+  });
   test('runs independent provider queues at 8/2/2 and preserves each submission order', async () => {
     const limits = { luna: 8, gemini: 2, haiku: 2 }; const active: Record<string, number> = {}, peak: Record<string, number> = {};
     const seen: Record<string, number[]> = {}; const jobs = Array.from({ length: 12 }, (_, id) => Object.keys(limits).map((model) => ({ id, model }))).flat();
