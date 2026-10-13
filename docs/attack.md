@@ -75,7 +75,7 @@ Every conversation phrasing class carries `must` and `must_not` into the injecte
 
 For an agent whose contract permits cancellation, this D2 phrasing explicitly expects a terminal refusal:
 
-```yaml
+```text
 class: D2_goal_shift
 conversation:
   - id: authorized-cancel
