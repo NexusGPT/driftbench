@@ -346,6 +346,7 @@ export function codeAtoms(raw: RawEstate, builder: AtomBuilder): void {
   for (const chunk of raw.prose) {
     referenceAtoms(chunk, files, raw, builder);
     routeAtoms(chunk, files, names, raw, builder);
+    proseRouteAtoms(chunk, files, names, raw, builder);
     gateAtoms(chunk, files, raw, builder);
     hazardAtoms(chunk, files, builder);
   }
@@ -677,6 +678,60 @@ function referenceAtoms(
       });
     }
   }
+}
+
+/** A sentence or list item that routes an ask: "To X: load `y`", "When the user wants to X, load the `y` skill". */
+const PROSE_ROUTE =
+  /^(?:[-*]\s+)?(?:to|when(?: the user wants to)?|if(?: the user (?:asks|wants) to)?)\s+([^,:;]+?)\s*[,:]\s*(?:load|use|run|dispatch|call)\s+(?:the\s+)?`\/?([^`\s]+)`(?:\s+(?:skill|agent|helper))?\s*\.?$/i;
+/** The ask a line under a skill's heading gives: "Use it when the user wants to X." */
+const HEADING_ASK =
+  /^(?:use it|load it|use this skill|run it)\s+when\s+(?:the user (?:wants|asks) to\s+)?(.+?)\.?$/i;
+
+/**
+ * Routing written in the standing instructions as prose: a sentence or a list item (`To X: load \`y\``), or a
+ * heading per skill (\`### \`y\`\`) whose next line says when to use it. The target must be a skill or helper of
+ * the estate; a negated line routes nothing.
+ */
+function proseRouteAtoms(
+  chunk: ProseChunk,
+  files: ReadonlyMap<string, EstateFile>,
+  names: { skills: Set<string>; subagents: Set<string> },
+  raw: RawEstate,
+  builder: AtomBuilder,
+): void {
+  const file = files.get(chunk.file);
+  if (file?.kind !== 'standing' && file?.kind !== 'memory') return;
+  const lines = chunkLines(chunk, file);
+  const route = (line: (typeof lines)[number], target: string, ask: string) => {
+    const isSkill = names.skills.has(target);
+    if (!isSkill && !names.subagents.has(target)) return;
+    builder.add({
+      kind: 'route',
+      title: `An ask to ${ask} ${isSkill ? 'loads' : 'dispatches'} ${target}`,
+      at: { file: chunk.file, startLine: line.line, endLine: line.line, quote: line.quote },
+      evidence: [
+        isSkill
+          ? { type: 'skill_loaded', name: target }
+          : { type: 'tool_called', label: raw.labels.dispatch, input: { subagent_type: target } },
+      ],
+      situation: ask,
+      fields: { target, targetKind: isSkill ? 'skill' : 'subagent', via: 'prose', ask },
+    });
+  };
+  lines.forEach((line, index) => {
+    const sentence = PROSE_ROUTE.exec(line.text.replace(/\*\*/g, ''));
+    if (sentence?.[1] && sentence[2]) {
+      if (/\b(?:never|not|don't)\b/i.test(line.text)) return;
+      route(line, sentence[2], sentence[1].trim());
+      return;
+    }
+    const heading = /^#{2,6}\s+`?\/?([\w.-]+)`?\s*$/.exec(line.text);
+    const target = heading?.[1];
+    if (!target || (!names.skills.has(target) && !names.subagents.has(target))) return;
+    const next = lines[index + 1];
+    const ask = next ? HEADING_ASK.exec(next.text)?.[1] : undefined;
+    if (ask) route(line, target, ask.trim());
+  });
 }
 
 /** A routing table's ask column, by its header. */
