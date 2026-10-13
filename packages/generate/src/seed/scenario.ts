@@ -81,6 +81,12 @@ export type ScenarioRequest = {
    * for every class it can take: the stage graph's walks do, so no class depends on a draw to be declared.
    */
   perturbEvery?: boolean;
+  /**
+   * The perturbation a clean walk must declare: this class said at this stage of the path. A first-turn
+   * class whose recovery stays on the start stage has no Then an idle reply fails, so it is no block of the
+   * walk; declared here, a perturbed run says it and checks its recovery. The walk fails without it.
+   */
+  perturb?: { classId: string; stage: string };
 };
 
 export type Scenario =
@@ -530,7 +536,14 @@ export function buildScenario(prepared: PreparedMap, rng: Rng, request: Scenario
     }
     // One class is drawn, as before; a walk that declares every class adds the others at the first stage
     // each can take, with no further draw, so the rest of the walk is the same either way.
-    const drawn = pick(rng, options);
+    const wanted = request.perturb;
+    const drawn = wanted
+      ? options.find(
+          (option) => option.classId === wanted.classId && path.stages[option.index] === wanted.stage,
+        )
+      : pick(rng, options);
+    if (wanted && !drawn)
+      return fail(`a clean walk cannot take ${wanted.classId} at ${wanted.stage} as its perturbation`);
     const picked = drawn ? [drawn] : [];
     if (request.perturbEvery) {
       for (const option of options) {

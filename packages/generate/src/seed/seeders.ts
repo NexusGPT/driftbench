@@ -96,6 +96,7 @@ function scenarioDraft(
     turn?: ScenarioRequest['turn'];
     aside?: ScenarioRequest['aside'];
     perturbEvery?: boolean;
+    perturb?: ScenarioRequest['perturb'];
   } = {},
 ): PathTry {
   const rng = rngFor(context.seed, options.rngLabel ?? id);
@@ -110,6 +111,7 @@ function scenarioDraft(
       ...(options.turn ? { turn: options.turn } : {}),
       ...(options.aside ? { aside: options.aside } : {}),
       ...(options.perturbEvery ? { perturbEvery: true } : {}),
+      ...(options.perturb ? { perturb: options.perturb } : {}),
     });
     if (!built.ok) {
       reasons.push(built.reason);
@@ -1749,6 +1751,26 @@ export function coverDraft(
       return built;
     }
     reasons.push(...built.reasons);
+  }
+  // A class said on the first turn whose recovery stays there is no block (an idle reply passes it): a clean
+  // walk in the cell declares it as its perturbation instead, and a perturbed run checks the recovery.
+  const start = stage !== undefined && paths.length > 0 && paths.every((path) => path.stages[0] === stage);
+  if (start && stage !== undefined) {
+    for (const { classId, extra } of attempts) {
+      if (classId === undefined) continue;
+      const built = scenarioDraft(
+        prepared,
+        context,
+        id,
+        'cover',
+        `Cell ${key}`,
+        [...fixed, ...extra],
+        preferring(paths, behaviour),
+        { perturb: { classId, stage } },
+      );
+      if ('draft' in built) return built;
+      reasons.push(...built.reasons);
+    }
   }
   if (paths.length === 0) reasons.push(`no approved path passes the stage ${stage}`);
   return { reasons: reasons.length > 0 ? reasons : [`no approved path fits the cell ${key}`] };

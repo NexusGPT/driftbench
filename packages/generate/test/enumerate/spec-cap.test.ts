@@ -79,15 +79,18 @@ describe('total spec cap', () => {
   }, 30_000);
 
   it('leads with measured axis coverage and lists gaps even when the candidate array is complete', () => {
-    expect(full.report.twise.share).toBe(1);
-    const actual = full.report.coverage.actual.find((row) => row.t === 2);
+    // The uncapped suite covers every allowed pair on this map, so the gaps are those of the suite cut down
+    // to its protected probes: the candidate array is still complete, the written specs are not.
+    const cut = generateSuite(prepared, { ...options, specCap: capped.report.spec_cap?.protected ?? 0 });
+    expect(cut.report.twise.share).toBe(1);
+    const actual = cut.report.coverage.actual.find((row) => row.t === 2);
     expect(actual?.uncovered.length).toBeGreaterThan(0);
     expect(actual?.uncovered).toEqual(
-      cellsOf(prepared, full.complete, 2)
+      cellsOf(prepared, cut.complete, 2)
         .filter((cell) => cell.count === 0)
         .map((cell) => cell.values),
     );
-    const lines = renderSummary(full.report).split('\n');
+    const lines = renderSummary(cut.report).split('\n');
     expect(lines[0]).toContain(`pairs ${actual?.covered} of ${actual?.allowed}`);
     expect(lines[0]).toMatch(/^Actual axis-map coverage/);
     expect(lines[1]).toMatch(/^Candidate t-wise array/);
