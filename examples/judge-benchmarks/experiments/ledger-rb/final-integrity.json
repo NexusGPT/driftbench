@@ -1,10 +1,11 @@
 {
-  "at": "2026-10-13T14:06:56.620740+00:00",
+  "at": "2026-10-13T15:05:15.847492+00:00",
   "allChecksPass": true,
-  "returnedLogicalRequests": 8949,
+  "returnedLogicalRequests": 8955,
   "duplicateReturnedLogicalRequests": 0,
-  "uniqueStarts": 9360,
-  "uniqueCompletions": 9360,
+  "nonparkedTransportMissingRequests": 0,
+  "uniqueStarts": 9366,
+  "uniqueCompletions": 9366,
   "originalRecordingPrefixesVerified": 14,
   "frozenSourcesVerified": 22,
   "modelsComplete": [
@@ -13,7 +14,7 @@
   ],
   "globalRecordOrderVerified": true,
   "promptsSchemasInputsReasoningScoringUnchanged": true,
-  "chargedUsd": 18.58526053000003,
+  "chargedUsd": 18.593252370000027,
   "capUsd": 45,
   "prepaymentRejections": 369
 }
