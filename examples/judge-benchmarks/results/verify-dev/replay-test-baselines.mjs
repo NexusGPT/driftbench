@@ -1,0 +1,21 @@
+import { readFile,writeFile } from 'node:fs/promises';
+import { contestantById } from '../../src/contestants.ts';
+import { loadBenchmark,splitOf } from '../../src/data.ts';
+import { runBenchmark } from '../../src/run.ts';
+import { testMetrics } from '../../src/verify-test-metrics.ts';
+const folder='examples/judge-benchmarks/results/verify-dev';
+const freeze=JSON.parse(await readFile(`${folder}/freeze.json`,'utf8'));
+const selection=JSON.parse(await readFile(`${folder}/test-selection.json`,'utf8'));
+const b=await loadBenchmark('longjudge-verify');
+const population=b.items.filter(x=>splitOf('longjudge-verify',x.id)==='test');
+const audit=JSON.parse(await readFile(`${folder}/test-label-audit.json`,'utf8'));
+const corrections=new Map(audit.items.filter(x=>x.verdict==='proved_conflict').map(x=>[x.id,x.audited_correct]));
+const ids=['driftbench-reference','driftbench-reference3','driftbench-adaptive','driftbench','deepeval','promptfoo','inspect','scenario','langfuse'];
+// Strict replay cannot make any provider call. No contestant configuration changes.
+const report=await runBenchmark({bench:'longjudge-verify',model:'haiku',contestants:ids.map(contestantById),items:population,criterion:b.criterion,split:'all',concurrency:1,replayOnly:true,includeDecisions:true});
+if(report.stopped || report.newCalls || report.newSpendUsd || report.items!==221) throw Error('Historical strict replay incomplete');
+await writeFile(`${folder}/test-baseline-replay.json`,JSON.stringify(report,null,2)+'\n');
+const selected=new Set(selection.selectedIds);
+const rows=report.contestants.map(c=>({contestant:c.contestant,fullItems:221,official:testMetrics(population,c.decisions,new Map()),audited:testMetrics(population,c.decisions,corrections),costPer100Usd:c.costUsd*100/221,sameCohort:{items:selected.size,official:testMetrics(population,c.decisions.filter(x=>selected.has(x.id)),new Map()),audited:testMetrics(population,c.decisions.filter(x=>selected.has(x.id)),corrections)}}));
+await writeFile(`${folder}/test-baseline-metrics.json`,JSON.stringify({freeze:freeze.sha,at:new Date().toISOString(),newCalls:0,newSpendUsd:0,rows},null,2)+'\n');
+console.log(rows.map(r=>({contestant:r.contestant,official:r.official.sampleAccuracy,audited:r.audited.sampleAccuracy,costPer100Usd:r.costPer100Usd,sameCohortOfficial:r.sameCohort.official.sampleAccuracy,sameCohortAudited:r.sameCohort.audited.sampleAccuracy})));

@@ -1,0 +1,8 @@
+{
+  "at": "2026-10-13T02:45:56.839Z",
+  "paths": 79,
+  "denylistTerms": 0,
+  "allowed": 0,
+  "findings": [],
+  "scope": "All changed and untracked benchmark files, including complete model/program recordings with no large-file skip."
+}

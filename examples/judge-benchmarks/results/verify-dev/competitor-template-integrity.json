@@ -1,0 +1,27 @@
+[
+  {
+    "contestant": "deepeval",
+    "sha256": "dc75532a87be7ef8153aa7cadde0d3f21f55482b4aec5c83ecc89b1a3abc1a26",
+    "sameAsBaseline": true
+  },
+  {
+    "contestant": "promptfoo",
+    "sha256": "badac738472208f2d9e8302db81c3a8dc640aefbb823f37ab7176d86fd0fd2c0",
+    "sameAsBaseline": true
+  },
+  {
+    "contestant": "inspect",
+    "sha256": "912f6543ec81cef1162bad2edbb25964d62e90658e99cb455168dd0788597f5b",
+    "sameAsBaseline": true
+  },
+  {
+    "contestant": "scenario",
+    "sha256": "702b6ebdc2b27272ebff5864fdd5888b4d4f0517478ab0dea3cff4f56a5097b2",
+    "sameAsBaseline": true
+  },
+  {
+    "contestant": "langfuse",
+    "sha256": "35d3ecf5e9776fac4b13dfd20d58197d3e0bca0555e639963e7e3d4892e34786",
+    "sameAsBaseline": true
+  }
+]

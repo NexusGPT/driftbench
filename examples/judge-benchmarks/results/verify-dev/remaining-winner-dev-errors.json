@@ -1,0 +1,50 @@
+[
+  {
+    "id": "aef693000b50d9b8e7d0ddeba51e3601_6a486339655ffd1769d793f87483e86d",
+    "pass": true,
+    "official": false,
+    "audited": false,
+    "auditVerdict": "UNRESOLVED: INCONSISTENT INTEGER PREMISE",
+    "limit": "4698 is fractional arithmetic only; integer revenue 4320+(12/5)k requires noninteger k=157.5."
+  },
+  {
+    "id": "be36325bac0fa5963c9cae9d74dab91a_3001a5b03a832d025f4e8b9b44ef99a1",
+    "pass": true,
+    "official": false,
+    "audited": false,
+    "auditVerdict": "UNRESOLVED: INCONSISTENT GEOMETRY",
+    "limit": "Provided diagram orders B,E,G,F, so EF>GF contradicts given 15<20."
+  },
+  {
+    "id": "8a7107d6fa68c57dd6608f90208a6f61_bd6387db3ba7707f36a144a4530b7914",
+    "pass": true,
+    "official": false,
+    "audited": false,
+    "auditVerdict": "UNRESOLVED: PURCHASE AND DIFFERENCE INTERPRETATION",
+    "limit": "Submitted symbolic difference is valid under one reading; quantities and extra-purchase meaning are unstated."
+  },
+  {
+    "id": "848aefe451338e2934283c1417b49704_5d429963fda0a400af8b2e0d334830a7",
+    "pass": true,
+    "official": false,
+    "audited": false,
+    "auditVerdict": "UNRESOLVED: PARTIAL GRAMMAR ORDER",
+    "limit": "28 compatible category orders yield C,BC,CI or ABCD; BC is possible but not forced."
+  },
+  {
+    "id": "9d9b9827b9c7f258b3b21b1c42a2d0ab_eff2f462cb62e139749f5a7aa067a8a6",
+    "pass": true,
+    "official": false,
+    "audited": false,
+    "auditVerdict": "UNRESOLVED: DEFINITION AND HISTORICAL PREMISE",
+    "limit": "Response replaces a stipulated Maya premise with external history; definition boundary remains ambiguous."
+  },
+  {
+    "id": "97420293b650b40bab24bbf45949eb76_daa4f21cc7788af3b8e863453b68e590",
+    "pass": false,
+    "official": true,
+    "audited": true,
+    "auditVerdict": "SUPPORTED TRUE UNDER FINAL-LABEL POLICY",
+    "limit": "Applicable R3,R5,R4 prove hiding; explicit final Proved is correct despite negative prose."
+  }
+]

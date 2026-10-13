@@ -1,0 +1,25 @@
+{
+  "at": "2026-10-13T02:40:36.882Z",
+  "sha": "558d75de017ecbf243852f5669a1bffeb8d511b9",
+  "checkedHashes": 24,
+  "mismatches": [],
+  "devItems": 95,
+  "devNewCalls": 0,
+  "devOfficialRight": 79,
+  "devAuditedRight": 89,
+  "devCostPer100": 1.2974283473684207,
+  "fixesAgainstAdaptive": [
+    "9eeb0aa3c4d5607cf62dac86e1b9eca4_75b2a58542259d851176d51275ee3259",
+    "6475b7ad5531cf9bc60abf8728996c1d_14dcca0905e181fe50f31e588e3dd482",
+    "8725986b8def7d6dc2430b5a82ebe768_d892147f21a603cf006be26ac0db27cb",
+    "6a3431d6cab874b5d26e1963a5952a89_58a69db1ee812fe90dcc48f6d0534f3d",
+    "adba4a0e3dc7ec9d2b9a05a9d21f2209_d48215d589eb5969bfcfcd58993ab543",
+    "ce9c5a2a8a4bcee73556a9bc58edc434_f621234c0a48bfc2cef1d0e9feb927a6",
+    "1bd8144011c39f410df900a04d6e156a_f0ff48079a16eda16a3925eb5c78c21a",
+    "be73eb99a5ea91d6c472aa92c6fae571_5068cdce1c8e345dd0640c60d72950d1"
+  ],
+  "regressionsAgainstAdaptive": [
+    "be36325bac0fa5963c9cae9d74dab91a_3001a5b03a832d025f4e8b9b44ef99a1",
+    "8a7107d6fa68c57dd6608f90208a6f61_bd6387db3ba7707f36a144a4530b7914"
+  ]
+}
