@@ -514,10 +514,10 @@ On the approved Acme map:
 
 ```
 $ pnpm -s driftbench generate --map examples/acme/map/approved.yaml --out _captures/docs3/cli/generated --t 2
-Actual axis-map coverage (written complete specs): pairs 701 of 701 (100.0%); triples 2871 of 4044 (71.0%).
+Actual axis-map coverage (written complete specs): pairs 708 of 708 (100.0%); triples 2885 of 4064 (71.0%).
 Candidate t-wise array (before the total cap): covering array of 156 rows over 5 dimensions, 356 of 356 allowed 2-tuples (100.0%); 2 pairs no path reaches are left out.
-Uncovered on the axis map: 0 pairs, 1173 triples (see coverage.actual[].uncovered).
-Map acme (../../../../examples/acme/map/approved.yaml), hash 0f897ba84410: 51 dimensions, 187 values, 471 constraints, 55 approved phrases.
+Uncovered on the axis map: 0 pairs, 1179 triples (see coverage.actual[].uncovered).
+Map acme (../../../../examples/acme/map/approved.yaml), hash 7c05b9cee9cc: 51 dimensions, 187 values, 463 constraints, 55 approved phrases.
 Seed 1, t = 2.
 
 Seeder        specs  blocks  complete  incomplete
@@ -526,14 +526,13 @@ twise           156     793       153           3
 boundary         85     146        13          72
 deviation        21     111        21           0
 metamorphic      42     192        42           0
-task             34      47        34           0
+task             67      71        67           0
 cover            28     155        28           0
 
 Stage graph: 18 of 23 edges covered in 12 paths from needs.
-Constraints applied: 471.
+Constraints applied: 463.
 Deviation probes: 12 of 12 classes. Metamorphic families: 21.
-Coverage on the axis map at t = 2: complete specs 701 of 701 (100.0%), all specs 701 (100.0%).
-Values no allowed pair holds, so no spec can cover them until the map gives them a path: workspace_start=existing-workbook.
+Coverage on the axis map at t = 2: complete specs 708 of 708 (100.0%), all specs 708 (100.0%).
 
 Values with no approved phrase (72): their blocks are placeholders in incomplete/.
   catalog.search.in.category=catalog.search.in.category.mobile  1 block(s)
@@ -563,7 +562,7 @@ Specs with a block the map supports no machine Then for (18), in incomplete/: ge
      1  no approved path needs callback_phone=not-given
      1  no approved path needs catalog.search.in.unknown-key=catalog.search.in.unknown-key.sent
      1  no approved path needs coverage.check.in.unknown-key=coverage.check.in.unknown-key.sent
-Wrote 379 files to _captures/docs3/cli/generated.
+Wrote 508 files to _captures/docs3/cli/generated.
 exit 1
 ```
 

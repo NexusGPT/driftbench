@@ -488,8 +488,8 @@ Selected lines from the Acme comparison command, run from the repository root:
 ```
 $ pnpm -s driftbench generate --map examples/acme/map/approved.yaml --out _captures/budget/budget-20 --t 2 --seed 1 --budget 20 --force
 Candidate budget array (before the total cap), budget 20: 20 cells of 901 allowed, pairs covered 155 of 356 (43.5%), max deviation from fair share 2.00.
-Coverage on the axis map at t = 2: complete specs 701 of 701 (100.0%), all specs 701 (100.0%).
-Wrote 371 files to _captures/budget/budget-20.
+Coverage on the axis map at t = 2: complete specs 708 of 708 (100.0%), all specs 708 (100.0%).
+Wrote 500 files to _captures/budget/budget-20.
 exit 1
 ```
 
