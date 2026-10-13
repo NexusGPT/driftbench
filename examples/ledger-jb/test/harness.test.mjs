@@ -14,7 +14,7 @@ test('pool and all sealed artifacts retain their hashes', () => {
 test('noise cache identity differs by repeat and contestant', () => {
   const planned = jobs({ noise: [{ id:'a' }, { id:'b' }] }, 'noise', 'gpt-6-luna');
   assert.equal(planned.length, 12); assert.equal(new Set(planned.map(x => x.key)).size, 12);
-  assert.throws(() => jobs({noise:[]}, 'noise', 'gemini-3.8-flash'));
+  assert.throws(() => jobs({noise:[]}, 'noise', 'gpt-5.4-mini'));
 });
 test('fixed prompt rendering preserves dollar sequences and handles order', () => {
   const item={question:'why $&',a:'A $`',b:'B $\''};

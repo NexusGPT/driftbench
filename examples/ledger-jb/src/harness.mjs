@@ -27,7 +27,7 @@ export function parsePromptfoo(text, order) {
 }
 
 export function jobs(data, phase, model) {
-  if (!['claude-haiku-5-5', 'gpt-6-luna'].includes(model)) throw new Error(`Cell unavailable: ${model}`);
+  if (!['claude-haiku-5-5', 'gpt-6-luna', 'gemini-3.8-flash'].includes(model)) throw new Error(`Cell unavailable: ${model}`);
   const file = { fixtures: 'fixtures', pilot: 'pilot', noise: 'noise', test: 'pool', validity: 'validity' }[phase];
   if (!file) throw new Error(`Unknown phase ${phase}`);
   const repeats = ['fixtures', 'noise'].includes(phase) ? 3 : 1;
@@ -52,6 +52,9 @@ export function verifySeal(root) {
 
 export function verifyFreeze(root, repo, freeze, dossierText) {
   verifySeal(root);
+  const committedFreeze = execFileSync('git', ['show', 'HEAD:examples/ledger-jb/freeze.json'], { cwd: repo });
+  if (hash(committedFreeze) !== hash(readFileSync(join(root, 'freeze.json')))) throw new Error('Execution freeze is not committed');
+  if (!Number.isFinite(Date.parse(freeze.lastCallCutoff))) throw new Error('Missing frozen last-call cutoff');
   if (!/^https:\/\/github\.com\/achammah\/driftbench\/pull\/\d+$/.test(freeze.corePr ?? '')) throw new Error('Missing core PR');
   if (!dossierText.includes(freeze.corePr)) throw new Error('Core dossier does not name this PR');
   if (!/^[0-9a-f]{40}$/.test(freeze.coreCommit ?? '')) throw new Error('Missing core commit');

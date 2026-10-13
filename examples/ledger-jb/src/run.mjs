@@ -8,7 +8,7 @@ const root = resolve(dirname(fileURLToPath(import.meta.url)), '..'), repo = reso
 const argv = process.argv.slice(2);
 function flag(name, fallback) { const i = argv.indexOf(name); return i < 0 ? fallback : argv[i + 1]; }
 if (argv.includes('--help')) {
-  console.log('node examples/ledger-jb/src/run.mjs --phase fixtures|pilot|noise|validity|test --model claude-haiku-5-5|gpt-6-luna [--execute --core-dossier PATH --spend-ledger PATH]\nWithout --execute: offline plan only. Paid execution requires committed freeze.json and adapter.');
+  console.log('node examples/ledger-jb/src/run.mjs --phase fixtures|pilot|noise|validity|test --model claude-haiku-5-5|gpt-6-luna|gemini-3.8-flash [--execute --core-dossier PATH --spend-ledger PATH]\nWithout --execute: offline plan only. Paid execution requires committed freeze.json and adapter.');
   process.exit(0);
 }
 const phase = flag('--phase', 'pilot'), model = flag('--model', 'claude-haiku-5-5');
@@ -27,6 +27,7 @@ const freezePath = join(root,'freeze.json');
 if (!existsSync(freezePath)) throw new Error('No execution freeze: core contract must land before any paid call');
 const freeze = readJson(freezePath);
 verifyFreeze(root, repo, freeze, readFileSync(dossierPath,'utf8'));
+if (Date.now() >= Date.parse(freeze.lastCallCutoff)) throw new Error('Frozen last-call cutoff reached');
 if (phase === 'test') {
   const readiness = readJson(join(root,`results/readiness-${model}.json`));
   if (readiness.freezeSha256 !== hash(readFileSync(freezePath)) || !readiness.pilotComplete || !readiness.noiseComplete || !readiness.fixturesComplete)
@@ -56,6 +57,7 @@ const queue = planned.filter(job => !completed.has(job.key));
 let next = 0, stopped;
 async function runJob(job) {
   const call = async (prompt, { order, attempt = 0, schema } = {}) => {
+    if (Date.now() >= Date.parse(freeze.lastCallCutoff)) throw new Error('Frozen last-call cutoff reached');
     const key = `${job.key}:${order}:${attempt}:${hash(JSON.stringify({prompt,schema,settings:freeze.models[model]}))}`;
     const reserveUsd = transport.maximumCostUsd(prompt, schema);
     return journal.call(key, reserveUsd, () => transport.call(prompt, { schema, reserveUsd }),

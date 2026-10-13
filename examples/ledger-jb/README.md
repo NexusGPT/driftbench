@@ -72,8 +72,8 @@ Unpriced calls are blocked because they cannot enforce the 25 USD cap.
 ## Commands
 
 ```sh
-node --test examples/ledger-jb/test/*.test.mjs
-node examples/ledger-jb/src/run.mjs --phase pilot --model claude-haiku-5-5
+node --import tsx --test examples/ledger-jb/test/*.test.mjs
+node --import tsx examples/ledger-jb/src/run.mjs --phase pilot --model claude-haiku-5-5
 node examples/ledger-jb/src/report.mjs
 ```
 
@@ -85,4 +85,4 @@ A transport error retains its reservation until reconciled.
 
 Do not copy `node_modules`. If core integration needs dependencies, install with
 `pnpm install --frozen-lockfile`. Keys are read inside the invoking command and
-never written to artifacts. Gemini remains pending billing; it is not retried.
+never written to artifacts. Gemini billing was enabled by the owner before the execution freeze. It uses medium reasoning and a 180-second timeout under the same lane cap.

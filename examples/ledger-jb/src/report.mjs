@@ -9,7 +9,7 @@ const seal = verifySeal(root);
 const data = Object.fromEntries(['pool','dev','fixtures','pilot','noise','validity'].map(name => [name,readJson(join(root,`data/${name}.json`))]));
 const calls = readJsonl(join(root,'results/calls.jsonl'));
 const cells = [];
-for (const model of ['claude-haiku-5-5','gpt-6-luna']) {
+for (const model of ['claude-haiku-5-5','gpt-6-luna','gemini-3.8-flash']) {
   const phases = Object.fromEntries(['fixtures','pilot','noise','validity','test'].map(phase=>[phase,readJsonl(join(root,`results/decisions-${phase}-${model}.jsonl`))]));
   const summary = compare(data.pool, phases.test.filter(x=>x.contestant==='ledger'), phases.test.filter(x=>x.contestant==='promptfoo'));
   const fixtureEarning = Object.fromEntries([...new Set(data.fixtures.map(x=>x.group))].map(group=>{
@@ -47,7 +47,7 @@ for (const model of ['claude-haiku-5-5','gpt-6-luna']) {
   cells.push(cell);
   writeFileSync(join(root,`results/items-${model}.json`),JSON.stringify(summary.decisions,null,2)+'\n');
 }
-cells.push({model:'gemini-3.8-flash',status:'PENDING_BILLING',reason:'Owner reports 429 quota; no calls authorized while blocked.'});
+
 const finishes=calls.filter(x=>x.type==='finish'),finishedKeys=new Set(finishes.map(x=>x.key));
 const measuredUsd=finishes.reduce((n,x)=>n+x.costUsd,0), pending=calls.filter(x=>x.type==='start'&&!finishedKeys.has(x.key));
 const summary={sealSha256:hash(readFileSync(join(root,'data/seal.json'))),poolSha256:seal.hashes['pool.json'],
