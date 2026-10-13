@@ -5,14 +5,48 @@ r=load_module('network_runtime_base',HERE/'extended-run.py')
 health=load_module('provider_network_probe',HERE/'network-probe.py')
 STOP=threading.Event()
 
+def session_no_answer(answer):
+    raw=answer.get('provider_response') or answer.get('cli_error_response') or {}
+    usage=raw.get('usage') or {}
+    if not raw.get('is_error') or any(usage.get(k,0) for k in ('input_tokens','output_tokens','cache_creation_input_tokens','cache_read_input_tokens')):return False
+    message=str(raw.get('result',''))+' '+str(raw.get('errors',''))
+    return any(term in message.lower() for term in ('rate limit','rate_limit','usage limit','usage_limit','session limit','hit your limit','overloaded'))
+
+def normalize_session_limit(answer):
+    if session_no_answer(answer):
+        raw=answer.pop('provider_response',None)
+        if raw is not None:answer['cli_error_response']=raw
+        answer.update(success=False,text='',error={'type':'SessionLimitError','message':str(answer['cli_error_response'].get('result',''))})
+        answer.pop('integrity_stop',None)
+        # The envelope is not a provider billing receipt; unknown holds remain.
+        answer.setdefault('unreported_cost_reserve_usd',.10)
+    return answer
+
 def has_answer(a):
     raw=a.get('provider_response')
-    return bool(raw) and not r.cli_no_answer(raw) and not (raw.get('status')=='failed' and not raw.get('output') and not (raw.get('usage') or {}).get('output_tokens',0))
+    return bool(raw) and not session_no_answer(a) and not r.cli_no_answer(raw) and not (raw.get('status')=='failed' and not raw.get('output') and not (raw.get('usage') or {}).get('output_tokens',0))
 
 def transport_no_answer(a):
-    return r.connection_failure(a) or r.cli_no_answer(a.get('provider_response') or {}) or (not a.get('provider_response') and (a.get('error') or {}).get('status') in (400,401,402,403,404,408,429,500,502,503,504,529))
+    return r.connection_failure(a) or (a.get('error') or {}).get('type')=='SessionLimitError' or r.cli_no_answer(a.get('provider_response') or {}) or (not a.get('provider_response') and (a.get('error') or {}).get('status') in (400,401,402,403,404,408,429,500,502,503,504,529))
 
 def within_cap(measured,held,inflight,reserve,cap):return measured+held+(inflight+1)*reserve<=cap
+
+def recover_answer_receipts(cell):
+    dest=HERE/cell;existing=r.answers(dest);seen={a['request_sha256'] for a in existing};receipts={}
+    assert len(seen)==len(existing)
+    for event in r.lines(dest/'attempts.jsonl'):
+        if event['event']!='finish' or not has_answer(event):continue
+        key=event['request_sha256'];assert key not in receipts,'Multiple answered receipts for one request'
+        receipts[key]=event
+    for key,event in receipts.items():
+        if key in seen:continue
+        answer={k:v for k,v in event.items() if k not in ('event','runtime')}
+        decode=r.native.outcome if answer['experiment']=='primary' else r.variant.outcome
+        answer['outcome']=decode(answer['text'],answer['side'],answer['row']) if answer['success'] else 'inconclusive'
+        answer['item_lost']=not answer['success'] or answer['outcome']=='inconclusive'
+        answer['recovered_from_durable_attempt_receipt']=True
+        r.append(dest/answer['experiment']/'calls.jsonl',answer);seen.add(key)
+    assert not any(a.get('integrity_stop') for a in receipts.values()),'Recorded model identity or token integrity defect'
 
 class Circuit:
     def __init__(self):self.streak=0;self.tripped=False
@@ -63,7 +97,7 @@ def verify_runtime():
     return policy
 
 def run_cell(cell):
-    r.verify(cell);dest=HERE/cell;withdraw_transport(cell);d=r.Driver(cell)
+    r.verify(cell);dest=HERE/cell;recover_answer_receipts(cell);withdraw_transport(cell);d=r.Driver(cell)
     if cell=='sonnet-5-5':d.cache_disabled=json.loads((dest/'cache-choice.json').read_text())['disable_prompt_caching']
     requests=r.ordered_unique(dest);planned={x['request_sha256'] for x in requests};answers=r.answers(dest);seen={x['request_sha256'] for x in answers}
     assert len(seen)==len(answers)
@@ -84,7 +118,7 @@ def run_cell(cell):
             if key not in unit_starts:
                 r.append(dest/'starts.jsonl',{k:v for k,v in request.items() if k!='body'}|{'started':stamp()});unit_starts.add(key)
             r.append(dest/'attempts.jsonl',{'event':'start','request_sha256':key,'attempt':number,'stamp':stamp(),'runtime':'network-amendment'})
-        answer=d.attempt(request,number)
+        answer=normalize_session_limit(d.attempt(request,number))
         with d.lock:
             r.append(dest/'attempts.jsonl',{'event':'finish',**answer,'runtime':'network-amendment'})
             d.measured+=answer.get('measured_usd') or 0;d.reserved+=answer.get('unreported_cost_reserve_usd',0)
@@ -122,8 +156,9 @@ def run_cell(cell):
                     completed=sorted(((future.result(),future) for future in done),key=lambda pair:pair[0]['finished'])
                     for answer,future in completed:
                         request=active.pop(future);key=request['request_sha256']
-                        if circuit.observe(answer) and not tripped:
-                            tripped=True;r.append(dest/'network-circuits.jsonl',{'stamp':stamp(),'reason':'three consecutive connection-class failures','key':key,'pause_seconds':600,'probe_count':10,'probe_spacing_seconds':30})
+                        session_limit=(answer.get('error') or {}).get('type')=='SessionLimitError'
+                        if (circuit.observe(answer) or session_limit) and not tripped:
+                            tripped=True;r.append(dest/'network-circuits.jsonl',{'stamp':stamp(),'reason':'provider session limit' if session_limit else 'three consecutive connection-class failures','key':key,'pause_seconds':600,'probe_count':10,'probe_spacing_seconds':30})
                         if has_answer(answer):
                             assert key not in seen;seen.add(key)
                             if answer.get('integrity_stop'):permanent='model identity or output-token integrity defect'

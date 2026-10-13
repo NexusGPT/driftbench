@@ -1,6 +1,6 @@
 {
   "created": "2026-10-13T14:50:09.073671+00:00",
-  "authority": "Update replaces prior circuit rules: full network pause for Sonnet and Sol; drain in-flight calls; ten consecutive healthy provider probes thirty seconds apart before automatic resumption at concurrency two, one model cell at a time; three consecutive connection failures cause ten-minute pause and repeated gate; unlimited missing-only recovery cycles; real confirmed zero-token cost, otherwise unknown reserve; no scores with transport-missing items.",
+  "authority": "Update replaces prior circuit rules: full network pause for Sonnet and Sol; drain in-flight calls; ten consecutive healthy provider probes thirty seconds apart before automatic resumption at concurrency two, one model cell at a time; three consecutive connection failures cause ten-minute pause and repeated gate; unlimited missing-only recovery cycles; real confirmed zero-token cost, otherwise unknown reserve; no scores with transport-missing items. Owner subsequently authorizes a detached supervisor, two named no-answer crash re-asks with old holds retained, session-limit waits, and drops Gemini 3.8.",
   "supersedes": [
     "two consecutive connection failures permanently park",
     "three connection failures and five-minute pause, three one-minute probes, fourth pause per hour parks"
@@ -53,11 +53,19 @@
     }
   },
   "source_sha256": {
-    "network-resume.py": "4eb3d6fd094b203e7314b4e965b9935ff3ac822ea5e8586274cdca3db8db852a",
+    "network-resume.py": "7f1ef374c0e73032e88907af2a00041d4f448ab75bdfb97462dc7b11f2ff39e8",
     "network-probe.py": "2c95a6a2ae9a45ff9255de2a6ad9ca7fc9874ca83f2c9570ac64050058fec714",
-    "test_network.py": "b7e6c161217e1a303380e9551343755d69eaf27a066e59aa78ddd607c8945117",
+    "test_network.py": "daf1682fe17e0a3fe7a6467c7aa29d3513b370174ec86dd5e782c87dd51f7b73",
     "verify-extended.py": "4e13c2f85edfdf5628f76709736611d134b20f0217d098d40549191b01dcd467"
   },
-  "focused_tests": "network-test-output.txt: six tests pass; extended-test-output.txt: nine tests pass",
-  "gemini_3_8": "Parked; no call, retry, or journal mutation authorized"
+  "focused_tests": "network-test-output.txt: nine focused tests pass, including zero-token session limits and recovery of saved answer receipts.",
+  "gemini_3_8": "Dropped by owner; partial recordings kept, no score, no pending work, no resume.",
+  "history": [
+    {
+      "changed": "2026-10-13T18:42:20.307334+00:00",
+      "prior_sha256": "30fef07f613d492d8daa4def62bd7a05cf92c1b6838f81a40203d2f845bed69b",
+      "reason": "Owner authorizes two named crash re-asks and detached serial supervision that waits through outages and session limits. Gemini 3.8 is dropped."
+    }
+  ],
+  "session_limit_rule": "An explicit zero-token CLI error envelope naming a rate/session limit is a no-answer. Preserve it and unknown holds; pause ten minutes, then repeat the ten-probe gate."
 }

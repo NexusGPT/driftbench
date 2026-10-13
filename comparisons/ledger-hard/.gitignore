@@ -8,3 +8,5 @@ recovery-drain
 network-process.json
 network-hold
 network-finish-state.json
+supervisor-state.json
+supervisor-state.tmp

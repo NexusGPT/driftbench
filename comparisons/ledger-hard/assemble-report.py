@@ -5,6 +5,17 @@ from score import DOSSIER
 from run import priced
 
 def read(name):return json.loads((HERE/name).read_text())
+def redact_dropped_model(text,status):
+    output=[];previous=False
+    for line in text.splitlines():
+        dropped=line.startswith('| gemini-3.8-flash |')
+        if dropped:
+            if not previous:
+                count=len(line.split('|')[1:-1])
+                output.append('| '+' | '.join(['gemini-3.8-flash','All rows']+['Not reported']*(count-3)+[status])+' |')
+        else:output.append(line)
+        previous=dropped
+    return '\n'.join(output)
 def added_status(cell):
     dest=HERE/cell
     if (dest/'scores.json').exists():return read(f'{cell}/scores.json')
@@ -14,6 +25,7 @@ def added_status(cell):
 def main():
     parser=argparse.ArgumentParser();parser.add_argument('--allow-pending-gemini',action='store_true');args=parser.parse_args()
     primary=read('scores.json');variant=read('dialect/scores.json');proof=read('verification-final.json')
+    dropped=read('gemini-3.8-owner-drop.json') if (HERE/'gemini-3.8-owner-drop.json').exists() else None
     full=proof['complete']
     assert full or args.allow_pending_gemini and proof['available_models_complete'],'Required model coverage is incomplete'
     assert all(t['complete'] for result in (primary,variant) for t in result['tables'] if full or t['model']!='gemini-3.8-flash')
@@ -52,6 +64,11 @@ def main():
     pending_label='262 requests not run: daily quota'
     status='Final' if full else 'Haiku and Luna complete; Gemini 3.8 '+pending_label+'.'
     coverage='Full sealed coverage: 384 cases per row, 1,536 per model; two primary models and three dialect models.' if full else 'Haiku and Luna have full coverage in both experiments: 384 cases per row. Gemini 3.8 has 262 requests not run: daily quota. Its unfinished cells carry no final verdict.'
+    if dropped:
+        primary_text=redact_dropped_model(primary_text,dropped['status'])
+        variant_text=redact_dropped_model(variant_text,dropped['status'])
+        status='Closed Haiku, Luna and Flash-Lite results retained; added models complete.' if all(x['complete'] for x in added.values()) else 'Haiku, Luna and Flash Lite are closed; Sonnet and Sol remain in progress.'
+        coverage='Gemini 3.8: '+dropped['status']+'. Flash Lite remains the Gemini result. Gemini 3.8 has zero pending requests and must not resume.'
     lines=['# Ledger hard-row dossier','',f'{status} Recording analysis generated {stamp()}. All case and result counts come from the linked files in `comparisons/ledger-hard/`.','',
        '- '+coverage,
        f'- {primary["unique_calls"]} primary and {variant["unique_calls"]} dialect unique recorded requests, including the goal equal-evidence ablation.',
@@ -65,6 +82,8 @@ def main():
        '|---|---|---:|---:|---:|---:|---|']
     for label,result in [('Primary',primary),('Dialect',variant)]:
         for model in sorted({t['model'] for t in result['tables']}):
+            if dropped and model==dropped['model']:
+                lines.append(f'| {label} | {model} | Dropped | Not reported | Not reported | Not reported | {dropped["status"]} |');continue
             a=next(t for t in result['tables'] if t['model']==model and t['row']=='pooled-default')
             b=next(t for t in result['tables'] if t['model']==model and t['row']=='pooled-equal-evidence')
             if b['complete']:
@@ -135,7 +154,7 @@ def main():
     if lite:
         for name in ['flash-lite/seal.json','flash-lite/budget-amendment.json','flash-lite/pricing.json','flash-lite/reasoning-applied.json','flash-lite/scores.json']:
             lines.append(f'| `{name}` | `{digest(HERE/name)}` |')
-    for name in ('extended-runtime-amendment.json','network-amendment.json','api-error-envelope-audit.json','luna-cache-write-fees.json','closed-cell-reporting-amendment.json','luna-transport-census.json','audit-network-runtime.py','network-verification.json','network-finish.py'):
+    for name in ('extended-runtime-amendment.json','network-amendment.json','api-error-envelope-audit.json','luna-cache-write-fees.json','closed-cell-reporting-amendment.json','luna-transport-census.json','audit-network-runtime.py','network-verification.json','network-finish.py','gemini-3.8-owner-drop.json','supervisor-amendment.json','gpt-6.1-sol/host-crash-recovery.json'):
         if (HERE/name).exists():lines.append(f'| `{name}` | `{digest(HERE/name)}` |')
     for cell in added:
         for artifact in ('seal.json','pricing.json','pilot.json','cache-pilot.json','cache-choice.json','scores.json','verification.json','budget-amendment.json','transport-reconciliation.json'):
@@ -156,13 +175,23 @@ def main():
        '## Added Flash-Lite measurements','',(HERE/'flash-lite/REPORT.md').read_text()]
     for cell,data in added.items():
         if data['complete']:lines+=['',f'## Added {cell} measurements','',(HERE/cell/'REPORT.md').read_text()]
+    if (HERE/'gpt-6.1-sol/host-crash-recovery.json').exists():
+        crash=read('gpt-6.1-sol/host-crash-recovery.json')
+        lines+=['','## Authorized host-crash recovery','',f'The owner confirms that two Sol requests received no answer before the host stopped. One replacement answer per key is authorized; the original USD {crash["retained_reserve_usd"]:.2f} holds remain. Original starts and the explicit reconciliation records remain in the attempt journal. Neither key is counted twice.','', '| Request key | Original attempt | Recovery rule |','|---|---:|---|']
+        for item in crash['items']:lines.append(f'| `{item["start"]["request_sha256"]}` | {item["start"]["attempt"]} | One replacement answer; keep original hold |')
     content='\n'.join(lines)
+    if dropped:
+        begin=content.index('## Daily quota runtime amendment')
+        end=content.index('## Native parity and verification',begin)
+        content=content[:begin]+'## Gemini 3.8 owner decision\n\n'+dropped['status']+'. Flash Lite remains the Gemini result.\n\nThe 262 requests never completed under the earlier quota hold are removed from pending work. No resume, probe or replacement call is scheduled. Partial recordings and their hashes are retained in `gemini-3.8-owner-drop.json`. Historical raw score files remain archival only and are excluded from current reported tables and scoring inputs. Recorded spend remains charged; no model budget is increased.\n\n'+content[end:]
+        content=content.replace('Gemini 3.8 stays parked.','Gemini 3.8 is dropped; no calls will resume.').replace('Gemini 3.8 remains owner-held.','Gemini 3.8 is dropped; no calls will resume.').replace('Gemini 3.8 is parked and its journals remain unchanged.','Gemini 3.8 is dropped and its journals remain unchanged.')
+        content=content.replace('## Crash recovery and concurrency','## Historical crash recovery and runtime amendments\n\nThe following operational history is superseded by the owner drop for Gemini 3.8. It does not authorize further Gemini 3.8 calls.')
     assert '\u2014' not in content and '\u2013' not in content
     assert len(recovery['items'])==20
     for x in recovery['items']:assert content.count(x['request_sha256'])==1
     (HERE/'FINAL.md').write_text(content);DOSSIER.write_text(content)
     dump(HERE/'delivery.json',{'created':stamp(),'dossier':str(DOSSIER),'dossier_sha256':digest(DOSSIER),'local_final_sha256':digest(HERE/'FINAL.md'),
-         'full_coverage':full and all(x['complete'] for x in added.values()),'available_models_complete':proof['available_models_complete'] and all(x['complete'] for x in added.values()),'measured_usd':overall_total,'lost_attempt_reserve_usd':reserve,'unique_recorded_requests':primary['unique_calls']+variant['unique_calls']+(lite['unique_calls'] if lite else 0)+sum(x['unique_calls'] for x in added.values()),'flash_lite_complete':lite['complete'] if lite else False,'added_models':{c:{k:d[k] for k in ('model','complete','unique_calls','measured_usd','lost_unique_requests','token_limited_entries')} for c,d in added.items()},'overall_cap_usd':overall_cap})
+         'full_coverage':(full or bool(dropped) and proof['available_models_complete']) and all(x['complete'] for x in added.values()),'original_frozen_matrix_complete':full,'available_models_complete':proof['available_models_complete'] and all(x['complete'] for x in added.values()),'dropped_models':[{k:dropped[k] for k in ('model','status','pending_requests','archival_unrun_requests','report_score')}] if dropped else [],'pending_requests_by_model':{data['model']:data['planned_unique']-data['unique_calls'] for data in added.values()}|({} if dropped else {'gemini-3.8-flash':262}),'measured_usd':overall_total,'lost_attempt_reserve_usd':reserve,'unique_recorded_requests':primary['unique_calls']+variant['unique_calls']+(lite['unique_calls'] if lite else 0)+sum(x['unique_calls'] for x in added.values()),'flash_lite_complete':lite['complete'] if lite else False,'added_models':{c:{k:d[k] for k in ('model','complete','unique_calls','measured_usd','lost_unique_requests','token_limited_entries')} for c,d in added.items()},'overall_cap_usd':overall_cap})
     print(json.dumps(read('delivery.json'),indent=2))
 
 if __name__=='__main__':main()

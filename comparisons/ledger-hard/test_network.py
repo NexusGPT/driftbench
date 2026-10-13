@@ -5,6 +5,25 @@ from common import HERE,load_module
 n=load_module('tested_network_runtime',HERE/'network-resume.py')
 
 class NetworkPolicy(unittest.TestCase):
+    def test_saved_answer_receipt_is_recovered_without_a_provider_call(self):
+        with tempfile.TemporaryDirectory(dir=HERE) as temp:
+            root=n.Path(temp);dest=root/'gpt-6.1-sol';(dest/'primary').mkdir(parents=True);(dest/'dialect').mkdir()
+            answer={'event':'finish','request_sha256':'answered','attempt':1,'experiment':'primary','side':'peer','row':'rubric','success':True,'text':'{"pass":true}','provider_response':{'status':'completed'}}
+            n.r.append(dest/'attempts.jsonl',answer)
+            with patch.object(n,'HERE',root),patch.object(n.r.Driver,'attempt',side_effect=AssertionError('Must not call provider')):
+                n.recover_answer_receipts('gpt-6.1-sol');n.recover_answer_receipts('gpt-6.1-sol')
+            recorded=n.r.answers(dest);self.assertEqual(len(recorded),1)
+            self.assertEqual(recorded[0]['outcome'],'pass');self.assertTrue(recorded[0]['recovered_from_durable_attempt_receipt'])
+    def test_zero_token_session_limit_waits_without_becoming_an_answer(self):
+        raw={'is_error':True,'result':'You have hit your usage limit.','usage':{'input_tokens':0,'output_tokens':0},'total_cost_usd':0}
+        answer=n.normalize_session_limit({'provider_response':raw,'integrity_stop':True,'measured_usd':0})
+        self.assertFalse(n.has_answer(answer));self.assertTrue(n.transport_no_answer(answer))
+        self.assertEqual(answer['cli_error_response'],raw);self.assertEqual(answer['error']['type'],'SessionLimitError')
+        self.assertEqual(answer['unreported_cost_reserve_usd'],.10);self.assertNotIn('integrity_stop',answer)
+    def test_model_text_about_limits_is_never_reclassified(self):
+        raw={'is_error':False,'result':'The policy has a usage limit.','usage':{'input_tokens':10,'output_tokens':8}}
+        answer=n.normalize_session_limit({'provider_response':raw})
+        self.assertTrue(n.has_answer(answer));self.assertIn('provider_response',answer)
     def test_recovery_cycles_keep_one_answer_per_key(self):
         with tempfile.TemporaryDirectory(dir=HERE) as temp,ExitStack() as stack:
             root=n.Path(temp);dest=root/'gpt-6.1-sol';(dest/'primary').mkdir(parents=True);(dest/'dialect').mkdir()

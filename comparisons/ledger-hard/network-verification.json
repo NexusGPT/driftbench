@@ -1,11 +1,11 @@
 {
-  "created": "2026-10-13T15:19:09.704593+00:00",
+  "created": "2026-10-13T18:45:25.632331+00:00",
   "complete_cells_required": false,
   "maximum_governed_concurrency": 2,
   "governed_starts": {
-    "gpt-6.1-sol/governed_starts": 517
+    "gpt-6.1-sol/governed_starts": 587
   },
-  "calls_inflight": 2,
+  "calls_inflight": 0,
   "model_overlap": false,
   "answered_requests_resent": 0,
   "probe_and_pause_contract_verified": true,

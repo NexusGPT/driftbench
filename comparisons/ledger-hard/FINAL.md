@@ -1,10 +1,10 @@
 # Ledger hard-row dossier
 
-Haiku and Luna complete; Gemini 3.8 262 requests not run: daily quota. Recording analysis generated 2026-10-13T15:19:13.056876+00:00. All case and result counts come from the linked files in `comparisons/ledger-hard/`.
+Haiku, Luna and Flash Lite are closed; Sonnet and Sol remain in progress. Recording analysis generated 2026-10-13T18:42:20.661087+00:00. All case and result counts come from the linked files in `comparisons/ledger-hard/`.
 
-- Haiku and Luna have full coverage in both experiments: 384 cases per row. Gemini 3.8 has 262 requests not run: daily quota. Its unfinished cells carry no final verdict.
+- Gemini 3.8: dropped by the owner on 13 Oct 2026, partial data kept, not reported as a score. Flash Lite remains the Gemini result. Gemini 3.8 has zero pending requests and must not resume.
 - 6560 primary and 9578 dialect unique recorded requests, including the goal equal-evidence ablation.
-- Measured spend across all reported cells: USD 20.49441920. Unreported-attempt reserve: USD 4.30000000. Combined: USD 24.79441920. Separate authorized allocations total USD 91; each model allocation is enforced independently.
+- Measured spend across all reported cells: USD 20.60747720. Unreported-attempt reserve: USD 4.40000000. Combined: USD 25.00747720. Separate authorized allocations total USD 91; each model allocation is enforced independently.
 - The construction audit passes. No pool is withdrawn. This is synthetic evidence on the original construction families.
 - Primary and dialect results remain separate. The dialect run uses the same cases and is not an independent replication.
 
@@ -18,7 +18,7 @@ Haiku has a nominal pooled equal-evidence lead in both experiments, with family 
 |---|---|---:|---:|---:|---:|---|
 | Primary | gpt-6-luna | 384/384 | 222/13 | 25/13 | 0.072951389 | TIE (not equivalence) |
 | Primary | haiku | 384/384 | 230/9 | 71/11 | 6.813783e-12 | nominal lead |
-| Dialect | gemini-3.8-flash | Incomplete | Pending | Pending | Pending | 262 requests not run: daily quota; no final verdict |
+| Dialect | gemini-3.8-flash | Dropped | Not reported | Not reported | Not reported | dropped by the owner on 13 Oct 2026, partial data kept, not reported as a score |
 | Dialect | gpt-6-luna | 384/384 | 218/7 | 19/7 | 0.028959274 | nominal lead |
 | Dialect | haiku | 384/384 | 236/2 | 82/2 | 3.6923275e-22 | nominal lead |
 | Primary | gemini-3.5-flash-lite | 384/384 | 236/19 | 83/12 | 3.211394e-14 | nominal lead |
@@ -33,18 +33,18 @@ The owner requests claude-sonnet-5-5 and gpt-6.1-sol on the same sealed cases. E
 | Model | Recorded / planned | Cost USD | Reserved USD | Lost requests | Token-limited entries | Coverage |
 |---|---:|---:|---:|---:|---:|---|
 | claude-sonnet-5-5 | 159/6560 | 0.80505700 | 0.60000000 | Pending | Pending | network pause; awaiting ten-probe gate; no score while missing |
-| gpt-6.1-sol | 1415/6560 | 2.50788500 | 3.30000000 | Pending | Pending | running; no score while missing |
+| gpt-6.1-sol | 1485/6560 | 2.62094300 | 3.40000000 | Pending | Pending | running; no score while missing |
 
 | Model | Experiment | Ours USD | Default peer USD | Equal-state peer USD |
 |---|---|---:|---:|---:|
 | claude-sonnet-5-5 | primary | 0.19189990 | 0.15623600 | 0.03980400 |
 | claude-sonnet-5-5 | dialect | 0.27206800 | 0.14504910 | 0.00000000 |
-| gpt-6.1-sol | primary | 0.69612700 | 0.47066600 | 0.13785800 |
-| gpt-6.1-sol | dialect | 0.80267600 | 0.39693400 | 0.00000000 |
+| gpt-6.1-sol | primary | 0.73224300 | 0.48833400 | 0.14601000 |
+| gpt-6.1-sol | dialect | 0.83990000 | 0.41445600 | 0.00000000 |
 
 Contestant costs count unique recorded calls. Reserved costs remain separate. Unanswered transport requests stay pending and receive no judge score. Full per-row scores, discordant wins/losses, exact tests, intervals and lost keys appear below only for fully answered model cells.
 
-The network amendment pauses both paid drivers, then permits automatic resumption only after ten consecutive unpaid provider reachability probes spaced thirty seconds apart. Only one model runs at a time, with two concurrent calls. Three consecutive connection failures cause a ten-minute pause and a fresh ten-probe gate. Recovery cycles are unlimited within the unchanged caps and cutoff; answered requests are never resent. Unknown charges keep their reserves. Gemini 3.8 stays parked.
+The network amendment pauses both paid drivers, then permits automatic resumption only after ten consecutive unpaid provider reachability probes spaced thirty seconds apart. Only one model runs at a time, with two concurrent calls. Three consecutive connection failures cause a ten-minute pause and a fresh ten-probe gate. Recovery cycles are unlimited within the unchanged caps and cutoff; answered requests are never resent. Unknown charges keep their reserves. Gemini 3.8 is dropped; no calls will resume.
 
 Sonnet receives an owner-approved USD 45 cap including holds. Its first five calls cost USD 0.028311; the next five with prompt caching disabled cost USD 0.025412. The cheaper no-cache route applies to both contestants. These disjoint pilot prefixes differ in request mix; their cost comparison is approximate. All ten model answers count once. One CLI transport envelope is archived verbatim, classified as no answer, and recovered on its second attempt.
 
@@ -69,7 +69,9 @@ The published Standard cache-write price is USD 0.125 per million tokens versus 
 
 Entity identifiers are assigned once per pair, before the true/false loop. Every trusted context appears once per label. Identity values, parity and last digits are balanced. Complete token contingency tables are retained, including semantic answer differences that correlate with truth. Case id, generation, family and truth metadata are excluded from model inputs. The audit rules out these construction cues; it does not establish absence of every semantic shortcut.
 
-## Crash recovery and concurrency
+## Historical crash recovery and runtime amendments
+
+The following operational history is superseded by the owner drop for Gemini 3.8. It does not authorize further Gemini 3.8 calls.
 
 The plugin crash left 12 primary and 8 dialect calls without recorded answers. The owner authorized one re-ask of each key below. 20 keys now have exactly one final recorded answer and are counted once. The lost attempts retain USD 0.40 reserve. Sources: `crash-recovery.json`, `recovery-amendment.json`, both `starts.jsonl` files and both `recovery-attempts.jsonl` files.
 
@@ -108,15 +110,11 @@ The owner raises the cap from USD 10 to USD 12 solely to finish the same sealed 
 
 Primary Luna keeps provider-default reasoning for both contestants and omits temperature. The API does not report which reasoning setting that default resolves to. Dialect Luna and Gemini use medium for both contestants. Haiku exposes no reasoning control in this harness.
 
-## Daily quota runtime amendment
+## Gemini 3.8 owner decision
 
-Gemini reaches the shared 10,000-request daily limit on 13 October. The owner stops all further Gemini calls that day. Two requests each receive three HTTP 429 rejections and enter the 240-second backoff. The owned driver is stopped while both are in backoff, with zero HTTP calls in flight. Their six no-answer attempts remain in the journal, never scored. `dialect/quota-pending.jsonl` preserves both keys as eligible missing requests.
+dropped by the owner on 13 Oct 2026, partial data kept, not reported as a score. Flash Lite remains the Gemini result.
 
-The partial publication marks Gemini as "262 requests not run: daily quota". Of these, 260 are queued without a new attempt and two have quota-only rejections without an answer. This wording denotes missing scored answers. The previously recorded Gemini answers remain included once in descriptive partial tables; no incomplete pooled verdict is claimed.
-
-The Gemini missing-only cutoff extends to 2026-10-14 12:00 UTC. A later owner instruction supersedes reset-based resumption: Gemini resumes only on explicit owner word. The daily reset does not authorize calls. The USD 12 cap, USD 0.40 reserve, two-call Gemini limit, sealed order and answer contracts remain fixed. `daily-quota-amendment.json` records this authorization and the affected keys.
-
-Quota allocation: exactly 262 unique Gemini requests remain: 110 candidate goal requests, 40 default peer goal requests, and 112 equal-evidence peer goal requests. The two abandoned no-answer requests are included in 262. All 20 crash re-asks are already recorded. There are zero planned additional content re-asks. Future no-answer transport failures may require extra attempts; these cannot be fixed in advance. `owner-hold-amendment.json` records this census and the owner-only hold.
+The 262 requests never completed under the earlier quota hold are removed from pending work. No resume, probe or replacement call is scheduled. Partial recordings and their hashes are retained in `gemini-3.8-owner-drop.json`. Historical raw score files remain archival only and are excluded from current reported tables and scoring inputs. Recorded spend remains charged; no model budget is increased.
 
 ## Native parity and verification
 
@@ -161,14 +159,17 @@ Focused protocol/recovery tests pass; `test-output.txt` retains the test result.
 | `flash-lite/reasoning-applied.json` | `d37718bb39d54c5a81cd64e4b8b6cac9c47d812ab45adb43301dfa7613b9d881` |
 | `flash-lite/scores.json` | `b8d9321b82a82ff6f9d204e76dce489be6de633e870ea5c27a2e7454e7c21874` |
 | `extended-runtime-amendment.json` | `21f0312c0a8dafd4f43fe628df635d03576f774aeb5d41a6149867c2b2145028` |
-| `network-amendment.json` | `30fef07f613d492d8daa4def62bd7a05cf92c1b6838f81a40203d2f845bed69b` |
+| `network-amendment.json` | `4b5b416c60a04c7f0c254886d56c3d8e90eaab86e8c3b4e901ddb49a287c1501` |
 | `api-error-envelope-audit.json` | `761d82e1713b7f9ef1e28aa7fe91103ed3097a065309f520d2860f1934368731` |
 | `luna-cache-write-fees.json` | `8dc8e999c36c56e6047d118dc3691470c45d84864fe9ed78600fd0df2428fd8d` |
 | `closed-cell-reporting-amendment.json` | `2f9874ba863902e0ab19c3bb5f9d933c649bf3fdffd1009f99f5b00840fc2538` |
 | `luna-transport-census.json` | `09bd39b39de9d713bf594132ef53f7d5f874354537c5d9fc59cdddecd92fe640` |
-| `audit-network-runtime.py` | `4caafe69f6315ace5276a37b9e6908ecb51b61c35a39516a372665b279e144af` |
-| `network-verification.json` | `91e1011f2fc1bad44ed8a6f25efd96dc4945e651067bbd1145a6c5d391aa8457` |
-| `network-finish.py` | `97516d64d0eb03ea14829e4216e85347aa2fb95cd7c2d2a37583693545fbe960` |
+| `audit-network-runtime.py` | `c7c79a4d485b8132e5604f08c02018861daee09f4ef150d08413628600d1c6be` |
+| `network-verification.json` | `cfc8e073167bb7e30896266c88d3fc7559d3c89b7d629a629af0aacd359caf33` |
+| `network-finish.py` | `af1807aa4dbae06eee44d9d1e6280847b72fbe9eaace9ef0d3c05ab94a8e5e50` |
+| `gemini-3.8-owner-drop.json` | `56061b82b578dfd3814c6ccb7b1ccb3f510168fc96b26458ad2106f1ebf0903f` |
+| `supervisor-amendment.json` | `3ad71b77206c9ce5c2d1aba6925be22f06b29372a115263756a96c0cf73422b8` |
+| `gpt-6.1-sol/host-crash-recovery.json` | `503a6cc6738d1b39bfb4ef3a041c29541aa2d25f1f12ba52cf220eb3eac76ac1` |
 | `sonnet-5-5/seal.json` | `0f9a30095c9eb53a201d28bf440462862f3ae043b430ae08249017d3a76595c5` |
 | `sonnet-5-5/pricing.json` | `00cfb936f27a78787e18a6de3d73f9cb3a34369f1fbb6685f5217fe56a409fd8` |
 | `sonnet-5-5/pilot.json` | `787fabc4c202494523c00f3bc901cf68ac70f7207068bc778a158fdb8ee49490` |
@@ -221,7 +222,7 @@ The generator runs two generations of 192 per row. Every row has 12 families, 32
 | gpt-6-luna | goal / peer-full-state | 384/384 | 384 | 379 | 5 | 0 | 1/16 = 0.0625 | 1/32 = 0.03125 | TIE (not equivalence) |
 | gpt-6-luna | pooled-default / mixed | 1536/1536 | 1522 | 1313 | 222 | 13 | 12664829932210496241/431359146674410236714672241392314090778194310760649159697657763987456 = 2.9360291e-50 | 12664829932210496241/862718293348820473429344482784628181556388621521298319395315527974912 = 1.4680145e-50 | nominal lead |
 | gpt-6-luna | pooled-equal-evidence / mixed | 1536/1536 | 1522 | 1510 | 25 | 13 | 2506590623/34359738368 = 0.072951389 | 2506590623/68719476736 = 0.036475694 | TIE (not equivalence) |
-| gemini-3.8-flash | Original primary | Not run | | | | | | | See the three-model dialect variant |
+| gemini-3.8-flash | All rows | Not reported | Not reported | Not reported | Not reported | Not reported | Not reported | Not reported | dropped by the owner on 13 Oct 2026, partial data kept, not reported as a score |
 
 ## Uncertainty and usage
 
@@ -264,7 +265,6 @@ The generator runs two generations of 192 per row. Every row has 12 families, 32
 - Resolved models: ['claude-haiku-5-5', 'gpt-6-luna'].
 - Artifacts: `comparisons/ledger-hard/{seal,seeds,prior-census,prompts,scores,decisions}.json`, row case JSON, `starts.jsonl`, `calls.jsonl`, and the source scripts.
 
-
 ## Dialect tables
 
 # Separate core-dialect variant
@@ -291,13 +291,7 @@ Luna and Gemini use medium for both contestants. Candidate output uses the nativ
 | gpt-6-luna | goal/peer-full-state | 384/384 | 384 | 378 | 6 | 0 | 1/32 = 0.03125 | 1/64 = 0.015625 | nominal lead |
 | gpt-6-luna | pooled-default/mixed | 1536/1536 | 1529 | 1318 | 218 | 7 | 2722239847673/13479973333575319897333507543509815336818572211270286240551805124608 = 2.0194698e-55 | 2722239847673/26959946667150639794667015087019630673637144422540572481103610249216 = 1.0097349e-55 | nominal lead |
 | gpt-6-luna | pooled-equal-evidence/mixed | 1536/1536 | 1529 | 1517 | 19 | 7 | 15183/524288 = 0.028959274 | 15183/1048576 = 0.014479637 | nominal lead |
-| gemini-3.8-flash | rubric/peer | 384/384 | 384 | 384 | 0 | 0 | 1 = 1 | 1 = 1 | TIE (not equivalence) |
-| gemini-3.8-flash | factuality/peer | 384/384 | 384 | 384 | 0 | 0 | 1 = 1 | 1 = 1 | TIE (not equivalence) |
-| gemini-3.8-flash | pii/peer | 384/384 | 384 | 384 | 0 | 0 | 1 = 1 | 1 = 1 | TIE (not equivalence) |
-| gemini-3.8-flash | goal/peer | 274/384 | 274 | 138 | 136 | 0 | 1/43556142965880123323311949751266331066368 = 2.2958874e-41 | 1/87112285931760246646623899502532662132736 = 1.1479437e-41 | PENDING |
-| gemini-3.8-flash | goal/peer-full-state | 272/384 | 272 | 261 | 11 | 0 | 1/1024 = 0.0009765625 | 1/2048 = 0.00048828125 | PENDING |
-| gemini-3.8-flash | pooled-default/mixed | 1426/1536 | 1426 | 1290 | 136 | 0 | 1/43556142965880123323311949751266331066368 = 2.2958874e-41 | 1/87112285931760246646623899502532662132736 = 1.1479437e-41 | PENDING |
-| gemini-3.8-flash | pooled-equal-evidence/mixed | 1424/1536 | 1424 | 1413 | 11 | 0 | 1/1024 = 0.0009765625 | 1/2048 = 0.00048828125 | PENDING |
+| gemini-3.8-flash | All rows | Not reported | Not reported | Not reported | Not reported | Not reported | Not reported | Not reported | dropped by the owner on 13 Oct 2026, partial data kept, not reported as a score |
 
 | Model | Row | Wilson ours | Wilson peer | Family bootstrap difference | Inconclusive ours/peer | USD/100 ours/peer |
 |---|---|---|---|---|---|---|
@@ -315,13 +309,7 @@ Luna and Gemini use medium for both contestants. Candidate output uses the nativ
 | gpt-6-luna | goal/peer-full-state | [99.010%, 100.000%] | [96.634%, 99.282%] | [0.000%, 4.167%] | 0/0 | 0.016474/0.011549 |
 | gpt-6-luna | pooled-default/mixed | [99.062%, 99.779%] | [83.973%, 87.463%] | [11.914%, 16.146%] | 2/0 | see rows |
 | gpt-6-luna | pooled-equal-evidence/mixed | [99.062%, 99.779%] | [98.076%, 99.207%] | [-0.586%, 2.539%] | 2/0 | see rows |
-| gemini-3.8-flash | rubric/peer | [99.010%, 100.000%] | [99.010%, 100.000%] | [0.000%, 0.000%] | 0/0 | 0.179392/0.132674 |
-| gemini-3.8-flash | factuality/peer | [99.010%, 100.000%] | [99.010%, 100.000%] | [0.000%, 0.000%] | 0/0 | 0.145821/0.160642 |
-| gemini-3.8-flash | pii/peer | [99.010%, 100.000%] | [99.010%, 100.000%] | [0.000%, 0.000%] | 0/0 | 0.148505/0.145974 |
-| gemini-3.8-flash | goal/peer | [98.617%, 100.000%] | [44.481%, 56.239%] | [47.143%, 52.364%] | 0/0 | 0.204706/0.246570 |
-| gemini-3.8-flash | goal/peer-full-state | [98.607%, 100.000%] | [92.905%, 97.727%] | [0.000%, 9.929%] | 0/0 | 0.204870/0.178382 |
-| gemini-3.8-flash | pooled-default/mixed | [99.731%, 100.000%] | [88.828%, 91.880%] | [8.838%, 10.244%] | 0/0 | see rows |
-| gemini-3.8-flash | pooled-equal-evidence/mixed | [99.731%, 100.000%] | [98.622%, 99.568%] | [0.000%, 1.897%] | 0/0 | see rows |
+| gemini-3.8-flash | All rows | Not reported | Not reported | Not reported | Not reported | dropped by the owner on 13 Oct 2026, partial data kept, not reported as a score |
 
 9578 completed unique requests; 0 final unsuccessful responses. Variant spend USD 7.15869961. Primary plus variant measured spend USD 8.99764030 of the amended USD 12 cap.
 
@@ -332,7 +320,6 @@ Exact tests and bootstrap use the original sealed statistics functions. Rows are
 All three model rows have explicit per-call raw usage. Luna pricing: USD 0.10 input, 0.01 cached input, 0.50 output per million. Gemini: USD 0.75 input and 3.75 output including thinking per million. Sources verified 2026-10-13: https://developers.openai.com/api/docs/models/gpt-6-luna and https://ai.google.dev/gemini-api/docs/pricing. Haiku uses CLI-reported cost.
 
 The original adaptive four/two pacing is superseded by the per-model runtime amendment above. Every attempt and backoff is logged. Worker results are fsynced before the future returns. A drain file stops new dispatch and waits for owned requests.
-
 
 ## Limits on claims
 
@@ -349,7 +336,7 @@ The owner adds gemini-3.5-flash-lite as a separate model cell on the same sealed
 
 The owner raises the Flash-Lite allocation from USD 4 to USD 8, then to USD 9 after a usage-only projection exceeds USD 8. The overall cap rises from USD 16 to USD 20, then USD 21, retaining USD 12 for the original work. `flash-lite/budget-amendment.json` preserves both authorizations and runtime source hashes before missing-only resumption. `flash-lite/cost-forecast-late.json` records the projection without reading outcomes. The cohort, sealed order, prompts, reasoning and statistical tests remain unchanged.
 
-Flash Lite permits eight simultaneous HTTP calls, a 180-second timeout, and HTTP 429 waits of 20, 60 and 180 seconds. HTTP 402 stops dispatch immediately without retries. Rejections carry no judge verdict. Other unanswered transport failures permit three attempts with 10/30-second waits. Every attempt and backoff is durable; answered calls are never re-sent. Gemini 3.8 remains owner-held.
+Flash Lite permits eight simultaneous HTTP calls, a 180-second timeout, and HTTP 429 waits of 20, 60 and 180 seconds. HTTP 402 stops dispatch immediately without retries. Rejections carry no judge verdict. Other unanswered transport failures permit three attempts with 10/30-second waits. Every attempt and backoff is durable; answered calls are never re-sent. Gemini 3.8 is dropped; no calls will resume.
 
 ## Added Flash-Lite measurements
 
@@ -414,3 +401,13 @@ The nominal win rule is unchanged: higher accuracy and exact two-sided McNemar p
 Default goal inputs remain information-asymmetric. The pooled equal-evidence comparison replaces that goal row with final state supplied to both. No pool counts goal twice. This is a new model measurement on the same cohort, not an independent replication. No content is retried. Transport failures and provider limits remain separate from judge outcomes.
 
 Seal SHA-256: `5ea0a0a7ca782c6b57775cc516f895d6d721126132322b1c3144a1b90b8b407d`. Original case seal: `5845e97e2651d2942134209e4abfa8f932409744930bd0d143ebbe03877b07a4`. Reasoning application: `d37718bb39d54c5a81cd64e4b8b6cac9c47d812ab45adb43301dfa7613b9d881`. Statistics source: `f5f91044dcb166d04b8bff098e8cc31d7431fae30a3983894e7dc1617c4a6831`. Per-file hashes are retained inside the committed seal.
+
+
+## Authorized host-crash recovery
+
+The owner confirms that two Sol requests received no answer before the host stopped. One replacement answer per key is authorized; the original USD 0.10 holds remain. Original starts and the explicit reconciliation records remain in the attempt journal. Neither key is counted twice.
+
+| Request key | Original attempt | Recovery rule |
+|---|---:|---|
+| `8760821a4b15dded2eba8a586b8c71c8a77baeeff4a448b04cb7866e595cd77f` | 1 | One replacement answer; keep original hold |
+| `e70c18909dadc7037d60cfa6884318e86774581c23eba0119353c92e787b2b2e` | 1 | One replacement answer; keep original hold |

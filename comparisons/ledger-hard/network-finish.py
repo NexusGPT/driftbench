@@ -50,7 +50,7 @@ def main():
         dump(HERE / 'network-finish-state.json', {
             'created': stamp(), 'status': 'complete', 'commit': head,
             'dossier_sha256': delivery['dossier_sha256'],
-            'gemini_3_8': 'Owner-held; 262 missing requests',
+            'gemini_3_8': json.loads((HERE / 'gemini-3.8-owner-drop.json').read_text())['status'],
             'luna_post_close_recovery': 'Not run; official result unchanged'})
 
 

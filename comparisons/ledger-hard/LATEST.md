@@ -1,5 +1,13 @@
 # Current execution contract
 
+Gemini 3.8: dropped by the owner on 13 Oct 2026, partial data kept, not reported as a score. No Gemini 3.8 request remains pending and no resume is permitted. Flash Lite remains the Gemini result. `gemini-3.8-owner-drop.json` preserves the recording hashes.
+
+The detached supervisor runs Sol and Sonnet one at a time at concurrency two, under the ten-probe gate and unchanged caps. It waits through outages and session limits. `supervisor-amendment.json` records the owner authorization and source hashes. Two named host-lost Sol requests are authorized for one replacement answer each; USD 0.10 of old holds remains. `gpt-6.1-sol/host-crash-recovery.json` lists their keys.
+
+## Historical amendments
+
+The Gemini 3.8 drop above supersedes all older resume and pending-work statements below.
+
 The construction audit passes the 1,536 cases sealed at `eeb7875e`. No pool is withdrawn.
 
 The owner permits one re-ask of the 20 keys in `crash-recovery.json`. Each has one final recorded answer. The lost attempts retain USD 0.40 reserve, separate from measured spend. The report lists every key.

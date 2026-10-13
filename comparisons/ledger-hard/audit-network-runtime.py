@@ -33,6 +33,10 @@ def audit(require_complete=False):
         state = states[cell]
         if kind == 'probe':
             assert row['paid'] is False
+            if row['consecutive_healthy'] == 1:
+                assert not active, 'Fresh gate while a paid call is active'
+                state['healthy'] = 0
+                state['gate'] = False
             if state['last_probe'] is not None:
                 assert time - state['last_probe'] >= 29.99, 'Probe spacing'
             assert time >= state['pause_until'], 'Probe before ten-minute pause'
@@ -68,7 +72,7 @@ def audit(require_complete=False):
                 answered.add(key)
             if governed:
                 state['streak'] = state['streak'] + 1 if r.connection_failure(row) else 0
-                if state['streak'] >= 3 and state['gate']:
+                if (state['streak'] >= 3 or (row.get('error') or {}).get('type') == 'SessionLimitError') and state['gate']:
                     state['gate'] = False
                     state['healthy'] = 0
                     state['pause_until'] = time + 600

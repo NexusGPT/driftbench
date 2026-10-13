@@ -1,10 +1,10 @@
 {
-  "stamp": "2026-10-13T15:20:02.054580+00:00",
+  "stamp": "2026-10-13T15:22:04.653021+00:00",
   "model": "gpt-6.1-sol",
-  "completed": 1435,
+  "completed": 1485,
   "planned": 6560,
   "inflight": 1,
-  "measured_usd": 2.5390349999999944,
+  "measured_usd": 2.6209429999999925,
   "unknown_attempt_reserve_usd": 3.3,
   "phase": "running",
   "concurrency": 2,
