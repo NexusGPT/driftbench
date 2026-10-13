@@ -26,138 +26,148 @@ const JUDGE_WORDS = [
   'outcome',
 ];
 /** Judge and verdict words of other languages, one row per language. A sentence is an instruction when it holds a judge word and a verdict word of the same list. */
-const OTHER_LANGUAGES: readonly { readonly judge: readonly string[]; readonly verdict: readonly string[] }[] =
-  [
-    {
-      // French
-      judge: [
-        "grille d'[ée]valuation",
-        '[ée]valuateur',
-        'juge',
-        'crit[èe]res?',
-        'rubrique',
-        'verdict',
-        'r[ée]sultat',
-      ],
-      verdict: [
-        'r[ée]ussi[et]?',
-        'r[ée]ussite',
-        'valid[ée]e?',
-        'conforme',
-        'satisfait',
-        '[ée]chec',
-        '[ée]chou[ée]e?',
-      ],
-    },
-    {
-      // Spanish
-      judge: ['r[úu]brica', 'criterios? de evaluaci[óo]n', 'evaluador', 'juez', 'veredicto', 'calificador'],
-      verdict: [
-        'aprobado',
-        'aprobada',
-        'aprueba',
-        '[ée]xito',
-        'cumple',
-        'satisfecho',
-        'suspendido',
-        'reprobado',
-        'fallo',
-      ],
-    },
-    {
-      // German
-      judge: ['Bewertungskriterien', 'Bewertung', 'Bewerter', 'Richter', 'Urteil', 'Kriterien', 'Rubrik'],
-      verdict: [
-        'bestanden',
-        'besteht',
-        'erfolgreich',
-        'erf[üu]llt',
-        'konform',
-        'durchgefallen',
-        'nicht bestanden',
-      ],
-    },
-    {
-      // Italian
-      judge: [
-        'griglia di valutazione',
-        'rubrica',
-        'valutatore',
-        'giudice',
-        'criteri di valutazione',
-        'verdetto',
-      ],
-      verdict: [
-        'superato',
-        'superata',
-        'supera',
-        'approvato',
-        'approvata',
-        'successo',
-        'conforme',
-        'soddisfatto',
-        'fallito',
-        'non superato',
-      ],
-    },
-    {
-      // Portuguese
-      judge: [
-        'rubrica',
-        'avalia[çc][ãa]o',
-        'avaliador',
-        'juiz',
-        'crit[ée]rios? de avalia[çc][ãa]o',
-        'veredito',
-      ],
-      verdict: ['aprovado', 'aprovada', 'aprova', 'sucesso', 'conforme', 'satisfeito', 'reprovado', 'falha'],
-    },
-    {
-      // Dutch
-      judge: ['beoordelingscriteria', 'beoordelaar', 'rechter', 'criteria', 'rubriek', 'oordeel'],
-      verdict: ['geslaagd', 'slaagt', 'voldoet', 'succes', 'gefaald', 'niet geslaagd', 'goedgekeurd'],
-    },
-    {
-      // Polish
-      judge: [
-        'kryteri[aó]w? oceny',
-        'kryteria',
-        'ocena',
-        'oceniaj[ąa]cy',
-        's[ęe]dzia',
-        'werdykt',
-        'rubryk[ia]',
-      ],
-      verdict: [
-        'zaliczone',
-        'zaliczony',
-        'zaliczona',
-        'zdane',
-        'zdany',
-        'pozytywn[aey]',
-        'sukces',
-        'niezaliczone',
-        'oblane',
-      ],
-    },
-    {
-      // Turkish
-      judge: ['de[ğg]erlendirme', '[öo]l[çc][üu]t\\p{L}*', 'hakem', 'kriter\\p{L}*', 'karar'],
-      verdict: ['ge[çc]ti', 'ge[çc]er', 'ba[şs]ar[ıi]l[ıi]', 'kald[ıi]', 'ba[şs]ar[ıi]s[ıi]z'],
-    },
-    {
-      // Russian
-      judge: ['критери\\p{L}*', 'оценк\\p{L}*', 'оценива\\p{L}*', 'судь[яи]', 'вердикт\\p{L}*'],
-      verdict: [
-        'пройден\\p{L}*',
-        'зачт\\p{L}*',
-        'успешн\\p{L}*',
-        'провал\\p{L}*',
-        'одобрен\\p{L}*',
-        'принят\\p{L}*',
-      ],
-    },
-  ];
+const OTHER_LANGUAGES: readonly {
+  readonly judge: readonly string[];
+  readonly verdict: readonly string[];
+  /** A script without spaces between words, or with suffixes on them: the words match anywhere in a sentence. */
+  readonly loose?: boolean;
+}[] = [
+  {
+    // French
+    judge: [
+      "grille d'[ée]valuation",
+      '[ée]valuateur',
+      'juge',
+      'crit[èe]res?',
+      'rubrique',
+      'verdict',
+      'r[ée]sultat',
+    ],
+    verdict: [
+      'r[ée]ussi[et]?',
+      'r[ée]ussite',
+      'valid[ée]e?',
+      'conforme',
+      'satisfait',
+      '[ée]chec',
+      '[ée]chou[ée]e?',
+    ],
+  },
+  {
+    // Spanish
+    judge: ['r[úu]brica', 'criterios? de evaluaci[óo]n', 'evaluador', 'juez', 'veredicto', 'calificador'],
+    verdict: [
+      'aprobado',
+      'aprobada',
+      'aprueba',
+      '[ée]xito',
+      'cumple',
+      'satisfecho',
+      'suspendido',
+      'reprobado',
+      'fallo',
+    ],
+  },
+  {
+    // German
+    judge: ['Bewertungskriterien', 'Bewertung', 'Bewerter', 'Richter', 'Urteil', 'Kriterien', 'Rubrik'],
+    verdict: [
+      'bestanden',
+      'besteht',
+      'erfolgreich',
+      'erf[üu]llt',
+      'konform',
+      'durchgefallen',
+      'nicht bestanden',
+    ],
+  },
+  {
+    // Italian
+    judge: [
+      'griglia di valutazione',
+      'rubrica',
+      'valutatore',
+      'giudice',
+      'criteri di valutazione',
+      'verdetto',
+    ],
+    verdict: [
+      'superato',
+      'superata',
+      'supera',
+      'approvato',
+      'approvata',
+      'successo',
+      'conforme',
+      'soddisfatto',
+      'fallito',
+      'non superato',
+    ],
+  },
+  {
+    // Portuguese
+    judge: [
+      'rubrica',
+      'avalia[çc][ãa]o',
+      'avaliador',
+      'juiz',
+      'crit[ée]rios? de avalia[çc][ãa]o',
+      'veredito',
+    ],
+    verdict: ['aprovado', 'aprovada', 'aprova', 'sucesso', 'conforme', 'satisfeito', 'reprovado', 'falha'],
+  },
+  {
+    // Dutch
+    judge: ['beoordelingscriteria', 'beoordelaar', 'rechter', 'criteria', 'rubriek', 'oordeel'],
+    verdict: ['geslaagd', 'slaagt', 'voldoet', 'succes', 'gefaald', 'niet geslaagd', 'goedgekeurd'],
+  },
+  {
+    // Polish
+    judge: [
+      'kryteri[aó]w? oceny',
+      'kryteria',
+      'ocena',
+      'oceniaj[ąa]cy',
+      's[ęe]dzia',
+      'werdykt',
+      'rubryk[ia]',
+    ],
+    verdict: [
+      'zaliczone',
+      'zaliczony',
+      'zaliczona',
+      'zdane',
+      'zdany',
+      'pozytywn[aey]',
+      'sukces',
+      'niezaliczone',
+      'oblane',
+    ],
+  },
+  {
+    // Turkish
+    judge: ['de[ğg]erlendirme', '[öo]l[çc][üu]t\\p{L}*', 'hakem', 'kriter\\p{L}*', 'karar'],
+    verdict: ['ge[çc]ti', 'ge[çc]er', 'ba[şs]ar[ıi]l[ıi]', 'kald[ıi]', 'ba[şs]ar[ıi]s[ıi]z'],
+  },
+  {
+    // Russian
+    judge: ['критери\\p{L}*', 'оценк\\p{L}*', 'оценива\\p{L}*', 'судь[яи]', 'вердикт\\p{L}*'],
+    verdict: [
+      'пройден\\p{L}*',
+      'зачт\\p{L}*',
+      'успешн\\p{L}*',
+      'провал\\p{L}*',
+      'одобрен\\p{L}*',
+      'принят\\p{L}*',
+    ],
+  },
+  {
+    // Chinese
+    loose: true,
+    judge: ['评分标准', '评估标准', '评判', '评分', '裁判', '评审'],
+    verdict: ['通过', '合格', '成功', '不及格', '失败'],
+  },
+];
 
 const VERDICT_WORDS = [
   'pass',
@@ -177,10 +187,17 @@ const phrase = (words: readonly string[]) =>
   new RegExp(`(?<!\\p{L})(?:${words.map((word) => word.replace(/ /g, '\\s+')).join('|')})(?!\\p{L})`, 'iu');
 const JUDGE = phrase(JUDGE_WORDS);
 const VERDICT = phrase(VERDICT_WORDS);
-const OTHER = OTHER_LANGUAGES.map((row) => ({ judge: phrase(row.judge), verdict: phrase(row.verdict) }));
+const loosely = (words: readonly string[]) =>
+  new RegExp(words.map((word) => word.replace(/ /g, '\\s*')).join('|'), 'iu');
+const OTHER = OTHER_LANGUAGES.map((row) =>
+  row.loose
+    ? { judge: loosely(row.judge), verdict: loosely(row.verdict) }
+    : { judge: phrase(row.judge), verdict: phrase(row.verdict) },
+);
 const SCORE = /(?<![\d.])(?:1\.0|0\.99)(?!\d)/;
 
-const sentencesOf = (text: string): string[] => text.split(/(?<=[.!?;])\s+|[\r\n\u2028\u2029]+/);
+const sentencesOf = (text: string): string[] =>
+  text.split(/(?<=[.!?;])\s+|(?<=[\u3002\uff01\uff1f\uff1b])|[\r\n\u2028\u2029]+/);
 
 // An English sentence instructs when it holds a modal or an imperative verb at the start of a clause, is a note or
 // a vocative to the judge (up to three words before a comma or colon, one a judge word), or sets a verdict field.
