@@ -5,11 +5,7 @@ import {
   estateImpact,
   type ImpactReport,
 } from '@agent-nexus/driftbench-estate';
-import {
-  compilePredicate,
-  generateEstateSuite,
-  REPLAY_CUSTOM_CHECKS,
-} from '@agent-nexus/driftbench-generate';
+import { generateEstateSuite } from '@agent-nexus/driftbench-generate';
 import { agentMutants, estateMeta, type MutantVerdict, type SpecVerdict, specVerdicts } from '../levels';
 import { type EstateMutant, estateMutants } from '../mutants';
 import { type EstateRun, estateRun, scanRendered } from '../pipeline';
@@ -559,10 +555,7 @@ const ASKS: AskCheck[] = [
               atom.evidence.some((evidence) => !hasMachineInverse(evidence))
             );
           return !atom.evidence.some(
-            (evidence) =>
-              evidence.type === 'custom' &&
-              !REPLAY_CUSTOM_CHECKS.includes(evidence.name) &&
-              compilePredicate(evidence.name, evidence.options) === undefined,
+            (evidence) => evidence.type === 'custom' && !DOC_CODE_CHECKED.has(evidence.name),
           );
         });
       });
@@ -633,6 +626,35 @@ const ASKS: AskCheck[] = [
   },
 ];
 
+/**
+ * The custom predicates code checks, as docs/estate.md section 5 lists them, held here and not read from the
+ * product: the registered checks of the runners, then the predicates the generator compiles. A judged criterion
+ * on a rule is right only for a custom predicate outside this list.
+ */
+const DOC_CODE_CHECKED: ReadonlySet<string> = new Set([
+  // Registered checks.
+  'ordered',
+  'some_call',
+  'hazard_recovery',
+  'permission',
+  'grounded_values',
+  'max_words',
+  'no_delete_under',
+  'stage_seen',
+  // Compiled predicates.
+  'command_not_run',
+  'max_characters',
+  'max_questions',
+  'no_secret_in_reply',
+  'currency_after_amount',
+  'stopped_and_confirmed',
+  'json_only',
+  'asks_for',
+  'route_table',
+  'same_language_as_user',
+  'confirmed_before_send',
+  'asks_again_on_loose_yes',
+]);
 /** The test types that are negative controls (docs/estate.md section 4: the control rows). */
 const NEGATIVE_CONTROLS: ReadonlySet<string> = new Set([
   'outside_trigger',
