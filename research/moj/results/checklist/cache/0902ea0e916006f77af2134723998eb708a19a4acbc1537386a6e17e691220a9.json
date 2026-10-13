@@ -1,0 +1,21 @@
+{
+ "key": "0902ea0e916006f77af2134723998eb708a19a4acbc1537386a6e17e691220a9",
+ "boxes": [
+  {
+   "question": "Does the answer correctly say that the person at the ice skating rink tells the truth?",
+   "weight": 1
+  },
+  {
+   "question": "Does the answer correctly say that the person at the gym does not tell the truth?",
+   "weight": 1
+  },
+  {
+   "question": "Does the answer correctly say that the person at the campground tells the truth?",
+   "weight": 1
+  }
+ ],
+ "error": null,
+ "short": true,
+ "s2_usd": 0.000267,
+ "seconds": 5.162
+}

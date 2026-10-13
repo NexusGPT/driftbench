@@ -1,0 +1,25 @@
+{
+ "key": "102ddd37df78958ddbcc59efe7936cd4abc5aa941132a09b7d3a65116f513520",
+ "boxes": [
+  {
+   "question": "Does the answer identify option B as the correct answer?",
+   "weight": 5
+  },
+  {
+   "question": "Does the answer contain exactly five letters?",
+   "weight": 2
+  },
+  {
+   "question": "Are all five letters B?",
+   "weight": 5
+  },
+  {
+   "question": "Is the answer presented as a single string with no additional text?",
+   "weight": 2
+  }
+ ],
+ "error": null,
+ "short": false,
+ "s2_usd": 0.0002171,
+ "seconds": 5.1886
+}

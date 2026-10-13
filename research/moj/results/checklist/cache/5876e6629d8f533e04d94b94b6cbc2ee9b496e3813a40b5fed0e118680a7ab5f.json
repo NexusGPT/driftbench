@@ -1,0 +1,41 @@
+{
+ "key": "5876e6629d8f533e04d94b94b6cbc2ee9b496e3813a40b5fed0e118680a7ab5f",
+ "boxes": [
+  {
+   "question": "是否准确说明了大疆 Mini 4 Pro 的折叠尺寸？",
+   "weight": 3
+  },
+  {
+   "question": "是否讨论了电池续航及其衰减情况？",
+   "weight": 3
+  },
+  {
+   "question": "是否评测了避障灵敏度？",
+   "weight": 3
+  },
+  {
+   "question": "是否评测了照片动态范围？",
+   "weight": 3
+  },
+  {
+   "question": "是否说明了信号丢失时的处理机制？",
+   "weight": 3
+  },
+  {
+   "question": "是否将 Mini 4 Pro 与上一代产品进行比较，并说明主要升级之处？",
+   "weight": 4
+  },
+  {
+   "question": "是否总结了产品优缺点，并给出有依据的购买建议？",
+   "weight": 4
+  },
+  {
+   "question": "是否以专业、严谨且适合行业人士参考的方式组织评测内容？",
+   "weight": 2
+  }
+ ],
+ "error": null,
+ "short": false,
+ "s2_usd": 0.0001884,
+ "seconds": 3.5534
+}

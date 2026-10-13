@@ -1,0 +1,25 @@
+{
+ "key": "ec58545ca0b01c4fed46bcf53ab15bed4cb4a500f527179f5e8807d43736a5c4",
+ "boxes": [
+  {
+   "question": "Does the answer select option C as the correct answer?",
+   "weight": 5
+  },
+  {
+   "question": "Does the answer contain the letter C exactly five times?",
+   "weight": 2
+  },
+  {
+   "question": "Are the five Cs written together as a single uninterrupted string?",
+   "weight": 1
+  },
+  {
+   "question": "Does the answer contain only that string, with no additional text?",
+   "weight": 1
+  }
+ ],
+ "error": null,
+ "short": false,
+ "s2_usd": 0.0003337,
+ "seconds": 7.9873
+}

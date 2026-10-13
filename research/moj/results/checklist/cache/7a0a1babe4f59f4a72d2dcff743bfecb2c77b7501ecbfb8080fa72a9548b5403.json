@@ -1,0 +1,25 @@
+{
+ "key": "7a0a1babe4f59f4a72d2dcff743bfecb2c77b7501ecbfb8080fa72a9548b5403",
+ "boxes": [
+  {
+   "question": "Indique que la consommation observée est de 25 miles par gallon (100 miles ÷ 4 gallons) ?",
+   "weight": 3
+  },
+  {
+   "question": "Conclut que Sophie peut parcourir environ 300 miles avec un réservoir plein de 12 gallons ?",
+   "weight": 5
+  },
+  {
+   "question": "Applique correctement la consommation observée à la capacité totale du réservoir pour estimer la distance ?",
+   "weight": 3
+  },
+  {
+   "question": "Répond en français ?",
+   "weight": 1
+  }
+ ],
+ "error": null,
+ "short": false,
+ "s2_usd": 0.0002989,
+ "seconds": 6.842
+}

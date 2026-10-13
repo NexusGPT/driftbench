@@ -1,0 +1,33 @@
+{
+ "key": "919ff59090e3ea720851f5ee1759473d76728adbcae1014687bbeec4bfdca799",
+ "boxes": [
+  {
+   "question": "Ist die Antwort auf Deutsch verfasst?",
+   "weight": 2
+  },
+  {
+   "question": "Erklärt die Antwort, dass sich der Rechenaufwand für eine Antwort mit 100 Worten nicht allein aus der Wortzahl bestimmen lässt?",
+   "weight": 4
+  },
+  {
+   "question": "Nennt die Antwort relevante Faktoren, von denen der Rechenaufwand abhängt, etwa die Komplexität der Anfrage oder das verwendete Modell und die Hardware?",
+   "weight": 3
+  },
+  {
+   "question": "Unterscheidet die Antwort zwischen Rechenaufwand und dem damit verbundenen Energieverbrauch?",
+   "weight": 3
+  },
+  {
+   "question": "Ordnet die Antwort den Energieverbrauch einer passenden Einheit wie Joule oder Wattstunden zu?",
+   "weight": 3
+  },
+  {
+   "question": "Falls die Antwort eine Messung des zusätzlichen Stromverbrauchs vorschlägt, weist sie darauf hin, dass eine solche Messung den Verbrauch der konkreten Aufgabe zuverlässig abgrenzen muss?",
+   "weight": 2
+  }
+ ],
+ "error": null,
+ "short": false,
+ "s2_usd": 0.0002865,
+ "seconds": 6.5499
+}

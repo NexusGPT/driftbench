@@ -1,0 +1,25 @@
+{
+ "key": "441cc59c3b1a68984b6feb5bb32d7b7f3e6bc49395ddcd159440e05cf997a2f6",
+ "boxes": [
+  {
+   "question": "Does the answer state that the cut produces two triangular pieces from the equilateral triangle?",
+   "weight": 2
+  },
+  {
+   "question": "Does the answer state that the cut produces exactly one triangular piece from the square?",
+   "weight": 2
+  },
+  {
+   "question": "Does the answer give a total of three triangular pieces?",
+   "weight": 5
+  },
+  {
+   "question": "Is the final answer presented as a single integer, as requested?",
+   "weight": 1
+  }
+ ],
+ "error": null,
+ "short": false,
+ "s2_usd": 0.0004286,
+ "seconds": 10.6646
+}

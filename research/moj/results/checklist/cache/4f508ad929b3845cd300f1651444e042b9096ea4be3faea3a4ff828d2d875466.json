@@ -1,0 +1,25 @@
+{
+ "key": "4f508ad929b3845cd300f1651444e042b9096ea4be3faea3a4ff828d2d875466",
+ "boxes": [
+  {
+   "question": "Does the answer count the frequency of each distinct value in `nums`?",
+   "weight": 2
+  },
+  {
+   "question": "Does the answer return `-1` if any value occurs exactly once?",
+   "weight": 5
+  },
+  {
+   "question": "For each value occurring at least twice, does the answer compute the minimum operations as the ceiling of its frequency divided by 3?",
+   "weight": 5
+  },
+  {
+   "question": "Does the answer sum the per-value operation counts and return that sum as the minimum total?",
+   "weight": 5
+  }
+ ],
+ "error": null,
+ "short": false,
+ "s2_usd": 0.0002676,
+ "seconds": 5.3361
+}

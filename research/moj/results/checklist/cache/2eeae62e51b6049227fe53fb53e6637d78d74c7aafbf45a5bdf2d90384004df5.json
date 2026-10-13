@@ -1,0 +1,25 @@
+{
+ "key": "2eeae62e51b6049227fe53fb53e6637d78d74c7aafbf45a5bdf2d90384004df5",
+ "boxes": [
+  {
+   "question": "Does the answer identify option G as correct?",
+   "weight": 5
+  },
+  {
+   "question": "Does the answer contain exactly five instances of the selected letter?",
+   "weight": 3
+  },
+  {
+   "question": "Are all five instances the same letter?",
+   "weight": 2
+  },
+  {
+   "question": "Does the answer present the five letters as a single string, without additional text?",
+   "weight": 2
+  }
+ ],
+ "error": null,
+ "short": false,
+ "s2_usd": 0.0002295,
+ "seconds": 5.9067
+}

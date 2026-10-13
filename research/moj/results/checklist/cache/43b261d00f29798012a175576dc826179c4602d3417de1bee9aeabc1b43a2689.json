@@ -1,0 +1,25 @@
+{
+ "key": "43b261d00f29798012a175576dc826179c4602d3417de1bee9aeabc1b43a2689",
+ "boxes": [
+  {
+   "question": "Does the solution use the given three-digit integer n and compute 2 × n and 3 × n?",
+   "weight": 2
+  },
+  {
+   "question": "Does the solution check the decimal digits of n, 2 × n, and 3 × n in that concatenation order?",
+   "weight": 3
+  },
+  {
+   "question": "Does the solution return true only when the concatenation contains each digit from 1 through 9 exactly once and contains no 0?",
+   "weight": 5
+  },
+  {
+   "question": "Does the solution return false whenever the concatenation fails either digit condition?",
+   "weight": 5
+  }
+ ],
+ "error": null,
+ "short": false,
+ "s2_usd": 0.00018580000000000002,
+ "seconds": 3.8445
+}

@@ -1,0 +1,25 @@
+{
+ "key": "e44d81048352e4895af29245f65b4878f94f27b7aaff02c8344456bad0218c54",
+ "boxes": [
+  {
+   "question": "¿Presenta exactamente 10 pares de palabras?",
+   "weight": 5
+  },
+  {
+   "question": "¿Riman entre sí las dos palabras de cada par?",
+   "weight": 5
+  },
+  {
+   "question": "¿Está la respuesta redactada en español?",
+   "weight": 3
+  },
+  {
+   "question": "¿Se limita a ofrecer pares de palabras pertinentes y seguros, sin contenido ajeno a la solicitud?",
+   "weight": 2
+  }
+ ],
+ "error": null,
+ "short": false,
+ "s2_usd": 0.00020009999999999998,
+ "seconds": 5.3419
+}

@@ -1,0 +1,25 @@
+{
+ "key": "98040ab064de08bcc306b4711b48dd4e46fc058d2dc8882f1d99ed08fee2e886",
+ "boxes": [
+  {
+   "question": "Does the answer correctly classify the brother’s cutting of timber on the land suitable for cultivation as voluntary waste?",
+   "weight": 5
+  },
+  {
+   "question": "Does the answer give choice F for that classification?",
+   "weight": 5
+  },
+  {
+   "question": "Does the answer provide the letter F five times consecutively?",
+   "weight": 2
+  },
+  {
+   "question": "Are the five F’s presented together as a single string?",
+   "weight": 1
+  }
+ ],
+ "error": null,
+ "short": false,
+ "s2_usd": 0.00026189999999999997,
+ "seconds": 6.1598
+}

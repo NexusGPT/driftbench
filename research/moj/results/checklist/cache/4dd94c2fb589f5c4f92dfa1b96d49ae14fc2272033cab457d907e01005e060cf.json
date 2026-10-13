@@ -1,0 +1,29 @@
+{
+ "key": "4dd94c2fb589f5c4f92dfa1b96d49ae14fc2272033cab457d907e01005e060cf",
+ "boxes": [
+  {
+   "question": "Does the method allow each character in str1 to remain unchanged or advance exactly one cyclic step, including changing 'z' to 'a'?",
+   "weight": 5
+  },
+  {
+   "question": "Does the method allow any set of distinct positions to be incremented together in the single operation?",
+   "weight": 5
+  },
+  {
+   "question": "Does the method check for str2 as an ordered subsequence, allowing intervening characters in str1 to be skipped?",
+   "weight": 5
+  },
+  {
+   "question": "Does the method return true when str2 is already a subsequence of str1 without performing any operation?",
+   "weight": 4
+  },
+  {
+   "question": "Does the method return false when no ordered matching of str2 can be formed using the permitted character changes?",
+   "weight": 5
+  }
+ ],
+ "error": null,
+ "short": false,
+ "s2_usd": 0.0005596,
+ "seconds": 12.5624
+}

@@ -1,0 +1,25 @@
+{
+ "key": "5e79a5d3009dfec17293a550273aa1f8fd0531784a9f807a95a6ec4e64226698",
+ "boxes": [
+  {
+   "question": "Does the answer correctly identify that the cutting plane passes through the centers of spheres A and C?",
+   "weight": 1
+  },
+  {
+   "question": "Does the answer correctly state that spheres A and C are each cut through their centers into two hemispheres?",
+   "weight": 2
+  },
+  {
+   "question": "Does the answer correctly state that the cutting plane does not intersect spheres B and D?",
+   "weight": 2
+  },
+  {
+   "question": "Does the answer give **4** as the total number of hemispheres?",
+   "weight": 5
+  }
+ ],
+ "error": null,
+ "short": false,
+ "s2_usd": 0.0009034,
+ "seconds": 23.1552
+}

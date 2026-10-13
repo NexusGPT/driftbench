@@ -1,0 +1,25 @@
+{
+ "key": "ef816fb04bf96c10e693fd9fc4dd8241f33bc7ce78b96f1677081e8f9fd09c59",
+ "boxes": [
+  {
+   "question": "Does the response select A as the correct answer?",
+   "weight": 5
+  },
+  {
+   "question": "Does the response repeat its selected letter exactly five times?",
+   "weight": 2
+  },
+  {
+   "question": "Are all five repeated letters A?",
+   "weight": 3
+  },
+  {
+   "question": "Are the five letters written consecutively as a single string, without separators?",
+   "weight": 2
+  }
+ ],
+ "error": null,
+ "short": false,
+ "s2_usd": 0.0006724,
+ "seconds": 15.929
+}

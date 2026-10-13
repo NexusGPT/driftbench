@@ -1,0 +1,25 @@
+{
+ "key": "cdbd2b452c0eb240e571d67bcd1ca1c978ef34cf244f4cf71c90e8a223f2ffb1",
+ "boxes": [
+  {
+   "question": "Does the answer correctly state that, without file-descriptor passing, services could not receive the client browser’s TCP connection?",
+   "weight": 5
+  },
+  {
+   "question": "Does the answer correctly state that the absence of file-descriptor passing would not make it impossible for okd to run as a non-root user?",
+   "weight": 5
+  },
+  {
+   "question": "Does the answer select choice (A), True, False?",
+   "weight": 5
+  },
+  {
+   "question": "Does the answer give the selected letter five times in one string, as requested?",
+   "weight": 1
+  }
+ ],
+ "error": null,
+ "short": false,
+ "s2_usd": 0.000493,
+ "seconds": 11.8714
+}

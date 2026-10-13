@@ -1,0 +1,41 @@
+{
+ "key": "c23791570efe4b91a3a70ae77316534f18550be283af35442003a3df79fc3870",
+ "boxes": [
+  {
+   "question": "Is the response written as a review of *The Great Gatsby* and titled “Gatsby: A Meticulously Decorated Illusion”?",
+   "weight": 2
+  },
+  {
+   "question": "Does the review focus on Gatsby’s contradictory and tragic nature rather than merely retelling the plot or praising the American Dream theme?",
+   "weight": 4
+  },
+  {
+   "question": "Does it explain in what sense Gatsby is truly “great”?",
+   "weight": 4
+  },
+  {
+   "question": "Does it examine whether Gatsby’s persistence and naivety are partly self-constructed illusions?",
+   "weight": 5
+  },
+  {
+   "question": "Does it use specific details from significant symbols in the novel, such as the green light, the eyes of Dr. T.J. Eckleburg, or Gatsby’s parties, to support its analysis?",
+   "weight": 4
+  },
+  {
+   "question": "Does it explain how Nick Carraway’s biased, sympathetic perspective shapes or beautifies the reader’s perception of Gatsby?",
+   "weight": 4
+  },
+  {
+   "question": "Does it conclude with an original, reasoned insight into whether Gatsby’s tragedy is primarily a tragedy of his era or of his character?",
+   "weight": 5
+  },
+  {
+   "question": "Is the review coherent and well-written, with analysis that supports its main claims?",
+   "weight": 2
+  }
+ ],
+ "error": null,
+ "short": false,
+ "s2_usd": 0.0003587,
+ "seconds": 7.6379
+}

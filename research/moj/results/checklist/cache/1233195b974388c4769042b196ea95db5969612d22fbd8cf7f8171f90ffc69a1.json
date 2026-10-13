@@ -1,0 +1,29 @@
+{
+ "key": "1233195b974388c4769042b196ea95db5969612d22fbd8cf7f8171f90ffc69a1",
+ "boxes": [
+  {
+   "question": "¿Incluye las cinco palabras de la lista, cada una exactamente una vez?",
+   "weight": 3
+  },
+  {
+   "question": "¿Coloca zanahoria y pantalón antes de amargo, doloroso y escalada, sin exigir un orden específico entre zanahoria y pantalón?",
+   "weight": 5
+  },
+  {
+   "question": "¿Coloca amargo después de zanahoria y pantalón, y antes de doloroso y escalada?",
+   "weight": 5
+  },
+  {
+   "question": "¿Coloca doloroso antes de escalada?",
+   "weight": 5
+  },
+  {
+   "question": "¿Responde en español?",
+   "weight": 2
+  }
+ ],
+ "error": null,
+ "short": false,
+ "s2_usd": 0.0002041,
+ "seconds": 4.9908
+}

@@ -1,0 +1,25 @@
+{
+ "key": "40d4db32279db3a15769879771d6447508509b6ed559c1cb1ba005387034c0d7",
+ "boxes": [
+  {
+   "question": "Does the answer identify option G as the correct choice?",
+   "weight": 5
+  },
+  {
+   "question": "Does the answer give 95.6% as the ionic bond strength of NaCl relative to KF?",
+   "weight": 5
+  },
+  {
+   "question": "Does the answer consist of exactly five letters?",
+   "weight": 2
+  },
+  {
+   "question": "Are all five letters in the answer G?",
+   "weight": 2
+  }
+ ],
+ "error": null,
+ "short": false,
+ "s2_usd": 0.0003286,
+ "seconds": 8.2876
+}

@@ -1,0 +1,41 @@
+{
+ "key": "6e96835472da5709cb64026d5b8f56b4a54fe80248c0bd20ae67cbc2b793ebdb",
+ "boxes": [
+  {
+   "question": "Is the response an inspirational university commencement speech written in a colloquial Chinese style?",
+   "weight": 3
+  },
+  {
+   "question": "Does it center on the kindness of ordinary people?",
+   "weight": 3
+  },
+  {
+   "question": "Does it describe the Zhengzhou cancer shared kitchen as offering affordable meals for 18 years?",
+   "weight": 3
+  },
+  {
+   "question": "Does it include the example of a Beijing delivery rider helping elderly people during a snowstorm?",
+   "weight": 2
+  },
+  {
+   "question": "Does it include the example of Wuhan volunteers providing logistics during the COVID lockdown?",
+   "weight": 2
+  },
+  {
+   "question": "Does it convey the core message that when every small light dares to shine, it creates the best era?",
+   "weight": 3
+  },
+  {
+   "question": "Does it use emotional storytelling and include metaphors of “winter charcoal” and “fireflies in darkness”?",
+   "weight": 2
+  },
+  {
+   "question": "Does it make periodic references to historical events, including an example such as the 1937 student protests?",
+   "weight": 2
+  }
+ ],
+ "error": null,
+ "short": false,
+ "s2_usd": 0.0006155,
+ "seconds": 13.3293
+}

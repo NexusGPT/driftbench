@@ -1,0 +1,25 @@
+{
+ "key": "808c48d196670905534c8b8f9c77de9542e1088ac80ce5155a882b6a1c2b0d30",
+ "boxes": [
+  {
+   "question": "Ordina correttamente in ordine alfabetico crescente le parole con una seconda lettera: labbro, minoranza, allontanare, nuovo?",
+   "weight": 5
+  },
+  {
+   "question": "Riconosce che «e» non ha una seconda lettera e quindi non può essere ordinata secondo il criterio richiesto?",
+   "weight": 4
+  },
+  {
+   "question": "Risponde in italiano?",
+   "weight": 1
+  },
+  {
+   "question": "Fornisce una risposta chiara che permette di distinguere «e» dalle parole ordinabili?",
+   "weight": 2
+  }
+ ],
+ "error": null,
+ "short": false,
+ "s2_usd": 0.00018119999999999999,
+ "seconds": 4.2515
+}

@@ -1,0 +1,37 @@
+{
+ "key": "57d41ff00ea324a407ac50522845b52286549b80a7103c468ed165dd02827c58",
+ "boxes": [
+  {
+   "question": "Is the response a suspenseful detective story set in the ancient martial arts world of Jianghu?",
+   "weight": 3
+  },
+  {
+   "question": "Is the protagonist a female constable serving in the government’s elite Divine Constabulary?",
+   "weight": 3
+  },
+  {
+   "question": "Does the story portray the protagonist as both a skilled martial artist and a keen observer?",
+   "weight": 2
+  },
+  {
+   "question": "Does the protagonist face career constraints because of her gender?",
+   "weight": 2
+  },
+  {
+   "question": "Is the protagonist ordered to investigate a series of bizarre murders?",
+   "weight": 3
+  },
+  {
+   "question": "Are the murder victims renowned figures in Jianghu?",
+   "weight": 3
+  },
+  {
+   "question": "Does the story use its investigation and suspenseful elements effectively to make for a compelling piece of writing?",
+   "weight": 2
+  }
+ ],
+ "error": null,
+ "short": false,
+ "s2_usd": 0.00016680000000000002,
+ "seconds": 3.7647
+}

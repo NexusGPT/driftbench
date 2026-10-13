@@ -1,0 +1,41 @@
+{
+ "key": "bef71ef91cee5fbe0c0429ad822e035e650524e2d9c7e3515fd045fe94d4a0b8",
+ "boxes": [
+  {
+   "question": "Is the response written as an inspirational speech for a university commencement ceremony?",
+   "weight": 2
+  },
+  {
+   "question": "Does it center the power of ordinary people's kindness as its main theme?",
+   "weight": 3
+  },
+  {
+   "question": "Does it include the Zhengzhou cancer shared kitchen and specify that it has offered affordable meals for 18 years?",
+   "weight": 3
+  },
+  {
+   "question": "Does it include the example of a Beijing delivery rider helping elderly people during a snowstorm?",
+   "weight": 3
+  },
+  {
+   "question": "Does it include the example of Wuhan volunteers providing logistics support during the COVID lockdown?",
+   "weight": 3
+  },
+  {
+   "question": "Does it clearly express the core message that when every small light dares to shine, it creates the best era?",
+   "weight": 3
+  },
+  {
+   "question": "Does it use emotional storytelling and include metaphors such as “winter charcoal” and “fireflies in darkness”?",
+   "weight": 2
+  },
+  {
+   "question": "Does it maintain a colloquial Chinese style and make periodic references to historical events, such as the 1937 student protests?",
+   "weight": 2
+  }
+ ],
+ "error": null,
+ "short": false,
+ "s2_usd": 0.000199,
+ "seconds": 4.2178
+}

@@ -1,0 +1,25 @@
+{
+ "key": "307bc66e5b3382f3bd63ab2f99245161d21474d82230229dd6d80ce33affbbc3",
+ "boxes": [
+  {
+   "question": "Does the answer identify option (E) as the correct answer?",
+   "weight": 5
+  },
+  {
+   "question": "Does the answer give the requested five-letter string, EEEEE?",
+   "weight": 5
+  },
+  {
+   "question": "Does the answer reflect that the first $40,000 of gain is allocated to Acre?",
+   "weight": 5
+  },
+  {
+   "question": "Does the answer reflect that the remaining $60,000 of gain is shared equally among all three partners?",
+   "weight": 5
+  }
+ ],
+ "error": null,
+ "short": false,
+ "s2_usd": 0.00028510000000000005,
+ "seconds": 5.4916
+}

@@ -1,0 +1,25 @@
+{
+ "key": "b5d82aa2d0e18fc9df3459a1c0a1812b02e24d574397eee62b458188bfa6b46e",
+ "boxes": [
+  {
+   "question": "Does the answer select option I, which states that eosinophilic oesophagitis may cause oesophageal obstruction?",
+   "weight": 5
+  },
+  {
+   "question": "Does the answer repeat the selected letter exactly five times?",
+   "weight": 2
+  },
+  {
+   "question": "Are the five letters presented as one uninterrupted string?",
+   "weight": 1
+  },
+  {
+   "question": "Does the answer contain only that five-letter string, with no additional text?",
+   "weight": 1
+  }
+ ],
+ "error": null,
+ "short": false,
+ "s2_usd": 0.0002262,
+ "seconds": 5.2497
+}

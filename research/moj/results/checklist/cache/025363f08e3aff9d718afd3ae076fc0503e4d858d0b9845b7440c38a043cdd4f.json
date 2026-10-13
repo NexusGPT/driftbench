@@ -1,0 +1,25 @@
+{
+ "key": "025363f08e3aff9d718afd3ae076fc0503e4d858d0b9845b7440c38a043cdd4f",
+ "boxes": [
+  {
+   "question": "Does the answer give the sample variance as 264.5?",
+   "weight": 5
+  },
+  {
+   "question": "Does the answer use the sample-variance denominator of 1 (the number of observations minus 1)?",
+   "weight": 3
+  },
+  {
+   "question": "Does the answer avoid giving 132.25, the population variance, as the sample variance?",
+   "weight": 3
+  },
+  {
+   "question": "Is the final answer enclosed in a \\(\\boxed{}\\)?",
+   "weight": 1
+  }
+ ],
+ "error": null,
+ "short": false,
+ "s2_usd": 0.00033860000000000004,
+ "seconds": 8.5925
+}

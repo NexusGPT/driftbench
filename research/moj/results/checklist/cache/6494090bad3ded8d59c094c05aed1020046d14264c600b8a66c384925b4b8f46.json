@@ -1,0 +1,29 @@
+{
+ "key": "6494090bad3ded8d59c094c05aed1020046d14264c600b8a66c384925b4b8f46",
+ "boxes": [
+  {
+   "question": "Je, jibu linahesabu vikombe 180 kwa siku 180 za kwanza?",
+   "weight": 4
+  },
+  {
+   "question": "Je, jibu linahesabu vikombe 370 kwa siku 185 zilizobaki za mwaka wa kwanza?",
+   "weight": 4
+  },
+  {
+   "question": "Je, jibu linapata jumla ya vikombe 550 kwa mwaka wa kwanza?",
+   "weight": 5
+  },
+  {
+   "question": "Je, jibu linahitimisha kwa usahihi kwamba Cecilia atatumia mifuko 5 ya chakula, kwa kuwa kila mfuko una vikombe 110?",
+   "weight": 5
+  },
+  {
+   "question": "Je, jibu limeandikwa kwa Kiswahili?",
+   "weight": 2
+  }
+ ],
+ "error": null,
+ "short": false,
+ "s2_usd": 0.0005419,
+ "seconds": 12.7911
+}

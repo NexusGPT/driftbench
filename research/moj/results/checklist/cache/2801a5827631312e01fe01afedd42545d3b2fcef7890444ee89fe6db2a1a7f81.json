@@ -1,0 +1,25 @@
+{
+ "key": "2801a5827631312e01fe01afedd42545d3b2fcef7890444ee89fe6db2a1a7f81",
+ "boxes": [
+  {
+   "question": "Does the answer correctly say that the person at the cafe does not tell the truth?",
+   "weight": 5
+  },
+  {
+   "question": "Does the answer correctly say that the person at the campground tells the truth?",
+   "weight": 5
+  },
+  {
+   "question": "Does the answer correctly say that the person at the art gallery does not tell the truth?",
+   "weight": 5
+  },
+  {
+   "question": "Does the answer give its three judgments in the requested order: cafe, campground, then art gallery?",
+   "weight": 2
+  }
+ ],
+ "error": null,
+ "short": false,
+ "s2_usd": 0.000617,
+ "seconds": 15.2534
+}

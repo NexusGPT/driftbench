@@ -1,0 +1,25 @@
+{
+ "key": "09e40a580983b999bce5bcc205eaf1ce7ef47cce1887de9eccd94a0256e65f1b",
+ "boxes": [
+  {
+   "question": "Does the answer identify A as the least serious problem?",
+   "weight": 5
+  },
+  {
+   "question": "Does the answer identify loss of human diversity as the least serious problem?",
+   "weight": 5
+  },
+  {
+   "question": "Does the answer give the selected letter exactly five times in a single string?",
+   "weight": 1
+  },
+  {
+   "question": "Does the answer avoid identifying a different option as the answer?",
+   "weight": 5
+  }
+ ],
+ "error": null,
+ "short": false,
+ "s2_usd": 0.0003256,
+ "seconds": 8.0828
+}

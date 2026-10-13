@@ -1,0 +1,33 @@
+{
+ "key": "3f6b14041dbae7645932260da6164aece14481de6f52db0cd0b785c9743f5fbe",
+ "boxes": [
+  {
+   "question": "Câu trả lời có được viết bằng tiếng Việt không?",
+   "weight": 2
+  },
+  {
+   "question": "Câu trả lời có nêu một số món hoặc loại đồ ăn thường được đặt giao ở Việt Nam, với ví dụ phù hợp như cơm, phở hoặc các món bún không?",
+   "weight": 4
+  },
+  {
+   "question": "Câu trả lời có mô tả hợp lý vì sao sự tiện lợi, chẳng hạn tiết kiệm thời gian hoặc giao tận nơi, ảnh hưởng đến lựa chọn món ăn không?",
+   "weight": 4
+  },
+  {
+   "question": "Câu trả lời có giải thích vai trò của công nghệ, chẳng hạn ứng dụng đặt món hoặc các tính năng đặt hàng, trong việc định hình sở thích không?",
+   "weight": 4
+  },
+  {
+   "question": "Các thông tin về món ăn và việc đặt giao ở Việt Nam có chính xác, phù hợp với câu hỏi và không đưa ra khẳng định thiếu căn cứ không?",
+   "weight": 4
+  },
+  {
+   "question": "Câu trả lời có an toàn và không khuyến khích hành vi gây hại không?",
+   "weight": 2
+  }
+ ],
+ "error": null,
+ "short": false,
+ "s2_usd": 0.00040239999999999997,
+ "seconds": 10.4418
+}

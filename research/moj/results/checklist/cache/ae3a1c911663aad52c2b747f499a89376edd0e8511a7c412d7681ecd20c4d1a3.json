@@ -1,0 +1,25 @@
+{
+ "key": "ae3a1c911663aad52c2b747f499a89376edd0e8511a7c412d7681ecd20c4d1a3",
+ "boxes": [
+  {
+   "question": "Does the answer give a total of 2 pieces?",
+   "weight": 5
+  },
+  {
+   "question": "Does the answer correctly state that the cut does not split the cube?",
+   "weight": 2
+  },
+  {
+   "question": "Does the answer correctly state that the cut does not split the sphere?",
+   "weight": 2
+  },
+  {
+   "question": "Does the answer correctly conclude that both original solids remain intact after the cut?",
+   "weight": 2
+  }
+ ],
+ "error": null,
+ "short": false,
+ "s2_usd": 0.0006848,
+ "seconds": 15.9309
+}

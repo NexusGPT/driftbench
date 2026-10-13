@@ -1,0 +1,25 @@
+{
+ "key": "e8a064704a13d585fe9bc6d082b1e06b85c9c638afa9618124de4390c54b30ca",
+ "boxes": [
+  {
+   "question": "Does the answer correctly conclude that the stated information does not determine a unique total number of pieces?",
+   "weight": 5
+  },
+  {
+   "question": "Does the answer correctly state that the plane splits the cube into exactly two pieces?",
+   "weight": 2
+  },
+  {
+   "question": "Does the answer recognize that the facts given do not determine whether the plane cuts through the sphere’s interior?",
+   "weight": 4
+  },
+  {
+   "question": "If the answer gives the possible totals, does it correctly state three pieces if the sphere is not split and four if the sphere is split?",
+   "weight": 3
+  }
+ ],
+ "error": null,
+ "short": false,
+ "s2_usd": 0.001134,
+ "seconds": 28.1269
+}

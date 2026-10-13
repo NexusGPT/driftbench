@@ -1,0 +1,41 @@
+{
+ "key": "4cddcffb392386e1ab35043dc9ac0883d146fbcb088a0c52996d45ddb8ff9920",
+ "boxes": [
+  {
+   "question": "Does the story establish the protagonist as a real-world history graduate student specializing in ancient battles and political stratagems?",
+   "weight": 2
+  },
+  {
+   "question": "Does it identify the game as “Empire’s Gambit” and establish that the protagonist plays as a descendant of a fallen noble house?",
+   "weight": 2
+  },
+  {
+   "question": "Does the story center on epic-scale strategy rather than individual combat?",
+   "weight": 3
+  },
+  {
+   "question": "Does the protagonist use historical strategic knowledge, schemes, and tactical layouts to rise from a small city-state toward uniting the continent?",
+   "weight": 4
+  },
+  {
+   "question": "Does it give meaningful detail to formations in large-scale battles?",
+   "weight": 3
+  },
+  {
+   "question": "Does it depict sharp negotiation-table exchanges and diplomatic alliances among player and NPC kingdoms?",
+   "weight": 3
+  },
+  {
+   "question": "Does it show strategic domain development, including resource management and advancement through a technology tree?",
+   "weight": 3
+  },
+  {
+   "question": "Does the narrative effectively convey the king’s loneliness and resolve as he rises from obscurity to the pinnacle of power?",
+   "weight": 3
+  }
+ ],
+ "error": null,
+ "short": false,
+ "s2_usd": 0.0005989,
+ "seconds": 14.1456
+}

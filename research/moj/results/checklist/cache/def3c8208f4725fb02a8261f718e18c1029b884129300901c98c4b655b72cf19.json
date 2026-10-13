@@ -1,0 +1,41 @@
+{
+ "key": "def3c8208f4725fb02a8261f718e18c1029b884129300901c98c4b655b72cf19",
+ "boxes": [
+  {
+   "question": "Schlägt die Antwort eine neue, konkrete TikTok-Trendidee vor?",
+   "weight": 5
+  },
+  {
+   "question": "Verwendet der vorgeschlagene Trend Toastbrot?",
+   "weight": 5
+  },
+  {
+   "question": "Verwendet der vorgeschlagene Trend Taschenlampen?",
+   "weight": 5
+  },
+  {
+   "question": "Kommt der Trend ohne Verkäufe oder Profitmachen aus?",
+   "weight": 5
+  },
+  {
+   "question": "Ist die Idee auf eine komische oder humorvolle Wirkung ausgelegt?",
+   "weight": 3
+  },
+  {
+   "question": "Ist der Trend so beschrieben, dass andere ihn leicht nachmachen können?",
+   "weight": 3
+  },
+  {
+   "question": "Ist die vorgeschlagene Aktivität sicher?",
+   "weight": 4
+  },
+  {
+   "question": "Ist die Antwort auf Deutsch verfasst?",
+   "weight": 4
+  }
+ ],
+ "error": null,
+ "short": false,
+ "s2_usd": 0.000317,
+ "seconds": 6.8752
+}

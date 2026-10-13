@@ -1,0 +1,29 @@
+{
+ "key": "28108e182f36d807f841cf77b0d117bd7df654f0c400009a8829f6be0ea264ea",
+ "boxes": [
+  {
+   "question": "Does the answer correctly state whether the person at the museum tells the truth?",
+   "weight": 5
+  },
+  {
+   "question": "Does the answer correctly state whether the person at the restaurant tells the truth?",
+   "weight": 5
+  },
+  {
+   "question": "Does the answer correctly state whether the person at the movie theater tells the truth?",
+   "weight": 5
+  },
+  {
+   "question": "Does the answer give the three answers in the requested museum, restaurant, movie-theater order?",
+   "weight": 2
+  },
+  {
+   "question": "Does the answer present the response as a bold list of exactly three words, each being “yes” or “no”?",
+   "weight": 1
+  }
+ ],
+ "error": null,
+ "short": false,
+ "s2_usd": 0.0005291,
+ "seconds": 14.6833
+}

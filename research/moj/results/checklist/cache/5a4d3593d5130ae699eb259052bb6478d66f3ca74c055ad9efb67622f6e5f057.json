@@ -1,0 +1,25 @@
+{
+ "key": "5a4d3593d5130ae699eb259052bb6478d66f3ca74c055ad9efb67622f6e5f057",
+ "boxes": [
+  {
+   "question": "Does the proposed method allow each selected character in `str1` to advance exactly once to its cyclic successor, while leaving unselected characters unchanged?",
+   "weight": 5
+  },
+  {
+   "question": "Does it determine whether the characters of `str2` can be matched to characters of `str1` in their original relative order?",
+   "weight": 5
+  },
+  {
+   "question": "Does it return true exactly when such an ordered match is possible using at most one operation, and false otherwise?",
+   "weight": 5
+  },
+  {
+   "question": "Is the method efficient enough to handle strings of length up to 10^5?",
+   "weight": 3
+  }
+ ],
+ "error": null,
+ "short": false,
+ "s2_usd": 0.00026710000000000004,
+ "seconds": 6.5892
+}

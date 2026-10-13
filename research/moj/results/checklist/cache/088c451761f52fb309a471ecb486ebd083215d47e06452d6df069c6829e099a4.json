@@ -1,0 +1,25 @@
+{
+ "key": "088c451761f52fb309a471ecb486ebd083215d47e06452d6df069c6829e099a4",
+ "boxes": [
+  {
+   "question": "Does the answer select option A?",
+   "weight": 5
+  },
+  {
+   "question": "Does the answer give the letter A five times?",
+   "weight": 2
+  },
+  {
+   "question": "Are the five letters presented as one continuous string?",
+   "weight": 1
+  },
+  {
+   "question": "Does the answer contain only that letter string, with no additional text?",
+   "weight": 1
+  }
+ ],
+ "error": null,
+ "short": false,
+ "s2_usd": 0.000316,
+ "seconds": 6.7134
+}

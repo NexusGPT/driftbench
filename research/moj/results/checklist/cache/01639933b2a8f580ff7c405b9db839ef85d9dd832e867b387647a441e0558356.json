@@ -1,0 +1,29 @@
+{
+ "key": "01639933b2a8f580ff7c405b9db839ef85d9dd832e867b387647a441e0558356",
+ "boxes": [
+  {
+   "question": "Ist die Antwort auf Deutsch verfasst?",
+   "weight": 2
+  },
+  {
+   "question": "Erklärt die Antwort, dass sich der Rechenaufwand nicht allein aus der Länge von 100 Wörtern bestimmen lässt?",
+   "weight": 5
+  },
+  {
+   "question": "Nennt die Antwort FLOP/s oder eine andere passende Operationsrate als Einheit für Rechenleistung?",
+   "weight": 5
+  },
+  {
+   "question": "Unterscheidet die Antwort korrekt zwischen Rechenleistung und dem dafür verbrauchten Energieaufwand, etwa in Joule oder Wattstunden?",
+   "weight": 5
+  },
+  {
+   "question": "Falls die Antwort eine Messung des Stromverbrauchs vorschlägt, erklärt sie, dass der Verbrauch der Aufgabe gegenüber dem Grundverbrauch abgegrenzt werden muss?",
+   "weight": 3
+  }
+ ],
+ "error": null,
+ "short": false,
+ "s2_usd": 0.0006305,
+ "seconds": 16.0733
+}

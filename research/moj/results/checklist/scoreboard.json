@@ -1,0 +1,2408 @@
+{
+ "selection": "checklist-medium-single-equal",
+ "cells": {
+  "judgebench.tune": {
+   "checklist-low-batch-equal": {
+    "n": 41,
+    "acc": 0.8048780487804879,
+    "low": 0.6598611764744329,
+    "high": 0.8976568425079408,
+    "strict_abstention": {
+     "n": 41,
+     "acc": 0.7682926829268293,
+     "low": 0.619692365268482,
+     "high": 0.8709234914360067
+    },
+    "short_checklists": 3,
+    "short_unique_checklists": 3,
+    "short_cases_as_returned": {
+     "n": 3,
+     "acc": 1.0,
+     "low": 0.43849391955098227,
+     "high": 1.0
+    },
+    "short_cases_strict": {
+     "n": 3,
+     "acc": 0.5,
+     "low": 0.12533145299844767,
+     "high": 0.8746685470015523
+    },
+    "missing": 0,
+    "s1_calls_100": 200.0,
+    "unique_s1_requests_100": 200.0,
+    "logical_s1_calls_100": 200.0,
+    "s2_calls_100": 100.0,
+    "s2_usd_100": 0.03113048780487805,
+    "s2_after_tune_calls_100": 100.0,
+    "s2_after_tune_usd_100": 0.03113048780487805,
+    "s1_seconds_pair": 0.7123682926829269,
+    "on_ledger_pairs": {
+     "n": 41,
+     "acc": 0.8048780487804879,
+     "low": 0.6598611764744329,
+     "high": 0.8976568425079408
+    },
+    "on_promptfoo_pairs": {
+     "n": 31,
+     "acc": 0.7741935483870968,
+     "low": 0.6018723994130262,
+     "high": 0.8860500840550121
+    }
+   },
+   "checklist-low-batch-writer": {
+    "n": 41,
+    "acc": 0.8048780487804879,
+    "low": 0.6598611764744329,
+    "high": 0.8976568425079408,
+    "strict_abstention": {
+     "n": 41,
+     "acc": 0.7682926829268293,
+     "low": 0.619692365268482,
+     "high": 0.8709234914360067
+    },
+    "short_checklists": 3,
+    "short_unique_checklists": 3,
+    "short_cases_as_returned": {
+     "n": 3,
+     "acc": 1.0,
+     "low": 0.43849391955098227,
+     "high": 1.0
+    },
+    "short_cases_strict": {
+     "n": 3,
+     "acc": 0.5,
+     "low": 0.12533145299844767,
+     "high": 0.8746685470015523
+    },
+    "missing": 0,
+    "s1_calls_100": 200.0,
+    "unique_s1_requests_100": 200.0,
+    "logical_s1_calls_100": 200.0,
+    "s2_calls_100": 100.0,
+    "s2_usd_100": 0.03113048780487805,
+    "s2_after_tune_calls_100": 100.0,
+    "s2_after_tune_usd_100": 0.03113048780487805,
+    "s1_seconds_pair": 0.7123682926829269,
+    "on_ledger_pairs": {
+     "n": 41,
+     "acc": 0.8048780487804879,
+     "low": 0.6598611764744329,
+     "high": 0.8976568425079408
+    },
+    "on_promptfoo_pairs": {
+     "n": 31,
+     "acc": 0.7741935483870968,
+     "low": 0.6018723994130262,
+     "high": 0.8860500840550121
+    }
+   },
+   "checklist-low-single-equal": {
+    "n": 41,
+    "acc": 0.8048780487804879,
+    "low": 0.6598611764744329,
+    "high": 0.8976568425079408,
+    "strict_abstention": {
+     "n": 41,
+     "acc": 0.7682926829268293,
+     "low": 0.619692365268482,
+     "high": 0.8709234914360067
+    },
+    "short_checklists": 3,
+    "short_unique_checklists": 3,
+    "short_cases_as_returned": {
+     "n": 3,
+     "acc": 1.0,
+     "low": 0.43849391955098227,
+     "high": 1.0
+    },
+    "short_cases_strict": {
+     "n": 3,
+     "acc": 0.5,
+     "low": 0.12533145299844767,
+     "high": 0.8746685470015523
+    },
+    "missing": 0,
+    "s1_calls_100": 1580.4878048780488,
+    "unique_s1_requests_100": 1580.4878048780488,
+    "logical_s1_calls_100": 1580.4878048780488,
+    "s2_calls_100": 100.0,
+    "s2_usd_100": 0.03113048780487805,
+    "s2_after_tune_calls_100": 100.0,
+    "s2_after_tune_usd_100": 0.03113048780487805,
+    "s1_seconds_pair": 5.448585365853658,
+    "on_ledger_pairs": {
+     "n": 41,
+     "acc": 0.8048780487804879,
+     "low": 0.6598611764744329,
+     "high": 0.8976568425079408
+    },
+    "on_promptfoo_pairs": {
+     "n": 31,
+     "acc": 0.7741935483870968,
+     "low": 0.6018723994130262,
+     "high": 0.8860500840550121
+    }
+   },
+   "checklist-low-single-writer": {
+    "n": 41,
+    "acc": 0.8048780487804879,
+    "low": 0.6598611764744329,
+    "high": 0.8976568425079408,
+    "strict_abstention": {
+     "n": 41,
+     "acc": 0.7682926829268293,
+     "low": 0.619692365268482,
+     "high": 0.8709234914360067
+    },
+    "short_checklists": 3,
+    "short_unique_checklists": 3,
+    "short_cases_as_returned": {
+     "n": 3,
+     "acc": 1.0,
+     "low": 0.43849391955098227,
+     "high": 1.0
+    },
+    "short_cases_strict": {
+     "n": 3,
+     "acc": 0.5,
+     "low": 0.12533145299844767,
+     "high": 0.8746685470015523
+    },
+    "missing": 0,
+    "s1_calls_100": 1580.4878048780488,
+    "unique_s1_requests_100": 1580.4878048780488,
+    "logical_s1_calls_100": 1580.4878048780488,
+    "s2_calls_100": 100.0,
+    "s2_usd_100": 0.03113048780487805,
+    "s2_after_tune_calls_100": 100.0,
+    "s2_after_tune_usd_100": 0.03113048780487805,
+    "s1_seconds_pair": 5.448585365853658,
+    "on_ledger_pairs": {
+     "n": 41,
+     "acc": 0.8048780487804879,
+     "low": 0.6598611764744329,
+     "high": 0.8976568425079408
+    },
+    "on_promptfoo_pairs": {
+     "n": 31,
+     "acc": 0.7741935483870968,
+     "low": 0.6018723994130262,
+     "high": 0.8860500840550121
+    }
+   },
+   "checklist-medium-batch-equal": {
+    "n": 41,
+    "acc": 0.926829268292683,
+    "low": 0.8057225998278872,
+    "high": 0.9748026267474359,
+    "strict_abstention": {
+     "n": 41,
+     "acc": 0.926829268292683,
+     "low": 0.8057225998278872,
+     "high": 0.9748026267474359
+    },
+    "short_checklists": 0,
+    "short_unique_checklists": 0,
+    "short_cases_as_returned": {
+     "n": 0,
+     "acc": null,
+     "low": null,
+     "high": null
+    },
+    "short_cases_strict": {
+     "n": 0,
+     "acc": null,
+     "low": null,
+     "high": null
+    },
+    "missing": 0,
+    "s1_calls_100": 200.0,
+    "unique_s1_requests_100": 200.0,
+    "logical_s1_calls_100": 200.0,
+    "s2_calls_100": 100.0,
+    "s2_usd_100": 0.06654756097560975,
+    "s2_after_tune_calls_100": 100.0,
+    "s2_after_tune_usd_100": 0.06654756097560975,
+    "s1_seconds_pair": 0.6989658536585366,
+    "on_ledger_pairs": {
+     "n": 41,
+     "acc": 0.926829268292683,
+     "low": 0.8057225998278872,
+     "high": 0.9748026267474359
+    },
+    "on_promptfoo_pairs": {
+     "n": 31,
+     "acc": 0.9354838709677419,
+     "low": 0.7928101168125354,
+     "high": 0.9821255922249368
+    }
+   },
+   "checklist-medium-batch-writer": {
+    "n": 41,
+    "acc": 0.926829268292683,
+    "low": 0.8057225998278872,
+    "high": 0.9748026267474359,
+    "strict_abstention": {
+     "n": 41,
+     "acc": 0.926829268292683,
+     "low": 0.8057225998278872,
+     "high": 0.9748026267474359
+    },
+    "short_checklists": 0,
+    "short_unique_checklists": 0,
+    "short_cases_as_returned": {
+     "n": 0,
+     "acc": null,
+     "low": null,
+     "high": null
+    },
+    "short_cases_strict": {
+     "n": 0,
+     "acc": null,
+     "low": null,
+     "high": null
+    },
+    "missing": 0,
+    "s1_calls_100": 200.0,
+    "unique_s1_requests_100": 200.0,
+    "logical_s1_calls_100": 200.0,
+    "s2_calls_100": 100.0,
+    "s2_usd_100": 0.06654756097560975,
+    "s2_after_tune_calls_100": 100.0,
+    "s2_after_tune_usd_100": 0.06654756097560975,
+    "s1_seconds_pair": 0.6989658536585366,
+    "on_ledger_pairs": {
+     "n": 41,
+     "acc": 0.926829268292683,
+     "low": 0.8057225998278872,
+     "high": 0.9748026267474359
+    },
+    "on_promptfoo_pairs": {
+     "n": 31,
+     "acc": 0.9354838709677419,
+     "low": 0.7928101168125354,
+     "high": 0.9821255922249368
+    }
+   },
+   "checklist-medium-single-equal": {
+    "n": 41,
+    "acc": 0.9390243902439024,
+    "low": 0.8219151646070804,
+    "high": 0.9809107827275374,
+    "strict_abstention": {
+     "n": 41,
+     "acc": 0.9390243902439024,
+     "low": 0.8219151646070804,
+     "high": 0.9809107827275374
+    },
+    "short_checklists": 0,
+    "short_unique_checklists": 0,
+    "short_cases_as_returned": {
+     "n": 0,
+     "acc": null,
+     "low": null,
+     "high": null
+    },
+    "short_cases_strict": {
+     "n": 0,
+     "acc": null,
+     "low": null,
+     "high": null
+    },
+    "missing": 0,
+    "s1_calls_100": 1668.2926829268292,
+    "unique_s1_requests_100": 1668.2926829268292,
+    "logical_s1_calls_100": 1668.2926829268292,
+    "s2_calls_100": 100.0,
+    "s2_usd_100": 0.06654756097560975,
+    "s2_after_tune_calls_100": 100.0,
+    "s2_after_tune_usd_100": 0.06654756097560975,
+    "s1_seconds_pair": 5.620419512195122,
+    "on_ledger_pairs": {
+     "n": 41,
+     "acc": 0.9390243902439024,
+     "low": 0.8219151646070804,
+     "high": 0.9809107827275374
+    },
+    "on_promptfoo_pairs": {
+     "n": 31,
+     "acc": 0.9516129032258065,
+     "low": 0.8148907105097289,
+     "high": 0.9887463210846867
+    }
+   },
+   "checklist-medium-single-writer": {
+    "n": 41,
+    "acc": 0.9390243902439024,
+    "low": 0.8219151646070804,
+    "high": 0.9809107827275374,
+    "strict_abstention": {
+     "n": 41,
+     "acc": 0.9390243902439024,
+     "low": 0.8219151646070804,
+     "high": 0.9809107827275374
+    },
+    "short_checklists": 0,
+    "short_unique_checklists": 0,
+    "short_cases_as_returned": {
+     "n": 0,
+     "acc": null,
+     "low": null,
+     "high": null
+    },
+    "short_cases_strict": {
+     "n": 0,
+     "acc": null,
+     "low": null,
+     "high": null
+    },
+    "missing": 0,
+    "s1_calls_100": 1668.2926829268292,
+    "unique_s1_requests_100": 1668.2926829268292,
+    "logical_s1_calls_100": 1668.2926829268292,
+    "s2_calls_100": 100.0,
+    "s2_usd_100": 0.06654756097560975,
+    "s2_after_tune_calls_100": 100.0,
+    "s2_after_tune_usd_100": 0.06654756097560975,
+    "s1_seconds_pair": 5.620419512195122,
+    "on_ledger_pairs": {
+     "n": 41,
+     "acc": 0.9390243902439024,
+     "low": 0.8219151646070804,
+     "high": 0.9809107827275374
+    },
+    "on_promptfoo_pairs": {
+     "n": 31,
+     "acc": 0.9516129032258065,
+     "low": 0.8148907105097289,
+     "high": 0.9887463210846867
+    }
+   },
+   "ledger": {
+    "n": 41,
+    "acc": 0.9634146341463414,
+    "low": 0.8559215092105412,
+    "high": 0.9915058796426666,
+    "s1_calls_100": 0,
+    "s2_calls_100": 204.8780487804878,
+    "s2_usd_100": null,
+    "cost_coverage": 0,
+    "s1_seconds_pair": null
+   },
+   "promptfoo": {
+    "n": 31,
+    "acc": 0.9354838709677419,
+    "low": 0.7928101168125354,
+    "high": 0.9821255922249368,
+    "s1_calls_100": 0,
+    "s2_calls_100": 200.0,
+    "s2_usd_100": null,
+    "cost_coverage": 0,
+    "s1_seconds_pair": null
+   }
+  },
+  "judgebench.valid": {
+   "checklist-low-batch-equal": {
+    "n": 27,
+    "acc": 0.8148148148148148,
+    "low": 0.6330094349480825,
+    "high": 0.9181941342571468,
+    "strict_abstention": {
+     "n": 27,
+     "acc": 0.8148148148148148,
+     "low": 0.6330094349480825,
+     "high": 0.9181941342571468
+    },
+    "short_checklists": 0,
+    "short_unique_checklists": 0,
+    "short_cases_as_returned": {
+     "n": 0,
+     "acc": null,
+     "low": null,
+     "high": null
+    },
+    "short_cases_strict": {
+     "n": 0,
+     "acc": null,
+     "low": null,
+     "high": null
+    },
+    "missing": 0,
+    "s1_calls_100": 200.0,
+    "unique_s1_requests_100": 200.0,
+    "logical_s1_calls_100": 200.0,
+    "s2_calls_100": 100.0,
+    "s2_usd_100": 0.033559629629629634,
+    "s2_after_tune_calls_100": 100.0,
+    "s2_after_tune_usd_100": 0.033559629629629634,
+    "s1_seconds_pair": 0.7704333333333333,
+    "on_ledger_pairs": {
+     "n": 27,
+     "acc": 0.8148148148148148,
+     "low": 0.6330094349480825,
+     "high": 0.9181941342571468
+    },
+    "on_promptfoo_pairs": {
+     "n": 19,
+     "acc": 0.8947368421052632,
+     "low": 0.686054495051583,
+     "high": 0.9706420586049034
+    }
+   },
+   "checklist-low-batch-writer": {
+    "n": 27,
+    "acc": 0.8148148148148148,
+    "low": 0.6330094349480825,
+    "high": 0.9181941342571468,
+    "strict_abstention": {
+     "n": 27,
+     "acc": 0.8148148148148148,
+     "low": 0.6330094349480825,
+     "high": 0.9181941342571468
+    },
+    "short_checklists": 0,
+    "short_unique_checklists": 0,
+    "short_cases_as_returned": {
+     "n": 0,
+     "acc": null,
+     "low": null,
+     "high": null
+    },
+    "short_cases_strict": {
+     "n": 0,
+     "acc": null,
+     "low": null,
+     "high": null
+    },
+    "missing": 0,
+    "s1_calls_100": 200.0,
+    "unique_s1_requests_100": 200.0,
+    "logical_s1_calls_100": 200.0,
+    "s2_calls_100": 100.0,
+    "s2_usd_100": 0.033559629629629634,
+    "s2_after_tune_calls_100": 100.0,
+    "s2_after_tune_usd_100": 0.033559629629629634,
+    "s1_seconds_pair": 0.7704333333333333,
+    "on_ledger_pairs": {
+     "n": 27,
+     "acc": 0.8148148148148148,
+     "low": 0.6330094349480825,
+     "high": 0.9181941342571468
+    },
+    "on_promptfoo_pairs": {
+     "n": 19,
+     "acc": 0.8947368421052632,
+     "low": 0.686054495051583,
+     "high": 0.9706420586049034
+    }
+   },
+   "checklist-low-single-equal": {
+    "n": 27,
+    "acc": 0.7962962962962963,
+    "low": 0.6125341483973717,
+    "high": 0.906245681442844,
+    "strict_abstention": {
+     "n": 27,
+     "acc": 0.7962962962962963,
+     "low": 0.6125341483973717,
+     "high": 0.906245681442844
+    },
+    "short_checklists": 0,
+    "short_unique_checklists": 0,
+    "short_cases_as_returned": {
+     "n": 0,
+     "acc": null,
+     "low": null,
+     "high": null
+    },
+    "short_cases_strict": {
+     "n": 0,
+     "acc": null,
+     "low": null,
+     "high": null
+    },
+    "missing": 0,
+    "s1_calls_100": 1600.0,
+    "unique_s1_requests_100": 1600.0,
+    "logical_s1_calls_100": 1600.0,
+    "s2_calls_100": 100.0,
+    "s2_usd_100": 0.033559629629629634,
+    "s2_after_tune_calls_100": 100.0,
+    "s2_after_tune_usd_100": 0.033559629629629634,
+    "s1_seconds_pair": 6.509185185185185,
+    "on_ledger_pairs": {
+     "n": 27,
+     "acc": 0.7962962962962963,
+     "low": 0.6125341483973717,
+     "high": 0.906245681442844
+    },
+    "on_promptfoo_pairs": {
+     "n": 19,
+     "acc": 0.8421052631578947,
+     "low": 0.6243407235682331,
+     "high": 0.9447962896007217
+    }
+   },
+   "checklist-low-single-writer": {
+    "n": 27,
+    "acc": 0.7962962962962963,
+    "low": 0.6125341483973717,
+    "high": 0.906245681442844,
+    "strict_abstention": {
+     "n": 27,
+     "acc": 0.7962962962962963,
+     "low": 0.6125341483973717,
+     "high": 0.906245681442844
+    },
+    "short_checklists": 0,
+    "short_unique_checklists": 0,
+    "short_cases_as_returned": {
+     "n": 0,
+     "acc": null,
+     "low": null,
+     "high": null
+    },
+    "short_cases_strict": {
+     "n": 0,
+     "acc": null,
+     "low": null,
+     "high": null
+    },
+    "missing": 0,
+    "s1_calls_100": 1600.0,
+    "unique_s1_requests_100": 1600.0,
+    "logical_s1_calls_100": 1600.0,
+    "s2_calls_100": 100.0,
+    "s2_usd_100": 0.033559629629629634,
+    "s2_after_tune_calls_100": 100.0,
+    "s2_after_tune_usd_100": 0.033559629629629634,
+    "s1_seconds_pair": 6.509185185185185,
+    "on_ledger_pairs": {
+     "n": 27,
+     "acc": 0.7962962962962963,
+     "low": 0.6125341483973717,
+     "high": 0.906245681442844
+    },
+    "on_promptfoo_pairs": {
+     "n": 19,
+     "acc": 0.8421052631578947,
+     "low": 0.6243407235682331,
+     "high": 0.9447962896007217
+    }
+   },
+   "checklist-medium-batch-equal": {
+    "n": 27,
+    "acc": 0.7222222222222222,
+    "low": 0.5340592087853269,
+    "high": 0.855025663594835,
+    "strict_abstention": {
+     "n": 27,
+     "acc": 0.7222222222222222,
+     "low": 0.5340592087853269,
+     "high": 0.855025663594835
+    },
+    "short_checklists": 0,
+    "short_unique_checklists": 0,
+    "short_cases_as_returned": {
+     "n": 0,
+     "acc": null,
+     "low": null,
+     "high": null
+    },
+    "short_cases_strict": {
+     "n": 0,
+     "acc": null,
+     "low": null,
+     "high": null
+    },
+    "missing": 0,
+    "s1_calls_100": 200.0,
+    "unique_s1_requests_100": 200.0,
+    "logical_s1_calls_100": 200.0,
+    "s2_calls_100": 100.0,
+    "s2_usd_100": 0.06247444444444445,
+    "s2_after_tune_calls_100": 100.0,
+    "s2_after_tune_usd_100": 0.06247444444444445,
+    "s1_seconds_pair": 0.8414703703703703,
+    "on_ledger_pairs": {
+     "n": 27,
+     "acc": 0.7222222222222222,
+     "low": 0.5340592087853269,
+     "high": 0.855025663594835
+    },
+    "on_promptfoo_pairs": {
+     "n": 19,
+     "acc": 0.6842105263157895,
+     "low": 0.4601001017506463,
+     "high": 0.846358289955714
+    }
+   },
+   "checklist-medium-batch-writer": {
+    "n": 27,
+    "acc": 0.7592592592592593,
+    "low": 0.5726602405398005,
+    "high": 0.8812721105703885,
+    "strict_abstention": {
+     "n": 27,
+     "acc": 0.7592592592592593,
+     "low": 0.5726602405398005,
+     "high": 0.8812721105703885
+    },
+    "short_checklists": 0,
+    "short_unique_checklists": 0,
+    "short_cases_as_returned": {
+     "n": 0,
+     "acc": null,
+     "low": null,
+     "high": null
+    },
+    "short_cases_strict": {
+     "n": 0,
+     "acc": null,
+     "low": null,
+     "high": null
+    },
+    "missing": 0,
+    "s1_calls_100": 200.0,
+    "unique_s1_requests_100": 200.0,
+    "logical_s1_calls_100": 200.0,
+    "s2_calls_100": 100.0,
+    "s2_usd_100": 0.06247444444444445,
+    "s2_after_tune_calls_100": 100.0,
+    "s2_after_tune_usd_100": 0.06247444444444445,
+    "s1_seconds_pair": 0.8414703703703703,
+    "on_ledger_pairs": {
+     "n": 27,
+     "acc": 0.7592592592592593,
+     "low": 0.5726602405398005,
+     "high": 0.8812721105703885
+    },
+    "on_promptfoo_pairs": {
+     "n": 19,
+     "acc": 0.7368421052631579,
+     "low": 0.5120803155892935,
+     "high": 0.8819376166045982
+    }
+   },
+   "checklist-medium-single-equal": {
+    "n": 27,
+    "acc": 0.7037037037037037,
+    "low": 0.515189666191624,
+    "high": 0.8414714668235244,
+    "strict_abstention": {
+     "n": 27,
+     "acc": 0.7037037037037037,
+     "low": 0.515189666191624,
+     "high": 0.8414714668235244
+    },
+    "short_checklists": 0,
+    "short_unique_checklists": 0,
+    "short_cases_as_returned": {
+     "n": 0,
+     "acc": null,
+     "low": null,
+     "high": null
+    },
+    "short_cases_strict": {
+     "n": 0,
+     "acc": null,
+     "low": null,
+     "high": null
+    },
+    "missing": 0,
+    "s1_calls_100": 1644.4444444444443,
+    "unique_s1_requests_100": 1644.4444444444443,
+    "logical_s1_calls_100": 1644.4444444444443,
+    "s2_calls_100": 100.0,
+    "s2_usd_100": 0.06247444444444445,
+    "s2_after_tune_calls_100": 100.0,
+    "s2_after_tune_usd_100": 0.06247444444444445,
+    "s1_seconds_pair": 6.80422962962963,
+    "on_ledger_pairs": {
+     "n": 27,
+     "acc": 0.7037037037037037,
+     "low": 0.515189666191624,
+     "high": 0.8414714668235244
+    },
+    "on_promptfoo_pairs": {
+     "n": 19,
+     "acc": 0.6842105263157895,
+     "low": 0.4601001017506463,
+     "high": 0.846358289955714
+    }
+   },
+   "checklist-medium-single-writer": {
+    "n": 27,
+    "acc": 0.7407407407407407,
+    "low": 0.553210695973843,
+    "high": 0.8682979157713322,
+    "strict_abstention": {
+     "n": 27,
+     "acc": 0.7407407407407407,
+     "low": 0.553210695973843,
+     "high": 0.8682979157713322
+    },
+    "short_checklists": 0,
+    "short_unique_checklists": 0,
+    "short_cases_as_returned": {
+     "n": 0,
+     "acc": null,
+     "low": null,
+     "high": null
+    },
+    "short_cases_strict": {
+     "n": 0,
+     "acc": null,
+     "low": null,
+     "high": null
+    },
+    "missing": 0,
+    "s1_calls_100": 1644.4444444444443,
+    "unique_s1_requests_100": 1644.4444444444443,
+    "logical_s1_calls_100": 1644.4444444444443,
+    "s2_calls_100": 100.0,
+    "s2_usd_100": 0.06247444444444445,
+    "s2_after_tune_calls_100": 100.0,
+    "s2_after_tune_usd_100": 0.06247444444444445,
+    "s1_seconds_pair": 6.80422962962963,
+    "on_ledger_pairs": {
+     "n": 27,
+     "acc": 0.7407407407407407,
+     "low": 0.553210695973843,
+     "high": 0.8682979157713322
+    },
+    "on_promptfoo_pairs": {
+     "n": 19,
+     "acc": 0.7368421052631579,
+     "low": 0.5120803155892935,
+     "high": 0.8819376166045982
+    }
+   },
+   "ledger": {
+    "n": 27,
+    "acc": 0.9444444444444444,
+    "low": 0.791104327094339,
+    "high": 0.9870654176659848,
+    "s1_calls_100": 0,
+    "s2_calls_100": 207.40740740740742,
+    "s2_usd_100": null,
+    "cost_coverage": 0,
+    "s1_seconds_pair": null
+   },
+   "promptfoo": {
+    "n": 19,
+    "acc": 0.9736842105263158,
+    "low": 0.790789306861633,
+    "high": 0.9972465575261509,
+    "s1_calls_100": 0,
+    "s2_calls_100": 200.0,
+    "s2_usd_100": null,
+    "cost_coverage": 0,
+    "s1_seconds_pair": null
+   }
+  },
+  "mmeval.tune": {
+   "checklist-low-batch-equal": {
+    "n": 22,
+    "acc": 0.8636363636363636,
+    "low": 0.6666458812053,
+    "high": 0.9525108273576373,
+    "strict_abstention": {
+     "n": 22,
+     "acc": 0.8636363636363636,
+     "low": 0.6666458812053,
+     "high": 0.9525108273576373
+    },
+    "short_checklists": 0,
+    "short_unique_checklists": 0,
+    "short_cases_as_returned": {
+     "n": 0,
+     "acc": null,
+     "low": null,
+     "high": null
+    },
+    "short_cases_strict": {
+     "n": 0,
+     "acc": null,
+     "low": null,
+     "high": null
+    },
+    "missing": 0,
+    "s1_calls_100": 200.0,
+    "unique_s1_requests_100": 200.0,
+    "logical_s1_calls_100": 200.0,
+    "s2_calls_100": 100.0,
+    "s2_usd_100": 0.02043772727272727,
+    "s2_after_tune_calls_100": 100.0,
+    "s2_after_tune_usd_100": 0.02043772727272727,
+    "s1_seconds_pair": 0.8870863636363637,
+    "on_ledger_pairs": {
+     "n": 9,
+     "acc": 0.6666666666666666,
+     "low": 0.35419734749908977,
+     "high": 0.879418401317257
+    },
+    "on_promptfoo_pairs": {
+     "n": 9,
+     "acc": 0.6666666666666666,
+     "low": 0.35419734749908977,
+     "high": 0.879418401317257
+    }
+   },
+   "checklist-low-batch-writer": {
+    "n": 22,
+    "acc": 0.8636363636363636,
+    "low": 0.6666458812053,
+    "high": 0.9525108273576373,
+    "strict_abstention": {
+     "n": 22,
+     "acc": 0.8636363636363636,
+     "low": 0.6666458812053,
+     "high": 0.9525108273576373
+    },
+    "short_checklists": 0,
+    "short_unique_checklists": 0,
+    "short_cases_as_returned": {
+     "n": 0,
+     "acc": null,
+     "low": null,
+     "high": null
+    },
+    "short_cases_strict": {
+     "n": 0,
+     "acc": null,
+     "low": null,
+     "high": null
+    },
+    "missing": 0,
+    "s1_calls_100": 200.0,
+    "unique_s1_requests_100": 200.0,
+    "logical_s1_calls_100": 200.0,
+    "s2_calls_100": 100.0,
+    "s2_usd_100": 0.02043772727272727,
+    "s2_after_tune_calls_100": 100.0,
+    "s2_after_tune_usd_100": 0.02043772727272727,
+    "s1_seconds_pair": 0.8870863636363637,
+    "on_ledger_pairs": {
+     "n": 9,
+     "acc": 0.6666666666666666,
+     "low": 0.35419734749908977,
+     "high": 0.879418401317257
+    },
+    "on_promptfoo_pairs": {
+     "n": 9,
+     "acc": 0.6666666666666666,
+     "low": 0.35419734749908977,
+     "high": 0.879418401317257
+    }
+   },
+   "checklist-low-single-equal": {
+    "n": 22,
+    "acc": 0.8636363636363636,
+    "low": 0.6666458812053,
+    "high": 0.9525108273576373,
+    "strict_abstention": {
+     "n": 22,
+     "acc": 0.8636363636363636,
+     "low": 0.6666458812053,
+     "high": 0.9525108273576373
+    },
+    "short_checklists": 0,
+    "short_unique_checklists": 0,
+    "short_cases_as_returned": {
+     "n": 0,
+     "acc": null,
+     "low": null,
+     "high": null
+    },
+    "short_cases_strict": {
+     "n": 0,
+     "acc": null,
+     "low": null,
+     "high": null
+    },
+    "missing": 0,
+    "s1_calls_100": 1963.6363636363637,
+    "unique_s1_requests_100": 1963.6363636363637,
+    "logical_s1_calls_100": 1963.6363636363637,
+    "s2_calls_100": 100.0,
+    "s2_usd_100": 0.02043772727272727,
+    "s2_after_tune_calls_100": 100.0,
+    "s2_after_tune_usd_100": 0.02043772727272727,
+    "s1_seconds_pair": 7.333063636363637,
+    "on_ledger_pairs": {
+     "n": 9,
+     "acc": 0.6666666666666666,
+     "low": 0.35419734749908977,
+     "high": 0.879418401317257
+    },
+    "on_promptfoo_pairs": {
+     "n": 9,
+     "acc": 0.6666666666666666,
+     "low": 0.35419734749908977,
+     "high": 0.879418401317257
+    }
+   },
+   "checklist-low-single-writer": {
+    "n": 22,
+    "acc": 0.8636363636363636,
+    "low": 0.6666458812053,
+    "high": 0.9525108273576373,
+    "strict_abstention": {
+     "n": 22,
+     "acc": 0.8636363636363636,
+     "low": 0.6666458812053,
+     "high": 0.9525108273576373
+    },
+    "short_checklists": 0,
+    "short_unique_checklists": 0,
+    "short_cases_as_returned": {
+     "n": 0,
+     "acc": null,
+     "low": null,
+     "high": null
+    },
+    "short_cases_strict": {
+     "n": 0,
+     "acc": null,
+     "low": null,
+     "high": null
+    },
+    "missing": 0,
+    "s1_calls_100": 1963.6363636363637,
+    "unique_s1_requests_100": 1963.6363636363637,
+    "logical_s1_calls_100": 1963.6363636363637,
+    "s2_calls_100": 100.0,
+    "s2_usd_100": 0.02043772727272727,
+    "s2_after_tune_calls_100": 100.0,
+    "s2_after_tune_usd_100": 0.02043772727272727,
+    "s1_seconds_pair": 7.333063636363637,
+    "on_ledger_pairs": {
+     "n": 9,
+     "acc": 0.6666666666666666,
+     "low": 0.35419734749908977,
+     "high": 0.879418401317257
+    },
+    "on_promptfoo_pairs": {
+     "n": 9,
+     "acc": 0.6666666666666666,
+     "low": 0.35419734749908977,
+     "high": 0.879418401317257
+    }
+   },
+   "checklist-medium-batch-equal": {
+    "n": 22,
+    "acc": 0.8636363636363636,
+    "low": 0.6666458812053,
+    "high": 0.9525108273576373,
+    "strict_abstention": {
+     "n": 22,
+     "acc": 0.8636363636363636,
+     "low": 0.6666458812053,
+     "high": 0.9525108273576373
+    },
+    "short_checklists": 0,
+    "short_unique_checklists": 0,
+    "short_cases_as_returned": {
+     "n": 0,
+     "acc": null,
+     "low": null,
+     "high": null
+    },
+    "short_cases_strict": {
+     "n": 0,
+     "acc": null,
+     "low": null,
+     "high": null
+    },
+    "missing": 0,
+    "s1_calls_100": 200.0,
+    "unique_s1_requests_100": 200.0,
+    "logical_s1_calls_100": 200.0,
+    "s2_calls_100": 100.0,
+    "s2_usd_100": 0.043142272727272724,
+    "s2_after_tune_calls_100": 100.0,
+    "s2_after_tune_usd_100": 0.043142272727272724,
+    "s1_seconds_pair": 0.9100636363636364,
+    "on_ledger_pairs": {
+     "n": 9,
+     "acc": 0.6666666666666666,
+     "low": 0.35419734749908977,
+     "high": 0.879418401317257
+    },
+    "on_promptfoo_pairs": {
+     "n": 9,
+     "acc": 0.6666666666666666,
+     "low": 0.35419734749908977,
+     "high": 0.879418401317257
+    }
+   },
+   "checklist-medium-batch-writer": {
+    "n": 22,
+    "acc": 0.8636363636363636,
+    "low": 0.6666458812053,
+    "high": 0.9525108273576373,
+    "strict_abstention": {
+     "n": 22,
+     "acc": 0.8636363636363636,
+     "low": 0.6666458812053,
+     "high": 0.9525108273576373
+    },
+    "short_checklists": 0,
+    "short_unique_checklists": 0,
+    "short_cases_as_returned": {
+     "n": 0,
+     "acc": null,
+     "low": null,
+     "high": null
+    },
+    "short_cases_strict": {
+     "n": 0,
+     "acc": null,
+     "low": null,
+     "high": null
+    },
+    "missing": 0,
+    "s1_calls_100": 200.0,
+    "unique_s1_requests_100": 200.0,
+    "logical_s1_calls_100": 200.0,
+    "s2_calls_100": 100.0,
+    "s2_usd_100": 0.043142272727272724,
+    "s2_after_tune_calls_100": 100.0,
+    "s2_after_tune_usd_100": 0.043142272727272724,
+    "s1_seconds_pair": 0.9100636363636364,
+    "on_ledger_pairs": {
+     "n": 9,
+     "acc": 0.6666666666666666,
+     "low": 0.35419734749908977,
+     "high": 0.879418401317257
+    },
+    "on_promptfoo_pairs": {
+     "n": 9,
+     "acc": 0.6666666666666666,
+     "low": 0.35419734749908977,
+     "high": 0.879418401317257
+    }
+   },
+   "checklist-medium-single-equal": {
+    "n": 22,
+    "acc": 0.8636363636363636,
+    "low": 0.6666458812053,
+    "high": 0.9525108273576373,
+    "strict_abstention": {
+     "n": 22,
+     "acc": 0.8636363636363636,
+     "low": 0.6666458812053,
+     "high": 0.9525108273576373
+    },
+    "short_checklists": 0,
+    "short_unique_checklists": 0,
+    "short_cases_as_returned": {
+     "n": 0,
+     "acc": null,
+     "low": null,
+     "high": null
+    },
+    "short_cases_strict": {
+     "n": 0,
+     "acc": null,
+     "low": null,
+     "high": null
+    },
+    "missing": 0,
+    "s1_calls_100": 2072.7272727272725,
+    "unique_s1_requests_100": 2072.7272727272725,
+    "logical_s1_calls_100": 2072.7272727272725,
+    "s2_calls_100": 100.0,
+    "s2_usd_100": 0.043142272727272724,
+    "s2_after_tune_calls_100": 100.0,
+    "s2_after_tune_usd_100": 0.043142272727272724,
+    "s1_seconds_pair": 7.744527272727273,
+    "on_ledger_pairs": {
+     "n": 9,
+     "acc": 0.6666666666666666,
+     "low": 0.35419734749908977,
+     "high": 0.879418401317257
+    },
+    "on_promptfoo_pairs": {
+     "n": 9,
+     "acc": 0.6666666666666666,
+     "low": 0.35419734749908977,
+     "high": 0.879418401317257
+    }
+   },
+   "checklist-medium-single-writer": {
+    "n": 22,
+    "acc": 0.8636363636363636,
+    "low": 0.6666458812053,
+    "high": 0.9525108273576373,
+    "strict_abstention": {
+     "n": 22,
+     "acc": 0.8636363636363636,
+     "low": 0.6666458812053,
+     "high": 0.9525108273576373
+    },
+    "short_checklists": 0,
+    "short_unique_checklists": 0,
+    "short_cases_as_returned": {
+     "n": 0,
+     "acc": null,
+     "low": null,
+     "high": null
+    },
+    "short_cases_strict": {
+     "n": 0,
+     "acc": null,
+     "low": null,
+     "high": null
+    },
+    "missing": 0,
+    "s1_calls_100": 2072.7272727272725,
+    "unique_s1_requests_100": 2072.7272727272725,
+    "logical_s1_calls_100": 2072.7272727272725,
+    "s2_calls_100": 100.0,
+    "s2_usd_100": 0.043142272727272724,
+    "s2_after_tune_calls_100": 100.0,
+    "s2_after_tune_usd_100": 0.043142272727272724,
+    "s1_seconds_pair": 7.744527272727273,
+    "on_ledger_pairs": {
+     "n": 9,
+     "acc": 0.6666666666666666,
+     "low": 0.35419734749908977,
+     "high": 0.879418401317257
+    },
+    "on_promptfoo_pairs": {
+     "n": 9,
+     "acc": 0.6666666666666666,
+     "low": 0.35419734749908977,
+     "high": 0.879418401317257
+    }
+   },
+   "ledger": {
+    "n": 9,
+    "acc": 0.3333333333333333,
+    "low": 0.12058159868274293,
+    "high": 0.6458026525009102,
+    "s1_calls_100": 0,
+    "s2_calls_100": null,
+    "s2_usd_100": null,
+    "cost_coverage": 0,
+    "s1_seconds_pair": null
+   },
+   "promptfoo": {
+    "n": 9,
+    "acc": 0.6666666666666666,
+    "low": 0.35419734749908977,
+    "high": 0.879418401317257,
+    "s1_calls_100": 0,
+    "s2_calls_100": 200.0,
+    "s2_usd_100": null,
+    "cost_coverage": 0,
+    "s1_seconds_pair": null
+   }
+  },
+  "mmeval.valid": {
+   "checklist-low-batch-equal": {
+    "n": 23,
+    "acc": 0.8695652173913043,
+    "low": 0.678721020269818,
+    "high": 0.954624234856553,
+    "strict_abstention": {
+     "n": 23,
+     "acc": 0.8695652173913043,
+     "low": 0.678721020269818,
+     "high": 0.954624234856553
+    },
+    "short_checklists": 0,
+    "short_unique_checklists": 0,
+    "short_cases_as_returned": {
+     "n": 0,
+     "acc": null,
+     "low": null,
+     "high": null
+    },
+    "short_cases_strict": {
+     "n": 0,
+     "acc": null,
+     "low": null,
+     "high": null
+    },
+    "missing": 0,
+    "s1_calls_100": 200.0,
+    "unique_s1_requests_100": 200.0,
+    "logical_s1_calls_100": 200.0,
+    "s2_calls_100": 100.0,
+    "s2_usd_100": 0.02116086956521739,
+    "s2_after_tune_calls_100": 100.0,
+    "s2_after_tune_usd_100": 0.02116086956521739,
+    "s1_seconds_pair": 0.7813478260869565,
+    "on_ledger_pairs": {
+     "n": 11,
+     "acc": 0.9090909090909091,
+     "low": 0.6226353745137962,
+     "high": 0.9837682477371741
+    },
+    "on_promptfoo_pairs": {
+     "n": 11,
+     "acc": 0.9090909090909091,
+     "low": 0.6226353745137962,
+     "high": 0.9837682477371741
+    }
+   },
+   "checklist-low-batch-writer": {
+    "n": 23,
+    "acc": 0.8695652173913043,
+    "low": 0.678721020269818,
+    "high": 0.954624234856553,
+    "strict_abstention": {
+     "n": 23,
+     "acc": 0.8695652173913043,
+     "low": 0.678721020269818,
+     "high": 0.954624234856553
+    },
+    "short_checklists": 0,
+    "short_unique_checklists": 0,
+    "short_cases_as_returned": {
+     "n": 0,
+     "acc": null,
+     "low": null,
+     "high": null
+    },
+    "short_cases_strict": {
+     "n": 0,
+     "acc": null,
+     "low": null,
+     "high": null
+    },
+    "missing": 0,
+    "s1_calls_100": 200.0,
+    "unique_s1_requests_100": 200.0,
+    "logical_s1_calls_100": 200.0,
+    "s2_calls_100": 100.0,
+    "s2_usd_100": 0.02116086956521739,
+    "s2_after_tune_calls_100": 100.0,
+    "s2_after_tune_usd_100": 0.02116086956521739,
+    "s1_seconds_pair": 0.7813478260869565,
+    "on_ledger_pairs": {
+     "n": 11,
+     "acc": 0.9090909090909091,
+     "low": 0.6226353745137962,
+     "high": 0.9837682477371741
+    },
+    "on_promptfoo_pairs": {
+     "n": 11,
+     "acc": 0.9090909090909091,
+     "low": 0.6226353745137962,
+     "high": 0.9837682477371741
+    }
+   },
+   "checklist-low-single-equal": {
+    "n": 23,
+    "acc": 0.9130434782608695,
+    "low": 0.7320359570190598,
+    "high": 0.9758205045927666,
+    "strict_abstention": {
+     "n": 23,
+     "acc": 0.9130434782608695,
+     "low": 0.7320359570190598,
+     "high": 0.9758205045927666
+    },
+    "short_checklists": 0,
+    "short_unique_checklists": 0,
+    "short_cases_as_returned": {
+     "n": 0,
+     "acc": null,
+     "low": null,
+     "high": null
+    },
+    "short_cases_strict": {
+     "n": 0,
+     "acc": null,
+     "low": null,
+     "high": null
+    },
+    "missing": 0,
+    "s1_calls_100": 1913.0434782608695,
+    "unique_s1_requests_100": 1913.0434782608695,
+    "logical_s1_calls_100": 1913.0434782608695,
+    "s2_calls_100": 100.0,
+    "s2_usd_100": 0.02116086956521739,
+    "s2_after_tune_calls_100": 100.0,
+    "s2_after_tune_usd_100": 0.02116086956521739,
+    "s1_seconds_pair": 7.542669565217392,
+    "on_ledger_pairs": {
+     "n": 11,
+     "acc": 0.9090909090909091,
+     "low": 0.6226353745137962,
+     "high": 0.9837682477371741
+    },
+    "on_promptfoo_pairs": {
+     "n": 11,
+     "acc": 0.9090909090909091,
+     "low": 0.6226353745137962,
+     "high": 0.9837682477371741
+    }
+   },
+   "checklist-low-single-writer": {
+    "n": 23,
+    "acc": 0.9130434782608695,
+    "low": 0.7320359570190598,
+    "high": 0.9758205045927666,
+    "strict_abstention": {
+     "n": 23,
+     "acc": 0.9130434782608695,
+     "low": 0.7320359570190598,
+     "high": 0.9758205045927666
+    },
+    "short_checklists": 0,
+    "short_unique_checklists": 0,
+    "short_cases_as_returned": {
+     "n": 0,
+     "acc": null,
+     "low": null,
+     "high": null
+    },
+    "short_cases_strict": {
+     "n": 0,
+     "acc": null,
+     "low": null,
+     "high": null
+    },
+    "missing": 0,
+    "s1_calls_100": 1913.0434782608695,
+    "unique_s1_requests_100": 1913.0434782608695,
+    "logical_s1_calls_100": 1913.0434782608695,
+    "s2_calls_100": 100.0,
+    "s2_usd_100": 0.02116086956521739,
+    "s2_after_tune_calls_100": 100.0,
+    "s2_after_tune_usd_100": 0.02116086956521739,
+    "s1_seconds_pair": 7.542669565217392,
+    "on_ledger_pairs": {
+     "n": 11,
+     "acc": 0.9090909090909091,
+     "low": 0.6226353745137962,
+     "high": 0.9837682477371741
+    },
+    "on_promptfoo_pairs": {
+     "n": 11,
+     "acc": 0.9090909090909091,
+     "low": 0.6226353745137962,
+     "high": 0.9837682477371741
+    }
+   },
+   "checklist-medium-batch-equal": {
+    "n": 23,
+    "acc": 0.8260869565217391,
+    "low": 0.6286194521470433,
+    "high": 0.9302145964938723,
+    "strict_abstention": {
+     "n": 23,
+     "acc": 0.8260869565217391,
+     "low": 0.6286194521470433,
+     "high": 0.9302145964938723
+    },
+    "short_checklists": 0,
+    "short_unique_checklists": 0,
+    "short_cases_as_returned": {
+     "n": 0,
+     "acc": null,
+     "low": null,
+     "high": null
+    },
+    "short_cases_strict": {
+     "n": 0,
+     "acc": null,
+     "low": null,
+     "high": null
+    },
+    "missing": 0,
+    "s1_calls_100": 200.0,
+    "unique_s1_requests_100": 200.0,
+    "logical_s1_calls_100": 200.0,
+    "s2_calls_100": 100.0,
+    "s2_usd_100": 0.03757391304347826,
+    "s2_after_tune_calls_100": 100.0,
+    "s2_after_tune_usd_100": 0.03757391304347826,
+    "s1_seconds_pair": 0.7873347826086956,
+    "on_ledger_pairs": {
+     "n": 11,
+     "acc": 0.8181818181818182,
+     "low": 0.5230138624217553,
+     "high": 0.9486333993289995
+    },
+    "on_promptfoo_pairs": {
+     "n": 11,
+     "acc": 0.8181818181818182,
+     "low": 0.5230138624217553,
+     "high": 0.9486333993289995
+    }
+   },
+   "checklist-medium-batch-writer": {
+    "n": 23,
+    "acc": 0.8260869565217391,
+    "low": 0.6286194521470433,
+    "high": 0.9302145964938723,
+    "strict_abstention": {
+     "n": 23,
+     "acc": 0.8260869565217391,
+     "low": 0.6286194521470433,
+     "high": 0.9302145964938723
+    },
+    "short_checklists": 0,
+    "short_unique_checklists": 0,
+    "short_cases_as_returned": {
+     "n": 0,
+     "acc": null,
+     "low": null,
+     "high": null
+    },
+    "short_cases_strict": {
+     "n": 0,
+     "acc": null,
+     "low": null,
+     "high": null
+    },
+    "missing": 0,
+    "s1_calls_100": 200.0,
+    "unique_s1_requests_100": 200.0,
+    "logical_s1_calls_100": 200.0,
+    "s2_calls_100": 100.0,
+    "s2_usd_100": 0.03757391304347826,
+    "s2_after_tune_calls_100": 100.0,
+    "s2_after_tune_usd_100": 0.03757391304347826,
+    "s1_seconds_pair": 0.7873347826086956,
+    "on_ledger_pairs": {
+     "n": 11,
+     "acc": 0.8181818181818182,
+     "low": 0.5230138624217553,
+     "high": 0.9486333993289995
+    },
+    "on_promptfoo_pairs": {
+     "n": 11,
+     "acc": 0.8181818181818182,
+     "low": 0.5230138624217553,
+     "high": 0.9486333993289995
+    }
+   },
+   "checklist-medium-single-equal": {
+    "n": 23,
+    "acc": 0.8260869565217391,
+    "low": 0.6286194521470433,
+    "high": 0.9302145964938723,
+    "strict_abstention": {
+     "n": 23,
+     "acc": 0.8260869565217391,
+     "low": 0.6286194521470433,
+     "high": 0.9302145964938723
+    },
+    "short_checklists": 0,
+    "short_unique_checklists": 0,
+    "short_cases_as_returned": {
+     "n": 0,
+     "acc": null,
+     "low": null,
+     "high": null
+    },
+    "short_cases_strict": {
+     "n": 0,
+     "acc": null,
+     "low": null,
+     "high": null
+    },
+    "missing": 0,
+    "s1_calls_100": 2121.7391304347825,
+    "unique_s1_requests_100": 2121.7391304347825,
+    "logical_s1_calls_100": 2121.7391304347825,
+    "s2_calls_100": 100.0,
+    "s2_usd_100": 0.03757391304347826,
+    "s2_after_tune_calls_100": 100.0,
+    "s2_after_tune_usd_100": 0.03757391304347826,
+    "s1_seconds_pair": 8.884452173913044,
+    "on_ledger_pairs": {
+     "n": 11,
+     "acc": 0.8181818181818182,
+     "low": 0.5230138624217553,
+     "high": 0.9486333993289995
+    },
+    "on_promptfoo_pairs": {
+     "n": 11,
+     "acc": 0.8181818181818182,
+     "low": 0.5230138624217553,
+     "high": 0.9486333993289995
+    }
+   },
+   "checklist-medium-single-writer": {
+    "n": 23,
+    "acc": 0.8260869565217391,
+    "low": 0.6286194521470433,
+    "high": 0.9302145964938723,
+    "strict_abstention": {
+     "n": 23,
+     "acc": 0.8260869565217391,
+     "low": 0.6286194521470433,
+     "high": 0.9302145964938723
+    },
+    "short_checklists": 0,
+    "short_unique_checklists": 0,
+    "short_cases_as_returned": {
+     "n": 0,
+     "acc": null,
+     "low": null,
+     "high": null
+    },
+    "short_cases_strict": {
+     "n": 0,
+     "acc": null,
+     "low": null,
+     "high": null
+    },
+    "missing": 0,
+    "s1_calls_100": 2121.7391304347825,
+    "unique_s1_requests_100": 2121.7391304347825,
+    "logical_s1_calls_100": 2121.7391304347825,
+    "s2_calls_100": 100.0,
+    "s2_usd_100": 0.03757391304347826,
+    "s2_after_tune_calls_100": 100.0,
+    "s2_after_tune_usd_100": 0.03757391304347826,
+    "s1_seconds_pair": 8.884452173913044,
+    "on_ledger_pairs": {
+     "n": 11,
+     "acc": 0.8181818181818182,
+     "low": 0.5230138624217553,
+     "high": 0.9486333993289995
+    },
+    "on_promptfoo_pairs": {
+     "n": 11,
+     "acc": 0.8181818181818182,
+     "low": 0.5230138624217553,
+     "high": 0.9486333993289995
+    }
+   },
+   "ledger": {
+    "n": 11,
+    "acc": 0.7272727272727273,
+    "low": 0.4343497069897537,
+    "high": 0.9025411942607853,
+    "s1_calls_100": 0,
+    "s2_calls_100": null,
+    "s2_usd_100": null,
+    "cost_coverage": 0,
+    "s1_seconds_pair": null
+   },
+   "promptfoo": {
+    "n": 11,
+    "acc": 0.9090909090909091,
+    "low": 0.6226353745137962,
+    "high": 0.9837682477371741,
+    "s1_calls_100": 0,
+    "s2_calls_100": 200.0,
+    "s2_usd_100": null,
+    "cost_coverage": 0,
+    "s1_seconds_pair": null
+   }
+  },
+  "writing.tune": {
+   "checklist-low-batch-equal": {
+    "n": 22,
+    "acc": 0.5,
+    "low": 0.3072180469247956,
+    "high": 0.6927819530752044,
+    "strict_abstention": {
+     "n": 22,
+     "acc": 0.5,
+     "low": 0.3072180469247956,
+     "high": 0.6927819530752044
+    },
+    "short_checklists": 0,
+    "short_unique_checklists": 0,
+    "short_cases_as_returned": {
+     "n": 0,
+     "acc": null,
+     "low": null,
+     "high": null
+    },
+    "short_cases_strict": {
+     "n": 0,
+     "acc": null,
+     "low": null,
+     "high": null
+    },
+    "missing": 0,
+    "s1_calls_100": 204.54545454545453,
+    "unique_s1_requests_100": 200.0,
+    "logical_s1_calls_100": 200.0,
+    "s2_calls_100": 100.0,
+    "s2_usd_100": 0.021749545454545452,
+    "s2_after_tune_calls_100": 95.45454545454545,
+    "s2_after_tune_usd_100": 0.021749545454545452,
+    "s1_seconds_pair": 1.134840909090909,
+    "on_ledger_pairs": {
+     "n": 22,
+     "acc": 0.5,
+     "low": 0.3072180469247956,
+     "high": 0.6927819530752044
+    },
+    "on_promptfoo_pairs": {
+     "n": 22,
+     "acc": 0.5,
+     "low": 0.3072180469247956,
+     "high": 0.6927819530752044
+    }
+   },
+   "checklist-low-batch-writer": {
+    "n": 22,
+    "acc": 0.45454545454545453,
+    "low": 0.26920014432004846,
+    "high": 0.6534052671095845,
+    "strict_abstention": {
+     "n": 22,
+     "acc": 0.45454545454545453,
+     "low": 0.26920014432004846,
+     "high": 0.6534052671095845
+    },
+    "short_checklists": 0,
+    "short_unique_checklists": 0,
+    "short_cases_as_returned": {
+     "n": 0,
+     "acc": null,
+     "low": null,
+     "high": null
+    },
+    "short_cases_strict": {
+     "n": 0,
+     "acc": null,
+     "low": null,
+     "high": null
+    },
+    "missing": 0,
+    "s1_calls_100": 204.54545454545453,
+    "unique_s1_requests_100": 200.0,
+    "logical_s1_calls_100": 200.0,
+    "s2_calls_100": 100.0,
+    "s2_usd_100": 0.021749545454545452,
+    "s2_after_tune_calls_100": 95.45454545454545,
+    "s2_after_tune_usd_100": 0.021749545454545452,
+    "s1_seconds_pair": 1.134840909090909,
+    "on_ledger_pairs": {
+     "n": 22,
+     "acc": 0.45454545454545453,
+     "low": 0.26920014432004846,
+     "high": 0.6534052671095845
+    },
+    "on_promptfoo_pairs": {
+     "n": 22,
+     "acc": 0.45454545454545453,
+     "low": 0.26920014432004846,
+     "high": 0.6534052671095845
+    }
+   },
+   "checklist-low-single-equal": {
+    "n": 22,
+    "acc": 0.4772727272727273,
+    "low": 0.2880390230412062,
+    "high": 0.6732636826736103,
+    "strict_abstention": {
+     "n": 22,
+     "acc": 0.4772727272727273,
+     "low": 0.2880390230412062,
+     "high": 0.6732636826736103
+    },
+    "short_checklists": 0,
+    "short_unique_checklists": 0,
+    "short_cases_as_returned": {
+     "n": 0,
+     "acc": null,
+     "low": null,
+     "high": null
+    },
+    "short_cases_strict": {
+     "n": 0,
+     "acc": null,
+     "low": null,
+     "high": null
+    },
+    "missing": 1,
+    "s1_calls_100": 2977.2727272727275,
+    "unique_s1_requests_100": 2945.4545454545455,
+    "logical_s1_calls_100": 2945.4545454545455,
+    "s2_calls_100": 100.0,
+    "s2_usd_100": 0.021749545454545452,
+    "s2_after_tune_calls_100": 95.45454545454545,
+    "s2_after_tune_usd_100": 0.021749545454545452,
+    "s1_seconds_pair": 13.905831818181817,
+    "on_ledger_pairs": {
+     "n": 22,
+     "acc": 0.4772727272727273,
+     "low": 0.2880390230412062,
+     "high": 0.6732636826736103
+    },
+    "on_promptfoo_pairs": {
+     "n": 22,
+     "acc": 0.4772727272727273,
+     "low": 0.2880390230412062,
+     "high": 0.6732636826736103
+    }
+   },
+   "checklist-low-single-writer": {
+    "n": 22,
+    "acc": 0.4318181818181818,
+    "low": 0.25070413066869324,
+    "high": 0.6332039864757562,
+    "strict_abstention": {
+     "n": 22,
+     "acc": 0.4318181818181818,
+     "low": 0.25070413066869324,
+     "high": 0.6332039864757562
+    },
+    "short_checklists": 0,
+    "short_unique_checklists": 0,
+    "short_cases_as_returned": {
+     "n": 0,
+     "acc": null,
+     "low": null,
+     "high": null
+    },
+    "short_cases_strict": {
+     "n": 0,
+     "acc": null,
+     "low": null,
+     "high": null
+    },
+    "missing": 1,
+    "s1_calls_100": 2977.2727272727275,
+    "unique_s1_requests_100": 2945.4545454545455,
+    "logical_s1_calls_100": 2945.4545454545455,
+    "s2_calls_100": 100.0,
+    "s2_usd_100": 0.021749545454545452,
+    "s2_after_tune_calls_100": 95.45454545454545,
+    "s2_after_tune_usd_100": 0.021749545454545452,
+    "s1_seconds_pair": 13.905831818181817,
+    "on_ledger_pairs": {
+     "n": 22,
+     "acc": 0.4318181818181818,
+     "low": 0.25070413066869324,
+     "high": 0.6332039864757562
+    },
+    "on_promptfoo_pairs": {
+     "n": 22,
+     "acc": 0.4318181818181818,
+     "low": 0.25070413066869324,
+     "high": 0.6332039864757562
+    }
+   },
+   "checklist-medium-batch-equal": {
+    "n": 22,
+    "acc": 0.5909090909090909,
+    "low": 0.38734477382893806,
+    "high": 0.7674444033117963,
+    "strict_abstention": {
+     "n": 22,
+     "acc": 0.5909090909090909,
+     "low": 0.38734477382893806,
+     "high": 0.7674444033117963
+    },
+    "short_checklists": 0,
+    "short_unique_checklists": 0,
+    "short_cases_as_returned": {
+     "n": 0,
+     "acc": null,
+     "low": null,
+     "high": null
+    },
+    "short_cases_strict": {
+     "n": 0,
+     "acc": null,
+     "low": null,
+     "high": null
+    },
+    "missing": 0,
+    "s1_calls_100": 209.0909090909091,
+    "unique_s1_requests_100": 200.0,
+    "logical_s1_calls_100": 200.0,
+    "s2_calls_100": 104.54545454545455,
+    "s2_usd_100": 0.04590863636363636,
+    "s2_after_tune_calls_100": 95.45454545454545,
+    "s2_after_tune_usd_100": 0.04590863636363636,
+    "s1_seconds_pair": 1.0197136363636365,
+    "on_ledger_pairs": {
+     "n": 22,
+     "acc": 0.5909090909090909,
+     "low": 0.38734477382893806,
+     "high": 0.7674444033117963
+    },
+    "on_promptfoo_pairs": {
+     "n": 22,
+     "acc": 0.5909090909090909,
+     "low": 0.38734477382893806,
+     "high": 0.7674444033117963
+    }
+   },
+   "checklist-medium-batch-writer": {
+    "n": 22,
+    "acc": 0.5227272727272727,
+    "low": 0.32673631732638975,
+    "high": 0.7119609769587938,
+    "strict_abstention": {
+     "n": 22,
+     "acc": 0.5227272727272727,
+     "low": 0.32673631732638975,
+     "high": 0.7119609769587938
+    },
+    "short_checklists": 0,
+    "short_unique_checklists": 0,
+    "short_cases_as_returned": {
+     "n": 0,
+     "acc": null,
+     "low": null,
+     "high": null
+    },
+    "short_cases_strict": {
+     "n": 0,
+     "acc": null,
+     "low": null,
+     "high": null
+    },
+    "missing": 0,
+    "s1_calls_100": 209.0909090909091,
+    "unique_s1_requests_100": 200.0,
+    "logical_s1_calls_100": 200.0,
+    "s2_calls_100": 104.54545454545455,
+    "s2_usd_100": 0.04590863636363636,
+    "s2_after_tune_calls_100": 95.45454545454545,
+    "s2_after_tune_usd_100": 0.04590863636363636,
+    "s1_seconds_pair": 1.0197136363636365,
+    "on_ledger_pairs": {
+     "n": 22,
+     "acc": 0.5227272727272727,
+     "low": 0.32673631732638975,
+     "high": 0.7119609769587938
+    },
+    "on_promptfoo_pairs": {
+     "n": 22,
+     "acc": 0.5227272727272727,
+     "low": 0.32673631732638975,
+     "high": 0.7119609769587938
+    }
+   },
+   "checklist-medium-single-equal": {
+    "n": 22,
+    "acc": 0.6136363636363636,
+    "low": 0.40824765068543845,
+    "high": 0.7852388207404795,
+    "strict_abstention": {
+     "n": 22,
+     "acc": 0.6136363636363636,
+     "low": 0.40824765068543845,
+     "high": 0.7852388207404795
+    },
+    "short_checklists": 0,
+    "short_unique_checklists": 0,
+    "short_cases_as_returned": {
+     "n": 0,
+     "acc": null,
+     "low": null,
+     "high": null
+    },
+    "short_cases_strict": {
+     "n": 0,
+     "acc": null,
+     "low": null,
+     "high": null
+    },
+    "missing": 1,
+    "s1_calls_100": 3077.2727272727275,
+    "unique_s1_requests_100": 3036.3636363636365,
+    "logical_s1_calls_100": 3036.3636363636365,
+    "s2_calls_100": 104.54545454545455,
+    "s2_usd_100": 0.04590863636363636,
+    "s2_after_tune_calls_100": 95.45454545454545,
+    "s2_after_tune_usd_100": 0.04590863636363636,
+    "s1_seconds_pair": 14.675713636363637,
+    "on_ledger_pairs": {
+     "n": 22,
+     "acc": 0.6136363636363636,
+     "low": 0.40824765068543845,
+     "high": 0.7852388207404795
+    },
+    "on_promptfoo_pairs": {
+     "n": 22,
+     "acc": 0.6136363636363636,
+     "low": 0.40824765068543845,
+     "high": 0.7852388207404795
+    }
+   },
+   "checklist-medium-single-writer": {
+    "n": 22,
+    "acc": 0.5227272727272727,
+    "low": 0.32673631732638975,
+    "high": 0.7119609769587938,
+    "strict_abstention": {
+     "n": 22,
+     "acc": 0.5227272727272727,
+     "low": 0.32673631732638975,
+     "high": 0.7119609769587938
+    },
+    "short_checklists": 0,
+    "short_unique_checklists": 0,
+    "short_cases_as_returned": {
+     "n": 0,
+     "acc": null,
+     "low": null,
+     "high": null
+    },
+    "short_cases_strict": {
+     "n": 0,
+     "acc": null,
+     "low": null,
+     "high": null
+    },
+    "missing": 1,
+    "s1_calls_100": 3077.2727272727275,
+    "unique_s1_requests_100": 3036.3636363636365,
+    "logical_s1_calls_100": 3036.3636363636365,
+    "s2_calls_100": 104.54545454545455,
+    "s2_usd_100": 0.04590863636363636,
+    "s2_after_tune_calls_100": 95.45454545454545,
+    "s2_after_tune_usd_100": 0.04590863636363636,
+    "s1_seconds_pair": 14.675713636363637,
+    "on_ledger_pairs": {
+     "n": 22,
+     "acc": 0.5227272727272727,
+     "low": 0.32673631732638975,
+     "high": 0.7119609769587938
+    },
+    "on_promptfoo_pairs": {
+     "n": 22,
+     "acc": 0.5227272727272727,
+     "low": 0.32673631732638975,
+     "high": 0.7119609769587938
+    }
+   },
+   "ledger": {
+    "n": 22,
+    "acc": 0.5681818181818182,
+    "low": 0.36679601352424396,
+    "high": 0.7492958693313069,
+    "s1_calls_100": 0,
+    "s2_calls_100": 227.27272727272728,
+    "s2_usd_100": 0.24041213636363637,
+    "cost_coverage": 22,
+    "s1_seconds_pair": null
+   },
+   "promptfoo": {
+    "n": 22,
+    "acc": 0.5227272727272727,
+    "low": 0.32673631732638975,
+    "high": 0.7119609769587938,
+    "s1_calls_100": 0,
+    "s2_calls_100": 200.0,
+    "s2_usd_100": 0.14006181818181818,
+    "cost_coverage": 22,
+    "s1_seconds_pair": null
+   }
+  },
+  "writing.valid": {
+   "checklist-low-batch-equal": {
+    "n": 28,
+    "acc": 0.6071428571428571,
+    "low": 0.42408726034906297,
+    "high": 0.7643454817241996,
+    "strict_abstention": {
+     "n": 28,
+     "acc": 0.6071428571428571,
+     "low": 0.42408726034906297,
+     "high": 0.7643454817241996
+    },
+    "short_checklists": 0,
+    "short_unique_checklists": 0,
+    "short_cases_as_returned": {
+     "n": 0,
+     "acc": null,
+     "low": null,
+     "high": null
+    },
+    "short_cases_strict": {
+     "n": 0,
+     "acc": null,
+     "low": null,
+     "high": null
+    },
+    "missing": 0,
+    "s1_calls_100": 200.0,
+    "unique_s1_requests_100": 200.0,
+    "logical_s1_calls_100": 200.0,
+    "s2_calls_100": 82.14285714285714,
+    "s2_usd_100": 0.017769642857142855,
+    "s2_after_tune_calls_100": 60.714285714285715,
+    "s2_after_tune_usd_100": 0.012938214285714286,
+    "s1_seconds_pair": 0.9224,
+    "on_ledger_pairs": {
+     "n": 28,
+     "acc": 0.6071428571428571,
+     "low": 0.42408726034906297,
+     "high": 0.7643454817241996
+    },
+    "on_promptfoo_pairs": {
+     "n": 28,
+     "acc": 0.6071428571428571,
+     "low": 0.42408726034906297,
+     "high": 0.7643454817241996
+    }
+   },
+   "checklist-low-batch-writer": {
+    "n": 28,
+    "acc": 0.6071428571428571,
+    "low": 0.42408726034906297,
+    "high": 0.7643454817241996,
+    "strict_abstention": {
+     "n": 28,
+     "acc": 0.6071428571428571,
+     "low": 0.42408726034906297,
+     "high": 0.7643454817241996
+    },
+    "short_checklists": 0,
+    "short_unique_checklists": 0,
+    "short_cases_as_returned": {
+     "n": 0,
+     "acc": null,
+     "low": null,
+     "high": null
+    },
+    "short_cases_strict": {
+     "n": 0,
+     "acc": null,
+     "low": null,
+     "high": null
+    },
+    "missing": 0,
+    "s1_calls_100": 200.0,
+    "unique_s1_requests_100": 200.0,
+    "logical_s1_calls_100": 200.0,
+    "s2_calls_100": 82.14285714285714,
+    "s2_usd_100": 0.017769642857142855,
+    "s2_after_tune_calls_100": 60.714285714285715,
+    "s2_after_tune_usd_100": 0.012938214285714286,
+    "s1_seconds_pair": 0.9224,
+    "on_ledger_pairs": {
+     "n": 28,
+     "acc": 0.6071428571428571,
+     "low": 0.42408726034906297,
+     "high": 0.7643454817241996
+    },
+    "on_promptfoo_pairs": {
+     "n": 28,
+     "acc": 0.6071428571428571,
+     "low": 0.42408726034906297,
+     "high": 0.7643454817241996
+    }
+   },
+   "checklist-low-single-equal": {
+    "n": 28,
+    "acc": 0.6071428571428571,
+    "low": 0.42408726034906297,
+    "high": 0.7643454817241996,
+    "strict_abstention": {
+     "n": 28,
+     "acc": 0.6071428571428571,
+     "low": 0.42408726034906297,
+     "high": 0.7643454817241996
+    },
+    "short_checklists": 0,
+    "short_unique_checklists": 0,
+    "short_cases_as_returned": {
+     "n": 0,
+     "acc": null,
+     "low": null,
+     "high": null
+    },
+    "short_cases_strict": {
+     "n": 0,
+     "acc": null,
+     "low": null,
+     "high": null
+    },
+    "missing": 0,
+    "s1_calls_100": 2928.5714285714284,
+    "unique_s1_requests_100": 2928.5714285714284,
+    "logical_s1_calls_100": 2928.5714285714284,
+    "s2_calls_100": 82.14285714285714,
+    "s2_usd_100": 0.017769642857142855,
+    "s2_after_tune_calls_100": 60.714285714285715,
+    "s2_after_tune_usd_100": 0.012938214285714286,
+    "s1_seconds_pair": 14.569835714285714,
+    "on_ledger_pairs": {
+     "n": 28,
+     "acc": 0.6071428571428571,
+     "low": 0.42408726034906297,
+     "high": 0.7643454817241996
+    },
+    "on_promptfoo_pairs": {
+     "n": 28,
+     "acc": 0.6071428571428571,
+     "low": 0.42408726034906297,
+     "high": 0.7643454817241996
+    }
+   },
+   "checklist-low-single-writer": {
+    "n": 28,
+    "acc": 0.6071428571428571,
+    "low": 0.42408726034906297,
+    "high": 0.7643454817241996,
+    "strict_abstention": {
+     "n": 28,
+     "acc": 0.6071428571428571,
+     "low": 0.42408726034906297,
+     "high": 0.7643454817241996
+    },
+    "short_checklists": 0,
+    "short_unique_checklists": 0,
+    "short_cases_as_returned": {
+     "n": 0,
+     "acc": null,
+     "low": null,
+     "high": null
+    },
+    "short_cases_strict": {
+     "n": 0,
+     "acc": null,
+     "low": null,
+     "high": null
+    },
+    "missing": 0,
+    "s1_calls_100": 2928.5714285714284,
+    "unique_s1_requests_100": 2928.5714285714284,
+    "logical_s1_calls_100": 2928.5714285714284,
+    "s2_calls_100": 82.14285714285714,
+    "s2_usd_100": 0.017769642857142855,
+    "s2_after_tune_calls_100": 60.714285714285715,
+    "s2_after_tune_usd_100": 0.012938214285714286,
+    "s1_seconds_pair": 14.569835714285714,
+    "on_ledger_pairs": {
+     "n": 28,
+     "acc": 0.6071428571428571,
+     "low": 0.42408726034906297,
+     "high": 0.7643454817241996
+    },
+    "on_promptfoo_pairs": {
+     "n": 28,
+     "acc": 0.6071428571428571,
+     "low": 0.42408726034906297,
+     "high": 0.7643454817241996
+    }
+   },
+   "checklist-medium-batch-equal": {
+    "n": 28,
+    "acc": 0.5357142857142857,
+    "low": 0.3581239514210167,
+    "high": 0.7046869626034041,
+    "strict_abstention": {
+     "n": 28,
+     "acc": 0.5357142857142857,
+     "low": 0.3581239514210167,
+     "high": 0.7046869626034041
+    },
+    "short_checklists": 0,
+    "short_unique_checklists": 0,
+    "short_cases_as_returned": {
+     "n": 0,
+     "acc": null,
+     "low": null,
+     "high": null
+    },
+    "short_cases_strict": {
+     "n": 0,
+     "acc": null,
+     "low": null,
+     "high": null
+    },
+    "missing": 0,
+    "s1_calls_100": 200.0,
+    "unique_s1_requests_100": 200.0,
+    "logical_s1_calls_100": 200.0,
+    "s2_calls_100": 85.71428571428571,
+    "s2_usd_100": 0.034298214285714286,
+    "s2_after_tune_calls_100": 60.714285714285715,
+    "s2_after_tune_usd_100": 0.023113214285714286,
+    "s1_seconds_pair": 0.8794107142857143,
+    "on_ledger_pairs": {
+     "n": 28,
+     "acc": 0.5357142857142857,
+     "low": 0.3581239514210167,
+     "high": 0.7046869626034041
+    },
+    "on_promptfoo_pairs": {
+     "n": 28,
+     "acc": 0.5357142857142857,
+     "low": 0.3581239514210167,
+     "high": 0.7046869626034041
+    }
+   },
+   "checklist-medium-batch-writer": {
+    "n": 28,
+    "acc": 0.5714285714285714,
+    "low": 0.390704789856154,
+    "high": 0.7349170381926877,
+    "strict_abstention": {
+     "n": 28,
+     "acc": 0.5714285714285714,
+     "low": 0.390704789856154,
+     "high": 0.7349170381926877
+    },
+    "short_checklists": 0,
+    "short_unique_checklists": 0,
+    "short_cases_as_returned": {
+     "n": 0,
+     "acc": null,
+     "low": null,
+     "high": null
+    },
+    "short_cases_strict": {
+     "n": 0,
+     "acc": null,
+     "low": null,
+     "high": null
+    },
+    "missing": 0,
+    "s1_calls_100": 200.0,
+    "unique_s1_requests_100": 200.0,
+    "logical_s1_calls_100": 200.0,
+    "s2_calls_100": 85.71428571428571,
+    "s2_usd_100": 0.034298214285714286,
+    "s2_after_tune_calls_100": 60.714285714285715,
+    "s2_after_tune_usd_100": 0.023113214285714286,
+    "s1_seconds_pair": 0.8794107142857143,
+    "on_ledger_pairs": {
+     "n": 28,
+     "acc": 0.5714285714285714,
+     "low": 0.390704789856154,
+     "high": 0.7349170381926877
+    },
+    "on_promptfoo_pairs": {
+     "n": 28,
+     "acc": 0.5714285714285714,
+     "low": 0.390704789856154,
+     "high": 0.7349170381926877
+    }
+   },
+   "checklist-medium-single-equal": {
+    "n": 28,
+    "acc": 0.5357142857142857,
+    "low": 0.3581239514210167,
+    "high": 0.7046869626034041,
+    "strict_abstention": {
+     "n": 28,
+     "acc": 0.5357142857142857,
+     "low": 0.3581239514210167,
+     "high": 0.7046869626034041
+    },
+    "short_checklists": 0,
+    "short_unique_checklists": 0,
+    "short_cases_as_returned": {
+     "n": 0,
+     "acc": null,
+     "low": null,
+     "high": null
+    },
+    "short_cases_strict": {
+     "n": 0,
+     "acc": null,
+     "low": null,
+     "high": null
+    },
+    "missing": 0,
+    "s1_calls_100": 3060.714285714286,
+    "unique_s1_requests_100": 3057.1428571428573,
+    "logical_s1_calls_100": 3057.1428571428573,
+    "s2_calls_100": 85.71428571428571,
+    "s2_usd_100": 0.034298214285714286,
+    "s2_after_tune_calls_100": 60.714285714285715,
+    "s2_after_tune_usd_100": 0.023113214285714286,
+    "s1_seconds_pair": 14.848810714285715,
+    "on_ledger_pairs": {
+     "n": 28,
+     "acc": 0.5357142857142857,
+     "low": 0.3581239514210167,
+     "high": 0.7046869626034041
+    },
+    "on_promptfoo_pairs": {
+     "n": 28,
+     "acc": 0.5357142857142857,
+     "low": 0.3581239514210167,
+     "high": 0.7046869626034041
+    }
+   },
+   "checklist-medium-single-writer": {
+    "n": 28,
+    "acc": 0.5357142857142857,
+    "low": 0.3581239514210167,
+    "high": 0.7046869626034041,
+    "strict_abstention": {
+     "n": 28,
+     "acc": 0.5357142857142857,
+     "low": 0.3581239514210167,
+     "high": 0.7046869626034041
+    },
+    "short_checklists": 0,
+    "short_unique_checklists": 0,
+    "short_cases_as_returned": {
+     "n": 0,
+     "acc": null,
+     "low": null,
+     "high": null
+    },
+    "short_cases_strict": {
+     "n": 0,
+     "acc": null,
+     "low": null,
+     "high": null
+    },
+    "missing": 0,
+    "s1_calls_100": 3060.714285714286,
+    "unique_s1_requests_100": 3057.1428571428573,
+    "logical_s1_calls_100": 3057.1428571428573,
+    "s2_calls_100": 85.71428571428571,
+    "s2_usd_100": 0.034298214285714286,
+    "s2_after_tune_calls_100": 60.714285714285715,
+    "s2_after_tune_usd_100": 0.023113214285714286,
+    "s1_seconds_pair": 14.848810714285715,
+    "on_ledger_pairs": {
+     "n": 28,
+     "acc": 0.5357142857142857,
+     "low": 0.3581239514210167,
+     "high": 0.7046869626034041
+    },
+    "on_promptfoo_pairs": {
+     "n": 28,
+     "acc": 0.5357142857142857,
+     "low": 0.3581239514210167,
+     "high": 0.7046869626034041
+    }
+   },
+   "ledger": {
+    "n": 28,
+    "acc": 0.5714285714285714,
+    "low": 0.390704789856154,
+    "high": 0.7349170381926877,
+    "s1_calls_100": 0,
+    "s2_calls_100": 225.0,
+    "s2_usd_100": 0.2564790357142857,
+    "cost_coverage": 28,
+    "s1_seconds_pair": null
+   },
+   "promptfoo": {
+    "n": 28,
+    "acc": 0.5535714285714286,
+    "low": 0.37431545053871385,
+    "high": 0.7199009204979174,
+    "s1_calls_100": 0,
+    "s2_calls_100": 200.0,
+    "s2_usd_100": 0.14751571428571428,
+    "cost_coverage": 28,
+    "s1_seconds_pair": null
+   }
+  }
+ },
+ "interval": "Wilson 95%, pair as unit, fractional tie credit (harness convention)",
+ "s1_usd": null,
+ "repeat_incremental_s2_usd": 0
+}

@@ -1,0 +1,41 @@
+{
+ "key": "c75a9ac6a4cfa22bee99d1250036b3d6f81dfe689a8e0fb7cbb74e37648d399e",
+ "boxes": [
+  {
+   "question": "Is the script titled “The Archivist’s Diary”?",
+   "weight": 1
+  },
+  {
+   "question": "Does it center on a graduate student alone in a library archive at night who discovers a dusty old diary?",
+   "weight": 3
+  },
+  {
+   "question": "Does it intertwine the protagonist’s live investigation with the diary’s voice-over (V.O.)?",
+   "weight": 3
+  },
+  {
+   "question": "Does the investigation gradually uncover a historical secret?",
+   "weight": 3
+  },
+  {
+   "question": "Does the writing create a suspenseful atmosphere?",
+   "weight": 2
+  },
+  {
+   "question": "Does the dramatic climax focus on the protagonist’s emotional shock upon discovering the truth?",
+   "weight": 3
+  },
+  {
+   "question": "Is the script presented in standard script format?",
+   "weight": 1
+  },
+  {
+   "question": "Is the script around 1,000 words long?",
+   "weight": 1
+  }
+ ],
+ "error": null,
+ "short": false,
+ "s2_usd": 0.0002946,
+ "seconds": 6.7848
+}

@@ -1,0 +1,25 @@
+{
+ "key": "2af69cc0d4a3e6d397ea3df9e5edd3398ebacbc1ae083e080397e473596134a2",
+ "boxes": [
+  {
+   "question": "Does the answer identify 4 turns as the minimum needed to guarantee a hit?",
+   "weight": 5
+  },
+  {
+   "question": "Does the answer select choice C?",
+   "weight": 5
+  },
+  {
+   "question": "Does the answer give the letter C exactly five times in a single string, as requested?",
+   "weight": 2
+  },
+  {
+   "question": "Does the answer avoid giving a different minimum or multiple-choice letter that conflicts with 4 turns and choice C?",
+   "weight": 5
+  }
+ ],
+ "error": null,
+ "short": false,
+ "s2_usd": 0.0004364,
+ "seconds": 11.593
+}

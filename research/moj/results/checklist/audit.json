@@ -1,0 +1,52 @@
+{
+  "offline_replay": {
+    "items": 168,
+    "variant_tasks": 672,
+    "new_calls": {
+      "jev": 0,
+      "openai": 0
+    },
+    "spend": {
+      "s2_usd": 0.11845299999999992,
+      "unresolved_reserved_usd": 0.0140932,
+      "budget_usd": 8.0,
+      "pricing": {
+        "input": 0.1,
+        "cached": 0.01,
+        "output": 0.5
+      },
+      "pricing_source": "moj/client.py LUNA_PRICE",
+      "s1_usd": null,
+      "note": "No Jev tariff is available."
+    }
+  },
+  "recordings_and_signals_unchanged": true,
+  "catalogue_swap_symmetry": true,
+  "services": {
+    "jev": {
+      "submissions": 7504,
+      "returned_answers": 7481,
+      "failed_attempts": 21,
+      "error_statuses": {
+        "403": 20,
+        "None": 1
+      },
+      "unclosed_submissions": 2,
+      "max_submissions_for_any_key": 3,
+      "returned_call_mean_seconds": 0.4233707392059885,
+      "no_answer_keys": 3,
+      "answer_resubmissions": 0
+    },
+    "openai": {
+      "submissions": 305,
+      "returned_answers": 302,
+      "failed_attempts": 0,
+      "error_statuses": {},
+      "unclosed_submissions": 3,
+      "max_submissions_for_any_key": 2,
+      "returned_call_mean_seconds": 9.223402317880796,
+      "no_answer_keys": 0,
+      "answer_resubmissions": 0
+    }
+  }
+}

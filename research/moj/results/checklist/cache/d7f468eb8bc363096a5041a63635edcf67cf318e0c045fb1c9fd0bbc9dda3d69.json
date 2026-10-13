@@ -1,0 +1,25 @@
+{
+ "key": "d7f468eb8bc363096a5041a63635edcf67cf318e0c045fb1c9fd0bbc9dda3d69",
+ "boxes": [
+  {
+   "question": "Does the answer give tea as the drink preferred by the person in position three?",
+   "weight": 5
+  },
+  {
+   "question": "Does the answer clearly assign tea to position three, rather than to another person in the line?",
+   "weight": 4
+  },
+  {
+   "question": "Is the response a single word, with no additional words or explanation?",
+   "weight": 2
+  },
+  {
+   "question": "Is the answer word enclosed in the requested format, ***X***?",
+   "weight": 1
+  }
+ ],
+ "error": null,
+ "short": false,
+ "s2_usd": 0.0008651,
+ "seconds": 21.3677
+}

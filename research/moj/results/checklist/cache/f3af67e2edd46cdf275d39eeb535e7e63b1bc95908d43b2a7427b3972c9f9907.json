@@ -1,0 +1,25 @@
+{
+ "key": "f3af67e2edd46cdf275d39eeb535e7e63b1bc95908d43b2a7427b3972c9f9907",
+ "boxes": [
+  {
+   "question": "Does the answer identify option G as correct?",
+   "weight": 5
+  },
+  {
+   "question": "Does the answer give the hydronium concentration as approximately 1.2 × 10^-3 M?",
+   "weight": 5
+  },
+  {
+   "question": "Does the answer duplicate the chosen letter five times in a single string, as requested?",
+   "weight": 2
+  },
+  {
+   "question": "Does the answer avoid stating a conflicting option or hydronium concentration?",
+   "weight": 5
+  }
+ ],
+ "error": null,
+ "short": false,
+ "s2_usd": 0.0004499,
+ "seconds": 9.3932
+}

@@ -1,0 +1,25 @@
+{
+ "key": "4154d21f55fbb631f41a89a32ea84d6bcec16c0026297c35bee0a03f686174da",
+ "boxes": [
+  {
+   "question": "Does the answer identify that the cut passes through the centers of spheres A and C?",
+   "weight": 2
+  },
+  {
+   "question": "Does the answer identify that spheres B and D are not divided into hemispheres by the cut?",
+   "weight": 2
+  },
+  {
+   "question": "Does the answer give 4 as the total number of hemispheres?",
+   "weight": 5
+  },
+  {
+   "question": "Is the final answer formatted as a bold single integer, as requested?",
+   "weight": 1
+  }
+ ],
+ "error": null,
+ "short": false,
+ "s2_usd": 0.0003269,
+ "seconds": 7.2538
+}

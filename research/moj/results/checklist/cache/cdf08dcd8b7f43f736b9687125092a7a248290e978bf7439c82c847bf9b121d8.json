@@ -1,0 +1,25 @@
+{
+ "key": "cdf08dcd8b7f43f736b9687125092a7a248290e978bf7439c82c847bf9b121d8",
+ "boxes": [
+  {
+   "question": "Does the answer say no for the person at the observatory?",
+   "weight": 5
+  },
+  {
+   "question": "Does the answer say no for the person at the hotel?",
+   "weight": 5
+  },
+  {
+   "question": "Does the answer say no for the person at the gym?",
+   "weight": 5
+  },
+  {
+   "question": "Is the answer presented as a bold, three-word list of yes/no answers in the requested order?",
+   "weight": 1
+  }
+ ],
+ "error": null,
+ "short": false,
+ "s2_usd": 0.0009758,
+ "seconds": 22.9479
+}

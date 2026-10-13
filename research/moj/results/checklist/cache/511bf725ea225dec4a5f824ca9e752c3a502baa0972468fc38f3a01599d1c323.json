@@ -1,0 +1,25 @@
+{
+ "key": "511bf725ea225dec4a5f824ca9e752c3a502baa0972468fc38f3a01599d1c323",
+ "boxes": [
+  {
+   "question": "Le parole sono ordinate in senso alfabetico crescente in base alla seconda lettera, con «organizzazione» e «presente» prima delle parole la cui seconda lettera è «u»?",
+   "weight": 5
+  },
+  {
+   "question": "La risposta include tutte e cinque le parole originali, ciascuna esattamente una volta?",
+   "weight": 5
+  },
+  {
+   "question": "La risposta è scritta in italiano?",
+   "weight": 2
+  },
+  {
+   "question": "La risposta presenta chiaramente la sequenza riordinata, invece di limitarsi a descrivere il criterio di ordinamento?",
+   "weight": 2
+  }
+ ],
+ "error": null,
+ "short": false,
+ "s2_usd": 0.000427,
+ "seconds": 11.4371
+}

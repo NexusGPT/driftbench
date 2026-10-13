@@ -1,0 +1,25 @@
+{
+ "key": "a0a911bd1a3daa1ebd400e337887fdaacd9bd17255325966ab700cfad83d59ec",
+ "boxes": [
+  {
+   "question": "Does the response identify zucchini as the food liked by the person who travels by motorbike?",
+   "weight": 5
+  },
+  {
+   "question": "Does the response avoid naming tomato as the motorbike traveler’s food?",
+   "weight": 3
+  },
+  {
+   "question": "Does the response avoid naming asparagus as the motorbike traveler’s food?",
+   "weight": 3
+  },
+  {
+   "question": "Does the response give the answer as a single word in the requested format, ***zucchini***?",
+   "weight": 2
+  }
+ ],
+ "error": null,
+ "short": false,
+ "s2_usd": 0.0002991,
+ "seconds": 6.5615
+}

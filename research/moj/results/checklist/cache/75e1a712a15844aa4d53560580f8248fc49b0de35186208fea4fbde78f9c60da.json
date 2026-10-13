@@ -1,0 +1,25 @@
+{
+ "key": "75e1a712a15844aa4d53560580f8248fc49b0de35186208fea4fbde78f9c60da",
+ "boxes": [
+  {
+   "question": "Does the response select option A as the answer?",
+   "weight": 5
+  },
+  {
+   "question": "Does the response give five copies of the selected letter?",
+   "weight": 2
+  },
+  {
+   "question": "Are the five letters presented together as a single string?",
+   "weight": 1
+  },
+  {
+   "question": "Does the response avoid including a different answer letter?",
+   "weight": 2
+  }
+ ],
+ "error": null,
+ "short": false,
+ "s2_usd": 0.0002474,
+ "seconds": 5.9501
+}

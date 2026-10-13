@@ -1,0 +1,25 @@
+{
+ "key": "45385f93c166b79fe8609a3bd05af9df4ec5d60ee90a17a5b92bfadd9aa82aa1",
+ "boxes": [
+  {
+   "question": "Does the answer identify 36 as the total number of games played?",
+   "weight": 5
+  },
+  {
+   "question": "Does the answer select option B?",
+   "weight": 5
+  },
+  {
+   "question": "Does the answer include the exact string BBBBB?",
+   "weight": 2
+  },
+  {
+   "question": "Are the answer’s stated total and selected option consistent with each other?",
+   "weight": 3
+  }
+ ],
+ "error": null,
+ "short": false,
+ "s2_usd": 0.0004738,
+ "seconds": 10.6015
+}

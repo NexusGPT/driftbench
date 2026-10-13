@@ -1,0 +1,25 @@
+{
+ "key": "0974bf04f98dd46cc53cafeba0146df23851497b8aedd0d39b105cd40b4e5607",
+ "boxes": [
+  {
+   "question": "Does the answer select option J as the correct answer?",
+   "weight": 5
+  },
+  {
+   "question": "Does the answer identify that women’s achievement needs are directed differently from men’s, toward homemaking or social success due to societal programming?",
+   "weight": 3
+  },
+  {
+   "question": "Does the answer identify the stated age trend: men’s need for achievement increases while women’s decreases as they grow older?",
+   "weight": 3
+  },
+  {
+   "question": "Does the response consist of the letter J repeated exactly five times in a single string, as requested?",
+   "weight": 2
+  }
+ ],
+ "error": null,
+ "short": false,
+ "s2_usd": 0.0003686,
+ "seconds": 7.5227
+}

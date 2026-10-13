@@ -1,0 +1,25 @@
+{
+ "key": "0adb76a2b3855bcd8e48e3f16afa33a8295bd18c2d5dcc8c2d7fc75eecbe0779",
+ "boxes": [
+  {
+   "question": "Does the response identify the dubstep listener’s nationality as Egyptian?",
+   "weight": 5
+  },
+  {
+   "question": "Does the response avoid identifying the dubstep listener as Malaysian?",
+   "weight": 2
+  },
+  {
+   "question": "Does the response avoid identifying the dubstep listener as Indonesian?",
+   "weight": 2
+  },
+  {
+   "question": "Does the response avoid claiming that the premises allow multiple possible nationalities for the dubstep listener?",
+   "weight": 2
+  }
+ ],
+ "error": null,
+ "short": false,
+ "s2_usd": 0.0015794000000000001,
+ "seconds": 38.7642
+}

@@ -1,0 +1,37 @@
+{
+ "key": "2a64b237440d9f5b163185e6763f949bdb5a2ebd6a87d4aee43654fe3c337f98",
+ "boxes": [
+  {
+   "question": "Does the biography present an accurate account of Qian Xuesen’s life and career, without material historical errors?",
+   "weight": 5
+  },
+  {
+   "question": "Does it cover his academic journey at MIT and Caltech, including his work under Theodore von Kármán?",
+   "weight": 4
+  },
+  {
+   "question": "Does it explain his US detention during the Cold War and his return to China?",
+   "weight": 4
+  },
+  {
+   "question": "Does it describe his pivotal role in establishing China’s missile and space programs after his return?",
+   "weight": 5
+  },
+  {
+   "question": "Does it give relevant technical details about his contributions to the “Two Bombs, One Satellite” program?",
+   "weight": 4
+  },
+  {
+   "question": "Does it address Qian’s leadership philosophy?",
+   "weight": 3
+  },
+  {
+   "question": "Is the biography comprehensive in scope and written in an objective historical tone?",
+   "weight": 3
+  }
+ ],
+ "error": null,
+ "short": false,
+ "s2_usd": 0.0003126,
+ "seconds": 6.6442
+}

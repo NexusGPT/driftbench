@@ -1,0 +1,25 @@
+{
+ "key": "1e4717210ffb512fc97eed7acb660bb097714aeb238cf177489103b2ef40b7ef",
+ "boxes": [
+  {
+   "question": "Does the answer identify option (G) as the correct choice?",
+   "weight": 5
+  },
+  {
+   "question": "Does the answer give a hydronium concentration of approximately 1.2 × 10^-3 M?",
+   "weight": 5
+  },
+  {
+   "question": "Does the answer provide the selected letter repeated five times?",
+   "weight": 2
+  },
+  {
+   "question": "Are all five repeated letters G?",
+   "weight": 2
+  }
+ ],
+ "error": null,
+ "short": false,
+ "s2_usd": 0.00029939999999999996,
+ "seconds": 6.5187
+}

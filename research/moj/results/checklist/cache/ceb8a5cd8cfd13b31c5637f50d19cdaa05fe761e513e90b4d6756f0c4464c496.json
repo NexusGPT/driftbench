@@ -1,0 +1,25 @@
+{
+ "key": "ceb8a5cd8cfd13b31c5637f50d19cdaa05fe761e513e90b4d6756f0c4464c496",
+ "boxes": [
+  {
+   "question": "¿A resposta ofrece exactamente dez parellas de palabras?",
+   "weight": 5
+  },
+  {
+   "question": "¿Son homófonas as dúas palabras de cada parella, é dicir, pronúncianse igual pero teñen significados distintos?",
+   "weight": 5
+  },
+  {
+   "question": "¿As parellas están formadas por palabras válidas no galego?",
+   "weight": 4
+  },
+  {
+   "question": "¿A resposta está escrita en galego?",
+   "weight": 3
+  }
+ ],
+ "error": null,
+ "short": false,
+ "s2_usd": 0.0001764,
+ "seconds": 4.0561
+}

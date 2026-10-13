@@ -1,0 +1,25 @@
+{
+ "key": "5a2b07750108b0876dc773113644ea0e836059321216f35b2bb54ca01e1bb18c",
+ "boxes": [
+  {
+   "question": "Does the answer identify position 3 as the position of the Argentine person?",
+   "weight": 5
+  },
+  {
+   "question": "Does the answer express the position as a single digit?",
+   "weight": 1
+  },
+  {
+   "question": "Does the answer place exactly three asterisks on each side of the digit?",
+   "weight": 1
+  },
+  {
+   "question": "Does the answer contain only the requested formatted position, with no extra text or alternative position?",
+   "weight": 1
+  }
+ ],
+ "error": null,
+ "short": false,
+ "s2_usd": 0.0008652999999999999,
+ "seconds": 21.7154
+}

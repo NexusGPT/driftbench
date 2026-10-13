@@ -1,0 +1,25 @@
+{
+ "key": "6362326aa8de83d6917426e407e51f8c41163c7cfac35f4d9cdd871475e986c1",
+ "boxes": [
+  {
+   "question": "Does the answer identify loss of human diversity (option A) as the least serious problem?",
+   "weight": 5
+  },
+  {
+   "question": "Does the answer give A as its multiple-choice answer?",
+   "weight": 5
+  },
+  {
+   "question": "Does the answer repeat A five times?",
+   "weight": 3
+  },
+  {
+   "question": "Are the five As written together as one uninterrupted string?",
+   "weight": 2
+  }
+ ],
+ "error": null,
+ "short": false,
+ "s2_usd": 0.00041860000000000004,
+ "seconds": 10.1948
+}

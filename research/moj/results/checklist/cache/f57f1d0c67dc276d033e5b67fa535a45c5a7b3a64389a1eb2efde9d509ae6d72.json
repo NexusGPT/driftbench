@@ -1,0 +1,41 @@
+{
+ "key": "f57f1d0c67dc276d033e5b67fa535a45c5a7b3a64389a1eb2efde9d509ae6d72",
+ "boxes": [
+  {
+   "question": "Does the proposal address environmental protection for a beach community as a public interest project?",
+   "weight": 3
+  },
+  {
+   "question": "Does it use “Empowering Local Communities for a Sustainable Future” as its theme?",
+   "weight": 2
+  },
+  {
+   "question": "Does it analyze the environmental problem the project aims to address?",
+   "weight": 3
+  },
+  {
+   "question": "Does it present an integrated action plan that includes cleanup, recycling, and education activities?",
+   "weight": 4
+  },
+  {
+   "question": "Does it provide a clear budget for the proposed project?",
+   "weight": 4
+  },
+  {
+   "question": "Does it assess expected impact using specific KPIs?",
+   "weight": 4
+  },
+  {
+   "question": "Does it make the project’s social value and feasibility clear to potential funders?",
+   "weight": 4
+  },
+  {
+   "question": "Is the language both professional and passionate?",
+   "weight": 2
+  }
+ ],
+ "error": null,
+ "short": false,
+ "s2_usd": 0.00022769999999999998,
+ "seconds": 4.8676
+}

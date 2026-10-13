@@ -1,0 +1,25 @@
+{
+ "key": "cba035ee5f095136e0cc0f1770dfcc308d3a5d91e892f8ce566f194915e47c18",
+ "boxes": [
+  {
+   "question": "Does the response identify option I (that eosinophilic oesophagitis may cause oesophageal obstruction) as the correct answer?",
+   "weight": 5
+  },
+  {
+   "question": "Does the response use the uppercase letter I for its answer?",
+   "weight": 1
+  },
+  {
+   "question": "Does the response include exactly five copies of the answer letter?",
+   "weight": 1
+  },
+  {
+   "question": "Are the five copies presented together as a single uninterrupted string?",
+   "weight": 1
+  }
+ ],
+ "error": null,
+ "short": false,
+ "s2_usd": 0.0006072,
+ "seconds": 15.5562
+}

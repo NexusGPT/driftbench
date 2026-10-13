@@ -1,0 +1,25 @@
+{
+ "key": "d2f2b6ebf350ad1f63a2a846dc85631d540506c2e98024267373dafbb0f5ee60",
+ "boxes": [
+  {
+   "question": "Does the response identify Pakistani as the nationality of the person who watches musical movies?",
+   "weight": 5
+  },
+  {
+   "question": "Does the response avoid identifying that person as American?",
+   "weight": 1
+  },
+  {
+   "question": "Does the response avoid identifying that person as Nigerian?",
+   "weight": 1
+  },
+  {
+   "question": "Is the answer a single word enclosed in the requested ***X*** format?",
+   "weight": 1
+  }
+ ],
+ "error": null,
+ "short": false,
+ "s2_usd": 0.0010758,
+ "seconds": 27.663
+}

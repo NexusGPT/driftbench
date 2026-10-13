@@ -1,0 +1,25 @@
+{
+ "key": "0c5b5d4690e04ca355ae08290855ba02ae3488a2f50c3200fbe942942402bb9b",
+ "boxes": [
+  {
+   "question": "Does the answer correctly say that the person at the amusement park does not tell the truth?",
+   "weight": 5
+  },
+  {
+   "question": "Does the answer correctly say that the person at the planetarium tells the truth?",
+   "weight": 5
+  },
+  {
+   "question": "Does the answer correctly say that the person at the train station tells the truth?",
+   "weight": 5
+  },
+  {
+   "question": "Does the answer present the three yes-or-no answers in the order asked as a bold list?",
+   "weight": 1
+  }
+ ],
+ "error": null,
+ "short": false,
+ "s2_usd": 0.0005775,
+ "seconds": 10.3882
+}

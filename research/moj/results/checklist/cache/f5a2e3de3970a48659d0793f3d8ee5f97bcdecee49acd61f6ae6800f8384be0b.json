@@ -1,0 +1,41 @@
+{
+ "key": "f5a2e3de3970a48659d0793f3d8ee5f97bcdecee49acd61f6ae6800f8384be0b",
+ "boxes": [
+  {
+   "question": "是否指导读者梳理个人需求，并据此选择性价比高、适合自己的手机？",
+   "weight": 3
+  },
+  {
+   "question": "是否提供实用的品牌比较或选择建议？",
+   "weight": 2
+  },
+  {
+   "question": "是否说明选购时应关注哪些摄像头因素？",
+   "weight": 2
+  },
+  {
+   "question": "是否说明如何比较内存等手机参数？",
+   "weight": 2
+  },
+  {
+   "question": "是否介绍购买渠道及选择渠道时的注意事项？",
+   "weight": 2
+  },
+  {
+   "question": "是否指出购买手机时常见的陷阱及规避方法？",
+   "weight": 2
+  },
+  {
+   "question": "是否具体说明如何关注保修并核验手机真伪？",
+   "weight": 3
+  },
+  {
+   "question": "内容是否具体易懂、步骤清晰，并避免堆砌专业术语？",
+   "weight": 2
+  }
+ ],
+ "error": null,
+ "short": false,
+ "s2_usd": 0.0005206,
+ "seconds": 12.7038
+}

@@ -1,0 +1,25 @@
+{
+ "key": "4bf3b6fd669bc8218452607b2b174c937789e2ac122634978f7c757d4035e03b",
+ "boxes": [
+  {
+   "question": "Does the answer correctly say that the person at the observatory does not tell the truth?",
+   "weight": 5
+  },
+  {
+   "question": "Does the answer correctly say that the person at the hotel does not tell the truth?",
+   "weight": 5
+  },
+  {
+   "question": "Does the answer correctly say that the person at the gym does not tell the truth?",
+   "weight": 5
+  },
+  {
+   "question": "Does the answer give “no” for all three people in the order asked?",
+   "weight": 5
+  }
+ ],
+ "error": null,
+ "short": false,
+ "s2_usd": 0.0004288,
+ "seconds": 10.0635
+}

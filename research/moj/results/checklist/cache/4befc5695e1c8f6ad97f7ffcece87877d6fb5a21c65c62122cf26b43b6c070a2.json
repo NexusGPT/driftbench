@@ -1,0 +1,29 @@
+{
+ "key": "4befc5695e1c8f6ad97f7ffcece87877d6fb5a21c65c62122cf26b43b6c070a2",
+ "boxes": [
+  {
+   "question": "Does the response answer in Catalan?",
+   "weight": 2
+  },
+  {
+   "question": "Does it give a clear, accurate description of Undertale, Her Story, and Octopath Traveler?",
+   "weight": 3
+  },
+  {
+   "question": "Does it give a clear, accurate description of Return to Monkey Island, What Remains of Edith Finch, and This War of Mine?",
+   "weight": 3
+  },
+  {
+   "question": "Does it give a clear, accurate description of Firewatch, Gone Home, and The Stanley Parable?",
+   "weight": 3
+  },
+  {
+   "question": "Do the descriptions help the user understand each game's story and what playing it is like, including whether it calls for agile controls?",
+   "weight": 3
+  }
+ ],
+ "error": null,
+ "short": false,
+ "s2_usd": 0.0002405,
+ "seconds": 5.3067
+}

@@ -1,0 +1,25 @@
+{
+ "key": "1be28cc20bbbbe1b642cd8ef0a10ac32df8e263f0c7b33230f242f52e27a537d",
+ "boxes": [
+  {
+   "question": "Does the answer give the minimum remaining length as max(n % 2, 2f - n), where n is the array length and f is the greatest frequency of any value?",
+   "weight": 5
+  },
+  {
+   "question": "Does the answer correctly account for equal values being unable to form a removable pair, so that an array of identical values remains unchanged?",
+   "weight": 4
+  },
+  {
+   "question": "Does the answer return 0 for [1,3,4,9] and [2,3,6,9], and 1 for [1,1,2]?",
+   "weight": 3
+  },
+  {
+   "question": "If the answer provides an algorithm or code, does it compute the minimum length correctly for all sorted non-decreasing arrays within the stated constraints?",
+   "weight": 5
+  }
+ ],
+ "error": null,
+ "short": false,
+ "s2_usd": 0.0003263,
+ "seconds": 5.4676
+}

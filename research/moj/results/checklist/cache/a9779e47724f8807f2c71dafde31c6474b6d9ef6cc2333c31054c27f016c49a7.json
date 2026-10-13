@@ -1,0 +1,29 @@
+{
+ "key": "a9779e47724f8807f2c71dafde31c6474b6d9ef6cc2333c31054c27f016c49a7",
+ "boxes": [
+  {
+   "question": "Does the answer provide a set of interview questions for gathering feedback about a mobile app?",
+   "weight": 2
+  },
+  {
+   "question": "Are the questions framed around the interviewee’s own experiences as a real user of the app?",
+   "weight": 2
+  },
+  {
+   "question": "Do the questions invite users to describe specific experiences or tell stories rather than answer yes or no?",
+   "weight": 3
+  },
+  {
+   "question": "Does the set include questions designed to uncover users’ pain points?",
+   "weight": 3
+  },
+  {
+   "question": "Does the set include questions designed to uncover what users enjoy or find delightful?",
+   "weight": 3
+  }
+ ],
+ "error": null,
+ "short": false,
+ "s2_usd": 0.00014930000000000002,
+ "seconds": 3.2654
+}

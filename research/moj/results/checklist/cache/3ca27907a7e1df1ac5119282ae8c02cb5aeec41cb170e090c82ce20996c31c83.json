@@ -1,0 +1,25 @@
+{
+ "key": "3ca27907a7e1df1ac5119282ae8c02cb5aeec41cb170e090c82ce20996c31c83",
+ "boxes": [
+  {
+   "question": "Does the response give a net-force magnitude of approximately $2.6\\times10^{-10}\\,\\mathrm{N}$?",
+   "weight": 5
+  },
+  {
+   "question": "Does the response identify option H as the correct choice?",
+   "weight": 5
+  },
+  {
+   "question": "Does the response repeat its chosen letter exactly five times in one string?",
+   "weight": 1
+  },
+  {
+   "question": "Is the response limited to that single five-letter string, without additional text?",
+   "weight": 1
+  }
+ ],
+ "error": null,
+ "short": false,
+ "s2_usd": 0.0007471,
+ "seconds": 17.8536
+}

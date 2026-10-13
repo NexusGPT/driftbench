@@ -1,0 +1,33 @@
+{
+ "key": "81f0721c904028afb34d828a3f858d506435a1a58342fd06430f17c59999f72a",
+ "boxes": [
+  {
+   "question": "La resposta està escrita en català?",
+   "weight": 1
+  },
+  {
+   "question": "Descriu de manera correcta i diferenciada Undertale, Her Story i Octopath Traveler?",
+   "weight": 2
+  },
+  {
+   "question": "Descriu de manera correcta i diferenciada Return to Monkey Island, What Remains of Edith Finch i This War of Mine?",
+   "weight": 2
+  },
+  {
+   "question": "Descriu de manera correcta i diferenciada Firewatch, Gone Home i The Stanley Parable?",
+   "weight": 2
+  },
+  {
+   "question": "Les descripcions expliquen prou bé què s’hi fa i quin tipus d’història o experiència narrativa ofereix cada joc per ajudar l’usuari a fer-se’n una idea?",
+   "weight": 3
+  },
+  {
+   "question": "Té en compte que l’usuari prefereix jocs narratius que no exigeixin gaire agilitat amb els controls, sense presentar com a fàcil o poc exigent cap joc que no ho sigui?",
+   "weight": 2
+  }
+ ],
+ "error": null,
+ "short": false,
+ "s2_usd": 0.000553,
+ "seconds": 14.4712
+}

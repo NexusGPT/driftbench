@@ -1,0 +1,33 @@
+{
+ "key": "8d14a0f9f06d7dc89c0a8b1051f861c1c3dfae8c7323481019be25be23ea6ad0",
+ "boxes": [
+  {
+   "question": "Does the answer correctly identify the maximum achievable beauty as the largest number of input elements whose allowed value intervals [nums[i] - k, nums[i] + k] share a common integer value?",
+   "weight": 5
+  },
+  {
+   "question": "Does the proposed method return the maximum count of elements that can be changed or left unchanged to equal one target value, rather than requiring changes to every element?",
+   "weight": 5
+  },
+  {
+   "question": "Does the method account for the fact that equal-valued selected elements form a subsequence in their original order, without incorrectly requiring them to be adjacent?",
+   "weight": 4
+  },
+  {
+   "question": "Is the proposed method correct for the stated input constraints, including k = 0 and arrays of length 1?",
+   "weight": 4
+  },
+  {
+   "question": "Does the answer give the correct result of 3 for nums = [4,6,1,2] with k = 2?",
+   "weight": 3
+  },
+  {
+   "question": "Does the answer give the correct result of 4 for nums = [1,1,1,1] with k = 10?",
+   "weight": 3
+  }
+ ],
+ "error": null,
+ "short": false,
+ "s2_usd": 0.0003368,
+ "seconds": 6.7714
+}

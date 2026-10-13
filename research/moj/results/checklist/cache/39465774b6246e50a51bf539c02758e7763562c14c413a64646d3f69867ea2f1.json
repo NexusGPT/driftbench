@@ -1,0 +1,25 @@
+{
+ "key": "39465774b6246e50a51bf539c02758e7763562c14c413a64646d3f69867ea2f1",
+ "boxes": [
+  {
+   "question": "Does the response give 7 as Maureen’s current mean?",
+   "weight": 5
+  },
+  {
+   "question": "Does the response identify choice D as the correct answer?",
+   "weight": 5
+  },
+  {
+   "question": "Does the response duplicate the answer letter exactly five times?",
+   "weight": 3
+  },
+  {
+   "question": "Are the five duplicated letters presented together as a single string?",
+   "weight": 2
+  }
+ ],
+ "error": null,
+ "short": false,
+ "s2_usd": 0.000269,
+ "seconds": 6.7632
+}

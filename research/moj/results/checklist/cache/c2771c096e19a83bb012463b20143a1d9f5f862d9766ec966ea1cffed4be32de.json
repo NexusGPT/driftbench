@@ -1,0 +1,25 @@
+{
+ "key": "c2771c096e19a83bb012463b20143a1d9f5f862d9766ec966ea1cffed4be32de",
+ "boxes": [
+  {
+   "question": "Does the answer correctly determine that a valid original array exists exactly when the XOR of all values in derived is 0?",
+   "weight": 5
+  },
+  {
+   "question": "Does the answer return true for arrays whose values have XOR 0, including arrays of length 1?",
+   "weight": 5
+  },
+  {
+   "question": "Does the answer return false for arrays whose values have XOR 1, including derived = [1,0]?",
+   "weight": 5
+  },
+  {
+   "question": "Does the proposed solution handle arrays of length up to 10^5 without relying on infeasible time or memory?",
+   "weight": 3
+  }
+ ],
+ "error": null,
+ "short": false,
+ "s2_usd": 0.0002095,
+ "seconds": 3.8736
+}

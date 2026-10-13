@@ -1,0 +1,29 @@
+{
+ "key": "ddb3af7f3fd298bb4d0426bfd1d77ed3ca37e896f644e6fe8d37b56e4755a748",
+ "boxes": [
+  {
+   "question": "Does the answer correctly count Takahashi’s wins from the characters `T` in `S`?",
+   "weight": 5
+  },
+  {
+   "question": "Does the answer correctly count Aoki’s wins from the characters `A` in `S`?",
+   "weight": 5
+  },
+  {
+   "question": "When the win counts differ, does the answer select the player with more wins?",
+   "weight": 5
+  },
+  {
+   "question": "When the win counts are equal, does the answer select the player who reached that shared win count first?",
+   "weight": 5
+  },
+  {
+   "question": "Does the answer represent the selected winner with the required output character, `T` or `A`?",
+   "weight": 5
+  }
+ ],
+ "error": null,
+ "short": false,
+ "s2_usd": 0.0003798,
+ "seconds": 9.4536
+}

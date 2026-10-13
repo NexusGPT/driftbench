@@ -1,0 +1,25 @@
+{
+ "key": "ab70cd24d32ec5a92de17dc301b1ba3801de6cabbb4cf9c9aef2fde79d94a54c",
+ "boxes": [
+  {
+   "question": "Does the response identify D as the correct answer?",
+   "weight": 5
+  },
+  {
+   "question": "Does the response repeat the selected answer letter five times?",
+   "weight": 2
+  },
+  {
+   "question": "Are all five repeated characters the same letter?",
+   "weight": 2
+  },
+  {
+   "question": "Is the repeated answer presented as a single string?",
+   "weight": 1
+  }
+ ],
+ "error": null,
+ "short": false,
+ "s2_usd": 0.00029539999999999997,
+ "seconds": 7.0324
+}

@@ -1,0 +1,25 @@
+{
+ "key": "f4e4245d0df3877428044c75d975c69a49a94ba5c584e4117a249177e119a96a",
+ "boxes": [
+  {
+   "question": "Does the answer determine the winner by counting the T and A characters in S?",
+   "weight": 5
+  },
+  {
+   "question": "When the counts differ, does the answer select the player with more wins?",
+   "weight": 5
+  },
+  {
+   "question": "When the counts are equal, does the answer select the player who reached that win total first?",
+   "weight": 5
+  },
+  {
+   "question": "Does the answer output T for Takahashi or A for Aoki, as required?",
+   "weight": 5
+  }
+ ],
+ "error": null,
+ "short": false,
+ "s2_usd": 0.00020280000000000002,
+ "seconds": 4.157
+}

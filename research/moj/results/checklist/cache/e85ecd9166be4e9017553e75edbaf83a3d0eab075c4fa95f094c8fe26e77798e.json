@@ -1,0 +1,25 @@
+{
+ "key": "e85ecd9166be4e9017553e75edbaf83a3d0eab075c4fa95f094c8fe26e77798e",
+ "boxes": [
+  {
+   "question": "Does the response identify tea as the beverage preferred by the person in the third position?",
+   "weight": 5
+  },
+  {
+   "question": "Is the answer presented in the requested ***X*** format, with X equal to tea?",
+   "weight": 2
+  },
+  {
+   "question": "Does the response give the answer as a single word?",
+   "weight": 1
+  },
+  {
+   "question": "Does the response avoid adding any other answer or explanation?",
+   "weight": 1
+  }
+ ],
+ "error": null,
+ "short": false,
+ "s2_usd": 0.0004136,
+ "seconds": 9.3499
+}

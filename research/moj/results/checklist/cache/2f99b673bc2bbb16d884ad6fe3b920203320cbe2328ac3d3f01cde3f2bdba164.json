@@ -1,0 +1,25 @@
+{
+ "key": "2f99b673bc2bbb16d884ad6fe3b920203320cbe2328ac3d3f01cde3f2bdba164",
+ "boxes": [
+  {
+   "question": "Does the answer compute the punishment number for the given input n?",
+   "weight": 5
+  },
+  {
+   "question": "Does it consider every integer i from 1 through n, inclusive?",
+   "weight": 4
+  },
+  {
+   "question": "Does it count i only when the decimal digits of i² can be split into contiguous substrings whose integer values sum to i?",
+   "weight": 5
+  },
+  {
+   "question": "Does it return the sum of i² for all qualifying integers i, rather than the sum of the integers i themselves?",
+   "weight": 5
+  }
+ ],
+ "error": null,
+ "short": false,
+ "s2_usd": 0.00018030000000000002,
+ "seconds": 4.2351
+}

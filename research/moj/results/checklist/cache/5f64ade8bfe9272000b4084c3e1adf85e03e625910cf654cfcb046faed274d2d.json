@@ -1,0 +1,25 @@
+{
+ "key": "5f64ade8bfe9272000b4084c3e1adf85e03e625910cf654cfcb046faed274d2d",
+ "boxes": [
+  {
+   "question": "Does the answer correctly state that the person at the farm tells the truth?",
+   "weight": 5
+  },
+  {
+   "question": "Does the answer correctly state that the person at the vineyard tells the truth?",
+   "weight": 5
+  },
+  {
+   "question": "Does the answer correctly state that the person at the observatory lies?",
+   "weight": 5
+  },
+  {
+   "question": "Does the answer give the three truth values in the order farm, vineyard, observatory?",
+   "weight": 4
+  }
+ ],
+ "error": null,
+ "short": false,
+ "s2_usd": 0.00037380000000000003,
+ "seconds": 7.9483
+}

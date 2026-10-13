@@ -1,0 +1,29 @@
+{
+ "key": "662fb2875be3a65373dae7e10099fcb0262c623ffa7e8e21b65edd428374194a",
+ "boxes": [
+  {
+   "question": "Câu trả lời có nêu những chuỗi thức ăn nhanh thực sự phổ biến hoặc có độ nhận diện cao tại Việt Nam không?",
+   "weight": 3
+  },
+  {
+   "question": "Các chuỗi và mức độ phổ biến được mô tả có chính xác, không khẳng định quá mức về độ phổ biến hoặc thị phần không?",
+   "weight": 3
+  },
+  {
+   "question": "Câu trả lời có giải thích ít nhất một yếu tố cụ thể góp phần vào sự đón nhận rộng rãi của các chuỗi này không?",
+   "weight": 3
+  },
+  {
+   "question": "Câu trả lời có liên hệ các yếu tố được nêu với bối cảnh tiêu dùng tại Việt Nam, thay vì chỉ liệt kê nhận xét chung chung không?",
+   "weight": 2
+  },
+  {
+   "question": "Câu trả lời có dùng tiếng Việt và đáp ứng trực tiếp cả hai phần của câu hỏi: chuỗi nào phổ biến và vì sao được đón nhận rộng rãi không?",
+   "weight": 2
+  }
+ ],
+ "error": null,
+ "short": false,
+ "s2_usd": 0.00022119999999999998,
+ "seconds": 5.1959
+}

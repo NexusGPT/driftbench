@@ -1,0 +1,29 @@
+{
+ "key": "6dd3d0e7e4e2688dd8fc6b9eedb78fcb788ac42451954989272c0480c9865e1d",
+ "boxes": [
+  {
+   "question": "¿Incluye las cinco palabras originales, cada una exactamente una vez?",
+   "weight": 5
+  },
+  {
+   "question": "¿Coloca zanahoria y pantalón, cuyas segundas letras son «a», antes de amargo, cuya segunda letra es «m»?",
+   "weight": 5
+  },
+  {
+   "question": "¿Coloca amargo antes de doloroso, según sus segundas letras «m» y «o»?",
+   "weight": 5
+  },
+  {
+   "question": "¿Coloca doloroso antes de escalada, según sus segundas letras «o» y «s»?",
+   "weight": 5
+  },
+  {
+   "question": "¿Responde en español?",
+   "weight": 1
+  }
+ ],
+ "error": null,
+ "short": false,
+ "s2_usd": 0.00034310000000000005,
+ "seconds": 7.9604
+}

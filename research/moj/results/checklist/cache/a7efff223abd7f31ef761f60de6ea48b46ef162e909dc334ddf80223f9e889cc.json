@@ -1,0 +1,25 @@
+{
+ "key": "a7efff223abd7f31ef761f60de6ea48b46ef162e909dc334ddf80223f9e889cc",
+ "boxes": [
+  {
+   "question": "Does the answer identify orange as the food liked by the person who plays surfing?",
+   "weight": 5
+  },
+  {
+   "question": "Is the answer a single word?",
+   "weight": 2
+  },
+  {
+   "question": "Is the answer presented in the requested ***X*** format?",
+   "weight": 2
+  },
+  {
+   "question": "Does the answer avoid giving a different food as the surfer’s food?",
+   "weight": 5
+  }
+ ],
+ "error": null,
+ "short": false,
+ "s2_usd": 0.00031089999999999997,
+ "seconds": 7.8667
+}

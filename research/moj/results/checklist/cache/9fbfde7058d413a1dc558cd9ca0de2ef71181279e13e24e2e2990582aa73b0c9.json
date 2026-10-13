@@ -1,0 +1,25 @@
+{
+ "key": "9fbfde7058d413a1dc558cd9ca0de2ef71181279e13e24e2e2990582aa73b0c9",
+ "boxes": [
+  {
+   "question": "Presenta exactamente 10 parellas de palabras?",
+   "weight": 3
+  },
+  {
+   "question": "Cada parella está claramente identificada como tal?",
+   "weight": 2
+  },
+  {
+   "question": "Riman entre si as dúas palabras de cada parella?",
+   "weight": 5
+  },
+  {
+   "question": "A resposta está escrita en galego?",
+   "weight": 2
+  }
+ ],
+ "error": null,
+ "short": false,
+ "s2_usd": 0.0001807,
+ "seconds": 5.066
+}

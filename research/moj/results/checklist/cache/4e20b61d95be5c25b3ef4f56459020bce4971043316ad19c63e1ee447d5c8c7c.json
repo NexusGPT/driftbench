@@ -1,0 +1,33 @@
+{
+ "key": "4e20b61d95be5c25b3ef4f56459020bce4971043316ad19c63e1ee447d5c8c7c",
+ "boxes": [
+  {
+   "question": "Câu trả lời có nêu tên một số chuỗi thức ăn nhanh phổ biến tại Việt Nam, chẳng hạn KFC, Lotteria hoặc Jollibee?",
+   "weight": 5
+  },
+  {
+   "question": "Các chuỗi được nêu có phù hợp với thực tế về mức độ hiện diện hoặc phổ biến tại Việt Nam, thay vì khẳng định sai lệch về độ phổ biến hay thứ hạng không có căn cứ?",
+   "weight": 5
+  },
+  {
+   "question": "Câu trả lời có giải thích những yếu tố góp phần vào sự đón nhận rộng rãi, thay vì chỉ liệt kê tên chuỗi?",
+   "weight": 5
+  },
+  {
+   "question": "Câu trả lời có nêu các yếu tố hợp lý liên quan đến sức hút của những chuỗi này, như sự tiện lợi, giá cả hoặc khuyến mãi, địa điểm dễ tiếp cận, hay thực đơn phù hợp với khẩu vị địa phương?",
+   "weight": 4
+  },
+  {
+   "question": "Câu trả lời có trình bày bằng tiếng Việt?",
+   "weight": 3
+  },
+  {
+   "question": "Câu trả lời có cung cấp thông tin hữu ích, rõ ràng và không chứa nội dung gây hại?",
+   "weight": 3
+  }
+ ],
+ "error": null,
+ "short": false,
+ "s2_usd": 0.0003917,
+ "seconds": 9.6832
+}

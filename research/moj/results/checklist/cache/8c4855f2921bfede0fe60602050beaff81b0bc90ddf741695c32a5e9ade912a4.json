@@ -1,0 +1,25 @@
+{
+ "key": "8c4855f2921bfede0fe60602050beaff81b0bc90ddf741695c32a5e9ade912a4",
+ "boxes": [
+  {
+   "question": "Does the response select option I, the statement that Christopher Columbus was not the first European to explore North America?",
+   "weight": 5
+  },
+  {
+   "question": "Does the response repeat its selected answer letter exactly five times?",
+   "weight": 2
+  },
+  {
+   "question": "Are all five repeated letters I?",
+   "weight": 2
+  },
+  {
+   "question": "Does the response provide the required string without additional text?",
+   "weight": 1
+  }
+ ],
+ "error": null,
+ "short": false,
+ "s2_usd": 0.0005348,
+ "seconds": 12.4157
+}

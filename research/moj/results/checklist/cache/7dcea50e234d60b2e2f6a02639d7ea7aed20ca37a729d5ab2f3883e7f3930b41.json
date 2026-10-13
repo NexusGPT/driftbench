@@ -1,0 +1,25 @@
+{
+ "key": "7dcea50e234d60b2e2f6a02639d7ea7aed20ca37a729d5ab2f3883e7f3930b41",
+ "boxes": [
+  {
+   "question": "Does the answer select the objectively correct option among A–J?",
+   "weight": 5
+  },
+  {
+   "question": "Does the response consist of exactly five characters?",
+   "weight": 1
+  },
+  {
+   "question": "Are all five characters the same letter?",
+   "weight": 1
+  },
+  {
+   "question": "Is the repeated letter the selected option, with no additional text?",
+   "weight": 1
+  }
+ ],
+ "error": null,
+ "short": false,
+ "s2_usd": 0.00028910000000000003,
+ "seconds": 6.3221
+}

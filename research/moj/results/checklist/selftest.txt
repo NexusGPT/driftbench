@@ -1,0 +1,1 @@
+selftest passed: candidate isolation, cache key, order symmetry, short boxes, missing abstention, call counts, dedup, persistent retry limit, budget guard, offline miss, three-call cap, 403 backoff

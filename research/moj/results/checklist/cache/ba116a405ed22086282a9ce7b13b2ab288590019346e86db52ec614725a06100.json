@@ -1,0 +1,29 @@
+{
+ "key": "ba116a405ed22086282a9ce7b13b2ab288590019346e86db52ec614725a06100",
+ "boxes": [
+  {
+   "question": "Does the response provide exactly 10 word pairs?",
+   "weight": 5
+  },
+  {
+   "question": "Does each pair consist of exactly two words?",
+   "weight": 3
+  },
+  {
+   "question": "Do the two words in every pair rhyme with each other?",
+   "weight": 5
+  },
+  {
+   "question": "Are the words recognizable English words, with the response written in English?",
+   "weight": 3
+  },
+  {
+   "question": "Is the response relevant to the request and free of unsafe or inappropriate content?",
+   "weight": 2
+  }
+ ],
+ "error": null,
+ "short": false,
+ "s2_usd": 0.000172,
+ "seconds": 4.1292
+}

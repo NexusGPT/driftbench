@@ -1,0 +1,25 @@
+{
+ "key": "e73e66ca6b510653d2936a4fe245bb5ff3b396dbdb3ce7774eebcf16e5cad57a",
+ "boxes": [
+  {
+   "question": "Does the answer correctly state that the minimum is 4 turns?",
+   "weight": 5
+  },
+  {
+   "question": "Does the answer identify option C as correct?",
+   "weight": 5
+  },
+  {
+   "question": "Does the answer give the selected letter five times?",
+   "weight": 2
+  },
+  {
+   "question": "Are the five copies of the letter presented together as a single string?",
+   "weight": 1
+  }
+ ],
+ "error": null,
+ "short": false,
+ "s2_usd": 0.0004119,
+ "seconds": 10.948
+}

@@ -1,0 +1,25 @@
+{
+ "key": "05b51bf621df87cac613a9dda2aadf70c707ca20ec3691f3ac9fd4201f64a314",
+ "boxes": [
+  {
+   "question": "Does the answer select option G as correct?",
+   "weight": 5
+  },
+  {
+   "question": "Does the answer give five repetitions of the letter G?",
+   "weight": 2
+  },
+  {
+   "question": "Are the five Gs presented contiguously as a single string?",
+   "weight": 1
+  },
+  {
+   "question": "Does the answer avoid adding other letters to the requested string?",
+   "weight": 1
+  }
+ ],
+ "error": null,
+ "short": false,
+ "s2_usd": 0.000442,
+ "seconds": 10.824
+}

@@ -1,0 +1,13 @@
+{
+ "s2_usd": 0.11845299999999992,
+ "unresolved_reserved_usd": 0.0140932,
+ "budget_usd": 8.0,
+ "pricing": {
+  "input": 0.1,
+  "cached": 0.01,
+  "output": 0.5
+ },
+ "pricing_source": "moj/client.py LUNA_PRICE",
+ "s1_usd": null,
+ "note": "No Jev tariff is available."
+}

@@ -1,0 +1,25 @@
+{
+ "key": "6bef5aac3649bd91c6d56f5e97f17ccf0739016ba22d61b6e649be3b00611a25",
+ "boxes": [
+  {
+   "question": "Does the answer give 4 as the number of quadrilaterals?",
+   "weight": 5
+  },
+  {
+   "question": "Does the answer avoid giving a different number of quadrilaterals?",
+   "weight": 5
+  },
+  {
+   "question": "Does the answer distinguish the number of quadrilaterals from the total number of resulting pieces?",
+   "weight": 3
+  },
+  {
+   "question": "Does the answer count quadrilateral pieces formed by all three cuts, rather than by only a subset of the cuts?",
+   "weight": 3
+  }
+ ],
+ "error": null,
+ "short": false,
+ "s2_usd": 0.0008065,
+ "seconds": 19.902
+}

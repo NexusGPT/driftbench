@@ -1,0 +1,25 @@
+{
+ "key": "f91fbb2f3bf2d0fb95e44b4f4510bfc6a6e5472c471f5b048ca29800fb2a6bac",
+ "boxes": [
+  {
+   "question": "Does the response identify the percentage modulation as approximately 75%?",
+   "weight": 5
+  },
+  {
+   "question": "Does the response select option C as the correct answer?",
+   "weight": 5
+  },
+  {
+   "question": "Does the response repeat the answer letter C exactly five times?",
+   "weight": 3
+  },
+  {
+   "question": "Are the five C's presented as one uninterrupted string, with no additional text?",
+   "weight": 2
+  }
+ ],
+ "error": null,
+ "short": false,
+ "s2_usd": 0.0005657,
+ "seconds": 12.4849
+}

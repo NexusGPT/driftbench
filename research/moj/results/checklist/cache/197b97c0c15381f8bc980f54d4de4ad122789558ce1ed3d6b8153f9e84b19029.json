@@ -1,0 +1,25 @@
+{
+ "key": "197b97c0c15381f8bc980f54d4de4ad122789558ce1ed3d6b8153f9e84b19029",
+ "boxes": [
+  {
+   "question": "Does the answer give the determinant as 33?",
+   "weight": 5
+  },
+  {
+   "question": "Is the final answer presented in a \\boxed{} as requested?",
+   "weight": 1
+  },
+  {
+   "question": "Does the answer avoid giving a different value for the determinant elsewhere?",
+   "weight": 4
+  },
+  {
+   "question": "Does the answer identify 33 as the determinant of the given matrix, rather than as an unrelated intermediate result?",
+   "weight": 4
+  }
+ ],
+ "error": null,
+ "short": false,
+ "s2_usd": 0.0003236,
+ "seconds": 7.9828
+}

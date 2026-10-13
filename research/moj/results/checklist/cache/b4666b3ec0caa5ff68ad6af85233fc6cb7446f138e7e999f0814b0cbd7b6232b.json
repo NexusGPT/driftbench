@@ -1,0 +1,25 @@
+{
+ "key": "b4666b3ec0caa5ff68ad6af85233fc6cb7446f138e7e999f0814b0cbd7b6232b",
+ "boxes": [
+  {
+   "question": "Does the answer identify position 4 as the position of the person who travels by trike?",
+   "weight": 5
+  },
+  {
+   "question": "Is the stated position represented by a single digit?",
+   "weight": 2
+  },
+  {
+   "question": "Is the digit enclosed by exactly three asterisks on each side, as requested?",
+   "weight": 2
+  },
+  {
+   "question": "Does the response contain only the formatted answer, without additional text?",
+   "weight": 1
+  }
+ ],
+ "error": null,
+ "short": false,
+ "s2_usd": 0.0020019,
+ "seconds": 46.9785
+}

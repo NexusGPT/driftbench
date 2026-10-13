@@ -1,0 +1,33 @@
+{
+ "key": "3ddcb1a671d28d67938132829baa6f6029148af39b43c8fea53dc37e78737649",
+ "boxes": [
+  {
+   "question": "Does the response provide multiple interview questions for gathering feedback about an active mobile app?",
+   "weight": 3
+  },
+  {
+   "question": "Are the questions open-ended rather than answerable with only yes or no?",
+   "weight": 5
+  },
+  {
+   "question": "Do the questions invite the user to describe specific experiences or stories from their own use of the app?",
+   "weight": 4
+  },
+  {
+   "question": "Do the questions explore the user's pain points, such as difficulties or frustrating moments?",
+   "weight": 5
+  },
+  {
+   "question": "Do the questions explore the user's delight points, such as enjoyable or especially valuable moments?",
+   "weight": 5
+  },
+  {
+   "question": "Are the questions phrased neutrally, without presuming that the user had a particular positive or negative experience?",
+   "weight": 3
+  }
+ ],
+ "error": null,
+ "short": false,
+ "s2_usd": 0.0003393,
+ "seconds": 9.972
+}

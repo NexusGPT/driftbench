@@ -1,0 +1,25 @@
+{
+ "key": "8eb53727c873752ea5a4ab5a11c04f5cda15e56db1a8a5abae1911e74f7c2a7e",
+ "boxes": [
+  {
+   "question": "Does the selected option accurately describe the change among men?",
+   "weight": 5
+  },
+  {
+   "question": "Does the selected option accurately describe the change among women?",
+   "weight": 5
+  },
+  {
+   "question": "Does the selected option give the objectively correct combined answer for both men and women?",
+   "weight": 5
+  },
+  {
+   "question": "Does the response duplicate the selected option letter exactly five times in a single string?",
+   "weight": 1
+  }
+ ],
+ "error": null,
+ "short": false,
+ "s2_usd": 0.0005376000000000001,
+ "seconds": 12.6612
+}

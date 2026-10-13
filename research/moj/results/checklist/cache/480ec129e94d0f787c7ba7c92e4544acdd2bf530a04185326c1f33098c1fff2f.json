@@ -1,0 +1,25 @@
+{
+ "key": "480ec129e94d0f787c7ba7c92e4544acdd2bf530a04185326c1f33098c1fff2f",
+ "boxes": [
+  {
+   "question": "Does the answer select option E?",
+   "weight": 5
+  },
+  {
+   "question": "Does the answer treat the first $40,000 of gain as allocated to Acre?",
+   "weight": 5
+  },
+  {
+   "question": "Does the answer treat the remaining $60,000 of gain as shared equally among all three partners?",
+   "weight": 5
+  },
+  {
+   "question": "Does the answer duplicate its selected letter five times in a single string?",
+   "weight": 1
+  }
+ ],
+ "error": null,
+ "short": false,
+ "s2_usd": 0.0006036,
+ "seconds": 15.5229
+}

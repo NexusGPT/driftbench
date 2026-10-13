@@ -1,0 +1,25 @@
+{
+ "key": "787035739aff4d71a80ec989412ce97656bb8188b21e6ca4719d7ad330bd9423",
+ "boxes": [
+  {
+   "question": "Does the answer correctly say that the person at the farm does not tell the truth?",
+   "weight": 5
+  },
+  {
+   "question": "Does the answer correctly say that the person at the train station does not tell the truth?",
+   "weight": 5
+  },
+  {
+   "question": "Does the answer correctly say that the person at the zoo does not tell the truth?",
+   "weight": 5
+  },
+  {
+   "question": "Does the answer give the correct yes-or-no answer for all three people?",
+   "weight": 5
+  }
+ ],
+ "error": null,
+ "short": false,
+ "s2_usd": 0.0003697,
+ "seconds": 7.8147
+}

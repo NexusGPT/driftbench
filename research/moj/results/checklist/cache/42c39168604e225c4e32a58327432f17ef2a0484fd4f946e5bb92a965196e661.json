@@ -1,0 +1,25 @@
+{
+ "key": "42c39168604e225c4e32a58327432f17ef2a0484fd4f946e5bb92a965196e661",
+ "boxes": [
+  {
+   "question": "Does the response select (A) Corporate brands as the correct answer?",
+   "weight": 5
+  },
+  {
+   "question": "Does the response repeat its selected letter exactly five times?",
+   "weight": 1
+  },
+  {
+   "question": "Are all five repeated characters the same letter?",
+   "weight": 1
+  },
+  {
+   "question": "Is the repeated answer presented as a single string?",
+   "weight": 1
+  }
+ ],
+ "error": null,
+ "short": false,
+ "s2_usd": 0.00031769999999999997,
+ "seconds": 7.6299
+}

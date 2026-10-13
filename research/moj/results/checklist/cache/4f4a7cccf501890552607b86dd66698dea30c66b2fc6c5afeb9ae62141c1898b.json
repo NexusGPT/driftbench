@@ -1,0 +1,25 @@
+{
+ "key": "4f4a7cccf501890552607b86dd66698dea30c66b2fc6c5afeb9ae62141c1898b",
+ "boxes": [
+  {
+   "question": "Does the answer select E as the correct choice?",
+   "weight": 5
+  },
+  {
+   "question": "Does the answer give the selected letter exactly five times?",
+   "weight": 2
+  },
+  {
+   "question": "Are the five letters presented as one uninterrupted string?",
+   "weight": 1
+  },
+  {
+   "question": "Does the answer avoid adding any other text?",
+   "weight": 1
+  }
+ ],
+ "error": null,
+ "short": false,
+ "s2_usd": 0.0003571,
+ "seconds": 7.6462
+}

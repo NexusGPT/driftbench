@@ -1,0 +1,41 @@
+{
+ "key": "2ebce6e19cd6caf3d29b5c0956d797c9aba3feb8d889f1f02732e3849aedf4a6",
+ "boxes": [
+  {
+   "question": "Does the response tell a story set in the wuxia world of jianghu?",
+   "weight": 2
+  },
+  {
+   "question": "Is the story told from the perspective of an ordinary commoner rather than a martial-arts hero?",
+   "weight": 3
+  },
+  {
+   "question": "Is the protagonist a clever innkeeper who is unskilled in martial arts?",
+   "weight": 2
+  },
+  {
+   "question": "Is the inn situated at a key crossroads of the martial world?",
+   "weight": 1
+  },
+  {
+   "question": "Do two rival sects coincidentally choose the same inn as their secret base on the same night?",
+   "weight": 3
+  },
+  {
+   "question": "Does the innkeeper use his wits, silver tongue, and knowledge of jianghu gossip to play the rival sects against each other?",
+   "weight": 4
+  },
+  {
+   "question": "Does the innkeeper's strategy prevent the inn from being destroyed?",
+   "weight": 4
+  },
+  {
+   "question": "Does the story combine tense comedy with the survival intelligence of an ordinary person surrounded by powerful martial artists?",
+   "weight": 3
+  }
+ ],
+ "error": null,
+ "short": false,
+ "s2_usd": 0.00034219999999999997,
+ "seconds": 8.0785
+}

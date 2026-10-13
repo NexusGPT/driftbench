@@ -1,0 +1,33 @@
+{
+ "key": "7a23d92594332b3278daa60fa4e58bd6a4373a6f417cd4daa916d0bc14396e19",
+ "boxes": [
+  {
+   "question": "Does the response provide an interview outline made up of questions for Elon Musk?",
+   "weight": 2
+  },
+  {
+   "question": "Does the outline use the theme “A Modern Prometheus, or Icarus?” or clearly express that contrast?",
+   "weight": 2
+  },
+  {
+   "question": "Does it explore the tension between Musk’s grand visions and his controversial actions?",
+   "weight": 3
+  },
+  {
+   "question": "Are the questions framed in the voice of a serious business journalist rather than as promotional or fan-oriented prompts?",
+   "weight": 2
+  },
+  {
+   "question": "Are the questions direct and clearly phrased?",
+   "weight": 2
+  },
+  {
+   "question": "Do the questions challenge Musk and press him to address accountability, consequences, or tensions in his actions and ambitions?",
+   "weight": 3
+  }
+ ],
+ "error": null,
+ "short": false,
+ "s2_usd": 0.0002927,
+ "seconds": 6.5647
+}

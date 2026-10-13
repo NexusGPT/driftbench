@@ -1,0 +1,25 @@
+{
+ "key": "286ad201264827425c0cd4f37942c3f009dd7cf0a79c04258289647cc9771842",
+ "boxes": [
+  {
+   "question": "Does the response identify orange as the food liked by the person who plays surfing?",
+   "weight": 5
+  },
+  {
+   "question": "Does the response give a listed food value as its answer?",
+   "weight": 1
+  },
+  {
+   "question": "Does the response contain only a single-word answer, with no explanation?",
+   "weight": 1
+  },
+  {
+   "question": "Is the answer enclosed in the requested ***X*** format?",
+   "weight": 1
+  }
+ ],
+ "error": null,
+ "short": false,
+ "s2_usd": 0.0005894,
+ "seconds": 13.0688
+}

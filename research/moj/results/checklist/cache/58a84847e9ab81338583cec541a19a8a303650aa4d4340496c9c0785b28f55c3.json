@@ -1,0 +1,25 @@
+{
+ "key": "58a84847e9ab81338583cec541a19a8a303650aa4d4340496c9c0785b28f55c3",
+ "boxes": [
+  {
+   "question": "Je, jibu linataja jumla sahihi ya mitungi 100 kwa mwaka?",
+   "weight": 5
+  },
+  {
+   "question": "Je, jibu linaweka wazi kuwa 100 ni idadi ya mitungi ya divai?",
+   "weight": 3
+  },
+  {
+   "question": "Je, jibu limetolewa kwa Kiswahili?",
+   "weight": 2
+  },
+  {
+   "question": "Je, jibu linajibu moja kwa moja swali la uzalishaji wa kila mwaka bila maelezo yasiyohusiana?",
+   "weight": 1
+  }
+ ],
+ "error": null,
+ "short": false,
+ "s2_usd": 0.000297,
+ "seconds": 7.6914
+}

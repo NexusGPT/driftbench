@@ -1,0 +1,25 @@
+{
+ "key": "57e2e5b7ca163c71a4b5792b424dcd0c50c248e9450ceed2076ad3271dd47849",
+ "boxes": [
+  {
+   "question": "Je, jibu linataja kwamba shamba huzalisha mitungi 100 ya divai kwa mwaka?",
+   "weight": 5
+  },
+  {
+   "question": "Je, jibu linaonyesha hesabu sahihi ya ekari 10 × tani 5 kwa ekari × mitungi 2 kwa tani?",
+   "weight": 4
+  },
+  {
+   "question": "Je, jibu linajibu moja kwa moja swali la idadi ya mitungi inayozalishwa kwa mwaka?",
+   "weight": 2
+  },
+  {
+   "question": "Je, jibu limetolewa kwa Kiswahili?",
+   "weight": 2
+  }
+ ],
+ "error": null,
+ "short": false,
+ "s2_usd": 0.000197,
+ "seconds": 6.1144
+}
