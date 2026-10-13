@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { candidateContainsQuote, groundEvidence } from '../src/evidence';
 import { type JudgeRequest, parseJudgeText, renderEntry } from '../src/index';
-import fixtures from './fixtures/literal-winner-quotes.json';
+import fixtures from './fixtures/literal-winner-quotes';
 
 const code = '```python\nfrom operator import itemgetter\nprint(itemgetter(0)([42]))\n```';
 const opening = '```python\nfrom operator import itemgetter';
