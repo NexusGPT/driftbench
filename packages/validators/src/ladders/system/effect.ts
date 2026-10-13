@@ -303,10 +303,11 @@ function ratio(good: number, total: number): number {
 }
 
 /**
- * Wilson calibration: the share of effect campaigns whose Wilson interval on the baseline pass rate holds the
- * true rate. Reported on its own, so a design-effect miss never hides the coverage (and the reverse).
+ * Level 6: calibration. The share of effect campaigns whose Wilson interval on the baseline pass rate holds
+ * the true rate, and whether the true design effect lies in the bootstrap interval of the mean estimated
+ * design effect over the clustered campaigns (1 or 0). The value is the lower of the two.
  */
-export function wilsonCalibration(effect: EffectState, seed: number, s: SystemStats): Measure {
+export function calibrationLevel(effect: EffectState, seed: number, s: SystemStats): Measure {
   const items: Item[] = problemItems(effect);
   let contained = 0;
   effect.flags.forEach((flags, campaign) => {
@@ -321,39 +322,6 @@ export function wilsonCalibration(effect: EffectState, seed: number, s: SystemSt
       });
   });
   const coverage = ratio(contained, effect.flags.length);
-  return { value: effect.problems.length > 0 ? 0 : coverage, items };
-}
-
-/**
- * The exact finite-sample law of the design effect estimated on one clustered campaign: its mean, standard
- * deviation and skewness over every histogram of cluster pass counts the plant can produce. The truncation of
- * the correlation at zero makes the mean differ from the population value 1 + (m - 1) rho.
- */
-export type DesignEffectLaw = { mean: number; sd: number; skew: number };
-
-/**
- * The acceptance interval of the mean estimated design effect over n campaigns at level 1 - alpha: the
- * Cornish-Fisher quantiles of the mean (normal quantiles corrected for its skewness, skew over root n), so each
- * tail carries at most alpha / 2 of the exact law, where the plain normal interval puts more in the upper tail.
- */
-export function designEffectInterval(law: DesignEffectLaw, n: number, alpha: number): [number, number] {
-  const z = stats.normalQuantile(1 - alpha / 2);
-  const shift = ((z * z - 1) * (law.skew / Math.sqrt(n))) / 6;
-  const se = law.sd / Math.sqrt(n);
-  return [law.mean + (-z + shift) * se, law.mean + (z + shift) * se];
-}
-
-/**
- * Design-effect calibration: whether the mean design effect estimated on the stored runs of the clustered
- * campaigns lies in the DEFF_ALPHA acceptance interval of its exact finite-sample law (1 or 0).
- */
-export function designEffectCalibration(
-  effect: EffectState,
-  seed: number,
-  s: SystemStats,
-  law: DesignEffectLaw,
-): Measure {
-  const items: Item[] = problemItems(effect);
   const estimates = effect.clusters.map((clusters) => {
     const observations = clusters.flatMap((runs, spec) =>
       runs.map((value) => ({ value, path: [`spec-${spec}`] })),
@@ -362,16 +330,17 @@ export function designEffectCalibration(
     const rho = Math.max(0, s.icc(components)[0]?.icc ?? 0);
     return s.designEffect(CLUSTER_SIZE, rho);
   });
-  const mean = stats.mean(estimates);
-  const [lower, upper] = designEffectInterval(law, estimates.length, DEFF_ALPHA);
-  const inside = lower <= mean && mean <= upper ? 1 : 0;
+  const truth = s.designEffect(CLUSTER_SIZE, CLUSTER_RHO);
+  const ci = s.bootstrapCI(estimates, { alpha: DEFF_ALPHA, seed });
+  const inside = ci.lower <= truth && truth <= ci.upper ? 1 : 0;
   if (inside === 0)
     items.push({
       id: 'design-effect',
       component: SYSTEM_COMPONENTS.designEffect,
-      detail: `seed ${seed}: the mean estimated design effect over ${estimates.length} clustered campaigns is ${showNumber(mean)}, outside the ${1 - DEFF_ALPHA} interval [${showNumber(lower)}, ${showNumber(upper)}] of its exact finite-sample law (mean ${showNumber(law.mean)}, sd ${showNumber(law.sd)}, m ${CLUSTER_SIZE}, rho ${CLUSTER_RHO})`,
+      detail: `seed ${seed}: the mean estimated design effect over ${estimates.length} clustered campaigns is ${showNumber(stats.mean(estimates))}, bootstrap interval at ${1 - DEFF_ALPHA} [${showNumber(ci.lower)}, ${showNumber(ci.upper)}], which misses the true design effect ${showNumber(truth)} (m ${CLUSTER_SIZE}, rho ${CLUSTER_RHO})`,
     });
-  return { value: effect.problems.length > 0 ? 0 : inside, items };
+  const value = Math.min(coverage, inside);
+  return { value: effect.problems.length > 0 ? 0 : value, items };
 }
 
 function problemItems(effect: EffectState): Item[] {
