@@ -68,3 +68,14 @@ Sources: packages/core/src/runner/ledger.ts (`kindOf`, `sameValue`, `saidValues`
 Finding: the profile still includes lazy-array construction, but preserving plain mutable arrays and structuredClone requires their earlier slots. Ledger comparison also constructs anchored email and phone RegExp objects repeatedly for old facts. An isolated copy of the exact ledger module with only the two anchored patterns precompiled produces identical checked facts and contradictions. Across five 400-block growing-contact probes, the original module uses 176.926 to 193.233 CPU milliseconds and the candidate 57.377 to 80.618. These are subsystem probes, not bank scores.
 
 What to try after the hash iteration is measured: a red-first allocation test on the real ledger function, precompile only the non-global anchored patterns, retain all existing phone/email semantics, then measure the same bank growth items. This is a distinct allocation mechanism; it is not implemented in component source yet.
+
+
+## 2026-10-13: canonical text prefix reuse
+
+Question: why does bulk hashing still traverse old item texts on a new list, and how can it preserve mutable-array digest behavior?
+
+Sources: packages/core/src/spec/hash.ts (canonicalList, sha256WithList); packages/core/test/hash-list.test.ts (plain canonical digest oracle); packages/core/test/mutable-list-hash.test.ts; docs/adapters/index.md (mutable Message arrays).
+
+Finding: an extended immutable prefix repeats every old WeakMap lookup before joining the same old texts. The red-first test observes 402 lookups after extending a 400-object prefix by one item. A second red-first test confirms the new-head bulk path incorrectly reuses the array-identity text after a mutable array grows. The plain canonical SHA-256 oracle disagrees.
+
+Mechanism: keep the last canonical prefix text with a copied list of item references, verify that prefix before appending new texts, and bypass the immutable-array identity cache for mutable digest callers. Seven exact-digest and prefix tests pass after the change. The whole seed-1 measurement is the acceptance evidence for the growth item, not the subsystem test.
