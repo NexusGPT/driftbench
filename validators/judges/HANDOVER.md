@@ -132,6 +132,7 @@ Iteration 117 (cause: no Russian words. OTHER_LANGUAGES row (no rubrika: the Cyr
 Iteration 118 (cause: no Chinese words. OTHER_LANGUAGES rows take loose: true (match anywhere, no word edges) for scripts without spaces; sentences also end at the ideographic full stop, ! ? ;. Test: screen.test.ts Chinese.)
 Iteration 119 (cause: no Japanese words. OTHER_LANGUAGES row, loose. Test: screen.test.ts Japanese.)
 Iteration 120 (cause: no Korean words. OTHER_LANGUAGES row, loose. Test: screen.test.ts Korean.)
+Iteration 121 (cause: no Arabic words. OTHER_LANGUAGES row, loose. Test: screen.test.ts Arabic.)
 
 ## Next actions
 
