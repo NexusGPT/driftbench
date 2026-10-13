@@ -30,14 +30,19 @@ function parse(value: unknown, input = request) {
 
 describe('pointwise fact ledger', () => {
   it('computes fail for a nearby wrong number, without a model verdict', () => {
-    const result = parse({ facts: [{ ...fact, reply: '35 crowns monthly', status: 'wrong' }], unsupported: [] });
+    const result = parse({
+      facts: [{ ...fact, reply: '35 crowns monthly', status: 'wrong' }],
+      unsupported: [],
+    });
     expect(result.answer.outcome).toBe('fail');
     expect(result.unparsed).toBeUndefined();
     expect(result.winner).toBeUndefined();
   });
 
   it('fails a missing requested fact and an unsupported extra claim', () => {
-    expect(parse({ facts: [{ ...fact, reply: '', status: 'missing' }], unsupported: [] }).answer.outcome).toBe('fail');
+    expect(
+      parse({ facts: [{ ...fact, reply: '', status: 'missing' }], unsupported: [] }).answer.outcome,
+    ).toBe('fail');
     expect(parse({ ...ledger, unsupported: ['Aster includes free repairs.'] }).answer.outcome).toBe('fail');
   });
 
@@ -46,25 +51,60 @@ describe('pointwise fact ledger', () => {
     expect(result.answer.outcome).toBe('pass');
     expect(result.factLedger).toEqual(ledger);
     expect(parseJudgeValue(ledger, request)).toEqual(result);
-    expect(parse({ facts: [fact, { reference: '60 GB', reply: '', status: 'missing' }], unsupported: [] }).answer.outcome).toBe('fail');
+    expect(
+      parse({ facts: [fact, { reference: '60 GB', reply: '', status: 'missing' }], unsupported: [] }).answer
+        .outcome,
+    ).toBe('fail');
   });
 
   it('retains the frozen semantic contract for shared monthly modifiers', () => {
-    const input: JudgeRequest = { ...request, reference: 'Aster costs 34 crowns per month and includes 60 GB per month.', transcript: [{ role: 'agent', text: 'Aster: 34 crowns and 60 GB monthly.' }] };
-    const result = parse({ facts: [
-      { reference: 'Aster costs 34 crowns per month', reply: 'Aster: 34 crowns monthly', status: 'match' },
-      { reference: 'Aster includes 60 GB per month', reply: '60 GB monthly', status: 'match' },
-    ], unsupported: [] }, input);
+    const input: JudgeRequest = {
+      ...request,
+      reference: 'Aster costs 34 crowns per month and includes 60 GB per month.',
+      transcript: [{ role: 'agent', text: 'Aster: 34 crowns and 60 GB monthly.' }],
+    };
+    const result = parse(
+      {
+        facts: [
+          {
+            reference: 'Aster costs 34 crowns per month',
+            reply: 'Aster: 34 crowns monthly',
+            status: 'match',
+          },
+          { reference: 'Aster includes 60 GB per month', reply: '60 GB monthly', status: 'match' },
+        ],
+        unsupported: [],
+      },
+      input,
+    );
     expect(result.answer.outcome).toBe('pass');
   });
 
-  it.each([['22 MiB', 'match', 'pass'], ['22 KiB', 'wrong', 'fail']])('preserves a recorded units verdict for %s', (text, status, outcome) => {
-    const input = { ...request, reference: 'Vela transfers 22528 KiB. One MiB equals 1024 KiB.', transcript: [{ role: 'agent' as const, text: `Vela transfers ${text}.` }] };
-    expect(parse({ facts: [{ reference: 'Vela transfers 22528 KiB.', reply: `Vela transfers ${text}.`, status }], unsupported: [] }, input).answer.outcome).toBe(outcome);
+  it.each([
+    ['22 MiB', 'match', 'pass'],
+    ['22 KiB', 'wrong', 'fail'],
+  ])('preserves a recorded units verdict for %s', (text, status, outcome) => {
+    const input = {
+      ...request,
+      reference: 'Vela transfers 22528 KiB. One MiB equals 1024 KiB.',
+      transcript: [{ role: 'agent' as const, text: `Vela transfers ${text}.` }],
+    };
+    expect(
+      parse(
+        {
+          facts: [{ reference: 'Vela transfers 22528 KiB.', reply: `Vela transfers ${text}.`, status }],
+          unsupported: [],
+        },
+        input,
+      ).answer.outcome,
+    ).toBe(outcome);
   });
 
   it.each([
-    {}, { facts: [], unsupported: [] }, { facts: [fact] }, { ...ledger, outcome: 'pass' },
+    {},
+    { facts: [], unsupported: [] },
+    { facts: [fact] },
+    { ...ledger, outcome: 'pass' },
     { facts: [{ ...fact, status: 'unknown' }], unsupported: [] },
     { facts: [{ ...fact, status: true }], unsupported: [] },
     { facts: [{ ...fact, reference: '' }], unsupported: [] },
@@ -77,7 +117,12 @@ describe('pointwise fact ledger', () => {
   });
 
   it('refuses repeated keys before JSON parsing can hide them', () => {
-    expect(parseJudgeText('{"facts":[],"facts":[{"reference":"34 crowns monthly","reply":"34 crowns monthly","status":"match"}],"unsupported":[]}', request).unparsed).toBe(true);
+    expect(
+      parseJudgeText(
+        '{"facts":[],"facts":[{"reference":"34 crowns monthly","reply":"34 crowns monthly","status":"match"}],"unsupported":[]}',
+        request,
+      ).unparsed,
+    ).toBe(true);
   });
 
   it('requires a nonempty reference before building or parsing', () => {
@@ -90,7 +135,10 @@ describe('pointwise fact ledger', () => {
   });
 
   it('uses the verbatim frozen prompt and JSON data, with no generic reference caveat', () => {
-    const expected = readFileSync(new URL('../../../comparisons/langfuse/hard/audit.txt', import.meta.url), 'utf8');
+    const expected = readFileSync(
+      new URL('../../../comparisons/langfuse/hard/audit.txt', import.meta.url),
+      'utf8',
+    );
     const prompt = buildPrompt(request);
     expect(prompt.system).toBe(expected);
     expect(JSON.parse(prompt.user)).toEqual({ query: request.transcript[0]?.text, reference, reply });
@@ -105,7 +153,12 @@ describe('pointwise fact ledger', () => {
   });
 
   it('keeps reference, assessment and strict grounding in distinct cassette keys', () => {
-    const keys = [request, strict, { ...request, assessment: undefined }, { ...request, reference: 'Other reference' }].map((r) => requestKey(r));
+    const keys = [
+      request,
+      strict,
+      { ...request, assessment: undefined },
+      { ...request, reference: 'Other reference' },
+    ].map((r) => requestKey(r));
     expect(new Set(keys).size).toBe(keys.length);
   });
 });
@@ -113,17 +166,31 @@ describe('pointwise fact ledger', () => {
 describe('strict pointwise quote grounding', () => {
   it('accepts grounded rows and normalizes presentation only', () => {
     expect(parse(ledger, strict).answer.outcome).toBe('pass');
-    expect(parse({ facts: [{ ...fact, reference: '34  crowns\nmonthly', reply: '34 crowns monthly' }], unsupported: [] }, strict).answer.outcome).toBe('pass');
+    expect(
+      parse(
+        {
+          facts: [{ ...fact, reference: '34  crowns\nmonthly', reply: '34 crowns monthly' }],
+          unsupported: [],
+        },
+        strict,
+      ).answer.outcome,
+    ).toBe('pass');
   });
 
   it('refuses a fabricated reference or a reply quote borrowed from the user', () => {
-    expect(parse({ facts: [{ ...fact, reference: '999 crowns' }], unsupported: [] }, strict).unparsed).toBe(true);
-    expect(parse({ facts: [{ ...fact, reply: 'State the price' }], unsupported: [] }, strict).unparsed).toBe(true);
+    expect(parse({ facts: [{ ...fact, reference: '999 crowns' }], unsupported: [] }, strict).unparsed).toBe(
+      true,
+    );
+    expect(parse({ facts: [{ ...fact, reply: 'State the price' }], unsupported: [] }, strict).unparsed).toBe(
+      true,
+    );
   });
 
   it('refuses a nonempty missing quote or an empty match, but accepts empty missing', () => {
     expect(parse({ facts: [{ ...fact, reply: '' }], unsupported: [] }, strict).unparsed).toBe(true);
     expect(parse({ facts: [{ ...fact, status: 'missing' }], unsupported: [] }, strict).unparsed).toBe(true);
-    expect(parse({ facts: [{ ...fact, reply: '', status: 'missing' }], unsupported: [] }, strict).answer.outcome).toBe('fail');
+    expect(
+      parse({ facts: [{ ...fact, reply: '', status: 'missing' }], unsupported: [] }, strict).answer.outcome,
+    ).toBe('fail');
   });
 });

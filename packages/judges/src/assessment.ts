@@ -10,7 +10,13 @@ import {
 } from './contract';
 import { CriterionLedger, parseCriterionLedger, requirementsFor } from './criterion-ledger';
 import { candidateContainsQuote, quoteContinuations, stripReplyLabel } from './evidence';
-import { FactLedgerAnswer, parseFactLedger } from './fact-audit';
+import {
+  FactLedgerAnswer,
+  PointwiseFactLedgerAnswer,
+  parseFactLedger,
+  parsePointwiseFactLedger,
+  validatePointwiseFactRequest,
+} from './fact-audit';
 import {
   parseAnswerText as parseLegacyAnswerText,
   parseAnswerValue as parseLegacyAnswerValue,
@@ -25,7 +31,11 @@ export type RubricItem = {
 };
 export type Assessment =
   | { readonly kind: 'pairwise' }
-  | { readonly kind: 'fact-ledger' }
+  | {
+      readonly kind: 'fact-ledger';
+      /** Pointwise only: reject reference/reply text that is not a source quote. Default semantic. */
+      readonly grounding?: 'strict';
+    }
   | {
       readonly kind: 'rubric';
       readonly items: readonly RubricItem[];
@@ -97,9 +107,12 @@ export function validateAssessment(assessment: Assessment): void {
 export function responseSchema(request: JudgeRequest): Record<string, unknown> & { properties?: unknown } {
   const a = request.answerContract === 'legacy' ? undefined : request.assessment;
   if (a) validateAssessment(a);
+  if (a?.kind === 'fact-ledger' && !request.candidates) validatePointwiseFactRequest(request);
   const schema =
     a?.kind === 'fact-ledger'
-      ? FactLedgerAnswer
+      ? request.candidates
+        ? FactLedgerAnswer
+        : PointwiseFactLedgerAnswer
       : a?.kind === 'pairwise'
         ? PairwiseAnswer
         : a?.kind === 'rubric'
@@ -160,7 +173,10 @@ export function parseJudgeValue(
   const assessment = request.assessment;
   if (!assessment) return parseCriterionLedger(value, request, raw);
   validateAssessment(assessment);
-  if (assessment.kind === 'fact-ledger') return parseFactLedger(value, request, raw);
+  if (assessment.kind === 'fact-ledger')
+    return request.candidates
+      ? parseFactLedger(value, request, raw)
+      : parsePointwiseFactLedger(value, request, raw);
   if (assessment.kind === 'pairwise') {
     const parsed = PairwiseAnswer.safeParse(value);
     if (!parsed.success) return invalid(raw, parsed.error.issues[0]?.message ?? 'invalid winner');

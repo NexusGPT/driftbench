@@ -1,7 +1,7 @@
 import { z } from 'zod';
 import type { Assessment, RubricScores } from './assessment';
 import type { CriterionLedger, CriterionRequirement } from './criterion-ledger';
-import type { FactLedgerAnswer } from './fact-audit';
+import type { FactLedgerAnswer, PointwiseFactLedgerAnswer } from './fact-audit';
 
 /**
  * The answer contract every judge returns, and the request every judge reads.
@@ -86,7 +86,7 @@ export type JudgeResult = {
   readonly winner?: 'A' | 'B' | 'tie' | 'inconclusive';
   /** Validated item scores and the deterministic aggregate. */
   readonly rubric?: RubricScores;
-  readonly factLedger?: FactLedgerAnswer;
+  readonly factLedger?: FactLedgerAnswer | PointwiseFactLedgerAnswer;
   /** Default chat-model requirement ledger, with the public outcome computed in code. */
   readonly checks?: CriterionLedger['checks'];
   /** Model-invented requirement ids, ignored during scoring and retained for diagnostics. */
