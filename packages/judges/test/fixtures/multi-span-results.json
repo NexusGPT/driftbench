@@ -1,0 +1,69 @@
+{
+  "model": "haiku",
+  "settings": "[\"-p\",\"--output-format\",\"json\",\"--tools\",\"\",\"--setting-sources\",\"\",\"--strict-mcp-config\",\"--no-session-persistence\",\"--max-turns\",\"1\"]",
+  "promptFingerprint": "398673b792c1",
+  "n": 8,
+  "correct": 8,
+  "wrong": 0,
+  "inconclusive": 0,
+  "costUsd": 0.005424780000000001,
+  "unreportedFeeReserve": 0,
+  "rows": [
+    {
+      "id": "judge-threshold-02",
+      "expected": "fail",
+      "outcome": "fail",
+      "unparsed": false,
+      "costUsd": 0.0007287000000000001
+    },
+    {
+      "id": "relevancy-entity-swap-4-a",
+      "expected": "pass",
+      "outcome": "pass",
+      "unparsed": false,
+      "costUsd": 0.00037854
+    },
+    {
+      "id": "factuality.006",
+      "expected": "pass",
+      "outcome": "pass",
+      "unparsed": false,
+      "costUsd": 0.00077934
+    },
+    {
+      "id": "qa-negation-0",
+      "expected": "pass",
+      "outcome": "pass",
+      "unparsed": false,
+      "costUsd": 0.0007239400000000001
+    },
+    {
+      "id": "qa-negation-2",
+      "expected": "pass",
+      "outcome": "pass",
+      "unparsed": false,
+      "costUsd": 0.00076694
+    },
+    {
+      "id": "qa-negation-4",
+      "expected": "pass",
+      "outcome": "pass",
+      "unparsed": false,
+      "costUsd": 0.0007009400000000002
+    },
+    {
+      "id": "qa-negation-6",
+      "expected": "pass",
+      "outcome": "pass",
+      "unparsed": false,
+      "costUsd": 0.00062644
+    },
+    {
+      "id": "qa-negation-8",
+      "expected": "pass",
+      "outcome": "pass",
+      "unparsed": false,
+      "costUsd": 0.0007199400000000001
+    }
+  ]
+}
