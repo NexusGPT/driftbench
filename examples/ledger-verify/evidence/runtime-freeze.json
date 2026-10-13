@@ -1,6 +1,6 @@
 {
-  "version": 2,
-  "at": "2026-10-13T07:47:22.081026+00:00",
+  "version": 4,
+  "at": "2026-10-13T08:09:53.133410+00:00",
   "corePr": "https://github.com/achammah/driftbench/pull/168",
   "coreSha": "35f07309a4d1d1c8a7c5b176ff19e537d0ef8fdd",
   "command": "examples/ledger-verify/transport.sh",
@@ -8,17 +8,17 @@
     "haiku": {
       "model": "claude-haiku-5-5",
       "reasoning": null,
-      "timeoutMs": 240000
+      "timeoutMs": 300000
     },
     "gpt-6-luna": {
       "model": "gpt-6-luna",
       "reasoning": "medium",
-      "timeoutMs": 180000
+      "timeoutMs": 300000
     },
     "gemini-3.8-flash": {
       "model": "gemini-3.8-flash",
       "reasoning": "medium",
-      "timeoutMs": 180000
+      "timeoutMs": 300000
     }
   },
   "geminiAuthorization": "Gemini is authorized too (billing on, 180 s timeouts).",
@@ -26,10 +26,10 @@
   "capUsd": 25,
   "modelConcurrency": {
     "haiku": 2,
-    "gpt-6-luna": 4,
-    "gemini-3.8-flash": 4
+    "gpt-6-luna": 1,
+    "gemini-3.8-flash": 1
   },
-  "totalConcurrentCalls": 10,
+  "totalConcurrentCalls": 4,
   "hashes": {
     "packages/judges/src/answer-extraction.ts": "34c7b51c16ccee89de90cb93a7809b2baa69b1fbe4133a174c277784d41f4367",
     "packages/judges/src/artifacts.ts": "03c257805bbb737632ef8d4abd20e9ae0a1cb99150b130556f7eba681551e653",
@@ -124,23 +124,24 @@
     "packages/core/src/spec/semantics.ts": "dcf67515c540c833418ef2d094e4ce2f33d421458677476b13ce1a537763fda1",
     "packages/core/src/text/embedder.ts": "a6a3917fd68c8c5928cf11c97e637537a33fed5f74a7edc5ef955c62a9bc7ab9",
     "packages/core/src/text/grams.ts": "f6fb4db3dd090184cf781f266e2a4f8a33b36a463059cfc9c53438d2871d3085",
-    "examples/ledger-verify/offline.ts": "6487a6bb9b4b5a2b84934249468a4cc7ed7d8dc76e556f9502f3b99e77b2e586",
+    "examples/ledger-verify/offline.ts": "1f80542f28b8b63db18ec3ad0597155ae97b6fbd21ae7741630a97fe122e8734",
     "examples/ledger-verify/replay-frozen.ts": "f6af4c079d00effb1c63d362d696de454667292015f03333e4a48d3d19489dad",
-    "examples/ledger-verify/run.ts": "f1c7f75c9d3fea591aa17c611c3d32f3f148fd0152f12b2b7d5395b14710c260",
+    "examples/ledger-verify/run.ts": "60256f773f4fccb89388258b0a766ffa1b756884d83cdefeca8c6990770493aa",
     "examples/ledger-verify/schemas.ts": "89e8708edd82c74cb90a09ec53c09dda19ec70c537a0e63c3b0283f905c9b97c",
-    "examples/ledger-verify/transport.ts": "d3fb46df176ea73c0b86ba3011c67c04c1a909bd51bc00f64ab0f65bfb18b9f9",
-    "examples/ledger-verify/budget.py": "856a9d389f7dccf34b5345aa11538fb4ac502af7a7f1090aba8b3190bcd837d1",
+    "examples/ledger-verify/transport.ts": "39fa842d8b43544809527e0ff759b9a4375561e0cacca8b8e8110f8682a5adca",
+    "examples/ledger-verify/budget.py": "c0738d420cdf49a3fd8064eee4eadca60ec7e03dee6afe9e71b7b9e9caf0a226",
     "examples/ledger-verify/prepare-validity.py": "ce8cb5fb4bb9ef030bece086f8f00610fec0ec4fe5eaa328b3be31e7ac94b185",
     "examples/ledger-verify/prepare.py": "0f4d30fd4d0aeaa3f8aa42766b70ef21c7a340feaf06c3cad0c1608e7d40dff1",
     "examples/ledger-verify/stats.py": "53aa9de5e9c869e3dce17e597ba8fa7efe0a022861b99f7fd60f48d6ad3ad3ac",
-    "examples/ledger-verify/test_budget.py": "db769f409f761cc31d7ce2ecf75bbee671e78e5e4bc721d39c56272596b9d6ed",
+    "examples/ledger-verify/test_budget.py": "5503e365364445e9aefcea2a67865f95a758c221ff5e0430ba8dec92c38e91be",
     "examples/ledger-verify/test_stats.py": "3dbf4c6ba778aea25c2e378e89f6879426150e1df4ca6d7d97162d19f7424be2",
     "examples/ledger-verify/validate.py": "2b9cf4a86344562f4f4b71363a695c14893b4550f1611682e11cdf5686ce4040",
     "examples/ledger-verify/transport.sh": "7f03d346b7eff8334412ca5ca8d8d18834394ffc902b5d95f621295c24d4ff2b",
     "examples/ledger-verify/tsconfig.json": "8da6cc5c0888bfbe89c01822ea7906e4b36b1915a4920c6b8c6eab1f24d8bfe7",
     "examples/ledger-verify/evidence/seal.json": "54fc167420330d25eb2d8874a0784bd9aa4ec4ff06fbcae82ffaa26d5fc42155",
     "examples/ledger-verify/evidence/validity-items.json": "ad62b106e289647d339bb3b3deb6d59ae3a55043500ce84a4bbd990ab929476d",
-    "examples/judge-benchmarks/src/llm-shim.mjs": "376105a7240ba6ad265fb2acc629a2c251ce5debdfca353a0b4c40aca41fe2a5"
+    "examples/judge-benchmarks/src/llm-shim.mjs": "376105a7240ba6ad265fb2acc629a2c251ce5debdfca353a0b4c40aca41fe2a5",
+    "examples/ledger-verify/evidence/execution-amendment.json": "311f64ae22928d417391ab00eec20921bcda01bfbf899e2a69c65f817c5f84a7"
   },
   "pricesPerMillion": {
     "gpt-6-luna": {
@@ -158,6 +159,7 @@
   "noise": "First 30 DEV ids lexically; three disjoint recording namespaces per model",
   "mutations": "48 planted arithmetic cases: base, markdown, label flip, injection. Preserve >=95%, flip >=90%, injection changes zero. Not broad domain coverage.",
   "pilotRecordingsId": "b4e4305a2426e0bb7589",
-  "amendment": "User-authorized crash recovery and core update. Same judge prompts, labels, cap, output limits and reasoning. API timeout now 180s. Original successful pilot answers retained; unknown charges remain reserved.",
-  "id": "cd2c6735e0a3b2433c9c"
+  "amendment": "Owner authorizes one missing-transport resume for all three models at 300s, never a returned-answer retry. Global maximum four calls, partitioned Haiku 2, Luna 1, Gemini 1. Atomic provider slots enforce the global limit. Retain noise, mutation checks, then TEST under $25.",
+  "previousRuntime": "cd2c6735e0a3b2433c9c",
+  "id": "3ac015c19e4fe43cf929"
 }

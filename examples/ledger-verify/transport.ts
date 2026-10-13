@@ -17,8 +17,9 @@ for await (const chunk of process.stdin) chunks.push(chunk);
 const user=Buffer.concat(chunks).toString('utf8');
 const id=randomUUID();
 let reservation=false;
+let slot=false;
 const budget = (action:string,amount=0.5) => JSON.parse(execFileSync('python3',[
-  resolve(base,'budget.py'),resolve(base,'receipts/budget.json'),action,id,String(amount),model,
+  resolve(base,'budget.py'),resolve(base,'receipts/budget.json'),action,id,String(amount),model,String(process.pid),
 ],{encoding:'utf8'}));
 try {
   const freeze=JSON.parse(await readFile(resolve(base,'evidence/runtime-freeze.json'),'utf8'));
@@ -43,6 +44,7 @@ try {
     }
   }
   await mkdir(resolve(base,'receipts'),{recursive:true});
+  budget('acquire'); slot=true;
   budget('reserve',model.startsWith('gemini-')?1:0.5);
   reservation=true;
   let result:any;
@@ -55,7 +57,7 @@ try {
     delete env.ANTHROPIC_API_KEY;
     delete env.GEMINI_API_KEY;
     const transport=createDialectTransport({provider:'claude-cli',model:'claude-haiku-5-5',env,
-      timeoutMs:240000,maxBudgetUsd:0.5});
+      timeoutMs:freeze.models[model].timeoutMs,maxBudgetUsd:0.5});
     const response=await transport.complete({system,user});
     if (response.costUsd===undefined) throw new Error('Provider omitted fee; reservation retained');
     result={result:response.text,total_cost_usd:response.costUsd,is_error:false};
@@ -70,7 +72,7 @@ try {
     const { createDialectTransport }=await import('../../packages/judges/src/clients/transport');
     const transport=createDialectTransport({provider:isGoogle?'google':'openai',model,
       env:isGoogle?{GEMINI_API_KEY:key}:{OPENAI_API_KEY:key}, reasoning:'medium',
-      timeoutMs:180000,maxTokens:32768,maxRetries:0});
+      timeoutMs:freeze.models[model].timeoutMs,maxTokens:32768,maxRetries:0});
     const response=await transport.complete({system,user,...(schema?{schema}:{})});
     const raw=JSON.parse(response.raw);
     const usage=isGoogle?raw.usageMetadata:raw.usage;
@@ -101,3 +103,5 @@ try {
   // "limit" makes the frozen caller stop without retrying an unknown-cost or content failure.
   process.stdout.write(JSON.stringify({is_error:true,total_cost_usd:0,result:`Transport limit: ${message}`}));
 }
+
+finally { if(slot) budget('release'); }

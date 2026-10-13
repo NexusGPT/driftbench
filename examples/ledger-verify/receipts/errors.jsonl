@@ -1,0 +1,3 @@
+{"id":"e9556acf-05aa-4015-a58d-737fb17013c2","model":"gpt-6-luna","at":"2026-10-13T07:53:35.862Z","message":"https://api.openai.com/v1/chat/completions could not be reached (TimeoutError)","reservationRetained":true}
+{"id":"1ea848b4-6b6a-40b7-923f-17ef60871da4","model":"gemini-3.8-flash","at":"2026-10-13T07:54:16.434Z","message":"https://generativelanguage.googleapis.com/v1beta/models/gemini-3.8-flash:generateContent could not be reached (TimeoutError)","reservationRetained":true}
+{"id":"6b4925f6-de61-4077-8a3d-0903ecb4c93c","model":"haiku","at":"2026-10-13T07:57:20.306Z","message":"claude ran past 240000 ms and was stopped","reservationRetained":true}

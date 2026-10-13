@@ -12,7 +12,7 @@
 `evidence/recording-inventory.json` enumerates every inspected recording file.
 `evidence/cells.json` holds the official and audited cell table, including pending cells.
 `evidence/offline-checks.json` records the offline verification results.
-The cascade source files in the seal remain byte-identical to the frozen branch; the added shim comes from PR 168.
+Cascade prompts and parsers remain byte-identical to the frozen branch. The call wrapper reads an outer timeout override, recorded in execution-amendment.json; the added shim comes from PR 168.
 The local TypeScript config resolves their historical package aliases without changing source.
 
 ## Frozen analysis
@@ -28,7 +28,7 @@ The local TypeScript config resolves their historical package aliases without ch
 No paid call is authorized until the pushed core contract PR appears in the core dossier.
 The runtime freeze must bind that PR, commit, reasoning settings, dialect transport, prices and runner hashes.
 The fixed settings are inherited from the core contract without tuning on these items.
-The runner admits the three authorized models, with two concurrent calls each during the pilot. Afterwards Haiku uses at most two, Luna four and Gemini four.
+The runner admits the three authorized models, with at most four provider calls in total: Haiku two, Luna one and Gemini one. Atomic call slots enforce the global limit.
 The lane-wide cap is 25 USD, including pilots and validation calls.
 The transport reserves in-flight costs atomically across all three models and all phases.
 Failed calls with unknown charges retain their reservation and halt new work for review.
@@ -49,3 +49,5 @@ python3 examples/ledger-verify/stats.py 2>&1
 Its exclusive start marker prevents accidentally repeating a paid cell.
 `--replay-only` never starts a provider command.
 Dependencies are linked to existing installations. No `node_modules` tree is copied.
+
+All three resumed models use 300-second timeouts after owner-authorized recovery. Partial pilot reports and earlier runtime manifests remain preserved. No returned answer is retried.

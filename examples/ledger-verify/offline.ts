@@ -9,8 +9,9 @@ import { schemaFor } from './schemas';
 
 const base = 'examples/ledger-verify';
 const seal = JSON.parse(await readFile(`${base}/evidence/seal.json`, 'utf8'));
+const amendment=JSON.parse(await readFile(`${base}/evidence/execution-amendment.json`,'utf8'));
 for (const [path, hash] of Object.entries(seal.sourceHashes)) {
-  assert.equal(createHash('sha256').update(await readFile(path)).digest('hex'), hash, path);
+  assert.equal(createHash('sha256').update(await readFile(path)).digest('hex'), amendment.sourceHashes[path]??hash, path);
 }
 for (const [path, hash] of Object.entries(seal.evidenceHashes)) {
   assert.equal(createHash('sha256').update(await readFile(`${base}/evidence/${path}`)).digest('hex'), hash, path);

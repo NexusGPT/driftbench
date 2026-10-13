@@ -1,5 +1,6 @@
 from pathlib import Path
 import tempfile
+import os
 import threading
 import unittest
 from budget import transact
@@ -23,6 +24,18 @@ class BudgetChecks(unittest.TestCase):
             state=transact(p,'status','')
             self.assertEqual(state['reservedUsd'],25)
             self.assertEqual(len(failures),10)
+
+    def test_four_active_calls_globally(self):
+        cache=Path(__file__).parent/'cache';cache.mkdir(exist_ok=True)
+        with tempfile.TemporaryDirectory(dir=cache) as folder:
+            p=Path(folder)/'state.json'
+            for i in range(4):transact(p,'acquire',str(i),model='fake',pid=os.getpid())
+            with self.assertRaises(RuntimeError):transact(p,'acquire','fifth',model='fake',pid=os.getpid())
+            transact(p,'release','1')
+            transact(p,'acquire','replacement',model='fake',pid=os.getpid())
+            import json
+            state=json.loads(p.read_text());self.assertEqual(state['peakActiveCalls'],4)
+            self.assertEqual(len(state['activeCalls']),4)
 
     def test_receipt_releases_only_unused_reservation(self):
         cache=Path(__file__).parent/'cache'

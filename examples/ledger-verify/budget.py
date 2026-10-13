@@ -2,12 +2,13 @@
 import fcntl
 import json
 import math
+import os
 from pathlib import Path
 import sys
 from datetime import datetime, timezone
 
 
-def transact(path, action, token, amount=0.5, model=''):
+def transact(path, action, token, amount=0.5, model='', pid=None):
     path=Path(path)
     path.parent.mkdir(parents=True, exist_ok=True)
     with path.open('a+') as stream:
@@ -16,7 +17,18 @@ def transact(path, action, token, amount=0.5, model=''):
         raw=stream.read()
         state=json.loads(raw) if raw else dict(capUsd=25.0, spentUsd=0.0, reservations={}, receipts=[])
         assert math.isfinite(amount) and amount >= 0
-        if action=='reserve':
+        if action=='acquire':
+            active=state.setdefault('activeCalls',{})
+            for key,entry in list(active.items()):
+                try: os.kill(entry['pid'],0)
+                except ProcessLookupError: del active[key]
+            if len(active)>=4: raise RuntimeError('Concurrency limit: four provider calls are active')
+            assert token not in active and isinstance(pid,int) and pid>0
+            active[token]=dict(pid=pid,model=model,at=datetime.now(timezone.utc).isoformat())
+            state['peakActiveCalls']=max(state.get('peakActiveCalls',0),len(active))
+        elif action=='release':
+            state.setdefault('activeCalls',{}).pop(token,None)
+        elif action=='reserve':
             assert token not in state['reservations'] and all(r['id']!=token for r in state['receipts'])
             committed=state['spentUsd']+sum(r['usd'] for r in state['reservations'].values())
             if committed+amount > state['capUsd']:
@@ -45,4 +57,4 @@ def transact(path, action, token, amount=0.5, model=''):
 
 if __name__=='__main__':
     print(json.dumps(transact(sys.argv[1],sys.argv[2],sys.argv[3] if len(sys.argv)>3 else '',
-        float(sys.argv[4]) if len(sys.argv)>4 else 0.5,sys.argv[5] if len(sys.argv)>5 else '')))
+        float(sys.argv[4]) if len(sys.argv)>4 else 0.5,sys.argv[5] if len(sys.argv)>5 else '',int(sys.argv[6]) if len(sys.argv)>6 else None)))

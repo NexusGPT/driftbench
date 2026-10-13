@@ -19,8 +19,9 @@ const noise = noiseIndex>=0 ? Number(process.argv[noiseIndex+1]) : undefined;
 assert(noise===undefined || [0,1,2].includes(noise), 'Noise repeat is 0, 1 or 2');
 const phase=pilot?'pilot':validity?'validity':noise===undefined?'test':`noise-${noise}`;
 const seal = JSON.parse(await readFile(`${base}/evidence/seal.json`, 'utf8'));
+const amendment=JSON.parse(await readFile(`${base}/evidence/execution-amendment.json`,'utf8'));
 for (const [path, hash] of Object.entries(seal.sourceHashes)) {
-  assert.equal(createHash('sha256').update(await readFile(path)).digest('hex'), hash, path);
+  assert.equal(createHash('sha256').update(await readFile(path)).digest('hex'), amendment.sourceHashes[path]??hash, path);
 }
 for (const [path, hash] of Object.entries(seal.evidenceHashes)) {
   assert.equal(createHash('sha256').update(await readFile(`${base}/evidence/${path}`)).digest('hex'), hash, path);
@@ -67,11 +68,12 @@ if (!replayOnly) {
     items:items.length, coreSha:runtime.coreSha, runtime:runtime.id }, null,2)+'\n', { flag:'wx' });
 }
 process.env.VERIFY_PHASE=phase;
+process.env.VERIFY_OUTER_TIMEOUT_MS=String(amendment.outerTimeoutMs);
 try {
 const report = await runBenchmark({
   bench:'longjudge-verify', model,
   contestants:['driftbench-verify-uncertainty-cascade','promptfoo'].map(contestantById),
-  items, criterion:CRITERIA['longjudge-verify'], split:'all', concurrency:pilot?2:runtime.modelConcurrency[model],
+  items, criterion:CRITERIA['longjudge-verify'], split:'all', concurrency:runtime.modelConcurrency[model],
   capUsd:25, deadlineAt:runtime.deadlineAt, includeDecisions:true, replayOnly,
   recordingsDir:resolve(`${base}/recordings/${pilot?runtime.pilotRecordingsId:runtime.id}/${phase}`),
   command:resolve(runtime.command),

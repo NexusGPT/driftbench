@@ -1,6 +1,6 @@
 {
   "capUsd": 25.0,
-  "spentUsd": 0.3117912600000001,
+  "spentUsd": 0.7200614999999999,
   "reservations": {
     "2d8f81fb-4a46-414f-829c-ff390b92f9ec": {
       "usd": 0.5,
@@ -26,6 +26,21 @@
       "usd": 0.5,
       "model": "gpt-6-luna",
       "at": "2026-10-13T07:37:13.574949+00:00"
+    },
+    "e9556acf-05aa-4015-a58d-737fb17013c2": {
+      "usd": 0.5,
+      "model": "gpt-6-luna",
+      "at": "2026-10-13T07:50:35.300702+00:00"
+    },
+    "1ea848b4-6b6a-40b7-923f-17ef60871da4": {
+      "usd": 1.0,
+      "model": "gemini-3.8-flash",
+      "at": "2026-10-13T07:51:15.812657+00:00"
+    },
+    "6b4925f6-de61-4077-8a3d-0903ecb4c93c": {
+      "usd": 0.5,
+      "model": "haiku",
+      "at": "2026-10-13T07:53:18.560058+00:00"
     }
   },
   "receipts": [
@@ -596,6 +611,590 @@
       "reservedUsd": 1.0,
       "overReservation": false,
       "at": "2026-10-13T07:37:14.235009+00:00"
+    },
+    {
+      "id": "946e7892-a47b-47a4-9e6b-5583f5c9a68e",
+      "model": "gemini-3.8-flash",
+      "usd": 0.00553725,
+      "reservedUsd": 1.0,
+      "overReservation": false,
+      "at": "2026-10-13T07:48:27.088513+00:00"
+    },
+    {
+      "id": "6a4ee11b-2b4d-42a8-be7f-d88d25ed1f57",
+      "model": "gemini-3.8-flash",
+      "usd": 0.00795825,
+      "reservedUsd": 1.0,
+      "overReservation": false,
+      "at": "2026-10-13T07:48:30.481779+00:00"
+    },
+    {
+      "id": "dad3f318-94ff-4535-a187-7800525f6003",
+      "model": "haiku",
+      "usd": 0.00226886,
+      "reservedUsd": 0.5,
+      "overReservation": false,
+      "at": "2026-10-13T07:48:34.240899+00:00"
+    },
+    {
+      "id": "e9d9a9b6-b4fe-4b8e-b844-07b14b1d5b7a",
+      "model": "haiku",
+      "usd": 0.00135273,
+      "reservedUsd": 0.5,
+      "overReservation": false,
+      "at": "2026-10-13T07:48:42.428104+00:00"
+    },
+    {
+      "id": "c6dd2efa-2cef-4ba3-b607-053b87264d2a",
+      "model": "gpt-6-luna",
+      "usd": 0.0013137000000000001,
+      "reservedUsd": 0.5,
+      "overReservation": false,
+      "at": "2026-10-13T07:48:43.747836+00:00"
+    },
+    {
+      "id": "cf6ee2a1-83ff-461a-a917-33aa991654c3",
+      "model": "gemini-3.8-flash",
+      "usd": 0.00752175,
+      "reservedUsd": 1.0,
+      "overReservation": false,
+      "at": "2026-10-13T07:48:45.267451+00:00"
+    },
+    {
+      "id": "6067e636-18b2-4b49-a459-e755e1b312bb",
+      "model": "gemini-3.8-flash",
+      "usd": 0.003204,
+      "reservedUsd": 1.0,
+      "overReservation": false,
+      "at": "2026-10-13T07:48:50.545902+00:00"
+    },
+    {
+      "id": "36c88aad-6a6e-486c-9cb3-3e60810a7bd1",
+      "model": "gemini-3.8-flash",
+      "usd": 0.0084315,
+      "reservedUsd": 1.0,
+      "overReservation": false,
+      "at": "2026-10-13T07:48:55.431671+00:00"
+    },
+    {
+      "id": "812d8102-f1b3-4950-b9d1-1b43bb75ce2b",
+      "model": "gemini-3.8-flash",
+      "usd": 0.00486675,
+      "reservedUsd": 1.0,
+      "overReservation": false,
+      "at": "2026-10-13T07:48:59.869430+00:00"
+    },
+    {
+      "id": "fba8e3f7-2d9a-41a2-b229-d109ba53e0d1",
+      "model": "gemini-3.8-flash",
+      "usd": 0.0033825,
+      "reservedUsd": 1.0,
+      "overReservation": false,
+      "at": "2026-10-13T07:49:01.338259+00:00"
+    },
+    {
+      "id": "6cd5dbd6-3962-4b93-9f12-60c4f3ab2cbd",
+      "model": "gemini-3.8-flash",
+      "usd": 0.00283875,
+      "reservedUsd": 1.0,
+      "overReservation": false,
+      "at": "2026-10-13T07:49:05.101273+00:00"
+    },
+    {
+      "id": "9890b5c3-1670-4e9c-b2b7-08ed2e6f1019",
+      "model": "gpt-6-luna",
+      "usd": 0.001222,
+      "reservedUsd": 0.5,
+      "overReservation": false,
+      "at": "2026-10-13T07:49:05.835868+00:00"
+    },
+    {
+      "id": "f20188ad-21f8-4306-8378-7ec9e05d1461",
+      "model": "gemini-3.8-flash",
+      "usd": 0.001779,
+      "reservedUsd": 1.0,
+      "overReservation": false,
+      "at": "2026-10-13T07:49:08.025634+00:00"
+    },
+    {
+      "id": "2675ef16-14cd-4a74-85e4-9f0987863048",
+      "model": "haiku",
+      "usd": 0.0040231,
+      "reservedUsd": 0.5,
+      "overReservation": false,
+      "at": "2026-10-13T07:49:19.506991+00:00"
+    },
+    {
+      "id": "80e5bef6-6070-4006-9ca9-932fa6037db9",
+      "model": "gpt-6-luna",
+      "usd": 0.0030616,
+      "reservedUsd": 0.5,
+      "overReservation": false,
+      "at": "2026-10-13T07:49:22.016377+00:00"
+    },
+    {
+      "id": "c4d517c5-a6df-4933-b4fb-4457e7bfbd43",
+      "model": "gemini-3.8-flash",
+      "usd": 0.00819975,
+      "reservedUsd": 1.0,
+      "overReservation": false,
+      "at": "2026-10-13T07:49:22.625632+00:00"
+    },
+    {
+      "id": "843d2f4a-37bf-40d1-bec1-14754f0c621b",
+      "model": "haiku",
+      "usd": 0.01268092,
+      "reservedUsd": 0.5,
+      "overReservation": false,
+      "at": "2026-10-13T07:49:35.360326+00:00"
+    },
+    {
+      "id": "e00dd6b7-a458-49d9-b810-f62e7b757f3c",
+      "model": "gpt-6-luna",
+      "usd": 0.0014421,
+      "reservedUsd": 0.5,
+      "overReservation": false,
+      "at": "2026-10-13T07:49:35.554962+00:00"
+    },
+    {
+      "id": "31417b58-4c54-4f62-a40b-16a0f4df44f9",
+      "model": "gemini-3.8-flash",
+      "usd": 0.01030575,
+      "reservedUsd": 1.0,
+      "overReservation": false,
+      "at": "2026-10-13T07:49:41.890681+00:00"
+    },
+    {
+      "id": "8c476bc5-966e-43d0-b1c3-7890be3a0d5f",
+      "model": "haiku",
+      "usd": 0.0024245,
+      "reservedUsd": 0.5,
+      "overReservation": false,
+      "at": "2026-10-13T07:49:42.787348+00:00"
+    },
+    {
+      "id": "3c9d9292-b84b-457a-97da-4ae8cac65639",
+      "model": "gemini-3.8-flash",
+      "usd": 0.02947425,
+      "reservedUsd": 1.0,
+      "overReservation": false,
+      "at": "2026-10-13T07:49:44.208206+00:00"
+    },
+    {
+      "id": "67e6e24a-6cdb-42eb-8fe2-3223c022bfa1",
+      "model": "gpt-6-luna",
+      "usd": 0.0009382,
+      "reservedUsd": 0.5,
+      "overReservation": false,
+      "at": "2026-10-13T07:49:52.065386+00:00"
+    },
+    {
+      "id": "5105a164-b92a-48ae-99a0-fea0202397d2",
+      "model": "gpt-6-luna",
+      "usd": 0.00029360000000000003,
+      "reservedUsd": 0.5,
+      "overReservation": false,
+      "at": "2026-10-13T07:49:57.351627+00:00"
+    },
+    {
+      "id": "6a6dcd82-c7e7-4d02-90ee-7af48ad7a6e3",
+      "model": "haiku",
+      "usd": 0.0018996,
+      "reservedUsd": 0.5,
+      "overReservation": false,
+      "at": "2026-10-13T07:49:57.442926+00:00"
+    },
+    {
+      "id": "49d0e632-614b-474c-9608-34122ff9de84",
+      "model": "gemini-3.8-flash",
+      "usd": 0.01025925,
+      "reservedUsd": 1.0,
+      "overReservation": false,
+      "at": "2026-10-13T07:49:59.809549+00:00"
+    },
+    {
+      "id": "b8a69c4b-e20f-49e9-9433-03175e2edf97",
+      "model": "gemini-3.8-flash",
+      "usd": 0.0040035,
+      "reservedUsd": 1.0,
+      "overReservation": false,
+      "at": "2026-10-13T07:50:06.764645+00:00"
+    },
+    {
+      "id": "47e3f317-2484-4b37-b95b-0a6b6725b7ce",
+      "model": "gpt-6-luna",
+      "usd": 0.0003301,
+      "reservedUsd": 0.5,
+      "overReservation": false,
+      "at": "2026-10-13T07:50:07.525207+00:00"
+    },
+    {
+      "id": "76946e72-06e0-4fae-b883-d17449c16651",
+      "model": "gemini-3.8-flash",
+      "usd": 0.01843275,
+      "reservedUsd": 1.0,
+      "overReservation": false,
+      "at": "2026-10-13T07:50:15.201755+00:00"
+    },
+    {
+      "id": "c9482ebb-d01b-4eb5-ae9d-2e8feee6ab77",
+      "model": "gpt-6-luna",
+      "usd": 0.0006152999999999999,
+      "reservedUsd": 0.5,
+      "overReservation": false,
+      "at": "2026-10-13T07:50:21.577826+00:00"
+    },
+    {
+      "id": "47e6f3b1-4009-4d45-991f-f425f156e3f0",
+      "model": "gpt-6-luna",
+      "usd": 0.0027041,
+      "reservedUsd": 0.5,
+      "overReservation": false,
+      "at": "2026-10-13T07:50:21.808805+00:00"
+    },
+    {
+      "id": "62b47d57-798f-4cb9-8c78-deaea9d84ea9",
+      "model": "gpt-6-luna",
+      "usd": 0.0005143,
+      "reservedUsd": 0.5,
+      "overReservation": false,
+      "at": "2026-10-13T07:50:30.415794+00:00"
+    },
+    {
+      "id": "afb85c40-c3c8-47f5-a07d-e7b75144875a",
+      "model": "gpt-6-luna",
+      "usd": 0.0006728,
+      "reservedUsd": 0.5,
+      "overReservation": false,
+      "at": "2026-10-13T07:50:34.690932+00:00"
+    },
+    {
+      "id": "5afc2ef5-81f8-4471-9934-1a4833dea8a5",
+      "model": "haiku",
+      "usd": 0.0046885,
+      "reservedUsd": 0.5,
+      "overReservation": false,
+      "at": "2026-10-13T07:50:39.667216+00:00"
+    },
+    {
+      "id": "d47ccdba-ad7a-49d2-bfc5-4514e182ad27",
+      "model": "gemini-3.8-flash",
+      "usd": 0.01559925,
+      "reservedUsd": 1.0,
+      "overReservation": false,
+      "at": "2026-10-13T07:50:40.372166+00:00"
+    },
+    {
+      "id": "b2cfc93a-0697-4c4e-b1f1-061cf3a230d9",
+      "model": "gpt-6-luna",
+      "usd": 0.0006186000000000001,
+      "reservedUsd": 0.5,
+      "overReservation": false,
+      "at": "2026-10-13T07:50:43.604240+00:00"
+    },
+    {
+      "id": "fc42c264-1165-429b-b569-4ce48ac51aad",
+      "model": "gemini-3.8-flash",
+      "usd": 0.00374775,
+      "reservedUsd": 1.0,
+      "overReservation": false,
+      "at": "2026-10-13T07:50:46.935382+00:00"
+    },
+    {
+      "id": "56b756a8-4ac6-4ba7-885d-4ad8a207636b",
+      "model": "gpt-6-luna",
+      "usd": 0.00028060000000000004,
+      "reservedUsd": 0.5,
+      "overReservation": false,
+      "at": "2026-10-13T07:50:47.873247+00:00"
+    },
+    {
+      "id": "fd224680-7d6d-4fa7-9fbf-05d79a061232",
+      "model": "gemini-3.8-flash",
+      "usd": 0.0017235,
+      "reservedUsd": 1.0,
+      "overReservation": false,
+      "at": "2026-10-13T07:50:49.842649+00:00"
+    },
+    {
+      "id": "018c581c-f729-4bf9-857f-48089d8ecb2c",
+      "model": "gpt-6-luna",
+      "usd": 0.00024180000000000002,
+      "reservedUsd": 0.5,
+      "overReservation": false,
+      "at": "2026-10-13T07:50:50.788813+00:00"
+    },
+    {
+      "id": "e917a799-d9e1-4a3c-b981-f9bd56e13b4a",
+      "model": "haiku",
+      "usd": 0.0016830299999999999,
+      "reservedUsd": 0.5,
+      "overReservation": false,
+      "at": "2026-10-13T07:50:51.861512+00:00"
+    },
+    {
+      "id": "ad01eeae-b055-4adb-b006-3f4d5b61a3e2",
+      "model": "gemini-3.8-flash",
+      "usd": 0.0257205,
+      "reservedUsd": 1.0,
+      "overReservation": false,
+      "at": "2026-10-13T07:50:56.314814+00:00"
+    },
+    {
+      "id": "63940366-c141-4810-b71d-0e3cda7ecaa9",
+      "model": "haiku",
+      "usd": 0.0009254,
+      "reservedUsd": 0.5,
+      "overReservation": false,
+      "at": "2026-10-13T07:50:59.485331+00:00"
+    },
+    {
+      "id": "939404b3-c2ed-4caa-8a1a-c49a2d02f563",
+      "model": "gpt-6-luna",
+      "usd": 0.0011054,
+      "reservedUsd": 0.5,
+      "overReservation": false,
+      "at": "2026-10-13T07:51:10.294086+00:00"
+    },
+    {
+      "id": "53b2de3b-b3c8-42da-b1dc-bdc82c07a549",
+      "model": "haiku",
+      "usd": 0.0012776999999999999,
+      "reservedUsd": 0.5,
+      "overReservation": false,
+      "at": "2026-10-13T07:51:11.716925+00:00"
+    },
+    {
+      "id": "c19eaa59-f9aa-44fa-b851-c29f84471388",
+      "model": "gemini-3.8-flash",
+      "usd": 0.0086715,
+      "reservedUsd": 1.0,
+      "overReservation": false,
+      "at": "2026-10-13T07:51:14.224924+00:00"
+    },
+    {
+      "id": "fcd028b3-f5db-4533-8169-f2d4c0d654b0",
+      "model": "haiku",
+      "usd": 0.0010207,
+      "reservedUsd": 0.5,
+      "overReservation": false,
+      "at": "2026-10-13T07:51:22.502888+00:00"
+    },
+    {
+      "id": "c83769a9-e060-4b59-9986-c30f9ec81fca",
+      "model": "haiku",
+      "usd": 0.0014715000000000002,
+      "reservedUsd": 0.5,
+      "overReservation": false,
+      "at": "2026-10-13T07:51:35.590428+00:00"
+    },
+    {
+      "id": "1033b80f-44d5-4886-9297-78c4b698b631",
+      "model": "gemini-3.8-flash",
+      "usd": 0.03372375,
+      "reservedUsd": 1.0,
+      "overReservation": false,
+      "at": "2026-10-13T07:51:47.002285+00:00"
+    },
+    {
+      "id": "eb5a4c1a-ba21-4314-bc47-dc552217992d",
+      "model": "haiku",
+      "usd": 0.0017491,
+      "reservedUsd": 0.5,
+      "overReservation": false,
+      "at": "2026-10-13T07:51:50.870148+00:00"
+    },
+    {
+      "id": "646a3e77-3e97-42bf-8388-c81b77851435",
+      "model": "haiku",
+      "usd": 0.0010059300000000001,
+      "reservedUsd": 0.5,
+      "overReservation": false,
+      "at": "2026-10-13T07:51:57.795352+00:00"
+    },
+    {
+      "id": "3abb4410-94a4-423e-a357-e9e21a4f63b2",
+      "model": "gpt-6-luna",
+      "usd": 0.0029376,
+      "reservedUsd": 0.5,
+      "overReservation": false,
+      "at": "2026-10-13T07:52:07.494313+00:00"
+    },
+    {
+      "id": "975bbf95-6b13-482e-b2d3-49f0ad78fdff",
+      "model": "haiku",
+      "usd": 0.022165050000000002,
+      "reservedUsd": 0.5,
+      "overReservation": false,
+      "at": "2026-10-13T07:52:12.463721+00:00"
+    },
+    {
+      "id": "fa48ab65-9861-4325-9a49-beef717b3b15",
+      "model": "gemini-3.8-flash",
+      "usd": 0.013941,
+      "reservedUsd": 1.0,
+      "overReservation": false,
+      "at": "2026-10-13T07:52:14.277663+00:00"
+    },
+    {
+      "id": "6b11bf0e-ea6d-4f9c-89ce-1c4eadb02998",
+      "model": "haiku",
+      "usd": 0.0016709300000000002,
+      "reservedUsd": 0.5,
+      "overReservation": false,
+      "at": "2026-10-13T07:52:29.177463+00:00"
+    },
+    {
+      "id": "104f9bca-7491-4f85-a30e-d51d11493f87",
+      "model": "gemini-3.8-flash",
+      "usd": 0.0107235,
+      "reservedUsd": 1.0,
+      "overReservation": false,
+      "at": "2026-10-13T07:52:35.596949+00:00"
+    },
+    {
+      "id": "4f9df41d-b2c4-4121-91bc-906adbecf079",
+      "model": "haiku",
+      "usd": 0.0008110000000000001,
+      "reservedUsd": 0.5,
+      "overReservation": false,
+      "at": "2026-10-13T07:52:38.631256+00:00"
+    },
+    {
+      "id": "d78a72fa-1112-4a1a-a461-91bf7d4f70c9",
+      "model": "gemini-3.8-flash",
+      "usd": 0.01142625,
+      "reservedUsd": 1.0,
+      "overReservation": false,
+      "at": "2026-10-13T07:52:55.926140+00:00"
+    },
+    {
+      "id": "504c1b72-2d4d-40c7-ae7b-44bdc7844b09",
+      "model": "haiku",
+      "usd": 0.0016863,
+      "reservedUsd": 0.5,
+      "overReservation": false,
+      "at": "2026-10-13T07:52:58.401365+00:00"
+    },
+    {
+      "id": "19febc71-5b0b-4557-b5ee-e97f8d160022",
+      "model": "gpt-6-luna",
+      "usd": 0.0027627,
+      "reservedUsd": 0.5,
+      "overReservation": false,
+      "at": "2026-10-13T07:53:01.912790+00:00"
+    },
+    {
+      "id": "49c176f0-2866-493c-b66e-6d67949e3ae2",
+      "model": "gpt-6-luna",
+      "usd": 0.0005338,
+      "reservedUsd": 0.5,
+      "overReservation": false,
+      "at": "2026-10-13T07:53:14.695826+00:00"
+    },
+    {
+      "id": "8840d193-b5d5-462f-a354-247f36e93aac",
+      "model": "haiku",
+      "usd": 0.016366640000000002,
+      "reservedUsd": 0.5,
+      "overReservation": false,
+      "at": "2026-10-13T07:53:15.707218+00:00"
+    },
+    {
+      "id": "0bbddfe9-0b6a-4111-b050-4027eb7c3428",
+      "model": "gemini-3.8-flash",
+      "usd": 0.01178775,
+      "reservedUsd": 1.0,
+      "overReservation": false,
+      "at": "2026-10-13T07:53:18.301956+00:00"
+    },
+    {
+      "id": "1b894c65-d1f2-46c3-afa4-6e6c9dc4fc5c",
+      "model": "gpt-6-luna",
+      "usd": 0.0002976,
+      "reservedUsd": 0.5,
+      "overReservation": false,
+      "at": "2026-10-13T07:53:28.334796+00:00"
+    },
+    {
+      "id": "b076ea5d-3071-4218-be22-932d1a0b6908",
+      "model": "gemini-3.8-flash",
+      "usd": 0.00304125,
+      "reservedUsd": 1.0,
+      "overReservation": false,
+      "at": "2026-10-13T07:53:31.056565+00:00"
+    },
+    {
+      "id": "83d27022-6397-435b-81b2-66601f4358e1",
+      "model": "gemini-3.8-flash",
+      "usd": 0.00441975,
+      "reservedUsd": 1.0,
+      "overReservation": false,
+      "at": "2026-10-13T07:53:48.482788+00:00"
+    },
+    {
+      "id": "7cc1f69c-04ad-4313-9fb9-a701708cdb49",
+      "model": "gemini-3.8-flash",
+      "usd": 0.00274725,
+      "reservedUsd": 1.0,
+      "overReservation": false,
+      "at": "2026-10-13T07:54:00.313307+00:00"
+    },
+    {
+      "id": "c460c564-bc52-4828-872b-881200106fb7",
+      "model": "haiku",
+      "usd": 0.0070321,
+      "reservedUsd": 0.5,
+      "overReservation": false,
+      "at": "2026-10-13T07:54:01.744863+00:00"
+    },
+    {
+      "id": "bae4019e-de53-491b-8d2c-e91cbae25f19",
+      "model": "gpt-6-luna",
+      "usd": 0.0012068,
+      "reservedUsd": 0.5,
+      "overReservation": false,
+      "at": "2026-10-13T07:54:02.684047+00:00"
+    },
+    {
+      "id": "1c89e8f8-60bf-4acd-be84-bbcfd542ed23",
+      "model": "gemini-3.8-flash",
+      "usd": 0.00190125,
+      "reservedUsd": 1.0,
+      "overReservation": false,
+      "at": "2026-10-13T07:54:11.763015+00:00"
+    },
+    {
+      "id": "b0b2f12e-dfa3-41da-91f6-486b18a9a092",
+      "model": "gemini-3.8-flash",
+      "usd": 0.001917,
+      "reservedUsd": 1.0,
+      "overReservation": false,
+      "at": "2026-10-13T07:54:23.003000+00:00"
+    },
+    {
+      "id": "31055973-e4e7-4ab6-b52a-09e058da28bd",
+      "model": "haiku",
+      "usd": 0.0153774,
+      "reservedUsd": 0.5,
+      "overReservation": false,
+      "at": "2026-10-13T07:56:17.998874+00:00"
+    },
+    {
+      "id": "edd3c470-3af2-4f61-a6f3-b0eff75791db",
+      "model": "haiku",
+      "usd": 0.0024086,
+      "reservedUsd": 0.5,
+      "overReservation": false,
+      "at": "2026-10-13T07:56:47.635863+00:00"
+    },
+    {
+      "id": "39d91bcc-5b15-4f66-8b1c-5628ee64c58d",
+      "model": "haiku",
+      "usd": 0.0019017,
+      "reservedUsd": 0.5,
+      "overReservation": false,
+      "at": "2026-10-13T07:57:23.531893+00:00"
     }
   ]
 }

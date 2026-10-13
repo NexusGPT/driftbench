@@ -1,0 +1,7 @@
+{
+  "phase": "pilot",
+  "status": "stopped; requires inspection",
+  "reason": "claude stopped: Transport limit: claude ran past 240000 ms and was stopped",
+  "at": "2026-10-13T07:57:28.727741+00:00",
+  "model": "haiku"
+}

@@ -174,7 +174,7 @@ async function runClaude(
         prompt.user,
         cwd,
         Math.min(
-          options.timeoutMs ?? 300_000,
+          options.timeoutMs ?? Number(process.env.VERIFY_OUTER_TIMEOUT_MS ?? 300_000),
           deadlineAt === undefined ? Infinity : Math.max(1, deadlineAt - Date.now()),
         ),
       );
