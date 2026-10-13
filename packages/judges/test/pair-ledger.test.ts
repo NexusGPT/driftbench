@@ -230,6 +230,10 @@ describe('pair ledger persistence and adversarial properties', () => {
     const before = await recordingClient(f.client, cassette).judge(r);
     expect(before.winner).toBe('A');
     expect(await playerClient(cassette, 'test').judge(r)).toEqual(before);
+    const newer = fake([JSON.stringify(ledger(4, 0))]);
+    await recordingClient(newer.client, cassette).judge(request());
+    expect(await playerClient(cassette, 'test').judge(r)).toEqual(before);
+    expect((await playerClient(cassette, 'test').judge(request())).pairLedger).toBeDefined();
   });
   it('routes the existing public pairwise entrypoint only on explicit ledger opt-in', async () => {
     const { judgePairwise } = await import('../src/pairwise');
