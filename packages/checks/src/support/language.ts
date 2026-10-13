@@ -1,4 +1,26 @@
-import { francAll } from 'franc-min';
+import { createRequire } from 'node:module';
+
+type Franc = typeof import('franc-min');
+
+/**
+ * franc-min builds its trigram tables of 82 languages when it loads, so it loads on the first detection, not
+ * with the package: the lang check awaits loadDetector before it detects, and a direct call to detect loads it
+ * synchronously (require of an ES module, Node 22.12 and later).
+ */
+let franc: Franc['francAll'] | undefined;
+
+export async function loadDetector(): Promise<void> {
+  franc ??= (await import('franc-min')).francAll;
+}
+
+export function detectorLoaded(): boolean {
+  return franc !== undefined;
+}
+
+function francAll(text: string): ReturnType<Franc['francAll']> {
+  franc ??= (createRequire(import.meta.url)('franc-min') as Franc).francAll;
+  return franc(text);
+}
 
 /**
  * Language detection for the lang check, on franc-min (trigram profiles of 82 languages).

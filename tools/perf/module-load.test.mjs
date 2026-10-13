@@ -64,6 +64,12 @@ describe('what loads at start', () => {
     }
   }, 120_000);
 
+  it('loads no language detector with the checks package', () => {
+    const { status, packages } = loaded(importOnly('packages/checks/src/index.ts'));
+    expect(status).toBe(0);
+    for (const name of ['franc-min', 'trigram-utils', 'n-gram']) expect(packages[name], name).toBeUndefined();
+  }, 120_000);
+
   it('loads no command module and no other package to print the help of the CLI', () => {
     const { status, packages, workspace } = loaded([join(ROOT, 'packages/cli/src/bin.ts'), '--help']);
     expect(status).toBe(0);

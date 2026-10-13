@@ -12,7 +12,9 @@ import {
   type Detection,
   type DetectOptions,
   detect,
+  detectorLoaded,
   isConsistent,
+  loadDetector,
   toDetectorCode,
   topLanguage,
 } from '../support/language';
@@ -39,13 +41,20 @@ export function createLangCheck(options: Partial<DetectOptions> = {}): Check {
     name: NAME,
     applies: (ctx) => ctx.expect.lang !== undefined || ctx.spec.rules?.lang_stable === true,
     evaluate(ctx) {
-      const verdicts: Verdict[] = [];
-      const segments = judge(ctx.observed, settings);
-      if (ctx.expect.lang !== undefined) verdicts.push(expected(ctx.expect.lang, segments, settings));
-      if (ctx.spec.rules?.lang_stable === true) verdicts.push(stable(ctx, segments, settings));
-      return verdicts;
+      // The first lang check loads the detector; every later one runs synchronously, as before.
+      return detectorLoaded()
+        ? judgeBlock(ctx, settings)
+        : loadDetector().then(() => judgeBlock(ctx, settings));
     },
   };
+}
+
+function judgeBlock(ctx: CheckContext, settings: DetectOptions): Verdict[] {
+  const verdicts: Verdict[] = [];
+  const segments = judge(ctx.observed, settings);
+  if (ctx.expect.lang !== undefined) verdicts.push(expected(ctx.expect.lang, segments, settings));
+  if (ctx.spec.rules?.lang_stable === true) verdicts.push(stable(ctx, segments, settings));
+  return verdicts;
 }
 
 export const lang: Check = createLangCheck();
