@@ -86,7 +86,7 @@ blocks:
       must: ['Sam']
 
 rules:
-  max_calls: { catalog.search: 1, order.create: 1, notify_sales: 0 }
+  max_calls: { catalog.search: 1, order.create: 1, notify_sales: 1 }
   forbidden_tools: [coverage.check, port.check]
   lang_stable: true
   one_message_per_turn: true
@@ -111,6 +111,24 @@ perturbations:
         - { label: order.create, count: 0 }
       must: ['Acme Care', '\+1 202 555 0100', 'Which one would you like']
     recovery: { within_blocks: 0, stage_after: offer }
+
+  - id: order-service-down
+    class: D8_tool_failure
+    inject_at: 3
+    world:
+      tools:
+        order.create: { error: order service unavailable }
+    expect:
+      tools:
+        - { label: order.create, count: 1 }
+        - label: notify_sales
+          count: 1
+          input:
+            reason: order_failed
+            summary: { nonempty: true }
+      must: ['could not place the order', 'sales advisor']
+      must_not: ['ORD-', 'is placed']
+    recovery: { within_blocks: 0, stage_after: handover }
 
   - id: loose-ok
     class: D4_loose_confirmation
