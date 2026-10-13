@@ -1,5 +1,17 @@
 import { type Issue, type LoadResult, parseSpecText, type Spec } from '@driftbench/core';
-import { coverage } from '@driftbench/space';
+import {
+  assertGridSize,
+  type CompiledSpace,
+  combinations,
+  compileSpace,
+  cover,
+  coverage,
+  type Projection,
+  placeSpec,
+  projectGrid,
+  resolveT,
+  tupleValues,
+} from '@driftbench/space';
 import { stringify } from 'yaml';
 import {
   NO_THEN_CRITERION,
@@ -297,7 +309,7 @@ export function generateSuite(prepared: PreparedMap, options: GenerateOptions): 
     }
     drafts.cover.push(built.draft);
     const made = renderSeeder('cover', [built.draft]);
-    for (const entry of cellsOf(prepared, made, t)) if (entry.count > 0) reached.add(cellKey(entry.values));
+    for (const values of reachedCells(prepared, made, t)) reached.add(cellKey(values));
     if (!reached.has(key))
       unbuilt.push({
         cell: cell.values,
@@ -326,7 +338,7 @@ export function generateSuite(prepared: PreparedMap, options: GenerateOptions): 
     ? { label: options.baseline.label, ...measure(options.baseline.specs) }
     : undefined;
   for (const seeder of SEEDERS) {
-    (seeders[seeder] as SeederTotals).measures = coverageMeasures(prepared, completeBy[seeder] ?? []);
+    (seeders[seeder] as SeederTotals).measures = seederMeasures(prepared, completeBy[seeder] ?? []);
   }
   const totals = Object.values(seeders);
   const report: GenerateReport = {
@@ -380,27 +392,79 @@ export function generateSuite(prepared: PreparedMap, options: GenerateOptions): 
 }
 
 /**
- * Coverage on the space map of the approved axes, by the space package's own `coverage`: the same count
- * `driftbench space coverage --map <space.yaml> <specs> --t <t>` prints.
+ * The grid of the approved axis map at strength t, projected once per map: the projection is the costly
+ * part of the space package's `coverage` (it walks every allowed cell), and the cover seeder asks for the
+ * cells one spec reaches many times. The counts below are those `coverage` prints for the same specs.
  */
-/** The allowed cells of the axis map at strength t, each with how many of the specs cover it. */
-function cellsOf(
+/** The largest full grid the report counts coverage on: a map with a hundred times the behaviours stays inside it. */
+const MAX_GRID_CELLS = 4_000_000;
+
+type CachedGrid = { space: CompiledSpace; projections: Projection[] };
+const GRIDS = new WeakMap<PreparedMap, Map<number, CachedGrid>>();
+
+function gridAt(prepared: PreparedMap, strength: number): CachedGrid {
+  let byT = GRIDS.get(prepared);
+  if (!byT) {
+    byT = new Map();
+    GRIDS.set(prepared, byT);
+  }
+  const known = byT.get(strength);
+  if (known) return known;
+  assertGridSize(prepared.axisMap, MAX_GRID_CELLS);
+  const space = compileSpace(prepared.axisMap);
+  const t = resolveT(space, strength);
+  const projections = projectGrid(space, combinations(space.dimensions.length, t)).projections;
+  const grid = { space, projections };
+  byT.set(strength, grid);
+  return grid;
+}
+
+/** How many of the specs cover each allowed cell of the axis map at strength t, by the cached grid. */
+function cellCounts(
   prepared: PreparedMap,
   specs: readonly Spec[],
   t: number,
 ): Array<{ values: Record<string, string>; count: number }> {
-  const results: LoadResult[] = specs.map((spec) => ({
-    ok: true,
-    path: spec.id,
-    spec,
-    hash: '',
-    warnings: [],
-  }));
-  const grid = coverage(prepared.axisMap, results, {
-    t: Math.min(t, prepared.axisMap.dimensions.length),
-    ...(prepared.inventory ? { inventory: prepared.inventory } : {}),
-  }).grid;
-  return grid.cells.map((cell) => ({ values: { ...cell.values }, count: cell.count }));
+  const grid = gridAt(prepared, Math.min(t, prepared.axisMap.dimensions.length));
+  const placements = specs.map((spec) => placeSpec(grid.space, spec));
+  const out: Array<{ values: Record<string, string>; count: number }> = [];
+  for (const projection of grid.projections) {
+    const covered = cover(projection, placements);
+    projection.allowed.forEach((allowed, code) => {
+      if (!allowed) return;
+      out.push({
+        values: { ...tupleValues(projection, code, grid.space) },
+        count: covered.byCode.get(code)?.length ?? 0,
+      });
+    });
+  }
+  return out;
+}
+
+/** The allowed cells of the axis map at strength t that at least one of the specs covers. */
+function reachedCells(
+  prepared: PreparedMap,
+  specs: readonly Spec[],
+  t: number,
+): Array<Record<string, string>> {
+  const grid = gridAt(prepared, Math.min(t, prepared.axisMap.dimensions.length));
+  const placements = specs.map((spec) => placeSpec(grid.space, spec));
+  const out: Array<Record<string, string>> = [];
+  for (const projection of grid.projections) {
+    for (const code of cover(projection, placements).byCode.keys()) {
+      if (projection.allowed[code] === 1) out.push({ ...tupleValues(projection, code, grid.space) });
+    }
+  }
+  return out;
+}
+
+/** The allowed cells of the axis map at strength t, each with how many of the specs cover it. */
+export function cellsOf(
+  prepared: PreparedMap,
+  specs: readonly Spec[],
+  t: number,
+): Array<{ values: Record<string, string>; count: number }> {
+  return cellCounts(prepared, specs, t);
 }
 
 function cellKey(values: Readonly<Record<string, string>>): string {
@@ -420,6 +484,7 @@ function measured(prepared: PreparedMap, specs: Spec[], t: number): MeasuredCove
   }));
   const strength = Math.min(t, prepared.axisMap.dimensions.length);
   const grid = coverage(prepared.axisMap, results, {
+    maxCells: MAX_GRID_CELLS,
     t: strength,
     ...(prepared.inventory ? { inventory: prepared.inventory } : {}),
   }).grid;
@@ -448,10 +513,14 @@ export function coverageMeasures(prepared: PreparedMap, specs: readonly Spec[]):
   }));
   const axisMap = prepared.axisMap;
   const two = coverage(axisMap, results, {
+    maxCells: MAX_GRID_CELLS,
     t: 2,
     ...(prepared.inventory ? { inventory: prepared.inventory } : {}),
   });
-  const three = axisMap.dimensions.length >= 3 ? coverage(axisMap, results, { t: 3 }) : undefined;
+  const three =
+    axisMap.dimensions.length >= 3
+      ? coverage(axisMap, results, { t: 3, maxCells: MAX_GRID_CELLS })
+      : undefined;
   const counts = two.grid.cells.map((cell) => cell.count).filter((count) => count > 0);
   const n = counts.reduce((sum, count) => sum + count, 0);
   const f1 = counts.filter((count) => count === 1).length;
@@ -481,6 +550,12 @@ export function coverageMeasures(prepared: PreparedMap, specs: readonly Spec[]):
     required_total: two.required.length,
   };
   for (const dimension of two.dimensions) out[`axis_${dimension.id}`] = dimension.covered;
+  Object.assign(out, machineShare(specs));
+  return out;
+}
+
+/** The share of blocks with a machine Then, and the blocks left to a judge. */
+function machineShare(specs: readonly Spec[]): { machine_then_share: number; judged_only_blocks: number } {
   let blocks = 0;
   let machine = 0;
   for (const spec of specs) {
@@ -494,9 +569,22 @@ export function coverageMeasures(prepared: PreparedMap, specs: readonly Spec[]):
         machine += 1;
     }
   }
-  out.machine_then_share = blocks === 0 ? 0 : machine / blocks;
-  out.judged_only_blocks = blocks - machine;
-  return out;
+  return { machine_then_share: blocks === 0 ? 0 : machine / blocks, judged_only_blocks: blocks - machine };
+}
+
+/** The four measures a seeder states: richness and evenness over the t = 2 cells its specs cover, the Then share. */
+function seederMeasures(prepared: PreparedMap, specs: readonly Spec[]): Record<string, number> {
+  const counts = cellCounts(prepared, specs, 2)
+    .map((cell) => cell.count)
+    .filter((count) => count > 0);
+  const n = counts.reduce((sum, count) => sum + count, 0);
+  const shares = counts.map((count) => count / Math.max(1, n));
+  const entropy = -shares.reduce((sum, share) => sum + (share > 0 ? share * Math.log(share) : 0), 0);
+  return {
+    hill_q0: counts.length,
+    pielou: counts.length > 1 ? entropy / Math.log(counts.length) : 1,
+    ...machineShare(specs),
+  };
 }
 
 function dataValues(prepared: PreparedMap): number {

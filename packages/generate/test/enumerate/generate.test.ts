@@ -339,3 +339,26 @@ describe('iteration 17: the report states the coverage and diversity measures', 
     }
   });
 });
+
+describe('iteration 21: the cells a spec reaches come from one projection of the grid', () => {
+  it('counts the cells as the space package does, for the empty suite and for the generated one', async () => {
+    const { coverage } = await import('@driftbench/space');
+    const { cellsOf } = await import('../../src/enumerate/generate');
+    const prepared = zedPrepared();
+    const { complete } = generateSuite(prepared, { mapPath: '../map.yaml', t: 2 });
+    for (const specs of [[], complete, complete.slice(0, 3)]) {
+      const results = specs.map((spec) => ({
+        ok: true as const,
+        path: spec.id,
+        spec,
+        hash: '',
+        warnings: [],
+      }));
+      const expected = coverage(prepared.axisMap, results, { t: 2 }).grid.cells.map((cell) => ({
+        values: { ...cell.values },
+        count: cell.count,
+      }));
+      expect(cellsOf(prepared, specs, 2)).toEqual(expected);
+    }
+  });
+});
