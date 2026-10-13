@@ -315,9 +315,9 @@ async function main() {
     const cached=recorded.get(key);
     if(cached&&!cached.providerError)return cached;
     if(addedGates.has(meta.model))return addedGates.get(meta.model)!.run(()=>submit(prompt,meta,schema),entry=>{
-      writeFileSync(resolve(HERE,'results/'+meta.model+'-probe.json'),JSON.stringify({status:'answered',key:entry.key,
+      writeFileSync(resolve(HERE,'results/'+meta.model+(freeze.flashLiteRecoveryAmendment?'-recovery-probe.json':'-probe.json')),JSON.stringify({status:'answered',key:entry.key,
         startedAt:entry.startedAt,finishedAt:entry.finishedAt,reasoningApplied:entry.providerMeta.appliedThinkingLevel,
-        costUsd:entry.costUsd,policy:'First sealed fixture call; answer retained and not resubmitted.'},null,2)+'\n');
+        costUsd:entry.costUsd,policy:freeze.flashLiteRecoveryAmendment?'First missing sealed TEST call after recovery; answer retained.':'First sealed fixture call; answer retained and not resubmitted.'},null,2)+'\n');
     });
     if(meta.model!=='gemini-3.8-flash'||!resumeAt)return submit(prompt,meta,schema);
     return probeGate.run(()=>submit(prompt,meta,schema),entry=>{
