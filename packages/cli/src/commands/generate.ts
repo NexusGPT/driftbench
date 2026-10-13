@@ -40,6 +40,7 @@ export type GenerateCommandOptions = {
   t?: string;
   seed?: string;
   max?: string;
+  budget?: string;
   tasks?: string;
   baseline?: string[];
   force?: boolean;
@@ -70,6 +71,10 @@ export function registerGenerateCommand(
     .option('--t <n>', 'the strength of the covering array (default 3)')
     .option('--seed <n>', 'the integer seed of every seeded choice (default 1)')
     .option('--max <n>', 'the most specs per seeder')
+    .option(
+      '--budget <n>',
+      'budget mode: N conversations placed by pair coverage, then value balance, in place of the t-wise rows',
+    )
     .option('--tasks <n>', `instances built per task family the map names (default ${DEFAULT_TASKS})`)
     .option('--baseline <path>', 'specs to measure on the same map for comparison; repeat it', collect)
     .option('--force', 'replace the output of an earlier run in the folder')
@@ -120,8 +125,9 @@ export async function generateCommand(
   const t = whole(options.t, 't', 1);
   const seed = whole(options.seed, 'seed', 0);
   const max = whole(options.max, 'max', 1);
+  const budget = whole(options.budget, 'budget', 1);
   const tasks = whole(options.tasks, 'tasks', 1);
-  for (const parsed of [t, seed, max, tasks]) {
+  for (const parsed of [t, seed, max, budget, tasks]) {
     if (typeof parsed === 'string') {
       io.err(`${parsed}\n`);
       return 2;
@@ -188,6 +194,7 @@ export async function generateCommand(
       ...(typeof t === 'number' ? { t } : {}),
       ...(typeof seed === 'number' ? { seed } : {}),
       ...(typeof max === 'number' ? { max } : {}),
+      ...(typeof budget === 'number' ? { budget } : {}),
       mapPath: portable(relative(outPath, mapPath)),
       ...(baseline ? { baseline } : {}),
     });
