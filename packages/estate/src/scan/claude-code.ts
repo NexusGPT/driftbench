@@ -1230,10 +1230,18 @@ function readJsonRegistry(file: EstateFile, estate: RawEstate): void {
       cursor,
     );
     if (!found) continue;
-    const listed = [row.enforces, row.rules, row.gates].find((value) => Array.isArray(value)) as
-      | unknown[]
-      | undefined;
-    const enforces = (listed ?? []).filter((item): item is string => typeof item === 'string');
+    const listed = [row.enforces, row.rules, row.gates].find(
+      (value) => typeof value === 'string' || Array.isArray(value),
+    );
+    const single = typeof listed === 'string' ? listed.trim() : undefined;
+    const enforces =
+      single !== undefined
+        ? single === ''
+          ? []
+          : /^[A-Za-z]{1,3}\d{1,3}(?:[\s,;/]+[A-Za-z]{1,3}\d{1,3})*$/.test(single)
+            ? single.split(/[\s,;/]+/)
+            : [single]
+        : (Array.isArray(listed) ? listed : []).filter((item): item is string => typeof item === 'string');
     const entry: RegistryRow = {
       id,
       guard,
