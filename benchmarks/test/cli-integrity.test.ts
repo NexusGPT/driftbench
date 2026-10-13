@@ -13,9 +13,9 @@ import {
 } from '@agent-nexus/driftbench-judges';
 import { openMemoryStore, readTree } from '@agent-nexus/driftbench-store';
 import { afterEach, describe, expect, it, vi } from 'vitest';
-import { makeRecordingClient, SpendBudget } from '../../../benchmarks/record';
-import { type BenchReport, type BenchSlice, scoreSlice, sha256 } from '../../../benchmarks/run';
-import { main } from '../src/main';
+import { main } from '../cli';
+import { makeRecordingClient, SpendBudget } from '../record';
+import { type BenchReport, type BenchSlice, scoreSlice, sha256 } from '../run';
 
 const roots: string[] = [];
 const MODEL = 'gpt-6-luna';
@@ -177,7 +177,7 @@ async function fixture(): Promise<Fixture> {
 async function cli(f: Fixture, args: string[]) {
   let out = '';
   let err = '';
-  const code = await main(['bench', ...args, '--root', f.root], {
+  const code = await main([...args, '--root', f.root], {
     cwd: f.root,
     out: (text) => {
       out += text;
