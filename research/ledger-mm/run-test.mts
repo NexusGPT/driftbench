@@ -112,6 +112,7 @@ if (!dry) {
       const identity = { dialect: frozen.dialect, fingerprint: `${frozen.fingerprint}:${built.fingerprint}` };
       if (read.kind === 'no-envelope') throw Object.assign(new Error(`claude exited ${ran.code} without a JSON result`), { envelope: ran.stdout.slice(0, 4000) });
       if (read.kind === 'no-answer') throw Object.assign(new Error(`claude envelope no-answer (terminal_reason=${read.reason})`), { envelope: ran.stdout, costUsd: read.cost });
+      if (read.kind === 'provider-block') return { ...identity, raw: ran.stdout, text: '', costUsd: read.cost, finishReason: 'blocked:safeguards', truncated: true, refusal: 'provider safeguards flagged the input' };
       if (read.kind === 'model-failure') return { ...identity, raw: ran.stdout, text: '', costUsd: read.cost, finishReason: `error:${read.reason}`, truncated: true };
       return { ...identity, raw: ran.stdout, text: read.text, costUsd: read.cost, ...(read.finishReason ? { finishReason: read.finishReason } : {}), ...(read.truncated ? { truncated: true } : {}) };
     } };

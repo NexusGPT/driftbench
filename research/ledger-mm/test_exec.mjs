@@ -139,3 +139,10 @@ test('claude envelope: a success is an answer; a crash without JSON is a no-enve
   assert.equal(readClaudeEnvelope('Killed', 137).kind, 'no-envelope');
   assert.equal(isRecoverable('claude exited 137 without a JSON result'), true);
 });
+
+test('claude envelope: a safeguards block is a final provider decision, not a transport no-answer', () => {
+  const r = readClaudeEnvelope(env({ is_error: true, terminal_reason: 'api_error', total_cost_usd: 0.0009, usage: { output_tokens: 0 }, result: "API Error: Sonnet 5.5's safeguards flagged this message (https://www.anthropic.com/legal/aup)." }), 1);
+  assert.deepEqual(r, { kind: 'provider-block', cost: 0.0009, reason: 'safeguards' });
+  const other = readClaudeEnvelope(env({ is_error: true, terminal_reason: 'api_error', total_cost_usd: 0, usage: { output_tokens: 0 }, result: 'API Error: Overloaded' }), 1);
+  assert.equal(other.kind, 'no-answer');
+});

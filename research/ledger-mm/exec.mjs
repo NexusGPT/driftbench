@@ -112,5 +112,8 @@ export function readClaudeEnvelope(stdout, code) {
   if (value.is_error !== true && code === 0)
     return { kind: 'answer', cost, text: typeof value.result === 'string' ? value.result : '', finishReason: typeof value.subtype === 'string' ? value.subtype : undefined, truncated: value.subtype !== 'success' };
   const output = Number(value.usage?.output_tokens ?? 0);
+  // Amendment 13: the provider's safeguards refused the input. This is a deterministic provider decision,
+  // not a transport failure: it is final, never re-sent, and never counts as a connection failure.
+  if (output === 0 && /safeguards flagged/i.test(String(value.result ?? ''))) return { kind: 'provider-block', cost, reason: 'safeguards' };
   return output > 0 ? { kind: 'model-failure', cost, reason } : { kind: 'no-answer', cost, reason };
 }

@@ -1,5 +1,5 @@
 {
-  "stage": "test-v10",
+  "stage": "test-v13",
   "core": {
     "pr": "https://github.com/achammah/driftbench/pull/168",
     "commit": "35f07309a4d1d1c8a7c5b176ff19e537d0ef8fdd",
@@ -90,9 +90,9 @@
     "research/ledger-mm/artifacts/pool.json": "c5d9b880f98a3cefcacdd5ac1417d0ce70fe526e358edecd890dcfa792f65aeb",
     "research/ledger-mm/artifacts/pilot.json": "1fa01e034f8fb2fe782bcf1fa6f6bc11c5856f5b69a9702fb4c2177169f5733a",
     "research/ledger-mm/artifacts/harm-fixtures.json": "cb26c07022016c8c0ecff5f1c7663991d673ed7d01c2cf50c9b82842a773467d",
-    "research/ledger-mm/run-test.mts": "f20451113500d9e4c38716a4ed59966b6f181c22fac8ea5d3f3db20f3faa99e9",
-    "research/ledger-mm/exec.mjs": "d6d42cacfa1e54a8a1c001d751ebb2e2ff29b1230b9f9c6db2bd78ba90fe248d",
-    "research/ledger-mm/test_exec.mjs": "13169a8ab9d48d6c8933ad4e5cbd93e5736bf543eccdc6d58a0cd6fa95be4b70",
+    "research/ledger-mm/run-test.mts": "16bbe612ea27bcd916c177b3fda9fe3989eda67b80ae618e60f2c086f4c4a2d2",
+    "research/ledger-mm/exec.mjs": "75bb747187f49921b8fc74094bc0ee5412bac052bd32e14bd0d641ee29c93bc4",
+    "research/ledger-mm/test_exec.mjs": "5f7bdc0d667a698ca517f79fb24753ab396f512bb9074c26792be810d9ecfec2",
     "research/ledger-mm/eligibility.json": "84b05992165f14a4bc4e130a793f52ac2204fec691d0f43ce33916579c82bdeb",
     "research/ledger-mm/test_eligibility.py": "a84b5aeef9b7c796310442328d9529705a5faf32d720c21bdbb36a70b1009e60",
     "research/ledger-mm/test_report.py": "f3099ee8a5dd618ed9d3e48efe3ecad962a4a6b90383d9aa599844bb8a14dd5f",
@@ -243,5 +243,10 @@
     "loggedUtc": "2026-10-13",
     "by": "owner, by card, via coordinator",
     "text": "gemini-3.8-flash is dropped from MM-Eval. It was parked at 393 of 600 pairs. It is never resumed, its partial recordings are kept, and it is not reported as a score. Its eligibility round (amendment 4) is void. gemini-3.5-flash-lite stays the Gemini result."
+  },
+  "amendment13": {
+    "loggedUtc": "2026-10-13T18:36Z",
+    "by": "lane, pending coordinator confirmation of the scoring line",
+    "text": "Finding from kept envelopes: every Sonnet error with zero output tokens so far (16 tries) reads: API Error, Sonnet 5.5 safeguards flagged this message. It is a provider safeguards block on the input, deterministic, not a transport failure. Retrying it stalled the cell in a link-pause loop. Such a call is now recorded as final (finishReason blocked:safeguards), never re-sent, at its reported cost, and does not count as a connection failure. Other zero-output API errors stay recoverable no-answers. Reporting: blocked items are counted separately and shown in two lines (excluded from the paired cohort, and all-in as zero). Which line is official is the owner's call."
   }
 }
