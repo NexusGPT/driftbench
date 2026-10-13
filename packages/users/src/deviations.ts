@@ -1,7 +1,7 @@
 import { DeviationClass } from '@agent-nexus/driftbench-core';
 
 /**
- * The ten deviation classes, as the perturbing driver applies them. Each class says what carries it to the
+ * The twelve deviation classes, as the perturbing driver applies them. Each class says what carries it to the
  * agent (a user message, a burst, or a change of the world with no user text), what the agent is expected
  * to do, and the recovery a drawn perturbation of the class is given when the spec declares none.
  */
@@ -17,7 +17,7 @@ export type Carrier =
 
 export type DeviationDef = {
   readonly class: DeviationClass;
-  /** The short name, D1 to D10. */
+  /** The short name, D1 to D12. */
   readonly code: string;
   readonly title: string;
   readonly carrier: Carrier;

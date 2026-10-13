@@ -145,7 +145,7 @@ Four areas, all built.
   </picture>
 </a>
 
-- **[Scenarios and users](docs/simulated-user.md)**: YAML specs, a scripted user, a simulated user that plays a persona, an [adaptive attacker](docs/attack.md), ten deviation classes, and specs drafted from [production traces](docs/traces.md) or [a spreadsheet](docs/datasets.md).
+- **[Scenarios and users](docs/simulated-user.md)**: YAML specs, a scripted user, a simulated user that plays a persona, an [adaptive attacker](docs/attack.md), twelve deviation classes, and specs drafted from [production traces](docs/traces.md) or [a spreadsheet](docs/datasets.md).
 - **[Checks and judges](docs/reference/checks.md)**: 24 machine checks, among them `similarity`, `relevancy`, `knowledge_retention` and `tools_offered`; a judge council calibrated on hand labels you set in a [local viewer](docs/viewer.md).
 - **[Drift and recovery](#drift-and-recovery)**: five drift classes, turns to recover after a deviation, and a [monitor](docs/traces.md) that watches production traces for drift.
 - **[Statistics and CI gates](#numbers-with-intervals)**: an interval on every rate, `pass^k`, paired tests, and a noninferiority gate whose margin defaults to the smallest the suite can show.
@@ -302,7 +302,7 @@ Every failing block gets one or more drift classes:
 | `X4` format drift | narration, a language leak, a double send, channel rules broken |
 | `X5` tool drift | a call that is missing, extra, duplicated or wrongly filled |
 
-Ten deviation classes can be injected at any block, in a conversation or in a code task: off topic question, goal shift, contradiction, loose confirmation, language switch, instruction in data, silence or burst, tool failure, out of scope request, and return after a deviation.
+Twelve deviation classes can be injected at any block, in a conversation or in a code task: off topic question, goal shift, contradiction, loose confirmation, language switch, instruction in data, silence or burst, tool failure, out of scope request, return after a deviation, request for another person's personal data, and request to reveal the instructions.
 
 After an injection, driftbench reports the **turns to recover**, a recovery label (immediate, late or never), the **collateral** failures after recovery, the safe action rate on risky injections, and how often the agent asked instead of guessing.
 

@@ -225,7 +225,7 @@ Write a mapping with exactly one of these keys.
 
 ## DeviationClass
 
-The ten deviation classes a perturbed run can inject.
+The twelve deviation classes a perturbed run can inject.
 
 Used by `when.injection.class` and `perturbations[].class`. Mode P runs them with the perturbing driver, and `driftbench perturb` runs one. See [recovery](../concepts/recovery.md).
 
