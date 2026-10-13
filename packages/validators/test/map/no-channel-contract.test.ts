@@ -1,4 +1,4 @@
-import { extractMap } from '@driftbench/generate';
+import { extractMap } from '@agent-nexus/driftbench-generate';
 import { describe, expect, it } from 'vitest';
 import { inventoryItems } from '../../src/ladders/map/bank/families/inventory';
 import { runItem } from '../../src/ladders/map/bank/run';
