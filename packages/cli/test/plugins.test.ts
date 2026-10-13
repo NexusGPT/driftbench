@@ -22,7 +22,7 @@ const EXAMPLE = join(ROOT, 'examples/plugins');
 const SPEC = 'examples/plugins/specs/hello.yaml';
 const PLUGIN = 'examples/plugins/plugin.mjs';
 const KNOWN =
-  'The CLI reaches function:acme-sales (or function:acme), the Acme sales assistant, and process:acme-ops, the Acme ops agent.';
+  'The CLI reaches function:acme-sales (or function:acme), the Acme sales assistant, and process:acme-ops, the Acme ops agent. It also reaches http, litellm and nexus targets from the target.options of a spec.';
 
 async function cli(argv: string[], cwd = ROOT, options?: MainOptions) {
   let out = '';
@@ -105,9 +105,9 @@ describe('plugins', () => {
   });
 
   it('names the plugin adapters when a target has none', async () => {
-    const run = await cli(['smoke', SPEC, '--target', 'http:nobody', '--plugin', PLUGIN]);
+    const run = await cli(['smoke', SPEC, '--target', 'grpc:nobody', '--plugin', PLUGIN]);
     expect(run.code).toBe(2);
-    expect(run.err).toBe(`No adapter is set up for http:nobody. ${KNOWN} Plugins add the adapters echo.\n`);
+    expect(run.err).toBe(`No adapter is set up for grpc:nobody. ${KNOWN} Plugins add the adapters echo.\n`);
   });
 
   it('refuses a plugin that cannot load, with exit 2 and one line', async () => {

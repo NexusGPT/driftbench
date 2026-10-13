@@ -4,6 +4,8 @@ Status: shipped, release phase. It passes the [contract suite](index.md#the-cont
 
 The litellm adapter runs an agent whose model sits behind a [LiteLLM](https://docs.litellm.ai/) proxy, or any endpoint that speaks the OpenAI chat completions shape. You hand it a client: the `openai` package's client with its `baseURL` on the proxy, or any object with `chat.completions.create`. `openai` is an optional peer dependency of `@agent-nexus/driftbench-adapters`; driftbench does not depend on it.
 
+From the command line, a spec whose target is `litellm:<model>` with `options.base_url` reaches this adapter with no code, through a client built on `fetch`: see [targets from settings](../running.md#targets-from-settings).
+
 ## Options
 
 ```ts

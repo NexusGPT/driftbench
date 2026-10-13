@@ -11,7 +11,7 @@ Built: the three run modes, teacher-forced (T), free-running (F) and perturbed (
 * `function:acme-sales`, or its short form `function:acme`: the Acme sales assistant behind the [function adapter](adapters/function.md). The Acme conversation specs name it.
 * `process:acme-ops`: the Acme ops agent (`examples/acme/ops/agent.mjs`) behind the [process adapter](adapters/process.md), in a local sandbox. The Acme task spec names it.
 
-Every block gets `defaultChecks()`, the 18 machine checks of the [checks](reference/checks.md) page, with the artifact readers of `@agent-nexus/driftbench-artifacts`. Other adapters are used from code: see [runSpec](#runspec). A [plugin](plugins.md) loads any adapter, your own checks and your own judge into the command line.
+Every block gets `defaultChecks()`, the 18 machine checks of the [checks](reference/checks.md) page, with the artifact readers of `@agent-nexus/driftbench-artifacts`. Other adapters are used from code: see [runSpec](#runspec). The command line also reaches `http`, `litellm` and `nexus` targets from a spec's `target.options`: see [targets from settings](#targets-from-settings). A [plugin](plugins.md) loads any adapter, your own checks and your own judge into the command line.
 
 A target is written `<adapter>` or `<adapter>:<agent>`. Without `--target`, each spec runs on the target it names, and a spec that names none is refused. A `--target` overrides the target every spec names, and `plan` and `run` print a note for each spec whose own target names another adapter. `--route <tag=target>` keeps a part of a mixed suite on its own agent: a spec carrying the tag runs on that target instead, and no note is printed for it. On the Acme suites, `--route flow:price-sheet=process:acme-ops` keeps the price-sheet task specs on the ops agent while `--target` names the sales agent; `ci` takes the same option, where a route may also name a `fault:<id>` of `--faults`, such as a fault of the ops agent.
 
@@ -477,6 +477,29 @@ A transcript holds what the agent did in each block: the segments, the tool call
 | `--target <adapter[:agent]>` | the target to run on. Without it, the spec's own target. |
 | `--runs <n>` | how many runs to compare, at least 2. Default 3. |
 | `--json` | print one JSON document: `specId`, `target`, `runs`, `deterministicClaim`, `identical`, `hashes` and `firstDifference` when they differ |
+
+## Targets from settings
+
+Beside the two Acme example targets, the command line reaches three kinds of agent from settings alone, with no code and no plugin. The settings are the spec's `target.options`:
+
+```yaml
+target:
+  adapter: http
+  agent: my-bot
+  options:
+    url: https://bot.example.com/turn
+    headers_env: { authorization: MY_BOT_TOKEN }
+```
+
+| Target | Reaches | `target.options` | Without options (as with `--target`) |
+|---|---|---|---|
+| `http:<agent>` | an endpoint that speaks the [http adapter](adapters/http.md)'s JSON | `url` (needed), `headers`, `headers_env` (header name to the environment variable that holds its value), `end_state_url`, `close_url`, `timeout_ms`, `max_tool_rounds`, `variants`, `tool_stubs`, `deterministic` | `DRIFTBENCH_HTTP_URL` gives the URL |
+| `litellm:<model>` | a model behind a LiteLLM proxy or any OpenAI-compatible endpoint, through the [litellm adapter](adapters/litellm.md) | `base_url` (needed; the request goes to `<base_url>/chat/completions`), `model` (default: the agent name of the target), `api_key_env` (default `LITELLM_API_KEY`, then `OPENAI_API_KEY`), `system`, `max_tokens`, `max_steps`, `timeout_ms`, `deterministic` | `LITELLM_BASE_URL`, then `OPENAI_BASE_URL`, give the endpoint |
+| `nexus:<agent id>` | an agent on the Nexus platform, through the [nexus adapter](adapters/nexus.md) | `timeout_ms`, `generate_timeout_ms`, `keep_conversations`; the spec's `target.deployment` is needed | the key is always read from `NEXUS_API_KEY` |
+
+A key is never written in a spec: `headers_env` and `api_key_env` name the environment variable that holds it. A `litellm` target takes its system prompt from `campaign run --prompt` when one is given, else from `system`. One adapter is made per target name in a campaign, so two specs that name `http:my-bot` share the options of the first.
+
+A target with a missing setting is refused with exit 2 and the setting to give: `No adapter is set up for http:my-bot. An http target needs its URL: set target.options.url in the spec, or DRIFTBENCH_HTTP_URL.` A [plugin](plugins.md) that registers `http`, `litellm` or `nexus` replaces the built-in target of that name. [`examples/http-target`](https://github.com/achammah/driftbench/tree/main/examples/http-target) runs an `http` target against a stand-in server.
 
 ## Project config and the pull-request gate
 

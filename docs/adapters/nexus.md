@@ -4,6 +4,8 @@ Status: shipped, phase 1. It passes the [contract suite](index.md#the-contract-s
 
 The nexus adapter reaches an agent on the Nexus platform through its public API. It is one adapter among others; the core never imports it.
 
+From the command line, a spec whose target is `nexus:<agent id>` with `target.deployment` reaches this adapter with no code, when `NEXUS_API_KEY` is set: see [targets from settings](../running.md#targets-from-settings).
+
 ## Settings
 
 | Setting | Meaning |

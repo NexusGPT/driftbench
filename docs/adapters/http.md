@@ -4,6 +4,8 @@ Status: shipped, phase 1. It passes the [contract suite](index.md#the-contract-s
 
 The http adapter reaches an agent behind an HTTP endpoint that speaks JSON. Each block is one POST with the conversation so far in the OpenAI-compatible chat shape. The endpoint answers with an Observed, or with an OpenAI-compatible chat completion.
 
+From the command line, a spec whose target is `http:<agent>` with `options.url` reaches this adapter with no code: see [targets from settings](../running.md#targets-from-settings).
+
 ## Options
 
 ```ts
