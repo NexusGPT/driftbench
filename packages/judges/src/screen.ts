@@ -173,6 +173,12 @@ const OTHER_LANGUAGES: readonly {
     judge: ['評価基準', '評価', '採点', '審査', '判定'],
     verdict: ['合格', '成功', '失敗', 'パス', '通過'],
   },
+  {
+    // Korean
+    loose: true,
+    judge: ['평가 기준', '평가', '채점', '심사', '판정'],
+    verdict: ['통과', '합격', '성공', '실패'],
+  },
 ];
 
 const VERDICT_WORDS = [
