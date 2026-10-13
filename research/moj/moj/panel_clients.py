@@ -161,6 +161,10 @@ class Recorder:
                 if previous:
                     return previous[-1]
                 raise RuntimeError('Offline recording miss: ' + key)
+            holds_path = self.directory/'provider-holds.json'
+            holds = json.loads(holds_path.read_text()) if holds_path.exists() else {}
+            if provider in holds:
+                return self.blocked(key, provider, request, 'User provider pause: ' + holds[provider])
             if provider == 'gemini' and self.gemini_stopped:
                 return self.blocked(key, provider, request, 'Gemini stopped after HTTP 402')
             submissions = max([r.get('submission', 0) for r in previous] or [0])
@@ -214,6 +218,7 @@ class Recorder:
 
 _default_lock = threading.Lock()
 _defaults = {}
+_default_leases = []
 
 
 def default_recorder(offline=False):
@@ -224,5 +229,15 @@ def default_recorder(offline=False):
     """
     with _default_lock:
         if offline not in _defaults:
+            if not offline:
+                directory = ROOT/'results/panel'
+                directory.mkdir(parents=True, exist_ok=True)
+                lease = (directory/'spend.lock').open('a')
+                try:
+                    fcntl.flock(lease, fcntl.LOCK_EX | fcntl.LOCK_NB)
+                except OSError:
+                    lease.close()
+                    raise RuntimeError('Another process owns the panel budget') from None
+                _default_leases.append(lease)
             _defaults[offline] = Recorder(offline=offline)
         return _defaults[offline]

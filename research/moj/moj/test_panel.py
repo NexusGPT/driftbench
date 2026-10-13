@@ -117,3 +117,42 @@ class RouterTests(unittest.TestCase):
         from .panel import route_item
         with patch('moj.panel.cross_family_panel',side_effect=AssertionError('should not call')):
             self.assertEqual(route_item(context(),{},lambda c:{'pA':.9})['path'],['stage1'])
+
+
+class RegressionTests(unittest.TestCase):
+    def test_duplicate_source_splits_count_once(self):
+        from .panel import unique_population
+        rows=[{'key':'b|id','label':'A','input_hash':'one'}, {'key':'b|id','label':'A','input_hash':'two'}]
+        self.assertEqual(len(unique_population(rows)),1)
+        rows[1]['label']='B'
+        with self.assertRaises(ValueError):unique_population(rows)
+    def test_gemini_402_skips_are_recorded_and_offline(self):
+        import urllib.error
+        with tempfile.TemporaryDirectory() as d:
+            p=Path(d)
+            error=urllib.error.HTTPError('https://example.invalid',402,'payment',{},None)
+            with patch('moj.panel_clients.send',side_effect=error) as send:
+                rec=Recorder(p,spend_path=p/'spend.jsonl')
+                rec.call('gemini','s','u','t')
+                blocked=rec.call('gemini','s','other','t')
+                self.assertEqual(send.call_count,1)
+                self.assertEqual(blocked['submission'],0)
+                self.assertEqual(rec.accounting(blocked['key'])['calls'],0)
+            offline=Recorder(p,offline=True,spend_path=p/'spend.jsonl')
+            self.assertEqual(blocked,offline.call('gemini','s','other','t'))
+    def test_timeout_cost_stays_unknown_after_success(self):
+        with tempfile.TemporaryDirectory() as d:
+            p=Path(d)
+            with patch('moj.panel_clients.send',side_effect=[TimeoutError(),{'text':'A','usd':.001}]), patch('moj.panel_clients.time.sleep'):
+                rec=Recorder(p,spend_path=p/'spend.jsonl')
+                result=rec.call('luna','s','u','t')
+            cost=rec.accounting(result['key'])
+            self.assertEqual(cost['calls'],2)
+            self.assertFalse(cost['cost_complete'])
+            self.assertGreater(cost['unpriced_reservations_usd'],0)
+    def test_point_kind_is_single_candidate(self):
+        from .reference_first import reference_first
+        ctx=context();ctx.item.update(kind='point',reference='trusted')
+        ctx.jev=unittest.mock.Mock(return_value={'point_0':.8})
+        self.assertEqual(reference_first(ctx)['pA'],.8)
+        self.assertEqual(ctx.jev.call_count,1)

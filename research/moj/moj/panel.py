@@ -155,11 +155,17 @@ def stats(rows):
                 'cost_complete': False}
     scores = [r['score'] for r in rows]
     rng = np.random.default_rng(20261013)
-    means = np.mean(rng.choice(scores, size=(10000, n), replace=True), axis=1)
+    groups = {}
+    for i, row in enumerate(rows):
+        groups.setdefault(row.get('cluster', row.get('key', str(i))), []).append(row['score'])
+    totals = np.array([sum(v) for v in groups.values()])
+    sizes = np.array([len(v) for v in groups.values()])
+    sampled = rng.integers(0, len(groups), size=(10000, len(groups)))
+    means = totals[sampled].sum(axis=1)/sizes[sampled].sum(axis=1)
     ci = [float(x) for x in np.quantile(means, [.025, .975])]
     if len(set(scores)) == 1 and scores[0] in (0, 1):
-        ci = list(wilson(scores[0], n))
-    return {'n': n, 'accuracy': float(np.mean(scores)), 'ci95': ci,
+        ci = list(wilson(scores[0], len(groups)))
+    return {'n': n, 'clusters': len(groups), 'accuracy': float(np.mean(scores)), 'ci95': ci,
             'calls_per_100': sum(r['calls'] for r in rows)*100/n if all(r['calls'] is not None for r in rows) else None,
             'known_calls_per_100': sum(r['calls'] or 0 for r in rows)*100/n,
             'known_usd_per_100': sum(r['usd'] for r in rows)*100/n,

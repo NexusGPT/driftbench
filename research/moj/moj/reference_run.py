@@ -42,7 +42,7 @@ def population(bench):
         games=[g for b in item['baselines'].values() for g in b.get('games',[])]
         rows.append({'key':bench+'|'+item['id'],'id':item['id'],'half':item['half'], 'label':item['label'],
                      'low':len(set(games))>1,'low_source':'recorded-baseline-disagreement',
-                     'hash':digest(item), 'baselines':item['baselines']})
+                     'hash':digest(item), 'cluster':item.get('split_group',item['id']), 'baselines':item['baselines']})
     if not rows:raise ValueError('No explicit dataset references: '+bench)
     path.write_text(json.dumps(rows,indent=2)+'\n')
     return rows
@@ -86,7 +86,7 @@ def evaluate(pop,obs):
                 record={'score':0 if p is None else score_verdict(verdict(p),row['label']),
                         'calls':o['calls'],'usd':o['usd'],'cost_complete':o['cost_complete'],
                         'pA':p,'missing':p is None}
-            decisions.append({'key':row['key'],'low':row['low'],**record})
+            decisions.append({'key':row['key'],'low':row['low'],'cluster':row['cluster'],**record})
         output['decisions'][name]=decisions
         output['variants'][name]={'overall':stats(decisions),'low':stats([r for r in decisions if r['low']])}
     return output
