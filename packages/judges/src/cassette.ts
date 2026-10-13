@@ -219,7 +219,8 @@ export function playerClient(
       const oldWinnerContract =
         request.assessment?.kind === 'pairwise' &&
         recordedContract === 'ledger' &&
-        !cassette.entries.some((entry) => entry.judge === judgeId && entry.pairContract === 'ledger');
+        (byKey.has(requestKey(request, judge, options.prompt)) ||
+          !cassette.entries.some((entry) => entry.judge === judgeId && entry.pairContract === 'ledger'));
       const effective =
         !request.answerContract && !oldWinnerContract
           ? { ...request, answerContract: recordedContract }
