@@ -121,12 +121,14 @@ describe('rename-scope codemod', () => {
       'comparisons/inspect/hard/arch-deciding-snapshot.json',
       'comparisons/inspect/hard/arch-snapshot.json',
       'comparisons/inspect/hard/deciding/main-snapshot.json',
+      'comparisons/langwatch/hard/pr115.mts',
+      'comparisons/langwatch/hard/pr115-verification.md',
     ];
     for (const rel of files)
       write(
         root,
         rel,
-        rel.endsWith('.ts')
+        rel.endsWith('.ts') || rel.endsWith('.mts')
           ? 'const folder = `node_modules/@driftbench/${name}/`;\n'
           : JSON.stringify({ pinnedSource: "import core from '@driftbench/core'" }),
       );

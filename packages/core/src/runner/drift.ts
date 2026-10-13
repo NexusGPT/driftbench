@@ -23,7 +23,11 @@ import type { Verdict } from '../schema/run';
 export const DRIFT_BY_FAMILY: Readonly<Record<string, DriftClass>> = {
   must: 'X1_local',
   must_not: 'X1_local',
+  regex: 'X1_local',
   length: 'X1_local',
+  markup: 'X4_format',
+  starts_with: 'X1_local',
+  finish_reason: 'X1_local',
   json: 'X1_local',
   refusal: 'X1_local',
   tool_f1: 'X5_tool',

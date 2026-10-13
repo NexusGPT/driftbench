@@ -1,0 +1,37 @@
+{
+  "version": 2,
+  "createdAt": "2026-10-13T01:39:41.711950+00:00",
+  "seeds": [
+    20261019,
+    20261020
+  ],
+  "casesEach": 120,
+  "procedures": [
+    "ours",
+    "audit",
+    "theirs",
+    "compliance",
+    "pr115"
+  ],
+  "hashes": {
+    "trusted-adapter-v2.mts": "b5ea569cfbdfbb82ec205a0d325f7f71feeb2dd2038eee704d966b94e2c78a27",
+    "criteria-v2.mts": "0f5376bcce2e6f7248891c4d3f5afb7e2b3ebc14fda7b75eacb5e463a662bb95",
+    "generate-judges-entries-v2.py": "fe6b54fb55c9d62b36d40d41f2f16a77db81a77acde8eb365faa02b123b3dc09",
+    "judges-entries-v2.json": "6b0b59034c43f7390587207262db6d33a8030498222f68604a3b733205eae6d9",
+    "test_entries_v2.py": "a6934e1c4995f398f5ea7ec965973d31e73f6a09d7fd4ccc0e3fd0d47a134627",
+    "adapter-v2.test.ts": "bce7bacca9693da9d3a3213c6fae2c5ccfca8d550a2b6d93371e75b06386d78d",
+    "ADAPTER-V2-PREREGISTRATION.md": "63bc69ab93422a69e2faa2a36a267a47fcc9e3a4bde59dd1727b1e848318083b",
+    "judges.mts": "587313d04a6a67f26d1cde89633b4316bb7af58ed1e8e11a9bc516984cc37012",
+    "compliance.mts": "77feb3b7e553fecbcd0c18214216e18f0cb7666a18e65aacbef915bb401e2006",
+    "runner.mts": "efbf4af9393f785e2d2956b74cc4448214c690ec8fdf55f5aa40472ed912aaf5",
+    "pr115.mts": "f76197690251a52ec5f944ff8a8a583b87ffc846736353a83b4ce6255ba4e762",
+    "vendor/prompts.json": "12f27d168e9f2ea6218a8ba5f8fd76aa937f126b7924d8977c489e4965f11d43",
+    "../../../packages/judges/src/prompt.ts": "b916144fa5fadaa37a7adb7f0f7ea04d8e2a73ac7478504f0697d1b52f8f8b7e",
+    "../../../packages/judges/src/contract.ts": "77acf60444770dfaa811b7c86b8473a9d6198eb1ac1143d50d7488a13da47c0c",
+    "longtrace-v2/PREREGISTRATION.md": "fac59b5657fd99f407f079ce4a95fb835b4deb7a1587a9450c3cfade6a2956ce",
+    "longtrace-v2/generate.py": "de119a4104dccd1ed80ac158e911882c19fae9a9763fbe9ad45e14c5dbc5cc27",
+    "longtrace-v2/hard.json": "a6e66b7e1b53ab6a63fdc714e2f26c8db671a92a40b01179c8dcdefc6342b029",
+    "longtrace-v2/test_construction.py": "187cdcb3906207f9ada10d28bca95e89b0636a4efdee211811bc3fab2a9c63e5"
+  },
+  "preCallCorrection": "Registration git-show buffer enlarged for multi-megabyte fixture; first attempt made zero model calls."
+}

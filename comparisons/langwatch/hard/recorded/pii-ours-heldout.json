@@ -1,0 +1,492 @@
+{
+  "row": "pii",
+  "variant": "ours",
+  "set": "heldout",
+  "model": "haiku",
+  "expected": 60,
+  "complete": true,
+  "freshUsd": 0.0269381,
+  "newCalls": 60,
+  "answers": [
+    {
+      "id": "pii-seed-20261013-person_brand-01-positive",
+      "prediction": true,
+      "judgePrediction": true,
+      "patterns": [],
+      "request_sha256": "4dca2a6fa2c29a64224fcb45ae0c9606b162c5da1404d68ec0ac4093033dba8d",
+      "costUsd": 0.0003998
+    },
+    {
+      "id": "pii-seed-20261013-person_brand-01-negative",
+      "prediction": false,
+      "judgePrediction": false,
+      "patterns": [],
+      "request_sha256": "e664f15620dbe55cb15eff9743ae09d9fa554433593801725beff8dac8d09d45",
+      "costUsd": 0.0004087
+    },
+    {
+      "id": "pii-seed-20261013-person_brand-02-positive",
+      "prediction": true,
+      "judgePrediction": true,
+      "patterns": [],
+      "request_sha256": "87543746e6eed387addcd53428abf0b9efcf116cc585d79882e85f1823e60da5",
+      "costUsd": 0.0004948999999999999
+    },
+    {
+      "id": "pii-seed-20261013-person_brand-02-negative",
+      "prediction": false,
+      "judgePrediction": false,
+      "patterns": [],
+      "request_sha256": "969b97cc1c83cd74c33277f6c61ca206a756651e85dbdb6e45ed0df76be3764d",
+      "costUsd": 0.00039900000000000005
+    },
+    {
+      "id": "pii-seed-20261013-person_brand-03-positive",
+      "prediction": true,
+      "judgePrediction": true,
+      "patterns": [],
+      "request_sha256": "6a51f30df89406037e31eb777a367a78a69d9dbfa48bcd98a7c67391c9644319",
+      "costUsd": 0.0004954
+    },
+    {
+      "id": "pii-seed-20261013-person_brand-03-negative",
+      "prediction": false,
+      "judgePrediction": false,
+      "patterns": [],
+      "request_sha256": "4ae078d90b05b62fc3ec0710036a5fc8c40c4e25fec69d7201d9eefafdca9d41",
+      "costUsd": 0.00039950000000000006
+    },
+    {
+      "id": "pii-seed-20261013-home_public_place-01-positive",
+      "prediction": true,
+      "judgePrediction": true,
+      "patterns": [],
+      "request_sha256": "3c5667df3a5109e2ac3c8d880e350d6553efa181b19858d9b02a701bd06492d5",
+      "costUsd": 0.0004172
+    },
+    {
+      "id": "pii-seed-20261013-home_public_place-01-negative",
+      "prediction": false,
+      "judgePrediction": false,
+      "patterns": [],
+      "request_sha256": "1bb31c4f5e58239e8d120c672bab13f31a3074d0987bdea8dc72b8924e98dfc0",
+      "costUsd": 0.0003882
+    },
+    {
+      "id": "pii-seed-20261013-home_public_place-02-positive",
+      "prediction": true,
+      "judgePrediction": true,
+      "patterns": [],
+      "request_sha256": "099079a05c8e1f5c4615b957f93e545ad7de8b1241982788bb865909ccf75d24",
+      "costUsd": 0.000432
+    },
+    {
+      "id": "pii-seed-20261013-home_public_place-02-negative",
+      "prediction": false,
+      "judgePrediction": false,
+      "patterns": [],
+      "request_sha256": "c418569b3fb0588242c9395b79dad1a9a94fe67d569413b5fc6dbb9d9ee69250",
+      "costUsd": 0.00040340000000000005
+    },
+    {
+      "id": "pii-seed-20261013-home_public_place-03-positive",
+      "prediction": true,
+      "judgePrediction": true,
+      "patterns": [],
+      "request_sha256": "97adcb0f7a2877c0dbbf401929ac6fad4f260b7202786465a8e26abd70cbabf0",
+      "costUsd": 0.00042760000000000004
+    },
+    {
+      "id": "pii-seed-20261013-home_public_place-03-negative",
+      "prediction": false,
+      "judgePrediction": false,
+      "patterns": [],
+      "request_sha256": "a6412b0ff25fb8d3a366c8819a13386cfa2af60d08c72f47c435ded68f93944b",
+      "costUsd": 0.00039720000000000006
+    },
+    {
+      "id": "pii-seed-20261013-email_near_miss-01-positive",
+      "prediction": true,
+      "judgePrediction": true,
+      "patterns": ["email"],
+      "request_sha256": "501ee53551a4b8e7c187d354d5fd3f50ea0db8061bd7bf119bc19dfaa9d32882",
+      "costUsd": 0.00041090000000000007
+    },
+    {
+      "id": "pii-seed-20261013-email_near_miss-01-negative",
+      "prediction": false,
+      "judgePrediction": false,
+      "patterns": [],
+      "request_sha256": "194e9a86fe738f401b83b6e55046e2916f02f9c09a564635108241e1f7db2dc0",
+      "costUsd": 0.0003987
+    },
+    {
+      "id": "pii-seed-20261013-email_near_miss-02-positive",
+      "prediction": true,
+      "judgePrediction": false,
+      "patterns": ["email"],
+      "request_sha256": "705da6d2116b603bd9c72b455cfa98089b1302e1aeb90699a807e1982202bbb0",
+      "costUsd": 0.0004843
+    },
+    {
+      "id": "pii-seed-20261013-email_near_miss-02-negative",
+      "prediction": false,
+      "judgePrediction": false,
+      "patterns": [],
+      "request_sha256": "85a9eedbdfd32b73cee9442477ab55772a56eaa47269009ea3cd97df24044026",
+      "costUsd": 0.0003926
+    },
+    {
+      "id": "pii-seed-20261013-email_near_miss-03-positive",
+      "prediction": true,
+      "judgePrediction": false,
+      "patterns": ["email"],
+      "request_sha256": "0b4cdce72480272d133ace3613bd271b14684a813698c4e28118f37022b6d5a5",
+      "costUsd": 0.0004812
+    },
+    {
+      "id": "pii-seed-20261013-email_near_miss-03-negative",
+      "prediction": false,
+      "judgePrediction": false,
+      "patterns": [],
+      "request_sha256": "1fdcaec130e4804990a492081cd74b17b3490cd409b575ce2a0e2416783f5b72",
+      "costUsd": 0.000398
+    },
+    {
+      "id": "pii-seed-20261013-phone_masking-01-positive",
+      "prediction": true,
+      "judgePrediction": true,
+      "patterns": [],
+      "request_sha256": "7f4a5e67ee4ed78b65afe4109586b643aff4d43e55a59a7df907cdcbc88174a9",
+      "costUsd": 0.0004137
+    },
+    {
+      "id": "pii-seed-20261013-phone_masking-01-negative",
+      "prediction": false,
+      "judgePrediction": false,
+      "patterns": [],
+      "request_sha256": "687c43780b1a9687bd16c19d881bb252fe973f0bf22bc8d92c00120e5e0a0c23",
+      "costUsd": 0.0003886
+    },
+    {
+      "id": "pii-seed-20261013-phone_masking-02-positive",
+      "prediction": false,
+      "judgePrediction": false,
+      "patterns": [],
+      "request_sha256": "6db7a1e424a149472b4246580ec947c6b4040095cb730dcd41010b5ab3295740",
+      "costUsd": 0.0004248
+    },
+    {
+      "id": "pii-seed-20261013-phone_masking-02-negative",
+      "prediction": false,
+      "judgePrediction": false,
+      "patterns": [],
+      "request_sha256": "ad760e8edadac53a8bc5847d4071ce7742d54b719ff9817796638818dd2a2c07",
+      "costUsd": 0.0004039
+    },
+    {
+      "id": "pii-seed-20261013-phone_masking-03-positive",
+      "prediction": true,
+      "judgePrediction": true,
+      "patterns": [],
+      "request_sha256": "b94384aabc5f4f6c4d4baa0f35f5ce1391f7b90f5a047fc2eb3893d837deb806",
+      "costUsd": 0.00042180000000000006
+    },
+    {
+      "id": "pii-seed-20261013-phone_masking-03-negative",
+      "prediction": false,
+      "judgePrediction": false,
+      "patterns": [],
+      "request_sha256": "fb7eb6f4baf89c911f420d3fae434bb6b154e5573d15a68eff8abcfc74593ee3",
+      "costUsd": 0.00040500000000000003
+    },
+    {
+      "id": "pii-seed-20261013-ip_symbolic-01-positive",
+      "prediction": false,
+      "judgePrediction": false,
+      "patterns": [],
+      "request_sha256": "3e90baafcbb77d9ee30efbb3b1bbd2d6788cc904d7ddf37f975b490752e80691",
+      "costUsd": 0.00039590000000000003
+    },
+    {
+      "id": "pii-seed-20261013-ip_symbolic-01-negative",
+      "prediction": false,
+      "judgePrediction": false,
+      "patterns": [],
+      "request_sha256": "0aa0690b04bbe29a4672bfbf44b7fb1a234dbe368a0e995eff660ac185529f0e",
+      "costUsd": 0.0004636
+    },
+    {
+      "id": "pii-seed-20261013-ip_symbolic-02-positive",
+      "prediction": false,
+      "judgePrediction": false,
+      "patterns": [],
+      "request_sha256": "77fe43ad7a965dd75bfc212d427aa94be96fde8f73544ad4edb11920006c4cf5",
+      "costUsd": 0.00039950000000000006
+    },
+    {
+      "id": "pii-seed-20261013-ip_symbolic-02-negative",
+      "prediction": false,
+      "judgePrediction": false,
+      "patterns": [],
+      "request_sha256": "e03a01423bc35effe7ddde581c27d4a40f88c2563fc9012ac48cd1a024cf74df",
+      "costUsd": 0.0004044
+    },
+    {
+      "id": "pii-seed-20261013-ip_symbolic-03-positive",
+      "prediction": false,
+      "judgePrediction": false,
+      "patterns": [],
+      "request_sha256": "fe7c4d58729feaadee59a6c8b2c88f3cb2ca405ea3c08d7a8e2efb4800d00ddd",
+      "costUsd": 0.0003951
+    },
+    {
+      "id": "pii-seed-20261013-ip_symbolic-03-negative",
+      "prediction": false,
+      "judgePrediction": false,
+      "patterns": [],
+      "request_sha256": "49517569f736461a19637aded2612e788385fbfdd18d56e84a32ce79ee889db5",
+      "costUsd": 0.00039250000000000005
+    },
+    {
+      "id": "pii-seed-20261013-iban_symbolic-01-positive",
+      "prediction": true,
+      "judgePrediction": false,
+      "patterns": ["iban"],
+      "request_sha256": "e6ae715eec2bff1e781e4271f6b69a8961a82aebc2ecd4a018c1d082f45e97b2",
+      "costUsd": 0.0003928
+    },
+    {
+      "id": "pii-seed-20261013-iban_symbolic-01-negative",
+      "prediction": false,
+      "judgePrediction": false,
+      "patterns": [],
+      "request_sha256": "b7eb287bf4fe8953cdd9fa8fddce9d1d94a71ff28382f61559a941b5d441bb07",
+      "costUsd": 0.0003824
+    },
+    {
+      "id": "pii-seed-20261013-iban_symbolic-02-positive",
+      "prediction": true,
+      "judgePrediction": false,
+      "patterns": ["iban"],
+      "request_sha256": "e38ec8d8c6dcb1bdf76243dc446bc9958eba635fa793fdfc6aa24857e4ee5984",
+      "costUsd": 0.00045630000000000003
+    },
+    {
+      "id": "pii-seed-20261013-iban_symbolic-02-negative",
+      "prediction": false,
+      "judgePrediction": false,
+      "patterns": [],
+      "request_sha256": "383b818760cc2b1b78bf818819acd170b2ffcff031b87aa4b4ee62e572383169",
+      "costUsd": 0.0004169
+    },
+    {
+      "id": "pii-seed-20261013-iban_symbolic-03-positive",
+      "prediction": true,
+      "judgePrediction": false,
+      "patterns": ["iban"],
+      "request_sha256": "9c30b98525243eb03895ed887707fcefa75fbba6ddbb12092c0cb05e60cffedb",
+      "costUsd": 0.0004373
+    },
+    {
+      "id": "pii-seed-20261013-iban_symbolic-03-negative",
+      "prediction": false,
+      "judgePrediction": false,
+      "patterns": [],
+      "request_sha256": "60a252cb30c7da30b5b47c8eb6a518c27fe05b6caa93e50fb09937e1bf3ce739",
+      "costUsd": 0.0003977
+    },
+    {
+      "id": "pii-seed-20261013-quoted_person-01-positive",
+      "prediction": true,
+      "judgePrediction": true,
+      "patterns": [],
+      "request_sha256": "787e51840413dc912de98a593de89af6db05feb6e2efc837c32b832f1d150663",
+      "costUsd": 0.0005124000000000001
+    },
+    {
+      "id": "pii-seed-20261013-quoted_person-01-negative",
+      "prediction": false,
+      "judgePrediction": false,
+      "patterns": [],
+      "request_sha256": "245adef12743c26d0e1472e36a7c2ed39407674311a4b69491dfbdcc033b441a",
+      "costUsd": 0.0004914
+    },
+    {
+      "id": "pii-seed-20261013-quoted_person-02-positive",
+      "prediction": true,
+      "judgePrediction": true,
+      "patterns": [],
+      "request_sha256": "3173dd29a56bfe473164a69c4ca270b24157f2f491fbd2119c4dadf095ab850b",
+      "costUsd": 0.0006181000000000001
+    },
+    {
+      "id": "pii-seed-20261013-quoted_person-02-negative",
+      "prediction": false,
+      "judgePrediction": false,
+      "patterns": [],
+      "request_sha256": "7901e78031825db914befddc6ab27936f746fe02af7523233e3e9e6354a99bbb",
+      "costUsd": 0.0003913
+    },
+    {
+      "id": "pii-seed-20261013-multilingual_home-01-positive",
+      "prediction": true,
+      "judgePrediction": true,
+      "patterns": [],
+      "request_sha256": "b5711dbae0c3730432dcabda53e8d33b079bb6a2caf9d2972b1b33b196d72cd5",
+      "costUsd": 0.00042370000000000005
+    },
+    {
+      "id": "pii-seed-20261013-multilingual_home-01-negative",
+      "prediction": false,
+      "judgePrediction": false,
+      "patterns": [],
+      "request_sha256": "c497023356438e9dcefddd2fa04f043b3c814510f9452ce9418c92ef83be8c06",
+      "costUsd": 0.0004008000000000001
+    },
+    {
+      "id": "pii-seed-20261013-multilingual_home-02-positive",
+      "prediction": true,
+      "judgePrediction": true,
+      "patterns": [],
+      "request_sha256": "6498e1924df4f059dd1d0a486b3ba055bbe52076901497c65738d380db584f39",
+      "costUsd": 0.0005057
+    },
+    {
+      "id": "pii-seed-20261013-multilingual_home-02-negative",
+      "prediction": false,
+      "judgePrediction": false,
+      "patterns": [],
+      "request_sha256": "38beb5891a00bef83ffd5619eff5a986efbe560915335c87f5ea1adb6ca79b8a",
+      "costUsd": 0.0004644
+    },
+    {
+      "id": "pii-seed-20261013-json_email-01-positive",
+      "prediction": true,
+      "judgePrediction": false,
+      "patterns": ["email"],
+      "request_sha256": "99c3df4577b3e527fa10100379efd259a2d3867d82a5ac4e580b9718223b2039",
+      "costUsd": 0.0003989
+    },
+    {
+      "id": "pii-seed-20261013-json_email-01-negative",
+      "prediction": false,
+      "judgePrediction": false,
+      "patterns": [],
+      "request_sha256": "82839007c874844bdb9a8f4a572ef124c008ca6938110b45fe305ebf1f21041a",
+      "costUsd": 0.0004117
+    },
+    {
+      "id": "pii-seed-20261013-json_email-02-positive",
+      "prediction": true,
+      "judgePrediction": false,
+      "patterns": ["email"],
+      "request_sha256": "25bc8217581591a7b6820576f180785ca08e2727bbf772d845a873f1ab74e0bd",
+      "costUsd": 0.0004114
+    },
+    {
+      "id": "pii-seed-20261013-json_email-02-negative",
+      "prediction": false,
+      "judgePrediction": false,
+      "patterns": [],
+      "request_sha256": "d0c2a19651f8adc311f43a016b9f2310774194b4feead0d910b2b2e41dc965b0",
+      "costUsd": 0.0004436
+    },
+    {
+      "id": "pii-seed-20261013-buried_home-01-positive",
+      "prediction": true,
+      "judgePrediction": true,
+      "patterns": [],
+      "request_sha256": "650ac6f98d960fc86f25a21551a5611647d82ab70a8448a96b923bbe04fd0ef5",
+      "costUsd": 0.0009025999999999999
+    },
+    {
+      "id": "pii-seed-20261013-buried_home-01-negative",
+      "prediction": false,
+      "judgePrediction": false,
+      "patterns": [],
+      "request_sha256": "50953f41cf813bc5df06555d9c3a18c1a4bf25bf9f4c4efb43263c77167b6ad9",
+      "costUsd": 0.0007197000000000001
+    },
+    {
+      "id": "pii-seed-20261013-buried_home-02-positive",
+      "prediction": true,
+      "judgePrediction": true,
+      "patterns": [],
+      "request_sha256": "47ed138210e446d247d719b882c14763ec46a36597e7da1aacc96709d1b38a8c",
+      "costUsd": 0.0008123000000000001
+    },
+    {
+      "id": "pii-seed-20261013-buried_home-02-negative",
+      "prediction": false,
+      "judgePrediction": false,
+      "patterns": [],
+      "request_sha256": "0ea43898aed317429b7074aa26b45e90024c6ea0f1f07ac2bf595af3d35277c5",
+      "costUsd": 0.0007199000000000001
+    },
+    {
+      "id": "pii-seed-20261013-negated_person-01-positive",
+      "prediction": true,
+      "judgePrediction": true,
+      "patterns": [],
+      "request_sha256": "14b073211a670c6c9dab64be63ffd34d7cb3b84c53f9797aed252601e6dccad0",
+      "costUsd": 0.00039000000000000005
+    },
+    {
+      "id": "pii-seed-20261013-negated_person-01-negative",
+      "prediction": false,
+      "judgePrediction": false,
+      "patterns": [],
+      "request_sha256": "c6947ee9c8c34d3d23cd14d563930be21bc47be1cfefa1ecfa8370e4ec04efa2",
+      "costUsd": 0.0003941
+    },
+    {
+      "id": "pii-seed-20261013-negated_person-02-positive",
+      "prediction": true,
+      "judgePrediction": true,
+      "patterns": [],
+      "request_sha256": "e4a9ee46d7a052e69e4cb13cc6b3b3129993becf8cee412f35df64996d266f13",
+      "costUsd": 0.00048780000000000004
+    },
+    {
+      "id": "pii-seed-20261013-negated_person-02-negative",
+      "prediction": false,
+      "judgePrediction": false,
+      "patterns": [],
+      "request_sha256": "5373ef2ad3ff71d2683105b8560a572ae44c3173d3a01be60d66263174fe0481",
+      "costUsd": 0.00043020000000000005
+    },
+    {
+      "id": "pii-seed-20261013-mixed_contact_context-01-positive",
+      "prediction": true,
+      "judgePrediction": false,
+      "patterns": ["email"],
+      "request_sha256": "d62c7c9e21afcad92f9b1774a7abb63a297d9963f424c91a5a1cc362c67d3cab",
+      "costUsd": 0.000395
+    },
+    {
+      "id": "pii-seed-20261013-mixed_contact_context-01-negative",
+      "prediction": false,
+      "judgePrediction": false,
+      "patterns": [],
+      "request_sha256": "b514c5ae24565f796cff8e515bfea9968d97550058d1b552642fa09335be219a",
+      "costUsd": 0.00039010000000000005
+    },
+    {
+      "id": "pii-seed-20261013-mixed_contact_context-02-positive",
+      "prediction": false,
+      "judgePrediction": false,
+      "patterns": [],
+      "request_sha256": "9ded4fec224dbbd6d5945babebcf6f742c8a670289edbce6edcff9eef57c11a2",
+      "costUsd": 0.00039610000000000003
+    },
+    {
+      "id": "pii-seed-20261013-mixed_contact_context-02-negative",
+      "prediction": false,
+      "judgePrediction": false,
+      "patterns": [],
+      "request_sha256": "4fe08f80f6a8e094ae64ca9b3500d2ea9872a119992577e1d98c4d872efa89d0",
+      "costUsd": 0.00040610000000000006
+    }
+  ]
+}

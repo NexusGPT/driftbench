@@ -1,0 +1,16 @@
+{
+  "seed": 20261013,
+  "count": 60,
+  "generator": "generate.mjs",
+  "generator_sha256": "c746171aa5f858dfeec99d6040168a50410e342cf3bf382c0a6f71823739d2f7",
+  "original_dataset_sha256": "f4ddff11f445d8d92abde17ef05b6d70defb8848243f5abd5ff411703c587cf3",
+  "heldout_dataset_sha256": "645947560b8055bd6ed053b6f36ae93d0dca107158972e692e40d5168ce22dc5",
+  "oracle": "unchanged construction labels from the same family templates; no model-generated labels",
+  "fresh_values": true,
+  "text_overlap": 0,
+  "positive_count": 30,
+  "negative_count": 30,
+  "model_calls": 0,
+  "generator_before_format_sha256": "26401958030eb4d1f77a2e4005172d5e8f7e479fc58cc14ae44a10201c63b969",
+  "format_note": "Biome formatting and import ordering only; both cohorts regenerated with --check and frozen fixture hashes unchanged."
+}

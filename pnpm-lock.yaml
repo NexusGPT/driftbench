@@ -223,6 +223,9 @@ importers:
       '@agent-nexus/driftbench-artifacts':
         specifier: workspace:*
         version: link:../artifacts
+      '@agent-nexus/driftbench-checks':
+        specifier: workspace:*
+        version: link:../checks
       '@agent-nexus/driftbench-core':
         specifier: workspace:*
         version: link:../core
