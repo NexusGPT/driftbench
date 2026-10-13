@@ -10,7 +10,7 @@ import {
   type JudgeRequest,
   playerClient,
   recordingClient,
-  SYSTEM_PROMPT,
+  LEGACY_SYSTEM_PROMPT as SYSTEM_PROMPT,
 } from '../src/index';
 
 /**
@@ -19,6 +19,7 @@ import {
  */
 
 const REQUEST: JudgeRequest = {
+  answerContract: 'legacy',
   criterion: {
     name: 'one_question_per_turn',
     rubric: 'The reply asks the customer at most one question.',

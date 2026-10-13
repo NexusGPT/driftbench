@@ -2,6 +2,9 @@ import { mkdtemp, readdir, readFile, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join, relative } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { functionAdapter } from '@agent-nexus/driftbench-adapters';
+import { loadSpecs, runSpec } from '@agent-nexus/driftbench-core';
+import { createScriptedDriver } from '@agent-nexus/driftbench-users';
 import { describe, expect, it } from 'vitest';
 import { type Io, main } from '../src/index';
 
@@ -190,5 +193,137 @@ describe('driftbench generate', () => {
     const measured = JSON.parse(baseline.out).coverage;
     expect(measured.baseline.label).toBe('out/specs');
     expect(measured.baseline.covered).toBe(measured.complete.covered);
+  });
+
+  it('exits 0 below full pair coverage in budget mode and reports the uncovered pairs', async () => {
+    const dir = await mkdtemp(join(tmpdir(), 'driftbench-generate-'));
+    await writeFile(join(dir, 'prompt.md'), PROMPT);
+    const map = PHRASED_MAP.replace(
+      `constraints: []`,
+      `      - { id: voice, title: Voice, evidence: ${EVIDENCE}, ${CODE} }\nconstraints: []`,
+    ).replace(
+      `relations:\n`,
+      `  - { dimension: channel, value: voice, text: Hello from the voice channel., lang: en, produced_by: model, approved: true }\nrelations:\n`,
+    );
+    await writeFile(join(dir, 'map.yaml'), map);
+    const result = await run(['generate', '--map', 'map.yaml', '--out', 'out', '--budget', '1'], dir);
+    expect(result.err).toBe('');
+    expect(result.code).toBe(0);
+    expect(result.out).toContain('pairs covered 3 of 8');
+    const report = JSON.parse(await readFile(join(dir, 'out/generate-report.json'), 'utf8'));
+    expect(report.budget.picked).toBe(1);
+    expect(report.seeders.twise.cut).toBe(false);
+    expect(report.budget.pairs).toMatchObject({ covered: 3, allowed: 8 });
+  });
+
+  it('refuses invalid budgets before writing output', async () => {
+    const dir = await mkdtemp(join(tmpdir(), 'driftbench-generate-'));
+    for (const budget of ['0', '-1', '1.5', 'NaN']) {
+      const result = await run(
+        ['generate', '--map', `${ACME}map/approved.yaml`, '--out', 'out', '--budget', budget],
+        dir,
+      );
+      expect(result.code).toBe(2);
+      expect(result.err).toContain('--budget must be a whole number of at least 1');
+    }
+    expect(await readdir(dir)).toEqual([]);
+  });
+
+  it('samples numeric runtime vars globally and within categorical rows, and delivers them to the adapter', async () => {
+    const dir = await mkdtemp(join(tmpdir(), 'driftbench-generate-'));
+    const quote = 'temperature ranges from 0 to 1; iterations range from 1 to 5 integer attempts.';
+    await writeFile(join(dir, 'prompt.md'), `${PROMPT}${quote}\n`);
+    await writeFile(
+      join(dir, 'map.yaml'),
+      `${PHRASED_MAP}\nnumeric_settings:\n` +
+        `  - { id: temperature, min: 0, max: 1, evidence: { source: prompt.md, quote: "${quote}" }, produced_by: code, approved: true }\n` +
+        `  - { id: iterations, min: 1, max: 5, integer: true, unit: attempts, evidence: { source: prompt.md, quote: "${quote}" }, produced_by: code, approved: true }\n`,
+    );
+    const result = await run(
+      ['generate', '--map', 'map.yaml', '--out', 'out', '--budget', '20', '--t', '2', '--json'],
+      dir,
+    );
+    expect(result.code).toBe(0);
+    expect(result.err).toBe('');
+    const report = JSON.parse(result.out);
+    expect(report.budget.pool).toBeLessThan(20);
+    expect(report.budget.picked).toBe(20);
+    expect(report.budget.capped).toBe(false);
+    const numeric = report.budget.numeric as {
+      settings: Array<{ id: string; unit?: string }>;
+      rows: Array<{
+        spec: string;
+        cell: Record<string, string>;
+        vars: Record<string, number>;
+        quantiles: Record<string, number>;
+      }>;
+    };
+    expect(numeric.settings.find((setting) => setting.id === 'iterations')?.unit).toBe('attempts');
+    const groups = new Map<string, typeof numeric.rows>();
+    for (const row of numeric.rows) {
+      const key = JSON.stringify(row.cell);
+      groups.set(key, [...(groups.get(key) ?? []), row]);
+      expect(Number.isInteger(row.vars.iterations)).toBe(true);
+      expect(row.vars.iterations).toBeGreaterThanOrEqual(1);
+      expect(row.vars.iterations).toBeLessThanOrEqual(5);
+    }
+    const bands = (values: number[], n: number) =>
+      values.map((value) => Math.floor(value * n)).sort((a, b) => a - b);
+    for (const id of ['temperature', 'iterations']) {
+      expect(
+        bands(
+          numeric.rows.map((row) => row.quantiles[id] as number),
+          20,
+        ),
+      ).toEqual(Array.from({ length: 20 }, (_, i) => i));
+      for (const rows of groups.values())
+        expect(
+          bands(
+            rows.map((row) => row.quantiles[id] as number),
+            rows.length,
+          ),
+        ).toEqual(Array.from({ length: rows.length }, (_, i) => i));
+    }
+    for (const rows of groups.values())
+      expect(
+        bands(
+          rows.map((row) => row.vars.temperature as number),
+          rows.length,
+        ),
+      ).toEqual(Array.from({ length: rows.length }, (_, i) => i));
+    const specs = await loadSpecs([join(dir, 'out/specs/twise')]);
+    expect(specs).toHaveLength(20);
+    for (const entry of specs) {
+      if (!entry.ok) throw new Error(entry.path);
+      expect(entry.spec.given?.vars).toEqual(numeric.rows.find((row) => row.spec === entry.spec.id)?.vars);
+    }
+    const first = specs[0];
+    if (!first?.ok) throw new Error('missing numeric spec');
+    const received: Record<string, unknown>[] = [];
+    const adapter = functionAdapter({
+      create: () => ({}),
+      respond: (_messages, _world, vars) => {
+        received.push(vars);
+        return {
+          text: 'Numeric variables received.',
+          segments: [{ type: 'text', text: 'Numeric variables received.' }],
+          toolCalls: [],
+          cost: { usd: 0 },
+          latencyMs: 0,
+        };
+      },
+    });
+    await runSpec(first.spec, { adapter, driver: createScriptedDriver(), checks: [], mode: 'F', repeat: 1 });
+    expect(received.length).toBeGreaterThan(0);
+    expect(
+      received.every(
+        (vars) =>
+          vars.temperature === first.spec.given?.vars?.temperature &&
+          vars.iterations === first.spec.given?.vars?.iterations,
+      ),
+    ).toBe(true);
+    const unsupported = await run(['generate', '--map', 'map.yaml', '--out', 'plain'], dir);
+    expect(unsupported.code).toBe(2);
+    expect(unsupported.err).toContain('numeric_settings requires --budget');
   });
 });

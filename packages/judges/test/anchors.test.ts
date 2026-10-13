@@ -11,8 +11,11 @@ import {
   LabelledBlock,
   loadLabels,
 } from '../src/calibration';
-import { cassettePlayers, loadCassette } from '../src/cassette';
+import { cassettePlayers as baseCassettePlayers, loadCassette } from '../src/cassette';
 import { loadCriteria } from '../src/criteria';
+
+const cassettePlayers = (cassette: Parameters<typeof baseCassettePlayers>[0]) =>
+  baseCassettePlayers(cassette, { answerContract: 'legacy' });
 
 const made: string[] = [];
 afterAll(async () => {

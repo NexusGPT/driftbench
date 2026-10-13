@@ -60,7 +60,7 @@ export function createJevJudge(options: System1Options = {}): JudgeClient {
     model,
     cost: options.cost ?? SYSTEM1_COST,
     async judge(request) {
-      const prompt = buildPrompt(request);
+      const prompt = buildPrompt({ ...request, answerContract: 'legacy' });
       const payload = await postJson(
         url,
         { authorization: `Bearer ${key}` },
@@ -108,7 +108,7 @@ export function createOpenAiDecisionsJudge(options: System1Options = {}): JudgeC
     model,
     cost: options.cost ?? SYSTEM1_COST,
     async judge(request) {
-      const prompt = buildPrompt(request);
+      const prompt = buildPrompt({ ...request, answerContract: 'legacy' });
       const payload = await postJson(
         `${base}/v1/decisions`,
         { authorization: `Bearer ${key}` },

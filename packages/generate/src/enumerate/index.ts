@@ -11,6 +11,7 @@ export {
   SEEDERS,
   type Seeder,
 } from '../seed/assemble';
+export { type BudgetSelection, enumerateCells, selectBudget, slicedLhs } from '../seed/budget';
 export { DETOURS, DEVIATION_EXPECTED } from '../seed/deviation';
 export { Feasibility } from '../seed/feasible';
 export { type Edge, type StageGraph, stageGraph, walkGraph } from '../seed/graph';

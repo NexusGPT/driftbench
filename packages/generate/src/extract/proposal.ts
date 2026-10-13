@@ -148,6 +148,40 @@ export const ProposalDimension = z
   .describe('One axis a situation varies on, with its values.');
 export type ProposalDimension = z.infer<typeof ProposalDimension>;
 
+/** Approved numeric runtime variables, separate from the categorical coverage dimensions. */
+export const NumericSetting = z
+  .strictObject({
+    id: DimensionId.describe('The key written into the generated spec given.vars.'),
+    min: z.number().describe('Inclusive lower bound.'),
+    max: z.number().describe('Inclusive upper bound.'),
+    integer: z.boolean().optional().describe('Map Latin quantiles to inclusive integer levels.'),
+    unit: z.string().min(1).optional().describe('Unit label, retained in the sampling report.'),
+    evidence: Evidence,
+    produced_by: Origin,
+    approved: Approved,
+  })
+  .superRefine((setting, ctx) => {
+    if (setting.max < setting.min || !Number.isFinite(setting.max - setting.min))
+      ctx.addIssue({
+        code: 'custom',
+        path: ['max'],
+        message: 'max must be at least min and the range must be finite',
+      });
+    if (
+      setting.integer &&
+      (!Number.isSafeInteger(Math.ceil(setting.min)) ||
+        !Number.isSafeInteger(Math.floor(setting.max)) ||
+        Math.ceil(setting.min) > Math.floor(setting.max) ||
+        !Number.isSafeInteger(Math.floor(setting.max) - Math.ceil(setting.min) + 1))
+    )
+      ctx.addIssue({
+        code: 'custom',
+        path: ['integer'],
+        message: 'an integer range needs representable integer levels between min and max',
+      });
+  });
+export type NumericSetting = z.infer<typeof NumericSetting>;
+
 export const ProposalConstraint = z
   .strictObject({
     forbid: z
@@ -458,6 +492,10 @@ export const Proposal = z
     dimensions: z.array(ProposalDimension),
     constraints: z.array(ProposalConstraint),
     phrases: z.array(ProposalPhrase),
+    numeric_settings: z
+      .array(NumericSetting)
+      .optional()
+      .describe('Approved numeric ranges sampled by --budget into given.vars.'),
     relations: z
       .array(ProposalRelation)
       .optional()
@@ -601,6 +639,9 @@ export function evidences(proposal: Proposal): Array<{ path: string; evidence: E
   (proposal.relations ?? []).forEach((relation, r) => {
     found.push({ path: `relations.${r}`, evidence: relation.evidence });
   });
+  (proposal.numeric_settings ?? []).forEach((setting, index) => {
+    found.push({ path: `numeric_settings.${index}`, evidence: setting.evidence });
+  });
   return found;
 }
 
@@ -645,6 +686,7 @@ export function countEntries(proposal: Proposal): {
   constraints: number;
   phrases: number;
   relations: number;
+  numeric_settings?: number;
   total: number;
   approved: number;
   valuesApproved: number;
@@ -655,6 +697,7 @@ export function countEntries(proposal: Proposal): {
     ...proposal.constraints.map((constraint) => constraint.approved),
     ...proposal.phrases.map((phrase) => phrase.approved),
     ...relations.map((relation) => relation.approved),
+    ...(proposal.numeric_settings ?? []).map((setting) => setting.approved),
   ];
   return {
     dimensions: proposal.dimensions.length,
@@ -662,6 +705,9 @@ export function countEntries(proposal: Proposal): {
     constraints: proposal.constraints.length,
     phrases: proposal.phrases.length,
     relations: relations.length,
+    ...(proposal.numeric_settings === undefined
+      ? {}
+      : { numeric_settings: proposal.numeric_settings.length }),
     total: flags.length,
     approved: flags.filter(Boolean).length,
     valuesApproved: proposal.dimensions.reduce(
@@ -743,6 +789,19 @@ function checkReferences(proposal: Proposal): ProposalIssue[] {
   };
 
   const dimensions = new Map<string, Set<string>>();
+  const numericIds = new Set<string>();
+  (proposal.numeric_settings ?? []).forEach((setting, index) => {
+    if (numericIds.has(setting.id))
+      issues.push(
+        issue(
+          'PROPOSAL_DUPLICATE',
+          `numeric_settings.${index}.id`,
+          `numeric setting "${setting.id}" is listed twice`,
+        ),
+      );
+    numericIds.add(setting.id);
+    checkSource(setting.evidence, `numeric_settings.${index}`);
+  });
   proposal.dimensions.forEach((dimension, d) => {
     const path = `dimensions.${d}`;
     if (dimensions.has(dimension.id)) {

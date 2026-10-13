@@ -1,5 +1,5 @@
+import { parseJudgeValue } from '../assessment';
 import type { ClientOptions, JudgeClient } from '../client';
-import { parseAnswerValue } from '../contract';
 import { JudgeError, postJson, requireEnv } from '../http';
 import { buildPrompt } from '../prompt';
 
@@ -29,14 +29,15 @@ export function createHttpJudge(options: HttpJudgeOptions): JudgeClient {
     cls,
     ...(options.model ? { model: options.model } : {}),
     cost: options.cost ?? (cls === 'system1' ? 1 : 10),
-    async judge(request) {
+    async judge(original) {
+      const request = cls === 'system1' ? { ...original, answerContract: 'legacy' as const } : original;
       const payload = await postJson(
         options.url,
         headers,
         { request, prompt: buildPrompt(request) },
         options,
       );
-      return parseAnswerValue(payload);
+      return parseJudgeValue(payload, request);
     },
   };
 }
