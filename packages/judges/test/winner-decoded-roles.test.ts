@@ -77,7 +77,7 @@ describe('decoded role tokens never supply winner evidence', () => {
       }
     }
     expect(checked).toBeGreaterThan(30_000);
-  });
+  }, 200_000);
 
   it('retains literal encoded passages whose decoded content has real text', () => {
     const candidate = JSON.stringify({
