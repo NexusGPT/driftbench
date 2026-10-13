@@ -1,0 +1,20 @@
+{
+  "candidate": "Haiku-first cascade on the frozen base",
+  "sourceCouncilCommit": "140f406a55a8ce46b24f1b51c5c32c23daf035b7",
+  "sourceBaseCommit": "2c87e59e3348e1f36652c7cb634a2d34687d6fd5",
+  "devN": 1052,
+  "devSha256": "5b238b8d9760872046b7fbd5163ace8d70737972ff2cb2ace766805bcc18575b",
+  "base": "native direct c576 for all non-chat; per-order majority of three samples for chat; provider refusal scores zero",
+  "rule": "Keep frozen games if exactly two equal decisive verdicts. Otherwise majority of gpt-6-luna net of both orders, gemini-3.8-flash net of both orders, and Jev three-framing majority. At least two decisive agreeing seats required. Otherwise frozen games stand. No harm gate, no pointwise, no fitting.",
+  "openaiSubstitution": "Owner bans gpt-5.4-mini; gpt-6-luna replaces it, reasoning_effort low",
+  "gemini": "gemini-3.8-flash, thinkingLevel low, timeout 300 seconds",
+  "jev": "original three framings, gateway api-key first, TypeSafe Bearer fallback",
+  "maxConcurrentCalls": 6,
+  "capUsd": 30,
+  "testGate": "DEV macro difference at least +1.0 percentage point AND paired 95% interval lower endpoint greater than zero",
+  "test": "Only if gate passes: one pass on all unsampled TEST items, excluding all 950 sampled TEST ids. No tuning after DEV.",
+  "metric": "100 times unweighted mean of five subset means. Item score is mean of two game scores: correct 1, incorrect 0, tie 0.5. Refused base scores zero.",
+  "interval": "20,000 paired bootstrap draws resampling items within each subset; numpy default_rng seed 20261013, percentile 2.5 and 97.5",
+  "checkpoint": "Each completed API result recorded before any derived decision. Resume only unfinished prompts; no repeat of completed calls.",
+  "budget": "Track billed Haiku costs, provider token estimates, Jev tokens separately. Conservative 30 USD total reserve cap including unknown-price calls; disclose unknown Jev price."
+}
