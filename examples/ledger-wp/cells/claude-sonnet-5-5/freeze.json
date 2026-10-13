@@ -56,9 +56,9 @@
   },
   "parentFreezeSha256": "c10437448cf3d17ead724ac4b12c4d2075787fa764711872a66d16f1748d41b0",
   "files": {
-    "examples/ledger-wp/frontier.ts": "1900f3581e3f2b7fddddf98e4d21dad50cf88b29980367d6fa0a985d9d76b7a7",
-    "examples/ledger-wp/frontier.test.ts": "086d58ba7bada4810db2811b34a904675c3cf370065b8c64ab5da0e26685da1c",
-    "examples/ledger-wp/frontier-report.py": "268643525cb71ca01a8219ba7e550da7437c96e1be8b73bed12cf22fc6f95ba2"
+    "examples/ledger-wp/frontier.ts": "ff0b506b086266f16365b4e8d71d4f6409789628ff5df76cdb6eeca8b6992459",
+    "examples/ledger-wp/frontier.test.ts": "38a1a3b92aaaed3f316ae75d100f1fec56a2331e65d82ee38d45c0c3ed974d4d",
+    "examples/ledger-wp/frontier-report.py": "014bb6f43e0dc6f60730c521a50aba895a8011747ef9c9ee3ff40c20e6886d19"
   },
   "judgeContractChanged": false,
   "sealedOrderChanged": false,
@@ -89,5 +89,22 @@
     "inferredProjectionWithoutCachingUsd": 39.10767906666666,
     "originalProjectionUsd": 66.80452213333334
   },
-  "calibrationAfter": "2026-10-13T13:42:41.100711+00:00"
+  "calibrationAfter": "2026-10-13T13:42:41.100711+00:00",
+  "recoveryAmendment": {
+    "at": "2026-10-13T14:05:56.422921+00:00",
+    "authorization": "Owner authorizes GPT-6.1 cap 32 USD including holds, Sonnet cap 45 USD including holds, and one fresh cycle up to 3 submissions each for 12 exhausted no-answer calls. Two consecutive connection-class failures stop all new calls. Any connection failure mid-TEST stops before any TEST retry.",
+    "logicalCallKeys": [
+      "fd098f5718e563e4042ab645adcba2df856906ecaaae2b286cf62bcb17c8d316"
+    ],
+    "freshSubmissionsPerKey": 3,
+    "maximumTotalSubmissionsPerKey": 6,
+    "connectivityProbe": "../../results/frontier-connectivity.json",
+    "sharedCircuitBreak": "../../results/frontier-network-hold.json",
+    "circuitHistory": "../../results/frontier-network-events.jsonl",
+    "oldHoldsRetained": true,
+    "returnedAnswersRetained": true,
+    "judgeContractChanged": false,
+    "sealedOrderChanged": false,
+    "parentFreezeSha256": "7debf1ef89074767caaec221ef4e9367eaba65910b13375907486b10e4102834"
+  }
 }

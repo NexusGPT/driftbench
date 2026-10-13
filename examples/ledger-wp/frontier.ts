@@ -13,6 +13,18 @@ const load=(p:string)=>JSON.parse(readFileSync(p,'utf8'));
 const rows=(p:string):any[]=>existsSync(p)?readFileSync(p,'utf8').split('\n').filter(Boolean).map(x=>JSON.parse(x)):[];
 const append=(p:string,x:any)=>appendFileSync(p,JSON.stringify(x)+'\n');
 const flip=(x:string)=>x==='A'?'B':x==='B'?'A':'tie';
+const networkHold=resolve(HERE,'results/frontier-network-hold.json');
+const networkEvents=resolve(HERE,'results/frontier-network-events.jsonl');
+export const connectionFailure=(entry:any)=>entry.httpStatus===503||/ECONNRESET|ECONNREFUSED|fetch failed|fetch failure|ETIMEDOUT|EAI_AGAIN|ENOTFOUND|EADDRNOTAVAIL|UND_ERR|timed? ?out|timeout|connection dropped|connection refused/iu.test(entry.text??'');
+export function shouldBreakNetwork(events:any[]) {
+  // Latch any qualifying sequence, including a concurrent success appended before this reader runs.
+  return events.some((event,i)=>event.connectionFailure&&(event.split==='test'||events[i-1]?.connectionFailure===true));
+}
+function observeNetwork(entry:any) {
+  append(networkEvents,{at:entry.finishedAt,model:entry.model,split:entry.split,key:entry.key,connectionFailure:entry.providerError&&connectionFailure(entry)});
+  if(shouldBreakNetwork(rows(networkEvents)))writeFileSync(networkHold,JSON.stringify({active:true,at:new Date().toISOString(),key:entry.key,model:entry.model,split:entry.split,
+    reason:entry.split==='test'?'First TEST connection failure; no TEST retry without owner word':'Two consecutive connection failures; all new paid submissions stopped'},null,2)+'\n');
+}
 export function responsesBody(prompt:any,schema?:any) {
   return {model:'gpt-6.1-sol',instructions:prompt.system,input:prompt.user,reasoning:{effort:'medium'},max_output_tokens:4096,
     service_tier:'default',store:false,...(schema?{text:{format:{type:'json_schema',name:'judge_answer',strict:true,schema}}}:{})};
@@ -47,7 +59,7 @@ export function verifyCell(model:string) {
   const dir=resolve(HERE,'cells',model),f=load(resolve(dir,'freeze.json'));
   if(sha(readFileSync(resolve(HERE,'freeze.json')))!==f.parentFreezeSha256)throw Error('Base freeze changed');
   for(const [p,h] of Object.entries(f.files))if(sha(readFileSync(resolve(ROOT,p)))!==h)throw Error('Frozen source changed: '+p);
-  if(f.capUsd!==(model==='claude-sonnet-5-5'?45:25)||f.reasoning!=='medium'||f.maxOutputTokens!==4096)throw Error('Cell contract mismatch');
+  if(f.capUsd!==(model==='claude-sonnet-5-5'?45:32)||f.reasoning!=='medium'||f.maxOutputTokens!==4096)throw Error('Cell contract mismatch');
   const tracked=spawnSync('git',['diff','HEAD','--',resolve(dir,'freeze.json')],{cwd:ROOT,encoding:'utf8'});
   const exists=spawnSync('git',['ls-files','--error-unmatch',resolve(dir,'freeze.json')],{cwd:ROOT,encoding:'utf8'});
   if(tracked.status!==0||tracked.stdout||exists.status!==0)throw Error('Freeze must be committed before any call');
@@ -68,18 +80,18 @@ async function main() {
     const key=sha(JSON.stringify([meta,prompt,schema,{reasoning:f.reasoning,maxOutputTokens:f.maxOutputTokens}]));
     if(cached.has(key))return cached.get(key);
     if(mode==='replay')throw Error('Replay miss '+key);
-    if(stopped)throw Error('Provider stopped');
+    if(stopped||existsSync(networkHold))throw Error('Shared network hold; owner word required');
     if(mode==='calibrate'&&history.filter(r=>!r.providerError&&r.startedAt>=(f.calibrationAfter??'')).length>=5)throw Error('CALIBRATION_COMPLETE');
-    let last:any;
-    for(let attempt=1;attempt<=4;attempt++) {
-      if(attempt===4&&last?.httpStatus!==429)break;
+    let last:any;const recovery=f.recoveryAmendment?.logicalCallKeys.includes(key)===true;
+    for(let attempt=1;attempt<=(recovery?6:4);attempt++) {
+      if(attempt===4&&!recovery&&last?.httpStatus!==429)break;
       const attemptKey=attempt===1?key:sha(key+':transport:'+attempt);
       const prior=history.find(r=>r.key===attemptKey);
-      if(prior){last=prior;if(!prior.providerError)return prior;if(!isTransportFailure(prior.text))throw Error('Prior nontransport failure');continue;}
+      if(prior){last=prior;if(!prior.providerError)return prior;if(!isTransportFailure(prior.text)&&!connectionFailure(prior))throw Error('Prior nontransport failure');continue;}
       if(budget.totals().pending.includes(attemptKey)){last={text:'Interrupted transport'};continue;}
       if(attempt>1){const delay=last?.httpStatus===429?[60000,120000,240000][attempt-2]:1500*(attempt-1);
         await new Promise(r=>setTimeout(r,Math.max(0,delay-(Date.now()-Date.parse(last?.finishedAt??new Date().toISOString())))));}
-      if(stopped)throw Error('Provider stopped');
+      if(stopped||existsSync(networkHold))throw Error('Shared network hold; owner word required');
       if(Date.now()>Date.parse(f.lastCallUtc))throw Error('LAST_CALL_CUTOFF');
       budget.reserve(attemptKey,.25);submissions++;
       const startedAt=new Date().toISOString();let payload:any,httpStatus:number|undefined,providerMeta:any={};
@@ -108,10 +120,12 @@ async function main() {
         text:payload.result??'',costUsd:payload.total_cost_usd??0,usage:payload.usage??null,providerMeta,httpStatus,providerError:payload.is_error===true,
         startedAt,finishedAt:new Date().toISOString()};
       append(resolve(dir,'calls.jsonl'),entry);history.push(entry);last=entry;
+      observeNetwork(entry);
       if(!entry.providerError){budget.settle(attemptKey,entry.costUsd);cached.set(key,entry);state('running');return entry;}
       budget.chargeError(attemptKey,entry.costUsd);
+      if(existsSync(networkHold)){stopped=true;throw Error('Shared network circuit break; no further paid submissions or TEST retries');}
       if(httpStatus===402){budget.releaseRejected(attemptKey,402);stopped=true;throw Error('402 circuit break');}
-      if(!isTransportFailure(entry.text)){stopped=true;throw Error('Nontransport provider failure: '+entry.text);}
+      if(!isTransportFailure(entry.text)&&!connectionFailure(entry)){stopped=true;throw Error('Nontransport provider failure: '+entry.text);}
     }
     append(resolve(dir,'missing.jsonl'),{...meta,logicalKey:key,reason:'Transport exhausted; no answer',at:new Date().toISOString()});
     throw Error('TRANSPORT_EXHAUSTED');

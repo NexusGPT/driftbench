@@ -4,11 +4,12 @@ import json
 import os
 from pathlib import Path
 import subprocess
+import sys
 import time
 
 HERE=Path(__file__).resolve().parent
 ROOT=HERE.parents[1]
-TARGETS={'claude-sonnet-5-5':39198,'gpt-6.1-sol':1471}
+TARGETS=json.loads(sys.argv[1])
 STATUS=HERE/'runtime/frontier-finalizer.json'
 LEDGER=Path('/private/tmp/claude-501/-Users-assem-Documents-Doc-Assem-Claude-Code-nexus/649588d0-8d65-49cb-8d78-47b071cd71cb/scratchpad/spend-ledger.md')
 def state(status,**extra):

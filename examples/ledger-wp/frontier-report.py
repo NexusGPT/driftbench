@@ -78,8 +78,9 @@ def main():
             'projection':json.loads((cell/'projection.json').read_text()) if (cell/'projection.json').exists() else None,
             'freezeSha256':hashlib.sha256((cell/'freeze.json').read_bytes()).hexdigest()}
         write(cell/'report.json',report);reports.append(report)
-    lines=['## Additive Sonnet and GPT-6.1 writing cells','','- Authorization: separate budgets on top of the original 35 USD. GPT-6.1 cap is 25 USD; Sonnet conditional cap is 45 USD after a runtime-only fix and five-call recalibration. Existing reservations stay unchanged.',
+    lines=['## Additive Sonnet and GPT-6.1 writing cells','','- Authorization: separate budgets on top of the original 35 USD. GPT-6.1 cap is 32 USD including holds after the network recovery amendment; Sonnet cap is 45 USD after the cache-only runtime fix and five-call recalibration. Existing reservations stay unchanged.',
         '- Both contestants use the same model inside each cell. Gemini 3.8 remains parked. Reader-first stays in its separate legacy rows.',
+        '- Recovery: 12 named exhausted no-answer calls receive at most three fresh submissions. Two consecutive connection failures stop new calls across both models. Any connection failure during TEST stops before a TEST retry.',
         '- Frozen core, pool, order, schema re-ask and scoring remain fixed. Five pilot calls calibrate cost before fixtures, validity, DEV and the full TEST.',
         '- Both models use medium reasoning and a 4096 total output-token cap. Sonnet uses the lean Haiku CLI route with alias sonnet and empty working directory.',
         '- GPT-6.1 uses Responses without temperature. Standard USD per million tokens: input 2, cached input 0.10, cache writes 2.50, output 10. Source: https://developers.openai.com/api/docs/pricing, read 2026-10-13.',

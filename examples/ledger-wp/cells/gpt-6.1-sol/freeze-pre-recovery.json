@@ -1,0 +1,93 @@
+{
+  "at": "2026-10-13T13:37:53.138995+00:00",
+  "model": "gpt-6.1-sol",
+  "authorization": "Add two model cells: claude-sonnet-5-5 and gpt-6.1-sol. Two separate budgets up to 25 USD each on top of the old 35 USD. Five-call calibrations before full cell; report projection if above 25 USD.",
+  "capUsd": 25,
+  "budgetScope": "New model cell only; excludes original 35 USD lane budget and preserves old holds",
+  "contestants": [
+    "pair-ledger",
+    "promptfoo"
+  ],
+  "reasoning": "medium",
+  "maxOutputTokens": 4096,
+  "maxConcurrentCalls": 8,
+  "timeoutSeconds": 300,
+  "maxOtherTransportSubmissions": 3,
+  "max429Submissions": 4,
+  "http429BackoffSeconds": [
+    60,
+    120,
+    240
+  ],
+  "lastCallUtc": "2026-10-13T16:00:00Z",
+  "phases": [
+    "fixtures",
+    "validity",
+    "dev",
+    "test"
+  ],
+  "phaseComparisons": {
+    "fixtures": 36,
+    "validity": 40,
+    "dev": 180,
+    "test": 346
+  },
+  "calibration": "Exactly five answered calls from sealed PILOT prefix in sealed contestant order. Cost only; no prompt, pool, parser, criteria or contract tuning. Partial calibration job may remain as raw cached calls.",
+  "projection": "Per-contestant five-call mean times 301 comparisons. Primary calls per comparison use pre-existing completed Flash Lite runtime rate; promptfoo uses two. Hard budget prevents overspend regardless of projection.",
+  "core": {
+    "pr": "https://github.com/achammah/driftbench/pull/168",
+    "commit": "2bb0a7a787ca4466ff69d204f2380a7ad19cc056",
+    "pushed": true
+  },
+  "promptfooCommit": "801428268b5e421b2f6994332f6a06f86b27bb1f",
+  "seals": {
+    "test": "178754731d81f74abd2f6c001eca58ef4d16df7bbcd22bb702611e7bd09e7f0a",
+    "dev": "d47cdd3a3dab25e87e49bce60cbcb19706a7330ca4776b50df8745912f267c9b",
+    "validity": "e394ed458ddb9c05ccfc3ce3d21ba15facbfc4acb6142a28ab07ec4d5bb568c5",
+    "pilot": "a4d1b6f4ae7046f4bd17d7dc79e278c32f3e883fb93c83937c0a7721c7d25c15",
+    "fixtures": "e0873175e7f63f53bab63ff05899917247ecf2783421da427a349bfcea0ad469"
+  },
+  "sealCommits": {
+    "dev": "6dc58cc0",
+    "pilot": "57a11548",
+    "test": "650b07f5",
+    "fixtures": "212049e6",
+    "validity": "212049e6"
+  },
+  "parentFreezeSha256": "c10437448cf3d17ead724ac4b12c4d2075787fa764711872a66d16f1748d41b0",
+  "files": {
+    "examples/ledger-wp/frontier.ts": "1900f3581e3f2b7fddddf98e4d21dad50cf88b29980367d6fa0a985d9d76b7a7",
+    "examples/ledger-wp/frontier.test.ts": "086d58ba7bada4810db2811b34a904675c3cf370065b8c64ab5da0e26685da1c",
+    "examples/ledger-wp/frontier-report.py": "268643525cb71ca01a8219ba7e550da7437c96e1be8b73bed12cf22fc6f95ba2"
+  },
+  "judgeContractChanged": false,
+  "sealedOrderChanged": false,
+  "statistics": "Unchanged stats.py summarize: nominal exact two-sided McNemar plus language-stratified request-cluster 95% CI; positive results await family multiplicity handling.",
+  "transportPolicy": "Never resubmit a returned answer. Frozen core single schema re-ask is retained and charged. HTTP 402 stops immediately and releases only proven rejection holds. Transport failures retain uncertain holds.",
+  "thinkingCap": "Total output including thinking is 4096. Native Sonnet additionally requests MAX_THINKING_TOKENS=2048; adaptive reasoning may ignore that fixed budget. Output-cap losses are reported.",
+  "thinkingSource": "https://code.claude.com/docs/en/env-vars",
+  "route": "https://api.openai.com/v1/responses",
+  "credentialFile": "~/.nexus-secrets/openai.key",
+  "temperature": "omitted",
+  "priceUsdPerMillion": {
+    "input": 2,
+    "cachedInput": 0.1,
+    "cacheWrites": 2.5,
+    "outputIncludingReasoning": 10
+  },
+  "priceSource": "https://developers.openai.com/api/docs/pricing",
+  "priceObservedAt": "2026-10-13T13:37:53.138995+00:00",
+  "runtimeAmendment": {
+    "at": "2026-10-13T13:42:41.100711+00:00",
+    "reason": "Sonnet one-hour cache writes are charged at 4 USD/M versus 2 USD/M uncached. Disable prompt caching only, leaving prompt, contestant input, medium setting and cap unchanged. Sol meter accounts for observed input_tokens_details.cache_write_tokens at 2.50 USD/M.",
+    "sources": [
+      "https://code.claude.com/docs/en/env-vars",
+      "https://platform.claude.com/docs/en/about-claude/pricing",
+      "https://developers.openai.com/api/docs/pricing"
+    ],
+    "previousFreezeSha256": "218e2317dd502d1037f239c7fca1f7f88906ce9038840536b6f9ce5cc01dfd28",
+    "promptChanged": false,
+    "contestantInputChanged": false,
+    "modelSettingChanged": false
+  }
+}

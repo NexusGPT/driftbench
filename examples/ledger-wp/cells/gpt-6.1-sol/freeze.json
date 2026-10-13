@@ -2,7 +2,7 @@
   "at": "2026-10-13T13:37:53.138995+00:00",
   "model": "gpt-6.1-sol",
   "authorization": "Add two model cells: claude-sonnet-5-5 and gpt-6.1-sol. Two separate budgets up to 25 USD each on top of the old 35 USD. Five-call calibrations before full cell; report projection if above 25 USD.",
-  "capUsd": 25,
+  "capUsd": 32,
   "budgetScope": "New model cell only; excludes original 35 USD lane budget and preserves old holds",
   "contestants": [
     "pair-ledger",
@@ -56,9 +56,9 @@
   },
   "parentFreezeSha256": "c10437448cf3d17ead724ac4b12c4d2075787fa764711872a66d16f1748d41b0",
   "files": {
-    "examples/ledger-wp/frontier.ts": "1900f3581e3f2b7fddddf98e4d21dad50cf88b29980367d6fa0a985d9d76b7a7",
-    "examples/ledger-wp/frontier.test.ts": "086d58ba7bada4810db2811b34a904675c3cf370065b8c64ab5da0e26685da1c",
-    "examples/ledger-wp/frontier-report.py": "268643525cb71ca01a8219ba7e550da7437c96e1be8b73bed12cf22fc6f95ba2"
+    "examples/ledger-wp/frontier.ts": "ff0b506b086266f16365b4e8d71d4f6409789628ff5df76cdb6eeca8b6992459",
+    "examples/ledger-wp/frontier.test.ts": "38a1a3b92aaaed3f316ae75d100f1fec56a2331e65d82ee38d45c0c3ed974d4d",
+    "examples/ledger-wp/frontier-report.py": "014bb6f43e0dc6f60730c521a50aba895a8011747ef9c9ee3ff40c20e6886d19"
   },
   "judgeContractChanged": false,
   "sealedOrderChanged": false,
@@ -89,5 +89,32 @@
     "promptChanged": false,
     "contestantInputChanged": false,
     "modelSettingChanged": false
+  },
+  "recoveryAmendment": {
+    "at": "2026-10-13T14:05:56.422921+00:00",
+    "authorization": "Owner authorizes GPT-6.1 cap 32 USD including holds, Sonnet cap 45 USD including holds, and one fresh cycle up to 3 submissions each for 12 exhausted no-answer calls. Two consecutive connection-class failures stop all new calls. Any connection failure mid-TEST stops before any TEST retry.",
+    "logicalCallKeys": [
+      "e6d4d05c50b4a7c0633548060539844676e5c60db50b9912855159b4d8d9b350",
+      "9e23bfaf453d99a6e2955f1b0db49ea1c03b9e79680888ce907157b2d1ec5fce",
+      "372d22cb73416957976ca654ebbc515a63e056fd19a194f323ff5f87413708be",
+      "da110c122edad1c7aa67d864a2978a44fa4dd2cf6e5cf0fdf1a37723fe49505a",
+      "217ec25675972f900e1fc9f0ae83c33728bd688c5f874bd9b2e6fe45c6c4ae97",
+      "83fc5fc8f957583c7f36366e582b907ef4366e1aa0b67ad2a0d9ae75acedbe0b",
+      "963df83be7f98ffd96e65fbe9344a4778e188b43b1f9ed100841a063cb39f18d",
+      "577e46a65e20a29ae840ae5af8b054b26575c4bcea8542685342e57b958c889c",
+      "330c4bfbf9fe1d77982836c8aa4ff84d328ed34f835003440509a1e138633445",
+      "67a3d1d7fb3d1fae8cf7c69b8e8acc4a5e981defa0482c2712078377dd7a0906",
+      "6482d7f31b20f4f4d81ebc36739c8a70ebd747e356b4ba0f02447b68f270a876"
+    ],
+    "freshSubmissionsPerKey": 3,
+    "maximumTotalSubmissionsPerKey": 6,
+    "connectivityProbe": "../../results/frontier-connectivity.json",
+    "sharedCircuitBreak": "../../results/frontier-network-hold.json",
+    "circuitHistory": "../../results/frontier-network-events.jsonl",
+    "oldHoldsRetained": true,
+    "returnedAnswersRetained": true,
+    "judgeContractChanged": false,
+    "sealedOrderChanged": false,
+    "parentFreezeSha256": "b7330d4653e8310f164623dd0674ae11a1d8878c7930b219937dbe060800a9f8"
   }
 }

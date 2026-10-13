@@ -1,5 +1,5 @@
 import assert from 'node:assert/strict';
-import { responsesBody, solCost, claudeConfig } from './frontier';
+import { responsesBody, solCost, claudeConfig, connectionFailure, shouldBreakNetwork } from './frontier';
 const body=responsesBody({system:'judge',user:'compare'},{type:'object'});
 assert.equal(body.max_output_tokens,4096);
 assert.equal(body.reasoning.effort,'medium');
@@ -20,4 +20,10 @@ assert.equal(args[args.indexOf('--model')+1],'sonnet');
 assert.equal(args[args.indexOf('--tools')+1],'');
 assert.equal(args[args.indexOf('--setting-sources')+1],'');
 assert.equal(args[args.indexOf('--system-prompt')+1],'frozen prompt');
+assert(connectionFailure({text:'ECONNREFUSED'}));assert(connectionFailure({text:'fetch failed'}));assert(connectionFailure({httpStatus:503}));
+assert.equal(shouldBreakNetwork([{connectionFailure:true,split:'dev'}]),false);
+assert.equal(shouldBreakNetwork([{connectionFailure:true},{connectionFailure:false},{connectionFailure:true,split:'dev'}]),false);
+assert(shouldBreakNetwork([{connectionFailure:true},{connectionFailure:true,split:'dev'}]));
+assert(shouldBreakNetwork([{connectionFailure:true},{connectionFailure:true,split:'dev'},{connectionFailure:false}]));
+assert(shouldBreakNetwork([{connectionFailure:true,split:'test'}]));
 console.log('Focused provider shape, cost, isolation and token-cap checks pass. No paid calls.');
