@@ -83,3 +83,11 @@
 - Latest reset driver: exec session 50009, PID 95097. Older session 71554 is retired. It remains gated until 14 October 00:00 UTC and stops by 12:00 UTC. After Gemini completes, it runs offline verification and publish_results.py to push this owned branch.
 - Latest offline reporter: exec session 72035; PID in evidence/finalizer-state.json. Older session 81156 is retired. It waits for completed Haiku, Luna and the five-call outage recovery before reporting.
 - Four reset preservation/timing tests pass again. Generated outage transport successfully executes its guarded claim path; the canonical transport and runtime hashes are unchanged.
+
+## 2026-10-13T12:08:20.045906+00:00 owner-only Gemini hold and Flash Lite cell
+
+- Reset driver PID 63336 is stopped; PID 77546 was already retired. Persistent owner-only guard prevents automatic Gemini 3.8 restart.
+- Haiku TEST continues at four workers with the existing adaptive fallback.
+- Flash Lite is a new, separately recorded cell under lite/, with its own 6 USD budget and no answers imported from Gemini 3.8.
+- Published Standard price: 0.30 USD input and 2.50 USD output including thinking per million tokens. Medium is supported by official thinking documentation.
+- Freeze: lite/evidence/model-amendment.json, prior to any Flash Lite call. Eight workers, 20/60/180 second quota waits, 300-second timeout, immediate HTTP 402 circuit.

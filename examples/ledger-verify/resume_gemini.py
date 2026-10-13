@@ -66,6 +66,10 @@ def main():
     parser.add_argument('--wait', action='store_true', help='Wait locally for the authorized reset; no provider calls before it.')
     parser.add_argument('--check-only', action='store_true', help='Inspect the gate without waiting, changing reports or calling a provider.')
     args = parser.parse_args()
+    hold = BASE / 'evidence/gemini-owner-hold.json'
+    if hold.exists() and not json.loads(hold.read_text()).get('automaticResume', False):
+        print(json.dumps(dict(at=stamp(), gate='disarmed: owner-only restart', providerCalls=0)))
+        return
     amendment = json.loads((BASE / 'evidence/gemini-daily-quota-amendment.json').read_text())
     if args.check_only:
         print(json.dumps(dict(at=stamp(), gate=window(amendment, time.time()), providerCalls=0)))
