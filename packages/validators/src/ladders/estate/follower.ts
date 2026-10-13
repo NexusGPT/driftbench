@@ -365,6 +365,8 @@ function stepsFor(
         calls.push({
           call: { label: 'Skill', input: { skill: act.skill }, result: `Launching skill: ${act.skill}` },
         });
+      const helper = estate.helpers.find((candidate) => candidate.topic.name === act.helper);
+      if (helper) calls.push({ call: dispatch(helper.topic.name, helper.topic.fields, ['5120', '8830']) });
       if (label === 'Edit' || label === 'Write') calls.push({ call: read(cwd, 'notes/probe.md') });
       const call =
         label === 'Bash'

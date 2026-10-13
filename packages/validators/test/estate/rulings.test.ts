@@ -1,3 +1,4 @@
+import { writeFileSync } from 'node:fs';
 import { orderedCheck } from '@agent-nexus/driftbench-adapters';
 import {
   CheckRegistry,
@@ -8,7 +9,8 @@ import {
 import { type CheckSet, machineVerdict, parseSpecText } from '@agent-nexus/driftbench-core';
 import { describe, expect, it, vi } from 'vitest';
 import { genCompleteFamily, roleOf } from '../../src/ladders/estate/bank/loop';
-import { completionCounterexamples } from '../../src/ladders/estate/completion';
+import { completionComponents } from '../../src/ladders/estate/completion';
+import { completionContract } from '../../src/ladders/estate/completion-contract';
 import { follow } from '../../src/ladders/estate/follower';
 import { drawEstate } from '../../src/ladders/estate/hidden';
 import { estateMeta } from '../../src/ladders/estate/levels';
@@ -113,7 +115,7 @@ function permissionReference(requireDecision = true): CustomCheckFunction {
   };
 }
 
-function referenceChecks(requireDecision = true) {
+function referenceChecks(requireDecision = true, overrides: Record<string, CustomCheckFunction> = {}) {
   const registry = new CheckRegistry();
   for (const [name, check] of Object.entries(ESTATE_CHECKS)) registry.register(name, check);
   registry.register('ordered', orderedCheck);
@@ -121,10 +123,14 @@ function referenceChecks(requireDecision = true) {
   registry.register('guard_message', messageReference);
   registry.unregister('permission');
   registry.register('permission', permissionReference(requireDecision));
+  for (const [name, check] of Object.entries(overrides)) {
+    registry.unregister(name);
+    registry.register(name, check);
+  }
   return defaultChecks({ registry });
 }
 
-/** Reference compilation for warning distinction, path-qualified ordering and approval.
+/** Reference compilation for warning distinction, path-qualified ordering, declaration ownership and approval.
  * All other expectations, provenance and generated fields remain the real product output. */
 function referenceRun(run: pipeline.EstateRun): pipeline.EstateRun {
   return {
@@ -166,6 +172,19 @@ function referenceRun(run: pipeline.EstateRun): pipeline.EstateRun {
         meta.complete = true;
         spec.tags = spec.tags?.filter((t) => !t.startsWith('needs-') && t !== 'incomplete');
       }
+      if (key === 'tool_boundary-tool-declared') {
+        const atom = required(run.scanned.map.atoms.find((a) => a.id === estateMeta(source).atoms?.[0]));
+        const owner = run.scanned.map.atoms.find(
+          (a) => ['skill', 'subagent'].includes(a.kind) && a.provenance.file === atom.provenance.file,
+        );
+        if (owner)
+          for (const block of spec.blocks) {
+            block.expect ??= {};
+            block.expect[owner.kind === 'skill' ? 'skills' : 'subagents'] = [
+              { name: String(owner.fields?.name), count: { min: 1 } },
+            ];
+          }
+      }
       const text = JSON.stringify(spec);
       const loaded = parseSpecText(text, 'json');
       if (!loaded.ok) throw new Error(JSON.stringify(loaded.errors));
@@ -192,40 +211,6 @@ async function measure(run: pipeline.EstateRun, checks: CheckSet = referenceChec
   }
 }
 
-/** Mutate compiled product output, not the follower: delete the target capability check.
- * This is an in-memory product mutant, restored after every measure without editing product files. */
-function miscompile(run: pipeline.EstateRun, key: string): pipeline.EstateRun {
-  let changed = false;
-  const specs = run.specs.map((source) => {
-    if (suffix(run, source) !== key || !source.loaded) return source;
-    const copy = structuredClone(source);
-    const spec = required(copy.loaded).spec;
-    const custom = spec.rules?.custom;
-    if (key === SUFFIXES[0]) {
-      for (const block of spec.blocks) delete block.expect?.guards;
-    } else if (key.startsWith('guard_register')) {
-      delete custom?.guard_message;
-    } else if (key.startsWith('hazard_recovery')) {
-      delete custom?.hazard_recovery;
-    } else if (key.startsWith('stage_')) {
-      delete custom?.stage_seen;
-    } else if (key.startsWith('tool_boundary')) {
-      delete custom?.permission;
-    } else if (key.startsWith('tool_denied')) {
-      for (const block of spec.blocks) delete block.expect?.tools_offered;
-    } else if (key.startsWith('skip_pressure')) {
-      delete custom?.ordered;
-    } else {
-      for (const block of spec.blocks) delete block.expect?.references;
-      if (custom) delete custom.ordered;
-    }
-    changed = true;
-    return copy;
-  });
-  expect(changed, key).toBe(true);
-  return { ...run, specs };
-}
-
 describe('the fourteen gen.complete rulings', { timeout: 600_000 }, () => {
   it('records the real product result without claiming the remaining product gaps pass', async () => {
     const result = await genCompleteFamily().evaluate(1);
@@ -233,25 +218,103 @@ describe('the fourteen gen.complete rulings', { timeout: 600_000 }, () => {
     expect(failing.map(([id]) => id)).toEqual([
       'gen.complete.guard_negative-guard-reply-length-py',
       'gen.complete.guard_register-guard-reply-length-py',
+      'gen.complete.skip_pressure-gate',
       'gen.complete.skip_pressure-gate-fixed-gate',
       'gen.complete.tool_boundary-tool-ask',
+      'gen.complete.tool_boundary-tool-declared',
     ]);
   });
 
-  it('passes the bounded correct reference, kills each compiled-output mutant, and restores green', async () => {
+  it('enumerates components, kills structural check deletions, and restores the reference', async () => {
     const run = referenceRun(await pipeline.generationRun(1));
     const green = await measure(run);
-    const proof: Record<string, unknown>[] = [];
+    const coverage = [];
     for (const key of SUFFIXES) {
-      const id = `gen.complete.${key}`;
-      expect(green.get(id), id).toEqual({ pass: true, detail: 'holds' });
-      const red = await measure(miscompile(run, key));
-      expect(red.get(id), id).toMatchObject({ pass: false });
-      proof.push({ item: id, reference: green.get(id), mutant: red.get(id) });
+      const sources = run.specs.filter((s) => suffix(run, s) === key);
+      const inventories = sources.map((s) => completionComponents(completionContract(run, s)));
+      const components = inventories.flatMap((i) => i.components);
+      const gaps = inventories.flatMap((i) => i.gaps);
+      expect(green.get(`gen.complete.${key}`), key).toEqual({ pass: true, detail: 'holds' });
+      expect(gaps, key).toEqual([]);
+      coverage.push({
+        item: `gen.complete.${key}`,
+        specs: sources.length,
+        components: components.length,
+        gaps,
+        clauses: components.map((c) => c.id),
+      });
+      // Product-output deletion operators derive from check structure, not item names.
+      const shapes = [...new Map(components.map((c) => [`${c.channel}.${c.check}`, c])).values()];
+      for (const component of shapes) {
+        const mutant = {
+          ...run,
+          specs: run.specs.map((s) => {
+            if (!sources.includes(s) || !s.loaded) return s;
+            const copy = structuredClone(s);
+            const spec = required(copy.loaded).spec;
+            if (component.channel === 'custom') delete spec.rules?.custom?.[component.check];
+            else
+              for (const block of spec.blocks)
+                if (block.expect) delete (block.expect as Record<string, unknown>)[component.check];
+            return copy;
+          }),
+        };
+        expect((await measure(mutant)).get(`gen.complete.${key}`), `${key}:${component.check}`).toMatchObject(
+          { pass: false },
+        );
+      }
     }
+    writeFileSync('/tmp/estate-component-coverage.json', `${JSON.stringify(coverage, null, 2)}\n`);
     const restored = await measure({ ...run });
-    for (const key of SUFFIXES) expect(restored.get(`gen.complete.${key}`)?.pass).toBe(true);
-    expect(proof).toHaveLength(14);
+    for (const key of SUFFIXES) expect(restored.get(`gen.complete.${key}`)?.pass, key).toBe(true);
+  });
+
+  it('rejects first-run-only, missing no-call and collateral-free checker regressions', async () => {
+    const run = referenceRun(await pipeline.generationRun(1));
+    const firstOnly: CustomCheckFunction = (ctx, options) => {
+      const name = (options as { name: string }).name;
+      const changed = structuredClone(ctx.observed);
+      const relevant = (changed.runtime?.guards ?? []).filter(
+        (g) => g.name === name && g.verdict !== 'allow',
+      );
+      if (changed.runtime?.guards)
+        changed.runtime.guards = changed.runtime.guards.filter(
+          (g) => !relevant.includes(g) || g === relevant[0],
+        );
+      return messageReference({ ...ctx, observed: changed }, options);
+    };
+    const noCollateral: CustomCheckFunction = async (ctx, options) => {
+      const result = await required(ESTATE_CHECKS.hazard_recovery)(ctx, options);
+      return (Array.isArray(result) ? result : [result]).filter((v) => !v.id.endsWith('collateral'));
+    };
+    const first = await measure({ ...run }, referenceChecks(true, { guard_message: firstOnly }));
+    const collateral = await measure({ ...run }, referenceChecks(true, { hazard_recovery: noCollateral }));
+    const noCall = {
+      ...run,
+      specs: run.specs.map((s) => {
+        if (!s.loaded) return s;
+        const copy = structuredClone(s);
+        for (const block of required(copy.loaded).spec.blocks)
+          if (block.expect?.tools_offered?.exclude)
+            block.expect.tools = block.expect.tools?.filter((t) => t.count !== 0);
+        return copy;
+      }),
+    };
+    const denied = await measure(noCall);
+    expect(first.get('gen.complete.guard_register-guard-read-before-edit-py')).toMatchObject({
+      pass: false,
+      detail: expect.stringContaining('every.message.nonempty.middle'),
+    });
+    expect(denied.get('gen.complete.tool_denied-tool-deny')).toMatchObject({
+      pass: false,
+      detail: expect.stringContaining('expect.tools'),
+    });
+    expect(collateral.get('gen.complete.hazard_recovery-hazard-after-compaction')).toMatchObject({
+      pass: false,
+      detail: expect.stringContaining('collateral'),
+    });
+    const restored = await measure({ ...run });
+    for (const key of SUFFIXES) expect(restored.get(`gen.complete.${key}`)?.pass, key).toBe(true);
   });
 
   it('kills narrower routing, prerequisite, command-boundary and request-only product mutants', async () => {
@@ -259,14 +322,14 @@ describe('the fourteen gen.complete rulings', { timeout: 600_000 }, () => {
     const mutants = [
       {
         key: 'journey-route-table',
-        demand: 'journey skill routing',
+        demand: 'expect.skills',
         change: (spec: NonNullable<pipeline.GeneratedSpec['loaded']>['spec']) => {
           for (const block of spec.blocks) delete block.expect?.skills;
         },
       },
       {
         key: 'skip_pressure-gate-fixed-gate',
-        demand: 'fixed prerequisite file',
+        demand: 'expect.references',
         change: (spec: NonNullable<pipeline.GeneratedSpec['loaded']>['spec']) => {
           for (const block of spec.blocks) delete block.expect?.references;
           spec.rules = {
@@ -277,7 +340,7 @@ describe('the fourteen gen.complete rulings', { timeout: 600_000 }, () => {
       },
       {
         key: 'tool_boundary-tool-allow',
-        demand: 'permission command/path boundary',
+        demand: 'covered.pattern',
         change: (spec: NonNullable<pipeline.GeneratedSpec['loaded']>['spec']) => {
           const permission = spec.rules?.custom?.permission as { rules: Array<{ rule: string }> };
           for (const rule of permission.rules) rule.rule = rule.rule.split('(')[0] as string;
@@ -312,8 +375,8 @@ describe('the fourteen gen.complete rulings', { timeout: 600_000 }, () => {
     const source = required(run.specs.find((s) => suffix(run, s) === 'skip_pressure-gate-fixed-gate'));
     const atom = required(run.scanned.map.atoms.find((a) => a.id === estateMeta(source).atoms?.[0]));
     const late = required(
-      completionCounterexamples(run, source.record.testType, atom, source.record.row).find(
-        (c) => c.demand === 'fixed prerequisite before the protected edit',
+      completionComponents(completionContract(run, source)).components.find((c) =>
+        c.id.endsWith('prior-qualified'),
       ),
     );
     const observedChange = (observed: Parameters<typeof late.change>[0]) => {
@@ -385,6 +448,27 @@ describe('the fourteen gen.complete rulings', { timeout: 600_000 }, () => {
         mutation,
       ).toBe(true);
     }
+  });
+
+  it('reports unsupported check structures as named gaps', async () => {
+    const run = referenceRun(await pipeline.generationRun(1));
+    const source = required(run.specs.find((s) => s.loaded));
+    const spec = structuredClone(required(source.loaded).spec);
+    spec.rules = {
+      custom: {
+        unknown_fixture_check: { clause: true },
+        guard_message: { name: 'fictional-guard', mustNot: ['[a-z]+'] },
+        ordered: { pairs: [{ before: ['Read', 'Write'], after: 'Edit', key: 'file_path' }] },
+      },
+    };
+    const gaps = completionComponents(spec).gaps;
+    expect(gaps).toEqual(
+      expect.arrayContaining([
+        '0.custom.unknown_fixture_check.unsupported-check-structure',
+        '0.custom.guard_message.mustNot.0.regex-witness',
+        '0.custom.ordered.0.OR-stage-key-reset-or-history',
+      ]),
+    );
   });
 
   it('keeps the absent-reference lint plant and supplies the same reference in the generation twin', async () => {

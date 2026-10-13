@@ -6,7 +6,8 @@ import {
   type ImpactReport,
 } from '@agent-nexus/driftbench-estate';
 import { generateEstateSuite, StaticTest } from '@agent-nexus/driftbench-generate';
-import { completionCounterexamples } from '../completion';
+import { completionComponents, componentSpec } from '../completion';
+import { completionApplies, completionContract } from '../completion-contract';
 import { agentMutants, estateMeta, type MutantVerdict, type SpecVerdict, specVerdicts } from '../levels';
 import { type EstateMutant, estateMutants } from '../mutants';
 import {
@@ -224,24 +225,35 @@ export function genCompleteFamily(): Family {
         });
         if (bad.length === 0)
           for (const verdict of list) {
-            const head = atoms.get(estateMeta(verdict.spec).atoms?.[0] ?? '');
-            const counters = head
-              ? completionCounterexamples(run, verdict.spec.record.testType, head, verdict.spec.record.row)
-              : [];
-            for (const counter of counters)
-              if (verdict.spec.loaded) {
-                const result = await replayOnFollower(
-                  run,
-                  verdict.spec.loaded,
-                  replayChecks(),
-                  undefined,
-                  counter.change,
-                );
-                if (result.pass) {
-                  bad.push(`${verdict.spec.record.id}: accepts a trace violating ${counter.demand}`);
-                  break;
-                }
+            if (!verdict.spec.loaded || !completionApplies(run, verdict.spec)) continue;
+            const inventory = completionComponents(completionContract(run, verdict.spec));
+            for (const component of inventory.components) {
+              const loaded = {
+                ...verdict.spec.loaded,
+                spec: componentSpec(verdict.spec.loaded.spec, component),
+              };
+              const control = await replayOnFollower(
+                run,
+                loaded,
+                replayChecks(),
+                undefined,
+                component.prepare,
+              );
+              if (!control.pass) {
+                bad.push(`${verdict.spec.record.id}: component control failed ${component.id}`);
+                break;
               }
+              const result = await replayOnFollower(run, loaded, replayChecks(), undefined, (o) => {
+                component.prepare?.(o);
+                component.change(o);
+              });
+              if (result.pass) {
+                bad.push(`${verdict.spec.record.id}: accepts component violation ${component.id}`);
+                break;
+              }
+            }
+            if (inventory.gaps.length > 0)
+              bad.push(`${verdict.spec.record.id}: component derivation gaps: ${inventory.gaps.join(', ')}`);
           }
 
         out.set(`${family}.${keyOf(cls)}`, {

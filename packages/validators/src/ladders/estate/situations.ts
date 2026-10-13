@@ -23,7 +23,7 @@ export type Act =
   | { type: 'stop' }
   | { type: 'push' }
   | { type: 'chat' }
-  | { type: 'tool'; rule: string; effect: 'allow' | 'declared' | 'ask'; skill?: string };
+  | { type: 'tool'; rule: string; effect: 'allow' | 'declared' | 'ask'; skill?: string; helper?: string };
 
 export type HiddenSituation = {
   id: string;
@@ -267,20 +267,25 @@ export function situationsOf(estate: HiddenEstate): HiddenSituation[] {
       phrases: ['Which branch did we release from last time?'],
     });
   }
-  const toolCases = new Map<string, { rule: string; effect: 'allow' | 'declared' | 'ask'; skill?: string }>();
+  const toolCases = new Map<
+    string,
+    { rule: string; effect: 'allow' | 'declared' | 'ask'; skill?: string; helper?: string }
+  >();
   for (const effect of ['allow', 'ask'] as const) {
     for (const rule of estate.permissions[effect]) toolCases.set(`tool:${effect}:${rule}`, { rule, effect });
   }
-  for (const skill of estate.skills) {
+  for (const skill of [...estate.skills].sort((a, b) => (a.topic.skill < b.topic.skill ? -1 : 1))) {
     for (const rule of skillTools(skill)) {
       const label = rule.split('(')[0] as string;
       const hid = `tool:declared:${label}`;
       if (!toolCases.has(hid)) toolCases.set(hid, { rule, effect: 'declared', skill: skill.topic.skill });
     }
   }
-  for (const rule of HELPER_TOOLS) {
-    const hid = `tool:declared:${rule}`;
-    if (estate.helpers.length && !toolCases.has(hid)) toolCases.set(hid, { rule, effect: 'declared' });
+  for (const helper of [...estate.helpers].sort((a, b) => (a.topic.name < b.topic.name ? -1 : 1))) {
+    for (const rule of HELPER_TOOLS) {
+      const hid = `tool:declared:${rule}`;
+      if (!toolCases.has(hid)) toolCases.set(hid, { rule, effect: 'declared', helper: helper.topic.name });
+    }
   }
   for (const [hid, act] of toolCases) {
     const changed = /^(Edit|Write)(?:\(|$)/.test(act.rule) ? ['notes/probe.md'] : [];
