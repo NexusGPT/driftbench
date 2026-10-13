@@ -1,3 +1,4 @@
+import { createRequire } from 'node:module';
 import type * as AcmeExample from '@agent-nexus/driftbench-example-acme';
 
 /**
@@ -49,3 +50,25 @@ function isMissingPackage(cause: unknown): boolean {
   const named = cause.message.includes(PACKAGE);
   return named && (code === 'ERR_MODULE_NOT_FOUND' || /cannot find|failed to resolve/i.test(cause.message));
 }
+
+/**
+ * True when this install holds the Acme example: its package resolves from here. Answered without loading
+ * it, so a message can say which targets this install reaches. `resolve` is the test's stand-in.
+ */
+export function acmeExampleInstalled(
+  resolve: (name: string) => unknown = (name) => createRequire(import.meta.url).resolve(name),
+): boolean {
+  try {
+    resolve(`${PACKAGE}/package.json`);
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+/**
+ * What a refusal says when a run names an Acme target and this install does not hold the example: that the
+ * example is not part of the installed CLI, and where it lives.
+ */
+export const ACME_EXAMPLE_ABSENT =
+  'The Acme example (function:acme-sales, function:acme, process:acme-ops and the pilot control function:acme-random) is not part of the installed CLI: it lives in the driftbench repository, in examples/acme. To run it, work from a checkout: git clone https://github.com/achammah/driftbench, pnpm install, then pnpm driftbench.';

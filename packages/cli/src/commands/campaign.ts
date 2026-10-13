@@ -71,7 +71,7 @@ import {
   type UserModelPort,
 } from '@agent-nexus/driftbench-users';
 import type { Command } from 'commander';
-import { acmeExample, requireAcmeExample } from '../acme-example';
+import { ACME_EXAMPLE_ABSENT, acmeExample, acmeExampleInstalled, requireAcmeExample } from '../acme-example';
 import { applyCampaignConfig } from '../campaign-config';
 import type { Io } from '../io';
 import { optionNumber } from '../number';
@@ -209,9 +209,22 @@ function strandedFiles(command: readonly string[], cwd: string): string[] {
   });
 }
 
-/** The targets this build reaches, for the message of a target it does not. */
+/** The targets a checkout reaches, for the message of a target it does not. */
 const KNOWN_TARGETS =
   'The CLI reaches function:acme-sales (or function:acme), the Acme sales assistant, and process:acme-ops, the Acme ops agent.';
+
+/** What an install without the Acme example reaches. */
+const REACHABLE_WITHOUT_EXAMPLE =
+  'This install reaches a process target through --process-command: process:<name> runs the command you give.';
+
+/**
+ * The sentence of a refusal that says which targets this install reaches. With the Acme example installed,
+ * as in a checkout, the example's targets; without it, that the example is absent and where it lives, and
+ * only what really is reachable.
+ */
+export function knownTargets(exampleInstalled: boolean = acmeExampleInstalled()): string {
+  return exampleInstalled ? KNOWN_TARGETS : `${ACME_EXAMPLE_ABSENT} ${REACHABLE_WITHOUT_EXAMPLE}`;
+}
 
 /**
  * What the commands run with. `function:acme-sales`, the target the Acme conversation specs name, and its
@@ -1456,7 +1469,7 @@ async function adaptersFor(
 /** Why a target cannot run: no adapter is set up for it. Names the specs whose own target it is. */
 export function noAdapter(target: TargetRef, specIds: readonly string[] = []): string {
   const whose = specIds.length === 0 ? '' : `, the target of ${specIds.join(', ')}`;
-  return `No adapter is set up for ${showTarget(target)}${whose}. ${KNOWN_TARGETS}`;
+  return `No adapter is set up for ${showTarget(target)}${whose}. ${knownTargets()}`;
 }
 
 /** The target of the first route whose tag the spec carries, if any. */

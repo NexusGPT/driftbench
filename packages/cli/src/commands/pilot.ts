@@ -20,7 +20,7 @@ import {
   runPilot,
 } from '@agent-nexus/driftbench-generate';
 import type { Command } from 'commander';
-import { acmeExample, requireAcmeExample } from '../acme-example';
+import { ACME_EXAMPLE_ABSENT, acmeExample, acmeExampleInstalled, requireAcmeExample } from '../acme-example';
 import type { Io } from '../io';
 import { optionNumber } from '../number';
 import { noStoreAt } from '../store-path';
@@ -49,6 +49,20 @@ export const pilotDeps: CampaignDeps = {
     return defaultDeps.adapterFor(target, scope);
   },
 };
+
+/**
+ * Why the pilot cannot run a target. The pilot runs on the Acme example's agents; an install without the
+ * example says so, and names no target it cannot reach.
+ */
+export function pilotNoAdapter(
+  target: TargetRef,
+  exampleInstalled: boolean = acmeExampleInstalled(),
+): string {
+  const reaches = exampleInstalled
+    ? `The pilot reaches function:acme (the Acme sales assistant) and function:${RANDOM_TARGET} or function:${RANDOM_TARGET}-<seed> (its seeded random control).`
+    : `${ACME_EXAMPLE_ABSENT} The pilot runs on the example's agents only, so this install has no pilot target.`;
+  return `No adapter is set up for ${showTarget(target)}. ${reaches}`;
+}
 
 /** `acme-random` gives the default seed, `acme-random-<n>` seed n; anything else is not the control. */
 function randomSeed(agent: string | undefined): number | 'default' | undefined {
@@ -198,9 +212,7 @@ export async function pilotRunCommand(options: RunFlags, io: Io, deps: CampaignD
   const target: TargetRef = parseTarget(options.target);
   const adapter = await deps.adapterFor(target);
   if (!adapter) {
-    io.err(
-      `No adapter is set up for ${showTarget(target)}. The pilot reaches function:acme (the Acme sales assistant) and function:${RANDOM_TARGET} or function:${RANDOM_TARGET}-<seed> (its seeded random control).\n`,
-    );
+    io.err(`${pilotNoAdapter(target)}\n`);
     return 2;
   }
   const store = await open(deps, resolve(io.cwd, options.store), io);
