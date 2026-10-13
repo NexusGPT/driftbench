@@ -221,7 +221,7 @@ The six judges are three of system 1 (`s1p-a` and `s1p-b`, cost 1, and `openai-d
 * No majority is a split. It is logged and, in hybrid mode, judged again by the three re-judges of the other class. When that splits too, or in a mode with one class, the assigned judges answer once more with the large budget; their votes carry `@large`. Still no majority is inconclusive.
 * Cascade, an option: the cheapest judge runs first, and the council stops there only on a pass with a `score` at or above the threshold (0.9 by default). A fail, an inconclusive or an unsure pass brings in the other two. A judge that leaves `score` out never stops the cascade, so a criterion that judge leads always costs three calls.
 * Modes: `system1`, `hybrid` or `llm`. `system1` and `llm` force their class and never call the other one. Scores from different modes are not comparable.
-* Diversity: the council is refused when it is built, before any call, when a judge shares the model family of the agent under test (compared without case). The agent family must be stated: `none` for an agent that is not a model. In perturbed mode, the simulated user runs on a third family; the simulated user is planned, phase 3.
+* Diversity: the council is refused when it is built, before any call, when a judge shares the model family of the agent under test (compared without case). The agent family must be stated: `none` for an agent that is not a model. In perturbed mode, the simulated user runs on a third family; the simulated user is built, phase 3.
 * The council is also refused for fewer than three judges of a class the mode uses, two judges with one id, a row with a class the mode does not use or without three different judges of the right class, a re-judge row outside hybrid mode, and a criterion both assigned and unassigned.
 
 ### Label-blind escalation
@@ -621,7 +621,7 @@ The Acme campaign, the six conversation specs and the price-sheet task, runs wit
 * `no_invented_data` shows three votes: its owner, `google-chat`, leaves `score` out, so the cascade never stops early.
 * For `sheet_matches_catalog`, the judge reads the workbook the ops agent wrote, rendered by the xlsx reader, with the workspace diff.
 
-`driftbench campaign run` cannot load a council yet: it runs `defaultChecks()` and its record stores `judge: { mode: system1, judges: [] }`. A caller that wants judged criteria in a campaign passes `defaultChecks({ judges: council })` as the campaign's checks from code. A command line option to load a cassette and an assignment table is not built yet. See [running](../running.md).
+`driftbench campaign run` cannot load a council yet: it runs `defaultChecks()` and its record stores `judge: { mode: system1, judges: [] }`. A caller that wants judged criteria in a campaign passes `defaultChecks({ judges: council })` as the campaign's checks from code. A command line option to load a cassette and an assignment table is not built yet. Until then the run says so: under its list of checks, `campaign run` and `campaign resume` print a `Not judged:` line that counts the criteria the specs name, lists them and says how many are gating. Those criteria get no verdict, so they count in no pass and no fail. `--json` is unchanged: a criterion without a judge has no entry in `verdicts`. See [running](../running.md).
 
 ## Model-facing criterion checks
 
@@ -708,6 +708,29 @@ const result = await judgePairwise(client, criterion, transcript, first, second,
 Item names are stable caller-owned requirement ids, not model-assigned row positions. Code ignores unknown names before validating scores and retains them in `ignoredRequirementIds`. Every requested name must still appear exactly once; missing, duplicate or malformed requested rows are unparseable. Code then computes the weighted fulfillment fraction from only the requested items. A candidate that fully meets every hard item outranks one that fails a hard item. Otherwise the fractions decide. A null score leaves the assessment inconclusive. The swapped pass reverses the rubric presentation order as well as the candidates; names preserve aggregation identity. Reasoning prose cannot replace a structured score, even when they conflict.
 
 `judgeRubric(client, request, items, { threshold })` performs the pointwise version in one batched call. An invalid ledger gets one re-ask with the same caller requirements and the large budget, then remains inconclusive if still invalid. Reported `costUsd` includes both calls. Valid scores, including null, do not trigger a re-ask. Explicit legacy requests retain their previous one-call behavior. Its default threshold is full fulfillment. The result carries the individual scores and aggregate in `rubric`; a hard failure cannot be offset by soft points. No rubric is generated or applied to creative writing automatically. These APIs are code options; they do not add fields to the spec YAML schema.
+
+### Reader-first configuration (length-aware, opt-in)
+
+`createReaderFirstJudge(client, { configuration: 'reader-first' })` is a separate pairwise configuration. It favors the longer complete reply unless machine measurements and both model presentations support a substantial reader-facing failure. It never replaces the default judge, council, or pairwise rubric.
+
+```ts
+import { createClaudeCliJudge, createReaderFirstJudge } from '@agent-nexus/driftbench-judges';
+
+const reader = createReaderFirstJudge(
+  createClaudeCliJudge({ model: 'haiku' }),
+  { configuration: 'reader-first', language: 'en' },
+);
+const result = await reader.judgePair(request, firstReply, secondReply);
+console.log(result.choice, result.override, result.judgeValid);
+```
+
+Machine features measure length, paragraphs, headings, lists, filler, hedges, repeated sentences, repeated four-grams, litotes, undefined acronyms, jargon, context references, sentence length and an English readability estimate. Dictionaries and readability are heuristic signals, not factual or semantic checks. Chinese uses Han characters and has no English reading-grade estimate. `language` fixes one counting unit for both replies; otherwise both replies together determine it.
+
+The model scores five fixed criteria: structure, useful prose, direct expression, self-contained context and simple language for an inexperienced reader. Each criterion needs an exact quote from each reply. Both full presentation orders are scored, remapped and pooled. Code computes the verdict. Two sequential model calls are made per pair. Provider errors propagate; invalid scores or evidence are reported with `judgeValid: false` and retain the length fallback. Equal lengths tie.
+
+The returned `length` and `features` fields expose the two ablations; `choice` is the combined verdict. `flags`, `failures`, `means`, `thresholds`, `ordered` and `swapped` expose why an exception fires. `costUsd` sums provider-reported costs. Override thresholds are code options (`judgeMargin`, `featureMargin`, `minFailures`); changing them changes the configuration and invalidates its published benchmark result.
+
+This is an intentionally length-aware preference, useful only when that preference matches the caller's objective. It does not prove factual correctness or general writing quality. See the separate [benchmark report](../comparison/benchmarks/reader-first.md) for measurements, ablations and limitations.
 
 ### Optional verification and reference agreement
 

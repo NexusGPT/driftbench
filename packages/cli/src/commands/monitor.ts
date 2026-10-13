@@ -7,6 +7,7 @@ import {
   type TraceSource,
 } from '@agent-nexus/driftbench-adapters';
 import { type Campaign, type RunResult, runsByCell, type Store } from '@agent-nexus/driftbench-core';
+import { textTable as table } from '@agent-nexus/driftbench-report';
 import { cusum, ksTest, mean, pageHinkley, sampleVariance } from '@agent-nexus/driftbench-stats';
 import type { Command } from 'commander';
 import type { Io } from '../io';
@@ -584,17 +585,4 @@ function display(path: string, io: Io): string {
 
 function count(n: number, noun: string): string {
   return `${n} ${noun}${n === 1 ? '' : 's'}`;
-}
-
-/** Pads every column but the last to its widest cell, two spaces apart, indented by two. */
-function table(rows: string[][]): string[] {
-  const widths: number[] = [];
-  for (const row of rows) {
-    row.forEach((cell, index) => {
-      widths[index] = Math.max(widths[index] ?? 0, cell.length);
-    });
-  }
-  return rows.map((row) =>
-    `  ${row.map((cell, index) => (index === row.length - 1 ? cell : cell.padEnd(widths[index] ?? 0))).join('  ')}`.trimEnd(),
-  );
 }

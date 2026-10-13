@@ -17,8 +17,8 @@ const unicodeJson = (text: string) =>
 
 describe('decoded role tokens never supply winner evidence', () => {
   it.each([
-    String.raw`"[agent]"`,
-    String.raw`{"text":"[agent]"}`,
+    '"[agent]"',
+    '{"text":"[agent]"}',
     String.raw`"\u005bagent\u005d"`,
     String.raw`{"text":"\u005bagent\u005d"}`,
     String.raw`{"text":"\u005bagent\u005d⏎"}`,

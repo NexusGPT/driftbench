@@ -27,6 +27,7 @@ import {
   outcomeOf,
   type PlannedCell,
   type PlanOptions,
+  parseCriterionRef,
   planCampaign,
   type RegistrySource,
   type RetryOptions,
@@ -41,6 +42,7 @@ import {
   type UserDriver,
 } from '@agent-nexus/driftbench-core';
 import { portFromEnv } from '@agent-nexus/driftbench-generate';
+import { textTable as table } from '@agent-nexus/driftbench-report';
 import { localProvider } from '@agent-nexus/driftbench-sandbox';
 import { bootstrapCI } from '@agent-nexus/driftbench-stats';
 import {
@@ -860,6 +862,9 @@ async function executeCampaign(
     io.out(
       `Campaign ${campaign.campaignId}: ${count(plan.cells.length, 'cell')}, ${flags.concurrency} at a time.${budget} Checks: ${checks.length > 0 ? checks.join(', ') : 'none loaded'}.\n`,
     );
+    // Beside the list of checks: the criteria no check of this campaign will judge.
+    const unjudged = checks.includes(JUDGE_CHECK) ? undefined : notJudgedNote(specs.values());
+    if (unjudged !== undefined) io.out(unjudged);
   }
   const outcomes = await runCampaign({
     campaignId: campaign.campaignId,
@@ -888,6 +893,42 @@ async function executeCampaign(
     if (!flags.kept) io.out('The runs are not kept: pass --store <file> to keep them.\n');
   }
   return outcomes.every((outcome) => outcome.state === 'pass') ? 0 : 1;
+}
+
+/** The name of the check a council of @agent-nexus/driftbench-judges adds to the checks. */
+const JUDGE_CHECK = 'judge';
+
+/**
+ * What a campaign without a judge left unjudged: the criteria its specs name in a block or a perturbation.
+ * Such a criterion gets no verdict, so a run can read pass with a gating criterion never looked at.
+ * Undefined when no spec names a criterion.
+ */
+function notJudgedNote(specs: Iterable<Spec>): string | undefined {
+  const names = new Set<string>();
+  const gating = new Set<string>();
+  let blocks = 0;
+  let withCriteria = 0;
+  for (const spec of specs) {
+    const always = new Set((spec.criteria ?? []).filter((each) => each.gating).map((each) => each.name));
+    const before = blocks;
+    for (const expect of [...spec.blocks, ...(spec.perturbations ?? [])].map((each) => each.expect)) {
+      const refs = (expect?.criteria ?? []).flatMap((ref) => parseCriterionRef(ref) ?? []);
+      if (refs.length === 0) continue;
+      blocks += 1;
+      for (const ref of refs) {
+        names.add(ref.name);
+        if (ref.gating || always.has(ref.name)) gating.add(ref.name);
+      }
+    }
+    if (blocks > before) withCriteria += 1;
+  }
+  if (names.size === 0) return undefined;
+  const listed = [...names].slice(0, 5).join(', ') + (names.size > 5 ? `, and ${names.size - 5} more` : '');
+  const criteria = names.size === 1 ? '1 criterion' : `${names.size} criteria`;
+  const these =
+    names.size === 1 ? 'it has no verdict and counts' : 'these criteria have no verdict and count';
+  const gates = gating.size === 0 ? 'none of them gating' : `${gating.size} of them gating`;
+  return `Not judged: ${criteria} in ${count(blocks, 'block')} of ${count(withCriteria, 'spec')} (${listed}), ${gates}. This campaign loads no judge, so ${these} in no pass or fail. See docs/concepts/judges.md.\n`;
 }
 
 async function openReported(
@@ -1626,19 +1667,6 @@ function collect(value: string, previous: string[]): string[] {
 function required<T>(value: T | undefined, what: string): T {
   if (value === undefined) throw new Error(`campaign: no ${what}`);
   return value;
-}
-
-/** Pads every column but the last to its widest cell, two spaces apart, indented by two. */
-function table(rows: string[][]): string[] {
-  const widths: number[] = [];
-  for (const row of rows) {
-    row.forEach((cell, index) => {
-      widths[index] = Math.max(widths[index] ?? 0, cell.length);
-    });
-  }
-  return rows.map((row) =>
-    `  ${row.map((cell, index) => (index === row.length - 1 ? cell : cell.padEnd(widths[index] ?? 0))).join('  ')}`.trimEnd(),
-  );
 }
 
 /**
