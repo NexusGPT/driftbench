@@ -238,7 +238,12 @@ def newcombe(a, b, c, d, alpha):
     assert abs(wilson_ci(a + b, n, z)[0] - l1) < 1e-12 and abs(wilson_ci(a + c, n, z)[1] - u2) < 1e-12
     p1, p2 = (a + b) / n, (a + c) / n
     prod = (a + b) * (c + d) * (a + c) * (b + d)
-    phi = 0.0 if prod == 0 else (a * d - b * c) / math.sqrt(prod)
+    # Newcombe's method 10 corrects positive covariance, not the Wilson limits.
+    # Independent implementation and pinned values: make_newcombe_fixtures.py.
+    cov = a * d - b * c
+    if cov > 0:
+        cov = max(0.0, cov - n / 2)
+    phi = 0.0 if prod == 0 else cov / math.sqrt(prod)
     delta = math.sqrt(max(0.0, (p1 - l1) ** 2 - 2 * phi * (p1 - l1) * (u2 - p2) + (u2 - p2) ** 2))
     eps = math.sqrt(max(0.0, (u1 - p1) ** 2 - 2 * phi * (u1 - p1) * (p2 - l2) + (p2 - l2) ** 2))
     d_hat = p1 - p2
