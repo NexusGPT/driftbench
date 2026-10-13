@@ -14,7 +14,7 @@ import {
 import { DEVIATIONS, isWorldClass } from './deviations';
 import { createPerturbingDriver, fromPhrasing, isWorldOnly } from './perturb';
 import { seededIndex } from './random';
-import { drawPhrasing, type Phrasing, type RedteamPack } from './redteam';
+import { drawPhrasing, type Phrasing, phrasingPool, type RedteamPack } from './redteam';
 import { createScriptedDriver } from './scripted';
 import { checkUserFamilies, type UserModelPort } from './simulated';
 
@@ -148,6 +148,13 @@ export async function runAttack(options: AttackOptions): Promise<AttackResult> {
   const rounds: AttackRound[] = [];
   const recording: AttackRecording = { version: 1, spec: spec.id, specHash, seed, rounds: [] };
   const tried = new Set<DeviationClass>();
+  // A class is an attack only when the pack holds a phrasing for it in this mode, or a model port writes one.
+  const kind = spec.kind === 'task' ? 'task' : 'conversation';
+  const drawable = (cls: DeviationClass): boolean => {
+    if (options.port && DEVIATIONS[cls].carrier === 'user') return true;
+    if (!options.pack) return true;
+    return phrasingPool(options.pack, cls, kind, options.drafts === true) > 0;
+  };
   let last: { run: RunResult; label: string; perturbation?: PerturbationSpec } = {
     run: reference,
     label: 'reference',
@@ -170,6 +177,7 @@ export async function runAttack(options: AttackOptions): Promise<AttackResult> {
         tried,
         seed,
         round,
+        (cls) => drawable(cls),
       );
       if (!picked) break;
       const declared = spec.perturbations?.find(
@@ -342,8 +350,9 @@ function pick(
   tried: ReadonlySet<DeviationClass>,
   seed: number,
   round: number,
+  drawable: (cls: DeviationClass) => boolean,
 ): CuedClass | undefined {
-  const open = cues.filter((cue) => !tried.has(cue.cls) && usable(spec, cue));
+  const open = cues.filter((cue) => !tried.has(cue.cls) && usable(spec, cue) && drawable(cue.cls));
   if (open.length > 0) {
     const latest = open[0]?.cue.block;
     const tied = open.filter((cue) => cue.cue.block === latest);
@@ -361,7 +370,7 @@ function pick(
       at,
       cue: { run: 'none', block: -1, rule: 'no cue: a seeded position', reply: '' },
     };
-    if (usable(spec, candidate)) return candidate;
+    if (usable(spec, candidate) && drawable(cls)) return candidate;
   }
   return undefined;
 }

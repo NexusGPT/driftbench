@@ -14,6 +14,7 @@ import {
   REPORT_FILE,
   renderSummary,
   type SpecProposal,
+  seedFolderName,
 } from '@agent-nexus/driftbench-generate';
 import type { Command } from 'commander';
 import type { Io } from '../io';
@@ -201,6 +202,8 @@ export async function generateCommand(
   const built = await buildTaskInputs(loaded.prepared, dirname(mapPath), {
     n: typeof tasks === 'number' ? tasks : DEFAULT_TASKS,
     seed: typeof seed === 'number' ? seed : 1,
+    // A workspace that holds a binary file is written beside its spec, which names it relative to itself.
+    seedFrom: (id: string) => `./${seedFolderName(id)}`,
   });
   for (const entry of built.refused)
     io.err(`✗ the task family ${entry.family} builds no spec: ${entry.reason}\n`);
@@ -224,11 +227,7 @@ export async function generateCommand(
     return 2;
   }
 
-  for (const file of result.files) {
-    const target = join(outPath, file.path);
-    await mkdir(dirname(target), { recursive: true });
-    await writeFile(target, file.text);
-  }
+  await writeFiles(outPath, result.files);
 
   const report = result.report;
   if (options.json) io.out(formatJson(report));
@@ -412,4 +411,33 @@ function capital(text: string): string {
 
 function collect(value: string, previous: string[] = []): string[] {
   return [...previous, value];
+}
+
+/** How many files are written at once: enough to keep the disk busy, few enough to stay under any open-file limit. */
+const WRITE_CONCURRENCY = 16;
+
+/**
+ * Writes the files under `root`: one mkdir per folder, then the writes in bounded parallel. The bytes and the
+ * file set are those of writing them one after another; a path given twice keeps its last text, as it would.
+ */
+async function writeFiles(
+  root: string,
+  files: readonly { path: string; text: string; bytes?: Uint8Array }[],
+): Promise<void> {
+  // A binary seed file (a workbook) carries bytes; every other file is text.
+  const texts = new Map<string, string | Uint8Array>(
+    files.map((file) => [join(root, file.path), file.bytes ?? file.text]),
+  );
+  for (const folder of new Set([...texts.keys()].map((target) => dirname(target)))) {
+    await mkdir(folder, { recursive: true });
+  }
+  const entries = [...texts];
+  let next = 0;
+  const worker = async () => {
+    while (next < entries.length) {
+      const [target, text] = entries[next++] as [string, string | Uint8Array];
+      await writeFile(target, text);
+    }
+  };
+  await Promise.all(Array.from({ length: Math.min(WRITE_CONCURRENCY, entries.length) }, worker));
 }
