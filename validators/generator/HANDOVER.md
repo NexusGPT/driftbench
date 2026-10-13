@@ -10,7 +10,7 @@ Rewritten by the executor every iteration (docs/validators.md section 10). A str
 | 1 | 5 |
 <!-- level-table:end -->
 
-The bank holds 2033 items in 26 families, ordered in 22 levels; a level passes when every item of it passes on every seed. After journal row 17 (seed 1 only; the other seeds were not re-measured) seed 1 passes levels 1 to 5 and fails level 6 (the validity gate, 4 items). Bank on seed 1: 1551 of 2033 pass (0.763). The level table below is the pre-merge table of the other seeds and is stale until a full sweep (seeds 1 to 20 and hidden) runs.
+The bank holds 2033 items in 26 families and 22 levels. Its latest completed bank measurement is row 17, at 2026-10-13T01:29:28Z on source `4d94b132`: seed 1 reaches level 5 with 1551 of 2033 items passing. This is the pre-change baseline. The options A and B sweep is running on source `8359f453`, including the composed-report repair. [SWEEP-JOURNAL.md](SWEEP-JOURNAL.md) records partial results and current test limitations until the full bank row is available.
 
 ## Floor
 
@@ -66,7 +66,7 @@ Rows 1 to 10 are the pilot (branch `exec/generator-pilot`, merged). Rows 11 to 1
 
 ## Next actions
 
-1. Finish the full sweep on the final A+B source, seeds 1 to 20 plus hidden, with two seed workers. Record partial results before the 06:40 push deadline if it is still running.
+1. Finish the full sweep on the final A+B source, seeds 1 to 20 plus hidden, with two seed workers. Append measured partial results to `SWEEP-JOURNAL.md` before the 06:40 push deadline if it is still running; append the full bank result to `journal.jsonl` once it finishes.
 2. Keep the 100x cap, performance and speed work on their separately owned branches. Merge their PRs into this branch only after the owner explicitly authorizes it.
 3. Use the fresh sweep's failing items to choose the next generator change. Do not treat the historical list above as a current measurement.
 
@@ -79,7 +79,7 @@ Rows 1 to 10 are the pilot (branch `exec/generator-pilot`, merged). Rows 11 to 1
 - Main is merged at `e2a5acdf` (upstream `7c0b3592`); `node tools/rename-scope.mjs` reports no remaining changes. The separate performance PRs are not merged.
 - Acme generated fixtures are refreshed. Its inline-email flow phrase now carries the existing `first_message=says-everything` context, so it is not treated as equivalent to a greeting that gives no email.
 - Read-only review found that a bound numeric reply value could disagree with the synthetic tool answer. The repair injects the exact typed scalar binding and refuses ambiguous or inconsistent bindings. The bound-reply and related scenario/value tests pass (71 tests); the six-class integration recheck also passes.
-- Final typecheck and lint pass at `8359f453`. Full repository tests and the 21-seed sweep are running; their final outcomes are not yet recorded.
+- Final typecheck and lint pass at `8359f453`. Full repository tests and the 21-seed sweep are running. Acme extraction, generation and budget rechecks pass all 30 tests. The full run reports a system-floor assertion failure and a CLI action test failure; final details are pending and no full-suite pass is claimed.
 - No external model API calls are made by this work.
 
 ## Validator item defects (logged, not edited)
