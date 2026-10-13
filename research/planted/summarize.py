@@ -89,7 +89,8 @@ for bench,N in [('verify',95),('rb',357)]:
         flips=sum(a!=b for a,b in combinations(ds,2));cflips=sum(a!=b for a,b in combinations(ys,2))
         rows.append({'id':id,'decisions':ds,'correctness':ys,'pairwiseFlips':flips,'correctnessFlips':cflips,'anyFlip':len(set(ds))>1})
     costs=[calls(f'noise-{bench}-{i}') for i in [1,2,3]]
-    block={'requestedItems':30,'completeItems':len(rows),'repeatCounts':[len(x) for x in reps],
+    block={'status':'complete' if len(rows)==30 else 'partial','requestedItems':30,'completeItems':len(rows),'repeatCounts':[len(x) for x in reps],
+           'validRepeatCounts':[sum(isinstance(x.get('pass'),bool) if bench=='verify' else x.get('decision') in ['A','B','tie'] for x in rep) for rep in reps],
            'costs':costs,'successfulRecordedCalls':sum(x['successfulRecordedCalls'] for x in costs),
            'usd':sum(x['usd'] for x in costs),'items':rows}
     counts=[c['callsByItem'].get(id,0) for c in costs for id in ids]
@@ -107,7 +108,7 @@ for bench,N in [('verify',95),('rb',357)]:
         repeats=max(1,math.ceil(2*Z*Z*vari/(N*.01**2)))
         block.update({'pairwiseFlipRate':flip,'correctnessFlipRate':cflip,'flips':sum(x['pairwiseFlips'] for x in rows),'pairComparisons':3*n,
                       'anyFlipItems':iteminterval,'accuracyByRepeat':[sum(x['correctness'][k] for x in rows)/n for k in range(3)],
-                      'meanUnbiasedWithinItemVariance':vari,'floor95FullDevExtrapolated':floor,'floor95ThirtyItemCohort':cohortFloor,
+                      'meanUnbiasedWithinItemVariance':vari,'floor95FullDevExtrapolated':floor,'floor95CompletedCohort':cohortFloor,
                       'fullDevN':N,'smallestStrictlyLargerDevGainItems':discrete,'smallestStrictlyLargerDevGain':discrete/N,
                       'accuracyUnstableItems':accuracyUnstable,'pilotUpperBoundFloor':conservativeFloor,
                       'smallestLargerGainAbovePilotUpperBoundItems':math.floor(conservativeFloor*N+1e-10)+1,
@@ -118,6 +119,7 @@ for bench,N in [('verify',95),('rb',357)]:
     metrics['noise'][bench]=block
 spendrows=[json.loads(x) for x in (runtime/'spend.jsonl').read_text().splitlines()]
 metrics['runControls']={'initial':start,'resumes':[json.loads(x) for x in (runtime/'resumes.jsonl').read_text().splitlines()] if (runtime/'resumes.jsonl').exists() else [],'finalCapUsd':16,'maxConcurrentCalls':6,'lastNewCall':'2026-10-13T06:35:00+02:00'}
+metrics['completion']={'stop':json.loads((runtime/'stop.json').read_text()) if (runtime/'stop.json').exists() else None,'lastModelStartedUtc':__import__('datetime').datetime.fromtimestamp(max(x['startedAt'] for x in spendrows),__import__('datetime').timezone.utc).isoformat(),'startsAtOrAfterCutoff':sum(x['startedAt']>=1791866100 for x in spendrows)}
 metrics['models']=sorted({m for x in spendrows for m in x.get('models',[])})
 metrics['meterAudit']={'attempts':len(spendrows),'sumKnownCosts':sum(x['costUsd'] or 0 for x in spendrows),'unpricedAttempts':sum(x['costUsd'] is None for x in spendrows),
                        'errors':sum(x['isError'] is True or x['exitCode']!=0 for x in spendrows)}
@@ -152,16 +154,18 @@ lines+=['','These are construction-truth measurements. Each bank uses 10 repeate
         'Wilson intervals treat generated instances as independent Bernoulli observations. Reused template families limit that assumption and generalization.',
         '',f"RubricBench clean-winner recovery: {rate(metrics['bank']['rb']['cleanWinner'])}.",
         f"Conditional on a valid single-requirement output, RubricBench TPR is {rate(metrics['bank']['rb']['conditionalTPRValidOnly'])} and TNR is {rate(metrics['bank']['rb']['conditionalTNRValidOnly'])}. This conditional view excludes schema failures and does not replace the strict headline.",'',
-        '| Noise cohort | Complete items x repeats | Verdict flips / comparisons | Items with any flip | 95% floor on 30 items | Extrapolated full-DEV floor | Smallest larger full-DEV gain |',
+        '| Noise cohort | Complete items x repeats | Verdict flips / comparisons | Items with any flip | 95% floor on completed cohort | Extrapolated full-DEV floor | Smallest larger full-DEV gain |',
         '|---|---:|---:|---:|---:|---:|---:|']
 for bench in ['verify','rb']:
     b=metrics['noise'][bench]
     if 'pairwiseFlipRate' not in b:
         lines.append(f"| {bench} | {b['completeItems']} x 3 | pending | pending | pending | pending | pending |")
     else:
-        lines.append(f"| {bench} | {b['completeItems']} x 3 | {b['flips']}/{b['pairComparisons']} ({pct(b['pairwiseFlipRate'])}) | {b['anyFlipItems']['success']}/{b['completeItems']} | {pct(b['floor95ThirtyItemCohort'])} | {pct(b['floor95FullDevExtrapolated'])} | {b['smallestStrictlyLargerDevGainItems']}/{b['fullDevN']} ({pct(b['smallestStrictlyLargerDevGain'])}) |")
+        lines.append(f"| {bench} | {b['completeItems']} x 3 | {b['flips']}/{b['pairComparisons']} ({pct(b['pairwiseFlipRate'])}) | {b['anyFlipItems']['success']}/{b['completeItems']} | {pct(b['floor95CompletedCohort'])} | {pct(b['floor95FullDevExtrapolated'])} | {b['smallestStrictlyLargerDevGainItems']}/{b['fullDevN']} ({pct(b['smallestStrictlyLargerDevGain'])}) |")
 lines+=['','The noise cohorts are restricted DEV samples: 30 of 38 eligible verify math/fictional-logic items, and all 30 eligible RubricBench math/MBPP items.',
         'They do not represent all domains. Full-DEV thresholds extrapolate their estimated within-item variance to N=95 and N=357 respectively.',
+        f"Valid saved verify judgments per repetition: {metrics['noise']['verify']['validRepeatCounts']}. Valid saved RubricBench judgments per repetition: {metrics['noise']['rb']['validRepeatCounts']}.",
+        'If fewer than 30 triples are complete, the reported noise statistics cover only complete cases. Deadline truncation can favor faster items, so that partial pilot does not satisfy the full requested noise measurement.',
         'All three pair comparisons per item are reported. They are correlated, so the uncertainty calculation resamples items with their repeats together.',
         'Each repetition uses a fresh model-recording namespace. Prompts stay identical. Deterministic code evidence may be reused; model replies are not reused between repeats.',
         'The floor is 1.95996 times sqrt(correctness-disagreement / N), for the difference between two independent one-run DEV accuracies. It is a pilot estimate, not a significance guarantee.',
@@ -189,6 +193,7 @@ for bench in ['rb','verify']:
     b=metrics['noise'][bench]
     lines.append(f"| {bench} noise | {b.get('actualTransportCalls','pending')} | {b['successfulRecordedCalls']} | {b['successfulRecordedCalls']} | {b.get('actualTransportUsd',b['usd']):.7f} |")
 lines+=['',f"Total transport attempts: {meter['calls']}. Recorded spend: USD {meter['spent']:.7f}. Unpriced reserved amount: USD {meter['unknownReserved']:.2f}. Cap: USD 16.00. Peak active model calls: {meter['peak']}.",
+        f"Last actual model-call start: {metrics['completion']['lastModelStartedUtc']}. Calls starting at or after the 06:35 Brussels cutoff: {metrics['completion']['startsAtOrAfterCutoff']}.",
         f"Observed model identifiers: {', '.join(metrics['models']) or 'not returned'}. Calls request the haiku alias.",'',
         f"The transport completed {metrics['meterAudit']['unrecordedTransportAttempts']} attempts without a retained judge recording. This includes calls finishing during transport scheduling restarts. Their spend remains included above.",
         'The initial bank run used two concurrent calls. The owner then raised concurrency to six and the task cap to USD 16. Existing bank predictions were preserved.',
@@ -212,7 +217,7 @@ lines+=['',f"Total transport attempts: {meter['calls']}. Recorded spend: USD {me
         '- `research/planted/results/`: archived model recordings, per-item judgments, program observations, spend meter and progress.',
         '- `research/planted/metrics.json`: exact counts, intervals, family rows, noise triples and call-stage counts.','']
 if any(b['complete']!=b['pairs'] for b in metrics['bank'].values()) or any(b['completeItems']!=30 for b in metrics['noise'].values()):
-    lines.insert(2,'Status: INCOMPLETE. Pending cells are not completion claims.\n')
+    lines.insert(2,f"Status: PARTIAL. Bank pairs measured: verify {metrics['bank']['verify']['complete']}/95 and RubricBench {metrics['bank']['rb']['complete']}/60. Noise triples: verify {metrics['noise']['verify']['completeItems']}/30 and RubricBench {metrics['noise']['rb']['completeItems']}/30.\n")
 else:lines.insert(2,'Status: both banks and both 30-item, three-repeat pilots are measured.\n')
 (root/'metrics.json').write_text(json.dumps(metrics,indent=2)+'\n')
 report='\n'.join(lines)
