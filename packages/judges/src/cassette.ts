@@ -147,6 +147,12 @@ export function playerClient(
   const judge = cassette.judges.find((candidate) => candidate.id === judgeId);
   if (!judge) throw new JudgeError('config', `the cassette lists no judge "${judgeId}"`);
   const used = new Map<string, number>();
+  // The entries of this judge by key, built once, so a call does not scan every entry.
+  const byKey = new Map<string, CassetteEntry[]>();
+  for (const entry of cassette.entries) {
+    if (entry.judge !== judgeId) continue;
+    byKey.set(entry.key, [...(byKey.get(entry.key) ?? []), entry]);
+  }
   return {
     id: judge.id,
     family: judge.family,
@@ -156,7 +162,7 @@ export function playerClient(
     ...(judge.settings === undefined ? {} : { settings: judge.settings }),
     async judge(request) {
       const key = requestKey(request, judge, options.prompt);
-      const matches = cassette.entries.filter((entry) => entry.judge === judgeId && entry.key === key);
+      const matches = byKey.get(key) ?? [];
       if (matches.length === 0) {
         throw new JudgeError(
           'cassette_miss',
