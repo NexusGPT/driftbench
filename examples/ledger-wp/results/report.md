@@ -1,6 +1,6 @@
 # LongJudge writing pair ledger study
 
-Measured state: 2026-10-13T12:18:00.883799+00:00. Branch `research/ledger-wp`, local head `00af46678f86a108a1a47eda74746b29ad8da03b`.
+Measured state: 2026-10-13T12:30:10.823499+00:00. Branch `research/ledger-wp`, local head `27a30f21c17409b27cd324fa94848f945bd66b5b`.
 
 ## Outcome
 
@@ -204,7 +204,7 @@ The owner explicitly preserves the frozen core single schema re-ask after malfor
 - Core: [PR 168](https://github.com/achammah/driftbench/pull/168), `2bb0a7a787ca4466ff69d204f2380a7ad19cc056`, remote hash verified before calls.
 - Reader-first: [PR 157](https://github.com/achammah/driftbench/pull/157), source snapshot `c50b2dc3`.
 - Promptfoo select-best: `801428268b5e421b2f6994332f6a06f86b27bb1f`, verbatim attributed template and MIT notice.
-- Original judge freeze commit: `a4ae4b33`. Initial freeze SHA-256: `1fb32801af8549c7a4bef7a6c271c1799e950a84316e9fcb027ef757a36b3682`, preserved in `freeze-initial.json`. Current freeze SHA-256: `ebdcb9da56bc1878ff12a254d2ffe572e6b8237da1d4b313168e37f5ca6df0e1`. The 191 exact file hashes are in `freeze.json`.
+- Original judge freeze commit: `a4ae4b33`. Initial freeze SHA-256: `1fb32801af8549c7a4bef7a6c271c1799e950a84316e9fcb027ef757a36b3682`, preserved in `freeze-initial.json`. Current freeze SHA-256: `dfa5208346e9aa4f99f581e250030aa43073dac33c25484e6495b55e728970ca`. The 191 exact file hashes are in `freeze.json`.
 - Runtime amendments set the spending cap to 35 USD, transport timeouts to 300 seconds, and the per-model scheduling limits below. Judge contracts, parser behavior, original model cells, medium reasoning, output limits, statistical formulas and sealed order are unchanged. The additive Flash Lite amendment adds a separate model cell.
 - The first plugin crash interrupts six pilot calls; their 0.90 USD reservations remain uncertain. A second reconnect finds one Gemini fetch failure and three unfinished native calls. All uncertain reservations remain counted. See `runtime-recovery.json`, `runtime-recovery-2.json`, and `results/spend.jsonl`.
 - The latest owner authorization permits three retries after an initial HTTP 429, with waits of 60, 120 and 240 seconds. Other transport failures allow three submissions total. Timeouts are 300 seconds. Returned model answers never receive transport retries.
@@ -225,11 +225,18 @@ The owner explicitly preserves the frozen core single schema re-ask after malfor
 - The original DEV, fixtures, validity edits and 173-pair TEST seals apply in unchanged order. Fixtures, validity and three-repeat DEV finish before TEST. No pilot is added under this amendment.
 - Published standard price: 0.30 USD per million input tokens; 2.50 USD per million output tokens, including thinking. Source: [Google pricing](https://ai.google.dev/gemini-api/docs/pricing), read 2026-10-13. The unchanged provider shim matches these rates.
 - Medium is listed as supported in [Google thinking settings](https://ai.google.dev/gemini-api/docs/thinking). The first sealed fixture call runs alone and records the applied request setting before opening concurrency eight.
-- Applied reasoning on returned calls: medium. Actual cell spend: 1.70141690 USD; held cell spend: 2.40000000 USD; cell cap: 5 USD inside the unchanged 35 USD cap. Source: `results/flash-lite-spend.jsonl` and raw provider metadata.
+- Applied reasoning on returned calls: medium. Actual cell spend: 1.70141690 USD; held cell spend: 2.40000000 USD; cell cap: 8 USD inside the unchanged 35 USD cap. Source: `results/flash-lite-spend.jsonl` and raw provider metadata.
 - Flash Lite transport: at most eight calls, 300-second timeout, four total submissions for HTTP 429 with 20/60/180-second waits, three submissions for other transport failures. HTTP 402 aborts Gemini immediately and releases only proven rejections.
 - The same win/loss rule and statistical formulas apply. Positive results still require the prescribed multiplicity correction; this added model is reported separately, never substituted for the original Gemini cell.
 - Pre-call amendment commit: `00af46678f86a108a1a47eda74746b29ad8da03b`, pushed before the first Flash Lite call. Eighteen harness tests and six analysis tests pass; the judge invocation block and statistical formulas match the previous freeze exactly.
 - The new model is explicitly authorized after earlier model outcomes were observed. It is an additive model check on the same sealed pool, not a newly blinded study. The amendment and source hashes precede its first call.
+
+## Flash Lite transport recovery
+
+- The first eight TEST requests exhaust three transport submissions each without a model answer. Their 24 reservations retain 2.40 USD. A separate unauthenticated Google probe initially reports `UND_ERR_CONNECT_TIMEOUT`.
+- A later unauthenticated Node fetch to Google returns HTTP 403, the expected authentication rejection. This proves connectivity without a paid model call. Source: `results/flash-lite-connectivity-probes.jsonl`.
+- The owner raises only the Flash Lite subcap from 5 to 8 USD inside the unchanged 35 USD cap, and permits one fresh cycle of at most three submissions for the eight exact logical keys in `freeze.json`. All holds remain counted.
+- The first missing sealed call probes alone before concurrency eight resumes. Any new network failure aborts in-flight Gemini calls, writes a persistent hold and stops paid submissions immediately. No returned answer is repeated.
 
 ## Parked Gemini 3.8 request allocation
 

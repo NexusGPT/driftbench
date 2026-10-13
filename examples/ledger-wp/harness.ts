@@ -128,7 +128,7 @@ export function verifyFreeze(freeze: any) {
   }
   if(freeze.capUsd!==35 || freeze.models.some((x:string)=>!['haiku','gpt-6-luna','gemini-3.8-flash'].includes(x)))throw Error('Invalid spend/model authorization');
   for(const [model,cell] of Object.entries(freeze.additionalModelCells??{}) as [string,any][]) {
-    if(model!=='gemini-3.5-flash-lite'||cell.capUsd!==5||cell.reasoning!=='medium'||cell.maxConcurrentCalls!==8||JSON.stringify(cell.contestants)!==JSON.stringify(['pair-ledger','promptfoo']))throw Error('Invalid additive model authorization');
+    if(model!=='gemini-3.5-flash-lite'||cell.capUsd!==8||cell.reasoning!=='medium'||cell.maxConcurrentCalls!==8||JSON.stringify(cell.contestants)!==JSON.stringify(['pair-ledger','promptfoo']))throw Error('Invalid additive model authorization');
     for(const [path,expected] of Object.entries(cell.runtimeArtifactHashes??{}))if(sha(readFileSync(resolve(ROOT,path)))!==expected)throw Error('ADDITIVE_RUNTIME_CHANGED: '+path);
   }
 
@@ -176,6 +176,7 @@ async function main() {
   const quotaBlocked=Date.now()<Date.parse(freeze.geminiDailyQuotaAmendment?.resumeNotBefore??'1970-01-01');
   const modelArg=arg('model');const models=modelArg?modelArg.split(','):freeze.models.filter((m:string)=>m!=='gemini-3.8-flash'||(!freeze.geminiOwnerHold?.active&&!freeze.geminiCreditHold?.active&&!quotaBlocked));
   if(models.some((x:string)=>!freeze.models.includes(x)))throw Error('Model not frozen');
+  if(models.includes('gemini-3.5-flash-lite')&&existsSync(resolve(HERE,'results/flash-lite-network-hold.json'))&&load('results/flash-lite-network-hold.json').active)throw Error('Flash Lite network hold is active; no paid calls');
   if(models.includes('gemini-3.8-flash')&&freeze.geminiOwnerHold?.active)throw Error('Gemini 3.8 is parked until the owner explicitly resumes it');
   if(models.includes('gemini-3.8-flash')&&freeze.geminiCreditHold?.active)throw Error('Gemini is parked pending owner-confirmed credit top-up');
   if(models.includes('gemini-3.8-flash')&&quotaBlocked)throw Error('Gemini not run: daily quota; wait for authorized reset or owner amendment');
@@ -225,9 +226,11 @@ async function main() {
     if(recorded.has(key) && !recorded.get(key).providerError) return recorded.get(key);
     if(process.argv.includes('--replay-only'))throw Error('REPLAY_MISS '+key);
     const recovery=freeze.lunaRecoveryAmendment?.logicalCallKeys.includes(key)&&freeze.lunaRecoveryAmendment?.connectivityProbe.passed===true;
+    const liteRecovery=freeze.flashLiteRecoveryAmendment?.logicalCallKeys.includes(key)&&freeze.flashLiteRecoveryAmendment?.connectivityProbe.passed===true;
+    const extraRecovery=recovery||liteRecovery;
     let lastError="",lastFinishedAt:string|undefined;
-    for(let attempt=1;attempt<=(recovery?6:4);attempt++) {
-      if(attempt===4&&!recovery&&!isRateLimit(lastError))break;
+    for(let attempt=1;attempt<=(extraRecovery?6:4);attempt++) {
+      if(attempt===4&&!extraRecovery&&!isRateLimit(lastError))break;
       const attemptKey=attempt===1?key:sha(key+':transport:'+attempt);
       const prior=attempts.get(attemptKey);
       if(prior) {
@@ -237,7 +240,8 @@ async function main() {
       }
       // A crashed submission may still have incurred cost. Keep its reservation and count its try.
       if(budget.totals().pending.includes(attemptKey)){lastError="Interrupted transport";continue;}
-      if(attempt>1)await new Promise(resolve=>setTimeout(resolve,transportWaitRemainingMs(lastError,attempt,lastFinishedAt,Date.now(),meta.model)));
+      const waitAttempt=liteRecovery&&attempt>3?attempt-3:attempt;
+      if(waitAttempt>1)await new Promise(resolve=>setTimeout(resolve,transportWaitRemainingMs(lastError,waitAttempt,lastFinishedAt,Date.now(),meta.model)));
       if(meta.model.startsWith('gemini')&&geminiAbort.signal.aborted)throw Error('Gemini credit hold; no new submission');
       if(Date.now()>Date.parse(freeze.modelLastCallUtc?.[meta.model]??freeze.lastCallUtc))throw Error('LAST_CALL_CUTOFF');
       const reserveUsd=meta.model==='haiku'?0.25:0.10;
@@ -256,7 +260,16 @@ async function main() {
             if(meta.model.startsWith('gemini'))body.generationConfig={...body.generationConfig,maxOutputTokens:4096};
             else body.max_completion_tokens=4096;
             const timeout=AbortSignal.timeout(300_000);
-            const response=await fetch(url,{...options,body:JSON.stringify(body),signal:meta.model.startsWith('gemini')?AbortSignal.any([timeout,geminiAbort.signal]):timeout});
+            let response:Response;
+            try {response=await fetch(url,{...options,body:JSON.stringify(body),signal:meta.model.startsWith('gemini')?AbortSignal.any([timeout,geminiAbort.signal]):timeout});}
+            catch(error:any) {
+              providerMeta.networkFailure={message:error.message,causeCode:error.cause?.code,causeMessage:error.cause?.message};
+              if(meta.model==='gemini-3.5-flash-lite') {
+                geminiAbort.abort();stoppedModels.add(meta.model);
+                writeFileSync(resolve(HERE,'results/flash-lite-network-hold.json'),JSON.stringify({active:true,at:new Date().toISOString(),logicalKey:key,networkFailure:providerMeta.networkFailure,policy:'Stop paid calls immediately and wait; no transport resubmission on a dead connection.'},null,2)+'\n');
+              }
+              throw error;
+            }
             if(!response.ok) {
               providerMeta.httpStatus=response.status;
               if(meta.model.startsWith('gemini')&&response.status===402){geminiAbort.abort();stoppedModels.add(meta.model);}
@@ -288,6 +301,7 @@ async function main() {
         cellBudget?.releaseRejected(attemptKey,402);
         throw Error('Gemini HTTP 402 credit rejection; all Gemini submissions stopped');
       }
+      if(meta.model==='gemini-3.5-flash-lite'&&geminiAbort.signal.aborted)throw Error('FLASH_LITE_NETWORK_HOLD: paid calls stopped; wait for connectivity and owner disposition');
       if(!isTransportFailure(entry.text))throw Error('Non-transport provider error; no retry');
       lastError=entry.text;lastFinishedAt=entry.finishedAt;
     }
@@ -295,7 +309,7 @@ async function main() {
   };
   const resumeAt=freeze.geminiDailyQuotaAmendment?.resumeNotBefore??freeze.geminiResumeAmendment?.at;
   const probeGate=new FirstAnswerGate(history.some(r=>r.model==='gemini-3.8-flash'&&!r.providerError&&resumeAt&&r.startedAt>=resumeAt));
-  const addedGates=new Map(Object.keys(additions).map(model=>[model,new FirstAnswerGate(history.some(r=>r.model===model&&!r.providerError))]));
+  const addedGates=new Map(Object.keys(additions).map(model=>[model,new FirstAnswerGate(history.some(r=>r.model===model&&!r.providerError&&(!freeze.flashLiteRecoveryAmendment||r.startedAt>=freeze.flashLiteRecoveryAmendment.at)))]));
   const calls=async(prompt:any,meta:any,schema?:any)=> {
     const key=sha(JSON.stringify([meta,prompt,schema,keyReasoning(meta.model)]));
     const cached=recorded.get(key);

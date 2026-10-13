@@ -45,7 +45,7 @@
   },
   "files": {
     "examples/judge-benchmarks/src/llm-shim.mjs": "376105a7240ba6ad265fb2acc629a2c251ce5debdfca353a0b4c40aca41fe2a5",
-    "examples/ledger-wp/harness.ts": "c29e2dfa7ebe33650fe6d192ce3d6d6ac659c63b8886897f64bb7edbad8c9d41",
+    "examples/ledger-wp/harness.ts": "526db92986cf5d36b578e243a6a913890b1e66e0df3336e32fddeba3695bc5f0",
     "examples/ledger-wp/phase_report.py": "565e6ec606042877a6037c143943d3c6bfe16af3d4b1871d294319b099a6c9e8",
     "examples/ledger-wp/prepare.py": "12e81d34a14a2f00f2ab821d41a1911b29d2de91466fd71a998c7c3a33d76d2d",
     "examples/ledger-wp/seal_validity.py": "527d73e3b1ffdd0f5943d854c1e468b26b318703ae8eeb4d4369accbff5d66b2",
@@ -396,7 +396,7 @@
         "dev",
         "test"
       ],
-      "capUsd": 5,
+      "capUsd": 8,
       "spendFile": "results/flash-lite-spend.jsonl",
       "maxConcurrentCalls": 8,
       "http429BackoffSeconds": [
@@ -435,5 +435,39 @@
         "examples/ledger-wp/run_remaining.py": "192edd773bf145bf59827c3ec63a871e89c5a34e7e72b80522559f9f5d1d29c7"
       }
     }
+  },
+  "flashLiteRecoveryAmendment": {
+    "at": "2026-10-13T12:29:31.376396+00:00",
+    "authorization": "Approved, logged as a runtime amendment: once a connectivity probe to Google passes, one fresh recovery cycle (up to 3 submissions) for those 8 named no-answer calls, and the Flash Lite subcap rises to 8 USD inside the unchanged 35 USD overall cap. Keep the holds and the sealed order. If the network fails again, stop paid calls and wait; do not burn submissions on a dead connection.",
+    "logicalCallKeys": [
+      "3d1e375feeabb9a8b2423b4166e8f2527f37cbf0bf9ebb350be007816d35dd98",
+      "2ae5b593e4333c5e4eebd679d4321c7a7034f15699fec7cb17ba7660f859dcd4",
+      "c2a26ce4d3774ae40fd57a1af282344b4fbf6f2cf7b3398cbe9841af31e34a3b",
+      "aeff99e24a14dcea4457c019f05c2886b8b6ac36da20ed204c92f95be5adb3ac",
+      "88d7f1ad8abecef695c300a40e59026bb7d40bdf7ae18c462f0b2e4666ef704f",
+      "c15bb7ba46ba2c69afc9711111b078d4908938e2796a252ac33e44a544a923aa",
+      "3f9b524c4ba6464945c4d79965fe2ca21a5afceca3ac9fdde33e5e59b086fda1",
+      "e305a13144e1e8e67c0a6294f017ca69710f159221666dac553c735b9fbaa52a"
+    ],
+    "extraSubmissionsPerCall": 3,
+    "maximumTotalSubmissionsPerCall": 6,
+    "connectivityProbe": {
+      "at": "2026-10-13T12:27:23.364Z",
+      "url": "https://generativelanguage.googleapis.com/v1beta/models",
+      "authentication": "none",
+      "instrument": "Node fetch, 15-second deadline",
+      "httpStatus": 403,
+      "passed": true,
+      "finishedAt": "2026-10-13T12:27:25.629Z"
+    },
+    "previousSubcapUsd": 5,
+    "subcapUsd": 8,
+    "overallCapUsd": 35,
+    "uncertainHoldsRetainedUsd": 2.4,
+    "networkFailurePolicy": "Abort all in-flight Gemini calls on the first network failure, write persistent hold, stop paid submissions without retrying the dead connection. HTTP 429 keeps 20/60/180 waits; HTTP 402 stops immediately.",
+    "firstCall": "First missing sealed request alone; only its returned answer opens concurrency eight.",
+    "parentFreezeSha256": "ebdcb9da56bc1878ff12a254d2ffe572e6b8237da1d4b313168e37f5ca6df0e1",
+    "judgeContractChanged": false,
+    "sealedOrderChanged": false
   }
 }

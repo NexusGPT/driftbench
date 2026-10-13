@@ -202,11 +202,18 @@ def main():
             '- The original DEV, fixtures, validity edits and 173-pair TEST seals apply in unchanged order. Fixtures, validity and three-repeat DEV finish before TEST. No pilot is added under this amendment.',
             '- Published standard price: 0.30 USD per million input tokens; 2.50 USD per million output tokens, including thinking. Source: [Google pricing](https://ai.google.dev/gemini-api/docs/pricing), read 2026-10-13. The unchanged provider shim matches these rates.',
             '- Medium is listed as supported in [Google thinking settings](https://ai.google.dev/gemini-api/docs/thinking). The first sealed fixture call runs alone and records the applied request setting before opening concurrency eight.',
-            f"- Applied reasoning on returned calls: {', '.join(applied) if applied else 'pending first call'}. Actual cell spend: {cell_actual:.8f} USD; held cell spend: {sum(cell_pending.values()):.8f} USD; cell cap: 5 USD inside the unchanged 35 USD cap. Source: `results/flash-lite-spend.jsonl` and raw provider metadata.",
+            f"- Applied reasoning on returned calls: {', '.join(applied) if applied else 'pending first call'}. Actual cell spend: {cell_actual:.8f} USD; held cell spend: {sum(cell_pending.values()):.8f} USD; cell cap: {lite['capUsd']} USD inside the unchanged 35 USD cap. Source: `results/flash-lite-spend.jsonl` and raw provider metadata.",
             '- Flash Lite transport: at most eight calls, 300-second timeout, four total submissions for HTTP 429 with 20/60/180-second waits, three submissions for other transport failures. HTTP 402 aborts Gemini immediately and releases only proven rejections.',
             '- The same win/loss rule and statistical formulas apply. Positive results still require the prescribed multiplicity correction; this added model is reported separately, never substituted for the original Gemini cell.',
             '- Pre-call amendment commit: `00af46678f86a108a1a47eda74746b29ad8da03b`, pushed before the first Flash Lite call. Eighteen harness tests and six analysis tests pass; the judge invocation block and statistical formulas match the previous freeze exactly.',
             '- The new model is explicitly authorized after earlier model outcomes were observed. It is an additive model check on the same sealed pool, not a newly blinded study. The amendment and source hashes precede its first call.','']
+    recovery=freeze.get('flashLiteRecoveryAmendment',{})
+    if recovery:
+        lines+=['## Flash Lite transport recovery','',
+            '- The first eight TEST requests exhaust three transport submissions each without a model answer. Their 24 reservations retain 2.40 USD. A separate unauthenticated Google probe initially reports `UND_ERR_CONNECT_TIMEOUT`.',
+            '- A later unauthenticated Node fetch to Google returns HTTP 403, the expected authentication rejection. This proves connectivity without a paid model call. Source: `results/flash-lite-connectivity-probes.jsonl`.',
+            '- The owner raises only the Flash Lite subcap from 5 to 8 USD inside the unchanged 35 USD cap, and permits one fresh cycle of at most three submissions for the eight exact logical keys in `freeze.json`. All holds remain counted.',
+            '- The first missing sealed call probes alone before concurrency eight resumes. Any new network failure aborts in-flight Gemini calls, writes a persistent hold and stops paid submissions immediately. No returned answer is repeated.','']
     if requests:
         lines+=['## Parked Gemini 3.8 request allocation','',
             '- Watcher 70641 is disarmed and verified absent. Owner-only resumption supersedes the previous automatic reset permission. Evidence: `results/gemini-reset-watcher-disarmed.json` and `freeze.json`.',
