@@ -22,6 +22,9 @@ def main():
     assert git('branch', '--show-current') == 'research/ledger-verify'
     final = json.loads((BASE / 'evidence/finalizer-state.json').read_text())
     assert final['status'] == 'offline evidence ready for review'
+    if (BASE / 'evidence/haiku-test-timeouts.json').exists():
+        recovery = json.loads((BASE / 'evidence/haiku-test-timeout-recovery.json').read_text())
+        assert recovery['status'] == 'complete' and recovery['returnedAnswersResent'] == 0
     cells = json.loads((BASE / 'evidence/cells.json').read_text())
     assert cells['fees']['maximumAccountedUsd'] <= 40
     assert not cells['outputLimitErrors']['unmappedLimits']

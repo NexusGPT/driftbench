@@ -133,3 +133,10 @@
 - Driver PID 48002, exec session 47258. Source: lite/evidence/test-recovery-amendment.json and test-network-hold-release.json.
 
 - TEST recovery returns all 25 on one additional submission each. Source: lite/evidence/test-network-recovery-result.json. Four-worker TEST continues under PID48002; finalizer exec session11726 waits.
+
+## 2026-10-13T13:46:18.687476+00:00 model additions and TEST recovery
+
+- Flash Lite all 379 units complete; six exact offline replays pass. Fees 8.6226905 USD plus 10.80 USD retained holds.
+- Haiku initial TEST continues. PID 65388 waits for initial TEST and offline report, then recovers only the three authorized timeouts once. Existing final verdicts stay unchanged.
+- Sonnet and gpt-6.1-sol are frozen as separate 25 USD cells, with five DEV calls and a cost projection before the full run. They cannot call until existing cells and Haiku recovery finish.
+- Gemini 3.8 remains owner-held.

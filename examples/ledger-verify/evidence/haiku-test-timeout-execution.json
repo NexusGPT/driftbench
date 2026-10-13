@@ -1,0 +1,22 @@
+{
+  "at": "2026-10-13T13:29:24.030237+00:00",
+  "authorization": "Approved, logged: one missing-only recovery for those three Haiku timeouts after initial TEST finishes. Output-limit answer stays as cascade error.",
+  "originalTransportSha256": "c621bb49d72cd20d7aa23e8b6d974026bbdae1ca6461680324098be849a3226a",
+  "recoveryTransportSha256": "f142a6f9f79d6567c89b4996362270177e9815530803c51e8c130b8e4ffa672a",
+  "maxAdditionalSubmissionsEach": 1,
+  "unknownHoldsRetainedUsd": 1.5,
+  "requests": [
+    {
+      "key": "56bebfa085abfe96206a",
+      "fingerprint": "9a935f6394bb6cfa8438700ccb7feaefaf6657c8de2774c853d1a8c1e64c6d6c"
+    },
+    {
+      "key": "69aa3929651d3477aab7",
+      "fingerprint": "2d2b648ee7db9348f7966f8717c3c20ab83fff1615410ad1759388d37f8d6cc1"
+    },
+    {
+      "key": "a2864f1aba00dd7dc2b7",
+      "fingerprint": "ec31b95c0f02344e6b85e0b7d644645b463ee2a2ec2fcdb40a408c778adbf14a"
+    }
+  ]
+}

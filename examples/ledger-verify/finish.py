@@ -20,6 +20,14 @@ def now():
     return datetime.datetime.now(datetime.timezone.utc).isoformat()
 
 def ready():
+    test_amendment = BASE / 'evidence/haiku-test-timeouts.json'
+    if test_amendment.exists():
+        try:
+            test_recovery = json.loads((BASE / 'evidence/haiku-test-timeout-recovery.json').read_text())
+        except (FileNotFoundError, json.JSONDecodeError):
+            return False
+        if test_recovery.get('status') != 'complete':
+            return False
     outage = BASE / 'evidence/haiku-outage-amendment.json'
     if outage.exists():
         try:
@@ -91,6 +99,14 @@ try:
         cells['freeze']['hashes']['evidence/haiku-outage-amendment.json'] = hashlib.sha256(outage_path.read_bytes()).hexdigest()
         cells['outageRecovery'] = json.loads((BASE / 'evidence/haiku-outage-recovery.json').read_text())
     pacing_path = BASE / 'evidence/haiku-pacing-amendment.json'
+    test_recovery_path = BASE / 'evidence/haiku-test-timeout-recovery.json'
+    if test_recovery_path.exists():
+        test_recovery = json.loads(test_recovery_path.read_text())
+        cells['haikuTestTimeoutRecovery'] = test_recovery
+        for name in ['haiku-test-timeouts.json', 'haiku-test-timeout-execution.json', 'haiku-test-timeout-recovery.json']:
+            rel = 'evidence/' + name
+            cells.setdefault('runtimeAmendments', []).append(rel)
+            cells['freeze']['hashes'][rel] = hashlib.sha256((BASE / rel).read_bytes()).hexdigest()
     if pacing_path.exists():
         cells.setdefault('runtimeAmendments', []).append('evidence/haiku-pacing-amendment.json')
         cells['freeze']['hashes']['evidence/haiku-pacing-amendment.json'] = hashlib.sha256(pacing_path.read_bytes()).hexdigest()
@@ -136,6 +152,13 @@ try:
         supplement += '- The transition archives the partial TEST report and preserves all 33 returned responses. Only missing requests resume.\n'
         supplement += '- Eight offline pacing and budget checks pass. The sealed order, cap, model contract and statistical scoring stay unchanged.\n'
         supplement += '- Sources: evidence/haiku-pacing-amendment.json, receipts/budget.json, test_pacing.py and test_budget.py.\n'
+    if test_recovery_path.exists():
+        supplement += '\n## Haiku TEST timeout recovery\n\n'
+        supplement += '- The owner authorizes one additional submission for each of three empty native timeout responses, after initial TEST finishes.\n'
+        supplement += '- A fresh connectivity probe passes before these three submissions. Their 1.50 USD unknown-charge holds remain.\n'
+        supplement += '- These are intermediate requests. The complete initial verdicts and request histories remain unchanged; recovery outputs are supplemental receipts only.\n'
+        supplement += '- The recovery settles '+str(test_recovery['newSettledUsd'])+' USD. Returned answers, including output-limit errors, are never resubmitted.\n'
+        supplement += '- Sources: evidence/haiku-test-timeouts.json, evidence/haiku-test-timeout-execution.json and evidence/haiku-test-timeout-recovery.json.\n'
     if quota_path.exists():
         supplement += '\n## Daily quota runtime amendment\n\n'
         supplement += '- The owner identifies the Gemini daily request quota and permits missing-only completion after the reset near 14 October 00:00 UTC, through 12:00 UTC.\n'
