@@ -53,18 +53,35 @@ export function definePlugin(plugin: DriftbenchPlugin): DriftbenchPlugin {
 const adapters = new Map<string, PluginAdapterFactory>();
 const judges = new Map<string, () => JudgeClient>();
 /** Checks a plugin named, not yet in the registry of the checks package, which loads only when one exists. */
-const pendingChecks = new Map<string, CustomCheckFunction>();
-/** The registry of the checks package, once a plugin check made it load, and the names registered in it. */
+const pendingChecks = new Map<string, { check: CustomCheckFunction; owner: string }>();
+/** The registry of the checks package, once a plugin check made it load. */
 let checkRegistry:
-  | { register(name: string, check: CustomCheckFunction): unknown; unregister(name: string): boolean }
+  | {
+      register(name: string, check: CustomCheckFunction): unknown;
+      unregister(name: string): boolean;
+      get(name: string): CustomCheckFunction | undefined;
+    }
   | undefined;
-const checks = new Set<string>();
+/** The checks the plugins of this run added to that registry, each with the plugin that added it. */
+const checks = new Map<string, string>();
 
-/** Forgets every adapter, judge and check the plugins registered. `main` calls it before it loads plugins. */
+/** The judge names `compare --pairwise-judge` already knows; a plugin judge takes another name. */
+const BUILTIN_JUDGES = ['openai', 'anthropic', 'google'];
+
+/** A registration a plugin may not make. Its message is the whole line the user reads. */
+class PluginRefusal extends Error {}
+
+const NEVER_REPLACES = 'A plugin never replaces a check: give it another name.';
+
+/**
+ * Forgets every adapter, judge and check the plugins registered. `main` calls it before it loads plugins. A
+ * plugin only ever adds a check under a free name, so removing what the plugins added leaves the registry of
+ * the checks package exactly as it was before them.
+ */
 export function resetPlugins(): void {
   adapters.clear();
   judges.clear();
-  for (const name of checks) checkRegistry?.unregister(name);
+  for (const name of checks.keys()) checkRegistry?.unregister(name);
   checks.clear();
   pendingChecks.clear();
 }
@@ -90,7 +107,7 @@ export function pluginPairwiseJudge(name: string): JudgeClient | undefined {
 
 const NAME = /^[a-z0-9][a-z0-9._-]*$/;
 
-function apiFor(cwd: string): PluginApi {
+function apiFor(cwd: string, owner: string): PluginApi {
   return {
     cwd,
     adapter(name, factory) {
@@ -100,32 +117,70 @@ function apiFor(cwd: string): PluginApi {
       adapters.set(name, factory);
     },
     check(name, check) {
-      pendingChecks.set(name, check);
+      const earlier = pendingChecks.get(name)?.owner ?? checks.get(name);
+      if (earlier !== undefined) {
+        throw new PluginRefusal(
+          `The plugin ${owner} registers the check ${name}, which the plugin ${earlier} already registered. ${NEVER_REPLACES}`,
+        );
+      }
+      pendingChecks.set(name, { check, owner });
     },
     pairwiseJudge(name, factory) {
+      if (BUILTIN_JUDGES.includes(name)) {
+        throw new Error(
+          `the judge name ${name} is built in (${BUILTIN_JUDGES.join(', ')}): a plugin judge needs another name`,
+        );
+      }
       if (typeof factory !== 'function') throw new Error(`the judge ${name} needs a factory function`);
       judges.set(name, factory);
     },
   };
 }
 
-/** Puts the checks the plugins named into the registry of the checks package; a later name replaces an earlier one. */
+/**
+ * Puts the checks the plugins named into the registry of the checks package. A name that registry already
+ * holds, from the caller or from any other module, is refused: the registry keeps what it had.
+ */
 async function registerPendingChecks(): Promise<void> {
   if (pendingChecks.size === 0) return;
   checkRegistry ??= (await import('@agent-nexus/driftbench-checks')).defaultRegistry;
-  for (const [name, check] of pendingChecks) {
-    checkRegistry.unregister(name);
-    checkRegistry.register(name, check);
-    checks.add(name);
+  try {
+    for (const [name, { check, owner }] of pendingChecks) {
+      if (checkRegistry.get(name) !== undefined) {
+        throw new PluginRefusal(
+          `The plugin ${owner} registers the check ${name}, which is already registered outside the plugins of this run. ${NEVER_REPLACES}`,
+        );
+      }
+      checkRegistry.register(name, check);
+      checks.set(name, owner);
+    }
+  } finally {
+    pendingChecks.clear();
   }
-  pendingChecks.clear();
 }
 
-/** Runs plugins given in code, in order. Throws what a plugin throws. */
-export async function applyPlugins(plugins: readonly DriftbenchPlugin[], cwd: string): Promise<void> {
-  const api = apiFor(cwd);
-  for (const plugin of plugins) await plugin(api);
-  await registerPendingChecks();
+/** Runs one plugin and registers its checks. The reason of a failure as one line, or undefined. */
+async function runPlugin(plugin: DriftbenchPlugin, cwd: string, owner: string): Promise<string | undefined> {
+  try {
+    await plugin(apiFor(cwd, owner));
+    await registerPendingChecks();
+    return undefined;
+  } catch (cause) {
+    pendingChecks.clear();
+    return cause instanceof PluginRefusal ? cause.message : `The plugin ${owner} failed: ${reason(cause)}`;
+  }
+}
+
+/** Runs plugins given in code, in order. Returns the reason of the first failure, for exit 2. */
+export async function applyPlugins(
+  plugins: readonly DriftbenchPlugin[],
+  cwd: string,
+): Promise<string | undefined> {
+  for (const [index, plugin] of plugins.entries()) {
+    const failure = await runPlugin(plugin, cwd, `given in code (${index + 1})`);
+    if (failure !== undefined) return failure;
+  }
+  return undefined;
 }
 
 /** One plugin to load: the module as written, and the folder a relative path starts from. */
@@ -139,11 +194,15 @@ export async function loadPlugins(
   sources: readonly PluginSource[],
   cwd: string,
 ): Promise<string | undefined> {
-  const api = apiFor(cwd);
+  const seen = new Set<string>();
   for (const source of sources) {
+    // A module named twice, in the config and by the flag, is one plugin: it runs once.
+    const where = locate(source);
+    if (seen.has(where)) continue;
+    seen.add(where);
     let loaded: Record<string, unknown>;
     try {
-      loaded = (await import(locate(source))) as Record<string, unknown>;
+      loaded = (await import(where)) as Record<string, unknown>;
     } catch (cause) {
       return `Cannot load the plugin ${source.module}: ${reason(cause)}`;
     }
@@ -151,12 +210,8 @@ export async function loadPlugins(
     if (typeof plugin !== 'function') {
       return `The plugin ${source.module} exports no function: export it as default, (api) => { ... }`;
     }
-    try {
-      await (plugin as DriftbenchPlugin)(api);
-      await registerPendingChecks();
-    } catch (cause) {
-      return `The plugin ${source.module} failed: ${reason(cause)}`;
-    }
+    const failure = await runPlugin(plugin as DriftbenchPlugin, cwd, source.module);
+    if (failure !== undefined) return failure;
   }
   return undefined;
 }

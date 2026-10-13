@@ -27,9 +27,12 @@ export async function main(argv: string[], io: Io = processIo, options: MainOpti
     exitCode = code;
   };
   resetPlugins();
-  if (options.plugins !== undefined) await applyPlugins(options.plugins, io.cwd);
-  const run = await pluginsFromRun(argv, io);
+  const refused = options.plugins === undefined ? undefined : await applyPlugins(options.plugins, io.cwd);
+  const run =
+    refused === undefined ? await pluginsFromRun(argv, io) : { ok: false as const, message: refused };
   if (!run.ok) {
+    // A run whose plugins did not all load keeps none of them.
+    resetPlugins();
     io.err(`driftbench: ${run.message}\n`);
     return 2;
   }
@@ -129,11 +132,18 @@ export function indexProgram(io: Io): Command {
 }
 
 function rootProgram(io: Io): Command {
-  return new Command('driftbench')
-    .description('Block-level evaluation for AI agents.')
-    .version(VERSION)
-    .exitOverride()
-    .configureOutput({ writeOut: (text) => io.out(text), writeErr: (text) => io.err(text) });
+  return (
+    new Command('driftbench')
+      .description('Block-level evaluation for AI agents.')
+      .version(VERSION)
+      // Read before the arguments are parsed (see ./plugins), wherever it stands; listed here for the help.
+      .option(
+        '--plugin <module>',
+        'load a plugin before the command runs: a module path or a package name; repeat for several',
+      )
+      .exitOverride()
+      .configureOutput({ writeOut: (text) => io.out(text), writeErr: (text) => io.err(text) })
+  );
 }
 
 const PATH_CODES = new Set([
