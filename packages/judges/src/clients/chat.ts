@@ -4,7 +4,7 @@ import { inconclusive, type JudgeRequest, type JudgeResult, MAX_TOKENS } from '.
 import { isRecord, JudgeError, postJson, requireEnv } from '../http';
 import { buildPrompt } from '../prompt';
 import { googleResponseSchema, isPairLedgerRequest, JUDGE_DIALECTS, withJudgeDialect } from './dialects';
-import { assertNotProviderBlocked, quoteAssessmentMaterial } from './provider-block';
+import { declinedBy, quoteAssessmentMaterial } from './provider-block';
 import { buildDialectRequest } from './transport';
 
 /**
@@ -120,7 +120,6 @@ export function createOpenAiJudge(options: ClientOptions = {}): JudgeClient {
         payload = await send(false);
       }
 
-      assertNotProviderBlocked('openai', payload);
       const choice = isRecord(payload) && Array.isArray(payload.choices) ? payload.choices[0] : undefined;
       const message = isRecord(choice) ? choice.message : undefined;
       const raw = JSON.stringify(payload);
@@ -128,10 +127,18 @@ export function createOpenAiJudge(options: ClientOptions = {}): JudgeClient {
         return { answer: inconclusive(`${model} answered without a choice`), raw, unparsed: true };
       }
       if (typeof message.refusal === 'string' && message.refusal !== '') {
-        return { answer: inconclusive(`${model} declined: ${message.refusal}`), raw };
+        return {
+          answer: inconclusive(`${model} declined: ${message.refusal}`),
+          raw,
+          ...declinedBy('openai', payload),
+        };
       }
       if (choice.finish_reason === 'content_filter') {
-        return { answer: inconclusive(`${model} declined: its content filter stopped the answer`), raw };
+        return {
+          answer: inconclusive(`${model} declined: its content filter stopped the answer`),
+          raw,
+          ...declinedBy('openai', payload),
+        };
       }
       const content = contentText(message.content);
       if (choice.finish_reason === 'length') return truncated(content, model);
@@ -182,13 +189,16 @@ export function createAnthropicJudge(options: ClientOptions = {}): JudgeClient {
             },
         options,
       );
-      assertNotProviderBlocked('anthropic', payload);
       const raw = JSON.stringify(payload);
       if (!isRecord(payload) || !Array.isArray(payload.content)) {
         return { answer: inconclusive(`${model} answered without a content list`), raw, unparsed: true };
       }
       if (payload.stop_reason === 'refusal') {
-        return { answer: inconclusive(`${model} declined the request`), raw };
+        return {
+          answer: inconclusive(`${model} declined the request`),
+          raw,
+          ...declinedBy('anthropic', payload),
+        };
       }
       const text = payload.content
         .filter((block): block is { type: 'text'; text: string } => {
@@ -262,7 +272,6 @@ export function createGoogleJudge(options: ClientOptions = {}): JudgeClient {
             },
         options,
       );
-      assertNotProviderBlocked('google', payload);
       const raw = JSON.stringify(payload);
       const candidate =
         isRecord(payload) && Array.isArray(payload.candidates) ? payload.candidates[0] : undefined;
@@ -271,6 +280,7 @@ export function createGoogleJudge(options: ClientOptions = {}): JudgeClient {
         return {
           answer: inconclusive(`${model} declined: the prompt was blocked (${feedback.blockReason})`),
           raw,
+          ...declinedBy('google', payload),
         };
       }
       if (!isRecord(candidate)) {
@@ -283,7 +293,11 @@ export function createGoogleJudge(options: ClientOptions = {}): JudgeClient {
         .join('');
       if (candidate.finishReason === 'MAX_TOKENS') return truncated(text, model);
       if (candidate.finishReason === 'SAFETY' || candidate.finishReason === 'RECITATION')
-        return { answer: inconclusive(`${model} declined the request`), raw };
+        return {
+          answer: inconclusive(`${model} declined the request`),
+          raw,
+          ...declinedBy('google', payload),
+        };
       return parseJudgeText(text, request);
     },
   };

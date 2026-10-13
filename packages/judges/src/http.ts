@@ -31,8 +31,7 @@ export type JudgeErrorCode =
   | 'network'
   | 'bad_response'
   | 'cassette_miss'
-  | 'reasoning-budget-exhausted'
-  | 'provider-blocked';
+  | 'reasoning-budget-exhausted';
 
 /** A judge call that gave no answer. The message never holds a key or a header. */
 export class JudgeError extends Error {

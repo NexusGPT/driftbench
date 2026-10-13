@@ -286,11 +286,13 @@ describe('chat clients', () => {
     expect(result.answer.reasoning).toContain('token limit');
   });
 
-  it('reports a provider refusal as a grader error', async () => {
+  it('read a refusal as inconclusive and not unparsed: a bigger budget would not change it', async () => {
     const { fetch } = fakeFetch([[200, { choices: [{ message: { content: null, refusal: 'no' } }] }]]);
-    await expect(
-      createOpenAiJudge({ fetch, env: CASES[0]?.env, sleep: noWait }).judge(REQUEST),
-    ).rejects.toMatchObject({ code: 'provider-blocked', retryable: false });
+    const result = await createOpenAiJudge({ fetch, env: CASES[0]?.env, sleep: noWait }).judge(REQUEST);
+    expect(result.answer.outcome).toBe('inconclusive');
+    expect(result.unparsed).toBeUndefined();
+    expect(result.declineReason).toBe('provider-blocked');
+    expect(result.providerBlock).toEqual({ provider: 'openai', reason: 'refusal' });
   });
 
   it('need a model from the environment or the options', () => {
@@ -410,7 +412,7 @@ describe('an OpenAI answer whose content is a list of parts', () => {
 });
 
 describe('an OpenAI answer stopped by the content filter', () => {
-  it('is a provider-blocked grader error', async () => {
+  it('is a decline: inconclusive, not unparsed', async () => {
     const client = createOpenAiJudge({
       env: { OPENAI_API_KEY: 'k', OPENAI_JUDGE_MODEL: 'm' },
       maxRetries: 0,
@@ -423,17 +425,20 @@ describe('an OpenAI answer stopped by the content filter', () => {
           },
         ),
     });
-    await expect(
-      client.judge({
-        criterion: { name: 'c', rubric: 'r' },
-        transcript: [{ role: 'user', text: 'hi' }],
-      }),
-    ).rejects.toMatchObject({ code: 'provider-blocked', retryable: false });
+    const result = await client.judge({
+      criterion: { name: 'c', rubric: 'r' },
+      transcript: [{ role: 'user', text: 'hi' }],
+    });
+    expect(result.answer.outcome).toBe('inconclusive');
+    expect(result.answer.reasoning).toMatch(/declined/);
+    expect(result.unparsed).toBeUndefined();
+    expect(result.declineReason).toBe('provider-blocked');
+    expect(result.providerBlock).toEqual({ provider: 'openai', reason: 'content_filter' });
   });
 });
 
 describe('a Google answer whose prompt was blocked', () => {
-  it('is a provider-blocked grader error', async () => {
+  it('is a decline: inconclusive, not unparsed', async () => {
     const client = createGoogleJudge({
       env: { GEMINI_API_KEY: 'k', GOOGLE_JUDGE_MODEL: 'm' },
       maxRetries: 0,
@@ -443,17 +448,20 @@ describe('a Google answer whose prompt was blocked', () => {
           headers: { 'content-type': 'application/json' },
         }),
     });
-    await expect(
-      client.judge({
-        criterion: { name: 'c', rubric: 'r' },
-        transcript: [{ role: 'user', text: 'hi' }],
-      }),
-    ).rejects.toMatchObject({ code: 'provider-blocked', retryable: false });
+    const result = await client.judge({
+      criterion: { name: 'c', rubric: 'r' },
+      transcript: [{ role: 'user', text: 'hi' }],
+    });
+    expect(result.answer.outcome).toBe('inconclusive');
+    expect(result.answer.reasoning).toMatch(/declined/);
+    expect(result.unparsed).toBeUndefined();
+    expect(result.declineReason).toBe('provider-blocked');
+    expect(result.providerBlock).toEqual({ provider: 'google', reason: 'SAFETY' });
   });
 });
 
 describe('a Google answer stopped for recitation', () => {
-  it('is a provider-blocked grader error', async () => {
+  it('is a decline: inconclusive, not unparsed', async () => {
     const client = createGoogleJudge({
       env: { GEMINI_API_KEY: 'k', GOOGLE_JUDGE_MODEL: 'm' },
       maxRetries: 0,
@@ -466,12 +474,15 @@ describe('a Google answer stopped for recitation', () => {
           },
         ),
     });
-    await expect(
-      client.judge({
-        criterion: { name: 'c', rubric: 'r' },
-        transcript: [{ role: 'user', text: 'hi' }],
-      }),
-    ).rejects.toMatchObject({ code: 'provider-blocked', retryable: false });
+    const result = await client.judge({
+      criterion: { name: 'c', rubric: 'r' },
+      transcript: [{ role: 'user', text: 'hi' }],
+    });
+    expect(result.answer.outcome).toBe('inconclusive');
+    expect(result.answer.reasoning).toMatch(/declined/);
+    expect(result.unparsed).toBeUndefined();
+    expect(result.declineReason).toBe('provider-blocked');
+    expect(result.providerBlock).toEqual({ provider: 'google', reason: 'RECITATION' });
   });
 });
 

@@ -118,6 +118,9 @@ export type JudgeResult = {
   readonly requestCount?: number;
   /** A process of the call reported no cost: costUsd is absent and a total that adds it is partial. */
   readonly costIncomplete?: true;
+  /** The provider declined to answer: an inconclusive answer, never an error, with its short signal. */
+  readonly declineReason?: import('./clients/provider-block').ProviderDecline['declineReason'];
+  readonly providerBlock?: import('./clients/provider-block').ProviderBlock;
   readonly pairLedger?: PairLedger;
   readonly parseSteps?: readonly LedgerParseStep[];
   readonly metadata?: { readonly graderError?: boolean };

@@ -1,5 +1,5 @@
-import { isRecord, JudgeError } from '../http';
-import { type UsageProvider, usageFromResponse } from './usage';
+import { isRecord } from '../http';
+import type { UsageProvider } from './usage';
 
 /** Assessment framing is opt-in so existing request fingerprints remain stable. */
 export function quoteAssessmentMaterial<T extends { system: string; user: string }>(
@@ -14,22 +14,19 @@ export function quoteAssessmentMaterial<T extends { system: string; user: string
     user: `<quoted_material encoding="json">\n${quoted}\n</quoted_material>`,
   };
 }
-export class ProviderBlockedError extends JudgeError {
-  readonly raw: string;
-  readonly usage;
-  constructor(
-    readonly provider: UsageProvider,
-    readonly reason: string,
-    payload: unknown,
-  ) {
-    super('provider-blocked', `${provider} blocked the assessment (${reason})`);
-    this.raw = JSON.stringify(payload);
-    this.usage = usageFromResponse(provider, payload);
-  }
-}
-/** Provider refusal signals are grader failures, never candidate verdicts. */
-export function assertNotProviderBlocked(provider: UsageProvider, payload: unknown): void {
-  if (!isRecord(payload)) return;
+export type ProviderBlock = {
+  readonly provider: UsageProvider;
+  /** The provider's own short signal, such as PROHIBITED_CONTENT or content_filter: never its message text. */
+  readonly reason: string;
+};
+/** What a declined result carries so a report can count provider refusals apart from other inconclusives. */
+export type ProviderDecline = {
+  readonly declineReason: 'provider-blocked';
+  readonly providerBlock: ProviderBlock;
+};
+/** The provider's refusal signal in an answer body, if it holds one. A refusal is a declined answer, never an error. */
+export function providerBlock(provider: UsageProvider, payload: unknown): ProviderBlock | undefined {
+  if (!isRecord(payload)) return undefined;
   let reason: unknown;
   if (provider === 'google') {
     reason = isRecord(payload.promptFeedback) ? payload.promptFeedback.blockReason : undefined;
@@ -40,12 +37,20 @@ export function assertNotProviderBlocked(provider: UsageProvider, payload: unkno
         String(c.finishReason),
       )
     )
-      reason ??= c.finishReason;
+      reason ||= c.finishReason;
   } else if (provider === 'openai') {
     const c = Array.isArray(payload.choices) && isRecord(payload.choices[0]) ? payload.choices[0] : {};
     if (c.finish_reason === 'content_filter') reason = 'content_filter';
     if (isRecord(c.message) && typeof c.message.refusal === 'string' && c.message.refusal)
       reason ??= 'refusal';
   } else if (payload.stop_reason === 'refusal') reason = 'refusal';
-  if (typeof reason === 'string' && reason) throw new ProviderBlockedError(provider, reason, payload);
+  if (typeof reason !== 'string' || !reason) return undefined;
+  return { provider, reason: /^[A-Za-z0-9_.-]{1,64}$/.test(reason) ? reason : 'other' };
+}
+/** The data of a declined answer. Call it only where the client reads the answer as declined. */
+export function declinedBy(provider: UsageProvider, payload: unknown): ProviderDecline {
+  return {
+    declineReason: 'provider-blocked',
+    providerBlock: providerBlock(provider, payload) ?? { provider, reason: 'other' },
+  };
 }

@@ -11,7 +11,7 @@ import { type ClaudeRetryReceipt, ClaudeTransportError } from './claude-errors';
 export { ClaudeTransportError } from './claude-errors';
 
 import { googleResponseSchema, JUDGE_DIALECTS, type JudgeDialect } from './dialects';
-import { assertNotProviderBlocked, quoteAssessmentMaterial } from './provider-block';
+import { type ProviderDecline, providerBlock, quoteAssessmentMaterial } from './provider-block';
 import { type TokenUsage, usageFromResponse } from './usage';
 
 export type DialectProvider = 'openai' | 'google' | 'anthropic' | 'claude-cli';
@@ -51,6 +51,9 @@ export type DialectCompletion = {
   readonly finishReason?: string;
   readonly truncated?: boolean;
   readonly refusal?: string;
+  /** Set with `refusal`: the provider declined, and its short signal, for counting refusals. */
+  readonly declineReason?: ProviderDecline['declineReason'];
+  readonly providerBlock?: ProviderDecline['providerBlock'];
 };
 
 export type DialectTransportOptions = ClientOptions &
@@ -295,7 +298,7 @@ function readCompletion(
   provider: Exclude<DialectProvider, 'claude-cli'>,
   value: unknown,
 ): Omit<DialectCompletion, 'dialect' | 'fingerprint'> {
-  assertNotProviderBlocked(provider, value);
+  const block = providerBlock(provider, value);
   const raw = JSON.stringify(value);
   let usage = usageFromResponse(provider, value);
   const record = isRecord(value) ? value : {};
@@ -332,7 +335,13 @@ function readCompletion(
     ...(Object.keys(usage).length ? { usage } : {}),
     ...(typeof finish === 'string' ? { finishReason: finish } : {}),
     ...(['length', 'MAX_TOKENS', 'max_tokens'].includes(String(finish)) ? { truncated: true } : {}),
-    ...(typeof refusal === 'string' && refusal ? { refusal } : {}),
+    ...(typeof refusal === 'string' && refusal
+      ? {
+          refusal,
+          declineReason: 'provider-blocked' as const,
+          providerBlock: block ?? { provider, reason: 'other' },
+        }
+      : {}),
   };
 }
 
