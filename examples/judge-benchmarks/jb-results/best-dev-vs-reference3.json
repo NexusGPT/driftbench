@@ -1,0 +1,190 @@
+{
+  "variants": [
+    {
+      "id": "driftbench-reference3",
+      "summary": {
+        "metric": "accuracy (JudgeBench, both orders)",
+        "value": {
+          "estimate": 0.9173553719008265,
+          "lower": 0.854535161068024,
+          "upper": 0.9544909505625935
+        },
+        "n": 121,
+        "byGroup": {
+          "mmlu": {
+            "n": 59,
+            "value": 0.8644067796610171
+          },
+          "livebench": {
+            "n": 50,
+            "value": 0.96
+          },
+          "livecodebench": {
+            "n": 12,
+            "value": 1
+          }
+        },
+        "missing": 0,
+        "positionConsistency": 0.9338842975206612
+      }
+    },
+    {
+      "id": "driftbench-reference3-tools-cascade-50",
+      "summary": {
+        "metric": "accuracy (JudgeBench, both orders)",
+        "value": {
+          "estimate": 0.9173553719008265,
+          "lower": 0.854535161068024,
+          "upper": 0.9544909505625935
+        },
+        "n": 121,
+        "byGroup": {
+          "mmlu": {
+            "n": 59,
+            "value": 0.8813559322033898
+          },
+          "livebench": {
+            "n": 50,
+            "value": 0.94
+          },
+          "livecodebench": {
+            "n": 12,
+            "value": 1
+          }
+        },
+        "missing": 0,
+        "positionConsistency": 0.9256198347107438
+      }
+    },
+    {
+      "id": "driftbench-reference3-tools-format-cascade-50",
+      "summary": {
+        "metric": "accuracy (JudgeBench, both orders)",
+        "value": {
+          "estimate": 0.9256198347107438,
+          "lower": 0.8646691146497353,
+          "upper": 0.9603773160230725
+        },
+        "n": 121,
+        "byGroup": {
+          "mmlu": {
+            "n": 59,
+            "value": 0.8983050847457628
+          },
+          "livebench": {
+            "n": 50,
+            "value": 0.94
+          },
+          "livecodebench": {
+            "n": 12,
+            "value": 1
+          }
+        },
+        "missing": 0,
+        "positionConsistency": 0.9338842975206612
+      }
+    }
+  ],
+  "changed": [
+    {
+      "id": "c20860f9-7468-546b-ae86-4ae6a6493de9",
+      "question": "How do men and women differ in their scores on the need for achievement? Why might this be?\n(A) Men and women have the same focus in their need to achieve\n(B) Women's need for achievement is higher in younger ages but equalizes with men as they enter the workforce.\n(C) Men score higher than women in need for achievement due to biological differences that are innate and unchanging over time.\n(D) As men and women grow older, their need for achievement decreases\n(E) Both men and women show an increase in the need for achievement after retirement due to having more free time to pursue personal goals.\n(F) Men's need for achievement is more influenced by peer pressure and societal expectations, while women's need is more self-motivated.\n(G) Men's need for achievement is directed more towards competitive sports and physical challenges, while women's need is directed towards academic and professional success.\n(H) The need for achievement is entirely culturally constructed, with no real differences between men and women, but perceived differences arise from measurement bias.\n(I) Women score higher than men in need for achievement\n(J) Women's need to achieve is directed differently than that of men, focusing more on homemaking or social success due to societal programming. The difference in scores increases as they grow older, with men's need for achievement increasing and women's decreasing.\nIf you cannot determine the correct multiple-choice answer, take your best guess. Once you have your answer, please duplicate that letter five times in a single string. For example, if the answer is K, then write KKKKK.\nLet's think step by step.",
+      "label": "A",
+      "auditExcluded": false,
+      "games": {
+        "driftbench-reference3": [
+          "B",
+          "B"
+        ],
+        "driftbench-reference3-tools-cascade-50": [
+          "A",
+          "A"
+        ],
+        "driftbench-reference3-tools-format-cascade-50": [
+          "A",
+          "A"
+        ]
+      },
+      "correct": {
+        "driftbench-reference3": false,
+        "driftbench-reference3-tools-cascade-50": true,
+        "driftbench-reference3-tools-format-cascade-50": true
+      }
+    },
+    {
+      "id": "9536d58f-8a88-53be-b97e-45bb2d457c12",
+      "question": "Studies into the etiology of Schizophrenia indicated a genetic predisposition to the condition but other factors are involved. From your knowledge of the subject identify which of the following statements is incorrect.\n(A) Excess dopamine or sensitivity to dopamine could be a contributory factor.\n(B) A lower rate of Schizophrenia diagnosed among Africa Americans.\n(C) Schizophrenia is primarily caused by poor lifestyle choices\n(D) Schizophrenia can be completely cured through psychotherapy\n(E) All schizophrenia patients exhibit severe personality splitting\nIf you cannot determine the correct multiple-choice answer, take your best guess. Once you have your answer, please duplicate that letter five times in a single string. For example, if the answer is K, then write KKKKK.\nLet's think step by step.",
+      "label": "A",
+      "auditExcluded": true,
+      "games": {
+        "driftbench-reference3": [
+          "B",
+          "B"
+        ],
+        "driftbench-reference3-tools-cascade-50": [
+          "A",
+          "A"
+        ],
+        "driftbench-reference3-tools-format-cascade-50": [
+          "A",
+          "A"
+        ]
+      },
+      "correct": {
+        "driftbench-reference3": false,
+        "driftbench-reference3-tools-cascade-50": true,
+        "driftbench-reference3-tools-format-cascade-50": true
+      }
+    },
+    {
+      "id": "70bf4c34-6b15-53e6-bb19-9094bdaf6c9f",
+      "question": "According to Hume, justice:\n(A) has no value.\n(B) has value in part because it is useful to society.\n(C) has value solely because it is useful to society.\n(D) has value solely because it is useful to the agent.\nIf you cannot determine the correct multiple-choice answer, take your best guess. Once you have your answer, please duplicate that letter five times in a single string. For example, if the answer is K, then write KKKKK.\nLet's think step by step.",
+      "label": "B",
+      "auditExcluded": true,
+      "games": {
+        "driftbench-reference3": [
+          "B",
+          "B"
+        ],
+        "driftbench-reference3-tools-cascade-50": [
+          "tie",
+          "tie"
+        ],
+        "driftbench-reference3-tools-format-cascade-50": [
+          "B",
+          "B"
+        ]
+      },
+      "correct": {
+        "driftbench-reference3": true,
+        "driftbench-reference3-tools-cascade-50": false,
+        "driftbench-reference3-tools-format-cascade-50": true
+      }
+    },
+    {
+      "id": "4a3d7d7a-61f7-5b18-92a0-4fc16cc69fbb",
+      "question": "Suppose I have a physical, solid square with vertices ABCD and a physical, solid equilateral triangle with vertices EFG. I place both shapes on a plane and arrange them so that they are not overlapping at all, but F is touching A, and G is touching B. Then I make a cut through EC. Then I separate all the pieces (e.g. so F is no longer touching A, and so on). Of the resulting pieces, how many are triangles? Think step by step, and then put your answer in **bold** as a single integer (for example, **0**). If you don't know, guess.",
+      "label": "B",
+      "auditExcluded": false,
+      "games": {
+        "driftbench-reference3": [
+          "B",
+          "B"
+        ],
+        "driftbench-reference3-tools-cascade-50": [
+          "tie",
+          "tie"
+        ],
+        "driftbench-reference3-tools-format-cascade-50": [
+          "tie",
+          "tie"
+        ]
+      },
+      "correct": {
+        "driftbench-reference3": true,
+        "driftbench-reference3-tools-cascade-50": false,
+        "driftbench-reference3-tools-format-cascade-50": false
+      }
+    }
+  ]
+}

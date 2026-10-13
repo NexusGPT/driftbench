@@ -1,0 +1,18 @@
+[
+  {
+    "key": "0cc80ac9b2e62cb9912f",
+    "item": "5718cf3d-a1a8-5503-85dd-f58b8a7fac4d",
+    "contestant": "driftbench-symmetric",
+    "order": "AB",
+    "confirmed": false,
+    "reason": "The phrase about correct outputs on examples is qualified by a timeout defect. The final reasoning explicitly selects B, consistent with fail."
+  },
+  {
+    "key": "17f7141633215373227f",
+    "item": "5718cf3d-a1a8-5503-85dd-f58b8a7fac4d",
+    "contestant": "driftbench-reference3",
+    "order": "AB#3",
+    "confirmed": false,
+    "reason": "The phrase about correct outputs on examples is qualified by a timeout defect. The final reasoning explicitly selects B, consistent with fail."
+  }
+]

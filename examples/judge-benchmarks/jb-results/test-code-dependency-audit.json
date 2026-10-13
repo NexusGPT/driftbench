@@ -1,0 +1,72 @@
+{
+  "stamp": "2026-10-13T01:58:26.989237+00:00",
+  "id": "1cf3ba1c-373e-5629-9a9e-b34e7fdc1d52",
+  "index": 214,
+  "dependency": "sortedcontainers==2.4.0",
+  "dependencySource": "https://pypi.org/project/sortedcontainers/",
+  "afterTonightScoreRead": true,
+  "lockedAuditSha256": "770d7ec6c639cb6a2dcf2c91f66f2821eae72d1f6038f42de6036108ebbb9342",
+  "noLabelOrJudgeChanges": true,
+  "smallCases": 2644,
+  "boundaryScope": "Two valid 100000-element cases on this host; no benchmark-runtime guarantee.",
+  "rows": [
+    {
+      "side": "a",
+      "originalProgramSha256": "13109057dd8a5809972e7eeb8f499cd8da703c9644b9fd87f92faa982d893a2d",
+      "originalBodyUnchanged": true,
+      "observations": [
+        {
+          "phase": "small",
+          "checked": 2644,
+          "failures": []
+        },
+        {
+          "phase": "boundary",
+          "n": 100000,
+          "distance": 1,
+          "expected": 1,
+          "actual": 1,
+          "seconds": 1.456442541006254
+        },
+        {
+          "phase": "boundary",
+          "n": 100000,
+          "distance": 0,
+          "expected": 0,
+          "actual": 0,
+          "seconds": 1.1250085663050413e-06
+        }
+      ],
+      "error": null
+    },
+    {
+      "side": "b",
+      "originalProgramSha256": "a2d965ab08a3ff0d307e2ac3e138650c70118c666e768026827fbb325a503074",
+      "originalBodyUnchanged": true,
+      "observations": [
+        {
+          "phase": "small",
+          "checked": 2644,
+          "failures": []
+        },
+        {
+          "phase": "boundary",
+          "n": 100000,
+          "distance": 1,
+          "expected": 1,
+          "actual": 1,
+          "seconds": 0.0916902500030119
+        },
+        {
+          "phase": "boundary",
+          "n": 100000,
+          "distance": 0,
+          "expected": 0,
+          "actual": 0,
+          "seconds": 1.500011421740055e-06
+        }
+      ],
+      "error": null
+    }
+  ]
+}

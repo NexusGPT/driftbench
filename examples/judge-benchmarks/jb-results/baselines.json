@@ -1,0 +1,76 @@
+{
+  "bench": "judgebench",
+  "model": "haiku",
+  "items": 121,
+  "contestants": [
+    {
+      "contestant": "driftbench-adaptive",
+      "source": "the shipped prompt with reasoning, solve-first and symmetric pairwise rules, three judgements, and a reference answer when the question is checkable (tuned on dev)",
+      "mode": "pairwise, both orders",
+      "summary": {
+        "metric": "accuracy (JudgeBench, both orders)",
+        "value": {
+          "estimate": 0.9090909090909091,
+          "lower": 0.8445270273318659,
+          "upper": 0.9484787652565609
+        },
+        "n": 121,
+        "byGroup": {
+          "mmlu": {
+            "n": 59,
+            "value": 0.847457627118644
+          },
+          "livebench": {
+            "n": 50,
+            "value": 0.96
+          },
+          "livecodebench": {
+            "n": 12,
+            "value": 1
+          }
+        },
+        "missing": 0,
+        "positionConsistency": 0.9256198347107438
+      },
+      "costUsd": 0.9603592100000011,
+      "calls": 954
+    },
+    {
+      "contestant": "driftbench-majref",
+      "source": "driftbench-adaptive with the reference taken from the majority of five independent solves (tuning candidate)",
+      "mode": "pairwise, both orders",
+      "summary": {
+        "metric": "accuracy (JudgeBench, both orders)",
+        "value": {
+          "estimate": 0,
+          "lower": 0,
+          "upper": 0.03077069794747827
+        },
+        "n": 121,
+        "byGroup": {
+          "mmlu": {
+            "n": 59,
+            "value": 0
+          },
+          "livebench": {
+            "n": 50,
+            "value": 0
+          },
+          "livecodebench": {
+            "n": 12,
+            "value": 0
+          }
+        },
+        "missing": 242,
+        "positionConsistency": 0
+      },
+      "costUsd": 0.0013561000000000003,
+      "calls": 2
+    }
+  ],
+  "newSpendUsd": 0,
+  "newCalls": 0,
+  "replayed": 956,
+  "failedCalls": 0,
+  "stopped": "no recording for driftbench-majref e302b0a0-28d5-5a3c-b1af-fedcf5543e72 reference#2"
+}

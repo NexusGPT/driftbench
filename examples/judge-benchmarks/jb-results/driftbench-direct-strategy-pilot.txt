@@ -1,0 +1,7 @@
+judgebench on haiku: 12 items (stratified sample of 12)
+
+| Contestant | Mode | Metric (95% interval) | Position consistency | Cost (USD) | Missing answers |
+|---|---|---|---|---|---|
+| driftbench-direct-strategy | pairwise, both orders | 75.0 [46.8, 91.1] | 75.0 | 0.1048 | 0 |
+
+New calls 74, new spend 0.1006 USD, replayed 4.

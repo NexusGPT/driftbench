@@ -1,0 +1,61 @@
+{
+  "stamp": "2026-10-13T00:17:18.940Z",
+  "policy": "Metadata-only provenance check after freeze; no prefreeze score recomputation.",
+  "initialTestCalls": 4692,
+  "byContestant": {
+    "driftbench": {
+      "references": 0,
+      "judgements": 456,
+      "routes": 0,
+      "other": 0
+    },
+    "deepeval": {
+      "references": 0,
+      "judgements": 456,
+      "routes": 0,
+      "other": 0
+    },
+    "promptfoo": {
+      "references": 0,
+      "judgements": 456,
+      "routes": 0,
+      "other": 0
+    },
+    "inspect": {
+      "references": 0,
+      "judgements": 0,
+      "routes": 0,
+      "other": 456
+    },
+    "scenario": {
+      "references": 0,
+      "judgements": 0,
+      "routes": 0,
+      "other": 456
+    },
+    "langfuse": {
+      "references": 0,
+      "judgements": 0,
+      "routes": 0,
+      "other": 456
+    },
+    "driftbench-reference": {
+      "references": 228,
+      "judgements": 456,
+      "routes": 0,
+      "other": 0
+    },
+    "driftbench-reference3": {
+      "references": 0,
+      "judgements": 912,
+      "routes": 0,
+      "other": 0
+    },
+    "driftbench-adaptive": {
+      "references": 0,
+      "judgements": 132,
+      "routes": 228,
+      "other": 0
+    }
+  }
+}

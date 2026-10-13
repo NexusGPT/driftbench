@@ -1,0 +1,80 @@
+{
+  "stamp": "2026-10-13T01:23:57.327Z",
+  "scanned": 116,
+  "bytes": 89026487,
+  "denylistTerms": 0,
+  "findings": [
+    {
+      "file": "examples/judge-benchmarks/recordings/mmeval/haiku.jsonl",
+      "line": 7781,
+      "kind": "phone",
+      "redacted": "04••••••31"
+    },
+    {
+      "file": "examples/judge-benchmarks/recordings/rubricbench/haiku.jsonl",
+      "line": 6284,
+      "kind": "email",
+      "redacted": "n@•••••et"
+    },
+    {
+      "file": "examples/judge-benchmarks/recordings/rubricbench/haiku.jsonl",
+      "line": 6284,
+      "kind": "email",
+      "redacted": "n@•••••et"
+    },
+    {
+      "file": "examples/judge-benchmarks/recordings/rubricbench/haiku.jsonl",
+      "line": 10148,
+      "kind": "phone",
+      "redacted": "04••••••30"
+    },
+    {
+      "file": "examples/judge-benchmarks/recordings/rubricbench/haiku.jsonl",
+      "line": 10585,
+      "kind": "phone",
+      "redacted": "04••••••87"
+    },
+    {
+      "file": "examples/judge-benchmarks/recordings/rubricbench/haiku.jsonl",
+      "line": 15071,
+      "kind": "email",
+      "redacted": "ph••••••••••••••••••om"
+    },
+    {
+      "file": "examples/judge-benchmarks/recordings/rubricbench/haiku.jsonl",
+      "line": 17364,
+      "kind": "email",
+      "redacted": "ph••••••••••••••••••om"
+    },
+    {
+      "file": "examples/judge-benchmarks/recordings/rubricbench/haiku.jsonl",
+      "line": 17365,
+      "kind": "email",
+      "redacted": "Ph••••••••••••••••••••••om"
+    },
+    {
+      "file": "examples/judge-benchmarks/recordings/rubricbench/haiku.jsonl",
+      "line": 17527,
+      "kind": "phone",
+      "redacted": "04••••••42"
+    },
+    {
+      "file": "examples/judge-benchmarks/recordings/rubricbench/haiku.jsonl",
+      "line": 18495,
+      "kind": "national-number",
+      "redacted": "11•••••••06"
+    },
+    {
+      "file": "examples/judge-benchmarks/recordings/rubricbench/haiku.jsonl",
+      "line": 20639,
+      "kind": "phone",
+      "redacted": "04••••••94"
+    },
+    {
+      "file": "examples/judge-benchmarks/recordings/rubricbench/haiku.jsonl",
+      "line": 23827,
+      "kind": "national-number",
+      "redacted": "24•••••••01"
+    }
+  ]
+}

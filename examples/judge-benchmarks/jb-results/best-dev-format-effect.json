@@ -1,0 +1,19 @@
+[
+  {
+    "id": "70bf4c34-6b15-53e6-bb19-9094bdaf6c9f",
+    "group": "mmlu",
+    "question": "According to Hume, justice:\n(A) has no value.\n(B) has value in part because it is useful to society.\n(C) has value solely because it is useful to society.\n(D) has value solely because it is useful to the agent.\nIf you cannot determine the correct multiple-choice answer, take your best guess. Once you have your answer, please duplicate that letter five times in a single string. For example, if the answer is K, then write KKKKK.\nLet's think step by step.",
+    "plain": [
+      "tie",
+      "tie"
+    ],
+    "format": [
+      "B",
+      "B"
+    ],
+    "label": "B",
+    "plainCorrect": false,
+    "formatCorrect": true,
+    "primaryAuditExcluded": true
+  }
+]

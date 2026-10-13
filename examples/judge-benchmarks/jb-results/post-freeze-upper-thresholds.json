@@ -1,0 +1,302 @@
+[
+  {
+    "id": "driftbench-reference3-tools-cascade-85",
+    "threshold": 0.85,
+    "report": {
+      "bench": "judgebench",
+      "model": "haiku",
+      "items": 121,
+      "contestants": [
+        {
+          "contestant": "driftbench-reference3-tools-cascade-85",
+          "source": "unchanged reference3, then label-blind uncertainty-gated escalation",
+          "mode": "pairwise, both orders",
+          "summary": {
+            "metric": "accuracy (JudgeBench, both orders)",
+            "value": {
+              "estimate": 0.9008264462809917,
+              "lower": 0.8346307100233648,
+              "upper": 0.9423547635228717
+            },
+            "n": 121,
+            "byGroup": {
+              "mmlu": {
+                "n": 59,
+                "value": 0.8644067796610171
+              },
+              "livebench": {
+                "n": 50,
+                "value": 0.92
+              },
+              "livecodebench": {
+                "n": 12,
+                "value": 1
+              }
+            },
+            "missing": 0,
+            "positionConsistency": 0.9090909090909091
+          },
+          "costUsd": 1.6259468400000008,
+          "calls": 1351
+        }
+      ],
+      "newSpendUsd": 0.06864362000000002,
+      "newCalls": 53,
+      "replayed": 1298,
+      "failedCalls": 0,
+      "escalated": 39,
+      "escalationShare": 0.32231404958677684
+    },
+    "audited": {
+      "metric": "accuracy (JudgeBench, both orders)",
+      "value": {
+        "estimate": 0.963963963963964,
+        "lower": 0.910989944100048,
+        "upper": 0.9858986974907682
+      },
+      "n": 111,
+      "byGroup": {
+        "mmlu": {
+          "n": 51,
+          "value": 0.9607843137254902
+        },
+        "livebench": {
+          "n": 48,
+          "value": 0.9583333333333334
+        },
+        "livecodebench": {
+          "n": 12,
+          "value": 1
+        }
+      },
+      "missing": 0,
+      "positionConsistency": 0.9459459459459459
+    },
+    "postFreezeDiagnostic": true
+  },
+  {
+    "id": "driftbench-reference3-tools-format-cascade-85",
+    "threshold": 0.85,
+    "report": {
+      "bench": "judgebench",
+      "model": "haiku",
+      "items": 121,
+      "contestants": [
+        {
+          "contestant": "driftbench-reference3-tools-format-cascade-85",
+          "source": "unchanged reference3, then label-blind uncertainty-gated escalation",
+          "mode": "pairwise, both orders",
+          "summary": {
+            "metric": "accuracy (JudgeBench, both orders)",
+            "value": {
+              "estimate": 0.9090909090909091,
+              "lower": 0.8445270273318659,
+              "upper": 0.9484787652565609
+            },
+            "n": 121,
+            "byGroup": {
+              "mmlu": {
+                "n": 59,
+                "value": 0.8813559322033898
+              },
+              "livebench": {
+                "n": 50,
+                "value": 0.92
+              },
+              "livecodebench": {
+                "n": 12,
+                "value": 1
+              }
+            },
+            "missing": 0,
+            "positionConsistency": 0.9173553719008265
+          },
+          "costUsd": 1.7528389400000017,
+          "calls": 1492
+        }
+      ],
+      "newSpendUsd": 0,
+      "newCalls": 0,
+      "replayed": 1492,
+      "failedCalls": 0,
+      "escalated": 39,
+      "escalationShare": 0.32231404958677684
+    },
+    "audited": {
+      "metric": "accuracy (JudgeBench, both orders)",
+      "value": {
+        "estimate": 0.963963963963964,
+        "lower": 0.910989944100048,
+        "upper": 0.9858986974907682
+      },
+      "n": 111,
+      "byGroup": {
+        "mmlu": {
+          "n": 51,
+          "value": 0.9607843137254902
+        },
+        "livebench": {
+          "n": 48,
+          "value": 0.9583333333333334
+        },
+        "livecodebench": {
+          "n": 12,
+          "value": 1
+        }
+      },
+      "missing": 0,
+      "positionConsistency": 0.9459459459459459
+    },
+    "postFreezeDiagnostic": true
+  },
+  {
+    "id": "driftbench-reference3-tools-cascade-90",
+    "threshold": 0.9,
+    "report": {
+      "bench": "judgebench",
+      "model": "haiku",
+      "items": 121,
+      "contestants": [
+        {
+          "contestant": "driftbench-reference3-tools-cascade-90",
+          "source": "unchanged reference3, then label-blind uncertainty-gated escalation",
+          "mode": "pairwise, both orders",
+          "summary": {
+            "metric": "accuracy (JudgeBench, both orders)",
+            "value": {
+              "estimate": 0.8925619834710744,
+              "lower": 0.8248348380619106,
+              "upper": 0.9361303164421355
+            },
+            "n": 121,
+            "byGroup": {
+              "mmlu": {
+                "n": 59,
+                "value": 0.847457627118644
+              },
+              "livebench": {
+                "n": 50,
+                "value": 0.92
+              },
+              "livecodebench": {
+                "n": 12,
+                "value": 1
+              }
+            },
+            "missing": 0,
+            "positionConsistency": 0.9008264462809917
+          },
+          "costUsd": 1.9600172800000009,
+          "calls": 1586
+        }
+      ],
+      "newSpendUsd": 0.15641934000000002,
+      "newCalls": 104,
+      "replayed": 1482,
+      "failedCalls": 0,
+      "escalated": 57,
+      "escalationShare": 0.47107438016528924
+    },
+    "audited": {
+      "metric": "accuracy (JudgeBench, both orders)",
+      "value": {
+        "estimate": 0.954954954954955,
+        "lower": 0.8988650882440173,
+        "upper": 0.980608239917851
+      },
+      "n": 111,
+      "byGroup": {
+        "mmlu": {
+          "n": 51,
+          "value": 0.9411764705882353
+        },
+        "livebench": {
+          "n": 48,
+          "value": 0.9583333333333334
+        },
+        "livecodebench": {
+          "n": 12,
+          "value": 1
+        }
+      },
+      "missing": 0,
+      "positionConsistency": 0.9369369369369369
+    },
+    "postFreezeDiagnostic": true
+  },
+  {
+    "id": "driftbench-reference3-tools-format-cascade-90",
+    "threshold": 0.9,
+    "report": {
+      "bench": "judgebench",
+      "model": "haiku",
+      "items": 121,
+      "contestants": [
+        {
+          "contestant": "driftbench-reference3-tools-format-cascade-90",
+          "source": "unchanged reference3, then label-blind uncertainty-gated escalation",
+          "mode": "pairwise, both orders",
+          "summary": {
+            "metric": "accuracy (JudgeBench, both orders)",
+            "value": {
+              "estimate": 0.9008264462809917,
+              "lower": 0.8346307100233648,
+              "upper": 0.9423547635228717
+            },
+            "n": 121,
+            "byGroup": {
+              "mmlu": {
+                "n": 59,
+                "value": 0.8644067796610171
+              },
+              "livebench": {
+                "n": 50,
+                "value": 0.92
+              },
+              "livecodebench": {
+                "n": 12,
+                "value": 1
+              }
+            },
+            "missing": 0,
+            "positionConsistency": 0.9090909090909091
+          },
+          "costUsd": 2.0869093800000016,
+          "calls": 1727
+        }
+      ],
+      "newSpendUsd": 0,
+      "newCalls": 0,
+      "replayed": 1727,
+      "failedCalls": 0,
+      "escalated": 57,
+      "escalationShare": 0.47107438016528924
+    },
+    "audited": {
+      "metric": "accuracy (JudgeBench, both orders)",
+      "value": {
+        "estimate": 0.954954954954955,
+        "lower": 0.8988650882440173,
+        "upper": 0.980608239917851
+      },
+      "n": 111,
+      "byGroup": {
+        "mmlu": {
+          "n": 51,
+          "value": 0.9411764705882353
+        },
+        "livebench": {
+          "n": 48,
+          "value": 0.9583333333333334
+        },
+        "livecodebench": {
+          "n": 12,
+          "value": 1
+        }
+      },
+      "missing": 0,
+      "positionConsistency": 0.9369369369369369
+    },
+    "postFreezeDiagnostic": true
+  }
+]

@@ -1,0 +1,1661 @@
+[
+  {
+    "index": 199,
+    "id": "82e65bbd-1ecf-51e4-9eb1-db5c957d7f4b",
+    "side": "a",
+    "proposal_sha256": "777d27ce23d81381800d5b120fb0ac75565ed26ff8a84d4bab380b084d8ff886",
+    "entry": "can_form_palindrome",
+    "tests": [
+      {
+        "args": [
+          1,
+          0,
+          "a"
+        ],
+        "expected": "YES",
+        "actual": "YES",
+        "correct": true,
+        "seconds": 3.512500552460551e-05
+      },
+      {
+        "args": [
+          3,
+          1,
+          "abc"
+        ],
+        "expected": "NO",
+        "actual": "NO",
+        "correct": true,
+        "seconds": 1.0416988516226411e-05
+      }
+    ]
+  },
+  {
+    "index": 199,
+    "id": "82e65bbd-1ecf-51e4-9eb1-db5c957d7f4b",
+    "side": "b",
+    "proposal_sha256": "f56b960c77dccf409640406d5eaec5052350e929abad1130cb90a95c005c3db1",
+    "entry": "can_form_palindrome",
+    "tests": [
+      {
+        "args": [
+          1,
+          0,
+          "a"
+        ],
+        "expected": "YES",
+        "actual": "NO",
+        "correct": false,
+        "seconds": 3.024999750778079e-05
+      },
+      {
+        "args": [
+          3,
+          1,
+          "abc"
+        ],
+        "expected": "NO",
+        "actual": "NO",
+        "correct": true,
+        "seconds": 1.0082992957904935e-05
+      }
+    ]
+  },
+  {
+    "index": 200,
+    "id": "100c98a6-0077-5ccd-bcee-5d507aba8a35",
+    "side": "a",
+    "proposal_sha256": "ee93e3c081dd8442db20fd81283f134a103a1c634ad66a258d87e69a17d825ab",
+    "entry": "determine_winner",
+    "tests": [
+      {
+        "args": [
+          3
+        ],
+        "expected": "Second",
+        "actual": "Second",
+        "correct": true,
+        "seconds": 9.082985343411565e-06
+      },
+      {
+        "args": [
+          1
+        ],
+        "expected": "First",
+        "actual": "First",
+        "correct": true,
+        "seconds": 5.125009920448065e-06
+      }
+    ]
+  },
+  {
+    "index": 200,
+    "id": "100c98a6-0077-5ccd-bcee-5d507aba8a35",
+    "side": "b",
+    "proposal_sha256": "9664c929eeae8668c40b7cc3590fb2114a8089ef3dc2078c4b60e3aa3468f4ee",
+    "entry": "determine_winner",
+    "tests": [
+      {
+        "args": [
+          3
+        ],
+        "expected": "Second",
+        "actual": "First",
+        "correct": false,
+        "seconds": 3.924997872672975e-05
+      },
+      {
+        "args": [
+          1
+        ],
+        "expected": "First",
+        "actual": "Second",
+        "correct": false,
+        "seconds": 5.917012458667159e-06
+      }
+    ]
+  },
+  {
+    "index": 201,
+    "id": "60479e16-f175-5268-8d7b-cf0effbeaeb6",
+    "side": "a",
+    "proposal_sha256": "06895689f7bc9c564e6418229aed3f89d4457427c622e6fdbee54ae713ef4ab9",
+    "entry": "maxStrength",
+    "tests": [
+      {
+        "args": [
+          [
+            3,
+            -1,
+            -5,
+            2,
+            5,
+            -9
+          ]
+        ],
+        "expected": 1350,
+        "actual": 45,
+        "correct": false,
+        "seconds": 1.970797893591225e-05
+      },
+      {
+        "args": [
+          [
+            -1
+          ]
+        ],
+        "expected": -1,
+        "actual": -1,
+        "correct": true,
+        "seconds": 9.125011274591088e-06
+      }
+    ]
+  },
+  {
+    "index": 201,
+    "id": "60479e16-f175-5268-8d7b-cf0effbeaeb6",
+    "side": "b",
+    "proposal_sha256": "b3aeb34ceac49a63ca67f854ac0e1a3f2504e54bc86c465f46657fb71dde3c6d",
+    "entry": "maxStrength",
+    "tests": [
+      {
+        "args": [
+          [
+            3,
+            -1,
+            -5,
+            2,
+            5,
+            -9
+          ]
+        ],
+        "expected": 1350,
+        "actual": 1350,
+        "correct": true,
+        "seconds": 2.8749986086040735e-05
+      },
+      {
+        "args": [
+          [
+            -1
+          ]
+        ],
+        "expected": -1,
+        "actual": -1,
+        "correct": true,
+        "seconds": 9.624985978007317e-06
+      }
+    ]
+  },
+  {
+    "index": 202,
+    "id": "3df69193-bfc2-5941-b0d6-103eb292aa76",
+    "side": "a",
+    "proposal_sha256": "f454bc4aba9e257f3e04b1405bc925ab78dcf6afc0f4598c972397ea2abbc4cd",
+    "entry": "count",
+    "tests": [
+      {
+        "args": [
+          "1",
+          "12",
+          1,
+          8
+        ],
+        "expected": 11,
+        "actual": 11,
+        "correct": true,
+        "seconds": 2.3208995116874576e-05
+      }
+    ]
+  },
+  {
+    "index": 202,
+    "id": "3df69193-bfc2-5941-b0d6-103eb292aa76",
+    "side": "b",
+    "proposal_sha256": "a3bc6f729518b7f11f0c321587339c6c576fa92601815f36590b579a11d83550",
+    "entry": "count",
+    "tests": [
+      {
+        "args": [
+          "1",
+          "12",
+          1,
+          8
+        ],
+        "expected": 11,
+        "actual": 11,
+        "correct": true,
+        "seconds": 2.420798409730196e-05
+      }
+    ]
+  },
+  {
+    "index": 203,
+    "id": "ea2d1f98-91c1-5ffb-bafa-31e0928065e0",
+    "side": "a",
+    "proposal_sha256": "9f764846566839d4721231cf0ab5ad081974026e9abfee869fec7c35b8ca1c68",
+    "entry": "canTraverseAllPairs",
+    "tests": [
+      {
+        "args": [
+          [
+            2,
+            3,
+            6
+          ]
+        ],
+        "expected": true,
+        "actual": true,
+        "correct": true,
+        "seconds": 2.1124986233189702e-05
+      },
+      {
+        "args": [
+          [
+            3,
+            9,
+            5
+          ]
+        ],
+        "expected": false,
+        "actual": false,
+        "correct": true,
+        "seconds": 1.1124997399747372e-05
+      }
+    ]
+  },
+  {
+    "index": 203,
+    "id": "ea2d1f98-91c1-5ffb-bafa-31e0928065e0",
+    "side": "b",
+    "proposal_sha256": "1d2617a35a8289cead44cc652568aacec50476240e16969f96d2aa26060c9b0b",
+    "entry": "canTraverseAllPairs",
+    "tests": [
+      {
+        "args": [
+          [
+            2,
+            3,
+            6
+          ]
+        ],
+        "expected": true,
+        "actual": true,
+        "correct": true,
+        "seconds": 2.6290974346920848e-05
+      },
+      {
+        "args": [
+          [
+            3,
+            9,
+            5
+          ]
+        ],
+        "expected": false,
+        "actual": false,
+        "correct": true,
+        "seconds": 1.4959019608795643e-05
+      }
+    ]
+  },
+  {
+    "index": 204,
+    "id": "46a3d4d9-c5cf-5cb1-9fbb-86c314347f6f",
+    "side": "a",
+    "proposal_sha256": "bcc01147f8488222ba56c46d51f29999d0d6594415ecf3c98653508500dd2323",
+    "entry": "makeTheIntegerZero",
+    "tests": [
+      {
+        "args": [
+          1,
+          1
+        ],
+        "expected": -1,
+        "actual": 1,
+        "correct": false,
+        "seconds": 1.6874982975423336e-05
+      },
+      {
+        "args": [
+          3,
+          -2
+        ],
+        "expected": 3,
+        "actual": 3,
+        "correct": true,
+        "seconds": 8.99998121894896e-06
+      }
+    ]
+  },
+  {
+    "index": 204,
+    "id": "46a3d4d9-c5cf-5cb1-9fbb-86c314347f6f",
+    "side": "b",
+    "proposal_sha256": "23c6cd96e2511e34073f854c5cbd2b19b98780abfec4abf86cf81478f020e5d2",
+    "entry": "makeTheIntegerZero",
+    "tests": [
+      {
+        "args": [
+          1,
+          1
+        ],
+        "expected": -1,
+        "actual": -1,
+        "correct": true,
+        "seconds": 0.0004590419994201511
+      },
+      {
+        "args": [
+          3,
+          -2
+        ],
+        "expected": 3,
+        "actual": 3,
+        "correct": true,
+        "seconds": 1.0499992640689015e-05
+      }
+    ]
+  },
+  {
+    "index": 205,
+    "id": "a7f0a43a-a51d-54ad-a31f-e63d731b414b",
+    "side": "a",
+    "proposal_sha256": "9a77b104dd1334dad64b42e14c7edd2bb045f2c2121608342c0c28d3050953cd",
+    "entry": "maximumNumberOfStringPairs",
+    "tests": [
+      {
+        "args": [
+          [
+            "aa",
+            "ab"
+          ]
+        ],
+        "expected": 0,
+        "error": "KeyError: 'aa'",
+        "correct": false
+      },
+      {
+        "args": [
+          [
+            "ab",
+            "ba",
+            "cc"
+          ]
+        ],
+        "expected": 1,
+        "error": "KeyError: 'cc'",
+        "correct": false
+      }
+    ]
+  },
+  {
+    "index": 205,
+    "id": "a7f0a43a-a51d-54ad-a31f-e63d731b414b",
+    "side": "b",
+    "proposal_sha256": "ec94aa4eedee7b66af919cd9e2ecfa7ae5f2555e6daf2bb55e3f6ef9b60e97a7",
+    "entry": "maximumNumberOfStringPairs",
+    "tests": [
+      {
+        "args": [
+          [
+            "aa",
+            "ab"
+          ]
+        ],
+        "expected": 0,
+        "actual": 0,
+        "correct": true,
+        "seconds": 1.7458020010963082e-05
+      },
+      {
+        "args": [
+          [
+            "ab",
+            "ba",
+            "cc"
+          ]
+        ],
+        "expected": 1,
+        "actual": 1,
+        "correct": true,
+        "seconds": 1.0625022696331143e-05
+      }
+    ]
+  },
+  {
+    "index": 206,
+    "id": "548ec6a2-d244-5724-b5c3-946285ed13c3",
+    "side": "a",
+    "proposal_sha256": "ea34ee82757487cad9d7b416c95130eb5762b5db7ce39810ea0e92b38858f0a1",
+    "entry": "longestString",
+    "tests": [
+      {
+        "args": [
+          2,
+          5,
+          1
+        ],
+        "expected": 12,
+        "actual": 12,
+        "correct": true,
+        "seconds": 1.575000351294875e-05
+      },
+      {
+        "args": [
+          3,
+          2,
+          2
+        ],
+        "expected": 14,
+        "actual": 14,
+        "correct": true,
+        "seconds": 8.291011909022927e-06
+      }
+    ]
+  },
+  {
+    "index": 206,
+    "id": "548ec6a2-d244-5724-b5c3-946285ed13c3",
+    "side": "b",
+    "proposal_sha256": "dd62cfb0f0d4360ae5d942a77b581cf5d747fc576d1f07088ddc2dbe9309e3ea",
+    "entry": "longestString",
+    "tests": [
+      {
+        "args": [
+          2,
+          5,
+          1
+        ],
+        "expected": 12,
+        "actual": 8,
+        "correct": false,
+        "seconds": 1.5291996533051133e-05
+      },
+      {
+        "args": [
+          3,
+          2,
+          2
+        ],
+        "expected": 14,
+        "actual": 12,
+        "correct": false,
+        "seconds": 8.458009688183665e-06
+      }
+    ]
+  },
+  {
+    "index": 207,
+    "id": "0733e950-b012-5211-9342-323949691a87",
+    "side": "a",
+    "proposal_sha256": "c31678b06445d4cc3e9fb2d2367209cc3f9dd6973d34096fb44e51f741a27ffd",
+    "entry": "maximumJumps",
+    "tests": [
+      {
+        "args": [
+          [
+            1,
+            3,
+            6,
+            4,
+            1,
+            2
+          ],
+          2
+        ],
+        "expected": 3,
+        "error": "AttributeError: 'list' object has no attribute 'length'",
+        "correct": false
+      }
+    ]
+  },
+  {
+    "index": 207,
+    "id": "0733e950-b012-5211-9342-323949691a87",
+    "side": "b",
+    "proposal_sha256": "33fe7705a60e40404942e2a8a84cad1d8d7ff21a4f99c132cb897529119924fe",
+    "entry": "maximumJumps",
+    "tests": [
+      {
+        "args": [
+          [
+            1,
+            3,
+            6,
+            4,
+            1,
+            2
+          ],
+          2
+        ],
+        "expected": 3,
+        "actual": 3,
+        "correct": true,
+        "seconds": 1.9749975763261318e-05
+      }
+    ]
+  },
+  {
+    "index": 208,
+    "id": "107ade41-859a-5dfb-8bd4-3b3257b8b989",
+    "side": "a",
+    "proposal_sha256": "9e5b82545a84cdc9c2eebe93e7e2ada72e35c992ca531b66a4d850dc4d2a9d5f",
+    "entry": "longestAlternatingSubarray",
+    "tests": [
+      {
+        "args": [
+          [
+            2,
+            3,
+            4,
+            5
+          ],
+          4
+        ],
+        "expected": 3,
+        "actual": 3,
+        "correct": true,
+        "seconds": 1.883300137706101e-05
+      }
+    ]
+  },
+  {
+    "index": 208,
+    "id": "107ade41-859a-5dfb-8bd4-3b3257b8b989",
+    "side": "b",
+    "proposal_sha256": "ea9c143beb7a5d446824f36f63bedec0587acb49c39924df855102d048d41725",
+    "entry": "longestAlternatingSubarray",
+    "tests": [
+      {
+        "args": [
+          [
+            2,
+            3,
+            4,
+            5
+          ],
+          4
+        ],
+        "expected": 3,
+        "error": "AttributeError: 'list' object has no attribute 'length'",
+        "correct": false
+      }
+    ]
+  },
+  {
+    "index": 209,
+    "id": "493c4e3e-8287-53b2-9a76-c6684e734ad0",
+    "side": "a",
+    "proposal_sha256": "417df47ff8be61d0ffedd7253ba3cbca7dbb43612d95c2ae53f7e7f2b64b7cf1",
+    "entry": "checkArray",
+    "tests": [
+      {
+        "args": [
+          [
+            1,
+            1,
+            1
+          ],
+          2
+        ],
+        "expected": false,
+        "actual": false,
+        "correct": true,
+        "seconds": 1.76659959834069e-05
+      }
+    ]
+  },
+  {
+    "index": 209,
+    "id": "493c4e3e-8287-53b2-9a76-c6684e734ad0",
+    "side": "b",
+    "proposal_sha256": "9fad26218d6adb144c6782913e268d5cf4184e91793171f3696b34f4fbbbba5d",
+    "entry": "checkArray",
+    "tests": [
+      {
+        "args": [
+          [
+            1,
+            1,
+            1
+          ],
+          2
+        ],
+        "expected": false,
+        "actual": true,
+        "correct": false,
+        "seconds": 2.008400042541325e-05
+      }
+    ]
+  },
+  {
+    "index": 210,
+    "id": "5227ee30-68aa-5bc1-b8bf-90164d780399",
+    "side": "a",
+    "proposal_sha256": "5dcf434b53e2ea14534bb483804349d965e502c32164400a22072fcfe1ee2284",
+    "entry": "isGood",
+    "tests": [
+      {
+        "args": [
+          [
+            2,
+            1,
+            3
+          ]
+        ],
+        "expected": false,
+        "actual": false,
+        "correct": true,
+        "seconds": 1.6874982975423336e-05
+      }
+    ]
+  },
+  {
+    "index": 210,
+    "id": "5227ee30-68aa-5bc1-b8bf-90164d780399",
+    "side": "b",
+    "proposal_sha256": "eb9e7ed5beab8c673e946dd19356ea737e054597c53d77e8c14ece6920cb8f4e",
+    "entry": "isGood",
+    "tests": [
+      {
+        "args": [
+          [
+            2,
+            1,
+            3
+          ]
+        ],
+        "expected": false,
+        "error": "NameError: name 'false' is not defined",
+        "correct": false
+      }
+    ]
+  },
+  {
+    "index": 211,
+    "id": "d6cea804-d883-5096-8ec3-e9356ffc8a31",
+    "side": "a",
+    "proposal_sha256": "0ac29aa88714f0860512a9ed1c87fea1b3daba57a9c8aaa1013d5ca19e112ff8",
+    "entry": "canSplitArray",
+    "tests": [
+      {
+        "args": [
+          [
+            1,
+            1
+          ],
+          3
+        ],
+        "expected": true,
+        "actual": false,
+        "correct": false,
+        "seconds": 1.5583005733788013e-05
+      },
+      {
+        "args": [
+          [
+            1
+          ],
+          200
+        ],
+        "expected": true,
+        "actual": true,
+        "correct": true,
+        "seconds": 8.25000461190939e-06
+      }
+    ]
+  },
+  {
+    "index": 211,
+    "id": "d6cea804-d883-5096-8ec3-e9356ffc8a31",
+    "side": "b",
+    "proposal_sha256": "8fcbf30fcdc66a911f1822fb37b9402e5f2c88f18229759fd1f43bd0b20f09af",
+    "entry": "canSplitArray",
+    "tests": [
+      {
+        "args": [
+          [
+            1,
+            1
+          ],
+          3
+        ],
+        "expected": true,
+        "actual": false,
+        "correct": false,
+        "seconds": 1.7167010810226202e-05
+      },
+      {
+        "args": [
+          [
+            1
+          ],
+          200
+        ],
+        "expected": true,
+        "actual": false,
+        "correct": false,
+        "seconds": 8.625007467344403e-06
+      }
+    ]
+  },
+  {
+    "index": 212,
+    "id": "57b3a50f-ce4b-5620-8f48-7196a0621301",
+    "side": "a",
+    "proposal_sha256": "f1af55d283377f3a7c383b969957f14ebd1c9be284116af709039398f1ed13b1",
+    "entry": "maxIncreasingGroups",
+    "tests": [
+      {
+        "args": [
+          [
+            1,
+            1,
+            50
+          ]
+        ],
+        "expected": 2,
+        "actual": 3,
+        "correct": false,
+        "seconds": 1.7457990907132626e-05
+      },
+      {
+        "args": [
+          [
+            10
+          ]
+        ],
+        "expected": 1,
+        "actual": 1,
+        "correct": true,
+        "seconds": 8.458999218419194e-06
+      }
+    ]
+  },
+  {
+    "index": 212,
+    "id": "57b3a50f-ce4b-5620-8f48-7196a0621301",
+    "side": "b",
+    "proposal_sha256": "af309679e3c98432ff54cc4a764f3c6b0c4fe8d3dafd970c8bfc777ba243a9fd",
+    "entry": "maxIncreasingGroups",
+    "tests": [
+      {
+        "args": [
+          [
+            1,
+            1,
+            50
+          ]
+        ],
+        "expected": 2,
+        "actual": 9,
+        "correct": false,
+        "seconds": 2.170802326872945e-05
+      },
+      {
+        "args": [
+          [
+            10
+          ]
+        ],
+        "expected": 1,
+        "actual": 4,
+        "correct": false,
+        "seconds": 9.292009053751826e-06
+      }
+    ]
+  },
+  {
+    "index": 213,
+    "id": "7bdca284-3957-5a99-ab5f-52b2081d184d",
+    "side": "a",
+    "proposal_sha256": "696ac042dde9007f398eabac66b273e104c28acace25e33bac78c63bbd324ebf",
+    "entry": "maximizeTheProfit",
+    "tests": [
+      {
+        "args": [
+          4,
+          [
+            [
+              0,
+              1,
+              100
+            ],
+            [
+              0,
+              2,
+              1
+            ],
+            [
+              3,
+              3,
+              100
+            ]
+          ]
+        ],
+        "expected": 200,
+        "actual": 200,
+        "correct": true,
+        "seconds": 2.3959000827744603e-05
+      }
+    ]
+  },
+  {
+    "index": 213,
+    "id": "7bdca284-3957-5a99-ab5f-52b2081d184d",
+    "side": "b",
+    "proposal_sha256": "35b534438857f6485f8dbc3d3960f1d4015f11151a2825402bbc1509c69e331e",
+    "entry": "maximizeTheProfit",
+    "tests": [
+      {
+        "args": [
+          4,
+          [
+            [
+              0,
+              1,
+              100
+            ],
+            [
+              0,
+              2,
+              1
+            ],
+            [
+              3,
+              3,
+              100
+            ]
+          ]
+        ],
+        "expected": 200,
+        "actual": 101,
+        "correct": false,
+        "seconds": 2.2249994799494743e-05
+      }
+    ]
+  },
+  {
+    "index": 214,
+    "id": "1cf3ba1c-373e-5629-9a9e-b34e7fdc1d52",
+    "side": "a",
+    "proposal_sha256": "13109057dd8a5809972e7eeb8f499cd8da703c9644b9fd87f92faa982d893a2d",
+    "entry": "minAbsoluteDifference",
+    "tests": [
+      {
+        "args": [
+          [
+            4,
+            3,
+            2,
+            4
+          ],
+          2
+        ],
+        "expected": 0,
+        "actual": 0,
+        "correct": true,
+        "seconds": 1.937500201165676e-05
+      }
+    ]
+  },
+  {
+    "index": 214,
+    "id": "1cf3ba1c-373e-5629-9a9e-b34e7fdc1d52",
+    "side": "b",
+    "proposal_sha256": "a2d965ab08a3ff0d307e2ac3e138650c70118c666e768026827fbb325a503074",
+    "entry": "minAbsoluteDifference",
+    "tests": {
+      "error": "Traceback (most recent call last):\n  File \"/Users/assem/Documents/GitHub/driftbench/.worktrees/codex-jb/examples/judge-benchmarks/jb-results/runtime/test-code-proof-86ch99d9/proof.py\", line 1, in <module>\n    from sortedcontainers import SortedList\nModuleNotFoundError: No module named 'sortedcontainers'\n",
+      "exit": 1
+    }
+  },
+  {
+    "index": 215,
+    "id": "0437ca17-8032-5d11-9632-d30502b67ce7",
+    "side": "a",
+    "proposal_sha256": "c08e60e55a73ac9f3c6ec000ab35fe814efa8b86edf3c2026fd60fbf3192eab3",
+    "entry": "minimumRightShifts",
+    "tests": [
+      {
+        "args": [
+          [
+            1,
+            3,
+            5
+          ]
+        ],
+        "expected": 0,
+        "actual": 3,
+        "correct": false,
+        "seconds": 1.7208978533744812e-05
+      }
+    ]
+  },
+  {
+    "index": 215,
+    "id": "0437ca17-8032-5d11-9632-d30502b67ce7",
+    "side": "b",
+    "proposal_sha256": "d0156774598de0a6d98213ec47304e8e7cf0a70fa640b7c3bd75340387923122",
+    "entry": "minimumRightShifts",
+    "tests": [
+      {
+        "args": [
+          [
+            1,
+            3,
+            5
+          ]
+        ],
+        "expected": 0,
+        "actual": 0,
+        "correct": true,
+        "seconds": 1.6292004147544503e-05
+      }
+    ]
+  },
+  {
+    "index": 216,
+    "id": "d39cb716-d877-573a-8f6a-df4150c7ef0a",
+    "side": "a",
+    "proposal_sha256": "e07e02e67fab1d22a13041bdf60aca22159f8477dec9bdaaf87d950d37c2dc44",
+    "entry": "maxSubarrays",
+    "tests": [
+      {
+        "args": [
+          [
+            1,
+            0,
+            2,
+            0,
+            1,
+            2
+          ]
+        ],
+        "expected": 3,
+        "actual": 3,
+        "correct": true,
+        "seconds": 1.6375008272007108e-05
+      }
+    ]
+  },
+  {
+    "index": 216,
+    "id": "d39cb716-d877-573a-8f6a-df4150c7ef0a",
+    "side": "b",
+    "proposal_sha256": "ce755f5e8df73334f489cb5259105ca73b49e39f97a6e13520e876dba9df7ba0",
+    "entry": "maxSubarrays",
+    "tests": [
+      {
+        "args": [
+          [
+            1,
+            0,
+            2,
+            0,
+            1,
+            2
+          ]
+        ],
+        "expected": 3,
+        "actual": 5,
+        "correct": false,
+        "seconds": 1.662501017563045e-05
+      }
+    ]
+  },
+  {
+    "index": 217,
+    "id": "58ee7000-47a1-54d6-9857-77d0eaa3a4b7",
+    "side": "a",
+    "proposal_sha256": "9982fceb9fc9e0d56ca18c062b5ad393abc47902987622aa27e0d9d6332e7501",
+    "entry": "countWays",
+    "tests": [
+      {
+        "args": [
+          [
+            0,
+            1
+          ]
+        ],
+        "expected": 1,
+        "actual": 2,
+        "correct": false,
+        "seconds": 1.6708014300093055e-05
+      }
+    ]
+  },
+  {
+    "index": 217,
+    "id": "58ee7000-47a1-54d6-9857-77d0eaa3a4b7",
+    "side": "b",
+    "proposal_sha256": "745ca929c6dc780ea703de7e8a89969e33ac87b04ec0d923ee6ea3f0c7f3d17a",
+    "entry": "countWays",
+    "tests": [
+      {
+        "args": [
+          [
+            0,
+            1
+          ]
+        ],
+        "expected": 1,
+        "actual": 1,
+        "correct": true,
+        "seconds": 1.650000922381878e-05
+      }
+    ]
+  },
+  {
+    "index": 218,
+    "id": "aa39d712-54ea-5d35-96d6-eb187ed95891",
+    "side": "a",
+    "proposal_sha256": "8c3a8ce5218dcc6b4c37f922068379f942cae427c3e21854ae9d58da57b6739b",
+    "entry": "minSizeSubarray",
+    "tests": [
+      {
+        "args": [
+          [
+            2,
+            4,
+            6,
+            8
+          ],
+          3
+        ],
+        "expected": -1,
+        "actual": -1,
+        "correct": true,
+        "seconds": 1.8166989320889115e-05
+      }
+    ]
+  },
+  {
+    "index": 218,
+    "id": "aa39d712-54ea-5d35-96d6-eb187ed95891",
+    "side": "b",
+    "proposal_sha256": "d8890ef5352f4475d18822ecd95ec1a17f4c98dbb96e79a6a662afe490b8f17f",
+    "entry": "minSizeSubarray",
+    "tests": [
+      {
+        "args": [
+          [
+            2,
+            4,
+            6,
+            8
+          ],
+          3
+        ],
+        "expected": -1,
+        "actual": 1,
+        "correct": false,
+        "seconds": 1.9291997887194157e-05
+      }
+    ]
+  },
+  {
+    "index": 219,
+    "id": "1c3fccb4-012e-5156-9103-ab835de77625",
+    "side": "a",
+    "proposal_sha256": "04c74860ccaa547ebcee51c94d9db816eea852edbd73c4c229a22bb454364277",
+    "entry": "minimumSteps",
+    "tests": [
+      {
+        "args": [
+          "100"
+        ],
+        "expected": 2,
+        "actual": 0,
+        "correct": false,
+        "seconds": 1.491699367761612e-05
+      }
+    ]
+  },
+  {
+    "index": 219,
+    "id": "1c3fccb4-012e-5156-9103-ab835de77625",
+    "side": "b",
+    "proposal_sha256": "7791f01d8f51db2a116b360c7b7832c840267efae740e6a4ae271a6642cb6a2d",
+    "entry": "minimumSteps",
+    "tests": [
+      {
+        "args": [
+          "100"
+        ],
+        "expected": 2,
+        "actual": 2,
+        "correct": true,
+        "seconds": 1.4541001291945577e-05
+      }
+    ]
+  },
+  {
+    "index": 220,
+    "id": "377f8d5c-8ab3-5e42-b36d-bea220b19ac3",
+    "side": "a",
+    "proposal_sha256": "e25eeaf8a9f45e76b75181ad49fa32d64c465700003c64ba8121d267f0a34ef6",
+    "entry": "removeAlmostEqualCharacters",
+    "tests": [
+      {
+        "args": [
+          "abddez"
+        ],
+        "expected": 2,
+        "actual": 1,
+        "correct": false,
+        "seconds": 1.837499439716339e-05
+      }
+    ]
+  },
+  {
+    "index": 220,
+    "id": "377f8d5c-8ab3-5e42-b36d-bea220b19ac3",
+    "side": "b",
+    "proposal_sha256": "29c4474df1daba94cf0f79eaa192851e2c4af3154a3466ce30e4a5d11fb80b4a",
+    "entry": "removeAlmostEqualCharacters",
+    "tests": [
+      {
+        "args": [
+          "abddez"
+        ],
+        "expected": 2,
+        "actual": 2,
+        "correct": true,
+        "seconds": 1.937500201165676e-05
+      }
+    ]
+  },
+  {
+    "index": 221,
+    "id": "883785df-990c-51ce-894a-c9f5f2952750",
+    "side": "a",
+    "proposal_sha256": "65e53766b39c4f6c3e549a8abf2a9bfc38c8f5a0a5cde2058dc92219b0f7be9e",
+    "entry": "minimumCost",
+    "tests": [
+      {
+        "args": [
+          "aaaa",
+          "bbbb",
+          [
+            "a",
+            "c"
+          ],
+          [
+            "c",
+            "b"
+          ],
+          [
+            1,
+            2
+          ]
+        ],
+        "expected": 12,
+        "actual": 12,
+        "correct": true,
+        "seconds": 2.9041984817013144e-05
+      }
+    ]
+  },
+  {
+    "index": 221,
+    "id": "883785df-990c-51ce-894a-c9f5f2952750",
+    "side": "b",
+    "proposal_sha256": "444f94d67dd76646b65ef3f2deb5e192483464820c1b933552f7f2eb22046c24",
+    "entry": "minimumCost",
+    "tests": [
+      {
+        "args": [
+          "aaaa",
+          "bbbb",
+          [
+            "a",
+            "c"
+          ],
+          [
+            "c",
+            "b"
+          ],
+          [
+            1,
+            2
+          ]
+        ],
+        "expected": 12,
+        "actual": 12,
+        "correct": true,
+        "seconds": 5.820798105560243e-05
+      }
+    ]
+  },
+  {
+    "index": 222,
+    "id": "1ffd3127-ed25-5ab3-b793-ba82e8bbfbe0",
+    "side": "a",
+    "proposal_sha256": "9cf2f3ec91c13918666a368888492a1ae16a6fd3eba752da304b901c3898da9c",
+    "entry": "hasTrailingZeros",
+    "tests": [
+      {
+        "args": [
+          [
+            2,
+            1
+          ]
+        ],
+        "expected": false,
+        "actual": false,
+        "correct": true,
+        "seconds": 1.908399281091988e-05
+      }
+    ]
+  },
+  {
+    "index": 222,
+    "id": "1ffd3127-ed25-5ab3-b793-ba82e8bbfbe0",
+    "side": "b",
+    "proposal_sha256": "a6a502db5f6a9a7e2f1747ef20fb8e00b0f6dc0c99e5d10d9e84ed8d82ea9a45",
+    "entry": "hasTrailingZeros",
+    "tests": [
+      {
+        "args": [
+          [
+            2,
+            1
+          ]
+        ],
+        "expected": false,
+        "actual": true,
+        "correct": false,
+        "seconds": 1.7707992810755968e-05
+      }
+    ]
+  },
+  {
+    "index": 223,
+    "id": "9d58ec02-1517-5f49-8e7b-cbaa8cb5ad07",
+    "side": "a",
+    "proposal_sha256": "c4542a4a5c5911fc2c8c73c4dd44d2a0215e67f90954eda165d4c467fe99cc84",
+    "entry": "minOperations",
+    "tests": [
+      {
+        "args": [
+          [
+            0
+          ],
+          1
+        ],
+        "expected": 1,
+        "actual": 1,
+        "correct": true,
+        "seconds": 1.6834004782140255e-05
+      }
+    ]
+  },
+  {
+    "index": 223,
+    "id": "9d58ec02-1517-5f49-8e7b-cbaa8cb5ad07",
+    "side": "b",
+    "proposal_sha256": "d2530a34374a141a404b3c6ea32593e30bf353500f142e493fea2464965d2990",
+    "entry": "minOperations",
+    "tests": [
+      {
+        "args": [
+          [
+            0
+          ],
+          1
+        ],
+        "expected": 1,
+        "actual": 0,
+        "correct": false,
+        "seconds": 1.4417018974199891e-05
+      }
+    ]
+  },
+  {
+    "index": 224,
+    "id": "745f9340-63fd-527b-b707-126f38ebb096",
+    "side": "a",
+    "proposal_sha256": "ad6f4fb18fb1c3639ae12b5e4d0bf9178b2bb198ee5403497eb4f4c12035acd2",
+    "entry": "canSortArray",
+    "tests": [
+      {
+        "args": [
+          [
+            8,
+            4,
+            2,
+            30,
+            15
+          ]
+        ],
+        "expected": true,
+        "actual": false,
+        "correct": false,
+        "seconds": 2.1958985598757863e-05
+      },
+      {
+        "args": [
+          [
+            8,
+            3,
+            1
+          ]
+        ],
+        "expected": false,
+        "actual": false,
+        "correct": true,
+        "seconds": 1.0624993592500687e-05
+      }
+    ]
+  },
+  {
+    "index": 224,
+    "id": "745f9340-63fd-527b-b707-126f38ebb096",
+    "side": "b",
+    "proposal_sha256": "9afbad8bf4e6ac82c58c0293debbc97dd0006e35a422eaf837cc74ecc0097ecd",
+    "entry": "canSortArray",
+    "tests": [
+      {
+        "args": [
+          [
+            8,
+            4,
+            2,
+            30,
+            15
+          ]
+        ],
+        "expected": true,
+        "actual": true,
+        "correct": true,
+        "seconds": 2.2416003048419952e-05
+      },
+      {
+        "args": [
+          [
+            8,
+            3,
+            1
+          ]
+        ],
+        "expected": false,
+        "actual": true,
+        "correct": false,
+        "seconds": 1.0333984391763806e-05
+      }
+    ]
+  },
+  {
+    "index": 225,
+    "id": "7467b7ba-5ce1-5dee-a5a4-160070585dad",
+    "side": "a",
+    "proposal_sha256": "4f4352fcfe8a33d0ece4394e6ecec5a7d1d4f9d80b7da1db0859894be54c9502",
+    "entry": "countKeyChanges",
+    "tests": [
+      {
+        "args": [
+          "aAbBcC"
+        ],
+        "expected": 2,
+        "error": "AttributeError: 'str' object has no attribute 'length'",
+        "correct": false
+      }
+    ]
+  },
+  {
+    "index": 225,
+    "id": "7467b7ba-5ce1-5dee-a5a4-160070585dad",
+    "side": "b",
+    "proposal_sha256": "3c3d5cddf18022d5d08a9322a6955ad0712814cc781b7fa3f7a86b3d5b23d830",
+    "entry": "countKeyChanges",
+    "tests": [
+      {
+        "args": [
+          "aAbBcC"
+        ],
+        "expected": 2,
+        "actual": 2,
+        "correct": true,
+        "seconds": 1.6290985513478518e-05
+      }
+    ]
+  },
+  {
+    "index": 226,
+    "id": "00176ef4-146c-53e1-8328-d349fb7d0ea3",
+    "side": "a",
+    "proposal_sha256": "b22cfa8c73067aef0abca2756151b07daa9f37e2ef69a716b02ae9e76ac706c7",
+    "entry": "maxOperations",
+    "tests": [
+      {
+        "args": [
+          [
+            3,
+            2,
+            1,
+            4,
+            5
+          ]
+        ],
+        "expected": 2,
+        "actual": 2,
+        "correct": true,
+        "seconds": 1.8874998204410076e-05
+      }
+    ]
+  },
+  {
+    "index": 226,
+    "id": "00176ef4-146c-53e1-8328-d349fb7d0ea3",
+    "side": "b",
+    "proposal_sha256": "220093e8a9ee2b1b0e837d396dc071267382c6a737a15b10e6595dead97a95aa",
+    "entry": "maxOperations",
+    "tests": [
+      {
+        "args": [
+          [
+            3,
+            2,
+            1,
+            4,
+            5
+          ]
+        ],
+        "expected": 2,
+        "error": "IndexError: list index out of range",
+        "correct": false
+      }
+    ]
+  },
+  {
+    "index": 227,
+    "id": "4ae23f71-e3fa-507e-b892-50943390d857",
+    "side": "a",
+    "proposal_sha256": "3f7a36ac0d5775797a1aad76c0ab550ff669430e310bdf1630f6572e045902c9",
+    "entry": "isPossibleToSplit",
+    "tests": [
+      {
+        "args": [
+          [
+            1,
+            1
+          ]
+        ],
+        "expected": true,
+        "actual": true,
+        "correct": true,
+        "seconds": 2.9999995604157448e-05
+      },
+      {
+        "args": [
+          [
+            1,
+            1,
+            1,
+            2,
+            3,
+            4
+          ]
+        ],
+        "expected": false,
+        "actual": false,
+        "correct": true,
+        "seconds": 1.200000406242907e-05
+      }
+    ]
+  },
+  {
+    "index": 227,
+    "id": "4ae23f71-e3fa-507e-b892-50943390d857",
+    "side": "b",
+    "proposal_sha256": "2d4f91b60e822971a6dc721783b450b7ea10f5e01cee93ec24cc3413f249728c",
+    "entry": "isPossibleToSplit",
+    "tests": [
+      {
+        "args": [
+          [
+            1,
+            1
+          ]
+        ],
+        "expected": true,
+        "actual": false,
+        "correct": false,
+        "seconds": 3.645799006335437e-05
+      },
+      {
+        "args": [
+          [
+            1,
+            1,
+            1,
+            2,
+            3,
+            4
+          ]
+        ],
+        "expected": false,
+        "actual": true,
+        "correct": false,
+        "seconds": 1.3457989552989602e-05
+      }
+    ]
+  },
+  {
+    "index": 228,
+    "id": "310930bc-03d8-5dc0-b030-0e02ba61b8b9",
+    "side": "a",
+    "proposal_sha256": "8b84a7467995ec4a81cd1a386084f4ee53e19710a6f7880a810e13ee8d16e28e",
+    "entry": "find_snuke_path",
+    "tests": [
+      {
+        "args": [
+          5,
+          5,
+          [
+            "ezzzz",
+            "zkzzz",
+            "ezuzs",
+            "zzznz",
+            "zzzzs"
+          ]
+        ],
+        "expected": [
+          [
+            4,
+            4
+          ],
+          [
+            3,
+            3
+          ],
+          [
+            2,
+            2
+          ],
+          [
+            1,
+            1
+          ],
+          [
+            0,
+            0
+          ]
+        ],
+        "actual": [
+          [
+            4,
+            4
+          ],
+          [
+            3,
+            3
+          ],
+          [
+            2,
+            2
+          ],
+          [
+            1,
+            1
+          ],
+          [
+            0,
+            0
+          ]
+        ],
+        "correct": true,
+        "seconds": 3.320799442008138e-05
+      }
+    ]
+  },
+  {
+    "index": 228,
+    "id": "310930bc-03d8-5dc0-b030-0e02ba61b8b9",
+    "side": "b",
+    "proposal_sha256": "fcb632063c47d675e47d8964b69a54d968c8de672a1c9a4e5e7f24beeb61ef15",
+    "entry": "find_snuke_positions",
+    "tests": [
+      {
+        "args": [
+          5,
+          5,
+          [
+            "ezzzz",
+            "zkzzz",
+            "ezuzs",
+            "zzznz",
+            "zzzzs"
+          ]
+        ],
+        "expected": [
+          [
+            4,
+            4
+          ],
+          [
+            3,
+            3
+          ],
+          [
+            2,
+            2
+          ],
+          [
+            1,
+            1
+          ],
+          [
+            0,
+            0
+          ]
+        ],
+        "actual": null,
+        "correct": false,
+        "seconds": 2.2791995434090495e-05
+      }
+    ]
+  }
+]

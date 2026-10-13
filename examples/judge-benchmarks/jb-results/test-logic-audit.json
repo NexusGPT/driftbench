@@ -1,0 +1,3416 @@
+[
+  {
+    "index": 139,
+    "id": "2c753154-c93e-504b-9e3b-209a5f58d805",
+    "query": [
+      "planetarium",
+      "airport",
+      "gym"
+    ],
+    "anchors": [
+      [
+        "cafe",
+        false,
+        "The person at the cafe lies"
+      ],
+      [
+        "observatory",
+        false,
+        "The person at the observatory lies"
+      ]
+    ],
+    "edges": [
+      [
+        "library",
+        "bowling alley",
+        true,
+        "The person at the library says the person at the bowling alley lies"
+      ],
+      [
+        "planetarium",
+        "airport",
+        true,
+        "The person at the planetarium says the person at the airport lies"
+      ],
+      [
+        "skate park",
+        "ice skating rink",
+        true,
+        "The person at the skate park says the person at the ice skating rink lies"
+      ],
+      [
+        "barbershop",
+        "bowling alley",
+        false,
+        "The person at the barbershop says the person at the bowling alley tells the truth"
+      ],
+      [
+        "theater",
+        "skate park",
+        true,
+        "The person at the theater says the person at the skate park lies"
+      ],
+      [
+        "city hall",
+        "bowling alley",
+        false,
+        "The person at the city hall says the person at the bowling alley tells the truth"
+      ],
+      [
+        "ice skating rink",
+        "bowling alley",
+        false,
+        "The person at the ice skating rink says the person at the bowling alley tells the truth"
+      ],
+      [
+        "bowling alley",
+        "campground",
+        true,
+        "The person at the bowling alley says the person at the campground lies"
+      ],
+      [
+        "skate park",
+        "farm",
+        true,
+        "The person at the skate park says the person at the farm lies"
+      ],
+      [
+        "train station",
+        "campground",
+        false,
+        "The person at the train station says the person at the campground tells the truth"
+      ],
+      [
+        "gym",
+        "skate park",
+        true,
+        "The person at the gym says the person at the skate park lies"
+      ],
+      [
+        "ice skating rink",
+        "school",
+        true,
+        "The person at the ice skating rink says the person at the school lies"
+      ],
+      [
+        "campground",
+        "observatory",
+        false,
+        "The person at the campground says the person at the observatory tells the truth"
+      ],
+      [
+        "airport",
+        "gym",
+        true,
+        "The person at the airport says the person at the gym lies"
+      ]
+    ],
+    "ignored_non_utterance_facts": [
+      "The person at the planetarium thinks their neighbor is telling the truth",
+      "The person at the planetarium thinks their friend is lying",
+      "The person at the observatory thinks their friend is lying"
+    ],
+    "possible_answers": [
+      [
+        "yes",
+        "no",
+        "yes"
+      ]
+    ],
+    "candidate_finals": [
+      [
+        "yes",
+        "no",
+        "yes"
+      ],
+      [
+        "no",
+        "no",
+        "yes"
+      ]
+    ],
+    "candidate_valid": [
+      true,
+      false
+    ],
+    "unique_answer": true
+  },
+  {
+    "index": 140,
+    "id": "399f4fc1-1eb0-5d14-a505-fbd98399b34e",
+    "query": [
+      "zoo",
+      "skate park",
+      "beach"
+    ],
+    "anchors": [
+      [
+        "farm",
+        false,
+        "The person at the farm lies"
+      ],
+      [
+        "ice skating rink",
+        true,
+        "The person at the ice skating rink tells the truth"
+      ],
+      [
+        "movie theater",
+        true,
+        "The person at the movie theater tells the truth"
+      ],
+      [
+        "airport",
+        false,
+        "The person at the airport lies"
+      ]
+    ],
+    "edges": [
+      [
+        "vineyard",
+        "library",
+        true,
+        "The person at the vineyard says the person at the library lies"
+      ],
+      [
+        "library",
+        "ice skating rink",
+        true,
+        "The person at the library says the person at the ice skating rink lies"
+      ],
+      [
+        "planetarium",
+        "vineyard",
+        false,
+        "The person at the planetarium says the person at the vineyard tells the truth"
+      ],
+      [
+        "zoo",
+        "cafe",
+        false,
+        "The person at the zoo says the person at the cafe tells the truth"
+      ],
+      [
+        "zoo",
+        "skate park",
+        true,
+        "The person at the zoo says the person at the skate park lies"
+      ],
+      [
+        "skate park",
+        "beach",
+        false,
+        "The person at the skate park says the person at the beach tells the truth"
+      ],
+      [
+        "beach",
+        "planetarium",
+        true,
+        "The person at the beach says the person at the planetarium lies"
+      ]
+    ],
+    "ignored_non_utterance_facts": [
+      "The person at the ice skating rink saw a firetruck",
+      "The person at the vineyard saw a firetruck",
+      "The person at the ice skating rink thinks their neighbor is telling the truth"
+    ],
+    "possible_answers": [
+      [
+        "yes",
+        "no",
+        "no"
+      ]
+    ],
+    "candidate_finals": [
+      [
+        "no",
+        "no",
+        "no"
+      ],
+      [
+        "yes",
+        "no",
+        "no"
+      ]
+    ],
+    "candidate_valid": [
+      false,
+      true
+    ],
+    "unique_answer": true
+  },
+  {
+    "index": 141,
+    "id": "8332d38f-a65f-5f08-b803-934e334531ba",
+    "query": [
+      "planetarium",
+      "park",
+      "skate park"
+    ],
+    "anchors": [
+      [
+        "observatory",
+        false,
+        "The person at the observatory lies"
+      ],
+      [
+        "movie theater",
+        true,
+        "The person at the movie theater tells the truth"
+      ],
+      [
+        "zoo",
+        false,
+        "The person at the zoo lies"
+      ],
+      [
+        "amusement park",
+        false,
+        "The person at the amusement park lies"
+      ],
+      [
+        "hotel",
+        true,
+        "The person at the hotel tells the truth"
+      ]
+    ],
+    "edges": [
+      [
+        "museum",
+        "botanical garden",
+        true,
+        "The person at the museum says the person at the botanical garden lies"
+      ],
+      [
+        "farm",
+        "botanical garden",
+        false,
+        "The person at the farm says the person at the botanical garden tells the truth"
+      ],
+      [
+        "aquarium",
+        "museum",
+        true,
+        "The person at the aquarium says the person at the museum lies"
+      ],
+      [
+        "campground",
+        "vineyard",
+        true,
+        "The person at the campground says the person at the vineyard lies"
+      ],
+      [
+        "park",
+        "skate park",
+        true,
+        "The person at the park says the person at the skate park lies"
+      ],
+      [
+        "aquarium",
+        "theater",
+        false,
+        "The person at the aquarium says the person at the theater tells the truth"
+      ],
+      [
+        "botanical garden",
+        "amusement park",
+        true,
+        "The person at the botanical garden says the person at the amusement park lies"
+      ],
+      [
+        "botanical garden",
+        "shopping mall",
+        false,
+        "The person at the botanical garden says the person at the shopping mall tells the truth"
+      ],
+      [
+        "planetarium",
+        "park",
+        true,
+        "The person at the planetarium says the person at the park lies"
+      ],
+      [
+        "bookstore",
+        "planetarium",
+        true,
+        "The person at the bookstore says the person at the planetarium lies"
+      ],
+      [
+        "barbershop",
+        "park",
+        true,
+        "The person at the barbershop says the person at the park lies"
+      ],
+      [
+        "vineyard",
+        "aquarium",
+        true,
+        "The person at the vineyard says the person at the aquarium lies"
+      ],
+      [
+        "train station",
+        "park",
+        true,
+        "The person at the train station says the person at the park lies"
+      ],
+      [
+        "skate park",
+        "campground",
+        true,
+        "The person at the skate park says the person at the campground lies"
+      ],
+      [
+        "bowling alley",
+        "museum",
+        true,
+        "The person at the bowling alley says the person at the museum lies"
+      ]
+    ],
+    "ignored_non_utterance_facts": [
+      "The person at the vineyard saw a firetruck"
+    ],
+    "possible_answers": [
+      [
+        "no",
+        "yes",
+        "no"
+      ]
+    ],
+    "candidate_finals": [
+      [
+        "yes",
+        "no",
+        "yes"
+      ],
+      [
+        "no",
+        "yes",
+        "no"
+      ]
+    ],
+    "candidate_valid": [
+      false,
+      true
+    ],
+    "unique_answer": true
+  },
+  {
+    "index": 143,
+    "id": "1cc11161-3a95-59a1-aa7b-1406ccf4b9a6",
+    "query": [
+      "museum",
+      "restaurant",
+      "farm"
+    ],
+    "anchors": [
+      [
+        "gym",
+        true,
+        "The person at the gym tells the truth"
+      ],
+      [
+        "barbershop",
+        false,
+        "The person at the barbershop lies"
+      ]
+    ],
+    "edges": [
+      [
+        "museum",
+        "ice skating rink",
+        false,
+        "The person at the museum says the person at the ice skating rink tells the truth"
+      ],
+      [
+        "museum",
+        "restaurant",
+        false,
+        "The person at the museum says the person at the restaurant tells the truth"
+      ],
+      [
+        "farm",
+        "gym",
+        false,
+        "The person at the farm says the person at the gym tells the truth"
+      ],
+      [
+        "restaurant",
+        "farm",
+        false,
+        "The person at the restaurant says the person at the farm tells the truth"
+      ]
+    ],
+    "ignored_non_utterance_facts": [
+      "The person at the restaurant thinks their neighbor is telling the truth"
+    ],
+    "possible_answers": [
+      [
+        "yes",
+        "yes",
+        "yes"
+      ]
+    ],
+    "candidate_finals": [
+      [
+        "no",
+        "no",
+        "no"
+      ],
+      [
+        "yes",
+        "yes",
+        "yes"
+      ]
+    ],
+    "candidate_valid": [
+      false,
+      true
+    ],
+    "unique_answer": true
+  },
+  {
+    "index": 144,
+    "id": "3f7b9827-49b7-5d37-b403-6bd2673b96ec",
+    "query": [
+      "botanical garden",
+      "aquarium",
+      "airport"
+    ],
+    "anchors": [
+      [
+        "train station",
+        true,
+        "The person at the train station tells the truth"
+      ],
+      [
+        "observatory",
+        true,
+        "The person at the observatory tells the truth"
+      ],
+      [
+        "school",
+        true,
+        "The person at the school tells the truth"
+      ]
+    ],
+    "edges": [
+      [
+        "theater",
+        "airport",
+        true,
+        "The person at the theater says the person at the airport lies"
+      ],
+      [
+        "barbershop",
+        "school",
+        false,
+        "The person at the barbershop says the person at the school tells the truth"
+      ],
+      [
+        "botanical garden",
+        "aquarium",
+        true,
+        "The person at the botanical garden says the person at the aquarium lies"
+      ],
+      [
+        "airport",
+        "bowling alley",
+        true,
+        "The person at the airport says the person at the bowling alley lies"
+      ],
+      [
+        "airport",
+        "beach",
+        false,
+        "The person at the airport says the person at the beach tells the truth"
+      ],
+      [
+        "art gallery",
+        "barbershop",
+        true,
+        "The person at the art gallery says the person at the barbershop lies"
+      ],
+      [
+        "bowling alley",
+        "art gallery",
+        true,
+        "The person at the bowling alley says the person at the art gallery lies"
+      ],
+      [
+        "aquarium",
+        "airport",
+        false,
+        "The person at the aquarium says the person at the airport tells the truth"
+      ],
+      [
+        "bowling alley",
+        "amusement park",
+        false,
+        "The person at the bowling alley says the person at the amusement park tells the truth"
+      ]
+    ],
+    "ignored_non_utterance_facts": [
+      "The person at the botanical garden saw a firetruck"
+    ],
+    "possible_answers": [
+      [
+        "yes",
+        "no",
+        "no"
+      ]
+    ],
+    "candidate_finals": [
+      [
+        "yes",
+        "no",
+        "no"
+      ],
+      [
+        "no",
+        "no",
+        "no"
+      ]
+    ],
+    "candidate_valid": [
+      true,
+      false
+    ],
+    "unique_answer": true
+  },
+  {
+    "index": 146,
+    "id": "bab556f4-ea42-570d-8063-304e5f6c4185",
+    "query": [
+      "restaurant",
+      "library",
+      "hotel"
+    ],
+    "anchors": [
+      [
+        "planetarium",
+        false,
+        "The person at the planetarium lies"
+      ],
+      [
+        "beach",
+        false,
+        "The person at the beach lies"
+      ],
+      [
+        "farm",
+        true,
+        "The person at the farm tells the truth"
+      ],
+      [
+        "zoo",
+        true,
+        "The person at the zoo tells the truth"
+      ],
+      [
+        "cafe",
+        true,
+        "The person at the cafe tells the truth"
+      ],
+      [
+        "aquarium",
+        false,
+        "The person at the aquarium lies"
+      ]
+    ],
+    "edges": [
+      [
+        "ice skating rink",
+        "hotel",
+        false,
+        "The person at the ice skating rink says the person at the hotel tells the truth"
+      ],
+      [
+        "botanical garden",
+        "zoo",
+        false,
+        "The person at the botanical garden says the person at the zoo tells the truth"
+      ],
+      [
+        "shopping mall",
+        "botanical garden",
+        false,
+        "The person at the shopping mall says the person at the botanical garden tells the truth"
+      ],
+      [
+        "library",
+        "vineyard",
+        true,
+        "The person at the library says the person at the vineyard lies"
+      ],
+      [
+        "library",
+        "hotel",
+        true,
+        "The person at the library says the person at the hotel lies"
+      ],
+      [
+        "campground",
+        "library",
+        true,
+        "The person at the campground says the person at the library lies"
+      ],
+      [
+        "museum",
+        "restaurant",
+        true,
+        "The person at the museum says the person at the restaurant lies"
+      ],
+      [
+        "restaurant",
+        "library",
+        true,
+        "The person at the restaurant says the person at the library lies"
+      ],
+      [
+        "shopping mall",
+        "amusement park",
+        true,
+        "The person at the shopping mall says the person at the amusement park lies"
+      ],
+      [
+        "hotel",
+        "shopping mall",
+        false,
+        "The person at the hotel says the person at the shopping mall tells the truth"
+      ]
+    ],
+    "ignored_non_utterance_facts": [
+      "The person at the restaurant thinks their friend is lying",
+      "The person at the shopping mall thinks their friend is lying",
+      "The person at the zoo saw a firetruck"
+    ],
+    "possible_answers": [
+      [
+        "yes",
+        "no",
+        "yes"
+      ]
+    ],
+    "candidate_finals": [
+      [
+        "yes",
+        "no",
+        "yes"
+      ],
+      [
+        "no",
+        "no",
+        "yes"
+      ]
+    ],
+    "candidate_valid": [
+      true,
+      false
+    ],
+    "unique_answer": true
+  },
+  {
+    "index": 147,
+    "id": "353ff46b-1b33-5152-ac0d-650b0f830fc3",
+    "query": [
+      "gym",
+      "botanical garden",
+      "theater"
+    ],
+    "anchors": [
+      [
+        "cafe",
+        false,
+        "The person at the cafe lies"
+      ],
+      [
+        "aquarium",
+        true,
+        "The person at the aquarium tells the truth"
+      ],
+      [
+        "restaurant",
+        false,
+        "The person at the restaurant lies"
+      ],
+      [
+        "city hall",
+        true,
+        "The person at the city hall tells the truth"
+      ],
+      [
+        "train station",
+        true,
+        "The person at the train station tells the truth"
+      ]
+    ],
+    "edges": [
+      [
+        "bowling alley",
+        "airport",
+        false,
+        "The person at the bowling alley says the person at the airport tells the truth"
+      ],
+      [
+        "campground",
+        "bowling alley",
+        true,
+        "The person at the campground says the person at the bowling alley lies"
+      ],
+      [
+        "zoo",
+        "gym",
+        false,
+        "The person at the zoo says the person at the gym tells the truth"
+      ],
+      [
+        "amusement park",
+        "train station",
+        false,
+        "The person at the amusement park says the person at the train station tells the truth"
+      ],
+      [
+        "theater",
+        "farm",
+        true,
+        "The person at the theater says the person at the farm lies"
+      ],
+      [
+        "observatory",
+        "botanical garden",
+        true,
+        "The person at the observatory says the person at the botanical garden lies"
+      ],
+      [
+        "airport",
+        "amusement park",
+        false,
+        "The person at the airport says the person at the amusement park tells the truth"
+      ],
+      [
+        "botanical garden",
+        "theater",
+        false,
+        "The person at the botanical garden says the person at the theater tells the truth"
+      ],
+      [
+        "farm",
+        "bowling alley",
+        false,
+        "The person at the farm says the person at the bowling alley tells the truth"
+      ],
+      [
+        "hotel",
+        "farm",
+        true,
+        "The person at the hotel says the person at the farm lies"
+      ],
+      [
+        "gym",
+        "botanical garden",
+        false,
+        "The person at the gym says the person at the botanical garden tells the truth"
+      ]
+    ],
+    "ignored_non_utterance_facts": [
+      "The person at the train station thinks their neighbor is telling the truth"
+    ],
+    "possible_answers": [
+      [
+        "no",
+        "no",
+        "no"
+      ]
+    ],
+    "candidate_finals": [
+      [
+        "no",
+        "no",
+        "no"
+      ],
+      [
+        "yes",
+        "yes",
+        "no"
+      ]
+    ],
+    "candidate_valid": [
+      true,
+      false
+    ],
+    "unique_answer": true
+  },
+  {
+    "index": 148,
+    "id": "26a84e53-9faa-5387-8293-e1d3f8589c4e",
+    "query": [
+      "hotel",
+      "botanical garden",
+      "bowling alley"
+    ],
+    "anchors": [
+      [
+        "city hall",
+        true,
+        "The person at the city hall tells the truth"
+      ],
+      [
+        "shopping mall",
+        false,
+        "The person at the shopping mall lies"
+      ]
+    ],
+    "edges": [
+      [
+        "bowling alley",
+        "farm",
+        false,
+        "The person at the bowling alley says the person at the farm tells the truth"
+      ],
+      [
+        "botanical garden",
+        "bowling alley",
+        true,
+        "The person at the botanical garden says the person at the bowling alley lies"
+      ],
+      [
+        "hotel",
+        "ice skating rink",
+        true,
+        "The person at the hotel says the person at the ice skating rink lies"
+      ],
+      [
+        "bowling alley",
+        "city hall",
+        false,
+        "The person at the bowling alley says the person at the city hall tells the truth"
+      ],
+      [
+        "hotel",
+        "botanical garden",
+        true,
+        "The person at the hotel says the person at the botanical garden lies"
+      ]
+    ],
+    "ignored_non_utterance_facts": [
+      "The person at the hotel thinks their neighbor is telling the truth"
+    ],
+    "possible_answers": [
+      [
+        "yes",
+        "no",
+        "yes"
+      ]
+    ],
+    "candidate_finals": [
+      [
+        "yes",
+        "no",
+        "yes"
+      ],
+      [
+        "no",
+        "no",
+        "yes"
+      ]
+    ],
+    "candidate_valid": [
+      true,
+      false
+    ],
+    "unique_answer": true
+  },
+  {
+    "index": 150,
+    "id": "14c5f015-d741-5cbc-8d42-864b58da36b7",
+    "query": [
+      "museum",
+      "school",
+      "park"
+    ],
+    "anchors": [
+      [
+        "campground",
+        false,
+        "The person at the campground lies"
+      ],
+      [
+        "cafe",
+        true,
+        "The person at the cafe tells the truth"
+      ],
+      [
+        "train station",
+        false,
+        "The person at the train station lies"
+      ],
+      [
+        "observatory",
+        false,
+        "The person at the observatory lies"
+      ],
+      [
+        "skate park",
+        false,
+        "The person at the skate park lies"
+      ],
+      [
+        "vineyard",
+        true,
+        "The person at the vineyard tells the truth"
+      ]
+    ],
+    "edges": [
+      [
+        "city hall",
+        "amusement park",
+        true,
+        "The person at the city hall says the person at the amusement park lies"
+      ],
+      [
+        "zoo",
+        "amusement park",
+        false,
+        "The person at the zoo says the person at the amusement park tells the truth"
+      ],
+      [
+        "amusement park",
+        "campground",
+        true,
+        "The person at the amusement park says the person at the campground lies"
+      ],
+      [
+        "restaurant",
+        "city hall",
+        false,
+        "The person at the restaurant says the person at the city hall tells the truth"
+      ],
+      [
+        "museum",
+        "school",
+        false,
+        "The person at the museum says the person at the school tells the truth"
+      ],
+      [
+        "bowling alley",
+        "restaurant",
+        true,
+        "The person at the bowling alley says the person at the restaurant lies"
+      ],
+      [
+        "amusement park",
+        "planetarium",
+        true,
+        "The person at the amusement park says the person at the planetarium lies"
+      ],
+      [
+        "shopping mall",
+        "museum",
+        false,
+        "The person at the shopping mall says the person at the museum tells the truth"
+      ],
+      [
+        "botanical garden",
+        "museum",
+        false,
+        "The person at the botanical garden says the person at the museum tells the truth"
+      ],
+      [
+        "city hall",
+        "beach",
+        true,
+        "The person at the city hall says the person at the beach lies"
+      ],
+      [
+        "city hall",
+        "gym",
+        true,
+        "The person at the city hall says the person at the gym lies"
+      ],
+      [
+        "school",
+        "park",
+        true,
+        "The person at the school says the person at the park lies"
+      ],
+      [
+        "park",
+        "bowling alley",
+        false,
+        "The person at the park says the person at the bowling alley tells the truth"
+      ],
+      [
+        "bookstore",
+        "city hall",
+        true,
+        "The person at the bookstore says the person at the city hall lies"
+      ]
+    ],
+    "ignored_non_utterance_facts": [
+      "The person at the city hall thinks their friend is lying",
+      "The person at the bowling alley thinks their friend is lying",
+      "The person at the bowling alley saw a firetruck",
+      "The person at the museum thinks their neighbor is telling the truth",
+      "The person at the amusement park saw a firetruck"
+    ],
+    "possible_answers": [
+      [
+        "no",
+        "no",
+        "yes"
+      ]
+    ],
+    "candidate_finals": [
+      [
+        "no",
+        "yes",
+        "no"
+      ],
+      [
+        "no",
+        "no",
+        "yes"
+      ]
+    ],
+    "candidate_valid": [
+      false,
+      true
+    ],
+    "unique_answer": true
+  },
+  {
+    "index": 152,
+    "id": "7c09b9ef-6dfe-5792-aa35-f4c921519839",
+    "query": [
+      "aquarium",
+      "beach",
+      "park"
+    ],
+    "anchors": [
+      [
+        "skate park",
+        true,
+        "The person at the skate park tells the truth"
+      ],
+      [
+        "shopping mall",
+        false,
+        "The person at the shopping mall lies"
+      ],
+      [
+        "gym",
+        false,
+        "The person at the gym lies"
+      ],
+      [
+        "zoo",
+        false,
+        "The person at the zoo lies"
+      ]
+    ],
+    "edges": [
+      [
+        "aquarium",
+        "beach",
+        true,
+        "The person at the aquarium says the person at the beach lies"
+      ],
+      [
+        "beach",
+        "theater",
+        true,
+        "The person at the beach says the person at the theater lies"
+      ],
+      [
+        "zoo",
+        "planetarium",
+        false,
+        "The person at the zoo says the person at the planetarium tells the truth"
+      ],
+      [
+        "park",
+        "botanical garden",
+        false,
+        "The person at the park says the person at the botanical garden tells the truth"
+      ],
+      [
+        "beach",
+        "park",
+        true,
+        "The person at the beach says the person at the park lies"
+      ],
+      [
+        "botanical garden",
+        "zoo",
+        false,
+        "The person at the botanical garden says the person at the zoo tells the truth"
+      ],
+      [
+        "city hall",
+        "zoo",
+        true,
+        "The person at the city hall says the person at the zoo lies"
+      ],
+      [
+        "amusement park",
+        "park",
+        true,
+        "The person at the amusement park says the person at the park lies"
+      ],
+      [
+        "park",
+        "airport",
+        false,
+        "The person at the park says the person at the airport tells the truth"
+      ],
+      [
+        "botanical garden",
+        "ice skating rink",
+        false,
+        "The person at the botanical garden says the person at the ice skating rink tells the truth"
+      ],
+      [
+        "train station",
+        "park",
+        true,
+        "The person at the train station says the person at the park lies"
+      ]
+    ],
+    "ignored_non_utterance_facts": [
+      "The person at the zoo saw a firetruck",
+      "The person at the aquarium thinks their neighbor is telling the truth"
+    ],
+    "possible_answers": [
+      [
+        "no",
+        "yes",
+        "no"
+      ]
+    ],
+    "candidate_finals": [
+      [
+        "yes",
+        "no",
+        "yes"
+      ],
+      [
+        "no",
+        "yes",
+        "no"
+      ]
+    ],
+    "candidate_valid": [
+      false,
+      true
+    ],
+    "unique_answer": true
+  },
+  {
+    "index": 155,
+    "id": "f4d82670-344b-5dc0-ae56-2c080407a972",
+    "query": [
+      "observatory",
+      "airport",
+      "farm"
+    ],
+    "anchors": [
+      [
+        "school",
+        true,
+        "The person at the school tells the truth"
+      ],
+      [
+        "city hall",
+        false,
+        "The person at the city hall lies"
+      ],
+      [
+        "museum",
+        true,
+        "The person at the museum tells the truth"
+      ]
+    ],
+    "edges": [
+      [
+        "train station",
+        "airport",
+        false,
+        "The person at the train station says the person at the airport tells the truth"
+      ],
+      [
+        "observatory",
+        "airport",
+        true,
+        "The person at the observatory says the person at the airport lies"
+      ],
+      [
+        "airport",
+        "bowling alley",
+        false,
+        "The person at the airport says the person at the bowling alley tells the truth"
+      ],
+      [
+        "farm",
+        "barbershop",
+        true,
+        "The person at the farm says the person at the barbershop lies"
+      ],
+      [
+        "farm",
+        "theater",
+        false,
+        "The person at the farm says the person at the theater tells the truth"
+      ],
+      [
+        "planetarium",
+        "city hall",
+        true,
+        "The person at the planetarium says the person at the city hall lies"
+      ],
+      [
+        "barbershop",
+        "city hall",
+        false,
+        "The person at the barbershop says the person at the city hall tells the truth"
+      ],
+      [
+        "observatory",
+        "shopping mall",
+        true,
+        "The person at the observatory says the person at the shopping mall lies"
+      ],
+      [
+        "airport",
+        "farm",
+        false,
+        "The person at the airport says the person at the farm tells the truth"
+      ],
+      [
+        "beach",
+        "city hall",
+        true,
+        "The person at the beach says the person at the city hall lies"
+      ],
+      [
+        "airport",
+        "movie theater",
+        false,
+        "The person at the airport says the person at the movie theater tells the truth"
+      ],
+      [
+        "barbershop",
+        "vineyard",
+        true,
+        "The person at the barbershop says the person at the vineyard lies"
+      ]
+    ],
+    "ignored_non_utterance_facts": [],
+    "possible_answers": [
+      [
+        "no",
+        "yes",
+        "yes"
+      ]
+    ],
+    "candidate_finals": [
+      [
+        "no",
+        "yes",
+        "yes"
+      ],
+      [
+        "yes",
+        "no",
+        "yes"
+      ]
+    ],
+    "candidate_valid": [
+      true,
+      false
+    ],
+    "unique_answer": true
+  },
+  {
+    "index": 157,
+    "id": "8e6b18f9-266e-5aae-bbfa-7b06142cca75",
+    "query": [
+      "ice skating rink",
+      "bowling alley",
+      "vineyard"
+    ],
+    "anchors": [
+      [
+        "airport",
+        true,
+        "The person at the airport tells the truth"
+      ],
+      [
+        "skate park",
+        false,
+        "The person at the skate park lies"
+      ],
+      [
+        "observatory",
+        false,
+        "The person at the observatory lies"
+      ]
+    ],
+    "edges": [
+      [
+        "barbershop",
+        "library",
+        false,
+        "The person at the barbershop says the person at the library tells the truth"
+      ],
+      [
+        "vineyard",
+        "campground",
+        true,
+        "The person at the vineyard says the person at the campground lies"
+      ],
+      [
+        "farm",
+        "movie theater",
+        true,
+        "The person at the farm says the person at the movie theater lies"
+      ],
+      [
+        "movie theater",
+        "park",
+        true,
+        "The person at the movie theater says the person at the park lies"
+      ],
+      [
+        "park",
+        "hotel",
+        false,
+        "The person at the park says the person at the hotel tells the truth"
+      ],
+      [
+        "hotel",
+        "library",
+        false,
+        "The person at the hotel says the person at the library tells the truth"
+      ],
+      [
+        "ice skating rink",
+        "bowling alley",
+        false,
+        "The person at the ice skating rink says the person at the bowling alley tells the truth"
+      ],
+      [
+        "bookstore",
+        "vineyard",
+        true,
+        "The person at the bookstore says the person at the vineyard lies"
+      ],
+      [
+        "campground",
+        "movie theater",
+        false,
+        "The person at the campground says the person at the movie theater tells the truth"
+      ],
+      [
+        "restaurant",
+        "campground",
+        false,
+        "The person at the restaurant says the person at the campground tells the truth"
+      ],
+      [
+        "theater",
+        "park",
+        true,
+        "The person at the theater says the person at the park lies"
+      ],
+      [
+        "bowling alley",
+        "school",
+        false,
+        "The person at the bowling alley says the person at the school tells the truth"
+      ],
+      [
+        "library",
+        "observatory",
+        false,
+        "The person at the library says the person at the observatory tells the truth"
+      ],
+      [
+        "bowling alley",
+        "vineyard",
+        true,
+        "The person at the bowling alley says the person at the vineyard lies"
+      ]
+    ],
+    "ignored_non_utterance_facts": [
+      "The person at the hotel saw a firetruck",
+      "The person at the bowling alley thinks their neighbor is telling the truth",
+      "The person at the park thinks their neighbor is telling the truth",
+      "The person at the bowling alley saw a firetruck"
+    ],
+    "possible_answers": [
+      [
+        "yes",
+        "yes",
+        "no"
+      ]
+    ],
+    "candidate_finals": [
+      [
+        "yes",
+        "yes",
+        "no"
+      ],
+      [
+        "yes",
+        "yes",
+        "yes"
+      ]
+    ],
+    "candidate_valid": [
+      true,
+      false
+    ],
+    "unique_answer": true
+  },
+  {
+    "index": 158,
+    "id": "36e83498-671a-5edf-be79-24bdb5e568e5",
+    "query": [
+      "bookstore",
+      "shopping mall",
+      "farm"
+    ],
+    "anchors": [
+      [
+        "skate park",
+        true,
+        "The person at the skate park tells the truth"
+      ],
+      [
+        "barbershop",
+        true,
+        "The person at the barbershop tells the truth"
+      ],
+      [
+        "amusement park",
+        true,
+        "The person at the amusement park tells the truth"
+      ],
+      [
+        "cafe",
+        true,
+        "The person at the cafe tells the truth"
+      ],
+      [
+        "zoo",
+        true,
+        "The person at the zoo tells the truth"
+      ]
+    ],
+    "edges": [
+      [
+        "shopping mall",
+        "school",
+        true,
+        "The person at the shopping mall says the person at the school lies"
+      ],
+      [
+        "bookstore",
+        "shopping mall",
+        false,
+        "The person at the bookstore says the person at the shopping mall tells the truth"
+      ],
+      [
+        "bookstore",
+        "airport",
+        false,
+        "The person at the bookstore says the person at the airport tells the truth"
+      ],
+      [
+        "art gallery",
+        "farm",
+        false,
+        "The person at the art gallery says the person at the farm tells the truth"
+      ],
+      [
+        "shopping mall",
+        "farm",
+        true,
+        "The person at the shopping mall says the person at the farm lies"
+      ],
+      [
+        "farm",
+        "amusement park",
+        true,
+        "The person at the farm says the person at the amusement park lies"
+      ]
+    ],
+    "ignored_non_utterance_facts": [],
+    "possible_answers": [
+      [
+        "yes",
+        "yes",
+        "no"
+      ]
+    ],
+    "candidate_finals": [
+      [
+        "no",
+        "no",
+        "no"
+      ],
+      [
+        "yes",
+        "yes",
+        "no"
+      ]
+    ],
+    "candidate_valid": [
+      false,
+      true
+    ],
+    "unique_answer": true
+  },
+  {
+    "index": 159,
+    "id": "a7293376-222f-517a-b998-0ec8994cc227",
+    "query": [
+      "barbershop",
+      "planetarium",
+      "zoo"
+    ],
+    "anchors": [
+      [
+        "city hall",
+        true,
+        "The person at the city hall tells the truth"
+      ],
+      [
+        "bookstore",
+        true,
+        "The person at the bookstore tells the truth"
+      ],
+      [
+        "restaurant",
+        false,
+        "The person at the restaurant lies"
+      ],
+      [
+        "ice skating rink",
+        false,
+        "The person at the ice skating rink lies"
+      ],
+      [
+        "hotel",
+        false,
+        "The person at the hotel lies"
+      ]
+    ],
+    "edges": [
+      [
+        "art gallery",
+        "bookstore",
+        false,
+        "The person at the art gallery says the person at the bookstore tells the truth"
+      ],
+      [
+        "barbershop",
+        "planetarium",
+        true,
+        "The person at the barbershop says the person at the planetarium lies"
+      ],
+      [
+        "zoo",
+        "art gallery",
+        false,
+        "The person at the zoo says the person at the art gallery tells the truth"
+      ],
+      [
+        "planetarium",
+        "zoo",
+        true,
+        "The person at the planetarium says the person at the zoo lies"
+      ]
+    ],
+    "ignored_non_utterance_facts": [
+      "The person at the art gallery thinks their friend is lying"
+    ],
+    "possible_answers": [
+      [
+        "yes",
+        "no",
+        "yes"
+      ]
+    ],
+    "candidate_finals": [
+      [
+        "yes",
+        "yes",
+        "no"
+      ],
+      [
+        "yes",
+        "no",
+        "yes"
+      ]
+    ],
+    "candidate_valid": [
+      false,
+      true
+    ],
+    "unique_answer": true
+  },
+  {
+    "index": 161,
+    "id": "cad61a72-e1b8-5a01-af72-a1e276b66fdd",
+    "query": [
+      "train station",
+      "observatory",
+      "city hall"
+    ],
+    "anchors": [
+      [
+        "barbershop",
+        false,
+        "The person at the barbershop lies"
+      ]
+    ],
+    "edges": [
+      [
+        "gym",
+        "barbershop",
+        false,
+        "The person at the gym says the person at the barbershop tells the truth"
+      ],
+      [
+        "hotel",
+        "train station",
+        true,
+        "The person at the hotel says the person at the train station lies"
+      ],
+      [
+        "train station",
+        "observatory",
+        false,
+        "The person at the train station says the person at the observatory tells the truth"
+      ],
+      [
+        "observatory",
+        "city hall",
+        false,
+        "The person at the observatory says the person at the city hall tells the truth"
+      ],
+      [
+        "observatory",
+        "beach",
+        true,
+        "The person at the observatory says the person at the beach lies"
+      ],
+      [
+        "school",
+        "observatory",
+        false,
+        "The person at the school says the person at the observatory tells the truth"
+      ],
+      [
+        "city hall",
+        "barbershop",
+        true,
+        "The person at the city hall says the person at the barbershop lies"
+      ]
+    ],
+    "ignored_non_utterance_facts": [
+      "The person at the train station thinks their neighbor is telling the truth",
+      "The person at the observatory saw a firetruck"
+    ],
+    "possible_answers": [
+      [
+        "yes",
+        "yes",
+        "yes"
+      ]
+    ],
+    "candidate_finals": [
+      [
+        "no",
+        "yes",
+        "yes"
+      ],
+      [
+        "yes",
+        "yes",
+        "yes"
+      ]
+    ],
+    "candidate_valid": [
+      false,
+      true
+    ],
+    "unique_answer": true
+  },
+  {
+    "index": 163,
+    "id": "6d4c9fdd-712c-5a09-bfa2-7e50ced2b515",
+    "query": [
+      "library",
+      "botanical garden",
+      "train station"
+    ],
+    "anchors": [
+      [
+        "train station",
+        true,
+        "The person at the train station tells the truth"
+      ],
+      [
+        "restaurant",
+        false,
+        "The person at the restaurant lies"
+      ],
+      [
+        "vineyard",
+        false,
+        "The person at the vineyard lies"
+      ]
+    ],
+    "edges": [
+      [
+        "observatory",
+        "botanical garden",
+        true,
+        "The person at the observatory says the person at the botanical garden lies"
+      ],
+      [
+        "library",
+        "botanical garden",
+        false,
+        "The person at the library says the person at the botanical garden tells the truth"
+      ],
+      [
+        "botanical garden",
+        "train station",
+        true,
+        "The person at the botanical garden says the person at the train station lies"
+      ],
+      [
+        "farm",
+        "train station",
+        true,
+        "The person at the farm says the person at the train station lies"
+      ],
+      [
+        "gym",
+        "train station",
+        true,
+        "The person at the gym says the person at the train station lies"
+      ],
+      [
+        "aquarium",
+        "library",
+        false,
+        "The person at the aquarium says the person at the library tells the truth"
+      ]
+    ],
+    "ignored_non_utterance_facts": [
+      "The person at the botanical garden saw a firetruck"
+    ],
+    "possible_answers": [
+      [
+        "no",
+        "no",
+        "yes"
+      ]
+    ],
+    "candidate_finals": [
+      [
+        "yes",
+        "no",
+        "yes"
+      ],
+      [
+        "no",
+        "no",
+        "yes"
+      ]
+    ],
+    "candidate_valid": [
+      false,
+      true
+    ],
+    "unique_answer": true
+  },
+  {
+    "index": 165,
+    "id": "df042120-17b3-5328-936a-c6c1db94b6bc",
+    "query": [
+      "gym",
+      "zoo",
+      "bookstore"
+    ],
+    "anchors": [
+      [
+        "farm",
+        false,
+        "The person at the farm lies"
+      ]
+    ],
+    "edges": [
+      [
+        "barbershop",
+        "zoo",
+        false,
+        "The person at the barbershop says the person at the zoo tells the truth"
+      ],
+      [
+        "bookstore",
+        "library",
+        true,
+        "The person at the bookstore says the person at the library lies"
+      ],
+      [
+        "observatory",
+        "campground",
+        false,
+        "The person at the observatory says the person at the campground tells the truth"
+      ],
+      [
+        "museum",
+        "botanical garden",
+        true,
+        "The person at the museum says the person at the botanical garden lies"
+      ],
+      [
+        "vineyard",
+        "farm",
+        true,
+        "The person at the vineyard says the person at the farm lies"
+      ],
+      [
+        "library",
+        "museum",
+        true,
+        "The person at the library says the person at the museum lies"
+      ],
+      [
+        "campground",
+        "vineyard",
+        false,
+        "The person at the campground says the person at the vineyard tells the truth"
+      ],
+      [
+        "gym",
+        "zoo",
+        true,
+        "The person at the gym says the person at the zoo lies"
+      ],
+      [
+        "zoo",
+        "bookstore",
+        false,
+        "The person at the zoo says the person at the bookstore tells the truth"
+      ],
+      [
+        "museum",
+        "observatory",
+        false,
+        "The person at the museum says the person at the observatory tells the truth"
+      ]
+    ],
+    "ignored_non_utterance_facts": [
+      "The person at the farm saw a firetruck",
+      "The person at the gym thinks their friend is lying"
+    ],
+    "possible_answers": [
+      [
+        "no",
+        "yes",
+        "yes"
+      ]
+    ],
+    "candidate_finals": [
+      [
+        "no",
+        "yes",
+        "yes"
+      ],
+      [
+        "yes",
+        "yes",
+        "yes"
+      ]
+    ],
+    "candidate_valid": [
+      true,
+      false
+    ],
+    "unique_answer": true
+  },
+  {
+    "index": 168,
+    "id": "669f40bb-c901-54f2-9397-395c8759a999",
+    "query": [
+      "library",
+      "park",
+      "bookstore"
+    ],
+    "anchors": [
+      [
+        "farm",
+        true,
+        "The person at the farm tells the truth"
+      ],
+      [
+        "museum",
+        false,
+        "The person at the museum lies"
+      ]
+    ],
+    "edges": [
+      [
+        "bookstore",
+        "hotel",
+        true,
+        "The person at the bookstore says the person at the hotel lies"
+      ],
+      [
+        "library",
+        "park",
+        false,
+        "The person at the library says the person at the park tells the truth"
+      ],
+      [
+        "beach",
+        "hotel",
+        true,
+        "The person at the beach says the person at the hotel lies"
+      ],
+      [
+        "hotel",
+        "museum",
+        true,
+        "The person at the hotel says the person at the museum lies"
+      ],
+      [
+        "museum",
+        "school",
+        false,
+        "The person at the museum says the person at the school tells the truth"
+      ],
+      [
+        "park",
+        "bookstore",
+        false,
+        "The person at the park says the person at the bookstore tells the truth"
+      ],
+      [
+        "hotel",
+        "airport",
+        true,
+        "The person at the hotel says the person at the airport lies"
+      ]
+    ],
+    "ignored_non_utterance_facts": [
+      "The person at the museum thinks their neighbor is telling the truth"
+    ],
+    "possible_answers": [
+      [
+        "no",
+        "no",
+        "no"
+      ]
+    ],
+    "candidate_finals": [
+      [
+        "no",
+        "no",
+        "no"
+      ],
+      [
+        "yes",
+        "yes",
+        "yes"
+      ]
+    ],
+    "candidate_valid": [
+      true,
+      false
+    ],
+    "unique_answer": true
+  },
+  {
+    "index": 170,
+    "id": "f2893256-1328-58fe-b1a1-97cfbce72ce8",
+    "query": [
+      "art gallery",
+      "ice skating rink",
+      "shopping mall"
+    ],
+    "anchors": [
+      [
+        "bookstore",
+        false,
+        "The person at the bookstore lies"
+      ],
+      [
+        "vineyard",
+        false,
+        "The person at the vineyard lies"
+      ]
+    ],
+    "edges": [
+      [
+        "ice skating rink",
+        "city hall",
+        false,
+        "The person at the ice skating rink says the person at the city hall tells the truth"
+      ],
+      [
+        "ice skating rink",
+        "park",
+        false,
+        "The person at the ice skating rink says the person at the park tells the truth"
+      ],
+      [
+        "aquarium",
+        "vineyard",
+        false,
+        "The person at the aquarium says the person at the vineyard tells the truth"
+      ],
+      [
+        "art gallery",
+        "ice skating rink",
+        false,
+        "The person at the art gallery says the person at the ice skating rink tells the truth"
+      ],
+      [
+        "movie theater",
+        "museum",
+        true,
+        "The person at the movie theater says the person at the museum lies"
+      ],
+      [
+        "movie theater",
+        "vineyard",
+        true,
+        "The person at the movie theater says the person at the vineyard lies"
+      ],
+      [
+        "library",
+        "planetarium",
+        false,
+        "The person at the library says the person at the planetarium tells the truth"
+      ],
+      [
+        "ice skating rink",
+        "shopping mall",
+        true,
+        "The person at the ice skating rink says the person at the shopping mall lies"
+      ],
+      [
+        "shopping mall",
+        "library",
+        true,
+        "The person at the shopping mall says the person at the library lies"
+      ],
+      [
+        "planetarium",
+        "movie theater",
+        false,
+        "The person at the planetarium says the person at the movie theater tells the truth"
+      ],
+      [
+        "school",
+        "library",
+        false,
+        "The person at the school says the person at the library tells the truth"
+      ]
+    ],
+    "ignored_non_utterance_facts": [],
+    "possible_answers": [
+      [
+        "yes",
+        "yes",
+        "no"
+      ]
+    ],
+    "candidate_finals": [
+      [
+        "yes",
+        "yes",
+        "no"
+      ],
+      [
+        "no",
+        "no",
+        "yes"
+      ]
+    ],
+    "candidate_valid": [
+      true,
+      false
+    ],
+    "unique_answer": true
+  },
+  {
+    "index": 171,
+    "id": "52496015-9fbb-5fa4-a1e0-0ca8c032c398",
+    "query": [
+      "movie theater",
+      "observatory",
+      "planetarium"
+    ],
+    "anchors": [
+      [
+        "aquarium",
+        true,
+        "The person at the aquarium tells the truth"
+      ],
+      [
+        "barbershop",
+        true,
+        "The person at the barbershop tells the truth"
+      ],
+      [
+        "restaurant",
+        true,
+        "The person at the restaurant tells the truth"
+      ]
+    ],
+    "edges": [
+      [
+        "beach",
+        "restaurant",
+        false,
+        "The person at the beach says the person at the restaurant tells the truth"
+      ],
+      [
+        "amusement park",
+        "beach",
+        false,
+        "The person at the amusement park says the person at the beach tells the truth"
+      ],
+      [
+        "observatory",
+        "planetarium",
+        true,
+        "The person at the observatory says the person at the planetarium lies"
+      ],
+      [
+        "movie theater",
+        "observatory",
+        true,
+        "The person at the movie theater says the person at the observatory lies"
+      ],
+      [
+        "library",
+        "amusement park",
+        false,
+        "The person at the library says the person at the amusement park tells the truth"
+      ],
+      [
+        "planetarium",
+        "library",
+        false,
+        "The person at the planetarium says the person at the library tells the truth"
+      ]
+    ],
+    "ignored_non_utterance_facts": [
+      "The person at the amusement park saw a firetruck"
+    ],
+    "possible_answers": [
+      [
+        "yes",
+        "no",
+        "yes"
+      ]
+    ],
+    "candidate_finals": [
+      [
+        "yes",
+        "no",
+        "yes"
+      ],
+      [
+        "no",
+        "no",
+        "yes"
+      ]
+    ],
+    "candidate_valid": [
+      true,
+      false
+    ],
+    "unique_answer": true
+  },
+  {
+    "index": 174,
+    "id": "e0afc8ce-4f42-5202-80af-837ab58494ed",
+    "query": [
+      "airport",
+      "zoo",
+      "bookstore"
+    ],
+    "anchors": [
+      [
+        "gym",
+        false,
+        "The person at the gym lies"
+      ],
+      [
+        "movie theater",
+        false,
+        "The person at the movie theater lies"
+      ],
+      [
+        "school",
+        false,
+        "The person at the school lies"
+      ],
+      [
+        "cafe",
+        true,
+        "The person at the cafe tells the truth"
+      ],
+      [
+        "train station",
+        false,
+        "The person at the train station lies"
+      ]
+    ],
+    "edges": [
+      [
+        "bookstore",
+        "planetarium",
+        false,
+        "The person at the bookstore says the person at the planetarium tells the truth"
+      ],
+      [
+        "library",
+        "airport",
+        true,
+        "The person at the library says the person at the airport lies"
+      ],
+      [
+        "zoo",
+        "park",
+        true,
+        "The person at the zoo says the person at the park lies"
+      ],
+      [
+        "museum",
+        "cafe",
+        true,
+        "The person at the museum says the person at the cafe lies"
+      ],
+      [
+        "art gallery",
+        "airport",
+        true,
+        "The person at the art gallery says the person at the airport lies"
+      ],
+      [
+        "zoo",
+        "bookstore",
+        true,
+        "The person at the zoo says the person at the bookstore lies"
+      ],
+      [
+        "bookstore",
+        "cafe",
+        false,
+        "The person at the bookstore says the person at the cafe tells the truth"
+      ],
+      [
+        "vineyard",
+        "zoo",
+        true,
+        "The person at the vineyard says the person at the zoo lies"
+      ],
+      [
+        "farm",
+        "airport",
+        false,
+        "The person at the farm says the person at the airport tells the truth"
+      ],
+      [
+        "cafe",
+        "city hall",
+        false,
+        "The person at the cafe says the person at the city hall tells the truth"
+      ],
+      [
+        "airport",
+        "zoo",
+        false,
+        "The person at the airport says the person at the zoo tells the truth"
+      ]
+    ],
+    "ignored_non_utterance_facts": [
+      "The person at the cafe saw a firetruck",
+      "The person at the zoo thinks their friend is lying"
+    ],
+    "possible_answers": [
+      [
+        "no",
+        "no",
+        "yes"
+      ]
+    ],
+    "candidate_finals": [
+      [
+        "no",
+        "no",
+        "yes"
+      ],
+      [
+        "yes",
+        "no",
+        "yes"
+      ]
+    ],
+    "candidate_valid": [
+      true,
+      false
+    ],
+    "unique_answer": true
+  },
+  {
+    "index": 178,
+    "id": "138ece2f-4192-54c3-8d54-0a61b954bc13",
+    "query": [
+      "campground",
+      "skate park",
+      "shopping mall"
+    ],
+    "anchors": [
+      [
+        "hotel",
+        true,
+        "The person at the hotel tells the truth"
+      ],
+      [
+        "airport",
+        true,
+        "The person at the airport tells the truth"
+      ],
+      [
+        "planetarium",
+        false,
+        "The person at the planetarium lies"
+      ],
+      [
+        "restaurant",
+        false,
+        "The person at the restaurant lies"
+      ]
+    ],
+    "edges": [
+      [
+        "skate park",
+        "shopping mall",
+        true,
+        "The person at the skate park says the person at the shopping mall lies"
+      ],
+      [
+        "botanical garden",
+        "school",
+        false,
+        "The person at the botanical garden says the person at the school tells the truth"
+      ],
+      [
+        "art gallery",
+        "train station",
+        false,
+        "The person at the art gallery says the person at the train station tells the truth"
+      ],
+      [
+        "train station",
+        "bowling alley",
+        true,
+        "The person at the train station says the person at the bowling alley lies"
+      ],
+      [
+        "campground",
+        "amusement park",
+        true,
+        "The person at the campground says the person at the amusement park lies"
+      ],
+      [
+        "gym",
+        "observatory",
+        true,
+        "The person at the gym says the person at the observatory lies"
+      ],
+      [
+        "cafe",
+        "planetarium",
+        true,
+        "The person at the cafe says the person at the planetarium lies"
+      ],
+      [
+        "library",
+        "planetarium",
+        true,
+        "The person at the library says the person at the planetarium lies"
+      ],
+      [
+        "bookstore",
+        "skate park",
+        true,
+        "The person at the bookstore says the person at the skate park lies"
+      ],
+      [
+        "gym",
+        "train station",
+        true,
+        "The person at the gym says the person at the train station lies"
+      ],
+      [
+        "shopping mall",
+        "gym",
+        false,
+        "The person at the shopping mall says the person at the gym tells the truth"
+      ],
+      [
+        "campground",
+        "skate park",
+        true,
+        "The person at the campground says the person at the skate park lies"
+      ],
+      [
+        "zoo",
+        "shopping mall",
+        false,
+        "The person at the zoo says the person at the shopping mall tells the truth"
+      ],
+      [
+        "campground",
+        "aquarium",
+        true,
+        "The person at the campground says the person at the aquarium lies"
+      ],
+      [
+        "botanical garden",
+        "planetarium",
+        false,
+        "The person at the botanical garden says the person at the planetarium tells the truth"
+      ],
+      [
+        "train station",
+        "botanical garden",
+        false,
+        "The person at the train station says the person at the botanical garden tells the truth"
+      ]
+    ],
+    "ignored_non_utterance_facts": [
+      "The person at the gym thinks their neighbor is telling the truth",
+      "The person at the skate park thinks their neighbor is telling the truth"
+    ],
+    "possible_answers": [
+      [
+        "yes",
+        "no",
+        "yes"
+      ]
+    ],
+    "candidate_finals": [
+      [
+        "yes",
+        "no",
+        "yes"
+      ],
+      [
+        "no",
+        "yes",
+        "yes"
+      ]
+    ],
+    "candidate_valid": [
+      true,
+      false
+    ],
+    "unique_answer": true
+  },
+  {
+    "index": 180,
+    "id": "32d05d76-f530-51da-b722-7a780136628f",
+    "query": [
+      "train station",
+      "amusement park",
+      "aquarium"
+    ],
+    "anchors": [
+      [
+        "museum",
+        true,
+        "The person at the museum tells the truth"
+      ],
+      [
+        "theater",
+        false,
+        "The person at the theater lies"
+      ]
+    ],
+    "edges": [
+      [
+        "restaurant",
+        "aquarium",
+        true,
+        "The person at the restaurant says the person at the aquarium lies"
+      ],
+      [
+        "park",
+        "art gallery",
+        true,
+        "The person at the park says the person at the art gallery lies"
+      ],
+      [
+        "art gallery",
+        "theater",
+        true,
+        "The person at the art gallery says the person at the theater lies"
+      ],
+      [
+        "movie theater",
+        "train station",
+        true,
+        "The person at the movie theater says the person at the train station lies"
+      ],
+      [
+        "campground",
+        "art gallery",
+        false,
+        "The person at the campground says the person at the art gallery tells the truth"
+      ],
+      [
+        "amusement park",
+        "aquarium",
+        false,
+        "The person at the amusement park says the person at the aquarium tells the truth"
+      ],
+      [
+        "botanical garden",
+        "train station",
+        false,
+        "The person at the botanical garden says the person at the train station tells the truth"
+      ],
+      [
+        "aquarium",
+        "campground",
+        false,
+        "The person at the aquarium says the person at the campground tells the truth"
+      ],
+      [
+        "train station",
+        "amusement park",
+        true,
+        "The person at the train station says the person at the amusement park lies"
+      ]
+    ],
+    "ignored_non_utterance_facts": [
+      "The person at the theater thinks their friend is lying"
+    ],
+    "possible_answers": [
+      [
+        "no",
+        "yes",
+        "yes"
+      ]
+    ],
+    "candidate_finals": [
+      [
+        "no",
+        "yes",
+        "yes"
+      ],
+      [
+        "yes",
+        "yes",
+        "yes"
+      ]
+    ],
+    "candidate_valid": [
+      true,
+      false
+    ],
+    "unique_answer": true
+  },
+  {
+    "index": 185,
+    "id": "d8e795e2-27e7-51f7-bf16-4e00e7accd9f",
+    "query": [
+      "botanical garden",
+      "airport",
+      "observatory"
+    ],
+    "anchors": [
+      [
+        "aquarium",
+        true,
+        "The person at the aquarium tells the truth"
+      ],
+      [
+        "restaurant",
+        true,
+        "The person at the restaurant tells the truth"
+      ],
+      [
+        "zoo",
+        true,
+        "The person at the zoo tells the truth"
+      ],
+      [
+        "museum",
+        true,
+        "The person at the museum tells the truth"
+      ],
+      [
+        "school",
+        true,
+        "The person at the school tells the truth"
+      ]
+    ],
+    "edges": [
+      [
+        "hotel",
+        "airport",
+        true,
+        "The person at the hotel says the person at the airport lies"
+      ],
+      [
+        "barbershop",
+        "botanical garden",
+        false,
+        "The person at the barbershop says the person at the botanical garden tells the truth"
+      ],
+      [
+        "zoo",
+        "art gallery",
+        false,
+        "The person at the zoo says the person at the art gallery tells the truth"
+      ],
+      [
+        "airport",
+        "skate park",
+        true,
+        "The person at the airport says the person at the skate park lies"
+      ],
+      [
+        "observatory",
+        "zoo",
+        true,
+        "The person at the observatory says the person at the zoo lies"
+      ],
+      [
+        "botanical garden",
+        "airport",
+        false,
+        "The person at the botanical garden says the person at the airport tells the truth"
+      ],
+      [
+        "airport",
+        "observatory",
+        false,
+        "The person at the airport says the person at the observatory tells the truth"
+      ],
+      [
+        "campground",
+        "zoo",
+        false,
+        "The person at the campground says the person at the zoo tells the truth"
+      ]
+    ],
+    "ignored_non_utterance_facts": [],
+    "possible_answers": [
+      [
+        "no",
+        "no",
+        "no"
+      ]
+    ],
+    "candidate_finals": [
+      [
+        "yes",
+        "yes",
+        "no"
+      ],
+      [
+        "no",
+        "no",
+        "no"
+      ]
+    ],
+    "candidate_valid": [
+      false,
+      true
+    ],
+    "unique_answer": true
+  },
+  {
+    "index": 188,
+    "id": "ccb99d7c-3aca-5501-bfe5-66738a394278",
+    "query": [
+      "skate park",
+      "campground",
+      "barbershop"
+    ],
+    "anchors": [
+      [
+        "art gallery",
+        true,
+        "The person at the art gallery tells the truth"
+      ],
+      [
+        "ice skating rink",
+        true,
+        "The person at the ice skating rink tells the truth"
+      ]
+    ],
+    "edges": [
+      [
+        "gym",
+        "library",
+        true,
+        "The person at the gym says the person at the library lies"
+      ],
+      [
+        "barbershop",
+        "library",
+        true,
+        "The person at the barbershop says the person at the library lies"
+      ],
+      [
+        "skate park",
+        "campground",
+        false,
+        "The person at the skate park says the person at the campground tells the truth"
+      ],
+      [
+        "park",
+        "barbershop",
+        true,
+        "The person at the park says the person at the barbershop lies"
+      ],
+      [
+        "campground",
+        "barbershop",
+        true,
+        "The person at the campground says the person at the barbershop lies"
+      ],
+      [
+        "beach",
+        "barbershop",
+        true,
+        "The person at the beach says the person at the barbershop lies"
+      ],
+      [
+        "library",
+        "ice skating rink",
+        true,
+        "The person at the library says the person at the ice skating rink lies"
+      ]
+    ],
+    "ignored_non_utterance_facts": [
+      "The person at the skate park thinks their neighbor is telling the truth"
+    ],
+    "possible_answers": [
+      [
+        "no",
+        "no",
+        "yes"
+      ]
+    ],
+    "candidate_finals": [
+      [
+        "no",
+        "no",
+        "yes"
+      ],
+      [
+        "yes",
+        "yes",
+        "no"
+      ]
+    ],
+    "candidate_valid": [
+      true,
+      false
+    ],
+    "unique_answer": true
+  },
+  {
+    "index": 190,
+    "id": "150d1bd0-115e-5e13-999a-4e0835674582",
+    "query": [
+      "amusement park",
+      "school",
+      "vineyard"
+    ],
+    "anchors": [
+      [
+        "campground",
+        true,
+        "The person at the campground tells the truth"
+      ],
+      [
+        "restaurant",
+        true,
+        "The person at the restaurant tells the truth"
+      ]
+    ],
+    "edges": [
+      [
+        "city hall",
+        "school",
+        true,
+        "The person at the city hall says the person at the school lies"
+      ],
+      [
+        "ice skating rink",
+        "school",
+        false,
+        "The person at the ice skating rink says the person at the school tells the truth"
+      ],
+      [
+        "amusement park",
+        "school",
+        false,
+        "The person at the amusement park says the person at the school tells the truth"
+      ],
+      [
+        "vineyard",
+        "botanical garden",
+        false,
+        "The person at the vineyard says the person at the botanical garden tells the truth"
+      ],
+      [
+        "vineyard",
+        "campground",
+        false,
+        "The person at the vineyard says the person at the campground tells the truth"
+      ],
+      [
+        "school",
+        "vineyard",
+        false,
+        "The person at the school says the person at the vineyard tells the truth"
+      ],
+      [
+        "barbershop",
+        "campground",
+        false,
+        "The person at the barbershop says the person at the campground tells the truth"
+      ]
+    ],
+    "ignored_non_utterance_facts": [
+      "The person at the amusement park thinks their neighbor is telling the truth",
+      "The person at the amusement park thinks their friend is lying"
+    ],
+    "possible_answers": [
+      [
+        "yes",
+        "yes",
+        "yes"
+      ]
+    ],
+    "candidate_finals": [
+      [
+        "yes",
+        "yes",
+        "yes"
+      ],
+      [
+        "no",
+        "yes",
+        "yes"
+      ]
+    ],
+    "candidate_valid": [
+      true,
+      false
+    ],
+    "unique_answer": true
+  },
+  {
+    "index": 191,
+    "id": "a7743898-29c2-52f0-9065-c9ea19b630dd",
+    "query": [
+      "school",
+      "beach",
+      "gym"
+    ],
+    "anchors": [
+      [
+        "restaurant",
+        false,
+        "The person at the restaurant lies"
+      ]
+    ],
+    "edges": [
+      [
+        "art gallery",
+        "shopping mall",
+        true,
+        "The person at the art gallery says the person at the shopping mall lies"
+      ],
+      [
+        "zoo",
+        "restaurant",
+        false,
+        "The person at the zoo says the person at the restaurant tells the truth"
+      ],
+      [
+        "amusement park",
+        "art gallery",
+        true,
+        "The person at the amusement park says the person at the art gallery lies"
+      ],
+      [
+        "beach",
+        "gym",
+        false,
+        "The person at the beach says the person at the gym tells the truth"
+      ],
+      [
+        "farm",
+        "restaurant",
+        true,
+        "The person at the farm says the person at the restaurant lies"
+      ],
+      [
+        "gym",
+        "art gallery",
+        true,
+        "The person at the gym says the person at the art gallery lies"
+      ],
+      [
+        "observatory",
+        "zoo",
+        false,
+        "The person at the observatory says the person at the zoo tells the truth"
+      ],
+      [
+        "shopping mall",
+        "observatory",
+        true,
+        "The person at the shopping mall says the person at the observatory lies"
+      ],
+      [
+        "school",
+        "beach",
+        true,
+        "The person at the school says the person at the beach lies"
+      ]
+    ],
+    "ignored_non_utterance_facts": [],
+    "possible_answers": [
+      [
+        "no",
+        "yes",
+        "yes"
+      ]
+    ],
+    "candidate_finals": [
+      [
+        "no",
+        "yes",
+        "yes"
+      ],
+      [
+        "no",
+        "no",
+        "no"
+      ]
+    ],
+    "candidate_valid": [
+      true,
+      false
+    ],
+    "unique_answer": true
+  },
+  {
+    "index": 194,
+    "id": "3611a023-f92f-5ef4-940d-99a14cf280e9",
+    "query": [
+      "farm",
+      "zoo",
+      "botanical garden"
+    ],
+    "anchors": [
+      [
+        "library",
+        false,
+        "The person at the library lies"
+      ],
+      [
+        "museum",
+        false,
+        "The person at the museum lies"
+      ]
+    ],
+    "edges": [
+      [
+        "restaurant",
+        "hotel",
+        false,
+        "The person at the restaurant says the person at the hotel tells the truth"
+      ],
+      [
+        "park",
+        "restaurant",
+        true,
+        "The person at the park says the person at the restaurant lies"
+      ],
+      [
+        "farm",
+        "zoo",
+        true,
+        "The person at the farm says the person at the zoo lies"
+      ],
+      [
+        "hotel",
+        "shopping mall",
+        false,
+        "The person at the hotel says the person at the shopping mall tells the truth"
+      ],
+      [
+        "zoo",
+        "botanical garden",
+        true,
+        "The person at the zoo says the person at the botanical garden lies"
+      ],
+      [
+        "cafe",
+        "barbershop",
+        false,
+        "The person at the cafe says the person at the barbershop tells the truth"
+      ],
+      [
+        "bowling alley",
+        "restaurant",
+        true,
+        "The person at the bowling alley says the person at the restaurant lies"
+      ],
+      [
+        "restaurant",
+        "theater",
+        false,
+        "The person at the restaurant says the person at the theater tells the truth"
+      ],
+      [
+        "museum",
+        "gym",
+        true,
+        "The person at the museum says the person at the gym lies"
+      ],
+      [
+        "botanical garden",
+        "park",
+        false,
+        "The person at the botanical garden says the person at the park tells the truth"
+      ],
+      [
+        "hotel",
+        "cafe",
+        true,
+        "The person at the hotel says the person at the cafe lies"
+      ],
+      [
+        "zoo",
+        "beach",
+        false,
+        "The person at the zoo says the person at the beach tells the truth"
+      ],
+      [
+        "city hall",
+        "farm",
+        false,
+        "The person at the city hall says the person at the farm tells the truth"
+      ],
+      [
+        "barbershop",
+        "museum",
+        true,
+        "The person at the barbershop says the person at the museum lies"
+      ]
+    ],
+    "ignored_non_utterance_facts": [
+      "The person at the museum saw a firetruck",
+      "The person at the park thinks their neighbor is telling the truth",
+      "The person at the barbershop thinks their friend is lying"
+    ],
+    "possible_answers": [
+      [
+        "yes",
+        "no",
+        "yes"
+      ]
+    ],
+    "candidate_finals": [
+      [
+        "yes",
+        "no",
+        "yes"
+      ],
+      [
+        "yes",
+        "no",
+        "no"
+      ]
+    ],
+    "candidate_valid": [
+      true,
+      false
+    ],
+    "unique_answer": true
+  },
+  {
+    "index": 195,
+    "id": "c4da31be-6fe6-5c9a-bdf8-2dfd8f2884ef",
+    "query": [
+      "beach",
+      "amusement park",
+      "library"
+    ],
+    "anchors": [
+      [
+        "hotel",
+        true,
+        "The person at the hotel tells the truth"
+      ],
+      [
+        "park",
+        false,
+        "The person at the park lies"
+      ],
+      [
+        "barbershop",
+        false,
+        "The person at the barbershop lies"
+      ],
+      [
+        "gym",
+        true,
+        "The person at the gym tells the truth"
+      ]
+    ],
+    "edges": [
+      [
+        "hotel",
+        "art gallery",
+        false,
+        "The person at the hotel says the person at the art gallery tells the truth"
+      ],
+      [
+        "amusement park",
+        "library",
+        false,
+        "The person at the amusement park says the person at the library tells the truth"
+      ],
+      [
+        "school",
+        "hotel",
+        false,
+        "The person at the school says the person at the hotel tells the truth"
+      ],
+      [
+        "beach",
+        "amusement park",
+        true,
+        "The person at the beach says the person at the amusement park lies"
+      ],
+      [
+        "bowling alley",
+        "beach",
+        true,
+        "The person at the bowling alley says the person at the beach lies"
+      ],
+      [
+        "campground",
+        "airport",
+        false,
+        "The person at the campground says the person at the airport tells the truth"
+      ],
+      [
+        "airport",
+        "school",
+        false,
+        "The person at the airport says the person at the school tells the truth"
+      ],
+      [
+        "ice skating rink",
+        "school",
+        true,
+        "The person at the ice skating rink says the person at the school lies"
+      ],
+      [
+        "restaurant",
+        "airport",
+        false,
+        "The person at the restaurant says the person at the airport tells the truth"
+      ],
+      [
+        "school",
+        "movie theater",
+        false,
+        "The person at the school says the person at the movie theater tells the truth"
+      ],
+      [
+        "library",
+        "restaurant",
+        true,
+        "The person at the library says the person at the restaurant lies"
+      ],
+      [
+        "observatory",
+        "library",
+        false,
+        "The person at the observatory says the person at the library tells the truth"
+      ],
+      [
+        "train station",
+        "amusement park",
+        true,
+        "The person at the train station says the person at the amusement park lies"
+      ]
+    ],
+    "ignored_non_utterance_facts": [
+      "The person at the airport thinks their neighbor is telling the truth",
+      "The person at the school thinks their neighbor is telling the truth"
+    ],
+    "possible_answers": [
+      [
+        "yes",
+        "no",
+        "no"
+      ]
+    ],
+    "candidate_finals": [
+      [
+        "yes",
+        "no",
+        "no"
+      ],
+      [
+        "no",
+        "no",
+        "yes"
+      ]
+    ],
+    "candidate_valid": [
+      true,
+      false
+    ],
+    "unique_answer": true
+  },
+  {
+    "index": 198,
+    "id": "94fbd28e-b67a-5444-8d45-5f27ac3d3d02",
+    "query": [
+      "botanical garden",
+      "skate park",
+      "vineyard"
+    ],
+    "anchors": [
+      [
+        "art gallery",
+        false,
+        "The person at the art gallery lies"
+      ],
+      [
+        "shopping mall",
+        true,
+        "The person at the shopping mall tells the truth"
+      ],
+      [
+        "ice skating rink",
+        false,
+        "The person at the ice skating rink lies"
+      ]
+    ],
+    "edges": [
+      [
+        "vineyard",
+        "gym",
+        false,
+        "The person at the vineyard says the person at the gym tells the truth"
+      ],
+      [
+        "planetarium",
+        "skate park",
+        true,
+        "The person at the planetarium says the person at the skate park lies"
+      ],
+      [
+        "skate park",
+        "beach",
+        false,
+        "The person at the skate park says the person at the beach tells the truth"
+      ],
+      [
+        "barbershop",
+        "vineyard",
+        false,
+        "The person at the barbershop says the person at the vineyard tells the truth"
+      ],
+      [
+        "skate park",
+        "vineyard",
+        true,
+        "The person at the skate park says the person at the vineyard lies"
+      ],
+      [
+        "botanical garden",
+        "skate park",
+        true,
+        "The person at the botanical garden says the person at the skate park lies"
+      ],
+      [
+        "gym",
+        "shopping mall",
+        false,
+        "The person at the gym says the person at the shopping mall tells the truth"
+      ],
+      [
+        "bookstore",
+        "vineyard",
+        true,
+        "The person at the bookstore says the person at the vineyard lies"
+      ],
+      [
+        "airport",
+        "gym",
+        false,
+        "The person at the airport says the person at the gym tells the truth"
+      ]
+    ],
+    "ignored_non_utterance_facts": [
+      "The person at the botanical garden thinks their friend is lying",
+      "The person at the skate park saw a firetruck"
+    ],
+    "possible_answers": [
+      [
+        "yes",
+        "no",
+        "yes"
+      ]
+    ],
+    "candidate_finals": [
+      [
+        "no",
+        "yes",
+        "yes"
+      ],
+      [
+        "yes",
+        "no",
+        "yes"
+      ]
+    ],
+    "candidate_valid": [
+      false,
+      true
+    ],
+    "unique_answer": true
+  }
+]

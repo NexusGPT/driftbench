@@ -1,0 +1,73 @@
+{
+  "report": {
+    "bench": "judgebench",
+    "model": "haiku",
+    "items": 121,
+    "contestants": [
+      {
+        "contestant": "driftbench-reference3-tools-named-cascade",
+        "source": "unchanged reference3, then label-blind uncertainty-gated escalation",
+        "mode": "pairwise, both orders",
+        "summary": {
+          "metric": "accuracy (JudgeBench, both orders)",
+          "value": {
+            "estimate": 0.9008264462809917,
+            "lower": 0.8346307100233648,
+            "upper": 0.9423547635228717
+          },
+          "n": 121,
+          "byGroup": {
+            "mmlu": {
+              "n": 59,
+              "value": 0.8644067796610171
+            },
+            "livebench": {
+              "n": 50,
+              "value": 0.92
+            },
+            "livecodebench": {
+              "n": 12,
+              "value": 1
+            }
+          },
+          "missing": 0,
+          "positionConsistency": 0.9090909090909091
+        },
+        "costUsd": 1.4087864300000006,
+        "calls": 1187
+      }
+    ],
+    "newSpendUsd": 0,
+    "newCalls": 0,
+    "replayed": 1187,
+    "failedCalls": 0,
+    "escalated": 26,
+    "escalationShare": 0.21487603305785125
+  },
+  "audited": {
+    "metric": "accuracy (JudgeBench, both orders)",
+    "value": {
+      "estimate": 0.963963963963964,
+      "lower": 0.910989944100048,
+      "upper": 0.9858986974907682
+    },
+    "n": 111,
+    "byGroup": {
+      "mmlu": {
+        "n": 51,
+        "value": 0.9607843137254902
+      },
+      "livebench": {
+        "n": 48,
+        "value": 0.9583333333333334
+      },
+      "livecodebench": {
+        "n": 12,
+        "value": 1
+      }
+    },
+    "missing": 0,
+    "positionConsistency": 0.9459459459459459
+  },
+  "changes": []
+}

@@ -1,0 +1,45 @@
+{
+  "bench": "judgebench",
+  "model": "haiku",
+  "items": 50,
+  "sample": 50,
+  "contestants": [
+    {
+      "contestant": "driftbench-reference3-tools",
+      "source": "reference3 reasoning and symmetric rules with five gated blind solves, executable backward checks, and a directly named winner (dev candidate)",
+      "mode": "pairwise, both orders",
+      "summary": {
+        "metric": "accuracy (JudgeBench, both orders)",
+        "value": {
+          "estimate": 0.88,
+          "lower": 0.7619518261679701,
+          "upper": 0.9438239984906773
+        },
+        "n": 50,
+        "byGroup": {
+          "mmlu": {
+            "n": 24,
+            "value": 0.875
+          },
+          "livecodebench": {
+            "n": 5,
+            "value": 1
+          },
+          "livebench": {
+            "n": 21,
+            "value": 0.8571428571428571
+          }
+        },
+        "missing": 0,
+        "positionConsistency": 0.86
+      },
+      "costUsd": 0.9344213200000009,
+      "calls": 667
+    }
+  ],
+  "newSpendUsd": 0.6012693099999998,
+  "newCalls": 426,
+  "replayed": 241,
+  "failedCalls": 0,
+  "elapsedMs": 6310984
+}

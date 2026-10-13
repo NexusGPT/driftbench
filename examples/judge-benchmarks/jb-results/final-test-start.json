@@ -1,0 +1,71 @@
+{
+  "stamp": "2026-10-13T00:16:22.554Z",
+  "ids": [
+    "driftbench-reference3",
+    "driftbench-reference3-format"
+  ],
+  "freeze": {
+    "stamp": "2026-10-13T00:16:21.390Z",
+    "sha": "64c1e78617902521b903eb9454787c0848d429aa",
+    "ids": [
+      "driftbench-reference3",
+      "driftbench-reference3-format"
+    ],
+    "sample": 0,
+    "seed": "codex-jb-frozen-test-v1",
+    "confidenceThreshold": null,
+    "selection": {
+      "rule": "Use a replacement only at 113/121 official or better; otherwise freeze original reference3.",
+      "baselineCorrect": 111,
+      "minimumReplacementCorrect": 113,
+      "chosenCorrect": 111,
+      "summaryStamp": "2026-10-13T00:15:58.972Z",
+      "qualifying": [],
+      "devEvidence": [
+        {
+          "id": "driftbench-reference3",
+          "official": 0.9173553719008265,
+          "audited": 0.972972972972973,
+          "cost100": 0.7719890495867774,
+          "n": 121
+        },
+        {
+          "id": "driftbench-reference3-format",
+          "official": 0.9173553719008265,
+          "audited": 0.972972972972973,
+          "cost100": 0.8768585537190096,
+          "n": 121
+        }
+      ]
+    },
+    "deadlineMs": 1791865800000,
+    "hashes": {
+      "src/contestants.ts": "ba230470fb587768e1c3a091f6334e652e8d029f921352359329538cea1c33bc",
+      "src/run.ts": "4e4fde2d041620e67fd9d6a855cef57b59e65079f1d8241822fae46c35fe5dea",
+      "src/extras.ts": "6460bf76e55a27b113069446abd1878a8c5abfca24ea1ccc2bba94b3446708f5",
+      "src/call.ts": "3896f885de699085e53e0cf448fbc736a7ae7529494f8e010231bf2829b97e86",
+      "src/cascade.ts": "9550bdaac334f7d13c60b15dfc9097c658d56ddbfb624f71d0ddb752f0037b9b",
+      "src/cascade-run.ts": "e2299bc6d54b87e5a63cc7304cd5878c5d603769eaf8943b8c1d85f577335e9e",
+      "src/answer-key.ts": "481dad5c0ddeda3cfff6d1be0a317c63fa62e65f7f7240cd1c80dfeb98b623a0",
+      "src/data.ts": "0ad8c198e952608eb0c3959c6147d98e07253265b72e196d270ddff57ebfdc00",
+      "src/score.ts": "6edd315117e69756cb0705e4335dfb7675805374a1d3aee357ac477123f6e827",
+      "src/jb-final-test.ts": "1d719816c54b206fdec3fc1dc03d8409d689783dd47fb2a5fce20884aad73657",
+      "src/jb-freeze.ts": "ec59ad33787611a15353e7f3cab61144419018592d36ce52a2c58212b6dd46ad"
+    },
+    "auditPolicy": "Audit after freeze, without changing the judge. Exclude only documented ambiguous or defensible alternatives; retain official labels otherwise. Publish both denominators."
+  },
+  "sha": "64c1e78617902521b903eb9454787c0848d429aa",
+  "hashes": {
+    "src/contestants.ts": "ba230470fb587768e1c3a091f6334e652e8d029f921352359329538cea1c33bc",
+    "src/run.ts": "4e4fde2d041620e67fd9d6a855cef57b59e65079f1d8241822fae46c35fe5dea",
+    "src/extras.ts": "6460bf76e55a27b113069446abd1878a8c5abfca24ea1ccc2bba94b3446708f5",
+    "src/call.ts": "3896f885de699085e53e0cf448fbc736a7ae7529494f8e010231bf2829b97e86",
+    "src/cascade.ts": "9550bdaac334f7d13c60b15dfc9097c658d56ddbfb624f71d0ddb752f0037b9b",
+    "src/cascade-run.ts": "e2299bc6d54b87e5a63cc7304cd5878c5d603769eaf8943b8c1d85f577335e9e",
+    "src/answer-key.ts": "481dad5c0ddeda3cfff6d1be0a317c63fa62e65f7f7240cd1c80dfeb98b623a0",
+    "src/data.ts": "0ad8c198e952608eb0c3959c6147d98e07253265b72e196d270ddff57ebfdc00",
+    "src/score.ts": "6edd315117e69756cb0705e4335dfb7675805374a1d3aee357ac477123f6e827",
+    "src/jb-final-test.ts": "1d719816c54b206fdec3fc1dc03d8409d689783dd47fb2a5fce20884aad73657",
+    "src/jb-freeze.ts": "ec59ad33787611a15353e7f3cab61144419018592d36ce52a2c58212b6dd46ad"
+  }
+}

@@ -1,0 +1,43 @@
+{
+  "bench": "judgebench",
+  "model": "haiku",
+  "items": 229,
+  "contestants": [
+    {
+      "contestant": "driftbench-reference3-format",
+      "source": "driftbench-reference with three independent judgements per prompt, the majority deciding (tuning candidate); with a question-only executable format checker",
+      "mode": "pairwise, both orders",
+      "summary": {
+        "metric": "accuracy (JudgeBench, both orders)",
+        "value": {
+          "estimate": 0.851528384279476,
+          "lower": 0.7996911841812029,
+          "upper": 0.8917664317237997
+        },
+        "n": 229,
+        "byGroup": {
+          "mmlu": {
+            "n": 95,
+            "value": 0.7684210526315789
+          },
+          "livebench": {
+            "n": 104,
+            "value": 0.9038461538461539
+          },
+          "livecodebench": {
+            "n": 30,
+            "value": 0.9333333333333333
+          }
+        },
+        "missing": 2,
+        "positionConsistency": 0.8995633187772926
+      },
+      "costUsd": 1.9900870199999992,
+      "calls": 1857
+    }
+  ],
+  "newSpendUsd": 0.23923809999999981,
+  "newCalls": 261,
+  "replayed": 1596,
+  "failedCalls": 8
+}

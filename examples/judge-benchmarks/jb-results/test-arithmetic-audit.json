@@ -1,0 +1,361 @@
+{
+  "15": {
+    "answer": "95/69",
+    "details": {
+      "both_code_expected_lengths": [
+        "95/69",
+        "95/69"
+      ],
+      "lower_bound": "At most three one-symbol words; assign them the largest probabilities. All others need at least two symbols.",
+      "unique_decoding": "Each word has exactly one 7/8/9 at its beginning, so those delimit every concatenation."
+    }
+  },
+  "16": {
+    "answer": "Both B and D are false under standard finite precision",
+    "details": {
+      "subtraction_not_commutative": [
+        2.0,
+        -2.0
+      ],
+      "round_to_nearest_not_associative": [
+        1.0,
+        0.0
+      ]
+    }
+  },
+  "56": {
+    "answer": "1.9189385332046727",
+    "details": {
+      "formula": "0.5*ln(2*pi)+0.5*E[(X-1)^2], X~N(0,1); E[(X-1)^2]=2",
+      "candidate_finals": [
+        1.4,
+        1.1
+      ],
+      "closest_listed_option": 1.8,
+      "neither_candidate_final_is_correct": true
+    }
+  },
+  "74": {
+    "answer": "Printed option exponents are inconsistent with physical energy",
+    "details": {
+      "interpreting_separation_as_1e-10m": {
+        "electric_work_J": 1.845662041881362e-18,
+        "gravitational_work_J": 8.13546694785206e-58
+      },
+      "question_issue": "The exponent minus is encoded as a rule, while options print positive 10^58 and 10^18. The intended negative-exponent result cannot equal any literal printed option."
+    }
+  },
+  "79": {
+    "answer": "0.01749786278577518",
+    "details": {
+      "first_secondary_maximum_u": 5.135622301840682,
+      "smallest_printed_option": 0.125,
+      "no_printed_option_matches": true,
+      "qualification": "Interpreting the nonstandard word diagonal as the first secondary maximum of the stated circular aperture."
+    }
+  },
+  "84": {
+    "answer": "Requires a missing ambient temperature T0",
+    "details": {
+      "entropy_generated_kJ_per_K": 1.4799987378500137,
+      "lost_work_at_298K_kJ": 441.0396238793041,
+      "ambient_for_441_1kJ": 298.0407947109358,
+      "ambient_for_505_5kJ": 341.55434533298126,
+      "relation": "Irreversibility=T0*Sgen; no T0 is stated."
+    }
+  },
+  "96": {
+    "answer": "2/(2x+1)=1/(x+1/2)",
+    "details": {
+      "exact_checks": true,
+      "qualification": "Both use the same natural-log convention. The functions are algebraically equal throughout the real log domain x<-1/2."
+    }
+  },
+  "98": {
+    "answer": "45",
+    "details": {
+      "tangent_of_angle": "1",
+      "format_difference": "C repeated five versus six times"
+    }
+  },
+  "99": {
+    "answer": "27",
+    "details": {
+      "meeting_hours": "3/2",
+      "distance_from_A": "27",
+      "format_difference": "E repeated five versus seven times"
+    }
+  },
+  "100": {
+    "answer": "14",
+    "details": {
+      "values": [
+        2,
+        3,
+        4,
+        5
+      ],
+      "complete_bound": "2v=7+3/(2n+3), so the odd denominator divides3.",
+      "format_issue": "One answer gives a boxed value; the other repeats E eight times. Both factual finals equal14."
+    }
+  },
+  "102": {
+    "answer": "5*(x-4/5)^2-96/5",
+    "details": {
+      "decimal_constant": "-96/5",
+      "equal_forms": true
+    }
+  },
+  "107": {
+    "answer": "8",
+    "details": {
+      "legendre_terms": [
+        7,
+        1
+      ],
+      "format_difference": "E repeated five versus six times"
+    }
+  },
+  "114": {
+    "answer": "Both opposite-sign characteristic polynomial conventions have the same roots",
+    "details": {
+      "det_lambdaI_minus_A_coefficients_ascending": [
+        "-744",
+        "-341",
+        "8",
+        "1"
+      ],
+      "det_A_minus_lambdaI_coefficients_ascending": [
+        "744",
+        "341",
+        "-8",
+        "-1"
+      ]
+    }
+  },
+  "116": {
+    "answer": "1/3000",
+    "details": {
+      "format_difference": "C repeated six versus five times"
+    }
+  },
+  "113": {
+    "answer": "144",
+    "details": {
+      "exhaustive_nonempty_subsets": 8191,
+      "both_final_values": 144
+    }
+  },
+  "122": {
+    "answer": "6",
+    "details": {
+      "one_representative_per_open_interval": 11,
+      "both_final_counts": 6
+    }
+  },
+  "123": {
+    "answer": "Identical derivatives",
+    "details": {
+      "expression": "-2-(17/2)*sec^2(9/2-17x/2)",
+      "chain_rule_multiplier": "-17/2"
+    }
+  },
+  "127": {
+    "answer": "1",
+    "details": {
+      "log_x_roots": [
+        -6.849913497353465,
+        6.849913497353465
+      ],
+      "product_x_roots": 1.0,
+      "relation": "t^2=c^2-ab, c=a+b; sum log roots iszero."
+    }
+  },
+  "128": {
+    "answer": "1625",
+    "details": {
+      "width_cm": 0.65,
+      "length_cm": 2500,
+      "format_difference": "C repeated six versus five times"
+    }
+  },
+  "131": {
+    "answer": "9/4",
+    "details": {
+      "diagonal_squared": "81/16",
+      "both_factual_finals": "9/4"
+    }
+  },
+  "133": {
+    "answer": "15*sqrt(3)",
+    "details": {
+      "sides": [
+        6,
+        10,
+        14
+      ],
+      "cosine_of_largest_angle": "-1/2",
+      "format_difference": "E repeated five versus eight times"
+    }
+  },
+  "135": {
+    "answer": "49/216",
+    "details": {
+      "enumerated_die_sequences": 1296,
+      "successes": 294
+    }
+  },
+  "136": {
+    "answer": "16",
+    "details": {
+      "roots": [
+        6,
+        10
+      ],
+      "substitution_checks": [
+        true,
+        true
+      ],
+      "format_difference": "E repeated six versus four times"
+    }
+  },
+  "153": {
+    "answer": "5",
+    "details": {
+      "pieces": 6,
+      "triangles": 5,
+      "vertex_counts": [
+        4,
+        3,
+        3,
+        3,
+        3,
+        3
+      ],
+      "area_conserved": true
+    }
+  },
+  "160": {
+    "answer": "5",
+    "details": {
+      "pieces": 5,
+      "triangles": 5,
+      "vertex_counts": [
+        3,
+        3,
+        3,
+        3,
+        3
+      ],
+      "area_conserved": true
+    }
+  },
+  "193": {
+    "answer": "6",
+    "details": {
+      "pieces": 6,
+      "triangles": 5,
+      "vertex_counts": [
+        3,
+        4,
+        3,
+        3,
+        3,
+        3
+      ],
+      "area_conserved": true
+    }
+  },
+  "149": {
+    "answer": "4",
+    "details": {
+      "pieces": 4,
+      "triangles": 4,
+      "vertex_counts": [
+        3,
+        3,
+        3,
+        3
+      ],
+      "area_conserved": true
+    }
+  },
+  "145": {
+    "answer": "1",
+    "details": {
+      "pieces": 4,
+      "triangles": 3,
+      "vertex_counts": [
+        3,
+        3,
+        3,
+        4
+      ],
+      "area_conserved": true
+    }
+  },
+  "186": {
+    "answer": "3",
+    "details": {
+      "pieces": 4,
+      "triangles": 3,
+      "vertex_counts": [
+        3,
+        3,
+        3,
+        4
+      ],
+      "area_conserved": true
+    }
+  },
+  "187": {
+    "answer": "3",
+    "details": {
+      "pieces": 6,
+      "triangles": 3,
+      "vertex_counts": [
+        4,
+        3,
+        4,
+        3,
+        4,
+        3
+      ],
+      "area_conserved": true
+    }
+  },
+  "181": {
+    "answer": "square pyramid",
+    "details": {
+      "base_centers": [
+        [
+          -5,
+          -5,
+          5
+        ],
+        [
+          -5,
+          5,
+          5
+        ],
+        [
+          5,
+          5,
+          5
+        ],
+        [
+          5,
+          -5,
+          5
+        ]
+      ],
+      "apex_center": [
+        0,
+        0,
+        10.567764362830022
+      ],
+      "tangent_center_distance": 9,
+      "all_four_tangencies": true
+    }
+  }
+}

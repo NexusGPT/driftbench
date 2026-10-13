@@ -1,0 +1,75 @@
+{
+  "bench": "judgebench",
+  "model": "haiku",
+  "items": 121,
+  "contestants": [
+    {
+      "contestant": "driftbench-direct",
+      "source": "directly named A/B winner with independent final-answer checks (dev candidate)",
+      "mode": "pairwise, both orders",
+      "summary": {
+        "metric": "accuracy (JudgeBench, both orders)",
+        "value": {
+          "estimate": 0.8512396694214877,
+          "lower": 0.7770809679977386,
+          "upper": 0.9037825912953552
+        },
+        "n": 121,
+        "byGroup": {
+          "mmlu": {
+            "n": 59,
+            "value": 0.7627118644067796
+          },
+          "livebench": {
+            "n": 50,
+            "value": 0.92
+          },
+          "livecodebench": {
+            "n": 12,
+            "value": 1
+          }
+        },
+        "missing": 0,
+        "positionConsistency": 0.8016528925619835
+      },
+      "costUsd": 0.31656498999999994,
+      "calls": 242
+    },
+    {
+      "contestant": "driftbench-direct-ledger",
+      "source": "same direct judge output, relative verdict computed from factual correctness fields in code (dev candidate)",
+      "mode": "pairwise, both orders",
+      "summary": {
+        "metric": "accuracy (JudgeBench, both orders)",
+        "value": {
+          "estimate": 0.8347107438016529,
+          "lower": 0.7584457954318083,
+          "upper": 0.8903771257769045
+        },
+        "n": 121,
+        "byGroup": {
+          "mmlu": {
+            "n": 59,
+            "value": 0.7627118644067796
+          },
+          "livebench": {
+            "n": 50,
+            "value": 0.88
+          },
+          "livecodebench": {
+            "n": 12,
+            "value": 1
+          }
+        },
+        "missing": 0,
+        "positionConsistency": 0.8016528925619835
+      },
+      "costUsd": 0.31656498999999994,
+      "calls": 242
+    }
+  ],
+  "newSpendUsd": 0.31656498999999994,
+  "newCalls": 242,
+  "replayed": 242,
+  "failedCalls": 0
+}

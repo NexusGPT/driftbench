@@ -1,0 +1,43 @@
+{
+  "bench": "judgebench",
+  "model": "haiku",
+  "items": 121,
+  "contestants": [
+    {
+      "contestant": "driftbench-contrast",
+      "source": "the shipped judge with candidate-directed correctness checks and no generated reference (dev candidate)",
+      "mode": "pairwise, both orders",
+      "summary": {
+        "metric": "accuracy (JudgeBench, both orders)",
+        "value": {
+          "estimate": 0.9008264462809917,
+          "lower": 0.8346307100233648,
+          "upper": 0.9423547635228717
+        },
+        "n": 121,
+        "byGroup": {
+          "mmlu": {
+            "n": 59,
+            "value": 0.8644067796610171
+          },
+          "livebench": {
+            "n": 50,
+            "value": 0.92
+          },
+          "livecodebench": {
+            "n": 12,
+            "value": 1
+          }
+        },
+        "missing": 0,
+        "positionConsistency": 0.8512396694214877
+      },
+      "costUsd": 0.28052226,
+      "calls": 242
+    }
+  ],
+  "newSpendUsd": 0.17165273,
+  "newCalls": 135,
+  "replayed": 107,
+  "failedCalls": 0
+}

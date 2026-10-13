@@ -1,0 +1,653 @@
+[
+  {
+    "index": 142,
+    "id": "d78a5116-f0a0-5a7b-a461-8f42262cce47",
+    "constraints": [
+      "the person that plays biathlon and the person that likes onion have different parity positions",
+      "the person that likes banana is somewhere between the person who likes dancing and the person who likes hiking",
+      "the person who likes filmmaking likes lettuce or the person that likes lettuce plays surfing or both",
+      "the person that likes radish is somewhere between the person who likes dancing and the person that likes banana",
+      "the person that plays surfing and the person who likes filmmaking have different parity positions",
+      "the person that plays biathlon and the person that likes banana have different parity positions",
+      "the person that plays water-polo likes banana or the person that plays water-polo likes filmmaking or both",
+      "the person that likes lettuce is not anywhere to the left of the person that likes radish"
+    ],
+    "target": [
+      "Hobby",
+      4
+    ],
+    "solutions": 1,
+    "possible_answers": [
+      "hiking"
+    ],
+    "example": {
+      "dancing": 1,
+      "filmmaking": 3,
+      "hiking": 4,
+      "card-games": 2,
+      "lettuce": 4,
+      "radish": 2,
+      "onion": 1,
+      "banana": 3,
+      "basketball": 1,
+      "water-polo": 3,
+      "biathlon": 2,
+      "surfing": 4
+    }
+  },
+  {
+    "index": 151,
+    "id": "295046df-4a28-5894-b61e-70cd586ad52c",
+    "constraints": [
+      "the person who is french is on the immediate left of the person that likes garlic",
+      "the person that likes blueberry is not anywhere to the left of the person that plays surfing",
+      "the person that likes blueberry is somewhere between the person that likes cucumber and the person that likes garlic",
+      "the person that likes cucumber is not anywhere to the left of the person who is brazilian",
+      "the person who listens to trance is somewhere between the person that plays surfing and the person that plays soccer",
+      "the person who listens to d&b is on the immediate left of the person who is french"
+    ],
+    "target": [
+      "position",
+      "blueberry"
+    ],
+    "solutions": 1,
+    "possible_answers": [
+      "2"
+    ],
+    "example": {
+      "argentine": 3,
+      "brazilian": 1,
+      "french": 2,
+      "garlic": 3,
+      "blueberry": 2,
+      "cucumber": 1,
+      "trance": 2,
+      "d&b": 1,
+      "funk": 3,
+      "soccer": 3,
+      "snowboarding": 2,
+      "surfing": 1
+    }
+  },
+  {
+    "index": 154,
+    "id": "1a7444f1-a4a4-557d-9b20-fe41ee618d4c",
+    "constraints": [
+      "the person that travels by airplane and the person who drinks sprite have different parity positions",
+      "the person who is a police-officer is somewhere between the person that travels by airplane and the person who drinks milk",
+      "the person who likes skydiving travels by tram or the person who likes skydiving is a videographer or both",
+      "the person who is a videographer is not anywhere to the left of the person who likes woodworking",
+      "the person who likes skydiving is not anywhere to the right of the person who likes board-games",
+      "the person that travels by airplane and the person who likes board-games have different parity positions"
+    ],
+    "target": [
+      "Job",
+      "snowmobile"
+    ],
+    "solutions": 1,
+    "possible_answers": [
+      "police-officer"
+    ],
+    "example": {
+      "snowmobile": 2,
+      "airplane": 3,
+      "tram": 1,
+      "skydiving": 1,
+      "woodworking": 3,
+      "board-games": 2,
+      "police-officer": 2,
+      "bartender": 1,
+      "videographer": 3,
+      "sprite": 2,
+      "water": 3,
+      "milk": 1
+    }
+  },
+  {
+    "index": 164,
+    "id": "67bcb178-e185-509d-8917-9390ce37e57d",
+    "constraints": [
+      "the person who is indonesian is in an even position",
+      "the person who is indonesian is not anywhere to the left of the person who is malaysian",
+      "the person who listens to dubstep and the person who is egyptian have the same parity positions",
+      "the person that watches time-travel movies and the person who is indonesian have different parity positions",
+      "the person that plays ice-hockey is somewhere between the person that plays snowboarding and the person that watches thriller movies",
+      "the person that watches thriller movies is not anywhere to the left of the person who is egyptian",
+      "the person that watches time-travel movies listens to jazz or the person that watches time-travel movies is indonesian, but not both"
+    ],
+    "target": [
+      "Movie-Genre",
+      "dubstep"
+    ],
+    "solutions": 1,
+    "possible_answers": [
+      "thriller movies"
+    ],
+    "example": {
+      "thriller movies": 3,
+      "time-travel movies": 1,
+      "adventure movies": 2,
+      "folk": 2,
+      "dubstep": 3,
+      "jazz": 1,
+      "malaysian": 1,
+      "indonesian": 2,
+      "egyptian": 3,
+      "handball": 3,
+      "snowboarding": 1,
+      "ice-hockey": 2
+    }
+  },
+  {
+    "index": 166,
+    "id": "fc8e8f7b-7138-5529-9730-6ecc07274f61",
+    "constraints": [
+      "the person who drinks iced-tea is brazilian or the person who drinks iced-tea travels by airplane or both",
+      "the person that travels by airplane is brazilian or the person who listens to reggae travels by airplane or both",
+      "the person who listens to ambient is not anywhere to the left of the person who listens to reggae",
+      "the person that travels by motorbike drinks coffee or the person that travels by motorbike is british or both",
+      "the person who is brazilian listens to ambient or the person that travels by taxi is brazilian, but not both",
+      "the person that travels by jet-ski is not anywhere to the left of the person who drinks hot-chocolate",
+      "the person that travels by jet-ski and the person who drinks coffee have the same parity positions",
+      "the person who is polish is somewhere between the person who drinks fanta and the person who is pakistani",
+      "the person who drinks hot-chocolate is brazilian or the person who drinks hot-chocolate listens to classical, but not both",
+      "the person who listens to reggae is not anywhere to the left of the person that travels by motorbike",
+      "the person who listens to electronic is not anywhere to the right of the person who listens to classical",
+      "the person who listens to electronic and the person that travels by motorbike have different parity positions",
+      "the person who is pakistani is not anywhere to the right of the person who drinks iced-tea",
+      "the person who drinks hot-chocolate and the person that travels by airplane have different parity positions"
+    ],
+    "target": [
+      "Music-Genre",
+      3
+    ],
+    "solutions": 1,
+    "possible_answers": [
+      "reggae"
+    ],
+    "example": {
+      "motorbike": 2,
+      "taxi": 1,
+      "jet-ski": 4,
+      "airplane": 3,
+      "reggae": 3,
+      "ambient": 4,
+      "electronic": 1,
+      "classical": 2,
+      "fanta": 1,
+      "hot-chocolate": 4,
+      "coffee": 2,
+      "iced-tea": 3,
+      "british": 1,
+      "brazilian": 4,
+      "pakistani": 3,
+      "polish": 2
+    }
+  },
+  {
+    "index": 167,
+    "id": "8f578704-dffa-57a6-828c-de18fecdf54f",
+    "constraints": [
+      "the person who is a mechanic and the person who listens to punk have the same parity positions",
+      "the person who is a teacher is somewhere to the left of the person who listens to punk",
+      "the person who is a pilot is somewhere to the right of the person who is indian",
+      "the person who listens to metal is in an even position",
+      "the person who is french is in an odd position",
+      "the person that has a goldfish is on the immediate left of the person that has a chinchilla",
+      "the person who is american has a chinchilla or the person who is american listens to funk, but not both",
+      "the person that has a chinchilla is somewhere to the right of the person who is a chef",
+      "the person who is french and the person who listens to d&b have the same parity positions",
+      "the person who is indian has a hamster",
+      "the person that has a chinchilla is not anywhere to the left of the person who is american",
+      "the person who is a mechanic is on the immediate right of the person that has a chinchilla"
+    ],
+    "target": [
+      "Music-Genre",
+      "french"
+    ],
+    "solutions": 1,
+    "possible_answers": [
+      "d&b"
+    ],
+    "example": {
+      "russian": 4,
+      "indian": 3,
+      "french": 1,
+      "american": 2,
+      "chef": 1,
+      "mechanic": 3,
+      "teacher": 2,
+      "pilot": 4,
+      "punk": 3,
+      "metal": 2,
+      "funk": 4,
+      "d&b": 1,
+      "goldfish": 1,
+      "hamster": 3,
+      "mouse": 4,
+      "chinchilla": 2
+    }
+  },
+  {
+    "index": 169,
+    "id": "a1259c5f-3a11-578e-88ef-58a9a7986652",
+    "constraints": [
+      "the person who drinks cola is somewhere to the left of the person that watches action movies",
+      "the person that likes onion is somewhere to the left of the person that likes cranberry",
+      "the person that watches mystery movies and the person who drinks soy-milk have the same parity positions",
+      "the person that likes papaya is not anywhere to the right of the person that watches family movies",
+      "the person who drinks soy-milk is in the middle"
+    ],
+    "target": [
+      "position",
+      "mirinda"
+    ],
+    "solutions": 1,
+    "possible_answers": [
+      "3"
+    ],
+    "example": {
+      "papaya": 1,
+      "onion": 2,
+      "cranberry": 3,
+      "family movies": 1,
+      "mystery movies": 2,
+      "action movies": 3,
+      "soy-milk": 2,
+      "cola": 1,
+      "mirinda": 3
+    }
+  },
+  {
+    "index": 172,
+    "id": "6dcc9ad7-2f3b-5dae-be24-9080b9ad7973",
+    "constraints": [
+      "the person that plays handball is not anywhere to the left of the person who listens to blues",
+      "the person that plays skateboarding is somewhere between the person who listens to reggae and the person that plays handball",
+      "the person who likes cooking is on the immediate right of the person who likes traveling",
+      "the person that plays badminton is somewhere to the right of the person who likes cooking",
+      "the person who likes cooking is somewhere between the person who likes skydiving and the person that plays handball",
+      "the person who listens to pop is not anywhere to the right of the person who likes traveling",
+      "the person who listens to pop is on the far left or far right"
+    ],
+    "target": [
+      "position",
+      "skateboarding"
+    ],
+    "solutions": 1,
+    "possible_answers": [
+      "3"
+    ],
+    "example": {
+      "traveling": 2,
+      "skydiving": 4,
+      "cooking": 3,
+      "sudoku": 1,
+      "badminton": 4,
+      "handball": 2,
+      "skateboarding": 3,
+      "ice-hockey": 1,
+      "reggae": 4,
+      "pop": 1,
+      "blues": 2,
+      "salsa": 3
+    }
+  },
+  {
+    "index": 173,
+    "id": "5c0d0e45-eb3f-5c6a-81ef-81fd39df82a9",
+    "constraints": [
+      "the person that plays snowboarding watches spy movies or the person that plays snowboarding is a mechanic or both",
+      "the person who is a social-worker is somewhere to the right of the person that watches spy movies",
+      "the person that plays cricket is somewhere to the right of the person that watches mystery movies",
+      "the person who is a social-worker and the person that watches spy movies have different parity positions",
+      "the person who is a mechanic is in an even position"
+    ],
+    "target": [
+      "Movie-Genre",
+      "mechanic"
+    ],
+    "solutions": 1,
+    "possible_answers": [
+      "spy movies"
+    ],
+    "example": {
+      "cricket": 3,
+      "skiing": 1,
+      "snowboarding": 2,
+      "social-worker": 3,
+      "teacher": 1,
+      "mechanic": 2,
+      "spy movies": 2,
+      "mystery movies": 1,
+      "thriller movies": 3
+    }
+  },
+  {
+    "index": 175,
+    "id": "e49c100d-761c-5b04-8145-e94fbc847864",
+    "constraints": [
+      "the person that travels by quad-bike is on the immediate left of the person that likes pomegranate",
+      "the person that watches documentary movies is not anywhere to the left of the person that travels by helicopter",
+      "the person that likes mango is on the immediate right of the person that likes corn",
+      "the person that watches spy movies is on the immediate right of the person that likes pumpkin",
+      "the person that watches western movies is somewhere between the person that travels by tram and the person that travels by quad-bike",
+      "the person that likes pumpkin is immediately between the person that travels by bus and the person that travels by helicopter"
+    ],
+    "target": [
+      "position",
+      "pumpkin"
+    ],
+    "solutions": 1,
+    "possible_answers": [
+      "3"
+    ],
+    "example": {
+      "fantasy movies": 1,
+      "western movies": 2,
+      "spy movies": 4,
+      "documentary movies": 3,
+      "tram": 1,
+      "quad-bike": 3,
+      "bus": 4,
+      "helicopter": 2,
+      "mango": 2,
+      "pumpkin": 3,
+      "pomegranate": 4,
+      "corn": 1
+    }
+  },
+  {
+    "index": 177,
+    "id": "9b0d8cfb-f165-5bcd-9a35-3f9cff879a80",
+    "constraints": [
+      "the person that travels by tram is somewhere to the right of the person that has a hamster",
+      "the person who is japanese is on the far left",
+      "the person that likes watermelon and the person who is indian have the same parity positions",
+      "the person that travels by helicopter is not anywhere to the left of the person that travels by tram",
+      "the person that likes avocado is somewhere to the right of the person that travels by tram",
+      "the person that likes cranberry is somewhere to the left of the person that travels by tram",
+      "the person that likes watermelon does not own a rabbit or the person that travels by tram doesn't eat watermelon or both"
+    ],
+    "target": [
+      "position",
+      "avocado"
+    ],
+    "solutions": 1,
+    "possible_answers": [
+      "3"
+    ],
+    "example": {
+      "hamster": 1,
+      "rabbit": 3,
+      "rat": 2,
+      "helicopter": 3,
+      "scooter": 1,
+      "tram": 2,
+      "avocado": 3,
+      "watermelon": 2,
+      "cranberry": 1,
+      "japanese": 1,
+      "brazilian": 3,
+      "indian": 2
+    }
+  },
+  {
+    "index": 182,
+    "id": "4626f382-2aa2-5ac1-9c74-76185f48c6ad",
+    "constraints": [
+      "the person that likes cauliflower is not anywhere to the right of the person that likes cucumber",
+      "the person that likes cucumber is not anywhere to the right of the person who is german",
+      "the person who listens to pop is german or the person who listens to pop likes cauliflower or both",
+      "the person who listens to pop is egyptian or the person who listens to pop likes pomegranate, but not both",
+      "the person who is egyptian is not anywhere to the left of the person who is colombian",
+      "the person that likes pomegranate is not anywhere to the right of the person that travels by ship",
+      "the person who is egyptian listens to reggae or the person who listens to reggae travels by scooter, but not both",
+      "the person that travels by ship is not egyptian or the person that travels by ship doesn't eat cauliflower or both",
+      "the person that likes avocado is somewhere between the person who listens to gospel and the person who listens to reggae",
+      "the person who is colombian is somewhere between the person that travels by jet-ski and the person who listens to reggae",
+      "the person who listens to reggae is not anywhere to the left of the person who listens to indie",
+      "the person who listens to pop avoids getting on a bike"
+    ],
+    "target": [
+      "Food",
+      1
+    ],
+    "solutions": 1,
+    "possible_answers": [
+      "cauliflower"
+    ],
+    "example": {
+      "scooter": 2,
+      "jet-ski": 1,
+      "bike": 3,
+      "ship": 4,
+      "colombian": 2,
+      "thai": 1,
+      "german": 4,
+      "egyptian": 3,
+      "cucumber": 3,
+      "pomegranate": 4,
+      "cauliflower": 1,
+      "avocado": 2,
+      "gospel": 1,
+      "pop": 4,
+      "reggae": 3,
+      "indie": 2
+    }
+  },
+  {
+    "index": 183,
+    "id": "ad74d384-df3b-5255-ac08-b1947e40b97e",
+    "constraints": [
+      "the person who listens to techno is not anywhere to the right of the person that likes grapefruit",
+      "the person that has a goldfish is somewhere between the person that has a frog and the person that likes plum",
+      "the person that likes broccoli and the person who listens to country have the same parity positions",
+      "the person that likes broccoli listens to country or the person that likes broccoli has a goldfish or both",
+      "the person that likes plum is not anywhere to the left of the person who likes drawing",
+      "the person who likes camping and the person who listens to techno have different parity positions",
+      "the person who likes drawing likes broccoli or the person who listens to techno likes drawing or both",
+      "the person who listens to house is not anywhere to the right of the person who listens to country"
+    ],
+    "target": [
+      "Pet",
+      "camping"
+    ],
+    "solutions": 1,
+    "possible_answers": [
+      "goldfish"
+    ],
+    "example": {
+      "drawing": 1,
+      "fishing": 3,
+      "camping": 2,
+      "plum": 1,
+      "broccoli": 3,
+      "grapefruit": 2,
+      "techno": 1,
+      "country": 3,
+      "house": 2,
+      "horse": 1,
+      "frog": 3,
+      "goldfish": 2
+    }
+  },
+  {
+    "index": 184,
+    "id": "428b2643-139f-52e0-aa84-ceeb4375712d",
+    "constraints": [
+      "the person who listens to trance is on the immediate right of the person who listens to r&b",
+      "the person that watches romance movies is not anywhere to the left of the person that travels by trike",
+      "the person who listens to blues watches western movies",
+      "the person that has a rat is somewhere between the person that has a goldfish and the person that watches romance movies",
+      "the person that travels by jet-ski is on the immediate right of the person that watches romance movies"
+    ],
+    "target": [
+      "Music-Genre",
+      "rat"
+    ],
+    "solutions": 1,
+    "possible_answers": [
+      "trance"
+    ],
+    "example": {
+      "western movies": 3,
+      "horror movies": 2,
+      "romance movies": 1,
+      "trance": 2,
+      "blues": 3,
+      "r&b": 1,
+      "van": 3,
+      "jet-ski": 2,
+      "trike": 1,
+      "rabbit": 1,
+      "rat": 2,
+      "goldfish": 3
+    }
+  },
+  {
+    "index": 189,
+    "id": "562ccbaa-58a6-5c20-9202-1838ceb98811",
+    "constraints": [
+      "the person that likes cabbage is on the immediate left of the person that likes lemon",
+      "the person that watches time-travel movies likes grapefruit or the person that likes grapefruit plays parkour, but not both",
+      "the person that likes lemon is somewhere between the person that watches thriller movies and the person that watches martial-arts movies",
+      "the person that plays golf is immediately between the person that plays parkour and the person that watches thriller movies"
+    ],
+    "target": [
+      "position",
+      "martial-arts movies"
+    ],
+    "solutions": 1,
+    "possible_answers": [
+      "3"
+    ],
+    "example": {
+      "golf": 2,
+      "skateboarding": 1,
+      "parkour": 3,
+      "martial-arts movies": 3,
+      "thriller movies": 1,
+      "time-travel movies": 2,
+      "cabbage": 1,
+      "lemon": 2,
+      "grapefruit": 3
+    }
+  },
+  {
+    "index": 192,
+    "id": "e159e15e-d998-57e6-a636-b4624642585b",
+    "constraints": [
+      "the person who is argentine avoids getting on a train",
+      "the person who is spanish is somewhere between the person who listens to punk and the person who listens to rock",
+      "the person who listens to punk is not anywhere to the right of the person that travels by trike",
+      "the person who listens to punk is on the immediate right of the person that travels by jet-ski"
+    ],
+    "target": [
+      "Nationality",
+      "rock"
+    ],
+    "solutions": 1,
+    "possible_answers": [
+      "canadian"
+    ],
+    "example": {
+      "spanish": 2,
+      "argentine": 3,
+      "canadian": 1,
+      "punk": 3,
+      "rock": 1,
+      "reggae": 2,
+      "train": 1,
+      "jet-ski": 2,
+      "trike": 3
+    }
+  },
+  {
+    "index": 196,
+    "id": "6efc8c4d-df53-5758-b3b1-988604fa35af",
+    "constraints": [
+      "the person who listens to jazz plays tennis or the person that plays tennis is thai, but not both",
+      "the person who is thai is not anywhere to the left of the person who listens to folk",
+      "the person who is thai is somewhere to the right of the person who is german",
+      "the person that plays skateboarding and the person who is canadian have different parity positions",
+      "the person who is thai is in an odd position",
+      "the person that plays climbing is somewhere to the left of the person that likes pineapple",
+      "the person that likes pumpkin is somewhere to the left of the person who is german",
+      "the person that plays climbing is not german",
+      "the person that plays skateboarding cannot stand rock",
+      "the person that likes corn is not anywhere to the right of the person that plays skateboarding",
+      "the person who listens to folk is on the immediate left or immediate right of the person that likes corn",
+      "the person that likes pumpkin is not anywhere to the left of the person that plays tennis",
+      "the person who listens to hip-hop is somewhere between the person that likes pineapple and the person that likes pumpkin"
+    ],
+    "target": [
+      "Sport",
+      3
+    ],
+    "solutions": 1,
+    "possible_answers": [
+      "climbing"
+    ],
+    "example": {
+      "canadian": 1,
+      "colombian": 4,
+      "thai": 3,
+      "german": 2,
+      "skateboarding": 2,
+      "climbing": 3,
+      "tennis": 1,
+      "volleyball": 4,
+      "rock": 4,
+      "folk": 3,
+      "hip-hop": 2,
+      "jazz": 1,
+      "peas": 3,
+      "pineapple": 4,
+      "corn": 2,
+      "pumpkin": 1
+    }
+  },
+  {
+    "index": 197,
+    "id": "49707e65-4a66-56ed-9175-8ad3cba09f5d",
+    "constraints": [
+      "the person who is polish is not anywhere to the left of the person that watches epic movies",
+      "the person that watches horror movies is somewhere between the person who is french and the person who is malaysian",
+      "the person who is french and the person that has a ferret have different parity positions",
+      "the person who drinks cola is somewhere to the right of the person who is french",
+      "the person that watches epic movies has a pony or the person that watches epic movies is polish, but not both",
+      "the person who drinks juice has a cat or the person who drinks juice is polish, but not both",
+      "the person that has a cat is somewhere to the left of the person who is french",
+      "the person that has a fish is polish or the person that has a fish watches epic movies, but not both",
+      "the person that watches horror movies is french or the person that watches horror movies drinks fanta, but not both",
+      "the person that watches horror movies is not anywhere to the right of the person that watches mystery movies"
+    ],
+    "target": [
+      "Nationality",
+      2
+    ],
+    "solutions": 1,
+    "possible_answers": [
+      "indian"
+    ],
+    "example": {
+      "scientific movies": 1,
+      "mystery movies": 4,
+      "epic movies": 3,
+      "horror movies": 2,
+      "french": 3,
+      "malaysian": 1,
+      "indian": 2,
+      "polish": 4,
+      "mirinda": 3,
+      "cola": 4,
+      "fanta": 2,
+      "juice": 1,
+      "pony": 3,
+      "fish": 4,
+      "ferret": 2,
+      "cat": 1
+    }
+  }
+]

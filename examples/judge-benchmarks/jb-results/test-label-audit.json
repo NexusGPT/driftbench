@@ -1,0 +1,2086 @@
+{
+  "stamp": "2026-10-13T00:43:54.541897+00:00",
+  "policy": "Factual-final diagnostic: exclude independently supported ambiguous or defensible alternatives, equal correct factual finals, missing required inputs/conventions, malformed choices, or cases with actual counterexamples to both proposals. Preserve official labels on every retained pair. Format and reasoning preferences can remain defensible in the official metric; their exclusion here does not declare the official preference wrong. This is a conditional diagnostic subset, not a corrected full-benchmark accuracy. All selected questions and factual finals are reviewed after freeze without tonight's labels or judgement outcomes; source checks and independent computation support the listed decisions.",
+  "reviewed": [
+    "2d989dfb-7cf0-549e-945c-3dd060d1fad5",
+    "8aaa1627-21b0-520f-b698-67cd5d77dbc9",
+    "8de34479-e94c-5c30-9146-da3d92f7223c",
+    "2545077a-25bd-5b66-a42b-e0efb838ecee",
+    "50e6565c-07f5-57d6-80d8-028498a1251b",
+    "52dc37ec-fb24-59d8-9390-53185cb0c6d1",
+    "3cbbae47-8be1-5e31-868b-3b61d51a777d",
+    "2328c85f-6803-5f2c-9ccb-f429dea4428c",
+    "a3f45559-827d-53c5-9f1b-200ea1876ac8",
+    "14d2e455-2416-5cd3-8913-8f833aeab1b2",
+    "df6e9ec0-0bd1-51ec-a81f-3a58cc415253",
+    "49c0f568-1ac2-53dc-be78-f3eea93820fd",
+    "ad732066-b195-5f46-a39f-6f1184aa594b",
+    "6c5f9b09-193f-5070-9dfd-2dee1f69a9a3",
+    "79d55355-34c0-5ba7-842e-65671b9858d9",
+    "799a7559-a3b1-5dc3-bec3-54d5e930fd24",
+    "10c0a6e7-a697-5d79-ac6b-47ed30c4cba5",
+    "352e1a45-3dcb-5fb0-9c38-a6b7f674a084",
+    "1c76021c-cb8e-5477-8f7e-88855d6dd547",
+    "7ad6fda6-f7dd-5c3a-9d8b-6b50cc35dedd",
+    "b7bbea2c-8e83-50be-a385-70d16a0d507c",
+    "5b0fa22f-cbfd-5098-95b0-a474deb84c7a",
+    "37577e35-cf0b-5880-97a1-857736d76651",
+    "a1b1ff8a-eae1-5c68-b5b1-4d50cb2afc17",
+    "2b51f48f-90d7-57f7-8888-30fd13c0d5ff",
+    "d1dd83a6-7ccb-5f83-983e-f6fc38783836",
+    "ff5f3ce7-1423-5df5-922d-644070dfaea0",
+    "f7dc91ae-4e50-51e8-aa72-34723a3b4c85",
+    "d9cc990f-fb19-521e-a8fa-68f3325f8730",
+    "3ca30a63-18e2-5f42-b7ec-433617b85cd6",
+    "14ead85f-e4c6-5ae2-a586-6388d9b9b4f1",
+    "5b13ebd9-3880-5331-bfcf-ac5ab4bed92a",
+    "7c22d528-b258-5125-9bcc-877df3431ae1",
+    "faba206f-9a89-5991-9ac3-f43727d2a566",
+    "ef607538-1628-5cce-bc92-093ff755586d",
+    "803e5d58-0c62-5946-9738-ceeea2e4aaa2",
+    "b6ade862-109b-5788-8c0c-eabe1f7e205a",
+    "585e5a43-454b-56f7-aba3-fb4e22938020",
+    "b1614f17-39fb-564a-84c7-bcd7a2054dc8",
+    "ebe368cb-5783-5f03-8471-e31295bc4438",
+    "c6b860be-9938-5c34-97fc-70dfc51bbfb7",
+    "a13f48e6-1d51-5076-94bf-ff0303e4c198",
+    "8609c463-a567-5b57-838f-12e3dac9fa8b",
+    "122e221d-9581-5240-889a-1106c2d167c0",
+    "336452fa-776b-5de9-98c8-2a6685d840fa",
+    "b57ea8df-78c5-5e71-9545-973d9c2d4bb5",
+    "f1b17db1-5206-504d-a8b0-3213449e41f5",
+    "b958ea91-8f2a-55be-8c8b-d61cf90f5076",
+    "bfd0002d-e137-5a79-a7fd-c2ef9ad12a1f",
+    "0e1ead11-84ae-5d48-b237-509be76fdcbb",
+    "766bdf22-3677-53bf-9c46-4fb984430682",
+    "a5c0fd0a-7440-5461-9a32-c6c5ff574ae0",
+    "aaf21925-4fcc-5841-b6e5-9afdf75a3b2e",
+    "f805817d-968d-5b0b-a2b2-4c62c9b848d3",
+    "f48459b1-bc3e-56f2-a323-d4ccea830765",
+    "12ab4b20-e60b-59ca-b20b-500b12900def",
+    "bd6f87f2-cb60-58b3-8b27-4eceab2bfc79",
+    "6de9c1f2-0d31-5d07-a796-7dd245667f4f",
+    "000ad3d2-6b2a-5bee-baf2-fdf780b4e068",
+    "8ac653fc-14f9-58aa-8306-e008d51ca0eb",
+    "730909ae-6903-517a-ad99-9991d2cfc217",
+    "40c35c1b-4d3a-56ae-a7fa-22307efca211",
+    "e8f304d3-029a-5738-84eb-1268268a44da",
+    "26d7ab00-c73b-5b3e-8bc3-4a8f941fceb7",
+    "cd01c08e-2906-5d2a-b3d8-3d3425f397db",
+    "ed01d44a-e1bc-5833-9a59-ea5f5a9ebd60",
+    "1ca1b199-b089-5951-8a57-28a320573def",
+    "aedbe1ff-42f3-5222-85e0-1b98c5af67bb",
+    "02c8d6ef-f58a-5bf5-8b05-0a6719e16f20",
+    "35eb196e-50d4-5501-8f44-cc5dc85f6291",
+    "57500a89-7795-5299-b6a8-d0ab8da2687a",
+    "7437394e-a300-5428-b321-e3ce7dd9b694",
+    "a6f94de7-dee6-579b-852a-1be7ca389cd2",
+    "c9d03d78-9962-58e3-a776-703b910cde29",
+    "9fbc9238-47af-5656-ac85-cf5b0c00fd8f",
+    "e23cdc82-bbf1-5378-9404-d94c1e7ce2ef",
+    "6f1bd679-4ba1-51ba-b65d-c7463e2134bf",
+    "d2b16371-9e1f-5869-aa69-579218b20eaa",
+    "c0fceb61-37b0-5049-84c3-9add01413cc8",
+    "e3de7dfc-4b9e-5476-b7af-92d7d00bf2d3",
+    "70ed90f8-052e-5088-a47b-70b409d2b518",
+    "83adf077-567f-5ce2-91e7-bf02decdaa21",
+    "3e2b3d28-4ac1-5898-ad61-f5a58cee8698",
+    "82f31019-2814-5ac8-a269-2c247e9a0833",
+    "c1891f8b-2cce-52b7-868c-6c072e79701e",
+    "b82d8f3f-f994-5775-b1b1-13420519ca81",
+    "9636f59f-6396-54cc-8bed-6842a7f28f74",
+    "3239d81d-8220-5b81-99e0-1b7a470df3be",
+    "a6cfbfd9-3c72-5081-9433-8f57a9851d51",
+    "6ad28b38-685f-5146-ab23-ff8fbcc81210",
+    "591677d2-ac1a-5a7c-9e21-b4918155fc9b",
+    "6a01ee27-4246-5bb7-b1b7-bbea2dc28deb",
+    "83ec31fe-5063-5c77-9b1e-0c32f113a042",
+    "437c2f78-9c2a-50d0-a600-5d2d355ee14e",
+    "0f1fed13-d89e-5956-a5f9-11befbdb47fb",
+    "5a794b9e-e12f-5fbb-872c-c47b6c301b65",
+    "5c614de5-0a80-5981-bb36-2690b198168c",
+    "1d13565a-862e-591d-917e-47686c15db7c",
+    "757ab337-289d-5f6b-a0ec-a437dd603566",
+    "5d50e41f-9f6b-5ba2-9e9e-43582bf89c1b",
+    "fdc57db0-8efc-5258-8a61-d514c7e73885",
+    "bd8ba4d9-624a-5dc9-a6ae-19c122b406ae",
+    "dca9614e-d4c0-5595-8d06-91d8b33e86ff",
+    "58c85976-b7dd-5739-9f8c-e4943c0a1101",
+    "8ee34b7b-a0b2-58d4-985a-31715271fb9b",
+    "c5b7580d-a60f-5cb0-bc3b-0e01afda4e20",
+    "f8e093c3-2e73-5a58-86e7-672074882f25",
+    "2c723771-3d54-5cf9-8180-7d502a4a4b1b",
+    "ff0ed36d-26d0-5968-b604-f9ca19372834",
+    "0ffbf15d-cbdf-5569-928b-adf90e0df935",
+    "87441abb-f436-5d0f-b92b-355e3f249c9d",
+    "05b84cf4-8994-51d8-9685-4c1c997780f1",
+    "b07c4ba0-3480-5111-af8f-5cc69813a54b",
+    "a0f77206-6e2b-57af-8e32-664794ad10de",
+    "943bf94c-9ba1-5b9b-9ec4-038c8f3e11d7",
+    "e447d2a3-bd18-58cd-8b87-6d19b03842e0",
+    "70e2b4e6-a5a5-5f50-b838-e00cdd38df24",
+    "4b324d8b-aac1-5d0a-af11-cebaa6759e67",
+    "4d8e7667-fd3a-5986-97c3-5387399bd870",
+    "82a36944-06f6-5dbd-8641-173effc5ab41",
+    "7f8f7cf1-b408-534a-a214-c441d3d51ab4",
+    "d3c9f4fb-13a9-50f9-859a-3dbf42e8b866",
+    "f1c7c73d-5483-5c3e-87af-09b237cbab84",
+    "30756abc-c659-5660-9797-d952b638ea2c",
+    "c74d8fde-41a2-527e-95ab-705a625e053c",
+    "d71a5264-231b-5af8-829d-9ee50f0acf90",
+    "6ca62e73-d6a9-53f1-b27f-d4d17d982e6c",
+    "a42d3d72-c38b-5cb4-adff-142e4d0f7736",
+    "db445e7f-6ad7-5e62-b182-67c5777f80e7",
+    "4d9614d8-c288-5d5a-9620-745459190569",
+    "5a224ae8-0f94-5589-a55c-b85457acdac8",
+    "d7fa35b0-1cda-5192-9404-63d329152d26",
+    "c0ce2554-eafc-5ddd-8c32-677e4fce563e",
+    "2862a52e-5004-549c-8cd9-d499f752d0e1",
+    "309a5084-bce2-5bf1-b3d3-6fa9449ae2f8",
+    "f3d9764d-347d-5b58-bf39-5ad1e07a5c1a",
+    "bfaf6335-5640-599d-8e95-7789f7ec864a",
+    "b93ffd05-7ed5-51be-9e67-f85416d20872",
+    "09e7761f-dc12-5dec-9ea1-d01ef98c48e9",
+    "2c753154-c93e-504b-9e3b-209a5f58d805",
+    "399f4fc1-1eb0-5d14-a505-fbd98399b34e",
+    "8332d38f-a65f-5f08-b803-934e334531ba",
+    "d78a5116-f0a0-5a7b-a461-8f42262cce47",
+    "1cc11161-3a95-59a1-aa7b-1406ccf4b9a6",
+    "3f7b9827-49b7-5d37-b403-6bd2673b96ec",
+    "29da4abd-50bc-5254-bfca-dfbbf7b48daf",
+    "bab556f4-ea42-570d-8063-304e5f6c4185",
+    "353ff46b-1b33-5152-ac0d-650b0f830fc3",
+    "26a84e53-9faa-5387-8293-e1d3f8589c4e",
+    "cdc80d94-4fc3-5b62-88fc-167006f3b7bd",
+    "14c5f015-d741-5cbc-8d42-864b58da36b7",
+    "295046df-4a28-5894-b61e-70cd586ad52c",
+    "7c09b9ef-6dfe-5792-aa35-f4c921519839",
+    "ed47c678-7393-548d-975e-789595bea2c7",
+    "1a7444f1-a4a4-557d-9b20-fe41ee618d4c",
+    "f4d82670-344b-5dc0-ae56-2c080407a972",
+    "8e81db7a-d39f-5bc0-9b38-7f25d36a7707",
+    "8e6b18f9-266e-5aae-bbfa-7b06142cca75",
+    "36e83498-671a-5edf-be79-24bdb5e568e5",
+    "a7293376-222f-517a-b998-0ec8994cc227",
+    "c0209978-acf5-5357-b566-ce5e3df30948",
+    "cad61a72-e1b8-5a01-af72-a1e276b66fdd",
+    "01e1a2ac-06a4-5838-8bbb-b1895dea0b77",
+    "6d4c9fdd-712c-5a09-bfa2-7e50ced2b515",
+    "67bcb178-e185-509d-8917-9390ce37e57d",
+    "df042120-17b3-5328-936a-c6c1db94b6bc",
+    "fc8e8f7b-7138-5529-9730-6ecc07274f61",
+    "8f578704-dffa-57a6-828c-de18fecdf54f",
+    "669f40bb-c901-54f2-9397-395c8759a999",
+    "a1259c5f-3a11-578e-88ef-58a9a7986652",
+    "f2893256-1328-58fe-b1a1-97cfbce72ce8",
+    "52496015-9fbb-5fa4-a1e0-0ca8c032c398",
+    "6dcc9ad7-2f3b-5dae-be24-9080b9ad7973",
+    "5c0d0e45-eb3f-5c6a-81ef-81fd39df82a9",
+    "e0afc8ce-4f42-5202-80af-837ab58494ed",
+    "e49c100d-761c-5b04-8145-e94fbc847864",
+    "df6b6a83-8215-5929-8c20-74c8a10de2f6",
+    "9b0d8cfb-f165-5bcd-9a35-3f9cff879a80",
+    "138ece2f-4192-54c3-8d54-0a61b954bc13",
+    "c4531594-062b-5516-b784-66936230d6e8",
+    "32d05d76-f530-51da-b722-7a780136628f",
+    "6486c18c-0e36-56c0-b62d-4aa97efa69f7",
+    "4626f382-2aa2-5ac1-9c74-76185f48c6ad",
+    "ad74d384-df3b-5255-ac08-b1947e40b97e",
+    "428b2643-139f-52e0-aa84-ceeb4375712d",
+    "d8e795e2-27e7-51f7-bf16-4e00e7accd9f",
+    "e4dcf6d6-e316-52d1-9723-b90da5dd862b",
+    "77acd9dc-41c9-55cf-b1ff-a5fd5b20bfd8",
+    "ccb99d7c-3aca-5501-bfe5-66738a394278",
+    "562ccbaa-58a6-5c20-9202-1838ceb98811",
+    "150d1bd0-115e-5e13-999a-4e0835674582",
+    "a7743898-29c2-52f0-9065-c9ea19b630dd",
+    "e159e15e-d998-57e6-a636-b4624642585b",
+    "7a2a5167-8e15-50ff-b984-335d814cc77d",
+    "3611a023-f92f-5ef4-940d-99a14cf280e9",
+    "c4da31be-6fe6-5c9a-bdf8-2dfd8f2884ef",
+    "6efc8c4d-df53-5758-b3b1-988604fa35af",
+    "49707e65-4a66-56ed-9175-8ad3cba09f5d",
+    "94fbd28e-b67a-5444-8d45-5f27ac3d3d02",
+    "82e65bbd-1ecf-51e4-9eb1-db5c957d7f4b",
+    "100c98a6-0077-5ccd-bcee-5d507aba8a35",
+    "60479e16-f175-5268-8d7b-cf0effbeaeb6",
+    "3df69193-bfc2-5941-b0d6-103eb292aa76",
+    "ea2d1f98-91c1-5ffb-bafa-31e0928065e0",
+    "46a3d4d9-c5cf-5cb1-9fbb-86c314347f6f",
+    "a7f0a43a-a51d-54ad-a31f-e63d731b414b",
+    "548ec6a2-d244-5724-b5c3-946285ed13c3",
+    "0733e950-b012-5211-9342-323949691a87",
+    "107ade41-859a-5dfb-8bd4-3b3257b8b989",
+    "493c4e3e-8287-53b2-9a76-c6684e734ad0",
+    "5227ee30-68aa-5bc1-b8bf-90164d780399",
+    "d6cea804-d883-5096-8ec3-e9356ffc8a31",
+    "57b3a50f-ce4b-5620-8f48-7196a0621301",
+    "7bdca284-3957-5a99-ab5f-52b2081d184d",
+    "1cf3ba1c-373e-5629-9a9e-b34e7fdc1d52",
+    "0437ca17-8032-5d11-9632-d30502b67ce7",
+    "d39cb716-d877-573a-8f6a-df4150c7ef0a",
+    "58ee7000-47a1-54d6-9857-77d0eaa3a4b7",
+    "aa39d712-54ea-5d35-96d6-eb187ed95891",
+    "1c3fccb4-012e-5156-9103-ab835de77625",
+    "377f8d5c-8ab3-5e42-b36d-bea220b19ac3",
+    "883785df-990c-51ce-894a-c9f5f2952750",
+    "1ffd3127-ed25-5ab3-b793-ba82e8bbfbe0",
+    "9d58ec02-1517-5f49-8e7b-cbaa8cb5ad07",
+    "745f9340-63fd-527b-b707-126f38ebb096",
+    "7467b7ba-5ce1-5dee-a5a4-160070585dad",
+    "00176ef4-146c-53e1-8328-d349fb7d0ea3",
+    "4ae23f71-e3fa-507e-b892-50943390d857",
+    "310930bc-03d8-5dc0-b030-0e02ba61b8b9"
+  ],
+  "excluded": [
+    {
+      "id": "2d989dfb-7cf0-549e-945c-3dd060d1fad5",
+      "index": 0,
+      "reason": "Both D and J say the trade evidence is admissible to explain the contractual meaning. D states the general rule; J describes a possible latent ambiguity. Trade usage can explain or supplement a final writing; this audit treats J as a defensible explanation, without claiming an ambiguity prerequisite.",
+      "sources": [
+        "https://www.law.cornell.edu/ucc/2/2-202"
+      ],
+      "category": "multiple defensible answers"
+    },
+    {
+      "id": "52dc37ec-fb24-59d8-9390-53185cb0c6d1",
+      "index": 5,
+      "reason": "Both selected statements are false: meiosis normally creates four haploid cells, and sister chromatids separate in meiosis II. The NOT-true stem therefore admits both A and C.",
+      "sources": [
+        "https://www.ncbi.nlm.nih.gov/books/NBK26840/"
+      ],
+      "category": "multiple defensible answers"
+    },
+    {
+      "id": "14d2e455-2416-5cd3-8913-8f833aeab1b2",
+      "index": 9,
+      "reason": "Gene flow both homogenizes populations (H) and reduces their likelihood of speciation (C). A repeats C six times and B repeats H five times; that formatting distinction remains in the official ablation but this subset audits factual final answers.",
+      "sources": [
+        "https://openstax.org/books/biology-2e/pages/18-2-formation-of-new-species"
+      ],
+      "category": "multiple defensible answers"
+    },
+    {
+      "id": "49c0f568-1ac2-53dc-be78-f3eea93820fd",
+      "index": 11,
+      "reason": "D names the muscles producing movement; J names the segmented flexible-joint structure permitting movement despite an exoskeleton. Both are defensible responses to the unqualified mechanism question; neither asserts an incompatible mechanism.",
+      "sources": [
+        "https://openstax.org/books/biology-2e/pages/38-1-types-of-skeletal-systems",
+        "https://openstax.org/books/biology-2e/pages/28-6-superphylum-ecdysozoa-arthropods"
+      ],
+      "category": "multiple defensible answers"
+    },
+    {
+      "id": "799a7559-a3b1-5dc3-bec3-54d5e930fd24",
+      "index": 15,
+      "reason": "Both code lists are uniquely decodable because each codeword begins with one ternary delimiter and then only binary digits. Both attain the lower-bound expected length 95/69. Exhaustive length-four concatenations have no collisions. Evidence: jb-results/test-arithmetic-audit.json, index15.",
+      "sources": [],
+      "category": "equal correct finals"
+    },
+    {
+      "id": "10c0a6e7-a697-5d79-ac6b-47ed30c4cba5",
+      "index": 16,
+      "reason": "B is false because subtraction and division are not commutative; D is false because round-to-nearest finite floating-point arithmetic is not associative. Executed counterexamples give 4-2 != 2-4 and different associations of 1e16,-1e16,1. Evidence: test-arithmetic-audit.json, index16.",
+      "sources": [],
+      "category": "multiple defensible answers"
+    },
+    {
+      "id": "1c76021c-cb8e-5477-8f7e-88855d6dd547",
+      "index": 18,
+      "reason": "J is defensible: symphyseal fusion occurs in the first year. D is also defensible: longitudinal studies show horizontal foramen movement during growth, though movement varies by reference frame and sample.",
+      "sources": [
+        "https://www.ncbi.nlm.nih.gov/books/NBK532292/",
+        "https://pubmed.ncbi.nlm.nih.gov/34936007/",
+        "https://pubmed.ncbi.nlm.nih.gov/25330162/"
+      ],
+      "category": "multiple defensible answers"
+    },
+    {
+      "id": "7ad6fda6-f7dd-5c3a-9d8b-6b50cc35dedd",
+      "index": 19,
+      "reason": "B explains the lower density of ice by its hydrogen-bonded lattice. E describes the resulting pressure-favored melting. Both explain the negative solid-liquid equilibrium slope; the alternatives differ in causal level.",
+      "sources": [
+        "https://openstax.org/books/chemistry-2e/pages/10-4-phase-diagrams"
+      ],
+      "category": "multiple defensible answers"
+    },
+    {
+      "id": "37577e35-cf0b-5880-97a1-857736d76651",
+      "index": 22,
+      "reason": "A and H can hold simultaneously for a very weak base: pKb=14 and moderate aqueous concentration gives pOH near7. The question specifies neither a base constant nor concentration and gives no quantitative definition of very weak. A selects H; B selects A. This is a defensible-overlap diagnostic, not an assertion that either relation holds for every possible solution.",
+      "sources": [],
+      "category": "missing model or overlapping conditions"
+    },
+    {
+      "id": "3ca30a63-18e2-5f42-b7ec-433617b85cd6",
+      "index": 29,
+      "reason": "Both D and H describe a C3 plant-food to grass-associated C4 resource transition. The isotope evidence distinguishes photosynthetic pathways, not a unique choice between the broad initial food descriptions nuts/fruits and fruits/vegetables.",
+      "sources": [
+        "https://pmc.ncbi.nlm.nih.gov/articles/PMC3696771/"
+      ],
+      "category": "multiple defensible answers"
+    },
+    {
+      "id": "5b13ebd9-3880-5331-bfcf-ac5ab4bed92a",
+      "index": 31,
+      "reason": "Both H and D are established halves of the audience effect: easier well-learned tasks improve; difficult or novel tasks can worsen. The stem asks for an effect and does not require one option combining both.",
+      "sources": [
+        "https://dictionary.apa.org/audience-effect"
+      ],
+      "category": "multiple defensible answers"
+    },
+    {
+      "id": "faba206f-9a89-5991-9ac3-f43727d2a566",
+      "index": 33,
+      "reason": "DAT-5 and GATB are both aptitude/career-assessment batteries, making I and D defensible under the ordinary purpose-based classification. Publisher scope supports this reading. It does not prove that neither instrument is ever used secondarily in a malingering investigation.",
+      "sources": [
+        "https://www.pearsonclinical.es/es-es/Tienda/Evaluaciones-Profesionales/Aprendizaje-acad%C3%A9mico/Integral-Completo/Test-de-Aptitudes-Diferenciales/p/P100200029",
+        "https://www.onetcenter.org/dl_files/SpeedExam_GATB.pdf"
+      ],
+      "category": "multiple defensible answers"
+    },
+    {
+      "id": "ef607538-1628-5cce-bc92-093ff755586d",
+      "index": 34,
+      "reason": "B contrasts evolutionary origins with learned behavior; D contrasts innate aggression with social learning. Both express the inherited-versus-learned theoretical contrast at different levels of specificity.",
+      "sources": [
+        "https://casbs.stanford.edu/aggression-social-learning-analysis"
+      ],
+      "category": "multiple defensible answers"
+    },
+    {
+      "id": "803e5d58-0c62-5946-9738-ceeea2e4aaa2",
+      "index": 35,
+      "reason": "Both C and I distinguish sensory sensitivity from an observer decision criterion or motivation. C is brief; I is expanded. Their selected conceptual contrasts are defensible.",
+      "sources": [
+        "https://dictionary.apa.org/response-bias",
+        "https://openstax.org/books/psychology-2e/pages/5-1-sensation-versus-perception"
+      ],
+      "category": "multiple defensible answers"
+    },
+    {
+      "id": "122e221d-9581-5240-889a-1106c2d167c0",
+      "index": 43,
+      "reason": "Christianity/Buddhism and Islam/Sikhism both fit a published universalizing-religion classification. Sikhism is expressly listed among other universalizing religions in the cited geography course. The audit is bounded to that classification; missionary practice and ethnicity can be described differently in other sources.",
+      "sources": [
+        "https://people.fmarion.edu/ssbrown/Cultural%20Ch6%20Study.pdf"
+      ],
+      "category": "multiple defensible answers"
+    },
+    {
+      "id": "b958ea91-8f2a-55be-8c8b-d61cf90f5076",
+      "index": 47,
+      "reason": "Ajiva is explicitly defined as both non-living and non-soul by the Jain sources. D and B are translations of the same category.",
+      "sources": [
+        "https://jainworld.com/philosophy/fundamentals/non-living-things-ajiv/",
+        "https://jainworld.com/scripture/niyamsara/non-soul-ajiva/"
+      ],
+      "category": "multiple defensible answers"
+    },
+    {
+      "id": "a5c0fd0a-7440-5461-9a32-c6c5ff574ae0",
+      "index": 51,
+      "reason": "Non-specialized resources and equally productive resources both give constant opportunity cost in the standard two-good linear PPF model. D and I describe compatible sufficient conditions. This is bounded to that standard interpretation of equally productive, not an arbitrary production technology.",
+      "sources": [],
+      "category": "multiple defensible answers"
+    },
+    {
+      "id": "bd6f87f2-cb60-58b3-8b27-4eceab2bfc79",
+      "index": 56,
+      "reason": "The exact limit is 1+0.5*ln(2*pi)=1.9189385332, under the intended normal-density interpretation. Neither final 1.4 nor1.1 is correct; even the closest listed option is1.8. A has the right symbolic formula before a wrong numeric evaluation. Evidence: test-arithmetic-audit.json, index56.",
+      "sources": [],
+      "category": "neither candidate final correct"
+    },
+    {
+      "id": "a6f94de7-dee6-579b-852a-1be7ca389cd2",
+      "index": 72,
+      "reason": "The color model is not specified. Blue is complementary to yellow in RGB/additive color and to orange in the artist RYB wheel. The two candidates select those different conventions.",
+      "sources": [
+        "https://www.w3.org/TR/css-color-4/#the-hsl-notation",
+        "https://www.ferrum.edu/downloads/academics/programs/school_of_art_divisions/dept_visual/art-color-systems-handbook.pdf"
+      ],
+      "category": "missing model convention"
+    },
+    {
+      "id": "9fbc9238-47af-5656-ac85-cf5b0c00fd8f",
+      "index": 74,
+      "reason": "The rendered exponent-minus notation is damaged and the listed work values use positive exponents. For the intended 1e-10m to5e-10m separation, work is about8.1e-58J gravitationally and1.84e-18J electrically, not the positive powers printed in any option. Evidence: test-arithmetic-audit.json, index74.",
+      "sources": [],
+      "category": "question or option encoding defect"
+    },
+    {
+      "id": "e3de7dfc-4b9e-5476-b7af-92d7d00bf2d3",
+      "index": 79,
+      "reason": "For the stated circular-aperture Airy pattern, the first secondary maximum is about0.01749786 of the central intensity. No printed option matches; the smallest is0.125. Interpreting the unusual word diagonal as secondary still gives this mismatch. Executed Bessel-series check: test-arithmetic-audit.json, index79.",
+      "sources": [
+        "https://uou.ac.in/sites/default/files/slm/BSCPH-202.pdf"
+      ],
+      "category": "no matching option"
+    },
+    {
+      "id": "c1891f8b-2cce-52b7-868c-6c072e79701e",
+      "index": 84,
+      "reason": "Irreversibility in energy units is T0*Sgen, but ambient temperature T0 is absent. The supplied data give Sgen=1.4799987kJ/K;441.1kJ assumes about298K, while505.5kJ assumes about341.55K. Neither ambient is specified. Evidence: test-arithmetic-audit.json, index84.",
+      "sources": [],
+      "category": "missing required quantity"
+    },
+    {
+      "id": "591677d2-ac1a-5a7c-9e21-b4918155fc9b",
+      "index": 90,
+      "reason": "The255-dollar lump sum is specified by Social Security rules, but the monthly survivor amount depends on the deceased worker primary insurance amount, prior reduction, claiming age and applicable computation. A62-year age plus average annual earnings does not identify a dated benefit formula or full earnings record. The200.50 versus206.80 choice is under-specified.",
+      "sources": [
+        "https://www.ssa.gov/pubs/EN-05-10084.pdf",
+        "https://secure.ssa.gov/poms.nsf/lnx/0300207002"
+      ],
+      "category": "missing dated benefit context"
+    },
+    {
+      "id": "83ec31fe-5063-5c77-9b1e-0c32f113a042",
+      "index": 92,
+      "reason": "The question explicitly requires a rate schedule from a previous problem, which is absent. The six-ad cost cannot be derived from the supplied input.",
+      "sources": [],
+      "category": "missing referenced input"
+    },
+    {
+      "id": "5c614de5-0a80-5981-bb36-2690b198168c",
+      "index": 96,
+      "reason": "Both boxed derivatives2/(2x+1) and1/(x+1/2) are algebraically equal on the real log domain. Evidence: test-arithmetic-audit.json or test-puzzle-audit.json as appropriate.",
+      "sources": [],
+      "category": "equal factual finals or convention"
+    },
+    {
+      "id": "757ab337-289d-5f6b-a0ec-a437dd603566",
+      "index": 98,
+      "reason": "Both find45degrees and optionC; five versus six repeated letters is an official format distinction. Evidence: test-arithmetic-audit.json or test-puzzle-audit.json as appropriate.",
+      "sources": [],
+      "category": "equal factual finals or convention"
+    },
+    {
+      "id": "5d50e41f-9f6b-5ba2-9e9e-43582bf89c1b",
+      "index": 99,
+      "reason": "Both find27miles and optionE; five versus seven repeated letters is an official format distinction. Evidence: test-arithmetic-audit.json or test-puzzle-audit.json as appropriate.",
+      "sources": [],
+      "category": "equal factual finals or convention"
+    },
+    {
+      "id": "fdc57db0-8efc-5258-8a61-d514c7e73885",
+      "index": 100,
+      "reason": "Both factual finals are14, the sum of integer values2,3,4,5. Both differ in required letter formatting. Evidence: test-arithmetic-audit.json or test-puzzle-audit.json as appropriate.",
+      "sources": [],
+      "category": "equal factual finals or convention"
+    },
+    {
+      "id": "dca9614e-d4c0-5595-8d06-91d8b33e86ff",
+      "index": 102,
+      "reason": "The completed-square forms differ only by -96/5 versus the exact decimal -19.2. Evidence: test-arithmetic-audit.json or test-puzzle-audit.json as appropriate.",
+      "sources": [],
+      "category": "equal factual finals or convention"
+    },
+    {
+      "id": "58c85976-b7dd-5739-9f8c-e4943c0a1101",
+      "index": 103,
+      "reason": "The real statistical geometric mean is undefined for a negative input, making B defensible. A instead uses the formal complex square-root-of-product extension,4i*sqrt(5). The question states no real or complex domain. This audit does not call the two values equal.",
+      "sources": [
+        "https://docs.scipy.org/doc/scipy/reference/generated/scipy.stats.gmean.html"
+      ],
+      "category": "definition or domain convention"
+    },
+    {
+      "id": "2c723771-3d54-5cf9-8180-7d502a4a4b1b",
+      "index": 107,
+      "reason": "Both find exponent8 and optionE; five versus six repeated letters differ in format. Evidence: test-arithmetic-audit.json or test-puzzle-audit.json as appropriate.",
+      "sources": [],
+      "category": "equal factual finals or convention"
+    },
+    {
+      "id": "a0f77206-6e2b-57af-8e32-664794ad10de",
+      "index": 113,
+      "reason": "Both find144 subsets. Exhaustive enumeration of8191 nonempty subsets confirms144; A has wrong intermediate reasoning. Evidence: test-arithmetic-audit.json or test-puzzle-audit.json as appropriate.",
+      "sources": [],
+      "category": "equal factual finals or convention"
+    },
+    {
+      "id": "943bf94c-9ba1-5b9b-9ec4-038c8f3e11d7",
+      "index": 114,
+      "reason": "The two polynomials are exact negatives: det(lambdaI-A) versus det(A-lambdaI) for a3x3matrix. The question does not state a convention. Evidence: test-arithmetic-audit.json or test-puzzle-audit.json as appropriate.",
+      "sources": [],
+      "category": "equal factual finals or convention"
+    },
+    {
+      "id": "70e2b4e6-a5a5-5f50-b838-e00cdd38df24",
+      "index": 116,
+      "reason": "Both factual finals equal1/3000 and optionC; six versus five repeated letters is a format distinction. Evidence: test-arithmetic-audit.json or test-puzzle-audit.json as appropriate.",
+      "sources": [],
+      "category": "equal factual finals or convention"
+    },
+    {
+      "id": "f1c7c73d-5483-5c3e-87af-09b237cbab84",
+      "index": 122,
+      "reason": "Both factual finals are6 positive intervals; one gives the requested letter repetition and the other only a value. Evidence: test-arithmetic-audit.json or test-puzzle-audit.json as appropriate.",
+      "sources": [],
+      "category": "equal factual finals or convention"
+    },
+    {
+      "id": "30756abc-c659-5660-9797-d952b638ea2c",
+      "index": 123,
+      "reason": "Both boxed derivatives are -2-(17/2)*sec^2(9/2-17x/2). Evidence: test-arithmetic-audit.json or test-puzzle-audit.json as appropriate.",
+      "sources": [],
+      "category": "equal factual finals or convention"
+    },
+    {
+      "id": "a42d3d72-c38b-5cb4-adff-142e4d0f7736",
+      "index": 127,
+      "reason": "Both final answers are1 and optionC. Lettingt=log(x) gives opposite roots, so their product is1. Evidence: test-arithmetic-audit.json or test-puzzle-audit.json as appropriate.",
+      "sources": [],
+      "category": "equal factual finals or convention"
+    },
+    {
+      "id": "db445e7f-6ad7-5e62-b182-67c5777f80e7",
+      "index": 128,
+      "reason": "Both compute1625squarecentimeters and optionC; six versus five repeated letters differ in format. Evidence: test-arithmetic-audit.json or test-puzzle-audit.json as appropriate.",
+      "sources": [],
+      "category": "equal factual finals or convention"
+    },
+    {
+      "id": "d7fa35b0-1cda-5192-9404-63d329152d26",
+      "index": 131,
+      "reason": "Both give diagonal9/4; its square is(13/4)^2-2*(11/4)=81/16. Evidence: test-arithmetic-audit.json or test-puzzle-audit.json as appropriate.",
+      "sources": [],
+      "category": "equal factual finals or convention"
+    },
+    {
+      "id": "2862a52e-5004-549c-8cd9-d499f752d0e1",
+      "index": 133,
+      "reason": "Both give15*sqrt(3), from sides6,10,14. Five versus eight repeated E letters differ in format. Evidence: test-arithmetic-audit.json or test-puzzle-audit.json as appropriate.",
+      "sources": [],
+      "category": "equal factual finals or convention"
+    },
+    {
+      "id": "f3d9764d-347d-5b58-bf39-5ad1e07a5c1a",
+      "index": 135,
+      "reason": "Both give49/216. Exhaustive enumeration of1296die sequences confirms294 successful sequences. Evidence: test-arithmetic-audit.json or test-puzzle-audit.json as appropriate.",
+      "sources": [],
+      "category": "equal factual finals or convention"
+    },
+    {
+      "id": "bfaf6335-5640-599d-8e95-7789f7ec864a",
+      "index": 136,
+      "reason": "Both give16, from d=6 and10; six versus four repeated letters differ in format. Evidence: test-arithmetic-audit.json or test-puzzle-audit.json as appropriate.",
+      "sources": [],
+      "category": "equal factual finals or convention"
+    },
+    {
+      "id": "cdc80d94-4fc3-5b62-88fc-167006f3b7bd",
+      "index": 149,
+      "reason": "Both give4pieces. A line joining the opposite apices splits each adjacent equilateral triangle into two. Evidence: test-arithmetic-audit.json or test-puzzle-audit.json as appropriate.",
+      "sources": [],
+      "category": "equal factual finals or convention"
+    },
+    {
+      "id": "295046df-4a28-5894-b61e-70cd586ad52c",
+      "index": 151,
+      "reason": "Both answerposition2. Exhaustive permutations give a unique satisfying assignment. Evidence: test-arithmetic-audit.json or test-puzzle-audit.json as appropriate.",
+      "sources": [],
+      "category": "equal factual finals or convention"
+    },
+    {
+      "id": "67bcb178-e185-509d-8917-9390ce37e57d",
+      "index": 164,
+      "reason": "Both answerthriller. Exhaustive permutations give a unique thriller-movies answer; the question requests a single-word genre. Evidence: test-arithmetic-audit.json or test-puzzle-audit.json as appropriate.",
+      "sources": [],
+      "category": "equal factual finals or convention"
+    },
+    {
+      "id": "a1259c5f-3a11-578e-88ef-58a9a7986652",
+      "index": 169,
+      "reason": "Both answerposition3. Exhaustive permutations give a unique satisfying assignment. Evidence: test-arithmetic-audit.json or test-puzzle-audit.json as appropriate.",
+      "sources": [],
+      "category": "equal factual finals or convention"
+    },
+    {
+      "id": "6dcc9ad7-2f3b-5dae-be24-9080b9ad7973",
+      "index": 172,
+      "reason": "Both answerposition3. Exhaustive permutations give a unique satisfying assignment. Evidence: test-arithmetic-audit.json or test-puzzle-audit.json as appropriate.",
+      "sources": [],
+      "category": "equal factual finals or convention"
+    },
+    {
+      "id": "5c0d0e45-eb3f-5c6a-81ef-81fd39df82a9",
+      "index": 173,
+      "reason": "Both final formatted answers are spy. Exhaustive permutations give a unique spy-movies answer. Evidence: test-arithmetic-audit.json or test-puzzle-audit.json as appropriate.",
+      "sources": [],
+      "category": "equal factual finals or convention"
+    },
+    {
+      "id": "6486c18c-0e36-56c0-b62d-4aa97efa69f7",
+      "index": 181,
+      "reason": "Both give square pyramid. A radius4sphere can be tangent to all four radius5spheres with its center above the square center. Evidence: test-arithmetic-audit.json or test-puzzle-audit.json as appropriate.",
+      "sources": [],
+      "category": "equal factual finals or convention"
+    },
+    {
+      "id": "562ccbaa-58a6-5c20-9202-1838ceb98811",
+      "index": 189,
+      "reason": "Both answerposition3. Exhaustive permutations give a unique satisfying assignment. Evidence: test-arithmetic-audit.json or test-puzzle-audit.json as appropriate.",
+      "sources": [],
+      "category": "equal factual finals or convention"
+    },
+    {
+      "id": "7a2a5167-8e15-50ff-b984-335d814cc77d",
+      "index": 193,
+      "reason": "Both give6pieces. Independent polygon clipping yields three pieces from each object and conserves area. Evidence: test-arithmetic-audit.json or test-puzzle-audit.json as appropriate.",
+      "sources": [],
+      "category": "equal factual finals or convention"
+    },
+    {
+      "id": "d6cea804-d883-5096-8ec3-e9356ffc8a31",
+      "index": 211,
+      "reason": "For nums=[1,1],m=3, both returnFalse, but splitting into two singletons is explicitly permitted, soTrue is correct. A additionally handles n=1 correctly; B does not. The official preference for fewer bugs may be defensible, but neither is a fully correct program. Actual proposal executions are in test-code-audit.json.",
+      "sources": [],
+      "category": "both programs have counterexamples"
+    },
+    {
+      "id": "57b3a50f-ce4b-5620-8f48-7196a0621301",
+      "index": 212,
+      "reason": "For usageLimits=[1,1,50], both fail: the maximum is2groups, while A returns3 and B returns9. Distinct members prevent reusing the dominant number within a group. With [10], B returns4 rather than1. Actual proposal executions are in test-code-audit.json.",
+      "sources": [],
+      "category": "both programs have counterexamples"
+    },
+    {
+      "id": "745f9340-63fd-527b-b707-126f38ebb096",
+      "index": 224,
+      "reason": "A rejects the valid supplied sample [8,4,2,30,15]. B accepts [8,3,1], but the middle3 prevents the1-bit numbers8 and1 from crossing. Both have valid-input counterexamples. Actual proposal executions are in test-code-audit.json.",
+      "sources": [],
+      "category": "both programs have counterexamples"
+    }
+  ],
+  "qualified_retained": [
+    {
+      "id": "352e1a45-3dcb-5fb0-9c38-a6b7f674a084",
+      "index": 17,
+      "decision": "retain",
+      "reason": "Stream-cipher terminology can include a one-time-pad boundary case, but a long key alone does not guarantee random single-use secrecy. No unconditional equally correct alternative is established."
+    },
+    {
+      "id": "5b0fa22f-cbfd-5098-95b0-a474deb84c7a",
+      "index": 21,
+      "decision": "retain",
+      "reason": "The protein-to-energy requirement question specifically favors protein density. A broader most-susceptible claim is not independently established."
+    },
+    {
+      "id": "a1b1ff8a-eae1-5c68-b5b1-4d50cb2afc17",
+      "index": 23,
+      "decision": "retain",
+      "reason": "Viral apoptosis and lysis both occur; this review does not establish an equally valid most-common claim across the unspecified viral population."
+    },
+    {
+      "id": "b6ade862-109b-5788-8c0c-eabe1f7e205a",
+      "index": 36,
+      "decision": "retain",
+      "reason": "A hurricane angular-momentum estimate needs a mass/wind integration model. No independent primary measurement is acquired that establishes either competing numerical alternative. Uncertainty alone does not exclude it."
+    },
+    {
+      "id": "ebe368cb-5783-5f03-8471-e31295bc4438",
+      "index": 39,
+      "decision": "retain",
+      "reason": "The NOT-listed public-relations quality question does not identify its source list. No alternative authoritative list is verified, so no exclusion is made."
+    },
+    {
+      "id": "35eb196e-50d4-5501-8f44-cc5dc85f6291",
+      "index": 69,
+      "decision": "retain",
+      "reason": "A full aqueous-solubility model would include water autoionization and pH, while the usual textbook Ksp exercise suppresses that correction. The review retains the intended simplified model rather than imposing a new chemistry requirement."
+    },
+    {
+      "id": "1cf3ba1c-373e-5629-9a9e-b34e7fdc1d52",
+      "index": 214,
+      "decision": "retain",
+      "reason": "A is functionally correct on the executed case but uses linear-time list insertion. B uses a balanced-container library unavailable in the audit sandbox. The library-dependent boundary behavior is unverified here; this gap does not relabel B or establish an equal complete answer."
+    },
+    {
+      "id": "883785df-990c-51ce-894a-c9f5f2952750",
+      "index": 221,
+      "decision": "retain",
+      "reason": "Both Dijkstra algorithms give the correct small example; A scans the full edge table and B traverses adjacency lists. Their repeated per-character shortest paths need a boundary runtime check. A sample pass alone does not establish equivalence across all constraints."
+    }
+  ],
+  "coverage": [
+    {
+      "id": "2d989dfb-7cf0-549e-945c-3dd060d1fad5",
+      "index": 0,
+      "review": "full question and both factual finals; arguments/source checked on ambiguity",
+      "decision": "exclude in factual-final diagnostic"
+    },
+    {
+      "id": "8aaa1627-21b0-520f-b698-67cd5d77dbc9",
+      "index": 1,
+      "review": "full question and both factual finals; arguments/source checked on ambiguity",
+      "decision": "retain official label"
+    },
+    {
+      "id": "8de34479-e94c-5c30-9146-da3d92f7223c",
+      "index": 2,
+      "review": "full question and both factual finals; arguments/source checked on ambiguity",
+      "decision": "retain official label"
+    },
+    {
+      "id": "2545077a-25bd-5b66-a42b-e0efb838ecee",
+      "index": 3,
+      "review": "full question and both factual finals; arguments/source checked on ambiguity",
+      "decision": "retain official label"
+    },
+    {
+      "id": "50e6565c-07f5-57d6-80d8-028498a1251b",
+      "index": 4,
+      "review": "full question and both factual finals; arguments/source checked on ambiguity",
+      "decision": "retain official label"
+    },
+    {
+      "id": "52dc37ec-fb24-59d8-9390-53185cb0c6d1",
+      "index": 5,
+      "review": "full question and both factual finals; arguments/source checked on ambiguity",
+      "decision": "exclude in factual-final diagnostic"
+    },
+    {
+      "id": "3cbbae47-8be1-5e31-868b-3b61d51a777d",
+      "index": 6,
+      "review": "full question and both factual finals; arguments/source checked on ambiguity",
+      "decision": "retain official label"
+    },
+    {
+      "id": "2328c85f-6803-5f2c-9ccb-f429dea4428c",
+      "index": 7,
+      "review": "full question and both factual finals; arguments/source checked on ambiguity",
+      "decision": "retain official label"
+    },
+    {
+      "id": "a3f45559-827d-53c5-9f1b-200ea1876ac8",
+      "index": 8,
+      "review": "full question and both factual finals; arguments/source checked on ambiguity",
+      "decision": "retain official label"
+    },
+    {
+      "id": "14d2e455-2416-5cd3-8913-8f833aeab1b2",
+      "index": 9,
+      "review": "full question and both factual finals; arguments/source checked on ambiguity",
+      "decision": "exclude in factual-final diagnostic"
+    },
+    {
+      "id": "df6e9ec0-0bd1-51ec-a81f-3a58cc415253",
+      "index": 10,
+      "review": "full question and both factual finals; arguments/source checked on ambiguity",
+      "decision": "retain official label"
+    },
+    {
+      "id": "49c0f568-1ac2-53dc-be78-f3eea93820fd",
+      "index": 11,
+      "review": "full question and both factual finals; arguments/source checked on ambiguity",
+      "decision": "exclude in factual-final diagnostic"
+    },
+    {
+      "id": "ad732066-b195-5f46-a39f-6f1184aa594b",
+      "index": 12,
+      "review": "full question and both factual finals; arguments/source checked on ambiguity",
+      "decision": "retain official label"
+    },
+    {
+      "id": "6c5f9b09-193f-5070-9dfd-2dee1f69a9a3",
+      "index": 13,
+      "review": "full question and both factual finals; arguments/source checked on ambiguity",
+      "decision": "retain official label"
+    },
+    {
+      "id": "79d55355-34c0-5ba7-842e-65671b9858d9",
+      "index": 14,
+      "review": "full question and both factual finals; arguments/source checked on ambiguity",
+      "decision": "retain official label"
+    },
+    {
+      "id": "799a7559-a3b1-5dc3-bec3-54d5e930fd24",
+      "index": 15,
+      "review": "full question and both factual finals; arguments/source checked on ambiguity",
+      "decision": "exclude in factual-final diagnostic"
+    },
+    {
+      "id": "10c0a6e7-a697-5d79-ac6b-47ed30c4cba5",
+      "index": 16,
+      "review": "full question and both factual finals; arguments/source checked on ambiguity",
+      "decision": "exclude in factual-final diagnostic"
+    },
+    {
+      "id": "352e1a45-3dcb-5fb0-9c38-a6b7f674a084",
+      "index": 17,
+      "review": "full question and both factual finals; arguments/source checked on ambiguity",
+      "decision": "retain official label"
+    },
+    {
+      "id": "1c76021c-cb8e-5477-8f7e-88855d6dd547",
+      "index": 18,
+      "review": "full question and both factual finals; arguments/source checked on ambiguity",
+      "decision": "exclude in factual-final diagnostic"
+    },
+    {
+      "id": "7ad6fda6-f7dd-5c3a-9d8b-6b50cc35dedd",
+      "index": 19,
+      "review": "full question and both factual finals; arguments/source checked on ambiguity",
+      "decision": "exclude in factual-final diagnostic"
+    },
+    {
+      "id": "b7bbea2c-8e83-50be-a385-70d16a0d507c",
+      "index": 20,
+      "review": "full question and both factual finals; arguments/source checked on ambiguity",
+      "decision": "retain official label"
+    },
+    {
+      "id": "5b0fa22f-cbfd-5098-95b0-a474deb84c7a",
+      "index": 21,
+      "review": "full question and both factual finals; arguments/source checked on ambiguity",
+      "decision": "retain official label"
+    },
+    {
+      "id": "37577e35-cf0b-5880-97a1-857736d76651",
+      "index": 22,
+      "review": "full question and both factual finals; arguments/source checked on ambiguity",
+      "decision": "exclude in factual-final diagnostic"
+    },
+    {
+      "id": "a1b1ff8a-eae1-5c68-b5b1-4d50cb2afc17",
+      "index": 23,
+      "review": "full question and both factual finals; arguments/source checked on ambiguity",
+      "decision": "retain official label"
+    },
+    {
+      "id": "2b51f48f-90d7-57f7-8888-30fd13c0d5ff",
+      "index": 24,
+      "review": "full question and both factual finals; arguments/source checked on ambiguity",
+      "decision": "retain official label"
+    },
+    {
+      "id": "d1dd83a6-7ccb-5f83-983e-f6fc38783836",
+      "index": 25,
+      "review": "full question and both factual finals; arguments/source checked on ambiguity",
+      "decision": "retain official label"
+    },
+    {
+      "id": "ff5f3ce7-1423-5df5-922d-644070dfaea0",
+      "index": 26,
+      "review": "full question and both factual finals; arguments/source checked on ambiguity",
+      "decision": "retain official label"
+    },
+    {
+      "id": "f7dc91ae-4e50-51e8-aa72-34723a3b4c85",
+      "index": 27,
+      "review": "full question and both factual finals; arguments/source checked on ambiguity",
+      "decision": "retain official label"
+    },
+    {
+      "id": "d9cc990f-fb19-521e-a8fa-68f3325f8730",
+      "index": 28,
+      "review": "full question and both factual finals; arguments/source checked on ambiguity",
+      "decision": "retain official label"
+    },
+    {
+      "id": "3ca30a63-18e2-5f42-b7ec-433617b85cd6",
+      "index": 29,
+      "review": "full question and both factual finals; arguments/source checked on ambiguity",
+      "decision": "exclude in factual-final diagnostic"
+    },
+    {
+      "id": "14ead85f-e4c6-5ae2-a586-6388d9b9b4f1",
+      "index": 30,
+      "review": "full question and both factual finals; arguments/source checked on ambiguity",
+      "decision": "retain official label"
+    },
+    {
+      "id": "5b13ebd9-3880-5331-bfcf-ac5ab4bed92a",
+      "index": 31,
+      "review": "full question and both factual finals; arguments/source checked on ambiguity",
+      "decision": "exclude in factual-final diagnostic"
+    },
+    {
+      "id": "7c22d528-b258-5125-9bcc-877df3431ae1",
+      "index": 32,
+      "review": "full question and both factual finals; arguments/source checked on ambiguity",
+      "decision": "retain official label"
+    },
+    {
+      "id": "faba206f-9a89-5991-9ac3-f43727d2a566",
+      "index": 33,
+      "review": "full question and both factual finals; arguments/source checked on ambiguity",
+      "decision": "exclude in factual-final diagnostic"
+    },
+    {
+      "id": "ef607538-1628-5cce-bc92-093ff755586d",
+      "index": 34,
+      "review": "full question and both factual finals; arguments/source checked on ambiguity",
+      "decision": "exclude in factual-final diagnostic"
+    },
+    {
+      "id": "803e5d58-0c62-5946-9738-ceeea2e4aaa2",
+      "index": 35,
+      "review": "full question and both factual finals; arguments/source checked on ambiguity",
+      "decision": "exclude in factual-final diagnostic"
+    },
+    {
+      "id": "b6ade862-109b-5788-8c0c-eabe1f7e205a",
+      "index": 36,
+      "review": "full question and both factual finals; arguments/source checked on ambiguity",
+      "decision": "retain official label"
+    },
+    {
+      "id": "585e5a43-454b-56f7-aba3-fb4e22938020",
+      "index": 37,
+      "review": "full question and both factual finals; arguments/source checked on ambiguity",
+      "decision": "retain official label"
+    },
+    {
+      "id": "b1614f17-39fb-564a-84c7-bcd7a2054dc8",
+      "index": 38,
+      "review": "full question and both factual finals; arguments/source checked on ambiguity",
+      "decision": "retain official label"
+    },
+    {
+      "id": "ebe368cb-5783-5f03-8471-e31295bc4438",
+      "index": 39,
+      "review": "full question and both factual finals; arguments/source checked on ambiguity",
+      "decision": "retain official label"
+    },
+    {
+      "id": "c6b860be-9938-5c34-97fc-70dfc51bbfb7",
+      "index": 40,
+      "review": "full question and both factual finals; arguments/source checked on ambiguity",
+      "decision": "retain official label"
+    },
+    {
+      "id": "a13f48e6-1d51-5076-94bf-ff0303e4c198",
+      "index": 41,
+      "review": "full question and both factual finals; arguments/source checked on ambiguity",
+      "decision": "retain official label"
+    },
+    {
+      "id": "8609c463-a567-5b57-838f-12e3dac9fa8b",
+      "index": 42,
+      "review": "full question and both factual finals; arguments/source checked on ambiguity",
+      "decision": "retain official label"
+    },
+    {
+      "id": "122e221d-9581-5240-889a-1106c2d167c0",
+      "index": 43,
+      "review": "full question and both factual finals; arguments/source checked on ambiguity",
+      "decision": "exclude in factual-final diagnostic"
+    },
+    {
+      "id": "336452fa-776b-5de9-98c8-2a6685d840fa",
+      "index": 44,
+      "review": "full question and both factual finals; arguments/source checked on ambiguity",
+      "decision": "retain official label"
+    },
+    {
+      "id": "b57ea8df-78c5-5e71-9545-973d9c2d4bb5",
+      "index": 45,
+      "review": "full question and both factual finals; arguments/source checked on ambiguity",
+      "decision": "retain official label"
+    },
+    {
+      "id": "f1b17db1-5206-504d-a8b0-3213449e41f5",
+      "index": 46,
+      "review": "full question and both factual finals; arguments/source checked on ambiguity",
+      "decision": "retain official label"
+    },
+    {
+      "id": "b958ea91-8f2a-55be-8c8b-d61cf90f5076",
+      "index": 47,
+      "review": "full question and both factual finals; arguments/source checked on ambiguity",
+      "decision": "exclude in factual-final diagnostic"
+    },
+    {
+      "id": "bfd0002d-e137-5a79-a7fd-c2ef9ad12a1f",
+      "index": 48,
+      "review": "full question and both factual finals; arguments/source checked on ambiguity",
+      "decision": "retain official label"
+    },
+    {
+      "id": "0e1ead11-84ae-5d48-b237-509be76fdcbb",
+      "index": 49,
+      "review": "full question and both factual finals; arguments/source checked on ambiguity",
+      "decision": "retain official label"
+    },
+    {
+      "id": "766bdf22-3677-53bf-9c46-4fb984430682",
+      "index": 50,
+      "review": "full question and both factual finals; arguments/source checked on ambiguity",
+      "decision": "retain official label"
+    },
+    {
+      "id": "a5c0fd0a-7440-5461-9a32-c6c5ff574ae0",
+      "index": 51,
+      "review": "full question and both factual finals; arguments/source checked on ambiguity",
+      "decision": "exclude in factual-final diagnostic"
+    },
+    {
+      "id": "aaf21925-4fcc-5841-b6e5-9afdf75a3b2e",
+      "index": 52,
+      "review": "full question and both factual finals; arguments/source checked on ambiguity",
+      "decision": "retain official label"
+    },
+    {
+      "id": "f805817d-968d-5b0b-a2b2-4c62c9b848d3",
+      "index": 53,
+      "review": "full question and both factual finals; arguments/source checked on ambiguity",
+      "decision": "retain official label"
+    },
+    {
+      "id": "f48459b1-bc3e-56f2-a323-d4ccea830765",
+      "index": 54,
+      "review": "full question and both factual finals; arguments/source checked on ambiguity",
+      "decision": "retain official label"
+    },
+    {
+      "id": "12ab4b20-e60b-59ca-b20b-500b12900def",
+      "index": 55,
+      "review": "full question and both factual finals; arguments/source checked on ambiguity",
+      "decision": "retain official label"
+    },
+    {
+      "id": "bd6f87f2-cb60-58b3-8b27-4eceab2bfc79",
+      "index": 56,
+      "review": "full question and both factual finals; arguments/source checked on ambiguity",
+      "decision": "exclude in factual-final diagnostic"
+    },
+    {
+      "id": "6de9c1f2-0d31-5d07-a796-7dd245667f4f",
+      "index": 57,
+      "review": "full question and both factual finals; arguments/source checked on ambiguity",
+      "decision": "retain official label"
+    },
+    {
+      "id": "000ad3d2-6b2a-5bee-baf2-fdf780b4e068",
+      "index": 58,
+      "review": "full question and both factual finals; arguments/source checked on ambiguity",
+      "decision": "retain official label"
+    },
+    {
+      "id": "8ac653fc-14f9-58aa-8306-e008d51ca0eb",
+      "index": 59,
+      "review": "full question and both factual finals; arguments/source checked on ambiguity",
+      "decision": "retain official label"
+    },
+    {
+      "id": "730909ae-6903-517a-ad99-9991d2cfc217",
+      "index": 60,
+      "review": "full question and both factual finals; arguments/source checked on ambiguity",
+      "decision": "retain official label"
+    },
+    {
+      "id": "40c35c1b-4d3a-56ae-a7fa-22307efca211",
+      "index": 61,
+      "review": "full question and both factual finals; arguments/source checked on ambiguity",
+      "decision": "retain official label"
+    },
+    {
+      "id": "e8f304d3-029a-5738-84eb-1268268a44da",
+      "index": 62,
+      "review": "full question and both factual finals; arguments/source checked on ambiguity",
+      "decision": "retain official label"
+    },
+    {
+      "id": "26d7ab00-c73b-5b3e-8bc3-4a8f941fceb7",
+      "index": 63,
+      "review": "full question and both factual finals; arguments/source checked on ambiguity",
+      "decision": "retain official label"
+    },
+    {
+      "id": "cd01c08e-2906-5d2a-b3d8-3d3425f397db",
+      "index": 64,
+      "review": "full question and both factual finals; arguments/source checked on ambiguity",
+      "decision": "retain official label"
+    },
+    {
+      "id": "ed01d44a-e1bc-5833-9a59-ea5f5a9ebd60",
+      "index": 65,
+      "review": "full question and both factual finals; arguments/source checked on ambiguity",
+      "decision": "retain official label"
+    },
+    {
+      "id": "1ca1b199-b089-5951-8a57-28a320573def",
+      "index": 66,
+      "review": "full question and both factual finals; arguments/source checked on ambiguity",
+      "decision": "retain official label"
+    },
+    {
+      "id": "aedbe1ff-42f3-5222-85e0-1b98c5af67bb",
+      "index": 67,
+      "review": "full question and both factual finals; arguments/source checked on ambiguity",
+      "decision": "retain official label"
+    },
+    {
+      "id": "02c8d6ef-f58a-5bf5-8b05-0a6719e16f20",
+      "index": 68,
+      "review": "full question and both factual finals; arguments/source checked on ambiguity",
+      "decision": "retain official label"
+    },
+    {
+      "id": "35eb196e-50d4-5501-8f44-cc5dc85f6291",
+      "index": 69,
+      "review": "full question and both factual finals; arguments/source checked on ambiguity",
+      "decision": "retain official label"
+    },
+    {
+      "id": "57500a89-7795-5299-b6a8-d0ab8da2687a",
+      "index": 70,
+      "review": "full question and both factual finals; arguments/source checked on ambiguity",
+      "decision": "retain official label"
+    },
+    {
+      "id": "7437394e-a300-5428-b321-e3ce7dd9b694",
+      "index": 71,
+      "review": "full question and both factual finals; arguments/source checked on ambiguity",
+      "decision": "retain official label"
+    },
+    {
+      "id": "a6f94de7-dee6-579b-852a-1be7ca389cd2",
+      "index": 72,
+      "review": "full question and both factual finals; arguments/source checked on ambiguity",
+      "decision": "exclude in factual-final diagnostic"
+    },
+    {
+      "id": "c9d03d78-9962-58e3-a776-703b910cde29",
+      "index": 73,
+      "review": "full question and both factual finals; arguments/source checked on ambiguity",
+      "decision": "retain official label"
+    },
+    {
+      "id": "9fbc9238-47af-5656-ac85-cf5b0c00fd8f",
+      "index": 74,
+      "review": "full question and both factual finals; arguments/source checked on ambiguity",
+      "decision": "exclude in factual-final diagnostic"
+    },
+    {
+      "id": "e23cdc82-bbf1-5378-9404-d94c1e7ce2ef",
+      "index": 75,
+      "review": "full question and both factual finals; arguments/source checked on ambiguity",
+      "decision": "retain official label"
+    },
+    {
+      "id": "6f1bd679-4ba1-51ba-b65d-c7463e2134bf",
+      "index": 76,
+      "review": "full question and both factual finals; arguments/source checked on ambiguity",
+      "decision": "retain official label"
+    },
+    {
+      "id": "d2b16371-9e1f-5869-aa69-579218b20eaa",
+      "index": 77,
+      "review": "full question and both factual finals; arguments/source checked on ambiguity",
+      "decision": "retain official label"
+    },
+    {
+      "id": "c0fceb61-37b0-5049-84c3-9add01413cc8",
+      "index": 78,
+      "review": "full question and both factual finals; arguments/source checked on ambiguity",
+      "decision": "retain official label"
+    },
+    {
+      "id": "e3de7dfc-4b9e-5476-b7af-92d7d00bf2d3",
+      "index": 79,
+      "review": "full question and both factual finals; arguments/source checked on ambiguity",
+      "decision": "exclude in factual-final diagnostic"
+    },
+    {
+      "id": "70ed90f8-052e-5088-a47b-70b409d2b518",
+      "index": 80,
+      "review": "full question and both factual finals; arguments/source checked on ambiguity",
+      "decision": "retain official label"
+    },
+    {
+      "id": "83adf077-567f-5ce2-91e7-bf02decdaa21",
+      "index": 81,
+      "review": "full question and both factual finals; arguments/source checked on ambiguity",
+      "decision": "retain official label"
+    },
+    {
+      "id": "3e2b3d28-4ac1-5898-ad61-f5a58cee8698",
+      "index": 82,
+      "review": "full question and both factual finals; arguments/source checked on ambiguity",
+      "decision": "retain official label"
+    },
+    {
+      "id": "82f31019-2814-5ac8-a269-2c247e9a0833",
+      "index": 83,
+      "review": "full question and both factual finals; arguments/source checked on ambiguity",
+      "decision": "retain official label"
+    },
+    {
+      "id": "c1891f8b-2cce-52b7-868c-6c072e79701e",
+      "index": 84,
+      "review": "full question and both factual finals; arguments/source checked on ambiguity",
+      "decision": "exclude in factual-final diagnostic"
+    },
+    {
+      "id": "b82d8f3f-f994-5775-b1b1-13420519ca81",
+      "index": 85,
+      "review": "full question and both factual finals; arguments/source checked on ambiguity",
+      "decision": "retain official label"
+    },
+    {
+      "id": "9636f59f-6396-54cc-8bed-6842a7f28f74",
+      "index": 86,
+      "review": "full question and both factual finals; arguments/source checked on ambiguity",
+      "decision": "retain official label"
+    },
+    {
+      "id": "3239d81d-8220-5b81-99e0-1b7a470df3be",
+      "index": 87,
+      "review": "full question and both factual finals; arguments/source checked on ambiguity",
+      "decision": "retain official label"
+    },
+    {
+      "id": "a6cfbfd9-3c72-5081-9433-8f57a9851d51",
+      "index": 88,
+      "review": "full question and both factual finals; arguments/source checked on ambiguity",
+      "decision": "retain official label"
+    },
+    {
+      "id": "6ad28b38-685f-5146-ab23-ff8fbcc81210",
+      "index": 89,
+      "review": "full question and both factual finals; arguments/source checked on ambiguity",
+      "decision": "retain official label"
+    },
+    {
+      "id": "591677d2-ac1a-5a7c-9e21-b4918155fc9b",
+      "index": 90,
+      "review": "full question and both factual finals; arguments/source checked on ambiguity",
+      "decision": "exclude in factual-final diagnostic"
+    },
+    {
+      "id": "6a01ee27-4246-5bb7-b1b7-bbea2dc28deb",
+      "index": 91,
+      "review": "full question and both factual finals; arguments/source checked on ambiguity",
+      "decision": "retain official label"
+    },
+    {
+      "id": "83ec31fe-5063-5c77-9b1e-0c32f113a042",
+      "index": 92,
+      "review": "full question and both factual finals; arguments/source checked on ambiguity",
+      "decision": "exclude in factual-final diagnostic"
+    },
+    {
+      "id": "437c2f78-9c2a-50d0-a600-5d2d355ee14e",
+      "index": 93,
+      "review": "full question and both factual finals; arguments/source checked on ambiguity",
+      "decision": "retain official label"
+    },
+    {
+      "id": "0f1fed13-d89e-5956-a5f9-11befbdb47fb",
+      "index": 94,
+      "review": "full question and both factual finals; arguments/source checked on ambiguity",
+      "decision": "retain official label"
+    },
+    {
+      "id": "5a794b9e-e12f-5fbb-872c-c47b6c301b65",
+      "index": 95,
+      "review": "full question and both factual finals; arguments/source checked on ambiguity",
+      "decision": "retain official label"
+    },
+    {
+      "id": "5c614de5-0a80-5981-bb36-2690b198168c",
+      "index": 96,
+      "review": "full question and both factual finals; arguments/source checked on ambiguity",
+      "decision": "exclude in factual-final diagnostic"
+    },
+    {
+      "id": "1d13565a-862e-591d-917e-47686c15db7c",
+      "index": 97,
+      "review": "full question and both factual finals; arguments/source checked on ambiguity",
+      "decision": "retain official label"
+    },
+    {
+      "id": "757ab337-289d-5f6b-a0ec-a437dd603566",
+      "index": 98,
+      "review": "full question and both factual finals; arguments/source checked on ambiguity",
+      "decision": "exclude in factual-final diagnostic"
+    },
+    {
+      "id": "5d50e41f-9f6b-5ba2-9e9e-43582bf89c1b",
+      "index": 99,
+      "review": "full question and both factual finals; arguments/source checked on ambiguity",
+      "decision": "exclude in factual-final diagnostic"
+    },
+    {
+      "id": "fdc57db0-8efc-5258-8a61-d514c7e73885",
+      "index": 100,
+      "review": "full question and both factual finals; arguments/source checked on ambiguity",
+      "decision": "exclude in factual-final diagnostic"
+    },
+    {
+      "id": "bd8ba4d9-624a-5dc9-a6ae-19c122b406ae",
+      "index": 101,
+      "review": "full question and both factual finals; arguments/source checked on ambiguity",
+      "decision": "retain official label"
+    },
+    {
+      "id": "dca9614e-d4c0-5595-8d06-91d8b33e86ff",
+      "index": 102,
+      "review": "full question and both factual finals; arguments/source checked on ambiguity",
+      "decision": "exclude in factual-final diagnostic"
+    },
+    {
+      "id": "58c85976-b7dd-5739-9f8c-e4943c0a1101",
+      "index": 103,
+      "review": "full question and both factual finals; arguments/source checked on ambiguity",
+      "decision": "exclude in factual-final diagnostic"
+    },
+    {
+      "id": "8ee34b7b-a0b2-58d4-985a-31715271fb9b",
+      "index": 104,
+      "review": "full question and both factual finals; arguments/source checked on ambiguity",
+      "decision": "retain official label"
+    },
+    {
+      "id": "c5b7580d-a60f-5cb0-bc3b-0e01afda4e20",
+      "index": 105,
+      "review": "full question and both factual finals; arguments/source checked on ambiguity",
+      "decision": "retain official label"
+    },
+    {
+      "id": "f8e093c3-2e73-5a58-86e7-672074882f25",
+      "index": 106,
+      "review": "full question and both factual finals; arguments/source checked on ambiguity",
+      "decision": "retain official label"
+    },
+    {
+      "id": "2c723771-3d54-5cf9-8180-7d502a4a4b1b",
+      "index": 107,
+      "review": "full question and both factual finals; arguments/source checked on ambiguity",
+      "decision": "exclude in factual-final diagnostic"
+    },
+    {
+      "id": "ff0ed36d-26d0-5968-b604-f9ca19372834",
+      "index": 108,
+      "review": "full question and both factual finals; arguments/source checked on ambiguity",
+      "decision": "retain official label"
+    },
+    {
+      "id": "0ffbf15d-cbdf-5569-928b-adf90e0df935",
+      "index": 109,
+      "review": "full question and both factual finals; arguments/source checked on ambiguity",
+      "decision": "retain official label"
+    },
+    {
+      "id": "87441abb-f436-5d0f-b92b-355e3f249c9d",
+      "index": 110,
+      "review": "full question and both factual finals; arguments/source checked on ambiguity",
+      "decision": "retain official label"
+    },
+    {
+      "id": "05b84cf4-8994-51d8-9685-4c1c997780f1",
+      "index": 111,
+      "review": "full question and both factual finals; arguments/source checked on ambiguity",
+      "decision": "retain official label"
+    },
+    {
+      "id": "b07c4ba0-3480-5111-af8f-5cc69813a54b",
+      "index": 112,
+      "review": "full question and both factual finals; arguments/source checked on ambiguity",
+      "decision": "retain official label"
+    },
+    {
+      "id": "a0f77206-6e2b-57af-8e32-664794ad10de",
+      "index": 113,
+      "review": "full question and both factual finals; arguments/source checked on ambiguity",
+      "decision": "exclude in factual-final diagnostic"
+    },
+    {
+      "id": "943bf94c-9ba1-5b9b-9ec4-038c8f3e11d7",
+      "index": 114,
+      "review": "full question and both factual finals; arguments/source checked on ambiguity",
+      "decision": "exclude in factual-final diagnostic"
+    },
+    {
+      "id": "e447d2a3-bd18-58cd-8b87-6d19b03842e0",
+      "index": 115,
+      "review": "full question and both factual finals; arguments/source checked on ambiguity",
+      "decision": "retain official label"
+    },
+    {
+      "id": "70e2b4e6-a5a5-5f50-b838-e00cdd38df24",
+      "index": 116,
+      "review": "full question and both factual finals; arguments/source checked on ambiguity",
+      "decision": "exclude in factual-final diagnostic"
+    },
+    {
+      "id": "4b324d8b-aac1-5d0a-af11-cebaa6759e67",
+      "index": 117,
+      "review": "full question and both factual finals; arguments/source checked on ambiguity",
+      "decision": "retain official label"
+    },
+    {
+      "id": "4d8e7667-fd3a-5986-97c3-5387399bd870",
+      "index": 118,
+      "review": "full question and both factual finals; arguments/source checked on ambiguity",
+      "decision": "retain official label"
+    },
+    {
+      "id": "82a36944-06f6-5dbd-8641-173effc5ab41",
+      "index": 119,
+      "review": "full question and both factual finals; arguments/source checked on ambiguity",
+      "decision": "retain official label"
+    },
+    {
+      "id": "7f8f7cf1-b408-534a-a214-c441d3d51ab4",
+      "index": 120,
+      "review": "full question and both factual finals; arguments/source checked on ambiguity",
+      "decision": "retain official label"
+    },
+    {
+      "id": "d3c9f4fb-13a9-50f9-859a-3dbf42e8b866",
+      "index": 121,
+      "review": "full question and both factual finals; arguments/source checked on ambiguity",
+      "decision": "retain official label"
+    },
+    {
+      "id": "f1c7c73d-5483-5c3e-87af-09b237cbab84",
+      "index": 122,
+      "review": "full question and both factual finals; arguments/source checked on ambiguity",
+      "decision": "exclude in factual-final diagnostic"
+    },
+    {
+      "id": "30756abc-c659-5660-9797-d952b638ea2c",
+      "index": 123,
+      "review": "full question and both factual finals; arguments/source checked on ambiguity",
+      "decision": "exclude in factual-final diagnostic"
+    },
+    {
+      "id": "c74d8fde-41a2-527e-95ab-705a625e053c",
+      "index": 124,
+      "review": "full question and both factual finals; arguments/source checked on ambiguity",
+      "decision": "retain official label"
+    },
+    {
+      "id": "d71a5264-231b-5af8-829d-9ee50f0acf90",
+      "index": 125,
+      "review": "full question and both factual finals; arguments/source checked on ambiguity",
+      "decision": "retain official label"
+    },
+    {
+      "id": "6ca62e73-d6a9-53f1-b27f-d4d17d982e6c",
+      "index": 126,
+      "review": "full question and both factual finals; arguments/source checked on ambiguity",
+      "decision": "retain official label"
+    },
+    {
+      "id": "a42d3d72-c38b-5cb4-adff-142e4d0f7736",
+      "index": 127,
+      "review": "full question and both factual finals; arguments/source checked on ambiguity",
+      "decision": "exclude in factual-final diagnostic"
+    },
+    {
+      "id": "db445e7f-6ad7-5e62-b182-67c5777f80e7",
+      "index": 128,
+      "review": "full question and both factual finals; arguments/source checked on ambiguity",
+      "decision": "exclude in factual-final diagnostic"
+    },
+    {
+      "id": "4d9614d8-c288-5d5a-9620-745459190569",
+      "index": 129,
+      "review": "full question and both factual finals; arguments/source checked on ambiguity",
+      "decision": "retain official label"
+    },
+    {
+      "id": "5a224ae8-0f94-5589-a55c-b85457acdac8",
+      "index": 130,
+      "review": "full question and both factual finals; arguments/source checked on ambiguity",
+      "decision": "retain official label"
+    },
+    {
+      "id": "d7fa35b0-1cda-5192-9404-63d329152d26",
+      "index": 131,
+      "review": "full question and both factual finals; arguments/source checked on ambiguity",
+      "decision": "exclude in factual-final diagnostic"
+    },
+    {
+      "id": "c0ce2554-eafc-5ddd-8c32-677e4fce563e",
+      "index": 132,
+      "review": "full question and both factual finals; arguments/source checked on ambiguity",
+      "decision": "retain official label"
+    },
+    {
+      "id": "2862a52e-5004-549c-8cd9-d499f752d0e1",
+      "index": 133,
+      "review": "full question and both factual finals; arguments/source checked on ambiguity",
+      "decision": "exclude in factual-final diagnostic"
+    },
+    {
+      "id": "309a5084-bce2-5bf1-b3d3-6fa9449ae2f8",
+      "index": 134,
+      "review": "full question and both factual finals; arguments/source checked on ambiguity",
+      "decision": "retain official label"
+    },
+    {
+      "id": "f3d9764d-347d-5b58-bf39-5ad1e07a5c1a",
+      "index": 135,
+      "review": "full question and both factual finals; arguments/source checked on ambiguity",
+      "decision": "exclude in factual-final diagnostic"
+    },
+    {
+      "id": "bfaf6335-5640-599d-8e95-7789f7ec864a",
+      "index": 136,
+      "review": "full question and both factual finals; arguments/source checked on ambiguity",
+      "decision": "exclude in factual-final diagnostic"
+    },
+    {
+      "id": "b93ffd05-7ed5-51be-9e67-f85416d20872",
+      "index": 137,
+      "review": "full question and both factual finals; arguments/source checked on ambiguity",
+      "decision": "retain official label"
+    },
+    {
+      "id": "09e7761f-dc12-5dec-9ea1-d01ef98c48e9",
+      "index": 138,
+      "review": "full question and both factual finals; arguments/source checked on ambiguity",
+      "decision": "retain official label"
+    },
+    {
+      "id": "2c753154-c93e-504b-9e3b-209a5f58d805",
+      "index": 139,
+      "review": "exact truth-constraint proof",
+      "decision": "retain official label"
+    },
+    {
+      "id": "399f4fc1-1eb0-5d14-a505-fbd98399b34e",
+      "index": 140,
+      "review": "exact truth-constraint proof",
+      "decision": "retain official label"
+    },
+    {
+      "id": "8332d38f-a65f-5f08-b803-934e334531ba",
+      "index": 141,
+      "review": "exact truth-constraint proof",
+      "decision": "retain official label"
+    },
+    {
+      "id": "d78a5116-f0a0-5a7b-a461-8f42262cce47",
+      "index": 142,
+      "review": "exhaustive position constraints",
+      "decision": "retain official label"
+    },
+    {
+      "id": "1cc11161-3a95-59a1-aa7b-1406ccf4b9a6",
+      "index": 143,
+      "review": "exact truth-constraint proof",
+      "decision": "retain official label"
+    },
+    {
+      "id": "3f7b9827-49b7-5d37-b403-6bd2673b96ec",
+      "index": 144,
+      "review": "exact truth-constraint proof",
+      "decision": "retain official label"
+    },
+    {
+      "id": "29da4abd-50bc-5254-bfca-dfbbf7b48daf",
+      "index": 145,
+      "review": "full question and both factual finals; arguments/source checked on ambiguity",
+      "decision": "retain official label"
+    },
+    {
+      "id": "bab556f4-ea42-570d-8063-304e5f6c4185",
+      "index": 146,
+      "review": "exact truth-constraint proof",
+      "decision": "retain official label"
+    },
+    {
+      "id": "353ff46b-1b33-5152-ac0d-650b0f830fc3",
+      "index": 147,
+      "review": "exact truth-constraint proof",
+      "decision": "retain official label"
+    },
+    {
+      "id": "26a84e53-9faa-5387-8293-e1d3f8589c4e",
+      "index": 148,
+      "review": "exact truth-constraint proof",
+      "decision": "retain official label"
+    },
+    {
+      "id": "cdc80d94-4fc3-5b62-88fc-167006f3b7bd",
+      "index": 149,
+      "review": "full question and both factual finals; arguments/source checked on ambiguity",
+      "decision": "exclude in factual-final diagnostic"
+    },
+    {
+      "id": "14c5f015-d741-5cbc-8d42-864b58da36b7",
+      "index": 150,
+      "review": "exact truth-constraint proof",
+      "decision": "retain official label"
+    },
+    {
+      "id": "295046df-4a28-5894-b61e-70cd586ad52c",
+      "index": 151,
+      "review": "exhaustive position constraints",
+      "decision": "exclude in factual-final diagnostic"
+    },
+    {
+      "id": "7c09b9ef-6dfe-5792-aa35-f4c921519839",
+      "index": 152,
+      "review": "exact truth-constraint proof",
+      "decision": "retain official label"
+    },
+    {
+      "id": "ed47c678-7393-548d-975e-789595bea2c7",
+      "index": 153,
+      "review": "full question and both factual finals; arguments/source checked on ambiguity",
+      "decision": "retain official label"
+    },
+    {
+      "id": "1a7444f1-a4a4-557d-9b20-fe41ee618d4c",
+      "index": 154,
+      "review": "exhaustive position constraints",
+      "decision": "retain official label"
+    },
+    {
+      "id": "f4d82670-344b-5dc0-ae56-2c080407a972",
+      "index": 155,
+      "review": "exact truth-constraint proof",
+      "decision": "retain official label"
+    },
+    {
+      "id": "8e81db7a-d39f-5bc0-9b38-7f25d36a7707",
+      "index": 156,
+      "review": "full question and both factual finals; arguments/source checked on ambiguity",
+      "decision": "retain official label"
+    },
+    {
+      "id": "8e6b18f9-266e-5aae-bbfa-7b06142cca75",
+      "index": 157,
+      "review": "exact truth-constraint proof",
+      "decision": "retain official label"
+    },
+    {
+      "id": "36e83498-671a-5edf-be79-24bdb5e568e5",
+      "index": 158,
+      "review": "exact truth-constraint proof",
+      "decision": "retain official label"
+    },
+    {
+      "id": "a7293376-222f-517a-b998-0ec8994cc227",
+      "index": 159,
+      "review": "exact truth-constraint proof",
+      "decision": "retain official label"
+    },
+    {
+      "id": "c0209978-acf5-5357-b566-ce5e3df30948",
+      "index": 160,
+      "review": "full question and both factual finals; arguments/source checked on ambiguity",
+      "decision": "retain official label"
+    },
+    {
+      "id": "cad61a72-e1b8-5a01-af72-a1e276b66fdd",
+      "index": 161,
+      "review": "exact truth-constraint proof",
+      "decision": "retain official label"
+    },
+    {
+      "id": "01e1a2ac-06a4-5838-8bbb-b1895dea0b77",
+      "index": 162,
+      "review": "full question and both factual finals; arguments/source checked on ambiguity",
+      "decision": "retain official label"
+    },
+    {
+      "id": "6d4c9fdd-712c-5a09-bfa2-7e50ced2b515",
+      "index": 163,
+      "review": "exact truth-constraint proof",
+      "decision": "retain official label"
+    },
+    {
+      "id": "67bcb178-e185-509d-8917-9390ce37e57d",
+      "index": 164,
+      "review": "exhaustive position constraints",
+      "decision": "exclude in factual-final diagnostic"
+    },
+    {
+      "id": "df042120-17b3-5328-936a-c6c1db94b6bc",
+      "index": 165,
+      "review": "exact truth-constraint proof",
+      "decision": "retain official label"
+    },
+    {
+      "id": "fc8e8f7b-7138-5529-9730-6ecc07274f61",
+      "index": 166,
+      "review": "exhaustive position constraints",
+      "decision": "retain official label"
+    },
+    {
+      "id": "8f578704-dffa-57a6-828c-de18fecdf54f",
+      "index": 167,
+      "review": "exhaustive position constraints",
+      "decision": "retain official label"
+    },
+    {
+      "id": "669f40bb-c901-54f2-9397-395c8759a999",
+      "index": 168,
+      "review": "exact truth-constraint proof",
+      "decision": "retain official label"
+    },
+    {
+      "id": "a1259c5f-3a11-578e-88ef-58a9a7986652",
+      "index": 169,
+      "review": "exhaustive position constraints",
+      "decision": "exclude in factual-final diagnostic"
+    },
+    {
+      "id": "f2893256-1328-58fe-b1a1-97cfbce72ce8",
+      "index": 170,
+      "review": "exact truth-constraint proof",
+      "decision": "retain official label"
+    },
+    {
+      "id": "52496015-9fbb-5fa4-a1e0-0ca8c032c398",
+      "index": 171,
+      "review": "exact truth-constraint proof",
+      "decision": "retain official label"
+    },
+    {
+      "id": "6dcc9ad7-2f3b-5dae-be24-9080b9ad7973",
+      "index": 172,
+      "review": "exhaustive position constraints",
+      "decision": "exclude in factual-final diagnostic"
+    },
+    {
+      "id": "5c0d0e45-eb3f-5c6a-81ef-81fd39df82a9",
+      "index": 173,
+      "review": "exhaustive position constraints",
+      "decision": "exclude in factual-final diagnostic"
+    },
+    {
+      "id": "e0afc8ce-4f42-5202-80af-837ab58494ed",
+      "index": 174,
+      "review": "exact truth-constraint proof",
+      "decision": "retain official label"
+    },
+    {
+      "id": "e49c100d-761c-5b04-8145-e94fbc847864",
+      "index": 175,
+      "review": "exhaustive position constraints",
+      "decision": "retain official label"
+    },
+    {
+      "id": "df6b6a83-8215-5929-8c20-74c8a10de2f6",
+      "index": 176,
+      "review": "full question and both factual finals; arguments/source checked on ambiguity",
+      "decision": "retain official label"
+    },
+    {
+      "id": "9b0d8cfb-f165-5bcd-9a35-3f9cff879a80",
+      "index": 177,
+      "review": "exhaustive position constraints",
+      "decision": "retain official label"
+    },
+    {
+      "id": "138ece2f-4192-54c3-8d54-0a61b954bc13",
+      "index": 178,
+      "review": "exact truth-constraint proof",
+      "decision": "retain official label"
+    },
+    {
+      "id": "c4531594-062b-5516-b784-66936230d6e8",
+      "index": 179,
+      "review": "full question and both factual finals; arguments/source checked on ambiguity",
+      "decision": "retain official label"
+    },
+    {
+      "id": "32d05d76-f530-51da-b722-7a780136628f",
+      "index": 180,
+      "review": "exact truth-constraint proof",
+      "decision": "retain official label"
+    },
+    {
+      "id": "6486c18c-0e36-56c0-b62d-4aa97efa69f7",
+      "index": 181,
+      "review": "full question and both factual finals; arguments/source checked on ambiguity",
+      "decision": "exclude in factual-final diagnostic"
+    },
+    {
+      "id": "4626f382-2aa2-5ac1-9c74-76185f48c6ad",
+      "index": 182,
+      "review": "exhaustive position constraints",
+      "decision": "retain official label"
+    },
+    {
+      "id": "ad74d384-df3b-5255-ac08-b1947e40b97e",
+      "index": 183,
+      "review": "exhaustive position constraints",
+      "decision": "retain official label"
+    },
+    {
+      "id": "428b2643-139f-52e0-aa84-ceeb4375712d",
+      "index": 184,
+      "review": "exhaustive position constraints",
+      "decision": "retain official label"
+    },
+    {
+      "id": "d8e795e2-27e7-51f7-bf16-4e00e7accd9f",
+      "index": 185,
+      "review": "exact truth-constraint proof",
+      "decision": "retain official label"
+    },
+    {
+      "id": "e4dcf6d6-e316-52d1-9723-b90da5dd862b",
+      "index": 186,
+      "review": "full question and both factual finals; arguments/source checked on ambiguity",
+      "decision": "retain official label"
+    },
+    {
+      "id": "77acd9dc-41c9-55cf-b1ff-a5fd5b20bfd8",
+      "index": 187,
+      "review": "full question and both factual finals; arguments/source checked on ambiguity",
+      "decision": "retain official label"
+    },
+    {
+      "id": "ccb99d7c-3aca-5501-bfe5-66738a394278",
+      "index": 188,
+      "review": "exact truth-constraint proof",
+      "decision": "retain official label"
+    },
+    {
+      "id": "562ccbaa-58a6-5c20-9202-1838ceb98811",
+      "index": 189,
+      "review": "exhaustive position constraints",
+      "decision": "exclude in factual-final diagnostic"
+    },
+    {
+      "id": "150d1bd0-115e-5e13-999a-4e0835674582",
+      "index": 190,
+      "review": "exact truth-constraint proof",
+      "decision": "retain official label"
+    },
+    {
+      "id": "a7743898-29c2-52f0-9065-c9ea19b630dd",
+      "index": 191,
+      "review": "exact truth-constraint proof",
+      "decision": "retain official label"
+    },
+    {
+      "id": "e159e15e-d998-57e6-a636-b4624642585b",
+      "index": 192,
+      "review": "exhaustive position constraints",
+      "decision": "retain official label"
+    },
+    {
+      "id": "7a2a5167-8e15-50ff-b984-335d814cc77d",
+      "index": 193,
+      "review": "full question and both factual finals; arguments/source checked on ambiguity",
+      "decision": "exclude in factual-final diagnostic"
+    },
+    {
+      "id": "3611a023-f92f-5ef4-940d-99a14cf280e9",
+      "index": 194,
+      "review": "exact truth-constraint proof",
+      "decision": "retain official label"
+    },
+    {
+      "id": "c4da31be-6fe6-5c9a-bdf8-2dfd8f2884ef",
+      "index": 195,
+      "review": "exact truth-constraint proof",
+      "decision": "retain official label"
+    },
+    {
+      "id": "6efc8c4d-df53-5758-b3b1-988604fa35af",
+      "index": 196,
+      "review": "exhaustive position constraints",
+      "decision": "retain official label"
+    },
+    {
+      "id": "49707e65-4a66-56ed-9175-8ad3cba09f5d",
+      "index": 197,
+      "review": "exhaustive position constraints",
+      "decision": "retain official label"
+    },
+    {
+      "id": "94fbd28e-b67a-5444-8d45-5f27ac3d3d02",
+      "index": 198,
+      "review": "exact truth-constraint proof",
+      "decision": "retain official label"
+    },
+    {
+      "id": "82e65bbd-1ecf-51e4-9eb1-db5c957d7f4b",
+      "index": 199,
+      "review": "actual proposal code executed on documented cases",
+      "decision": "retain official label"
+    },
+    {
+      "id": "100c98a6-0077-5ccd-bcee-5d507aba8a35",
+      "index": 200,
+      "review": "actual proposal code executed on documented cases",
+      "decision": "retain official label"
+    },
+    {
+      "id": "60479e16-f175-5268-8d7b-cf0effbeaeb6",
+      "index": 201,
+      "review": "actual proposal code executed on documented cases",
+      "decision": "retain official label"
+    },
+    {
+      "id": "3df69193-bfc2-5941-b0d6-103eb292aa76",
+      "index": 202,
+      "review": "actual proposal code executed on documented cases",
+      "decision": "retain official label"
+    },
+    {
+      "id": "ea2d1f98-91c1-5ffb-bafa-31e0928065e0",
+      "index": 203,
+      "review": "actual proposal code executed on documented cases",
+      "decision": "retain official label"
+    },
+    {
+      "id": "46a3d4d9-c5cf-5cb1-9fbb-86c314347f6f",
+      "index": 204,
+      "review": "actual proposal code executed on documented cases",
+      "decision": "retain official label"
+    },
+    {
+      "id": "a7f0a43a-a51d-54ad-a31f-e63d731b414b",
+      "index": 205,
+      "review": "actual proposal code executed on documented cases",
+      "decision": "retain official label"
+    },
+    {
+      "id": "548ec6a2-d244-5724-b5c3-946285ed13c3",
+      "index": 206,
+      "review": "actual proposal code executed on documented cases",
+      "decision": "retain official label"
+    },
+    {
+      "id": "0733e950-b012-5211-9342-323949691a87",
+      "index": 207,
+      "review": "actual proposal code executed on documented cases",
+      "decision": "retain official label"
+    },
+    {
+      "id": "107ade41-859a-5dfb-8bd4-3b3257b8b989",
+      "index": 208,
+      "review": "actual proposal code executed on documented cases",
+      "decision": "retain official label"
+    },
+    {
+      "id": "493c4e3e-8287-53b2-9a76-c6684e734ad0",
+      "index": 209,
+      "review": "actual proposal code executed on documented cases",
+      "decision": "retain official label"
+    },
+    {
+      "id": "5227ee30-68aa-5bc1-b8bf-90164d780399",
+      "index": 210,
+      "review": "actual proposal code executed on documented cases",
+      "decision": "retain official label"
+    },
+    {
+      "id": "d6cea804-d883-5096-8ec3-e9356ffc8a31",
+      "index": 211,
+      "review": "actual proposal code executed on documented cases",
+      "decision": "exclude in factual-final diagnostic"
+    },
+    {
+      "id": "57b3a50f-ce4b-5620-8f48-7196a0621301",
+      "index": 212,
+      "review": "actual proposal code executed on documented cases",
+      "decision": "exclude in factual-final diagnostic"
+    },
+    {
+      "id": "7bdca284-3957-5a99-ab5f-52b2081d184d",
+      "index": 213,
+      "review": "actual proposal code executed on documented cases",
+      "decision": "retain official label"
+    },
+    {
+      "id": "1cf3ba1c-373e-5629-9a9e-b34e7fdc1d52",
+      "index": 214,
+      "review": "actual proposal code executed on documented cases",
+      "decision": "retain official label"
+    },
+    {
+      "id": "0437ca17-8032-5d11-9632-d30502b67ce7",
+      "index": 215,
+      "review": "actual proposal code executed on documented cases",
+      "decision": "retain official label"
+    },
+    {
+      "id": "d39cb716-d877-573a-8f6a-df4150c7ef0a",
+      "index": 216,
+      "review": "actual proposal code executed on documented cases",
+      "decision": "retain official label"
+    },
+    {
+      "id": "58ee7000-47a1-54d6-9857-77d0eaa3a4b7",
+      "index": 217,
+      "review": "actual proposal code executed on documented cases",
+      "decision": "retain official label"
+    },
+    {
+      "id": "aa39d712-54ea-5d35-96d6-eb187ed95891",
+      "index": 218,
+      "review": "actual proposal code executed on documented cases",
+      "decision": "retain official label"
+    },
+    {
+      "id": "1c3fccb4-012e-5156-9103-ab835de77625",
+      "index": 219,
+      "review": "actual proposal code executed on documented cases",
+      "decision": "retain official label"
+    },
+    {
+      "id": "377f8d5c-8ab3-5e42-b36d-bea220b19ac3",
+      "index": 220,
+      "review": "actual proposal code executed on documented cases",
+      "decision": "retain official label"
+    },
+    {
+      "id": "883785df-990c-51ce-894a-c9f5f2952750",
+      "index": 221,
+      "review": "actual proposal code executed on documented cases",
+      "decision": "retain official label"
+    },
+    {
+      "id": "1ffd3127-ed25-5ab3-b793-ba82e8bbfbe0",
+      "index": 222,
+      "review": "actual proposal code executed on documented cases",
+      "decision": "retain official label"
+    },
+    {
+      "id": "9d58ec02-1517-5f49-8e7b-cbaa8cb5ad07",
+      "index": 223,
+      "review": "actual proposal code executed on documented cases",
+      "decision": "retain official label"
+    },
+    {
+      "id": "745f9340-63fd-527b-b707-126f38ebb096",
+      "index": 224,
+      "review": "actual proposal code executed on documented cases",
+      "decision": "exclude in factual-final diagnostic"
+    },
+    {
+      "id": "7467b7ba-5ce1-5dee-a5a4-160070585dad",
+      "index": 225,
+      "review": "actual proposal code executed on documented cases",
+      "decision": "retain official label"
+    },
+    {
+      "id": "00176ef4-146c-53e1-8328-d349fb7d0ea3",
+      "index": 226,
+      "review": "actual proposal code executed on documented cases",
+      "decision": "retain official label"
+    },
+    {
+      "id": "4ae23f71-e3fa-507e-b892-50943390d857",
+      "index": 227,
+      "review": "actual proposal code executed on documented cases",
+      "decision": "retain official label"
+    },
+    {
+      "id": "310930bc-03d8-5dc0-b030-0e02ba61b8b9",
+      "index": 228,
+      "review": "actual proposal code executed on documented cases",
+      "decision": "retain official label"
+    }
+  ],
+  "blind_input_sha256": "8fcd7db3bf8c4733bcfa77d14a995bd0682bcb4089f0a37115cc946871fa5662",
+  "judge_changed": false,
+  "tonight_test_result_read_before_audit_assembly": false
+}

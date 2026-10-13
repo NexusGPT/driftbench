@@ -1,0 +1,45 @@
+{
+  "bench": "judgebench",
+  "model": "haiku",
+  "items": 121,
+  "contestants": [
+    {
+      "contestant": "driftbench-reference3-tools-format-cascade-85",
+      "source": "unchanged reference3, then label-blind uncertainty-gated escalation",
+      "mode": "pairwise, both orders",
+      "summary": {
+        "metric": "accuracy (JudgeBench, both orders)",
+        "value": {
+          "estimate": 0.9090909090909091,
+          "lower": 0.8445270273318659,
+          "upper": 0.9484787652565609
+        },
+        "n": 121,
+        "byGroup": {
+          "mmlu": {
+            "n": 59,
+            "value": 0.8813559322033898
+          },
+          "livebench": {
+            "n": 50,
+            "value": 0.92
+          },
+          "livecodebench": {
+            "n": 12,
+            "value": 1
+          }
+        },
+        "missing": 0,
+        "positionConsistency": 0.9173553719008265
+      },
+      "costUsd": 1.7528389400000017,
+      "calls": 1492
+    }
+  ],
+  "newSpendUsd": 0,
+  "newCalls": 0,
+  "replayed": 1492,
+  "failedCalls": 0,
+  "escalated": 39,
+  "escalationShare": 0.32231404958677684
+}

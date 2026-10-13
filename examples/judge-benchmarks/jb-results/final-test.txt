@@ -1,0 +1,8 @@
+judgebench on haiku: 229 items
+
+| Contestant | Mode | Metric (95% interval) | Position consistency | Cost (USD) | Missing answers |
+|---|---|---|---|---|---|
+| driftbench-reference3 | pairwise, both orders | 85.2 [80.0, 89.2] | 90.0 | 1.7508 | 2 |
+| driftbench-reference3-format | pairwise, both orders | 85.2 [80.0, 89.2] | 90.0 | 1.9901 | 2 |
+
+New calls 261, new spend 0.2392 USD, replayed 3192.

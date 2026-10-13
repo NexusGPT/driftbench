@@ -1,0 +1,65 @@
+{
+  "stamp": "2026-10-13T00:18Z",
+  "firstDesignCommit": "d0e409873414cbf1849cf1eff7e9f89035f82be8",
+  "firstDesignCommitBrussels": "2026-10-12T16:01:52+02:00",
+  "earlierRunBBrussels": "2026-10-12T15:20:00+02:00",
+  "conclusion": "The first committed design follows the logged test score. The ledger separately records reference3 dev tuning at15:01, before runB, so reference3 is mentioned before the test. Git cannot establish when the uncommitted design was authored or edited between15:01and16:01. The base declarations stay identical from that first commit to tonight's freeze; no later reference3 prompt edit is found in the reachable branch history. This does not prove absence of precommit test influence.",
+  "regions": [
+    {
+      "file": "src/contestants.ts",
+      "declaration": "STEPWISE_RULES",
+      "firstHash": "b91399791a766a1f71fa97a9d1135adc47795f752ef968a0e89cfcf4303fdbe6",
+      "frozenHash": "b91399791a766a1f71fa97a9d1135adc47795f752ef968a0e89cfcf4303fdbe6",
+      "identical": true
+    },
+    {
+      "file": "src/contestants.ts",
+      "declaration": "VERIFY_RULES",
+      "firstHash": "5040e797fe51221596c00977976b3b9111b924896bbf8e105edb8823831124d2",
+      "frozenHash": "5040e797fe51221596c00977976b3b9111b924896bbf8e105edb8823831124d2",
+      "identical": true
+    },
+    {
+      "file": "src/contestants.ts",
+      "declaration": "PAIRWISE_RULES",
+      "firstHash": "b9af8c7ba739f1eb32fbc051744516afe8e2f3314d9fa84303f948f4e832e7b2",
+      "frozenHash": "b9af8c7ba739f1eb32fbc051744516afe8e2f3314d9fa84303f948f4e832e7b2",
+      "identical": true
+    },
+    {
+      "file": "src/contestants.ts",
+      "declaration": "REFERENCE_PROMPT",
+      "firstHash": "148e05db354495a1e721648adbd75362048a3e11dc98d130a16a4b6633ad7b1d",
+      "frozenHash": "148e05db354495a1e721648adbd75362048a3e11dc98d130a16a4b6633ad7b1d",
+      "identical": true
+    },
+    {
+      "file": "src/contestants.ts",
+      "declaration": "driftbenchReference",
+      "firstHash": "76d0209af203f9de73f9649e1db36e2fb8466d53f477e9ffb432c20331c37771",
+      "frozenHash": "76d0209af203f9de73f9649e1db36e2fb8466d53f477e9ffb432c20331c37771",
+      "identical": true
+    },
+    {
+      "file": "src/contestants.ts",
+      "declaration": "driftbenchReference3",
+      "firstHash": "c211e49815e49cc453685097d88664848b0887e83178ba90f5abd8e8af170512",
+      "frozenHash": "c211e49815e49cc453685097d88664848b0887e83178ba90f5abd8e8af170512",
+      "identical": true
+    },
+    {
+      "file": "src/contestants.ts",
+      "declaration": "driftbenchJudge",
+      "firstHash": "331f255366e0c2c6065371670de9b4cf10b8517695752e5a5f8ad3ed824361d5",
+      "frozenHash": "331f255366e0c2c6065371670de9b4cf10b8517695752e5a5f8ad3ed824361d5",
+      "identical": true
+    },
+    {
+      "file": "src/run.ts",
+      "declaration": "majorityPair",
+      "firstHash": "454f838bc6042c9dc369e5b79aec1d6dcfddab817c8b33c80e745a4f9ee17537",
+      "frozenHash": "454f838bc6042c9dc369e5b79aec1d6dcfddab817c8b33c80e745a4f9ee17537",
+      "identical": true
+    }
+  ]
+}

@@ -1,0 +1,19 @@
+{
+  "stamp": "2026-10-13T02:08:01.458088+00:00",
+  "reportedSuccessfulTaskUsd": 2.58071237,
+  "successfulNewCalls": 2065,
+  "capUsd": 8,
+  "unknownTestFailureEvents": 15,
+  "planningReserveUsd": 2.0,
+  "reserveIsNotAnInvoice": true,
+  "startingKeysSha256": "61a643de47d13ade3f9c7ff65fe358692cf25450cd6a2a3002369810457b7091",
+  "startingKeyCount": 8769,
+  "recordingsSha256": "eb1d88f94eea8c6b5a5286c2b311842b09729a6d0035ef58e6e85c6e6ad1d2b9",
+  "newRecordingLineRange": {
+    "first": 8770,
+    "last": 10834,
+    "count": 2065
+  },
+  "newKeysSha256": "afd5194aea4afbe97456fe41d9a2cd0c826648adc5ca42ebdbcd543f80e3a1d4",
+  "reproduction": "Sum costUsd over the inclusive newRecordingLineRange in the matching recordingsSha256. All new keys form the final append-only suffix."
+}

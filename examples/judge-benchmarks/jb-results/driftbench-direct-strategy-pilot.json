@@ -1,0 +1,44 @@
+{
+  "bench": "judgebench",
+  "model": "haiku",
+  "items": 12,
+  "sample": 12,
+  "contestants": [
+    {
+      "contestant": "driftbench-direct-strategy",
+      "source": "direct correctness ledger, executable pair checks for computations, unanimous option-elimination references for knowledge (dev candidate)",
+      "mode": "pairwise, both orders",
+      "summary": {
+        "metric": "accuracy (JudgeBench, both orders)",
+        "value": {
+          "estimate": 0.75,
+          "lower": 0.4676946650664343,
+          "upper": 0.9110583316059452
+        },
+        "n": 12,
+        "byGroup": {
+          "mmlu": {
+            "n": 6,
+            "value": 0.6666666666666666
+          },
+          "livecodebench": {
+            "n": 1,
+            "value": 1
+          },
+          "livebench": {
+            "n": 5,
+            "value": 0.8
+          }
+        },
+        "missing": 0,
+        "positionConsistency": 0.75
+      },
+      "costUsd": 0.10482245999999999,
+      "calls": 78
+    }
+  ],
+  "newSpendUsd": 0.10056620000000001,
+  "newCalls": 74,
+  "replayed": 4,
+  "failedCalls": 0
+}

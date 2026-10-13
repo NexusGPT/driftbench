@@ -1,0 +1,74 @@
+[
+  {
+    "file": "examples/judge-benchmarks/recordings/mmeval/haiku.jsonl",
+    "byteIdenticalToInitial": true,
+    "preexistingFindings": [
+      {
+        "line": 7781,
+        "kind": "phone",
+        "redacted": "04••••••31"
+      }
+    ]
+  },
+  {
+    "file": "examples/judge-benchmarks/recordings/rubricbench/haiku.jsonl",
+    "byteIdenticalToInitial": true,
+    "preexistingFindings": [
+      {
+        "line": 6284,
+        "kind": "email",
+        "redacted": "n@•••••et"
+      },
+      {
+        "line": 6284,
+        "kind": "email",
+        "redacted": "n@•••••et"
+      },
+      {
+        "line": 10148,
+        "kind": "phone",
+        "redacted": "04••••••30"
+      },
+      {
+        "line": 10585,
+        "kind": "phone",
+        "redacted": "04••••••87"
+      },
+      {
+        "line": 15071,
+        "kind": "email",
+        "redacted": "ph••••••••••••••••••om"
+      },
+      {
+        "line": 17364,
+        "kind": "email",
+        "redacted": "ph••••••••••••••••••om"
+      },
+      {
+        "line": 17365,
+        "kind": "email",
+        "redacted": "Ph••••••••••••••••••••••om"
+      },
+      {
+        "line": 17527,
+        "kind": "phone",
+        "redacted": "04••••••42"
+      },
+      {
+        "line": 18495,
+        "kind": "national-number",
+        "redacted": "11•••••••06"
+      },
+      {
+        "line": 20639,
+        "kind": "phone",
+        "redacted": "04••••••94"
+      },
+      {
+        "line": 23827,
+        "kind": "national-number",
+        "redacted": "24•••••••01"
+      }
+    ]
+  }
+]
