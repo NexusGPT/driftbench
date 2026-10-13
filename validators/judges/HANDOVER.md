@@ -125,6 +125,7 @@ Iteration 110 (cause: cascade trusted the cheapest judge on an injected request.
 Iteration 111 (cause: the player scanned every entry on every call. playerClient builds a key index of its judge once. Test: player-index.test.ts (a call must not read the entry list again).)
 Iteration 112 (cause: no \\uXXXX reading. DECODERS row for runs of four or more escapes. Test: screen.test.ts reads uXXXX escapes.)
 Iteration 113 (cause: no %XX reading. DECODERS row for four or more percent escapes. Test: screen.test.ts reads percent escapes.)
+Iteration 114 (cause: no binary reading. DECODERS row for eight or more 8-bit groups. Test: screen.test.ts reads binary groups.)
 
 ## Next actions
 
