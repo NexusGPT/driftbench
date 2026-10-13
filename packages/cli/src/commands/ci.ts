@@ -50,7 +50,8 @@ export type CiVerdict =
   | 'regression'
   | 'not-shown-non-inferior'
   | 'incomplete'
-  | 'aggregate-failed';
+  | 'aggregate-failed'
+  | 'radius-miss';
 
 const VERDICT_TEXT: Record<CiVerdict, string> = {
   parity: 'PARITY',
@@ -58,6 +59,7 @@ const VERDICT_TEXT: Record<CiVerdict, string> = {
   'not-shown-non-inferior': 'NOT SHOWN NON-INFERIOR',
   incomplete: 'INCOMPLETE',
   'aggregate-failed': 'AGGREGATE FAILED',
+  'radius-miss': 'RADIUS MISS',
 };
 
 type CiCommandOptions = {
@@ -81,6 +83,12 @@ type CiCommandOptions = {
   cache?: boolean;
   concurrency: string;
   json?: boolean;
+  change?: string;
+  agentVersion?: string;
+  audit?: string;
+  auditSeed?: string;
+  maxCarry?: string;
+  maxAge?: string;
 };
 
 /** One golden as `compare` pairs it: a spec in one mode (and perturbation), every repeat of it. */
@@ -133,9 +141,16 @@ export type CiSummary = {
   improved: string[];
   /** `<golden> <family>` for each flag family new on the candidate. */
   newFlags: string[];
-  /** Goldens only one side ran, or ran on another spec version: never compared. */
+  /** Goldens only one side ran, or ran on another spec version, or carried: never compared. */
   unpaired: Array<{ unit: string; reason: string }>;
   rows: CiPair[];
+  /** Set with --change: what ran fresh, what was carried, the blocks sent, and the audit. Absent otherwise. */
+  radius?: CiRadius;
+};
+
+/** The radius block of the summary: the campaign's radius record and the blocks it sent and carried. */
+export type CiRadius = NonNullable<CampaignData['campaign']['radius']> & {
+  blocks: { sent: number; carried: number };
 };
 
 export const COMPARATOR =
@@ -204,6 +219,18 @@ export function registerCiCommand(
     .option('--out <file>', `the JSON summary (default: ${DEFAULT_SUMMARY})`)
     .option('--cache', 'replay runs from the cache; off by default, so every cell runs the agent')
     .option('--concurrency <n>', 'cells run at the same time', '4')
+    .option(
+      '--change <manifest>',
+      'run only the blast radius of this change manifest and carry the other cells from the baseline campaign, which must be in --store',
+    )
+    .option('--agent-version <label>', 'the version of the candidate agent, as campaign run takes it')
+    .option(
+      '--audit <n>',
+      'with --change: run n of the cells about to be carried and compare each with its stored run; one miss is the verdict radius-miss',
+    )
+    .option('--audit-seed <n>', 'with --audit: the seed of the draw (default 1)')
+    .option('--max-carry <n>', 'with --change: the most campaigns in a row a result is carried')
+    .option('--max-age <days>', 'with --change: the most days since a carried result was measured')
     .option('--json', 'print the JSON summary instead of the table')
     .option(
       '--config <file>',
@@ -255,6 +282,12 @@ export async function ciCommand(options: CiCommandOptions, io: Io, deps: Campaig
   // campaign is the baseline, not the candidate about to be added.
   const baseline = await readBaseline(options.baseline, storePath, deps, io);
   if (!baseline) return 2;
+  if (options.change !== undefined && resolve(baseline.store) !== resolve(storePath)) {
+    io.err(
+      '--change carries the cells outside the radius from the baseline: the baseline must be a campaign of the --store file.\n',
+    );
+    return 2;
+  }
   const shared = { flagFamilies: flags, minGoldens: gate.minGoldens, strict: gate.strict };
   let margin: number;
   let marginAuto: CiSummary['marginAuto'] = null;
@@ -290,6 +323,14 @@ export async function ciCommand(options: CiCommandOptions, io: Io, deps: Campaig
       concurrency: options.concurrency,
       ...(options.budgetUsd === undefined ? {} : { budgetUsd: options.budgetUsd }),
       ...(options.processCommand === undefined ? {} : { processCommand: options.processCommand }),
+      ...(options.agentVersion === undefined ? {} : { agentVersion: options.agentVersion }),
+      ...(options.change === undefined
+        ? {}
+        : { change: options.change, from: baseline.data.campaign.campaignId }),
+      ...(options.audit === undefined ? {} : { audit: options.audit }),
+      ...(options.auditSeed === undefined ? {} : { auditSeed: options.auditSeed }),
+      ...(options.maxCarry === undefined ? {} : { maxCarry: options.maxCarry }),
+      ...(options.maxAge === undefined ? {} : { maxAge: options.maxAge }),
       json: true,
     },
     capture,
@@ -321,8 +362,10 @@ export async function ciCommand(options: CiCommandOptions, io: Io, deps: Campaig
   try {
     result = compareCampaigns(baseline.data, candidate, { ...shared, margin });
   } catch (cause) {
-    // A candidate the budget stopped before any golden ran is incomplete, exit 1, not bad input.
-    if (!(incompleteCells > 0)) {
+    // A candidate the budget stopped before any golden ran is incomplete, exit 1, not bad input. A radius
+    // campaign that carried every cell measured nothing: parity is not shown, and that is not bad input.
+    const allCarried = candidate.runs.length > 0 && candidate.runs.every((run) => run.carried !== undefined);
+    if (!(incompleteCells > 0) && !allCarried) {
       io.err(
         `The baseline campaign ${baseline.data.campaign.campaignId} and the candidate cannot be compared: ${message(cause)}.\n`,
       );
@@ -345,6 +388,7 @@ export async function ciCommand(options: CiCommandOptions, io: Io, deps: Campaig
       incompleteCells,
     },
     gate: { minGoldens: shared.minGoldens, strict: shared.strict },
+    ...(report.radius ? { radius: report.radius } : {}),
   });
 
   try {
@@ -363,6 +407,7 @@ export async function ciCommand(options: CiCommandOptions, io: Io, deps: Campaig
 type CampaignReport = {
   campaignId: string;
   summary: { cells: number; stoppedByBudget: number; pending: number };
+  radius?: CiRadius;
 };
 
 type Baseline = { data: CampaignData; store: string };
@@ -538,6 +583,7 @@ function summarize(input: {
   marginAuto: CiSummary['marginAuto'];
   baseline: CiSummary['baseline'];
   candidate: CiSummary['candidate'];
+  radius?: CiRadius;
 }): CiSummary {
   const { candidate } = input;
   const result = input.result ?? noComparison(input.gate);
@@ -565,7 +611,9 @@ function summarize(input: {
     rows.length === 0
       ? { upper: 1 }
       : pairedRateDifference({ bothPass: rows.length, regressed: 0, improved: 0, bothFail: 0 });
-  const verdict: CiVerdict = aggregateVerdict(
+  // A radius miss outranks every other verdict: the manifest left out part of the change.
+  const misses = input.radius?.audit?.misses ?? 0;
+  const compared: CiVerdict = aggregateVerdict(
     candidate.incompleteCells > 0
       ? 'incomplete'
       : result.verdict === 'non-inferior'
@@ -575,17 +623,23 @@ function summarize(input: {
           : 'not-shown-non-inferior',
     input.aggregates,
   );
+  const verdict: CiVerdict = misses > 0 ? 'radius-miss' : compared;
   const failingAggregates = input.aggregates.filter((entry) => entry.passed === false);
   const reasons =
-    verdict === 'incomplete'
+    verdict === 'radius-miss'
       ? [
-          `${count(candidate.incompleteCells, 'cell')} of the candidate did not run (budget or pending): parity cannot be shown on part of the suite`,
+          `the audit ran ${input.radius?.audit?.sampled} cells outside the radius and ${misses} did not reproduce the carried result: the change reaches cells the manifest left out, so nothing was carried`,
           ...result.reasons,
         ]
-      : [
-          ...result.reasons,
-          ...failingAggregates.map((entry) => `aggregate ${entry.name} fails: ${entry.reason}`),
-        ];
+      : verdict === 'incomplete'
+        ? [
+            `${count(candidate.incompleteCells, 'cell')} of the candidate did not run (budget or pending): parity cannot be shown on part of the suite`,
+            ...result.reasons,
+          ]
+        : [
+            ...result.reasons,
+            ...failingAggregates.map((entry) => `aggregate ${entry.name} fails: ${entry.reason}`),
+          ];
   return {
     verdict,
     aggregates: input.aggregates,
@@ -624,6 +678,7 @@ function summarize(input: {
     newFlags: result.newFlags.map((flag) => `${flag.unit} ${flag.family}`),
     unpaired: result.unpaired.map((entry) => ({ ...entry })),
     rows,
+    ...(input.radius ? { radius: input.radius } : {}),
   };
 }
 
@@ -651,6 +706,19 @@ export function verdictText(summary: CiSummary, outPath: string): string {
   lines.push(
     `driftbench ci: candidate ${summary.candidate.target} (campaign ${summary.candidate.campaignId}) against baseline campaign ${summary.baseline.campaignId}, compared as driftbench compare does (golden by golden, every repeat).`,
   );
+  if (summary.radius) {
+    const r = summary.radius;
+    const total = r.blocks.sent + r.blocks.carried;
+    const saved = total === 0 ? 0 : (r.blocks.carried / total) * 100;
+    lines.push(
+      `Blast radius of ${r.fromVersion} to ${r.toVersion} (manifest ${r.manifest}): ${r.changes.join(', ') || 'no change'}. ${count(r.fresh, 'cell')} run fresh, ${r.carried} carried from ${r.from}: ${r.blocks.sent} of ${count(total, 'block')} sent, ${saved.toFixed(1)}% saved. Carried goldens are not paired.`,
+    );
+    if (r.audit) {
+      lines.push(
+        `Audit: ${count(r.audit.sampled, 'cell')} outside the radius run fresh (seed ${r.audit.seed}), ${r.audit.misses} ${r.audit.misses === 1 ? 'miss' : 'misses'}.`,
+      );
+    }
+  }
   if (summary.marginAuto) {
     lines.push(
       `Margin auto: ${summary.marginPoints} points, the smallest half point at which the baseline compared with itself is non-inferior (set by ${summary.marginAuto.limitedBy}, ${summary.marginAuto.neededPoints} points).`,

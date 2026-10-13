@@ -9,6 +9,9 @@ import { classifyTool, defaultChecks } from '@agent-nexus/driftbench-checks';
 import {
   type AgentAdapter,
   type ArtifactReaderRegistry,
+  auditBound,
+  auditSample,
+  auditVerdict,
   type Campaign,
   type CampaignPlan,
   type CellOutcome,
@@ -21,6 +24,8 @@ import {
   carryRuns,
   compoundingIndex,
   contentHash,
+  DEFAULT_MAX_AGE_DAYS,
+  DEFAULT_MAX_CARRY,
   type DriftClass,
   type LoadedSpec,
   loadChangeManifest,
@@ -259,6 +264,10 @@ type RunCommandOptions = {
   agentVersion?: string;
   change?: string;
   from?: string;
+  audit?: string;
+  auditSeed?: string;
+  maxCarry?: string;
+  maxAge?: string;
   store?: string;
   cache: boolean;
   concurrency: string;
@@ -338,6 +347,19 @@ export function registerCampaignCommands(
       'run only the blast radius of this change manifest and carry the stored runs of the other cells; with --from',
     )
     .option('--from <campaign>', 'with --change: the stored campaign the carried runs are read from')
+    .option(
+      '--audit <n>',
+      'with --change: run n of the cells about to be carried and compare each with its stored run; one miss carries nothing',
+    )
+    .option('--audit-seed <n>', 'with --audit: the seed of the draw (default 1)')
+    .option(
+      '--max-carry <n>',
+      `with --change: the most campaigns in a row a result is carried (default ${DEFAULT_MAX_CARRY})`,
+    )
+    .option(
+      '--max-age <days>',
+      `with --change: the most days since a carried result was measured (default ${DEFAULT_MAX_AGE_DAYS})`,
+    )
     .option('--campaign <id>', 'the campaign id; one is made from the content and the clock without it')
     .option('--store <file>', 'keep the campaign, its runs and the cache in this store')
     .option('--no-cache', 'neither replay runs from the cache nor write to it')
@@ -627,6 +649,17 @@ export async function campaignRunCommand(
     io.err('--from names the campaign a radius run carries from: it goes with --change <manifest>.\n');
     return 2;
   }
+  for (const [flag, value] of [
+    ['--audit', options.audit],
+    ['--audit-seed', options.auditSeed],
+    ['--max-carry', options.maxCarry],
+    ['--max-age', options.maxAge],
+  ] as const) {
+    if (value !== undefined && options.change === undefined) {
+      io.err(`${flag} sets how a radius run carries: it goes with --change <manifest>.\n`);
+      return 2;
+    }
+  }
   if (options.change !== undefined && (options.from === undefined || options.store === undefined)) {
     io.err(
       '--change runs a blast radius and carries the rest: it goes with --from <campaign> and --store <file>.\n',
@@ -703,7 +736,36 @@ export async function campaignRunCommand(
       const radius =
         options.change === undefined
           ? undefined
-          : await radiusPlan(options, campaign, loaded, store, deps, io);
+          : await radiusPlan(options, campaign, loaded, store, deps, io, async (cells) => {
+              // The audit runs before the campaign is stored, in a store of its own: what it finds
+              // decides what the campaign carries, and a campaign record never changes once written.
+              const memory = await deps.openStore(undefined);
+              try {
+                for (const entry of loaded) await memory.putSpec(entry);
+                await memory.putCampaign(campaign);
+                const specs = new Map(loaded.map((entry) => [`${entry.spec.id}@${entry.hash}`, entry.spec]));
+                const outcomes = await runCampaign({
+                  campaignId,
+                  cells,
+                  recordEvents: true,
+                  specFor: (cell) =>
+                    required(specs.get(`${cell.specId}@${cell.specHash}`), `spec ${cell.specId}`),
+                  adapterFor: (target) =>
+                    required(adapters.get(showTarget(target)), `adapter ${showTarget(target)}`),
+                  driver: (cell, spec) => deps.driver(cell, spec),
+                  ...(deps.consequential ? { consequential: deps.consequential } : {}),
+                  checks: deps.checks,
+                  ...(deps.artifacts ? { artifacts: deps.artifacts } : {}),
+                  store: memory,
+                  now: () => deps.now(),
+                  concurrency: pool.concurrency,
+                  ...(pool.retry ? { retry: pool.retry } : {}),
+                });
+                return outcomes.flatMap((outcome) => (outcome.run ? [outcome.run] : []));
+              } finally {
+                await memory.close();
+              }
+            });
       if (radius === null) return 2;
       if (radius) campaign.radius = radius.record;
       try {
@@ -718,8 +780,12 @@ export async function campaignRunCommand(
         }
         throw cause;
       }
-      if (radius) await carryRuns(store, campaignId, radius.plan.carried);
-      return await executeCampaign(campaign, loaded, adapters, store, deps, io, {
+      if (radius) {
+        await carryRuns(store, campaignId, radius.plan.carried);
+        // The audit runs are fresh runs of this campaign's own cells: they are kept, and not run twice.
+        for (const run of radius.auditRuns) await store.putRun(campaignId, run);
+      }
+      const exit = await executeCampaign(campaign, loaded, adapters, store, deps, io, {
         ...(radius ? { radiusNote: radius.note } : {}),
         cache: options.cache,
         ...(options.cacheSuite === undefined ? {} : { cacheSuite: options.cacheSuite }),
@@ -727,6 +793,8 @@ export async function campaignRunCommand(
         kept: options.store !== undefined,
         ...pool,
       });
+      // A radius miss fails closed, whatever the cells say: the manifest left out part of the change.
+      return (radius?.record.audit?.misses ?? 0) > 0 ? 1 : exit;
     } finally {
       await store.close();
     }
@@ -978,7 +1046,13 @@ async function radiusPlan(
   store: Store,
   deps: CampaignDeps,
   io: Io,
-): Promise<{ plan: RadiusPlan; record: NonNullable<Campaign['radius']>; note: string } | null> {
+  runAudit: (cells: PlannedCell[]) => Promise<RunResult[]>,
+): Promise<{
+  plan: RadiusPlan;
+  record: NonNullable<Campaign['radius']>;
+  note: string;
+  auditRuns: RunResult[];
+} | null> {
   if (options.change === undefined || options.from === undefined || options.store === undefined) {
     io.err(
       '--change runs a blast radius and carries the rest: it goes with --from <campaign> and --store <file>.\n',
@@ -990,6 +1064,26 @@ async function radiusPlan(
     io.err(`✗ ${options.change}\n`);
     for (const error of manifest.errors) io.err(`    ${error}\n`);
     io.err('The change manifest is invalid, so nothing was run.\n');
+    return null;
+  }
+  const whole = (text: string | undefined, flag: string, min: number): number | undefined | null => {
+    if (text === undefined) return undefined;
+    const value = optionNumber(text);
+    if (Number.isInteger(value) && value >= min) return value;
+    io.err(`${flag} takes a whole number of at least ${min}, not "${text}".\n`);
+    return null;
+  };
+  const auditSize = whole(options.audit, '--audit', 1);
+  const auditSeed = whole(options.auditSeed, '--audit-seed', 0);
+  const maxCarry = whole(options.maxCarry, '--max-carry', 0);
+  const maxAge = options.maxAge === undefined ? undefined : optionNumber(options.maxAge);
+  if (maxAge !== undefined && !(maxAge >= 0)) {
+    io.err(`--max-age takes a number of days of at least 0, not "${options.maxAge}".\n`);
+    return null;
+  }
+  if (auditSize === null || auditSeed === null || maxCarry === null) return null;
+  if (auditSeed !== undefined && auditSize === undefined) {
+    io.err('--audit-seed sets the draw of an audit: it goes with --audit <n>.\n');
     return null;
   }
   const baseline = await store.getCampaign(options.from);
@@ -1005,18 +1099,77 @@ async function radiusPlan(
     manifest.manifest,
     { modes: campaign.modes },
   );
-  const plan = planRadiusCampaign(
+  let plan = planRadiusCampaign(
     cells,
     radius,
     manifest.manifest,
     { campaignId: baseline.campaignId, runs: await store.listRuns({ campaignId: baseline.campaignId }) },
-    { now: deps.now() },
+    {
+      now: deps.now(),
+      ...(maxCarry === undefined ? {} : { maxCarry }),
+      ...(maxAge === undefined ? {} : { maxAgeDays: maxAge }),
+    },
   );
-  const record = campaignRadius(plan, radius, manifest.manifest, manifest.hash, baseline.campaignId);
+  const outside = plan.carried.length;
+  let audit: NonNullable<NonNullable<Campaign['radius']>['audit']> | undefined;
+  const auditRuns: RunResult[] = [];
+  if (auditSize !== undefined && plan.nothing === undefined) {
+    const seed = auditSeed ?? 1;
+    const sample = auditSample(plan.carried, auditSize, seed);
+    const fresh = new Map((await runAudit(sample.map((entry) => entry.cell))).map((run) => [run.runId, run]));
+    const missed: NonNullable<NonNullable<Campaign['radius']>['audit']>['missed'] = [];
+    for (const entry of sample) {
+      const run = fresh.get(entry.cell.cellId);
+      const verdict = run
+        ? auditVerdict(run, entry.source)
+        : { agree: false, differing: ['the audit run did not finish'] };
+      if (run) auditRuns.push(run);
+      if (!verdict.agree) {
+        missed.push({ specId: entry.cell.specId, cellId: entry.cell.cellId, differing: verdict.differing });
+      }
+    }
+    audit = { sampled: sample.length, misses: missed.length, seed, missed };
+    if (missed.length > 0) {
+      plan = {
+        fresh: [...cells],
+        carried: [],
+        refused: [],
+        inside: plan.inside,
+        nothing: `the audit found ${missed.length} of ${count(sample.length, 'carried result')} the new agent does not reproduce`,
+      };
+    } else {
+      const drawn = new Set(sample.map((entry) => entry.cell.cellId));
+      plan = {
+        ...plan,
+        carried: plan.carried.filter((entry) => !drawn.has(entry.cell.cellId)),
+        fresh: [...plan.fresh, ...sample.map((entry) => entry.cell)],
+        refused: [
+          ...plan.refused,
+          ...sample.map((entry) => ({ cell: entry.cell, reason: 'drawn for the audit' })),
+        ],
+      };
+    }
+  }
+  const record = {
+    ...campaignRadius(plan, radius, manifest.manifest, manifest.hash, baseline.campaignId),
+    ...(audit ? { audit } : {}),
+  };
   const changes = record.changes.length === 0 ? 'no change' : record.changes.join(', ');
   const lines = [
     `Blast radius of ${record.fromVersion} to ${record.toVersion} (manifest ${record.manifest}): ${changes}.`,
   ];
+  if (audit) {
+    const bound = auditBound(audit.sampled);
+    lines.push(
+      `Audit: ${count(audit.sampled, 'cell')} drawn from the ${outside} outside the radius (seed ${audit.seed}) and run fresh: ${audit.misses} ${audit.misses === 1 ? 'miss' : 'misses'}.${audit.misses === 0 && bound !== undefined ? ` At 95% confidence, under ${(bound * 100).toFixed(1)}% of the carried cells would disagree.` : ''}`,
+    );
+    for (const entry of audit.missed) lines.push(`  ${entry.specId}: ${entry.differing.join('; ')}`);
+    if (audit.misses > 0) {
+      lines.push(
+        'RADIUS MISS: the change reaches cells the manifest left out of the radius. The gate fails closed.',
+      );
+    }
+  }
   if (plan.nothing !== undefined) {
     lines.push(`Nothing is carried, every cell runs: ${plan.nothing}.`);
   } else {
@@ -1027,7 +1180,7 @@ async function radiusPlan(
       lines.push(`  ${count(entry.cells, 'cell')} outside the radius run fresh: ${entry.reason}.`);
     }
   }
-  return { plan, record, note: `${lines.join('\n')}\n` };
+  return { plan, record, note: `${lines.join('\n')}\n`, auditRuns };
 }
 
 /** The name of the check a council of @agent-nexus/driftbench-judges adds to the checks. */
