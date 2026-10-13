@@ -481,6 +481,8 @@ export function buildScenario(prepared: PreparedMap, rng: Rng, request: Scenario
         recovery: { within_blocks: 0, stage_after: chosen.expect.stage as string },
       });
     }
+    // A nudge gets one reply: the walk that declares one holds the rule a nudge probe holds.
+    if (chosen?.classId === 'D7_silence_or_burst') rules.one_message_per_turn = true;
     // A tool failure the recovery stays from: before the first turn that calls a recovered tool first, the
     // user says that turn with the tool failing. The recovery is the injected block's Then, and the turn
     // itself then runs with the tool answering again. It takes no seeded draw, so the rest is unchanged.

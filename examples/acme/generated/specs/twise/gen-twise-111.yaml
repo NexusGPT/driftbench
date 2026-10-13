@@ -70,6 +70,7 @@ rules:
     - port.check
     - order.create
     - notify_sales
+  one_message_per_turn: true
 perturbations:
   - id: p1-D7_silence_or_burst
     class: D7_silence_or_burst

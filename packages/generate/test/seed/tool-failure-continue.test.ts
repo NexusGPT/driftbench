@@ -50,3 +50,13 @@ describe('a clean walk in perturbed mode', () => {
     expect(declared).toBeGreaterThan(0);
   }, 60_000);
 });
+
+describe('a clean walk perturbed by a nudge', () => {
+  it('holds the one-message rule its recovery names, as a nudge probe does', () => {
+    const nudged = suite.complete.filter((spec) =>
+      (spec.perturbations ?? []).some((entry) => entry.class === 'D7_silence_or_burst'),
+    );
+    expect(nudged.length).toBeGreaterThan(0);
+    for (const spec of nudged) expect(spec.rules?.one_message_per_turn, spec.id).toBe(true);
+  }, 60_000);
+});
