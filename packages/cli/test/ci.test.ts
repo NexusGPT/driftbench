@@ -1,5 +1,5 @@
 import { spawnSync } from 'node:child_process';
-import { existsSync, mkdtempSync } from 'node:fs';
+import { existsSync, mkdtempSync, writeFileSync } from 'node:fs';
 import { mkdtemp, readFile, rm } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
@@ -930,6 +930,25 @@ describe('driftbench ci --aggregate', () => {
     ]);
     expect(result.code).toBe(2);
     expect(result.err).toContain('unknown aggregate nope');
+  });
+
+  it('reads the aggregates of the config --config names, before any campaign runs', async () => {
+    const config = join(mkdtempSync(join(tmpdir(), 'driftbench-ci-config-')), 'project.yaml');
+    writeFileSync(config, 'aggregates:\n  - nope:>=0.5\n');
+    const args = [
+      'ci',
+      '--specs',
+      CONVERSATIONS,
+      '--target',
+      'function:acme-sales',
+      '--baseline',
+      'c-nothing',
+    ];
+    const named = await cli([...args, '--store', 'unused.db', '--config', config]);
+    expect(named.code).toBe(2);
+    expect(named.err).toContain('unknown aggregate nope');
+    const unnamed = await cli([...args, '--store', 'unused.db']);
+    expect(unnamed.err).not.toContain('unknown aggregate nope');
   });
 
   it('turns a passing verdict into aggregate-failed when a campaign-level criterion fails, and keeps incomplete', () => {

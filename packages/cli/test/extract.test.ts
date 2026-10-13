@@ -100,6 +100,27 @@ describe('driftbench extract: usage', () => {
     expect(err).toBe("error: required options '--inventory <file>', '--out <file>' not specified\n");
   });
 
+  it('refuses an unknown --provider before any model call, and writes nothing', async () => {
+    const dir = await project();
+    const { code, err } = await run(
+      [
+        'extract',
+        '--prompt',
+        'prompt.md',
+        '--inventory',
+        'inventory.yaml',
+        '--out',
+        'p.yaml',
+        '--provider',
+        'bogus',
+      ],
+      dir,
+    );
+    expect(code).toBe(2);
+    expect(err).toContain('unknown provider "bogus": use anthropic or openai.');
+    await expect(readFile(join(dir, 'p.yaml'), 'utf8')).rejects.toThrow();
+  });
+
   it('exits 2 on an unknown option, and on approve without a file', async () => {
     const dir = await project();
     expect((await run([...base(), '--no-model', '--colour'], dir)).code).toBe(2);
