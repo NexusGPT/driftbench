@@ -10,7 +10,7 @@ import { buildPrompt, canonicalPairOrder, createDialectTransport, judgePairLedge
 import { codeEvidence } from './code-evidence';
 import { contestantById, type PairDecision } from './contestants';
 import { loadBenchmark, type PairItem } from './data';
-import { LedgerBudgetStop, LedgerCalls, type LedgerCompletion } from './rubric-ledger-calls';
+import { LedgerBudgetStop, LedgerCalls, transportRetryable, type LedgerCompletion } from './rubric-ledger-calls';
 import { appendRecording, readRecordingRows } from './recording-files';
 
 export const DIRECTORY = 'examples/judge-benchmarks/experiments/ledger-rb';
@@ -111,7 +111,7 @@ export async function evaluate(item: PairItem, requirements: readonly RubricItem
         () => raw.complete(request), (completion) => usagePrice(model, completion), !execute);
       callKeys.push(row.key);
       if (row.status === 'ok') return row;
-      const retryable = row.retryable ?? /fetch failed|timed? ?out|past \d+ ms|ECONNRESET|ECONNREFUSED|ENOTFOUND/i.test(row.error ?? '');
+      const retryable = transportRetryable(row);
       if (!retryable || attempt + 1 === SETTINGS.transportTries) throw new Error(row.error ?? 'Recorded transport error');
     }
     throw new Error('Transport attempts exhausted');

@@ -42,8 +42,8 @@
     "retryPolicy": "Owner amendment after interruption: at most three transport attempts, 300-second timeout. Never retry a returned answer, including unparsed answers. Core schema reasks are suppressed. Each failed or interrupted attempt retains its reservation and its own record."
   },
   "hashes": {
-    "examples/judge-benchmarks/src/rubric-ledger-live.ts": "1088058a489a9ce588390e4181add2e15561580780f94d01f6b5f19e5e782870",
-    "examples/judge-benchmarks/src/rubric-ledger-calls.ts": "4e713781f1e618313ac9bbe733f17a41bb0d7663637c9f511e70785b2c5cd529",
+    "examples/judge-benchmarks/src/rubric-ledger-live.ts": "166fa749f1ceb704af93a610c3fdda372f0fba20712a371a7a1c72e50f5a2ef0",
+    "examples/judge-benchmarks/src/rubric-ledger-calls.ts": "3a179e9fc0ea008c56641247542ceb6cb458d996a01cd2658a47bc74e1d26fc1",
     "examples/judge-benchmarks/src/rubric-ledger-stats.ts": "2196e3bbb140b9ac2d3e4f9307945117fd92f698719ee3086d5b1d82022120d6",
     "examples/judge-benchmarks/src/contestants.ts": "8526f07c34720791108417e68f7848fcf5f6e7c0d3eaef1ece136b1ff6f3bca0",
     "examples/judge-benchmarks/src/rubric-ledger-report.ts": "0a3f1df4bee05ea8b937d982d748e7fecfc86eb67cd2923dd7b4116a995c8cd3",

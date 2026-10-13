@@ -1,7 +1,7 @@
 import { appendFile } from 'node:fs/promises';
 import { join } from 'node:path';
 import { describe, expect, it } from 'vitest';
-import { LedgerBudgetStop, LedgerCalls, type CallIdentity } from '../src/rubric-ledger-calls';
+import { LedgerBudgetStop, LedgerCalls, transportRetryable, type CallIdentity } from '../src/rubric-ledger-calls';
 import { scratch } from './scratch';
 
 const identity: CallIdentity = { model: 'fake', phase: 'pilot', item: 'p1', contestant: 'ledger',
@@ -9,6 +9,11 @@ const identity: CallIdentity = { model: 'fake', phase: 'pilot', item: 'p1', cont
 const reply = { text: 'answer', raw: '{}', fingerprint: 'test', costUsd: 0.02 };
 
 describe('paid-call reservations and replay', () => {
+  it('recognizes legacy recorded network failures without treating provider rejection as transport', () => {
+    expect(transportRetryable({ error: 'https://api.openai.com/v1/chat/completions could not be reached (TypeError)' })).toBe(true);
+    expect(transportRetryable({ error: 'HTTP 400 invalid schema' })).toBe(false);
+    expect(transportRetryable({ error: 'fetch failed', retryable: false })).toBe(false);
+  });
   it('coalesces duplicate work while giving independent reads new keys', async () => {
     const dir = await scratch('ledger-calls-');
     const store = await new LedgerCalls(dir, 1).load();

@@ -43,6 +43,9 @@ export type LedgerCall = {
 };
 export class LedgerBudgetStop extends Error {}
 export class LedgerUncertainCall extends Error {}
+/** Includes the core's saved network-error text from journals written before retryable was recorded. */
+export const transportRetryable = (row: { retryable?: boolean; error?: string }): boolean =>
+  row.retryable ?? /fetch failed|could not be reached|timed? ?out|past \d+ ms|ECONNRESET|ECONNREFUSED|ENOTFOUND/i.test(row.error ?? '');
 
 const hash = (value: unknown) => createHash('sha256').update(JSON.stringify(value)).digest('hex');
 
@@ -136,7 +139,7 @@ export class LedgerCalls {
       const reason = e instanceof Error ? e.message : String(e);
       const code = (e as { code?: string }).code;
       const retryable = (e as { retryable?: boolean }).retryable === true ||
-        code === 'network' || /fetch failed|timed? ?out|past \d+ ms|ECONNRESET|ECONNREFUSED|ENOTFOUND|claude returned an error result|without a JSON result/i.test(reason);
+        code === 'network' || transportRetryable({ error: reason }) || /claude returned an error result|without a JSON result/i.test(reason);
       row = { key, model: identity.model, text: '', costUsd: reserveUsd, item: identity.item,
         contestant: identity.contestant, status: 'error', costBasis: 'reservation', identity,
         error: reason, retryable };
