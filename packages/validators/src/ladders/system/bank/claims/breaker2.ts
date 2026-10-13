@@ -9,6 +9,8 @@ import { join } from 'node:path';
 import { loadSpecFile } from '@agent-nexus/driftbench-core';
 import { AUTO_MARGIN_WARN } from '@agent-nexus/driftbench-report';
 import { nonInferiority } from '@agent-nexus/driftbench-stats';
+import { parse as parseYaml } from 'yaml';
+import { z } from 'zod';
 import { gateContract, goldenContract, goldenCount } from '../current-contracts';
 import { type BankItem, expectAll, fail, type Tier } from '../types';
 import { readmeClaims } from './report';
@@ -2716,37 +2718,36 @@ function freshLabels(f: Judged): string {
   return join(f.dir, `labels-${++viewSeq}`);
 }
 
-function readLabels(
-  labels: string,
-  criterion: string,
-): {
-  labelled_by: string;
-  blocks: { id: string; label: string; note?: string; transcript?: { role: string; text: string }[] }[];
-} | null {
+// docs/viewer.md, "Labelling a block": validate the YAML keys, independently of the product reader.
+const viewerLabelFile = z.object({
+  criterion: z.string(),
+  labelled_by: z.string(),
+  blocks: z.array(
+    z.object({
+      id: z.string(),
+      label: z.enum(['pass', 'fail']),
+      note: z.string().optional(),
+      transcript: z.array(
+        z
+          .object({
+            role: z.enum(['user', 'agent', 'tool_call', 'tool_result']),
+            text: z.string(),
+            tool: z.string().optional(),
+          })
+          .refine(
+            (turn) =>
+              (turn.role !== 'tool_call' && turn.role !== 'tool_result') || typeof turn.tool === 'string',
+          ),
+      ),
+    }),
+  ),
+});
+
+function readLabels(labels: string, criterion: string): z.infer<typeof viewerLabelFile> | null {
   const f = join(labels, `${criterion}.yaml`);
   if (!existsSync(f)) return null;
-  // The label file is plain YAML of a known small shape; read it by lines.
-  const text = readFileSync(f, 'utf8');
-  const out = {
-    labelled_by: /^labelled_by: (.*)$/m.exec(text)?.[1] ?? '',
-    blocks: [] as {
-      id: string;
-      label: string;
-      note?: string;
-      transcript?: { role: string; text: string }[];
-    }[],
-  };
-  for (const chunk of text.split(/\n {2}- /).slice(1)) {
-    const id = /(?:^|\n)\s*id: (\S+)/.exec(chunk)?.[1] ?? '';
-    const label = /(?:^|\n)\s*label: (\S+)/.exec(chunk)?.[1] ?? '';
-    const note = /(?:^|\n)\s*note: (.*)/.exec(chunk)?.[1];
-    const tr = [...chunk.matchAll(/- role: (\w+)\n\s+text: (.*)/g)].map((m) => ({
-      role: m[1] as string,
-      text: m[2] as string,
-    }));
-    out.blocks.push({ id, label, note, transcript: tr });
-  }
-  return out;
+  const parsed = viewerLabelFile.safeParse(parseYaml(readFileSync(f, 'utf8')));
+  return parsed.success ? parsed.data : null;
 }
 
 const post = (base: string, path: string, form: Record<string, string>) => http(base, path, { form });
@@ -3137,6 +3138,12 @@ add(
     return expectAll([
       [saved === 303, `expected a 303 redirect, got ${saved}`],
       [
+        l?.criterion === 'polite' &&
+          l.labelled_by === 'a reviewer, in driftbench view' &&
+          l.blocks.length === 1,
+        "expected YAML keys criterion (polite), labelled_by (the default), and blocks (one labelled block), with id, label, note, transcript and each turn's role/text and tool on tool turns",
+      ],
+      [
         b?.id === `${f.runIds[0]}.b1` && b?.label === 'fail' && b?.note === 'Too curt.',
         `expected id ${f.runIds[0]}.b1 fail "Too curt.", got ${JSON.stringify(b)}`,
       ],
@@ -3264,12 +3271,13 @@ add(
   1,
   'adversarial',
   'driftbench view',
-  `${QVW} (writes require the viewer's own Origin and a hidden form token; rejected requests return 403 and write nothing)`,
-  'label writes without a token or with a foreign Origin return 403 and write nothing',
+  `${QVW} (writes require the viewer's own Host and Origin and a hidden form token; rejected requests return 403 and write nothing)`,
+  'label writes without a token or with a foreign Origin or Host return 403 and write nothing',
   async (ctx) => {
+    const { request } = await import('node:http');
     const f = await judged(ctx.scratch);
     const checks: [boolean, string][] = [];
-    for (const attack of ['missing-token', 'foreign-origin'] as const) {
+    for (const attack of ['missing-token', 'foreign-origin', 'foreign-host'] as const) {
       const labels = freshLabels(f);
       let status = 0;
       await withViewer(['--store', f.store, '--port', '0', '--labels', labels], f.dir, async (base) => {
@@ -3281,14 +3289,28 @@ add(
           label: 'fail',
           note: 'Fictional cross-site label.',
         });
-        // Isolate each guard: own Origin without a token, or a real token with a foreign Origin.
+        // Vary only one guard. node:http preserves an explicit Host; fetch may replace it.
         if (attack === 'missing-token') delete form.csrf;
-        status = (
-          await http(base, '/labels', {
-            form,
-            headers: { Origin: attack === 'foreign-origin' ? 'https://foreign.example' : base },
-          })
-        ).status;
+        status = await new Promise<number>((resolve, reject) => {
+          const req = request(
+            `${base}/labels`,
+            {
+              method: 'POST',
+              headers: {
+                'content-type': 'application/x-www-form-urlencoded',
+                Host: attack === 'foreign-host' ? 'foreign.example' : new URL(base).host,
+                Origin: attack === 'foreign-origin' ? 'https://foreign.example' : base,
+              },
+            },
+            (res) => {
+              res.on('error', reject);
+              res.on('end', () => resolve(res.statusCode ?? 0));
+              res.resume();
+            },
+          );
+          req.on('error', reject);
+          req.end(new URLSearchParams(form).toString());
+        });
       });
       const files = existsSync(labels) ? readdirSync(labels) : [];
       checks.push(

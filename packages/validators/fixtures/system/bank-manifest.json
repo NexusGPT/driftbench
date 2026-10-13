@@ -3698,7 +3698,7 @@
       "level": 1,
       "source": "adversarial",
       "component": "driftbench view",
-      "cause": "driftbench view: label writes without a token or with a foreign Origin return 403 and write nothing"
+      "cause": "driftbench view: label writes without a token or with a foreign Origin or Host return 403 and write nothing"
     },
     {
       "id": "breaker2/viewer/label-path-traversal",
