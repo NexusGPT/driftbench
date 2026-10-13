@@ -31,7 +31,7 @@
       "cut": false,
       "measures": {
         "hill_q0": 163,
-        "pielou": 0.9480659398817393,
+        "pielou": 0.948065939882,
         "machine_then_share": 1,
         "judged_only_blocks": 0
       }
@@ -45,7 +45,7 @@
       "cut": false,
       "measures": {
         "hill_q0": 621,
-        "pielou": 0.8748124562090878,
+        "pielou": 0.874812456209,
         "machine_then_share": 1,
         "judged_only_blocks": 0
       }
@@ -59,7 +59,7 @@
       "cut": false,
       "measures": {
         "hill_q0": 128,
-        "pielou": 0.9564317852283195,
+        "pielou": 0.956431785228,
         "machine_then_share": 1,
         "judged_only_blocks": 0
       }
@@ -73,7 +73,7 @@
       "cut": false,
       "measures": {
         "hill_q0": 197,
-        "pielou": 0.9182281079809379,
+        "pielou": 0.918228107981,
         "machine_then_share": 1,
         "judged_only_blocks": 0
       }
@@ -87,7 +87,7 @@
       "cut": false,
       "measures": {
         "hill_q0": 203,
-        "pielou": 0.9286192237259735,
+        "pielou": 0.928619223726,
         "machine_then_share": 1,
         "judged_only_blocks": 0
       }
@@ -101,7 +101,7 @@
       "cut": false,
       "measures": {
         "hill_q0": 48,
-        "pielou": 0.9516570404100337,
+        "pielou": 0.95165704041,
         "machine_then_share": 1,
         "judged_only_blocks": 0
       }
@@ -115,7 +115,7 @@
       "cut": false,
       "measures": {
         "hill_q0": 206,
-        "pielou": 0.9277200901934233,
+        "pielou": 0.927720090193,
         "machine_then_share": 1,
         "judged_only_blocks": 0
       }
@@ -11055,9 +11055,9 @@
       "chao_coverage": 0.98619387900942,
       "chao1": 1020.7721683662764,
       "hill_q0": 695,
-      "hill_q1": 280.5490395009363,
+      "hill_q1": 280.549039500936,
       "hill_q2": 174.05979581599388,
-      "pielou": 0.8613729328249852,
+      "pielou": 0.861372932825,
       "t3_share": 0.6961122047244095,
       "t3_allowed": 4064,
       "weighted_share": 0.9955463356889966,
