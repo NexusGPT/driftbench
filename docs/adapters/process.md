@@ -110,6 +110,21 @@ This is how a code-agent harness reports its runtime: its hooks as guards, its s
 | `localProvider()` | weak | a fresh temporary folder on this machine. Commands run there through `/bin/sh` as the current user: the folder bounds what the run records, not what the agent can reach. |
 | `dockerProvider({ image })` | strong | one container per sandbox, from the image, with the workspace folder mounted at `/workspace`. The image needs a shell. The container runs as the current user, so every file the agent writes stays removable. The container has no network unless `network: 'bridge'` is given. |
 
+Docker resource and privilege defaults are configured on `dockerProvider`:
+
+| Option | Default | Docker flag | Override |
+|---|---|---|---|
+| `memory` | `'1g'` (1 GiB) | `--memory` | another Docker size string; `'0'` removes the limit |
+| `cpus` | `1` core | `--cpus` | a fractional or whole core count; `0` removes the quota |
+| `pidsLimit` | `256` processes | `--pids-limit` | another count; `-1` removes the limit |
+| `capDrop` | `['ALL']` | one `--cap-drop` per entry | another capability list; `[]` keeps Docker's default capabilities |
+| `noNewPrivileges` | `true` | `--security-opt no-new-privileges` | `false` omits this restriction |
+| `network` | `'none'` | `--network none` | `'bridge'` allows network access |
+
+For example, `dockerProvider({ image: 'node:22-alpine', memory: '2g', cpus: 2, pidsLimit: 512 })` raises the resource limits while keeping the default privilege restrictions and network denial. Workloads that exceed a resource limit can fail; raise only the limits they need.
+
+Exec environment values travel in the Docker client's child process environment. The argument vector contains only `-e NAME`, never `-e NAME=value`. Empty values, line breaks and stdin are preserved. Only explicitly named variables are forwarded to the container; the parent process environment is not changed.
+
 A sandbox folder that a run leaves open is removed when the process exits, including on SIGINT and SIGTERM, so an interrupted run leaves no workspace behind. A kept sandbox is not removed. A command still running at that point is killed with its process group. Only SIGKILL, which no process can catch, leaves them behind.
 
 Each provider reports whether it can run on this machine (`available()`); the adapter does not fall back from one to the other. The sandbox's isolation is on every Observed.

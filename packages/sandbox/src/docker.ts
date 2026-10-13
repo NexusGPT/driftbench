@@ -38,6 +38,16 @@ export type DockerProviderOptions = {
    * `bridge` when the agent's task needs the network (a package install, an API it calls).
    */
   network?: 'none' | 'bridge';
+  /** Docker memory limit, in Docker units. Default `1g`; `0` removes the limit. */
+  memory?: string;
+  /** CPU quota in cores. Default 1; 0 removes the quota. */
+  cpus?: number;
+  /** Maximum container processes. Default 256; -1 removes the limit. */
+  pidsLimit?: number;
+  /** Linux capabilities to drop. Default ['ALL']; [] keeps Docker's default capabilities. */
+  capDrop?: readonly string[];
+  /** Prevent gaining privileges through exec. Default true; false omits the security option. */
+  noNewPrivileges?: boolean;
 };
 
 /** Where the workspace is mounted in the container: the root the agent sees. */
@@ -70,6 +80,10 @@ export function dockerProvider(options: DockerProviderOptions): SandboxProvider 
       args.push('-w', DOCKER_WORKSPACE, '-e', 'HOME=/tmp');
       // Default-deny network: a command the agent runs reaches no host and no internet unless the provider names bridge.
       args.push('--network', options.network ?? 'none');
+      args.push('--memory', options.memory ?? '1g', '--cpus', String(options.cpus ?? 1));
+      args.push('--pids-limit', String(options.pidsLimit ?? 256));
+      for (const capability of options.capDrop ?? ['ALL']) args.push('--cap-drop', capability);
+      if (options.noNewPrivileges ?? true) args.push('--security-opt', 'no-new-privileges');
       if (typeof process.getuid === 'function' && typeof process.getgid === 'function') {
         args.push('--user', `${process.getuid()}:${process.getgid()}`);
       }
@@ -110,14 +124,15 @@ export class DockerSandbox extends FolderSandbox {
     if (this.destroyed) throw new Error('the sandbox is destroyed');
     const rel = await this.workingFolder(options.cwd);
     const args = ['exec', '-i', '-w', rel === '.' ? DOCKER_WORKSPACE : posix.join(DOCKER_WORKSPACE, rel)];
-    for (const [name, value] of Object.entries(options.env ?? {})) {
+    for (const name of Object.keys(options.env ?? {})) {
       if (name === '' || name.includes('='))
         throw new Error(`the variable name ${JSON.stringify(name)} is invalid`);
-      args.push('-e', `${name}=${value}`);
+      // Docker reads bare variable names from its client environment, keeping values out of argv.
+      args.push('-e', name);
     }
     args.push(this.container, '/bin/sh', '-c', command);
     return runProcess(this.binary, args, command, {
-      env: process.env,
+      env: { ...process.env, ...options.env },
       stdin: options.stdin,
       timeoutMs: options.timeoutMs ?? DEFAULT_EXEC_TIMEOUT_MS,
       maxOutputBytes: options.maxOutputBytes ?? DEFAULT_MAX_OUTPUT_BYTES,

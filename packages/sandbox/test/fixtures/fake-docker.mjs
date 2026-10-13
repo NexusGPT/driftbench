@@ -65,6 +65,11 @@ if (verb === 'version') {
     '-e',
     '--user',
     '--network',
+    '--memory',
+    '--cpus',
+    '--pids-limit',
+    '--cap-drop',
+    '--security-opt',
     '--entrypoint',
   ]);
   const get = (flag) => flags.find(([name]) => name === flag)?.[1];
@@ -100,7 +105,11 @@ if (verb === 'version') {
       ...flags.filter(([flag]) => flag === '-e').map(([, value]) => value),
     ]) {
       const at = pair.indexOf('=');
-      env[pair.slice(0, at)] = toHost(pair.slice(at + 1));
+      if (at === -1) {
+        if (process.env[pair] !== undefined) env[pair] = toHost(process.env[pair]);
+      } else {
+        env[pair.slice(0, at)] = toHost(pair.slice(at + 1));
+      }
     }
     const child = spawn(file, args.map(toHost), {
       cwd: toHost(workdir),
