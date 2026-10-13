@@ -70,6 +70,9 @@ if (!dry) {
 
 const gate = new Semaphore(MAX_CONCURRENT_CALLS);
 const attemptsFile = resolve(runDir, 'attempts.jsonl');
+// Tries already recorded as failed (no answer) by an earlier process count toward the three.
+const failedTries = new Map<string, number>();
+for (const r of readLines(attemptsFile) as any[]) failedTries.set(r.key, Math.max(failedTries.get(r.key) ?? 0, r.attempt));
 async function ask(meta: any, request: any) {
   const key = hash({ ...meta, model, request });
   const prior: any = completed.get(key);
@@ -84,6 +87,7 @@ async function ask(meta: any, request: any) {
   let got: any;
   try {
     got = await withTransportRetry({
+      first: (failedTries.get(key) ?? 0) + 1,
       // Cap, cutoff, stop and duplicate-reservation errors stop at once; they are never retried.
       before: (n: number) => {
         if (Date.now() >= cutoff) throw new Error('LAST_CALL_CUTOFF');

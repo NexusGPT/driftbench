@@ -1,5 +1,5 @@
 {
-  "stage": "test-v1",
+  "stage": "test-v2",
   "core": {
     "pr": "https://github.com/achammah/driftbench/pull/168",
     "commit": "35f07309a4d1d1c8a7c5b176ff19e537d0ef8fdd",
@@ -85,9 +85,9 @@
     "research/ledger-mm/artifacts/pool.json": "c5d9b880f98a3cefcacdd5ac1417d0ce70fe526e358edecd890dcfa792f65aeb",
     "research/ledger-mm/artifacts/pilot.json": "1fa01e034f8fb2fe782bcf1fa6f6bc11c5856f5b69a9702fb4c2177169f5733a",
     "research/ledger-mm/artifacts/harm-fixtures.json": "cb26c07022016c8c0ecff5f1c7663991d673ed7d01c2cf50c9b82842a773467d",
-    "research/ledger-mm/run-test.mts": "dad496fb51924cd1db4baef399b90dccd0114a652d895c47d0b4aa781b1df874",
-    "research/ledger-mm/exec.mjs": "4c337cb705a174bfba80737a81b894a54695b4aa109a7b2c6a3bee38824b7f0a",
-    "research/ledger-mm/test_exec.mjs": "be683a9767a9e8f841e7446e2ed80d61526e70d31fb3e0c79e0c310178854879"
+    "research/ledger-mm/run-test.mts": "5c6aa12b846c05cf8c46f1ac692ba10298d6072d6b292886cc44b312819b9a26",
+    "research/ledger-mm/exec.mjs": "3671207f6315bf28db133ce9c81edec336593ce0eb564498305d4897a5bb554c",
+    "research/ledger-mm/test_exec.mjs": "3afda975b1ff7e189137faed917a6330df81d5bc1a704cc943dae4b06aa6a8ac"
   },
   "executionRules": {
     "driver": "research/ledger-mm/run-test.mts, derived from frozen run.mts by execution changes only",
@@ -102,7 +102,8 @@
     "maxConcurrentCalls": 4,
     "modelsRunSerially": true,
     "returnedAnswerRetried": false,
-    "missingAfterRetries": "reported separately, never scored as a loss"
+    "missingAfterRetries": "reported separately, never scored as a loss",
+    "resume": "A try recorded as failed with no answer counts toward the three; a resumed process continues from the next try. A reservation with no recorded outcome is never re-sent."
   },
   "prices": {
     "gpt-6-luna": {
@@ -111,5 +112,6 @@
       "outputPer1M": 0.5
     }
   },
-  "amendment": "Owner execution rules for the sealed TEST cell after the Codex worker lost its connection. No prompt, criterion, requirement, earned seat, pool, model setting or scoring rule changes."
+  "amendment": "Owner execution rules for the sealed TEST cell after the Codex worker lost its connection. No prompt, criterion, requirement, earned seat, pool, model setting or scoring rule changes.",
+  "amendment2": "After Gemini returned 402 (prepayment credits depleted) from 09:30:09 UTC, a watchdog placed the stop file. Resume logic added so recorded failed tries are honored. No scoring, prompt, pool or model setting changes; the 61 base hashes still match."
 }

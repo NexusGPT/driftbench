@@ -47,3 +47,11 @@ test('the semaphore never admits more than its limit', async () => {
   }));
   assert.equal(maximum, 4);
 });
+
+test('a resumed call continues after the tries already recorded as failed', async () => {
+  const seen = [];
+  await assert.rejects(withTransportRetry({ wait, first: 3, attempt: async (n) => { seen.push(n); throw new Error('402'); } }), /TRANSPORT_EXHAUSTED/);
+  assert.deepEqual(seen, [3]);
+  await assert.rejects(withTransportRetry({ wait, first: 4, attempt: async (n) => { seen.push(n); } }), /TRANSPORT_EXHAUSTED/);
+  assert.deepEqual(seen, [3]);
+});

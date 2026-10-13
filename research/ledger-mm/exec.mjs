@@ -29,10 +29,11 @@ export class Semaphore {
  * each try and may throw a cap error, which stops retrying at once. `failed(n, error)` records each
  * failed try. After the last try the function throws TRANSPORT_EXHAUSTED with the final error.
  */
-export async function withTransportRetry({ attempt, before = () => {}, failed = () => {}, tries = TRIES, backoffMs = BACKOFF_MS, wait = sleep }) {
+export async function withTransportRetry({ attempt, before = () => {}, failed = () => {}, tries = TRIES, backoffMs = BACKOFF_MS, wait = sleep, first = 1 }) {
   let last;
-  for (let n = 1; n <= tries; n++) {
-    if (n > 1) await wait(backoffMs[Math.min(n - 1, backoffMs.length - 1)]);
+  // `first` above 1 resumes after tries already recorded as failed in an earlier process.
+  for (let n = first; n <= tries; n++) {
+    if (n > first) await wait(backoffMs[Math.min(n - 1, backoffMs.length - 1)]);
     before(n);
     try {
       return await attempt(n);
