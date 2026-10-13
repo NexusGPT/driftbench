@@ -1,0 +1,19 @@
+{
+  "time": "2026-10-13T04:54:18.087275+00:00",
+  "reason": "Owner explicitly paused all model calls",
+  "ownedRootPids": [
+    28385,
+    34322,
+    34405
+  ],
+  "terminatedOwnedPids": [
+    28385,
+    32319,
+    32546,
+    32559,
+    34322,
+    34405,
+    34443
+  ],
+  "method": "Freeze owned runners, freeze descendants, terminate only these owned processes. Completed disk checkpoints retained. In-flight calls may have unknown remote status."
+}

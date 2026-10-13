@@ -7,7 +7,10 @@ const rows=(file:string)=>readFileSync(file,'utf8').trim().split('\n').filter(Bo
 const sample=JSON.parse(readFileSync(`${root}/${prefix}.json`,'utf8'));
 const base=new Map(rows(`${root}/${prefix==='dev'?'base':prefix+'-base'}.jsonl`).map(r=>[r.id,r]));
 const calls=rows(`${root}/${prefix}-calls.jsonl`);
-const by=new Map(calls.map(r=>[`${r.id}:${r.provider}:${r.order}`,r]));
+const byKey=new Map(calls.map(r=>[r.key,r]));
+const taskBank=rows(`${root}/${prefix==='dev'?'tasks':prefix+'-tasks'}.jsonl`);
+const taskKeys=new Map(taskBank.map(t=>[`${t.id}:${t.provider}:${t.order}`,t.key]));
+const by=new Map([...taskKeys].map(([id,key])=>[id,byKey.get(key)]));
 const parse=contestantById('driftbench').parsePair!;
 const flip=(s:string)=>s==='A'?'B':s==='B'?'A':'tie';
 export const majority=(ss:string[],threshold?:number)=>{

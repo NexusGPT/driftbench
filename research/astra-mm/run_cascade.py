@@ -52,6 +52,7 @@ def call(t):
  global spent,reserved,stop
  with LOCK:
   if t['key'] in cache:return
+  if t['provider']=='gemini' and (ROOT/'pause-gemini').exists():return
   if spent+reserved+.20>=30:
    stop=True;print('BUDGET_STOP',flush=True);return
   reserved+=.20
@@ -85,6 +86,7 @@ def call(t):
  finally:
   with LOCK:reserved-=.20
 
+if not TASKS.exists():raise SystemExit('Task bank missing; generate it before starting calls')
 alltasks=rows(TASKS)
 expected=len({t['id'] for t in alltasks})
 with concurrent.futures.ThreadPoolExecutor(max_workers=WORKERS) as pool:
@@ -92,7 +94,9 @@ with concurrent.futures.ThreadPoolExecutor(max_workers=WORKERS) as pool:
   bases={r['id']:r for r in rows(BASE)}
   escalated={i for i,r in bases.items() if r.get('providerRefused') or not(len(r['games'])==2 and r['games'][0]==r['games'][1] and r['games'][0] in ('A','B'))}
   pending=[t for t in alltasks if t['id'] in escalated and t['key'] not in cache]
-  ready=[t for t in pending if retry_after.get(t['key'],0)<=time.time()]
+  ready=[t for t in pending if retry_after.get(t['key'],0)<=time.time() and not(t['provider']=='gemini' and (ROOT/'pause-gemini').exists())]
+  waiting=sorted({t['id'] for t in pending if t['provider']=='gemini'},key=int)
+  (DATA/f'{PREFIX}-waiting-gemini.json').write_text(json.dumps({'items':waiting,'n':len(waiting),'pendingCalls':sum(t['provider']=='gemini' for t in pending)},indent=2)+'\n')
   if ready:
    print(json.dumps({'time':now(),'baseItems':len(bases),'escalated':len(escalated),'pending':len(pending),'workers':WORKERS}),flush=True)
    list(pool.map(call,ready))
