@@ -1,6 +1,8 @@
 """Verify scored population coverage, recording references, costs and frozen inputs."""
 import hashlib,json,pathlib
 HERE=pathlib.Path(__file__).parent
+import subprocess,sys
+subprocess.run([sys.executable,str(HERE/'restore-recordings.py')],check=True,stdout=subprocess.DEVNULL)
 summary=json.loads((HERE/'recorded/summary.json').read_text())
 assert summary['uniqueSpendUsd']<=8
 frozen=json.loads((HERE/'frozen.json').read_text())

@@ -8,8 +8,8 @@ import {
   type RunResult,
   type Spec,
   type Verdict,
-} from '@driftbench/core';
-import { bootstrapCI } from '@driftbench/stats';
+} from '@agent-nexus/driftbench-core';
+import { bootstrapCI } from '@agent-nexus/driftbench-stats';
 import { type AggregateCriterion, type AggregateResult, evaluateAggregates } from './aggregate';
 import { type CompareResult, compareCampaigns } from './compare';
 import {

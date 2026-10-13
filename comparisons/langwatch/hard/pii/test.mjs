@@ -65,7 +65,7 @@ const forbiddenPayloads = [
   '56 Moonkite Close',
   '32 Velvetleaf Street',
   ...Array.from({ length: 5 }, (_, i) => `resident${i + 1}@example.com`),
-  ...Array.from({ length: 5 }, (_, i) => `+1 (202) 555-01${String(i + 1).padStart(2, '0')}`),
+  ...Array.from({ length: 5 }, (_, i) => `+1 (202) 555-01${String(i + 1).padStart(2, '0')}`), // guard:allow: generated reserved NANP phone template
   ...Array.from({ length: 5 }, (_, i) => `192.0.2.${i + 10}`),
 ];
 assert.ok(heldout.every((c) => forbiddenPayloads.every((value) => !c.text.includes(value))));

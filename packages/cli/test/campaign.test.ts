@@ -3,8 +3,13 @@ import { mkdtemp, readdir, rm, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { AdapterTransportError, type AgentAdapter, AgentFailure, type Check } from '@driftbench/core';
-import { openStore } from '@driftbench/store';
+import {
+  AdapterTransportError,
+  type AgentAdapter,
+  AgentFailure,
+  type Check,
+} from '@agent-nexus/driftbench-core';
+import { openStore } from '@agent-nexus/driftbench-store';
 import { Command, CommanderError } from 'commander';
 import { afterAll, describe, expect, it } from 'vitest';
 import {

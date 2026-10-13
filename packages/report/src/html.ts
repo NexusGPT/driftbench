@@ -1,4 +1,4 @@
-import type { DriftClass, RunEvent, Verdict } from '@driftbench/core';
+import type { DriftClass, RunEvent, Verdict } from '@agent-nexus/driftbench-core';
 import type { CompareResult } from './compare';
 import type { Estimate } from './estimate';
 import { count, esc, fixed, interval, json, pct, points, pValue, usd } from './format';

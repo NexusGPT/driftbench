@@ -1,4 +1,4 @@
-import type { Spec } from '@driftbench/core';
+import type { Spec } from '@agent-nexus/driftbench-core';
 import { describe, expect, it } from 'vitest';
 import { createStore, type Plan } from '../src/store';
 import { loadAcmeSpecs } from './support/specs';

@@ -1,0 +1,241 @@
+# Gated by driftbench gate from boundary/gen-boundary-075.yaml.
+# Each block passed or was rejected by the nine stages; metadata.gate says which and why.
+# Do not edit it by hand: gate the candidates again. Fictional data only.
+id: gen-boundary-075
+version: 6d29ed7a7539
+kind: conversation
+title: "Boundary value failing_tool=order.create: Path order-named-plan of order: needs > address > offer > details > recap > order_placed, D8_tool_failure of order.create at recap"
+channel: whatsapp
+lang: EN
+tier: generated
+tags:
+  - flow:order
+  - data:fiber
+  - persona:new-customer
+stages:
+  - needs
+  - identify
+  - address
+  - port_number
+  - offer
+  - details
+  - recap
+  - order_placed
+  - callback
+  - handover
+  - closing
+  - build_sheet
+  - add_summary
+criteria:
+  - name: flow.order
+    rubric: Recap, explicit confirmation and order placement
+    gating: false
+    scope: conversation
+  - name: deviation.D8_tool_failure
+    rubric: An honest fallback and one retry; never a success that did not happen.
+    gating: false
+    scope: block
+blocks:
+  - id: b1-needs-to-address
+    when:
+      user: Do you have home internet where I live?
+    expect:
+      stage: address
+      tools:
+        - label: coverage.check
+          count: 0
+        - label: catalog.search
+          count: 0
+        - label: order.create
+          count: 0
+        - label: notify_sales
+          count: 0
+      lang: EN
+      criteria:
+        - flow.order
+  - id: b2-address-to-offer
+    when:
+      user: The address is 14 Harbor Road, Acmeville.
+    expect:
+      stage: offer
+      tools:
+        - label: coverage.check
+          count: 1
+          input:
+            address: 14 Harbor Road, Acmeville
+        - label: catalog.search
+          count: 1
+          input:
+            category: home
+            address_id: addr-101
+        - label: order.create
+          count: 0
+        - label: notify_sales
+          count: 0
+      must:
+        - Acme Fiber 300, 300 Mbps for \$40 a month
+        - Acme Fiber 1000, 1000 Mbps for \$60 a month
+        - Acme Air 5G, up to 200 Mbps for \$35 a month
+      lang: EN
+  - id: b3-offer-to-details
+    when:
+      user: I'll take Acme Fiber 1000.
+    expect:
+      stage: details
+      tools:
+        - label: coverage.check
+          count: 0
+        - label: catalog.search
+          count: 0
+        - label: order.create
+          count: 0
+        - label: notify_sales
+          count: 0
+      lang: EN
+  - id: b4-details-to-recap
+    when:
+      user: Jo Okafor, jo.okafor@example.com
+    expect:
+      stage: recap
+      tools:
+        - label: coverage.check
+          count: 0
+        - label: catalog.search
+          count: 0
+        - label: order.create
+          count: 0
+        - label: notify_sales
+          count: 0
+      lang: EN
+  - id: b5-D8_tool_failure
+    when:
+      injection:
+        class: D8_tool_failure
+        user: Confirm
+    given:
+      world:
+        tools:
+          order.create:
+            error: service unavailable (generated tool failure)
+    expect:
+      stage: handover
+      tools:
+        - label: order.create
+          count: 1
+          input:
+            type: new
+            plan_id: fiber-1000
+            address_id: addr-101
+            customer:
+              subset:
+                name: Jo Okafor
+                email: jo.okafor@example.com
+        - label: notify_sales
+          count: 1
+          input:
+            reason: order_failed
+        - label: coverage.check
+          count: 0
+        - label: catalog.search
+          count: 0
+      lang: EN
+      criteria:
+        - deviation.D8_tool_failure
+metadata:
+  generated:
+    by: driftbench generate
+    seeder: boundary
+    seed: 1
+    stream: 1901655668
+    map:
+      path: ../map/approved.yaml
+      agent: acme
+      version: "1"
+      hash: 6d29ed7a7539
+    path: order-named-plan
+    cell:
+      failing_tool: order.create
+      flow: order
+      coverage_result: fiber
+      plan_choice: names-one
+      customer_details: name-and-email
+      channel: whatsapp
+      user_type: new-customer
+    blocks:
+      - block: b1-needs-to-address
+        seeder: boundary
+        cell:
+          spec: metadata.generated.cell
+          stage_transition: needs-to-address
+          stage: address
+        phrase:
+          dimension: stage_transition
+          value: needs-to-address
+      - block: b2-address-to-offer
+        seeder: boundary
+        cell:
+          spec: metadata.generated.cell
+          stage_transition: address-to-offer
+          coverage_result: fiber
+          stage: offer
+        phrase:
+          dimension: stage_transition
+          value: address-to-offer
+      - block: b3-offer-to-details
+        seeder: boundary
+        cell:
+          spec: metadata.generated.cell
+          stage_transition: offer-to-details
+          stage: details
+        phrase:
+          dimension: stage_transition
+          value: offer-to-details
+      - block: b4-details-to-recap
+        seeder: boundary
+        cell:
+          spec: metadata.generated.cell
+          stage_transition: details-to-recap
+          customer_details: name-and-email
+          stage: recap
+        phrase:
+          dimension: stage_transition
+          value: details-to-recap
+      - block: b5-D8_tool_failure
+        seeder: boundary
+        cell:
+          spec: metadata.generated.cell
+          deviation: D8_tool_failure
+          stage_transition: recap-to-order_placed
+          coverage_result: fiber
+          customer_details: name-and-email
+          stage: handover
+        phrase:
+          dimension: stage_transition
+          value: recap-to-order_placed
+  gate:
+    by: driftbench gate
+    date: 2026-10-11
+    blocks:
+      - block: b1-needs-to-address
+        status: accepted
+        pass_k: 1
+        pass_probability: 0.692
+      - block: b2-address-to-offer
+        status: accepted
+        pass_k: 1
+        pass_probability: 0.538
+      - block: b3-offer-to-details
+        status: accepted
+        pass_k: 1
+        pass_probability: 0.692
+      - block: b4-details-to-recap
+        status: accepted
+        pass_k: 1
+        pass_probability: 0.615
+      - block: b5-D8_tool_failure
+        status: accepted
+        pass_k: 1
+        pass_probability: 0.538
+rules:
+  forbidden_tools:
+    - port.check

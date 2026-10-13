@@ -1,6 +1,8 @@
 """Free scoring of hard and frozen held-out cohorts; no model calls."""
 import json,math,pathlib,hashlib
 HERE=pathlib.Path(__file__).parent
+import subprocess,sys
+subprocess.run([sys.executable,str(HERE/'restore-recordings.py')],check=True,stdout=subprocess.DEVNULL)
 
 def wilson(k,n):
  if not n:return [None,None]

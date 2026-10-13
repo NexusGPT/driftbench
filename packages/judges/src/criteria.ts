@@ -1,6 +1,6 @@
 import { readdir, readFile } from 'node:fs/promises';
 import { basename, extname, join } from 'node:path';
-import { CriterionDef } from '@driftbench/core';
+import { CriterionDef } from '@agent-nexus/driftbench-core';
 import { parse as parseYaml } from 'yaml';
 import { z } from 'zod';
 import { type JudgeRequest, TranscriptEntry } from './contract';

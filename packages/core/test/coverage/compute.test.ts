@@ -9,7 +9,7 @@ import {
   loadSpecs,
   validateInventory,
   validateSpec,
-} from '@driftbench/core';
+} from '@agent-nexus/driftbench-core';
 import { describe, expect, it } from 'vitest';
 
 function inventory(raw: unknown): Inventory {

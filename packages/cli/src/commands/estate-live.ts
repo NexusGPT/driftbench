@@ -1,7 +1,13 @@
 import { appendFile, mkdir, readdir, readFile, rm, stat, writeFile } from 'node:fs/promises';
 import { dirname, join, resolve } from 'node:path';
-import { claudeCodeLiveAdapter, loadStateLibrary, type StateLibrary } from '@driftbench/adapters';
-import { type Campaign, contentHash, type RunResult, runSpec, type Store } from '@driftbench/core';
+import { claudeCodeLiveAdapter, loadStateLibrary, type StateLibrary } from '@agent-nexus/driftbench-adapters';
+import {
+  type Campaign,
+  contentHash,
+  type RunResult,
+  runSpec,
+  type Store,
+} from '@agent-nexus/driftbench-core';
 import {
   copyEstate,
   type EstateMap,
@@ -13,10 +19,10 @@ import {
   quoteDrift,
   readerFor,
   renderEstateMap,
-} from '@driftbench/estate';
-import { localProvider } from '@driftbench/sandbox';
-import { openStore } from '@driftbench/store';
-import { createScriptedDriver } from '@driftbench/users';
+} from '@agent-nexus/driftbench-estate';
+import { localProvider } from '@agent-nexus/driftbench-sandbox';
+import { openStore } from '@agent-nexus/driftbench-store';
+import { createScriptedDriver } from '@agent-nexus/driftbench-users';
 import type { Command } from 'commander';
 import type { Io } from '../io';
 import { optionNumber } from '../number';

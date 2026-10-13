@@ -1,6 +1,6 @@
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
-import { extractMap, ModelError, type Proposal, SYSTEM_PROMPT } from '@driftbench/generate';
+import { extractMap, ModelError, type Proposal, SYSTEM_PROMPT } from '@agent-nexus/driftbench-generate';
 import { describe, expect, it } from 'vitest';
 import { BANK_MIN_FAMILY as MIN_FAMILY, measureHardness } from '../../src/hardness';
 import { readJournal } from '../../src/journal';
@@ -174,17 +174,25 @@ describe('the perfect model', () => {
   });
 
   it('writes a key only when the contract template shows it', () => {
-    expect(contractOf(SYSTEM_PROMPT).valueKeys.has('polarity')).toBe(false);
-    const plain = answerFor('rules', request('Never do it.'), [
+    const template = `{"dimensions": [
+      {"id": "<dimension id>", "title": "<what it varies>", "kind": "<kind>",
+       "values": [{"id": "<value id>", "title": "<what the value means>", "source": "<path>", "quote": "<verbatim text>"}]}
+    ]}`;
+    expect(contractOf(template).valueKeys.has('polarity')).toBe(false);
+    const plain = answerFor('rules', request('Never do it.', template), [
       value('Never do it.', { polarity: 'must_not' }),
     ]);
+    expect(plain.dimensions[0]?.values).toHaveLength(1);
     expect(plain.dimensions[0]?.values[0]).not.toHaveProperty('polarity');
-    const richer = SYSTEM_PROMPT.replace(
-      '"values": [{"id": "<value id>",',
-      '"values": [{"id": "<value id>", "polarity": "<must or must_not>",',
-    );
-    expect(richer).not.toBe(SYSTEM_PROMPT);
-    const rich = answerFor('rules', request('Never do it.', richer), [
+  });
+
+  it('writes a key when the contract template shows it', () => {
+    const template = `{"dimensions": [
+      {"id": "<dimension id>", "title": "<what it varies>", "kind": "<kind>",
+       "values": [{"id": "<value id>", "title": "<what the value means>", "polarity": "<must or must_not>", "source": "<path>", "quote": "<verbatim text>"}]}
+    ]}`;
+    expect(contractOf(template).valueKeys.has('polarity')).toBe(true);
+    const rich = answerFor('rules', request('Never do it.', template), [
       value('Never do it.', { polarity: 'must_not' }),
     ]);
     expect(rich.dimensions[0]?.values[0]).toMatchObject({ polarity: 'must_not' });

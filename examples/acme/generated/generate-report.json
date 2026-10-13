@@ -4,9 +4,9 @@
     "path": "../map/approved.yaml",
     "agent": "acme",
     "version": "1",
-    "hash": "b583de68c530",
-    "dimensions": 46,
-    "values": 180,
+    "hash": "6d29ed7a7539",
+    "dimensions": 51,
+    "values": 185,
     "constraints": 457,
     "phrases": 51
   },
@@ -16,10 +16,10 @@
     "max": null
   },
   "summary": {
-    "specs": 321,
-    "blocks": 1178,
+    "specs": 326,
+    "blocks": 1184,
     "complete": 251,
-    "incomplete": 70
+    "incomplete": 75
   },
   "seeders": {
     "graph": {
@@ -39,11 +39,11 @@
       "cut": false
     },
     "boundary": {
-      "specs": 80,
-      "blocks": 113,
+      "specs": 85,
+      "blocks": 118,
       "complete": 13,
-      "needs_phrase": 67,
-      "needs_then": 10,
+      "needs_phrase": 72,
+      "needs_then": 15,
       "cut": false
     },
     "deviation": {
@@ -72,7 +72,7 @@
     },
     "cover": {
       "specs": 13,
-      "blocks": 71,
+      "blocks": 72,
       "complete": 13,
       "needs_phrase": 0,
       "needs_then": 0,
@@ -104,7 +104,7 @@
     "share": 1
   },
   "boundary": {
-    "values": 80,
+    "values": 85,
     "tools": 57,
     "unsupported": []
   },
@@ -3458,364 +3458,394 @@
       "specs": ["gen-boundary-007"]
     },
     {
-      "dimension": "catalog.search.out.plans",
-      "value": "catalog.search.out.plans.empty",
+      "dimension": "catalog.search.in.unknown-key",
+      "value": "catalog.search.in.unknown-key.sent",
       "blocks": 1,
       "specs": ["gen-boundary-008"]
     },
     {
       "dimension": "catalog.search.out.plans",
-      "value": "catalog.search.out.plans.one-item",
+      "value": "catalog.search.out.plans.empty",
       "blocks": 1,
       "specs": ["gen-boundary-009"]
     },
     {
       "dimension": "catalog.search.out.plans",
-      "value": "catalog.search.out.plans.several-items",
+      "value": "catalog.search.out.plans.one-item",
       "blocks": 1,
       "specs": ["gen-boundary-010"]
     },
     {
-      "dimension": "catalog.search.out.customer",
-      "value": "catalog.search.out.customer.present",
+      "dimension": "catalog.search.out.plans",
+      "value": "catalog.search.out.plans.several-items",
       "blocks": 1,
       "specs": ["gen-boundary-011"]
     },
     {
       "dimension": "catalog.search.out.customer",
-      "value": "catalog.search.out.customer.null",
+      "value": "catalog.search.out.customer.present",
       "blocks": 1,
       "specs": ["gen-boundary-012"]
     },
     {
       "dimension": "catalog.search.out.customer",
-      "value": "catalog.search.out.customer.absent",
+      "value": "catalog.search.out.customer.null",
       "blocks": 1,
       "specs": ["gen-boundary-013"]
     },
     {
-      "dimension": "coverage.check.in.address",
-      "value": "coverage.check.in.address.below-min-length",
+      "dimension": "catalog.search.out.customer",
+      "value": "catalog.search.out.customer.absent",
       "blocks": 1,
       "specs": ["gen-boundary-014"]
     },
     {
       "dimension": "coverage.check.in.address",
-      "value": "coverage.check.in.address.at-min-length",
+      "value": "coverage.check.in.address.below-min-length",
       "blocks": 1,
       "specs": ["gen-boundary-015"]
+    },
+    {
+      "dimension": "coverage.check.in.address",
+      "value": "coverage.check.in.address.at-min-length",
+      "blocks": 1,
+      "specs": ["gen-boundary-016"]
+    },
+    {
+      "dimension": "coverage.check.in.unknown-key",
+      "value": "coverage.check.in.unknown-key.sent",
+      "blocks": 1,
+      "specs": ["gen-boundary-017"]
     },
     {
       "dimension": "coverage.check.out.found",
       "value": "coverage.check.out.found.true",
       "blocks": 1,
-      "specs": ["gen-boundary-016"]
+      "specs": ["gen-boundary-018"]
     },
     {
       "dimension": "coverage.check.out.found",
       "value": "coverage.check.out.found.false",
       "blocks": 1,
-      "specs": ["gen-boundary-017"]
+      "specs": ["gen-boundary-019"]
     },
     {
       "dimension": "coverage.check.out.address_id",
       "value": "coverage.check.out.address_id.present",
       "blocks": 1,
-      "specs": ["gen-boundary-018"]
+      "specs": ["gen-boundary-020"]
     },
     {
       "dimension": "coverage.check.out.address_id",
       "value": "coverage.check.out.address_id.absent",
       "blocks": 1,
-      "specs": ["gen-boundary-019"]
+      "specs": ["gen-boundary-021"]
     },
     {
       "dimension": "coverage.check.out.fiber_mbps",
       "value": "coverage.check.out.fiber_mbps.below-minimum",
       "blocks": 1,
-      "specs": ["gen-boundary-020"]
+      "specs": ["gen-boundary-022"]
     },
     {
       "dimension": "coverage.check.out.fiber_mbps",
       "value": "coverage.check.out.fiber_mbps.at-minimum",
       "blocks": 1,
-      "specs": ["gen-boundary-021"]
+      "specs": ["gen-boundary-023"]
     },
     {
       "dimension": "coverage.check.out.fiber_mbps",
       "value": "coverage.check.out.fiber_mbps.above-minimum",
       "blocks": 1,
-      "specs": ["gen-boundary-022"]
+      "specs": ["gen-boundary-024"]
     },
     {
       "dimension": "coverage.check.out.fiber_mbps",
       "value": "coverage.check.out.fiber_mbps.absent",
       "blocks": 1,
-      "specs": ["gen-boundary-023"]
+      "specs": ["gen-boundary-025"]
     },
     {
       "dimension": "coverage.check.out.five_g",
       "value": "coverage.check.out.five_g.true",
       "blocks": 1,
-      "specs": ["gen-boundary-024"]
+      "specs": ["gen-boundary-026"]
     },
     {
       "dimension": "coverage.check.out.five_g",
       "value": "coverage.check.out.five_g.false",
       "blocks": 1,
-      "specs": ["gen-boundary-025"]
+      "specs": ["gen-boundary-027"]
     },
     {
       "dimension": "coverage.check.out.five_g",
       "value": "coverage.check.out.five_g.absent",
       "blocks": 1,
-      "specs": ["gen-boundary-026"]
+      "specs": ["gen-boundary-028"]
     },
     {
       "dimension": "port.check.in.number",
       "value": "port.check.in.number.below-min-length",
       "blocks": 1,
-      "specs": ["gen-boundary-027"]
+      "specs": ["gen-boundary-029"]
     },
     {
       "dimension": "port.check.in.number",
       "value": "port.check.in.number.at-min-length",
       "blocks": 1,
-      "specs": ["gen-boundary-028"]
+      "specs": ["gen-boundary-030"]
+    },
+    {
+      "dimension": "port.check.in.unknown-key",
+      "value": "port.check.in.unknown-key.sent",
+      "blocks": 1,
+      "specs": ["gen-boundary-031"]
     },
     {
       "dimension": "port.check.out.eligible",
       "value": "port.check.out.eligible.true",
       "blocks": 1,
-      "specs": ["gen-boundary-029"]
+      "specs": ["gen-boundary-032"]
     },
     {
       "dimension": "port.check.out.eligible",
       "value": "port.check.out.eligible.false",
       "blocks": 1,
-      "specs": ["gen-boundary-030"]
+      "specs": ["gen-boundary-033"]
     },
     {
       "dimension": "port.check.out.reason",
       "value": "port.check.out.reason.present",
       "blocks": 1,
-      "specs": ["gen-boundary-031"]
+      "specs": ["gen-boundary-034"]
     },
     {
       "dimension": "port.check.out.reason",
       "value": "port.check.out.reason.absent",
       "blocks": 1,
-      "specs": ["gen-boundary-032"]
+      "specs": ["gen-boundary-035"]
     },
     {
       "dimension": "order.create.in.type",
       "value": "order.create.in.type.new",
       "blocks": 1,
-      "specs": ["gen-boundary-033"]
+      "specs": ["gen-boundary-036"]
     },
     {
       "dimension": "order.create.in.type",
       "value": "order.create.in.type.upgrade",
       "blocks": 1,
-      "specs": ["gen-boundary-034"]
+      "specs": ["gen-boundary-037"]
     },
     {
       "dimension": "order.create.in.customer_id",
       "value": "order.create.in.customer_id.present",
       "blocks": 1,
-      "specs": ["gen-boundary-035"]
+      "specs": ["gen-boundary-038"]
     },
     {
       "dimension": "order.create.in.customer_id",
       "value": "order.create.in.customer_id.absent",
       "blocks": 1,
-      "specs": ["gen-boundary-036"]
+      "specs": ["gen-boundary-039"]
     },
     {
       "dimension": "order.create.in.customer",
       "value": "order.create.in.customer.present",
       "blocks": 1,
-      "specs": ["gen-boundary-037"]
+      "specs": ["gen-boundary-040"]
     },
     {
       "dimension": "order.create.in.customer",
       "value": "order.create.in.customer.absent",
       "blocks": 1,
-      "specs": ["gen-boundary-038"]
+      "specs": ["gen-boundary-041"]
     },
     {
       "dimension": "order.create.in.address_id",
       "value": "order.create.in.address_id.present",
       "blocks": 1,
-      "specs": ["gen-boundary-039"]
+      "specs": ["gen-boundary-042"]
     },
     {
       "dimension": "order.create.in.address_id",
       "value": "order.create.in.address_id.absent",
       "blocks": 1,
-      "specs": ["gen-boundary-040"]
+      "specs": ["gen-boundary-043"]
     },
     {
       "dimension": "order.create.in.port_number",
       "value": "order.create.in.port_number.present",
       "blocks": 1,
-      "specs": ["gen-boundary-041"]
+      "specs": ["gen-boundary-044"]
     },
     {
       "dimension": "order.create.in.port_number",
       "value": "order.create.in.port_number.absent",
       "blocks": 1,
-      "specs": ["gen-boundary-042"]
+      "specs": ["gen-boundary-045"]
+    },
+    {
+      "dimension": "order.create.in.unknown-key",
+      "value": "order.create.in.unknown-key.sent",
+      "blocks": 1,
+      "specs": ["gen-boundary-046"]
     },
     {
       "dimension": "order.create.out.status",
       "value": "order.create.out.status.pending",
       "blocks": 1,
-      "specs": ["gen-boundary-043"]
+      "specs": ["gen-boundary-047"]
     },
     {
       "dimension": "notify_sales.in.reason",
       "value": "notify_sales.in.reason.callback",
       "blocks": 1,
-      "specs": ["gen-boundary-044"]
+      "specs": ["gen-boundary-048"]
     },
     {
       "dimension": "notify_sales.in.reason",
       "value": "notify_sales.in.reason.no_coverage",
       "blocks": 1,
-      "specs": ["gen-boundary-045"]
+      "specs": ["gen-boundary-049"]
     },
     {
       "dimension": "notify_sales.in.reason",
       "value": "notify_sales.in.reason.tool_failure",
       "blocks": 1,
-      "specs": ["gen-boundary-046"]
+      "specs": ["gen-boundary-050"]
     },
     {
       "dimension": "notify_sales.in.reason",
       "value": "notify_sales.in.reason.order_failed",
       "blocks": 1,
-      "specs": ["gen-boundary-047"]
+      "specs": ["gen-boundary-051"]
     },
     {
       "dimension": "notify_sales.in.customer.name",
       "value": "notify_sales.in.customer.name.present",
       "blocks": 1,
-      "specs": ["gen-boundary-048"]
+      "specs": ["gen-boundary-052"]
     },
     {
       "dimension": "notify_sales.in.customer.name",
       "value": "notify_sales.in.customer.name.absent",
       "blocks": 1,
-      "specs": ["gen-boundary-049"]
+      "specs": ["gen-boundary-053"]
     },
     {
       "dimension": "notify_sales.in.customer.email",
       "value": "notify_sales.in.customer.email.present",
       "blocks": 1,
-      "specs": ["gen-boundary-050"]
+      "specs": ["gen-boundary-054"]
     },
     {
       "dimension": "notify_sales.in.customer.email",
       "value": "notify_sales.in.customer.email.absent",
       "blocks": 1,
-      "specs": ["gen-boundary-051"]
+      "specs": ["gen-boundary-055"]
     },
     {
       "dimension": "notify_sales.in.customer.phone",
       "value": "notify_sales.in.customer.phone.present",
       "blocks": 1,
-      "specs": ["gen-boundary-052"]
+      "specs": ["gen-boundary-056"]
     },
     {
       "dimension": "notify_sales.in.customer.phone",
       "value": "notify_sales.in.customer.phone.absent",
       "blocks": 1,
-      "specs": ["gen-boundary-053"]
+      "specs": ["gen-boundary-057"]
     },
     {
       "dimension": "notify_sales.in.summary",
       "value": "notify_sales.in.summary.below-min-length",
       "blocks": 1,
-      "specs": ["gen-boundary-054"]
+      "specs": ["gen-boundary-058"]
     },
     {
       "dimension": "notify_sales.in.summary",
       "value": "notify_sales.in.summary.at-min-length",
       "blocks": 1,
-      "specs": ["gen-boundary-055"]
+      "specs": ["gen-boundary-059"]
+    },
+    {
+      "dimension": "notify_sales.in.unknown-key",
+      "value": "notify_sales.in.unknown-key.sent",
+      "blocks": 1,
+      "specs": ["gen-boundary-060"]
     },
     {
       "dimension": "notify_sales.out.queued",
       "value": "notify_sales.out.queued.true",
       "blocks": 1,
-      "specs": ["gen-boundary-056"]
+      "specs": ["gen-boundary-061"]
     },
     {
       "dimension": "notify_sales.out.queued",
       "value": "notify_sales.out.queued.false",
       "blocks": 1,
-      "specs": ["gen-boundary-057"]
+      "specs": ["gen-boundary-062"]
     },
     {
       "dimension": "home_plans",
       "value": "one-plan",
       "blocks": 1,
-      "specs": ["gen-boundary-062"]
+      "specs": ["gen-boundary-067"]
     },
     {
       "dimension": "home_plans",
       "value": "several-plans",
       "blocks": 1,
-      "specs": ["gen-boundary-063"]
+      "specs": ["gen-boundary-068"]
     },
     {
       "dimension": "home_plans",
       "value": "no-plan",
       "blocks": 1,
-      "specs": ["gen-boundary-064"]
+      "specs": ["gen-boundary-069"]
     },
     {
       "dimension": "tool_answer",
       "value": "error",
       "blocks": 1,
-      "specs": ["gen-boundary-072"]
+      "specs": ["gen-boundary-077"]
     },
     {
       "dimension": "tool_answer",
       "value": "unreadable",
       "blocks": 1,
-      "specs": ["gen-boundary-073"]
+      "specs": ["gen-boundary-078"]
     },
     {
       "dimension": "retry_outcome",
       "value": "retry-answers",
       "blocks": 1,
-      "specs": ["gen-boundary-074"]
+      "specs": ["gen-boundary-079"]
     },
     {
       "dimension": "retry_outcome",
       "value": "retry-fails-too",
       "blocks": 1,
-      "specs": ["gen-boundary-075"]
+      "specs": ["gen-boundary-080"]
     },
     {
       "dimension": "customer_details",
       "value": "one-of-them",
       "blocks": 1,
-      "specs": ["gen-boundary-077"]
+      "specs": ["gen-boundary-082"]
     },
     {
       "dimension": "customer_details",
       "value": "neither",
       "blocks": 1,
-      "specs": ["gen-boundary-078"]
+      "specs": ["gen-boundary-083"]
     },
     {
       "dimension": "callback_phone",
       "value": "not-given",
       "blocks": 1,
-      "specs": ["gen-boundary-080"]
+      "specs": ["gen-boundary-085"]
     }
   ],
   "no_then": [
@@ -3832,52 +3862,77 @@
       ]
     },
     {
-      "spec": "gen-boundary-062",
+      "spec": "gen-boundary-008",
+      "blocks": ["b1-value"],
+      "reasons": ["no approved path needs catalog.search.in.unknown-key=catalog.search.in.unknown-key.sent"]
+    },
+    {
+      "spec": "gen-boundary-017",
+      "blocks": ["b1-value"],
+      "reasons": ["no approved path needs coverage.check.in.unknown-key=coverage.check.in.unknown-key.sent"]
+    },
+    {
+      "spec": "gen-boundary-031",
+      "blocks": ["b1-value"],
+      "reasons": ["no approved path needs port.check.in.unknown-key=port.check.in.unknown-key.sent"]
+    },
+    {
+      "spec": "gen-boundary-046",
+      "blocks": ["b1-value"],
+      "reasons": ["no approved path needs order.create.in.unknown-key=order.create.in.unknown-key.sent"]
+    },
+    {
+      "spec": "gen-boundary-060",
+      "blocks": ["b1-value"],
+      "reasons": ["no approved path needs notify_sales.in.unknown-key=notify_sales.in.unknown-key.sent"]
+    },
+    {
+      "spec": "gen-boundary-067",
       "blocks": ["b1-value"],
       "reasons": ["no approved path needs home_plans=one-plan"]
     },
     {
-      "spec": "gen-boundary-063",
+      "spec": "gen-boundary-068",
       "blocks": ["b1-value"],
       "reasons": ["no approved path needs home_plans=several-plans"]
     },
     {
-      "spec": "gen-boundary-064",
+      "spec": "gen-boundary-069",
       "blocks": ["b1-value"],
       "reasons": ["no approved path needs home_plans=no-plan"]
     },
     {
-      "spec": "gen-boundary-072",
+      "spec": "gen-boundary-077",
       "blocks": ["b1-value"],
       "reasons": ["no approved path needs tool_answer=error"]
     },
     {
-      "spec": "gen-boundary-073",
+      "spec": "gen-boundary-078",
       "blocks": ["b1-value"],
       "reasons": ["no approved path needs tool_answer=unreadable"]
     },
     {
-      "spec": "gen-boundary-074",
+      "spec": "gen-boundary-079",
       "blocks": ["b1-value"],
       "reasons": ["no approved path needs retry_outcome=retry-answers"]
     },
     {
-      "spec": "gen-boundary-075",
+      "spec": "gen-boundary-080",
       "blocks": ["b1-value"],
       "reasons": ["no approved path needs retry_outcome=retry-fails-too"]
     },
     {
-      "spec": "gen-boundary-077",
+      "spec": "gen-boundary-082",
       "blocks": ["b1-value"],
       "reasons": ["no approved path needs customer_details=one-of-them"]
     },
     {
-      "spec": "gen-boundary-078",
+      "spec": "gen-boundary-083",
       "blocks": ["b1-value"],
       "reasons": ["no approved path needs customer_details=neither"]
     },
     {
-      "spec": "gen-boundary-080",
+      "spec": "gen-boundary-085",
       "blocks": ["b1-value"],
       "reasons": ["no approved path needs callback_phone=not-given"]
     },
@@ -3904,7 +3959,7 @@
     },
     "all": {
       "t": 2,
-      "specs": 321,
+      "specs": 326,
       "allowed": 637,
       "covered": 637,
       "share": 1

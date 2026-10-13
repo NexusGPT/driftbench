@@ -1,4 +1,4 @@
-import { DeviationClass } from '@driftbench/core';
+import { DeviationClass } from '@agent-nexus/driftbench-core';
 
 /**
  * The ten deviation classes, as the perturbing driver applies them. Each class says what carries it to the

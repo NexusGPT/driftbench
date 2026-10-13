@@ -2,8 +2,8 @@ import { chmod, mkdir, mkdtemp, readFile, rm, writeFile } from 'node:fs/promises
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { defaultChecks } from '@driftbench/checks';
-import type { Store } from '@driftbench/core';
+import { defaultChecks } from '@agent-nexus/driftbench-checks';
+import type { Store } from '@agent-nexus/driftbench-core';
 import {
   type Cassette,
   type CassetteJudge,
@@ -18,8 +18,8 @@ import {
   loadCassette,
   recordingClient,
   saveCassette,
-} from '@driftbench/judges';
-import { openMemoryStore } from '@driftbench/store';
+} from '@agent-nexus/driftbench-judges';
+import { openMemoryStore } from '@agent-nexus/driftbench-store';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { ACME_JUDGES } from '../../judges/test/support/scripted';
 import { type CampaignDeps, campaignRunCommand, defaultDeps } from '../src/commands/campaign';
@@ -475,7 +475,7 @@ describe('the judge check in the default check set', () => {
 
 describe('driftbench judge calibrate with a live judge on the claude command', () => {
   /** A fake claude command: every answer is pass, each call costs 0.001 USD. No model is called. */
-  async function fakeClaude(): Promise<string> {
+  async function fakeClaude(legacy = false): Promise<string> {
     const path = join(scratch, 'fake-claude.mjs');
     await writeFile(
       path,
@@ -483,8 +483,11 @@ describe('driftbench judge calibrate with a live judge on the claude command', (
 let input = '';
 process.stdin.on('data', (c) => { input += c; });
 process.stdin.on('end', () => {
+  const block = input.match(/<transcript_data>\\n([\\s\\S]*?)\\n<\\/transcript_data>/)?.[1] ?? '';
+  const entries = block.trim().startsWith('[') && block.trim().endsWith(']') ? JSON.parse(block) : [];
+  const observed = entries.find((entry) => entry.role === 'agent')?.text ?? entries.find((entry) => entry.role === 'user')?.text ?? '';
   process.stdout.write(JSON.stringify({ type: 'result', subtype: 'success', is_error: false, total_cost_usd: 0.001,
-    result: JSON.stringify({ outcome: 'pass', reasoning: 'fake: always pass' }) }));
+    result: JSON.stringify(${legacy ? "{ outcome: 'pass', reasoning: 'fake: always pass' }" : "{ checks: [{ id: input.match(/^CRITERION: ([^\\n]+)/)?.[1] ?? 'missing', reasoning: 'fake: always pass', evidence: observed || null, met: true }] }"}) }));
 });
 `,
     );
@@ -540,6 +543,17 @@ process.stdin.on('end', () => {
     expect(again.criteria).toEqual(report.criteria);
     expect(again.spentUsd).toBeCloseTo(0.112, 9);
   }, 120_000);
+
+  it('retries old binary JSON once, then abstains under the default ledger contract', async () => {
+    const command = await fakeClaude(true);
+    const { code, out } = await run(
+      liveArgs(command, join(scratch, 'legacy-rejected.yaml'), ['--spend-cap-usd', '0.0015']),
+    );
+    expect(code).toBe(1);
+    expect(out).toContain('Spent 0.0020 USD.');
+    expect(out).toContain('111 judge call(s) gave no answer.');
+    expect(out).toContain('0 of 12 criteria assigned');
+  });
 
   it('stops calling once the spend cap is reached: the rest give no answer', async () => {
     const command = await fakeClaude();

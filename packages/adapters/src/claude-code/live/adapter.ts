@@ -31,7 +31,8 @@ import {
   type Stimulus,
   type Turn,
   type WorldState,
-} from '@driftbench/core';
+} from '@agent-nexus/driftbench-core';
+import { reapFolder } from '@agent-nexus/driftbench-sandbox';
 import { shellLine, shellQuote } from '../../process/shell';
 import { isRecord, parseJsonl } from '../format';
 import { mapSession } from '../session';
@@ -104,7 +105,7 @@ export type ClaudeCodeLiveOptions = {
   library?: StateLibrary;
   /** More operations before a turn, chosen by the caller. */
   ops?: (turn: Turn) => readonly LiveOp[];
-  /** Where sandboxes come from: `localProvider()` of @driftbench/sandbox. */
+  /** Where sandboxes come from: `localProvider()` of @agent-nexus/driftbench-sandbox. */
   provider: SandboxProvider;
   /** The estate map hashes this copy answers to; a spec pinned to another (`vars.estate.map_hash`) fails. */
   pins?: readonly string[];
@@ -505,6 +506,9 @@ export function claudeCodeLiveAdapter(options: ClaudeCodeLiveOptions): AgentAdap
         }
       }
       const project = join(state.configDir, 'projects', projectFolderName(state.sandbox.root));
+      // A daemon an estate guard starts can leave the run's process group and keep running from the copy
+      // or with the run's home: what still names or stands in either folder ends now, kept or not.
+      await reapFolder([state.sandbox.root, state.stateFolder]);
       await state.sandbox.destroy();
       if (options.keep) return;
       await rm(state.stateFolder, { recursive: true, force: true });

@@ -1,6 +1,6 @@
 import { readFile } from 'node:fs/promises';
 import { fileURLToPath } from 'node:url';
-import { Observed } from '@driftbench/core';
+import { Observed } from '@agent-nexus/driftbench-core';
 import { describe, expect, it } from 'vitest';
 import { anyValue, parseOtlp, tracesFromOtel } from '../../src/traces';
 

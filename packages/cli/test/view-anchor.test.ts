@@ -1,8 +1,8 @@
 import { mkdtemp, rm } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
-import { loadLabels } from '@driftbench/judges';
-import { openStore } from '@driftbench/store';
+import { loadLabels } from '@agent-nexus/driftbench-judges';
+import { openStore } from '@agent-nexus/driftbench-store';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { storeAcmeCampaign } from '../../report/test/support';
 import { startViewer, type Viewer } from '../src/view/server';
@@ -109,7 +109,7 @@ describe('the label form picks an anchor: a message or a tool call of the block'
 
 describe('the anchor form on the review queue: a queued block, labelled with an anchor, completes its item', () => {
   it('takes the item, saves the anchored label on its block, and reads the item as done', async () => {
-    const { emptyQueue, enqueue, readQueue, writeQueue } = await import('@driftbench/judges');
+    const { emptyQueue, enqueue, readQueue, writeQueue } = await import('@agent-nexus/driftbench-judges');
     const runId = runIdOf();
     const queue = enqueue(emptyQueue(), [
       { id: `${runId}.b1`, criterion: 'no_invented_data', campaign: 'c-x3', runId, index: 1 },
@@ -179,7 +179,7 @@ describe('a timeline event with a trace span id is anchored by the span id', () 
 
 describe('a score typed with the label is kept on the queue vote', () => {
   it('stores the score of a queued item when the label completes it', async () => {
-    const { emptyQueue, enqueue, readQueue, writeQueue } = await import('@driftbench/judges');
+    const { emptyQueue, enqueue, readQueue, writeQueue } = await import('@agent-nexus/driftbench-judges');
     const runId = runIdOf();
     await writeQueue(
       labels,

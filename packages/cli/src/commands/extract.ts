@@ -20,8 +20,8 @@ import {
   type SourceText,
   shortQuote,
   toSpaceMap,
-} from '@driftbench/generate';
-import { formatSpaceMap, validateSpaceMap } from '@driftbench/space';
+} from '@agent-nexus/driftbench-generate';
+import { formatSpaceMap, validateSpaceMap } from '@agent-nexus/driftbench-space';
 import type { Command } from 'commander';
 import type { Io } from '../io';
 
@@ -268,7 +268,7 @@ export async function approveCommand(path: string, options: ApproveOptions, io: 
   });
   io.out(
     [
-      `${name}: ${pending.length} of ${counts.total} decisions are open (${counts.dimensions} dimensions, ${counts.constraints} constraints, ${counts.phrases} phrases${counts.relations > 0 ? `, ${counts.relations} relations` : ''}).`,
+      `${name}: ${pending.length} of ${counts.total} decisions are open (${counts.dimensions} dimensions, ${counts.constraints} constraints, ${counts.phrases} phrases${counts.relations > 0 ? `, ${counts.relations} relations` : ''}${(counts.numeric_settings ?? 0) > 0 ? `, ${counts.numeric_settings} numeric settings` : ''}).`,
       gridLine,
       ...lines,
       'Approve a dimension and its values with --dimension <id>, or every entry with --all. In the file, set',

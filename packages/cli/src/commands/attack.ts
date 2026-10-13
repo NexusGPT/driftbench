@@ -1,7 +1,7 @@
 import { existsSync, statSync } from 'node:fs';
 import { readFile, writeFile } from 'node:fs/promises';
 import { dirname, join, resolve } from 'node:path';
-import { portFromEnv } from '@driftbench/generate';
+import { portFromEnv } from '@agent-nexus/driftbench-generate';
 import {
   type AttackRecording,
   type AttackResult,
@@ -10,7 +10,7 @@ import {
   runAttack,
   SimulatedUserError,
   type UserModelPort,
-} from '@driftbench/users';
+} from '@agent-nexus/driftbench-users';
 import type { Command } from 'commander';
 import type { Io } from '../io';
 import { optionNumber } from '../number';

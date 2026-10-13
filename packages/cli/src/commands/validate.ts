@@ -42,15 +42,15 @@ import {
   registeredLadders,
   researchFile,
   researchTemplate,
-  runSeeds,
   seedSpecs,
   setLevelTable,
   writeFloors,
   writeHandover,
-} from '@driftbench/validators';
+} from '@agent-nexus/driftbench-validators';
 import type { Command } from 'commander';
 import type { Io } from '../io';
 import { optionNumber } from '../number';
+import { measuredSeeds, withinStatsMeasurementSweep } from './stats-sweep-cache';
 
 /** The exit code of an input or usage error: kept apart from the level codes 0 to 63. */
 export const USAGE_EXIT = 64;
@@ -209,12 +209,19 @@ export async function validateCommand(
   const hidden = options.hidden ? hiddenSeed(root, deps.readHead) : undefined;
   if (hidden?.note && !options.json) io.out(`Note: ${hidden.note}\n`);
   const reports: LadderReport[] = [];
-  for (const ladder of chosen) {
-    const report = await runSeeds(ladder, seedSpecs(visible, hidden), root, {
-      full: Boolean(options.items || options.allLevels),
-    });
-    reports.push(options.blind ? blindReport(report) : report);
-  }
+  const measure = async () => {
+    for (const ladder of chosen) {
+      const floor = options.checkFloor ? floorOf(floors, ladder.component, ladderVersion(ladder)) : 0;
+      const report = await measuredSeeds(ladder, seedSpecs(visible, hidden), root, {
+        full: Boolean(options.items || options.allLevels),
+        // Invalid floors keep the existing checkFloors diagnostic instead of throwing in runLadder.
+        ...(floor > 0 && floor <= ladder.levels.length ? { maxLevel: floor } : {}),
+      });
+      reports.push(options.blind ? blindReport(report) : report);
+    }
+  };
+  if (chosen.some((ladder) => ladder.component === 'system')) await withinStatsMeasurementSweep(measure);
+  else await measure();
   if (options.brief)
     return briefCommand(reports[0] as LadderReport, hidden, floors, Boolean(options.fresh), deps, root, io);
   print(reports, component === 'all', hidden, floors, options, io);

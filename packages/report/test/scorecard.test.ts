@@ -1,5 +1,5 @@
 import { fileURLToPath } from 'node:url';
-import { openMemoryStore } from '@driftbench/store';
+import { openMemoryStore } from '@agent-nexus/driftbench-store';
 import { beforeAll, describe, expect, it } from 'vitest';
 import { type CampaignData, loadCampaign, ReportInputError, runPassed } from '../src/data';
 import type { Estimate } from '../src/estimate';

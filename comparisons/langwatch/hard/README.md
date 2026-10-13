@@ -288,3 +288,7 @@ pnpm exec tsx --tsconfig comparisons/langwatch/hard/.pr115-source/tsconfig.json 
 ```
 
 Append `--longtrace-v2` to each of those five commands for the new long cohort. PR115 requires the approved ignored source checkout and pinned tsconfig described above. `adapter-v2-freeze.json` freezes procedure, fixture and preregistration hashes; the runner refuses a call unless all are committed and unchanged. A fresh-data outcome never changes the adapter, generator, rubric, label, prompt or decoder.
+
+## Bounded publication storage
+
+Before any Node replay or native fixture command, run `python3 comparisons/langwatch/hard/restore-recordings.py`. The scorer and record checker restore automatically. Reviewable JSONL parts stay below the privacy guard size limit; the original ledger and two PII fixture files are restored locally and ignored by Git. SHA-256 checks require the restored bytes to equal the measured files exactly. No request, response, label, score or cost changes. Inline pattern annotations apply only to constructed GB IBANs with the unallocated ZZZZ bank code; the private denylist remains active. The pinned PR 115 wrapper and verification notes retain their historical package scope through the codemod.

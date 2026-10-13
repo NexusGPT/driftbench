@@ -1,8 +1,14 @@
 import { mkdirSync, mkdtempSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
-import type { CheckContext, CriterionDef, Observed, Verdict } from '@driftbench/core';
-import type { Council, CouncilResult, CriteriaLoad, JudgeRequest, LoadedCriterion } from '@driftbench/judges';
+import type { CheckContext, CriterionDef, Observed, Verdict } from '@agent-nexus/driftbench-core';
+import type {
+  Council,
+  CouncilResult,
+  CriteriaLoad,
+  JudgeRequest,
+  LoadedCriterion,
+} from '@agent-nexus/driftbench-judges';
 import { type BankItem, fn, type JudgesApi, MissingCapability, type Tier } from '../bank';
 
 /**

@@ -1,14 +1,16 @@
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 import { runLadder } from '../../src/index';
 import {
   allowedPairs,
   atomLevel,
+  clearBankCache,
   type EstateRun,
   estateLadder,
   estateRun,
   frontmatterFamily,
   lintLevel,
   matchAtoms,
+  PlantedEstate,
   planLevel,
   requiredRows,
   specLevel,
@@ -35,20 +37,42 @@ describe('the estate ladder', { timeout: 120_000 }, () => {
     expect(ladder.levels.every((level) => level.threshold === 1)).toBe(true);
   });
 
-  it('stops at the reader level on seed 1 today, naming reader items with their family, tier and file', async () => {
-    const run = await runLadder(
-      estateLadder({ families: { reader: () => [standingFamily(), frontmatterFamily()] } }),
-      { seed: 1 },
-    );
-    expect(run.level).toBe(0);
-    expect(run.failing?.id).toBe('reader');
-    expect(run.rows[1]?.pass).toBeNull();
-    const item = run.failing?.items.find((candidate) => candidate.id === 'scan.standing.plain-name');
-    expect(item?.component).toBe('packages/estate/src/scan/code.ts');
-    expect(item?.detail).toMatch(
-      /^\[scan\.standing, tier 3\] the reader reads a routing cell naming the skill without backticks/,
-    );
-    expect(run.failing?.items.some((candidate) => candidate.id === 'scan.frontmatter.plain')).toBe(false);
+  it('stops at the reader level on a deliberately lost route, naming its family, tier and file', async () => {
+    const originalScan = PlantedEstate.prototype.scan;
+    let planted = false;
+    const scan = vi.spyOn(PlantedEstate.prototype, 'scan').mockImplementation(async function (
+      this: PlantedEstate,
+    ) {
+      const result = await originalScan.call(this);
+      const hid = 'scan.standing.plain-name:row';
+      if (this.expected.some((atom) => atom.hid === hid && atom.kind === 'route')) planted = true;
+      const id = result.idOf.get(hid);
+      result.idOf.delete(hid);
+      result.map.atoms = result.map.atoms.filter((atom) => atom.id !== id);
+      if (id !== undefined) result.atomOf.delete(id);
+      return result;
+    });
+    clearBankCache();
+    try {
+      const run = await runLadder(
+        estateLadder({ families: { reader: () => [standingFamily(), frontmatterFamily()] } }),
+        { seed: 1 },
+      );
+      expect(scan).toHaveBeenCalled();
+      expect(planted).toBe(true);
+      expect(run.level).toBe(0);
+      expect(run.failing?.id).toBe('reader');
+      expect(run.rows[1]?.pass).toBeNull();
+      const item = run.failing?.items.find((candidate) => candidate.id === 'scan.standing.plain-name');
+      expect(item?.component).toBe('packages/estate/src/scan/code.ts');
+      expect(item?.detail).toMatch(
+        /^\[scan\.standing, tier 3\] the reader reads a routing cell naming the skill without backticks/,
+      );
+      expect(run.failing?.items.some((candidate) => candidate.id === 'scan.frontmatter.plain')).toBe(false);
+    } finally {
+      scan.mockRestore();
+      clearBankCache();
+    }
   });
 
   it('level 1 of the generated estate fails when the scan loses an atom, naming its hidden id and its line', async () => {

@@ -12,7 +12,7 @@ const addresses = [
   '32 Velvetleaf Street, Fablehaven, ZZ 00000',
 ];
 const emails = Array.from({ length: 5 }, (_, i) => `resident${i + 1}@example.com`);
-const phones = Array.from({ length: 5 }, (_, i) => `+1 (202) 555-01${String(i + 1).padStart(2, '0')}`);
+const phones = Array.from({ length: 5 }, (_, i) => `+1 (202) 555-01${String(i + 1).padStart(2, '0')}`); // guard:allow: generated reserved NANP phone template
 const ips = Array.from({ length: 5 }, (_, i) => `192.0.2.${i + 10}`);
 function iban(i) {
   const body = `ZZZZ${String(123450 + i).padStart(6, '0')}${String(10000100 + i).padStart(8, '0')}`;
@@ -217,7 +217,7 @@ export function generate(options = {}) {
       const name = `${word()} ${word()}wood`;
       const street = `${20 + Math.floor(random() * 180)} ${word()} ${pick(['Terrace', 'Mews', 'Way', 'Court'])}, ${word()}haven, ZZ 00000`;
       const email = `client.${word().toLowerCase()}.${familyIndex}.${j}@example.com`;
-      const phone = `+1 (202) 555-01${String(20 + Math.floor(random() * 70)).padStart(2, '0')}`;
+      const phone = `+1 (202) 555-01${String(20 + Math.floor(random() * 70)).padStart(2, '0')}`; // guard:allow: generated reserved NANP phone template
       const ip = `198.51.100.${20 + Math.floor(random() * 200)}`;
       const account = iban(7000 + Math.floor(random() * 80000));
       const publicPlace = `${word()} ${pick(['Park', 'Museum', 'Plaza', 'Gallery'])}`;

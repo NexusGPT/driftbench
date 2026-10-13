@@ -11,7 +11,7 @@ Built: the three run modes, teacher-forced (T), free-running (F) and perturbed (
 * `function:acme-sales`, or its short form `function:acme`: the Acme sales assistant behind the [function adapter](adapters/function.md). The Acme conversation specs name it.
 * `process:acme-ops`: the Acme ops agent (`examples/acme/ops/agent.mjs`) behind the [process adapter](adapters/process.md), in a local sandbox. The Acme task spec names it.
 
-Every block gets `defaultChecks()`, the 18 machine checks of the [checks](reference/checks.md) page, with the artifact readers of `@driftbench/artifacts`. Other adapters are used from code: see [runSpec](#runspec).
+Every block gets `defaultChecks()`, the 18 machine checks of the [checks](reference/checks.md) page, with the artifact readers of `@agent-nexus/driftbench-artifacts`. Other adapters are used from code: see [runSpec](#runspec).
 
 A target is written `<adapter>` or `<adapter>:<agent>`. Without `--target`, each spec runs on the target it names, and a spec that names none is refused. A `--target` overrides the target every spec names, and `plan` and `run` print a note for each spec whose own target names another adapter. `--route <tag=target>` keeps a part of a mixed suite on its own agent: a spec carrying the tag runs on that target instead, and no note is printed for it. On the Acme suites, `--route flow:price-sheet=process:acme-ops` keeps the price-sheet task specs on the ops agent while `--target` names the sales agent; `ci` takes the same option, where a route may also name a `fault:<id>` of `--faults`, such as a fault of the ops agent.
 
@@ -145,7 +145,7 @@ Campaign c-1700c0b95753: 1 cell, 4 at a time. Checks: tools, tools_offered, forb
 The runs are not kept: pass --store <file> to keep them.
 ```
 
-The process target runs each cell in a sandbox, a temporary folder under one folder per campaign. A sandbox goes when its run closes, and the campaign's folder when the command ends.
+The process target runs each cell in a sandbox, a temporary folder under one folder per campaign. A sandbox goes when its run closes, and the campaign's folder when the command ends. Each command runs in its own process group, killed when it exits or times out. `estate run` and `estate unit` also end a process that left the group (a daemon in a new session) when the run ends: any process whose command line names the run's folders (the estate copy and its state folder, or the unit run folder), or that works inside them. On an interrupt, every sandbox folder still open is reaped the same way.
 
 | Option | Effect |
 |---|---|
@@ -274,7 +274,7 @@ A store that holds no campaign gives exit 2.
 
 `--detail` adds three tables, from the run that stands for each cell:
 
-* the [compounding index](concepts/run-modes.md#the-compounding-index) of every spec and target that ran in both T and F, with a 95% interval by the clustered bootstrap of `@driftbench/stats`: blocks resampled within a spec, specs across the campaign;
+* the [compounding index](concepts/run-modes.md#the-compounding-index) of every spec and target that ran in both T and F, with a 95% interval by the clustered bootstrap of `@agent-nexus/driftbench-stats`: blocks resampled within a spec, specs across the campaign;
 * the [succession](concepts/drift.md#across-the-succession) of every run, with the number of blocks carrying each drift class;
 * the [recovery](concepts/recovery.md#recovery-metrics) of every perturbed run, with the deviation class of its perturbation.
 
@@ -531,7 +531,7 @@ A cell's line notes `reused` when a completed run of the cell was already in the
 
 `runCampaign` runs the cells on a pool of workers, 4 by default and never more than the cells. Each worker takes the next cell: the T and F cells in cell order first, then the P cells. A P cell waits for the F run it takes as its reference when that run is still in flight. A cell whose completed run is already in the store is reused without running. Each run is filed in the store as it finishes, so a crash loses no finished run. The outcomes, and the lines the command prints, come in cell order: a cell is reported once it and every cell before it have an outcome. When running a cell throws, no new cell starts, and the error is raised once the cells in flight finish.
 
-`runCampaign` passes the artifact readers it is given to every run; the command line gives it the readers of `@driftbench/artifacts`.
+`runCampaign` passes the artifact readers it is given to every run; the command line gives it the readers of `@agent-nexus/driftbench-artifacts`.
 
 ### The budget
 
@@ -563,17 +563,17 @@ effective units per arm = specs * repeats / design effect
 
 ### The store
 
-`@driftbench/store` keeps specs, campaigns, runs with their blocks, the cache and measured cost units in one SQLite file; `--store <file>` opens or creates it. It lists its campaigns newest first, which is how `status` and `resume` find the latest. `exportCampaign(campaignId, dir)` writes one campaign as a versioned JSON bundle: `campaign.json`, one `runs/<runId>.json` per run, and `manifest.json`, written last. No command exports a campaign yet. Cost units are recorded through the store's `putUnit`; nothing records them during a run yet, so a projection prices only the units put there.
+`@agent-nexus/driftbench-store` keeps specs, campaigns, runs with their blocks, the cache and measured cost units in one SQLite file; `--store <file>` opens or creates it. It lists its campaigns newest first, which is how `status` and `resume` find the latest. `exportCampaign(campaignId, dir)` writes one campaign as a versioned JSON bundle: `campaign.json`, one `runs/<runId>.json` per run, and `manifest.json`, written last. No command exports a campaign yet. Cost units are recorded through the store's `putUnit`; nothing records them during a run yet, so a projection prices only the units put there.
 
 ## `runSpec`
 
-`runSpec(spec, options)` of `@driftbench/core` runs one spec, once, and returns its run record. The command line calls it for every cell. From code it reaches any adapter:
+`runSpec(spec, options)` of `@agent-nexus/driftbench-core` runs one spec, once, and returns its run record. The command line calls it for every cell. From code it reaches any adapter:
 
 ```ts
-import { functionAdapter } from '@driftbench/adapters';
-import { defaultChecks } from '@driftbench/checks';
-import { loadSpecFile, runSpec } from '@driftbench/core';
-import { createScriptedDriver } from '@driftbench/users';
+import { functionAdapter } from '@agent-nexus/driftbench-adapters';
+import { defaultChecks } from '@agent-nexus/driftbench-checks';
+import { loadSpecFile, runSpec } from '@agent-nexus/driftbench-core';
+import { createScriptedDriver } from '@agent-nexus/driftbench-users';
 import { createAcmeAgent, createStore } from './examples/acme/src/index';
 
 const adapter = functionAdapter({
@@ -614,7 +614,7 @@ With `mode: 'T'`, it prints:
 | Option | Meaning |
 |---|---|
 | `adapter` | the adapter that reaches the agent |
-| `driver` | decides each block's stimulus. `createScriptedDriver()` of `@driftbench/users` replays the spec's blocks in order and stops after the last. `createPerturbingDriver({ spec, perturbation })` of `@driftbench/users` injects one deviation into the scripted steps (the CLI's P cells); `injectingDriver(base, perturbationId)` of `@driftbench/core` adds one of the spec's perturbations to the steps of `base`. |
+| `driver` | decides each block's stimulus. `createScriptedDriver()` of `@agent-nexus/driftbench-users` replays the spec's blocks in order and stops after the last. `createPerturbingDriver({ spec, perturbation })` of `@agent-nexus/driftbench-users` injects one deviation into the scripted steps (the CLI's P cells); `injectingDriver(base, perturbationId)` of `@agent-nexus/driftbench-core` adds one of the spec's perturbations to the steps of `base`. |
 | `checks` | applied to every block, in order, such as `defaultChecks()` |
 | `mode` | `T`, `F` or `P`. T runs every block from its canonical Given in a session of its own; F runs one session; P is F with the blocks a driver injects. See [run modes](concepts/run-modes.md). |
 | `repeat` | the repeat number, part of the run id and of the cache key |
@@ -624,7 +624,7 @@ With `mode: 'T'`, it prints:
 | `consequential` | mode P: a test that names more tools whose call is a consequential act, for the safe action and the clarification |
 | `store`, `campaignId` | where the finished run is filed. A store needs a campaign id, and the campaign must be in the store. |
 | `cache`, `cacheTtlMs` | where observed blocks and end-state reads are kept, and for how long. Without a cache, every block reaches the adapter. |
-| `artifacts` | the readers the artifact checks use, such as `defaultReaders()` of `@driftbench/artifacts` |
+| `artifacts` | the readers the artifact checks use, such as `defaultReaders()` of `@agent-nexus/driftbench-artifacts` |
 | `retry` | the run's [retry settings](retries.md), over the spec target's `retry`: `maxAttempts` (or `retries`, attempts minus one), `baseDelayMs`, `maxDelayMs`, `jitter`, `retryAfter`, and `sleep` and `random` for tests. Defaults: 4 attempts, 500 ms, 30000 ms, jitter on, Retry-After honoured. |
 | `now` | the clock |
 | `runId` | default: the cell id |

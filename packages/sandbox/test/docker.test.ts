@@ -4,7 +4,12 @@ import { chmod, copyFile, mkdir, mkdtemp, readdir, readFile, realpath, rm } from
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { DOCKER_WORKSPACE, type DockerSandbox, dockerProvider, TIMEOUT_EXIT_CODE } from '@driftbench/sandbox';
+import {
+  DOCKER_WORKSPACE,
+  type DockerSandbox,
+  dockerProvider,
+  TIMEOUT_EXIT_CODE,
+} from '@agent-nexus/driftbench-sandbox';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 
 /**

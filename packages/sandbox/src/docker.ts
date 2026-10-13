@@ -1,7 +1,12 @@
 import { randomUUID } from 'node:crypto';
 import { rm } from 'node:fs/promises';
 import { posix } from 'node:path';
-import type { ExecOptions, ExecutionRecord, SandboxOptions, SandboxProvider } from '@driftbench/core';
+import type {
+  ExecOptions,
+  ExecutionRecord,
+  SandboxOptions,
+  SandboxProvider,
+} from '@agent-nexus/driftbench-core';
 import { untrackFolder } from './cleanup';
 import { FolderSandbox, makeWorkspaceFolder } from './folder';
 import {

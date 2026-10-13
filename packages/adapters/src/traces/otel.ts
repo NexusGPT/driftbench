@@ -1,4 +1,4 @@
-import type { Cost, Segment, ToolCall } from '@driftbench/core';
+import type { Cost, Segment, ToolCall } from '@agent-nexus/driftbench-core';
 import { joinText, parseObserved } from '../shared';
 import { type PriceTable, priced, type Trace, type TraceObservation, type TraceTurn } from './types';
 

@@ -19,9 +19,9 @@ import {
   type ScanEstateResult,
   scanEstate,
   toEstateSpaceMap,
-} from '@driftbench/estate';
-import { ModelError, type ModelPort, portFromEnv, shortQuote } from '@driftbench/generate';
-import { formatSpaceMap, gridSize, validateSpaceMap } from '@driftbench/space';
+} from '@agent-nexus/driftbench-estate';
+import { ModelError, type ModelPort, portFromEnv, shortQuote } from '@agent-nexus/driftbench-generate';
+import { formatSpaceMap, gridSize, validateSpaceMap } from '@agent-nexus/driftbench-space';
 import type { Command } from 'commander';
 import type { Io } from '../io';
 import { registerEstateGenerateCommand } from './estate-generate';
@@ -29,6 +29,7 @@ import { registerEstateLiveCommands } from './estate-live';
 import { registerEstateMaintainCommands } from './estate-maintain';
 import { registerEstatePlanCommands } from './estate-plan';
 import { registerEstateStaticCommand } from './estate-static';
+import { registerEstateStatsCommand } from './estate-stats';
 import { registerEstateUnitCommand } from './estate-unit';
 import { mapCacheOptions } from './map-cache';
 
@@ -119,6 +120,7 @@ export function registerEstateCommand(program: Command, io: Io, setExit: (code: 
   registerEstateGenerateCommand(estate, io, setExit);
   registerEstateLiveCommands(estate, io, setExit);
   registerEstateStaticCommand(estate, io, setExit);
+  registerEstateStatsCommand(estate, io, setExit);
   registerEstateUnitCommand(estate, io, setExit);
 }
 

@@ -79,7 +79,7 @@ The scanner has one interface, the estate reader: it returns the files with thei
 
 Code reads skills, helpers, guards (settings and skill frontmatter), permissions, settings (environment keys only, never a value), the check registry, the step list, references with their "read when" line, scripts, routing table rows, gates in four fixed forms ("Before X: Read Y", "Before X, read Y", "Read Y before X", "Do not X until you have read Y"), passages that name a runtime hazard, and the four invariants. Code atoms are approved as read.
 
-Names that fit several files (planned). A body often names a file by its bare name, `guide.md`, and an estate can hold several files of that name. A user needs the reference to land on the file the author meant, or to be told that it is ambiguous, never bound to one at random. The rule: a name is looked up in the naming file's folder, then in the folders below it, then from the estate root. The first place that holds the file wins. When a bare name fits no file there and several files elsewhere, the reference atom keeps every candidate in `fields.candidates`, sorted, and `estate lint` reports `AMBIGUOUS_REFERENCE`. Files under the ignored folders (`node_modules`, test folders of the guards, `.trash`, `skills/synced`, `__pycache__`) are never candidates. A name that holds a folder (`references/guide.md`) is resolved from the naming file's folder and is never ambiguous.
+Names that fit several files. A body often names a file by its bare name, `guide.md`, and an estate can hold several files of that name. A user needs the reference to land on the file the author meant, or to be told that it is ambiguous, never bound to one at random. The rule: a name is looked up in the naming file's folder, then in the folders below it, then from the estate root. The first place that holds the file wins. When a bare name fits no file there and several files elsewhere, the reference atom keeps every candidate in `fields.candidates`, sorted, and `estate lint` reports `AMBIGUOUS_REFERENCE`. Files under the ignored folders (`node_modules`, test folders of the guards, `.trash`, `skills/synced`, `__pycache__`) are never candidates. A name that holds a folder (`references/guide.md`) is resolved from the naming file's folder and is never ambiguous.
 
 The model only splits prose chunks (the standing file, memory files, skill and helper bodies) into instruction, gate and register atoms, one call per chunk, with a strict JSON answer. Every quote is located in its file, inside its chunk, and checked at its span; an atom whose quote cannot be placed is refused and listed with its reason. A model atom that repeats an atom code already read is skipped and listed. An unreadable answer gets one retry. Model atoms wait for a person.
 
@@ -745,17 +745,17 @@ Limits of replay today:
 
 ## 7. Judging, statistics and coverage for estates
 
-What exists: `sessionRate(runs, { rho })` of `@driftbench/estate` takes the session as the unit (one cluster): with m the mean runs per session, the design effect is `1 + (m - 1) rho`, the effective runs are the runs over it, and the 95% interval is Wilson on the rounded effective runs. `rho` lies in [0, 1], the correlation of the variance pilot, and the function throws a `RangeError` outside it. The plan summary reports the unenforced rules, the cells with no approved phrase, the edges with no journey and the mandatory rows per kind; the generate report counts complete and incomplete specs per test type and the gaps behind them; replay reports pass and fail per spec and session.
+What exists: `sessionRate(runs, { rho })` of `@agent-nexus/driftbench-estate` takes the session as the unit (one cluster): with m the mean runs per session, the design effect is `1 + (m - 1) rho`, the effective runs are the runs over it, and the 95% interval is Wilson on the rounded effective runs. `rho` lies in [0, 1], the correlation of the variance pilot, and the function throws a `RangeError` outside it. The plan summary reports the unenforced rules, the cells with no approved phrase, the edges with no journey and the mandatory rows per kind; the generate report counts complete and incomplete specs per test type and the gaps behind them; replay reports pass and fail per spec and session.
+
+`estate stats` reports the frozen coverage, reach, decay and guard drift fields below. It uses offline replay checks for compliance and block pass rates, with no model call. Specs align through `metadata.replay`; those without a key align by file order, as in `replay`. A session counts once per block and atom, even when several specs name it. An atom is followed only when every aligned complete spec naming it passes. A block without an aligned check has no demonstrated pass. Judged criteria remain inconclusive without a judge; this command does not call one.
 
 Not built yet:
 
 * Sources of variance for an estate are model randomness, phrasing, session state, workspace seed and judge; the pilot that measures them for an estate is not built.
-* Coverage lines per atom kind: atoms with an approved test over atoms; atoms enforced by a guard over atoms; cells covered over cells; graph edges covered over edges; the completeness line over situations seen in the corpus.
-* Reach before compliance: did the rule reach the moment (the skill loaded, the reference read, the guard fired), then was it followed, reported apart.
-* Decay over length: the pass rate per block index in long sessions, before and after a compaction.
-* A sealed holdout for estate changes, and drift over time: deny rates per guard from the decision logs, pass rate per atom per estate version.
+* The completeness line over situations seen in the corpus.
+* A sealed holdout for estate changes and the pass rate per atom per estate version over time.
 
-### The coverage command: `estate stats` (contract, not built yet)
+### The coverage command: `estate stats` (contract)
 
 ```
 driftbench estate stats --map <map> --plan <plan> --specs <dir> [--sessions <dir>] --json
@@ -771,6 +771,7 @@ driftbench estate stats --map <map> --plan <plan> --specs <dir> [--sessions <dir
     "edges": { "covered": 0, "total": 0 }
   },
   "reach": [{ "atom": "<id>", "reached": 0, "followed": 0 }],
+  "reachNotObservable": { "status": "not observable", "atoms": 0 },
   "decay": [{ "block": 0, "runs": 0, "passRate": 0 }],
   "drift": { "guards": [{ "guard": "<name>", "decisions": 0, "denies": 0, "denyRate": 0 }] }
 }
@@ -778,6 +779,7 @@ driftbench estate stats --map <map> --plan <plan> --specs <dir> [--sessions <dir
 
 * `kinds`: one entry per atom kind of the map. `atoms` counts the approved atoms of the kind. `tested` counts those named by at least one complete spec (a spec under `specs/`, or a static test under `static/`). `enforced` counts those whose enforcement lists at least one guard.
 * `cells` and `edges`: the plan's cells and the graph's route, reference, dispatch and next edges, covered when a complete spec covers them.
+* `reach` covers the four observable kinds: skills, references, guards and subagents. `reachNotObservable` reports the other approved atoms as `{ status: "not observable", atoms: <count> }`. It counts them from the map, including when no sessions are supplied. No exposure is inferred for those kinds.
 * `reach` and `decay` come from `--sessions`; without it, both are empty lists. `reached` is the number of sessions that reached the atom's moment (its skill loaded, its file read, its guard decided, its helper dispatched); `runs` is the number of sessions that hold the block index.
 * `drift.guards` comes from the guard decision logs of `--sessions`: per guard, the decisions logged, the denies among them and their share. A user watches it over time: a guard that starts denying more, or stops firing, is the first sign that the estate or the agent changed.
 
@@ -960,8 +962,8 @@ The failing session that motivated a change is its fail-to-pass case: red before
 
 ## 9. Where it lives
 
-* `packages/estate`: the schema (atoms, edges, the map, the plan), the scanner (`scan/`, with the Claude Code reader as the one runtime-specific file), the graph, the map file and its space map, the lint, the plan (contract, journeys, pairwise), and maintenance (diff, guard state, impact, regression). It imports the covering array, the feasibility check, the graph walk and the model port from `@driftbench/generate`.
-* `packages/generate/src/estate`: the estate generator. It reads the map and plan by their shape and never imports `@driftbench/estate`, so the two packages do not import each other.
+* `packages/estate`: the schema (atoms, edges, the map, the plan), the scanner (`scan/`, with the Claude Code reader as the one runtime-specific file), the graph, the map file and its space map, the lint, the plan (contract, journeys, pairwise), and maintenance (diff, guard state, impact, regression). It imports the covering array, the feasibility check, the graph walk and the model port from `@agent-nexus/driftbench-generate`.
+* `packages/generate/src/estate`: the estate generator. It reads the map and plan by their shape and never imports `@agent-nexus/driftbench-estate`, so the two packages do not import each other.
 * `packages/adapters/src/claude-code`: the session reader, the replay adapter, the ordered-pair check, and the live runner in `live/`.
 * `packages/cli`: the `estate` commands and `replay`.
 * The estate validator, which checks this whole loop on an estate nobody wrote by hand, is designed on the [validators](validators.md) page and not built yet.

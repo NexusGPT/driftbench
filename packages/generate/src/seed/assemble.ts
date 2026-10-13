@@ -7,8 +7,8 @@ import type {
   Rules,
   ToolExpect,
   WorldState,
-} from '@driftbench/core';
-import { NONE } from '@driftbench/space';
+} from '@agent-nexus/driftbench-core';
+import { NONE } from '@agent-nexus/driftbench-space';
 import { stringify } from 'yaml';
 import type { ProposalPhrase } from '../extract/proposal';
 import { DEVIATION_EXPECTED, isDeviationClass } from './deviation';
@@ -17,7 +17,7 @@ import { pick, type Rng } from './random';
 
 /**
  * Turns a seeder's draft into a driftbench spec. A draft names values by index; the spec names them the
- * way `@driftbench/space` places a spec: behaviour values in `covers`, persona, data and task values as
+ * way `@agent-nexus/driftbench-space` places a spec: behaviour values in `covers`, persona, data and task values as
  * `persona:<id>`, `data:<id>` and `task:<id>` tags, the channel in `channel`, the stage in `expect.stage`,
  * the deviation as an injection block or a perturbation. The user turns are approved phrases, picked by
  * the seeded stream; a block whose cell has none gets a placeholder that fails lint.
@@ -69,6 +69,8 @@ export type SpecDraft = {
   cell: Pick[];
   blocks: BlockDraft[];
   world?: WorldState;
+  /** Numeric budget settings the runner delivers to the adapter. */
+  vars?: Record<string, number>;
   perturbations?: PerturbationSpec[];
   rules?: Rules;
   criteria: CriterionDef[];
@@ -316,7 +318,14 @@ export function renderDraft(prepared: PreparedMap, draft: SpecDraft, run: RunIde
     tier: 'generated',
     ...(tags.length > 0 ? { tags } : {}),
     ...(covers.length > 0 ? { covers } : {}),
-    ...(draft.world ? { given: { world: draft.world } } : {}),
+    ...(draft.world || draft.vars
+      ? {
+          given: {
+            ...(draft.world ? { world: draft.world } : {}),
+            ...(draft.vars ? { vars: draft.vars } : {}),
+          },
+        }
+      : {}),
     ...(stages ? { stages } : {}),
     ...(!incomplete && draft.criteria.length > 0 ? { criteria: draft.criteria } : {}),
     blocks,

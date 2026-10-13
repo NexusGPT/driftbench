@@ -1,6 +1,8 @@
 """Verify the reviewed scanner value occurs in our frozen synthetic inputs without printing it."""
 import json,pathlib,re
 ROOT=pathlib.Path(__file__).parent
+import subprocess,sys
+subprocess.run([sys.executable,str(ROOT/'restore-recordings.py')],check=True,stdout=subprocess.DEVNULL)
 call=json.loads((ROOT/'recorded/calls.jsonl').read_text().splitlines()[5057])
 values=set(re.findall(r'token=([A-Za-z0-9_-]+)',call['text']))
 paths=set(json.loads((ROOT/'frozen.json').read_text())['fixtureHashes'])

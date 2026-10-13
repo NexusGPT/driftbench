@@ -1,4 +1,4 @@
-import type { Observed } from '@driftbench/core';
+import type { Observed } from '@agent-nexus/driftbench-core';
 import { isMap, isScalar, parseDocument, stringify as stringifyYaml } from 'yaml';
 import { detectPass1, detectPass2, Redactor } from '../intake/privacy';
 
