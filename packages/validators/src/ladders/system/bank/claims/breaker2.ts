@@ -2641,6 +2641,9 @@ add(
       const head = /<testsuites [^>]*tests="(\d+)" failures="(\d+)"/.exec(xml);
       const cases = (xml.match(/<testcase /g) ?? []).length;
       const fcases = (xml.match(/<failure /g) ?? []).length;
+      if (cases < 1) bad.push(`${f} must show at least 1 run; found ${cases}`);
+      if (f === 'acme-faults-junit.xml' && fcases < 1)
+        bad.push(`${f} must show at least 1 failure; found ${fcases}`);
       const suiteTests = [...xml.matchAll(/<testsuite [^>]*tests="(\d+)"/g)].reduce(
         (a, m) => a + Number(m[1]),
         0,

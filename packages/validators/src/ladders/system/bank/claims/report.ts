@@ -2527,6 +2527,7 @@ function examplesItems(): BankItem[] {
         const tag = /<testsuites[^>]*>/.exec(xml)?.[0] ?? '';
         const cases = (xml.match(/<testcase /g) ?? []).length;
         const failures = (xml.match(/<failure /g) ?? []).length + (xml.match(/<error /g) ?? []).length;
+        if (cases < 1) return `acme-junit.xml must show at least 1 run; found ${cases}`;
         return tag.includes(`tests="${runs}"`) &&
           tag.includes('failures="0"') &&
           tag.includes('errors="0"') &&
@@ -2560,6 +2561,9 @@ function examplesItems(): BankItem[] {
           number,
         ];
         const p = stats.mcnemar(regressed, improved, { exact: true }).pValue;
+        // README agreement cannot replace evidence that the planted faults regress.
+        if (regressed < 1 || !(p < 0.001))
+          return `acme-faults.html must show at least 1 regressed golden and recomputed p below 0.001; found ${regressed} regressed, p ${p}`;
         // "p = 0.0001" is the exact p to four decimals; "p below 0.0001" is a bound.
         const agrees = claim.pBelow ? p < claim.p : Math.abs(p - claim.p) < 0.00005;
         const printed = html.includes(
@@ -2597,6 +2601,8 @@ function examplesItems(): BankItem[] {
         const goldens = new Set(
           rows.filter((row) => row[2] === 'forbidden' || row[2] === 'safety').map((row) => row[1]),
         );
+        if (goldens.size < 1)
+          return `acme-faults.html must show at least 1 golden with a forbidden or safety flag; found ${goldens.size}`;
         return goldens.size === flagged
           ? undefined
           : `${goldens.size} goldens carry a forbidden or safety flag, the README states ${flagged}`;
