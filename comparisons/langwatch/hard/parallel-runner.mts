@@ -40,7 +40,7 @@ export class ParallelRunner extends Runner {
         this.parallelCache.set(record.request_sha256, record);
       }
   }
-  async ask(system: string, user: string, schema?: unknown, structuredTurns = 2): Promise<Call> {
+  override async ask(system: string, user: string, schema?: unknown, structuredTurns = 2): Promise<Call> {
     const flags = [
       '-p',
       '--output-format',

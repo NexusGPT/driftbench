@@ -30,6 +30,7 @@ const save = () => {
 async function worker() {
   while (next < remaining.length) {
     const item = remaining[next++];
+    if (!item) break;
     const request_sha256s: string[] = [],
       predictions: Array<string | null> = [],
       details: unknown[] = [];
