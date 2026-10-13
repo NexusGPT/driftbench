@@ -27,12 +27,15 @@
     "examples/ledger-verify/stats.py": "53aa9de5e9c869e3dce17e597ba8fa7efe0a022861b99f7fd60f48d6ad3ad3ac"
   },
   "coverage": "Known output-limit, parse and exhausted no-answer errors are measured outcomes and remain in the denominator. A stopped execution is provisional; valid-verdict coverage is reported separately.",
-  "implementationFrozenAt": "2026-10-13T09:02:56.450971+00:00",
+  "implementationFrozenAt": "2026-10-13T09:10:06.946187+00:00",
   "implementationHashes": {
-    "examples/ledger-verify/output_limits.py": "d46cdc558da125fcbaa7cd19d71840287358e94098a6ee712986f847c149d120",
+    "examples/ledger-verify/output_limits.py": "e497c931f8a4f395cd5edb9d3bf7ec8250b334d358d758d605cb3a23dfa2d8c6",
     "examples/ledger-verify/trace-requests.ts": "bd51f5f85c8b8138b5713e5f40f4cfbf51eb01b63138ab25dd12085a3114ea1a",
-    "examples/ledger-verify/summarize.py": "2f8d8302b34b93719c1bfddadd7239e8da44406c2a635e2cab836742f14baf46",
+    "examples/ledger-verify/summarize.py": "7814fec63c14e071fa7b7c5b555b15e64af921e45c71c62333763b0505bf5376",
     "examples/ledger-verify/render_report.py": "ffb05e2037175aa3f4a4c287cee80e5f0bc10ae0f6d594bcddd674cbea01bd80",
-    "examples/ledger-verify/test_output_limits.py": "6db318ddf25ba746dfb83a36f0ce1abd8a1bab201b5f2cf40e7f9b88f2f7f857"
-  }
+    "examples/ledger-verify/test_output_limits.py": "7fa2fcdcb82a720af7d78f6de052a6ee6d6cb347d545bac35b4a148c7b3cb726"
+  },
+  "costAccounting": "Known native error fees are included in the affected contestant unique-prompt cost. Unknown charges are disclosed separately, including a conservative budget hold.",
+  "costAccountingFrozenAt": "2026-10-13T09:06:16.729905+00:00",
+  "nativeLimitCaveat": "Native truncated=true can indicate a turn or budget limit; only explicit output-token evidence counts as an output-limit error."
 }

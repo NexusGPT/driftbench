@@ -34,6 +34,15 @@ def main():
     assert set(by_id)==set(ledger),'Receipt and atomic budget ids disagree'
     assert all(abs(r['costUsd']-ledger[r['id']]['usd'])<1e-10 for r in calls)
     assert abs(sum(r['costUsd'] for r in calls)-budget['spentUsd'])<1e-8
+    attribution=json.loads((BASE/'evidence/request-attribution.json').read_text())['rows']
+    keys_by_fingerprint={}
+    for r in attribution:
+        keys_by_fingerprint.setdefault((r['model'],r['phase'],r['fingerprint']),set()).add(r['key'])
+    failed_costs={}
+    for r in calls:
+        if r.get('status')=='transport-failure':
+            for key in keys_by_fingerprint.get((r['model'],r['phase'],r.get('fingerprint')),set()):
+                failed_costs[(r['model'],r['phase'],key)]=r['costUsd']
     reserved=sum(r['usd'] for r in budget['reservations'].values())
     phases={}
     for model in MODELS:
@@ -49,12 +58,14 @@ def main():
             recordings=rows(recording)
             # A duplicate key can carry two actually billed concurrent calls. Keep both costs visible.
             unique={r['key']:r for r in recordings}
+            def unique_fee(r):
+                return failed_costs.get((model,cassette_phase,r['key']),r['costUsd']) if 'failure' in r else r['costUsd']
             phases[model][phase]=dict(items=report['items'],stopped=report.get('stopped'),
                 missing={c['contestant']:sum(d.get('missing',0)>0 or type(d.get('pass')) is not bool for d in c['decisions']) for c in report['contestants']},
                 cassetteRows=len(recordings),uniquePromptKeys=len(unique),
                 terminalNoAnswerRecords=sum('failure' in r for r in recordings),
                 recordedExecutionUsd=sum(r['costUsd'] for r in recordings),
-                costPer100UniqueKeys={c:sum(r['costUsd'] for r in unique.values() if r['contestant']==c)*100/report['items'] for c in ['driftbench-verify-uncertainty-cascade','promptfoo']},
+                costPer100UniqueKeys={c:sum(unique_fee(r) for r in unique.values() if r['contestant']==c)*100/report['items'] for c in ['driftbench-verify-uncertainty-cascade','promptfoo']},
                 report=str(path.relative_to(ROOT)),recording=str(recording.relative_to(ROOT)))
     for cell in cells['cells']:
         cell['outputLimitErrors']=limit_report['counts'][cell['model']]

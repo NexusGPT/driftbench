@@ -8,6 +8,17 @@ BASE=Path(__file__).resolve().parent
 CONTESTANTS=['driftbench-verify-uncertainty-cascade','promptfoo']
 MODELS=['haiku','gpt-6-luna','gemini-3.8-flash']
 
+def limit_reason(receipt, native=None):
+    metadata=receipt.get('metadata') or {}
+    if native and re.search(r'exceed\w*.*output token|output.token.*(?:maximum|limit)',native.get('result',''),re.I):
+        return native['result']
+    if metadata.get('finishReason') in ('length','MAX_TOKENS','max_tokens'):
+        return metadata['finishReason']
+    # Native non-success also sets truncated for turn/budget limits; those are not output-token evidence.
+    if receipt['model']!='haiku' and metadata.get('truncated') is True:
+        return 'API output truncated'
+    return None
+
 def strict_decisions(decisions, affected):
     result=copy.deepcopy(decisions)
     for row in result:
@@ -31,18 +42,14 @@ def main():
         receipts[error['id']]={**receipts.get(error['id'],{}),**error}
     limits=[];unmapped=[];unclassified=[]
     for receipt in receipts.values():
-        metadata=receipt.get('metadata') or {}
-        limited=metadata.get('truncated') is True or metadata.get('finishReason') in ('length','MAX_TOKENS','max_tokens')
-        reason=metadata.get('finishReason')
         native=None
         if receipt.get('nativeReceipt'):
             path=Path(receipt['nativeReceipt'])
             if path.exists():
                 try:native=json.loads(path.read_text())
                 except json.JSONDecodeError:pass
-        if native and re.search(r'exceed\w*.*output token|output.token.*(?:maximum|limit)',native.get('result',''),re.I):
-            limited=True;reason=native['result']
-        if not limited:
+        reason=limit_reason(receipt,native)
+        if reason is None:
             if receipt.get('message')=='claude returned an error result' and not native:
                 unclassified.append(dict(receipt=receipt['id'],model=receipt['model'],reason='Historical native error body unavailable; output-limit cause is not inferred'))
             continue
