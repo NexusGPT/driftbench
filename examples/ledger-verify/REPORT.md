@@ -1,6 +1,6 @@
 # LongJudge verify confirmation
 
-Evidence timestamp: 2026-10-13T16:43:56.713647+00:00.
+Evidence timestamp: 2026-10-13T16:46:57.622386+00:00.
 
 - Branch: research/ledger-verify. Core contract: PR 168 at 35f07309a4d1d1c8a7c5b176ff19e537d0ef8fdd.
 - All 221 TEST items are sealed. This is a previously evaluated split, not an unseen holdout.
@@ -159,13 +159,13 @@ Fee sources: receipts/budget.json and receipts/calls.jsonl. Historical replay co
 | luna-addendum/state.json | e7ee3a57c98a7c1073bebd127989b45b0117c048a63e3493d0531097fc5f8ea0 |
 | luna-addendum/metrics.json | 7004cb786c920dc5b97783d2032ad4732eab3168dbe009497c4c231df9f4757e |
 | sonnet/evidence/model-amendment.json | ab0906dbc937581d5d846a1912bf81d2b4b69794ef13c58ceaf475df4d7ae3f4 |
-| sonnet/evidence/runtime-freeze.json | 62f5be711d97529d0e9f9a50510d9e5419c2b1888d9eef482a8a36328fab05f0 |
+| sonnet/evidence/runtime-freeze.json | 8c5a7245abe134d79e7e4a1ef53cf7bbda81e3e2ddfd7d1f18413d7ba2346840 |
 | sonnet/evidence/reporting-freeze.json | ca936a947292582fcdcbebece33b103f84ab9511aace4ad3ff9fe45665be7592 |
 | sonnet/evidence/cost-sample.json | 1c416e1bfd884e17f5f6d6ec024ed1ce6f44417d3b0798b33a8f63d72faba26d |
 | sonnet/evidence/cache-off-amendment.json | d4f4d057bd41d197b8d69189358882b09d3594f81e6aae0ce8f74a7e4b49b01a |
 | sonnet/evidence/cache-off-cost-selection.json | cb4dfb0b06dd180ffa0941973fb2e4ff8a9f017e1d6b82b160a2edda5cafe246 |
 | sol61/evidence/model-amendment.json | 5112f06d9111c55b8468f4d78e2626284d77ff2415bbd7df3f80520d5945f913 |
-| sol61/evidence/runtime-freeze.json | 3a648da29b3c7a6ffe930910258ebea5a506e6a3810a4842435d7db4d5cbf1d2 |
+| sol61/evidence/runtime-freeze.json | 70ec1c2cbd79b2315ae57e3c8e75f3a41e939ed7cfa1fb72e909ec9ae23b7bd1 |
 | sol61/evidence/reporting-freeze.json | 5c1387e3fcf96b93710a378990af83b97dac82e971d4a8e39b97e6762dedd685 |
 | sonnet/evidence/cache-off-cost-sample.json | b415b3b1cecef4c287a680d040d331065ad5900924c6f4e8cdb01a90852aaa6b |
 | sonnet/evidence/cap45-activation.json | 09e2e68e7c4b20e5f08a87274d64a9750247ad8b44c5dbbd7a94118d85a4de5e |
@@ -176,6 +176,7 @@ Fee sources: receipts/budget.json and receipts/calls.jsonl. Historical replay co
 | sonnet/evidence/native-quota-recovery.json | 597f79da24cf9c1109aecdd728e896ccdb282385a9db4b5ae1ef41bd52dbb1d1 |
 | sol61/evidence/cost-sample.json | 115c6295036bfa42ce0f17e75b2672849de2960120c3290383e8679319ee2d29 |
 | sol61/evidence/native-quota-amendment.json | bb43781ed864b81ccb10bc2b71dd4c680403f37770e4c8e444c54cc22151ffe3 |
+| sonnet/evidence/native-quota-continuation.json | b8a15aa52dec33c1cd0df73de6876943af36edb56fd52c9bd0a0e4d9e9898286 |
 
 Active runtime id: d49a333a9d4e6dd0ffd6. Frozen core: 35f07309a4d1d1c8a7c5b176ff19e537d0ef8fdd.
 Offline checks cover source/pool hashes, exact schemas, strict replay, fail-closed missing replay and restricted Python execution.

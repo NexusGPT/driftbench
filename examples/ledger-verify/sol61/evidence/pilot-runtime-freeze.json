@@ -151,7 +151,7 @@
     "examples/ledger-verify/network-gate.py": "6ad79f77bbdabcd02aab586ee00716188989a74ce4c75b1ac9b1105d6f96a480",
     "examples/ledger-verify/remeasure-sonnet.py": "296b78441b6f5ca1ec076d8e227c650b14d246b8437526bb0647a4e734f972d0",
     "examples/ledger-verify/prepare-sonnet-remeasure.ts": "2b801030cb32d3b3b6c816f35e311f12a4a16f29e708fc2d500504a38e436324",
-    "examples/ledger-verify/finish-new-cell.py": "0e61b190e5e579c9a889b692d35e4092cdea730d790b990af45943456b86650e",
+    "examples/ledger-verify/finish-new-cell.py": "8541add902e248408fa686a48428f747bc0afda1a1fc3a374043d640a8be65a8",
     "examples/ledger-verify/terminal-response.ts": "855e6707dd8f9ebc73e3205ca1a567233061a60f6c15e28fc8dead8c702a2b2a"
   },
   "pricesPerMillion": {
@@ -198,5 +198,11 @@
     "priorSha256": "ab45f5cc95d06b4df297a96845607528f0bfd0df6785e3a458988bb0db073f3c",
     "policy": "Fresh 10-probe provider gate after outage. Explicit noAnswer errors count toward cooldown. Quota retries recheck network admission. Sonnet disables prompt caching for both contestants; existing answers retain cache identity."
   },
-  "nativeRefusalPolicy": "Terminal response at every token count. Never eligible for transport recovery. Same rule for both contestants."
+  "nativeRefusalPolicy": "Terminal response at every token count. Never eligible for transport recovery. Same rule for both contestants.",
+  "quotaContinuationAmendment": {
+    "at": "2026-10-13T16:46:57.572032+00:00",
+    "beforeTEST": true,
+    "priorHash": "3a648da29b3c7a6ffe930910258ebea5a506e6a3810a4842435d7db4d5cbf1d2",
+    "rule": "No-answer native quota recovers missing-only; no-provider preflight admission guards are listed separately from submitted missing requests. Refusals terminal at any token count."
+  }
 }

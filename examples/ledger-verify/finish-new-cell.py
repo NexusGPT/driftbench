@@ -21,7 +21,13 @@ def refused(r):
  if not p or not p.exists() or not p.stat().st_size:return False
  v=read(p);return v.get('stop_reason')=='refusal' or any(c.get('type')=='refusal' for m in v.get('output',[]) for c in m.get('content',[]))
 answered={(r['phase'],r['fingerprint']) for r in rows(BASE/'receipts/calls.jsonl') if r.get('output',{}).get('verify_answered') or refused(r)}
-unresolved=[r for r in rows(BASE/'receipts/errors.jsonl') if r.get('noAnswer') and not refused(r) and (r['phase'],r['fingerprint']) not in answered]
+submitted_ids={r['id'] for r in rows(BASE/'receipts/calls.jsonl')}
+errors=rows(BASE/'receipts/errors.jsonl')
+preflight=[r for r in errors if not r.get('nativeReceipt') and not r.get('reservationRetained') and r['id'] not in submitted_ids and 'Native session quota stopped admissions' in r.get('message','')]
+assert all(r.get('noAnswer') for r in preflight)
+preflight_ids={r['id'] for r in preflight}
+unresolved=[r for r in errors if r.get('noAnswer') and r['id'] not in preflight_ids and not refused(r) and (r['phase'],r['fingerprint']) not in answered]
+(BASE/'evidence/transport-completeness.json').write_text(json.dumps(dict(answeredFingerprints=len(answered),preflightNotSubmitted=[r['id'] for r in preflight],unresolved=[r['id'] for r in unresolved]),indent=2)+'\n')
 assert not unresolved, 'Transport-missing requests remain; result cannot be final'
 cells=read(BASE/'evidence/cells.json');assert cells['fees']['maximumAccountedUsd']<=read(BASE/'evidence/runtime-freeze.json')['capUsd'];assert not cells['outputLimitErrors']['unmappedLimits'];assert not cells['outputLimitErrors'].get('unmappedRefusals',[])
 for p,h in read(BASE/'evidence/reporting-freeze.json')['sourceHashes'].items():assert hashlib.sha256((ROOT/p).read_bytes()).hexdigest()==h,p

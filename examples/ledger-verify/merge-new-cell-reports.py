@@ -37,7 +37,7 @@ def main():
   status=final['status'] if final else progress['status']
   sections.append(f"| {model} | {status} | {gate['costUsd']:.8f} | {gate['projected379UnitsUsd']:.8f} | {settled:.8f} | {held:.8f} | {folder}/ |" if gate else f'| {model} | {status} | pending | pending | {settled:.8f} | {held:.8f} | {folder}/ |')
   original['newModelFees'][model]=dict(settledUsd=settled,unresolvedMaximumUsd=held,maximumAccountedUsd=settled+held,capUsd=cap)
-  for name in ['model-amendment.json','runtime-freeze.json','reporting-freeze.json','cost-sample.json','pilot-projection.json','cache-off-amendment.json','cache-off-cost-selection.json','cache-off-cost-sample.json','cap45-activation.json','refusal-amendment.json','native-quota-amendment.json','native-quota-recovery.json']:
+  for name in ['model-amendment.json','runtime-freeze.json','reporting-freeze.json','cost-sample.json','pilot-projection.json','cache-off-amendment.json','cache-off-cost-selection.json','cache-off-cost-sample.json','cap45-activation.json','refusal-amendment.json','native-quota-amendment.json','native-quota-recovery.json','native-quota-continuation.json']:
    p=base/'evidence'/name
    if p.exists():original['freeze']['hashes'][f'{folder}/evidence/{name}']=hashlib.sha256(p.read_bytes()).hexdigest()
   if gate:
