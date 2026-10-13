@@ -24,14 +24,17 @@ export function kappa(rows: readonly { label: string; decision: string }[]): num
     rows.filter((r) => r.decision === label).length / rows.length ** 2, 0);
   return chance === 1 ? null : (agreement - chance) / (1 - chance);
 }
-export async function report() {
-  const plan = JSON.parse(await readFile(`${DIRECTORY}/development-plan.json`, 'utf8'));
-  const calls = await new LedgerCalls(`${DIRECTORY}/live`, SETTINGS.capUsd).load();
+export async function report(options: { directory?: string; models?: readonly string[]; capUsd?: number; settings?: unknown } = {}) {
+  const directory = options.directory ?? DIRECTORY;
+  const models = options.models ?? MODELS;
+  const capUsd = options.capUsd ?? SETTINGS.capUsd;
+  const plan = JSON.parse(await readFile(`${directory}/development-plan.json`, 'utf8'));
+  const calls = await new LedgerCalls(`${directory}/live`, capUsd).load();
   const data: Record<string, DecisionRow[]> = Object.fromEntries(await Promise.all(['pilot', 'fixtures', 'noise', 'validity', 'provider-probe', 'test'].map(async (phase) => {
-    const rows = latestDecisions(await readRecordingRows<DecisionRow>(`${DIRECTORY}/decisions-${phase}.jsonl`))
+    const rows = latestDecisions(await readRecordingRows<DecisionRow>(`${directory}/decisions-${phase}.jsonl`))
       .filter((r) => !hasUnresolvedPrepayment(r, calls.rows)).map((r) => classifyProviderBlock(r, calls.rows));
     try {
-      const ordered: (DecisionRow & { recordIndex: number })[] = JSON.parse(await readFile(`${DIRECTORY}/ordered-${phase}.json`, 'utf8'));
+      const ordered: (DecisionRow & { recordIndex: number })[] = JSON.parse(await readFile(`${directory}/ordered-${phase}.json`, 'utf8'));
       const rank = new Map(ordered.map((r) => [decisionKey(r), r.recordIndex]));
       rows.sort((a, b) => (rank.get(decisionKey(a)) ?? Infinity) - (rank.get(decisionKey(b)) ?? Infinity));
     } catch (e) { if ((e as NodeJS.ErrnoException).code !== 'ENOENT') throw e; }
@@ -47,7 +50,7 @@ export async function report() {
       rateLimits: paid.filter((r) => r.httpStatus === 429).length };
   };
   const cells = [];
-  for (const model of MODELS) {
+  for (const model of models) {
     const pilot = data.pilot!.filter((r) => r.model === model);
     const fixtureRows = data.fixtures!.filter((r) => r.model === model);
     const fixtures = plan.fixtures.map((f: { group: string; ids: string[]; availableDevPairs: number }) => {
@@ -107,7 +110,7 @@ export async function report() {
       cheaters: plan.cheaters, aboveChanceCheaters: aboveChance.length, cheatersPass,
       baseOnlyTest: plan.baseOnlyTest,
       seatCaveat: 'Earning is eligibility only: the same model and frozen prompt serve both base and earned seats. No alternate model is used.' };
-    await writeFile(`${DIRECTORY}/gates-${model}.json`, `${JSON.stringify(gates, null, 2)}\n`);
+    await writeFile(`${directory}/gates-${model}.json`, `${JSON.stringify(gates, null, 2)}\n`);
     const tests = data.test!.filter((r) => r.model === model);
     const ids = [...new Set(tests.map((r) => r.id))];
     const pairs = ids.flatMap((id) => {
@@ -137,13 +140,13 @@ export async function report() {
   const providerBlockProbe = [...data.noise!, ...data['provider-probe']!].filter((r) => r.model === 'gemini-3.8-flash' && r.id === SETTINGS.providerBlockProbe.id)
     .map((r) => ({ contestant: r.contestant, sample: r.sample, providerBlocked: Boolean(r.providerBlocked), status: r.status,
       blockedCalls: r.blockedCallKeys?.length ?? 0, callKeys: r.callKeys }));
-  const summary = { createdAt: new Date().toISOString(), settings: SETTINGS, providerBlockProbe, chargedUsd: calls.chargedUsd,
+  const summary = { createdAt: new Date().toISOString(), settings: options.settings ?? SETTINGS, providerBlockProbe, chargedUsd: calls.chargedUsd,
     prepaymentRejections: calls.rows.filter(isPrepaymentRejection).length,
     releasedPrepaymentHoldsUsd: calls.rows.reduce((s, r) => s + (r.reservationReleasedUsd ?? 0), 0),
     uncertainCalls: calls.uncertainKeys.length, uniqueCalls: calls.rows.length,
     knownCostUsd: calls.rows.filter((r) => r.costBasis !== 'reservation').reduce((s, r) => s + r.costUsd, 0),
     reservedUnknownUsd: calls.rows.filter((r) => r.costBasis === 'reservation').reduce((s, r) => s + r.costUsd, 0), cells };
-  await writeFile(`${DIRECTORY}/live-summary.json`, `${JSON.stringify(summary, null, 2)}\n`);
+  await writeFile(`${directory}/live-summary.json`, `${JSON.stringify(summary, null, 2)}\n`);
   console.log(JSON.stringify({ chargedUsd: calls.chargedUsd, uniqueCalls: calls.rows.length,
     cells: cells.map((c) => ({ model: c.model, coverage: c.coverage, verdict: c.verdict, allowTest: c.gates.allowTest,
       validityPass: c.gates.validityPass, noisePairs: c.gates.noise.pairs, pilot: c.gates.pilot,

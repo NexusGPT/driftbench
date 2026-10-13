@@ -17,7 +17,7 @@ import { HaikuPacing } from './rubric-ledger-pacing';
 
 export const DIRECTORY = 'examples/judge-benchmarks/experiments/ledger-rb';
 export const MODELS = ['claude-haiku-5-5', 'gpt-6-luna', 'gemini-3.8-flash'] as const;
-export type Model = typeof MODELS[number];
+export type Model = typeof MODELS[number] | 'gemini-3.5-flash-lite';
 export const SETTINGS = {
   coreCommit: '35f07309a4d1d1c8a7c5b176ff19e537d0ef8fdd', corePr: 168,
   models: MODELS, reasoning: { 'claude-haiku-5-5': null, 'gpt-6-luna': 'medium', 'gemini-3.8-flash': 'medium' },
@@ -105,6 +105,7 @@ export function variants(item: PairItem): Record<string, PairItem> {
 
 export function usagePrice(model: Model, completion: LedgerCompletion): number | undefined {
   if (model === 'claude-haiku-5-5') return undefined;
+  if (model === 'gemini-3.5-flash-lite') throw new Error('Flash-Lite requires its own frozen price callback');
   const { input, output } = completion.usage ?? {};
   if (input === undefined || output === undefined) return undefined;
   const prices = SETTINGS.pricePerMillion[model];
@@ -119,7 +120,7 @@ export function usagePrice(model: Model, completion: LedgerCompletion): number |
 }
 
 /** Read only the two owner-authorized key paths, inside the executing process. */
-async function transport(model: Model, execute: boolean): Promise<DialectTransport> {
+async function transport(model: typeof MODELS[number], execute: boolean): Promise<DialectTransport> {
   const env: NodeJS.ProcessEnv = { ...process.env };
   for (const key of ['OPENAI_API_KEY', 'GEMINI_API_KEY', 'GOOGLE_API_KEY', 'ANTHROPIC_API_KEY',
     'OPENAI_BASE_URL', 'GOOGLE_BASE_URL', 'ANTHROPIC_BASE_URL', 'CLAUDECODE']) delete env[key];
@@ -143,11 +144,17 @@ export async function candidateReference(item: PairItem, first: string): Promise
     ? { FIRST: values.A, SECOND: values.B } : { FIRST: values.B, SECOND: values.A })}`;
 }
 
+export type EvaluationRuntime = {
+  rateLimitWaitMs?: readonly number[];
+  price?: (completion: LedgerCompletion) => number | undefined;
+};
+
 export async function evaluate(item: PairItem, requirements: readonly RubricItem[], model: Model,
   phase: string, sample: number, contestant: 'pair-ledger' | 'promptfoo' | 'seat',
   raw: DialectTransport, calls: LedgerCalls, execute: boolean,
   sleep: (ms: number) => Promise<void> = (ms) => new Promise((resolve) => setTimeout(resolve, ms)),
-  authorizedBillingEpoch?: number, authorizedQuotaEpoch?: number): Promise<DecisionRow> {
+  authorizedBillingEpoch?: number, authorizedQuotaEpoch?: number, runtime: EvaluationRuntime = {}): Promise<DecisionRow> {
+  const rateLimitWaitMs = runtime.rateLimitWaitMs ?? SETTINGS.rateLimitWaitMs;
   const start = Date.now(); const callKeys: string[] = []; let ordinal = 0;
   const ask = async (request: { system: string; user: string; schema?: Record<string, unknown> }) => {
     const baseIdentity = { model, phase, item: item.id, contestant, sample, ordinal: ordinal++, transportFingerprint: raw.fingerprint, request };
@@ -155,14 +162,14 @@ export async function evaluate(item: PairItem, requirements: readonly RubricItem
     const answered = history.find((r) => r.status === 'ok');
     if (answered) { callKeys.push(...history.map((r) => r.key)); return answered; }
     const identity = quotaIdentity(billingIdentity(baseIdentity, calls.rows, authorizedBillingEpoch), calls.rows, authorizedQuotaEpoch);
-    for (let attempt = 0; attempt <= SETTINGS.rateLimitWaitMs.length; attempt++) {
+    for (let attempt = 0; attempt <= rateLimitWaitMs.length; attempt++) {
       const row = await calls.complete({ ...identity, ...(attempt ? { transportAttempt: attempt } : {}) }, SETTINGS.reserveUsd,
-        () => raw.complete(request), (completion) => usagePrice(model, completion), !execute);
+        () => raw.complete(request), runtime.price ?? ((completion) => usagePrice(model, completion)), !execute);
       callKeys.push(row.key);
       if (row.status === 'ok') return row;
       if (isPrepaymentRejection(row)) throw new LedgerPrepaymentStop(`HTTP 402 prepayment depleted for ${model}; no judge verdict recorded`);
       if (row.httpStatus === 429 || /answered 429:/.test(row.error ?? '')) {
-        const waitMs = SETTINGS.rateLimitWaitMs[attempt];
+        const waitMs = rateLimitWaitMs[attempt];
         if (waitMs === undefined) throw new LedgerRateLimitStop(`HTTP 429 retries exhausted for ${model}; no judge verdict recorded`);
         await sleep(Math.max(waitMs, row.retryAfterMs ?? 0));
         continue;
@@ -194,7 +201,7 @@ export async function evaluate(item: PairItem, requirements: readonly RubricItem
     const request = pairLedgerRequest({ name: 'expert-rubrics', rubric: item.criterion! },
       [{ role: 'user', text: item.question }], canonical.first, canonical.second, { requirements, reasoning: raw.reasoning });
     let previous: JudgeResult | undefined;
-    const client: JudgeClient = { id: model, family: model === 'gpt-6-luna' ? 'openai' : model === 'gemini-3.8-flash' ? 'google' : 'anthropic',
+    const client: JudgeClient = { id: model, family: model === 'gpt-6-luna' ? 'openai' : model.startsWith('gemini-') ? 'google' : 'anthropic',
       cls: 'system2', cost: 10, dialect: raw.dialect, reasoning: raw.reasoning,
       async judge(input: JudgeRequest) {
         if (input.system?.includes('Your previous answer broke the ledger contract.')) {
@@ -224,7 +231,7 @@ export async function evaluate(item: PairItem, requirements: readonly RubricItem
   }
 }
 
-const sourcePaths = [
+export const sourcePaths = [
   'examples/judge-benchmarks/src/rubric-ledger-live.ts', 'examples/judge-benchmarks/src/rubric-ledger-calls.ts',
   'examples/judge-benchmarks/src/rubric-ledger-quota.ts',
   'examples/judge-benchmarks/src/rubric-ledger-pacing.ts',
@@ -267,7 +274,7 @@ async function main() {
   const committed = execFileSync('git', ['show', `HEAD:${freezePath}`], { encoding: 'utf8' });
   if (committed !== await readFile(freezePath, 'utf8')) throw new Error('Freeze is not committed');
   const mArg = process.argv.indexOf('--models');
-  const models = phase === 'provider-probe' ? ['gemini-3.8-flash'] as Model[] : mArg < 0 ? [...MODELS] : process.argv[mArg + 1]!.split(',') as Model[];
+  const models = phase === 'provider-probe' ? ['gemini-3.8-flash'] as typeof MODELS[number][] : mArg < 0 ? [...MODELS] : process.argv[mArg + 1]!.split(',') as typeof MODELS[number][];
   if (models.some((m) => !MODELS.includes(m))) throw new Error('Unregistered model');
   const ownerQuotaResume = process.argv.includes('--owner-quota-resume');
   if (execute) for (const model of models) checkQuotaWindow(model, Date.now(), ownerQuotaResume);
@@ -283,7 +290,7 @@ async function main() {
     const gates = JSON.parse(await readFile(`${DIRECTORY}/gates-${model}.json`, 'utf8'));
     if (!gates.allowTest) throw new Error(`Validity gate failed or incomplete: ${model}`);
   }
-  type Job = { item: PairItem; phase: string; sample: number; contestant: 'pair-ledger' | 'promptfoo' | 'seat'; model: Model };
+  type Job = { item: PairItem; phase: string; sample: number; contestant: 'pair-ledger' | 'promptfoo' | 'seat'; model: typeof MODELS[number] };
   const jobs: Job[] = [];
   const add = (item: PairItem, sample: number, contestants: Job['contestant'][], subphase = phase!) => {
     for (const model of phase === 'test' ? MODELS : models) for (const contestant of contestants) jobs.push({ item, phase: subphase, sample, contestant, model });
@@ -302,7 +309,7 @@ async function main() {
   const transports = new Map(await Promise.all(models.map(async (m) => [m, await transport(m, execute)] as const)));
   const resultPath = `${DIRECTORY}/decisions-${phase}.jsonl`;
   const prior = latestDecisions(await readRecordingRows<DecisionRow>(resultPath));
-  const done = new Set(prior.filter((r) => models.includes(r.model) && r.status !== 'transport-error' && !hasUnresolvedPrepayment(r, calls.rows)).map(decisionKey)); let completed = 0, stopped = false;
+  const done = new Set(prior.filter((r) => models.some((m) => m === r.model) && r.status !== 'transport-error' && !hasUnresolvedPrepayment(r, calls.rows)).map(decisionKey)); let completed = 0, stopped = false;
   const selectedJobs = jobs.filter((j) => models.includes(j.model));
   const todo = selectedJobs.filter((j) => !done.has(decisionKey({ ...j, id: j.item.id })));
   let writes = Promise.resolve();

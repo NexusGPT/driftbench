@@ -73,13 +73,13 @@
     "retryPolicy": "Owner amendment: at most three ordinary transport attempts, 300-second timeout. HTTP 429 is no answer: wait 60, 120, then 240 seconds before retrying; after exhaustion stop incomplete without a judge verdict. Never retry a returned answer, including unparsed answers. Core schema reasks are suppressed. Unknown failed or interrupted attempts retain their reservations; confirmed 429 attempts cost zero."
   },
   "hashes": {
-    "examples/judge-benchmarks/src/rubric-ledger-live.ts": "3abc6e69bc73ef2ad36db2a2409d75f2d9f1da9a64fdb4578d059665dd822951",
+    "examples/judge-benchmarks/src/rubric-ledger-live.ts": "9ffd9cb7b858fc9c907bfcdece292a4648392fbf862808cb86d20c547d51923d",
     "examples/judge-benchmarks/src/rubric-ledger-calls.ts": "cbeff232c3c6744b4635a4fc58f20f3c3b278b56f1f445f25fa44c8361f92bc2",
     "examples/judge-benchmarks/src/rubric-ledger-quota.ts": "244515359107ed2e8a1c88158bc555fd0d28bf953862c1ac92b082ddbbabeadd",
     "examples/judge-benchmarks/src/rubric-ledger-pacing.ts": "1385561ec8aef4a70c7cc383838118c77fb2d10d83f6a4f3e3d97933c8d6ce6e",
     "examples/judge-benchmarks/src/rubric-ledger-stats.ts": "2196e3bbb140b9ac2d3e4f9307945117fd92f698719ee3086d5b1d82022120d6",
     "examples/judge-benchmarks/src/contestants.ts": "8526f07c34720791108417e68f7848fcf5f6e7c0d3eaef1ece136b1ff6f3bca0",
-    "examples/judge-benchmarks/src/rubric-ledger-report.ts": "a0d8254a0f409b2501880bda43640a846ee8e9614a8f38c7c4127dde2c032fb9",
+    "examples/judge-benchmarks/src/rubric-ledger-report.ts": "5154a35e5065482e12c3bf46ad37a58574ef5fd65791ecaf2b4572276aa7646c",
     "examples/judge-benchmarks/src/code-evidence.ts": "7552ea80f292ca33c292142910b2556094a19cf44d7d85942a2de98f92bc0929",
     "examples/judge-benchmarks/src/data.ts": "0ad8c198e952608eb0c3959c6147d98e07253265b72e196d270ddff57ebfdc00",
     "examples/judge-benchmarks/src/rubric-items.ts": "b23fcd163c36d9d01e2ddbb669f0b746eca70f22d1cfc7cfcfde744db9aefe6a",
@@ -1237,6 +1237,22 @@
         "cap USD 45"
       ],
       "tests": "6 focused pacing/quota tests"
+    },
+    {
+      "at": "2026-10-13T12:21:01.362629+00:00",
+      "authority": "Owner authorizes independent gemini-3.5-flash-lite cell with USD 8 cap and eight workers; Haiku continues",
+      "changes": [
+        "Shared evaluator accepts per-cell price and 429 wait callbacks; original defaults unchanged",
+        "Shared reporter accepts directory/model/cap parameters; original defaults unchanged",
+        "New Flash-Lite runner and separate records, both contestants, same DEV checks and 790 TEST ids"
+      ],
+      "unchanged": [
+        "Original MODELS three-element tuple and TEST stride six",
+        "Original judge contract and original model settings",
+        "Original cap USD45",
+        "Original TEST seal"
+      ],
+      "activeHaikuSourceCommit": "27ee9936"
     }
   ]
 }
