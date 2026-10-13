@@ -40,6 +40,8 @@ export function cheater(item: any, kind: string) {
 
 export const isRateLimit = (text:string) => /Provider 429\b/iu.test(text);
 export const transportBackoffMs = (error:string,attempt:number) => isRateLimit(error)?60_000*2**(attempt-2):1500*(attempt-1);
+export const transportWaitRemainingMs = (error:string,attempt:number,finishedAt?:string,now=Date.now()) =>
+  Math.max(0,transportBackoffMs(error,attempt)-(finishedAt?Math.max(0,now-Date.parse(finishedAt)):0));
 export function isTransportFailure(text:string) {
   if(isRateLimit(text))return true;
   if(/spending cap|billing|invalid.api.key|authentication|insufficient_quota/iu.test(text))return false;
@@ -102,6 +104,15 @@ export class Budget {
     const event={kind:'release',key,usd:0,reason:'Provider HTTP 402 rejection; no model answer',at:new Date().toISOString()};
     append(this.file,event);this.events.push(event);
   }
+  chargeError(key:string,usd:number) {
+    if(!Number.isFinite(usd)||usd<=0)return;
+    const chargeKey='known-error-charge:'+key;
+    if(this.events.some(e=>e.kind==='settle'&&e.key===chargeKey))return;
+    const reserved=[...this.events].reverse().find(e=>e.kind==='reserve'&&e.key===key)?.usd??0;
+    this.settle(chargeKey,usd);
+    const event={kind:'reserve',key,usd:Math.max(0,reserved-usd),reason:'Known no-answer charge counted as actual; unresolved balance retained',at:new Date().toISOString()};
+    append(this.file,event);this.events.push(event);
+  }
 }
 
 export function verifyFreeze(freeze: any) {
@@ -149,9 +160,11 @@ async function main() {
   const promptModule:any=await import(pathToFileURL(resolve(ROOT,'packages/judges/src/prompt.ts')).href);
   const schemaModule:any=await import(pathToFileURL(resolve(ROOT,'packages/judges/src/assessment.ts')).href);
   const shim:any=await import(pathToFileURL(resolve(ROOT,'examples/judge-benchmarks/src/llm-shim.mjs')).href);
-  const modelArg=arg('model');const models=modelArg?modelArg.split(','):freeze.models.filter((m:string)=>m!=='gemini-3.8-flash'||!freeze.geminiCreditHold?.active);
+  const quotaBlocked=Date.now()<Date.parse(freeze.geminiDailyQuotaAmendment?.resumeNotBefore??'1970-01-01');
+  const modelArg=arg('model');const models=modelArg?modelArg.split(','):freeze.models.filter((m:string)=>m!=='gemini-3.8-flash'||(!freeze.geminiCreditHold?.active&&!quotaBlocked));
   if(models.some((x:string)=>!freeze.models.includes(x)))throw Error('Model not frozen');
   if(models.includes('gemini-3.8-flash')&&freeze.geminiCreditHold?.active)throw Error('Gemini is parked pending owner-confirmed credit top-up');
+  if(models.includes('gemini-3.8-flash')&&quotaBlocked)throw Error('Gemini not run: daily quota; wait for authorized reset or owner amendment');
   const authorizedLimits=freeze.pacingAmendment?.maxConcurrentCalls;
   if(!authorizedLimits)throw Error('Per-model pacing amendment required');
   const requestedLimits=arg('model-concurrency')?JSON.parse(arg('model-concurrency')!):{};
@@ -196,7 +209,7 @@ async function main() {
     if(recorded.has(key) && !recorded.get(key).providerError) return recorded.get(key);
     if(process.argv.includes('--replay-only'))throw Error('REPLAY_MISS '+key);
     const recovery=freeze.lunaRecoveryAmendment?.logicalCallKeys.includes(key)&&freeze.lunaRecoveryAmendment?.connectivityProbe.passed===true;
-    let lastError="";
+    let lastError="",lastFinishedAt:string|undefined;
     for(let attempt=1;attempt<=(recovery?6:4);attempt++) {
       if(attempt===4&&!recovery&&!isRateLimit(lastError))break;
       const attemptKey=attempt===1?key:sha(key+':transport:'+attempt);
@@ -204,13 +217,13 @@ async function main() {
       if(prior) {
         if(!prior.providerError)return prior;
         if(!isTransportFailure(prior.text))throw Error('Recorded non-transport failure; no retry');
-        lastError=prior.text;continue;
+        lastError=prior.text;lastFinishedAt=prior.finishedAt;continue;
       }
       // A crashed submission may still have incurred cost. Keep its reservation and count its try.
       if(budget.totals().pending.includes(attemptKey)){lastError="Interrupted transport";continue;}
-      if(attempt>1)await new Promise(resolve=>setTimeout(resolve,transportBackoffMs(lastError,attempt)));
+      if(attempt>1)await new Promise(resolve=>setTimeout(resolve,transportWaitRemainingMs(lastError,attempt,lastFinishedAt)));
       if(meta.model==='gemini-3.8-flash'&&geminiAbort.signal.aborted)throw Error('Gemini credit hold; no new submission');
-      if(Date.now()>Date.parse(freeze.lastCallUtc))throw Error('LAST_CALL_CUTOFF');
+      if(Date.now()>Date.parse(freeze.modelLastCallUtc?.[meta.model]??freeze.lastCallUtc))throw Error('LAST_CALL_CUTOFF');
       budget.reserve(attemptKey,meta.model==='haiku'?0.25:0.10);
       const started=Date.now();let payload:any;let providerMeta:any={};
       try {
@@ -247,17 +260,18 @@ async function main() {
         if(Number.isFinite(entry.costUsd))budget.settle(attemptKey,entry.costUsd);
         return entry;
       }
+      budget.chargeError(attemptKey,entry.costUsd);
       append('results/transport-errors.jsonl',{key:attemptKey,logicalKey:key,attempt,...meta,error:entry.text,at:new Date().toISOString()});
       if(meta.model==='gemini-3.8-flash'&&providerMeta.httpStatus===402) {
         budget.releaseRejected(attemptKey,402);
         throw Error('Gemini HTTP 402 credit rejection; all Gemini submissions stopped');
       }
       if(!isTransportFailure(entry.text))throw Error('Non-transport provider error; no retry');
-      lastError=entry.text;
+      lastError=entry.text;lastFinishedAt=entry.finishedAt;
     }
     throw Error((recovery?'AUTHORIZED_RECOVERY_EXHAUSTED '+key:'Transport attempts exhausted')+'; uncertain reservations retained');
   };
-  const resumeAt=freeze.geminiResumeAmendment?.at;
+  const resumeAt=freeze.geminiDailyQuotaAmendment?.resumeNotBefore??freeze.geminiResumeAmendment?.at;
   const probeGate=new FirstAnswerGate(history.some(r=>r.model==='gemini-3.8-flash'&&!r.providerError&&resumeAt&&r.startedAt>=resumeAt));
   const calls=async(prompt:any,meta:any,schema?:any)=> {
     const key=sha(JSON.stringify([meta,prompt,schema,freeze.reasoning]));
@@ -265,7 +279,7 @@ async function main() {
     if(cached&&!cached.providerError)return cached;
     if(meta.model!=='gemini-3.8-flash'||!resumeAt)return submit(prompt,meta,schema);
     return probeGate.run(()=>submit(prompt,meta,schema),entry=>{
-      writeFileSync(resolve(HERE,'results/gemini-resume-probe.json'),JSON.stringify({
+      writeFileSync(resolve(HERE,freeze.geminiDailyQuotaAmendment?'results/gemini-daily-reset-probe.json':'results/gemini-resume-probe.json'),JSON.stringify({
         amendmentAt:resumeAt,status:'answered',key:entry.key,logicalKey:entry.logicalKey,
         transportAttempt:entry.transportAttempt,startedAt:entry.startedAt,finishedAt:entry.finishedAt,
         costUsd:entry.costUsd,policy:'First missing sealed call; returned answer retained regardless of content validity.',

@@ -34,6 +34,14 @@ def main():
         elif row['kind']=='release':pending.pop(row['key'],None)
     calls=records('results/calls.jsonl')
     decisions=records('results/decisions.jsonl')
+    quota=freeze.get('geminiDailyQuotaAmendment',{})
+    progress=load('results/progress.json',{})
+    gemini_dev=sum(r['model']=='gemini-3.8-flash' and r['split']=='dev' for r in decisions)
+    gemini_test=sum(r['model']=='gemini-3.8-flash' and r['split']=='test' for r in decisions)
+    quota_parked=bool(quota) and gemini_dev+gemini_test<789 and (
+        datetime.datetime.now(datetime.timezone.utc)<datetime.datetime.fromisoformat(quota['resumeNotBefore']) or
+        progress.get('models',{}).get('gemini-3.8-flash',{}).get('status')=='stopped')
+    quota_status=(f"Gemini: not run: daily quota. Development comparisons: {gemini_dev}/270 complete, {270-gemini_dev} missing. Test comparisons: {gemini_test}/519 complete, {519-gemini_test} missing. No-answer quota rejections are not judge failures. Missing-only resumption is authorized after 2026-10-14 00:00 UTC or on the owner's word, with a Gemini-only last-call cutoff of 2026-10-14 12:00 UTC. Source: `freeze.json` and `results/decisions.jsonl`.") if quota_parked else 'Provider status follows the coverage table below.'
     validity=load('results/validity-checks.json',{})
     failed_dev=[r for r in phase.get('dev',[]) if r['contestant']=='pair-ledger' and r.get('noise',{}).get('completeTriplePairs')==30 and not r.get('cheaterBarPass')]
     dev_warning=('Preregistered development validity fails the cheater bar for '+', '.join(r['model'] for r in failed_dev)+'. The full test runs under explicit owner authorization without tuning. This study cannot claim that all validity gates pass. Source: `results/phase-report.json`.') if failed_dev else 'Development validity is reported below; incomplete checks remain pending.'
@@ -64,7 +72,7 @@ def main():
         'The model table below is the observed result, including pending and partial cells. No global superiority claim is made. This row is preregistered as no significant loss, not an assumed win.','',
         primary_summary+'. TIE follows the preregistered significance rule and does not establish equivalence. Source: `results/primary-disposition.json`.','',
         dev_warning,'',
-        ('Gemini is parked pending an owner-confirmed credit top-up. The owner reports depleted prepaid credits from another cell; this cell makes no new Gemini probe. Haiku and Luna continue.' if freeze.get('geminiCreditHold',{}).get('active') else 'Provider status follows the coverage table below.'),'',
+        ('Gemini is parked pending an owner-confirmed credit top-up. The owner reports depleted prepaid credits from another cell; this cell makes no new Gemini probe. Haiku and Luna continue.' if freeze.get('geminiCreditHold',{}).get('active') else quota_status),'',
         f"Actual recorded model spend: {actual:.8f} USD. Unsettled reservations: {sum(pending.values()):.8f} USD. Total lane cap: {freeze['capUsd']} USD. Recorded call attempts: {len(calls)}. Source: `results/spend.jsonl` and `results/calls.jsonl`.",'',
         '## Licence and label provenance','',
         '- WritingPreferenceBench is attributed to Shuangshuang Ying and coauthors. Both fetched dataset READMEs specify ODC-BY, research and educational use, attribution, and respect for referenced data licences.',
@@ -85,9 +93,17 @@ def main():
         'Scores use normalized presentation games. Ties and unparsed pair-ledger or promptfoo games are wrong. Reader-first retains its frozen longer-response fallback when a rubric ballot is invalid; the error count exposes that behavior.','',
         '| Model | Contestant | Pairs / 173 | Correct games | Accuracy % | Wilson 95% | Errors | USD / 100 pairs | USD / 100 games |',
         '|---|---|---:|---:|---:|---|---:|---:|---:|']
+    cost_audit=[]
     for row in cells:
         if row['model']=='machine':continue
-        lines.append(f"| {row['model']} | {row['contestant']} | {row['pairs']} | {row['correct']}/{row['games']} | {f(row['accuracy'])} | {interval(row['wilson95'])} | {row['graderErrors']} | {f(row['usdPer100Pairs'],5)} | {f(row['usdPer100Games'],5)} |")
+        error_cost=sum(c.get('costUsd',0) for c in calls if c['split']=='test' and c['model']==row['model'] and c['contestant']==row['contestant'] and c.get('providerError'))
+        total_cost=row['recipeUsd']+error_cost
+        per_pair=total_cost/row['pairs']*100 if row['pairs'] else None
+        per_game=total_cost/row['games']*100 if row['games'] else None
+        cost_audit.append({'model':row['model'],'contestant':row['contestant'],'decisionCostUsd':row['recipeUsd'],'knownNoAnswerCostUsd':error_cost,'totalKnownCostUsd':total_cost,'usdPer100Pairs':per_pair,'usdPer100Games':per_game})
+        lines.append(f"| {row['model']} | {row['contestant']} | {row['pairs']} | {row['correct']}/{row['games']} | {f(row['accuracy'])} | {interval(row['wilson95'])} | {row['graderErrors']} | {f(per_pair,5)} | {f(per_game,5)} |")
+    (HERE/'results/cost-audit.json').write_text(json.dumps(cost_audit,indent=2)+'\n')
+    lines+=['','Cost rates include known charges from no-answer transport attempts. Frozen score output keeps successful decision costs; `results/cost-audit.json` adds observed failed-attempt charges without changing any decision. The known portion moves from held spend to actual spend; the unresolved balance remains held.','']
     lines+=['','Reader-first is the separate opt-in PR 157 row at `c50b2dc3`. It has a length prior and a defect-gated override. It is not included in the primary pair-ledger family. Both its games share one normalized decision; pair-ledger reconciliation does the same. Raw readings remain in `results/decisions.jsonl`.','',
         '| Model | Challenger vs promptfoo | Matched pairs | Wins / losses | Difference, points | Request-cluster 95% | Exact two-sided p | Holm-18 |',
         '|---|---|---:|---:|---:|---|---:|---|']
@@ -164,10 +180,11 @@ def main():
         '- This supersedes the earlier Haiku/Luna-first schedule. HTTP 429 returns no model answer and is counted separately per cell, never as a judge failure. Exhausted Gemini rate-limit recovery parks only Gemini while other models continue.',
         '- The owner confirms a Gemini credit top-up after the temporary hold. Gemini resumes missing-only: the first missing sealed call probes alone, then its returned answer opens the two-call queue. Cached answers remain unchanged. Probe evidence is in `results/gemini-resume-probe.json` when available. An observed HTTP 402 immediately stops all Gemini submissions and releases only holds for proven HTTP 402 rejections. Other interrupted holds remain uncertain; provider failures never become judge decisions.',
         '- Two named Luna development calls exhaust three transport submissions with no answer. The owner authorizes one additional cycle of at most three submissions each after a successful connectivity probe. The exact call keys and expected unauthenticated HTTP 401 probe are in `freeze.json`; a second exhaustion remains missing and does not block the full test.',
-        f"- Last-call cutoff: `{freeze['lastCallUtc']}`. The owner extends it from 13:00 to 16:00 UTC because shared Gemini quota requires model reordering. This changes no source hash, seal or spending cap; the authorization is in `freeze.json`.",
+        f"- Haiku and Luna last-call cutoff: `{freeze['lastCallUtc']}`. The owner extends it from 13:00 to 16:00 UTC because shared Gemini quota requires model reordering. This changes no judge contract, seal or spending cap; the authorization is in `freeze.json`.",
+        '- The later daily quota amendment stops Gemini on 13 October. The owner identifies `generate_requests_per_model_per_day`, a 10,000-request limit and reset near 00:00 UTC on 14 October. This is owner-supplied quota diagnosis; this cell observes HTTP 429. Gemini alone may finish missing comparisons until 14 October 12:00 UTC. Existing answered calls and attempt counts remain fixed; time already spent in backoff counts toward the prescribed waits. The reset run probes its first missing call alone before concurrency two.',
         '- Both HTTP models use medium reasoning for every contestant and the same 4096 output-token cap. Haiku uses native Claude CLI without an exposed reasoning setting.',
         '- The owner unblocks Gemini billing and restricts key files to `openai.key` and `gemini-driftbench.key`. Keys load inside each command and are not printed.',
-        '- Six analysis tests and fourteen harness tests pass before the Gemini restart. Coverage includes the single-probe barrier, rejection blocking, source tamper rejection, shared spend reservations, proven HTTP 402 hold release, transport backoff, per-model concurrency, sealed queue order, provider isolation, output polarity and the pushed-core adapter.',
+        '- Six analysis tests and sixteen harness tests pass before the daily quota resume is committed. Coverage includes charged transport accounting, elapsed backoff credit, the single-probe barrier, rejection blocking, source tamper rejection, shared spend reservations, proven HTTP 402 hold release, transport backoff, per-model concurrency, sealed queue order, provider isolation, output polarity and the pushed-core adapter.',
         '- All paths above are relative to `examples/ledger-wp` unless prefixed otherwise. The branch is [research/ledger-wp](https://github.com/achammah/driftbench/tree/research/ledger-wp). Remote delivery is verified separately at handoff.','']
     text='\n'.join(lines)
     assert '\u2014' not in text and '\u2013' not in text

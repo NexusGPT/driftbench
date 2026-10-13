@@ -1,12 +1,14 @@
 {
-  "pid": 72456,
+  "pid": 2552,
   "status": "stopped",
   "phase": "remaining",
-  "at": "2026-10-13T10:17:46.420936+00:00",
-  "exitCode": 1,
-  "models": "haiku,gpt-6-luna",
+  "at": "2026-10-13T11:40:59.282706+00:00",
+  "models": "haiku,gpt-6-luna,gemini-3.8-flash",
   "limits": {
     "haiku": 2,
-    "gpt-6-luna": 8
-  }
+    "gpt-6-luna": 8,
+    "gemini-3.8-flash": 2
+  },
+  "reason": "Haiku and Luna complete; Gemini not run: daily quota",
+  "postRunReconciliation": "One known charged no-answer transport attempt is counted as actual; unresolved balance retained. All recording checks pass."
 }

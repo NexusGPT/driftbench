@@ -1,0 +1,12 @@
+{
+  "pid": 2552,
+  "status": "running",
+  "phase": "remaining",
+  "at": "2026-10-13T10:20:26.728063+00:00",
+  "models": "haiku,gpt-6-luna,gemini-3.8-flash",
+  "limits": {
+    "haiku": 2,
+    "gpt-6-luna": 8,
+    "gemini-3.8-flash": 2
+  }
+}

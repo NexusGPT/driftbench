@@ -72,6 +72,8 @@ def main():
         by_job[job_key(row)].append(row)
         if not row.get('providerError') and (row['key'] not in settled or not math.isclose(settled[row['key']], row['costUsd'], abs_tol=1e-12)):
             failures.append('Returned cost not settled: ' + row['key'])
+        if row.get('providerError') and row.get('costUsd', 0) > 0 and not math.isclose(settled.get('known-error-charge:' + row['key'], -1), row['costUsd'], abs_tol=1e-12):
+            failures.append('Known no-answer charge not counted: ' + row['key'])
     coverage = []
     for split, items in seals.items():
         ids = {r['id'] for r in items}
@@ -82,7 +84,7 @@ def main():
                 for row in observed:
                     if row['id'] not in ids or row['sample'] not in range(repeats) or len(row['games']) != 2:
                         failures.append('Unexpected decision: ' + str(job_key(row)))
-                    if not math.isclose(row['costUsd'], sum(c['costUsd'] for c in by_job[job_key(row)]), abs_tol=1e-10):
+                    if not math.isclose(row['costUsd'], sum(c['costUsd'] for c in by_job[job_key(row)] if not c.get('providerError')), abs_tol=1e-10):
                         failures.append('Decision cost mismatch: ' + str(job_key(row)))
                 coverage.append({'split': split, 'model': model, 'contestant': contestant,
                                  'recorded': len(observed), 'expected': len(items) * repeats})

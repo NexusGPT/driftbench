@@ -45,7 +45,7 @@
   },
   "files": {
     "examples/judge-benchmarks/src/llm-shim.mjs": "376105a7240ba6ad265fb2acc629a2c251ce5debdfca353a0b4c40aca41fe2a5",
-    "examples/ledger-wp/harness.ts": "376c85563ae8b854b2ba714a9b5479fbc1761c2a1635476be172238594f7226b",
+    "examples/ledger-wp/harness.ts": "c3de9a35d4537795a047b1e6db1da217824a7099ac3fb4bd4652a4f213a08323",
     "examples/ledger-wp/phase_report.py": "adabe9c88210b02720345d6e7ae2ca74908fb9aac7357bce405c5bf9dd9f2e1a",
     "examples/ledger-wp/prepare.py": "12e81d34a14a2f00f2ab821d41a1911b29d2de91466fd71a998c7c3a33d76d2d",
     "examples/ledger-wp/seal_validity.py": "527d73e3b1ffdd0f5943d854c1e468b26b318703ae8eeb4d4369accbff5d66b2",
@@ -336,5 +336,38 @@
     "changedFrozenFiles": [
       "examples/ledger-wp/harness.ts"
     ]
+  },
+  "geminiDailyQuotaAmendment": {
+    "at": "2026-10-13T11:20:46.122415+00:00",
+    "authorization": "Cause found: the Gemini limit is per day (generate_requests_per_model_per_day, 10,000, reset near 00:00 UTC on 14 October). Stop Gemini now: no more waits or retries today; calls in backoff are \"no answer\" and stay eligible. Runtime amendment, logged: Gemini missing-only completion may run until 14 October 12:00 UTC. Finish Haiku; mark Gemini \"not run: daily quota\" with the count. Resume Gemini only on my word or after the reset.",
+    "source": "Owner identifies daily quota metric and reset time; this cell observes HTTP 429 with no model answer.",
+    "metric": "generate_requests_per_model_per_day",
+    "ownerReportedLimit": 10000,
+    "resumeNotBefore": "2026-10-14T00:00:00Z",
+    "geminiLastCallUtc": "2026-10-14T12:00:00Z",
+    "parentFreezeSha256": "ec5bc526505e49a7253d11ad862b0a66ff510b83ee16ce7db821881c736b8279",
+    "status": "not run: daily quota",
+    "completedDevComparisons": 214,
+    "remainingDevComparisons": 56,
+    "completedTestComparisons": 0,
+    "remainingTestComparisons": 519,
+    "remainingTestPairsPerContestant": 173,
+    "liveStopEvidence": "results/gemini-daily-quota-stop.json",
+    "resumePolicy": "Missing-only after reset or a subsequent explicit owner amendment. Preserve answered calls and attempt counts. Existing no-answer backoff calls remain eligible; credit elapsed backoff time. First missing call probes alone before concurrency two.",
+    "capUsd": 35,
+    "judgeContractChanged": false,
+    "sealedOrderChanged": false
+  },
+  "modelLastCallUtc": {
+    "gemini-3.8-flash": "2026-10-14T12:00:00Z"
+  },
+  "transportCostAccountingAmendment": {
+    "at": "2026-10-13T11:40:17.110523+00:00",
+    "reason": "A native Haiku ENOTFOUND response reports a nonzero partial charge. Count that known charge as actual and retain the unresolved reservation balance.",
+    "judgeContractChanged": false,
+    "scoresChanged": false,
+    "knownFailedAttemptCostUsd": 0.0018808600000000003,
+    "costAudit": "results/cost-audit.json",
+    "decisionCosts": "Raw decision costs continue to describe returned model answers; reported per-cell rates add known failed-attempt charges."
   }
 }

@@ -1,0 +1,83 @@
+[
+  {
+    "model": "haiku",
+    "contestant": "pair-ledger",
+    "decisionCostUsd": 0.7554018100000001,
+    "knownNoAnswerCostUsd": 0,
+    "totalKnownCostUsd": 0.7554018100000001,
+    "usdPer100Pairs": 0.43664844508670525,
+    "usdPer100Games": 0.21832422254335263
+  },
+  {
+    "model": "haiku",
+    "contestant": "reader-first-c50b2dc3",
+    "decisionCostUsd": 0.97765857,
+    "knownNoAnswerCostUsd": 0.0018808600000000003,
+    "totalKnownCostUsd": 0.97953943,
+    "usdPer100Pairs": 0.5662077630057804,
+    "usdPer100Games": 0.2831038815028902
+  },
+  {
+    "model": "haiku",
+    "contestant": "promptfoo",
+    "decisionCostUsd": 0.37492380000000003,
+    "knownNoAnswerCostUsd": 0,
+    "totalKnownCostUsd": 0.37492380000000003,
+    "usdPer100Pairs": 0.21671895953757225,
+    "usdPer100Games": 0.10835947976878613
+  },
+  {
+    "model": "gpt-6-luna",
+    "contestant": "pair-ledger",
+    "decisionCostUsd": 0.2614744,
+    "knownNoAnswerCostUsd": 0,
+    "totalKnownCostUsd": 0.2614744,
+    "usdPer100Pairs": 0.15114127167630056,
+    "usdPer100Games": 0.07557063583815028
+  },
+  {
+    "model": "gpt-6-luna",
+    "contestant": "reader-first-c50b2dc3",
+    "decisionCostUsd": 0.4153841,
+    "knownNoAnswerCostUsd": 0,
+    "totalKnownCostUsd": 0.4153841,
+    "usdPer100Pairs": 0.24010641618497108,
+    "usdPer100Games": 0.12005320809248554
+  },
+  {
+    "model": "gpt-6-luna",
+    "contestant": "promptfoo",
+    "decisionCostUsd": 0.118272,
+    "knownNoAnswerCostUsd": 0,
+    "totalKnownCostUsd": 0.118272,
+    "usdPer100Pairs": 0.06836531791907514,
+    "usdPer100Games": 0.03418265895953757
+  },
+  {
+    "model": "gemini-3.8-flash",
+    "contestant": "pair-ledger",
+    "decisionCostUsd": 0,
+    "knownNoAnswerCostUsd": 0,
+    "totalKnownCostUsd": 0,
+    "usdPer100Pairs": null,
+    "usdPer100Games": null
+  },
+  {
+    "model": "gemini-3.8-flash",
+    "contestant": "reader-first-c50b2dc3",
+    "decisionCostUsd": 0,
+    "knownNoAnswerCostUsd": 0,
+    "totalKnownCostUsd": 0,
+    "usdPer100Pairs": null,
+    "usdPer100Games": null
+  },
+  {
+    "model": "gemini-3.8-flash",
+    "contestant": "promptfoo",
+    "decisionCostUsd": 0,
+    "knownNoAnswerCostUsd": 0,
+    "totalKnownCostUsd": 0,
+    "usdPer100Pairs": null,
+    "usdPer100Games": null
+  }
+]

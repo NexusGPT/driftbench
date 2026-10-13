@@ -1,5 +1,5 @@
 {
-  "at": "2026-10-13T10:19:50.520721+00:00",
+  "at": "2026-10-13T11:42:28.114037+00:00",
   "failures": [],
   "complete": false,
   "modelsChecked": [
@@ -9,31 +9,33 @@
   ],
   "sourceHashes": 191,
   "sealHashes": 5,
-  "actualUsd": 5.95316704,
-  "uncertainOrInflightUsd": 2.45,
+  "actualUsd": 12.1051882,
+  "uncertainOrInflightUsd": 4.04811914,
   "capUsd": 35,
-  "returnedCalls": 3664,
-  "completedDecisions": 1752,
+  "duplicateSuccessfulLogicalCalls": 0,
+  "geminiSingleProbeVerified": true,
+  "returnedCalls": 4845,
+  "completedDecisions": 2314,
   "coverage": [
     {
       "split": "test",
       "model": "haiku",
       "contestant": "pair-ledger",
-      "recorded": 60,
+      "recorded": 173,
       "expected": 173
     },
     {
       "split": "test",
       "model": "haiku",
       "contestant": "reader-first-c50b2dc3",
-      "recorded": 60,
+      "recorded": 173,
       "expected": 173
     },
     {
       "split": "test",
       "model": "haiku",
       "contestant": "promptfoo",
-      "recorded": 59,
+      "recorded": 173,
       "expected": 173
     },
     {
@@ -124,21 +126,21 @@
       "split": "dev",
       "model": "gemini-3.8-flash",
       "contestant": "pair-ledger",
-      "recorded": 0,
+      "recorded": 72,
       "expected": 90
     },
     {
       "split": "dev",
       "model": "gemini-3.8-flash",
       "contestant": "reader-first-c50b2dc3",
-      "recorded": 0,
+      "recorded": 71,
       "expected": 90
     },
     {
       "split": "dev",
       "model": "gemini-3.8-flash",
       "contestant": "promptfoo",
-      "recorded": 0,
+      "recorded": 71,
       "expected": 90
     },
     {
@@ -187,21 +189,21 @@
       "split": "validity",
       "model": "gemini-3.8-flash",
       "contestant": "pair-ledger",
-      "recorded": 18,
+      "recorded": 20,
       "expected": 20
     },
     {
       "split": "validity",
       "model": "gemini-3.8-flash",
       "contestant": "reader-first-c50b2dc3",
-      "recorded": 17,
+      "recorded": 20,
       "expected": 20
     },
     {
       "split": "validity",
       "model": "gemini-3.8-flash",
       "contestant": "promptfoo",
-      "recorded": 17,
+      "recorded": 20,
       "expected": 20
     },
     {

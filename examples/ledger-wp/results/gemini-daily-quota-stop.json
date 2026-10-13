@@ -1,0 +1,8 @@
+{
+  "at": "2026-10-13T11:17:35.799Z",
+  "runnerPid": 2562,
+  "action": "Abort active provider HTTP controllers in the owned runner; Gemini backoff checks the abort signal before any submission.",
+  "controllersAborted": 1,
+  "authorization": "Owner instructs immediate Gemini daily quota stop; Haiku native CLI calls continue.",
+  "inspectorClosed": true
+}

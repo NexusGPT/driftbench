@@ -25,8 +25,10 @@ def reports():
 
 def main():
     freeze = json.loads((HERE / 'freeze.json').read_text())
+    reset = datetime.datetime.fromisoformat(freeze.get('geminiDailyQuotaAmendment', {}).get('resumeNotBefore', '1970-01-01T00:00:00Z'))
+    quota_blocked = datetime.datetime.now(datetime.timezone.utc) < reset
     models = sys.argv[1] if len(sys.argv)>1 else ','.join(model for model in freeze['models']
-        if model != 'gemini-3.8-flash' or not freeze.get('geminiCreditHold', {}).get('active'))
+        if model != 'gemini-3.8-flash' or (not freeze.get('geminiCreditHold', {}).get('active') and not quota_blocked))
     limits = {model: freeze['pacingAmendment']['maxConcurrentCalls'][model] for model in models.split(',')}
     state('running', 'remaining', models=models, limits=limits)
     env = dict(os.environ)

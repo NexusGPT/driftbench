@@ -2,7 +2,7 @@ import assert from 'node:assert/strict';
 import { test } from 'node:test';
 import { mkdtempSync, readFileSync, writeFileSync } from 'node:fs';
 import { resolve } from 'node:path';
-import { Budget, cheater, FirstAnswerGate, HERE, isTransportFailure, parsePromptfoo, promptfoo, runLimitedJobs, sha, transportBackoffMs, verifyFreeze } from './harness';
+import { Budget, cheater, FirstAnswerGate, HERE, isTransportFailure, parsePromptfoo, promptfoo, runLimitedJobs, sha, transportBackoffMs, transportWaitRemainingMs, verifyFreeze } from './harness';
 import { judgePairLedger, pairLedgerRequest } from '../../packages/judges/src/pair-ledger';
 import { responseSchema } from '../../packages/judges/src/assessment';
 import { buildPrompt } from '../../packages/judges/src/prompt';
@@ -25,6 +25,12 @@ test('transport retry classification excludes billing, authentication and conten
 test('HTTP 429 uses the owner-authorized 60, 120 and 240 second waits',()=>{
   assert.deepEqual([2,3,4].map(n=>transportBackoffMs('shim error: Provider 429: shared quota',n)),[60000,120000,240000]);
   assert.equal(transportBackoffMs('shim error: fetch failed',2),1500);
+});
+test('a reset resume credits time already waited after a no-answer 429',()=>{
+  const at='2026-10-13T11:16:00Z',now=Date.parse(at);
+  assert.equal(transportWaitRemainingMs('Provider 429',4,at,now+60000),180000);
+  assert.equal(transportWaitRemainingMs('Provider 429',4,at,now+13*3600000),0);
+  assert.equal(transportWaitRemainingMs('fetch failed',2,undefined,now),1500);
 });
 test('per-model queues preserve sealed start order and independent concurrency bounds',async()=>{
   const maxima:Record<string,number>={};
@@ -86,6 +92,13 @@ test('only a proven HTTP 402 rejection releases a provider reservation',()=>{
   assert.throws(()=>b.releaseRejected('unknown',429),/proven HTTP 402/);
   b.releaseRejected('rejected',402);
   assert.deepEqual(b.totals().pending,['unknown']);assert.equal(b.totals().actual,0);
+});
+test('known charged transport errors count as actual while the unknown balance stays held',()=>{
+  const dir=mkdtempSync(resolve(HERE,'runtime/charged-error-test-'));
+  const b=new Budget(resolve(dir,'spend.jsonl'),1);b.reserve('partial',.25);
+  b.chargeError('partial',.01);b.chargeError('partial',.01);
+  assert.equal(b.totals().actual,.01);assert.equal(b.totals().reserved,.24);
+  assert.deepEqual(new Budget(b.file,1).totals(),b.totals());
 });
 test('freeze gate blocks pending core and corrupted files before calls',()=>{
   assert.throws(()=>verifyFreeze({core:{}}),/CORE_PR/);

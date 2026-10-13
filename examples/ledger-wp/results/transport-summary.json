@@ -51,17 +51,20 @@
   {
     "model": "gemini-3.8-flash",
     "contestant": "reader-first-c50b2dc3",
-    "http429All": 1,
+    "http429All": 4,
     "http429Test": 0,
     "byPhase": {
-      "validity": 1
+      "validity": 1,
+      "dev": 3
     }
   },
   {
     "model": "gemini-3.8-flash",
     "contestant": "promptfoo",
-    "http429All": 0,
+    "http429All": 3,
     "http429Test": 0,
-    "byPhase": {}
+    "byPhase": {
+      "dev": 3
+    }
   }
 ]

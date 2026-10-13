@@ -1,17 +1,17 @@
 [
   {
     "model": "haiku",
-    "verdict": "pending",
+    "verdict": "TIE",
     "comparison": {
-      "matchedPairs": 59,
-      "wins": 18,
-      "losses": 16,
-      "deltaPoints": 1.694915254237288,
+      "matchedPairs": 173,
+      "wins": 49,
+      "losses": 34,
+      "deltaPoints": 4.335260115606936,
       "requestCluster95": [
-        -9.322033898305085,
-        12.295081967213115
+        -1.1627906976744187,
+        10.335195530726256
       ],
-      "mcnemarTwoSided": 0.8641662404406816,
+      "mcnemarTwoSided": 0.12385305946180145,
       "holm18": null,
       "holmStatus": "pending full cross-benchmark family; reader-first excluded from primary family"
     }
