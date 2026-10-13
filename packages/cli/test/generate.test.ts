@@ -6,6 +6,7 @@ import { functionAdapter } from '@agent-nexus/driftbench-adapters';
 import { loadSpecs, runSpec } from '@agent-nexus/driftbench-core';
 import { createScriptedDriver } from '@agent-nexus/driftbench-users';
 import { describe, expect, it } from 'vitest';
+import { parse as parseYaml } from 'yaml';
 import { type Io, main } from '../src/index';
 
 const ACME = fileURLToPath(new URL('../../../examples/acme/', import.meta.url));
@@ -108,30 +109,33 @@ relations:
 `;
 
 describe('driftbench generate', () => {
-  it('builds --tasks instances per task family the map names', async () => {
+  it('builds --tasks instances per task_family relation the map names', async () => {
+    // Each relation gets --tasks instances; an instance writes one spec per variant (base, corners, planted),
+    // so the spec count is not a multiple of --tasks. Count the instances, read from the specs themselves.
+    const map = parseYaml(await readFile(`${ACME}map/approved.yaml`, 'utf8')) as {
+      relations: Array<{ kind: string }>;
+    };
+    const relations = map.relations.filter((relation) => relation.kind === 'task_family').length;
+    expect(relations).toBeGreaterThan(0);
     const dir = await mkdtemp(join(tmpdir(), 'driftbench-generate-tasks-'));
-    const taskSpecs = async (tasks: string) => {
+    const instances = async (tasks: string) => {
       const result = await run(
-        [
-          'generate',
-          '--map',
-          `${ACME}map/approved.yaml`,
-          '--out',
-          `t${tasks}`,
-          '--t',
-          '2',
-          '--tasks',
-          tasks,
-          '--json',
-        ],
+        ['generate', '--map', `${ACME}map/approved.yaml`, '--out', `t${tasks}`, '--t', '2', '--tasks', tasks],
         dir,
       );
       expect(result.code).toBe(1);
-      return (JSON.parse(result.out) as { seeders: { task: { specs: number } } }).seeders.task.specs;
+      const loaded = await loadSpecs([join(dir, `t${tasks}`, 'specs', 'task')]);
+      const seen = new Set<string>();
+      for (const spec of loaded) {
+        if (!spec.ok) throw new Error(`invalid task spec ${spec.path}`);
+        const family = spec.spec.metadata?.family as { id?: string; instance?: string } | undefined;
+        expect(family?.instance, spec.path).toBeDefined();
+        seen.add(`${family?.id}#${family?.instance}`);
+      }
+      return seen.size;
     };
-    const one = await taskSpecs('1');
-    expect(one).toBeGreaterThan(0);
-    expect(await taskSpecs('2')).toBe(2 * one);
+    expect(await instances('1')).toBe(relations);
+    expect(await instances('2')).toBe(2 * relations);
   }, 120_000);
 
   it('writes the Acme suite, refuses to overwrite it, and writes it again byte for byte with --force', async () => {
