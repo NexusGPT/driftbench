@@ -970,8 +970,8 @@ Review: pending. examples/acme/families/price-sheet/review.yaml is not signed ye
 Reads an agent estate (its standing instructions, skills, agents, guards and settings) into a map of atoms, lints it, approves the atoms a model split from prose, exports its space map, derives the test plan, generates task specs from it, and keeps the tests true when the estate changes. The runtime today is `claude-code`. What the atoms, the plan and maintenance are is on the [estate](../estate.md) page; the Claude Code mapping is on [its adapter page](../adapters/claude-code.md). [`examples/estates/fixture`](../../examples/estates/fixture/README.md) is the estate the examples below read.
 
 ```
-driftbench estate scan <root> --out <file> [--runtime claude-code] [--replay <file>] [--no-model] [--provider <name>] [--ceiling <characters>] [--force]
-driftbench estate lint <map> [--ceiling <characters>]
+driftbench estate scan <root> --out <file> [--runtime claude-code] [--replay <file>] [--no-model] [--provider <name>] [--ceiling <characters>] [--ignore <glob>]... [--force]
+driftbench estate lint <map> [--ceiling <characters>] [--ignore <glob>]...
 driftbench estate approve <map> [--kind <kind>]... [--atom <id>]... [--all] [--to <file>]
 driftbench estate map <map> --to <file> [--all] [--agent <name>]
 driftbench estate plan <map> --out <file> [--t <n>] [--space <file>] [--k <n>] [--force]
@@ -980,14 +980,14 @@ driftbench estate diff <old> <new> [--json] [--out <file>] [--old-guards <file>]
 driftbench estate impact <diff> --tests <dir> [--write] [--json] [--out <file>] [--replay <sessions>] [--suite <dir>] [--store <db>]
 driftbench estate generate --map <file> --plan <file> --out <dir> [--seed <n>] [--phrases <file>] [--sessions <file>] [--focus <file>] [--no-fallback] [--no-judge] [--force] [--json]
 driftbench estate static <tests...> --estate <root> [--runtime <name>] [--ceiling <characters>] [--json]
-driftbench estate unit <specs...> --estate <root> --json                      (not built yet)
+driftbench estate unit <tests...> --estate <root> [--runtime claude-code] [--record] [--no-sandbox] [--jobs <n>] [--json]
 driftbench estate stats --map <map> --plan <plan> --specs <dir> [--sessions <dir>] --json
 ```
 
 | Command | Does |
 |---|---|
 | `estate scan` | reads an estate into a map: code reads the structure, a model splits the prose. Atoms code reads are approved as read; atoms the model splits wait for approval |
-| `estate lint` | checks an estate against its map: orphans, unreachable files, missing references, size ceilings, guards |
+| `estate lint` | checks an estate against its map: orphans, unreachable files, missing references, size ceilings, guards. `--ignore <glob>` skips the paths it matches, beside the defaults, as the scan did; repeat it for several |
 | `estate approve` | lists the atoms left to approve, or approves them by kind, by atom or all |
 | `estate map` | writes the space map of the situation axes and the approved axis atoms, for `driftbench space` |
 | `estate plan` | derives the test plan from an approved map: the contract per atom kind, journeys over the estate graph, pairwise cells; the summary goes beside it as `<plan>.summary.json` |
@@ -996,7 +996,7 @@ driftbench estate stats --map <map> --plan <plan> --specs <dir> [--sessions <dir
 | `estate impact` | says what a diff does to the tests: regenerate, re-approve, retire, new |
 | `estate generate` | generates task specs from an approved plan, by code: one or more specs per plan row, with `estate-generate-report.json` and `run-order.txt`. With no approved phrase for a row, code writes the ask from the atoms (tag `ask:code`); with no declared outcome, the outcome is read from the atoms (no change, or nothing deleted). `--no-fallback` turns both off. `--focus` lists atom ids whose complete specs come first in the run order, then guards, gates and invariants |
 | `estate static` | runs the static tests `estate generate` writes under `static/` (one per invariant and per setting) against an estate root, read again by code with no run of the agent: an invariant must still hold, a setting must still be declared with its value. Exit 0 all pass, 1 one fails, 2 usage or input error |
-| `estate unit` | not built yet. Runs the unit-mode specs (guards on synthetic events, scripts on their fixtures) against an estate root and prints `runs`, `guards` and `scripts` as JSON; the shape is in [estate](../estate.md#unit-live-and-estate-mutants). Exit 0 all pass, 1 one fails, 2 usage or input error |
+| `estate unit` | runs the unit tests `estate generate` writes under `unit/` (guards on event payloads, scripts on their declared fixtures) against an estate root, with no model. `--record` runs each case on the original estate and writes its outcome into the test file; a later run, on the original or on a mutant copy from `estate mutate`, must give every recorded outcome again. See [below](#driftbench-estate-unit). Exit 0 all pass, 1 one fails, 2 usage or input error or a test with no recorded outcome |
 | `estate stats` | Prints the coverage lines of an estate as JSON: per atom kind the approved atoms, those with a complete spec and those a guard enforces; cells and edges covered; reach for skills, references, guards and subagents, a not-observable count for the other approved atoms, decay and the deny rate per guard (drift) from recorded sessions. The shape is in [estate](../estate.md#the-coverage-command-estate-stats-contract). Exit 0 printed, 2 usage or input error |
 | `estate run` | runs live estate specs through the runtime headless, in a sandbox holding a copy of the estate pinned to its map; see [estate run and estate mutate](#driftbench-estate-run-and-driftbench-estate-mutate) |
 | `estate mutate` | copies the estate and deletes or inverts one atom in the copy, for the adequacy of its tests |
@@ -1207,11 +1207,28 @@ An option error the argument parser reports (an unknown option, a missing compon
 ## `driftbench estate run` and `driftbench estate mutate`
 
 ```
-driftbench estate run <specs...> --estate <root> --runtime claude-code [--command <bin>] --store <db> [--map <file>] [--states <file>] [--pass-env <names...>] [--timeout <ms>] [--allow-billed] [--progress <file>] [--judge claude:<model>] [--judge-command <path>] [--judge-budget <usd>] [--json]
+driftbench estate run [specs...] --estate <root> --runtime claude-code [--order <file>] [--command <bin>] --store <db> [--map <file>] [--states <file>] [--set-env <NAME=VALUE>]... [--disallow <rules...>] [--lock-deny <paths...>] [--pass-env <names...>] [--timeout <ms>] [--model <name>] [--max-turns <n>] [--max-budget-usd <usd>] [--permission-mode <mode>] [--trust-estate] [--config host|isolated] [--allow-billed] [--progress <file>] [--judge claude:<model>] [--judge-command <path>] [--judge-budget <usd>] [--json]
 driftbench estate mutate <map> --atom <id> (--delete | --invert) --to <dir> [--force] [--json]
 ```
 
 `estate run` runs live estate specs through the runtime's headless command, in a sandbox holding a copy of the estate, pinned to the map's hash with `--map`. A command is billed unless its first lines carry the stand-in marker: without `--allow-billed`, only a stand-in runs. Exit 0 when every spec passes, 1 when one fails, 2 on a usage or input error (nothing runs).
+
+The options that shape the run of the runtime:
+
+| Option | Meaning |
+|---|---|
+| `--order <file>` | a run-order file, such as the `run-order.txt` that `estate generate` writes: one spec file or folder per line, relative to the file's own folder; `#` starts a comment. Its specs run in that order, after any `[specs...]` arguments |
+| `--set-env <NAME=VALUE>` | a variable the runtime and its guards receive; repeat it. For a path, a proxy or a dead URL a spec needs |
+| `--pass-env <names...>` | names of the evaluator's own variables the runtime receives, such as its credentials |
+| `--disallow <rules...>` | tools the runtime must refuse, passed to it as `--disallowed-tools` |
+| `--lock-deny <paths...>` | paths the runtime and its children may neither read nor write (the macOS lock). The owner config in `~/.claude` is always write-protected |
+| `--model <name>` | the model the runtime runs, passed as `--model` |
+| `--max-turns <n>` | the most agent turns per spec block, passed as `--max-turns` |
+| `--max-budget-usd <usd>` | the most one spec block may spend, passed as `--max-budget-usd` |
+| `--permission-mode <mode>` | the permission mode of the run, passed as `--permission-mode` |
+| `--trust-estate` | allow the tools the estate's settings allow, and Skill, as a trusted folder would |
+| `--config host\|isolated` | the config folder of the runtime: `host` (where the login lives) or `isolated`. Default `host`, and `isolated` for a stand-in command |
+| `--timeout <ms>` | kill a turn after this long |
 
 With `--progress <file>`, each finished spec appends one compact JSON run line to the file as it finishes, so a stopped batch keeps the lines it finished. Stdout is unchanged: with `--json` it is the one summary document, which has `runs`, `passed`, `failed`, `undecided`, `notApplicable` and `costUsd`. A spec whose only non-passing checks are not applicable (a stage check on a run with no stage record) is counted as `notApplicable`, not as a failure, and the summary line names the count.
 
@@ -1235,6 +1252,43 @@ Wrote <dir>: the estate copy, map.yaml and mutant.json.
 ```
 
 The `tool_denied` spec fails by design: the stand-in plays a planted fault, a `WebFetch` call the settings deny. The fixture's [README](../../examples/estates/fixture/live/README.md) lists the 14 proof specs.
+
+## `driftbench estate unit`
+
+```
+driftbench estate unit <tests...> --estate <root> [--runtime claude-code] [--record] [--no-sandbox] [--jobs <n>] [--json]
+```
+
+Runs the unit tests that `estate generate` writes under `unit/`, with no model: each guard on the event payloads of its cases, each script on its fixtures. `<tests...>` are test files, or folders that hold them, such as `<suite>/unit`. `--estate` is the root the tests run against: the original estate, or a mutant copy from `estate mutate`.
+
+| Option | Meaning |
+|---|---|
+| `--estate <root>` | the estate root; required |
+| `--runtime <name>` | the runtime that reads the estate; `claude-code`, the default, is the one runtime today |
+| `--record` | run on the original estate and write each case's outcome into its test file: the oracle a later run compares with |
+| `--no-sandbox` | run without the sandbox (no network, no credential folders) even where the platform has one |
+| `--jobs <n>` | how many tests run at once, default 1; the results keep their order |
+| `--json` | print `runs`, `guards` and `scripts` as one JSON document, the shape on the [estate](../estate.md#unit-live-and-estate-mutants) page |
+
+A guard case is an event payload in the runtime's input shape; the guard runs on a copy of the estate, as the runtime would run it. Its outcome is what the runtime reads: deny, ask, allow or error, the message and what the guard printed. `--record` runs each case several times on the original: a case whose outcome varies is marked flaky and is not compared, and a case that shows no effect is inert. Without `--record`, every recorded case that is neither flaky nor inert must give its recorded outcome again, and a `guard_speed` test also holds each run under its budget, the guard's `timeout`. A script runs the fixtures that `scripts:` declares for it in the estate's [`driftbench.estate.yaml`](../estate.md#the-estate-configuration-file); a script with no declared fixture is recorded like a guard.
+
+On the Northwind fixture, after `--record` on a copy of `examples/estates/fixture/generated/unit`:
+
+```
+$ pnpm -s driftbench estate unit <copy>/unit --estate examples/estates/fixture --record
+...
+Recorded 26 unit tests (sandbox: sandbox-exec); 0 have no fixture.
+$ pnpm -s driftbench estate unit <copy>/unit --estate examples/estates/fixture
+✓ unit.guard_hostile.guard.settings.posttooluse-bash-guard-ledger-guard-py  6 of 6 cases as recorded
+...
+· unit.guard_hostile.guard.settings.stop-guard-reply-length-py  no recorded case shows the guard at work
+...
+20 of 26 unit tests pass, 0 fail, 6 inert, 0 unrecorded (sandbox: sandbox-exec).
+```
+
+Without `--record`, a test with no recorded outcome prints `?` and `no outcome recorded: run --record on the original first`.
+
+Exit 0 when every test passes (an inert test passes), 1 when one fails, 2 on a usage or input error or when a test has no recorded outcome and `--record` was not given.
 
 ## `driftbench perturb`
 
