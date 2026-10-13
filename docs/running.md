@@ -2,7 +2,7 @@
 
 The runner runs a spec through an adapter, block by block, applies every check to each block, and records the run. A campaign runs many specs on many targets, in several modes, with repeats, and keeps every run in a store.
 
-Built: the three run modes, teacher-forced (T), free-running (F) and perturbed (P); the scripted driver that replays a spec's blocks, and the perturbing driver that injects one deviation, declared by the spec or drawn from the red-team pack; campaigns; the cache; the determinism smoke test; the ledger check, the stage classifier and the drift classes on every block; the compounding index and the recovery metrics. The simulated user is built as a library and has no command yet. See [run modes](concepts/run-modes.md).
+Built: the three run modes, teacher-forced (T), free-running (F) and perturbed (P); the scripted driver that replays a spec's blocks, and the perturbing driver that injects one deviation, declared by the spec or drawn from the red-team pack; campaigns; the cache; the determinism smoke test; the ledger check, the stage classifier and the drift classes on every block; the compounding index and the recovery metrics. The simulated user runs through `driftbench simulate` or `campaign run --driver simulated`. See [run modes](concepts/run-modes.md).
 
 ## From the command line
 
@@ -563,7 +563,7 @@ effective units per arm = specs * repeats / design effect
 
 ### The store
 
-`@agent-nexus/driftbench-store` keeps specs, campaigns, runs with their blocks, the cache and measured cost units in one SQLite file; `--store <file>` opens or creates it. It lists its campaigns newest first, which is how `status` and `resume` find the latest. `exportCampaign(campaignId, dir)` writes one campaign as a versioned JSON bundle: `campaign.json`, one `runs/<runId>.json` per run, and `manifest.json`, written last. No command exports a campaign yet. Cost units are recorded through the store's `putUnit`; nothing records them during a run yet, so a projection prices only the units put there.
+`@agent-nexus/driftbench-store` keeps specs, campaigns, runs with their blocks, the cache and measured cost units in one SQLite file; `--store <file>` opens or creates it. It lists its campaigns newest first, which is how `status` and `resume` find the latest. `exportCampaign(campaignId, dir)` and `campaign export <campaignId> --store <file> --out <dir>` write a bundle with the campaign, its runs, specs and recorded dataset and prompt versions. `campaign import <folder> --store <file>` checks the hashes and imports the bundle all or nothing. Cost units are recorded through the store's `putUnit`; nothing records them during a run yet, so a projection prices only the units put there.
 
 ## `runSpec`
 
