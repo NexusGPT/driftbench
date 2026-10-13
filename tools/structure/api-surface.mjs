@@ -10,6 +10,7 @@
 //                                                  name every added and removed export when they differ
 //   node tools/structure/api-surface.mjs --write   rewrite the frozen list from the exports
 //   --snapshot <file>                              the frozen list to check or write, for the tests
+//   --root <dir>                                   the repository to read, for the tests
 //
 // Columns: package, name, kind (type or value), declaredIn, doc (the declaration has a doc comment),
 // inDocs (the name appears as a word in docs/**, README.md or a package README), srcImporters (other
@@ -25,7 +26,12 @@ import { join, relative, sep } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import ts from 'typescript';
 
-const ROOT = fileURLToPath(new URL('../..', import.meta.url)).replace(/[\\/]$/, '');
+const flagValue = (flag) => {
+  const at = process.argv.indexOf(flag);
+  return at < 0 ? undefined : process.argv[at + 1];
+};
+// The repository to read: this one, or the folder --root names (the tests give a small one).
+const ROOT = (flagValue('--root') ?? fileURLToPath(new URL('../..', import.meta.url))).replace(/[\\/]$/, '');
 const asJson = process.argv.includes('--json');
 const posix = (path) => path.split(sep).join('/');
 const rel = (path) => posix(relative(ROOT, path));
@@ -74,6 +80,29 @@ const checker = program.getTypeChecker();
 const resolved = (symbol) =>
   symbol && symbol.flags & ts.SymbolFlags.Alias ? checker.getAliasedSymbol(symbol) : symbol;
 
+/**
+ * True when a name reaches the entry as a type only, whatever it was declared as: somewhere on the chain of
+ * re-exports and imports from the entry to the declaration stands `export type { x }`, `export { type x }`,
+ * `import type { x }` or `import { type x }`. Such a name has no run-time export.
+ */
+function typeOnlyOnTheWay(exported) {
+  const seen = new Set();
+  for (let symbol = exported; symbol && !seen.has(symbol); ) {
+    seen.add(symbol);
+    if (
+      (symbol.declarations ?? []).some((declaration) => ts.isTypeOnlyImportOrExportDeclaration(declaration))
+    )
+      return true;
+    if (!(symbol.flags & ts.SymbolFlags.Alias)) return false;
+    symbol = checker.getImmediateAliasedSymbol(symbol);
+  }
+  return false;
+}
+
+/** How the entry exports a name: `value` when it exists at run time, `type` when only the type checker sees it. */
+const kindOf = (exported) =>
+  resolved(exported).flags & ts.SymbolFlags.Value && !typeOnlyOnTheWay(exported) ? 'value' : 'type';
+
 // Words in the documentation, for the inDocs column.
 const docFiles = [
   ...walk(join(ROOT, 'docs'), /\.md$/),
@@ -96,7 +125,7 @@ for (const dir of packages) {
     const row = {
       package: dir,
       name: exported.name,
-      kind: symbol.flags & ts.SymbolFlags.Value ? 'value' : 'type',
+      kind: kindOf(exported),
       declaredIn: declaration ? rel(declaration.getSourceFile().fileName) : '?',
       doc: ts.displayPartsToString(symbol.getDocumentationComment(checker)).trim().length > 0,
       inDocs: docWords.has(exported.name),
@@ -238,10 +267,6 @@ const summary = packages
   .sort((a, b) => b.exports - a.exports || a.package.localeCompare(b.package));
 const total = summarise('total', out);
 
-const flagValue = (flag) => {
-  const at = process.argv.indexOf(flag);
-  return at < 0 ? undefined : process.argv[at + 1];
-};
 const SNAPSHOT = flagValue('--snapshot') ?? join(ROOT, 'tools/structure/api-surface.json');
 
 /** The frozen list: per package, each exported name with its kind (value or type), sorted by name. */
