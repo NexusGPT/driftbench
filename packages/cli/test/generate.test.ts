@@ -125,7 +125,10 @@ describe('driftbench generate', () => {
     );
     const before = await tree(join(dir, 'a'));
     expect(Object.keys(before)).toContain('generate-report.json');
-    expect(Object.keys(before).filter((path) => path.startsWith('specs/'))).toHaveLength(324);
+    // The spec files of specs/; the workbook seed folders (`.seed-<id>/`) sit beside them.
+    expect(
+      Object.keys(before).filter((path) => path.startsWith('specs/') && !path.includes('/.seed-')),
+    ).toHaveLength(324);
 
     const refused = await run(
       ['generate', '--map', `${ACME}map/approved.yaml`, '--out', 'a', '--t', '2'],
@@ -147,10 +150,14 @@ describe('driftbench generate', () => {
     );
     expect(elsewhere.code).toBe(1);
     const moved = await tree(join(dir, 'b/c'));
-    // Only the recorded map path differs: it is relative to the output folder.
+    // Only two paths differ: the recorded map path, relative to the output folder, and the seed folder a
+    // workbook task starts from, relative to the folder the command runs in.
     const strip = (files: Record<string, string>) =>
       Object.fromEntries(
-        Object.entries(files).map(([path, text]) => [path, text.replaceAll(/(\.\.\/)+/g, '')]),
+        Object.entries(files).map(([path, text]) => [
+          path,
+          text.replaceAll(/(\.\.\/)+/g, '').replaceAll(/from: (a|b\/c)\/specs\//g, 'from: <out>/specs/'),
+        ]),
       );
     expect(strip(moved)).toEqual(strip(before));
   }, 120_000);

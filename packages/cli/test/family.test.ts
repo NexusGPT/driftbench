@@ -190,7 +190,9 @@ describe('the committed Acme instances', () => {
     const written = await tree(out);
     const here = relative(repo, out).split(sep).join('/');
     for (const [path, text] of Object.entries(written)) {
-      written[path] = text.split(`from: ${here}/`).join('from: examples/acme/families/price-sheet/instances/');
+      written[path] = text
+        .split(`from: ${here}/`)
+        .join('from: examples/acme/families/price-sheet/instances/');
     }
     expect(written).toEqual(committed);
   }, 60_000);

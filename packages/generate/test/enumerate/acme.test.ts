@@ -88,7 +88,8 @@ describe('generate on the approved Acme map', () => {
     expect(committed).toEqual(result.files.map((file) => file.path).sort());
     for (const file of result.files) {
       // A workbook of a seed folder is compared by its bytes; every other file by its text.
-      if (file.bytes) expect([...(await readFile(join(GENERATED, file.path)))], file.path).toEqual([...file.bytes]);
+      if (file.bytes)
+        expect([...(await readFile(join(GENERATED, file.path)))], file.path).toEqual([...file.bytes]);
       else expect(await readFile(join(GENERATED, file.path), 'utf8'), file.path).toBe(file.text);
     }
   });
