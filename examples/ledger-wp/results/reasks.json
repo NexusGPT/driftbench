@@ -29,8 +29,8 @@
   {
     "scope": "all phases",
     "model": "gemini-3.5-flash-lite",
-    "completedPairs": 128,
-    "orderedReadings": 280,
+    "completedPairs": 301,
+    "orderedReadings": 713,
     "schemaReasks": 0,
     "recovered": 0,
     "reaskCostUsd": 0
@@ -65,8 +65,8 @@
   {
     "scope": "test",
     "model": "gemini-3.5-flash-lite",
-    "completedPairs": 0,
-    "orderedReadings": 0,
+    "completedPairs": 173,
+    "orderedReadings": 433,
     "schemaReasks": 0,
     "recovered": 0,
     "reaskCostUsd": 0

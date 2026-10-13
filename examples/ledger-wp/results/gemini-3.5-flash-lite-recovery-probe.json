@@ -1,0 +1,9 @@
+{
+  "status": "answered",
+  "key": "69f393d5f2165fd3f3806a492dc9cea0536bbdb0e9d3fc821ce022e9fed9aa4e",
+  "startedAt": "2026-10-13T12:33:01.322Z",
+  "finishedAt": "2026-10-13T12:33:05.177Z",
+  "reasoningApplied": "medium",
+  "costUsd": 0.0023764000000000003,
+  "policy": "First missing sealed TEST call after recovery; answer retained."
+}

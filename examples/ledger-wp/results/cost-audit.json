@@ -83,19 +83,19 @@
   {
     "model": "gemini-3.5-flash-lite",
     "contestant": "pair-ledger",
-    "decisionCostUsd": 0,
+    "decisionCostUsd": 1.4697362999999999,
     "knownNoAnswerCostUsd": 0,
-    "totalKnownCostUsd": 0,
-    "usdPer100Pairs": null,
-    "usdPer100Games": null
+    "totalKnownCostUsd": 1.4697362999999999,
+    "usdPer100Pairs": 0.8495585549132947,
+    "usdPer100Games": 0.42477927745664734
   },
   {
     "model": "gemini-3.5-flash-lite",
     "contestant": "promptfoo",
-    "decisionCostUsd": 0,
+    "decisionCostUsd": 0.8439654,
     "knownNoAnswerCostUsd": 0,
-    "totalKnownCostUsd": 0,
-    "usdPer100Pairs": null,
-    "usdPer100Games": null
+    "totalKnownCostUsd": 0.8439654,
+    "usdPer100Pairs": 0.48784127167630054,
+    "usdPer100Games": 0.24392063583815027
   }
 ]

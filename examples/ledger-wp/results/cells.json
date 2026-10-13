@@ -231,24 +231,30 @@
     {
       "model": "gemini-3.5-flash-lite",
       "contestant": "pair-ledger",
-      "status": "pending or partial",
-      "pairs": 0,
-      "games": 0,
-      "correct": 0,
-      "accuracy": null,
-      "wilson95": null,
-      "recipeUsd": 0,
+      "status": "complete",
+      "pairs": 173,
+      "games": 346,
+      "correct": 204,
+      "accuracy": 58.959537572254334,
+      "wilson95": [
+        53.705610366505255,
+        64.01670310914749
+      ],
+      "recipeUsd": 1.4697362999999999,
       "graderErrors": 0,
-      "ties": 0,
-      "usdPer100Pairs": null,
-      "usdPer100Games": null,
+      "ties": 44,
+      "usdPer100Pairs": 0.8495585549132947,
+      "usdPer100Games": 0.42477927745664734,
       "comparison": {
-        "matchedPairs": 0,
-        "wins": 0,
-        "losses": 0,
-        "deltaPoints": null,
-        "requestCluster95": null,
-        "mcnemarTwoSided": null,
+        "matchedPairs": 173,
+        "wins": 42,
+        "losses": 47,
+        "deltaPoints": -1.4450867052023122,
+        "requestCluster95": [
+          -7.485029940119761,
+          4.573170731707317
+        ],
+        "mcnemarTwoSided": 0.6718086491746106,
         "holm18": null,
         "holmStatus": "pending full cross-benchmark family; reader-first excluded from primary family"
       }
@@ -256,17 +262,20 @@
     {
       "model": "gemini-3.5-flash-lite",
       "contestant": "promptfoo",
-      "status": "pending or partial",
-      "pairs": 0,
-      "games": 0,
-      "correct": 0,
-      "accuracy": null,
-      "wilson95": null,
-      "recipeUsd": 0,
+      "status": "complete",
+      "pairs": 173,
+      "games": 346,
+      "correct": 209,
+      "accuracy": 60.40462427745665,
+      "wilson95": [
+        55.16438646809434,
+        65.41636466492173
+      ],
+      "recipeUsd": 0.8439654,
       "graderErrors": 0,
       "ties": 0,
-      "usdPer100Pairs": null,
-      "usdPer100Games": null
+      "usdPer100Pairs": 0.4878412716763006,
+      "usdPer100Games": 0.2439206358381503
     },
     {
       "model": "machine",

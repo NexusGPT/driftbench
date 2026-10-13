@@ -49,14 +49,17 @@
   },
   {
     "model": "gemini-3.5-flash-lite",
-    "verdict": "pending",
+    "verdict": "TIE",
     "comparison": {
-      "matchedPairs": 0,
-      "wins": 0,
-      "losses": 0,
-      "deltaPoints": null,
-      "requestCluster95": null,
-      "mcnemarTwoSided": null,
+      "matchedPairs": 173,
+      "wins": 42,
+      "losses": 47,
+      "deltaPoints": -1.4450867052023122,
+      "requestCluster95": [
+        -7.485029940119761,
+        4.573170731707317
+      ],
+      "mcnemarTwoSided": 0.6718086491746106,
       "holm18": null,
       "holmStatus": "pending full cross-benchmark family; reader-first excluded from primary family"
     }

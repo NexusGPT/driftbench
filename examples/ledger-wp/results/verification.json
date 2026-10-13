@@ -1,22 +1,19 @@
 {
-  "at": "2026-10-13T12:30:19.566668+00:00",
+  "at": "2026-10-13T12:39:09.627621+00:00",
   "failures": [],
-  "complete": false,
+  "complete": true,
   "modelsChecked": [
-    "haiku",
-    "gpt-6-luna",
-    "gemini-3.8-flash",
     "gemini-3.5-flash-lite"
   ],
   "sourceHashes": 191,
   "sealHashes": 5,
-  "actualUsd": 13.8066051,
+  "actualUsd": 16.1203068,
   "uncertainOrInflightUsd": 6.44811914,
   "capUsd": 35,
   "duplicateSuccessfulLogicalCalls": 0,
   "geminiSingleProbeVerified": true,
-  "returnedCalls": 5405,
-  "completedDecisions": 2570,
+  "returnedCalls": 6184,
+  "completedDecisions": 2916,
   "coverage": [
     {
       "split": "test",
@@ -85,14 +82,14 @@
       "split": "test",
       "model": "gemini-3.5-flash-lite",
       "contestant": "pair-ledger",
-      "recorded": 0,
+      "recorded": 173,
       "expected": 173
     },
     {
       "split": "test",
       "model": "gemini-3.5-flash-lite",
       "contestant": "promptfoo",
-      "recorded": 0,
+      "recorded": 173,
       "expected": 173
     },
     {
