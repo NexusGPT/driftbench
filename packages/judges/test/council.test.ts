@@ -50,9 +50,9 @@ describe('majority of three', () => {
 describe('majority of any size: an outcome needs more than half of all votes cast', () => {
   it('counts inconclusive votes in the total', () => {
     const v = (outcome: 'pass' | 'fail' | 'inconclusive') => ({ judge: 'j', outcome });
-    expect(majority([v('pass'), v('pass'), v('inconclusive'), v('inconclusive')])).toBe('split');
+    expect(majority([v('pass'), v('pass'), v('inconclusive'), v('inconclusive')], 4)).toBe('split');
     expect(majority([v('pass'), v('pass'), v('pass'), v('fail'), v('inconclusive')])).toBe('pass');
-    expect(majority([v('pass')])).toBe('pass');
+    expect(majority([v('pass')], 1)).toBe('pass');
     expect(majority([v('pass'), v('fail'), v('pass'), v('fail')])).toBe('split');
   });
 });
@@ -508,4 +508,11 @@ describe('a flagged request never stops the cascade at the cheapest judge', () =
     expect(result.outcome).toBe('fail');
     expect((await make().judge(REQUEST)).cascaded).toBe(true);
   });
+});
+
+it('retains main quorum for partial councils and the numeric seated-count argument', () => {
+  const one = [{ judge: 'j', outcome: 'pass' as const }];
+  expect(majority(one)).toBe('split');
+  expect(majority(one, 3)).toBe('split');
+  expect(majority(one, 1)).toBe('pass');
 });

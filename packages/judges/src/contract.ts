@@ -1,4 +1,7 @@
 import { z } from 'zod';
+import type { Assessment, RubricScores } from './assessment';
+import type { CriterionLedger, CriterionRequirement } from './criterion-ledger';
+import type { FactLedgerAnswer } from './fact-audit';
 
 /**
  * The answer contract every judge returns, and the request every judge reads.
@@ -52,6 +55,15 @@ export type CriterionText = z.infer<typeof CriterionText>;
 
 /** Everything one judge call reads. */
 export type JudgeRequest = {
+  /** Previous model-facing prompt and parser, for exact replay of existing scores. Default ledger. */
+  readonly answerContract?: 'ledger' | 'legacy';
+  /** Exact requirement ids and definitions to check. Absent: the criterion name and full rubric. */
+  readonly requirements?: readonly CriterionRequirement[];
+  /** Opt-in answer contract. Pairwise calls name the winner; rubric calls score each supplied item. */
+  readonly assessment?: Assessment;
+  /** Candidate texts for validating content-anchored winners. */
+  readonly candidates?: { readonly A: string; readonly B: string };
+  readonly factAudit?: { readonly reference: string };
   readonly criterion: CriterionText;
   /** The system prompt of this request. Absent: the criterion prompt of the prompt kit. */
   readonly system?: string;
@@ -70,6 +82,20 @@ export type JudgeRequest = {
 
 /** What a client returns: the answer, the raw text it came from, and whether that text parsed. */
 export type JudgeResult = {
+  /** Explicit pairwise winner before mapping it to the legacy binary outcome. */
+  readonly winner?: 'A' | 'B' | 'tie' | 'inconclusive';
+  /** Validated item scores and the deterministic aggregate. */
+  readonly rubric?: RubricScores;
+  readonly factLedger?: FactLedgerAnswer;
+  /** Default chat-model requirement ledger, with the public outcome computed in code. */
+  readonly checks?: CriterionLedger['checks'];
+  /** Model-invented requirement ids, ignored during scoring and retained for diagnostics. */
+  readonly ignoredRequirementIds?: readonly string[];
+  readonly referenceAgreement?: {
+    readonly attempts: number;
+    readonly agreement: number;
+    readonly used: boolean;
+  };
   readonly answer: JudgeAnswer;
   /** The provider's answer as received: the model text, or the JSON body of a system 1 answer. */
   readonly raw: string;
@@ -91,10 +117,17 @@ export function inconclusive(reasoning: string): JudgeAnswer {
  * surrounded by prose. Anything else, an extra key included, is an unparsed inconclusive answer.
  */
 export function parseAnswerText(raw: string): JudgeResult {
+  return parseText(raw, repairAnswerText);
+}
+
+function parseText(raw: string, quoteRepair: (text: string) => string): JudgeResult {
   const candidate = extractObject(raw);
   if (candidate === undefined) {
     return { answer: inconclusive('unparseable answer: no JSON object found'), raw, unparsed: true };
   }
+  const duplicate = repeatedObjectKey(repairAnswerText(candidate));
+  if (duplicate !== undefined)
+    return { raw, unparsed: true, answer: inconclusive(`unparseable answer: repeated key ${duplicate}`) };
   let value: unknown;
   try {
     value = JSON.parse(candidate);
@@ -102,14 +135,16 @@ export function parseAnswerText(raw: string): JudgeResult {
     // One strict repair: escape the double quotes inside string values, then read it again. A repaired
     // answer still meets the whole contract or stays unparsed.
     for (const repair of [
-      repairAnswerText,
+      quoteRepair,
       singleToDoubleQuotes,
       dropTrailingComma,
       dropCommentLines,
       straightenCurlyQuotes,
     ]) {
       try {
-        const repaired = parseAnswerValue(JSON.parse(repair(candidate)), raw);
+        const fixed = repair(candidate);
+        if (repeatedObjectKey(fixed) !== undefined) continue;
+        const repaired = parseAnswerValue(JSON.parse(fixed), raw);
         if (!repaired.unparsed) return { ...repaired, repaired: true };
       } catch {
         // Not JSON after this repair: try the next, and the first error explains it if none reads.
@@ -127,6 +162,34 @@ export function parseAnswerText(raw: string): JudgeResult {
     if (!repaired.unparsed) return { ...repaired, repaired: true };
   }
   return strict;
+}
+
+/** Detect duplicate keys within each object before JSON.parse can discard an earlier verdict. */
+export function repeatedObjectKey(text: string): string | undefined {
+  const stack: { object: boolean; keys: Set<string>; key: boolean }[] = [];
+  const tokens = /"(?:\\[\s\S]|[^"\\])*"|[{}[\]:,]/g;
+  for (const token of text.matchAll(tokens)) {
+    const value = token[0];
+    const frame = stack.at(-1);
+    if (value === '{' || value === '[') {
+      stack.push({ object: value === '{', keys: new Set(), key: value === '{' });
+    } else if (value === '}' || value === ']') stack.pop();
+    else if (value === ':' && frame) frame.key = false;
+    else if (value === ',' && frame?.object) frame.key = true;
+    else if (value.startsWith('"') && frame?.object && frame.key) {
+      // Keys with escaped spellings are the same key after decoding, e.g. out\u0063ome.
+      let name: string;
+      try {
+        name = JSON.parse(value) as string;
+      } catch {
+        continue;
+      }
+      if (frame.keys.has(name)) return name;
+      frame.keys.add(name);
+      frame.key = false;
+    }
+  }
+  return undefined;
 }
 
 /**
@@ -154,18 +217,29 @@ function recaseOutcome(value: unknown): unknown {
 }
 
 /**
- * The strict repair of a model's JSON: inside a string, a double quote that is not followed (after spaces)
- * by `,`, `}`, `]`, `:` or the end of the text cannot close the string, so it is escaped. Nothing else
- * changes: no key is added, removed or renamed, and no value outside a string is touched.
+ * Repairs unescaped quotes inside JSON strings. An object value ends before a comma only when the
+ * next token is a property name followed by a colon. A quoted word in a prose list cannot end it.
+ * Invalid JSON backslash escapes inside a string are retained as literal backslashes.
+ * No key, verdict or value outside a string is added, removed or renamed.
  */
 export function repairAnswerText(text: string): string {
   let out = '';
   let inString = false;
   let escaped = false;
+  let key = false;
+  let previous = '';
+  const containers: string[] = [];
   for (let i = 0; i < text.length; i += 1) {
     const ch = text[i] as string;
     if (!inString) {
-      if (ch === '"') inString = true;
+      if (ch === '"') {
+        inString = true;
+        key = containers.at(-1) === '{' && previous !== ':';
+      } else {
+        if (ch === '{' || ch === '[') containers.push(ch);
+        if (ch === '}' || ch === ']') containers.pop();
+        if (!/\s/.test(ch)) previous = ch;
+      }
       out += ch;
       continue;
     }
@@ -175,14 +249,21 @@ export function repairAnswerText(text: string): string {
       continue;
     }
     if (ch === '\\') {
-      escaped = true;
-      out += ch;
+      const next = text[i + 1];
+      const valid =
+        next !== undefined &&
+        (/["\\/bfnrt]/.test(next) || (next === 'u' && /^[0-9a-fA-F]{4}/.test(text.slice(i + 2))));
+      escaped = valid;
+      out += valid ? ch : '\\\\';
       continue;
     }
     if (ch === '"') {
-      const next = text.slice(i + 1).match(/^\s*(.)/)?.[1];
-      if (next === undefined || ',}]:'.includes(next)) {
+      const rest = text.slice(i + 1).trimStart();
+      const next = rest[0];
+      const comma = next === ',' && (containers.at(-1) !== '{' || /^,\s*"(?:\\.|[^"\\])*"\s*:/.test(rest));
+      if (key ? next === ':' : next === undefined || next === '}' || next === ']' || comma) {
         inString = false;
+        previous = '"';
         out += ch;
       } else out += '\\"';
       continue;
@@ -286,6 +367,13 @@ export function dropTrailingComma(text: string): string {
 
 /** Validates an already decoded answer against the contract. */
 export function parseAnswerValue(value: unknown, raw: string = JSON.stringify(value)): JudgeResult {
+  const duplicate = repeatedObjectKey(repairAnswerText(raw));
+  if (duplicate !== undefined)
+    return {
+      raw,
+      unparsed: true,
+      answer: inconclusive(`answer breaks the contract: repeated key ${duplicate}`),
+    };
   const parsed = JudgeAnswer.safeParse(value);
   if (parsed.success) return { answer: parsed.data, raw };
   const issue = parsed.error.issues[0];
@@ -302,7 +390,7 @@ export function parseAnswerValue(value: unknown, raw: string = JSON.stringify(va
  * earlier, so it never becomes the verdict. A final object still open at the end of the text (a cut answer) yields
  * nothing, so the verdict is inconclusive rather than the last complete object before it.
  */
-function extractObject(raw: string): string | undefined {
+export function extractObject(raw: string): string | undefined {
   let depth = 0;
   let start = -1;
   let quote: string | undefined;

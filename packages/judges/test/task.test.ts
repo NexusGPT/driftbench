@@ -11,8 +11,8 @@ import {
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { bytesOf, docx, para, pdf, pptx, workbook } from '../../artifacts/test/fixtures';
 import {
+  cassettePlayers as baseCassettePlayers,
   calibrate,
-  cassettePlayers,
   councilAssignment,
   createCouncil,
   FakeJudge,
@@ -46,6 +46,9 @@ import { ACME_JUDGES } from './support/scripted';
  * temporary workspace; the judge reads its cells and formulas through the xlsx reader, never the agent's
  * claim, and a copy with one changed cell fails.
  */
+
+const cassettePlayers = (cassette: Parameters<typeof baseCassettePlayers>[0]) =>
+  baseCassettePlayers(cassette, { answerContract: 'legacy' });
 
 const ROOT = fileURLToPath(new URL('../../../', import.meta.url));
 const CRITERIA = join(ROOT, 'examples/acme/criteria');

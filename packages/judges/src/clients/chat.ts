@@ -1,5 +1,6 @@
+import { parseJudgeText, responseSchema } from '../assessment';
 import type { ClientOptions, JudgeClient } from '../client';
-import { inconclusive, type JudgeRequest, type JudgeResult, MAX_TOKENS, parseAnswerText } from '../contract';
+import { inconclusive, type JudgeRequest, type JudgeResult, MAX_TOKENS } from '../contract';
 import { isRecord, JudgeError, postJson, requireEnv } from '../http';
 import { buildPrompt } from '../prompt';
 
@@ -24,22 +25,6 @@ function baseOf(env: Record<string, string | undefined>, variable: string, fallb
 function budgetOf(request: JudgeRequest): number {
   return MAX_TOKENS[request.budget ?? 'normal'];
 }
-
-/** The answer contract as a JSON schema, for providers that take one. The keys and the outcome words are the contract's. */
-const ANSWER_SCHEMA = {
-  type: 'object',
-  properties: {
-    outcome: { type: 'string', enum: ['pass', 'fail', 'inconclusive'] },
-    score: { type: 'number', minimum: 0, maximum: 1 },
-    reasoning: { type: 'string' },
-    evidence: { type: 'string' },
-  },
-  required: ['outcome', 'reasoning'],
-  additionalProperties: false,
-} as const;
-
-/** The same schema in the subset Gemini takes: no additionalProperties. */
-const { additionalProperties: _open, ...GOOGLE_ANSWER_SCHEMA } = ANSWER_SCHEMA;
 
 /** A truncated answer: unparsed, so the council re-judges it once with the large budget. */
 function truncated(raw: string, model: string): JudgeResult {
@@ -76,7 +61,7 @@ export function createOpenAiJudge(options: ClientOptions = {}): JudgeClient {
           temperature: 0,
           response_format: {
             type: 'json_schema',
-            json_schema: { name: 'judge_answer', strict: false, schema: ANSWER_SCHEMA },
+            json_schema: { name: 'judge_answer', strict: false, schema: responseSchema(request) },
           },
           messages: [
             { role: 'system', content: prompt.system },
@@ -99,7 +84,7 @@ export function createOpenAiJudge(options: ClientOptions = {}): JudgeClient {
       }
       const content = contentText(message.content);
       if (choice.finish_reason === 'length') return truncated(content, model);
-      return parseAnswerText(content);
+      return parseJudgeText(content, request);
     },
   };
 }
@@ -147,7 +132,7 @@ export function createAnthropicJudge(options: ClientOptions = {}): JudgeClient {
         .map((block) => block.text)
         .join('');
       if (payload.stop_reason === 'max_tokens') return truncated(text, model);
-      return parseAnswerText(text);
+      return parseJudgeText(text, request);
     },
   };
 }
@@ -180,7 +165,7 @@ export function createGoogleJudge(options: ClientOptions = {}): JudgeClient {
           contents: [{ role: 'user', parts: [{ text: prompt.user }] }],
           generationConfig: {
             responseMimeType: 'application/json',
-            responseSchema: GOOGLE_ANSWER_SCHEMA,
+            responseSchema: googleSchema(responseSchema(request)),
             maxOutputTokens: budgetOf(request),
             temperature: 0,
           },
@@ -208,7 +193,7 @@ export function createGoogleJudge(options: ClientOptions = {}): JudgeClient {
       if (candidate.finishReason === 'MAX_TOKENS') return truncated(text, model);
       if (candidate.finishReason === 'SAFETY' || candidate.finishReason === 'RECITATION')
         return { answer: inconclusive(`${model} declined the request`), raw };
-      return parseAnswerText(text);
+      return parseJudgeText(text, request);
     },
   };
 }
@@ -220,4 +205,16 @@ function contentText(content: unknown): string {
   return content
     .map((part) => (isRecord(part) && part.type === 'text' && typeof part.text === 'string' ? part.text : ''))
     .join('');
+}
+
+/** Gemini omits additionalProperties and JSON Schema dialect declarations at every level. */
+function googleSchema(value: unknown): unknown {
+  if (Array.isArray(value)) return value.map(googleSchema);
+  if (value && typeof value === 'object')
+    return Object.fromEntries(
+      Object.entries(value)
+        .filter(([key]) => key !== 'additionalProperties' && key !== '$schema')
+        .map(([key, nested]) => [key, googleSchema(nested)]),
+    );
+  return value;
 }

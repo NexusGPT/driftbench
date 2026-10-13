@@ -18,6 +18,7 @@ import {
 const KEY = ['test', 'judge', 'key', '7f3a9c2e5b1d'].join('-');
 
 const REQUEST: JudgeRequest = {
+  answerContract: 'legacy',
   criterion: {
     name: 'one_question_per_turn',
     rubric: 'The reply asks the customer at most one question.',
@@ -386,6 +387,7 @@ describe('an OpenAI answer whose content is a list of parts', () => {
         }),
     });
     return client.judge({
+      answerContract: 'legacy',
       criterion: { name: 'c', rubric: 'r' },
       transcript: [{ role: 'user', text: 'hi' }],
     });
@@ -515,7 +517,11 @@ describe('the OpenAI client asks for the answer schema', () => {
         return new Response('{}', { status: 200, headers: { 'content-type': 'application/json' } });
       },
     });
-    await client.judge({ criterion: { name: 'c', rubric: 'r' }, transcript: [{ role: 'user', text: 'hi' }] });
+    await client.judge({
+      answerContract: 'legacy',
+      criterion: { name: 'c', rubric: 'r' },
+      transcript: [{ role: 'user', text: 'hi' }],
+    });
     const format = bodies[0].response_format;
     expect(format.type).toBe('json_schema');
     expect(Object.keys(format.json_schema.schema.properties).sort()).toEqual([
@@ -540,11 +546,61 @@ describe('the Google client gives a response schema', () => {
         return new Response('{}', { status: 200, headers: { 'content-type': 'application/json' } });
       },
     });
-    await client.judge({ criterion: { name: 'c', rubric: 'r' }, transcript: [{ role: 'user', text: 'hi' }] });
+    await client.judge({
+      answerContract: 'legacy',
+      criterion: { name: 'c', rubric: 'r' },
+      transcript: [{ role: 'user', text: 'hi' }],
+    });
     const schema = bodies[0].generationConfig.responseSchema;
     expect(Object.keys(schema.properties).sort()).toEqual(['evidence', 'outcome', 'reasoning', 'score']);
     expect(schema.required).toEqual(['outcome', 'reasoning']);
     expect(schema.properties.outcome.enum).toEqual(['pass', 'fail', 'inconclusive']);
     expect(schema).not.toHaveProperty('additionalProperties');
   });
+});
+
+describe('assessment contracts reach every chat provider', () => {
+  const text = '{"reasoning":"B gives the answer","winnerQuote":"correct","winner":"B"}';
+  for (const c of CASES.filter((c) => c.cls === 'system2')) {
+    it(`${c.name} parses the named winner under the pairwise request contract`, async () => {
+      const { pairwiseRequest } = await import('../src/pairwise');
+      const payload =
+        c.name === 'openai'
+          ? { choices: [{ finish_reason: 'stop', message: { content: text } }] }
+          : c.name === 'anthropic'
+            ? { stop_reason: 'end_turn', content: [{ type: 'text', text }] }
+            : c.name === 'google'
+              ? { candidates: [{ finishReason: 'STOP', content: { parts: [{ text }] } }] }
+              : JSON.parse(text);
+      const { fetch, calls } = fakeFetch([[200, payload]]);
+      const request = pairwiseRequest({ name: 'correct', rubric: 'Correct answer.' }, [], 'wrong', 'correct');
+      expect((await c.make(fetch, c.env).judge(request)).answer.outcome).toBe('fail');
+      const body = calls[0]?.body as Record<string, unknown>;
+      if (c.name === 'openai' || c.name === 'google') {
+        expect(JSON.stringify(body)).toContain('winnerQuote');
+      }
+    });
+  }
+});
+
+describe('the default pointwise ledger at each chat provider', () => {
+  const text =
+    '{"checks":[{"id":"one_question_per_turn","reasoning":"The reply asks two questions.","evidence":"And do you want fiber?","met":false}]}';
+  for (const c of CASES.filter((c) => c.cls === 'system2')) {
+    it(`${c.name} computes the public fail from the model evidence ledger`, async () => {
+      const payload =
+        c.name === 'openai'
+          ? { choices: [{ finish_reason: 'stop', message: { content: text } }] }
+          : c.name === 'anthropic'
+            ? { stop_reason: 'end_turn', content: [{ type: 'text', text }] }
+            : c.name === 'google'
+              ? { candidates: [{ finishReason: 'STOP', content: { parts: [{ text }] } }] }
+              : JSON.parse(text);
+      const { fetch } = fakeFetch([[200, payload]]);
+      const result = await c.make(fetch, c.env).judge({ ...REQUEST, answerContract: 'ledger' });
+      expect(result.answer.outcome).toBe('fail');
+      expect(result.checks).toHaveLength(1);
+      expect(result.unparsed).toBeUndefined();
+    });
+  }
 });

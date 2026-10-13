@@ -5,10 +5,10 @@ import { fileURLToPath } from 'node:url';
 import { describe, expect, it } from 'vitest';
 import {
   assignmentTable,
+  cassettePlayers as baseCassettePlayers,
   type CalibrationReport,
   type Cassette,
   calibrate,
-  cassettePlayers,
   councilAssignment,
   createCouncil,
   FakeJudge,
@@ -24,6 +24,9 @@ import {
   requestKey,
 } from '../src/index';
 import { ACME_JUDGES, ACME_MISSES, type Miss, scriptedCalibrationCassette } from './support/scripted';
+
+const cassettePlayers = (cassette: Parameters<typeof baseCassettePlayers>[0]) =>
+  baseCassettePlayers(cassette, { answerContract: 'legacy' });
 
 const ROOT = fileURLToPath(new URL('../../../', import.meta.url));
 const CRITERIA = join(ROOT, 'examples/acme/criteria');

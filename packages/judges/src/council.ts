@@ -396,14 +396,27 @@ async function runRound(
   return { cls, budget, votes, outcome, cascaded };
 }
 
-/**
- * The outcome a majority agrees on: more than half of all votes cast, so two of three, or the one vote of a row
- * of one. An inconclusive vote counts in the total and never for an outcome; otherwise the round is split.
- */
+/** The default quorum remains main's three seated judges. Explicit weights or families opt in to a share of the votes. */
+export function majority(votes: readonly Vote[], seated?: number): RoundOutcome;
 export function majority(
   votes: readonly Vote[],
-  options: { weights?: Record<string, number>; families?: Record<string, string> } = {},
+  options: { weights?: Record<string, number>; families?: Record<string, string> },
+): RoundOutcome;
+export function majority(
+  votes: readonly Vote[],
+  seatedOrOptions:
+    | number
+    | { weights?: Record<string, number>; families?: Record<string, string> } = COUNCIL_SIZE,
 ): RoundOutcome {
+  if (typeof seatedOrOptions === 'number') {
+    const pass = votes.filter((vote) => vote.outcome === 'pass').length;
+    const fail = votes.filter((vote) => vote.outcome === 'fail').length;
+    const needed = Math.floor(seatedOrOptions / 2) + 1;
+    if (pass >= needed && pass > fail) return 'pass';
+    if (fail >= needed && fail > pass) return 'fail';
+    return 'split';
+  }
+  const options = seatedOrOptions;
   const { families } = options;
   if (families !== undefined) {
     // Votes of one family collapse into one family vote (its own majority, inconclusive on a split), each weighing 1.
@@ -413,10 +426,10 @@ export function majority(
       groups.set(key, [...(groups.get(key) ?? []), vote]);
     }
     const collapsed = [...groups].map(([judge, own]): Vote => {
-      const outcome = majority(own);
+      const outcome = majority(own, {});
       return { judge, outcome: outcome === 'split' ? 'inconclusive' : outcome };
     });
-    return majority(collapsed);
+    return majority(collapsed, {});
   }
   for (const weight of Object.values(options.weights ?? {})) {
     if (!Number.isFinite(weight) || weight < 0)
