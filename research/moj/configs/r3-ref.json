@@ -1,0 +1,4 @@
+{"name": "r3-ref", "note": "Round 3. r2 plus the reference check at the middle level on reasoning or checkable terrain; System-2 verdict only if still unsure.",
+ "stage1": ["s1p"], "hi": 0.8, "lo": 0.0, "low_after_middle": false,
+ "cards": [{"expert": "ref", "terrain": {"checkable_answer": 0.6}}, {"expert": "ref", "terrain": {"needs_reasoning": 0.6}}, {"expert": "s2v", "terrain": {}}],
+ "no_escalate": [{"terrain": {"subjective_writing": 0.6}}]}

@@ -1,0 +1,3 @@
+{"name": "r2-hold-writing", "note": "Round 2. r1 plus one terrain rule: on subjective writing the item stays with System 1 (System 2 is not better there).",
+ "stage1": ["s1p"], "hi": 0.8, "lo": 0.8, "low": ["s2v"],
+ "no_escalate": [{"terrain": {"subjective_writing": 0.6}}]}

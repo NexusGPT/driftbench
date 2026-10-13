@@ -9,7 +9,7 @@ import json
 import os
 import sys
 
-from .benches import BENCHES, HERE, load
+from .benches import BENCHES, HERE, SPLIT_VERSION, group_key, load
 from .client import run_all
 from .experts import CATALOGUE, Ctx
 
@@ -42,7 +42,8 @@ def collect(bench, experts, limit=None, offline=False):
         store.setdefault(item_id, {})[name] = signal
     for item in items:
         store[item['id']]['_meta'] = {'label': item['label'], 'half': item['half'], 'split': item['split'], 'group': item['group'],
-                                      'language': item['language'], 'swapped': item['swapped'],
+                                      'language': item['language'], 'swapped': item['swapped'], 'set': item.get('set', 'core'),
+                                      'group_key': group_key(item), 'split_version': SPLIT_VERSION,
                                       'baselines': item.get('baselines', {})}
     os.makedirs(os.path.dirname(signal_path(bench)), exist_ok=True)
     json.dump(store, open(signal_path(bench), 'w'), ensure_ascii=False, indent=0)

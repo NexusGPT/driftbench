@@ -84,13 +84,36 @@ probabilities) and `chars`, `length_gap`, `non_latin` (code). A route reads cont
 - Weights are fitted by cross-validation on the tuning half, pooled over benchmarks.
 - No sealed test split is read. No benchmark label is used by a route.
 
+## Split, groups and sealed ids
+
+- **Split version `moj-split-v2`** (in `moj/benches.py`, stored in every signal's `_meta.split_version`). A practice
+  set is split once into a tuning half and a validation half by a hash of the item's **group**: every pair that
+  shares a prompt, a source item or a reference has the same group (an explicit `groupId`, else the hash of the
+  prompt text). Version 1 hashed the pair id and let one writing prompt sit in both halves; numbers quoted with
+  version 1 are not comparable. Cross-validation folds are made of groups too.
+- **Practice sets**: the first 168 pairs are the fixed subset `set: "core"`; `prepare_more.py` adds `set: "ext"` pairs
+  from practice or DEV data only (JudgeBench: GPT-4o response split; MM-Eval: the exposed DEV400; writing: the
+  LongJudge DEV slice, then source pairs no run ever scored). No sealed TEST pool and no item scored by a sealed
+  run is used.
+- **MM-Eval core holds 45 pairs, not 50**: the source harness's pilot (20) and noise (30) files share 5 ids
+  (3540, 1660, 4140, 4050, 2357). Duplicates are kept once.
+- **`data/sealed-confirmation.json`**: ids reserved for the confirmation run, with a digest. Nothing in it is
+  scored. A prompt is either practice or confirmation, never both.
+
+## Pacing
+
+- At most 8 worker threads per runner, and at most 3 System-1 calls in flight per runner (`JEV_PARALLEL`): several
+  helpers share the gateway.
+- A call with no answer is submitted at most 3 times. After HTTP 403 or 429 the waits are 20, 60 and 180 seconds.
+  A returned answer is never asked again.
+
 ## State of the recorded data
 
 | File | State |
 |---|---|
-| `results/signals/judgebench.json` | complete: 68 practice pairs, every expert of the catalogue |
-| `results/signals/mmeval.json` | complete: 50 practice pairs, every expert. The recorded ledger baseline covers a subset only (the pairs whose `_meta.baselines` holds `ledger`) |
-| `results/signals/writing.json` | complete: 50 practice pairs, every expert |
+| `results/signals/judgebench.json` | core 68 pairs: every expert. Enlargement to 250 in progress (main experts first) |
+| `results/signals/mmeval.json` | core 45 pairs: every expert. Enlargement to 300 in progress. The recorded ledger baseline covers a subset only (the pairs whose `_meta.baselines` holds `ledger`) |
+| `results/signals/writing.json` | core 50 pairs: every expert. Enlargement to 300 in progress |
 | `recordings/jev.jsonl`, `recordings/luna.jsonl` | complete for the above; `python3 -m moj.collect --offline` replays them |
 
 Each signal file maps a pair id to `{<expert>: {pA, detail, calls, usd, seconds}, _meta: {label, half, split, group, language, baselines}}`.

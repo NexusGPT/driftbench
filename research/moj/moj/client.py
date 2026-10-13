@@ -23,6 +23,10 @@ JEV_KEYS = {'gateway': '~/.nexus-secrets/nexus-orga.key', 'typesafe': '~/.nexus-
 OPENAI_KEY = '~/.nexus-secrets/openai.key'
 LUNA_PRICE = {'input': 0.10, 'cached': 0.01, 'output': 0.50}  # USD per 1M tokens
 MAX_SUBMISSIONS = 3
+WAITS_403 = (20, 60, 180)
+MAX_WORKERS = 8  # worker threads of one runner
+JEV_PARALLEL = 3  # System-1 calls in flight per runner: several helpers share the gateway
+_jev_gate = threading.Semaphore(JEV_PARALLEL)
 _lock = threading.Lock()
 _cache = {}
 _inflight = {}
@@ -126,9 +130,12 @@ def _submit(name, key, request, send, offline):
             last = _redact(error)
             _append(name, {'key': key, 'answer': None, 'error': last, 'submission': submission,
                            'seconds': round(time.time() - started, 3)})
-            if isinstance(error, urllib.error.HTTPError) and error.code in (400, 401, 403, 404, 413, 422):
-                break
-            time.sleep(2 * submission)
+            code = error.code if isinstance(error, urllib.error.HTTPError) else None
+            if code in (400, 401, 404, 413, 422):
+                break  # the request itself is refused: a second submission would get the same answer
+            if submission < MAX_SUBMISSIONS:
+                # the gateway answers 403 in bursts when several runners call it: wait 20, 60, 180 s
+                time.sleep(WAITS_403[submission - 1] if code in (403, 429) else 2 * submission)
     return {'key': key, 'request': compact(request), 'answer': None, 'error': last}
 
 
@@ -141,7 +148,8 @@ def jev(state, questions, route='gateway', model='jev-latest', offline=False, ti
     def send():
         key = _key(JEV_KEYS[route])
         headers = {'api-key': key} if route == 'gateway' else {'authorization': f'Bearer {key}'}
-        return _post(JEV_URLS[route], headers, body, timeout)
+        with _jev_gate:
+            return _post(JEV_URLS[route], headers, body, timeout)
 
     row = _recorded_call('jev.jsonl', request, send, offline)
     answers = (row.get('answer') or {}).get('answers') or {}
@@ -183,7 +191,7 @@ def luna_cost(row):
             + usage['completion_tokens'] * LUNA_PRICE['output']) / 1e6
 
 
-def run_all(tasks, workers=8):
-    """tasks: list of zero-argument callables. At most eight run at a time."""
+def run_all(tasks, workers=MAX_WORKERS):
+    """tasks: list of zero-argument callables. At most MAX_WORKERS run at a time (never more than eight)."""
     with ThreadPoolExecutor(max_workers=min(workers, 8)) as pool:
         return list(pool.map(lambda task: task(), tasks))

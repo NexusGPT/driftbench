@@ -41,9 +41,25 @@ BENCHES = {
 }
 
 
-def half(item_id):
-    """Fixed split of a practice set: 'tune' or 'valid', by a hash of the id."""
-    return 'tune' if int(hashlib.sha256(('moj-split-v1:' + str(item_id)).encode()).hexdigest(), 16) % 2 == 0 else 'valid'
+SPLIT_VERSION = 'moj-split-v2'
+
+
+def group_key(item):
+    """The group a practice item belongs to: every pair that shares a prompt, a source item or a reference.
+
+    An explicit `groupId` wins; else the hash of the prompt text (whitespace folded)."""
+    if item.get('groupId'):
+        return str(item['groupId'])
+    return hashlib.sha256(' '.join(str(item.get('question', item.get('id'))).split()).encode()).hexdigest()
+
+
+def half(item):
+    """Fixed split of a practice set into 'tune' and 'valid', by a hash of the group (split version 2).
+
+    Version 1 hashed the pair id, which let one prompt sit in both halves on writing. Version 2 hashes the
+    group, so pairs that share a prompt always share a half. Accepts an item, or a bare id for old callers."""
+    key = group_key(item) if isinstance(item, dict) else str(item)
+    return 'tune' if int(hashlib.sha256((SPLIT_VERSION + ':' + key).encode()).hexdigest(), 16) % 2 == 0 else 'valid'
 
 
 def _swap(item_id):
@@ -58,7 +74,7 @@ def load(bench):
         item['bench'] = bench
         item['id'] = str(item['id'])
         item['question'] = str(item['question'])
-        item['half'] = half(item['id'])
+        item['half'] = half(item)
         item['swapped'] = _swap(item['id'])
         if item['swapped']:
             item['a'], item['b'] = item['b'], item['a']
@@ -104,7 +120,7 @@ def load_point(bench):
     for item in items:
         item['bench'] = bench
         item['id'] = str(item['id'])
-        item['half'] = half(item['id'])
+        item['half'] = half(item)
         item['swapped'] = item['kind'] == 'pair' and _swap(item['id'])
         if item['swapped']:
             item['a'], item['b'] = item['b'], item['a']

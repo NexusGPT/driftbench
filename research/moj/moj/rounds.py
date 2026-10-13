@@ -164,7 +164,26 @@ def terrain_test(config, threshold=0.6):
     return table
 
 
+def compare(paths):
+    """One line per variant: pooled and per-benchmark accuracy on each half, calls per pair, R1 and R2."""
+    print('variant | pooled tune / valid | S1, S2 calls | ' + ' | '.join(f'{b} tune / valid (S2)' for b in ('judgebench', 'mmeval', 'writing')) + ' | R1 R2')
+    for path in paths:
+        config = json.load(open(path))
+        result = board(config)
+        res = residual(config, quiet=True)
+        t, v = pooled(result, 'tune'), pooled(result, 'valid')
+        cells = []
+        for bench in ('judgebench', 'mmeval', 'writing'):
+            c = result['cells']
+            cells.append(f"{100 * c[bench + '.tune']['moj']['acc']:.1f} / {100 * c[bench + '.valid']['moj']['acc']:.1f} ({c[bench + '.all']['moj']['luna']:.2f})")
+        a = pooled(result, 'all')
+        print(f"{config['name']} | {100 * t[0]:.1f} / {100 * v[0]:.1f} | {a[1]:.1f}, {a[2]:.2f} | " + ' | '.join(cells) + f" | {res['R1_cells_not_ahead']} {res['R2_cells_costlier_than_unbeaten']}")
+
+
 if __name__ == '__main__':
+    if sys.argv[1] == 'compare':
+        compare(sys.argv[2:])
+        sys.exit(0)
     command, config = sys.argv[1], json.load(open(sys.argv[2]))
     out = {'residual': residual, 'curve': curve, 'ablate': ablate, 'terrain': terrain_test}[command](config)
     os.makedirs(os.path.join(HERE, 'results', 'rounds'), exist_ok=True)

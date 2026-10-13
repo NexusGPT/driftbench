@@ -10,6 +10,8 @@ A variant is one JSON config (configs/*.json):
            inside the unsure band counts as a match: an unsure route takes the safer, more expensive expert.
   always   cards applied to every item whatever the confidence (for example a stability judge when lengths differ)
   low      experts added at the low level
+  no_escalate   terrain cards {"terrain": {...}}: on a match the item stays with stage 1 whatever its confidence
+  force_low     terrain cards: on a match the item goes to the low level whatever its confidence
   abstain_below   final confidence under this value is an explicit abstention (scored as a tie)
   combine  'raw' uses the plain mean of the experts' probabilities in place of fitted weights
   low_mode 'replace': the experts of `low` decide alone (an escalation), in place of joining the combination
@@ -26,7 +28,10 @@ UNSURE = (0.4, 0.6)
 
 
 def x_of(signals, name):
-    p = signals.get(name, {}).get('pA')
+    signal = signals.get(name) or {}
+    if name == 'ref' and (signal.get('detail') or {}).get('kind') == 'open':
+        return 0.0  # no reference exists for an open task: the check carries no verdict
+    p = signal.get('pA')
     return 0.0 if p is None else 2 * p - 1
 
 
@@ -139,7 +144,13 @@ def decide(config, signals, combiner):
     p = combiner.p(signals, used)
     conf = max(p, 1 - p)
     level = 'high'
-    if conf < hi:
+    held = any(matches(card, land) for card in config.get('no_escalate', []))  # terrain where escalation does not pay
+    forced = any(matches(card, land) for card in config.get('force_low', []))  # terrain System 1 must not decide alone
+    if forced:
+        conf = min(conf, lo - 1e-9)
+    if conf < hi and held:
+        level = 'held'
+    elif conf < hi:
         level = 'middle' if conf >= lo else 'low'
         added = 0
         for card in config.get('cards', []):
@@ -211,8 +222,10 @@ def run_variant(config, pooled):
     valid = [key for key, s in everything.items() if s['_meta']['half'] == 'valid']
     out = {}
     l2 = config.get('l2', 1.0)
-    for fold in folds([f'{b}|{i}' for b, i in tune]):
-        held = {tuple(key.split('|', 1)) for key in fold}
+    group_of = {key: everything[key]['_meta'].get('group_key', key[1]) for key in tune}
+    for fold in folds(sorted(set(group_of.values()))):  # folds are made of groups: a prompt never sits on both sides
+        inside = set(fold)
+        held = {key for key in tune if group_of[key] in inside}
         combiner = Combiner([everything[key] for key in tune if key not in held], l2, config.get('combine') == 'raw')
         for key in held:
             out[key] = decide(config, everything[key], combiner)
