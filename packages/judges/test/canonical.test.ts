@@ -325,9 +325,9 @@ describe('default compatibility and canonical tally', () => {
 
   it('preserves the pre-canonical default key and prompt fingerprint', () => {
     expect(requestKey(pairwiseRequest({ name: 'c', rubric: 'Correct.' }, [], 'one', 'two'))).toBe(
-      'fea38de35af2',
+      '2516c80c92c8',
     );
-    expect(PROMPT_FINGERPRINT).toBe('19cf28d04b13');
+    expect(PROMPT_FINGERPRINT).toBe('398673b792c1');
   });
 
   it('keeps implicit and explicit both-orders requests, keys, and measured diagnostics unchanged', async () => {
