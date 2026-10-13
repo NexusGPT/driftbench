@@ -1,5 +1,5 @@
 {
-  "asOf": "2026-10-13T11:41:17.300Z",
+  "asOf": "2026-10-13T11:48:01.518Z",
   "definition": "Schema re-ask is the frozen core ledger.reask after malformed output. It is distinct from a transport retry of a request with no returned answer.",
   "models": {
     "gpt-6-luna": {
@@ -99,23 +99,23 @@
           "repairedAttempts": 72
         },
         "test": {
-          "ledgerPairs": 158,
-          "coreReaskInvocations": 3,
-          "paidSchemaReaskReads": 0,
-          "transportRetryAttempts": 0,
-          "transportExhaustedReasksSuppressed": 3,
+          "ledgerPairs": 166,
+          "coreReaskInvocations": 1,
+          "paidSchemaReaskReads": 1,
+          "transportRetryAttempts": 4,
+          "transportExhaustedReasksSuppressed": 0,
           "suppressedReasks": 0,
-          "repairedAttempts": 212
+          "repairedAttempts": 223
         }
       },
       "totals": {
-        "ledgerPairs": 372,
-        "coreReaskInvocations": 4,
-        "paidSchemaReaskReads": 1,
-        "transportRetryAttempts": 1,
-        "transportExhaustedReasksSuppressed": 3,
+        "ledgerPairs": 380,
+        "coreReaskInvocations": 2,
+        "paidSchemaReaskReads": 2,
+        "transportRetryAttempts": 5,
+        "transportExhaustedReasksSuppressed": 0,
         "suppressedReasks": 0,
-        "repairedAttempts": 507
+        "repairedAttempts": 518
       }
     },
     "gemini-3.8-flash": {

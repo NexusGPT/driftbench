@@ -1,11 +1,12 @@
 {
-  "at": "2026-10-13T11:22:06.520557+00:00",
+  "at": "2026-10-13T11:48:03.817622+00:00",
   "models": {
     "gpt-6-luna": {
       "automaticNoAnswerTransportRetries": 4
     },
     "claude-haiku-5-5": {
-      "automaticNoAnswerTransportRetries": 1
+      "automaticNoAnswerTransportRetries": 1,
+      "ownerAuthorizedOutageResumptions": 4
     },
     "gemini-3.8-flash": {
       "ownerAuthorizedBillingResumptions": 318,

@@ -1,6 +1,6 @@
 {
-  "status": "stopped-on-error",
-  "pid": 91290,
+  "status": "running",
+  "pid": 52936,
   "core": "35f07309a4d1d1c8a7c5b176ff19e537d0ef8fdd",
   "concurrency": 10,
   "models": {
@@ -20,6 +20,5 @@
       "concurrency": 2
     }
   },
-  "at": "2026-10-13T11:41:17.730Z",
-  "error": "OPERATOR_DRAIN: finish active requests and stop dispatching"
+  "at": "2026-10-13T11:45:08.203Z"
 }

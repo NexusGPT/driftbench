@@ -1,6 +1,6 @@
 {
   "model": "claude-haiku-5-5",
-  "freezeSha256": "1ad3b2eb8a12d5bff8f3c8928def24a3c00226fa60d3efabf81cd8c93571c05d",
+  "freezeSha256": "0fb7bc3a8e362500168bb48bc160643d4ac5effcadfd0aa72c4595f1034c94d3",
   "pilotComplete": true,
   "noiseComplete": true,
   "fixturesComplete": true,

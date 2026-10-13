@@ -1,43 +1,43 @@
 {
   "sealSha256": "2aa831d8f08ea88ddddff87ba9aeb600f2c719725608815c09ddc699bd8aac12",
   "poolSha256": "489c47a0404e7e0929b52ffbe3e253bfebc8d04fa1e0ddac2f3b7ccd089f5236",
-  "coreFreeze": "1ad3b2eb8a12d5bff8f3c8928def24a3c00226fa60d3efabf81cd8c93571c05d",
-  "totalCalls": 3943,
-  "receivedCalls": 3922,
+  "coreFreeze": "0fb7bc3a8e362500168bb48bc160643d4ac5effcadfd0aa72c4595f1034c94d3",
+  "totalCalls": 3982,
+  "receivedCalls": 3961,
   "interruptedCalls": 21,
   "interruptionReserveUsd": 2.135219,
-  "measuredUsd": 6.23863767,
-  "unresolvedCalls": 0,
-  "reservedUsd": 0,
+  "measuredUsd": 6.279088539999999,
+  "unresolvedCalls": 2,
+  "reservedUsd": 0.5,
   "cells": [
     {
       "model": "claude-haiku-5-5",
       "status": "PARTIAL",
-      "n": 158,
+      "n": 166,
       "planned": 270,
-      "coverage": 0.5851851851851851,
-      "wins": 13,
+      "coverage": 0.6148148148148148,
+      "wins": 14,
       "losses": 7,
       "ledger": {
-        "correct": 137,
-        "estimate": 0.8670886075949367,
-        "lower": 0.8053528677555306,
-        "upper": 0.9113979626266746
+        "correct": 144,
+        "estimate": 0.8674698795180723,
+        "lower": 0.807492557086358,
+        "upper": 0.9108244006642137
       },
       "promptfoo": {
-        "correct": 131,
-        "estimate": 0.8291139240506329,
-        "lower": 0.7627869028449865,
-        "upper": 0.8798172899114733
+        "correct": 137,
+        "estimate": 0.8253012048192772,
+        "lower": 0.7603660996554632,
+        "upper": 0.8755210432712724
       },
       "difference": {
-        "estimate": 0.0379746835443038,
-        "lower": -0.0189873417721519,
-        "upper": 0.0949367088607595,
+        "estimate": 0.04216867469879518,
+        "lower": -0.012048192771084338,
+        "upper": 0.0963855421686747,
         "repetitions": 10000,
         "seed": "ledger-jb-bootstrap-v1"
       },
-      "p": 0.2631759643554685,
+      "p": 0.18924713134765606,
       "holmP": null,
       "holmStatus": "Pending the complete pre-registered 18-cell family; never correct over completed cells only.",
       "conservative18CellBound": 1,
@@ -2535,14 +2535,14 @@
           "promptfoo": 0,
           "difference": 0,
           "ledgerGames": [
-            null,
-            null
+            "A",
+            "A"
           ],
           "promptfooGames": [
             "A",
             "A"
           ],
-          "ledgerGraderErrors": 1,
+          "ledgerGraderErrors": 0,
           "promptfooGraderErrors": 0
         },
         {
@@ -2557,11 +2557,11 @@
             null
           ],
           "promptfooGames": [
-            null,
+            "B",
             "B"
           ],
-          "ledgerGraderErrors": 2,
-          "promptfooGraderErrors": 1
+          "ledgerGraderErrors": 1,
+          "promptfooGraderErrors": 0
         },
         {
           "id": "182a216b-71f5-5d79-8947-fcbebab7e2c2",
@@ -2886,18 +2886,162 @@
           ],
           "ledgerGraderErrors": 0,
           "promptfooGraderErrors": 0
+        },
+        {
+          "id": "74581892-e3c1-5ef1-8eca-46a1d4ed710a",
+          "group": "mmlu",
+          "label": "B",
+          "ledger": 0,
+          "promptfoo": 0,
+          "difference": 0,
+          "ledgerGames": [
+            "A",
+            "A"
+          ],
+          "promptfooGames": [
+            "A",
+            "A"
+          ],
+          "ledgerGraderErrors": 0,
+          "promptfooGraderErrors": 0
+        },
+        {
+          "id": "88c03f19-2b85-5b04-b0f8-42e9a765098e",
+          "group": "mmlu",
+          "label": "B",
+          "ledger": 1,
+          "promptfoo": 0,
+          "difference": 1,
+          "ledgerGames": [
+            "B",
+            "B"
+          ],
+          "promptfooGames": [
+            "B",
+            "A"
+          ],
+          "ledgerGraderErrors": 0,
+          "promptfooGraderErrors": 0
+        },
+        {
+          "id": "ada72612-ba5d-56c3-83fe-3fd89d07e7be",
+          "group": "mmlu",
+          "label": "A",
+          "ledger": 1,
+          "promptfoo": 1,
+          "difference": 0,
+          "ledgerGames": [
+            "A",
+            "A"
+          ],
+          "promptfooGames": [
+            "A",
+            "A"
+          ],
+          "ledgerGraderErrors": 0,
+          "promptfooGraderErrors": 0
+        },
+        {
+          "id": "6951b5bd-276b-5eb4-adca-71ee67a0b7ee",
+          "group": "livecodebench",
+          "label": "B",
+          "ledger": 1,
+          "promptfoo": 1,
+          "difference": 0,
+          "ledgerGames": [
+            "B",
+            "B"
+          ],
+          "promptfooGames": [
+            "B",
+            "B"
+          ],
+          "ledgerGraderErrors": 0,
+          "promptfooGraderErrors": 0
+        },
+        {
+          "id": "e077c999-6f86-5122-b81f-a2280ec6de2a",
+          "group": "livebench",
+          "label": "B",
+          "ledger": 1,
+          "promptfoo": 1,
+          "difference": 0,
+          "ledgerGames": [
+            "B",
+            "B"
+          ],
+          "promptfooGames": [
+            "B",
+            "B"
+          ],
+          "ledgerGraderErrors": 0,
+          "promptfooGraderErrors": 0
+        },
+        {
+          "id": "c2d66af7-e981-5b4f-849d-00876452ae3e",
+          "group": "mmlu",
+          "label": "B",
+          "ledger": 1,
+          "promptfoo": 1,
+          "difference": 0,
+          "ledgerGames": [
+            "B",
+            "B"
+          ],
+          "promptfooGames": [
+            "B",
+            "B"
+          ],
+          "ledgerGraderErrors": 0,
+          "promptfooGraderErrors": 0
+        },
+        {
+          "id": "fab25c06-2b47-559b-8f61-2609d36fda93",
+          "group": "mmlu",
+          "label": "A",
+          "ledger": 1,
+          "promptfoo": 1,
+          "difference": 0,
+          "ledgerGames": [
+            "A",
+            "A"
+          ],
+          "promptfooGames": [
+            "A",
+            "A"
+          ],
+          "ledgerGraderErrors": 0,
+          "promptfooGraderErrors": 0
+        },
+        {
+          "id": "5241073a-b9e6-5f61-967e-f50171cdfc2b",
+          "group": "mmlu",
+          "label": "A",
+          "ledger": 1,
+          "promptfoo": 1,
+          "difference": 0,
+          "ledgerGames": [
+            "A",
+            "A"
+          ],
+          "promptfooGames": [
+            "A",
+            "A"
+          ],
+          "ledgerGraderErrors": 0,
+          "promptfooGraderErrors": 0
         }
       ],
       "cost": {
         "ledger": {
-          "usd": 1.2678066999999995,
-          "units": 158,
-          "per100": 0.8024093037974681
+          "usd": 1.29574237,
+          "units": 166,
+          "per100": 0.7805676927710842
         },
         "promptfoo": {
-          "usd": 0.47697739999999994,
-          "units": 158,
-          "per100": 0.3018844303797468
+          "usd": 0.4894925999999999,
+          "units": 167,
+          "per100": 0.2931093413173652
         }
       },
       "noise": {

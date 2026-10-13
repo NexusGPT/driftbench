@@ -2491,14 +2491,14 @@
     "promptfoo": 0,
     "difference": 0,
     "ledgerGames": [
-      null,
-      null
+      "A",
+      "A"
     ],
     "promptfooGames": [
       "A",
       "A"
     ],
-    "ledgerGraderErrors": 1,
+    "ledgerGraderErrors": 0,
     "promptfooGraderErrors": 0
   },
   {
@@ -2513,11 +2513,11 @@
       null
     ],
     "promptfooGames": [
-      null,
+      "B",
       "B"
     ],
-    "ledgerGraderErrors": 2,
-    "promptfooGraderErrors": 1
+    "ledgerGraderErrors": 1,
+    "promptfooGraderErrors": 0
   },
   {
     "id": "182a216b-71f5-5d79-8947-fcbebab7e2c2",
@@ -2828,6 +2828,150 @@
   {
     "id": "e542fac4-1bf7-515a-9217-0e6151c1e908",
     "group": "livecodebench",
+    "label": "A",
+    "ledger": 1,
+    "promptfoo": 1,
+    "difference": 0,
+    "ledgerGames": [
+      "A",
+      "A"
+    ],
+    "promptfooGames": [
+      "A",
+      "A"
+    ],
+    "ledgerGraderErrors": 0,
+    "promptfooGraderErrors": 0
+  },
+  {
+    "id": "74581892-e3c1-5ef1-8eca-46a1d4ed710a",
+    "group": "mmlu",
+    "label": "B",
+    "ledger": 0,
+    "promptfoo": 0,
+    "difference": 0,
+    "ledgerGames": [
+      "A",
+      "A"
+    ],
+    "promptfooGames": [
+      "A",
+      "A"
+    ],
+    "ledgerGraderErrors": 0,
+    "promptfooGraderErrors": 0
+  },
+  {
+    "id": "88c03f19-2b85-5b04-b0f8-42e9a765098e",
+    "group": "mmlu",
+    "label": "B",
+    "ledger": 1,
+    "promptfoo": 0,
+    "difference": 1,
+    "ledgerGames": [
+      "B",
+      "B"
+    ],
+    "promptfooGames": [
+      "B",
+      "A"
+    ],
+    "ledgerGraderErrors": 0,
+    "promptfooGraderErrors": 0
+  },
+  {
+    "id": "ada72612-ba5d-56c3-83fe-3fd89d07e7be",
+    "group": "mmlu",
+    "label": "A",
+    "ledger": 1,
+    "promptfoo": 1,
+    "difference": 0,
+    "ledgerGames": [
+      "A",
+      "A"
+    ],
+    "promptfooGames": [
+      "A",
+      "A"
+    ],
+    "ledgerGraderErrors": 0,
+    "promptfooGraderErrors": 0
+  },
+  {
+    "id": "6951b5bd-276b-5eb4-adca-71ee67a0b7ee",
+    "group": "livecodebench",
+    "label": "B",
+    "ledger": 1,
+    "promptfoo": 1,
+    "difference": 0,
+    "ledgerGames": [
+      "B",
+      "B"
+    ],
+    "promptfooGames": [
+      "B",
+      "B"
+    ],
+    "ledgerGraderErrors": 0,
+    "promptfooGraderErrors": 0
+  },
+  {
+    "id": "e077c999-6f86-5122-b81f-a2280ec6de2a",
+    "group": "livebench",
+    "label": "B",
+    "ledger": 1,
+    "promptfoo": 1,
+    "difference": 0,
+    "ledgerGames": [
+      "B",
+      "B"
+    ],
+    "promptfooGames": [
+      "B",
+      "B"
+    ],
+    "ledgerGraderErrors": 0,
+    "promptfooGraderErrors": 0
+  },
+  {
+    "id": "c2d66af7-e981-5b4f-849d-00876452ae3e",
+    "group": "mmlu",
+    "label": "B",
+    "ledger": 1,
+    "promptfoo": 1,
+    "difference": 0,
+    "ledgerGames": [
+      "B",
+      "B"
+    ],
+    "promptfooGames": [
+      "B",
+      "B"
+    ],
+    "ledgerGraderErrors": 0,
+    "promptfooGraderErrors": 0
+  },
+  {
+    "id": "fab25c06-2b47-559b-8f61-2609d36fda93",
+    "group": "mmlu",
+    "label": "A",
+    "ledger": 1,
+    "promptfoo": 1,
+    "difference": 0,
+    "ledgerGames": [
+      "A",
+      "A"
+    ],
+    "promptfooGames": [
+      "A",
+      "A"
+    ],
+    "ledgerGraderErrors": 0,
+    "promptfooGraderErrors": 0
+  },
+  {
+    "id": "5241073a-b9e6-5f61-967e-f50171cdfc2b",
+    "group": "mmlu",
     "label": "A",
     "ledger": 1,
     "promptfoo": 1,
