@@ -47,7 +47,7 @@ finally:
         else:s['unknownReserved']+=RESERVE
     update(finish)
     with (runtime/'spend.jsonl').open('a') as f:
-        f.write(json.dumps({'token':token,'startedAt':started,'endedAt':time.time(),'costUsd':cost if known else None,'unknownReservation':0 if known else RESERVE,'exitCode':exitcode,'isError':payload.get('is_error') if isinstance(payload,dict) else True})+'\n')
+        f.write(json.dumps({'token':token,'startedAt':started,'endedAt':time.time(),'costUsd':cost if known else None,'unknownReservation':0 if known else RESERVE,'exitCode':exitcode,'isError':payload.get('is_error') if isinstance(payload,dict) else True,'models':list(payload.get('modelUsage',{})) if isinstance(payload,dict) else []})+'\n')
 if stdout:sys.stdout.write(stdout)
 else:print(json.dumps({'is_error':True,'result':stderr or 'Transport returned no JSON','total_cost_usd':cost if known else 0}))
 if stderr:sys.stderr.write(stderr)

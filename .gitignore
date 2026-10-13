@@ -158,3 +158,8 @@ __pycache__/
 .pytest_cache/
 *.egg-info/
 .venv/
+
+# Local read-only dependency links and execution journal for planted research.
+/node_modules
+/packages/*/node_modules
+/examples/judge-benchmarks/
