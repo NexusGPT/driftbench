@@ -49,6 +49,23 @@
       "summary": [
         "No diagnostics; process exit0 observed"
       ]
+    },
+    {
+      "check": "pnpm -r --filter @agent-nexus/driftbench-judges... build",
+      "result": "PASS: ESM and DTS outputs; dependency-inclusive build resolves missing declarations from package-only attempt"
+    },
+    {
+      "check": "Built package reader-first export and readerFeatures smoke",
+      "result": "PASS"
+    },
+    {
+      "check": "Frozen TEST transport audit",
+      "attempts": 227,
+      "peakRecordedConcurrentCalls": 6,
+      "lastStartedAt": "2026-10-13T04:36:30.372Z",
+      "allCallsBeforeCutoff": true,
+      "publicBenchmarkEmailQuotesVerified": 3,
+      "frozenSourceHashesStillMatch": 49
     }
   ],
   "openChecks": [
