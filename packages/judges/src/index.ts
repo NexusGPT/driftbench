@@ -177,6 +177,11 @@ export {
   type CriterionRequirement,
   requirementsFor,
 } from './criterion-ledger';
+export {
+  CRITERION_PROMPT_V2_RULES,
+  CRITERION_PROMPT_VERSION,
+  type CriterionPromptVersion,
+} from './criterion-prompt-v2';
 export { createEscalation, type EscalationConfig } from './escalation';
 export { type Grounding, groundEvidence } from './evidence';
 export { FACT_LEDGER_POINTWISE, FactLedgerAnswer, PointwiseFactLedgerAnswer } from './fact-audit';
@@ -242,6 +247,7 @@ export { judgePersonalData, type PersonalDataVerdict, PII_CRITERION } from './pi
 export {
   ANSWER_CONTRACT,
   buildPrompt,
+  CRITERION_PROMPT_V2_FINGERPRINT,
   DATA_RULE,
   DATA_TAGS,
   type DataTag,
@@ -257,6 +263,7 @@ export {
   renderTranscript,
   renderUser,
   SYSTEM_PROMPT,
+  SYSTEM_PROMPT_V2,
   SYSTEM1_QUESTION,
 } from './prompt';
 export {
