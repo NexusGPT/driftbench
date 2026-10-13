@@ -158,3 +158,6 @@ __pycache__/
 .pytest_cache/
 *.egg-info/
 .venv/
+
+# Reader-first local run state
+.reader-first/
