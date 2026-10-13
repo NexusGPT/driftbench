@@ -7,6 +7,7 @@ r=load_module('additional_model_runner',HERE/'extended-run.py')
 def main(cell,require_complete=False):
     seal=r.verify(cell);dest=HERE/cell;requested=r.requests(dest);answers=r.answers(dest);by={a['request_sha256']:a for a in answers}
     keys={x['request_sha256'] for x in requested};assert len(by)==len(answers) and set(by)<=keys
+    if (HERE/'network-amendment.json').exists():assert set(by)==keys,'Owner rule: no scores while any sealed request is missing a model answer'
     if require_complete:assert set(by)==keys
     starts=collections.Counter(x['request_sha256'] for x in r.lines(dest/'starts.jsonl'));assert all(starts[k]==1 for k in by)
     active=maximum=0;events=r.lines(dest/'attempts.jsonl')

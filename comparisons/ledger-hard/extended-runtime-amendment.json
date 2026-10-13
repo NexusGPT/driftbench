@@ -10,7 +10,7 @@
     },
     "comparisons/ledger-hard/extended-score.py": {
       "original": "1bea532d01f834ca8ef604e283c18c5f7cb0c837cd4f72c64f1b1525df3c5d6c",
-      "runtime": "59dba8fa51eaf92ce232f5222d0e33ccff2d4b9ce759a7f7dfd1775ab902cc1b"
+      "runtime": "6925f3adb5a3a9c2ad887c3886ddec581b9a363e15cc14ae2f3f5e587c347395"
     },
     "comparisons/ledger-hard/test_extended.py": {
       "original": "fb89dc6dc6a948ab8b18bb4f770cd3618b80112605160256f33da0b57b5dc651",
@@ -43,6 +43,11 @@
       "prior_amendment_sha256": "da0671f5f3994c8c9286fe9ef0c7bf235a2f14f1e63181badadc4fea37d5253e",
       "changed": "2026-10-13T14:11:48.543454+00:00",
       "reason": "A recorded exhausted no-response attempt has no model identity. Resume integrity checks apply only to provider answers; exhausted requests stay recorded and are never re-asked."
+    },
+    {
+      "prior_amendment_sha256": "020074864516a540efc082f3314790dd9e1b3d2f4673c22279bddc8fcd52f5f7",
+      "changed": "2026-10-13T14:50:09.073671+00:00",
+      "reason": "Owner full-network amendment forbids scoring while any transport-missing request remains. Statistics unchanged; enforce completion before generating added-model tables."
     }
   ],
   "transport_amendments": {

@@ -5,6 +5,12 @@ from score import DOSSIER
 from run import priced
 
 def read(name):return json.loads((HERE/name).read_text())
+def added_status(cell):
+    dest=HERE/cell
+    if (dest/'scores.json').exists():return read(f'{cell}/scores.json')
+    runner=load_module('report_network_runner',HERE/'extended-run.py');calls=runner.answers(dest)
+    measured,held=runner.accounting(dest);state=read(f'{cell}/run-state.json')
+    return {'model':read(f'{cell}/seal.json')['model'],'complete':False,'unique_calls':len(calls),'planned_unique':6560,'measured_usd':measured,'unknown_attempt_reserve_usd':held,'lost_unique_requests':None,'token_limited_entries':None,'phase':state.get('phase',state.get('stop_reason') or 'pending'),'experiments':{e:{'cost_by_contestant':{s:sum(x.get('measured_usd') or 0 for x in calls if x['experiment']==e and x['side']==s) for s in ('audit','peer','peer-full-state')}} for e in ('primary','dialect')}}
 def main():
     parser=argparse.ArgumentParser();parser.add_argument('--allow-pending-gemini',action='store_true');args=parser.parse_args()
     primary=read('scores.json');variant=read('dialect/scores.json');proof=read('verification-final.json')
@@ -14,14 +20,21 @@ def main():
     if full:assert proof['crash_reasked_recorded']==20
     reasked=set(proof['crash_reasked_keys'])
     seal=read('seal.json');recovery=read('crash-recovery.json');audit=read('construction-cue-audit.json')
-    total=primary['measured_usd']+variant['measured_usd'];reserve=recovery['lost_attempt_reserve_usd']
+    fees=read('luna-cache-write-fees.json') if (HERE/'luna-cache-write-fees.json').exists() else {'additional_usd':0}
+    total=primary['measured_usd']+variant['measured_usd']+fees['additional_usd'];reserve=recovery['lost_attempt_reserve_usd']
     budget=read('budget-amendment.json')['cap_usd']
     lite=read('flash-lite/scores.json') if (HERE/'flash-lite/scores.json').exists() else None
     overall_total=total+(lite['measured_usd'] if lite else 0)
     lite_budget=read('flash-lite/budget-amendment.json') if (HERE/'flash-lite/budget-amendment.json').exists() else read('flash-lite/seal.json') if (HERE/'flash-lite/seal.json').exists() else {}
     overall_cap=lite_budget.get('overall_cap_usd',budget)
     assert overall_total+reserve<=overall_cap
-    assert abs(total-proof['measured_usd'])<1e-8 and total+reserve<=budget
+    legacy_cap=overall_cap
+    added={cell:added_status(cell) for cell in ('sonnet-5-5','gpt-6.1-sol') if (HERE/cell/'run-state.json').exists()}
+    for cell,data in added.items():
+        cell_cap=read(f'{cell}/budget-amendment.json')['cell_cap_usd'] if (HERE/cell/'budget-amendment.json').exists() else read(f'{cell}/seal.json')['cell_cap_usd']
+        assert data['measured_usd']+data['unknown_attempt_reserve_usd']<=cell_cap
+        overall_total+=data['measured_usd'];reserve+=data['unknown_attempt_reserve_usd'];overall_cap+=cell_cap
+    assert abs(total-fees['additional_usd']-proof['measured_usd'])<1e-8 and total+recovery['lost_attempt_reserve_usd']<=budget
     primary_text=(HERE/'REPORT.md').read_text()
     primary_text=primary_text.replace('Gemini is pending billing. The separate dialect variant is pending the core dossier.',
         'Gemini was not run in this original two-model primary experiment. The separately frozen dialect variant below includes all three models.')
@@ -42,7 +55,7 @@ def main():
     lines=['# Ledger hard-row dossier','',f'{status} Recording analysis generated {stamp()}. All case and result counts come from the linked files in `comparisons/ledger-hard/`.','',
        '- '+coverage,
        f'- {primary["unique_calls"]} primary and {variant["unique_calls"]} dialect unique recorded requests, including the goal equal-evidence ablation.',
-       f'- Measured spend across all published cells: USD {overall_total:.8f}. Lost-attempt reserve: USD {reserve:.2f}. Combined: USD {overall_total+reserve:.8f}, within the owner-amended USD {overall_cap:g} cap.',
+       f'- Measured spend across all reported cells: USD {overall_total:.8f}. Unreported-attempt reserve: USD {reserve:.8f}. Combined: USD {overall_total+reserve:.8f}. Separate authorized allocations total USD {overall_cap:g}; each model allocation is enforced independently.',
        '- The construction audit passes. No pool is withdrawn. This is synthetic evidence on the original construction families.',
        '- Primary and dialect results remain separate. The dialect run uses the same cases and is not an independent replication.','',
        '## Interpretation and coverage','',
@@ -62,7 +75,29 @@ def main():
             a=next(t for t in data['tables'] if t['row']=='pooled-default');b=next(t for t in data['tables'] if t['row']=='pooled-equal-evidence')
             if b['complete']:lines.append(f'| {experiment.title()} | gemini-3.5-flash-lite | 384/384 | {a["wins"]}/{a["losses"]} | {b["wins"]}/{b["losses"]} | {b["two_sided_p"]:.8g} | {b["nominal_verdict"]} |')
             else:lines.append(f'| {experiment.title()} | gemini-3.5-flash-lite | Incomplete | Pending | Pending | Pending | No final verdict |')
-        lines+=['',f'The separate Flash-Lite cell records {lite["unique_calls"]}/6560 unique requests, at USD {lite["measured_usd"]:.8f}. Its amended USD {lite_budget['cell_cap_usd']:g} allocation raises the overall cap to USD {overall_cap:g}. It uses medium reasoning as accepted by the API, with separate results and no reused Gemini 3.8 answers.']
+        lines+=['',f'The separate Flash-Lite cell records {lite["unique_calls"]}/6560 unique requests, at USD {lite["measured_usd"]:.8f}. Its amended USD {lite_budget['cell_cap_usd']:g} allocation raises the original work cap to USD {legacy_cap:g}. It uses medium reasoning as accepted by the API, with separate results and no reused Gemini 3.8 answers.']
+    if added:
+        lines+=['','## Added Sonnet and GPT model cells','',
+           'The owner requests claude-sonnet-5-5 and gpt-6.1-sol on the same sealed cases. Each model carries both experiments and the equal-state goal ablation, totaling 6560 unique requests. Seal commit `afbd8abf` precedes every added-model call. The first five calls are retained once; continuation is gated only on measured cost, model identity and transport integrity.', '',
+           '| Model | Recorded / planned | Cost USD | Reserved USD | Lost requests | Token-limited entries | Coverage |',
+           '|---|---:|---:|---:|---:|---:|---|']
+        for cell,data in added.items():
+            hold=read(f'{cell}/cost-hold.json') if (HERE/cell/'cost-hold.json').exists() else None
+            status='Complete' if data['complete'] else data.get('phase','Incomplete')+'; no score while missing'
+            lines.append(f'| {data["model"]} | {data["unique_calls"]}/{data["planned_unique"]} | {data["measured_usd"]:.8f} | {data["unknown_attempt_reserve_usd"]:.8f} | {data["lost_unique_requests"] if data["complete"] else "Pending"} | {data["token_limited_entries"] if data["complete"] else "Pending"} | {status} |')
+        lines+=['','| Model | Experiment | Ours USD | Default peer USD | Equal-state peer USD |','|---|---|---:|---:|---:|']
+        for data in added.values():
+            for experiment,ex in data['experiments'].items():
+                costs=ex['cost_by_contestant']
+                lines.append(f'| {data["model"]} | {experiment} | {costs["audit"]:.8f} | {costs["peer"]:.8f} | {costs["peer-full-state"]:.8f} |')
+        lines+=['','Contestant costs count unique recorded calls. Reserved costs remain separate. Unanswered transport requests stay pending and receive no judge score. Full per-row scores, discordant wins/losses, exact tests, intervals and lost keys appear below only for fully answered model cells.','']
+        if (HERE/'network-amendment.json').exists():lines+=['The network amendment pauses both paid drivers, then permits automatic resumption only after ten consecutive unpaid provider reachability probes spaced thirty seconds apart. Only one model runs at a time, with two concurrent calls. Three consecutive connection failures cause a ten-minute pause and a fresh ten-probe gate. Recovery cycles are unlimited within the unchanged caps and cutoff; answered requests are never resent. Unknown charges keep their reserves. Gemini 3.8 stays parked.','']
+        if (HERE/'sonnet-5-5/cache-choice.json').exists():
+            choice=read('sonnet-5-5/cache-choice.json')
+            lines += [f'Sonnet receives an owner-approved USD 45 cap including holds. Its first five calls cost USD {choice["cached_pilot_usd"]:.6f}; the next five with prompt caching disabled cost USD {choice["uncached_pilot_usd"]:.6f}. The cheaper no-cache route applies to both contestants. These disjoint pilot prefixes differ in request mix; their cost comparison is approximate. All ten model answers count once. One CLI transport envelope is archived verbatim, classified as no answer, and recovered on its second attempt.','']
+        if (HERE/'api-error-envelope-audit.json').exists():lines+=['The zero-token CLI API-error audit checks 6560 Haiku, 6560 Luna and 6560 Flash-Lite recorded requests. It finds zero matching envelopes in those earlier cells. Their answers remain unchanged. `api-error-envelope-audit.json` holds counts and journal hashes.','']
+    if fees['additional_usd']:
+        lines+=['','## Luna cache-write fee reconciliation','',f'The published Standard cache-write price is USD 0.125 per million tokens versus USD 0.10 for ordinary input. The fee-only reconciliation adds USD {fees["additional_usd"]:.6f} for {fees["cache_write_tokens"]} written tokens in the recorded Luna receipts. The original answers and frozen statistics are unchanged. Historical tables below retain their original cost fields; this additional fee is included in the current overall spend above. Source: `luna-cache-write-fees.json`, [OpenAI pricing](https://developers.openai.com/api/docs/pricing), checked 2026-10-13.','']
     lines+=['','## Construction-cue audit','',
        f'`audit-construction.py` reads only source, seeds, sealed cases and rendered prompts. `construction-cue-audit.json` SHA-256 is `{digest(HERE/"construction-cue-audit.json")}`. It checks all {audit["rendered"]["primary"]["entries"]} primary and {audit["rendered"]["dialect"]["entries"]} dialect rendered inputs. No model outcomes inform this audit.','',
        '| Row | Cases | Trusted contexts paired across labels | Imbalanced trusted token values | Imbalanced identity suffix values |',
@@ -100,6 +135,10 @@ def main():
     if lite:
         for name in ['flash-lite/seal.json','flash-lite/budget-amendment.json','flash-lite/pricing.json','flash-lite/reasoning-applied.json','flash-lite/scores.json']:
             lines.append(f'| `{name}` | `{digest(HERE/name)}` |')
+    for cell in added:
+        for artifact in ('seal.json','pricing.json','pilot.json','scores.json','verification.json','budget-amendment.json'):
+            name=f'{cell}/{artifact}'
+            if (HERE/name).exists():lines.append(f'| `{name}` | `{digest(HERE/name)}` |')
     lines+=['',f'Candidate procedure: `{seal["candidate_procedure_sha256"]}`. Original seal commit: `eeb7875e`. Core dialect source: `{variant["core_commit"]}`; dialect seal commit: `a7954b1b`. The per-file source hash maps remain inside the seals and operational amendments.','',
        '## Original primary tables','',primary_text,'','## Dialect tables','',variant_text,'',
        '## Limits on claims','',
@@ -113,13 +152,15 @@ def main():
        'The owner raises the Flash-Lite allocation from USD 4 to USD 8, then to USD 9 after a usage-only projection exceeds USD 8. The overall cap rises from USD 16 to USD 20, then USD 21, retaining USD 12 for the original work. `flash-lite/budget-amendment.json` preserves both authorizations and runtime source hashes before missing-only resumption. `flash-lite/cost-forecast-late.json` records the projection without reading outcomes. The cohort, sealed order, prompts, reasoning and statistical tests remain unchanged.', '',
        'Flash Lite permits eight simultaneous HTTP calls, a 180-second timeout, and HTTP 429 waits of 20, 60 and 180 seconds. HTTP 402 stops dispatch immediately without retries. Rejections carry no judge verdict. Other unanswered transport failures permit three attempts with 10/30-second waits. Every attempt and backoff is durable; answered calls are never re-sent. Gemini 3.8 remains owner-held.', '',
        '## Added Flash-Lite measurements','',(HERE/'flash-lite/REPORT.md').read_text()]
+    for cell,data in added.items():
+        if data['complete']:lines+=['',f'## Added {cell} measurements','',(HERE/cell/'REPORT.md').read_text()]
     content='\n'.join(lines)
     assert '\u2014' not in content and '\u2013' not in content
     assert len(recovery['items'])==20
     for x in recovery['items']:assert content.count(x['request_sha256'])==1
     (HERE/'FINAL.md').write_text(content);DOSSIER.write_text(content)
     dump(HERE/'delivery.json',{'created':stamp(),'dossier':str(DOSSIER),'dossier_sha256':digest(DOSSIER),'local_final_sha256':digest(HERE/'FINAL.md'),
-         'full_coverage':full,'available_models_complete':proof['available_models_complete'],'measured_usd':overall_total,'lost_attempt_reserve_usd':reserve,'unique_recorded_requests':primary['unique_calls']+variant['unique_calls']+(lite['unique_calls'] if lite else 0),'flash_lite_complete':lite['complete'] if lite else False,'overall_cap_usd':overall_cap})
+         'full_coverage':full and all(x['complete'] for x in added.values()),'available_models_complete':proof['available_models_complete'] and all(x['complete'] for x in added.values()),'measured_usd':overall_total,'lost_attempt_reserve_usd':reserve,'unique_recorded_requests':primary['unique_calls']+variant['unique_calls']+(lite['unique_calls'] if lite else 0)+sum(x['unique_calls'] for x in added.values()),'flash_lite_complete':lite['complete'] if lite else False,'added_models':{c:{k:d[k] for k in ('model','complete','unique_calls','measured_usd','lost_unique_requests','token_limited_entries')} for c,d in added.items()},'overall_cap_usd':overall_cap})
     print(json.dumps(read('delivery.json'),indent=2))
 
 if __name__=='__main__':main()
