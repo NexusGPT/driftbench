@@ -59,7 +59,7 @@ Replay snapshot: 2026-10-13T08:56:46.894Z. New model calls: 0. Cost: USD 0. Ever
 | bench-archived/planted-rubric/gpt-6-luna | 0 | n/a | n/a | n/a | n/a | not recorded |
 | bench-archived/planted-rubric/gemini-3.8-flash | 0 | n/a | n/a | n/a | n/a | not recorded |
 | bench-current/fresh-rubric/haiku | 192 | 188 | 188 | 0 | 0 | recorded |
-| bench-current/fresh-rubric/gpt-6-luna | 0 | n/a | n/a | n/a | n/a | not recorded |
+| bench-current/fresh-rubric/gpt-6-luna | 109 | 109 | 109 | 0 | 0 | partial recording |
 | bench-current/fresh-rubric/gemini-3.8-flash | 0 | n/a | n/a | n/a | n/a | not recorded |
 | bench-current/fresh-reference/haiku | 192 | 189 | 189 | 0 | 0 | recorded |
 | bench-current/fresh-reference/gpt-6-luna | 0 | n/a | n/a | n/a | n/a | not recorded |
@@ -85,19 +85,19 @@ Replay snapshot: 2026-10-13T08:56:46.894Z. New model calls: 0. Cost: USD 0. Ever
 | bench-current/heldout-rubric/haiku | 72 | 71 | 71 | 0 | 0 | recorded |
 | bench-current/heldout-rubric/gpt-6-luna | 0 | n/a | n/a | n/a | n/a | not recorded |
 | bench-current/heldout-rubric/gemini-3.8-flash | 0 | n/a | n/a | n/a | n/a | not recorded |
-| bench-current/heldout-factuality/haiku | 43 | 31 | 31 | 0 | 0 | partial recording |
+| bench-current/heldout-factuality/haiku | 72 | 55 | 55 | 0 | 0 | recorded |
 | bench-current/heldout-factuality/gpt-6-luna | 0 | n/a | n/a | n/a | n/a | not recorded |
 | bench-current/heldout-factuality/gemini-3.8-flash | 0 | n/a | n/a | n/a | n/a | not recorded |
-| bench-current/heldout-pii/haiku | 0 | n/a | n/a | n/a | n/a | not recorded |
+| bench-current/heldout-pii/haiku | 72 | 72 | 72 | 0 | 0 | recorded |
 | bench-current/heldout-pii/gpt-6-luna | 0 | n/a | n/a | n/a | n/a | not recorded |
 | bench-current/heldout-pii/gemini-3.8-flash | 0 | n/a | n/a | n/a | n/a | not recorded |
-| bench-current/heldout-goal/haiku | 0 | n/a | n/a | n/a | n/a | not recorded |
+| bench-current/heldout-goal/haiku | 72 | 65 | 65 | 0 | 0 | recorded |
 | bench-current/heldout-goal/gpt-6-luna | 0 | n/a | n/a | n/a | n/a | not recorded |
 | bench-current/heldout-goal/gemini-3.8-flash | 0 | n/a | n/a | n/a | n/a | not recorded |
-| bench-current/planted-verify/haiku | 0 | n/a | n/a | n/a | n/a | not recorded |
+| bench-current/planted-verify/haiku | 190 | 189 | 189 | 0 | 0 | recorded |
 | bench-current/planted-verify/gpt-6-luna | 0 | n/a | n/a | n/a | n/a | not recorded |
 | bench-current/planted-verify/gemini-3.8-flash | 0 | n/a | n/a | n/a | n/a | not recorded |
-| bench-current/planted-rubric/haiku | 0 | n/a | n/a | n/a | n/a | not recorded |
+| bench-current/planted-rubric/haiku | 67 | 65 | 65 | 0 | 0 | partial recording |
 | bench-current/planted-rubric/gpt-6-luna | 0 | n/a | n/a | n/a | n/a | not recorded |
 | bench-current/planted-rubric/gemini-3.8-flash | 0 | n/a | n/a | n/a | n/a | not recorded |
 
@@ -119,3 +119,11 @@ On current hard-factuality/Haiku, the string-only decoder stays at 104/120 (0 fi
 ## Decoder compatibility
 
 `CRITERION_DECODER_VERSION` is 2. `JudgeRequest.criterionDecoderVersion: 1` selects the historical strict parser. New default-ledger cassette entries and keys carry version 2; historical unversioned entries keep their old key and strict decoding. Legacy, system1 and explicit assessment keys stay unchanged. Grounding diagnostics are output-only and never enter the provider schema.
+
+## Refreshed recording snapshot
+
+- The source-alias investigation supplies additional PR 172 recordings. This decoder independently replays all 3,727 recorded rows in that frozen snapshot: 38 fixes and zero breaks across 32 recorded or partially recorded sets.
+- Long remains 229/240 and short 240/240. Current hard-factuality remains 104/120; source aliases are separate.
+- The refreshed recorded test passes 33 tests. Missing sets remain not recorded; partial sets do not establish a complete slice pass.
+- After merging main `54b0f904`, 100 focused tests across 7 files pass, including escalation compatibility. The scope codemod changes zero files; all 12 immutable file hashes remain unchanged.
+- Reproduce an imported snapshot with `pnpm exec tsx research/default-decoder-ungrounded/refresh-recordings.mts <recorded-inputs.json.gz>`.
