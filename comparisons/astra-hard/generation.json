@@ -1,0 +1,54 @@
+{
+  "seed": 20261217,
+  "cases_per_row": 192,
+  "reference_profile_start": 20,
+  "reference_profile_count": 8,
+  "label_rule": "Original paired code construction, never model-labelled.",
+  "changes": "New seed; 192 cases; fresh ids; eight reference profiles instead of five. Original family bodies unchanged.",
+  "generator_sources": {
+    "comparisons/promptfoo/hard/generate.py": "cff42f02bac87f9fa06babc5aaaab69de7875111310b10cfa13022e0dd95318e",
+    "comparisons/langfuse/hard/generate.py": "e410ecd443643f0f0e00229f7c3f4bf2ac9eff3f3ad4e72ff88b44de8ed37068"
+  },
+  "rows": {
+    "promptfoo-rubric": {
+      "total": 192,
+      "pass": 96,
+      "fail": 96,
+      "family_counts": {
+        "partial-completion": 16,
+        "tag-injection": 16,
+        "scope": 16,
+        "negation": 16,
+        "period": 16,
+        "disjunction": 16,
+        "cross-language": 16,
+        "quoted-claim": 16,
+        "later-contradiction": 16,
+        "arithmetic": 16,
+        "long-fluent": 16,
+        "conjunction": 16
+      },
+      "overlap_with_prior_payloads": 0
+    },
+    "langfuse-reference": {
+      "total": 192,
+      "pass": 96,
+      "fail": 96,
+      "family_counts": {
+        "multilingual": 16,
+        "units": 16,
+        "long-distractors": 16,
+        "conditions": 16,
+        "negation": 16,
+        "instruction-data": 16,
+        "entity-binding": 16,
+        "near-number": 16,
+        "quantifiers": 16,
+        "omission": 16,
+        "revision": 16,
+        "fluent-extra": 16
+      },
+      "overlap_with_prior_payloads": 0
+    }
+  }
+}
