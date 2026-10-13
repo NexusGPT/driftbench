@@ -44,6 +44,7 @@ export function createOpenAiJudge(options: ClientOptions = {}): JudgeClient {
   const key = requireEnv(env, 'OPENAI_API_KEY');
   const model = modelOf(options, env, 'OPENAI_JUDGE_MODEL');
   const url = `${baseOf(env, 'OPENAI_BASE_URL', 'https://api.openai.com')}/v1/chat/completions`;
+  let sendTemperature = true;
   return {
     id: options.id ?? 'openai',
     family: 'openai',
@@ -52,24 +53,31 @@ export function createOpenAiJudge(options: ClientOptions = {}): JudgeClient {
     cost: options.cost ?? CHAT_COST,
     async judge(request) {
       const prompt = buildPrompt(request);
-      const payload = await postJson(
-        url,
-        { authorization: `Bearer ${key}` },
-        {
-          model,
-          max_completion_tokens: budgetOf(request),
-          temperature: 0,
-          response_format: {
-            type: 'json_schema',
-            json_schema: { name: 'judge_answer', strict: false, schema: responseSchema(request) },
-          },
-          messages: [
-            { role: 'system', content: prompt.system },
-            { role: 'user', content: prompt.user },
-          ],
+      const body = (withTemperature: boolean) => ({
+        model,
+        max_completion_tokens: budgetOf(request),
+        ...(withTemperature ? { temperature: 0 } : {}),
+        response_format: {
+          type: 'json_schema',
+          json_schema: { name: 'judge_answer', strict: false, schema: responseSchema(request) },
         },
-        options,
-      );
+        messages: [
+          { role: 'system', content: prompt.system },
+          { role: 'user', content: prompt.user },
+        ],
+      });
+      const send = (withTemperature: boolean) =>
+        postJson(url, { authorization: `Bearer ${key}` }, body(withTemperature), options);
+      let payload: unknown;
+      try {
+        payload = await send(sendTemperature);
+      } catch (cause) {
+        // Some models (gpt-6-luna) take only the default temperature and answer 400 to 0: ask again without it, for good.
+        const text = cause instanceof Error ? cause.message : '';
+        if (!sendTemperature || !/answered 400/.test(text) || !/temperature/i.test(text)) throw cause;
+        sendTemperature = false;
+        payload = await send(false);
+      }
       const choice = isRecord(payload) && Array.isArray(payload.choices) ? payload.choices[0] : undefined;
       const message = isRecord(choice) ? choice.message : undefined;
       const raw = JSON.stringify(payload);
