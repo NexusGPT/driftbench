@@ -355,12 +355,12 @@ Dimensions
 
 Grid at t = 2: 15 subsets of 2 dimensions
   cells     818 allowed of 823 (5 forbidden by the constraints)
-  covered   196 (24.0%)
+  covered   199 (24.3%)
   weighted  34.0% of the declared user mix, effective sample size 6.3 of 7 specs
 
 t-wise coverage
-  t = 2  196 of 818 allowed pairs (24.0%)
-  t = 3  390 of 7082 allowed triples (5.5%)
+  t = 2  199 of 818 allowed pairs (24.3%)
+  t = 3  399 of 7082 allowed triples (5.6%)
 
 Required cells
   ✓  stage=recap · deviation=D4_loose_confirmation  acme-order-loose-confirmation, acme-plan-upgrade
@@ -372,14 +372,14 @@ Required cells
   ✗  flow order · D2_goal_shift                     no spec
   ✗  flow order · D3_contradiction                  no spec
   ✓  flow order · D4_loose_confirmation             acme-order-loose-confirmation, acme-plan-upgrade
-  ✓  flow order · D8_tool_failure                   acme-order-loose-confirmation, acme-tool-failure
+  ✓  flow order · D8_tool_failure                   acme-order-loose-confirmation, acme-plan-upgrade, acme-tool-failure
   ✓  flow price-sheet · D6_instruction_in_data      acme-price-sheet
 
 Warnings
   ! D7_silence_or_burst  UNKNOWN_VALUE  deviation D7_silence_or_burst is named by acme-number-porting, but no deviation dimension of the map lists it
   ! D9_out_of_scope  UNKNOWN_VALUE  deviation D9_out_of_scope is named by acme-plan-upgrade, but no deviation dimension of the map lists it
 
-Coverage: 8 of 11 required cells covered, 196 of 818 cells at t = 2 (24.0%).
+Coverage: 8 of 11 required cells covered, 199 of 818 cells at t = 2 (24.3%).
 ```
 
 The command exits 1 here: three required flow deviations have no spec.

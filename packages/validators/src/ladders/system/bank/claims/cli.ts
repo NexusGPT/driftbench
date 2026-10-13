@@ -907,7 +907,7 @@ add({
   tier: 2,
   component: PLANNER,
   title:
-    'campaign plan gives acme-plan-upgrade in F at repeat 0 the cell ids running.md prints: 58ec431a6e09bf0b on function:acme and b723bb610e39ceaa on its own target',
+    'campaign plan gives acme-plan-upgrade in F at repeat 0 the cell ids running.md prints: cc92cc9eb562f586 on function:acme and a66a7aba9986a136 on its own target',
   cause:
     'the planner derives the cell id from the spec hash, target, mode, repeat and perturbation as running.md documents.',
   async run(ctx) {
@@ -917,12 +917,12 @@ add({
     const id = (r: Cli) => json<{ cells?: Array<{ cellId: string }> }>(r.out)?.cells?.[0]?.cellId;
     return expectAll([
       [
-        id(forced) === '58ec431a6e09bf0b',
-        `--target function:acme: expected 58ec431a6e09bf0b, got ${id(forced)}; ${shown(forced)}`,
+        id(forced) === 'cc92cc9eb562f586',
+        `--target function:acme: expected cc92cc9eb562f586, got ${id(forced)}; ${shown(forced)}`,
       ],
       [
-        id(own) === 'b723bb610e39ceaa',
-        `own target: expected b723bb610e39ceaa, got ${id(own)}; ${shown(own)}`,
+        id(own) === 'a66a7aba9986a136',
+        `own target: expected a66a7aba9986a136, got ${id(own)}; ${shown(own)}`,
       ],
     ]);
   },
@@ -1410,7 +1410,7 @@ add({
   tier: 2,
   component: SPACE_COVERAGE,
   title:
-    'space coverage --t 2 on the Acme specs and map prints "Coverage: 8 of 11 required cells covered, 196 of 818 cells at t = 2 (24.0%)." and exits 1 (cli.md space coverage)',
+    'space coverage --t 2 on the Acme specs and map prints "Coverage: 8 of 11 required cells covered, 199 of 818 cells at t = 2 (24.3%)." and exits 1 (cli.md space coverage)',
   cause: 'space coverage counts the required cells and the t-wise cells as cli.md documents.',
   async run(ctx) {
     const result = await cli(
@@ -1425,7 +1425,7 @@ add({
       ],
       ctx.dir,
     );
-    const want = 'Coverage: 8 of 11 required cells covered, 196 of 818 cells at t = 2 (24.0%).';
+    const want = 'Coverage: 8 of 11 required cells covered, 199 of 818 cells at t = 2 (24.3%).';
     return expectAll([
       [result.out.includes(want), `expected "${want}"; ${shown(result)}`],
       [result.code === 1, `expected exit 1, got ${result.code}`],
@@ -1904,7 +1904,7 @@ add({
   tier: 3,
   component: REGISTRY,
   title:
-    'dataset push of the six Acme conversation specs gives hash e836f6673509, and after adding "# edited" under the id of plan-upgrade.yaml, @2 with hash ab756cbb1aa3 (datasets.md "The registry")',
+    'dataset push of the six Acme conversation specs gives hash 74ce682f7438, and after adding "# edited" under the id of plan-upgrade.yaml, @2 with hash 0f95fe257abc (datasets.md "The registry")',
   cause:
     'the registry hashes a version as the SHA-256 of its sorted paths and file hashes, as datasets.md documents.',
   async run(ctx) {
@@ -1918,8 +1918,8 @@ add({
     );
     const second = await cli(['dataset', 'push', `acme-${ctx.seed}`, 'specs', '--store', store], ctx.dir);
     return expectAll([
-      [first.out.includes(`@1 (hash e836f6673509)`), `first push: ${shown(first)}`],
-      [second.out.includes(`@2 (hash ab756cbb1aa3)`), `second push: ${shown(second)}`],
+      [first.out.includes(`@1 (hash 74ce682f7438)`), `first push: ${shown(first)}`],
+      [second.out.includes(`@2 (hash 0f95fe257abc)`), `second push: ${shown(second)}`],
     ]);
   },
 });
