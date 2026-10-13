@@ -1,6 +1,6 @@
 {
   "model": "gpt-6.1-sol",
-  "at": "2026-10-13T17:51:45.686280+00:00",
+  "at": "2026-10-13T18:27:02.254223+00:00",
   "scores": [
     {
       "contestant": "pair-ledger",
@@ -40,6 +40,7 @@
       "missingTestItems": [],
       "http429": 0,
       "transportFailures": 44,
+      "sessionLimitNoAnswers": 0,
       "tokens": {
         "input": 2917892,
         "output": 348086,
@@ -72,6 +73,7 @@
       "missingTestItems": [],
       "http429": 0,
       "transportFailures": 19,
+      "sessionLimitNoAnswers": 0,
       "tokens": {
         "input": 2138574,
         "output": 27842,
@@ -194,5 +196,5 @@
     "capUsd": 25,
     "separateFromOld35UsdCap": true
   },
-  "freezeSha256": "a17346f52de6f85b2e80a4f3a85448f26f4f7cb2593ef9456df5968d48154575"
+  "freezeSha256": "8894d17255c1640403e2e3d51b9332833179013f9bac2925a01d3bcd96aa5026"
 }

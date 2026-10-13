@@ -8,7 +8,12 @@
   "costUsd": 0,
   "savedTestComparisons": 179,
   "testComparisonsRequired": 346,
-  "status": "Authorized missing-only after GPT-6.1 finishes; reset verified by owner via another helper",
+  "status": "Quota rejection recovered after the ten-probe gate; completing remaining TEST comparisons",
   "authorizedAt": "2026-10-13T16:51:52.985535+00:00",
-  "authorization": "Yes: Sonnet resumes missing-only after the quota reset (it reset at 16:50 UTC, verified by another helper), under its 45 USD cap, all answered calls kept. Classify a session limit reply as a no-answer with zero cost. One cell at a time."
+  "authorization": "Yes: Sonnet resumes missing-only after the quota reset (it reset at 16:50 UTC, verified by another helper), under its 45 USD cap, all answered calls kept. Classify a session limit reply as a no-answer with zero cost. One cell at a time.",
+  "resumeStartedAt": "2026-10-13T17:56:27.155433+00:00",
+  "active": false,
+  "resolvedAt": "2026-10-13T18:01:12.422Z",
+  "recoveryAttemptKey": "6b4252fb3f7dae65ed01f68acf77760b9156631b8a977cdb7a333f2d501f9fc8",
+  "recoveryCostUsd": 0.028145999999999997
 }

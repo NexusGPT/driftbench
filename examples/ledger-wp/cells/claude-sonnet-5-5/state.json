@@ -1,15 +1,14 @@
 {
-  "pid": 71823,
+  "pid": 33193,
   "model": "claude-sonnet-5-5",
   "mode": "run",
-  "status": "stopped",
-  "at": "2026-10-13T16:28:26.191Z",
-  "decisions": 440,
-  "submissions": 456,
+  "status": "complete",
+  "at": "2026-10-13T18:24:54.108Z",
+  "decisions": 607,
+  "submissions": 349,
   "spend": {
-    "actual": 20.759126400000014,
+    "actual": 27.733132400000034,
     "reserved": 0,
     "pending": []
-  },
-  "error": "Error: Shared network hold; fresh probe gate required"
+  }
 }

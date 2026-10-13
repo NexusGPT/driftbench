@@ -1,12 +1,11 @@
 {
-  "pid": 44729,
-  "status": "failed",
-  "at": "2026-10-13T17:51:46.319310+00:00",
+  "pid": 42739,
+  "status": "complete",
+  "at": "2026-10-13T18:24:56.347580+00:00",
   "cycle": 1,
-  "activeModel": "gpt-6.1-sol",
+  "activeModel": "claude-sonnet-5-5",
   "targets": {
-    "gpt-6.1-sol": 75634
+    "claude-sonnet-5-5": 33193
   },
-  "networkStops": [],
-  "error": "Command '['python3', '/Users/assem/Documents/GitHub/driftbench/.worktrees/ledger-wp/examples/ledger-wp/frontier-finalize.py', '{\"gpt-6.1-sol\": 75634}']' returned non-zero exit status 1."
+  "networkStops": []
 }
