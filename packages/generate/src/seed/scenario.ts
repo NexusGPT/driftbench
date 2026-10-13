@@ -1,4 +1,11 @@
-import type { EndStateSpec, Expect, PerturbationSpec, Rules, ToolExpect } from '@agent-nexus/driftbench-core';
+import type {
+  Count,
+  EndStateSpec,
+  Expect,
+  PerturbationSpec,
+  Rules,
+  ToolExpect,
+} from '@agent-nexus/driftbench-core';
 import type { PathRelation, ProposalPhrase, Slots } from '../extract/proposal';
 import type { BlockDraft, Pick, Stimulus } from './assemble';
 import { OPENING_CLASSES, TOOL_FAILURE, TOOL_FAILURE_ERROR } from './deviation';
@@ -485,14 +492,22 @@ export function buildScenario(prepared: PreparedMap, rng: Rng, request: Scenario
 
 /**
  * True when a recovery said on the first turn can fail a reply that does nothing: it leaves the start stage,
- * or asks for a tool call. A word it states does not help: the echo agent repeats every literal word of the
- * spec's patterns, so a `must` alone is passed by it. A recovery that stays on the start stage and
- * states no such word is passed by an agent that reports the start stage and replies in English.
+ * or requires a tool call or a runtime guard firing. A word it states does not help: the echo agent repeats
+ * every literal word of the spec's patterns, so a `must` alone is passed by it. A recovery that stays on the
+ * start stage without a required event cannot distinguish an idle reply reporting that stage.
  */
 function discriminates(recovery: Recovery, stage: string, start: string | undefined): boolean {
   const after = stageAfter(recovery, stage);
   if (after !== undefined && after !== start) return true;
-  return recovery.tools.some((call) => call.count !== 0);
+  return (
+    recovery.tools.some((call) => requiresEvent(call.count)) ||
+    recovery.guards.some((guard) => requiresEvent(guard.count))
+  );
+}
+
+/** An absent count requires a firing; a range with no positive minimum permits an idle reply. */
+function requiresEvent(count: Count | undefined): boolean {
+  return count === undefined || (typeof count === 'number' ? count > 0 : (count.min ?? 0) > 0);
 }
 
 /**

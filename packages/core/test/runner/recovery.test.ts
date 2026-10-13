@@ -499,7 +499,7 @@ describe('the injecting driver', () => {
     });
     expect(run.status).toBe('failed');
     expect(run.error).toContain(
-      'the spec acme-plan-upgrade has no perturbation nope; it has billing-aside, loose-ok',
+      'the spec acme-plan-upgrade has no perturbation nope; it has billing-aside, order-service-down, loose-ok',
     );
   });
 

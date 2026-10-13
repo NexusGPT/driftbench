@@ -1142,7 +1142,7 @@ relations:
   - kind: path
     id: new-request-full
     flow: new-request
-    when: { lookup_record.in.kind: [ lookup_record.in.kind.green, lookup_record.in.kind.basic, lookup_record.in.kind.west ], list_options.in.category: [ list_options.in.category.medium, list_options.in.category.small, list_options.in.category.east ], submit_request.in.plan: [ submit_request.in.plan.standard, submit_request.in.plan.premium, submit_request.in.plan.large ] }
+    when: { lookup_record.in.kind: [ lookup_record.in.kind.green, lookup_record.in.kind.basic, lookup_record.in.kind.west ], list_options.in.category: [ list_options.in.category.medium, list_options.in.category.small, list_options.in.category.east ], submit_request.in.plan: [ submit_request.in.plan.standard, submit_request.in.plan.premium, submit_request.in.plan.large ], lookup_record.out.found: [ lookup_record.out.found.true, lookup_record.out.found.false ], lookup_record.out.status: [ lookup_record.out.status.monthly, lookup_record.out.status.daily ], list_options.out.available: [ list_options.out.available.true, list_options.out.available.false ], list_options.out.order: [ list_options.out.order.amber, list_options.out.order.north ], submit_request.out.accepted: [ submit_request.out.accepted.true, submit_request.out.accepted.false ], submit_request.out.route: [ submit_request.out.route.coastal, submit_request.out.route.south ] }
     stages: [ opening, intake, check, choice, details, recap, done ]
     behaviours: [ B-001, B-004, B-005 ]
     end_state:
@@ -1158,7 +1158,7 @@ relations:
   - kind: path
     id: status-check-lookup
     flow: status-check
-    when: { lookup_record.in.kind: [ lookup_record.in.kind.green, lookup_record.in.kind.basic, lookup_record.in.kind.west ] }
+    when: { lookup_record.in.kind: [ lookup_record.in.kind.green, lookup_record.in.kind.basic, lookup_record.in.kind.west ], lookup_record.out.found: [ lookup_record.out.found.true, lookup_record.out.found.false ], lookup_record.out.status: [ lookup_record.out.status.monthly, lookup_record.out.status.daily ] }
     stages: [ opening, intake, check ]
     behaviours: [ B-003, B-005, B-006 ]
     evidence:
@@ -1169,7 +1169,7 @@ relations:
   - kind: path
     id: change-request-back
     flow: change-request
-    when: { lookup_record.in.kind: [ lookup_record.in.kind.green, lookup_record.in.kind.basic, lookup_record.in.kind.west ], list_options.in.category: [ list_options.in.category.medium, list_options.in.category.small, list_options.in.category.east ], submit_request.in.plan: [ submit_request.in.plan.standard, submit_request.in.plan.premium, submit_request.in.plan.large ] }
+    when: { lookup_record.in.kind: [ lookup_record.in.kind.green, lookup_record.in.kind.basic, lookup_record.in.kind.west ], list_options.in.category: [ list_options.in.category.medium, list_options.in.category.small, list_options.in.category.east ], submit_request.in.plan: [ submit_request.in.plan.standard, submit_request.in.plan.premium, submit_request.in.plan.large ], lookup_record.out.found: [ lookup_record.out.found.true, lookup_record.out.found.false ], lookup_record.out.status: [ lookup_record.out.status.monthly, lookup_record.out.status.daily ], list_options.out.available: [ list_options.out.available.true, list_options.out.available.false ], list_options.out.order: [ list_options.out.order.amber, list_options.out.order.north ] }
     stages: [ opening, intake, check, choice, details, recap ]
     behaviours: [ B-001, B-003, B-005 ]
     evidence:
@@ -1180,7 +1180,7 @@ relations:
   - kind: path
     id: status-check-unclear
     flow: status-check
-    when: { lookup_record.in.kind: [ lookup_record.in.kind.green, lookup_record.in.kind.basic, lookup_record.in.kind.west ] }
+    when: { lookup_record.in.kind: [ lookup_record.in.kind.green, lookup_record.in.kind.basic, lookup_record.in.kind.west ], lookup_record.out.found: [ lookup_record.out.found.true, lookup_record.out.found.false ], lookup_record.out.status: [ lookup_record.out.status.monthly, lookup_record.out.status.daily ] }
     stages: [ opening, intake, intake, check ]
     behaviours: [ B-003, B-005, B-006 ]
     evidence:
@@ -1191,7 +1191,7 @@ relations:
   - kind: path
     id: new-request-short
     flow: new-request
-    when: { lookup_record.in.kind: [ lookup_record.in.kind.green, lookup_record.in.kind.basic, lookup_record.in.kind.west ], submit_request.in.plan: [ submit_request.in.plan.standard, submit_request.in.plan.premium, submit_request.in.plan.large ] }
+    when: { lookup_record.in.kind: [ lookup_record.in.kind.green, lookup_record.in.kind.basic, lookup_record.in.kind.west ], submit_request.in.plan: [ submit_request.in.plan.standard, submit_request.in.plan.premium, submit_request.in.plan.large ], lookup_record.out.found: [ lookup_record.out.found.true, lookup_record.out.found.false ], lookup_record.out.status: [ lookup_record.out.status.monthly, lookup_record.out.status.daily ], submit_request.out.accepted: [ submit_request.out.accepted.true, submit_request.out.accepted.false ], submit_request.out.route: [ submit_request.out.route.coastal, submit_request.out.route.south ] }
     stages: [ opening, intake, check, recap, done ]
     behaviours: [ B-001, B-004, B-005 ]
     end_state:
@@ -1207,7 +1207,7 @@ relations:
   - kind: path
     id: status-check-again
     flow: status-check
-    when: { lookup_record.in.kind: [ lookup_record.in.kind.green, lookup_record.in.kind.basic, lookup_record.in.kind.west ] }
+    when: { lookup_record.in.kind: [ lookup_record.in.kind.green, lookup_record.in.kind.basic, lookup_record.in.kind.west ], lookup_record.out.found: [ lookup_record.out.found.true, lookup_record.out.found.false ], lookup_record.out.status: [ lookup_record.out.status.monthly, lookup_record.out.status.daily ] }
     stages: [ opening, intake, check, check ]
     behaviours: [ B-003, B-005, B-006 ]
     evidence:
@@ -1222,6 +1222,7 @@ relations:
     to: check
     input:
       kind: "{lookup_record_kind}"
+      quantity: 2
     evidence:
       source: ./prompt.md
       quote: "- lookup_record: Looks up the record of an item."
@@ -1234,6 +1235,7 @@ relations:
     to: choice
     input:
       category: "{list_options_category}"
+      limit: 2
     evidence:
       source: ./prompt.md
       quote: "- list_options: Lists the options for an item."
@@ -1246,6 +1248,7 @@ relations:
     to: done
     input:
       plan: "{submit_request_plan}"
+      units: 2
     evidence:
       source: ./prompt.md
       quote: "- submit_request: Submits the confirmed request."
@@ -1258,6 +1261,7 @@ relations:
     to: check
     input:
       kind: "{lookup_record_kind}"
+      quantity: 2
     evidence:
       source: ./prompt.md
       quote: "- lookup_record: Looks up the record of an item."
@@ -1270,6 +1274,7 @@ relations:
     to: check
     input:
       kind: "{lookup_record_kind}"
+      quantity: 2
     evidence:
       source: ./prompt.md
       quote: "- lookup_record: Looks up the record of an item."
@@ -1282,6 +1287,7 @@ relations:
     to: choice
     input:
       category: "{list_options_category}"
+      limit: 2
     evidence:
       source: ./prompt.md
       quote: "- list_options: Lists the options for an item."
@@ -1294,9 +1300,186 @@ relations:
     to: check
     input:
       kind: "{lookup_record_kind}"
+      quantity: 2
     evidence:
       source: ./prompt.md
       quote: "- lookup_record: Looks up the record of an item."
+    produced_by: code
+    approved: true
+  - kind: states
+    subject: { dimension: flow, value: new-request }
+    stage: opening
+    to: intake
+    must: [ Which item is the request about\? ]
+    must_not: [ "Step [0-9]+:", "lookup record says ", "list options says ", "submit request says " ]
+    evidence:
+      source: ./prompt.md
+      quote: In new-request, a turn from opening to intake asks "Which item is the request about?", states every returned field of no tool, never states facts of an uncalled tool, and never narrates internal steps with "Step <number>:".
+    produced_by: code
+    approved: true
+  - kind: states
+    subject: { dimension: flow, value: new-request }
+    stage: intake
+    to: check
+    must: [ Shall I go on with the record I found\?, "lookup record says found is {lookup_record_out_found}\\.", "lookup record says status is {lookup_record_out_status}\\." ]
+    must_not: [ "Step [0-9]+:", "list options says ", "submit request says " ]
+    evidence:
+      source: ./prompt.md
+      quote: In new-request, a turn from intake to check asks "Shall I go on with the record I found?", states every returned field of lookup_record, never states facts of an uncalled tool, and never narrates internal steps with "Step <number>:".
+    produced_by: code
+    approved: true
+  - kind: states
+    subject: { dimension: flow, value: new-request }
+    stage: check
+    to: choice
+    must: [ Which of the listed options do you want\?, "list options says available is {list_options_out_available}\\.", "list options says order is {list_options_out_order}\\." ]
+    must_not: [ "Step [0-9]+:", "lookup record says ", "submit request says " ]
+    evidence:
+      source: ./prompt.md
+      quote: In new-request, a turn from check to choice asks "Which of the listed options do you want?", states every returned field of list_options, never states facts of an uncalled tool, and never narrates internal steps with "Step <number>:".
+    produced_by: code
+    approved: true
+  - kind: states
+    subject: { dimension: flow, value: new-request }
+    stage: choice
+    to: details
+    must: [ Which plan and what name should the request carry\? ]
+    must_not: [ "Step [0-9]+:", "lookup record says ", "list options says ", "submit request says " ]
+    evidence:
+      source: ./prompt.md
+      quote: In new-request, a turn from choice to details asks "Which plan and what name should the request carry?", states every returned field of no tool, never states facts of an uncalled tool, and never narrates internal steps with "Step <number>:".
+    produced_by: code
+    approved: true
+  - kind: states
+    subject: { dimension: flow, value: new-request }
+    stage: details
+    to: recap
+    must: [ "Reply CONFIRM to submit the request, or tell me what to change\\." ]
+    must_not: [ "Step [0-9]+:", "lookup record says ", "list options says ", "submit request says " ]
+    evidence:
+      source: ./prompt.md
+      quote: In new-request, a turn from details to recap asks "Reply CONFIRM to submit the request, or tell me what to change.", states every returned field of no tool, never states facts of an uncalled tool, and never narrates internal steps with "Step <number>:".
+    produced_by: code
+    approved: true
+  - kind: states
+    subject: { dimension: flow, value: new-request }
+    stage: recap
+    to: done
+    must: [ Is there anything else I can help with\?, "submit request says accepted is {submit_request_out_accepted}\\.", "submit request says route is {submit_request_out_route}\\." ]
+    must_not: [ "Step [0-9]+:", "lookup record says ", "list options says " ]
+    evidence:
+      source: ./prompt.md
+      quote: In new-request, a turn from recap to done asks "Is there anything else I can help with?", states every returned field of submit_request, never states facts of an uncalled tool, and never narrates internal steps with "Step <number>:".
+    produced_by: code
+    approved: true
+  - kind: states
+    subject: { dimension: flow, value: status-check }
+    stage: opening
+    to: intake
+    must: [ Which item is the request about\? ]
+    must_not: [ "Step [0-9]+:", "lookup record says ", "list options says ", "submit request says " ]
+    evidence:
+      source: ./prompt.md
+      quote: In status-check, a turn from opening to intake asks "Which item is the request about?", states every returned field of no tool, never states facts of an uncalled tool, and never narrates internal steps with "Step <number>:".
+    produced_by: code
+    approved: true
+  - kind: states
+    subject: { dimension: flow, value: status-check }
+    stage: intake
+    to: check
+    must: [ Shall I go on with the record I found\?, "lookup record says found is {lookup_record_out_found}\\.", "lookup record says status is {lookup_record_out_status}\\." ]
+    must_not: [ "Step [0-9]+:", "list options says ", "submit request says " ]
+    evidence:
+      source: ./prompt.md
+      quote: In status-check, a turn from intake to check asks "Shall I go on with the record I found?", states every returned field of lookup_record, never states facts of an uncalled tool, and never narrates internal steps with "Step <number>:".
+    produced_by: code
+    approved: true
+  - kind: states
+    subject: { dimension: flow, value: change-request }
+    stage: opening
+    to: intake
+    must: [ Which item is the request about\? ]
+    must_not: [ "Step [0-9]+:", "lookup record says ", "list options says ", "submit request says " ]
+    evidence:
+      source: ./prompt.md
+      quote: In change-request, a turn from opening to intake asks "Which item is the request about?", states every returned field of no tool, never states facts of an uncalled tool, and never narrates internal steps with "Step <number>:".
+    produced_by: code
+    approved: true
+  - kind: states
+    subject: { dimension: flow, value: change-request }
+    stage: intake
+    to: check
+    must: [ Shall I go on with the record I found\?, "lookup record says found is {lookup_record_out_found}\\.", "lookup record says status is {lookup_record_out_status}\\." ]
+    must_not: [ "Step [0-9]+:", "list options says ", "submit request says " ]
+    evidence:
+      source: ./prompt.md
+      quote: In change-request, a turn from intake to check asks "Shall I go on with the record I found?", states every returned field of lookup_record, never states facts of an uncalled tool, and never narrates internal steps with "Step <number>:".
+    produced_by: code
+    approved: true
+  - kind: states
+    subject: { dimension: flow, value: change-request }
+    stage: check
+    to: choice
+    must: [ Which of the listed options do you want\?, "list options says available is {list_options_out_available}\\.", "list options says order is {list_options_out_order}\\." ]
+    must_not: [ "Step [0-9]+:", "lookup record says ", "submit request says " ]
+    evidence:
+      source: ./prompt.md
+      quote: In change-request, a turn from check to choice asks "Which of the listed options do you want?", states every returned field of list_options, never states facts of an uncalled tool, and never narrates internal steps with "Step <number>:".
+    produced_by: code
+    approved: true
+  - kind: states
+    subject: { dimension: flow, value: change-request }
+    stage: choice
+    to: details
+    must: [ Which plan and what name should the request carry\? ]
+    must_not: [ "Step [0-9]+:", "lookup record says ", "list options says ", "submit request says " ]
+    evidence:
+      source: ./prompt.md
+      quote: In change-request, a turn from choice to details asks "Which plan and what name should the request carry?", states every returned field of no tool, never states facts of an uncalled tool, and never narrates internal steps with "Step <number>:".
+    produced_by: code
+    approved: true
+  - kind: states
+    subject: { dimension: flow, value: change-request }
+    stage: details
+    to: recap
+    must: [ "Reply CONFIRM to submit the request, or tell me what to change\\." ]
+    must_not: [ "Step [0-9]+:", "lookup record says ", "list options says ", "submit request says " ]
+    evidence:
+      source: ./prompt.md
+      quote: In change-request, a turn from details to recap asks "Reply CONFIRM to submit the request, or tell me what to change.", states every returned field of no tool, never states facts of an uncalled tool, and never narrates internal steps with "Step <number>:".
+    produced_by: code
+    approved: true
+  - kind: states
+    subject: { dimension: flow, value: status-check }
+    stage: intake
+    to: intake
+    must: [ Which item is the request about\? ]
+    must_not: [ "Step [0-9]+:", "lookup record says ", "list options says ", "submit request says " ]
+    evidence:
+      source: ./prompt.md
+      quote: In status-check, a turn from intake to intake asks "Which item is the request about?", states every returned field of no tool, never states facts of an uncalled tool, and never narrates internal steps with "Step <number>:".
+    produced_by: code
+    approved: true
+  - kind: states
+    subject: { dimension: flow, value: new-request }
+    stage: check
+    to: recap
+    must: [ "Reply CONFIRM to submit the request, or tell me what to change\\." ]
+    must_not: [ "Step [0-9]+:", "lookup record says ", "list options says ", "submit request says " ]
+    evidence:
+      source: ./prompt.md
+      quote: In new-request, a turn from check to recap asks "Reply CONFIRM to submit the request, or tell me what to change.", states every returned field of no tool, never states facts of an uncalled tool, and never narrates internal steps with "Step <number>:".
+    produced_by: code
+    approved: true
+  - kind: states
+    subject: { dimension: flow, value: status-check }
+    stage: check
+    to: check
+    must: [ Shall I go on with the record I found\?, "lookup record says found is {lookup_record_out_found}\\.", "lookup record says status is {lookup_record_out_status}\\." ]
+    must_not: [ "Step [0-9]+:", "list options says ", "submit request says " ]
+    evidence:
+      source: ./prompt.md
+      quote: In status-check, a turn from check to check asks "Shall I go on with the record I found?", states every returned field of lookup_record, never states facts of an uncalled tool, and never narrates internal steps with "Step <number>:".
     produced_by: code
     approved: true
   - kind: binds
@@ -1324,6 +1507,38 @@ relations:
     produced_by: code
     approved: true
   - kind: binds
+    subject: { dimension: lookup_record.out.found, value: lookup_record.out.found.true }
+    slots: { lookup_record_out_found: "true" }
+    evidence:
+      source: ./tools.yaml
+      quote: "found: { type: boolean }"
+    produced_by: code
+    approved: true
+  - kind: binds
+    subject: { dimension: lookup_record.out.found, value: lookup_record.out.found.false }
+    slots: { lookup_record_out_found: "false" }
+    evidence:
+      source: ./tools.yaml
+      quote: "found: { type: boolean }"
+    produced_by: code
+    approved: true
+  - kind: binds
+    subject: { dimension: lookup_record.out.status, value: lookup_record.out.status.monthly }
+    slots: { lookup_record_out_status: monthly }
+    evidence:
+      source: ./tools.yaml
+      quote: "enum: [monthly, daily]"
+    produced_by: code
+    approved: true
+  - kind: binds
+    subject: { dimension: lookup_record.out.status, value: lookup_record.out.status.daily }
+    slots: { lookup_record_out_status: daily }
+    evidence:
+      source: ./tools.yaml
+      quote: "enum: [monthly, daily]"
+    produced_by: code
+    approved: true
+  - kind: binds
     subject: { dimension: list_options.in.category, value: list_options.in.category.medium }
     slots: { list_options_category: medium }
     evidence:
@@ -1348,6 +1563,38 @@ relations:
     produced_by: code
     approved: true
   - kind: binds
+    subject: { dimension: list_options.out.available, value: list_options.out.available.true }
+    slots: { list_options_out_available: "true" }
+    evidence:
+      source: ./tools.yaml
+      quote: "available: { type: boolean }"
+    produced_by: code
+    approved: true
+  - kind: binds
+    subject: { dimension: list_options.out.available, value: list_options.out.available.false }
+    slots: { list_options_out_available: "false" }
+    evidence:
+      source: ./tools.yaml
+      quote: "available: { type: boolean }"
+    produced_by: code
+    approved: true
+  - kind: binds
+    subject: { dimension: list_options.out.order, value: list_options.out.order.amber }
+    slots: { list_options_out_order: amber }
+    evidence:
+      source: ./tools.yaml
+      quote: "enum: [amber, north]"
+    produced_by: code
+    approved: true
+  - kind: binds
+    subject: { dimension: list_options.out.order, value: list_options.out.order.north }
+    slots: { list_options_out_order: north }
+    evidence:
+      source: ./tools.yaml
+      quote: "enum: [amber, north]"
+    produced_by: code
+    approved: true
+  - kind: binds
     subject: { dimension: submit_request.in.plan, value: submit_request.in.plan.standard }
     slots: { submit_request_plan: standard }
     evidence:
@@ -1369,6 +1616,38 @@ relations:
     evidence:
       source: ./tools.yaml
       quote: "enum: [standard, premium, large]"
+    produced_by: code
+    approved: true
+  - kind: binds
+    subject: { dimension: submit_request.out.accepted, value: submit_request.out.accepted.true }
+    slots: { submit_request_out_accepted: "true" }
+    evidence:
+      source: ./tools.yaml
+      quote: "accepted: { type: boolean }"
+    produced_by: code
+    approved: true
+  - kind: binds
+    subject: { dimension: submit_request.out.accepted, value: submit_request.out.accepted.false }
+    slots: { submit_request_out_accepted: "false" }
+    evidence:
+      source: ./tools.yaml
+      quote: "accepted: { type: boolean }"
+    produced_by: code
+    approved: true
+  - kind: binds
+    subject: { dimension: submit_request.out.route, value: submit_request.out.route.coastal }
+    slots: { submit_request_out_route: coastal }
+    evidence:
+      source: ./tools.yaml
+      quote: "enum: [coastal, south]"
+    produced_by: code
+    approved: true
+  - kind: binds
+    subject: { dimension: submit_request.out.route, value: submit_request.out.route.south }
+    slots: { submit_request_out_route: south }
+    evidence:
+      source: ./tools.yaml
+      quote: "enum: [coastal, south]"
     produced_by: code
     approved: true
   - kind: recovery

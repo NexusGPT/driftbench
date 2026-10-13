@@ -364,6 +364,7 @@ async function execute(run: RunContext, channel: Channel): Promise<RunResult | u
           type: 'tool_call',
           index: position,
           label: call.label,
+          ...(call.spanId === undefined ? {} : { spanId: call.spanId }),
           ...(call.error === undefined ? {} : { error: call.error }),
           at: new Date().toISOString(),
         });
@@ -427,6 +428,7 @@ async function execute(run: RunContext, channel: Channel): Promise<RunResult | u
         ...(planned.blockId !== undefined ? { blockId: planned.blockId } : {}),
         ...(planned.injected ? { injected: true } : {}),
         givenHash: given.hash,
+        cacheKey: key,
         observed,
         verdicts: all,
         ...(reading !== undefined ? { stageObserved: reading.stage } : {}),

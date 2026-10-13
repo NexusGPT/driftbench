@@ -28,7 +28,8 @@ async function main(): Promise<void> {
 }
 
 main().then(
-  () => process.exit(0),
+  // Exit when every line has left the process: an exit with output still queued would drop it.
+  () => process.stdout.write('', () => process.exit(0)),
   (cause) => {
     process.stderr.write(`bank child failed: ${cause instanceof Error ? cause.stack : String(cause)}\n`);
     process.exit(1);
