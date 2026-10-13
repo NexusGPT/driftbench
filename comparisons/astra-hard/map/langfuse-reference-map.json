@@ -1,0 +1,728 @@
+{
+  "version": 1,
+  "agent": "astra-fixtures",
+  "produced_by": {
+    "family": "code",
+    "model": "deterministic construction",
+    "at": "2026-10-13T03:44:00.000Z"
+  },
+  "sources": [
+    {
+      "kind": "prompt",
+      "path": "source.txt"
+    }
+  ],
+  "dimensions": [
+    {
+      "id": "flow",
+      "title": "flow",
+      "kind": "behaviour",
+      "role": "axis",
+      "produced_by": "code",
+      "approved": true,
+      "values": [
+        {
+          "id": "near-number",
+          "title": "near-number",
+          "evidence": {
+            "source": "source.txt",
+            "quote": "Original construction families: arithmetic, conditions, conjunction, cross-language, disjunction, entity-binding, fluent-extra, instruction-data, later-contradiction, long-distractors, long-fluent, multilingual, near-number, negation, omission, partial-completion, period, quantifiers, quoted-claim, revision, scope, tag-injection, units."
+          },
+          "produced_by": "code"
+        },
+        {
+          "id": "units",
+          "title": "units",
+          "evidence": {
+            "source": "source.txt",
+            "quote": "Original construction families: arithmetic, conditions, conjunction, cross-language, disjunction, entity-binding, fluent-extra, instruction-data, later-contradiction, long-distractors, long-fluent, multilingual, near-number, negation, omission, partial-completion, period, quantifiers, quoted-claim, revision, scope, tag-injection, units."
+          },
+          "produced_by": "code"
+        },
+        {
+          "id": "negation",
+          "title": "negation",
+          "evidence": {
+            "source": "source.txt",
+            "quote": "Original construction families: arithmetic, conditions, conjunction, cross-language, disjunction, entity-binding, fluent-extra, instruction-data, later-contradiction, long-distractors, long-fluent, multilingual, near-number, negation, omission, partial-completion, period, quantifiers, quoted-claim, revision, scope, tag-injection, units."
+          },
+          "produced_by": "code"
+        },
+        {
+          "id": "entity-binding",
+          "title": "entity-binding",
+          "evidence": {
+            "source": "source.txt",
+            "quote": "Original construction families: arithmetic, conditions, conjunction, cross-language, disjunction, entity-binding, fluent-extra, instruction-data, later-contradiction, long-distractors, long-fluent, multilingual, near-number, negation, omission, partial-completion, period, quantifiers, quoted-claim, revision, scope, tag-injection, units."
+          },
+          "produced_by": "code"
+        },
+        {
+          "id": "conditions",
+          "title": "conditions",
+          "evidence": {
+            "source": "source.txt",
+            "quote": "Original construction families: arithmetic, conditions, conjunction, cross-language, disjunction, entity-binding, fluent-extra, instruction-data, later-contradiction, long-distractors, long-fluent, multilingual, near-number, negation, omission, partial-completion, period, quantifiers, quoted-claim, revision, scope, tag-injection, units."
+          },
+          "produced_by": "code"
+        },
+        {
+          "id": "quantifiers",
+          "title": "quantifiers",
+          "evidence": {
+            "source": "source.txt",
+            "quote": "Original construction families: arithmetic, conditions, conjunction, cross-language, disjunction, entity-binding, fluent-extra, instruction-data, later-contradiction, long-distractors, long-fluent, multilingual, near-number, negation, omission, partial-completion, period, quantifiers, quoted-claim, revision, scope, tag-injection, units."
+          },
+          "produced_by": "code"
+        },
+        {
+          "id": "revision",
+          "title": "revision",
+          "evidence": {
+            "source": "source.txt",
+            "quote": "Original construction families: arithmetic, conditions, conjunction, cross-language, disjunction, entity-binding, fluent-extra, instruction-data, later-contradiction, long-distractors, long-fluent, multilingual, near-number, negation, omission, partial-completion, period, quantifiers, quoted-claim, revision, scope, tag-injection, units."
+          },
+          "produced_by": "code"
+        },
+        {
+          "id": "multilingual",
+          "title": "multilingual",
+          "evidence": {
+            "source": "source.txt",
+            "quote": "Original construction families: arithmetic, conditions, conjunction, cross-language, disjunction, entity-binding, fluent-extra, instruction-data, later-contradiction, long-distractors, long-fluent, multilingual, near-number, negation, omission, partial-completion, period, quantifiers, quoted-claim, revision, scope, tag-injection, units."
+          },
+          "produced_by": "code"
+        },
+        {
+          "id": "fluent-extra",
+          "title": "fluent-extra",
+          "evidence": {
+            "source": "source.txt",
+            "quote": "Original construction families: arithmetic, conditions, conjunction, cross-language, disjunction, entity-binding, fluent-extra, instruction-data, later-contradiction, long-distractors, long-fluent, multilingual, near-number, negation, omission, partial-completion, period, quantifiers, quoted-claim, revision, scope, tag-injection, units."
+          },
+          "produced_by": "code"
+        },
+        {
+          "id": "omission",
+          "title": "omission",
+          "evidence": {
+            "source": "source.txt",
+            "quote": "Original construction families: arithmetic, conditions, conjunction, cross-language, disjunction, entity-binding, fluent-extra, instruction-data, later-contradiction, long-distractors, long-fluent, multilingual, near-number, negation, omission, partial-completion, period, quantifiers, quoted-claim, revision, scope, tag-injection, units."
+          },
+          "produced_by": "code"
+        },
+        {
+          "id": "long-distractors",
+          "title": "long-distractors",
+          "evidence": {
+            "source": "source.txt",
+            "quote": "Original construction families: arithmetic, conditions, conjunction, cross-language, disjunction, entity-binding, fluent-extra, instruction-data, later-contradiction, long-distractors, long-fluent, multilingual, near-number, negation, omission, partial-completion, period, quantifiers, quoted-claim, revision, scope, tag-injection, units."
+          },
+          "produced_by": "code"
+        },
+        {
+          "id": "instruction-data",
+          "title": "instruction-data",
+          "evidence": {
+            "source": "source.txt",
+            "quote": "Original construction families: arithmetic, conditions, conjunction, cross-language, disjunction, entity-binding, fluent-extra, instruction-data, later-contradiction, long-distractors, long-fluent, multilingual, near-number, negation, omission, partial-completion, period, quantifiers, quoted-claim, revision, scope, tag-injection, units."
+          },
+          "produced_by": "code"
+        }
+      ]
+    },
+    {
+      "id": "truth",
+      "title": "truth",
+      "kind": "persona",
+      "role": "axis",
+      "produced_by": "code",
+      "approved": true,
+      "values": [
+        {
+          "id": "pass",
+          "title": "pass",
+          "evidence": {
+            "source": "source.txt",
+            "quote": "Original construction families: arithmetic, conditions, conjunction, cross-language, disjunction, entity-binding, fluent-extra, instruction-data, later-contradiction, long-distractors, long-fluent, multilingual, near-number, negation, omission, partial-completion, period, quantifiers, quoted-claim, revision, scope, tag-injection, units."
+          },
+          "produced_by": "code"
+        },
+        {
+          "id": "fail",
+          "title": "fail",
+          "evidence": {
+            "source": "source.txt",
+            "quote": "Original construction families: arithmetic, conditions, conjunction, cross-language, disjunction, entity-binding, fluent-extra, instruction-data, later-contradiction, long-distractors, long-fluent, multilingual, near-number, negation, omission, partial-completion, period, quantifiers, quoted-claim, revision, scope, tag-injection, units."
+          },
+          "produced_by": "code"
+        }
+      ]
+    },
+    {
+      "id": "stage",
+      "title": "stage",
+      "kind": "stage",
+      "role": "detail",
+      "produced_by": "code",
+      "approved": true,
+      "values": [
+        {
+          "id": "evaluate",
+          "title": "evaluate",
+          "evidence": {
+            "source": "source.txt",
+            "quote": "Original construction families: arithmetic, conditions, conjunction, cross-language, disjunction, entity-binding, fluent-extra, instruction-data, later-contradiction, long-distractors, long-fluent, multilingual, near-number, negation, omission, partial-completion, period, quantifiers, quoted-claim, revision, scope, tag-injection, units."
+          },
+          "produced_by": "code"
+        },
+        {
+          "id": "done",
+          "title": "done",
+          "evidence": {
+            "source": "source.txt",
+            "quote": "Original construction families: arithmetic, conditions, conjunction, cross-language, disjunction, entity-binding, fluent-extra, instruction-data, later-contradiction, long-distractors, long-fluent, multilingual, near-number, negation, omission, partial-completion, period, quantifiers, quoted-claim, revision, scope, tag-injection, units."
+          },
+          "produced_by": "code"
+        }
+      ]
+    },
+    {
+      "id": "stage_transition",
+      "title": "stage_transition",
+      "kind": "behaviour",
+      "role": "detail",
+      "produced_by": "code",
+      "approved": true,
+      "values": [
+        {
+          "id": "evaluate-to-done",
+          "title": "evaluate-to-done",
+          "evidence": {
+            "source": "source.txt",
+            "quote": "Original construction families: arithmetic, conditions, conjunction, cross-language, disjunction, entity-binding, fluent-extra, instruction-data, later-contradiction, long-distractors, long-fluent, multilingual, near-number, negation, omission, partial-completion, period, quantifiers, quoted-claim, revision, scope, tag-injection, units."
+          },
+          "produced_by": "code"
+        }
+      ]
+    }
+  ],
+  "constraints": [],
+  "phrases": [
+    {
+      "dimension": "flow",
+      "value": "near-number",
+      "text": "Evaluate the supplied fictional reply.",
+      "lang": "en",
+      "produced_by": "code",
+      "approved": true
+    },
+    {
+      "dimension": "flow",
+      "value": "units",
+      "text": "Evaluate the supplied fictional reply.",
+      "lang": "en",
+      "produced_by": "code",
+      "approved": true
+    },
+    {
+      "dimension": "flow",
+      "value": "negation",
+      "text": "Evaluate the supplied fictional reply.",
+      "lang": "en",
+      "produced_by": "code",
+      "approved": true
+    },
+    {
+      "dimension": "flow",
+      "value": "entity-binding",
+      "text": "Evaluate the supplied fictional reply.",
+      "lang": "en",
+      "produced_by": "code",
+      "approved": true
+    },
+    {
+      "dimension": "flow",
+      "value": "conditions",
+      "text": "Evaluate the supplied fictional reply.",
+      "lang": "en",
+      "produced_by": "code",
+      "approved": true
+    },
+    {
+      "dimension": "flow",
+      "value": "quantifiers",
+      "text": "Evaluate the supplied fictional reply.",
+      "lang": "en",
+      "produced_by": "code",
+      "approved": true
+    },
+    {
+      "dimension": "flow",
+      "value": "revision",
+      "text": "Evaluate the supplied fictional reply.",
+      "lang": "en",
+      "produced_by": "code",
+      "approved": true
+    },
+    {
+      "dimension": "flow",
+      "value": "multilingual",
+      "text": "Evaluate the supplied fictional reply.",
+      "lang": "en",
+      "produced_by": "code",
+      "approved": true
+    },
+    {
+      "dimension": "flow",
+      "value": "fluent-extra",
+      "text": "Evaluate the supplied fictional reply.",
+      "lang": "en",
+      "produced_by": "code",
+      "approved": true
+    },
+    {
+      "dimension": "flow",
+      "value": "omission",
+      "text": "Evaluate the supplied fictional reply.",
+      "lang": "en",
+      "produced_by": "code",
+      "approved": true
+    },
+    {
+      "dimension": "flow",
+      "value": "long-distractors",
+      "text": "Evaluate the supplied fictional reply.",
+      "lang": "en",
+      "produced_by": "code",
+      "approved": true
+    },
+    {
+      "dimension": "flow",
+      "value": "instruction-data",
+      "text": "Evaluate the supplied fictional reply.",
+      "lang": "en",
+      "produced_by": "code",
+      "approved": true
+    },
+    {
+      "dimension": "stage_transition",
+      "value": "evaluate-to-done",
+      "text": "Evaluate the supplied fictional reply.",
+      "lang": "en",
+      "produced_by": "code",
+      "approved": true
+    }
+  ],
+  "relations": [
+    {
+      "kind": "path",
+      "id": "near-number-path",
+      "flow": "near-number",
+      "when": {
+        "truth": [
+          "pass",
+          "fail"
+        ]
+      },
+      "stages": [
+        "evaluate",
+        "done"
+      ],
+      "end_state": {
+        "source": "tool:verdict.record",
+        "mode": "subset",
+        "expect": {
+          "outcome": "{verdict}"
+        }
+      },
+      "evidence": {
+        "source": "source.txt",
+        "quote": "Original construction families: arithmetic, conditions, conjunction, cross-language, disjunction, entity-binding, fluent-extra, instruction-data, later-contradiction, long-distractors, long-fluent, multilingual, near-number, negation, omission, partial-completion, period, quantifiers, quoted-claim, revision, scope, tag-injection, units."
+      },
+      "produced_by": "code",
+      "approved": true
+    },
+    {
+      "kind": "path",
+      "id": "units-path",
+      "flow": "units",
+      "when": {
+        "truth": [
+          "pass",
+          "fail"
+        ]
+      },
+      "stages": [
+        "evaluate",
+        "done"
+      ],
+      "end_state": {
+        "source": "tool:verdict.record",
+        "mode": "subset",
+        "expect": {
+          "outcome": "{verdict}"
+        }
+      },
+      "evidence": {
+        "source": "source.txt",
+        "quote": "Original construction families: arithmetic, conditions, conjunction, cross-language, disjunction, entity-binding, fluent-extra, instruction-data, later-contradiction, long-distractors, long-fluent, multilingual, near-number, negation, omission, partial-completion, period, quantifiers, quoted-claim, revision, scope, tag-injection, units."
+      },
+      "produced_by": "code",
+      "approved": true
+    },
+    {
+      "kind": "path",
+      "id": "negation-path",
+      "flow": "negation",
+      "when": {
+        "truth": [
+          "pass",
+          "fail"
+        ]
+      },
+      "stages": [
+        "evaluate",
+        "done"
+      ],
+      "end_state": {
+        "source": "tool:verdict.record",
+        "mode": "subset",
+        "expect": {
+          "outcome": "{verdict}"
+        }
+      },
+      "evidence": {
+        "source": "source.txt",
+        "quote": "Original construction families: arithmetic, conditions, conjunction, cross-language, disjunction, entity-binding, fluent-extra, instruction-data, later-contradiction, long-distractors, long-fluent, multilingual, near-number, negation, omission, partial-completion, period, quantifiers, quoted-claim, revision, scope, tag-injection, units."
+      },
+      "produced_by": "code",
+      "approved": true
+    },
+    {
+      "kind": "path",
+      "id": "entity-binding-path",
+      "flow": "entity-binding",
+      "when": {
+        "truth": [
+          "pass",
+          "fail"
+        ]
+      },
+      "stages": [
+        "evaluate",
+        "done"
+      ],
+      "end_state": {
+        "source": "tool:verdict.record",
+        "mode": "subset",
+        "expect": {
+          "outcome": "{verdict}"
+        }
+      },
+      "evidence": {
+        "source": "source.txt",
+        "quote": "Original construction families: arithmetic, conditions, conjunction, cross-language, disjunction, entity-binding, fluent-extra, instruction-data, later-contradiction, long-distractors, long-fluent, multilingual, near-number, negation, omission, partial-completion, period, quantifiers, quoted-claim, revision, scope, tag-injection, units."
+      },
+      "produced_by": "code",
+      "approved": true
+    },
+    {
+      "kind": "path",
+      "id": "conditions-path",
+      "flow": "conditions",
+      "when": {
+        "truth": [
+          "pass",
+          "fail"
+        ]
+      },
+      "stages": [
+        "evaluate",
+        "done"
+      ],
+      "end_state": {
+        "source": "tool:verdict.record",
+        "mode": "subset",
+        "expect": {
+          "outcome": "{verdict}"
+        }
+      },
+      "evidence": {
+        "source": "source.txt",
+        "quote": "Original construction families: arithmetic, conditions, conjunction, cross-language, disjunction, entity-binding, fluent-extra, instruction-data, later-contradiction, long-distractors, long-fluent, multilingual, near-number, negation, omission, partial-completion, period, quantifiers, quoted-claim, revision, scope, tag-injection, units."
+      },
+      "produced_by": "code",
+      "approved": true
+    },
+    {
+      "kind": "path",
+      "id": "quantifiers-path",
+      "flow": "quantifiers",
+      "when": {
+        "truth": [
+          "pass",
+          "fail"
+        ]
+      },
+      "stages": [
+        "evaluate",
+        "done"
+      ],
+      "end_state": {
+        "source": "tool:verdict.record",
+        "mode": "subset",
+        "expect": {
+          "outcome": "{verdict}"
+        }
+      },
+      "evidence": {
+        "source": "source.txt",
+        "quote": "Original construction families: arithmetic, conditions, conjunction, cross-language, disjunction, entity-binding, fluent-extra, instruction-data, later-contradiction, long-distractors, long-fluent, multilingual, near-number, negation, omission, partial-completion, period, quantifiers, quoted-claim, revision, scope, tag-injection, units."
+      },
+      "produced_by": "code",
+      "approved": true
+    },
+    {
+      "kind": "path",
+      "id": "revision-path",
+      "flow": "revision",
+      "when": {
+        "truth": [
+          "pass",
+          "fail"
+        ]
+      },
+      "stages": [
+        "evaluate",
+        "done"
+      ],
+      "end_state": {
+        "source": "tool:verdict.record",
+        "mode": "subset",
+        "expect": {
+          "outcome": "{verdict}"
+        }
+      },
+      "evidence": {
+        "source": "source.txt",
+        "quote": "Original construction families: arithmetic, conditions, conjunction, cross-language, disjunction, entity-binding, fluent-extra, instruction-data, later-contradiction, long-distractors, long-fluent, multilingual, near-number, negation, omission, partial-completion, period, quantifiers, quoted-claim, revision, scope, tag-injection, units."
+      },
+      "produced_by": "code",
+      "approved": true
+    },
+    {
+      "kind": "path",
+      "id": "multilingual-path",
+      "flow": "multilingual",
+      "when": {
+        "truth": [
+          "pass",
+          "fail"
+        ]
+      },
+      "stages": [
+        "evaluate",
+        "done"
+      ],
+      "end_state": {
+        "source": "tool:verdict.record",
+        "mode": "subset",
+        "expect": {
+          "outcome": "{verdict}"
+        }
+      },
+      "evidence": {
+        "source": "source.txt",
+        "quote": "Original construction families: arithmetic, conditions, conjunction, cross-language, disjunction, entity-binding, fluent-extra, instruction-data, later-contradiction, long-distractors, long-fluent, multilingual, near-number, negation, omission, partial-completion, period, quantifiers, quoted-claim, revision, scope, tag-injection, units."
+      },
+      "produced_by": "code",
+      "approved": true
+    },
+    {
+      "kind": "path",
+      "id": "fluent-extra-path",
+      "flow": "fluent-extra",
+      "when": {
+        "truth": [
+          "pass",
+          "fail"
+        ]
+      },
+      "stages": [
+        "evaluate",
+        "done"
+      ],
+      "end_state": {
+        "source": "tool:verdict.record",
+        "mode": "subset",
+        "expect": {
+          "outcome": "{verdict}"
+        }
+      },
+      "evidence": {
+        "source": "source.txt",
+        "quote": "Original construction families: arithmetic, conditions, conjunction, cross-language, disjunction, entity-binding, fluent-extra, instruction-data, later-contradiction, long-distractors, long-fluent, multilingual, near-number, negation, omission, partial-completion, period, quantifiers, quoted-claim, revision, scope, tag-injection, units."
+      },
+      "produced_by": "code",
+      "approved": true
+    },
+    {
+      "kind": "path",
+      "id": "omission-path",
+      "flow": "omission",
+      "when": {
+        "truth": [
+          "pass",
+          "fail"
+        ]
+      },
+      "stages": [
+        "evaluate",
+        "done"
+      ],
+      "end_state": {
+        "source": "tool:verdict.record",
+        "mode": "subset",
+        "expect": {
+          "outcome": "{verdict}"
+        }
+      },
+      "evidence": {
+        "source": "source.txt",
+        "quote": "Original construction families: arithmetic, conditions, conjunction, cross-language, disjunction, entity-binding, fluent-extra, instruction-data, later-contradiction, long-distractors, long-fluent, multilingual, near-number, negation, omission, partial-completion, period, quantifiers, quoted-claim, revision, scope, tag-injection, units."
+      },
+      "produced_by": "code",
+      "approved": true
+    },
+    {
+      "kind": "path",
+      "id": "long-distractors-path",
+      "flow": "long-distractors",
+      "when": {
+        "truth": [
+          "pass",
+          "fail"
+        ]
+      },
+      "stages": [
+        "evaluate",
+        "done"
+      ],
+      "end_state": {
+        "source": "tool:verdict.record",
+        "mode": "subset",
+        "expect": {
+          "outcome": "{verdict}"
+        }
+      },
+      "evidence": {
+        "source": "source.txt",
+        "quote": "Original construction families: arithmetic, conditions, conjunction, cross-language, disjunction, entity-binding, fluent-extra, instruction-data, later-contradiction, long-distractors, long-fluent, multilingual, near-number, negation, omission, partial-completion, period, quantifiers, quoted-claim, revision, scope, tag-injection, units."
+      },
+      "produced_by": "code",
+      "approved": true
+    },
+    {
+      "kind": "path",
+      "id": "instruction-data-path",
+      "flow": "instruction-data",
+      "when": {
+        "truth": [
+          "pass",
+          "fail"
+        ]
+      },
+      "stages": [
+        "evaluate",
+        "done"
+      ],
+      "end_state": {
+        "source": "tool:verdict.record",
+        "mode": "subset",
+        "expect": {
+          "outcome": "{verdict}"
+        }
+      },
+      "evidence": {
+        "source": "source.txt",
+        "quote": "Original construction families: arithmetic, conditions, conjunction, cross-language, disjunction, entity-binding, fluent-extra, instruction-data, later-contradiction, long-distractors, long-fluent, multilingual, near-number, negation, omission, partial-completion, period, quantifiers, quoted-claim, revision, scope, tag-injection, units."
+      },
+      "produced_by": "code",
+      "approved": true
+    },
+    {
+      "kind": "binds",
+      "subject": {
+        "dimension": "truth",
+        "value": "pass"
+      },
+      "slots": {
+        "verdict": "pass"
+      },
+      "evidence": {
+        "source": "source.txt",
+        "quote": "Original construction families: arithmetic, conditions, conjunction, cross-language, disjunction, entity-binding, fluent-extra, instruction-data, later-contradiction, long-distractors, long-fluent, multilingual, near-number, negation, omission, partial-completion, period, quantifiers, quoted-claim, revision, scope, tag-injection, units."
+      },
+      "produced_by": "code",
+      "approved": true
+    },
+    {
+      "kind": "binds",
+      "subject": {
+        "dimension": "truth",
+        "value": "fail"
+      },
+      "slots": {
+        "verdict": "fail"
+      },
+      "evidence": {
+        "source": "source.txt",
+        "quote": "Original construction families: arithmetic, conditions, conjunction, cross-language, disjunction, entity-binding, fluent-extra, instruction-data, later-contradiction, long-distractors, long-fluent, multilingual, near-number, negation, omission, partial-completion, period, quantifiers, quoted-claim, revision, scope, tag-injection, units."
+      },
+      "produced_by": "code",
+      "approved": true
+    }
+  ],
+  "numeric_settings": [
+    {
+      "id": "reply_length",
+      "min": 12,
+      "max": 260,
+      "integer": true,
+      "unit": "words",
+      "evidence": {
+        "source": "source.txt",
+        "quote": "Numeric settings: reply_length is a target of 12 to 260 words; number_size is 101 to 991 credits; distractor_count is 0 to 24 archived records."
+      },
+      "produced_by": "code",
+      "approved": true
+    },
+    {
+      "id": "number_size",
+      "min": 101,
+      "max": 991,
+      "integer": true,
+      "unit": "credits",
+      "evidence": {
+        "source": "source.txt",
+        "quote": "Numeric settings: reply_length is a target of 12 to 260 words; number_size is 101 to 991 credits; distractor_count is 0 to 24 archived records."
+      },
+      "produced_by": "code",
+      "approved": true
+    },
+    {
+      "id": "distractor_count",
+      "min": 0,
+      "max": 24,
+      "integer": true,
+      "unit": "records",
+      "evidence": {
+        "source": "source.txt",
+        "quote": "Numeric settings: reply_length is a target of 12 to 260 words; number_size is 101 to 991 credits; distractor_count is 0 to 24 archived records."
+      },
+      "produced_by": "code",
+      "approved": true
+    }
+  ]
+}

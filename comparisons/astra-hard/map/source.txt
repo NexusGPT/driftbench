@@ -1,0 +1,4 @@
+Original construction families: arithmetic, conditions, conjunction, cross-language, disjunction, entity-binding, fluent-extra, instruction-data, later-contradiction, long-distractors, long-fluent, multilingual, near-number, negation, omission, partial-completion, period, quantifiers, quoted-claim, revision, scope, tag-injection, units.
+Truth is pass or fail, planted by paired code construction. The workflow stages are evaluate and done.
+Numeric settings: reply_length is a target of 12 to 260 words; number_size is 101 to 991 credits; distractor_count is 0 to 24 archived records.
+The native budget selects family and truth cells with numeric runtime settings. Code renders the actual judge fixture from those selections.
