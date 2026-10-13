@@ -1,0 +1,27 @@
+{
+  "at": "2026-10-13T11:21:03.535005+00:00",
+  "freezeSha256": "1ad3b2eb8a12d5bff8f3c8928def24a3c00226fa60d3efabf81cd8c93571c05d",
+  "activeRequestsAtTermination": 0,
+  "model": "gemini-3.8-flash",
+  "source": "Owner message reports quota cause; detailed provider error block is absent from this run receipts.",
+  "metric": "generate_requests_per_model_per_day",
+  "limit": 10000,
+  "resetNear": "2026-10-14T00:00:00Z",
+  "resumeCondition": "Owner word or after reset; missing-only, never resend answered requests. Unpause requires committed freeze amendment.",
+  "noAnswerKeys": [
+    "noise:gemini-3.8-flash:ca91b783-54e9-5fb6-9c30-a7ebf3ee7258:0:ledger:AB:0:dbfcf8b19b9fbbd80f4f1fbee442024adca99b3fe4f71ec3bd18b50aba09e339",
+    "noise:gemini-3.8-flash:91cd748e-db11-5764-8727-34ef39a9594f:2:ledger:BA:0:3fe5c083e9110934862e57c6fae8525bd2b03bbba5b735da1f93629ef164232d",
+    "noise:gemini-3.8-flash:ca91b783-54e9-5fb6-9c30-a7ebf3ee7258:0:ledger:AB:0:dbfcf8b19b9fbbd80f4f1fbee442024adca99b3fe4f71ec3bd18b50aba09e339:transport:2",
+    "noise:gemini-3.8-flash:91cd748e-db11-5764-8727-34ef39a9594f:2:ledger:BA:0:3fe5c083e9110934862e57c6fae8525bd2b03bbba5b735da1f93629ef164232d:transport:2",
+    "noise:gemini-3.8-flash:ca91b783-54e9-5fb6-9c30-a7ebf3ee7258:0:ledger:AB:0:dbfcf8b19b9fbbd80f4f1fbee442024adca99b3fe4f71ec3bd18b50aba09e339:transport:3",
+    "noise:gemini-3.8-flash:91cd748e-db11-5764-8727-34ef39a9594f:2:ledger:BA:0:3fe5c083e9110934862e57c6fae8525bd2b03bbba5b735da1f93629ef164232d:transport:3"
+  ],
+  "testPairsComplete": 0,
+  "testPairsPlanned": 270,
+  "noiseDecisionsComplete": 173,
+  "noiseDecisionsPlanned": 180,
+  "fixtureDecisionsComplete": 54,
+  "validityDecisionsComplete": 0,
+  "stoppedPid": 27416,
+  "lastGeminiStartAt": "2026-10-13T11:15:01.224Z"
+}

@@ -8,6 +8,7 @@ const root = resolve(dirname(fileURLToPath(import.meta.url)),'..');
 const seal = verifySeal(root);
 const data = Object.fromEntries(['pool','dev','fixtures','pilot','noise','validity'].map(name => [name,readJson(join(root,`data/${name}.json`))]));
 const calls = readJsonl(join(root,'results/calls.jsonl'));
+const freeze = existsSync(join(root,'freeze.json')) ? readJson(join(root,'freeze.json')) : {};
 const cells = [];
 for (const model of ['claude-haiku-5-5','gpt-6-luna','gemini-3.8-flash']) {
   const phases = Object.fromEntries(['fixtures','pilot','noise','validity','test'].map(phase=>[phase,readJsonl(join(root,`results/decisions-${phase}-${model}.jsonl`))]));
@@ -42,7 +43,8 @@ for (const model of ['claude-haiku-5-5','gpt-6-luna','gemini-3.8-flash']) {
     validityPassed:Object.values(checks).every(x=>x.passed)&&cheaterGate,
     cheaterGate, prepAccuracy, prepCheaters, checks, fixtureEarning };
   writeFileSync(join(root,`results/readiness-${model}.json`),JSON.stringify(readiness,null,2)+'\n');
-  const cell={model,status:summary.n?'MEASURED':'PENDING_MEASUREMENT',...summary,cost,noise,fixtureEarning,pilot,validity:checks,cheaterGate,prepAccuracy,
+  const pausedDaily=freeze.dailyQuotaPause?.model===model && freeze.pausedModels?.[model];
+  const cell={model,status:pausedDaily?'not run: daily quota':summary.n===data.pool.length?'MEASURED':summary.n?'PARTIAL':'PENDING_MEASUREMENT',...summary,cost,noise,fixtureEarning,pilot,validity:checks,cheaterGate,prepAccuracy,
     cheaters:{dev:cheaters(data.dev),test:cheaters(data.pool)},powerRegistration:seal.powerRegistration,familyDisclosure:seal.familyDisclosure};
   cells.push(cell);
   writeFileSync(join(root,`results/items-${model}.json`),JSON.stringify(summary.decisions,null,2)+'\n');

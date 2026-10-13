@@ -70,7 +70,7 @@ export function verifyFreeze(root, repo, freeze, dossierText) {
 }
 
 export class Journal {
-  constructor(path, { capUsd = 25, appendSpend, billingResumeKeys = [] } = {}) {
+  constructor(path, { capUsd = 25, appendSpend, billingResumeKeys = [], quotaResumeKeys = [] } = {}) {
     this.path = path; this.capUsd = capUsd; this.appendSpend = appendSpend;
     this.rows = readJsonl(path);
     this.starts = new Map(); this.finishes = new Map();
@@ -88,17 +88,24 @@ export class Journal {
         throw new Error('Billing resumption may authorize only proven no-answer 402 receipts');
     }
     this.billingPausedModels = new Set([...this.finishes.values()].filter(row => row.status === 402 && !this.billingResumeKeys.has(row.key)).map(row => row.model));
+    this.quotaResumeKeys = new Set(quotaResumeKeys);
+    for (const key of this.quotaResumeKeys) {
+      const row = this.finishes.get(key);
+      if (!row || row.status !== 429 || !row.transportFailure || row.returnedAnswer || row.text)
+        throw new Error('Quota resumption may authorize only proven no-answer 429 receipts');
+    }
   }
   liability() {
     return [...this.starts.values()].reduce((sum, row) => sum + (this.finishes.get(row.key)?.costUsd ?? row.reserveUsd), 0);
   }
   append(row) { appendFileSync(this.path, `${JSON.stringify(row)}\n`); this.rows.push(row); }
-  async transportCall(key, reserveUsd, operation, metadata, { maxAttempts = 3, quotaBackoffMs = [60000, 120000, 240000], sleep = ms => new Promise(resolve => setTimeout(resolve, ms)) } = {}) {
+  async transportCall(key, reserveUsd, operation, metadata, { maxAttempts = 3, quotaBackoffMs = [60000, 120000, 240000], sleep = ms => new Promise(resolve => setTimeout(resolve, ms)), beforeDispatch = () => {} } = {}) {
     if (!Number.isInteger(maxAttempts) || maxAttempts < 1 || maxAttempts > 3) throw new Error('At most three transport attempts');
     let nonQuotaAttempts=0, quotaRetries=0;
     for (let transportAttempt = 1; ; transportAttempt++) {
       if (this.billingPausedModels.has(metadata?.model)) throw new Error('BILLING_STOP: model paused after HTTP 402; owner top-up required');
       const attemptKey = transportAttempt === 1 ? key : `${key}:transport:${transportAttempt}`;
+      if (!this.finishes.has(attemptKey)) beforeDispatch();
       const response = await this.call(attemptKey, reserveUsd, async () => {
         try {
           const value = await operation();
@@ -126,6 +133,8 @@ export class Journal {
         throw new Error('BILLING_STOP: HTTP 402; no retry or judge decision, owner top-up required');
       }
       if (response.status === 429) {
+        // Recorded daily-quota failures remain eligible after the frozen reset boundary.
+        if (this.quotaResumeKeys.has(attemptKey)) continue;
         if (quotaRetries >= quotaBackoffMs.length) throw new Error('QUOTA_STOP: three quota waits exhausted; no judge decision is recorded');
         await sleep(quotaBackoffMs[quotaRetries++]);
         continue;

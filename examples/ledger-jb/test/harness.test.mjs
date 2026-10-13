@@ -136,3 +136,32 @@ test('explicit top-up resumes only rejected keys and never reissues an answered 
   await assert.rejects(new Journal(path,{billingResumeKeys:['rejected']}).transportCall('later',.1,operation,{model:'gemini'}),/BILLING_STOP/);
   assert.equal(calls,1);
 });
+
+test('daily quota resumption skips recorded rejections and preserves answered cache',async()=>{
+  const path=join(mkdtempSync(join(temp,'jb-daily-')),'calls.jsonl');
+  const first=new Journal(path);
+  await assert.rejects(first.transportCall('quota',.1,async()=>{throw Object.assign(new Error('daily quota'),{code:'http',status:429,retryable:true});},{model:'gemini'},{quotaBackoffMs:[]}),/QUOTA_STOP/);
+  await first.transportCall('answered',.1,async()=>({text:'saved',costUsd:.01}),{model:'gemini'});
+  assert.throws(()=>new Journal(path,{quotaResumeKeys:['answered']}),/only proven no-answer/);
+  const resumed=new Journal(path,{quotaResumeKeys:['quota']});let calls=0;const waits=[];
+  const operation=async()=>{calls++;return {text:'new answer',costUsd:.02};};
+  assert.equal((await resumed.transportCall('quota',.1,operation,{model:'gemini'},{sleep:async ms=>waits.push(ms)})).key,'quota:transport:2');
+  await resumed.transportCall('quota',.1,operation,{model:'gemini'});
+  assert.equal((await resumed.transportCall('answered',.1,operation,{model:'gemini'})).text,'saved');
+  assert.equal(calls,1);assert.deepEqual(waits,[]);assert.ok(Math.abs(resumed.liability()-.13)<1e-9);
+});
+
+test('stop during quota backoff prevents another reservation or request',async()=>{
+  const path=join(mkdtempSync(join(temp,'jb-stop-')),'calls.jsonl');
+  const journal=new Journal(path);let stopped=false,calls=0;
+  await assert.rejects(journal.transportCall('quota',.1,async()=>{calls++;throw Object.assign(new Error('quota'),{code:'http',status:429,retryable:true});},{model:'gemini'},{
+    sleep:async()=>{stopped=true;},beforeDispatch:()=>{if(stopped)throw new Error('OPERATOR_DRAIN');}
+  }),/OPERATOR_DRAIN/);
+  assert.equal(calls,1);assert.equal(journal.starts.size,1);assert.equal(journal.finishes.size,1);
+});
+
+test('cutoff before dispatch writes no unresolved call or spend',async()=>{
+  const path=join(mkdtempSync(join(temp,'jb-cutoff-')),'calls.jsonl');const journal=new Journal(path);
+  await assert.rejects(journal.transportCall('late',.1,async()=>{throw new Error('must not call');},{},{beforeDispatch:()=>{throw new Error('cutoff');}}),/cutoff/);
+  assert.equal(journal.starts.size,0);assert.equal(journal.liability(),0);
+});

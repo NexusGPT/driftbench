@@ -27,7 +27,10 @@ reasks = read('reask-counts.json')
 driver = read('driver-state.json')
 head = subprocess.check_output(['git', 'rev-parse', 'HEAD'], cwd=ROOT, text=True).strip()
 status = 'All sealed measurements complete' if audit['allExpectedDecisionsComplete'] else f"Measurements in progress; driver status {driver['status']}"
-if driver.get('pausedModels') or driver.get('models', {}).get('gemini-3.8-flash', {}).get('status') == 'paused-billing':
+if driver.get('models', {}).get('gemini-3.8-flash', {}).get('status') == 'paused-daily-quota':
+    finished = all(audit['models'][model]['test']['complete'] for model in ['gpt-6-luna', 'claude-haiku-5-5'])
+    status = ('Luna and Haiku complete; ' if finished else 'Haiku in progress; Luna complete; ') + 'Gemini not run: daily quota, 0/270 TEST pairs'
+elif driver.get('pausedModels') or driver.get('models', {}).get('gemini-3.8-flash', {}).get('status') == 'paused-billing':
     finished = all(audit['models'][model]['test']['complete'] for model in ['gpt-6-luna', 'claude-haiku-5-5'])
     status = ('Luna and Haiku complete; ' if finished else 'Haiku in progress; Luna complete; ') + 'Gemini paused pending owner top-up'
 text = TARGET.read_text()
@@ -39,7 +42,7 @@ out = ['## Cell table', '', 'The registered pool is TIE-only for win claims. An 
        '| Model | Matched pairs | Ledger, Wilson 95% | promptfoo, Wilson 95% | Difference, paired bootstrap 95% | Wins / losses | Exact p | Holm p | Result |',
        '|---|---|---|---|---|---|---|---|---|']
 for c in cells['cells']:
-    result = 'PENDING' if c['n'] < c['planned'] else 'LOSS' if c['losses'] > c['wins'] and c['p'] < .05 else 'TIE, registered win restriction'
+    result = c['status'] if c['status'] == 'not run: daily quota' else 'PENDING' if c['n'] < c['planned'] else 'LOSS' if c['losses'] > c['wins'] and c['p'] < .05 else 'TIE, registered win restriction'
     out.append(f"| {c['model']} | {c['n']}/{c['planned']} | {interval(c['ledger'])} | {interval(c['promptfoo'])} | {interval(c['difference'])} | {c['wins']} / {c['losses']} | {c['p']:.8g} | pending 18-cell family | {result} |")
 out += ['', 'Difference is ledger minus promptfoo, in percentage points. The seeded bootstrap uses 10,000 pair resamples.',
         'Exact p is two-sided McNemar. No correction over an incomplete family is substituted for global Holm.',

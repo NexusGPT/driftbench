@@ -1,6 +1,6 @@
 {
-  "version": 7,
-  "createdAt": "2026-10-13T10:19:50.195696+00:00",
+  "version": 8,
+  "createdAt": "2026-10-13T11:21:03.535005+00:00",
   "corePr": "https://github.com/achammah/driftbench/pull/168",
   "coreCommit": "35f07309a4d1d1c8a7c5b176ff19e537d0ef8fdd",
   "sealSha256": "2aa831d8f08ea88ddddff87ba9aeb600f2c719725608815c09ddc699bd8aac12",
@@ -55,13 +55,13 @@
   "hashes": {
     "examples/judge-benchmarks/src/llm-shim.mjs": "376105a7240ba6ad265fb2acc629a2c251ce5debdfca353a0b4c40aca41fe2a5",
     "examples/ledger-jb/src/core-adapter.mjs": "ca4bb42eba778c3489fd4ef337d6482d570cf7d4acc552158159cad7add7381d",
-    "examples/ledger-jb/src/harness.mjs": "83871b9a6a163e9c475bdc7feb50c322f473de666c092cb7618186518c9082a0",
-    "examples/ledger-jb/src/report.mjs": "ec0190720961f830863036c8fb5f9d5f6ff5e3c8abc63450ca4f75d51deac368",
+    "examples/ledger-jb/src/harness.mjs": "05e866e744d63164bf0cf3dfd76e134bd76ccec8a5a422da977f4b8f04e51dbc",
+    "examples/ledger-jb/src/report.mjs": "c1639581f30bd420126a6b3fa3e2813849a2067bb90dfe27ab770ffcd1935fe5",
     "examples/ledger-jb/src/run.mjs": "0db131e49fa0b1f1bdc8bad88665c52708d3eabe2b77f0fb83a0f3cf88867070",
     "examples/ledger-jb/src/seal.py": "67996a4242a2856364eb193f3912708848c41a29972979941f0fcbe0a05ec706",
     "examples/ledger-jb/src/statistics.mjs": "898081d2408c2045ac9efe3d3b550ff6b45cacb2493f192d96b2328175e9db6f",
     "examples/ledger-jb/test/core-adapter.test.mjs": "8397d704df9a49e8e902a6adfe48b220983a0c4a523b63523ab3656ef07a1181",
-    "examples/ledger-jb/test/harness.test.mjs": "53a03c8586dded3b55da839772eff98c1cfb74efe34c1e60f0b0bef1adf0b948",
+    "examples/ledger-jb/test/harness.test.mjs": "efc665d6d583d3e3f546d789ffae4258c1f51e7ae8e46a52b24f75244dc561c5",
     "examples/ledger-jb/test/statistics.test.mjs": "5e150346ca3a38310b2f7f59b267fee4c52cccab239fbdc15f746cb0bd6d1e53",
     "packages/checks/src/checks/artifacts.ts": "92958e17bd8b47cca97eebe1641c56241d59a73f7b7f39feaa84e9584d00fad1",
     "packages/checks/src/checks/budget.ts": "b63238ecb106d9c9e68a4116c9f3a04dda9c5f7f2ab41a6e7710c0a714b6ceef",
@@ -162,18 +162,18 @@
     "tsconfig.base.json": "2e3b79ea124cafbe3de51fcd53123471d8ab3ce5dabdd641e1d06ad300a24a8a",
     "examples/ledger-jb/run-driver.py": "162639c760a66ee0483b0ccd2bf0ea30154bb53f073530c2917bce9c1e97060c",
     "examples/ledger-jb/summarize-reasks.mjs": "e1b1378d21912b6899bc181904442cb74a2b568493f67d3ecadd98f61998c482",
-    "examples/ledger-jb/parallel-remaining.mjs": "b3245ba8fd3ee2f4adc5f732814f3b026bcab8e1b64969df868ac8727209ea29",
+    "examples/ledger-jb/parallel-remaining.mjs": "4c0d758916607d152418d52f9221d72e56670bdcc64cd84a02c2cf6fd1ffc0da",
     "examples/ledger-jb/test/parallel.test.mjs": "6a9d8bde15c3ee26f13a92f5eced537d64dd059a94500ec96d5eee34680ed4e8",
     "examples/ledger-jb/audit-results.py": "d8a38d2e4a0ac72e4f6c2c274b01b0f9c3f3dd633ec3644388c0880246479c4b",
-    "examples/ledger-jb/write-dossier.py": "d2248d8de1f6be080b3ecd2e74bc10179e5809c733d937152ca023d99537d5ee",
+    "examples/ledger-jb/write-dossier.py": "83e32a5eb154c0ccad8a99aba619457544050716b06767e0d93478b4595bbe52",
     "examples/ledger-jb/reconcile-billing.py": "c199ac726b15bac0980cc37d4980fb54c2c51f43c3ba8b220c11a009787a839b",
     "examples/ledger-jb/probe-gemini.mjs": "11f03dd5687a69e7dc46239978d045593043e8d38785a7615a88dff2b114c248"
   },
   "amendment": {
-    "previousFreezeSha256": "de1533e9d906b8a617798142863a2a2784ca454e1502c79160bec2387346abd6",
-    "reason": "The owner topped up Gemini. Re-enable in a new freeze; one probe first, then missing-only at two concurrent calls with 429 waits and 402 circuit break. Never resend answered calls.",
-    "boundary": "PID 6143 drains at 124/180 Haiku noise decisions, zero unresolved calls. The runtime debugger sets the existing stop flag before dispatch; received answers are persisted and no call is killed. New scheduler supports SIGUSR2 for later drains.",
-    "core": "Unchanged 35f07309; prompts, schema, scoring, model reasoning, sealed order and 25 USD cap unchanged."
+    "previousFreezeSha256": "fe4bcd5ac353d5c3251c6e4238a8d4fa8497a516876b016c81f6fbdc7b1785b7",
+    "reason": "Owner identifies daily quota and orders immediate Gemini stop without further waits or retries today. Gemini missing-only cutoff extends to 14 October 12:00 UTC; finish Haiku and publish its table.",
+    "boundary": "SIGUSR2 drains Haiku. Zero unresolved requests verified at 11:17:53 UTC, then owned PID 27416 terminated while only Gemini backoff timers remained. Six 429 receipts across two requests remain no-answer and eligible. No judge failure is saved.",
+    "core": "Unchanged 35f07309; prompts, schema, scoring, reasoning, sealed order and 25 USD cap unchanged."
   },
   "cacheIdentityModels": {
     "claude-haiku-5-5": {
@@ -216,7 +216,8 @@
     "retryOnly": "No-answer network and retryable HTTP failures. Never retry returned content in the transport wrapper.",
     "schemaReask": "PR 168 single schema re-ask retained after malformed JSON. Exhausted no-answer transport failures cannot trigger additional core re-ask calls.",
     "costPolicy": "Measured usage or conservative reservation per attempt, except proven rejected prepayment requests release the hold.",
-    "billingExhaustion": "HTTP 402 immediately pauses the model, with no retry or judge decision. Proven prepayment rejection costs zero; other unknown holds remain reserved."
+    "billingExhaustion": "HTTP 402 immediately pauses the model, with no retry or judge decision. Proven prepayment rejection costs zero; other unknown holds remain reserved.",
+    "dailyQuota": "No Gemini calls, waits or retries before owner word or reset. Known old no-answer 429 keys advance to a new attempt on authorized resumption; old holds remain reserved."
   },
   "modelConcurrency": {
     "gpt-6-luna": 8,
@@ -556,5 +557,35 @@
       "order": "AB",
       "attempt": 0
     }
+  },
+  "pausedModels": {
+    "gemini-3.8-flash": "not run: daily quota; resume only on owner word or after 2026-10-14T00:00:00Z in a committed unpause amendment"
+  },
+  "modelLastCallCutoff": {
+    "gemini-3.8-flash": "2026-10-14T12:00:00Z"
+  },
+  "dailyQuotaPause": {
+    "model": "gemini-3.8-flash",
+    "source": "Owner message reports quota cause; detailed provider error block is absent from this run receipts.",
+    "metric": "generate_requests_per_model_per_day",
+    "limit": 10000,
+    "resetNear": "2026-10-14T00:00:00Z",
+    "resumeCondition": "Owner word or after reset; missing-only, never resend answered requests. Unpause requires committed freeze amendment.",
+    "noAnswerKeys": [
+      "noise:gemini-3.8-flash:ca91b783-54e9-5fb6-9c30-a7ebf3ee7258:0:ledger:AB:0:dbfcf8b19b9fbbd80f4f1fbee442024adca99b3fe4f71ec3bd18b50aba09e339",
+      "noise:gemini-3.8-flash:91cd748e-db11-5764-8727-34ef39a9594f:2:ledger:BA:0:3fe5c083e9110934862e57c6fae8525bd2b03bbba5b735da1f93629ef164232d",
+      "noise:gemini-3.8-flash:ca91b783-54e9-5fb6-9c30-a7ebf3ee7258:0:ledger:AB:0:dbfcf8b19b9fbbd80f4f1fbee442024adca99b3fe4f71ec3bd18b50aba09e339:transport:2",
+      "noise:gemini-3.8-flash:91cd748e-db11-5764-8727-34ef39a9594f:2:ledger:BA:0:3fe5c083e9110934862e57c6fae8525bd2b03bbba5b735da1f93629ef164232d:transport:2",
+      "noise:gemini-3.8-flash:ca91b783-54e9-5fb6-9c30-a7ebf3ee7258:0:ledger:AB:0:dbfcf8b19b9fbbd80f4f1fbee442024adca99b3fe4f71ec3bd18b50aba09e339:transport:3",
+      "noise:gemini-3.8-flash:91cd748e-db11-5764-8727-34ef39a9594f:2:ledger:BA:0:3fe5c083e9110934862e57c6fae8525bd2b03bbba5b735da1f93629ef164232d:transport:3"
+    ],
+    "testPairsComplete": 0,
+    "testPairsPlanned": 270,
+    "noiseDecisionsComplete": 173,
+    "noiseDecisionsPlanned": 180,
+    "fixtureDecisionsComplete": 54,
+    "validityDecisionsComplete": 0,
+    "stoppedPid": 27416,
+    "lastGeminiStartAt": "2026-10-13T11:15:01.224Z"
   }
 }

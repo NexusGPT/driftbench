@@ -4,6 +4,7 @@ import {appendFileSync,closeSync,existsSync,openSync,readFileSync,unlinkSync,wri
 import {dirname,join,resolve} from 'node:path';
 import {fileURLToPath,pathToFileURL} from 'node:url';
 import {execFileSync} from 'node:child_process';
+import {setTimeout as sleep} from 'node:timers/promises';
 import {hash,readJson,readJsonl,verifyFreeze,jobs,Journal,promptfooPrompt,parsePromptfoo,REQUIREMENTS} from './src/harness.mjs';
 
 export async function runModels(models, runPhase, ready, event=()=>{}) {
@@ -50,13 +51,13 @@ async function main(){
   const data=Object.fromEntries(['fixtures','pilot','noise','pool','validity'].map(name=>[name,readJson(join(root,`data/${name}.json`))]));
   const adapter=await import(pathToFileURL(resolve(repo,freeze.adapter)).href);
   const transports=Object.fromEntries(await Promise.all(models.map(async model=>[model,await adapter.createTransport({model,settings:freeze.models[model],root})])));
-  const journal=new Journal(join(r,'calls.jsonl'),{capUsd:25,billingResumeKeys:freeze.billingResumption?.rejectedKeys??[],appendSpend(row){
+  const journal=new Journal(join(r,'calls.jsonl'),{capUsd:25,billingResumeKeys:freeze.billingResumption?.rejectedKeys??[],quotaResumeKeys:freeze.dailyQuotaPause?.noAnswerKeys??[],appendSpend(row){
     appendFileSync(flag('--spend-ledger'),`| ${row.at} | ledger-jb ${row.phase} ${row.contestant} ${row.itemId} ${row.order} | ${row.model} | 1 call | ${row.costUsd.toFixed(8)} USD${row.costEstimated?' reserved, actual unknown':''} | lane liability ${journal.liability().toFixed(8)} USD |\n`);
   }});
-  const template=readFileSync(join(root,'data/promptfoo-select-best.txt'),'utf8'),stop={};
+  const template=readFileSync(join(root,'data/promptfoo-select-best.txt'),'utf8'),stop={},backoffAbort=new AbortController();
   // A runtime amendment can drain every owned call without losing its receipt.
-  process.on('SIGUSR2',()=>{stop.error??=new Error('OPERATOR_DRAIN: finish active requests and stop dispatching');});
-  const state={status:'running',pid:process.pid,core:freeze.coreCommit,concurrency:models.reduce((sum,m)=>sum+limits[m],0),models:Object.fromEntries(allModels.filter(m=>freeze.pausedModels?.[m]).map(m=>[m,{status:'paused-billing',reason:freeze.pausedModels[m],concurrency:0}]))};
+  process.on('SIGUSR2',()=>{stop.error??=new Error('OPERATOR_DRAIN: finish active requests and stop dispatching');backoffAbort.abort();});
+  const state={status:'running',pid:process.pid,core:freeze.coreCommit,concurrency:models.reduce((sum,m)=>sum+limits[m],0),models:Object.fromEntries(allModels.filter(m=>freeze.pausedModels?.[m]).map(m=>[m,{status:freeze.dailyQuotaPause?.model===m?'paused-daily-quota':'paused-billing',reason:freeze.pausedModels[m],concurrency:0}]))};
   function event(value){
     if(value.model)state.models[value.model]={phase:value.phase??state.models[value.model]?.phase,status:value.status,concurrency:limits[value.model]};
     else Object.assign(state,value);
@@ -75,18 +76,20 @@ async function main(){
     return x.freezeSha256===freezeSha256&&['pilotComplete','fixturesComplete','noiseComplete','validityPassed'].every(k=>x[k]);
   }
   async function runPhase(model,phase){
-    if(stop.error)throw stop.error;
-    if(Date.now()>=Date.parse(freeze.lastCallCutoff))throw new Error('Frozen last-call cutoff reached');
+    const guard=()=>{
+      if(stop.error)throw stop.error;
+      if(Date.now()>=Date.parse(freeze.modelLastCallCutoff?.[model]??freeze.lastCallCutoff))throw new Error('Frozen last-call cutoff reached');
+    };
+    guard();
     const transport=transports[model],output=join(r,`decisions-${phase}-${model}.jsonl`),previous=readJsonl(output),completed=new Set(previous.map(x=>x.key));
     if(completed.size!==previous.length)throw new Error('Duplicate saved decisions');
     const planned=jobs(data,phase,model),queue=planned.filter(job=>!completed.has(job.key));
     async function runJob(job){
       const call=async(prompt,{order,attempt=0,schema}={})=>{
-        if(stop.error)throw stop.error;
-        if(Date.now()>=Date.parse(freeze.lastCallCutoff))throw new Error('Frozen last-call cutoff reached');
+        guard();
         const key=`${job.key}:${order}:${attempt}:${hash(JSON.stringify({prompt,schema,settings:(freeze.cacheIdentityModels??freeze.models)[model]}))}`;
         const reserveUsd=transport.maximumCostUsd(prompt,schema);
-        return journal.transportCall(key,reserveUsd,()=>transport.call(prompt,{schema,reserveUsd}),{phase,model,contestant:job.contestant,itemId:job.itemId,repeat:job.repeat,order,attempt});
+        return journal.transportCall(key,reserveUsd,()=>transport.call(prompt,{schema,reserveUsd}),{phase,model,contestant:job.contestant,itemId:job.itemId,repeat:job.repeat,order,attempt},{beforeDispatch:guard,sleep:ms=>sleep(ms,undefined,{signal:backoffAbort.signal})});
       };
       let result;
       if(job.contestant==='ledger')result=await adapter.judgePair({item:job.item,requirements:REQUIREMENTS,model,call,settings:freeze.models[model]});
