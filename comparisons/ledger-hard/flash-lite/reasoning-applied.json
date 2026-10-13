@@ -1,0 +1,12 @@
+{
+  "stamp": "2026-10-13T12:11:34.306483+00:00",
+  "model": "gemini-3.5-flash-lite",
+  "reasoning_applied": "medium",
+  "both_contestants": true,
+  "both_experiments": true,
+  "probe_key": "b1f0b2804521b7e13a79fb25006c930d3504f79cf6ea2cd6aee52cfa1f1865c8",
+  "probe_answer_recorded_once": true,
+  "cost_usd": 0.0014734000000000001,
+  "http_accepts_setting": true,
+  "resolved_model": "gemini-3.5-flash-lite"
+}
