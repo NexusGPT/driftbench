@@ -10,7 +10,7 @@ import { buildPrompt, canonicalPairOrder, createDialectTransport, judgePairLedge
 import { codeEvidence } from './code-evidence';
 import { contestantById, type PairDecision } from './contestants';
 import { loadBenchmark, type PairItem } from './data';
-import { LedgerBudgetStop, LedgerRateLimitStop, LedgerPrepaymentStop, LedgerCalls, isPrepaymentRejection, transportRetryable, type LedgerCall, type LedgerCompletion } from './rubric-ledger-calls';
+import { LedgerBudgetStop, LedgerRateLimitStop, LedgerPrepaymentStop, LedgerCalls, billingIdentity, isPrepaymentRejection, transportRetryable, type LedgerCall, type LedgerCompletion } from './rubric-ledger-calls';
 import { appendRecording, readRecordingRows } from './recording-files';
 
 export const DIRECTORY = 'examples/judge-benchmarks/experiments/ledger-rb';
@@ -25,7 +25,7 @@ export const SETTINGS = {
   rateLimitWaitMs: [60000, 120000, 240000],
   providerBlockPolicy: 'An empty model answer with an explicit provider block/refusal reason is provider-blocked. Any blocked request makes the whole item an error for that contestant in the headline score, identically for ledger and promptfoo. The second score removes an item from both contestants on that model if either was provider-blocked. Nonempty model refusals are ordinary returned answers. Provider blocks are never retried.',
   providerBlockProbe: { id: 'rubric_eval_1008', model: 'gemini-3.8-flash', contestant: 'promptfoo', orders: 2 },
-  prepaymentPolicy: 'HTTP 402 is a proven no-answer rejection: stop dispatch, never retry in that run, release its hold only, and record no judge error. Gemini stays pending until an owner-authorized top-up resume. Other models continue in a separate process from their saved results.',
+  prepaymentPolicy: 'HTTP 402 is a proven no-answer rejection: stop dispatch, never retry in that run, release its hold only, and record no judge error. Gemini stays pending until an owner-authorized top-up resume. Other models continue from saved results. A new positive billing-resume epoch advances only previously rejected requests; successful answers always replay, and a new 402 stops immediately.',
   stage0: { correctness: false, compute: false }, tiePolicy: 'canonical',
   pricePerMillion: { 'gpt-6-luna': { input: 0.1, cached: 0.01, output: 0.5 },
     'gemini-3.8-flash': { input: 0.75, output: 3.75 } },
@@ -135,10 +135,11 @@ export async function candidateReference(item: PairItem, first: string): Promise
 export async function evaluate(item: PairItem, requirements: readonly RubricItem[], model: Model,
   phase: string, sample: number, contestant: 'pair-ledger' | 'promptfoo' | 'seat',
   raw: DialectTransport, calls: LedgerCalls, execute: boolean,
-  sleep: (ms: number) => Promise<void> = (ms) => new Promise((resolve) => setTimeout(resolve, ms))): Promise<DecisionRow> {
+  sleep: (ms: number) => Promise<void> = (ms) => new Promise((resolve) => setTimeout(resolve, ms)),
+  authorizedBillingEpoch?: number): Promise<DecisionRow> {
   const start = Date.now(); const callKeys: string[] = []; let ordinal = 0;
   const ask = async (request: { system: string; user: string; schema?: Record<string, unknown> }) => {
-    const identity = { model, phase, item: item.id, contestant, sample, ordinal: ordinal++, transportFingerprint: raw.fingerprint, request };
+    const identity = billingIdentity({ model, phase, item: item.id, contestant, sample, ordinal: ordinal++, transportFingerprint: raw.fingerprint, request }, calls.rows, authorizedBillingEpoch);
     for (let attempt = 0; attempt <= SETTINGS.rateLimitWaitMs.length; attempt++) {
       const row = await calls.complete({ ...identity, ...(attempt ? { transportAttempt: attempt } : {}) }, SETTINGS.reserveUsd,
         () => raw.complete(request), (completion) => usagePrice(model, completion), !execute);
@@ -223,11 +224,14 @@ const sourcePaths = [
 
 async function main() {
   if (process.argv.includes('--help')) {
-    console.log('Usage: pnpm exec tsx --no-cache examples/judge-benchmarks/src/rubric-ledger-live.ts --phase seal|pilot|fixtures|noise|validity|provider-probe|test [--execute] [--models comma,list] [--recover-interrupted after verifying the prior runner stopped]'); return;
+    console.log('Usage: pnpm exec tsx --no-cache examples/judge-benchmarks/src/rubric-ledger-live.ts --phase seal|pilot|fixtures|noise|validity|provider-probe|test [--execute] [--models comma,list] [--recover-interrupted after verifying the prior runner stopped] [--billing-resume positive-epoch only after owner confirms top-up]'); return;
   }
   const phase = process.argv[process.argv.indexOf('--phase') + 1];
   if (!['seal', 'pilot', 'fixtures', 'noise', 'validity', 'provider-probe', 'test'].includes(phase ?? '')) throw new Error('Select a phase; use --help');
   const execute = process.argv.includes('--execute');
+  const billingAt = process.argv.indexOf('--billing-resume');
+  const billingEpoch = billingAt < 0 ? undefined : Number(process.argv[billingAt + 1]);
+  if (billingEpoch !== undefined && (!Number.isSafeInteger(billingEpoch) || billingEpoch < 1)) throw new Error('Billing resume requires a positive owner-authorized epoch');
   process.env.DRIFTBENCH_BENCH_CACHE = resolve('.cache/ledger-rb/data');
   process.env.RB_EXECUTION_ROOT = resolve('.cache/ledger-rb/execution');
   process.env.TMPDIR = resolve('.cache/ledger-rb/tmp');
@@ -284,7 +288,7 @@ async function main() {
   await scheduleModels(todo, SETTINGS.modelConcurrency, async (job) => {
       try {
         const requirements = reqs.get(job.item.id) ?? [{ name: 'rb_1', rubric: job.item.criterion! }];
-        const row = classifyProviderBlock(await evaluate(job.item, requirements, job.model, job.phase, job.sample, job.contestant, transports.get(job.model)!, calls, execute), calls.rows);
+        const row = classifyProviderBlock(await evaluate(job.item, requirements, job.model, job.phase, job.sample, job.contestant, transports.get(job.model)!, calls, execute, undefined, billingEpoch), calls.rows);
         writes = writes.then(() => appendRecording(resultPath, row)); await writes;
         completed++;
         console.log(JSON.stringify({ phase, model: job.model, contestant: job.contestant, completed: done.size + completed, target: selectedJobs.length, chargedUsd: calls.chargedUsd, status: row.status }));

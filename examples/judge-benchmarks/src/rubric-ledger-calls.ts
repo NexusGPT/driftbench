@@ -23,6 +23,8 @@ export type CallIdentity = {
   ordinal: number;
   /** Absent on the original attempt. Transport-only retries preserve the original key. */
   transportAttempt?: number;
+  /** Owner-authorized top-up epoch; only previously rejected requests advance. */
+  billingResume?: number;
   transportFingerprint: string;
   request: unknown;
 };
@@ -50,6 +52,18 @@ export class LedgerPrepaymentStop extends Error {}
 export class LedgerUncertainCall extends Error {}
 export const isPrepaymentRejection = (row: Pick<LedgerCall, 'status' | 'httpStatus' | 'error'>): boolean =>
   row.status === 'error' && (row.httpStatus === 402 || /answered 402:/.test(row.error ?? ''));
+
+export function billingIdentity(base: CallIdentity, calls: readonly LedgerCall[], authorizedEpoch?: number): CallIdentity {
+  const request = JSON.stringify(base.request);
+  const same = calls.filter(({ identity: i }) => i.model === base.model && i.phase === base.phase &&
+    i.item === base.item && i.contestant === base.contestant && i.sample === base.sample &&
+    i.ordinal === base.ordinal && i.transportFingerprint === base.transportFingerprint && JSON.stringify(i.request) === request);
+  let epoch = Math.max(0, ...same.map((c) => c.identity.billingResume ?? 0));
+  const latest = same.filter((c) => (c.identity.billingResume ?? 0) === epoch)
+    .sort((a, b) => (a.identity.transportAttempt ?? 0) - (b.identity.transportAttempt ?? 0)).at(-1);
+  if (latest && isPrepaymentRejection(latest) && authorizedEpoch !== undefined && authorizedEpoch > epoch) epoch = authorizedEpoch;
+  return epoch ? { ...base, billingResume: epoch } : base;
+}
 /** Includes the core's saved network-error text from journals written before retryable was recorded. */
 export const transportRetryable = (row: { retryable?: boolean; error?: string }): boolean =>
   row.retryable ?? /fetch failed|could not be reached|timed? ?out|past \d+ ms|ECONNRESET|ECONNREFUSED|ENOTFOUND/i.test(row.error ?? '');
