@@ -1,6 +1,6 @@
 {
   "model": "claude-sonnet-5-5",
-  "at": "2026-10-13T13:42:43.974854+00:00",
+  "at": "2026-10-13T13:44:47.092357+00:00",
   "scores": [
     {
       "contestant": "pair-ledger",
@@ -24,9 +24,9 @@
         "holm18": null,
         "holmStatus": "pending full cross-benchmark family; reader-first excluded from primary family"
       },
-      "allPhaseCostUsd": 0.1693904,
+      "allPhaseCostUsd": 0.28409039999999997,
       "testCostUsdIncludingTransport": 0,
-      "orderedReadings": 2,
+      "orderedReadings": 6,
       "schemaReasks": 0,
       "schemaReaskUsd": 0,
       "outputCapCalls": 0,
@@ -209,8 +209,8 @@
       "http429": 0,
       "transportFailures": 0,
       "tokens": {
-        "input": 6,
-        "output": 3972,
+        "input": 29591,
+        "output": 9525,
         "cacheRead": 1824,
         "cacheWrite": 32369
       }
@@ -227,7 +227,7 @@
       "ties": 0,
       "usdPer100Pairs": null,
       "usdPer100Games": null,
-      "allPhaseCostUsd": 0.08734,
+      "allPhaseCostUsd": 0.128244,
       "testCostUsdIncludingTransport": 0,
       "orderedReadings": 0,
       "schemaReasks": 0,
@@ -412,8 +412,8 @@
       "http429": 0,
       "transportFailures": 0,
       "tokens": {
-        "input": 4,
-        "output": 6,
+        "input": 20426,
+        "output": 12,
         "cacheRead": 0,
         "cacheWrite": 21818
       }
@@ -436,13 +436,34 @@
   },
   "complete": false,
   "spend": {
-    "actualUsd": 0.2567304,
+    "actualUsd": 0.41233440000000005,
     "heldUsd": 0,
     "pending": {}
   },
   "phaseCounts": {
-    "pilot": 2
+    "pilot": 5
   },
-  "projection": null,
+  "projection": {
+    "model": "claude-sonnet-5-5",
+    "at": "2026-10-13T13:44:47.091650+00:00",
+    "answeredCalls": 5,
+    "calibrationUsd": 0.155604,
+    "callsPerContestant": {
+      "pair-ledger": 3,
+      "promptfoo": 2
+    },
+    "meanUsdPerCall": {
+      "pair-ledger": 0.038233333333333334,
+      "promptfoo": 0.020451999999999998
+    },
+    "projectedPrimaryCalls": 713.0,
+    "projectedPromptfooCalls": 602,
+    "planningRate": 2.3687707641196014,
+    "method": "Five calls from sealed pilot prefix; per-contestant mean cost times 301 comparisons. Primary calls per comparison use completed Flash Lite runtime counts. No calibration outcome drives tuning.",
+    "projectedCellUsd": 39.98480506666667,
+    "worstContractCallCountUsd": 81.7738384,
+    "capUsd": 45,
+    "separateFromOld35UsdCap": true
+  },
   "freezeSha256": "7debf1ef89074767caaec221ef4e9367eaba65910b13375907486b10e4102834"
 }
