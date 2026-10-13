@@ -10,7 +10,12 @@ import { cpus, loadavg, tmpdir } from 'node:os';
 import { dirname, join, relative, sep } from 'node:path';
 import { parseArgs } from 'node:util';
 import { type LoadedSpec, loadSpecs } from '../packages/core/src/spec/load';
-import { COMPLETE_DIR, type GeneratedFile, generateSuite } from '../packages/generate/src/enumerate/generate';
+import {
+  COMPLETE_DIR,
+  type GeneratedFile,
+  type GenerateOptions,
+  generateSuite,
+} from '../packages/generate/src/enumerate/generate';
 import { loadApprovedMap } from '../packages/generate/src/enumerate/load';
 import { MAP_FILES, renderMap } from '../packages/validators/src/ladders/generator/render';
 import { scaledSpec } from '../packages/validators/src/ladders/generator/scale';
@@ -32,7 +37,8 @@ if (specCap !== undefined && (!Number.isSafeInteger(specCap) || specCap < 1)) {
 if (specCapMode !== undefined && specCapMode !== 'pairs' && specCapMode !== 'tuples') {
   throw new Error('spec-cap-mode must be pairs or tuples');
 }
-const capOptions = specCap === undefined ? {} : { specCap, specCapMode };
+const capOptions: Pick<GenerateOptions, 'specCap' | 'specCapMode'> =
+  specCap === undefined ? {} : { specCap, specCapMode };
 const stages: Record<string, number> = {};
 const seconds = (start: NodeJS.CpuUsage): number => {
   const used = process.cpuUsage(start);
