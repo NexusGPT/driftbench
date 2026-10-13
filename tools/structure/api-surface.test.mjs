@@ -104,7 +104,7 @@ function fixture(entry) {
     import ts from ${JSON.stringify(typescript)};
     import { readdirSync, rmSync } from 'node:fs';
     rmSync('packages/demo/dist', { recursive: true, force: true });
-    const files = readdirSync('packages/demo/src').map(name => 'packages/demo/src/' + name);
+    const files = ts.sys.readDirectory('packages/demo/src', ['.ts']);
     const program = ts.createProgram(files, { target: ts.ScriptTarget.ES2023, module: ts.ModuleKind.ESNext,
       moduleResolution: ts.ModuleResolutionKind.Bundler, declaration: true, skipLibCheck: true,
       outDir: 'packages/demo/dist', types: [] });
@@ -281,3 +281,74 @@ describe('built runtime exports decide value names', () => {
     }
   }, 120_000);
 });
+
+it('detects changes to an empty export-map entry too', () => {
+  const repo = fixture('export const direct = 1;');
+  try {
+    expect(run('--build', '--root', repo.root, '--snapshot', repo.snapshot, '--write').status).toBe(0);
+    const path = join(repo.root, 'packages/demo/package.json');
+    const manifest = JSON.parse(readFileSync(path, 'utf8'));
+    delete manifest.exports['./other'];
+    writeFileSync(path, JSON.stringify(manifest));
+    const check = run('--build', '--root', repo.root, '--snapshot', repo.snapshot, '--check');
+    expect(check.status).toBe(1);
+    expect(check.stderr).toContain('removed  demo/other: entry');
+  } finally {
+    rmSync(repo.root, { recursive: true, force: true });
+  }
+}, 120_000);
+
+it.each(['.hidden', 'coverage/hidden', 'build/hidden'])(
+  'includes source module %s in the build stamp',
+  (module) => {
+    const repo = fixture('export const direct = 1;');
+    try {
+      const hidden = join(repo.root, 'packages/demo/src', `${module}.ts`);
+      mkdirSync(join(hidden, '..'), { recursive: true });
+      writeFileSync(hidden, 'export const hidden = 1;');
+      writeFileSync(repo.entry, `export { hidden } from './${module}.js';`);
+      expect(run('--build', '--root', repo.root, '--snapshot', repo.snapshot, '--write').status).toBe(0);
+      writeFileSync(hidden, 'export declare const hidden: number;');
+      const check = run('--root', repo.root, '--snapshot', repo.snapshot, '--check');
+      expect(check.status).toBe(1);
+      expect(check.stderr).toContain('stale');
+    } finally {
+      rmSync(repo.root, { recursive: true, force: true });
+    }
+  },
+  120_000,
+);
+
+it('reads emitted values even when no source declaration advertises them', () => {
+  const repo = fixture('export const direct = 1;');
+  try {
+    expect(run('--build', '--root', repo.root, '--snapshot', repo.snapshot, '--write').status).toBe(0);
+    const build = join(repo.root, 'build.mjs');
+    writeFileSync(
+      build,
+      `${readFileSync(build, 'utf8')}\n(await import('node:fs')).appendFileSync('packages/demo/dist/index.js', '\\nexport const emittedOnly = 1;');`,
+    );
+    const check = run('--build', '--root', repo.root, '--snapshot', repo.snapshot, '--check');
+    expect(check.status).toBe(1);
+    expect(check.stderr).toContain('added    demo: value emittedOnly');
+  } finally {
+    rmSync(repo.root, { recursive: true, force: true });
+  }
+}, 120_000);
+
+it('refuses source and built declaration type-only disagreement', () => {
+  const repo = fixture('export type Shape = { a: number };');
+  try {
+    expect(run('--build', '--root', repo.root, '--snapshot', repo.snapshot, '--write').status).toBe(0);
+    const build = join(repo.root, 'build.mjs');
+    writeFileSync(
+      build,
+      `${readFileSync(build, 'utf8')}\n(await import('node:fs')).appendFileSync('packages/demo/dist/index.d.ts', '\\nexport type Phantom = {};');`,
+    );
+    const check = run('--build', '--root', repo.root, '--snapshot', repo.snapshot, '--check');
+    expect(check.status).toBe(1);
+    expect(check.stderr).toContain('source and built declaration type-only names differ: Phantom');
+  } finally {
+    rmSync(repo.root, { recursive: true, force: true });
+  }
+}, 120_000);

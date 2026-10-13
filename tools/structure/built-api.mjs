@@ -1,7 +1,15 @@
 // The build, its input/output stamp, and the actual exported names are one gate.
 import { spawnSync } from 'node:child_process';
 import { createHash } from 'node:crypto';
-import { existsSync, mkdirSync, readdirSync, readFileSync, writeFileSync } from 'node:fs';
+import {
+  existsSync,
+  lstatSync,
+  mkdirSync,
+  readdirSync,
+  readFileSync,
+  readlinkSync,
+  writeFileSync,
+} from 'node:fs';
 import { dirname, join, relative, resolve } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import ts from 'typescript';
@@ -9,7 +17,7 @@ import ts from 'typescript';
 function filesUnder(dir, skip = new Set()) {
   if (!existsSync(dir)) return [];
   return readdirSync(dir, { withFileTypes: true }).flatMap((entry) => {
-    if (skip.has(entry.name) || entry.name.startsWith('.')) return [];
+    if (skip.has(entry.name)) return [];
     const path = join(dir, entry.name);
     return entry.isDirectory() ? filesUnder(path, skip) : [path];
   });
@@ -17,7 +25,11 @@ function filesUnder(dir, skip = new Set()) {
 function digest(root, files) {
   const hash = createHash('sha256');
   for (const file of files.sort())
-    hash.update(relative(root, file)).update('\0').update(readFileSync(file)).update('\0');
+    hash
+      .update(relative(root, file))
+      .update('\0')
+      .update(lstatSync(file).isSymbolicLink() ? readlinkSync(file) : readFileSync(file))
+      .update('\0');
   return hash.digest('hex');
 }
 
@@ -65,11 +77,18 @@ export function packageEntries(root) {
 
 export function requireFreshBuild(root, entries, allowBuild) {
   const stampFile = join(root, '.cache/api-surface-build.json');
-  const excluded = new Set(['node_modules', 'dist', 'build', 'coverage']);
+  const excluded = new Set(['node_modules', '.git']);
+  const sourceFiles = (base) =>
+    filesUnder(join(root, base), excluded).filter(
+      (file) =>
+        !/^(packages|examples)\/[^/]+\/(dist|build|coverage|\.cache|\.vite)\//.test(
+          relative(root, file).replaceAll('\\', '/'),
+        ),
+    );
   const inputs = () =>
     digest(root, [
-      ...filesUnder(join(root, 'packages'), excluded),
-      ...filesUnder(join(root, 'examples'), excluded),
+      ...sourceFiles('packages'),
+      ...sourceFiles('examples'),
       ...readdirSync(root)
         .filter((name) =>
           /^(package\.json|pnpm-lock\.yaml|pnpm-workspace\.yaml|tsconfig.*\.json|.*build.*\.[cm]?js)$/.test(

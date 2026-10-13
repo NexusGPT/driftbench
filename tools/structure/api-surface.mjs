@@ -284,9 +284,10 @@ function frozen() {
 function differences(then, now) {
   const flat = (list) =>
     new Set(
-      Object.entries(list.packages ?? {}).flatMap(([dir, names]) =>
-        Object.entries(names).map(([name, kind]) => `${dir}: ${kind} ${name}`),
-      ),
+      Object.entries(list.packages ?? {}).flatMap(([dir, names]) => [
+        `${dir}: entry`,
+        ...Object.entries(names).map(([name, kind]) => `${dir}: ${kind} ${name}`),
+      ]),
     );
   const before = flat(then);
   const after = flat(now);
