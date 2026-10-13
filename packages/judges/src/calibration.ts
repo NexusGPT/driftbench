@@ -1,6 +1,6 @@
 import { readdir, readFile, writeFile } from 'node:fs/promises';
 import { basename, extname, join } from 'node:path';
-import { cohenKappa, type Interval, krippendorffAlpha, wilson } from '@driftbench/stats';
+import { cohenKappa, type Interval, krippendorffAlpha, wilson } from '@agent-nexus/driftbench-stats';
 import { parse as parseYaml, stringify as stringifyYaml } from 'yaml';
 import { z } from 'zod';
 import type { JudgeClient } from './client';

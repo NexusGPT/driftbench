@@ -1,4 +1,4 @@
-import * as stats from '@driftbench/stats';
+import * as stats from '@agent-nexus/driftbench-stats';
 import { describe, expect, it } from 'vitest';
 import { POWER_GAP, powerLevel } from '../../src/ladders/stats/index';
 import { committedDesigns, real, SLOW } from './support';

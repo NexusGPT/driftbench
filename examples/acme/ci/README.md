@@ -10,7 +10,7 @@ driftbench ci --specs <path> --target <adapter[:agent]> --baseline <store file |
 
 ## What it decides
 
-`ci` runs the candidate campaign, then compares it with the baseline by `compareCampaigns` of `@driftbench/report`: the rule `driftbench compare` applies. On the same pair of campaigns, the two commands give the same verdict and the same exit code.
+`ci` runs the candidate campaign, then compares it with the baseline by `compareCampaigns` of `@agent-nexus/driftbench-report`: the rule `driftbench compare` applies. On the same pair of campaigns, the two commands give the same verdict and the same exit code.
 
 | Exit | Verdict | compare's verdict | When |
 |---|---|---|---|

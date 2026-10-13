@@ -1,4 +1,4 @@
-import { contentHash } from '@driftbench/core';
+import { contentHash } from '@agent-nexus/driftbench-core';
 import { validateAssessment } from './assessment';
 import type { JudgeRequest, TranscriptEntry } from './contract';
 import { requirementsFor } from './criterion-ledger';

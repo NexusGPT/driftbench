@@ -1,5 +1,5 @@
 /** Judge clients, the judge council, the prompt kit and cassettes. */
-export const packageName = '@driftbench/judges';
+export const packageName = '@agent-nexus/driftbench-judges';
 
 export {
   type ExtractedAnswer,

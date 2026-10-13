@@ -1,7 +1,7 @@
 import { readdir } from 'node:fs/promises';
 import { dirname, join, resolve } from 'node:path';
-import { type BlockResult, type DriverStep, loadSpecFile, type Spec } from '@driftbench/core';
-import { FakeModelPort } from '@driftbench/generate';
+import { type BlockResult, type DriverStep, loadSpecFile, type Spec } from '@agent-nexus/driftbench-core';
+import { FakeModelPort } from '@agent-nexus/driftbench-generate';
 import { describe, expect, it } from 'vitest';
 import {
   createPerturbingDriver,

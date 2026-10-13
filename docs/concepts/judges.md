@@ -5,7 +5,7 @@ Every block gets two kinds of verdict. They stay apart and are both reported.
 * Machine checks: deterministic, no model. A machine fail is a fail; no judge can overturn it. See [checks](../reference/checks.md).
 * Judged criteria: a model reads the block against a rubric and answers pass, fail or inconclusive.
 
-This page covers judged criteria. The judges ship in `@driftbench/judges`, phase 2: the judge clients, the council and its cascade, cassettes that record and replay answers, calibration on fixture pairs and hand labels, and the judge check that reads conversation blocks and task blocks alike. `driftbench judge` runs the council and calibration on recorded answers and never calls a model.
+This page covers judged criteria. The judges ship in `@agent-nexus/driftbench-judges`, phase 2: the judge clients, the council and its cascade, cassettes that record and replay answers, calibration on fixture pairs and hand labels, and the judge check that reads conversation blocks and task blocks alike. `driftbench judge` runs the council and calibration on recorded answers and never calls a model.
 
 The recordings have different scopes:
 
@@ -268,7 +268,7 @@ separated  sheet_matches_catalog [system1, gating]: pass fixture pass (cascade),
 
 ## Weighted panel with abstain
 
-`weightedPanel(votes, weights, margin)` in `@driftbench/judges` weights each judge's vote by its weight, such as its kappa from calibration (a judge at or below zero counts for nothing). A verdict needs more than half of the total weight, inconclusive votes included, and a margin of at least `margin` of the total weight between the two sides. The default margin is 0.3. With equal weights and three votes it decides exactly as plain majority does. Anything else is a split, which counts as neither a pass nor a fail. The council keeps its plain majority; this rule is a separate function for a caller that has calibrated weights.
+`weightedPanel(votes, weights, margin)` in `@agent-nexus/driftbench-judges` weights each judge's vote by its weight, such as its kappa from calibration (a judge at or below zero counts for nothing). A verdict needs more than half of the total weight, inconclusive votes included, and a margin of at least `margin` of the total weight between the two sides. The default margin is 0.3. With equal weights and three votes it decides exactly as plain majority does. Anything else is a split, which counts as neither a pass nor a fail. The council keeps its plain majority; this rule is a separate function for a caller that has calibrated weights.
 
 ## Calibration: an assignment is earned
 
@@ -547,7 +547,7 @@ These APIs are available in the package. The judge validator checks their behavi
 
 ## The judge check in a run
 
-`judgeCheck(council, options)`, or `council.check(options)`, is the check named `judge`. `defaultChecks({ judges: council })` of `@driftbench/checks` appends it after every machine check; `defaultChecks()` has no judge check. It applies to a block that names criteria, conversation or task alike. The options are `artifactText` (default: the task-block text above) and `contextMessages` (default 2).
+`judgeCheck(council, options)`, or `council.check(options)`, is the check named `judge`. `defaultChecks({ judges: council })` of `@agent-nexus/driftbench-checks` appends it after every machine check; `defaultChecks()` has no judge check. It applies to a block that names criteria, conversation or task alike. The options are `artifactText` (default: the task-block text above) and `contextMessages` (default 2).
 
 Each criterion a block names gives one verdict `judge.<name>`, of kind `judge`, with the deciding class and every vote, the round log as its evidence, and the reasoning of the first vote that agrees with the outcome. Its `score` is the mean score of the agreeing votes that carry one. The check ids are on the [checks](../reference/checks.md#judged-criteria) page.
 

@@ -1,4 +1,10 @@
-import { ModelError, type ModelPort, type ModelRequest, type Section, sectionOf } from '@driftbench/generate';
+import {
+  ModelError,
+  type ModelPort,
+  type ModelRequest,
+  type Section,
+  sectionOf,
+} from '@agent-nexus/driftbench-generate';
 
 /**
  * The perfect model of the bank, as a model port. It is code, not a model: it knows every entry the generator

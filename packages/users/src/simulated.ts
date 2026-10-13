@@ -1,5 +1,5 @@
 import { readFile } from 'node:fs/promises';
-import type { DriverContext, DriverStep, Stimulus, UserDriver } from '@driftbench/core';
+import type { DriverContext, DriverStep, Stimulus, UserDriver } from '@agent-nexus/driftbench-core';
 import { parse as parseYaml } from 'yaml';
 import { z } from 'zod';
 
@@ -19,7 +19,7 @@ import { z } from 'zod';
  * runs when the user is created, so a run with a wrong port never starts.
  */
 
-/** The model port, as @driftbench/generate defines it: one system prompt and one user message in, text out. */
+/** The model port, as @agent-nexus/driftbench-generate defines it: one system prompt and one user message in, text out. */
 export type UserModelPort = {
   readonly family: string;
   readonly model?: string;

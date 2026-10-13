@@ -9,8 +9,8 @@ import type {
   Stimulus,
   ToolCall,
   WorkspaceDiff,
-} from '@driftbench/core';
-import { globMatches } from '@driftbench/core';
+} from '@agent-nexus/driftbench-core';
+import { globMatches } from '@agent-nexus/driftbench-core';
 import {
   type DecisionRow,
   decisionRow,

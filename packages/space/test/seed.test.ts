@@ -1,6 +1,11 @@
 import { fileURLToPath } from 'node:url';
-import { loadInventory, loadSpecs, validateInventory } from '@driftbench/core';
-import { formatSpaceMap, fromInventory, parseSpaceMapText, validateSpaceMap } from '@driftbench/space';
+import { loadInventory, loadSpecs, validateInventory } from '@agent-nexus/driftbench-core';
+import {
+  formatSpaceMap,
+  fromInventory,
+  parseSpaceMapText,
+  validateSpaceMap,
+} from '@agent-nexus/driftbench-space';
 import { describe, expect, it } from 'vitest';
 
 const INVENTORY = fileURLToPath(new URL('../../../examples/acme/inventory.yaml', import.meta.url));

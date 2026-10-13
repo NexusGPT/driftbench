@@ -2,7 +2,7 @@ import { mkdtemp, readFile, rm, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { openStore } from '@driftbench/store';
+import { openStore } from '@agent-nexus/driftbench-store';
 import { afterEach, describe, expect, it } from 'vitest';
 import { type Io, main } from '../src/index';
 

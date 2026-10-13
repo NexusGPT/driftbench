@@ -1,5 +1,5 @@
-import { contentHash, type Spec, validateSpec } from '@driftbench/core';
-import { type Interval, mulberry32, wilson } from '@driftbench/stats';
+import { contentHash, type Spec, validateSpec } from '@agent-nexus/driftbench-core';
+import { type Interval, mulberry32, wilson } from '@agent-nexus/driftbench-stats';
 import { z } from 'zod';
 import { streamSeed } from '../seed/random';
 

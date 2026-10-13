@@ -1,6 +1,6 @@
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
-import type { LoadEstateMapOptions } from '@driftbench/estate';
+import type { LoadEstateMapOptions } from '@agent-nexus/driftbench-estate';
 
 /**
  * Where the estate commands keep their JSON copies of parsed maps (see `loadEstateMap`): the folder named by

@@ -1,5 +1,5 @@
 import { readFile, writeFile } from 'node:fs/promises';
-import { contentHash } from '@driftbench/core';
+import { contentHash } from '@agent-nexus/driftbench-core';
 import { z } from 'zod';
 import { parseJudgeText, parseJudgeValue } from './assessment';
 import type { JudgeClient } from './client';

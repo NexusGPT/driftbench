@@ -1,8 +1,8 @@
 import { createHash } from 'node:crypto';
 import { cp, lstat, readdir, readFile, rm, symlink } from 'node:fs/promises';
 import { join, relative } from 'node:path';
-import { AgentFailure } from '@driftbench/core';
-import { localProvider } from '@driftbench/sandbox';
+import { AgentFailure } from '@agent-nexus/driftbench-core';
+import { localProvider } from '@agent-nexus/driftbench-sandbox';
 import { afterEach, describe, expect, it } from 'vitest';
 import { claudeCodeLiveAdapter } from '../../../src/claude-code/live';
 import { ASK_INVOICE, ESTATE, FAKE, givenOf, MAP_HASH, scratch, turnOf } from './support';

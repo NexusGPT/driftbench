@@ -2,8 +2,8 @@ import { chmod, mkdir, mkdtemp, readFile, rm, writeFile } from 'node:fs/promises
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { defaultChecks } from '@driftbench/checks';
-import type { Store } from '@driftbench/core';
+import { defaultChecks } from '@agent-nexus/driftbench-checks';
+import type { Store } from '@agent-nexus/driftbench-core';
 import {
   type Cassette,
   type CassetteJudge,
@@ -18,8 +18,8 @@ import {
   loadCassette,
   recordingClient,
   saveCassette,
-} from '@driftbench/judges';
-import { openMemoryStore } from '@driftbench/store';
+} from '@agent-nexus/driftbench-judges';
+import { openMemoryStore } from '@agent-nexus/driftbench-store';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { ACME_JUDGES } from '../../judges/test/support/scripted';
 import { type CampaignDeps, campaignRunCommand, defaultDeps } from '../src/commands/campaign';

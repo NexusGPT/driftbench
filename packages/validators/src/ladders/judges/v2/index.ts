@@ -102,7 +102,7 @@ export function judgesBank(options: { quarantined?: boolean } = {}): BankItem[] 
 }
 
 export type JudgesV2Options = {
-  /** The package the items call. Default: @driftbench/judges. Tests pass another table. */
+  /** The package the items call. Default: @agent-nexus/driftbench-judges. Tests pass another table. */
   api?: JudgesApi;
   /** The items. Default: the whole bank. */
   bank?: BankItem[];

@@ -32,7 +32,7 @@ A recorded Claude Code session keeps the same tree from its transcript: each lin
 
 Nexus traces carry no tree and have no observations. A workflow that gates a suite built from traces is in [running](running.md#project-config-and-the-pull-request-gate).
 
-`rollUp(observations)` (package `@driftbench/adapters`) rolls the tree up: for each line, the cost, input and output tokens, and span count of the line and everything under it, and the time from the earliest start to the latest end of that subtree. It also returns the slowest path: from the root that finishes last, the child that finishes last at each step, down to a leaf. Lines without a figure count as zero.
+`rollUp(observations)` (package `@agent-nexus/driftbench-adapters`) rolls the tree up: for each line, the cost, input and output tokens, and span count of the line and everything under it, and the time from the earliest start to the latest end of that subtree. It also returns the slowest path: from the root that finishes last, the child that finishes last at each step, down to a leaf. Lines without a figure count as zero.
 
 A conversation with no chat span gives no trace and is named in a note. The fixtures, fictional, are in `packages/adapters/test/traces/fixtures`: `otel-semconv.json` (current conventions, two traces of one conversation) and `otel-flat.jsonl` (flat attributes, one trace per turn joined by session id).
 

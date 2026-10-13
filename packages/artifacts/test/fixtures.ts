@@ -1,4 +1,4 @@
-import type { ArtifactCheck, ArtifactDocument } from '@driftbench/core';
+import type { ArtifactCheck, ArtifactDocument } from '@agent-nexus/driftbench-core';
 import ExcelJS from 'exceljs';
 import JSZip from 'jszip';
 import { beforeAll, describe, expect, it } from 'vitest';

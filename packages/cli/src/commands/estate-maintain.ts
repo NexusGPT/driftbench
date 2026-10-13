@@ -18,7 +18,7 @@ import {
   renderEstateDiff,
   renderImpact,
   writeRetirements,
-} from '@driftbench/estate';
+} from '@agent-nexus/driftbench-estate';
 import type { Command } from 'commander';
 import type { Io } from '../io';
 import { defaultReplayDeps, type ReplayDeps, replayCommand } from './replay';

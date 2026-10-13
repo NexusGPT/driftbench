@@ -1,4 +1,4 @@
-import type { DeviationClass } from '@driftbench/core';
+import type { DeviationClass } from '@agent-nexus/driftbench-core';
 
 /**
  * What each deviation class expects, as the spec reference defines it (docs/reference/spec.md, section

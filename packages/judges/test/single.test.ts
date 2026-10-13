@@ -1,4 +1,4 @@
-import type { CheckContext, Observed, Spec } from '@driftbench/core';
+import type { CheckContext, Observed, Spec } from '@agent-nexus/driftbench-core';
 import { describe, expect, it } from 'vitest';
 import { FakeJudge, type JudgeClient, noJudgeCheck, singleJudgeCheck } from '../src/index';
 

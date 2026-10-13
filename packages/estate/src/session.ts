@@ -1,4 +1,4 @@
-import { designEffect, wilson } from '@driftbench/stats';
+import { designEffect, wilson } from '@agent-nexus/driftbench-stats';
 
 /** One run of an estate, with the session it belongs to and whether it passed. */
 export interface SessionRun {

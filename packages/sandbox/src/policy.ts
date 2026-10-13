@@ -6,7 +6,7 @@ import {
   type SandboxProvider,
   type WorkspaceSnapshot,
   type WorldState,
-} from '@driftbench/core';
+} from '@agent-nexus/driftbench-core';
 
 /**
  * An approval policy for a sandbox. It is off unless a provider is wrapped with it: a sandbox without a policy

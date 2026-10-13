@@ -1,4 +1,4 @@
-import type { DriverContext, DriverStep, UserDriver } from '@driftbench/core';
+import type { DriverContext, DriverStep, UserDriver } from '@agent-nexus/driftbench-core';
 
 /**
  * The scripted driver: replays the spec's blocks in order, each with its own stimulus, and stops after

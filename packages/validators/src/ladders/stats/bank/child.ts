@@ -6,7 +6,7 @@
  * DRIFTBENCH_STATS_IMPL, when set, is the path of another build of the statistics package's index to test (a
  * planted bug, or the package at an earlier commit, to measure a recorded row); unset, the package itself.
  */
-import * as stats from '@driftbench/stats';
+import * as stats from '@agent-nexus/driftbench-stats';
 import type { StatsImpl } from '../reference';
 import { runItem, statsBank } from './index';
 

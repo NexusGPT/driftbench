@@ -1,4 +1,4 @@
-import { canonicalJson, type Observed, type RunResult } from '@driftbench/core';
+import { canonicalJson, type Observed, type RunResult } from '@agent-nexus/driftbench-core';
 
 /**
  * Pairs the replies of two campaigns for a pairwise judge. A pair is one block that both campaigns ran in the

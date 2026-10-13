@@ -47,7 +47,7 @@ import {
   setLevelTable,
   writeFloors,
   writeHandover,
-} from '@driftbench/validators';
+} from '@agent-nexus/driftbench-validators';
 import type { Command } from 'commander';
 import type { Io } from '../io';
 import { optionNumber } from '../number';

@@ -1,4 +1,4 @@
-import type { ModelPort } from '@driftbench/generate';
+import type { ModelPort } from '@agent-nexus/driftbench-generate';
 import { analyzeGraph, type GraphAnalysis } from '../graph/analyze';
 import { buildGraph } from '../graph/edges';
 import { DEFAULT_STANDING_CEILING, invariantAtoms, measureInvariants, scanAtoms } from '../scan/invariants';

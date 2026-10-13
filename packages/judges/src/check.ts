@@ -7,7 +7,7 @@ import {
   type Observed,
   parseCriterionRef,
   type Verdict,
-} from '@driftbench/core';
+} from '@agent-nexus/driftbench-core';
 import { taskArtifactText } from './artifacts';
 import type { JudgeRequest, TranscriptEntry } from './contract';
 import type { Council, CouncilResult } from './council';

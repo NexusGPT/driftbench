@@ -1,4 +1,4 @@
-"""driftbench bridge for a CrewAI crew, run by the crewai adapter of @driftbench/adapters.
+"""driftbench bridge for a CrewAI crew, run by the crewai adapter of @agent-nexus/driftbench-adapters.
 
 Usage: python bridge.py <module>:<name>
 

@@ -1,4 +1,4 @@
-import { rngFor } from '@driftbench/generate';
+import { rngFor } from '@agent-nexus/driftbench-generate';
 import { STANDING, skillFile } from '../layout';
 
 /**

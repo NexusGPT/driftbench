@@ -1,6 +1,6 @@
 import { join } from 'node:path';
-import type { DriftClass, Observed } from '@driftbench/core';
-import { type FaultDef, importFaultSet } from '@driftbench/generate';
+import type { DriftClass, Observed } from '@agent-nexus/driftbench-core';
+import { type FaultDef, importFaultSet } from '@agent-nexus/driftbench-generate';
 
 /**
  * The fault family the system validator plants from: the gate's fault set (examples/acme/faults), read
