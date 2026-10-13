@@ -30,6 +30,11 @@
       120000,
       240000
     ],
+    "dailyQuotaWindow": {
+      "resetUtc": "2026-10-14T00:00:00Z",
+      "lastCallUtc": "2026-10-14T12:00:00Z",
+      "status": "not run: daily quota"
+    },
     "providerBlockPolicy": "An empty model answer with an explicit provider block/refusal reason is provider-blocked. Any blocked request makes the whole item an error for that contestant in the headline score, identically for ledger and promptfoo. The second score removes an item from both contestants on that model if either was provider-blocked. Nonempty model refusals are ordinary returned answers. Provider blocks are never retried.",
     "providerBlockProbe": {
       "id": "rubric_eval_1008",
@@ -60,8 +65,9 @@
     "retryPolicy": "Owner amendment: at most three ordinary transport attempts, 300-second timeout. HTTP 429 is no answer: wait 60, 120, then 240 seconds before retrying; after exhaustion stop incomplete without a judge verdict. Never retry a returned answer, including unparsed answers. Core schema reasks are suppressed. Unknown failed or interrupted attempts retain their reservations; confirmed 429 attempts cost zero."
   },
   "hashes": {
-    "examples/judge-benchmarks/src/rubric-ledger-live.ts": "faa61b720c1a045c6be8ada98f72798e0dffe46412f4c876e66f1b06ce7cf64d",
-    "examples/judge-benchmarks/src/rubric-ledger-calls.ts": "ff3a83d9a8202c6092c1f35f102d59284c98f7dba4bee022068e3e34235aa08a",
+    "examples/judge-benchmarks/src/rubric-ledger-live.ts": "1aa20f2800c4161e5b37587a0e417f518e4f2fb450ab6ac76559cc5a3fd16bc4",
+    "examples/judge-benchmarks/src/rubric-ledger-calls.ts": "0468d51ac0462e62d5969ae78631edd5ecf9b564da4c3f995995afc9103f6df5",
+    "examples/judge-benchmarks/src/rubric-ledger-quota.ts": "02aac53dbe86d42aa2f6d69a04f13a8996b92ba977eff4fccd13106738f9a36b",
     "examples/judge-benchmarks/src/rubric-ledger-stats.ts": "2196e3bbb140b9ac2d3e4f9307945117fd92f698719ee3086d5b1d82022120d6",
     "examples/judge-benchmarks/src/contestants.ts": "8526f07c34720791108417e68f7848fcf5f6e7c0d3eaef1ece136b1ff6f3bca0",
     "examples/judge-benchmarks/src/rubric-ledger-report.ts": "a0d8254a0f409b2501880bda43640a846ee8e9614a8f38c7c4127dde2c032fb9",

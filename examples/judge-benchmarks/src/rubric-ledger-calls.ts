@@ -25,6 +25,8 @@ export type CallIdentity = {
   transportAttempt?: number;
   /** Owner-authorized top-up epoch; only previously rejected requests advance. */
   billingResume?: number;
+  /** Runtime quota-reset epoch; returned answers never advance. */
+  quotaResume?: number;
   transportFingerprint: string;
   request: unknown;
 };
@@ -62,7 +64,9 @@ export function billingIdentity(base: CallIdentity, calls: readonly LedgerCall[]
   // Fresh requests inherit this run's top-up epoch too. Otherwise a new 402
   // at epoch zero could consume the same top-up authorization again on restart.
   let epoch = same.length ? Math.max(0, ...same.map((c) => c.identity.billingResume ?? 0)) : authorizedEpoch ?? 0;
-  const latest = same.filter((c) => (c.identity.billingResume ?? 0) === epoch)
+  const billingRows = same.filter((c) => (c.identity.billingResume ?? 0) === epoch);
+  const quotaEpoch = Math.max(0, ...billingRows.map((c) => c.identity.quotaResume ?? 0));
+  const latest = billingRows.filter((c) => (c.identity.quotaResume ?? 0) === quotaEpoch)
     .sort((a, b) => (a.identity.transportAttempt ?? 0) - (b.identity.transportAttempt ?? 0)).at(-1);
   if (latest && isPrepaymentRejection(latest) && authorizedEpoch !== undefined && authorizedEpoch > epoch) epoch = authorizedEpoch;
   return epoch ? { ...base, billingResume: epoch } : base;
@@ -81,7 +85,8 @@ export class LedgerCalls {
   private readonly live = new Map<string, Promise<LedgerCall>>();
   private newCalls = 0;
   private readonly prepaymentStoppedModels = new Set<string>();
-  constructor(readonly directory: string, readonly capUsd: number, readonly maxNewCalls = Infinity) {
+  constructor(readonly directory: string, readonly capUsd: number, readonly maxNewCalls = Infinity,
+    private readonly beforeStart: (identity: CallIdentity) => void = () => undefined) {
     if (!(capUsd > 0 && Number.isFinite(capUsd))) throw new Error('Invalid spend cap');
   }
   async load(): Promise<this> {
@@ -151,6 +156,7 @@ export class LedgerCalls {
       if (this.prepaymentStoppedModels.has(identity.model))
         throw new LedgerPrepaymentStop(`HTTP 402 circuit is open for ${identity.model}; no further request submitted`);
       if (this.newCalls >= this.maxNewCalls) throw new LedgerProbeStop('Single-call probe recorded; no second call submitted');
+      this.beforeStart(identity);
       if (!Number.isFinite(reserveUsd) || reserveUsd <= 0) throw new Error('Invalid call reservation');
       if (this.chargedUsd + reserveUsd > this.capUsd + 1e-12)
         throw new LedgerBudgetStop(`USD ${this.capUsd} lane cap cannot reserve another USD ${reserveUsd}`);

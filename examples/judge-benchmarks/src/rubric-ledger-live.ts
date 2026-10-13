@@ -12,6 +12,7 @@ import { contestantById, type PairDecision } from './contestants';
 import { loadBenchmark, type PairItem } from './data';
 import { LedgerBudgetStop, LedgerRateLimitStop, LedgerPrepaymentStop, LedgerProbeStop, LedgerCalls, billingIdentity, isPrepaymentRejection, transportRetryable, type LedgerCall, type LedgerCompletion } from './rubric-ledger-calls';
 import { appendRecording, readRecordingRows } from './recording-files';
+import { checkQuotaWindow, GEMINI_WINDOW, quotaIdentity, requestHistory } from './rubric-ledger-quota';
 
 export const DIRECTORY = 'examples/judge-benchmarks/experiments/ledger-rb';
 export const MODELS = ['claude-haiku-5-5', 'gpt-6-luna', 'gemini-3.8-flash'] as const;
@@ -23,6 +24,7 @@ export const SETTINGS = {
   concurrency: 12, testOrderSeed: 'ledger-rb-test-order-v1',
   modelConcurrency: { 'claude-haiku-5-5': 2, 'gpt-6-luna': 8, 'gemini-3.8-flash': 2 },
   rateLimitWaitMs: [60000, 120000, 240000],
+  dailyQuotaWindow: GEMINI_WINDOW,
   providerBlockPolicy: 'An empty model answer with an explicit provider block/refusal reason is provider-blocked. Any blocked request makes the whole item an error for that contestant in the headline score, identically for ledger and promptfoo. The second score removes an item from both contestants on that model if either was provider-blocked. Nonempty model refusals are ordinary returned answers. Provider blocks are never retried.',
   providerBlockProbe: { id: 'rubric_eval_1008', model: 'gemini-3.8-flash', contestant: 'promptfoo', orders: 2 },
   prepaymentPolicy: 'HTTP 402 is a proven no-answer rejection: stop dispatch, never retry in that run, release its hold only, and record no judge error. Gemini stays pending until an owner-authorized top-up resume. Other models continue from saved results. A new positive billing-resume epoch advances only previously rejected requests; successful answers always replay, and a new 402 stops immediately.',
@@ -136,10 +138,14 @@ export async function evaluate(item: PairItem, requirements: readonly RubricItem
   phase: string, sample: number, contestant: 'pair-ledger' | 'promptfoo' | 'seat',
   raw: DialectTransport, calls: LedgerCalls, execute: boolean,
   sleep: (ms: number) => Promise<void> = (ms) => new Promise((resolve) => setTimeout(resolve, ms)),
-  authorizedBillingEpoch?: number): Promise<DecisionRow> {
+  authorizedBillingEpoch?: number, authorizedQuotaEpoch?: number): Promise<DecisionRow> {
   const start = Date.now(); const callKeys: string[] = []; let ordinal = 0;
   const ask = async (request: { system: string; user: string; schema?: Record<string, unknown> }) => {
-    const identity = billingIdentity({ model, phase, item: item.id, contestant, sample, ordinal: ordinal++, transportFingerprint: raw.fingerprint, request }, calls.rows, authorizedBillingEpoch);
+    const baseIdentity = { model, phase, item: item.id, contestant, sample, ordinal: ordinal++, transportFingerprint: raw.fingerprint, request };
+    const history = requestHistory(baseIdentity, calls.rows);
+    const answered = history.find((r) => r.status === 'ok');
+    if (answered) { callKeys.push(...history.map((r) => r.key)); return answered; }
+    const identity = quotaIdentity(billingIdentity(baseIdentity, calls.rows, authorizedBillingEpoch), calls.rows, authorizedQuotaEpoch);
     for (let attempt = 0; attempt <= SETTINGS.rateLimitWaitMs.length; attempt++) {
       const row = await calls.complete({ ...identity, ...(attempt ? { transportAttempt: attempt } : {}) }, SETTINGS.reserveUsd,
         () => raw.complete(request), (completion) => usagePrice(model, completion), !execute);
@@ -211,6 +217,7 @@ export async function evaluate(item: PairItem, requirements: readonly RubricItem
 
 const sourcePaths = [
   'examples/judge-benchmarks/src/rubric-ledger-live.ts', 'examples/judge-benchmarks/src/rubric-ledger-calls.ts',
+  'examples/judge-benchmarks/src/rubric-ledger-quota.ts',
   'examples/judge-benchmarks/src/rubric-ledger-stats.ts', 'examples/judge-benchmarks/src/contestants.ts',
   'examples/judge-benchmarks/src/rubric-ledger-report.ts',
   'examples/judge-benchmarks/src/code-evidence.ts', 'examples/judge-benchmarks/src/data.ts',
@@ -224,7 +231,7 @@ const sourcePaths = [
 
 async function main() {
   if (process.argv.includes('--help')) {
-    console.log('Usage: pnpm exec tsx --no-cache examples/judge-benchmarks/src/rubric-ledger-live.ts --phase seal|pilot|fixtures|noise|validity|provider-probe|test [--execute] [--models comma,list] [--recover-interrupted after verifying the prior runner stopped] [--billing-resume positive-epoch only after owner confirms top-up] [--probe-one-call with Gemini-only TEST]'); return;
+    console.log('Usage: pnpm exec tsx --no-cache examples/judge-benchmarks/src/rubric-ledger-live.ts --phase seal|pilot|fixtures|noise|validity|provider-probe|test [--execute] [--models comma,list] [--recover-interrupted after verifying the prior runner stopped] [--billing-resume positive-epoch only after owner confirms top-up] [--probe-one-call with Gemini-only TEST] [--owner-quota-resume only with explicit authorization before reset]. Gemini otherwise resumes after 2026-10-14 00:00 UTC, with last-call cutoff 12:00 UTC.'); return;
   }
   const phase = process.argv[process.argv.indexOf('--phase') + 1];
   if (!['seal', 'pilot', 'fixtures', 'noise', 'validity', 'provider-probe', 'test'].includes(phase ?? '')) throw new Error('Select a phase; use --help');
@@ -252,6 +259,8 @@ async function main() {
   const mArg = process.argv.indexOf('--models');
   const models = phase === 'provider-probe' ? ['gemini-3.8-flash'] as Model[] : mArg < 0 ? [...MODELS] : process.argv[mArg + 1]!.split(',') as Model[];
   if (models.some((m) => !MODELS.includes(m))) throw new Error('Unregistered model');
+  const ownerQuotaResume = process.argv.includes('--owner-quota-resume');
+  if (execute) for (const model of models) checkQuotaWindow(model, Date.now(), ownerQuotaResume);
   const probe = process.argv.includes('--probe-one-call');
   if (probe && (phase !== 'test' || models.length !== 1 || models[0] !== 'gemini-3.8-flash')) throw new Error('Single-call probe requires Gemini-only TEST');
   const all = (await loadBenchmark('rubricbench')).items as PairItem[];
@@ -276,7 +285,8 @@ async function main() {
   if (phase === 'provider-probe') add(pool.get(SETTINGS.providerBlockProbe.id)!, 0, ['promptfoo']);
   if (phase === 'noise') for (const id of plan.noiseIds) for (let sample = 0; sample < 3; sample++) add(pool.get(id)!, sample, ['pair-ledger']);
   if (phase === 'test') for (const id of testIds.sort((a, b) => sha(SETTINGS.testOrderSeed + a).localeCompare(sha(SETTINGS.testOrderSeed + b)))) add(pool.get(id)!, 0, ['pair-ledger', 'promptfoo']);
-  const calls = await new LedgerCalls(`${DIRECTORY}/live`, SETTINGS.capUsd, probe ? 1 : Infinity).load();
+  const calls = await new LedgerCalls(`${DIRECTORY}/live`, SETTINGS.capUsd, probe ? 1 : Infinity,
+    (identity) => checkQuotaWindow(identity.model, Date.now(), ownerQuotaResume)).load();
   if (process.argv.includes('--recover-interrupted')) console.log(JSON.stringify({ recoveredInterrupted: await calls.recoverInterrupted() }));
   if (calls.uncertainKeys.length) throw new Error(`Unfinished reserved calls: ${calls.uncertainKeys.length}; inspect before continuation`);
   const transports = new Map(await Promise.all(models.map(async (m) => [m, await transport(m, execute)] as const)));
@@ -290,7 +300,7 @@ async function main() {
   await scheduleModels(todo, probe ? { 'gemini-3.8-flash': 1 } : SETTINGS.modelConcurrency, async (job) => {
       try {
         const requirements = reqs.get(job.item.id) ?? [{ name: 'rb_1', rubric: job.item.criterion! }];
-        const row = classifyProviderBlock(await evaluate(job.item, requirements, job.model, job.phase, job.sample, job.contestant, transports.get(job.model)!, calls, execute, undefined, billingEpoch), calls.rows);
+        const row = classifyProviderBlock(await evaluate(job.item, requirements, job.model, job.phase, job.sample, job.contestant, transports.get(job.model)!, calls, execute, undefined, billingEpoch, job.model === 'gemini-3.8-flash' && execute ? 1 : undefined), calls.rows);
         writes = writes.then(() => appendRecording(resultPath, row)); await writes;
         completed++;
         console.log(JSON.stringify({ phase, model: job.model, contestant: job.contestant, completed: done.size + completed, target: selectedJobs.length, chargedUsd: calls.chargedUsd, status: row.status }));
