@@ -66,6 +66,23 @@ jobs:
       - run: python -m pytest
         working-directory: python/driftbench
 
+  comparison-replay:
+    name: offline comparison replay
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: pnpm/action-setup@v6
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - uses: actions/setup-python@v6
+        with:
+          python-version: '3.12'
+      - name: Reproduce published results without model calls or file rewrites
+        run: python -m unittest discover -s comparisons -p test_reproducibility.py -v
+
   viewer-journey:
     # Draft pull requests do not use runners; marking one ready starts its checks.
     if: github.event_name != 'pull_request' || github.event.pull_request.draft == false

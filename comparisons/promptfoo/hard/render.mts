@@ -1,7 +1,11 @@
 // Render the shipped judge exactly once per generated case. Labels never enter prompts.
-import { readFileSync, writeFileSync } from 'node:fs';
+import { existsSync, readFileSync, writeFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
-import { buildPrompt } from '../../../packages/judges/src/prompt';
+import type { buildPrompt as BuildPrompt } from '../../../packages/judges/src/prompt';
+import { pinnedJudge } from '../../pinned-judge';
+
+const pinned = pinnedJudge(new URL('./pinned-judge/', import.meta.url));
+const buildPrompt = pinned.load('packages/judges/src/prompt.ts').buildPrompt as typeof BuildPrompt;
 
 const here = fileURLToPath(new URL('.', import.meta.url));
 const prefix = process.argv.includes('--heldout') ? 'heldout-' : '';
@@ -43,10 +47,18 @@ for (const row of ['rubric', 'factuality', 'pii', 'goal']) {
   if (verify) {
     const stored = JSON.parse(readFileSync(path, 'utf8')) as typeof prompts;
     if (JSON.stringify(stored) !== JSON.stringify(prompts)) {
-      throw new Error(`${prefix}${row}: saved baseline differs from the shipped prompt builder`);
+      throw new Error(`${prefix}${row}: saved baseline differs from pinned judge ${pinned.commit}`);
     }
   } else {
-    writeFileSync(path, `${JSON.stringify(prompts, null, 2)}\n`);
+    const content = `${JSON.stringify(prompts, null, 2)}\n`;
+    if (
+      !existsSync(path) ||
+      JSON.stringify(JSON.parse(readFileSync(path, 'utf8'))) !== JSON.stringify(prompts)
+    ) {
+      writeFileSync(path, content);
+    }
   }
 }
-console.log(`${verify ? 'Verified' : 'Rendered'} ${count} shipped prompts without labels.`);
+console.log(
+  `${verify ? 'Verified' : 'Rendered'} ${count} prompts without labels from pinned judge ${pinned.commit}.`,
+);

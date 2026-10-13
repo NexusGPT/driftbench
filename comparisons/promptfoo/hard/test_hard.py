@@ -12,6 +12,10 @@ from score import summarize, wilson
 
 
 class HardTests(unittest.TestCase):
+    @classmethod
+    def setUpClass(cls):
+        (HERE / 'runtime').mkdir(exist_ok=True)
+
     def test_rubric_repair_retains_original_labels_and_families(self):
         original = {c['id']: c for c in json.loads((HERE / 'archived/v1-rubric.json').read_text())}
         repaired = {c['id']: c for c in make_sets()['rubric']}
