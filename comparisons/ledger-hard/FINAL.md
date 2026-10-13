@@ -1,10 +1,10 @@
 # Ledger hard-row dossier
 
-Haiku and Luna complete; Gemini 3.8 262 requests not run: daily quota. Recording analysis generated 2026-10-13T15:03:58.390484+00:00. All case and result counts come from the linked files in `comparisons/ledger-hard/`.
+Haiku and Luna complete; Gemini 3.8 262 requests not run: daily quota. Recording analysis generated 2026-10-13T15:19:13.056876+00:00. All case and result counts come from the linked files in `comparisons/ledger-hard/`.
 
 - Haiku and Luna have full coverage in both experiments: 384 cases per row. Gemini 3.8 has 262 requests not run: daily quota. Its unfinished cells carry no final verdict.
 - 6560 primary and 9578 dialect unique recorded requests, including the goal equal-evidence ablation.
-- Measured spend across all reported cells: USD 19.91744970. Unreported-attempt reserve: USD 4.25000000. Combined: USD 24.16744970. Separate authorized allocations total USD 91; each model allocation is enforced independently.
+- Measured spend across all reported cells: USD 20.49441920. Unreported-attempt reserve: USD 4.30000000. Combined: USD 24.79441920. Separate authorized allocations total USD 91; each model allocation is enforced independently.
 - The construction audit passes. No pool is withdrawn. This is synthetic evidence on the original construction families.
 - Primary and dialect results remain separate. The dialect run uses the same cases and is not an independent replication.
 
@@ -33,14 +33,14 @@ The owner requests claude-sonnet-5-5 and gpt-6.1-sol on the same sealed cases. E
 | Model | Recorded / planned | Cost USD | Reserved USD | Lost requests | Token-limited entries | Coverage |
 |---|---:|---:|---:|---:|---:|---|
 | claude-sonnet-5-5 | 159/6560 | 0.80505700 | 0.60000000 | Pending | Pending | network pause; awaiting ten-probe gate; no score while missing |
-| gpt-6.1-sol | 1086/6560 | 1.93091550 | 3.25000000 | Pending | Pending | running; no score while missing |
+| gpt-6.1-sol | 1415/6560 | 2.50788500 | 3.30000000 | Pending | Pending | running; no score while missing |
 
 | Model | Experiment | Ours USD | Default peer USD | Equal-state peer USD |
 |---|---|---:|---:|---:|
 | claude-sonnet-5-5 | primary | 0.19189990 | 0.15623600 | 0.03980400 |
 | claude-sonnet-5-5 | dialect | 0.27206800 | 0.14504910 | 0.00000000 |
-| gpt-6.1-sol | primary | 0.54290750 | 0.36115200 | 0.10716400 |
-| gpt-6.1-sol | dialect | 0.61577200 | 0.30392000 | 0.00000000 |
+| gpt-6.1-sol | primary | 0.69612700 | 0.47066600 | 0.13785800 |
+| gpt-6.1-sol | dialect | 0.80267600 | 0.39693400 | 0.00000000 |
 
 Contestant costs count unique recorded calls. Reserved costs remain separate. Unanswered transport requests stay pending and receive no judge score. Full per-row scores, discordant wins/losses, exact tests, intervals and lost keys appear below only for fully answered model cells.
 
@@ -166,6 +166,9 @@ Focused protocol/recovery tests pass; `test-output.txt` retains the test result.
 | `luna-cache-write-fees.json` | `8dc8e999c36c56e6047d118dc3691470c45d84864fe9ed78600fd0df2428fd8d` |
 | `closed-cell-reporting-amendment.json` | `2f9874ba863902e0ab19c3bb5f9d933c649bf3fdffd1009f99f5b00840fc2538` |
 | `luna-transport-census.json` | `09bd39b39de9d713bf594132ef53f7d5f874354537c5d9fc59cdddecd92fe640` |
+| `audit-network-runtime.py` | `4caafe69f6315ace5276a37b9e6908ecb51b61c35a39516a372665b279e144af` |
+| `network-verification.json` | `91e1011f2fc1bad44ed8a6f25efd96dc4945e651067bbd1145a6c5d391aa8457` |
+| `network-finish.py` | `97516d64d0eb03ea14829e4216e85347aa2fb95cd7c2d2a37583693545fbe960` |
 | `sonnet-5-5/seal.json` | `0f9a30095c9eb53a201d28bf440462862f3ae043b430ae08249017d3a76595c5` |
 | `sonnet-5-5/pricing.json` | `00cfb936f27a78787e18a6de3d73f9cb3a34369f1fbb6685f5217fe56a409fd8` |
 | `sonnet-5-5/pilot.json` | `787fabc4c202494523c00f3bc901cf68ac70f7207068bc778a158fdb8ee49490` |

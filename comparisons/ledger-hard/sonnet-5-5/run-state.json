@@ -1,0 +1,13 @@
+{
+  "stamp": "2026-10-13T14:26:41.668748+00:00",
+  "model": "claude-sonnet-5-5",
+  "completed": 159,
+  "planned": 6560,
+  "inflight": 0,
+  "measured_usd": 0.805057,
+  "unknown_attempt_reserve_usd": 0.6,
+  "stop_reason": "drain requested",
+  "pilot": false,
+  "phase": "network pause; awaiting ten-probe gate",
+  "score_status": "No score while transport-missing requests remain"
+}

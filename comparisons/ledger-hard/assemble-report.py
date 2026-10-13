@@ -135,7 +135,7 @@ def main():
     if lite:
         for name in ['flash-lite/seal.json','flash-lite/budget-amendment.json','flash-lite/pricing.json','flash-lite/reasoning-applied.json','flash-lite/scores.json']:
             lines.append(f'| `{name}` | `{digest(HERE/name)}` |')
-    for name in ('extended-runtime-amendment.json','network-amendment.json','api-error-envelope-audit.json','luna-cache-write-fees.json','closed-cell-reporting-amendment.json','luna-transport-census.json'):
+    for name in ('extended-runtime-amendment.json','network-amendment.json','api-error-envelope-audit.json','luna-cache-write-fees.json','closed-cell-reporting-amendment.json','luna-transport-census.json','audit-network-runtime.py','network-verification.json','network-finish.py'):
         if (HERE/name).exists():lines.append(f'| `{name}` | `{digest(HERE/name)}` |')
     for cell in added:
         for artifact in ('seal.json','pricing.json','pilot.json','cache-pilot.json','cache-choice.json','scores.json','verification.json','budget-amendment.json','transport-reconciliation.json'):

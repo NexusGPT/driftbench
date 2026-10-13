@@ -1,13 +1,13 @@
 {
-  "created": "2026-10-13T15:03:59.197651+00:00",
+  "created": "2026-10-13T15:19:13.580548+00:00",
   "dossier": "/private/tmp/claude-501/-Users-assem-Documents-Doc-Assem-Claude-Code-nexus/649588d0-8d65-49cb-8d78-47b071cd71cb/scratchpad/codex/dossier-ledger-hard.md",
-  "dossier_sha256": "9241037b080e0de463e8c13e603253fa02e68e968b3ffaeae1e93c6054aacc2c",
-  "local_final_sha256": "9241037b080e0de463e8c13e603253fa02e68e968b3ffaeae1e93c6054aacc2c",
+  "dossier_sha256": "dbae50908c1b7f690ec633a8cd09762171c0cbd23c7014b9c6b06c2d7bb05026",
+  "local_final_sha256": "dbae50908c1b7f690ec633a8cd09762171c0cbd23c7014b9c6b06c2d7bb05026",
   "full_coverage": false,
   "available_models_complete": false,
-  "measured_usd": 19.917449700000002,
-  "lost_attempt_reserve_usd": 4.25,
-  "unique_recorded_requests": 23943,
+  "measured_usd": 20.494419200000003,
+  "lost_attempt_reserve_usd": 4.300000000000001,
+  "unique_recorded_requests": 24272,
   "flash_lite_complete": true,
   "added_models": {
     "sonnet-5-5": {
@@ -21,8 +21,8 @@
     "gpt-6.1-sol": {
       "model": "gpt-6.1-sol",
       "complete": false,
-      "unique_calls": 1086,
-      "measured_usd": 1.9309155,
+      "unique_calls": 1415,
+      "measured_usd": 2.507885,
       "lost_unique_requests": null,
       "token_limited_entries": null
     }

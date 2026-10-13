@@ -1,0 +1,28 @@
+{
+  "created": "2026-10-13T15:19:07.669522+00:00",
+  "driver": {
+    "pid": 70781,
+    "exec_session": 90283,
+    "target": "gpt-6.1-sol then sonnet-5-5, both 6560 answered requests",
+    "stop_new_calls": "comparisons/ledger-hard/network-hold",
+    "source": "comparisons/ledger-hard/network-resume.py"
+  },
+  "finisher": {
+    "pid": 87223,
+    "exec_session": 36095,
+    "target": "the named serial driver releases network-runner.lock",
+    "source": "comparisons/ledger-hard/network-finish.py",
+    "completion_predicate": "both cells have 6560 answers, native parity and exact tables, verified runtime gates, unchanged official Luna files, matching remote branch HEAD",
+    "status_file": "comparisons/ledger-hard/network-finish-state.json",
+    "self_terminates": true
+  },
+  "latency_projection": {
+    "measured_at": "2026-10-13T15:14:14.760920+00:00",
+    "sample": "last 100 successful attempts per model",
+    "sol_mean_seconds": 5.29185191,
+    "sonnet_mean_seconds": 4.02267479,
+    "estimated_remaining_hours_at_two_serial": 7.4378515647125,
+    "excludes": "new network pauses, failures, quota waits, cost holds or provider slowdown"
+  },
+  "scoring_guard": "No new-model score until every request has a model answer; official closed Luna unchanged"
+}

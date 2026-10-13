@@ -1,0 +1,10 @@
+{
+  "stamp": "2026-10-13T14:26:41.755940+00:00",
+  "recorded": 159,
+  "planned": 6560,
+  "measured_usd": 0.805057,
+  "unknown_attempt_reserve_usd": 0.6,
+  "projected_usd": 33.214930314465406,
+  "method": "prefix mean; family mix may change",
+  "outcomes_used": false
+}

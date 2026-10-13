@@ -1,0 +1,1 @@
+{"stamp": "2026-10-13T15:08:37.668768+00:00", "request_sha256": "500697a82bede5eb04029859d0380cd9e9d9de3ddd2bb0d83b6203691827dd8b", "attempt": 1, "error": {"type": "URLError", "message": "<urlopen error [SSL: UNEXPECTED_EOF_WHILE_READING] EOF occurred in violation of protocol (_ssl.c:1010)>"}, "eligible_missing_only": true}
