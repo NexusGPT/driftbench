@@ -95,7 +95,7 @@ The ten pilot iterations are the journal rows 1 to 10 and the commits of `exec/v
 
 1. Iteration 17: fix file names holding spaces in packages/estate/src/scan/code.ts, only namedPaths. Add packages/estate/test/scan/spaced-paths.test.ts from the isolated candidate .cache/s18candidate. Its red log is .cache/estate-executor/iteration-18-red.log; its 117-test green log is iteration-18-candidate-green.log. Apply only this function and its new test, preserving the final comment fixes. Measure seed 1, journal, commit and push.
 2. That is the fifth own fix. Start an immutable current-source sweep of seeds 1 to 20 and hidden in the background, then update validators/estate/HANDOVER.md and the allowed bank-scores file if produced. Next causes: exact plain routing targets in packages/estate/src/scan/code.ts with packages/estate/test/scan/routing-names.test.ts; compaction names in that same source with packages/estate/test/scan/compaction-names.test.ts. Keep one cause per iteration.
-3. Merge origin/main and push after PR 119 and PR 133 land, with fresh typecheck and lint. PR 119 owns packages/estate/src/unit/run.ts and its red-first test. Do not implement or commit a duplicate launcher fix. PR 133 owns the seven maintenance oracle corrections. Neither imported fix is executor progress. Watch PR 110's current CI. Stop at 07:00 Europe/Brussels on 2026-10-13 if the bank has not reached 1.
+3. When PR 119 lands, merge origin/main and push with fresh typecheck and lint. Repeat the main merge when PR 133 lands. PR 119 owns packages/estate/src/unit/run.ts and its red-first test. Do not implement or commit a duplicate launcher fix. PR 133 owns the seven maintenance oracle corrections. Neither imported fix is executor progress. Watch PR 110's current CI. Stop at 07:00 Europe/Brussels on 2026-10-13 if the bank has not reached 1.
 
 ### Historical next actions before takeover
 
@@ -107,6 +107,12 @@ Iteration 11 (exec/estate-v2): an empty file is noted and gives no atom (claude-
 Then the owner-flagged output items: lint codes, scan order, approve counts (122 vs 125 atoms), run and mutate not-built messages.
 
 ## Pitfalls
+
+Current rows measure the full bank afresh. Row 16 has 25 determinism items with one failing Node 22 lint comparison, 37 stats items all passing, 41 unit.runner items awaiting the input-contract review, and 25 bench.defects items all passing. gen.task is reinstated, not quarantined. The current bank has 1170 items. The current executor does not carry the pilot's scale measurements into its rows.
+
+### Historical pilot notes
+
+The following notes preserve the pilot's inputs, timings and earlier family sizes. They are historical observations, not the current open-item count or a current passing claim. Use the latest journal row and the measurements above for current values.
 
 * Measured once and carried to every row: the seed-free families on the committed fixture (unit.runner, estate.stats, kill.fake, gen.task, gen.reads, gen.coverage, estate.determinism, maintain.fixture), the scale run, and the five name items of bench.defects (rows 0 and 10 agree).
 * estate.determinism (25, Node 22 included) runs scan, lint, plan, generate, diff, impact and mutate twice in separate processes on copies of the fixture, across folders, file orders, time zones and locales; all 20 pass. The map records when it was read and its root folder's name by design: the items leave those two out. estate.stats (28) fails until `estate stats` exists.
