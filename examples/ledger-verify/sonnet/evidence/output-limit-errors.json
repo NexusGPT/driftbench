@@ -110,6 +110,126 @@
           "selection": "original item-labelled answer"
         }
       ]
+    },
+    {
+      "receipt": "506e72bc-f32e-4687-9c45-b1147fd9afeb",
+      "model": "claude-sonnet-5-5",
+      "phase": "noise-0",
+      "reason": "native refusal",
+      "at": "2026-10-13T16:50:59.151Z",
+      "consumers": [
+        {
+          "phase": "noise-0",
+          "model": "claude-sonnet-5-5",
+          "key": "7e8cb3d950178d87e29f",
+          "fingerprint": "d8f7ff824f57e8703a325711079998f3bb311c659c923bc28cbeb46634d9a21d",
+          "bench": "longjudge-verify",
+          "contestant": "promptfoo",
+          "item": "0693b094973e7e926583c76785af77ca_5a776264cbecc67bd81bf1bea7505338",
+          "order": "single",
+          "selection": "original item-labelled answer"
+        }
+      ]
+    },
+    {
+      "receipt": "b199f007-5acc-404e-a961-2b5c612017f3",
+      "model": "claude-sonnet-5-5",
+      "phase": "noise-0",
+      "reason": "native refusal",
+      "at": "2026-10-13T16:52:00.747Z",
+      "consumers": [
+        {
+          "phase": "noise-0",
+          "model": "claude-sonnet-5-5",
+          "key": "d3323825806059e8be78",
+          "fingerprint": "2568fc9d8de1a3a0c4153c2628452a77f473af4e0572ee104e15347b7d635fa8",
+          "bench": "longjudge-verify",
+          "contestant": "promptfoo",
+          "item": "0af2a305f4c4e44a69c7fd5e03d7f74e_7ff87a43db7f15aa80827e2230dd95a1",
+          "order": "single",
+          "selection": "original item-labelled answer"
+        }
+      ]
+    },
+    {
+      "receipt": "d3207ad1-86f9-4958-9dab-8558895e43ca",
+      "model": "claude-sonnet-5-5",
+      "phase": "noise-0",
+      "reason": "native refusal",
+      "at": "2026-10-13T16:55:15.460Z",
+      "consumers": [
+        {
+          "phase": "noise-0",
+          "model": "claude-sonnet-5-5",
+          "key": "8f2d0b8bb79c506e6e7e",
+          "fingerprint": "dbb9332fe77cdfe272979c667dae84a8ac86bc749de45aa799495e3094a83436",
+          "bench": "longjudge-verify",
+          "contestant": "promptfoo",
+          "item": "251325e4d8bd19d38d1481ec5bb6b952_b0e0faf620816637683d6cefbc8d905d",
+          "order": "single",
+          "selection": "original item-labelled answer"
+        }
+      ]
+    },
+    {
+      "receipt": "e9d2435c-ed4f-42ed-87b9-5b7320f3426c",
+      "model": "claude-sonnet-5-5",
+      "phase": "noise-0",
+      "reason": "native refusal",
+      "at": "2026-10-13T16:55:39.065Z",
+      "consumers": [
+        {
+          "phase": "noise-0",
+          "model": "claude-sonnet-5-5",
+          "key": "490271048331d7548e3e",
+          "fingerprint": "2e200136e0b12032896a12f4315f098c6284001716fde815b69250d0485802e1",
+          "bench": "longjudge-verify",
+          "contestant": "promptfoo",
+          "item": "2c0b811d86ed6140f5f9811cf3a320fa_4e375ba613e31acadbdf76cf9dcb95ad",
+          "order": "single",
+          "selection": "original item-labelled answer"
+        }
+      ]
+    },
+    {
+      "receipt": "46756a49-d041-4981-a956-8c64e17a7470",
+      "model": "claude-sonnet-5-5",
+      "phase": "noise-0",
+      "reason": "native refusal",
+      "at": "2026-10-13T16:59:14.031Z",
+      "consumers": [
+        {
+          "phase": "noise-0",
+          "model": "claude-sonnet-5-5",
+          "key": "69d6698f2e829e61b791",
+          "fingerprint": "52a63188b4c377d75f18f2bb6654dc68cb3850d352d061b9c493d51ca6579724",
+          "bench": "longjudge-verify",
+          "contestant": "promptfoo",
+          "item": "4d1497a568219528716b51f87ef72f18_6029e690d7a881057e987894b31db7e6",
+          "order": "single",
+          "selection": "original item-labelled answer"
+        }
+      ]
+    },
+    {
+      "receipt": "93e5720f-33d8-4191-9625-b272d8e83fed",
+      "model": "claude-sonnet-5-5",
+      "phase": "noise-0",
+      "reason": "native refusal",
+      "at": "2026-10-13T17:01:10.603Z",
+      "consumers": [
+        {
+          "phase": "noise-0",
+          "model": "claude-sonnet-5-5",
+          "key": "f7079dd8942318cac98c",
+          "fingerprint": "6fe49bac4528d87106a6b316d4d6621353ae0a0f988a23e5ffbedca1cb5906c2",
+          "bench": "longjudge-verify",
+          "contestant": "promptfoo",
+          "item": "4f8faed01fbb8264519d9f4ae8989a36_45f94dc55ea05eafeb903b1266bfe98e",
+          "order": "single",
+          "selection": "original item-labelled answer"
+        }
+      ]
     }
   ],
   "refusalCounts": {
@@ -128,9 +248,33 @@
       },
       "promptfoo": {
         "all": {
-          "answerEnvelopes": 4,
-          "affectedItems": 4,
+          "answerEnvelopes": 10,
+          "affectedItems": 10,
           "items": [
+            {
+              "phase": "noise-0",
+              "id": "0693b094973e7e926583c76785af77ca_5a776264cbecc67bd81bf1bea7505338"
+            },
+            {
+              "phase": "noise-0",
+              "id": "0af2a305f4c4e44a69c7fd5e03d7f74e_7ff87a43db7f15aa80827e2230dd95a1"
+            },
+            {
+              "phase": "noise-0",
+              "id": "251325e4d8bd19d38d1481ec5bb6b952_b0e0faf620816637683d6cefbc8d905d"
+            },
+            {
+              "phase": "noise-0",
+              "id": "2c0b811d86ed6140f5f9811cf3a320fa_4e375ba613e31acadbdf76cf9dcb95ad"
+            },
+            {
+              "phase": "noise-0",
+              "id": "4d1497a568219528716b51f87ef72f18_6029e690d7a881057e987894b31db7e6"
+            },
+            {
+              "phase": "noise-0",
+              "id": "4f8faed01fbb8264519d9f4ae8989a36_45f94dc55ea05eafeb903b1266bfe98e"
+            },
             {
               "phase": "pilot",
               "id": "0693b094973e7e926583c76785af77ca_5a776264cbecc67bd81bf1bea7505338"

@@ -1,0 +1,15 @@
+{
+  "at": "2026-10-13T16:57:13.978696+00:00",
+  "processes": [
+    "21905 12375 python3 examples/ledger-verify/recover-native-quota.py",
+    "40158 12375 python3 examples/ledger-verify/sonnet-recovery-sequence.py",
+    "52934 12375 python3 examples/ledger-verify/network-gate.py",
+    "61198 12375 python3 examples/ledger-verify/sol-after-sonnet.py"
+  ],
+  "stopRules": [
+    "network gate stops when network-control.stop is true",
+    "quota recovery stops on an unanswered probe or quota/budget failure; otherwise after 159 terminal requests",
+    "Sonnet sequence stops after finalizer or first continuation error; 12 hour recovery wait bound",
+    "Sol sequence starts only after Sonnet finalizer complete; 12 hour wait bound"
+  ]
+}

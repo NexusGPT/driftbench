@@ -23,7 +23,7 @@ def main():
  '- Sonnet costs come from native total_cost_usd. Sol costs come from recorded usage and its published price. Raw usage envelopes are retained.',
  '- Every returned answer remains cached. Transport failures keep uncertain-charge holds. No model or setting is tuned on sealed data.',
  '- These additional cells remain outside the original 18-cell multiplicity family until the collator declares the combined adjustment.\n',
- '| Model | Status | Five-call cost USD | Projected 379-unit cost USD | Settled USD | Unknown holds USD | Evidence folder |',
+ '| Model | Status | Five-call cost USD | Projected 379-unit cost USD | Settled USD | Reserved or unknown holds USD | Evidence folder |',
  '|---|---|---|---|---|---|---|']
  evidence=[];projection_sections=[];original.setdefault('newModelFees',{})
  for model,folder in MODELS.items():
@@ -79,6 +79,9 @@ def main():
    if len(owners)!=1:unassigned+=r['costUsd'];continue
    c=next(iter(owners));costs[c]+=r['costUsd']
    metadata=r.get('metadata') or {};usage=metadata.get('usage') or metadata.get('nativeUsage') or {}
+   if not usage and r.get('nativeReceipt'):
+    native=Path(r['nativeReceipt'])
+    if native.exists() and native.stat().st_size:usage=read(native).get('usage') or {}
    tokens[(c,'input')]+=usage.get('input_tokens',0)+(usage.get('cache_creation_input_tokens',0)+usage.get('cache_read_input_tokens',0) if model=='claude-sonnet-5-5' else 0);tokens[(c,'output')]+=usage.get('output_tokens',0)
    tokens[(c,'cacheWrite')]+=usage.get('cache_creation_input_tokens',(usage.get('input_tokens_details') or {}).get('cache_write_tokens',0))
    tokens[(c,'reasoning')]+=(usage.get('output_tokens_details') or {}).get('reasoning_tokens',(usage.get('output_tokens_details') or {}).get('thinking_tokens',0))

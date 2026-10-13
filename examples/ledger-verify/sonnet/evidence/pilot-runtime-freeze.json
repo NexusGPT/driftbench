@@ -155,7 +155,7 @@
     "examples/ledger-verify/sonnet/evidence/cache-off-cost-selection.json": "cb4dfb0b06dd180ffa0941973fb2e4ff8a9f017e1d6b82b160a2edda5cafe246",
     "examples/ledger-verify/terminal-response.ts": "855e6707dd8f9ebc73e3205ca1a567233061a60f6c15e28fc8dead8c702a2b2a",
     "examples/ledger-verify/recover-native-quota.py": "e1aa112db943309f6a238cce9ca5b1aa2ac29a6d10a993547a5e7aacd7d1c659",
-    "examples/ledger-verify/continue-sonnet-quota.ts": "98468d108f6bfeb4e23da2fd862f40a1c15ef7c0a4903f2f9bd7205942ebce25"
+    "examples/ledger-verify/continue-sonnet-quota.ts": "2b76458f211af244399f6952ce69c624d1fe08a15eb9a579932d23f728c3373f"
   },
   "pricesPerMillion": {
     "gpt-6-luna": {
@@ -208,5 +208,10 @@
     "beforeTEST": true,
     "priorHash": "62f5be711d97529d0e9f9a50510d9e5419c2b1888d9eef482a8a36328fab05f0",
     "rule": "No-answer native quota recovers missing-only; no-provider preflight admission guards are listed separately from submitted missing requests. Refusals terminal at any token count."
+  },
+  "dependencyGuardCorrection": {
+    "at": "2026-10-13T17:09:33.445539+00:00",
+    "beforeTEST": true,
+    "priorHash": "3aaee93e376d6c328ff2f16dfe6dca691b8ac16596393fd5676d58de3e351524"
   }
 }

@@ -7,5 +7,7 @@
   "capUsd": 40,
   "projectionUsd": 36.1998895,
   "sequence": "Sonnet finalizer complete, then fresh OpenAI ten healthy probes spaced 30 seconds apart, then Sol at concurrency two",
-  "returnedAnswersResent": false
+  "returnedAnswersResent": false,
+  "priorCostGateSha256": "115c6295036bfa42ce0f17e75b2672849de2960120c3290383e8679319ee2d29",
+  "originalFiveResponsesRetained": true
 }

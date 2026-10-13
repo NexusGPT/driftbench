@@ -1,11 +1,7 @@
 {
-  "phase": "native-quota missing-only recovery",
-  "status": "running",
-  "reason": "claude stopped: Transport limit: Command failed: python3 /Users/assem/Documents/GitHub/driftbench/.worktrees/ledger-verify/examples/ledger-verify/new-cell-budget.py /Users/assem/Documents/GitHub/driftbench/.worktrees/ledger-verify/examples/ledger-verify/sonnet try-acquire a226627d-3b0d-4a54-828c-ef1ac747da03 0 claude-sonnet-5-5 36553\nTraceback (most recent call last):\n  File \"/Users/assem/Documents/GitHub/driftbench/.worktrees/ledger-verify/examples/ledger-verify/new-cell-budget.py\", line 44, in <module>\n    if __name__=='__main__':print(json.dumps(transact(sys.argv[1],sys.argv[2],sys.argv[3],float(sys.argv[4]),sys.argv[5],int(sys.argv[6]))))\n                                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/Users/assem/Documents/GitHub/driftbench/.worktrees/ledger-verify/examples/ledger-verify/new-cell-budget.py\", line 12, in transact\n    assert not s.get('nativeQuotaStopped'), 'Native session quota stopped admissions'\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nAssertionError: Native session quota stopped admissions\n",
-  "at": "2026-10-13T16:50:39.615090+00:00",
+  "at": "2026-10-13T17:07:56.712102+00:00",
   "model": "claude-sonnet-5-5",
-  "pid": 56977,
-  "nativeResetClaim": "2026-10-13T16:50:00Z",
-  "zeroTokenQuotaRequests": 159,
-  "unknownChargeHolds": 0
+  "status": "running",
+  "phase": "quota continuation",
+  "pid": 40158
 }

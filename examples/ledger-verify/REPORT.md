@@ -1,6 +1,6 @@
 # LongJudge verify confirmation
 
-Evidence timestamp: 2026-10-13T16:51:51.544842+00:00.
+Evidence timestamp: 2026-10-13T17:09:33.494498+00:00.
 
 - Branch: research/ledger-verify. Core contract: PR 168 at 35f07309a4d1d1c8a7c5b176ff19e537d0ef8fdd.
 - All 221 TEST items are sealed. This is a previously evaluated split, not an unseen holdout.
@@ -159,7 +159,7 @@ Fee sources: receipts/budget.json and receipts/calls.jsonl. Historical replay co
 | luna-addendum/state.json | e7ee3a57c98a7c1073bebd127989b45b0117c048a63e3493d0531097fc5f8ea0 |
 | luna-addendum/metrics.json | 7004cb786c920dc5b97783d2032ad4732eab3168dbe009497c4c231df9f4757e |
 | sonnet/evidence/model-amendment.json | ab0906dbc937581d5d846a1912bf81d2b4b69794ef13c58ceaf475df4d7ae3f4 |
-| sonnet/evidence/runtime-freeze.json | 8c5a7245abe134d79e7e4a1ef53cf7bbda81e3e2ddfd7d1f18413d7ba2346840 |
+| sonnet/evidence/runtime-freeze.json | 84a024ee311b1755d7b8e6801281d2738d9ffa3b4e911b2b58eccbb0741956e8 |
 | sonnet/evidence/reporting-freeze.json | ca936a947292582fcdcbebece33b103f84ab9511aace4ad3ff9fe45665be7592 |
 | sonnet/evidence/cost-sample.json | 1c416e1bfd884e17f5f6d6ec024ed1ce6f44417d3b0798b33a8f63d72faba26d |
 | sonnet/evidence/cache-off-amendment.json | d4f4d057bd41d197b8d69189358882b09d3594f81e6aae0ce8f74a7e4b49b01a |
@@ -176,8 +176,8 @@ Fee sources: receipts/budget.json and receipts/calls.jsonl. Historical replay co
 | sonnet/evidence/native-quota-recovery.json | 597f79da24cf9c1109aecdd728e896ccdb282385a9db4b5ae1ef41bd52dbb1d1 |
 | sol61/evidence/cost-sample.json | 115c6295036bfa42ce0f17e75b2672849de2960120c3290383e8679319ee2d29 |
 | sol61/evidence/native-quota-amendment.json | bb43781ed864b81ccb10bc2b71dd4c680403f37770e4c8e444c54cc22151ffe3 |
-| sonnet/evidence/native-quota-continuation.json | 6fb49ee6f4d3eecafc39192e0b38b65b30bdee57e7ef6b7dbab21570763156f6 |
-| sol61/evidence/cap40-amendment.json | 22eeffc5b8a5d06eab2c3db67c570f9b07ff527dd015f55ed8dabc1a4ec2a554 |
+| sonnet/evidence/native-quota-continuation.json | a0414832086482f1411f457a9721ec121555a43bf60d09a02015913013058260 |
+| sol61/evidence/cap40-amendment.json | e2b20a24a09cefd97c940022546eba6e0878246dceb36c195fc87674a53f7484 |
 
 Active runtime id: d49a333a9d4e6dd0ffd6. Frozen core: 35f07309a4d1d1c8a7c5b176ff19e537d0ef8fdd.
 Offline checks cover source/pool hashes, exact schemas, strict replay, fail-closed missing replay and restricted Python execution.
@@ -285,9 +285,9 @@ Sources: evidence/offline-checks.json, evidence/frozen-replay.json, test_stats.p
 - Every returned answer remains cached. Transport failures keep uncertain-charge holds. No model or setting is tuned on sealed data.
 - These additional cells remain outside the original 18-cell multiplicity family until the collator declares the combined adjustment.
 
-| Model | Status | Five-call cost USD | Projected 379-unit cost USD | Settled USD | Unknown holds USD | Evidence folder |
+| Model | Status | Five-call cost USD | Projected 379-unit cost USD | Settled USD | Reserved or unknown holds USD | Evidence folder |
 |---|---|---|---|---|---|---|
-| claude-sonnet-5-5 | running | 0.06976800 | 29.08003000 | 3.60155000 | 1.00000000 | sonnet/ |
+| claude-sonnet-5-5 | running | 0.06976800 | 29.08003000 | 6.78456800 | 0.00000000 | sonnet/ |
 | gpt-6.1-sol | authorized at 40 USD; waiting for Sonnet to finish | 0.06966100 | 36.19988950 | 0.06966100 | 0.00000000 | sol61/ |
 
 claude-sonnet-5-5 cost projection breakdown:
@@ -336,7 +336,7 @@ Native-refusal rule fixed after the Sonnet pilot and before TEST. No pilot verdi
 | Model | Contestant | TEST refusal responses | TEST refused items | All-phase refusal responses | All-phase refused items |
 |---|---|---|---|---|---|
 | claude-sonnet-5-5 | driftbench-verify-uncertainty-cascade | pending | pending | 0 | 0 |
-| claude-sonnet-5-5 | promptfoo | pending | pending | 4 | 4 |
+| claude-sonnet-5-5 | promptfoo | pending | pending | 10 | 10 |
 | gpt-6.1-sol | driftbench-verify-uncertainty-cascade | pending | pending | 0 | 0 |
 | gpt-6.1-sol | promptfoo | pending | pending | 0 | 0 |
 

@@ -42,7 +42,8 @@ for(const phase of ['noise-0','noise-1']){
   const request=requests.find((q:any)=>q.phase===phase&&q.key===r.key);
   if(!r.failure||!request||dry){entries.push(r);continue;}
   const answer=await read(resolve(base,'cache/native-quota-recovery/answers',phase+'-'+request.fingerprint+'.json'));assert(answer.verify_answered);
-  if(!/^(single|single-review)$/.test(r.order)&&hasFinal.has(r.contestant+'|'+r.item)){entries.push(r);supplemental++;continue;}
+  const laterStageExists=r.order==='quoted-extract'&&original.some((x:any)=>x.item===r.item&&x.contestant===r.contestant&&x.order!=='quoted-extract');
+  if(!/^(single|single-review)$/.test(r.order)&&(hasFinal.has(r.contestant+'|'+r.item)||laterStageExists)){entries.push(r);supplemental++;continue;}
   const entry={...r,text:answer.is_error?'':answer.result,costUsd:answer.total_cost_usd};delete entry.failure;
   if(answer.is_error)entry.failure=answer.result;
   entries.push(entry);restored++;

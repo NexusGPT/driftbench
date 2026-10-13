@@ -10,26 +10,26 @@
       "summary": {
         "metric": "accuracy (LongJudgeBench verify, binary)",
         "value": {
-          "estimate": 0,
-          "lower": 0,
-          "upper": 0.11351339317396876
+          "estimate": 0.03333333333333333,
+          "lower": 0.005908590381612455,
+          "upper": 0.16670390991409173
         },
         "n": 30,
-        "balancedAccuracy": 0,
+        "balancedAccuracy": 0.019230769230769232,
         "byGroup": {
           "incorrect": {
             "n": 26,
-            "value": 0
+            "value": 0.038461538461538464
           },
           "correct": {
             "n": 4,
             "value": 0
           }
         },
-        "missing": 30
+        "missing": 29
       },
-      "costUsd": 0,
-      "calls": 0,
+      "costUsd": 0.09659599999999999,
+      "calls": 6,
       "decisions": [
         {
           "id": "002ba0331c11a198784abdfff1d7b8fb_936d37ed03db3340809ca9409508b906",
@@ -39,9 +39,10 @@
         },
         {
           "id": "00a93c5457ba7180f88944780f9134a0_773a31d04e4d41c29af003fb95f3b960",
+          "pass": false,
           "correct": false,
           "responseChars": 2549,
-          "missing": 1
+          "missing": 0
         },
         {
           "id": "012d78a208c04759392be0c8b9d27dc6_dc9a328c94255249105f5d3b465499d5",
@@ -424,9 +425,9 @@
       ]
     }
   ],
-  "newSpendUsd": 0,
-  "newCalls": 0,
-  "replayed": 0,
-  "failedCalls": 10,
-  "stopped": "claude stopped: Transport limit: Command failed: python3 /Users/assem/Documents/GitHub/driftbench/.worktrees/ledger-verify/examples/ledger-verify/new-cell-budget.py /Users/assem/Documents/GitHub/driftbench/.worktrees/ledger-verify/examples/ledger-verify/sonnet try-acquire a226627d-3b0d-4a54-828c-ef1ac747da03 0 claude-sonnet-5-5 36553\nTraceback (most recent call last):\n  File \"/Users/assem/Documents/GitHub/driftbench/.worktrees/ledger-verify/examples/ledger-verify/new-cell-budget.py\", line 44, in <module>\n    if __name__=='__main__':print(json.dumps(transact(sys.argv[1],sys.argv[2],sys.argv[3],float(sys.argv[4]),sys.argv[5],int(sys.argv[6]))))\n                                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/Users/assem/Documents/GitHub/driftbench/.worktrees/ledger-verify/examples/ledger-verify/new-cell-budget.py\", line 12, in transact\n    assert not s.get('nativeQuotaStopped'), 'Native session quota stopped admissions'\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nAssertionError: Native session quota stopped admissions\n"
+  "newSpendUsd": 0.010542,
+  "newCalls": 1,
+  "replayed": 8,
+  "failedCalls": 3,
+  "stopped": "Existing item stage has a different recorded prompt; no paid resubmission allowed: 002ba0331c11a198784abdfff1d7b8fb_936d37ed03db3340809ca9409508b906 final-step"
 }
