@@ -96,6 +96,7 @@ export {
 export { googleResponseSchema, JUDGE_DIALECTS, type JudgeDialect } from './clients/dialects';
 export { type FakeAnswer, FakeJudge } from './clients/fake';
 export { createHttpJudge, type HttpJudgeOptions } from './clients/http-json';
+export { ProviderBlockedError } from './clients/provider-block';
 export {
   binaryQuestion,
   createJevJudge,

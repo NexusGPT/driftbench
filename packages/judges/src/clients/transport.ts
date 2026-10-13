@@ -7,6 +7,7 @@ import { promptFingerprint } from '../prompt';
 import type { ClaudeCliOptions, ClaudeThinkingRecovery } from './claude-cli';
 import { CLAUDE_JUDGE_FLAGS, CLAUDE_SETTINGS, runClaudeJudgeCommand } from './claude-cli';
 import { googleResponseSchema, JUDGE_DIALECTS, type JudgeDialect } from './dialects';
+import { assertNotProviderBlocked, quoteAssessmentMaterial } from './provider-block';
 import { type TokenUsage, usageFromResponse } from './usage';
 
 export type DialectProvider = 'openai' | 'google' | 'anthropic' | 'claude-cli';
@@ -20,6 +21,7 @@ export const FROZEN_BENCHMARK_REASONING = Object.freeze({
 } as const);
 
 export type DialectCompletionRequest = {
+  readonly quotedMaterial?: boolean;
   readonly system: string;
   readonly user: string;
   /** Absent: plain output, with no injected schema, JSON instructions or judge contract. */
@@ -99,6 +101,7 @@ export function buildDialectRequest(
   payload: Record<string, unknown>;
   fingerprint: string;
 } {
+  request = quoteAssessmentMaterial(request, request.quotedMaterial);
   const dialect = JUDGE_DIALECTS[provider].id;
   if (request.reasoning !== undefined && provider !== 'openai' && provider !== 'google')
     throw new JudgeError('config', `${provider} does not expose a reasoning setting in this dialect`);
@@ -206,6 +209,7 @@ export function createDialectTransport(options: DialectTransportOptions): Dialec
     model,
     maxTokens,
     ...(options.claudeEffort === undefined ? {} : { claudeEffort: options.claudeEffort }),
+    ...(options.quotedMaterial ? { quotedMaterial: true } : {}),
     base,
     ...(options.reasoning === undefined ? {} : { reasoning: options.reasoning }),
     ...(provider !== 'claude-cli'
@@ -219,7 +223,11 @@ export function createDialectTransport(options: DialectTransportOptions): Dialec
     fingerprint,
     async complete(original) {
       const reasoning = original.reasoning ?? options.reasoning;
-      const request = { ...original, ...(reasoning === undefined ? {} : { reasoning }) };
+      const request = {
+        ...original,
+        quotedMaterial: original.quotedMaterial ?? options.quotedMaterial,
+        ...(reasoning === undefined ? {} : { reasoning }),
+      };
       const built = buildDialectRequest(provider, request);
       const identity = {
         dialect,
@@ -237,7 +245,7 @@ export function createDialectTransport(options: DialectTransportOptions): Dialec
             '--model',
             model,
             '--system-prompt',
-            request.system,
+            built.payload.system as string,
             ...CLAUDE_JUDGE_FLAGS,
             ...(options.maxBudgetUsd === undefined ? [] : ['--max-budget-usd', String(options.maxBudgetUsd)]),
           ],
@@ -302,6 +310,7 @@ function readCompletion(
   provider: Exclude<DialectProvider, 'claude-cli'>,
   value: unknown,
 ): Omit<DialectCompletion, 'dialect' | 'fingerprint'> {
+  assertNotProviderBlocked(provider, value);
   const raw = JSON.stringify(value);
   let usage = usageFromResponse(provider, value);
   const record = isRecord(value) ? value : {};
