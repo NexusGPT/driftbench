@@ -456,7 +456,7 @@ Proposes the map of situations from an agent's prompt or policy, its inventory a
 
 ```
 $ pnpm -s driftbench extract approve examples/acme/map/proposal.yaml
-examples/acme/map/proposal.yaml: 290 of 290 decisions are open (51 dimensions, 111 constraints, 55 phrases, 73 relations).
+examples/acme/map/proposal.yaml: 291 of 291 decisions are open (51 dimensions, 111 constraints, 55 phrases, 74 relations).
 Axes: 7 of 51 dimensions, a full grid of 113568 cells (the space commands accept 250000).
   dimension   behaviour  behaviour axis, by code, 14 values: The behaviours the inventory lists
   dimension   flow  behaviour detail, by code, 5 values: The flows the inventory lists
@@ -470,7 +470,7 @@ The listing goes on with one line per open decision.
 
 ```
 $ pnpm -s driftbench extract map examples/acme/map/approved.yaml --to _captures/docs3/cli/space.yaml
-Wrote _captures/docs3/cli/space.yaml: 7 axes (behaviour, deviation, channel, stage, user_type, coverage_result, workspace_start), 388 constraints, a full grid of 212940 cells.
+Wrote _captures/docs3/cli/space.yaml: 7 axes (behaviour, deviation, channel, stage, user_type, coverage_result, workspace_start), 380 constraints, a full grid of 212940 cells.
 ```
 
 [`examples/acme/map`](../../examples/acme/map/README.md) holds the Acme proposal, its approved copy, its space map and the commands that made them.
@@ -502,7 +502,7 @@ Generates specs from an approved map, by code: paths through the stage graph, th
 | `--budget <n>` | budget mode: N conversations in place of the t-wise rows, placed by pair coverage first and value balance second; the other seeders are unchanged. Adds a `budget` block to the report. See [budget mode](../generating.md#budget-mode) |
 | `--spec-cap <n>` | total written specs; keeps structural, fault and incomplete specs, then selects actual tuple coverage. See [total spec cap](../generating.md#total-spec-cap) |
 | `--spec-cap-mode <mode>` | `tuples` by default; `pairs` explicitly permits reported triple losses. Requires `--spec-cap` |
-| `--tasks <n>` | instances built per task family the map names, each with its corner and planted variants; default 8. A family that does not load, uses an unapproved phrase, or has a missing, invalid or stale review is refused with its reason and counts as a defect. See [task families in the map](../generating.md#task-families-in-the-map) |
+| `--tasks <n>` | instances built per `task_family` relation the map names, each with its corner and planted variants; default 8. A family that does not load, uses an unapproved phrase, or has a missing, invalid or stale review is refused with its reason and counts as a defect. See [task families in the map](../generating.md#task-families-in-the-map) |
 | `--baseline <path>` | specs to measure on the same map, for comparison; repeat it |
 | `--force` | replace the output of an earlier run in the folder |
 | `--json` | print the report as JSON |
@@ -514,10 +514,10 @@ On the approved Acme map:
 
 ```
 $ pnpm -s driftbench generate --map examples/acme/map/approved.yaml --out _captures/docs3/cli/generated --t 2
-Actual axis-map coverage (written complete specs): pairs 701 of 701 (100.0%); triples 2871 of 4044 (71.0%).
+Actual axis-map coverage (written complete specs): pairs 708 of 708 (100.0%); triples 2885 of 4064 (71.0%).
 Candidate t-wise array (before the total cap): covering array of 156 rows over 5 dimensions, 356 of 356 allowed 2-tuples (100.0%); 2 pairs no path reaches are left out.
-Uncovered on the axis map: 0 pairs, 1173 triples (see coverage.actual[].uncovered).
-Map acme (../../../../examples/acme/map/approved.yaml), hash 0f897ba84410: 51 dimensions, 187 values, 471 constraints, 55 approved phrases.
+Uncovered on the axis map: 0 pairs, 1179 triples (see coverage.actual[].uncovered).
+Map acme (../../../../examples/acme/map/approved.yaml), hash 7c05b9cee9cc: 51 dimensions, 187 values, 463 constraints, 55 approved phrases.
 Seed 1, t = 2.
 
 Seeder        specs  blocks  complete  incomplete
@@ -526,14 +526,13 @@ twise           156     793       153           3
 boundary         85     146        13          72
 deviation        21     111        21           0
 metamorphic      42     192        42           0
-task             34      47        34           0
+task             67      71        67           0
 cover            28     155        28           0
 
 Stage graph: 18 of 23 edges covered in 12 paths from needs.
-Constraints applied: 471.
+Constraints applied: 463.
 Deviation probes: 12 of 12 classes. Metamorphic families: 21.
-Coverage on the axis map at t = 2: complete specs 701 of 701 (100.0%), all specs 701 (100.0%).
-Values no allowed pair holds, so no spec can cover them until the map gives them a path: workspace_start=existing-workbook.
+Coverage on the axis map at t = 2: complete specs 708 of 708 (100.0%), all specs 708 (100.0%).
 
 Values with no approved phrase (72): their blocks are placeholders in incomplete/.
   catalog.search.in.category=catalog.search.in.category.mobile  1 block(s)
@@ -563,7 +562,7 @@ Specs with a block the map supports no machine Then for (18), in incomplete/: ge
      1  no approved path needs callback_phone=not-given
      1  no approved path needs catalog.search.in.unknown-key=catalog.search.in.unknown-key.sent
      1  no approved path needs coverage.check.in.unknown-key=coverage.check.in.unknown-key.sent
-Wrote 379 files to _captures/docs3/cli/generated.
+Wrote 508 files to _captures/docs3/cli/generated.
 exit 1
 ```
 
@@ -927,21 +926,22 @@ On the Acme price-sheet family:
 
 ```
 $ pnpm -s driftbench family instances examples/acme/families/price-sheet --n 3 --seed 1 --out _captures/docs3/cli/family
-Family acme-price-sheet: 3 instances, seed 1, 12 specs.
-  i01  seed 1219026796  categories=3 column_order=shuffled language=EN line_endings=crlf plans=15 planted=without readme_name=readme.txt seed_format=csv summary=without wording=a workbook=out/acme-prices.xlsx yearly=value  base, duplicate-line, header-order, unit-change
-  i02  seed 1269359653  categories=4 column_order=catalog language=EN line_endings=lf plans=29 planted=without readme_name=readme.txt seed_format=json summary=with wording=b workbook=out/acme-prices.xlsx yearly=formula  base, duplicate-line, header-order, unit-change
-  i03  seed 1252582034  categories=2 column_order=shuffled language=EN line_endings=crlf plans=24 planted=without readme_name=README.txt seed_format=csv summary=without wording=a workbook=out/acme-prices.xlsx yearly=value  base, empty-cell, header-order, unit-change
+Family acme-price-sheet: 3 instances, seed 1, 13 specs.
+  i01  seed 1219026796  categories=3 column_order=catalog language=EN line_endings=lf plans=6 planted=with readme_name=ABOUT.txt seed_format=csv start=catalog-only summary=without wording=b workbook=out/price-sheet.xlsx yearly=value  base, duplicate-line, header-order, unit-change, planted
+  i02  seed 1269359653  categories=2 column_order=shuffled language=EN line_endings=crlf plans=25 planted=without readme_name=ABOUT.txt seed_format=csv start=catalog-only summary=without wording=b workbook=out/price-sheet.xlsx yearly=value  base, duplicate-line, header-order, unit-change
+  i03  seed 1252582034  categories=4 column_order=catalog language=EN line_endings=lf plans=15 planted=without readme_name=readme.txt seed_format=json start=catalog-only summary=without wording=a workbook=out/acme-prices.xlsx yearly=value  base, empty-cell, header-order, unit-change
 Style invariant: 17 style alternatives rebuilt; none changed the expected outcome.
 Review: pending. examples/acme/families/price-sheet/review.yaml is not signed yet; the instances record it, and a person signs it before release.
-Wrote 12 specs and family-report.json to _captures/docs3/cli/family.
+Wrote 13 specs and family-report.json to _captures/docs3/cli/family.
 ```
 
 ```
 $ pnpm -s driftbench family verify _captures/docs3/cli/family --reference process:acme-ops
-Verify _captures/docs3/cli/family on the reference process:acme-ops: 12 specs.
+Verify _captures/docs3/cli/family on the reference process:acme-ops: 13 specs.
   ✓ i01/base.yaml
   ✓ i01/duplicate-line.yaml
   ✓ i01/header-order.yaml
+  ✓ i01/planted.yaml
   ✓ i01/unit-change.yaml
   ✓ i02/base.yaml
   ✓ i02/duplicate-line.yaml
@@ -951,7 +951,7 @@ Verify _captures/docs3/cli/family on the reference process:acme-ops: 12 specs.
   ✓ i03/empty-cell.yaml
   ✓ i03/header-order.yaml
   ✓ i03/unit-change.yaml
-✓ The reference passes all 12 specs: 3 instances may ship.
+✓ The reference passes all 13 specs: 3 instances may ship.
 Release also waits for a person to sign the review of acme-price-sheet (3 instances wait on it).
 Wrote _captures/docs3/cli/family/verify-report.json.
 ```
@@ -1378,10 +1378,10 @@ driftbench holdout score --sealed <dir> --target <adapter:agent> [--budget <quer
 ```
 $ pnpm driftbench select --cover examples/acme/map/space.yaml --specs examples/acme/gated --out <dir> --k 10
 Pool: 200 unsealed specs; 58 sealed specs left out; 4 gate files that are not specs skipped.
-Cover: 106 conversations cover every cell the pool covers (598 of 701).
+Cover: 106 conversations cover every cell the pool covers (598 of 708).
 (the ranked table)
-Cells covered: 306 of 701 allowed pairs (43.7%); the pool covers 598.
-  t = 3: 794 of 4044 allowed (19.6%).
+Cells covered: 306 of 708 allowed pairs (43.2%); the pool covers 598.
+  t = 3: 794 of 4064 allowed (19.5%).
 Required cells: 10 of 10; the pool covers 10.
 Faults turned red: 12 of the 13 the pool turns red (13 counted faults in the gate report).
 (exit 0)

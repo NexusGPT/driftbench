@@ -11,7 +11,7 @@ agent: acme
 produced_by:
   family: lane
   model: claude-opus-5-5 as the extract and generate2 lanes, by hand
-  at: 2026-10-13T10:15:29.115Z
+  at: 2026-10-13T11:39:02.074Z
 sources:
   - { kind: prompt, path: ../src/policy.ts }
   - { kind: prompt, path: ../README.md }
@@ -3318,11 +3318,29 @@ relations:
         - sales-operations
       workspace_start:
         - catalog-only
+    instances:
+      start: catalog-only
     deviations:
       - D6_instruction_in_data
     evidence:
       source: ../README.md
       quote: its stage, `build_sheet` or `add_summary`
+    produced_by: model
+    approved: false
+  - kind: task_family
+    flow: price-sheet
+    family: ../families/price-sheet
+    stages: [ add_summary ]
+    holds:
+      user_type:
+        - sales-operations
+      workspace_start:
+        - existing-workbook
+    instances:
+      start: existing-workbook
+    evidence:
+      source: ../inventory.yaml
+      quote: "title: Add a summary sheet to the existing workbook and leave every other file untouched"
     produced_by: model
     approved: false
   - kind: states

@@ -186,7 +186,13 @@ export const WorldState = z
     store: z.record(z.string(), z.unknown()).optional().describe('A seeded store.'),
     workspace: z
       .strictObject({
-        from: z.string().min(1).optional().describe('A folder the workspace starts from.'),
+        from: z
+          .string()
+          .min(1)
+          .optional()
+          .describe(
+            'A folder the workspace starts from. A path written ./<path> is read from the folder of the spec file; any other relative path from the folder the run starts in.',
+          ),
         files: z
           .record(z.string(), z.string())
           .optional()
