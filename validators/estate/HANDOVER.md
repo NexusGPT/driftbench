@@ -10,13 +10,21 @@ Rewritten by the executor every iteration (docs/validators.md section 10). A str
 | 1 | 0 |
 <!-- level-table:end -->
 
-### Current executor measurement, iteration 19
+### Current executor measurement, iteration 20
+
+Seed 1 passes 940 of 1170 items (0.8034188034188035), level 0, from the matched post-import baseline of 937. Exactly three compaction items improve: scan.hazards.summarized, scan.hazards.window-full and blind.gates.skill-compactions-plural. No item regresses. Capture: .cache/estate-executor/iteration-20.json, immutable base 7b781747 plus packages/estate/src/scan/code.ts and packages/estate/test/scan/compaction-names.test.ts. Its before capture is iteration-19-main140.json on the same main instrument.
+
+The scanner reads explicit context-compaction synonyms and still excludes customer-owned summaries. Five canonical positives fail first; two ordinary-summary controls already pass. All seven final cases, 144 scan/graph tests and 287 estate tests pass. The same-line control preserves a later assistant context event after a customer summary. Fresh typecheck and lint pass after formatting the long regular expression. Eight owned component causes are complete, iterations 13 through 20. Own net new seed 1 gains total 57, plus one restored baseline portability item. Eighteen maintainer gains from PRs 124 and 133 receive no executor credit.
+
+The next largest confirmed reader group is registry entry containers. The isolated candidate .cache/s27registry-shapes makes four bank items pass: scan.registry.json-guards-key, scan.catalogue.keyed-by-id, scan.catalogue.by-event and scan.catalogue.wrapped, with no family regression. Four tests fail first and eleven related tests pass after the candidate fix. This remains local, not pushed or counted as progress. Apply it as iteration 21 before the smaller prepared negation cause. Its source and test are packages/estate/src/scan/claude-code.ts and packages/estate/test/scan/registry-shapes.test.ts.
+
+### Previous executor measurement, iteration 19
 
 Seed 1 passes 930 of 1170 items (0.7948717948717948), level 0, from row 18's 924. Exactly three routing items improve: scan.standing.plain-name, scan.standing.bold-name and scan.standing.helper-plain-name. Three generation-scale timing recoveries receive no executor credit. No measured item regresses. Capture: .cache/estate-executor/iteration-19-final.json, immutable base 1a420e01 plus the two routing files, before main 14225a2a is imported.
 
 The route reader uses the existing declared-name sets for exact plain and bold names and explicit agent descriptors. A same-name skill/helper collision selects the explicitly named agent. Four initial cases fail before the fix; the companion collision case is also red first. All six final cases pass, and all 280 estate tests pass after the main import. Source: packages/estate/src/scan/code.ts. Regression test: packages/estate/test/scan/routing-names.test.ts, committed with this fix. Its candidate .cache/s19candidate stays local, not pushed.
 
-Seven own component causes are complete, iterations 13 through 19. Own net new seed 1 gains total 54, plus one restored baseline portability item. The eleven PR 124 and seven PR 133 corrections receive no executor credit. Main 14225a2a is merged and pushed as ee223c73; its scope codemod changes zero files, fresh typecheck and lint pass, and protection passes. Current CI is queued or running at the last read. The separate .cache/estate-executor/iteration-19-main140.json measurement is active on immutable base ee223c73 plus the same routing files. It will provide the post-import before capture for iteration 20. Do not combine its maintainer gains with this paired routing measurement.
+Seven own component causes are complete, iterations 13 through 19. Own net new seed 1 gains total 54, plus one restored baseline portability item. The eleven PR 124 and seven PR 133 corrections receive no executor credit. Main 14225a2a is merged and pushed as ee223c73; its scope codemod changes zero files, fresh typecheck and lint pass, and protection passes. Current CI is queued or running at the last read. The separate .cache/estate-executor/iteration-19-main140.json measurement completes on immutable base ee223c73 plus the same routing files: 937 of 1170, level 0. Exactly seven maintenance items improve and nothing regresses relative to the pre-import capture. They all belong to PR 133. This is the post-import before capture for iteration 20. Do not combine its maintainer gains with this paired routing measurement.
 
 ### Previous executor measurement, iteration 18
 
@@ -24,7 +32,7 @@ Seed 1 passes 924 of 1170 items (0.7897435897435897), level 0, from row 17's 926
 
 The product CLI entry packages/cli/src/bin.ts filters only ExperimentalWarning with the exact SQLite message, before main loads. Every other warning is forwarded with its original arguments. Three canonical suppression cases are red first, while three preservation controls pass. All six final cases pass on Node 22 and Node 24, including code and detail preservation. The related CLI tests make 14 passing assertions. The complete build succeeds; the built CLI on Node 22 prints its unchanged 970-byte lint output and empty stderr. Early canonical tests exceed Vitest's default process-start timeout during the concurrent sweep and build. The assertions stay unchanged; process and test waits are bounded explicitly. Fresh typecheck and lint pass after that adjustment.
 
-Six own component causes are complete, iterations 13 through 18. Since takeover, 51 new seed 1 bank items come from owned fixes; 11 new passes come from imported PR 124 and are excluded. Iteration 18 also restores a portability item that passes at the takeover baseline. There are 52 owned passing transitions across paired iterations, but only 51 net new bank passes relative to takeover. The fifth-fix full sweep remains on source c415e845, before this warning fix, with no completed score yet.
+Six own component causes are complete, iterations 13 through 18. Since takeover, 51 new seed 1 bank items come from owned fixes; 11 new passes come from imported PR 124 and are excluded. Iteration 18 also restores a portability item that passes at the takeover baseline. There are 52 owned passing transitions across paired iterations, but only 51 net new bank passes relative to takeover. At the time of row 18, the fifth-fix sweep remains active on source c415e845, before this warning fix. The completed result is recorded in its own stamped section below.
 
 The earlier bfb8a652 merge-ref CI fails typecheck because new protected maintenance, map and stats tests use the old npm scope. Main 14225a2a, including PR 133 and PR 140, is now imported. The required rename-scope script changes zero files. Those protected corrections stay maintainer-owned; the seven maintenance corrections receive no executor progress credit. Row 18 and the running iteration 19 snapshot predate this import, so their scores remain stamped to their original instruments. Fresh checks and current CI determine the imported branch's state. This earlier CI failure is separate from the corrected local-name assertion.
 
@@ -38,9 +46,11 @@ Five own iterations are complete: 13 through 17. Own component gains total 51 it
 
 PR 119 is merged into this branch through main a624204b. Both native TypeScript tests pass on Node 22, including its long temporary path test; all native estate tests pass in the complete run. Four of five Node 22 determinism items pass. estate.determinism.node22-lint fails because Node 22 writes a SQLite ExperimentalWarning to stderr, although its lint stdout equals Node 24. The exact captured warning is isolated in portability-lint-probe.json. The lead requests a product filter for its exact type and message. That is the next separate cause, in packages/cli/src/bin.ts and packages/cli/test/sqlite-warning.test.ts. Its isolated six tests pass on both Node versions after three red suppression cases; every other warning is forwarded. PR 133 remains open at the last read and will arrive through main when merged.
 
-### Fifth-fix full sweep in flight
+### Completed fifth-fix full sweep, source iteration 17
 
-The immutable source is commit c415e84547598cf4830de3b945f138eb4f17d241 in .cache/full-17. Its package-resolution stamp confirms that estate and generate imports resolve inside that snapshot. The sweep runs seeds 1 to 20 and hidden with all items and levels. Process 80438 is owned by driver session 88560. It starts at 2026-10-13T00:49:55.310895+00:00. Read .cache/estate-executor/full-17.state.json, full-17.source.json, full-17.json and full-17.stderr for the observed status. The driver ends with the measurement or the 07:00 local deadline. No all-seed score for this source is claimed while its status is running.
+The immutable source is commit c415e84547598cf4830de3b945f138eb4f17d241 in .cache/full-17, local and not pushed. Its resolution stamp confirms estate and generate imports come from that snapshot. The sweep completes seeds 1 to 20 and hidden 290770053 at level 0 for every seed. 911 of 1170 items pass on every seed (0.7786324786324786); per-seed totals range from 920 to 928. This is source iteration 17, before the warning filter, plain routing fix and imported maintenance corrections. It is not a current-branch all-seed claim. Captures: .cache/estate-executor/full-17.json, full-17.state.json, full-17.source.json and full-17.stderr.
+
+The pre-fix all-seed baseline is 845 of 1170 on c27c96dd with hidden 401483072. Its different source, instrument and hidden cohort remain explicit. Do not credit their entire numerical difference to executor fixes. The next full sweep follows the tenth owned cause, iteration 22.
 
 ### Previous executor measurement, iteration 16
 
@@ -109,27 +119,27 @@ See `validators/floors.json`; `pnpm driftbench validate floors` prints it. The e
 
 ## Local artifacts, not pushed
 
-Files under .cache are local, not pushed. They exist only in the canonical executor worktree; they are absent from Git clones and frozen handover archives unless copied explicitly. A frozen archive under .cache/handover-18 reaches the canonical root through ../.. Source and capture paths below are relative to that canonical root.
+Canonical executor worktree: /Users/assem/Documents/GitHub/driftbench/.worktrees/exec-estate-v2. Files under .cache are local, not pushed. They exist only in the canonical executor worktree; they are absent from Git clones and frozen handover archives unless copied explicitly. A frozen archive under .cache/handover-18 reaches the canonical root through ../.. Source and capture paths below are relative to that canonical root.
 
-The routing test packages/estate/test/scan/routing-names.test.ts is committed with iteration 19. It is absent only from the older frozen handover-18. Candidate .cache/s19candidate stays local, not pushed. The next compaction test packages/estate/test/scan/compaction-names.test.ts is currently only in .cache/s20candidate; both are local, not pushed until that separate cause is applied, measured and committed.
+The routing test packages/estate/test/scan/routing-names.test.ts is committed with iteration 19; the compaction test packages/estate/test/scan/compaction-names.test.ts joins iteration 20. Both are absent only from the older frozen handover-18. Candidates .cache/s19candidate and .cache/s20candidate stay local, not pushed. The next registry-shapes test exists only at .cache/s27registry-shapes/packages/estate/test/scan/registry-shapes.test.ts, local and not pushed. It joins the separate iteration 21 fix after a canonical red run and measurement.
 
 The sweep source .cache/full-17 is local, not pushed and is absent from handover-18. Read the canonical .cache/estate-executor/full-17.state.json, full-17.source.json, full-17.json and full-17.stderr for it. The directory is immutable source c415e845. A missing directory in a frozen archive is not proof that the named canonical sweep stopped.
 
 ## Open items
 
-The published row 19 capture is iteration-19-final.json at immutable base 1a420e01 plus its two routing files, before main 14225a2a. It has 240 failures of 1170; reader has 80 failures of 641. The post-import capture remains active, so this table is stamped to the pre-import instrument.
+The published row 20 measurement is iteration-20.json, on immutable base 7b781747 plus its two compaction files. It passes 940 of 1170, with 230 failures; reader has 77 failures of 641. The journal uses the matched post-import baseline at 937. The separate pre-import row 19 measurement remains 930, with the seven maintainer gains stamped separately.
 
 | Level | Passing | Failing |
 |---|---|---|
-| reader | 561/641 | 80 |
+| reader | 564/641 | 77 |
 | lint | 45/46 | 1 |
 | plan | 44/65 | 21 |
 | generation | 196/270 | 74 |
 | agent-mutants | 22/75 | 53 |
-| maintenance | 42/53 | 11 |
+| maintenance | 49/53 | 4 |
 | scale | 20/20 | 0 |
 
-All 25 bench.defects items, all 25 determinism items and all 37 stats items pass. The unit input mismatch and documented closed-list conflicts remain below. Seven maintenance oracle corrections from PR 133 are imported on the branch, but this pre-import capture does not include them. They receive no executor credit.
+All 25 bench.defects items, all 25 determinism items and all 37 stats items pass. The unit input mismatch and documented closed-list conflicts remain below. Seven PR 133 maintenance oracle corrections pass and receive no executor credit.
 
 ### Historical pilot gap list
 
@@ -149,9 +159,9 @@ The ten pilot iterations are the journal rows 1 to 10 and the commits of `exec/v
 
 ## Next actions
 
-1. Iteration 20: apply only the compaction pattern and runtimeHazard compaction case from .cache/s20candidate to packages/estate/src/scan/code.ts. Copy packages/estate/test/scan/compaction-names.test.ts from that candidate, run it red on the canonical source, then fix and run the scan/graph siblings green. Preserve routing, comment masking and spaced paths. Both candidate and pending test are local, not pushed.
-2. Read iteration-19-main140.state.json and its completed JSON for the observed post-import baseline. Measure iteration 20 on the same main instrument, journal, commit and push after fresh typecheck and lint. Keep PR 133's seven corrections separate from executor gains. Watch current PR 110 CI, and diagnose any fresh failure using its actual job logs.
-3. Read full-17.state.json, full-17.json and full-17.stderr for the immutable fifth-fix sweep from c415e845; .cache/full-17 is local, not pushed. After the tenth own fix, snapshot another full sweep. Iteration 21 then fixes negated mentions in packages/estate/src/scan/code.ts and packages/estate/src/graph/edges.ts, with packages/estate/test/scan/negated-mentions.test.ts from local .cache/s21candidate. Request the next fresh handover review at iteration 21, as the lead specifies. Stop at 07:00 Europe/Brussels on 2026-10-13 if the bank has not reached 1.
+1. Iteration 21: copy packages/estate/test/scan/registry-shapes.test.ts from local .cache/s27registry-shapes and run it red. Apply only registryEntries and readJsonRegistry from that candidate to packages/estate/src/scan/claude-code.ts. Preserve current scalar/array behaviour, catalogue annotations and all other reader paths. Run related registry tests and all estate tests, then measure against row 20, journal, commit and push. Candidate and pending test are local, not pushed until that commit.
+2. Request the next fresh handover review at iteration 21, as the lead specifies. Save a quiet fresh brief and failed ids before freezing its source and captures. Current PR 110 CI remains watched; diagnose only actual fresh failures. Main 14225a2a is already imported and the required codemod changes zero files. Keep maintainer corrections separate from executor gains.
+3. Iteration 22 takes the next prepared negation cause in packages/estate/src/scan/code.ts and packages/estate/src/graph/edges.ts, with packages/estate/test/scan/negated-mentions.test.ts from local .cache/s21candidate. It is the tenth owned cause, so start another immutable full sweep after commit. Completed full-17 is 911 of 1170 on source c415e845; its .cache source and captures remain local, not pushed. Stop at 07:00 Europe/Brussels on 2026-10-13 if the bank has not reached 1.
 
 ### Historical next actions before takeover
 
@@ -164,11 +174,11 @@ Then the owner-flagged output items: lint codes, scan order, approve counts (122
 
 ## Pitfalls
 
-Current row 19 measures the full bank afresh on its explicitly stamped pre-import snapshot. All 25 determinism items pass, including all five Node 22 comparisons. All 37 stats items and all 25 bench.defects items pass. The 41 unit.runner items still await the input-contract review. gen.task is reinstated, not quarantined. The bank has 1170 items. Rows 17 and 18 record fresh scale measurements and retain their different timing outcomes.
+Current row 20 measures the full bank afresh on its explicitly stamped post-import snapshot. All 25 determinism items pass, including all five Node 22 comparisons. All 37 stats items and all 25 bench.defects items pass. The 41 unit.runner items still await the input-contract review. gen.task is reinstated, not quarantined. The bank has 1170 items. Rows 17 and 18 record fresh scale measurements and retain their different timing outcomes.
 
 ### Historical pilot notes
 
-The former pilot bench gap list includes ignored reference folders, refused guard or setting mutants, the runtime pin, a phrase bank without a situation, short guard names and two ids in a registry cell. It is superseded: all 25 bench items pass at row 19.
+The former pilot bench gap list includes ignored reference folders, refused guard or setting mutants, the runtime pin, a phrase bank without a situation, short guard names and two ids in a registry cell. It is superseded: all 25 bench items pass at row 20.
 
 The following notes preserve the pilot's inputs, timings and earlier family sizes. They are historical observations, not the current open-item count or a current passing claim. Use the latest journal row and the measurements above for current values.
 

@@ -42,7 +42,8 @@ export const HAZARDS = [
   {
     id: 'compaction',
     title: 'A compaction of the context',
-    pattern: /\b(compaction|compacted|auto-?compact)\b/i,
+    pattern:
+      /\b(compactions?|compacted|auto-?compact)\b|\b(?:conversation|context) is summari[sz]ed\b|\bcontext window (?:fills? up|is full)\b/i,
   },
   { id: 'restart', title: 'A process restart', pattern: /\brestart(s|ed)?\b/i },
   { id: 'rate_wave', title: 'A wave of rate limits', pattern: /\brate[- ]limit/i },
@@ -754,6 +755,13 @@ function hazardAtoms(chunk: ProseChunk, files: ReadonlyMap<string, EstateFile>, 
 function runtimeHazard(id: (typeof HAZARDS)[number]['id'], text: string): boolean {
   const line = text.replace(/[`*]/g, '').replace(/[‘’]/g, "'");
   switch (id) {
+    case 'compaction': {
+      const runtime = line.replace(
+        /\b(?:supplier|customer|client)(?:'s)?\s+(?:conversation|context)(?: window)? (?:is summari[sz]ed|fills? up|is full)\b/gi,
+        '',
+      );
+      return HAZARDS.find((hazard) => hazard.id === id)?.pattern.test(runtime) ?? false;
+    }
     case 'restart':
       return !/\b(?:restart\s+button|(?:printer|device|equipment|appliance)(?:'s)?\s+restarts?)\b/i.test(
         line,
