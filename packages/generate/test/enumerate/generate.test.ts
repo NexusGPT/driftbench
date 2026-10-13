@@ -308,3 +308,103 @@ describe('pilot iteration 2: the default strength of the covering array', () => 
     expect(result.report.twise.share).toBe(1);
   });
 });
+
+describe('iteration 17: the report states the coverage and diversity measures', () => {
+  it('states every measure of the complete suite, and four of each seeder', () => {
+    const { report, complete } = run();
+    const measures = (report.coverage as unknown as { measures?: Record<string, number> }).measures;
+    for (const name of [
+      'discovery',
+      'chao_coverage',
+      'chao1',
+      'hill_q0',
+      'hill_q1',
+      'hill_q2',
+      'pielou',
+      't3_share',
+      't3_allowed',
+      'weighted_share',
+      'effective_sample_size',
+      'required_covered',
+      'required_total',
+      'machine_then_share',
+      'judged_only_blocks',
+    ]) {
+      expect(typeof measures?.[name], name).toBe('number');
+    }
+    expect(measures?.judged_only_blocks).toBeLessThanOrEqual(complete.flatMap((spec) => spec.blocks).length);
+    const graph = (report.seeders.graph as unknown as { measures?: Record<string, number> }).measures;
+    for (const name of ['machine_then_share', 'judged_only_blocks', 'hill_q0', 'pielou']) {
+      expect(typeof graph?.[name], `graph ${name}`).toBe('number');
+    }
+  });
+});
+
+describe('iteration 21: the cells a spec reaches come from one projection of the grid', () => {
+  it('counts the cells as the space package does, for the empty suite and for the generated one', async () => {
+    const { coverage } = await import('@agent-nexus/driftbench-space');
+    const { cellsOf } = await import('../../src/enumerate/generate');
+    const prepared = zedPrepared();
+    const { complete } = generateSuite(prepared, { mapPath: '../map.yaml', t: 2 });
+    for (const specs of [[], complete, complete.slice(0, 3)]) {
+      const results = specs.map((spec) => ({
+        ok: true as const,
+        path: spec.id,
+        spec,
+        hash: '',
+        warnings: [],
+      }));
+      const expected = coverage(prepared.axisMap, results, { t: 2 }).grid.cells.map((cell) => ({
+        values: { ...cell.values },
+        count: cell.count,
+      }));
+      expect(cellsOf(prepared, specs, 2)).toEqual(expected);
+    }
+  });
+});
+
+describe('iteration 22: a spec is validated as built, not parsed back from its text', () => {
+  it('holds the spec a reader gets from the written file, with the same hash and warnings', () => {
+    const { files, all } = run();
+    const byId = new Map(all.map((spec) => [spec.id, spec]));
+    let compared = 0;
+    for (const file of files) {
+      if (!file.path.endsWith('.yaml')) continue;
+      const loaded = parseSpecText(file.text, 'yaml', file.path);
+      if (!loaded.ok) throw new Error(`${file.path} does not load`);
+      expect(byId.get(loaded.spec.id), file.path).toEqual(loaded.spec);
+      compared += 1;
+    }
+    expect(compared).toBe(all.length);
+  });
+});
+
+describe('iteration 23: the coverage share is read from the cached grid', () => {
+  it('states the allowed, covered and share the space package counts', async () => {
+    const { coverage } = await import('@agent-nexus/driftbench-space');
+    const { measuredCoverage } = await import('../../src/enumerate/generate');
+    const prepared = zedPrepared();
+    const { complete } = generateSuite(prepared, { mapPath: '../map.yaml', t: 2 });
+    for (const t of [2, 3]) {
+      for (const specs of [[], complete, complete.slice(0, 2)]) {
+        const results = specs.map((spec) => ({
+          ok: true as const,
+          path: spec.id,
+          spec,
+          hash: '',
+          warnings: [],
+        }));
+        const grid = coverage(prepared.axisMap, results, {
+          t: Math.min(t, prepared.axisMap.dimensions.length),
+        }).grid;
+        expect(measuredCoverage(prepared, [...specs], t)).toEqual({
+          t: grid.t,
+          specs: specs.length,
+          allowed: grid.allowed,
+          covered: grid.covered,
+          share: grid.share,
+        });
+      }
+    }
+  });
+});

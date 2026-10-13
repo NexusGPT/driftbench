@@ -701,7 +701,7 @@ answers:
     constraints: []
     phrases:
       - { dimension: flow, value: upgrade, text: "I'd like a plan with more data.", lang: en }
-      - { dimension: flow, value: upgrade, text: "Can I get more data? My account email is sam.lee@example.com", lang: en }
+      - { dimension: flow, value: upgrade, text: "Can I get more data? My account email is sam.lee@example.com", lang: en, when: { first_message: [says-everything] } }
       - dimension: flow
         value: new-home
         text: Hi, do you have home internet at 3 Orchard Way, Acmeville?
