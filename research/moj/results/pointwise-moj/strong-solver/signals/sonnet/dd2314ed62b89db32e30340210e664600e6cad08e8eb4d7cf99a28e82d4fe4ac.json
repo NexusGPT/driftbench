@@ -1,0 +1,24 @@
+{
+  "pA": 0.04,
+  "detail": {
+    "reference": "(x1,x2,x3) = (0,0,0) and (1,1,1) only.",
+    "confidence": "high"
+  },
+  "healthy": true,
+  "solver_key": "5b25f4e864e56663b0bd286bb123442601cf1aefca746bb4102e1bd4e88f8e39",
+  "usage": [
+    {
+      "provider": "sonnet",
+      "key": "5b25f4e864e56663b0bd286bb123442601cf1aefca746bb4102e1bd4e88f8e39",
+      "count": 1,
+      "usd": 0.005573999999999999,
+      "seconds": 3.394591209013015
+    },
+    {
+      "provider": "jev",
+      "key": "8f20fdd061bd2c89ddd8ab610c35d90b50304e0ae1a77a988b0fcc97f9df8eb1",
+      "seconds": 0.413,
+      "usd": 0
+    }
+  ]
+}

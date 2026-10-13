@@ -1,0 +1,24 @@
+{
+  "pA": 0.02,
+  "detail": {
+    "reference": "Adding the equations and completing squares gives\n\\[\n9\\left[(x-\\tfrac23)^2+(y-\\tfrac13)^2+(z-\\tfrac23)^2\\right]=0.\n\\]\nSince the variables are real, \\((x,y,z)=(\\tfrac23,\\tfrac13,\\tfrac23)\\). Therefore,\n\\[\n6x^2+9y^2+12z^2=\\frac83+1+\\frac{16}3=\\boxed{9}.\n\\]",
+    "confidence": "high"
+  },
+  "healthy": true,
+  "solver_key": "a24d0b548c7d04ad066f0e7a21b95a3d3f390ebda7553696f52edfdeecbf2cb1",
+  "usage": [
+    {
+      "provider": "sol",
+      "key": "a24d0b548c7d04ad066f0e7a21b95a3d3f390ebda7553696f52edfdeecbf2cb1",
+      "count": 1,
+      "usd": 0.009224,
+      "seconds": 20.04381433298113
+    },
+    {
+      "provider": "jev",
+      "key": "b136a3fad02dd778e4a200fae122d76aeb678a5fbd7b223fe73a42254bc94537",
+      "seconds": 0.282,
+      "usd": 0
+    }
+  ]
+}

@@ -1,0 +1,24 @@
+{
+  "pA": 0.99,
+  "detail": {
+    "reference": "B. Confucius lived in an era with both seasonal and out-of-season vegetables. Interpreting his advice as rejecting out-of-season vegetables presupposes that such vegetables were available in his time.",
+    "confidence": "high"
+  },
+  "healthy": true,
+  "solver_key": "3affa72a5cbe6bb133bd34d88881381e54ebf5fc7acb19c547d9985af35e0b32",
+  "usage": [
+    {
+      "provider": "sol",
+      "key": "3affa72a5cbe6bb133bd34d88881381e54ebf5fc7acb19c547d9985af35e0b32",
+      "count": 1,
+      "usd": 0.001484,
+      "seconds": 4.686418124998454
+    },
+    {
+      "provider": "jev",
+      "key": "2b0bcb9dbbafe8c711fe9f9db417d6b230ac61703f78a88b87a840ba68cdb49e",
+      "seconds": 0.348,
+      "usd": 0
+    }
+  ]
+}

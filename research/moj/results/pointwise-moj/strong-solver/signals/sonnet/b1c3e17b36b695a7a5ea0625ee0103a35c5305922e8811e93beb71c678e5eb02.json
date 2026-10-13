@@ -1,0 +1,24 @@
+{
+  "pA": 0.04,
+  "detail": {
+    "reference": "(I) 4 and 5: a right triangle and a non-rectangular parallelogram.",
+    "confidence": "high"
+  },
+  "healthy": true,
+  "solver_key": "8b76f6a38f1f5fbd4ef91f1d80895d701e0d8f901da81e74dc28b74255305805",
+  "usage": [
+    {
+      "provider": "sonnet",
+      "key": "8b76f6a38f1f5fbd4ef91f1d80895d701e0d8f901da81e74dc28b74255305805",
+      "count": 1,
+      "usd": 0.029114,
+      "seconds": 17.404066334012896
+    },
+    {
+      "provider": "jev",
+      "key": "dbc3b4b3cd72742ab156ad0e6a2abc347ab1edd8ad1d8d1990e062ec1f905ac6",
+      "seconds": 0.468,
+      "usd": 0
+    }
+  ]
+}

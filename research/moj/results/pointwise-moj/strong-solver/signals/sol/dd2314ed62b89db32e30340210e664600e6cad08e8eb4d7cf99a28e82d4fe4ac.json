@@ -1,0 +1,24 @@
+{
+  "pA": 0.04,
+  "detail": {
+    "reference": "Every variable is nonnegative. On \\([0,\\infty)\\), \\(f(t)=2t^2/(1+t^2)\\) is strictly increasing, so a three-cycle must be constant (any strict inequality propagates cyclically to a contradiction). Thus \\(x_1=x_2=x_3=t\\), and \\(t(1+t^2)=2t^2\\) gives \\(t(t-1)^2=0\\). The solutions are \\(\\boxed{(0,0,0),\\ (1,1,1)}\\).",
+    "confidence": "high"
+  },
+  "healthy": true,
+  "solver_key": "c2860e38075b237a7ccabf71a5f994f7aa5802e61367a5c5dbf2ad662d948f66",
+  "usage": [
+    {
+      "provider": "sol",
+      "key": "c2860e38075b237a7ccabf71a5f994f7aa5802e61367a5c5dbf2ad662d948f66",
+      "count": 1,
+      "usd": 0.002408,
+      "seconds": 5.801487292046659
+    },
+    {
+      "provider": "jev",
+      "key": "28543b70d45161d460a3b1e65015b910e9e8af2fa8f264ed32125bd587f96f71",
+      "seconds": 0.411,
+      "usd": 0
+    }
+  ]
+}

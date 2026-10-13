@@ -1,0 +1,24 @@
+{
+  "pA": 0.1,
+  "detail": {
+    "reference": "x = ±π/6 + πk/2, k ∈ ℤ (equivalently cos2x = ±1/2, i.e. x = ±π/6 + πk or x = ±π/3 + πk)",
+    "confidence": "high"
+  },
+  "healthy": true,
+  "solver_key": "9f2a1e5b285d8a8a7a4dbef63e9e13c915289c46bd270c0725796fd9d510190e",
+  "usage": [
+    {
+      "provider": "sonnet",
+      "key": "9f2a1e5b285d8a8a7a4dbef63e9e13c915289c46bd270c0725796fd9d510190e",
+      "count": 1,
+      "usd": 0.009796,
+      "seconds": 6.421797291026451
+    },
+    {
+      "provider": "jev",
+      "key": "5f2aa2144b7b81b5b0ae0206867b1e1ea7f607bf6a51ef83bde6e8ec4aeeca07",
+      "seconds": 0.419,
+      "usd": 0
+    }
+  ]
+}

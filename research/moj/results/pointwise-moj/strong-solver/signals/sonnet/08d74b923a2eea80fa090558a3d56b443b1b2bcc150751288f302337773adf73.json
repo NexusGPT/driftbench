@@ -1,0 +1,24 @@
+{
+  "pA": 0.06,
+  "detail": {
+    "reference": "Translate the graph of y = 2^x right by 1 unit and up by 2 units (translation vector (1, 2)).",
+    "confidence": "high"
+  },
+  "healthy": true,
+  "solver_key": "2a91b2dd69b5af24269dc642395cb225c3e04726acf56393ab497a5f2e8f9d4e",
+  "usage": [
+    {
+      "provider": "sonnet",
+      "key": "2a91b2dd69b5af24269dc642395cb225c3e04726acf56393ab497a5f2e8f9d4e",
+      "count": 1,
+      "usd": 0.0027660000000000002,
+      "seconds": 1.8823968750075437
+    },
+    {
+      "provider": "jev",
+      "key": "d9d6c428189f35c839ae799760fd124c0a60df91e54e7f01179d5d55e8df7a63",
+      "seconds": 0.285,
+      "usd": 0
+    }
+  ]
+}

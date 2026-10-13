@@ -1,0 +1,24 @@
+{
+  "pA": 0.1,
+  "detail": {
+    "reference": "Yes. A typical person would say the board intentionally harmed the environment: the board knowingly decided to implement the program despite being told it would harm the environment, and harmful side effects tend to be judged intentional.",
+    "confidence": "high"
+  },
+  "healthy": true,
+  "solver_key": "387a4b9515434106a2399ec23fb848cb70e76cb63f68a9cd910f3138b6ac17d0",
+  "usage": [
+    {
+      "provider": "sonnet",
+      "key": "387a4b9515434106a2399ec23fb848cb70e76cb63f68a9cd910f3138b6ac17d0",
+      "count": 1,
+      "usd": 0.004136,
+      "seconds": 3.2179632500046864
+    },
+    {
+      "provider": "jev",
+      "key": "b4eab93461a909a45afbb1cb734c1a2464324995f153a3634b8511e2ef38ebea",
+      "seconds": 0.337,
+      "usd": 0
+    }
+  ]
+}

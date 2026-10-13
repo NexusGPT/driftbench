@@ -1,0 +1,24 @@
+{
+  "pA": 0.13,
+  "detail": {
+    "reference": "(B). Its final “or” clause is true: −10 × −3 + 5 × 4 = 50, and 8 × −2 = −16, so 50 > −16. Therefore, (B) evaluates to true regardless of its preceding clause; the other four expressions evaluate to false.",
+    "confidence": "high"
+  },
+  "healthy": true,
+  "solver_key": "4cd5e66aae66a499edcc1e740b3b01b8d22db69aad9687d320b82c0128bfaa54",
+  "usage": [
+    {
+      "provider": "sol",
+      "key": "4cd5e66aae66a499edcc1e740b3b01b8d22db69aad9687d320b82c0128bfaa54",
+      "count": 1,
+      "usd": 0.0074035,
+      "seconds": 13.762317124987021
+    },
+    {
+      "provider": "jev",
+      "key": "cb5013cba81ff371595429a83f30bed4e693763489e27ee169d34e4ef6e20563",
+      "seconds": 0.387,
+      "usd": 0
+    }
+  ]
+}

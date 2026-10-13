@@ -1,0 +1,24 @@
+{
+  "pA": 0.01,
+  "detail": {
+    "reference": "The squared distances are \\(AB^2=24\\), \\(BC^2=48\\), and \\(AC^2=72\\), in the ratio \\(1:2:3\\). Thus \\(AC\\) is a body diagonal, whose midpoint is the cube’s center:\n\\[\n\\boxed{\\left(\\frac{2+4}{2},\\frac{3+1}{2},\\frac{0+8}{2}\\right)=(3,2,4)}.\n\\]",
+    "confidence": "high"
+  },
+  "healthy": true,
+  "solver_key": "17753b672de26a4dafb7d19c3397f54db2dd3ea29f1ebfc5c03d0162ad8428d0",
+  "usage": [
+    {
+      "provider": "sol",
+      "key": "17753b672de26a4dafb7d19c3397f54db2dd3ea29f1ebfc5c03d0162ad8428d0",
+      "count": 1,
+      "usd": 0.002436,
+      "seconds": 6.5307766670011915
+    },
+    {
+      "provider": "jev",
+      "key": "eb724327bbad129f3d9a98d3574a0251867092cad67d2b1d6d8c5c72a7521830",
+      "seconds": 0.299,
+      "usd": 0
+    }
+  ]
+}

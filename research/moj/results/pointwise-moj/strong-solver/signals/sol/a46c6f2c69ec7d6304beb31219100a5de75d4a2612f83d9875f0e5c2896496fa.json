@@ -1,0 +1,24 @@
+{
+  "pA": 0.98,
+  "detail": {
+    "reference": "(Ⅰ) $A=(4,\\pi/6)$ and $B=(-4,\\pi/6)$; equivalently, $B=(4,7\\pi/6)$.\n\n(Ⅱ) Since $C_1$ is $x^2-y^2=8$, substitution gives $t^2+4\\sqrt3t-8=0$, so $t=-2\\sqrt3\\pm2\\sqrt5$. The line’s direction vector has unit length; hence $MN=|t_M-t_N|=\\boxed{4\\sqrt5}$.",
+    "confidence": "high"
+  },
+  "healthy": true,
+  "solver_key": "4bbb03d521214bcf2d9babf30b96ee2a94a5455546612494e1766d003a6bc28e",
+  "usage": [
+    {
+      "provider": "sol",
+      "key": "4bbb03d521214bcf2d9babf30b96ee2a94a5455546612494e1766d003a6bc28e",
+      "count": 1,
+      "usd": 0.003308,
+      "seconds": 7.2015967079787515
+    },
+    {
+      "provider": "jev",
+      "key": "29feb1272bce47ed1c049bcf4d5cdb7a482f02c9c2ed94167b7431daa90a48b8",
+      "seconds": 0.301,
+      "usd": 0
+    }
+  ]
+}

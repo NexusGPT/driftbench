@@ -1,0 +1,24 @@
+{
+  "pA": 0.95,
+  "detail": {
+    "reference": "Greg’s color is not specified and cannot be determined from the given information.",
+    "confidence": "high"
+  },
+  "healthy": true,
+  "solver_key": "3b671a4e7279a16557257587139b5b33e0d34cf14ccf97fa86d8d69c3dc31179",
+  "usage": [
+    {
+      "provider": "sol",
+      "key": "3b671a4e7279a16557257587139b5b33e0d34cf14ccf97fa86d8d69c3dc31179",
+      "count": 1,
+      "usd": 0.00084,
+      "seconds": 3.671254582994152
+    },
+    {
+      "provider": "jev",
+      "key": "2b77f41f85b47575e5038cf494edc32eef4d59a34e5bf8e0b10354951bd6862f",
+      "seconds": 0.288,
+      "usd": 0
+    }
+  ]
+}

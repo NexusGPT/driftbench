@@ -1,0 +1,24 @@
+{
+  "pA": 0.38,
+  "detail": {
+    "reference": "(C) The Silence of the Lambs, Seven, Fargo, Forrest Gump, Schindler's List. All five are widely seen, critically acclaimed 1990s films that audiences rate highly. The other options each mix in obscure or less-liked titles such as Cleanskin, Boy, or The Diary of Anne Frank.",
+    "confidence": "high"
+  },
+  "healthy": true,
+  "solver_key": "c9a2c9cf8ed24299717a6e86b8036a3ef458b76856dd1669101e42826db9c913",
+  "usage": [
+    {
+      "provider": "sonnet",
+      "key": "c9a2c9cf8ed24299717a6e86b8036a3ef458b76856dd1669101e42826db9c913",
+      "count": 1,
+      "usd": 0.0051459999999999995,
+      "seconds": 3.3627334579941817
+    },
+    {
+      "provider": "jev",
+      "key": "03ef472190abb28c3cb18c216791d9040a3266dea904f4ecfa0d0f59960c4925",
+      "seconds": 0.308,
+      "usd": 0
+    }
+  ]
+}

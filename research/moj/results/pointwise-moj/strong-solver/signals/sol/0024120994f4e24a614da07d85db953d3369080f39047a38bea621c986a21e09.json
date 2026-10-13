@@ -1,0 +1,24 @@
+{
+  "pA": 0.23,
+  "detail": {
+    "reference": "D. Without a high savings rate, the transition to developed countries cannot be achieved. The transition requires substantial capital, and substantial capital requires a high savings rate. Thus, a high savings rate is necessary for the transition.",
+    "confidence": "high"
+  },
+  "healthy": true,
+  "solver_key": "5b39ed3014faffcca06fe53b5dac7004205afee0b6ef2493aa4687cdec28bbd4",
+  "usage": [
+    {
+      "provider": "sol",
+      "key": "5b39ed3014faffcca06fe53b5dac7004205afee0b6ef2493aa4687cdec28bbd4",
+      "count": 1,
+      "usd": 0.0016,
+      "seconds": 3.8657941670389846
+    },
+    {
+      "provider": "jev",
+      "key": "459e90bcaae5bf282905d7c5758a1ba372057ab429f8695d2e03c6a30dd99ba6",
+      "seconds": 0.367,
+      "usd": 0
+    }
+  ]
+}

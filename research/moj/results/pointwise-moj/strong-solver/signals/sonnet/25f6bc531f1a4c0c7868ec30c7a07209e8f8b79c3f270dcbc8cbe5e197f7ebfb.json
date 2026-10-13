@@ -1,0 +1,24 @@
+{
+  "pA": 0.04,
+  "detail": {
+    "reference": "B. The original argument has the form 'Some A are not B, so not all B are A' (equivalently, some B are not A). A, C and D share it. B merely restates 'some A are not B' as 'not all A are B', so its form differs.",
+    "confidence": "high"
+  },
+  "healthy": true,
+  "solver_key": "cfa60568767d8c32868545d8c513525935e96be14396c1d5d3b4a284a601bf04",
+  "usage": [
+    {
+      "provider": "sonnet",
+      "key": "cfa60568767d8c32868545d8c513525935e96be14396c1d5d3b4a284a601bf04",
+      "count": 1,
+      "usd": 0.011866000000000002,
+      "seconds": 8.639732749958057
+    },
+    {
+      "provider": "jev",
+      "key": "ec161330866a13fb7b751df9e4cb87d56646cea759d223bf9954bac911750477",
+      "seconds": 0.439,
+      "usd": 0
+    }
+  ]
+}

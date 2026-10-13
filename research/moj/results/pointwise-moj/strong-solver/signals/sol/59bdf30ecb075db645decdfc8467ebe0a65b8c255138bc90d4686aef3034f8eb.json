@@ -1,0 +1,24 @@
+{
+  "pA": 0.97,
+  "detail": {
+    "reference": "There are \\(\\boxed{2}\\) such lines. Parametrize the curve by \\((x,y)=(t^2,t^3)\\). The tangent at parameter \\(t\\ne0\\) meets the curve again at parameter \\(-t/2\\). Being normal there requires \\(3t/2=4/(3t)\\), so \\(t^2=8/9\\). Thus the lines are \\(y=\\pm\\sqrt2\\,x\\mp8\\sqrt2/27\\).",
+    "confidence": "high"
+  },
+  "healthy": true,
+  "solver_key": "248fcf3a050a7df4a408f1879924f72d6e15976dc7b7afe25924a70a8c127dab",
+  "usage": [
+    {
+      "provider": "sol",
+      "key": "248fcf3a050a7df4a408f1879924f72d6e15976dc7b7afe25924a70a8c127dab",
+      "count": 1,
+      "usd": 0.006674,
+      "seconds": 15.209192333975807
+    },
+    {
+      "provider": "jev",
+      "key": "42eee93561907e929cf3c8bc2821ccb04c28b0bb4bb5a89212286ff7d3f652db",
+      "seconds": 0.417,
+      "usd": 0
+    }
+  ]
+}

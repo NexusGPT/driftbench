@@ -1,0 +1,24 @@
+{
+  "pA": 0.98,
+  "detail": {
+    "reference": "Yes. For distinct boundary points ζ_1,…,ζ_n, take f(z)=Σ 1/(ζ_k − z), e.g. 2/(1−z²) for ±1. It is holomorphic on the disk, and |f(z)|→∞ as z→ζ_k, since only the k-th term blows up while the others stay bounded. Countably many points are also possible.",
+    "confidence": "high"
+  },
+  "healthy": true,
+  "solver_key": "0ef95950aeb2b2e8b8b4c5b97be015bfd19f35b54a4867675d647b9eb4960e17",
+  "usage": [
+    {
+      "provider": "sonnet",
+      "key": "0ef95950aeb2b2e8b8b4c5b97be015bfd19f35b54a4867675d647b9eb4960e17",
+      "count": 1,
+      "usd": 0.005766,
+      "seconds": 4.860031334043015
+    },
+    {
+      "provider": "jev",
+      "key": "e1ceda6e2c435a3df38023da66f9b9c5243eec794ff7eb990e2ba31c8ab6c714",
+      "seconds": 0.317,
+      "usd": 0
+    }
+  ]
+}

@@ -1,0 +1,24 @@
+{
+  "pA": 0.94,
+  "detail": {
+    "reference": "Bernhard’s color cannot be determined from the given information.",
+    "confidence": "high"
+  },
+  "healthy": true,
+  "solver_key": "c2b8ff54e198ae79e6bcff1e28cd97b0d74b3a82d75a8c715781f85c8216ba39",
+  "usage": [
+    {
+      "provider": "sol",
+      "key": "c2b8ff54e198ae79e6bcff1e28cd97b0d74b3a82d75a8c715781f85c8216ba39",
+      "count": 1,
+      "usd": 0.000828,
+      "seconds": 2.542674791009631
+    },
+    {
+      "provider": "jev",
+      "key": "ee3a4db8e561a7e9363dba11b0975ea1e8aa09c27a04e35511d7516d15e00d2d",
+      "seconds": 0.337,
+      "usd": 0
+    }
+  ]
+}

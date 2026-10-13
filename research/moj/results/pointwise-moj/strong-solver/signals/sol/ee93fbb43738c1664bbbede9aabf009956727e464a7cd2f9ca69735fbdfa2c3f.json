@@ -1,0 +1,24 @@
+{
+  "pA": 0.02,
+  "detail": {
+    "reference": "(G) none of the above. The drawing contains a non-square rectangle (1), a non-right triangle (3), and an irregular concave pentagon without diagonals (8). No listed option gives this combination.",
+    "confidence": "high"
+  },
+  "healthy": true,
+  "solver_key": "62fcc7d97e107ec8ed0e18f1a234f2a6e050b3807349f8d32de4608c34e539f9",
+  "usage": [
+    {
+      "provider": "sol",
+      "key": "62fcc7d97e107ec8ed0e18f1a234f2a6e050b3807349f8d32de4608c34e539f9",
+      "count": 1,
+      "usd": 0.01254,
+      "seconds": 35.15247808303684
+    },
+    {
+      "provider": "jev",
+      "key": "e257084b60ec64fc5045e6dc1fa09573a47af9db3541ad330bb56a6c992d0f09",
+      "seconds": 0.38,
+      "usd": 0
+    }
+  ]
+}

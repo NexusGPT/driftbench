@@ -1,0 +1,9 @@
+{
+  "item_id": "c3e51f4a45069f8d7553d30d1bc8b35d_7817bb9c553c6bb83b982f47843e0f54",
+  "half": "tune",
+  "model": "sonnet",
+  "solver_key": "d68006c6c16148e9f5f87b3ac817cc131b5a10d63b2b26d9a5caa99153a73b2d",
+  "parsed_object": {},
+  "primary_run_action": "unchanged parser, missing verdict counts as tuning loss",
+  "later_task": "Check product parsers for first-object-before-schema flaw"
+}

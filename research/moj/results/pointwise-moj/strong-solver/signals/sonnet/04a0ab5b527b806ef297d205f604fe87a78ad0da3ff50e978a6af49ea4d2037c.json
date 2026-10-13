@@ -1,0 +1,24 @@
+{
+  "pA": 0.02,
+  "detail": {
+    "reference": "θ = π/12 (15°), giving maximum A = r²(2−√3)/2 ≈ 0.134 r²",
+    "confidence": "high"
+  },
+  "healthy": true,
+  "solver_key": "d713d7cae554ff1496a0279d79d552bd957cf4fb194fa52a072f5c448a59a97d",
+  "usage": [
+    {
+      "provider": "sonnet",
+      "key": "d713d7cae554ff1496a0279d79d552bd957cf4fb194fa52a072f5c448a59a97d",
+      "count": 1,
+      "usd": 0.003992,
+      "seconds": 2.2767250830074772
+    },
+    {
+      "provider": "jev",
+      "key": "11bf2420e319db3177c281f04241ffa02ccd7d40ae18cdd0459212ebef94209e",
+      "seconds": 0.291,
+      "usd": 0
+    }
+  ]
+}

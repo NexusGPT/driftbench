@@ -1,0 +1,24 @@
+{
+  "pA": 0.05,
+  "detail": {
+    "reference": "Since \\(\\frac{1}{x+\\sqrt{x^2+1}}=\\sqrt{x^2+1}-x\\), the equation gives \\(y+\\sqrt{y^2+1}=(-x)+\\sqrt{(-x)^2+1}\\). The function \\(t+\\sqrt{t^2+1}\\) is strictly increasing, so \\(y=-x\\). Therefore, \\(\\boxed{x+y=0}\\).",
+    "confidence": "high"
+  },
+  "healthy": true,
+  "solver_key": "38ae23647a6ffce30104378df6917c4bc0d8e8fd69ae4309e43a8f45577df355",
+  "usage": [
+    {
+      "provider": "sol",
+      "key": "38ae23647a6ffce30104378df6917c4bc0d8e8fd69ae4309e43a8f45577df355",
+      "count": 1,
+      "usd": 0.002222,
+      "seconds": 6.406483999977354
+    },
+    {
+      "provider": "jev",
+      "key": "701ac5f43835f8a11dc3f5efeb0e0fd349f7719b8065a429d335cd0629a8f5b5",
+      "seconds": 0.389,
+      "usd": 0
+    }
+  ]
+}

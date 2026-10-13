@@ -1,0 +1,24 @@
+{
+  "pA": 0.02,
+  "detail": {
+    "reference": "ABG",
+    "confidence": "high"
+  },
+  "healthy": true,
+  "solver_key": "0914e94854e5cfadc9d50ee7de76decc2c29b0214ec95fca814ec87a18b51c3a",
+  "usage": [
+    {
+      "provider": "sonnet",
+      "key": "0914e94854e5cfadc9d50ee7de76decc2c29b0214ec95fca814ec87a18b51c3a",
+      "count": 1,
+      "usd": 0.021491999999999997,
+      "seconds": 12.908348416967783
+    },
+    {
+      "provider": "jev",
+      "key": "2781ba57e0250987c81b42f20073cc179662e47d20fe194b3083ee5158a01d45",
+      "seconds": 0.386,
+      "usd": 0
+    }
+  ]
+}

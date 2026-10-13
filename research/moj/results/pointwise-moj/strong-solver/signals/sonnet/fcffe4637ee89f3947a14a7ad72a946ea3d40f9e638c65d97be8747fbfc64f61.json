@@ -1,0 +1,24 @@
+{
+  "pA": 0.01,
+  "detail": {
+    "reference": "Option 3: x = 2τ(e^s−1), y = (τ/2)(e^s+1), u = τ² e^{2s}",
+    "confidence": "high"
+  },
+  "healthy": true,
+  "solver_key": "b5725cd7244e076ac26c377cd8f0fcd5cbe2414265ccbc4682fedcff26688c59",
+  "usage": [
+    {
+      "provider": "sonnet",
+      "key": "b5725cd7244e076ac26c377cd8f0fcd5cbe2414265ccbc4682fedcff26688c59",
+      "count": 1,
+      "usd": 0.009048,
+      "seconds": 5.113313958980143
+    },
+    {
+      "provider": "jev",
+      "key": "ac8e8c588e5660b70224cf07ddbb6f0fa260793d6ca41c990e85778bd7dc632a",
+      "seconds": 0.59,
+      "usd": 0
+    }
+  ]
+}

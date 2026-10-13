@@ -1,0 +1,24 @@
+{
+  "pA": 0.06,
+  "detail": {
+    "reference": "alapt’g",
+    "confidence": "high"
+  },
+  "healthy": true,
+  "solver_key": "b30bd76589c60d392e2fc9fff93c385092e88cac88bdaec0acdca0b9d0049182",
+  "usage": [
+    {
+      "provider": "sol",
+      "key": "b30bd76589c60d392e2fc9fff93c385092e88cac88bdaec0acdca0b9d0049182",
+      "count": 1,
+      "usd": 0.008632,
+      "seconds": 26.72098995797569
+    },
+    {
+      "provider": "jev",
+      "key": "d9d542ef5f085ab553d8ec019a43d24b67a85a828e4f3f964fde6d84ab9c17c9",
+      "seconds": 0.325,
+      "usd": 0
+    }
+  ]
+}

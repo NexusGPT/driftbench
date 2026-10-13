@@ -1,0 +1,24 @@
+{
+  "pA": 0.01,
+  "detail": {
+    "reference": "There are 8 valid orderings, so none of the listed choices is correct. The first house must be blue or orange. If blue is first, 6 orderings satisfy all conditions; if orange is first, 2 do. Thus the total is 6 + 2 = 8.",
+    "confidence": "high"
+  },
+  "healthy": true,
+  "solver_key": "e7e95fd72e552aa8a9bc0ca49e5da61d3868d4b9a6c8c68a66e71aa35382d10e",
+  "usage": [
+    {
+      "provider": "sol",
+      "key": "e7e95fd72e552aa8a9bc0ca49e5da61d3868d4b9a6c8c68a66e71aa35382d10e",
+      "count": 1,
+      "usd": 0.003756,
+      "seconds": 9.25612558296416
+    },
+    {
+      "provider": "jev",
+      "key": "2aa1cc52bd6a9a1cc1a5644c2f2f66179c1441b63453a14663b641ea930ceeab",
+      "seconds": 0.533,
+      "usd": 0
+    }
+  ]
+}

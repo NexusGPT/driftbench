@@ -1,0 +1,24 @@
+{
+  "pA": 0.04,
+  "detail": {
+    "reference": "kiwi",
+    "confidence": "high"
+  },
+  "healthy": true,
+  "solver_key": "f9ad5f6ff40ac3ebf76c904451f0ba37c3a38fdfcc0957497b3654709d92c5ea",
+  "usage": [
+    {
+      "provider": "sol",
+      "key": "f9ad5f6ff40ac3ebf76c904451f0ba37c3a38fdfcc0957497b3654709d92c5ea",
+      "count": 1,
+      "usd": 0.0134885,
+      "seconds": 21.223783207999077
+    },
+    {
+      "provider": "jev",
+      "key": "9050ff87236bf0dc367c57025d2b4b7896bbd0597880e79213be074ce4b5218e",
+      "seconds": 0.326,
+      "usd": 0
+    }
+  ]
+}

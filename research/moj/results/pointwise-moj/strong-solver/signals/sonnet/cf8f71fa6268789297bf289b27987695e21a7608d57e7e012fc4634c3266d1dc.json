@@ -1,0 +1,24 @@
+{
+  "pA": 0.05,
+  "detail": {
+    "reference": "10 cents (dimes). 17 quarters are worth $4.25, leaving $1.20 across the other 12 coins (29 − 17), so each is worth 10 cents. This takes \"17 of each coin\" to mean 17 quarters, since 17 of each would not total 29.",
+    "confidence": "high"
+  },
+  "healthy": true,
+  "solver_key": "6be14f4f08b42753dae27bbb122e6e649748389ba1ce5cf155347ae7b14aa023",
+  "usage": [
+    {
+      "provider": "sonnet",
+      "key": "6be14f4f08b42753dae27bbb122e6e649748389ba1ce5cf155347ae7b14aa023",
+      "count": 1,
+      "usd": 0.0043,
+      "seconds": 2.9515375000191852
+    },
+    {
+      "provider": "jev",
+      "key": "0d0c48fc0c73d5b75d187b60e01a5c57e24778d148dfc37ff0f16b438c11b113",
+      "seconds": 0.279,
+      "usd": 0
+    }
+  ]
+}

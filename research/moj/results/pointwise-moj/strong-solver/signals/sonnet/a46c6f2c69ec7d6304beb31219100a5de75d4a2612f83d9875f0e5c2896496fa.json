@@ -1,0 +1,24 @@
+{
+  "pA": 0.95,
+  "detail": {
+    "reference": "(Ⅰ) A(4, π/6) and B(−4, π/6) (equivalently B(4, 7π/6)); (Ⅱ) |MN| = 4√5.",
+    "confidence": "high"
+  },
+  "healthy": true,
+  "solver_key": "ff16469c8e6bc60c8bf5dde7ba65feef57db51aa70e483a632b15fccbecc8676",
+  "usage": [
+    {
+      "provider": "sonnet",
+      "key": "ff16469c8e6bc60c8bf5dde7ba65feef57db51aa70e483a632b15fccbecc8676",
+      "count": 1,
+      "usd": 0.00511,
+      "seconds": 2.951558834000025
+    },
+    {
+      "provider": "jev",
+      "key": "171a444fb7fd69f13841e6c7d51ea400fd90e258f2f37ae0ba9e3357cfecf909",
+      "seconds": 0.336,
+      "usd": 0
+    }
+  ]
+}

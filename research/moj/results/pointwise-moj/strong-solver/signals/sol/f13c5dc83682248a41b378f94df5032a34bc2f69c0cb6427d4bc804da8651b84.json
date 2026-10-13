@@ -1,0 +1,24 @@
+{
+  "pA": 0.09,
+  "detail": {
+    "reference": "(E) 2, 7 and 8: a square, an irregular convex pentagon, and an irregular concave pentagon, all with no diagonals drawn.",
+    "confidence": "high"
+  },
+  "healthy": true,
+  "solver_key": "679b27656db17becec4d44548cc34e681d0a96d8a589cc81635726685822a9b0",
+  "usage": [
+    {
+      "provider": "sol",
+      "key": "679b27656db17becec4d44548cc34e681d0a96d8a589cc81635726685822a9b0",
+      "count": 1,
+      "usd": 0.0070085,
+      "seconds": 11.84074137499556
+    },
+    {
+      "provider": "jev",
+      "key": "e8d246cac01f0d28c3b53dac57cd36407fc2d8077b9c7b59ff78e7c0a4411329",
+      "seconds": 0.383,
+      "usd": 0
+    }
+  ]
+}

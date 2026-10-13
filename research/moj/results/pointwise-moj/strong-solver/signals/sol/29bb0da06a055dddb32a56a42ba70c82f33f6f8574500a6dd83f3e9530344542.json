@@ -1,0 +1,24 @@
+{
+  "pA": 0.01,
+  "detail": {
+    "reference": "C: $(0,1)$. For $0<x<1$, we have $x>0$, $x+2>0$, and $x-1<0$, so $x^3+x^2-2x-1=x(x+2)(x-1)-1<-1$. Thus the polynomial cannot vanish in this interval.",
+    "confidence": "high"
+  },
+  "healthy": true,
+  "solver_key": "a1e8bf586967c4c9b33305abc88098f0e3dd65bdc7081a6dd646b9c8b3dd4b36",
+  "usage": [
+    {
+      "provider": "sol",
+      "key": "a1e8bf586967c4c9b33305abc88098f0e3dd65bdc7081a6dd646b9c8b3dd4b36",
+      "count": 1,
+      "usd": 0.002698,
+      "seconds": 13.963429458963219
+    },
+    {
+      "provider": "jev",
+      "key": "19b7dea90f6d47fe38ebc2fc1b21122a6769e3bd16610152cab36c4d3bf4a78b",
+      "seconds": 0.47,
+      "usd": 0
+    }
+  ]
+}

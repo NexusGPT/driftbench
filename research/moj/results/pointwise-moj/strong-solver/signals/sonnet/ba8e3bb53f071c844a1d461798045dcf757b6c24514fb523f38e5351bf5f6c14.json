@@ -1,0 +1,24 @@
+{
+  "pA": 0.09,
+  "detail": {
+    "reference": "Greg is yellow. The context never states Greg's color directly, so this is inferred: Brian, the only other rhino, is yellow.",
+    "confidence": "low"
+  },
+  "healthy": true,
+  "solver_key": "c10d65b6dd5937a862a93738c692346b715e7bbfa70cdd18671cab76cf6b52d0",
+  "usage": [
+    {
+      "provider": "sonnet",
+      "key": "c10d65b6dd5937a862a93738c692346b715e7bbfa70cdd18671cab76cf6b52d0",
+      "count": 1,
+      "usd": 0.003456,
+      "seconds": 2.3624124160269275
+    },
+    {
+      "provider": "jev",
+      "key": "68412c626d563a2fcbc9bcf769b2be9ef1ff7d86079eae91d28e62d65722b21f",
+      "seconds": 0.284,
+      "usd": 0
+    }
+  ]
+}

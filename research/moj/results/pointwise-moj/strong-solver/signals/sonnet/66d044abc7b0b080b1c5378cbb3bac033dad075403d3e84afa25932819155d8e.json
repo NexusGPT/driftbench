@@ -1,0 +1,24 @@
+{
+  "pA": 0.01,
+  "detail": {
+    "reference": "(1557 − 39√39)/95 ≈ 13.82",
+    "confidence": "high"
+  },
+  "healthy": true,
+  "solver_key": "6741f10fa9fa03a0ba78a0299b4d6d51a0ae9f545347ca25f18d4a6d33bdec51",
+  "usage": [
+    {
+      "provider": "sonnet",
+      "key": "6741f10fa9fa03a0ba78a0299b4d6d51a0ae9f545347ca25f18d4a6d33bdec51",
+      "count": 1,
+      "usd": 0.02068,
+      "seconds": 14.573559125012252
+    },
+    {
+      "provider": "jev",
+      "key": "06a9b1e4e2b4618463c87755bdcca9aa13827eaf00503fda7669d40ce6c45650",
+      "seconds": 0.323,
+      "usd": 0
+    }
+  ]
+}

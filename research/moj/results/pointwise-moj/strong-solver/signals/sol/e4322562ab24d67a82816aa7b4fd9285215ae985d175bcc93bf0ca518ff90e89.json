@@ -1,0 +1,24 @@
+{
+  "pA": 0.02,
+  "detail": {
+    "reference": "B. Medical research identifies strain, infection, or trauma as the underlying causes of arthritis. Wearing too little in cold weather may trigger symptoms or flare-ups rather than cause the disease, directly challenging Ms. Zhang’s conclusion.",
+    "confidence": "high"
+  },
+  "healthy": true,
+  "solver_key": "8bac5267b577367ddb2433b69620eef4a3f3ec9e2c61b96909ffafa4367ef3b1",
+  "usage": [
+    {
+      "provider": "sol",
+      "key": "8bac5267b577367ddb2433b69620eef4a3f3ec9e2c61b96909ffafa4367ef3b1",
+      "count": 1,
+      "usd": 0.00173,
+      "seconds": 4.792586166993715
+    },
+    {
+      "provider": "jev",
+      "key": "a8e41663079e5f6c6fe4fa9f32d7ca8a1cd19bcc5a21964ab8d309930a47ab5c",
+      "seconds": 0.298,
+      "usd": 0
+    }
+  ]
+}

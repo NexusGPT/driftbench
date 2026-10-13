@@ -1,0 +1,24 @@
+{
+  "pA": 0,
+  "detail": {
+    "reference": "n = 250. By Chebyshev, P(|X̄ₙ − p| < 0.1) ≥ 1 − p(1−p)/(n·0.01) ≥ 1 − 25/n, using p(1−p) ≤ 1/4. Requiring 1 − 25/n ≥ 0.9 gives n ≥ 250. A normal approximation would give about 68.",
+    "confidence": "low"
+  },
+  "healthy": true,
+  "solver_key": "bda6a7c1410ee1939bd0e4d6c46f6f7d0a453a0ec842518e678f430895277d45",
+  "usage": [
+    {
+      "provider": "sonnet",
+      "key": "bda6a7c1410ee1939bd0e4d6c46f6f7d0a453a0ec842518e678f430895277d45",
+      "count": 1,
+      "usd": 0.005549999999999999,
+      "seconds": 3.5792617080151103
+    },
+    {
+      "provider": "jev",
+      "key": "23533e5bf73cc3560edb4b671be94af55e0270843857188d1f63b05c038fb104",
+      "seconds": 0.492,
+      "usd": 0
+    }
+  ]
+}

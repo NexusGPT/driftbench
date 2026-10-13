@@ -1,0 +1,24 @@
+{
+  "pA": 0.05,
+  "detail": {
+    "reference": "Translate the graph of $y=2^x$ 1 unit to the right and 2 units upward.",
+    "confidence": "high"
+  },
+  "healthy": true,
+  "solver_key": "4d6cd925aa419c37c393621fb70c02f8a9d7efaca94b0637d30207abb1886e8f",
+  "usage": [
+    {
+      "provider": "sol",
+      "key": "4d6cd925aa419c37c393621fb70c02f8a9d7efaca94b0637d30207abb1886e8f",
+      "count": 1,
+      "usd": 0.000824,
+      "seconds": 9.882335417030845
+    },
+    {
+      "provider": "jev",
+      "key": "005ebab57bd71ef281e857dc8f4302226be8e948c1146c13a1580344708dd83d",
+      "seconds": 0.381,
+      "usd": 0
+    }
+  ]
+}

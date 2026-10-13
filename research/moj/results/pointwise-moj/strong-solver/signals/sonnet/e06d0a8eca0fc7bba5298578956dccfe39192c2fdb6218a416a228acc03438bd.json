@@ -1,0 +1,24 @@
+{
+  "pA": 0.04,
+  "detail": {
+    "reference": "C. It attributes sweet-eating to being unable to resist temptation, not to reduced taste sensitivity driving subconscious demand for more sugar, so it does not support the argument. A, B and D support the experiment's validity or the subconscious mechanism.",
+    "confidence": "high"
+  },
+  "healthy": true,
+  "solver_key": "af8004971a574f36cbb9d5570dc7528a5275cb23f58980b842e9bafe015f6edb",
+  "usage": [
+    {
+      "provider": "sonnet",
+      "key": "af8004971a574f36cbb9d5570dc7528a5275cb23f58980b842e9bafe015f6edb",
+      "count": 1,
+      "usd": 0.004426,
+      "seconds": 3.131912333017681
+    },
+    {
+      "provider": "jev",
+      "key": "260bd5df865c663d869a240dacff29ceeab5657b51a2461b234fd58cd5adf509",
+      "seconds": 0.35,
+      "usd": 0
+    }
+  ]
+}

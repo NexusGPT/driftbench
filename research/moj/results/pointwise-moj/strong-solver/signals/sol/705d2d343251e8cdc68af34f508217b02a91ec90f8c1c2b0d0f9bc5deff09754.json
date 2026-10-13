@@ -1,0 +1,24 @@
+{
+  "pA": 0.01,
+  "detail": {
+    "reference": "Chebyshev’s inequality gives\n\\[\n\\Pr(|\\bar X_n-p|<0.1)\\ge1-\\frac{p(1-p)}{0.01n}\\ge1-\\frac{25}{n}.\n\\]\nRequiring this bound to be at least \\(0.9\\) yields \\(n\\ge250\\). Thus \\(\\boxed{250}\\) tosses suffice uniformly in \\(p\\). This is the minimum certified by Chebyshev’s inequality, not necessarily the exact binomial minimum.",
+    "confidence": "high"
+  },
+  "healthy": true,
+  "solver_key": "4b782fdc4e1a01e926a10e5fde99f4e6371ab3a210ece2ce99720671870f7bb8",
+  "usage": [
+    {
+      "provider": "sol",
+      "key": "4b782fdc4e1a01e926a10e5fde99f4e6371ab3a210ece2ce99720671870f7bb8",
+      "count": 1,
+      "usd": 0.005754,
+      "seconds": 16.304775541007984
+    },
+    {
+      "provider": "jev",
+      "key": "03f104287142e7607b3c7cfcda0d35c81b69f5c182cb77dbfd2e2bbe84e9847e",
+      "seconds": 0.329,
+      "usd": 0
+    }
+  ]
+}

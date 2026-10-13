@@ -1,0 +1,24 @@
+{
+  "pA": 0.02,
+  "detail": {
+    "reference": "A. There is no Laokeng jade with the highest transparency. Since higher transparency means higher unit value (other things equal), a piece with maximal transparency would have the highest value, which practice says does not exist.",
+    "confidence": "high"
+  },
+  "healthy": true,
+  "solver_key": "507521434b693e6fca93886075f922db5259e86503030830d156e0a763f67394",
+  "usage": [
+    {
+      "provider": "sonnet",
+      "key": "507521434b693e6fca93886075f922db5259e86503030830d156e0a763f67394",
+      "count": 1,
+      "usd": 0.004128,
+      "seconds": 2.557970458001364
+    },
+    {
+      "provider": "jev",
+      "key": "bf7f998fa85f3fad883a390d5bd360311bdf8332ead83b5e2195b69580835c1c",
+      "seconds": 0.287,
+      "usd": 0
+    }
+  ]
+}

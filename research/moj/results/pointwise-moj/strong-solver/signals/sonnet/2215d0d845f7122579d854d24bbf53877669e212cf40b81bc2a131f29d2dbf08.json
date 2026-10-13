@@ -1,0 +1,24 @@
+{
+  "pA": 0.01,
+  "detail": {
+    "reference": "B. Theresa tests J on day 1, so she must test H on day 2. Yuki cannot test J, and Seamus takes Yuki's day-1 bike on day 2, so Reynaldo must test J on day 2. This rules out A, C, D and E. Seamus H on day 1 works: Reynaldo G→J, Yuki F→G, Seamus H→F, Theresa J→H.",
+    "confidence": "high"
+  },
+  "healthy": true,
+  "solver_key": "a656da68b0a15546aa3d383f2682f8e725a74cbd9a91f2d31d11a7b748a82152",
+  "usage": [
+    {
+      "provider": "sonnet",
+      "key": "a656da68b0a15546aa3d383f2682f8e725a74cbd9a91f2d31d11a7b748a82152",
+      "count": 1,
+      "usd": 0.010128000000000002,
+      "seconds": 6.105988750001416
+    },
+    {
+      "provider": "jev",
+      "key": "3e1157375e08967cc0fb0490586db3f85edeed29d1270b4b92b02095f7453c29",
+      "seconds": 0.284,
+      "usd": 0
+    }
+  ]
+}

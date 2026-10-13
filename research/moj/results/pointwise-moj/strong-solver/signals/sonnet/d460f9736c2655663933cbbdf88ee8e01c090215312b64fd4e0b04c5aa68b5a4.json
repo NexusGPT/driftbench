@@ -1,0 +1,24 @@
+{
+  "pA": 0.01,
+  "detail": {
+    "reference": "8 orderings (not among the listed choices A–E): OBGYR, OBGRY, BOYGR, BOGYR, BOGRY, BGYOR, BGOYR, BGORY",
+    "confidence": "high"
+  },
+  "healthy": true,
+  "solver_key": "eefda08194663bb9137caf176fec476abe03b3ad61023347e9d33c5269fedf3c",
+  "usage": [
+    {
+      "provider": "sonnet",
+      "key": "eefda08194663bb9137caf176fec476abe03b3ad61023347e9d33c5269fedf3c",
+      "count": 1,
+      "usd": 0.012711999999999998,
+      "seconds": 8.980365124996752
+    },
+    {
+      "provider": "jev",
+      "key": "8391eaf4ec2514855ee20539ba6aaf7ff13677411131ee95e5ad01d243be8e20",
+      "seconds": 0.381,
+      "usd": 0
+    }
+  ]
+}

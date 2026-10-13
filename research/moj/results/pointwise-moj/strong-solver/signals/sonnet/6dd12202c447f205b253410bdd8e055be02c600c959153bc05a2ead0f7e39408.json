@@ -1,0 +1,24 @@
+{
+  "pA": 0.99,
+  "detail": {
+    "reference": "$0.50 per cup. The bill is $25; other items total $22.50, leaving $2.50 for soda, which at 5 cups (count assumed from the original problem) is $0.50 each.",
+    "confidence": "low"
+  },
+  "healthy": true,
+  "solver_key": "e22c0a71c5f0eac7d801afbb4bb49c96aa0b69ed27b5ec1f6fcfd4f24e42e5ba",
+  "usage": [
+    {
+      "provider": "sonnet",
+      "key": "e22c0a71c5f0eac7d801afbb4bb49c96aa0b69ed27b5ec1f6fcfd4f24e42e5ba",
+      "count": 1,
+      "usd": 0.005322,
+      "seconds": 4.3573188339942135
+    },
+    {
+      "provider": "jev",
+      "key": "7a35e54f7a45bfc2a877d1976f75267b69bee3c7207dbe696591988d48df1f1a",
+      "seconds": 0.335,
+      "usd": 0
+    }
+  ]
+}

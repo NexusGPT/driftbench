@@ -1,0 +1,24 @@
+{
+  "pA": 0.02,
+  "detail": {
+    "reference": "B: Seamus tests H on the first day. A valid assignment is:\nDay 1: Reynaldo—G, Seamus—H, Theresa—J, Yuki—F.\nDay 2: Reynaldo—J, Seamus—F, Theresa—H, Yuki—G.\nThis satisfies all conditions.",
+    "confidence": "high"
+  },
+  "healthy": true,
+  "solver_key": "09f9c85c2844777ca3aed98b5c6f131138424f7bc91b32951458301a782a35ce",
+  "usage": [
+    {
+      "provider": "sol",
+      "key": "09f9c85c2844777ca3aed98b5c6f131138424f7bc91b32951458301a782a35ce",
+      "count": 1,
+      "usd": 0.002938,
+      "seconds": 8.294293167011347
+    },
+    {
+      "provider": "jev",
+      "key": "818baafe974a14cc405e7050e0e082b1ef2b55deb10880837b1260a8a3d33e33",
+      "seconds": 0.316,
+      "usd": 0
+    }
+  ]
+}

@@ -1,0 +1,24 @@
+{
+  "pA": 0.01,
+  "detail": {
+    "reference": "A. Assign values of 4, 2, and 1 to classes 1, 2, and 3, respectively. Every permitted trade preserves each company’s total value. RealProp starts with value 6, but owning both the Flores Tower and Garza Tower would give it value 8, which is impossible.",
+    "confidence": "high"
+  },
+  "healthy": true,
+  "solver_key": "81459c25d810dfd8e83061d92be2e4c3db013d8c7fbeaa023a203f4f255e8242",
+  "usage": [
+    {
+      "provider": "sol",
+      "key": "81459c25d810dfd8e83061d92be2e4c3db013d8c7fbeaa023a203f4f255e8242",
+      "count": 1,
+      "usd": 0.001948,
+      "seconds": 4.109634374966845
+    },
+    {
+      "provider": "jev",
+      "key": "f3bce888a094533506ed562fd38cdec465829ec6383a254bb5a5749c7e820dd1",
+      "seconds": 0.351,
+      "usd": 0
+    }
+  ]
+}

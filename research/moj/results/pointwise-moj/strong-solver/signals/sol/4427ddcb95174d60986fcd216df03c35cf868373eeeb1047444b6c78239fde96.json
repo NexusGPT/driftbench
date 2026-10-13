@@ -1,0 +1,24 @@
+{
+  "pA": 0.02,
+  "detail": {
+    "reference": "ABGI",
+    "confidence": "high"
+  },
+  "healthy": true,
+  "solver_key": "8b8fd336842eac497412344de65861874192a532b594b694b6680ee192366a82",
+  "usage": [
+    {
+      "provider": "sol",
+      "key": "8b8fd336842eac497412344de65861874192a532b594b694b6680ee192366a82",
+      "count": 1,
+      "usd": 0.004751,
+      "seconds": 6.914443791960366
+    },
+    {
+      "provider": "jev",
+      "key": "f05f9afde459a8d4e83c2043098ec5cf107acda76f3f3f1e4f48cec0f2b2e34f",
+      "seconds": 0.398,
+      "usd": 0
+    }
+  ]
+}

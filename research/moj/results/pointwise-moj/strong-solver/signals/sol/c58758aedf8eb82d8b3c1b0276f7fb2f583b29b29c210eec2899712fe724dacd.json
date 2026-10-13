@@ -1,0 +1,24 @@
+{
+  "pA": 0.04,
+  "detail": {
+    "reference": "< { ( { } ) < > } >",
+    "confidence": "high"
+  },
+  "healthy": true,
+  "solver_key": "2848b3b184eaf729f1d1eb39652778dcd5a559a479d9f165992f7c0785950212",
+  "usage": [
+    {
+      "provider": "sol",
+      "key": "2848b3b184eaf729f1d1eb39652778dcd5a559a479d9f165992f7c0785950212",
+      "count": 1,
+      "usd": 0.001412,
+      "seconds": 4.971954042033758
+    },
+    {
+      "provider": "jev",
+      "key": "069b0af9de4bdf8c1995806fb72e450a89ac74dbc4be3a5c5ba2b2c64ac12af6",
+      "seconds": 0.344,
+      "usd": 0
+    }
+  ]
+}

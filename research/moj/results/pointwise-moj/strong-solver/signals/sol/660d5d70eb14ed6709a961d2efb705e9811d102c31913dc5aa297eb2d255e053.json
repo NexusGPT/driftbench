@@ -1,0 +1,24 @@
+{
+  "pA": 0.98,
+  "detail": {
+    "reference": "Yes. For example, \\(f(z)=1/(1-z^2)\\) is holomorphic on the unit disk, since its only poles are at the boundary points \\(z=1\\) and \\(z=-1\\). As \\(z\\) approaches either point from within the disk, \\(|f(z)|\\to\\infty\\). More generally, \\(\\prod_{j=1}^n(z-\\zeta_j)^{-1}\\) works for any finite collection of distinct boundary points \\(\\zeta_j\\).",
+    "confidence": "high"
+  },
+  "healthy": true,
+  "solver_key": "392861660e98861456019a0867cd8580c2deca66610896fab9ad434fa028220a",
+  "usage": [
+    {
+      "provider": "sol",
+      "key": "392861660e98861456019a0867cd8580c2deca66610896fab9ad434fa028220a",
+      "count": 1,
+      "usd": 0.00267,
+      "seconds": 7.12176458403701
+    },
+    {
+      "provider": "jev",
+      "key": "9b68265d4b5d94536b5654c6af770d9ad67cd58c190f613281e386366f0994f7",
+      "seconds": 0.335,
+      "usd": 0
+    }
+  ]
+}

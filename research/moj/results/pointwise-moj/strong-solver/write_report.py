@@ -50,7 +50,7 @@ def main():
     winners=[m for m in ('sol','sonnet') if data['boards'][m+' fitted']['bar_met']]
     if not winners:
         text+=['Neither stronger solver with the tuning-fitted rule clears the official always-fail baseline by more than the noise floor. '
-               'The tested solver upgrades therefore do not establish a blind Verify win on official labels. '
+               'The primary, tuning-fitted experiment therefore does not meet the official-label bar. '
                'Corrected-label scores are sensitivity analysis and do not replace that result. '
                'Keep the existing frozen Luna solve-and-compare configuration and stop; the strengthened four-cell residual remains 1/4.']
     else:
@@ -63,12 +63,13 @@ def main():
         f"Actual new-round accounted spend is {data['spend_usd']:.6f} USD against the 10 USD cap. Concurrency is two across both solvers. Every returned answer is recorded and never resubmitted.",
         f"Network-disabled replay reproduces {verification['signals_replayed']} signals from {verification['raw_solver_answers_replayed']} solver answers. Five focused tests pass.",
         'RubricBench 93.5, hard rows 96.3 and Verify-with-reference 98.2 retain their frozen source/config/result hashes.',
-        'New solvers have a 16,384-output-token budget safety cap. Finish reasons and actual usage are recorded per call.',
+        'New solvers have a 16,384-output-token budget safety cap. No answer reaches the cap. All 49 validation comparisons per solver are usable.',
+        'One Sonnet tuning answer is lost because the frozen first_object parser selects a literal empty object in prose before the final_answer object. The fit retains that loss; no fix or repeated call changes this run. See [PARSER-DEFECT.md](results/pointwise-moj/strong-solver/PARSER-DEFECT.md) for the item id and reproduction.',
         'Replay: `python3 -m moj.verify_strong_solver replay`. Full requests, responses, decisions and spend: `results/pointwise-moj/strong-solver/`.',
         'Rates: [OpenAI standard pricing](https://developers.openai.com/api/docs/pricing), input 2.00, cached read 0.10, cache write 2.50, output 10.00 USD per million; reasoning included in output. Sonnet uses CLI-reported USD.','']
     rendered='\n'.join(text)
     assert '\u2014' not in rendered and '\u2013' not in rendered
-    (s.OUT/'SCOREBOARD.md').write_text(rendered)
+    (s.OUT/'SCOREBOARD.md').write_text(rendered.replace('](results/pointwise-moj/strong-solver/PARSER-DEFECT.md)', '](PARSER-DEFECT.md)'))
     s.r.save(s.OUT/'paired-intervals.json',uncertainty)
     p=s.r.ROOT/'RESULTS.md';existing=p.read_text();heading=text[0]
     if heading not in existing:p.write_text(existing+'\n'+rendered)

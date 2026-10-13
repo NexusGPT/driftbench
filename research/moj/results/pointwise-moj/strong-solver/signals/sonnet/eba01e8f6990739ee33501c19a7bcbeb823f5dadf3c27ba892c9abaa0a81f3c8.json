@@ -1,0 +1,24 @@
+{
+  "pA": 0.18,
+  "detail": {
+    "reference": "54.4% of the original price (about $32.64 on the $60 shirt)",
+    "confidence": "high"
+  },
+  "healthy": true,
+  "solver_key": "12856ce79341deb7073a15e8589a4d8840bb3e482d6a9ae451dc121e0be768b9",
+  "usage": [
+    {
+      "provider": "sonnet",
+      "key": "12856ce79341deb7073a15e8589a4d8840bb3e482d6a9ae451dc121e0be768b9",
+      "count": 1,
+      "usd": 0.00279,
+      "seconds": 1.7144279589992948
+    },
+    {
+      "provider": "jev",
+      "key": "32013623d6463527a34be29199236435eabe69d438090ee7be2821fda9bea225",
+      "seconds": 0.365,
+      "usd": 0
+    }
+  ]
+}

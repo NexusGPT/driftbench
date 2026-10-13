@@ -1,0 +1,24 @@
+{
+  "pA": 0.2,
+  "detail": {
+    "reference": "D. Without a high savings rate, the transition to developed countries cannot be achieved (chain: development → capital → high savings; contrapositive).",
+    "confidence": "high"
+  },
+  "healthy": true,
+  "solver_key": "588962401d78e20b925000156b3e3b052125eefad1ce98294d77948cf83d9124",
+  "usage": [
+    {
+      "provider": "sonnet",
+      "key": "588962401d78e20b925000156b3e3b052125eefad1ce98294d77948cf83d9124",
+      "count": 1,
+      "usd": 0.004012,
+      "seconds": 2.600102041964419
+    },
+    {
+      "provider": "jev",
+      "key": "fdc44d15dd116649a10f042384a79a87aec5706b5103d211e1241b2e3798ad83",
+      "seconds": 0.513,
+      "usd": 0
+    }
+  ]
+}

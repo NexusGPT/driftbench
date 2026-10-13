@@ -1,0 +1,24 @@
+{
+  "pA": 0.27,
+  "detail": {
+    "reference": "E: shapes 1, 5, 7 and 8 — a rectangle, a parallelogram, an irregular convex pentagon, and an irregular concave pentagon are drawn.",
+    "confidence": "high"
+  },
+  "healthy": true,
+  "solver_key": "61094a5de78c0efc5abedcce19e49a0e016b85c5cdf81ec7725d74b5b234ef2d",
+  "usage": [
+    {
+      "provider": "sonnet",
+      "key": "61094a5de78c0efc5abedcce19e49a0e016b85c5cdf81ec7725d74b5b234ef2d",
+      "count": 1,
+      "usd": 0.059526,
+      "seconds": 35.19237958395388
+    },
+    {
+      "provider": "jev",
+      "key": "afb9cf1c57402d7976c3d322943123c56f25e4ea5e681112dd8ae30d344f5141",
+      "seconds": 0.283,
+      "usd": 0
+    }
+  ]
+}

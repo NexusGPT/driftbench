@@ -1,0 +1,24 @@
+{
+  "pA": 0.12,
+  "detail": {
+    "reference": "(1) y = x − 1, i.e. x − y − 1 = 0. (2) a ≤ 2, i.e. a ∈ (−∞, 2].",
+    "confidence": "high"
+  },
+  "healthy": true,
+  "solver_key": "b4de711e968a47d4f436e33d140e45a4267fe954114a8c29d9fddb56f51d5588",
+  "usage": [
+    {
+      "provider": "sonnet",
+      "key": "b4de711e968a47d4f436e33d140e45a4267fe954114a8c29d9fddb56f51d5588",
+      "count": 1,
+      "usd": 0.005658,
+      "seconds": 3.83682820800459
+    },
+    {
+      "provider": "jev",
+      "key": "a5274f01d7a8966335c4436e03f141749b0a68bad4670c968c65e063d5dfe97c",
+      "seconds": 0.264,
+      "usd": 0
+    }
+  ]
+}

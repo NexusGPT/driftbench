@@ -1,0 +1,24 @@
+{
+  "pA": 0.29,
+  "detail": {
+    "reference": "Yes. Assign the rationals outside \u001b[-1,1]\u001b to square indices and those inside to nonsquare indices. Intervals at nonsquare indices lie in \u001b(-2,2)\u001b. The total length of intervals at square indices is \u001b\\sum_{m=1}^\\infty 2/m^2=\\pi^2/3<4\u001b. Hence they cannot cover \u001b[2,6]\u001b, so the complement is nonempty.",
+    "confidence": "high"
+  },
+  "healthy": true,
+  "solver_key": "ebc3444ae80ebe99dd23b55db42bf593b887f2b6070fa3a1a2a2769dd603c10b",
+  "usage": [
+    {
+      "provider": "sol",
+      "key": "ebc3444ae80ebe99dd23b55db42bf593b887f2b6070fa3a1a2a2769dd603c10b",
+      "count": 1,
+      "usd": 0.0037,
+      "seconds": 9.954900334007107
+    },
+    {
+      "provider": "jev",
+      "key": "82ec4af0dea8a3ddfa701a097037f32a5b9e7a20e4c6e43c154ad5d904f7fae9",
+      "seconds": 0.335,
+      "usd": 0
+    }
+  ]
+}

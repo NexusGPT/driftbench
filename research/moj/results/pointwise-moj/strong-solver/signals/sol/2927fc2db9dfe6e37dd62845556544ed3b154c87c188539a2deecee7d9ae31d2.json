@@ -1,0 +1,24 @@
+{
+  "pA": 0.02,
+  "detail": {
+    "reference": "C. Germany, Britain, France, South Korea. The Korean and French experts cannot be adjacent to the German, who speaks all four languages. In this arrangement, neither can communicate with their neighbors, while the British expert can communicate only with the German neighbor.",
+    "confidence": "high"
+  },
+  "healthy": true,
+  "solver_key": "295175203a4087090cd3a039b4e1faf43d4a1881c32dd8095c006776b5192c31",
+  "usage": [
+    {
+      "provider": "sol",
+      "key": "295175203a4087090cd3a039b4e1faf43d4a1881c32dd8095c006776b5192c31",
+      "count": 1,
+      "usd": 0.002244,
+      "seconds": 7.549495957966428
+    },
+    {
+      "provider": "jev",
+      "key": "f385c32c2d9b4e46970fe2c35d7dce70579764760b99b5c50c0f7bd89c43dfc2",
+      "seconds": 0.368,
+      "usd": 0
+    }
+  ]
+}

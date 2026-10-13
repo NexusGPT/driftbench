@@ -1,0 +1,24 @@
+{
+  "pA": 0.01,
+  "detail": {
+    "reference": "The minimum is\n\\[\n\\boxed{\\frac{1557-39\\sqrt{39}}{95}},\n\\]\nattained at permutations of\n\\[\n\\left(3-\\frac{\\sqrt{39}}3,\\;3-\\frac{\\sqrt{39}}3,\\;3+\\frac{2\\sqrt{39}}3\\right).\n\\]\nIndeed, writing \\(r=xyz\\), the expression becomes \\((1876-36r)/(126-r)\\), which decreases with \\(r\\). The product is maximized at the stated two-equal-variable triple.",
+    "confidence": "high"
+  },
+  "healthy": true,
+  "solver_key": "5f41bc19f876ead625b6023a0917e8935f2fbf837b4d1d14ebc8aaa35e042fbe",
+  "usage": [
+    {
+      "provider": "sol",
+      "key": "5f41bc19f876ead625b6023a0917e8935f2fbf837b4d1d14ebc8aaa35e042fbe",
+      "count": 1,
+      "usd": 0.007922,
+      "seconds": 20.05063308298122
+    },
+    {
+      "provider": "jev",
+      "key": "41dc5a9dadbb3126f1b67c2fb87b3cf76f237d672777315a317171203276576d",
+      "seconds": 0.33,
+      "usd": 0
+    }
+  ]
+}

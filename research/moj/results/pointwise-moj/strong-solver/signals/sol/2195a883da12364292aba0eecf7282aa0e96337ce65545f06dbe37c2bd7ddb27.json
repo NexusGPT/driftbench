@@ -1,0 +1,24 @@
+{
+  "pA": 0.19,
+  "detail": {
+    "reference": "Let \\(t=\\cos2x\\). Then \\(\\cos x(\\cos x-\\cos5x)=(1-t^2)(2t+1)\\). For \\(t<-\\tfrac12\\), the sides have incompatible signs. For \\(t>-\\tfrac12\\), division gives \\(t^2-2t+\\tfrac34=0\\), hence \\(t=\\tfrac12\\). Also \\(t=-\\tfrac12\\) works. Thus\n\\[\n\\boxed{x=\\frac{k\\pi}{2}\\pm\\frac{\\pi}{6},\\quad k\\in\\mathbb Z.}\n\\]",
+    "confidence": "high"
+  },
+  "healthy": true,
+  "solver_key": "78b0f79c836b497ec6b176b11b3c07b9983c7c646e41de21698d24ce5e6d3ce2",
+  "usage": [
+    {
+      "provider": "sol",
+      "key": "78b0f79c836b497ec6b176b11b3c07b9983c7c646e41de21698d24ce5e6d3ce2",
+      "count": 1,
+      "usd": 0.006334,
+      "seconds": 15.07930091698654
+    },
+    {
+      "provider": "jev",
+      "key": "0a0385c01e7925dc7bfff5df172ffef78e66c7f95ba88b0311e1d4c1b824446c",
+      "seconds": 0.402,
+      "usd": 0
+    }
+  ]
+}

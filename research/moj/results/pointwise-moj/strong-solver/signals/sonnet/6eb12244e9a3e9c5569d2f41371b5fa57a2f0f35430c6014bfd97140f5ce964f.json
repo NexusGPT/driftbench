@@ -1,0 +1,24 @@
+{
+  "pA": 0.01,
+  "detail": {
+    "reference": "The limit diverges to +∞. Near x=2, ln(x-1)/(x-2)^2 ~ 1/(x-2), so ∫_2^{2+ε} is already infinite for every ε. The second integral over [3-ε,3] is regular and tends to 0.",
+    "confidence": "high"
+  },
+  "healthy": true,
+  "solver_key": "23a8f3fbe5d5677c1083746eccf72f818c68171158fade2daf67ef51a372885f",
+  "usage": [
+    {
+      "provider": "sonnet",
+      "key": "23a8f3fbe5d5677c1083746eccf72f818c68171158fade2daf67ef51a372885f",
+      "count": 1,
+      "usd": 0.00611,
+      "seconds": 4.085946916020475
+    },
+    {
+      "provider": "jev",
+      "key": "4c60d16e343b0a602bf0fa57096d7b6bbfc8707c5b7ce89cbc19b0d8199855de",
+      "seconds": 0.283,
+      "usd": 0
+    }
+  ]
+}

@@ -1,0 +1,24 @@
+{
+  "pA": 0.6,
+  "detail": {
+    "reference": "Jane walks three times as fast as Hector. At their first meeting, Hector has walked 27 ÷ 4 = 6.75 blocks, and Jane has walked 20.25 blocks. They meet 6.75 blocks from the start in Hector’s direction. The diagram showing A–E is needed to select a letter.",
+    "confidence": "high"
+  },
+  "healthy": true,
+  "solver_key": "23c12c25d61f976499511087142d82a62503dd9c3ef0c9c664723d22df047728",
+  "usage": [
+    {
+      "provider": "sol",
+      "key": "23c12c25d61f976499511087142d82a62503dd9c3ef0c9c664723d22df047728",
+      "count": 1,
+      "usd": 0.001906,
+      "seconds": 4.8235464579775
+    },
+    {
+      "provider": "jev",
+      "key": "61cb6cc647116994e19fe1595029a99fec0a87bc2be4407cba032ab0314857c1",
+      "seconds": 0.431,
+      "usd": 0
+    }
+  ]
+}

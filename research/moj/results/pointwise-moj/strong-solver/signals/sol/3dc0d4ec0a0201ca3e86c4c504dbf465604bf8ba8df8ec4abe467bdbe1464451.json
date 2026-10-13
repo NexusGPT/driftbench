@@ -1,0 +1,24 @@
+{
+  "pA": 0.99,
+  "detail": {
+    "reference": "Since $81=3^4$, we have $x+y=4$ and $x-y=\\frac14$. Thus\n\\[\nxy=\\frac{(x+y)^2-(x-y)^2}{4}=\\frac{16-\\frac1{16}}4=\\boxed{\\frac{255}{64}}.\n\\]",
+    "confidence": "high"
+  },
+  "healthy": true,
+  "solver_key": "042044b0fab5acd119773ba12e2b4c5726be2873f75eada9f17443663acad924",
+  "usage": [
+    {
+      "provider": "sol",
+      "key": "042044b0fab5acd119773ba12e2b4c5726be2873f75eada9f17443663acad924",
+      "count": 1,
+      "usd": 0.001526,
+      "seconds": 4.119963707984425
+    },
+    {
+      "provider": "jev",
+      "key": "6e64091274090ad4e8e116531d59b86a6cb1f8060427dfb6a5d351ec66c21cc8",
+      "seconds": 0.294,
+      "usd": 0
+    }
+  ]
+}

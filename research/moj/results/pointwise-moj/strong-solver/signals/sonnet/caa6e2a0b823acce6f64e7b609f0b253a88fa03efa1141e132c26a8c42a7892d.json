@@ -1,0 +1,24 @@
+{
+  "pA": 0.24,
+  "detail": {
+    "reference": "Yes. Enumerate the rationals so that every rational outside [-1,1] gets a square index n=m². Their intervals have total length at most 2·Σ1/m² = π²/3 < 4, so they cannot cover [2,6]. The other intervals lie within [-3/2,3/2]. Hence some point of [2,6] is uncovered.",
+    "confidence": "high"
+  },
+  "healthy": true,
+  "solver_key": "dfefc0f241625fbd4a64c5502370c26e8eab415c12d0aee33ff026835e322fb4",
+  "usage": [
+    {
+      "provider": "sonnet",
+      "key": "dfefc0f241625fbd4a64c5502370c26e8eab415c12d0aee33ff026835e322fb4",
+      "count": 1,
+      "usd": 0.009388,
+      "seconds": 8.07247491599992
+    },
+    {
+      "provider": "jev",
+      "key": "055a0f2b62b4ee29686df24c71f06856e2357c661277768eb0eab4dde810eabb",
+      "seconds": 0.281,
+      "usd": 0
+    }
+  ]
+}

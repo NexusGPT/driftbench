@@ -1,0 +1,24 @@
+{
+  "pA": 0.17,
+  "detail": {
+    "reference": "(E) 1, 5, 7 and 8: a non-square rectangle, a non-rectangular parallelogram, an irregular convex pentagon, and an irregular concave pentagon.",
+    "confidence": "high"
+  },
+  "healthy": true,
+  "solver_key": "a6e8c936497a53da145164375bbb74bea237886b9815c2fb75ef60b9b3f0448d",
+  "usage": [
+    {
+      "provider": "sol",
+      "key": "a6e8c936497a53da145164375bbb74bea237886b9815c2fb75ef60b9b3f0448d",
+      "count": 1,
+      "usd": 0.0088135,
+      "seconds": 19.39612995798234
+    },
+    {
+      "provider": "jev",
+      "key": "5c6105e19b4fae8c9095220b887dd0327086e96539f8b249701bad143eaadb1c",
+      "seconds": 0.342,
+      "usd": 0
+    }
+  ]
+}

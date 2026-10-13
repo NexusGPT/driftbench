@@ -1,0 +1,24 @@
+{
+  "pA": 0.06,
+  "detail": {
+    "reference": "(1) The probability is\n\\[\n2\\left(\\frac29\\frac29+\\frac49\\frac19\\right)=\\boxed{\\frac{16}{81}}.\n\\]\n(2) \\(P(A)=\\frac69=\\boxed{\\frac23}\\), \\(P(B)=\\frac39=\\boxed{\\frac13}\\).\nMoreover,\n\\[\nP(A\\cap B)=\\frac29\\frac28+\\frac49\\frac38=\\frac29=P(A)P(B).\n\\]\nTherefore, events \\(A\\) and \\(B\\) are independent.",
+    "confidence": "high"
+  },
+  "healthy": true,
+  "solver_key": "7ce48842ca2a8e5067a94a97579ee1c2d86b852cae9a4367a7646a5dec5d919d",
+  "usage": [
+    {
+      "provider": "sol",
+      "key": "7ce48842ca2a8e5067a94a97579ee1c2d86b852cae9a4367a7646a5dec5d919d",
+      "count": 1,
+      "usd": 0.003242,
+      "seconds": 7.898686417029239
+    },
+    {
+      "provider": "jev",
+      "key": "9ed93f8962300dca155981770291ee9f87ae8ceb618c5db86f07f8a38808b06b",
+      "seconds": 0.65,
+      "usd": 0
+    }
+  ]
+}

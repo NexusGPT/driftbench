@@ -1,0 +1,24 @@
+{
+  "pA": 0.03,
+  "detail": {
+    "reference": "Rewrite the area as \\(A=r^2[\\sin(2\\theta+\\pi/3)-\\sqrt3/2]\\). It is maximized when \\(2\\theta+\\pi/3=\\pi/2+2k\\pi\\), so \\(\\boxed{\\theta=\\pi/12+k\\pi}\\). Thus the principal angle is \\(\\boxed{15^\\circ}\\), and \\(A_{\\max}=r^2(1-\\sqrt3/2)\\).",
+    "confidence": "high"
+  },
+  "healthy": true,
+  "solver_key": "71614729a2713d0de3870da8ece3eea9bee4cd5c704d83580d28f3969f85a91d",
+  "usage": [
+    {
+      "provider": "sol",
+      "key": "71614729a2713d0de3870da8ece3eea9bee4cd5c704d83580d28f3969f85a91d",
+      "count": 1,
+      "usd": 0.0028,
+      "seconds": 6.246380499971565
+    },
+    {
+      "provider": "jev",
+      "key": "973ae7c1334069a56f39abc8e8d3ecea84abb70e40bad2012ce8bab8ab9aac55",
+      "seconds": 0.332,
+      "usd": 0
+    }
+  ]
+}

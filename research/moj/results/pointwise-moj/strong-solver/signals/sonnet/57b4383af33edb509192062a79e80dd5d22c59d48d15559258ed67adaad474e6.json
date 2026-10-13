@@ -1,0 +1,24 @@
+{
+  "pA": 0.21,
+  "detail": {
+    "reference": "[Emma, Jenny, Joe, Kyle, Jason]",
+    "confidence": "high"
+  },
+  "healthy": true,
+  "solver_key": "cad41f2bebf5906cae0e3a710f33e6c8a1d850ebf5304e6a4ae10a51a609e04f",
+  "usage": [
+    {
+      "provider": "sonnet",
+      "key": "cad41f2bebf5906cae0e3a710f33e6c8a1d850ebf5304e6a4ae10a51a609e04f",
+      "count": 1,
+      "usd": 0.0073880000000000005,
+      "seconds": 4.345775790978223
+    },
+    {
+      "provider": "jev",
+      "key": "32b671c968b9191ef3fc23feef3d26eb162a1bac0e36a157ad52a529f08de6e3",
+      "seconds": 0.283,
+      "usd": 0
+    }
+  ]
+}

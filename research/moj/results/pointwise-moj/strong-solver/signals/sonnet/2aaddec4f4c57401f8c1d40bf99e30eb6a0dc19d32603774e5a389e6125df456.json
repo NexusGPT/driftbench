@@ -1,0 +1,24 @@
+{
+  "pA": 0.02,
+  "detail": {
+    "reference": "A. Only Uneasy can perform in a later slot than Xpert. Given Vegemite before Zircon and Yardsign in the first three, this forces Wellspring, Zircon, Vegemite and Yardsign all before Xpert. That reproduces the original constraint's effect.",
+    "confidence": "high"
+  },
+  "healthy": true,
+  "solver_key": "bfad34ea7d5e647b76f19397a6d1eb2c1dbc81937506640ea99824338c923628",
+  "usage": [
+    {
+      "provider": "sonnet",
+      "key": "bfad34ea7d5e647b76f19397a6d1eb2c1dbc81937506640ea99824338c923628",
+      "count": 1,
+      "usd": 0.005606,
+      "seconds": 3.644256583007518
+    },
+    {
+      "provider": "jev",
+      "key": "36e8f79bcdaba9a3d86358b9e80f3cdda9e3e6133bf39db2e162e18812ad4ae3",
+      "seconds": 0.442,
+      "usd": 0
+    }
+  ]
+}

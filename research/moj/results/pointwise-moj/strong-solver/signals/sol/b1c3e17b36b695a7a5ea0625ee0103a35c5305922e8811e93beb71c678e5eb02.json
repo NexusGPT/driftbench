@@ -1,0 +1,24 @@
+{
+  "pA": 0.05,
+  "detail": {
+    "reference": "(I) 4 and 5 — a right triangle and a parallelogram that is not a rectangle, with no diagonals drawn.",
+    "confidence": "high"
+  },
+  "healthy": true,
+  "solver_key": "cce24fa72a955e7e2cf0d534472782d734a6b434476ef0e8b4357194f9b82c2e",
+  "usage": [
+    {
+      "provider": "sol",
+      "key": "cce24fa72a955e7e2cf0d534472782d734a6b434476ef0e8b4357194f9b82c2e",
+      "count": 1,
+      "usd": 0.013046,
+      "seconds": 28.99448604200734
+    },
+    {
+      "provider": "jev",
+      "key": "89aaec6d29770aa9734179ae7311f498c77754488e0235669f29e100c4821d39",
+      "seconds": 0.285,
+      "usd": 0
+    }
+  ]
+}

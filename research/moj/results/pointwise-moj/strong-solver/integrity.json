@@ -1,0 +1,26 @@
+{
+  "tuning_n": 46,
+  "validation_n": 49,
+  "healthy_by_model": {
+    "sol": 95,
+    "sonnet": 94
+  },
+  "finish_counts": {
+    "stop": 95,
+    "success": 95
+  },
+  "sonnet_cached_tokens": 0,
+  "sol_cache_write_tokens": 15915,
+  "usd_by_model": {
+    "sol": 0.36321350000000013,
+    "sonnet": 1.0446300000000002
+  },
+  "accounted_usd": 1.4078435,
+  "budget_usd": 10,
+  "tuning_validation_groups_disjoint": true,
+  "validation_calls_after_freeze": true,
+  "original_prompts_and_client_unchanged": true,
+  "three_accepted_cells_unchanged": true,
+  "proof_corrections_unchanged": true,
+  "secret_scan_pass": true
+}

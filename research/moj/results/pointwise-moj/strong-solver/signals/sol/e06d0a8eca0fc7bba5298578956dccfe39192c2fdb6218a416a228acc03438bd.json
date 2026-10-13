@@ -1,0 +1,24 @@
+{
+  "pA": 0.03,
+  "detail": {
+    "reference": "A. Having criteria for evaluating drink sweetness does not support the proposed link between habitual sugar consumption, reduced taste sensitivity, subconscious cravings, and obesity. B supports the reliability of the experiment, while C and D support aspects of the proposed behavioral mechanism.",
+    "confidence": "high"
+  },
+  "healthy": true,
+  "solver_key": "29dca0396b94c00fd00a223d6280ceb116792833780230657758375776677d04",
+  "usage": [
+    {
+      "provider": "sol",
+      "key": "29dca0396b94c00fd00a223d6280ceb116792833780230657758375776677d04",
+      "count": 1,
+      "usd": 0.001616,
+      "seconds": 4.452721667010337
+    },
+    {
+      "provider": "jev",
+      "key": "868271dce1df70f462c82338e5fe143c2bbaa87cd96323bd617078d92a1b468f",
+      "seconds": 0.395,
+      "usd": 0
+    }
+  ]
+}

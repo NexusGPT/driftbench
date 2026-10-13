@@ -1,0 +1,24 @@
+{
+  "pA": 0.01,
+  "detail": {
+    "reference": "A. Treating a class 1 building as worth 4 units, class 2 as 2, and class 3 as 1, every trade preserves each company's total value (6 each). RealProp holding both class 1 towers would be worth 8, so that is impossible.",
+    "confidence": "high"
+  },
+  "healthy": true,
+  "solver_key": "ea0c3fc746718d02d298519c81e4fa9b8b4a297737e7d711f085f819b5d9e1a1",
+  "usage": [
+    {
+      "provider": "sonnet",
+      "key": "ea0c3fc746718d02d298519c81e4fa9b8b4a297737e7d711f085f819b5d9e1a1",
+      "count": 1,
+      "usd": 0.006869999999999999,
+      "seconds": 4.233529791992623
+    },
+    {
+      "provider": "jev",
+      "key": "40636cf2b01abc37e7e8557c18615a7a10ac86ce3207cdcf8f044f7e090ea8f6",
+      "seconds": 0.326,
+      "usd": 0
+    }
+  ]
+}

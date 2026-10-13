@@ -1,0 +1,24 @@
+{
+  "pA": 0.02,
+  "detail": {
+    "reference": "A. There is no Laokeng jade with the highest transparency. Under the stated comparison, greater transparency corresponds to greater unit value; the absence of a highest-unit-value specimen therefore supports A. The other options introduce claims not established by the passage.",
+    "confidence": "high"
+  },
+  "healthy": true,
+  "solver_key": "65a2f9569dfb2527b02cbdc9936cf9721d8ef76d9be5289897e442815a6f02cf",
+  "usage": [
+    {
+      "provider": "sol",
+      "key": "65a2f9569dfb2527b02cbdc9936cf9721d8ef76d9be5289897e442815a6f02cf",
+      "count": 1,
+      "usd": 0.002868,
+      "seconds": 7.565442624967545
+    },
+    {
+      "provider": "jev",
+      "key": "7278a8821644c2b9645bed0cc4b4221ecea912887fad39a9422188a60af09a45",
+      "seconds": 0.292,
+      "usd": 0
+    }
+  ]
+}

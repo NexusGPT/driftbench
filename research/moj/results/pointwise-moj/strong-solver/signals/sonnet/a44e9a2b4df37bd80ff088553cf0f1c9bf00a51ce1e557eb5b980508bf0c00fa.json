@@ -1,0 +1,24 @@
+{
+  "pA": 0.02,
+  "detail": {
+    "reference": "A. The disappearance of Pompeii in the Vesuvius eruption was sudden physical destruction by a natural disaster, not a change arising from societal development, intergroup contact, or gradual ecological and social shifts.",
+    "confidence": "high"
+  },
+  "healthy": true,
+  "solver_key": "5a7f9b7993031e6a9cc14de0b44dea01b04dc04da4de98ede922426faf17954c",
+  "usage": [
+    {
+      "provider": "sonnet",
+      "key": "5a7f9b7993031e6a9cc14de0b44dea01b04dc04da4de98ede922426faf17954c",
+      "count": 1,
+      "usd": 0.005104,
+      "seconds": 3.374574917019345
+    },
+    {
+      "provider": "jev",
+      "key": "6b1e901271a0f7af6a0ee85e6b6eae5cc7c4eceb67e89d860bc8085a8736721b",
+      "seconds": 0.304,
+      "usd": 0
+    }
+  ]
+}

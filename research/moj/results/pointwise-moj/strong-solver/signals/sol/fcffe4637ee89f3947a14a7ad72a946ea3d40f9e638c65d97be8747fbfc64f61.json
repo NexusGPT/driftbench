@@ -1,0 +1,24 @@
+{
+  "pA": 0.01,
+  "detail": {
+    "reference": "Option 3. Charpit’s equations give \\(\\dot x=q,\\ \\dot y=p,\\ \\dot u=2u,\\ \\dot p=p,\\ \\dot q=q\\). Initially, \\(q=2\\tau\\) and \\(p=\\tau/2\\). Hence the characteristic curves are\n\\[\nx=2\\tau(e^s-1),\\qquad y=\\frac{\\tau}{2}(e^s+1),\\qquad u=\\tau^2e^{2s}.\n\\]",
+    "confidence": "high"
+  },
+  "healthy": true,
+  "solver_key": "830c98bb431e9a0993f2de8970aac35bc902af41cb4bd2787d904047ac537749",
+  "usage": [
+    {
+      "provider": "sol",
+      "key": "830c98bb431e9a0993f2de8970aac35bc902af41cb4bd2787d904047ac537749",
+      "count": 1,
+      "usd": 0.003042,
+      "seconds": 5.945165625016671
+    },
+    {
+      "provider": "jev",
+      "key": "1853872c550666ef789e6cf40ca2c4fe7b8aa1ee625bff160ba5a80eb3755b41",
+      "seconds": 0.453,
+      "usd": 0
+    }
+  ]
+}

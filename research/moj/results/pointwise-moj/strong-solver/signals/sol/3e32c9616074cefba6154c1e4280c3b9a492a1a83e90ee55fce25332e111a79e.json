@@ -1,0 +1,24 @@
+{
+  "pA": 0.99,
+  "detail": {
+    "reference": "There are 70 integers, divided into 7 tens-digit groups of 10 each. Choose 6 groups and one integer from each. Thus\n\\[\nP=\\frac{\\binom{7}{6}10^6}{\\binom{70}{6}}=\\frac{200000}{3746171}\\approx0.05339,\n\\]\nabout 5.34%.",
+    "confidence": "high"
+  },
+  "healthy": true,
+  "solver_key": "2ea775e631de535f3806c1b110192cc1ad7c2c84fbaca007fa78a64a6a45de23",
+  "usage": [
+    {
+      "provider": "sol",
+      "key": "2ea775e631de535f3806c1b110192cc1ad7c2c84fbaca007fa78a64a6a45de23",
+      "count": 1,
+      "usd": 0.003212,
+      "seconds": 8.932483624957968
+    },
+    {
+      "provider": "jev",
+      "key": "db0ad2b4ef2445f066133fa56cbc71fdb8534703e90867f98ed0f851c0c8b657",
+      "seconds": 0.4,
+      "usd": 0
+    }
+  ]
+}

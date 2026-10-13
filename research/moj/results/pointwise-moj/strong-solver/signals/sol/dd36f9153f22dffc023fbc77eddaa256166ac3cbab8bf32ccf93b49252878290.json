@@ -1,0 +1,24 @@
+{
+  "pA": 0.01,
+  "detail": {
+    "reference": "c = 1/6, so k(s) = (1/4)s³ − (1/2)s² + (1/4)s = (1/4)s(s − 1)².",
+    "confidence": "high"
+  },
+  "healthy": true,
+  "solver_key": "7790d6f9fbd29b23d1732794bb24ce0d20a16dcb9e34a0cc0c55f673ac8dd57d",
+  "usage": [
+    {
+      "provider": "sol",
+      "key": "7790d6f9fbd29b23d1732794bb24ce0d20a16dcb9e34a0cc0c55f673ac8dd57d",
+      "count": 1,
+      "usd": 0.001662,
+      "seconds": 3.968998417025432
+    },
+    {
+      "provider": "jev",
+      "key": "93b4271668563cd0e3d421f2aab9a9c74211b304dafc3703c46bcb25f37a1a90",
+      "seconds": 0.377,
+      "usd": 0
+    }
+  ]
+}

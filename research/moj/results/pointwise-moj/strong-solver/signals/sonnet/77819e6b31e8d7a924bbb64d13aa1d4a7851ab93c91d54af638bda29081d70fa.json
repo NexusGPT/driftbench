@@ -1,0 +1,24 @@
+{
+  "pA": 0.02,
+  "detail": {
+    "reference": "5, b, 1 (that is, 5, 2, 1), since n = 14, f = 4, and b = (4/14)/(3/21) = 2.",
+    "confidence": "high"
+  },
+  "healthy": true,
+  "solver_key": "8301957a3813826aca562a700af1874516e5f1a40ec2c834d2dd991e988428af",
+  "usage": [
+    {
+      "provider": "sonnet",
+      "key": "8301957a3813826aca562a700af1874516e5f1a40ec2c834d2dd991e988428af",
+      "count": 1,
+      "usd": 0.003496,
+      "seconds": 2.593932041025255
+    },
+    {
+      "provider": "jev",
+      "key": "98533dbd8afba74a8b42c276cac4dd31fa4d3cefe3327941106b3b9f8ba0d5af",
+      "seconds": 0.738,
+      "usd": 0
+    }
+  ]
+}

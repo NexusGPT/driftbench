@@ -1,0 +1,24 @@
+{
+  "pA": 0.01,
+  "detail": {
+    "reference": "There are $11!!=10395$ pairings. If $G$ starts the last word, its partner has 5 choices; the other four higher letters must pair with distinct lower letters, giving $5(6\\cdot5\\cdot4\\cdot3)=1800$ pairings. Otherwise, the last word must be $FG$, giving $5!=120$ pairings. Thus the probability is $1920/10395=128/693$, so $m+n=\\boxed{821}$.",
+    "confidence": "high"
+  },
+  "healthy": true,
+  "solver_key": "22371787868d364f0f49bbcecbc66f01cdd0f51dc81ac286817bff9c06198808",
+  "usage": [
+    {
+      "provider": "sol",
+      "key": "22371787868d364f0f49bbcecbc66f01cdd0f51dc81ac286817bff9c06198808",
+      "count": 1,
+      "usd": 0.00371,
+      "seconds": 8.866426500026137
+    },
+    {
+      "provider": "jev",
+      "key": "71ae8c396f433475a706ba1c151b3e5933536efdd5dbc15d2a2c0ba3b38bdf11",
+      "seconds": 0.462,
+      "usd": 0
+    }
+  ]
+}

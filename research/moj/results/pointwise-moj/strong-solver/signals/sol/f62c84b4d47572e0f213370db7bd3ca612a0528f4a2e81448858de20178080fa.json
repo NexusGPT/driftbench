@@ -1,0 +1,24 @@
+{
+  "pA": 0.14,
+  "detail": {
+    "reference": "C. Xiao Liu cannot serve as a Shanghai World Expo volunteer because of his illness, so anyone who is both an Expo volunteer and a Save the Earth member cannot be Xiao Liu. Obtaining volunteer qualifications does not necessarily mean actually volunteering.",
+    "confidence": "high"
+  },
+  "healthy": true,
+  "solver_key": "5eb05c6e9b7a5b70d829a5021521953a77c0cff21c87c9b50650d86b4ab82b2d",
+  "usage": [
+    {
+      "provider": "sol",
+      "key": "5eb05c6e9b7a5b70d829a5021521953a77c0cff21c87c9b50650d86b4ab82b2d",
+      "count": 1,
+      "usd": 0.001528,
+      "seconds": 4.159485208976548
+    },
+    {
+      "provider": "jev",
+      "key": "a96eb7c849449f6f3d86b29952d4bf3d2abc6bbbd8ceb81eb2e490e90b65b5e0",
+      "seconds": 0.276,
+      "usd": 0
+    }
+  ]
+}

@@ -1,0 +1,24 @@
+{
+  "pA": 0.99,
+  "detail": {
+    "reference": "D. The passage explains what questioning means (critical learning and acceptance, distinct from doubt or total negation, aimed at finding flaws) and shows its practical value through the Einstein example.",
+    "confidence": "medium"
+  },
+  "healthy": true,
+  "solver_key": "6f3dd0081bb881733699a701363d9f9e1cab9b859f4cbbb9db4b20a57eb1547d",
+  "usage": [
+    {
+      "provider": "sonnet",
+      "key": "6f3dd0081bb881733699a701363d9f9e1cab9b859f4cbbb9db4b20a57eb1547d",
+      "count": 1,
+      "usd": 0.006956,
+      "seconds": 4.8293622500495985
+    },
+    {
+      "provider": "jev",
+      "key": "656b6ffa3cbc70d812ba6eb4196fc2e56a4063a8f6ae96fe12bfcfbd6b526daa",
+      "seconds": 0.279,
+      "usd": 0
+    }
+  ]
+}

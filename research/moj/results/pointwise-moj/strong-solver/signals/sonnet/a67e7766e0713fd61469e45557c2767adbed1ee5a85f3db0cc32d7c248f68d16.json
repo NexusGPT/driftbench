@@ -1,0 +1,24 @@
+{
+  "pA": 0.02,
+  "detail": {
+    "reference": "33146799 = 3 × 7 × 131 × 12049, so the prime factors are 3, 7, 131 and 12049.",
+    "confidence": "high"
+  },
+  "healthy": true,
+  "solver_key": "ffa4d8995f63657e8386d2b67317241f4823fe47c4e5ebce40cf950dd7f80c30",
+  "usage": [
+    {
+      "provider": "sonnet",
+      "key": "ffa4d8995f63657e8386d2b67317241f4823fe47c4e5ebce40cf950dd7f80c30",
+      "count": 1,
+      "usd": 0.014856000000000001,
+      "seconds": 10.499492749979254
+    },
+    {
+      "provider": "jev",
+      "key": "d4feef93a346d0fbe50d2118a2a4bc0794dbed7f59dd65d4713be10f359666f8",
+      "seconds": 0.361,
+      "usd": 0
+    }
+  ]
+}

@@ -1,0 +1,24 @@
+{
+  "pA": 1,
+  "detail": {
+    "reference": "y^2 = 8x",
+    "confidence": "high"
+  },
+  "healthy": true,
+  "solver_key": "455f865a905b5a827ae5689a070150cb9ddbf25f1041f8143bcf486649920108",
+  "usage": [
+    {
+      "provider": "sonnet",
+      "key": "455f865a905b5a827ae5689a070150cb9ddbf25f1041f8143bcf486649920108",
+      "count": 1,
+      "usd": 0.0045260000000000005,
+      "seconds": 2.914718250045553
+    },
+    {
+      "provider": "jev",
+      "key": "fd2e73c5d9adf3428cc1a2dab4e39393d353519033ab7876777c7dc3288b98e0",
+      "seconds": 0.397,
+      "usd": 0
+    }
+  ]
+}

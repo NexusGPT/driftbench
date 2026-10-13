@@ -1,0 +1,24 @@
+{
+  "pA": 0.95,
+  "detail": {
+    "reference": "(B) is the only expression that evaluates to true. Expressions (A), (C), (D), and (E) all evaluate to false.",
+    "confidence": "high"
+  },
+  "healthy": true,
+  "solver_key": "49801ce05328ed8f3112ec4d18bae2f93c86d9d4feebb7c9d352def37ff5e46c",
+  "usage": [
+    {
+      "provider": "sol",
+      "key": "49801ce05328ed8f3112ec4d18bae2f93c86d9d4feebb7c9d352def37ff5e46c",
+      "count": 1,
+      "usd": 0.006311,
+      "seconds": 10.79303829203127
+    },
+    {
+      "provider": "jev",
+      "key": "f4457b345f349545213aa403fb6e0cc6aca539de54462f0981bde95aa0c67009",
+      "seconds": 0.406,
+      "usd": 0
+    }
+  ]
+}

@@ -1,0 +1,24 @@
+{
+  "pA": 0.02,
+  "detail": {
+    "reference": "The prime factors are **3, 7, 131, and 12049**.\n\n33146799 = 3 × 7 × 131 × 12049.",
+    "confidence": "high"
+  },
+  "healthy": true,
+  "solver_key": "0b82339edff7a786c1d4fb1038652d24400c69c346a9d99622b32689b7ab4ea6",
+  "usage": [
+    {
+      "provider": "sol",
+      "key": "0b82339edff7a786c1d4fb1038652d24400c69c346a9d99622b32689b7ab4ea6",
+      "count": 1,
+      "usd": 0.010708,
+      "seconds": 22.997274666035082
+    },
+    {
+      "provider": "jev",
+      "key": "ea430a57c0b4c6966eb3c06d202ffb4732ca61b5149f551b0f1c1f37acc9c6db",
+      "seconds": 0.371,
+      "usd": 0
+    }
+  ]
+}

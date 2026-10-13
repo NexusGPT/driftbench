@@ -1,0 +1,24 @@
+{
+  "pA": 0.21,
+  "detail": {
+    "reference": "B. “Some people are not selfish” is equivalent to “Not all people are selfish,” so this inference is valid. It differs from the original argument and A, C, and D, which improperly reverse the relationship between the two categories.",
+    "confidence": "high"
+  },
+  "healthy": true,
+  "solver_key": "4e7def6ec809d6a9085711e93fd0b5abb32753ec45692a6cb0eaeac18dbb0886",
+  "usage": [
+    {
+      "provider": "sol",
+      "key": "4e7def6ec809d6a9085711e93fd0b5abb32753ec45692a6cb0eaeac18dbb0886",
+      "count": 1,
+      "usd": 0.002888,
+      "seconds": 7.399185084039345
+    },
+    {
+      "provider": "jev",
+      "key": "a183662044216b90a7201d856b0c1e587de405f00a40445ef57c51c6f810ffea",
+      "seconds": 0.407,
+      "usd": 0
+    }
+  ]
+}

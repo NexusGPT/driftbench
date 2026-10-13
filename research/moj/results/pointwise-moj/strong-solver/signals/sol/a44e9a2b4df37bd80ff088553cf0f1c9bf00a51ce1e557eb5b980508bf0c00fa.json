@@ -1,0 +1,24 @@
+{
+  "pA": 0.02,
+  "detail": {
+    "reference": "A. Pompeii’s destruction in the eruption of Mount Vesuvius was a sudden physical catastrophe, rather than cultural change arising from social development, intercultural contact, or the gradual disappearance of cultural elements.",
+    "confidence": "high"
+  },
+  "healthy": true,
+  "solver_key": "d8c20b0fc7d4ca88d729fbd5faa581440780468bc0adf6df7fe1b340b5c3fbfe",
+  "usage": [
+    {
+      "provider": "sol",
+      "key": "d8c20b0fc7d4ca88d729fbd5faa581440780468bc0adf6df7fe1b340b5c3fbfe",
+      "count": 1,
+      "usd": 0.001972,
+      "seconds": 6.284649292007089
+    },
+    {
+      "provider": "jev",
+      "key": "f2a8facc7f149c5294251f18999748951e7121dd0090007004cf7f8079e21073",
+      "seconds": 0.381,
+      "usd": 0
+    }
+  ]
+}

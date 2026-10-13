@@ -1,0 +1,24 @@
+{
+  "pA": 0.98,
+  "detail": {
+    "reference": "Let the omitted angle be α. Since the polygon is convex, 0° < α < 180°. Thus 1070° < (n−2)180° < 1250°, giving 7.94 < n < 8.94. The only integer possibility is n = 8, so the polygon has 8 sides.",
+    "confidence": "high"
+  },
+  "healthy": true,
+  "solver_key": "f8e3ac8925e0b800f61fc7f26a12c01a93b33a51b1d0dac66f781f71652ab5f8",
+  "usage": [
+    {
+      "provider": "sol",
+      "key": "f8e3ac8925e0b800f61fc7f26a12c01a93b33a51b1d0dac66f781f71652ab5f8",
+      "count": 1,
+      "usd": 0.001778,
+      "seconds": 4.687970582977869
+    },
+    {
+      "provider": "jev",
+      "key": "6c885d7d2f974f3efb51b70579a39dfb17ad7fe054560dd14313703e0bce2e54",
+      "seconds": 0.307,
+      "usd": 0
+    }
+  ]
+}

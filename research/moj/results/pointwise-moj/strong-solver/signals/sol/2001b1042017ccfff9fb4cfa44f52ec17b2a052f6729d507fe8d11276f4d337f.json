@@ -1,0 +1,24 @@
+{
+  "pA": 0.99,
+  "detail": {
+    "reference": "D. Its connotation and practical value. The passage defines questioning as critical learning and acceptance, rather than mere doubt or total rejection, and illustrates its value in identifying limitations and improving scientific theories.",
+    "confidence": "high"
+  },
+  "healthy": true,
+  "solver_key": "a5e119d242b027abed7a6230751692cd54a0d6388d0b4df35986d760f58c9d14",
+  "usage": [
+    {
+      "provider": "sol",
+      "key": "a5e119d242b027abed7a6230751692cd54a0d6388d0b4df35986d760f58c9d14",
+      "count": 1,
+      "usd": 0.00163,
+      "seconds": 4.716281209024601
+    },
+    {
+      "provider": "jev",
+      "key": "59536f6436ed73578547bf842482f0a4bc16a56a713e2b7807e3c346bfc68ffe",
+      "seconds": 0.275,
+      "usd": 0
+    }
+  ]
+}

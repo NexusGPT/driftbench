@@ -1,0 +1,24 @@
+{
+  "pA": 0.01,
+  "detail": {
+    "reference": "The limit is \\(\\boxed{+\\infty}\\) in the extended-real sense. Indeed, as \\(x\\to2^+\\),\n\\[\\frac{\\ln(x-1)}{(x-2)^2}\\sim\\frac1{x-2}.\\]\nThus the first improper integral diverges to \\(+\\infty\\) for every \\(\\epsilon>0\\), while the second integral tends to zero. No finite limit exists.",
+    "confidence": "high"
+  },
+  "healthy": true,
+  "solver_key": "87cd4304b76e63b44a85ef49989e644ff6823a795974c7dcb997cb0489114dc6",
+  "usage": [
+    {
+      "provider": "sol",
+      "key": "87cd4304b76e63b44a85ef49989e644ff6823a795974c7dcb997cb0489114dc6",
+      "count": 1,
+      "usd": 0.0023,
+      "seconds": 5.377076416974887
+    },
+    {
+      "provider": "jev",
+      "key": "da8acdfcb10107eeb6d604c7dc28187f31094cb001752528684ff12ac6994b3d",
+      "seconds": 0.453,
+      "usd": 0
+    }
+  ]
+}

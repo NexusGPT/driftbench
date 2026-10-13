@@ -1,0 +1,24 @@
+{
+  "pA": 0.98,
+  "detail": {
+    "reference": "The discounted price was $12 × 80% = $9.60. Total revenue was (450 × 35% × $12) + (450 × 65% × $9.60) = $1,890 + $2,808 = $4,698.",
+    "confidence": "high"
+  },
+  "healthy": true,
+  "solver_key": "31aac7b5b8930e174d30af4d9dda1a05c93e72662dbb784b9532a9768cf72f33",
+  "usage": [
+    {
+      "provider": "sol",
+      "key": "31aac7b5b8930e174d30af4d9dda1a05c93e72662dbb784b9532a9768cf72f33",
+      "count": 1,
+      "usd": 0.001838,
+      "seconds": 4.834925582981668
+    },
+    {
+      "provider": "jev",
+      "key": "aa4586830c0bf2bc6529c869a6628aa6403ee0c90d8897b7a517d94fcd31fa9e",
+      "seconds": 0.34,
+      "usd": 0
+    }
+  ]
+}

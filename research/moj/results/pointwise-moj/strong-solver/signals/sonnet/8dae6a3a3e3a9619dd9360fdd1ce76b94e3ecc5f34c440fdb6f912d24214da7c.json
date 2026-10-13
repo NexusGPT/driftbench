@@ -1,0 +1,24 @@
+{
+  "pA": 0.05,
+  "detail": {
+    "reference": "(B) none of the above. The drawing contains a non-square rectangle (1), a concave pentagon (8) and an equilateral, hence non-right, triangle (3). No right triangle appears, so no listed option matches 1, 8 and 3.",
+    "confidence": "high"
+  },
+  "healthy": true,
+  "solver_key": "92e268dc7c61798e81115bfa0ea115dbb5e277356c20b2ffe3f87e8811765d7a",
+  "usage": [
+    {
+      "provider": "sonnet",
+      "key": "92e268dc7c61798e81115bfa0ea115dbb5e277356c20b2ffe3f87e8811765d7a",
+      "count": 1,
+      "usd": 0.028758000000000002,
+      "seconds": 21.511528707982507
+    },
+    {
+      "provider": "jev",
+      "key": "3807595014c6e42ba690ad2e8445c86ac496b287a78428282d8b2a9af2b27726",
+      "seconds": 0.397,
+      "usd": 0
+    }
+  ]
+}

@@ -1,0 +1,24 @@
+{
+  "pA": 0.01,
+  "detail": {
+    "reference": "k(s) = s(s − 1)²/4 (since c = 1/6, k(s) = s³/4 − s²/2 + s/4)",
+    "confidence": "high"
+  },
+  "healthy": true,
+  "solver_key": "d8c99b823253b346f706c1a70ad33aa40952815557fd9c8da58b790cdc622801",
+  "usage": [
+    {
+      "provider": "sonnet",
+      "key": "d8c99b823253b346f706c1a70ad33aa40952815557fd9c8da58b790cdc622801",
+      "count": 1,
+      "usd": 0.003602,
+      "seconds": 2.1378193339915015
+    },
+    {
+      "provider": "jev",
+      "key": "e5c3b77cd84db4d0ac216e33c8447cd51e13ac3648051b871e70ff1e58e64223",
+      "seconds": 0.432,
+      "usd": 0
+    }
+  ]
+}

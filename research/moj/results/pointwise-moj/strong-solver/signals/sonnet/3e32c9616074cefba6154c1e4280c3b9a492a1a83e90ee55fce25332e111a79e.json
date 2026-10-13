@@ -1,0 +1,24 @@
+{
+  "pA": 0.99,
+  "detail": {
+    "reference": "200000/3746171 (≈0.0534), i.e. 7·10^6 / C(70,6)",
+    "confidence": "high"
+  },
+  "healthy": true,
+  "solver_key": "4c153b2d1b032fda89526339226954dd224667732c95c8e53e15dddc76763bdc",
+  "usage": [
+    {
+      "provider": "sonnet",
+      "key": "4c153b2d1b032fda89526339226954dd224667732c95c8e53e15dddc76763bdc",
+      "count": 1,
+      "usd": 0.0069,
+      "seconds": 4.936122874962166
+    },
+    {
+      "provider": "jev",
+      "key": "6901cdbea0dd3a854b1d1c5cf25580e677085df3eadb0f8e5852b4f4dd41e2c8",
+      "seconds": 0.368,
+      "usd": 0
+    }
+  ]
+}

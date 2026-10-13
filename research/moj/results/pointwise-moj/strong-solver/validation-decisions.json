@@ -1,0 +1,5504 @@
+{
+  "luna fitted": {
+    "verify|002ba0331c11a198784abdfff1d7b8fb_936d37ed03db3340809ca9409508b906": {
+      "pA": 0.06,
+      "verdict": "B",
+      "usage": [
+        {
+          "provider": "jev",
+          "count": 1,
+          "usd": 0
+        },
+        {
+          "provider": "luna",
+          "count": 1,
+          "usd": 0.000642
+        }
+      ]
+    },
+    "verify|00a93c5457ba7180f88944780f9134a0_773a31d04e4d41c29af003fb95f3b960": {
+      "pA": 0.7,
+      "verdict": "A",
+      "usage": [
+        {
+          "provider": "jev",
+          "count": 1,
+          "usd": 0
+        },
+        {
+          "provider": "luna",
+          "count": 1,
+          "usd": 0.000206
+        }
+      ]
+    },
+    "verify|012d78a208c04759392be0c8b9d27dc6_dc9a328c94255249105f5d3b465499d5": {
+      "pA": 0.01,
+      "verdict": "B",
+      "usage": [
+        {
+          "provider": "jev",
+          "count": 1,
+          "usd": 0
+        },
+        {
+          "provider": "luna",
+          "count": 1,
+          "usd": 0.000206
+        }
+      ]
+    },
+    "verify|0af2a305f4c4e44a69c7fd5e03d7f74e_7ff87a43db7f15aa80827e2230dd95a1": {
+      "pA": 0.06,
+      "verdict": "B",
+      "usage": [
+        {
+          "provider": "jev",
+          "count": 1,
+          "usd": 0
+        },
+        {
+          "provider": "luna",
+          "count": 1,
+          "usd": 0.000255
+        }
+      ]
+    },
+    "verify|20f09d89d7c677862fd06e2e96e7ec19_a7f2ac04dc8fb1609ab7384631ce736c": {
+      "pA": 0.01,
+      "verdict": "B",
+      "usage": [
+        {
+          "provider": "jev",
+          "count": 1,
+          "usd": 0
+        },
+        {
+          "provider": "luna",
+          "count": 1,
+          "usd": 0.000143
+        }
+      ]
+    },
+    "verify|251325e4d8bd19d38d1481ec5bb6b952_b0e0faf620816637683d6cefbc8d905d": {
+      "pA": 0.02,
+      "verdict": "B",
+      "usage": [
+        {
+          "provider": "jev",
+          "count": 1,
+          "usd": 0
+        },
+        {
+          "provider": "luna",
+          "count": 1,
+          "usd": 0.001689
+        }
+      ]
+    },
+    "verify|2fabe7c11c7747a8d772a0ef0448e9a8_ce122c4fd3633a58d1e4ead1e46a9a01": {
+      "pA": 0.02,
+      "verdict": "B",
+      "usage": [
+        {
+          "provider": "jev",
+          "count": 1,
+          "usd": 0
+        },
+        {
+          "provider": "luna",
+          "count": 1,
+          "usd": 0.000891
+        }
+      ]
+    },
+    "verify|316ee3d0bc7b041ff6036ff4eedebd63_2a81f176304fb48b93a51804c8813763": {
+      "pA": 0.01,
+      "verdict": "B",
+      "usage": [
+        {
+          "provider": "jev",
+          "count": 1,
+          "usd": 0
+        },
+        {
+          "provider": "luna",
+          "count": 1,
+          "usd": 0.00013
+        }
+      ]
+    },
+    "verify|3e12f104244648c9a58ed98d25d06249_a2144e352f15bb692f84f1721110479b": {
+      "pA": 0.28,
+      "verdict": "B",
+      "usage": [
+        {
+          "provider": "jev",
+          "count": 1,
+          "usd": 0
+        },
+        {
+          "provider": "luna",
+          "count": 1,
+          "usd": 0.002901
+        }
+      ]
+    },
+    "verify|4d1497a568219528716b51f87ef72f18_6029e690d7a881057e987894b31db7e6": {
+      "pA": 0.21,
+      "verdict": "B",
+      "usage": [
+        {
+          "provider": "jev",
+          "count": 1,
+          "usd": 0
+        },
+        {
+          "provider": "luna",
+          "count": 1,
+          "usd": 0.000534
+        }
+      ]
+    },
+    "verify|4d94773555d0a8e3f9b059e6cc729bdf_42f7be3f4cdef5f9018edfefec78418b": {
+      "pA": 0.01,
+      "verdict": "B",
+      "usage": [
+        {
+          "provider": "jev",
+          "count": 1,
+          "usd": 0
+        },
+        {
+          "provider": "luna",
+          "count": 1,
+          "usd": 0.000625
+        }
+      ]
+    },
+    "verify|4fd3bc514ff8e3775723a0f883a7d347_54c1d82ec537b265b891b55d68a2d539": {
+      "pA": 0.3,
+      "verdict": "B",
+      "usage": [
+        {
+          "provider": "jev",
+          "count": 1,
+          "usd": 0
+        },
+        {
+          "provider": "luna",
+          "count": 1,
+          "usd": 0.00151
+        }
+      ]
+    },
+    "verify|50624457d129ae6ba7aa043aa9bdc92b_b8dae8e757dabf12f4302375e64baa0d": {
+      "pA": 0.2,
+      "verdict": "B",
+      "usage": [
+        {
+          "provider": "jev",
+          "count": 1,
+          "usd": 0
+        },
+        {
+          "provider": "luna",
+          "count": 1,
+          "usd": 0.000465
+        }
+      ]
+    },
+    "verify|514cb7d27518d395ec9a46c2ae62c9bf_6a8c772c3cbf9a7e26dae82deafbc213": {
+      "pA": 0.03,
+      "verdict": "B",
+      "usage": [
+        {
+          "provider": "jev",
+          "count": 1,
+          "usd": 0
+        },
+        {
+          "provider": "luna",
+          "count": 1,
+          "usd": 0.000191
+        }
+      ]
+    },
+    "verify|52fc2d3ed06507bdbd094aabcfde7e1d_67b0aab158f41fd3a9675c7d5529910e": {
+      "pA": 0.48,
+      "verdict": "A",
+      "usage": [
+        {
+          "provider": "jev",
+          "count": 1,
+          "usd": 0
+        },
+        {
+          "provider": "luna",
+          "count": 1,
+          "usd": 0.000274
+        }
+      ]
+    },
+    "verify|5305069c7919fc01c8707be50843590a_b156bd30f7b7d418897e9ccec7ea7708": {
+      "pA": 0.97,
+      "verdict": "A",
+      "usage": [
+        {
+          "provider": "jev",
+          "count": 1,
+          "usd": 0
+        },
+        {
+          "provider": "luna",
+          "count": 1,
+          "usd": 0.001558
+        }
+      ]
+    },
+    "verify|5379ab99eae4161320d5bb2c0850315e_bcec25bc2e21ce2667e0368df647bcf2": {
+      "pA": 0.02,
+      "verdict": "B",
+      "usage": [
+        {
+          "provider": "jev",
+          "count": 1,
+          "usd": 0
+        },
+        {
+          "provider": "luna",
+          "count": 1,
+          "usd": 0.001246
+        }
+      ]
+    },
+    "verify|57ca02df541ae1687b9712f12df0e425_ee6b572c5fd4f4a2a6b0cb97265a4af8": {
+      "pA": 0.02,
+      "verdict": "B",
+      "usage": [
+        {
+          "provider": "jev",
+          "count": 1,
+          "usd": 0
+        },
+        {
+          "provider": "luna",
+          "count": 1,
+          "usd": 0.000365
+        }
+      ]
+    },
+    "verify|5bb00a02996657dbb10ae730c8f472fa_367ecf9f07ea60d49a5af54a47d97898": {
+      "pA": 0.96,
+      "verdict": "A",
+      "usage": [
+        {
+          "provider": "jev",
+          "count": 1,
+          "usd": 0
+        },
+        {
+          "provider": "luna",
+          "count": 1,
+          "usd": 4.4e-05
+        }
+      ]
+    },
+    "verify|5c0953ccc0fe13a7c7843f7c30711707_b803a6e1123d88f6b68aff3e8677de31": {
+      "pA": 0.02,
+      "verdict": "B",
+      "usage": [
+        {
+          "provider": "jev",
+          "count": 1,
+          "usd": 0
+        },
+        {
+          "provider": "luna",
+          "count": 1,
+          "usd": 0.000378
+        }
+      ]
+    },
+    "verify|5dfb02d5ff7008e6319ca9ebff69f3ba_c5d3070446bc46d1c98f353fce17822e": {
+      "pA": 0.93,
+      "verdict": "A",
+      "usage": [
+        {
+          "provider": "jev",
+          "count": 1,
+          "usd": 0
+        },
+        {
+          "provider": "luna",
+          "count": 1,
+          "usd": 0.000331
+        }
+      ]
+    },
+    "verify|6475b7ad5531cf9bc60abf8728996c1d_14dcca0905e181fe50f31e588e3dd482": {
+      "pA": 0.01,
+      "verdict": "B",
+      "usage": [
+        {
+          "provider": "jev",
+          "count": 1,
+          "usd": 0
+        },
+        {
+          "provider": "luna",
+          "count": 1,
+          "usd": 0.000194
+        }
+      ]
+    },
+    "verify|6e4aba2ba0751961277a5be9c22f6e53_76bc2098e25dcd33b5bde96980673a4b": {
+      "pA": 0.05,
+      "verdict": "B",
+      "usage": [
+        {
+          "provider": "jev",
+          "count": 1,
+          "usd": 0
+        },
+        {
+          "provider": "luna",
+          "count": 1,
+          "usd": 0.000149
+        }
+      ]
+    },
+    "verify|74455975cc7822e30f33648e197a1775_ccbe576fccccc23b0bdad67d79075fb2": {
+      "pA": 0.16,
+      "verdict": "B",
+      "usage": [
+        {
+          "provider": "jev",
+          "count": 1,
+          "usd": 0
+        },
+        {
+          "provider": "luna",
+          "count": 1,
+          "usd": 6.3e-05
+        }
+      ]
+    },
+    "verify|7c3345602da2596f3ff58658788cd183_cbfde9b9bf8facffcf498eab4aadd1a6": {
+      "pA": 0.98,
+      "verdict": "A",
+      "usage": [
+        {
+          "provider": "jev",
+          "count": 1,
+          "usd": 0
+        },
+        {
+          "provider": "luna",
+          "count": 1,
+          "usd": 0.000616
+        }
+      ]
+    },
+    "verify|848aefe451338e2934283c1417b49704_5d429963fda0a400af8b2e0d334830a7": {
+      "pA": 0.99,
+      "verdict": "A",
+      "usage": [
+        {
+          "provider": "jev",
+          "count": 1,
+          "usd": 0
+        },
+        {
+          "provider": "luna",
+          "count": 1,
+          "usd": 0.000692
+        }
+      ]
+    },
+    "verify|8725986b8def7d6dc2430b5a82ebe768_d892147f21a603cf006be26ac0db27cb": {
+      "pA": 0.93,
+      "verdict": "A",
+      "usage": [
+        {
+          "provider": "jev",
+          "count": 1,
+          "usd": 0
+        },
+        {
+          "provider": "luna",
+          "count": 1,
+          "usd": 0.000194
+        }
+      ]
+    },
+    "verify|885d1842d6a91b50b8ae527de98c3aad_b33afc0790fa12b013da7a444d8410d6": {
+      "pA": 0.1,
+      "verdict": "B",
+      "usage": [
+        {
+          "provider": "jev",
+          "count": 1,
+          "usd": 0
+        },
+        {
+          "provider": "luna",
+          "count": 1,
+          "usd": 0.000129
+        }
+      ]
+    },
+    "verify|886ed3392b036e68166e5b531b324911_2c9f5b90761ca8037817845fb3c49f75": {
+      "pA": 0.02,
+      "verdict": "B",
+      "usage": [
+        {
+          "provider": "jev",
+          "count": 1,
+          "usd": 0
+        },
+        {
+          "provider": "luna",
+          "count": 1,
+          "usd": 0.00022
+        }
+      ]
+    },
+    "verify|892778a2fbb44f0137777a78340d5644_ed17186ec99cb1fdbed4cf47762f6f2a": {
+      "pA": 0.01,
+      "verdict": "B",
+      "usage": [
+        {
+          "provider": "jev",
+          "count": 1,
+          "usd": 0
+        },
+        {
+          "provider": "luna",
+          "count": 1,
+          "usd": 0.000246
+        }
+      ]
+    },
+    "verify|8fb2e641b5868077f1080ebc2a77f638_ab543eb5433d029341e7180d9d1d684a": {
+      "pA": 0.23,
+      "verdict": "B",
+      "usage": [
+        {
+          "provider": "jev",
+          "count": 1,
+          "usd": 0
+        },
+        {
+          "provider": "luna",
+          "count": 1,
+          "usd": 9.3e-05
+        }
+      ]
+    },
+    "verify|987731fefdee670139b52a3c2cd13b54_63abd6b1489e90a7836c25efd043d174": {
+      "pA": 1,
+      "verdict": "A",
+      "usage": [
+        {
+          "provider": "jev",
+          "count": 1,
+          "usd": 0
+        },
+        {
+          "provider": "luna",
+          "count": 1,
+          "usd": 4.7e-05
+        }
+      ]
+    },
+    "verify|9cf12f34adac95169b15ddc25480ec2c_a7f2414568e73815e19f8370f3aeec89": {
+      "pA": 0.02,
+      "verdict": "B",
+      "usage": [
+        {
+          "provider": "jev",
+          "count": 1,
+          "usd": 0
+        },
+        {
+          "provider": "luna",
+          "count": 1,
+          "usd": 9.6e-05
+        }
+      ]
+    },
+    "verify|9eeb0aa3c4d5607cf62dac86e1b9eca4_75b2a58542259d851176d51275ee3259": {
+      "pA": 0.3,
+      "verdict": "B",
+      "usage": [
+        {
+          "provider": "jev",
+          "count": 1,
+          "usd": 0
+        },
+        {
+          "provider": "luna",
+          "count": 1,
+          "usd": 4.9e-05
+        }
+      ]
+    },
+    "verify|a42ea38dfa10aa7e396220d1943be6e4_944b95a9b576030a613b3b12a27968a1": {
+      "pA": 0.98,
+      "verdict": "A",
+      "usage": [
+        {
+          "provider": "jev",
+          "count": 1,
+          "usd": 0
+        },
+        {
+          "provider": "luna",
+          "count": 1,
+          "usd": 0.000115
+        }
+      ]
+    },
+    "verify|a4ec51f047502137ba39fd41cfc5bb68_c2caf04b04cdfc57e3491ad56e63a5a7": {
+      "pA": 0.03,
+      "verdict": "B",
+      "usage": [
+        {
+          "provider": "jev",
+          "count": 1,
+          "usd": 0
+        },
+        {
+          "provider": "luna",
+          "count": 1,
+          "usd": 0.00029
+        }
+      ]
+    },
+    "verify|a5b0bbe7c43295f2dbea2c23333da1a5_e57fae23da1e0a3010c9aa0497a626e8": {
+      "pA": 0.01,
+      "verdict": "B",
+      "usage": [
+        {
+          "provider": "jev",
+          "count": 1,
+          "usd": 0
+        },
+        {
+          "provider": "luna",
+          "count": 1,
+          "usd": 0.000126
+        }
+      ]
+    },
+    "verify|adba4a0e3dc7ec9d2b9a05a9d21f2209_d48215d589eb5969bfcfcd58993ab543": {
+      "pA": 0.28,
+      "verdict": "B",
+      "usage": [
+        {
+          "provider": "jev",
+          "count": 1,
+          "usd": 0
+        },
+        {
+          "provider": "luna",
+          "count": 1,
+          "usd": 0.000201
+        }
+      ]
+    },
+    "verify|aee1de22ebcbd6dffb545f85c2cc6d3c_4ad6596d535addc90e3929c4cd601d2a": {
+      "pA": 0.99,
+      "verdict": "A",
+      "usage": [
+        {
+          "provider": "jev",
+          "count": 1,
+          "usd": 0
+        },
+        {
+          "provider": "luna",
+          "count": 1,
+          "usd": 0.000711
+        }
+      ]
+    },
+    "verify|b5bc983f90abcc1471893cf179ba0bfa_505d5f6ba81adc9e6464f0e068aa11e4": {
+      "pA": 0.1,
+      "verdict": "B",
+      "usage": [
+        {
+          "provider": "jev",
+          "count": 1,
+          "usd": 0
+        },
+        {
+          "provider": "luna",
+          "count": 1,
+          "usd": 0.000266
+        }
+      ]
+    },
+    "verify|b7efa9e28caf28086ae71c1099f80c85_c2a2771adf0010ee3a5ba9e3450a37c0": {
+      "pA": 0.04,
+      "verdict": "B",
+      "usage": [
+        {
+          "provider": "jev",
+          "count": 1,
+          "usd": 0
+        },
+        {
+          "provider": "luna",
+          "count": 1,
+          "usd": 0.0001
+        }
+      ]
+    },
+    "verify|be062ca3146709520fb4af362eadc7fd_13c03b682a952e80a999c8551089683b": {
+      "pA": 0.16,
+      "verdict": "B",
+      "usage": [
+        {
+          "provider": "jev",
+          "count": 1,
+          "usd": 0
+        },
+        {
+          "provider": "luna",
+          "count": 1,
+          "usd": 9.7e-05
+        }
+      ]
+    },
+    "verify|c41dbbb9d77e5ccbcbe4a0ea02453603_202dea5c7e880415ece22aaa2518ae03": {
+      "pA": 0.01,
+      "verdict": "B",
+      "usage": [
+        {
+          "provider": "jev",
+          "count": 1,
+          "usd": 0
+        },
+        {
+          "provider": "luna",
+          "count": 1,
+          "usd": 0.001355
+        }
+      ]
+    },
+    "verify|c8cadbcb97f9fc98c52201c05d2cc7ed_e53ffb97227c484cb4cf3e395207ef4f": {
+      "pA": 0.08,
+      "verdict": "B",
+      "usage": [
+        {
+          "provider": "jev",
+          "count": 1,
+          "usd": 0
+        },
+        {
+          "provider": "luna",
+          "count": 1,
+          "usd": 0.000233
+        }
+      ]
+    },
+    "verify|ca370252fd6426290feed014586fe69e_7eab75a8a39e3c975b8492f9161b9f40": {
+      "pA": 0.04,
+      "verdict": "B",
+      "usage": [
+        {
+          "provider": "jev",
+          "count": 1,
+          "usd": 0
+        },
+        {
+          "provider": "luna",
+          "count": 1,
+          "usd": 0.000335
+        }
+      ]
+    },
+    "verify|d29e283a52241c0a9a32224b711237bd_cab7eb980622deaad71cf6fe7e803264": {
+      "pA": 0.96,
+      "verdict": "A",
+      "usage": [
+        {
+          "provider": "jev",
+          "count": 1,
+          "usd": 0
+        },
+        {
+          "provider": "luna",
+          "count": 1,
+          "usd": 4.6e-05
+        }
+      ]
+    },
+    "verify|e294330c907c43e8b8e2fe5b2d1eff04_01bcb6a22e65a9be3cd5c1f0c5accf0b": {
+      "pA": 0.98,
+      "verdict": "A",
+      "usage": [
+        {
+          "provider": "jev",
+          "count": 1,
+          "usd": 0
+        },
+        {
+          "provider": "luna",
+          "count": 1,
+          "usd": 9e-05
+        }
+      ]
+    },
+    "verify|e63f281ff9bfcefd25555cccf1517855_75af0c15b91bd41dee7da9b35ca2129d": {
+      "pA": 0.49,
+      "verdict": "A",
+      "usage": [
+        {
+          "provider": "jev",
+          "count": 1,
+          "usd": 0
+        },
+        {
+          "provider": "luna",
+          "count": 1,
+          "usd": 0.000332
+        }
+      ]
+    },
+    "verify|e65ff550a41d8aab1c6794c36e7c2a47_4fe039b653a63adb5b06881c68c09b99": {
+      "pA": 0.21,
+      "verdict": "B",
+      "usage": [
+        {
+          "provider": "jev",
+          "count": 1,
+          "usd": 0
+        },
+        {
+          "provider": "luna",
+          "count": 1,
+          "usd": 0.001549
+        }
+      ]
+    }
+  },
+  "luna fixed_0.5": {
+    "verify|002ba0331c11a198784abdfff1d7b8fb_936d37ed03db3340809ca9409508b906": {
+      "pA": 0.06,
+      "verdict": "B",
+      "usage": [
+        {
+          "provider": "jev",
+          "count": 1,
+          "usd": 0
+        },
+        {
+          "provider": "luna",
+          "count": 1,
+          "usd": 0.000642
+        }
+      ]
+    },
+    "verify|00a93c5457ba7180f88944780f9134a0_773a31d04e4d41c29af003fb95f3b960": {
+      "pA": 0.7,
+      "verdict": "A",
+      "usage": [
+        {
+          "provider": "jev",
+          "count": 1,
+          "usd": 0
+        },
+        {
+          "provider": "luna",
+          "count": 1,
+          "usd": 0.000206
+        }
+      ]
+    },
+    "verify|012d78a208c04759392be0c8b9d27dc6_dc9a328c94255249105f5d3b465499d5": {
+      "pA": 0.01,
+      "verdict": "B",
+      "usage": [
+        {
+          "provider": "jev",
+          "count": 1,
+          "usd": 0
+        },
+        {
+          "provider": "luna",
+          "count": 1,
+          "usd": 0.000206
+        }
+      ]
+    },
+    "verify|0af2a305f4c4e44a69c7fd5e03d7f74e_7ff87a43db7f15aa80827e2230dd95a1": {
+      "pA": 0.06,
+      "verdict": "B",
+      "usage": [
+        {
+          "provider": "jev",
+          "count": 1,
+          "usd": 0
+        },
+        {
+          "provider": "luna",
+          "count": 1,
+          "usd": 0.000255
+        }
+      ]
+    },
+    "verify|20f09d89d7c677862fd06e2e96e7ec19_a7f2ac04dc8fb1609ab7384631ce736c": {
+      "pA": 0.01,
+      "verdict": "B",
+      "usage": [
+        {
+          "provider": "jev",
+          "count": 1,
+          "usd": 0
+        },
+        {
+          "provider": "luna",
+          "count": 1,
+          "usd": 0.000143
+        }
+      ]
+    },
+    "verify|251325e4d8bd19d38d1481ec5bb6b952_b0e0faf620816637683d6cefbc8d905d": {
+      "pA": 0.02,
+      "verdict": "B",
+      "usage": [
+        {
+          "provider": "jev",
+          "count": 1,
+          "usd": 0
+        },
+        {
+          "provider": "luna",
+          "count": 1,
+          "usd": 0.001689
+        }
+      ]
+    },
+    "verify|2fabe7c11c7747a8d772a0ef0448e9a8_ce122c4fd3633a58d1e4ead1e46a9a01": {
+      "pA": 0.02,
+      "verdict": "B",
+      "usage": [
+        {
+          "provider": "jev",
+          "count": 1,
+          "usd": 0
+        },
+        {
+          "provider": "luna",
+          "count": 1,
+          "usd": 0.000891
+        }
+      ]
+    },
+    "verify|316ee3d0bc7b041ff6036ff4eedebd63_2a81f176304fb48b93a51804c8813763": {
+      "pA": 0.01,
+      "verdict": "B",
+      "usage": [
+        {
+          "provider": "jev",
+          "count": 1,
+          "usd": 0
+        },
+        {
+          "provider": "luna",
+          "count": 1,
+          "usd": 0.00013
+        }
+      ]
+    },
+    "verify|3e12f104244648c9a58ed98d25d06249_a2144e352f15bb692f84f1721110479b": {
+      "pA": 0.28,
+      "verdict": "B",
+      "usage": [
+        {
+          "provider": "jev",
+          "count": 1,
+          "usd": 0
+        },
+        {
+          "provider": "luna",
+          "count": 1,
+          "usd": 0.002901
+        }
+      ]
+    },
+    "verify|4d1497a568219528716b51f87ef72f18_6029e690d7a881057e987894b31db7e6": {
+      "pA": 0.21,
+      "verdict": "B",
+      "usage": [
+        {
+          "provider": "jev",
+          "count": 1,
+          "usd": 0
+        },
+        {
+          "provider": "luna",
+          "count": 1,
+          "usd": 0.000534
+        }
+      ]
+    },
+    "verify|4d94773555d0a8e3f9b059e6cc729bdf_42f7be3f4cdef5f9018edfefec78418b": {
+      "pA": 0.01,
+      "verdict": "B",
+      "usage": [
+        {
+          "provider": "jev",
+          "count": 1,
+          "usd": 0
+        },
+        {
+          "provider": "luna",
+          "count": 1,
+          "usd": 0.000625
+        }
+      ]
+    },
+    "verify|4fd3bc514ff8e3775723a0f883a7d347_54c1d82ec537b265b891b55d68a2d539": {
+      "pA": 0.3,
+      "verdict": "B",
+      "usage": [
+        {
+          "provider": "jev",
+          "count": 1,
+          "usd": 0
+        },
+        {
+          "provider": "luna",
+          "count": 1,
+          "usd": 0.00151
+        }
+      ]
+    },
+    "verify|50624457d129ae6ba7aa043aa9bdc92b_b8dae8e757dabf12f4302375e64baa0d": {
+      "pA": 0.2,
+      "verdict": "B",
+      "usage": [
+        {
+          "provider": "jev",
+          "count": 1,
+          "usd": 0
+        },
+        {
+          "provider": "luna",
+          "count": 1,
+          "usd": 0.000465
+        }
+      ]
+    },
+    "verify|514cb7d27518d395ec9a46c2ae62c9bf_6a8c772c3cbf9a7e26dae82deafbc213": {
+      "pA": 0.03,
+      "verdict": "B",
+      "usage": [
+        {
+          "provider": "jev",
+          "count": 1,
+          "usd": 0
+        },
+        {
+          "provider": "luna",
+          "count": 1,
+          "usd": 0.000191
+        }
+      ]
+    },
+    "verify|52fc2d3ed06507bdbd094aabcfde7e1d_67b0aab158f41fd3a9675c7d5529910e": {
+      "pA": 0.48,
+      "verdict": "B",
+      "usage": [
+        {
+          "provider": "jev",
+          "count": 1,
+          "usd": 0
+        },
+        {
+          "provider": "luna",
+          "count": 1,
+          "usd": 0.000274
+        }
+      ]
+    },
+    "verify|5305069c7919fc01c8707be50843590a_b156bd30f7b7d418897e9ccec7ea7708": {
+      "pA": 0.97,
+      "verdict": "A",
+      "usage": [
+        {
+          "provider": "jev",
+          "count": 1,
+          "usd": 0
+        },
+        {
+          "provider": "luna",
+          "count": 1,
+          "usd": 0.001558
+        }
+      ]
+    },
+    "verify|5379ab99eae4161320d5bb2c0850315e_bcec25bc2e21ce2667e0368df647bcf2": {
+      "pA": 0.02,
+      "verdict": "B",
+      "usage": [
+        {
+          "provider": "jev",
+          "count": 1,
+          "usd": 0
+        },
+        {
+          "provider": "luna",
+          "count": 1,
+          "usd": 0.001246
+        }
+      ]
+    },
+    "verify|57ca02df541ae1687b9712f12df0e425_ee6b572c5fd4f4a2a6b0cb97265a4af8": {
+      "pA": 0.02,
+      "verdict": "B",
+      "usage": [
+        {
+          "provider": "jev",
+          "count": 1,
+          "usd": 0
+        },
+        {
+          "provider": "luna",
+          "count": 1,
+          "usd": 0.000365
+        }
+      ]
+    },
+    "verify|5bb00a02996657dbb10ae730c8f472fa_367ecf9f07ea60d49a5af54a47d97898": {
+      "pA": 0.96,
+      "verdict": "A",
+      "usage": [
+        {
+          "provider": "jev",
+          "count": 1,
+          "usd": 0
+        },
+        {
+          "provider": "luna",
+          "count": 1,
+          "usd": 4.4e-05
+        }
+      ]
+    },
+    "verify|5c0953ccc0fe13a7c7843f7c30711707_b803a6e1123d88f6b68aff3e8677de31": {
+      "pA": 0.02,
+      "verdict": "B",
+      "usage": [
+        {
+          "provider": "jev",
+          "count": 1,
+          "usd": 0
+        },
+        {
+          "provider": "luna",
+          "count": 1,
+          "usd": 0.000378
+        }
+      ]
+    },
+    "verify|5dfb02d5ff7008e6319ca9ebff69f3ba_c5d3070446bc46d1c98f353fce17822e": {
+      "pA": 0.93,
+      "verdict": "A",
+      "usage": [
+        {
+          "provider": "jev",
+          "count": 1,
+          "usd": 0
+        },
+        {
+          "provider": "luna",
+          "count": 1,
+          "usd": 0.000331
+        }
+      ]
+    },
+    "verify|6475b7ad5531cf9bc60abf8728996c1d_14dcca0905e181fe50f31e588e3dd482": {
+      "pA": 0.01,
+      "verdict": "B",
+      "usage": [
+        {
+          "provider": "jev",
+          "count": 1,
+          "usd": 0
+        },
+        {
+          "provider": "luna",
+          "count": 1,
+          "usd": 0.000194
+        }
+      ]
+    },
+    "verify|6e4aba2ba0751961277a5be9c22f6e53_76bc2098e25dcd33b5bde96980673a4b": {
+      "pA": 0.05,
+      "verdict": "B",
+      "usage": [
+        {
+          "provider": "jev",
+          "count": 1,
+          "usd": 0
+        },
+        {
+          "provider": "luna",
+          "count": 1,
+          "usd": 0.000149
+        }
+      ]
+    },
+    "verify|74455975cc7822e30f33648e197a1775_ccbe576fccccc23b0bdad67d79075fb2": {
+      "pA": 0.16,
+      "verdict": "B",
+      "usage": [
+        {
+          "provider": "jev",
+          "count": 1,
+          "usd": 0
+        },
+        {
+          "provider": "luna",
+          "count": 1,
+          "usd": 6.3e-05
+        }
+      ]
+    },
+    "verify|7c3345602da2596f3ff58658788cd183_cbfde9b9bf8facffcf498eab4aadd1a6": {
+      "pA": 0.98,
+      "verdict": "A",
+      "usage": [
+        {
+          "provider": "jev",
+          "count": 1,
+          "usd": 0
+        },
+        {
+          "provider": "luna",
+          "count": 1,
+          "usd": 0.000616
+        }
+      ]
+    },
+    "verify|848aefe451338e2934283c1417b49704_5d429963fda0a400af8b2e0d334830a7": {
+      "pA": 0.99,
+      "verdict": "A",
+      "usage": [
+        {
+          "provider": "jev",
+          "count": 1,
+          "usd": 0
+        },
+        {
+          "provider": "luna",
+          "count": 1,
+          "usd": 0.000692
+        }
+      ]
+    },
+    "verify|8725986b8def7d6dc2430b5a82ebe768_d892147f21a603cf006be26ac0db27cb": {
+      "pA": 0.93,
+      "verdict": "A",
+      "usage": [
+        {
+          "provider": "jev",
+          "count": 1,
+          "usd": 0
+        },
+        {
+          "provider": "luna",
+          "count": 1,
+          "usd": 0.000194
+        }
+      ]
+    },
+    "verify|885d1842d6a91b50b8ae527de98c3aad_b33afc0790fa12b013da7a444d8410d6": {
+      "pA": 0.1,
+      "verdict": "B",
+      "usage": [
+        {
+          "provider": "jev",
+          "count": 1,
+          "usd": 0
+        },
+        {
+          "provider": "luna",
+          "count": 1,
+          "usd": 0.000129
+        }
+      ]
+    },
+    "verify|886ed3392b036e68166e5b531b324911_2c9f5b90761ca8037817845fb3c49f75": {
+      "pA": 0.02,
+      "verdict": "B",
+      "usage": [
+        {
+          "provider": "jev",
+          "count": 1,
+          "usd": 0
+        },
+        {
+          "provider": "luna",
+          "count": 1,
+          "usd": 0.00022
+        }
+      ]
+    },
+    "verify|892778a2fbb44f0137777a78340d5644_ed17186ec99cb1fdbed4cf47762f6f2a": {
+      "pA": 0.01,
+      "verdict": "B",
+      "usage": [
+        {
+          "provider": "jev",
+          "count": 1,
+          "usd": 0
+        },
+        {
+          "provider": "luna",
+          "count": 1,
+          "usd": 0.000246
+        }
+      ]
+    },
+    "verify|8fb2e641b5868077f1080ebc2a77f638_ab543eb5433d029341e7180d9d1d684a": {
+      "pA": 0.23,
+      "verdict": "B",
+      "usage": [
+        {
+          "provider": "jev",
+          "count": 1,
+          "usd": 0
+        },
+        {
+          "provider": "luna",
+          "count": 1,
+          "usd": 9.3e-05
+        }
+      ]
+    },
+    "verify|987731fefdee670139b52a3c2cd13b54_63abd6b1489e90a7836c25efd043d174": {
+      "pA": 1,
+      "verdict": "A",
+      "usage": [
+        {
+          "provider": "jev",
+          "count": 1,
+          "usd": 0
+        },
+        {
+          "provider": "luna",
+          "count": 1,
+          "usd": 4.7e-05
+        }
+      ]
+    },
+    "verify|9cf12f34adac95169b15ddc25480ec2c_a7f2414568e73815e19f8370f3aeec89": {
+      "pA": 0.02,
+      "verdict": "B",
+      "usage": [
+        {
+          "provider": "jev",
+          "count": 1,
+          "usd": 0
+        },
+        {
+          "provider": "luna",
+          "count": 1,
+          "usd": 9.6e-05
+        }
+      ]
+    },
+    "verify|9eeb0aa3c4d5607cf62dac86e1b9eca4_75b2a58542259d851176d51275ee3259": {
+      "pA": 0.3,
+      "verdict": "B",
+      "usage": [
+        {
+          "provider": "jev",
+          "count": 1,
+          "usd": 0
+        },
+        {
+          "provider": "luna",
+          "count": 1,
+          "usd": 4.9e-05
+        }
+      ]
+    },
+    "verify|a42ea38dfa10aa7e396220d1943be6e4_944b95a9b576030a613b3b12a27968a1": {
+      "pA": 0.98,
+      "verdict": "A",
+      "usage": [
+        {
+          "provider": "jev",
+          "count": 1,
+          "usd": 0
+        },
+        {
+          "provider": "luna",
+          "count": 1,
+          "usd": 0.000115
+        }
+      ]
+    },
+    "verify|a4ec51f047502137ba39fd41cfc5bb68_c2caf04b04cdfc57e3491ad56e63a5a7": {
+      "pA": 0.03,
+      "verdict": "B",
+      "usage": [
+        {
+          "provider": "jev",
+          "count": 1,
+          "usd": 0
+        },
+        {
+          "provider": "luna",
+          "count": 1,
+          "usd": 0.00029
+        }
+      ]
+    },
+    "verify|a5b0bbe7c43295f2dbea2c23333da1a5_e57fae23da1e0a3010c9aa0497a626e8": {
+      "pA": 0.01,
+      "verdict": "B",
+      "usage": [
+        {
+          "provider": "jev",
+          "count": 1,
+          "usd": 0
+        },
+        {
+          "provider": "luna",
+          "count": 1,
+          "usd": 0.000126
+        }
+      ]
+    },
+    "verify|adba4a0e3dc7ec9d2b9a05a9d21f2209_d48215d589eb5969bfcfcd58993ab543": {
+      "pA": 0.28,
+      "verdict": "B",
+      "usage": [
+        {
+          "provider": "jev",
+          "count": 1,
+          "usd": 0
+        },
+        {
+          "provider": "luna",
+          "count": 1,
+          "usd": 0.000201
+        }
+      ]
+    },
+    "verify|aee1de22ebcbd6dffb545f85c2cc6d3c_4ad6596d535addc90e3929c4cd601d2a": {
+      "pA": 0.99,
+      "verdict": "A",
+      "usage": [
+        {
+          "provider": "jev",
+          "count": 1,
+          "usd": 0
+        },
+        {
+          "provider": "luna",
+          "count": 1,
+          "usd": 0.000711
+        }
+      ]
+    },
+    "verify|b5bc983f90abcc1471893cf179ba0bfa_505d5f6ba81adc9e6464f0e068aa11e4": {
+      "pA": 0.1,
+      "verdict": "B",
+      "usage": [
+        {
+          "provider": "jev",
+          "count": 1,
+          "usd": 0
+        },
+        {
+          "provider": "luna",
+          "count": 1,
+          "usd": 0.000266
+        }
+      ]
+    },
+    "verify|b7efa9e28caf28086ae71c1099f80c85_c2a2771adf0010ee3a5ba9e3450a37c0": {
+      "pA": 0.04,
+      "verdict": "B",
+      "usage": [
+        {
+          "provider": "jev",
+          "count": 1,
+          "usd": 0
+        },
+        {
+          "provider": "luna",
+          "count": 1,
+          "usd": 0.0001
+        }
+      ]
+    },
+    "verify|be062ca3146709520fb4af362eadc7fd_13c03b682a952e80a999c8551089683b": {
+      "pA": 0.16,
+      "verdict": "B",
+      "usage": [
+        {
+          "provider": "jev",
+          "count": 1,
+          "usd": 0
+        },
+        {
+          "provider": "luna",
+          "count": 1,
+          "usd": 9.7e-05
+        }
+      ]
+    },
+    "verify|c41dbbb9d77e5ccbcbe4a0ea02453603_202dea5c7e880415ece22aaa2518ae03": {
+      "pA": 0.01,
+      "verdict": "B",
+      "usage": [
+        {
+          "provider": "jev",
+          "count": 1,
+          "usd": 0
+        },
+        {
+          "provider": "luna",
+          "count": 1,
+          "usd": 0.001355
+        }
+      ]
+    },
+    "verify|c8cadbcb97f9fc98c52201c05d2cc7ed_e53ffb97227c484cb4cf3e395207ef4f": {
+      "pA": 0.08,
+      "verdict": "B",
+      "usage": [
+        {
+          "provider": "jev",
+          "count": 1,
+          "usd": 0
+        },
+        {
+          "provider": "luna",
+          "count": 1,
+          "usd": 0.000233
+        }
+      ]
+    },
+    "verify|ca370252fd6426290feed014586fe69e_7eab75a8a39e3c975b8492f9161b9f40": {
+      "pA": 0.04,
+      "verdict": "B",
+      "usage": [
+        {
+          "provider": "jev",
+          "count": 1,
+          "usd": 0
+        },
+        {
+          "provider": "luna",
+          "count": 1,
+          "usd": 0.000335
+        }
+      ]
+    },
+    "verify|d29e283a52241c0a9a32224b711237bd_cab7eb980622deaad71cf6fe7e803264": {
+      "pA": 0.96,
+      "verdict": "A",
+      "usage": [
+        {
+          "provider": "jev",
+          "count": 1,
+          "usd": 0
+        },
+        {
+          "provider": "luna",
+          "count": 1,
+          "usd": 4.6e-05
+        }
+      ]
+    },
+    "verify|e294330c907c43e8b8e2fe5b2d1eff04_01bcb6a22e65a9be3cd5c1f0c5accf0b": {
+      "pA": 0.98,
+      "verdict": "A",
+      "usage": [
+        {
+          "provider": "jev",
+          "count": 1,
+          "usd": 0
+        },
+        {
+          "provider": "luna",
+          "count": 1,
+          "usd": 9e-05
+        }
+      ]
+    },
+    "verify|e63f281ff9bfcefd25555cccf1517855_75af0c15b91bd41dee7da9b35ca2129d": {
+      "pA": 0.49,
+      "verdict": "B",
+      "usage": [
+        {
+          "provider": "jev",
+          "count": 1,
+          "usd": 0
+        },
+        {
+          "provider": "luna",
+          "count": 1,
+          "usd": 0.000332
+        }
+      ]
+    },
+    "verify|e65ff550a41d8aab1c6794c36e7c2a47_4fe039b653a63adb5b06881c68c09b99": {
+      "pA": 0.21,
+      "verdict": "B",
+      "usage": [
+        {
+          "provider": "jev",
+          "count": 1,
+          "usd": 0
+        },
+        {
+          "provider": "luna",
+          "count": 1,
+          "usd": 0.001549
+        }
+      ]
+    }
+  },
+  "sol fitted": {
+    "verify|002ba0331c11a198784abdfff1d7b8fb_936d37ed03db3340809ca9409508b906": {
+      "pA": 0.06,
+      "verdict": "B",
+      "usage": [
+        {
+          "provider": "sol",
+          "key": "b30bd76589c60d392e2fc9fff93c385092e88cac88bdaec0acdca0b9d0049182",
+          "count": 1,
+          "usd": 0.008632,
+          "seconds": 26.72098995797569
+        },
+        {
+          "provider": "jev",
+          "key": "d9d542ef5f085ab553d8ec019a43d24b67a85a828e4f3f964fde6d84ab9c17c9",
+          "seconds": 0.325,
+          "usd": 0
+        }
+      ]
+    },
+    "verify|00a93c5457ba7180f88944780f9134a0_773a31d04e4d41c29af003fb95f3b960": {
+      "pA": 0.05,
+      "verdict": "B",
+      "usage": [
+        {
+          "provider": "sol",
+          "key": "f2e457e23bd5e1a950a0bea2599bcc6a20533655e04d56b1f0beb345677f775e",
+          "count": 1,
+          "usd": 0.002708,
+          "seconds": 6.529860874987207
+        },
+        {
+          "provider": "jev",
+          "key": "1b0eded8c9301baf6f122b063802285e2a9a156f631d2eb79a4706f112290031",
+          "seconds": 0.468,
+          "usd": 0
+        }
+      ]
+    },
+    "verify|012d78a208c04759392be0c8b9d27dc6_dc9a328c94255249105f5d3b465499d5": {
+      "pA": 0.01,
+      "verdict": "B",
+      "usage": [
+        {
+          "provider": "sol",
+          "key": "830c98bb431e9a0993f2de8970aac35bc902af41cb4bd2787d904047ac537749",
+          "count": 1,
+          "usd": 0.003042,
+          "seconds": 5.945165625016671
+        },
+        {
+          "provider": "jev",
+          "key": "1853872c550666ef789e6cf40ca2c4fe7b8aa1ee625bff160ba5a80eb3755b41",
+          "seconds": 0.453,
+          "usd": 0
+        }
+      ]
+    },
+    "verify|0af2a305f4c4e44a69c7fd5e03d7f74e_7ff87a43db7f15aa80827e2230dd95a1": {
+      "pA": 0.06,
+      "verdict": "B",
+      "usage": [
+        {
+          "provider": "sol",
+          "key": "7ce48842ca2a8e5067a94a97579ee1c2d86b852cae9a4367a7646a5dec5d919d",
+          "count": 1,
+          "usd": 0.003242,
+          "seconds": 7.898686417029239
+        },
+        {
+          "provider": "jev",
+          "key": "9ed93f8962300dca155981770291ee9f87ae8ceb618c5db86f07f8a38808b06b",
+          "seconds": 0.65,
+          "usd": 0
+        }
+      ]
+    },
+    "verify|20f09d89d7c677862fd06e2e96e7ec19_a7f2ac04dc8fb1609ab7384631ce736c": {
+      "pA": 0.01,
+      "verdict": "B",
+      "usage": [
+        {
+          "provider": "sol",
+          "key": "87cd4304b76e63b44a85ef49989e644ff6823a795974c7dcb997cb0489114dc6",
+          "count": 1,
+          "usd": 0.0023,
+          "seconds": 5.377076416974887
+        },
+        {
+          "provider": "jev",
+          "key": "da8acdfcb10107eeb6d604c7dc28187f31094cb001752528684ff12ac6994b3d",
+          "seconds": 0.453,
+          "usd": 0
+        }
+      ]
+    },
+    "verify|251325e4d8bd19d38d1481ec5bb6b952_b0e0faf620816637683d6cefbc8d905d": {
+      "pA": 0.02,
+      "verdict": "B",
+      "usage": [
+        {
+          "provider": "sol",
+          "key": "3cdeefd3d861434d2a938e43e9b2a9d3ebc8fa4f20f5c95df9b32e3c07281d4c",
+          "count": 1,
+          "usd": 0.0062585,
+          "seconds": 8.292750207998324
+        },
+        {
+          "provider": "jev",
+          "key": "7ac63923b59b05c9f90a0d7c5dcc1f39ca8fee601389bfd7f87db084f007a892",
+          "seconds": 0.314,
+          "usd": 0
+        }
+      ]
+    },
+    "verify|2fabe7c11c7747a8d772a0ef0448e9a8_ce122c4fd3633a58d1e4ead1e46a9a01": {
+      "pA": 0.02,
+      "verdict": "B",
+      "usage": [
+        {
+          "provider": "sol",
+          "key": "0b82339edff7a786c1d4fb1038652d24400c69c346a9d99622b32689b7ab4ea6",
+          "count": 1,
+          "usd": 0.010708,
+          "seconds": 22.997274666035082
+        },
+        {
+          "provider": "jev",
+          "key": "ea430a57c0b4c6966eb3c06d202ffb4732ca61b5149f551b0f1c1f37acc9c6db",
+          "seconds": 0.371,
+          "usd": 0
+        }
+      ]
+    },
+    "verify|316ee3d0bc7b041ff6036ff4eedebd63_2a81f176304fb48b93a51804c8813763": {
+      "pA": 0.01,
+      "verdict": "B",
+      "usage": [
+        {
+          "provider": "sol",
+          "key": "7790d6f9fbd29b23d1732794bb24ce0d20a16dcb9e34a0cc0c55f673ac8dd57d",
+          "count": 1,
+          "usd": 0.001662,
+          "seconds": 3.968998417025432
+        },
+        {
+          "provider": "jev",
+          "key": "93b4271668563cd0e3d421f2aab9a9c74211b304dafc3703c46bcb25f37a1a90",
+          "seconds": 0.377,
+          "usd": 0
+        }
+      ]
+    },
+    "verify|3e12f104244648c9a58ed98d25d06249_a2144e352f15bb692f84f1721110479b": {
+      "pA": 0.13,
+      "verdict": "B",
+      "usage": [
+        {
+          "provider": "sol",
+          "key": "4cd5e66aae66a499edcc1e740b3b01b8d22db69aad9687d320b82c0128bfaa54",
+          "count": 1,
+          "usd": 0.0074035,
+          "seconds": 13.762317124987021
+        },
+        {
+          "provider": "jev",
+          "key": "cb5013cba81ff371595429a83f30bed4e693763489e27ee169d34e4ef6e20563",
+          "seconds": 0.387,
+          "usd": 0
+        }
+      ]
+    },
+    "verify|4d1497a568219528716b51f87ef72f18_6029e690d7a881057e987894b31db7e6": {
+      "pA": 0.21,
+      "verdict": "A",
+      "usage": [
+        {
+          "provider": "sol",
+          "key": "d7c18b3136df15fcee0a57d9a861215403078093740d920cae09991faf6c9f9d",
+          "count": 1,
+          "usd": 0.003198,
+          "seconds": 6.280845333007164
+        },
+        {
+          "provider": "jev",
+          "key": "32b671c968b9191ef3fc23feef3d26eb162a1bac0e36a157ad52a529f08de6e3",
+          "seconds": 0.283,
+          "usd": 0
+        }
+      ]
+    },
+    "verify|4d94773555d0a8e3f9b059e6cc729bdf_42f7be3f4cdef5f9018edfefec78418b": {
+      "pA": 0.01,
+      "verdict": "B",
+      "usage": [
+        {
+          "provider": "sol",
+          "key": "06fc029620168d8037fb8fcbefdf0d1ba0611f83035b0f7b0429b6d371695da3",
+          "count": 1,
+          "usd": 0.001752,
+          "seconds": 4.403199624968693
+        },
+        {
+          "provider": "jev",
+          "key": "5f4fcb21670b614aeb4c3c7f21c59dac33ab1d71873d75b6b1abae735cd09458",
+          "seconds": 0.39,
+          "usd": 0
+        }
+      ]
+    },
+    "verify|4fd3bc514ff8e3775723a0f883a7d347_54c1d82ec537b265b891b55d68a2d539": {
+      "pA": 0.07,
+      "verdict": "B",
+      "usage": [
+        {
+          "provider": "sol",
+          "key": "5151f2a39bd6ff17ce558fbba3c47ff15fedd2a03e02deaaf26171a8a4f8e403",
+          "count": 1,
+          "usd": 0.011244,
+          "seconds": 27.32334499998251
+        },
+        {
+          "provider": "jev",
+          "key": "8ae9c4111fe36985f6208733f9197412cdb3c30b6e9ec4e33cd392721d4e08b4",
+          "seconds": 0.309,
+          "usd": 0
+        }
+      ]
+    },
+    "verify|50624457d129ae6ba7aa043aa9bdc92b_b8dae8e757dabf12f4302375e64baa0d": {
+      "pA": 0.21,
+      "verdict": "A",
+      "usage": [
+        {
+          "provider": "sol",
+          "key": "4e7def6ec809d6a9085711e93fd0b5abb32753ec45692a6cb0eaeac18dbb0886",
+          "count": 1,
+          "usd": 0.002888,
+          "seconds": 7.399185084039345
+        },
+        {
+          "provider": "jev",
+          "key": "a183662044216b90a7201d856b0c1e587de405f00a40445ef57c51c6f810ffea",
+          "seconds": 0.407,
+          "usd": 0
+        }
+      ]
+    },
+    "verify|514cb7d27518d395ec9a46c2ae62c9bf_6a8c772c3cbf9a7e26dae82deafbc213": {
+      "pA": 0.03,
+      "verdict": "B",
+      "usage": [
+        {
+          "provider": "sol",
+          "key": "e50e8f2a70ca572ee2b93a0b01ba014341f5c692e1ed9cf71a2664fadafa82d2",
+          "count": 1,
+          "usd": 0.002592,
+          "seconds": 7.469927625032142
+        },
+        {
+          "provider": "jev",
+          "key": "5373a1e339c6bfe6630fbfb4cf3376fa51aaf0259992c71c1fdd5cd1390de671",
+          "seconds": 0.344,
+          "usd": 0
+        }
+      ]
+    },
+    "verify|52fc2d3ed06507bdbd094aabcfde7e1d_67b0aab158f41fd3a9675c7d5529910e": {
+      "pA": 0.81,
+      "verdict": "A",
+      "usage": [
+        {
+          "provider": "sol",
+          "key": "6d97d0a8dd715b9bb8e2467c25289c3746a3f9eb614ba8e7b90fd2f8c56ea6e3",
+          "count": 1,
+          "usd": 0.002092,
+          "seconds": 2.773108333989512
+        },
+        {
+          "provider": "jev",
+          "key": "3eff8cab3da9023af09b39000ada5b403ffc958aba771ce6742b64d703f4ffa4",
+          "seconds": 0.955,
+          "usd": 0
+        }
+      ]
+    },
+    "verify|5305069c7919fc01c8707be50843590a_b156bd30f7b7d418897e9ccec7ea7708": {
+      "pA": 0.95,
+      "verdict": "A",
+      "usage": [
+        {
+          "provider": "sol",
+          "key": "49801ce05328ed8f3112ec4d18bae2f93c86d9d4feebb7c9d352def37ff5e46c",
+          "count": 1,
+          "usd": 0.006311,
+          "seconds": 10.79303829203127
+        },
+        {
+          "provider": "jev",
+          "key": "f4457b345f349545213aa403fb6e0cc6aca539de54462f0981bde95aa0c67009",
+          "seconds": 0.406,
+          "usd": 0
+        }
+      ]
+    },
+    "verify|5379ab99eae4161320d5bb2c0850315e_bcec25bc2e21ce2667e0368df647bcf2": {
+      "pA": 0.02,
+      "verdict": "B",
+      "usage": [
+        {
+          "provider": "sol",
+          "key": "8b8fd336842eac497412344de65861874192a532b594b694b6680ee192366a82",
+          "count": 1,
+          "usd": 0.004751,
+          "seconds": 6.914443791960366
+        },
+        {
+          "provider": "jev",
+          "key": "f05f9afde459a8d4e83c2043098ec5cf107acda76f3f3f1e4f48cec0f2b2e34f",
+          "seconds": 0.398,
+          "usd": 0
+        }
+      ]
+    },
+    "verify|57ca02df541ae1687b9712f12df0e425_ee6b572c5fd4f4a2a6b0cb97265a4af8": {
+      "pA": 0.02,
+      "verdict": "B",
+      "usage": [
+        {
+          "provider": "sol",
+          "key": "3914394863f6aff5bf5eb8d01b704161b4eb5912187f01ac30a03ff6e8a317cb",
+          "count": 1,
+          "usd": 0.002148,
+          "seconds": 5.439511624979787
+        },
+        {
+          "provider": "jev",
+          "key": "d69eedc0f66fab9832c3a3142f977bc5539fe4007dd7152c9e004eb45a474297",
+          "seconds": 0.407,
+          "usd": 0
+        }
+      ]
+    },
+    "verify|5bb00a02996657dbb10ae730c8f472fa_367ecf9f07ea60d49a5af54a47d97898": {
+      "pA": 0.94,
+      "verdict": "A",
+      "usage": [
+        {
+          "provider": "sol",
+          "key": "c2b8ff54e198ae79e6bcff1e28cd97b0d74b3a82d75a8c715781f85c8216ba39",
+          "count": 1,
+          "usd": 0.000828,
+          "seconds": 2.542674791009631
+        },
+        {
+          "provider": "jev",
+          "key": "ee3a4db8e561a7e9363dba11b0975ea1e8aa09c27a04e35511d7516d15e00d2d",
+          "seconds": 0.337,
+          "usd": 0
+        }
+      ]
+    },
+    "verify|5c0953ccc0fe13a7c7843f7c30711707_b803a6e1123d88f6b68aff3e8677de31": {
+      "pA": 0.01,
+      "verdict": "B",
+      "usage": [
+        {
+          "provider": "sol",
+          "key": "a6e6d038d3cdc5352e5e2104f9d73f60e23db24610c0ad85031fb62f2cfbd800",
+          "count": 1,
+          "usd": 0.003344,
+          "seconds": 8.26538154197624
+        },
+        {
+          "provider": "jev",
+          "key": "7b3dd0c6eb1bd3cd4d49dbb329dafd586a6b1fb81824995f2a3358850a693a76",
+          "seconds": 0.372,
+          "usd": 0
+        }
+      ]
+    },
+    "verify|5dfb02d5ff7008e6319ca9ebff69f3ba_c5d3070446bc46d1c98f353fce17822e": {
+      "pA": 0.93,
+      "verdict": "A",
+      "usage": [
+        {
+          "provider": "sol",
+          "key": "8431fbf6b1ac7b562220488a03e703e17888280363d4742b3aad7b36d6cf513e",
+          "count": 1,
+          "usd": 0.0019,
+          "seconds": 5.226727540954016
+        },
+        {
+          "provider": "jev",
+          "key": "864edc4e599edf9c0794dfd7caab038e882a6e032b5a5f894328a0302e4cfdcb",
+          "seconds": 0.439,
+          "usd": 0
+        }
+      ]
+    },
+    "verify|6475b7ad5531cf9bc60abf8728996c1d_14dcca0905e181fe50f31e588e3dd482": {
+      "pA": 0.01,
+      "verdict": "B",
+      "usage": [
+        {
+          "provider": "sol",
+          "key": "06c90333309ec79ad1be7036415a8ad91eba29f67bd36ee6292cd696e460530a",
+          "count": 1,
+          "usd": 0.001686,
+          "seconds": 4.109609792008996
+        },
+        {
+          "provider": "jev",
+          "key": "73b4a9180122fee1c5f19129685e1d66e61fe63d6e0925d3c45dca1db714302e",
+          "seconds": 0.376,
+          "usd": 0
+        }
+      ]
+    },
+    "verify|6e4aba2ba0751961277a5be9c22f6e53_76bc2098e25dcd33b5bde96980673a4b": {
+      "pA": 0.08,
+      "verdict": "B",
+      "usage": [
+        {
+          "provider": "sol",
+          "key": "d115b3fd16a14e5f84a70f8693284062aa263cf1603e6dc3ec915a5c135f7f54",
+          "count": 1,
+          "usd": 0.001772,
+          "seconds": 4.958911666995846
+        },
+        {
+          "provider": "jev",
+          "key": "de2cc384000ffe947de733dd2cc000467c0afa52211fe88329f8071569d51c3f",
+          "seconds": 0.392,
+          "usd": 0
+        }
+      ]
+    },
+    "verify|74455975cc7822e30f33648e197a1775_ccbe576fccccc23b0bdad67d79075fb2": {
+      "pA": 0.17,
+      "verdict": "A",
+      "usage": [
+        {
+          "provider": "sol",
+          "key": "5c306f140b4e89d1c0c42bbbb94452ac202cc343c552c814cc4b3e747e3ae312",
+          "count": 1,
+          "usd": 0.00105,
+          "seconds": 2.774004833016079
+        },
+        {
+          "provider": "jev",
+          "key": "e9470f08e203e42f63bd0a7029880a0a118e004d272cb300d6a2d0e2b39044a6",
+          "seconds": 0.336,
+          "usd": 0
+        }
+      ]
+    },
+    "verify|7c3345602da2596f3ff58658788cd183_cbfde9b9bf8facffcf498eab4aadd1a6": {
+      "pA": 0.97,
+      "verdict": "A",
+      "usage": [
+        {
+          "provider": "sol",
+          "key": "248fcf3a050a7df4a408f1879924f72d6e15976dc7b7afe25924a70a8c127dab",
+          "count": 1,
+          "usd": 0.006674,
+          "seconds": 15.209192333975807
+        },
+        {
+          "provider": "jev",
+          "key": "42eee93561907e929cf3c8bc2821ccb04c28b0bb4bb5a89212286ff7d3f652db",
+          "seconds": 0.417,
+          "usd": 0
+        }
+      ]
+    },
+    "verify|848aefe451338e2934283c1417b49704_5d429963fda0a400af8b2e0d334830a7": {
+      "pA": 0.03,
+      "verdict": "B",
+      "usage": [
+        {
+          "provider": "sol",
+          "key": "c4978288c02e99c5fe645ba7fa4efbe9f539909f152803d1b0a35f5033f2c7a8",
+          "count": 1,
+          "usd": 0.004422,
+          "seconds": 7.8271308750263415
+        },
+        {
+          "provider": "jev",
+          "key": "7e33977438140da8a9af6f91088691e0da6a04a612a0ac0720dd193f9434663c",
+          "seconds": 0.378,
+          "usd": 0
+        }
+      ]
+    },
+    "verify|8725986b8def7d6dc2430b5a82ebe768_d892147f21a603cf006be26ac0db27cb": {
+      "pA": 0.92,
+      "verdict": "A",
+      "usage": [
+        {
+          "provider": "sol",
+          "key": "f9d873d608894f5983ff4eebb229af6d6ad420db4e79ae1d177137a3cf0ae650",
+          "count": 1,
+          "usd": 0.002002,
+          "seconds": 5.019080958969425
+        },
+        {
+          "provider": "jev",
+          "key": "520d7f6e16feab3cfd745fecc930ec822d38a246df3208f63958630bcf468d77",
+          "seconds": 0.394,
+          "usd": 0
+        }
+      ]
+    },
+    "verify|885d1842d6a91b50b8ae527de98c3aad_b33afc0790fa12b013da7a444d8410d6": {
+      "pA": 0.1,
+      "verdict": "B",
+      "usage": [
+        {
+          "provider": "sol",
+          "key": "2677f9d0965d7dc6da1e2187e885dc2d2fbeeb4f556c5fa0d0bc57e3f360b07e",
+          "count": 1,
+          "usd": 0.001566,
+          "seconds": 3.6336647080024704
+        },
+        {
+          "provider": "jev",
+          "key": "a80bf630c93caee57fc57167e9864855a639a62c82fea96c8baabb3fd0dae2fc",
+          "seconds": 0.303,
+          "usd": 0
+        }
+      ]
+    },
+    "verify|886ed3392b036e68166e5b531b324911_2c9f5b90761ca8037817845fb3c49f75": {
+      "pA": 0.03,
+      "verdict": "B",
+      "usage": [
+        {
+          "provider": "sol",
+          "key": "71614729a2713d0de3870da8ece3eea9bee4cd5c704d83580d28f3969f85a91d",
+          "count": 1,
+          "usd": 0.0028,
+          "seconds": 6.246380499971565
+        },
+        {
+          "provider": "jev",
+          "key": "973ae7c1334069a56f39abc8e8d3ecea84abb70e40bad2012ce8bab8ab9aac55",
+          "seconds": 0.332,
+          "usd": 0
+        }
+      ]
+    },
+    "verify|892778a2fbb44f0137777a78340d5644_ed17186ec99cb1fdbed4cf47762f6f2a": {
+      "pA": 0.01,
+      "verdict": "B",
+      "usage": [
+        {
+          "provider": "sol",
+          "key": "a1e8bf586967c4c9b33305abc88098f0e3dd65bdc7081a6dd646b9c8b3dd4b36",
+          "count": 1,
+          "usd": 0.002698,
+          "seconds": 13.963429458963219
+        },
+        {
+          "provider": "jev",
+          "key": "19b7dea90f6d47fe38ebc2fc1b21122a6769e3bd16610152cab36c4d3bf4a78b",
+          "seconds": 0.47,
+          "usd": 0
+        }
+      ]
+    },
+    "verify|8fb2e641b5868077f1080ebc2a77f638_ab543eb5433d029341e7180d9d1d684a": {
+      "pA": 0.23,
+      "verdict": "A",
+      "usage": [
+        {
+          "provider": "sol",
+          "key": "5b39ed3014faffcca06fe53b5dac7004205afee0b6ef2493aa4687cdec28bbd4",
+          "count": 1,
+          "usd": 0.0016,
+          "seconds": 3.8657941670389846
+        },
+        {
+          "provider": "jev",
+          "key": "459e90bcaae5bf282905d7c5758a1ba372057ab429f8695d2e03c6a30dd99ba6",
+          "seconds": 0.367,
+          "usd": 0
+        }
+      ]
+    },
+    "verify|987731fefdee670139b52a3c2cd13b54_63abd6b1489e90a7836c25efd043d174": {
+      "pA": 1,
+      "verdict": "A",
+      "usage": [
+        {
+          "provider": "sol",
+          "key": "6ba187c05032ede6b2b28ea59b655d2fa482b665c37a0b3b0c4b4e547efda40b",
+          "count": 1,
+          "usd": 0.001354,
+          "seconds": 3.524120291986037
+        },
+        {
+          "provider": "jev",
+          "key": "fbc2e18bf593af72d7654f8e7f2a935e37a74cee560c4ea26a9c9f50d7dbb5a2",
+          "seconds": 0.356,
+          "usd": 0
+        }
+      ]
+    },
+    "verify|9cf12f34adac95169b15ddc25480ec2c_a7f2414568e73815e19f8370f3aeec89": {
+      "pA": 0.04,
+      "verdict": "B",
+      "usage": [
+        {
+          "provider": "sol",
+          "key": "d247e2324946c97d42fa883cee5859d57db789627b345e86a60c125f42b2834b",
+          "count": 1,
+          "usd": 0.00132,
+          "seconds": 3.302090874989517
+        },
+        {
+          "provider": "jev",
+          "key": "8cde96461182498c76db7da0699e94152095cb48e855a44a0f7182ccdbae02f7",
+          "seconds": 0.857,
+          "usd": 0
+        }
+      ]
+    },
+    "verify|9eeb0aa3c4d5607cf62dac86e1b9eca4_75b2a58542259d851176d51275ee3259": {
+      "pA": 0.05,
+      "verdict": "B",
+      "usage": [
+        {
+          "provider": "sol",
+          "key": "4d6cd925aa419c37c393621fb70c02f8a9d7efaca94b0637d30207abb1886e8f",
+          "count": 1,
+          "usd": 0.000824,
+          "seconds": 9.882335417030845
+        },
+        {
+          "provider": "jev",
+          "key": "005ebab57bd71ef281e857dc8f4302226be8e948c1146c13a1580344708dd83d",
+          "seconds": 0.381,
+          "usd": 0
+        }
+      ]
+    },
+    "verify|a42ea38dfa10aa7e396220d1943be6e4_944b95a9b576030a613b3b12a27968a1": {
+      "pA": 0.98,
+      "verdict": "A",
+      "usage": [
+        {
+          "provider": "sol",
+          "key": "392861660e98861456019a0867cd8580c2deca66610896fab9ad434fa028220a",
+          "count": 1,
+          "usd": 0.00267,
+          "seconds": 7.12176458403701
+        },
+        {
+          "provider": "jev",
+          "key": "9b68265d4b5d94536b5654c6af770d9ad67cd58c190f613281e386366f0994f7",
+          "seconds": 0.335,
+          "usd": 0
+        }
+      ]
+    },
+    "verify|a4ec51f047502137ba39fd41cfc5bb68_c2caf04b04cdfc57e3491ad56e63a5a7": {
+      "pA": 0.03,
+      "verdict": "B",
+      "usage": [
+        {
+          "provider": "sol",
+          "key": "1760ee504a687a7a79dc711e29ede0868b7d8c41ac01cf0cc1c8ff7458f53cc0",
+          "count": 1,
+          "usd": 0.0046635,
+          "seconds": 2.6000665000174195
+        },
+        {
+          "provider": "jev",
+          "key": "fdb1856b6d19a2ce1b05efaa7a7f608fc3b3a40fd095a392feb4bba69f03b082",
+          "seconds": 0.455,
+          "usd": 0
+        }
+      ]
+    },
+    "verify|a5b0bbe7c43295f2dbea2c23333da1a5_e57fae23da1e0a3010c9aa0497a626e8": {
+      "pA": 0.01,
+      "verdict": "B",
+      "usage": [
+        {
+          "provider": "sol",
+          "key": "273ab12f49458dd1458d0cf73ed09a8d03a5efbd0f8803cb9d1bf100c553a5c7",
+          "count": 1,
+          "usd": 0.002192,
+          "seconds": 6.311247374978848
+        },
+        {
+          "provider": "jev",
+          "key": "91886d867c81a7ed8402dc063ec3cac10874eba01291440b474d0aef09a19104",
+          "seconds": 0.369,
+          "usd": 0
+        }
+      ]
+    },
+    "verify|adba4a0e3dc7ec9d2b9a05a9d21f2209_d48215d589eb5969bfcfcd58993ab543": {
+      "pA": 0.6,
+      "verdict": "A",
+      "usage": [
+        {
+          "provider": "sol",
+          "key": "23c12c25d61f976499511087142d82a62503dd9c3ef0c9c664723d22df047728",
+          "count": 1,
+          "usd": 0.001906,
+          "seconds": 4.8235464579775
+        },
+        {
+          "provider": "jev",
+          "key": "61cb6cc647116994e19fe1595029a99fec0a87bc2be4407cba032ab0314857c1",
+          "seconds": 0.431,
+          "usd": 0
+        }
+      ]
+    },
+    "verify|aee1de22ebcbd6dffb545f85c2cc6d3c_4ad6596d535addc90e3929c4cd601d2a": {
+      "pA": 0.99,
+      "verdict": "A",
+      "usage": [
+        {
+          "provider": "sol",
+          "key": "30521d186d6444f39633d83b3d337822f532b0fde5176ec01bdba79174ec1946",
+          "count": 1,
+          "usd": 0.002894,
+          "seconds": 6.558184749970678
+        },
+        {
+          "provider": "jev",
+          "key": "5fcef2f8c81196536a4b40c405e81785a532b81abd5dda0a2cda42617cc82ca4",
+          "seconds": 0.483,
+          "usd": 0
+        }
+      ]
+    },
+    "verify|b5bc983f90abcc1471893cf179ba0bfa_505d5f6ba81adc9e6464f0e068aa11e4": {
+      "pA": 0.01,
+      "verdict": "B",
+      "usage": [
+        {
+          "provider": "sol",
+          "key": "22371787868d364f0f49bbcecbc66f01cdd0f51dc81ac286817bff9c06198808",
+          "count": 1,
+          "usd": 0.00371,
+          "seconds": 8.866426500026137
+        },
+        {
+          "provider": "jev",
+          "key": "71ae8c396f433475a706ba1c151b3e5933536efdd5dbc15d2a2c0ba3b38bdf11",
+          "seconds": 0.462,
+          "usd": 0
+        }
+      ]
+    },
+    "verify|b7efa9e28caf28086ae71c1099f80c85_c2a2771adf0010ee3a5ba9e3450a37c0": {
+      "pA": 0.05,
+      "verdict": "B",
+      "usage": [
+        {
+          "provider": "sol",
+          "key": "38ae23647a6ffce30104378df6917c4bc0d8e8fd69ae4309e43a8f45577df355",
+          "count": 1,
+          "usd": 0.002222,
+          "seconds": 6.406483999977354
+        },
+        {
+          "provider": "jev",
+          "key": "701ac5f43835f8a11dc3f5efeb0e0fd349f7719b8065a429d335cd0629a8f5b5",
+          "seconds": 0.389,
+          "usd": 0
+        }
+      ]
+    },
+    "verify|be062ca3146709520fb4af362eadc7fd_13c03b682a952e80a999c8551089683b": {
+      "pA": 0.16,
+      "verdict": "B",
+      "usage": [
+        {
+          "provider": "sol",
+          "key": "ee7b4178ab093111a59408e0b6e74c334b0d688546aa198e8fda942fbf4387b3",
+          "count": 1,
+          "usd": 0.001226,
+          "seconds": 3.946161292027682
+        },
+        {
+          "provider": "jev",
+          "key": "356b65220b60a92bd06b8075300d9d1ddc27694ed557decd0c7a7af920ca8c1d",
+          "seconds": 0.379,
+          "usd": 0
+        }
+      ]
+    },
+    "verify|c41dbbb9d77e5ccbcbe4a0ea02453603_202dea5c7e880415ece22aaa2518ae03": {
+      "pA": 0.02,
+      "verdict": "B",
+      "usage": [
+        {
+          "provider": "sol",
+          "key": "a24d0b548c7d04ad066f0e7a21b95a3d3f390ebda7553696f52edfdeecbf2cb1",
+          "count": 1,
+          "usd": 0.009224,
+          "seconds": 20.04381433298113
+        },
+        {
+          "provider": "jev",
+          "key": "b136a3fad02dd778e4a200fae122d76aeb678a5fbd7b223fe73a42254bc94537",
+          "seconds": 0.282,
+          "usd": 0
+        }
+      ]
+    },
+    "verify|c8cadbcb97f9fc98c52201c05d2cc7ed_e53ffb97227c484cb4cf3e395207ef4f": {
+      "pA": 0.04,
+      "verdict": "B",
+      "usage": [
+        {
+          "provider": "sol",
+          "key": "c2860e38075b237a7ccabf71a5f994f7aa5802e61367a5c5dbf2ad662d948f66",
+          "count": 1,
+          "usd": 0.002408,
+          "seconds": 5.801487292046659
+        },
+        {
+          "provider": "jev",
+          "key": "28543b70d45161d460a3b1e65015b910e9e8af2fa8f264ed32125bd587f96f71",
+          "seconds": 0.411,
+          "usd": 0
+        }
+      ]
+    },
+    "verify|ca370252fd6426290feed014586fe69e_7eab75a8a39e3c975b8492f9161b9f40": {
+      "pA": 0.04,
+      "verdict": "B",
+      "usage": [
+        {
+          "provider": "sol",
+          "key": "a759c2e8d6e65a47787188f45179ccea5906121da535f926620b7e171b751830",
+          "count": 1,
+          "usd": 0.003018,
+          "seconds": 6.216760625015013
+        },
+        {
+          "provider": "jev",
+          "key": "dc1e845010269c31e5d9c9c0bd45d62145cd83262a1d09d8d414c601db1ecdf5",
+          "seconds": 0.416,
+          "usd": 0
+        }
+      ]
+    },
+    "verify|d29e283a52241c0a9a32224b711237bd_cab7eb980622deaad71cf6fe7e803264": {
+      "pA": 0.95,
+      "verdict": "A",
+      "usage": [
+        {
+          "provider": "sol",
+          "key": "3b671a4e7279a16557257587139b5b33e0d34cf14ccf97fa86d8d69c3dc31179",
+          "count": 1,
+          "usd": 0.00084,
+          "seconds": 3.671254582994152
+        },
+        {
+          "provider": "jev",
+          "key": "2b77f41f85b47575e5038cf494edc32eef4d59a34e5bf8e0b10354951bd6862f",
+          "seconds": 0.288,
+          "usd": 0
+        }
+      ]
+    },
+    "verify|e294330c907c43e8b8e2fe5b2d1eff04_01bcb6a22e65a9be3cd5c1f0c5accf0b": {
+      "pA": 0.98,
+      "verdict": "A",
+      "usage": [
+        {
+          "provider": "sol",
+          "key": "f8e3ac8925e0b800f61fc7f26a12c01a93b33a51b1d0dac66f781f71652ab5f8",
+          "count": 1,
+          "usd": 0.001778,
+          "seconds": 4.687970582977869
+        },
+        {
+          "provider": "jev",
+          "key": "6c885d7d2f974f3efb51b70579a39dfb17ad7fe054560dd14313703e0bce2e54",
+          "seconds": 0.307,
+          "usd": 0
+        }
+      ]
+    },
+    "verify|e63f281ff9bfcefd25555cccf1517855_75af0c15b91bd41dee7da9b35ca2129d": {
+      "pA": 0.53,
+      "verdict": "A",
+      "usage": [
+        {
+          "provider": "sol",
+          "key": "cf59f4f9498adfa7ae0a8c5d41da688d4ccb9a56c9808f7ee3f8f961fb8f8a36",
+          "count": 1,
+          "usd": 0.003304,
+          "seconds": 9.238319040974602
+        },
+        {
+          "provider": "jev",
+          "key": "3e170fabd8dd191248e25197316f08494ec57f636b36cb23fcb800dfff08f542",
+          "seconds": 0.309,
+          "usd": 0
+        }
+      ]
+    },
+    "verify|e65ff550a41d8aab1c6794c36e7c2a47_4fe039b653a63adb5b06881c68c09b99": {
+      "pA": 0.29,
+      "verdict": "A",
+      "usage": [
+        {
+          "provider": "sol",
+          "key": "ebc3444ae80ebe99dd23b55db42bf593b887f2b6070fa3a1a2a2769dd603c10b",
+          "count": 1,
+          "usd": 0.0037,
+          "seconds": 9.954900334007107
+        },
+        {
+          "provider": "jev",
+          "key": "82ec4af0dea8a3ddfa701a097037f32a5b9e7a20e4c6e43c154ad5d904f7fae9",
+          "seconds": 0.335,
+          "usd": 0
+        }
+      ]
+    }
+  },
+  "sol fixed_0.5": {
+    "verify|002ba0331c11a198784abdfff1d7b8fb_936d37ed03db3340809ca9409508b906": {
+      "pA": 0.06,
+      "verdict": "B",
+      "usage": [
+        {
+          "provider": "sol",
+          "key": "b30bd76589c60d392e2fc9fff93c385092e88cac88bdaec0acdca0b9d0049182",
+          "count": 1,
+          "usd": 0.008632,
+          "seconds": 26.72098995797569
+        },
+        {
+          "provider": "jev",
+          "key": "d9d542ef5f085ab553d8ec019a43d24b67a85a828e4f3f964fde6d84ab9c17c9",
+          "seconds": 0.325,
+          "usd": 0
+        }
+      ]
+    },
+    "verify|00a93c5457ba7180f88944780f9134a0_773a31d04e4d41c29af003fb95f3b960": {
+      "pA": 0.05,
+      "verdict": "B",
+      "usage": [
+        {
+          "provider": "sol",
+          "key": "f2e457e23bd5e1a950a0bea2599bcc6a20533655e04d56b1f0beb345677f775e",
+          "count": 1,
+          "usd": 0.002708,
+          "seconds": 6.529860874987207
+        },
+        {
+          "provider": "jev",
+          "key": "1b0eded8c9301baf6f122b063802285e2a9a156f631d2eb79a4706f112290031",
+          "seconds": 0.468,
+          "usd": 0
+        }
+      ]
+    },
+    "verify|012d78a208c04759392be0c8b9d27dc6_dc9a328c94255249105f5d3b465499d5": {
+      "pA": 0.01,
+      "verdict": "B",
+      "usage": [
+        {
+          "provider": "sol",
+          "key": "830c98bb431e9a0993f2de8970aac35bc902af41cb4bd2787d904047ac537749",
+          "count": 1,
+          "usd": 0.003042,
+          "seconds": 5.945165625016671
+        },
+        {
+          "provider": "jev",
+          "key": "1853872c550666ef789e6cf40ca2c4fe7b8aa1ee625bff160ba5a80eb3755b41",
+          "seconds": 0.453,
+          "usd": 0
+        }
+      ]
+    },
+    "verify|0af2a305f4c4e44a69c7fd5e03d7f74e_7ff87a43db7f15aa80827e2230dd95a1": {
+      "pA": 0.06,
+      "verdict": "B",
+      "usage": [
+        {
+          "provider": "sol",
+          "key": "7ce48842ca2a8e5067a94a97579ee1c2d86b852cae9a4367a7646a5dec5d919d",
+          "count": 1,
+          "usd": 0.003242,
+          "seconds": 7.898686417029239
+        },
+        {
+          "provider": "jev",
+          "key": "9ed93f8962300dca155981770291ee9f87ae8ceb618c5db86f07f8a38808b06b",
+          "seconds": 0.65,
+          "usd": 0
+        }
+      ]
+    },
+    "verify|20f09d89d7c677862fd06e2e96e7ec19_a7f2ac04dc8fb1609ab7384631ce736c": {
+      "pA": 0.01,
+      "verdict": "B",
+      "usage": [
+        {
+          "provider": "sol",
+          "key": "87cd4304b76e63b44a85ef49989e644ff6823a795974c7dcb997cb0489114dc6",
+          "count": 1,
+          "usd": 0.0023,
+          "seconds": 5.377076416974887
+        },
+        {
+          "provider": "jev",
+          "key": "da8acdfcb10107eeb6d604c7dc28187f31094cb001752528684ff12ac6994b3d",
+          "seconds": 0.453,
+          "usd": 0
+        }
+      ]
+    },
+    "verify|251325e4d8bd19d38d1481ec5bb6b952_b0e0faf620816637683d6cefbc8d905d": {
+      "pA": 0.02,
+      "verdict": "B",
+      "usage": [
+        {
+          "provider": "sol",
+          "key": "3cdeefd3d861434d2a938e43e9b2a9d3ebc8fa4f20f5c95df9b32e3c07281d4c",
+          "count": 1,
+          "usd": 0.0062585,
+          "seconds": 8.292750207998324
+        },
+        {
+          "provider": "jev",
+          "key": "7ac63923b59b05c9f90a0d7c5dcc1f39ca8fee601389bfd7f87db084f007a892",
+          "seconds": 0.314,
+          "usd": 0
+        }
+      ]
+    },
+    "verify|2fabe7c11c7747a8d772a0ef0448e9a8_ce122c4fd3633a58d1e4ead1e46a9a01": {
+      "pA": 0.02,
+      "verdict": "B",
+      "usage": [
+        {
+          "provider": "sol",
+          "key": "0b82339edff7a786c1d4fb1038652d24400c69c346a9d99622b32689b7ab4ea6",
+          "count": 1,
+          "usd": 0.010708,
+          "seconds": 22.997274666035082
+        },
+        {
+          "provider": "jev",
+          "key": "ea430a57c0b4c6966eb3c06d202ffb4732ca61b5149f551b0f1c1f37acc9c6db",
+          "seconds": 0.371,
+          "usd": 0
+        }
+      ]
+    },
+    "verify|316ee3d0bc7b041ff6036ff4eedebd63_2a81f176304fb48b93a51804c8813763": {
+      "pA": 0.01,
+      "verdict": "B",
+      "usage": [
+        {
+          "provider": "sol",
+          "key": "7790d6f9fbd29b23d1732794bb24ce0d20a16dcb9e34a0cc0c55f673ac8dd57d",
+          "count": 1,
+          "usd": 0.001662,
+          "seconds": 3.968998417025432
+        },
+        {
+          "provider": "jev",
+          "key": "93b4271668563cd0e3d421f2aab9a9c74211b304dafc3703c46bcb25f37a1a90",
+          "seconds": 0.377,
+          "usd": 0
+        }
+      ]
+    },
+    "verify|3e12f104244648c9a58ed98d25d06249_a2144e352f15bb692f84f1721110479b": {
+      "pA": 0.13,
+      "verdict": "B",
+      "usage": [
+        {
+          "provider": "sol",
+          "key": "4cd5e66aae66a499edcc1e740b3b01b8d22db69aad9687d320b82c0128bfaa54",
+          "count": 1,
+          "usd": 0.0074035,
+          "seconds": 13.762317124987021
+        },
+        {
+          "provider": "jev",
+          "key": "cb5013cba81ff371595429a83f30bed4e693763489e27ee169d34e4ef6e20563",
+          "seconds": 0.387,
+          "usd": 0
+        }
+      ]
+    },
+    "verify|4d1497a568219528716b51f87ef72f18_6029e690d7a881057e987894b31db7e6": {
+      "pA": 0.21,
+      "verdict": "B",
+      "usage": [
+        {
+          "provider": "sol",
+          "key": "d7c18b3136df15fcee0a57d9a861215403078093740d920cae09991faf6c9f9d",
+          "count": 1,
+          "usd": 0.003198,
+          "seconds": 6.280845333007164
+        },
+        {
+          "provider": "jev",
+          "key": "32b671c968b9191ef3fc23feef3d26eb162a1bac0e36a157ad52a529f08de6e3",
+          "seconds": 0.283,
+          "usd": 0
+        }
+      ]
+    },
+    "verify|4d94773555d0a8e3f9b059e6cc729bdf_42f7be3f4cdef5f9018edfefec78418b": {
+      "pA": 0.01,
+      "verdict": "B",
+      "usage": [
+        {
+          "provider": "sol",
+          "key": "06fc029620168d8037fb8fcbefdf0d1ba0611f83035b0f7b0429b6d371695da3",
+          "count": 1,
+          "usd": 0.001752,
+          "seconds": 4.403199624968693
+        },
+        {
+          "provider": "jev",
+          "key": "5f4fcb21670b614aeb4c3c7f21c59dac33ab1d71873d75b6b1abae735cd09458",
+          "seconds": 0.39,
+          "usd": 0
+        }
+      ]
+    },
+    "verify|4fd3bc514ff8e3775723a0f883a7d347_54c1d82ec537b265b891b55d68a2d539": {
+      "pA": 0.07,
+      "verdict": "B",
+      "usage": [
+        {
+          "provider": "sol",
+          "key": "5151f2a39bd6ff17ce558fbba3c47ff15fedd2a03e02deaaf26171a8a4f8e403",
+          "count": 1,
+          "usd": 0.011244,
+          "seconds": 27.32334499998251
+        },
+        {
+          "provider": "jev",
+          "key": "8ae9c4111fe36985f6208733f9197412cdb3c30b6e9ec4e33cd392721d4e08b4",
+          "seconds": 0.309,
+          "usd": 0
+        }
+      ]
+    },
+    "verify|50624457d129ae6ba7aa043aa9bdc92b_b8dae8e757dabf12f4302375e64baa0d": {
+      "pA": 0.21,
+      "verdict": "B",
+      "usage": [
+        {
+          "provider": "sol",
+          "key": "4e7def6ec809d6a9085711e93fd0b5abb32753ec45692a6cb0eaeac18dbb0886",
+          "count": 1,
+          "usd": 0.002888,
+          "seconds": 7.399185084039345
+        },
+        {
+          "provider": "jev",
+          "key": "a183662044216b90a7201d856b0c1e587de405f00a40445ef57c51c6f810ffea",
+          "seconds": 0.407,
+          "usd": 0
+        }
+      ]
+    },
+    "verify|514cb7d27518d395ec9a46c2ae62c9bf_6a8c772c3cbf9a7e26dae82deafbc213": {
+      "pA": 0.03,
+      "verdict": "B",
+      "usage": [
+        {
+          "provider": "sol",
+          "key": "e50e8f2a70ca572ee2b93a0b01ba014341f5c692e1ed9cf71a2664fadafa82d2",
+          "count": 1,
+          "usd": 0.002592,
+          "seconds": 7.469927625032142
+        },
+        {
+          "provider": "jev",
+          "key": "5373a1e339c6bfe6630fbfb4cf3376fa51aaf0259992c71c1fdd5cd1390de671",
+          "seconds": 0.344,
+          "usd": 0
+        }
+      ]
+    },
+    "verify|52fc2d3ed06507bdbd094aabcfde7e1d_67b0aab158f41fd3a9675c7d5529910e": {
+      "pA": 0.81,
+      "verdict": "A",
+      "usage": [
+        {
+          "provider": "sol",
+          "key": "6d97d0a8dd715b9bb8e2467c25289c3746a3f9eb614ba8e7b90fd2f8c56ea6e3",
+          "count": 1,
+          "usd": 0.002092,
+          "seconds": 2.773108333989512
+        },
+        {
+          "provider": "jev",
+          "key": "3eff8cab3da9023af09b39000ada5b403ffc958aba771ce6742b64d703f4ffa4",
+          "seconds": 0.955,
+          "usd": 0
+        }
+      ]
+    },
+    "verify|5305069c7919fc01c8707be50843590a_b156bd30f7b7d418897e9ccec7ea7708": {
+      "pA": 0.95,
+      "verdict": "A",
+      "usage": [
+        {
+          "provider": "sol",
+          "key": "49801ce05328ed8f3112ec4d18bae2f93c86d9d4feebb7c9d352def37ff5e46c",
+          "count": 1,
+          "usd": 0.006311,
+          "seconds": 10.79303829203127
+        },
+        {
+          "provider": "jev",
+          "key": "f4457b345f349545213aa403fb6e0cc6aca539de54462f0981bde95aa0c67009",
+          "seconds": 0.406,
+          "usd": 0
+        }
+      ]
+    },
+    "verify|5379ab99eae4161320d5bb2c0850315e_bcec25bc2e21ce2667e0368df647bcf2": {
+      "pA": 0.02,
+      "verdict": "B",
+      "usage": [
+        {
+          "provider": "sol",
+          "key": "8b8fd336842eac497412344de65861874192a532b594b694b6680ee192366a82",
+          "count": 1,
+          "usd": 0.004751,
+          "seconds": 6.914443791960366
+        },
+        {
+          "provider": "jev",
+          "key": "f05f9afde459a8d4e83c2043098ec5cf107acda76f3f3f1e4f48cec0f2b2e34f",
+          "seconds": 0.398,
+          "usd": 0
+        }
+      ]
+    },
+    "verify|57ca02df541ae1687b9712f12df0e425_ee6b572c5fd4f4a2a6b0cb97265a4af8": {
+      "pA": 0.02,
+      "verdict": "B",
+      "usage": [
+        {
+          "provider": "sol",
+          "key": "3914394863f6aff5bf5eb8d01b704161b4eb5912187f01ac30a03ff6e8a317cb",
+          "count": 1,
+          "usd": 0.002148,
+          "seconds": 5.439511624979787
+        },
+        {
+          "provider": "jev",
+          "key": "d69eedc0f66fab9832c3a3142f977bc5539fe4007dd7152c9e004eb45a474297",
+          "seconds": 0.407,
+          "usd": 0
+        }
+      ]
+    },
+    "verify|5bb00a02996657dbb10ae730c8f472fa_367ecf9f07ea60d49a5af54a47d97898": {
+      "pA": 0.94,
+      "verdict": "A",
+      "usage": [
+        {
+          "provider": "sol",
+          "key": "c2b8ff54e198ae79e6bcff1e28cd97b0d74b3a82d75a8c715781f85c8216ba39",
+          "count": 1,
+          "usd": 0.000828,
+          "seconds": 2.542674791009631
+        },
+        {
+          "provider": "jev",
+          "key": "ee3a4db8e561a7e9363dba11b0975ea1e8aa09c27a04e35511d7516d15e00d2d",
+          "seconds": 0.337,
+          "usd": 0
+        }
+      ]
+    },
+    "verify|5c0953ccc0fe13a7c7843f7c30711707_b803a6e1123d88f6b68aff3e8677de31": {
+      "pA": 0.01,
+      "verdict": "B",
+      "usage": [
+        {
+          "provider": "sol",
+          "key": "a6e6d038d3cdc5352e5e2104f9d73f60e23db24610c0ad85031fb62f2cfbd800",
+          "count": 1,
+          "usd": 0.003344,
+          "seconds": 8.26538154197624
+        },
+        {
+          "provider": "jev",
+          "key": "7b3dd0c6eb1bd3cd4d49dbb329dafd586a6b1fb81824995f2a3358850a693a76",
+          "seconds": 0.372,
+          "usd": 0
+        }
+      ]
+    },
+    "verify|5dfb02d5ff7008e6319ca9ebff69f3ba_c5d3070446bc46d1c98f353fce17822e": {
+      "pA": 0.93,
+      "verdict": "A",
+      "usage": [
+        {
+          "provider": "sol",
+          "key": "8431fbf6b1ac7b562220488a03e703e17888280363d4742b3aad7b36d6cf513e",
+          "count": 1,
+          "usd": 0.0019,
+          "seconds": 5.226727540954016
+        },
+        {
+          "provider": "jev",
+          "key": "864edc4e599edf9c0794dfd7caab038e882a6e032b5a5f894328a0302e4cfdcb",
+          "seconds": 0.439,
+          "usd": 0
+        }
+      ]
+    },
+    "verify|6475b7ad5531cf9bc60abf8728996c1d_14dcca0905e181fe50f31e588e3dd482": {
+      "pA": 0.01,
+      "verdict": "B",
+      "usage": [
+        {
+          "provider": "sol",
+          "key": "06c90333309ec79ad1be7036415a8ad91eba29f67bd36ee6292cd696e460530a",
+          "count": 1,
+          "usd": 0.001686,
+          "seconds": 4.109609792008996
+        },
+        {
+          "provider": "jev",
+          "key": "73b4a9180122fee1c5f19129685e1d66e61fe63d6e0925d3c45dca1db714302e",
+          "seconds": 0.376,
+          "usd": 0
+        }
+      ]
+    },
+    "verify|6e4aba2ba0751961277a5be9c22f6e53_76bc2098e25dcd33b5bde96980673a4b": {
+      "pA": 0.08,
+      "verdict": "B",
+      "usage": [
+        {
+          "provider": "sol",
+          "key": "d115b3fd16a14e5f84a70f8693284062aa263cf1603e6dc3ec915a5c135f7f54",
+          "count": 1,
+          "usd": 0.001772,
+          "seconds": 4.958911666995846
+        },
+        {
+          "provider": "jev",
+          "key": "de2cc384000ffe947de733dd2cc000467c0afa52211fe88329f8071569d51c3f",
+          "seconds": 0.392,
+          "usd": 0
+        }
+      ]
+    },
+    "verify|74455975cc7822e30f33648e197a1775_ccbe576fccccc23b0bdad67d79075fb2": {
+      "pA": 0.17,
+      "verdict": "B",
+      "usage": [
+        {
+          "provider": "sol",
+          "key": "5c306f140b4e89d1c0c42bbbb94452ac202cc343c552c814cc4b3e747e3ae312",
+          "count": 1,
+          "usd": 0.00105,
+          "seconds": 2.774004833016079
+        },
+        {
+          "provider": "jev",
+          "key": "e9470f08e203e42f63bd0a7029880a0a118e004d272cb300d6a2d0e2b39044a6",
+          "seconds": 0.336,
+          "usd": 0
+        }
+      ]
+    },
+    "verify|7c3345602da2596f3ff58658788cd183_cbfde9b9bf8facffcf498eab4aadd1a6": {
+      "pA": 0.97,
+      "verdict": "A",
+      "usage": [
+        {
+          "provider": "sol",
+          "key": "248fcf3a050a7df4a408f1879924f72d6e15976dc7b7afe25924a70a8c127dab",
+          "count": 1,
+          "usd": 0.006674,
+          "seconds": 15.209192333975807
+        },
+        {
+          "provider": "jev",
+          "key": "42eee93561907e929cf3c8bc2821ccb04c28b0bb4bb5a89212286ff7d3f652db",
+          "seconds": 0.417,
+          "usd": 0
+        }
+      ]
+    },
+    "verify|848aefe451338e2934283c1417b49704_5d429963fda0a400af8b2e0d334830a7": {
+      "pA": 0.03,
+      "verdict": "B",
+      "usage": [
+        {
+          "provider": "sol",
+          "key": "c4978288c02e99c5fe645ba7fa4efbe9f539909f152803d1b0a35f5033f2c7a8",
+          "count": 1,
+          "usd": 0.004422,
+          "seconds": 7.8271308750263415
+        },
+        {
+          "provider": "jev",
+          "key": "7e33977438140da8a9af6f91088691e0da6a04a612a0ac0720dd193f9434663c",
+          "seconds": 0.378,
+          "usd": 0
+        }
+      ]
+    },
+    "verify|8725986b8def7d6dc2430b5a82ebe768_d892147f21a603cf006be26ac0db27cb": {
+      "pA": 0.92,
+      "verdict": "A",
+      "usage": [
+        {
+          "provider": "sol",
+          "key": "f9d873d608894f5983ff4eebb229af6d6ad420db4e79ae1d177137a3cf0ae650",
+          "count": 1,
+          "usd": 0.002002,
+          "seconds": 5.019080958969425
+        },
+        {
+          "provider": "jev",
+          "key": "520d7f6e16feab3cfd745fecc930ec822d38a246df3208f63958630bcf468d77",
+          "seconds": 0.394,
+          "usd": 0
+        }
+      ]
+    },
+    "verify|885d1842d6a91b50b8ae527de98c3aad_b33afc0790fa12b013da7a444d8410d6": {
+      "pA": 0.1,
+      "verdict": "B",
+      "usage": [
+        {
+          "provider": "sol",
+          "key": "2677f9d0965d7dc6da1e2187e885dc2d2fbeeb4f556c5fa0d0bc57e3f360b07e",
+          "count": 1,
+          "usd": 0.001566,
+          "seconds": 3.6336647080024704
+        },
+        {
+          "provider": "jev",
+          "key": "a80bf630c93caee57fc57167e9864855a639a62c82fea96c8baabb3fd0dae2fc",
+          "seconds": 0.303,
+          "usd": 0
+        }
+      ]
+    },
+    "verify|886ed3392b036e68166e5b531b324911_2c9f5b90761ca8037817845fb3c49f75": {
+      "pA": 0.03,
+      "verdict": "B",
+      "usage": [
+        {
+          "provider": "sol",
+          "key": "71614729a2713d0de3870da8ece3eea9bee4cd5c704d83580d28f3969f85a91d",
+          "count": 1,
+          "usd": 0.0028,
+          "seconds": 6.246380499971565
+        },
+        {
+          "provider": "jev",
+          "key": "973ae7c1334069a56f39abc8e8d3ecea84abb70e40bad2012ce8bab8ab9aac55",
+          "seconds": 0.332,
+          "usd": 0
+        }
+      ]
+    },
+    "verify|892778a2fbb44f0137777a78340d5644_ed17186ec99cb1fdbed4cf47762f6f2a": {
+      "pA": 0.01,
+      "verdict": "B",
+      "usage": [
+        {
+          "provider": "sol",
+          "key": "a1e8bf586967c4c9b33305abc88098f0e3dd65bdc7081a6dd646b9c8b3dd4b36",
+          "count": 1,
+          "usd": 0.002698,
+          "seconds": 13.963429458963219
+        },
+        {
+          "provider": "jev",
+          "key": "19b7dea90f6d47fe38ebc2fc1b21122a6769e3bd16610152cab36c4d3bf4a78b",
+          "seconds": 0.47,
+          "usd": 0
+        }
+      ]
+    },
+    "verify|8fb2e641b5868077f1080ebc2a77f638_ab543eb5433d029341e7180d9d1d684a": {
+      "pA": 0.23,
+      "verdict": "B",
+      "usage": [
+        {
+          "provider": "sol",
+          "key": "5b39ed3014faffcca06fe53b5dac7004205afee0b6ef2493aa4687cdec28bbd4",
+          "count": 1,
+          "usd": 0.0016,
+          "seconds": 3.8657941670389846
+        },
+        {
+          "provider": "jev",
+          "key": "459e90bcaae5bf282905d7c5758a1ba372057ab429f8695d2e03c6a30dd99ba6",
+          "seconds": 0.367,
+          "usd": 0
+        }
+      ]
+    },
+    "verify|987731fefdee670139b52a3c2cd13b54_63abd6b1489e90a7836c25efd043d174": {
+      "pA": 1,
+      "verdict": "A",
+      "usage": [
+        {
+          "provider": "sol",
+          "key": "6ba187c05032ede6b2b28ea59b655d2fa482b665c37a0b3b0c4b4e547efda40b",
+          "count": 1,
+          "usd": 0.001354,
+          "seconds": 3.524120291986037
+        },
+        {
+          "provider": "jev",
+          "key": "fbc2e18bf593af72d7654f8e7f2a935e37a74cee560c4ea26a9c9f50d7dbb5a2",
+          "seconds": 0.356,
+          "usd": 0
+        }
+      ]
+    },
+    "verify|9cf12f34adac95169b15ddc25480ec2c_a7f2414568e73815e19f8370f3aeec89": {
+      "pA": 0.04,
+      "verdict": "B",
+      "usage": [
+        {
+          "provider": "sol",
+          "key": "d247e2324946c97d42fa883cee5859d57db789627b345e86a60c125f42b2834b",
+          "count": 1,
+          "usd": 0.00132,
+          "seconds": 3.302090874989517
+        },
+        {
+          "provider": "jev",
+          "key": "8cde96461182498c76db7da0699e94152095cb48e855a44a0f7182ccdbae02f7",
+          "seconds": 0.857,
+          "usd": 0
+        }
+      ]
+    },
+    "verify|9eeb0aa3c4d5607cf62dac86e1b9eca4_75b2a58542259d851176d51275ee3259": {
+      "pA": 0.05,
+      "verdict": "B",
+      "usage": [
+        {
+          "provider": "sol",
+          "key": "4d6cd925aa419c37c393621fb70c02f8a9d7efaca94b0637d30207abb1886e8f",
+          "count": 1,
+          "usd": 0.000824,
+          "seconds": 9.882335417030845
+        },
+        {
+          "provider": "jev",
+          "key": "005ebab57bd71ef281e857dc8f4302226be8e948c1146c13a1580344708dd83d",
+          "seconds": 0.381,
+          "usd": 0
+        }
+      ]
+    },
+    "verify|a42ea38dfa10aa7e396220d1943be6e4_944b95a9b576030a613b3b12a27968a1": {
+      "pA": 0.98,
+      "verdict": "A",
+      "usage": [
+        {
+          "provider": "sol",
+          "key": "392861660e98861456019a0867cd8580c2deca66610896fab9ad434fa028220a",
+          "count": 1,
+          "usd": 0.00267,
+          "seconds": 7.12176458403701
+        },
+        {
+          "provider": "jev",
+          "key": "9b68265d4b5d94536b5654c6af770d9ad67cd58c190f613281e386366f0994f7",
+          "seconds": 0.335,
+          "usd": 0
+        }
+      ]
+    },
+    "verify|a4ec51f047502137ba39fd41cfc5bb68_c2caf04b04cdfc57e3491ad56e63a5a7": {
+      "pA": 0.03,
+      "verdict": "B",
+      "usage": [
+        {
+          "provider": "sol",
+          "key": "1760ee504a687a7a79dc711e29ede0868b7d8c41ac01cf0cc1c8ff7458f53cc0",
+          "count": 1,
+          "usd": 0.0046635,
+          "seconds": 2.6000665000174195
+        },
+        {
+          "provider": "jev",
+          "key": "fdb1856b6d19a2ce1b05efaa7a7f608fc3b3a40fd095a392feb4bba69f03b082",
+          "seconds": 0.455,
+          "usd": 0
+        }
+      ]
+    },
+    "verify|a5b0bbe7c43295f2dbea2c23333da1a5_e57fae23da1e0a3010c9aa0497a626e8": {
+      "pA": 0.01,
+      "verdict": "B",
+      "usage": [
+        {
+          "provider": "sol",
+          "key": "273ab12f49458dd1458d0cf73ed09a8d03a5efbd0f8803cb9d1bf100c553a5c7",
+          "count": 1,
+          "usd": 0.002192,
+          "seconds": 6.311247374978848
+        },
+        {
+          "provider": "jev",
+          "key": "91886d867c81a7ed8402dc063ec3cac10874eba01291440b474d0aef09a19104",
+          "seconds": 0.369,
+          "usd": 0
+        }
+      ]
+    },
+    "verify|adba4a0e3dc7ec9d2b9a05a9d21f2209_d48215d589eb5969bfcfcd58993ab543": {
+      "pA": 0.6,
+      "verdict": "A",
+      "usage": [
+        {
+          "provider": "sol",
+          "key": "23c12c25d61f976499511087142d82a62503dd9c3ef0c9c664723d22df047728",
+          "count": 1,
+          "usd": 0.001906,
+          "seconds": 4.8235464579775
+        },
+        {
+          "provider": "jev",
+          "key": "61cb6cc647116994e19fe1595029a99fec0a87bc2be4407cba032ab0314857c1",
+          "seconds": 0.431,
+          "usd": 0
+        }
+      ]
+    },
+    "verify|aee1de22ebcbd6dffb545f85c2cc6d3c_4ad6596d535addc90e3929c4cd601d2a": {
+      "pA": 0.99,
+      "verdict": "A",
+      "usage": [
+        {
+          "provider": "sol",
+          "key": "30521d186d6444f39633d83b3d337822f532b0fde5176ec01bdba79174ec1946",
+          "count": 1,
+          "usd": 0.002894,
+          "seconds": 6.558184749970678
+        },
+        {
+          "provider": "jev",
+          "key": "5fcef2f8c81196536a4b40c405e81785a532b81abd5dda0a2cda42617cc82ca4",
+          "seconds": 0.483,
+          "usd": 0
+        }
+      ]
+    },
+    "verify|b5bc983f90abcc1471893cf179ba0bfa_505d5f6ba81adc9e6464f0e068aa11e4": {
+      "pA": 0.01,
+      "verdict": "B",
+      "usage": [
+        {
+          "provider": "sol",
+          "key": "22371787868d364f0f49bbcecbc66f01cdd0f51dc81ac286817bff9c06198808",
+          "count": 1,
+          "usd": 0.00371,
+          "seconds": 8.866426500026137
+        },
+        {
+          "provider": "jev",
+          "key": "71ae8c396f433475a706ba1c151b3e5933536efdd5dbc15d2a2c0ba3b38bdf11",
+          "seconds": 0.462,
+          "usd": 0
+        }
+      ]
+    },
+    "verify|b7efa9e28caf28086ae71c1099f80c85_c2a2771adf0010ee3a5ba9e3450a37c0": {
+      "pA": 0.05,
+      "verdict": "B",
+      "usage": [
+        {
+          "provider": "sol",
+          "key": "38ae23647a6ffce30104378df6917c4bc0d8e8fd69ae4309e43a8f45577df355",
+          "count": 1,
+          "usd": 0.002222,
+          "seconds": 6.406483999977354
+        },
+        {
+          "provider": "jev",
+          "key": "701ac5f43835f8a11dc3f5efeb0e0fd349f7719b8065a429d335cd0629a8f5b5",
+          "seconds": 0.389,
+          "usd": 0
+        }
+      ]
+    },
+    "verify|be062ca3146709520fb4af362eadc7fd_13c03b682a952e80a999c8551089683b": {
+      "pA": 0.16,
+      "verdict": "B",
+      "usage": [
+        {
+          "provider": "sol",
+          "key": "ee7b4178ab093111a59408e0b6e74c334b0d688546aa198e8fda942fbf4387b3",
+          "count": 1,
+          "usd": 0.001226,
+          "seconds": 3.946161292027682
+        },
+        {
+          "provider": "jev",
+          "key": "356b65220b60a92bd06b8075300d9d1ddc27694ed557decd0c7a7af920ca8c1d",
+          "seconds": 0.379,
+          "usd": 0
+        }
+      ]
+    },
+    "verify|c41dbbb9d77e5ccbcbe4a0ea02453603_202dea5c7e880415ece22aaa2518ae03": {
+      "pA": 0.02,
+      "verdict": "B",
+      "usage": [
+        {
+          "provider": "sol",
+          "key": "a24d0b548c7d04ad066f0e7a21b95a3d3f390ebda7553696f52edfdeecbf2cb1",
+          "count": 1,
+          "usd": 0.009224,
+          "seconds": 20.04381433298113
+        },
+        {
+          "provider": "jev",
+          "key": "b136a3fad02dd778e4a200fae122d76aeb678a5fbd7b223fe73a42254bc94537",
+          "seconds": 0.282,
+          "usd": 0
+        }
+      ]
+    },
+    "verify|c8cadbcb97f9fc98c52201c05d2cc7ed_e53ffb97227c484cb4cf3e395207ef4f": {
+      "pA": 0.04,
+      "verdict": "B",
+      "usage": [
+        {
+          "provider": "sol",
+          "key": "c2860e38075b237a7ccabf71a5f994f7aa5802e61367a5c5dbf2ad662d948f66",
+          "count": 1,
+          "usd": 0.002408,
+          "seconds": 5.801487292046659
+        },
+        {
+          "provider": "jev",
+          "key": "28543b70d45161d460a3b1e65015b910e9e8af2fa8f264ed32125bd587f96f71",
+          "seconds": 0.411,
+          "usd": 0
+        }
+      ]
+    },
+    "verify|ca370252fd6426290feed014586fe69e_7eab75a8a39e3c975b8492f9161b9f40": {
+      "pA": 0.04,
+      "verdict": "B",
+      "usage": [
+        {
+          "provider": "sol",
+          "key": "a759c2e8d6e65a47787188f45179ccea5906121da535f926620b7e171b751830",
+          "count": 1,
+          "usd": 0.003018,
+          "seconds": 6.216760625015013
+        },
+        {
+          "provider": "jev",
+          "key": "dc1e845010269c31e5d9c9c0bd45d62145cd83262a1d09d8d414c601db1ecdf5",
+          "seconds": 0.416,
+          "usd": 0
+        }
+      ]
+    },
+    "verify|d29e283a52241c0a9a32224b711237bd_cab7eb980622deaad71cf6fe7e803264": {
+      "pA": 0.95,
+      "verdict": "A",
+      "usage": [
+        {
+          "provider": "sol",
+          "key": "3b671a4e7279a16557257587139b5b33e0d34cf14ccf97fa86d8d69c3dc31179",
+          "count": 1,
+          "usd": 0.00084,
+          "seconds": 3.671254582994152
+        },
+        {
+          "provider": "jev",
+          "key": "2b77f41f85b47575e5038cf494edc32eef4d59a34e5bf8e0b10354951bd6862f",
+          "seconds": 0.288,
+          "usd": 0
+        }
+      ]
+    },
+    "verify|e294330c907c43e8b8e2fe5b2d1eff04_01bcb6a22e65a9be3cd5c1f0c5accf0b": {
+      "pA": 0.98,
+      "verdict": "A",
+      "usage": [
+        {
+          "provider": "sol",
+          "key": "f8e3ac8925e0b800f61fc7f26a12c01a93b33a51b1d0dac66f781f71652ab5f8",
+          "count": 1,
+          "usd": 0.001778,
+          "seconds": 4.687970582977869
+        },
+        {
+          "provider": "jev",
+          "key": "6c885d7d2f974f3efb51b70579a39dfb17ad7fe054560dd14313703e0bce2e54",
+          "seconds": 0.307,
+          "usd": 0
+        }
+      ]
+    },
+    "verify|e63f281ff9bfcefd25555cccf1517855_75af0c15b91bd41dee7da9b35ca2129d": {
+      "pA": 0.53,
+      "verdict": "A",
+      "usage": [
+        {
+          "provider": "sol",
+          "key": "cf59f4f9498adfa7ae0a8c5d41da688d4ccb9a56c9808f7ee3f8f961fb8f8a36",
+          "count": 1,
+          "usd": 0.003304,
+          "seconds": 9.238319040974602
+        },
+        {
+          "provider": "jev",
+          "key": "3e170fabd8dd191248e25197316f08494ec57f636b36cb23fcb800dfff08f542",
+          "seconds": 0.309,
+          "usd": 0
+        }
+      ]
+    },
+    "verify|e65ff550a41d8aab1c6794c36e7c2a47_4fe039b653a63adb5b06881c68c09b99": {
+      "pA": 0.29,
+      "verdict": "B",
+      "usage": [
+        {
+          "provider": "sol",
+          "key": "ebc3444ae80ebe99dd23b55db42bf593b887f2b6070fa3a1a2a2769dd603c10b",
+          "count": 1,
+          "usd": 0.0037,
+          "seconds": 9.954900334007107
+        },
+        {
+          "provider": "jev",
+          "key": "82ec4af0dea8a3ddfa701a097037f32a5b9e7a20e4c6e43c154ad5d904f7fae9",
+          "seconds": 0.335,
+          "usd": 0
+        }
+      ]
+    }
+  },
+  "sonnet fitted": {
+    "verify|002ba0331c11a198784abdfff1d7b8fb_936d37ed03db3340809ca9409508b906": {
+      "pA": 0.03,
+      "verdict": "B",
+      "usage": [
+        {
+          "provider": "sonnet",
+          "key": "4934445f21624b1b2b69ea2102d7614bdfcfd40180805f45a3f324a4e2a4f0ee",
+          "count": 1,
+          "usd": 0.023078,
+          "seconds": 19.911379542027134
+        },
+        {
+          "provider": "jev",
+          "key": "7ec6979d16dcc575fecc68725712bfa32874c88dc89c7e2cdeeb28956db9c992",
+          "seconds": 0.434,
+          "usd": 0
+        }
+      ]
+    },
+    "verify|00a93c5457ba7180f88944780f9134a0_773a31d04e4d41c29af003fb95f3b960": {
+      "pA": 0.12,
+      "verdict": "B",
+      "usage": [
+        {
+          "provider": "sonnet",
+          "key": "b4de711e968a47d4f436e33d140e45a4267fe954114a8c29d9fddb56f51d5588",
+          "count": 1,
+          "usd": 0.005658,
+          "seconds": 3.83682820800459
+        },
+        {
+          "provider": "jev",
+          "key": "a5274f01d7a8966335c4436e03f141749b0a68bad4670c968c65e063d5dfe97c",
+          "seconds": 0.264,
+          "usd": 0
+        }
+      ]
+    },
+    "verify|012d78a208c04759392be0c8b9d27dc6_dc9a328c94255249105f5d3b465499d5": {
+      "pA": 0.01,
+      "verdict": "B",
+      "usage": [
+        {
+          "provider": "sonnet",
+          "key": "b5725cd7244e076ac26c377cd8f0fcd5cbe2414265ccbc4682fedcff26688c59",
+          "count": 1,
+          "usd": 0.009048,
+          "seconds": 5.113313958980143
+        },
+        {
+          "provider": "jev",
+          "key": "ac8e8c588e5660b70224cf07ddbb6f0fa260793d6ca41c990e85778bd7dc632a",
+          "seconds": 0.59,
+          "usd": 0
+        }
+      ]
+    },
+    "verify|0af2a305f4c4e44a69c7fd5e03d7f74e_7ff87a43db7f15aa80827e2230dd95a1": {
+      "pA": 0.07,
+      "verdict": "B",
+      "usage": [
+        {
+          "provider": "sonnet",
+          "key": "ff3590fc72d1c19572d723c7e2f5cb6b50c4fc2f35381cd668c6c122b56835c3",
+          "count": 1,
+          "usd": 0.006364,
+          "seconds": 3.8074560000095516
+        },
+        {
+          "provider": "jev",
+          "key": "4d572df7f3fcdf7b62f221083de2cfb1cbd5fc87023e660a24dcb99c5a75a41e",
+          "seconds": 0.309,
+          "usd": 0
+        }
+      ]
+    },
+    "verify|20f09d89d7c677862fd06e2e96e7ec19_a7f2ac04dc8fb1609ab7384631ce736c": {
+      "pA": 0.01,
+      "verdict": "B",
+      "usage": [
+        {
+          "provider": "sonnet",
+          "key": "23a8f3fbe5d5677c1083746eccf72f818c68171158fade2daf67ef51a372885f",
+          "count": 1,
+          "usd": 0.00611,
+          "seconds": 4.085946916020475
+        },
+        {
+          "provider": "jev",
+          "key": "4c60d16e343b0a602bf0fa57096d7b6bbfc8707c5b7ce89cbc19b0d8199855de",
+          "seconds": 0.283,
+          "usd": 0
+        }
+      ]
+    },
+    "verify|251325e4d8bd19d38d1481ec5bb6b952_b0e0faf620816637683d6cefbc8d905d": {
+      "pA": 0.02,
+      "verdict": "B",
+      "usage": [
+        {
+          "provider": "sonnet",
+          "key": "e3a3e0f77af691fdef9fd956381a64c919dcaac9bf294bdddad7fa5974249868",
+          "count": 1,
+          "usd": 0.023545999999999997,
+          "seconds": 13.212155042041559
+        },
+        {
+          "provider": "jev",
+          "key": "7ac63923b59b05c9f90a0d7c5dcc1f39ca8fee601389bfd7f87db084f007a892",
+          "seconds": 0.314,
+          "usd": 0
+        }
+      ]
+    },
+    "verify|2fabe7c11c7747a8d772a0ef0448e9a8_ce122c4fd3633a58d1e4ead1e46a9a01": {
+      "pA": 0.02,
+      "verdict": "B",
+      "usage": [
+        {
+          "provider": "sonnet",
+          "key": "ffa4d8995f63657e8386d2b67317241f4823fe47c4e5ebce40cf950dd7f80c30",
+          "count": 1,
+          "usd": 0.014856000000000001,
+          "seconds": 10.499492749979254
+        },
+        {
+          "provider": "jev",
+          "key": "d4feef93a346d0fbe50d2118a2a4bc0794dbed7f59dd65d4713be10f359666f8",
+          "seconds": 0.361,
+          "usd": 0
+        }
+      ]
+    },
+    "verify|316ee3d0bc7b041ff6036ff4eedebd63_2a81f176304fb48b93a51804c8813763": {
+      "pA": 0.01,
+      "verdict": "B",
+      "usage": [
+        {
+          "provider": "sonnet",
+          "key": "d8c99b823253b346f706c1a70ad33aa40952815557fd9c8da58b790cdc622801",
+          "count": 1,
+          "usd": 0.003602,
+          "seconds": 2.1378193339915015
+        },
+        {
+          "provider": "jev",
+          "key": "e5c3b77cd84db4d0ac216e33c8447cd51e13ac3648051b871e70ff1e58e64223",
+          "seconds": 0.432,
+          "usd": 0
+        }
+      ]
+    },
+    "verify|3e12f104244648c9a58ed98d25d06249_a2144e352f15bb692f84f1721110479b": {
+      "pA": 0.49,
+      "verdict": "A",
+      "usage": [
+        {
+          "provider": "sonnet",
+          "key": "d958e947f1d7968b87f2c695c8b04fdd6c02dabb6c24eca79d20f5fdf8e7d46c",
+          "count": 1,
+          "usd": 0.011028,
+          "seconds": 6.988223624997772
+        },
+        {
+          "provider": "jev",
+          "key": "9e9eae88e146eaad52eb1d788ae991252bca6485949d8d11593db168f7dcee34",
+          "seconds": 0.474,
+          "usd": 0
+        }
+      ]
+    },
+    "verify|4d1497a568219528716b51f87ef72f18_6029e690d7a881057e987894b31db7e6": {
+      "pA": 0.21,
+      "verdict": "B",
+      "usage": [
+        {
+          "provider": "sonnet",
+          "key": "cad41f2bebf5906cae0e3a710f33e6c8a1d850ebf5304e6a4ae10a51a609e04f",
+          "count": 1,
+          "usd": 0.0073880000000000005,
+          "seconds": 4.345775790978223
+        },
+        {
+          "provider": "jev",
+          "key": "32b671c968b9191ef3fc23feef3d26eb162a1bac0e36a157ad52a529f08de6e3",
+          "seconds": 0.283,
+          "usd": 0
+        }
+      ]
+    },
+    "verify|4d94773555d0a8e3f9b059e6cc729bdf_42f7be3f4cdef5f9018edfefec78418b": {
+      "pA": 0.02,
+      "verdict": "B",
+      "usage": [
+        {
+          "provider": "sonnet",
+          "key": "86fe2390f124093e0c1151f65435992fe9ed0fdedddd191404d8e3822635ebc3",
+          "count": 1,
+          "usd": 0.005568,
+          "seconds": 3.528009709028993
+        },
+        {
+          "provider": "jev",
+          "key": "6b855d379d2e3e7d8118608fe81ab1fd6e7b225efe9ce442c1502135308b2a91",
+          "seconds": 0.34,
+          "usd": 0
+        }
+      ]
+    },
+    "verify|4fd3bc514ff8e3775723a0f883a7d347_54c1d82ec537b265b891b55d68a2d539": {
+      "pA": 0.05,
+      "verdict": "B",
+      "usage": [
+        {
+          "provider": "sonnet",
+          "key": "92e268dc7c61798e81115bfa0ea115dbb5e277356c20b2ffe3f87e8811765d7a",
+          "count": 1,
+          "usd": 0.028758000000000002,
+          "seconds": 21.511528707982507
+        },
+        {
+          "provider": "jev",
+          "key": "3807595014c6e42ba690ad2e8445c86ac496b287a78428282d8b2a9af2b27726",
+          "seconds": 0.397,
+          "usd": 0
+        }
+      ]
+    },
+    "verify|50624457d129ae6ba7aa043aa9bdc92b_b8dae8e757dabf12f4302375e64baa0d": {
+      "pA": 0.04,
+      "verdict": "B",
+      "usage": [
+        {
+          "provider": "sonnet",
+          "key": "cfa60568767d8c32868545d8c513525935e96be14396c1d5d3b4a284a601bf04",
+          "count": 1,
+          "usd": 0.011866000000000002,
+          "seconds": 8.639732749958057
+        },
+        {
+          "provider": "jev",
+          "key": "ec161330866a13fb7b751df9e4cb87d56646cea759d223bf9954bac911750477",
+          "seconds": 0.439,
+          "usd": 0
+        }
+      ]
+    },
+    "verify|514cb7d27518d395ec9a46c2ae62c9bf_6a8c772c3cbf9a7e26dae82deafbc213": {
+      "pA": 0.03,
+      "verdict": "B",
+      "usage": [
+        {
+          "provider": "sonnet",
+          "key": "f97420da1189a0e934199e052f3dcf65c30c0f95fd87993524f8dfff227cb87e",
+          "count": 1,
+          "usd": 0.006512,
+          "seconds": 4.995884166972246
+        },
+        {
+          "provider": "jev",
+          "key": "5373a1e339c6bfe6630fbfb4cf3376fa51aaf0259992c71c1fdd5cd1390de671",
+          "seconds": 0.344,
+          "usd": 0
+        }
+      ]
+    },
+    "verify|52fc2d3ed06507bdbd094aabcfde7e1d_67b0aab158f41fd3a9675c7d5529910e": {
+      "pA": 0.81,
+      "verdict": "A",
+      "usage": [
+        {
+          "provider": "sonnet",
+          "key": "813e0442dd96eed1cfbf1985fcf6f5555558b9cedb758721148a4de79a53feeb",
+          "count": 1,
+          "usd": 0.008974,
+          "seconds": 4.822800916037522
+        },
+        {
+          "provider": "jev",
+          "key": "3eff8cab3da9023af09b39000ada5b403ffc958aba771ce6742b64d703f4ffa4",
+          "seconds": 0.955,
+          "usd": 0
+        }
+      ]
+    },
+    "verify|5305069c7919fc01c8707be50843590a_b156bd30f7b7d418897e9ccec7ea7708": {
+      "pA": 0.98,
+      "verdict": "A",
+      "usage": [
+        {
+          "provider": "sonnet",
+          "key": "283e9d5af6035bd94ef3b89e797faeb5afb7637cf5a785ed8972a332e292c15d",
+          "count": 1,
+          "usd": 0.014090000000000002,
+          "seconds": 9.036438499984797
+        },
+        {
+          "provider": "jev",
+          "key": "79989b1730ce6481d71111636b79415ee69b4670c75e0926cc242ba34985899b",
+          "seconds": 0.357,
+          "usd": 0
+        }
+      ]
+    },
+    "verify|5379ab99eae4161320d5bb2c0850315e_bcec25bc2e21ce2667e0368df647bcf2": {
+      "pA": 0.02,
+      "verdict": "B",
+      "usage": [
+        {
+          "provider": "sonnet",
+          "key": "0914e94854e5cfadc9d50ee7de76decc2c29b0214ec95fca814ec87a18b51c3a",
+          "count": 1,
+          "usd": 0.021491999999999997,
+          "seconds": 12.908348416967783
+        },
+        {
+          "provider": "jev",
+          "key": "2781ba57e0250987c81b42f20073cc179662e47d20fe194b3083ee5158a01d45",
+          "seconds": 0.386,
+          "usd": 0
+        }
+      ]
+    },
+    "verify|57ca02df541ae1687b9712f12df0e425_ee6b572c5fd4f4a2a6b0cb97265a4af8": {
+      "pA": 0.02,
+      "verdict": "B",
+      "usage": [
+        {
+          "provider": "sonnet",
+          "key": "c6f4924a1d8a6d6ef2275c8bea9ec02899dad5ab34e258f1815b2266287468fe",
+          "count": 1,
+          "usd": 0.006794,
+          "seconds": 4.303903457999695
+        },
+        {
+          "provider": "jev",
+          "key": "72c7b75b8e375d6077f80775b89f253a17bd8f2fda11d846d44732b74d996aff",
+          "seconds": 0.415,
+          "usd": 0
+        }
+      ]
+    },
+    "verify|5bb00a02996657dbb10ae730c8f472fa_367ecf9f07ea60d49a5af54a47d97898": {
+      "pA": 0.26,
+      "verdict": "B",
+      "usage": [
+        {
+          "provider": "sonnet",
+          "key": "2af204035730bb3949808fadf4b4c7f76538ec32968dfc6b645901ee579ac6a6",
+          "count": 1,
+          "usd": 0.003856,
+          "seconds": 2.771662874962203
+        },
+        {
+          "provider": "jev",
+          "key": "ac19387f41089806751aee845c9b413177627c18c7692f165781ddc7406717c5",
+          "seconds": 0.357,
+          "usd": 0
+        }
+      ]
+    },
+    "verify|5c0953ccc0fe13a7c7843f7c30711707_b803a6e1123d88f6b68aff3e8677de31": {
+      "pA": 0.02,
+      "verdict": "B",
+      "usage": [
+        {
+          "provider": "sonnet",
+          "key": "bfad34ea7d5e647b76f19397a6d1eb2c1dbc81937506640ea99824338c923628",
+          "count": 1,
+          "usd": 0.005606,
+          "seconds": 3.644256583007518
+        },
+        {
+          "provider": "jev",
+          "key": "36e8f79bcdaba9a3d86358b9e80f3cdda9e3e6133bf39db2e162e18812ad4ae3",
+          "seconds": 0.442,
+          "usd": 0
+        }
+      ]
+    },
+    "verify|5dfb02d5ff7008e6319ca9ebff69f3ba_c5d3070446bc46d1c98f353fce17822e": {
+      "pA": 0.93,
+      "verdict": "A",
+      "usage": [
+        {
+          "provider": "sonnet",
+          "key": "2156f2d70a5d0bd4d30233c34cdf6b674016ed17fb8a1dc00e33acecdcce2443",
+          "count": 1,
+          "usd": 0.00423,
+          "seconds": 2.726941959001124
+        },
+        {
+          "provider": "jev",
+          "key": "864edc4e599edf9c0794dfd7caab038e882a6e032b5a5f894328a0302e4cfdcb",
+          "seconds": 0.439,
+          "usd": 0
+        }
+      ]
+    },
+    "verify|6475b7ad5531cf9bc60abf8728996c1d_14dcca0905e181fe50f31e588e3dd482": {
+      "pA": 0.01,
+      "verdict": "B",
+      "usage": [
+        {
+          "provider": "sonnet",
+          "key": "ded8bba1abb34df926b5337afe6a22e89099676d349c4d0651ad7801baba05c4",
+          "count": 1,
+          "usd": 0.004232,
+          "seconds": 2.699782833980862
+        },
+        {
+          "provider": "jev",
+          "key": "44eef85d12a42ebe043064b748df014fe33af640aab4d81eb6d16d4cd2943ef8",
+          "seconds": 0.391,
+          "usd": 0
+        }
+      ]
+    },
+    "verify|6e4aba2ba0751961277a5be9c22f6e53_76bc2098e25dcd33b5bde96980673a4b": {
+      "pA": 0.08,
+      "verdict": "B",
+      "usage": [
+        {
+          "provider": "sonnet",
+          "key": "89a45645a6bd29c656c2b88c926e5f3755f0a8c534385413c76455296b0dc34c",
+          "count": 1,
+          "usd": 0.005922,
+          "seconds": 3.584064084046986
+        },
+        {
+          "provider": "jev",
+          "key": "de2cc384000ffe947de733dd2cc000467c0afa52211fe88329f8071569d51c3f",
+          "seconds": 0.392,
+          "usd": 0
+        }
+      ]
+    },
+    "verify|74455975cc7822e30f33648e197a1775_ccbe576fccccc23b0bdad67d79075fb2": {
+      "pA": 0.18,
+      "verdict": "B",
+      "usage": [
+        {
+          "provider": "sonnet",
+          "key": "12856ce79341deb7073a15e8589a4d8840bb3e482d6a9ae451dc121e0be768b9",
+          "count": 1,
+          "usd": 0.00279,
+          "seconds": 1.7144279589992948
+        },
+        {
+          "provider": "jev",
+          "key": "32013623d6463527a34be29199236435eabe69d438090ee7be2821fda9bea225",
+          "seconds": 0.365,
+          "usd": 0
+        }
+      ]
+    },
+    "verify|7c3345602da2596f3ff58658788cd183_cbfde9b9bf8facffcf498eab4aadd1a6": {
+      "pA": 0.98,
+      "verdict": "A",
+      "usage": [
+        {
+          "provider": "sonnet",
+          "key": "cf05b0c7092141183794636a1c9c705626df114f4c415949c3cff6294ae3d706",
+          "count": 1,
+          "usd": 0.010228,
+          "seconds": 6.881401041988283
+        },
+        {
+          "provider": "jev",
+          "key": "019049614de148d70e67a5f1385b8d65fbd4c12b555bd3e1267aaa134b59f8a2",
+          "seconds": 0.296,
+          "usd": 0
+        }
+      ]
+    },
+    "verify|848aefe451338e2934283c1417b49704_5d429963fda0a400af8b2e0d334830a7": {
+      "pA": 0.04,
+      "verdict": "B",
+      "usage": [
+        {
+          "provider": "sonnet",
+          "key": "3285ef83e22f1a0be6f9cd6d3da7874c6c782a59024b779b6a98dd53d3cd0fba",
+          "count": 1,
+          "usd": 0.022151999999999998,
+          "seconds": 12.643432707991451
+        },
+        {
+          "provider": "jev",
+          "key": "ffcd2ee3dff77720cdc5fbe9e9b1f98c6b5dca6f4ce65a44f69e5c3d22e722f3",
+          "seconds": 0.433,
+          "usd": 0
+        }
+      ]
+    },
+    "verify|8725986b8def7d6dc2430b5a82ebe768_d892147f21a603cf006be26ac0db27cb": {
+      "pA": 0.99,
+      "verdict": "A",
+      "usage": [
+        {
+          "provider": "sonnet",
+          "key": "e22c0a71c5f0eac7d801afbb4bb49c96aa0b69ed27b5ec1f6fcfd4f24e42e5ba",
+          "count": 1,
+          "usd": 0.005322,
+          "seconds": 4.3573188339942135
+        },
+        {
+          "provider": "jev",
+          "key": "7a35e54f7a45bfc2a877d1976f75267b69bee3c7207dbe696591988d48df1f1a",
+          "seconds": 0.335,
+          "usd": 0
+        }
+      ]
+    },
+    "verify|885d1842d6a91b50b8ae527de98c3aad_b33afc0790fa12b013da7a444d8410d6": {
+      "pA": 0.12,
+      "verdict": "B",
+      "usage": [
+        {
+          "provider": "sonnet",
+          "key": "8051fcfbe3823fe077c818b69a92b070862a8d82fa5e071df9a43bc468c5f7ef",
+          "count": 1,
+          "usd": 0.003876,
+          "seconds": 2.5393617909867316
+        },
+        {
+          "provider": "jev",
+          "key": "ba354fd11b40e1dac21d7015a7927e8ed39da9f284bcb46127d7783102e02e19",
+          "seconds": 0.369,
+          "usd": 0
+        }
+      ]
+    },
+    "verify|886ed3392b036e68166e5b531b324911_2c9f5b90761ca8037817845fb3c49f75": {
+      "pA": 0.02,
+      "verdict": "B",
+      "usage": [
+        {
+          "provider": "sonnet",
+          "key": "d713d7cae554ff1496a0279d79d552bd957cf4fb194fa52a072f5c448a59a97d",
+          "count": 1,
+          "usd": 0.003992,
+          "seconds": 2.2767250830074772
+        },
+        {
+          "provider": "jev",
+          "key": "11bf2420e319db3177c281f04241ffa02ccd7d40ae18cdd0459212ebef94209e",
+          "seconds": 0.291,
+          "usd": 0
+        }
+      ]
+    },
+    "verify|892778a2fbb44f0137777a78340d5644_ed17186ec99cb1fdbed4cf47762f6f2a": {
+      "pA": 0.01,
+      "verdict": "B",
+      "usage": [
+        {
+          "provider": "sonnet",
+          "key": "78b97881fb4d04f63c0aebdc9af1594ce60d130b05a43cb92453f15f94681051",
+          "count": 1,
+          "usd": 0.004324,
+          "seconds": 2.4933218749938533
+        },
+        {
+          "provider": "jev",
+          "key": "59a490bfbfe1767da92c58df3130a157ecdd44d17b32e888c881882086e4bed6",
+          "seconds": 0.304,
+          "usd": 0
+        }
+      ]
+    },
+    "verify|8fb2e641b5868077f1080ebc2a77f638_ab543eb5433d029341e7180d9d1d684a": {
+      "pA": 0.2,
+      "verdict": "B",
+      "usage": [
+        {
+          "provider": "sonnet",
+          "key": "588962401d78e20b925000156b3e3b052125eefad1ce98294d77948cf83d9124",
+          "count": 1,
+          "usd": 0.004012,
+          "seconds": 2.600102041964419
+        },
+        {
+          "provider": "jev",
+          "key": "fdc44d15dd116649a10f042384a79a87aec5706b5103d211e1241b2e3798ad83",
+          "seconds": 0.513,
+          "usd": 0
+        }
+      ]
+    },
+    "verify|987731fefdee670139b52a3c2cd13b54_63abd6b1489e90a7836c25efd043d174": {
+      "pA": 1,
+      "verdict": "A",
+      "usage": [
+        {
+          "provider": "sonnet",
+          "key": "67dda3caebd16ebd83ae4e3d56225cc1ddd463cfad2ae75e47f9911467913198",
+          "count": 1,
+          "usd": 0.002422,
+          "seconds": 1.6932916670339182
+        },
+        {
+          "provider": "jev",
+          "key": "cec39b508ba3c661882ebe046919121d96154178596b9e94992e84e09fc3d871",
+          "seconds": 0.474,
+          "usd": 0
+        }
+      ]
+    },
+    "verify|9cf12f34adac95169b15ddc25480ec2c_a7f2414568e73815e19f8370f3aeec89": {
+      "pA": 0.02,
+      "verdict": "B",
+      "usage": [
+        {
+          "provider": "sonnet",
+          "key": "8301957a3813826aca562a700af1874516e5f1a40ec2c834d2dd991e988428af",
+          "count": 1,
+          "usd": 0.003496,
+          "seconds": 2.593932041025255
+        },
+        {
+          "provider": "jev",
+          "key": "98533dbd8afba74a8b42c276cac4dd31fa4d3cefe3327941106b3b9f8ba0d5af",
+          "seconds": 0.738,
+          "usd": 0
+        }
+      ]
+    },
+    "verify|9eeb0aa3c4d5607cf62dac86e1b9eca4_75b2a58542259d851176d51275ee3259": {
+      "pA": 0.06,
+      "verdict": "B",
+      "usage": [
+        {
+          "provider": "sonnet",
+          "key": "2a91b2dd69b5af24269dc642395cb225c3e04726acf56393ab497a5f2e8f9d4e",
+          "count": 1,
+          "usd": 0.0027660000000000002,
+          "seconds": 1.8823968750075437
+        },
+        {
+          "provider": "jev",
+          "key": "d9d6c428189f35c839ae799760fd124c0a60df91e54e7f01179d5d55e8df7a63",
+          "seconds": 0.285,
+          "usd": 0
+        }
+      ]
+    },
+    "verify|a42ea38dfa10aa7e396220d1943be6e4_944b95a9b576030a613b3b12a27968a1": {
+      "pA": 0.98,
+      "verdict": "A",
+      "usage": [
+        {
+          "provider": "sonnet",
+          "key": "0ef95950aeb2b2e8b8b4c5b97be015bfd19f35b54a4867675d647b9eb4960e17",
+          "count": 1,
+          "usd": 0.005766,
+          "seconds": 4.860031334043015
+        },
+        {
+          "provider": "jev",
+          "key": "e1ceda6e2c435a3df38023da66f9b9c5243eec794ff7eb990e2ba31c8ab6c714",
+          "seconds": 0.317,
+          "usd": 0
+        }
+      ]
+    },
+    "verify|a4ec51f047502137ba39fd41cfc5bb68_c2caf04b04cdfc57e3491ad56e63a5a7": {
+      "pA": 0.03,
+      "verdict": "B",
+      "usage": [
+        {
+          "provider": "sonnet",
+          "key": "bd778a6b36b0b933e8442949f5709c50b07fa7f029b13031a02ce1c488c4825d",
+          "count": 1,
+          "usd": 0.010942,
+          "seconds": 4.9098399160429835
+        },
+        {
+          "provider": "jev",
+          "key": "fdb1856b6d19a2ce1b05efaa7a7f608fc3b3a40fd095a392feb4bba69f03b082",
+          "seconds": 0.455,
+          "usd": 0
+        }
+      ]
+    },
+    "verify|a5b0bbe7c43295f2dbea2c23333da1a5_e57fae23da1e0a3010c9aa0497a626e8": {
+      "pA": 0.01,
+      "verdict": "B",
+      "usage": [
+        {
+          "provider": "sonnet",
+          "key": "78e9c08f56da2d81bde424d6c95b4d6846ae4ce09a8378487ed3b2f67a658b2c",
+          "count": 1,
+          "usd": 0.003818,
+          "seconds": 2.865876958996523
+        },
+        {
+          "provider": "jev",
+          "key": "ba6e46afc873f00d8e85e3245b6c1ebf260e65db256d698b7f65169ffeb9fa10",
+          "seconds": 0.308,
+          "usd": 0
+        }
+      ]
+    },
+    "verify|adba4a0e3dc7ec9d2b9a05a9d21f2209_d48215d589eb5969bfcfcd58993ab543": {
+      "pA": 0.02,
+      "verdict": "B",
+      "usage": [
+        {
+          "provider": "sonnet",
+          "key": "5d19b32e71f4bf21616c4a8d205b1c52e9e77bdb2ac27f66fa3a685cb9ad46f7",
+          "count": 1,
+          "usd": 0.017920000000000002,
+          "seconds": 14.440250249987002
+        },
+        {
+          "provider": "jev",
+          "key": "627ee2b032ad69a34fe70a90ced9a2c897ff7a88e8d71bda0e2b6df26de91c9c",
+          "seconds": 0.479,
+          "usd": 0
+        }
+      ]
+    },
+    "verify|aee1de22ebcbd6dffb545f85c2cc6d3c_4ad6596d535addc90e3929c4cd601d2a": {
+      "pA": 0.99,
+      "verdict": "A",
+      "usage": [
+        {
+          "provider": "sonnet",
+          "key": "786317ff061d2f7f2a3931e19005fc5aef9ba880b7475c9b3324b7c3f413f898",
+          "count": 1,
+          "usd": 0.012471999999999999,
+          "seconds": 8.071764625026844
+        },
+        {
+          "provider": "jev",
+          "key": "7abf3d74335f27dc8775ca5d03b5f85473574d7f6797e3691655f1efd6a124a6",
+          "seconds": 0.421,
+          "usd": 0
+        }
+      ]
+    },
+    "verify|b5bc983f90abcc1471893cf179ba0bfa_505d5f6ba81adc9e6464f0e068aa11e4": {
+      "pA": 0.02,
+      "verdict": "B",
+      "usage": [
+        {
+          "provider": "sonnet",
+          "key": "b639414310ff39cc8ba56e376f61f355ae01169a2effb52b25e5f9cfb4d7a584",
+          "count": 1,
+          "usd": 0.0117,
+          "seconds": 9.105756416975055
+        },
+        {
+          "provider": "jev",
+          "key": "6ce70fc7d95d800bcae655c734a36704f11f51103dbeca018545e5b1fe0f6600",
+          "seconds": 0.404,
+          "usd": 0
+        }
+      ]
+    },
+    "verify|b7efa9e28caf28086ae71c1099f80c85_c2a2771adf0010ee3a5ba9e3450a37c0": {
+      "pA": 0.05,
+      "verdict": "B",
+      "usage": [
+        {
+          "provider": "sonnet",
+          "key": "1b6250020af638ae017513d4d5b0d0178414e2cde8406aa3a4e44ffffe68e0d9",
+          "count": 1,
+          "usd": 0.0026820000000000004,
+          "seconds": 1.7431274999980815
+        },
+        {
+          "provider": "jev",
+          "key": "b93bb9c51bc93ef1b895f297a962986267ac5bb5fd7b33bd84c8bd649c21aafb",
+          "seconds": 0.483,
+          "usd": 0
+        }
+      ]
+    },
+    "verify|be062ca3146709520fb4af362eadc7fd_13c03b682a952e80a999c8551089683b": {
+      "pA": 0.16,
+      "verdict": "B",
+      "usage": [
+        {
+          "provider": "sonnet",
+          "key": "a436f4cda8dcab37a2e9fe4597f1dfbf8f8d1308bb60107cc2a4dc0c68a129a1",
+          "count": 1,
+          "usd": 0.0027359999999999997,
+          "seconds": 2.0215252920170315
+        },
+        {
+          "provider": "jev",
+          "key": "356b65220b60a92bd06b8075300d9d1ddc27694ed557decd0c7a7af920ca8c1d",
+          "seconds": 0.379,
+          "usd": 0
+        }
+      ]
+    },
+    "verify|c41dbbb9d77e5ccbcbe4a0ea02453603_202dea5c7e880415ece22aaa2518ae03": {
+      "pA": 0.02,
+      "verdict": "B",
+      "usage": [
+        {
+          "provider": "sonnet",
+          "key": "a8e36f0fb7cc84dbff6efe3ecaa79bf69941c0faa2ec6c696b88d42c766bcc65",
+          "count": 1,
+          "usd": 0.008431999999999999,
+          "seconds": 4.599780000047758
+        },
+        {
+          "provider": "jev",
+          "key": "bff73ece6bf01aba9486a52ef66c647a227d157f90ae81c84003d67990d2c64c",
+          "seconds": 0.303,
+          "usd": 0
+        }
+      ]
+    },
+    "verify|c8cadbcb97f9fc98c52201c05d2cc7ed_e53ffb97227c484cb4cf3e395207ef4f": {
+      "pA": 0.04,
+      "verdict": "B",
+      "usage": [
+        {
+          "provider": "sonnet",
+          "key": "5b25f4e864e56663b0bd286bb123442601cf1aefca746bb4102e1bd4e88f8e39",
+          "count": 1,
+          "usd": 0.005573999999999999,
+          "seconds": 3.394591209013015
+        },
+        {
+          "provider": "jev",
+          "key": "8f20fdd061bd2c89ddd8ab610c35d90b50304e0ae1a77a988b0fcc97f9df8eb1",
+          "seconds": 0.413,
+          "usd": 0
+        }
+      ]
+    },
+    "verify|ca370252fd6426290feed014586fe69e_7eab75a8a39e3c975b8492f9161b9f40": {
+      "pA": 0.04,
+      "verdict": "B",
+      "usage": [
+        {
+          "provider": "sonnet",
+          "key": "3d7bfece53c560c00ae7505da8ba470f10e074044e86f0a8be78745b9352ad30",
+          "count": 1,
+          "usd": 0.004808,
+          "seconds": 2.303861542022787
+        },
+        {
+          "provider": "jev",
+          "key": "dc1e845010269c31e5d9c9c0bd45d62145cd83262a1d09d8d414c601db1ecdf5",
+          "seconds": 0.416,
+          "usd": 0
+        }
+      ]
+    },
+    "verify|d29e283a52241c0a9a32224b711237bd_cab7eb980622deaad71cf6fe7e803264": {
+      "pA": 0.09,
+      "verdict": "B",
+      "usage": [
+        {
+          "provider": "sonnet",
+          "key": "c10d65b6dd5937a862a93738c692346b715e7bbfa70cdd18671cab76cf6b52d0",
+          "count": 1,
+          "usd": 0.003456,
+          "seconds": 2.3624124160269275
+        },
+        {
+          "provider": "jev",
+          "key": "68412c626d563a2fcbc9bcf769b2be9ef1ff7d86079eae91d28e62d65722b21f",
+          "seconds": 0.284,
+          "usd": 0
+        }
+      ]
+    },
+    "verify|e294330c907c43e8b8e2fe5b2d1eff04_01bcb6a22e65a9be3cd5c1f0c5accf0b": {
+      "pA": 0.98,
+      "verdict": "A",
+      "usage": [
+        {
+          "provider": "sonnet",
+          "key": "4b99604434dad619e841bc041867f7176d19a6b0c1502dc6f48f292b6b07f0f9",
+          "count": 1,
+          "usd": 0.0033439999999999998,
+          "seconds": 2.458760584006086
+        },
+        {
+          "provider": "jev",
+          "key": "c3854107da172db821ba9eb12d3091b3f4f08a278115aa56e170f7eb2bec369c",
+          "seconds": 0.29,
+          "usd": 0
+        }
+      ]
+    },
+    "verify|e63f281ff9bfcefd25555cccf1517855_75af0c15b91bd41dee7da9b35ca2129d": {
+      "pA": 0.38,
+      "verdict": "A",
+      "usage": [
+        {
+          "provider": "sonnet",
+          "key": "c9a2c9cf8ed24299717a6e86b8036a3ef458b76856dd1669101e42826db9c913",
+          "count": 1,
+          "usd": 0.0051459999999999995,
+          "seconds": 3.3627334579941817
+        },
+        {
+          "provider": "jev",
+          "key": "03ef472190abb28c3cb18c216791d9040a3266dea904f4ecfa0d0f59960c4925",
+          "seconds": 0.308,
+          "usd": 0
+        }
+      ]
+    },
+    "verify|e65ff550a41d8aab1c6794c36e7c2a47_4fe039b653a63adb5b06881c68c09b99": {
+      "pA": 0.24,
+      "verdict": "B",
+      "usage": [
+        {
+          "provider": "sonnet",
+          "key": "dfefc0f241625fbd4a64c5502370c26e8eab415c12d0aee33ff026835e322fb4",
+          "count": 1,
+          "usd": 0.009388,
+          "seconds": 8.07247491599992
+        },
+        {
+          "provider": "jev",
+          "key": "055a0f2b62b4ee29686df24c71f06856e2357c661277768eb0eab4dde810eabb",
+          "seconds": 0.281,
+          "usd": 0
+        }
+      ]
+    }
+  },
+  "sonnet fixed_0.5": {
+    "verify|002ba0331c11a198784abdfff1d7b8fb_936d37ed03db3340809ca9409508b906": {
+      "pA": 0.03,
+      "verdict": "B",
+      "usage": [
+        {
+          "provider": "sonnet",
+          "key": "4934445f21624b1b2b69ea2102d7614bdfcfd40180805f45a3f324a4e2a4f0ee",
+          "count": 1,
+          "usd": 0.023078,
+          "seconds": 19.911379542027134
+        },
+        {
+          "provider": "jev",
+          "key": "7ec6979d16dcc575fecc68725712bfa32874c88dc89c7e2cdeeb28956db9c992",
+          "seconds": 0.434,
+          "usd": 0
+        }
+      ]
+    },
+    "verify|00a93c5457ba7180f88944780f9134a0_773a31d04e4d41c29af003fb95f3b960": {
+      "pA": 0.12,
+      "verdict": "B",
+      "usage": [
+        {
+          "provider": "sonnet",
+          "key": "b4de711e968a47d4f436e33d140e45a4267fe954114a8c29d9fddb56f51d5588",
+          "count": 1,
+          "usd": 0.005658,
+          "seconds": 3.83682820800459
+        },
+        {
+          "provider": "jev",
+          "key": "a5274f01d7a8966335c4436e03f141749b0a68bad4670c968c65e063d5dfe97c",
+          "seconds": 0.264,
+          "usd": 0
+        }
+      ]
+    },
+    "verify|012d78a208c04759392be0c8b9d27dc6_dc9a328c94255249105f5d3b465499d5": {
+      "pA": 0.01,
+      "verdict": "B",
+      "usage": [
+        {
+          "provider": "sonnet",
+          "key": "b5725cd7244e076ac26c377cd8f0fcd5cbe2414265ccbc4682fedcff26688c59",
+          "count": 1,
+          "usd": 0.009048,
+          "seconds": 5.113313958980143
+        },
+        {
+          "provider": "jev",
+          "key": "ac8e8c588e5660b70224cf07ddbb6f0fa260793d6ca41c990e85778bd7dc632a",
+          "seconds": 0.59,
+          "usd": 0
+        }
+      ]
+    },
+    "verify|0af2a305f4c4e44a69c7fd5e03d7f74e_7ff87a43db7f15aa80827e2230dd95a1": {
+      "pA": 0.07,
+      "verdict": "B",
+      "usage": [
+        {
+          "provider": "sonnet",
+          "key": "ff3590fc72d1c19572d723c7e2f5cb6b50c4fc2f35381cd668c6c122b56835c3",
+          "count": 1,
+          "usd": 0.006364,
+          "seconds": 3.8074560000095516
+        },
+        {
+          "provider": "jev",
+          "key": "4d572df7f3fcdf7b62f221083de2cfb1cbd5fc87023e660a24dcb99c5a75a41e",
+          "seconds": 0.309,
+          "usd": 0
+        }
+      ]
+    },
+    "verify|20f09d89d7c677862fd06e2e96e7ec19_a7f2ac04dc8fb1609ab7384631ce736c": {
+      "pA": 0.01,
+      "verdict": "B",
+      "usage": [
+        {
+          "provider": "sonnet",
+          "key": "23a8f3fbe5d5677c1083746eccf72f818c68171158fade2daf67ef51a372885f",
+          "count": 1,
+          "usd": 0.00611,
+          "seconds": 4.085946916020475
+        },
+        {
+          "provider": "jev",
+          "key": "4c60d16e343b0a602bf0fa57096d7b6bbfc8707c5b7ce89cbc19b0d8199855de",
+          "seconds": 0.283,
+          "usd": 0
+        }
+      ]
+    },
+    "verify|251325e4d8bd19d38d1481ec5bb6b952_b0e0faf620816637683d6cefbc8d905d": {
+      "pA": 0.02,
+      "verdict": "B",
+      "usage": [
+        {
+          "provider": "sonnet",
+          "key": "e3a3e0f77af691fdef9fd956381a64c919dcaac9bf294bdddad7fa5974249868",
+          "count": 1,
+          "usd": 0.023545999999999997,
+          "seconds": 13.212155042041559
+        },
+        {
+          "provider": "jev",
+          "key": "7ac63923b59b05c9f90a0d7c5dcc1f39ca8fee601389bfd7f87db084f007a892",
+          "seconds": 0.314,
+          "usd": 0
+        }
+      ]
+    },
+    "verify|2fabe7c11c7747a8d772a0ef0448e9a8_ce122c4fd3633a58d1e4ead1e46a9a01": {
+      "pA": 0.02,
+      "verdict": "B",
+      "usage": [
+        {
+          "provider": "sonnet",
+          "key": "ffa4d8995f63657e8386d2b67317241f4823fe47c4e5ebce40cf950dd7f80c30",
+          "count": 1,
+          "usd": 0.014856000000000001,
+          "seconds": 10.499492749979254
+        },
+        {
+          "provider": "jev",
+          "key": "d4feef93a346d0fbe50d2118a2a4bc0794dbed7f59dd65d4713be10f359666f8",
+          "seconds": 0.361,
+          "usd": 0
+        }
+      ]
+    },
+    "verify|316ee3d0bc7b041ff6036ff4eedebd63_2a81f176304fb48b93a51804c8813763": {
+      "pA": 0.01,
+      "verdict": "B",
+      "usage": [
+        {
+          "provider": "sonnet",
+          "key": "d8c99b823253b346f706c1a70ad33aa40952815557fd9c8da58b790cdc622801",
+          "count": 1,
+          "usd": 0.003602,
+          "seconds": 2.1378193339915015
+        },
+        {
+          "provider": "jev",
+          "key": "e5c3b77cd84db4d0ac216e33c8447cd51e13ac3648051b871e70ff1e58e64223",
+          "seconds": 0.432,
+          "usd": 0
+        }
+      ]
+    },
+    "verify|3e12f104244648c9a58ed98d25d06249_a2144e352f15bb692f84f1721110479b": {
+      "pA": 0.49,
+      "verdict": "B",
+      "usage": [
+        {
+          "provider": "sonnet",
+          "key": "d958e947f1d7968b87f2c695c8b04fdd6c02dabb6c24eca79d20f5fdf8e7d46c",
+          "count": 1,
+          "usd": 0.011028,
+          "seconds": 6.988223624997772
+        },
+        {
+          "provider": "jev",
+          "key": "9e9eae88e146eaad52eb1d788ae991252bca6485949d8d11593db168f7dcee34",
+          "seconds": 0.474,
+          "usd": 0
+        }
+      ]
+    },
+    "verify|4d1497a568219528716b51f87ef72f18_6029e690d7a881057e987894b31db7e6": {
+      "pA": 0.21,
+      "verdict": "B",
+      "usage": [
+        {
+          "provider": "sonnet",
+          "key": "cad41f2bebf5906cae0e3a710f33e6c8a1d850ebf5304e6a4ae10a51a609e04f",
+          "count": 1,
+          "usd": 0.0073880000000000005,
+          "seconds": 4.345775790978223
+        },
+        {
+          "provider": "jev",
+          "key": "32b671c968b9191ef3fc23feef3d26eb162a1bac0e36a157ad52a529f08de6e3",
+          "seconds": 0.283,
+          "usd": 0
+        }
+      ]
+    },
+    "verify|4d94773555d0a8e3f9b059e6cc729bdf_42f7be3f4cdef5f9018edfefec78418b": {
+      "pA": 0.02,
+      "verdict": "B",
+      "usage": [
+        {
+          "provider": "sonnet",
+          "key": "86fe2390f124093e0c1151f65435992fe9ed0fdedddd191404d8e3822635ebc3",
+          "count": 1,
+          "usd": 0.005568,
+          "seconds": 3.528009709028993
+        },
+        {
+          "provider": "jev",
+          "key": "6b855d379d2e3e7d8118608fe81ab1fd6e7b225efe9ce442c1502135308b2a91",
+          "seconds": 0.34,
+          "usd": 0
+        }
+      ]
+    },
+    "verify|4fd3bc514ff8e3775723a0f883a7d347_54c1d82ec537b265b891b55d68a2d539": {
+      "pA": 0.05,
+      "verdict": "B",
+      "usage": [
+        {
+          "provider": "sonnet",
+          "key": "92e268dc7c61798e81115bfa0ea115dbb5e277356c20b2ffe3f87e8811765d7a",
+          "count": 1,
+          "usd": 0.028758000000000002,
+          "seconds": 21.511528707982507
+        },
+        {
+          "provider": "jev",
+          "key": "3807595014c6e42ba690ad2e8445c86ac496b287a78428282d8b2a9af2b27726",
+          "seconds": 0.397,
+          "usd": 0
+        }
+      ]
+    },
+    "verify|50624457d129ae6ba7aa043aa9bdc92b_b8dae8e757dabf12f4302375e64baa0d": {
+      "pA": 0.04,
+      "verdict": "B",
+      "usage": [
+        {
+          "provider": "sonnet",
+          "key": "cfa60568767d8c32868545d8c513525935e96be14396c1d5d3b4a284a601bf04",
+          "count": 1,
+          "usd": 0.011866000000000002,
+          "seconds": 8.639732749958057
+        },
+        {
+          "provider": "jev",
+          "key": "ec161330866a13fb7b751df9e4cb87d56646cea759d223bf9954bac911750477",
+          "seconds": 0.439,
+          "usd": 0
+        }
+      ]
+    },
+    "verify|514cb7d27518d395ec9a46c2ae62c9bf_6a8c772c3cbf9a7e26dae82deafbc213": {
+      "pA": 0.03,
+      "verdict": "B",
+      "usage": [
+        {
+          "provider": "sonnet",
+          "key": "f97420da1189a0e934199e052f3dcf65c30c0f95fd87993524f8dfff227cb87e",
+          "count": 1,
+          "usd": 0.006512,
+          "seconds": 4.995884166972246
+        },
+        {
+          "provider": "jev",
+          "key": "5373a1e339c6bfe6630fbfb4cf3376fa51aaf0259992c71c1fdd5cd1390de671",
+          "seconds": 0.344,
+          "usd": 0
+        }
+      ]
+    },
+    "verify|52fc2d3ed06507bdbd094aabcfde7e1d_67b0aab158f41fd3a9675c7d5529910e": {
+      "pA": 0.81,
+      "verdict": "A",
+      "usage": [
+        {
+          "provider": "sonnet",
+          "key": "813e0442dd96eed1cfbf1985fcf6f5555558b9cedb758721148a4de79a53feeb",
+          "count": 1,
+          "usd": 0.008974,
+          "seconds": 4.822800916037522
+        },
+        {
+          "provider": "jev",
+          "key": "3eff8cab3da9023af09b39000ada5b403ffc958aba771ce6742b64d703f4ffa4",
+          "seconds": 0.955,
+          "usd": 0
+        }
+      ]
+    },
+    "verify|5305069c7919fc01c8707be50843590a_b156bd30f7b7d418897e9ccec7ea7708": {
+      "pA": 0.98,
+      "verdict": "A",
+      "usage": [
+        {
+          "provider": "sonnet",
+          "key": "283e9d5af6035bd94ef3b89e797faeb5afb7637cf5a785ed8972a332e292c15d",
+          "count": 1,
+          "usd": 0.014090000000000002,
+          "seconds": 9.036438499984797
+        },
+        {
+          "provider": "jev",
+          "key": "79989b1730ce6481d71111636b79415ee69b4670c75e0926cc242ba34985899b",
+          "seconds": 0.357,
+          "usd": 0
+        }
+      ]
+    },
+    "verify|5379ab99eae4161320d5bb2c0850315e_bcec25bc2e21ce2667e0368df647bcf2": {
+      "pA": 0.02,
+      "verdict": "B",
+      "usage": [
+        {
+          "provider": "sonnet",
+          "key": "0914e94854e5cfadc9d50ee7de76decc2c29b0214ec95fca814ec87a18b51c3a",
+          "count": 1,
+          "usd": 0.021491999999999997,
+          "seconds": 12.908348416967783
+        },
+        {
+          "provider": "jev",
+          "key": "2781ba57e0250987c81b42f20073cc179662e47d20fe194b3083ee5158a01d45",
+          "seconds": 0.386,
+          "usd": 0
+        }
+      ]
+    },
+    "verify|57ca02df541ae1687b9712f12df0e425_ee6b572c5fd4f4a2a6b0cb97265a4af8": {
+      "pA": 0.02,
+      "verdict": "B",
+      "usage": [
+        {
+          "provider": "sonnet",
+          "key": "c6f4924a1d8a6d6ef2275c8bea9ec02899dad5ab34e258f1815b2266287468fe",
+          "count": 1,
+          "usd": 0.006794,
+          "seconds": 4.303903457999695
+        },
+        {
+          "provider": "jev",
+          "key": "72c7b75b8e375d6077f80775b89f253a17bd8f2fda11d846d44732b74d996aff",
+          "seconds": 0.415,
+          "usd": 0
+        }
+      ]
+    },
+    "verify|5bb00a02996657dbb10ae730c8f472fa_367ecf9f07ea60d49a5af54a47d97898": {
+      "pA": 0.26,
+      "verdict": "B",
+      "usage": [
+        {
+          "provider": "sonnet",
+          "key": "2af204035730bb3949808fadf4b4c7f76538ec32968dfc6b645901ee579ac6a6",
+          "count": 1,
+          "usd": 0.003856,
+          "seconds": 2.771662874962203
+        },
+        {
+          "provider": "jev",
+          "key": "ac19387f41089806751aee845c9b413177627c18c7692f165781ddc7406717c5",
+          "seconds": 0.357,
+          "usd": 0
+        }
+      ]
+    },
+    "verify|5c0953ccc0fe13a7c7843f7c30711707_b803a6e1123d88f6b68aff3e8677de31": {
+      "pA": 0.02,
+      "verdict": "B",
+      "usage": [
+        {
+          "provider": "sonnet",
+          "key": "bfad34ea7d5e647b76f19397a6d1eb2c1dbc81937506640ea99824338c923628",
+          "count": 1,
+          "usd": 0.005606,
+          "seconds": 3.644256583007518
+        },
+        {
+          "provider": "jev",
+          "key": "36e8f79bcdaba9a3d86358b9e80f3cdda9e3e6133bf39db2e162e18812ad4ae3",
+          "seconds": 0.442,
+          "usd": 0
+        }
+      ]
+    },
+    "verify|5dfb02d5ff7008e6319ca9ebff69f3ba_c5d3070446bc46d1c98f353fce17822e": {
+      "pA": 0.93,
+      "verdict": "A",
+      "usage": [
+        {
+          "provider": "sonnet",
+          "key": "2156f2d70a5d0bd4d30233c34cdf6b674016ed17fb8a1dc00e33acecdcce2443",
+          "count": 1,
+          "usd": 0.00423,
+          "seconds": 2.726941959001124
+        },
+        {
+          "provider": "jev",
+          "key": "864edc4e599edf9c0794dfd7caab038e882a6e032b5a5f894328a0302e4cfdcb",
+          "seconds": 0.439,
+          "usd": 0
+        }
+      ]
+    },
+    "verify|6475b7ad5531cf9bc60abf8728996c1d_14dcca0905e181fe50f31e588e3dd482": {
+      "pA": 0.01,
+      "verdict": "B",
+      "usage": [
+        {
+          "provider": "sonnet",
+          "key": "ded8bba1abb34df926b5337afe6a22e89099676d349c4d0651ad7801baba05c4",
+          "count": 1,
+          "usd": 0.004232,
+          "seconds": 2.699782833980862
+        },
+        {
+          "provider": "jev",
+          "key": "44eef85d12a42ebe043064b748df014fe33af640aab4d81eb6d16d4cd2943ef8",
+          "seconds": 0.391,
+          "usd": 0
+        }
+      ]
+    },
+    "verify|6e4aba2ba0751961277a5be9c22f6e53_76bc2098e25dcd33b5bde96980673a4b": {
+      "pA": 0.08,
+      "verdict": "B",
+      "usage": [
+        {
+          "provider": "sonnet",
+          "key": "89a45645a6bd29c656c2b88c926e5f3755f0a8c534385413c76455296b0dc34c",
+          "count": 1,
+          "usd": 0.005922,
+          "seconds": 3.584064084046986
+        },
+        {
+          "provider": "jev",
+          "key": "de2cc384000ffe947de733dd2cc000467c0afa52211fe88329f8071569d51c3f",
+          "seconds": 0.392,
+          "usd": 0
+        }
+      ]
+    },
+    "verify|74455975cc7822e30f33648e197a1775_ccbe576fccccc23b0bdad67d79075fb2": {
+      "pA": 0.18,
+      "verdict": "B",
+      "usage": [
+        {
+          "provider": "sonnet",
+          "key": "12856ce79341deb7073a15e8589a4d8840bb3e482d6a9ae451dc121e0be768b9",
+          "count": 1,
+          "usd": 0.00279,
+          "seconds": 1.7144279589992948
+        },
+        {
+          "provider": "jev",
+          "key": "32013623d6463527a34be29199236435eabe69d438090ee7be2821fda9bea225",
+          "seconds": 0.365,
+          "usd": 0
+        }
+      ]
+    },
+    "verify|7c3345602da2596f3ff58658788cd183_cbfde9b9bf8facffcf498eab4aadd1a6": {
+      "pA": 0.98,
+      "verdict": "A",
+      "usage": [
+        {
+          "provider": "sonnet",
+          "key": "cf05b0c7092141183794636a1c9c705626df114f4c415949c3cff6294ae3d706",
+          "count": 1,
+          "usd": 0.010228,
+          "seconds": 6.881401041988283
+        },
+        {
+          "provider": "jev",
+          "key": "019049614de148d70e67a5f1385b8d65fbd4c12b555bd3e1267aaa134b59f8a2",
+          "seconds": 0.296,
+          "usd": 0
+        }
+      ]
+    },
+    "verify|848aefe451338e2934283c1417b49704_5d429963fda0a400af8b2e0d334830a7": {
+      "pA": 0.04,
+      "verdict": "B",
+      "usage": [
+        {
+          "provider": "sonnet",
+          "key": "3285ef83e22f1a0be6f9cd6d3da7874c6c782a59024b779b6a98dd53d3cd0fba",
+          "count": 1,
+          "usd": 0.022151999999999998,
+          "seconds": 12.643432707991451
+        },
+        {
+          "provider": "jev",
+          "key": "ffcd2ee3dff77720cdc5fbe9e9b1f98c6b5dca6f4ce65a44f69e5c3d22e722f3",
+          "seconds": 0.433,
+          "usd": 0
+        }
+      ]
+    },
+    "verify|8725986b8def7d6dc2430b5a82ebe768_d892147f21a603cf006be26ac0db27cb": {
+      "pA": 0.99,
+      "verdict": "A",
+      "usage": [
+        {
+          "provider": "sonnet",
+          "key": "e22c0a71c5f0eac7d801afbb4bb49c96aa0b69ed27b5ec1f6fcfd4f24e42e5ba",
+          "count": 1,
+          "usd": 0.005322,
+          "seconds": 4.3573188339942135
+        },
+        {
+          "provider": "jev",
+          "key": "7a35e54f7a45bfc2a877d1976f75267b69bee3c7207dbe696591988d48df1f1a",
+          "seconds": 0.335,
+          "usd": 0
+        }
+      ]
+    },
+    "verify|885d1842d6a91b50b8ae527de98c3aad_b33afc0790fa12b013da7a444d8410d6": {
+      "pA": 0.12,
+      "verdict": "B",
+      "usage": [
+        {
+          "provider": "sonnet",
+          "key": "8051fcfbe3823fe077c818b69a92b070862a8d82fa5e071df9a43bc468c5f7ef",
+          "count": 1,
+          "usd": 0.003876,
+          "seconds": 2.5393617909867316
+        },
+        {
+          "provider": "jev",
+          "key": "ba354fd11b40e1dac21d7015a7927e8ed39da9f284bcb46127d7783102e02e19",
+          "seconds": 0.369,
+          "usd": 0
+        }
+      ]
+    },
+    "verify|886ed3392b036e68166e5b531b324911_2c9f5b90761ca8037817845fb3c49f75": {
+      "pA": 0.02,
+      "verdict": "B",
+      "usage": [
+        {
+          "provider": "sonnet",
+          "key": "d713d7cae554ff1496a0279d79d552bd957cf4fb194fa52a072f5c448a59a97d",
+          "count": 1,
+          "usd": 0.003992,
+          "seconds": 2.2767250830074772
+        },
+        {
+          "provider": "jev",
+          "key": "11bf2420e319db3177c281f04241ffa02ccd7d40ae18cdd0459212ebef94209e",
+          "seconds": 0.291,
+          "usd": 0
+        }
+      ]
+    },
+    "verify|892778a2fbb44f0137777a78340d5644_ed17186ec99cb1fdbed4cf47762f6f2a": {
+      "pA": 0.01,
+      "verdict": "B",
+      "usage": [
+        {
+          "provider": "sonnet",
+          "key": "78b97881fb4d04f63c0aebdc9af1594ce60d130b05a43cb92453f15f94681051",
+          "count": 1,
+          "usd": 0.004324,
+          "seconds": 2.4933218749938533
+        },
+        {
+          "provider": "jev",
+          "key": "59a490bfbfe1767da92c58df3130a157ecdd44d17b32e888c881882086e4bed6",
+          "seconds": 0.304,
+          "usd": 0
+        }
+      ]
+    },
+    "verify|8fb2e641b5868077f1080ebc2a77f638_ab543eb5433d029341e7180d9d1d684a": {
+      "pA": 0.2,
+      "verdict": "B",
+      "usage": [
+        {
+          "provider": "sonnet",
+          "key": "588962401d78e20b925000156b3e3b052125eefad1ce98294d77948cf83d9124",
+          "count": 1,
+          "usd": 0.004012,
+          "seconds": 2.600102041964419
+        },
+        {
+          "provider": "jev",
+          "key": "fdc44d15dd116649a10f042384a79a87aec5706b5103d211e1241b2e3798ad83",
+          "seconds": 0.513,
+          "usd": 0
+        }
+      ]
+    },
+    "verify|987731fefdee670139b52a3c2cd13b54_63abd6b1489e90a7836c25efd043d174": {
+      "pA": 1,
+      "verdict": "A",
+      "usage": [
+        {
+          "provider": "sonnet",
+          "key": "67dda3caebd16ebd83ae4e3d56225cc1ddd463cfad2ae75e47f9911467913198",
+          "count": 1,
+          "usd": 0.002422,
+          "seconds": 1.6932916670339182
+        },
+        {
+          "provider": "jev",
+          "key": "cec39b508ba3c661882ebe046919121d96154178596b9e94992e84e09fc3d871",
+          "seconds": 0.474,
+          "usd": 0
+        }
+      ]
+    },
+    "verify|9cf12f34adac95169b15ddc25480ec2c_a7f2414568e73815e19f8370f3aeec89": {
+      "pA": 0.02,
+      "verdict": "B",
+      "usage": [
+        {
+          "provider": "sonnet",
+          "key": "8301957a3813826aca562a700af1874516e5f1a40ec2c834d2dd991e988428af",
+          "count": 1,
+          "usd": 0.003496,
+          "seconds": 2.593932041025255
+        },
+        {
+          "provider": "jev",
+          "key": "98533dbd8afba74a8b42c276cac4dd31fa4d3cefe3327941106b3b9f8ba0d5af",
+          "seconds": 0.738,
+          "usd": 0
+        }
+      ]
+    },
+    "verify|9eeb0aa3c4d5607cf62dac86e1b9eca4_75b2a58542259d851176d51275ee3259": {
+      "pA": 0.06,
+      "verdict": "B",
+      "usage": [
+        {
+          "provider": "sonnet",
+          "key": "2a91b2dd69b5af24269dc642395cb225c3e04726acf56393ab497a5f2e8f9d4e",
+          "count": 1,
+          "usd": 0.0027660000000000002,
+          "seconds": 1.8823968750075437
+        },
+        {
+          "provider": "jev",
+          "key": "d9d6c428189f35c839ae799760fd124c0a60df91e54e7f01179d5d55e8df7a63",
+          "seconds": 0.285,
+          "usd": 0
+        }
+      ]
+    },
+    "verify|a42ea38dfa10aa7e396220d1943be6e4_944b95a9b576030a613b3b12a27968a1": {
+      "pA": 0.98,
+      "verdict": "A",
+      "usage": [
+        {
+          "provider": "sonnet",
+          "key": "0ef95950aeb2b2e8b8b4c5b97be015bfd19f35b54a4867675d647b9eb4960e17",
+          "count": 1,
+          "usd": 0.005766,
+          "seconds": 4.860031334043015
+        },
+        {
+          "provider": "jev",
+          "key": "e1ceda6e2c435a3df38023da66f9b9c5243eec794ff7eb990e2ba31c8ab6c714",
+          "seconds": 0.317,
+          "usd": 0
+        }
+      ]
+    },
+    "verify|a4ec51f047502137ba39fd41cfc5bb68_c2caf04b04cdfc57e3491ad56e63a5a7": {
+      "pA": 0.03,
+      "verdict": "B",
+      "usage": [
+        {
+          "provider": "sonnet",
+          "key": "bd778a6b36b0b933e8442949f5709c50b07fa7f029b13031a02ce1c488c4825d",
+          "count": 1,
+          "usd": 0.010942,
+          "seconds": 4.9098399160429835
+        },
+        {
+          "provider": "jev",
+          "key": "fdb1856b6d19a2ce1b05efaa7a7f608fc3b3a40fd095a392feb4bba69f03b082",
+          "seconds": 0.455,
+          "usd": 0
+        }
+      ]
+    },
+    "verify|a5b0bbe7c43295f2dbea2c23333da1a5_e57fae23da1e0a3010c9aa0497a626e8": {
+      "pA": 0.01,
+      "verdict": "B",
+      "usage": [
+        {
+          "provider": "sonnet",
+          "key": "78e9c08f56da2d81bde424d6c95b4d6846ae4ce09a8378487ed3b2f67a658b2c",
+          "count": 1,
+          "usd": 0.003818,
+          "seconds": 2.865876958996523
+        },
+        {
+          "provider": "jev",
+          "key": "ba6e46afc873f00d8e85e3245b6c1ebf260e65db256d698b7f65169ffeb9fa10",
+          "seconds": 0.308,
+          "usd": 0
+        }
+      ]
+    },
+    "verify|adba4a0e3dc7ec9d2b9a05a9d21f2209_d48215d589eb5969bfcfcd58993ab543": {
+      "pA": 0.02,
+      "verdict": "B",
+      "usage": [
+        {
+          "provider": "sonnet",
+          "key": "5d19b32e71f4bf21616c4a8d205b1c52e9e77bdb2ac27f66fa3a685cb9ad46f7",
+          "count": 1,
+          "usd": 0.017920000000000002,
+          "seconds": 14.440250249987002
+        },
+        {
+          "provider": "jev",
+          "key": "627ee2b032ad69a34fe70a90ced9a2c897ff7a88e8d71bda0e2b6df26de91c9c",
+          "seconds": 0.479,
+          "usd": 0
+        }
+      ]
+    },
+    "verify|aee1de22ebcbd6dffb545f85c2cc6d3c_4ad6596d535addc90e3929c4cd601d2a": {
+      "pA": 0.99,
+      "verdict": "A",
+      "usage": [
+        {
+          "provider": "sonnet",
+          "key": "786317ff061d2f7f2a3931e19005fc5aef9ba880b7475c9b3324b7c3f413f898",
+          "count": 1,
+          "usd": 0.012471999999999999,
+          "seconds": 8.071764625026844
+        },
+        {
+          "provider": "jev",
+          "key": "7abf3d74335f27dc8775ca5d03b5f85473574d7f6797e3691655f1efd6a124a6",
+          "seconds": 0.421,
+          "usd": 0
+        }
+      ]
+    },
+    "verify|b5bc983f90abcc1471893cf179ba0bfa_505d5f6ba81adc9e6464f0e068aa11e4": {
+      "pA": 0.02,
+      "verdict": "B",
+      "usage": [
+        {
+          "provider": "sonnet",
+          "key": "b639414310ff39cc8ba56e376f61f355ae01169a2effb52b25e5f9cfb4d7a584",
+          "count": 1,
+          "usd": 0.0117,
+          "seconds": 9.105756416975055
+        },
+        {
+          "provider": "jev",
+          "key": "6ce70fc7d95d800bcae655c734a36704f11f51103dbeca018545e5b1fe0f6600",
+          "seconds": 0.404,
+          "usd": 0
+        }
+      ]
+    },
+    "verify|b7efa9e28caf28086ae71c1099f80c85_c2a2771adf0010ee3a5ba9e3450a37c0": {
+      "pA": 0.05,
+      "verdict": "B",
+      "usage": [
+        {
+          "provider": "sonnet",
+          "key": "1b6250020af638ae017513d4d5b0d0178414e2cde8406aa3a4e44ffffe68e0d9",
+          "count": 1,
+          "usd": 0.0026820000000000004,
+          "seconds": 1.7431274999980815
+        },
+        {
+          "provider": "jev",
+          "key": "b93bb9c51bc93ef1b895f297a962986267ac5bb5fd7b33bd84c8bd649c21aafb",
+          "seconds": 0.483,
+          "usd": 0
+        }
+      ]
+    },
+    "verify|be062ca3146709520fb4af362eadc7fd_13c03b682a952e80a999c8551089683b": {
+      "pA": 0.16,
+      "verdict": "B",
+      "usage": [
+        {
+          "provider": "sonnet",
+          "key": "a436f4cda8dcab37a2e9fe4597f1dfbf8f8d1308bb60107cc2a4dc0c68a129a1",
+          "count": 1,
+          "usd": 0.0027359999999999997,
+          "seconds": 2.0215252920170315
+        },
+        {
+          "provider": "jev",
+          "key": "356b65220b60a92bd06b8075300d9d1ddc27694ed557decd0c7a7af920ca8c1d",
+          "seconds": 0.379,
+          "usd": 0
+        }
+      ]
+    },
+    "verify|c41dbbb9d77e5ccbcbe4a0ea02453603_202dea5c7e880415ece22aaa2518ae03": {
+      "pA": 0.02,
+      "verdict": "B",
+      "usage": [
+        {
+          "provider": "sonnet",
+          "key": "a8e36f0fb7cc84dbff6efe3ecaa79bf69941c0faa2ec6c696b88d42c766bcc65",
+          "count": 1,
+          "usd": 0.008431999999999999,
+          "seconds": 4.599780000047758
+        },
+        {
+          "provider": "jev",
+          "key": "bff73ece6bf01aba9486a52ef66c647a227d157f90ae81c84003d67990d2c64c",
+          "seconds": 0.303,
+          "usd": 0
+        }
+      ]
+    },
+    "verify|c8cadbcb97f9fc98c52201c05d2cc7ed_e53ffb97227c484cb4cf3e395207ef4f": {
+      "pA": 0.04,
+      "verdict": "B",
+      "usage": [
+        {
+          "provider": "sonnet",
+          "key": "5b25f4e864e56663b0bd286bb123442601cf1aefca746bb4102e1bd4e88f8e39",
+          "count": 1,
+          "usd": 0.005573999999999999,
+          "seconds": 3.394591209013015
+        },
+        {
+          "provider": "jev",
+          "key": "8f20fdd061bd2c89ddd8ab610c35d90b50304e0ae1a77a988b0fcc97f9df8eb1",
+          "seconds": 0.413,
+          "usd": 0
+        }
+      ]
+    },
+    "verify|ca370252fd6426290feed014586fe69e_7eab75a8a39e3c975b8492f9161b9f40": {
+      "pA": 0.04,
+      "verdict": "B",
+      "usage": [
+        {
+          "provider": "sonnet",
+          "key": "3d7bfece53c560c00ae7505da8ba470f10e074044e86f0a8be78745b9352ad30",
+          "count": 1,
+          "usd": 0.004808,
+          "seconds": 2.303861542022787
+        },
+        {
+          "provider": "jev",
+          "key": "dc1e845010269c31e5d9c9c0bd45d62145cd83262a1d09d8d414c601db1ecdf5",
+          "seconds": 0.416,
+          "usd": 0
+        }
+      ]
+    },
+    "verify|d29e283a52241c0a9a32224b711237bd_cab7eb980622deaad71cf6fe7e803264": {
+      "pA": 0.09,
+      "verdict": "B",
+      "usage": [
+        {
+          "provider": "sonnet",
+          "key": "c10d65b6dd5937a862a93738c692346b715e7bbfa70cdd18671cab76cf6b52d0",
+          "count": 1,
+          "usd": 0.003456,
+          "seconds": 2.3624124160269275
+        },
+        {
+          "provider": "jev",
+          "key": "68412c626d563a2fcbc9bcf769b2be9ef1ff7d86079eae91d28e62d65722b21f",
+          "seconds": 0.284,
+          "usd": 0
+        }
+      ]
+    },
+    "verify|e294330c907c43e8b8e2fe5b2d1eff04_01bcb6a22e65a9be3cd5c1f0c5accf0b": {
+      "pA": 0.98,
+      "verdict": "A",
+      "usage": [
+        {
+          "provider": "sonnet",
+          "key": "4b99604434dad619e841bc041867f7176d19a6b0c1502dc6f48f292b6b07f0f9",
+          "count": 1,
+          "usd": 0.0033439999999999998,
+          "seconds": 2.458760584006086
+        },
+        {
+          "provider": "jev",
+          "key": "c3854107da172db821ba9eb12d3091b3f4f08a278115aa56e170f7eb2bec369c",
+          "seconds": 0.29,
+          "usd": 0
+        }
+      ]
+    },
+    "verify|e63f281ff9bfcefd25555cccf1517855_75af0c15b91bd41dee7da9b35ca2129d": {
+      "pA": 0.38,
+      "verdict": "B",
+      "usage": [
+        {
+          "provider": "sonnet",
+          "key": "c9a2c9cf8ed24299717a6e86b8036a3ef458b76856dd1669101e42826db9c913",
+          "count": 1,
+          "usd": 0.0051459999999999995,
+          "seconds": 3.3627334579941817
+        },
+        {
+          "provider": "jev",
+          "key": "03ef472190abb28c3cb18c216791d9040a3266dea904f4ecfa0d0f59960c4925",
+          "seconds": 0.308,
+          "usd": 0
+        }
+      ]
+    },
+    "verify|e65ff550a41d8aab1c6794c36e7c2a47_4fe039b653a63adb5b06881c68c09b99": {
+      "pA": 0.24,
+      "verdict": "B",
+      "usage": [
+        {
+          "provider": "sonnet",
+          "key": "dfefc0f241625fbd4a64c5502370c26e8eab415c12d0aee33ff026835e322fb4",
+          "count": 1,
+          "usd": 0.009388,
+          "seconds": 8.07247491599992
+        },
+        {
+          "provider": "jev",
+          "key": "055a0f2b62b4ee29686df24c71f06856e2357c661277768eb0eab4dde810eabb",
+          "seconds": 0.281,
+          "usd": 0
+        }
+      ]
+    }
+  },
+  "always_fail": {
+    "verify|002ba0331c11a198784abdfff1d7b8fb_936d37ed03db3340809ca9409508b906": {
+      "verdict": "B",
+      "usage": []
+    },
+    "verify|00a93c5457ba7180f88944780f9134a0_773a31d04e4d41c29af003fb95f3b960": {
+      "verdict": "B",
+      "usage": []
+    },
+    "verify|012d78a208c04759392be0c8b9d27dc6_dc9a328c94255249105f5d3b465499d5": {
+      "verdict": "B",
+      "usage": []
+    },
+    "verify|0af2a305f4c4e44a69c7fd5e03d7f74e_7ff87a43db7f15aa80827e2230dd95a1": {
+      "verdict": "B",
+      "usage": []
+    },
+    "verify|20f09d89d7c677862fd06e2e96e7ec19_a7f2ac04dc8fb1609ab7384631ce736c": {
+      "verdict": "B",
+      "usage": []
+    },
+    "verify|251325e4d8bd19d38d1481ec5bb6b952_b0e0faf620816637683d6cefbc8d905d": {
+      "verdict": "B",
+      "usage": []
+    },
+    "verify|2fabe7c11c7747a8d772a0ef0448e9a8_ce122c4fd3633a58d1e4ead1e46a9a01": {
+      "verdict": "B",
+      "usage": []
+    },
+    "verify|316ee3d0bc7b041ff6036ff4eedebd63_2a81f176304fb48b93a51804c8813763": {
+      "verdict": "B",
+      "usage": []
+    },
+    "verify|3e12f104244648c9a58ed98d25d06249_a2144e352f15bb692f84f1721110479b": {
+      "verdict": "B",
+      "usage": []
+    },
+    "verify|4d1497a568219528716b51f87ef72f18_6029e690d7a881057e987894b31db7e6": {
+      "verdict": "B",
+      "usage": []
+    },
+    "verify|4d94773555d0a8e3f9b059e6cc729bdf_42f7be3f4cdef5f9018edfefec78418b": {
+      "verdict": "B",
+      "usage": []
+    },
+    "verify|4fd3bc514ff8e3775723a0f883a7d347_54c1d82ec537b265b891b55d68a2d539": {
+      "verdict": "B",
+      "usage": []
+    },
+    "verify|50624457d129ae6ba7aa043aa9bdc92b_b8dae8e757dabf12f4302375e64baa0d": {
+      "verdict": "B",
+      "usage": []
+    },
+    "verify|514cb7d27518d395ec9a46c2ae62c9bf_6a8c772c3cbf9a7e26dae82deafbc213": {
+      "verdict": "B",
+      "usage": []
+    },
+    "verify|52fc2d3ed06507bdbd094aabcfde7e1d_67b0aab158f41fd3a9675c7d5529910e": {
+      "verdict": "B",
+      "usage": []
+    },
+    "verify|5305069c7919fc01c8707be50843590a_b156bd30f7b7d418897e9ccec7ea7708": {
+      "verdict": "B",
+      "usage": []
+    },
+    "verify|5379ab99eae4161320d5bb2c0850315e_bcec25bc2e21ce2667e0368df647bcf2": {
+      "verdict": "B",
+      "usage": []
+    },
+    "verify|57ca02df541ae1687b9712f12df0e425_ee6b572c5fd4f4a2a6b0cb97265a4af8": {
+      "verdict": "B",
+      "usage": []
+    },
+    "verify|5bb00a02996657dbb10ae730c8f472fa_367ecf9f07ea60d49a5af54a47d97898": {
+      "verdict": "B",
+      "usage": []
+    },
+    "verify|5c0953ccc0fe13a7c7843f7c30711707_b803a6e1123d88f6b68aff3e8677de31": {
+      "verdict": "B",
+      "usage": []
+    },
+    "verify|5dfb02d5ff7008e6319ca9ebff69f3ba_c5d3070446bc46d1c98f353fce17822e": {
+      "verdict": "B",
+      "usage": []
+    },
+    "verify|6475b7ad5531cf9bc60abf8728996c1d_14dcca0905e181fe50f31e588e3dd482": {
+      "verdict": "B",
+      "usage": []
+    },
+    "verify|6e4aba2ba0751961277a5be9c22f6e53_76bc2098e25dcd33b5bde96980673a4b": {
+      "verdict": "B",
+      "usage": []
+    },
+    "verify|74455975cc7822e30f33648e197a1775_ccbe576fccccc23b0bdad67d79075fb2": {
+      "verdict": "B",
+      "usage": []
+    },
+    "verify|7c3345602da2596f3ff58658788cd183_cbfde9b9bf8facffcf498eab4aadd1a6": {
+      "verdict": "B",
+      "usage": []
+    },
+    "verify|848aefe451338e2934283c1417b49704_5d429963fda0a400af8b2e0d334830a7": {
+      "verdict": "B",
+      "usage": []
+    },
+    "verify|8725986b8def7d6dc2430b5a82ebe768_d892147f21a603cf006be26ac0db27cb": {
+      "verdict": "B",
+      "usage": []
+    },
+    "verify|885d1842d6a91b50b8ae527de98c3aad_b33afc0790fa12b013da7a444d8410d6": {
+      "verdict": "B",
+      "usage": []
+    },
+    "verify|886ed3392b036e68166e5b531b324911_2c9f5b90761ca8037817845fb3c49f75": {
+      "verdict": "B",
+      "usage": []
+    },
+    "verify|892778a2fbb44f0137777a78340d5644_ed17186ec99cb1fdbed4cf47762f6f2a": {
+      "verdict": "B",
+      "usage": []
+    },
+    "verify|8fb2e641b5868077f1080ebc2a77f638_ab543eb5433d029341e7180d9d1d684a": {
+      "verdict": "B",
+      "usage": []
+    },
+    "verify|987731fefdee670139b52a3c2cd13b54_63abd6b1489e90a7836c25efd043d174": {
+      "verdict": "B",
+      "usage": []
+    },
+    "verify|9cf12f34adac95169b15ddc25480ec2c_a7f2414568e73815e19f8370f3aeec89": {
+      "verdict": "B",
+      "usage": []
+    },
+    "verify|9eeb0aa3c4d5607cf62dac86e1b9eca4_75b2a58542259d851176d51275ee3259": {
+      "verdict": "B",
+      "usage": []
+    },
+    "verify|a42ea38dfa10aa7e396220d1943be6e4_944b95a9b576030a613b3b12a27968a1": {
+      "verdict": "B",
+      "usage": []
+    },
+    "verify|a4ec51f047502137ba39fd41cfc5bb68_c2caf04b04cdfc57e3491ad56e63a5a7": {
+      "verdict": "B",
+      "usage": []
+    },
+    "verify|a5b0bbe7c43295f2dbea2c23333da1a5_e57fae23da1e0a3010c9aa0497a626e8": {
+      "verdict": "B",
+      "usage": []
+    },
+    "verify|adba4a0e3dc7ec9d2b9a05a9d21f2209_d48215d589eb5969bfcfcd58993ab543": {
+      "verdict": "B",
+      "usage": []
+    },
+    "verify|aee1de22ebcbd6dffb545f85c2cc6d3c_4ad6596d535addc90e3929c4cd601d2a": {
+      "verdict": "B",
+      "usage": []
+    },
+    "verify|b5bc983f90abcc1471893cf179ba0bfa_505d5f6ba81adc9e6464f0e068aa11e4": {
+      "verdict": "B",
+      "usage": []
+    },
+    "verify|b7efa9e28caf28086ae71c1099f80c85_c2a2771adf0010ee3a5ba9e3450a37c0": {
+      "verdict": "B",
+      "usage": []
+    },
+    "verify|be062ca3146709520fb4af362eadc7fd_13c03b682a952e80a999c8551089683b": {
+      "verdict": "B",
+      "usage": []
+    },
+    "verify|c41dbbb9d77e5ccbcbe4a0ea02453603_202dea5c7e880415ece22aaa2518ae03": {
+      "verdict": "B",
+      "usage": []
+    },
+    "verify|c8cadbcb97f9fc98c52201c05d2cc7ed_e53ffb97227c484cb4cf3e395207ef4f": {
+      "verdict": "B",
+      "usage": []
+    },
+    "verify|ca370252fd6426290feed014586fe69e_7eab75a8a39e3c975b8492f9161b9f40": {
+      "verdict": "B",
+      "usage": []
+    },
+    "verify|d29e283a52241c0a9a32224b711237bd_cab7eb980622deaad71cf6fe7e803264": {
+      "verdict": "B",
+      "usage": []
+    },
+    "verify|e294330c907c43e8b8e2fe5b2d1eff04_01bcb6a22e65a9be3cd5c1f0c5accf0b": {
+      "verdict": "B",
+      "usage": []
+    },
+    "verify|e63f281ff9bfcefd25555cccf1517855_75af0c15b91bd41dee7da9b35ca2129d": {
+      "verdict": "B",
+      "usage": []
+    },
+    "verify|e65ff550a41d8aab1c6794c36e7c2a47_4fe039b653a63adb5b06881c68c09b99": {
+      "verdict": "B",
+      "usage": []
+    }
+  }
+}

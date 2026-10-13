@@ -1,0 +1,24 @@
+{
+  "pA": 0.01,
+  "detail": {
+    "reference": "\\(\\displaystyle \\boxed{\\frac{\\pi}{6}}\\)",
+    "confidence": "high"
+  },
+  "healthy": true,
+  "solver_key": "273ab12f49458dd1458d0cf73ed09a8d03a5efbd0f8803cb9d1bf100c553a5c7",
+  "usage": [
+    {
+      "provider": "sol",
+      "key": "273ab12f49458dd1458d0cf73ed09a8d03a5efbd0f8803cb9d1bf100c553a5c7",
+      "count": 1,
+      "usd": 0.002192,
+      "seconds": 6.311247374978848
+    },
+    {
+      "provider": "jev",
+      "key": "91886d867c81a7ed8402dc063ec3cac10874eba01291440b474d0aef09a19104",
+      "seconds": 0.369,
+      "usd": 0
+    }
+  ]
+}

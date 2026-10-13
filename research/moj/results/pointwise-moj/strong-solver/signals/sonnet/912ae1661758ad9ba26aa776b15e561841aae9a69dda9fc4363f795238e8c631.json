@@ -1,0 +1,24 @@
+{
+  "pA": 0.02,
+  "detail": {
+    "reference": "A: Louis is assigned to 1923. Ryan, Yoshio and Onyx are in, so the fourth student is Louis or Tiffany (1923 requires one of them). Onyx-Ryan must be 1921-1922, Yoshio 1924. Only A could be true.",
+    "confidence": "high"
+  },
+  "healthy": true,
+  "solver_key": "c6f4924a1d8a6d6ef2275c8bea9ec02899dad5ab34e258f1815b2266287468fe",
+  "usage": [
+    {
+      "provider": "sonnet",
+      "key": "c6f4924a1d8a6d6ef2275c8bea9ec02899dad5ab34e258f1815b2266287468fe",
+      "count": 1,
+      "usd": 0.006794,
+      "seconds": 4.303903457999695
+    },
+    {
+      "provider": "jev",
+      "key": "72c7b75b8e375d6077f80775b89f253a17bd8f2fda11d846d44732b74d996aff",
+      "seconds": 0.415,
+      "usd": 0
+    }
+  ]
+}

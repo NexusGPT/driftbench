@@ -1,0 +1,24 @@
+{
+  "pA": 0.23,
+  "detail": {
+    "reference": "$368.75 (assuming one unit of each product was initially planned). Price-rise day: 99 + 146.625 + 192 = $437.625. Discount day: 9.5 + 21.375 + 38 = $68.875. The customer paid $368.75 more on the price-increase day.",
+    "confidence": "low"
+  },
+  "healthy": true,
+  "solver_key": "7ac3f2f5462b956df556a35f7217a27d10cbdaf8fe32aa8e7a4e47dbe52cbe6f",
+  "usage": [
+    {
+      "provider": "sonnet",
+      "key": "7ac3f2f5462b956df556a35f7217a27d10cbdaf8fe32aa8e7a4e47dbe52cbe6f",
+      "count": 1,
+      "usd": 0.0059,
+      "seconds": 3.5886605409905314
+    },
+    {
+      "provider": "jev",
+      "key": "cdc5ef84f30c13efa68a3441232df902fa8a5e8de61d6b15d9d9f3ff73092677",
+      "seconds": 0.268,
+      "usd": 0
+    }
+  ]
+}

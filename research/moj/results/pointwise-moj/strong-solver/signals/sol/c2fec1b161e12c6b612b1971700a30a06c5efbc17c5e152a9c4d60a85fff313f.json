@@ -1,0 +1,24 @@
+{
+  "pA": 0.01,
+  "detail": {
+    "reference": "No such configuration exists. As shown, the points lie in the order $F,G,E,B$, so $EF=FG+GE>FG$. But the given lengths assert $EF=15<20=FG$, a contradiction. Thus $BE$ cannot be determined from these inconsistent data.",
+    "confidence": "high"
+  },
+  "healthy": true,
+  "solver_key": "21c26697111afed820b47212b69fc786185462c5773b61319a4e24b1dd2d9a0d",
+  "usage": [
+    {
+      "provider": "sol",
+      "key": "21c26697111afed820b47212b69fc786185462c5773b61319a4e24b1dd2d9a0d",
+      "count": 1,
+      "usd": 0.009054,
+      "seconds": 26.528134708001744
+    },
+    {
+      "provider": "jev",
+      "key": "cfdd07f6649f5f63d607ac2e0d683ab42343d5de4af59f8e29a42fa434864008",
+      "seconds": 0.404,
+      "usd": 0
+    }
+  ]
+}

@@ -1,0 +1,24 @@
+{
+  "pA": 1,
+  "detail": {
+    "reference": "The distance condition is\n\\[\\sqrt{(x-2)^2+y^2}=|x+3|-1.\\]\nFor \\(x\\ge-2\\), squaring gives \\(y^2=8x\\), which implies \\(x\\ge0\\) and satisfies the original condition. For \\(x\\le-4\\), squaring gives \\(y^2=12x+12<0\\), so no points occur.\nThus the trajectory is \\(\\boxed{y^2=8x}\\).",
+    "confidence": "high"
+  },
+  "healthy": true,
+  "solver_key": "4dd327d57351066f5ec992ba27adc6b49cdfc263c3084c2e6f720a347d31b222",
+  "usage": [
+    {
+      "provider": "sol",
+      "key": "4dd327d57351066f5ec992ba27adc6b49cdfc263c3084c2e6f720a347d31b222",
+      "count": 1,
+      "usd": 0.002954,
+      "seconds": 6.971093208005186
+    },
+    {
+      "provider": "jev",
+      "key": "c128e367a367bff2df7882e110957b00e454ab85251fc27fe1cd14ba4a332d74",
+      "seconds": 0.344,
+      "usd": 0
+    }
+  ]
+}

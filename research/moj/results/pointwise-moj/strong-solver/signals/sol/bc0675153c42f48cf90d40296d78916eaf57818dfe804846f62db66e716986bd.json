@@ -1,0 +1,24 @@
+{
+  "pA": 0.37,
+  "detail": {
+    "reference": "(A) is true. Its final OR term is `not not not (7 × 2 + (−9) × (−5) ≤ 4 × (−9))`. The inequality is `59 ≤ −36`, which is false; three negations make it true. Therefore, the entire OR expression is true.",
+    "confidence": "high"
+  },
+  "healthy": true,
+  "solver_key": "5d87d3ee96071cc04fd22d93d283f6e9a7db3240431b497c4d633485d0fcd846",
+  "usage": [
+    {
+      "provider": "sol",
+      "key": "5d87d3ee96071cc04fd22d93d283f6e9a7db3240431b497c4d633485d0fcd846",
+      "count": 1,
+      "usd": 0.004246,
+      "seconds": 7.691040542034898
+    },
+    {
+      "provider": "jev",
+      "key": "1f110b99d1eb1409519a51405f789bf2109774037fd0b4b8607968a4845ddd7c",
+      "seconds": 0.287,
+      "usd": 0
+    }
+  ]
+}

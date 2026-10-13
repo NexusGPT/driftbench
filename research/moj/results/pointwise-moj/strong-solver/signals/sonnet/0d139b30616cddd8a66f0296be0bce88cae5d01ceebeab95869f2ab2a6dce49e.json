@@ -1,0 +1,24 @@
+{
+  "pA": 0.99,
+  "detail": {
+    "reference": "E. Each wall has exactly one oil and one watercolor. Greene's watercolor is upper and Franz's oil is lower on the same wall, which rules out A, B, C and D. Hidalgo's watercolor is upper on wall 4. Greene's and Hidalgo's oils can both be upper, so E could be true.",
+    "confidence": "high"
+  },
+  "healthy": true,
+  "solver_key": "786317ff061d2f7f2a3931e19005fc5aef9ba880b7475c9b3324b7c3f413f898",
+  "usage": [
+    {
+      "provider": "sonnet",
+      "key": "786317ff061d2f7f2a3931e19005fc5aef9ba880b7475c9b3324b7c3f413f898",
+      "count": 1,
+      "usd": 0.012471999999999999,
+      "seconds": 8.071764625026844
+    },
+    {
+      "provider": "jev",
+      "key": "7abf3d74335f27dc8775ca5d03b5f85473574d7f6797e3691655f1efd6a124a6",
+      "seconds": 0.421,
+      "usd": 0
+    }
+  ]
+}

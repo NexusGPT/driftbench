@@ -1,0 +1,24 @@
+{
+  "pA": 0.99,
+  "detail": {
+    "reference": "B. The explanation reads \"not eating from time to time\" as refusing out-of-season vegetables, so it must assume out-of-season vegetables existed in Confucius's time alongside seasonal ones. Otherwise there would be nothing to refuse.",
+    "confidence": "high"
+  },
+  "healthy": true,
+  "solver_key": "d38d9725a455f234995a19059c448471242173ad99c939599ad1a9d6fbb26222",
+  "usage": [
+    {
+      "provider": "sonnet",
+      "key": "d38d9725a455f234995a19059c448471242173ad99c939599ad1a9d6fbb26222",
+      "count": 1,
+      "usd": 0.00402,
+      "seconds": 2.4292584159993567
+    },
+    {
+      "provider": "jev",
+      "key": "a22e0a2be312f69bbd5e71836fce6296a6aefcd1d7c249fea6d40e2c2ab54561",
+      "seconds": 0.288,
+      "usd": 0
+    }
+  ]
+}

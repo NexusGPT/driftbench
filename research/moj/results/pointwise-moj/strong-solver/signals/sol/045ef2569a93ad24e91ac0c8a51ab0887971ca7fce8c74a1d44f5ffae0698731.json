@@ -1,0 +1,24 @@
+{
+  "pA": 0.94,
+  "detail": {
+    "reference": "\\[\\mathbf A=\\frac15\\begin{pmatrix}-4&3\\\\-1&2\\end{pmatrix},\\qquad (\\mathbf A+\\mathbf I)^{-1}=\\frac12\\begin{pmatrix}7&-3\\\\1&1\\end{pmatrix}.\\]\nThus,\n\\[\\boxed{\\bigl((\\mathbf A+\\mathbf I)^2\\bigr)^{-1}=\\bigl((\\mathbf A+\\mathbf I)^{-1}\\bigr)^2=\\begin{pmatrix}\\frac{23}{2}&-6\\\\2&-\\frac12\\end{pmatrix}.}\\]",
+    "confidence": "high"
+  },
+  "healthy": true,
+  "solver_key": "7d3b2855b90055fafa44a576345ed40cf630c86050f6ce36c41d75d1d0e64cdd",
+  "usage": [
+    {
+      "provider": "sol",
+      "key": "7d3b2855b90055fafa44a576345ed40cf630c86050f6ce36c41d75d1d0e64cdd",
+      "count": 1,
+      "usd": 0.00343,
+      "seconds": 7.093448666040786
+    },
+    {
+      "provider": "jev",
+      "key": "ce734754aa7b7939db3a0bf2c277404aea1e05f44f8d608cf7ead57346d30405",
+      "seconds": 0.28,
+      "usd": 0
+    }
+  ]
+}

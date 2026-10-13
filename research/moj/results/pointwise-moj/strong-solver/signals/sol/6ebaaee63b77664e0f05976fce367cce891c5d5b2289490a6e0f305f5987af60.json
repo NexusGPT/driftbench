@@ -1,0 +1,24 @@
+{
+  "pA": 0.98,
+  "detail": {
+    "reference": "C: \\(5+\\sqrt{21}\\). With foci \\(B,C\\), the focal distance is \\(BC=4\\). Since the hyperbola passes through \\(A\\), its transverse-axis length is \\(|AB-AC|=5-\\sqrt{21}\\). Thus \\(e=\\frac{4}{5-\\sqrt{21}}=5+\\sqrt{21}\\).",
+    "confidence": "high"
+  },
+  "healthy": true,
+  "solver_key": "9959c1b562c131a704007aed24a0ab089e4707965b63b90190950ba81b0a57ca",
+  "usage": [
+    {
+      "provider": "sol",
+      "key": "9959c1b562c131a704007aed24a0ab089e4707965b63b90190950ba81b0a57ca",
+      "count": 1,
+      "usd": 0.002198,
+      "seconds": 6.3599557090201415
+    },
+    {
+      "provider": "jev",
+      "key": "163c1015c4451b0d76af4353a05695faa56d6dfd7d8c0e501b72480ef90bd558",
+      "seconds": 0.308,
+      "usd": 0
+    }
+  ]
+}

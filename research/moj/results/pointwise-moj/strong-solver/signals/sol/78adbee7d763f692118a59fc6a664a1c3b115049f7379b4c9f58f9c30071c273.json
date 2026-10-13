@@ -1,0 +1,24 @@
+{
+  "pA": 0.02,
+  "detail": {
+    "reference": "(B) Numerical Values — the area “0,15 ha” (0.15 hectares) is incorrectly translated as “0.15 km.”",
+    "confidence": "high"
+  },
+  "healthy": true,
+  "solver_key": "bd86157c00ac28a473abbab3e98417572be333a4c303e8044e7a6cbc19048bfd",
+  "usage": [
+    {
+      "provider": "sol",
+      "key": "bd86157c00ac28a473abbab3e98417572be333a4c303e8044e7a6cbc19048bfd",
+      "count": 1,
+      "usd": 0.00155,
+      "seconds": 3.9613952079671435
+    },
+    {
+      "provider": "jev",
+      "key": "3b46b02095568b1988f4a6b8c8fb6e7e4a2b038f3b475cbc65505bdc7a354c1b",
+      "seconds": 0.362,
+      "usd": 0
+    }
+  ]
+}

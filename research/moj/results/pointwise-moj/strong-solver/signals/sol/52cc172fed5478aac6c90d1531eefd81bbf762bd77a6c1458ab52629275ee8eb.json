@@ -1,0 +1,24 @@
+{
+  "pA": 0.53,
+  "detail": {
+    "reference": "(C) The Silence of the Lambs, Seven, Fargo, Forrest Gump, Schindler's List",
+    "confidence": "high"
+  },
+  "healthy": true,
+  "solver_key": "cf59f4f9498adfa7ae0a8c5d41da688d4ccb9a56c9808f7ee3f8f961fb8f8a36",
+  "usage": [
+    {
+      "provider": "sol",
+      "key": "cf59f4f9498adfa7ae0a8c5d41da688d4ccb9a56c9808f7ee3f8f961fb8f8a36",
+      "count": 1,
+      "usd": 0.003304,
+      "seconds": 9.238319040974602
+    },
+    {
+      "provider": "jev",
+      "key": "3e170fabd8dd191248e25197316f08494ec57f636b36cb23fcb800dfff08f542",
+      "seconds": 0.309,
+      "usd": 0
+    }
+  ]
+}

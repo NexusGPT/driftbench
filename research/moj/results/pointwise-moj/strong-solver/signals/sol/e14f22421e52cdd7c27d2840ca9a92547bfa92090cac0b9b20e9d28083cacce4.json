@@ -1,0 +1,24 @@
+{
+  "pA": 0.01,
+  "detail": {
+    "reference": "(C) is the only expression that evaluates to true. Its nested conjunction with False evaluates to false; the remaining negated terms inside the outer triple negation are also false. Thus that negation yields true, and the final inequality is true. (A), (B), (D), and (E) evaluate to false.",
+    "confidence": "high"
+  },
+  "healthy": true,
+  "solver_key": "71dec1406487d825cfe281621d21329838454203e5b2f562ecd012c03a75c286",
+  "usage": [
+    {
+      "provider": "sol",
+      "key": "71dec1406487d825cfe281621d21329838454203e5b2f562ecd012c03a75c286",
+      "count": 1,
+      "usd": 0.005401,
+      "seconds": 5.97504404099891
+    },
+    {
+      "provider": "jev",
+      "key": "65ed115aa34a2ae0ecd8ccc51a781041f62062b4a68c4315a2578e65a4904da9",
+      "seconds": 0.38,
+      "usd": 0
+    }
+  ]
+}

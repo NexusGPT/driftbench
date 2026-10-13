@@ -1,0 +1,24 @@
+{
+  "pA": 0.98,
+  "detail": {
+    "reference": "8 sides (an octagon; the remaining angle is 10°)",
+    "confidence": "high"
+  },
+  "healthy": true,
+  "solver_key": "4b99604434dad619e841bc041867f7176d19a6b0c1502dc6f48f292b6b07f0f9",
+  "usage": [
+    {
+      "provider": "sonnet",
+      "key": "4b99604434dad619e841bc041867f7176d19a6b0c1502dc6f48f292b6b07f0f9",
+      "count": 1,
+      "usd": 0.0033439999999999998,
+      "seconds": 2.458760584006086
+    },
+    {
+      "provider": "jev",
+      "key": "c3854107da172db821ba9eb12d3091b3f4f08a278115aa56e170f7eb2bec369c",
+      "seconds": 0.29,
+      "usd": 0
+    }
+  ]
+}

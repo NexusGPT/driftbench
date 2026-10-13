@@ -1,0 +1,24 @@
+{
+  "pA": 0.81,
+  "detail": {
+    "reference": "disproved",
+    "confidence": "high"
+  },
+  "healthy": true,
+  "solver_key": "6d97d0a8dd715b9bb8e2467c25289c3746a3f9eb614ba8e7b90fd2f8c56ea6e3",
+  "usage": [
+    {
+      "provider": "sol",
+      "key": "6d97d0a8dd715b9bb8e2467c25289c3746a3f9eb614ba8e7b90fd2f8c56ea6e3",
+      "count": 1,
+      "usd": 0.002092,
+      "seconds": 2.773108333989512
+    },
+    {
+      "provider": "jev",
+      "key": "3eff8cab3da9023af09b39000ada5b403ffc958aba771ce6742b64d703f4ffa4",
+      "seconds": 0.955,
+      "usd": 0
+    }
+  ]
+}

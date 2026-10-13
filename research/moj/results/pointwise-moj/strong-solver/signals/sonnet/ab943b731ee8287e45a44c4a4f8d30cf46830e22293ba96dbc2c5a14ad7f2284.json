@@ -1,0 +1,24 @@
+{
+  "pA": 0.04,
+  "detail": {
+    "reference": "kiwi",
+    "confidence": "high"
+  },
+  "healthy": true,
+  "solver_key": "da9726cd11d4770f746bee61741d736363300000eb4e110a660297c94ce25ddf",
+  "usage": [
+    {
+      "provider": "sonnet",
+      "key": "da9726cd11d4770f746bee61741d736363300000eb4e110a660297c94ce25ddf",
+      "count": 1,
+      "usd": 0.03418,
+      "seconds": 17.841600958025083
+    },
+    {
+      "provider": "jev",
+      "key": "9050ff87236bf0dc367c57025d2b4b7896bbd0597880e79213be074ce4b5218e",
+      "seconds": 0.326,
+      "usd": 0
+    }
+  ]
+}

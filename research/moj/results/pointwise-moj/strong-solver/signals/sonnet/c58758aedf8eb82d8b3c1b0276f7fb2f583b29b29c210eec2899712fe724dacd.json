@@ -1,0 +1,18 @@
+{
+  "pA": null,
+  "detail": {
+    "reference": "",
+    "confidence": null
+  },
+  "healthy": false,
+  "solver_key": "d68006c6c16148e9f5f87b3ac817cc131b5a10d63b2b26d9a5caa99153a73b2d",
+  "usage": [
+    {
+      "provider": "sonnet",
+      "key": "d68006c6c16148e9f5f87b3ac817cc131b5a10d63b2b26d9a5caa99153a73b2d",
+      "count": 1,
+      "usd": 0.003324,
+      "seconds": 2.3462940829922445
+    }
+  ]
+}

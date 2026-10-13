@@ -1,0 +1,24 @@
+{
+  "pA": 0.99,
+  "detail": {
+    "reference": "E. A valid arrangement, listed upper/lower, is:\nWall 1: Greene’s watercolor / Franz’s oil\nWall 2: Greene’s oil / Franz’s watercolor\nWall 3: Hidalgo’s oil / Isaacs’s watercolor\nWall 4: Hidalgo’s watercolor / Isaacs’s oil\nThis satisfies every condition, with both Greene’s and Hidalgo’s paintings in upper positions.",
+    "confidence": "high"
+  },
+  "healthy": true,
+  "solver_key": "30521d186d6444f39633d83b3d337822f532b0fde5176ec01bdba79174ec1946",
+  "usage": [
+    {
+      "provider": "sol",
+      "key": "30521d186d6444f39633d83b3d337822f532b0fde5176ec01bdba79174ec1946",
+      "count": 1,
+      "usd": 0.002894,
+      "seconds": 6.558184749970678
+    },
+    {
+      "provider": "jev",
+      "key": "5fcef2f8c81196536a4b40c405e81785a532b81abd5dda0a2cda42617cc82ca4",
+      "seconds": 0.483,
+      "usd": 0
+    }
+  ]
+}

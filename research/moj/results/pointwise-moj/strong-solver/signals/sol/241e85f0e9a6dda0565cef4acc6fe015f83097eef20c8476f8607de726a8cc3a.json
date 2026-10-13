@@ -1,0 +1,24 @@
+{
+  "pA": 0.95,
+  "detail": {
+    "reference": "(F) none of the above. A square, a non-right triangle, and irregular concave pentagons are visible. No listed option correctly captures this combination; in particular, there is no regular hexagon.",
+    "confidence": "high"
+  },
+  "healthy": true,
+  "solver_key": "926f7a4d2fa5ea1bb7c1875b938d95f37cca89ec6ddac032616718d3db148a88",
+  "usage": [
+    {
+      "provider": "sol",
+      "key": "926f7a4d2fa5ea1bb7c1875b938d95f37cca89ec6ddac032616718d3db148a88",
+      "count": 1,
+      "usd": 0.011446,
+      "seconds": 26.225979749986436
+    },
+    {
+      "provider": "jev",
+      "key": "96359b80d5555255b4b13afaa15ef5da8887791faa3128bf0f22e18467886282",
+      "seconds": 0.385,
+      "usd": 0
+    }
+  ]
+}

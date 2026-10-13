@@ -1,0 +1,24 @@
+{
+  "pA": 0.02,
+  "detail": {
+    "reference": "(B) evaluates to true. It contains the true disjunct `not (False) and (max(-5, 9, -8, 9) - min(-5, 9, -8, 9) > 6)`: the range is 17, and double negations preserve its truth. The other four expressions evaluate to false.",
+    "confidence": "high"
+  },
+  "healthy": true,
+  "solver_key": "f17568f672a856846727d3d92732b16af7517bd5bdec7ee35b3d0e6315c225c5",
+  "usage": [
+    {
+      "provider": "sol",
+      "key": "f17568f672a856846727d3d92732b16af7517bd5bdec7ee35b3d0e6315c225c5",
+      "count": 1,
+      "usd": 0.005256,
+      "seconds": 8.305910833005328
+    },
+    {
+      "provider": "jev",
+      "key": "c9a50bcc5b891573dcc03cfe3f2c1f763cbc946a7ee69d0e860e79676c8423d6",
+      "seconds": 0.604,
+      "usd": 0
+    }
+  ]
+}

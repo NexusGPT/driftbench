@@ -1,0 +1,24 @@
+{
+  "pA": 0.03,
+  "detail": {
+    "reference": "A. It gives a direct counterexample: women who wear less on cold, cloudy days but do not get arthritis, which undermines the claim that wearing less causes it. The option's wording is garbled, so this is a best reading, with C as the next closest.",
+    "confidence": "low"
+  },
+  "healthy": true,
+  "solver_key": "bbc892317d3bb222b4d527915345433af067c7747d50e79b3136d934dbb42e71",
+  "usage": [
+    {
+      "provider": "sonnet",
+      "key": "bbc892317d3bb222b4d527915345433af067c7747d50e79b3136d934dbb42e71",
+      "count": 1,
+      "usd": 0.011472000000000001,
+      "seconds": 8.939611124980729
+    },
+    {
+      "provider": "jev",
+      "key": "ad6c7cfba07755a065aa9636d874919a5fbc6e423bcffdce74b0515d27e01832",
+      "seconds": 0.367,
+      "usd": 0
+    }
+  ]
+}

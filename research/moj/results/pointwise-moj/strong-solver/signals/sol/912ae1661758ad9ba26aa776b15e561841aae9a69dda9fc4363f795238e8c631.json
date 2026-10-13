@@ -1,0 +1,24 @@
+{
+  "pA": 0.02,
+  "detail": {
+    "reference": "A: Louis is assigned to 1923. A valid assignment is Onyx—1921, Ryan—1922, Louis—1923, and Yoshio—1924. This satisfies every condition.",
+    "confidence": "high"
+  },
+  "healthy": true,
+  "solver_key": "3914394863f6aff5bf5eb8d01b704161b4eb5912187f01ac30a03ff6e8a317cb",
+  "usage": [
+    {
+      "provider": "sol",
+      "key": "3914394863f6aff5bf5eb8d01b704161b4eb5912187f01ac30a03ff6e8a317cb",
+      "count": 1,
+      "usd": 0.002148,
+      "seconds": 5.439511624979787
+    },
+    {
+      "provider": "jev",
+      "key": "d69eedc0f66fab9832c3a3142f977bc5539fe4007dd7152c9e004eb45a474297",
+      "seconds": 0.407,
+      "usd": 0
+    }
+  ]
+}

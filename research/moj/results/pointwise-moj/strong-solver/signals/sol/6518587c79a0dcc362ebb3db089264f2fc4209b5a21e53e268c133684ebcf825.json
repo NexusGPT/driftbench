@@ -1,0 +1,24 @@
+{
+  "pA": 0.05,
+  "detail": {
+    "reference": "The initial quantities are unspecified, so there is no unique numerical answer. If they are a, b, and c, respectively, the increased-price spending minus discount-day spending is $89.50a + $125.25b + $154c. Assuming one unit of each was initially planned, the difference is $368.75.",
+    "confidence": "high"
+  },
+  "healthy": true,
+  "solver_key": "69590e4e2a41337f59d5ed5c995fe7011bbb600351e951be671686a2bd6ea3e0",
+  "usage": [
+    {
+      "provider": "sol",
+      "key": "69590e4e2a41337f59d5ed5c995fe7011bbb600351e951be671686a2bd6ea3e0",
+      "count": 1,
+      "usd": 0.002964,
+      "seconds": 6.416488000017125
+    },
+    {
+      "provider": "jev",
+      "key": "2cd9fdd446c8de373952547cbea1e4a6b18a39978f446aa0320e951d79835e8d",
+      "seconds": 0.332,
+      "usd": 0
+    }
+  ]
+}

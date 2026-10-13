@@ -1,0 +1,24 @@
+{
+  "pA": 0.17,
+  "detail": {
+    "reference": "The final price is 80% × 80% × 85% = 54.4% of the original price (or $32.64).",
+    "confidence": "high"
+  },
+  "healthy": true,
+  "solver_key": "5c306f140b4e89d1c0c42bbbb94452ac202cc343c552c814cc4b3e747e3ae312",
+  "usage": [
+    {
+      "provider": "sol",
+      "key": "5c306f140b4e89d1c0c42bbbb94452ac202cc343c552c814cc4b3e747e3ae312",
+      "count": 1,
+      "usd": 0.00105,
+      "seconds": 2.774004833016079
+    },
+    {
+      "provider": "jev",
+      "key": "e9470f08e203e42f63bd0a7029880a0a118e004d272cb300d6a2d0e2b39044a6",
+      "seconds": 0.336,
+      "usd": 0
+    }
+  ]
+}

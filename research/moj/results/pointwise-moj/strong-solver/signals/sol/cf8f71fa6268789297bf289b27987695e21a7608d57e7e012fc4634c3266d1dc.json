@@ -1,0 +1,24 @@
+{
+  "pA": 0.64,
+  "detail": {
+    "reference": "The information is inconsistent: 17 of each type would mean 34 coins, not 29. If Tom instead has 17 quarters, the remaining 12 coins total $5.45 − $4.25 = $1.20, making the other coins worth 10 cents each.",
+    "confidence": "high"
+  },
+  "healthy": true,
+  "solver_key": "43eca06a5d80972e3a29711c121741138eed39392136cd7ebe03d2f2f16da58a",
+  "usage": [
+    {
+      "provider": "sol",
+      "key": "43eca06a5d80972e3a29711c121741138eed39392136cd7ebe03d2f2f16da58a",
+      "count": 1,
+      "usd": 0.002776,
+      "seconds": 7.9704006660031155
+    },
+    {
+      "provider": "jev",
+      "key": "d914e430eeb3a4dc41e9c6b5fe1fcf2eed420a945520fc26b606ec84aefd5505",
+      "seconds": 0.291,
+      "usd": 0
+    }
+  ]
+}

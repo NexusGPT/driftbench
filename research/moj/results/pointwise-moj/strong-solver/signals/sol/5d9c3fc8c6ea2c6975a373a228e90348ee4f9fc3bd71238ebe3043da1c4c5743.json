@@ -1,0 +1,24 @@
+{
+  "pA": 0.05,
+  "detail": {
+    "reference": "(1) For a=1, f(1)=0 and f′(1)=1, so the tangent is y=x−1.\n\n(2) For x>1, let R(x)=(x+1)ln x/(x−1). Since R(x)>2 and limₓ→₁⁺R(x)=2, the requirement a<R(x) for every x>1 holds exactly when a≤2. Thus a∈(−∞,2].",
+    "confidence": "high"
+  },
+  "healthy": true,
+  "solver_key": "f2e457e23bd5e1a950a0bea2599bcc6a20533655e04d56b1f0beb345677f775e",
+  "usage": [
+    {
+      "provider": "sol",
+      "key": "f2e457e23bd5e1a950a0bea2599bcc6a20533655e04d56b1f0beb345677f775e",
+      "count": 1,
+      "usd": 0.002708,
+      "seconds": 6.529860874987207
+    },
+    {
+      "provider": "jev",
+      "key": "1b0eded8c9301baf6f122b063802285e2a9a156f631d2eb79a4706f112290031",
+      "seconds": 0.468,
+      "usd": 0
+    }
+  ]
+}

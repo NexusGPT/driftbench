@@ -1,0 +1,24 @@
+{
+  "pA": 0.92,
+  "detail": {
+    "reference": "The total bill is 5 × $5 = $25. Hamburgers, fries, and spaghetti cost $15 + $4.80 + $2.70 = $22.50, leaving $2.50 for soda. The price per cup cannot be determined without the number of cups. If they ordered five cups, each cost $0.50.",
+    "confidence": "high"
+  },
+  "healthy": true,
+  "solver_key": "f9d873d608894f5983ff4eebb229af6d6ad420db4e79ae1d177137a3cf0ae650",
+  "usage": [
+    {
+      "provider": "sol",
+      "key": "f9d873d608894f5983ff4eebb229af6d6ad420db4e79ae1d177137a3cf0ae650",
+      "count": 1,
+      "usd": 0.002002,
+      "seconds": 5.019080958969425
+    },
+    {
+      "provider": "jev",
+      "key": "520d7f6e16feab3cfd745fecc930ec822d38a246df3208f63958630bcf468d77",
+      "seconds": 0.394,
+      "usd": 0
+    }
+  ]
+}
