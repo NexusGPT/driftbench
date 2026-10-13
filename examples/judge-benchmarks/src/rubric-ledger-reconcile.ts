@@ -14,6 +14,7 @@ async function main() {
   for (const phase of ['pilot', 'fixtures', 'noise', 'validity', 'provider-probe', 'test']) {
     const path = `${directory}/decisions-${phase}.jsonl`;
     for (const row of latestDecisions(await readRecordingRows<DecisionRow>(path))) {
+      if (!calls.rows.some((c) => row.callKeys.includes(c.key) && nativeProviderBlockReason(c))) continue;
       const next = classifyAllProviderBlocks(row, calls.rows);
       if (JSON.stringify(next) !== JSON.stringify(row)) { await appendRecording(path, next); changed++; }
     }

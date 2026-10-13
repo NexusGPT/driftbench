@@ -30,6 +30,11 @@ async function main() {
   for (const [path, hash] of Object.entries(freeze.hashes)) if (sha(await readFile(path, 'utf8')) !== hash) throw new Error(`Original frozen source changed: ${path}`);
   if (amendment.originalFreezeSha256 !== sha(freezeText)) throw new Error('Original freeze identity changed');
   const settings = { ...addedSettings(model), capUsd: amendment.capUsd as number, concurrency: 2,
+    transportTries: 'unlimited missing-only for no-answer transport failures',
+    pacing: 'Two concurrent paid calls, one model cell at a time',
+    retryPolicy: 'Never resend a returned answer. No-answer transport failures retry missing-only without limit; three consecutive connection failures pause ten minutes and repeat the ten-probe gate. Preserve receipts and unknown-cost holds.',
+    budgetPolicy: `USD ${amendment.capUsd} hard stop including holds; owner-approved runtime amendment supersedes the initial USD 25 gate.`,
+    winPolicy: 'RubricBench is preregistered TIE-only; report observed advantages without promoting them to registered WIN. Loss tests remain uncorrected at 0.05.',
     network: 'Ten healthy provider probes 30 seconds apart; three consecutive connection failures pause ten minutes and repeat gate. Missing-only no-answer retries without limit. One model cell at a time.',
     ...(model === 'claude-sonnet-5-5' ? { DISABLE_PROMPT_CACHING: '1' } : {}) };
   if (model === 'gpt-6.1-sol' && settings.capUsd !== 50 || model === 'claude-sonnet-5-5' && settings.capUsd !== 45) throw new Error('Cap not owner-authorized');
