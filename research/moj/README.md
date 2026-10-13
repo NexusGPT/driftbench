@@ -83,3 +83,14 @@ probabilities) and `chars`, `length_gap`, `non_latin` (code). A route reads cont
   A gain counts when it also shows on the second.
 - Weights are fitted by cross-validation on the tuning half, pooled over benchmarks.
 - No sealed test split is read. No benchmark label is used by a route.
+
+## State of the recorded data
+
+| File | State |
+|---|---|
+| `results/signals/judgebench.json` | complete: 68 practice pairs, every expert of the catalogue |
+| `results/signals/mmeval.json` | complete: 50 practice pairs, every expert. The recorded ledger baseline covers a subset only (the pairs whose `_meta.baselines` holds `ledger`) |
+| `results/signals/writing.json` | complete: 50 practice pairs, every expert |
+| `recordings/jev.jsonl`, `recordings/luna.jsonl` | complete for the above; `python3 -m moj.collect --offline` replays them |
+
+Each signal file maps a pair id to `{<expert>: {pA, detail, calls, usd, seconds}, _meta: {label, half, split, group, language, baselines}}`.

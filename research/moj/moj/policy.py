@@ -11,6 +11,9 @@ A variant is one JSON config (configs/*.json):
   always   cards applied to every item whatever the confidence (for example a stability judge when lengths differ)
   low      experts added at the low level
   abstain_below   final confidence under this value is an explicit abstention (scored as a tie)
+  combine  'raw' uses the plain mean of the experts' probabilities in place of fitted weights
+  low_mode 'replace': the experts of `low` decide alone (an escalation), in place of joining the combination
+  escalate_share  the dial: the boundary is set so this share of training items escalates
 
 Combination is a logistic regression without intercept on x = 2 pA - 1 of the experts used so far, one model per
 set of experts, fitted on training items only. No intercept means swapping A and B flips the verdict exactly.
@@ -46,8 +49,8 @@ def fit_logistic(X, y, l2=1.0, steps=400):
 class Combiner:
     """One fitted model per set of experts, trained lazily on the training items."""
 
-    def __init__(self, train, l2=1.0):
-        self.train, self.l2, self.models = train, l2, {}
+    def __init__(self, train, l2=1.0, raw=False):
+        self.train, self.l2, self.models, self.raw = train, l2, {}, raw
 
     def weights(self, experts):
         key = tuple(experts)
@@ -58,14 +61,37 @@ class Combiner:
             self.models[key] = fit_logistic(X, y, self.l2) if len(rows) else np.ones(len(key))
         return self.models[key]
 
+    def boundary(self, experts, share):
+        key = ('boundary', tuple(experts), share)
+        if key not in self.models:
+            confs = sorted(max(q, 1 - q) for q in (self.p(s, experts) for s in self.train))
+            self.models[key] = confs[min(len(confs) - 1, int(share * len(confs)))] if share > 0 else 0.0
+        return self.models[key]
+
     def p(self, signals, experts):
+        if self.raw:  # no fitted weights: the plain mean of the experts' probabilities
+            values = [signals[name]['pA'] for name in experts if signals.get(name, {}).get('pA') is not None]
+            return sum(values) / len(values) if values else 0.5
         w = self.weights(experts)
         z = float(sum(wi * x_of(signals, name) for wi, name in zip(w, experts)))
         return 1 / (1 + math.exp(-max(-30, min(30, z))))
 
 
-def terrain(signals):
-    return signals.get('route', {}).get('detail', {}) or {}
+def terrain(signals, used=()):
+    """The terrain of an item: the router's content decisions, plus features derived from experts already run."""
+    land = dict(signals.get('route', {}).get('detail', {}) or {})
+    s1p = signals.get('s1p', {}).get('detail') or {}
+    if 's1p' in used and s1p.get('AB') is not None and s1p.get('BA') is not None:
+        land['order_split'] = 1.0 if (s1p['AB'] > 0.5) == (s1p['BA'] > 0.5) else 0.0  # both orders pick the same position
+        land['first_bias'] = abs(s1p['AB'] + s1p['BA'] - 1)
+    conflict = 0.0
+    if 's1pr' in used and (signals.get('s1pr', {}).get('detail') or {}).get('conflict'):
+        conflict = 1.0
+    signs = [x_of(signals, name) for name in ('s1p', 's1r', 's1pr', 's1cf') if name in used and signals.get(name, {}).get('pA') is not None]
+    if signs and min(signs) < -0.1 and max(signs) > 0.1:
+        conflict = 1.0
+    land['s1_conflict'] = conflict
+    return land
 
 
 def matches(card, land):
@@ -76,7 +102,7 @@ def matches(card, land):
         if isinstance(minimum, list):  # [low, high] band, both inclusive
             if not (minimum[0] <= value <= minimum[1]):
                 return False
-        elif feature in ('chars', 'length_gap', 'non_latin'):
+        elif feature in ('chars', 'length_gap', 'non_latin', 'order_split', 'first_bias', 's1_conflict'):
             if value < minimum:
                 return False
         elif value < min(minimum, UNSURE[0]) if minimum >= 0.5 else value < minimum:
@@ -101,8 +127,10 @@ def calls_of(signals, experts):
 def decide(config, signals, combiner):
     """Runs one item through the variant. Returns verdict, confidence, level, path and calls."""
     hi, lo = config.get('hi', 0.9), config.get('lo', 0.7)
-    land = terrain(signals)
+    if config.get('escalate_share') is not None:  # the dial: this share of training items sits under the boundary
+        hi = lo = combiner.boundary(config['stage1'], config['escalate_share'])
     used = list(config['stage1'])
+    land = terrain(signals, used)
     paid = list(used) + (['route'] if config.get('cards') or config.get('always') else [])
     for card in config.get('always', []):
         if matches(card, land) and card['expert'] not in used:
@@ -117,7 +145,8 @@ def decide(config, signals, combiner):
         for card in config.get('cards', []):
             if added >= config.get('middle_max', 1):
                 break
-            if card['expert'] not in used and matches(card, land):
+            land = terrain(signals, used)
+            if card['expert'] not in used and matches(card, land) and signals.get(card['expert'], {}).get('pA') is not None:
                 used.append(card['expert'])
                 paid.append(card['expert'])
                 added += 1
@@ -126,11 +155,18 @@ def decide(config, signals, combiner):
             conf = max(p, 1 - p)
         if level == 'low' or (config.get('low_after_middle', True) and conf < lo):
             level = 'low'
+            added_low = []
             for name in config.get('low', []):
                 if name not in used and signals.get(name, {}).get('pA') is not None:
                     used.append(name)
                     paid.append(name)
-            p = combiner.p(signals, used)
+                    added_low.append(name)
+            if config.get('low_mode') == 'replace' and added_low:
+                p = combiner.p(signals, added_low)  # the escalated judge decides alone
+                if signals[added_low[0]]['pA'] == 0.5 and len(added_low) == 1:
+                    p = 0.5  # a recorded tie stays a tie
+            else:
+                p = combiner.p(signals, used)
             conf = max(p, 1 - p)
     verdict = 'A' if p > 0.5 else 'B' if p < 0.5 else 'tie'
     reason = None
@@ -177,10 +213,10 @@ def run_variant(config, pooled):
     l2 = config.get('l2', 1.0)
     for fold in folds([f'{b}|{i}' for b, i in tune]):
         held = {tuple(key.split('|', 1)) for key in fold}
-        combiner = Combiner([everything[key] for key in tune if key not in held], l2)
+        combiner = Combiner([everything[key] for key in tune if key not in held], l2, config.get('combine') == 'raw')
         for key in held:
             out[key] = decide(config, everything[key], combiner)
-    combiner = Combiner([everything[key] for key in tune], l2)
+    combiner = Combiner([everything[key] for key in tune], l2, config.get('combine') == 'raw')
     for key in valid:
         out[key] = decide(config, everything[key], combiner)
     return out, combiner

@@ -1,0 +1,10 @@
+{
+  "name": "lit-jev-cascade",
+  "note": "Replication of the published rule (arXiv 2609.26550): decision-only judge in both orders, raw order-averaged confidence, escalate under 0.9 to a reasoning judge whose verdict replaces the first.",
+  "stage1": ["s1p"],
+  "combine": "raw",
+  "hi": 0.9,
+  "lo": 0.9,
+  "low": ["s2v"],
+  "low_mode": "replace"
+}

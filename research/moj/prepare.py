@@ -5,6 +5,7 @@ Reads other worktrees only (never writes there) and never opens a sealed pool or
 import json, os, sys
 W = sys.argv[1] if len(sys.argv) > 1 else '/Users/assem/Documents/GitHub/driftbench/.worktrees'
 out = []
+reps = {}
 def lines(path):
     with open(path) as handle:
         return [json.loads(line) for line in handle if line.strip()]
@@ -14,6 +15,7 @@ jb = f'{W}/ledger-jb/examples/ledger-jb'
 base = {}
 for phase in ['pilot', 'noise', 'fixtures']:
     for row in lines(f'{jb}/results/decisions-{phase}-gpt-6-luna.jsonl'):
+        reps.setdefault(row['itemId'], {}).setdefault(row['contestant'], {})[row.get('repeat', 0)] = row['games']
         if row.get('repeat', 0) != 0: continue
         entry = {'games': row['games']}
         if row['contestant'] == 'ledger':
@@ -44,9 +46,11 @@ for phase in ['pilot', 'noise']:
 wp = f'{W}/ledger-wp/examples/ledger-wp'
 base = {}
 for row in lines(f'{wp}/results/decisions.jsonl'):
-    if row.get('model') != 'gpt-6-luna' or row.get('split') not in ('pilot', 'dev') or row.get('sample', 0) != 0: continue
+    if row.get('model') != 'gpt-6-luna' or row.get('split') not in ('pilot', 'dev'): continue
     name = {'pair-ledger': 'ledger', 'promptfoo': 'promptfoo'}.get(row['contestant'])
     if not name: continue
+    reps.setdefault(row['id'], {}).setdefault(name, {})[row.get('sample', 0)] = row['games']
+    if row.get('sample', 0) != 0: continue
     entry = {'games': row['games'], 'calls': row.get('callCount'), 'costUsd': row.get('costUsd')}
     base.setdefault(row['id'], {})[name] = entry
 for phase in ['pilot', 'dev']:
@@ -54,6 +58,8 @@ for phase in ['pilot', 'dev']:
         out.append({'bench': 'writing', 'split': phase, 'id': item['id'], 'group': item.get('tag', ''), 'language': item['language'],
                     'question': item['question'], 'a': item['a'], 'b': item['b'], 'label': item['label'],
                     'baselines': base.get(item['id'], {})})
+for x in out:
+    x['repeats'] = {name: [games for _, games in sorted(by.items())] for name, by in reps.get(x['id'], {}).items() if len(by) > 1}
 for bench in ('judgebench', 'mmeval', 'writing'):
     rows = [{k: v for k, v in x.items() if k != 'bench'} for x in out if x['bench'] == bench]
     json.dump(rows, open(os.path.join(os.path.dirname(os.path.abspath(__file__)), 'data', bench + '.json'), 'w'), ensure_ascii=False)

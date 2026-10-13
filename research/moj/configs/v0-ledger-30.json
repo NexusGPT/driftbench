@@ -1,0 +1,8 @@
+{
+  "name": "v0-ledger-30",
+  "note": "V0. System-1 pairwise first; the least confident 30 percent escalate to the recorded pair ledger, which decides alone.",
+  "stage1": ["s1p"],
+  "escalate_share": 0.30,
+  "low": ["s2l"],
+  "low_mode": "replace"
+}
