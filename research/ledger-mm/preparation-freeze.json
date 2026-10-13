@@ -1,0 +1,33 @@
+{
+  "stage": "offline-pool-and-protocol",
+  "base": "9970c938de76bbb3030795d983fad08d8bb611b6",
+  "hashes": {
+    "research/ledger-mm/test_offline.py": "ad99472a5961eca8ed8aca41715150419189ad9f06e0aaae40ba0ccf85740a66",
+    "research/ledger-mm/README.md": "548d62ffb1b0051044380f791c94fb79c1d18f3f994f25cb505bd45638828104",
+    "research/ledger-mm/stats.py": "9feb39927f50c122a1eb6055f3735492017e7e893681cda40326d30252a9b018",
+    "research/ledger-mm/promptfoo-select-best.txt": "f5d991e93bb0f5fefba9eb241f0feddae57276f8196f3c4e53137b5f4177562c",
+    "research/ledger-mm/prepare.py": "c90a30d256bfd3c073025f4a297ef3899099d9884bccc6397f1ef8d001a8d368",
+    "research/ledger-mm/compute.py": "c868942d6c22b027720e040e04e545874f4ebff97f25418e1254e674adf2cb8f",
+    "research/ledger-mm/artifacts/pool-seal.json": "a3cfb32a19a5cc36b446add7103a0ef92cba251bdaf102fbe2a3d136784f325c",
+    "research/ledger-mm/artifacts/noise.json": "a113d5948c0a5385080d9569a54beeaf3c4756eb102f33f0ad2335a0f84e6161",
+    "research/ledger-mm/artifacts/excluded-ids.json": "ac59b95ae8c5723882a592ff923cb9d556424ac08cf8e09d90d5f3054ddc8334",
+    "research/ledger-mm/artifacts/exposure-audit.json": "2ff237169acc21e1c31ca871a8ae0018374e865b846e1d38e7cff421c649d146",
+    "research/ledger-mm/artifacts/pool.json": "c5d9b880f98a3cefcacdd5ac1417d0ce70fe526e358edecd890dcfa792f65aeb",
+    "research/ledger-mm/artifacts/pilot.json": "1fa01e034f8fb2fe782bcf1fa6f6bc11c5856f5b69a9702fb4c2177169f5733a",
+    "research/ledger-mm/artifacts/harm-fixtures.json": "cb26c07022016c8c0ecff5f1c7663991d673ed7d01c2cf50c9b82842a773467d"
+  },
+  "paidCalls": 0,
+  "models": {
+    "haiku": {
+      "model": "claude-haiku-5-5"
+    },
+    "gpt-6-luna": {
+      "reasoning": "medium"
+    },
+    "gemini-3.8-flash": {
+      "reasoning": "medium",
+      "timeoutMs": 180000
+    }
+  },
+  "capUsd": 20
+}
