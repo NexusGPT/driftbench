@@ -1,0 +1,421 @@
+{
+  "bench": "judgebench",
+  "firstHalf": 68,
+  "secondHalf": 53,
+  "assignment": {
+    "coding": {
+      "judge": "gemini-3.8-flash",
+      "firstHalf": {
+        "jev": {
+          "name": "jev",
+          "n": 5,
+          "value": 0.2,
+          "lower": 0.036224108632430085,
+          "upper": 0.6244653702374747
+        },
+        "gemini-3.8-flash": {
+          "name": "gemini-3.8-flash",
+          "n": 5,
+          "value": 1,
+          "lower": 0.5655175352168251,
+          "upper": 1
+        },
+        "gpt-5.4-mini": {
+          "name": "gpt-5.4-mini",
+          "n": 5,
+          "value": 1,
+          "lower": 0.5655175352168251,
+          "upper": 1
+        },
+        "haiku-frozen": {
+          "name": "haiku-frozen",
+          "n": 5,
+          "value": 1,
+          "lower": 0.5655175352168251,
+          "upper": 1
+        },
+        "haiku-first-cascade": {
+          "name": "haiku-first-cascade",
+          "n": 5,
+          "value": 1,
+          "lower": 0.5655175352168251,
+          "upper": 1
+        },
+        "council": {
+          "name": "council",
+          "n": 5,
+          "value": 1,
+          "lower": 0.5655175352168251,
+          "upper": 1
+        }
+      }
+    },
+    "knowledge": {
+      "judge": "haiku-first-cascade",
+      "firstHalf": {
+        "jev": {
+          "name": "jev",
+          "n": 38,
+          "value": 0.8947368421052632,
+          "lower": 0.7586947827711269,
+          "upper": 0.9582974265244647
+        },
+        "gemini-3.8-flash": {
+          "name": "gemini-3.8-flash",
+          "n": 38,
+          "value": 0.9210526315789473,
+          "lower": 0.7920062854222853,
+          "upper": 0.9727854044930122
+        },
+        "gpt-5.4-mini": {
+          "name": "gpt-5.4-mini",
+          "n": 38,
+          "value": 0.7894736842105263,
+          "lower": 0.636542205246726,
+          "upper": 0.8892520815700411
+        },
+        "haiku-frozen": {
+          "name": "haiku-frozen",
+          "n": 38,
+          "value": 0.9210526315789473,
+          "lower": 0.7920062854222853,
+          "upper": 0.9727854044930122
+        },
+        "haiku-first-cascade": {
+          "name": "haiku-first-cascade",
+          "n": 38,
+          "value": 0.9473684210526315,
+          "lower": 0.8271453786822962,
+          "upper": 0.9854457918527075
+        },
+        "council": {
+          "name": "council",
+          "n": 38,
+          "value": 0.8947368421052632,
+          "lower": 0.7586947827711269,
+          "upper": 0.9582974265244647
+        }
+      }
+    },
+    "math": {
+      "judge": "haiku-frozen",
+      "firstHalf": {
+        "jev": {
+          "name": "jev",
+          "n": 10,
+          "value": 0.5,
+          "lower": 0.236593090512564,
+          "upper": 0.7634069094874361
+        },
+        "gemini-3.8-flash": {
+          "name": "gemini-3.8-flash",
+          "n": 10,
+          "value": 0.8,
+          "lower": 0.4901624715366418,
+          "upper": 0.9433178485456248
+        },
+        "gpt-5.4-mini": {
+          "name": "gpt-5.4-mini",
+          "n": 10,
+          "value": 0.7,
+          "lower": 0.39677814746114537,
+          "upper": 0.8922087325936989
+        },
+        "haiku-frozen": {
+          "name": "haiku-frozen",
+          "n": 10,
+          "value": 0.9,
+          "lower": 0.5958499732047615,
+          "upper": 0.9821237869049271
+        },
+        "haiku-first-cascade": {
+          "name": "haiku-first-cascade",
+          "n": 10,
+          "value": 0.9,
+          "lower": 0.5958499732047615,
+          "upper": 0.9821237869049271
+        },
+        "council": {
+          "name": "council",
+          "n": 10,
+          "value": 0.9,
+          "lower": 0.5958499732047615,
+          "upper": 0.9821237869049271
+        }
+      }
+    },
+    "reasoning": {
+      "judge": "haiku-first-cascade",
+      "firstHalf": {
+        "jev": {
+          "name": "jev",
+          "n": 15,
+          "value": 0.5333333333333333,
+          "lower": 0.30116980025498397,
+          "upper": 0.7519046463426261
+        },
+        "gemini-3.8-flash": {
+          "name": "gemini-3.8-flash",
+          "n": 15,
+          "value": 0.8,
+          "lower": 0.5481455128483065,
+          "upper": 0.9295245065301844
+        },
+        "gpt-5.4-mini": {
+          "name": "gpt-5.4-mini",
+          "n": 15,
+          "value": 0.8666666666666667,
+          "lower": 0.6211801716767764,
+          "upper": 0.9626387408969346
+        },
+        "haiku-frozen": {
+          "name": "haiku-frozen",
+          "n": 15,
+          "value": 0.9333333333333333,
+          "lower": 0.7018347012621998,
+          "upper": 0.9881331045067315
+        },
+        "haiku-first-cascade": {
+          "name": "haiku-first-cascade",
+          "n": 15,
+          "value": 1,
+          "lower": 0.7961166989641515,
+          "upper": 1
+        },
+        "council": {
+          "name": "council",
+          "n": 15,
+          "value": 0.9333333333333333,
+          "lower": 0.7018347012621998,
+          "upper": 0.9881331045067315
+        }
+      }
+    }
+  },
+  "secondHalfScores": {
+    "routed": {
+      "summary": {
+        "metric": "accuracy (JudgeBench, both orders)",
+        "value": {
+          "estimate": 0.9056603773584906,
+          "lower": 0.7974627262370373,
+          "upper": 0.9590273585027496
+        },
+        "n": 53,
+        "byGroup": {
+          "knowledge": {
+            "n": 21,
+            "value": 0.7619047619047619
+          },
+          "math": {
+            "n": 2,
+            "value": 1
+          },
+          "reasoning": {
+            "n": 23,
+            "value": 1
+          },
+          "coding": {
+            "n": 7,
+            "value": 1
+          }
+        },
+        "missing": 0,
+        "positionConsistency": 1
+      },
+      "per100": 0.8009355332917508
+    },
+    "jev": {
+      "summary": {
+        "metric": "accuracy (JudgeBench, both orders)",
+        "value": {
+          "estimate": 0.49056603773584906,
+          "lower": 0.3612424984784323,
+          "upper": 0.6211647088532004
+        },
+        "n": 53,
+        "byGroup": {
+          "knowledge": {
+            "n": 21,
+            "value": 0.5714285714285714
+          },
+          "math": {
+            "n": 2,
+            "value": 1
+          },
+          "reasoning": {
+            "n": 23,
+            "value": 0.34782608695652173
+          },
+          "coding": {
+            "n": 7,
+            "value": 0.5714285714285714
+          }
+        },
+        "missing": 0,
+        "positionConsistency": 0.6981132075471698
+      },
+      "per100": 0
+    },
+    "gemini-3.8-flash": {
+      "summary": {
+        "metric": "accuracy (JudgeBench, both orders)",
+        "value": {
+          "estimate": 0.9245283018867925,
+          "lower": 0.8214152251634678,
+          "upper": 0.9702604449130533
+        },
+        "n": 53,
+        "byGroup": {
+          "knowledge": {
+            "n": 21,
+            "value": 0.8571428571428571
+          },
+          "math": {
+            "n": 2,
+            "value": 1
+          },
+          "reasoning": {
+            "n": 23,
+            "value": 0.9565217391304348
+          },
+          "coding": {
+            "n": 7,
+            "value": 1
+          }
+        },
+        "missing": 0,
+        "positionConsistency": 1
+      },
+      "per100": 0.4942816115702475
+    },
+    "gpt-5.4-mini": {
+      "summary": {
+        "metric": "accuracy (JudgeBench, both orders)",
+        "value": {
+          "estimate": 0.8113207547169812,
+          "lower": 0.6864154091329746,
+          "upper": 0.8941467489231409
+        },
+        "n": 53,
+        "byGroup": {
+          "knowledge": {
+            "n": 21,
+            "value": 0.7142857142857143
+          },
+          "math": {
+            "n": 2,
+            "value": 1
+          },
+          "reasoning": {
+            "n": 23,
+            "value": 0.8260869565217391
+          },
+          "coding": {
+            "n": 7,
+            "value": 1
+          }
+        },
+        "missing": 0,
+        "positionConsistency": 1
+      },
+      "per100": 0.7013206611570247
+    },
+    "haiku-frozen": {
+      "summary": {
+        "metric": "accuracy (JudgeBench, both orders)",
+        "value": {
+          "estimate": 0.9056603773584906,
+          "lower": 0.7974627262370373,
+          "upper": 0.9590273585027496
+        },
+        "n": 53,
+        "byGroup": {
+          "knowledge": {
+            "n": 21,
+            "value": 0.7619047619047619
+          },
+          "math": {
+            "n": 2,
+            "value": 1
+          },
+          "reasoning": {
+            "n": 23,
+            "value": 1
+          },
+          "coding": {
+            "n": 7,
+            "value": 1
+          }
+        },
+        "missing": 0,
+        "positionConsistency": 1
+      },
+      "per100": 0.7719890495867774
+    },
+    "haiku-first-cascade": {
+      "summary": {
+        "metric": "accuracy (JudgeBench, both orders)",
+        "value": {
+          "estimate": 0.9056603773584906,
+          "lower": 0.7974627262370373,
+          "upper": 0.9590273585027496
+        },
+        "n": 53,
+        "byGroup": {
+          "knowledge": {
+            "n": 21,
+            "value": 0.7619047619047619
+          },
+          "math": {
+            "n": 2,
+            "value": 1
+          },
+          "reasoning": {
+            "n": 23,
+            "value": 1
+          },
+          "coding": {
+            "n": 7,
+            "value": 1
+          }
+        },
+        "missing": 0,
+        "positionConsistency": 1
+      },
+      "per100": 0.8510371337340351
+    },
+    "council": {
+      "summary": {
+        "metric": "accuracy (JudgeBench, both orders)",
+        "value": {
+          "estimate": 0.9245283018867925,
+          "lower": 0.8214152251634678,
+          "upper": 0.9702604449130533
+        },
+        "n": 53,
+        "byGroup": {
+          "knowledge": {
+            "n": 21,
+            "value": 0.8095238095238095
+          },
+          "math": {
+            "n": 2,
+            "value": 1
+          },
+          "reasoning": {
+            "n": 23,
+            "value": 1
+          },
+          "coding": {
+            "n": 7,
+            "value": 1
+          }
+        },
+        "missing": 0,
+        "positionConsistency": 1
+      },
+      "per100": 1.9675913223140495
+    }
+  }
+}

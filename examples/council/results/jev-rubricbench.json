@@ -1,0 +1,474 @@
+{
+  "bench": "rubricbench",
+  "items": 55,
+  "jevMajority": {
+    "metric": "accuracy (RubricBench, over games)",
+    "value": {
+      "estimate": 0.509090909090909,
+      "lower": 0.4169512043871188,
+      "upper": 0.600617087698369
+    },
+    "n": 55,
+    "byGroup": {
+      "human-preference": {
+        "n": 32,
+        "value": 0.625
+      },
+      "code": {
+        "n": 26,
+        "value": 0.6153846153846154
+      },
+      "general": {
+        "n": 14,
+        "value": 0.5714285714285714
+      },
+      "stem": {
+        "n": 12,
+        "value": 0.5
+      },
+      "mbpp": {
+        "n": 4,
+        "value": 0
+      },
+      "Precise IF": {
+        "n": 6,
+        "value": 0.3333333333333333
+      },
+      "ifeval": {
+        "n": 8,
+        "value": 0
+      },
+      "Math": {
+        "n": 2,
+        "value": 0
+      },
+      "harmlessness": {
+        "n": 2,
+        "value": 0
+      },
+      "math": {
+        "n": 4,
+        "value": 1
+      }
+    },
+    "missing": 0,
+    "positionConsistency": 0.7818181818181819
+  },
+  "perSeat": [
+    {
+      "seat": "jev-ab",
+      "summary": {
+        "metric": "accuracy (RubricBench, over games)",
+        "value": {
+          "estimate": 0.5272727272727272,
+          "lower": 0.43463694346238685,
+          "upper": 0.6180679327940769
+        },
+        "n": 55,
+        "byGroup": {
+          "human-preference": {
+            "n": 32,
+            "value": 0.6875
+          },
+          "code": {
+            "n": 26,
+            "value": 0.6153846153846154
+          },
+          "general": {
+            "n": 14,
+            "value": 0.5714285714285714
+          },
+          "stem": {
+            "n": 12,
+            "value": 0.5
+          },
+          "mbpp": {
+            "n": 4,
+            "value": 0
+          },
+          "Precise IF": {
+            "n": 6,
+            "value": 0.3333333333333333
+          },
+          "ifeval": {
+            "n": 8,
+            "value": 0
+          },
+          "Math": {
+            "n": 2,
+            "value": 0
+          },
+          "harmlessness": {
+            "n": 2,
+            "value": 0
+          },
+          "math": {
+            "n": 4,
+            "value": 1
+          }
+        },
+        "missing": 0,
+        "positionConsistency": 0.8
+      }
+    },
+    {
+      "seat": "jev-ba",
+      "summary": {
+        "metric": "accuracy (RubricBench, over games)",
+        "value": {
+          "estimate": 0.4909090909090909,
+          "lower": 0.39938291230163087,
+          "upper": 0.583048795612881
+        },
+        "n": 55,
+        "byGroup": {
+          "human-preference": {
+            "n": 32,
+            "value": 0.1875
+          },
+          "code": {
+            "n": 26,
+            "value": 0.6923076923076923
+          },
+          "general": {
+            "n": 14,
+            "value": 0.42857142857142855
+          },
+          "stem": {
+            "n": 12,
+            "value": 0.5
+          },
+          "mbpp": {
+            "n": 4,
+            "value": 0.5
+          },
+          "Precise IF": {
+            "n": 6,
+            "value": 0.3333333333333333
+          },
+          "ifeval": {
+            "n": 8,
+            "value": 1
+          },
+          "Math": {
+            "n": 2,
+            "value": 1
+          },
+          "harmlessness": {
+            "n": 2,
+            "value": 1
+          },
+          "math": {
+            "n": 4,
+            "value": 0.5
+          }
+        },
+        "missing": 0,
+        "positionConsistency": 0.7818181818181819
+      }
+    },
+    {
+      "seat": "jev-ab-prefer",
+      "summary": {
+        "metric": "accuracy (RubricBench, over games)",
+        "value": {
+          "estimate": 0.4909090909090909,
+          "lower": 0.39938291230163087,
+          "upper": 0.583048795612881
+        },
+        "n": 55,
+        "byGroup": {
+          "human-preference": {
+            "n": 32,
+            "value": 0.625
+          },
+          "code": {
+            "n": 26,
+            "value": 0.6153846153846154
+          },
+          "general": {
+            "n": 14,
+            "value": 0.5714285714285714
+          },
+          "stem": {
+            "n": 12,
+            "value": 0.3333333333333333
+          },
+          "mbpp": {
+            "n": 4,
+            "value": 0
+          },
+          "Precise IF": {
+            "n": 6,
+            "value": 0.3333333333333333
+          },
+          "ifeval": {
+            "n": 8,
+            "value": 0
+          },
+          "Math": {
+            "n": 2,
+            "value": 0
+          },
+          "harmlessness": {
+            "n": 2,
+            "value": 0
+          },
+          "math": {
+            "n": 4,
+            "value": 1
+          }
+        },
+        "missing": 0,
+        "positionConsistency": 0.8
+      }
+    }
+  ],
+  "stats": {
+    "calls": 165,
+    "replayed": 0,
+    "inputTokens": 369720,
+    "outputTokens": 3465,
+    "ms": 41777
+  },
+  "minutes": 0.23448333333333332,
+  "sides": {
+    "rubric_eval_906": "B",
+    "rubric_eval_911": "B",
+    "rubric_eval_972": "B",
+    "rubric_eval_973": "tie",
+    "rubric_eval_643": "B",
+    "rubric_eval_644": "B",
+    "rubric_eval_646": "B",
+    "rubric_eval_655": "B",
+    "rubric_eval_656": "B",
+    "rubric_eval_658": "A",
+    "rubric_eval_818": "tie",
+    "rubric_eval_844": "B",
+    "rubric_eval_871": "B",
+    "rubric_eval_887": "B",
+    "rubric_eval_1051": "B",
+    "rubric_eval_1090": "B",
+    "rubric_eval_1091": "A",
+    "rubric_eval_215": "tie",
+    "rubric_eval_234": "tie",
+    "rubric_eval_244": "B",
+    "rubric_eval_245": "tie",
+    "rubric_eval_257": "B",
+    "rubric_eval_263": "B",
+    "rubric_eval_295": "B",
+    "rubric_eval_405": "tie",
+    "rubric_eval_424": "B",
+    "rubric_eval_436": "A",
+    "rubric_eval_442": "A",
+    "rubric_eval_458": "tie",
+    "rubric_eval_474": "tie",
+    "rubric_eval_484": "B",
+    "rubric_eval_311": "B",
+    "rubric_eval_329": "A",
+    "rubric_eval_336": "B",
+    "rubric_eval_342": "B",
+    "rubric_eval_2": "B",
+    "rubric_eval_43": "A",
+    "rubric_eval_83": "B",
+    "rubric_eval_1135": "B",
+    "rubric_eval_505": "B",
+    "rubric_eval_530": "B",
+    "rubric_eval_556": "tie",
+    "rubric_eval_559": "B",
+    "rubric_eval_130": "B",
+    "rubric_eval_131": "tie",
+    "rubric_eval_176": "B",
+    "rubric_eval_181": "B",
+    "rubric_eval_188": "B",
+    "rubric_eval_191": "A",
+    "rubric_eval_199": "tie",
+    "rubric_eval_711": "B",
+    "rubric_eval_735": "B",
+    "rubric_eval_746": "B",
+    "rubric_eval_776": "tie",
+    "rubric_eval_790": "B"
+  },
+  "seatSides": [
+    {
+      "seat": "jev-ab",
+      "sides": {
+        "rubric_eval_906": "B",
+        "rubric_eval_911": "B",
+        "rubric_eval_972": "B",
+        "rubric_eval_973": "tie",
+        "rubric_eval_643": "B",
+        "rubric_eval_644": "B",
+        "rubric_eval_646": "B",
+        "rubric_eval_655": "B",
+        "rubric_eval_656": "B",
+        "rubric_eval_658": "A",
+        "rubric_eval_818": "tie",
+        "rubric_eval_844": "B",
+        "rubric_eval_871": "B",
+        "rubric_eval_887": "B",
+        "rubric_eval_1051": "B",
+        "rubric_eval_1090": "B",
+        "rubric_eval_1091": "A",
+        "rubric_eval_215": "tie",
+        "rubric_eval_234": "tie",
+        "rubric_eval_244": "B",
+        "rubric_eval_245": "tie",
+        "rubric_eval_257": "B",
+        "rubric_eval_263": "B",
+        "rubric_eval_295": "B",
+        "rubric_eval_405": "tie",
+        "rubric_eval_424": "B",
+        "rubric_eval_436": "A",
+        "rubric_eval_442": "A",
+        "rubric_eval_458": "tie",
+        "rubric_eval_474": "tie",
+        "rubric_eval_484": "B",
+        "rubric_eval_311": "B",
+        "rubric_eval_329": "A",
+        "rubric_eval_336": "B",
+        "rubric_eval_342": "B",
+        "rubric_eval_2": "B",
+        "rubric_eval_43": "A",
+        "rubric_eval_83": "B",
+        "rubric_eval_1135": "B",
+        "rubric_eval_505": "B",
+        "rubric_eval_530": "B",
+        "rubric_eval_556": "tie",
+        "rubric_eval_559": "B",
+        "rubric_eval_130": "B",
+        "rubric_eval_131": "tie",
+        "rubric_eval_176": "B",
+        "rubric_eval_181": "B",
+        "rubric_eval_188": "B",
+        "rubric_eval_191": "A",
+        "rubric_eval_199": "tie",
+        "rubric_eval_711": "B",
+        "rubric_eval_735": "B",
+        "rubric_eval_746": "B",
+        "rubric_eval_776": "B",
+        "rubric_eval_790": "B"
+      }
+    },
+    {
+      "seat": "jev-ba",
+      "sides": {
+        "rubric_eval_906": "B",
+        "rubric_eval_911": "B",
+        "rubric_eval_972": "tie",
+        "rubric_eval_973": "A",
+        "rubric_eval_643": "A",
+        "rubric_eval_644": "A",
+        "rubric_eval_646": "tie",
+        "rubric_eval_655": "B",
+        "rubric_eval_656": "A",
+        "rubric_eval_658": "A",
+        "rubric_eval_818": "A",
+        "rubric_eval_844": "tie",
+        "rubric_eval_871": "A",
+        "rubric_eval_887": "A",
+        "rubric_eval_1051": "tie",
+        "rubric_eval_1090": "A",
+        "rubric_eval_1091": "A",
+        "rubric_eval_215": "A",
+        "rubric_eval_234": "A",
+        "rubric_eval_244": "A",
+        "rubric_eval_245": "B",
+        "rubric_eval_257": "A",
+        "rubric_eval_263": "tie",
+        "rubric_eval_295": "B",
+        "rubric_eval_405": "A",
+        "rubric_eval_424": "tie",
+        "rubric_eval_436": "A",
+        "rubric_eval_442": "tie",
+        "rubric_eval_458": "A",
+        "rubric_eval_474": "tie",
+        "rubric_eval_484": "A",
+        "rubric_eval_311": "A",
+        "rubric_eval_329": "A",
+        "rubric_eval_336": "A",
+        "rubric_eval_342": "A",
+        "rubric_eval_2": "B",
+        "rubric_eval_43": "A",
+        "rubric_eval_83": "A",
+        "rubric_eval_1135": "B",
+        "rubric_eval_505": "A",
+        "rubric_eval_530": "A",
+        "rubric_eval_556": "A",
+        "rubric_eval_559": "A",
+        "rubric_eval_130": "B",
+        "rubric_eval_131": "A",
+        "rubric_eval_176": "tie",
+        "rubric_eval_181": "tie",
+        "rubric_eval_188": "tie",
+        "rubric_eval_191": "A",
+        "rubric_eval_199": "tie",
+        "rubric_eval_711": "B",
+        "rubric_eval_735": "A",
+        "rubric_eval_746": "A",
+        "rubric_eval_776": "A",
+        "rubric_eval_790": "A"
+      }
+    },
+    {
+      "seat": "jev-ab-prefer",
+      "sides": {
+        "rubric_eval_906": "B",
+        "rubric_eval_911": "B",
+        "rubric_eval_972": "B",
+        "rubric_eval_973": "tie",
+        "rubric_eval_643": "B",
+        "rubric_eval_644": "B",
+        "rubric_eval_646": "B",
+        "rubric_eval_655": "B",
+        "rubric_eval_656": "B",
+        "rubric_eval_658": "A",
+        "rubric_eval_818": "tie",
+        "rubric_eval_844": "B",
+        "rubric_eval_871": "B",
+        "rubric_eval_887": "B",
+        "rubric_eval_1051": "B",
+        "rubric_eval_1090": "B",
+        "rubric_eval_1091": "A",
+        "rubric_eval_215": "B",
+        "rubric_eval_234": "tie",
+        "rubric_eval_244": "B",
+        "rubric_eval_245": "tie",
+        "rubric_eval_257": "B",
+        "rubric_eval_263": "B",
+        "rubric_eval_295": "B",
+        "rubric_eval_405": "tie",
+        "rubric_eval_424": "B",
+        "rubric_eval_436": "A",
+        "rubric_eval_442": "A",
+        "rubric_eval_458": "tie",
+        "rubric_eval_474": "tie",
+        "rubric_eval_484": "B",
+        "rubric_eval_311": "B",
+        "rubric_eval_329": "A",
+        "rubric_eval_336": "B",
+        "rubric_eval_342": "B",
+        "rubric_eval_2": "B",
+        "rubric_eval_43": "A",
+        "rubric_eval_83": "B",
+        "rubric_eval_1135": "B",
+        "rubric_eval_505": "B",
+        "rubric_eval_530": "B",
+        "rubric_eval_556": "B",
+        "rubric_eval_559": "B",
+        "rubric_eval_130": "B",
+        "rubric_eval_131": "tie",
+        "rubric_eval_176": "B",
+        "rubric_eval_181": "B",
+        "rubric_eval_188": "B",
+        "rubric_eval_191": "tie",
+        "rubric_eval_199": "tie",
+        "rubric_eval_711": "B",
+        "rubric_eval_735": "B",
+        "rubric_eval_746": "B",
+        "rubric_eval_776": "tie",
+        "rubric_eval_790": "B"
+      }
+    }
+  ]
+}

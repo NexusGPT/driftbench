@@ -1,0 +1,69 @@
+{
+  "inconsistent": 8,
+  "contested": 47,
+  "inconsistentOnly": {
+    "routed": 8,
+    "correct": 112,
+    "summary": {
+      "estimate": 0.9256198347107438,
+      "lower": 0.8646691146497353,
+      "upper": 0.9603773160230725
+    },
+    "decidedOrTriedBySystem1": 2,
+    "fixes": 1,
+    "breaks": 0,
+    "changes": [
+      {
+        "id": "82a6f9e6-aa7f-5380-8503-2227e0455f1e",
+        "from": "tie",
+        "to": "B",
+        "label": "A"
+      },
+      {
+        "id": "a243b087-e171-511c-8d4c-e1f1fadad9d1",
+        "from": "tie",
+        "to": "B",
+        "label": "B"
+      }
+    ]
+  },
+  "contestedOnly": {
+    "routed": 47,
+    "correct": 111,
+    "summary": {
+      "estimate": 0.9173553719008265,
+      "lower": 0.854535161068024,
+      "upper": 0.9544909505625935
+    },
+    "decidedOrTriedBySystem1": 0,
+    "fixes": 0,
+    "breaks": 0,
+    "changes": []
+  },
+  "inconsistentOrContested": {
+    "routed": 53,
+    "correct": 112,
+    "summary": {
+      "estimate": 0.9256198347107438,
+      "lower": 0.8646691146497353,
+      "upper": 0.9603773160230725
+    },
+    "decidedOrTriedBySystem1": 2,
+    "fixes": 1,
+    "breaks": 0,
+    "changes": [
+      {
+        "id": "82a6f9e6-aa7f-5380-8503-2227e0455f1e",
+        "from": "tie",
+        "to": "B",
+        "label": "A"
+      },
+      {
+        "id": "a243b087-e171-511c-8d4c-e1f1fadad9d1",
+        "from": "tie",
+        "to": "B",
+        "label": "B"
+      }
+    ]
+  }
+}

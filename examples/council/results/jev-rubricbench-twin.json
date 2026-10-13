@@ -1,0 +1,474 @@
+{
+  "bench": "rubricbench",
+  "items": 55,
+  "jevMajority": {
+    "metric": "accuracy (RubricBench, over games)",
+    "value": {
+      "estimate": 0.509090909090909,
+      "lower": 0.4169512043871188,
+      "upper": 0.600617087698369
+    },
+    "n": 55,
+    "byGroup": {
+      "human-preference": {
+        "n": 32,
+        "value": 0.625
+      },
+      "code": {
+        "n": 26,
+        "value": 0.6153846153846154
+      },
+      "general": {
+        "n": 14,
+        "value": 0.5714285714285714
+      },
+      "stem": {
+        "n": 12,
+        "value": 0.5
+      },
+      "mbpp": {
+        "n": 4,
+        "value": 0
+      },
+      "Precise IF": {
+        "n": 6,
+        "value": 0.3333333333333333
+      },
+      "ifeval": {
+        "n": 8,
+        "value": 0
+      },
+      "Math": {
+        "n": 2,
+        "value": 0
+      },
+      "harmlessness": {
+        "n": 2,
+        "value": 0
+      },
+      "math": {
+        "n": 4,
+        "value": 1
+      }
+    },
+    "missing": 0,
+    "positionConsistency": 0.7818181818181819
+  },
+  "perSeat": [
+    {
+      "seat": "jev-ab",
+      "summary": {
+        "metric": "accuracy (RubricBench, over games)",
+        "value": {
+          "estimate": 0.5272727272727272,
+          "lower": 0.43463694346238685,
+          "upper": 0.6180679327940769
+        },
+        "n": 55,
+        "byGroup": {
+          "human-preference": {
+            "n": 32,
+            "value": 0.6875
+          },
+          "code": {
+            "n": 26,
+            "value": 0.6153846153846154
+          },
+          "general": {
+            "n": 14,
+            "value": 0.5714285714285714
+          },
+          "stem": {
+            "n": 12,
+            "value": 0.5
+          },
+          "mbpp": {
+            "n": 4,
+            "value": 0
+          },
+          "Precise IF": {
+            "n": 6,
+            "value": 0.3333333333333333
+          },
+          "ifeval": {
+            "n": 8,
+            "value": 0
+          },
+          "Math": {
+            "n": 2,
+            "value": 0
+          },
+          "harmlessness": {
+            "n": 2,
+            "value": 0
+          },
+          "math": {
+            "n": 4,
+            "value": 1
+          }
+        },
+        "missing": 0,
+        "positionConsistency": 0.8181818181818182
+      }
+    },
+    {
+      "seat": "jev-ba",
+      "summary": {
+        "metric": "accuracy (RubricBench, over games)",
+        "value": {
+          "estimate": 0.4909090909090909,
+          "lower": 0.39938291230163087,
+          "upper": 0.583048795612881
+        },
+        "n": 55,
+        "byGroup": {
+          "human-preference": {
+            "n": 32,
+            "value": 0.25
+          },
+          "code": {
+            "n": 26,
+            "value": 0.6153846153846154
+          },
+          "general": {
+            "n": 14,
+            "value": 0.42857142857142855
+          },
+          "stem": {
+            "n": 12,
+            "value": 0.5
+          },
+          "mbpp": {
+            "n": 4,
+            "value": 0.5
+          },
+          "Precise IF": {
+            "n": 6,
+            "value": 0.3333333333333333
+          },
+          "ifeval": {
+            "n": 8,
+            "value": 1
+          },
+          "Math": {
+            "n": 2,
+            "value": 1
+          },
+          "harmlessness": {
+            "n": 2,
+            "value": 1
+          },
+          "math": {
+            "n": 4,
+            "value": 0.5
+          }
+        },
+        "missing": 0,
+        "positionConsistency": 0.8
+      }
+    },
+    {
+      "seat": "jev-ab-prefer",
+      "summary": {
+        "metric": "accuracy (RubricBench, over games)",
+        "value": {
+          "estimate": 0.4909090909090909,
+          "lower": 0.39938291230163087,
+          "upper": 0.583048795612881
+        },
+        "n": 55,
+        "byGroup": {
+          "human-preference": {
+            "n": 32,
+            "value": 0.625
+          },
+          "code": {
+            "n": 26,
+            "value": 0.6153846153846154
+          },
+          "general": {
+            "n": 14,
+            "value": 0.5714285714285714
+          },
+          "stem": {
+            "n": 12,
+            "value": 0.3333333333333333
+          },
+          "mbpp": {
+            "n": 4,
+            "value": 0
+          },
+          "Precise IF": {
+            "n": 6,
+            "value": 0.3333333333333333
+          },
+          "ifeval": {
+            "n": 8,
+            "value": 0
+          },
+          "Math": {
+            "n": 2,
+            "value": 0
+          },
+          "harmlessness": {
+            "n": 2,
+            "value": 0
+          },
+          "math": {
+            "n": 4,
+            "value": 1
+          }
+        },
+        "missing": 0,
+        "positionConsistency": 0.8
+      }
+    }
+  ],
+  "stats": {
+    "calls": 126,
+    "replayed": 39,
+    "inputTokens": 271365,
+    "outputTokens": 2646,
+    "ms": 32619
+  },
+  "minutes": 0.18663333333333335,
+  "sides": {
+    "rubric_eval_906#plain": "B",
+    "rubric_eval_911#plain": "B",
+    "rubric_eval_972#plain": "B",
+    "rubric_eval_973#plain": "tie",
+    "rubric_eval_643#plain": "B",
+    "rubric_eval_644#plain": "B",
+    "rubric_eval_646#plain": "B",
+    "rubric_eval_655#plain": "B",
+    "rubric_eval_656#plain": "B",
+    "rubric_eval_658#plain": "A",
+    "rubric_eval_818#plain": "tie",
+    "rubric_eval_844#plain": "B",
+    "rubric_eval_871#plain": "B",
+    "rubric_eval_887#plain": "B",
+    "rubric_eval_1051#plain": "B",
+    "rubric_eval_1090#plain": "B",
+    "rubric_eval_1091#plain": "A",
+    "rubric_eval_215#plain": "tie",
+    "rubric_eval_234#plain": "tie",
+    "rubric_eval_244#plain": "B",
+    "rubric_eval_245#plain": "tie",
+    "rubric_eval_257#plain": "B",
+    "rubric_eval_263#plain": "B",
+    "rubric_eval_295#plain": "B",
+    "rubric_eval_405#plain": "tie",
+    "rubric_eval_424#plain": "B",
+    "rubric_eval_436#plain": "A",
+    "rubric_eval_442#plain": "A",
+    "rubric_eval_458#plain": "tie",
+    "rubric_eval_474#plain": "tie",
+    "rubric_eval_484#plain": "B",
+    "rubric_eval_311#plain": "B",
+    "rubric_eval_329#plain": "A",
+    "rubric_eval_336#plain": "B",
+    "rubric_eval_342#plain": "B",
+    "rubric_eval_2#plain": "B",
+    "rubric_eval_43#plain": "A",
+    "rubric_eval_83#plain": "B",
+    "rubric_eval_1135#plain": "B",
+    "rubric_eval_505#plain": "B",
+    "rubric_eval_530#plain": "B",
+    "rubric_eval_556#plain": "tie",
+    "rubric_eval_559#plain": "B",
+    "rubric_eval_130#plain": "B",
+    "rubric_eval_131#plain": "tie",
+    "rubric_eval_176#plain": "B",
+    "rubric_eval_181#plain": "B",
+    "rubric_eval_188#plain": "B",
+    "rubric_eval_191#plain": "A",
+    "rubric_eval_199#plain": "tie",
+    "rubric_eval_711#plain": "B",
+    "rubric_eval_735#plain": "B",
+    "rubric_eval_746#plain": "B",
+    "rubric_eval_776#plain": "tie",
+    "rubric_eval_790#plain": "B"
+  },
+  "seatSides": [
+    {
+      "seat": "jev-ab",
+      "sides": {
+        "rubric_eval_906#plain": "B",
+        "rubric_eval_911#plain": "B",
+        "rubric_eval_972#plain": "B",
+        "rubric_eval_973#plain": "tie",
+        "rubric_eval_643#plain": "B",
+        "rubric_eval_644#plain": "B",
+        "rubric_eval_646#plain": "B",
+        "rubric_eval_655#plain": "B",
+        "rubric_eval_656#plain": "B",
+        "rubric_eval_658#plain": "A",
+        "rubric_eval_818#plain": "tie",
+        "rubric_eval_844#plain": "B",
+        "rubric_eval_871#plain": "B",
+        "rubric_eval_887#plain": "B",
+        "rubric_eval_1051#plain": "B",
+        "rubric_eval_1090#plain": "B",
+        "rubric_eval_1091#plain": "A",
+        "rubric_eval_215#plain": "tie",
+        "rubric_eval_234#plain": "tie",
+        "rubric_eval_244#plain": "B",
+        "rubric_eval_245#plain": "tie",
+        "rubric_eval_257#plain": "B",
+        "rubric_eval_263#plain": "B",
+        "rubric_eval_295#plain": "B",
+        "rubric_eval_405#plain": "tie",
+        "rubric_eval_424#plain": "B",
+        "rubric_eval_436#plain": "A",
+        "rubric_eval_442#plain": "A",
+        "rubric_eval_458#plain": "tie",
+        "rubric_eval_474#plain": "tie",
+        "rubric_eval_484#plain": "B",
+        "rubric_eval_311#plain": "B",
+        "rubric_eval_329#plain": "A",
+        "rubric_eval_336#plain": "B",
+        "rubric_eval_342#plain": "B",
+        "rubric_eval_2#plain": "B",
+        "rubric_eval_43#plain": "A",
+        "rubric_eval_83#plain": "B",
+        "rubric_eval_1135#plain": "B",
+        "rubric_eval_505#plain": "B",
+        "rubric_eval_530#plain": "B",
+        "rubric_eval_556#plain": "tie",
+        "rubric_eval_559#plain": "B",
+        "rubric_eval_130#plain": "B",
+        "rubric_eval_131#plain": "tie",
+        "rubric_eval_176#plain": "B",
+        "rubric_eval_181#plain": "B",
+        "rubric_eval_188#plain": "B",
+        "rubric_eval_191#plain": "A",
+        "rubric_eval_199#plain": "B",
+        "rubric_eval_711#plain": "B",
+        "rubric_eval_735#plain": "B",
+        "rubric_eval_746#plain": "B",
+        "rubric_eval_776#plain": "B",
+        "rubric_eval_790#plain": "B"
+      }
+    },
+    {
+      "seat": "jev-ba",
+      "sides": {
+        "rubric_eval_906#plain": "B",
+        "rubric_eval_911#plain": "B",
+        "rubric_eval_972#plain": "tie",
+        "rubric_eval_973#plain": "A",
+        "rubric_eval_643#plain": "A",
+        "rubric_eval_644#plain": "A",
+        "rubric_eval_646#plain": "B",
+        "rubric_eval_655#plain": "B",
+        "rubric_eval_656#plain": "A",
+        "rubric_eval_658#plain": "A",
+        "rubric_eval_818#plain": "A",
+        "rubric_eval_844#plain": "B",
+        "rubric_eval_871#plain": "A",
+        "rubric_eval_887#plain": "A",
+        "rubric_eval_1051#plain": "tie",
+        "rubric_eval_1090#plain": "A",
+        "rubric_eval_1091#plain": "A",
+        "rubric_eval_215#plain": "A",
+        "rubric_eval_234#plain": "A",
+        "rubric_eval_244#plain": "A",
+        "rubric_eval_245#plain": "B",
+        "rubric_eval_257#plain": "A",
+        "rubric_eval_263#plain": "tie",
+        "rubric_eval_295#plain": "B",
+        "rubric_eval_405#plain": "A",
+        "rubric_eval_424#plain": "tie",
+        "rubric_eval_436#plain": "A",
+        "rubric_eval_442#plain": "tie",
+        "rubric_eval_458#plain": "A",
+        "rubric_eval_474#plain": "tie",
+        "rubric_eval_484#plain": "A",
+        "rubric_eval_311#plain": "A",
+        "rubric_eval_329#plain": "A",
+        "rubric_eval_336#plain": "A",
+        "rubric_eval_342#plain": "A",
+        "rubric_eval_2#plain": "B",
+        "rubric_eval_43#plain": "A",
+        "rubric_eval_83#plain": "A",
+        "rubric_eval_1135#plain": "B",
+        "rubric_eval_505#plain": "A",
+        "rubric_eval_530#plain": "A",
+        "rubric_eval_556#plain": "A",
+        "rubric_eval_559#plain": "A",
+        "rubric_eval_130#plain": "B",
+        "rubric_eval_131#plain": "A",
+        "rubric_eval_176#plain": "tie",
+        "rubric_eval_181#plain": "tie",
+        "rubric_eval_188#plain": "tie",
+        "rubric_eval_191#plain": "A",
+        "rubric_eval_199#plain": "tie",
+        "rubric_eval_711#plain": "B",
+        "rubric_eval_735#plain": "A",
+        "rubric_eval_746#plain": "tie",
+        "rubric_eval_776#plain": "A",
+        "rubric_eval_790#plain": "A"
+      }
+    },
+    {
+      "seat": "jev-ab-prefer",
+      "sides": {
+        "rubric_eval_906#plain": "B",
+        "rubric_eval_911#plain": "B",
+        "rubric_eval_972#plain": "B",
+        "rubric_eval_973#plain": "tie",
+        "rubric_eval_643#plain": "B",
+        "rubric_eval_644#plain": "B",
+        "rubric_eval_646#plain": "B",
+        "rubric_eval_655#plain": "B",
+        "rubric_eval_656#plain": "B",
+        "rubric_eval_658#plain": "A",
+        "rubric_eval_818#plain": "tie",
+        "rubric_eval_844#plain": "B",
+        "rubric_eval_871#plain": "B",
+        "rubric_eval_887#plain": "B",
+        "rubric_eval_1051#plain": "B",
+        "rubric_eval_1090#plain": "B",
+        "rubric_eval_1091#plain": "A",
+        "rubric_eval_215#plain": "B",
+        "rubric_eval_234#plain": "tie",
+        "rubric_eval_244#plain": "B",
+        "rubric_eval_245#plain": "tie",
+        "rubric_eval_257#plain": "B",
+        "rubric_eval_263#plain": "B",
+        "rubric_eval_295#plain": "B",
+        "rubric_eval_405#plain": "tie",
+        "rubric_eval_424#plain": "B",
+        "rubric_eval_436#plain": "A",
+        "rubric_eval_442#plain": "A",
+        "rubric_eval_458#plain": "tie",
+        "rubric_eval_474#plain": "tie",
+        "rubric_eval_484#plain": "B",
+        "rubric_eval_311#plain": "B",
+        "rubric_eval_329#plain": "A",
+        "rubric_eval_336#plain": "B",
+        "rubric_eval_342#plain": "B",
+        "rubric_eval_2#plain": "B",
+        "rubric_eval_43#plain": "A",
+        "rubric_eval_83#plain": "B",
+        "rubric_eval_1135#plain": "B",
+        "rubric_eval_505#plain": "B",
+        "rubric_eval_530#plain": "B",
+        "rubric_eval_556#plain": "B",
+        "rubric_eval_559#plain": "B",
+        "rubric_eval_130#plain": "B",
+        "rubric_eval_131#plain": "tie",
+        "rubric_eval_176#plain": "B",
+        "rubric_eval_181#plain": "B",
+        "rubric_eval_188#plain": "B",
+        "rubric_eval_191#plain": "tie",
+        "rubric_eval_199#plain": "tie",
+        "rubric_eval_711#plain": "B",
+        "rubric_eval_735#plain": "B",
+        "rubric_eval_746#plain": "B",
+        "rubric_eval_776#plain": "tie",
+        "rubric_eval_790#plain": "B"
+      }
+    }
+  ]
+}

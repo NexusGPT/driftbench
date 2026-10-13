@@ -1,0 +1,131 @@
+{
+  "bench": "mmeval",
+  "model": "haiku",
+  "items": 400,
+  "contestants": [
+    {
+      "contestant": "driftbench",
+      "source": "packages/judges/src/prompt.ts and pairwise.ts (this repository)",
+      "mode": "pairwise, both orders",
+      "summary": {
+        "metric": "accuracy (MM-Eval: mean of the five subsets, tie 0.5)",
+        "value": {
+          "estimate": 0.6311705929255599,
+          "lower": 0.603755670508422,
+          "upper": 0.6585855153426977
+        },
+        "n": 400,
+        "byGroup": {
+          "reasoning": {
+            "n": 151,
+            "value": 0.6225165562913906
+          },
+          "chat": {
+            "n": 37,
+            "value": 0.5945945945945946
+          },
+          "linguistics": {
+            "n": 35,
+            "value": 0.7142857142857143
+          },
+          "language mixing": {
+            "n": 99,
+            "value": 0.6186868686868687
+          },
+          "safety": {
+            "n": 78,
+            "value": 0.6057692307692308
+          }
+        },
+        "missing": 542,
+        "positionConsistency": 0.275
+      },
+      "costUsd": 0.17927116000000007,
+      "calls": 258
+    },
+    {
+      "contestant": "deepeval",
+      "source": "DeepEval 4598fe8: ArenaGEval (pairs) and GEval (single responses)",
+      "mode": "pairwise, both orders",
+      "summary": {
+        "metric": "accuracy (MM-Eval: mean of the five subsets, tie 0.5)",
+        "value": {
+          "estimate": 0.6429749937034706,
+          "lower": 0.6124611314175019,
+          "upper": 0.6734888559894392
+        },
+        "n": 400,
+        "byGroup": {
+          "reasoning": {
+            "n": 151,
+            "value": 0.6357615894039736
+          },
+          "chat": {
+            "n": 37,
+            "value": 0.6351351351351351
+          },
+          "linguistics": {
+            "n": 35,
+            "value": 0.7
+          },
+          "language mixing": {
+            "n": 99,
+            "value": 0.6414141414141411
+          },
+          "safety": {
+            "n": 78,
+            "value": 0.6025641025641028
+          }
+        },
+        "missing": 544,
+        "positionConsistency": 0.3075
+      },
+      "costUsd": 0.23652400000000004,
+      "calls": 257
+    },
+    {
+      "contestant": "promptfoo",
+      "source": "promptfoo 8014282: select-best (pairs) and llm-rubric (single responses)",
+      "mode": "pairwise, both orders",
+      "summary": {
+        "metric": "accuracy (MM-Eval: mean of the five subsets, tie 0.5)",
+        "value": {
+          "estimate": 0.6275152232768126,
+          "lower": 0.5992540935442213,
+          "upper": 0.655776353009404
+        },
+        "n": 400,
+        "byGroup": {
+          "reasoning": {
+            "n": 151,
+            "value": 0.6192052980132446
+          },
+          "chat": {
+            "n": 37,
+            "value": 0.5945945945945947
+          },
+          "linguistics": {
+            "n": 35,
+            "value": 0.6999999999999998
+          },
+          "language mixing": {
+            "n": 99,
+            "value": 0.6212121212121211
+          },
+          "safety": {
+            "n": 78,
+            "value": 0.6025641025641028
+          }
+        },
+        "missing": 544,
+        "positionConsistency": 0.2725
+      },
+      "costUsd": 0.11749531999999994,
+      "calls": 256
+    }
+  ],
+  "newSpendUsd": 0,
+  "newCalls": 0,
+  "replayed": 771,
+  "failedCalls": 1630
+}

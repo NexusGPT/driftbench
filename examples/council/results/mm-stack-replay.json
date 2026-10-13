@@ -1,0 +1,76 @@
+{
+  "designs": {
+    "frozen": {
+      "total": 89.65,
+      "vsFrozen": 0.0,
+      "paired95": [
+        0.0,
+        0.0
+      ],
+      "wins": 0,
+      "losses": 0,
+      "bySubset": {
+        "chat": 70.27,
+        "language mixing": 99.24,
+        "linguistics": 94.29,
+        "reasoning": 95.03,
+        "safety": 89.42
+      }
+    },
+    "cascade": {
+      "total": 91.16,
+      "vsFrozen": 1.51,
+      "paired95": [
+        0.11,
+        3.11
+      ],
+      "wins": 11,
+      "losses": 4,
+      "bySubset": {
+        "chat": 70.27,
+        "language mixing": 99.49,
+        "linguistics": 98.57,
+        "reasoning": 94.54,
+        "safety": 92.95
+      }
+    },
+    "harm+fusion": {
+      "total": 90.97,
+      "vsFrozen": 1.32,
+      "paired95": [
+        0.23,
+        2.57
+      ],
+      "wins": 12,
+      "losses": 4,
+      "bySubset": {
+        "chat": 71.62,
+        "language mixing": 99.24,
+        "linguistics": 95.0,
+        "reasoning": 96.03,
+        "safety": 92.95
+      }
+    },
+    "stack": {
+      "total": 91.58,
+      "vsFrozen": 1.93,
+      "paired95": [
+        0.4,
+        3.57
+      ],
+      "wins": 13,
+      "losses": 6,
+      "bySubset": {
+        "chat": 70.27,
+        "language mixing": 99.49,
+        "linguistics": 98.57,
+        "reasoning": 94.04,
+        "safety": 95.51
+      }
+    }
+  },
+  "fired": {
+    "harmGate": 67,
+    "pointwiseParsed": 793
+  }
+}

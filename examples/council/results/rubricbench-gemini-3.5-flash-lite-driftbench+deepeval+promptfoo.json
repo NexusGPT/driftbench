@@ -1,0 +1,191 @@
+{
+  "bench": "rubricbench",
+  "model": "gemini-3.5-flash-lite",
+  "items": 55,
+  "contestants": [
+    {
+      "contestant": "driftbench",
+      "source": "packages/judges/src/prompt.ts and pairwise.ts (this repository)",
+      "mode": "pairwise, both orders",
+      "summary": {
+        "metric": "accuracy (RubricBench, over games)",
+        "value": {
+          "estimate": 0.4636363636363636,
+          "lower": 0.37325081079079014,
+          "upper": 0.556476020867258
+        },
+        "n": 55,
+        "byGroup": {
+          "human-preference": {
+            "n": 32,
+            "value": 0.5625
+          },
+          "code": {
+            "n": 26,
+            "value": 0.46153846153846156
+          },
+          "general": {
+            "n": 14,
+            "value": 0.5
+          },
+          "stem": {
+            "n": 12,
+            "value": 0.4166666666666667
+          },
+          "mbpp": {
+            "n": 4,
+            "value": 0.5
+          },
+          "Precise IF": {
+            "n": 6,
+            "value": 0.3333333333333333
+          },
+          "ifeval": {
+            "n": 8,
+            "value": 0.25
+          },
+          "Math": {
+            "n": 2,
+            "value": 0.5
+          },
+          "harmlessness": {
+            "n": 2,
+            "value": 0.5
+          },
+          "math": {
+            "n": 4,
+            "value": 0.25
+          }
+        },
+        "missing": 0,
+        "positionConsistency": 0.34545454545454546
+      },
+      "costUsd": 0.08090910000000001,
+      "calls": 110
+    },
+    {
+      "contestant": "deepeval",
+      "source": "DeepEval 4598fe8: ArenaGEval (pairs) and GEval (single responses)",
+      "mode": "pairwise, both orders",
+      "summary": {
+        "metric": "accuracy (RubricBench, over games)",
+        "value": {
+          "estimate": 0.6181818181818182,
+          "lower": 0.5248597632248548,
+          "upper": 0.7035280338864882
+        },
+        "n": 55,
+        "byGroup": {
+          "human-preference": {
+            "n": 32,
+            "value": 0.65625
+          },
+          "code": {
+            "n": 26,
+            "value": 0.6923076923076922
+          },
+          "general": {
+            "n": 14,
+            "value": 0.6428571428571429
+          },
+          "stem": {
+            "n": 12,
+            "value": 0.5833333333333334
+          },
+          "mbpp": {
+            "n": 4,
+            "value": 0.25
+          },
+          "Precise IF": {
+            "n": 6,
+            "value": 0.5
+          },
+          "ifeval": {
+            "n": 8,
+            "value": 0.5
+          },
+          "Math": {
+            "n": 2,
+            "value": 0.5
+          },
+          "harmlessness": {
+            "n": 2,
+            "value": 1
+          },
+          "math": {
+            "n": 4,
+            "value": 0.5
+          }
+        },
+        "missing": 0,
+        "positionConsistency": 0.6727272727272727
+      },
+      "costUsd": 0.1170022,
+      "calls": 165
+    },
+    {
+      "contestant": "promptfoo",
+      "source": "promptfoo 8014282: select-best (pairs) and llm-rubric (single responses)",
+      "mode": "pairwise, both orders",
+      "summary": {
+        "metric": "accuracy (RubricBench, over games)",
+        "value": {
+          "estimate": 0.5272727272727272,
+          "lower": 0.43463694346238685,
+          "upper": 0.6180679327940769
+        },
+        "n": 55,
+        "byGroup": {
+          "human-preference": {
+            "n": 32,
+            "value": 0.53125
+          },
+          "code": {
+            "n": 26,
+            "value": 0.576923076923077
+          },
+          "general": {
+            "n": 14,
+            "value": 0.5714285714285714
+          },
+          "stem": {
+            "n": 12,
+            "value": 0.4166666666666667
+          },
+          "mbpp": {
+            "n": 4,
+            "value": 0.5
+          },
+          "Precise IF": {
+            "n": 6,
+            "value": 0.5
+          },
+          "ifeval": {
+            "n": 8,
+            "value": 0.25
+          },
+          "Math": {
+            "n": 2,
+            "value": 0.5
+          },
+          "harmlessness": {
+            "n": 2,
+            "value": 1
+          },
+          "math": {
+            "n": 4,
+            "value": 0.75
+          }
+        },
+        "missing": 0,
+        "positionConsistency": 0.5636363636363636
+      },
+      "costUsd": 0.08940520000000002,
+      "calls": 110
+    }
+  ],
+  "newSpendUsd": 0.28731650000000003,
+  "newCalls": 385,
+  "replayed": 0,
+  "failedCalls": 0
+}

@@ -1,0 +1,71 @@
+{
+  "bench": "rubricbench",
+  "model": "gpt-5.4-mini",
+  "items": 55,
+  "contestants": [
+    {
+      "contestant": "driftbench",
+      "source": "packages/judges/src/prompt.ts and pairwise.ts (this repository)",
+      "mode": "pairwise, both orders",
+      "summary": {
+        "metric": "accuracy (RubricBench, over games)",
+        "value": {
+          "estimate": 0.6727272727272727,
+          "lower": 0.5805088757294906,
+          "upper": 0.7532886738947798
+        },
+        "n": 55,
+        "byGroup": {
+          "human-preference": {
+            "n": 32,
+            "value": 0.59375
+          },
+          "code": {
+            "n": 26,
+            "value": 0.7307692307692307
+          },
+          "general": {
+            "n": 14,
+            "value": 0.6428571428571429
+          },
+          "stem": {
+            "n": 12,
+            "value": 0.5833333333333334
+          },
+          "mbpp": {
+            "n": 4,
+            "value": 0.25
+          },
+          "Precise IF": {
+            "n": 6,
+            "value": 0.8333333333333334
+          },
+          "ifeval": {
+            "n": 8,
+            "value": 1
+          },
+          "Math": {
+            "n": 2,
+            "value": 0.5
+          },
+          "harmlessness": {
+            "n": 2,
+            "value": 1
+          },
+          "math": {
+            "n": 4,
+            "value": 0.75
+          }
+        },
+        "missing": 0,
+        "positionConsistency": 0.7454545454545455
+      },
+      "costUsd": 0.24608399999999994,
+      "calls": 110
+    }
+  ],
+  "newSpendUsd": 0.18438150000000006,
+  "newCalls": 84,
+  "replayed": 26,
+  "failedCalls": 0
+}

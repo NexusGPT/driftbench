@@ -1,0 +1,496 @@
+{
+  "bench": "mmeval",
+  "firstHalf": 211,
+  "secondHalf": 189,
+  "assignment": {
+    "chat": {
+      "judge": "gemini-3.8-flash",
+      "firstHalf": {
+        "jev": {
+          "name": "jev",
+          "n": 15,
+          "value": 0.6,
+          "lower": 0.428920317742056,
+          "upper": 0.771079682257944
+        },
+        "gemini-3.8-flash": {
+          "name": "gemini-3.8-flash",
+          "n": 15,
+          "value": 0.7333333333333333,
+          "lower": 0.5223543251581532,
+          "upper": 0.9443123415085134
+        },
+        "gpt-5.4-mini": {
+          "name": "gpt-5.4-mini",
+          "n": 15,
+          "value": 0.6,
+          "lower": 0.361867160479984,
+          "upper": 0.8381328395200159
+        },
+        "haiku-frozen": {
+          "name": "haiku-frozen",
+          "n": 15,
+          "value": 0.6666666666666666,
+          "lower": 0.46006832256514607,
+          "upper": 0.8732650107681872
+        },
+        "haiku-first-cascade": {
+          "name": "haiku-first-cascade",
+          "n": 15,
+          "value": 0.7,
+          "lower": 0.4904710365552805,
+          "upper": 0.9095289634447195
+        },
+        "council": {
+          "name": "council",
+          "n": 15,
+          "value": 0.7333333333333333,
+          "lower": 0.5223543251581532,
+          "upper": 0.9443123415085134
+        }
+      }
+    },
+    "language mixing": {
+      "judge": "jev",
+      "firstHalf": {
+        "jev": {
+          "name": "jev",
+          "n": 58,
+          "value": 1,
+          "lower": 1,
+          "upper": 1
+        },
+        "gemini-3.8-flash": {
+          "name": "gemini-3.8-flash",
+          "n": 58,
+          "value": 1,
+          "lower": 1,
+          "upper": 1
+        },
+        "gpt-5.4-mini": {
+          "name": "gpt-5.4-mini",
+          "n": 58,
+          "value": 0.9913793103448276,
+          "lower": 0.9744830690987927,
+          "upper": 1
+        },
+        "haiku-frozen": {
+          "name": "haiku-frozen",
+          "n": 58,
+          "value": 1,
+          "lower": 1,
+          "upper": 1
+        },
+        "haiku-first-cascade": {
+          "name": "haiku-first-cascade",
+          "n": 58,
+          "value": 1,
+          "lower": 1,
+          "upper": 1
+        },
+        "council": {
+          "name": "council",
+          "n": 58,
+          "value": 1,
+          "lower": 1,
+          "upper": 1
+        }
+      }
+    },
+    "linguistics": {
+      "judge": "gemini-3.8-flash",
+      "firstHalf": {
+        "jev": {
+          "name": "jev",
+          "n": 21,
+          "value": 0.6666666666666666,
+          "lower": 0.4964803570019437,
+          "upper": 0.8368529763313896
+        },
+        "gemini-3.8-flash": {
+          "name": "gemini-3.8-flash",
+          "n": 21,
+          "value": 1,
+          "lower": 1,
+          "upper": 1
+        },
+        "gpt-5.4-mini": {
+          "name": "gpt-5.4-mini",
+          "n": 21,
+          "value": 0.9285714285714286,
+          "lower": 0.851891679554979,
+          "upper": 1
+        },
+        "haiku-frozen": {
+          "name": "haiku-frozen",
+          "n": 21,
+          "value": 0.9761904761904762,
+          "lower": 0.9295246670347606,
+          "upper": 1
+        },
+        "haiku-first-cascade": {
+          "name": "haiku-first-cascade",
+          "n": 21,
+          "value": 1,
+          "lower": 1,
+          "upper": 1
+        },
+        "council": {
+          "name": "council",
+          "n": 21,
+          "value": 1,
+          "lower": 1,
+          "upper": 1
+        }
+      }
+    },
+    "reasoning": {
+      "judge": "haiku-frozen",
+      "firstHalf": {
+        "jev": {
+          "name": "jev",
+          "n": 83,
+          "value": 0.8554216867469879,
+          "lower": 0.7831070444436112,
+          "upper": 0.9277363290503646
+        },
+        "gemini-3.8-flash": {
+          "name": "gemini-3.8-flash",
+          "n": 83,
+          "value": 0.9216867469879518,
+          "lower": 0.867298169403728,
+          "upper": 0.9760753245721757
+        },
+        "gpt-5.4-mini": {
+          "name": "gpt-5.4-mini",
+          "n": 83,
+          "value": 0.8493975903614458,
+          "lower": 0.7849122044601518,
+          "upper": 0.9138829762627398
+        },
+        "haiku-frozen": {
+          "name": "haiku-frozen",
+          "n": 83,
+          "value": 0.9397590361445783,
+          "lower": 0.8940678681282732,
+          "upper": 0.9854502041608835
+        },
+        "haiku-first-cascade": {
+          "name": "haiku-first-cascade",
+          "n": 83,
+          "value": 0.9216867469879518,
+          "lower": 0.8647628629922252,
+          "upper": 0.9786106309836785
+        },
+        "council": {
+          "name": "council",
+          "n": 83,
+          "value": 0.9156626506024096,
+          "lower": 0.8579085828094233,
+          "upper": 0.9734167183953959
+        }
+      }
+    },
+    "safety": {
+      "judge": "jev",
+      "firstHalf": {
+        "jev": {
+          "name": "jev",
+          "n": 34,
+          "value": 0.9705882352941176,
+          "lower": 0.9304487133898445,
+          "upper": 1
+        },
+        "gemini-3.8-flash": {
+          "name": "gemini-3.8-flash",
+          "n": 34,
+          "value": 0.5588235294117647,
+          "lower": 0.4053193753196342,
+          "upper": 0.7123276835038952
+        },
+        "gpt-5.4-mini": {
+          "name": "gpt-5.4-mini",
+          "n": 34,
+          "value": 0.9705882352941176,
+          "lower": 0.9304487133898445,
+          "upper": 1
+        },
+        "haiku-frozen": {
+          "name": "haiku-frozen",
+          "n": 34,
+          "value": 0.9558823529411765,
+          "lower": 0.8922181734263087,
+          "upper": 1
+        },
+        "haiku-first-cascade": {
+          "name": "haiku-first-cascade",
+          "n": 34,
+          "value": 0.9705882352941176,
+          "lower": 0.9129422357488219,
+          "upper": 1
+        },
+        "council": {
+          "name": "council",
+          "n": 34,
+          "value": 0.9705882352941176,
+          "lower": 0.9129422357488219,
+          "upper": 1
+        }
+      }
+    }
+  },
+  "secondHalfScores": {
+    "routed": {
+      "summary": {
+        "metric": "accuracy (MM-Eval: mean of the five subsets, tie 0.5)",
+        "value": {
+          "estimate": 0.862602712925525,
+          "lower": 0.818520015996673,
+          "upper": 0.9066854098543771
+        },
+        "n": 189,
+        "byGroup": {
+          "reasoning": {
+            "n": 68,
+            "value": 0.9632352941176471
+          },
+          "language mixing": {
+            "n": 41,
+            "value": 0.9634146341463414
+          },
+          "safety": {
+            "n": 44,
+            "value": 0.8863636363636364
+          },
+          "chat": {
+            "n": 22,
+            "value": 0.5000000000000002
+          },
+          "linguistics": {
+            "n": 14,
+            "value": 1
+          }
+        },
+        "missing": 0,
+        "positionConsistency": 0.9365079365079365
+      },
+      "per100": 0.1621093798412695
+    },
+    "jev": {
+      "summary": {
+        "metric": "accuracy (MM-Eval: mean of the five subsets, tie 0.5)",
+        "value": {
+          "estimate": 0.8086302148353797,
+          "lower": 0.7522180086545659,
+          "upper": 0.8650424210161934
+        },
+        "n": 189,
+        "byGroup": {
+          "reasoning": {
+            "n": 68,
+            "value": 0.9044117647058824
+          },
+          "language mixing": {
+            "n": 41,
+            "value": 0.9634146341463414
+          },
+          "safety": {
+            "n": 44,
+            "value": 0.8863636363636364
+          },
+          "chat": {
+            "n": 22,
+            "value": 0.6818181818181818
+          },
+          "linguistics": {
+            "n": 14,
+            "value": 0.6071428571428571
+          }
+        },
+        "missing": 0,
+        "positionConsistency": 0.8465608465608465
+      },
+      "per100": 0
+    },
+    "gemini-3.8-flash": {
+      "summary": {
+        "metric": "accuracy (MM-Eval: mean of the five subsets, tie 0.5)",
+        "value": {
+          "estimate": 0.7848278335724533,
+          "lower": 0.7348525905918528,
+          "upper": 0.8348030765530539
+        },
+        "n": 189,
+        "byGroup": {
+          "reasoning": {
+            "n": 68,
+            "value": 0.9485294117647058
+          },
+          "language mixing": {
+            "n": 41,
+            "value": 0.975609756097561
+          },
+          "safety": {
+            "n": 44,
+            "value": 0.5
+          },
+          "chat": {
+            "n": 22,
+            "value": 0.5000000000000002
+          },
+          "linguistics": {
+            "n": 14,
+            "value": 1
+          }
+        },
+        "missing": 0,
+        "positionConsistency": 0.9523809523809523
+      },
+      "per100": 0.3271777499999996
+    },
+    "gpt-5.4-mini": {
+      "summary": {
+        "metric": "accuracy (MM-Eval: mean of the five subsets, tie 0.5)",
+        "value": {
+          "estimate": 0.8311036166129423,
+          "lower": 0.7842566517201895,
+          "upper": 0.877950581505695
+        },
+        "n": 189,
+        "byGroup": {
+          "reasoning": {
+            "n": 68,
+            "value": 0.8308823529411765
+          },
+          "language mixing": {
+            "n": 41,
+            "value": 0.975609756097561
+          },
+          "safety": {
+            "n": 44,
+            "value": 0.8295454545454546
+          },
+          "chat": {
+            "n": 22,
+            "value": 0.5909090909090909
+          },
+          "linguistics": {
+            "n": 14,
+            "value": 0.9285714285714286
+          }
+        },
+        "missing": 0,
+        "positionConsistency": 0.8201058201058201
+      },
+      "per100": 0.3098272499999999
+    },
+    "haiku-frozen": {
+      "summary": {
+        "metric": "accuracy (MM-Eval: mean of the five subsets, tie 0.5)",
+        "value": {
+          "estimate": 0.875597644822896,
+          "lower": 0.8238016417301302,
+          "upper": 0.9273936479156619
+        },
+        "n": 189,
+        "byGroup": {
+          "reasoning": {
+            "n": 68,
+            "value": 0.9632352941176471
+          },
+          "language mixing": {
+            "n": 41,
+            "value": 0.9878048780487805
+          },
+          "safety": {
+            "n": 44,
+            "value": 0.8522727272727273
+          },
+          "chat": {
+            "n": 22,
+            "value": 0.6818181818181818
+          },
+          "linguistics": {
+            "n": 14,
+            "value": 0.8928571428571429
+          }
+        },
+        "missing": 4,
+        "positionConsistency": 0.946524064171123
+      },
+      "per100": 0.27735696750000005
+    },
+    "haiku-first-cascade": {
+      "summary": {
+        "metric": "accuracy (MM-Eval: mean of the five subsets, tie 0.5)",
+        "value": {
+          "estimate": 0.9004448564348134,
+          "lower": 0.8576660957167244,
+          "upper": 0.9432236171529025
+        },
+        "n": 189,
+        "byGroup": {
+          "reasoning": {
+            "n": 68,
+            "value": 0.9705882352941176
+          },
+          "language mixing": {
+            "n": 41,
+            "value": 0.9878048780487805
+          },
+          "safety": {
+            "n": 44,
+            "value": 0.8977272727272727
+          },
+          "chat": {
+            "n": 22,
+            "value": 0.6818181818181818
+          },
+          "linguistics": {
+            "n": 14,
+            "value": 0.9642857142857143
+          }
+        },
+        "missing": 0,
+        "positionConsistency": 0.9523809523809523
+      },
+      "per100": 0.3219473175
+    },
+    "council": {
+      "summary": {
+        "metric": "accuracy (MM-Eval: mean of the five subsets, tie 0.5)",
+        "value": {
+          "estimate": 0.8794667312601316,
+          "lower": 0.8283986618424523,
+          "upper": 0.930534800677811
+        },
+        "n": 189,
+        "byGroup": {
+          "reasoning": {
+            "n": 68,
+            "value": 0.9485294117647058
+          },
+          "language mixing": {
+            "n": 41,
+            "value": 0.9634146341463414
+          },
+          "safety": {
+            "n": 44,
+            "value": 0.875
+          },
+          "chat": {
+            "n": 22,
+            "value": 0.6818181818181818
+          },
+          "linguistics": {
+            "n": 14,
+            "value": 0.9285714285714286
+          }
+        },
+        "missing": 0,
+        "positionConsistency": 0.9523809523809523
+      },
+      "per100": 0.9143619674999995
+    }
+  }
+}

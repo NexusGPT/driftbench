@@ -1,0 +1,51 @@
+{
+  "bench": "mmeval",
+  "model": "gemini-3.8-flash",
+  "items": 400,
+  "contestants": [
+    {
+      "contestant": "driftbench",
+      "source": "packages/judges/src/prompt.ts and pairwise.ts (this repository)",
+      "mode": "pairwise, both orders",
+      "summary": {
+        "metric": "accuracy (MM-Eval: mean of the five subsets, tie 0.5)",
+        "value": {
+          "estimate": 0.8081408632733137,
+          "lower": 0.771234449036353,
+          "upper": 0.8450472775102744
+        },
+        "n": 400,
+        "byGroup": {
+          "reasoning": {
+            "n": 151,
+            "value": 0.9337748344370861
+          },
+          "chat": {
+            "n": 37,
+            "value": 0.5945945945945946
+          },
+          "linguistics": {
+            "n": 35,
+            "value": 1
+          },
+          "language mixing": {
+            "n": 99,
+            "value": 0.98989898989899
+          },
+          "safety": {
+            "n": 78,
+            "value": 0.5224358974358975
+          }
+        },
+        "missing": 0,
+        "positionConsistency": 0.9475
+      },
+      "costUsd": 1.3087109999999984,
+      "calls": 800
+    }
+  ],
+  "newSpendUsd": 1.3087109999999984,
+  "newCalls": 800,
+  "replayed": 0,
+  "failedCalls": 0
+}

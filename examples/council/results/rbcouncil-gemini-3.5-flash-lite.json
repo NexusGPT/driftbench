@@ -1,0 +1,32 @@
+{
+  "base": {
+    "right": 29,
+    "of": 55,
+    "fullDev": 0.8235294117647058
+  },
+  "majorityOriginal": {
+    "right": 28,
+    "of": 55,
+    "fullDev": 0.8207282913165266
+  },
+  "majorityStableUnderTwin": {
+    "right": 29,
+    "of": 55,
+    "fullDev": 0.8235294117647058
+  },
+  "gptAlone": {
+    "right": 26,
+    "of": 55,
+    "fullDev": 0.8151260504201681
+  },
+  "geminiAlone": {
+    "right": 8,
+    "of": 55,
+    "fullDev": 0.7647058823529411
+  },
+  "jevAlone": {
+    "right": 28,
+    "of": 55,
+    "fullDev": 0.8207282913165266
+  }
+}

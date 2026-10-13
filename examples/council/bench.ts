@@ -820,7 +820,9 @@ if (mode === 'validity') {
     .slice(0, 20);
   const callShim = (prompt: { system: string; user: string }) =>
     new Promise<{ text: string; cost: number }>((resolve) => {
-      const child = spawn(SHIM, ['-p', '--model', GEMINI, '--system-prompt', prompt.system], { stdio: ['pipe', 'pipe', 'pipe'] });
+      const child = spawn(SHIM, ['-p', '--model', GEMINI, '--system-prompt', prompt.system], {
+        stdio: ['pipe', 'pipe', 'pipe'],
+      });
       let out = '';
       child.stdout.on('data', (c: Buffer) => {
         out += c.toString('utf8');
@@ -846,7 +848,10 @@ if (mode === 'validity') {
     const s = contestant.parsePair(ba.text) as string;
     return netSide([contestant.parsePair(ab.text) as string, s === 'A' ? 'B' : s === 'B' ? 'A' : 'tie']);
   };
-  const jev = pairs.makeJev(fetch, { JEV_URL: 'https://api.typesafe.ai/v1/systemone', JEV_API_KEY: process.env.JEV_API_KEY });
+  const jev = pairs.makeJev(fetch, {
+    JEV_URL: 'https://api.typesafe.ai/v1/systemone',
+    JEV_API_KEY: process.env.JEV_API_KEY,
+  });
   const jevVerdict = async (id: string, q: string, a: string, b: string): Promise<Side> => {
     const inputs = new Map([[id, { id, question: q, a, b, criterion: CRITERIA.judgebench as string }]]);
     const outcomes = await Promise.all(
@@ -862,7 +867,13 @@ if (mode === 'validity') {
     return p >= 2 ? 'A' : f >= 2 ? 'B' : 'tie';
   };
   const jevBase = new Map(
-    Object.entries((JSON.parse(await readFile(join(RESULTS, 'jev-judgebench.json'), 'utf8')) as { sides: Record<string, Side> }).sides),
+    Object.entries(
+      (
+        JSON.parse(await readFile(join(RESULTS, 'jev-judgebench.json'), 'utf8')) as {
+          sides: Record<string, Side>;
+        }
+      ).sides,
+    ),
   );
   const rows: Record<string, unknown>[] = [];
   for (const item of pool) {
@@ -894,14 +905,27 @@ if (mode === 'validity') {
     pool: n,
     geminiFlipRate: count((r) => r.gFlip === r.wrong) / n,
     geminiInjectionHeld: count((r) => r.gInj === r.right) / n,
-    jevFlipRate: count((r) => r.jevBase === r.right && r.jFlip === r.wrong) / Math.max(1, count((r) => r.jevBase === r.right)),
-    jevInjectionHeld: count((r) => r.jevBase === r.right && r.jInj === r.right) / Math.max(1, count((r) => r.jevBase === r.right)),
+    jevFlipRate:
+      count((r) => r.jevBase === r.right && r.jFlip === r.wrong) /
+      Math.max(
+        1,
+        count((r) => r.jevBase === r.right),
+      ),
+    jevInjectionHeld:
+      count((r) => r.jevBase === r.right && r.jInj === r.right) /
+      Math.max(
+        1,
+        count((r) => r.jevBase === r.right),
+      ),
     jevRightOnPool: count((r) => r.jevBase === r.right),
     cheaters: { constantA: `${constantA}/121`, longerWins: `${longer}/121` },
     spentUsd: spent,
     rows,
   };
-  await writeFile(join(RESULTS, `validity-judgebench-${GEMINI}.json`), `${JSON.stringify(report, null, 2)}\n`);
+  await writeFile(
+    join(RESULTS, `validity-judgebench-${GEMINI}.json`),
+    `${JSON.stringify(report, null, 2)}\n`,
+  );
   await ledger(
     `| ${new Date().toISOString()} | opus-council validity | Google + Jev | ${GEMINI}, jev-latest | judgebench dev ${n} pairs, flip and injection edits | ${n * 8} chat calls + ${n * 6} Jev calls | ${spent.toFixed(4)} USD |`,
   );

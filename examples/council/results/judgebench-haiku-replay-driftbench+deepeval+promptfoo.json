@@ -1,0 +1,107 @@
+{
+  "bench": "judgebench",
+  "model": "haiku",
+  "items": 121,
+  "contestants": [
+    {
+      "contestant": "driftbench",
+      "source": "packages/judges/src/prompt.ts and pairwise.ts (this repository)",
+      "mode": "pairwise, both orders",
+      "summary": {
+        "metric": "accuracy (JudgeBench, both orders)",
+        "value": {
+          "estimate": 0.859504132231405,
+          "lower": 0.7864891952067391,
+          "upper": 0.9103946831285451
+        },
+        "n": 121,
+        "byGroup": {
+          "mmlu": {
+            "n": 59,
+            "value": 0.7627118644067796
+          },
+          "livebench": {
+            "n": 50,
+            "value": 0.96
+          },
+          "livecodebench": {
+            "n": 12,
+            "value": 0.9166666666666666
+          }
+        },
+        "missing": 2,
+        "positionConsistency": 0.9008264462809917
+      },
+      "costUsd": 0.2591402,
+      "calls": 240
+    },
+    {
+      "contestant": "deepeval",
+      "source": "DeepEval 4598fe8: ArenaGEval (pairs) and GEval (single responses)",
+      "mode": "pairwise, both orders",
+      "summary": {
+        "metric": "accuracy (JudgeBench, both orders)",
+        "value": {
+          "estimate": 0.8925619834710744,
+          "lower": 0.8248348380619106,
+          "upper": 0.9361303164421355
+        },
+        "n": 121,
+        "byGroup": {
+          "mmlu": {
+            "n": 59,
+            "value": 0.8305084745762712
+          },
+          "livebench": {
+            "n": 50,
+            "value": 0.96
+          },
+          "livecodebench": {
+            "n": 12,
+            "value": 0.9166666666666666
+          }
+        },
+        "missing": 0,
+        "positionConsistency": 0.9338842975206612
+      },
+      "costUsd": 0.3289713000000001,
+      "calls": 243
+    },
+    {
+      "contestant": "promptfoo",
+      "source": "promptfoo 8014282: select-best (pairs) and llm-rubric (single responses)",
+      "mode": "pairwise, both orders",
+      "summary": {
+        "metric": "accuracy (JudgeBench, both orders)",
+        "value": {
+          "estimate": 0.8677685950413223,
+          "lower": 0.7959633756720691,
+          "upper": 0.9169408217054055
+        },
+        "n": 121,
+        "byGroup": {
+          "mmlu": {
+            "n": 59,
+            "value": 0.8135593220338984
+          },
+          "livebench": {
+            "n": 50,
+            "value": 0.9
+          },
+          "livecodebench": {
+            "n": 12,
+            "value": 1
+          }
+        },
+        "missing": 0,
+        "positionConsistency": 0.8842975206611571
+      },
+      "costUsd": 0.20952450000000022,
+      "calls": 242
+    }
+  ],
+  "newSpendUsd": 0,
+  "newCalls": 0,
+  "replayed": 725,
+  "failedCalls": 2
+}

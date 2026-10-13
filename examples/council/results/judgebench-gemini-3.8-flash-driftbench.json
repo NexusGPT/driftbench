@@ -1,0 +1,35 @@
+{
+  "bench": "judgebench",
+  "model": "gemini-3.8-flash",
+  "items": 1,
+  "contestants": [
+    {
+      "contestant": "driftbench",
+      "source": "packages/judges/src/prompt.ts and pairwise.ts (this repository)",
+      "mode": "pairwise, both orders",
+      "summary": {
+        "metric": "accuracy (JudgeBench, both orders)",
+        "value": {
+          "estimate": 1,
+          "lower": 0.20654931437723745,
+          "upper": 1
+        },
+        "n": 1,
+        "byGroup": {
+          "mmlu": {
+            "n": 1,
+            "value": 1
+          }
+        },
+        "missing": 0,
+        "positionConsistency": 1
+      },
+      "costUsd": 0.004848,
+      "calls": 2
+    }
+  ],
+  "newSpendUsd": 0.004848,
+  "newCalls": 2,
+  "replayed": 0,
+  "failedCalls": 0
+}

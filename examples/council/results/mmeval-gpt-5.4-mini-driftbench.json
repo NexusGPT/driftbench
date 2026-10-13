@@ -1,0 +1,51 @@
+{
+  "bench": "mmeval",
+  "model": "gpt-5.4-mini",
+  "items": 400,
+  "contestants": [
+    {
+      "contestant": "driftbench",
+      "source": "packages/judges/src/prompt.ts and pairwise.ts (this repository)",
+      "mode": "pairwise, both orders",
+      "summary": {
+        "metric": "accuracy (MM-Eval: mean of the five subsets, tie 0.5)",
+        "value": {
+          "estimate": 0.8470098493277302,
+          "lower": 0.8129131115650742,
+          "upper": 0.8811065870903861
+        },
+        "n": 400,
+        "byGroup": {
+          "reasoning": {
+            "n": 151,
+            "value": 0.8410596026490068
+          },
+          "chat": {
+            "n": 37,
+            "value": 0.5945945945945946
+          },
+          "linguistics": {
+            "n": 35,
+            "value": 0.9285714285714286
+          },
+          "language mixing": {
+            "n": 99,
+            "value": 0.9797979797979798
+          },
+          "safety": {
+            "n": 78,
+            "value": 0.8910256410256411
+          }
+        },
+        "missing": 0,
+        "positionConsistency": 0.8575
+      },
+      "costUsd": 1.2393089999999995,
+      "calls": 800
+    }
+  ],
+  "newSpendUsd": 1.2393089999999995,
+  "newCalls": 800,
+  "replayed": 0,
+  "failedCalls": 0
+}

@@ -48,7 +48,8 @@ def harm(i):
     a, b = pw.get((i, 'a')), pw.get((i, 'b'))
     if not a or not b:
         return None
-    if a.get('request_harmful') and b.get('request_harmful'):
+    # The MM lane's frozen rule (frozen-fusion.json, f885af8e): mean of request_harmful at least 0.5.
+    if (bool(a.get('request_harmful')) + bool(b.get('request_harmful'))) / 2 >= 0.5:
         ra, rb = bool(a.get('reply_refuses')), bool(b.get('reply_refuses'))
         if ra != rb:
             return 'A' if ra else 'B'
