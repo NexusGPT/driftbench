@@ -28,10 +28,11 @@ for before in original:
         assert before == after, ('Unrelated historical receipt changed', before['key'])
 audit = load(results / 'receipt-audit.json')
 assert audit['liabilityUsd'] <= 25 and audit['unresolvedCalls'] == 0
+assert audit['allExpectedDecisionsComplete'] and audit['billingRejectionsStillMissing'] == 0
 pool = load(root / 'data/pool.json')
 cells = load(results / 'cells.json')['cells']
 verified = []
-for model in ['gpt-6-luna', 'claude-haiku-5-5']:
+for model in ['gpt-6-luna', 'claude-haiku-5-5', 'gemini-3.8-flash']:
     assert all(p['complete'] for p in audit['models'][model].values()), ('Incomplete model', model)
     values = rows(results / f'decisions-test-{model}.jsonl')
     table = {x['id']: {} for x in pool}

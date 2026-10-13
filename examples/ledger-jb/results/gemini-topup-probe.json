@@ -1,0 +1,11 @@
+{
+  "at": "2026-10-13T10:20:50.518Z",
+  "success": true,
+  "originalRejectedKey": "fixtures:gemini-3.8-flash:7805fdd4-aa25-504b-8de2-6df971c56500:2:ledger:AB:0:16d17b467632744f3addbe96c696c1719b239252bcc991d616197a5be3633f0f",
+  "freezeSha256": "fe4bcd5ac353d5c3251c6e4238a8d4fa8497a516876b016c81f6fbdc7b1785b7",
+  "responseKey": "fixtures:gemini-3.8-flash:7805fdd4-aa25-504b-8de2-6df971c56500:2:ledger:AB:0:16d17b467632744f3addbe96c696c1719b239252bcc991d616197a5be3633f0f:transport:2",
+  "textLength": 793,
+  "costUsd": 0.00955875,
+  "costEstimated": false,
+  "finishedAt": "2026-10-13T10:21:08.163Z"
+}

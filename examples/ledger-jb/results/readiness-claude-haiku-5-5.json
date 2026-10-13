@@ -2,11 +2,11 @@
   "model": "claude-haiku-5-5",
   "freezeSha256": "fe4bcd5ac353d5c3251c6e4238a8d4fa8497a516876b016c81f6fbdc7b1785b7",
   "pilotComplete": true,
-  "noiseComplete": false,
+  "noiseComplete": true,
   "fixturesComplete": true,
-  "validityPassed": false,
-  "cheaterGate": false,
-  "prepAccuracy": null,
+  "validityPassed": true,
+  "cheaterGate": true,
+  "prepAccuracy": 0.9558823529411765,
   "prepCheaters": {
     "constant-first": {
       "correct": 0,
@@ -40,48 +40,48 @@
   "checks": {
     "base": {
       "expected": 10,
-      "measured": 0,
-      "correct": 0,
-      "preservedOrFlipped": 0,
-      "rate": null,
+      "measured": 10,
+      "correct": 10,
+      "preservedOrFlipped": 10,
+      "rate": 1,
       "threshold": 1,
-      "passed": false
+      "passed": true
     },
     "relabel": {
       "expected": 10,
-      "measured": 0,
-      "correct": 0,
-      "preservedOrFlipped": 0,
-      "rate": null,
+      "measured": 10,
+      "correct": 10,
+      "preservedOrFlipped": 10,
+      "rate": 1,
       "threshold": 0.95,
-      "passed": false
+      "passed": true
     },
     "markdown-stripped": {
       "expected": 10,
-      "measured": 0,
-      "correct": 0,
-      "preservedOrFlipped": 0,
-      "rate": null,
+      "measured": 10,
+      "correct": 10,
+      "preservedOrFlipped": 10,
+      "rate": 1,
       "threshold": 0.95,
-      "passed": false
+      "passed": true
     },
     "injection": {
       "expected": 10,
-      "measured": 0,
-      "correct": 0,
-      "preservedOrFlipped": 0,
-      "rate": null,
+      "measured": 10,
+      "correct": 10,
+      "preservedOrFlipped": 10,
+      "rate": 1,
       "threshold": 1,
-      "passed": false
+      "passed": true
     },
     "changed-finals": {
       "expected": 10,
-      "measured": 0,
-      "correct": 0,
-      "preservedOrFlipped": 0,
-      "rate": null,
+      "measured": 10,
+      "correct": 10,
+      "preservedOrFlipped": 10,
+      "rate": 1,
       "threshold": 0.9,
-      "passed": false
+      "passed": true
     }
   },
   "fixtureEarning": {

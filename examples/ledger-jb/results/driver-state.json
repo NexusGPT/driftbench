@@ -1,24 +1,24 @@
 {
-  "status": "ready-topup-probe",
-  "pid": 6143,
+  "status": "running",
+  "pid": 27416,
   "core": "35f07309a4d1d1c8a7c5b176ff19e537d0ef8fdd",
-  "concurrency": 10,
+  "concurrency": 12,
   "models": {
-    "gemini-3.8-flash": {
-      "status": "probe-authorized",
-      "concurrency": 1
-    },
     "gpt-6-luna": {
       "phase": "test",
       "status": "phase-finished",
       "concurrency": 8
     },
     "claude-haiku-5-5": {
+      "phase": "test",
+      "status": "phase-running",
+      "concurrency": 2
+    },
+    "gemini-3.8-flash": {
       "phase": "noise",
       "status": "phase-running",
       "concurrency": 2
     }
   },
-  "at": "2026-10-13T10:15:52.331Z",
-  "error": "OPERATOR_DRAIN_FOR_GEMINI_TOPUP"
+  "at": "2026-10-13T10:37:55.988Z"
 }

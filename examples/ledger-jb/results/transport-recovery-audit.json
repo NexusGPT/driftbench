@@ -1,0 +1,17 @@
+{
+  "at": "2026-10-13T10:53:32.582299+00:00",
+  "models": {
+    "gpt-6-luna": {
+      "automaticNoAnswerTransportRetries": 4
+    },
+    "claude-haiku-5-5": {
+      "automaticNoAnswerTransportRetries": 1
+    },
+    "gemini-3.8-flash": {
+      "ownerAuthorizedBillingResumptions": 246
+    }
+  },
+  "returnedAnswersResent": 0,
+  "topupProbeIssuedOnce": true,
+  "scope": "Journaled transport attempts only. The core schema re-ask remains a separate judge feature, reported in reask-counts.json."
+}

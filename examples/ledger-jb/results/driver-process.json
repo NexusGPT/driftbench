@@ -1,6 +1,6 @@
 {
-  "pid": 6143,
-  "startedAt": "2026-10-13T09:42:11.081859+00:00",
+  "pid": 27416,
+  "startedAt": "2026-10-13T10:21:34.041036+00:00",
   "command": [
     "node",
     "--import",
@@ -12,9 +12,7 @@
     "--spend-ledger",
     "/private/tmp/claude-501/-Users-assem-Documents-Doc-Assem-Claude-Code-nexus/649588d0-8d65-49cb-8d78-47b071cd71cb/scratchpad/spend-ledger.md"
   ],
-  "freezeVersion": 6,
-  "checkpoint": "4a7f30f0d83a7321ca78c3f2b52f5480b458070b",
-  "pausedModels": [
-    "gemini-3.8-flash"
-  ]
+  "freezeVersion": 7,
+  "checkpoint": "7ff4f0a42dc0591717d99a5605a8bf8524a33d61",
+  "geminiProbe": "results/gemini-topup-probe.json"
 }

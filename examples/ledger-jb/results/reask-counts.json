@@ -1,5 +1,5 @@
 {
-  "asOf": "2026-10-13T10:20:11.965Z",
+  "asOf": "2026-10-13T10:53:31.344Z",
   "definition": "Schema re-ask is the frozen core ledger.reask after malformed output. It is distinct from a transport retry of a request with no returned answer.",
   "models": {
     "gpt-6-luna": {
@@ -81,41 +81,41 @@
           "repairedAttempts": 79
         },
         "noise": {
-          "ledgerPairs": 62,
+          "ledgerPairs": 90,
           "coreReaskInvocations": 0,
           "paidSchemaReaskReads": 0,
           "transportRetryAttempts": 0,
           "transportExhaustedReasksSuppressed": 0,
           "suppressedReasks": 0,
-          "repairedAttempts": 86
+          "repairedAttempts": 119
         },
         "validity": {
-          "ledgerPairs": 0,
+          "ledgerPairs": 50,
           "coreReaskInvocations": 0,
           "paidSchemaReaskReads": 0,
           "transportRetryAttempts": 0,
           "transportExhaustedReasksSuppressed": 0,
           "suppressedReasks": 0,
-          "repairedAttempts": 0
+          "repairedAttempts": 72
         },
         "test": {
-          "ledgerPairs": 0,
+          "ledgerPairs": 52,
           "coreReaskInvocations": 0,
           "paidSchemaReaskReads": 0,
           "transportRetryAttempts": 0,
           "transportExhaustedReasksSuppressed": 0,
           "suppressedReasks": 0,
-          "repairedAttempts": 0
+          "repairedAttempts": 68
         }
       },
       "totals": {
-        "ledgerPairs": 136,
+        "ledgerPairs": 266,
         "coreReaskInvocations": 1,
         "paidSchemaReaskReads": 1,
         "transportRetryAttempts": 1,
         "transportExhaustedReasksSuppressed": 0,
         "suppressedReasks": 0,
-        "repairedAttempts": 190
+        "repairedAttempts": 363
       }
     },
     "gemini-3.8-flash": {
@@ -130,19 +130,19 @@
           "repairedAttempts": 0
         },
         "fixtures": {
-          "ledgerPairs": 5,
-          "coreReaskInvocations": 0,
-          "paidSchemaReaskReads": 0,
-          "transportRetryAttempts": 0,
+          "ledgerPairs": 54,
+          "coreReaskInvocations": 4,
+          "paidSchemaReaskReads": 4,
+          "transportRetryAttempts": 98,
           "transportExhaustedReasksSuppressed": 0,
           "suppressedReasks": 0,
           "repairedAttempts": 0
         },
         "noise": {
-          "ledgerPairs": 0,
-          "coreReaskInvocations": 0,
-          "paidSchemaReaskReads": 0,
-          "transportRetryAttempts": 0,
+          "ledgerPairs": 36,
+          "coreReaskInvocations": 2,
+          "paidSchemaReaskReads": 2,
+          "transportRetryAttempts": 147,
           "transportExhaustedReasksSuppressed": 0,
           "suppressedReasks": 0,
           "repairedAttempts": 0
@@ -167,10 +167,10 @@
         }
       },
       "totals": {
-        "ledgerPairs": 25,
-        "coreReaskInvocations": 4,
-        "paidSchemaReaskReads": 4,
-        "transportRetryAttempts": 0,
+        "ledgerPairs": 110,
+        "coreReaskInvocations": 10,
+        "paidSchemaReaskReads": 10,
+        "transportRetryAttempts": 245,
         "transportExhaustedReasksSuppressed": 0,
         "suppressedReasks": 0,
         "repairedAttempts": 0
