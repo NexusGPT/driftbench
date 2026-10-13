@@ -4,6 +4,7 @@ import type { Assessment, RubricScores } from './assessment';
 import type { ClaudeThinkingRecovery } from './clients/claude-cli';
 import type { ConformanceAudit } from './conformance';
 import type { CriterionCheck, CriterionDecoderVersion, CriterionRequirement } from './criterion-ledger';
+import type { CriterionPromptVersion } from './criterion-prompt-v2';
 import type { FactLedgerAnswer, PointwiseFactLedgerAnswer } from './fact-audit';
 import type { LedgerParseStep, PairLedger } from './pair-ledger-contract';
 import type { ResponseRelevanceAnswer } from './response-relevance';
@@ -68,6 +69,8 @@ export type JudgeRequest = {
   readonly answerContract?: 'ledger' | 'legacy';
   /** Default-ledger decoder. Default 1: strict quote rejection. Opt-in 2 nulls an ungrounded string quote. */
   readonly criterionDecoderVersion?: CriterionDecoderVersion;
+  /** Default-ledger system prompt. Default 1. Opt-in 2 adds exact-identifier, stated-facts and stated-scope rules. */
+  readonly criterionPromptVersion?: CriterionPromptVersion;
   /** Provider output dialect and explicit reasoning setting for pair ledgers. */
   readonly dialect?: string;
   readonly reasoning?: 'low' | 'medium' | 'high';
