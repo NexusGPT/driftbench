@@ -166,8 +166,10 @@ export {
 export { type LintIssue, lintCriterion } from './lint';
 export { buildPairPrompt } from './pair-prompt';
 export {
+  type CanonicalPairwiseVerdict,
   judgePairwise,
   type PairwiseChoice,
+  type PairwiseOptions,
   type PairwiseTally,
   type PairwiseVerdict,
   pairwiseRequest,

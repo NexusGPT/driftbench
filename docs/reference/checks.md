@@ -396,6 +396,32 @@ rules:
 * `before` is one name or a list. With a list, any one of its names before the X holds the pair. The verdict id joins the list with `_or_`: the second pair above is `custom.ordered.Read_or_Grep.Edit`.
 * A Write that succeeded counts as a Read of the file it wrote, since the agent then holds its content. So `before: Read` with `key: file_path` holds for an Edit that follows a Write of the same file. A Write that failed counts as nothing.
 
+### Stated length
+
+`stated_length` is an opt-in custom check for writing tasks. It reads a total length stated in the request and fails a reply far under it. Register it, then name it under `rules.custom`.
+
+```ts
+import { registerCheck, statedLength } from '@agent-nexus/driftbench-checks';
+
+registerCheck('stated_length', statedLength);
+```
+
+```yaml
+rules:
+  custom:
+    stated_length: {}
+```
+
+* The request is `options.request`, else the block's user message. The check judges the whole reply.
+* It reads English words ("no less than 800 words", "around 1000 words", "a 1500-word speech", "between 500 and 800 words", "under 7 words") and Chinese characters stated in 字 (不少于800字, 大约1500字, 300字以内, 两千字左右). A limit on each item ("each slogan", 每条) and counts of lines, paragraphs or characters in a story are not read.
+* Units are whitespace-separated words for English, Han characters for 字. Punctuation and Latin letters in a Chinese reply do not count.
+* A reply fails when it holds fewer than `under_floor` (default 0.5) times the stated floor or target. Over-length never fails, unless `over_ceiling` is set: then a reply over that multiple of the stated ceiling or target fails.
+* No stated length: no verdict.
+
+For a pair of drafts, `preferByStatedLength(request, a, b)` returns `'a'` or `'b'` when one draft passes and the other fails, else `undefined`. Apply it before a pair judge and keep the judge's choice when it returns `undefined`. `statedLengthVerdict` and `parseStatedLength` give the same reading for one draft.
+
+Why these defaults. On 48 labelled pairs whose request states a length (WritingPreferenceBench outside its sealed test pool, and LongJudge writing DEV), human labels punish only a draft far under the stated length: a 35-word reply to "no less than 800 words" lost. Drafts between 66 and 99 percent of the stated floor or target won 6 times and lost 3 times. Over-length did not predict a loss: chosen drafts sat over the stated ceiling or target 9 times, rejected drafts 11 times, and one chosen reply held 18 times a stated ceiling of 7 words. The earlier rule, 10 percent tolerance both ways, overrode a correct holistic choice on 2 of 180 LongJudge writing DEV games and fixed none. The default fires on none of those games. It is a guard against a reply that ignores the request, not a quality signal.
+
 ## Judged criteria
 
 `criteria` names criteria the spec defines, or criteria from a shared catalogue. `gating: true` on a definition gates every reference to it, and `name@gating` gates that one reference; a fail of a gating criterion fails the block.

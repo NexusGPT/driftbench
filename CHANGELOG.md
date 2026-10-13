@@ -4,6 +4,8 @@ All notable changes to driftbench are listed here. The format follows [Keep a Ch
 
 ## [Unreleased]
 
+* Opt-in `stated_length` check in the checks package: it reads a total length stated in the request (English words, or Chinese characters for 字) and fails a draft under half of it. Over-length never fails unless `over_ceiling` is set. The earlier 10 percent rule failed long drafts that human labels preferred. See [checks](docs/reference/checks.md#stated-length).
+
 * Winner quote grounding maps decoded JSON value characters back to their literal source spans. Escaped role tokens, JSON text-wrapper keys and escape digits alone cannot supply substantive evidence; legacy is unchanged.
 
 * Pairwise winner matching preserves substantive literal substrings, including partial code fences, before adding normalized views. Exactly one candidate must match; labels and decoration alone remain insufficient.
