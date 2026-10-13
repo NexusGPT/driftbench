@@ -1,0 +1,25 @@
+{
+ "key": "e93b549f4c316a62f6323787d2f99d3e44097768db7a01d698a77a02a16c9af5",
+ "boxes": [
+  {
+   "question": "Does the answer select option J?",
+   "weight": 5
+  },
+  {
+   "question": "Does the answer repeat the selected letter exactly five times?",
+   "weight": 3
+  },
+  {
+   "question": "Are the five letters presented as one uninterrupted string?",
+   "weight": 2
+  },
+  {
+   "question": "Does the answer contain only that five-letter string, with no additional text or characters?",
+   "weight": 1
+  }
+ ],
+ "error": null,
+ "short": false,
+ "s2_usd": 0.0005131000000000001,
+ "seconds": 11.5788
+}

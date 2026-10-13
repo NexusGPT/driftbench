@@ -1,0 +1,25 @@
+{
+ "key": "9c6676af0593b7093ae476d42e272a01a6423a49d74ce2a2bf440d721772ec1b",
+ "boxes": [
+  {
+   "question": "Does the answer give 3 as the total number of pieces?",
+   "weight": 5
+  },
+  {
+   "question": "Does the answer correctly treat the cube as remaining one piece after the cut?",
+   "weight": 3
+  },
+  {
+   "question": "Does the answer correctly treat the sphere as being split into two pieces by the cut?",
+   "weight": 3
+  },
+  {
+   "question": "Is the final answer written as a single bold integer?",
+   "weight": 1
+  }
+ ],
+ "error": null,
+ "short": false,
+ "s2_usd": 0.0003038,
+ "seconds": 7.1922
+}

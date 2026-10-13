@@ -1,0 +1,29 @@
+{
+ "key": "34fc77ae59cce2987253a6963692ab7472d887d16fd2b9a342cdd7b29e6ad1f4",
+ "boxes": [
+  {
+   "question": "¿Presenta exactamente 10 pares de palabras?",
+   "weight": 5
+  },
+  {
+   "question": "¿Cada par está formado por dos palabras que son homófonas en alguna variedad reconocida del español?",
+   "weight": 5
+  },
+  {
+   "question": "¿Los pares están claramente identificados como pares distintos, sin repetir el mismo par?",
+   "weight": 3
+  },
+  {
+   "question": "¿La respuesta está escrita en español?",
+   "weight": 2
+  },
+  {
+   "question": "¿La respuesta es clara y se limita a contenido seguro y pertinente a la solicitud?",
+   "weight": 1
+  }
+ ],
+ "error": null,
+ "short": false,
+ "s2_usd": 0.00014930000000000002,
+ "seconds": 3.9798
+}

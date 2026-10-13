@@ -1,0 +1,41 @@
+{
+ "key": "b48a5230775faff480522149e5624624a2013a999ab637d1148e88a29ffb1940",
+ "boxes": [
+  {
+   "question": "Is the response a screenplay titled “Silent Testimony”?",
+   "weight": 3
+  },
+  {
+   "question": "Does it blend suspenseful psychological-thriller elements with a tragic love story and use unreliable narration?",
+   "weight": 3
+  },
+  {
+   "question": "Does the story center on an amnesiac painter discovering that she was both a victim and perpetrator in an unsolved murder?",
+   "weight": 5
+  },
+  {
+   "question": "Does it include Gu Wanqing as a female lead with a surgically altered face, Dr. Lin Shen as a manipulative psychiatrist concealing family secrets, and Detective Zhou Ye as a disabled investigator uncovering genetic experimentation?",
+   "weight": 4
+  },
+  {
+   "question": "Does a major twist hinge on facial reconstruction records?",
+   "weight": 4
+  },
+  {
+   "question": "Does a major twist hinge on encrypted laboratory files?",
+   "weight": 4
+  },
+  {
+   "question": "Does a major twist hinge on mirrored drowning scenes?",
+   "weight": 4
+  },
+  {
+   "question": "Does it use cinematic imagery of decaying asylums and incorporate butterfly motifs?",
+   "weight": 2
+  }
+ ],
+ "error": null,
+ "short": false,
+ "s2_usd": 0.000464,
+ "seconds": 10.0962
+}

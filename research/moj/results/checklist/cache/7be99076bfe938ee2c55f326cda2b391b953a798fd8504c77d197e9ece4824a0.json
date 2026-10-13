@@ -1,0 +1,25 @@
+{
+ "key": "7be99076bfe938ee2c55f326cda2b391b953a798fd8504c77d197e9ece4824a0",
+ "boxes": [
+  {
+   "question": "Does the answer correctly state that the person at the farm does not tell the truth?",
+   "weight": 5
+  },
+  {
+   "question": "Does the answer correctly state that the person at the train station does not tell the truth?",
+   "weight": 5
+  },
+  {
+   "question": "Does the answer correctly state that the person at the zoo does not tell the truth?",
+   "weight": 5
+  },
+  {
+   "question": "Does the answer give the correct three answers in the order farm, train station, and zoo?",
+   "weight": 5
+  }
+ ],
+ "error": null,
+ "short": false,
+ "s2_usd": 0.0006307000000000001,
+ "seconds": 15.3791
+}

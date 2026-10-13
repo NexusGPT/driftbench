@@ -1,0 +1,41 @@
+{
+ "key": "385632eef105650127b878c821da5d5206cd8f9bbcfdd6fe1f0586a18ea8f5d9",
+ "boxes": [
+  {
+   "question": "Does the proposal use the title “Love Book Donation & Community Reading Day” and explain the activity’s background and significance, including relevance to national reading policies and resource sharing?",
+   "weight": 3
+  },
+  {
+   "question": "Does the proposal specify the activity’s time, location, and target participants?",
+   "weight": 3
+  },
+  {
+   "question": "Does the proposal cover a book donation area with classification standards, an interactive experience zone that includes a DIY bookmark workshop, and a publicity display area?",
+   "weight": 3
+  },
+  {
+   "question": "Does the proposal give a detailed process covering pre-event preparation, on-site implementation, and post-event follow-up?",
+   "weight": 3
+  },
+  {
+   "question": "Does the proposal provide promotion strategies for both online and offline channels?",
+   "weight": 2
+  },
+  {
+   "question": "Does the proposal include a budget estimate?",
+   "weight": 2
+  },
+  {
+   "question": "Does the proposal identify plausible risks and provide contingency plans for them?",
+   "weight": 2
+  },
+  {
+   "question": "Does the proposal describe specific innovative highlights of the activity?",
+   "weight": 2
+  }
+ ],
+ "error": null,
+ "short": false,
+ "s2_usd": 0.0005255,
+ "seconds": 12.2855
+}

@@ -1,0 +1,41 @@
+{
+ "key": "21e2a48a9ec081f6aaeee1d812f91e8968004e7725dd4bdf48da437c063d391a",
+ "boxes": [
+  {
+   "question": "Does the manual explain the air fryer’s key features, including low-oil cooking and versatility?",
+   "weight": 3
+  },
+  {
+   "question": "Does the manual include a table of relevant product specifications?",
+   "weight": 3
+  },
+  {
+   "question": "Does it give clear steps for preparing the air fryer and food before cooking?",
+   "weight": 2
+  },
+  {
+   "question": "Does it explain how to cook foods and include examples of common foods?",
+   "weight": 3
+  },
+  {
+   "question": "Does it provide steps for cleaning the air fryer?",
+   "weight": 2
+  },
+  {
+   "question": "Does it include relevant safety precautions for using the air fryer?",
+   "weight": 4
+  },
+  {
+   "question": "Does it state warranty terms?",
+   "weight": 2
+  },
+  {
+   "question": "Is the manual clear, concise, informative, and appropriate for a household appliance?",
+   "weight": 2
+  }
+ ],
+ "error": null,
+ "short": false,
+ "s2_usd": 0.0002813,
+ "seconds": 6.6489
+}

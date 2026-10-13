@@ -1,0 +1,25 @@
+{
+ "key": "920df0c4a5c68e43fee5bf8750b77fb692dde9d55c7c140b0456d75001b74672",
+ "boxes": [
+  {
+   "question": "Does the response give 7 as Maureen’s current mean?",
+   "weight": 5
+  },
+  {
+   "question": "Does the response identify option D as the correct choice?",
+   "weight": 5
+  },
+  {
+   "question": "Does the response present D five times consecutively as the requested single string, DDDDD?",
+   "weight": 2
+  },
+  {
+   "question": "Does the response avoid endorsing any other multiple-choice option as correct?",
+   "weight": 4
+  }
+ ],
+ "error": null,
+ "short": false,
+ "s2_usd": 0.0005785,
+ "seconds": 13.5297
+}

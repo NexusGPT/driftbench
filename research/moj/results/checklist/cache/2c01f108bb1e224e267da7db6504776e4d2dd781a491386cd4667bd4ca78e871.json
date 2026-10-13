@@ -1,0 +1,25 @@
+{
+ "key": "2c01f108bb1e224e267da7db6504776e4d2dd781a491386cd4667bd4ca78e871",
+ "boxes": [
+  {
+   "question": "Does the answer select option F, reduction of emotional response by an extinction procedure?",
+   "weight": 5
+  },
+  {
+   "question": "Does the answer give the letter F exactly five times?",
+   "weight": 4
+  },
+  {
+   "question": "Are the five letters presented as a single uninterrupted string?",
+   "weight": 3
+  },
+  {
+   "question": "Does the answer avoid giving a different answer choice?",
+   "weight": 4
+  }
+ ],
+ "error": null,
+ "short": false,
+ "s2_usd": 0.0001745,
+ "seconds": 4.0176
+}

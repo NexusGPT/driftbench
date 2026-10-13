@@ -1,0 +1,25 @@
+{
+ "key": "0ec61231f2fc9ed715c0769e71c74203d477f281bf512dd45ba4d66c51d9c50a",
+ "boxes": [
+  {
+   "question": "Does the answer identify position 3 as the position of the Argentine person?",
+   "weight": 5
+  },
+  {
+   "question": "Does the answer give the position as a single digit?",
+   "weight": 1
+  },
+  {
+   "question": "Does the answer use the requested format, ***N***?",
+   "weight": 1
+  },
+  {
+   "question": "Does the answer avoid giving a conflicting position for the Argentine person?",
+   "weight": 2
+  }
+ ],
+ "error": null,
+ "short": false,
+ "s2_usd": 0.0003923,
+ "seconds": 9.1773
+}

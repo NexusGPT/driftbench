@@ -1,0 +1,29 @@
+{
+ "key": "e7519bf83da235e86c77410369442711feca153328780b0285395018ac8e8587",
+ "boxes": [
+  {
+   "question": "Ist die Antwort auf Deutsch verfasst?",
+   "weight": 2
+  },
+  {
+   "question": "Schlägt die Antwort einen konkreten TikTok-Trend vor, bei dem Toastbrot und Taschenlampen beide eine wesentliche Rolle spielen?",
+   "weight": 5
+  },
+  {
+   "question": "Ist die Idee auf humorvolle Unterhaltung ausgelegt, statt auf den Verkauf von etwas?",
+   "weight": 5
+  },
+  {
+   "question": "Beschreibt die Antwort ausreichend konkrete Schritte oder eine erkennbare Durchführung, damit man den Trend ausprobieren kann?",
+   "weight": 3
+  },
+  {
+   "question": "Ist die vorgeschlagene Durchführung sicher und für TikTok geeignet?",
+   "weight": 4
+  }
+ ],
+ "error": null,
+ "short": false,
+ "s2_usd": 0.0001575,
+ "seconds": 3.7647
+}

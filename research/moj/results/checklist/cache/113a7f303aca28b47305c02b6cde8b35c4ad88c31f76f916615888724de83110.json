@@ -1,0 +1,29 @@
+{
+ "key": "113a7f303aca28b47305c02b6cde8b35c4ad88c31f76f916615888724de83110",
+ "boxes": [
+  {
+   "question": "Does the answer give a method that finds the largest value obtainable through the permitted operations, rather than simply maximizing the total sum of the array?",
+   "weight": 5
+  },
+  {
+   "question": "Does the method merge a preceding value into an accumulated value only when the preceding value is no greater than that accumulated value?",
+   "weight": 5
+  },
+  {
+   "question": "When a preceding value is too large to merge into the current accumulated value, does the method correctly treat it as the start of a new potential merged segment?",
+   "weight": 5
+  },
+  {
+   "question": "Does the method return the largest attainable accumulated segment value, including values from segments that cannot be merged into the final suffix?",
+   "weight": 5
+  },
+  {
+   "question": "Does the method handle a one-element input and run efficiently for arrays of length up to 10^5?",
+   "weight": 3
+  }
+ ],
+ "error": null,
+ "short": false,
+ "s2_usd": 0.0006162,
+ "seconds": 16.5001
+}

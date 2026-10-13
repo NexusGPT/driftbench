@@ -1,0 +1,25 @@
+{
+ "key": "f6c06ca2c7e0d6d706db655a2804ae807114c97ad67dc65d9f6c51ea9b311e2a",
+ "boxes": [
+  {
+   "question": "Does the answer give the determinant as 33, or an exactly equivalent value?",
+   "weight": 5
+  },
+  {
+   "question": "Is the determinant reported as positive?",
+   "weight": 3
+  },
+  {
+   "question": "Does the reported determinant have magnitude 33?",
+   "weight": 3
+  },
+  {
+   "question": "Does the answer avoid giving a conflicting value for the determinant?",
+   "weight": 4
+  }
+ ],
+ "error": null,
+ "short": false,
+ "s2_usd": 0.0004356,
+ "seconds": 10.6809
+}

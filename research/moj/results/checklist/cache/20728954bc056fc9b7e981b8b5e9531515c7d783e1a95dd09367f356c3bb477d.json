@@ -1,0 +1,25 @@
+{
+ "key": "20728954bc056fc9b7e981b8b5e9531515c7d783e1a95dd09367f356c3bb477d",
+ "boxes": [
+  {
+   "question": "Does the answer identify a valid pair only when the absolute difference between the two gift values is at most D?",
+   "weight": 5
+  },
+  {
+   "question": "When at least one valid pair exists, does the answer return the maximum sum among all valid pairs?",
+   "weight": 5
+  },
+  {
+   "question": "Does the answer return -1 if and only if no valid pair exists?",
+   "weight": 5
+  },
+  {
+   "question": "Does the proposed method handle the stated input limits and possible sums up to 2×10^18 without overflow?",
+   "weight": 4
+  }
+ ],
+ "error": null,
+ "short": false,
+ "s2_usd": 0.0002175,
+ "seconds": 4.1897
+}

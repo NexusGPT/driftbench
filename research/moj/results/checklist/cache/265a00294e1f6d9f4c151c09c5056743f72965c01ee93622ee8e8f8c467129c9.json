@@ -1,0 +1,25 @@
+{
+ "key": "265a00294e1f6d9f4c151c09c5056743f72965c01ee93622ee8e8f8c467129c9",
+ "boxes": [
+  {
+   "question": "Does the response identify option I as the answer?",
+   "weight": 5
+  },
+  {
+   "question": "Does the response repeat the selected letter exactly five times?",
+   "weight": 3
+  },
+  {
+   "question": "Are the five letters presented as one continuous string?",
+   "weight": 2
+  },
+  {
+   "question": "Does the response avoid including a different answer letter in addition to the selected string?",
+   "weight": 1
+  }
+ ],
+ "error": null,
+ "short": false,
+ "s2_usd": 0.0004094,
+ "seconds": 9.1332
+}

@@ -1,0 +1,25 @@
+{
+ "key": "08be460458bbe600d211e33dd54f12a5fc8d36239537d3c0ba771ea14eb73c05",
+ "boxes": [
+  {
+   "question": "Does the response identify the profit-maximizing bid as k = 3c/2?",
+   "weight": 5
+  },
+  {
+   "question": "Does the response select option B?",
+   "weight": 5
+  },
+  {
+   "question": "Does the response give the letter B five times consecutively in a single string?",
+   "weight": 2
+  },
+  {
+   "question": "Does the response avoid giving a conflicting bid or answer choice?",
+   "weight": 4
+  }
+ ],
+ "error": null,
+ "short": false,
+ "s2_usd": 0.0004131,
+ "seconds": 10.4414
+}

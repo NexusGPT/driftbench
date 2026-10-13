@@ -1,0 +1,25 @@
+{
+ "key": "b3d99d4c7abad145b9139d948c2bb8ec5e6515a7617fcd252e7770c5331638f4",
+ "boxes": [
+  {
+   "question": "Does the answer give a result that is the minimum achievable array length for every allowed input?",
+   "weight": 5
+  },
+  {
+   "question": "Does the answer account for the strict inequality by ensuring equal-valued elements cannot be paired for removal?",
+   "weight": 4
+  },
+  {
+   "question": "Does the answer account for the maximum removable-pair count being min(floor(n/2), n − f), where f is the largest value frequency?",
+   "weight": 4
+  },
+  {
+   "question": "Does the answer produce the stated outputs for all three examples?",
+   "weight": 2
+  }
+ ],
+ "error": null,
+ "short": false,
+ "s2_usd": 0.0007488,
+ "seconds": 15.5846
+}

@@ -1,0 +1,25 @@
+{
+ "key": "b9771491bd3dbffac985fe2485d01e1e64046cb1906f9bcd1050a0d9d76b3a5f",
+ "boxes": [
+  {
+   "question": "Does the answer evaluate the concatenation of n, 2 × n, and 3 × n, in that order?",
+   "weight": 3
+  },
+  {
+   "question": "Does the answer require that the concatenated result contain no 0 digits?",
+   "weight": 3
+  },
+  {
+   "question": "Does the answer require each digit from 1 through 9 to occur exactly once?",
+   "weight": 5
+  },
+  {
+   "question": "Does the answer return true exactly when all the required digit conditions are met, and false otherwise?",
+   "weight": 5
+  }
+ ],
+ "error": null,
+ "short": false,
+ "s2_usd": 0.0003668,
+ "seconds": 9.0773
+}

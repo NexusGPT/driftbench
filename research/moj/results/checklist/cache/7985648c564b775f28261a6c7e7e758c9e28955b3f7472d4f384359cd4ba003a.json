@@ -1,0 +1,29 @@
+{
+ "key": "7985648c564b775f28261a6c7e7e758c9e28955b3f7472d4f384359cd4ba003a",
+ "boxes": [
+  {
+   "question": "¿Está toda la respuesta en español?",
+   "weight": 1
+  },
+  {
+   "question": "¿Presenta exactamente diez pares de palabras?",
+   "weight": 3
+  },
+  {
+   "question": "¿Contiene cada par dos palabras distintas?",
+   "weight": 2
+  },
+  {
+   "question": "¿Son homófonas las dos palabras de cada par en alguna variedad del español?",
+   "weight": 5
+  },
+  {
+   "question": "¿Evita repetir pares?",
+   "weight": 2
+  }
+ ],
+ "error": null,
+ "short": false,
+ "s2_usd": 0.00022830000000000002,
+ "seconds": 6.098
+}

@@ -1,0 +1,25 @@
+{
+ "key": "4214ee3c9471728932a578cdb0343cccf1c28f76f9f396468139db0c03899eb6",
+ "boxes": [
+  {
+   "question": "Does the answer give 3 as the total number of resulting triangular pieces?",
+   "weight": 5
+  },
+  {
+   "question": "If the answer discusses the square, does it correctly identify that the cut produces one triangular piece from it?",
+   "weight": 2
+  },
+  {
+   "question": "If the answer discusses the square, does it correctly identify that its other resulting piece is not a triangle?",
+   "weight": 2
+  },
+  {
+   "question": "If the answer discusses the equilateral triangle, does it correctly identify that the cut produces two triangular pieces from it?",
+   "weight": 2
+  }
+ ],
+ "error": null,
+ "short": false,
+ "s2_usd": 0.0009706000000000001,
+ "seconds": 25.1177
+}

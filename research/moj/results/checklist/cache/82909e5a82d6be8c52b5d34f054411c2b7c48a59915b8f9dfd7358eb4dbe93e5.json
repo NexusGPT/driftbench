@@ -1,0 +1,25 @@
+{
+ "key": "82909e5a82d6be8c52b5d34f054411c2b7c48a59915b8f9dfd7358eb4dbe93e5",
+ "boxes": [
+  {
+   "question": "Ordina le parole con almeno due lettere in questo ordine, in base alla seconda lettera: «labbro», «minoranza», «allontanare», «nuovo»?",
+   "weight": 5
+  },
+  {
+   "question": "Segnala che «e» non ha una seconda lettera e quindi non può essere ordinata secondo il criterio richiesto?",
+   "weight": 4
+  },
+  {
+   "question": "Riporta tutte le parole originali, senza ometterne o modificarne alcuna?",
+   "weight": 3
+  },
+  {
+   "question": "Risponde in italiano?",
+   "weight": 1
+  }
+ ],
+ "error": null,
+ "short": false,
+ "s2_usd": 0.0002762,
+ "seconds": 6.8982
+}

@@ -1,0 +1,25 @@
+{
+ "key": "1fb4c485e322a4f77ffe62a67a4fac31c91b08859d30db73739c4322e533817d",
+ "boxes": [
+  {
+   "question": "Does the answer identify option C as the correct choice?",
+   "weight": 5
+  },
+  {
+   "question": "Does the answer repeat the letter C exactly five times?",
+   "weight": 4
+  },
+  {
+   "question": "Are the five letters presented together as a single string?",
+   "weight": 2
+  },
+  {
+   "question": "Does the answer contain only that five-letter string, with no additional text?",
+   "weight": 2
+  }
+ ],
+ "error": null,
+ "short": false,
+ "s2_usd": 0.00022869999999999998,
+ "seconds": 5.3777
+}

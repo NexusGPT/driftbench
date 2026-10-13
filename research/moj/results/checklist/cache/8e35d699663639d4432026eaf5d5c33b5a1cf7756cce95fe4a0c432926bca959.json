@@ -1,0 +1,25 @@
+{
+ "key": "8e35d699663639d4432026eaf5d5c33b5a1cf7756cce95fe4a0c432926bca959",
+ "boxes": [
+  {
+   "question": "Does the answer identify filmmaking as the hobby?",
+   "weight": 5
+  },
+  {
+   "question": "Does the answer make clear that filmmaking is the hobby of the person who is Thai?",
+   "weight": 5
+  },
+  {
+   "question": "Is the answer a single word inside the requested answer format?",
+   "weight": 2
+  },
+  {
+   "question": "Is the answer enclosed by three asterisks on each side, as requested?",
+   "weight": 2
+  }
+ ],
+ "error": null,
+ "short": false,
+ "s2_usd": 0.0002877,
+ "seconds": 7.1811
+}

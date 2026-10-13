@@ -1,0 +1,25 @@
+{
+ "key": "5a3bf47cf549c27abab187824e5f6f357715db44931c40980f40637033dacf71",
+ "boxes": [
+  {
+   "question": "Does the response identify option I as the correct answer?",
+   "weight": 5
+  },
+  {
+   "question": "Does the response give exactly five copies of its chosen letter?",
+   "weight": 1
+  },
+  {
+   "question": "Are all five letters in the response string identical?",
+   "weight": 1
+  },
+  {
+   "question": "Is the five-letter string presented without additional text?",
+   "weight": 1
+  }
+ ],
+ "error": null,
+ "short": false,
+ "s2_usd": 0.0008679,
+ "seconds": 18.9463
+}

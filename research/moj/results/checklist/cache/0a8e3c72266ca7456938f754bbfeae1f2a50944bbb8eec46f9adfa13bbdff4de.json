@@ -1,0 +1,29 @@
+{
+ "key": "0a8e3c72266ca7456938f754bbfeae1f2a50944bbb8eec46f9adfa13bbdff4de",
+ "boxes": [
+  {
+   "question": "Does the answer identify (B) as the correct choice?",
+   "weight": 5
+  },
+  {
+   "question": "Does the answer state that justice has value?",
+   "weight": 3
+  },
+  {
+   "question": "Does the answer state that usefulness to society contributes to justice’s value?",
+   "weight": 4
+  },
+  {
+   "question": "Does the answer avoid claiming that justice’s value comes solely from its usefulness to society?",
+   "weight": 3
+  },
+  {
+   "question": "Does the answer avoid claiming that justice’s value comes solely from its usefulness to the agent?",
+   "weight": 2
+  }
+ ],
+ "error": null,
+ "short": false,
+ "s2_usd": 0.0005971,
+ "seconds": 13.7153
+}

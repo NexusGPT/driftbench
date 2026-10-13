@@ -1,0 +1,37 @@
+{
+ "key": "475f77b9f94898729c0902661506800a431f4e6119735b60977769eac372df34",
+ "boxes": [
+  {
+   "question": "Does the response take the negative side by arguing that the gig economy is more harmful than beneficial to society?",
+   "weight": 3
+  },
+  {
+   "question": "Is the response written as a debate speech for the negative side’s third speaker?",
+   "weight": 2
+  },
+  {
+   "question": "Does it argue that workers’ rights are eroded behind the appearance of flexible employment?",
+   "weight": 3
+  },
+  {
+   "question": "Does it explain how algorithmic control undermines workers’ freedom in the gig economy?",
+   "weight": 3
+  },
+  {
+   "question": "Does it discuss how the gig economy’s social-security impacts create high social costs?",
+   "weight": 3
+  },
+  {
+   "question": "Does it support its arguments with real-world examples?",
+   "weight": 3
+  },
+  {
+   "question": "Does the speech use empathetic language while maintaining a critical spirit?",
+   "weight": 2
+  }
+ ],
+ "error": null,
+ "short": false,
+ "s2_usd": 0.0001747,
+ "seconds": 4.4974
+}

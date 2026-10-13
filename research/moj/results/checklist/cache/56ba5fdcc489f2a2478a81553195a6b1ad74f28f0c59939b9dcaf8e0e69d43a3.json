@@ -1,0 +1,33 @@
+{
+ "key": "56ba5fdcc489f2a2478a81553195a6b1ad74f28f0c59939b9dcaf8e0e69d43a3",
+ "boxes": [
+  {
+   "question": "Does the biography accurately identify Qian Xuesen as a Chinese aerospace engineer who lived from 1911 to 2009?",
+   "weight": 3
+  },
+  {
+   "question": "Does it describe his academic path through MIT and Caltech, including his work under Theodore von Kármán?",
+   "weight": 4
+  },
+  {
+   "question": "Does it accurately explain his Cold War detention in the United States and his return to China?",
+   "weight": 4
+  },
+  {
+   "question": "Does it describe his pivotal role in establishing or leading China’s missile and space programs after his return?",
+   "weight": 5
+  },
+  {
+   "question": "Does it give technically grounded detail about his contributions connected to the “Two Bombs, One Satellite” program?",
+   "weight": 5
+  },
+  {
+   "question": "Does it address his leadership philosophy and maintain an objective historical tone?",
+   "weight": 3
+  }
+ ],
+ "error": null,
+ "short": false,
+ "s2_usd": 0.00023359999999999999,
+ "seconds": 5.255
+}

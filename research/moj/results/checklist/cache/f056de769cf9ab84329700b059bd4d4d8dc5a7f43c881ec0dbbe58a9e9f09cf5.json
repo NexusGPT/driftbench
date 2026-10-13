@@ -1,0 +1,25 @@
+{
+ "key": "f056de769cf9ab84329700b059bd4d4d8dc5a7f43c881ec0dbbe58a9e9f09cf5",
+ "boxes": [
+  {
+   "question": "La risposta ordina le parole considerando la seconda lettera di ciascuna?",
+   "weight": 3
+  },
+  {
+   "question": "Mette «organizzazione» e «presente» prima delle parole la cui seconda lettera è «u»?",
+   "weight": 5
+  },
+  {
+   "question": "Include tutte e cinque le parole originali, ciascuna una sola volta?",
+   "weight": 4
+  },
+  {
+   "question": "Risponde in italiano?",
+   "weight": 2
+  }
+ ],
+ "error": null,
+ "short": false,
+ "s2_usd": 0.0001735,
+ "seconds": 4.0561
+}

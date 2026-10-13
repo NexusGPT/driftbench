@@ -1,0 +1,25 @@
+{
+ "key": "a88f95a1dc3812b87d8d1b90fe7a5e9f01033f1a4145143f1dd6b35183bb5adc",
+ "boxes": [
+  {
+   "question": "Does the answer give a flat-plate mass transfer coefficient of 0.516 ft/sec?",
+   "weight": 5
+  },
+  {
+   "question": "Does the answer give a sphere mass transfer coefficient of 0.25 ft/sec?",
+   "weight": 5
+  },
+  {
+   "question": "Does the answer identify option B as the correct choice?",
+   "weight": 5
+  },
+  {
+   "question": "Does the answer provide the selected letter five times in a single string?",
+   "weight": 1
+  }
+ ],
+ "error": null,
+ "short": false,
+ "s2_usd": 0.0004045,
+ "seconds": 8.5952
+}

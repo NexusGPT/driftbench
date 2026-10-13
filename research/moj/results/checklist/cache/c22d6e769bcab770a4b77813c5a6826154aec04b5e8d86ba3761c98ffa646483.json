@@ -1,0 +1,41 @@
+{
+ "key": "c22d6e769bcab770a4b77813c5a6826154aec04b5e8d86ba3761c98ffa646483",
+ "boxes": [
+  {
+   "question": "Is the response approximately 1,500 words and written as a keynote speech for the Global Tech Ethics Summit?",
+   "weight": 2
+  },
+  {
+   "question": "Does the speech use the exact title “Technology for Good: Illuminating the Future of a Shared Human Destiny”?",
+   "weight": 1
+  },
+  {
+   "question": "Does it discuss current AI and quantum breakthroughs and include accurate real data, including the stated example of China’s 98% deep-sea exploration coverage?",
+   "weight": 5
+  },
+  {
+   "question": "Does it use Einstein’s quote about science and religion to explore ethical paradoxes?",
+   "weight": 3
+  },
+  {
+   "question": "Does it include both Cindy’s journey as a weather presenter and Pan Jianwei’s quantum team as historical case studies?",
+   "weight": 3
+  },
+  {
+   "question": "Does it propose actionable solutions that include the UN AI Ethics Framework, China’s 5G village project, and MIT’s “Poetry & Algorithms” course?",
+   "weight": 4
+  },
+  {
+   "question": "Does it maintain an inspirational tone and use literary metaphors, such as technology as a speeding train?",
+   "weight": 2
+  },
+  {
+   "question": "Does it include a quote from Wang Xuan about technology being guided by humans?",
+   "weight": 3
+  }
+ ],
+ "error": null,
+ "short": false,
+ "s2_usd": 0.0003401,
+ "seconds": 6.3804
+}

@@ -1,0 +1,25 @@
+{
+ "key": "dd5222d071713a01b61869f1e5ed9a1e1a453127ec16ed3fa3c37a346b4aff05",
+ "boxes": [
+  {
+   "question": "Does the answer correctly state that the premises do not determine a unique nationality for the person who listens to dubstep?",
+   "weight": 5
+  },
+  {
+   "question": "Does the answer identify Egyptian as a possible nationality for the person who listens to dubstep?",
+   "weight": 4
+  },
+  {
+   "question": "Does the answer identify Malaysian as a possible nationality for the person who listens to dubstep?",
+   "weight": 4
+  },
+  {
+   "question": "Does the answer avoid presenting either possible nationality as uniquely determined by the premises?",
+   "weight": 5
+  }
+ ],
+ "error": null,
+ "short": false,
+ "s2_usd": 0.0005599,
+ "seconds": 13.3697
+}

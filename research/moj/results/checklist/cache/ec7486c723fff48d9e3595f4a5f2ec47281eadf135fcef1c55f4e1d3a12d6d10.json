@@ -1,0 +1,25 @@
+{
+ "key": "ec7486c723fff48d9e3595f4a5f2ec47281eadf135fcef1c55f4e1d3a12d6d10",
+ "boxes": [
+  {
+   "question": "Does the answer correctly determine whether the two rows can be made identical after rearranging cards and replacing each @ only with a, t, c, o, d, e, or r?",
+   "weight": 5
+  },
+  {
+   "question": "Does the answer require the counts of every lowercase letter outside {a, t, c, o, d, e, r} to be equal in S and T?",
+   "weight": 4
+  },
+  {
+   "question": "Does the answer correctly account for whether each row has enough @ cards to make up its deficits in the allowed letters?",
+   "weight": 5
+  },
+  {
+   "question": "Does the proposed method handle the input lengths up to 2 × 10^5 without relying on impractical time or memory usage?",
+   "weight": 3
+  }
+ ],
+ "error": null,
+ "short": false,
+ "s2_usd": 0.0003552,
+ "seconds": 7.9562
+}

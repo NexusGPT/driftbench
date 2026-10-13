@@ -1,0 +1,25 @@
+{
+ "key": "fa63c0960d0a73a6f1fe61f6251ded64870f6a76d99d7ab07acfe98d16bf3e7b",
+ "boxes": [
+  {
+   "question": "La réponse comprend-elle que les 4 gallons ajoutés correspondent au carburant consommé pour parcourir les 100 miles ?",
+   "weight": 3
+  },
+  {
+   "question": "La réponse calcule-t-elle correctement une consommation de 25 miles par gallon ?",
+   "weight": 4
+  },
+  {
+   "question": "La réponse utilise-t-elle correctement la capacité de 12 gallons pour conclure que Sophie peut parcourir 300 miles avec un plein ?",
+   "weight": 5
+  },
+  {
+   "question": "La réponse est-elle rédigée en français ?",
+   "weight": 1
+  }
+ ],
+ "error": null,
+ "short": false,
+ "s2_usd": 0.0001749,
+ "seconds": 5.0722
+}

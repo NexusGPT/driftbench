@@ -1,0 +1,17 @@
+{
+ "key": "1404813bdcaa2402d1b554b38bdb7af7554ea1e9e534fe929e546ef2dd30f36c",
+ "boxes": [
+  {
+   "question": "Does the answer give the correct number of pieces after the cut?",
+   "weight": 5
+  },
+  {
+   "question": "Is the final answer a single integer in bold?",
+   "weight": 1
+  }
+ ],
+ "error": null,
+ "short": true,
+ "s2_usd": 6.25e-05,
+ "seconds": 1.5647
+}

@@ -1,0 +1,25 @@
+{
+ "key": "defbb4b3e85f02dca9a7b23786876e8e65f7a3bd7b350db29576b167422719b6",
+ "boxes": [
+  {
+   "question": "Does the response identify J as the correct answer?",
+   "weight": 5
+  },
+  {
+   "question": "Does the response give the same answer letter exactly five times?",
+   "weight": 1
+  },
+  {
+   "question": "Are the five letters presented together as a single uninterrupted string?",
+   "weight": 1
+  },
+  {
+   "question": "Does the response avoid adding other text to that string?",
+   "weight": 1
+  }
+ ],
+ "error": null,
+ "short": false,
+ "s2_usd": 0.0006353999999999999,
+ "seconds": 15.2178
+}

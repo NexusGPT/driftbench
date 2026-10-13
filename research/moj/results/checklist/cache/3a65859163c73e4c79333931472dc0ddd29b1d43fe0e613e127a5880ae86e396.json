@@ -1,0 +1,41 @@
+{
+ "key": "3a65859163c73e4c79333931472dc0ddd29b1d43fe0e613e127a5880ae86e396",
+ "boxes": [
+  {
+   "question": "Is the story told from the perspective of an ordinary person rather than a powerful martial artist?",
+   "weight": 2
+  },
+  {
+   "question": "Is the protagonist a clever innkeeper who is unfamiliar with martial arts?",
+   "weight": 3
+  },
+  {
+   "question": "Is the inn situated at a key crossroads of the jianghu?",
+   "weight": 2
+  },
+  {
+   "question": "Do two rival sects coincidentally choose the same inn as their secret base for the same night?",
+   "weight": 4
+  },
+  {
+   "question": "Does the protagonist use his wits and silver tongue to play the rival sects against each other?",
+   "weight": 4
+  },
+  {
+   "question": "Does the protagonist use knowledge of jianghu gossip as part of his plan?",
+   "weight": 3
+  },
+  {
+   "question": "Does the protagonist’s plan prevent the inn from being destroyed?",
+   "weight": 5
+  },
+  {
+   "question": "Does the story combine tense comedy with a focus on the ordinary person’s survival intelligence amid powerful martial artists?",
+   "weight": 3
+  }
+ ],
+ "error": null,
+ "short": false,
+ "s2_usd": 0.00026619999999999997,
+ "seconds": 5.8451
+}

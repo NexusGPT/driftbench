@@ -1,0 +1,29 @@
+{
+ "key": "6d21d596e310fb52423a9fb6caf4d11feb55ad1f6f410912abce3263887fb0c7",
+ "boxes": [
+  {
+   "question": "答案是否明确围绕《底特律：变人》展开？",
+   "weight": 3
+  },
+  {
+   "question": "答案是否以第一人称调侃自己白天上班、晚上回家玩游戏还要在游戏里当保姆？",
+   "weight": 5
+  },
+  {
+   "question": "答案是否把现实中的上班与游戏里的保姆生活形成清楚的幽默对照？",
+   "weight": 5
+  },
+  {
+   "question": "答案是否运用排比句来增强表达效果？",
+   "weight": 3
+  },
+  {
+   "question": "答案的措辞是否幽默且读起来朗朗上口？",
+   "weight": 4
+  }
+ ],
+ "error": null,
+ "short": false,
+ "s2_usd": 0.0002407,
+ "seconds": 5.4484
+}

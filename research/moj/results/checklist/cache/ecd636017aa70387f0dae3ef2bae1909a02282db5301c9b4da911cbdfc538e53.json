@@ -1,0 +1,33 @@
+{
+ "key": "ecd636017aa70387f0dae3ef2bae1909a02282db5301c9b4da911cbdfc538e53",
+ "boxes": [
+  {
+   "question": "Does the response provide a definite yes-or-no answer about whether the person at the museum tells the truth?",
+   "weight": 1
+  },
+  {
+   "question": "Does the response correctly answer yes about whether the person at the museum tells the truth?",
+   "weight": 5
+  },
+  {
+   "question": "Does the response provide a definite yes-or-no answer about whether the person at the restaurant tells the truth?",
+   "weight": 1
+  },
+  {
+   "question": "Does the response correctly answer yes about whether the person at the restaurant tells the truth?",
+   "weight": 5
+  },
+  {
+   "question": "Does the response provide a definite yes-or-no answer about whether the person at the movie theater tells the truth?",
+   "weight": 1
+  },
+  {
+   "question": "Does the response correctly answer no about whether the person at the movie theater tells the truth?",
+   "weight": 5
+  }
+ ],
+ "error": null,
+ "short": false,
+ "s2_usd": 0.0006671,
+ "seconds": 16.0029
+}

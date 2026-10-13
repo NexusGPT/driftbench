@@ -1,0 +1,25 @@
+{
+ "key": "dc4438bc850af48bf91d77289f756062826952953a6045ba4c66b64d9bfd43fc",
+ "boxes": [
+  {
+   "question": "Does the answer identify F, reduction of emotional response by an extinction procedure, as the correct choice?",
+   "weight": 5
+  },
+  {
+   "question": "Does the answer give the letter F as its selected answer?",
+   "weight": 5
+  },
+  {
+   "question": "Does the answer include the exact string FFFFF?",
+   "weight": 3
+  },
+  {
+   "question": "Are the five repeated letters all the same as the answer’s selected letter?",
+   "weight": 2
+  }
+ ],
+ "error": null,
+ "short": false,
+ "s2_usd": 0.0002845,
+ "seconds": 7.0952
+}

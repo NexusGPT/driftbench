@@ -1,0 +1,25 @@
+{
+ "key": "c64d774eb9dff347c3ffef11bd3b4938fdba2eed7e9a5546b0f6668b141665cd",
+ "boxes": [
+  {
+   "question": "Does the answer correctly account for each element being changeable to any integer in its inclusive range [nums[i] - k, nums[i] + k]?",
+   "weight": 5
+  },
+  {
+   "question": "Does the answer determine the maximum number of elements whose allowed ranges share a common integer target, without incorrectly requiring their indices to be contiguous?",
+   "weight": 5
+  },
+  {
+   "question": "Would the proposed solution return the correct maximum beauty for every input satisfying the constraints, including cases with k = 0 and repeated values?",
+   "weight": 5
+  },
+  {
+   "question": "Does the answer give or imply the correct outputs 3 for Example 1 and 4 for Example 2?",
+   "weight": 5
+  }
+ ],
+ "error": null,
+ "short": false,
+ "s2_usd": 0.0004708,
+ "seconds": 12.0039
+}

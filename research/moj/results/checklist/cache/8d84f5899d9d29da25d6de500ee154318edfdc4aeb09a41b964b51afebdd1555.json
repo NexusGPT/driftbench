@@ -1,0 +1,29 @@
+{
+ "key": "8d84f5899d9d29da25d6de500ee154318edfdc4aeb09a41b964b51afebdd1555",
+ "boxes": [
+  {
+   "question": "Does the answer determine the frequency of each distinct value in `nums` and handle each value’s occurrences independently?",
+   "weight": 4
+  },
+  {
+   "question": "Does the answer return `-1` if any value occurs exactly once?",
+   "weight": 5
+  },
+  {
+   "question": "For every value occurring at least twice, does the answer calculate the minimum operations needed to remove all its occurrences using groups of two or three?",
+   "weight": 5
+  },
+  {
+   "question": "Does the answer sum those minimum operation counts and return the total?",
+   "weight": 5
+  },
+  {
+   "question": "Can the proposed solution handle arrays of length up to `10^5`?",
+   "weight": 3
+  }
+ ],
+ "error": null,
+ "short": false,
+ "s2_usd": 0.0003891,
+ "seconds": 8.7856
+}

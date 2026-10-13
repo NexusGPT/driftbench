@@ -1,0 +1,41 @@
+{
+ "key": "e0b94c91858757507cd35113eb6d0d241c8457d0f05d781513cbe76d192467bd",
+ "boxes": [
+  {
+   "question": "Does the proposal explain the activity’s background and significance, including its connection to reading policies and the value of sharing resources?",
+   "weight": 2
+  },
+  {
+   "question": "Does the proposal describe a book donation area with clear book-classification standards?",
+   "weight": 2
+  },
+  {
+   "question": "Does the proposal include an interactive experience zone, such as a DIY bookmark workshop, and a publicity display area?",
+   "weight": 2
+  },
+  {
+   "question": "Does the proposal give a detailed execution process covering preparation before the event, on-site implementation, and post-event follow-up?",
+   "weight": 3
+  },
+  {
+   "question": "Does the proposal specify promotion strategies using both online and offline channels?",
+   "weight": 2
+  },
+  {
+   "question": "Does the proposal provide a budget estimate and plans for handling potential risks or contingencies?",
+   "weight": 3
+  },
+  {
+   "question": "Does the proposal identify innovative highlights that make the activity distinctive?",
+   "weight": 1
+  },
+  {
+   "question": "Is the proposal professionally structured and specific about the event’s time, location, and target participants?",
+   "weight": 3
+  }
+ ],
+ "error": null,
+ "short": false,
+ "s2_usd": 0.00019,
+ "seconds": 3.9433
+}

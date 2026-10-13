@@ -1,0 +1,25 @@
+{
+ "key": "0c6d38e0d3f3760c11ec820e3a8546b60c6145c4d662af6ec110fa1a2ecf97b2",
+ "boxes": [
+  {
+   "question": "Does the answer correctly say that the person at the cafe does not tell the truth?",
+   "weight": 5
+  },
+  {
+   "question": "Does the answer correctly say that the person at the campground tells the truth?",
+   "weight": 5
+  },
+  {
+   "question": "Does the answer correctly say that the person at the art gallery does not tell the truth?",
+   "weight": 5
+  },
+  {
+   "question": "Does the answer give the three answers in the requested order as a list of yes-or-no words?",
+   "weight": 1
+  }
+ ],
+ "error": null,
+ "short": false,
+ "s2_usd": 0.0002465,
+ "seconds": 5.3738
+}

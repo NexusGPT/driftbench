@@ -1,0 +1,25 @@
+{
+ "key": "4b5ffcca2093c5c735f17f18867d11eebe544a77d7cbae8e58e80b847d122eb8",
+ "boxes": [
+  {
+   "question": "Does the answer correctly identify D as “deterministic” (German: “deterministisch”)?",
+   "weight": 2
+  },
+  {
+   "question": "Does the answer correctly identify F as “finite” (German: “endlich”)?",
+   "weight": 2
+  },
+  {
+   "question": "Does the answer correctly identify A as “automaton” (German: “Automat”)?",
+   "weight": 2
+  },
+  {
+   "question": "Is the answer written in German?",
+   "weight": 1
+  }
+ ],
+ "error": null,
+ "short": false,
+ "s2_usd": 0.0004907,
+ "seconds": 11.3373
+}

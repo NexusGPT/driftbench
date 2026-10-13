@@ -1,0 +1,25 @@
+{
+ "key": "82cd73d70986bb62f0772024403d579c73742c912e6b30e2e67425b008d937d5",
+ "boxes": [
+  {
+   "question": "Does the answer identify asparagus as the food liked by the person who travels by motorbike?",
+   "weight": 5
+  },
+  {
+   "question": "Does the answer give a food value from the listed options?",
+   "weight": 1
+  },
+  {
+   "question": "Does the answer give exactly one food as its answer?",
+   "weight": 1
+  },
+  {
+   "question": "Is the answer formatted as a single word in the form ***X***?",
+   "weight": 1
+  }
+ ],
+ "error": null,
+ "short": false,
+ "s2_usd": 0.0008011,
+ "seconds": 19.8392
+}

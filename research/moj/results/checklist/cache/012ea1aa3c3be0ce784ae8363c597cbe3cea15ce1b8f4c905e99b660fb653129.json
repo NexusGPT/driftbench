@@ -1,0 +1,25 @@
+{
+ "key": "012ea1aa3c3be0ce784ae8363c597cbe3cea15ce1b8f4c905e99b660fb653129",
+ "boxes": [
+  {
+   "question": "Does the answer identify the percentage modulation as 75%?",
+   "weight": 5
+  },
+  {
+   "question": "Does the answer select option (C)?",
+   "weight": 5
+  },
+  {
+   "question": "Does the answer duplicate the selected letter five times?",
+   "weight": 2
+  },
+  {
+   "question": "Is the duplicated letter presented as a single string?",
+   "weight": 1
+  }
+ ],
+ "error": null,
+ "short": false,
+ "s2_usd": 0.0002512,
+ "seconds": 6.0355
+}

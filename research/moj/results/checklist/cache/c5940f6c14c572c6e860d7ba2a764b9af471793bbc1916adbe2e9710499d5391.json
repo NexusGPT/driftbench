@@ -1,0 +1,25 @@
+{
+ "key": "c5940f6c14c572c6e860d7ba2a764b9af471793bbc1916adbe2e9710499d5391",
+ "boxes": [
+  {
+   "question": "Does the answer correctly identify the longest common prefix of the three strings as the longest possible final equal string?",
+   "weight": 5
+  },
+  {
+   "question": "Does the answer compute the minimum operations as the sum of the three string lengths minus three times the length of their longest common prefix?",
+   "weight": 5
+  },
+  {
+   "question": "Does the answer return -1 when the three strings have no nonempty common prefix?",
+   "weight": 5
+  },
+  {
+   "question": "Does the answer’s proposed method produce the correct minimum for all valid inputs, including when the strings are already equal?",
+   "weight": 5
+  }
+ ],
+ "error": null,
+ "short": false,
+ "s2_usd": 0.00030480000000000004,
+ "seconds": 7.2715
+}

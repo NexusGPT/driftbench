@@ -1,0 +1,25 @@
+{
+ "key": "24e47db6d3b3246c715c826b54d7f68a26d5e40f561b3a4826a3738816cdd2d5",
+ "boxes": [
+  {
+   "question": "Does the answer identify the timber cutting on the cultivable section as voluntary waste?",
+   "weight": 5
+  },
+  {
+   "question": "Does the answer use the correct multiple-choice letter, F?",
+   "weight": 5
+  },
+  {
+   "question": "Does the answer contain exactly five repetitions of F in a single string?",
+   "weight": 2
+  },
+  {
+   "question": "Does the answer contain only that five-letter string, with no additional text?",
+   "weight": 1
+  }
+ ],
+ "error": null,
+ "short": false,
+ "s2_usd": 0.0005449,
+ "seconds": 11.9887
+}

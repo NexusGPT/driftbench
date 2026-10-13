@@ -1,0 +1,41 @@
+{
+ "key": "c4031173e9d9e4b43a83f2af3a872f81f4e09886db1cf05fafa022bac478186b",
+ "boxes": [
+  {
+   "question": "Does the piece work as abstract literary fanfiction centered on the Tarnished’s journey in Elden Ring’s dark fantasy world?",
+   "weight": 2
+  },
+  {
+   "question": "Does it portray Melina’s struggle with her destiny as a flame-bearer?",
+   "weight": 1
+  },
+  {
+   "question": "Does it portray Ranni’s rebellion against divine control?",
+   "weight": 1
+  },
+  {
+   "question": "Does it portray Godrick’s desperate ambition?",
+   "weight": 1
+  },
+  {
+   "question": "Does it portray Malenia’s tragic devotion?",
+   "weight": 1
+  },
+  {
+   "question": "Does it portray the Fire Giant’s lonely duty?",
+   "weight": 1
+  },
+  {
+   "question": "Does it explore choice, fate, and the weight of power in a poetic, introspective style that includes philosophical reflection?",
+   "weight": 2
+  },
+  {
+   "question": "Does it present the endings of rebuilding the Golden Order, embracing the Age of Stars, and succumbing to the Frenzied Flame, while reflecting on their moral complexities?",
+   "weight": 2
+  }
+ ],
+ "error": null,
+ "short": false,
+ "s2_usd": 0.00030139999999999995,
+ "seconds": 5.8136
+}

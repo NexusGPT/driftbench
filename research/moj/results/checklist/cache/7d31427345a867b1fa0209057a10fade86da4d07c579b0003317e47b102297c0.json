@@ -1,0 +1,25 @@
+{
+ "key": "7d31427345a867b1fa0209057a10fade86da4d07c579b0003317e47b102297c0",
+ "boxes": [
+  {
+   "question": "La réponse traite-t-elle directement de la composition des deux types d’orchestres et de la possibilité qu’ils aient des effectifs différents ?",
+   "weight": 2
+  },
+  {
+   "question": "Indique-t-elle correctement que les termes « symphonique » et « philharmonique » n’impliquent pas, à eux seuls, une différence fixe de composition ou de nombre de musiciens ?",
+   "weight": 3
+  },
+  {
+   "question": "Précise-t-elle que la composition et l’effectif peuvent varier d’un orchestre à l’autre ?",
+   "weight": 2
+  },
+  {
+   "question": "La réponse est-elle rédigée en français et fournit-elle une explication claire et utile à la question posée ?",
+   "weight": 2
+  }
+ ],
+ "error": null,
+ "short": false,
+ "s2_usd": 0.00020580000000000002,
+ "seconds": 4.847
+}

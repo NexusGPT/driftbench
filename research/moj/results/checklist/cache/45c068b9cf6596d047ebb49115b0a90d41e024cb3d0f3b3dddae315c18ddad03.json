@@ -1,0 +1,41 @@
+{
+ "key": "45c068b9cf6596d047ebb49115b0a90d41e024cb3d0f3b3dddae315c18ddad03",
+ "boxes": [
+  {
+   "question": "说明书是否包含产品参数部分？",
+   "weight": 4
+  },
+  {
+   "question": "说明书是否列明配件明细？",
+   "weight": 4
+  },
+  {
+   "question": "操作指南是否说明如何使用手环的移动支付功能？",
+   "weight": 5
+  },
+  {
+   "question": "操作指南是否说明如何查看或使用睡眠质量分析功能？",
+   "weight": 5
+  },
+  {
+   "question": "说明书是否包含保养建议？",
+   "weight": 4
+  },
+  {
+   "question": "安全须知是否明确说明防水功能不适用于游泳或潜水场景？",
+   "weight": 5
+  },
+  {
+   "question": "说明书是否包含常见问题解决办法和保修条款？",
+   "weight": 4
+  },
+  {
+   "question": "语言是否专业、亲民，并避免使用过多技术术语？",
+   "weight": 3
+  }
+ ],
+ "error": null,
+ "short": false,
+ "s2_usd": 0.00041380000000000003,
+ "seconds": 10.5241
+}

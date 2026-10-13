@@ -1,0 +1,33 @@
+{
+ "key": "abb41bd85c07170d6247cd347362486664aeec47ae6ef9d439cfcb4bbe085ba4",
+ "boxes": [
+  {
+   "question": "Does the report use the title “A Study on the Effects of Different Salinity Stress Levels on Rice Seedling Growth”?",
+   "weight": 2
+  },
+  {
+   "question": "Does the report center the experiment on rice seedlings?",
+   "weight": 3
+  },
+  {
+   "question": "Does the report investigate how salinity affects rice seedling growth metrics?",
+   "weight": 4
+  },
+  {
+   "question": "Does the report describe an experimental design that includes a control group irrigated with pure water?",
+   "weight": 5
+  },
+  {
+   "question": "Does the report include at least three experimental groups assigned different salt concentration levels?",
+   "weight": 5
+  },
+  {
+   "question": "Is the report clear and coherent enough to explain its experimental design and purpose?",
+   "weight": 2
+  }
+ ],
+ "error": null,
+ "short": false,
+ "s2_usd": 0.0002602,
+ "seconds": 5.817
+}

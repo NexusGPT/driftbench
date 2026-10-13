@@ -1,0 +1,29 @@
+{
+ "key": "54a45704ffbc5d089af253b913318415484ad3aad1d320a3d4aac5e21a3293e4",
+ "boxes": [
+  {
+   "question": "La réponse est-elle rédigée en français ?",
+   "weight": 1
+  },
+  {
+   "question": "Répond-elle directement à la question de savoir si un orchestre symphonique compte nécessairement plus de musiciens qu’un orchestre philharmonique, en indiquant qu’il n’existe pas de règle générale en ce sens ?",
+   "weight": 5
+  },
+  {
+   "question": "Explique-t-elle que les deux appellations ne déterminent pas à elles seules une composition instrumentale différente ?",
+   "weight": 5
+  },
+  {
+   "question": "Précise-t-elle que les effectifs et les instruments dépendent de l’orchestre concerné et peuvent varier selon les œuvres ou le répertoire ?",
+   "weight": 4
+  },
+  {
+   "question": "Évite-t-elle de présenter « philharmonique » comme une catégorie technique impliquant nécessairement un effectif, une instrumentation ou un répertoire moderne distincts ?",
+   "weight": 4
+  }
+ ],
+ "error": null,
+ "short": false,
+ "s2_usd": 0.00038730000000000004,
+ "seconds": 9.2265
+}

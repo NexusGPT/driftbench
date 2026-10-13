@@ -1,0 +1,25 @@
+{
+ "key": "9213d752c4e743bc0404dcabd708d70daeabc78ecdf39173e141e425023b33bb",
+ "boxes": [
+  {
+   "question": "Does the answer identify J (none of the above) as the correct choice?",
+   "weight": 5
+  },
+  {
+   "question": "Does the answer contain exactly five letters?",
+   "weight": 2
+  },
+  {
+   "question": "Are all five letters in the answer identical?",
+   "weight": 2
+  },
+  {
+   "question": "Does the answer contain no extra text beyond the five-letter string?",
+   "weight": 1
+  }
+ ],
+ "error": null,
+ "short": false,
+ "s2_usd": 0.00045339999999999996,
+ "seconds": 10.848
+}

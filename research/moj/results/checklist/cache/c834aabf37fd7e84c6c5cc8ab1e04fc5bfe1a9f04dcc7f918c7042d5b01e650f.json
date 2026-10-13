@@ -1,0 +1,25 @@
+{
+ "key": "c834aabf37fd7e84c6c5cc8ab1e04fc5bfe1a9f04dcc7f918c7042d5b01e650f",
+ "boxes": [
+  {
+   "question": "Does the answer correctly say that the person at the aquarium does not tell the truth?",
+   "weight": 5
+  },
+  {
+   "question": "Does the answer correctly say that the person at the movie theater tells the truth?",
+   "weight": 5
+  },
+  {
+   "question": "Does the answer correctly say that the person at the campground tells the truth?",
+   "weight": 5
+  },
+  {
+   "question": "Does the answer give the three truth values in the requested order: aquarium, movie theater, campground?",
+   "weight": 5
+  }
+ ],
+ "error": null,
+ "short": false,
+ "s2_usd": 0.00036839999999999996,
+ "seconds": 8.2857
+}

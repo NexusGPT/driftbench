@@ -738,3 +738,19 @@ def dataset_reference_expert(ctx):
 def dataset_reference_blind_expert(ctx):
     from .reference_first import reference_blind
     return reference_blind(ctx)
+
+
+# Item-specific checklist experts use their own recordings and result runner.
+def _register_checklist_experts():
+    from .checklist import catalogue_expert, variant
+    for effort in ('low', 'medium'):
+        for mode in ('batch', 'single'):
+            for weighting in ('equal', 'writer'):
+                def judge(ctx, e=effort, m=mode, w=weighting):
+                    return catalogue_expert(ctx, e, m, w)
+                expert(variant(effort, mode, weighting), kind='item-checklist',
+                       job='Candidate-blind item checklist, probabilistic ticks, both orders, code aggregation.',
+                       cost='1 cached S2 + 2 S1 batch or 4K S1 single')(judge)
+
+
+_register_checklist_experts()

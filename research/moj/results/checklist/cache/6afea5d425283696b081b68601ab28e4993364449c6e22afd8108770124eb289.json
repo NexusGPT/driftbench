@@ -1,0 +1,25 @@
+{
+ "key": "6afea5d425283696b081b68601ab28e4993364449c6e22afd8108770124eb289",
+ "boxes": [
+  {
+   "question": "Does the answer give a net force magnitude of approximately \\(2.6\\times10^{-10}\\,\\mathrm{N}\\)?",
+   "weight": 5
+  },
+  {
+   "question": "Does the answer identify option H as the correct choice?",
+   "weight": 5
+  },
+  {
+   "question": "Does the answer repeat the chosen letter exactly five times?",
+   "weight": 2
+  },
+  {
+   "question": "Are the five letters written together as a single string?",
+   "weight": 2
+  }
+ ],
+ "error": null,
+ "short": false,
+ "s2_usd": 0.0004126,
+ "seconds": 9.3777
+}

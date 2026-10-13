@@ -1,0 +1,29 @@
+{
+ "key": "89de1de3e542bccf72a31e8a463a9a9ae914468237ec7398bcbebac856008879",
+ "boxes": [
+  {
+   "question": "Does the answer determine Yes exactly when the two rows can be made identical after rearrangement and allowed @ replacements?",
+   "weight": 5
+  },
+  {
+   "question": "Does the answer require equal counts in S and T for every letter outside {a, t, c, o, d, e, r}?",
+   "weight": 5
+  },
+  {
+   "question": "Does the answer ensure that the total excess of any letters in {a, t, c, o, d, e, r} in S over their counts in T can be covered by the @ cards in T?",
+   "weight": 5
+  },
+  {
+   "question": "Does the answer ensure that the total excess of any letters in {a, t, c, o, d, e, r} in T over their counts in S can be covered by the @ cards in S?",
+   "weight": 5
+  },
+  {
+   "question": "Does the answer account for the fact that cards can be rearranged, so matching depends on character counts rather than positions?",
+   "weight": 4
+  }
+ ],
+ "error": null,
+ "short": false,
+ "s2_usd": 0.0005802,
+ "seconds": 12.5921
+}

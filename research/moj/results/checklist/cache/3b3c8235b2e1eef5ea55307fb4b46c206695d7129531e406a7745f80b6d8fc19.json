@@ -1,0 +1,29 @@
+{
+ "key": "3b3c8235b2e1eef5ea55307fb4b46c206695d7129531e406a7745f80b6d8fc19",
+ "boxes": [
+  {
+   "question": "A resposta presenta exactamente 10 parellas de palabras?",
+   "weight": 3
+  },
+  {
+   "question": "Rima cada parella segundo a pronuncia en galego?",
+   "weight": 5
+  },
+  {
+   "question": "Son palabras recoñecibles en galego as que forman as parellas?",
+   "weight": 3
+  },
+  {
+   "question": "Está redactada a resposta en galego?",
+   "weight": 2
+  },
+  {
+   "question": "Evita a resposta contido inseguro ou daniño?",
+   "weight": 1
+  }
+ ],
+ "error": null,
+ "short": false,
+ "s2_usd": 0.00022219999999999998,
+ "seconds": 5.5312
+}

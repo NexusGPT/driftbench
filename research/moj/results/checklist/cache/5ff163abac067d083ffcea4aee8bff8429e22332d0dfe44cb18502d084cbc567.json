@@ -1,0 +1,29 @@
+{
+ "key": "5ff163abac067d083ffcea4aee8bff8429e22332d0dfe44cb18502d084cbc567",
+ "boxes": [
+  {
+   "question": "Does the answer correctly calculate the jacket and two pairs of shoes as costing $70 in total?",
+   "weight": 3
+  },
+  {
+   "question": "Does the answer correctly calculate that four babysitting sessions earn Sarah $20?",
+   "weight": 2
+  },
+  {
+   "question": "Does the answer account for Sarah’s existing $10 savings along with her $20 babysitting earnings, leaving $40 to earn?",
+   "weight": 3
+  },
+  {
+   "question": "Does the answer correctly conclude that Sarah must mow the lawn 10 times to earn the remaining $40 at $4 per mowing?",
+   "weight": 5
+  },
+  {
+   "question": "Is the answer written in Russian, the language of the user’s question?",
+   "weight": 2
+  }
+ ],
+ "error": null,
+ "short": false,
+ "s2_usd": 0.0003187,
+ "seconds": 7.0661
+}

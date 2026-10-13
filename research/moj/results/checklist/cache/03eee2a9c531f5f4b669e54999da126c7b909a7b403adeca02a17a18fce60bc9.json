@@ -1,0 +1,25 @@
+{
+ "key": "03eee2a9c531f5f4b669e54999da126c7b909a7b403adeca02a17a18fce60bc9",
+ "boxes": [
+  {
+   "question": "Does the answer respond relevantly to the French phrases provided, rather than changing the subject?",
+   "weight": 2
+  },
+  {
+   "question": "Are any claims the answer makes about the phrases’ wording or meaning accurate and supported by the text?",
+   "weight": 3
+  },
+  {
+   "question": "Is the answer written in French?",
+   "weight": 2
+  },
+  {
+   "question": "Is the answer helpful and safe in its response to the user’s message?",
+   "weight": 2
+  }
+ ],
+ "error": null,
+ "short": false,
+ "s2_usd": 0.00033830000000000004,
+ "seconds": 8.3421
+}

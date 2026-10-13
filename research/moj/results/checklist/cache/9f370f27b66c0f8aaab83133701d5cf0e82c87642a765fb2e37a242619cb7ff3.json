@@ -1,0 +1,25 @@
+{
+ "key": "9f370f27b66c0f8aaab83133701d5cf0e82c87642a765fb2e37a242619cb7ff3",
+ "boxes": [
+  {
+   "question": "Does the answer identify option A as the correct answer?",
+   "weight": 5
+  },
+  {
+   "question": "Does the answer give the letter A five times in a single string?",
+   "weight": 3
+  },
+  {
+   "question": "Are all five letters in the repeated string identical?",
+   "weight": 2
+  },
+  {
+   "question": "Does the answer avoid including a different option letter as its selected answer?",
+   "weight": 4
+  }
+ ],
+ "error": null,
+ "short": false,
+ "s2_usd": 0.0003805,
+ "seconds": 7.887
+}

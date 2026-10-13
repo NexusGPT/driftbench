@@ -1,0 +1,41 @@
+{
+ "key": "b329f38be296f2308a8d8ec8511f4d6f41f0e246affd57bc711922ebdb5c974b",
+ "boxes": [
+  {
+   "question": "Does the response develop a distinct novel concept rather than merely restating the prompt?",
+   "weight": 2
+  },
+  {
+   "question": "Does the concept include recognizable Xuanhuan elements, such as cultivation or the use of spiritual power?",
+   "weight": 2
+  },
+  {
+   "question": "Does the response establish a dark fantasy tone?",
+   "weight": 2
+  },
+  {
+   "question": "Is the protagonist identified as the scion of a fallen noble house?",
+   "weight": 2
+  },
+  {
+   "question": "Does the protagonist have a cursed Devouring Bloodline that requires consuming other beings’ life essence or spiritual energy?",
+   "weight": 3
+  },
+  {
+   "question": "Does consuming that essence or energy both sustain the protagonist and help him grow stronger?",
+   "weight": 3
+  },
+  {
+   "question": "Does the response show that the world regards the protagonist as a monster because of his bloodline or its effects?",
+   "weight": 2
+  },
+  {
+   "question": "Does the response convey the protagonist’s self-loathing and struggle against his own nature through coherent, effective writing?",
+   "weight": 2
+  }
+ ],
+ "error": null,
+ "short": false,
+ "s2_usd": 0.0004752,
+ "seconds": 11.0513
+}

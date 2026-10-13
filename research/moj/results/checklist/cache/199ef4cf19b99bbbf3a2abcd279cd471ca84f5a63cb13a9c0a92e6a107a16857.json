@@ -1,0 +1,25 @@
+{
+ "key": "199ef4cf19b99bbbf3a2abcd279cd471ca84f5a63cb13a9c0a92e6a107a16857",
+ "boxes": [
+  {
+   "question": "Does the answer identify the nationality as Pakistani?",
+   "weight": 5
+  },
+  {
+   "question": "Is the answer a single word, with no additional explanation?",
+   "weight": 2
+  },
+  {
+   "question": "Is the answer enclosed in the requested three-asterisk format, `***X***`?",
+   "weight": 2
+  },
+  {
+   "question": "Is `Pakistani` the only word inside the asterisks?",
+   "weight": 2
+  }
+ ],
+ "error": null,
+ "short": false,
+ "s2_usd": 0.0005507999999999999,
+ "seconds": 13.8308
+}

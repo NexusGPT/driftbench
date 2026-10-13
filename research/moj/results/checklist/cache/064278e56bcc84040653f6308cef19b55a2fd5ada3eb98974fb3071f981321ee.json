@@ -1,0 +1,17 @@
+{
+ "key": "064278e56bcc84040653f6308cef19b55a2fd5ada3eb98974fb3071f981321ee",
+ "boxes": [
+  {
+   "question": "Does the answer give the correct maximum number of pieces?",
+   "weight": 5
+  },
+  {
+   "question": "Is the final answer presented as a single integer in bold?",
+   "weight": 1
+  }
+ ],
+ "error": null,
+ "short": true,
+ "s2_usd": 5.75e-05,
+ "seconds": 1.9647
+}

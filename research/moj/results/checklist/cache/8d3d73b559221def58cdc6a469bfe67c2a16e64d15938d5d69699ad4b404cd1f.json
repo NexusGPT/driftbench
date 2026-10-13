@@ -1,0 +1,25 @@
+{
+ "key": "8d3d73b559221def58cdc6a469bfe67c2a16e64d15938d5d69699ad4b404cd1f",
+ "boxes": [
+  {
+   "question": "Does the answer give 4 as the largest possible value of k?",
+   "weight": 5
+  },
+  {
+   "question": "Does the answer identify choice (F) as the correct option?",
+   "weight": 5
+  },
+  {
+   "question": "Does the answer duplicate the chosen letter five times in a single string, as requested?",
+   "weight": 3
+  },
+  {
+   "question": "Does the answer avoid giving a conflicting value of k or a different choice as the answer?",
+   "weight": 4
+  }
+ ],
+ "error": null,
+ "short": false,
+ "s2_usd": 0.00040110000000000005,
+ "seconds": 8.8429
+}

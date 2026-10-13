@@ -1,0 +1,37 @@
+{
+ "key": "8ca4a5b9069d54ae2d28b073f7a4445e57ccbb075af32afe81f1f580e4d56377",
+ "boxes": [
+  {
+   "question": "Does the response devise a Xuanhuan-style novel premise or story?",
+   "weight": 2
+  },
+  {
+   "question": "Does the story establish a dark fantasy tone?",
+   "weight": 2
+  },
+  {
+   "question": "Is the protagonist presented as the scion of a fallen noble house?",
+   "weight": 2
+  },
+  {
+   "question": "Is the protagonist born with a cursed Devouring Bloodline?",
+   "weight": 2
+  },
+  {
+   "question": "Does the bloodline require the protagonist to consume other beings’ life essence or spiritual energy both to survive and to grow stronger?",
+   "weight": 3
+  },
+  {
+   "question": "Does the world regard the protagonist as a monster because of this bloodline or its effects?",
+   "weight": 2
+  },
+  {
+   "question": "Does the protagonist struggle with self-loathing and resistance to his own nature?",
+   "weight": 2
+  }
+ ],
+ "error": null,
+ "short": false,
+ "s2_usd": 0.00017519999999999998,
+ "seconds": 3.6608
+}

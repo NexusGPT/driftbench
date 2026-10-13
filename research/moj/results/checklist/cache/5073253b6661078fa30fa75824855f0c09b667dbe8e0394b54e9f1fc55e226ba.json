@@ -1,0 +1,25 @@
+{
+ "key": "5073253b6661078fa30fa75824855f0c09b667dbe8e0394b54e9f1fc55e226ba",
+ "boxes": [
+  {
+   "question": "Does the answer state that the total number of games is 36?",
+   "weight": 5
+  },
+  {
+   "question": "Does the answer select option B?",
+   "weight": 5
+  },
+  {
+   "question": "Does the answer repeat the selected letter exactly five times?",
+   "weight": 1
+  },
+  {
+   "question": "Are the five repeated letters presented as a single string?",
+   "weight": 1
+  }
+ ],
+ "error": null,
+ "short": false,
+ "s2_usd": 0.0007522999999999999,
+ "seconds": 17.3231
+}

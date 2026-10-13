@@ -1,0 +1,33 @@
+{
+ "key": "f765773f0d9747df8b711969a1cc52d8cfb257009ba4c04eb3d45f575a88d1cb",
+ "boxes": [
+  {
+   "question": "Is the response written in English, the language used by the user?",
+   "weight": 1
+  },
+  {
+   "question": "Does it explain how broader political, economic, or social conditions could have allowed a major war even if Hitler’s views or actions changed?",
+   "weight": 4
+  },
+  {
+   "question": "Does it clarify what the claim that “the other would still act the same way” was intended to mean, such as the possibility of similar forces or another leader continuing aggressive policies?",
+   "weight": 4
+  },
+  {
+   "question": "Does it make clear that this alternative-history claim is uncertain rather than treating another leader’s identical behavior or the war’s inevitability as fact?",
+   "weight": 5
+  },
+  {
+   "question": "Does it directly answer both parts of the user’s follow-up instead of evading them or merely repeating the prior claim?",
+   "weight": 3
+  },
+  {
+   "question": "Is the response historically responsible and safe, avoiding unsupported sweeping claims or endorsement of Nazi ideology or violence?",
+   "weight": 3
+  }
+ ],
+ "error": null,
+ "short": false,
+ "s2_usd": 0.0005449,
+ "seconds": 14.9884
+}

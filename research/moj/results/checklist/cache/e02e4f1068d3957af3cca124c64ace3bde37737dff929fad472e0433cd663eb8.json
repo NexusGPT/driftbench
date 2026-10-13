@@ -1,0 +1,29 @@
+{
+ "key": "e02e4f1068d3957af3cca124c64ace3bde37737dff929fad472e0433cd663eb8",
+ "boxes": [
+  {
+   "question": "Enthält die Antwort genau 10 Wortpaare?",
+   "weight": 5
+  },
+  {
+   "question": "Besteht jedes angegebene Paar aus zwei Wörtern?",
+   "weight": 4
+  },
+  {
+   "question": "Reimen sich die beiden Wörter in jedem Paar hörbar miteinander?",
+   "weight": 5
+  },
+  {
+   "question": "Sind die angegebenen Wörter deutsche Wörter?",
+   "weight": 3
+  },
+  {
+   "question": "Ist die Antwort auf Deutsch formuliert?",
+   "weight": 2
+  }
+ ],
+ "error": null,
+ "short": false,
+ "s2_usd": 0.0001529,
+ "seconds": 4.1554
+}

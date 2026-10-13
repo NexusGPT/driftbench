@@ -1,0 +1,25 @@
+{
+ "key": "053f6e25a423ec237787a753f048b26b1abd1219085fe696cfedda48ebc7b051",
+ "boxes": [
+  {
+   "question": "Does the answer identify 4 as the largest possible value of k?",
+   "weight": 5
+  },
+  {
+   "question": "Does the answer select option F?",
+   "weight": 5
+  },
+  {
+   "question": "Does the answer give the letter F exactly five times in a single string?",
+   "weight": 5
+  },
+  {
+   "question": "Does the answer avoid giving a different answer choice or value for k?",
+   "weight": 5
+  }
+ ],
+ "error": null,
+ "short": false,
+ "s2_usd": 0.0003121,
+ "seconds": 7.5174
+}

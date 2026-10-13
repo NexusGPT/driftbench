@@ -1,0 +1,29 @@
+{
+ "key": "183e33ee72b5a6157a569ac9adca855088e830eff39892dcd10d091fe0cbf9f8",
+ "boxes": [
+  {
+   "question": "Does the answer consider every integer i from 1 through n, inclusive?",
+   "weight": 5
+  },
+  {
+   "question": "Does it determine whether the decimal digits of i² can be split into contiguous, nonempty substrings whose integer values sum to i?",
+   "weight": 5
+  },
+  {
+   "question": "Does it count i as qualifying whenever at least one valid partition exists, and exclude it otherwise?",
+   "weight": 5
+  },
+  {
+   "question": "Does it return the sum of i² over exactly the qualifying integers?",
+   "weight": 5
+  },
+  {
+   "question": "Does the answer produce 182 for n = 10 and 1478 for n = 37?",
+   "weight": 4
+  }
+ ],
+ "error": null,
+ "short": false,
+ "s2_usd": 0.0003238,
+ "seconds": 7.1076
+}

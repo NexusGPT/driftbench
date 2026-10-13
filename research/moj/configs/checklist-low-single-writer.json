@@ -1,0 +1,16 @@
+{
+  "name": "checklist-low-single-writer",
+  "stage1": [
+    "checklist-low-single-writer"
+  ],
+  "hi": 0.5,
+  "lo": 0.5,
+  "cards": [],
+  "always": [],
+  "low": [],
+  "checklist": {
+    "effort": "low",
+    "mode": "single",
+    "weighting": "writer"
+  }
+}

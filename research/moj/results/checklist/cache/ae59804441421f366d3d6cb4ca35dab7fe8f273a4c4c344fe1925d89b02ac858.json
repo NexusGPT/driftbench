@@ -1,0 +1,29 @@
+{
+ "key": "ae59804441421f366d3d6cb4ca35dab7fe8f273a4c4c344fe1925d89b02ac858",
+ "boxes": [
+  {
+   "question": "Câu trả lời có được viết bằng tiếng Việt không?",
+   "weight": 2
+  },
+  {
+   "question": "Câu trả lời có nêu một số món ăn phổ biến được đặt giao hàng ở Việt Nam, chẳng hạn như cơm, phở, bánh mì hoặc trà sữa?",
+   "weight": 3
+  },
+  {
+   "question": "Câu trả lời có giải thích cách sự tiện lợi, như tiết kiệm thời gian hoặc giao đồ ăn tận nơi, ảnh hưởng đến lựa chọn đặt món không?",
+   "weight": 3
+  },
+  {
+   "question": "Câu trả lời có thảo luận cách công nghệ, như ứng dụng đặt đồ ăn hoặc thanh toán trực tuyến, tác động đến việc đặt món không?",
+   "weight": 3
+  },
+  {
+   "question": "Câu trả lời có tránh thông tin sai lệch đáng kể và nội dung không an toàn không?",
+   "weight": 2
+  }
+ ],
+ "error": null,
+ "short": false,
+ "s2_usd": 0.00018140000000000002,
+ "seconds": 4.5914
+}

@@ -1,0 +1,25 @@
+{
+ "key": "5e2ceb10808f5d8001762b7f6e8217c9cba9713045c880a9181fa5a7b5d1ac05",
+ "boxes": [
+  {
+   "question": "Does the answer give the sample variance as 126.5 (or an equivalent value such as 253/2)?",
+   "weight": 5
+  },
+  {
+   "question": "Does the answer use the sample variance rather than the population variance?",
+   "weight": 5
+  },
+  {
+   "question": "If the answer shows a calculation, does it use the sample-variance denominator of 1 for these two values?",
+   "weight": 3
+  },
+  {
+   "question": "Is the final answer presented in a box, as requested?",
+   "weight": 2
+  }
+ ],
+ "error": null,
+ "short": false,
+ "s2_usd": 0.00036260000000000003,
+ "seconds": 9.2223
+}

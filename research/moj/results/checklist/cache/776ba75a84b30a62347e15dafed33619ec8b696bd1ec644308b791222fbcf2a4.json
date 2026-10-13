@@ -1,0 +1,25 @@
+{
+ "key": "776ba75a84b30a62347e15dafed33619ec8b696bd1ec644308b791222fbcf2a4",
+ "boxes": [
+  {
+   "question": "Does the answer give the correct probability, \\(\\frac{2\\arcsin(1/4)}{\\pi}\\)?",
+   "weight": 5
+  },
+  {
+   "question": "Does the answer identify option E as the correct choice?",
+   "weight": 5
+  },
+  {
+   "question": "Does the answer repeat its chosen letter exactly five times?",
+   "weight": 2
+  },
+  {
+   "question": "Are all five repeated letters E?",
+   "weight": 3
+  }
+ ],
+ "error": null,
+ "short": false,
+ "s2_usd": 0.00031989999999999997,
+ "seconds": 7.6222
+}

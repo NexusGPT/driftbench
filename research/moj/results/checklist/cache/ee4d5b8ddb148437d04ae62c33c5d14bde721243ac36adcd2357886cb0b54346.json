@@ -1,0 +1,29 @@
+{
+ "key": "ee4d5b8ddb148437d04ae62c33c5d14bde721243ac36adcd2357886cb0b54346",
+ "boxes": [
+  {
+   "question": "Je, jibu linasema kwamba Cecilia atatumia mifuko 5 ya chakula cha mbwa katika mwaka wa kwanza?",
+   "weight": 5
+  },
+  {
+   "question": "Je, hesabu inajumuisha kikombe 1 kwa siku kwa siku 180 za kwanza?",
+   "weight": 3
+  },
+  {
+   "question": "Je, hesabu inajumuisha vikombe 2 kwa siku kwa siku 185 zilizosalia katika mwaka wa kwanza?",
+   "weight": 3
+  },
+  {
+   "question": "Je, jibu linabadili jumla ya vikombe 550 kuwa mifuko 5 kwa kutumia vikombe 110 kwa kila mfuko?",
+   "weight": 4
+  },
+  {
+   "question": "Je, jibu limetolewa kwa Kiswahili?",
+   "weight": 2
+  }
+ ],
+ "error": null,
+ "short": false,
+ "s2_usd": 0.0001799,
+ "seconds": 4.8096
+}

@@ -1,0 +1,33 @@
+{
+ "key": "24646e34581303c4e329f15b5763021478972e401a6d1f93c4f1c91ca1d31cb8",
+ "boxes": [
+  {
+   "question": "A resposta ofrece exactamente 10 parellas?",
+   "weight": 5
+  },
+  {
+   "question": "En cada parella, as dúas palabras son homófonas en galego, é dicir, pronúncianse igual?",
+   "weight": 5
+  },
+  {
+   "question": "As palabras de cada parella teñen grafías e significados distintos?",
+   "weight": 4
+  },
+  {
+   "question": "As 10 parellas son exemplos distintos, sen repeticións?",
+   "weight": 3
+  },
+  {
+   "question": "A resposta está escrita en galego?",
+   "weight": 2
+  },
+  {
+   "question": "As parellas preséntanse de maneira clara para que se poida identificar cada exemplo?",
+   "weight": 2
+  }
+ ],
+ "error": null,
+ "short": false,
+ "s2_usd": 0.0003249,
+ "seconds": 7.2326
+}

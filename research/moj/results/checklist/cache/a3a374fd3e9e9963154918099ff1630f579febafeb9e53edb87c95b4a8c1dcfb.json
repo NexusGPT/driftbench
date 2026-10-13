@@ -1,0 +1,25 @@
+{
+ "key": "a3a374fd3e9e9963154918099ff1630f579febafeb9e53edb87c95b4a8c1dcfb",
+ "boxes": [
+  {
+   "question": "Does the answer correctly identify the largest element achievable under the permitted merge operation?",
+   "weight": 5
+  },
+  {
+   "question": "If it gives an algorithm, does that algorithm only combine adjacent elements in a way consistent with the rule that the left value must be no greater than the right value?",
+   "weight": 5
+  },
+  {
+   "question": "If it gives an algorithm, does it account for the possibility that a larger value to the left cannot be merged into a smaller accumulated value on its right?",
+   "weight": 4
+  },
+  {
+   "question": "Does the answer give the correct results for the examples, if it states results for them?",
+   "weight": 3
+  }
+ ],
+ "error": null,
+ "short": false,
+ "s2_usd": 0.0003737,
+ "seconds": 9.1664
+}

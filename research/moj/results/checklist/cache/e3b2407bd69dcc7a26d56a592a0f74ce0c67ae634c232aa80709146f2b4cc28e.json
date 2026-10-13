@@ -1,0 +1,33 @@
+{
+ "key": "e3b2407bd69dcc7a26d56a592a0f74ce0c67ae634c232aa80709146f2b4cc28e",
+ "boxes": [
+  {
+   "question": "¿Identifica la Zona 4 como fuente de agua y la Zona 3 como destino que se debe regar?",
+   "weight": 5
+  },
+  {
+   "question": "¿Propone una ruta continua y viable para llevar el agua desde la Zona 4 hasta la Zona 3?",
+   "weight": 5
+  },
+  {
+   "question": "¿Incluye cavar un canal para conectar la Zona 4 con una ruta hacia el jardín, dado que el acceso al estanque requiere cavar?",
+   "weight": 4
+  },
+  {
+   "question": "¿Si la ruta propuesta pasa por la Zona 2, indica remover los escombros que bloquean el paso hacia la Zona 3?",
+   "weight": 4
+  },
+  {
+   "question": "¿Da una secuencia de acciones clara y realizable usando las acciones disponibles en el escenario?",
+   "weight": 3
+  },
+  {
+   "question": "¿Está redactada la respuesta en español?",
+   "weight": 2
+  }
+ ],
+ "error": null,
+ "short": false,
+ "s2_usd": 0.0005874,
+ "seconds": 13.3604
+}

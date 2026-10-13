@@ -1,0 +1,25 @@
+{
+ "key": "540b855aa2c0666314aa2963c44026c98c3c04cb315b161fd9e756574106e8f4",
+ "boxes": [
+  {
+   "question": "Does the answer identify filmmaking as the Thai person's hobby?",
+   "weight": 5
+  },
+  {
+   "question": "Is the response a single word?",
+   "weight": 1
+  },
+  {
+   "question": "Is the answer enclosed in triple asterisks on each side, as requested?",
+   "weight": 1
+  },
+  {
+   "question": "Does the response contain no explanation or other text beyond the formatted answer?",
+   "weight": 1
+  }
+ ],
+ "error": null,
+ "short": false,
+ "s2_usd": 0.0008242000000000001,
+ "seconds": 21.1619
+}

@@ -1,0 +1,29 @@
+{
+ "key": "0aff0358f30b29afd0b1b6a9e4458d2deab166171bbcc4a91927887954c1fd0c",
+ "boxes": [
+  {
+   "question": "Does the answer consider a pair of gifts valid exactly when the absolute difference between their values is at most D?",
+   "weight": 5
+  },
+  {
+   "question": "Does the answer return the greatest sum A_i+B_j among all valid pairs?",
+   "weight": 5
+  },
+  {
+   "question": "Does the answer return -1 when no valid pair exists?",
+   "weight": 5
+  },
+  {
+   "question": "Does the proposed method handle the input sizes efficiently for N and M up to 2×10^5?",
+   "weight": 4
+  },
+  {
+   "question": "Does the answer correctly handle values and sums as large as 2×10^18 without overflow?",
+   "weight": 4
+  }
+ ],
+ "error": null,
+ "short": false,
+ "s2_usd": 0.0003605,
+ "seconds": 8.3878
+}

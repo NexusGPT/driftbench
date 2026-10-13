@@ -1,0 +1,25 @@
+{
+ "key": "9e18e07925f59e12394e59f8ef3f5cb442325911ae36a8d6450812aac8c97e08",
+ "boxes": [
+  {
+   "question": "Does the answer give 2 as the number of quadrilaterals?",
+   "weight": 5
+  },
+  {
+   "question": "Does the answer correctly state that the cuts produce 7 pieces in total?",
+   "weight": 1
+  },
+  {
+   "question": "Does the answer correctly identify the central piece formed by the three cuts as a triangle?",
+   "weight": 1
+  },
+  {
+   "question": "Does the answer correctly identify the two quadrilaterals as the pieces adjacent to boundary arcs C–D–E and F–G–H?",
+   "weight": 1
+  }
+ ],
+ "error": null,
+ "short": false,
+ "s2_usd": 0.001371,
+ "seconds": 34.2168
+}

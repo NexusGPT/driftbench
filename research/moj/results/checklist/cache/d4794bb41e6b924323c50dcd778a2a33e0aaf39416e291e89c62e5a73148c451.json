@@ -1,0 +1,29 @@
+{
+ "key": "d4794bb41e6b924323c50dcd778a2a33e0aaf39416e291e89c62e5a73148c451",
+ "boxes": [
+  {
+   "question": "Does the response provide 10 pairs of words?",
+   "weight": 3
+  },
+  {
+   "question": "Does each pair contain two words?",
+   "weight": 2
+  },
+  {
+   "question": "Do the two words in every pair rhyme with each other?",
+   "weight": 5
+  },
+  {
+   "question": "Are the words in the pairs in English?",
+   "weight": 2
+  },
+  {
+   "question": "Is it clear which two words belong to each pair?",
+   "weight": 1
+  }
+ ],
+ "error": null,
+ "short": false,
+ "s2_usd": 0.00027,
+ "seconds": 7.1363
+}

@@ -1,0 +1,29 @@
+{
+ "key": "38333f00f3bb1cb974eea5a2e866c6b27dc9b91933dde9ee6df44600797a684c",
+ "boxes": [
+  {
+   "question": "¿Responde en español?",
+   "weight": 1
+  },
+  {
+   "question": "¿Identifica el estanque de la Zona 4 como la fuente de agua y el jardín seco de la Zona 3 como destino?",
+   "weight": 3
+  },
+  {
+   "question": "¿Propone cavar un canal para llevar el agua desde el estanque hacia el jardín?",
+   "weight": 5
+  },
+  {
+   "question": "¿Indica que hay que remover los escombros de la Zona 2 para despejar la ruta natural del agua?",
+   "weight": 4
+  },
+  {
+   "question": "¿Describe una ruta continua para el flujo de agua desde la Zona 4 hasta la Zona 3, en vez de confundir el acceso entre zonas con un canal de agua?",
+   "weight": 5
+  }
+ ],
+ "error": null,
+ "short": false,
+ "s2_usd": 0.0002539,
+ "seconds": 5.647
+}

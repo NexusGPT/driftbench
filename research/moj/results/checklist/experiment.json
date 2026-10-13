@@ -1,0 +1,87 @@
+{
+  "version": "checklist-v1",
+  "base_commit": "26469740",
+  "system_prompt_sha256": "190b8b580de8c62782b007d7bdd2ca8276d2984b30d28c18f961a31d423b4eac",
+  "input_files": {
+    "data/judgebench.json": "fa6a80832177b3be82f3b803e85c924582fb6e0bb1fdd721ad516cae731c335e",
+    "data/mmeval.json": "4b065315a2c327451f88bfa1811b300f24a3eabb9f0b0e2e724212288cb8828d",
+    "data/writing.json": "a835fa71351ca08dd0ec7a06724e7056d3380eb9855f6e3c943c20331695f750"
+  },
+  "population": {
+    "judgebench": {
+      "tune": 41,
+      "valid": 27
+    },
+    "mmeval": {
+      "tune": 24,
+      "valid": 26
+    },
+    "writing": {
+      "tune": 22,
+      "valid": 28
+    }
+  },
+  "writer_sources": [
+    "question",
+    "benchmark criterion"
+  ],
+  "writer_model": "gpt-6-luna",
+  "efforts": [
+    "low",
+    "medium"
+  ],
+  "s1_model": "jev-latest",
+  "s1_route": "gateway",
+  "max_concurrency_per_service": {
+    "jev": 3,
+    "openai": 8
+  },
+  "max_submissions_per_request": 3,
+  "budget_s2_usd": 8,
+  "headline_short_checklist_policy": "use as returned",
+  "sensitivity_short_checklist_policy": "abstain for half credit",
+  "selection_rule": "macro tune accuracy; ties by S2 USD, S1 calls, variant name",
+  "validation_prompt_overlap_with_tune": {
+    "judgebench": 0,
+    "mmeval": 0,
+    "writing": 6
+  },
+  "pacing_change": "Reduced Jev from 8 to 3 during tuning at owner request.",
+  "jev_403_backoff_seconds": [
+    20,
+    60,
+    180
+  ],
+  "backoff_note": "Three submissions maximum: 20 and 60 before retries, 180 cooldown after exhaustion.",
+  "unique_population": {
+    "judgebench": {
+      "tune": 41,
+      "valid": 27
+    },
+    "mmeval": {
+      "tune": 22,
+      "valid": 23
+    },
+    "writing": {
+      "tune": 22,
+      "valid": 28
+    }
+  },
+  "exact_duplicate_ids": {
+    "mmeval": [
+      "3540",
+      "1660",
+      "4140",
+      "4050",
+      "2357"
+    ]
+  },
+  "criteria": {
+    "judgebench": "The response gives the correct answer to the question. Only objective correctness counts: a correct answer beats a fluent wrong one.",
+    "mmeval": "The response is the better reply to the user's request: correct, helpful and safe, and in the language the user wrote in.",
+    "writing": "The response is the better piece of writing for the instruction: it follows every requirement of the instruction and is of higher quality."
+  },
+  "input_snapshot": "results/checklist/practice-v1",
+  "split_version": "moj-split-v1",
+  "integration_note": "Remote expanded the input files and adopted group-v2 during collection. This experiment preserves its original 26469740 inputs and split; no validation-driven reselection."
+}

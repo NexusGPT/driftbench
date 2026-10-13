@@ -1,0 +1,25 @@
+{
+ "key": "ca114ba1ffa241938f774211e1eae9c3a2a26f7e2103eea348ea277c6f180e5f",
+ "boxes": [
+  {
+   "question": "Does the answer correctly identify that a valid original array is impossible when the XOR of all entries in derived is 1?",
+   "weight": 5
+  },
+  {
+   "question": "Does the answer correctly identify that a valid original array exists when the XOR of all entries in derived is 0?",
+   "weight": 5
+  },
+  {
+   "question": "Does the answer account for the cyclic relation between the last and first elements of original?",
+   "weight": 3
+  },
+  {
+   "question": "Does the answer handle the allowed case n = 1 correctly, returning true for derived = [0] and false for derived = [1]?",
+   "weight": 2
+  }
+ ],
+ "error": null,
+ "short": false,
+ "s2_usd": 0.000618,
+ "seconds": 15.5479
+}

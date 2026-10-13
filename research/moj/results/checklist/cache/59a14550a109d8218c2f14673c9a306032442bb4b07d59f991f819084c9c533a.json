@@ -1,0 +1,25 @@
+{
+ "key": "59a14550a109d8218c2f14673c9a306032442bb4b07d59f991f819084c9c533a",
+ "boxes": [
+  {
+   "question": "Does the answer identify position 4 as the position of the person who travels by trike?",
+   "weight": 5
+  },
+  {
+   "question": "Does the answer present the position as the single digit `4`?",
+   "weight": 2
+  },
+  {
+   "question": "Is the answer formatted as `***4***`?",
+   "weight": 2
+  },
+  {
+   "question": "Does the answer avoid giving a different position for the person who travels by trike?",
+   "weight": 5
+  }
+ ],
+ "error": null,
+ "short": false,
+ "s2_usd": 0.0004894,
+ "seconds": 11.3785
+}

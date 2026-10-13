@@ -1,0 +1,25 @@
+{
+ "key": "fe4e9eb89199d109aa267197fb07ab1c0f6dc9df8de24fb118a97d619da34360",
+ "boxes": [
+  {
+   "question": "Does the answer identify C as the correct option?",
+   "weight": 5
+  },
+  {
+   "question": "Does the answer contain exactly five repetitions of the letter C?",
+   "weight": 3
+  },
+  {
+   "question": "Are the five Cs written together as one uninterrupted string?",
+   "weight": 2
+  },
+  {
+   "question": "Does the answer avoid including any other option letter as part of its answer?",
+   "weight": 2
+  }
+ ],
+ "error": null,
+ "short": false,
+ "s2_usd": 0.0002245,
+ "seconds": 4.6523
+}

@@ -1,0 +1,25 @@
+{
+ "key": "434667eb354088141e3574c57578c1e37940bc4169ef6740de38ab03abb5228c",
+ "boxes": [
+  {
+   "question": "Does the response select (J), “none of the above,” as the correct answer?",
+   "weight": 5
+  },
+  {
+   "question": "Does the response avoid selecting any listed primate as the one humans descended from?",
+   "weight": 5
+  },
+  {
+   "question": "Does the response avoid claiming that humans descended from an extant primate listed in the choices?",
+   "weight": 4
+  },
+  {
+   "question": "Does the response give the answer as the letter J repeated five times in a single string?",
+   "weight": 1
+  }
+ ],
+ "error": null,
+ "short": false,
+ "s2_usd": 0.00032189999999999996,
+ "seconds": 7.5389
+}

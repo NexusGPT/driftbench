@@ -1,0 +1,25 @@
+{
+ "key": "8a03cb5de0aeffa3867c26652bc997a652d7dfeeec7c5164bdea49be4020759a",
+ "boxes": [
+  {
+   "question": "Does the answer identify option E, \\(\\frac{2\\arcsin(1/4)}{\\pi}\\), as correct?",
+   "weight": 5
+  },
+  {
+   "question": "Does the answer give the selected letter exactly five times?",
+   "weight": 1
+  },
+  {
+   "question": "Are the five repeated letters all E?",
+   "weight": 1
+  },
+  {
+   "question": "Are the five letters written together as a single string?",
+   "weight": 1
+  }
+ ],
+ "error": null,
+ "short": false,
+ "s2_usd": 0.0004234,
+ "seconds": 9.3892
+}

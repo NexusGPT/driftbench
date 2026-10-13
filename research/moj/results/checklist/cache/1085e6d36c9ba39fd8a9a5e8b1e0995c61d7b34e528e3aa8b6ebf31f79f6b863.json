@@ -1,0 +1,25 @@
+{
+ "key": "1085e6d36c9ba39fd8a9a5e8b1e0995c61d7b34e528e3aa8b6ebf31f79f6b863",
+ "boxes": [
+  {
+   "question": "Does the answer identify convergence in probability as yes?",
+   "weight": 5
+  },
+  {
+   "question": "Does the answer identify almost-sure convergence as no?",
+   "weight": 5
+  },
+  {
+   "question": "Does the answer select option B, corresponding to [1, 0]?",
+   "weight": 5
+  },
+  {
+   "question": "Does the answer give the letter B five times in a single string?",
+   "weight": 3
+  }
+ ],
+ "error": null,
+ "short": false,
+ "s2_usd": 0.0015346,
+ "seconds": 37.4534
+}

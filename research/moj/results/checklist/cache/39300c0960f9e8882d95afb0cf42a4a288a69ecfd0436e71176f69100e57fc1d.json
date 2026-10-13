@@ -1,0 +1,25 @@
+{
+ "key": "39300c0960f9e8882d95afb0cf42a4a288a69ecfd0436e71176f69100e57fc1d",
+ "boxes": [
+  {
+   "question": "Does the answer identify choice I as the correct answer?",
+   "weight": 5
+  },
+  {
+   "question": "Does the answer convey that Christopher Columbus was not the first European to explore North America?",
+   "weight": 5
+  },
+  {
+   "question": "Does the answer consist of the letter I repeated five times in a single string?",
+   "weight": 3
+  },
+  {
+   "question": "Does the answer avoid naming a different choice as its answer?",
+   "weight": 5
+  }
+ ],
+ "error": null,
+ "short": false,
+ "s2_usd": 0.00021830000000000002,
+ "seconds": 3.9772
+}

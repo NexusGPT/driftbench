@@ -1,0 +1,29 @@
+{
+ "key": "267c63db43f10b9283df7f2448c5eca17e078c074e2ce58798ea68b4752181dd",
+ "boxes": [
+  {
+   "question": "Does the answer state that classical regular expressions are not Turing-complete?",
+   "weight": 2
+  },
+  {
+   "question": "Does the answer explain that classical regular expressions describe regular languages, which can be recognized by finite automata with no unbounded writable memory?",
+   "weight": 3
+  },
+  {
+   "question": "Does the answer accurately contrast this limitation with a Turing machine’s ability to use writable, unbounded memory?",
+   "weight": 2
+  },
+  {
+   "question": "Does the answer correctly give the meaning of “DFA” as “deterministic finite automaton” (in German, “deterministischer endlicher Automat”)?",
+   "weight": 3
+  },
+  {
+   "question": "Is the answer written in German?",
+   "weight": 1
+  }
+ ],
+ "error": null,
+ "short": false,
+ "s2_usd": 0.0002247,
+ "seconds": 4.8294
+}

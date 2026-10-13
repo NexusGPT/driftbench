@@ -1,0 +1,25 @@
+{
+ "key": "b8fc5b78a81451028de56915f5f46ff7db286e6ae2cf95ca19e1b79d182f4917",
+ "boxes": [
+  {
+   "question": "¿Presenta exactamente 10 pares de palabras?",
+   "weight": 5
+  },
+  {
+   "question": "¿Cada uno de los 10 pares contiene dos palabras?",
+   "weight": 3
+  },
+  {
+   "question": "¿Riman entre sí las dos palabras de cada par?",
+   "weight": 5
+  },
+  {
+   "question": "¿Está la respuesta escrita en español?",
+   "weight": 3
+  }
+ ],
+ "error": null,
+ "short": false,
+ "s2_usd": 0.0001301,
+ "seconds": 2.7535
+}

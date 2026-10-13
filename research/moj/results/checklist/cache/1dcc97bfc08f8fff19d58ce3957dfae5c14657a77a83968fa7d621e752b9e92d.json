@@ -1,0 +1,41 @@
+{
+ "key": "1dcc97bfc08f8fff19d58ce3957dfae5c14657a77a83968fa7d621e752b9e92d",
+ "boxes": [
+  {
+   "question": "Does the response present a narrative for a game novel rather than merely describing a premise or offering unrelated material?",
+   "weight": 3
+  },
+  {
+   "question": "Does it establish the protagonist as a real-world history graduate student specializing in ancient battles and political stratagems?",
+   "weight": 2
+  },
+  {
+   "question": "Does it place the protagonist in the grand-scale sandbox strategy game \"Empire's Gambit\" as a descendant of a fallen noble house?",
+   "weight": 2
+  },
+  {
+   "question": "Does it center the story on large-scale war, diplomacy, and resource management rather than individual combat?",
+   "weight": 4
+  },
+  {
+   "question": "Does it show the protagonist using historical strategic knowledge to rise from a small city-state and unite the continent through schemes and tactical layouts?",
+   "weight": 5
+  },
+  {
+   "question": "Does it depict large-scale battle formations in meaningful strategic detail?",
+   "weight": 3
+  },
+  {
+   "question": "Does it include sharp verbal sparring during negotiations and strategic details of domain development and technology advancement?",
+   "weight": 3
+  },
+  {
+   "question": "Does it convey the protagonist's loneliness and resolve as he rises from obscurity to the pinnacle of power?",
+   "weight": 3
+  }
+ ],
+ "error": null,
+ "short": false,
+ "s2_usd": 0.0002699,
+ "seconds": 5.9994
+}

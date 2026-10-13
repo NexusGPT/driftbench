@@ -1,0 +1,33 @@
+{
+ "key": "f4f9a1536bc167463da784129c453b830c3122a282cfdb6684a732666861a658",
+ "boxes": [
+  {
+   "question": "Does the answer take the form of a methodology article explaining how to check in at an influencer café?",
+   "weight": 2
+  },
+  {
+   "question": "Does the narrator present themself as a tech elite who treats life as a project, using a senior KOL or growth-hacker perspective on gaming online traffic?",
+   "weight": 2
+  },
+  {
+   "question": "Does the article develop the core idea that each check-in can help create a traffic closed loop and grow private-domain traffic?",
+   "weight": 3
+  },
+  {
+   "question": "Does it break the acts of drinking coffee and taking photos into a deliberate, end-to-end operational process rather than treating them only as casual activities?",
+   "weight": 3
+  },
+  {
+   "question": "Does the process cover preliminary value propositions, mid-term leverage, late-stage synergy, and solidifying user mindshare?",
+   "weight": 4
+  },
+  {
+   "question": "Does the answer sustain a deadpan, serious tone while making the methodology coherent and effective as a piece of writing?",
+   "weight": 2
+  }
+ ],
+ "error": null,
+ "short": false,
+ "s2_usd": 0.0001786,
+ "seconds": 4.038
+}

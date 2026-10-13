@@ -1,0 +1,25 @@
+{
+ "key": "2e92baf877ff6276d803e1cc3927bf642490aa46356b482a153bf0b6ee81e63f",
+ "boxes": [
+  {
+   "question": "Does the reply respond relevantly to the French wordplay or statements in the user's message?",
+   "weight": 3
+  },
+  {
+   "question": "Does the reply correctly handle the meaning or wordplay of the phrases it discusses, without introducing a factual or linguistic error?",
+   "weight": 3
+  },
+  {
+   "question": "Is the reply written in French?",
+   "weight": 2
+  },
+  {
+   "question": "Is the reply helpful and safe for this light, conversational context?",
+   "weight": 1
+  }
+ ],
+ "error": null,
+ "short": false,
+ "s2_usd": 0.00019480000000000002,
+ "seconds": 4.5976
+}

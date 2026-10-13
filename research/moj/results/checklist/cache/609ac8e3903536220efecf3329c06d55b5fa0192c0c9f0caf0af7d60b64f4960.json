@@ -1,0 +1,25 @@
+{
+ "key": "609ac8e3903536220efecf3329c06d55b5fa0192c0c9f0caf0af7d60b64f4960",
+ "boxes": [
+  {
+   "question": "Does the answer recognize that any final equal string must be a common prefix of all three input strings?",
+   "weight": 5
+  },
+  {
+   "question": "Does the answer account for the fact that no string can be shortened to empty, so a valid final string must be nonempty?",
+   "weight": 5
+  },
+  {
+   "question": "Does the answer return -1 when the strings have no nonempty common prefix?",
+   "weight": 5
+  },
+  {
+   "question": "When a nonempty common prefix exists, does the answer find the longest such prefix and compute the minimum operations as the sum of the three input lengths minus three times that prefix's length?",
+   "weight": 5
+  }
+ ],
+ "error": null,
+ "short": false,
+ "s2_usd": 0.00029130000000000003,
+ "seconds": 5.9743
+}
