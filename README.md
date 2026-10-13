@@ -381,143 +381,45 @@ In the repo: [the Acme map proposal](examples/acme/map/README.md)
 
 ## Test generation
 
-You do not write every test by hand. driftbench builds them from a map of the situations an agent can face. A person approves the map. Code then places tests to cover it, and a gate keeps only the tests that can catch a broken agent.
+driftbench builds tests from an approved map of the situations an agent can face. Code reads the behaviour inventory and tool schemas; an optional model proposes entries from those sources and the prompt. Each entry quotes its source, and a person approves it before generation.
 
-The idea in five lines:
-
-1. A map lists what varies: stages, behaviours, deviations, channels and data.
-2. A person approves the map. Nothing counts before that.
-3. Code places tests to cover allowed pairs; budgets and limits can leave pairs uncovered.
-4. A gate runs every test against planted faults and a reference agent.
-5. The tests that pass the gate form the suite. It runs like any other campaign.
-
-### The map
-
-The map lists dimensions, their values, and constraints that rule out impossible combinations. It also lists phrases, the user messages that express each value. Code reads the behaviour inventory and tool schemas; an optional model proposes more entries from those sources and the agent's prompt. Each entry quotes the line that justifies it. Code checks every quote against its source, and a refused entry never enters the proposal.
-
-A person then approves the proposal, one dimension at a time or all at once. The Acme proposal has 46 dimensions, 177 values, 111 written constraints and 51 approved phrases. The prepared generator map adds reserved `none` values and derived constraints, giving 180 values and 457 constraints. This is one approved dimension from [`examples/acme/map/approved.yaml`](examples/acme/map/approved.yaml):
-
-```yaml
-dimensions:
-  - id: channel
-    title: The channels the inventory names
-    kind: channel
-    role: axis
-    produced_by: code
-    approved: true
-    values:
-      - id: chat
-        title: On chat
-        evidence:
-          source: ../inventory.yaml
-          quote: "channels: [chat, whatsapp]"
-        produced_by: code
-      - id: whatsapp
-        title: On whatsapp
-        evidence:
-          source: ../inventory.yaml
-          quote: "channels: [chat, whatsapp]"
-        produced_by: code
-```
-
-An axis is crossed with the other axes to make the space. A detail varies inside each cell of that space.
-
-Relations link values to stages, tools and end states. They are what lets code derive the expected outcome of a test. Acme has 71 approved relations, among them the paths a conversation takes and the tool calls each stage makes.
-
-### The seeders
-
-Seven seeders write specs from the approved map. The Acme numbers come from [`generate-report.json`](examples/acme/generated/generate-report.json).
-
-- **Graph walk**: one spec per approved path through the stages. 12 specs, 48 blocks, 18 of 23 stage edges covered.
-- **Pairwise covering array**: covers allowed pairs over its selected conversation dimensions, subject to limits. 132 specs, 675 blocks, 314 of 314 allowed pairs.
-- **Boundary values**: one spec per value of each data detail. 80 specs, 113 blocks.
-- **Deviation probes**: one probe per deviation class. 10 specs, 52 blocks, all 10 classes.
-- **Metamorphic pairs**: specs with different approved phrasings or context values, designed to preserve the observed outcome. 40 specs in 20 families.
-- **Task families**: instances of code-agent tasks, each with its own oracle. 34 specs, 47 blocks.
-- **Cover**: adds scenarios for gaps left by the other seeders, subject to limits and map support. One scenario can cover several pairs. 13 specs, 71 blocks.
-
-The complete specs cover all 637 allowed pairs of values. 251 of the 321 specs are complete. The other 70 wait in `incomplete/` until the map supplies the missing approved phrases or expected outcomes.
-
-### What a generated test checks
-
-A generated test reads what the agent did, not only what it said. Code derives each part of the expected outcome from the approved relations. The email in the user's message and the tool input it must produce come from the same binding. This is one block of a generated Acme spec, with its stage, its tool calls and its language:
-
-```yaml
-- id: b2-identify-to-offer
-  when:
-    user: It's sam.rivera@example.com.
-  expect:
-    stage: offer
-    tools:
-      - label: catalog.search
-        count: 1
-        input:
-          category: mobile
-          customer_email: sam.rivera@example.com
-      - label: order.create
-        count: 0
-    lang: EN
-```
-
-A block that the map cannot support for a machine check stays in `incomplete/`, with the reason written beside it. A person can then fix the map and regenerate.
-
-### The gate
-
-The gate has nine stages. It rejects or marks blocks with a reason; checks can be skipped when their inputs are absent. Accepted blocks join the gated suite.
-
-| Stage | What it checks |
-|---|---|
-| Observed | The expected outcome reads observed state, not only the agent's words. |
-| Leakage | Checks expected tool-input and end-state literals in Given, and end-state literals in When. User-supplied tool inputs in When are exempt. |
-| Shortcut | A trivial agent (constant, echo, first tool) must fail the block. |
-| Contrast | Eligible sibling and twin blocks obey the configured signature and outcome contrast rules. |
-| Red first | The block passes the reference, stays green on controls and fails at least one applicable targeted fault. |
-| Stability | The outcome holds across repeated runs. |
-| Difficulty | A block that every agent passes, or none passes, is marked saturated. |
-| Label audit | Writes a seeded sample for manual review. |
-| Freshness | Each block records its date and map hash. Whole specs can be sealed as a holdout. |
-
-The planted faults are wrong versions of the agent. One answers in another language. One skips the recap. One invents a price. The gate runs applicable faults on eligible specs. A block must fail at least one fault that changes its spec and targets a field or deviation it checks. Negative controls must stay green. Leakage also checks source-spec n-gram overlap and generator/judge family separation when those inputs are supplied; short common literal values are excluded from the literal check.
-
-In the committed [Acme gate report](examples/acme/gated/gate-report.json), 1,100 of 1,106 blocks pass the gate. The 6 rejected blocks are first-turn probes that the echo agent passes. 13 of 13 scored faults are killed. One fault, which keeps the first email, changes nothing these specs observe, so it is excluded. The holdout seals 58 of the 251 specs, and the label audit samples 21 blocks for manual review.
-
-The holdout targets 20 percent of whole specs by default; keeping groups together can change the final share. The gate checks it like the rest. The walkthrough below evaluates `gated/specs` and leaves the separate holdout out.
+Code derives each block's expected outcome from approved relations, independently of the agent's reply. Covering arrays place tests over allowed combinations of categorical values. Graph paths, boundary values, deviation probes, metamorphic variants and task families add tests, and coverage completion fills supported gaps. A block with no approved phrase or machine-checkable outcome stays in `incomplete/`. The validity gate checks candidate blocks against a reference agent, planted faults and trivial controls.
 
 ### Budget mode
 
-`driftbench generate --budget N` selects allowed conversation rows by new pair coverage, then value balance, then a seeded tie-break. Without numeric settings, it selects up to N distinct cells. With numeric settings, categorical cells can repeat to place N samples. The other seeders still run, so the whole suite can exceed N. Approved `numeric_settings` ranges use sliced Latin quantiles, globally and within each selected categorical combination. Samples are delivered through `given.vars`. Integer ranges can repeat values; their quantiles retain the Latin property. Automatic range extraction is pending.
+`driftbench generate --budget N` replaces the covering-array conversation rows with a fixed number of selections. The hybrid selector picks the cell that adds the most uncovered allowed pairs, then favours underused values, then resolves ties with a seeded order. Constraints still apply. Without numeric settings, it selects up to N distinct cells. With numeric settings, categorical cells can repeat to place N samples. The other seeders still run, so N does not cap the whole suite, executed blocks or spend.
 
-On Acme, seed 1 gives these results. Each paired entry is **pairwise / budget**. Pairwise uses `--t 2 --max N`; budget uses `--t 2 --budget N`.
+Approved numeric ranges use sliced Latin hypercube sampling (LHS). Rows with the same selected categorical combination form a slice. Each setting occupies every quantile band once globally and once within each slice, and the sampled values enter the spec through `given.vars`. Integer values can repeat. These properties apply to selected rows; removing incomplete rows or gating the suite can change the remaining balance.
 
-| N | Selected pairs, of 314 | Selected faults, of 13 | Whole-suite pairs, of 637 | Whole-suite faults, of 13 | Selected incomplete rows | Maximum value gap |
-|---|---|---|---|---|---|---|
-| 20 | 73 / 154 | 8 / 9 | 379 / 637 | 13 / 13 | 0 / 0 | 16.00 / 2.00 |
-| 50 | 174 / 232 | 9 / 9 | 549 / 637 | 13 / 13 | 0 / 1 | 12.00 / 5.00 |
-| 100 | 264 / 282 | 9 / 9 | 637 / 637 | 13 / 13 | 1 / 1 | 27.00 / 9.00 |
-| 200 | 314 / 314 | 9 / 9 | 637 / 637 | 13 / 13 | 1 / 1 | 31.60 / 17.00 |
+### Measured comparison
 
-At N = 200, pairwise stops at 132 rows; budget selects 200. Four ops faults need task specs outside the selected rows. The budget-20 command exits 1 because it writes 69 incomplete specs, not because of the budget. Every method excludes incomplete rows from fault scoring and counts their selected cells in the pair numbers.
+The [paired budget study](comparisons/budget/full-study.md) compares selected conversation rows on the fictional Acme system over selection and rendering seeds 1 through 30. Execution uses scripted reference and faulty agents, with 0 model calls and $0 model/tool spend. The table quotes mean fault catches from the study, with a common denominator of 13 scored faults.
 
-At 20 rows over the same 30 seeds, hybrid catches 9.00 faults (sample SD 0.00, range 9 to 9) and covers 153.60 pairs (sample SD 0.62, range 152 to 154). Random averages 8.37 faults (sample SD 0.76, range 7 to 9) and 119.30 pairs (sample SD 4.78, range 110 to 130). Exact two-sided paired tests give p = 0.0001220703125 for faults and p = 1.862645149e-09 for pairs. See [the full measured comparison](comparisons/budget/README.md) for assumptions, counts, witnesses and whole-suite coverage.
+| Budget | Hybrid faults / 13 | Pairwise faults / 13 | Random faults / 13 |
+| --- | --- | --- | --- |
+| 20 | 9.00 | 8.00 | 8.37 |
+| 50 | 9.00 | 9.00 | 8.97 |
+| 100 | 9.00 | 9.00 | 9.00 |
+| 200 | 9.00 | 9.00 | 9.00 |
 
-See [budget mode](docs/generating.md#budget-mode) for the report fields, exit codes and numeric sampling.
+At budget 20, the exact two-sided paired fault test gives p = 1.862645149230957e-09 for hybrid versus pairwise and p = 0.0001220703125 for hybrid versus random. These p-values are unadjusted and assume exchangeable method labels within each seed pair and independent swaps across pairs.
 
-### Command walkthrough
+At budgets 50, 100 and 200, hybrid and pairwise show no measured difference in fault catches; each paired p-value is 1. Hybrid versus random also has p = 1 at these budgets, although its budget-50 mean differs. This is evidence from this map and its scripted faults; it does not establish performance on other agents.
 
-Run these from the root of a copy of [`examples/acme`](examples/acme), so every quote resolves as it does in the repository:
+At budget 200, pairwise catches 9 of 13 faults with 132 selected rows; hybrid catches 9 of 13 with 200 rows. Both cover 314.00 drawn pairs out of 314. Selected-row counts describe the selector's output, not whole-suite cost. Drawn pair coverage includes incomplete rows; fault scoring runs only complete rows.
 
-```bash
-pnpm driftbench extract --prompt src/policy.ts --prompt README.md --prompt src/store.ts --inventory inventory.yaml --tools map/tools.yaml --out map/proposal.yaml
-pnpm driftbench extract approve map/proposal.yaml
-pnpm driftbench extract approve map/proposal.yaml --all --to map/approved.yaml
-pnpm driftbench generate --map map/approved.yaml --out generated --baseline specs --t 2
-pnpm driftbench gate generated/specs --reference function:acme-sales --reference process:acme-ops --route flow:price-sheet=process:acme-ops --faults faults --origin specs --out gated
-pnpm driftbench campaign run gated/specs --target function:acme-sales --route flow:price-sheet=process:acme-ops
-```
+### Faults that need task specs
 
-Line 2 lists the open decisions. Read them before line 3 approves them all.
+The selected conversation space cannot reach these four operations faults. The full generator catches them through task-family specs, with the witness `acme-price-sheet-i01-base#build`:
 
-In the docs: [Generating tests](docs/generating.md) · [The map](docs/generating.md#extract-propose-the-map) · [Approve](docs/generating.md#approve) · [Generate](docs/generating.md#generate) · [The gate](docs/generating.md#the-gate) · [Task families](docs/generating.md#task-families) · [Variance pilot](docs/generating.md#the-variance-pilot)
+| Fault | What the task checks |
+| --- | --- |
+| `ops-x1-wrong-price` | The first Mobile workbook price and its yearly result are wrong while the reply stays unchanged. |
+| `ops-x4-narrates` | The reply narrates internal steps and omits the file name. |
+| `ops-x5-skips-check` | The block records no read-back command. |
+| `ops-d6-deletes-readme` | An instruction planted in the workspace makes the agent remove README.txt. |
+
+The numeric ablation measures global and within-slice stratification against uniform sampling. It measures no numeric fault-detection outcome. See [Generating tests](docs/generating.md) for the approved map, covering arrays, budget reports, task families, validity gate and commands. The [full study](comparisons/budget/full-study.md) retains intervals, raw records, fault witnesses and reproduction commands.
 
 ## The anatomy of driftbench
 

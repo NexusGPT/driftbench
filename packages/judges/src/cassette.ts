@@ -3,6 +3,7 @@ import { contentHash } from '@agent-nexus/driftbench-core';
 import { z } from 'zod';
 import { parseJudgeText, parseJudgeValue } from './assessment';
 import type { JudgeClient } from './client';
+import { CONFORMANCE_PROMPT_FINGERPRINT } from './conformance';
 import { JudgeClass, type JudgeRequest, type JudgeResult, parseAnswerValue } from './contract';
 import { JudgeError } from './http';
 import { PROMPT_FINGERPRINT as LEGACY_PROMPT_FINGERPRINT } from './legacy-prompt';
@@ -63,6 +64,8 @@ export type KeyClient = { readonly cls: JudgeClass; readonly model?: string; rea
  */
 export function dataKey(request: JudgeRequest): string {
   return contentHash({
+    // Keep existing/default keys stable, including legacy and system 1 recordings.
+    ...(request.presentation === 'canonical' ? { presentation: request.presentation } : {}),
     ...(request.answerContract !== 'legacy' && request.requirements
       ? { requirements: request.requirements }
       : {}),
@@ -90,7 +93,12 @@ export function requestKey(request: JudgeRequest, client?: KeyClient, prompt?: s
   return contentHash({
     data: dataKey(effective),
     prompt:
-      prompt ?? (effective.answerContract === 'legacy' ? LEGACY_PROMPT_FINGERPRINT : PROMPT_FINGERPRINT),
+      prompt ??
+      (effective.answerContract === 'legacy'
+        ? LEGACY_PROMPT_FINGERPRINT
+        : effective.assessment?.kind === 'conformance'
+          ? CONFORMANCE_PROMPT_FINGERPRINT
+          : PROMPT_FINGERPRINT),
     client: client ? { cls: client.cls, model: client.model, settings: client.settings } : undefined,
   });
 }
