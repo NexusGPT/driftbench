@@ -1,5 +1,5 @@
 {
-  "stage": "test-v6",
+  "stage": "test-v7",
   "core": {
     "pr": "https://github.com/achammah/driftbench/pull/168",
     "commit": "35f07309a4d1d1c8a7c5b176ff19e537d0ef8fdd",
@@ -151,12 +151,12 @@
   "cells": {
     "claude-sonnet-5-5": {
       "dir": "cells/claude-sonnet-5-5",
-      "capUsd": 25,
+      "capUsd": 45,
       "reserveUsd": 0.1,
       "maxBudgetUsd": 0.1,
       "maxThinkingTokens": 8192,
       "lastCallCutoff": "2026-10-14T12:00:00+00:00",
-      "stage": "HELD: projection above the 25 USD cell gate, waiting for the owner",
+      "stage": "sealed-run-authorized",
       "route": "claude -p --model sonnet in an empty folder, same lean flags as Haiku; resolved model claude-sonnet-5-5",
       "harmSeat": "not earned (no fixture run), disabled by the registered rule",
       "pacing": "4 calls at a time, 3 transport tries, 300 s timeout",
@@ -167,7 +167,13 @@
         "projected600Usd": 34.84,
         "maxCallUsd": 0.0345,
         "cappedAnswers": 0
-      }
+      },
+      "measuredPerItemUsd": {
+        "ledger": 0.04,
+        "promptfoo": 0.019,
+        "basis": "20 exposed DEV pilot items"
+      },
+      "hardStop": "Budget gate at 45 USD counts settled cost plus held reserves; a reservation that would pass it stops the run and keeps what is recorded."
     },
     "gpt-6.1-sol": {
       "dir": "cells/gpt-6.1-sol",
@@ -197,5 +203,10 @@
     "loggedUtc": "2026-10-13",
     "by": "owner via coordinator",
     "text": "Two new separate model cells on the full 600 sealed pairs: gpt-6.1-sol and claude-sonnet-5-5. Both contestants on the same model inside a cell; same win rule; nothing tuned on sealed data. Each cell has its own folder under research/ledger-mm/cells/ and its own 25 USD gate. Cost was measured on the 20 exposed DEV pilot items only. gpt-6.1-sol is authorized to run. claude-sonnet-5-5 is held because its projection (34.84 USD) exceeds the gate. gemini-3.8-flash stays parked at 393 of 600."
+  },
+  "amendment7": {
+    "loggedUtc": "2026-10-13",
+    "by": "owner via coordinator",
+    "text": "claude-sonnet-5-5 cell gate set to 45 USD (34.84 projected plus held reserves). Sealed set run whole, once. Hard stop at 45 USD."
   }
 }
