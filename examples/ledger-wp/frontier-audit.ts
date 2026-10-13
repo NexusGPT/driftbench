@@ -47,7 +47,8 @@ for(const model of process.argv.slice(2)) {
         details=await judgePairLedger(client,request,{stage0:{correctness:false,compute:false,language:item.language},tiePolicy:'canonical'});
         const choice=details.choice==='first'?'A':details.choice==='second'?'B':'tie';games=[choice,choice];
         errors=details.reads.filter((r:any)=>r.result.unparsed).length;
-        assert.deepEqual(details,result.details);
+        // The recording is JSON: in-memory negative zero serializes as zero.
+        assert.deepEqual(JSON.parse(JSON.stringify(details)),result.details);
       }
       assert.deepEqual(games,result.games);assert.equal(errors,result.graderErrors);assert.equal(callCount,result.callCount);assert(Math.abs(cost-result.costUsd)<1e-10);replayed++;
     }
@@ -68,6 +69,6 @@ for(const model of process.argv.slice(2)) {
   const audit={model,at:new Date().toISOString(),passed:true,replayedComparisons:replayed,answeredCalls:answers.length,
     developmentMissingComparisons:new Set(missing.filter(r=>r.split!=='test'&&!decisions.some(d=>decisionKey(d)===decisionKey(r))).map(decisionKey)).size,
     noAnsweredResubmissions:true,sealedJobOrder:true,submissionOrder,queueOrderEvidence:'Frozen runLimitedJobs increments a synchronous sealed cursor; provider start timestamps follow asynchronous Stage 0. Concurrent startup inversions are disclosed separately.',peakConcurrentCalls:peak,peakSinceSerialAmendment:currentPeak,spend:budget,freezeSha256:sha(readFileSync(resolve(dir,'freeze.json'))),
-    originalSourceAndSealHashes:'verified by verifyCell -> verifyFreeze',networkCalls:0};
+    originalSourceAndSealHashes:'verified by verifyCell -> verifyFreeze',replayDetailsComparison:'Full JSON recording shape, including JSON normalization of negative zero',networkCalls:0};
   writeFileSync(resolve(dir,'audit.json'),JSON.stringify(audit,null,2)+'\n');console.log(JSON.stringify(audit));
 }

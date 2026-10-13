@@ -62,7 +62,7 @@
     "examples/ledger-wp/frontier-supervise.py": "72188169550d62c39215483e9807e4576b0e3c52b7769bd3f51711e1f71c5abd",
     "examples/ledger-wp/frontier-wrapup.py": "b4121cf2b56af648c44ff3e306e22ec09f2857f851fd3fc27319ab70d6061c57",
     "examples/ledger-wp/frontier-finalize.py": "d0813697c60e3c202c63c672d4d4eb36129664a5d0d39c0fd8448837d09f55d4",
-    "examples/ledger-wp/frontier-audit.ts": "e6134c4afd6fdd6de7ced7aea3d089c1b42ec365ccbad81ae2358751d1fd12e8",
+    "examples/ledger-wp/frontier-audit.ts": "0371e00d2701faa53cd6760c117839677163eec8fea826bec52589163334a215",
     "examples/ledger-wp/frontier-order.ts": "9dab5227b68e68694ba4e78b3104d504dea09951155beed3e051f6a40e827ba7"
   },
   "judgeContractChanged": false,
@@ -195,5 +195,10 @@
     "paidRuntimeQueueChanged": false,
     "scoringChanged": false,
     "priorAuditFailurePreservedInCommit": "54004cd8"
+  },
+  "jsonReplayAuditCorrection": {
+    "at": "2026-10-13T17:55:57.537562+00:00",
+    "previousFreezeSha256": "7baf4cb449de0bfc8474e2a5670611109777756cc4a3137a9124ec2f2c84ee48",
+    "reason": "Recorded details are JSON. Compare the replay after the same JSON serialization, which turns JavaScript negative zero into zero. All saved fields and verdicts still compare exactly; no judge or score changes, no paid calls."
   }
 }
