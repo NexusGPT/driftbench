@@ -1,0 +1,56 @@
+{
+  "time": "2026-10-13T07:42:37.932518+00:00",
+  "reason": "Owner-authorized resume after Codex plugin crash",
+  "sealedCommit": "2154225b",
+  "items": 1212,
+  "completedBaseItems": 119,
+  "savedHaikuReceipts": 260,
+  "savedPanelReceipts": 28,
+  "completedHashRepeatsAllowed": false,
+  "maxConcurrentAllProviders": 4,
+  "geminiConcurrency": 2,
+  "geminiTimeoutSeconds": 180,
+  "geminiRetries": 1,
+  "candidateChanged": false,
+  "openaiReasoning": "low",
+  "deadOwnerSlots": [
+    {
+      "slot": "0",
+      "pid": 98337,
+      "provider": "gemini",
+      "time": "2026-10-13T07:37:13.123074+00:00"
+    },
+    {
+      "slot": "1",
+      "pid": 98056,
+      "provider": "haiku",
+      "time": "2026-10-13T07:37:15.012Z"
+    },
+    {
+      "slot": "4",
+      "pid": 98056,
+      "provider": "haiku",
+      "time": "2026-10-13T07:37:08.333Z"
+    },
+    {
+      "slot": "3",
+      "pid": 98337,
+      "provider": "gemini",
+      "time": "2026-10-13T07:37:15.039215+00:00"
+    },
+    {
+      "slot": "2",
+      "pid": 98056,
+      "provider": "haiku",
+      "time": "2026-10-13T07:37:06.697Z"
+    },
+    {
+      "slot": "5",
+      "pid": 98056,
+      "provider": "haiku",
+      "time": "2026-10-13T07:37:14.658Z"
+    }
+  ],
+  "unreceivedResponseLimitation": "Four occupied Haiku slots and two Gemini requests had no completion receipt at the plugin crash. Remote completion and charges are unknown. Resume reuses all saved hashes and retries only missing requests under the explicit owner resume authorization. Gemini retains its one-retry ceiling.",
+  "detachedRunners": "New runner sessions are detached from the tool process so a plugin interruption does not kill in-flight checkpoints."
+}

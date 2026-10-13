@@ -21,7 +21,7 @@ TEST status: {'complete' if complete else 'running'}. The complete remaining eli
 
 The fixed seed is `astra-mm-test-20261013-v1`. This is a census, so subset allocation exactly matches the remaining eligible population. Seeded ranks determine order within subsets, with proportional interleaving. Selection used no labels or outcomes. The original 950-item TEST sample, the 600-item pool sealed on research/ledger-mm at 5a357fa1, and every prior exposure in that lane's audit are excluded. There were 1,812 eligible never-scored TEST items before reserving the other lane's 600, leaving 1,212 here. ID intersections with both protected pools are empty. The seal, exclusion IDs, source hashes and request-bank hash are committed.
 
-The candidate is exactly the frozen DEV candidate, including gpt-6-luna at low, Gemini 3.8 Flash with low thinking, and Jev's three original framings. The owner's medium setting belongs to a separate promptfoo matrix and was not used here. Gemini uses the authorized gemini-driftbench.key, a 180-second timeout, one retry and at most two concurrent calls. Total concurrency is at most six. No tuning or second TEST pass is permitted.
+The candidate is exactly the frozen DEV candidate, including gpt-6-luna at low, Gemini 3.8 Flash with low thinking, and Jev's three original framings. The owner's medium setting belongs to a separate promptfoo matrix and was not used here. Gemini uses the authorized gemini-driftbench.key, a 180-second timeout, one retry and at most two concurrent calls. After the plugin-crash resume, total concurrency is at most four (previously six). No tuning or second TEST pass is permitted.
 
 | Subset | Sealed items |
 |---|---:|

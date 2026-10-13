@@ -57,7 +57,7 @@ SLOT_DIR=ROOT/'tmp/call-slots'
 SLOT_DIR.mkdir(parents=True,exist_ok=True)
 def acquire_slot(provider):
  while True:
-  for i in range(6):
+  for i in range(4):
    path=SLOT_DIR/str(i)
    try:
     fd=os.open(path,os.O_CREAT|os.O_EXCL|os.O_WRONLY,0o600)

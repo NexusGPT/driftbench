@@ -28,7 +28,7 @@ const slotDir='/Users/assem/Documents/GitHub/driftbench/.worktrees/astra-mm/rese
 await mkdir(slotDir,{recursive:true});
 async function acquireSlot(){
  while(true){
-  for(let i=0;i<6;i++){
+  for(let i=0;i<4;i++){
    const path=`${slotDir}/${i}`;
    try{const f=await open(path,'wx');await f.writeFile(JSON.stringify({pid:process.pid,provider:'haiku',time:new Date().toISOString()}));await f.close();return async()=>{await unlink(path);};}
    catch(e:any){if(e.code!=='EEXIST')throw e;}
