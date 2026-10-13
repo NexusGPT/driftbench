@@ -45,6 +45,8 @@ async function main(): Promise<void> {
     'examples/judge-benchmarks/src/guard-allow.ts',
     '--bench',
     'rubricbench',
+    '--report',
+    join(directory, 'guard-verification.json'),
   ]);
   const paths = command('git', ['status', '--porcelain']).split('\n').filter(Boolean);
   if (paths.some((line) => !line.slice(3).startsWith('examples/judge-benchmarks/')))
@@ -138,6 +140,8 @@ async function main(): Promise<void> {
     'examples/judge-benchmarks/src/guard-allow.ts',
     '--bench',
     'rubricbench',
+    '--report',
+    join(directory, 'guard-verification.json'),
   ]);
   await run('pnpm', ['exec', 'tsx', 'examples/judge-benchmarks/src/rubric-quote-audit.ts']);
   await run('pnpm', [

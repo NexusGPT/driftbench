@@ -49,6 +49,8 @@ Wrapped expert questions stay together as one atomic requirement. The dev audit 
 
 The public-recording helper scans complete JSONL text even beyond the tree guard byte limit. Its `--bench rubricbench` option confines annotations to these recordings. Denylist findings are never marked.
 
+An ignored private denylist does not copy into a new worktree. The helper therefore reads local and environment terms plus the list at the repository common root, resolved through Git. It never copies or prints those terms.
+
 Recording files rotate at 8 MiB. Replay reads legacy files and every numeric shard in numeric order. Shard migration verifies that concatenated output bytes equal the original before removing the legacy file.
 
 quote-recovery.json records the cumulative recovery of the original 55 unmatched quotes. The approved matcher also rejects 52 previously accepted literal quotes across 42 reply grades. normalizer-extra-failures.json records that extra failure population without candidate text. Tonight retains the approved matcher and uses the bounded retry; the proposed monotonic literal-match fix is a separate change.

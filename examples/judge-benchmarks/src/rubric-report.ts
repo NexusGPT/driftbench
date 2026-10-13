@@ -106,6 +106,9 @@ async function main(): Promise<void> {
     regradeNo: number;
     stillUnresolved: number;
   };
+  const privacy = JSON.parse(await readFile(join(directory, 'guard-verification.json'), 'utf8')) as {
+    measuredAt: string; bench: string; privateTerms: number; denylistFindings: number;
+  };
   let official:
     | {
         frozenCommit: string;
@@ -263,7 +266,7 @@ async function main(): Promise<void> {
     '- Every five-vote sample uses a content-seeded rubric permutation. The one-sample control keeps the original order. Voting stops only at a mathematical majority that unseen votes cannot change.',
     '- Invalid pointwise grades and hard/soft plans receive one schema retry. The retry preserves the original rubric and response, and its model cost remains recorded.',
     '- Recording files rotate at 8 MiB. Replay reads every numeric shard, and the full-text scan checks all contents. Public-pattern annotations never suppress denylist findings.',
-    '- Local guard checks load zero private denylist terms. Synthetic tests verify denylist rejection and full-file scanning; the private CI denylist remains untested locally.',
+    `- The full-text recording scan loads ${privacy.privateTerms} private terms and finds ${privacy.denylistFindings} denylist hits, measured at ${privacy.measuredAt} for ${privacy.bench}. Terms come from the repository common root, local files and environment. They are never copied or printed.`,
     '- Code and MBPP snippets run in worktree scratch folders. Python uses supplied examples, JavaScript runs in a VM, C/C++ run when an entry point exists, and SQL uses a scratch SQLite database. A portable Java runtime is stored in the ignored worktree cache; unsupported languages and absent context remain visible unknowns.',
     '',
     `The selected configuration uses ${config.rubricEngine?.samples ?? config.samples ?? 1} judgment(s) per prompt and ${config.canonicalOrder ? 'canonical presentation' : 'the original presentation rules'}. Its measured score and domain rows above are the evidence for choosing it.`,
