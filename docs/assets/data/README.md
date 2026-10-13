@@ -1,6 +1,6 @@
 # Chart data
 
-The README charts are drawn by `tools/readme-charts.mjs` from result files of this repository. This folder holds the two files that are not result files of a comparison.
+`tools/readme-charts.mjs` reads the README chart numbers from result files of this repository. This folder holds the files that are not result files of a comparison.
 
 ## chart-facts.csv
 
@@ -16,3 +16,18 @@ A copy of `research/astra-mm/data/test-paired.json`, with the same values and th
 * Limits stated by the source: three of the five subset intervals touch zero. Three safety items were provider refusals that the panel recovered; without them the gain is 1.75, interval 0.77 to 2.96. Both arms are driftbench; no other tool is run.
 
 The full write-up, the seal and every recorded call are in [RESULT.md](https://github.com/achammah/driftbench/blob/a7800af8d82459d2850f6478b0d3e5e5fde6edfb/research/astra-mm/RESULT.md) on that commit. The development-set replay that ships on main is in [examples/escalation](../../../examples/escalation/README.md).
+
+## sealed/
+
+Copies of result files from research branches that are not merged into main, with the same values and this repository's JSON formatting. In `sealed/verify.json` the field `key` is renamed to `cellId` in the published copy; its 10 values, which are cache cell hashes, are unchanged.
+
+| File | Branch, commit | Path on that branch |
+|---|---|---|
+| `sealed/judgebench.json` | `research/ledger-jb`, `ed4412072de2f7904879cbb397ecd2306673d7f6` | `examples/ledger-jb/results/cells.json` |
+| `sealed/mm-eval.json` | `research/ledger-mm`, `c61e2b24a6be30758ea776edf9185babc138bba2` | `research/ledger-mm/test-results.json` |
+| `sealed/rubricbench-luna.json` | `research/ledger-rb`, `d36a01002409fd23f91a234078d5c95559741e86` | `examples/judge-benchmarks/experiments/ledger-rb/luna-complete-check.json` |
+| `sealed/rubricbench-flash-lite.json` | `research/ledger-rb`, `d36a01002409fd23f91a234078d5c95559741e86` | `examples/judge-benchmarks/experiments/ledger-rb/flash-lite/live-summary.json` |
+| `sealed/verify.json` | `research/ledger-verify`, `1f94d87ed373790819fa2565e4f63a65ebff76f1` | `examples/ledger-verify/evidence/cells.json` |
+| `sealed/writing.json` | `research/ledger-wp`, `5db7e7adaae3b2c7d669630e12c0c9eb1548f6d7` | `examples/ledger-wp/results/cells.json` |
+
+What they measure and their limits: [how the README numbers were measured](../../comparison/methods.md#public-benchmarks-against-promptfoo).
