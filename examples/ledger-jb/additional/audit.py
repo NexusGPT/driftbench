@@ -31,6 +31,7 @@ for model in ('claude-sonnet-5-5', 'gpt-6.1-sol'):
     calls = rows(cell / 'calls.jsonl')
     starts, finishes, active = {}, {}, set()
     max_active = 0
+    recovery_max_active = 0
     for row in calls:
         key = row['key']
         assert row['model'] == model
@@ -39,6 +40,9 @@ for model in ('claude-sonnet-5-5', 'gpt-6.1-sol'):
             starts[key] = row
             active.add(key)
             max_active = max(max_active, len(active))
+            if row.get('recoveryAmendment'):
+                recovery_max_active = max(recovery_max_active, len(active))
+                assert len(active) <= 2
             liability = sum(finishes[k]['costUsd'] if k in finishes else s['reserveUsd'] for k, s in starts.items())
             assert liability <= freeze['capUsd'] + 1e-8
         else:
@@ -53,7 +57,7 @@ for model in ('claude-sonnet-5-5', 'gpt-6.1-sol'):
                 assert finishes[previous].get('transportFailure')
                 assert not finishes[previous].get('returnedAnswer')
                 assert not finishes[previous].get('text')
-    assert max_active <= freeze['workers']
+    assert max_active <= (8 if model == 'gpt-6.1-sol' else 4)
     assert not active, 'Audit requires settled calls'
     pool = read(ROOT / 'data/pool.json')
     test = rows(cell / 'decisions-test.jsonl')
@@ -64,6 +68,13 @@ for model in ('claude-sonnet-5-5', 'gpt-6.1-sol'):
     assert len(matched) == len(pool) == 270
     assert len(test) == 540
     assert set(ledger) == set(peer) == {x['id'] for x in pool}
+    logical = {}
+    for row in finishes.values():
+        base = row['key'].rsplit(':transport:', 1)[0]
+        logical.setdefault(base, []).append(row)
+    missing = [values for values in logical.values()
+               if all(x.get('transportFailure') and not x.get('returnedAnswer') and not x.get('text') for x in values)]
+    assert not [values for values in missing if values[-1]['phase'] == 'test']
     if model == 'claude-sonnet-5-5':
         for row in finishes.values():
             if row['phase'] == 'test':
@@ -98,7 +109,8 @@ for model in ('claude-sonnet-5-5', 'gpt-6.1-sol'):
         assert hashlib.sha256(original).hexdigest() == digest(REPO / path), path
     result = {'model': model, 'matched': len(matched), 'ledgerCorrect': a, 'promptfooCorrect': b,
               'wins': wins, 'losses': losses, 'exactMcNemarP': p, 'starts': len(starts), 'finishes': len(finishes),
-              'active': len(active), 'maximumActive': max_active, 'knownUsd': known, 'holdsUsd': held,
+              'active': len(active), 'maximumActive': max_active, 'maximumRecoveryActive': recovery_max_active,
+              'transportMissingTestRequests': 0, 'knownUsd': known, 'holdsUsd': held,
               'answeredTransportRetries': 0, 'outputAbove8192': 0, 'existingCellsUnchanged': True,
               'freezeSha256': digest(cell / 'freeze.json'), 'callsSha256': digest(cell / 'calls.jsonl'),
               'reportSha256': digest(cell / 'report.json'),
