@@ -1,0 +1,10 @@
+{
+  "revision": "57dd5e0b9817d07f05ec8f45a91b2ce1e310e308",
+  "license": "mit",
+  "files": [
+    ".gitattributes",
+    "README.md",
+    "data/claude-00000-of-00001.jsonl",
+    "data/gpt-00000-of-00001.jsonl"
+  ]
+}

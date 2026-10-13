@@ -1,0 +1,7 @@
+{
+  "upstream": "https://github.com/promptfoo/promptfoo/blob/8014282/src/prompts/grading.ts",
+  "sourceSha256": "66413428d9d5c0a952e78e53f6ee4f4859522134f9611274d2b620a649fa6e43",
+  "template": "You are comparing multiple pieces of text to see which best fits the following criteria: {{criteria}}\n\nHere are the pieces of text:\n\n{% for output in outputs %}\n<Text index=\"{{ loop.index0 }}\">\n{{ output }}\n</Text>\n{% endfor %}\n\nOutput the index of the text that best fits the criteria. You must output a single integer.",
+  "twoOutputExpansionExactMatch": true,
+  "method": "Expand the Nunjucks output loop for two candidates using the existing harness whitespace. Preserve the existing harness extra user message."
+}

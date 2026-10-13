@@ -1,0 +1,1724 @@
+{
+  "roots": [
+    {
+      "name": "opus-council",
+      "mode": "filesystem",
+      "path": "/Users/assem/Documents/GitHub/driftbench/.worktrees/opus-council"
+    },
+    {
+      "name": "codex-jb",
+      "mode": "filesystem",
+      "path": "/Users/assem/Documents/GitHub/driftbench/.worktrees/codex-jb"
+    },
+    {
+      "name": "codex-mm",
+      "mode": "git-fallback",
+      "ref": "origin/codex/mm-judge",
+      "commit": "0278595cb5b5a6b49830a1cacdbfd22bb951c0de",
+      "limitation": "Removed worktree: committed recordings only; uncommitted historical recordings cannot be audited."
+    },
+    {
+      "name": "codex-rb",
+      "mode": "filesystem",
+      "path": "/Users/assem/Documents/GitHub/driftbench/.worktrees/codex-rb"
+    },
+    {
+      "name": "codex-verify",
+      "mode": "filesystem",
+      "path": "/Users/assem/Documents/GitHub/driftbench/.worktrees/codex-verify"
+    },
+    {
+      "name": "codex-wp",
+      "mode": "filesystem",
+      "path": "/Users/assem/Documents/GitHub/driftbench/.worktrees/codex-wp"
+    },
+    {
+      "name": "judge-benchmarks",
+      "mode": "filesystem",
+      "path": "/Users/assem/Documents/GitHub/driftbench/.worktrees/judge-benchmarks"
+    },
+    {
+      "name": "astra-hard",
+      "mode": "git-fallback",
+      "ref": "origin/research/astra-hard-fresh",
+      "commit": "89425c88b12e5fd7516ed9cdbf6d37b9b0261595",
+      "limitation": "Removed worktree: committed recordings only; uncommitted historical recordings cannot be audited."
+    }
+  ],
+  "files": [
+    {
+      "source": "opus-council/comparisons/deepeval/cassettes/haiku-dag.json",
+      "sha256": "3588372ff0190df03a367a31eaeedda49b6350e4a8e6d6f821adb082aa1edd66",
+      "bytes": 73704,
+      "uuidCount": 0
+    },
+    {
+      "source": "opus-council/comparisons/deepeval/cassettes/haiku.json",
+      "sha256": "54b1fe42ed57afa304c747857a865cae05d31fa0e49f629180b4bf5e469a3a74",
+      "bytes": 488203,
+      "uuidCount": 0
+    },
+    {
+      "source": "opus-council/comparisons/deepeval/cassettes/sonnet-dag.json",
+      "sha256": "5be4db988567d06100749a955ae9e3dd0cbab7a4432edccc31288d990620cdcd",
+      "bytes": 83070,
+      "uuidCount": 0
+    },
+    {
+      "source": "opus-council/comparisons/deepeval/cassettes/sonnet.json",
+      "sha256": "fe22af22d13f66b90323555610f743b50b06dbd6fca7777aeaa27015ae067d88",
+      "bytes": 158352,
+      "uuidCount": 0
+    },
+    {
+      "source": "opus-council/comparisons/deepeval/results/haiku-cassette.json",
+      "sha256": "748902fbf44ab8877bad298dc51b1ab6a40577f470ca826b1ab485397fa626b6",
+      "bytes": 106524,
+      "uuidCount": 0
+    },
+    {
+      "source": "opus-council/comparisons/deepeval/results/haiku-first-recording.json",
+      "sha256": "2e630d38862418fb990e14a0001366e44f3c2f0186e6c3ea2581006127c369a7",
+      "bytes": 106532,
+      "uuidCount": 0
+    },
+    {
+      "source": "opus-council/comparisons/deepeval/results/sonnet-cassette.json",
+      "sha256": "a47af74fe4d9d090f04104412d281ee6f32514543b4f4a5562b6355bb8e3195e",
+      "bytes": 13621,
+      "uuidCount": 0
+    },
+    {
+      "source": "opus-council/comparisons/deepeval/results/sonnet-first-recording.json",
+      "sha256": "ef9aefbb25c60380c8fe3458fd0a41f7a1600ad9f1e5e8b45ca4c240f772599d",
+      "bytes": 13624,
+      "uuidCount": 0
+    },
+    {
+      "source": "opus-council/comparisons/inspect/panel/data/claude-council.cassette.json",
+      "sha256": "b7cfee492bb81af4deffac5b82d34b80e8b07cfac7ab9d6975c711bab3292e08",
+      "bytes": 294501,
+      "uuidCount": 0
+    },
+    {
+      "source": "opus-council/comparisons/promptfoo/hard/recorded/calls.jsonl",
+      "sha256": "9fd9c1fc9f52e408d9d4824d407b71ca2997b9d10b16e177ec4ecc0b08a6b71b",
+      "bytes": 7579106,
+      "uuidCount": 0
+    },
+    {
+      "source": "opus-council/comparisons/promptfoo/hard/recorded/factuality-audit.json",
+      "sha256": "917486257c1e5db59003b3c76bdad6e6475f7fb144fd0a72c1c2b33624ee9556",
+      "bytes": 29916,
+      "uuidCount": 0
+    },
+    {
+      "source": "opus-council/comparisons/promptfoo/hard/recorded/factuality-peer.json",
+      "sha256": "d804352c12a77c44068f2694c3e7f1605cda9b2ba466480c58799b94423b7f54",
+      "bytes": 29768,
+      "uuidCount": 0
+    },
+    {
+      "source": "opus-council/comparisons/promptfoo/hard/recorded/factuality-shipped.json",
+      "sha256": "ac5e66bc36b20f4021a087f769e241e2a97733fd4da0de92e456724d93e3125b",
+      "bytes": 29818,
+      "uuidCount": 0
+    },
+    {
+      "source": "opus-council/comparisons/promptfoo/hard/recorded/goal-audit.json",
+      "sha256": "77085293a27e5a216feb40e524af35dd42b536b938c6a5784e91993b38d7d216",
+      "bytes": 28966,
+      "uuidCount": 0
+    },
+    {
+      "source": "opus-council/comparisons/promptfoo/hard/recorded/goal-peer-full-state.json",
+      "sha256": "2f1f28e74ae81ef1751b7fff76db9779f52ca1f5f7072a2b4e03b23cbbdfd5d3",
+      "bytes": 28824,
+      "uuidCount": 0
+    },
+    {
+      "source": "opus-council/comparisons/promptfoo/hard/recorded/goal-peer.json",
+      "sha256": "8c98457f302be7dc3e95b1d64744793b5fca9689ba51c181c210d90fa5f2336a",
+      "bytes": 28893,
+      "uuidCount": 0
+    },
+    {
+      "source": "opus-council/comparisons/promptfoo/hard/recorded/goal-shipped.json",
+      "sha256": "79e38cc49f10d1e92a5265a60ccb99c2d5cc751abfdc9d2bbc6e0c450989a73b",
+      "bytes": 28800,
+      "uuidCount": 0
+    },
+    {
+      "source": "opus-council/comparisons/promptfoo/hard/recorded/heldout-factuality-audit.json",
+      "sha256": "b2c4713577c0fc3398e1a8fdc1731ee00d37413feef8fe097236f7dcb8addded",
+      "bytes": 18572,
+      "uuidCount": 0
+    },
+    {
+      "source": "opus-council/comparisons/promptfoo/hard/recorded/heldout-factuality-peer.json",
+      "sha256": "9f4ada66ef5926a05ce4aab62d9d92902b13d2777dc04eb399e278e4e9cb3864",
+      "bytes": 18401,
+      "uuidCount": 0
+    },
+    {
+      "source": "opus-council/comparisons/promptfoo/hard/recorded/heldout-factuality-shipped.json",
+      "sha256": "fc4772e330eb19b33ac262fd6ff3ea54f13533a4129fc9f91e80e4ea59fdfd03",
+      "bytes": 18377,
+      "uuidCount": 0
+    },
+    {
+      "source": "opus-council/comparisons/promptfoo/hard/recorded/heldout-goal-audit.json",
+      "sha256": "25db7ba495351fbf612e09ffcdecfba1e1fddd50459badc184dfd2c0042b77fb",
+      "bytes": 18182,
+      "uuidCount": 0
+    },
+    {
+      "source": "opus-council/comparisons/promptfoo/hard/recorded/heldout-goal-peer-full-state.json",
+      "sha256": "6c2908de264b3790d61559735ffef2735c7ba3619bac5860f4c3915ebe1111ae",
+      "bytes": 17957,
+      "uuidCount": 0
+    },
+    {
+      "source": "opus-council/comparisons/promptfoo/hard/recorded/heldout-goal-peer.json",
+      "sha256": "62a4729b8462b4110f99bffd82f31208d2ed9a5d573834f8e9758b790c7a45fc",
+      "bytes": 18067,
+      "uuidCount": 0
+    },
+    {
+      "source": "opus-council/comparisons/promptfoo/hard/recorded/heldout-goal-shipped.json",
+      "sha256": "8926bcb74ba039511405352428fae8db345abd93b6b4fb1added5f2dc18cfefa",
+      "bytes": 18102,
+      "uuidCount": 0
+    },
+    {
+      "source": "opus-council/comparisons/promptfoo/hard/recorded/heldout-pii-audit.json",
+      "sha256": "bd031a15f1cd5c863ffd811adb1263b37d9ef048980fce806eb665fc1785c9a8",
+      "bytes": 18048,
+      "uuidCount": 0
+    },
+    {
+      "source": "opus-council/comparisons/promptfoo/hard/recorded/heldout-pii-peer.json",
+      "sha256": "5d4474794b37de936dd25b7ab7b0aa30f6e83f45e3de865b6faba0ae2879dd7e",
+      "bytes": 17950,
+      "uuidCount": 0
+    },
+    {
+      "source": "opus-council/comparisons/promptfoo/hard/recorded/heldout-pii-shipped.json",
+      "sha256": "a08058b4a02117dd8bae119686453f1203d0e4f98c08e8738eeb1dffc3056072",
+      "bytes": 17986,
+      "uuidCount": 0
+    },
+    {
+      "source": "opus-council/comparisons/promptfoo/hard/recorded/heldout-rubric-audit.json",
+      "sha256": "4a6b2dc5f86e61885627fa79b7ee7b2457fe2afdaac747fad7e76ba2cceebf4a",
+      "bytes": 18161,
+      "uuidCount": 0
+    },
+    {
+      "source": "opus-council/comparisons/promptfoo/hard/recorded/heldout-rubric-peer.json",
+      "sha256": "195435ab929bf73c8d8d65e7ada998f0f212427c12ddbebce587027f68195fcd",
+      "bytes": 18268,
+      "uuidCount": 0
+    },
+    {
+      "source": "opus-council/comparisons/promptfoo/hard/recorded/heldout-rubric-shipped.json",
+      "sha256": "0367989d567c02e1ee8822b813e027ed91576032d22e0e04fa8826e2c2e9b73b",
+      "bytes": 18115,
+      "uuidCount": 0
+    },
+    {
+      "source": "opus-council/comparisons/promptfoo/hard/recorded/peer-native-decoder.json",
+      "sha256": "76fd0ea90b0facc7ad73498733bd202d5781fadca42758bf72ec057431e025ef",
+      "bytes": 74883,
+      "uuidCount": 0
+    },
+    {
+      "source": "opus-council/comparisons/promptfoo/hard/recorded/pii-audit.json",
+      "sha256": "c04cf482290496dbf32c4ae38a2f9de7d7d38bb345bd1b0b5ce6a62d12e1ac20",
+      "bytes": 29027,
+      "uuidCount": 0
+    },
+    {
+      "source": "opus-council/comparisons/promptfoo/hard/recorded/pii-peer.json",
+      "sha256": "905341b0311c923a4c7025f4f32cca9f897acbc347a6679c982dbe0498fbd5e5",
+      "bytes": 28787,
+      "uuidCount": 0
+    },
+    {
+      "source": "opus-council/comparisons/promptfoo/hard/recorded/pii-shipped.json",
+      "sha256": "2618b697baaa6989f02eaf150d9a8827b05fbb310562dc728429cc6dbc46187b",
+      "bytes": 28904,
+      "uuidCount": 0
+    },
+    {
+      "source": "opus-council/comparisons/promptfoo/hard/recorded/rubric-audit.json",
+      "sha256": "0d6c2602a008aacb54b9abd602c296dcb75f5416549ec0f000624d71828dd566",
+      "bytes": 29295,
+      "uuidCount": 0
+    },
+    {
+      "source": "opus-council/comparisons/promptfoo/hard/recorded/rubric-peer.json",
+      "sha256": "20f4edb0af40e44324e953debda62359e3fa3cee509b057047445e010a075dcf",
+      "bytes": 29055,
+      "uuidCount": 0
+    },
+    {
+      "source": "opus-council/comparisons/promptfoo/hard/recorded/rubric-shipped.json",
+      "sha256": "10fa6e30262b12e1ba6d546738966eb069d6ea96845733cf7e3796aba37ccd53",
+      "bytes": 29099,
+      "uuidCount": 0
+    },
+    {
+      "source": "opus-council/comparisons/promptfoo/hard/recorded/shipped-native-decoder.json",
+      "sha256": "97ad59fa611e77f315b4a2849ee949cb1db803b7ee606065ff4c9d621e5c58d2",
+      "bytes": 59907,
+      "uuidCount": 0
+    },
+    {
+      "source": "opus-council/comparisons/promptfoo/hard/recorded/summary.json",
+      "sha256": "aa469674253338eed34a43fde905739b67606e9a7cad39bf7f26c5647eb773e1",
+      "bytes": 11566,
+      "uuidCount": 0
+    },
+    {
+      "source": "opus-council/examples/acme/criteria/council.cassette.json",
+      "sha256": "c8b9efb7ab5123aeb6802a59de3dda740ce072cfa4e3c1775c575ae580e4001e",
+      "bytes": 18845,
+      "uuidCount": 0
+    },
+    {
+      "source": "opus-council/examples/acme/criteria/calibration/campaign.cassette.json",
+      "sha256": "2f70f5e36822af19ea078fa454895e5344256384fb885104fcc3a7962305b96b",
+      "bytes": 14643,
+      "uuidCount": 0
+    },
+    {
+      "source": "opus-council/examples/acme/criteria/calibration/cassette.json",
+      "sha256": "b4f1df0e222fd054f042999b655870281486e214c78234a0f985280ecde2807a",
+      "bytes": 106698,
+      "uuidCount": 0
+    },
+    {
+      "source": "opus-council/examples/acme/criteria/calibration/claude-council.cassette.json",
+      "sha256": "882979bb258c5ba49bc9f5b97391aa47c708e1938569b6e9f932ac42251babbc",
+      "bytes": 294264,
+      "uuidCount": 0
+    },
+    {
+      "source": "opus-council/examples/acme/criteria/calibration/claude-haiku.cassette.json",
+      "sha256": "0f2e04f5bde0b29ed1ad10dcc772b52c86729a9f52dfdbab979ab920d70540ac",
+      "bytes": 106946,
+      "uuidCount": 0
+    },
+    {
+      "source": "opus-council/examples/council/recordings/jev-judgebench.jsonl",
+      "sha256": "f682ecb0c5561bc62c5d96cae39e1b54a3f376b6e589124d72082da926c12ef4",
+      "bytes": 75472,
+      "uuidCount": 0
+    },
+    {
+      "source": "opus-council/examples/council/recordings/jev-mmeval.jsonl",
+      "sha256": "6e3add456affc7b48bca02a2951749adf19c449ac5aa60501268c0347ddb047e",
+      "bytes": 249395,
+      "uuidCount": 0
+    },
+    {
+      "source": "opus-council/examples/council/recordings/jev-rubricbench.jsonl",
+      "sha256": "c3ea3c24d5f97d0c70a0eb9f44871174953220a2f05fc53eb85c5987a65ba719",
+      "bytes": 60501,
+      "uuidCount": 0
+    },
+    {
+      "source": "opus-council/examples/council/recordings/judgebench/gemini-3.5-flash-lite.jsonl",
+      "sha256": "f6f8c3bc033b01211d10e268344fcc16e36e869fe8093c71c30a0b36a0586616",
+      "bytes": 459338,
+      "uuidCount": 121
+    },
+    {
+      "source": "opus-council/examples/council/recordings/judgebench/gemini-3.8-flash.jsonl",
+      "sha256": "02b45dbd4b1ead76e3cf2d67c65cbd9eb34eae955e28fe23204d1cfb4117c87a",
+      "bytes": 406461,
+      "uuidCount": 121
+    },
+    {
+      "source": "opus-council/examples/council/recordings/judgebench/gpt-5.4-mini.jsonl",
+      "sha256": "f31456e5c40febf7618ab455df071d3979fcb9e963c5c6248bf2811dc406b237",
+      "bytes": 335620,
+      "uuidCount": 121
+    },
+    {
+      "source": "opus-council/examples/council/recordings/mmeval/gemini-3.8-flash.jsonl",
+      "sha256": "c701320f0b5dd45cdc98fb6be5fb90efaa046258a12a5a9a212db4fab3918bc8",
+      "bytes": 1090368,
+      "uuidCount": 0
+    },
+    {
+      "source": "opus-council/examples/council/recordings/mmeval/gpt-5.4-mini.jsonl",
+      "sha256": "99c1568bd6a1df1ae0bd5e3a27a1f10066211b8095c69f6502d7ea031e77581c",
+      "bytes": 1049594,
+      "uuidCount": 0
+    },
+    {
+      "source": "opus-council/examples/council/recordings/rubricbench/gemini-3.5-flash-lite.jsonl",
+      "sha256": "db8c4b1248545cceffa8c9b20a0b896df9687fe72d3b26cf66e41d270dca3043",
+      "bytes": 318892,
+      "uuidCount": 0
+    },
+    {
+      "source": "opus-council/examples/council/recordings/rubricbench/gpt-5.4-mini.jsonl",
+      "sha256": "27847e97c0eeacf69c9c25d55f42e14cfd45a019c2922f06c24c777ab132a863",
+      "bytes": 278150,
+      "uuidCount": 0
+    },
+    {
+      "source": "opus-council/packages/adapters/test/fixtures/frameworks/recorded/vercel-ai-steps.json",
+      "sha256": "bd280d75acb587403f1dbaf02ea26bef6a903666f31692ca091588637e2765a3",
+      "bytes": 1654,
+      "uuidCount": 0
+    },
+    {
+      "source": "opus-council/packages/adapters/test/fixtures/sdk/recorded/anthropic-coverage.json",
+      "sha256": "d5e08e8d16a742fcd13547950030d7573fa06845054a5d8a64b7709c7fc22464",
+      "bytes": 9660,
+      "uuidCount": 0
+    },
+    {
+      "source": "opus-council/packages/adapters/test/fixtures/sdk/recorded/google-coverage.json",
+      "sha256": "2e1ca96724e878c816141c29baa2c50a584d909f4e9079585f4381c0a2511cee",
+      "bytes": 12915,
+      "uuidCount": 0
+    },
+    {
+      "source": "opus-council/packages/adapters/test/fixtures/sdk/recorded/langgraph-coverage.json",
+      "sha256": "c321b4748b2c243a0255a4806769e06881c9365832bc635a3aefa5991e0991a8",
+      "bytes": 4084,
+      "uuidCount": 6
+    },
+    {
+      "source": "opus-council/packages/adapters/test/fixtures/sdk/recorded/openai-agents-runs.json",
+      "sha256": "b67daf2803b61783d08bb247d2792d75119d67e7ef0d1c5e9139a341ab03b822",
+      "bytes": 14234,
+      "uuidCount": 0
+    },
+    {
+      "source": "opus-council/packages/judges/test/fixtures/legacy-cassette-main-a97cb65e.json",
+      "sha256": "2605fc77bb755d622e5b99d0a30a45f77ae73a65a52c5c69f529740654c7cfd9",
+      "bytes": 219747,
+      "uuidCount": 0
+    },
+    {
+      "source": "opus-council/packages/judges/test/fixtures/markdown-winner-recording.json",
+      "sha256": "0a78e45e303f801b86f68966c06831ebeb6cc85ba678f80cc0dd0ffc3489f46e",
+      "bytes": 11308,
+      "uuidCount": 0
+    },
+    {
+      "source": "opus-council/packages/judges/test/fixtures/pointwise-framed.cassette.json",
+      "sha256": "be3fdb885792d05f3a1e899c6a24c8967a4d5e0955e38bf903062319c703ac38",
+      "bytes": 25084,
+      "uuidCount": 0
+    },
+    {
+      "source": "opus-council/packages/judges/test/fixtures/pointwise-regressions.cassette.json",
+      "sha256": "9158fc96306546337e187564202a9b497153638e8067b71c7063f9f75899d6b0",
+      "bytes": 24165,
+      "uuidCount": 0
+    },
+    {
+      "source": "opus-council/packages/judges/test/fixtures/rendered-evidence-recordings.json",
+      "sha256": "2089028593739e0e8582d7da2127e5100231a2fa635edf5edebcaf10ac4b2ce8",
+      "bytes": 33123,
+      "uuidCount": 0
+    },
+    {
+      "source": "opus-council/packages/validators/fixtures/judges/brittle.cassette.json",
+      "sha256": "828a9cab1000198cd6ddaf5153c28d0bf5cd37655f4110383dae0accf78c1e61",
+      "bytes": 173139,
+      "uuidCount": 0
+    },
+    {
+      "source": "opus-council/packages/validators/fixtures/judges/council.cassette.json",
+      "sha256": "85347f2c5cee28a439c492f7b5553c8167d502e44ab0f4200a1956293944326d",
+      "bytes": 592383,
+      "uuidCount": 0
+    },
+    {
+      "source": "opus-council/packages/validators/fixtures/judges/flaky.cassette.json",
+      "sha256": "81b49c06f11803981aa1aaca7453a5cb24c2efb7b163c5a72b48d1c948cecc7a",
+      "bytes": 345264,
+      "uuidCount": 0
+    },
+    {
+      "source": "opus-council/packages/validators/fixtures/judges/good.cassette.json",
+      "sha256": "fd343bdfbe7648d0ea8bb08bf87058b95559c8553485569339052d105b7d9aad",
+      "bytes": 174515,
+      "uuidCount": 0
+    },
+    {
+      "source": "opus-council/packages/validators/fixtures/judges/injectable.cassette.json",
+      "sha256": "6637438e6cf952a686d33b6eb2c2f4ee204abbf3a287c43a8f8b1376673414e9",
+      "bytes": 175965,
+      "uuidCount": 0
+    },
+    {
+      "source": "codex-jb/examples/acme/criteria/council.cassette.json",
+      "sha256": "c8b9efb7ab5123aeb6802a59de3dda740ce072cfa4e3c1775c575ae580e4001e",
+      "bytes": 18845,
+      "uuidCount": 0
+    },
+    {
+      "source": "codex-jb/examples/acme/criteria/calibration/campaign.cassette.json",
+      "sha256": "2f70f5e36822af19ea078fa454895e5344256384fb885104fcc3a7962305b96b",
+      "bytes": 14643,
+      "uuidCount": 0
+    },
+    {
+      "source": "codex-jb/examples/acme/criteria/calibration/cassette.json",
+      "sha256": "b4f1df0e222fd054f042999b655870281486e214c78234a0f985280ecde2807a",
+      "bytes": 106698,
+      "uuidCount": 0
+    },
+    {
+      "source": "codex-jb/examples/acme/criteria/calibration/claude-council.cassette.json",
+      "sha256": "882979bb258c5ba49bc9f5b97391aa47c708e1938569b6e9f932ac42251babbc",
+      "bytes": 294264,
+      "uuidCount": 0
+    },
+    {
+      "source": "codex-jb/examples/acme/criteria/calibration/claude-haiku.cassette.json",
+      "sha256": "0f2e04f5bde0b29ed1ad10dcc772b52c86729a9f52dfdbab979ab920d70540ac",
+      "bytes": 106946,
+      "uuidCount": 0
+    },
+    {
+      "source": "codex-jb/examples/judge-benchmarks/jb-results/test-recording-provenance.json",
+      "sha256": "a77ba9823907a31bd32889b2f52a320e512469c3a2b1f9b5fd897d850359ee34",
+      "bytes": 1210,
+      "uuidCount": 0
+    },
+    {
+      "source": "codex-jb/examples/judge-benchmarks/recordings/judgebench/haiku.executions.jsonl",
+      "sha256": "4e45442e101e4ff56415eba825b30d9ea6ea1b966b033682e356c2bc0d4b494b",
+      "bytes": 118823,
+      "uuidCount": 0
+    },
+    {
+      "source": "codex-jb/examples/judge-benchmarks/recordings/judgebench/haiku.jsonl",
+      "sha256": "eb1d88f94eea8c6b5a5286c2b311842b09729a6d0035ef58e6e85c6e6ad1d2b9",
+      "bytes": 11371915,
+      "uuidCount": 349
+    },
+    {
+      "source": "codex-jb/examples/judge-benchmarks/recordings/judgebench/sonnet.jsonl",
+      "sha256": "55f8cfe92411a4e711c6bc8c8652681713e40157987f5185a9a21dfb53251f7c",
+      "bytes": 42758,
+      "uuidCount": 5
+    },
+    {
+      "source": "codex-jb/examples/judge-benchmarks/recordings/longjudge-verify/haiku.jsonl",
+      "sha256": "737cad9effee55185b298d9556853b250d23e01a51c2d8b3f3aa0c6738e54214",
+      "bytes": 4316270,
+      "uuidCount": 0
+    },
+    {
+      "source": "codex-jb/examples/judge-benchmarks/recordings/longjudge-wp/haiku.jsonl",
+      "sha256": "53d33778403aa993b44bef9242df44b294f18540034df3bf044496528fb0003f",
+      "bytes": 7257687,
+      "uuidCount": 158
+    },
+    {
+      "source": "codex-jb/examples/judge-benchmarks/recordings/mmeval/haiku.jsonl",
+      "sha256": "ccb1f08574b7a1844dd9cf323ffd6c87ba21eae7cde33e7e133446690d2694d9",
+      "bytes": 15738248,
+      "uuidCount": 0
+    },
+    {
+      "source": "codex-jb/examples/judge-benchmarks/recordings/rubricbench/haiku.jsonl",
+      "sha256": "c96ac72c59ae3d0cf8f0945781e9010122b979412d962a8a9e4aa3c03dd678e0",
+      "bytes": 28778195,
+      "uuidCount": 0
+    },
+    {
+      "source": "codex-jb/packages/adapters/test/fixtures/frameworks/recorded/vercel-ai-steps.json",
+      "sha256": "bd280d75acb587403f1dbaf02ea26bef6a903666f31692ca091588637e2765a3",
+      "bytes": 1654,
+      "uuidCount": 0
+    },
+    {
+      "source": "codex-jb/packages/adapters/test/fixtures/sdk/recorded/anthropic-coverage.json",
+      "sha256": "d5e08e8d16a742fcd13547950030d7573fa06845054a5d8a64b7709c7fc22464",
+      "bytes": 9660,
+      "uuidCount": 0
+    },
+    {
+      "source": "codex-jb/packages/adapters/test/fixtures/sdk/recorded/google-coverage.json",
+      "sha256": "2e1ca96724e878c816141c29baa2c50a584d909f4e9079585f4381c0a2511cee",
+      "bytes": 12915,
+      "uuidCount": 0
+    },
+    {
+      "source": "codex-jb/packages/adapters/test/fixtures/sdk/recorded/langgraph-coverage.json",
+      "sha256": "c321b4748b2c243a0255a4806769e06881c9365832bc635a3aefa5991e0991a8",
+      "bytes": 4084,
+      "uuidCount": 6
+    },
+    {
+      "source": "codex-jb/packages/adapters/test/fixtures/sdk/recorded/openai-agents-runs.json",
+      "sha256": "b67daf2803b61783d08bb247d2792d75119d67e7ef0d1c5e9139a341ab03b822",
+      "bytes": 14234,
+      "uuidCount": 0
+    },
+    {
+      "source": "codex-jb/packages/validators/fixtures/judges/brittle.cassette.json",
+      "sha256": "828a9cab1000198cd6ddaf5153c28d0bf5cd37655f4110383dae0accf78c1e61",
+      "bytes": 173139,
+      "uuidCount": 0
+    },
+    {
+      "source": "codex-jb/packages/validators/fixtures/judges/council.cassette.json",
+      "sha256": "85347f2c5cee28a439c492f7b5553c8167d502e44ab0f4200a1956293944326d",
+      "bytes": 592383,
+      "uuidCount": 0
+    },
+    {
+      "source": "codex-jb/packages/validators/fixtures/judges/flaky.cassette.json",
+      "sha256": "81b49c06f11803981aa1aaca7453a5cb24c2efb7b163c5a72b48d1c948cecc7a",
+      "bytes": 345264,
+      "uuidCount": 0
+    },
+    {
+      "source": "codex-jb/packages/validators/fixtures/judges/good.cassette.json",
+      "sha256": "fd343bdfbe7648d0ea8bb08bf87058b95559c8553485569339052d105b7d9aad",
+      "bytes": 174515,
+      "uuidCount": 0
+    },
+    {
+      "source": "codex-jb/packages/validators/fixtures/judges/injectable.cassette.json",
+      "sha256": "6637438e6cf952a686d33b6eb2c2f4ee204abbf3a287c43a8f8b1376673414e9",
+      "bytes": 175965,
+      "uuidCount": 0
+    },
+    {
+      "source": "codex-mm@0278595cb5b5a6b49830a1cacdbfd22bb951c0de/comparisons/deepeval/cassettes/haiku-dag.json",
+      "sha256": "3588372ff0190df03a367a31eaeedda49b6350e4a8e6d6f821adb082aa1edd66",
+      "bytes": 73704,
+      "uuidCount": 0
+    },
+    {
+      "source": "codex-mm@0278595cb5b5a6b49830a1cacdbfd22bb951c0de/comparisons/deepeval/cassettes/haiku.json",
+      "sha256": "54b1fe42ed57afa304c747857a865cae05d31fa0e49f629180b4bf5e469a3a74",
+      "bytes": 488203,
+      "uuidCount": 0
+    },
+    {
+      "source": "codex-mm@0278595cb5b5a6b49830a1cacdbfd22bb951c0de/comparisons/deepeval/cassettes/sonnet-dag.json",
+      "sha256": "5be4db988567d06100749a955ae9e3dd0cbab7a4432edccc31288d990620cdcd",
+      "bytes": 83070,
+      "uuidCount": 0
+    },
+    {
+      "source": "codex-mm@0278595cb5b5a6b49830a1cacdbfd22bb951c0de/comparisons/deepeval/cassettes/sonnet.json",
+      "sha256": "fe22af22d13f66b90323555610f743b50b06dbd6fca7777aeaa27015ae067d88",
+      "bytes": 158352,
+      "uuidCount": 0
+    },
+    {
+      "source": "codex-mm@0278595cb5b5a6b49830a1cacdbfd22bb951c0de/comparisons/deepeval/results/haiku-cassette.json",
+      "sha256": "748902fbf44ab8877bad298dc51b1ab6a40577f470ca826b1ab485397fa626b6",
+      "bytes": 106524,
+      "uuidCount": 0
+    },
+    {
+      "source": "codex-mm@0278595cb5b5a6b49830a1cacdbfd22bb951c0de/comparisons/deepeval/results/haiku-first-recording.json",
+      "sha256": "2e630d38862418fb990e14a0001366e44f3c2f0186e6c3ea2581006127c369a7",
+      "bytes": 106532,
+      "uuidCount": 0
+    },
+    {
+      "source": "codex-mm@0278595cb5b5a6b49830a1cacdbfd22bb951c0de/comparisons/deepeval/results/sonnet-cassette.json",
+      "sha256": "a47af74fe4d9d090f04104412d281ee6f32514543b4f4a5562b6355bb8e3195e",
+      "bytes": 13621,
+      "uuidCount": 0
+    },
+    {
+      "source": "codex-mm@0278595cb5b5a6b49830a1cacdbfd22bb951c0de/comparisons/deepeval/results/sonnet-first-recording.json",
+      "sha256": "ef9aefbb25c60380c8fe3458fd0a41f7a1600ad9f1e5e8b45ca4c240f772599d",
+      "bytes": 13624,
+      "uuidCount": 0
+    },
+    {
+      "source": "codex-mm@0278595cb5b5a6b49830a1cacdbfd22bb951c0de/comparisons/inspect/panel/data/claude-council.cassette.json",
+      "sha256": "b7cfee492bb81af4deffac5b82d34b80e8b07cfac7ab9d6975c711bab3292e08",
+      "bytes": 294501,
+      "uuidCount": 0
+    },
+    {
+      "source": "codex-mm@0278595cb5b5a6b49830a1cacdbfd22bb951c0de/examples/acme/criteria/calibration/campaign.cassette.json",
+      "sha256": "2f70f5e36822af19ea078fa454895e5344256384fb885104fcc3a7962305b96b",
+      "bytes": 14643,
+      "uuidCount": 0
+    },
+    {
+      "source": "codex-mm@0278595cb5b5a6b49830a1cacdbfd22bb951c0de/examples/acme/criteria/calibration/cassette.json",
+      "sha256": "b4f1df0e222fd054f042999b655870281486e214c78234a0f985280ecde2807a",
+      "bytes": 106698,
+      "uuidCount": 0
+    },
+    {
+      "source": "codex-mm@0278595cb5b5a6b49830a1cacdbfd22bb951c0de/examples/acme/criteria/calibration/claude-council.cassette.json",
+      "sha256": "882979bb258c5ba49bc9f5b97391aa47c708e1938569b6e9f932ac42251babbc",
+      "bytes": 294264,
+      "uuidCount": 0
+    },
+    {
+      "source": "codex-mm@0278595cb5b5a6b49830a1cacdbfd22bb951c0de/examples/acme/criteria/calibration/claude-haiku.cassette.json",
+      "sha256": "0f2e04f5bde0b29ed1ad10dcc772b52c86729a9f52dfdbab979ab920d70540ac",
+      "bytes": 106946,
+      "uuidCount": 0
+    },
+    {
+      "source": "codex-mm@0278595cb5b5a6b49830a1cacdbfd22bb951c0de/examples/acme/criteria/council.cassette.json",
+      "sha256": "c8b9efb7ab5123aeb6802a59de3dda740ce072cfa4e3c1775c575ae580e4001e",
+      "bytes": 18845,
+      "uuidCount": 0
+    },
+    {
+      "source": "codex-mm@0278595cb5b5a6b49830a1cacdbfd22bb951c0de/examples/judge-benchmarks/recordings/mmeval/haiku.jsonl",
+      "sha256": "e944055dcc04a8d8c464396498f213f7998947cdc07ce5b0052ffbda44eaae55",
+      "bytes": 23058226,
+      "uuidCount": 0
+    },
+    {
+      "source": "codex-mm@0278595cb5b5a6b49830a1cacdbfd22bb951c0de/packages/adapters/test/fixtures/frameworks/recorded/vercel-ai-steps.json",
+      "sha256": "bd280d75acb587403f1dbaf02ea26bef6a903666f31692ca091588637e2765a3",
+      "bytes": 1654,
+      "uuidCount": 0
+    },
+    {
+      "source": "codex-mm@0278595cb5b5a6b49830a1cacdbfd22bb951c0de/packages/adapters/test/fixtures/sdk/recorded/anthropic-coverage.json",
+      "sha256": "d5e08e8d16a742fcd13547950030d7573fa06845054a5d8a64b7709c7fc22464",
+      "bytes": 9660,
+      "uuidCount": 0
+    },
+    {
+      "source": "codex-mm@0278595cb5b5a6b49830a1cacdbfd22bb951c0de/packages/adapters/test/fixtures/sdk/recorded/google-coverage.json",
+      "sha256": "2e1ca96724e878c816141c29baa2c50a584d909f4e9079585f4381c0a2511cee",
+      "bytes": 12915,
+      "uuidCount": 0
+    },
+    {
+      "source": "codex-mm@0278595cb5b5a6b49830a1cacdbfd22bb951c0de/packages/adapters/test/fixtures/sdk/recorded/langgraph-coverage.json",
+      "sha256": "c321b4748b2c243a0255a4806769e06881c9365832bc635a3aefa5991e0991a8",
+      "bytes": 4084,
+      "uuidCount": 6
+    },
+    {
+      "source": "codex-mm@0278595cb5b5a6b49830a1cacdbfd22bb951c0de/packages/adapters/test/fixtures/sdk/recorded/openai-agents-runs.json",
+      "sha256": "b67daf2803b61783d08bb247d2792d75119d67e7ef0d1c5e9139a341ab03b822",
+      "bytes": 14234,
+      "uuidCount": 0
+    },
+    {
+      "source": "codex-mm@0278595cb5b5a6b49830a1cacdbfd22bb951c0de/packages/judges/test/fixtures/legacy-cassette-main-a97cb65e.json",
+      "sha256": "2605fc77bb755d622e5b99d0a30a45f77ae73a65a52c5c69f529740654c7cfd9",
+      "bytes": 219747,
+      "uuidCount": 0
+    },
+    {
+      "source": "codex-mm@0278595cb5b5a6b49830a1cacdbfd22bb951c0de/packages/judges/test/fixtures/markdown-winner-recording.json",
+      "sha256": "0a78e45e303f801b86f68966c06831ebeb6cc85ba678f80cc0dd0ffc3489f46e",
+      "bytes": 11308,
+      "uuidCount": 0
+    },
+    {
+      "source": "codex-mm@0278595cb5b5a6b49830a1cacdbfd22bb951c0de/packages/judges/test/fixtures/pointwise-framed.cassette.json",
+      "sha256": "be3fdb885792d05f3a1e899c6a24c8967a4d5e0955e38bf903062319c703ac38",
+      "bytes": 25084,
+      "uuidCount": 0
+    },
+    {
+      "source": "codex-mm@0278595cb5b5a6b49830a1cacdbfd22bb951c0de/packages/judges/test/fixtures/pointwise-regressions.cassette.json",
+      "sha256": "9158fc96306546337e187564202a9b497153638e8067b71c7063f9f75899d6b0",
+      "bytes": 24165,
+      "uuidCount": 0
+    },
+    {
+      "source": "codex-mm@0278595cb5b5a6b49830a1cacdbfd22bb951c0de/packages/judges/test/fixtures/rendered-evidence-recordings.json",
+      "sha256": "2089028593739e0e8582d7da2127e5100231a2fa635edf5edebcaf10ac4b2ce8",
+      "bytes": 33123,
+      "uuidCount": 0
+    },
+    {
+      "source": "codex-mm@0278595cb5b5a6b49830a1cacdbfd22bb951c0de/packages/validators/fixtures/judges/brittle.cassette.json",
+      "sha256": "828a9cab1000198cd6ddaf5153c28d0bf5cd37655f4110383dae0accf78c1e61",
+      "bytes": 173139,
+      "uuidCount": 0
+    },
+    {
+      "source": "codex-mm@0278595cb5b5a6b49830a1cacdbfd22bb951c0de/packages/validators/fixtures/judges/council.cassette.json",
+      "sha256": "85347f2c5cee28a439c492f7b5553c8167d502e44ab0f4200a1956293944326d",
+      "bytes": 592383,
+      "uuidCount": 0
+    },
+    {
+      "source": "codex-mm@0278595cb5b5a6b49830a1cacdbfd22bb951c0de/packages/validators/fixtures/judges/flaky.cassette.json",
+      "sha256": "81b49c06f11803981aa1aaca7453a5cb24c2efb7b163c5a72b48d1c948cecc7a",
+      "bytes": 345264,
+      "uuidCount": 0
+    },
+    {
+      "source": "codex-mm@0278595cb5b5a6b49830a1cacdbfd22bb951c0de/packages/validators/fixtures/judges/good.cassette.json",
+      "sha256": "fd343bdfbe7648d0ea8bb08bf87058b95559c8553485569339052d105b7d9aad",
+      "bytes": 174515,
+      "uuidCount": 0
+    },
+    {
+      "source": "codex-mm@0278595cb5b5a6b49830a1cacdbfd22bb951c0de/packages/validators/fixtures/judges/injectable.cassette.json",
+      "sha256": "6637438e6cf952a686d33b6eb2c2f4ee204abbf3a287c43a8f8b1376673414e9",
+      "bytes": 175965,
+      "uuidCount": 0
+    },
+    {
+      "source": "codex-rb/.cache/rb/full-test-lanes/0/recordings/rubricbench/haiku-000.jsonl",
+      "sha256": "78a5874371b5ffdf74240d4488dedd5391eefe5f7c0cff64a67317cdecb710fc",
+      "bytes": 113998,
+      "uuidCount": 0
+    },
+    {
+      "source": "codex-rb/.cache/rb/full-test-lanes/1/recordings/rubricbench/haiku-000.jsonl",
+      "sha256": "fb18a30a1262a45589e6b079d534510ed394f959d071926788a3b1308cbeaf74",
+      "bytes": 118597,
+      "uuidCount": 0
+    },
+    {
+      "source": "codex-rb/.cache/rb/full-test-lanes/2/recordings/rubricbench/haiku-000.jsonl",
+      "sha256": "627ac3d71cd1df1e2a63a4708538e20e43c6b09d22a009239ba1e5073fa1fa0c",
+      "bytes": 119228,
+      "uuidCount": 0
+    },
+    {
+      "source": "codex-rb/.cache/rb/full-test-lanes/3/recordings/rubricbench/haiku-000.jsonl",
+      "sha256": "8de7ac24b0cdf50d9fa4a4ada26edb73bbb0ad7e42100f08f24ce6670f014d19",
+      "bytes": 119701,
+      "uuidCount": 0
+    },
+    {
+      "source": "codex-rb/.cache/rb/full-test-lanes/4/recordings/rubricbench/haiku-000.jsonl",
+      "sha256": "ccdaa4834116d5f186bf7cf9a004ea35781d3bd671a0ab5d407ce9aa52a68b1e",
+      "bytes": 124180,
+      "uuidCount": 0
+    },
+    {
+      "source": "codex-rb/.cache/rb/full-test-lanes/5/recordings/rubricbench/haiku-000.jsonl",
+      "sha256": "5b1d250f8e717f78b81d66f946ed073b26bafff2c7faa46c7ab4535f9c34f3b3",
+      "bytes": 114253,
+      "uuidCount": 0
+    },
+    {
+      "source": "codex-rb/examples/acme/criteria/council.cassette.json",
+      "sha256": "c8b9efb7ab5123aeb6802a59de3dda740ce072cfa4e3c1775c575ae580e4001e",
+      "bytes": 18845,
+      "uuidCount": 0
+    },
+    {
+      "source": "codex-rb/examples/acme/criteria/calibration/campaign.cassette.json",
+      "sha256": "2f70f5e36822af19ea078fa454895e5344256384fb885104fcc3a7962305b96b",
+      "bytes": 14643,
+      "uuidCount": 0
+    },
+    {
+      "source": "codex-rb/examples/acme/criteria/calibration/cassette.json",
+      "sha256": "b4f1df0e222fd054f042999b655870281486e214c78234a0f985280ecde2807a",
+      "bytes": 106698,
+      "uuidCount": 0
+    },
+    {
+      "source": "codex-rb/examples/acme/criteria/calibration/claude-council.cassette.json",
+      "sha256": "882979bb258c5ba49bc9f5b97391aa47c708e1938569b6e9f932ac42251babbc",
+      "bytes": 294264,
+      "uuidCount": 0
+    },
+    {
+      "source": "codex-rb/examples/acme/criteria/calibration/claude-haiku.cassette.json",
+      "sha256": "0f2e04f5bde0b29ed1ad10dcc772b52c86729a9f52dfdbab979ab920d70540ac",
+      "bytes": 106946,
+      "uuidCount": 0
+    },
+    {
+      "source": "codex-rb/examples/judge-benchmarks/experiments/rb/all-recordings-guard-verification.json",
+      "sha256": "3ee5f59bf4ec7b05e02937c00a30681c78a0de2e9824e2b50a81176c0dd330dc",
+      "bytes": 285,
+      "uuidCount": 0
+    },
+    {
+      "source": "codex-rb/examples/judge-benchmarks/recordings/judgebench/haiku-000.jsonl",
+      "sha256": "f87a22603b2de64e640d302032a7d1c2994cefdc7b2da1571ff03a6c4a3c622c",
+      "bytes": 8388424,
+      "uuidCount": 349
+    },
+    {
+      "source": "codex-rb/examples/judge-benchmarks/recordings/judgebench/haiku-001.jsonl",
+      "sha256": "a78eedeb1bdeef5767554f4a5cd48a9fd5897514046de8b98fa8fe509ec3f327",
+      "bytes": 334491,
+      "uuidCount": 349
+    },
+    {
+      "source": "codex-rb/examples/judge-benchmarks/recordings/judgebench/sonnet-000.jsonl",
+      "sha256": "55f8cfe92411a4e711c6bc8c8652681713e40157987f5185a9a21dfb53251f7c",
+      "bytes": 42758,
+      "uuidCount": 5
+    },
+    {
+      "source": "codex-rb/examples/judge-benchmarks/recordings/longjudge-verify/haiku-000.jsonl",
+      "sha256": "737cad9effee55185b298d9556853b250d23e01a51c2d8b3f3aa0c6738e54214",
+      "bytes": 4316270,
+      "uuidCount": 0
+    },
+    {
+      "source": "codex-rb/examples/judge-benchmarks/recordings/longjudge-wp/haiku-000.jsonl",
+      "sha256": "53d33778403aa993b44bef9242df44b294f18540034df3bf044496528fb0003f",
+      "bytes": 7257687,
+      "uuidCount": 158
+    },
+    {
+      "source": "codex-rb/examples/judge-benchmarks/recordings/mmeval/haiku-000.jsonl",
+      "sha256": "c254ad3faf812b010f34a9512f47770dd2763efb312f0fe7c1b84073d4bfccb9",
+      "bytes": 8388305,
+      "uuidCount": 0
+    },
+    {
+      "source": "codex-rb/examples/judge-benchmarks/recordings/mmeval/haiku-001.jsonl",
+      "sha256": "c50ecafac072a0645e1454f664e6e5f658710b864fe379ec0901f3c7815c303c",
+      "bytes": 7349965,
+      "uuidCount": 0
+    },
+    {
+      "source": "codex-rb/examples/judge-benchmarks/recordings/rubricbench/haiku-000.jsonl",
+      "sha256": "dea06188635cb8fe19700a15b007f6ea5a3f9b251d8928b3188e7a730850520d",
+      "bytes": 8388251,
+      "uuidCount": 0
+    },
+    {
+      "source": "codex-rb/examples/judge-benchmarks/recordings/rubricbench/haiku-001.jsonl",
+      "sha256": "f941f957c9c9261aa11e24b3c539671d54011bfd36ce92015094957041400db6",
+      "bytes": 8385425,
+      "uuidCount": 0
+    },
+    {
+      "source": "codex-rb/examples/judge-benchmarks/recordings/rubricbench/haiku-002.jsonl",
+      "sha256": "38bb3aa6cf68a152152729f10921ae25ae688fd10b1924872bb4fc1b2cbec21d",
+      "bytes": 8388160,
+      "uuidCount": 0
+    },
+    {
+      "source": "codex-rb/examples/judge-benchmarks/recordings/rubricbench/haiku-003.jsonl",
+      "sha256": "17abd2731fab7ff51524d09f90deaf7079800086604c41dbb2eee75d2b963203",
+      "bytes": 8387824,
+      "uuidCount": 0
+    },
+    {
+      "source": "codex-rb/examples/judge-benchmarks/recordings/rubricbench/haiku-004.jsonl",
+      "sha256": "0a2e604f3c56b2d1e3b1ec45a9125572df4946ce2217ab8cc720ab7fdc559bed",
+      "bytes": 1127365,
+      "uuidCount": 0
+    },
+    {
+      "source": "codex-rb/packages/adapters/test/fixtures/frameworks/recorded/vercel-ai-steps.json",
+      "sha256": "bd280d75acb587403f1dbaf02ea26bef6a903666f31692ca091588637e2765a3",
+      "bytes": 1654,
+      "uuidCount": 0
+    },
+    {
+      "source": "codex-rb/packages/adapters/test/fixtures/sdk/recorded/anthropic-coverage.json",
+      "sha256": "d5e08e8d16a742fcd13547950030d7573fa06845054a5d8a64b7709c7fc22464",
+      "bytes": 9660,
+      "uuidCount": 0
+    },
+    {
+      "source": "codex-rb/packages/adapters/test/fixtures/sdk/recorded/google-coverage.json",
+      "sha256": "2e1ca96724e878c816141c29baa2c50a584d909f4e9079585f4381c0a2511cee",
+      "bytes": 12915,
+      "uuidCount": 0
+    },
+    {
+      "source": "codex-rb/packages/adapters/test/fixtures/sdk/recorded/langgraph-coverage.json",
+      "sha256": "c321b4748b2c243a0255a4806769e06881c9365832bc635a3aefa5991e0991a8",
+      "bytes": 4084,
+      "uuidCount": 6
+    },
+    {
+      "source": "codex-rb/packages/adapters/test/fixtures/sdk/recorded/openai-agents-runs.json",
+      "sha256": "b67daf2803b61783d08bb247d2792d75119d67e7ef0d1c5e9139a341ab03b822",
+      "bytes": 14234,
+      "uuidCount": 0
+    },
+    {
+      "source": "codex-rb/packages/validators/fixtures/judges/brittle.cassette.json",
+      "sha256": "828a9cab1000198cd6ddaf5153c28d0bf5cd37655f4110383dae0accf78c1e61",
+      "bytes": 173139,
+      "uuidCount": 0
+    },
+    {
+      "source": "codex-rb/packages/validators/fixtures/judges/council.cassette.json",
+      "sha256": "85347f2c5cee28a439c492f7b5553c8167d502e44ab0f4200a1956293944326d",
+      "bytes": 592383,
+      "uuidCount": 0
+    },
+    {
+      "source": "codex-rb/packages/validators/fixtures/judges/flaky.cassette.json",
+      "sha256": "81b49c06f11803981aa1aaca7453a5cb24c2efb7b163c5a72b48d1c948cecc7a",
+      "bytes": 345264,
+      "uuidCount": 0
+    },
+    {
+      "source": "codex-rb/packages/validators/fixtures/judges/good.cassette.json",
+      "sha256": "fd343bdfbe7648d0ea8bb08bf87058b95559c8553485569339052d105b7d9aad",
+      "bytes": 174515,
+      "uuidCount": 0
+    },
+    {
+      "source": "codex-rb/packages/validators/fixtures/judges/injectable.cassette.json",
+      "sha256": "6637438e6cf952a686d33b6eb2c2f4ee204abbf3a287c43a8f8b1376673414e9",
+      "bytes": 175965,
+      "uuidCount": 0
+    },
+    {
+      "source": "codex-verify/examples/acme/criteria/council.cassette.json",
+      "sha256": "c8b9efb7ab5123aeb6802a59de3dda740ce072cfa4e3c1775c575ae580e4001e",
+      "bytes": 18845,
+      "uuidCount": 0
+    },
+    {
+      "source": "codex-verify/examples/acme/criteria/calibration/campaign.cassette.json",
+      "sha256": "2f70f5e36822af19ea078fa454895e5344256384fb885104fcc3a7962305b96b",
+      "bytes": 14643,
+      "uuidCount": 0
+    },
+    {
+      "source": "codex-verify/examples/acme/criteria/calibration/cassette.json",
+      "sha256": "b4f1df0e222fd054f042999b655870281486e214c78234a0f985280ecde2807a",
+      "bytes": 106698,
+      "uuidCount": 0
+    },
+    {
+      "source": "codex-verify/examples/acme/criteria/calibration/claude-council.cassette.json",
+      "sha256": "882979bb258c5ba49bc9f5b97391aa47c708e1938569b6e9f932ac42251babbc",
+      "bytes": 294264,
+      "uuidCount": 0
+    },
+    {
+      "source": "codex-verify/examples/acme/criteria/calibration/claude-haiku.cassette.json",
+      "sha256": "0f2e04f5bde0b29ed1ad10dcc772b52c86729a9f52dfdbab979ab920d70540ac",
+      "bytes": 106946,
+      "uuidCount": 0
+    },
+    {
+      "source": "codex-verify/examples/judge-benchmarks/recordings/judgebench/haiku.jsonl",
+      "sha256": "4d22e92bc74e8241b32bdb47dddafc4affabc054c21e7a0f17705fa8d65d5891",
+      "bytes": 8722915,
+      "uuidCount": 349
+    },
+    {
+      "source": "codex-verify/examples/judge-benchmarks/recordings/judgebench/sonnet.jsonl",
+      "sha256": "55f8cfe92411a4e711c6bc8c8652681713e40157987f5185a9a21dfb53251f7c",
+      "bytes": 42758,
+      "uuidCount": 5
+    },
+    {
+      "source": "codex-verify/examples/judge-benchmarks/recordings/longjudge-verify/haiku.jsonl",
+      "sha256": "3ee76b21eb299b5462d752a737d3290dc3e5189fa90bf37cc85b00041de39850",
+      "bytes": 7675254,
+      "uuidCount": 0
+    },
+    {
+      "source": "codex-verify/examples/judge-benchmarks/recordings/longjudge-verify/program-outputs.jsonl",
+      "sha256": "4f16293eb9d8d670ae8dad3373980c048c1bb13f0509e3cd3e87324b1bff3c1e",
+      "bytes": 374050,
+      "uuidCount": 0
+    },
+    {
+      "source": "codex-verify/examples/judge-benchmarks/recordings/longjudge-wp/haiku.jsonl",
+      "sha256": "53d33778403aa993b44bef9242df44b294f18540034df3bf044496528fb0003f",
+      "bytes": 7257687,
+      "uuidCount": 158
+    },
+    {
+      "source": "codex-verify/examples/judge-benchmarks/recordings/mmeval/haiku.jsonl",
+      "sha256": "ccb1f08574b7a1844dd9cf323ffd6c87ba21eae7cde33e7e133446690d2694d9",
+      "bytes": 15738248,
+      "uuidCount": 0
+    },
+    {
+      "source": "codex-verify/examples/judge-benchmarks/recordings/rubricbench/haiku.jsonl",
+      "sha256": "c96ac72c59ae3d0cf8f0945781e9010122b979412d962a8a9e4aa3c03dd678e0",
+      "bytes": 28778195,
+      "uuidCount": 0
+    },
+    {
+      "source": "codex-verify/packages/adapters/test/fixtures/frameworks/recorded/vercel-ai-steps.json",
+      "sha256": "bd280d75acb587403f1dbaf02ea26bef6a903666f31692ca091588637e2765a3",
+      "bytes": 1654,
+      "uuidCount": 0
+    },
+    {
+      "source": "codex-verify/packages/adapters/test/fixtures/sdk/recorded/anthropic-coverage.json",
+      "sha256": "d5e08e8d16a742fcd13547950030d7573fa06845054a5d8a64b7709c7fc22464",
+      "bytes": 9660,
+      "uuidCount": 0
+    },
+    {
+      "source": "codex-verify/packages/adapters/test/fixtures/sdk/recorded/google-coverage.json",
+      "sha256": "2e1ca96724e878c816141c29baa2c50a584d909f4e9079585f4381c0a2511cee",
+      "bytes": 12915,
+      "uuidCount": 0
+    },
+    {
+      "source": "codex-verify/packages/adapters/test/fixtures/sdk/recorded/langgraph-coverage.json",
+      "sha256": "c321b4748b2c243a0255a4806769e06881c9365832bc635a3aefa5991e0991a8",
+      "bytes": 4084,
+      "uuidCount": 6
+    },
+    {
+      "source": "codex-verify/packages/adapters/test/fixtures/sdk/recorded/openai-agents-runs.json",
+      "sha256": "b67daf2803b61783d08bb247d2792d75119d67e7ef0d1c5e9139a341ab03b822",
+      "bytes": 14234,
+      "uuidCount": 0
+    },
+    {
+      "source": "codex-verify/packages/validators/fixtures/judges/brittle.cassette.json",
+      "sha256": "828a9cab1000198cd6ddaf5153c28d0bf5cd37655f4110383dae0accf78c1e61",
+      "bytes": 173139,
+      "uuidCount": 0
+    },
+    {
+      "source": "codex-verify/packages/validators/fixtures/judges/council.cassette.json",
+      "sha256": "85347f2c5cee28a439c492f7b5553c8167d502e44ab0f4200a1956293944326d",
+      "bytes": 592383,
+      "uuidCount": 0
+    },
+    {
+      "source": "codex-verify/packages/validators/fixtures/judges/flaky.cassette.json",
+      "sha256": "81b49c06f11803981aa1aaca7453a5cb24c2efb7b163c5a72b48d1c948cecc7a",
+      "bytes": 345264,
+      "uuidCount": 0
+    },
+    {
+      "source": "codex-verify/packages/validators/fixtures/judges/good.cassette.json",
+      "sha256": "fd343bdfbe7648d0ea8bb08bf87058b95559c8553485569339052d105b7d9aad",
+      "bytes": 174515,
+      "uuidCount": 0
+    },
+    {
+      "source": "codex-verify/packages/validators/fixtures/judges/injectable.cassette.json",
+      "sha256": "6637438e6cf952a686d33b6eb2c2f4ee204abbf3a287c43a8f8b1376673414e9",
+      "bytes": 175965,
+      "uuidCount": 0
+    },
+    {
+      "source": "codex-wp/examples/acme/criteria/council.cassette.json",
+      "sha256": "c8b9efb7ab5123aeb6802a59de3dda740ce072cfa4e3c1775c575ae580e4001e",
+      "bytes": 18845,
+      "uuidCount": 0
+    },
+    {
+      "source": "codex-wp/examples/acme/criteria/calibration/campaign.cassette.json",
+      "sha256": "2f70f5e36822af19ea078fa454895e5344256384fb885104fcc3a7962305b96b",
+      "bytes": 14643,
+      "uuidCount": 0
+    },
+    {
+      "source": "codex-wp/examples/acme/criteria/calibration/cassette.json",
+      "sha256": "b4f1df0e222fd054f042999b655870281486e214c78234a0f985280ecde2807a",
+      "bytes": 106698,
+      "uuidCount": 0
+    },
+    {
+      "source": "codex-wp/examples/acme/criteria/calibration/claude-council.cassette.json",
+      "sha256": "882979bb258c5ba49bc9f5b97391aa47c708e1938569b6e9f932ac42251babbc",
+      "bytes": 294264,
+      "uuidCount": 0
+    },
+    {
+      "source": "codex-wp/examples/acme/criteria/calibration/claude-haiku.cassette.json",
+      "sha256": "0f2e04f5bde0b29ed1ad10dcc772b52c86729a9f52dfdbab979ab920d70540ac",
+      "bytes": 106946,
+      "uuidCount": 0
+    },
+    {
+      "source": "codex-wp/examples/judge-benchmarks/recordings/judgebench/haiku.jsonl",
+      "sha256": "4d22e92bc74e8241b32bdb47dddafc4affabc054c21e7a0f17705fa8d65d5891",
+      "bytes": 8722915,
+      "uuidCount": 349
+    },
+    {
+      "source": "codex-wp/examples/judge-benchmarks/recordings/judgebench/sonnet.jsonl",
+      "sha256": "55f8cfe92411a4e711c6bc8c8652681713e40157987f5185a9a21dfb53251f7c",
+      "bytes": 42758,
+      "uuidCount": 5
+    },
+    {
+      "source": "codex-wp/examples/judge-benchmarks/recordings/longjudge-verify/haiku.jsonl",
+      "sha256": "737cad9effee55185b298d9556853b250d23e01a51c2d8b3f3aa0c6738e54214",
+      "bytes": 4316270,
+      "uuidCount": 0
+    },
+    {
+      "source": "codex-wp/examples/judge-benchmarks/recordings/longjudge-wp/haiku.jsonl",
+      "sha256": "4e3494fdbd8a992236cdc7f194d33ffa0117c6febcc6c7bdc98753fca59559bc",
+      "bytes": 10262957,
+      "uuidCount": 158
+    },
+    {
+      "source": "codex-wp/examples/judge-benchmarks/recordings/mmeval/haiku.jsonl",
+      "sha256": "ccb1f08574b7a1844dd9cf323ffd6c87ba21eae7cde33e7e133446690d2694d9",
+      "bytes": 15738248,
+      "uuidCount": 0
+    },
+    {
+      "source": "codex-wp/examples/judge-benchmarks/recordings/rubricbench/haiku.jsonl",
+      "sha256": "c96ac72c59ae3d0cf8f0945781e9010122b979412d962a8a9e4aa3c03dd678e0",
+      "bytes": 28778195,
+      "uuidCount": 0
+    },
+    {
+      "source": "codex-wp/packages/adapters/test/fixtures/frameworks/recorded/vercel-ai-steps.json",
+      "sha256": "bd280d75acb587403f1dbaf02ea26bef6a903666f31692ca091588637e2765a3",
+      "bytes": 1654,
+      "uuidCount": 0
+    },
+    {
+      "source": "codex-wp/packages/adapters/test/fixtures/sdk/recorded/anthropic-coverage.json",
+      "sha256": "d5e08e8d16a742fcd13547950030d7573fa06845054a5d8a64b7709c7fc22464",
+      "bytes": 9660,
+      "uuidCount": 0
+    },
+    {
+      "source": "codex-wp/packages/adapters/test/fixtures/sdk/recorded/google-coverage.json",
+      "sha256": "2e1ca96724e878c816141c29baa2c50a584d909f4e9079585f4381c0a2511cee",
+      "bytes": 12915,
+      "uuidCount": 0
+    },
+    {
+      "source": "codex-wp/packages/adapters/test/fixtures/sdk/recorded/langgraph-coverage.json",
+      "sha256": "c321b4748b2c243a0255a4806769e06881c9365832bc635a3aefa5991e0991a8",
+      "bytes": 4084,
+      "uuidCount": 6
+    },
+    {
+      "source": "codex-wp/packages/adapters/test/fixtures/sdk/recorded/openai-agents-runs.json",
+      "sha256": "b67daf2803b61783d08bb247d2792d75119d67e7ef0d1c5e9139a341ab03b822",
+      "bytes": 14234,
+      "uuidCount": 0
+    },
+    {
+      "source": "codex-wp/packages/validators/fixtures/judges/brittle.cassette.json",
+      "sha256": "828a9cab1000198cd6ddaf5153c28d0bf5cd37655f4110383dae0accf78c1e61",
+      "bytes": 173139,
+      "uuidCount": 0
+    },
+    {
+      "source": "codex-wp/packages/validators/fixtures/judges/council.cassette.json",
+      "sha256": "85347f2c5cee28a439c492f7b5553c8167d502e44ab0f4200a1956293944326d",
+      "bytes": 592383,
+      "uuidCount": 0
+    },
+    {
+      "source": "codex-wp/packages/validators/fixtures/judges/flaky.cassette.json",
+      "sha256": "81b49c06f11803981aa1aaca7453a5cb24c2efb7b163c5a72b48d1c948cecc7a",
+      "bytes": 345264,
+      "uuidCount": 0
+    },
+    {
+      "source": "codex-wp/packages/validators/fixtures/judges/good.cassette.json",
+      "sha256": "fd343bdfbe7648d0ea8bb08bf87058b95559c8553485569339052d105b7d9aad",
+      "bytes": 174515,
+      "uuidCount": 0
+    },
+    {
+      "source": "codex-wp/packages/validators/fixtures/judges/injectable.cassette.json",
+      "sha256": "6637438e6cf952a686d33b6eb2c2f4ee204abbf3a287c43a8f8b1376673414e9",
+      "bytes": 175965,
+      "uuidCount": 0
+    },
+    {
+      "source": "judge-benchmarks/examples/acme/criteria/council.cassette.json",
+      "sha256": "c8b9efb7ab5123aeb6802a59de3dda740ce072cfa4e3c1775c575ae580e4001e",
+      "bytes": 18845,
+      "uuidCount": 0
+    },
+    {
+      "source": "judge-benchmarks/examples/acme/criteria/calibration/campaign.cassette.json",
+      "sha256": "2f70f5e36822af19ea078fa454895e5344256384fb885104fcc3a7962305b96b",
+      "bytes": 14643,
+      "uuidCount": 0
+    },
+    {
+      "source": "judge-benchmarks/examples/acme/criteria/calibration/cassette.json",
+      "sha256": "b4f1df0e222fd054f042999b655870281486e214c78234a0f985280ecde2807a",
+      "bytes": 106698,
+      "uuidCount": 0
+    },
+    {
+      "source": "judge-benchmarks/examples/acme/criteria/calibration/claude-council.cassette.json",
+      "sha256": "882979bb258c5ba49bc9f5b97391aa47c708e1938569b6e9f932ac42251babbc",
+      "bytes": 294264,
+      "uuidCount": 0
+    },
+    {
+      "source": "judge-benchmarks/examples/acme/criteria/calibration/claude-haiku.cassette.json",
+      "sha256": "0f2e04f5bde0b29ed1ad10dcc772b52c86729a9f52dfdbab979ab920d70540ac",
+      "bytes": 106946,
+      "uuidCount": 0
+    },
+    {
+      "source": "judge-benchmarks/examples/judge-benchmarks/recordings/judgebench/haiku.jsonl",
+      "sha256": "40b191497830357779cae4d8e92b748d3eb22e2dd97da1fa3a1c596919b3e71f",
+      "bytes": 9542771,
+      "uuidCount": 349
+    },
+    {
+      "source": "judge-benchmarks/examples/judge-benchmarks/recordings/judgebench/sonnet.jsonl",
+      "sha256": "55f8cfe92411a4e711c6bc8c8652681713e40157987f5185a9a21dfb53251f7c",
+      "bytes": 42758,
+      "uuidCount": 5
+    },
+    {
+      "source": "judge-benchmarks/examples/judge-benchmarks/recordings/longjudge-verify/haiku.jsonl",
+      "sha256": "8de0663af3d11a3a3299453766456fc1552a3a312606c00fd50f7b2dd5349b9f",
+      "bytes": 5557522,
+      "uuidCount": 0
+    },
+    {
+      "source": "judge-benchmarks/examples/judge-benchmarks/recordings/longjudge-wp/haiku.jsonl",
+      "sha256": "53d33778403aa993b44bef9242df44b294f18540034df3bf044496528fb0003f",
+      "bytes": 7257687,
+      "uuidCount": 158
+    },
+    {
+      "source": "judge-benchmarks/examples/judge-benchmarks/recordings/mmeval/haiku.jsonl",
+      "sha256": "9c81b51880d7a2f2280b7f83a989145a13dafeae6323fa5d6f32a46767228651",
+      "bytes": 17540283,
+      "uuidCount": 0
+    },
+    {
+      "source": "judge-benchmarks/examples/judge-benchmarks/recordings/rubricbench/haiku.jsonl",
+      "sha256": "305b0c5c59f0a0170f93f629c9816c0da6050eae26e1f949da2c6573c87761ad",
+      "bytes": 32160827,
+      "uuidCount": 0
+    },
+    {
+      "source": "judge-benchmarks/packages/adapters/test/fixtures/frameworks/recorded/vercel-ai-steps.json",
+      "sha256": "bd280d75acb587403f1dbaf02ea26bef6a903666f31692ca091588637e2765a3",
+      "bytes": 1654,
+      "uuidCount": 0
+    },
+    {
+      "source": "judge-benchmarks/packages/adapters/test/fixtures/sdk/recorded/anthropic-coverage.json",
+      "sha256": "d5e08e8d16a742fcd13547950030d7573fa06845054a5d8a64b7709c7fc22464",
+      "bytes": 9660,
+      "uuidCount": 0
+    },
+    {
+      "source": "judge-benchmarks/packages/adapters/test/fixtures/sdk/recorded/google-coverage.json",
+      "sha256": "2e1ca96724e878c816141c29baa2c50a584d909f4e9079585f4381c0a2511cee",
+      "bytes": 12915,
+      "uuidCount": 0
+    },
+    {
+      "source": "judge-benchmarks/packages/adapters/test/fixtures/sdk/recorded/langgraph-coverage.json",
+      "sha256": "c321b4748b2c243a0255a4806769e06881c9365832bc635a3aefa5991e0991a8",
+      "bytes": 4084,
+      "uuidCount": 6
+    },
+    {
+      "source": "judge-benchmarks/packages/adapters/test/fixtures/sdk/recorded/openai-agents-runs.json",
+      "sha256": "b67daf2803b61783d08bb247d2792d75119d67e7ef0d1c5e9139a341ab03b822",
+      "bytes": 14234,
+      "uuidCount": 0
+    },
+    {
+      "source": "judge-benchmarks/packages/validators/fixtures/judges/brittle.cassette.json",
+      "sha256": "828a9cab1000198cd6ddaf5153c28d0bf5cd37655f4110383dae0accf78c1e61",
+      "bytes": 173139,
+      "uuidCount": 0
+    },
+    {
+      "source": "judge-benchmarks/packages/validators/fixtures/judges/council.cassette.json",
+      "sha256": "85347f2c5cee28a439c492f7b5553c8167d502e44ab0f4200a1956293944326d",
+      "bytes": 592383,
+      "uuidCount": 0
+    },
+    {
+      "source": "judge-benchmarks/packages/validators/fixtures/judges/flaky.cassette.json",
+      "sha256": "81b49c06f11803981aa1aaca7453a5cb24c2efb7b163c5a72b48d1c948cecc7a",
+      "bytes": 345264,
+      "uuidCount": 0
+    },
+    {
+      "source": "judge-benchmarks/packages/validators/fixtures/judges/good.cassette.json",
+      "sha256": "fd343bdfbe7648d0ea8bb08bf87058b95559c8553485569339052d105b7d9aad",
+      "bytes": 174515,
+      "uuidCount": 0
+    },
+    {
+      "source": "judge-benchmarks/packages/validators/fixtures/judges/injectable.cassette.json",
+      "sha256": "6637438e6cf952a686d33b6eb2c2f4ee204abbf3a287c43a8f8b1376673414e9",
+      "bytes": 175965,
+      "uuidCount": 0
+    },
+    {
+      "source": "astra-hard@89425c88b12e5fd7516ed9cdbf6d37b9b0261595/comparisons/deepeval/cassettes/haiku-dag.json",
+      "sha256": "3588372ff0190df03a367a31eaeedda49b6350e4a8e6d6f821adb082aa1edd66",
+      "bytes": 73704,
+      "uuidCount": 0
+    },
+    {
+      "source": "astra-hard@89425c88b12e5fd7516ed9cdbf6d37b9b0261595/comparisons/deepeval/cassettes/haiku.json",
+      "sha256": "54b1fe42ed57afa304c747857a865cae05d31fa0e49f629180b4bf5e469a3a74",
+      "bytes": 488203,
+      "uuidCount": 0
+    },
+    {
+      "source": "astra-hard@89425c88b12e5fd7516ed9cdbf6d37b9b0261595/comparisons/deepeval/cassettes/sonnet-dag.json",
+      "sha256": "5be4db988567d06100749a955ae9e3dd0cbab7a4432edccc31288d990620cdcd",
+      "bytes": 83070,
+      "uuidCount": 0
+    },
+    {
+      "source": "astra-hard@89425c88b12e5fd7516ed9cdbf6d37b9b0261595/comparisons/deepeval/cassettes/sonnet.json",
+      "sha256": "fe22af22d13f66b90323555610f743b50b06dbd6fca7777aeaa27015ae067d88",
+      "bytes": 158352,
+      "uuidCount": 0
+    },
+    {
+      "source": "astra-hard@89425c88b12e5fd7516ed9cdbf6d37b9b0261595/comparisons/deepeval/results/haiku-cassette.json",
+      "sha256": "748902fbf44ab8877bad298dc51b1ab6a40577f470ca826b1ab485397fa626b6",
+      "bytes": 106524,
+      "uuidCount": 0
+    },
+    {
+      "source": "astra-hard@89425c88b12e5fd7516ed9cdbf6d37b9b0261595/comparisons/deepeval/results/haiku-first-recording.json",
+      "sha256": "2e630d38862418fb990e14a0001366e44f3c2f0186e6c3ea2581006127c369a7",
+      "bytes": 106532,
+      "uuidCount": 0
+    },
+    {
+      "source": "astra-hard@89425c88b12e5fd7516ed9cdbf6d37b9b0261595/comparisons/deepeval/results/sonnet-cassette.json",
+      "sha256": "a47af74fe4d9d090f04104412d281ee6f32514543b4f4a5562b6355bb8e3195e",
+      "bytes": 13621,
+      "uuidCount": 0
+    },
+    {
+      "source": "astra-hard@89425c88b12e5fd7516ed9cdbf6d37b9b0261595/comparisons/deepeval/results/sonnet-first-recording.json",
+      "sha256": "ef9aefbb25c60380c8fe3458fd0a41f7a1600ad9f1e5e8b45ca4c240f772599d",
+      "bytes": 13624,
+      "uuidCount": 0
+    },
+    {
+      "source": "astra-hard@89425c88b12e5fd7516ed9cdbf6d37b9b0261595/comparisons/inspect/panel/data/claude-council.cassette.json",
+      "sha256": "b7cfee492bb81af4deffac5b82d34b80e8b07cfac7ab9d6975c711bab3292e08",
+      "bytes": 294501,
+      "uuidCount": 0
+    },
+    {
+      "source": "astra-hard@89425c88b12e5fd7516ed9cdbf6d37b9b0261595/comparisons/promptfoo/hard/recorded/calls.jsonl",
+      "sha256": "9fd9c1fc9f52e408d9d4824d407b71ca2997b9d10b16e177ec4ecc0b08a6b71b",
+      "bytes": 7579106,
+      "uuidCount": 0
+    },
+    {
+      "source": "astra-hard@89425c88b12e5fd7516ed9cdbf6d37b9b0261595/comparisons/promptfoo/hard/recorded/factuality-audit.json",
+      "sha256": "917486257c1e5db59003b3c76bdad6e6475f7fb144fd0a72c1c2b33624ee9556",
+      "bytes": 29916,
+      "uuidCount": 0
+    },
+    {
+      "source": "astra-hard@89425c88b12e5fd7516ed9cdbf6d37b9b0261595/comparisons/promptfoo/hard/recorded/factuality-peer.json",
+      "sha256": "d804352c12a77c44068f2694c3e7f1605cda9b2ba466480c58799b94423b7f54",
+      "bytes": 29768,
+      "uuidCount": 0
+    },
+    {
+      "source": "astra-hard@89425c88b12e5fd7516ed9cdbf6d37b9b0261595/comparisons/promptfoo/hard/recorded/factuality-shipped.json",
+      "sha256": "ac5e66bc36b20f4021a087f769e241e2a97733fd4da0de92e456724d93e3125b",
+      "bytes": 29818,
+      "uuidCount": 0
+    },
+    {
+      "source": "astra-hard@89425c88b12e5fd7516ed9cdbf6d37b9b0261595/comparisons/promptfoo/hard/recorded/goal-audit.json",
+      "sha256": "77085293a27e5a216feb40e524af35dd42b536b938c6a5784e91993b38d7d216",
+      "bytes": 28966,
+      "uuidCount": 0
+    },
+    {
+      "source": "astra-hard@89425c88b12e5fd7516ed9cdbf6d37b9b0261595/comparisons/promptfoo/hard/recorded/goal-peer-full-state.json",
+      "sha256": "2f1f28e74ae81ef1751b7fff76db9779f52ca1f5f7072a2b4e03b23cbbdfd5d3",
+      "bytes": 28824,
+      "uuidCount": 0
+    },
+    {
+      "source": "astra-hard@89425c88b12e5fd7516ed9cdbf6d37b9b0261595/comparisons/promptfoo/hard/recorded/goal-peer.json",
+      "sha256": "8c98457f302be7dc3e95b1d64744793b5fca9689ba51c181c210d90fa5f2336a",
+      "bytes": 28893,
+      "uuidCount": 0
+    },
+    {
+      "source": "astra-hard@89425c88b12e5fd7516ed9cdbf6d37b9b0261595/comparisons/promptfoo/hard/recorded/goal-shipped.json",
+      "sha256": "79e38cc49f10d1e92a5265a60ccb99c2d5cc751abfdc9d2bbc6e0c450989a73b",
+      "bytes": 28800,
+      "uuidCount": 0
+    },
+    {
+      "source": "astra-hard@89425c88b12e5fd7516ed9cdbf6d37b9b0261595/comparisons/promptfoo/hard/recorded/heldout-factuality-audit.json",
+      "sha256": "b2c4713577c0fc3398e1a8fdc1731ee00d37413feef8fe097236f7dcb8addded",
+      "bytes": 18572,
+      "uuidCount": 0
+    },
+    {
+      "source": "astra-hard@89425c88b12e5fd7516ed9cdbf6d37b9b0261595/comparisons/promptfoo/hard/recorded/heldout-factuality-peer.json",
+      "sha256": "9f4ada66ef5926a05ce4aab62d9d92902b13d2777dc04eb399e278e4e9cb3864",
+      "bytes": 18401,
+      "uuidCount": 0
+    },
+    {
+      "source": "astra-hard@89425c88b12e5fd7516ed9cdbf6d37b9b0261595/comparisons/promptfoo/hard/recorded/heldout-factuality-shipped.json",
+      "sha256": "fc4772e330eb19b33ac262fd6ff3ea54f13533a4129fc9f91e80e4ea59fdfd03",
+      "bytes": 18377,
+      "uuidCount": 0
+    },
+    {
+      "source": "astra-hard@89425c88b12e5fd7516ed9cdbf6d37b9b0261595/comparisons/promptfoo/hard/recorded/heldout-goal-audit.json",
+      "sha256": "25db7ba495351fbf612e09ffcdecfba1e1fddd50459badc184dfd2c0042b77fb",
+      "bytes": 18182,
+      "uuidCount": 0
+    },
+    {
+      "source": "astra-hard@89425c88b12e5fd7516ed9cdbf6d37b9b0261595/comparisons/promptfoo/hard/recorded/heldout-goal-peer-full-state.json",
+      "sha256": "6c2908de264b3790d61559735ffef2735c7ba3619bac5860f4c3915ebe1111ae",
+      "bytes": 17957,
+      "uuidCount": 0
+    },
+    {
+      "source": "astra-hard@89425c88b12e5fd7516ed9cdbf6d37b9b0261595/comparisons/promptfoo/hard/recorded/heldout-goal-peer.json",
+      "sha256": "62a4729b8462b4110f99bffd82f31208d2ed9a5d573834f8e9758b790c7a45fc",
+      "bytes": 18067,
+      "uuidCount": 0
+    },
+    {
+      "source": "astra-hard@89425c88b12e5fd7516ed9cdbf6d37b9b0261595/comparisons/promptfoo/hard/recorded/heldout-goal-shipped.json",
+      "sha256": "8926bcb74ba039511405352428fae8db345abd93b6b4fb1added5f2dc18cfefa",
+      "bytes": 18102,
+      "uuidCount": 0
+    },
+    {
+      "source": "astra-hard@89425c88b12e5fd7516ed9cdbf6d37b9b0261595/comparisons/promptfoo/hard/recorded/heldout-pii-audit.json",
+      "sha256": "bd031a15f1cd5c863ffd811adb1263b37d9ef048980fce806eb665fc1785c9a8",
+      "bytes": 18048,
+      "uuidCount": 0
+    },
+    {
+      "source": "astra-hard@89425c88b12e5fd7516ed9cdbf6d37b9b0261595/comparisons/promptfoo/hard/recorded/heldout-pii-peer.json",
+      "sha256": "5d4474794b37de936dd25b7ab7b0aa30f6e83f45e3de865b6faba0ae2879dd7e",
+      "bytes": 17950,
+      "uuidCount": 0
+    },
+    {
+      "source": "astra-hard@89425c88b12e5fd7516ed9cdbf6d37b9b0261595/comparisons/promptfoo/hard/recorded/heldout-pii-shipped.json",
+      "sha256": "a08058b4a02117dd8bae119686453f1203d0e4f98c08e8738eeb1dffc3056072",
+      "bytes": 17986,
+      "uuidCount": 0
+    },
+    {
+      "source": "astra-hard@89425c88b12e5fd7516ed9cdbf6d37b9b0261595/comparisons/promptfoo/hard/recorded/heldout-rubric-audit.json",
+      "sha256": "4a6b2dc5f86e61885627fa79b7ee7b2457fe2afdaac747fad7e76ba2cceebf4a",
+      "bytes": 18161,
+      "uuidCount": 0
+    },
+    {
+      "source": "astra-hard@89425c88b12e5fd7516ed9cdbf6d37b9b0261595/comparisons/promptfoo/hard/recorded/heldout-rubric-peer.json",
+      "sha256": "195435ab929bf73c8d8d65e7ada998f0f212427c12ddbebce587027f68195fcd",
+      "bytes": 18268,
+      "uuidCount": 0
+    },
+    {
+      "source": "astra-hard@89425c88b12e5fd7516ed9cdbf6d37b9b0261595/comparisons/promptfoo/hard/recorded/heldout-rubric-shipped.json",
+      "sha256": "0367989d567c02e1ee8822b813e027ed91576032d22e0e04fa8826e2c2e9b73b",
+      "bytes": 18115,
+      "uuidCount": 0
+    },
+    {
+      "source": "astra-hard@89425c88b12e5fd7516ed9cdbf6d37b9b0261595/comparisons/promptfoo/hard/recorded/peer-native-decoder.json",
+      "sha256": "76fd0ea90b0facc7ad73498733bd202d5781fadca42758bf72ec057431e025ef",
+      "bytes": 74883,
+      "uuidCount": 0
+    },
+    {
+      "source": "astra-hard@89425c88b12e5fd7516ed9cdbf6d37b9b0261595/comparisons/promptfoo/hard/recorded/pii-audit.json",
+      "sha256": "c04cf482290496dbf32c4ae38a2f9de7d7d38bb345bd1b0b5ce6a62d12e1ac20",
+      "bytes": 29027,
+      "uuidCount": 0
+    },
+    {
+      "source": "astra-hard@89425c88b12e5fd7516ed9cdbf6d37b9b0261595/comparisons/promptfoo/hard/recorded/pii-peer.json",
+      "sha256": "905341b0311c923a4c7025f4f32cca9f897acbc347a6679c982dbe0498fbd5e5",
+      "bytes": 28787,
+      "uuidCount": 0
+    },
+    {
+      "source": "astra-hard@89425c88b12e5fd7516ed9cdbf6d37b9b0261595/comparisons/promptfoo/hard/recorded/pii-shipped.json",
+      "sha256": "2618b697baaa6989f02eaf150d9a8827b05fbb310562dc728429cc6dbc46187b",
+      "bytes": 28904,
+      "uuidCount": 0
+    },
+    {
+      "source": "astra-hard@89425c88b12e5fd7516ed9cdbf6d37b9b0261595/comparisons/promptfoo/hard/recorded/rubric-audit.json",
+      "sha256": "0d6c2602a008aacb54b9abd602c296dcb75f5416549ec0f000624d71828dd566",
+      "bytes": 29295,
+      "uuidCount": 0
+    },
+    {
+      "source": "astra-hard@89425c88b12e5fd7516ed9cdbf6d37b9b0261595/comparisons/promptfoo/hard/recorded/rubric-peer.json",
+      "sha256": "20f4edb0af40e44324e953debda62359e3fa3cee509b057047445e010a075dcf",
+      "bytes": 29055,
+      "uuidCount": 0
+    },
+    {
+      "source": "astra-hard@89425c88b12e5fd7516ed9cdbf6d37b9b0261595/comparisons/promptfoo/hard/recorded/rubric-shipped.json",
+      "sha256": "10fa6e30262b12e1ba6d546738966eb069d6ea96845733cf7e3796aba37ccd53",
+      "bytes": 29099,
+      "uuidCount": 0
+    },
+    {
+      "source": "astra-hard@89425c88b12e5fd7516ed9cdbf6d37b9b0261595/comparisons/promptfoo/hard/recorded/shipped-native-decoder.json",
+      "sha256": "97ad59fa611e77f315b4a2849ee949cb1db803b7ee606065ff4c9d621e5c58d2",
+      "bytes": 59907,
+      "uuidCount": 0
+    },
+    {
+      "source": "astra-hard@89425c88b12e5fd7516ed9cdbf6d37b9b0261595/comparisons/promptfoo/hard/recorded/summary.json",
+      "sha256": "aa469674253338eed34a43fde905739b67606e9a7cad39bf7f26c5647eb773e1",
+      "bytes": 11566,
+      "uuidCount": 0
+    },
+    {
+      "source": "astra-hard@89425c88b12e5fd7516ed9cdbf6d37b9b0261595/examples/acme/criteria/calibration/campaign.cassette.json",
+      "sha256": "2f70f5e36822af19ea078fa454895e5344256384fb885104fcc3a7962305b96b",
+      "bytes": 14643,
+      "uuidCount": 0
+    },
+    {
+      "source": "astra-hard@89425c88b12e5fd7516ed9cdbf6d37b9b0261595/examples/acme/criteria/calibration/cassette.json",
+      "sha256": "b4f1df0e222fd054f042999b655870281486e214c78234a0f985280ecde2807a",
+      "bytes": 106698,
+      "uuidCount": 0
+    },
+    {
+      "source": "astra-hard@89425c88b12e5fd7516ed9cdbf6d37b9b0261595/examples/acme/criteria/calibration/claude-council.cassette.json",
+      "sha256": "882979bb258c5ba49bc9f5b97391aa47c708e1938569b6e9f932ac42251babbc",
+      "bytes": 294264,
+      "uuidCount": 0
+    },
+    {
+      "source": "astra-hard@89425c88b12e5fd7516ed9cdbf6d37b9b0261595/examples/acme/criteria/calibration/claude-haiku.cassette.json",
+      "sha256": "0f2e04f5bde0b29ed1ad10dcc772b52c86729a9f52dfdbab979ab920d70540ac",
+      "bytes": 106946,
+      "uuidCount": 0
+    },
+    {
+      "source": "astra-hard@89425c88b12e5fd7516ed9cdbf6d37b9b0261595/examples/acme/criteria/council.cassette.json",
+      "sha256": "c8b9efb7ab5123aeb6802a59de3dda740ce072cfa4e3c1775c575ae580e4001e",
+      "bytes": 18845,
+      "uuidCount": 0
+    },
+    {
+      "source": "astra-hard@89425c88b12e5fd7516ed9cdbf6d37b9b0261595/packages/adapters/test/fixtures/frameworks/recorded/vercel-ai-steps.json",
+      "sha256": "bd280d75acb587403f1dbaf02ea26bef6a903666f31692ca091588637e2765a3",
+      "bytes": 1654,
+      "uuidCount": 0
+    },
+    {
+      "source": "astra-hard@89425c88b12e5fd7516ed9cdbf6d37b9b0261595/packages/adapters/test/fixtures/sdk/recorded/anthropic-coverage.json",
+      "sha256": "d5e08e8d16a742fcd13547950030d7573fa06845054a5d8a64b7709c7fc22464",
+      "bytes": 9660,
+      "uuidCount": 0
+    },
+    {
+      "source": "astra-hard@89425c88b12e5fd7516ed9cdbf6d37b9b0261595/packages/adapters/test/fixtures/sdk/recorded/google-coverage.json",
+      "sha256": "2e1ca96724e878c816141c29baa2c50a584d909f4e9079585f4381c0a2511cee",
+      "bytes": 12915,
+      "uuidCount": 0
+    },
+    {
+      "source": "astra-hard@89425c88b12e5fd7516ed9cdbf6d37b9b0261595/packages/adapters/test/fixtures/sdk/recorded/langgraph-coverage.json",
+      "sha256": "c321b4748b2c243a0255a4806769e06881c9365832bc635a3aefa5991e0991a8",
+      "bytes": 4084,
+      "uuidCount": 6
+    },
+    {
+      "source": "astra-hard@89425c88b12e5fd7516ed9cdbf6d37b9b0261595/packages/adapters/test/fixtures/sdk/recorded/openai-agents-runs.json",
+      "sha256": "b67daf2803b61783d08bb247d2792d75119d67e7ef0d1c5e9139a341ab03b822",
+      "bytes": 14234,
+      "uuidCount": 0
+    },
+    {
+      "source": "astra-hard@89425c88b12e5fd7516ed9cdbf6d37b9b0261595/packages/judges/test/fixtures/legacy-cassette-main-a97cb65e.json",
+      "sha256": "2605fc77bb755d622e5b99d0a30a45f77ae73a65a52c5c69f529740654c7cfd9",
+      "bytes": 219747,
+      "uuidCount": 0
+    },
+    {
+      "source": "astra-hard@89425c88b12e5fd7516ed9cdbf6d37b9b0261595/packages/judges/test/fixtures/markdown-winner-recording.json",
+      "sha256": "0a78e45e303f801b86f68966c06831ebeb6cc85ba678f80cc0dd0ffc3489f46e",
+      "bytes": 11308,
+      "uuidCount": 0
+    },
+    {
+      "source": "astra-hard@89425c88b12e5fd7516ed9cdbf6d37b9b0261595/packages/judges/test/fixtures/pointwise-framed.cassette.json",
+      "sha256": "be3fdb885792d05f3a1e899c6a24c8967a4d5e0955e38bf903062319c703ac38",
+      "bytes": 25084,
+      "uuidCount": 0
+    },
+    {
+      "source": "astra-hard@89425c88b12e5fd7516ed9cdbf6d37b9b0261595/packages/judges/test/fixtures/pointwise-regressions.cassette.json",
+      "sha256": "9158fc96306546337e187564202a9b497153638e8067b71c7063f9f75899d6b0",
+      "bytes": 24165,
+      "uuidCount": 0
+    },
+    {
+      "source": "astra-hard@89425c88b12e5fd7516ed9cdbf6d37b9b0261595/packages/judges/test/fixtures/rendered-evidence-recordings.json",
+      "sha256": "2089028593739e0e8582d7da2127e5100231a2fa635edf5edebcaf10ac4b2ce8",
+      "bytes": 33123,
+      "uuidCount": 0
+    },
+    {
+      "source": "astra-hard@89425c88b12e5fd7516ed9cdbf6d37b9b0261595/packages/validators/fixtures/judges/brittle.cassette.json",
+      "sha256": "828a9cab1000198cd6ddaf5153c28d0bf5cd37655f4110383dae0accf78c1e61",
+      "bytes": 173139,
+      "uuidCount": 0
+    },
+    {
+      "source": "astra-hard@89425c88b12e5fd7516ed9cdbf6d37b9b0261595/packages/validators/fixtures/judges/council.cassette.json",
+      "sha256": "85347f2c5cee28a439c492f7b5553c8167d502e44ab0f4200a1956293944326d",
+      "bytes": 592383,
+      "uuidCount": 0
+    },
+    {
+      "source": "astra-hard@89425c88b12e5fd7516ed9cdbf6d37b9b0261595/packages/validators/fixtures/judges/flaky.cassette.json",
+      "sha256": "81b49c06f11803981aa1aaca7453a5cb24c2efb7b163c5a72b48d1c948cecc7a",
+      "bytes": 345264,
+      "uuidCount": 0
+    },
+    {
+      "source": "astra-hard@89425c88b12e5fd7516ed9cdbf6d37b9b0261595/packages/validators/fixtures/judges/good.cassette.json",
+      "sha256": "fd343bdfbe7648d0ea8bb08bf87058b95559c8553485569339052d105b7d9aad",
+      "bytes": 174515,
+      "uuidCount": 0
+    },
+    {
+      "source": "astra-hard@89425c88b12e5fd7516ed9cdbf6d37b9b0261595/packages/validators/fixtures/judges/injectable.cassette.json",
+      "sha256": "6637438e6cf952a686d33b6eb2c2f4ee204abbf3a287c43a8f8b1376673414e9",
+      "bytes": 175965,
+      "uuidCount": 0
+    }
+  ]
+}

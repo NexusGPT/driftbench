@@ -1,0 +1,56 @@
+{
+  "schemaVersion": 1,
+  "createdAt": "2026-10-13T07:04:13.560346+00:00",
+  "seed": "ledger-jb-2026-10-13-v1",
+  "dataset": "ScalerLab/JudgeBench",
+  "split": "claude",
+  "sourceCount": 270,
+  "eligibleCount": 270,
+  "excludedPairIds": [],
+  "priorUuidCount": 513,
+  "recordingFileCount": 279,
+  "groups": {
+    "mmlu": 154,
+    "livebench": 85,
+    "livecodebench": 31
+  },
+  "questionOverlapCount": 159,
+  "exactQuestionOverlapCount": 91,
+  "freshnessClaim": "Pair ids absent from audited recordings; questions may overlap; missing worktrees audited through committed git snapshots only.",
+  "powerRegistration": "TIE-only: fewer than 440 pairs; no powered per-cell WIN claim expected.",
+  "familyDisclosure": "Claude-generated responses share the Anthropic family with the Haiku judge. Luna has no response-family overlap.",
+  "fixtures": {
+    "count": 18,
+    "perCategory": 6,
+    "repeats": 3,
+    "requiredAllRepeatsCorrect": true,
+    "minimumKappa": 0.8,
+    "labelSource": "Published objective dataset labels, not newly authored expert labels."
+  },
+  "pilotCount": 20,
+  "noiseCount": 30,
+  "noiseRepeats": 3,
+  "capUsd": 25,
+  "models": [
+    "claude-haiku-5-5",
+    "gpt-6-luna"
+  ],
+  "pendingModels": {
+    "gemini-3.8-flash": "Owner reports 429 billing quota"
+  },
+  "hashes": {
+    "prior-recorded-ids.json": "18060fc8fc2dbcc391dd9f34f0bfdac31ceaedc718b56f9d62b6d1535b6acc94",
+    "exposure-inventory.json": "05451425c4e1e85ebb6a4f8009ebe8fc8bc5712cd8845f68866730b8029622b8",
+    "pool.json": "489c47a0404e7e0929b52ffbe3e253bfebc8d04fa1e0ddac2f3b7ccd089f5236",
+    "dev.json": "29c4c66bda498468e1c4ddaa7240ffe56e9291efaab4e8177f6465fe23688c90",
+    "fixtures.json": "e879384dd2f0a25c6f9cd31b57d5f9364ba6263ac9ecd85e99d22fbe02964f6e",
+    "pilot.json": "6cac677484aa39ba50cee193e4e24910a5c51617646586f37b435dab057a1296",
+    "noise.json": "b90247289a25b1baef35d5358a85b94a0bcd8cc2d00450bed8ee8dcfd612677a",
+    "question-overlap.json": "b923cbb2be33c1f85308660f3b955a9928f472814ecf45d35359188df4340aef",
+    "claude.jsonl": "3b70504588e400613bf5744a20a345da8701b7150be9a30c9db0e6f3d7b70a62",
+    "gpt.jsonl": "d5106306b38dead1b2e964ecf5534a3e7b2fc4b8d3b8da327599edfcebd76042",
+    "dataset-metadata.json": "f49667bd4b1b44f800dad953f380bc5478c64bbbdf62c4698c9f3780e499a52b",
+    "promptfoo-select-best.txt": "f5d991e93bb0f5fefba9eb241f0feddae57276f8196f3c4e53137b5f4177562c",
+    "promptfoo-provenance.json": "08d4ff25e3cc8ddc0d20f51924d30b0d23cefe7a522585aaa3bf928ab361d047"
+  }
+}

@@ -1,0 +1,384 @@
+{
+  "sealSha256": "2aa831d8f08ea88ddddff87ba9aeb600f2c719725608815c09ddc699bd8aac12",
+  "poolSha256": "489c47a0404e7e0929b52ffbe3e253bfebc8d04fa1e0ddac2f3b7ccd089f5236",
+  "coreFreeze": null,
+  "totalCalls": 0,
+  "measuredUsd": 0,
+  "unresolvedCalls": 0,
+  "reservedUsd": 0,
+  "cells": [
+    {
+      "model": "claude-haiku-5-5",
+      "status": "PENDING_CORE",
+      "n": 0,
+      "planned": 270,
+      "coverage": 0,
+      "wins": 0,
+      "losses": 0,
+      "ledger": {
+        "correct": 0,
+        "estimate": null,
+        "lower": null,
+        "upper": null
+      },
+      "promptfoo": {
+        "correct": 0,
+        "estimate": null,
+        "lower": null,
+        "upper": null
+      },
+      "difference": {
+        "estimate": null,
+        "lower": null,
+        "upper": null
+      },
+      "p": 1,
+      "holmP": null,
+      "holmStatus": "Pending the complete pre-registered 18-cell family; never correct over completed cells only.",
+      "conservative18CellBound": 1,
+      "verdict": "PARTIAL",
+      "decisions": [],
+      "cost": {
+        "ledger": {
+          "usd": 0,
+          "units": 0,
+          "per100": null
+        },
+        "promptfoo": {
+          "usd": 0,
+          "units": 0,
+          "per100": null
+        }
+      },
+      "noise": {
+        "ledger": {
+          "planned": 30,
+          "completed": 0,
+          "changedItems": 0,
+          "gameFlips": 0,
+          "comparisons": 0,
+          "rate": null,
+          "method": "Each repeat compared to repeat zero, per order; all errors retain their null decisions."
+        },
+        "promptfoo": {
+          "planned": 30,
+          "completed": 0,
+          "changedItems": 0,
+          "gameFlips": 0,
+          "comparisons": 0,
+          "rate": null,
+          "method": "Each repeat compared to repeat zero, per order; all errors retain their null decisions."
+        }
+      },
+      "fixtureEarning": {
+        "livebench": {
+          "expected": 18,
+          "measured": 0,
+          "correct": 0,
+          "kappa": null,
+          "earned": false,
+          "status": "PENDING"
+        },
+        "livecodebench": {
+          "expected": 18,
+          "measured": 0,
+          "correct": 0,
+          "kappa": null,
+          "earned": false,
+          "status": "PENDING"
+        },
+        "mmlu": {
+          "expected": 18,
+          "measured": 0,
+          "correct": 0,
+          "kappa": null,
+          "earned": false,
+          "status": "PENDING"
+        }
+      },
+      "pilot": {
+        "n": 0,
+        "planned": 20,
+        "coverage": 0,
+        "wins": 0,
+        "losses": 0,
+        "ledger": {
+          "correct": 0,
+          "estimate": null,
+          "lower": null,
+          "upper": null
+        },
+        "promptfoo": {
+          "correct": 0,
+          "estimate": null,
+          "lower": null,
+          "upper": null
+        },
+        "difference": {
+          "estimate": null,
+          "lower": null,
+          "upper": null
+        },
+        "p": 1,
+        "holmP": null,
+        "holmStatus": "Pending the complete pre-registered 18-cell family; never correct over completed cells only.",
+        "conservative18CellBound": 1,
+        "verdict": "PARTIAL",
+        "decisions": []
+      },
+      "cheaters": {
+        "dev": {
+          "constant-first": {
+            "correct": 0,
+            "n": 121,
+            "estimate": 0,
+            "lower": 0,
+            "upper": 0.03077069794747827
+          },
+          "constant-original-A": {
+            "correct": 65,
+            "n": 121,
+            "estimate": 0.5371900826446281,
+            "lower": 0.4485732934119226,
+            "upper": 0.6235181422779343
+          },
+          "longer-wins": {
+            "correct": 55,
+            "n": 121,
+            "estimate": 0.45454545454545453,
+            "lower": 0.3685882130623515,
+            "upper": 0.543300032205601
+          },
+          "refusal-wins": {
+            "correct": 0,
+            "n": 121,
+            "estimate": 0,
+            "lower": 0,
+            "upper": 0.03077069794747827
+          }
+        },
+        "test": {
+          "constant-first": {
+            "correct": 0,
+            "n": 270,
+            "estimate": 0,
+            "lower": 0,
+            "upper": 0.014028039571646583
+          },
+          "constant-original-A": {
+            "correct": 143,
+            "n": 270,
+            "estimate": 0.5296296296296297,
+            "lower": 0.4700965819342559,
+            "upper": 0.5883313860911281
+          },
+          "longer-wins": {
+            "correct": 118,
+            "n": 270,
+            "estimate": 0.43703703703703706,
+            "lower": 0.37916504442842786,
+            "upper": 0.4966755235176314
+          },
+          "refusal-wins": {
+            "correct": 0,
+            "n": 270,
+            "estimate": 0,
+            "lower": 0,
+            "upper": 0.014028039571646583
+          }
+        }
+      },
+      "powerRegistration": "TIE-only: fewer than 440 pairs; no powered per-cell WIN claim expected.",
+      "familyDisclosure": "Claude-generated responses share the Anthropic family with the Haiku judge. Luna has no response-family overlap."
+    },
+    {
+      "model": "gpt-6-luna",
+      "status": "PENDING_CORE",
+      "n": 0,
+      "planned": 270,
+      "coverage": 0,
+      "wins": 0,
+      "losses": 0,
+      "ledger": {
+        "correct": 0,
+        "estimate": null,
+        "lower": null,
+        "upper": null
+      },
+      "promptfoo": {
+        "correct": 0,
+        "estimate": null,
+        "lower": null,
+        "upper": null
+      },
+      "difference": {
+        "estimate": null,
+        "lower": null,
+        "upper": null
+      },
+      "p": 1,
+      "holmP": null,
+      "holmStatus": "Pending the complete pre-registered 18-cell family; never correct over completed cells only.",
+      "conservative18CellBound": 1,
+      "verdict": "PARTIAL",
+      "decisions": [],
+      "cost": {
+        "ledger": {
+          "usd": 0,
+          "units": 0,
+          "per100": null
+        },
+        "promptfoo": {
+          "usd": 0,
+          "units": 0,
+          "per100": null
+        }
+      },
+      "noise": {
+        "ledger": {
+          "planned": 30,
+          "completed": 0,
+          "changedItems": 0,
+          "gameFlips": 0,
+          "comparisons": 0,
+          "rate": null,
+          "method": "Each repeat compared to repeat zero, per order; all errors retain their null decisions."
+        },
+        "promptfoo": {
+          "planned": 30,
+          "completed": 0,
+          "changedItems": 0,
+          "gameFlips": 0,
+          "comparisons": 0,
+          "rate": null,
+          "method": "Each repeat compared to repeat zero, per order; all errors retain their null decisions."
+        }
+      },
+      "fixtureEarning": {
+        "livebench": {
+          "expected": 18,
+          "measured": 0,
+          "correct": 0,
+          "kappa": null,
+          "earned": false,
+          "status": "PENDING"
+        },
+        "livecodebench": {
+          "expected": 18,
+          "measured": 0,
+          "correct": 0,
+          "kappa": null,
+          "earned": false,
+          "status": "PENDING"
+        },
+        "mmlu": {
+          "expected": 18,
+          "measured": 0,
+          "correct": 0,
+          "kappa": null,
+          "earned": false,
+          "status": "PENDING"
+        }
+      },
+      "pilot": {
+        "n": 0,
+        "planned": 20,
+        "coverage": 0,
+        "wins": 0,
+        "losses": 0,
+        "ledger": {
+          "correct": 0,
+          "estimate": null,
+          "lower": null,
+          "upper": null
+        },
+        "promptfoo": {
+          "correct": 0,
+          "estimate": null,
+          "lower": null,
+          "upper": null
+        },
+        "difference": {
+          "estimate": null,
+          "lower": null,
+          "upper": null
+        },
+        "p": 1,
+        "holmP": null,
+        "holmStatus": "Pending the complete pre-registered 18-cell family; never correct over completed cells only.",
+        "conservative18CellBound": 1,
+        "verdict": "PARTIAL",
+        "decisions": []
+      },
+      "cheaters": {
+        "dev": {
+          "constant-first": {
+            "correct": 0,
+            "n": 121,
+            "estimate": 0,
+            "lower": 0,
+            "upper": 0.03077069794747827
+          },
+          "constant-original-A": {
+            "correct": 65,
+            "n": 121,
+            "estimate": 0.5371900826446281,
+            "lower": 0.4485732934119226,
+            "upper": 0.6235181422779343
+          },
+          "longer-wins": {
+            "correct": 55,
+            "n": 121,
+            "estimate": 0.45454545454545453,
+            "lower": 0.3685882130623515,
+            "upper": 0.543300032205601
+          },
+          "refusal-wins": {
+            "correct": 0,
+            "n": 121,
+            "estimate": 0,
+            "lower": 0,
+            "upper": 0.03077069794747827
+          }
+        },
+        "test": {
+          "constant-first": {
+            "correct": 0,
+            "n": 270,
+            "estimate": 0,
+            "lower": 0,
+            "upper": 0.014028039571646583
+          },
+          "constant-original-A": {
+            "correct": 143,
+            "n": 270,
+            "estimate": 0.5296296296296297,
+            "lower": 0.4700965819342559,
+            "upper": 0.5883313860911281
+          },
+          "longer-wins": {
+            "correct": 118,
+            "n": 270,
+            "estimate": 0.43703703703703706,
+            "lower": 0.37916504442842786,
+            "upper": 0.4966755235176314
+          },
+          "refusal-wins": {
+            "correct": 0,
+            "n": 270,
+            "estimate": 0,
+            "lower": 0,
+            "upper": 0.014028039571646583
+          }
+        }
+      },
+      "powerRegistration": "TIE-only: fewer than 440 pairs; no powered per-cell WIN claim expected.",
+      "familyDisclosure": "Claude-generated responses share the Anthropic family with the Haiku judge. Luna has no response-family overlap."
+    },
+    {
+      "model": "gemini-3.8-flash",
+      "status": "PENDING_BILLING",
+      "reason": "Owner reports 429 quota; no calls authorized while blocked."
+    }
+  ]
+}

@@ -1,0 +1,6 @@
+{
+  "upstream": "https://github.com/promptfoo/promptfoo/blob/8014282/src/prompts/grading.ts",
+  "repositoryCommit": "0fa48a41a5ec09135bca6c8169670ca1dabca887",
+  "path": "examples/judge-benchmarks/src/contestants.ts",
+  "templateSha256": "f5d991e93bb0f5fefba9eb241f0feddae57276f8196f3c4e53137b5f4177562c"
+}

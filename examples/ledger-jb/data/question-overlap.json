@@ -1,0 +1,797 @@
+[
+  {
+    "id": "8dddf27e-b2f5-532c-a23f-ac533ad229b2",
+    "priorPairId": "ef208923-d43f-5596-9503-908848c178cd",
+    "exactQuestion": true
+  },
+  {
+    "id": "2c28d749-9b2f-572b-b7cd-5c27e0ad9d1f",
+    "priorPairId": "09e7761f-dc12-5dec-9ea1-d01ef98c48e9",
+    "exactQuestion": false
+  },
+  {
+    "id": "f5c923f4-09d1-537e-81c8-d7642d66c633",
+    "priorPairId": "0ca7d4e7-aa30-589d-8379-693de96fa461",
+    "exactQuestion": false
+  },
+  {
+    "id": "642827c3-fa04-5743-b9c6-f3eab81b793b",
+    "priorPairId": "907c3d20-a0dc-5b21-b4ba-1e784d7cfaf6",
+    "exactQuestion": true
+  },
+  {
+    "id": "b29adb50-ba02-5a98-8811-300f49fb8aa2",
+    "priorPairId": "754b1cf8-067c-513f-a0d3-c8bd401e8afb",
+    "exactQuestion": true
+  },
+  {
+    "id": "5faba119-90d9-5be4-8d17-09a42c3228dc",
+    "priorPairId": "e23cdc82-bbf1-5378-9404-d94c1e7ce2ef",
+    "exactQuestion": true
+  },
+  {
+    "id": "1ff6a2b2-d504-57d0-a187-28cae583bc58",
+    "priorPairId": "09e7761f-dc12-5dec-9ea1-d01ef98c48e9",
+    "exactQuestion": false
+  },
+  {
+    "id": "31d5a007-227a-5e68-b5a8-78343fe1d67a",
+    "priorPairId": "09e7761f-dc12-5dec-9ea1-d01ef98c48e9",
+    "exactQuestion": false
+  },
+  {
+    "id": "5b31230c-b3a5-5f5b-9de7-e940518ee29f",
+    "priorPairId": "23d52920-6399-512a-a040-a8c27817c92f",
+    "exactQuestion": false
+  },
+  {
+    "id": "2d1bb16f-47d8-5ccf-915b-1718fd79fbb9",
+    "priorPairId": "23d52920-6399-512a-a040-a8c27817c92f",
+    "exactQuestion": false
+  },
+  {
+    "id": "e82d2ea3-2496-5b19-a2e2-a15fe6d57534",
+    "priorPairId": "49c0f568-1ac2-53dc-be78-f3eea93820fd",
+    "exactQuestion": true
+  },
+  {
+    "id": "fb82b632-777a-5418-838a-68b6309c7c20",
+    "priorPairId": "0ca7d4e7-aa30-589d-8379-693de96fa461",
+    "exactQuestion": false
+  },
+  {
+    "id": "1826fccc-d9b5-5b35-93b9-4ef682953cb2",
+    "priorPairId": "0ca7d4e7-aa30-589d-8379-693de96fa461",
+    "exactQuestion": false
+  },
+  {
+    "id": "1edc56e1-c077-594e-aa19-13092f6ab299",
+    "priorPairId": "58c85976-b7dd-5739-9f8c-e4943c0a1101",
+    "exactQuestion": true
+  },
+  {
+    "id": "ba76cbd8-d820-5379-8d55-a8ec885a0c11",
+    "priorPairId": "09e7761f-dc12-5dec-9ea1-d01ef98c48e9",
+    "exactQuestion": false
+  },
+  {
+    "id": "10465a41-8d5e-5120-9d7a-e1ad1e8e74df",
+    "priorPairId": "3a1685e5-509e-503f-b0d3-a23f41c29d46",
+    "exactQuestion": true
+  },
+  {
+    "id": "f04cfc74-7e01-5c5a-b3e0-10ab983b5edd",
+    "priorPairId": "f340e79f-aec2-566b-9536-4f4c349e095d",
+    "exactQuestion": true
+  },
+  {
+    "id": "c9694d7e-4ec1-5cfe-873c-97296097cb28",
+    "priorPairId": "d7d8f0bd-8352-56c0-8eb4-34d212a2ad52",
+    "exactQuestion": true
+  },
+  {
+    "id": "506ba1e7-2940-5b59-a072-4f19bb03c469",
+    "priorPairId": "40c35c1b-4d3a-56ae-a7fa-22307efca211",
+    "exactQuestion": true
+  },
+  {
+    "id": "b487ea88-7f61-585f-a2ff-4f335d30a12e",
+    "priorPairId": "0ca7d4e7-aa30-589d-8379-693de96fa461",
+    "exactQuestion": false
+  },
+  {
+    "id": "fb576312-7ab1-5035-bb6d-14013d4dd65d",
+    "priorPairId": "c6b860be-9938-5c34-97fc-70dfc51bbfb7",
+    "exactQuestion": true
+  },
+  {
+    "id": "413200d8-dda2-503b-b20d-b2c47e7c4874",
+    "priorPairId": "a0f77206-6e2b-57af-8e32-664794ad10de",
+    "exactQuestion": true
+  },
+  {
+    "id": "d12cb3ba-be85-5212-8dc5-2353b98f943a",
+    "priorPairId": "399f4fc1-1eb0-5d14-a505-fbd98399b34e",
+    "exactQuestion": true
+  },
+  {
+    "id": "83abbc86-e987-5399-9a7d-c76dbcf5c6db",
+    "priorPairId": "09e7761f-dc12-5dec-9ea1-d01ef98c48e9",
+    "exactQuestion": false
+  },
+  {
+    "id": "b25fc0d7-ca58-58c8-9430-0a2943209f95",
+    "priorPairId": "f7dc91ae-4e50-51e8-aa72-34723a3b4c85",
+    "exactQuestion": true
+  },
+  {
+    "id": "2db0e5b8-f4c7-52c1-a715-3b4394509903",
+    "priorPairId": "5c63211c-b04e-591b-a102-a55ac8793816",
+    "exactQuestion": true
+  },
+  {
+    "id": "2ea3567c-6bdb-519b-8ef9-e07ef533773d",
+    "priorPairId": "0ca7d4e7-aa30-589d-8379-693de96fa461",
+    "exactQuestion": false
+  },
+  {
+    "id": "e96294cc-ae83-5447-a9f0-cc1fe0d95f49",
+    "priorPairId": "0ca7d4e7-aa30-589d-8379-693de96fa461",
+    "exactQuestion": false
+  },
+  {
+    "id": "236e4c79-ae79-5ce9-a24f-6111bb1d069a",
+    "priorPairId": "23d52920-6399-512a-a040-a8c27817c92f",
+    "exactQuestion": false
+  },
+  {
+    "id": "736bfd4a-2598-569f-908a-c0bd8d35dd44",
+    "priorPairId": "0ca7d4e7-aa30-589d-8379-693de96fa461",
+    "exactQuestion": false
+  },
+  {
+    "id": "82b2af9a-722e-55b3-a365-8c861f5b5cde",
+    "priorPairId": "b57ea8df-78c5-5e71-9545-973d9c2d4bb5",
+    "exactQuestion": true
+  },
+  {
+    "id": "979d3f21-0b17-5bc1-a694-475eb2c21684",
+    "priorPairId": "8e81db7a-d39f-5bc0-9b38-7f25d36a7707",
+    "exactQuestion": true
+  },
+  {
+    "id": "ece3a0f2-2145-5edd-a6bf-7f92dcc4d03b",
+    "priorPairId": "3be26fc0-ead5-5d0f-8c87-2feb0524e902",
+    "exactQuestion": true
+  },
+  {
+    "id": "d9f49899-0101-517f-a695-dcec90843b56",
+    "priorPairId": "ad74d384-df3b-5255-ac08-b1947e40b97e",
+    "exactQuestion": true
+  },
+  {
+    "id": "1a5432b2-ca09-5833-8909-bf891a3c22e9",
+    "priorPairId": "df6e9ec0-0bd1-51ec-a81f-3a58cc415253",
+    "exactQuestion": true
+  },
+  {
+    "id": "8fc8e1f1-e82e-5c20-822c-af0e60866580",
+    "priorPairId": "6c5f9b09-193f-5070-9dfd-2dee1f69a9a3",
+    "exactQuestion": true
+  },
+  {
+    "id": "b4416570-f628-51b5-8190-c246e74a4d71",
+    "priorPairId": "353ff46b-1b33-5152-ac0d-650b0f830fc3",
+    "exactQuestion": true
+  },
+  {
+    "id": "38b69692-fefb-5fd3-9dc7-b4f522dcd253",
+    "priorPairId": "23d52920-6399-512a-a040-a8c27817c92f",
+    "exactQuestion": false
+  },
+  {
+    "id": "03637a9a-7d80-5ecb-a1d0-d1f6cffc6879",
+    "priorPairId": "2c753154-c93e-504b-9e3b-209a5f58d805",
+    "exactQuestion": true
+  },
+  {
+    "id": "7269c247-cd48-5ed3-a77f-f028e773d7f4",
+    "priorPairId": "52dc37ec-fb24-59d8-9390-53185cb0c6d1",
+    "exactQuestion": true
+  },
+  {
+    "id": "904ccc1f-7d96-58a4-9c78-721feed676db",
+    "priorPairId": "0437ca17-8032-5d11-9632-d30502b67ce7",
+    "exactQuestion": true
+  },
+  {
+    "id": "d3bd3ea3-22ed-5a6f-bbbe-5c0cae8e0b59",
+    "priorPairId": "3239d81d-8220-5b81-99e0-1b7a470df3be",
+    "exactQuestion": true
+  },
+  {
+    "id": "826b83df-da29-5fff-8e34-cd08c745040a",
+    "priorPairId": "23d52920-6399-512a-a040-a8c27817c92f",
+    "exactQuestion": false
+  },
+  {
+    "id": "fa4a7de8-dc94-51c2-af35-9a2a2feb9439",
+    "priorPairId": "cd01c08e-2906-5d2a-b3d8-3d3425f397db",
+    "exactQuestion": true
+  },
+  {
+    "id": "5395119b-d8e5-52d3-a610-be760aee401a",
+    "priorPairId": "0ca7d4e7-aa30-589d-8379-693de96fa461",
+    "exactQuestion": false
+  },
+  {
+    "id": "c42511bf-0b43-5395-8a2b-f8748c6afdbf",
+    "priorPairId": "ca91b783-54e9-5fb6-9c30-a7ebf3ee7258",
+    "exactQuestion": true
+  },
+  {
+    "id": "27af9489-5983-5003-bcf2-47d13be1bfcf",
+    "priorPairId": "23d52920-6399-512a-a040-a8c27817c92f",
+    "exactQuestion": false
+  },
+  {
+    "id": "53a072f9-3bd4-5b76-959e-5436c7474ab0",
+    "priorPairId": "09e7761f-dc12-5dec-9ea1-d01ef98c48e9",
+    "exactQuestion": false
+  },
+  {
+    "id": "fb69bc71-2994-5cd6-ad30-228d359858e5",
+    "priorPairId": "67bcb178-e185-509d-8917-9390ce37e57d",
+    "exactQuestion": true
+  },
+  {
+    "id": "7003b6ea-4516-55a1-98e8-2131856a34d8",
+    "priorPairId": "0ca7d4e7-aa30-589d-8379-693de96fa461",
+    "exactQuestion": false
+  },
+  {
+    "id": "fb5bb37e-22b1-5b7c-b536-69410557f89a",
+    "priorPairId": "09e7761f-dc12-5dec-9ea1-d01ef98c48e9",
+    "exactQuestion": false
+  },
+  {
+    "id": "424123e4-ba22-583e-ba6f-5fd5372b78ca",
+    "priorPairId": "ccb5f20e-e712-5464-9c81-224cfe48b2f7",
+    "exactQuestion": true
+  },
+  {
+    "id": "663eb019-69ba-570f-bf87-f210f58e8cec",
+    "priorPairId": "7c22d528-b258-5125-9bcc-877df3431ae1",
+    "exactQuestion": true
+  },
+  {
+    "id": "15a1eada-5673-5107-9e52-b49c0d56abb6",
+    "priorPairId": "2c723771-3d54-5cf9-8180-7d502a4a4b1b",
+    "exactQuestion": true
+  },
+  {
+    "id": "da426470-aa56-5299-b047-701814cd79b4",
+    "priorPairId": "09e7761f-dc12-5dec-9ea1-d01ef98c48e9",
+    "exactQuestion": false
+  },
+  {
+    "id": "338d2cc4-0392-5652-885e-c05e9e2cd71a",
+    "priorPairId": "561aa423-34b6-5d88-bbd1-011da24ad2b0",
+    "exactQuestion": true
+  },
+  {
+    "id": "c8a90ffa-aa5b-52e6-9952-c06d5ff8784e",
+    "priorPairId": "138ece2f-4192-54c3-8d54-0a61b954bc13",
+    "exactQuestion": true
+  },
+  {
+    "id": "d956ee41-b3b1-52d5-ad3c-787d7d71a574",
+    "priorPairId": "07019bab-fc3e-5c91-ac9c-36869cfe79b0",
+    "exactQuestion": true
+  },
+  {
+    "id": "7744aeeb-5986-5783-9b8b-fbeeb70c53b8",
+    "priorPairId": "23d52920-6399-512a-a040-a8c27817c92f",
+    "exactQuestion": false
+  },
+  {
+    "id": "89afff9e-3563-567f-bf49-4b6a60cb12eb",
+    "priorPairId": "8e6b18f9-266e-5aae-bbfa-7b06142cca75",
+    "exactQuestion": true
+  },
+  {
+    "id": "46293924-ea56-5d2e-ab0e-0747c3746419",
+    "priorPairId": "1c3fccb4-012e-5156-9103-ab835de77625",
+    "exactQuestion": true
+  },
+  {
+    "id": "5ff436c6-2899-5565-b1e7-c4b71250b340",
+    "priorPairId": "16b5a08a-bfe0-56a6-93a4-cb8e00d61efb",
+    "exactQuestion": true
+  },
+  {
+    "id": "cba66923-b65f-566a-a766-03039fe2345c",
+    "priorPairId": "a1b1ff8a-eae1-5c68-b5b1-4d50cb2afc17",
+    "exactQuestion": true
+  },
+  {
+    "id": "26cceffc-1fb6-5c3c-b257-84759fa87fa1",
+    "priorPairId": "ebe368cb-5783-5f03-8471-e31295bc4438",
+    "exactQuestion": true
+  },
+  {
+    "id": "3d772030-166c-59ed-8b42-da954637bde4",
+    "priorPairId": "0ca7d4e7-aa30-589d-8379-693de96fa461",
+    "exactQuestion": false
+  },
+  {
+    "id": "0a75523a-50d2-5e71-8a08-257afd51fab7",
+    "priorPairId": "bfd0002d-e137-5a79-a7fd-c2ef9ad12a1f",
+    "exactQuestion": true
+  },
+  {
+    "id": "d9e6aa65-25b9-5c8c-a50f-cca574f8ad89",
+    "priorPairId": "af8bbf3a-253a-5a14-8ec9-27d0f093d61d",
+    "exactQuestion": true
+  },
+  {
+    "id": "d818547e-209d-5a54-aee1-13647acc6e21",
+    "priorPairId": "e4dcf6d6-e316-52d1-9723-b90da5dd862b",
+    "exactQuestion": true
+  },
+  {
+    "id": "f01da213-7931-5c24-a8f3-c37113d1e6af",
+    "priorPairId": "09e7761f-dc12-5dec-9ea1-d01ef98c48e9",
+    "exactQuestion": false
+  },
+  {
+    "id": "3ca54016-2ae6-56fa-b80e-1b274a34934a",
+    "priorPairId": "09e7761f-dc12-5dec-9ea1-d01ef98c48e9",
+    "exactQuestion": false
+  },
+  {
+    "id": "0831c536-0f42-5537-9e5b-d8c893c3059e",
+    "priorPairId": "58ee7000-47a1-54d6-9857-77d0eaa3a4b7",
+    "exactQuestion": true
+  },
+  {
+    "id": "772e664d-d4bf-5f0a-b058-fde6b4f3e2fc",
+    "priorPairId": "23d52920-6399-512a-a040-a8c27817c92f",
+    "exactQuestion": false
+  },
+  {
+    "id": "0dfb4241-9d97-598b-9a8d-fb7878ef0d9e",
+    "priorPairId": "4626f382-2aa2-5ac1-9c74-76185f48c6ad",
+    "exactQuestion": true
+  },
+  {
+    "id": "76eabdfb-15f8-5b97-907e-85149dfc2983",
+    "priorPairId": "9e079604-2288-52ba-9d89-4868ccd34200",
+    "exactQuestion": true
+  },
+  {
+    "id": "5a737f90-c602-5935-bda0-e706f40f93e0",
+    "priorPairId": "23d52920-6399-512a-a040-a8c27817c92f",
+    "exactQuestion": false
+  },
+  {
+    "id": "a7544525-7b5b-576a-b1c1-4d178647103f",
+    "priorPairId": "09e7761f-dc12-5dec-9ea1-d01ef98c48e9",
+    "exactQuestion": false
+  },
+  {
+    "id": "db5fe3cd-488b-5996-b494-768c2a8add72",
+    "priorPairId": "09e7761f-dc12-5dec-9ea1-d01ef98c48e9",
+    "exactQuestion": false
+  },
+  {
+    "id": "4e63c13c-8a91-5f29-839e-f7a0b4e752ba",
+    "priorPairId": "09e7761f-dc12-5dec-9ea1-d01ef98c48e9",
+    "exactQuestion": false
+  },
+  {
+    "id": "af6e2828-861b-5cb4-982a-1f20d6e3f568",
+    "priorPairId": "c0209978-acf5-5357-b566-ce5e3df30948",
+    "exactQuestion": true
+  },
+  {
+    "id": "5ab8d9e6-93cc-585e-b094-abbe3a82ff0f",
+    "priorPairId": "0ca7d4e7-aa30-589d-8379-693de96fa461",
+    "exactQuestion": false
+  },
+  {
+    "id": "e7a913d3-6770-5fcf-bbfb-4ed8114790eb",
+    "priorPairId": "7f679934-64f6-5785-aab3-7bb93b453f09",
+    "exactQuestion": true
+  },
+  {
+    "id": "2b068509-328d-5f22-84df-62f871c74ddd",
+    "priorPairId": "23d52920-6399-512a-a040-a8c27817c92f",
+    "exactQuestion": false
+  },
+  {
+    "id": "0f080546-ca02-545b-a1f0-c626bb610a2a",
+    "priorPairId": "14d2e455-2416-5cd3-8913-8f833aeab1b2",
+    "exactQuestion": true
+  },
+  {
+    "id": "ca59552b-524e-51e0-9eb1-2afdf2915ac2",
+    "priorPairId": "0ca7d4e7-aa30-589d-8379-693de96fa461",
+    "exactQuestion": false
+  },
+  {
+    "id": "97c53ddb-0acc-56a1-9216-bb6727e8f586",
+    "priorPairId": "138e503c-b09d-5d19-82ff-0b5ddc3e7bf6",
+    "exactQuestion": true
+  },
+  {
+    "id": "aa1f2d30-1871-56b5-92ef-896c21e4da76",
+    "priorPairId": "c5e2c58a-4f9a-5caf-9c27-1e219d9b6abd",
+    "exactQuestion": true
+  },
+  {
+    "id": "a3e354e8-1f92-5619-9453-1c3462d5b94e",
+    "priorPairId": "0ca7d4e7-aa30-589d-8379-693de96fa461",
+    "exactQuestion": false
+  },
+  {
+    "id": "e542fac4-1bf7-515a-9217-0e6151c1e908",
+    "priorPairId": "745f9340-63fd-527b-b707-126f38ebb096",
+    "exactQuestion": true
+  },
+  {
+    "id": "74581892-e3c1-5ef1-8eca-46a1d4ed710a",
+    "priorPairId": "585e5a43-454b-56f7-aba3-fb4e22938020",
+    "exactQuestion": true
+  },
+  {
+    "id": "6951b5bd-276b-5eb4-adca-71ee67a0b7ee",
+    "priorPairId": "0ca7d4e7-aa30-589d-8379-693de96fa461",
+    "exactQuestion": false
+  },
+  {
+    "id": "e077c999-6f86-5122-b81f-a2280ec6de2a",
+    "priorPairId": "09e7761f-dc12-5dec-9ea1-d01ef98c48e9",
+    "exactQuestion": false
+  },
+  {
+    "id": "1ecf95ed-55a1-56b0-9971-13dbe52bcc84",
+    "priorPairId": "ba87d469-ec2e-5a8f-95e8-b3065f20b584",
+    "exactQuestion": true
+  },
+  {
+    "id": "f42921be-dcd2-5cb1-9447-eaa34fb8db08",
+    "priorPairId": "4a3d7d7a-61f7-5b18-92a0-4fc16cc69fbb",
+    "exactQuestion": true
+  },
+  {
+    "id": "e1a8d0ed-9897-55d8-b77d-7441389e2418",
+    "priorPairId": "fc8e8f7b-7138-5529-9730-6ecc07274f61",
+    "exactQuestion": true
+  },
+  {
+    "id": "517dbc08-de63-54f0-bc18-07f1e2347c09",
+    "priorPairId": "0ca7d4e7-aa30-589d-8379-693de96fa461",
+    "exactQuestion": false
+  },
+  {
+    "id": "84c8ebef-336e-50d8-9986-9db880d844f3",
+    "priorPairId": "799a7559-a3b1-5dc3-bec3-54d5e930fd24",
+    "exactQuestion": true
+  },
+  {
+    "id": "6c214deb-96b4-5152-801c-7b296182273e",
+    "priorPairId": "c1891f8b-2cce-52b7-868c-6c072e79701e",
+    "exactQuestion": true
+  },
+  {
+    "id": "31b7f739-8ebf-5565-9cc8-dbe81a71d1f0",
+    "priorPairId": "09e7761f-dc12-5dec-9ea1-d01ef98c48e9",
+    "exactQuestion": false
+  },
+  {
+    "id": "bbdcd0e8-c9f8-5d3d-bf42-7bd74bd75273",
+    "priorPairId": "a4eff39a-4f2e-5cee-a6de-b8e74625269f",
+    "exactQuestion": true
+  },
+  {
+    "id": "6980179e-3e16-591f-8fbe-28adb5276913",
+    "priorPairId": "09e7761f-dc12-5dec-9ea1-d01ef98c48e9",
+    "exactQuestion": false
+  },
+  {
+    "id": "e507c24c-268f-57b3-ae82-115141c2cb01",
+    "priorPairId": "ef75bc50-4262-58cc-82f4-8d3c5bcac8db",
+    "exactQuestion": true
+  },
+  {
+    "id": "575b2175-e75b-5f1a-ba75-8fa7a1e44f90",
+    "priorPairId": "d61248f3-8e80-5097-8892-10c086a492d2",
+    "exactQuestion": true
+  },
+  {
+    "id": "1fe12a85-7578-5aa3-886b-f904ce1853bb",
+    "priorPairId": "09e7761f-dc12-5dec-9ea1-d01ef98c48e9",
+    "exactQuestion": false
+  },
+  {
+    "id": "2d8c67f5-af09-5cc8-9411-896ab18465ae",
+    "priorPairId": "23d52920-6399-512a-a040-a8c27817c92f",
+    "exactQuestion": false
+  },
+  {
+    "id": "d3bc5a4b-e915-5d5d-b275-02b1a75440c5",
+    "priorPairId": "bd8ba4d9-624a-5dc9-a6ae-19c122b406ae",
+    "exactQuestion": true
+  },
+  {
+    "id": "f1891276-ff88-5171-8720-61908bff5e77",
+    "priorPairId": "aaf21925-4fcc-5841-b6e5-9afdf75a3b2e",
+    "exactQuestion": true
+  },
+  {
+    "id": "ecbe99cb-c455-5048-88a2-a454d7a88dd8",
+    "priorPairId": "23d52920-6399-512a-a040-a8c27817c92f",
+    "exactQuestion": false
+  },
+  {
+    "id": "b29e3027-00b8-5e06-8b51-aeed1a2e4bdb",
+    "priorPairId": "0ca7d4e7-aa30-589d-8379-693de96fa461",
+    "exactQuestion": false
+  },
+  {
+    "id": "851b5544-7fc0-5faa-940e-53e0ff149516",
+    "priorPairId": "9536d58f-8a88-53be-b97e-45bb2d457c12",
+    "exactQuestion": true
+  },
+  {
+    "id": "a28a8dae-78a7-51a7-a46f-84a6e502068d",
+    "priorPairId": "0ca7d4e7-aa30-589d-8379-693de96fa461",
+    "exactQuestion": false
+  },
+  {
+    "id": "b7b8f64a-17d5-531f-8316-529780f38835",
+    "priorPairId": "0ca7d4e7-aa30-589d-8379-693de96fa461",
+    "exactQuestion": false
+  },
+  {
+    "id": "7fe4be8f-4474-50cf-b63a-d27c4c89b5ad",
+    "priorPairId": "f4d82670-344b-5dc0-ae56-2c080407a972",
+    "exactQuestion": true
+  },
+  {
+    "id": "eb39387a-e83c-5cc7-92f7-189a5e71bf26",
+    "priorPairId": "0f999ea7-10a1-5b85-a175-b86d50338266",
+    "exactQuestion": true
+  },
+  {
+    "id": "8f0957be-a10d-53b8-b4bd-e7618166b15a",
+    "priorPairId": "23d52920-6399-512a-a040-a8c27817c92f",
+    "exactQuestion": false
+  },
+  {
+    "id": "4e42fb58-f8e7-5d33-9585-73aa84d37ba2",
+    "priorPairId": "0ca7d4e7-aa30-589d-8379-693de96fa461",
+    "exactQuestion": false
+  },
+  {
+    "id": "94e42627-3519-52bb-876d-b00b3c1a19c7",
+    "priorPairId": "336452fa-776b-5de9-98c8-2a6685d840fa",
+    "exactQuestion": true
+  },
+  {
+    "id": "05486722-2636-561f-8ced-da2dc54d7a0b",
+    "priorPairId": "be6b6818-ae30-57de-9c58-418073c98259",
+    "exactQuestion": true
+  },
+  {
+    "id": "117a9c12-ecbc-5f3b-8782-8a3a48ba5045",
+    "priorPairId": "09e7761f-dc12-5dec-9ea1-d01ef98c48e9",
+    "exactQuestion": false
+  },
+  {
+    "id": "b93bad87-ed35-51a9-a6cd-aa625936a587",
+    "priorPairId": "e8f304d3-029a-5738-84eb-1268268a44da",
+    "exactQuestion": true
+  },
+  {
+    "id": "27317c1e-afa4-5bc5-9e3a-e3284ddcf520",
+    "priorPairId": "fdc57db0-8efc-5258-8a61-d514c7e73885",
+    "exactQuestion": true
+  },
+  {
+    "id": "91153c56-2e30-572d-8e1e-fd5477d01873",
+    "priorPairId": "0ca7d4e7-aa30-589d-8379-693de96fa461",
+    "exactQuestion": false
+  },
+  {
+    "id": "d1ac1dc9-a0cc-5378-8762-7807e505f7c7",
+    "priorPairId": "09e7761f-dc12-5dec-9ea1-d01ef98c48e9",
+    "exactQuestion": false
+  },
+  {
+    "id": "ec856c1c-561e-5126-859d-8bed57994ef9",
+    "priorPairId": "23d52920-6399-512a-a040-a8c27817c92f",
+    "exactQuestion": false
+  },
+  {
+    "id": "6c37bc34-c86f-5efa-b67e-562bca60693e",
+    "priorPairId": "32d05d76-f530-51da-b722-7a780136628f",
+    "exactQuestion": true
+  },
+  {
+    "id": "de0c73f6-8223-5496-8067-bb315baeb1e5",
+    "priorPairId": "d9d2249e-684a-53c7-8183-36f663b1947f",
+    "exactQuestion": true
+  },
+  {
+    "id": "2092f9af-bcef-594c-9394-b26f14dcb911",
+    "priorPairId": "0ca7d4e7-aa30-589d-8379-693de96fa461",
+    "exactQuestion": false
+  },
+  {
+    "id": "10f5a8c0-027a-5e03-aa0f-4a2138cbf846",
+    "priorPairId": "77acd9dc-41c9-55cf-b1ff-a5fd5b20bfd8",
+    "exactQuestion": true
+  },
+  {
+    "id": "9461f002-1439-51fd-9531-36f752f3f1e4",
+    "priorPairId": "a3f45559-827d-53c5-9f1b-200ea1876ac8",
+    "exactQuestion": true
+  },
+  {
+    "id": "9b221464-e10d-55e7-b3a8-b505fe52f456",
+    "priorPairId": "c5b7580d-a60f-5cb0-bc3b-0e01afda4e20",
+    "exactQuestion": true
+  },
+  {
+    "id": "8dabc38e-719c-56f0-92e6-dd923f9c7c79",
+    "priorPairId": "23d52920-6399-512a-a040-a8c27817c92f",
+    "exactQuestion": false
+  },
+  {
+    "id": "0f03ad86-bab9-5804-8b7d-e366a96e3ef6",
+    "priorPairId": "23d52920-6399-512a-a040-a8c27817c92f",
+    "exactQuestion": false
+  },
+  {
+    "id": "9385556d-af0c-5923-9190-3e938f3f1703",
+    "priorPairId": "a7293376-222f-517a-b998-0ec8994cc227",
+    "exactQuestion": true
+  },
+  {
+    "id": "a4c0202d-9927-5250-b1cf-70ed40a2e992",
+    "priorPairId": "ff5f3ce7-1423-5df5-922d-644070dfaea0",
+    "exactQuestion": true
+  },
+  {
+    "id": "e316a479-8915-5b9b-bc3b-d53267f8b66a",
+    "priorPairId": "a33481f3-edb0-54f4-89e5-12017561abd0",
+    "exactQuestion": true
+  },
+  {
+    "id": "c946a7cc-ef7b-57e0-9b01-76ca9f508dfa",
+    "priorPairId": "14c5f015-d741-5cbc-8d42-864b58da36b7",
+    "exactQuestion": true
+  },
+  {
+    "id": "35abf0af-4d34-54d4-84e7-e9e4c313b886",
+    "priorPairId": "09e7761f-dc12-5dec-9ea1-d01ef98c48e9",
+    "exactQuestion": false
+  },
+  {
+    "id": "86d3d9db-2af1-541c-8f8b-da2aef85c544",
+    "priorPairId": "0ca7d4e7-aa30-589d-8379-693de96fa461",
+    "exactQuestion": false
+  },
+  {
+    "id": "9fb1c9fc-ef64-5ceb-97b4-cf17019f0455",
+    "priorPairId": "0ca7d4e7-aa30-589d-8379-693de96fa461",
+    "exactQuestion": false
+  },
+  {
+    "id": "12888fdc-45bf-556f-a19e-a7839ecd89b5",
+    "priorPairId": "0ca7d4e7-aa30-589d-8379-693de96fa461",
+    "exactQuestion": false
+  },
+  {
+    "id": "3be7f975-9f0b-51d0-a360-9dc7487e8f4f",
+    "priorPairId": "f805817d-968d-5b0b-a2b2-4c62c9b848d3",
+    "exactQuestion": true
+  },
+  {
+    "id": "c1014856-06fa-5e08-a852-0277483dfec4",
+    "priorPairId": "7c09b9ef-6dfe-5792-aa35-f4c921519839",
+    "exactQuestion": true
+  },
+  {
+    "id": "0f60f2b6-3f29-5063-8477-5579e8b59654",
+    "priorPairId": "23d52920-6399-512a-a040-a8c27817c92f",
+    "exactQuestion": false
+  },
+  {
+    "id": "4f52067b-327b-5105-ad62-6c6a39f0b3a3",
+    "priorPairId": "09e7761f-dc12-5dec-9ea1-d01ef98c48e9",
+    "exactQuestion": false
+  },
+  {
+    "id": "b250a054-a279-5675-8907-0779ba8f2bde",
+    "priorPairId": "0ca7d4e7-aa30-589d-8379-693de96fa461",
+    "exactQuestion": false
+  },
+  {
+    "id": "5c957188-3c39-5ba7-b0d6-91c31eb7594c",
+    "priorPairId": "09e7761f-dc12-5dec-9ea1-d01ef98c48e9",
+    "exactQuestion": false
+  },
+  {
+    "id": "783f7a73-f3a7-5985-b4c7-1684db85618e",
+    "priorPairId": "12684959-2d5c-5dd7-8166-cf6dd83e6ef2",
+    "exactQuestion": true
+  },
+  {
+    "id": "2122366f-64bb-5bcd-bf3a-c5a26b7fcc91",
+    "priorPairId": "23d52920-6399-512a-a040-a8c27817c92f",
+    "exactQuestion": false
+  },
+  {
+    "id": "7479006a-569e-5524-b6fe-4d30592fe1b0",
+    "priorPairId": "ff0ed36d-26d0-5968-b604-f9ca19372834",
+    "exactQuestion": true
+  },
+  {
+    "id": "3ca791e5-75b4-5172-bc59-14c5b21c60a1",
+    "priorPairId": "aecacdc0-1dfc-5339-b6c7-eea5baa1471d",
+    "exactQuestion": true
+  },
+  {
+    "id": "b32d38b3-0ead-582d-b906-1f620006ee98",
+    "priorPairId": "c7bb7c2b-6fb2-5254-a773-9046ca946006",
+    "exactQuestion": true
+  },
+  {
+    "id": "dc1df9a6-ac72-5834-bf91-c324da3d88ed",
+    "priorPairId": "ea56946d-14fb-5016-9550-1216f26856f5",
+    "exactQuestion": true
+  },
+  {
+    "id": "40dd9450-0c15-5b3a-9541-30dd80541738",
+    "priorPairId": "0ca7d4e7-aa30-589d-8379-693de96fa461",
+    "exactQuestion": false
+  },
+  {
+    "id": "39f0127b-4e2b-5249-b7b7-7ded49afb7f5",
+    "priorPairId": "0ca7d4e7-aa30-589d-8379-693de96fa461",
+    "exactQuestion": false
+  },
+  {
+    "id": "94deac65-af70-5be8-9dc1-fc90cb2a9860",
+    "priorPairId": "87441abb-f436-5d0f-b92b-355e3f249c9d",
+    "exactQuestion": true
+  },
+  {
+    "id": "4f9f8288-4e9e-553d-b444-1b9441c537e1",
+    "priorPairId": "b958ea91-8f2a-55be-8c8b-d61cf90f5076",
+    "exactQuestion": true
+  },
+  {
+    "id": "6c05f377-4e93-596e-9631-05d39a75656f",
+    "priorPairId": "9d94bfdf-55a6-506d-a64d-1f7951381e60",
+    "exactQuestion": true
+  },
+  {
+    "id": "99431525-4db9-5601-ba74-0fe035a74684",
+    "priorPairId": "b706543e-e966-57a8-9708-be90ff13312b",
+    "exactQuestion": true
+  },
+  {
+    "id": "45f64318-387f-5fd4-8819-f39701a7c93b",
+    "priorPairId": "09e7761f-dc12-5dec-9ea1-d01ef98c48e9",
+    "exactQuestion": false
+  },
+  {
+    "id": "e07001e9-2961-50e0-99b8-4d3433716c65",
+    "priorPairId": "3c6f3a85-c058-543a-8226-852972410970",
+    "exactQuestion": true
+  }
+]
