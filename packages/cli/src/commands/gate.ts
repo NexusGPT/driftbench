@@ -29,6 +29,7 @@ import {
 } from '@agent-nexus/driftbench-generate';
 import { localProvider } from '@agent-nexus/driftbench-sandbox';
 import type { Command } from 'commander';
+import { exists } from '../files';
 import type { Io } from '../io';
 import { optionNumber } from '../number';
 import { type CampaignScope, defaultDeps, parseTarget, showTarget } from './campaign';
@@ -408,15 +409,6 @@ function share(text: string | undefined, name: string, fallback: number): number
     return `--${name} must be a number from 0 to 1, got "${text}".`;
   }
   return value;
-}
-
-async function exists(path: string): Promise<boolean> {
-  try {
-    await stat(path);
-    return true;
-  } catch {
-    return false;
-  }
 }
 
 async function isFolder(path: string): Promise<boolean> {

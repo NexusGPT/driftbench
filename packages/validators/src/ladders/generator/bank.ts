@@ -12,6 +12,7 @@ import {
   type BlockRun,
   type Generation,
   type GeneratorParts,
+  generatedCells,
   generateFrom,
   generation,
   killsUnder,
@@ -536,8 +537,7 @@ function differentialItems(): BankItem[] {
       component: C.feasible,
       async check(data) {
         const generated = await data.generated();
-        const runs = await data.runs();
-        const bad = runs.blocks
+        const bad = generatedCells(generated)
           .filter((block) => block.seeder === seeder)
           .flatMap((block) => {
             const why = forbidden(generated.hidden, block.cell);

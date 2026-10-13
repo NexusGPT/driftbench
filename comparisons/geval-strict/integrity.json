@@ -1,0 +1,15 @@
+{
+  "featureSourceCommit": "b97fe578",
+  "calls": 324,
+  "heldoutInvocations": 72,
+  "heldoutInvocationErrors": 0,
+  "samePackageSourcesForFinalTuningAndHeldout": true,
+  "sourceDigestsMatchCurrentTree": true,
+  "uniqueInvocationDigests": true,
+  "observedModels": [
+    "claude-haiku-5-5"
+  ],
+  "reportedCostUsd": 0.1519128,
+  "conservativeReservationsUsd": 0.1,
+  "accountedCostUsd": 0.2519128
+}

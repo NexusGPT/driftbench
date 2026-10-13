@@ -10,7 +10,7 @@ describe('context compaction names', () => {
     'When the conversation is summarised, reread the invoice.',
     'The supplier conversation is summarized for a report; then our context window fills up.',
   ])('reads the runtime event in %s', async (line) => {
-    const root = await estate({ 'CLAUDE.md': '# Instructions\n' + line });
+    const root = await estate({ 'CLAUDE.md': `# Instructions\n${line}` });
     const { map } = await scanEstate({ root, reader: new ClaudeCodeReader(), now: NOW });
     expect(map.atoms.filter((a) => a.kind === 'hazard')).toMatchObject([
       { fields: { hazard: 'compaction' }, provenance: { quote: line } },
