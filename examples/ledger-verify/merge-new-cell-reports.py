@@ -15,7 +15,7 @@ def main():
  supplement=supplement.split('\n## Additional Sonnet and Sol cells',1)[0]
  sections=['\n## Additional Sonnet and Sol cells\n',
  '- Separate model cells use the same sealed 221 items, unchanged audit map, frozen contestants, 20-item pilot, 48 mutations and 30-by-3 noise checks.',
- '- Sol has a 25 USD cap. Sonnet has an owner-authorized 45 USD cap only if its five cache-disabled DEV calls project at most 45 USD, including calibration fees and holds.',
+ '- Sol has an owner-authorized 40 USD cap including holds. Sonnet has an owner-authorized 45 USD cap only if its five cache-disabled DEV calls project at most 45 USD, including calibration fees and holds.',
  '- Sonnet preserves its first five cached answers and their 57.413792 USD projection. Five next unanswered DEV requests remeasure cost with DISABLE_PROMPT_CACHING=1 for both contestants.',
  '- Both contestants use medium reasoning. Sonnet uses alias sonnet in the lean empty-directory CLI route; Sol uses the Responses API without temperature.',
  '- Sonnet caps total output including thinking at 16384 tokens. Sol caps total output including reasoning at 32768 tokens. Output-limit items remain errors under the strict headline.',
@@ -37,7 +37,7 @@ def main():
   status=final['status'] if final else progress['status']
   sections.append(f"| {model} | {status} | {gate['costUsd']:.8f} | {gate['projected379UnitsUsd']:.8f} | {settled:.8f} | {held:.8f} | {folder}/ |" if gate else f'| {model} | {status} | pending | pending | {settled:.8f} | {held:.8f} | {folder}/ |')
   original['newModelFees'][model]=dict(settledUsd=settled,unresolvedMaximumUsd=held,maximumAccountedUsd=settled+held,capUsd=cap)
-  for name in ['model-amendment.json','runtime-freeze.json','reporting-freeze.json','cost-sample.json','pilot-projection.json','cache-off-amendment.json','cache-off-cost-selection.json','cache-off-cost-sample.json','cap45-activation.json','refusal-amendment.json','native-quota-amendment.json','native-quota-recovery.json','native-quota-continuation.json']:
+  for name in ['model-amendment.json','runtime-freeze.json','reporting-freeze.json','cost-sample.json','pilot-projection.json','cache-off-amendment.json','cache-off-cost-selection.json','cache-off-cost-sample.json','cap45-activation.json','cap40-amendment.json','refusal-amendment.json','native-quota-amendment.json','native-quota-recovery.json','native-quota-continuation.json']:
    p=base/'evidence'/name
    if p.exists():original['freeze']['hashes'][f'{folder}/evidence/{name}']=hashlib.sha256(p.read_bytes()).hexdigest()
   if gate:
@@ -95,7 +95,7 @@ def main():
    cost=cell['costPer100UniqueKeys'][c]*221/100;limits=cell['outputLimitErrors'][c]['test']['answerEnvelopes']
    sections.append(f"| {entry['model']} | {c} | {baseline} | {cost:.8f} | {entry['costs'].get(c,0):.8f} | {missing(strict)} / {missing(product)} | {limits} | {cell.get('refusalErrors',{}).get(c,{}).get('test',{}).get('answerEnvelopes',0)} | {cell.get('refusalErrors',{}).get(c,{}).get('test',{}).get('affectedItems',0)} |")
   sections.append(f"\n{entry['model']}: unattributed settled cost {entry['unassignedUsd']:.8f} USD. Exact tokens and receipt attribution: evidence/cells.json newModelCostAttribution.\n")
- sections+=['','Native-refusal rule fixed after the Sonnet pilot and before TEST. No original product verdict changes. A native refusal is terminal at any token count and is never recovered as a transport no-answer. Strict scoring counts every consuming contestant/item as an error; product-final retains the frozen product fallback. The rule applies identically to both contestants.','','| Model | Contestant | TEST refusal responses | TEST refused items | All-phase refusal responses | All-phase refused items |','|---|---|---|---|---|---|']
+ sections+=['','Native-refusal rule fixed after the Sonnet pilot and before TEST. No pilot verdict changed. Original product verdicts remain unchanged. A native refusal is terminal at any token count and is never recovered as a transport no-answer. Strict scoring counts every consuming contestant/item as an error; product-final retains the frozen product fallback. The rule applies identically to both contestants.','','| Model | Contestant | TEST refusal responses | TEST refused items | All-phase refusal responses | All-phase refused items |','|---|---|---|---|---|---|']
  for model,folder in MODELS.items():
   p=BASE/folder/'evidence/output-limit-errors.json'
   if not p.exists():continue
@@ -110,6 +110,7 @@ def main():
  result=(BASE/'REPORT.md').read_text()+supplement+'\n'.join(sections)
  result=result.replace('Holm correction belongs to the prespecified 18-cell family and remains pending at this handoff. No local WIN or overall superiority claim is made.','The original three models belong to the prespecified 18-cell family. Flash Lite, Sonnet and Sol are additional cells. Multiplicity adjustment remains pending with the collator. No overall superiority claim is made.')
  result=result.replace('Settled fees:', 'Original three-model budget, settled fees:')
+ result=result.replace('Strict is the headline: any output-limit hit makes the affected contestant/item an error, even if a later fallback returns a verdict.', 'Strict is the headline: any output-limit hit makes the affected contestant/item an error, even if a later fallback returns a verdict. For the additional Sonnet and Sol cells, any native refusal is also an error, at any token count.')
  result=result.replace('- The pacing amendment replaces the earlier global four-call limit: gpt-6-luna permits eight HTTP calls, Gemini two, and native Haiku two.', '- Current admission: two calls and one model cell at a time, after ten healthy provider probes spaced 30 seconds apart. Gemini 3.8 remains parked.')
  result=result.replace('| gemini-3.8-flash | pending | pending | pending | pending | pending | pending | pending | TEST pending |', '| gemini-3.8-flash | not run: daily quota (0/221) | not run: daily quota (0/221) | 0 / 0 (not run) | pending | pending | pending | pending | owner-only restart |')
  result=result.replace('| gemini-3.8-flash | 20 items; missing 0/0 | 48 items; missing 0/0 | 30 items; missing 0/0 | 30 items; missing 0/0 | 30 items; missing 0/10; stopped | pending |', '| gemini-3.8-flash | 20 items; missing 0/0 | 48 items; missing 0/0 | 30 items; missing 0/0 | 30 items; missing 0/0 | 30 cascade, 20 peer; 10 quota pending | not run: daily quota, 0/221 each |')

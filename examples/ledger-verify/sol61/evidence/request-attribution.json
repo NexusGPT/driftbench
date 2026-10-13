@@ -1,0 +1,51 @@
+{
+  "scope": "Five DEV cost-calibration calls only; pilot not started",
+  "rows": [
+    {
+      "model": "gpt-6.1-sol",
+      "phase": "pilot",
+      "fingerprint": "536441971ffa6c79ec838d8ecf8b3be02c7729fcbdd3d7a8cb3200526f4e24ef",
+      "bench": "longjudge-verify",
+      "contestant": "driftbench-verify-uncertainty-cascade",
+      "item": "002ba0331c11a198784abdfff1d7b8fb_936d37ed03db3340809ca9409508b906",
+      "order": "program"
+    },
+    {
+      "model": "gpt-6.1-sol",
+      "phase": "pilot",
+      "fingerprint": "e5d2ff358f9ad26279a34a806857fe54643400c41bd29614bbdc855e211cb6cc",
+      "bench": "longjudge-verify",
+      "contestant": "driftbench-verify-uncertainty-cascade",
+      "item": "002ba0331c11a198784abdfff1d7b8fb_936d37ed03db3340809ca9409508b906",
+      "order": "blind-direct-program"
+    },
+    {
+      "model": "gpt-6.1-sol",
+      "phase": "pilot",
+      "fingerprint": "c41fe3fe80a77aecc9e8e1cadf4abedea1907c79419e3cd3529a3ff0a22deeb4",
+      "bench": "longjudge-verify",
+      "contestant": "driftbench-verify-uncertainty-cascade",
+      "item": "002ba0331c11a198784abdfff1d7b8fb_936d37ed03db3340809ca9409508b906",
+      "order": "single"
+    },
+    {
+      "model": "gpt-6.1-sol",
+      "phase": "pilot",
+      "fingerprint": "e7fea8eb3abeb9745cb16b56d37e286d49461dedc935d57aeb3444ffaf6a8c8e",
+      "bench": "longjudge-verify",
+      "contestant": "promptfoo",
+      "item": "002ba0331c11a198784abdfff1d7b8fb_936d37ed03db3340809ca9409508b906",
+      "order": "single"
+    },
+    {
+      "model": "gpt-6.1-sol",
+      "phase": "pilot",
+      "fingerprint": "2e49d7240d2e99c31da6834a8a62159df95507e4910c6e4db06358a07431b582",
+      "bench": "longjudge-verify",
+      "contestant": "promptfoo",
+      "item": "00a93c5457ba7180f88944780f9134a0_773a31d04e4d41c29af003fb95f3b960",
+      "order": "single"
+    }
+  ],
+  "newModelCalls": 0
+}

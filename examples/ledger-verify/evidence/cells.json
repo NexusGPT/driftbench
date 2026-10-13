@@ -2501,7 +2501,7 @@
       "sonnet/evidence/cache-off-amendment.json": "d4f4d057bd41d197b8d69189358882b09d3594f81e6aae0ce8f74a7e4b49b01a",
       "sonnet/evidence/cache-off-cost-selection.json": "cb4dfb0b06dd180ffa0941973fb2e4ff8a9f017e1d6b82b160a2edda5cafe246",
       "sol61/evidence/model-amendment.json": "5112f06d9111c55b8468f4d78e2626284d77ff2415bbd7df3f80520d5945f913",
-      "sol61/evidence/runtime-freeze.json": "70ec1c2cbd79b2315ae57e3c8e75f3a41e939ed7cfa1fb72e909ec9ae23b7bd1",
+      "sol61/evidence/runtime-freeze.json": "d38442e3c699198cc9a071302ed4fb412104950c7205b3acd5c9db07297ea180",
       "sol61/evidence/reporting-freeze.json": "5c1387e3fcf96b93710a378990af83b97dac82e971d4a8e39b97e6762dedd685",
       "sonnet/evidence/cache-off-cost-sample.json": "b415b3b1cecef4c287a680d040d331065ad5900924c6f4e8cdb01a90852aaa6b",
       "sonnet/evidence/cap45-activation.json": "09e2e68e7c4b20e5f08a87274d64a9750247ad8b44c5dbbd7a94118d85a4de5e",
@@ -2512,10 +2512,11 @@
       "sonnet/evidence/native-quota-recovery.json": "597f79da24cf9c1109aecdd728e896ccdb282385a9db4b5ae1ef41bd52dbb1d1",
       "sol61/evidence/cost-sample.json": "115c6295036bfa42ce0f17e75b2672849de2960120c3290383e8679319ee2d29",
       "sol61/evidence/native-quota-amendment.json": "bb43781ed864b81ccb10bc2b71dd4c680403f37770e4c8e444c54cc22151ffe3",
-      "sonnet/evidence/native-quota-continuation.json": "b8a15aa52dec33c1cd0df73de6876943af36edb56fd52c9bd0a0e4d9e9898286"
+      "sonnet/evidence/native-quota-continuation.json": "6fb49ee6f4d3eecafc39192e0b38b65b30bdee57e7ef6b7dbab21570763156f6",
+      "sol61/evidence/cap40-amendment.json": "22eeffc5b8a5d06eab2c3db67c570f9b07ff527dd015f55ed8dabc1a4ec2a554"
     }
   },
-  "at": "2026-10-13T16:46:57.622386+00:00",
+  "at": "2026-10-13T16:51:51.544842+00:00",
   "cheaterGateAuditFile": "evidence/cheater-gate-audit.json",
   "predeclaredCheaterMarginEstablished": false,
   "lunaFeeReconciliation": {
@@ -8359,16 +8360,16 @@
   },
   "newModelFees": {
     "claude-sonnet-5-5": {
-      "settledUsd": 3.242178000000002,
-      "unresolvedMaximumUsd": 0,
-      "maximumAccountedUsd": 3.242178000000002,
+      "settledUsd": 3.6015500000000027,
+      "unresolvedMaximumUsd": 1.0,
+      "maximumAccountedUsd": 4.601550000000003,
       "capUsd": 45
     },
     "gpt-6.1-sol": {
       "settledUsd": 0.069661,
       "unresolvedMaximumUsd": 0,
       "maximumAccountedUsd": 0.069661,
-      "capUsd": 25
+      "capUsd": 40
     }
   },
   "newModelCostAttribution": []

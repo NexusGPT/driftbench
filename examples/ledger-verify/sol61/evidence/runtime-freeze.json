@@ -12,7 +12,7 @@
   },
   "geminiAuthorization": "Gemini is authorized too (billing on, 180 s timeouts).",
   "deadlineAt": null,
-  "capUsd": 25,
+  "capUsd": 40,
   "modelConcurrency": {
     "gpt-6.1-sol": 2
   },
@@ -204,5 +204,9 @@
     "beforeTEST": true,
     "priorHash": "3a648da29b3c7a6ffe930910258ebea5a506e6a3810a4842435d7db4d5cbf1d2",
     "rule": "No-answer native quota recovers missing-only; no-provider preflight admission guards are listed separately from submitted missing requests. Refusals terminal at any token count."
+  },
+  "cap40Amendment": {
+    "at": "2026-10-13T16:51:25.581114+00:00",
+    "previousHash": "70ec1c2cbd79b2315ae57e3c8e75f3a41e939ed7cfa1fb72e909ec9ae23b7bd1"
   }
 }

@@ -1,6 +1,6 @@
 # LongJudge verify confirmation
 
-Evidence timestamp: 2026-10-13T16:46:57.622386+00:00.
+Evidence timestamp: 2026-10-13T16:51:51.544842+00:00.
 
 - Branch: research/ledger-verify. Core contract: PR 168 at 35f07309a4d1d1c8a7c5b176ff19e537d0ef8fdd.
 - All 221 TEST items are sealed. This is a previously evaluated split, not an unseen holdout.
@@ -12,7 +12,7 @@ Evidence timestamp: 2026-10-13T16:46:57.622386+00:00.
 ## Strict headline and product-final scores
 
 Accuracy intervals are Wilson 95%. Paired intervals use the frozen request-cluster bootstrap.
-Strict is the headline: any output-limit hit makes the affected contestant/item an error, even if a later fallback returns a verdict.
+Strict is the headline: any output-limit hit makes the affected contestant/item an error, even if a later fallback returns a verdict. For the additional Sonnet and Sol cells, any native refusal is also an error, at any token count.
 Product-final uses the verdict the frozen product returns, including its own fallback. Both rules apply equally to both contestants.
 Missing and unparsed final decisions count as wrong. An observed error is a measured outcome; a stopped run is provisional.
 The output-limit column counts observed TEST completion envelopes, cascade / promptfoo. Cached reuse can affect more items than envelopes.
@@ -165,7 +165,7 @@ Fee sources: receipts/budget.json and receipts/calls.jsonl. Historical replay co
 | sonnet/evidence/cache-off-amendment.json | d4f4d057bd41d197b8d69189358882b09d3594f81e6aae0ce8f74a7e4b49b01a |
 | sonnet/evidence/cache-off-cost-selection.json | cb4dfb0b06dd180ffa0941973fb2e4ff8a9f017e1d6b82b160a2edda5cafe246 |
 | sol61/evidence/model-amendment.json | 5112f06d9111c55b8468f4d78e2626284d77ff2415bbd7df3f80520d5945f913 |
-| sol61/evidence/runtime-freeze.json | 70ec1c2cbd79b2315ae57e3c8e75f3a41e939ed7cfa1fb72e909ec9ae23b7bd1 |
+| sol61/evidence/runtime-freeze.json | d38442e3c699198cc9a071302ed4fb412104950c7205b3acd5c9db07297ea180 |
 | sol61/evidence/reporting-freeze.json | 5c1387e3fcf96b93710a378990af83b97dac82e971d4a8e39b97e6762dedd685 |
 | sonnet/evidence/cache-off-cost-sample.json | b415b3b1cecef4c287a680d040d331065ad5900924c6f4e8cdb01a90852aaa6b |
 | sonnet/evidence/cap45-activation.json | 09e2e68e7c4b20e5f08a87274d64a9750247ad8b44c5dbbd7a94118d85a4de5e |
@@ -176,7 +176,8 @@ Fee sources: receipts/budget.json and receipts/calls.jsonl. Historical replay co
 | sonnet/evidence/native-quota-recovery.json | 597f79da24cf9c1109aecdd728e896ccdb282385a9db4b5ae1ef41bd52dbb1d1 |
 | sol61/evidence/cost-sample.json | 115c6295036bfa42ce0f17e75b2672849de2960120c3290383e8679319ee2d29 |
 | sol61/evidence/native-quota-amendment.json | bb43781ed864b81ccb10bc2b71dd4c680403f37770e4c8e444c54cc22151ffe3 |
-| sonnet/evidence/native-quota-continuation.json | b8a15aa52dec33c1cd0df73de6876943af36edb56fd52c9bd0a0e4d9e9898286 |
+| sonnet/evidence/native-quota-continuation.json | 6fb49ee6f4d3eecafc39192e0b38b65b30bdee57e7ef6b7dbab21570763156f6 |
+| sol61/evidence/cap40-amendment.json | 22eeffc5b8a5d06eab2c3db67c570f9b07ff527dd015f55ed8dabc1a4ec2a554 |
 
 Active runtime id: d49a333a9d4e6dd0ffd6. Frozen core: 35f07309a4d1d1c8a7c5b176ff19e537d0ef8fdd.
 Offline checks cover source/pool hashes, exact schemas, strict replay, fail-closed missing replay and restricted Python execution.
@@ -275,7 +276,7 @@ Sources: evidence/offline-checks.json, evidence/frozen-replay.json, test_stats.p
 ## Additional Sonnet and Sol cells
 
 - Separate model cells use the same sealed 221 items, unchanged audit map, frozen contestants, 20-item pilot, 48 mutations and 30-by-3 noise checks.
-- Sol has a 25 USD cap. Sonnet has an owner-authorized 45 USD cap only if its five cache-disabled DEV calls project at most 45 USD, including calibration fees and holds.
+- Sol has an owner-authorized 40 USD cap including holds. Sonnet has an owner-authorized 45 USD cap only if its five cache-disabled DEV calls project at most 45 USD, including calibration fees and holds.
 - Sonnet preserves its first five cached answers and their 57.413792 USD projection. Five next unanswered DEV requests remeasure cost with DISABLE_PROMPT_CACHING=1 for both contestants.
 - Both contestants use medium reasoning. Sonnet uses alias sonnet in the lean empty-directory CLI route; Sol uses the Responses API without temperature.
 - Sonnet caps total output including thinking at 16384 tokens. Sol caps total output including reasoning at 32768 tokens. Output-limit items remain errors under the strict headline.
@@ -286,8 +287,8 @@ Sources: evidence/offline-checks.json, evidence/frozen-replay.json, test_stats.p
 
 | Model | Status | Five-call cost USD | Projected 379-unit cost USD | Settled USD | Unknown holds USD | Evidence folder |
 |---|---|---|---|---|---|---|
-| claude-sonnet-5-5 | paused: native session quota | 0.06976800 | 29.08003000 | 3.24217800 | 0.00000000 | sonnet/ |
-| gpt-6.1-sol | paused: cost projection exceeds 25 USD | 0.06966100 | 36.19988950 | 0.06966100 | 0.00000000 | sol61/ |
+| claude-sonnet-5-5 | running | 0.06976800 | 29.08003000 | 3.60155000 | 1.00000000 | sonnet/ |
+| gpt-6.1-sol | authorized at 40 USD; waiting for Sonnet to finish | 0.06966100 | 36.19988950 | 0.06966100 | 0.00000000 | sol61/ |
 
 claude-sonnet-5-5 cost projection breakdown:
 
@@ -330,12 +331,14 @@ Projection uses the original full Luna request counts, with the highest sampled 
 | Model | Contestant | Constant-fail official / audited | TEST unique-key cost USD | All-phase attributed settled USD | TEST strict missing / product-final missing | TEST output-limit answers | TEST refusal responses | TEST refused items |
 |---|---|---|---|---|---|---|---|---|
 
-Native-refusal rule fixed after the Sonnet pilot and before TEST. No original product verdict changes. A native refusal is terminal at any token count and is never recovered as a transport no-answer. Strict scoring counts every consuming contestant/item as an error; product-final retains the frozen product fallback. The rule applies identically to both contestants.
+Native-refusal rule fixed after the Sonnet pilot and before TEST. No pilot verdict changed. Original product verdicts remain unchanged. A native refusal is terminal at any token count and is never recovered as a transport no-answer. Strict scoring counts every consuming contestant/item as an error; product-final retains the frozen product fallback. The rule applies identically to both contestants.
 
 | Model | Contestant | TEST refusal responses | TEST refused items | All-phase refusal responses | All-phase refused items |
 |---|---|---|---|---|---|
 | claude-sonnet-5-5 | driftbench-verify-uncertainty-cascade | pending | pending | 0 | 0 |
 | claude-sonnet-5-5 | promptfoo | pending | pending | 4 | 4 |
+| gpt-6.1-sol | driftbench-verify-uncertainty-cascade | pending | pending | 0 | 0 |
+| gpt-6.1-sol | promptfoo | pending | pending | 0 | 0 |
 
 Sources per model folder: evidence/model-amendment.json, evidence/cost-sample.json, evidence/cells.json, evidence/output-limit-errors.json and receipts/native/.
 Scores, paired exact p values and strict/product-final endpoints appear in the tables above for every completed cell. Pending cells have no sealed TEST score.
