@@ -18,8 +18,8 @@ import type { Atom, Edge } from '../schema';
  *   cites      a rule to a rule its words name by label
  *
  * How `enforces` is decided, by code, in this order (the method is recorded on the guard atom):
- *   1. registry: a check registry row names the guard's script and lists rule labels (R5) or quoted
- *      passages; a rule is enforced when its line carries the label or its quote holds the passage.
+ *   1. registry: a check registry row names the guard's script and lists rule labels (R5, in any case) or
+ *      quoted passages; a rule is enforced when its line carries the label or its quote holds the passage.
  *   2. id: the guard's own source says `Enforces: R3, R5` (or `enforces R3`), or cites a rule as `R#3`
  *      anywhere in its text; same label match (a rule labelled `R#3` has the label R3).
  *   3. quote: a string in the guard's source of at least 16 characters equals a rule's quote, or one holds
@@ -141,7 +141,8 @@ export function buildGraph(atoms: readonly Atom[], raw: RawEstate): Graph {
     const decl = raw.guards.find((candidate) => guardName(candidate) === guard.fields?.name);
     const row = decl ? registryRowOf(decl, raw.registry) : undefined;
     for (const entry of row?.enforces ?? []) {
-      if ('id' in entry) for (const rule of withLabel(entry.id)) take(rule, 'registry');
+      // A registry may write a label in lower case (`r5`); a rule's own label is always in capitals.
+      if ('id' in entry) for (const rule of withLabel(entry.id.toUpperCase())) take(rule, 'registry');
       else for (const rule of rules) if (holds(rule.provenance.quote, entry.quote)) take(rule, 'registry');
     }
     const script = typeof guard.fields?.script === 'string' ? files.get(guard.fields.script) : undefined;
