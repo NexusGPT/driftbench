@@ -1,0 +1,258 @@
+{
+  "spend": {
+    "knownUsd": 0,
+    "unknownReservedUsd": 0,
+    "capUsd": 20
+  },
+  "models": {
+    "haiku": {
+      "model": "haiku",
+      "status": "pending",
+      "matched": 0,
+      "planned": 600,
+      "phaseCounts": {},
+      "pilot": {
+        "model": "haiku",
+        "status": "pending",
+        "matched": 0,
+        "planned": 20
+      },
+      "usage": {
+        "fixture": {
+          "calls": 0,
+          "knownUsd": 0
+        },
+        "pilot": {
+          "calls": 0,
+          "knownUsd": 0
+        },
+        "noise": {
+          "calls": 0,
+          "knownUsd": 0
+        },
+        "validity": {
+          "calls": 0,
+          "knownUsd": 0
+        },
+        "test": {
+          "calls": 0,
+          "knownUsd": 0
+        }
+      },
+      "costPer100": {
+        "ledger": 0.0,
+        "promptfoo": 0.0
+      },
+      "noise": {
+        "ledger": {
+          "completeTriples": 0,
+          "plannedTriples": 30,
+          "itemsWithFlip": 0,
+          "flipRate": null,
+          "graderErrors": 0
+        },
+        "promptfoo": {
+          "completeTriples": 0,
+          "plannedTriples": 30,
+          "itemsWithFlip": 0,
+          "flipRate": null,
+          "graderErrors": 0
+        }
+      },
+      "validity": {
+        "swap": {
+          "matched": 0,
+          "same": 0,
+          "rate": null,
+          "required": 0.95,
+          "pass": false
+        },
+        "markdown": {
+          "matched": 0,
+          "same": 0,
+          "rate": null,
+          "required": 0.95,
+          "pass": false
+        },
+        "injection": {
+          "matched": 0,
+          "same": 0,
+          "rate": null,
+          "required": 1,
+          "pass": false
+        },
+        "changed-final": {
+          "matched": 0,
+          "correctFlips": 0,
+          "pass": false
+        }
+      }
+    },
+    "gpt-6-luna": {
+      "model": "gpt-6-luna",
+      "status": "pending",
+      "matched": 0,
+      "planned": 600,
+      "phaseCounts": {},
+      "pilot": {
+        "model": "gpt-6-luna",
+        "status": "pending",
+        "matched": 0,
+        "planned": 20
+      },
+      "usage": {
+        "fixture": {
+          "calls": 0,
+          "knownUsd": 0
+        },
+        "pilot": {
+          "calls": 0,
+          "knownUsd": 0
+        },
+        "noise": {
+          "calls": 0,
+          "knownUsd": 0
+        },
+        "validity": {
+          "calls": 0,
+          "knownUsd": 0
+        },
+        "test": {
+          "calls": 0,
+          "knownUsd": 0
+        }
+      },
+      "costPer100": {
+        "ledger": 0.0,
+        "promptfoo": 0.0
+      },
+      "noise": {
+        "ledger": {
+          "completeTriples": 0,
+          "plannedTriples": 30,
+          "itemsWithFlip": 0,
+          "flipRate": null,
+          "graderErrors": 0
+        },
+        "promptfoo": {
+          "completeTriples": 0,
+          "plannedTriples": 30,
+          "itemsWithFlip": 0,
+          "flipRate": null,
+          "graderErrors": 0
+        }
+      },
+      "validity": {
+        "swap": {
+          "matched": 0,
+          "same": 0,
+          "rate": null,
+          "required": 0.95,
+          "pass": false
+        },
+        "markdown": {
+          "matched": 0,
+          "same": 0,
+          "rate": null,
+          "required": 0.95,
+          "pass": false
+        },
+        "injection": {
+          "matched": 0,
+          "same": 0,
+          "rate": null,
+          "required": 1,
+          "pass": false
+        },
+        "changed-final": {
+          "matched": 0,
+          "correctFlips": 0,
+          "pass": false
+        }
+      }
+    },
+    "gemini-3.8-flash": {
+      "model": "gemini-3.8-flash",
+      "status": "pending",
+      "matched": 0,
+      "planned": 600,
+      "phaseCounts": {},
+      "pilot": {
+        "model": "gemini-3.8-flash",
+        "status": "pending",
+        "matched": 0,
+        "planned": 20
+      },
+      "usage": {
+        "fixture": {
+          "calls": 0,
+          "knownUsd": 0
+        },
+        "pilot": {
+          "calls": 0,
+          "knownUsd": 0
+        },
+        "noise": {
+          "calls": 0,
+          "knownUsd": 0
+        },
+        "validity": {
+          "calls": 0,
+          "knownUsd": 0
+        },
+        "test": {
+          "calls": 0,
+          "knownUsd": 0
+        }
+      },
+      "costPer100": {
+        "ledger": 0.0,
+        "promptfoo": 0.0
+      },
+      "noise": {
+        "ledger": {
+          "completeTriples": 0,
+          "plannedTriples": 30,
+          "itemsWithFlip": 0,
+          "flipRate": null,
+          "graderErrors": 0
+        },
+        "promptfoo": {
+          "completeTriples": 0,
+          "plannedTriples": 30,
+          "itemsWithFlip": 0,
+          "flipRate": null,
+          "graderErrors": 0
+        }
+      },
+      "validity": {
+        "swap": {
+          "matched": 0,
+          "same": 0,
+          "rate": null,
+          "required": 0.95,
+          "pass": false
+        },
+        "markdown": {
+          "matched": 0,
+          "same": 0,
+          "rate": null,
+          "required": 0.95,
+          "pass": false
+        },
+        "injection": {
+          "matched": 0,
+          "same": 0,
+          "rate": null,
+          "required": 1,
+          "pass": false
+        },
+        "changed-final": {
+          "matched": 0,
+          "correctFlips": 0,
+          "pass": false
+        }
+      }
+    }
+  }
+}
