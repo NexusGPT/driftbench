@@ -27,6 +27,8 @@
     "comparisons/langfuse/hard/run.py": "efbc56c55ada3cd40b5fd3d8fcaf1c6bf94419b5a8c07d2031732c1e79939a81",
     "comparisons/promptfoo/hard/candidate-freeze.json": "0b3312d67cdd8cff58dde7c78bc085ab99ab83610c527046643d77ecb8e94bee",
     "comparisons/promptfoo/hard/run.py": "84f25edbca4dec01c53d96802ab9fe1f507f8713fd3af189d427d4a1d80f1606",
-    "comparisons/astra-hard/preregistration.json": "b5f436ed51cbb9f7edeb51115c2714434d060732a2847658d7178ea21f070571"
+    "comparisons/astra-hard/preregistration.json": "b5f436ed51cbb9f7edeb51115c2714434d060732a2847658d7178ea21f070571",
+    "comparisons/astra-hard/candidates/README.md": "c1e79f715d780a659205eb681bdeb9ea9c4f24c2812967618092e947d0fbc6c9",
+    "comparisons/astra-hard/candidates/score.py": "07c2cd7789a4d598dd8a7aef565a09aac23e104f8c4d8e0be16c26032484a4d2"
   }
 }
