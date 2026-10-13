@@ -56,11 +56,11 @@
   },
   "parentFreezeSha256": "c10437448cf3d17ead724ac4b12c4d2075787fa764711872a66d16f1748d41b0",
   "files": {
-    "examples/ledger-wp/frontier.ts": "a6a82427bc4d1ed51f5dd91f6fb3d3c4218603c41085d1884d8872a7eadf8175",
+    "examples/ledger-wp/frontier.ts": "fe9b0cd05179d5901ed4b9ba029b6f0e50c4f75bfcef8567136ec967675059df",
     "examples/ledger-wp/frontier.test.ts": "76e9ed4808c136827d8be677becd19e5eaaf850272990093128d5fddfd1c0ae2",
     "examples/ledger-wp/frontier-report.py": "2f0930184a9d2e0173364f9b0b3f19c2e32567fdce9ec89f483f4757694170a3",
-    "examples/ledger-wp/frontier-supervise.py": "6a91431e244f11aef280bf0ab7f38dab084842503b91975c99710d79f1e570b2",
-    "examples/ledger-wp/frontier-wrapup.py": "89a31047dd1706c3c8fc09665001a736e6bd8547d39a74f6f780102e751cb3f1",
+    "examples/ledger-wp/frontier-supervise.py": "72188169550d62c39215483e9807e4576b0e3c52b7769bd3f51711e1f71c5abd",
+    "examples/ledger-wp/frontier-wrapup.py": "b4121cf2b56af648c44ff3e306e22ec09f2857f851fd3fc27319ab70d6061c57",
     "examples/ledger-wp/frontier-finalize.py": "d0813697c60e3c202c63c672d4d4eb36129664a5d0d39c0fd8448837d09f55d4",
     "examples/ledger-wp/frontier-audit.ts": "9c97e9a60cc58bad94dd1916945ede61983b23d563a9accc79c6e863feec0a14"
   },
@@ -158,5 +158,15 @@
     "at": "2026-10-13T15:14:52.965473+00:00",
     "reason": "Native Claude CLI reports HTTP 503 inside its error text without a separate httpStatus field. Recognize that representation in the same connection-class circuit breaker. Existing healthy run drained before edit; no TEST call yet. No prompt, input, model setting, scoring, sealed order or cap change. Resume through the existing ten-probe gate.",
     "previousFreezeSha256": "9f80de887df299dfedb0cf599b5e72f9075579ae60986455dadb1f74b936783b"
+  },
+  "quotaOrderingAmendment": {
+    "at": "2026-10-13T16:31:44.972003+00:00",
+    "reason": "Sonnet native session quota rejected one call with explicit zero tokens at 16:28 UTC, reset reported 16:50 UTC. Park Sonnet without treating rejection as judge failure. Run GPT-6.1 alone through its ten-probe gate while Sonnet waits. Preserve first stop reason if an in-flight sibling later reports generic shutdown.",
+    "previousFreezeSha256": "ead1bb79d939a1c01d38637dee38a534d922e0c13bee65bdac61c40249e61d1c",
+    "activeModelCells": 1,
+    "judgeContractChanged": false,
+    "sealedOrderChanged": false,
+    "capsChanged": false,
+    "sonnetResumption": "Await owner reply on missing-only quota recovery; no answered call may be resent"
   }
 }

@@ -21,7 +21,7 @@ for model in ['claude-sonnet-5-5','gpt-6.1-sol']:
     phase=json.loads((d/'phase-report.json').read_text())
     for dev in phase['dev']:
         lines.append(f"- {model} {dev['contestant']} DEV sample 0: {dev['correct']}/{dev['games']}; longer-wins {dev['controls']['longer-wins']['accuracy']}%; cheater bar {dev['cheaterBarPass']}; fixture seat {dev['earnedFixtureSeat']}; fixture kappa {dev['fixtureKappa']}; repeat-flip rate {dev['noise']['flipPercent']}%.")
-    for filename in ['test-health-gate.json','audit.json']:
+    for filename in ['test-health-gate.json','audit.json','quota-hold.json']:
         if (d/filename).exists():lines.append(f"- {model} {filename}: {json.dumps(json.loads((d/filename).read_text()))}")
     test_calls=[c for c in calls if c['split']=='test']
     lines.append(f"- {model}: {len(test_calls)} TEST submissions; TEST status {'complete' if r['complete'] else 'partial' if test_calls else 'not run'}; transport failures are missing data, never judge errors.")

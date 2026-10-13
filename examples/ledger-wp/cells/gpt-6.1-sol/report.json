@@ -1,6 +1,6 @@
 {
   "model": "gpt-6.1-sol",
-  "at": "2026-10-13T16:28:28.609983+00:00",
+  "at": "2026-10-13T16:32:15.557684+00:00",
   "scores": [
     {
       "contestant": "pair-ledger",
@@ -532,5 +532,5 @@
     "capUsd": 25,
     "separateFromOld35UsdCap": true
   },
-  "freezeSha256": "6ff7ef223366f6da535e9c497ad51d58cff96ee9049fb9057605ebbc26b2f054"
+  "freezeSha256": "a17346f52de6f85b2e80a4f3a85448f26f4f7cb2593ef9456df5968d48154575"
 }

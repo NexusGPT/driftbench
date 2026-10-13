@@ -1,0 +1,12 @@
+{
+  "at": "2026-10-13T16:31:44.972003+00:00",
+  "model": "claude-sonnet-5-5",
+  "reason": "Native CLI session quota",
+  "notBeforeUtc": "2026-10-13T16:50:00Z",
+  "logicalKey": "9ed06d025d3b563090a4b76c9589ff83a2a7998ffd56f59ced3b25bcac2abb9b",
+  "providerConfirmedZeroTokens": true,
+  "costUsd": 0,
+  "savedTestComparisons": 179,
+  "testComparisonsRequired": 346,
+  "status": "Awaiting owner reply; GPT-6.1 proceeds alone"
+}

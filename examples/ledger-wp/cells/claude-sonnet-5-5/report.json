@@ -1,6 +1,6 @@
 {
   "model": "claude-sonnet-5-5",
-  "at": "2026-10-13T16:28:28.594934+00:00",
+  "at": "2026-10-13T16:32:15.542909+00:00",
   "scores": [
     {
       "contestant": "pair-ledger",
@@ -299,5 +299,5 @@
     "capUsd": 45,
     "separateFromOld35UsdCap": true
   },
-  "freezeSha256": "ead1bb79d939a1c01d38637dee38a534d922e0c13bee65bdac61c40249e61d1c"
+  "freezeSha256": "7fbbaa6ac1a735bfd363d05b2f410144831bf32f8e999f72e4616018a5f6bbde"
 }

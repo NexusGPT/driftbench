@@ -89,7 +89,7 @@ async function main() {
   const decisions=rows(resolve(dir,'decisions.jsonl'));
   const jobKey=(j:any)=>JSON.stringify([j.split,j.contestant,j.id,j.sample]);
   const done=new Set(decisions.map(jobKey));let stopped=false,submissions=0,terminalError:any;
-  const state=(status:string,extra:any={})=>{if(extra.error)terminalError=extra.error;writeFileSync(resolve(dir,'state.json'),JSON.stringify({pid:process.pid,model,mode,status,at:new Date().toISOString(),decisions:done.size,submissions,spend:budget.totals(),error:terminalError,...extra},null,2)+'\n');};
+  const state=(status:string,extra:any={})=>{if(extra.error&&!terminalError)terminalError=extra.error;writeFileSync(resolve(dir,'state.json'),JSON.stringify({pid:process.pid,model,mode,status,at:new Date().toISOString(),decisions:done.size,submissions,spend:budget.totals(),...extra,error:terminalError},null,2)+'\n');};
   process.on('SIGTERM',()=>{stopped=true;state('draining');});
   const submit=async(prompt:any,meta:any,schema?:any)=>{
     const key=sha(JSON.stringify([meta,prompt,schema,{reasoning:f.reasoning,maxOutputTokens:f.maxOutputTokens}]));

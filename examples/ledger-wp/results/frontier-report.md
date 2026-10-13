@@ -14,7 +14,7 @@
 | claude-sonnet-5-5 | 110/178 | 116/180 | 234/346 | 0.5715881884098053 | 20.75912640 / 0.00000000 | pending |
 
 ### claude-sonnet-5-5
-- Freeze SHA256: `ead1bb79d939a1c01d38637dee38a534d922e0c13bee65bdac61c40249e61d1c`. Artifact folder: `examples/ledger-wp/cells/claude-sonnet-5-5/`.
+- Freeze SHA256: `7fbbaa6ac1a735bfd363d05b2f410144831bf32f8e999f72e4616018a5f6bbde`. Artifact folder: `examples/ledger-wp/cells/claude-sonnet-5-5/`.
 - Calibration projection: {"model": "claude-sonnet-5-5", "at": "2026-10-13T13:44:47.091650+00:00", "answeredCalls": 5, "calibrationUsd": 0.155604, "callsPerContestant": {"pair-ledger": 3, "promptfoo": 2}, "meanUsdPerCall": {"pair-ledger": 0.038233333333333334, "promptfoo": 0.020451999999999998}, "projectedPrimaryCalls": 713.0, "projectedPromptfooCalls": 602, "planningRate": 2.3687707641196014, "method": "Five calls from sealed pilot prefix; per-contestant mean cost times 301 comparisons. Primary calls per comparison use completed Flash Lite runtime counts. No calibration outcome drives tuning.", "projectedCellUsd": 39.98480506666667, "worstContractCallCountUsd": 81.7738384, "capUsd": 45, "separateFromOld35UsdCap": true}
 - pair-ledger: TEST cost 5.42256600 USD; all-phase cost 14.11663840 USD; output-cap calls 0; lost TEST items 0; missing TEST items 84; schema re-asks 2/485 costing 0.07821600 USD; HTTP 429 0; tokens {"input": 3711410, "output": 656416, "cacheRead": 1824, "cacheWrite": 32369}.
 - promptfoo: TEST cost 2.23615600 USD; all-phase cost 6.64248800 USD; output-cap calls 0; lost TEST items 0; missing TEST items 83; schema re-asks 0/0 costing 0.00000000 USD; HTTP 429 0; tokens {"input": 2920118, "output": 71498, "cacheRead": 0, "cacheWrite": 21818}.
@@ -22,7 +22,7 @@
 | gpt-6.1-sol | 0/0 | 0/0 | 234/346 | None | 3.39736520 / 15.75000000 | pending |
 
 ### gpt-6.1-sol
-- Freeze SHA256: `6ff7ef223366f6da535e9c497ad51d58cff96ee9049fb9057605ebbc26b2f054`. Artifact folder: `examples/ledger-wp/cells/gpt-6.1-sol/`.
+- Freeze SHA256: `a17346f52de6f85b2e80a4f3a85448f26f4f7cb2593ef9456df5968d48154575`. Artifact folder: `examples/ledger-wp/cells/gpt-6.1-sol/`.
 - Calibration projection: {"model": "gpt-6.1-sol", "at": "2026-10-13T13:42:43.978901+00:00", "answeredCalls": 5, "calibrationUsd": 0.0918455, "callsPerContestant": {"pair-ledger": 3, "promptfoo": 2}, "meanUsdPerCall": {"pair-ledger": 0.0183345, "promptfoo": 0.018421}, "projectedPrimaryCalls": 713.0, "projectedPromptfooCalls": 602, "planningRate": 2.3687707641196014, "method": "Five calls from sealed pilot prefix; per-contestant mean cost times 301 comparisons. Primary calls per comparison use completed Flash Lite runtime counts. No calibration outcome drives tuning.", "projectedCellUsd": 24.253786, "worstContractCallCountUsd": 44.2933945, "capUsd": 25, "separateFromOld35UsdCap": true}
 - pair-ledger: TEST cost 0.00000000 USD; all-phase cost 2.14486360 USD; output-cap calls 0; lost TEST items 0; missing TEST items 173; schema re-asks 0/210 costing 0.00000000 USD; HTTP 429 0; tokens {"input": 996943, "output": 101545, "cacheRead": 555856, "cacheWrite": 383308}.
 - promptfoo: TEST cost 0.00000000 USD; all-phase cost 1.25250160 USD; output-cap calls 0; lost TEST items 0; missing TEST items 173; schema re-asks 0/0 costing 0.00000000 USD; HTTP 429 0; tokens {"input": 745477, "output": 6478, "cacheRead": 279081, "cacheWrite": 454043}.

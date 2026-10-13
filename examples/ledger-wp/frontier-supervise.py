@@ -5,13 +5,15 @@ import os
 from pathlib import Path
 import subprocess
 import signal
+import sys
 import time
 import urllib.error
 import urllib.request
 
 HERE=Path(__file__).resolve().parent
 ROOT=HERE.parents[1]
-MODELS=['claude-sonnet-5-5','gpt-6.1-sol']
+MODELS=sys.argv[1:] or ['claude-sonnet-5-5','gpt-6.1-sol']
+if len(set(MODELS))!=len(MODELS) or any(m not in ['claude-sonnet-5-5','gpt-6.1-sol'] for m in MODELS):raise ValueError('Only the two owned writing cells may be selected')
 STATUS=HERE/'results/frontier-supervisor.json'
 HOLD=HERE/'results/frontier-network-hold.json'
 CONTROL=HERE/'results/frontier-network-control.json'
