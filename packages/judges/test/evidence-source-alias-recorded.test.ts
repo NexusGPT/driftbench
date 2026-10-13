@@ -3,6 +3,11 @@ import { gunzipSync } from 'node:zlib';
 import { describe, expect, it } from 'vitest';
 import { parseJudgeText } from '../src/assessment';
 import type { JudgeRequest } from '../src/contract';
+import emptySourceFixes from './fixtures/whole-empty-source-fixes.json';
+
+// Recorded met false ledgers that quote an empty `{}` file exactly. The frozen fixture holds them as
+// inconclusive; grounding the whole empty source decodes each to its true verdict, fail.
+const movedBy = emptySourceFixes as Record<string, string[]>;
 
 const fixture = JSON.parse(
   gunzipSync(
@@ -62,14 +67,16 @@ describe('recorded source alias replay, separate from string-only decoding', () 
               ? 'inconclusive'
               : null
             : result.answer.outcome;
-        expect(outcome, row.id).toBe(row.candidate);
+        const moved = movedBy[row.set]?.includes(row.id) ?? false;
+        if (moved) expect([row.candidate, row.truth], row.id).toEqual(['inconclusive', 'fail']);
+        expect(outcome, row.id).toBe(moved ? row.truth : row.candidate);
         correct += Number(outcome === row.truth);
         fixes += Number(row.baseline !== row.truth && outcome === row.truth);
         breaks += Number(row.baseline === row.truth && outcome !== row.truth);
       }
       expect({ correct, fixes, breaks }).toEqual({
-        correct: summary.candidateCorrect,
-        fixes: summary.fixes,
+        correct: (summary.candidateCorrect ?? 0) + (movedBy[summary.set]?.length ?? 0),
+        fixes: (summary.fixes ?? 0) + (movedBy[summary.set]?.length ?? 0),
         breaks: summary.breaks,
       });
       expect(breaks).toBe(0);
