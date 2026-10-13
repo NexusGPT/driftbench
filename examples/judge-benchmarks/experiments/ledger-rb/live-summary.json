@@ -159,7 +159,7 @@
           0.09683544303797469
         ],
         "gameMcNemarP": 6.878942666640203e-10,
-        "gamePBonferroni18UpperBound": 1.2382096799952365e-8,
+        "gamePBonferroni18UpperBound": 1.2382096799952365e-08,
         "holmP": null,
         "holmStatus": "pending complete 18-cell matrix; Bonferroni value is a bound, not Holm",
         "pairSensitivity": {
@@ -250,7 +250,7 @@
             0.09708121827411167
           ],
           "gameMcNemarP": 6.878942666640203e-10,
-          "gamePBonferroni18UpperBound": 1.2382096799952365e-8,
+          "gamePBonferroni18UpperBound": 1.2382096799952365e-08,
           "holmP": null,
           "holmStatus": "pending complete 18-cell matrix; Bonferroni value is a bound, not Holm",
           "pairSensitivity": {
@@ -1118,61 +1118,7 @@
         "target": 790,
         "complete": false
       },
-      "stats": {
-        "pairs": 116,
-        "games": 232,
-        "wins": 10,
-        "losses": 24,
-        "bothRight": 164,
-        "bothWrong": 34,
-        "ours": {
-          "correct": 174,
-          "estimate": 0.75,
-          "lower": 0.6905145670116042,
-          "upper": 0.8013412779278246
-        },
-        "peer": {
-          "correct": 188,
-          "estimate": 0.8103448275862069,
-          "lower": 0.7550022656037185,
-          "upper": 0.8555774039762618
-        },
-        "difference": -0.0603448275862069,
-        "differencePairBootstrap95": [
-          -0.12931034482758622,
-          0.004310344827586207
-        ],
-        "gameMcNemarP": 0.024306510109454484,
-        "gamePBonferroni18UpperBound": 0.4375171819701807,
-        "holmP": null,
-        "holmStatus": "pending complete 18-cell matrix; Bonferroni value is a bound, not Holm",
-        "pairSensitivity": {
-          "wins": 6,
-          "losses": 13,
-          "p": 0.1670684814453126
-        },
-        "power": {
-          "units": 232,
-          "discordant": 34,
-          "discordanceShare": 0.14655172413793102,
-          "winShare": 0.29411764705882354,
-          "alpha": 0.002777777777777778,
-          "targetPower": 0.8,
-          "neededDiscordant": 84,
-          "neededUnits": 574
-        },
-        "pairSensitivityPower": {
-          "units": 116,
-          "discordant": 19,
-          "discordanceShare": 0.16379310344827586,
-          "winShare": 0.3157894736842105,
-          "alpha": 0.002777777777777778,
-          "targetPower": 0.8,
-          "neededDiscordant": 105,
-          "neededUnits": 642
-        },
-        "caveat": "Game Wilson and McNemar treat orders as independent. Canonical games share one judgment. Pair bootstrap and pair sign sensitivity retain dependence."
-      },
+      "stats": null,
       "costs": {
         "pair-ledger": {
           "calls": 248,
@@ -1209,62 +1155,8 @@
         "ledgerOnly": 2,
         "promptfooOnly": 0,
         "both": 0,
-        "stats": {
-          "pairs": 114,
-          "games": 228,
-          "wins": 10,
-          "losses": 22,
-          "bothRight": 164,
-          "bothWrong": 32,
-          "ours": {
-            "correct": 174,
-            "estimate": 0.7631578947368421,
-            "lower": 0.7038986767507331,
-            "upper": 0.8136964100400546
-          },
-          "peer": {
-            "correct": 186,
-            "estimate": 0.8157894736842105,
-            "lower": 0.7603836692500617,
-            "upper": 0.8607304348988835
-          },
-          "difference": -0.05263157894736842,
-          "differencePairBootstrap95": [
-            -0.11842105263157894,
-            0.013157894736842105
-          ],
-          "gameMcNemarP": 0.0501024597324432,
-          "gamePBonferroni18UpperBound": 0.9018442751839776,
-          "holmP": null,
-          "holmStatus": "pending complete 18-cell matrix; Bonferroni value is a bound, not Holm",
-          "pairSensitivity": {
-            "wins": 6,
-            "losses": 12,
-            "p": 0.23788452148437492
-          },
-          "power": {
-            "units": 228,
-            "discordant": 32,
-            "discordanceShare": 0.14035087719298245,
-            "winShare": 0.3125,
-            "alpha": 0.002777777777777778,
-            "targetPower": 0.8,
-            "neededDiscordant": 102,
-            "neededUnits": 727
-          },
-          "pairSensitivityPower": {
-            "units": 114,
-            "discordant": 18,
-            "discordanceShare": 0.15789473684210525,
-            "winShare": 0.3333333333333333,
-            "alpha": 0.002777777777777778,
-            "targetPower": 0.8,
-            "neededDiscordant": 129,
-            "neededUnits": 817
-          },
-          "caveat": "Game Wilson and McNemar treat orders as independent. Canonical games share one judgment. Pair bootstrap and pair sign sensitivity retain dependence."
-        },
-        "status": "Secondary score on the identical, model-specific unblocked item intersection; headline verdict and 18-cell correction use all sealed items."
+        "stats": null,
+        "status": "dropped by the owner on 13 Oct 2026, partial data kept, not reported as a score"
       },
       "baseOnlyIneligibleTotal": {
         "pairs": 24,
@@ -1599,9 +1491,27 @@
         },
         "seatCaveat": "Earning is eligibility only: the same model and frozen prompt serve both base and earned seats. No alternate model is used."
       },
-      "verdict": "PENDING: incomplete",
+      "verdict": "dropped by the owner on 13 Oct 2026, partial data kept, not reported as a score",
       "transportMissingRequests": 19,
-      "final": false
+      "final": false,
+      "reportScore": false,
+      "pendingRequests": 0,
+      "resumeAllowed": false
     }
-  ]
+  ],
+  "ownerDispositions": {
+    "gemini-3.8-flash": {
+      "at": "2026-10-13T18:35:02.211200+00:00",
+      "model": "gemini-3.8-flash",
+      "status": "dropped by the owner on 13 Oct 2026, partial data kept, not reported as a score",
+      "ownerDecision": "Drop Gemini 3.8",
+      "resumeAllowed": false,
+      "pendingRequests": 0,
+      "partialRecordingsRetained": true,
+      "reportScore": false,
+      "includeInStatisticalComparisons": false,
+      "geminiResultModel": "gemini-3.5-flash-lite",
+      "supersedes": "All previous parked, quota reset and missing-only resume instructions for Gemini 3.8"
+    }
+  }
 }

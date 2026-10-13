@@ -1,6 +1,6 @@
 {
   "at": "2026-10-13T12:03:25.146465+00:00",
-  "geminiStatus": "parked; explicit owner word required even after reset",
+  "geminiStatus": "dropped by the owner on 13 Oct 2026, partial data kept, not reported as a score",
   "sealedPairs": 790,
   "identicalStage0Pairs": [],
   "returnedTestRequests": 481,
@@ -10,7 +10,6 @@
     "item": "rubric_eval_903",
     "ordinal": 0
   },
-  "mandatoryMissingRequests": 2693,
   "mandatoryByContestant": {
     "pair-ledger": 1346,
     "promptfoo": 1347
@@ -22,7 +21,6 @@
     "completedLedgerItems": 117
   },
   "projectedThirdReads": 81,
-  "projectedTotalRequestsExcludingTransportRetries": 2774,
   "maximumNewJudgmentRequestsExcludingTransportRetries": 3366,
   "transportRetries": "Additional count is not knowable in advance. Ordinary transport uses at most three tries; 429 waits/rejections follow the authorized retry rule after explicit resume. Returned answers are never retried.",
   "missingMandatorySlots": {
@@ -10802,5 +10800,10 @@
         "ordinal": 1
       }
     ]
-  }
+  },
+  "pendingRequests": 0,
+  "resumeAllowed": false,
+  "historicalEstimateOnly": true,
+  "historicalMandatoryMissingRequests": 2693,
+  "historicalProjectedTotalRequestsExcludingTransportRetries": 2774
 }

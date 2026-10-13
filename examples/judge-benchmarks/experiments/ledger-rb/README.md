@@ -34,7 +34,11 @@ Downloads, if needed, go into this worktree's ignored `.cache/ledger-rb/data` di
 Recordings and the executor journal originate from `8c1d1ca707d6505028a4e0db80c937dd6cfaef71` on `origin/codex/rb-judge`.
 Package imports are updated for the current repository namespace; historical prompt templates remain unchanged.
 
-## Frozen live experiment
+## Historical frozen live experiment
+
+The commands and initial model list below document the original registration, not current authorization.
+Gemini 3.8 must not be restarted.
+
 
 Core PR 168 is pinned at `35f07309a4d1d1c8a7c5b176ff19e537d0ef8fdd`.
 `contestant-freeze.json` binds source, requirements, statistics, model settings and controlled validity fixtures.
@@ -76,3 +80,10 @@ Only the model under test is considered for its own seat. Earning changes eligib
 Failed and undersized categories use that same base model. There is no cross-vendor routing claim.
 Controlled validity uses 20 planted arithmetic or supplied-reference facts. It does not establish validity on arbitrary natural-language edits.
 Noise uses 30 DEV pairs with three fresh full-procedure repeats. Seat earning uses six distinct DEV pairs with three independent readings each.
+
+## Current owner disposition, 13 Oct 2026
+
+Gemini 3.8 Flash is dropped by the owner on 13 Oct 2026, partial data kept, not reported as a score.
+Its partial recordings are retained; no Gemini 3.8 request remains pending or authorized.
+Flash Lite remains the Gemini result. Sol continues, then Sonnet under USD 60 including holds.
+See `gemini-3.8-owner-drop.json`. Frozen pre-TEST artifacts are historical and remain unchanged.

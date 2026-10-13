@@ -34,3 +34,9 @@ it('preserves explicit provider rejection status for quota and billing handling'
   }
   expect(nativeNoAnswerError(receipt('API Error: 400 invalid schema'))).toBeUndefined();
 });
+
+it('waits through a native session limit without converting it to a judge answer', () => {
+  const zero = receipt("You've hit your limit. Try again later.");
+  expect(nativeNoAnswerError(zero)).toMatchObject({ status: 429, retryable: true });
+  expect(nativeNoAnswerError(receipt("You've hit your limit. Try again later.", 10))).toBeUndefined();
+});

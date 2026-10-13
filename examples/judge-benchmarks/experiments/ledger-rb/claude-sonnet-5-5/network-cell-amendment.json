@@ -15,7 +15,7 @@
     "examples/judge-benchmarks/src/rubric-ledger-network-health.py": "f6245b6e5089347857fee723fdfdc67d693bff5d68178bcb6aad6ea734d948dc",
     "examples/judge-benchmarks/src/rubric-ledger-native-blocks.ts": "f93a3efa1e5b0e8de552e762933e6491f6fb824797cc697f080db365a9bcef9f",
     "examples/judge-benchmarks/src/rubric-ledger-reconcile.ts": "698a9a98e81cd4c25b69459f61b3e7ba9c21d0eb72784bcc1a8dec48779f7a5d",
-    "examples/judge-benchmarks/src/rubric-ledger-sonnet-network-completion.ts": "aa0f3574e5a8b1765d233e2b286db04af5be41850db62987832b0824d7d9e2c4"
+    "examples/judge-benchmarks/src/rubric-ledger-sonnet-network-completion.ts": "aa084ee686963754534d6df48bda6321b7a59703ad26d4ae670b220fadc1a98e"
   },
   "environment": {
     "DISABLE_PROMPT_CACHING": "1"
@@ -37,7 +37,8 @@
     "selected TEST ids",
     "outcome-blind record order"
   ],
-  "priorRuntimeAmendmentSha256": "c4f2c4feded30b02fc6ce3406296f539c09a1824349222d476833aec9bbc70fe",
-  "updatedAt": "2026-10-13T16:35:25.672068+00:00",
-  "responseClassificationClarification": "An explicit native CLI API Error banner with zero output tokens and connection/quota/server failure is no-answer transport. Its raw receipt and known cost remain saved. Content blocks and any generated output remain terminal judge results. No prompt, setting or request changes."
+  "priorRuntimeAmendmentSha256": "007e0395bb223804650f52fe49d8d4581264826154c212af0b97d6f85be3f049",
+  "updatedAt": "2026-10-13T18:46:59.561870+00:00",
+  "responseClassificationClarification": "An explicit native CLI API Error banner with zero output tokens and connection/quota/server failure is no-answer transport. Its raw receipt and known cost remain saved. Content blocks and any generated output remain terminal judge results. No prompt, setting or request changes.",
+  "sessionLimitPolicy": "An explicit native session or usage limit with zero generated tokens is no-answer provider rejection, never a judge failure. Wait ten minutes, repeat provider gate, then missing-only. Any generated answer remains terminal."
 }
