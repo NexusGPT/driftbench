@@ -4,7 +4,7 @@ All notable changes to driftbench are listed here. The format follows [Keep a Ch
 
 ## [Unreleased]
 
-Adapters can borrow a read-only history view with copy-on-write. The function adapter avoids copying the whole conversation on every send. Existing mutable agent callbacks keep isolated writes and their `Message[]` signature.
+Adapters can borrow a read-only history view with copy-on-write. The function adapter captures primitive message fields and copies nested JSON on first access, using plain array slots for ordinary messages. Existing mutable agent callbacks keep isolated writes, `structuredClone` support and their `Message[]` signature.
 
 408 Request Timeout is retried like 429 and 5xx in every adapter.
 

@@ -5,6 +5,7 @@ import {
   cloneJson,
   decideToolRule,
   deniesCall,
+  immutableHistorySource,
   isImmutableHistorySource,
   lazyHistoryCopy,
   type Message,
@@ -114,7 +115,9 @@ export function functionAdapter<S = undefined>(options: FunctionAdapterOptions<S
         kind: 'function',
         agent,
         closed: false,
-        prefix: isImmutableHistorySource(given.prefix) ? given.prefix : cloneJson(given.prefix),
+        prefix: isImmutableHistorySource(given.prefix)
+          ? given.prefix
+          : immutableHistorySource(cloneJson(given.prefix)),
         tail: [],
       };
       return {

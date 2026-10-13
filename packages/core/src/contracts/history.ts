@@ -1,3 +1,4 @@
+import { types } from 'node:util';
 import type { Message } from '../schema/common';
 import { cloneJson } from '../spec/hash';
 
@@ -6,6 +7,10 @@ const immutableSources = new WeakSet<readonly Message[]>();
 /** The owner promises never to change these messages. Adapters may borrow them behind isolated views. */
 export function immutableHistorySource<T extends Message[]>(history: T): T {
   immutableSources.add(history);
+  for (const message of history) {
+    const template = messageTemplate(message);
+    if (template) messageTemplates.set(message, template);
+  }
   return history;
 }
 
@@ -138,12 +143,74 @@ export function copyOnWriteHistory(history: readonly Message[]): Message[] {
 }
 
 /**
- * A plain array for legacy callbacks, including those using structuredClone. Each message is copied on
- * first access and then owned by the consumer. Unread message bodies are never visited.
+ * A plain array for legacy callbacks, including those using structuredClone. Primitive fields are owned
+ * snapshots; nested JSON and accessors are copied on first field access. Unread bodies are never visited.
  */
 const lazySources = new WeakMap<Message[], readonly Message[]>();
 const sealedCopies = new WeakMap<Message[], Map<number, Message>>();
 const lazyDescriptors: PropertyDescriptor[] = [];
+type MessageTemplate = { values: Record<string, unknown>; lazy: string[] };
+const messageTemplates = new WeakMap<Message, MessageTemplate>();
+const fieldSources = new WeakMap<Message, Message>();
+const sealedFields = new WeakMap<Message, Map<string, unknown>>();
+const fieldDescriptors = new Map<string, PropertyDescriptor>();
+
+function messageTemplate(message: Message | undefined): MessageTemplate | undefined {
+  if (!message || typeof message !== 'object') return undefined;
+  const known = messageTemplates.get(message);
+  if (known) return known;
+  if (types.isProxy(message)) return undefined;
+  const prototype = Object.getPrototypeOf(message);
+  if (prototype !== Object.prototype && prototype !== null) return undefined;
+  if (Object.hasOwn(message, '__proto__')) return undefined;
+  const values: Record<string, unknown> = {};
+  const lazy: string[] = [];
+  const fields = Object.getOwnPropertyDescriptors(message);
+  for (const key of Object.keys(message)) {
+    const field = fields[key] as PropertyDescriptor;
+    if ('value' in field && (field.value === null || typeof field.value !== 'object')) {
+      values[key] = field.value;
+    } else lazy.push(key);
+  }
+  return { values, lazy };
+}
+
+function replaceField(message: Message, key: string, value: unknown): unknown {
+  if (Object.getOwnPropertyDescriptor(message, key)?.configurable === false) {
+    let fields = sealedFields.get(message);
+    if (!fields) {
+      fields = new Map();
+      sealedFields.set(message, fields);
+    }
+    fields.set(key, value);
+  } else {
+    Object.defineProperty(message, key, { value, writable: true, enumerable: true, configurable: true });
+  }
+  return value;
+}
+
+function fieldDescriptor(key: string): PropertyDescriptor {
+  let descriptor = fieldDescriptors.get(key);
+  if (!descriptor) {
+    descriptor = {
+      enumerable: true,
+      configurable: true,
+      get(this: Message) {
+        const fields = sealedFields.get(this);
+        if (fields?.has(key)) return fields.get(key);
+        const source = fieldSources.get(this) as unknown as Record<string, unknown>;
+        return replaceField(this, key, cloneJson(source[key]));
+      },
+      set(this: Message, value: unknown) {
+        if (Object.isFrozen(this))
+          throw new TypeError(`Cannot assign to read only field '${key}' of history`);
+        replaceField(this, key, value);
+      },
+    };
+    fieldDescriptors.set(key, descriptor);
+  }
+  return descriptor;
+}
 
 function replaceMessage(array: Message[], index: number, value: Message): Message {
   if (Object.getOwnPropertyDescriptor(array, index)?.configurable === false) {
@@ -160,11 +227,29 @@ function replaceMessage(array: Message[], index: number, value: Message): Messag
 }
 
 export function lazyHistoryCopy(history: readonly Message[]): Message[] {
-  const result = history.slice();
-  lazySources.set(result, history);
+  const result = new Array<Message>(history.length);
+  for (let index = 0; index < history.length; index += 1) {
+    const source = history[index];
+    const template = messageTemplate(source);
+    if (template) {
+      const copied = { ...template.values } as unknown as Message;
+      if (template.lazy.length > 0) {
+        fieldSources.set(copied, source as Message);
+        for (const key of template.lazy) Object.defineProperty(copied, key, fieldDescriptor(key));
+      }
+      result[index] = copied;
+    } else {
+      lazySources.set(result, history);
+      Object.defineProperty(result, index, lazyDescriptor(index));
+    }
+  }
+  return result;
+}
+
+function lazyDescriptor(position: number): PropertyDescriptor {
   // Accessors depend on their receiver, not a particular snapshot. Reuse them across the canonical
   // prefixes of a teacher-forced run instead of allocating closures for every earlier block again.
-  while (lazyDescriptors.length < history.length) {
+  while (lazyDescriptors.length <= position) {
     const index = lazyDescriptors.length;
     lazyDescriptors.push({
       configurable: true,
@@ -183,8 +268,5 @@ export function lazyHistoryCopy(history: readonly Message[]): Message[] {
       },
     });
   }
-  for (let index = 0; index < history.length; index += 1) {
-    Object.defineProperty(result, index, lazyDescriptors[index] as PropertyDescriptor);
-  }
-  return result;
+  return lazyDescriptors[position] as PropertyDescriptor;
 }

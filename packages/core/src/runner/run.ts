@@ -2,6 +2,7 @@ import type { AdapterCapabilities, AgentAdapter, Session, Turn } from '../contra
 import type { ArtifactReaderRegistry } from '../contracts/artifacts';
 import { type CheckContext, type CheckSet, machineVerdict } from '../contracts/check';
 import type { DriverStep, UserDriver } from '../contracts/driver';
+import { immutableHistorySource } from '../contracts/history';
 import type { Store } from '../contracts/store';
 import { gateToolCalls, type ToolRule } from '../contracts/tool-policy';
 import { collectRetries, type RetryPolicy, retryPolicy } from '../retry';
@@ -651,7 +652,7 @@ function blockCost(observed: Observed): number {
 function liveChannel(run: RunContext): Channel {
   const { adapter } = run;
   const appendHistory = (current: Session, messages: Message[]) => {
-    if (adapter.appendHistory) adapter.appendHistory(current, messages);
+    if (adapter.appendHistory) adapter.appendHistory(current, immutableHistorySource(messages));
     else current.history.push(...messages);
   };
   const notes: string[] = [];
