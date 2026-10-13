@@ -37,7 +37,7 @@ def main():
   status=final['status'] if final else progress['status']
   sections.append(f"| {model} | {status} | {gate['costUsd']:.8f} | {gate['projected379UnitsUsd']:.8f} | {settled:.8f} | {held:.8f} | {folder}/ |" if gate else f'| {model} | {status} | pending | pending | {settled:.8f} | {held:.8f} | {folder}/ |')
   original['newModelFees'][model]=dict(settledUsd=settled,unresolvedMaximumUsd=held,maximumAccountedUsd=settled+held,capUsd=cap)
-  for name in ['model-amendment.json','runtime-freeze.json','reporting-freeze.json','cost-sample.json','pilot-projection.json','cache-off-amendment.json','cache-off-cost-selection.json','cache-off-cost-sample.json','cap45-activation.json','cap40-amendment.json','refusal-amendment.json','native-quota-amendment.json','native-quota-recovery.json','native-quota-continuation.json']:
+  for name in ['model-amendment.json','runtime-freeze.json','reporting-freeze.json','cost-sample.json','pilot-projection.json','cache-off-amendment.json','cache-off-cost-selection.json','cache-off-cost-sample.json','cap45-activation.json','cap40-amendment.json','refusal-amendment.json','native-quota-amendment.json','native-quota-recovery.json','native-quota-continuation.json','native-quota-recovery-state.json','native-quota-continuation-state.json']:
    p=base/'evidence'/name
    if p.exists():original['freeze']['hashes'][f'{folder}/evidence/{name}']=hashlib.sha256(p.read_bytes()).hexdigest()
   if gate:
@@ -52,7 +52,10 @@ def main():
   if pilot_gate.exists():projection_sections.append(f"Completed 20-item pilot projection for {model}: {read(pilot_gate)['projected379UnitsUsd']:.8f} USD. Calibration fees and holds remain in the hard-cap ledger.\n")
   quota=base/'evidence/native-quota-recovery.json'
   if quota.exists():
-   q=read(quota);projection_sections.append(f"Native session quota leaves {q['quotaRequests']} exact requests unanswered, at zero recorded fee. Reset claim: {q['nativeResetClaim']}. Recovery requires a fresh provider health gate and one answered probe; no terminal answer is submitted again.")
+   q=read(quota);qs=base/'evidence/native-quota-recovery-state.json'
+   if qs.exists() and read(qs).get('status')=='complete':
+    recovered=read(qs);projection_sections.append(f"Native session quota initially left {q['quotaRequests']} exact requests unanswered at zero recorded fee. All {recovered['terminalRequests']} requests recover after the reset probe and provider health gate. No terminal answer is submitted again. Original final prompts retain their earlier inputs; supplemental intermediate answers remain archived.")
+   else:projection_sections.append(f"Native session quota leaves {q['quotaRequests']} exact requests unanswered, at zero recorded fee. Reset claim: {q['nativeResetClaim']}. Recovery requires a fresh provider health gate and one answered probe; no terminal answer is submitted again.")
   if not final:continue
   assert final['status']=='offline evidence ready for review' and final['complete']
   for path,h in read(base/'evidence/reporting-freeze.json')['sourceHashes'].items():assert hashlib.sha256((ROOT/path).read_bytes()).hexdigest()==h,path
@@ -107,7 +110,8 @@ def main():
    complete=(BASE/folder/f'results/{model}.json').exists()
    test_answers=str(v['test']['answerEnvelopes']) if complete else 'pending'
    test_items=str(v['test']['affectedItems']) if complete else 'pending'
-   sections.append(f"| {model} | {contestant} | {test_answers} | {test_items} | {v['all']['answerEnvelopes']} | {v['all']['affectedItems']} |")
+   suffix='' if complete else ' (partial audit)'
+   sections.append(f"| {model} | {contestant} | {test_answers} | {test_items} | {v['all']['answerEnvelopes']}{suffix} | {v['all']['affectedItems']}{suffix} |")
  sections+=['','Sources per model folder: evidence/model-amendment.json, evidence/cost-sample.json, evidence/cells.json, evidence/output-limit-errors.json and receipts/native/.','Scores, paired exact p values and strict/product-final endpoints appear in the tables above for every completed cell. Pending cells have no sealed TEST score.','']
  subprocess.run([sys.executable,str(BASE/'render_report.py'),str(DOSSIER)],cwd=ROOT,check=True)
  result=(BASE/'REPORT.md').read_text()+supplement+'\n'.join(sections)

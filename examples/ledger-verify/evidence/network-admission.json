@@ -1,10 +1,10 @@
 {
-  "at": "2026-10-13T17:09:10.343820+00:00",
-  "lastProbeEpoch": 1791911350.3438258,
+  "at": "2026-10-13T17:31:40.989308+00:00",
+  "lastProbeEpoch": 1791912700.989314,
   "pid": 52934,
   "model": "claude-sonnet-5-5",
   "open": true,
-  "healthyStreak": 53,
+  "healthyStreak": 98,
   "connectionFailureStreak": 0,
   "paidConnectionFailureStreak": 0,
   "concurrency": 2,

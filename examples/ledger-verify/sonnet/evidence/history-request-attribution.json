@@ -1,5 +1,5 @@
 {
-  "at": "2026-10-13T17:04:16.007Z",
+  "at": "2026-10-13T17:30:21.674Z",
   "rows": [
     {
       "phase": "pilot",
@@ -5856,13 +5856,13 @@
     {
       "phase": "noise-1",
       "model": "claude-sonnet-5-5",
-      "key": "4c49fda68b4bc253ace3",
-      "fingerprint": "55c2181f6dee2c72639294bd2be5e713bcd2786d2a8e98ea0992fa25648e56e7",
+      "key": "34f1e57882886d559070",
+      "fingerprint": "ed0f0c639688f406510b85137c3a0e73c0dca00cd6d5abcd048fc5e890b103cc",
       "bench": "longjudge-verify",
       "contestant": "driftbench-verify-uncertainty-cascade",
       "item": "002ba0331c11a198784abdfff1d7b8fb_936d37ed03db3340809ca9409508b906",
       "order": "single",
-      "selection": "ordinary cache fallback"
+      "selection": "original item-labelled answer"
     },
     {
       "phase": "noise-1",
@@ -5873,7 +5873,7 @@
       "contestant": "promptfoo",
       "item": "002ba0331c11a198784abdfff1d7b8fb_936d37ed03db3340809ca9409508b906",
       "order": "single",
-      "selection": "ordinary cache fallback"
+      "selection": "original item-labelled answer"
     },
     {
       "phase": "noise-1",
@@ -5928,7 +5928,7 @@
       "contestant": "promptfoo",
       "item": "00a93c5457ba7180f88944780f9134a0_773a31d04e4d41c29af003fb95f3b960",
       "order": "single",
-      "selection": "ordinary cache fallback"
+      "selection": "original item-labelled answer"
     },
     {
       "phase": "noise-1",
@@ -5950,7 +5950,7 @@
       "contestant": "driftbench-verify-uncertainty-cascade",
       "item": "012d78a208c04759392be0c8b9d27dc6_dc9a328c94255249105f5d3b465499d5",
       "order": "blind-algebra",
-      "selection": "ordinary cache fallback"
+      "selection": "original item-labelled answer"
     },
     {
       "phase": "noise-1",
@@ -5961,29 +5961,29 @@
       "contestant": "driftbench-verify-uncertainty-cascade",
       "item": "012d78a208c04759392be0c8b9d27dc6_dc9a328c94255249105f5d3b465499d5",
       "order": "blind-direct-program",
-      "selection": "ordinary cache fallback"
+      "selection": "original item-labelled answer"
     },
     {
       "phase": "noise-1",
       "model": "claude-sonnet-5-5",
-      "key": "52d38995d4d12651bdc9",
-      "fingerprint": "3f4b825de0ed8e402d37486fd44ee3f63413423ff34c0c57bf35afa3a3feb7e9",
+      "key": "6efe1ea94603af54cf62",
+      "fingerprint": "580a20f242c533b44a6f16873c3ddd05aa479e0949d6018936fd8906f6462719",
       "bench": "longjudge-verify",
       "contestant": "driftbench-verify-uncertainty-cascade",
       "item": "012d78a208c04759392be0c8b9d27dc6_dc9a328c94255249105f5d3b465499d5",
       "order": "program",
-      "selection": "ordinary cache fallback"
+      "selection": "original item-labelled answer"
     },
     {
       "phase": "noise-1",
       "model": "claude-sonnet-5-5",
-      "key": "29635a7a19315ebbf31a",
-      "fingerprint": "ee16a48b97a1b7fac4704038ab7a311fd0b3bdc492e4bce185edba617a14c0d8",
+      "key": "43d221ca01d1720d28e5",
+      "fingerprint": "b1e03729a98f68fb4515da085a6ae3440533cb76ee78415b12d4510f68960327",
       "bench": "longjudge-verify",
       "contestant": "driftbench-verify-uncertainty-cascade",
       "item": "012d78a208c04759392be0c8b9d27dc6_dc9a328c94255249105f5d3b465499d5",
       "order": "single",
-      "selection": "ordinary cache fallback"
+      "selection": "original item-labelled answer"
     },
     {
       "phase": "noise-1",
@@ -5994,7 +5994,7 @@
       "contestant": "promptfoo",
       "item": "012d78a208c04759392be0c8b9d27dc6_dc9a328c94255249105f5d3b465499d5",
       "order": "single",
-      "selection": "ordinary cache fallback"
+      "selection": "original item-labelled answer"
     },
     {
       "phase": "noise-1",
@@ -6005,7 +6005,7 @@
       "contestant": "driftbench-verify-uncertainty-cascade",
       "item": "045503cb808f8344ae4972c147441517_90dddf89d761d5515d371d5d883e15ec",
       "order": "quoted-extract",
-      "selection": "ordinary cache fallback"
+      "selection": "original item-labelled answer"
     },
     {
       "phase": "noise-1",
@@ -6016,7 +6016,7 @@
       "contestant": "driftbench-verify-uncertainty-cascade",
       "item": "045503cb808f8344ae4972c147441517_90dddf89d761d5515d371d5d883e15ec",
       "order": "blind-algebra",
-      "selection": "ordinary cache fallback"
+      "selection": "original item-labelled answer"
     },
     {
       "phase": "noise-1",
@@ -6027,29 +6027,29 @@
       "contestant": "driftbench-verify-uncertainty-cascade",
       "item": "045503cb808f8344ae4972c147441517_90dddf89d761d5515d371d5d883e15ec",
       "order": "blind-direct-program",
-      "selection": "ordinary cache fallback"
+      "selection": "original item-labelled answer"
     },
     {
       "phase": "noise-1",
       "model": "claude-sonnet-5-5",
-      "key": "362902b9bcbda328d28e",
-      "fingerprint": "b9362edf90561faad58383f2a5dbe7832db01629f4370a8ff2119d42bb302013",
+      "key": "0e2e475e959f0c139de6",
+      "fingerprint": "7f06482a67c5b56ec74c2caac72ef82dc2973b3b3ff169a6894f88d656be680b",
       "bench": "longjudge-verify",
       "contestant": "driftbench-verify-uncertainty-cascade",
       "item": "045503cb808f8344ae4972c147441517_90dddf89d761d5515d371d5d883e15ec",
       "order": "program",
-      "selection": "ordinary cache fallback"
+      "selection": "original item-labelled answer"
     },
     {
       "phase": "noise-1",
       "model": "claude-sonnet-5-5",
-      "key": "5411c086000f172c94a0",
-      "fingerprint": "afdf2aceefe597429417733114d1febb2b58bb86c61d592c617a6b7273bf097f",
+      "key": "2c7c8d8972d0b2316d85",
+      "fingerprint": "48cca8f823142e296f87b9541ca6d734fef6f10ce4b5fe32fe473b0c250dd841",
       "bench": "longjudge-verify",
       "contestant": "driftbench-verify-uncertainty-cascade",
       "item": "045503cb808f8344ae4972c147441517_90dddf89d761d5515d371d5d883e15ec",
       "order": "single",
-      "selection": "ordinary cache fallback"
+      "selection": "original item-labelled answer"
     },
     {
       "phase": "noise-1",
@@ -6060,7 +6060,7 @@
       "contestant": "promptfoo",
       "item": "045503cb808f8344ae4972c147441517_90dddf89d761d5515d371d5d883e15ec",
       "order": "single",
-      "selection": "ordinary cache fallback"
+      "selection": "original item-labelled answer"
     },
     {
       "phase": "noise-1",
@@ -6071,7 +6071,7 @@
       "contestant": "driftbench-verify-uncertainty-cascade",
       "item": "0693b094973e7e926583c76785af77ca_5a776264cbecc67bd81bf1bea7505338",
       "order": "quoted-extract",
-      "selection": "ordinary cache fallback"
+      "selection": "original item-labelled answer"
     },
     {
       "phase": "noise-1",
@@ -6082,7 +6082,7 @@
       "contestant": "driftbench-verify-uncertainty-cascade",
       "item": "0693b094973e7e926583c76785af77ca_5a776264cbecc67bd81bf1bea7505338",
       "order": "blind-algebra",
-      "selection": "ordinary cache fallback"
+      "selection": "original item-labelled answer"
     },
     {
       "phase": "noise-1",
@@ -6093,29 +6093,29 @@
       "contestant": "driftbench-verify-uncertainty-cascade",
       "item": "0693b094973e7e926583c76785af77ca_5a776264cbecc67bd81bf1bea7505338",
       "order": "blind-direct-program",
-      "selection": "ordinary cache fallback"
+      "selection": "original item-labelled answer"
     },
     {
       "phase": "noise-1",
       "model": "claude-sonnet-5-5",
-      "key": "3cb308368669d2ae7b19",
-      "fingerprint": "5730e002dcd73ac2b44d8fc2004dd4372119be3e8c318e64d89bb0a84d764a4d",
+      "key": "7df4cc14eabfd34768e1",
+      "fingerprint": "0fd4a162faeb912c811c42ae649f513e255f373791bf26ace04cba72695978f7",
       "bench": "longjudge-verify",
       "contestant": "driftbench-verify-uncertainty-cascade",
       "item": "0693b094973e7e926583c76785af77ca_5a776264cbecc67bd81bf1bea7505338",
       "order": "program",
-      "selection": "ordinary cache fallback"
+      "selection": "original item-labelled answer"
     },
     {
       "phase": "noise-1",
       "model": "claude-sonnet-5-5",
-      "key": "3aca0139bf64a831c400",
-      "fingerprint": "a85855b865762fc207110daa727859a384a29e17dffe3c3a59be808eb870ec8a",
+      "key": "70b0ce411ecd75a10ba2",
+      "fingerprint": "3387143a39e3170fdd3728be0ad30174a63e241a5a7a3bdef9a2f2a387c8e8ff",
       "bench": "longjudge-verify",
       "contestant": "driftbench-verify-uncertainty-cascade",
       "item": "0693b094973e7e926583c76785af77ca_5a776264cbecc67bd81bf1bea7505338",
       "order": "single",
-      "selection": "ordinary cache fallback"
+      "selection": "original item-labelled answer"
     },
     {
       "phase": "noise-1",
@@ -6126,7 +6126,7 @@
       "contestant": "promptfoo",
       "item": "0693b094973e7e926583c76785af77ca_5a776264cbecc67bd81bf1bea7505338",
       "order": "single",
-      "selection": "ordinary cache fallback"
+      "selection": "original item-labelled answer"
     },
     {
       "phase": "noise-1",
@@ -6137,7 +6137,7 @@
       "contestant": "driftbench-verify-uncertainty-cascade",
       "item": "081833aa552befb57c837abfaa3e82c6_3687dcc53ca83b415f453e9939ed2277",
       "order": "blind-algebra",
-      "selection": "ordinary cache fallback"
+      "selection": "original item-labelled answer"
     },
     {
       "phase": "noise-1",
@@ -6148,7 +6148,7 @@
       "contestant": "driftbench-verify-uncertainty-cascade",
       "item": "081833aa552befb57c837abfaa3e82c6_3687dcc53ca83b415f453e9939ed2277",
       "order": "blind-direct-program",
-      "selection": "ordinary cache fallback"
+      "selection": "original item-labelled answer"
     },
     {
       "phase": "noise-1",
@@ -6159,7 +6159,7 @@
       "contestant": "driftbench-verify-uncertainty-cascade",
       "item": "081833aa552befb57c837abfaa3e82c6_3687dcc53ca83b415f453e9939ed2277",
       "order": "final-step",
-      "selection": "ordinary cache fallback"
+      "selection": "original item-labelled answer"
     },
     {
       "phase": "noise-1",
@@ -6170,18 +6170,18 @@
       "contestant": "driftbench-verify-uncertainty-cascade",
       "item": "081833aa552befb57c837abfaa3e82c6_3687dcc53ca83b415f453e9939ed2277",
       "order": "program",
-      "selection": "ordinary cache fallback"
+      "selection": "original item-labelled answer"
     },
     {
       "phase": "noise-1",
       "model": "claude-sonnet-5-5",
-      "key": "35bb55a05dc6b0abe64b",
-      "fingerprint": "683e78a22d751a1889ba9a977a4f60120d7401109c472ef832aa4f35305af83d",
+      "key": "5102b827ee5dd77a6ee3",
+      "fingerprint": "e8ff51749f4f057596c9b534251cd248fbcafcb4675f395a8822b31721a2400a",
       "bench": "longjudge-verify",
       "contestant": "driftbench-verify-uncertainty-cascade",
       "item": "081833aa552befb57c837abfaa3e82c6_3687dcc53ca83b415f453e9939ed2277",
       "order": "single",
-      "selection": "ordinary cache fallback"
+      "selection": "original item-labelled answer"
     },
     {
       "phase": "noise-1",
@@ -6192,7 +6192,7 @@
       "contestant": "promptfoo",
       "item": "081833aa552befb57c837abfaa3e82c6_3687dcc53ca83b415f453e9939ed2277",
       "order": "single",
-      "selection": "ordinary cache fallback"
+      "selection": "original item-labelled answer"
     },
     {
       "phase": "noise-1",
@@ -6203,7 +6203,7 @@
       "contestant": "driftbench-verify-uncertainty-cascade",
       "item": "0af2a305f4c4e44a69c7fd5e03d7f74e_7ff87a43db7f15aa80827e2230dd95a1",
       "order": "quoted-extract",
-      "selection": "ordinary cache fallback"
+      "selection": "original item-labelled answer"
     },
     {
       "phase": "noise-1",
@@ -6214,7 +6214,7 @@
       "contestant": "driftbench-verify-uncertainty-cascade",
       "item": "0af2a305f4c4e44a69c7fd5e03d7f74e_7ff87a43db7f15aa80827e2230dd95a1",
       "order": "blind-algebra",
-      "selection": "ordinary cache fallback"
+      "selection": "original item-labelled answer"
     },
     {
       "phase": "noise-1",
@@ -6225,40 +6225,40 @@
       "contestant": "driftbench-verify-uncertainty-cascade",
       "item": "0af2a305f4c4e44a69c7fd5e03d7f74e_7ff87a43db7f15aa80827e2230dd95a1",
       "order": "blind-direct-program",
-      "selection": "ordinary cache fallback"
+      "selection": "original item-labelled answer"
     },
     {
       "phase": "noise-1",
       "model": "claude-sonnet-5-5",
-      "key": "8eaf5172e262780de7dc",
-      "fingerprint": "a73e5b84be3a55f83327200a136dbd869059072af52b18810c6ca5a9881c9b3c",
+      "key": "3a6037a8a76cb2945f96",
+      "fingerprint": "6906621d3b959b0ac75d828f0415699e0226b27bd150527affac94f329408dc9",
       "bench": "longjudge-verify",
       "contestant": "driftbench-verify-uncertainty-cascade",
       "item": "0af2a305f4c4e44a69c7fd5e03d7f74e_7ff87a43db7f15aa80827e2230dd95a1",
       "order": "final-step",
-      "selection": "ordinary cache fallback"
+      "selection": "original item-labelled answer"
     },
     {
       "phase": "noise-1",
       "model": "claude-sonnet-5-5",
-      "key": "5cc6e1a1dce49ba590a4",
-      "fingerprint": "59c4fa6860ce509609de88441441e3ff75b31d3baf1b0cc12a60c62f139be948",
+      "key": "c5bf96a6d2b7e8d23b3c",
+      "fingerprint": "ccd67813c7bdf86d5a4f1927fbcba17efd38f5e482cd8c7dd3f3b57ff5899b55",
       "bench": "longjudge-verify",
       "contestant": "driftbench-verify-uncertainty-cascade",
       "item": "0af2a305f4c4e44a69c7fd5e03d7f74e_7ff87a43db7f15aa80827e2230dd95a1",
       "order": "program",
-      "selection": "ordinary cache fallback"
+      "selection": "original item-labelled answer"
     },
     {
       "phase": "noise-1",
       "model": "claude-sonnet-5-5",
-      "key": "cbcea8e19525734d6d48",
-      "fingerprint": "8aebe2cfc7f42675a8bcc1f097b4d94eaa96fd50958790fab9576ee9326c0b7f",
+      "key": "ba37023f867635025f49",
+      "fingerprint": "965dc83fe113595cbf682225a45eaeb5771df71d4f668ebf69f7bb2e9958f016",
       "bench": "longjudge-verify",
       "contestant": "driftbench-verify-uncertainty-cascade",
       "item": "0af2a305f4c4e44a69c7fd5e03d7f74e_7ff87a43db7f15aa80827e2230dd95a1",
       "order": "single",
-      "selection": "ordinary cache fallback"
+      "selection": "original item-labelled answer"
     },
     {
       "phase": "noise-1",
@@ -6269,7 +6269,7 @@
       "contestant": "promptfoo",
       "item": "0af2a305f4c4e44a69c7fd5e03d7f74e_7ff87a43db7f15aa80827e2230dd95a1",
       "order": "single",
-      "selection": "ordinary cache fallback"
+      "selection": "original item-labelled answer"
     },
     {
       "phase": "noise-1",
@@ -6280,7 +6280,7 @@
       "contestant": "driftbench-verify-uncertainty-cascade",
       "item": "1548f1e34026a5988f77c35cbc1e2528_c39553e7f10dd1483084dd94954eb1ec",
       "order": "blind-algebra",
-      "selection": "ordinary cache fallback"
+      "selection": "original item-labelled answer"
     },
     {
       "phase": "noise-1",
@@ -6291,7 +6291,7 @@
       "contestant": "driftbench-verify-uncertainty-cascade",
       "item": "1548f1e34026a5988f77c35cbc1e2528_c39553e7f10dd1483084dd94954eb1ec",
       "order": "blind-direct-program",
-      "selection": "ordinary cache fallback"
+      "selection": "original item-labelled answer"
     },
     {
       "phase": "noise-1",
@@ -6302,18 +6302,18 @@
       "contestant": "driftbench-verify-uncertainty-cascade",
       "item": "1548f1e34026a5988f77c35cbc1e2528_c39553e7f10dd1483084dd94954eb1ec",
       "order": "program",
-      "selection": "ordinary cache fallback"
+      "selection": "original item-labelled answer"
     },
     {
       "phase": "noise-1",
       "model": "claude-sonnet-5-5",
-      "key": "054ad1e32488794a81c9",
-      "fingerprint": "b6bb8b4c078fdef1455b32a9d0478d38bcfb889dfcb1d6d75a5e01816a0b6623",
+      "key": "ba95d894b51d208f7fe9",
+      "fingerprint": "14ebdc3be221a8199d7e7f470ae84c2dd83e98e7b5cf1b29bca42ab5b1d3f8e5",
       "bench": "longjudge-verify",
       "contestant": "driftbench-verify-uncertainty-cascade",
       "item": "1548f1e34026a5988f77c35cbc1e2528_c39553e7f10dd1483084dd94954eb1ec",
       "order": "single",
-      "selection": "ordinary cache fallback"
+      "selection": "original item-labelled answer"
     },
     {
       "phase": "noise-1",
@@ -6324,7 +6324,7 @@
       "contestant": "promptfoo",
       "item": "1548f1e34026a5988f77c35cbc1e2528_c39553e7f10dd1483084dd94954eb1ec",
       "order": "single",
-      "selection": "ordinary cache fallback"
+      "selection": "original item-labelled answer"
     },
     {
       "phase": "noise-1",
@@ -6335,7 +6335,7 @@
       "contestant": "driftbench-verify-uncertainty-cascade",
       "item": "1bd8144011c39f410df900a04d6e156a_f0ff48079a16eda16a3925eb5c78c21a",
       "order": "quoted-extract",
-      "selection": "ordinary cache fallback"
+      "selection": "original item-labelled answer"
     },
     {
       "phase": "noise-1",
@@ -6346,7 +6346,7 @@
       "contestant": "driftbench-verify-uncertainty-cascade",
       "item": "1bd8144011c39f410df900a04d6e156a_f0ff48079a16eda16a3925eb5c78c21a",
       "order": "blind-algebra",
-      "selection": "ordinary cache fallback"
+      "selection": "original item-labelled answer"
     },
     {
       "phase": "noise-1",
@@ -6357,29 +6357,40 @@
       "contestant": "driftbench-verify-uncertainty-cascade",
       "item": "1bd8144011c39f410df900a04d6e156a_f0ff48079a16eda16a3925eb5c78c21a",
       "order": "blind-direct-program",
-      "selection": "ordinary cache fallback"
+      "selection": "original item-labelled answer"
     },
     {
       "phase": "noise-1",
       "model": "claude-sonnet-5-5",
-      "key": "ee8ff216a70f73ed78cc",
-      "fingerprint": "07d1b0d927f0d1337933225a94ed6a2c69cc098e1a31889ca71f007a88c5d75a",
+      "key": "df4fda559cd2015fa475",
+      "fingerprint": "b1cafe3db188b5b7e84336ba8d4a4c79f06358230c25546b17d11bd3d23485c8",
       "bench": "longjudge-verify",
       "contestant": "driftbench-verify-uncertainty-cascade",
       "item": "1bd8144011c39f410df900a04d6e156a_f0ff48079a16eda16a3925eb5c78c21a",
       "order": "program",
-      "selection": "ordinary cache fallback"
+      "selection": "original item-labelled answer"
     },
     {
       "phase": "noise-1",
       "model": "claude-sonnet-5-5",
-      "key": "b8deb4714da84e52bbb0",
-      "fingerprint": "2c4371cd64b4761dff08e8f94c30c36382f8b0842dc7f0260e64391f76ccf242",
+      "key": "965bc7a2eb90fc46c43a",
+      "fingerprint": "413b1932426dc2edd05f73004f3c2f03e167621fa95aa76c379e8224bc567681",
       "bench": "longjudge-verify",
       "contestant": "driftbench-verify-uncertainty-cascade",
       "item": "1bd8144011c39f410df900a04d6e156a_f0ff48079a16eda16a3925eb5c78c21a",
       "order": "single",
-      "selection": "ordinary cache fallback"
+      "selection": "original item-labelled answer"
+    },
+    {
+      "phase": "noise-1",
+      "model": "claude-sonnet-5-5",
+      "key": "888b6912db0b46c5828d",
+      "fingerprint": "945b565912e21c62f52b645fc951ef9cc27a228caa776531a84a1d949391b616",
+      "bench": "longjudge-verify",
+      "contestant": "driftbench-verify-uncertainty-cascade",
+      "item": "1bd8144011c39f410df900a04d6e156a_f0ff48079a16eda16a3925eb5c78c21a",
+      "order": "single-review",
+      "selection": "original item-labelled answer"
     },
     {
       "phase": "noise-1",
@@ -6390,7 +6401,7 @@
       "contestant": "promptfoo",
       "item": "1bd8144011c39f410df900a04d6e156a_f0ff48079a16eda16a3925eb5c78c21a",
       "order": "single",
-      "selection": "ordinary cache fallback"
+      "selection": "original item-labelled answer"
     },
     {
       "phase": "noise-1",
@@ -6401,7 +6412,7 @@
       "contestant": "driftbench-verify-uncertainty-cascade",
       "item": "20f09d89d7c677862fd06e2e96e7ec19_a7f2ac04dc8fb1609ab7384631ce736c",
       "order": "blind-algebra",
-      "selection": "ordinary cache fallback"
+      "selection": "original item-labelled answer"
     },
     {
       "phase": "noise-1",
@@ -6412,7 +6423,7 @@
       "contestant": "driftbench-verify-uncertainty-cascade",
       "item": "20f09d89d7c677862fd06e2e96e7ec19_a7f2ac04dc8fb1609ab7384631ce736c",
       "order": "blind-direct-program",
-      "selection": "ordinary cache fallback"
+      "selection": "original item-labelled answer"
     },
     {
       "phase": "noise-1",
@@ -6423,18 +6434,18 @@
       "contestant": "driftbench-verify-uncertainty-cascade",
       "item": "20f09d89d7c677862fd06e2e96e7ec19_a7f2ac04dc8fb1609ab7384631ce736c",
       "order": "program",
-      "selection": "ordinary cache fallback"
+      "selection": "original item-labelled answer"
     },
     {
       "phase": "noise-1",
       "model": "claude-sonnet-5-5",
-      "key": "ddbff6009af804da3aee",
-      "fingerprint": "b370a74701f41dfd0c919f9a399cc3e9e5401729281a1bac08429f15ed2847cc",
+      "key": "68e7cb2fc8ccb4ea84a6",
+      "fingerprint": "55350900960c6f1df98248b7be9296b7c2576cd0cab3a2fbd318eae097cda062",
       "bench": "longjudge-verify",
       "contestant": "driftbench-verify-uncertainty-cascade",
       "item": "20f09d89d7c677862fd06e2e96e7ec19_a7f2ac04dc8fb1609ab7384631ce736c",
       "order": "single",
-      "selection": "ordinary cache fallback"
+      "selection": "original item-labelled answer"
     },
     {
       "phase": "noise-1",
@@ -6445,7 +6456,7 @@
       "contestant": "promptfoo",
       "item": "20f09d89d7c677862fd06e2e96e7ec19_a7f2ac04dc8fb1609ab7384631ce736c",
       "order": "single",
-      "selection": "ordinary cache fallback"
+      "selection": "original item-labelled answer"
     },
     {
       "phase": "noise-1",
@@ -6456,7 +6467,7 @@
       "contestant": "driftbench-verify-uncertainty-cascade",
       "item": "251325e4d8bd19d38d1481ec5bb6b952_b0e0faf620816637683d6cefbc8d905d",
       "order": "quoted-extract",
-      "selection": "ordinary cache fallback"
+      "selection": "original item-labelled answer"
     },
     {
       "phase": "noise-1",
@@ -6467,7 +6478,7 @@
       "contestant": "driftbench-verify-uncertainty-cascade",
       "item": "251325e4d8bd19d38d1481ec5bb6b952_b0e0faf620816637683d6cefbc8d905d",
       "order": "blind-algebra",
-      "selection": "ordinary cache fallback"
+      "selection": "original item-labelled answer"
     },
     {
       "phase": "noise-1",
@@ -6478,40 +6489,40 @@
       "contestant": "driftbench-verify-uncertainty-cascade",
       "item": "251325e4d8bd19d38d1481ec5bb6b952_b0e0faf620816637683d6cefbc8d905d",
       "order": "blind-direct-program",
-      "selection": "ordinary cache fallback"
+      "selection": "original item-labelled answer"
     },
     {
       "phase": "noise-1",
       "model": "claude-sonnet-5-5",
-      "key": "f7e0361cea11e8c93533",
-      "fingerprint": "d14a2d64766f845ec114c92a3ff805ba9191da2efdfbd64cd9704bb4705b2d36",
+      "key": "799406f7b0e7cb809609",
+      "fingerprint": "089d77d9ca346a95dc04f51a9bfbc09cff0cfbe3c46cc7184a9202f72fd783d1",
       "bench": "longjudge-verify",
       "contestant": "driftbench-verify-uncertainty-cascade",
       "item": "251325e4d8bd19d38d1481ec5bb6b952_b0e0faf620816637683d6cefbc8d905d",
       "order": "final-step",
-      "selection": "ordinary cache fallback"
+      "selection": "original item-labelled answer"
     },
     {
       "phase": "noise-1",
       "model": "claude-sonnet-5-5",
-      "key": "a9d0de58d59b7df09ce5",
-      "fingerprint": "0ff31eb41c540b0bb3ec40522d3654b0de0913ca1cc988fce208793f37665757",
+      "key": "4a72c8dde075a72b370d",
+      "fingerprint": "266d1993bdc8a7e6622d3a9158a21861a918307d6dbade965a54e98e15c26bcf",
       "bench": "longjudge-verify",
       "contestant": "driftbench-verify-uncertainty-cascade",
       "item": "251325e4d8bd19d38d1481ec5bb6b952_b0e0faf620816637683d6cefbc8d905d",
       "order": "program",
-      "selection": "ordinary cache fallback"
+      "selection": "original item-labelled answer"
     },
     {
       "phase": "noise-1",
       "model": "claude-sonnet-5-5",
-      "key": "e75f3f56f35395ddd296",
-      "fingerprint": "91f771f63f4667b4284f93673f8f0c7fda82f24881473a6fec0d8991161d1e35",
+      "key": "60c1528086dd69281bb6",
+      "fingerprint": "56436f2b1a1ba95a9e79795e410479f5760a6c86bc1378d9ff3a90d35e2d8b03",
       "bench": "longjudge-verify",
       "contestant": "driftbench-verify-uncertainty-cascade",
       "item": "251325e4d8bd19d38d1481ec5bb6b952_b0e0faf620816637683d6cefbc8d905d",
       "order": "single",
-      "selection": "ordinary cache fallback"
+      "selection": "original item-labelled answer"
     },
     {
       "phase": "noise-1",
@@ -6522,7 +6533,7 @@
       "contestant": "promptfoo",
       "item": "251325e4d8bd19d38d1481ec5bb6b952_b0e0faf620816637683d6cefbc8d905d",
       "order": "single",
-      "selection": "ordinary cache fallback"
+      "selection": "original item-labelled answer"
     },
     {
       "phase": "noise-1",
@@ -6533,7 +6544,7 @@
       "contestant": "driftbench-verify-uncertainty-cascade",
       "item": "2c0b811d86ed6140f5f9811cf3a320fa_4e375ba613e31acadbdf76cf9dcb95ad",
       "order": "blind-algebra",
-      "selection": "ordinary cache fallback"
+      "selection": "original item-labelled answer"
     },
     {
       "phase": "noise-1",
@@ -6544,7 +6555,7 @@
       "contestant": "driftbench-verify-uncertainty-cascade",
       "item": "2c0b811d86ed6140f5f9811cf3a320fa_4e375ba613e31acadbdf76cf9dcb95ad",
       "order": "blind-direct-program",
-      "selection": "ordinary cache fallback"
+      "selection": "original item-labelled answer"
     },
     {
       "phase": "noise-1",
@@ -6555,18 +6566,29 @@
       "contestant": "driftbench-verify-uncertainty-cascade",
       "item": "2c0b811d86ed6140f5f9811cf3a320fa_4e375ba613e31acadbdf76cf9dcb95ad",
       "order": "program",
-      "selection": "ordinary cache fallback"
+      "selection": "original item-labelled answer"
     },
     {
       "phase": "noise-1",
       "model": "claude-sonnet-5-5",
-      "key": "593dd04d03fe29cebe64",
-      "fingerprint": "3a3673a2ab10f3fbc592e59b69780195d589826f3c0e8caa87dc0182aaef4cbd",
+      "key": "60eb7de560ca512f158d",
+      "fingerprint": "e0ec45251c1d4269947ef645b742816f46ae83a0afbcd5376cf0bd8aec89264a",
       "bench": "longjudge-verify",
       "contestant": "driftbench-verify-uncertainty-cascade",
       "item": "2c0b811d86ed6140f5f9811cf3a320fa_4e375ba613e31acadbdf76cf9dcb95ad",
       "order": "single",
-      "selection": "ordinary cache fallback"
+      "selection": "original item-labelled answer"
+    },
+    {
+      "phase": "noise-1",
+      "model": "claude-sonnet-5-5",
+      "key": "a5967194e8ba080dc5bd",
+      "fingerprint": "c2f5f7d1674fea9b0b597bd6393e395685fdabb3cddfe2d8561ad92b0ba86570",
+      "bench": "longjudge-verify",
+      "contestant": "driftbench-verify-uncertainty-cascade",
+      "item": "2c0b811d86ed6140f5f9811cf3a320fa_4e375ba613e31acadbdf76cf9dcb95ad",
+      "order": "single-review",
+      "selection": "original item-labelled answer"
     },
     {
       "phase": "noise-1",
@@ -6577,7 +6599,7 @@
       "contestant": "promptfoo",
       "item": "2c0b811d86ed6140f5f9811cf3a320fa_4e375ba613e31acadbdf76cf9dcb95ad",
       "order": "single",
-      "selection": "ordinary cache fallback"
+      "selection": "original item-labelled answer"
     },
     {
       "phase": "noise-1",
@@ -6588,7 +6610,7 @@
       "contestant": "driftbench-verify-uncertainty-cascade",
       "item": "2fabe7c11c7747a8d772a0ef0448e9a8_ce122c4fd3633a58d1e4ead1e46a9a01",
       "order": "blind-algebra",
-      "selection": "ordinary cache fallback"
+      "selection": "original item-labelled answer"
     },
     {
       "phase": "noise-1",
@@ -6599,7 +6621,7 @@
       "contestant": "driftbench-verify-uncertainty-cascade",
       "item": "2fabe7c11c7747a8d772a0ef0448e9a8_ce122c4fd3633a58d1e4ead1e46a9a01",
       "order": "blind-direct-program",
-      "selection": "ordinary cache fallback"
+      "selection": "original item-labelled answer"
     },
     {
       "phase": "noise-1",
@@ -6610,18 +6632,18 @@
       "contestant": "driftbench-verify-uncertainty-cascade",
       "item": "2fabe7c11c7747a8d772a0ef0448e9a8_ce122c4fd3633a58d1e4ead1e46a9a01",
       "order": "program",
-      "selection": "ordinary cache fallback"
+      "selection": "original item-labelled answer"
     },
     {
       "phase": "noise-1",
       "model": "claude-sonnet-5-5",
-      "key": "b62bab4969094d055162",
-      "fingerprint": "5e6caa97f9cbeb443e480f050a5424ec281d96f10d15da075ce1f06dba93e9a7",
+      "key": "5c19ea94cee102c6e9ee",
+      "fingerprint": "118ee836db71d5c14752982666f6fc5c42b6d01f3c8bf4fb0db36dc3fb6d39fc",
       "bench": "longjudge-verify",
       "contestant": "driftbench-verify-uncertainty-cascade",
       "item": "2fabe7c11c7747a8d772a0ef0448e9a8_ce122c4fd3633a58d1e4ead1e46a9a01",
       "order": "single",
-      "selection": "ordinary cache fallback"
+      "selection": "original item-labelled answer"
     },
     {
       "phase": "noise-1",
@@ -6632,7 +6654,7 @@
       "contestant": "promptfoo",
       "item": "2fabe7c11c7747a8d772a0ef0448e9a8_ce122c4fd3633a58d1e4ead1e46a9a01",
       "order": "single",
-      "selection": "ordinary cache fallback"
+      "selection": "original item-labelled answer"
     },
     {
       "phase": "noise-1",
@@ -6643,7 +6665,7 @@
       "contestant": "driftbench-verify-uncertainty-cascade",
       "item": "316ee3d0bc7b041ff6036ff4eedebd63_2a81f176304fb48b93a51804c8813763",
       "order": "blind-algebra",
-      "selection": "ordinary cache fallback"
+      "selection": "original item-labelled answer"
     },
     {
       "phase": "noise-1",
@@ -6654,7 +6676,7 @@
       "contestant": "driftbench-verify-uncertainty-cascade",
       "item": "316ee3d0bc7b041ff6036ff4eedebd63_2a81f176304fb48b93a51804c8813763",
       "order": "blind-direct-program",
-      "selection": "ordinary cache fallback"
+      "selection": "original item-labelled answer"
     },
     {
       "phase": "noise-1",
@@ -6665,18 +6687,18 @@
       "contestant": "driftbench-verify-uncertainty-cascade",
       "item": "316ee3d0bc7b041ff6036ff4eedebd63_2a81f176304fb48b93a51804c8813763",
       "order": "program",
-      "selection": "ordinary cache fallback"
+      "selection": "original item-labelled answer"
     },
     {
       "phase": "noise-1",
       "model": "claude-sonnet-5-5",
-      "key": "52717de477d46a80eb29",
-      "fingerprint": "ae2bfc4bb0c6aa886d4cc2e4e10dbc825673e2e45196ccdfa924424d19b36c39",
+      "key": "ee82b46316b068cc5f9f",
+      "fingerprint": "152b79d5f744c7d39194536a4dcc2a7ea5440ea35f9c9fbfa236752726aeceb0",
       "bench": "longjudge-verify",
       "contestant": "driftbench-verify-uncertainty-cascade",
       "item": "316ee3d0bc7b041ff6036ff4eedebd63_2a81f176304fb48b93a51804c8813763",
       "order": "single",
-      "selection": "ordinary cache fallback"
+      "selection": "original item-labelled answer"
     },
     {
       "phase": "noise-1",
@@ -6687,7 +6709,7 @@
       "contestant": "promptfoo",
       "item": "316ee3d0bc7b041ff6036ff4eedebd63_2a81f176304fb48b93a51804c8813763",
       "order": "single",
-      "selection": "ordinary cache fallback"
+      "selection": "original item-labelled answer"
     },
     {
       "phase": "noise-1",
@@ -6698,7 +6720,7 @@
       "contestant": "driftbench-verify-uncertainty-cascade",
       "item": "3c59c6f19c05e74596f075c311a4cded_e864f7a031ed4f8dc9c0983cec0121f8",
       "order": "quoted-extract",
-      "selection": "ordinary cache fallback"
+      "selection": "original item-labelled answer"
     },
     {
       "phase": "noise-1",
@@ -6709,7 +6731,7 @@
       "contestant": "driftbench-verify-uncertainty-cascade",
       "item": "3c59c6f19c05e74596f075c311a4cded_e864f7a031ed4f8dc9c0983cec0121f8",
       "order": "blind-algebra",
-      "selection": "ordinary cache fallback"
+      "selection": "original item-labelled answer"
     },
     {
       "phase": "noise-1",
@@ -6720,29 +6742,29 @@
       "contestant": "driftbench-verify-uncertainty-cascade",
       "item": "3c59c6f19c05e74596f075c311a4cded_e864f7a031ed4f8dc9c0983cec0121f8",
       "order": "blind-direct-program",
-      "selection": "ordinary cache fallback"
+      "selection": "original item-labelled answer"
     },
     {
       "phase": "noise-1",
       "model": "claude-sonnet-5-5",
-      "key": "9fa3ddc4de2f35153ba2",
-      "fingerprint": "b8c69f4998e91b92f31eeb4d0d49316bd0198de671b5c0f93cc6e675b070b110",
+      "key": "d637871957577bf287cc",
+      "fingerprint": "0682e48833b063a272db8efa601e7e36abd20a576ac0f3ff9ab9c412e1c6c785",
       "bench": "longjudge-verify",
       "contestant": "driftbench-verify-uncertainty-cascade",
       "item": "3c59c6f19c05e74596f075c311a4cded_e864f7a031ed4f8dc9c0983cec0121f8",
       "order": "program",
-      "selection": "ordinary cache fallback"
+      "selection": "original item-labelled answer"
     },
     {
       "phase": "noise-1",
       "model": "claude-sonnet-5-5",
-      "key": "d9334f543b6d33cd7113",
-      "fingerprint": "b79be74bd2bcb02695839b9f8623f053f0994d4d16c3cda97de88c4b7b336370",
+      "key": "4d6fa05262729c1cfdea",
+      "fingerprint": "8736af685614c69cd5a66e8f3dbdf53efa59ae6f851e6510989f16b7156000f6",
       "bench": "longjudge-verify",
       "contestant": "driftbench-verify-uncertainty-cascade",
       "item": "3c59c6f19c05e74596f075c311a4cded_e864f7a031ed4f8dc9c0983cec0121f8",
       "order": "single",
-      "selection": "ordinary cache fallback"
+      "selection": "original item-labelled answer"
     },
     {
       "phase": "noise-1",
@@ -6753,7 +6775,7 @@
       "contestant": "promptfoo",
       "item": "3c59c6f19c05e74596f075c311a4cded_e864f7a031ed4f8dc9c0983cec0121f8",
       "order": "single",
-      "selection": "ordinary cache fallback"
+      "selection": "original item-labelled answer"
     },
     {
       "phase": "noise-1",
@@ -6764,7 +6786,7 @@
       "contestant": "driftbench-verify-uncertainty-cascade",
       "item": "3e12f104244648c9a58ed98d25d06249_a2144e352f15bb692f84f1721110479b",
       "order": "blind-algebra",
-      "selection": "ordinary cache fallback"
+      "selection": "original item-labelled answer"
     },
     {
       "phase": "noise-1",
@@ -6775,7 +6797,7 @@
       "contestant": "driftbench-verify-uncertainty-cascade",
       "item": "3e12f104244648c9a58ed98d25d06249_a2144e352f15bb692f84f1721110479b",
       "order": "blind-direct-program",
-      "selection": "ordinary cache fallback"
+      "selection": "original item-labelled answer"
     },
     {
       "phase": "noise-1",
@@ -6786,18 +6808,18 @@
       "contestant": "driftbench-verify-uncertainty-cascade",
       "item": "3e12f104244648c9a58ed98d25d06249_a2144e352f15bb692f84f1721110479b",
       "order": "program",
-      "selection": "ordinary cache fallback"
+      "selection": "original item-labelled answer"
     },
     {
       "phase": "noise-1",
       "model": "claude-sonnet-5-5",
-      "key": "28bda5f5810e2413d0cd",
-      "fingerprint": "87ea49ed0f04f75eeea42c6110e89059f6b190ab3ea0f6e1a9b4477a79f4f482",
+      "key": "195fc72979a3faeba8e1",
+      "fingerprint": "d9a9ff90e9b427b5c8cbbd0ef7840825e04d4eb8fa2091d63b29a4857a0a65f8",
       "bench": "longjudge-verify",
       "contestant": "driftbench-verify-uncertainty-cascade",
       "item": "3e12f104244648c9a58ed98d25d06249_a2144e352f15bb692f84f1721110479b",
       "order": "single",
-      "selection": "ordinary cache fallback"
+      "selection": "original item-labelled answer"
     },
     {
       "phase": "noise-1",
@@ -6808,7 +6830,7 @@
       "contestant": "promptfoo",
       "item": "3e12f104244648c9a58ed98d25d06249_a2144e352f15bb692f84f1721110479b",
       "order": "single",
-      "selection": "ordinary cache fallback"
+      "selection": "original item-labelled answer"
     },
     {
       "phase": "noise-1",
@@ -6819,7 +6841,7 @@
       "contestant": "driftbench-verify-uncertainty-cascade",
       "item": "426cee0607fecfe6c4787ef3291d8484_e0eb041693a1eaaba4375c74e5eb344b",
       "order": "blind-algebra",
-      "selection": "ordinary cache fallback"
+      "selection": "original item-labelled answer"
     },
     {
       "phase": "noise-1",
@@ -6830,7 +6852,7 @@
       "contestant": "driftbench-verify-uncertainty-cascade",
       "item": "426cee0607fecfe6c4787ef3291d8484_e0eb041693a1eaaba4375c74e5eb344b",
       "order": "blind-direct-program",
-      "selection": "ordinary cache fallback"
+      "selection": "original item-labelled answer"
     },
     {
       "phase": "noise-1",
@@ -6841,7 +6863,7 @@
       "contestant": "driftbench-verify-uncertainty-cascade",
       "item": "426cee0607fecfe6c4787ef3291d8484_e0eb041693a1eaaba4375c74e5eb344b",
       "order": "final-step",
-      "selection": "ordinary cache fallback"
+      "selection": "original item-labelled answer"
     },
     {
       "phase": "noise-1",
@@ -6852,18 +6874,18 @@
       "contestant": "driftbench-verify-uncertainty-cascade",
       "item": "426cee0607fecfe6c4787ef3291d8484_e0eb041693a1eaaba4375c74e5eb344b",
       "order": "program",
-      "selection": "ordinary cache fallback"
+      "selection": "original item-labelled answer"
     },
     {
       "phase": "noise-1",
       "model": "claude-sonnet-5-5",
-      "key": "9403140f217ede2a29b9",
-      "fingerprint": "dce8d6a777180813d917d120214e57bc4bc28f8be4b911f8d627829d11a15de5",
+      "key": "8ac8af6dfe88a940afae",
+      "fingerprint": "68a885fdb1efc3eb91df4a99baa6f44bac6f9a7931635e272d1eeeacf4ca3541",
       "bench": "longjudge-verify",
       "contestant": "driftbench-verify-uncertainty-cascade",
       "item": "426cee0607fecfe6c4787ef3291d8484_e0eb041693a1eaaba4375c74e5eb344b",
       "order": "single",
-      "selection": "ordinary cache fallback"
+      "selection": "original item-labelled answer"
     },
     {
       "phase": "noise-1",
@@ -6874,7 +6896,7 @@
       "contestant": "promptfoo",
       "item": "426cee0607fecfe6c4787ef3291d8484_e0eb041693a1eaaba4375c74e5eb344b",
       "order": "single",
-      "selection": "ordinary cache fallback"
+      "selection": "original item-labelled answer"
     },
     {
       "phase": "noise-1",
@@ -6885,7 +6907,7 @@
       "contestant": "driftbench-verify-uncertainty-cascade",
       "item": "465fc22785286db5dd33b22506c32cb7_167ebe0d73af5771692e25d41290c636",
       "order": "quoted-extract",
-      "selection": "ordinary cache fallback"
+      "selection": "original item-labelled answer"
     },
     {
       "phase": "noise-1",
@@ -6896,7 +6918,7 @@
       "contestant": "driftbench-verify-uncertainty-cascade",
       "item": "465fc22785286db5dd33b22506c32cb7_167ebe0d73af5771692e25d41290c636",
       "order": "blind-algebra",
-      "selection": "ordinary cache fallback"
+      "selection": "original item-labelled answer"
     },
     {
       "phase": "noise-1",
@@ -6907,7 +6929,7 @@
       "contestant": "driftbench-verify-uncertainty-cascade",
       "item": "465fc22785286db5dd33b22506c32cb7_167ebe0d73af5771692e25d41290c636",
       "order": "blind-direct-program",
-      "selection": "ordinary cache fallback"
+      "selection": "original item-labelled answer"
     },
     {
       "phase": "noise-1",
@@ -6918,18 +6940,18 @@
       "contestant": "driftbench-verify-uncertainty-cascade",
       "item": "465fc22785286db5dd33b22506c32cb7_167ebe0d73af5771692e25d41290c636",
       "order": "program",
-      "selection": "ordinary cache fallback"
+      "selection": "original item-labelled answer"
     },
     {
       "phase": "noise-1",
       "model": "claude-sonnet-5-5",
-      "key": "1a0df347d50204c02026",
-      "fingerprint": "527fd3c16569aca1ec9ff7ac58675af6facbb4bdad7501560e91b225e4bd5dbf",
+      "key": "bfa8ed1f6b0380a571a1",
+      "fingerprint": "2d75f495e9dcd6cfe172dda16f16705cdf66779963ad88b46b0ff38722c72367",
       "bench": "longjudge-verify",
       "contestant": "driftbench-verify-uncertainty-cascade",
       "item": "465fc22785286db5dd33b22506c32cb7_167ebe0d73af5771692e25d41290c636",
       "order": "single",
-      "selection": "ordinary cache fallback"
+      "selection": "original item-labelled answer"
     },
     {
       "phase": "noise-1",
@@ -6940,7 +6962,7 @@
       "contestant": "promptfoo",
       "item": "465fc22785286db5dd33b22506c32cb7_167ebe0d73af5771692e25d41290c636",
       "order": "single",
-      "selection": "ordinary cache fallback"
+      "selection": "original item-labelled answer"
     },
     {
       "phase": "noise-1",
@@ -6951,7 +6973,7 @@
       "contestant": "driftbench-verify-uncertainty-cascade",
       "item": "4b4809afe76dd8c903f188bf277830c2_564014cd48e8406e59bd7edae9b402f5",
       "order": "blind-algebra",
-      "selection": "ordinary cache fallback"
+      "selection": "original item-labelled answer"
     },
     {
       "phase": "noise-1",
@@ -6962,7 +6984,7 @@
       "contestant": "driftbench-verify-uncertainty-cascade",
       "item": "4b4809afe76dd8c903f188bf277830c2_564014cd48e8406e59bd7edae9b402f5",
       "order": "blind-direct-program",
-      "selection": "ordinary cache fallback"
+      "selection": "original item-labelled answer"
     },
     {
       "phase": "noise-1",
@@ -6973,18 +6995,18 @@
       "contestant": "driftbench-verify-uncertainty-cascade",
       "item": "4b4809afe76dd8c903f188bf277830c2_564014cd48e8406e59bd7edae9b402f5",
       "order": "program",
-      "selection": "ordinary cache fallback"
+      "selection": "original item-labelled answer"
     },
     {
       "phase": "noise-1",
       "model": "claude-sonnet-5-5",
-      "key": "a817b6c4b6058384b631",
-      "fingerprint": "4ec75e0f534492fe6a68935df3a3b56cc69023bf5c85c2b9d6a90c3ee0536f64",
+      "key": "6e3d15e11dcbf8687b1e",
+      "fingerprint": "7d345d2294c7239f2b69a50556dfa09e91e1eb70ffe6eb38355f9c6fa2445d98",
       "bench": "longjudge-verify",
       "contestant": "driftbench-verify-uncertainty-cascade",
       "item": "4b4809afe76dd8c903f188bf277830c2_564014cd48e8406e59bd7edae9b402f5",
       "order": "single",
-      "selection": "ordinary cache fallback"
+      "selection": "original item-labelled answer"
     },
     {
       "phase": "noise-1",
@@ -6995,7 +7017,7 @@
       "contestant": "promptfoo",
       "item": "4b4809afe76dd8c903f188bf277830c2_564014cd48e8406e59bd7edae9b402f5",
       "order": "single",
-      "selection": "ordinary cache fallback"
+      "selection": "original item-labelled answer"
     },
     {
       "phase": "noise-1",
@@ -7006,7 +7028,7 @@
       "contestant": "driftbench-verify-uncertainty-cascade",
       "item": "4d1497a568219528716b51f87ef72f18_6029e690d7a881057e987894b31db7e6",
       "order": "blind-algebra",
-      "selection": "ordinary cache fallback"
+      "selection": "original item-labelled answer"
     },
     {
       "phase": "noise-1",
@@ -7017,7 +7039,7 @@
       "contestant": "driftbench-verify-uncertainty-cascade",
       "item": "4d1497a568219528716b51f87ef72f18_6029e690d7a881057e987894b31db7e6",
       "order": "blind-direct-program",
-      "selection": "ordinary cache fallback"
+      "selection": "original item-labelled answer"
     },
     {
       "phase": "noise-1",
@@ -7028,18 +7050,18 @@
       "contestant": "driftbench-verify-uncertainty-cascade",
       "item": "4d1497a568219528716b51f87ef72f18_6029e690d7a881057e987894b31db7e6",
       "order": "program",
-      "selection": "ordinary cache fallback"
+      "selection": "original item-labelled answer"
     },
     {
       "phase": "noise-1",
       "model": "claude-sonnet-5-5",
-      "key": "ba2100c2d411b905498e",
-      "fingerprint": "b1dfa40030a6accf88b669dc023640e5ae666dd65575ee2b358b8797601e0464",
+      "key": "6d66956a7f539f722e9c",
+      "fingerprint": "a3daa8daba1349f31a4cbf86bd585db34bce7e069cbb12b922849fdb7bfce503",
       "bench": "longjudge-verify",
       "contestant": "driftbench-verify-uncertainty-cascade",
       "item": "4d1497a568219528716b51f87ef72f18_6029e690d7a881057e987894b31db7e6",
       "order": "single",
-      "selection": "ordinary cache fallback"
+      "selection": "original item-labelled answer"
     },
     {
       "phase": "noise-1",
@@ -7050,7 +7072,7 @@
       "contestant": "promptfoo",
       "item": "4d1497a568219528716b51f87ef72f18_6029e690d7a881057e987894b31db7e6",
       "order": "single",
-      "selection": "ordinary cache fallback"
+      "selection": "original item-labelled answer"
     },
     {
       "phase": "noise-1",
@@ -7061,7 +7083,7 @@
       "contestant": "driftbench-verify-uncertainty-cascade",
       "item": "4d94773555d0a8e3f9b059e6cc729bdf_42f7be3f4cdef5f9018edfefec78418b",
       "order": "blind-algebra",
-      "selection": "ordinary cache fallback"
+      "selection": "original item-labelled answer"
     },
     {
       "phase": "noise-1",
@@ -7072,7 +7094,7 @@
       "contestant": "driftbench-verify-uncertainty-cascade",
       "item": "4d94773555d0a8e3f9b059e6cc729bdf_42f7be3f4cdef5f9018edfefec78418b",
       "order": "blind-direct-program",
-      "selection": "ordinary cache fallback"
+      "selection": "original item-labelled answer"
     },
     {
       "phase": "noise-1",
@@ -7083,18 +7105,18 @@
       "contestant": "driftbench-verify-uncertainty-cascade",
       "item": "4d94773555d0a8e3f9b059e6cc729bdf_42f7be3f4cdef5f9018edfefec78418b",
       "order": "program",
-      "selection": "ordinary cache fallback"
+      "selection": "original item-labelled answer"
     },
     {
       "phase": "noise-1",
       "model": "claude-sonnet-5-5",
-      "key": "1dad3dd8c8eb90d2ec0e",
-      "fingerprint": "33491b1cc6adc5424fed316ef8b0f62a6edcc85254f51e3e9b975e2b462b8e74",
+      "key": "c6584d06b0e2a508ee5f",
+      "fingerprint": "cd4256e08e38ad54a5e5ad4921ca887c53f8c33c2788e235fe533661f43462bf",
       "bench": "longjudge-verify",
       "contestant": "driftbench-verify-uncertainty-cascade",
       "item": "4d94773555d0a8e3f9b059e6cc729bdf_42f7be3f4cdef5f9018edfefec78418b",
       "order": "single",
-      "selection": "ordinary cache fallback"
+      "selection": "original item-labelled answer"
     },
     {
       "phase": "noise-1",
@@ -7105,7 +7127,7 @@
       "contestant": "promptfoo",
       "item": "4d94773555d0a8e3f9b059e6cc729bdf_42f7be3f4cdef5f9018edfefec78418b",
       "order": "single",
-      "selection": "ordinary cache fallback"
+      "selection": "original item-labelled answer"
     },
     {
       "phase": "noise-1",
@@ -7116,7 +7138,7 @@
       "contestant": "driftbench-verify-uncertainty-cascade",
       "item": "4e962b5781cb54bc20844b76f48015bf_5030f4551098b9ae90f2f5e090b46346",
       "order": "blind-algebra",
-      "selection": "ordinary cache fallback"
+      "selection": "original item-labelled answer"
     },
     {
       "phase": "noise-1",
@@ -7127,7 +7149,7 @@
       "contestant": "driftbench-verify-uncertainty-cascade",
       "item": "4e962b5781cb54bc20844b76f48015bf_5030f4551098b9ae90f2f5e090b46346",
       "order": "blind-direct-program",
-      "selection": "ordinary cache fallback"
+      "selection": "original item-labelled answer"
     },
     {
       "phase": "noise-1",
@@ -7138,7 +7160,7 @@
       "contestant": "driftbench-verify-uncertainty-cascade",
       "item": "4e962b5781cb54bc20844b76f48015bf_5030f4551098b9ae90f2f5e090b46346",
       "order": "final-step",
-      "selection": "ordinary cache fallback"
+      "selection": "original item-labelled answer"
     },
     {
       "phase": "noise-1",
@@ -7149,18 +7171,18 @@
       "contestant": "driftbench-verify-uncertainty-cascade",
       "item": "4e962b5781cb54bc20844b76f48015bf_5030f4551098b9ae90f2f5e090b46346",
       "order": "program",
-      "selection": "ordinary cache fallback"
+      "selection": "original item-labelled answer"
     },
     {
       "phase": "noise-1",
       "model": "claude-sonnet-5-5",
-      "key": "7020a97cb105e24f5f90",
-      "fingerprint": "48d0f3e41e689ab14403d729e32c0f96782fab2a4a3d4eaba137114035d1783d",
+      "key": "62d253803388ff2e7264",
+      "fingerprint": "cd9eddc82e0a42e7e4f4d8f6daa695df876a20c6a0b1346c0a705842e1e0a7fb",
       "bench": "longjudge-verify",
       "contestant": "driftbench-verify-uncertainty-cascade",
       "item": "4e962b5781cb54bc20844b76f48015bf_5030f4551098b9ae90f2f5e090b46346",
       "order": "single",
-      "selection": "ordinary cache fallback"
+      "selection": "original item-labelled answer"
     },
     {
       "phase": "noise-1",
@@ -7171,7 +7193,7 @@
       "contestant": "promptfoo",
       "item": "4e962b5781cb54bc20844b76f48015bf_5030f4551098b9ae90f2f5e090b46346",
       "order": "single",
-      "selection": "ordinary cache fallback"
+      "selection": "original item-labelled answer"
     },
     {
       "phase": "noise-1",
@@ -7182,7 +7204,7 @@
       "contestant": "driftbench-verify-uncertainty-cascade",
       "item": "4f8faed01fbb8264519d9f4ae8989a36_45f94dc55ea05eafeb903b1266bfe98e",
       "order": "blind-algebra",
-      "selection": "ordinary cache fallback"
+      "selection": "original item-labelled answer"
     },
     {
       "phase": "noise-1",
@@ -7193,7 +7215,7 @@
       "contestant": "driftbench-verify-uncertainty-cascade",
       "item": "4f8faed01fbb8264519d9f4ae8989a36_45f94dc55ea05eafeb903b1266bfe98e",
       "order": "blind-direct-program",
-      "selection": "ordinary cache fallback"
+      "selection": "original item-labelled answer"
     },
     {
       "phase": "noise-1",
@@ -7204,7 +7226,7 @@
       "contestant": "driftbench-verify-uncertainty-cascade",
       "item": "4f8faed01fbb8264519d9f4ae8989a36_45f94dc55ea05eafeb903b1266bfe98e",
       "order": "final-step",
-      "selection": "ordinary cache fallback"
+      "selection": "original item-labelled answer"
     },
     {
       "phase": "noise-1",
@@ -7215,18 +7237,18 @@
       "contestant": "driftbench-verify-uncertainty-cascade",
       "item": "4f8faed01fbb8264519d9f4ae8989a36_45f94dc55ea05eafeb903b1266bfe98e",
       "order": "program",
-      "selection": "ordinary cache fallback"
+      "selection": "original item-labelled answer"
     },
     {
       "phase": "noise-1",
       "model": "claude-sonnet-5-5",
-      "key": "b374760724e32b296259",
-      "fingerprint": "4fd8e72050c3e5f8102076e7c03253136abd31f04bce466beef13c687605c304",
+      "key": "1266a1e77f8ff303fcaa",
+      "fingerprint": "f33b6b810aef200a461f3d33348c13a7c692d8e3809c9b5a7329a18d31667f5c",
       "bench": "longjudge-verify",
       "contestant": "driftbench-verify-uncertainty-cascade",
       "item": "4f8faed01fbb8264519d9f4ae8989a36_45f94dc55ea05eafeb903b1266bfe98e",
       "order": "single",
-      "selection": "ordinary cache fallback"
+      "selection": "original item-labelled answer"
     },
     {
       "phase": "noise-1",
@@ -7237,7 +7259,7 @@
       "contestant": "promptfoo",
       "item": "4f8faed01fbb8264519d9f4ae8989a36_45f94dc55ea05eafeb903b1266bfe98e",
       "order": "single",
-      "selection": "ordinary cache fallback"
+      "selection": "original item-labelled answer"
     },
     {
       "phase": "noise-1",
@@ -7248,7 +7270,7 @@
       "contestant": "driftbench-verify-uncertainty-cascade",
       "item": "4fd3bc514ff8e3775723a0f883a7d347_54c1d82ec537b265b891b55d68a2d539",
       "order": "quoted-extract",
-      "selection": "ordinary cache fallback"
+      "selection": "original item-labelled answer"
     },
     {
       "phase": "noise-1",
@@ -7259,7 +7281,7 @@
       "contestant": "driftbench-verify-uncertainty-cascade",
       "item": "4fd3bc514ff8e3775723a0f883a7d347_54c1d82ec537b265b891b55d68a2d539",
       "order": "blind-algebra",
-      "selection": "ordinary cache fallback"
+      "selection": "original item-labelled answer"
     },
     {
       "phase": "noise-1",
@@ -7270,29 +7292,29 @@
       "contestant": "driftbench-verify-uncertainty-cascade",
       "item": "4fd3bc514ff8e3775723a0f883a7d347_54c1d82ec537b265b891b55d68a2d539",
       "order": "blind-direct-program",
-      "selection": "ordinary cache fallback"
+      "selection": "original item-labelled answer"
     },
     {
       "phase": "noise-1",
       "model": "claude-sonnet-5-5",
-      "key": "8a68fa94a92eba8217b8",
-      "fingerprint": "6d5508193150867434d514604a44e0e2ac97df883f6bff9c75ae2b3c06f8c3bc",
+      "key": "d498f22e0a0a95424590",
+      "fingerprint": "ffb6649e6345e23cf1e361c14c0fe150263fb740f1e2e958ac363714dde7cde4",
       "bench": "longjudge-verify",
       "contestant": "driftbench-verify-uncertainty-cascade",
       "item": "4fd3bc514ff8e3775723a0f883a7d347_54c1d82ec537b265b891b55d68a2d539",
       "order": "program",
-      "selection": "ordinary cache fallback"
+      "selection": "original item-labelled answer"
     },
     {
       "phase": "noise-1",
       "model": "claude-sonnet-5-5",
-      "key": "67d2aca0069d25390604",
-      "fingerprint": "6557e8c1e604fd1a513fd6c7c95a3f8d0188e643a225e5fe360e6e5d298cc645",
+      "key": "9689d2c837978d942b5b",
+      "fingerprint": "912af55d7afd17b7a809ead7c4413e1f118823fcbfe22cf25040c3f07a6c6b3d",
       "bench": "longjudge-verify",
       "contestant": "driftbench-verify-uncertainty-cascade",
       "item": "4fd3bc514ff8e3775723a0f883a7d347_54c1d82ec537b265b891b55d68a2d539",
       "order": "single",
-      "selection": "ordinary cache fallback"
+      "selection": "original item-labelled answer"
     },
     {
       "phase": "noise-1",
@@ -7303,7 +7325,7 @@
       "contestant": "promptfoo",
       "item": "4fd3bc514ff8e3775723a0f883a7d347_54c1d82ec537b265b891b55d68a2d539",
       "order": "single",
-      "selection": "ordinary cache fallback"
+      "selection": "original item-labelled answer"
     },
     {
       "phase": "noise-1",
@@ -7314,7 +7336,7 @@
       "contestant": "driftbench-verify-uncertainty-cascade",
       "item": "50624457d129ae6ba7aa043aa9bdc92b_b8dae8e757dabf12f4302375e64baa0d",
       "order": "blind-algebra",
-      "selection": "ordinary cache fallback"
+      "selection": "original item-labelled answer"
     },
     {
       "phase": "noise-1",
@@ -7325,7 +7347,7 @@
       "contestant": "driftbench-verify-uncertainty-cascade",
       "item": "50624457d129ae6ba7aa043aa9bdc92b_b8dae8e757dabf12f4302375e64baa0d",
       "order": "blind-direct-program",
-      "selection": "ordinary cache fallback"
+      "selection": "original item-labelled answer"
     },
     {
       "phase": "noise-1",
@@ -7336,7 +7358,7 @@
       "contestant": "driftbench-verify-uncertainty-cascade",
       "item": "50624457d129ae6ba7aa043aa9bdc92b_b8dae8e757dabf12f4302375e64baa0d",
       "order": "final-step",
-      "selection": "ordinary cache fallback"
+      "selection": "original item-labelled answer"
     },
     {
       "phase": "noise-1",
@@ -7347,18 +7369,18 @@
       "contestant": "driftbench-verify-uncertainty-cascade",
       "item": "50624457d129ae6ba7aa043aa9bdc92b_b8dae8e757dabf12f4302375e64baa0d",
       "order": "program",
-      "selection": "ordinary cache fallback"
+      "selection": "original item-labelled answer"
     },
     {
       "phase": "noise-1",
       "model": "claude-sonnet-5-5",
-      "key": "02929a23a6bf2cb5af72",
-      "fingerprint": "32ed835b983f25f415a3e4bc7a471aebf4adec1b21a86cdce908388b64b01951",
+      "key": "c811201c42ddc788b980",
+      "fingerprint": "2a7ccd388dbd109752a7795aa95690065da46817a160c393518747b6c6f191ab",
       "bench": "longjudge-verify",
       "contestant": "driftbench-verify-uncertainty-cascade",
       "item": "50624457d129ae6ba7aa043aa9bdc92b_b8dae8e757dabf12f4302375e64baa0d",
       "order": "single",
-      "selection": "ordinary cache fallback"
+      "selection": "original item-labelled answer"
     },
     {
       "phase": "noise-1",
@@ -7369,7 +7391,7 @@
       "contestant": "promptfoo",
       "item": "50624457d129ae6ba7aa043aa9bdc92b_b8dae8e757dabf12f4302375e64baa0d",
       "order": "single",
-      "selection": "ordinary cache fallback"
+      "selection": "original item-labelled answer"
     },
     {
       "phase": "noise-1",
@@ -7380,7 +7402,7 @@
       "contestant": "driftbench-verify-uncertainty-cascade",
       "item": "514cb7d27518d395ec9a46c2ae62c9bf_6a8c772c3cbf9a7e26dae82deafbc213",
       "order": "quoted-extract",
-      "selection": "ordinary cache fallback"
+      "selection": "original item-labelled answer"
     },
     {
       "phase": "noise-1",
@@ -7391,7 +7413,7 @@
       "contestant": "driftbench-verify-uncertainty-cascade",
       "item": "514cb7d27518d395ec9a46c2ae62c9bf_6a8c772c3cbf9a7e26dae82deafbc213",
       "order": "blind-algebra",
-      "selection": "ordinary cache fallback"
+      "selection": "original item-labelled answer"
     },
     {
       "phase": "noise-1",
@@ -7402,40 +7424,40 @@
       "contestant": "driftbench-verify-uncertainty-cascade",
       "item": "514cb7d27518d395ec9a46c2ae62c9bf_6a8c772c3cbf9a7e26dae82deafbc213",
       "order": "blind-direct-program",
-      "selection": "ordinary cache fallback"
+      "selection": "original item-labelled answer"
     },
     {
       "phase": "noise-1",
       "model": "claude-sonnet-5-5",
-      "key": "6a643d1b6b094cbe1ed9",
-      "fingerprint": "2c6d1ceecdff9a8b066e62bd3d4d15b1e9cc3a3e7d92ec37f1d6721b4ebd2356",
+      "key": "a5c843ea05bcf5228359",
+      "fingerprint": "cac5d9dcfffbc685dab99c1f7927cfa3fd6996cd7fa9485c7ffa1e91337e17d9",
       "bench": "longjudge-verify",
       "contestant": "driftbench-verify-uncertainty-cascade",
       "item": "514cb7d27518d395ec9a46c2ae62c9bf_6a8c772c3cbf9a7e26dae82deafbc213",
       "order": "final-step",
-      "selection": "ordinary cache fallback"
+      "selection": "original item-labelled answer"
     },
     {
       "phase": "noise-1",
       "model": "claude-sonnet-5-5",
-      "key": "0c4383833b432ee994b9",
-      "fingerprint": "1561df5bf163ad3918b149f8cff594bfe3301e1437df348056cc52c888b03b67",
+      "key": "250215155b76926a5096",
+      "fingerprint": "d4ae568f0a9f180f0a00099edd589c5683da4dd6db92ea44bee7f6224e70f2b7",
       "bench": "longjudge-verify",
       "contestant": "driftbench-verify-uncertainty-cascade",
       "item": "514cb7d27518d395ec9a46c2ae62c9bf_6a8c772c3cbf9a7e26dae82deafbc213",
       "order": "program",
-      "selection": "ordinary cache fallback"
+      "selection": "original item-labelled answer"
     },
     {
       "phase": "noise-1",
       "model": "claude-sonnet-5-5",
-      "key": "d5f262d59a52defd28cc",
-      "fingerprint": "e9b467a92643553da2094013b495c10b274536558de4efb40b22bb6469badf07",
+      "key": "0d800559bf618e12104b",
+      "fingerprint": "c92ee9dea524031944378f11b24a344e862e15bc773cfd71f30218cf73e6b1af",
       "bench": "longjudge-verify",
       "contestant": "driftbench-verify-uncertainty-cascade",
       "item": "514cb7d27518d395ec9a46c2ae62c9bf_6a8c772c3cbf9a7e26dae82deafbc213",
       "order": "single",
-      "selection": "ordinary cache fallback"
+      "selection": "original item-labelled answer"
     },
     {
       "phase": "noise-1",
@@ -7446,7 +7468,7 @@
       "contestant": "promptfoo",
       "item": "514cb7d27518d395ec9a46c2ae62c9bf_6a8c772c3cbf9a7e26dae82deafbc213",
       "order": "single",
-      "selection": "ordinary cache fallback"
+      "selection": "original item-labelled answer"
     },
     {
       "phase": "noise-1",
@@ -7457,7 +7479,7 @@
       "contestant": "driftbench-verify-uncertainty-cascade",
       "item": "52fc2d3ed06507bdbd094aabcfde7e1d_67b0aab158f41fd3a9675c7d5529910e",
       "order": "blind-algebra",
-      "selection": "ordinary cache fallback"
+      "selection": "original item-labelled answer"
     },
     {
       "phase": "noise-1",
@@ -7468,7 +7490,7 @@
       "contestant": "driftbench-verify-uncertainty-cascade",
       "item": "52fc2d3ed06507bdbd094aabcfde7e1d_67b0aab158f41fd3a9675c7d5529910e",
       "order": "blind-direct-program",
-      "selection": "ordinary cache fallback"
+      "selection": "original item-labelled answer"
     },
     {
       "phase": "noise-1",
@@ -7479,18 +7501,18 @@
       "contestant": "driftbench-verify-uncertainty-cascade",
       "item": "52fc2d3ed06507bdbd094aabcfde7e1d_67b0aab158f41fd3a9675c7d5529910e",
       "order": "program",
-      "selection": "ordinary cache fallback"
+      "selection": "original item-labelled answer"
     },
     {
       "phase": "noise-1",
       "model": "claude-sonnet-5-5",
-      "key": "246afe4ab6ef37ceef05",
-      "fingerprint": "6ce6c550b551d92be5b37ae1049b4a7d1717631b5b75210b390dff67d69bf8c3",
+      "key": "94fa672b47892653ec70",
+      "fingerprint": "0f0d879d6179004ed4680c3c902c574fe91a72e7697d5f9c1e99b667dadca59f",
       "bench": "longjudge-verify",
       "contestant": "driftbench-verify-uncertainty-cascade",
       "item": "52fc2d3ed06507bdbd094aabcfde7e1d_67b0aab158f41fd3a9675c7d5529910e",
       "order": "single",
-      "selection": "ordinary cache fallback"
+      "selection": "original item-labelled answer"
     },
     {
       "phase": "noise-1",
@@ -7501,7 +7523,7 @@
       "contestant": "promptfoo",
       "item": "52fc2d3ed06507bdbd094aabcfde7e1d_67b0aab158f41fd3a9675c7d5529910e",
       "order": "single",
-      "selection": "ordinary cache fallback"
+      "selection": "original item-labelled answer"
     },
     {
       "phase": "noise-1",
@@ -7512,7 +7534,7 @@
       "contestant": "driftbench-verify-uncertainty-cascade",
       "item": "5305069c7919fc01c8707be50843590a_b156bd30f7b7d418897e9ccec7ea7708",
       "order": "blind-algebra",
-      "selection": "ordinary cache fallback"
+      "selection": "original item-labelled answer"
     },
     {
       "phase": "noise-1",
@@ -7523,7 +7545,7 @@
       "contestant": "driftbench-verify-uncertainty-cascade",
       "item": "5305069c7919fc01c8707be50843590a_b156bd30f7b7d418897e9ccec7ea7708",
       "order": "blind-direct-program",
-      "selection": "ordinary cache fallback"
+      "selection": "original item-labelled answer"
     },
     {
       "phase": "noise-1",
@@ -7534,18 +7556,18 @@
       "contestant": "driftbench-verify-uncertainty-cascade",
       "item": "5305069c7919fc01c8707be50843590a_b156bd30f7b7d418897e9ccec7ea7708",
       "order": "program",
-      "selection": "ordinary cache fallback"
+      "selection": "original item-labelled answer"
     },
     {
       "phase": "noise-1",
       "model": "claude-sonnet-5-5",
-      "key": "61cfd96cafd7c08c73d7",
-      "fingerprint": "fa707cec4a7b05dd947bafd4a4fd67db46692b7e7b795a2b098e71aa820774fd",
+      "key": "6f50745e3691382414a7",
+      "fingerprint": "3cf14f43bed48a1ae344237a0f222604409fb9fb731525dfb78cc3666804b7de",
       "bench": "longjudge-verify",
       "contestant": "driftbench-verify-uncertainty-cascade",
       "item": "5305069c7919fc01c8707be50843590a_b156bd30f7b7d418897e9ccec7ea7708",
       "order": "single",
-      "selection": "ordinary cache fallback"
+      "selection": "original item-labelled answer"
     },
     {
       "phase": "noise-1",
@@ -7556,7 +7578,7 @@
       "contestant": "promptfoo",
       "item": "5305069c7919fc01c8707be50843590a_b156bd30f7b7d418897e9ccec7ea7708",
       "order": "single",
-      "selection": "ordinary cache fallback"
+      "selection": "original item-labelled answer"
     },
     {
       "phase": "noise-1",
@@ -7567,7 +7589,7 @@
       "contestant": "driftbench-verify-uncertainty-cascade",
       "item": "5379ab99eae4161320d5bb2c0850315e_bcec25bc2e21ce2667e0368df647bcf2",
       "order": "quoted-extract",
-      "selection": "ordinary cache fallback"
+      "selection": "original item-labelled answer"
     },
     {
       "phase": "noise-1",
@@ -7578,7 +7600,7 @@
       "contestant": "driftbench-verify-uncertainty-cascade",
       "item": "5379ab99eae4161320d5bb2c0850315e_bcec25bc2e21ce2667e0368df647bcf2",
       "order": "blind-algebra",
-      "selection": "ordinary cache fallback"
+      "selection": "original item-labelled answer"
     },
     {
       "phase": "noise-1",
@@ -7589,29 +7611,29 @@
       "contestant": "driftbench-verify-uncertainty-cascade",
       "item": "5379ab99eae4161320d5bb2c0850315e_bcec25bc2e21ce2667e0368df647bcf2",
       "order": "blind-direct-program",
-      "selection": "ordinary cache fallback"
+      "selection": "original item-labelled answer"
     },
     {
       "phase": "noise-1",
       "model": "claude-sonnet-5-5",
-      "key": "06fcb5086033d3ce5dbf",
-      "fingerprint": "6f79d7ba96d7b5c94e1cac652c04ef6db745fd0cefa156218808ad51de8e1dad",
+      "key": "9406e534ec244f9104b4",
+      "fingerprint": "e86edb0853edd04d64b3b44688468a34090d7d7b124db4ca3aa2129a5d89a00f",
       "bench": "longjudge-verify",
       "contestant": "driftbench-verify-uncertainty-cascade",
       "item": "5379ab99eae4161320d5bb2c0850315e_bcec25bc2e21ce2667e0368df647bcf2",
       "order": "program",
-      "selection": "ordinary cache fallback"
+      "selection": "original item-labelled answer"
     },
     {
       "phase": "noise-1",
       "model": "claude-sonnet-5-5",
-      "key": "ff11d63b533ff1a302f8",
-      "fingerprint": "d10450b5570a812f2e66b872fd2203e2da02eb2d1686ea1765792f6c76586136",
+      "key": "6e014d17804e6e7d4a71",
+      "fingerprint": "64e4fc436fa48a7225c02d38d51a67901f657d187926affc7b55db2910a13c48",
       "bench": "longjudge-verify",
       "contestant": "driftbench-verify-uncertainty-cascade",
       "item": "5379ab99eae4161320d5bb2c0850315e_bcec25bc2e21ce2667e0368df647bcf2",
       "order": "single",
-      "selection": "ordinary cache fallback"
+      "selection": "original item-labelled answer"
     },
     {
       "phase": "noise-1",
@@ -7622,7 +7644,7 @@
       "contestant": "promptfoo",
       "item": "5379ab99eae4161320d5bb2c0850315e_bcec25bc2e21ce2667e0368df647bcf2",
       "order": "single",
-      "selection": "ordinary cache fallback"
+      "selection": "original item-labelled answer"
     },
     {
       "phase": "noise-1",
@@ -7633,7 +7655,7 @@
       "contestant": "driftbench-verify-uncertainty-cascade",
       "item": "542a4a7aed316e1a799d1c145b101ea9_c10967faf71a528ab33e138f74ffb1cf",
       "order": "blind-algebra",
-      "selection": "ordinary cache fallback"
+      "selection": "original item-labelled answer"
     },
     {
       "phase": "noise-1",
@@ -7644,7 +7666,7 @@
       "contestant": "driftbench-verify-uncertainty-cascade",
       "item": "542a4a7aed316e1a799d1c145b101ea9_c10967faf71a528ab33e138f74ffb1cf",
       "order": "blind-direct-program",
-      "selection": "ordinary cache fallback"
+      "selection": "original item-labelled answer"
     },
     {
       "phase": "noise-1",
@@ -7655,7 +7677,7 @@
       "contestant": "driftbench-verify-uncertainty-cascade",
       "item": "542a4a7aed316e1a799d1c145b101ea9_c10967faf71a528ab33e138f74ffb1cf",
       "order": "final-step",
-      "selection": "ordinary cache fallback"
+      "selection": "original item-labelled answer"
     },
     {
       "phase": "noise-1",
@@ -7666,18 +7688,18 @@
       "contestant": "driftbench-verify-uncertainty-cascade",
       "item": "542a4a7aed316e1a799d1c145b101ea9_c10967faf71a528ab33e138f74ffb1cf",
       "order": "program",
-      "selection": "ordinary cache fallback"
+      "selection": "original item-labelled answer"
     },
     {
       "phase": "noise-1",
       "model": "claude-sonnet-5-5",
-      "key": "1d989e337bbfe4e2cf7b",
-      "fingerprint": "b9624d2a8d7ec8cd3fa78ca12f2dff592049a33fac115a835bcb9e4a3ca2c16b",
+      "key": "a335782188e994577660",
+      "fingerprint": "1fd7783476e9b686ff13472457e400314237a3807c76eeeb7435e9bb27bb2821",
       "bench": "longjudge-verify",
       "contestant": "driftbench-verify-uncertainty-cascade",
       "item": "542a4a7aed316e1a799d1c145b101ea9_c10967faf71a528ab33e138f74ffb1cf",
       "order": "single",
-      "selection": "ordinary cache fallback"
+      "selection": "original item-labelled answer"
     },
     {
       "phase": "noise-1",
@@ -7688,7 +7710,7 @@
       "contestant": "promptfoo",
       "item": "542a4a7aed316e1a799d1c145b101ea9_c10967faf71a528ab33e138f74ffb1cf",
       "order": "single",
-      "selection": "ordinary cache fallback"
+      "selection": "original item-labelled answer"
     }
   ],
   "newModelCalls": 0

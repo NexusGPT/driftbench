@@ -2505,7 +2505,7 @@
       "sol61/evidence/reporting-freeze.json": "5c1387e3fcf96b93710a378990af83b97dac82e971d4a8e39b97e6762dedd685",
       "sonnet/evidence/cache-off-cost-sample.json": "b415b3b1cecef4c287a680d040d331065ad5900924c6f4e8cdb01a90852aaa6b",
       "sonnet/evidence/cap45-activation.json": "09e2e68e7c4b20e5f08a87274d64a9750247ad8b44c5dbbd7a94118d85a4de5e",
-      "sonnet/evidence/pilot-projection.json": "37f41ab06e0424b716a6d6e531fceec984c05438973ec7be64a4cf4a72d68ce0",
+      "sonnet/evidence/pilot-projection.json": "48c93091a29e9792a6afc333ce873ba6c1706d5148d301bcafecb4e1d1084f97",
       "sonnet/evidence/refusal-amendment.json": "a845ddc6626bc8a5201759bbdde6b71a158d0f221b510981c373bcaf47724b31",
       "sol61/evidence/refusal-amendment.json": "e491b299318ea66f2bf6a55b7eab78ce8812f9c8ebed724b802646983b2f5375",
       "sonnet/evidence/native-quota-amendment.json": "43cc78f59120129d525a9ed53b10f81425b97c79b917effdf2f8d40042efa792",
@@ -2513,10 +2513,12 @@
       "sol61/evidence/cost-sample.json": "115c6295036bfa42ce0f17e75b2672849de2960120c3290383e8679319ee2d29",
       "sol61/evidence/native-quota-amendment.json": "bb43781ed864b81ccb10bc2b71dd4c680403f37770e4c8e444c54cc22151ffe3",
       "sonnet/evidence/native-quota-continuation.json": "a0414832086482f1411f457a9721ec121555a43bf60d09a02015913013058260",
-      "sol61/evidence/cap40-amendment.json": "e2b20a24a09cefd97c940022546eba6e0878246dceb36c195fc87674a53f7484"
+      "sol61/evidence/cap40-amendment.json": "e2b20a24a09cefd97c940022546eba6e0878246dceb36c195fc87674a53f7484",
+      "sonnet/evidence/native-quota-recovery-state.json": "0c857c53e3463c4687ff92a581f232ad3a0740299d58f56149d6859b30ca26fb",
+      "sonnet/evidence/native-quota-continuation-state.json": "128fa4600e9db10382ae312ce9e874e5467d6c4effa6c5eef3e7268c7f4d8321"
     }
   },
-  "at": "2026-10-13T17:09:33.494498+00:00",
+  "at": "2026-10-13T17:31:44.366858+00:00",
   "cheaterGateAuditFile": "evidence/cheater-gate-audit.json",
   "predeclaredCheaterMarginEstablished": false,
   "lunaFeeReconciliation": {
@@ -8360,9 +8362,9 @@
   },
   "newModelFees": {
     "claude-sonnet-5-5": {
-      "settledUsd": 6.7845680000000055,
-      "unresolvedMaximumUsd": 0,
-      "maximumAccountedUsd": 6.7845680000000055,
+      "settledUsd": 10.984418000000002,
+      "unresolvedMaximumUsd": 1.0,
+      "maximumAccountedUsd": 11.984418000000002,
       "capUsd": 45
     },
     "gpt-6.1-sol": {

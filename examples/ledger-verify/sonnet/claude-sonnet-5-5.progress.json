@@ -1,7 +1,8 @@
 {
-  "at": "2026-10-13T17:07:56.712102+00:00",
-  "model": "claude-sonnet-5-5",
+  "phase": "noise-2",
   "status": "running",
-  "phase": "quota continuation",
-  "pid": 40158
+  "concurrency": 2,
+  "at": "2026-10-13T17:29:03.985910+00:00",
+  "model": "claude-sonnet-5-5",
+  "pid": 86181
 }
