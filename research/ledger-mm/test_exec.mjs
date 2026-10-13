@@ -90,3 +90,31 @@ test('models without pacing keep the original 3-try rule, and 402 is a plain ret
   await assert.rejects(withTransportRetry({ wait, classify: (e) => classifyHttp(e, undefined), attempt: async () => { n++; throw http(402); } }), /after 3 tries/);
   assert.equal(n, 3);
 });
+
+import { isRecoverable, isZeroCost, isConnectionFailure, LinkMonitor } from './exec.mjs';
+const unreachable = 'https://api.openai.com/v1/chat/completions could not be reached (TypeError)';
+const timeout = 'https://api.openai.com/v1/chat/completions could not be reached (TimeoutError)';
+const five = 'https://api.openai.com/v1/chat/completions answered 500: The server had an error';
+
+test('no-answer classes: unreachable and 5xx recover at zero cost; a timeout recovers but keeps its reserve', () => {
+  assert.deepEqual([unreachable, timeout, five].map(isRecoverable), [true, true, true]);
+  assert.deepEqual([unreachable, timeout, five].map(isZeroCost), [true, false, true]);
+  assert.deepEqual([unreachable, timeout, five].map(isConnectionFailure), [true, true, false]);
+});
+
+test('a provider error result or a quota error is not auto-recovered', () => {
+  for (const text of ['claude returned an error result', 'x answered 429: quota', 'x answered 402: credits', 'INVALID_COST']) {
+    assert.equal(isRecoverable(text), false);
+    assert.equal(isZeroCost(text), false);
+  }
+});
+
+test('the link monitor pauses on 3 consecutive connection failures and resets on an answer or a 500', () => {
+  const m = new LinkMonitor(3);
+  m.failed(unreachable); m.failed(timeout); m.answered(); m.failed(unreachable); m.failed(unreachable);
+  assert.equal(m.paused, false);
+  m.failed(five); m.failed(unreachable); m.failed(unreachable);
+  assert.equal(m.paused, false);
+  m.failed(timeout);
+  assert.equal(m.paused, true);
+});

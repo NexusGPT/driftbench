@@ -5,7 +5,7 @@ import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { spawnSync } from 'node:child_process';
 import { append, Budget, costOf, hash, readLines, redact, workers } from './harness.mjs';
-import { classifyHttp, MAX_CONCURRENT_CALLS, PACING, Semaphore, TIMEOUT_MS, TRIES, withTransportRetry } from './exec.mjs';
+import { classifyHttp, isRecoverable, isZeroCost, LinkMonitor, MAX_CONCURRENT_CALLS, PACING, Semaphore, TIMEOUT_MS, TRIES, withTransportRetry } from './exec.mjs';
 
 const here = dirname(fileURLToPath(import.meta.url));
 const root = resolve(here, '../..');
@@ -57,9 +57,14 @@ const eligibleDecisions = new Set<string>(eligible?.decisionKeys ?? []);
 const round: number = eligible?.round ?? 0;
 // Lane gate from the runtime freeze (owner raised it to 25 USD, amendment 5).
 const budget = new Budget(resolve(runDir, 'spend.jsonl'), cell?.capUsd ?? eligible?.capUsd ?? read('runtime-freeze.json').capUsd ?? 20);
-const completed = new Map(readLines(callsFile).filter((r: any) => !(eligibleCalls.has(r.key) && r.transportExhausted === true && !('response' in r))).map((r: any) => [r.key, r]));
-const decisions = new Set(readLines(recordsFile).filter((r: any) => !(eligibleDecisions.has(r.key) && r.error && !r.games?.some((g: any) => g !== null))).map((r: any) => r.key));
-const capError = (e: any) => /BUDGET_CAP|LAST_CALL_CUTOFF|STOP_FILE|PROVIDER_PAYMENT_STOP/.test(String(e));
+// Amendment 8 (new cells): a call exhausted with no model output is recovered in a later cycle.
+const recoverable = (r: any) => Boolean(cell) && r.transportExhausted === true && !('response' in r) && isRecoverable(r.error);
+const cycles = new Map<string, number>();
+for (const r of readLines(callsFile) as any[]) if (recoverable(r)) cycles.set(r.key, (cycles.get(r.key) ?? 0) + 1);
+const link = new LinkMonitor(3);
+const completed = new Map(readLines(callsFile).filter((r: any) => !recoverable(r)).filter((r: any) => !(eligibleCalls.has(r.key) && r.transportExhausted === true && !('response' in r))).map((r: any) => [r.key, r]));
+const decisions = new Set(readLines(recordsFile).filter((r: any) => !(Boolean(cell) && r.error && /TRANSPORT_EXHAUSTED/.test(r.error) && isRecoverable(r.error) && !r.games?.some((g: any) => g !== null))).filter((r: any) => !(eligibleDecisions.has(r.key) && r.error && !r.games?.some((g: any) => g !== null))).map((r: any) => r.key));
+const capError = (e: any) => /BUDGET_CAP|LAST_CALL_CUTOFF|STOP_FILE|PROVIDER_PAYMENT_STOP|LINK_PAUSE/.test(String(e));
 const cfg = models[model]!;
 let transport: any;
 let core: any;
@@ -114,7 +119,12 @@ const priceOf = (response: any) => {
 const attemptsFile = resolve(runDir, 'attempts.jsonl');
 // Tries already recorded as failed (no answer) by an earlier process count toward the three.
 const failedTries = new Map<string, number>();
-for (const r of readLines(attemptsFile) as any[]) if ((r.round ?? 0) === (eligibleCalls.has(r.key) ? round : 0)) failedTries.set(r.key, Math.max(failedTries.get(r.key) ?? 0, r.attempt));
+for (const r of readLines(attemptsFile) as any[]) if ((r.round ?? 0) === (eligibleCalls.has(r.key) ? round : 0) && (r.cycle ?? 0) === (cycles.get(r.key) ?? 0)) failedTries.set(r.key, Math.max(failedTries.get(r.key) ?? 0, r.attempt));
+// Past tries of a new cell that the provider never processed are settled at zero (amendment 8, rule 4).
+if (cell && !dry && !argv.includes('--plan') && cfg.provider !== 'claude-cli') for (const r of readLines(attemptsFile) as any[]) {
+  const held: any = (budget as any).rows.get(r.tryKey);
+  if (held && held.status === 'reserved' && isZeroCost(r.error)) budget.settle(r.tryKey, 0);
+}
 async function ask(meta: any, request: any) {
   const key = hash({ ...meta, model, request });
   const prior: any = completed.get(key);
@@ -126,7 +136,8 @@ async function ask(meta: any, request: any) {
   const bytes = Buffer.byteLength(JSON.stringify(request));
   const reserve = cell?.reserveUsd ? cell.reserveUsd : cell?.price ? Math.max(.01, ((bytes + 2048) * cell.price.inputPer1M + 8192 * cell.price.outputPer1M) / 1e6) : model === 'haiku' ? .10 : Math.max(.01, (bytes + 2048) * (model === 'gpt-6-luna' ? .1 : .75) / 1e6 + 8192 * (model === 'gpt-6-luna' ? .5 : 3.75) / 1e6);
   // A new round uses fresh reservation keys; earlier rounds keep their retained reserves.
-  const tag = eligibleCalls.has(key) && round > 0 ? `${key}:round${round}` : key;
+  const cycle = cycles.get(key) ?? 0;
+  const tag = cycle > 0 ? `${key}:cycle${cycle}` : eligibleCalls.has(key) && round > 0 ? `${key}:round${round}` : key;
   const tryKey = (n: number) => n === 1 ? tag : `${tag}:try${n}`;
   let got: any;
   try {
@@ -138,6 +149,7 @@ async function ask(meta: any, request: any) {
       before: (n: number) => {
         if (Date.now() >= cutoff) throw new Error('LAST_CALL_CUTOFF');
         if (existsSync(resolve(here, 'stop'))) throw new Error('STOP_FILE');
+        if (link.paused) throw new Error('LINK_PAUSE');
         budget.reserve(tryKey(n), reserve, { ...meta, model, attempt: n, time: new Date().toISOString() });
       },
       // Only a thrown transport error (no answer, timeout, crash) reaches the retry.
@@ -146,9 +158,15 @@ async function ask(meta: any, request: any) {
         const started = Date.now();
         try {
           const response = await transport.complete(request);
+          link.answered();
           return { n, seconds: (Date.now() - started) / 1000, response };
         } catch (error) {
-          append(attemptsFile, { key, tryKey: tryKey(n), attempt: n, ...meta, model, seconds: (Date.now() - started) / 1000, error: redact(error), reserveRetained: reserve, ...(tag === key ? {} : { round }) });
+          const text = redact(error);
+          // The provider processed nothing on an unreachable host or a 5xx, so that try costs zero.
+          const free = Boolean(cell) && cfg.provider !== 'claude-cli' && isZeroCost(text);
+          if (free) budget.settle(tryKey(n), 0);
+          if (cell) link.failed(text);
+          append(attemptsFile, { key, tryKey: tryKey(n), attempt: n, ...meta, model, seconds: (Date.now() - started) / 1000, error: text, ...(free ? { usd: 0 } : { reserveRetained: reserve }), ...(cycle ? { cycle } : tag === key ? {} : { round }) });
           throw error;
         } finally { release(); }
       },
@@ -157,7 +175,7 @@ async function ask(meta: any, request: any) {
     // A 402 under the pacing rule halts every worker at once.
     if (error?.providerStop === true) writeFileSync(resolve(here, 'stop'), `${new Date().toISOString()} ${redact(error)}\n`);
     if (error?.transportExhausted === true) {
-      const row = { key, ...meta, model, error: redact(error), transportExhausted: true, tries: TRIES, reserveRetained: reserve, ...(tag === key ? {} : { round }) };
+      const row = { key, ...meta, model, error: redact(error), transportExhausted: true, tries: TRIES, ...(cycle ? { cycle } : tag === key ? { reserveRetained: reserve } : { round, reserveRetained: reserve }) };
       append(callsFile, row); completed.set(key, row);
     }
     throw error;

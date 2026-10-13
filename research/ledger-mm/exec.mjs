@@ -79,3 +79,21 @@ export function classifyHttp(error, pacing) {
   if (pacing?.rateWaitsMs && /answered 429\b/.test(text)) return 'rate';
   return 'retry';
 }
+
+// Network-pause rules (amendment 8). A transport no-answer is not a spent item: it is recovered later.
+/** No model output arrived and the item may be asked again: unreachable host, timeout, or HTTP 5xx. */
+export const isRecoverable = (text) => /could not be reached|answered 5\d\d\b/.test(String(text));
+/** The provider processed nothing, so the try costs zero. A timeout is excluded: its cost is unknown. */
+export const isZeroCost = (text) => /could not be reached \(TypeError\)|answered 5\d\d\b/.test(String(text));
+/** Connection-class failure, for the pause rule. */
+export const isConnectionFailure = (text) => /could not be reached/.test(String(text));
+
+/** Pauses the run after `limit` consecutive connection-class failures. Any answer resets the count. */
+export class LinkMonitor {
+  constructor(limit = 3) { this.limit = limit; this.run = 0; this.paused = false; }
+  answered() { this.run = 0; }
+  failed(text) {
+    if (!isConnectionFailure(text)) { this.run = 0; return; }
+    if (++this.run >= this.limit) this.paused = true;
+  }
+}
