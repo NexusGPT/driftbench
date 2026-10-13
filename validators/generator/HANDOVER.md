@@ -171,10 +171,12 @@ All per-file SHA-256 comparisons pass, including the JSON report. Both generatio
 
 Manifest hashes cover sorted `path<TAB>file-sha256<NEWLINE>` entries. The uncapped 100x file count remains 32,068, representing 32,067 specs plus the report.
 
-Verification at the initial push:
+Verification after both full runs finish:
 - `pnpm typecheck` and the benchmark tool's separate TypeScript check pass.
 - `pnpm lint` passes with four pre-existing warnings.
 - Focused coverage, space, seed and generation tests: 18 files and 236 tests pass.
-- Full `pnpm exec vitest run --maxWorkers=2` runs on the baseline and speed source remain in progress. Both reproduce six Acme fixture failures: five enumeration tests and one CLI generate test. Both also report the generator ladder failure. These runs are not green. The estate file passes all 16 tests, and the CLI-select usage test passes, when retried with `--testTimeout=30000`. The CLI-CI wrapper retry still hits its explicit 120-second timeout and a cleanup race.
+- Full `pnpm exec vitest run --maxWorkers=2` completes on both revisions. Baseline: 352 test files pass and 8 fail; 4,138 tests pass, 15 fail and 38 skip. Speed: 355 files pass and 6 fail; 4,144 tests pass, 12 fail and 38 skip. Wall durations are 2,887.62 and 2,666.99 seconds respectively. Neither full run is green.
+- The speed run has five Acme assertion failures that also fail on the baseline, plus seven timeouts: two estate unit tests, the CLI-CI wrapper, the estate and generator CLI floors, the Acme coverage check, and the generator ladder check. The baseline has six Acme assertion failures, five timeouts and four archive-only docs failures. The Acme coverage assertion fails before the change and times out after it.
+- The estate file passes all 16 tests, and the CLI-select usage test passes, when retried with `--testTimeout=30000`. The CLI-CI wrapper retry still hits its explicit 120-second timeout and a cleanup race. No assertion in the added tests or focused coverage/search/generation checks fails.
 - Four baseline docs failures come from Git excluding the archive under `.exec/`; its checker finds zero pages. All 23 affected docs tests pass when retried with `GIT_CEILING_DIRECTORIES` set to the archive parent, so the checker uses its non-repository fallback. The actual speed worktree has 612 valid links across 50 pages.
 - `node tools/rename-scope.mjs` runs; it changes only three README copies in the ignored measurement archives. No merges are performed. `git diff --check` passes.
