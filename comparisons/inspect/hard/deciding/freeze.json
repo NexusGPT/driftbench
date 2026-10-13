@@ -1,0 +1,27 @@
+{
+  "frozenAt": "2026-10-12T23:18:10.334093+00:00",
+  "seed": 20261056,
+  "cases": 60,
+  "pass": 30,
+  "fail": 30,
+  "labelsFixedBeforeRun": true,
+  "seedSelection": "First checked seed with 60 unique requests per procedure and zero matches to prior requests; no outcomes used.",
+  "procedures": [
+    "main shipped default",
+    "PR 115 c5760332 default (under review)",
+    "frozen candidate: not yet the shipped default",
+    "Inspect fact template"
+  ],
+  "sha256": {
+    "audit.ts": "5f86ab76b380435ba59db417093daedd027a32da9f55d48f702e67345e1338a6",
+    "generate.mts": "1c39b4b9adf554acef4ced1a352a3510c88591e74a9056f3e87305ef976ba61f",
+    "harness.ts": "53bcf51e1bb7251d0eadc1772822b19dfdfb14d36e6fe9d8cffe12d53710ac61",
+    "arch-deciding.ts": "a83c5bd187acc070a6a0cdcfabb60fb4de9a5809217090e8291c94de58fa39db",
+    "arch-deciding-snapshot.json": "7c1f26cc7f18fe4393e095ad24b7702ed727f7c737c70d28d94c8fefbec13b2b",
+    "fact-template.txt": "384298b3a412e9cee138ef7bbdb21c9a3e669fc9416eecdbb7c26fe24e13dda5",
+    "instructions.txt": "7c6cdf15888e0f2173e623fb52ba2d0b75aeb575a9937b0e3e66c9f4370afd5a",
+    "deciding/fact.json": "95ec98699e2c84e34215dd3adbcef23f8601d36d6358feb76514032075b006a6",
+    "deciding/main-snapshot.json": "ecb057c6fa2ce4c155efbe9e41e3357eee42bd150283c3edf1a813d19be86f70",
+    "main-deciding.ts": "03f4d9cfdadc186642e1a8fe9f9203b08336075087cbab4c5d03fbbe2e96176a"
+  }
+}
