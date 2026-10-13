@@ -4,6 +4,9 @@ All notable changes to driftbench are listed here. The format follows [Keep a Ch
 
 ## [Unreleased]
 
+* Opt-in `createEscalation` routes reference disagreement, order splits, inconclusive results and low confidence to a cross-family council. It preserves comparison diagnostics and recorded replay, supports deployable-route calibration and checks constituent model families. The offline MM-Eval DEV400 example reproduces 91.16 from pinned recordings, with unknown historical generator families disclosed.
+* Councils accept named pairwise winners directly, preserve them in votes and distinguish a majority tie from missing evidence. Comparison-aware reference, final-answer and verification wrappers preserve their behavior around an escalation client.
+
 * Winner quote grounding maps decoded JSON value characters back to their literal source spans. Escaped role tokens, JSON text-wrapper keys and escape digits alone cannot supply substantive evidence; legacy is unchanged.
 
 * Pairwise winner matching preserves substantive literal substrings, including partial code fences, before adding normalized views. Exactly one candidate must match; labels and decoration alone remain insufficient.
