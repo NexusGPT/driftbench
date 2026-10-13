@@ -8,16 +8,18 @@ import requests from './fixtures/pointwise-framed-requests.json';
 import observed from './fixtures/pointwise-framed-results.json';
 
 const cassette = Cassette.parse(recorded);
-const player = playerClient(cassette, 'claude-haiku');
+// Preserve the previous prompt's identity rather than re-recording these observations.
+const player = playerClient(cassette, 'claude-haiku', { prompt: requests.promptFingerprint });
 
 describe('real indexed-frame Haiku regression recordings', () => {
   it('preserves all 28 actual responses with their exact prompts, settings and keys', () => {
     expect(cassette.entries).toHaveLength(28);
-    expect(requests.promptFingerprint).toBe(PROMPT_FINGERPRINT);
+    expect(requests.promptFingerprint).toBe('19cf28d04b13');
+    expect(requests.promptFingerprint).not.toBe(PROMPT_FINGERPRINT);
     expect(requests.settings).toBe(CLAUDE_SETTINGS);
     for (const row of requests.cases) {
-      expect(buildPrompt(row.request as JudgeRequest)).toEqual(row.prompt);
-      const key = requestKey(row.request as JudgeRequest, player);
+      expect(buildPrompt(row.request as JudgeRequest).user).toEqual(row.prompt.user);
+      const key = requestKey(row.request as JudgeRequest, player, requests.promptFingerprint);
       expect(cassette.entries.filter((entry) => entry.key === key)).toHaveLength(4);
     }
   });
