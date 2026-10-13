@@ -339,7 +339,7 @@ Per criterion, kappa rests on 3 or 4 labelled blocks. With 3 blocks, 3 of 3 agre
 
 ### A real judge: haiku on the claude command
 
-Measured on 2026-10-12 with one `claude-haiku` judge on the 12 Acme fixture pairs (3 repeats) and the 40 hand labels: 113 calls, no call without an answer, 0.0182 USD from the command's own cost field. Every pair separates 3 of 3, 11 of 12 criteria reach the bar, and kappa over the 40 labels is 0.95 (39 of 40).
+Measured on 2026-10-12 with one `claude-haiku` judge on the 12 Acme fixture pairs (3 repeats) and the 40 hand labels: 113 calls, no call without an answer, 0.0182 USD (the `coverage_before_offer` pairs were recorded again on 2026-10-13: 11 more answers, 0.0016 USD) from the command's own cost field. Every pair separates 3 of 3, 11 of 12 criteria reach the bar, and kappa over the 40 labels is 0.95 (39 of 40).
 
 ```text
 $ pnpm -s driftbench judge calibrate --criteria examples/acme/criteria --labels examples/acme/labels --claude haiku --mode llm --spend-cap-usd 0.1 --record examples/acme/criteria/calibration/claude-haiku.cassette.json --out haiku.yaml
@@ -358,7 +358,7 @@ With the three fixes, haiku separates 12 of 12 pairs 3 of 3 and reaches kappa 1.
 
 `judge calibrate --claude haiku --claude sonnet --claude opus --mode llm` calibrates a council of one family, usable for an agent of any other family. Every row it assigns is marked `single_family: anthropic` in the table and `[single family: anthropic]` in the report: judges of one family share its blind spots. Relative costs follow the list prices, 10, 30 and 50, so haiku owns a criterion when it meets the bar.
 
-The recording, `examples/acme/criteria/calibration/claude-council.cassette.json`, holds 338 answers of the three models on all 12 criteria, 1.44 USD in all. Its `explicit_confirmation` answers were recorded again under the rewritten rubric.
+The recording, `examples/acme/criteria/calibration/claude-council.cassette.json`, holds 367 answers of the three models on all 12 criteria, 1.44 USD in all. Its `explicit_confirmation` answers were recorded again under the rewritten rubric. Its `coverage_before_offer` answers were recorded again on 2026-10-13 under the criterion that names the `coverage.check` call (29 new answers, 0.12 USD); the earlier answers stay in the file, keyed to the old wording, and no label changed.
 
 | Criterion | haiku | sonnet | opus |
 |---|---|---|---|
