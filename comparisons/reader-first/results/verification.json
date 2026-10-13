@@ -40,15 +40,11 @@
     },
     {
       "log": "typecheck-final.log",
-      "summary": [
-        "No diagnostics; process exit0 observed"
-      ]
+      "summary": ["No diagnostics; process exit0 observed"]
     },
     {
       "log": "study-typecheck-final.log",
-      "summary": [
-        "No diagnostics; process exit0 observed"
-      ]
+      "summary": ["No diagnostics; process exit0 observed"]
     },
     {
       "check": "pnpm -r --filter @agent-nexus/driftbench-judges... build",

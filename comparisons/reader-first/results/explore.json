@@ -44,12 +44,8 @@
       "correct": 142,
       "games": 180,
       "accuracy": 0.7888888888888889,
-      "gained": [
-        "8a981764-d2ff-44a0-a3bb-78090ec8107f"
-      ],
-      "lost": [
-        "e48ff2f5-c317-4125-813b-a0e0be5efb1e"
-      ],
+      "gained": ["8a981764-d2ff-44a0-a3bb-78090ec8107f"],
+      "lost": ["e48ff2f5-c317-4125-813b-a0e0be5efb1e"],
       "byLanguage": {
         "en": {
           "correct": 70,
@@ -66,9 +62,7 @@
       "games": 180,
       "accuracy": 0.7777777777777778,
       "gained": [],
-      "lost": [
-        "43b647a6-2c1f-4f0b-95b3-da61f793802c"
-      ],
+      "lost": ["43b647a6-2c1f-4f0b-95b3-da61f793802c"],
       "byLanguage": {
         "en": {
           "correct": 68,
@@ -118,16 +112,12 @@
     {
       "id": "d6f36e43-3ac8-4619-8365-6093e0ac0cb3",
       "ordered": [],
-      "swapped": [
-        "simplicity: evidence does not quote both candidates"
-      ]
+      "swapped": ["simplicity: evidence does not quote both candidates"]
     },
     {
       "id": "d6f36e43-3ac8-4619-8365-6093e0ac0cb3",
       "ordered": [],
-      "swapped": [
-        "structure: evidence does not quote both candidates"
-      ]
+      "swapped": ["structure: evidence does not quote both candidates"]
     },
     {
       "id": "bf62ae01-9bf8-4fb6-af6b-660e88149dee",
@@ -139,44 +129,32 @@
     },
     {
       "id": "bf62ae01-9bf8-4fb6-af6b-660e88149dee",
-      "ordered": [
-        "context: evidence does not quote both candidates"
-      ],
+      "ordered": ["context: evidence does not quote both candidates"],
       "swapped": []
     },
     {
       "id": "8a981764-d2ff-44a0-a3bb-78090ec8107f",
       "ordered": [],
-      "swapped": [
-        "economy: evidence does not quote both candidates"
-      ]
+      "swapped": ["economy: evidence does not quote both candidates"]
     },
     {
       "id": "6cbc6076-8985-4749-9d56-23c5e27a9a91",
       "ordered": [],
-      "swapped": [
-        "context: evidence does not quote both candidates"
-      ]
+      "swapped": ["context: evidence does not quote both candidates"]
     },
     {
       "id": "6cbc6076-8985-4749-9d56-23c5e27a9a91",
       "ordered": [],
-      "swapped": [
-        "context: evidence does not quote both candidates"
-      ]
+      "swapped": ["context: evidence does not quote both candidates"]
     },
     {
       "id": "04304371-bd21-47e4-8c81-02f2dd847241",
-      "ordered": [
-        "directness: evidence does not quote both candidates"
-      ],
+      "ordered": ["directness: evidence does not quote both candidates"],
       "swapped": []
     },
     {
       "id": "1514d2f0-deb8-4f91-862a-42ea7c09317d",
-      "ordered": [
-        "context: evidence does not quote both candidates"
-      ],
+      "ordered": ["context: evidence does not quote both candidates"],
       "swapped": []
     },
     {
@@ -189,30 +167,22 @@
     },
     {
       "id": "7008c634-e85f-4240-bda5-50c9c7a7af6a",
-      "ordered": [
-        "context: evidence does not quote both candidates"
-      ],
+      "ordered": ["context: evidence does not quote both candidates"],
       "swapped": []
     },
     {
       "id": "ac1e3e07-62a0-427f-8b95-bb2353e4199a",
-      "ordered": [
-        "directness: evidence does not quote both candidates"
-      ],
+      "ordered": ["directness: evidence does not quote both candidates"],
       "swapped": []
     },
     {
       "id": "3af6d61c-d866-4030-bdea-0c3bd7577364",
       "ordered": [],
-      "swapped": [
-        "simplicity: evidence does not quote both candidates"
-      ]
+      "swapped": ["simplicity: evidence does not quote both candidates"]
     },
     {
       "id": "40e92095-80bb-4335-a0a8-f1ac7b261ff8",
-      "ordered": [
-        "economy: evidence does not quote both candidates"
-      ],
+      "ordered": ["economy: evidence does not quote both candidates"],
       "swapped": [
         "economy: evidence does not quote both candidates",
         "context: evidence does not quote both candidates"
@@ -221,9 +191,7 @@
     {
       "id": "1c2a061b-309d-4ba0-b0a9-5f52463e6e42",
       "ordered": [],
-      "swapped": [
-        "structure: evidence does not quote both candidates"
-      ]
+      "swapped": ["structure: evidence does not quote both candidates"]
     },
     {
       "id": "2c0c4585-b37a-4c0c-a797-8cfc16f68efa",
@@ -236,15 +204,11 @@
     {
       "id": "b352d686-667e-4c18-b08c-a59b42e6261b",
       "ordered": [],
-      "swapped": [
-        "economy: evidence does not quote both candidates"
-      ]
+      "swapped": ["economy: evidence does not quote both candidates"]
     },
     {
       "id": "cb8d1952-9958-454e-bf31-a1d1f4e10283",
-      "ordered": [
-        "missing or unparsed rubric"
-      ],
+      "ordered": ["missing or unparsed rubric"],
       "swapped": [
         "context: evidence does not quote both candidates",
         "simplicity: evidence does not quote both candidates"
@@ -261,9 +225,7 @@
     {
       "id": "b2a34ee8-2235-4ad9-9a85-15d8e6d0a281",
       "ordered": [],
-      "swapped": [
-        "simplicity: evidence does not quote both candidates"
-      ]
+      "swapped": ["simplicity: evidence does not quote both candidates"]
     },
     {
       "id": "57e4d78e-da39-469e-a111-d6dd466ba599",
@@ -1074,9 +1036,7 @@
         },
         "featureGap": 1,
         "judgeGap": -1.5,
-        "failures": [
-          "economy"
-        ],
+        "failures": ["economy"],
         "means": [
           {
             "name": "structure",
@@ -1651,9 +1611,7 @@
             "reasoning": "A leaves MV, VCR and song titles unexplained, while B names the couple and introduces its setting, though 宠物犬 appears without introduction."
           }
         ],
-        "problems": [
-          "simplicity: evidence does not quote both candidates"
-        ]
+        "problems": ["simplicity: evidence does not quote both candidates"]
       },
       "costUsd": 0.00818382,
       "result": {
@@ -1849,9 +1807,7 @@
             "reasoning": "A uses short, concrete phrases that a novice can follow, though some lists are terse. B relies on abstract imagery, English labels and dense metaphors that are harder for a novice to follow."
           }
         ],
-        "problems": [
-          "structure: evidence does not quote both candidates"
-        ]
+        "problems": ["structure: evidence does not quote both candidates"]
       },
       "costUsd": 0.00929772,
       "result": {
@@ -1880,9 +1836,7 @@
         },
         "featureGap": 1,
         "judgeGap": 2,
-        "failures": [
-          "economy"
-        ],
+        "failures": ["economy"],
         "means": [
           {
             "name": "structure",
@@ -2698,9 +2652,7 @@
         },
         "featureGap": 1,
         "judgeGap": 4.5,
-        "failures": [
-          "economy"
-        ],
+        "failures": ["economy"],
         "means": [
           {
             "name": "structure",
@@ -3012,9 +2964,7 @@
             "reasoning": "A relies on compressed classical phrasing, while B gives concrete scenes that explain what each person did and felt."
           }
         ],
-        "problems": [
-          "context: evidence does not quote both candidates"
-        ]
+        "problems": ["context: evidence does not quote both candidates"]
       },
       "swapped": {
         "valid": true,
@@ -4313,9 +4263,7 @@
         },
         "featureGap": 2,
         "judgeGap": 4,
-        "failures": [
-          "context"
-        ],
+        "failures": ["context"],
         "means": [
           {
             "name": "structure",
@@ -4686,9 +4634,7 @@
             "reasoning": "A uses everyday metaphors and full sentences, whereas B relies on terse fragments and unexplained terms like 安兔兔验机."
           }
         ],
-        "problems": [
-          "economy: evidence does not quote both candidates"
-        ]
+        "problems": ["economy: evidence does not quote both candidates"]
       },
       "costUsd": 0.0050446200000000005,
       "result": {
@@ -5700,9 +5646,7 @@
             "reasoning": "A uses plain sentences and short tables, while B's dense spec tables and placeholder brackets are harder for an inexperienced reader."
           }
         ],
-        "problems": [
-          "context: evidence does not quote both candidates"
-        ]
+        "problems": ["context: evidence does not quote both candidates"]
       },
       "costUsd": 0.00994652,
       "result": {
@@ -5898,9 +5842,7 @@
             "reasoning": "A packs dense electrical specifications and technical terms into its lists, while B uses plainer sentences with concrete distances and steps."
           }
         ],
-        "problems": [
-          "context: evidence does not quote both candidates"
-        ]
+        "problems": ["context: evidence does not quote both candidates"]
       },
       "costUsd": 0.00925662,
       "result": {
@@ -8785,9 +8727,7 @@
         },
         "featureGap": 1,
         "judgeGap": -0.5,
-        "failures": [
-          "economy"
-        ],
+        "failures": ["economy"],
         "means": [
           {
             "name": "structure",
@@ -8991,9 +8931,7 @@
         },
         "featureGap": 1,
         "judgeGap": 0.5,
-        "failures": [
-          "economy"
-        ],
+        "failures": ["economy"],
         "means": [
           {
             "name": "structure",
@@ -9930,9 +9868,7 @@
             "reasoning": "A's dialogue and action lines are concrete and plain. B relies on abstract phrasing like 'entropy reversal' and philosophical lines that are harder for an inexperienced reader."
           }
         ],
-        "problems": [
-          "directness: evidence does not quote both candidates"
-        ]
+        "problems": ["directness: evidence does not quote both candidates"]
       },
       "swapped": {
         "valid": true,
@@ -10332,9 +10268,7 @@
             "reasoning": "A uses short, plain sentences with concrete actions; B packs dense technical phrasing and metaphor into single lines that an inexperienced reader would struggle with."
           }
         ],
-        "problems": [
-          "context: evidence does not quote both candidates"
-        ]
+        "problems": ["context: evidence does not quote both candidates"]
       },
       "swapped": {
         "valid": true,
@@ -10721,9 +10655,7 @@
             "reasoning": "A uses short, concrete sentences, while B relies on abstract, dense figurative lines."
           }
         ],
-        "problems": [
-          "context: evidence does not quote both candidates"
-        ]
+        "problems": ["context: evidence does not quote both candidates"]
       },
       "swapped": {
         "valid": true,
@@ -11123,9 +11055,7 @@
             "reasoning": "A uses specific examples and short sentences but still relies on dense jargon, while B leans on abstract, ornate phrasing with few concrete explanations."
           }
         ],
-        "problems": [
-          "directness: evidence does not quote both candidates"
-        ]
+        "problems": ["directness: evidence does not quote both candidates"]
       },
       "swapped": {
         "valid": true,
@@ -11571,9 +11501,7 @@
             "reasoning": "Reply B explains yeast, the vacuole, and mTOR and identifies drugs by use, while Reply A leaves rapamycin and spermidine unexplained."
           }
         ],
-        "problems": [
-          "simplicity: evidence does not quote both candidates"
-        ]
+        "problems": ["simplicity: evidence does not quote both candidates"]
       },
       "costUsd": 0.00709352,
       "result": {
@@ -11927,9 +11855,7 @@
             "reasoning": "A uses short, plain sentences and concrete actions, while B's italic stage directions and terms like 'institutionalized' add some density."
           }
         ],
-        "problems": [
-          "economy: evidence does not quote both candidates"
-        ]
+        "problems": ["economy: evidence does not quote both candidates"]
       },
       "swapped": {
         "valid": false,
@@ -12770,9 +12696,7 @@
             "reasoning": "Reply A uses plain colloquial phrasing but includes some dense rhetoric, while Reply B uses short, concrete sentences throughout."
           }
         ],
-        "problems": [
-          "structure: evidence does not quote both candidates"
-        ]
+        "problems": ["structure: evidence does not quote both candidates"]
       },
       "costUsd": 0.0061667200000000005,
       "result": {
@@ -13604,9 +13528,7 @@
         },
         "featureGap": 1,
         "judgeGap": 3.5,
-        "failures": [
-          "simplicity"
-        ],
+        "failures": ["simplicity"],
         "means": [
           {
             "name": "structure",
@@ -13810,10 +13732,7 @@
         },
         "featureGap": 1,
         "judgeGap": 7,
-        "failures": [
-          "context",
-          "simplicity"
-        ],
+        "failures": ["context", "simplicity"],
         "means": [
           {
             "name": "structure",
@@ -14184,9 +14103,7 @@
             "reasoning": "A uses short, plain sentences with concrete actions and only a few wordplay jokes. B relies on long, abstract, dense sentences that a novice reader would have to work through."
           }
         ],
-        "problems": [
-          "economy: evidence does not quote both candidates"
-        ]
+        "problems": ["economy: evidence does not quote both candidates"]
       },
       "costUsd": 0.01655632,
       "result": {
@@ -16139,9 +16056,7 @@
       "ordered": {
         "valid": false,
         "items": [],
-        "problems": [
-          "missing or unparsed rubric"
-        ]
+        "problems": ["missing or unparsed rubric"]
       },
       "swapped": {
         "valid": false,
@@ -16962,7 +16877,8 @@
             "a": 3,
             "b": 2,
             "quoteA": "Tip: For successive batches, no preheat is needed—simply load and cook.",
-            "quoteB": "Email: support@crispmaster.com", "guard:allow": "public benchmark generated contact retained for exact evidence validation",
+            "quoteB": "Email: support@crispmaster.com",
+            "guard:allow": "public benchmark generated contact retained for exact evidence validation",
             "reasoning": "A is tight, with one minor overlap between cleaning and storage; B repeats contact details and cleaning and safety points across several sections."
           },
           {
@@ -17989,9 +17905,7 @@
             "reasoning": "Candidate A names its policy and venue but leaves terms like 'Central Community Library' unlocated, while Candidate B leaves visible placeholders for the city, coordinator and contact details."
           }
         ],
-        "problems": [
-          "simplicity: evidence does not quote both candidates"
-        ]
+        "problems": ["simplicity: evidence does not quote both candidates"]
       },
       "costUsd": 0.00807062,
       "result": {
@@ -18382,9 +18296,7 @@
         },
         "featureGap": 1,
         "judgeGap": 0.5,
-        "failures": [
-          "economy"
-        ],
+        "failures": ["economy"],
         "means": [
           {
             "name": "structure",
