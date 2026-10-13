@@ -1,6 +1,6 @@
 {
   "model": "gpt-6-luna",
-  "freezeSha256": "8155e7ad58a9aa795ede81389e104177f181c2a9016b6ffba71ae59815e035d8",
+  "freezeSha256": "824ef6880bee16f7f9a6025ccb63bc828e6ea7e0ffcc705a3b46ab4b0ae8e29a",
   "pilotComplete": true,
   "noiseComplete": true,
   "fixturesComplete": true,

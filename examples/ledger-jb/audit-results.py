@@ -47,8 +47,9 @@ for row in calls:
         if row.get('status') == 429:
             assert row.get('quotaResponse') and not row.get('graderError'), ('quota_as_judge_failure', key)
     max_liability = max(max_liability, liability)
-assert max_current_active <= 4
-assert max_current_by_model['gemini-3.8-flash'] <= 2
+assert max_current_active <= sum(freeze['modelConcurrency'].values())
+for model, limit in freeze['modelConcurrency'].items():
+    assert max_current_by_model[model] <= limit
 
 inputs = {phase: read_json(ROOT / 'data' / f"{'pool' if phase == 'test' else phase}.json") for phase in PHASES}
 models = {}

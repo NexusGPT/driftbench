@@ -1,12 +1,12 @@
 {
-  "version": 4,
-  "createdAt": "2026-10-13T08:31:32.633309+00:00",
+  "version": 5,
+  "createdAt": "2026-10-13T09:28:00.686321+00:00",
   "corePr": "https://github.com/achammah/driftbench/pull/168",
   "coreCommit": "35f07309a4d1d1c8a7c5b176ff19e537d0ef8fdd",
   "sealSha256": "2aa831d8f08ea88ddddff87ba9aeb600f2c719725608815c09ddc699bd8aac12",
   "adapter": "examples/ledger-jb/src/core-adapter.mjs",
   "capUsd": 25,
-  "concurrency": 4,
+  "concurrency": 12,
   "lastCallCutoff": "2026-10-14T00:00:00Z",
   "models": {
     "claude-haiku-5-5": {
@@ -157,17 +157,21 @@
     "examples/ledger-jb/data/validity-seal.json": "045f7282e15a35d2fee0384b79c7db78d76fc90c5ab52336fba2e70fe36b3f14",
     "examples/ledger-jb/data/validity.json": "1b1412dfbecdc614529a3381027c7df7987e4320da2db8da56b6e7c9743dea13",
     "examples/ledger-jb/data/promptfoo-select-best.txt": "f5d991e93bb0f5fefba9eb241f0feddae57276f8196f3c4e53137b5f4177562c",
-    "examples/ledger-jb/README.md": "80dabd070ed17fa655792d3336790d4b015b92ed084b9a8b590221efc60149f0",
+    "examples/ledger-jb/README.md": "67a558f10b8796ea1463c109a39db477af8eeca3545f1c79739c5156050fe535",
     "pnpm-lock.yaml": "f7178145e417f8f11e28bc7cf1943db901077492226de4d172bd49994e213e04",
     "tsconfig.base.json": "2e3b79ea124cafbe3de51fcd53123471d8ab3ce5dabdd641e1d06ad300a24a8a",
     "examples/ledger-jb/run-driver.py": "162639c760a66ee0483b0ccd2bf0ea30154bb53f073530c2917bce9c1e97060c",
-    "examples/ledger-jb/summarize-reasks.mjs": "e1b1378d21912b6899bc181904442cb74a2b568493f67d3ecadd98f61998c482"
+    "examples/ledger-jb/summarize-reasks.mjs": "e1b1378d21912b6899bc181904442cb74a2b568493f67d3ecadd98f61998c482",
+    "examples/ledger-jb/parallel-remaining.mjs": "78bb3f5ffa7a669044df25e5ae487478e82ae0f76ec33c5381973398f7b94b62",
+    "examples/ledger-jb/test/parallel.test.mjs": "6a9d8bde15c3ee26f13a92f5eced537d64dd059a94500ec96d5eee34680ed4e8",
+    "examples/ledger-jb/audit-results.py": "ed82274f2007400c14e7027d22f89d40327946afd81912a0baba8f8ca3e02c4b",
+    "examples/ledger-jb/write-dossier.py": "12bdc10f5887b25625127d35ab102b5a08c98da22ec0dd066d25ddd82240ab33"
   },
   "amendment": {
-    "previousFreezeSha256": "909e1296e3b6d969efaccd0cb1b4ca5bd507c7f731c9b9b0e43118738b6a6f5d",
-    "reason": "Owner clarifies core single schema re-ask stays enabled, while Gemini concurrency drops to two with 60/120/240 s quota waits.",
-    "temporarySuppressionImpact": "Luna noise finishes under v3 with zero suppressed schema re-asks; no TEST calls precede restoration.",
-    "core": "Unchanged 35f07309; request, score and sealed input definitions unchanged."
+    "previousFreezeSha256": "8155e7ad58a9aa795ede81389e104177f181c2a9016b6ffba71ae59815e035d8",
+    "reason": "Owner pacing amendment: per-model limits, all three side by side; Luna 8 plain HTTP, Gemini 2 with 429 waits, Haiku 2. Sealed order, cap and contract unchanged.",
+    "boundary": "The already active Luna phase finishes all 270 matched pairs with zero unresolved calls before the scheduler handoff. No returned answer is repeated.",
+    "core": "Unchanged 35f07309; model, reasoning, request, schema, score and sealed inputs unchanged."
   },
   "cacheIdentityModels": {
     "claude-haiku-5-5": {
@@ -212,8 +216,9 @@
     "costPolicy": "Every attempt retains measured cost or its conservative reservation."
   },
   "modelConcurrency": {
-    "gpt-6-luna": 4,
-    "claude-haiku-5-5": 4,
+    "gpt-6-luna": 8,
+    "claude-haiku-5-5": 2,
     "gemini-3.8-flash": 2
-  }
+  },
+  "runtimeEntrypoint": "examples/ledger-jb/parallel-remaining.mjs"
 }

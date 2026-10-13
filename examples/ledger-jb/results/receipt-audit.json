@@ -1,21 +1,19 @@
 {
-  "asOf": "2026-10-13T09:12:13.340342+00:00",
+  "asOf": "2026-10-13T09:28:01.705906+00:00",
   "core": "35f07309a4d1d1c8a7c5b176ff19e537d0ef8fdd",
-  "freezeSha256": "8155e7ad58a9aa795ede81389e104177f181c2a9016b6ffba71ae59815e035d8",
+  "freezeSha256": "824ef6880bee16f7f9a6025ccb63bc828e6ea7e0ffcc705a3b46ab4b0ae8e29a",
   "allExpectedDecisionsComplete": false,
-  "starts": 1571,
-  "finishes": 1567,
-  "unresolvedCalls": 4,
+  "starts": 1931,
+  "finishes": 1931,
+  "unresolvedCalls": 0,
   "maximumHistoricalConcurrentCalls": 6,
-  "maximumCurrentFreezeConcurrentCalls": 4,
-  "maximumCurrentFreezeConcurrentCallsByModel": {
-    "gpt-6-luna": 4
-  },
-  "knownUsd": 1.32539166,
+  "maximumCurrentFreezeConcurrentCalls": 0,
+  "maximumCurrentFreezeConcurrentCallsByModel": {},
+  "knownUsd": 1.50988326,
   "unknownReserveUsd": 0.45450825,
-  "activeReserveUsd": 0.0371213,
-  "liabilityUsd": 1.8170212100000083,
-  "maximumLiabilityUsd": 1.8170212100000083,
+  "activeReserveUsd": 0,
+  "liabilityUsd": 1.9643915100000087,
+  "maximumLiabilityUsd": 1.9975606900000087,
   "models": {
     "gpt-6-luna": {
       "pilot": {
@@ -141,11 +139,11 @@
         "descriptiveGroups": {}
       },
       "test": {
-        "decisions": 359,
+        "decisions": 540,
         "expectedDecisions": 540,
-        "complete": false,
-        "callsStarted": 744,
-        "callsFinished": 740,
+        "complete": true,
+        "callsStarted": 1104,
+        "callsFinished": 1104,
         "schemaReasks": 2,
         "schemaReaskPreviousResponse": {
           "missing_or_empty_text": 2
@@ -155,54 +153,54 @@
         "decisionGraderErrors": 0,
         "transportSuppressedCoreReasks": 0,
         "schemaReasksSuppressed": 0,
-        "ledgerPairs": 178,
-        "ledgerPhysicalReads": 376,
-        "ledgerMachinePairs": 0,
+        "ledgerPairs": 270,
+        "ledgerPhysicalReads": 564,
+        "ledgerMachinePairs": 1,
         "cost": {
           "ledger": {
-            "decisions": 178,
-            "knownUsd": 0.28530628,
+            "decisions": 270,
+            "knownUsd": 0.42294411,
             "unknownReserveUsd": 0,
-            "knownPer100": 0.16028442696629217,
-            "upperPer100": 0.16028442696629217
+            "knownPer100": 0.15664596666666666,
+            "upperPer100": 0.15664596666666666
           },
           "promptfoo": {
-            "decisions": 181,
-            "knownUsd": 0.1038438,
+            "decisions": 270,
+            "knownUsd": 0.15069757,
             "unknownReserveUsd": 0,
-            "knownPer100": 0.057372265193370166,
-            "upperPer100": 0.057372265193370166
+            "knownPer100": 0.05581391481481482,
+            "upperPer100": 0.05581391481481482
           }
         },
         "descriptiveGroups": {
           "livebench": {
             "ledger": {
-              "n": 50,
-              "correct": 47
+              "n": 85,
+              "correct": 80
             },
             "promptfoo": {
-              "n": 51,
-              "correct": 46
+              "n": 85,
+              "correct": 78
             }
           },
           "livecodebench": {
             "ledger": {
-              "n": 19,
-              "correct": 17
+              "n": 31,
+              "correct": 28
             },
             "promptfoo": {
-              "n": 19,
-              "correct": 19
+              "n": 31,
+              "correct": 29
             }
           },
           "mmlu": {
             "ledger": {
-              "n": 109,
-              "correct": 88
+              "n": 154,
+              "correct": 127
             },
             "promptfoo": {
-              "n": 111,
-              "correct": 86
+              "n": 154,
+              "correct": 122
             }
           }
         }

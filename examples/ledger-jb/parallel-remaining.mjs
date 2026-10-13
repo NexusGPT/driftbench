@@ -1,0 +1,116 @@
+#!/usr/bin/env node
+// Operational scheduler only. Judge, prompts, scoring and request keys are unchanged.
+import {appendFileSync,closeSync,existsSync,openSync,readFileSync,unlinkSync,writeFileSync} from 'node:fs';
+import {dirname,join,resolve} from 'node:path';
+import {fileURLToPath,pathToFileURL} from 'node:url';
+import {execFileSync} from 'node:child_process';
+import {hash,readJson,readJsonl,verifyFreeze,jobs,Journal,promptfooPrompt,parsePromptfoo,REQUIREMENTS} from './src/harness.mjs';
+
+export async function runModels(models, runPhase, ready, event=()=>{}) {
+  const blocked=[];
+  await Promise.all(models.map(async model=>{
+    for(const phase of ['pilot','fixtures','noise','validity','test']) {
+      if(phase==='test'&&!ready(model)) { blocked.push(model);event({status:'model-blocked',model});break; }
+      event({status:'phase-running',model,phase});
+      await runPhase(model,phase);
+      event({status:'phase-finished',model,phase});
+    }
+  }));
+  return blocked;
+}
+
+export async function drainQueue(queue,runJob,concurrency,stop) {
+  let next=0;
+  async function worker(){
+    while(!stop.error&&next<queue.length){
+      const job=queue[next++];
+      try{await runJob(job);}catch(error){stop.error??=error;}
+    }
+  }
+  await Promise.all(Array.from({length:concurrency},worker));
+  if(stop.error)throw stop.error;
+}
+
+async function main(){
+  const root=dirname(fileURLToPath(import.meta.url)),repo=resolve(root,'../..'),r=join(root,'results');
+  const argv=process.argv.slice(2);
+  if(argv.includes('--help')){console.log('node --import tsx examples/ledger-jb/parallel-remaining.mjs --execute --core-dossier PATH --spend-ledger PATH\nResumes all models side by side with frozen per-model limits and one shared budget journal.');return;}
+  if(!argv.includes('--execute'))throw new Error('Explicit --execute required');
+  const flag=name=>argv[argv.indexOf(name)+1];
+  if(!argv.includes('--core-dossier')||!argv.includes('--spend-ledger'))throw new Error('Dossier and spend ledger are required');
+  const freezePath=join(root,'freeze.json'),freeze=readJson(freezePath),freezeSha256=hash(readFileSync(freezePath));
+  verifyFreeze(root,repo,freeze,readFileSync(flag('--core-dossier'),'utf8'));
+  if(!freeze.hashes['examples/ledger-jb/parallel-remaining.mjs'])throw new Error('Parallel scheduler is not frozen');
+  const lock=join(r,'.paid-run.lock'),fd=openSync(lock,'wx');
+  process.on('exit',()=>{closeSync(fd);unlinkSync(lock);});
+  const models=['gpt-6-luna','claude-haiku-5-5','gemini-3.8-flash'];
+  const limits={'gpt-6-luna':8,'claude-haiku-5-5':2,'gemini-3.8-flash':2};
+  if(models.some(model=>freeze.modelConcurrency[model]!==limits[model]))throw new Error('Frozen concurrency does not match the owner pacing amendment');
+  const data=Object.fromEntries(['fixtures','pilot','noise','pool','validity'].map(name=>[name,readJson(join(root,`data/${name}.json`))]));
+  const adapter=await import(pathToFileURL(resolve(repo,freeze.adapter)).href);
+  const transports=Object.fromEntries(await Promise.all(models.map(async model=>[model,await adapter.createTransport({model,settings:freeze.models[model],root})])));
+  const journal=new Journal(join(r,'calls.jsonl'),{capUsd:25,appendSpend(row){
+    appendFileSync(flag('--spend-ledger'),`| ${row.at} | ledger-jb ${row.phase} ${row.contestant} ${row.itemId} ${row.order} | ${row.model} | 1 call | ${row.costUsd.toFixed(8)} USD${row.costEstimated?' reserved, actual unknown':''} | lane liability ${journal.liability().toFixed(8)} USD |\n`);
+  }});
+  const template=readFileSync(join(root,'data/promptfoo-select-best.txt'),'utf8'),stop={};
+  const state={status:'running',pid:process.pid,core:freeze.coreCommit,concurrency:12,models:{}};
+  function event(value){
+    if(value.model)state.models[value.model]={phase:value.phase??state.models[value.model]?.phase,status:value.status,concurrency:limits[value.model]};
+    else Object.assign(state,value);
+    state.at=new Date().toISOString();
+    writeFileSync(join(r,'driver-state.json'),JSON.stringify(state,null,2)+'\n');
+    console.log(JSON.stringify({at:state.at,...value}));
+  }
+  function reports(){
+    for(const path of ['src/report.mjs','summarize-reasks.mjs']){
+      const output=execFileSync('node',[join(root,path)],{cwd:repo,encoding:'utf8',maxBuffer:10*1024*1024});
+      appendFileSync(join(r,'report-build.log'),output);
+    }
+  }
+  function ready(model){
+    const x=readJson(join(r,`readiness-${model}.json`));
+    return x.freezeSha256===freezeSha256&&['pilotComplete','fixturesComplete','noiseComplete','validityPassed'].every(k=>x[k]);
+  }
+  async function runPhase(model,phase){
+    if(stop.error)throw stop.error;
+    if(Date.now()>=Date.parse(freeze.lastCallCutoff))throw new Error('Frozen last-call cutoff reached');
+    const transport=transports[model],output=join(r,`decisions-${phase}-${model}.jsonl`),previous=readJsonl(output),completed=new Set(previous.map(x=>x.key));
+    if(completed.size!==previous.length)throw new Error('Duplicate saved decisions');
+    const planned=jobs(data,phase,model),queue=planned.filter(job=>!completed.has(job.key));
+    async function runJob(job){
+      const call=async(prompt,{order,attempt=0,schema}={})=>{
+        if(stop.error)throw stop.error;
+        if(Date.now()>=Date.parse(freeze.lastCallCutoff))throw new Error('Frozen last-call cutoff reached');
+        const key=`${job.key}:${order}:${attempt}:${hash(JSON.stringify({prompt,schema,settings:(freeze.cacheIdentityModels??freeze.models)[model]}))}`;
+        const reserveUsd=transport.maximumCostUsd(prompt,schema);
+        return journal.transportCall(key,reserveUsd,()=>transport.call(prompt,{schema,reserveUsd}),{phase,model,contestant:job.contestant,itemId:job.itemId,repeat:job.repeat,order,attempt});
+      };
+      let result;
+      if(job.contestant==='ledger')result=await adapter.judgePair({item:job.item,requirements:REQUIREMENTS,model,call,settings:freeze.models[model]});
+      else{
+        const games=[];let graderErrors=0;
+        for(const order of ['AB','BA']){
+          const response=await call(promptfooPrompt(template,job.item,order),{order});
+          const game=response.graderError?null:parsePromptfoo(response.text,order);
+          graderErrors+=Number(game===null);games.push(game);
+        }
+        result={games,graderErrors};
+      }
+      if(!Array.isArray(result.games)||result.games.length!==2||result.games.some(x=>!['A','B','tie',null].includes(x)))throw new Error('Invalid adapter pair result');
+      const row={...result,key:job.key,itemId:job.itemId,group:job.item.group,label:job.item.label,phase,model,repeat:job.repeat,contestant:job.contestant,freezeSha256};
+      appendFileSync(output,`${JSON.stringify(row)}\n`);completed.add(job.key);
+      console.log(JSON.stringify({phase,model,completed:completed.size,planned:planned.length,liabilityUsd:journal.liability()}));
+    }
+    await drainQueue(queue,runJob,limits[model],stop);
+    reports();
+  }
+  event({status:'running'});
+  // allSettled drains owned in-flight calls before releasing the single writer lock.
+  const result=await Promise.allSettled(models.map(model=>runModels([model],runPhase,ready,event)));
+  reports();
+  const errors=result.filter(x=>x.status==='rejected');
+  if(errors.length){event({status:'stopped-on-error',error:errors[0].reason.message});throw errors[0].reason;}
+  event({status:'finished',blocked:result.flatMap(x=>x.value)});
+}
+
+if(process.argv[1]&&resolve(process.argv[1])===fileURLToPath(import.meta.url))await main();

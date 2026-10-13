@@ -94,6 +94,9 @@ The owner keeps PR 168's single schema re-ask after malformed model JSON. Transp
 wrappers never retry a returned answer. Each non-quota transport failure permits
 at most three attempts with a 300-second timeout. HTTP 429 adds quota waits of
 60, 120 and 240 seconds, then pauses without recording a judge failure. Every
-attempt retains its usage cost or conservative reservation. Concurrency is four
-for Luna and Haiku and two for Gemini; a single process owns paid calls at a time.
+attempt retains its usage cost or conservative reservation. The owner pacing
+amendment permits eight Luna HTTP calls, two Haiku calls and two Gemini calls
+side by side. `parallel-remaining.mjs` uses one shared budget journal, preserves
+sealed order within each model, and gates TEST on that model's preparation.
+One process owns paid calls; the maximum across all three models is twelve.
 Prior operational freezes and crash receipts remain in `freezes/` and `results/`.

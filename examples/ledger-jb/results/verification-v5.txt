@@ -1,0 +1,33 @@
+✔ adapter runs the actual core in both orders and does not consume the label (16.519917ms)
+✔ core retains its one schema re-ask, independently of transport retries (1.212833ms)
+✔ missing usage is never zero cost, cached input is priced separately (0.118833ms)
+✔ exhausted transport failures never gain more tries through core re-ask (0.538375ms)
+✔ pool and all sealed artifacts retain their hashes (3.8875ms)
+✔ noise cache identity differs by repeat and contestant (0.181584ms)
+✔ fixed prompt rendering preserves dollar sequences and handles order (0.130334ms)
+✔ budget is reserved before a call and identical replay is free (5.131916ms)
+✔ an interrupted call cannot silently retry or lose its cost reserve (1.63275ms)
+✔ unknown cost retains liability and concurrent reservations cannot overspend (0.398708ms)
+✔ transport retries stop at three and keep every failed reservation (2.120125ms)
+✔ three failed attempts exhaust and returned content is never retried (0.585833ms)
+✔ 429 waits 60, 120 and 240 seconds, then stops without a judge error (1.701583ms)
+✔ a successful quota retry returns exactly one answer and preserves accounting (1.638834ms)
+✔ three models keep dependency order and respect 8, 2, 2 call limits (61.047041ms)
+✔ failed readiness prevents only that model test phase (0.254792ms)
+✔ shared stop drains already started jobs and starts no later job (10.403834ms)
+✔ official net rule preserves ties, splits and grader errors (0.697583ms)
+✔ exact discordance tails and Wilson interval known answers (0.150917ms)
+✔ Holm is monotone in rank and rejects pending cells (0.737833ms)
+✔ balanced labels prevent trivial fixture earning (0.091833ms)
+✔ constant presented-first is not constant original-A (0.078417ms)
+✔ paired bootstrap and comparison retain matched units and errors (1.399ms)
+✔ noise repeats count actual independent samples (0.120333ms)
+✔ invariance cannot pass by keeping the same wrong answer (0.232584ms)
+ℹ tests 25
+ℹ suites 0
+ℹ pass 25
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 2102.526667

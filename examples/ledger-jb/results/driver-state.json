@@ -1,8 +1,9 @@
 {
-  "at": "2026-10-13T08:40:47.210255+00:00",
+  "at": "2026-10-13T09:27:05.290976+00:00",
   "status": "phase-running",
+  "pid": 77888,
   "model": "gpt-6-luna",
   "phase": "test",
-  "pid": 47292,
-  "maxConcurrentCalls": 4
+  "stoppedDriverPid": 47292,
+  "next": "Owner-authorized parallel scheduler with Luna 8, Gemini 2, Haiku 2 after active phase drains"
 }
