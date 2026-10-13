@@ -1,9 +1,13 @@
 import type { Store } from '../contracts/store';
 import type { PlannedCell } from '../runner/campaign';
+import { provenanceDigest } from '../runner/provenance';
 import type { TargetRef } from '../schema/common';
-import type { CampaignRadius, RunResult } from '../schema/run';
+import type { Campaign, CampaignRadius, RunResult } from '../schema/run';
+import type { Spec } from '../schema/spec';
 import { canonicalJson } from '../spec/hash';
+import { sameBlockInputs } from './block-inputs';
 import { type ChangeManifest, changeLabel } from './change';
+import { completeBaselineProvenance, sameCarryContext } from './provenance';
 import type { RadiusReport } from './radius';
 import { agentVersionOf } from './version';
 
@@ -21,6 +25,10 @@ export type CarryLimits = {
   maxAgeDays?: number;
   /** When the carrying campaign starts. */
   now: Date;
+  /** Actual candidate context per cell. Missing or uncertain context always reruns. */
+  currentProvenance?: (cell: PlannedCell) => RunResult['provenance'];
+  /** The actual candidate spec, used to reconstruct block inputs. Missing means rerun. */
+  currentSpec?: (cell: PlannedCell) => Spec | undefined;
 };
 
 export const DEFAULT_MAX_CARRY = 5;
@@ -30,6 +38,7 @@ export type CarriedCell = {
   cell: PlannedCell;
   source: RunResult;
   carried: NonNullable<RunResult['carried']>;
+  provenance?: RunResult['provenance'];
 };
 
 export type RadiusPlan = {
@@ -68,7 +77,7 @@ export function planRadiusCampaign(
   cells: readonly PlannedCell[],
   radius: RadiusReport,
   manifest: ChangeManifest,
-  baseline: { campaignId: string; runs: readonly RunResult[] },
+  baseline: { campaignId: string; runs: readonly RunResult[]; provenance?: Campaign['provenance'] },
   limits: CarryLimits,
 ): RadiusPlan {
   const all = (nothing: string): RadiusPlan => ({
@@ -95,6 +104,9 @@ export function planRadiusCampaign(
       `campaign ${baseline.campaignId} holds no run of agent version ${manifest.from} (it holds: ${held || 'no run'})`,
     );
   }
+
+  if (!completeBaselineProvenance(baseline))
+    return all('the baseline has no execution provenance (missing or incomplete stamp)');
 
   const inRadius = new Set<string>();
   for (const spec of radius.specs) {
@@ -145,6 +157,15 @@ export function planRadiusCampaign(
       );
       continue;
     }
+    const provenance = limits.currentProvenance?.(cell);
+    if (!sameCarryContext(source.provenance, provenance, source.target, cell.target, manifest)) {
+      refuse('current execution context differs or cannot be proved');
+      continue;
+    }
+    if (!sameBlockInputs(source, limits.currentSpec?.(cell))) {
+      refuse('current block inputs differ or cannot be reconstructed');
+      continue;
+    }
     const origin = source.carried;
     const campaigns = (origin?.age.campaigns ?? 0) + 1;
     // A carried copy keeps the times of the fresh run, so this is the end of the fresh run either way.
@@ -161,6 +182,7 @@ export function planRadiusCampaign(
     plan.carried.push({
       cell,
       source,
+      provenance,
       carried: {
         fromCampaign: origin?.fromCampaign ?? baseline.campaignId,
         fromRun: origin?.fromRun ?? source.runId,
@@ -174,7 +196,14 @@ export function planRadiusCampaign(
 
 /** The run a carried cell stores: the baseline run under the cell's own id and target, stamped. */
 export function carriedRun(entry: CarriedCell): RunResult {
-  return { ...entry.source, runId: entry.cell.cellId, target: entry.cell.target, carried: entry.carried };
+  return {
+    ...entry.source,
+    runId: entry.cell.cellId,
+    target: entry.cell.target,
+    provenance: entry.provenance,
+    provenanceDigest: provenanceDigest({ provenance: entry.provenance, blocks: entry.source.blocks }),
+    carried: entry.carried,
+  };
 }
 
 /** Writes the carried copies under the carrying campaign. `resume` and `status` then find a completed run for each. */

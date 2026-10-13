@@ -1,8 +1,7 @@
 import { createScriptedDriver } from '@agent-nexus/driftbench-users';
 import { expect, it } from 'vitest';
-import { captureArtifacts } from '../../src/runner/provenance';
+import { captureArtifacts, provenanceHash } from '../../src/runner/provenance';
 import { runSpec } from '../../src/runner/run';
-import { contentHash } from '../../src/spec/hash';
 import { echoAdapter, specOf } from './support';
 
 const spec = specOf({
@@ -29,20 +28,21 @@ it('records the actual stimulus, check inputs and driver only when requested', a
   };
   const plain = await runSpec(spec, opts);
   expect(plain).not.toHaveProperty('provenance');
+  expect(plain).not.toHaveProperty('provenanceDigest');
   expect(plain.blocks[0]).not.toHaveProperty('provenance');
   const recorded = await runSpec(spec, { ...opts, recordProvenance: true });
   expect(recorded.provenance).toMatchObject({
-    driver: { id: 'scripted', seeds: { sample: 17 } },
-    adapter: { id: 'echo', version: opts.adapter.version },
+    driver: { idHash: provenanceHash('scripted'), seedsHash: provenanceHash({ sample: 17 }) },
+    adapter: { idHash: provenanceHash('echo'), versionHash: provenanceHash(opts.adapter.version) },
   });
   expect(recorded.blocks[0]?.provenance).toMatchObject({
     specIndex: 0,
-    stimulus: { user: 'actual user text' },
-    ledgerHash: contentHash({ plan: 'Acme' }),
+    stimulusHash: provenanceHash({ user: 'actual user text' }),
+    ledgerHash: provenanceHash({ plan: 'Acme' }),
     artifacts: [],
   });
   const strip = (run: typeof recorded) => {
-    const { provenance: _, ...rest } = run;
+    const { provenance: _, provenanceDigest: ___, ...rest } = run;
     return { ...rest, blocks: run.blocks.map(({ provenance: __, ...block }) => block) };
   };
   expect(strip(recorded)).toEqual(plain);
@@ -56,7 +56,7 @@ it('leaves unknown driver seeds explicit', async () => {
     repeat: 0,
     recordProvenance: true,
   });
-  expect(run.provenance?.driver.seeds).toBeNull();
+  expect(run.provenance?.driver.seedsHash).toBeNull();
 });
 
 it('hashes only artifacts the checks read and records unreadable paths without inventing a digest', async () => {
@@ -71,8 +71,11 @@ it('hashes only artifacts the checks read and records unreadable paths without i
   expect(await capture.readArtifact?.('quote.txt')).toEqual(new TextEncoder().encode('Acme'));
   await expect(capture.readArtifact?.('missing.txt')).rejects.toThrow('missing');
   expect(capture.artifacts).toEqual([
-    { path: 'quote.txt', sha256: '37036cd8f9746d335038eca92f8a73ae5f1bca4779a1e55e5812e37743b2f5bf' },
-    { path: 'missing.txt', sha256: null },
+    {
+      pathHash: provenanceHash('quote.txt'),
+      sha256: '37036cd8f9746d335038eca92f8a73ae5f1bca4779a1e55e5812e37743b2f5bf',
+    },
+    { pathHash: provenanceHash('missing.txt'), sha256: null },
   ]);
   expect(JSON.stringify(capture.artifacts)).not.toContain('Acme');
 });

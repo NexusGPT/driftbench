@@ -22,6 +22,7 @@ import {
   campaignRadius,
   canonicalJson,
   carryRuns,
+  completeBaselineProvenance,
   compoundingIndex,
   contentHash,
   DEFAULT_MAX_AGE_DAYS,
@@ -45,6 +46,7 @@ import {
   type RunResult,
   radiusOf,
   runCampaign,
+  runProvenance,
   runsByCell,
   type Spec,
   type Store,
@@ -350,7 +352,7 @@ export function registerCampaignCommands(
     .option('--repeats <n>', 'runs per spec, target and mode', '1')
     .option(
       '--agent-version <label>',
-      'the version of the agent under test, written as the variant of every target that names none',
+      'the agent version in every block cache key; also the variant of targets that name none',
     )
     .option(
       '--change <manifest>',
@@ -752,41 +754,67 @@ export async function campaignRunCommand(
         judge: { mode: 'system1', judges: [] },
         createdAt,
         ...(registry.sources.length > 0 ? { sources: registry.sources } : {}),
+        ...(options.agentVersion === undefined ? {} : { agentVersion: options.agentVersion }),
       };
       const radius =
         options.change === undefined
           ? undefined
-          : await radiusPlan(options, campaign, loaded, store, deps, io, async (cells) => {
-              // The audit runs before the campaign is stored, in a store of its own: what it finds
-              // decides what the campaign carries, and a campaign record never changes once written.
-              const memory = await deps.openStore(undefined);
-              try {
-                for (const entry of loaded) await memory.putSpec(entry);
-                await memory.putCampaign(campaign);
-                const specs = new Map(loaded.map((entry) => [`${entry.spec.id}@${entry.hash}`, entry.spec]));
-                const outcomes = await runCampaign({
-                  campaignId,
-                  cells,
-                  recordProvenance: true,
-                  recordEvents: true,
-                  specFor: (cell) =>
-                    required(specs.get(`${cell.specId}@${cell.specHash}`), `spec ${cell.specId}`),
-                  adapterFor: (target) =>
-                    required(adapters.get(showTarget(target)), `adapter ${showTarget(target)}`),
-                  driver: (cell, spec) => deps.driver(cell, spec),
-                  ...(deps.consequential ? { consequential: deps.consequential } : {}),
+          : await radiusPlan(
+              options,
+              campaign,
+              loaded,
+              store,
+              deps,
+              io,
+              (cell) => {
+                const spec = required(loaded.find((entry) => entry.hash === cell.specHash)?.spec, 'spec');
+                return runProvenance({
+                  adapter: required(adapters.get(showTarget(cell.target)), 'adapter'),
+                  driver: deps.driver(cell, spec),
                   checks: deps.checks,
-                  ...(deps.artifacts ? { artifacts: deps.artifacts } : {}),
-                  store: memory,
-                  now: () => deps.now(),
-                  concurrency: pool.concurrency,
-                  ...(pool.retry ? { retry: pool.retry } : {}),
+                  mode: cell.mode,
+                  repeat: cell.repeat,
+                  target: cell.target,
+                  perturbationId: cell.perturbationId,
+                  retry: pool.retry,
+                  agentVersion: campaign.agentVersion,
                 });
-                return outcomes.flatMap((outcome) => (outcome.run ? [outcome.run] : []));
-              } finally {
-                await memory.close();
-              }
-            });
+              },
+              async (cells) => {
+                // The audit runs before the campaign is stored, in a store of its own: what it finds
+                // decides what the campaign carries, and a campaign record never changes once written.
+                const memory = await deps.openStore(undefined);
+                try {
+                  for (const entry of loaded) await memory.putSpec(entry);
+                  await memory.putCampaign(campaign);
+                  const specs = new Map(
+                    loaded.map((entry) => [`${entry.spec.id}@${entry.hash}`, entry.spec]),
+                  );
+                  const outcomes = await runCampaign({
+                    campaignId,
+                    cells,
+                    recordProvenance: true,
+                    recordEvents: true,
+                    specFor: (cell) =>
+                      required(specs.get(`${cell.specId}@${cell.specHash}`), `spec ${cell.specId}`),
+                    adapterFor: (target) =>
+                      required(adapters.get(showTarget(target)), `adapter ${showTarget(target)}`),
+                    driver: (cell, spec) => deps.driver(cell, spec),
+                    ...(deps.consequential ? { consequential: deps.consequential } : {}),
+                    checks: deps.checks,
+                    ...(deps.artifacts ? { artifacts: deps.artifacts } : {}),
+                    store: memory,
+                    ...(campaign.agentVersion === undefined ? {} : { agentVersion: campaign.agentVersion }),
+                    now: () => deps.now(),
+                    concurrency: pool.concurrency,
+                    ...(pool.retry ? { retry: pool.retry } : {}),
+                  });
+                  return outcomes.flatMap((outcome) => (outcome.run ? [outcome.run] : []));
+                } finally {
+                  await memory.close();
+                }
+              },
+            );
       if (radius === null) return 2;
       if (radius) campaign.radius = radius.record;
       try {
@@ -1038,6 +1066,7 @@ async function executeCampaign(
     // The runner neither replays nor caches a run in a sandbox: a replay has no workspace to read.
     ...(flags.cache ? { cache: store } : {}),
     ...(flags.cacheSuite === undefined ? {} : { cacheSuite: flags.cacheSuite }),
+    ...(campaign.agentVersion === undefined ? {} : { agentVersion: campaign.agentVersion }),
     now: () => deps.now(),
     concurrency: flags.concurrency,
     ...(flags.budgetUsd === undefined ? {} : { budgetUsd: flags.budgetUsd }),
@@ -1068,6 +1097,7 @@ async function radiusPlan(
   store: Store,
   deps: CampaignDeps,
   io: Io,
+  currentProvenance: (cell: PlannedCell) => RunResult['provenance'],
   runAudit: (cells: PlannedCell[]) => Promise<RunResult[]>,
 ): Promise<{
   plan: RadiusPlan;
@@ -1122,18 +1152,17 @@ async function radiusPlan(
     { modes: campaign.modes },
   );
   const baselineRuns = await store.listRuns({ campaignId: baseline.campaignId });
-  if (
-    !baseline.provenance ||
-    baselineRuns.some((run) => !run.provenance || run.blocks.some((block) => !block.provenance))
-  )
+  if (!completeBaselineProvenance({ provenance: baseline.provenance, runs: baselineRuns }))
     radius.whole = { change: 'legacy', reason: 'the baseline has no execution provenance' };
   let plan = planRadiusCampaign(
     cells,
     radius,
     manifest.manifest,
-    { campaignId: baseline.campaignId, runs: baselineRuns },
+    { campaignId: baseline.campaignId, runs: baselineRuns, provenance: baseline.provenance },
     {
       now: deps.now(),
+      currentProvenance,
+      currentSpec: (cell) => loaded.find((entry) => entry.hash === cell.specHash)?.spec,
       ...(maxCarry === undefined ? {} : { maxCarry }),
       ...(maxAge === undefined ? {} : { maxAgeDays: maxAge }),
     },

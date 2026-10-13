@@ -1,8 +1,9 @@
 import {
   type AgentAdapter,
+  adapterProvenance,
   agentVersionOf,
   type Campaign,
-  contentHash,
+  provenanceHash,
   type TargetRef,
 } from '@agent-nexus/driftbench-core';
 
@@ -12,15 +13,17 @@ export function campaignProvenance(
   adapterFor: (target: TargetRef) => AgentAdapter,
 ): NonNullable<Campaign['provenance']> {
   return {
-    version: 1,
-    adapters: [...new Map(targets.map((target) => [contentHash(target), target])).values()].map((target) => {
-      const adapter = adapterFor(target);
-      return {
-        target: contentHash(target),
-        id: adapter.id,
-        version: adapter.version,
-        agentVersion: agentVersionOf({ target }) ?? null,
-      };
-    }),
+    version: 2,
+    adapters: [...new Map(targets.map((target) => [provenanceHash(target), target])).values()].map(
+      (target) => {
+        const adapter = adapterFor(target);
+        return {
+          targetHash: provenanceHash(target),
+          ...adapterProvenance(adapter, target.adapter),
+          agentVersionHash:
+            agentVersionOf({ target }) === undefined ? null : provenanceHash(agentVersionOf({ target })),
+        };
+      },
+    ),
   };
 }

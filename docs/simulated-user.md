@@ -9,6 +9,8 @@ A simulated user plays a person with a persona and a goal, block by block, inste
 
 ## A persona
 
+Every field of a persona and of a user recording is in the [personas and red-team reference](reference/users.md).
+
 A persona file names the person, the goal, the facts and how the agent asks for each, the stop token, and the spec it plays (relative to the file). The Acme personas are in [`examples/acme/personas`](../examples/acme/personas/README.md), with one recording written by hand in `recordings/`.
 
 ```text
