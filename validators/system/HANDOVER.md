@@ -5,8 +5,17 @@
 <!-- level-table:start -->
 | Seed | Level |
 |---|---|
-| 1 | 7 |
+| 1 | 10 |
 <!-- level-table:end -->
+
+Owner pause checkpoint, journal iteration 9: source 3306a372 includes main a75645be and merged maintainer PR 128. The seed-1 comparison is level 7 to 10, 2360/2384 to 2383/2384. The score is 0.9995805369127517. Its improvement is credited to the upstream current-contract bank, not a new growth fix. The exact-file codemod preservation fix is committed with its red-first test; all seven codemod tests pass.
+
+The paused stage completes 3 of 21 seeds at this source: seed 1 level 10, 2383/2384; seed 2 level 11, 2384/2384; seed 3 level 10, 2383/2384. Aggregate passing on every completed seed is 2383/2384. Teacher-forced growth fails seed 1 at 28.5 and seed 3 at 27.1, against the unchanged 25. All stale expectations pass on these completed seeds. Partial seed 4 is stopped and excluded. No remaining seed is inferred.
+
+Evidence: /private/tmp/claude-501/-Users-assem-Documents-Doc-Assem-Claude-Code-nexus/649588d0-8d65-49cb-8d78-47b071cd71cb/scratchpad/codex/system-measurements/post-pr128-stage/report.json. The marked level table describes the journal's comparable seed 1; the separate three-seed stage does not invent before measurements for seeds 2 or 3.
+
+Owner instruction: "alright man, let's pause it all for now." The owned sweep is stopped. No automatic resume or watcher is armed.
+
 
 Baseline on main a303a3f2 merged into codex/system-v3: bank version 5, 2384 items, 2355 passing, 29 failing, score 0.9878355704697986. Only seed 1 is complete. Do not extrapolate to other seeds. Older journals remain in journal-v2.jsonl, journal-v3.jsonl and journal-v4.jsonl.
 
@@ -46,10 +55,9 @@ Iteration 5 commits packages/core/test/runner/uncached-key-cost.test.ts with the
 
 ## Next actions
 
-1. PR 128 is merged and this branch includes main a75645be. Run node tools/rename-scope.mjs, typecheck and remeasure seed 1. Report any remaining red item. For the remaining shared growing-history cause, the first file is packages/core/src/contracts/history.ts. Keep mutable plain arrays and structuredClone compatibility. The earlier private hybrid-copy and copied-runner timings are withdrawn: CommonJS copies duplicated the ownership marker. Repeat private probes as ESM before judging them.
-2. Continue growing-history research from packages/core/src/contracts/history.ts. The current CPU profile puts snapshot allocation and garbage collection above ledger work. Private literal-accessor construction is slower and rejected; the native projection probe still exceeds the bound in some cases, so neither is accepted as a cure.
-3. Main PRs 149 (stats measurement cache), 150 (CLI positive-floor caps) and 143 (system floor) are merged. Merge main at a measurement boundary, run the codemod, typecheck and lint, then run the final first five seeds. Report N of 21; continue remaining seeds only before 06:00 local.
-
+1. Wait for the owner to resume. Read journal iteration 9, this handover and the complete git status first. The iteration-9 fresh handover test is due on resume. No seed sweep remains running.
+2. Continue the remaining teacher-forced growth cause from packages/core/src/contracts/history.ts and packages/core/src/runner/given.ts. Preserve mutable plain arrays and structuredClone compatibility. The rejected local object-literal candidate is not a cure. Keep the limit at 25 and reproduce it red before the next component fix.
+3. Freeze the source before finishing seeds 4 and 5 or restarting the first-five stage after another main merge. Report N of 21, keep versions separate and do not raise the floor without all 21 seeds. Run node tools/rename-scope.mjs, typecheck and lint after each main merge.
 
 ## Pitfalls
 
@@ -97,3 +105,5 @@ As of 2026-10-13 06:27 CEST: GitHub reports PR 118 open and draft at c36468ca, t
 As of 2026-10-13 06:28 CEST: separate main PR 159 is open at afce297d with queued CI. It extracts only the bank maintainer PR 128 clustered interval oracle correction, at the owner's urgent request after PR 152 fails on main. Both items reproduce exactly on main seeds 1, 2 and 3; four red seeded test cases include hidden seed 692104744. Eight tests pass after the correction, including interval-only mutations and report coverage tests; typecheck and lint pass. No system bank seed sweep is claimed by those targeted tests. The executor branch bank stays untouched.
 
 As of 2026-10-13 06:38 CEST: PR 128 is merged, after all checks pass. Its system floor test runs in 66.381 seconds on Node 22 and 81.733 seconds on Node 24, under the unchanged 600-second limit. The pending current-source measurement is restarted after the main merge; the interrupted pre-merge partial seed counts as zero completed seeds.
+
+As of 2026-10-13 06:57 CEST: the owner pauses all work. PR 128 and PR 159 are merged with all checks green. PR 118 is draft at 3306a372; its latest CI is in progress. PR 161 is open with CI in progress for the required codemod preservation fix. Its source is also committed on this branch. The pending pause-state commit contains this handover and journal row only; no uncommitted component work remains after that commit.
