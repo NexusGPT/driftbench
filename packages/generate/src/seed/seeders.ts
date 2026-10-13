@@ -23,6 +23,7 @@ import { type Edge, type StageGraph, stageGraph, walkGraph } from './graph';
 import { dimensionId, type PreparedMap, partitionOf, phraseKey, valueId } from './map';
 import { impossibleConstraints } from './possible';
 import { pick, type Rng, range, rngFor, shuffle, streamSeed } from './random';
+import { slotsOf } from './relations';
 import { buildScenario, type ProbeRequest, type ScenarioRequest } from './scenario';
 import { type AllowedCheck, coveringArray } from './twise';
 import { concreteValue, INVALID_PARTITIONS, inputAssertion, toolAnswer } from './values';
@@ -974,6 +975,18 @@ export function boundarySeeder(
           return;
         }
       }
+      if (found?.direction === 'out' && hasPaths(prepared)) {
+        // A returned value the map says a reply states: the walk's turn that calls the tool answers with
+        // the value, and its Then states it. A call with no reply, or a reply with another value, fails.
+        const built = statedScenario(prepared, context, id, rng, dimension.id, value.id, target);
+        if ('draft' in built) {
+          const shown = concreteValue(found.schema, partition);
+          if (shown.kind === 'value') built.draft.concrete = { [value.id]: shown.value };
+          toolValues += 1;
+          drafts.push(built.draft);
+          return;
+        }
+      }
       if (found && effect) {
         toolValues += 1;
         const shown = concreteValue(found.schema, partition);
@@ -1114,6 +1127,49 @@ function boundaryScenario(
   if (needing.length === 0) return { reasons: [`no approved path needs ${dimension}=${value}`] };
   return scenarioDraft(prepared, context, id, 'boundary', title, [target], {
     preferred: needing,
+    others: [],
+  });
+}
+
+/**
+ * A tool output value on a path whose reply states it: a path of a flow with a `states` relation that reads a
+ * slot the value binds, walked through that relation's move, with the tool's other outputs drawn under the
+ * constraints so every stated slot is bound.
+ */
+function statedScenario(
+  prepared: PreparedMap,
+  context: SeedContext,
+  id: string,
+  rng: Rng,
+  dimension: string,
+  value: string,
+  target: Pick,
+): PathTry {
+  const bound = Object.keys(prepared.relations.binds.get(`${dimension}=${value}`) ?? {});
+  const stating = prepared.relations.states.filter(
+    (entry) =>
+      entry.subject.dimension === 'flow' &&
+      slotsOf([entry.must, entry.must_not]).some((slot) => bound.includes(slot)),
+  );
+  if (stating.length === 0) return { reasons: [`no approved reply states ${dimension}=${value}`] };
+  const crosses = (path: PathRelation) =>
+    stating.some(
+      (entry) =>
+        entry.subject.value === path.flow &&
+        path.stages.some(
+          (stage, index) =>
+            stage === entry.stage && (entry.to === undefined || path.stages[index + 1] === entry.to),
+        ),
+    );
+  const tool = prepared.toolDimensions.get(target[0])?.tool.name;
+  const fixed: Pick[] = [target];
+  for (const [other, otherValue] of prepared.feasibility.complete([target], rng)?.entries() ?? []) {
+    const sibling = prepared.toolDimensions.get(other);
+    if (other !== target[0] && sibling?.tool.name === tool && sibling?.direction === 'out')
+      fixed.push([other, otherValue]);
+  }
+  return scenarioDraft(prepared, context, id, 'boundary', `Boundary value ${value}`, fixed, {
+    preferred: prepared.relations.paths.filter(crosses),
     others: [],
   });
 }
