@@ -241,11 +241,25 @@ export async function executeBlock(block: CodeBlock, question: string, root: str
   };
 }
 
-export async function codeEvidence(input: {
+type CandidateCode = {
   question: string;
   a: string;
   b: string;
-}): Promise<string | undefined> {
+};
+const pendingObservations = new Map<string, Promise<string | undefined>>();
+
+/** Both canonical orders must share the same observation, including nondeterministic output. */
+export function codeEvidence(input: CandidateCode): Promise<string | undefined> {
+  const key = JSON.stringify([VERSION, input.question, input.a, input.b]);
+  const existing = pendingObservations.get(key);
+  if (existing) return existing;
+  const observation = observeCodeEvidence(input);
+  pendingObservations.set(key, observation);
+  observation.catch(() => pendingObservations.delete(key));
+  return observation;
+}
+
+async function observeCodeEvidence(input: CandidateCode): Promise<string | undefined> {
   const a = codeBlocks(input.a);
   const b = codeBlocks(input.b);
   if (a.length === 0 && b.length === 0) return undefined;
