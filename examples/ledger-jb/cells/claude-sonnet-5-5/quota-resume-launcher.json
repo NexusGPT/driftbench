@@ -1,0 +1,9 @@
+{
+  "pid": 92241,
+  "target": "claude-sonnet-5-5",
+  "status": "waiting-for-provider-reset",
+  "healthGateStartUtc": "2026-10-13T16:46:00+00:00",
+  "paidNotBeforeUtc": "2026-10-13T16:50:00Z",
+  "freezeSha256": "8513ea3ba8cecb2f04b25b10af72ce10eaeabef69cc926124779a11f13834236",
+  "stop": "Self-terminates with the frozen Sonnet recovery runner; SIGUSR2 stops before dispatch or drains active calls."
+}

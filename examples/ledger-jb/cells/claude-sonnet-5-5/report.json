@@ -1,11 +1,11 @@
 {
   "model": "claude-sonnet-5-5",
-  "at": "2026-10-13T14:24:14.525Z",
-  "freezeSha256": "e7435a4f25ec66a330b59bef568c3dc62297580646323e83359801ee2b5cdca7",
-  "status": "NETWORK_PAUSED",
-  "n": 0,
+  "at": "2026-10-13T16:35:28.088Z",
+  "freezeSha256": "8513ea3ba8cecb2f04b25b10af72ce10eaeabef69cc926124779a11f13834236",
+  "status": "TRANSPORT_MISSING",
+  "n": 104,
   "planned": 270,
-  "coverage": 0,
+  "coverage": 0.3851851851851852,
   "wins": null,
   "losses": null,
   "ledger": null,
@@ -18,105 +18,105 @@
   "decisions": null,
   "readiness": {
     "pilotComplete": true,
-    "fixturesComplete": false,
-    "noiseComplete": false,
-    "validityPassed": false
+    "fixturesComplete": true,
+    "noiseComplete": true,
+    "validityPassed": true
   },
   "fixtures": {
     "livebench": {
       "expected": 18,
       "measured": 18,
-      "correct": 13,
-      "kappa": 0.5652173913043479,
+      "correct": 15,
+      "kappa": 0.7142857142857144,
       "complete": true,
       "earned": false
     },
     "livecodebench": {
       "expected": 18,
-      "measured": 1,
-      "correct": 1,
-      "kappa": null,
-      "complete": false,
-      "earned": false
+      "measured": 18,
+      "correct": 18,
+      "kappa": 1,
+      "complete": true,
+      "earned": true
     },
     "mmlu": {
       "expected": 18,
-      "measured": 0,
-      "correct": 0,
-      "kappa": null,
-      "complete": false,
-      "earned": false
+      "measured": 18,
+      "correct": 18,
+      "kappa": 1,
+      "complete": true,
+      "earned": true
     }
   },
   "noise": {
     "ledger": {
       "planned": 30,
-      "completed": 0,
-      "changedItems": 0,
-      "gameFlips": 0,
-      "comparisons": 0,
-      "rate": null,
+      "completed": 30,
+      "changedItems": 2,
+      "gameFlips": 4,
+      "comparisons": 120,
+      "rate": 0.03333333333333333,
       "method": "Each repeat compared to repeat zero, per order; all errors retain their null decisions."
     },
     "promptfoo": {
       "planned": 30,
-      "completed": 0,
-      "changedItems": 0,
-      "gameFlips": 0,
-      "comparisons": 0,
-      "rate": null,
+      "completed": 30,
+      "changedItems": 6,
+      "gameFlips": 12,
+      "comparisons": 120,
+      "rate": 0.1,
       "method": "Each repeat compared to repeat zero, per order; all errors retain their null decisions."
     }
   },
   "checks": {
     "base": {
       "expected": 10,
-      "measured": 0,
-      "correct": 0,
-      "preservedOrFlipped": 0,
-      "rate": null,
+      "measured": 10,
+      "correct": 10,
+      "preservedOrFlipped": 10,
+      "rate": 1,
       "threshold": 1,
-      "passed": false
+      "passed": true
     },
     "relabel": {
       "expected": 10,
-      "measured": 0,
-      "correct": 0,
-      "preservedOrFlipped": 0,
-      "rate": null,
+      "measured": 10,
+      "correct": 10,
+      "preservedOrFlipped": 10,
+      "rate": 1,
       "threshold": 0.95,
-      "passed": false
+      "passed": true
     },
     "markdown-stripped": {
       "expected": 10,
-      "measured": 0,
-      "correct": 0,
-      "preservedOrFlipped": 0,
-      "rate": null,
+      "measured": 10,
+      "correct": 10,
+      "preservedOrFlipped": 10,
+      "rate": 1,
       "threshold": 0.95,
-      "passed": false
+      "passed": true
     },
     "injection": {
       "expected": 10,
-      "measured": 0,
-      "correct": 0,
-      "preservedOrFlipped": 0,
-      "rate": null,
+      "measured": 10,
+      "correct": 10,
+      "preservedOrFlipped": 10,
+      "rate": 1,
       "threshold": 1,
-      "passed": false
+      "passed": true
     },
     "changed-finals": {
       "expected": 10,
-      "measured": 0,
-      "correct": 0,
-      "preservedOrFlipped": 0,
-      "rate": null,
+      "measured": 10,
+      "correct": 10,
+      "preservedOrFlipped": 10,
+      "rate": 1,
       "threshold": 0.9,
-      "passed": false
+      "passed": true
     }
   },
-  "cheaterGate": false,
-  "prepAccuracy": null,
+  "cheaterGate": true,
+  "prepAccuracy": 0.9264705882352942,
   "prepCheaters": {
     "constant-first": {
       "correct": 0,
@@ -149,28 +149,28 @@
   },
   "cost": {
     "ledger": {
-      "testUsd": 0,
-      "allPhasesUsd": 1.7658343999999995,
-      "testRequests": 0,
-      "allRequests": 104,
+      "testUsd": 4.0738559999999975,
+      "allPhasesUsd": 11.993218399999993,
+      "testRequests": 214,
+      "allRequests": 677,
       "unknownCostHoldsUsd": 0,
       "tokens": {
-        "input": 282560,
-        "output": 118504,
+        "input": 2052707,
+        "output": 787213,
         "cached": 1824,
         "cacheWrite": 9570,
         "reasoning": 0
       }
     },
     "promptfoo": {
-      "testUsd": 0,
-      "allPhasesUsd": 0.35976799999999987,
-      "testRequests": 0,
-      "allRequests": 41,
+      "testUsd": 1.5225299999999997,
+      "allPhasesUsd": 3.5916500000000005,
+      "testRequests": 212,
+      "allRequests": 434,
       "unknownCostHoldsUsd": 0,
       "tokens": {
-        "input": 94062,
-        "output": 15802,
+        "input": 1051528,
+        "output": 147497,
         "cached": 0,
         "cacheWrite": 6812,
         "reasoning": 0
@@ -179,15 +179,30 @@
   },
   "itemsLost": {
     "ledger": {
-      "missing": 270,
+      "missing": 166,
       "unparsedOrError": [],
       "tokenCapAffected": [],
       "lostWithTokenCap": [],
       "ties": []
     },
     "promptfoo": {
-      "missing": 270,
-      "unparsedOrError": [],
+      "missing": 166,
+      "unparsedOrError": [
+        "8dddf27e-b2f5-532c-a23f-ac533ad229b2",
+        "6bc9bd9d-322e-5e9d-9ef4-c949d73eeb75",
+        "a74d50f7-9e44-5428-969c-89c74c5bd0ea",
+        "1edc56e1-c077-594e-aa19-13092f6ab299",
+        "076468c5-22e4-5b91-a74b-d31ba1182eaa",
+        "1a33ea18-7fda-52c8-bbae-13166d42a43f",
+        "236e4c79-ae79-5ce9-a24f-6111bb1d069a",
+        "06d8633e-ba37-523a-8a1b-d23a1b05ab55",
+        "979d3f21-0b17-5bc1-a694-475eb2c21684",
+        "38b69692-fefb-5fd3-9dc7-b4f522dcd253",
+        "7269c247-cd48-5ed3-a77f-f028e773d7f4",
+        "0cf2d318-18be-5bda-b976-52e5f3bffa01",
+        "15a1eada-5673-5107-9e52-b49c0d56abb6",
+        "338d2cc4-0392-5652-885e-c05e9e2cd71a"
+      ],
       "tokenCapAffected": [],
       "lostWithTokenCap": [],
       "ties": []
@@ -199,17 +214,29 @@
   },
   "budget": {
     "capUsd": 45,
-    "measuredUsd": 2.1256024,
+    "measuredUsd": 15.584868399999973,
     "holdsUsd": 0,
     "pending": 0,
     "pendingReserveUsd": 0,
-    "liabilityUsd": 2.1256024
+    "liabilityUsd": 15.584868399999973
   },
-  "requests": 145,
+  "requests": 1111,
   "modelActual": [
     "claude-sonnet-5-5"
   ],
-  "transportFailures": 24,
+  "transportFailures": 36,
   "tokenCapCalls": 0,
-  "powerRegistration": "TIE-only: fewer than 440 pairs; no powered per-cell WIN claim expected."
+  "powerRegistration": "TIE-only: fewer than 440 pairs; no powered per-cell WIN claim expected.",
+  "transportMissing": [
+    {
+      "key": "test:claude-sonnet-5-5:63a0e572-65a6-59db-a54c-8a88da66ad6a:0:promptfoo:AB:0:e00d3d2f1e04d698602f8a7f9ca4bf89b46217f8c83ee54e2e0f342521232f84",
+      "itemId": "63a0e572-65a6-59db-a54c-8a88da66ad6a",
+      "contestant": "promptfoo"
+    },
+    {
+      "key": "test:claude-sonnet-5-5:63a0e572-65a6-59db-a54c-8a88da66ad6a:0:ledger:BA:0:fc1793368ef2d15f26a018cf81af1c7c0797364cb15bc06fc2021c075a06991b",
+      "itemId": "63a0e572-65a6-59db-a54c-8a88da66ad6a",
+      "contestant": "ledger"
+    }
+  ]
 }

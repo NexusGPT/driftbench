@@ -1,5 +1,6 @@
 """Read-only independent checks; writes only each additional cell's audit artifact."""
 import hashlib
+import argparse
 import json
 import math
 import subprocess
@@ -21,7 +22,11 @@ def digest(path):
 def correct(games, label):
     return int(sum(1 if g == label else -1 if g in ('A', 'B') else 0 for g in games) > 0)
 
-for model in ('claude-sonnet-5-5', 'gpt-6.1-sol'):
+parser = argparse.ArgumentParser(description=__doc__)
+parser.add_argument('--model', choices=('claude-sonnet-5-5', 'gpt-6.1-sol'), action='append')
+models = parser.parse_args().model or ('claude-sonnet-5-5', 'gpt-6.1-sol')
+
+for model in models:
     cell = ROOT / 'cells' / model
     freeze = read(cell / 'freeze.json')
     report = read(cell / 'report.json')
@@ -36,6 +41,8 @@ for model in ('claude-sonnet-5-5', 'gpt-6.1-sol'):
     for row in calls:
         key = row['key']
         assert row['model'] == model
+        if row.get('modelActual'):
+            assert row['modelActual'] == model
         if row['type'] == 'start':
             assert key not in starts
             starts[key] = row

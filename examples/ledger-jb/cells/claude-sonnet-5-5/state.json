@@ -1,15 +1,21 @@
 {
   "model": "claude-sonnet-5-5",
-  "pid": 21616,
-  "mode": "run",
-  "freezeSha256": "e7435a4f25ec66a330b59bef568c3dc62297580646323e83359801ee2b5cdca7",
-  "status": "stopped",
-  "phase": "fixtures",
-  "completed": 19,
-  "planned": 54,
-  "at": "2026-10-13T14:24:14.498Z",
-  "liabilityUsd": 2.5449283999999994,
-  "requests": 144,
+  "pid": 35615,
+  "mode": "network-recovery",
+  "freezeSha256": "8513ea3ba8cecb2f04b25b10af72ce10eaeabef69cc926124779a11f13834236",
   "workers": 2,
-  "error": "OPERATOR_DRAIN"
+  "network": {
+    "status": "health-gate-passed",
+    "consecutive": 10,
+    "workers": 2
+  },
+  "status": "stopped",
+  "at": "2026-10-13T16:35:28.007Z",
+  "phase": "test",
+  "completed": 208,
+  "planned": 540,
+  "reopened": 0,
+  "liabilityUsd": 16.060982399999972,
+  "requests": 1103,
+  "error": "QUOTA_STOP: no answer; recovery remains eligible"
 }

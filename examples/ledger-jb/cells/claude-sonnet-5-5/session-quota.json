@@ -1,0 +1,19 @@
+{
+  "at": "2026-10-13T16:32:21.018975+00:00",
+  "providerMessage": "You've hit your session limit \u00b7 resets 6:50pm (Europe/Vienna)",
+  "providerStatedResetUtc": "2026-10-13T16:50:00+00:00",
+  "resume": "Missing-only under the unchanged ten-probe gate; no answer is re-sent. GPT remains queued.",
+  "cost": "Zero-token native CLI receipts report total_cost_usd=0.",
+  "status": "waiting-for-reset",
+  "healthGatePlannedStartUtc": "2026-10-13T16:46:00Z",
+  "firstPaidCallNotBeforeUtc": "2026-10-13T16:50:00Z",
+  "settledBudget": {
+    "capUsd": 45,
+    "measuredUsd": 15.584868399999973,
+    "holdsUsd": 0,
+    "pending": 0,
+    "pendingReserveUsd": 0,
+    "liabilityUsd": 15.584868399999973
+  },
+  "transportMissingRequests": 2
+}
