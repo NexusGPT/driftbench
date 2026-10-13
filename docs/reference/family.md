@@ -30,6 +30,8 @@ A task family is one code-agent task written once with knobs, in `family.yaml`, 
 * [SeedFile csv](#seedfile-csv)
 * [SeedFile json](#seedfile-json)
 * [SeedFile text](#seedfile-text)
+* [SeedFile xlsx](#seedfile-xlsx)
+* [SeedFile xlsx columns](#seedfile-xlsx-columns)
 * [SeedFile copy](#seedfile-copy)
 * [FamilyFile corners](#familyfile-corners)
 * [CornerKind](#cornerkind)
@@ -243,6 +245,7 @@ Write one of these forms.
 * a mapping with `csv`, with the fields below
 * a mapping with `json`, with the fields below
 * a mapping with `text`, with the fields below
+* a mapping with `xlsx`, with the fields below
 * a mapping with `copy`, with the fields below
 
 With `csv`:
@@ -268,6 +271,14 @@ With `text`:
 | `path` | string, not empty | yes |  | The workspace path; {knob} fills in a knob value, so a style knob can name a file. |
 | `when` | map of string to string or number or list of strings or numbers, at least 1 item | no |  | The file exists only in instances whose knobs meet this. |
 | `text` | [SeedFile text](#seedfile-text) | yes |  | An approved phrase, written as the whole file. |
+
+With `xlsx`:
+
+| Field | Type | Required | Default | Description |
+|---|---|---|---|---|
+| `path` | string, not empty | yes |  | The workspace path; {knob} fills in a knob value, so a style knob can name a file. |
+| `when` | map of string to string or number or list of strings or numbers, at least 1 item | no |  | The file exists only in instances whose knobs meet this. |
+| `xlsx` | [SeedFile xlsx](#seedfile-xlsx) | yes |  | A workbook already in the workspace: rows of a table, one sheet per value of a column. |
 
 With `copy`:
 
@@ -306,6 +317,25 @@ An approved phrase, written as the whole file.
 | Field | Type | Required | Default | Description |
 |---|---|---|---|---|
 | `phrase` | string matching `^[A-Za-z0-9][A-Za-z0-9._-]*$` | yes |  | An id: letters, digits, dots, underscores and hyphens. |
+
+## SeedFile xlsx
+
+A workbook already in the workspace: rows of a table, one sheet per value of a column.
+
+| Field | Type | Required | Default | Description |
+|---|---|---|---|---|
+| `table` | string matching `^[A-Za-z][A-Za-z0-9_]*$` | yes |  | A name: a letter, then letters, digits or underscores. |
+| `sheet_by` | string matching `^[A-Za-z][A-Za-z0-9_]*$` | yes |  | The column whose values name the sheets: one sheet per value, in the order values first appear. |
+| `sheet_name` | `as-is` or `title` | no | `as-is` | The sheet name: the value as written, or with a capital first letter. |
+| `columns` | list of [SeedFile xlsx columns](#seedfile-xlsx-columns), at least 1 item | yes |  | The columns of every sheet, in the order written. |
+
+## SeedFile xlsx columns
+
+| Field | Type | Required | Default | Description |
+|---|---|---|---|---|
+| `header` | string, not empty | yes |  | The header cell of the column. |
+| `column` | string matching `^[A-Za-z][A-Za-z0-9_]*$` | yes |  | The table column the cells come from, in table order. |
+| `times` | number | no |  | A number cell multiplied by this factor. |
 
 ## SeedFile copy
 

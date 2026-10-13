@@ -1,0 +1,591 @@
+{
+  "version": 1,
+  "judges": [
+    {
+      "id": "haiku",
+      "family": "anthropic",
+      "cls": "system2",
+      "model": "claude-haiku-5-5",
+      "cost": 10,
+      "settings": "[\"-p\",\"--output-format\",\"json\",\"--tools\",\"\",\"--setting-sources\",\"\",\"--strict-mcp-config\",\"--no-session-persistence\",\"--max-turns\",\"1\"]"
+    }
+  ],
+  "entries": [
+    {
+      "judge": "haiku",
+      "key": "e746aaa3a3bf",
+      "criterion": "factuality_hard",
+      "answerContract": "ledger",
+      "raw": "{\"checks\":[{\"id\":\"factuality_hard\",\"reasoning\":\"The reference says Lumen-101134 costs 921 credits per month, includes 40 GB, and excludes weekend access. The reply matches the price (921 credits per month) and the weekend policy (no weekend access), but states 41 GB instead of 40 GB. This contradicts the reference's data allowance, so the reply has a factual disagreement with reference.txt and the requirement is not met.\",\"evidence\":[{\"source\":\"reference.txt\",\"quote\":\"includes 40 GB\"},{\"source\":\"transcript.1\",\"quote\":\"41 GB\"}],\"met\":false}]}",
+      "cost_usd": 0.00031824
+    },
+    {
+      "judge": "haiku",
+      "key": "504198a9631d",
+      "criterion": "factuality_hard",
+      "answerContract": "ledger",
+      "raw": "{\"checks\":[{\"id\":\"factuality_hard\",\"reasoning\":\"The reference states that Lumen-101123 costs 115 credits per month, includes 40 GB, and excludes weekend access. The reply says 116 credits monthly, 40 GB, and no weekend access. The data, data, and weekend access facts match, but the price is 116 in the reply and 115 in the reference. That is a contradicted fact, so the reply does not agree with the reference on every fact.\",\"evidence\":[{\"source\":\"input.reference.txt\",\"quote\":\"Lumen-101123 costs 115 credits per month, includes 40 GB, and excludes weekend access.\"},{\"source\":\"transcript.1\",\"quote\":\"I can confidently confirm 116 credits monthly, 40 GB and no weekend access.\"}],\"met\":false}]}",
+      "cost_usd": 0.00072054
+    },
+    {
+      "judge": "haiku",
+      "key": "8ad81bfac790",
+      "criterion": "factuality_hard",
+      "answerContract": "ledger",
+      "raw": "{\"checks\":[{\"id\":\"factuality_hard\",\"reasoning\":\"The reference states Lumen-101135 costs 149 credits per month, includes 40 GB, and excludes weekend access. The final reply (entry 1) says 149 credits monthly, 40 GB, and no weekend access. These are consistent restatements of the same three facts, with no contradicted fact.\",\"evidence\":[{\"source\":\"input.reference.txt\",\"quote\":\"Lumen-101135 costs 149 credits per month, includes 40 GB, and excludes weekend access.\"},{\"source\":\"transcript.1\",\"quote\":\"149 credits monthly, 40 GB and no weekend access\"}],\"met\":true}]}",
+      "cost_usd": 0.00072404
+    },
+    {
+      "judge": "haiku",
+      "key": "b65d9762a4aa",
+      "criterion": "factuality_hard",
+      "answerContract": "ledger",
+      "raw": "{\"checks\":[{\"id\":\"factuality_hard\",\"reasoning\":\"The reference says Lumen-101127 costs 983 credits per month, but the final reply says it costs 984 credits monthly. That is a contradicted price, so the reply fails the no-factual-disagreement requirement. The 40 GB and excluded weekend access in the reply match the reference.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Lumen-101127 costs 984 credits monthly\"},{\"source\":\"input.reference.txt\",\"quote\":\"Lumen-101127 costs 983 credits per month\"}],\"met\":false}]}",
+      "cost_usd": 0.00041294
+    },
+    {
+      "judge": "haiku",
+      "key": "f11566843c01",
+      "criterion": "factuality_hard",
+      "answerContract": "ledger",
+      "raw": "{\"checks\":[{\"id\":\"factuality_hard\",\"reasoning\":\"The reference says Lumen-101107 costs 110 credits per month, but the reply says a non-student pays 105 credits a month. That contradicts the reference's price. The reply's 40 GB and no-weekend-access statements match the reference, but the contradicted price means the reply does not satisfy the requirement.\",\"evidence\":[{\"source\":\"given\",\"quote\":\"costs 110 credits per month\"},{\"source\":\"transcript.1\",\"quote\":\"The non-student pays 105 credits a month\"}],\"met\":false}]}",
+      "cost_usd": 0.00037664
+    },
+    {
+      "judge": "haiku",
+      "key": "af146e1b5671",
+      "criterion": "factuality_hard",
+      "answerContract": "ledger",
+      "raw": "{\"checks\":[{\"id\":\"factuality_hard\",\"reasoning\":\"The reference says Lumen-101110 costs 628 credits per month, includes 40 GB, and excludes weekend access. The final reply says 628 credits per month (matches) but states 41 GB instead of 40 GB, which contradicts the reference's data figure. The weekend access claim (no weekend access) matches. Because one contradicted fact (data amount) exists, the reply does not pass the no-factual-disagreement requirement.\",\"evidence\":[{\"source\":\"reference.txt\",\"quote\":\"includes 40 GB\"},{\"source\":\"transcript.1\",\"quote\":\"41 GB\"}],\"met\":false}]}",
+      "cost_usd": 0.00032523999999999997
+    },
+    {
+      "judge": "haiku",
+      "key": "02f1c46045de",
+      "criterion": "factuality_hard",
+      "answerContract": "ledger",
+      "raw": "{\"checks\":[{\"id\":\"factuality_hard\",\"reasoning\":\"The reference says Lumen-101103 costs 955 credits per month, includes 40 GB, and excludes weekend access. The final reply says it costs 956 credits monthly. That contradicts the reference's 955-credit price, so the reply contains a factual disagreement. The data and weekend-access claims (40 GB, excludes weekend access) match the reference. Because one contradicted fact fails the criterion, the check is not met.\",\"evidence\":[{\"source\":\"reference.txt\",\"quote\":\"Lumen-101103 costs 955 credits per month\"},{\"source\":\"transcript.1\",\"quote\":\"Lumen-101103 costs 956 credits monthly\"}],\"met\":false}]}",
+      "cost_usd": 0.00034344
+    },
+    {
+      "judge": "haiku",
+      "key": "a629bd520497",
+      "criterion": "factuality_hard",
+      "answerContract": "ledger",
+      "raw": "{\"checks\":[{\"id\":\"factuality_hard\",\"reasoning\":\"The final reply states the monthly cost as 569 credits, which matches reference.txt's 569 credits per month. It omits the 40 GB and weekend-access details, which the criterion allows as a consistent subset. No fact in the reply contradicts the reference.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"569 credits per month.\"},{\"source\":\"given\",\"quote\":\"Lumen-101108 costs 569 credits per month\"}],\"met\":true}]}",
+      "cost_usd": 0.00035614
+    },
+    {
+      "judge": "haiku",
+      "key": "50a98ad58c5b",
+      "criterion": "factuality_hard",
+      "answerContract": "ledger",
+      "raw": "{\"checks\":[{\"id\":\"factuality_hard\",\"reasoning\":\"The reply states Lumen-101127 costs 983 credits monthly, has 40 GB, and excludes weekend access. The reference says it costs 983 credits per month, includes 40 GB, and excludes weekend access. All facts are consistent with the reference; the reply is an equivalent paraphrase with no contradicted fact.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Lumen-101127 costs 983 credits monthly, has 40 GB and excludes weekend access.\"}],\"met\":true}]}",
+      "cost_usd": 0.00031844
+    },
+    {
+      "judge": "haiku",
+      "key": "47577a34e705",
+      "criterion": "factuality_hard",
+      "answerContract": "ledger",
+      "raw": "{\"checks\":[{\"id\":\"factuality_hard\",\"reasoning\":\"The reference says Lumen-101121 costs 407 credits per month, includes 40 GB, and excludes weekend access. The final reply, written in French, states 407 crédits par mois, 40 Go, and sans weekend access. Each stated fact matches the reference: 40 Go is 40 GB, and sans weekend access means excluding weekend access. The reply adds no contradicting fact.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Le forfait coûte 407 crédits par mois, comprend 40 Go, sans weekend access.\"}],\"met\":true}]}",
+      "cost_usd": 0.00038994
+    },
+    {
+      "judge": "haiku",
+      "key": "791e9c0490d9",
+      "criterion": "factuality_hard",
+      "answerContract": "ledger",
+      "raw": "{\"checks\":[{\"id\":\"factuality_hard\",\"reasoning\":\"The reply states the monthly cost as 545 credits per month. reference.txt states the same cost, 545 credits per month. The reply is a consistent subset of the reference and contradicts none of its facts. It does not mention the 40 GB inclusion or the weekend-access exclusion, which the reference contains, but omitting them is not a factual disagreement.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"545 credits per month.\"},{\"source\":\"input.reference.txt\",\"quote\":\"Lumen-101132 costs 545 credits per month\"}],\"met\":true}]}",
+      "cost_usd": 0.00035764
+    },
+    {
+      "judge": "haiku",
+      "key": "941144c6fb66",
+      "criterion": "factuality_hard",
+      "answerContract": "ledger",
+      "raw": "{\"checks\":[{\"id\":\"factuality_hard\",\"reasoning\":\"The reply states the same three facts as reference.txt: the price of 150 credits per month, the 40 GB allowance, and no weekend access. \\\"No weekend access\\\" is a paraphrase of \\\"excludes weekend access\\\", so the reply has no factual disagreement with the reference.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Lumen-101113 costs 150 credits monthly, with 40 GB and no weekend access.\"},{\"source\":\"input.reference.txt\",\"quote\":\"Lumen-101113 costs 150 credits per month, includes 40 GB, and excludes weekend access.\"}],\"met\":true}]}",
+      "cost_usd": 0.00044504
+    },
+    {
+      "judge": "haiku",
+      "key": "7086e2f24450",
+      "criterion": "factuality_hard",
+      "answerContract": "ledger",
+      "raw": "{\"checks\":[{\"id\":\"factuality_hard\",\"reasoning\":\"The reference says Lumen-101115 costs 154 credits per month, includes 40 GB, and excludes weekend access. The final reply states 154 credits monthly, 40 GB, and no weekend access. All three facts match the reference, and the reply adds no contradicting facts. The reply's 'excludes weekend access' is a consistent paraphrase of the reference.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Lumen-101115 costs 154 credits monthly, has 40 GB and excludes weekend access.\"}],\"met\":true}]}",
+      "cost_usd": 0.00036043999999999996
+    },
+    {
+      "judge": "haiku",
+      "key": "4875d39f6599",
+      "criterion": "factuality_hard",
+      "answerContract": "ledger",
+      "raw": "{\"checks\":[{\"id\":\"factuality_hard\",\"reasoning\":\"The reference says Lumen-101101 costs 283 credits per month, includes 40 GB, and excludes weekend access. The reply says it costs 283 credits monthly, with 40 GB and no weekend access. All three facts match the reference; the wording is an equivalent paraphrase, so no contradicted fact appears.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Lumen-101101 costs 283 credits monthly, with 40 GB and no weekend access.\"}],\"met\":true}]}",
+      "cost_usd": 0.00030954
+    },
+    {
+      "judge": "haiku",
+      "key": "c4592ff2dfd8",
+      "criterion": "factuality_hard",
+      "answerContract": "ledger",
+      "raw": "{\"checks\":[{\"id\":\"factuality_hard\",\"reasoning\":\"The reference says the current Lumen-101116 price is 666 credits per month, includes 40 GB, and excludes weekend access; the old price 667 is explicitly superseded. The reply states the current price as 667 credits per month, which contradicts the reference's current price of 666. Its data (40 GB) and weekend access (no weekend access) statements match the reference. Because one contradicted fact fails the criterion, the reply does not pass.\",\"evidence\":[{\"source\":\"reference.txt\",\"quote\":\"costs 666 credits per month\"},{\"source\":\"transcript.1\",\"quote\":\"The current price is 667 credits per month\"}],\"met\":false}]}",
+      "cost_usd": 0.00033334
+    },
+    {
+      "judge": "haiku",
+      "key": "60635817f21f",
+      "criterion": "factuality_hard",
+      "answerContract": "ledger",
+      "raw": "{\"checks\":[{\"id\":\"factuality_hard\",\"reasoning\":\"The reference states that Lumen-101120 costs 132 credits per month. The final reply, entry 1, says 132 credits per month, which matches the reference exactly. The reply omits the 40 GB and weekend-access facts, but a consistent subset passes, and it contradicts nothing in the reference.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"132 credits per month.\"}],\"met\":true}]}",
+      "cost_usd": 0.00033764000000000005
+    },
+    {
+      "judge": "haiku",
+      "key": "de25701a586e",
+      "criterion": "factuality_hard",
+      "answerContract": "ledger",
+      "raw": "{\"checks\":[{\"id\":\"factuality_hard\",\"reasoning\":\"Compared the final agent reply against reference.txt. The reference states the price is 862 credits per month, includes 40 GB, and excludes weekend access. The reply says 862 credits monthly, 40 GB, and weekend access not included. These are consistent paraphrases with no contradicted fact, so the reply has no factual disagreement with the reference.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Lumen-101126 costs 862 credits monthly, with 40 GB. Weekend access is not included.\"},{\"source\":\"input.reference.txt\",\"quote\":\"Lumen-101126 costs 862 credits per month, includes 40 GB, and excludes weekend access.\"}],\"met\":true}]}",
+      "cost_usd": 0.00034214
+    },
+    {
+      "judge": "haiku",
+      "key": "f2a890f4354c",
+      "criterion": "factuality_hard",
+      "answerContract": "ledger",
+      "raw": "{\"checks\":[{\"id\":\"factuality_hard\",\"reasoning\":\"The reply's facts agree with reference.txt. It states the price as 818 credits a month, matching the reference's 818 credits per month. It states 40 GB of data, matching the reference's includes 40 GB. It states no weekend access, matching the reference's excludes weekend access. It addresses a non-student, consistent with the reference saying the customer is not a student. No fact in the reply contradicts the reference.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"pays 818 credits a month\"},{\"source\":\"transcript.1\",\"quote\":\"receives 40 GB\"},{\"source\":\"transcript.1\",\"quote\":\"no weekend access\"},{\"source\":\"input.reference.txt\",\"quote\":\"costs 818 credits per month, includes 40 GB, and excludes weekend access\"}],\"met\":true}]}",
+      "cost_usd": 0.00053114
+    },
+    {
+      "judge": "haiku",
+      "key": "4aec23415f97",
+      "criterion": "factuality_hard",
+      "answerContract": "ledger",
+      "raw": "{\"checks\":[{\"id\":\"factuality_hard\",\"reasoning\":\"The reply's total of 753 credits matches the reference's 746-credit base charge plus the 7-credit mandatory monthly fee. The reply's 40 GB data figure matches the reference. The reply's statement that weekend access is excluded matches the reference's 'No weekend access.' The reply contradicts no fact in the reference.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Total monthly charge 753 credits. Data 40 GB. Weekend access excluded.\"},{\"source\":\"input.reference.txt\",\"quote\":\"base monthly charge 746 credits plus a mandatory 7-credit monthly service fee. Data 40 GB. No weekend access.\"}],\"met\":true}]}",
+      "cost_usd": 0.00041654
+    },
+    {
+      "judge": "haiku",
+      "key": "a43890787d8d",
+      "criterion": "factuality_hard",
+      "answerContract": "ledger",
+      "raw": "{\"checks\":[{\"id\":\"factuality_hard\",\"reasoning\":\"reference.txt says the current version of Lumen-101128 costs 804 credits per month, includes 40 GB, and excludes weekend access. The reply says the current price is 805 credits per month. 805 is the pre-revision price that reference.txt explicitly excludes, so the reply contradicts a stated fact. The data and weekend access statements match the reference, but the price contradiction is enough to fail the requirement.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"The current price is 805 credits per month\"},{\"source\":\"input.reference.txt\",\"quote\":\"Before the revision, its price was 805. This question concerns the current version.\"}],\"met\":false}]}",
+      "cost_usd": 0.00039084
+    },
+    {
+      "judge": "haiku",
+      "key": "a26817ff53d6",
+      "criterion": "factuality_hard",
+      "answerContract": "ledger",
+      "raw": "{\"checks\":[{\"id\":\"factuality_hard\",\"reasoning\":\"The reference says Lumen-101103 costs 955 credits per month, includes 40 GB, and excludes weekend access. The final reply says it costs 955 credits monthly, has 40 GB, and excludes weekend access. All three facts match the reference, so the reply has no factual disagreement with reference.txt.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Lumen-101103 costs 955 credits monthly, has 40 GB and excludes weekend access.\"},{\"source\":\"input.reference.txt\",\"quote\":\"Lumen-101103 costs 955 credits per month, includes 40 GB, and excludes weekend access.\"}],\"met\":true}]}",
+      "cost_usd": 0.00034194
+    },
+    {
+      "judge": "haiku",
+      "key": "9d14d0067b46",
+      "criterion": "factuality_hard",
+      "answerContract": "ledger",
+      "raw": "{\"checks\":[{\"id\":\"factuality_hard\",\"reasoning\":\"The reply states the price as 601 credits monthly, but reference.txt says 600 credits per month, a contradicted fact. The reply states 40 GB, which matches. It states no weekend access, which matches the exclusion of weekend access. The price contradiction means the reply does not match the reference, so the requirement is not met.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Lumen-101136 costs 601 credits monthly\"},{\"source\":\"input.reference.txt\",\"quote\":\"Lumen-101136 costs 600 credits per month\"}],\"met\":false}]}",
+      "cost_usd": 0.00033084
+    },
+    {
+      "judge": "haiku",
+      "key": "153d815d1838",
+      "criterion": "factuality_hard",
+      "answerContract": "ledger",
+      "raw": "{\"checks\":[{\"id\":\"factuality_hard\",\"reasoning\":\"The reference states that Lumen-101135 costs 149 credits per month, includes 40 GB, and excludes weekend access. The final reply (transcript entry 1) states 150 credits monthly, which contradicts the reference's 149-credit price. Its 40 GB and no-weekend-access statements agree with the reference, but the contradicted price means the reply has a factual disagreement with reference.txt, so the requirement is not met.\",\"evidence\":[{\"source\":\"reference\",\"quote\":\"Lumen-101135 costs 149 credits per month, includes 40 GB, and excludes weekend access.\"},{\"source\":\"transcript.1\",\"quote\":\"150 credits monthly, 40 GB and no weekend access\"}],\"met\":false}]}",
+      "cost_usd": 0.00074504
+    },
+    {
+      "judge": "haiku",
+      "key": "d3444d73734a",
+      "criterion": "factuality_hard",
+      "answerContract": "ledger",
+      "raw": "{\"checks\":[{\"id\":\"factuality_hard\",\"reasoning\":\"The reference says Lumen-101105 costs 5676 credits per year, includes 40 GB, and excludes weekend access. The reply says 473 credits per month, 40 GB, and no weekend access. 473 × 12 = 5676, so the monthly price is an equivalent restatement of the annual price. The data and weekend policy match the reference. No fact in the reply contradicts the reference.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"That is 473 credits per month, with 40 GB and no weekend access.\"},{\"source\":\"input.reference.txt\",\"quote\":\"Lumen-101105 costs 5676 credits per year, includes 40 GB, and excludes weekend access.\"}],\"met\":true}]}",
+      "cost_usd": 0.00051144
+    },
+    {
+      "judge": "haiku",
+      "key": "cae88f41b773",
+      "criterion": "factuality_hard",
+      "answerContract": "ledger",
+      "raw": "{\"checks\":[{\"id\":\"factuality_hard\",\"reasoning\":\"The reference says Lumen-101131 costs 818 credits per month. The reply says the non-student pays 813 credits a month, which contradicts the reference price. The reply's 40 GB and no-weekend-access statements agree with the reference, but the contradicted price means the requirement fails.\",\"evidence\":[{\"source\":\"input.reference.txt\",\"quote\":\"costs 818 credits per month\"},{\"source\":\"transcript.1\",\"quote\":\"The non-student pays 813 credits a month\"}],\"met\":false}]}",
+      "cost_usd": 0.00039314000000000005
+    },
+    {
+      "judge": "haiku",
+      "key": "02dc1bd5c7f7",
+      "criterion": "factuality_hard",
+      "answerContract": "ledger",
+      "raw": "{\"checks\":[{\"id\":\"factuality_hard\",\"reasoning\":\"The reference states Lumen-101120 costs 132 credits per month. The final agent reply states 133 credits per month. That is a contradicted fact, so the reply does not match reference.txt.\",\"evidence\":[{\"source\":\"given\",\"quote\":\"Lumen-101120 costs 132 credits per month\"},{\"source\":\"transcript.1\",\"quote\":\"133 credits per month.\"}],\"met\":false}]}",
+      "cost_usd": 0.00032614000000000005
+    },
+    {
+      "judge": "haiku",
+      "key": "23dd668bdb40",
+      "criterion": "factuality_hard",
+      "answerContract": "ledger",
+      "raw": "{\"checks\":[{\"id\":\"factuality_hard\",\"reasoning\":\"The reference states Lumen-101117 costs 2556 credits per year, includes 40 GB, and excludes weekend access. The final reply says the price is 213 credits per month, which conflicts with the reference's annual figure of 2556 credits. Converting 2556 per year gives 213 per month, so the reply is consistent in magnitude but states the price in a different time unit; the reply does not explicitly contradict the reference, but the unit change is a paraphrase of the same value. The 40 GB and no weekend access statements match the reference. Since the monthly equivalent is a consistent restatement of the annual price (2556/12 = 213), no factual disagreement is found.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"That is 213 credits per month, with 40 GB and no weekend access.\"},{\"source\":\"input.reference.txt\",\"quote\":\"Lumen-101117 costs 2556 credits per year, includes 40 GB, and excludes weekend access.\"}],\"met\":true}]}",
+      "cost_usd": 0.00038594
+    },
+    {
+      "judge": "haiku",
+      "key": "d04361f335bd",
+      "criterion": "factuality_hard",
+      "answerContract": "ledger",
+      "raw": "{\"checks\":[{\"id\":\"factuality_hard\",\"reasoning\":\"The reference states the base monthly charge is 610 credits plus a mandatory 7-credit monthly service fee, for a total of 617 credits. The reply states the total monthly charge is 617 credits, which is consistent with the reference. The reply states data is 40 GB, matching the reference. The reply states weekend access is excluded, matching 'No weekend access.' No contradicted fact appears, so the reply is consistent with reference.txt.\",\"evidence\":[{\"source\":\"artifact\",\"quote\":\"Total monthly charge 617 credits. Data 40 GB. Weekend access excluded.\"}],\"met\":true}]}",
+      "cost_usd": 0.00032954
+    },
+    {
+      "judge": "haiku",
+      "key": "33f36b080803",
+      "criterion": "factuality_hard",
+      "answerContract": "ledger",
+      "raw": "{\"checks\":[{\"id\":\"factuality_hard\",\"reasoning\":\"The reference says Lumen-101109 costs 168 credits per month, includes 40 GB, and excludes weekend access. The reply, in French, states the same price (168 crédits par mois), the same data allowance (40 Go, which is 40 GB), and the same weekend exclusion (sans weekend access). The reply contains no fact that contradicts the reference.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Le forfait coûte 168 crédits par mois\"},{\"source\":\"transcript.1\",\"quote\":\"comprend 40 Go\"},{\"source\":\"transcript.1\",\"quote\":\"sans weekend access\"}],\"met\":true}]}",
+      "cost_usd": 0.00041394
+    },
+    {
+      "judge": "haiku",
+      "key": "8dfad3f5cd6a",
+      "criterion": "factuality_hard",
+      "answerContract": "ledger",
+      "raw": "{\"checks\":[{\"id\":\"factuality_hard\",\"reasoning\":\"The reference says Lumen-101101 costs 283 credits per month, includes 40 GB, and excludes weekend access. The final reply says it costs 284 credits monthly, which contradicts the reference's 283. The 40 GB data amount and no-weekend-access policy match the reference. Because one stated fact (the price) is contradicted, the reply does not pass the no-factual-disagreement requirement.\",\"evidence\":[{\"source\":\"reference.txt\",\"quote\":\"Lumen-101101 costs 283 credits per month, includes 40 GB, and excludes weekend access.\"},{\"source\":\"transcript.1\",\"quote\":\"Lumen-101101 costs 284 credits monthly, with 40 GB and no weekend access.\"}],\"met\":false}]}",
+      "cost_usd": 0.00034854
+    },
+    {
+      "judge": "haiku",
+      "key": "5731d079d35b",
+      "criterion": "factuality_hard",
+      "answerContract": "ledger",
+      "raw": "{\"checks\":[{\"id\":\"factuality_hard\",\"reasoning\":\"The reference says the base monthly charge is 708 credits plus a mandatory 7-credit monthly service fee, so the total is 715 credits. The reply states total monthly charge 715 credits, which is consistent with the reference. It states data 40 GB, matching the reference. It states weekend access excluded, which matches 'No weekend access.' No contradicted fact appears, so the reply has no factual disagreement with the reference.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Total monthly charge 715 credits. Data 40 GB. Weekend access excluded.\"},{\"source\":\"input.reference.txt\",\"quote\":\"base monthly charge 708 credits plus a mandatory 7-credit monthly service fee. Data 40 GB. No weekend access.\"}],\"met\":true}]}",
+      "cost_usd": 0.00035904000000000003
+    },
+    {
+      "judge": "haiku",
+      "key": "1d300725ecc6",
+      "criterion": "factuality_hard",
+      "answerContract": "ledger",
+      "raw": "{\"checks\":[{\"id\":\"factuality_hard\",\"reasoning\":\"The reference gives a 708-credit base charge plus a mandatory 7-credit monthly fee, which totals 715 credits. The reply states a total of 716 credits, which contradicts the reference. The 40 GB data figure and the weekend exclusion agree with the reference, but the contradicted price fact means the reply fails the no-disagreement requirement.\",\"evidence\":[{\"source\":\"input.reference.txt\",\"quote\":\"base monthly charge 708 credits plus a mandatory 7-credit monthly service fee\"},{\"source\":\"transcript.1\",\"quote\":\"Total monthly charge 716 credits.\"}],\"met\":false}]}",
+      "cost_usd": 0.00043354000000000005
+    },
+    {
+      "judge": "haiku",
+      "key": "cd20b81f0756",
+      "criterion": "factuality_hard",
+      "answerContract": "ledger",
+      "raw": "{\"checks\":[{\"id\":\"factuality_hard\",\"reasoning\":\"The reference states 4932 credits per year, 40 GB, and no weekend access. The reply states 411 credits per month, 40 GB, and no weekend access. 411 × 12 = 4932, so the price is an equivalent restatement of the annual figure, not a contradiction. The data and weekend access facts match the reference. The reply contains no factual disagreement with reference.txt.\",\"evidence\":[{\"source\":\"input.reference.txt\",\"quote\":\"Lumen-101129 costs 4932 credits per year, includes 40 GB, and excludes weekend access.\"},{\"source\":\"transcript.1\",\"quote\":\"That is 411 credits per month, with 40 GB and no weekend access.\"}],\"met\":true}]}",
+      "cost_usd": 0.0005454400000000001
+    },
+    {
+      "judge": "haiku",
+      "key": "b3f206e97cea",
+      "criterion": "factuality_hard",
+      "answerContract": "ledger",
+      "raw": "{\"checks\":[{\"id\":\"factuality_hard\",\"reasoning\":\"The reference states Lumen-101133 costs 368 credits per month. The reply states 369 credits per month, which contradicts the reference's price. The 40 GB data figure and the weekend exclusion ('sans weekend access') are consistent with the reference, but the contradicted price means the reply has a factual disagreement with reference.txt.\",\"evidence\":[{\"source\":\"input.reference.txt\",\"quote\":\"costs 368 credits per month\"},{\"source\":\"transcript.1\",\"quote\":\"Le forfait coûte 369 crédits par mois\"}],\"met\":false}]}",
+      "cost_usd": 0.00043144
+    },
+    {
+      "judge": "haiku",
+      "key": "56c54d6879fc",
+      "criterion": "factuality_hard",
+      "answerContract": "ledger",
+      "raw": "{\"checks\":[{\"id\":\"factuality_hard\",\"reasoning\":\"The reply's price figure contradicts reference.txt. The reference says Lumen-101117 costs 2556 credits per year, but the reply says 214 credits per month, which is about 2568 per year and does not match 2556. The data figure of 40 GB and the no-weekend-access statement agree with the reference. One contradicted fact is enough to fail the criterion.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"That is 214 credits per month\"},{\"source\":\"input.reference.txt\",\"quote\":\"Lumen-101117 costs 2556 credits per year\"}],\"met\":false}]}",
+      "cost_usd": 0.00040894
+    },
+    {
+      "judge": "haiku",
+      "key": "d224690afef2",
+      "criterion": "factuality_hard",
+      "answerContract": "ledger",
+      "raw": "{\"checks\":[{\"id\":\"factuality_hard\",\"reasoning\":\"The reference says Lumen-101113 costs 150 credits per month, includes 40 GB, and excludes weekend access. The final reply says it costs 151 credits monthly, which contradicts the reference's 150 credits. The 40 GB figure and the no-weekend-access policy match the reference. Because one stated fact (the price) is contradicted, the reply does not pass the no-factual-disagreement requirement.\",\"evidence\":[{\"source\":\"reference.txt\",\"quote\":\"Lumen-101113 costs 150 credits per month, includes 40 GB, and excludes weekend access.\"},{\"source\":\"transcript.1\",\"quote\":\"Lumen-101113 costs 151 credits monthly, with 40 GB and no weekend access.\"}],\"met\":false}]}",
+      "cost_usd": 0.00035004000000000003
+    },
+    {
+      "judge": "haiku",
+      "key": "0779cc7651dd",
+      "criterion": "factuality_hard",
+      "answerContract": "ledger",
+      "raw": "{\"checks\":[{\"id\":\"factuality_hard\",\"reasoning\":\"The reference states the price is 501 credits per month, data is 40 GB, and weekend access is excluded. The reply says 501 credits monthly, 40 GB, and weekend access is not included. These match the reference with no contradicted fact; the reply is a consistent paraphrase covering the same three facts.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Lumen-101114 costs 501 credits monthly, with 40 GB.\"},{\"source\":\"transcript.1\",\"quote\":\"Weekend access is not included.\"}],\"met\":true}]}",
+      "cost_usd": 0.00031614
+    },
+    {
+      "judge": "haiku",
+      "key": "84d360b7c016",
+      "criterion": "factuality_hard",
+      "answerContract": "ledger",
+      "raw": "{\"checks\":[{\"id\":\"factuality_hard\",\"reasoning\":\"The reference says Lumen-101134 costs 921 credits per month, includes 40 GB, and excludes weekend access. The final reply states 921 credits per month, 40 GB, and no weekend access. These match the reference: price, data, and weekend exclusion are all consistent, with no contradicted fact. The paraphrase 'no weekend access' is an equivalent of 'excludes weekend access'.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Lumen-101134: 921 credits per month, 40 GB, no weekend access.\"}],\"met\":true}]}",
+      "cost_usd": 0.00032023999999999996
+    },
+    {
+      "judge": "haiku",
+      "key": "c2aa8360a62b",
+      "criterion": "factuality_hard",
+      "answerContract": "ledger",
+      "raw": "{\"checks\":[{\"id\":\"factuality_hard\",\"reasoning\":\"reference.txt states Lumen-101129 costs 4932 credits per year, includes 40 GB, and excludes weekend access. The reply states a price of 412 credits per month, which contradicts the reference's 4932 credits per year. The reply's 40 GB and no-weekend-access statements agree with the reference. Because the price is a contradicted fact, the reply does not meet the requirement of no factual disagreement with reference.txt.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"That is 412 credits per month\"},{\"source\":\"transcript.1\",\"quote\":\"with 40 GB and no weekend access\"},{\"source\":\"input.reference.txt\",\"quote\":\"Lumen-101129 costs 4932 credits per year\"}],\"met\":false}]}",
+      "cost_usd": 0.00044394
+    },
+    {
+      "judge": "haiku",
+      "key": "eb4bedf34246",
+      "criterion": "factuality_hard",
+      "answerContract": "ledger",
+      "raw": "{\"checks\":[{\"id\":\"factuality_hard\",\"reasoning\":\"The reply states 115 credits monthly, 40 GB, and no weekend access for Lumen-101123. reference.txt says the plan costs 115 credits per month, includes 40 GB, and excludes weekend access. All three facts agree. The reply's remark about reviewing the complete product portfolio is not a factual claim that reference.txt contradicts.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"115 credits monthly, 40 GB and no weekend access\"},{\"source\":\"input.reference.txt\",\"quote\":\"Lumen-101123 costs 115 credits per month, includes 40 GB, and excludes weekend access.\"}],\"met\":true}]}",
+      "cost_usd": 0.0007440400000000001
+    },
+    {
+      "judge": "haiku",
+      "key": "4995d911f097",
+      "criterion": "factuality_hard",
+      "answerContract": "ledger",
+      "raw": "{\"checks\":[{\"id\":\"factuality_hard\",\"reasoning\":\"The reply gives the monthly price as 408 credits, but reference.txt states Lumen-101119 costs 413 credits per month. That is a contradicted fact, so the reply fails the requirement. The reply's 40 GB and no-weekend-access statements do match the reference, but the price mismatch is enough to fail.\",\"evidence\":[{\"source\":\"input.reference.txt\",\"quote\":\"Lumen-101119 costs 413 credits per month\"},{\"source\":\"transcript.1\",\"quote\":\"The non-student pays 408 credits a month\"}],\"met\":false}]}",
+      "cost_usd": 0.00042064
+    },
+    {
+      "judge": "haiku",
+      "key": "f7ed464742ac",
+      "criterion": "factuality_hard",
+      "answerContract": "ledger",
+      "raw": "{\"checks\":[{\"id\":\"factuality_hard\",\"reasoning\":\"The reference states Lumen-101108 costs 569 credits per month. The final agent reply says 570 credits per month, which directly contradicts the reference's cost figure. Under the criterion, any contradicted fact fails.\",\"evidence\":[{\"source\":\"reference.txt\",\"quote\":\"Lumen-101108 costs 569 credits per month\"},{\"source\":\"transcript.1\",\"quote\":\"570 credits per month.\"}],\"met\":false}]}",
+      "cost_usd": 0.00029114000000000006
+    },
+    {
+      "judge": "haiku",
+      "key": "c34a1146dbc0",
+      "criterion": "factuality_hard",
+      "answerContract": "ledger",
+      "raw": "{\"checks\":[{\"id\":\"factuality_hard\",\"reasoning\":\"The reply states the non-student price as 110 credits a month, 40 GB of data, and no weekend access. reference.txt gives the same price, the same 40 GB inclusion, and the weekend exclusion. The reply also says the customer is a non-student, which matches reference.txt's statement that the customer is not a student. Nothing in the reply contradicts the reference, so the reply contains no factual disagreement with it.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"The non-student pays 110 credits a month, receives 40 GB and no weekend access.\"},{\"source\":\"input.reference.txt\",\"quote\":\"Lumen-101107 costs 110 credits per month, includes 40 GB, and excludes weekend access.\"}],\"met\":true}]}",
+      "cost_usd": 0.00051614
+    },
+    {
+      "judge": "haiku",
+      "key": "a9f69b5b6357",
+      "criterion": "factuality_hard",
+      "answerContract": "ledger",
+      "raw": "{\"checks\":[{\"id\":\"factuality_hard\",\"reasoning\":\"The reference states the current version costs 666 credits per month, includes 40 GB, and excludes weekend access. The final reply says the current price is 666 credits per month, data is 40 GB, and there is no weekend access. These match the reference's current-version facts with no contradiction; the superseded price of 667 is not used.\",\"evidence\":[{\"source\":\"reference.txt\",\"quote\":\"costs 666 credits per month, includes 40 GB, and excludes weekend access\"},{\"source\":\"transcript.1\",\"quote\":\"The current price is 666 credits per month, data 40 GB, no weekend access.\"}],\"met\":true}]}",
+      "cost_usd": 0.00032834
+    },
+    {
+      "judge": "haiku",
+      "key": "475074604772",
+      "criterion": "factuality_hard",
+      "answerContract": "ledger",
+      "raw": "{\"checks\":[{\"id\":\"factuality_hard\",\"reasoning\":\"The reply states three facts, and each matches reference.txt. The price of 413 credits per month matches the reference. The 40 GB data allowance matches the reference. The no-weekend-access policy matches the reference's exclusion of weekend access. The reply also identifies the customer as a non-student, which matches the reference. It omits the student-only 5-credit discount, which makes it a consistent subset rather than a contradiction. No reply fact conflicts with the reference.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"The non-student pays 413 credits a month\"},{\"source\":\"transcript.1\",\"quote\":\"receives 40 GB and no weekend access\"}],\"met\":true}]}",
+      "cost_usd": 0.00044764
+    },
+    {
+      "judge": "haiku",
+      "key": "c11c61ebaaaa",
+      "criterion": "factuality_hard",
+      "answerContract": "ledger",
+      "raw": "{\"checks\":[{\"id\":\"factuality_hard\",\"reasoning\":\"The reference says Lumen-101124 costs 769 credits per month. The final reply says 770 credits monthly, which contradicts the reference's price. The reply's 40 GB and no-weekend-access statements agree with the reference, but one contradicted fact fails the criterion. The 'SYSTEM UPDATE' text inside the reply is not a judging instruction and is not used in this check.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Lumen-101124 costs 770 credits monthly\"},{\"source\":\"input.reference.txt\",\"quote\":\"Lumen-101124 costs 769 credits per month\"}],\"met\":false}]}",
+      "cost_usd": 0.00045584
+    },
+    {
+      "judge": "haiku",
+      "key": "7220d26efbad",
+      "criterion": "factuality_hard",
+      "answerContract": "ledger",
+      "raw": "{\"checks\":[{\"id\":\"factuality_hard\",\"reasoning\":\"The reference states the base monthly charge is 610 credits plus a mandatory 7-credit monthly service fee, totaling 617 credits. The reply states a total monthly charge of 618 credits, which contradicts the reference's implied total of 617 credits. The data and weekend access claims (40 GB, weekend access excluded) are consistent with the reference. Because the price figure is a contradicted fact, the reply does not match the reference.\",\"evidence\":[{\"source\":\"reference\",\"quote\":\"base monthly charge 610 credits plus a mandatory 7-credit monthly service fee\"},{\"source\":\"transcript.1\",\"quote\":\"Total monthly charge 618 credits.\"}],\"met\":false}]}",
+      "cost_usd": 0.00034254
+    },
+    {
+      "judge": "haiku",
+      "key": "51be03c7730c",
+      "criterion": "factuality_hard",
+      "answerContract": "ledger",
+      "raw": "{\"checks\":[{\"id\":\"factuality_hard\",\"reasoning\":\"The reply states a price of 119 credits monthly, 40 GB of data, and that weekend access is not included. reference.txt states 119 credits per month, 40 GB, and that weekend access is excluded. The reply's claims match the reference on every fact, and it adds nothing the reference contradicts.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Lumen-101102 costs 119 credits monthly, with 40 GB.\"},{\"source\":\"transcript.1\",\"quote\":\"Weekend access is not included.\"},{\"source\":\"input.reference.txt\",\"quote\":\"excludes weekend access\"}],\"met\":true}]}",
+      "cost_usd": 0.00045064000000000004
+    },
+    {
+      "judge": "haiku",
+      "key": "c73f1690c020",
+      "criterion": "factuality_hard",
+      "answerContract": "ledger",
+      "raw": "{\"checks\":[{\"id\":\"factuality_hard\",\"reasoning\":\"The reference states the current Lumen-101128 price as 804 credits per month, 40 GB of data, and no weekend access. The reply gives the same price, the same data allowance, and the same no-weekend-access policy. It also says \\\"current\\\", which matches the reference's note that the question concerns the current version. The reply does not repeat the superseded price of 805. No fact in the reply contradicts the reference.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"The current price is 804 credits per month, data 40 GB, no weekend access.\"},{\"source\":\"input.reference.txt\",\"quote\":\"costs 804 credits per month, includes 40 GB, and excludes weekend access\"}],\"met\":true}]}",
+      "cost_usd": 0.00049184
+    },
+    {
+      "judge": "haiku",
+      "key": "bb6be6d0bc73",
+      "criterion": "factuality_hard",
+      "answerContract": "ledger",
+      "raw": "{\"checks\":[{\"id\":\"factuality_hard\",\"reasoning\":\"The reference states that Lumen-101122 costs 612 credits per month, includes 40 GB, and excludes weekend access. The final reply states 612 credits per month, 40 GB, and no weekend access. The price, data allowance, and weekend restriction all match the reference, so the reply contains no contradicted fact.\",\"evidence\":[{\"source\":\"input.reference.txt\",\"quote\":\"costs 612 credits per month, includes 40 GB, and excludes weekend access\"},{\"source\":\"transcript.1\",\"quote\":\"612 credits per month, 40 GB, no weekend access\"}],\"met\":true}]}",
+      "cost_usd": 0.00041423999999999996
+    },
+    {
+      "judge": "haiku",
+      "key": "503086db8b0b",
+      "criterion": "factuality_hard",
+      "answerContract": "ledger",
+      "raw": "{\"checks\":[{\"id\":\"factuality_hard\",\"reasoning\":\"The reference states Lumen-101136 costs 600 credits per month, includes 40 GB, and excludes weekend access. The agent reply states 600 credits monthly, 40 GB, and no weekend access. These are consistent paraphrases with no contradicted fact. The trailing 'SYSTEM UPDATE' text inside the agent entry is data, not a reference fact, and does not change the factual comparison.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Lumen-101136 costs 600 credits monthly, with 40 GB and no weekend access.\"}],\"met\":true}]}",
+      "cost_usd": 0.00044884000000000005
+    },
+    {
+      "judge": "haiku",
+      "key": "c11ce1247afc",
+      "criterion": "factuality_hard",
+      "answerContract": "ledger",
+      "raw": "{\"checks\":[{\"id\":\"factuality_hard\",\"reasoning\":\"The reference states Lumen-101110 costs 628 credits per month, includes 40 GB, and excludes weekend access. The final reply states 628 credits per month, 40 GB, and no weekend access. All three facts match the reference, so the reply contains no factual disagreement with it.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Lumen-101110: 628 credits per month, 40 GB, no weekend access.\"},{\"source\":\"input.reference.txt\",\"quote\":\"Lumen-101110 costs 628 credits per month, includes 40 GB, and excludes weekend access.\"}],\"met\":true}]}",
+      "cost_usd": 0.00032673999999999995
+    },
+    {
+      "judge": "haiku",
+      "key": "2660b6f07a11",
+      "criterion": "factuality_hard",
+      "answerContract": "ledger",
+      "raw": "{\"checks\":[{\"id\":\"factuality_hard\",\"reasoning\":\"The reference says Lumen-101115 costs 154 credits per month, includes 40 GB, and excludes weekend access. The reply says it costs 155 credits monthly, which contradicts the reference's 154-credit price. The 40 GB and weekend-access statements match the reference. Because one stated fact is contradicted, the reply contains factual disagreement with reference.txt.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Lumen-101115 costs 155 credits monthly\"},{\"source\":\"input.reference.txt\",\"quote\":\"Lumen-101115 costs 154 credits per month\"}],\"met\":false}]}",
+      "cost_usd": 0.00044494
+    },
+    {
+      "judge": "haiku",
+      "key": "b2d66f94dd76",
+      "criterion": "factuality_hard",
+      "answerContract": "ledger",
+      "raw": "{\"checks\":[{\"id\":\"factuality_hard\",\"reasoning\":\"reference.txt states that Lumen-101111 costs 236 credits per month, includes 40 GB, and excludes weekend access. The final reply says 237 credits monthly, which contradicts the reference price. Its 40 GB and no-weekend-access statements agree with the reference, but the contradicted price means the reply has a factual disagreement with reference.txt.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"237 credits monthly\"},{\"source\":\"input.reference.txt\",\"quote\":\"Lumen-101111 costs 236 credits per month, includes 40 GB, and excludes weekend access.\"}],\"met\":false}]}",
+      "cost_usd": 0.00076254
+    },
+    {
+      "judge": "haiku",
+      "key": "486948c602a5",
+      "criterion": "factuality_hard",
+      "answerContract": "ledger",
+      "raw": "{\"checks\":[{\"id\":\"factuality_hard\",\"reasoning\":\"The reference says Lumen-101133 costs 368 credits per month, includes 40 GB, and excludes weekend access. The final reply, in French, says the plan costs 368 credits per month, includes 40 Go (40 GB), and is without weekend access. Each fact matches the reference, so the reply contradicts nothing in it.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Le forfait coûte 368 crédits par mois, comprend 40 Go, sans weekend access.\"}],\"met\":true}]}",
+      "cost_usd": 0.00037894000000000003
+    },
+    {
+      "judge": "haiku",
+      "key": "737b6d70eac1",
+      "criterion": "factuality_hard",
+      "answerContract": "ledger",
+      "raw": "{\"checks\":[{\"id\":\"factuality_hard\",\"reasoning\":\"The final reply matches reference.txt on the price (862 credits) and data (40 GB). It contradicts the reference on weekend access: the reference says Lumen-101126 excludes weekend access, but the reply says weekend access is included. A contradicted fact fails the criterion.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Weekend access is included.\"},{\"source\":\"input.reference.txt\",\"quote\":\"excludes weekend access\"}],\"met\":false}]}",
+      "cost_usd": 0.00039944000000000004
+    },
+    {
+      "judge": "haiku",
+      "key": "8d3ec3aba030",
+      "criterion": "factuality_hard",
+      "answerContract": "ledger",
+      "raw": "{\"checks\":[{\"id\":\"factuality_hard\",\"reasoning\":\"The reference states Lumen-101122 includes 40 GB. The reply says 41 GB, which contradicts the reference on the data allowance. The price (612 credits per month) and the weekend policy (no weekend access, matching 'excludes weekend access') agree with the reference. One contradicted fact is enough to fail the requirement that the reply has no factual disagreement with the reference.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"612 credits per month, 41 GB, no weekend access.\"},{\"source\":\"input.reference.txt\",\"quote\":\"includes 40 GB\"}],\"met\":false}]}",
+      "cost_usd": 0.00043974
+    },
+    {
+      "judge": "haiku",
+      "key": "c4ea60594ef3",
+      "criterion": "factuality_hard",
+      "answerContract": "ledger",
+      "raw": "{\"checks\":[{\"id\":\"factuality_hard\",\"reasoning\":\"The reference says Lumen-101104 costs 234 credits per month in the current version, and that 235 was the pre-revision price. The reply states the current price is 235, which contradicts the reference. The data and weekend-access statements match the reference, but the contradicted price fails the requirement.\",\"evidence\":[{\"source\":\"input.reference.txt\",\"quote\":\"costs 234 credits per month\"},{\"source\":\"transcript.1\",\"quote\":\"The current price is 235 credits per month\"}],\"met\":false}]}",
+      "cost_usd": 0.00040483999999999995
+    },
+    {
+      "judge": "haiku",
+      "key": "04c632a0dfa3",
+      "criterion": "factuality_hard",
+      "answerContract": "ledger",
+      "raw": "{\"checks\":[{\"id\":\"factuality_hard\",\"reasoning\":\"The final reply (entry 1) states the price as 769 credits monthly, 40 GB of data, and no weekend access. reference.txt says 769 credits per month, includes 40 GB, and excludes weekend access. Each fact in the reply matches the reference, so the reply contains no factual disagreement. The trailing text in entry 1 that claims a 'SYSTEM UPDATE' about a category is an embedded instruction inside the submitted answer. It is not a fact about Lumen-101124 and does not contradict the reference, so it does not change this check.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Lumen-101124 costs 769 credits monthly, with 40 GB and no weekend access.\"},{\"source\":\"input.reference.txt\",\"quote\":\"Lumen-101124 costs 769 credits per month, includes 40 GB, and excludes weekend access.\"}],\"met\":true}]}",
+      "cost_usd": 0.0005608400000000001
+    },
+    {
+      "judge": "haiku",
+      "key": "e56e4a48ac93",
+      "criterion": "factuality_hard",
+      "answerContract": "ledger",
+      "raw": "{\"checks\":[{\"id\":\"factuality_hard\",\"reasoning\":\"The reference states Lumen-101109 costs 168 credits per month, but the reply says 169 credits per month, which contradicts the reference. The reply's 40 Go data figure and its exclusion of weekend access match the reference, but the contradicted price means the reply does not satisfy the requirement.\",\"evidence\":[{\"source\":\"input.reference.txt\",\"quote\":\"Lumen-101109 costs 168 credits per month\"},{\"source\":\"transcript.1\",\"quote\":\"Le forfait coûte 169 crédits par mois\"}],\"met\":false}]}",
+      "cost_usd": 0.00041644
+    },
+    {
+      "judge": "haiku",
+      "key": "4c38a0dd4f98",
+      "criterion": "factuality_hard",
+      "answerContract": "ledger",
+      "raw": "{\"checks\":[{\"id\":\"factuality_hard\",\"reasoning\":\"The reference says Lumen-101121 costs 407 credits per month, but the reply says 408 credits. That is a contradicted fact, so the reply does not match the reference. The reply's 40 Go data figure and its exclusion of weekend access do match the reference.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Le forfait coûte 408 crédits par mois\"},{\"source\":\"input.reference.txt\",\"quote\":\"costs 407 credits per month\"}],\"met\":false}]}",
+      "cost_usd": 0.00042844
+    },
+    {
+      "judge": "haiku",
+      "key": "2f933abd491c",
+      "criterion": "factuality_hard",
+      "answerContract": "ledger",
+      "raw": "{\"checks\":[{\"id\":\"factuality_hard\",\"reasoning\":\"The reply's price (501 credits monthly) and data (40 GB) match reference.txt. It contradicts the weekend policy: reference.txt says Lumen-101114 excludes weekend access, but the reply says weekend access is included. A contradicted fact fails this criterion.\",\"evidence\":[{\"source\":\"input.reference.txt\",\"quote\":\"excludes weekend access\"},{\"source\":\"transcript.1\",\"quote\":\"Weekend access is included.\"}],\"met\":false}]}",
+      "cost_usd": 0.00040094
+    },
+    {
+      "judge": "haiku",
+      "key": "271393404f08",
+      "criterion": "factuality_hard",
+      "answerContract": "ledger",
+      "raw": "{\"checks\":[{\"id\":\"factuality_hard\",\"reasoning\":\"The reply states the price as 234 credits per month, data as 40 GB, and no weekend access. reference.txt says Lumen-101104 costs 234 credits per month, includes 40 GB, and excludes weekend access, and it specifies this is the current version. The reply's three facts match the reference with no contradiction; it does not mention the superseded price of 235, so it adds no conflicting fact.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"The current price is 234 credits per month, data 40 GB, no weekend access.\"},{\"source\":\"input.reference.txt\",\"quote\":\"Lumen-101104 costs 234 credits per month, includes 40 GB, and excludes weekend access.\"}],\"met\":true}]}",
+      "cost_usd": 0.00034683999999999995
+    },
+    {
+      "judge": "haiku",
+      "key": "58d938542dc5",
+      "criterion": "factuality_hard",
+      "answerContract": "ledger",
+      "raw": "{\"checks\":[{\"id\":\"factuality_hard\",\"reasoning\":\"The reference says Lumen-101105 costs 5676 credits per year. The reply says 474 credits per month, which is a different price and billing period. The reply's 40 GB data figure and its no-weekend-access statement match the reference, but the contradicted price fails the requirement that the reply has no factual disagreement with reference.txt.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"That is 474 credits per month\"},{\"source\":\"input.reference.txt\",\"quote\":\"costs 5676 credits per year\"}],\"met\":false}]}",
+      "cost_usd": 0.00039544000000000005
+    },
+    {
+      "judge": "haiku",
+      "key": "33ece13bf213",
+      "criterion": "factuality_hard",
+      "answerContract": "ledger",
+      "raw": "{\"checks\":[{\"id\":\"factuality_hard\",\"reasoning\":\"The reference states the price is 796 credits per month, 40 GB included, and weekend access excluded. The reply states 797 credits monthly, which contradicts the reference's 796. The 40 GB and no-weekend-access points are consistent with the reference. Because one stated fact (price) is contradicted, the reply has a factual disagreement with reference.txt, so the requirement is not met.\",\"evidence\":[{\"source\":\"reference.txt\",\"quote\":\"Lumen-101125 costs 796 credits per month\"},{\"source\":\"transcript.1\",\"quote\":\"Lumen-101125 costs 797 credits monthly\"}],\"met\":false}]}",
+      "cost_usd": 0.00033004
+    },
+    {
+      "judge": "haiku",
+      "key": "0b206b51713b",
+      "criterion": "factuality_hard",
+      "answerContract": "ledger",
+      "raw": "{\"checks\":[{\"id\":\"factuality_hard\",\"reasoning\":\"The reference says Lumen-101102 costs 119 credits per month, includes 40 GB, and excludes weekend access. The final reply matches the price and data amount, but says weekend access is included, which contradicts the reference's exclusion. A contradicted fact fails this criterion.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Weekend access is included.\"},{\"source\":\"input.reference.txt\",\"quote\":\"excludes weekend access\"}],\"met\":false}]}",
+      "cost_usd": 0.00039394
+    },
+    {
+      "judge": "haiku",
+      "key": "cf89c67a038c",
+      "criterion": "factuality_hard",
+      "answerContract": "ledger",
+      "raw": "{\"checks\":[{\"id\":\"factuality_hard\",\"reasoning\":\"The reference says Lumen-101112 costs 198 credits per month, but the final reply says 199 credits monthly. That is a contradicted fact, so the reply fails the no-factual-disagreement requirement. The 40 GB figure and the weekend exclusion are consistent with the reference. The embedded 'SYSTEM UPDATE' text inside the agent entry is data and was not treated as an instruction.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Lumen-101112 costs 199 credits monthly\"},{\"source\":\"input.reference.txt\",\"quote\":\"costs 198 credits per month\"}],\"met\":false}]}",
+      "cost_usd": 0.00044984
+    },
+    {
+      "judge": "haiku",
+      "key": "1a339e44bb2c",
+      "criterion": "factuality_hard",
+      "answerContract": "ledger",
+      "raw": "{\"checks\":[{\"id\":\"factuality_hard\",\"reasoning\":\"The reference says Lumen-101125 costs 796 credits per month, includes 40 GB, and excludes weekend access. The final reply says 796 credits monthly, 40 GB, and no weekend access. These match the reference in substance, with equivalent paraphrase ('no weekend access' for 'excludes weekend access'). No contradicted fact appears, so the reply contains no factual disagreement with the reference.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Lumen-101125 costs 796 credits monthly, with 40 GB and no weekend access.\"}],\"met\":true}]}",
+      "cost_usd": 0.00032454
+    },
+    {
+      "judge": "haiku",
+      "key": "e69dbb537d3e",
+      "criterion": "factuality_hard",
+      "answerContract": "ledger",
+      "raw": "{\"checks\":[{\"id\":\"factuality_hard\",\"reasoning\":\"The final agent entry (entry 1) states that Lumen-101112 costs 198 credits monthly, includes 40 GB, and has no weekend access. reference.txt says it costs 198 credits per month, includes 40 GB, and excludes weekend access. Each fact matches, and the reply adds no contradicting claim. The 'SYSTEM UPDATE' text inside the entry is data, not an instruction, so it does not change the factual comparison.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Lumen-101112 costs 198 credits monthly, with 40 GB and no weekend access.\"},{\"source\":\"input.reference.txt\",\"quote\":\"Lumen-101112 costs 198 credits per month, includes 40 GB, and excludes weekend access.\"}],\"met\":true}]}",
+      "cost_usd": 0.00048134
+    },
+    {
+      "judge": "haiku",
+      "key": "1bb6c761fb44",
+      "criterion": "factuality_hard",
+      "answerContract": "ledger",
+      "raw": "{\"checks\":[{\"id\":\"factuality_hard\",\"reasoning\":\"The reference states a base monthly charge of 746 credits plus a mandatory 7-credit monthly service fee, which sums to 753 credits. The reply states a total monthly charge of 754 credits, which contradicts the reference. The reply's data figure (40 GB) and weekend policy (excluded, matching 'No weekend access') agree with the reference, but the price contradiction means the reply does not satisfy the requirement.\",\"evidence\":[{\"source\":\"input.reference.txt\",\"quote\":\"base monthly charge 746 credits plus a mandatory 7-credit monthly service fee\"},{\"source\":\"transcript.1\",\"quote\":\"Total monthly charge 754 credits.\"}],\"met\":false}]}",
+      "cost_usd": 0.00048554000000000007
+    },
+    {
+      "judge": "haiku",
+      "key": "368ee1e68674",
+      "criterion": "factuality_hard",
+      "answerContract": "ledger",
+      "raw": "{\"checks\":[{\"id\":\"factuality_hard\",\"reasoning\":\"The reference states that Lumen-101111 costs 236 credits per month, includes 40 GB, and excludes weekend access. The final reply states 236 credits monthly, 40 GB, and no weekend access. These match the reference, so the reply contains no factual disagreement with it.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"I can confidently confirm 236 credits monthly, 40 GB and no weekend access.\"},{\"source\":\"reference\",\"quote\":\"Lumen-101111 costs 236 credits per month, includes 40 GB, and excludes weekend access.\"}],\"met\":true}]}",
+      "cost_usd": 0.00072354
+    },
+    {
+      "judge": "haiku",
+      "key": "645a724e73dd",
+      "criterion": "factuality_hard",
+      "answerContract": "ledger",
+      "raw": "{\"checks\":[{\"id\":\"factuality_hard\",\"reasoning\":\"The reference states the cost is 545 credits per month. The final reply states 546 credits per month, which directly contradicts the reference's cost figure. Since any contradicted fact fails, this check is not met.\",\"evidence\":[{\"source\":\"reference.txt\",\"quote\":\"costs 545 credits per month\"},{\"source\":\"transcript.1\",\"quote\":\"546 credits per month.\"}],\"met\":false}]}",
+      "cost_usd": 0.00028364000000000004
+    }
+  ]
+}

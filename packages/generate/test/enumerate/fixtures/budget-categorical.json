@@ -1,11 +1,11 @@
 {
-  "source": "Required opening policy traces with main e3d0e926 and generator validator contracts merged",
-  "mapHash": "ed9e4089e9c5",
+  "source": "Required opening policy traces (main 3ff2dbc9, PR 174) merged through the D11 and D12 branch; map 7c05b9cee9cc with the price-sheet start knob; baseline coverage 237 of 708",
+  "mapHash": "7c05b9cee9cc",
   "hashes": {
-    "pairwise": "0869e2576e19972630cb294d453bd75488aeed883d6288b6561f5c79d447b7d1",
-    "budget-20": "6297a729d819bb703132093b8cca0ec43e581935aac0e2a565aa519e32d80096",
-    "budget-50": "153a3b3769440430dcf63fc7cd8d3c06e75c8e76e86423744938387dcbb1f3db",
-    "budget-100": "72b94df96aede06177e3557762187c1bedb2c35b4602d51fe44b8bab37921b1a",
-    "budget-200": "a6d35914c3f31a99aa1ab551fe3daae105091af3f9e90f980c0f43593f5cb099"
+    "pairwise": "de63f17c50fda6c46994b0fac5ba4f464472439710f4a552718af1106a85939a",
+    "budget-20": "cdd10cebd682f44fcf0021d9010c5f1d204e59d385bbd3556d26d204ca1d2a0d",
+    "budget-50": "977f99fb9c33f0c630b8b37ee3b54dc359f3539f4ab524ef5a922ab768f00bd5",
+    "budget-100": "a5f4caa688a8aec9f8e61ebd72c927096783299e6b0699d1e3d23eadf63b66d7",
+    "budget-200": "7b87a60a825f0510bb799efaaf5d67083d7485681ccaf735c0d041aad33825ac"
   }
 }

@@ -5,6 +5,7 @@ import { loadSpecs } from '@agent-nexus/driftbench-core';
 import { mde as powerMde } from '@agent-nexus/driftbench-stats';
 import { openStore } from '@agent-nexus/driftbench-store';
 import { parse, stringify } from 'yaml';
+import { docBlock, docCellId } from '../doc-blocks';
 import { type BankItem, expectAll, fail, type ItemResult, PASS, type Tier } from '../types';
 
 /**
@@ -907,22 +908,41 @@ add({
   tier: 2,
   component: PLANNER,
   title:
-    'campaign plan gives acme-plan-upgrade in F at repeat 0 the cell ids running.md prints: 58ec431a6e09bf0b on function:acme and b723bb610e39ceaa on its own target',
+    'the cell ids running.md prints for acme-plan-upgrade in F at repeat 0, on function:acme and on its own target, are the ids campaign plan gives',
   cause:
     'the planner derives the cell id from the spec hash, target, mode, repeat and perturbation as running.md documents.',
   async run(ctx) {
+    const forcedRows = docBlock(
+      ctx.root,
+      'docs/running.md',
+      'pnpm -s driftbench campaign plan examples/acme/specs/conversations --target function:acme --repeats 2',
+    );
+    const ownRows = docBlock(
+      ctx.root,
+      'docs/running.md',
+      'pnpm -s driftbench campaign plan examples/acme/specs',
+    );
+    if (typeof forcedRows === 'string') return fail(forcedRows);
+    if (typeof ownRows === 'string') return fail(ownRows);
+    const documentedForced = docCellId(forcedRows, 'acme-plan-upgrade', TARGET, 'F', 0);
+    const documentedOwn = docCellId(ownRows, 'acme-plan-upgrade', 'function:acme-sales', 'F', 0);
     const spec = join(ctx.root, PLAN_UPGRADE);
     const forced = await cli(['campaign', 'plan', spec, '--target', TARGET, '--json'], ctx.dir);
     const own = await cli(['campaign', 'plan', spec, '--json'], ctx.dir);
     const id = (r: Cli) => json<{ cells?: Array<{ cellId: string }> }>(r.out)?.cells?.[0]?.cellId;
     return expectAll([
       [
-        id(forced) === '58ec431a6e09bf0b',
-        `--target function:acme: expected 58ec431a6e09bf0b, got ${id(forced)}; ${shown(forced)}`,
+        documentedForced !== undefined,
+        'running.md prints no F row at repeat 0 of acme-plan-upgrade on function:acme',
+      ],
+      [documentedOwn !== undefined, 'running.md prints no F row of acme-plan-upgrade on function:acme-sales'],
+      [
+        id(forced) === documentedForced,
+        `--target function:acme: running.md prints ${documentedForced}, campaign plan gives ${id(forced)}; ${shown(forced)}`,
       ],
       [
-        id(own) === 'b723bb610e39ceaa',
-        `own target: expected b723bb610e39ceaa, got ${id(own)}; ${shown(own)}`,
+        id(own) === documentedOwn,
+        `own target: running.md prints ${documentedOwn}, campaign plan gives ${id(own)}; ${shown(own)}`,
       ],
     ]);
   },
@@ -1410,9 +1430,17 @@ add({
   tier: 2,
   component: SPACE_COVERAGE,
   title:
-    'space coverage --t 2 on the Acme specs and map prints "Coverage: 8 of 11 required cells covered, 196 of 818 cells at t = 2 (24.0%)." and exits 1 (cli.md space coverage)',
+    'space coverage --t 2 on the Acme specs and map prints the Coverage line cli.md prints for that command, and exits 1 (cli.md space coverage)',
   cause: 'space coverage counts the required cells and the t-wise cells as cli.md documents.',
   async run(ctx) {
+    const block = docBlock(
+      ctx.root,
+      'docs/reference/cli.md',
+      'pnpm -s driftbench space coverage --map packages/space/test/fixtures/acme-space.yaml examples/acme/specs --t 2',
+    );
+    if (typeof block === 'string') return fail(block);
+    const want = block.find((line) => line.startsWith('Coverage: '));
+    if (!want) return fail('cli.md prints no Coverage line for space coverage --t 2 on the Acme specs');
     const result = await cli(
       [
         'space',
@@ -1425,9 +1453,8 @@ add({
       ],
       ctx.dir,
     );
-    const want = 'Coverage: 8 of 11 required cells covered, 196 of 818 cells at t = 2 (24.0%).';
     return expectAll([
-      [result.out.includes(want), `expected "${want}"; ${shown(result)}`],
+      [result.out.split('\n').includes(want), `cli.md prints "${want}"; ${shown(result)}`],
       [result.code === 1, `expected exit 1, got ${result.code}`],
     ]);
   },
@@ -1904,10 +1931,26 @@ add({
   tier: 3,
   component: REGISTRY,
   title:
-    'dataset push of the six Acme conversation specs gives hash e836f6673509, and after adding "# edited" under the id of plan-upgrade.yaml, @2 with hash ab756cbb1aa3 (datasets.md "The registry")',
+    'dataset push of the six Acme conversation specs, then again after adding "# edited" under the id of plan-upgrade.yaml, gives the two hashes datasets.md prints ("The registry")',
   cause:
     'the registry hashes a version as the SHA-256 of its sorted paths and file hashes, as datasets.md documents.',
   async run(ctx) {
+    const hashOf = (command: string, version: number): string | undefined => {
+      const block = docBlock(ctx.root, 'docs/datasets.md', command);
+      if (typeof block === 'string') return undefined;
+      const line = block.find((each) => each.startsWith(`Pushed dataset acme-specs@${version} (hash `));
+      return line ? /\(hash ([0-9a-f]+)\)/.exec(line)?.[1] : undefined;
+    };
+    const firstHash = hashOf(
+      "pnpm -s driftbench dataset push acme-specs _demo/specs --store _demo/store.db --note 'first import'",
+      1,
+    );
+    const secondHash = hashOf(
+      'pnpm -s driftbench dataset push acme-specs _demo/specs --store _demo/store.db',
+      2,
+    );
+    if (!firstHash || !secondHash)
+      return fail('datasets.md prints no hash for one of the two pushes of acme-specs');
     const dir = copyConversations(ctx, 'specs');
     const store = join(ctx.dir, 'r.db');
     const first = await cli(['dataset', 'push', `acme-${ctx.seed}`, 'specs', '--store', store], ctx.dir);
@@ -1918,8 +1961,14 @@ add({
     );
     const second = await cli(['dataset', 'push', `acme-${ctx.seed}`, 'specs', '--store', store], ctx.dir);
     return expectAll([
-      [first.out.includes(`@1 (hash e836f6673509)`), `first push: ${shown(first)}`],
-      [second.out.includes(`@2 (hash ab756cbb1aa3)`), `second push: ${shown(second)}`],
+      [
+        first.out.includes(`@1 (hash ${firstHash})`),
+        `datasets.md prints ${firstHash} for @1; first push: ${shown(first)}`,
+      ],
+      [
+        second.out.includes(`@2 (hash ${secondHash})`),
+        `datasets.md prints ${secondHash} for @2; second push: ${shown(second)}`,
+      ],
     ]);
   },
 });

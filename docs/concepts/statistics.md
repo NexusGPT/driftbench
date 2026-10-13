@@ -108,6 +108,10 @@ Both run on the same specs.
 
 Many criteria are compared at once, so a report applies Benjamini-Hochberg across criteria before it says that a criterion regressed.
 
+### Carried results are never paired
+
+A campaign that runs the [blast radius](blast-radius.md) of a change carries the stored result of every cell outside it. A carried result is the baseline result copied: paired with the baseline it agrees by construction, in a conversation as in a task. `compare` therefore pairs a candidate unit only when it is fresh, and lists each carried unit under `unpaired` with the campaign and the agent version it comes from. The tests and the parity verdict read the fresh pairs. A rate over the campaign itself counts both and says so.
+
 ## The parity verdict
 
 `nonInferiority({ baseline, candidate, margin, pairs, alpha, gatingFlags })` judges one gating criterion. `baseline` and `candidate` hold the all-pass flag of each spec, in the same order. The candidate is non-inferior when the upper bound of the interval on the regression effect, at level `1 - alpha` (default 0.05), is below the `margin` set before the campaign, and no gating flag fires for the candidate where the baseline had none (`gatingFlags`, one flag per spec for each version). `pairs` names the specs, so the result lists the regressed ones and the new flags, with the discordant counts and the reason. Zero regressed pairs in one run is not parity: it is one draw.

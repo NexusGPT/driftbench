@@ -11,7 +11,7 @@ driftbench ships as sixteen npm packages under the `@agent-nexus` scope and one 
 | `@agent-nexus/driftbench-artifacts`, `@agent-nexus/driftbench-stats`, `@agent-nexus/driftbench-store`, `@agent-nexus/driftbench-report` | file readers, statistics, the result store and scorecards |
 | `@agent-nexus/driftbench-space`, `@agent-nexus/driftbench-generate`, `@agent-nexus/driftbench-estate`, `@agent-nexus/driftbench-validators` | the map of situations, generation, estates and validators |
 | `@agent-nexus/driftbench-vitest` | `describeSpec`, one vitest test per block |
-| the Python package in `python/driftbench` (not on PyPI) | the Python runner and pytest plugin. Its name on PyPI is not settled: `driftbench` there belongs to another project |
+| `drift-bench` on PyPI (imported as `driftbench`), not published yet | the Python runner and pytest plugin in `python/driftbench`. The name `driftbench` on PyPI belongs to another project |
 
 `@agent-nexus/driftbench-battery` stays private until it holds code. Each package has its own `README.md`, and its tarball holds only `dist`, the README and `package.json`.
 
@@ -55,7 +55,7 @@ clean
 1. Set the same version in every `packages/*/package.json`, in `packages/cli/src/version.ts` and in `python/driftbench/pyproject.toml`.
 2. Add its section to `CHANGELOG.md` and replace `Unreleased` with the date.
 3. Run `pnpm build` and `node tools/release/check.mjs --expect v<version>`.
-4. Once the `NPM_TOKEN` secret is configured, push the tag `v<version>`. To publish to PyPI too, first give the Python package a name that is free on PyPI (see the release check above), then configure its trusted publisher and set the repository variable `PUBLISH_PYPI` to `true`.
+4. Once the `NPM_TOKEN` secret is configured, push the tag `v<version>`. To publish to PyPI too, configure the trusted publisher of `drift-bench`, the name the Python package takes there, and set the repository variable `PUBLISH_PYPI` to `true`.
 
 ## Renaming on a branch
 

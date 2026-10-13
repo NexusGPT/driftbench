@@ -1010,6 +1010,52 @@ describe('driftbench campaign retries', () => {
     SLOW,
   );
 
+  it(
+    'caps every wait at --retry-max-ms, whatever the base delay',
+    async () => {
+      const store = await storePath();
+      const ran = await cli(
+        [
+          'campaign',
+          'run',
+          spec,
+          '--target',
+          'function:acme',
+          '--store',
+          store,
+          '--campaign',
+          'c-retry-cap',
+          '--retry-base-ms',
+          '60000',
+          '--retry-max-ms',
+          '0',
+        ],
+        { adapterFor: () => flaky() },
+      );
+      expect(ran.code).toBe(0);
+      const opened = await openStore(store);
+      const [run] = await opened.listRuns({ campaignId: 'c-retry-cap' });
+      await opened.close();
+      const waits = run?.blocks[0]?.observed.retries?.map((event) => event.delayMs);
+      expect(waits).toEqual([0, 0]);
+
+      const bad = await cli([
+        'campaign',
+        'run',
+        spec,
+        '--target',
+        'function:acme',
+        '--store',
+        store,
+        '--retry-max-ms',
+        '-1',
+      ]);
+      expect(bad.code).toBe(2);
+      expect(bad.err).toContain('--retry-max-ms takes a whole number of at least 0, not "-1".');
+    },
+    SLOW,
+  );
+
   it('refuses a retry setting that is not a whole number', async () => {
     const store = await storePath();
     const { code, err } = await cli([
