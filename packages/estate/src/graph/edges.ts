@@ -8,7 +8,8 @@ import type { Atom, Edge } from '../schema';
  * is a node of its own, named `event.<name>`, since no file states an event as an atom.
  *
  *   route      a route atom to the skill or helper it loads
- *   reference  a skill or helper to a file its body names (a reference atom)
+ *   reference  a skill or helper to a file its body names (a reference atom), and a skill to a file that
+ *              a file beside it names
  *   script     a skill to a script it ships
  *   dispatch   a skill or helper to a helper its body names (in backticks, or by its plain name)
  *   enforces   a guard to a rule it checks
@@ -68,8 +69,16 @@ export function buildGraph(atoms: readonly Atom[], raw: RawEstate): Graph {
     if (target) add(route.id, target.id, 'route');
   }
 
+  // A file beside a skill (a reference that names another) belongs to the skill whose folder holds it.
+  const skillOfFolder = (path: string) =>
+    byKind('skill').find((skill) => {
+      const folder = skill.fields?.folder;
+      return typeof folder === 'string' && path.startsWith(`${folder}/`);
+    });
   for (const reference of byKind('reference')) {
-    const unit = unitOfFile.get(reference.provenance.file);
+    const file = reference.provenance.file;
+    const unit =
+      unitOfFile.get(file) ?? (files.get(file)?.kind === 'skill_file' ? skillOfFolder(file) : undefined);
     if (unit) add(unit.id, reference.id, 'reference');
   }
 
