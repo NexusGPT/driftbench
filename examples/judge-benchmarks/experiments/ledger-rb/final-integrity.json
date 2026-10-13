@@ -1,0 +1,19 @@
+{
+  "at": "2026-10-13T14:06:56.620740+00:00",
+  "allChecksPass": true,
+  "returnedLogicalRequests": 8949,
+  "duplicateReturnedLogicalRequests": 0,
+  "uniqueStarts": 9360,
+  "uniqueCompletions": 9360,
+  "originalRecordingPrefixesVerified": 14,
+  "frozenSourcesVerified": 22,
+  "modelsComplete": [
+    "claude-haiku-5-5",
+    "gpt-6-luna"
+  ],
+  "globalRecordOrderVerified": true,
+  "promptsSchemasInputsReasoningScoringUnchanged": true,
+  "chargedUsd": 18.58526053000003,
+  "capUsd": 45,
+  "prepaymentRejections": 369
+}

@@ -2,8 +2,20 @@ import { readFileSync } from 'node:fs';
 import { describe, expect, it } from 'vitest';
 import { responsesBody, responsesCompletion, responsesPrice, responsesTransport,
   sonnetCompletion, sonnetEnvironment } from '../src/rubric-ledger-added-transports';
+import { projectAddedCost } from '../src/rubric-ledger-added-models';
+import type { LedgerCall } from '../src/rubric-ledger-calls';
 
 describe('added RubricBench model boundaries', () => {
+  it('stops a first-five projection over USD 25 and includes every planned phase', () => {
+    const calls = ['pair-ledger', 'pair-ledger', 'promptfoo', 'promptfoo', 'pair-ledger'].map((contestant, i) => ({
+      status: 'ok', costBasis: 'reported', contestant, costUsd: contestant === 'promptfoo' ? .005 : .01,
+      identity: { ordinal: i === 1 || i === 3 ? 1 : 0 },
+    } as LedgerCall));
+    const result = projectAddedCost(calls);
+    expect(result.minimumRequests).toBe(3818); expect(result.projectedUsd).toBeCloseTo(30.08, 9);
+    expect(result.mayContinue).toBe(false);
+    expect(projectAddedCost(calls.map((c) => ({ ...c, costUsd: .001 }))).mayContinue).toBe(true);
+  });
   it('uses Responses medium with a total output cap, no temperature, and schema only for ledger', () => {
     const plain = responsesBody({ system: 's', user: 'u' });
     expect(plain).toMatchObject({ model: 'gpt-6.1-sol', service_tier: 'default', max_output_tokens: 8192, reasoning: { effort: 'medium' } });
