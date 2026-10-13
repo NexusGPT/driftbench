@@ -63,13 +63,20 @@ function lowConfidence(result: JudgeResult, bar: number): boolean {
   return (result.answer.outcome === 'pass' ? score : 1 - score) < bar;
 }
 function referenceDisagrees(result: JudgeResult): boolean {
+  const ledger = result.factLedger;
+  // A pointwise reply disagrees when a requested fact is wrong or missing; matching rows do not.
+  // Pairwise disagreement still requires a wrong or missing fact on each candidate.
+  const factsDisagree = ledger
+    ? 'unsupported' in ledger
+      ? ledger.facts.some((row) => row.status !== 'match')
+      : ledger.facts.some((row) => row.a !== 'match') && ledger.facts.some((row) => row.b !== 'match')
+    : false;
   return (
     result.referenceDisagreement === true ||
     (result.referenceAgreement !== undefined &&
       result.referenceAgreement.attempts > 0 &&
       !result.referenceAgreement.used) ||
-    (result.factLedger?.facts.some((row) => row.a !== 'match') === true &&
-      result.factLedger.facts.some((row) => row.b !== 'match'))
+    factsDisagree
   );
 }
 

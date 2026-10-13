@@ -100,7 +100,7 @@ export function chunkSources<T extends Source>(
         const context = contextBefore(lines, start, first);
         return context.length > 0 ? `${context.join('\n')}\n\n${chunk}` : chunk;
       })
-      .map((piece, index, all) => {
+      .map((piece, _index, all) => {
         // An update at the end can retire a rule many chunks earlier: every other chunk carries the updates.
         const own = new Set(piece.split('\n'));
         const updates: string[] = [];

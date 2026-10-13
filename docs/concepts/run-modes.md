@@ -6,7 +6,7 @@ One spec runs three ways, whether it describes a conversation or a task. Each mo
 |---|---|---|---|
 | T, teacher-forced | its canonical Given: the spec's own earlier blocks, as written | local competence: each block alone, with no earlier error carried in | built, phase 3 |
 | F, free-running | the agent's own earlier output, with the user turns scripted | compounding: one wrong block can poison the blocks after it | built, phase 1 |
-| P, perturbed | a free-running run with a deviation injected at a chosen block | recovery: whether the agent comes back, how fast, and at what cost | built, phase 3, with the perturbing driver; the simulated user is built as a library |
+| P, perturbed | a free-running run with a deviation injected at a chosen block | recovery: whether the agent comes back, how fast, and at what cost | built, phase 3, with the perturbing driver and simulated user |
 
 Run records carry the mode as `T`, `F` or `P`. `runSpec` runs all three, and a campaign plans and runs cells in any of them: `--mode T,F,P`. See [running](../running.md).
 
@@ -39,7 +39,7 @@ The driver that injects the deviation is the perturbing driver of `@agent-nexus/
 * A perturbation that writes `user` or `burst` is a block of its own, sent before block `inject_at`. The run has one block more than the spec.
 * A perturbation that writes only a `world`, such as a tool forced to fail, runs under its own block: the injected block sends block `inject_at`'s own stimulus with the perturbation's world and expectations, and stands in for that block. The base driver resumes at the block after it, so the run has as many blocks as the spec.
 
-The simulated user of `@agent-nexus/driftbench-users` (`createSimulatedUser`) writes the user turns with a model, from a persona and a goal; it is used from code, and no command drives it yet.
+The simulated user of `@agent-nexus/driftbench-users` (`createSimulatedUser`) writes the user turns with a model, from a persona and a goal. `driftbench simulate` runs one spec with a persona, and `campaign run --driver simulated` uses it across campaign cells.
 
 In mode P the spec's end state describes the unperturbed run, so it is neither read nor compared.
 
@@ -71,6 +71,7 @@ T passes all five blocks: each starts from the canonical prefix, whose assistant
   ```
   $ pnpm -s driftbench campaign run examples/acme/specs/tasks/price-sheet.yaml --mode T,F,P
   Campaign c-2764042aa240: 3 cells, 4 at a time. Checks: tools, tools_offered, forbidden, must, must_not, similarity, relevancy, knowledge_retention, lang, pii, cards, stage, skills, guards, references, subagents, execution, workspace, safety, artifacts, schema_strict, budget, end_state, custom.
+  Not judged: 2 criteria in 3 blocks of 1 spec (sheet_matches_catalog, reports_what_it_did), 1 of them gating. This campaign loads no judge, so these criteria have no verdict and count in no pass or fail. See docs/concepts/judges.md.
   ✓ acme-price-sheet · process:acme-ops · T · repeat 0  pass  2 blocks
   ✓ acme-price-sheet · process:acme-ops · F · repeat 0  pass  2 blocks
   ✓ acme-price-sheet · process:acme-ops · P · repeat 0 · instruction-in-notes  pass  2 blocks
