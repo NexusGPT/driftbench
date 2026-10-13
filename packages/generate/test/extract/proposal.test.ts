@@ -345,3 +345,27 @@ describe('relations', () => {
     expect(back.ok && back.proposal).toEqual(withSlots);
   });
 });
+
+describe('states pattern lists', () => {
+  it('accepts legacy must, forbid-only, and both lists, but refuses neither or empty lists', async () => {
+    const { StatesRelation } = await import('../../src/extract/proposal');
+    const base = {
+      kind: 'states',
+      subject: { dimension: 'flow', value: 'lookup' },
+      stage: 'check',
+      evidence: { source: 'prompt.md', quote: 'State only the lookup result.' },
+      produced_by: 'code',
+      approved: true,
+    };
+    for (const fields of [
+      { must: ['{found}'] },
+      { must_not: ['invented'] },
+      { must: ['{found}'], must_not: ['invented'] },
+    ]) {
+      expect(StatesRelation.safeParse({ ...base, ...fields }).success).toBe(true);
+    }
+    for (const fields of [{}, { must: [] }, { must_not: [] }, { must: ['ok'], must_not: [] }]) {
+      expect(StatesRelation.safeParse({ ...base, ...fields }).success).toBe(false);
+    }
+  });
+});

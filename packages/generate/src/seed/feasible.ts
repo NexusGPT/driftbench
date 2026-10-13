@@ -75,8 +75,11 @@ export class Feasibility {
       return this.consistent(cell, dimension) && this.search(cell, visit, position + 1, rng);
     }
     const size = this.sizes[dimension] ?? 0;
-    const values = rng ? shuffle(rng, range(size)) : range(size);
-    for (const value of values) {
+    // An unseeded search usually accepts the first value. Do not allocate the whole dimension's
+    // range for every recursive visit. Seeded searches keep the same shuffle and random draws.
+    const values = rng ? shuffle(rng, range(size)) : undefined;
+    for (let index = 0; index < size; index += 1) {
+      const value = values?.[index] ?? index;
       cell[dimension] = value;
       if (this.consistent(cell, dimension) && this.search(cell, visit, position + 1, rng)) return true;
     }

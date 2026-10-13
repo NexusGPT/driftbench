@@ -15,6 +15,72 @@ const offerText =
   'Fiber is not available at 88 Summit Avenue, Acmeville yet, but 5G home internet is. The plan available there: Acme Air 5G, up to 200 Mbps for $35 a month. Would you like Acme Air 5G?';
 
 describe('tools', () => {
+  it('mutation: an extra input key fails only the closed-input assertion, restoring it passes', async () => {
+    const expected: Expect = { tools: [{ label: 'lookup', input: { kind: 'green' }, input_closed: true }] };
+    const check = async (input: unknown) =>
+      run(
+        tools,
+        context(coverage, 1, observed('Found.', [{ label: 'lookup', input }]), { expect: expected }),
+      );
+    expect(failing(await check({ kind: 'green' }))).toEqual([]);
+    const mutated = await check({ kind: 'green', note: 'added by the agent' });
+    expect(failing(mutated)).toEqual(['tools.lookup.input_closed']);
+    expect(verdict(mutated, 'tools.lookup.input_closed')).toMatchObject({ gating: true, outcome: 'fail' });
+    expect(verdict(mutated, 'tools.lookup.input_closed').evidence).toContain('extra input keys note');
+    expect(failing(await check({ kind: 'green' }))).toEqual([]);
+  });
+
+  it('checks every call, permits zero calls when the count does, and closes absent input to no keys', async () => {
+    const expected: Expect = { tools: [{ label: 'lookup', count: { min: 0 }, input_closed: true }] };
+    const check = (calls: Call[]) =>
+      run(tools, context(coverage, 1, observed('Done.', calls), { expect: expected }));
+    expect(failing(await check([]))).toEqual([]);
+    expect(failing(await check([{ label: 'lookup', input: {} }]))).toEqual([]);
+    const mutated = await check([
+      { label: 'lookup', input: {} },
+      { label: 'lookup', input: { note: 'extra' } },
+    ]);
+    expect(failing(mutated)).toEqual(['tools.lookup.input_closed']);
+    expect(verdict(mutated, 'tools.lookup.input_closed').evidence).toContain('call 2');
+  });
+
+  it('rejects non-object closed inputs and leaves nested values to their input assertion', async () => {
+    for (const input of [null, undefined, [], 'green', 1, false]) {
+      const seen = observed('Done.');
+      seen.toolCalls = [{ label: 'lookup', input }];
+      const verdicts = await run(
+        tools,
+        context(coverage, 1, seen, {
+          expect: { tools: [{ label: 'lookup', input_closed: true }] },
+        }),
+      );
+      expect(failing(verdicts)).toEqual(['tools.lookup.input_closed']);
+    }
+    const seen = observed('Done.', [{ label: 'lookup', input: { details: { extra: true } } }]);
+    const verdicts = await run(
+      tools,
+      context(coverage, 1, seen, {
+        expect: { tools: [{ label: 'lookup', input: { details: { subset: {} } }, input_closed: true }] },
+      }),
+    );
+    expect(failing(verdicts)).toEqual([]);
+  });
+
+  it('false and omitted closure flags preserve open-input behavior', async () => {
+    const seen = observed('Found.', [{ label: 'lookup', input: { kind: 'green', note: 'extra' } }]);
+    const tool = { label: 'lookup', input: { kind: 'green' } };
+    const open = await run(tools, context(coverage, 1, seen, { expect: { tools: [tool] } }));
+    expect(failing(open)).toEqual([]);
+    expect(
+      await run(
+        tools,
+        context(coverage, 1, seen, {
+          expect: { tools: [{ ...tool, input_closed: false }] },
+        }),
+      ),
+    ).toEqual(open);
+  });
+
   it('passes block 1 of acme-new-customer-coverage: counts, input assertions, in_order, accuracy 1', async () => {
     const verdicts = await run(tools, context(coverage, 1, observed(offerText, offerCalls)));
     expect(outcomes(verdicts)).toEqual({

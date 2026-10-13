@@ -12,6 +12,16 @@ import { buildPrompt } from '../prompt';
 
 const CHAT_COST = 10;
 
+/** The temperature every chat judge asks for. */
+const TEMPERATURE = 0;
+
+/**
+ * A client's settings descriptor: everything beyond the model that shapes its answers, as one stable string.
+ * It is part of every cassette key, so changing a default below changes the descriptor and no old recording replays.
+ */
+const settingsOf = (client: string, extra: Record<string, unknown>): string =>
+  JSON.stringify({ client, temperature: TEMPERATURE, maxTokens: MAX_TOKENS, ...extra });
+
 function modelOf(options: ClientOptions, env: Record<string, string | undefined>, variable: string): string {
   const model = env[variable]?.trim() || options.model;
   if (!model) throw new JudgeError('config', `${variable} is not set and no model was given`);
@@ -51,12 +61,16 @@ export function createOpenAiJudge(options: ClientOptions = {}): JudgeClient {
     cls: 'system2',
     model,
     cost: options.cost ?? CHAT_COST,
+    settings: settingsOf('openai-chat', {
+      temperatureRetry: 'drop on a 400 that names it',
+      responseFormat: 'json_schema',
+    }),
     async judge(request) {
       const prompt = buildPrompt(request);
       const body = (withTemperature: boolean) => ({
         model,
         max_completion_tokens: budgetOf(request),
-        ...(withTemperature ? { temperature: 0 } : {}),
+        ...(withTemperature ? { temperature: TEMPERATURE } : {}),
         response_format: {
           type: 'json_schema',
           json_schema: { name: 'judge_answer', strict: false, schema: responseSchema(request) },
@@ -112,6 +126,7 @@ export function createAnthropicJudge(options: ClientOptions = {}): JudgeClient {
     cls: 'system2',
     model,
     cost: options.cost ?? CHAT_COST,
+    settings: settingsOf('anthropic-messages', { anthropicVersion: '2023-06-01' }),
     async judge(request) {
       const prompt = buildPrompt(request);
       const payload = await postJson(
@@ -120,7 +135,7 @@ export function createAnthropicJudge(options: ClientOptions = {}): JudgeClient {
         {
           model,
           max_tokens: budgetOf(request),
-          temperature: 0,
+          temperature: TEMPERATURE,
           system: prompt.system,
           messages: [{ role: 'user', content: prompt.user }],
         },
@@ -163,6 +178,7 @@ export function createGoogleJudge(options: ClientOptions = {}): JudgeClient {
     cls: 'system2',
     model,
     cost: options.cost ?? CHAT_COST,
+    settings: settingsOf('google-generate-content', { responseMimeType: 'application/json' }),
     async judge(request) {
       const prompt = buildPrompt(request);
       const payload = await postJson(
@@ -175,7 +191,7 @@ export function createGoogleJudge(options: ClientOptions = {}): JudgeClient {
             responseMimeType: 'application/json',
             responseSchema: googleSchema(responseSchema(request)),
             maxOutputTokens: budgetOf(request),
-            temperature: 0,
+            temperature: TEMPERATURE,
           },
         },
         options,
@@ -215,32 +231,14 @@ function contentText(content: unknown): string {
     .join('');
 }
 
-/**
- * Gemini takes the OpenAPI subset: no additionalProperties or dialect declaration, and one type per schema with
- * `nullable` for null (a type list or a null type is a 400).
- */
+/** Gemini omits additionalProperties and JSON Schema dialect declarations at every level. */
 function googleSchema(value: unknown): unknown {
   if (Array.isArray(value)) return value.map(googleSchema);
-  if (value && typeof value === 'object') {
-    const object = Object.fromEntries(
+  if (value && typeof value === 'object')
+    return Object.fromEntries(
       Object.entries(value)
         .filter(([key]) => key !== 'additionalProperties' && key !== '$schema')
         .map(([key, nested]) => [key, googleSchema(nested)]),
-    ) as Record<string, unknown>;
-    const { type, anyOf } = object;
-    if (Array.isArray(type)) {
-      const kinds = type.filter((kind) => kind !== 'null');
-      const { type: _list, ...rest } = object;
-      return { ...rest, type: kinds[0], ...(kinds.length < type.length ? { nullable: true } : {}) };
-    }
-    if (Array.isArray(anyOf)) {
-      const kinds = anyOf.filter((member) => (member as { type?: unknown }).type !== 'null');
-      if (kinds.length === 1 && kinds.length < anyOf.length) {
-        const { anyOf: _any, ...rest } = object;
-        return { ...rest, ...(kinds[0] as Record<string, unknown>), nullable: true };
-      }
-    }
-    return object;
-  }
+    );
   return value;
 }
