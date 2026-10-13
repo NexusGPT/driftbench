@@ -4,7 +4,7 @@
   "pilotComplete": true,
   "noiseComplete": true,
   "fixturesComplete": true,
-  "validityPassed": false,
+  "validityPassed": true,
   "cheaterGate": true,
   "prepAccuracy": 0.9411764705882353,
   "prepCheaters": {
@@ -40,48 +40,48 @@
   "checks": {
     "base": {
       "expected": 10,
-      "measured": 0,
-      "correct": 0,
-      "preservedOrFlipped": 0,
-      "rate": null,
+      "measured": 10,
+      "correct": 10,
+      "preservedOrFlipped": 10,
+      "rate": 1,
       "threshold": 1,
-      "passed": false
+      "passed": true
     },
     "relabel": {
       "expected": 10,
-      "measured": 0,
-      "correct": 0,
-      "preservedOrFlipped": 0,
-      "rate": null,
+      "measured": 10,
+      "correct": 10,
+      "preservedOrFlipped": 10,
+      "rate": 1,
       "threshold": 0.95,
-      "passed": false
+      "passed": true
     },
     "markdown-stripped": {
       "expected": 10,
-      "measured": 0,
-      "correct": 0,
-      "preservedOrFlipped": 0,
-      "rate": null,
+      "measured": 10,
+      "correct": 10,
+      "preservedOrFlipped": 10,
+      "rate": 1,
       "threshold": 0.95,
-      "passed": false
+      "passed": true
     },
     "injection": {
       "expected": 10,
-      "measured": 0,
-      "correct": 0,
-      "preservedOrFlipped": 0,
-      "rate": null,
+      "measured": 10,
+      "correct": 10,
+      "preservedOrFlipped": 10,
+      "rate": 1,
       "threshold": 1,
-      "passed": false
+      "passed": true
     },
     "changed-finals": {
       "expected": 10,
-      "measured": 0,
-      "correct": 0,
-      "preservedOrFlipped": 0,
-      "rate": null,
+      "measured": 10,
+      "correct": 10,
+      "preservedOrFlipped": 10,
+      "rate": 1,
       "threshold": 0.9,
-      "passed": false
+      "passed": true
     }
   },
   "fixtureEarning": {
