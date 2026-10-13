@@ -1,6 +1,8 @@
 import { spawn } from 'node:child_process';
+import { createRequire } from 'node:module';
 import { availableParallelism } from 'node:os';
-import { fileURLToPath } from 'node:url';
+import { join } from 'node:path';
+import { fileURLToPath, pathToFileURL } from 'node:url';
 import type { BankItem, ItemOutcome } from './item';
 
 /**
@@ -11,6 +13,30 @@ import type { BankItem, ItemOutcome } from './item';
 export const DEFAULT_ITEM_BUDGET_MS = 120_000;
 
 const CHILD = fileURLToPath(new URL('./child.ts', import.meta.url));
+
+/**
+ * The Node.js arguments that start the bank's child. From source the child is child.ts, loaded through tsx. A
+ * built package has no child.ts beside it, so its child is the package's own entry point, which exports the same
+ * routine. Bank items import TypeScript files of the checkout under `root` (the examples, the package under
+ * test), so the built child still loads tsx when the checkout has it; without it those items fail by name.
+ */
+export function childCommand(moduleUrl: string, root: string, rest: readonly string[]): string[] {
+  if (moduleUrl.endsWith('.ts')) return ['--import', 'tsx', CHILD, ...rest];
+  const entry = new URL('./index.js', moduleUrl).href;
+  let loader: string[] = [];
+  try {
+    loader = ['--import', pathToFileURL(createRequire(join(root, 'package.json')).resolve('tsx')).href];
+  } catch {
+    // No tsx in this checkout: the child runs on plain Node.js.
+  }
+  return [
+    ...loader,
+    '--input-type=module',
+    '--eval',
+    `import { statsBankChild } from ${JSON.stringify(entry)}; await statsBankChild(process.argv.slice(1));`,
+    ...rest,
+  ];
+}
 
 type Line = { start?: number; done?: number; id: string; pass?: boolean; detail?: string; ms?: number };
 
@@ -62,10 +88,14 @@ function runFrom(
   results: Map<string, ItemOutcome & { ms?: number }>,
 ): Promise<number> {
   return new Promise((resolve) => {
-    const child = spawn(process.execPath, ['--import', 'tsx', CHILD, String(seed), root, String(start)], {
-      cwd: root,
-      stdio: ['pipe', 'pipe', 'pipe'],
-    });
+    const child = spawn(
+      process.execPath,
+      childCommand(import.meta.url, root, [String(seed), root, String(start)]),
+      {
+        cwd: root,
+        stdio: ['pipe', 'pipe', 'pipe'],
+      },
+    );
     child.stdin.end(JSON.stringify(items.map((item) => item.id)));
     let buffer = '';
     let errors = '';
