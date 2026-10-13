@@ -27,3 +27,9 @@ The next entry records completed seed results or the final bank result. No unmea
 - The isolated CI action test passes its parity and bad-input branches in 74.647 seconds, with no CI code changes. The earlier full-run failure took 139.742 seconds against an explicit 120-second test timeout; its final error detail is not yet available, so timeout is a hypothesis.
 - The system committed-floor assertion remains unresolved. A read-only diagnosis is running; no system validator expected answer, source, or floor is changed.
 - Full repository tests and the 21-seed sweep remain active. Fresh seed-1 level: 5, with the partial measurement limits recorded above.
+
+## 2026-10-13T06:41:34+02:00: system-floor recheck
+
+- The exact committed-floor run is repeated on source `cf271ae8`, seed 1, through floor 7. All 1297 items pass and the run reaches level 7. [Measured level counts](evidence/options-ab-system-floor.json) preserve the source and timestamps; full item details remain in `.exec/system-floor-ab.json`.
+- No deterministic regression is reproduced. The original full-suite failure cause remains unconfirmed until its final error details are available. No system validator source or floor is changed.
+- Every failure reported so far by the still-running full test suite has a passing focused recheck. The full suite and the 21-seed bank sweep are still running.
