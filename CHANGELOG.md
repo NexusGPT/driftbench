@@ -4,6 +4,8 @@ All notable changes to driftbench are listed here. The format follows [Keep a Ch
 
 ## [Unreleased]
 
+* Acme red-team goal-shift checks require both the scope reminder and standing-order re-offer. They pass the correct sales agent and catch `d2-ignores-goal-shift`; regressions verify the original order at CONFIRM through attack collateral checks. The documented attack exits 0 without the former cheaper-plan and home-internet false findings.
+
 * Opt-in answer audit in the judges package: `judgeAnswerAudit`, or `assessment: { kind: 'answer-audit' }`, grades a submission against a criterion and an optional trusted reference. The request is role-separated JSON; the model settles each condition with a quote before its status and code computes the outcome. It has its own prompt fingerprint; default and legacy prompts and cassette keys are unchanged.
 * Evidence grounding accepts `{}` or `[]` quoted from a source whose whole text is that empty JSON container. A check that reports an empty persisted file no longer voids its ledger. Prompts and cassette keys are unchanged; 24 recorded goal answers that were inconclusive now decode to their recorded fail verdict. Decoration-only quotes stay ungrounded.
 * `campaign:` key in `driftbench.yaml`: the settings of `campaign run` (specs, targets, routes, modes, repeats, store, cache, concurrency, budget, simulated user, model families, retries), each a plain mapping onto its flag. A flag on the command line wins over the file. `campaign run` and `campaign plan` gain `--config <file>`; `ci` takes the run settings it shares. A config with no `campaign:` key behaves as before.
