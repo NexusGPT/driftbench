@@ -157,6 +157,7 @@ export class ClaudeCodeReader implements EstateReader {
       ...new Set([
         ...(await present(root, ['CLAUDE.md', 'CLAUDE.local.md', '.mcp.json'])),
         ...walked,
+        ...(await nestedStanding(root, ignored)),
         ...large,
         ...rootReferences,
       ]),
@@ -187,6 +188,7 @@ export class ClaudeCodeReader implements EstateReader {
     const paths = [
       ...(await present(root, ['CLAUDE.md', 'CLAUDE.local.md'])),
       ...(await walk(root, '.claude', notes, ignored)),
+      ...(await nestedStanding(root, ignored)),
     ];
     const files: EstateFile[] = [];
     for (const path of paths) {
@@ -541,8 +543,31 @@ async function walk(
   return found;
 }
 
+/** The deepest folder looked into for a standing file of a subfolder. */
+const NESTED_DEPTH = 8;
+
+/**
+ * Standing files of the project's subfolders (`src/ledger/CLAUDE.md`, `CLAUDE.local.md`), which the runtime
+ * loads when it works in that folder. Hidden folders, `.claude` (walked apart) and ignored paths are skipped.
+ */
+async function nestedStanding(root: string, ignored: Ignored, folder = '', depth = 0): Promise<string[]> {
+  if (depth > NESTED_DEPTH) return [];
+  const entries = await readdir(join(root, folder), { withFileTypes: true }).catch(() => []);
+  const found: string[] = [];
+  for (const entry of [...entries].sort((a, b) => (a.name < b.name ? -1 : a.name > b.name ? 1 : 0))) {
+    const path = folder === '' ? entry.name : posix.join(folder, entry.name);
+    if (entry.name.startsWith('.') || ignored.rules.some((rule) => rule.test(path))) continue;
+    if (entry.isDirectory()) found.push(...(await nestedStanding(root, ignored, path, depth + 1)));
+    else if (folder !== '' && entry.isFile() && NESTED_NAMES.has(entry.name)) found.push(path);
+  }
+  return found;
+}
+
+const NESTED_NAMES = new Set(['CLAUDE.md', 'CLAUDE.local.md']);
+
 function classify(path: string, text: string): { kind: FileKind; owner?: string } {
   if (STANDING.has(path)) return { kind: 'standing' };
+  if (!path.startsWith('.claude/') && NESTED_NAMES.has(basename(path))) return { kind: 'standing' };
   if (SETTINGS.has(path)) return { kind: 'settings' };
   const parts = path.split('/');
   if (parts[1] === 'memory' && path.endsWith('.md')) return { kind: 'memory' };
