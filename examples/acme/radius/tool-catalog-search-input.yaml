@@ -1,0 +1,8 @@
+# A change manifest for driftbench radius. Fictional data only.
+# The input of catalog.search changed, such as the email the agent passes.
+from: acme-v1
+to: acme-v2
+changes:
+  - kind: tool
+    id: catalog.search
+    part: input
