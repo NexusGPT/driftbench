@@ -89,4 +89,10 @@ The report's worked example: six trees of six blocks, 26 of 36 pass, SE_naive 0.
 
 ## Deviations
 
-None yet. Any deviation is appended here with its reason before the data it touches is read.
+Clarifications written before any simulation ran (no data seen):
+1. Hidden-fault cell: it uses rho_resc = 1 as well as rho_det = 1, eps = 0, h = 1, so that "100% by construction" is true. The same cell is also reported with rho_resc = 0.9.
+2. hier cells: G in {12, 50}, size scheme in {m=3, real}, theta in {0.6, 0.9}, d in {0.5, 2, 8}: 24 cells, 1,000 repeats each. The sentence above that says "12 G x size x theta x d cells" means this set.
+3. The interval target for unequal tree sizes is still theta, because E[theta_g] = theta whatever the size.
+4. Only the final fault count matters for flat_old; it is computed as the sum over nodes of (red) x (number of specs whose path contains the node).
+
+Any later deviation is appended here with its reason before the data it touches is read.
