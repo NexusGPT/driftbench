@@ -16,7 +16,7 @@ ROOT = WORKTREE / 'examples/judge-benchmarks/experiments/ledger-rb'
 STATE = BASE / 'supervisor-state.json'
 PAUSE = BASE / 'supervisor-owner-pause'
 MODELS = [('gpt-6.1-sol', 'sol', 50, 'rubric-ledger-added-network.ts'),
-          ('claude-sonnet-5-5', 'sonnet', 60, 'rubric-ledger-sonnet-network.ts')]
+          ('claude-sonnet-5-5', 'sonnet', 67, 'rubric-ledger-sonnet-network.ts')]
 TARGETS = {'pilot': 40, 'fixtures': 198, 'noise': 90, 'validity': 100, 'test': 1580}
 
 

@@ -1,4 +1,4 @@
-/** Sonnet continuation under the owner-approved USD 60 cap; starts only after Sol finishes. */
+/** Sonnet continuation under the lead-approved USD 67 cap (raised from the owner's USD 60); starts only after Sol finishes. */
 import { execFileSync } from 'node:child_process';
 import { mkdir, readFile, readdir, writeFile } from 'node:fs/promises';
 import { resolve } from 'node:path';
@@ -37,10 +37,10 @@ async function main() {
     winPolicy: 'RubricBench is preregistered TIE-only; report observed advantages without promoting them to registered WIN. Loss tests remain uncorrected at 0.05.',
     network: 'Ten healthy provider probes 30 seconds apart; three consecutive connection failures pause ten minutes and repeat gate. Missing-only no-answer retries without limit. One model cell at a time.',
     DISABLE_PROMPT_CACHING: '1' };
-  if (settings.capUsd !== 60 || amendment.ownerApproval !== 'Sonner on RubricBench, ok') throw new Error('Sonnet USD 60 owner approval missing');
+  if (settings.capUsd !== 67 || amendment.ownerApproval !== 'Sonner on RubricBench, ok') throw new Error('Sonnet USD 67 approval missing');
   if (model === 'claude-sonnet-5-5') {
     const projection = JSON.parse(await readFile(`${directory}/cache-off-projection.json`, 'utf8'));
-    if (projection.projectedUsd > 60) throw new Error('Sonnet projection exceeds the amended USD 60 cap');
+    if (projection.projectedUsd > 67) throw new Error('Sonnet projection exceeds the amended USD 67 cap');
   }
   let stopped = false, writes = Promise.resolve();
   process.once('SIGUSR2', () => { stopped = true; console.error('Owner pause: drain answers and start no new paid call'); });
