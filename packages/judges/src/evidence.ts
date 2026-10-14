@@ -444,11 +444,18 @@ function spelledInput(request: JudgeRequest, label: string): string | undefined 
 /** A tool event's supplied name is evidence of that event, never of another transcript entry. */
 function quotesToolName(tool: string, quote: string): boolean {
   const name = fold(tool);
-  const given = fold(quote)
-    .replace(/["']/g, '')
-    .replace(/\s*:\s*/g, ':')
-    .trim();
-  return name.length > 0 && (given === name || given === `tool:${name}`);
+  const given = fold(quote);
+  const unquote = (value: string): string =>
+    value.length >= 2 && (value[0] === '"' || value[0] === "'") && value.at(-1) === value[0]
+      ? value.slice(1, -1).trim()
+      : value;
+  // Only the field wrapper and a matching outer quote pair are presentation. Quotes and
+  // colons inside the supplied identifier remain data, including names such as order.o'reilly.
+  const frame = /^(?:tool|"tool"|'tool')\s*:\s*(.*)$/.exec(given);
+  return (
+    name.length > 0 &&
+    (given === name || unquote(given) === name || (frame !== null && unquote(frame[1] ?? '') === name))
+  );
 }
 
 /** A quote grounds only in its named source; toolNames also admits a tool event's exact name. */

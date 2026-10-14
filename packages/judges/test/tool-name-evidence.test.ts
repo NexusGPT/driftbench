@@ -158,3 +158,33 @@ describe('decoder 3 tool metadata boundary', () => {
     ).toBe(true);
   });
 });
+
+describe('tool identifier punctuation remains data', () => {
+  it.each([
+    'ord"er.create',
+    "tool: order.cr'eate",
+    '"tool": "ord"er.create"',
+    '"order.create',
+    "order.create'",
+  ])('does not delete identifier characters from %s', (quote) => {
+    expect(groundEvidenceSpan(request, { source: 'transcript.1', quote }, { toolNames: true }).grounded).toBe(
+      false,
+    );
+    expect(ledger([{ source: 'transcript.1', quote }], 3).unparsed).toBe(true);
+  });
+  it.each([
+    ["order.o'reilly", "order.o'reilly"],
+    ["order.o'reilly", '"order.o\'reilly"'],
+    ["order.o'reilly", '"tool": "order.o\'reilly"'],
+    ['ord"er.create', 'ord"er.create'],
+    ['ord"er.create', "'tool': 'ord\"er.create'"],
+    ['order: create', 'order: create'],
+    ['order: create', 'tool : "order: create"'],
+  ])('preserves supplied identifier %s in %s', (tool, quote) => {
+    const local: JudgeRequest = { ...request, transcript: [{ role: 'tool_call', tool, text: '{}' }] };
+    expect(groundEvidenceSpan(local, { source: 'transcript.0', quote }, { toolNames: true })).toEqual({
+      grounded: true,
+      where: 'transcript.0',
+    });
+  });
+});
