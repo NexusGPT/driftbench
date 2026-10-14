@@ -15,6 +15,10 @@ const SUBSTANCE =
 
 export const CONTESTANTS: Record<string, Contestant> = {
   'driftbench-v1': { requirements: writingRequirementsV1 },
+  'driftbench-long-structured': {
+    requirements: writingRequirementsV1,
+    options: { preference: 'long-structured' },
+  },
   'cand-commission-hard': {
     requirements: (q) => {
       const rows = writingRequirementsV1(q);
