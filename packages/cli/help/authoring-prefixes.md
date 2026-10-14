@@ -9,6 +9,8 @@ see_also:
   - authoring-blocks
   - authoring-spec-format
   - authoring-perturbations
+next:
+  - authoring-script-api
 ---
 
 ## What it is

@@ -12,6 +12,8 @@ see_also:
   - authoring-covering-arrays
   - authoring-inventory
   - authoring-deviation-classes
+next:
+  - authoring-space-coverage
 ---
 
 ## What it is

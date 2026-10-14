@@ -12,6 +12,8 @@ see_also:
   - authoring-prefixes
   - authoring-spec-check
   - authoring-intake
+next:
+  - authoring-intake
 ---
 
 ## What it is

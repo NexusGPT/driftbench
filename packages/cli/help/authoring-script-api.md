@@ -10,6 +10,8 @@ see_also:
   - authoring-deviation-classes
   - authoring-users
   - authoring-spec-check
+next:
+  - authoring-spec-check
 ---
 
 ## What it is

@@ -13,6 +13,8 @@ see_also:
   - authoring-personas
   - authoring-users
   - authoring-import
+next:
+  - authoring-map
 ---
 
 ## What it is

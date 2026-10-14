@@ -8,6 +8,8 @@ see_also:
   - authoring-users
   - authoring-spec-format
   - authoring-blocks
+next:
+  - authoring-users
 ---
 
 ## What it is

@@ -4,12 +4,15 @@ summary: '`generate` writes a suite of specs from an approved map, by the genera
 commands:
   - generate
 see_also:
+  - results-select
   - authoring-extract
   - authoring-covering-arrays
   - authoring-gate
   - authoring-task-families
   - authoring-map
   - authoring-space-coverage
+next:
+  - authoring-covering-arrays
 ---
 
 ## What it is

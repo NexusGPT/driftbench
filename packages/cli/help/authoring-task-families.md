@@ -11,6 +11,8 @@ see_also:
   - authoring-spec-format
   - authoring-deviation-classes
   - authoring-perturbations
+next:
+  - authoring-personas
 ---
 
 ## What it is

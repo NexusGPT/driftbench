@@ -5,6 +5,7 @@ commands:
   - radius
   - radius auto
 see_also:
+  - results-radius
   - authoring-spec-format
   - authoring-blocks
   - authoring-map
@@ -13,6 +14,8 @@ see_also:
   - authoring-perturbations
   - authoring-task-families
   - authoring-gate
+next:
+  - results-radius
 ---
 
 ## What it is

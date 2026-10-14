@@ -13,6 +13,8 @@ see_also:
   - authoring-spec-check
   - authoring-script-api
   - authoring-inventory
+next:
+  - authoring-blocks
 ---
 
 ## What it is

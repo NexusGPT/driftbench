@@ -5,9 +5,12 @@ commands:
   - generate
   - space coverage
 see_also:
+  - results-select
   - authoring-generate
   - authoring-map
   - authoring-space-coverage
+  - authoring-gate
+next:
   - authoring-gate
 ---
 

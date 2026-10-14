@@ -4,11 +4,16 @@ summary: '`gate` passes every candidate block through nine stages (observed stat
 commands:
   - gate
 see_also:
+  - results-holdout
+  - results-select
   - authoring-generate
   - authoring-covering-arrays
   - authoring-blocks
   - authoring-deviation-classes
   - authoring-task-families
+next:
+  - authoring-deviation-classes
+  - results-select
 ---
 
 ## What it is

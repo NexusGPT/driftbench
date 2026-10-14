@@ -10,6 +10,8 @@ see_also:
   - authoring-prefixes
   - authoring-perturbations
   - authoring-inventory
+next:
+  - authoring-inventory
 ---
 
 ## What it is

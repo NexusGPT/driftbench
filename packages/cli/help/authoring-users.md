@@ -11,6 +11,8 @@ see_also:
   - authoring-deviation-classes
   - authoring-blocks
   - authoring-spec-format
+next:
+  - authoring-blast-radius
 ---
 
 ## What it is

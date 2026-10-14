@@ -12,6 +12,8 @@ see_also:
   - authoring-space-coverage
   - authoring-deviation-classes
   - authoring-task-families
+next:
+  - authoring-generate
 ---
 
 ## What it is

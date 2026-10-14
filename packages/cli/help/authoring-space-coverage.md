@@ -10,6 +10,8 @@ see_also:
   - authoring-generate
   - authoring-inventory
   - authoring-extract
+next:
+  - authoring-extract
 ---
 
 ## What it is
