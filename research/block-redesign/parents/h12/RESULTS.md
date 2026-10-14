@@ -51,9 +51,9 @@ Setup: Bowyer's clustered model, 160 cells, 5,000 repeats, 95% nominal. The clus
 - Naive intervals fail where trees are correlated. Their mean gap from 95% is 21.5 points. The best clustered method, Wilson on n_eff, has a gap of 4.1 points.
 - Coverage depends on the number of trees G. Wilson on n_eff covers 88.1% at G = 6, 91.6% at G = 25, 93.1% at G = 50 and 94.0% at G = 143. Acme has 143 trees today, but a single suite run on one flow has far fewer.
 - At the headline cell (G = 25, real sizes, theta = 0.9, d = 2) the coverage is 60.4% (naive Wilson), 80.1% (CR1 Wald), 84.7% (bootstrap) and 85.6% (Wilson on n_eff). No tested clustered CLT or bootstrap interval reaches 93%.
-- The hierarchical model (Bowyer et al.) was run on 24 cells with 1,000 repeats. Mean coverage 95.7%, mean gap 1.4 points, widths 0.28 to 0.43. On the same cells Wilson on n_eff has a gap of 5.3 points, the bootstrap 6.9 and naive Wilson 21.5. It is slightly conservative (up to 98.6% coverage at d = 8).
+- The hierarchical model (Bowyer et al.) was run on 24 cells with 1,000 repeats. Mean coverage 95.7%, mean gap 1.4 points, widths 0.12 to 0.43, coverage 91.0% to 98.9% by cell. On the same cells Wilson on n_eff has a gap of 5.3 points, the bootstrap 6.9 and naive Wilson 21.5. It is conservative in several cells, and falls to 91.0% in its worst.
 - Control cells (no clustering): Wilson on n_eff costs nothing (95.7% against 95.4%). The CR1 Wald and the bootstrap lose 7 points there because of small G and values near 0 or 1; this is a known weakness of percentile and Wald intervals, flagged as a cost.
-- Monte Carlo error is at most 0.7 points per cell at 5,000 repeats, and 1.6 points at 1,000 repeats.
+- Monte Carlo error is at most 0.7 points per cell at 5,000 repeats, and 3 points at 1,000 repeats.
 
 ## Sanity check of the report's worked example
 
