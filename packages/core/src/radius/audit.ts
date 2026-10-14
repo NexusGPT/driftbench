@@ -24,7 +24,11 @@ function mulberry32(seed: number): () => number {
  * Draws `n` of the cells about to be carried, without replacement. The draw depends on the seed and on
  * the cells, taken in the order of their cell ids, never on the order the plan lists them in.
  */
-export function auditSample<T extends Pick<CarriedCell, 'cell'>>(carried: readonly T[], n: number, seed: number): T[] {
+export function auditSample<T extends Pick<CarriedCell, 'cell'>>(
+  carried: readonly T[],
+  n: number,
+  seed: number,
+): T[] {
   if (!Number.isInteger(n) || n < 0)
     throw new RangeError(`auditSample: n must be a whole number of at least 0, got ${n}`);
   const pool = [...carried].sort((a, b) => a.cell.cellId.localeCompare(b.cell.cellId));

@@ -47,7 +47,10 @@ export function planCellBlockReruns(input: {
   for (const run of input.baselineRuns) {
     const key = sameCell(run);
     const held = sources.get(key);
-    if (!held || (run.status === 'completed' && (held.status !== 'completed' || run.finishedAt >= held.finishedAt)))
+    if (
+      !held ||
+      (run.status === 'completed' && (held.status !== 'completed' || run.finishedAt >= held.finishedAt))
+    )
       sources.set(key, run);
   }
   const partial = new Map<string, BlockRerunPlan>();

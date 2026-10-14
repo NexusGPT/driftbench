@@ -9,10 +9,10 @@ import { classifyTool, defaultChecks } from '@agent-nexus/driftbench-checks';
 import {
   type AgentAdapter,
   type ArtifactReaderRegistry,
-  type BlockReuse,
   auditBound,
   auditSample,
   auditVerdict,
+  type BlockReuse,
   type Campaign,
   type CampaignPlan,
   type CellOutcome,

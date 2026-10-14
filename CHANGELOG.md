@@ -4,6 +4,7 @@ All notable changes to driftbench are listed here. The format follows [Keep a Ch
 
 ## [Unreleased]
 
+- Add opt-in mode T block reruns: `campaign run --change <manifest> --from <campaign> --block-reruns` sends only the blocks a change can affect and keeps the other stored blocks of the cell, behind the same proofs as a whole-cell carry. `--record-end-state-snapshots` stores the raw per block end-state values that let a spec with `end_state` rerun in part; without them such cells rerun whole. `--audit` also draws partly rerun cells. Snapshots may hold sensitive data and are off by default.
 - Add opt-in `campaign rejudge` with observation compatibility proofs, selected criterion verdicts, judge cost accounting and scorecard provenance.
 - Record optional hashed execution provenance for new campaigns, including process command identity, retaining legacy store compatibility and refusing missing or incomplete stamps at the shared blast-radius carry boundary. Carries also require equal current execution context apart from the manifest-verified agent transition, an intact digest over all run and block evidence, and independently reconstructed block inputs.
 * Block cache keys include an explicit agent version, including for pinned targets; campaign resume retains it. Runs without an agent version preserve their earlier keys. The process adapter keeps version `0.1.0`; a separate cache identity includes its command and arguments.

@@ -20,8 +20,8 @@ import type { BlockSpec, EndState, Expect, GivenOverride, Spec, Stimulus } from 
 import { cloneJson, contentHash } from '../spec/hash';
 import { compareEndState, type EndStateMatch } from './assertion';
 import { blockCacheKey, endStateCacheKey, type ObservedCache, unwrapEndState, wrapEndState } from './cache';
-import { cellId } from './cell';
 import { recheckCarriedEndState } from './carried-end-state';
+import { cellId } from './cell';
 import { driftOf } from './drift';
 import { composeStates, type EndStateSnapshot, endStateSnapshot, snapshotValues } from './end-state-snapshot';
 import {
@@ -357,8 +357,15 @@ async function execute(run: RunContext, channel: Channel): Promise<RunResult | u
               endRead = { states: composed, afterBlock: position };
             }
           }
-          blocks.push(await recheckCarriedEndState(kept, spec, run.target, run.checks,
-            composed ? endStateValue(run.endState, sources, composed) : undefined));
+          blocks.push(
+            await recheckCarriedEndState(
+              kept,
+              spec,
+              run.target,
+              run.checks,
+              composed ? endStateValue(run.endState, sources, composed) : undefined,
+            ),
+          );
         }
         continue;
       }
@@ -573,7 +580,10 @@ async function execute(run: RunContext, channel: Channel): Promise<RunResult | u
   const message = [error, note].filter((part) => part !== undefined).join('; ');
   return {
     ...(run.provenance
-      ? { provenance: run.provenance, provenanceDigest: provenanceDigest({ provenance: run.provenance, blocks }) }
+      ? {
+          provenance: run.provenance,
+          provenanceDigest: provenanceDigest({ provenance: run.provenance, blocks }),
+        }
       : {}),
     ...(run.selectedBlocks || run.blockRerunReason
       ? {
@@ -582,7 +592,8 @@ async function execute(run: RunContext, channel: Channel): Promise<RunResult | u
             downstreamNotRerun: [...(run.carriedBlocks?.keys() ?? [])].filter(
               (i) => i > Math.min(...(run.selectedBlocks ?? [])),
             ),
-            reason: run.blockRerunReason ??
+            reason:
+              run.blockRerunReason ??
               'Mode T blocks start from their canonical Given; downstream replies are not used as inputs. F and P require full conversation reruns.',
           },
         }

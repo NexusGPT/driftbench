@@ -44,7 +44,16 @@ it('carries independent downstream T blocks but reruns a planted regression in t
     blocks: new Set([1]),
     blockReuse: {
       source,
-      baselineProvenance: { version: 2, adapters: [{ ...adapterProvenance(echoAdapter()), targetHash: provenanceHash(options.target), agentVersionHash: provenanceHash('v1') }] },
+      baselineProvenance: {
+        version: 2,
+        adapters: [
+          {
+            ...adapterProvenance(echoAdapter()),
+            targetHash: provenanceHash(options.target),
+            agentVersionHash: provenanceHash('v1'),
+          },
+        ],
+      },
       fromCampaign: 'base',
       manifest: { from: 'v1', to: 'v2', changes: [{ kind: 'stage', id: 'two' }] },
     },
@@ -58,26 +67,58 @@ it('carries independent downstream T blocks but reruns a planted regression in t
 });
 
 const campaignStamp = (adapter: ReturnType<typeof echoAdapter>) => ({
-  version: 2 as const, adapters: [{ ...adapterProvenance(adapter), targetHash: provenanceHash(options.target), agentVersionHash: provenanceHash('v1') }],
+  version: 2 as const,
+  adapters: [
+    {
+      ...adapterProvenance(adapter),
+      targetHash: provenanceHash(options.target),
+      agentVersionHash: provenanceHash('v1'),
+    },
+  ],
 });
 const manifest = { from: 'v1', to: 'v2', changes: [{ kind: 'stage' as const, id: 'two' }] };
 function stateAdapter(bad = false) {
   const adapter = echoAdapter();
-  return { ...adapter, capabilities: () => ({ ...adapter.capabilities(), endState: true }),
-    endState: async (session: { given: { prefix: unknown[] } }) => session.given.prefix.length === 2 ? { value: bad ? 'regression' : 'ok' } : null };
+  return {
+    ...adapter,
+    capabilities: () => ({ ...adapter.capabilities(), endState: true }),
+    endState: async (session: { given: { prefix: unknown[] } }) =>
+      session.given.prefix.length === 2 ? { value: bad ? 'regression' : 'ok' } : null,
+  };
 }
 it('defaults to full cell without snapshots and recomposes the final carried block verdict with snapshots', async () => {
   const withEnd = specOf({ ...spec, end_state: { source: 'tool:acme', expect: { value: 'ok' } } });
   const adapter = stateAdapter();
-  const full = await runSpec(withEnd, { ...options, adapter, mode: 'T', checks: defaultChecks(), recordEndStateSnapshots: true });
+  const full = await runSpec(withEnd, {
+    ...options,
+    adapter,
+    mode: 'T',
+    checks: defaultChecks(),
+    recordEndStateSnapshots: true,
+  });
   const plain = await runSpec(withEnd, { ...options, adapter, mode: 'T', checks: defaultChecks() });
-  expect(plain.blocks.every(b => b.provenance?.endState === undefined)).toBe(true);
+  expect(plain.blocks.every((b) => b.provenance?.endState === undefined)).toBe(true);
   for (const bad of [false, true]) {
     const current = stateAdapter(bad);
-    const currentOptions = { ...options, adapter: current, target: { ...options.target, variant: 'v2' }, mode: 'T' as const, checks: defaultChecks(), recordEndStateSnapshots: true };
+    const currentOptions = {
+      ...options,
+      adapter: current,
+      target: { ...options.target, variant: 'v2' },
+      mode: 'T' as const,
+      checks: defaultChecks(),
+      recordEndStateSnapshots: true,
+    };
     const expected = await runSpec(withEnd, currentOptions);
     current.opened.length = 0;
-    const mixed = await runSpec(withEnd, { ...currentOptions, blockReuse: { source: full, fromCampaign: 'base', baselineProvenance: campaignStamp(adapter), manifest } });
+    const mixed = await runSpec(withEnd, {
+      ...currentOptions,
+      blockReuse: {
+        source: full,
+        fromCampaign: 'base',
+        baselineProvenance: campaignStamp(adapter),
+        manifest,
+      },
+    });
     expect(current.opened).toHaveLength(1);
     expect(JSON.stringify(mixed.endState)).toBe(JSON.stringify(expected.endState));
     expect(JSON.stringify(mixed.blocks[2]?.verdicts)).toBe(JSON.stringify(expected.blocks[2]?.verdicts));
@@ -85,7 +126,14 @@ it('defaults to full cell without snapshots and recomposes the final carried blo
     expect(mixed.blocks[2]?.carried).toBeDefined();
   }
   const fallbackAdapter = stateAdapter(true);
-  const fallback = await runSpec(withEnd, { ...options, adapter: fallbackAdapter, mode: 'T', target: { ...options.target, variant: 'v2' }, checks: defaultChecks(), blockReuse: { source: plain, fromCampaign: 'base', baselineProvenance: campaignStamp(adapter), manifest } });
+  const fallback = await runSpec(withEnd, {
+    ...options,
+    adapter: fallbackAdapter,
+    mode: 'T',
+    target: { ...options.target, variant: 'v2' },
+    checks: defaultChecks(),
+    blockReuse: { source: plain, fromCampaign: 'base', baselineProvenance: campaignStamp(adapter), manifest },
+  });
   expect(fallbackAdapter.opened).toHaveLength(3);
   expect(fallback.blockRerun?.reason).toBe('end state cannot be recomposed: full cell rerun');
   expect(fallback.endState?.match).toBe(false);
