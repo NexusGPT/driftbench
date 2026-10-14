@@ -42,6 +42,7 @@ Run the agent
   driftbench perturb     run one spec with one deviation injected, and print the recovery
   driftbench simulate    run one spec with a simulated user playing a persona
   driftbench attack      attack one spec adaptively, deviation by deviation
+  driftbench redteam     multi-turn attackers (Crescendo, GOAT); red-team plugins: generate, grade
   driftbench pilot       measure where results vary, and set the noise floor
 
 Judge
