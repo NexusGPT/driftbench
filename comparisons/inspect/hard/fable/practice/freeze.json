@@ -15,22 +15,10 @@
     "borderline": 4
   },
   "seedRanges": {
-    "qa": [
-      800001,
-      800006
-    ],
-    "fact": [
-      800001,
-      800006
-    ],
-    "panel": [
-      810001,
-      810009
-    ],
-    "borderline": [
-      820001,
-      820060
-    ]
+    "qa": [800001, 800006],
+    "fact": [800001, 800006],
+    "panel": [810001, 810009],
+    "borderline": [820001, 820060]
   },
   "selection": "Seeds walked upward from 800001 (QA, fact), 810001 (panel), 820001 (borderline). Items taken in generator order when the request of every procedure (default, split, split-conv, rendered, audit, theirs) is new and unique and the submission is in no earlier set, until each family and label cell holds its count (qa 5, fact 5, panel 5, borderline 4). No model outcome is read.",
   "procedures": {
@@ -64,7 +52,7 @@
     "comparisons/inspect/hard/fable/record.ts": "8a68584e47fcdc534913f3dccef875371d352a5a236d97de4f0bca2d6499a924",
     "comparisons/inspect/hard/fable/request.ts": "6d5a8c1eb30892a6c382b577c1e9e4297f6d4b5e8a7ff5cbbddee1efafc76bc7",
     "comparisons/inspect/hard/fable/run.mts": "c25d0eb1bba16af7217a71c6989ec05bf79017f3aef297bf3070a0c9c0b0747e",
-    "comparisons/inspect/hard/fable/report.mts": "0b50f548295380fcad407b17297e1042da85a20e249205b0c5afc1143794fea2",
+    "comparisons/inspect/hard/fable/report.mts": "1a300e8eeb207a0534646040a47c8ae2101cf4ad2435cfbcead23e8be2474dcf",
     "comparisons/inspect/hard/fable/freeze.mts": "42bf1ea311d35f1e606db8dbde558ebabcac94b23877acfedd136829d921fcbf"
   },
   "amendments": [
@@ -116,6 +104,13 @@
       "from": "2a2c74e5ade51de2fc5c4bcfddef4129109fb01d240590d351e1959bda2886d7",
       "to": "0b50f548295380fcad407b17297e1042da85a20e249205b0c5afc1143794fea2",
       "reason": "report.mts lists the split-r2 procedure and names both transports in its header, after every run on this set was complete. The report reads result files; it decides no verdict."
+    },
+    {
+      "at": "2026-10-14T11:59:54.407Z",
+      "file": "comparisons/inspect/hard/fable/report.mts",
+      "from": "0b50f548295380fcad407b17297e1042da85a20e249205b0c5afc1143794fea2",
+      "to": "1a300e8eeb207a0534646040a47c8ae2101cf4ad2435cfbcead23e8be2474dcf",
+      "reason": "Post-hoc reporting correction after all runs: pool by exact submission clusters because QA/fact reuse split answers; retain nominal and per-row tests, disclose panel question overlap, and point to SHA-256-checked recording export and complete transport provenance. No frozen input, registration, request or recorded answer changes."
     }
   ]
 }

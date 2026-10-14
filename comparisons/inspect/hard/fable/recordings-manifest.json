@@ -1,0 +1,181 @@
+{
+  "sourceCommit": "910da11f90c0bab7d525033d0010f890cc38f701",
+  "files": [
+    {
+      "path": "calls/part-0000.jsonl",
+      "kind": "calls",
+      "sourceSha256": "17e76f966af0fbbf418ae85b59dc7009e3165e6b8e9546805e2d7bb5d5b2bab4",
+      "sourceBytes": 9434538,
+      "outputSha256": "4b95b1ccac227a4559e31e11b5e7291ddfb46cce54bd5b782aa4e457ea6241f2",
+      "outputBytes": 9455022
+    },
+    {
+      "path": "calls/part-0001.jsonl",
+      "kind": "calls",
+      "sourceSha256": "ddecabd4ac8f6573f026d9c6bd6b75d78dbd9fb8569cfac853cd5069f3e04520",
+      "sourceBytes": 9432983,
+      "outputSha256": "ddecabd4ac8f6573f026d9c6bd6b75d78dbd9fb8569cfac853cd5069f3e04520",
+      "outputBytes": 9432983
+    },
+    {
+      "path": "calls/part-0002.jsonl",
+      "kind": "calls",
+      "sourceSha256": "1f6ac1a1e2bae1c75b20ce68f5983c3c195000e6d44c60a22efbfb2f6f5c887a",
+      "sourceBytes": 9437027,
+      "outputSha256": "1f6ac1a1e2bae1c75b20ce68f5983c3c195000e6d44c60a22efbfb2f6f5c887a",
+      "outputBytes": 9437027
+    },
+    {
+      "path": "calls/part-0003.jsonl",
+      "kind": "calls",
+      "sourceSha256": "bc4216b01a6abef5508e68322644b26c14df9944a1da5a25b7ecf2e12b10e254",
+      "sourceBytes": 9428433,
+      "outputSha256": "bc4216b01a6abef5508e68322644b26c14df9944a1da5a25b7ecf2e12b10e254",
+      "outputBytes": 9428433
+    },
+    {
+      "path": "calls/part-0004.jsonl",
+      "kind": "calls",
+      "sourceSha256": "3928a233c7893dbd07dfb84699e9afb4b7703b9f9e6a9169d78650f211719126",
+      "sourceBytes": 9435927,
+      "outputSha256": "3928a233c7893dbd07dfb84699e9afb4b7703b9f9e6a9169d78650f211719126",
+      "outputBytes": 9435927
+    },
+    {
+      "path": "calls/part-0005.jsonl",
+      "kind": "calls",
+      "sourceSha256": "82cc1d505ef22423fb301e8bff922021ecaad9dd2eb057abca8805ff933ebe5e",
+      "sourceBytes": 9436420,
+      "outputSha256": "82cc1d505ef22423fb301e8bff922021ecaad9dd2eb057abca8805ff933ebe5e",
+      "outputBytes": 9436420
+    },
+    {
+      "path": "calls/part-0006.jsonl",
+      "kind": "calls",
+      "sourceSha256": "8994c97e45a567a757d922f834f80df8e4fdf3838c4d51dce94e3af94d76275b",
+      "sourceBytes": 2533454,
+      "outputSha256": "8994c97e45a567a757d922f834f80df8e4fdf3838c4d51dce94e3af94d76275b",
+      "outputBytes": 2533454
+    },
+    {
+      "path": "practice/fact-split.json",
+      "kind": "summary",
+      "sourceSha256": "f5d567008a842a1144518e35199d54b225852a9225f229124482f8ed289a9293",
+      "sourceBytes": 115323,
+      "outputSha256": "f5d567008a842a1144518e35199d54b225852a9225f229124482f8ed289a9293",
+      "outputBytes": 115323
+    },
+    {
+      "path": "practice/panel-split.json",
+      "kind": "summary",
+      "sourceSha256": "2ea83d389af8d13628136b53fb3db96feba9d86d98d6b60ab91ec8870228b629",
+      "sourceBytes": 276979,
+      "outputSha256": "2ea83d389af8d13628136b53fb3db96feba9d86d98d6b60ab91ec8870228b629",
+      "outputBytes": 276979
+    },
+    {
+      "path": "practice/panel-theirs.json",
+      "kind": "summary",
+      "sourceSha256": "1e7c2ad0304c2ec4fc5dcfa5f598dc742f6fef86874982361d2779b4832a082e",
+      "sourceBytes": 290016,
+      "outputSha256": "1e7c2ad0304c2ec4fc5dcfa5f598dc742f6fef86874982361d2779b4832a082e",
+      "outputBytes": 290016
+    },
+    {
+      "path": "practice/qa-split.json",
+      "kind": "summary",
+      "sourceSha256": "e2b3a65e4b9658657bb57e5c3851f0c2cd68d29c2077d04ee675d929e557d173",
+      "sourceBytes": 115079,
+      "outputSha256": "e2b3a65e4b9658657bb57e5c3851f0c2cd68d29c2077d04ee675d929e557d173",
+      "outputBytes": 115079
+    },
+    {
+      "path": "practice-panel/panel-split-r2.json",
+      "kind": "summary",
+      "sourceSha256": "fa58e8b3aae742bf7b6f2845a8040a862c05c60f37a9fbe677dae81585825a37",
+      "sourceBytes": 561081,
+      "outputSha256": "fa58e8b3aae742bf7b6f2845a8040a862c05c60f37a9fbe677dae81585825a37",
+      "outputBytes": 561081
+    },
+    {
+      "path": "practice-panel/panel-split.json",
+      "kind": "summary",
+      "sourceSha256": "41395ede721b81e10eac15402f2f967555fc6c66715e06268fd50cd03a2df737",
+      "sourceBytes": 558810,
+      "outputSha256": "41395ede721b81e10eac15402f2f967555fc6c66715e06268fd50cd03a2df737",
+      "outputBytes": 558810
+    },
+    {
+      "path": "practice-panel/panel-theirs.json",
+      "kind": "summary",
+      "sourceSha256": "eee68c69661b3f71c08f64bc9d39ff6eba8a10dcf034e8fd5faa6ea0cd68993d",
+      "sourceBytes": 587045,
+      "outputSha256": "eee68c69661b3f71c08f64bc9d39ff6eba8a10dcf034e8fd5faa6ea0cd68993d",
+      "outputBytes": 587045
+    },
+    {
+      "path": "heldout-480/fact-split.json",
+      "kind": "summary",
+      "sourceSha256": "ea2dfae46e7d6295f680677b056e7538a2c3592b27604f33c34728d121099db1",
+      "sourceBytes": 474108,
+      "outputSha256": "ea2dfae46e7d6295f680677b056e7538a2c3592b27604f33c34728d121099db1",
+      "outputBytes": 474108
+    },
+    {
+      "path": "heldout-480/fact-theirs.json",
+      "kind": "summary",
+      "sourceSha256": "61a742ee13e4465c19fa7986a3219d8a5070521a8a2cb93951709d2b653b70ea",
+      "sourceBytes": 477743,
+      "outputSha256": "61a742ee13e4465c19fa7986a3219d8a5070521a8a2cb93951709d2b653b70ea",
+      "outputBytes": 477743
+    },
+    {
+      "path": "heldout-480/panel-split.json",
+      "kind": "summary",
+      "sourceSha256": "9a5da7b28eacc14859734465a16c08bd984369cd6f22a270e1ffeafafb297f20",
+      "sourceBytes": 1107066,
+      "outputSha256": "9a5da7b28eacc14859734465a16c08bd984369cd6f22a270e1ffeafafb297f20",
+      "outputBytes": 1107066
+    },
+    {
+      "path": "heldout-480/panel-theirs.json",
+      "kind": "summary",
+      "sourceSha256": "858148f2878435d031fda9c50fedfd11b02823e0df272df495f32782afea52ac",
+      "sourceBytes": 1174380,
+      "outputSha256": "858148f2878435d031fda9c50fedfd11b02823e0df272df495f32782afea52ac",
+      "outputBytes": 1174380
+    },
+    {
+      "path": "heldout-480/qa-split.json",
+      "kind": "summary",
+      "sourceSha256": "8e5dd9009adc57db3b434fabfba3c18e0f99f134d3e02de5d181da8060b6f897",
+      "sourceBytes": 473144,
+      "outputSha256": "8e5dd9009adc57db3b434fabfba3c18e0f99f134d3e02de5d181da8060b6f897",
+      "outputBytes": 473144
+    },
+    {
+      "path": "heldout-480/qa-theirs.json",
+      "kind": "summary",
+      "sourceSha256": "ade0776299dc64350237d85335ce33f0e7c98fc60ef6a433373d16e355a12f70",
+      "sourceBytes": 476440,
+      "outputSha256": "ade0776299dc64350237d85335ce33f0e7c98fc60ef6a433373d16e355a12f70",
+      "outputBytes": 476440
+    },
+    {
+      "path": "heldout-panel/panel-split-r2.json",
+      "kind": "summary",
+      "sourceSha256": "d6ca23bb9ddc85dd48d3685287ed95790c2aa2cada5ac798d81aee470b257c7c",
+      "sourceBytes": 1120265,
+      "outputSha256": "d6ca23bb9ddc85dd48d3685287ed95790c2aa2cada5ac798d81aee470b257c7c",
+      "outputBytes": 1120265
+    },
+    {
+      "path": "heldout-panel/panel-theirs.json",
+      "kind": "summary",
+      "sourceSha256": "0c11b1227953fc709ace31471f76864bd8e3b177763c6869196dd35e0787ef02",
+      "sourceBytes": 1174170,
+      "outputSha256": "0c11b1227953fc709ace31471f76864bd8e3b177763c6869196dd35e0787ef02",
+      "outputBytes": 1174170
+    }
+  ]
+}

@@ -382,27 +382,12 @@ export function quoteContinuations(passage: string, quote: string): string[] {
 
 export type EvidenceSpan = { readonly source: string; readonly quote: string };
 
-/**
- * A tool entry's name is supplied data of that entry, carried in its frame (`tool`), not in its text. A
- * quote that is exactly that name, or the frame spelling `"tool": "<name>"`, grounds in the entry. Any
- * other text still has to come from the entry's text.
- */
-function quotesToolName(tool: string, quote: string): boolean {
-  const name = fold(tool);
-  const given = fold(quote)
-    .replace(/["']/g, '')
-    .replace(/\s*:\s*/g, ':')
-    .trim();
-  return given === name || given === `tool:${name}`;
-}
-
 /** A quote grounds only in the named source; frame metadata never counts as body evidence. */
 export function groundEvidenceSpan(request: JudgeRequest, span: EvidenceSpan): Grounding {
   const entryId = /^transcript\.(0|[1-9]\d*)$/.exec(span.source);
   if (entryId) {
     const entry = request.transcript[Number(entryId[1])];
     if (!entry) return { grounded: false };
-    if (entry.tool && quotesToolName(entry.tool, span.quote)) return { grounded: true, where: span.source };
     const grounded = groundEvidence(
       { criterion: request.criterion, transcript: [entry] },
       { outcome: 'inconclusive', reasoning: '', evidence: span.quote },
