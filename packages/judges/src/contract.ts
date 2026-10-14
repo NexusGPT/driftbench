@@ -136,6 +136,8 @@ export type JudgeResult = {
     readonly version: string;
     readonly route: string;
     readonly receipts: readonly import('./clients/transport').DialectCompletion[];
+    /** Terminal no-answer cause. Denied reservations start no provider request and must not be re-asked. */
+    readonly failure?: { readonly kind: 'budget' | 'provider' | 'config'; readonly message: string };
   };
   readonly thinkingRecovery?: ClaudeThinkingRecovery;
   readonly retryReceipts?: readonly import('./clients/claude-errors').ClaudeRetryReceipt[];

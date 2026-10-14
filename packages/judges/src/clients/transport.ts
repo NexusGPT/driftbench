@@ -26,6 +26,8 @@ export const FROZEN_BENCHMARK_REASONING = Object.freeze({
 
 export type DialectCompletionRequest = {
   readonly quotedMaterial?: boolean;
+  /** Per-call native CLI spend ceiling, including retries. Omitted uses the transport default. */
+  readonly maxBudgetUsd?: number;
   /** Per-request HTTP output limit. Omitted uses the transport default; native CLI owns its token ceiling. */
   readonly maxTokens?: number;
   readonly system: string;
@@ -87,6 +89,11 @@ export function buildDialectRequest(
 } {
   if (request.maxTokens !== undefined && (!Number.isSafeInteger(request.maxTokens) || request.maxTokens <= 0))
     throw new RangeError('maxTokens must be a positive safe integer');
+  if (
+    request.maxBudgetUsd !== undefined &&
+    (!Number.isFinite(request.maxBudgetUsd) || request.maxBudgetUsd <= 0)
+  )
+    throw new RangeError('maxBudgetUsd must be positive and finite');
   request = quoteAssessmentMaterial(request, request.quotedMaterial);
   const dialect = JUDGE_DIALECTS[provider].id;
   if (request.reasoning !== undefined && provider !== 'openai' && provider !== 'google')
@@ -147,6 +154,7 @@ export function buildDialectRequest(
       dialect,
       payload,
       ...(request.maxTokens === undefined ? {} : { maxTokens: request.maxTokens }),
+      ...(request.maxBudgetUsd === undefined ? {} : { maxBudgetUsd: request.maxBudgetUsd }),
     }),
   };
 }
@@ -208,6 +216,8 @@ export function createDialectTransport(options: DialectTransportOptions): Dialec
     ...(options.quotedMaterial ? { quotedMaterial: true } : {}),
     base,
     ...(options.reasoning === undefined ? {} : { reasoning: options.reasoning }),
+    ...(options.maxBudgetUsd === undefined ? {} : { maxBudgetUsd: options.maxBudgetUsd }),
+    ...(options.retryMaxCostUsd === undefined ? {} : { retryMaxCostUsd: options.retryMaxCostUsd }),
     ...(provider !== 'claude-cli'
       ? {}
       : { command: options.command ?? 'claude', args: options.commandArgs ?? [], settings: CLAUDE_SETTINGS }),
@@ -219,8 +229,10 @@ export function createDialectTransport(options: DialectTransportOptions): Dialec
     fingerprint,
     async complete(original) {
       const reasoning = original.reasoning ?? options.reasoning;
+      const maxBudgetUsd = original.maxBudgetUsd ?? options.maxBudgetUsd;
       const request = {
         ...original,
+        ...(maxBudgetUsd === undefined ? {} : { maxBudgetUsd }),
         quotedMaterial: original.quotedMaterial ?? options.quotedMaterial,
         ...(reasoning === undefined ? {} : { reasoning }),
       };
@@ -244,11 +256,12 @@ export function createDialectTransport(options: DialectTransportOptions): Dialec
             '--system-prompt',
             built.payload.system as string,
             ...CLAUDE_JUDGE_FLAGS,
-            ...(options.maxBudgetUsd === undefined ? [] : ['--max-budget-usd', String(options.maxBudgetUsd)]),
+            ...(maxBudgetUsd === undefined ? [] : ['--max-budget-usd', String(maxBudgetUsd)]),
           ],
           built.payload.user as string,
           {
             ...options,
+            ...(maxBudgetUsd === undefined ? {} : { maxBudgetUsd }),
             cwd: folder,
             env,
             timeoutMs: options.timeoutMs ?? 120_000,

@@ -63,7 +63,7 @@ export function createDefaultJudge(options: DefaultJudgeOptions): DefaultJudgeCl
     options.spendCapUsd !== undefined &&
     (!(options.spendCapUsd > 0) ||
       !Number.isFinite(options.spendCapUsd) ||
-      !(options.maxBudgetUsd && options.maxBudgetUsd > 0))
+      !(options.maxBudgetUsd && options.maxBudgetUsd > 0 && Number.isFinite(options.maxBudgetUsd)))
   )
     throw new RangeError('spendCapUsd requires a finite positive cap and maxBudgetUsd per-call reservation');
   const account = options.spendLedger ?? { spentUsd: 0, reservedUsd: 0, costIncomplete: false };
@@ -90,6 +90,7 @@ export function createDefaultJudge(options: DefaultJudgeOptions): DefaultJudgeCl
   async function evaluate(original: DefaultJudgeRequest, completePair: boolean): Promise<JudgeResult> {
     const request = normalizeJudgeRequest(original);
     const receipts: Awaited<ReturnType<DialectTransport['complete']>>[] = [];
+    let terminalFailure: NonNullable<JudgeResult['defaultJudge']>['failure'];
     const failures: {
       count: number;
       cost?: number;
@@ -98,18 +99,29 @@ export function createDefaultJudge(options: DefaultJudgeOptions): DefaultJudgeCl
     const metered: DialectTransport = {
       ...transport,
       async complete(input) {
-        const reservation = options.maxBudgetUsd ?? 0;
+        const reservation =
+          options.spendCapUsd === undefined
+            ? (options.maxBudgetUsd ?? 0)
+            : Math.min(
+                options.maxBudgetUsd as number,
+                options.spendCapUsd - account.spentUsd - account.reservedUsd,
+              );
         if (
           options.spendCapUsd !== undefined &&
-          (account.costIncomplete ||
-            account.spentUsd + account.reservedUsd + reservation > options.spendCapUsd)
-        )
-          throw new JudgeError('config', 'default judge spend cap reached or prior cost is unknown');
+          (account.costIncomplete || !Number.isFinite(reservation) || reservation <= 0)
+        ) {
+          terminalFailure = {
+            kind: 'budget',
+            message: 'default judge spend cap reached, funds reserved, or prior cost is unknown',
+          };
+          throw new JudgeError('config', terminalFailure.message);
+        }
         account.reservedUsd += reservation;
         try {
           const reasoning = input.reasoning ?? request.reasoning ?? transport.reasoning;
           const result = await transport.complete({
             ...input,
+            ...(reservation > 0 ? { maxBudgetUsd: reservation } : {}),
             ...(reasoning === undefined ? {} : { reasoning }),
             maxTokens:
               input.maxTokens ??
@@ -128,6 +140,10 @@ export function createDefaultJudge(options: DefaultJudgeOptions): DefaultJudgeCl
           else account.spentUsd += result.costUsd;
           return result;
         } catch (cause) {
+          terminalFailure = {
+            kind: cause instanceof JudgeError && cause.code === 'config' ? 'config' : 'provider',
+            message: cause instanceof Error ? cause.message : String(cause),
+          };
           const error = cause as { costUsd?: number; costIncomplete?: boolean; requestCount?: number };
           const known =
             typeof error?.costUsd === 'number' &&
@@ -402,6 +418,10 @@ export function createDefaultJudge(options: DefaultJudgeOptions): DefaultJudgeCl
         result = await client.judge(request);
       }
     } catch (cause) {
+      terminalFailure ??= {
+        kind: 'config',
+        message: cause instanceof Error ? cause.message : String(cause),
+      };
       result = {
         raw: '',
         unparsed: true,
@@ -427,7 +447,14 @@ export function createDefaultJudge(options: DefaultJudgeOptions): DefaultJudgeCl
       ...(failures.length ? { raw: JSON.stringify({ result, failures }) } : {}),
       ...(retryReceipts.length ? { retryReceipts } : {}),
       ...(failedRecovery ? { thinkingRecovery: failedRecovery } : {}),
-      defaultJudge: { version: DEFAULT_JUDGE_POLICY.version, route, receipts },
+      defaultJudge: {
+        version: DEFAULT_JUDGE_POLICY.version,
+        route,
+        receipts,
+        ...(terminalFailure && (result.unparsed || result.answer.outcome === 'inconclusive')
+          ? { failure: terminalFailure }
+          : {}),
+      },
       requestCount:
         receipts.reduce((n, r) => n + (r.requestCount ?? 1), 0) + failures.reduce((n, f) => n + f.count, 0),
       ...(completeCost
