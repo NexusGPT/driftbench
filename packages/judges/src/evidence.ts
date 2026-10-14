@@ -382,8 +382,12 @@ export function quoteContinuations(passage: string, quote: string): string[] {
 
 export type EvidenceSpan = { readonly source: string; readonly quote: string };
 
-/** How a span list is grounded. Both options are the default decoder's, version 2; version 1 omits them. */
-export type SpanGrounding = { readonly symbolQuotes?: boolean; readonly inputSpellings?: boolean };
+/** Additional span grounding enabled by decoder 3; historical decoders omit these options. */
+export type SpanGrounding = {
+  readonly symbolQuotes?: boolean;
+  readonly inputSpellings?: boolean;
+  readonly toolNames?: boolean;
+};
 
 /** The fewest non-space characters a quote without any letter or digit needs. */
 const MIN_SYMBOL_QUOTE = 3;
@@ -437,7 +441,17 @@ function spelledInput(request: JudgeRequest, label: string): string | undefined 
   return named.length === 1 ? `input.${named[0]?.path}` : undefined;
 }
 
-/** A quote grounds only in the named source; frame metadata never counts as body evidence. */
+/** A tool event's supplied name is evidence of that event, never of another transcript entry. */
+function quotesToolName(tool: string, quote: string): boolean {
+  const name = fold(tool);
+  const given = fold(quote)
+    .replace(/["']/g, '')
+    .replace(/\s*:\s*/g, ':')
+    .trim();
+  return name.length > 0 && (given === name || given === `tool:${name}`);
+}
+
+/** A quote grounds only in its named source; toolNames also admits a tool event's exact name. */
 export function groundEvidenceSpan(
   request: JudgeRequest,
   span: EvidenceSpan,
@@ -445,17 +459,24 @@ export function groundEvidenceSpan(
 ): Grounding {
   const spelled = options.inputSpellings ? spelledInput(request, span.source) : undefined;
   const source = spelled ?? span.source;
-  const grounding = groundSpanWords(request, { ...span, source });
+  const grounding = groundSpanWords(request, { ...span, source }, options.toolNames);
   if (grounding.grounded || !options.symbolQuotes) return grounding;
   const named = namedSource(request, source);
   return named && quotesSymbols(named.text, span.quote) ? { grounded: true, where: named.where } : grounding;
 }
 
-function groundSpanWords(request: JudgeRequest, span: EvidenceSpan): Grounding {
+function groundSpanWords(request: JudgeRequest, span: EvidenceSpan, toolNames = false): Grounding {
   const entryId = /^transcript\.(0|[1-9]\d*)$/.exec(span.source);
   if (entryId) {
     const entry = request.transcript[Number(entryId[1])];
     if (!entry) return { grounded: false };
+    if (
+      toolNames &&
+      (entry.role === 'tool_call' || entry.role === 'tool_result') &&
+      entry.tool &&
+      quotesToolName(entry.tool, span.quote)
+    )
+      return { grounded: true, where: span.source };
     const grounded = groundEvidence(
       { criterion: request.criterion, transcript: [entry] },
       { outcome: 'inconclusive', reasoning: '', evidence: span.quote },

@@ -8,7 +8,8 @@ export type CriterionRequirement = { readonly id: string; readonly requirement: 
  * string quote while preserving the check's met value. Version 1 is the strict decoder, selectable
  * by name: any ungrounded quote voids the ledger. A version 1 recording keeps its key under version 1.
  * Version 3 is the default. It also grounds symbol-only span quotes in their exact named sources,
- * and reads input source labels such as `input/<path>` (see groundEvidenceSpan). A span that only quotes
+ * reads input source labels such as `input/<path>`, and grounds a tool event's supplied name in that
+ * event's source (see groundEvidenceSpan). A span that only quotes
  * the criterion is dropped and counted in criterionQuotesDropped; a met check still needs grounded evidence.
  */
 export const CRITERION_DECODER_VERSION = 3;
@@ -95,7 +96,11 @@ export function parseCriterionLedger(value: unknown, request: JudgeRequest, raw:
   if (missing.length) return invalid(`missing requirement ids: ${missing.join(', ')}`);
   let evidenceUnverified = 0;
   const decoder = request.criterionDecoderVersion ?? CRITERION_DECODER_VERSION;
-  const spanOptions = { symbolQuotes: decoder === 3, inputSpellings: decoder === 3 };
+  const spanOptions = {
+    symbolQuotes: decoder === 3,
+    inputSpellings: decoder === 3,
+    toolNames: decoder === 3,
+  };
   for (const check of checks) {
     if (decoder === 3 && Array.isArray(check.evidence)) {
       // The criterion is not data: a span that only quotes it counts as no evidence.
