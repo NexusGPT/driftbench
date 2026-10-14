@@ -93,7 +93,7 @@ describe('handed criterion gains use decoder 3', () => {
       'Read each fact in the context of the whole reply: a unit, period or subject that the surrounding text supplies carries over to a short clause, a synonym states the same fact, and an exact unit conversion is the same value.';
     expect(SYSTEM_PROMPT).toContain(rule);
     expect(SYSTEM_PROMPT_V1).not.toContain(rule);
-    expect(PROMPT_FINGERPRINT).toBe('8ef55f6ba51e');
+    expect(PROMPT_FINGERPRINT).toBe('b55396660b27');
   });
 
   it('invalidates the full default policy identity including explicit pair requests', () => {
@@ -109,7 +109,7 @@ describe('handed criterion gains use decoder 3', () => {
         },
       },
     });
-    expect(DEFAULT_JUDGE_POLICY.version).toBe('default-on-v4');
+    expect(DEFAULT_JUDGE_POLICY.version).toBe('default-on-v5');
     // Captured at the integration base 5c4de6274 with this exact transport and pair request.
     expect(judge.settings).not.toBe('cb182964c407');
     expect(
