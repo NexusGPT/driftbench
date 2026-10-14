@@ -2,7 +2,7 @@ import { open } from 'node:fs/promises';
 import { resolve } from 'node:path';
 import type { Check } from '@agent-nexus/driftbench-core';
 import {
-  createClaudeCliJudge,
+  createDefaultJudge,
   type JudgeClient,
   JudgeError,
   judgePersonalData,
@@ -16,7 +16,7 @@ import { optionNumber } from '../number';
 
 /**
  * The judge of a run (`estate run`, `replay`): `--judge claude:<model>` asks the local `claude` command,
- * one call per judged criterion per block, through the judges package's command client. Its cost is added
+ * the product's routed procedure per judged criterion per block. Its full cost is added
  * to the run's cost. With no `--judge`, every criterion a block names is inconclusive and gates as the
  * criterion does: never a pass.
  *
@@ -100,11 +100,12 @@ export async function runJudgeFrom(
     return undefined;
   }
   const script = /\.(c|m)?js$/.test(path);
-  const client = createClaudeCliJudge({
+  const client = createDefaultJudge({
+    provider: 'claude-cli',
     model,
     env: { ...env, CLAUDE_JUDGE_MODEL: model },
     ...(script ? { command: process.execPath, commandArgs: [path] } : { command: path }),
-    ...(budget === undefined ? {} : { maxBudgetUsd: budget }),
+    ...(budget === undefined ? {} : { maxBudgetUsd: Math.min(0.1, budget), spendCapUsd: budget }),
   });
   const budgeted = capped(client, spend, budget);
   return {

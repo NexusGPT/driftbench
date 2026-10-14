@@ -1,6 +1,6 @@
 import { parseJudgeText, responseSchema } from '../assessment';
 import type { ClientOptions, JudgeClient } from '../client';
-import { inconclusive, type JudgeRequest, type JudgeResult, MAX_TOKENS } from '../contract';
+import { inconclusive, type JudgeRequest, type JudgeResult, MAX_TOKENS, REASONING_TOKENS } from '../contract';
 import { isRecord, JudgeError, postJson, requireEnv } from '../http';
 import { buildPrompt } from '../prompt';
 import { googleResponseSchema, isPairLedgerRequest, JUDGE_DIALECTS, withJudgeDialect } from './dialects';
@@ -35,8 +35,9 @@ function baseOf(env: Record<string, string | undefined>, variable: string, fallb
   return (env[variable]?.trim() || fallback).replace(/\/+$/, '');
 }
 
-function budgetOf(request: JudgeRequest): number {
-  return MAX_TOKENS[request.budget ?? 'normal'];
+/** The token limit of a request: its budget, plus the reasoning room when the request reasons. */
+function budgetOf(request: JudgeRequest, reasoning?: JudgeRequest['reasoning']): number {
+  return MAX_TOKENS[request.budget ?? 'normal'] + (reasoning === undefined ? 0 : REASONING_TOKENS[reasoning]);
 }
 
 /** A truncated answer: unparsed, so the council re-judges it once with the large budget. */
@@ -70,7 +71,7 @@ export function createOpenAiJudge(options: ClientOptions = {}): JudgeClient {
     settings: settingsOf('openai-chat', {
       temperatureRetry: 'drop on a 400 that names it',
       responseFormat: 'json_schema',
-      ...(reasoning === undefined ? {} : { reasoning }),
+      ...(reasoning === undefined ? {} : { reasoning, reasoningTokens: REASONING_TOKENS }),
       ...(options.quotedMaterial ? { quotedMaterial: true } : {}),
     }),
     async judge(original) {
@@ -84,13 +85,13 @@ export function createOpenAiJudge(options: ClientOptions = {}): JudgeClient {
         ledgerPayload
           ? {
               model,
-              max_completion_tokens: budgetOf(request),
+              max_completion_tokens: budgetOf(request, reasoning),
               ...(withTemperature ? { temperature: TEMPERATURE } : {}),
               ...ledgerPayload,
             }
           : {
               model,
-              max_completion_tokens: budgetOf(request),
+              max_completion_tokens: budgetOf(request, reasoning),
               ...(withTemperature ? { temperature: TEMPERATURE } : {}),
               ...(reasoning === undefined ? {} : { reasoning_effort: reasoning }),
               response_format: {
@@ -235,7 +236,7 @@ export function createGoogleJudge(options: ClientOptions = {}): JudgeClient {
     cost: options.cost ?? CHAT_COST,
     settings: settingsOf('google-generate-content', {
       responseMimeType: 'application/json',
-      ...(reasoning === undefined ? {} : { reasoning }),
+      ...(reasoning === undefined ? {} : { reasoning, reasoningTokens: REASONING_TOKENS }),
       ...(options.quotedMaterial ? { quotedMaterial: true } : {}),
     }),
     async judge(original) {
@@ -253,7 +254,7 @@ export function createGoogleJudge(options: ClientOptions = {}): JudgeClient {
               ...ledgerPayload,
               generationConfig: {
                 ...(isRecord(ledgerPayload.generationConfig) ? ledgerPayload.generationConfig : {}),
-                maxOutputTokens: budgetOf(request),
+                maxOutputTokens: budgetOf(request, reasoning),
                 temperature: TEMPERATURE,
               },
             }
@@ -265,7 +266,7 @@ export function createGoogleJudge(options: ClientOptions = {}): JudgeClient {
                 responseSchema: isPairLedgerRequest(request)
                   ? googleResponseSchema(responseSchema(request))
                   : googleSchema(responseSchema(request)),
-                maxOutputTokens: budgetOf(request),
+                maxOutputTokens: budgetOf(request, reasoning),
                 temperature: TEMPERATURE,
                 ...(reasoning === undefined ? {} : { thinkingConfig: { thinkingLevel: reasoning } }),
               },

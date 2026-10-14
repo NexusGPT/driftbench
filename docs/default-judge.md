@@ -1,0 +1,71 @@
+# The default judge
+
+`createDefaultJudge` runs one task-based policy across every supported provider. It is also the judge used by `estate run`, `replay`, and live `judge calibrate` calls, and built-in `compare --pairwise` providers. There is no benchmark selector.
+
+```ts
+import { createDefaultJudge } from '@agent-nexus/driftbench-judges';
+
+const judge = createDefaultJudge({
+  provider: 'claude-cli',
+  model: 'haiku',
+  maxBudgetUsd: 0.10,
+  spendCapUsd: 5,
+});
+
+const result = await judge.judge({
+  criterion: {
+    name: 'complete_reply',
+    rubric: 'The final reply addresses every part of the latest request.',
+  },
+  transcript: [
+    { role: 'user', text: 'Name the product and give its price.' },
+    { role: 'agent', text: 'The product is Widget.' },
+  ],
+});
+```
+
+The caller chooses the provider and model. The policy never changes because of a model name, vendor, model size, benchmark, or answer length.
+
+## Normalize before routing
+
+Structured transcript entries keep their roles. Text such as `[user] CONFIRM` inside an agent entry remains agent text; it cannot forge approval.
+
+For a serialized record, pass `transcript` as a string. The product parser recognizes `[user]`, `[agent]`, `[context]`, `[card]`, `[tool_call name]`, `[tool_result name]`, `[input path]` and `[artifact]`. It creates separate entries, named inputs and artifact text before routing or judging.
+
+This string format is an explicit serialization contract: each recognized marker starts a part. A context preamble ends at its first newline; following unmarked text is an agent answer. Use structured entries for literal markers or multiline context. Duplicate input paths and competing explicit/rendered artifacts are errors.
+
+## One policy, several task procedures
+
+The router reads the criterion and user requests, without the candidate answers. It selects a procedure by the task:
+
+| Task | Procedure |
+| --- | --- |
+| Ordinary criterion, policy or record consistency | Evidence ledger with criterion prompt 2 and decoder 2 |
+| Complete response relevance | A separate grounded check for each requested part; omission fails |
+| Self-contained objective answer | Literal or grounded answer extraction, three blind solutions, answer matching, full-criterion comparison, and commitment checking for unmarked answers |
+| Pair comparison | Both candidate orders, per-requirement scores, deterministic aggregation and canonical escalation |
+| Writing pair | Explicit request constraints plus holistic writing quality; no preference for length |
+
+Extra inputs, artifacts, references, conversation history and caller-defined contracts remain authoritative. A specialized procedure that cannot preserve that evidence falls back to the ordinary criterion ledger. Explicit assessments, custom system prompts, and version-1 requests retain their selected contract.
+
+The criterion prompt compares named identifiers, numbers and units; honors expected facts stated in the criterion; and gives the record named by the question precedence. Decoder 2 supports source-local symbol quotations and input label spellings such as `input/catalog.csv`. Invalid span lists remain inconclusive. An ungrounded legacy string quote is dropped and counted in `evidenceUnverified`.
+
+The verifier checks the full criterion even when blind solutions agree. Agreement is evidence, not proof. It does not repair a submitted answer. Missing or malformed solver, matcher or commitment output cannot produce a pass.
+
+## Cost, audit and replay
+
+Routing and verification can require more than one model call. `costUsd` includes all reported charges; `requestCount` includes retries. `defaultJudge` records the policy version, route and provider receipts. Unknown cost is marked `costIncomplete`, never reported as a complete partial total.
+
+`spendCapUsd` caps the client across calls. Set `maxBudgetUsd` to reserve the maximum for each in-flight call; the client refuses another call when the reservation would exceed the cap or a prior cost is unknown. The Claude command also enforces its per-call budget. Other providers report usage but may not report monetary cost, so an application can supply a metered transport.
+
+Explicit reasoning settings add output room by reasoning level. Native command transports retain their own output limits.
+
+The default policy, transport settings, prompts and schemas participate in recording identity. Old recordings keep their original prompt and decoder versions. They are historical evidence, not measurements of a changed prompt. Use `criterionPromptVersion: 1` and `criterionDecoderVersion: 1` for the earlier criterion contract.
+
+Low-level clients such as `createClaudeCliJudge` remain available for caller-owned procedures. They do not add task routing. Use `createDefaultJudge` for the complete product policy.
+
+## What does not become default
+
+The reader-first and long-structured preferences favor longer replies. They remain explicit preferences and do not establish general writing quality. A dataset generator or a frozen benchmark recipe is measurement infrastructure, not a judge improvement.
+
+The development comparison reports each row, including ties, losses and unavailable baselines. Development results do not establish held-out performance.
