@@ -281,7 +281,7 @@ function fixtureFaultAdapter(fault: HiddenFault): AgentAdapter {
   return followerAdapter(fault.def.agent.create, fault.def.id);
 }
 
-async function writeAll(
+export async function writeAll(
   root: string,
   files: readonly { path: string; text: string; bytes?: Uint8Array }[],
 ): Promise<void> {
