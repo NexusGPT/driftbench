@@ -69,33 +69,9 @@ The evidence names the call and the value: `catalog.search input.category is one
 
 ## Worked example
 
-The six Acme conversation specs on the deterministic sales agent (no model call). Every tool check their blocks ask for passes:
+A scratch spec on the deterministic Acme sales agent (no model call): block 1 expects a `coverage.check` call the agent never makes, and the schema of `catalog.search` declares only `category`. The run prints the failing ids; a small script prints the tool verdicts with their evidence from `--json`:
 
-```sh
-driftbench campaign run examples/acme/specs/conversations --no-cache
-```
-
-```text
-$ driftbench campaign run examples/acme/specs/conversations --no-cache
-Campaign c-0c369513d7ab: 6 cells, 4 at a time. Checks: tools, tools_offered, forbidden, must, must_not, regex, exact, injection, length, markup, starts_with, finish_reason, json, tool_f1, refusal, rouge_l, bleu, sql, similarity, relevancy, knowledge_retention, lang, pii, cards, stage, skills, guards, references, subagents, execution, workspace, safety, artifacts, schema_strict, budget, end_state, custom.
-Not judged: 8 criteria in 16 blocks of 6 specs (one_question_per_turn, coverage_before_offer, checks_before_promising, resumes_pending_step, ledger_intact, and 3 more), 6 of them gating. This campaign loads no judge, so these criteria have no verdict and count in no pass or fail. See docs/concepts/judges.md.
-✓ acme-new-customer-coverage · function:acme-sales · F · repeat 0  pass  4 blocks
-✓ acme-number-porting · function:acme-sales · F · repeat 0  pass  5 blocks
-✓ acme-off-topic-return · function:acme-sales · F · repeat 0  pass  5 blocks
-✓ acme-order-loose-confirmation · function:acme-sales · F · repeat 0  pass  4 blocks
-✓ acme-plan-upgrade · function:acme-sales · F · repeat 0  pass  5 blocks
-✓ acme-tool-failure · function:acme-sales · F · repeat 0  pass  3 blocks
-6 cells: 6 pass, 0 fail, 0 failed. Spent $0.00.
-The runs are not kept: pass --store <file> to keep them.
-(exit 0)
-```
-
-A scratch spec on the deterministic Acme sales agent: block 1 expects a `coverage.check` call the agent never makes, and the schema of `catalog.search` declares only `category`. The one-liner prints the tool verdicts with their evidence:
-
-From a repository checkout, not run by the help test:
-
-```text
-$ mkdir -p out/judging/checks && cat > out/judging/checks/tools-demo.yaml <<'EOF'
+```yaml file=tools-demo.yaml
 # A scratch copy of the first two blocks of acme-plan-upgrade, with tool expectations. Fictional data.
 id: tools-demo
 title: Tool checks on the first two blocks of the plan upgrade
@@ -126,8 +102,56 @@ blocks:
             address_id: { absent: true }
       tool_order: in_order
       tool_f1: { min: 0.9 }
-EOF
-$ driftbench campaign run out/judging/checks/tools-demo.yaml --no-cache --json | python3 -c "import json,sys; d=json.load(sys.stdin); [print(f'block {i} {v[\"id\"]} {v[\"outcome\"]}{\"\" if v[\"gating\"] else \" (not gating)\"}: {v[\"evidence\"]}') for c in d['cells'] for i,b in enumerate(c['blocks']) for v in b['verdicts'] if not v['id'].startswith(('pii.','lang.','stage.'))]"
+```
+
+```js file=show.mjs
+// Prints every verdict of a `campaign run --json` document read on stdin: block, id, outcome, evidence.
+// An optional argument lists id prefixes to leave out, comma-separated.
+let text = '';
+process.stdin.on('data', (chunk) => { text += chunk; });
+process.stdin.on('end', () => {
+  const skip = (process.argv[2] ?? '').split(',').filter(Boolean);
+  for (const cell of JSON.parse(text).cells)
+    cell.blocks.forEach((block, i) => {
+      for (const v of block.verdicts)
+        if (!skip.some((p) => v.id.startsWith(p)))
+          console.log(`block ${i} ${v.id} ${v.outcome}${v.gating ? '' : ' (not gating)'}: ${v.evidence}`);
+    });
+});
+```
+
+The scripts below run the package from its source with `tsx`; this file tells `tsx` where the packages are:
+
+```json file=tsconfig.json
+{
+  "compilerOptions": {
+    "module": "ESNext",
+    "moduleResolution": "Bundler",
+    "paths": {
+      "@agent-nexus/driftbench-example-acme": ["./examples/acme/src/package.ts"],
+      "@agent-nexus/driftbench-adapters/contract": ["./packages/adapters/src/contract.ts"],
+      "@agent-nexus/driftbench-*": ["./packages/*/src/index.ts"]
+    }
+  }
+}
+```
+
+```sh
+driftbench campaign run tools-demo.yaml --no-cache  # exit 1
+```
+
+```sh setup
+tsx packages/cli/src/bin.ts campaign run tools-demo.yaml --no-cache --json | node show.mjs pii.,lang.,stage.
+```
+
+```text
+$ driftbench campaign run tools-demo.yaml --no-cache
+Campaign c-473e75c6f1d1: 1 cell, 4 at a time. Checks: tools, tools_offered, forbidden, must, must_not, regex, exact, injection, length, markup, starts_with, finish_reason, json, tool_f1, refusal, rouge_l, bleu, sql, similarity, relevancy, knowledge_retention, lang, pii, cards, stage, skills, guards, references, subagents, execution, workspace, safety, artifacts, schema_strict, budget, end_state, custom.
+✗ tools-demo · function:acme-sales · F · repeat 0  fail  block 1 tools.coverage.check.count, block 1 tools.order, block 1 tool_f1.f1, block 1 schema_strict.catalog.search.1
+1 cell: 0 pass, 1 fail, 0 failed. Spent $0.00.
+The runs are not kept: pass --store <file> to keep them.
+(exit 1)
+$ tsx packages/cli/src/bin.ts campaign run tools-demo.yaml --no-cache --json | node show.mjs pii.,lang.,stage.
 block 0 forbidden.catalog.search pass: catalog.search not called (the block expects it 0 times)
 block 0 forbidden.max_calls.catalog.search pass: catalog.search ran 0 times in the run so far (0 in this block, 0 before), at most 1 by rules.max_calls
 block 1 tools.coverage.check.count fail: coverage.check called 0 times, expected at least 1; calls in this block: catalog.search
@@ -143,7 +167,7 @@ block 1 flow.order pass: identify then offer, in catalogue order
 (exit 0)
 ```
 
-The exit code shown is the pipe's; the run itself fails (exit 1) on `tools.coverage.check.count`, `tools.order`, `tool_f1.f1` and `schema_strict.catalog.search.1`. The spec sets no `stage`, so the runner's stage classifier adds `flow.order`.
+The run fails on `tools.coverage.check.count`, `tools.order`, `tool_f1.f1` and `schema_strict.catalog.search.1`. The spec sets no `stage`, so the runner's stage classifier adds `flow.order`. `tsx packages/cli/src/bin.ts` is the CLI run from source, the same program as `driftbench`, so its `--json` can be piped.
 
 ## Common errors
 
