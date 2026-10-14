@@ -22,6 +22,7 @@ import {
   AgentFailure,
   type ArtifactRef,
   canonicalJson,
+  copyHistory,
   type ExecutionRecord,
   type Observed,
   type ResolvedGiven,
@@ -216,6 +217,7 @@ export function claudeCodeLiveAdapter(options: ClaudeCodeLiveOptions): AgentAdap
     capabilities: () => ({ ...capabilities }),
 
     async open(given: ResolvedGiven): Promise<Session> {
+      const history = copyHistory(given.prefix);
       const pin = pinOf(given, options.pins);
       const sandbox = await options.provider
         .create({ ...(options.keep === undefined ? {} : { keep: options.keep }) })
@@ -264,12 +266,13 @@ export function claudeCodeLiveAdapter(options: ClaudeCodeLiveOptions): AgentAdap
         adapter: 'claude-code',
         target: given.target,
         given,
-        history: [...given.prefix],
+        history,
         state,
       };
     },
 
     async send(session: Session, turn: Turn): Promise<Observed> {
+      copyHistory(session.history);
       const state = stateOf(session);
       if (state.closed) throw new Error('the live session is closed');
       const { sandbox } = state;

@@ -2,6 +2,7 @@ import {
   type AdapterCapabilities,
   type AgentAdapter,
   AgentFailure,
+  copyHistory,
   isPlainObject,
   type Message,
   type Segment,
@@ -103,11 +104,12 @@ export function langgraphAdapter(options: LanggraphAdapterOptions): AgentAdapter
     },
 
     async send(session: Session, turn: Turn) {
+      const history = copyHistory(session.history);
       const state = ownState<GraphState>(session, id, 'langgraph');
       const sent =
         checkpointed && state.seeded
-          ? trailingUserMessages(session.history)
-          : promptMessages(session.history, session.target);
+          ? trailingUserMessages(history)
+          : promptMessages(history, session.target);
       const started = performance.now();
       let answer: unknown;
       try {

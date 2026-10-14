@@ -9715,7 +9715,7 @@
     "gemini-3.8-flash": {
       "primary": {
         "model": "gemini-3.8-flash",
-        "status": "complete",
+        "status": "dropped by the owner (393 of 600 pairs completed)",
         "matched": 393,
         "planned": 393,
         "scores": {
@@ -9732,7 +9732,7 @@
         "losses": 22,
         "pTwoSided": 0.417692190836533,
         "holmP": null,
-        "holmStatus": "pending pooled 18-cell collation",
+        "holmStatus": "not applicable: model dropped by the owner",
         "cheaters": {
           "constant-first": 0.5,
           "longer-wins": 0.40070784226229533,

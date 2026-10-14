@@ -1,0 +1,9 @@
+{
+  "stamp": "2026-10-13T11:20:33.983132+00:00",
+  "complete": true,
+  "completed_calls": 6560,
+  "selected_unique": 6560,
+  "measured_usd": 1.83894069,
+  "stop_reason": null,
+  "authoritative_verification": "comparisons/ledger-hard/verification-final.json"
+}

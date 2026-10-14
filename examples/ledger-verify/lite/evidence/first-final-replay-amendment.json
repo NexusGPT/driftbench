@@ -1,0 +1,14 @@
+{
+  "at": "2026-10-13T12:50:23.626193+00:00",
+  "authorization": "Owner missing-only rule; keep every answer and never retry a returned answer",
+  "phase": "noise-0",
+  "policy": "Preserve each first completed product-final verdict. Retain all new-key continuation answers and costs as unused evidence. No selection by correctness.",
+  "originalCompleteItems": 6,
+  "changedContinuationVerdicts": 2,
+  "scoringFunctionsUnchanged": true,
+  "sourceHashes": {
+    "examples/ledger-verify/preserve-lite-first-finals.ts": "11b17f04ce652392a0f2807772a254f02a9028549262b98a1d42eacc5d08f5a2",
+    "examples/ledger-verify/replay-item-history.ts": "97322983ce33a8c81b25e134463e65af49e3bb9118eb6f372da68ab62ea6d103"
+  },
+  "offlineVerification": "All decisions identical for pilot20, mutations48, noise0 and noise1; zero provider calls"
+}

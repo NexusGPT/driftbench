@@ -3,7 +3,7 @@ import { join } from 'node:path';
 import { localProvider } from '@agent-nexus/driftbench-sandbox';
 import { afterEach, describe, expect, it } from 'vitest';
 import { claudeCodeLiveAdapter, OWNER_CONFIG_ENTRIES } from '../../../src/claude-code/live';
-import { ESTATE, FAKE, givenOf, MAP_HASH, scratch, turnOf } from './support';
+import { ESTATE, FAKE, FAKE_RECORDINGS, givenOf, MAP_HASH, scratch, turnOf } from './support';
 
 /**
  * The runner's lock: on macOS the runtime runs under a sandbox profile that refuses writes to the owner's
@@ -30,7 +30,7 @@ describe.runIf(process.platform === 'darwin')('the owner-config lock', () => {
       estateRoot: ESTATE,
       provider: localProvider({ dir: join(work.dir, 'sandboxes') }),
       stateDir: join(work.dir, 'state'),
-      env: { FAKE_CALLS: work.calls, HOME: home },
+      env: { ...FAKE_RECORDINGS, FAKE_CALLS: work.calls, HOME: home },
       pins: [MAP_HASH],
       config: 'isolated',
     });

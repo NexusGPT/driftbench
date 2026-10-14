@@ -1,0 +1,18 @@
+{
+  "created": "2026-10-13T07:16:48.432144+00:00",
+  "authority": "Owner: no-retry covers answered content only. Retry no HTTP response or TLS EOF with backoff up to 3 tries, 10 to 60 seconds; Luna at most 2 concurrent; retain all attempts; inconclusive only after retries fail.",
+  "policy": "At most 3 total attempts; 10s before attempt 2, 30s before attempt 3; no retry of returned model content; effective records overlay retry results while preserving original raw records.",
+  "prior_failed_keys": [
+    "a7432b41f84947105477acd4841aba5c0eb067f6950ad210ceb5d8722e8245bd",
+    "ad2f78abcb29ec06ebb9b34a7c83d33736ae127fb067d1b8d4db9bdcf25e20f9",
+    "2f65495fc682009b1fd9e76cc34494b78ade19236a5b3d73558ea03c3c426ce1",
+    "672638a759414efea63abb3ac35a52412bff155ce414f65802f398e4e04f74f9",
+    "51bb5b64bd18ccf75ac0e8393b3d32d70d9489cd6c876621054d453014392856",
+    "cea3ae6ea3a3dfeab33532fef166b2b02621f60aaa3b7eaf53b54c92587a7341"
+  ],
+  "sha256": {
+    "comparisons/ledger-hard/common.py": "5b58400c66eccd45a52b7ee0201bade2f43a5f9dc1d1a115db9a55aeb4511f1b",
+    "comparisons/ledger-hard/run.py": "a23abf61ab6d3c42afad0285e70c806bcc2ffbdad80843443cb63f33faa60e57",
+    "comparisons/ledger-hard/score.py": "f5f91044dcb166d04b8bff098e8cc31d7431fae30a3983894e7dc1617c4a6831"
+  }
+}

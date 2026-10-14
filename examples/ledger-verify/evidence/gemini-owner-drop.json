@@ -1,0 +1,21 @@
+{
+  "at": "2026-10-13T18:33:38.080487+00:00",
+  "model": "gemini-3.8-flash",
+  "status": "dropped by the owner on 13 Oct 2026, partial data kept, not reported as a score",
+  "authorization": "Owner decision, by card: Drop Gemini 3.8. Do not resume its parked run. Remove it from pending work. Flash Lite stays the Gemini result.",
+  "automaticResume": false,
+  "providerCalls": 0,
+  "remainingAuthorizedRequests": 0,
+  "partialFileHashes": {
+    "recordings/2869d4d1f750545a2c7d/noise-1/longjudge-verify/gemini-3.8-flash.jsonl": "1d0a07349b29db01f22d5684d216118b03e48c5a93385c4f0bd060dd9bb12a51",
+    "recordings/2869d4d1f750545a2c7d/noise-0/longjudge-verify/gemini-3.8-flash.jsonl": "016b3ddcc26109f2315536a53e66dd009703370728d68f91e6bffc57e3527dac",
+    "recordings/2869d4d1f750545a2c7d/noise-2/longjudge-verify/gemini-3.8-flash.jsonl": "c7899feb41e398072976a7f93dc878e2b8868e3373ed52cfd03ea8fbd3f4cb86",
+    "recordings/2869d4d1f750545a2c7d/validity/longjudge-verify/gemini-3.8-flash.jsonl": "018515c8344a5bc2c88ac8aeb0a9ceb4d9a30acaaabb4ed06912b1916e7b2137",
+    "recordings/b4e4305a2426e0bb7589/pilot/longjudge-verify/gemini-3.8-flash.jsonl": "0f6b5baa3e04ca9ad9e35b45cf77b540bb3eeefcc779b803b5549915c6864443",
+    "noise-1/gemini-3.8-flash.json": "138713148578e486f82bada3b2389bcb3836378075e772ecacaf97e44eb2039f",
+    "noise-0/gemini-3.8-flash.json": "8ffd3331f98a8066f59e6c1b7d15a45fe91ea55a50b3e7e7e81f94bfaa3d94df",
+    "noise-2/gemini-3.8-flash.json": "45ed714276c828eb0d768525085538c18ede2cfb21e993215a8899f1915413f3",
+    "validity/gemini-3.8-flash.json": "4dfae08bb8ba287b572498d835ebd0e0741e60d174083be3ba3505e5cacb6d91",
+    "pilot/gemini-3.8-flash.json": "d6608a43050612b668d3ad409650a25d32e7619b7785b9220708c29bf2d31fa0"
+  }
+}
