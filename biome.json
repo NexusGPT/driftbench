@@ -27,7 +27,9 @@
       "!research/moj/sealed/freeze.json",
       "!comparisons/inspect/hard/shipped/heldout-480/*-audit.json",
       "!comparisons/inspect/hard/shipped/heldout-480/*-default.json",
-      "!comparisons/inspect/hard/shipped/heldout-480/*-theirs.json"
+      "!comparisons/inspect/hard/shipped/heldout-480/*-theirs.json",
+      "!examples/all-peers-public/data",
+      "!docs/comparison/benchmarks/*-all-peers.json"
     ]
   },
   "formatter": { "enabled": true, "indentStyle": "space", "indentWidth": 2, "lineWidth": 110 },
