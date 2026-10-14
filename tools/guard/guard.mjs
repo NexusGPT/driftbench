@@ -238,6 +238,7 @@ export function loadExceptions(dir = EXCEPTIONS_DIR) {
 export function scanText(text, { denylist = [], exceptions = new Set() } = {}) {
   const findings = [];
   let allowed = 0;
+  let excused = 0;
   const terms = denylist.map((term, index) => ({
     index: index + 1,
     pattern: new RegExp(`(?<![A-Za-z0-9])${escapeRegExp(term)}(?![A-Za-z0-9])`, 'gi'),
@@ -275,7 +276,7 @@ export function scanText(text, { denylist = [], exceptions = new Set() } = {}) {
       const kept = lineFindings.filter(
         (finding) => !exceptions.has(fingerprint(finding.kind, finding.value)),
       );
-      allowed += lineFindings.length - kept.length;
+      excused += lineFindings.length - kept.length;
       lineFindings = kept;
     }
     if (content.includes(ALLOW_MARKER)) {
@@ -291,7 +292,7 @@ export function scanText(text, { denylist = [], exceptions = new Set() } = {}) {
     }
   });
 
-  return { findings, allowed };
+  return { findings, allowed, excused };
 }
 
 /** Masks a value for printing. Denylisted terms are masked entirely. */
@@ -388,6 +389,7 @@ export function scanFiles(files, root, denylist, exceptions = new Set()) {
   const errors = [];
   let scanned = 0;
   let allowed = 0;
+  let excused = 0;
   for (const file of files) {
     const read = readText(file);
     const shown = relative(root, file) || file;
@@ -402,9 +404,10 @@ export function scanFiles(files, root, denylist, exceptions = new Set()) {
     scanned += 1;
     const result = scanText(read.text, { denylist, exceptions });
     allowed += result.allowed;
+    excused += result.excused;
     for (const finding of result.findings) findings.push({ file: shown, ...finding });
   }
-  return { findings, skipped, errors, scanned, allowed };
+  return { findings, skipped, errors, scanned, allowed, excused };
 }
 
 class UsageError extends Error {}
@@ -555,7 +558,7 @@ export function main(argv, io) {
     io.err('driftbench guard: --require-denylist is set but no denylist terms were loaded.\n');
     return 1;
   }
-  const result = scanFiles(listing.files, listing.root, denylist, loadExceptions());
+  const result = scanFiles(listing.files, listing.root, denylist, loadExceptions(io.exceptionsDir));
   const shown = result.findings.map(({ file, line, kind, value, entry }) => ({
     file,
     line,
@@ -572,6 +575,7 @@ export function main(argv, io) {
           scanned: result.scanned,
           skipped: result.skipped.length,
           allowed: result.allowed,
+          excused: result.excused,
           denylistTerms: denylist.length,
           findings: shown,
           errors: result.errors,
@@ -586,7 +590,9 @@ export function main(argv, io) {
   for (const error of result.errors) {
     io.err(`driftbench guard: cannot scan ${error.file}: ${error.reason}.\n`);
   }
-  const allowedNote = result.allowed > 0 ? ` ${result.allowed} allowed by ${ALLOW_MARKER} markers.` : '';
+  const allowedNote =
+    (result.allowed > 0 ? ` ${result.allowed} allowed by ${ALLOW_MARKER} markers.` : '') +
+    (result.excused > 0 ? ` ${result.excused} excused by fingerprint.` : '');
   const scope = `${result.scanned} files scanned, ${result.skipped.length} skipped, ${denylist.length} denylist terms`;
   if (shown.length === 0) {
     if (!clean) {
