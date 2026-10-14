@@ -93,7 +93,9 @@ const pick = (row: Row): { cases: Case[]; seeds: [number, number] } => {
 const sha = (path: string) => createHash('sha256').update(readFileSync(path)).digest('hex');
 const sha256: Record<string, string> = {};
 const seeds: Record<string, [number, number]> = {};
-for (const row of rows) {
+// A row whose count is 0 is left out of the set: its construction space holds no fresh pool.
+const frozenRows = rows.filter((row) => perCellOf[row] > 0);
+for (const row of frozenRows) {
   const { cases, seeds: range } = pick(row);
   seeds[row] = range;
   writeFileSync(`${out}${row}.json`, `${JSON.stringify(cases, null, 2)}\n`);
@@ -145,7 +147,14 @@ writeFileSync(
       frozenAt: new Date().toISOString(),
       harnessCommit: execFileSync('git', ['rev-parse', 'HEAD'], { cwd: repo, encoding: 'utf8' }).trim(),
       judgeSha256AtFreeze: judgeSha256,
-      casesPerRow: Object.fromEntries(rows.map((row) => [row, perCellOf[row] * 24])),
+      casesPerRow: Object.fromEntries(frozenRows.map((row) => [row, perCellOf[row] * 24])),
+      rowsLeftOut: rows.filter((row) => perCellOf[row] === 0),
+      preRegistration: {
+        primary:
+          'All frozen rows pooled, paired by case: driftbench default judge with the rendered record read into role-separated entries (split) against Inspect default. Exact two-sided McNemar test on discordant cases. Unscored or incomplete counts as wrong.',
+        descriptive: 'Per-row counts and intervals, without a test.',
+        runs: 'One run per procedure. No change to the judge, the requests or the set after this freeze.',
+      },
       perFamilyAndLabel: perCellOf,
       seedRanges: seeds,
       selection: `Seeds walked upward from ${qaStart} (QA, fact), ${panelStart} (panel), ${borderlineStart} (borderline). Items taken in generator order when the request of every procedure (${configs.join(', ')}, theirs) is new and unique and the submission is in no earlier set, until each family and label cell holds its count (${rows.map((row) => `${row} ${perCellOf[row]}`).join(', ')}). No model outcome is read.`,
