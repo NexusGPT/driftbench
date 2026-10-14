@@ -341,7 +341,12 @@ export function renderDraft(prepared: PreparedMap, draft: SpecDraft, run: RunIde
     ...(stages ? { stages } : {}),
     ...(!incomplete && draft.criteria.length > 0 ? { criteria: draft.criteria } : {}),
     blocks,
-    ...(draft.rules ? { rules: draft.rules } : {}),
+    // One reply per user turn unless the map says otherwise (`reply_count`), so a doubled reply fails.
+    ...(prepared.relations.repliesPerTurn === 'one'
+      ? { rules: { ...(draft.rules ?? {}), one_message_per_turn: true } }
+      : draft.rules
+        ? { rules: draft.rules }
+        : {}),
     ...(draft.end_state ? { end_state: draft.end_state } : {}),
     ...(perturbations && perturbations.length > 0 ? { perturbations } : {}),
     metadata: {

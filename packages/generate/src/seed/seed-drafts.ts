@@ -83,6 +83,7 @@ export function scenarioDraft(
     rngLabel?: string;
     turn?: ScenarioRequest['turn'];
     aside?: ScenarioRequest['aside'];
+    before?: ScenarioRequest['before'];
     perturbEvery?: boolean;
     perturb?: ScenarioRequest['perturb'];
   } = {},
@@ -98,6 +99,7 @@ export function scenarioDraft(
       ...(options.force ? { force: options.force } : {}),
       ...(options.turn ? { turn: options.turn } : {}),
       ...(options.aside ? { aside: options.aside } : {}),
+      ...(options.before ? { before: options.before } : {}),
       ...(options.perturbEvery ? { perturbEvery: true } : {}),
       ...(options.perturb ? { perturb: options.perturb } : {}),
     });

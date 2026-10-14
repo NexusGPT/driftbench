@@ -578,6 +578,8 @@ async function execute(run: RunContext, channel: Channel): Promise<RunResult | u
   // after the last spec block when no block ran after it, else a read now. A read that cannot happen fails
   // the end state and says why.
   let endState: EndStateMatch | undefined;
+  // The value read, kept in the run so a later reader compares end states without reading them again.
+  let value: unknown;
   if (run.endState !== undefined) {
     let states = endRead?.afterBlock === blocks.length - 1 ? endRead.states : undefined;
     let unreadable = 'no block ran, so no session was open to read from';
@@ -592,8 +594,10 @@ async function execute(run: RunContext, channel: Channel): Promise<RunResult | u
         unreadable = cause instanceof CallFailure ? cause.message : describeError(cause);
       }
     }
+    const read = states ? endStateValue(run.endState, sources, states) : undefined;
+    if (states) value = read ?? null;
     endState = states
-      ? compareEndState(run.endState, endStateValue(run.endState, sources, states))
+      ? compareEndState(run.endState, read)
       : {
           match: false,
           diff: sources.map((source) => ({
@@ -645,6 +649,7 @@ async function execute(run: RunContext, channel: Channel): Promise<RunResult | u
     succession: succession(blocks),
     ...(recovery ? { recovery } : {}),
     ...(endState ? { endState } : {}),
+    ...(value !== undefined ? { endStateValue: value } : {}),
     cost: blocks.reduce((sum, block) => sum + (block.carried ? 0 : blockCost(block.observed)), 0),
     latencyMs: blocks.reduce((sum, block) => sum + (block.carried ? 0 : block.observed.latencyMs), 0),
     startedAt: run.startedAt,

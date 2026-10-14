@@ -137,7 +137,8 @@ describe('driftbench gate', () => {
   it(
     'exits 1 when no candidate block passes',
     async () => {
-      // Two specs no path could build: their blocks hold judged criteria only, so stage 1 rejects them.
+      // Two specs no path could build: their blocks hold judged criteria and the one-reply rule only. Stage
+      // 1 rejects the two whose Then reads words alone; the constant agent passes the third.
       const specs = await folder([
         join(INCOMPLETE, 'gen-twise-108.yaml'),
         join(INCOMPLETE, '../boundary/gen-boundary-008.yaml'),
@@ -146,7 +147,8 @@ describe('driftbench gate', () => {
       const result = await run(['gate', specs, ...BASE, '--out', out]);
       expect(result.code).toBe(1);
       expect(result.out).toContain('Accepted 0 of 3 blocks.');
-      expect(result.out).toContain('no-machine-then 3');
+      expect(result.out).toContain('words-only 2');
+      expect(result.out).toContain('passed-by-constant 1');
       expect(await tree(out)).toEqual([
         'gate-report.json',
         'holdout/seal.json',

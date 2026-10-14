@@ -138,7 +138,7 @@ describe('generate on the approved Acme map', () => {
   it('writes valid specs only; the complete ones lint clean', () => {
     expect(result.report.invalid).toEqual([]);
     expect(result.report.lint).toEqual([]);
-    expect(result.report.summary).toMatchObject({ complete: 332, incomplete: 75 });
+    expect(result.report.summary).toMatchObject({ complete: 335, incomplete: 75 });
   });
 
   it('never walks a spec on a path of a flow its behaviours do not belong to', () => {
@@ -231,7 +231,7 @@ describe('generate on the approved Acme map', () => {
   });
 
   it('gives every block of every complete spec a machine Then, derived from an approved path', () => {
-    expect(result.complete).toHaveLength(332);
+    expect(result.complete).toHaveLength(335);
     // A task spec's Then comes from its family's oracle, not from a path: the task seeder is checked apart.
     for (const spec of result.complete.filter((entry) => entry.kind !== 'task')) {
       const generated = (spec.metadata as { generated: { path?: string } }).generated;
