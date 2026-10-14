@@ -86,7 +86,7 @@ describe('a class whose recovery moves the conversation', () => {
       const prepared = source.prepared;
       if (!prepared) throw new Error('the fictional map failed to load');
       await generateSuiteToDisk(prepared, { mapPath: '../map.yaml', t: 3, seed: 1, outputDir: directory });
-      const cut = suite.files.filter((file) => /\/gen-graph-cut-\d+\.yaml$/.test(file.path));
+      const cut = suite.files.filter((file) => /\/gen-deviation-cut-\d+\.yaml$/.test(file.path));
       expect(cut.length).toBeGreaterThan(0);
       for (const file of cut) expect(await readFile(join(directory, file.path), 'utf8')).toBe(file.text);
     } finally {

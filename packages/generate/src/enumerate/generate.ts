@@ -390,7 +390,7 @@ export function generateSuite(prepared: PreparedMap, options: GenerateOptions): 
   const terminal = new TerminalPerturbations(prepared);
   for (const spec of complete) terminal.observe(spec);
   for (const draft of terminal.drafts(context)) {
-    for (const spec of renderSeeder('graph', [draft])) terminal.observe(spec);
+    for (const spec of renderSeeder('deviation', [draft])) terminal.observe(spec);
   }
   const held = new Set(
     cellsOf(prepared, [], t).flatMap((cell) =>

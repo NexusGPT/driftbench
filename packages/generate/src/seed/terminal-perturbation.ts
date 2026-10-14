@@ -52,12 +52,12 @@ export class TerminalPerturbations {
         });
       });
       for (const { path, stage } of places) {
-        const id = `gen-graph-cut-${pad(added + 1)}`;
+        const id = `gen-deviation-cut-${pad(added + 1)}`;
         const built = scenarioDraft(
           this.prepared,
           context,
           id,
-          'graph',
+          'deviation',
           `Stage path cut for ${classId}`,
           [],
           { preferred: [path], others: [] },
