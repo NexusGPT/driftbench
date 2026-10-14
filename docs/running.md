@@ -816,7 +816,7 @@ The runner owns the session history. Before a send it appends the stimulus's use
 
 The runner reads the sources the spec's `end_state` names, each once, through the adapter's `endState`: each mapping's `source`, or `*` for `end_state: none`. It reads them after the last spec block, and the checks of that block see the result: the value a mapping's source returned, a record keyed by source for a list, the list of every payload for `none`. In mode T it reads them after every block and composes them: a source keeps the last value a block's session recorded, and `*` joins the lists.
 
-Every run of a spec that names an end state carries `endState` in its record, failed and stopped runs too: `match`, and a `diff` with one entry per field that does not hold. The runner uses the read taken after the last spec block when no block ran after it, and reads again at the end of the run otherwise.
+Every run of a spec that names an end state carries `endState` in its record, failed and stopped runs too: `match`, and a `diff` with one entry per field that does not hold. When the end state was read, the run also carries `endStateValue`, what the checks saw (`null` when the source recorded nothing); it is absent when no read happened and in runs stored before the field existed. The generator gate compares it between sibling specs (see [generating](generating.md)). The runner uses the read taken after the last spec block when no block ran after it, and reads again at the end of the run otherwise.
 
 | Case | Diff entries |
 |---|---|
@@ -878,7 +878,7 @@ Not judged: 8 criteria in 16 blocks of 6 specs (one_question_per_turn, coverage_
 
 The runner returns the run as the store keeps it: written as JSON, read back and validated against the `RunResult` schema in `packages/core/src/schema/run.ts`.
 
-* The run: `runId`, `specId`, `specHash`, `target`, `mode`, `repeat`, `perturbationId`, `status`, `error`, `blocks`, `succession`, `recovery`, `endState`, `cost`, `latencyMs`, `startedAt`, `finishedAt` and `cacheHit`, and `carried` on a run a radius campaign copied from an earlier campaign (see [blast radius](concepts/blast-radius.md#fresh-and-carried)). `cost` sums the blocks' costs: each block's total, or else the sum of its segments' costs.
+* The run: `runId`, `specId`, `specHash`, `target`, `mode`, `repeat`, `perturbationId`, `status`, `error`, `blocks`, `succession`, `recovery`, `endState`, `endStateValue`, `cost`, `latencyMs`, `startedAt`, `finishedAt` and `cacheHit`, and `carried` on a run a radius campaign copied from an earlier campaign (see [blast radius](concepts/blast-radius.md#fresh-and-carried)). `cost` sums the blocks' costs: each block's total, or else the sum of its segments' costs.
 * Each block: `index`, its position in the run, injected blocks included; `blockId`; `injected`; `givenHash`; `observed`; `verdicts`; `stageObserved`, the stage the block reached (the runtime's report in this block, else in F and P the last one an earlier block reported, else the stage classifier's); `ledgerCheck`; `drift`; `pass`.
 * `succession`: `firstDriftBlock`, `driftCount`, `driftRate`, `longestClean` and `minOverBlocks`, over the blocks of the run. A failing block is a drift block. See [drift](concepts/drift.md).
 * `recovery`, on a P run whose perturbation writes `recovery`: `injectedAt`, `turnsToRecover`, `label`, `collateral`, `safeAction` and `clarified`. See [recovery](concepts/recovery.md#recovery-metrics).

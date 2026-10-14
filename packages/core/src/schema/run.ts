@@ -340,6 +340,11 @@ export const RunResult = z.strictObject({
       diff: z.array(z.strictObject({ field: z.string(), expected: z.unknown(), observed: z.unknown() })),
     })
     .optional(),
+  /**
+   * The end state the adapter returned for `endState`, as the checks saw it (null when its source recorded
+   * nothing). Absent when no end state was read, and in runs stored before this field existed.
+   */
+  endStateValue: z.unknown().optional(),
   cost: z.number().nonnegative(),
   latencyMs: z.number().nonnegative(),
   startedAt: z.string().min(1),
