@@ -4,6 +4,7 @@ All notable changes to driftbench are listed here. The format follows [Keep a Ch
 
 ## [Unreleased]
 
+* Public API additions from the merged prompt-radius, provenance, re-judging and tie follow-up work, now listed in the frozen API list. Core: `adapterProvenance`, `provenanceDigest`, `provenanceHash`, `runProvenance`, `completeBaselineProvenance`, `sameCarryContext`, `ALLOWED_VERSION_TRANSITION_FIELDS`, `promptChangeManifest`, `PromptAnchor`, `prepareRejudge`, `rejudgeRun`, `observationCompatibilityHash`, `PreparedRejudge`, `RejudgeOptions`. Judges: `pairLedgerFollowupRequest`, `PairLedgerTieFollowup`, `PairLedgerTieFollowupRead`.
 * The API freeze includes batch 18 exports: core adds `parameterSchema`, `unsupportedSchemaKeywords`, `preflightTargetPrices`, `TokenPriceError` and `TokenPrices`; judges adds type `CriterionPromptVersion` and values `CRITERION_PROMPT_V2_FINGERPRINT`, `CRITERION_PROMPT_V2_RULES`, `CRITERION_PROMPT_VERSION` and `SYSTEM_PROMPT_V2`. No frozen name is removed.
 
 * API build freshness follows TypeScript compiler inputs and hashes resolved file contents, including symlink targets and sibling-source re-exports. Sources outside the repository fail the gate. Missing, unreadable and malformed build stamps report the exact rebuild command.
