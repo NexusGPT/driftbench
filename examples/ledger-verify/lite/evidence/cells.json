@@ -1,0 +1,972 @@
+{
+  "cells": [
+    {
+      "model": "gemini-3.5-flash-lite",
+      "status": "measured",
+      "official": {
+        "sealedItems": 221,
+        "matchedItems": 216,
+        "missing": [
+          5,
+          0
+        ],
+        "correct": [
+          138,
+          127
+        ],
+        "accuracy": [
+          0.6244343891402715,
+          0.5746606334841629
+        ],
+        "balancedAccuracy": [
+          0.6450232330643189,
+          0.6444729762778185
+        ],
+        "wilson95": [
+          [
+            0.5589738052255021,
+            0.6856430029400294
+          ],
+          [
+            0.5087500059007226,
+            0.6380200789985961
+          ]
+        ],
+        "delta": 0.049773755656108594,
+        "deltaRequestClusterBootstrap95": [
+          -0.02242152466367713,
+          0.1187214611872146
+        ],
+        "bootstrapReplicates": 10000,
+        "bootstrapSeed": 20261013,
+        "requestClusters": 219,
+        "wins": 39,
+        "losses": 28,
+        "twoSidedExactMcNemarP": 0.22154872964481115,
+        "holmP": null,
+        "holmStatus": "Additional model cell, outside original 18-cell family; adjustment pending collator",
+        "verdict": "TIE",
+        "missingPolicy": "Unparsed and missing verdicts are wrong in official scores; coverage reported separately",
+        "provisional": false,
+        "validVerdictCoverageComplete": false
+      },
+      "audited": {
+        "sealedItems": 221,
+        "matchedItems": 216,
+        "missing": [
+          5,
+          0
+        ],
+        "correct": [
+          158,
+          142
+        ],
+        "accuracy": [
+          0.7149321266968326,
+          0.6425339366515838
+        ],
+        "balancedAccuracy": [
+          0.7603550295857988,
+          0.7263313609467456
+        ],
+        "wilson95": [
+          [
+            0.6521370675019499,
+            0.7703828738748774
+          ],
+          [
+            0.5774079991220044,
+            0.7027894356857863
+          ]
+        ],
+        "delta": 0.07239819004524888,
+        "deltaRequestClusterBootstrap95": [
+          0.0,
+          0.1415525114155251
+        ],
+        "bootstrapReplicates": 10000,
+        "bootstrapSeed": 20261013,
+        "requestClusters": 219,
+        "wins": 42,
+        "losses": 26,
+        "twoSidedExactMcNemarP": 0.06811867428409976,
+        "holmP": null,
+        "holmStatus": "Additional model cell, outside original 18-cell family; adjustment pending collator",
+        "verdict": "TIE",
+        "missingPolicy": "Unparsed and missing verdicts are wrong in official scores; coverage reported separately",
+        "provisional": false,
+        "validVerdictCoverageComplete": false
+      },
+      "costUsd": [
+        2.055276800000001,
+        0.7715559999999997
+      ],
+      "costPer100SealedItems": [
+        0.9299895022624438,
+        0.3491203619909501
+      ],
+      "report": "results/gemini-3.5-flash-lite.json",
+      "outputLimitErrors": {
+        "driftbench-verify-uncertainty-cascade": {
+          "all": {
+            "answerEnvelopes": 5,
+            "affectedItems": 5,
+            "items": [
+              {
+                "phase": "test",
+                "id": "59be6e316c501c3c6f67c265ed7f469d_523d0604a8d9e02a61b7801e7cbe7911"
+              },
+              {
+                "phase": "test",
+                "id": "6f2500baaab5dcd81bcfe5416249fce2_c03a2a2005994f41e018a041dafcf875"
+              },
+              {
+                "phase": "test",
+                "id": "7fd9d80b188fd0e511568ce4eaf9823b_907c854eb1ea880801b52abe25e62acf"
+              },
+              {
+                "phase": "test",
+                "id": "d04086bb88417aeef28181ce6a4bb1c2_32f465d7d719f4836b825c54b8480804"
+              },
+              {
+                "phase": "test",
+                "id": "f48078b907465263df59e6cc261362e4_99fb5ec0153c30b2fe8ebb5a8cf10442"
+              }
+            ]
+          },
+          "test": {
+            "answerEnvelopes": 5,
+            "affectedItems": 5,
+            "items": [
+              {
+                "phase": "test",
+                "id": "59be6e316c501c3c6f67c265ed7f469d_523d0604a8d9e02a61b7801e7cbe7911"
+              },
+              {
+                "phase": "test",
+                "id": "6f2500baaab5dcd81bcfe5416249fce2_c03a2a2005994f41e018a041dafcf875"
+              },
+              {
+                "phase": "test",
+                "id": "7fd9d80b188fd0e511568ce4eaf9823b_907c854eb1ea880801b52abe25e62acf"
+              },
+              {
+                "phase": "test",
+                "id": "d04086bb88417aeef28181ce6a4bb1c2_32f465d7d719f4836b825c54b8480804"
+              },
+              {
+                "phase": "test",
+                "id": "f48078b907465263df59e6cc261362e4_99fb5ec0153c30b2fe8ebb5a8cf10442"
+              }
+            ]
+          }
+        },
+        "promptfoo": {
+          "all": {
+            "answerEnvelopes": 2,
+            "affectedItems": 2,
+            "items": [
+              {
+                "phase": "noise-0",
+                "id": "045503cb808f8344ae4972c147441517_90dddf89d761d5515d371d5d883e15ec"
+              },
+              {
+                "phase": "noise-2",
+                "id": "045503cb808f8344ae4972c147441517_90dddf89d761d5515d371d5d883e15ec"
+              }
+            ]
+          },
+          "test": {
+            "answerEnvelopes": 0,
+            "affectedItems": 0,
+            "items": []
+          }
+        }
+      },
+      "validation": {
+        "model": "gemini-3.5-flash-lite",
+        "mutationChecks": {
+          "driftbench-verify-uncertainty-cascade": {
+            "baseItems": 12,
+            "preserved": 12,
+            "flipped": 12,
+            "injectionMovedOrMissing": 0,
+            "baseMissing": 0,
+            "pass_": true
+          },
+          "promptfoo": {
+            "baseItems": 12,
+            "preserved": 12,
+            "flipped": 12,
+            "injectionMovedOrMissing": 0,
+            "baseMissing": 0,
+            "pass_": true
+          }
+        },
+        "noise": {
+          "driftbench-verify-uncertainty-cascade": {
+            "items": 30,
+            "repeats": 3,
+            "itemsWithAnyFlip": 10,
+            "itemsWithAnyMissing": 0
+          },
+          "promptfoo": {
+            "items": 30,
+            "repeats": 3,
+            "itemsWithAnyFlip": 10,
+            "itemsWithAnyMissing": 1
+          }
+        },
+        "limitations": "Mutation labels are planted arithmetic truth. This tests invariance, not broad domain accuracy."
+      },
+      "phaseCoverage": {
+        "pilot": {
+          "items": 20,
+          "stopped": null,
+          "missing": {
+            "driftbench-verify-uncertainty-cascade": 0,
+            "promptfoo": 0
+          },
+          "cassetteRows": 114,
+          "uniquePromptKeys": 114,
+          "terminalNoAnswerRecords": 0,
+          "recordedExecutionUsd": 0.5183653,
+          "costPer100UniqueKeys": {
+            "driftbench-verify-uncertainty-cascade": 2.2796589999999997,
+            "promptfoo": 0.3121675
+          },
+          "report": "examples/ledger-verify/lite/pilot/gemini-3.5-flash-lite.json",
+          "recording": "examples/ledger-verify/lite/recordings/flash-lite-medium-20261013/pilot/longjudge-verify/gemini-3.5-flash-lite.jsonl"
+        },
+        "validity": {
+          "items": 48,
+          "stopped": null,
+          "missing": {
+            "driftbench-verify-uncertainty-cascade": 0,
+            "promptfoo": 0
+          },
+          "cassetteRows": 239,
+          "uniquePromptKeys": 108,
+          "terminalNoAnswerRecords": 0,
+          "recordedExecutionUsd": 0.1189409,
+          "costPer100UniqueKeys": {
+            "driftbench-verify-uncertainty-cascade": 0.07771083333333333,
+            "promptfoo": 0.04326
+          },
+          "report": "examples/ledger-verify/lite/validity/gemini-3.5-flash-lite.json",
+          "recording": "examples/ledger-verify/lite/recordings/flash-lite-medium-20261013/validity/longjudge-verify/gemini-3.5-flash-lite.jsonl"
+        },
+        "noise-0": {
+          "items": 30,
+          "stopped": null,
+          "missing": {
+            "driftbench-verify-uncertainty-cascade": 0,
+            "promptfoo": 1
+          },
+          "cassetteRows": 182,
+          "uniquePromptKeys": 182,
+          "terminalNoAnswerRecords": 0,
+          "recordedExecutionUsd": 0.9682835,
+          "costPer100UniqueKeys": {
+            "driftbench-verify-uncertainty-cascade": 2.632684666666667,
+            "promptfoo": 0.594927
+          },
+          "report": "examples/ledger-verify/lite/noise-0/gemini-3.5-flash-lite.json",
+          "recording": "examples/ledger-verify/lite/recordings/flash-lite-medium-20261013/noise-0/longjudge-verify/gemini-3.5-flash-lite.jsonl"
+        },
+        "noise-1": {
+          "items": 30,
+          "stopped": null,
+          "missing": {
+            "driftbench-verify-uncertainty-cascade": 0,
+            "promptfoo": 0
+          },
+          "cassetteRows": 172,
+          "uniquePromptKeys": 172,
+          "terminalNoAnswerRecords": 0,
+          "recordedExecutionUsd": 0.8623312,
+          "costPer100UniqueKeys": {
+            "driftbench-verify-uncertainty-cascade": 2.452268666666667,
+            "promptfoo": 0.4221686666666667
+          },
+          "report": "examples/ledger-verify/lite/noise-1/gemini-3.5-flash-lite.json",
+          "recording": "examples/ledger-verify/lite/recordings/flash-lite-medium-20261013/noise-1/longjudge-verify/gemini-3.5-flash-lite.jsonl"
+        },
+        "noise-2": {
+          "items": 30,
+          "stopped": null,
+          "missing": {
+            "driftbench-verify-uncertainty-cascade": 0,
+            "promptfoo": 1
+          },
+          "cassetteRows": 172,
+          "uniquePromptKeys": 172,
+          "terminalNoAnswerRecords": 0,
+          "recordedExecutionUsd": 0.8361866,
+          "costPer100UniqueKeys": {
+            "driftbench-verify-uncertainty-cascade": 2.1577866666666665,
+            "promptfoo": 0.629502
+          },
+          "report": "examples/ledger-verify/lite/noise-2/gemini-3.5-flash-lite.json",
+          "recording": "examples/ledger-verify/lite/recordings/flash-lite-medium-20261013/noise-2/longjudge-verify/gemini-3.5-flash-lite.jsonl"
+        },
+        "results": {
+          "items": 221,
+          "stopped": null,
+          "missing": {
+            "driftbench-verify-uncertainty-cascade": 5,
+            "promptfoo": 0
+          },
+          "cassetteRows": 1240,
+          "uniquePromptKeys": 1240,
+          "terminalNoAnswerRecords": 8,
+          "recordedExecutionUsd": 5.296663,
+          "costPer100UniqueKeys": {
+            "driftbench-verify-uncertainty-cascade": 2.0475597285067875,
+            "promptfoo": 0.34912036199095026
+          },
+          "report": "examples/ledger-verify/lite/results/gemini-3.5-flash-lite.json",
+          "recording": "examples/ledger-verify/lite/recordings/flash-lite-medium-20261013/test/longjudge-verify/gemini-3.5-flash-lite.jsonl"
+        }
+      },
+      "productFinal": {
+        "official": {
+          "sealedItems": 221,
+          "matchedItems": 216,
+          "missing": [
+            5,
+            0
+          ],
+          "correct": [
+            138,
+            127
+          ],
+          "accuracy": [
+            0.6244343891402715,
+            0.5746606334841629
+          ],
+          "balancedAccuracy": [
+            0.6450232330643189,
+            0.6444729762778185
+          ],
+          "wilson95": [
+            [
+              0.5589738052255021,
+              0.6856430029400294
+            ],
+            [
+              0.5087500059007226,
+              0.6380200789985961
+            ]
+          ],
+          "delta": 0.049773755656108594,
+          "deltaRequestClusterBootstrap95": [
+            -0.02242152466367713,
+            0.1187214611872146
+          ],
+          "bootstrapReplicates": 10000,
+          "bootstrapSeed": 20261013,
+          "requestClusters": 219,
+          "wins": 39,
+          "losses": 28,
+          "twoSidedExactMcNemarP": 0.22154872964481115,
+          "holmP": null,
+          "holmStatus": "Additional model cell, outside original 18-cell family; adjustment pending collator",
+          "verdict": "TIE",
+          "missingPolicy": "Unparsed and missing verdicts are wrong in official scores; coverage reported separately",
+          "provisional": false,
+          "validVerdictCoverageComplete": false
+        },
+        "audited": {
+          "sealedItems": 221,
+          "matchedItems": 216,
+          "missing": [
+            5,
+            0
+          ],
+          "correct": [
+            158,
+            142
+          ],
+          "accuracy": [
+            0.7149321266968326,
+            0.6425339366515838
+          ],
+          "balancedAccuracy": [
+            0.7603550295857988,
+            0.7263313609467456
+          ],
+          "wilson95": [
+            [
+              0.6521370675019499,
+              0.7703828738748774
+            ],
+            [
+              0.5774079991220044,
+              0.7027894356857863
+            ]
+          ],
+          "delta": 0.07239819004524888,
+          "deltaRequestClusterBootstrap95": [
+            0.0,
+            0.1415525114155251
+          ],
+          "bootstrapReplicates": 10000,
+          "bootstrapSeed": 20261013,
+          "requestClusters": 219,
+          "wins": 42,
+          "losses": 26,
+          "twoSidedExactMcNemarP": 0.06811867428409976,
+          "holmP": null,
+          "holmStatus": "Additional model cell, outside original 18-cell family; adjustment pending collator",
+          "verdict": "TIE",
+          "missingPolicy": "Unparsed and missing verdicts are wrong in official scores; coverage reported separately",
+          "provisional": false,
+          "validVerdictCoverageComplete": false
+        }
+      },
+      "headline": "strict",
+      "strictDecisions": "results/gemini-3.5-flash-lite.strict.json",
+      "productFinalDecisions": "results/gemini-3.5-flash-lite.json",
+      "costPer100UniqueKeys": {
+        "driftbench-verify-uncertainty-cascade": 2.0475597285067875,
+        "promptfoo": 0.34912036199095026
+      },
+      "validityPassed": true,
+      "claimStatus": "Additional cell; multiplicity policy pending collator. No confirmatory win claim.",
+      "additionalCell": true,
+      "validityPassedScope": "Planted mutation checks only; full DEV cheater margin not established"
+    }
+  ],
+  "exposure": "previously evaluated split",
+  "unit": "item",
+  "auditedCorrections": 23,
+  "cheaters": {
+    "alwaysPassOfficial": 0.21266968325791855,
+    "alwaysFailOfficial": 0.7873303167420814,
+    "alwaysPassAudited": 0.23529411764705882,
+    "alwaysFailAudited": 0.7647058823529411
+  },
+  "noiseFloor": {
+    "gemini-3.5-flash-lite": {
+      "driftbench-verify-uncertainty-cascade": {
+        "items": 30,
+        "repeats": 3,
+        "itemsWithAnyFlip": 10,
+        "itemsWithAnyMissing": 0
+      },
+      "promptfoo": {
+        "items": 30,
+        "repeats": 3,
+        "itemsWithAnyFlip": 10,
+        "itemsWithAnyMissing": 1
+      }
+    }
+  },
+  "primaryEndpoint": "Official labels; audited labels are a separately reported sensitivity analysis",
+  "outputLimitErrors": {
+    "counts": {
+      "gemini-3.5-flash-lite": {
+        "driftbench-verify-uncertainty-cascade": {
+          "all": {
+            "answerEnvelopes": 5,
+            "affectedItems": 5,
+            "items": [
+              {
+                "phase": "test",
+                "id": "59be6e316c501c3c6f67c265ed7f469d_523d0604a8d9e02a61b7801e7cbe7911"
+              },
+              {
+                "phase": "test",
+                "id": "6f2500baaab5dcd81bcfe5416249fce2_c03a2a2005994f41e018a041dafcf875"
+              },
+              {
+                "phase": "test",
+                "id": "7fd9d80b188fd0e511568ce4eaf9823b_907c854eb1ea880801b52abe25e62acf"
+              },
+              {
+                "phase": "test",
+                "id": "d04086bb88417aeef28181ce6a4bb1c2_32f465d7d719f4836b825c54b8480804"
+              },
+              {
+                "phase": "test",
+                "id": "f48078b907465263df59e6cc261362e4_99fb5ec0153c30b2fe8ebb5a8cf10442"
+              }
+            ]
+          },
+          "test": {
+            "answerEnvelopes": 5,
+            "affectedItems": 5,
+            "items": [
+              {
+                "phase": "test",
+                "id": "59be6e316c501c3c6f67c265ed7f469d_523d0604a8d9e02a61b7801e7cbe7911"
+              },
+              {
+                "phase": "test",
+                "id": "6f2500baaab5dcd81bcfe5416249fce2_c03a2a2005994f41e018a041dafcf875"
+              },
+              {
+                "phase": "test",
+                "id": "7fd9d80b188fd0e511568ce4eaf9823b_907c854eb1ea880801b52abe25e62acf"
+              },
+              {
+                "phase": "test",
+                "id": "d04086bb88417aeef28181ce6a4bb1c2_32f465d7d719f4836b825c54b8480804"
+              },
+              {
+                "phase": "test",
+                "id": "f48078b907465263df59e6cc261362e4_99fb5ec0153c30b2fe8ebb5a8cf10442"
+              }
+            ]
+          }
+        },
+        "promptfoo": {
+          "all": {
+            "answerEnvelopes": 2,
+            "affectedItems": 2,
+            "items": [
+              {
+                "phase": "noise-0",
+                "id": "045503cb808f8344ae4972c147441517_90dddf89d761d5515d371d5d883e15ec"
+              },
+              {
+                "phase": "noise-2",
+                "id": "045503cb808f8344ae4972c147441517_90dddf89d761d5515d371d5d883e15ec"
+              }
+            ]
+          },
+          "test": {
+            "answerEnvelopes": 0,
+            "affectedItems": 0,
+            "items": []
+          }
+        }
+      }
+    },
+    "limits": [
+      {
+        "receipt": "cf9a40cb-6ebc-43f3-b288-75a018c90127",
+        "model": "gemini-3.5-flash-lite",
+        "phase": "noise-0",
+        "reason": "MAX_TOKENS",
+        "at": "2026-10-13T12:46:21.984Z",
+        "consumers": [
+          {
+            "phase": "noise-0",
+            "model": "gemini-3.5-flash-lite",
+            "key": "a15b39eed90343afc877",
+            "fingerprint": "729474bb982819c1740f2d89d1a4fd887522212f2bcbcf1f356896f318663058",
+            "bench": "longjudge-verify",
+            "contestant": "promptfoo",
+            "item": "045503cb808f8344ae4972c147441517_90dddf89d761d5515d371d5d883e15ec",
+            "order": "single",
+            "selection": "original item-labelled answer"
+          }
+        ]
+      },
+      {
+        "receipt": "69c4bd31-065e-4404-84de-04c1f091a20d",
+        "model": "gemini-3.5-flash-lite",
+        "phase": "noise-2",
+        "reason": "MAX_TOKENS",
+        "at": "2026-10-13T12:53:18.251Z",
+        "consumers": [
+          {
+            "phase": "noise-2",
+            "model": "gemini-3.5-flash-lite",
+            "key": "a15b39eed90343afc877",
+            "fingerprint": "729474bb982819c1740f2d89d1a4fd887522212f2bcbcf1f356896f318663058",
+            "bench": "longjudge-verify",
+            "contestant": "promptfoo",
+            "item": "045503cb808f8344ae4972c147441517_90dddf89d761d5515d371d5d883e15ec",
+            "order": "single",
+            "selection": "original item-labelled answer"
+          }
+        ]
+      },
+      {
+        "receipt": "ca131b9e-4b16-4818-a5ac-0c7b73c16e44",
+        "model": "gemini-3.5-flash-lite",
+        "phase": "test",
+        "reason": "MAX_TOKENS",
+        "at": "2026-10-13T12:54:35.206Z",
+        "consumers": [
+          {
+            "phase": "test",
+            "model": "gemini-3.5-flash-lite",
+            "key": "d1e8cc69ccaedf09b89e",
+            "fingerprint": "51a239e4660dc7830db082a88983c626c850d6d3d75cee0d0517c302e70631ca",
+            "bench": "longjudge-verify",
+            "contestant": "driftbench-verify-uncertainty-cascade",
+            "item": "59be6e316c501c3c6f67c265ed7f469d_523d0604a8d9e02a61b7801e7cbe7911",
+            "order": "single",
+            "selection": "original item-labelled answer"
+          }
+        ]
+      },
+      {
+        "receipt": "8c7b73d2-a9ce-44ba-9ebc-3fb8fc5748dc",
+        "model": "gemini-3.5-flash-lite",
+        "phase": "test",
+        "reason": "MAX_TOKENS",
+        "at": "2026-10-13T12:55:04.346Z",
+        "consumers": [
+          {
+            "phase": "test",
+            "model": "gemini-3.5-flash-lite",
+            "key": "b93a5932bd8b7ed3bbc6",
+            "fingerprint": "d6fc91394c63b3201ff4c3cf3531dfd6c58c6fdcbbc03cf05cfbd2817e7d2309",
+            "bench": "longjudge-verify",
+            "contestant": "driftbench-verify-uncertainty-cascade",
+            "item": "6f2500baaab5dcd81bcfe5416249fce2_c03a2a2005994f41e018a041dafcf875",
+            "order": "single",
+            "selection": "original item-labelled answer"
+          }
+        ]
+      },
+      {
+        "receipt": "e9a8b518-82e8-4352-b52d-ed3689659eb6",
+        "model": "gemini-3.5-flash-lite",
+        "phase": "test",
+        "reason": "MAX_TOKENS",
+        "at": "2026-10-13T12:56:12.268Z",
+        "consumers": [
+          {
+            "phase": "test",
+            "model": "gemini-3.5-flash-lite",
+            "key": "2bad09cf44c7cd034d31",
+            "fingerprint": "03c1389ad3e547ddc9d893b75e808926867215381b88e399bd3124693a09b5be",
+            "bench": "longjudge-verify",
+            "contestant": "driftbench-verify-uncertainty-cascade",
+            "item": "f48078b907465263df59e6cc261362e4_99fb5ec0153c30b2fe8ebb5a8cf10442",
+            "order": "single",
+            "selection": "original item-labelled answer"
+          }
+        ]
+      },
+      {
+        "receipt": "ec72de4f-9691-4d7f-bd92-8ba4d8644b54",
+        "model": "gemini-3.5-flash-lite",
+        "phase": "test",
+        "reason": "MAX_TOKENS",
+        "at": "2026-10-13T12:58:32.697Z",
+        "consumers": [
+          {
+            "phase": "test",
+            "model": "gemini-3.5-flash-lite",
+            "key": "297921387a5c9a8aa4d6",
+            "fingerprint": "44b9cad5738faaa7193bcfeeecb13a9a9c99388f0d1e069e24e6744862aa4890",
+            "bench": "longjudge-verify",
+            "contestant": "driftbench-verify-uncertainty-cascade",
+            "item": "d04086bb88417aeef28181ce6a4bb1c2_32f465d7d719f4836b825c54b8480804",
+            "order": "single",
+            "selection": "original item-labelled answer"
+          }
+        ]
+      },
+      {
+        "receipt": "bcc130ba-27a9-427e-9d71-fd0591b47f3c",
+        "model": "gemini-3.5-flash-lite",
+        "phase": "test",
+        "reason": "MAX_TOKENS",
+        "at": "2026-10-13T13:00:44.123Z",
+        "consumers": [
+          {
+            "phase": "test",
+            "model": "gemini-3.5-flash-lite",
+            "key": "3a9df2c42655bdb0da96",
+            "fingerprint": "ca4b2341f9bfc42c39c590d7337e630762882a97d813897500dfc9f3b521bd6d",
+            "bench": "longjudge-verify",
+            "contestant": "driftbench-verify-uncertainty-cascade",
+            "item": "7fd9d80b188fd0e511568ce4eaf9823b_907c854eb1ea880801b52abe25e62acf",
+            "order": "single",
+            "selection": "original item-labelled answer"
+          }
+        ]
+      }
+    ],
+    "unmappedLimits": [],
+    "unclassifiedHistoricalNativeErrors": [],
+    "rule": "Strict is primary; any confirmed output limit makes every consuming contestant/item an error. Product-final preserves the original verdict, including fallback.",
+    "source": "evidence/scoring-freeze.json; evidence/request-attribution.json; receipts/calls.jsonl; receipts/errors.jsonl; receipts/native/*.json"
+  },
+  "fees": {
+    "settledUsd": 8.622690500000017,
+    "unresolvedMaximumUsd": 10.799999999999999,
+    "maximumAccountedUsd": 19.422690500000016,
+    "capUsd": 24,
+    "providerReceipts": 2131,
+    "byModel": {
+      "gemini-3.5-flash-lite": 8.6226905
+    },
+    "unknownCharges": {
+      "e358ce30-cac4-4f8a-b9ff-6713577ce392": {
+        "usd": 0.3,
+        "model": "gemini-3.5-flash-lite",
+        "at": "2026-10-13T12:16:14.796352+00:00"
+      },
+      "22a00d75-5880-4316-91e1-79f3b1b05f99": {
+        "usd": 0.3,
+        "model": "gemini-3.5-flash-lite",
+        "at": "2026-10-13T12:16:18.167059+00:00"
+      },
+      "d30c713d-904f-4661-9787-58ed2e150f62": {
+        "usd": 0.3,
+        "model": "gemini-3.5-flash-lite",
+        "at": "2026-10-13T12:16:18.622438+00:00"
+      },
+      "4bdbf31a-5ddf-4da9-895c-44bc12be2ca3": {
+        "usd": 0.3,
+        "model": "gemini-3.5-flash-lite",
+        "at": "2026-10-13T12:16:21.226891+00:00"
+      },
+      "a8933b46-5920-4b58-b461-de70c5d2de6b": {
+        "usd": 0.3,
+        "model": "gemini-3.5-flash-lite",
+        "at": "2026-10-13T12:16:21.318460+00:00"
+      },
+      "76f5fcd7-a63b-4d3f-a8b8-49e5e3b9efce": {
+        "usd": 0.3,
+        "model": "gemini-3.5-flash-lite",
+        "at": "2026-10-13T12:16:27.203569+00:00"
+      },
+      "91fb84e7-d79f-4686-9650-4e7ddb5d9af8": {
+        "usd": 0.3,
+        "model": "gemini-3.5-flash-lite",
+        "at": "2026-10-13T12:16:28.123463+00:00"
+      },
+      "edafd174-cd2d-4bd7-8232-f119ab3bdd46": {
+        "usd": 0.3,
+        "model": "gemini-3.5-flash-lite",
+        "at": "2026-10-13T12:16:31.923210+00:00"
+      },
+      "6d4d935e-094d-4476-898c-dc5e5caea478": {
+        "usd": 0.3,
+        "model": "gemini-3.5-flash-lite",
+        "at": "2026-10-13T12:16:33.034823+00:00"
+      },
+      "d43107e3-ef1f-4629-a53d-403d0c177a9a": {
+        "usd": 0.3,
+        "model": "gemini-3.5-flash-lite",
+        "at": "2026-10-13T12:16:33.155124+00:00"
+      },
+      "23c40f74-534b-4eee-8eed-1272d10d3dca": {
+        "usd": 0.3,
+        "model": "gemini-3.5-flash-lite",
+        "at": "2026-10-13T12:16:34.789393+00:00"
+      },
+      "d10ee658-055f-42de-9d0f-42c0ed9cdd0e": {
+        "usd": 0.3,
+        "model": "gemini-3.5-flash-lite",
+        "at": "2026-10-13T12:16:34.850493+00:00"
+      },
+      "68b166b2-d358-491f-acda-ab088598dbd7": {
+        "usd": 0.3,
+        "model": "gemini-3.5-flash-lite",
+        "at": "2026-10-13T12:16:36.271714+00:00"
+      },
+      "e7ce0156-13d9-4542-a79c-e4694efbcbee": {
+        "usd": 0.3,
+        "model": "gemini-3.5-flash-lite",
+        "at": "2026-10-13T12:16:40.308430+00:00"
+      },
+      "f80d344c-1bea-43c8-92e1-fb43408f2e15": {
+        "usd": 0.3,
+        "model": "gemini-3.5-flash-lite",
+        "at": "2026-10-13T12:16:42.109856+00:00"
+      },
+      "14457e75-2e2c-4098-ace2-fb8801062679": {
+        "usd": 0.3,
+        "model": "gemini-3.5-flash-lite",
+        "at": "2026-10-13T12:16:45.292854+00:00"
+      },
+      "383ec366-3f12-4487-83c7-7c2ea86fa10a": {
+        "usd": 0.3,
+        "model": "gemini-3.5-flash-lite",
+        "at": "2026-10-13T12:16:46.235261+00:00"
+      },
+      "860be969-ef30-4ba1-be4f-a6125a0c5ae8": {
+        "usd": 0.3,
+        "model": "gemini-3.5-flash-lite",
+        "at": "2026-10-13T12:16:46.413793+00:00"
+      },
+      "5933d8c8-adef-4df9-ba33-21bdb0dd6985": {
+        "usd": 0.3,
+        "model": "gemini-3.5-flash-lite",
+        "at": "2026-10-13T12:16:48.194348+00:00"
+      },
+      "76a403dd-c162-4382-8380-2fa26c55ccf6": {
+        "usd": 0.3,
+        "model": "gemini-3.5-flash-lite",
+        "at": "2026-10-13T12:16:48.213331+00:00"
+      },
+      "66c0e7dd-80b5-4d7c-a062-153245f43858": {
+        "usd": 0.3,
+        "model": "gemini-3.5-flash-lite",
+        "at": "2026-10-13T12:16:49.255020+00:00"
+      },
+      "b2dfd4e5-d03f-491d-a227-c030618e6d39": {
+        "usd": 0.3,
+        "model": "gemini-3.5-flash-lite",
+        "at": "2026-10-13T12:16:58.443322+00:00"
+      },
+      "b87591f2-f656-4286-b0e3-6414c3d6459c": {
+        "usd": 0.3,
+        "model": "gemini-3.5-flash-lite",
+        "at": "2026-10-13T12:16:59.598968+00:00"
+      },
+      "d852d53e-560b-4abf-b0bd-2ca36ccc7498": {
+        "usd": 0.3,
+        "model": "gemini-3.5-flash-lite",
+        "at": "2026-10-13T12:16:59.758543+00:00"
+      },
+      "f1bad9a9-c8e0-4ded-bf67-40e8cf30fd8c": {
+        "usd": 0.3,
+        "model": "gemini-3.5-flash-lite",
+        "at": "2026-10-13T12:17:01.241889+00:00"
+      },
+      "95bc5a7f-29d2-4a6a-816e-059bf56be493": {
+        "usd": 0.3,
+        "model": "gemini-3.5-flash-lite",
+        "at": "2026-10-13T12:17:01.751276+00:00"
+      },
+      "afbfa812-053b-46b8-9f9f-46c0b48e854d": {
+        "usd": 0.3,
+        "model": "gemini-3.5-flash-lite",
+        "at": "2026-10-13T12:17:02.324701+00:00"
+      },
+      "a3d9f2aa-8838-4b5b-9572-4b9f40cefb44": {
+        "usd": 0.3,
+        "model": "gemini-3.5-flash-lite",
+        "at": "2026-10-13T12:17:09.467951+00:00"
+      },
+      "78c72b76-7a5a-4d9e-bbe0-9e64808e15a7": {
+        "usd": 0.3,
+        "model": "gemini-3.5-flash-lite",
+        "at": "2026-10-13T12:17:12.992718+00:00"
+      },
+      "226d59ae-60c2-4cb0-a74a-335b1ba59c0e": {
+        "usd": 0.3,
+        "model": "gemini-3.5-flash-lite",
+        "at": "2026-10-13T12:17:21.038995+00:00"
+      },
+      "f518209c-5080-4aae-ad0f-7b936dc81467": {
+        "usd": 0.3,
+        "model": "gemini-3.5-flash-lite",
+        "at": "2026-10-13T12:17:29.842110+00:00"
+      },
+      "4f18ec2c-9a72-4051-8fa9-f6f78407dabc": {
+        "usd": 0.3,
+        "model": "gemini-3.5-flash-lite",
+        "at": "2026-10-13T12:17:31.051295+00:00"
+      },
+      "6fb635bf-0596-4e1d-9973-c44c377aa6c7": {
+        "usd": 0.3,
+        "model": "gemini-3.5-flash-lite",
+        "at": "2026-10-13T12:17:31.953038+00:00"
+      },
+      "b45f0b89-8713-4d7f-8fa2-2afe3dac3df4": {
+        "usd": 0.3,
+        "model": "gemini-3.5-flash-lite",
+        "at": "2026-10-13T12:17:32.329238+00:00"
+      },
+      "8c8e2640-b21d-4cfb-a784-1d3e7c22f979": {
+        "usd": 0.3,
+        "model": "gemini-3.5-flash-lite",
+        "at": "2026-10-13T12:17:35.437672+00:00"
+      },
+      "cada0163-3285-4263-82f0-001717f6fc4a": {
+        "usd": 0.3,
+        "model": "gemini-3.5-flash-lite",
+        "at": "2026-10-13T13:01:24.511582+00:00"
+      }
+    },
+    "source": "receipts/budget.json and receipts/calls.jsonl"
+  },
+  "freeze": {
+    "runtime": "flash-lite-medium-20261013",
+    "core": "35f07309a4d1d1c8a7c5b176ff19e537d0ef8fdd",
+    "hashes": {
+      "evidence/seal.json": "54fc167420330d25eb2d8874a0784bd9aa4ec4ff06fbcae82ffaa26d5fc42155",
+      "evidence/runtime-freeze.json": "453bdeeca15c767a64d2f43002cbde64a42b79ca3661c4938637c20a6c8b12fb",
+      "evidence/pilot-runtime-freeze.json": "cc99259efb0661629387d964709748396ecf71a393fd486f09701e42fecaddc1",
+      "evidence/scoring-freeze.json": "e1c0ce28e0dc259b6fe3e3bf98e16e7e0bc20c05e621d09522f43576752fe40b",
+      "evidence/pool.json": "f569c72a5e701366d232b619a623c09abddcf69cfc4379e849dbdef76b9559c5",
+      "evidence/audit-map.json": "3de476f85d4ce54ed88260f62d4ccab8c0fad36cddf50c1e74e2035055541eb6",
+      "stats.py": "e3b432ef0f285bba201b01ec86224e6837f50ae972072d81b001f0fdf5753907",
+      "validate.py": "d756beb11f5a76e1d66ae03b299f178ce438f04bcd8992498d574e4fecd26e70",
+      "run.ts": "8cebff1ed04747ac2ed93848badee9c12f0f5fa8f1dc7c825cb9469d0e209589",
+      "transport.ts": "06e6cc3264db708eabd903cf9d7a5b6b1611025031e649e9bf80bd2543c20beb",
+      "summarize.py": "fe7e5493ae10b1fddcb72329b7d02b989b277173710f946d39cbca7229d72040",
+      "output_limits.py": "9576df54f44ab5ac0f5e019c150f8ee9c982b439204033fb147b73dd39ea8fd2",
+      "trace-requests.ts": "79cfed1cf4e0bc28d2bfc4a76b1b0c3cc78c1ca0f92a4f1df40350c393aec12b"
+    }
+  },
+  "at": "2026-10-13T13:36:41.191574+00:00",
+  "additionalCellAmendment": {
+    "at": "2026-10-13T12:08:20.045906+00:00",
+    "model": "gemini-3.5-flash-lite",
+    "status": "frozen before first provider call",
+    "reasoningRequested": "medium",
+    "reasoningApplied": "pending first successful pilot response",
+    "reasoningSource": "https://ai.google.dev/gemini-api/docs/thinking",
+    "supportedLevels": [
+      "minimal",
+      "low",
+      "medium",
+      "high"
+    ],
+    "fallback": "Only on explicit rejection of medium: provider default, recorded before continuation; never re-send returned answer",
+    "price": {
+      "source": "https://ai.google.dev/gemini-api/docs/pricing#gemini-3.5-flash-lite",
+      "readAt": "2026-10-13T12:08:20.045906+00:00",
+      "tier": "Standard",
+      "inputPerMillionUsd": 0.3,
+      "outputIncludingThinkingPerMillionUsd": 2.5
+    },
+    "capUsd": 6,
+    "concurrency": 8,
+    "timeoutMs": 300000,
+    "quotaWaitSeconds": [
+      20,
+      60,
+      180
+    ],
+    "http402": "stop new submissions immediately",
+    "contestants": [
+      "driftbench-verify-uncertainty-cascade",
+      "promptfoo"
+    ],
+    "phases": {
+      "pilot": 20,
+      "mutation": 48,
+      "noise": [
+        30,
+        30,
+        30
+      ],
+      "TEST": 221
+    },
+    "scoring": "strict headline: output-limit hit is error; product-final: existing returned fallback verdict; symmetric",
+    "poolSha256": "f569c72a5e701366d232b619a623c09abddcf69cfc4379e849dbdef76b9559c5",
+    "runtimeSha256": "cc99259efb0661629387d964709748396ecf71a393fd486f09701e42fecaddc1",
+    "previousCell": "gemini-3.8-flash remains separate, parked until owner word",
+    "multiplicity": "Additional model cell; no substitution into original 18-cell family. Collator must declare expanded-family policy.",
+    "authorization": "Owner decision: add gemini-3.5-flash-lite as a NEW model cell, both contestants, same pilot/mutation/noise/TEST, budget 6 USD.",
+    "offlineChecks": {
+      "budgetAndConcurrencyAnd402": 3,
+      "quotaAndNoAnswerRetryRules": 4,
+      "providerCalls": 0
+    }
+  },
+  "reasoningApplied": {
+    "at": "2026-10-13T12:46:22.058768+00:00",
+    "model": "gemini-3.5-flash-lite",
+    "requested": "medium",
+    "applied": "medium",
+    "firstSuccessfulReceipt": "d3eea3c1-e550-4e21-b340-1bd1df6f00f6",
+    "evidence": "Successful core dialect request with thinkingLevel medium"
+  },
+  "predeclaredCheaterMarginEstablished": false
+}

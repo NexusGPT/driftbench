@@ -1,0 +1,202 @@
+{
+  "at": "2026-10-13T13:36:41.208209+00:00",
+  "status": "offline evidence ready for review",
+  "model": "gemini-3.5-flash-lite",
+  "phases": 6,
+  "complete": true,
+  "fees": {
+    "settledUsd": 8.622690500000017,
+    "unresolvedMaximumUsd": 10.799999999999999,
+    "maximumAccountedUsd": 19.422690500000016,
+    "capUsd": 24,
+    "providerReceipts": 2131,
+    "byModel": {
+      "gemini-3.5-flash-lite": 8.6226905
+    },
+    "unknownCharges": {
+      "e358ce30-cac4-4f8a-b9ff-6713577ce392": {
+        "usd": 0.3,
+        "model": "gemini-3.5-flash-lite",
+        "at": "2026-10-13T12:16:14.796352+00:00"
+      },
+      "22a00d75-5880-4316-91e1-79f3b1b05f99": {
+        "usd": 0.3,
+        "model": "gemini-3.5-flash-lite",
+        "at": "2026-10-13T12:16:18.167059+00:00"
+      },
+      "d30c713d-904f-4661-9787-58ed2e150f62": {
+        "usd": 0.3,
+        "model": "gemini-3.5-flash-lite",
+        "at": "2026-10-13T12:16:18.622438+00:00"
+      },
+      "4bdbf31a-5ddf-4da9-895c-44bc12be2ca3": {
+        "usd": 0.3,
+        "model": "gemini-3.5-flash-lite",
+        "at": "2026-10-13T12:16:21.226891+00:00"
+      },
+      "a8933b46-5920-4b58-b461-de70c5d2de6b": {
+        "usd": 0.3,
+        "model": "gemini-3.5-flash-lite",
+        "at": "2026-10-13T12:16:21.318460+00:00"
+      },
+      "76f5fcd7-a63b-4d3f-a8b8-49e5e3b9efce": {
+        "usd": 0.3,
+        "model": "gemini-3.5-flash-lite",
+        "at": "2026-10-13T12:16:27.203569+00:00"
+      },
+      "91fb84e7-d79f-4686-9650-4e7ddb5d9af8": {
+        "usd": 0.3,
+        "model": "gemini-3.5-flash-lite",
+        "at": "2026-10-13T12:16:28.123463+00:00"
+      },
+      "edafd174-cd2d-4bd7-8232-f119ab3bdd46": {
+        "usd": 0.3,
+        "model": "gemini-3.5-flash-lite",
+        "at": "2026-10-13T12:16:31.923210+00:00"
+      },
+      "6d4d935e-094d-4476-898c-dc5e5caea478": {
+        "usd": 0.3,
+        "model": "gemini-3.5-flash-lite",
+        "at": "2026-10-13T12:16:33.034823+00:00"
+      },
+      "d43107e3-ef1f-4629-a53d-403d0c177a9a": {
+        "usd": 0.3,
+        "model": "gemini-3.5-flash-lite",
+        "at": "2026-10-13T12:16:33.155124+00:00"
+      },
+      "23c40f74-534b-4eee-8eed-1272d10d3dca": {
+        "usd": 0.3,
+        "model": "gemini-3.5-flash-lite",
+        "at": "2026-10-13T12:16:34.789393+00:00"
+      },
+      "d10ee658-055f-42de-9d0f-42c0ed9cdd0e": {
+        "usd": 0.3,
+        "model": "gemini-3.5-flash-lite",
+        "at": "2026-10-13T12:16:34.850493+00:00"
+      },
+      "68b166b2-d358-491f-acda-ab088598dbd7": {
+        "usd": 0.3,
+        "model": "gemini-3.5-flash-lite",
+        "at": "2026-10-13T12:16:36.271714+00:00"
+      },
+      "e7ce0156-13d9-4542-a79c-e4694efbcbee": {
+        "usd": 0.3,
+        "model": "gemini-3.5-flash-lite",
+        "at": "2026-10-13T12:16:40.308430+00:00"
+      },
+      "f80d344c-1bea-43c8-92e1-fb43408f2e15": {
+        "usd": 0.3,
+        "model": "gemini-3.5-flash-lite",
+        "at": "2026-10-13T12:16:42.109856+00:00"
+      },
+      "14457e75-2e2c-4098-ace2-fb8801062679": {
+        "usd": 0.3,
+        "model": "gemini-3.5-flash-lite",
+        "at": "2026-10-13T12:16:45.292854+00:00"
+      },
+      "383ec366-3f12-4487-83c7-7c2ea86fa10a": {
+        "usd": 0.3,
+        "model": "gemini-3.5-flash-lite",
+        "at": "2026-10-13T12:16:46.235261+00:00"
+      },
+      "860be969-ef30-4ba1-be4f-a6125a0c5ae8": {
+        "usd": 0.3,
+        "model": "gemini-3.5-flash-lite",
+        "at": "2026-10-13T12:16:46.413793+00:00"
+      },
+      "5933d8c8-adef-4df9-ba33-21bdb0dd6985": {
+        "usd": 0.3,
+        "model": "gemini-3.5-flash-lite",
+        "at": "2026-10-13T12:16:48.194348+00:00"
+      },
+      "76a403dd-c162-4382-8380-2fa26c55ccf6": {
+        "usd": 0.3,
+        "model": "gemini-3.5-flash-lite",
+        "at": "2026-10-13T12:16:48.213331+00:00"
+      },
+      "66c0e7dd-80b5-4d7c-a062-153245f43858": {
+        "usd": 0.3,
+        "model": "gemini-3.5-flash-lite",
+        "at": "2026-10-13T12:16:49.255020+00:00"
+      },
+      "b2dfd4e5-d03f-491d-a227-c030618e6d39": {
+        "usd": 0.3,
+        "model": "gemini-3.5-flash-lite",
+        "at": "2026-10-13T12:16:58.443322+00:00"
+      },
+      "b87591f2-f656-4286-b0e3-6414c3d6459c": {
+        "usd": 0.3,
+        "model": "gemini-3.5-flash-lite",
+        "at": "2026-10-13T12:16:59.598968+00:00"
+      },
+      "d852d53e-560b-4abf-b0bd-2ca36ccc7498": {
+        "usd": 0.3,
+        "model": "gemini-3.5-flash-lite",
+        "at": "2026-10-13T12:16:59.758543+00:00"
+      },
+      "f1bad9a9-c8e0-4ded-bf67-40e8cf30fd8c": {
+        "usd": 0.3,
+        "model": "gemini-3.5-flash-lite",
+        "at": "2026-10-13T12:17:01.241889+00:00"
+      },
+      "95bc5a7f-29d2-4a6a-816e-059bf56be493": {
+        "usd": 0.3,
+        "model": "gemini-3.5-flash-lite",
+        "at": "2026-10-13T12:17:01.751276+00:00"
+      },
+      "afbfa812-053b-46b8-9f9f-46c0b48e854d": {
+        "usd": 0.3,
+        "model": "gemini-3.5-flash-lite",
+        "at": "2026-10-13T12:17:02.324701+00:00"
+      },
+      "a3d9f2aa-8838-4b5b-9572-4b9f40cefb44": {
+        "usd": 0.3,
+        "model": "gemini-3.5-flash-lite",
+        "at": "2026-10-13T12:17:09.467951+00:00"
+      },
+      "78c72b76-7a5a-4d9e-bbe0-9e64808e15a7": {
+        "usd": 0.3,
+        "model": "gemini-3.5-flash-lite",
+        "at": "2026-10-13T12:17:12.992718+00:00"
+      },
+      "226d59ae-60c2-4cb0-a74a-335b1ba59c0e": {
+        "usd": 0.3,
+        "model": "gemini-3.5-flash-lite",
+        "at": "2026-10-13T12:17:21.038995+00:00"
+      },
+      "f518209c-5080-4aae-ad0f-7b936dc81467": {
+        "usd": 0.3,
+        "model": "gemini-3.5-flash-lite",
+        "at": "2026-10-13T12:17:29.842110+00:00"
+      },
+      "4f18ec2c-9a72-4051-8fa9-f6f78407dabc": {
+        "usd": 0.3,
+        "model": "gemini-3.5-flash-lite",
+        "at": "2026-10-13T12:17:31.051295+00:00"
+      },
+      "6fb635bf-0596-4e1d-9973-c44c377aa6c7": {
+        "usd": 0.3,
+        "model": "gemini-3.5-flash-lite",
+        "at": "2026-10-13T12:17:31.953038+00:00"
+      },
+      "b45f0b89-8713-4d7f-8fa2-2afe3dac3df4": {
+        "usd": 0.3,
+        "model": "gemini-3.5-flash-lite",
+        "at": "2026-10-13T12:17:32.329238+00:00"
+      },
+      "8c8e2640-b21d-4cfb-a784-1d3e7c22f979": {
+        "usd": 0.3,
+        "model": "gemini-3.5-flash-lite",
+        "at": "2026-10-13T12:17:35.437672+00:00"
+      },
+      "cada0163-3285-4263-82f0-001717f6fc4a": {
+        "usd": 0.3,
+        "model": "gemini-3.5-flash-lite",
+        "at": "2026-10-13T13:01:24.511582+00:00"
+      }
+    },
+    "source": "receipts/budget.json and receipts/calls.jsonl"
+  },
+  "replayNewCalls": 0,
+  "unmappedLimits": 0
+}

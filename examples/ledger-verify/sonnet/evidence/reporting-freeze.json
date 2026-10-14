@@ -1,0 +1,20 @@
+{
+  "at": "2026-10-13T14:57:53.768376+00:00",
+  "sourceHashes": {
+    "examples/ledger-verify/sonnet/stats.py": "dcfa26a1d8cfd0dfc27b14e6bc09a621f0cf0ba857a24ea8f2998f7a6bb76f7d",
+    "examples/ledger-verify/sonnet/validate.py": "f792145d974285ee9b7f0840a2557cd0505602548eedcd4d9de3e4aa124a9775",
+    "examples/ledger-verify/sonnet/summarize.py": "65e0a30be7460cbe224f220d7072d4deac376d48dede18b9d3ce26c8335b2164",
+    "examples/ledger-verify/sonnet/output_limits.py": "25e556a7247245e6bf3830897e278653eab6fef75912199ef8ee3b5bf1f400da",
+    "examples/ledger-verify/new-cell-trace.ts": "70fdd3349e1779f3294f10b03d90dc226fc0d24546ab16c38f4f299a41ebaa17"
+  },
+  "algorithmEquality": {
+    "stats.py": "all non-main function ASTs identical to original frozen source",
+    "validate.py": "all non-main function ASTs identical to original frozen source"
+  },
+  "nativeStopReasonAmendment": {
+    "at": "2026-10-13T17:42:49.517121+00:00",
+    "beforeTEST": true,
+    "rule": "Native stop_reason=max_tokens directly proves an output-limit hit, including native subtype=success with empty text. Same strict error rule for both contestants. Product-final unchanged.",
+    "previousHash": "ca936a947292582fcdcbebece33b103f84ab9511aace4ad3ff9fe45665be7592"
+  }
+}

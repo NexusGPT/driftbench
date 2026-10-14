@@ -124,12 +124,14 @@ describe('driftbench view', () => {
     // A run whose form offers no_invented_data: a label goes only on a criterion the block offers.
     const run = await runOffering('c-x3', 'no_invented_data', 'acme-plan-upgrade');
     const runId = decodeURIComponent(run.split('/').pop() as string);
+    const csrf = (await get(run)).text.match(/name="csrf" value="([^"]+)"/)?.[1] ?? '';
     const save = (label: string, block: string, note: string) =>
       fetch(`${viewer.url}/labels`, {
         method: 'POST',
         redirect: 'manual',
-        headers: { 'content-type': 'application/x-www-form-urlencoded' },
+        headers: { 'content-type': 'application/x-www-form-urlencoded', origin: viewer.url },
         body: new URLSearchParams({
+          csrf,
           campaign: 'c-x3',
           run: runId,
           block,
@@ -171,13 +173,15 @@ describe('driftbench view', () => {
   it('refuses a bad label request with 400 and writes nothing', async () => {
     const run = await firstRun('c-x3', true);
     const runId = decodeURIComponent(run.split('/').pop() as string);
+    const csrf = (await get(run)).text.match(/name="csrf" value="([^"]+)"/)?.[1] ?? '';
     const bad = async (fields: Record<string, string>) =>
       (
         await fetch(`${viewer.url}/labels`, {
           method: 'POST',
           redirect: 'manual',
-          headers: { 'content-type': 'application/x-www-form-urlencoded' },
+          headers: { 'content-type': 'application/x-www-form-urlencoded', origin: viewer.url },
           body: new URLSearchParams({
+            csrf,
             campaign: 'c-x3',
             run: runId,
             block: '0',

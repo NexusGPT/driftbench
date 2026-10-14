@@ -1,0 +1,14 @@
+{
+  "at": "2026-10-13T14:57:53.768376+00:00",
+  "sourceHashes": {
+    "examples/ledger-verify/sol61/stats.py": "6869846fd60ebe8b8d7647b6406a41370ed00b26151138dcc973d44f2c8693d6",
+    "examples/ledger-verify/sol61/validate.py": "318788033919432919d1e3e9653fcc8f5769fe257a23ef046090463f77e00af5",
+    "examples/ledger-verify/sol61/summarize.py": "fa46bb25511f7bca9872859586a4cd0b0c7fffee52fbe5cb06d0961bfa8b8d46",
+    "examples/ledger-verify/sol61/output_limits.py": "b0e119c61c0dafdce29175e4eb64e27330cdcf04b611d040e2dc7692a1e6222d",
+    "examples/ledger-verify/new-cell-trace.ts": "70fdd3349e1779f3294f10b03d90dc226fc0d24546ab16c38f4f299a41ebaa17"
+  },
+  "algorithmEquality": {
+    "stats.py": "all non-main function ASTs identical to original frozen source",
+    "validate.py": "all non-main function ASTs identical to original frozen source"
+  }
+}

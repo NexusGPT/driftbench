@@ -853,6 +853,34 @@ The shipped judge against each framework's own default judge, on held-out hard c
 
 Every result, test by test and tool by tool, including the tests where another framework is ahead today: [how we measured](docs/comparison/methods.md) and the [per-tool pages](docs/comparison/index.md).
 
+### Every default judge, five public benchmarks
+
+The same sealed items and the same model (Claude Haiku 5.5) for every contestant. DeepEval, Inspect, Langfuse and LangWatch run their default judge; driftbench and promptfoo are the recorded cells. Paired exact tests, driftbench against each tool; a win or loss needs a Holm-corrected p below 0.05. Inspect and Langfuse have no pairwise grader, so they score each reply alone and the higher score wins.
+
+| Benchmark | driftbench | promptfoo | DeepEval | Inspect | Langfuse | LangWatch |
+|---|---:|---:|---:|---:|---:|---:|
+| JudgeBench, 270 pairs | 88.9 | 83.0 | 86.3 | 80.0 | 74.8 | 83.7 |
+| MM-Eval, 591 items | 88.9 | 86.5 | 84.1 | 75.4 | 73.5 | 83.9 |
+| RubricBench, 1,580 games | 82.7 | 75.6 | 77.6 | 26.6 | 25.1 | 74.9 |
+| LongJudgeBench verify, 221 items | 74.2 | 71.9 | 58.8 | 73.3 | 75.1 | 73.3 |
+| LongJudgeBench writing, 346 games | 61.3 | 56.9 | 58.4 | 11.6 | 14.5 | 52.6 |
+
+Length-controlled accuracy on writing (a longer-wins rule scores 50): driftbench 59.3, DeepEval 58.3, promptfoo 55.6, LangWatch 51.5, Langfuse 15.8, Inspect 11.8 (source: `examples/writing-heldout/README.md` on `feat/writing-lead`).
+
+- Holm-corrected over the 25 comparisons (driftbench against promptfoo and each of the four tools on each benchmark): 16 significant wins, 9 ties, no losses.
+- The 9 ties are JudgeBench against promptfoo (raw p 0.0139), LangWatch (raw p 0.0201) and DeepEval (raw p 0.21); verify against promptfoo, Inspect, Langfuse and LangWatch; writing against promptfoo and DeepEval. Holm p values are in the per benchmark tables.
+- Without the correction, 18 of the 25 have raw p below 0.05, so JudgeBench against promptfoo and against LangWatch would count as wins.
+- No comparison is a significant loss. Langfuse scores 0.9 points higher on verify (13 wins against 15 losses, raw p 0.85). On writing, the reader-first variant picks the longer reply on all 173 pairs, so its 67.6 equals a longer-wins rule and is not a judge result.
+- The verify column here is Claude Haiku 5.5 (driftbench 74.2, promptfoo 71.9). The 74.7 and 72.4 in [the public benchmark table](docs/comparison/methods.md) are GPT-6 Luna, a different model.
+- A few items stay undecided after three passes because the model refused them. They count as wrong for the contestant. Undecided items: MM-Eval 3 to 7 per peer, RubricBench 1 each for DeepEval and Langfuse.
+- Inspect and Langfuse scores on RubricBench and writing are low because a pointwise grader returns equal scores for many pairs, and a tie counts as wrong.
+
+Per benchmark tables with wins, losses, p values and spend: [JudgeBench](docs/comparison/benchmarks/judgebench-all-peers.md), [MM-Eval](docs/comparison/benchmarks/mmeval-all-peers.md), [RubricBench](docs/comparison/benchmarks/rubricbench-all-peers.md), [verify](docs/comparison/benchmarks/verify-all-peers.md), [writing](docs/comparison/benchmarks/writing-all-peers.md). The sealed items are not committed. To rebuild them:
+
+1. Run the RubricBench loader, `node --experimental-strip-types examples/all-peers-public/rubricbench-loader/load.mts <out.json>`. It downloads the RubricBench rows from Hugging Face (cached on disk), keeps the 790 sealed test ids listed in `test-ids.json` and writes them as JSON.
+2. Run `python examples/all-peers-public/export.py --items-only --rubricbench-items <out.json>`. It rebuilds all five item files and checks each against the committed sha256.
+3. Re-score offline with `python examples/all-peers-public/stats.py`.
+
 ### What a judgement costs
 
 <a href=".github/readme/judge-cost-light.png">

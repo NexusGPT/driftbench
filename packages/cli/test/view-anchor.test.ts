@@ -11,6 +11,7 @@ let dir = '';
 let viewer: Viewer;
 let labels = '';
 let runPage = '';
+let csrf = '';
 
 beforeAll(async () => {
   dir = await mkdtemp(join(tmpdir(), 'driftbench-anchor-'));
@@ -32,6 +33,7 @@ beforeAll(async () => {
     const text = await (await fetch(`${viewer.url}${link}`)).text();
     if (text.includes('<option value="no_invented_data">')) {
       runPage = text;
+      csrf = text.match(/name="csrf" value="([^"]+)"/)?.[1] ?? '';
       break;
     }
   }
@@ -51,8 +53,9 @@ async function save(fields: Record<string, string>): Promise<Response> {
   return fetch(`${viewer.url}/labels`, {
     method: 'POST',
     redirect: 'manual',
-    headers: { 'content-type': 'application/x-www-form-urlencoded' },
+    headers: { 'content-type': 'application/x-www-form-urlencoded', origin: viewer.url },
     body: new URLSearchParams({
+      csrf,
       campaign: 'c-x3',
       run: runIdOf(),
       criterion: 'no_invented_data',
@@ -118,8 +121,8 @@ describe('the anchor form on the review queue: a queued block, labelled with an 
     const taken = await fetch(`${viewer.url}/queue/assign`, {
       method: 'POST',
       redirect: 'manual',
-      headers: { 'content-type': 'application/x-www-form-urlencoded' },
-      body: new URLSearchParams({ criterion: 'no_invented_data', id: `${runId}.b1` }),
+      headers: { 'content-type': 'application/x-www-form-urlencoded', origin: viewer.url },
+      body: new URLSearchParams({ csrf, criterion: 'no_invented_data', id: `${runId}.b1` }),
     });
     expect(taken.status).toBe(303);
     const saved = await save({ block: '1', anchor: 'message:1' });
@@ -190,8 +193,8 @@ describe('a score typed with the label is kept on the queue vote', () => {
     await fetch(`${viewer.url}/queue/assign`, {
       method: 'POST',
       redirect: 'manual',
-      headers: { 'content-type': 'application/x-www-form-urlencoded' },
-      body: new URLSearchParams({ criterion: 'no_invented_data', id: `${runId}.b2` }),
+      headers: { 'content-type': 'application/x-www-form-urlencoded', origin: viewer.url },
+      body: new URLSearchParams({ csrf, criterion: 'no_invented_data', id: `${runId}.b2` }),
     });
     const response = await save({ block: '2', label: 'pass', score: '0.7' });
     expect(response.status).toBe(303);

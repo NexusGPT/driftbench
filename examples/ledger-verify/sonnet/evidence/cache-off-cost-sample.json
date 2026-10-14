@@ -1,0 +1,389 @@
+{
+  "at": "2026-10-13T16:03:02.957624+00:00",
+  "sampleRequests": 5,
+  "costUsd": 0.069768,
+  "outcomes": [
+    {
+      "index": 0,
+      "labels": {
+        "bench": "longjudge-verify",
+        "contestant": "driftbench-verify-uncertainty-cascade",
+        "item": "00a93c5457ba7180f88944780f9134a0_773a31d04e4d41c29af003fb95f3b960",
+        "order": "program"
+      },
+      "costUsd": 0.01575,
+      "receipt": "e1469ce1-8ea4-422e-b742-48d4e91788ef",
+      "fingerprint": "9d0f2d54ef75ef0f23fc0ff461556eadd57da3860776704670d94b86fa8cd307",
+      "usage": {
+        "input_tokens": 1310,
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 0,
+        "output_tokens": 1313,
+        "output_tokens_details": {
+          "thinking_tokens": 514
+        },
+        "server_tool_use": {
+          "web_search_requests": 0,
+          "web_fetch_requests": 0
+        },
+        "service_tier": "standard",
+        "cache_creation": {
+          "ephemeral_1h_input_tokens": 0,
+          "ephemeral_5m_input_tokens": 0
+        },
+        "inference_geo": "global",
+        "iterations": [
+          {
+            "input_tokens": 1310,
+            "output_tokens": 1313,
+            "cache_read_input_tokens": 0,
+            "cache_creation_input_tokens": 0,
+            "cache_creation": {
+              "ephemeral_5m_input_tokens": 0,
+              "ephemeral_1h_input_tokens": 0
+            },
+            "type": "message"
+          }
+        ],
+        "speed": "standard",
+        "fallback_credit": null
+      },
+      "modelUsage": {
+        "claude-sonnet-5-5": {
+          "inputTokens": 1310,
+          "outputTokens": 1313,
+          "cacheReadInputTokens": 0,
+          "cacheCreationInputTokens": 0,
+          "webSearchRequests": 0,
+          "costUSD": 0.01575,
+          "contextWindow": 1000000,
+          "maxOutputTokens": 128000,
+          "thinkingTokens": 514,
+          "canonicalModel": "claude-sonnet-5-5",
+          "provider": "firstParty",
+          "costBasis": "list"
+        }
+      },
+      "isError": false
+    },
+    {
+      "index": 1,
+      "labels": {
+        "bench": "longjudge-verify",
+        "contestant": "driftbench-verify-uncertainty-cascade",
+        "item": "00a93c5457ba7180f88944780f9134a0_773a31d04e4d41c29af003fb95f3b960",
+        "order": "blind-direct-program"
+      },
+      "costUsd": 0.015584,
+      "receipt": "917c9164-490e-4b0b-be83-b40af938e242",
+      "fingerprint": "a719d10b6523bf65982f98ee05ba5a545c8da396f703b0481e5dd48a28824b73",
+      "usage": {
+        "input_tokens": 1197,
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 0,
+        "output_tokens": 1319,
+        "output_tokens_details": {
+          "thinking_tokens": 551
+        },
+        "server_tool_use": {
+          "web_search_requests": 0,
+          "web_fetch_requests": 0
+        },
+        "service_tier": "standard",
+        "cache_creation": {
+          "ephemeral_1h_input_tokens": 0,
+          "ephemeral_5m_input_tokens": 0
+        },
+        "inference_geo": "global",
+        "iterations": [
+          {
+            "input_tokens": 1197,
+            "output_tokens": 1319,
+            "cache_read_input_tokens": 0,
+            "cache_creation_input_tokens": 0,
+            "cache_creation": {
+              "ephemeral_5m_input_tokens": 0,
+              "ephemeral_1h_input_tokens": 0
+            },
+            "type": "message"
+          }
+        ],
+        "speed": "standard",
+        "fallback_credit": null
+      },
+      "modelUsage": {
+        "claude-sonnet-5-5": {
+          "inputTokens": 1197,
+          "outputTokens": 1319,
+          "cacheReadInputTokens": 0,
+          "cacheCreationInputTokens": 0,
+          "webSearchRequests": 0,
+          "costUSD": 0.015584,
+          "contextWindow": 1000000,
+          "maxOutputTokens": 128000,
+          "thinkingTokens": 551,
+          "canonicalModel": "claude-sonnet-5-5",
+          "provider": "firstParty",
+          "costBasis": "list"
+        }
+      },
+      "isError": false
+    },
+    {
+      "index": 2,
+      "labels": {
+        "bench": "longjudge-verify",
+        "contestant": "driftbench-verify-uncertainty-cascade",
+        "item": "00a93c5457ba7180f88944780f9134a0_773a31d04e4d41c29af003fb95f3b960",
+        "order": "single"
+      },
+      "costUsd": 0.012150000000000001,
+      "receipt": "a5b737bb-3fec-4125-a3cb-bdfff1ade19b",
+      "fingerprint": "d2af0a37c59cafde00ab72ec0333393b54e2cd578cc0dcf9e98f47f0da232ca3",
+      "usage": {
+        "input_tokens": 2995,
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 0,
+        "output_tokens": 616,
+        "output_tokens_details": {
+          "thinking_tokens": 146
+        },
+        "server_tool_use": {
+          "web_search_requests": 0,
+          "web_fetch_requests": 0
+        },
+        "service_tier": "standard",
+        "cache_creation": {
+          "ephemeral_1h_input_tokens": 0,
+          "ephemeral_5m_input_tokens": 0
+        },
+        "inference_geo": "global",
+        "iterations": [
+          {
+            "input_tokens": 2995,
+            "output_tokens": 616,
+            "cache_read_input_tokens": 0,
+            "cache_creation_input_tokens": 0,
+            "cache_creation": {
+              "ephemeral_5m_input_tokens": 0,
+              "ephemeral_1h_input_tokens": 0
+            },
+            "type": "message"
+          }
+        ],
+        "speed": "standard",
+        "fallback_credit": null
+      },
+      "modelUsage": {
+        "claude-sonnet-5-5": {
+          "inputTokens": 2995,
+          "outputTokens": 616,
+          "cacheReadInputTokens": 0,
+          "cacheCreationInputTokens": 0,
+          "webSearchRequests": 0,
+          "costUSD": 0.012150000000000001,
+          "contextWindow": 1000000,
+          "maxOutputTokens": 128000,
+          "thinkingTokens": 146,
+          "canonicalModel": "claude-sonnet-5-5",
+          "provider": "firstParty",
+          "costBasis": "list"
+        }
+      },
+      "isError": false
+    },
+    {
+      "index": 3,
+      "labels": {
+        "bench": "longjudge-verify",
+        "contestant": "promptfoo",
+        "item": "012d78a208c04759392be0c8b9d27dc6_dc9a328c94255249105f5d3b465499d5",
+        "order": "single"
+      },
+      "costUsd": 0.014346000000000001,
+      "receipt": "85dc8cad-f1df-4193-a403-c05929dc8584",
+      "fingerprint": "f3e9f311eb32240a8019e73d62074996c71353e8cb652a3cbfa4fab88825699e",
+      "usage": {
+        "input_tokens": 4863,
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 0,
+        "output_tokens": 462,
+        "output_tokens_details": {
+          "thinking_tokens": 289
+        },
+        "server_tool_use": {
+          "web_search_requests": 0,
+          "web_fetch_requests": 0
+        },
+        "service_tier": "standard",
+        "cache_creation": {
+          "ephemeral_1h_input_tokens": 0,
+          "ephemeral_5m_input_tokens": 0
+        },
+        "inference_geo": "global",
+        "iterations": [
+          {
+            "input_tokens": 4863,
+            "output_tokens": 462,
+            "cache_read_input_tokens": 0,
+            "cache_creation_input_tokens": 0,
+            "cache_creation": {
+              "ephemeral_5m_input_tokens": 0,
+              "ephemeral_1h_input_tokens": 0
+            },
+            "type": "message"
+          }
+        ],
+        "speed": "standard",
+        "fallback_credit": null
+      },
+      "modelUsage": {
+        "claude-sonnet-5-5": {
+          "inputTokens": 4863,
+          "outputTokens": 462,
+          "cacheReadInputTokens": 0,
+          "cacheCreationInputTokens": 0,
+          "webSearchRequests": 0,
+          "costUSD": 0.014346000000000001,
+          "contextWindow": 1000000,
+          "maxOutputTokens": 128000,
+          "thinkingTokens": 289,
+          "canonicalModel": "claude-sonnet-5-5",
+          "provider": "firstParty",
+          "costBasis": "list"
+        }
+      },
+      "isError": false
+    },
+    {
+      "index": 4,
+      "labels": {
+        "bench": "longjudge-verify",
+        "contestant": "promptfoo",
+        "item": "045503cb808f8344ae4972c147441517_90dddf89d761d5515d371d5d883e15ec",
+        "order": "single"
+      },
+      "costUsd": 0.011938,
+      "receipt": "357f5fc2-1360-4787-b752-4d2dafdb10f1",
+      "fingerprint": "e55aa9d6ad3fb4ffe1dffc02d8b3fadb128a4482cce8f5ec9e9230ee07eb4ebd",
+      "usage": {
+        "input_tokens": 2984,
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 0,
+        "output_tokens": 597,
+        "output_tokens_details": {
+          "thinking_tokens": 395
+        },
+        "server_tool_use": {
+          "web_search_requests": 0,
+          "web_fetch_requests": 0
+        },
+        "service_tier": "standard",
+        "cache_creation": {
+          "ephemeral_1h_input_tokens": 0,
+          "ephemeral_5m_input_tokens": 0
+        },
+        "inference_geo": "global",
+        "iterations": [
+          {
+            "input_tokens": 2984,
+            "output_tokens": 597,
+            "cache_read_input_tokens": 0,
+            "cache_creation_input_tokens": 0,
+            "cache_creation": {
+              "ephemeral_5m_input_tokens": 0,
+              "ephemeral_1h_input_tokens": 0
+            },
+            "type": "message"
+          }
+        ],
+        "speed": "standard",
+        "fallback_credit": null
+      },
+      "modelUsage": {
+        "claude-sonnet-5-5": {
+          "inputTokens": 2984,
+          "outputTokens": 597,
+          "cacheReadInputTokens": 0,
+          "cacheCreationInputTokens": 0,
+          "webSearchRequests": 0,
+          "costUSD": 0.011938,
+          "contextWindow": 1000000,
+          "maxOutputTokens": 128000,
+          "thinkingTokens": 395,
+          "canonicalModel": "claude-sonnet-5-5",
+          "provider": "firstParty",
+          "costBasis": "list"
+        }
+      },
+      "isError": false
+    }
+  ],
+  "components": [
+    {
+      "contestant": "driftbench-verify-uncertainty-cascade",
+      "order": "blind-algebra",
+      "referenceRequests": 340,
+      "unitCostUsd": 0.01575,
+      "projectedUsd": 5.355
+    },
+    {
+      "contestant": "driftbench-verify-uncertainty-cascade",
+      "order": "blind-direct-program",
+      "referenceRequests": 340,
+      "unitCostUsd": 0.015584,
+      "projectedUsd": 5.29856
+    },
+    {
+      "contestant": "driftbench-verify-uncertainty-cascade",
+      "order": "final-step",
+      "referenceRequests": 102,
+      "unitCostUsd": 0.01575,
+      "projectedUsd": 1.6065
+    },
+    {
+      "contestant": "driftbench-verify-uncertainty-cascade",
+      "order": "program",
+      "referenceRequests": 352,
+      "unitCostUsd": 0.01575,
+      "projectedUsd": 5.5440000000000005
+    },
+    {
+      "contestant": "driftbench-verify-uncertainty-cascade",
+      "order": "quoted-extract",
+      "referenceRequests": 114,
+      "unitCostUsd": 0.01575,
+      "projectedUsd": 1.7955
+    },
+    {
+      "contestant": "driftbench-verify-uncertainty-cascade",
+      "order": "single",
+      "referenceRequests": 359,
+      "unitCostUsd": 0.012150000000000001,
+      "projectedUsd": 4.3618500000000004
+    },
+    {
+      "contestant": "driftbench-verify-uncertainty-cascade",
+      "order": "single-review",
+      "referenceRequests": 5,
+      "unitCostUsd": 0.01575,
+      "projectedUsd": 0.07875
+    },
+    {
+      "contestant": "promptfoo",
+      "order": "single",
+      "referenceRequests": 368,
+      "unitCostUsd": 0.013142000000000001,
+      "projectedUsd": 4.8362560000000006
+    }
+  ],
+  "projectedFuture379UnitsUsd": 28.876416000000003,
+  "priorAndCalibrationSettledUsd": 0.203614,
+  "holdsUsd": 0,
+  "projected379UnitsUsd": 29.080030000000004,
+  "capUsd": 45,
+  "proceed": true,
+  "method": "Same stage-weighted full-run volumes as initial sample. Unsampled cascade stages use highest sampled cascade fee. Conservatively add all calibration fees and holds without credit for cached reuse.",
+  "initialProjectionUsd": 57.413792,
+  "cacheCreationTokens": 0
+}
