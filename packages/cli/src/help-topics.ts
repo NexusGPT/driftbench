@@ -360,7 +360,7 @@ export function runHelpTopics(
   }
   if (argv.length > 2) return undefined;
   const name = argv[1];
-  if (name !== undefined && name.startsWith('-')) return undefined;
+  if (name?.startsWith('-')) return undefined;
   const topics = loadHelpTopics(dir);
   // An area wins over a command of the same name (`help redteam`); the command's usage stays one flag away.
   const area = name === undefined ? [] : topics.filter((each) => each.area === name);
