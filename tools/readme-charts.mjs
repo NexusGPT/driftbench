@@ -533,15 +533,9 @@ const bar = (name, score, extra = {}) => ({ name, score: score === null ? null :
 /** One panel of a ranked chart: a model, the size of its set, and its bars. `sizes` is "n pairs" or null. */
 function modelPanel(chart, model, size, bars, source) {
   for (const b of bars) {
-    fact(
-      chart,
-      `${MODEL[model]}: ${b.name}, percent`,
-      b.score === null ? 'not run' : b.score,
-      b.source ?? source,
-    );
+    fact(chart, `${MODEL[model]}: ${b.name}, percent`, b.score === null ? 'not run' : b.score, source);
   }
-  // A bar may name its own source file; the drawn chart does not carry it.
-  return { name: MODEL[model], model: size ?? 'not run', bars: bars.map(({ source: _, ...b }) => b) };
+  return { name: MODEL[model], model: size ?? 'not run', bars };
 }
 
 /** Panels from the best score down; a panel with nothing run goes last. */
@@ -761,32 +755,21 @@ function sealedVerify() {
 
 function sealedWriting() {
   const file = `${SEALED}/writing.json`;
-  const settingFile = `${SEALED}/writing-long-structured.json`;
   const cells = json(file).cells;
-  const setting = json(settingFile).cells;
   const longer = cells.find((c) => c.contestant === 'longer-wins');
-  const defaults = [];
   const panels = MODELS.map((model) => {
     const key = inFile(model);
-    const plain = cells.find((c) => c.model === key && c.contestant === 'pair-ledger');
-    const ours = setting.find((c) => c.model === key);
+    const ours = cells.find((c) => c.model === key && c.contestant === 'pair-ledger');
     const peer = cells.find((c) => c.model === key && c.contestant === 'promptfoo');
     const baseline = bar('longer reply', longer.accuracy, { baseline: true });
-    if (ours?.status !== 'complete' || peer?.status !== 'complete' || plain?.status !== 'complete') {
+    if (ours?.status !== 'complete' || peer?.status !== 'complete') {
       return modelPanel('bench-writing', model, null, [...notRun('driftbench', PROMPTFOO), baseline], file);
     }
-    // The driftbench bar is the opt-in long-structured setting; the default judge goes in the footnote.
-    fact('bench-writing', `${MODEL[model]}: driftbench default judge, percent`, round(plain.accuracy), file);
-    defaults.push(`${MODEL[model]} ${p1(plain.accuracy)}`);
     return modelPanel(
       'bench-writing',
       model,
       `${ours.pairs} pairs`,
-      [
-        bar('driftbench', ours.accuracy, { ours: true, source: settingFile }),
-        bar(PROMPTFOO, peer.accuracy),
-        baseline,
-      ],
+      [bar('driftbench', ours.accuracy, { ours: true }), bar(PROMPTFOO, peer.accuracy), baseline],
       file,
     );
   });
@@ -794,18 +777,14 @@ function sealedWriting() {
     chart: 'bench-writing',
     bench: 'writing',
     kicker: 'LongJudgeBench writing preference · test split · both orders',
-    title: `Writing: driftbench scores ${versus(panels, PROMPTFOO)}${
-      panels.every((p) => p.bars.every((b) => b.baseline || b.score === null || b.score < longer.accuracy))
-        ? '; picking the longer reply scores higher still'
-        : ''
-    }.`,
+    title: `Writing: driftbench scores ${versus(panels, PROMPTFOO)}; picking the longer reply beats both.`,
     key: [
-      { label: 'driftbench pair ledger *', style: 'ours' },
+      { label: 'driftbench pair ledger', style: 'ours' },
       { label: 'promptfoo select-best', style: 'other' },
       { label: 'no model', style: 'baseline' },
     ],
     panels,
-    note: `173 pairs per model. * driftbench bars use the opt-in long-structured setting, which prefers longer, well-structured replies; the default judge scores ${defaults.join(', ')}.`,
+    note: `173 pairs per model.`,
   });
 }
 

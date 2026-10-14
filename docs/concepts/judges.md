@@ -738,7 +738,14 @@ After the ledger verdict, code decides in this order:
 
 A reply is structured (`isStructured`) when it has paragraphs, headings or lists rather than one long block (the reader-first structure flag), and does not repeat itself (repeated sentences at most 8 percent, repeated four-grams at most 15 percent). The result keeps the ledger `verdict` and adds `preference` with the rule id, both lengths and both structure readings. The setting makes no extra model call.
 
-Use it only when longer, structured answers are what you want. On benchmarks whose human labels favour longer replies it raises the score for that reason; on the writing benchmark it picks the longer reply in almost every pair. Results with it are labelled "driftbench, long-structured setting" and never reported as the default judge.
+The setting prefers the longer reply. Use it only when longer, structured answers are what you want. Measured with Claude Haiku 5.5 on WritingPreferenceBench pairs ([results](../../examples/writing-heldout/results/RESULTS.md)):
+
+| Pool | Accuracy | Picks the longer reply | Right when the human chose the longer reply | Right when the human chose the shorter reply |
+|---|---:|---:|---:|---:|
+| Recorded TEST, 173 pairs (346 games) | 65.3 | 96.5 | 95.7 | 1.8 |
+| Fresh pool, 144 pairs (288 games) | 66.0 | 93.8 | 96.7 | 11.5 |
+
+It scores well where the human labels favour longer replies, and it is almost always wrong where they favour the shorter one. A rule that always picks the longer reply scores 67.6 on the TEST and 63.9 on the fresh pool. The default judge scores 61.3 on the same TEST and picks the longer reply in 58.4 percent of games. Results with the setting are labelled "driftbench, long-structured setting" and never reported as the default judge.
 
 ### Reader-first configuration (length-aware, opt-in)
 

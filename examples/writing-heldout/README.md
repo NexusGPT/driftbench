@@ -1,6 +1,8 @@
 # Writing held-out pool and length check
 
-Status: the default judge gains nothing honest on writing (below). The owner then asked for a declared preference for long, structured replies: `judgePairLedger(..., { preference: 'long-structured' })`, off by default. Its results, labelled "driftbench, long-structured setting", are in `results/RESULTS.md`: on the fresh pool it is a significant win against all five peers after Holm; on the recorded TEST against four of five (DeepEval is a tie).
+Status: the default judge gains nothing honest on writing (below). The owner then asked for a declared preference for long, structured replies: `judgePairLedger(..., { preference: 'long-structured' })`, off by default. The setting prefers the longer reply: it picks it in 93.8 percent of fresh games and 96.5 percent of TEST games, and it is right on 11.5 and 1.8 percent of games where the human chose the shorter reply. Its results, labelled "driftbench, long-structured setting", are in `results/RESULTS.md`: on the fresh pool it is a significant win against all five peers after Holm; on the recorded TEST against four of five (DeepEval is a tie).
+
+The setting replayed on each model's recorded TEST verdicts (`replay_test.ts`, data in `docs/assets/data/sealed/writing-long-structured.json`, no model call): Claude Haiku 5.5 65.3, GPT-6 Luna 65.3, Gemini 3.5 Flash-Lite 65.9. The default judge scores 61.3, 53.8 and 59.0 on the same games.
 
 ## What is here
 

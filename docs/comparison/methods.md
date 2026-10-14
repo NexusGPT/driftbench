@@ -54,7 +54,6 @@ The result files are copies from the research branches, listed with their commit
 * RubricBench with Claude Haiku 5.5 is complete: 790 of 790 pairs, in `rubricbench-haiku.json`.
 * Verify is run with GPT-6 Luna only. Claude Haiku 5.5 is pending and Gemini 3.5 Flash-Lite has no cell, so both are drawn as "not run".
 * On verify a judge that always says fail scores 78.7 percent, above both judges. On writing a rule that picks the longer reply scores 67.6 percent, above every judge, and the three models did not pass the development check against such rules.
-* Writing uses the long-structured setting, `judgePairLedger(..., { preference: 'long-structured' })`. It is opt-in and declares a preference for longer, well-structured replies (see [the judges docs](../concepts/judges.md#declared-preference-long-structured-opt-in)). The owner chose it as driftbench's reported writing result. The driftbench writing bars are that setting, applied in code to the recorded pair-ledger verdicts of each model (`examples/writing-heldout/replay_test.ts`, data in `docs/assets/data/sealed/writing-long-structured.json`); the chart says so in a footnote. The default judge's scores stay in the table below. The setting picks the longer reply in 94 to 97 percent of games, so it wins because these labels favour longer replies. On a fresh pool of 144 pairs never used before, run once after a freeze, it scored 66.0 percent with Claude Haiku 5.5 and was a significant win after Holm against all five other judges ([results](../../examples/writing-heldout/results/RESULTS.md)).
 * Titles compare the bars as drawn, to one decimal: two bars that read 80.8 and 80.8 are equal. On RubricBench with Gemini 3.5 Flash-Lite the scores are 80.76 for driftbench and 80.82 for promptfoo, so the title calls them equal.
 
 All charted numbers:
@@ -73,12 +72,9 @@ All charted numbers:
 | verify | Claude Haiku 5.5 | not run | not run | 78.7 (always fail) |
 | verify | GPT-6 Luna | 74.7 | 72.4 | 78.7 (always fail) |
 | verify | Gemini 3.5 Flash-Lite | not run | not run | 78.7 (always fail) |
-| writing, long-structured setting | Claude Haiku 5.5 | 65.3 | 56.9 | 67.6 (longer reply) |
-| writing, long-structured setting | GPT-6 Luna | 65.3 | 56.9 | 67.6 (longer reply) |
-| writing, long-structured setting | Gemini 3.5 Flash-Lite | 65.9 | 60.4 | 67.6 (longer reply) |
-| writing, default judge | Claude Haiku 5.5 | 61.3 | 56.9 | 67.6 (longer reply) |
-| writing, default judge | GPT-6 Luna | 53.8 | 56.9 | 67.6 (longer reply) |
-| writing, default judge | Gemini 3.5 Flash-Lite | 59.0 | 60.4 | 67.6 (longer reply) |
+| writing | Claude Haiku 5.5 | 61.3 | 56.9 | 67.6 (longer reply) |
+| writing | GPT-6 Luna | 53.8 | 56.9 | 67.6 (longer reply) |
+| writing | Gemini 3.5 Flash-Lite | 59.0 | 60.4 | 67.6 (longer reply) |
 
 ## What a judgement costs
 

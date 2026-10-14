@@ -999,10 +999,10 @@ window.CHART_DATA = {
   "bench-writing": {
     "kind": "ranked",
     "kicker": "LongJudgeBench writing preference · test split · both orders",
-    "title": "Writing: driftbench scores higher with 3 of 3 models; picking the longer reply scores higher still.",
+    "title": "Writing: driftbench scores higher with 1, lower with 2 of 3 models; picking the longer reply beats both.",
     "key": [
       {
-        "label": "driftbench pair ledger *",
+        "label": "driftbench pair ledger",
         "style": "ours"
       },
       {
@@ -1022,7 +1022,7 @@ window.CHART_DATA = {
         "bars": [
           {
             "name": "driftbench",
-            "score": 65.32,
+            "score": 61.27,
             "ours": true
           },
           {
@@ -1058,7 +1058,7 @@ window.CHART_DATA = {
         "bars": [
           {
             "name": "driftbench",
-            "score": 65.32,
+            "score": 53.76,
             "ours": true
           },
           {
@@ -1094,7 +1094,7 @@ window.CHART_DATA = {
         "bars": [
           {
             "name": "driftbench",
-            "score": 65.9,
+            "score": 58.96,
             "ours": true
           },
           {
@@ -1125,7 +1125,7 @@ window.CHART_DATA = {
         ]
       }
     ],
-    "note": "Competitors with a recorded result on this benchmark in this repository: promptfoo, DeepEval, Inspect, Langfuse, LangWatch. 173 pairs per model. * driftbench bars use the opt-in long-structured setting, which prefers longer, well-structured replies; the default judge scores Claude Haiku 5.5 61.3, GPT-6 Luna 53.8, Gemini 3.5 Flash-Lite 59.0."
+    "note": "Competitors with a recorded result on this benchmark in this repository: promptfoo, DeepEval, Inspect, Langfuse, LangWatch. 173 pairs per model."
   },
   "hard-deepeval": {
     "kind": "columns",
