@@ -4,10 +4,12 @@ import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { describe, expect, it } from 'vitest';
 import {
+  fingerprint,
   isFictionalPhone,
   isValidIban,
   isValidNationalNumber,
   loadDenylist,
+  loadExceptions,
   main,
   makeIban,
   makeNationalNumber,
@@ -19,7 +21,7 @@ import {
 const kinds = (text, options) => scanText(text, options).findings.map((finding) => finding.kind);
 const join2 = (...parts) => parts.join('');
 
-function run(argv, cwd, env = {}) {
+function run(argv, cwd, env = {}, exceptionsDir) {
   let out = '';
   let err = '';
   const code = main(argv, {
@@ -31,6 +33,7 @@ function run(argv, cwd, env = {}) {
     },
     cwd,
     env,
+    exceptionsDir,
   });
   return { code, out, err };
 }
@@ -218,7 +221,41 @@ describe('denylist', () => {
 describe('allow marker and redaction', () => {
   it('suppresses pattern findings on its line and counts them', () => {
     const email = ['jane.doe', 'acme-corp.io'].join('@');
-    expect(scanText(`${email} <!-- guard:allow documented sample -->`)).toEqual({ findings: [], allowed: 1 });
+    expect(scanText(`${email} <!-- guard:allow documented sample -->`)).toEqual({
+      findings: [],
+      allowed: 1,
+      excused: 0,
+    });
+  });
+
+  it('excuses only the exact fingerprinted value and never a denylist hit', () => {
+    const number = makeNationalNumber('850730', '003');
+    const other = makeNationalNumber('930518', '223');
+    const exceptions = new Set([fingerprint('national-number', number)]);
+    expect(scanText(`Lumen-${number}`, { exceptions })).toEqual({ findings: [], allowed: 0, excused: 1 });
+    expect(kinds(`Lumen-${other}`, { exceptions })).toEqual(['national-number']);
+    expect(kinds(`Lumen-${number}`, { exceptions, denylist: ['Lumen'] })).toEqual(['denylist']);
+  });
+
+  it('loads every fingerprint file in a folder and rejects a bad entry', () => {
+    const dir = mkdtempSync(join(tmpdir(), 'guard-fp-'));
+    try {
+      const sha256 = 'a'.repeat(64);
+      writeFileSync(join(dir, 'one.json'), JSON.stringify({ entries: [{ kind: 'phone', sha256 }] }));
+      writeFileSync(
+        join(dir, 'two.json'),
+        JSON.stringify({ entries: [{ kind: 'national-number', sha256 }] }),
+      );
+      expect([...loadExceptions(dir)].sort()).toEqual([`national-number:${sha256}`, `phone:${sha256}`]);
+      writeFileSync(join(dir, 'bad.json'), JSON.stringify({ entries: [{ kind: 'phone', sha256: 'xyz' }] }));
+      expect(() => loadExceptions(dir)).toThrow('bad fingerprint entry');
+      writeFileSync(join(dir, 'bad.json'), JSON.stringify({ entries: [{ kind: 'passport', sha256 }] }));
+      expect(() => loadExceptions(dir)).toThrow('bad fingerprint entry');
+      rmSync(join(dir, 'bad.json'));
+      expect(loadExceptions(join(dir, 'missing')).size).toBe(0);
+    } finally {
+      rmSync(dir, { recursive: true, force: true });
+    }
   });
 
   it('masks all but the edges, and masks denylist matches entirely', () => {
@@ -249,6 +286,32 @@ describe('command line', () => {
     expect(out).toContain('1 finding in 1 file');
     expect(out).toContain('leak.md:2');
     expect(out).not.toContain(iban);
+  });
+
+  it('counts fingerprint exceptions apart from allow markers in text and JSON', () => {
+    const number = makeNationalNumber('850730', '003');
+    const marked = ['jane.doe', 'acme-corp.io'].join('@');
+    const dir = folder({ 'a.md': `Lumen-${number}\n${marked} guard:allow sample\n` });
+    const fp = mkdtempSync(join(tmpdir(), 'guard-fp-'));
+    try {
+      writeFileSync(
+        join(fp, 'x.json'),
+        JSON.stringify({
+          entries: [
+            { kind: 'national-number', sha256: fingerprint('national-number', number).split(':')[1] },
+          ],
+        }),
+      );
+      const text = run([dir], dir, {}, fp);
+      expect(text.code).toBe(0);
+      expect(text.out).toContain('1 allowed by guard:allow markers.');
+      expect(text.out).toContain('1 excused by fingerprint.');
+      const json = JSON.parse(run(['--json', dir], dir, {}, fp).out);
+      expect(json.allowed).toBe(1);
+      expect(json.excused).toBe(1);
+    } finally {
+      rmSync(fp, { recursive: true, force: true });
+    }
   });
 
   it('prints one JSON document with --json', () => {
