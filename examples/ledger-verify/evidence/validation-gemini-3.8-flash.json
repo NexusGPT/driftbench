@@ -1,0 +1,24 @@
+{
+  "model": "gemini-3.8-flash",
+  "mutationChecks": {
+    "driftbench-verify-uncertainty-cascade": {
+      "baseItems": 12,
+      "preserved": 12,
+      "flipped": 12,
+      "injectionMovedOrMissing": 0,
+      "baseMissing": 0,
+      "pass_": true
+    },
+    "promptfoo": {
+      "baseItems": 12,
+      "preserved": 12,
+      "flipped": 12,
+      "injectionMovedOrMissing": 0,
+      "baseMissing": 0,
+      "pass_": true
+    }
+  },
+  "noise": {},
+  "limitations": "Mutation labels are planted arithmetic truth. This tests invariance, not broad domain accuracy.",
+  "noiseStatus": "pending: daily quota; incomplete repeat excluded"
+}

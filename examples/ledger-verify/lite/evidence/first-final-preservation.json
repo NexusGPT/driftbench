@@ -1,0 +1,123 @@
+{
+  "at": "2026-10-13T12:49:48.582Z",
+  "reason": "Owner missing-only rule; never choose between returned answers by outcome",
+  "kept": [
+    {
+      "contestant": "driftbench-verify-uncertainty-cascade",
+      "id": "00a93c5457ba7180f88944780f9134a0_773a31d04e4d41c29af003fb95f3b960",
+      "original": {
+        "id": "00a93c5457ba7180f88944780f9134a0_773a31d04e4d41c29af003fb95f3b960",
+        "pass": true,
+        "correct": false,
+        "responseChars": 2549,
+        "missing": 0
+      },
+      "continuation": {
+        "id": "00a93c5457ba7180f88944780f9134a0_773a31d04e4d41c29af003fb95f3b960",
+        "pass": true,
+        "correct": false,
+        "responseChars": 2549,
+        "missing": 0
+      },
+      "changed": false
+    },
+    {
+      "contestant": "driftbench-verify-uncertainty-cascade",
+      "id": "012d78a208c04759392be0c8b9d27dc6_dc9a328c94255249105f5d3b465499d5",
+      "original": {
+        "id": "012d78a208c04759392be0c8b9d27dc6_dc9a328c94255249105f5d3b465499d5",
+        "pass": false,
+        "correct": false,
+        "responseChars": 5098,
+        "missing": 0
+      },
+      "continuation": {
+        "id": "012d78a208c04759392be0c8b9d27dc6_dc9a328c94255249105f5d3b465499d5",
+        "pass": false,
+        "correct": false,
+        "responseChars": 5098,
+        "missing": 0
+      },
+      "changed": false
+    },
+    {
+      "contestant": "driftbench-verify-uncertainty-cascade",
+      "id": "045503cb808f8344ae4972c147441517_90dddf89d761d5515d371d5d883e15ec",
+      "original": {
+        "id": "045503cb808f8344ae4972c147441517_90dddf89d761d5515d371d5d883e15ec",
+        "pass": true,
+        "correct": false,
+        "responseChars": 2763,
+        "missing": 0
+      },
+      "continuation": {
+        "id": "045503cb808f8344ae4972c147441517_90dddf89d761d5515d371d5d883e15ec",
+        "pass": true,
+        "correct": false,
+        "responseChars": 2763,
+        "missing": 0
+      },
+      "changed": false
+    },
+    {
+      "contestant": "driftbench-verify-uncertainty-cascade",
+      "id": "1548f1e34026a5988f77c35cbc1e2528_c39553e7f10dd1483084dd94954eb1ec",
+      "original": {
+        "id": "1548f1e34026a5988f77c35cbc1e2528_c39553e7f10dd1483084dd94954eb1ec",
+        "pass": true,
+        "correct": true,
+        "responseChars": 2454,
+        "missing": 0
+      },
+      "continuation": {
+        "id": "1548f1e34026a5988f77c35cbc1e2528_c39553e7f10dd1483084dd94954eb1ec",
+        "pass": true,
+        "correct": true,
+        "responseChars": 2454,
+        "missing": 0
+      },
+      "changed": false
+    },
+    {
+      "contestant": "driftbench-verify-uncertainty-cascade",
+      "id": "1bd8144011c39f410df900a04d6e156a_f0ff48079a16eda16a3925eb5c78c21a",
+      "original": {
+        "id": "1bd8144011c39f410df900a04d6e156a_f0ff48079a16eda16a3925eb5c78c21a",
+        "pass": true,
+        "correct": true,
+        "responseChars": 3406,
+        "missing": 0
+      },
+      "continuation": {
+        "id": "1bd8144011c39f410df900a04d6e156a_f0ff48079a16eda16a3925eb5c78c21a",
+        "pass": false,
+        "correct": true,
+        "responseChars": 3406,
+        "missing": 0
+      },
+      "changed": true
+    },
+    {
+      "contestant": "driftbench-verify-uncertainty-cascade",
+      "id": "316ee3d0bc7b041ff6036ff4eedebd63_2a81f176304fb48b93a51804c8813763",
+      "original": {
+        "id": "316ee3d0bc7b041ff6036ff4eedebd63_2a81f176304fb48b93a51804c8813763",
+        "pass": false,
+        "correct": false,
+        "responseChars": 3302,
+        "missing": 0
+      },
+      "continuation": {
+        "id": "316ee3d0bc7b041ff6036ff4eedebd63_2a81f176304fb48b93a51804c8813763",
+        "pass": true,
+        "correct": false,
+        "responseChars": 3302,
+        "missing": 0
+      },
+      "changed": true
+    }
+  ],
+  "providerCalls": 0,
+  "originalReport": "noise-0/gemini-3.5-flash-lite.pre-network-recovery.json",
+  "continuationReport": "noise-0/gemini-3.5-flash-lite.post-network-continuation.json"
+}

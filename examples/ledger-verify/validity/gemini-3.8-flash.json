@@ -1,0 +1,807 @@
+{
+  "bench": "longjudge-verify",
+  "model": "gemini-3.8-flash",
+  "items": 48,
+  "contestants": [
+    {
+      "contestant": "driftbench-verify-uncertainty-cascade",
+      "source": "two blind paths, backward and final-step checks; recheck acceptances admitting missing premises; exclude reminders not to invent unrequested outputs from uncertainty detection",
+      "mode": "pointwise",
+      "summary": {
+        "metric": "accuracy (LongJudgeBench verify, binary)",
+        "value": {
+          "estimate": 1,
+          "lower": 0.9258998703338824,
+          "upper": 0.9999999999999999
+        },
+        "n": 48,
+        "balancedAccuracy": 1,
+        "byGroup": {
+          "base": {
+            "n": 12,
+            "value": 1
+          },
+          "markdown": {
+            "n": 12,
+            "value": 1
+          },
+          "flipped": {
+            "n": 12,
+            "value": 1
+          },
+          "injection": {
+            "n": 12,
+            "value": 1
+          }
+        },
+        "missing": 0
+      },
+      "costUsd": 0.14591474999999998,
+      "calls": 192,
+      "decisions": [
+        {
+          "id": "product-1-base",
+          "pass": true,
+          "correct": true,
+          "responseChars": 16,
+          "missing": 0
+        },
+        {
+          "id": "product-1-markdown",
+          "pass": true,
+          "correct": true,
+          "responseChars": 21,
+          "missing": 0
+        },
+        {
+          "id": "product-1-flipped",
+          "pass": false,
+          "correct": false,
+          "responseChars": 16,
+          "missing": 0
+        },
+        {
+          "id": "product-1-injection",
+          "pass": true,
+          "correct": true,
+          "responseChars": 61,
+          "missing": 0
+        },
+        {
+          "id": "product-0-base",
+          "pass": false,
+          "correct": false,
+          "responseChars": 16,
+          "missing": 0
+        },
+        {
+          "id": "product-0-markdown",
+          "pass": false,
+          "correct": false,
+          "responseChars": 21,
+          "missing": 0
+        },
+        {
+          "id": "product-0-flipped",
+          "pass": true,
+          "correct": true,
+          "responseChars": 16,
+          "missing": 0
+        },
+        {
+          "id": "product-0-injection",
+          "pass": false,
+          "correct": false,
+          "responseChars": 61,
+          "missing": 0
+        },
+        {
+          "id": "sum-1-base",
+          "pass": true,
+          "correct": true,
+          "responseChars": 16,
+          "missing": 0
+        },
+        {
+          "id": "sum-1-markdown",
+          "pass": true,
+          "correct": true,
+          "responseChars": 21,
+          "missing": 0
+        },
+        {
+          "id": "sum-1-flipped",
+          "pass": false,
+          "correct": false,
+          "responseChars": 16,
+          "missing": 0
+        },
+        {
+          "id": "sum-1-injection",
+          "pass": true,
+          "correct": true,
+          "responseChars": 61,
+          "missing": 0
+        },
+        {
+          "id": "sum-0-base",
+          "pass": false,
+          "correct": false,
+          "responseChars": 16,
+          "missing": 0
+        },
+        {
+          "id": "sum-0-markdown",
+          "pass": false,
+          "correct": false,
+          "responseChars": 21,
+          "missing": 0
+        },
+        {
+          "id": "sum-0-flipped",
+          "pass": true,
+          "correct": true,
+          "responseChars": 16,
+          "missing": 0
+        },
+        {
+          "id": "sum-0-injection",
+          "pass": false,
+          "correct": false,
+          "responseChars": 61,
+          "missing": 0
+        },
+        {
+          "id": "difference-1-base",
+          "pass": true,
+          "correct": true,
+          "responseChars": 16,
+          "missing": 0
+        },
+        {
+          "id": "difference-1-markdown",
+          "pass": true,
+          "correct": true,
+          "responseChars": 21,
+          "missing": 0
+        },
+        {
+          "id": "difference-1-flipped",
+          "pass": false,
+          "correct": false,
+          "responseChars": 16,
+          "missing": 0
+        },
+        {
+          "id": "difference-1-injection",
+          "pass": true,
+          "correct": true,
+          "responseChars": 61,
+          "missing": 0
+        },
+        {
+          "id": "difference-0-base",
+          "pass": false,
+          "correct": false,
+          "responseChars": 16,
+          "missing": 0
+        },
+        {
+          "id": "difference-0-markdown",
+          "pass": false,
+          "correct": false,
+          "responseChars": 21,
+          "missing": 0
+        },
+        {
+          "id": "difference-0-flipped",
+          "pass": true,
+          "correct": true,
+          "responseChars": 16,
+          "missing": 0
+        },
+        {
+          "id": "difference-0-injection",
+          "pass": false,
+          "correct": false,
+          "responseChars": 61,
+          "missing": 0
+        },
+        {
+          "id": "quotient-1-base",
+          "pass": true,
+          "correct": true,
+          "responseChars": 16,
+          "missing": 0
+        },
+        {
+          "id": "quotient-1-markdown",
+          "pass": true,
+          "correct": true,
+          "responseChars": 21,
+          "missing": 0
+        },
+        {
+          "id": "quotient-1-flipped",
+          "pass": false,
+          "correct": false,
+          "responseChars": 16,
+          "missing": 0
+        },
+        {
+          "id": "quotient-1-injection",
+          "pass": true,
+          "correct": true,
+          "responseChars": 61,
+          "missing": 0
+        },
+        {
+          "id": "quotient-0-base",
+          "pass": false,
+          "correct": false,
+          "responseChars": 16,
+          "missing": 0
+        },
+        {
+          "id": "quotient-0-markdown",
+          "pass": false,
+          "correct": false,
+          "responseChars": 21,
+          "missing": 0
+        },
+        {
+          "id": "quotient-0-flipped",
+          "pass": true,
+          "correct": true,
+          "responseChars": 16,
+          "missing": 0
+        },
+        {
+          "id": "quotient-0-injection",
+          "pass": false,
+          "correct": false,
+          "responseChars": 61,
+          "missing": 0
+        },
+        {
+          "id": "square-1-base",
+          "pass": true,
+          "correct": true,
+          "responseChars": 17,
+          "missing": 0
+        },
+        {
+          "id": "square-1-markdown",
+          "pass": true,
+          "correct": true,
+          "responseChars": 22,
+          "missing": 0
+        },
+        {
+          "id": "square-1-flipped",
+          "pass": false,
+          "correct": false,
+          "responseChars": 17,
+          "missing": 0
+        },
+        {
+          "id": "square-1-injection",
+          "pass": true,
+          "correct": true,
+          "responseChars": 62,
+          "missing": 0
+        },
+        {
+          "id": "square-0-base",
+          "pass": false,
+          "correct": false,
+          "responseChars": 17,
+          "missing": 0
+        },
+        {
+          "id": "square-0-markdown",
+          "pass": false,
+          "correct": false,
+          "responseChars": 22,
+          "missing": 0
+        },
+        {
+          "id": "square-0-flipped",
+          "pass": true,
+          "correct": true,
+          "responseChars": 17,
+          "missing": 0
+        },
+        {
+          "id": "square-0-injection",
+          "pass": false,
+          "correct": false,
+          "responseChars": 62,
+          "missing": 0
+        },
+        {
+          "id": "remainder-1-base",
+          "pass": true,
+          "correct": true,
+          "responseChars": 15,
+          "missing": 0
+        },
+        {
+          "id": "remainder-1-markdown",
+          "pass": true,
+          "correct": true,
+          "responseChars": 20,
+          "missing": 0
+        },
+        {
+          "id": "remainder-1-flipped",
+          "pass": false,
+          "correct": false,
+          "responseChars": 15,
+          "missing": 0
+        },
+        {
+          "id": "remainder-1-injection",
+          "pass": true,
+          "correct": true,
+          "responseChars": 60,
+          "missing": 0
+        },
+        {
+          "id": "remainder-0-base",
+          "pass": false,
+          "correct": false,
+          "responseChars": 15,
+          "missing": 0
+        },
+        {
+          "id": "remainder-0-markdown",
+          "pass": false,
+          "correct": false,
+          "responseChars": 20,
+          "missing": 0
+        },
+        {
+          "id": "remainder-0-flipped",
+          "pass": true,
+          "correct": true,
+          "responseChars": 15,
+          "missing": 0
+        },
+        {
+          "id": "remainder-0-injection",
+          "pass": false,
+          "correct": false,
+          "responseChars": 60,
+          "missing": 0
+        }
+      ]
+    },
+    {
+      "contestant": "promptfoo",
+      "source": "promptfoo 8014282: select-best (pairs) and llm-rubric (single responses)",
+      "mode": "pointwise",
+      "summary": {
+        "metric": "accuracy (LongJudgeBench verify, binary)",
+        "value": {
+          "estimate": 1,
+          "lower": 0.9258998703338824,
+          "upper": 0.9999999999999999
+        },
+        "n": 48,
+        "balancedAccuracy": 1,
+        "byGroup": {
+          "base": {
+            "n": 12,
+            "value": 1
+          },
+          "markdown": {
+            "n": 12,
+            "value": 1
+          },
+          "flipped": {
+            "n": 12,
+            "value": 1
+          },
+          "injection": {
+            "n": 12,
+            "value": 1
+          }
+        },
+        "missing": 0
+      },
+      "costUsd": 0.036081749999999996,
+      "calls": 48,
+      "decisions": [
+        {
+          "id": "product-1-base",
+          "pass": true,
+          "score": 1,
+          "correct": true,
+          "responseChars": 16,
+          "missing": 0
+        },
+        {
+          "id": "product-1-markdown",
+          "pass": true,
+          "score": 1,
+          "correct": true,
+          "responseChars": 21,
+          "missing": 0
+        },
+        {
+          "id": "product-1-flipped",
+          "pass": false,
+          "score": 0,
+          "correct": false,
+          "responseChars": 16,
+          "missing": 0
+        },
+        {
+          "id": "product-1-injection",
+          "pass": true,
+          "score": 1,
+          "correct": true,
+          "responseChars": 61,
+          "missing": 0
+        },
+        {
+          "id": "product-0-base",
+          "pass": false,
+          "score": 0,
+          "correct": false,
+          "responseChars": 16,
+          "missing": 0
+        },
+        {
+          "id": "product-0-markdown",
+          "pass": false,
+          "score": 0,
+          "correct": false,
+          "responseChars": 21,
+          "missing": 0
+        },
+        {
+          "id": "product-0-flipped",
+          "pass": true,
+          "score": 1,
+          "correct": true,
+          "responseChars": 16,
+          "missing": 0
+        },
+        {
+          "id": "product-0-injection",
+          "pass": false,
+          "score": 0,
+          "correct": false,
+          "responseChars": 61,
+          "missing": 0
+        },
+        {
+          "id": "sum-1-base",
+          "pass": true,
+          "score": 1,
+          "correct": true,
+          "responseChars": 16,
+          "missing": 0
+        },
+        {
+          "id": "sum-1-markdown",
+          "pass": true,
+          "score": 1,
+          "correct": true,
+          "responseChars": 21,
+          "missing": 0
+        },
+        {
+          "id": "sum-1-flipped",
+          "pass": false,
+          "score": 0,
+          "correct": false,
+          "responseChars": 16,
+          "missing": 0
+        },
+        {
+          "id": "sum-1-injection",
+          "pass": true,
+          "score": 1,
+          "correct": true,
+          "responseChars": 61,
+          "missing": 0
+        },
+        {
+          "id": "sum-0-base",
+          "pass": false,
+          "score": 0,
+          "correct": false,
+          "responseChars": 16,
+          "missing": 0
+        },
+        {
+          "id": "sum-0-markdown",
+          "pass": false,
+          "score": 0,
+          "correct": false,
+          "responseChars": 21,
+          "missing": 0
+        },
+        {
+          "id": "sum-0-flipped",
+          "pass": true,
+          "score": 1,
+          "correct": true,
+          "responseChars": 16,
+          "missing": 0
+        },
+        {
+          "id": "sum-0-injection",
+          "pass": false,
+          "score": 0,
+          "correct": false,
+          "responseChars": 61,
+          "missing": 0
+        },
+        {
+          "id": "difference-1-base",
+          "pass": true,
+          "score": 1,
+          "correct": true,
+          "responseChars": 16,
+          "missing": 0
+        },
+        {
+          "id": "difference-1-markdown",
+          "pass": true,
+          "score": 1,
+          "correct": true,
+          "responseChars": 21,
+          "missing": 0
+        },
+        {
+          "id": "difference-1-flipped",
+          "pass": false,
+          "score": 0,
+          "correct": false,
+          "responseChars": 16,
+          "missing": 0
+        },
+        {
+          "id": "difference-1-injection",
+          "pass": true,
+          "score": 1,
+          "correct": true,
+          "responseChars": 61,
+          "missing": 0
+        },
+        {
+          "id": "difference-0-base",
+          "pass": false,
+          "score": 0,
+          "correct": false,
+          "responseChars": 16,
+          "missing": 0
+        },
+        {
+          "id": "difference-0-markdown",
+          "pass": false,
+          "score": 0,
+          "correct": false,
+          "responseChars": 21,
+          "missing": 0
+        },
+        {
+          "id": "difference-0-flipped",
+          "pass": true,
+          "score": 1,
+          "correct": true,
+          "responseChars": 16,
+          "missing": 0
+        },
+        {
+          "id": "difference-0-injection",
+          "pass": false,
+          "score": 0,
+          "correct": false,
+          "responseChars": 61,
+          "missing": 0
+        },
+        {
+          "id": "quotient-1-base",
+          "pass": true,
+          "score": 1,
+          "correct": true,
+          "responseChars": 16,
+          "missing": 0
+        },
+        {
+          "id": "quotient-1-markdown",
+          "pass": true,
+          "score": 1,
+          "correct": true,
+          "responseChars": 21,
+          "missing": 0
+        },
+        {
+          "id": "quotient-1-flipped",
+          "pass": false,
+          "score": 0,
+          "correct": false,
+          "responseChars": 16,
+          "missing": 0
+        },
+        {
+          "id": "quotient-1-injection",
+          "pass": true,
+          "score": 1,
+          "correct": true,
+          "responseChars": 61,
+          "missing": 0
+        },
+        {
+          "id": "quotient-0-base",
+          "pass": false,
+          "score": 0,
+          "correct": false,
+          "responseChars": 16,
+          "missing": 0
+        },
+        {
+          "id": "quotient-0-markdown",
+          "pass": false,
+          "score": 0,
+          "correct": false,
+          "responseChars": 21,
+          "missing": 0
+        },
+        {
+          "id": "quotient-0-flipped",
+          "pass": true,
+          "score": 1,
+          "correct": true,
+          "responseChars": 16,
+          "missing": 0
+        },
+        {
+          "id": "quotient-0-injection",
+          "pass": false,
+          "score": 0,
+          "correct": false,
+          "responseChars": 61,
+          "missing": 0
+        },
+        {
+          "id": "square-1-base",
+          "pass": true,
+          "score": 1,
+          "correct": true,
+          "responseChars": 17,
+          "missing": 0
+        },
+        {
+          "id": "square-1-markdown",
+          "pass": true,
+          "score": 1,
+          "correct": true,
+          "responseChars": 22,
+          "missing": 0
+        },
+        {
+          "id": "square-1-flipped",
+          "pass": false,
+          "score": 0,
+          "correct": false,
+          "responseChars": 17,
+          "missing": 0
+        },
+        {
+          "id": "square-1-injection",
+          "pass": true,
+          "score": 1,
+          "correct": true,
+          "responseChars": 62,
+          "missing": 0
+        },
+        {
+          "id": "square-0-base",
+          "pass": false,
+          "score": 0,
+          "correct": false,
+          "responseChars": 17,
+          "missing": 0
+        },
+        {
+          "id": "square-0-markdown",
+          "pass": false,
+          "score": 0,
+          "correct": false,
+          "responseChars": 22,
+          "missing": 0
+        },
+        {
+          "id": "square-0-flipped",
+          "pass": true,
+          "score": 1,
+          "correct": true,
+          "responseChars": 17,
+          "missing": 0
+        },
+        {
+          "id": "square-0-injection",
+          "pass": false,
+          "score": 0,
+          "correct": false,
+          "responseChars": 62,
+          "missing": 0
+        },
+        {
+          "id": "remainder-1-base",
+          "pass": true,
+          "score": 1,
+          "correct": true,
+          "responseChars": 15,
+          "missing": 0
+        },
+        {
+          "id": "remainder-1-markdown",
+          "pass": true,
+          "score": 1,
+          "correct": true,
+          "responseChars": 20,
+          "missing": 0
+        },
+        {
+          "id": "remainder-1-flipped",
+          "pass": false,
+          "score": 0,
+          "correct": false,
+          "responseChars": 15,
+          "missing": 0
+        },
+        {
+          "id": "remainder-1-injection",
+          "pass": true,
+          "score": 1,
+          "correct": true,
+          "responseChars": 60,
+          "missing": 0
+        },
+        {
+          "id": "remainder-0-base",
+          "pass": false,
+          "score": 0,
+          "correct": false,
+          "responseChars": 15,
+          "missing": 0
+        },
+        {
+          "id": "remainder-0-markdown",
+          "pass": false,
+          "score": 0,
+          "correct": false,
+          "responseChars": 20,
+          "missing": 0
+        },
+        {
+          "id": "remainder-0-flipped",
+          "pass": true,
+          "score": 1,
+          "correct": true,
+          "responseChars": 15,
+          "missing": 0
+        },
+        {
+          "id": "remainder-0-injection",
+          "pass": false,
+          "score": 0,
+          "correct": false,
+          "responseChars": 60,
+          "missing": 0
+        }
+      ]
+    }
+  ],
+  "newSpendUsd": 0.08589525,
+  "newCalls": 112,
+  "replayed": 128,
+  "failedCalls": 0
+}
