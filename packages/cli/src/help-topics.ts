@@ -1,7 +1,7 @@
 import { existsSync, readdirSync, readFileSync } from 'node:fs';
+import { createRequire } from 'node:module';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { parse as parseYaml } from 'yaml';
 import type { Io } from './io';
 
 /**
@@ -92,6 +92,15 @@ export function loadHelpTopics(dir: string = helpDir()): HelpTopic[] {
 function areaRank(area: string): number {
   const rank = (HELP_AREAS as readonly string[]).indexOf(area);
   return rank === -1 ? HELP_AREAS.length : rank;
+}
+
+/**
+ * The YAML parser, loaded when a topic is first read: `driftbench --help` and every command that prints no
+ * topic never load it.
+ */
+function parseYaml(text: string): unknown {
+  const yaml = createRequire(import.meta.url)('yaml') as { parse(text: string): unknown };
+  return yaml.parse(text);
 }
 
 /** One topic from its id and its text. A broken front matter is reported in `problem`, never thrown. */
@@ -233,29 +242,33 @@ export function stem(word: string): string {
 
 /**
  * The topics that hold every word of the query as a whole word (or the same stem), case blind, in title,
- * summary, commands or body. Ranked by a match in the title or summary first, then by the number of
- * matching lines, then by id, so adding a topic never reorders the others.
+ * summary, commands or body. Ranked by how many query words the title and summary hold, then by the lines
+ * that hold every word together, then by the lines that hold any, then by id, so adding a topic never
+ * reorders the others.
  */
 export function searchHelpTopics(topics: readonly HelpTopic[], query: string): SearchHit[] {
   const wanted = [...new Set(wordsOf(query).map(stem))];
   if (wanted.length === 0) return [];
+  const stemsOf = (line: string) => new Set(wordsOf(line).map(stem));
   const holds = (line: string) => {
-    const stems = new Set(wordsOf(line).map(stem));
-    return wanted.filter((word) => stems.has(word));
+    const stems = stemsOf(line);
+    return wanted.filter((word) => stems.has(word)).length;
   };
-  const hits: (SearchHit & { head: boolean })[] = [];
+  const hits: (SearchHit & { head: number; together: number })[] = [];
   for (const topic of topics) {
     const lines = [topic.title, topic.summary, ...topic.commands, ...topic.body.split('\n')];
-    const found = new Set(lines.flatMap(holds));
-    if (found.size < wanted.length) continue;
-    const matching = lines.filter((line) => holds(line).length > 0);
-    const head = holds(`${topic.title} ${topic.summary}`).length > 0;
-    hits.push({ topic, count: matching.length, first: (matching[0] ?? '').trim(), head });
+    const all = stemsOf(lines.join('\n'));
+    if (!wanted.every((word) => all.has(word))) continue;
+    const matching = lines.filter((line) => holds(line) > 0);
+    const together = lines.filter((line) => holds(line) === wanted.length).length;
+    const head = holds(`${topic.title} ${topic.summary}`);
+    hits.push({ topic, count: matching.length, first: (matching[0] ?? '').trim(), head, together });
   }
   hits.sort(
-    (a, b) => Number(b.head) - Number(a.head) || b.count - a.count || a.topic.id.localeCompare(b.topic.id),
+    (a, b) =>
+      b.head - a.head || b.together - a.together || b.count - a.count || a.topic.id.localeCompare(b.topic.id),
   );
-  return hits.map(({ head: _head, ...hit }) => hit);
+  return hits.map(({ head: _head, together: _together, ...hit }) => hit);
 }
 
 /** The search result: one block per topic, its id and summary, then its first matching line. */

@@ -94,8 +94,13 @@ runs it:
     run with bash in the scratch folder at its place in the order, and must exit 0 unless the line ends
     with `# exit <n>`. A `driftbench ` line inside it runs like any other.
   * Both write only to new relative paths: never under `examples/` or `packages/`, never with `..` or an
-    absolute path. So no worked example step stays untested: show a step as `text` only when it calls a
-    paid model, reads git, or runs until stopped, and say which in one line beside it.
+    absolute path. So no worked example step stays untested: show a step as `text` only for one of these
+    reasons, and say which in one line beside it:
+    1. it calls a paid model;
+    2. it reads git;
+    3. it runs until stopped;
+    4. it is a whole validator ladder run: it takes minutes, and its level moves as fixes land;
+    5. it needs repository folders the scratch folder does not hold, such as `tools/` or `docs/`.
 
 ## Style
 

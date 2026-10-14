@@ -146,6 +146,17 @@ describe('the help loader', () => {
     expect(searchHelpTopics(topics, 'code').map((hit) => hit.topic.id)).toEqual(['core-b', 'core-c']);
     expect(searchHelpTopics(topics, 'decode').map((hit) => hit.topic.id)).toEqual([]);
     expect(searchHelpTopics(topics, 'exit code').map((hit) => hit.topic.id)).toEqual(['core-c']);
+    const ranked = [
+      topic(
+        'validate-x',
+        'exit 1 means a check failed. Exit 64: a bad input. exit codes per level. exit code here.',
+      ),
+      parseTopic(
+        'core-exit',
+        '---\ntitle: Exit codes\nsummary: What each exit code means.\ncommands: []\nsee_also: []\n---\nbody\n',
+      ),
+    ];
+    expect(searchHelpTopics(ranked, 'exit code')[0]?.topic.id).toBe('core-exit');
     expect(stem('codes')).toBe(stem('code'));
     expect(stem('decoder')).not.toBe(stem('code'));
   });

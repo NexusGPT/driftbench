@@ -1,6 +1,6 @@
 ---
 title: Configuration and environment
-summary: The project config driftbench.yaml and its four keys, and the environment variables that hold keys, read from files and never echoed.
+summary: The project config driftbench.yaml and its five keys, and the environment variables that hold keys, read from files and never echoed.
 commands: []
 see_also:
   - core-global-options
@@ -35,7 +35,7 @@ The config is not a command: these commands read it.
 
 | Command | Reads | Option |
 |---|---|---|
-| `campaign run` | `campaign`, `plugins` | `--config <file>`, default `driftbench.yaml` |
+| `campaign run`, `campaign resume` | `campaign` (run only), `prices`, `plugins` | `--config <file>`, default `driftbench.yaml`; `--prices <file>` replaces `prices` |
 | `campaign plan` | `campaign` (targets, routes, modes, repeats, budget_usd, store), `plugins` | `--config <file>` |
 | `ci` | `campaign` (routes, modes, repeats, concurrency, budget_usd, process_command, agent_version), `aggregates`, `plugins` | `--config <file>` |
 | `report` | `aggregates`, `plugins` | `--config <file>` |
@@ -45,7 +45,12 @@ The config is not a command: these commands read it.
 Without `--config`, `driftbench.yaml` is optional: a missing file means no settings. A `--config` file that
 cannot be read is an error, exit 2.
 
-The four top-level keys, all optional. Any other top-level key is refused with its file and line, exit 2.
+The five top-level keys, all optional. Which command checks the rest of the file:
+
+* `report` and `ci` read the whole file: any other top-level key is refused with its file and line, exit 2.
+* `campaign run`, `campaign plan` and `view` read only their own key and pass over any other top-level key
+  without a word, so a misspelled key such as `campagin:` is silently ignored there. Run `driftbench report`
+  once on the file to have every top-level key checked.
 
 * `campaign`: a map; each key is the flag of `campaign run` it stands for. `specs` (list of paths, used when
   the command line names no path and no `--dataset`), `dataset`, `prompts` (list), `targets` (list),
@@ -59,6 +64,8 @@ The four top-level keys, all optional. Any other top-level key is refused with i
   name replaces an entry; a new name adds one.
 * `scales`: a map from criterion name to `{ min, max }`, numbers with min below max. Default scale 0 to 1.
 * `plugins`: a list of module paths, relative to the config file, or package names.
+* `prices`: a dated table of USD token prices by model, read by `campaign run` and `campaign resume` for
+  `--budget-usd` when `--prices <file>` is not given. The format is in the running topics.
 
 Environment variables driftbench reads:
 
@@ -144,7 +151,8 @@ without `--store` on the line or in the file, nothing is kept.
 
 * `Cannot read the config <path>` (exit 2): the `--config` path is wrong.
 * `<path>: campaign.<key>: ...` (exit 2): an unknown campaign key or a value of the wrong type.
-* An unknown top-level key, or a bad `aggregates` entry, exits 2 and names the line.
+* An unknown top-level key, or a bad `aggregates` entry, exits 2 and names the line under `report` and
+  `ci`; `campaign run` ignores an unknown top-level key.
 * `no model key: set ANTHROPIC_API_KEY, or OPENAI_API_KEY with OPENAI_MODEL`: a command needs the model
   port and no key is in the environment.
 * `OPENAI_MODEL is not set: name the model the server should run`: an OpenAI-compatible key without a model.
