@@ -48,7 +48,7 @@ export {
  * What it holds an adapter to:
  * - Its id is the name given; every capability is a boolean; `trace`, `endState` and `readArtifact` exist
  *   when `trace`, `endState` and `sandbox` are declared. A task names a sandbox adapter.
- * - `open` returns a session of the adapter for the Given, whose history is a copy of the prefix: the
+ * - `open` returns a session of the adapter for the Given, whose history is a fresh array of the shared frozen prefix messages: the
  *   messages so far. `seedPrefix` says whether the agent itself sees them.
  * - `send` returns an Observed that validates against the schema: every tool call is a `tool_call` segment
  *   followed by its `tool_result` segment, `toolCalls` lists them in the same order with the same outputs and
@@ -110,6 +110,15 @@ export const UPGRADE_CONVERSATION = [
 export const UPGRADE_PAYLOAD = { type: 'upgrade', customer_id: 'cust-001', plan_id: 'mobile-l' };
 const GREETING = "Hi, I'm the Acme Telecom sales assistant.";
 
+/** Test callers play the runner: every message enters history deeply frozen. */
+export function frozenMessage<T>(value: T): T {
+  if (value !== null && typeof value === 'object') {
+    for (const child of Object.values(value)) frozenMessage(child);
+    Object.freeze(value);
+  }
+  return value;
+}
+
 /** A resolved Given for the Acme agent: no ledger, the world and the prefix given. */
 export function acmeGiven(target: TargetRef, world: WorldState = {}, prefix: Message[] = []): ResolvedGiven {
   const given = { prefix, ledger: {}, world, vars: { channel: 'chat' }, target };
@@ -130,7 +139,7 @@ export function replyMessage(observed: Observed): Message {
     else recorded.output = call.output ?? null;
     return recorded;
   });
-  return { role: 'assistant', content: observed.text, tool_calls: toolCalls } as Message;
+  return frozenMessage({ role: 'assistant', content: observed.text, tool_calls: toolCalls } as Message);
 }
 
 /** Sends one user message the way the runner does: append it to the history, then send. */
@@ -141,8 +150,11 @@ export async function sendUser(
   index: number,
   given: ResolvedGiven = session.given,
 ): Promise<Observed> {
-  session.history.push({ role: 'user', content: text });
-  return adapter.send(session, userTurn(index, text, given));
+  const message: Message = { role: 'user', content: text };
+  session.history.push(message);
+  const observed = await adapter.send(session, userTurn(index, text, given));
+  expect(Object.isFrozen(message), 'send freezes messages supplied by direct callers').toBe(true);
+  return observed;
 }
 
 /** One whole block the way the runner runs it: append the user message, send, append the reply. */
@@ -233,6 +245,96 @@ export function adapterContract(name: string, makeAdapter: AdapterFactory, optio
   }
 
   describe(`${name} adapter contract`, () => {
+    it.each([
+      ['hole', () => new Array(1)],
+      ['undefined', () => [undefined]],
+      ['null', () => [null]],
+      ['primitive', () => ['text']],
+      [
+        'hole after a valid prefix',
+        () => {
+          const prefix = [{ role: 'user', content: 'valid' }];
+          prefix.length = 2;
+          return prefix;
+        },
+      ],
+    ])('rejects a prefix containing %s', async (_name, make) => {
+      const adapter = await makeAdapter();
+      await expect(adapter.open({ ...given(), prefix: make() as Message[] })).rejects.toThrow(
+        /history\[\d+\].*message object/,
+      );
+    });
+
+    it('rejects a history index getter that switches the delivered message', async () => {
+      const adapter = await makeAdapter();
+      const checked: Message = { role: 'user', content: 'checked' };
+      const delivered: Message = { role: 'user', content: 'delivered' };
+      let reads = 0;
+      const prefix = Object.defineProperty([], '0', {
+        enumerable: true,
+        get: () => (++reads === 1 ? checked : delivered),
+      }) as Message[];
+      await expect(adapter.open({ ...given(), prefix })).rejects.toThrow(/history.*0.*accessor/);
+      expect(reads).toBe(0);
+    });
+
+    it('rejects sparse and accessor session arrays before sending', async () => {
+      await withSession(async (adapter, session) => {
+        session.history = new Array(1);
+        await expect(adapter.send(session, userTurn(0, firstText, session.given))).rejects.toThrow(
+          /history\[0\].*message object/,
+        );
+        let reads = 0;
+        session.history = Object.defineProperty([], '0', {
+          enumerable: true,
+          get: () => {
+            reads++;
+            return { role: 'user', content: firstText };
+          },
+        });
+        await expect(adapter.send(session, userTurn(0, firstText, session.given))).rejects.toThrow(
+          /history.*0.*accessor/,
+        );
+        expect(reads).toBe(0);
+      });
+    });
+
+    it('rejects a custom history iterator at open and send without running it', async () => {
+      let iterations = 0;
+      const prefix: Message[] = [{ role: 'user', content: 'checked' }];
+      Object.defineProperty(prefix, Symbol.iterator, {
+        value: function* () {
+          iterations++;
+          yield { role: 'user', content: 'unfrozen substitute' };
+        },
+      });
+      const adapter = await makeAdapter();
+      await expect(adapter.open({ ...given(), prefix })).rejects.toThrow(/history.*non-index property/);
+      await withSession(async (opened, session) => {
+        session.history = prefix;
+        await expect(opened.send(session, userTurn(0, firstText, session.given))).rejects.toThrow(
+          /history.*non-index property/,
+        );
+      });
+      expect(iterations).toBe(0);
+    });
+
+    it('rejects accessor messages at open without reading the getter', async () => {
+      const adapter = await makeAdapter();
+      let reads = 0;
+      const prefix: Message[] = [
+        {
+          role: 'user',
+          get content() {
+            reads++;
+            return 'before';
+          },
+        },
+      ];
+      await expect(adapter.open({ ...given(), prefix })).rejects.toThrow(/content.*accessor/);
+      expect(reads).toBe(0);
+    });
+
     it('names itself and declares every capability', async () => {
       const adapter = await makeAdapter();
       expect(adapter.id).toBe(name);
@@ -265,7 +367,7 @@ export function adapterContract(name: string, makeAdapter: AdapterFactory, optio
     });
 
     it(
-      'opens a session for the Given, with a copy of the prefix in its history',
+      'opens a session for the Given, with shared frozen prefix messages in its own array',
       async () => {
         const prefix: Message[] = task
           ? [
@@ -278,15 +380,25 @@ export function adapterContract(name: string, makeAdapter: AdapterFactory, optio
             ];
         const start = given({}, prefix);
         const adapter = await makeAdapter();
-        const session = await adapter.open(start);
+        const opening = adapter.open(start);
+        const frozenOnEntry = Object.isFrozen(prefix[0]);
+        const session = await opening;
         try {
+          expect(frozenOnEntry, 'freezes before yielding to caller code').toBe(true);
           expect(session.adapter).toBe(name);
           expect(session.id).toMatch(/\S/);
           expect(session.target).toEqual(target);
           expect(session.given).toEqual(start);
           expect(session.history, 'the messages so far, the prefix included').toEqual(prefix);
+          expect(session.history).not.toBe(start.prefix);
+          for (const [index, message] of session.history.entries()) {
+            expect(message).toBe(start.prefix[index]);
+            expect(() => {
+              message.content = 'changed';
+            }).toThrow(TypeError);
+          }
           session.history.push({ role: 'user', content: 'one more' });
-          expect(start.prefix, 'the history is a copy: the Given stays as it was').toHaveLength(2);
+          expect(start.prefix, 'the array is a copy: the Given stays as it was').toHaveLength(2);
         } finally {
           await adapter.close(session);
         }
@@ -439,7 +551,7 @@ export function adapterContract(name: string, makeAdapter: AdapterFactory, optio
       'never appends to the history, and carries it forward over two sends',
       async () => {
         await withSession(async (adapter, session) => {
-          session.history.push({ role: 'user', content: firstText });
+          session.history.push(frozenMessage({ role: 'user', content: firstText }));
           const before = structuredClone(session.history);
           const first = await adapter.send(session, userTurn(0, firstText, session.given));
           expect(session.history, 'send never appends to the history').toEqual(before);

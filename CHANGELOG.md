@@ -17,6 +17,15 @@ All notable changes to driftbench are listed here. The format follows [Keep a Ch
 * Every CLI target resolution shares the install-aware no-adapter message. `gate`, `generate --model` and `holdout score` now explain the absent Acme example in a CLI-only install; holdout still confirms that no query was spent.
 
 * The Acme example leaves the command's source. `examples/acme` is now a private workspace package, `@agent-nexus/driftbench-example-acme` (never published), that the command imports by name at run time. The built `@agent-nexus/driftbench` no longer contains the example's code (its bundle is 42 KB smaller), and `process:acme-ops` no longer depends on the layout of a checkout. No public name changes. In a checkout, target execution is unchanged; the gate and holdout no-adapter messages gain the reachable-target explanation described above. From an install of the published command alone, `function:acme-sales`, `function:acme`, `process:acme-ops` and `function:acme-random` have no adapter; the refusal there says the example is not part of the installed CLI, where it lives and how to run it from a checkout, and names only the targets that install reaches. `pnpm build` now also builds `examples/*`.
+### Breaking
+
+* History messages are now shared and deeply frozen. Adapters and function callbacks receive fresh arrays of the same messages; strict-mode writes to message fields throw. History must be an ordinary dense array of non-null plain message objects, without accessors or extra own properties. Messages must be plain JSON data; accessors and non-plain values such as Date, Map, class instances and typed arrays are rejected with a property path. A Proxy history array, message or nested value is rejected with its path.
+
+Migration: pass plain JSON data, convert special values explicitly, and omit absent optional fields; copy a message with `structuredClone(message)` before editing it.
+Adapters freeze caller-owned messages too: copy before handing one over to keep editing your original. World and vars remain copies.
+
+### Changes
+
 * Dataset push and restore preserve generated `.seed-*` task fixtures, including binary and nested files. `generate --spec-cap` retains each kept task spec's seed assets without rewriting their contents. `.git` and `node_modules` stay excluded from registry versions.
 * `expect.pii_judge: true` opts a block into names-and-addresses detection through its configured judge. Default regex PII checks stay unchanged. SDK councils and explicitly supplied `piiJudge` callbacks work; CLI replay and estate runs share the configured judge's budget. Missing or failed judging is gating inconclusive; absent or false opt-in makes no paid call.
 - Docker sandboxes default to 1 GiB memory, 1 CPU, 256 processes, all capabilities dropped and no-new-privileges, with provider options to override each restriction. Exec variables use a private temporary env file instead of Docker argv or the client environment; multiline values are rejected by variable name. Networking remains denied by default.

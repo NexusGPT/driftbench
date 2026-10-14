@@ -41,6 +41,40 @@ const given = acmeGiven({ adapter: 'vercel-ai' });
 const labels = new ToolLabels(ACME_TOOL_NAMES);
 
 describe('vercel-ai adapter', () => {
+  it('validates and freezes messages before the tools factory receives the Given', async () => {
+    let called = 0;
+    const adapter = vercelAiAdapter({
+      generateText: fakeGenerateText(),
+      model: acmeModel(),
+      tools: (start) => {
+        called++;
+        const message = start.prefix[0];
+        if (!message) throw new Error('missing prefix');
+        expect(() => {
+          message.content = 'setup-mutated';
+        }).toThrow(TypeError);
+        return {};
+      },
+    });
+    const session = await adapter.open({ ...given, prefix: [{ role: 'user', content: 'before' }] });
+    expect(session.history[0]?.content).toBe('before');
+    await adapter.close(session);
+    await expect(
+      adapter.open({
+        ...given,
+        prefix: [
+          {
+            role: 'user',
+            get content() {
+              return 'before';
+            },
+          },
+        ],
+      }),
+    ).rejects.toThrow(/content.*accessor/);
+    expect(called).toBe(1);
+  });
+
   it('reads recorded steps of the real SDK: text, a tool result, a tool error, and the usage of each step', async () => {
     const generateText: GenerateTextLike = async () => ({ steps: structuredClone(recorded.steps) as never });
     const adapter = vercelAiAdapter({ generateText, model: acmeModel() });
