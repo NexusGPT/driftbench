@@ -20,6 +20,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parent
 PEERS_DIR = ROOT.parent / 'all-peers-public'
 sys.path.insert(0, str(PEERS_DIR))
+sys.path.insert(0, str(ROOT))
 os.environ.setdefault('DEEPEVAL_TELEMETRY_OPT_OUT', 'YES')
 os.environ.setdefault('DEEPEVAL_UPDATE_WARNING_OPT_IN', 'NO')
 
@@ -57,6 +58,8 @@ def main():
     ap.add_argument('--cap-usd', type=float, default=5.0, help='journal-wide liability cap, all runs together')
     ap.add_argument('--workers', type=int, default=3, help='per peer')
     ap.add_argument('--skip-probe', action='store_true')
+    ap.add_argument('--transport', choices=('cli', 'api'), default='cli',
+                    help='cli: the claude command; api: the Anthropic Messages API (api_transport.py), same keys and replay')
     args = ap.parse_args()
     chosen = args.peers.split(',')
     if any(p not in peers.PAIR_PEERS for p in chosen):
@@ -70,7 +73,10 @@ def main():
     (ROOT / 'cells').mkdir(exist_ok=True)
     lock = open(ROOT / 'cells' / '.peers-run.lock', 'w')
     fcntl.flock(lock, fcntl.LOCK_EX | fcntl.LOCK_NB)
-    journal = Journal(str(ROOT / 'cells' / 'peer-calls.jsonl'), args.cap_usd)
+    run_claude = None
+    if args.transport == 'api':
+        from api_transport import run_api as run_claude
+    journal = Journal(str(ROOT / 'cells' / 'peer-calls.jsonl'), args.cap_usd, run_claude=run_claude)
     if not args.skip_probe:
         probe_gate(journal.log)
     write_lock, stop = threading.Lock(), threading.Event()

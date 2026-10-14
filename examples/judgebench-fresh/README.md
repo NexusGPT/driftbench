@@ -45,3 +45,41 @@ uv run examples/judgebench-fresh/build.py freeze
 - `stats.py` scores each pair with the JudgeBench official pair-net rule and tests driftbench against each tool with an exact two-sided McNemar test, Holm over the five tools.
 
 Every contestant runs on `claude-haiku-5-5` through the claude command with the ledger-cell flags.
+
+## Results (claude-haiku-5-5 for every contestant)
+
+Confirmation split, 1,061 pairs, judged once after both freezes (`freeze.json` for the pool, `judge-freeze.json` for the judge). The driftbench judge is the shipped pair ledger with no change. Rule: JudgeBench official pair-net score; a missing decision counts wrong. Test: exact two-sided McNemar on the pairs where exactly one contestant is right. Holm over the five tools.
+
+| Contestant | Grader | Score | driftbench minus this | Wins / losses | Exact p | Holm p | Missing | Verdict |
+|---|---|---:|---:|---:|---:|---:|---:|---|
+| driftbench | pair ledger, default | 83.88% (890/1061) |  |  |  |  | 0 |  |
+| promptfoo | select-best (promptfoo 8014282) | 77.38% (821/1061) | +6.50 pts | 108 / 39 | 1.1e-08 | 2.21e-08 | 0 | win |
+| deepeval | ArenaGEval (DeepEval 4.2.8) | 78.98% (838/1061) | +4.90 pts | 90 / 38 | 4.92e-06 | 4.92e-06 | 1 | win |
+| inspect | model_graded_qa (inspect_ai 0.3.278), pointwise grader, higher score wins | 72.95% (774/1061) | +10.93 pts | 151 / 35 | 2.27e-18 | 9.09e-18 | 1 | win |
+| langfuse | Answer Critic (Langfuse 64ba74f9), pointwise grader, higher score wins | 70.12% (744/1061) | +13.76 pts | 178 / 32 | 9.53e-26 | 4.77e-25 | 0 | win |
+| langwatch | Comparison, swap and reconcile (LangWatch e683dd9e) | 77.10% (818/1061) | +6.79 pts | 113 / 41 | 5.61e-09 | 1.68e-08 | 1 | win |
+
+Five wins, no tie, no loss. Full numbers: `results-confirm.json`; dev numbers: `results-dev.json`.
+
+Missing: the API refused one pair (`eb921cf3`, stop reason refusal) for DeepEval, Inspect and LangWatch on every attempt. It counts wrong for them. Dropping it leaves every p below 1e-5.
+
+### Transport switch during the run
+
+The run started on the claude command (`claude -p`). Host load made it slow, so it moved to the Anthropic Messages API for the same model, with the exact system and user text, no temperature (the command sends none) and retries on 429 and 5xx. Every answer already recorded was kept. The switch added a transport option to `judge.mjs` and `run_peers.py` (`--transport api`, `api_transport.py`) after `judge-freeze.json` recorded their hashes; the judge code in `packages/judges` and every prompt are unchanged. Split by decision time: driftbench 859 command / 202 API, promptfoo 706 / 355, DeepEval 540 / 520, Inspect 527 / 533, Langfuse 556 / 505, LangWatch 548 / 512.
+
+Parity before the switch (`parity/`): every contestant on the first 30 dev pairs, twice through the API, against its recorded command answers. Games identical out of 30:
+
+| Contestant | command vs API run 1 | command vs API run 2 | API run 1 vs run 2 |
+|---|---:|---:|---:|
+| driftbench | 28 | 27 | 27 |
+| promptfoo | 22 | 27 | 24 |
+| deepeval | 24 | 24 | 24 |
+| langwatch | 23 | 21 | 22 |
+| inspect | 24 | 25 | 26 |
+| langfuse | 25 | 24 | 20 |
+
+The command and the API agree as often as two API runs agree with each other. On the pairs where driftbench and the tool ran on the same transport, every comparison is still a win with p below 1e-5.
+
+### Spend
+
+OpenAI (pool build): 2.14 USD. Haiku (dev, confirmation, parity, dev experiments): about 13.2 USD, of which 2.9 USD are conservative holds on calls that returned no answer.

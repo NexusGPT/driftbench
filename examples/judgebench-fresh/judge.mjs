@@ -13,7 +13,7 @@ import { createHash } from 'node:crypto';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import {
-  buildPrompt, createDialectTransport, judgePairLedger, pairLedgerRequest, pairLedgerSchema,
+  buildDialectRequest, buildPrompt, createDialectTransport, judgePairLedger, pairLedgerRequest, pairLedgerSchema,
   parsePairLedgerText, scoreLedger,
 } from '../../packages/judges/src/index.ts';
 
@@ -94,6 +94,46 @@ export const CONTESTANTS = {
   },
 };
 
+// The Anthropic Messages API with the exact system and user text the claude command receives.
+// No temperature (the command sends none). Retries 429 and 5xx. Cost from usage at the rates the
+// command billed for this model: 0.10 USD per million input tokens, 0.50 per million output tokens.
+export function apiTransport({ fetchImpl = fetch, sleep = ms => new Promise(r => setTimeout(r, ms)) } = {}) {
+  const key = readFileSync(join(process.env.HOME, '.nexus-secrets', 'anthropic-driftbench.key'), 'utf8').trim();
+  const waits = [5, 15, 30, 60, 120, 240];
+  return {
+    async complete(request) {
+      const { system, user } = buildDialectRequest('claude-cli', request).payload;
+      const body = JSON.stringify({ model: MODEL, max_tokens: SETTINGS.maxTokens, system, messages: [{ role: 'user', content: user }] });
+      let last;
+      for (let attempt = 0; attempt <= waits.length; attempt++) {
+        try {
+          const response = await fetchImpl('https://api.anthropic.com/v1/messages', { method: 'POST', body,
+            headers: { 'x-api-key': key, 'anthropic-version': '2023-06-01', 'content-type': 'application/json',
+              // An organisation key not scoped to one workspace must name the workspace that is billed.
+              ...(process.env.ANTHROPIC_WORKSPACE_ID?.trim() ? { 'anthropic-workspace-id': process.env.ANTHROPIC_WORKSPACE_ID.trim() } : {}) },
+            signal: AbortSignal.timeout(SETTINGS.timeoutMs) });
+          if (response.ok) {
+            const payload = await response.json();
+            const usage = payload.usage ?? {};
+            const text = (payload.content ?? []).filter(part => part.type === 'text').map(part => part.text).join('');
+            return { text, costUsd: ((usage.input_tokens ?? 0) * 0.10 + (usage.output_tokens ?? 0) * 0.50) / 1e6,
+              usage, truncated: payload.stop_reason === 'max_tokens', ...(payload.stop_reason === 'refusal' ? { refusal: 'refusal' } : {}) };
+          }
+          last = `HTTP ${response.status}: ${(await response.text()).slice(0, 300)}`;
+          if (response.status !== 429 && response.status < 500) throw Object.assign(new Error(last), { final: true });
+          const after = Number(response.headers.get('retry-after'));
+          await sleep(1000 * (Number.isFinite(after) && after > 0 ? after : waits[attempt] ?? 240) + Math.random() * 1000);
+        } catch (error) {
+          if (error.final) throw error;
+          last = String(error?.message ?? error);
+          if (attempt < waits.length) await sleep(1000 * waits[attempt]);
+        }
+      }
+      throw new Error(`retries exhausted: ${last}`);
+    },
+  };
+}
+
 function transport() {
   const env = { ...process.env };
   for (const key of ['CLAUDE_JUDGE_MODEL', 'ANTHROPIC_JUDGE_MODEL', 'ANTHROPIC_BASE_URL', 'CLAUDECODE', 'ANTHROPIC_API_KEY']) delete env[key];
@@ -117,7 +157,7 @@ async function main() {
   if (!argv.includes('--execute')) return;
   const answered = new Map(readJsonl(callsPath).filter(row => row.text !== undefined && !row.transportFailure).map(row => [row.key, row]));
   let spent = readJsonl(callsPath).reduce((sum, row) => sum + (row.costUsd ?? 0), 0);
-  const client = transport();
+  const client = flag('--transport', 'cli') === 'api' ? apiTransport() : transport();
   const call = async (prompt, { schema } = {}) => {
     const key = hash(JSON.stringify([MODEL, prompt.system, prompt.user, schema ?? null]));
     if (answered.has(key)) return answered.get(key);
@@ -126,6 +166,7 @@ async function main() {
     try {
       const response = await client.complete({ ...prompt, ...(schema ? { schema } : {}) });
       row = { key, text: response.text, costUsd: response.costUsd ?? SETTINGS.maxBudgetUsd, costEstimated: response.costUsd === undefined,
+        transport: flag('--transport', 'cli'),
         truncated: Boolean(response.truncated), refusal: response.refusal ?? null };
     } catch (error) {
       row = { key, transportFailure: true, error: String(error?.message ?? error).slice(0, 300), costUsd: SETTINGS.maxBudgetUsd, costEstimated: true };
