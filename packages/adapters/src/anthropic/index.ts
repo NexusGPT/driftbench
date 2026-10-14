@@ -3,6 +3,7 @@ import {
   type AgentAdapter,
   AgentFailure,
   contentHash,
+  copyHistory,
   isPlainObject,
   type RetryPolicy,
   type Segment,
@@ -125,6 +126,8 @@ export function anthropicAdapter(options: AnthropicAdapterOptions): AgentAdapter
     capabilities: () => ({ ...capabilities }),
 
     async open(given) {
+      // Validate and freeze before user-supplied setup receives the Given.
+      copyHistory(given.prefix);
       const list = typeof options.tools === 'function' ? options.tools(given) : (options.tools ?? []);
       const state: AnthropicState = {
         kind: 'anthropic',
@@ -136,9 +139,10 @@ export function anthropicAdapter(options: AnthropicAdapterOptions): AgentAdapter
     },
 
     async send(session: Session, turn: Turn) {
+      const sharedHistory = copyHistory(session.history);
       const state = ownState<AnthropicState>(session, id, 'anthropic');
       const names = new WireNames(state.tools.keys(), ANTHROPIC_NAME);
-      const history = toAnthropicMessages(session.history, names);
+      const history = toAnthropicMessages(sharedHistory, names);
       // A prompt version from the registry replaces the configured system prompt.
       const system = [session.target.prompt?.text ?? options.system ?? '', ...history.system]
         .filter((part) => part !== '')
