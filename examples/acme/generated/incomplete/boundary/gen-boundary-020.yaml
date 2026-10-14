@@ -5,28 +5,45 @@
 id: gen-boundary-020
 version: 7c05b9cee9cc
 kind: conversation
-title: "Boundary value coverage.check.out.address_id.present: address_id is given"
-channel: whatsapp
+title: "Boundary value coverage.check.out.address_id.present: Path order-single-plan of order: needs > address > offer > details > recap > order_placed > closing"
+channel: chat
 lang: EN
 tier: generated
 tags:
-  - persona:new-customer
+  - flow:order
   - data:5g-only
-given:
-  world:
-    tools:
-      coverage.check:
-        result:
-          found: true
-          address: address-1
-          address_id: address_id-1
-          fiber_mbps: 0
-          five_g: false
+  - persona:existing-customer
+stages:
+  - needs
+  - identify
+  - address
+  - port_number
+  - offer
+  - details
+  - recap
+  - order_placed
+  - callback
+  - handover
+  - closing
+  - build_sheet
+  - add_summary
 blocks:
-  - id: b1-value
+  - id: b1-needs-to-address
+    when:
+      user: Do you have home internet where I live?
+    expect:
+      stage: address
+      stage_reported: true
+      tools:
+        - label: coverage.check
+          count: 0
+      lang: EN
+  - id: b2-value
     when:
       user: "[no approved phrase for coverage.check.out.address_id=coverage.check.out.address_id.present]"
     expect:
+      stage: address
+      stage_reported: true
       tools:
         - label: coverage.check
           count:
@@ -42,6 +59,12 @@ blocks:
       lang: EN
       criteria:
         - needs-approved-phrase
+rules:
+  forbidden_tools:
+    - catalog.search
+    - port.check
+    - order.create
+    - notify_sales
 metadata:
   generated:
     by: driftbench generate
@@ -53,20 +76,31 @@ metadata:
       agent: acme
       version: "1"
       hash: 7c05b9cee9cc
+    path: order-single-plan
     cell:
       coverage.check.out.address_id: coverage.check.out.address_id.present
-      coverage.check.out.found: coverage.check.out.found.true
-      coverage.check.out.fiber_mbps: coverage.check.out.fiber_mbps.at-minimum
-      coverage.check.out.five_g: coverage.check.out.five_g.false
-      channel: whatsapp
-      user_type: new-customer
+      flow: order
       coverage_result: 5g-only
+      plan_choice: loose-yes-to-single-offer
+      customer_details: name-and-email
+      channel: chat
+      user_type: existing-customer
     blocks:
-      - block: b1-value
+      - block: b1-needs-to-address
+        seeder: boundary
+        cell:
+          spec: metadata.generated.cell
+          stage_transition: needs-to-address
+          stage: needs
+        phrase:
+          dimension: stage_transition
+          value: needs-to-address
+      - block: b2-value
         seeder: boundary
         cell:
           spec: metadata.generated.cell
           coverage.check.out.address_id: coverage.check.out.address_id.present
+          stage: address
         phrase: null
     concrete:
       coverage.check.out.address_id.present: value-1

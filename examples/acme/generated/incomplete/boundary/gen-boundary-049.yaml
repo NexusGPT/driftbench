@@ -6,7 +6,7 @@ id: gen-boundary-049
 version: 7c05b9cee9cc
 kind: conversation
 title: "Boundary value notify_sales.in.reason.no_coverage: Path home-address-not-found of new-home: needs > address > address"
-channel: chat
+channel: whatsapp
 lang: EN
 tier: generated
 tags:
@@ -79,7 +79,7 @@ metadata:
       flow: new-home
       user_type: new-customer
       coverage_result: not-in-map
-      channel: chat
+      channel: whatsapp
     blocks:
       - block: b1-needs-to-address
         seeder: boundary

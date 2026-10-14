@@ -1,0 +1,11 @@
+{
+  "at": "2026-10-13T07:36:05.806652+00:00",
+  "applies": "after pilot",
+  "models": {
+    "haiku": 3,
+    "gpt-6-luna": 6,
+    "gemini-3.8-flash": 6
+  },
+  "ownerInstruction": "Yes: after the pilot, run 6 at a time each for gpt-6-luna and Gemini. Keep Haiku at 3: it runs as local claude processes, and the host is overloaded. Same frozen settings and cap.",
+  "supersededBy": "crash-recovery.json and runtime-freeze.json: Haiku 2, Luna 4, Gemini 4"
+}

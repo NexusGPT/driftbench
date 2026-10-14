@@ -5,28 +5,44 @@
 id: gen-boundary-012
 version: 7c05b9cee9cc
 kind: conversation
-title: "Boundary value catalog.search.out.customer.present: customer is an object"
+title: "Boundary value catalog.search.out.customer.present: Path upgrade-order of upgrade: needs > identify > offer > recap > order_placed > closing"
 channel: whatsapp
 lang: EN
 tier: generated
 tags:
-  - persona:new-customer
-  - data:no-service
-given:
-  world:
-    tools:
-      catalog.search:
-        result:
-          plans: []
-          customer:
-            id: id-1
-            name: name-1
-            current_plan_id: current_plan_id-1
+  - flow:upgrade
+  - persona:existing-customer
+stages:
+  - needs
+  - identify
+  - address
+  - port_number
+  - offer
+  - details
+  - recap
+  - order_placed
+  - callback
+  - handover
+  - closing
+  - build_sheet
+  - add_summary
 blocks:
-  - id: b1-value
+  - id: b1-needs-to-identify
+    when:
+      user: I keep running out of data, can I get a bigger plan?
+    expect:
+      stage: identify
+      stage_reported: true
+      tools:
+        - label: catalog.search
+          count: 0
+      lang: EN
+  - id: b2-value
     when:
       user: "[no approved phrase for catalog.search.out.customer=catalog.search.out.customer.present]"
     expect:
+      stage: identify
+      stage_reported: true
       tools:
         - label: catalog.search
           count:
@@ -42,6 +58,12 @@ blocks:
       lang: EN
       criteria:
         - needs-approved-phrase
+rules:
+  forbidden_tools:
+    - coverage.check
+    - port.check
+    - order.create
+    - notify_sales
 metadata:
   generated:
     by: driftbench generate
@@ -53,18 +75,31 @@ metadata:
       agent: acme
       version: "1"
       hash: 7c05b9cee9cc
+    path: upgrade-order
     cell:
       catalog.search.out.customer: catalog.search.out.customer.present
-      catalog.search.out.plans: catalog.search.out.plans.empty
+      flow: upgrade
+      user_type: existing-customer
+      account_lookup: found
+      plan_choice: names-one
       channel: whatsapp
-      user_type: new-customer
-      coverage_result: no-service
+      coverage_result: none
     blocks:
-      - block: b1-value
+      - block: b1-needs-to-identify
+        seeder: boundary
+        cell:
+          spec: metadata.generated.cell
+          stage_transition: needs-to-identify
+          stage: needs
+        phrase:
+          dimension: stage_transition
+          value: needs-to-identify
+      - block: b2-value
         seeder: boundary
         cell:
           spec: metadata.generated.cell
           catalog.search.out.customer: catalog.search.out.customer.present
+          stage: identify
         phrase: null
     concrete:
       catalog.search.out.customer.present:

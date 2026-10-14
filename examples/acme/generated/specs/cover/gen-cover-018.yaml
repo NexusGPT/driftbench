@@ -5,7 +5,7 @@ id: gen-cover-018
 version: 7c05b9cee9cc
 kind: conversation
 title: "Cell deviation=D6_instruction_in_data, stage=callback: Path home-callback of new-home: needs > address > offer > callback > handover, D6_instruction_in_data at callback"
-channel: whatsapp
+channel: chat
 lang: EN
 tier: generated
 tags:
@@ -160,7 +160,7 @@ metadata:
       coverage_result: fiber
       plan_choice: asks-for-callback
       callback_phone: given
-      channel: whatsapp
+      channel: chat
     blocks:
       - block: b1-needs-to-address
         seeder: cover

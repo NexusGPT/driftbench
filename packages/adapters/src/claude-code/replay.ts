@@ -4,6 +4,7 @@ import {
   type AdapterCapabilities,
   type AgentAdapter,
   AgentFailure,
+  copyHistory,
   type Observed,
   type ResolvedGiven,
   type Session,
@@ -60,10 +61,11 @@ export function replayAdapter(options: ReplayAdapterOptions): AgentAdapter {
         adapter: 'claude-code',
         target: given.target,
         given,
-        history: structuredClone(given.prefix),
+        history: copyHistory(given.prefix),
       };
     },
     async send(_session: Session, turn: Turn): Promise<Observed> {
+      copyHistory(_session.history);
       const index = from + turn.index;
       const block = blocks[index];
       if (!block) {

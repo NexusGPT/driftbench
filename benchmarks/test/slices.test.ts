@@ -50,7 +50,7 @@ describe('versioned benchmark slices', () => {
         id: 'gemini-3.8-flash',
         model: 'gemini-3.8-flash',
         status: 'skipped',
-        reason: 'Floors await a later recording slot; Flash-Lite is the active Gemini benchmark.',
+        reason: 'dropped by the owner',
       },
     ]);
   });

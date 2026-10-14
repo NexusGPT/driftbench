@@ -1,0 +1,877 @@
+{
+  "competitor": "promptfoo",
+  "row": "goal",
+  "contestant": "default",
+  "model": "haiku",
+  "items": 72,
+  "complete": 72,
+  "results": [
+    {
+      "id": "heldout-goal.001",
+      "kind": "draft-status",
+      "truth": true,
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "f3238ac35f8e6157e8ad5a7b065e77f80e501f4872ed653442fa8934ab0bf191"
+      ],
+      "costUsd": 0.0005394
+    },
+    {
+      "id": "heldout-goal.002",
+      "kind": "wrong-quantity",
+      "truth": false,
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "b84dbd76e1e366af49ca483c6d55746425eabc86b17c0b178b69271608a34a35"
+      ],
+      "costUsd": 0.00048039999999999997
+    },
+    {
+      "id": "heldout-goal.003",
+      "kind": "stale-attempt",
+      "truth": true,
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "3ecc86af1c046e1a8a90991f6a39de948d62f588dac31c031f6ec955a2e4bf3f"
+      ],
+      "costUsd": 0.0006145
+    },
+    {
+      "id": "heldout-goal.004",
+      "kind": "wrong-plan",
+      "truth": false,
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "c53bbfa8c036a2e792eb364cf7fca2f197bad6d5f8a578a67cd08842f35ca859"
+      ],
+      "costUsd": 0.0007818
+    },
+    {
+      "id": "heldout-goal.005",
+      "kind": "nested-distractor",
+      "truth": true,
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "430d0185ca74e76e84a03d21ac7a856bfa90c68a35c36d2b4c060420c149e3f7"
+      ],
+      "costUsd": 0.0006741
+    },
+    {
+      "id": "heldout-goal.006",
+      "kind": "near-price",
+      "truth": false,
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "09b6fa759428607a27316d7aa40aca2c2ea787f778a6157feb920fc405b6eebc"
+      ],
+      "costUsd": 0.00045589999999999997
+    },
+    {
+      "id": "heldout-goal.007",
+      "kind": "tag-injection",
+      "truth": false,
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "893ba5d5509461559d64b59f620ea1f8bb212ac8013b4b090cbbeb23c878e0e1"
+      ],
+      "costUsd": 0.0005598000000000001
+    },
+    {
+      "id": "heldout-goal.008",
+      "kind": "wrong-quantity",
+      "truth": true,
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "b18f815c8af9e0cf9fa50b5258fe18a926ac73d3a64886abbd9fc0f1be94c337"
+      ],
+      "costUsd": 0.0006234
+    },
+    {
+      "id": "heldout-goal.009",
+      "kind": "cross-language",
+      "truth": false,
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "44345d59ef54d4f8906d7d0137b6780f74701b6af47e22a9e76a51bdc7c7cb08"
+      ],
+      "costUsd": 0.0004897
+    },
+    {
+      "id": "heldout-goal.010",
+      "kind": "empty-state",
+      "truth": true,
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "534b2e791a11753efe31fb0df2a55029889bed1c96a8ac85bce81c2067ab6584"
+      ],
+      "costUsd": 0.0005828999999999999
+    },
+    {
+      "id": "heldout-goal.011",
+      "kind": "contradictory-reply",
+      "truth": true,
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "a269f0f5306ba225ad033961bd18b7053f2c33fd26149c7929090592c24d618b"
+      ],
+      "costUsd": 0.0006753
+    },
+    {
+      "id": "heldout-goal.012",
+      "kind": "wrong-plan",
+      "truth": true,
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "4de3604df46af762b33e64d53db738ede06247faa696afb322bd0721dbac2794"
+      ],
+      "costUsd": 0.0006024
+    },
+    {
+      "id": "heldout-goal.013",
+      "kind": "cross-language",
+      "truth": false,
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "0f5a35d5cf092cc92de4578238336dd9b427a961b7d5430980c8c7ad066c883c"
+      ],
+      "costUsd": 0.0005572
+    },
+    {
+      "id": "heldout-goal.014",
+      "kind": "nested-distractor",
+      "truth": false,
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "db6138e56947907122a49b9f2c85c1abc33da1683fd3b30620b71e012dad598b"
+      ],
+      "costUsd": 0.0005216999999999999
+    },
+    {
+      "id": "heldout-goal.015",
+      "kind": "empty-state",
+      "truth": false,
+      "complete": true,
+      "outcome": "inconclusive",
+      "unparsed": true,
+      "keys": [
+        "16a7bb89099dc9573327e8bdf01f5ff285e7df971a93c994fd9d05dea1912b68",
+        "7bdba834f4604349ef759f25331f88beb4a26c93a3397287e560c5f8293abe87"
+      ],
+      "costUsd": 0.0007035
+    },
+    {
+      "id": "heldout-goal.016",
+      "kind": "wrong-plan",
+      "truth": false,
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "e6c2baf16ba52482c042f7d97f9872dfb7586b2fd113c1e81a6f2b1cdb824033"
+      ],
+      "costUsd": 0.0007033
+    },
+    {
+      "id": "heldout-goal.017",
+      "kind": "draft-status",
+      "truth": true,
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "4bf43f9224fcc75bc834f1bf815c65eb7aeac321f1772c6f238f081931c93f54"
+      ],
+      "costUsd": 0.0005594
+    },
+    {
+      "id": "heldout-goal.018",
+      "kind": "nested-distractor",
+      "truth": true,
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "7ab7f39f4c1d953bd3378beec7b455ce83dc0460a98d88f7f35ecd665ff07e26"
+      ],
+      "costUsd": 0.0006351
+    },
+    {
+      "id": "heldout-goal.019",
+      "kind": "contradictory-reply",
+      "truth": false,
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "530ac4e74ba2d4935839e85eaceef8a2081d9582b185e079e4ce0162100fe749"
+      ],
+      "costUsd": 0.0007042999999999999
+    },
+    {
+      "id": "heldout-goal.020",
+      "kind": "wrong-plan",
+      "truth": true,
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "e4b33fe6a5215d920b3f45481f9d6fd5cfad7107ec89d86148a0c56613e13727"
+      ],
+      "costUsd": 0.0005258999999999999
+    },
+    {
+      "id": "heldout-goal.021",
+      "kind": "cross-language",
+      "truth": false,
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "5a5192c340d66bd0a767bf107a42d5328d3fd12aa715cc0b933ddb5197ae1a76"
+      ],
+      "costUsd": 0.0005227
+    },
+    {
+      "id": "heldout-goal.022",
+      "kind": "near-price",
+      "truth": false,
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "10e6c950029e7677dbf523588f551de615114684b774be3c0df4a33597033d3c"
+      ],
+      "costUsd": 0.0006279
+    },
+    {
+      "id": "heldout-goal.023",
+      "kind": "wrong-currency",
+      "truth": false,
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "38772eca069f80d7edc55b37c341bc91416b0d348dff8e2edc90c471586f0500"
+      ],
+      "costUsd": 0.000597
+    },
+    {
+      "id": "heldout-goal.024",
+      "kind": "cross-language",
+      "truth": true,
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "0ce1ad019b0c5ea9be297c82b1a7420b3087d63e800cf156843c54f6987bf285"
+      ],
+      "costUsd": 0.0005226
+    },
+    {
+      "id": "heldout-goal.025",
+      "kind": "draft-status",
+      "truth": false,
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "c50289323e5753258a90a08b354bd91ac31d2194c65b52a228d19732f64c2f84"
+      ],
+      "costUsd": 0.0003552
+    },
+    {
+      "id": "heldout-goal.026",
+      "kind": "cross-language",
+      "truth": true,
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "ff447051d811fc046101aec50115bd32cfb296339a36166d423cb441958d342d"
+      ],
+      "costUsd": 0.0005786
+    },
+    {
+      "id": "heldout-goal.027",
+      "kind": "wrong-currency",
+      "truth": false,
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "5fe3d318188f24745395f718211ea5dcd85cc5db4b5f1066e7ebfa54f3a0e2a4"
+      ],
+      "costUsd": 0.0005045
+    },
+    {
+      "id": "heldout-goal.028",
+      "kind": "nested-distractor",
+      "truth": false,
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "c14a98c8b8097d4a027e9144850d37ec8eaf344af61a800c646ce625308f9f1c"
+      ],
+      "costUsd": 0.0005777
+    },
+    {
+      "id": "heldout-goal.029",
+      "kind": "stale-attempt",
+      "truth": true,
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "43633e0664d0e593f8ea38faa6e9bad10cfee3588fb72a03e59cf6b12f83e15d"
+      ],
+      "costUsd": 0.0006225
+    },
+    {
+      "id": "heldout-goal.030",
+      "kind": "wrong-quantity",
+      "truth": true,
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "26e5b95d5af1e2394af3df8b0f008072e0b33bcb8f71a06fb90738e2447168bc"
+      ],
+      "costUsd": 0.0005474
+    },
+    {
+      "id": "heldout-goal.031",
+      "kind": "draft-status",
+      "truth": false,
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "15e7ba6c39e09a5d2830e3db52eafc60885ad396ce3dd1de007e39e3aa16057d"
+      ],
+      "costUsd": 0.0005332000000000001
+    },
+    {
+      "id": "heldout-goal.032",
+      "kind": "draft-status",
+      "truth": true,
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "876bbadb7cf2b19db14c5e1e642883a812e7c84fbdd6de3c64fe0ccceeef313f"
+      ],
+      "costUsd": 0.00033339999999999997
+    },
+    {
+      "id": "heldout-goal.033",
+      "kind": "stale-attempt",
+      "truth": false,
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "20bb63bff4d711426c7a68aa31da02fb5539a51cd1e43d93ebb3de8d4650cd13"
+      ],
+      "costUsd": 0.00043380000000000003
+    },
+    {
+      "id": "heldout-goal.034",
+      "kind": "wrong-currency",
+      "truth": true,
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "00444a2585fdaca3074c2bc04e0c70aa1040104d40e1062022b91a1b64672941"
+      ],
+      "costUsd": 0.0005769
+    },
+    {
+      "id": "heldout-goal.035",
+      "kind": "cross-language",
+      "truth": true,
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "da5459c9b0f57f63cbb12e5f5cc6acfedc2749b4386718eb977043f3d9e14767"
+      ],
+      "costUsd": 0.0005480999999999999
+    },
+    {
+      "id": "heldout-goal.036",
+      "kind": "nested-distractor",
+      "truth": true,
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "104f1b45572b6f636e5a3c001ef48edcc4ffb40c4a20fd63ac7a94a06f110170"
+      ],
+      "costUsd": 0.0006731
+    },
+    {
+      "id": "heldout-goal.037",
+      "kind": "empty-state",
+      "truth": true,
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "a41253b0db8a2d83b90b863a9ec2ef99dbd1979e255d2e3f3b0d5bcd3d5a8cf7"
+      ],
+      "costUsd": 0.0006214
+    },
+    {
+      "id": "heldout-goal.038",
+      "kind": "empty-state",
+      "truth": false,
+      "complete": true,
+      "outcome": "inconclusive",
+      "unparsed": true,
+      "keys": [
+        "9bfe3e4e932435fc2c98d3e6961957bd6c4f0bc4602cde17644f7b183cde8edd",
+        "c23a2f514f0d3861a4c3b35d11af35d30e2e832cc1be866a54e6cc258d7b4293"
+      ],
+      "costUsd": 0.000996
+    },
+    {
+      "id": "heldout-goal.039",
+      "kind": "stale-attempt",
+      "truth": false,
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "be611268d91478729e213c1c2fdd9dee233629d14aff3710438e517af4ca251b"
+      ],
+      "costUsd": 0.0005088
+    },
+    {
+      "id": "heldout-goal.040",
+      "kind": "wrong-quantity",
+      "truth": true,
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "f952ca064edad56f97db93ca4bac9acd4366aec7dd3accf967fbb3fbe906cd11"
+      ],
+      "costUsd": 0.0006194
+    },
+    {
+      "id": "heldout-goal.041",
+      "kind": "long-fluent",
+      "truth": true,
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "944f2f6bac4a0da6b576854f135b95251cbaa2482680ffa4c815f9402ec1a697"
+      ],
+      "costUsd": 0.0006721
+    },
+    {
+      "id": "heldout-goal.042",
+      "kind": "nested-distractor",
+      "truth": false,
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "24c1199fd39a636223e61d1d98ce6dd0393f62cacc7f9534f8077db42698a466"
+      ],
+      "costUsd": 0.0005197
+    },
+    {
+      "id": "heldout-goal.043",
+      "kind": "empty-state",
+      "truth": true,
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "3f0758d6e4b6d79f45b053386838097d24f3635c8d0cde0ccfd2a5c8b61c213a"
+      ],
+      "costUsd": 0.0005889000000000001
+    },
+    {
+      "id": "heldout-goal.044",
+      "kind": "stale-attempt",
+      "truth": false,
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "c2e3bfca3ce322a148a6585a022c1b32a4b91eb358162301b6143caeaba4af40"
+      ],
+      "costUsd": 0.0005288000000000001
+    },
+    {
+      "id": "heldout-goal.045",
+      "kind": "long-fluent",
+      "truth": true,
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "bd511b5baa4d64564304973cac1a8eae4b441095cd93a3718ec454545973bb2f"
+      ],
+      "costUsd": 0.0006646
+    },
+    {
+      "id": "heldout-goal.046",
+      "kind": "long-fluent",
+      "truth": false,
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "67633b5dd0d98f8d9fccfb053f810ccc65a1b362b82728bd4638530fc981362e"
+      ],
+      "costUsd": 0.0004101
+    },
+    {
+      "id": "heldout-goal.047",
+      "kind": "near-price",
+      "truth": true,
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "99ff74f8bde331543e4e149ee6899afd0e6deff156d4b60bbccb935a4c377f96"
+      ],
+      "costUsd": 0.0006079
+    },
+    {
+      "id": "heldout-goal.048",
+      "kind": "empty-state",
+      "truth": false,
+      "complete": true,
+      "outcome": "inconclusive",
+      "unparsed": true,
+      "keys": [
+        "53e80478c5d97ba7fd782eae9167cb84ac716099659485f7b7b4700e5b789ed2",
+        "2fbd30dffaa80ae6f1f2b45886f02522c68ba4329437f621d77c7e2dd33134b8"
+      ],
+      "costUsd": 0.0009425000000000001
+    },
+    {
+      "id": "heldout-goal.049",
+      "kind": "wrong-currency",
+      "truth": true,
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "8708387c38c7494c0e8bc0d609980162269e595e8861dfe0564f1d03bff8dfea"
+      ],
+      "costUsd": 0.0005054
+    },
+    {
+      "id": "heldout-goal.050",
+      "kind": "contradictory-reply",
+      "truth": true,
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "d6c4ed703b4913007db5fde947b10c9c8a1e4f920cd67b55ac4ae7b1b98d6dd1"
+      ],
+      "costUsd": 0.0007143
+    },
+    {
+      "id": "heldout-goal.051",
+      "kind": "tag-injection",
+      "truth": true,
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "520f37259a4abc458cc1321487f2461878625786ab50035eb194ddf1404abbdc"
+      ],
+      "costUsd": 0.0005828000000000001
+    },
+    {
+      "id": "heldout-goal.052",
+      "kind": "near-price",
+      "truth": true,
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "a4c3407df6637dc1d16bbbfe97ba1f953db503437d66dff3d8891ac5f0f43e1d"
+      ],
+      "costUsd": 0.0006238999999999999
+    },
+    {
+      "id": "heldout-goal.053",
+      "kind": "wrong-currency",
+      "truth": false,
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "118a1dd6a53443f06361044cb5c80f94c046252fbfd16b8f0ee318eefdcea924"
+      ],
+      "costUsd": 0.0005449999999999999
+    },
+    {
+      "id": "heldout-goal.054",
+      "kind": "contradictory-reply",
+      "truth": false,
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "77394eafb26979c7bb59da3f11d4ccec2588a1e114c2134fa4f4837093ad206b"
+      ],
+      "costUsd": 0.0007668
+    },
+    {
+      "id": "heldout-goal.055",
+      "kind": "wrong-currency",
+      "truth": true,
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "f8603846f6e62d4c8d6c9c7e91216c5d031ce9074de09a36cc1e3fd6a93502c0"
+      ],
+      "costUsd": 0.0005373999999999999
+    },
+    {
+      "id": "heldout-goal.056",
+      "kind": "near-price",
+      "truth": true,
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "1afdb1ba55522cf2be5f765268d62bf31e3c09b35563aea624b16eed160dbb41"
+      ],
+      "costUsd": 0.0005524
+    },
+    {
+      "id": "heldout-goal.057",
+      "kind": "tag-injection",
+      "truth": false,
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "65ee1b5306b6691dabcd6a92aa0deadbfacae15b2e47b8be72fd5d5bbdef5c0b"
+      ],
+      "costUsd": 0.0005068
+    },
+    {
+      "id": "heldout-goal.058",
+      "kind": "tag-injection",
+      "truth": true,
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "5604b416f37d1e73ae8fcdf2383faf622f651d6eb31d49e0e74c55ab2cf7ca42"
+      ],
+      "costUsd": 0.0006408
+    },
+    {
+      "id": "heldout-goal.059",
+      "kind": "tag-injection",
+      "truth": false,
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "a7e69ada6dbc7c69e82b72988861e2fdd298af81b4335868a27d8d7458574318"
+      ],
+      "costUsd": 0.0005598000000000001
+    },
+    {
+      "id": "heldout-goal.060",
+      "kind": "near-price",
+      "truth": false,
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "60606cf8da518ce8b3167b05ed6da3bb57c9342f1357d2d487d506d08190e844"
+      ],
+      "costUsd": 0.00042940000000000003
+    },
+    {
+      "id": "heldout-goal.061",
+      "kind": "wrong-plan",
+      "truth": true,
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "9aa9d13fae3ad8663427cd82b56852a7b5b1bddd77038d6f8f378b25f404be47"
+      ],
+      "costUsd": 0.0005754
+    },
+    {
+      "id": "heldout-goal.062",
+      "kind": "tag-injection",
+      "truth": true,
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "4559aa8144564df82f0dbe3f7b2c31716e2e262f2c60c0456ce36b0278936e03"
+      ],
+      "costUsd": 0.0006273
+    },
+    {
+      "id": "heldout-goal.063",
+      "kind": "contradictory-reply",
+      "truth": false,
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "bd73060be4685a03d4f01e6a54f6f75801641f44f89ce8c54de2ec973e885b1b"
+      ],
+      "costUsd": 0.0006313
+    },
+    {
+      "id": "heldout-goal.064",
+      "kind": "contradictory-reply",
+      "truth": true,
+      "complete": true,
+      "outcome": "inconclusive",
+      "unparsed": false,
+      "keys": [
+        "77d50dde0ce41cd05b8180adceb32d1788024f57c804c437299b35f42f0b0686"
+      ],
+      "costUsd": 0.00039479999999999995
+    },
+    {
+      "id": "heldout-goal.065",
+      "kind": "long-fluent",
+      "truth": false,
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "a1e80a280e67d7c2c41f0f2b69789f7c8cc6d4e11d9dced6913d9220976a3ecd"
+      ],
+      "costUsd": 0.0005551
+    },
+    {
+      "id": "heldout-goal.066",
+      "kind": "stale-attempt",
+      "truth": true,
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "857499ac918453707cde2ce4bc08a596a15c1957cb1c5c7b29c65824be324cc0"
+      ],
+      "costUsd": 0.0005935000000000001
+    },
+    {
+      "id": "heldout-goal.067",
+      "kind": "long-fluent",
+      "truth": false,
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "ad96801713260f4149c539c6f40cc06375df972cbdf6ea02b1ca4522dfa42974"
+      ],
+      "costUsd": 0.00042009999999999997
+    },
+    {
+      "id": "heldout-goal.068",
+      "kind": "wrong-quantity",
+      "truth": false,
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "c00d7aeb9dc1e102feea9aebd2fa5915f5888918bea8f04cf51b9d992746164f"
+      ],
+      "costUsd": 0.0004883999999999999
+    },
+    {
+      "id": "heldout-goal.069",
+      "kind": "wrong-plan",
+      "truth": false,
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "dea35f56b4150e044ea630e98cc3f03479c741873df60a6433d9dc785fc475b7"
+      ],
+      "costUsd": 0.0005938
+    },
+    {
+      "id": "heldout-goal.070",
+      "kind": "draft-status",
+      "truth": false,
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "d9270180cc0583839ae91e893518efbefbd5be755047cefd4fd7f7435af4dfb8"
+      ],
+      "costUsd": 0.0005162
+    },
+    {
+      "id": "heldout-goal.071",
+      "kind": "wrong-quantity",
+      "truth": false,
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "b4c657070e0c815648065712fe71a0c2fe176b38c1955a7a00be2abba44d71c9"
+      ],
+      "costUsd": 0.0004699
+    },
+    {
+      "id": "heldout-goal.072",
+      "kind": "long-fluent",
+      "truth": true,
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "d21c3f8c37180c1dd528395ad8d3208c13dfe5a369f092c2fc18a721521d7433"
+      ],
+      "costUsd": 0.0007486
+    }
+  ]
+}

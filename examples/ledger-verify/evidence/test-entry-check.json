@@ -1,0 +1,14 @@
+{
+  "at": "2026-10-13T09:58:53.418658+00:00",
+  "firstTestStart": {
+    "at": "2026-10-13T09:57:23.443Z",
+    "items": 221,
+    "coreSha": "35f07309a4d1d1c8a7c5b176ff19e537d0ef8fdd",
+    "runtime": "ee96e47757aa837860fe"
+  },
+  "scoringDeclarationAt": "2026-10-13T08:56:59.852740+00:00",
+  "tableRenderingFinalizedAt": "2026-10-13T09:55:10.427140+00:00",
+  "implementationHashesMatch": true,
+  "strictPrimary": true,
+  "runtimeRecordingsId": "2869d4d1f750545a2c7d"
+}

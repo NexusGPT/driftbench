@@ -2,6 +2,7 @@ import { randomUUID } from 'node:crypto';
 import {
   AdapterTransportError,
   AgentFailure,
+  copyHistory,
   isPlainObject,
   type Observed,
   type ResolvedGiven,
@@ -98,14 +99,14 @@ export type SdkState = {
   payloads: Map<number, ToolPayload[]>;
 };
 
-/** Opens a session: an id, the adapter, the target and the Given, and a history that copies the prefix. */
+/** Opens a session: an id, the adapter, the target and the Given, and a fresh array of the shared frozen prefix messages. */
 export function openSession<S extends SdkState>(adapter: string, given: ResolvedGiven, state: S): Session {
   return {
     id: randomUUID(),
     adapter,
     target: given.target,
     given,
-    history: structuredClone(given.prefix),
+    history: copyHistory(given.prefix),
     state,
   };
 }

@@ -30,6 +30,14 @@ Each benchmark has a section on its own page, with its chart. A section says "da
 
 The method behind every chart of the README is on [how the README numbers were measured](methods.md).
 
+## Harder held-out cases
+
+Three result pages score harder fictional cases with the same model on every side:
+
+* [promptfoo, Langfuse and DeepEval](hard-peers-heldout.md)
+* [LangWatch](hard-peers-langwatch.md)
+* [Today's judge on the earlier held-out sets](hard-peers-existing-sets.md)
+
 ## How each row was checked
 
 A row has one of these bases:

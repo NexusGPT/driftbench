@@ -137,6 +137,7 @@ function blockRates(runs: readonly RunResult[]): Map<number, Rate> {
   const rates = new Map<number, Rate>();
   for (const run of runs) {
     for (const { block, result } of specBlocks(run)) {
+      if (result.carried || run.carried) continue;
       const rate = rates.get(block) ?? { pass: 0, runs: 0 };
       rate.runs += 1;
       if (result.pass) rate.pass += 1;
@@ -153,6 +154,7 @@ function blockRates(runs: readonly RunResult[]): Map<number, Rate> {
  * A spec block whose stimulus is an injection stands for itself.
  */
 export function specBlocks(run: RunResult, spec?: Spec): Array<{ block: number; result: BlockResult }> {
+  if (run.blockRerun) return run.blocks.map((result) => ({ block: result.index, result }));
   const perturbation = spec?.perturbations?.find((entry) => entry.id === run.perturbationId);
   const replaces = perturbation !== undefined && replacesBlock(perturbation);
   const out: Array<{ block: number; result: BlockResult }> = [];

@@ -52,24 +52,24 @@ Gate: PASS. All 14 sets on Haiku and all 14 on gpt-6-luna have zero breaks. Gemi
 
 ### Gemini 3.8 Flash
 
-Not recorded on any of the 14 sets. Google credits are depleted, per the owner. No Gemini pass is claimed.
+Dropped by the owner. Not recorded on any of the 14 sets. No Gemini pass is claimed.
 
 | Set | Current | With change | Fixes | Breaks |
 | --- | --- | --- | --- | --- |
-| fresh-rubric | not recorded | not recorded | n/a | n/a |
-| fresh-reference | not recorded | not recorded | n/a | n/a |
-| map-rubric | not recorded | not recorded | n/a | n/a |
-| map-reference | not recorded | not recorded | n/a | n/a |
-| hard-rubric | not recorded | not recorded | n/a | n/a |
-| hard-factuality | not recorded | not recorded | n/a | n/a |
-| hard-pii | not recorded | not recorded | n/a | n/a |
-| hard-goal | not recorded | not recorded | n/a | n/a |
-| heldout-rubric | not recorded | not recorded | n/a | n/a |
-| heldout-factuality | not recorded | not recorded | n/a | n/a |
-| heldout-pii | not recorded | not recorded | n/a | n/a |
-| heldout-goal | not recorded | not recorded | n/a | n/a |
-| planted-verify | not recorded | not recorded | n/a | n/a |
-| planted-rubric | not recorded | not recorded | n/a | n/a |
+| fresh-rubric | dropped by the owner | dropped by the owner | n/a | n/a |
+| fresh-reference | dropped by the owner | dropped by the owner | n/a | n/a |
+| map-rubric | dropped by the owner | dropped by the owner | n/a | n/a |
+| map-reference | dropped by the owner | dropped by the owner | n/a | n/a |
+| hard-rubric | dropped by the owner | dropped by the owner | n/a | n/a |
+| hard-factuality | dropped by the owner | dropped by the owner | n/a | n/a |
+| hard-pii | dropped by the owner | dropped by the owner | n/a | n/a |
+| hard-goal | dropped by the owner | dropped by the owner | n/a | n/a |
+| heldout-rubric | dropped by the owner | dropped by the owner | n/a | n/a |
+| heldout-factuality | dropped by the owner | dropped by the owner | n/a | n/a |
+| heldout-pii | dropped by the owner | dropped by the owner | n/a | n/a |
+| heldout-goal | dropped by the owner | dropped by the owner | n/a | n/a |
+| planted-verify | dropped by the owner | dropped by the owner | n/a | n/a |
+| planted-rubric | dropped by the owner | dropped by the owner | n/a | n/a |
 
 ## Luna fresh-reference
 

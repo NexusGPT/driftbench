@@ -14,7 +14,7 @@ pnpm vitest run examples/adapter-contract
 ```
 
 ```text
-Tests  10 passed | 4 skipped (14)
+Tests  19 passed | 4 skipped (23)
 ```
 
 The 4 skipped tests are capabilities the adapter does not declare (`endState`, `trace`) and the task mode. Break the adapter, for example return `session.history` itself from `open` in place of a copy of the prefix, and the suite says which rule it broke.
