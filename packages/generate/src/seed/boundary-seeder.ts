@@ -114,8 +114,14 @@ export function boundarySeeder(
               cell.push([other, otherValue]);
             }
           }
-          // Asked to run the tool and report a returned value: one run, as a map's call is made once.
-          tools.push({ label: found.tool.name, count: 1 });
+          // Asked to run the tool and report a returned value: one run, as a map's call is made once, with
+          // each argument the user does not name at its schema default; closed when that names every one.
+          const defaults = schemaDefaults(found.tool);
+          tools.push({
+            label: found.tool.name,
+            count: 1,
+            ...(Object.keys(defaults).length > 0 ? { input: defaults, input_closed: true } : {}),
+          });
         } else if (INVALID_PARTITIONS.has(partition)) {
           tools.push({ label: found.tool.name, count: 0 });
         } else {

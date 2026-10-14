@@ -7,7 +7,7 @@ import { generateSuite } from '../../src/enumerate/generate';
 // Seed 3 has a read tool no flow calls: a user asks for it directly, with one argument.
 const SEED = 3;
 
-async function directCalls(withDefaults: boolean) {
+async function directCalls(withDefaults: boolean, enumDefault = false) {
   const hidden = hiddenSpec(SEED);
   const tool = hidden.tools.find(
     (entry) => !hidden.uses.some((use) => use.tool === entry.name) && !entry.sideEffect,
@@ -21,6 +21,15 @@ async function directCalls(withDefaults: boolean) {
         rendered.tools = rendered.tools.replace(
           `${property.name}: { type: integer, minimum: ${property.minimum}, maximum: ${property.maximum} }`,
           `${property.name}: { type: integer, minimum: ${property.minimum}, maximum: ${property.maximum}, default: ${property.minimum} }`,
+        );
+  }
+  if (enumDefault) {
+    // And the first member of each enum argument, as the validator's tools file writes it.
+    for (const property of tool.input)
+      if (property.type === 'enum')
+        rendered.tools = rendered.tools.replace(
+          `${property.name}: { type: string, enum: [${property.members.join(', ')}] }`,
+          `${property.name}: { type: string, enum: [${property.members.join(', ')}], default: ${property.members[0]} }`,
         );
   }
   const source = await generateFrom(hidden, rendered, SEED, {}, { once: true });
@@ -43,7 +52,20 @@ async function directCalls(withDefaults: boolean) {
       (block.expect?.tools ?? []).filter((call) => call.label === tool.name && call.count !== 0),
     ),
   );
-  return { calls, runs, enumField, integer };
+  // The runs a turn asking for a returned value makes: its approved phrase names no argument.
+  const asking = new Set(
+    hidden.phrases
+      .filter((phrase) => phrase.intent.kind === 'data' && phrase.value.startsWith(`${tool.name}.out.`))
+      .map((phrase) => phrase.text),
+  );
+  const reports = suite.complete.flatMap((spec) =>
+    spec.blocks.flatMap((block) =>
+      'user' in block.when && asking.has(block.when.user)
+        ? (block.expect?.tools ?? []).filter((call) => call.label === tool.name && call.count !== 0)
+        : [],
+    ),
+  );
+  return { calls, runs, reports, enumField, integer };
 }
 
 describe('a tool a user asks for directly', () => {
@@ -68,5 +90,23 @@ describe('a tool a user asks for directly', () => {
       expect(call.input).not.toHaveProperty(integer.name);
       expect(call.input_closed).toBeUndefined();
     }
+  }, 180_000);
+});
+
+describe('a tool a user asks to report a returned value', () => {
+  it('is called once with every argument at its schema default, closed when each has one', async () => {
+    const { reports, enumField, integer } = await directCalls(true, true);
+    expect(reports.length).toBeGreaterThan(0);
+    for (const call of reports) {
+      expect(call.count).toBe(1);
+      expect(call.input).toEqual({ [integer.name]: integer.minimum, [enumField.name]: enumField.members[0] });
+      expect(call.input_closed).toBe(true);
+    }
+  }, 180_000);
+
+  it('names no argument when the schema gives no default', async () => {
+    const { reports } = await directCalls(false);
+    expect(reports.length).toBeGreaterThan(0);
+    for (const call of reports) expect(call.input).toBeUndefined();
   }, 180_000);
 });
