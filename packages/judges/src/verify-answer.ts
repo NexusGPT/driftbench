@@ -159,7 +159,9 @@ export async function verifyAnswer(transport: DialectTransport, request: JudgeRe
       finals.push(final);
     }
     audit.finals = finals;
-    const settled = finals.map((candidate) => exactNumberDifference(answer, candidate));
+    const settled = finals.map(
+      (candidate) => optionAgreement(answer, candidate) ?? exactNumberDifference(answer, candidate),
+    );
     let same: boolean[];
     if (settled.every((value) => value !== undefined)) same = settled as boolean[];
     else {
@@ -208,6 +210,19 @@ export async function verifyAnswer(transport: DialectTransport, request: JudgeRe
       `verification failed: ${error instanceof Error ? error.message : String(error)}`,
     );
   }
+}
+
+/** Explicit option markers settle answer matching; prose such as "A striped animal" stays ambiguous. */
+function optionAgreement(a: string, b: string): boolean | undefined {
+  const option = (value: string) => {
+    const text = value.trim();
+    if (/^[A-Z]$/.test(text)) return text;
+    const marked = /^(?:\(([A-Z])\)|\[([A-Z])\]|([A-Z])[.):])(?:\s|$)/.exec(text);
+    return marked?.[1] ?? marked?.[2] ?? marked?.[3];
+  };
+  const left = option(a);
+  const right = option(b);
+  return left !== undefined && right !== undefined ? left === right : undefined;
 }
 
 /** Only identical number spellings pass locally. Different exact values fail; equivalent forms need semantic review. */

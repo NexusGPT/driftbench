@@ -36,6 +36,52 @@ const solves = (answer = '4') => Array.from({ length: 3 }, () => `Working.\nFina
 const pass = '{"pass":true,"reason":"The submitted answer meets the criterion."}';
 
 describe('product answer verification', () => {
+  it('settles explicit option letters in code but still checks the complete criterion', async () => {
+    const { client, seen } = transport([
+      'Final answer: (A) Rowan',
+      'Final answer: A. Rowan',
+      'Final answer: [A] Rowan',
+      '{"pass":false,"reason":"The submitted option is C, not A."}',
+    ]);
+    const result = await verifyAnswer(client, request('Final answer is: (C) Quinn', 'Choose A or C.'));
+    expect(result.answer.outcome).toBe('fail');
+    expect(seen).toHaveLength(4);
+    expect(seen.at(-1)?.user).toContain('false,false,false');
+    expect(JSON.parse(result.raw).extraction).toBe('literal');
+  });
+  it('keeps the full criterion after all three option letters agree', async () => {
+    const { client, seen } = transport([
+      ...solves('(C) Quinn'),
+      '{"pass":false,"reason":"The required explanation is missing."}',
+    ]);
+    const input = request('Final answer: (C) Quinn', 'Choose A or C and explain.');
+    input.criterion = { name: 'complete', rubric: 'Correct option and explanation are both required.' };
+    expect((await verifyAnswer(client, input)).answer.outcome).toBe('fail');
+    expect(seen).toHaveLength(4);
+    expect(seen.at(-1)?.user).toContain('true,true,true');
+    expect(seen.at(-1)?.system).toContain('Correct option and explanation are both required.');
+  });
+  it('does not interpret prose beginning with A as an option marker', async () => {
+    const { client, seen } = transport([
+      ...solves('A different animal'),
+      '{"same":[false,false,false]}',
+      '{"pass":false,"reason":"Different animal."}',
+    ]);
+    expect((await verifyAnswer(client, request('Final answer: A striped animal'))).answer.outcome).toBe(
+      'fail',
+    );
+    expect(seen).toHaveLength(5);
+    expect(seen[3]?.system).toContain('Compare final answers');
+  });
+  it('lets full adjudication pass despite a dissenting blind solve', async () => {
+    const { client, seen } = transport(['Final answer: 4', 'Final answer: 4', 'Final answer: 5', pass]);
+    expect((await verifyAnswer(client, request())).answer.outcome).toBe('pass');
+    expect(seen.at(-1)?.user).toContain('true,true,false');
+  });
+  it('never revives an earlier verdict after a malformed terminal pass object', async () => {
+    const { client } = transport([...solves(), `${pass}\n{"pass":`]);
+    expect((await verifyAnswer(client, request())).answer.outcome).toBe('inconclusive');
+  });
   it('solves blind three times, then evaluates the complete criterion; records every call and cost', async () => {
     const { client, seen } = transport([...solves(), pass]);
     const result = await verifyAnswer(client, request());
