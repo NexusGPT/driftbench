@@ -101,12 +101,12 @@ Each row of a per-tool page is measured head to head, measured against our own e
 
 ## Tests written by code
 
-* The README's ratio, 5.7 times fewer tests: on the Acme example map, the covering array that holds every allowed pair of settings has 132 rows (`covering array of 132 rows over 5 dimensions, 314 of 314 allowed 2-tuples`), where the same five dimensions allow 747 combinations (`budget 20: 20 cells of 747 allowed`); 747 / 132 = 5.7. Both lines are printed by `generate` on main.
+* The README's ratio, 5.8 times fewer tests: on the Acme example map, the covering array that holds every allowed pair of settings has 156 rows (`covering array of 156 rows over 5 dimensions, 356 of 356 allowed 2-tuples`), where the same five dimensions allow 901 combinations (`budget 20: 20 cells of 901 allowed`); 901 / 156 = 5.8. The first line is printed by `generate --t 2`, the second by `generate --budget 20`, both on the merged head. Both lines are printed by `generate` on main.
 * The figure is a toy example with three settings of two values each: 8 combinations, 4 tests (an orthogonal array) hold every pair, and a bug that needs French and transfer together is caught by one of the 4. It illustrates the method; it is not a measurement.
-* Coverage: `pnpm driftbench generate --map examples/acme/map/approved.yaml --out generated --t 2` on main prints `complete specs 637 of 637 (100.0%)` and writes 333 files. It exits 1 because some map values have no approved phrase yet; their specs go to `incomplete/`.
+* Coverage: `pnpm driftbench generate --map examples/acme/map/approved.yaml --out generated --t 2` on main prints `complete specs 708 of 708 (100.0%)` and writes 508 files. It exits 1 because some map values have no approved phrase yet; their specs go to `incomplete/`.
 * Covering arrays (pairwise and t-wise) and sliced Latin hypercube sampling (`slicedLhs`, for approved numeric settings in budget mode) are described in [generating tests](../generating.md#sliced-numeric-sampling).
 * The budget figures (9.00, 8.00, 8.37 of 13 at 20 tests) are means over 30 seeds from [the budget study](../../comparisons/budget/full-study.md); see [faults found on a budget](#faults-found-on-a-budget).
-* `pnpm driftbench select --cover examples/acme/map/space.yaml --specs examples/acme/gated/specs --out golden` prints `114 conversations cover every cell the pool covers (592 of 637)` and `Faults turned red: 13 of the 13 the pool turns red`.
+* `pnpm driftbench select --cover examples/acme/map/space.yaml --specs examples/acme/gated/specs --out golden` prints `114 conversations cover every cell the pool covers (592 of 708)` and `Faults turned red: 13 of the 13 the pool turns red`.
 * The DeepEval synthesizer is cited from row 19 of the [comparison](../comparison.md).
 
 ## Blocks: a failure you can diagnose
@@ -151,7 +151,7 @@ Each row of a per-tool page is measured head to head, measured against our own e
 
 ## The other innovation figures
 
-* Drift and recovery: `pnpm driftbench perturb examples/acme/specs/conversations/plan-upgrade.yaml --class D2_goal_shift --at 2` prints `Recovery: immediate, 0 blocks to come back (the spec allows 1 block), collateral 0`. Row 15 of the comparison.
+* Drift and recovery: `pnpm driftbench perturb examples/acme/specs/conversations/plan-upgrade.yaml --class D2_goal_shift --at 2` prints `Recovery: immediate, 1 block to come back (the spec allows 1 block), collateral 0`. Row 15 of the comparison.
 * Statistics: the Acme gate prints `this suite cannot show parity under 15 points (the all-pass flag needs 27.8 points); about 22 goldens would.` with 10 goldens paired. Row 17 of the comparison.
 * Code agents: `pnpm driftbench estate lint examples/estates/fixture/approved.yaml` reads 125 atoms and prints 6 findings, all planted in the fixture. The six code-agent benchmarks (SWE-bench, Terminal-Bench, OpenHands evaluation, GAIA, AgentBench, inspect_ai sandboxes), what decides a pass in each and whether it grades office files are listed in [code-agent benchmarks](../comparison.md#code-agent-benchmarks).
 * Self-tests: see [driftbench tests itself](#driftbench-tests-itself).

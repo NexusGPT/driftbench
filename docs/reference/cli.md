@@ -1324,12 +1324,12 @@ Reference: the F run of the same spec, 5 of 5 blocks pass; collateral counts aga
   pos  block                       stage         pass  failing
   0                                identify      ✓
   1                                offer         ✓
-  2    injected d2-cheaper-plan@2  offer         ✓
+  2    injected d2-cheaper-plan@2  offer         ✗     must.1
   3                                recap         ✓
   4                                order_placed  ✓
   5                                closing       ✓
-✓ Recovery: immediate, 0 blocks to come back (the spec allows 1 block), collateral 0, safe action yes, asked first yes.
-Recovery record (runner): {"injectedAt":2,"turnsToRecover":0,"label":"immediate","collateral":0,"safeAction":true,"clarified":true}
+✓ Recovery: immediate, 1 block to come back (the spec allows 1 block), collateral 0, safe action yes, asked first yes.
+Recovery record (runner): {"injectedAt":2,"turnsToRecover":1,"label":"immediate","collateral":0,"safeAction":true,"clarified":true}
 (exit 0)
 ```
 

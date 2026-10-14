@@ -82,7 +82,7 @@ Proof: [mutate.test.ts](../packages/estate/test/mutants/mutate.test.ts), [replay
 
 ```text
 $ pnpm driftbench perturb examples/acme/specs/conversations/plan-upgrade.yaml --class D2_goal_shift --at 2
-✓ Recovery: immediate, 0 blocks to come back (the spec allows 1 block), collateral 0, safe action yes, asked first yes.
+✓ Recovery: immediate, 1 block to come back (the spec allows 1 block), collateral 0, safe action yes, asked first yes.
 ```
 
 Proof: [recovery.test.ts](../packages/core/test/runner/recovery.test.ts), [perturb.test.ts](../packages/cli/test/perturb.test.ts).

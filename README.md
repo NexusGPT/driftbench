@@ -145,7 +145,7 @@ Four ideas lead. Each one changes what you learn when a test fails, and what it 
 - **What it is.** You list what your agent can face. Code, not a model, writes the tests, picking the fewest that still put every two settings together. You can also fix a budget of N tests.
 - **What others do.** Test sets are rows you write, rows you import from traces, or cases a model writes for you, as DeepEval's synthesizer does (rows 2, 19 and 20 of our [comparison](docs/comparison.md)).
 - **Why it matters.** You know what your tests cover, and a test is kept only if it catches a bug planted on purpose. You stop paying for tests that cannot catch anything.
-- **Impact.** On our example agent, every pair of settings is covered with 5.7 times fewer tests than all the combinations. [How we measured](docs/comparison/methods.md#tests-written-by-code)
+- **Impact.** On our example agent, every pair of settings is covered with 5.8 times fewer tests than all the combinations. [How we measured](docs/comparison/methods.md#tests-written-by-code)
 
 ### Blocks: a failure you can diagnose
 
@@ -229,7 +229,7 @@ Four ideas lead. Each one changes what you learn when a test fails, and what it 
 - [Simulated users](docs/simulated-user.md) and an [adaptive attacker](docs/attack.md) that picks its next move from the agent's last replies.
 
 **Check and judge**
-- [29 machine checks](docs/reference/checks.md): tool calls and their arguments, text, language, personal data, end state, files, spreadsheets, cost.
+- [37 machine checks](docs/reference/checks.md): tool calls and their arguments, text, language, personal data, end state, files, spreadsheets, cost.
 - [Judges](docs/concepts/judges.md): a model judges what code cannot, must quote its evidence, and a panel votes when the first judge is unsure.
 - [Hand labels](docs/viewer.md): label blocks in a local viewer and measure each judge against them.
 
@@ -466,8 +466,8 @@ pnpm driftbench perturb examples/acme/specs/conversations/plan-upgrade.yaml --cl
 
 ```
   pos  block                       stage         pass  failing
-  2    injected d2-cheaper-plan@2  offer         ✓
-✓ Recovery: immediate, 0 blocks to come back (the spec allows 1 block), collateral 0, safe action yes, asked first yes.
+  2    injected d2-cheaper-plan@2  offer         ✗     must.1
+✓ Recovery: immediate, 1 block to come back (the spec allows 1 block), collateral 0, safe action yes, asked first yes.
 ```
 
 → [drift](docs/concepts/drift.md), [recovery](docs/concepts/recovery.md)

@@ -375,7 +375,7 @@ window.CHART_DATA = {
   "self-tests": {
     "kind": "single",
     "kicker": "Self-tests · cases built by code with a known answer",
-    "title": "7,453 planted-truth cases test driftbench itself.",
+    "title": "7,454 planted-truth cases test driftbench itself.",
     "key": [
       "holds a floor in CI",
       "no floor yet"
@@ -392,10 +392,10 @@ window.CHART_DATA = {
     "rows": [
       {
         "label": "Whole pipeline",
-        "value": 2383,
-        "text": "2,383",
+        "value": 2384,
+        "text": "2,384",
         "series": 0,
-        "sub": "floor: level 7"
+        "sub": "floor: level 9"
       },
       {
         "label": "Test generator",
