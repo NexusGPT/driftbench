@@ -24,16 +24,20 @@ The shipped baseline uses the frozen judge snapshot from base commit 12801e1b9b9
 | Tool correctness, exact order: accuracy | equal | measured head-to-head | No example recorded in the evidence. | see comparisons/deepeval/README.md: `npx tsx comparisons/deepeval/tools/tools_ours.mts` and `.venv-deepeval/bin/python comparisons/deepeval/tools/tools_deepeval.py` |
 | Tool correctness, exact order: diagnosis | ahead | compared against their docs or code | Ours names the call, its position and the argument that differs. DeepEval gives a score only. | Not reproducible from the repository: the measurement is a local script outside it. |
 
-## Fresh 480-case rows: G-Eval strict and knowledge retention
+## Fresh rows: G-Eval strict and powered knowledge retention
 
-Measured 2026-10-14 on a fresh set from the unchanged generator (seed 20261114, 20 pairs per family, 480 cases per row), frozen before any call. Same Haiku path and the same pinned DeepEval metrics on both sides. The README chart reads these two rows from `comparisons/deepeval/lead/fresh-scores.json`.
+Measured 2026-10-14. The README chart reads these rows from `comparisons/deepeval/lead/fresh-scores.json`. G-Eval strict uses 480 fresh cases (seed 20261114, 20 pairs per family). Knowledge retention uses a separate 1,272-case confirmation (seed 20261214, 53 pairs per family). Both sets use the unchanged public generator and were frozen before calls.
 
 | Row | driftbench | DeepEval default | Only driftbench right | Only DeepEval right | Exact paired p | Holm (2 rows) |
 |---|---|---|---|---|---|---|
 | G-Eval strict, opt-in setting `response-relevance` | 474/480 (97.3 to 99.43%) | 451/480 (91.46 to 95.76%) | 29 | 6 | 0.00012 | 0.00023 |
-| Knowledge retention, shipped judge | 480/480 (99.21 to 100%) | 477/480 (98.18 to 99.79%) | 3 | 0 | 0.25 | 0.25 |
+| Knowledge retention, shipped judge | 1270/1272 (99.43 to 99.96%) | 1272/1272 (99.7 to 100%) | 0 | 0 | 1 | 1 |
 
-On knowledge retention the intervals overlap. Nine CLI calls had timed out at 180 seconds on that row (five driftbench, four DeepEval); they were called once more with the same frozen settings, and every retried case is now correct on both sides. Before the retries the row read 475 against 473. Method and replay: [comparisons/deepeval/lead](../../comparisons/deepeval/lead/README.md).
+Knowledge retention is **level**: both tools are at the ceiling on observed verdicts from this generator. Two driftbench responses remain inconclusive because their evidence references are invalid. These missing answers are excluded from the paired test, which has 1,270 complete pairs, zero discordances and exact p = 1. The chart counts correct answers out of all 1,272 scheduled cases; its nominal 95% Wilson intervals describe correct-answer yield. Level does not establish equivalence.
+
+Before the authorized timeout recovery, driftbench had 1,269 correct, zero incorrect and three missing answers; DeepEval had 1,227 correct, zero incorrect and 45 missing. After recovery, the counts are 1,270 / 0 / 2 and 1,272 / 0 / 0 respectively. A timeout is a missing answer, never a verdict.
+
+The confirmation retains seven completed CLI cases and finishes through the Anthropic Messages API using `claude-haiku-5-5` on both sides. The 30-case transport check agrees on 30/30 comparable driftbench verdicts and 27/27 DeepEval verdicts; three earlier DeepEval answers were missing. Prompts, judge settings and pinned DeepEval metrics stay frozen. The API main pass uses concurrency 16; the post-main timeout pass uses concurrency 3. See the [powered confirmation report](../../comparisons/deepeval/lead/power/REPORT.md) for transport differences, power, retries and costs, and the [480-case pilot method](../../comparisons/deepeval/lead/README.md) for G-Eval strict and the earlier retention result.
 
 ## Shipped judge, candidate and default
 
