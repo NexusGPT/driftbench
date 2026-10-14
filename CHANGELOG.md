@@ -4,6 +4,8 @@ All notable changes to driftbench are listed here. The format follows [Keep a Ch
 
 ## [Unreleased]
 
+* `generateSuiteToDisk` writes a generated suite one spec at a time with a heap that does not grow with the spec count, and the same files and report fields as `generateSuite`. Budget and total-cap modes are refused before any file is written.
+
 * The generator gate accepts equal sibling expectations when repeated reference outputs establish equivalence, while still rejecting copied expectations for edits that change the reference output.
 
 * Dataset push and restore preserve generated `.seed-*` task fixtures, including binary and nested files. `generate --spec-cap` retains each kept task spec's seed assets without rewriting their contents. `.git` and `node_modules` stay excluded from registry versions.
