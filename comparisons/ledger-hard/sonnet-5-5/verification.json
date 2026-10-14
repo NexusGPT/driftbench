@@ -1,0 +1,83 @@
+{
+  "created": "2026-10-14T03:20:45.670648+00:00",
+  "model": "claude-sonnet-5-5",
+  "sealed": 6560,
+  "recorded": 6560,
+  "missing": 0,
+  "complete": true,
+  "duplicate_answers": 0,
+  "duplicate_starts": 0,
+  "balanced_attempt_events": true,
+  "maximum_concurrency": 2,
+  "no_prior_journal_changed": true,
+  "zero_token_api_errors_counted_as_answers": 0,
+  "measured_usd": 33.726765,
+  "retained_reserve_usd": 1.0,
+  "cap_usd": 45,
+  "usage_by_contestant": {
+    "primary/audit": {
+      "requests": 1536,
+      "measured_usd": 7.8785159,
+      "input": 2485114,
+      "cached_input": 579,
+      "cache_write_input": 2455,
+      "output": 289841,
+      "reasoning": 4412
+    },
+    "primary/peer": {
+      "requests": 1360,
+      "measured_usd": 5.858312,
+      "input": 1886329,
+      "cached_input": 0,
+      "cache_write_input": 1171,
+      "output": 208097,
+      "reasoning": 52974
+    },
+    "primary/peer-full-state": {
+      "requests": 384,
+      "measured_usd": 1.93785,
+      "input": 663240,
+      "cached_input": 0,
+      "cache_write_input": 0,
+      "output": 61137,
+      "reasoning": 14818
+    },
+    "dialect/audit": {
+      "requests": 1536,
+      "measured_usd": 10.291684,
+      "input": 2746616,
+      "cached_input": 0,
+      "cache_write_input": 1653,
+      "output": 479184,
+      "reasoning": 15361
+    },
+    "dialect/peer": {
+      "requests": 1360,
+      "measured_usd": 5.8247591,
+      "input": 1885076,
+      "cached_input": 1171,
+      "cache_write_input": 0,
+      "output": 205449,
+      "reasoning": 49903
+    },
+    "dialect/peer-full-state": {
+      "requests": 384,
+      "measured_usd": 1.935644,
+      "input": 663232,
+      "cached_input": 0,
+      "cache_write_input": 0,
+      "output": 60918,
+      "reasoning": 14876
+    }
+  },
+  "lost_unique_requests": 60,
+  "token_limited_unique_requests": 0,
+  "source_hashes": {
+    "seal.json": "c2244b257d0f3dba03f828226b5d8e25b518749564db67111f75e26acd9e60e2",
+    "requests.json": "75e091dbd4370a78da65cb26b4445640ce4fd538b9080e29f08a033019bcbf27",
+    "attempts.jsonl": "3477f97852051561e0e95a70d3ca1b49473b9ef58b14d61cfd2e5dc1fa1104f7",
+    "starts.jsonl": "df1e42b6c95173f7eb45ced4aa12dcee9cbbfff2445a6af3c0ceca15b54c0592",
+    "primary/calls.jsonl": "af2dc2da7f22e8f02ca3071cf42ebe0e5ae2da9e5262b644413621eb4810299f",
+    "dialect/calls.jsonl": "9982081ac5d8952081f6e38bf5bd177f40d9d2af9dc51da65d2afee6d3262156"
+  }
+}

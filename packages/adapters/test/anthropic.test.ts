@@ -60,6 +60,40 @@ function scripted(...answers: { content: unknown[]; stop_reason: string; usage?:
 const toolUse = (id: string, name: string, input: unknown = {}) => ({ type: 'tool_use', id, name, input });
 
 describe('anthropic adapter', () => {
+  it('validates and freezes messages before the tools factory receives the Given', async () => {
+    let called = 0;
+    const adapter = anthropicAdapter({
+      client: fakeAnthropic(),
+      model: MODEL,
+      tools: (start) => {
+        called++;
+        const message = start.prefix[0];
+        if (!message) throw new Error('missing prefix');
+        expect(() => {
+          message.content = 'setup-mutated';
+        }).toThrow(TypeError);
+        return [];
+      },
+    });
+    const session = await adapter.open({ ...given, prefix: [{ role: 'user', content: 'before' }] });
+    expect(session.history[0]?.content).toBe('before');
+    await adapter.close(session);
+    await expect(
+      adapter.open({
+        ...given,
+        prefix: [
+          {
+            role: 'user',
+            get content() {
+              return 'before';
+            },
+          },
+        ],
+      }),
+    ).rejects.toThrow(/content.*accessor/);
+    expect(called).toBe(1);
+  });
+
   it('replays a recorded exchange: the same requests the real SDK sent, and the whole turn', async () => {
     const client = recordedAnthropic(recorded.exchanges.map((exchange) => exchange.response));
     const adapter = anthropicAdapter({

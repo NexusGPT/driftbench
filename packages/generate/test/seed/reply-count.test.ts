@@ -24,7 +24,8 @@ async function suiteOf(seed: number, several: boolean) {
     rendered.prompt = `${rendered.prompt.trimEnd()}\n\n${SEVERAL}\n`;
   }
   const source = await generateFrom(hidden, rendered, seed, {}, { once: true });
-  if (!source.prepared) throw new Error(`the fictional map failed to load: ${JSON.stringify(source.refused)}`);
+  if (!source.prepared)
+    throw new Error(`the fictional map failed to load: ${JSON.stringify(source.refused)}`);
   return generateSuite(source.prepared, { mapPath: '../map.yaml', t: 2, seed }).complete;
 }
 

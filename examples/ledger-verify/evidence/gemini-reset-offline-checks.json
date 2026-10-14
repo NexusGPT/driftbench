@@ -1,0 +1,20 @@
+{
+  "at": "2026-10-13T11:49:56.001538+00:00",
+  "tests": 4,
+  "passed": 4,
+  "providerCalls": 0,
+  "checks": [
+    "before-reset blocked",
+    "deadline blocked",
+    "archived partial preserved",
+    "returned cassette byte-identical",
+    "answered phase skipped",
+    "nonquota failure not reopened"
+  ],
+  "sourceHashes": {
+    "resume_gemini.py": "f46ef2dcf70b6016aba60018ebab9379001d3d9942811267aa36ba349c078732",
+    "test_resume_gemini.py": "93899e924b74a190da92aa9e709ad6c658ba00b6a1359e255fd263e743412946",
+    "finish.py": "161c074df6186aeaa25c68bd199a04a64aa1242d1f28e08670e4c5059b03c42c",
+    "publish_results.py": "ef679634ad5c6366246d8604db27c881faf3f3031e04aa4ecc778387ace9954b"
+  }
+}

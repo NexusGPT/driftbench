@@ -50,9 +50,15 @@ type Turn = {
 
 ## The history belongs to the runner
 
-`session.history` holds the messages so far. The runner appends the block's user message, or every message of a burst, before `send`, and the agent's reply after it: the text, and each tool call with its output or error. At send time the history ends with the current user turn. An adapter reads the history and never appends to it.
+`session.history` holds the messages so far. The runner appends the block's user message, or every message of a burst, before `send`, and the agent's reply after it: the text, and each tool call with its output or error. At send time the history ends with the current user turn. An adapter reads the history and never appends to it or changes a message.
 
-A session's history starts as a copy of the prefix, whatever the adapter can do with it. The `seedPrefix` capability says whether the agent itself sees the prefix.
+A session's history starts as a fresh array of the prefix's shared, deeply frozen messages, whatever the adapter can do with it. The runner freezes each message once when it enters history, including nested content, tool calls and metadata. Adapters must copy a message before changing it; a write to a received message throws in strict mode. Adapters also freeze messages from direct callers at `open` and `send`. A caller editing the same object afterwards gets a strict-mode error; copy before handing it over to retain an editable original. The `seedPrefix` capability says whether the agent itself sees the prefix.
+
+History must be an ordinary dense array of non-null plain message objects. Array subclasses, accessor entries, extra own properties, holes and `undefined` entries are rejected. Entries are captured once from data descriptors; validation and delivery use those same values. Messages and nested values must be plain JSON data: objects with `Object.prototype` or null prototype, ordinary dense arrays, strings, finite numbers, booleans and `null`. Properties must be enumerable string-keyed data properties; arrays have indexed entries only. Boundaries reject accessor properties, class instances, `Date`, `Map`, `Set`, typed arrays, functions, `undefined`, non-finite numbers, symbols, bigints and cycles with a path-specific `TypeError`. Convert special values explicitly and omit absent optional properties; the adapter never invokes getters or `toJSON` to convert them. Validation shares the once-per-message freeze cache. Adapters validate and freeze prefixes before invoking user-supplied setup factories, including tool, agent and context factories.
+
+The write-error guarantee applies to shared host `Message` objects. SDK adapters can build separate wire representations, and processes receive serialized copies; writes to those independent copies need not throw and cannot change host history.
+
+Proxies are rejected. A Proxy history array, a Proxy message or a Proxy nested value fails with a path-specific `TypeError` before any setup factory runs; no `get` trap is called during the check.
 
 ## What `send` returns
 
@@ -137,14 +143,14 @@ The runner uses `trace` and `endState` today. It does not act on the others yet:
 
 ## The contract suite
 
-`packages/adapters/test/contract.ts` exports `adapterContract(name, makeAdapter, options)`, the suite every adapter passes. `makeAdapter` builds a fresh adapter for each test. The suite plays the runner: it appends each user message before `send` and the reply after it.
+`@agent-nexus/driftbench-adapters/contract` exports `adapterContract(name, makeAdapter, options)`, the suite every adapter passes; its source is `packages/adapters/src/contract.ts`, and `packages/adapters/test/contract.ts` re-exports it for the adapters' own tests. `makeAdapter` builds a fresh adapter for each test. The suite plays the runner: it appends each user message before `send`, checks that the adapter freezes it, and appends a frozen reply afterwards.
 
 It runs in one of two modes. A chat adapter holds the conversation of the Acme Telecom example agent ([`examples/acme`](../../examples/acme/README.md)), tool calls and end states included. An adapter that runs a code agent in a sandbox names a `task` instead: a workspace, two instructions or more, and the file the first one produces. The suite then runs its generic tests on the task's blocks and skips the Acme ones, saying why.
 
 | Test | What it holds |
 |---|---|
 | names itself and declares every capability | `id` equals the name, `version` is set, the seven capabilities are booleans, and `trace`, `endState` and `readArtifact` exist when `trace`, `endState` and `sandbox` are declared |
-| opens a session for the Given | the session carries the adapter, the target and the Given, and its history is a copy of the prefix |
+| opens a session for the Given | the session carries the adapter, the target and the Given, and its history is a fresh array of the same frozen prefix messages |
 | sends a block and returns the whole turn | chat: the Observed follows the rules above, and the Acme agent's two tool calls and its reply all arrive |
 | sends a task block | task: the Observed follows the rules above, the workspace diff lists the produced file as created, the artifacts hold it, and `readArtifact` reads it back |
 | never appends to the history | `send` leaves the history as it was, and a second send on the same session carries it forward |
@@ -160,6 +166,25 @@ The function, http and nexus adapters, the four SDK adapters and the four framew
 ```sh
 pnpm vitest run packages/adapters
 ```
+
+
+### Run it on your own adapter
+
+The suite is a second entry of the adapters package, so a team proves its own adapter with the tests the built-in ones pass. It registers vitest tests: import it in a vitest test file. `vitest` (3 or later) and `@agent-nexus/driftbench-checks` are optional peers of the package, needed for this entry only.
+
+```ts
+// my-adapter.contract.test.ts
+import { adapterContract, createAcmeAgent, createStore } from '@agent-nexus/driftbench-adapters/contract';
+import { myAdapter } from './my-adapter';
+
+adapterContract('my-adapter', () => myAdapter({ agent: createAcmeAgent(createStore()) }), {
+  brokenTransport: () => myAdapter({ endpoint: 'http://127.0.0.1:1' }),
+});
+```
+
+In chat mode the adapter must reach the reference agent, the Acme Telecom sales assistant: the entry exports it as `createAcmeAgent(store)` and `createStore()`, so you put it behind your transport (a function, a local endpoint, a bridge) the way your adapter reaches a real agent. In task mode (`options.task`) no reference agent is needed. The entry also exports the helpers the built-in tests use: `acmeGiven`, `userTurn`, `sendUser`, `converse`, `replyMessage`, `expectWholeObserved`, and the conversation constants.
+
+[`examples/adapter-contract`](https://github.com/achammah/driftbench/tree/main/examples/adapter-contract) holds a hand-written adapter and the test that runs the suite on it: `pnpm vitest run examples/adapter-contract` reports 10 tests passed and 4 skipped (the capabilities it does not declare).
 
 ## The adapters
 

@@ -1,0 +1,8 @@
+{
+  "at": "2026-10-13T12:46:22.058768+00:00",
+  "model": "gemini-3.5-flash-lite",
+  "requested": "medium",
+  "applied": "medium",
+  "firstSuccessfulReceipt": "d3eea3c1-e550-4e21-b340-1bd1df6f00f6",
+  "evidence": "Successful core dialect request with thinkingLevel medium"
+}

@@ -1,13 +1,13 @@
 {
   "component": "system",
   "ladderVersion": 5,
-  "level": 7,
+  "level": 9,
   "top": 11,
   "seeds": [
     {
       "seed": 1,
       "hidden": false,
-      "level": 7,
+      "level": 9,
       "top": 11,
       "rows": [
         {
@@ -94,9 +94,9 @@
           "metric": "items passing / items, 114 items (version-drift, claim-report, report-brute-force)",
           "threshold": 1,
           "direction": "atLeast",
-          "observed": 0.9824561403508771,
-          "pass": false,
-          "itemCount": 2
+          "observed": 1,
+          "pass": true,
+          "itemCount": 0
         },
         {
           "level": 9,
@@ -105,9 +105,9 @@
           "metric": "items passing / items, 30 items (claim-concepts, replay)",
           "threshold": 1,
           "direction": "atLeast",
-          "observed": null,
-          "pass": null,
-          "itemCount": null
+          "observed": 1,
+          "pass": true,
+          "itemCount": 0
         },
         {
           "level": 10,
@@ -116,9 +116,9 @@
           "metric": "items passing / items, 867 items (claim-cli, claim-cli-flags, breaker-datasets, breaker-cli, breaker-spec, breaker-tools, breaker2-compare, breaker2-report, breaker2-viewer, breaker2-import, breaker2-ops, exits-spec, exits-campaign, exits-space, exits-generate, exits-registry, exits-verdict, exits-suite, exits-readers, exits-users, cli-documented)",
           "threshold": 1,
           "direction": "atLeast",
-          "observed": null,
-          "pass": null,
-          "itemCount": null
+          "observed": 0.9930795847750865,
+          "pass": false,
+          "itemCount": 6
         },
         {
           "level": 11,
@@ -133,25 +133,51 @@
         }
       ],
       "failing": {
-        "level": 8,
-        "id": "version-drift",
-        "name": "drift between two versions at the right cell",
+        "level": 10,
+        "id": "command-line",
+        "name": "command-line exit codes and output fields",
         "items": [
           {
-            "id": "claim/report/line-block-accuracy",
-            "component": "packages/report/src/reliability.ts",
-            "detail": "asks: line block accuracy is the share of passing blocks, blocks pooled, one run one cluster. found: line claim-report-s1-1 F function:planted (variant b): blockAccuracy 0.8333333333333334 [0.2773009442713894, 0.9848839296781904], expected 0.8333333333333334 [0.75, 1]",
-            "family": "report-brute-force",
-            "tier": 2,
-            "cause": "reliability gives blockAccuracy as passing blocks over all blocks of the line, clustered by run."
+            "id": "breaker/tools/estate-approve-counts-match-docs",
+            "component": "driftbench estate approve",
+            "family": "breaker-tools",
+            "tier": 3,
+            "cause": "driftbench estate approve reports the same approved fixture count as estate.md"
           },
           {
-            "id": "claim/report/mode-run-pass",
-            "component": "packages/report/src/reliability.ts",
-            "detail": "asks: runs passing per mode: share of passing runs, the repeats of one golden one cluster. found: mode F: runPass 0.5238095238095238 [0.25968530544153146, 0.7752549307850413], expected 0.5238095238095238 [0.2857142857142857, 0.7619047619047619]",
-            "family": "report-brute-force",
+            "id": "breaker2/ops/attack-rounds-distinct-classes",
+            "component": "driftbench attack",
+            "family": "breaker2-ops",
+            "tier": 3,
+            "cause": "driftbench attack: ten rounds attack ten different deviation classes, one each"
+          },
+          {
+            "id": "breaker2/ops/attack-replay-same-attacks",
+            "component": "driftbench attack",
+            "family": "breaker2-ops",
+            "tier": 4,
+            "cause": "driftbench attack: a replay of the recording gives the same rounds even with another seed and an unreadable pack"
+          },
+          {
+            "id": "breaker2/ops/attack-unapproved-needs-drafts",
+            "component": "driftbench attack",
+            "family": "breaker2-ops",
+            "tier": 3,
+            "cause": "driftbench attack: a pack with no approved phrasing is refused with exit 2 unless --drafts is given"
+          },
+          {
+            "id": "breaker2/ops/attack-nearest-pack",
+            "component": "driftbench attack",
+            "family": "breaker2-ops",
+            "tier": 4,
+            "cause": "driftbench attack: without --pack the phrasings come from the redteam folder next to the spec"
+          },
+          {
+            "id": "breaker2/ops/attack-clean-agent-exit-0",
+            "component": "driftbench attack",
+            "family": "breaker2-ops",
             "tier": 2,
-            "cause": "modeReliability gives runPass as the passing share of the mode runs, clustered by line."
+            "cause": "driftbench attack: the real Acme agent comes back from all ten attacks: zero findings and exit 0"
           }
         ]
       }
@@ -159,7 +185,7 @@
     {
       "seed": 2,
       "hidden": false,
-      "level": 7,
+      "level": 9,
       "top": 11,
       "rows": [
         {
@@ -246,9 +272,9 @@
           "metric": "items passing / items, 114 items (version-drift, claim-report, report-brute-force)",
           "threshold": 1,
           "direction": "atLeast",
-          "observed": 0.9824561403508771,
-          "pass": false,
-          "itemCount": 2
+          "observed": 1,
+          "pass": true,
+          "itemCount": 0
         },
         {
           "level": 9,
@@ -257,9 +283,9 @@
           "metric": "items passing / items, 30 items (claim-concepts, replay)",
           "threshold": 1,
           "direction": "atLeast",
-          "observed": null,
-          "pass": null,
-          "itemCount": null
+          "observed": 1,
+          "pass": true,
+          "itemCount": 0
         },
         {
           "level": 10,
@@ -268,9 +294,9 @@
           "metric": "items passing / items, 867 items (claim-cli, claim-cli-flags, breaker-datasets, breaker-cli, breaker-spec, breaker-tools, breaker2-compare, breaker2-report, breaker2-viewer, breaker2-import, breaker2-ops, exits-spec, exits-campaign, exits-space, exits-generate, exits-registry, exits-verdict, exits-suite, exits-readers, exits-users, cli-documented)",
           "threshold": 1,
           "direction": "atLeast",
-          "observed": null,
-          "pass": null,
-          "itemCount": null
+          "observed": 0.9930795847750865,
+          "pass": false,
+          "itemCount": 6
         },
         {
           "level": 11,
@@ -285,25 +311,51 @@
         }
       ],
       "failing": {
-        "level": 8,
-        "id": "version-drift",
-        "name": "drift between two versions at the right cell",
+        "level": 10,
+        "id": "command-line",
+        "name": "command-line exit codes and output fields",
         "items": [
           {
-            "id": "claim/report/line-block-accuracy",
-            "component": "packages/report/src/reliability.ts",
-            "detail": "asks: line block accuracy is the share of passing blocks, blocks pooled, one run one cluster. found: line claim-report-s1-2 F function:planted (variant b): blockAccuracy 0.8333333333333334 [0.2773009442713894, 0.9848839296781904], expected 0.8333333333333334 [0.75, 1]",
-            "family": "report-brute-force",
-            "tier": 2,
-            "cause": "reliability gives blockAccuracy as passing blocks over all blocks of the line, clustered by run."
+            "id": "breaker/tools/estate-approve-counts-match-docs",
+            "component": "driftbench estate approve",
+            "family": "breaker-tools",
+            "tier": 3,
+            "cause": "driftbench estate approve reports the same approved fixture count as estate.md"
           },
           {
-            "id": "claim/report/mode-run-pass",
-            "component": "packages/report/src/reliability.ts",
-            "detail": "asks: runs passing per mode: share of passing runs, the repeats of one golden one cluster. found: mode F: runPass 0.5238095238095238 [0.25968530544153146, 0.7752549307850413], expected 0.5238095238095238 [0.2857142857142857, 0.7619047619047619]",
-            "family": "report-brute-force",
+            "id": "breaker2/ops/attack-rounds-distinct-classes",
+            "component": "driftbench attack",
+            "family": "breaker2-ops",
+            "tier": 3,
+            "cause": "driftbench attack: ten rounds attack ten different deviation classes, one each"
+          },
+          {
+            "id": "breaker2/ops/attack-replay-same-attacks",
+            "component": "driftbench attack",
+            "family": "breaker2-ops",
+            "tier": 4,
+            "cause": "driftbench attack: a replay of the recording gives the same rounds even with another seed and an unreadable pack"
+          },
+          {
+            "id": "breaker2/ops/attack-unapproved-needs-drafts",
+            "component": "driftbench attack",
+            "family": "breaker2-ops",
+            "tier": 3,
+            "cause": "driftbench attack: a pack with no approved phrasing is refused with exit 2 unless --drafts is given"
+          },
+          {
+            "id": "breaker2/ops/attack-nearest-pack",
+            "component": "driftbench attack",
+            "family": "breaker2-ops",
+            "tier": 4,
+            "cause": "driftbench attack: without --pack the phrasings come from the redteam folder next to the spec"
+          },
+          {
+            "id": "breaker2/ops/attack-clean-agent-exit-0",
+            "component": "driftbench attack",
+            "family": "breaker2-ops",
             "tier": 2,
-            "cause": "modeReliability gives runPass as the passing share of the mode runs, clustered by line."
+            "cause": "driftbench attack: the real Acme agent comes back from all ten attacks: zero findings and exit 0"
           }
         ]
       }
@@ -311,7 +363,7 @@
     {
       "seed": 3,
       "hidden": false,
-      "level": 7,
+      "level": 9,
       "top": 11,
       "rows": [
         {
@@ -398,9 +450,9 @@
           "metric": "items passing / items, 114 items (version-drift, claim-report, report-brute-force)",
           "threshold": 1,
           "direction": "atLeast",
-          "observed": 0.9824561403508771,
-          "pass": false,
-          "itemCount": 2
+          "observed": 1,
+          "pass": true,
+          "itemCount": 0
         },
         {
           "level": 9,
@@ -409,9 +461,9 @@
           "metric": "items passing / items, 30 items (claim-concepts, replay)",
           "threshold": 1,
           "direction": "atLeast",
-          "observed": null,
-          "pass": null,
-          "itemCount": null
+          "observed": 1,
+          "pass": true,
+          "itemCount": 0
         },
         {
           "level": 10,
@@ -420,9 +472,9 @@
           "metric": "items passing / items, 867 items (claim-cli, claim-cli-flags, breaker-datasets, breaker-cli, breaker-spec, breaker-tools, breaker2-compare, breaker2-report, breaker2-viewer, breaker2-import, breaker2-ops, exits-spec, exits-campaign, exits-space, exits-generate, exits-registry, exits-verdict, exits-suite, exits-readers, exits-users, cli-documented)",
           "threshold": 1,
           "direction": "atLeast",
-          "observed": null,
-          "pass": null,
-          "itemCount": null
+          "observed": 0.9930795847750865,
+          "pass": false,
+          "itemCount": 6
         },
         {
           "level": 11,
@@ -437,25 +489,51 @@
         }
       ],
       "failing": {
-        "level": 8,
-        "id": "version-drift",
-        "name": "drift between two versions at the right cell",
+        "level": 10,
+        "id": "command-line",
+        "name": "command-line exit codes and output fields",
         "items": [
           {
-            "id": "claim/report/line-block-accuracy",
-            "component": "packages/report/src/reliability.ts",
-            "detail": "asks: line block accuracy is the share of passing blocks, blocks pooled, one run one cluster. found: line claim-report-s1-3 F function:planted (variant b): blockAccuracy 0.8333333333333334 [0.2773009442713894, 0.9848839296781904], expected 0.8333333333333334 [0.75, 1]",
-            "family": "report-brute-force",
-            "tier": 2,
-            "cause": "reliability gives blockAccuracy as passing blocks over all blocks of the line, clustered by run."
+            "id": "breaker/tools/estate-approve-counts-match-docs",
+            "component": "driftbench estate approve",
+            "family": "breaker-tools",
+            "tier": 3,
+            "cause": "driftbench estate approve reports the same approved fixture count as estate.md"
           },
           {
-            "id": "claim/report/mode-run-pass",
-            "component": "packages/report/src/reliability.ts",
-            "detail": "asks: runs passing per mode: share of passing runs, the repeats of one golden one cluster. found: mode F: runPass 0.5238095238095238 [0.25968530544153146, 0.7752549307850413], expected 0.5238095238095238 [0.2857142857142857, 0.7619047619047619]",
-            "family": "report-brute-force",
+            "id": "breaker2/ops/attack-rounds-distinct-classes",
+            "component": "driftbench attack",
+            "family": "breaker2-ops",
+            "tier": 3,
+            "cause": "driftbench attack: ten rounds attack ten different deviation classes, one each"
+          },
+          {
+            "id": "breaker2/ops/attack-replay-same-attacks",
+            "component": "driftbench attack",
+            "family": "breaker2-ops",
+            "tier": 4,
+            "cause": "driftbench attack: a replay of the recording gives the same rounds even with another seed and an unreadable pack"
+          },
+          {
+            "id": "breaker2/ops/attack-unapproved-needs-drafts",
+            "component": "driftbench attack",
+            "family": "breaker2-ops",
+            "tier": 3,
+            "cause": "driftbench attack: a pack with no approved phrasing is refused with exit 2 unless --drafts is given"
+          },
+          {
+            "id": "breaker2/ops/attack-nearest-pack",
+            "component": "driftbench attack",
+            "family": "breaker2-ops",
+            "tier": 4,
+            "cause": "driftbench attack: without --pack the phrasings come from the redteam folder next to the spec"
+          },
+          {
+            "id": "breaker2/ops/attack-clean-agent-exit-0",
+            "component": "driftbench attack",
+            "family": "breaker2-ops",
             "tier": 2,
-            "cause": "modeReliability gives runPass as the passing share of the mode runs, clustered by line."
+            "cause": "driftbench attack: the real Acme agent comes back from all ten attacks: zero findings and exit 0"
           }
         ]
       }
@@ -463,7 +541,7 @@
     {
       "seed": 4,
       "hidden": false,
-      "level": 7,
+      "level": 9,
       "top": 11,
       "rows": [
         {
@@ -550,9 +628,9 @@
           "metric": "items passing / items, 114 items (version-drift, claim-report, report-brute-force)",
           "threshold": 1,
           "direction": "atLeast",
-          "observed": 0.9824561403508771,
-          "pass": false,
-          "itemCount": 2
+          "observed": 1,
+          "pass": true,
+          "itemCount": 0
         },
         {
           "level": 9,
@@ -561,9 +639,9 @@
           "metric": "items passing / items, 30 items (claim-concepts, replay)",
           "threshold": 1,
           "direction": "atLeast",
-          "observed": null,
-          "pass": null,
-          "itemCount": null
+          "observed": 1,
+          "pass": true,
+          "itemCount": 0
         },
         {
           "level": 10,
@@ -572,9 +650,9 @@
           "metric": "items passing / items, 867 items (claim-cli, claim-cli-flags, breaker-datasets, breaker-cli, breaker-spec, breaker-tools, breaker2-compare, breaker2-report, breaker2-viewer, breaker2-import, breaker2-ops, exits-spec, exits-campaign, exits-space, exits-generate, exits-registry, exits-verdict, exits-suite, exits-readers, exits-users, cli-documented)",
           "threshold": 1,
           "direction": "atLeast",
-          "observed": null,
-          "pass": null,
-          "itemCount": null
+          "observed": 0.9919261822376009,
+          "pass": false,
+          "itemCount": 7
         },
         {
           "level": 11,
@@ -589,25 +667,58 @@
         }
       ],
       "failing": {
-        "level": 8,
-        "id": "version-drift",
-        "name": "drift between two versions at the right cell",
+        "level": 10,
+        "id": "command-line",
+        "name": "command-line exit codes and output fields",
         "items": [
           {
-            "id": "claim/report/line-block-accuracy",
-            "component": "packages/report/src/reliability.ts",
-            "detail": "asks: line block accuracy is the share of passing blocks, blocks pooled, one run one cluster. found: line claim-report-s1-4 F function:planted (variant b): blockAccuracy 0.8333333333333334 [0.2773009442713894, 0.9848839296781904], expected 0.8333333333333334 [0.75, 1]",
-            "family": "report-brute-force",
+            "id": "claim/cli/dataset/ref-forms",
+            "component": "packages/store/src/registry.ts",
+            "family": "claim-cli",
             "tier": 2,
-            "cause": "reliability gives blockAccuracy as passing blocks over all blocks of the line, clustered by run."
+            "cause": "the registry, or datasets.md, settles a ref of six or more digits: a hash prefix as the page lists it, or a version number"
           },
           {
-            "id": "claim/report/mode-run-pass",
-            "component": "packages/report/src/reliability.ts",
-            "detail": "asks: runs passing per mode: share of passing runs, the repeats of one golden one cluster. found: mode F: runPass 0.5238095238095238 [0.25968530544153146, 0.7752549307850413], expected 0.5238095238095238 [0.2857142857142857, 0.7619047619047619]",
-            "family": "report-brute-force",
+            "id": "breaker/tools/estate-approve-counts-match-docs",
+            "component": "driftbench estate approve",
+            "family": "breaker-tools",
+            "tier": 3,
+            "cause": "driftbench estate approve reports the same approved fixture count as estate.md"
+          },
+          {
+            "id": "breaker2/ops/attack-rounds-distinct-classes",
+            "component": "driftbench attack",
+            "family": "breaker2-ops",
+            "tier": 3,
+            "cause": "driftbench attack: ten rounds attack ten different deviation classes, one each"
+          },
+          {
+            "id": "breaker2/ops/attack-replay-same-attacks",
+            "component": "driftbench attack",
+            "family": "breaker2-ops",
+            "tier": 4,
+            "cause": "driftbench attack: a replay of the recording gives the same rounds even with another seed and an unreadable pack"
+          },
+          {
+            "id": "breaker2/ops/attack-unapproved-needs-drafts",
+            "component": "driftbench attack",
+            "family": "breaker2-ops",
+            "tier": 3,
+            "cause": "driftbench attack: a pack with no approved phrasing is refused with exit 2 unless --drafts is given"
+          },
+          {
+            "id": "breaker2/ops/attack-nearest-pack",
+            "component": "driftbench attack",
+            "family": "breaker2-ops",
+            "tier": 4,
+            "cause": "driftbench attack: without --pack the phrasings come from the redteam folder next to the spec"
+          },
+          {
+            "id": "breaker2/ops/attack-clean-agent-exit-0",
+            "component": "driftbench attack",
+            "family": "breaker2-ops",
             "tier": 2,
-            "cause": "modeReliability gives runPass as the passing share of the mode runs, clustered by line."
+            "cause": "driftbench attack: the real Acme agent comes back from all ten attacks: zero findings and exit 0"
           }
         ]
       }
@@ -615,7 +726,7 @@
     {
       "seed": 5,
       "hidden": false,
-      "level": 7,
+      "level": 9,
       "top": 11,
       "rows": [
         {
@@ -702,9 +813,9 @@
           "metric": "items passing / items, 114 items (version-drift, claim-report, report-brute-force)",
           "threshold": 1,
           "direction": "atLeast",
-          "observed": 0.9824561403508771,
-          "pass": false,
-          "itemCount": 2
+          "observed": 1,
+          "pass": true,
+          "itemCount": 0
         },
         {
           "level": 9,
@@ -713,9 +824,9 @@
           "metric": "items passing / items, 30 items (claim-concepts, replay)",
           "threshold": 1,
           "direction": "atLeast",
-          "observed": null,
-          "pass": null,
-          "itemCount": null
+          "observed": 1,
+          "pass": true,
+          "itemCount": 0
         },
         {
           "level": 10,
@@ -724,9 +835,9 @@
           "metric": "items passing / items, 867 items (claim-cli, claim-cli-flags, breaker-datasets, breaker-cli, breaker-spec, breaker-tools, breaker2-compare, breaker2-report, breaker2-viewer, breaker2-import, breaker2-ops, exits-spec, exits-campaign, exits-space, exits-generate, exits-registry, exits-verdict, exits-suite, exits-readers, exits-users, cli-documented)",
           "threshold": 1,
           "direction": "atLeast",
-          "observed": null,
-          "pass": null,
-          "itemCount": null
+          "observed": 0.9930795847750865,
+          "pass": false,
+          "itemCount": 6
         },
         {
           "level": 11,
@@ -741,33 +852,59 @@
         }
       ],
       "failing": {
-        "level": 8,
-        "id": "version-drift",
-        "name": "drift between two versions at the right cell",
+        "level": 10,
+        "id": "command-line",
+        "name": "command-line exit codes and output fields",
         "items": [
           {
-            "id": "claim/report/line-block-accuracy",
-            "component": "packages/report/src/reliability.ts",
-            "detail": "asks: line block accuracy is the share of passing blocks, blocks pooled, one run one cluster. found: line claim-report-s1-5 F function:planted (variant b): blockAccuracy 0.8333333333333334 [0.2773009442713894, 0.9848839296781904], expected 0.8333333333333334 [0.75, 1]",
-            "family": "report-brute-force",
-            "tier": 2,
-            "cause": "reliability gives blockAccuracy as passing blocks over all blocks of the line, clustered by run."
+            "id": "breaker/tools/estate-approve-counts-match-docs",
+            "component": "driftbench estate approve",
+            "family": "breaker-tools",
+            "tier": 3,
+            "cause": "driftbench estate approve reports the same approved fixture count as estate.md"
           },
           {
-            "id": "claim/report/mode-run-pass",
-            "component": "packages/report/src/reliability.ts",
-            "detail": "asks: runs passing per mode: share of passing runs, the repeats of one golden one cluster. found: mode F: runPass 0.5238095238095238 [0.25968530544153146, 0.7752549307850413], expected 0.5238095238095238 [0.2857142857142857, 0.7619047619047619]",
-            "family": "report-brute-force",
+            "id": "breaker2/ops/attack-rounds-distinct-classes",
+            "component": "driftbench attack",
+            "family": "breaker2-ops",
+            "tier": 3,
+            "cause": "driftbench attack: ten rounds attack ten different deviation classes, one each"
+          },
+          {
+            "id": "breaker2/ops/attack-replay-same-attacks",
+            "component": "driftbench attack",
+            "family": "breaker2-ops",
+            "tier": 4,
+            "cause": "driftbench attack: a replay of the recording gives the same rounds even with another seed and an unreadable pack"
+          },
+          {
+            "id": "breaker2/ops/attack-unapproved-needs-drafts",
+            "component": "driftbench attack",
+            "family": "breaker2-ops",
+            "tier": 3,
+            "cause": "driftbench attack: a pack with no approved phrasing is refused with exit 2 unless --drafts is given"
+          },
+          {
+            "id": "breaker2/ops/attack-nearest-pack",
+            "component": "driftbench attack",
+            "family": "breaker2-ops",
+            "tier": 4,
+            "cause": "driftbench attack: without --pack the phrasings come from the redteam folder next to the spec"
+          },
+          {
+            "id": "breaker2/ops/attack-clean-agent-exit-0",
+            "component": "driftbench attack",
+            "family": "breaker2-ops",
             "tier": 2,
-            "cause": "modeReliability gives runPass as the passing share of the mode runs, clustered by line."
+            "cause": "driftbench attack: the real Acme agent comes back from all ten attacks: zero findings and exit 0"
           }
         ]
       }
     },
     {
-      "seed": 293302998,
-      "hidden": true,
-      "level": 7,
+      "seed": 6,
+      "hidden": false,
+      "level": 9,
       "top": 11,
       "rows": [
         {
@@ -854,9 +991,9 @@
           "metric": "items passing / items, 114 items (version-drift, claim-report, report-brute-force)",
           "threshold": 1,
           "direction": "atLeast",
-          "observed": 0.9824561403508771,
-          "pass": false,
-          "itemCount": 2
+          "observed": 1,
+          "pass": true,
+          "itemCount": 0
         },
         {
           "level": 9,
@@ -865,9 +1002,9 @@
           "metric": "items passing / items, 30 items (claim-concepts, replay)",
           "threshold": 1,
           "direction": "atLeast",
-          "observed": null,
-          "pass": null,
-          "itemCount": null
+          "observed": 1,
+          "pass": true,
+          "itemCount": 0
         },
         {
           "level": 10,
@@ -876,9 +1013,9 @@
           "metric": "items passing / items, 867 items (claim-cli, claim-cli-flags, breaker-datasets, breaker-cli, breaker-spec, breaker-tools, breaker2-compare, breaker2-report, breaker2-viewer, breaker2-import, breaker2-ops, exits-spec, exits-campaign, exits-space, exits-generate, exits-registry, exits-verdict, exits-suite, exits-readers, exits-users, cli-documented)",
           "threshold": 1,
           "direction": "atLeast",
-          "observed": null,
-          "pass": null,
-          "itemCount": null
+          "observed": 0.9919261822376009,
+          "pass": false,
+          "itemCount": 7
         },
         {
           "level": 11,
@@ -893,39 +1030,2749 @@
         }
       ],
       "failing": {
-        "level": 8,
-        "id": "version-drift",
-        "name": "drift between two versions at the right cell",
+        "level": 10,
+        "id": "command-line",
+        "name": "command-line exit codes and output fields",
         "items": [
           {
-            "id": "claim/report/line-block-accuracy",
-            "component": "packages/report/src/reliability.ts",
-            "detail": "asks: line block accuracy is the share of passing blocks, blocks pooled, one run one cluster. found: line claim-report-s1-2998 F function:planted (variant b): blockAccuracy 0.8333333333333334 [0.2773009442713894, 0.9848839296781904], expected 0.8333333333333334 [0.75, 1]",
-            "family": "report-brute-force",
+            "id": "claim/cli/dataset/ref-forms",
+            "component": "packages/store/src/registry.ts",
+            "family": "claim-cli",
             "tier": 2,
-            "cause": "reliability gives blockAccuracy as passing blocks over all blocks of the line, clustered by run."
+            "cause": "the registry, or datasets.md, settles a ref of six or more digits: a hash prefix as the page lists it, or a version number"
           },
           {
-            "id": "claim/report/mode-run-pass",
-            "component": "packages/report/src/reliability.ts",
-            "detail": "asks: runs passing per mode: share of passing runs, the repeats of one golden one cluster. found: mode F: runPass 0.5238095238095238 [0.25968530544153146, 0.7752549307850413], expected 0.5238095238095238 [0.2857142857142857, 0.7619047619047619]",
-            "family": "report-brute-force",
+            "id": "breaker/tools/estate-approve-counts-match-docs",
+            "component": "driftbench estate approve",
+            "family": "breaker-tools",
+            "tier": 3,
+            "cause": "driftbench estate approve reports the same approved fixture count as estate.md"
+          },
+          {
+            "id": "breaker2/ops/attack-rounds-distinct-classes",
+            "component": "driftbench attack",
+            "family": "breaker2-ops",
+            "tier": 3,
+            "cause": "driftbench attack: ten rounds attack ten different deviation classes, one each"
+          },
+          {
+            "id": "breaker2/ops/attack-replay-same-attacks",
+            "component": "driftbench attack",
+            "family": "breaker2-ops",
+            "tier": 4,
+            "cause": "driftbench attack: a replay of the recording gives the same rounds even with another seed and an unreadable pack"
+          },
+          {
+            "id": "breaker2/ops/attack-unapproved-needs-drafts",
+            "component": "driftbench attack",
+            "family": "breaker2-ops",
+            "tier": 3,
+            "cause": "driftbench attack: a pack with no approved phrasing is refused with exit 2 unless --drafts is given"
+          },
+          {
+            "id": "breaker2/ops/attack-nearest-pack",
+            "component": "driftbench attack",
+            "family": "breaker2-ops",
+            "tier": 4,
+            "cause": "driftbench attack: without --pack the phrasings come from the redteam folder next to the spec"
+          },
+          {
+            "id": "breaker2/ops/attack-clean-agent-exit-0",
+            "component": "driftbench attack",
+            "family": "breaker2-ops",
             "tier": 2,
-            "cause": "modeReliability gives runPass as the passing share of the mode runs, clustered by line."
+            "cause": "driftbench attack: the real Acme agent comes back from all ten attacks: zero findings and exit 0"
+          }
+        ]
+      }
+    },
+    {
+      "seed": 7,
+      "hidden": false,
+      "level": 9,
+      "top": 11,
+      "rows": [
+        {
+          "level": 1,
+          "id": "records",
+          "name": "records stored, resumed and budgeted",
+          "metric": "items passing / items, 500 items (store-roundtrip, resume-budget, combo-store-file, combo-store-memory, claim-spec, store-stress, breaker-datasets, breaker-cli, breaker-tools, breaker2-viewer, robust-concurrency, robust-resume, robust-transfer, robust-version)",
+          "threshold": 1,
+          "direction": "atLeast",
+          "observed": 1,
+          "pass": true,
+          "itemCount": 0
+        },
+        {
+          "level": 2,
+          "id": "fault-reach",
+          "name": "a planted fault reaches the right block and check",
+          "metric": "items passing / items, 154 items (fault-position-mode, fault-adapter, fault-multi, fault-perturbed, claim-adapters)",
+          "threshold": 1,
+          "direction": "atLeast",
+          "observed": 1,
+          "pass": true,
+          "itemCount": 0
+        },
+        {
+          "level": 3,
+          "id": "precision",
+          "name": "clean, hostile and failing agents read right",
+          "metric": "items passing / items, 345 items (clean-shapes, hostile-inputs, failure-handling, claim-checks, claim-adapters, breaker-checks)",
+          "threshold": 1,
+          "direction": "atLeast",
+          "observed": 1,
+          "pass": true,
+          "itemCount": 0
+        },
+        {
+          "level": 4,
+          "id": "drift-class",
+          "name": "drift class of every failing block",
+          "metric": "items passing / items, 74 items (drift-class, claim-concepts)",
+          "threshold": 1,
+          "direction": "atLeast",
+          "observed": 1,
+          "pass": true,
+          "itemCount": 0
+        },
+        {
+          "level": 5,
+          "id": "run-fields",
+          "name": "every field of the run record",
+          "metric": "items passing / items, 84 items (run-fields, claim-spec, claim-concepts)",
+          "threshold": 1,
+          "direction": "atLeast",
+          "observed": 1,
+          "pass": true,
+          "itemCount": 0
+        },
+        {
+          "level": 6,
+          "id": "recovery",
+          "name": "recovery record of every perturbed run",
+          "metric": "items passing / items, 74 items (recovery, claim-concepts)",
+          "threshold": 1,
+          "direction": "atLeast",
+          "observed": 1,
+          "pass": true,
+          "itemCount": 0
+        },
+        {
+          "level": 7,
+          "id": "variance",
+          "name": "variance and the parity verdict against their truth",
+          "metric": "items passing / items, 66 items (variance, claim-concepts)",
+          "threshold": 1,
+          "direction": "atLeast",
+          "observed": 1,
+          "pass": true,
+          "itemCount": 0
+        },
+        {
+          "level": 8,
+          "id": "version-drift",
+          "name": "drift between two versions at the right cell",
+          "metric": "items passing / items, 114 items (version-drift, claim-report, report-brute-force)",
+          "threshold": 1,
+          "direction": "atLeast",
+          "observed": 1,
+          "pass": true,
+          "itemCount": 0
+        },
+        {
+          "level": 9,
+          "id": "replay",
+          "name": "replay equals live",
+          "metric": "items passing / items, 30 items (claim-concepts, replay)",
+          "threshold": 1,
+          "direction": "atLeast",
+          "observed": 1,
+          "pass": true,
+          "itemCount": 0
+        },
+        {
+          "level": 10,
+          "id": "command-line",
+          "name": "command-line exit codes and output fields",
+          "metric": "items passing / items, 867 items (claim-cli, claim-cli-flags, breaker-datasets, breaker-cli, breaker-spec, breaker-tools, breaker2-compare, breaker2-report, breaker2-viewer, breaker2-import, breaker2-ops, exits-spec, exits-campaign, exits-space, exits-generate, exits-registry, exits-verdict, exits-suite, exits-readers, exits-users, cli-documented)",
+          "threshold": 1,
+          "direction": "atLeast",
+          "observed": 0.9930795847750865,
+          "pass": false,
+          "itemCount": 6
+        },
+        {
+          "level": 11,
+          "id": "scale",
+          "name": "scale: the same answers at ten and a hundred times the size",
+          "metric": "items passing / items, 76 items (scale)",
+          "threshold": 1,
+          "direction": "atLeast",
+          "observed": null,
+          "pass": null,
+          "itemCount": null
+        }
+      ],
+      "failing": {
+        "level": 10,
+        "id": "command-line",
+        "name": "command-line exit codes and output fields",
+        "items": [
+          {
+            "id": "breaker/tools/estate-approve-counts-match-docs",
+            "component": "driftbench estate approve",
+            "family": "breaker-tools",
+            "tier": 3,
+            "cause": "driftbench estate approve reports the same approved fixture count as estate.md"
+          },
+          {
+            "id": "breaker2/ops/attack-rounds-distinct-classes",
+            "component": "driftbench attack",
+            "family": "breaker2-ops",
+            "tier": 3,
+            "cause": "driftbench attack: ten rounds attack ten different deviation classes, one each"
+          },
+          {
+            "id": "breaker2/ops/attack-replay-same-attacks",
+            "component": "driftbench attack",
+            "family": "breaker2-ops",
+            "tier": 4,
+            "cause": "driftbench attack: a replay of the recording gives the same rounds even with another seed and an unreadable pack"
+          },
+          {
+            "id": "breaker2/ops/attack-unapproved-needs-drafts",
+            "component": "driftbench attack",
+            "family": "breaker2-ops",
+            "tier": 3,
+            "cause": "driftbench attack: a pack with no approved phrasing is refused with exit 2 unless --drafts is given"
+          },
+          {
+            "id": "breaker2/ops/attack-nearest-pack",
+            "component": "driftbench attack",
+            "family": "breaker2-ops",
+            "tier": 4,
+            "cause": "driftbench attack: without --pack the phrasings come from the redteam folder next to the spec"
+          },
+          {
+            "id": "breaker2/ops/attack-clean-agent-exit-0",
+            "component": "driftbench attack",
+            "family": "breaker2-ops",
+            "tier": 2,
+            "cause": "driftbench attack: the real Acme agent comes back from all ten attacks: zero findings and exit 0"
+          }
+        ]
+      }
+    },
+    {
+      "seed": 8,
+      "hidden": false,
+      "level": 9,
+      "top": 11,
+      "rows": [
+        {
+          "level": 1,
+          "id": "records",
+          "name": "records stored, resumed and budgeted",
+          "metric": "items passing / items, 500 items (store-roundtrip, resume-budget, combo-store-file, combo-store-memory, claim-spec, store-stress, breaker-datasets, breaker-cli, breaker-tools, breaker2-viewer, robust-concurrency, robust-resume, robust-transfer, robust-version)",
+          "threshold": 1,
+          "direction": "atLeast",
+          "observed": 1,
+          "pass": true,
+          "itemCount": 0
+        },
+        {
+          "level": 2,
+          "id": "fault-reach",
+          "name": "a planted fault reaches the right block and check",
+          "metric": "items passing / items, 154 items (fault-position-mode, fault-adapter, fault-multi, fault-perturbed, claim-adapters)",
+          "threshold": 1,
+          "direction": "atLeast",
+          "observed": 1,
+          "pass": true,
+          "itemCount": 0
+        },
+        {
+          "level": 3,
+          "id": "precision",
+          "name": "clean, hostile and failing agents read right",
+          "metric": "items passing / items, 345 items (clean-shapes, hostile-inputs, failure-handling, claim-checks, claim-adapters, breaker-checks)",
+          "threshold": 1,
+          "direction": "atLeast",
+          "observed": 1,
+          "pass": true,
+          "itemCount": 0
+        },
+        {
+          "level": 4,
+          "id": "drift-class",
+          "name": "drift class of every failing block",
+          "metric": "items passing / items, 74 items (drift-class, claim-concepts)",
+          "threshold": 1,
+          "direction": "atLeast",
+          "observed": 1,
+          "pass": true,
+          "itemCount": 0
+        },
+        {
+          "level": 5,
+          "id": "run-fields",
+          "name": "every field of the run record",
+          "metric": "items passing / items, 84 items (run-fields, claim-spec, claim-concepts)",
+          "threshold": 1,
+          "direction": "atLeast",
+          "observed": 1,
+          "pass": true,
+          "itemCount": 0
+        },
+        {
+          "level": 6,
+          "id": "recovery",
+          "name": "recovery record of every perturbed run",
+          "metric": "items passing / items, 74 items (recovery, claim-concepts)",
+          "threshold": 1,
+          "direction": "atLeast",
+          "observed": 1,
+          "pass": true,
+          "itemCount": 0
+        },
+        {
+          "level": 7,
+          "id": "variance",
+          "name": "variance and the parity verdict against their truth",
+          "metric": "items passing / items, 66 items (variance, claim-concepts)",
+          "threshold": 1,
+          "direction": "atLeast",
+          "observed": 1,
+          "pass": true,
+          "itemCount": 0
+        },
+        {
+          "level": 8,
+          "id": "version-drift",
+          "name": "drift between two versions at the right cell",
+          "metric": "items passing / items, 114 items (version-drift, claim-report, report-brute-force)",
+          "threshold": 1,
+          "direction": "atLeast",
+          "observed": 1,
+          "pass": true,
+          "itemCount": 0
+        },
+        {
+          "level": 9,
+          "id": "replay",
+          "name": "replay equals live",
+          "metric": "items passing / items, 30 items (claim-concepts, replay)",
+          "threshold": 1,
+          "direction": "atLeast",
+          "observed": 1,
+          "pass": true,
+          "itemCount": 0
+        },
+        {
+          "level": 10,
+          "id": "command-line",
+          "name": "command-line exit codes and output fields",
+          "metric": "items passing / items, 867 items (claim-cli, claim-cli-flags, breaker-datasets, breaker-cli, breaker-spec, breaker-tools, breaker2-compare, breaker2-report, breaker2-viewer, breaker2-import, breaker2-ops, exits-spec, exits-campaign, exits-space, exits-generate, exits-registry, exits-verdict, exits-suite, exits-readers, exits-users, cli-documented)",
+          "threshold": 1,
+          "direction": "atLeast",
+          "observed": 0.9930795847750865,
+          "pass": false,
+          "itemCount": 6
+        },
+        {
+          "level": 11,
+          "id": "scale",
+          "name": "scale: the same answers at ten and a hundred times the size",
+          "metric": "items passing / items, 76 items (scale)",
+          "threshold": 1,
+          "direction": "atLeast",
+          "observed": null,
+          "pass": null,
+          "itemCount": null
+        }
+      ],
+      "failing": {
+        "level": 10,
+        "id": "command-line",
+        "name": "command-line exit codes and output fields",
+        "items": [
+          {
+            "id": "breaker/tools/estate-approve-counts-match-docs",
+            "component": "driftbench estate approve",
+            "family": "breaker-tools",
+            "tier": 3,
+            "cause": "driftbench estate approve reports the same approved fixture count as estate.md"
+          },
+          {
+            "id": "breaker2/ops/attack-rounds-distinct-classes",
+            "component": "driftbench attack",
+            "family": "breaker2-ops",
+            "tier": 3,
+            "cause": "driftbench attack: ten rounds attack ten different deviation classes, one each"
+          },
+          {
+            "id": "breaker2/ops/attack-replay-same-attacks",
+            "component": "driftbench attack",
+            "family": "breaker2-ops",
+            "tier": 4,
+            "cause": "driftbench attack: a replay of the recording gives the same rounds even with another seed and an unreadable pack"
+          },
+          {
+            "id": "breaker2/ops/attack-unapproved-needs-drafts",
+            "component": "driftbench attack",
+            "family": "breaker2-ops",
+            "tier": 3,
+            "cause": "driftbench attack: a pack with no approved phrasing is refused with exit 2 unless --drafts is given"
+          },
+          {
+            "id": "breaker2/ops/attack-nearest-pack",
+            "component": "driftbench attack",
+            "family": "breaker2-ops",
+            "tier": 4,
+            "cause": "driftbench attack: without --pack the phrasings come from the redteam folder next to the spec"
+          },
+          {
+            "id": "breaker2/ops/attack-clean-agent-exit-0",
+            "component": "driftbench attack",
+            "family": "breaker2-ops",
+            "tier": 2,
+            "cause": "driftbench attack: the real Acme agent comes back from all ten attacks: zero findings and exit 0"
+          }
+        ]
+      }
+    },
+    {
+      "seed": 9,
+      "hidden": false,
+      "level": 9,
+      "top": 11,
+      "rows": [
+        {
+          "level": 1,
+          "id": "records",
+          "name": "records stored, resumed and budgeted",
+          "metric": "items passing / items, 500 items (store-roundtrip, resume-budget, combo-store-file, combo-store-memory, claim-spec, store-stress, breaker-datasets, breaker-cli, breaker-tools, breaker2-viewer, robust-concurrency, robust-resume, robust-transfer, robust-version)",
+          "threshold": 1,
+          "direction": "atLeast",
+          "observed": 1,
+          "pass": true,
+          "itemCount": 0
+        },
+        {
+          "level": 2,
+          "id": "fault-reach",
+          "name": "a planted fault reaches the right block and check",
+          "metric": "items passing / items, 154 items (fault-position-mode, fault-adapter, fault-multi, fault-perturbed, claim-adapters)",
+          "threshold": 1,
+          "direction": "atLeast",
+          "observed": 1,
+          "pass": true,
+          "itemCount": 0
+        },
+        {
+          "level": 3,
+          "id": "precision",
+          "name": "clean, hostile and failing agents read right",
+          "metric": "items passing / items, 345 items (clean-shapes, hostile-inputs, failure-handling, claim-checks, claim-adapters, breaker-checks)",
+          "threshold": 1,
+          "direction": "atLeast",
+          "observed": 1,
+          "pass": true,
+          "itemCount": 0
+        },
+        {
+          "level": 4,
+          "id": "drift-class",
+          "name": "drift class of every failing block",
+          "metric": "items passing / items, 74 items (drift-class, claim-concepts)",
+          "threshold": 1,
+          "direction": "atLeast",
+          "observed": 1,
+          "pass": true,
+          "itemCount": 0
+        },
+        {
+          "level": 5,
+          "id": "run-fields",
+          "name": "every field of the run record",
+          "metric": "items passing / items, 84 items (run-fields, claim-spec, claim-concepts)",
+          "threshold": 1,
+          "direction": "atLeast",
+          "observed": 1,
+          "pass": true,
+          "itemCount": 0
+        },
+        {
+          "level": 6,
+          "id": "recovery",
+          "name": "recovery record of every perturbed run",
+          "metric": "items passing / items, 74 items (recovery, claim-concepts)",
+          "threshold": 1,
+          "direction": "atLeast",
+          "observed": 1,
+          "pass": true,
+          "itemCount": 0
+        },
+        {
+          "level": 7,
+          "id": "variance",
+          "name": "variance and the parity verdict against their truth",
+          "metric": "items passing / items, 66 items (variance, claim-concepts)",
+          "threshold": 1,
+          "direction": "atLeast",
+          "observed": 1,
+          "pass": true,
+          "itemCount": 0
+        },
+        {
+          "level": 8,
+          "id": "version-drift",
+          "name": "drift between two versions at the right cell",
+          "metric": "items passing / items, 114 items (version-drift, claim-report, report-brute-force)",
+          "threshold": 1,
+          "direction": "atLeast",
+          "observed": 1,
+          "pass": true,
+          "itemCount": 0
+        },
+        {
+          "level": 9,
+          "id": "replay",
+          "name": "replay equals live",
+          "metric": "items passing / items, 30 items (claim-concepts, replay)",
+          "threshold": 1,
+          "direction": "atLeast",
+          "observed": 1,
+          "pass": true,
+          "itemCount": 0
+        },
+        {
+          "level": 10,
+          "id": "command-line",
+          "name": "command-line exit codes and output fields",
+          "metric": "items passing / items, 867 items (claim-cli, claim-cli-flags, breaker-datasets, breaker-cli, breaker-spec, breaker-tools, breaker2-compare, breaker2-report, breaker2-viewer, breaker2-import, breaker2-ops, exits-spec, exits-campaign, exits-space, exits-generate, exits-registry, exits-verdict, exits-suite, exits-readers, exits-users, cli-documented)",
+          "threshold": 1,
+          "direction": "atLeast",
+          "observed": 0.9930795847750865,
+          "pass": false,
+          "itemCount": 6
+        },
+        {
+          "level": 11,
+          "id": "scale",
+          "name": "scale: the same answers at ten and a hundred times the size",
+          "metric": "items passing / items, 76 items (scale)",
+          "threshold": 1,
+          "direction": "atLeast",
+          "observed": null,
+          "pass": null,
+          "itemCount": null
+        }
+      ],
+      "failing": {
+        "level": 10,
+        "id": "command-line",
+        "name": "command-line exit codes and output fields",
+        "items": [
+          {
+            "id": "breaker/tools/estate-approve-counts-match-docs",
+            "component": "driftbench estate approve",
+            "family": "breaker-tools",
+            "tier": 3,
+            "cause": "driftbench estate approve reports the same approved fixture count as estate.md"
+          },
+          {
+            "id": "breaker2/ops/attack-rounds-distinct-classes",
+            "component": "driftbench attack",
+            "family": "breaker2-ops",
+            "tier": 3,
+            "cause": "driftbench attack: ten rounds attack ten different deviation classes, one each"
+          },
+          {
+            "id": "breaker2/ops/attack-replay-same-attacks",
+            "component": "driftbench attack",
+            "family": "breaker2-ops",
+            "tier": 4,
+            "cause": "driftbench attack: a replay of the recording gives the same rounds even with another seed and an unreadable pack"
+          },
+          {
+            "id": "breaker2/ops/attack-unapproved-needs-drafts",
+            "component": "driftbench attack",
+            "family": "breaker2-ops",
+            "tier": 3,
+            "cause": "driftbench attack: a pack with no approved phrasing is refused with exit 2 unless --drafts is given"
+          },
+          {
+            "id": "breaker2/ops/attack-nearest-pack",
+            "component": "driftbench attack",
+            "family": "breaker2-ops",
+            "tier": 4,
+            "cause": "driftbench attack: without --pack the phrasings come from the redteam folder next to the spec"
+          },
+          {
+            "id": "breaker2/ops/attack-clean-agent-exit-0",
+            "component": "driftbench attack",
+            "family": "breaker2-ops",
+            "tier": 2,
+            "cause": "driftbench attack: the real Acme agent comes back from all ten attacks: zero findings and exit 0"
+          }
+        ]
+      }
+    },
+    {
+      "seed": 10,
+      "hidden": false,
+      "level": 9,
+      "top": 11,
+      "rows": [
+        {
+          "level": 1,
+          "id": "records",
+          "name": "records stored, resumed and budgeted",
+          "metric": "items passing / items, 500 items (store-roundtrip, resume-budget, combo-store-file, combo-store-memory, claim-spec, store-stress, breaker-datasets, breaker-cli, breaker-tools, breaker2-viewer, robust-concurrency, robust-resume, robust-transfer, robust-version)",
+          "threshold": 1,
+          "direction": "atLeast",
+          "observed": 1,
+          "pass": true,
+          "itemCount": 0
+        },
+        {
+          "level": 2,
+          "id": "fault-reach",
+          "name": "a planted fault reaches the right block and check",
+          "metric": "items passing / items, 154 items (fault-position-mode, fault-adapter, fault-multi, fault-perturbed, claim-adapters)",
+          "threshold": 1,
+          "direction": "atLeast",
+          "observed": 1,
+          "pass": true,
+          "itemCount": 0
+        },
+        {
+          "level": 3,
+          "id": "precision",
+          "name": "clean, hostile and failing agents read right",
+          "metric": "items passing / items, 345 items (clean-shapes, hostile-inputs, failure-handling, claim-checks, claim-adapters, breaker-checks)",
+          "threshold": 1,
+          "direction": "atLeast",
+          "observed": 1,
+          "pass": true,
+          "itemCount": 0
+        },
+        {
+          "level": 4,
+          "id": "drift-class",
+          "name": "drift class of every failing block",
+          "metric": "items passing / items, 74 items (drift-class, claim-concepts)",
+          "threshold": 1,
+          "direction": "atLeast",
+          "observed": 1,
+          "pass": true,
+          "itemCount": 0
+        },
+        {
+          "level": 5,
+          "id": "run-fields",
+          "name": "every field of the run record",
+          "metric": "items passing / items, 84 items (run-fields, claim-spec, claim-concepts)",
+          "threshold": 1,
+          "direction": "atLeast",
+          "observed": 1,
+          "pass": true,
+          "itemCount": 0
+        },
+        {
+          "level": 6,
+          "id": "recovery",
+          "name": "recovery record of every perturbed run",
+          "metric": "items passing / items, 74 items (recovery, claim-concepts)",
+          "threshold": 1,
+          "direction": "atLeast",
+          "observed": 1,
+          "pass": true,
+          "itemCount": 0
+        },
+        {
+          "level": 7,
+          "id": "variance",
+          "name": "variance and the parity verdict against their truth",
+          "metric": "items passing / items, 66 items (variance, claim-concepts)",
+          "threshold": 1,
+          "direction": "atLeast",
+          "observed": 1,
+          "pass": true,
+          "itemCount": 0
+        },
+        {
+          "level": 8,
+          "id": "version-drift",
+          "name": "drift between two versions at the right cell",
+          "metric": "items passing / items, 114 items (version-drift, claim-report, report-brute-force)",
+          "threshold": 1,
+          "direction": "atLeast",
+          "observed": 1,
+          "pass": true,
+          "itemCount": 0
+        },
+        {
+          "level": 9,
+          "id": "replay",
+          "name": "replay equals live",
+          "metric": "items passing / items, 30 items (claim-concepts, replay)",
+          "threshold": 1,
+          "direction": "atLeast",
+          "observed": 1,
+          "pass": true,
+          "itemCount": 0
+        },
+        {
+          "level": 10,
+          "id": "command-line",
+          "name": "command-line exit codes and output fields",
+          "metric": "items passing / items, 867 items (claim-cli, claim-cli-flags, breaker-datasets, breaker-cli, breaker-spec, breaker-tools, breaker2-compare, breaker2-report, breaker2-viewer, breaker2-import, breaker2-ops, exits-spec, exits-campaign, exits-space, exits-generate, exits-registry, exits-verdict, exits-suite, exits-readers, exits-users, cli-documented)",
+          "threshold": 1,
+          "direction": "atLeast",
+          "observed": 0.9930795847750865,
+          "pass": false,
+          "itemCount": 6
+        },
+        {
+          "level": 11,
+          "id": "scale",
+          "name": "scale: the same answers at ten and a hundred times the size",
+          "metric": "items passing / items, 76 items (scale)",
+          "threshold": 1,
+          "direction": "atLeast",
+          "observed": null,
+          "pass": null,
+          "itemCount": null
+        }
+      ],
+      "failing": {
+        "level": 10,
+        "id": "command-line",
+        "name": "command-line exit codes and output fields",
+        "items": [
+          {
+            "id": "breaker/tools/estate-approve-counts-match-docs",
+            "component": "driftbench estate approve",
+            "family": "breaker-tools",
+            "tier": 3,
+            "cause": "driftbench estate approve reports the same approved fixture count as estate.md"
+          },
+          {
+            "id": "breaker2/ops/attack-rounds-distinct-classes",
+            "component": "driftbench attack",
+            "family": "breaker2-ops",
+            "tier": 3,
+            "cause": "driftbench attack: ten rounds attack ten different deviation classes, one each"
+          },
+          {
+            "id": "breaker2/ops/attack-replay-same-attacks",
+            "component": "driftbench attack",
+            "family": "breaker2-ops",
+            "tier": 4,
+            "cause": "driftbench attack: a replay of the recording gives the same rounds even with another seed and an unreadable pack"
+          },
+          {
+            "id": "breaker2/ops/attack-unapproved-needs-drafts",
+            "component": "driftbench attack",
+            "family": "breaker2-ops",
+            "tier": 3,
+            "cause": "driftbench attack: a pack with no approved phrasing is refused with exit 2 unless --drafts is given"
+          },
+          {
+            "id": "breaker2/ops/attack-nearest-pack",
+            "component": "driftbench attack",
+            "family": "breaker2-ops",
+            "tier": 4,
+            "cause": "driftbench attack: without --pack the phrasings come from the redteam folder next to the spec"
+          },
+          {
+            "id": "breaker2/ops/attack-clean-agent-exit-0",
+            "component": "driftbench attack",
+            "family": "breaker2-ops",
+            "tier": 2,
+            "cause": "driftbench attack: the real Acme agent comes back from all ten attacks: zero findings and exit 0"
+          }
+        ]
+      }
+    },
+    {
+      "seed": 11,
+      "hidden": false,
+      "level": 9,
+      "top": 11,
+      "rows": [
+        {
+          "level": 1,
+          "id": "records",
+          "name": "records stored, resumed and budgeted",
+          "metric": "items passing / items, 500 items (store-roundtrip, resume-budget, combo-store-file, combo-store-memory, claim-spec, store-stress, breaker-datasets, breaker-cli, breaker-tools, breaker2-viewer, robust-concurrency, robust-resume, robust-transfer, robust-version)",
+          "threshold": 1,
+          "direction": "atLeast",
+          "observed": 1,
+          "pass": true,
+          "itemCount": 0
+        },
+        {
+          "level": 2,
+          "id": "fault-reach",
+          "name": "a planted fault reaches the right block and check",
+          "metric": "items passing / items, 154 items (fault-position-mode, fault-adapter, fault-multi, fault-perturbed, claim-adapters)",
+          "threshold": 1,
+          "direction": "atLeast",
+          "observed": 1,
+          "pass": true,
+          "itemCount": 0
+        },
+        {
+          "level": 3,
+          "id": "precision",
+          "name": "clean, hostile and failing agents read right",
+          "metric": "items passing / items, 345 items (clean-shapes, hostile-inputs, failure-handling, claim-checks, claim-adapters, breaker-checks)",
+          "threshold": 1,
+          "direction": "atLeast",
+          "observed": 1,
+          "pass": true,
+          "itemCount": 0
+        },
+        {
+          "level": 4,
+          "id": "drift-class",
+          "name": "drift class of every failing block",
+          "metric": "items passing / items, 74 items (drift-class, claim-concepts)",
+          "threshold": 1,
+          "direction": "atLeast",
+          "observed": 1,
+          "pass": true,
+          "itemCount": 0
+        },
+        {
+          "level": 5,
+          "id": "run-fields",
+          "name": "every field of the run record",
+          "metric": "items passing / items, 84 items (run-fields, claim-spec, claim-concepts)",
+          "threshold": 1,
+          "direction": "atLeast",
+          "observed": 1,
+          "pass": true,
+          "itemCount": 0
+        },
+        {
+          "level": 6,
+          "id": "recovery",
+          "name": "recovery record of every perturbed run",
+          "metric": "items passing / items, 74 items (recovery, claim-concepts)",
+          "threshold": 1,
+          "direction": "atLeast",
+          "observed": 1,
+          "pass": true,
+          "itemCount": 0
+        },
+        {
+          "level": 7,
+          "id": "variance",
+          "name": "variance and the parity verdict against their truth",
+          "metric": "items passing / items, 66 items (variance, claim-concepts)",
+          "threshold": 1,
+          "direction": "atLeast",
+          "observed": 1,
+          "pass": true,
+          "itemCount": 0
+        },
+        {
+          "level": 8,
+          "id": "version-drift",
+          "name": "drift between two versions at the right cell",
+          "metric": "items passing / items, 114 items (version-drift, claim-report, report-brute-force)",
+          "threshold": 1,
+          "direction": "atLeast",
+          "observed": 1,
+          "pass": true,
+          "itemCount": 0
+        },
+        {
+          "level": 9,
+          "id": "replay",
+          "name": "replay equals live",
+          "metric": "items passing / items, 30 items (claim-concepts, replay)",
+          "threshold": 1,
+          "direction": "atLeast",
+          "observed": 1,
+          "pass": true,
+          "itemCount": 0
+        },
+        {
+          "level": 10,
+          "id": "command-line",
+          "name": "command-line exit codes and output fields",
+          "metric": "items passing / items, 867 items (claim-cli, claim-cli-flags, breaker-datasets, breaker-cli, breaker-spec, breaker-tools, breaker2-compare, breaker2-report, breaker2-viewer, breaker2-import, breaker2-ops, exits-spec, exits-campaign, exits-space, exits-generate, exits-registry, exits-verdict, exits-suite, exits-readers, exits-users, cli-documented)",
+          "threshold": 1,
+          "direction": "atLeast",
+          "observed": 0.9930795847750865,
+          "pass": false,
+          "itemCount": 6
+        },
+        {
+          "level": 11,
+          "id": "scale",
+          "name": "scale: the same answers at ten and a hundred times the size",
+          "metric": "items passing / items, 76 items (scale)",
+          "threshold": 1,
+          "direction": "atLeast",
+          "observed": null,
+          "pass": null,
+          "itemCount": null
+        }
+      ],
+      "failing": {
+        "level": 10,
+        "id": "command-line",
+        "name": "command-line exit codes and output fields",
+        "items": [
+          {
+            "id": "breaker/tools/estate-approve-counts-match-docs",
+            "component": "driftbench estate approve",
+            "family": "breaker-tools",
+            "tier": 3,
+            "cause": "driftbench estate approve reports the same approved fixture count as estate.md"
+          },
+          {
+            "id": "breaker2/ops/attack-rounds-distinct-classes",
+            "component": "driftbench attack",
+            "family": "breaker2-ops",
+            "tier": 3,
+            "cause": "driftbench attack: ten rounds attack ten different deviation classes, one each"
+          },
+          {
+            "id": "breaker2/ops/attack-replay-same-attacks",
+            "component": "driftbench attack",
+            "family": "breaker2-ops",
+            "tier": 4,
+            "cause": "driftbench attack: a replay of the recording gives the same rounds even with another seed and an unreadable pack"
+          },
+          {
+            "id": "breaker2/ops/attack-unapproved-needs-drafts",
+            "component": "driftbench attack",
+            "family": "breaker2-ops",
+            "tier": 3,
+            "cause": "driftbench attack: a pack with no approved phrasing is refused with exit 2 unless --drafts is given"
+          },
+          {
+            "id": "breaker2/ops/attack-nearest-pack",
+            "component": "driftbench attack",
+            "family": "breaker2-ops",
+            "tier": 4,
+            "cause": "driftbench attack: without --pack the phrasings come from the redteam folder next to the spec"
+          },
+          {
+            "id": "breaker2/ops/attack-clean-agent-exit-0",
+            "component": "driftbench attack",
+            "family": "breaker2-ops",
+            "tier": 2,
+            "cause": "driftbench attack: the real Acme agent comes back from all ten attacks: zero findings and exit 0"
+          }
+        ]
+      }
+    },
+    {
+      "seed": 12,
+      "hidden": false,
+      "level": 9,
+      "top": 11,
+      "rows": [
+        {
+          "level": 1,
+          "id": "records",
+          "name": "records stored, resumed and budgeted",
+          "metric": "items passing / items, 500 items (store-roundtrip, resume-budget, combo-store-file, combo-store-memory, claim-spec, store-stress, breaker-datasets, breaker-cli, breaker-tools, breaker2-viewer, robust-concurrency, robust-resume, robust-transfer, robust-version)",
+          "threshold": 1,
+          "direction": "atLeast",
+          "observed": 1,
+          "pass": true,
+          "itemCount": 0
+        },
+        {
+          "level": 2,
+          "id": "fault-reach",
+          "name": "a planted fault reaches the right block and check",
+          "metric": "items passing / items, 154 items (fault-position-mode, fault-adapter, fault-multi, fault-perturbed, claim-adapters)",
+          "threshold": 1,
+          "direction": "atLeast",
+          "observed": 1,
+          "pass": true,
+          "itemCount": 0
+        },
+        {
+          "level": 3,
+          "id": "precision",
+          "name": "clean, hostile and failing agents read right",
+          "metric": "items passing / items, 345 items (clean-shapes, hostile-inputs, failure-handling, claim-checks, claim-adapters, breaker-checks)",
+          "threshold": 1,
+          "direction": "atLeast",
+          "observed": 1,
+          "pass": true,
+          "itemCount": 0
+        },
+        {
+          "level": 4,
+          "id": "drift-class",
+          "name": "drift class of every failing block",
+          "metric": "items passing / items, 74 items (drift-class, claim-concepts)",
+          "threshold": 1,
+          "direction": "atLeast",
+          "observed": 1,
+          "pass": true,
+          "itemCount": 0
+        },
+        {
+          "level": 5,
+          "id": "run-fields",
+          "name": "every field of the run record",
+          "metric": "items passing / items, 84 items (run-fields, claim-spec, claim-concepts)",
+          "threshold": 1,
+          "direction": "atLeast",
+          "observed": 1,
+          "pass": true,
+          "itemCount": 0
+        },
+        {
+          "level": 6,
+          "id": "recovery",
+          "name": "recovery record of every perturbed run",
+          "metric": "items passing / items, 74 items (recovery, claim-concepts)",
+          "threshold": 1,
+          "direction": "atLeast",
+          "observed": 1,
+          "pass": true,
+          "itemCount": 0
+        },
+        {
+          "level": 7,
+          "id": "variance",
+          "name": "variance and the parity verdict against their truth",
+          "metric": "items passing / items, 66 items (variance, claim-concepts)",
+          "threshold": 1,
+          "direction": "atLeast",
+          "observed": 1,
+          "pass": true,
+          "itemCount": 0
+        },
+        {
+          "level": 8,
+          "id": "version-drift",
+          "name": "drift between two versions at the right cell",
+          "metric": "items passing / items, 114 items (version-drift, claim-report, report-brute-force)",
+          "threshold": 1,
+          "direction": "atLeast",
+          "observed": 1,
+          "pass": true,
+          "itemCount": 0
+        },
+        {
+          "level": 9,
+          "id": "replay",
+          "name": "replay equals live",
+          "metric": "items passing / items, 30 items (claim-concepts, replay)",
+          "threshold": 1,
+          "direction": "atLeast",
+          "observed": 1,
+          "pass": true,
+          "itemCount": 0
+        },
+        {
+          "level": 10,
+          "id": "command-line",
+          "name": "command-line exit codes and output fields",
+          "metric": "items passing / items, 867 items (claim-cli, claim-cli-flags, breaker-datasets, breaker-cli, breaker-spec, breaker-tools, breaker2-compare, breaker2-report, breaker2-viewer, breaker2-import, breaker2-ops, exits-spec, exits-campaign, exits-space, exits-generate, exits-registry, exits-verdict, exits-suite, exits-readers, exits-users, cli-documented)",
+          "threshold": 1,
+          "direction": "atLeast",
+          "observed": 0.9930795847750865,
+          "pass": false,
+          "itemCount": 6
+        },
+        {
+          "level": 11,
+          "id": "scale",
+          "name": "scale: the same answers at ten and a hundred times the size",
+          "metric": "items passing / items, 76 items (scale)",
+          "threshold": 1,
+          "direction": "atLeast",
+          "observed": null,
+          "pass": null,
+          "itemCount": null
+        }
+      ],
+      "failing": {
+        "level": 10,
+        "id": "command-line",
+        "name": "command-line exit codes and output fields",
+        "items": [
+          {
+            "id": "breaker/tools/estate-approve-counts-match-docs",
+            "component": "driftbench estate approve",
+            "family": "breaker-tools",
+            "tier": 3,
+            "cause": "driftbench estate approve reports the same approved fixture count as estate.md"
+          },
+          {
+            "id": "breaker2/ops/attack-rounds-distinct-classes",
+            "component": "driftbench attack",
+            "family": "breaker2-ops",
+            "tier": 3,
+            "cause": "driftbench attack: ten rounds attack ten different deviation classes, one each"
+          },
+          {
+            "id": "breaker2/ops/attack-replay-same-attacks",
+            "component": "driftbench attack",
+            "family": "breaker2-ops",
+            "tier": 4,
+            "cause": "driftbench attack: a replay of the recording gives the same rounds even with another seed and an unreadable pack"
+          },
+          {
+            "id": "breaker2/ops/attack-unapproved-needs-drafts",
+            "component": "driftbench attack",
+            "family": "breaker2-ops",
+            "tier": 3,
+            "cause": "driftbench attack: a pack with no approved phrasing is refused with exit 2 unless --drafts is given"
+          },
+          {
+            "id": "breaker2/ops/attack-nearest-pack",
+            "component": "driftbench attack",
+            "family": "breaker2-ops",
+            "tier": 4,
+            "cause": "driftbench attack: without --pack the phrasings come from the redteam folder next to the spec"
+          },
+          {
+            "id": "breaker2/ops/attack-clean-agent-exit-0",
+            "component": "driftbench attack",
+            "family": "breaker2-ops",
+            "tier": 2,
+            "cause": "driftbench attack: the real Acme agent comes back from all ten attacks: zero findings and exit 0"
+          }
+        ]
+      }
+    },
+    {
+      "seed": 13,
+      "hidden": false,
+      "level": 9,
+      "top": 11,
+      "rows": [
+        {
+          "level": 1,
+          "id": "records",
+          "name": "records stored, resumed and budgeted",
+          "metric": "items passing / items, 500 items (store-roundtrip, resume-budget, combo-store-file, combo-store-memory, claim-spec, store-stress, breaker-datasets, breaker-cli, breaker-tools, breaker2-viewer, robust-concurrency, robust-resume, robust-transfer, robust-version)",
+          "threshold": 1,
+          "direction": "atLeast",
+          "observed": 1,
+          "pass": true,
+          "itemCount": 0
+        },
+        {
+          "level": 2,
+          "id": "fault-reach",
+          "name": "a planted fault reaches the right block and check",
+          "metric": "items passing / items, 154 items (fault-position-mode, fault-adapter, fault-multi, fault-perturbed, claim-adapters)",
+          "threshold": 1,
+          "direction": "atLeast",
+          "observed": 1,
+          "pass": true,
+          "itemCount": 0
+        },
+        {
+          "level": 3,
+          "id": "precision",
+          "name": "clean, hostile and failing agents read right",
+          "metric": "items passing / items, 345 items (clean-shapes, hostile-inputs, failure-handling, claim-checks, claim-adapters, breaker-checks)",
+          "threshold": 1,
+          "direction": "atLeast",
+          "observed": 1,
+          "pass": true,
+          "itemCount": 0
+        },
+        {
+          "level": 4,
+          "id": "drift-class",
+          "name": "drift class of every failing block",
+          "metric": "items passing / items, 74 items (drift-class, claim-concepts)",
+          "threshold": 1,
+          "direction": "atLeast",
+          "observed": 1,
+          "pass": true,
+          "itemCount": 0
+        },
+        {
+          "level": 5,
+          "id": "run-fields",
+          "name": "every field of the run record",
+          "metric": "items passing / items, 84 items (run-fields, claim-spec, claim-concepts)",
+          "threshold": 1,
+          "direction": "atLeast",
+          "observed": 1,
+          "pass": true,
+          "itemCount": 0
+        },
+        {
+          "level": 6,
+          "id": "recovery",
+          "name": "recovery record of every perturbed run",
+          "metric": "items passing / items, 74 items (recovery, claim-concepts)",
+          "threshold": 1,
+          "direction": "atLeast",
+          "observed": 1,
+          "pass": true,
+          "itemCount": 0
+        },
+        {
+          "level": 7,
+          "id": "variance",
+          "name": "variance and the parity verdict against their truth",
+          "metric": "items passing / items, 66 items (variance, claim-concepts)",
+          "threshold": 1,
+          "direction": "atLeast",
+          "observed": 1,
+          "pass": true,
+          "itemCount": 0
+        },
+        {
+          "level": 8,
+          "id": "version-drift",
+          "name": "drift between two versions at the right cell",
+          "metric": "items passing / items, 114 items (version-drift, claim-report, report-brute-force)",
+          "threshold": 1,
+          "direction": "atLeast",
+          "observed": 1,
+          "pass": true,
+          "itemCount": 0
+        },
+        {
+          "level": 9,
+          "id": "replay",
+          "name": "replay equals live",
+          "metric": "items passing / items, 30 items (claim-concepts, replay)",
+          "threshold": 1,
+          "direction": "atLeast",
+          "observed": 1,
+          "pass": true,
+          "itemCount": 0
+        },
+        {
+          "level": 10,
+          "id": "command-line",
+          "name": "command-line exit codes and output fields",
+          "metric": "items passing / items, 867 items (claim-cli, claim-cli-flags, breaker-datasets, breaker-cli, breaker-spec, breaker-tools, breaker2-compare, breaker2-report, breaker2-viewer, breaker2-import, breaker2-ops, exits-spec, exits-campaign, exits-space, exits-generate, exits-registry, exits-verdict, exits-suite, exits-readers, exits-users, cli-documented)",
+          "threshold": 1,
+          "direction": "atLeast",
+          "observed": 0.9930795847750865,
+          "pass": false,
+          "itemCount": 6
+        },
+        {
+          "level": 11,
+          "id": "scale",
+          "name": "scale: the same answers at ten and a hundred times the size",
+          "metric": "items passing / items, 76 items (scale)",
+          "threshold": 1,
+          "direction": "atLeast",
+          "observed": null,
+          "pass": null,
+          "itemCount": null
+        }
+      ],
+      "failing": {
+        "level": 10,
+        "id": "command-line",
+        "name": "command-line exit codes and output fields",
+        "items": [
+          {
+            "id": "breaker/tools/estate-approve-counts-match-docs",
+            "component": "driftbench estate approve",
+            "family": "breaker-tools",
+            "tier": 3,
+            "cause": "driftbench estate approve reports the same approved fixture count as estate.md"
+          },
+          {
+            "id": "breaker2/ops/attack-rounds-distinct-classes",
+            "component": "driftbench attack",
+            "family": "breaker2-ops",
+            "tier": 3,
+            "cause": "driftbench attack: ten rounds attack ten different deviation classes, one each"
+          },
+          {
+            "id": "breaker2/ops/attack-replay-same-attacks",
+            "component": "driftbench attack",
+            "family": "breaker2-ops",
+            "tier": 4,
+            "cause": "driftbench attack: a replay of the recording gives the same rounds even with another seed and an unreadable pack"
+          },
+          {
+            "id": "breaker2/ops/attack-unapproved-needs-drafts",
+            "component": "driftbench attack",
+            "family": "breaker2-ops",
+            "tier": 3,
+            "cause": "driftbench attack: a pack with no approved phrasing is refused with exit 2 unless --drafts is given"
+          },
+          {
+            "id": "breaker2/ops/attack-nearest-pack",
+            "component": "driftbench attack",
+            "family": "breaker2-ops",
+            "tier": 4,
+            "cause": "driftbench attack: without --pack the phrasings come from the redteam folder next to the spec"
+          },
+          {
+            "id": "breaker2/ops/attack-clean-agent-exit-0",
+            "component": "driftbench attack",
+            "family": "breaker2-ops",
+            "tier": 2,
+            "cause": "driftbench attack: the real Acme agent comes back from all ten attacks: zero findings and exit 0"
+          }
+        ]
+      }
+    },
+    {
+      "seed": 14,
+      "hidden": false,
+      "level": 9,
+      "top": 11,
+      "rows": [
+        {
+          "level": 1,
+          "id": "records",
+          "name": "records stored, resumed and budgeted",
+          "metric": "items passing / items, 500 items (store-roundtrip, resume-budget, combo-store-file, combo-store-memory, claim-spec, store-stress, breaker-datasets, breaker-cli, breaker-tools, breaker2-viewer, robust-concurrency, robust-resume, robust-transfer, robust-version)",
+          "threshold": 1,
+          "direction": "atLeast",
+          "observed": 1,
+          "pass": true,
+          "itemCount": 0
+        },
+        {
+          "level": 2,
+          "id": "fault-reach",
+          "name": "a planted fault reaches the right block and check",
+          "metric": "items passing / items, 154 items (fault-position-mode, fault-adapter, fault-multi, fault-perturbed, claim-adapters)",
+          "threshold": 1,
+          "direction": "atLeast",
+          "observed": 1,
+          "pass": true,
+          "itemCount": 0
+        },
+        {
+          "level": 3,
+          "id": "precision",
+          "name": "clean, hostile and failing agents read right",
+          "metric": "items passing / items, 345 items (clean-shapes, hostile-inputs, failure-handling, claim-checks, claim-adapters, breaker-checks)",
+          "threshold": 1,
+          "direction": "atLeast",
+          "observed": 1,
+          "pass": true,
+          "itemCount": 0
+        },
+        {
+          "level": 4,
+          "id": "drift-class",
+          "name": "drift class of every failing block",
+          "metric": "items passing / items, 74 items (drift-class, claim-concepts)",
+          "threshold": 1,
+          "direction": "atLeast",
+          "observed": 1,
+          "pass": true,
+          "itemCount": 0
+        },
+        {
+          "level": 5,
+          "id": "run-fields",
+          "name": "every field of the run record",
+          "metric": "items passing / items, 84 items (run-fields, claim-spec, claim-concepts)",
+          "threshold": 1,
+          "direction": "atLeast",
+          "observed": 1,
+          "pass": true,
+          "itemCount": 0
+        },
+        {
+          "level": 6,
+          "id": "recovery",
+          "name": "recovery record of every perturbed run",
+          "metric": "items passing / items, 74 items (recovery, claim-concepts)",
+          "threshold": 1,
+          "direction": "atLeast",
+          "observed": 1,
+          "pass": true,
+          "itemCount": 0
+        },
+        {
+          "level": 7,
+          "id": "variance",
+          "name": "variance and the parity verdict against their truth",
+          "metric": "items passing / items, 66 items (variance, claim-concepts)",
+          "threshold": 1,
+          "direction": "atLeast",
+          "observed": 1,
+          "pass": true,
+          "itemCount": 0
+        },
+        {
+          "level": 8,
+          "id": "version-drift",
+          "name": "drift between two versions at the right cell",
+          "metric": "items passing / items, 114 items (version-drift, claim-report, report-brute-force)",
+          "threshold": 1,
+          "direction": "atLeast",
+          "observed": 1,
+          "pass": true,
+          "itemCount": 0
+        },
+        {
+          "level": 9,
+          "id": "replay",
+          "name": "replay equals live",
+          "metric": "items passing / items, 30 items (claim-concepts, replay)",
+          "threshold": 1,
+          "direction": "atLeast",
+          "observed": 1,
+          "pass": true,
+          "itemCount": 0
+        },
+        {
+          "level": 10,
+          "id": "command-line",
+          "name": "command-line exit codes and output fields",
+          "metric": "items passing / items, 867 items (claim-cli, claim-cli-flags, breaker-datasets, breaker-cli, breaker-spec, breaker-tools, breaker2-compare, breaker2-report, breaker2-viewer, breaker2-import, breaker2-ops, exits-spec, exits-campaign, exits-space, exits-generate, exits-registry, exits-verdict, exits-suite, exits-readers, exits-users, cli-documented)",
+          "threshold": 1,
+          "direction": "atLeast",
+          "observed": 0.9930795847750865,
+          "pass": false,
+          "itemCount": 6
+        },
+        {
+          "level": 11,
+          "id": "scale",
+          "name": "scale: the same answers at ten and a hundred times the size",
+          "metric": "items passing / items, 76 items (scale)",
+          "threshold": 1,
+          "direction": "atLeast",
+          "observed": null,
+          "pass": null,
+          "itemCount": null
+        }
+      ],
+      "failing": {
+        "level": 10,
+        "id": "command-line",
+        "name": "command-line exit codes and output fields",
+        "items": [
+          {
+            "id": "breaker/tools/estate-approve-counts-match-docs",
+            "component": "driftbench estate approve",
+            "family": "breaker-tools",
+            "tier": 3,
+            "cause": "driftbench estate approve reports the same approved fixture count as estate.md"
+          },
+          {
+            "id": "breaker2/ops/attack-rounds-distinct-classes",
+            "component": "driftbench attack",
+            "family": "breaker2-ops",
+            "tier": 3,
+            "cause": "driftbench attack: ten rounds attack ten different deviation classes, one each"
+          },
+          {
+            "id": "breaker2/ops/attack-replay-same-attacks",
+            "component": "driftbench attack",
+            "family": "breaker2-ops",
+            "tier": 4,
+            "cause": "driftbench attack: a replay of the recording gives the same rounds even with another seed and an unreadable pack"
+          },
+          {
+            "id": "breaker2/ops/attack-unapproved-needs-drafts",
+            "component": "driftbench attack",
+            "family": "breaker2-ops",
+            "tier": 3,
+            "cause": "driftbench attack: a pack with no approved phrasing is refused with exit 2 unless --drafts is given"
+          },
+          {
+            "id": "breaker2/ops/attack-nearest-pack",
+            "component": "driftbench attack",
+            "family": "breaker2-ops",
+            "tier": 4,
+            "cause": "driftbench attack: without --pack the phrasings come from the redteam folder next to the spec"
+          },
+          {
+            "id": "breaker2/ops/attack-clean-agent-exit-0",
+            "component": "driftbench attack",
+            "family": "breaker2-ops",
+            "tier": 2,
+            "cause": "driftbench attack: the real Acme agent comes back from all ten attacks: zero findings and exit 0"
+          }
+        ]
+      }
+    },
+    {
+      "seed": 15,
+      "hidden": false,
+      "level": 9,
+      "top": 11,
+      "rows": [
+        {
+          "level": 1,
+          "id": "records",
+          "name": "records stored, resumed and budgeted",
+          "metric": "items passing / items, 500 items (store-roundtrip, resume-budget, combo-store-file, combo-store-memory, claim-spec, store-stress, breaker-datasets, breaker-cli, breaker-tools, breaker2-viewer, robust-concurrency, robust-resume, robust-transfer, robust-version)",
+          "threshold": 1,
+          "direction": "atLeast",
+          "observed": 1,
+          "pass": true,
+          "itemCount": 0
+        },
+        {
+          "level": 2,
+          "id": "fault-reach",
+          "name": "a planted fault reaches the right block and check",
+          "metric": "items passing / items, 154 items (fault-position-mode, fault-adapter, fault-multi, fault-perturbed, claim-adapters)",
+          "threshold": 1,
+          "direction": "atLeast",
+          "observed": 1,
+          "pass": true,
+          "itemCount": 0
+        },
+        {
+          "level": 3,
+          "id": "precision",
+          "name": "clean, hostile and failing agents read right",
+          "metric": "items passing / items, 345 items (clean-shapes, hostile-inputs, failure-handling, claim-checks, claim-adapters, breaker-checks)",
+          "threshold": 1,
+          "direction": "atLeast",
+          "observed": 1,
+          "pass": true,
+          "itemCount": 0
+        },
+        {
+          "level": 4,
+          "id": "drift-class",
+          "name": "drift class of every failing block",
+          "metric": "items passing / items, 74 items (drift-class, claim-concepts)",
+          "threshold": 1,
+          "direction": "atLeast",
+          "observed": 1,
+          "pass": true,
+          "itemCount": 0
+        },
+        {
+          "level": 5,
+          "id": "run-fields",
+          "name": "every field of the run record",
+          "metric": "items passing / items, 84 items (run-fields, claim-spec, claim-concepts)",
+          "threshold": 1,
+          "direction": "atLeast",
+          "observed": 1,
+          "pass": true,
+          "itemCount": 0
+        },
+        {
+          "level": 6,
+          "id": "recovery",
+          "name": "recovery record of every perturbed run",
+          "metric": "items passing / items, 74 items (recovery, claim-concepts)",
+          "threshold": 1,
+          "direction": "atLeast",
+          "observed": 1,
+          "pass": true,
+          "itemCount": 0
+        },
+        {
+          "level": 7,
+          "id": "variance",
+          "name": "variance and the parity verdict against their truth",
+          "metric": "items passing / items, 66 items (variance, claim-concepts)",
+          "threshold": 1,
+          "direction": "atLeast",
+          "observed": 1,
+          "pass": true,
+          "itemCount": 0
+        },
+        {
+          "level": 8,
+          "id": "version-drift",
+          "name": "drift between two versions at the right cell",
+          "metric": "items passing / items, 114 items (version-drift, claim-report, report-brute-force)",
+          "threshold": 1,
+          "direction": "atLeast",
+          "observed": 1,
+          "pass": true,
+          "itemCount": 0
+        },
+        {
+          "level": 9,
+          "id": "replay",
+          "name": "replay equals live",
+          "metric": "items passing / items, 30 items (claim-concepts, replay)",
+          "threshold": 1,
+          "direction": "atLeast",
+          "observed": 1,
+          "pass": true,
+          "itemCount": 0
+        },
+        {
+          "level": 10,
+          "id": "command-line",
+          "name": "command-line exit codes and output fields",
+          "metric": "items passing / items, 867 items (claim-cli, claim-cli-flags, breaker-datasets, breaker-cli, breaker-spec, breaker-tools, breaker2-compare, breaker2-report, breaker2-viewer, breaker2-import, breaker2-ops, exits-spec, exits-campaign, exits-space, exits-generate, exits-registry, exits-verdict, exits-suite, exits-readers, exits-users, cli-documented)",
+          "threshold": 1,
+          "direction": "atLeast",
+          "observed": 0.9919261822376009,
+          "pass": false,
+          "itemCount": 7
+        },
+        {
+          "level": 11,
+          "id": "scale",
+          "name": "scale: the same answers at ten and a hundred times the size",
+          "metric": "items passing / items, 76 items (scale)",
+          "threshold": 1,
+          "direction": "atLeast",
+          "observed": null,
+          "pass": null,
+          "itemCount": null
+        }
+      ],
+      "failing": {
+        "level": 10,
+        "id": "command-line",
+        "name": "command-line exit codes and output fields",
+        "items": [
+          {
+            "id": "claim/cli/dataset/ref-forms",
+            "component": "packages/store/src/registry.ts",
+            "family": "claim-cli",
+            "tier": 2,
+            "cause": "the registry, or datasets.md, settles a ref of six or more digits: a hash prefix as the page lists it, or a version number"
+          },
+          {
+            "id": "breaker/tools/estate-approve-counts-match-docs",
+            "component": "driftbench estate approve",
+            "family": "breaker-tools",
+            "tier": 3,
+            "cause": "driftbench estate approve reports the same approved fixture count as estate.md"
+          },
+          {
+            "id": "breaker2/ops/attack-rounds-distinct-classes",
+            "component": "driftbench attack",
+            "family": "breaker2-ops",
+            "tier": 3,
+            "cause": "driftbench attack: ten rounds attack ten different deviation classes, one each"
+          },
+          {
+            "id": "breaker2/ops/attack-replay-same-attacks",
+            "component": "driftbench attack",
+            "family": "breaker2-ops",
+            "tier": 4,
+            "cause": "driftbench attack: a replay of the recording gives the same rounds even with another seed and an unreadable pack"
+          },
+          {
+            "id": "breaker2/ops/attack-unapproved-needs-drafts",
+            "component": "driftbench attack",
+            "family": "breaker2-ops",
+            "tier": 3,
+            "cause": "driftbench attack: a pack with no approved phrasing is refused with exit 2 unless --drafts is given"
+          },
+          {
+            "id": "breaker2/ops/attack-nearest-pack",
+            "component": "driftbench attack",
+            "family": "breaker2-ops",
+            "tier": 4,
+            "cause": "driftbench attack: without --pack the phrasings come from the redteam folder next to the spec"
+          },
+          {
+            "id": "breaker2/ops/attack-clean-agent-exit-0",
+            "component": "driftbench attack",
+            "family": "breaker2-ops",
+            "tier": 2,
+            "cause": "driftbench attack: the real Acme agent comes back from all ten attacks: zero findings and exit 0"
+          }
+        ]
+      }
+    },
+    {
+      "seed": 16,
+      "hidden": false,
+      "level": 9,
+      "top": 11,
+      "rows": [
+        {
+          "level": 1,
+          "id": "records",
+          "name": "records stored, resumed and budgeted",
+          "metric": "items passing / items, 500 items (store-roundtrip, resume-budget, combo-store-file, combo-store-memory, claim-spec, store-stress, breaker-datasets, breaker-cli, breaker-tools, breaker2-viewer, robust-concurrency, robust-resume, robust-transfer, robust-version)",
+          "threshold": 1,
+          "direction": "atLeast",
+          "observed": 1,
+          "pass": true,
+          "itemCount": 0
+        },
+        {
+          "level": 2,
+          "id": "fault-reach",
+          "name": "a planted fault reaches the right block and check",
+          "metric": "items passing / items, 154 items (fault-position-mode, fault-adapter, fault-multi, fault-perturbed, claim-adapters)",
+          "threshold": 1,
+          "direction": "atLeast",
+          "observed": 1,
+          "pass": true,
+          "itemCount": 0
+        },
+        {
+          "level": 3,
+          "id": "precision",
+          "name": "clean, hostile and failing agents read right",
+          "metric": "items passing / items, 345 items (clean-shapes, hostile-inputs, failure-handling, claim-checks, claim-adapters, breaker-checks)",
+          "threshold": 1,
+          "direction": "atLeast",
+          "observed": 1,
+          "pass": true,
+          "itemCount": 0
+        },
+        {
+          "level": 4,
+          "id": "drift-class",
+          "name": "drift class of every failing block",
+          "metric": "items passing / items, 74 items (drift-class, claim-concepts)",
+          "threshold": 1,
+          "direction": "atLeast",
+          "observed": 1,
+          "pass": true,
+          "itemCount": 0
+        },
+        {
+          "level": 5,
+          "id": "run-fields",
+          "name": "every field of the run record",
+          "metric": "items passing / items, 84 items (run-fields, claim-spec, claim-concepts)",
+          "threshold": 1,
+          "direction": "atLeast",
+          "observed": 1,
+          "pass": true,
+          "itemCount": 0
+        },
+        {
+          "level": 6,
+          "id": "recovery",
+          "name": "recovery record of every perturbed run",
+          "metric": "items passing / items, 74 items (recovery, claim-concepts)",
+          "threshold": 1,
+          "direction": "atLeast",
+          "observed": 1,
+          "pass": true,
+          "itemCount": 0
+        },
+        {
+          "level": 7,
+          "id": "variance",
+          "name": "variance and the parity verdict against their truth",
+          "metric": "items passing / items, 66 items (variance, claim-concepts)",
+          "threshold": 1,
+          "direction": "atLeast",
+          "observed": 1,
+          "pass": true,
+          "itemCount": 0
+        },
+        {
+          "level": 8,
+          "id": "version-drift",
+          "name": "drift between two versions at the right cell",
+          "metric": "items passing / items, 114 items (version-drift, claim-report, report-brute-force)",
+          "threshold": 1,
+          "direction": "atLeast",
+          "observed": 1,
+          "pass": true,
+          "itemCount": 0
+        },
+        {
+          "level": 9,
+          "id": "replay",
+          "name": "replay equals live",
+          "metric": "items passing / items, 30 items (claim-concepts, replay)",
+          "threshold": 1,
+          "direction": "atLeast",
+          "observed": 1,
+          "pass": true,
+          "itemCount": 0
+        },
+        {
+          "level": 10,
+          "id": "command-line",
+          "name": "command-line exit codes and output fields",
+          "metric": "items passing / items, 867 items (claim-cli, claim-cli-flags, breaker-datasets, breaker-cli, breaker-spec, breaker-tools, breaker2-compare, breaker2-report, breaker2-viewer, breaker2-import, breaker2-ops, exits-spec, exits-campaign, exits-space, exits-generate, exits-registry, exits-verdict, exits-suite, exits-readers, exits-users, cli-documented)",
+          "threshold": 1,
+          "direction": "atLeast",
+          "observed": 0.9930795847750865,
+          "pass": false,
+          "itemCount": 6
+        },
+        {
+          "level": 11,
+          "id": "scale",
+          "name": "scale: the same answers at ten and a hundred times the size",
+          "metric": "items passing / items, 76 items (scale)",
+          "threshold": 1,
+          "direction": "atLeast",
+          "observed": null,
+          "pass": null,
+          "itemCount": null
+        }
+      ],
+      "failing": {
+        "level": 10,
+        "id": "command-line",
+        "name": "command-line exit codes and output fields",
+        "items": [
+          {
+            "id": "breaker/tools/estate-approve-counts-match-docs",
+            "component": "driftbench estate approve",
+            "family": "breaker-tools",
+            "tier": 3,
+            "cause": "driftbench estate approve reports the same approved fixture count as estate.md"
+          },
+          {
+            "id": "breaker2/ops/attack-rounds-distinct-classes",
+            "component": "driftbench attack",
+            "family": "breaker2-ops",
+            "tier": 3,
+            "cause": "driftbench attack: ten rounds attack ten different deviation classes, one each"
+          },
+          {
+            "id": "breaker2/ops/attack-replay-same-attacks",
+            "component": "driftbench attack",
+            "family": "breaker2-ops",
+            "tier": 4,
+            "cause": "driftbench attack: a replay of the recording gives the same rounds even with another seed and an unreadable pack"
+          },
+          {
+            "id": "breaker2/ops/attack-unapproved-needs-drafts",
+            "component": "driftbench attack",
+            "family": "breaker2-ops",
+            "tier": 3,
+            "cause": "driftbench attack: a pack with no approved phrasing is refused with exit 2 unless --drafts is given"
+          },
+          {
+            "id": "breaker2/ops/attack-nearest-pack",
+            "component": "driftbench attack",
+            "family": "breaker2-ops",
+            "tier": 4,
+            "cause": "driftbench attack: without --pack the phrasings come from the redteam folder next to the spec"
+          },
+          {
+            "id": "breaker2/ops/attack-clean-agent-exit-0",
+            "component": "driftbench attack",
+            "family": "breaker2-ops",
+            "tier": 2,
+            "cause": "driftbench attack: the real Acme agent comes back from all ten attacks: zero findings and exit 0"
+          }
+        ]
+      }
+    },
+    {
+      "seed": 17,
+      "hidden": false,
+      "level": 9,
+      "top": 11,
+      "rows": [
+        {
+          "level": 1,
+          "id": "records",
+          "name": "records stored, resumed and budgeted",
+          "metric": "items passing / items, 500 items (store-roundtrip, resume-budget, combo-store-file, combo-store-memory, claim-spec, store-stress, breaker-datasets, breaker-cli, breaker-tools, breaker2-viewer, robust-concurrency, robust-resume, robust-transfer, robust-version)",
+          "threshold": 1,
+          "direction": "atLeast",
+          "observed": 1,
+          "pass": true,
+          "itemCount": 0
+        },
+        {
+          "level": 2,
+          "id": "fault-reach",
+          "name": "a planted fault reaches the right block and check",
+          "metric": "items passing / items, 154 items (fault-position-mode, fault-adapter, fault-multi, fault-perturbed, claim-adapters)",
+          "threshold": 1,
+          "direction": "atLeast",
+          "observed": 1,
+          "pass": true,
+          "itemCount": 0
+        },
+        {
+          "level": 3,
+          "id": "precision",
+          "name": "clean, hostile and failing agents read right",
+          "metric": "items passing / items, 345 items (clean-shapes, hostile-inputs, failure-handling, claim-checks, claim-adapters, breaker-checks)",
+          "threshold": 1,
+          "direction": "atLeast",
+          "observed": 1,
+          "pass": true,
+          "itemCount": 0
+        },
+        {
+          "level": 4,
+          "id": "drift-class",
+          "name": "drift class of every failing block",
+          "metric": "items passing / items, 74 items (drift-class, claim-concepts)",
+          "threshold": 1,
+          "direction": "atLeast",
+          "observed": 1,
+          "pass": true,
+          "itemCount": 0
+        },
+        {
+          "level": 5,
+          "id": "run-fields",
+          "name": "every field of the run record",
+          "metric": "items passing / items, 84 items (run-fields, claim-spec, claim-concepts)",
+          "threshold": 1,
+          "direction": "atLeast",
+          "observed": 1,
+          "pass": true,
+          "itemCount": 0
+        },
+        {
+          "level": 6,
+          "id": "recovery",
+          "name": "recovery record of every perturbed run",
+          "metric": "items passing / items, 74 items (recovery, claim-concepts)",
+          "threshold": 1,
+          "direction": "atLeast",
+          "observed": 1,
+          "pass": true,
+          "itemCount": 0
+        },
+        {
+          "level": 7,
+          "id": "variance",
+          "name": "variance and the parity verdict against their truth",
+          "metric": "items passing / items, 66 items (variance, claim-concepts)",
+          "threshold": 1,
+          "direction": "atLeast",
+          "observed": 1,
+          "pass": true,
+          "itemCount": 0
+        },
+        {
+          "level": 8,
+          "id": "version-drift",
+          "name": "drift between two versions at the right cell",
+          "metric": "items passing / items, 114 items (version-drift, claim-report, report-brute-force)",
+          "threshold": 1,
+          "direction": "atLeast",
+          "observed": 1,
+          "pass": true,
+          "itemCount": 0
+        },
+        {
+          "level": 9,
+          "id": "replay",
+          "name": "replay equals live",
+          "metric": "items passing / items, 30 items (claim-concepts, replay)",
+          "threshold": 1,
+          "direction": "atLeast",
+          "observed": 1,
+          "pass": true,
+          "itemCount": 0
+        },
+        {
+          "level": 10,
+          "id": "command-line",
+          "name": "command-line exit codes and output fields",
+          "metric": "items passing / items, 867 items (claim-cli, claim-cli-flags, breaker-datasets, breaker-cli, breaker-spec, breaker-tools, breaker2-compare, breaker2-report, breaker2-viewer, breaker2-import, breaker2-ops, exits-spec, exits-campaign, exits-space, exits-generate, exits-registry, exits-verdict, exits-suite, exits-readers, exits-users, cli-documented)",
+          "threshold": 1,
+          "direction": "atLeast",
+          "observed": 0.9930795847750865,
+          "pass": false,
+          "itemCount": 6
+        },
+        {
+          "level": 11,
+          "id": "scale",
+          "name": "scale: the same answers at ten and a hundred times the size",
+          "metric": "items passing / items, 76 items (scale)",
+          "threshold": 1,
+          "direction": "atLeast",
+          "observed": null,
+          "pass": null,
+          "itemCount": null
+        }
+      ],
+      "failing": {
+        "level": 10,
+        "id": "command-line",
+        "name": "command-line exit codes and output fields",
+        "items": [
+          {
+            "id": "breaker/tools/estate-approve-counts-match-docs",
+            "component": "driftbench estate approve",
+            "family": "breaker-tools",
+            "tier": 3,
+            "cause": "driftbench estate approve reports the same approved fixture count as estate.md"
+          },
+          {
+            "id": "breaker2/ops/attack-rounds-distinct-classes",
+            "component": "driftbench attack",
+            "family": "breaker2-ops",
+            "tier": 3,
+            "cause": "driftbench attack: ten rounds attack ten different deviation classes, one each"
+          },
+          {
+            "id": "breaker2/ops/attack-replay-same-attacks",
+            "component": "driftbench attack",
+            "family": "breaker2-ops",
+            "tier": 4,
+            "cause": "driftbench attack: a replay of the recording gives the same rounds even with another seed and an unreadable pack"
+          },
+          {
+            "id": "breaker2/ops/attack-unapproved-needs-drafts",
+            "component": "driftbench attack",
+            "family": "breaker2-ops",
+            "tier": 3,
+            "cause": "driftbench attack: a pack with no approved phrasing is refused with exit 2 unless --drafts is given"
+          },
+          {
+            "id": "breaker2/ops/attack-nearest-pack",
+            "component": "driftbench attack",
+            "family": "breaker2-ops",
+            "tier": 4,
+            "cause": "driftbench attack: without --pack the phrasings come from the redteam folder next to the spec"
+          },
+          {
+            "id": "breaker2/ops/attack-clean-agent-exit-0",
+            "component": "driftbench attack",
+            "family": "breaker2-ops",
+            "tier": 2,
+            "cause": "driftbench attack: the real Acme agent comes back from all ten attacks: zero findings and exit 0"
+          }
+        ]
+      }
+    },
+    {
+      "seed": 18,
+      "hidden": false,
+      "level": 9,
+      "top": 11,
+      "rows": [
+        {
+          "level": 1,
+          "id": "records",
+          "name": "records stored, resumed and budgeted",
+          "metric": "items passing / items, 500 items (store-roundtrip, resume-budget, combo-store-file, combo-store-memory, claim-spec, store-stress, breaker-datasets, breaker-cli, breaker-tools, breaker2-viewer, robust-concurrency, robust-resume, robust-transfer, robust-version)",
+          "threshold": 1,
+          "direction": "atLeast",
+          "observed": 1,
+          "pass": true,
+          "itemCount": 0
+        },
+        {
+          "level": 2,
+          "id": "fault-reach",
+          "name": "a planted fault reaches the right block and check",
+          "metric": "items passing / items, 154 items (fault-position-mode, fault-adapter, fault-multi, fault-perturbed, claim-adapters)",
+          "threshold": 1,
+          "direction": "atLeast",
+          "observed": 1,
+          "pass": true,
+          "itemCount": 0
+        },
+        {
+          "level": 3,
+          "id": "precision",
+          "name": "clean, hostile and failing agents read right",
+          "metric": "items passing / items, 345 items (clean-shapes, hostile-inputs, failure-handling, claim-checks, claim-adapters, breaker-checks)",
+          "threshold": 1,
+          "direction": "atLeast",
+          "observed": 1,
+          "pass": true,
+          "itemCount": 0
+        },
+        {
+          "level": 4,
+          "id": "drift-class",
+          "name": "drift class of every failing block",
+          "metric": "items passing / items, 74 items (drift-class, claim-concepts)",
+          "threshold": 1,
+          "direction": "atLeast",
+          "observed": 1,
+          "pass": true,
+          "itemCount": 0
+        },
+        {
+          "level": 5,
+          "id": "run-fields",
+          "name": "every field of the run record",
+          "metric": "items passing / items, 84 items (run-fields, claim-spec, claim-concepts)",
+          "threshold": 1,
+          "direction": "atLeast",
+          "observed": 1,
+          "pass": true,
+          "itemCount": 0
+        },
+        {
+          "level": 6,
+          "id": "recovery",
+          "name": "recovery record of every perturbed run",
+          "metric": "items passing / items, 74 items (recovery, claim-concepts)",
+          "threshold": 1,
+          "direction": "atLeast",
+          "observed": 1,
+          "pass": true,
+          "itemCount": 0
+        },
+        {
+          "level": 7,
+          "id": "variance",
+          "name": "variance and the parity verdict against their truth",
+          "metric": "items passing / items, 66 items (variance, claim-concepts)",
+          "threshold": 1,
+          "direction": "atLeast",
+          "observed": 1,
+          "pass": true,
+          "itemCount": 0
+        },
+        {
+          "level": 8,
+          "id": "version-drift",
+          "name": "drift between two versions at the right cell",
+          "metric": "items passing / items, 114 items (version-drift, claim-report, report-brute-force)",
+          "threshold": 1,
+          "direction": "atLeast",
+          "observed": 1,
+          "pass": true,
+          "itemCount": 0
+        },
+        {
+          "level": 9,
+          "id": "replay",
+          "name": "replay equals live",
+          "metric": "items passing / items, 30 items (claim-concepts, replay)",
+          "threshold": 1,
+          "direction": "atLeast",
+          "observed": 1,
+          "pass": true,
+          "itemCount": 0
+        },
+        {
+          "level": 10,
+          "id": "command-line",
+          "name": "command-line exit codes and output fields",
+          "metric": "items passing / items, 867 items (claim-cli, claim-cli-flags, breaker-datasets, breaker-cli, breaker-spec, breaker-tools, breaker2-compare, breaker2-report, breaker2-viewer, breaker2-import, breaker2-ops, exits-spec, exits-campaign, exits-space, exits-generate, exits-registry, exits-verdict, exits-suite, exits-readers, exits-users, cli-documented)",
+          "threshold": 1,
+          "direction": "atLeast",
+          "observed": 0.9930795847750865,
+          "pass": false,
+          "itemCount": 6
+        },
+        {
+          "level": 11,
+          "id": "scale",
+          "name": "scale: the same answers at ten and a hundred times the size",
+          "metric": "items passing / items, 76 items (scale)",
+          "threshold": 1,
+          "direction": "atLeast",
+          "observed": null,
+          "pass": null,
+          "itemCount": null
+        }
+      ],
+      "failing": {
+        "level": 10,
+        "id": "command-line",
+        "name": "command-line exit codes and output fields",
+        "items": [
+          {
+            "id": "breaker/tools/estate-approve-counts-match-docs",
+            "component": "driftbench estate approve",
+            "family": "breaker-tools",
+            "tier": 3,
+            "cause": "driftbench estate approve reports the same approved fixture count as estate.md"
+          },
+          {
+            "id": "breaker2/ops/attack-rounds-distinct-classes",
+            "component": "driftbench attack",
+            "family": "breaker2-ops",
+            "tier": 3,
+            "cause": "driftbench attack: ten rounds attack ten different deviation classes, one each"
+          },
+          {
+            "id": "breaker2/ops/attack-replay-same-attacks",
+            "component": "driftbench attack",
+            "family": "breaker2-ops",
+            "tier": 4,
+            "cause": "driftbench attack: a replay of the recording gives the same rounds even with another seed and an unreadable pack"
+          },
+          {
+            "id": "breaker2/ops/attack-unapproved-needs-drafts",
+            "component": "driftbench attack",
+            "family": "breaker2-ops",
+            "tier": 3,
+            "cause": "driftbench attack: a pack with no approved phrasing is refused with exit 2 unless --drafts is given"
+          },
+          {
+            "id": "breaker2/ops/attack-nearest-pack",
+            "component": "driftbench attack",
+            "family": "breaker2-ops",
+            "tier": 4,
+            "cause": "driftbench attack: without --pack the phrasings come from the redteam folder next to the spec"
+          },
+          {
+            "id": "breaker2/ops/attack-clean-agent-exit-0",
+            "component": "driftbench attack",
+            "family": "breaker2-ops",
+            "tier": 2,
+            "cause": "driftbench attack: the real Acme agent comes back from all ten attacks: zero findings and exit 0"
+          }
+        ]
+      }
+    },
+    {
+      "seed": 19,
+      "hidden": false,
+      "level": 9,
+      "top": 11,
+      "rows": [
+        {
+          "level": 1,
+          "id": "records",
+          "name": "records stored, resumed and budgeted",
+          "metric": "items passing / items, 500 items (store-roundtrip, resume-budget, combo-store-file, combo-store-memory, claim-spec, store-stress, breaker-datasets, breaker-cli, breaker-tools, breaker2-viewer, robust-concurrency, robust-resume, robust-transfer, robust-version)",
+          "threshold": 1,
+          "direction": "atLeast",
+          "observed": 1,
+          "pass": true,
+          "itemCount": 0
+        },
+        {
+          "level": 2,
+          "id": "fault-reach",
+          "name": "a planted fault reaches the right block and check",
+          "metric": "items passing / items, 154 items (fault-position-mode, fault-adapter, fault-multi, fault-perturbed, claim-adapters)",
+          "threshold": 1,
+          "direction": "atLeast",
+          "observed": 1,
+          "pass": true,
+          "itemCount": 0
+        },
+        {
+          "level": 3,
+          "id": "precision",
+          "name": "clean, hostile and failing agents read right",
+          "metric": "items passing / items, 345 items (clean-shapes, hostile-inputs, failure-handling, claim-checks, claim-adapters, breaker-checks)",
+          "threshold": 1,
+          "direction": "atLeast",
+          "observed": 1,
+          "pass": true,
+          "itemCount": 0
+        },
+        {
+          "level": 4,
+          "id": "drift-class",
+          "name": "drift class of every failing block",
+          "metric": "items passing / items, 74 items (drift-class, claim-concepts)",
+          "threshold": 1,
+          "direction": "atLeast",
+          "observed": 1,
+          "pass": true,
+          "itemCount": 0
+        },
+        {
+          "level": 5,
+          "id": "run-fields",
+          "name": "every field of the run record",
+          "metric": "items passing / items, 84 items (run-fields, claim-spec, claim-concepts)",
+          "threshold": 1,
+          "direction": "atLeast",
+          "observed": 1,
+          "pass": true,
+          "itemCount": 0
+        },
+        {
+          "level": 6,
+          "id": "recovery",
+          "name": "recovery record of every perturbed run",
+          "metric": "items passing / items, 74 items (recovery, claim-concepts)",
+          "threshold": 1,
+          "direction": "atLeast",
+          "observed": 1,
+          "pass": true,
+          "itemCount": 0
+        },
+        {
+          "level": 7,
+          "id": "variance",
+          "name": "variance and the parity verdict against their truth",
+          "metric": "items passing / items, 66 items (variance, claim-concepts)",
+          "threshold": 1,
+          "direction": "atLeast",
+          "observed": 1,
+          "pass": true,
+          "itemCount": 0
+        },
+        {
+          "level": 8,
+          "id": "version-drift",
+          "name": "drift between two versions at the right cell",
+          "metric": "items passing / items, 114 items (version-drift, claim-report, report-brute-force)",
+          "threshold": 1,
+          "direction": "atLeast",
+          "observed": 1,
+          "pass": true,
+          "itemCount": 0
+        },
+        {
+          "level": 9,
+          "id": "replay",
+          "name": "replay equals live",
+          "metric": "items passing / items, 30 items (claim-concepts, replay)",
+          "threshold": 1,
+          "direction": "atLeast",
+          "observed": 1,
+          "pass": true,
+          "itemCount": 0
+        },
+        {
+          "level": 10,
+          "id": "command-line",
+          "name": "command-line exit codes and output fields",
+          "metric": "items passing / items, 867 items (claim-cli, claim-cli-flags, breaker-datasets, breaker-cli, breaker-spec, breaker-tools, breaker2-compare, breaker2-report, breaker2-viewer, breaker2-import, breaker2-ops, exits-spec, exits-campaign, exits-space, exits-generate, exits-registry, exits-verdict, exits-suite, exits-readers, exits-users, cli-documented)",
+          "threshold": 1,
+          "direction": "atLeast",
+          "observed": 0.9930795847750865,
+          "pass": false,
+          "itemCount": 6
+        },
+        {
+          "level": 11,
+          "id": "scale",
+          "name": "scale: the same answers at ten and a hundred times the size",
+          "metric": "items passing / items, 76 items (scale)",
+          "threshold": 1,
+          "direction": "atLeast",
+          "observed": null,
+          "pass": null,
+          "itemCount": null
+        }
+      ],
+      "failing": {
+        "level": 10,
+        "id": "command-line",
+        "name": "command-line exit codes and output fields",
+        "items": [
+          {
+            "id": "breaker/tools/estate-approve-counts-match-docs",
+            "component": "driftbench estate approve",
+            "family": "breaker-tools",
+            "tier": 3,
+            "cause": "driftbench estate approve reports the same approved fixture count as estate.md"
+          },
+          {
+            "id": "breaker2/ops/attack-rounds-distinct-classes",
+            "component": "driftbench attack",
+            "family": "breaker2-ops",
+            "tier": 3,
+            "cause": "driftbench attack: ten rounds attack ten different deviation classes, one each"
+          },
+          {
+            "id": "breaker2/ops/attack-replay-same-attacks",
+            "component": "driftbench attack",
+            "family": "breaker2-ops",
+            "tier": 4,
+            "cause": "driftbench attack: a replay of the recording gives the same rounds even with another seed and an unreadable pack"
+          },
+          {
+            "id": "breaker2/ops/attack-unapproved-needs-drafts",
+            "component": "driftbench attack",
+            "family": "breaker2-ops",
+            "tier": 3,
+            "cause": "driftbench attack: a pack with no approved phrasing is refused with exit 2 unless --drafts is given"
+          },
+          {
+            "id": "breaker2/ops/attack-nearest-pack",
+            "component": "driftbench attack",
+            "family": "breaker2-ops",
+            "tier": 4,
+            "cause": "driftbench attack: without --pack the phrasings come from the redteam folder next to the spec"
+          },
+          {
+            "id": "breaker2/ops/attack-clean-agent-exit-0",
+            "component": "driftbench attack",
+            "family": "breaker2-ops",
+            "tier": 2,
+            "cause": "driftbench attack: the real Acme agent comes back from all ten attacks: zero findings and exit 0"
+          }
+        ]
+      }
+    },
+    {
+      "seed": 20,
+      "hidden": false,
+      "level": 9,
+      "top": 11,
+      "rows": [
+        {
+          "level": 1,
+          "id": "records",
+          "name": "records stored, resumed and budgeted",
+          "metric": "items passing / items, 500 items (store-roundtrip, resume-budget, combo-store-file, combo-store-memory, claim-spec, store-stress, breaker-datasets, breaker-cli, breaker-tools, breaker2-viewer, robust-concurrency, robust-resume, robust-transfer, robust-version)",
+          "threshold": 1,
+          "direction": "atLeast",
+          "observed": 1,
+          "pass": true,
+          "itemCount": 0
+        },
+        {
+          "level": 2,
+          "id": "fault-reach",
+          "name": "a planted fault reaches the right block and check",
+          "metric": "items passing / items, 154 items (fault-position-mode, fault-adapter, fault-multi, fault-perturbed, claim-adapters)",
+          "threshold": 1,
+          "direction": "atLeast",
+          "observed": 1,
+          "pass": true,
+          "itemCount": 0
+        },
+        {
+          "level": 3,
+          "id": "precision",
+          "name": "clean, hostile and failing agents read right",
+          "metric": "items passing / items, 345 items (clean-shapes, hostile-inputs, failure-handling, claim-checks, claim-adapters, breaker-checks)",
+          "threshold": 1,
+          "direction": "atLeast",
+          "observed": 1,
+          "pass": true,
+          "itemCount": 0
+        },
+        {
+          "level": 4,
+          "id": "drift-class",
+          "name": "drift class of every failing block",
+          "metric": "items passing / items, 74 items (drift-class, claim-concepts)",
+          "threshold": 1,
+          "direction": "atLeast",
+          "observed": 1,
+          "pass": true,
+          "itemCount": 0
+        },
+        {
+          "level": 5,
+          "id": "run-fields",
+          "name": "every field of the run record",
+          "metric": "items passing / items, 84 items (run-fields, claim-spec, claim-concepts)",
+          "threshold": 1,
+          "direction": "atLeast",
+          "observed": 1,
+          "pass": true,
+          "itemCount": 0
+        },
+        {
+          "level": 6,
+          "id": "recovery",
+          "name": "recovery record of every perturbed run",
+          "metric": "items passing / items, 74 items (recovery, claim-concepts)",
+          "threshold": 1,
+          "direction": "atLeast",
+          "observed": 1,
+          "pass": true,
+          "itemCount": 0
+        },
+        {
+          "level": 7,
+          "id": "variance",
+          "name": "variance and the parity verdict against their truth",
+          "metric": "items passing / items, 66 items (variance, claim-concepts)",
+          "threshold": 1,
+          "direction": "atLeast",
+          "observed": 1,
+          "pass": true,
+          "itemCount": 0
+        },
+        {
+          "level": 8,
+          "id": "version-drift",
+          "name": "drift between two versions at the right cell",
+          "metric": "items passing / items, 114 items (version-drift, claim-report, report-brute-force)",
+          "threshold": 1,
+          "direction": "atLeast",
+          "observed": 1,
+          "pass": true,
+          "itemCount": 0
+        },
+        {
+          "level": 9,
+          "id": "replay",
+          "name": "replay equals live",
+          "metric": "items passing / items, 30 items (claim-concepts, replay)",
+          "threshold": 1,
+          "direction": "atLeast",
+          "observed": 1,
+          "pass": true,
+          "itemCount": 0
+        },
+        {
+          "level": 10,
+          "id": "command-line",
+          "name": "command-line exit codes and output fields",
+          "metric": "items passing / items, 867 items (claim-cli, claim-cli-flags, breaker-datasets, breaker-cli, breaker-spec, breaker-tools, breaker2-compare, breaker2-report, breaker2-viewer, breaker2-import, breaker2-ops, exits-spec, exits-campaign, exits-space, exits-generate, exits-registry, exits-verdict, exits-suite, exits-readers, exits-users, cli-documented)",
+          "threshold": 1,
+          "direction": "atLeast",
+          "observed": 0.9930795847750865,
+          "pass": false,
+          "itemCount": 6
+        },
+        {
+          "level": 11,
+          "id": "scale",
+          "name": "scale: the same answers at ten and a hundred times the size",
+          "metric": "items passing / items, 76 items (scale)",
+          "threshold": 1,
+          "direction": "atLeast",
+          "observed": null,
+          "pass": null,
+          "itemCount": null
+        }
+      ],
+      "failing": {
+        "level": 10,
+        "id": "command-line",
+        "name": "command-line exit codes and output fields",
+        "items": [
+          {
+            "id": "breaker/tools/estate-approve-counts-match-docs",
+            "component": "driftbench estate approve",
+            "family": "breaker-tools",
+            "tier": 3,
+            "cause": "driftbench estate approve reports the same approved fixture count as estate.md"
+          },
+          {
+            "id": "breaker2/ops/attack-rounds-distinct-classes",
+            "component": "driftbench attack",
+            "family": "breaker2-ops",
+            "tier": 3,
+            "cause": "driftbench attack: ten rounds attack ten different deviation classes, one each"
+          },
+          {
+            "id": "breaker2/ops/attack-replay-same-attacks",
+            "component": "driftbench attack",
+            "family": "breaker2-ops",
+            "tier": 4,
+            "cause": "driftbench attack: a replay of the recording gives the same rounds even with another seed and an unreadable pack"
+          },
+          {
+            "id": "breaker2/ops/attack-unapproved-needs-drafts",
+            "component": "driftbench attack",
+            "family": "breaker2-ops",
+            "tier": 3,
+            "cause": "driftbench attack: a pack with no approved phrasing is refused with exit 2 unless --drafts is given"
+          },
+          {
+            "id": "breaker2/ops/attack-nearest-pack",
+            "component": "driftbench attack",
+            "family": "breaker2-ops",
+            "tier": 4,
+            "cause": "driftbench attack: without --pack the phrasings come from the redteam folder next to the spec"
+          },
+          {
+            "id": "breaker2/ops/attack-clean-agent-exit-0",
+            "component": "driftbench attack",
+            "family": "breaker2-ops",
+            "tier": 2,
+            "cause": "driftbench attack: the real Acme agent comes back from all ten attacks: zero findings and exit 0"
+          }
+        ]
+      }
+    },
+    {
+      "seed": 88145333,
+      "hidden": true,
+      "level": 9,
+      "top": 11,
+      "rows": [
+        {
+          "level": 1,
+          "id": "records",
+          "name": "records stored, resumed and budgeted",
+          "metric": "items passing / items, 500 items (store-roundtrip, resume-budget, combo-store-file, combo-store-memory, claim-spec, store-stress, breaker-datasets, breaker-cli, breaker-tools, breaker2-viewer, robust-concurrency, robust-resume, robust-transfer, robust-version)",
+          "threshold": 1,
+          "direction": "atLeast",
+          "observed": 1,
+          "pass": true,
+          "itemCount": 0
+        },
+        {
+          "level": 2,
+          "id": "fault-reach",
+          "name": "a planted fault reaches the right block and check",
+          "metric": "items passing / items, 154 items (fault-position-mode, fault-adapter, fault-multi, fault-perturbed, claim-adapters)",
+          "threshold": 1,
+          "direction": "atLeast",
+          "observed": 1,
+          "pass": true,
+          "itemCount": 0
+        },
+        {
+          "level": 3,
+          "id": "precision",
+          "name": "clean, hostile and failing agents read right",
+          "metric": "items passing / items, 345 items (clean-shapes, hostile-inputs, failure-handling, claim-checks, claim-adapters, breaker-checks)",
+          "threshold": 1,
+          "direction": "atLeast",
+          "observed": 1,
+          "pass": true,
+          "itemCount": 0
+        },
+        {
+          "level": 4,
+          "id": "drift-class",
+          "name": "drift class of every failing block",
+          "metric": "items passing / items, 74 items (drift-class, claim-concepts)",
+          "threshold": 1,
+          "direction": "atLeast",
+          "observed": 1,
+          "pass": true,
+          "itemCount": 0
+        },
+        {
+          "level": 5,
+          "id": "run-fields",
+          "name": "every field of the run record",
+          "metric": "items passing / items, 84 items (run-fields, claim-spec, claim-concepts)",
+          "threshold": 1,
+          "direction": "atLeast",
+          "observed": 1,
+          "pass": true,
+          "itemCount": 0
+        },
+        {
+          "level": 6,
+          "id": "recovery",
+          "name": "recovery record of every perturbed run",
+          "metric": "items passing / items, 74 items (recovery, claim-concepts)",
+          "threshold": 1,
+          "direction": "atLeast",
+          "observed": 1,
+          "pass": true,
+          "itemCount": 0
+        },
+        {
+          "level": 7,
+          "id": "variance",
+          "name": "variance and the parity verdict against their truth",
+          "metric": "items passing / items, 66 items (variance, claim-concepts)",
+          "threshold": 1,
+          "direction": "atLeast",
+          "observed": 1,
+          "pass": true,
+          "itemCount": 0
+        },
+        {
+          "level": 8,
+          "id": "version-drift",
+          "name": "drift between two versions at the right cell",
+          "metric": "items passing / items, 114 items (version-drift, claim-report, report-brute-force)",
+          "threshold": 1,
+          "direction": "atLeast",
+          "observed": 1,
+          "pass": true,
+          "itemCount": 0
+        },
+        {
+          "level": 9,
+          "id": "replay",
+          "name": "replay equals live",
+          "metric": "items passing / items, 30 items (claim-concepts, replay)",
+          "threshold": 1,
+          "direction": "atLeast",
+          "observed": 1,
+          "pass": true,
+          "itemCount": 0
+        },
+        {
+          "level": 10,
+          "id": "command-line",
+          "name": "command-line exit codes and output fields",
+          "metric": "items passing / items, 867 items (claim-cli, claim-cli-flags, breaker-datasets, breaker-cli, breaker-spec, breaker-tools, breaker2-compare, breaker2-report, breaker2-viewer, breaker2-import, breaker2-ops, exits-spec, exits-campaign, exits-space, exits-generate, exits-registry, exits-verdict, exits-suite, exits-readers, exits-users, cli-documented)",
+          "threshold": 1,
+          "direction": "atLeast",
+          "observed": 0.9930795847750865,
+          "pass": false,
+          "itemCount": 6
+        },
+        {
+          "level": 11,
+          "id": "scale",
+          "name": "scale: the same answers at ten and a hundred times the size",
+          "metric": "items passing / items, 76 items (scale)",
+          "threshold": 1,
+          "direction": "atLeast",
+          "observed": null,
+          "pass": null,
+          "itemCount": null
+        }
+      ],
+      "failing": {
+        "level": 10,
+        "id": "command-line",
+        "name": "command-line exit codes and output fields",
+        "items": [
+          {
+            "id": "breaker/tools/estate-approve-counts-match-docs",
+            "component": "driftbench estate approve",
+            "family": "breaker-tools",
+            "tier": 3,
+            "cause": "driftbench estate approve reports the same approved fixture count as estate.md"
+          },
+          {
+            "id": "breaker2/ops/attack-rounds-distinct-classes",
+            "component": "driftbench attack",
+            "family": "breaker2-ops",
+            "tier": 3,
+            "cause": "driftbench attack: ten rounds attack ten different deviation classes, one each"
+          },
+          {
+            "id": "breaker2/ops/attack-replay-same-attacks",
+            "component": "driftbench attack",
+            "family": "breaker2-ops",
+            "tier": 4,
+            "cause": "driftbench attack: a replay of the recording gives the same rounds even with another seed and an unreadable pack"
+          },
+          {
+            "id": "breaker2/ops/attack-unapproved-needs-drafts",
+            "component": "driftbench attack",
+            "family": "breaker2-ops",
+            "tier": 3,
+            "cause": "driftbench attack: a pack with no approved phrasing is refused with exit 2 unless --drafts is given"
+          },
+          {
+            "id": "breaker2/ops/attack-nearest-pack",
+            "component": "driftbench attack",
+            "family": "breaker2-ops",
+            "tier": 4,
+            "cause": "driftbench attack: without --pack the phrasings come from the redteam folder next to the spec"
+          },
+          {
+            "id": "breaker2/ops/attack-clean-agent-exit-0",
+            "component": "driftbench attack",
+            "family": "breaker2-ops",
+            "tier": 2,
+            "cause": "driftbench attack: the real Acme agent comes back from all ten attacks: zero findings and exit 0"
           }
         ]
       }
     }
   ],
   "hiddenSeed": {
-    "seed": 293302998,
+    "seed": 88145333,
     "source": "head",
-    "head": "c43c8e96b0031edc4217499f65f3cf54b5eb604e"
+    "head": "0531bb75852c4089d0261b58ebd46457bf863d16"
   },
   "measurement": {
-    "command": "SDK runSeeds(system, seeds 1..5 followed by the commit-derived hidden seed), stopping at the first failure",
-    "completedSeeds": 6,
+    "command": "pnpm driftbench validate system --seeds 1..20 --hidden --json",
+    "completedSeeds": 21,
     "totalSeeds": 21,
-    "mainHead": "c43c8e96b0031edc4217499f65f3cf54b5eb604e"
+    "mainHead": "0531bb75852c4089d0261b58ebd46457bf863d16"
   }
 }

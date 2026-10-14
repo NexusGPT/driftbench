@@ -12,12 +12,13 @@ import {
 import type { Command } from 'commander';
 import type { Io } from '../io';
 import { optionNumber } from '../number';
+import { noStageWarning, summaryLine, totalOf } from '../reply-checks';
 import {
   type CampaignDeps,
   defaultDeps,
   loadValidSpecs,
-  noAdapter,
   parseTarget,
+  resolveAdapter,
   showTarget,
   specRuns,
 } from './campaign';
@@ -122,9 +123,13 @@ export async function perturbCommand(
     if (!withFaults) return 2;
     runDeps = withFaults;
   }
-  const adapter = await runDeps.adapterFor(target);
+  const adapter = await resolveAdapter(
+    target,
+    () => runDeps.adapterFor(target),
+    io,
+    planned.pinned === undefined ? [] : [spec.id],
+  );
   if (!adapter) {
-    io.err(`${noAdapter(target, planned.pinned === undefined ? [] : [spec.id])}\n`);
     return 2;
   }
 
@@ -166,6 +171,7 @@ export async function perturbCommand(
             ...('packPath' in driver.source ? { packPath: shown(io, driver.source.packPath) } : {}),
           },
           worldOnly: driver.worldOnly,
+          ...replyChecksJson(io, spec, driver),
           reference: {
             runId: reference.runId,
             status: reference.status,
@@ -198,6 +204,28 @@ export async function perturbCommand(
     printText(io, spec, target, driver, reference, result, reason);
   }
   return result.status === 'completed' && met ? 0 : 1;
+}
+
+/** The reply-check accounting of a drawn phrasing, and the warning, as JSON fields. */
+function replyChecksJson(io: Io, spec: Spec, driver: PerturbingDriver) {
+  const found = replyChecksOf(io, spec, driver);
+  if (!found) return {};
+  return {
+    replyChecks: { ...found.checks, summary: summaryLine(found.sum) ?? null },
+    complete: found.sum.noStage === 0,
+    warnings: found.warning === undefined ? [] : [found.warning],
+  };
+}
+
+function replyChecksOf(io: Io, spec: Spec, driver: PerturbingDriver) {
+  const { source, perturbation } = driver;
+  if (source.kind !== 'drawn') return undefined;
+  const checks = source.replyChecks;
+  const sum = totalOf([checks]);
+  const warning = noStageWarning(sum, [checks], shown(io, source.packPath), spec.id, [
+    perturbation.inject_at,
+  ]);
+  return { checks, sum, warning };
 }
 
 /** Why a perturbed run carries no recovery record. */
@@ -327,6 +355,10 @@ function printText(
   const recovery = result.recovery;
   if (!recovery) {
     io.out(`Recovery not measured: ${reason ?? 'the runner recorded none'}.\n`);
+    const unmeasured = replyChecksOf(io, spec, driver);
+    const note = unmeasured && summaryLine(unmeasured.sum);
+    if (note) io.out(`${note}\n`);
+    if (unmeasured?.warning) io.err(`${unmeasured.warning}\n`);
     return;
   }
   const within = perturbation.recovery?.within_blocks ?? 0;
@@ -340,10 +372,16 @@ function printText(
     ...(recovery.safeAction === undefined ? [] : [`safe action ${recovery.safeAction ? 'yes' : 'no'}`]),
     ...(recovery.clarified === undefined ? [] : [`asked first ${recovery.clarified ? 'yes' : 'no'}`]),
   ];
+  const found = replyChecksOf(io, spec, driver);
+  const incomplete = found !== undefined && found.sum.noStage > 0;
+  const mark = recovery.turnsToRecover !== undefined && recovery.turnsToRecover <= within ? '✓' : '✗';
   io.out(
-    `${recovery.turnsToRecover !== undefined && recovery.turnsToRecover <= within ? '✓' : '✗'} Recovery: ${recovery.label}${turns} (${allows}), ${extras.join(', ')}.\n`,
+    `${incomplete && mark === '✓' ? '⚠' : mark} Recovery: ${recovery.label}${turns} (${allows}), ${extras.join(', ')}.\n`,
   );
   io.out(`Recovery record (runner): ${JSON.stringify(recovery)}\n`);
+  const line = found && summaryLine(found.sum);
+  if (line) io.out(`${line}\n`);
+  if (found?.warning) io.err(`${found.warning}\n`);
 }
 
 /** Pads every column but the last to its widest cell, two spaces apart, indented by two. */

@@ -1,0 +1,20 @@
+{
+  "at": "2026-10-13T17:29:03.948Z",
+  "status": "complete",
+  "phases": [
+    {
+      "phase": "noise-0",
+      "restored": 56,
+      "supplemental": 93,
+      "firstFinalsPreserved": 4,
+      "newCalls": 0
+    },
+    {
+      "phase": "noise-1",
+      "restored": 6,
+      "supplemental": 4,
+      "firstFinalsPreserved": 0,
+      "newCalls": 155
+    }
+  ]
+}

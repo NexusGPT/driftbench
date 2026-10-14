@@ -1,0 +1,27 @@
+{
+  "created": "2026-10-13T14:10:15.979953+00:00",
+  "authority": "For Sol: add a circuit break (two consecutive connection-class failures stop new paid calls) before continuing, keep the 2.90 USD reserves until they settle, and stay under the 25 USD gate.",
+  "cap_usd": 25,
+  "drained_state": {
+    "stamp": "2026-10-13T14:06:12.906420+00:00",
+    "model": "gpt-6.1-sol",
+    "completed": 825,
+    "planned": 6560,
+    "inflight": 0,
+    "measured_usd": 1.456119,
+    "unknown_attempt_reserve_usd": 2.9000000000000004,
+    "stop_reason": "drain requested",
+    "pilot": false
+  },
+  "existing_reserve_retained_usd": 2.9000000000000004,
+  "circuit": "Two consecutive connection-class failures in completion order stop new calls and retries; active HTTP calls drain. A later successful completion does not reopen a tripped circuit.",
+  "connection_classes": [
+    "RemoteDisconnected",
+    "URLError",
+    "TimeoutError",
+    "ConnectionResetError",
+    "TimeoutExpired"
+  ],
+  "resume_policy": "Only keys with every start matched by a no-answer finish may continue remaining attempts. No recorded answer is resent.",
+  "attempt_limits_unchanged": true
+}

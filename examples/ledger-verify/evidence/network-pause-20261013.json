@@ -1,0 +1,20 @@
+{
+  "at": "2026-10-13T14:25:14.787966+00:00",
+  "authorization": "Owner pauses every new paid call until ten consecutive healthy provider probes spaced 30 seconds apart, concurrency two, one model cell at a time. Three consecutive connection failures trigger a ten-minute pause and repeat gate. Missing-only zero-token transport retries are unlimited; returned answers never resubmitted. No sealed result is final with transport-missing items.",
+  "pausedProcesses": [
+    {
+      "pid": 24328,
+      "signature": "examples/ledger-verify/recover_haiku_test_timeouts.py"
+    },
+    {
+      "pid": 87137,
+      "signature": "examples/ledger-verify/new-cell-supervise.py claude-sonnet-5-5"
+    },
+    {
+      "pid": 87244,
+      "signature": "examples/ledger-verify/new-cell-supervise.py gpt-6.1-sol"
+    }
+  ],
+  "inFlight": "allowed to finish; receipts, answers and holds retained",
+  "supersedes": "Haiku timeout recovery ceiling of eight"
+}

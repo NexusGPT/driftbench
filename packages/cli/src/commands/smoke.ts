@@ -6,8 +6,8 @@ import {
   type CampaignDeps,
   defaultDeps,
   loadValidSpecs,
-  noAdapter,
   parseTarget,
+  resolveAdapter,
   showTarget,
   specRuns,
 } from './campaign';
@@ -63,9 +63,13 @@ export async function smokeCommand(
   const [run] = specRuns([entry], given, io) ?? [];
   const target = run?.targets[0];
   if (run === undefined || target === undefined) return 2;
-  const adapter = await deps.adapterFor(target);
+  const adapter = await resolveAdapter(
+    target,
+    () => deps.adapterFor(target),
+    io,
+    run.pinned === undefined ? [] : [entry.spec.id],
+  );
   if (!adapter) {
-    io.err(`${noAdapter(target, run.pinned === undefined ? [] : [entry.spec.id])}\n`);
     return 2;
   }
 

@@ -1,0 +1,117 @@
+{
+  "at": "2026-10-13T19:34:39.256433+00:00",
+  "sampleRequests": 5,
+  "costUsd": 0.069661,
+  "outcomes": [
+    {
+      "index": 0,
+      "labels": {
+        "bench": "longjudge-verify",
+        "contestant": "driftbench-verify-uncertainty-cascade",
+        "item": "002ba0331c11a198784abdfff1d7b8fb_936d37ed03db3340809ca9409508b906",
+        "order": "program"
+      },
+      "costUsd": 0.014992,
+      "isError": false
+    },
+    {
+      "index": 1,
+      "labels": {
+        "bench": "longjudge-verify",
+        "contestant": "driftbench-verify-uncertainty-cascade",
+        "item": "002ba0331c11a198784abdfff1d7b8fb_936d37ed03db3340809ca9409508b906",
+        "order": "blind-direct-program"
+      },
+      "costUsd": 0.027466,
+      "isError": false
+    },
+    {
+      "index": 2,
+      "labels": {
+        "bench": "longjudge-verify",
+        "contestant": "driftbench-verify-uncertainty-cascade",
+        "item": "002ba0331c11a198784abdfff1d7b8fb_936d37ed03db3340809ca9409508b906",
+        "order": "single"
+      },
+      "costUsd": 0.0066885,
+      "isError": false
+    },
+    {
+      "index": 3,
+      "labels": {
+        "bench": "longjudge-verify",
+        "contestant": "promptfoo",
+        "item": "002ba0331c11a198784abdfff1d7b8fb_936d37ed03db3340809ca9409508b906",
+        "order": "single"
+      },
+      "costUsd": 0.0158835,
+      "isError": false
+    },
+    {
+      "index": 4,
+      "labels": {
+        "bench": "longjudge-verify",
+        "contestant": "promptfoo",
+        "item": "00a93c5457ba7180f88944780f9134a0_773a31d04e4d41c29af003fb95f3b960",
+        "order": "single"
+      },
+      "costUsd": 0.004631,
+      "isError": false
+    }
+  ],
+  "components": [
+    {
+      "contestant": "driftbench-verify-uncertainty-cascade",
+      "order": "blind-algebra",
+      "referenceRequests": 340,
+      "unitCostUsd": 0.027466
+    },
+    {
+      "contestant": "driftbench-verify-uncertainty-cascade",
+      "order": "blind-direct-program",
+      "referenceRequests": 340,
+      "unitCostUsd": 0.027466
+    },
+    {
+      "contestant": "driftbench-verify-uncertainty-cascade",
+      "order": "final-step",
+      "referenceRequests": 102,
+      "unitCostUsd": 0.027466
+    },
+    {
+      "contestant": "driftbench-verify-uncertainty-cascade",
+      "order": "program",
+      "referenceRequests": 352,
+      "unitCostUsd": 0.014992
+    },
+    {
+      "contestant": "driftbench-verify-uncertainty-cascade",
+      "order": "quoted-extract",
+      "referenceRequests": 114,
+      "unitCostUsd": 0.027466
+    },
+    {
+      "contestant": "driftbench-verify-uncertainty-cascade",
+      "order": "single",
+      "referenceRequests": 359,
+      "unitCostUsd": 0.0066885
+    },
+    {
+      "contestant": "driftbench-verify-uncertainty-cascade",
+      "order": "single-review",
+      "referenceRequests": 5,
+      "unitCostUsd": 0.027466
+    },
+    {
+      "contestant": "promptfoo",
+      "order": "single",
+      "referenceRequests": 368,
+      "unitCostUsd": 0.010257249999999999
+    }
+  ],
+  "projected379UnitsUsd": 36.1998895,
+  "capUsd": 40,
+  "sourceModel": "gpt-6-luna",
+  "method": "Stage-weighted existing full-run request volumes; unsampled cascade stages use highest sampled cascade cost",
+  "proceed": true
+}

@@ -1,0 +1,14 @@
+test_budget_amendment_only_changes_its_cell (test_extended.ExtendedProtocol.test_budget_amendment_only_changes_its_cell) ... ok
+test_cli_api_error_zero_tokens_is_transport_not_answer (test_extended.ExtendedProtocol.test_cli_api_error_zero_tokens_is_transport_not_answer) ... ok
+test_content_is_never_reasked (test_extended.ExtendedProtocol.test_content_is_never_reasked) ... ok
+test_http_402_stops_without_judge_answer (test_extended.ExtendedProtocol.test_http_402_stops_without_judge_answer) ... ok
+test_prepared_prompts_and_limits (test_extended.ExtendedProtocol.test_prepared_prompts_and_limits) ... ok
+test_reasoning_content_not_decoded_as_answer (test_extended.ExtendedProtocol.test_reasoning_content_not_decoded_as_answer) ... ok
+test_sol_circuit_breaks_after_two_consecutive_connection_failures (test_extended.ExtendedProtocol.test_sol_circuit_breaks_after_two_consecutive_connection_failures) ... ok
+test_sol_cost_does_not_double_charge_reasoning (test_extended.ExtendedProtocol.test_sol_cost_does_not_double_charge_reasoning) ... ok
+test_token_limited_response_is_lost_even_with_text (test_extended.ExtendedProtocol.test_token_limited_response_is_lost_even_with_text) ... ok
+
+----------------------------------------------------------------------
+Ran 9 tests in 2.959s
+
+OK

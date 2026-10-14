@@ -7,6 +7,7 @@ import {
   AgentFailure,
   type ArtifactRef,
   canonicalJson,
+  copyHistory,
   type ExecutionRecord,
   type Observed,
   type ResolvedGiven,
@@ -115,6 +116,7 @@ export function processAdapter(options: ProcessAdapterOptions): ProcessAdapter {
     capabilities: () => ({ ...capabilities }),
 
     async open(given: ResolvedGiven): Promise<Session> {
+      const history = copyHistory(given.prefix);
       const sandbox = await options.provider
         .create({
           ...(options.keep === undefined ? {} : { keep: options.keep }),
@@ -140,13 +142,14 @@ export function processAdapter(options: ProcessAdapterOptions): ProcessAdapter {
         adapter: 'process',
         target: given.target,
         given,
-        // A deep copy, as the function and http adapters make: the session never shares a message with the Given.
-        history: structuredClone(given.prefix),
+        // A fresh array of the runner's shared, deeply frozen messages.
+        history,
         state,
       };
     },
 
     async send(session: Session, turn: Turn): Promise<Observed> {
+      const history = copyHistory(session.history);
       const state = stateOf(session);
       if (state.closed) throw new Error('the process session is closed');
       const { sandbox } = state;
@@ -160,7 +163,7 @@ export function processAdapter(options: ProcessAdapterOptions): ProcessAdapter {
         state.seeded = workspace;
       }
       const control: Record<string, string> = {
-        [processProtocolFiles.history]: `${JSON.stringify(session.history, null, 2)}\n`,
+        [processProtocolFiles.history]: `${JSON.stringify(history, null, 2)}\n`,
       };
       if (mode === 'file') control[processProtocolFiles.stimulus] = text;
       const prompt = session.target.prompt?.text;

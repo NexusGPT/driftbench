@@ -52,7 +52,7 @@ import {
  * Level 11: scale (section 12.2, item 4). Each subject runs at one, ten and a hundred times a base size. At
  * every size the answer must be the planted one; and the time from ten to a hundred times must grow at most
  * GROWTH_BOUND times (linear growth is ten; a quadratic path is a hundred), with the largest size under its
- * budget. Correct and slow is a failing item. The subject whose size is the length of the history takes its
+ * budget. Correct and slow is a failing item. The subjects whose size is the length of the history take their
  * growth from `growth.ts`, which counts the work before it times it.
  */
 
@@ -77,7 +77,7 @@ type Subject = {
   budgetMs: number;
   component: string;
   /**
-   * True for the subject whose size is the length of the history the agent is given. Its growth item reads
+   * True for a subject whose size is the length of the history the agent is given. Its growth item reads
    * the growth measure of `growth.ts`: a count of message visits against the linear law, and the best CPU
    * time of many runs against GROWTH_BOUND, in place of one timing over the best of three.
    */
@@ -437,6 +437,7 @@ const SUBJECTS: Subject[] = [
     base: 4,
     budgetMs: 4_000,
     component: SYSTEM_COMPONENTS.runner,
+    history: true,
     run: (seed, size) => longFlow(seed, size),
   },
   {

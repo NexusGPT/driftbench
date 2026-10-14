@@ -1,0 +1,42 @@
+{
+  "at": "2026-10-14T02:17:44.704021+00:00",
+  "model": "gpt-6.1-sol",
+  "status": "offline evidence ready for review",
+  "complete": true,
+  "phases": 6,
+  "replayNewCalls": 0,
+  "unmappedLimits": 0,
+  "fees": {
+    "settledUsd": 16.55230049999999,
+    "unresolvedMaximumUsd": 1.3749475,
+    "maximumAccountedUsd": 17.92724799999999,
+    "capUsd": 40,
+    "providerReceipts": 1974,
+    "byModel": {
+      "gpt-6.1-sol": 16.5523005
+    },
+    "unknownCharges": {
+      "324e13de-c01b-46f7-88ba-c1a4ba2b4f32": {
+        "usd": 0.341745,
+        "model": "gpt-6.1-sol",
+        "at": "2026-10-13T22:58:08.974009+00:00"
+      },
+      "c785db46-f395-48e8-b9d3-b21c2d139626": {
+        "usd": 0.3460075,
+        "model": "gpt-6.1-sol",
+        "at": "2026-10-13T22:58:27.807966+00:00"
+      },
+      "1c629f01-c01d-4520-9b9e-47f9481de1a5": {
+        "usd": 0.343615,
+        "model": "gpt-6.1-sol",
+        "at": "2026-10-14T00:38:25.198812+00:00"
+      },
+      "94f02c02-46f1-42d9-93e1-61a8ac9bb6dd": {
+        "usd": 0.34358,
+        "model": "gpt-6.1-sol",
+        "at": "2026-10-14T00:38:34.604991+00:00"
+      }
+    },
+    "source": "receipts/budget.json and receipts/calls.jsonl"
+  }
+}

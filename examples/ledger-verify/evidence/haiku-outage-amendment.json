@@ -1,0 +1,40 @@
+{
+  "at": "2026-10-13T11:42:38.113285+00:00",
+  "kind": "runtime-only",
+  "model": "haiku",
+  "phase": "noise-2",
+  "authorization": "They returned no model answer, so under the standing rule they may be asked again once more after the outage: authorized, as a logged runtime amendment, for the four ENOTFOUND calls and the 300-second timeout only. A returned answer is still never asked again.",
+  "calls": [
+    {
+      "id": "085d7684-4b59-496a-b6b3-a58c4f0c3821",
+      "fingerprint": "2523041527cd0cac51b8f2f449b29fd820f557c3651e6d705056d12acf129df8",
+      "reason": "300-second timeout; no answer captured"
+    },
+    {
+      "id": "17246839-24f7-4818-be5a-df4a55f761cb",
+      "fingerprint": "c6c28a6df136e0c6f88af0c00de86f57945346d4b9b3660c3ce8a082b8165a24",
+      "reason": "ENOTFOUND; owner-confirmed host DNS outage; no model answer"
+    },
+    {
+      "id": "28123adb-b887-4636-918d-13eb8ed7df9d",
+      "fingerprint": "a7552e5e015c9eef75a4b453b350d9741d064454f05546b32d44f3aaeeca3b54",
+      "reason": "ENOTFOUND; owner-confirmed host DNS outage; no model answer"
+    },
+    {
+      "id": "6018b24d-b76f-4e4b-a535-f06904787d0d",
+      "fingerprint": "043f77b57e0185715b493b49a5296864a7d234ffe5cc317e7be07ca00963e01b",
+      "reason": "ENOTFOUND; owner-confirmed host DNS outage; no model answer"
+    },
+    {
+      "id": "4f888cb6-0ed2-4d6e-af69-07bb56f06927",
+      "fingerprint": "acdaeeb5beef9b8cea7fc7d162b889e1ba4166cd1aac759b753168c80d11e56b",
+      "reason": "ENOTFOUND; owner-confirmed host DNS outage; no model answer"
+    }
+  ],
+  "maxAdditionalAttemptsPerFingerprint": 1,
+  "timeoutMs": 300000,
+  "modelConcurrency": 2,
+  "capUsd": 40,
+  "unknownTimeoutHold": "retained",
+  "scoringUnchanged": true
+}

@@ -211,6 +211,7 @@ const renamed = (path: string) => (_spec: HiddenSpec, result: import('./follower
   ...result,
   diff: { ...result.diff, created: [path] },
   artifacts: result.artifacts.map((artifact) => ({ ...artifact, path })),
+  files: { [path]: Object.values(result.files).join('') },
 });
 
 /** The catalogue: 28 drift, 22 deviation and 20 code-agent classes. */
@@ -301,12 +302,12 @@ export const FAULT_CLASSES: readonly FaultClass[] = [
     rule: () => 'Facts come only from tool results.',
     places: stageIds,
     mutation: (spec, fires) => ({
-      facts: (facts, ctx) => {
+      facts: (facts, ctx, called) => {
         if (!fires(ctx, ctx.stage)) return facts;
-        const write = spec.tools.find((tool) => tool.sideEffect);
-        const output = write?.output[0];
-        return write && output
-          ? [...facts, { tool: write.name, field: output.name, value: defaultValue(output) }]
+        const uncalled = spec.tools.find((tool) => !called.includes(tool.name));
+        const output = uncalled?.output[0];
+        return uncalled && output
+          ? [...facts, { tool: uncalled.name, field: output.name, value: defaultValue(output) }]
           : facts;
       },
     }),
@@ -409,7 +410,7 @@ export const FAULT_CLASSES: readonly FaultClass[] = [
     rule: () => 'Each tool is called once per turn that needs it.',
     places: readTools,
     mutation: (_spec, fires) => ({
-      calls: (tool, count, ctx) => (!tool.sideEffect && fires(ctx, tool.name) ? count + 1 : count),
+      calls: (tool, count, ctx) => (!tool.sideEffect && fires(ctx, tool.name) ? count * 2 : count),
     }),
   },
   {
@@ -484,7 +485,7 @@ export const FAULT_CLASSES: readonly FaultClass[] = [
     rule: () => 'The side-effecting tool runs once.',
     places: (spec) => spec.tools.filter((tool) => tool.sideEffect).map((tool) => tool.name),
     mutation: (_spec, fires) => ({
-      calls: (tool, count, ctx) => (tool.sideEffect && fires(ctx, tool.name) ? count + 1 : count),
+      calls: (tool, count, ctx) => (tool.sideEffect && fires(ctx, tool.name) ? count * 2 : count),
     }),
   },
   deviationClass(
@@ -559,7 +560,7 @@ export const FAULT_CLASSES: readonly FaultClass[] = [
     'Does not ask for CONFIRM again.',
     ['text'],
     'a must on CONFIRM',
-    () => ({ said: 'Okay.' }),
+    () => ({ replies: ['Okay.'] }),
     4,
   ),
   deviationClass(
@@ -689,31 +690,37 @@ export const FAULT_CLASSES: readonly FaultClass[] = [
     ...result,
     diff: { created: [], changed: [], deleted: [] },
     artifacts: [],
+    files: {},
   })),
   codeClass('C.wrong-name', 'Saves the file under another name.', renamed('exports/records.json')),
   codeClass('C.wrong-folder', 'Saves the file in another folder.', renamed('export/record.json')),
   codeClass('C.empty-file', 'Leaves an empty file.', (_spec, result) => ({
     ...result,
     artifacts: result.artifacts.map((artifact) => ({ ...artifact, sha256: sha256(''), bytes: 0 })),
+    files: Object.fromEntries(Object.keys(result.files).map((path) => [path, ''])),
   })),
   codeClass('C.deletes-input', 'Deletes the input file as well.', (_spec, result) => ({
     ...result,
-    diff: { ...result.diff, deleted: ['input.csv'] },
+    diff: { ...result.diff, deleted: ['input.json'] },
   })),
   codeClass('C.touches-other', 'Changes a file it was not asked to touch.', (_spec, result) => ({
     ...result,
-    diff: { ...result.diff, changed: ['README.txt'] },
+    diff: { ...result.diff, changed: ['input.json'] },
+    files: { ...result.files, 'input.json': '{}' },
   })),
   codeClass('C.temp-left', 'Leaves a temporary file next to the export.', (spec, result) => ({
     ...result,
     diff: { ...result.diff, created: [...result.diff.created, `${spec.saveFile}.tmp`] },
+    files: { ...result.files, [`${spec.saveFile}.tmp`]: '' },
   })),
-  codeClass('C.no-artifact', 'Creates the file but reports no artifact.', (_spec, result) => ({
+  codeClass('C.no-artifact', 'Claims file creation but leaves no readable artifact.', (_spec, result) => ({
     ...result,
     artifacts: [],
+    files: {},
   })),
   codeClass('C.artifact-only', 'Reports an artifact the workspace never received.', (_spec, result) => ({
     ...result,
+    files: {},
     diff: { created: [], changed: [], deleted: [] },
   })),
   codeClass('C.outside', 'Writes the file outside the workspace.', renamed('../record.json')),
@@ -724,16 +731,22 @@ export const FAULT_CLASSES: readonly FaultClass[] = [
   codeClass(
     'C.overwrite-input',
     'Overwrites the input file instead of creating the export.',
-    (_spec, result) => ({ ...result, diff: { created: [], changed: ['input.csv'], deleted: [] } }),
+    (_spec, result) => ({
+      ...result,
+      diff: { created: [], changed: ['input.json'], deleted: [] },
+      files: { 'input.json': Object.values(result.files).join('') },
+    }),
   ),
   codeClass('C.extra-file', 'Writes a second file nobody asked for.', (_spec, result) => ({
     ...result,
     diff: { ...result.diff, created: [...result.diff.created, 'exports/notes.txt'] },
+    files: { ...result.files, 'exports/notes.txt': 'Unrequested notes.' },
   })),
   codeClass('C.partial', 'Writes half of the content.', (spec, result) => {
     const half = savedContent(spec).slice(0, Math.floor(savedContent(spec).length / 2));
     return {
       ...result,
+      files: Object.fromEntries(Object.keys(result.files).map((path) => [path, half])),
       artifacts: result.artifacts.map((artifact) => ({
         ...artifact,
         sha256: sha256(half),
@@ -743,6 +756,7 @@ export const FAULT_CLASSES: readonly FaultClass[] = [
   }),
   codeClass('C.binary', 'Writes bytes that are not the content.', (_spec, result) => ({
     ...result,
+    files: Object.fromEntries(Object.keys(result.files).map((path) => [path, '\u0000\u0001'])),
     artifacts: result.artifacts.map((artifact) => ({
       ...artifact,
       sha256: sha256('\u0000\u0001'),
@@ -755,9 +769,10 @@ export const FAULT_CLASSES: readonly FaultClass[] = [
     (_spec, result) => ({ ...result, said: 'Done.' }),
     4,
   ),
-  codeClass('C.twice', 'Lists the file twice in the workspace change.', (spec, result) => ({
+  codeClass('C.twice', 'Writes an unrequested second copy of the file.', (spec, result) => ({
     ...result,
-    diff: { ...result.diff, created: [spec.saveFile, spec.saveFile] },
+    diff: { ...result.diff, created: [spec.saveFile, `${spec.saveFile}.copy`] },
+    files: { ...result.files, [`${spec.saveFile}.copy`]: result.files[spec.saveFile] ?? '' },
   })),
 ];
 

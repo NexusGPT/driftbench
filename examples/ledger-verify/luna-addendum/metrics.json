@@ -1,0 +1,56 @@
+{
+  "at": "2026-10-13T15:29:49.704102+00:00",
+  "official": [
+    {
+      "contestant": "driftbench-verify-uncertainty-cascade",
+      "items": 30,
+      "repeats": 3,
+      "itemsWithAnyFlip": 4,
+      "itemsWithAnyMissing": 2
+    },
+    {
+      "contestant": "promptfoo",
+      "items": 30,
+      "repeats": 3,
+      "itemsWithAnyFlip": 9,
+      "itemsWithAnyMissing": 2
+    }
+  ],
+  "withRecoveredItems": [
+    {
+      "contestant": "driftbench-verify-uncertainty-cascade",
+      "items": 30,
+      "repeats": 3,
+      "itemsWithAnyFlip": 2,
+      "itemsWithAnyMissing": 0
+    },
+    {
+      "contestant": "promptfoo",
+      "items": 30,
+      "repeats": 3,
+      "itemsWithAnyFlip": 8,
+      "itemsWithAnyMissing": 0
+    }
+  ],
+  "strictWithRecoveredItems": [
+    {
+      "contestant": "driftbench-verify-uncertainty-cascade",
+      "items": 30,
+      "repeats": 3,
+      "itemsWithAnyFlip": 2,
+      "itemsWithAnyMissing": 0
+    },
+    {
+      "contestant": "promptfoo",
+      "items": 30,
+      "repeats": 3,
+      "itemsWithAnyFlip": 8,
+      "itemsWithAnyMissing": 0
+    }
+  ],
+  "providerRequests": 6,
+  "newSettledUsd": 0.00456775,
+  "returnedAnswersResent": 0,
+  "officialFilesUnchanged": 12,
+  "limits": []
+}
