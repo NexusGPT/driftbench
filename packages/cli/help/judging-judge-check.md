@@ -117,10 +117,17 @@ The issues the loader reports:
 
 ## Worked example
 
-Validate the 12 criteria of the Acme example:
+Validate the 12 criteria of the Acme example, then a folder with two broken files: a copy of `one_question_per_turn.yaml` saved as `one_question.yaml`, and a copy of `plain_language.yaml` with its `pass` picture removed:
+
+```sh setup
+mkdir -p check-bad
+cp examples/acme/criteria/one_question_per_turn.yaml check-bad/one_question.yaml
+grep -v '^  pass: ' examples/acme/criteria/plain_language.yaml > check-bad/plain_language.yaml
+```
 
 ```sh
 driftbench judge check examples/acme/criteria
+driftbench judge check check-bad  # exit 1
 ```
 
 ```text
@@ -140,23 +147,15 @@ ok  sheet_matches_catalog [system1, gating]: pass fixture 2 line(s), fail fixtur
 
 12 valid criteria, 0 issue(s).
 (exit 0)
-```
-
-A folder with two broken files: a copy of `one_question_per_turn.yaml` saved as `one_question.yaml`, and a copy of `plain_language.yaml` with its `pass` picture removed:
-
-From a repository checkout, not run by the help test:
-
-```text
-$ mkdir -p out/judging/check-bad
-$ cp examples/acme/criteria/one_question_per_turn.yaml out/judging/check-bad/one_question.yaml
-$ grep -v '^  pass: ' examples/acme/criteria/plain_language.yaml > out/judging/check-bad/plain_language.yaml
-$ driftbench judge check out/judging/check-bad
-out/judging/check-bad/one_question.yaml: the criterion is named one_question_per_turn, the file one_question
-out/judging/check-bad/plain_language.yaml: the criterion needs both a FAIL and a PASS picture
+$ driftbench judge check check-bad
+check-bad/one_question.yaml: the criterion is named one_question_per_turn, the file one_question
+check-bad/plain_language.yaml: the criterion needs both a FAIL and a PASS picture
 
 0 valid criteria, 2 issue(s).
 (exit 1)
 ```
+
+Issues go to stderr and the counts to stdout; both are shown here in order.
 
 ## Common errors
 
