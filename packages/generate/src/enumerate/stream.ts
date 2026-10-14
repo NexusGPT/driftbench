@@ -24,6 +24,7 @@ import {
   twiseSeeder,
 } from '../seed/seeders';
 import { streamTaskSpecs } from '../seed/tasks';
+import { TerminalPerturbations } from '../seed/terminal-perturbation';
 import {
   COMPLETE_DIR,
   DEFAULT_SEED,
@@ -122,6 +123,7 @@ function writeSuite(
     fileCount += 1;
   };
   const balance = new DeviationBalance(prepared);
+  const terminal = new TerminalPerturbations(prepared);
   const render = (draft: SpecDraft): Spec | undefined => {
     const seeder = draft.seeder;
     drafted[seeder] += 1;
@@ -168,6 +170,7 @@ function writeSuite(
     const complete = !needsPhrase && !needsThen;
     if (complete) totals.complete += 1;
     if (complete) balance.observe(loaded.spec);
+    if (complete) terminal.observe(loaded.spec);
     coverage.add(loaded.spec, seeder, complete);
     write(
       `${complete ? COMPLETE_DIR : INCOMPLETE_DIR}/${seeder}/${rendered.id}.yaml`,
@@ -207,6 +210,7 @@ function writeSuite(
     seeders.task.blocks += loaded.spec.blocks.length;
     seeders.task.complete += 1;
     balance.observe(loaded.spec);
+    terminal.observe(loaded.spec);
     coverage.add(loaded.spec, 'task', true);
     write(
       `${COMPLETE_DIR}/task/${id}.yaml`,
@@ -254,6 +258,8 @@ function writeSuite(
   // Deviation balance, as the eager API runs it: after coverage, on what the suite probes so far.
   const written = Object.values(seeders).reduce((sum, entry) => sum + entry.specs, 0);
   for (const draft of balance.topUps(context, written)) render(draft);
+  // A class whose recovery moves the conversation elsewhere, as the eager API declares it: one walk cut for it.
+  for (const draft of terminal.drafts(context)) render(draft);
   const held = new Set(
     cells.flatMap((cell) => Object.entries(cell.values).map(([dimension, value]) => `${dimension}=${value}`)),
   );

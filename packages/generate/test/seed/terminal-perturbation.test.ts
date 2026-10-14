@@ -1,3 +1,6 @@
+import { mkdtemp, readFile, rm } from 'node:fs/promises';
+import { tmpdir } from 'node:os';
+import { join } from 'node:path';
 import { runSpec, type Spec } from '@agent-nexus/driftbench-core';
 import { createPerturbingDriver } from '@agent-nexus/driftbench-users';
 import { describe, expect, it } from 'vitest';
@@ -7,6 +10,7 @@ import { hiddenSpec } from '../../../validators/src/ladders/generator/hidden';
 import { followerAdapter, generateFrom, runContext } from '../../../validators/src/ladders/generator/measure';
 import { renderMap } from '../../../validators/src/ladders/generator/render';
 import { generateSuite } from '../../src/enumerate/generate';
+import { generateSuiteToDisk } from '../../src/enumerate/stream';
 
 const hidden = hiddenSpec(1);
 const source = await generateFrom(hidden, renderMap(hidden), 1, {}, { once: true });
@@ -73,6 +77,20 @@ describe('a class whose recovery moves the conversation', () => {
         faulty.blocks.some((block) => !block.pass),
         `${spec.id}: ignoring the goal shift passes`,
       ).toBe(true);
+    }
+  }, 120_000);
+
+  it('is written by the disk API exactly as the eager API writes it', async () => {
+    const directory = await mkdtemp(join(tmpdir(), 'driftbench-cut-'));
+    try {
+      const prepared = source.prepared;
+      if (!prepared) throw new Error('the fictional map failed to load');
+      await generateSuiteToDisk(prepared, { mapPath: '../map.yaml', t: 3, seed: 1, outputDir: directory });
+      const cut = suite.files.filter((file) => /\/gen-graph-cut-\d+\.yaml$/.test(file.path));
+      expect(cut.length).toBeGreaterThan(0);
+      for (const file of cut) expect(await readFile(join(directory, file.path), 'utf8')).toBe(file.text);
+    } finally {
+      await rm(directory, { recursive: true, force: true });
     }
   }, 120_000);
 });
