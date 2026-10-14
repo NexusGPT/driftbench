@@ -6,6 +6,8 @@ import { pairRequirements } from './pair-ledger-contract';
 
 export type PairLedgerTieFollowup = 'direct' | 'reasoning';
 export type PairLedgerTieFollowupRead = {
+  readonly attempted: true;
+  readonly outcome: 'decided' | 'unparsed' | 'refused';
   readonly variant: PairLedgerTieFollowup;
   readonly itemHash: string;
   readonly firstIsOriginalFirst: boolean;

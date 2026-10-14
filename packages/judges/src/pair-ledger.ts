@@ -298,21 +298,31 @@ export async function judgePairLedger(
     const response = await client.judge(question);
     calls += (response.requestCount ?? response.thinkingRecovery?.requestCount ?? 1) - 1;
     // Never rescue a provider-blocked or truncated answer, and never re-ask this forced choice.
+    const refused = Boolean(response.providerBlock || response.declineReason);
     const result =
-      response.unparsed || response.providerBlock || response.declineReason
-        ? { ...response, unparsed: true as const }
-        : { ...response, ...parseJudgeText(response.raw, question) };
+      response.unparsed || refused ? response : { ...response, ...parseJudgeText(response.raw, question) };
+    const outcome = refused
+      ? 'refused'
+      : result.unparsed || (result.winner !== 'A' && result.winner !== 'B')
+        ? 'unparsed'
+        : 'decided';
     const tieFollowup: PairLedgerTieFollowupRead = {
+      attempted: true,
+      outcome,
       variant: options.tieFollowup,
       itemHash: followup.itemHash,
       firstIsOriginalFirst: followup.firstIsOriginalFirst,
       result,
     };
-    if (result.unparsed || (result.winner !== 'A' && result.winner !== 'B'))
-      return { ...failed(), verdict, tieFollowup };
+    // An optional follow-up failure cannot invalidate a completed ledger verdict.
     return {
-      status: 'decided',
-      choice: (result.winner === 'A') === followup.firstIsOriginalFirst ? 'first' : 'second',
+      status: outcome === 'decided' ? 'decided' : 'tie',
+      choice:
+        outcome === 'decided'
+          ? (result.winner === 'A') === followup.firstIsOriginalFirst
+            ? 'first'
+            : 'second'
+          : verdict.choice,
       calls,
       reads,
       stage0,

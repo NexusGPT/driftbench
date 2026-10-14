@@ -48,6 +48,7 @@ describe('opt-in pair ledger tie follow-up', () => {
       expect(f.requests).toHaveLength(4);
       expect(result.verdict).toMatchObject({ status: 'tie', choice: 'tie' });
       expect(result.tieFollowup?.variant).toBe(variant);
+      expect(result.tieFollowup).toMatchObject({ attempted: true, outcome: 'decided' });
       expect(result.choice).toBe(result.tieFollowup?.firstIsOriginalFirst ? 'first' : 'second');
       expect(f.requests[3]?.assessment).toEqual({ kind: 'pairwise', tieFollowup: variant });
       expect(responseSchema(f.requests[3] as JudgeRequest)).toMatchObject({
@@ -207,13 +208,25 @@ describe('opt-in pair ledger tie follow-up', () => {
     '{"winner":"A","extra":1}',
     '{"winner":"A"}\n{"winner":',
     'not an answer',
-  ])('reports malformed forced choice as unparsed without another call: %s', async (raw) => {
-    const f = fake([ledger(), ledger(), ledger(), raw]);
-    const result = await judgePairLedger(f.client, request(), { tieFollowup: 'direct' });
-    expect(result).toMatchObject({ status: 'unparsed', calls: 4, metadata: { graderError: true } });
-    expect(result.choice).toBeUndefined();
-    expect(result.tieFollowup?.result.raw).toBe(raw);
-    expect(f.requests).toHaveLength(4);
+  ])('preserves the baseline tie when the forced choice is malformed: %s', async (raw) => {
+    const baseline = await judgePairLedger(fake([ledger(), ledger(), ledger()]).client, request());
+    for (const variant of ['direct', 'reasoning'] as const) {
+      const f = fake([ledger(), ledger(), ledger(), raw]);
+      const result = await judgePairLedger(f.client, request(), { tieFollowup: variant });
+      expect(result).toMatchObject({ status: 'tie', choice: 'tie', calls: baseline.calls + 1 });
+      expect(result).not.toHaveProperty('metadata');
+      expect(result.tieFollowup).toMatchObject({
+        attempted: true,
+        outcome: 'unparsed',
+        variant,
+        result: { raw, unparsed: true },
+      });
+      const { calls, tieFollowup, ...preserved } = result;
+      expect({ ...preserved, calls: baseline.calls }).toEqual(baseline);
+      expect(calls).toBe(4);
+      expect(tieFollowup?.result.raw).toBe(raw);
+      expect(f.requests).toHaveLength(4);
+    }
   });
 
   it('keeps the original client and reasoning even when canonical escalation uses another client', async () => {
@@ -245,18 +258,49 @@ describe('opt-in pair ledger tie follow-up', () => {
     expect(f.requests).toHaveLength(4);
   });
 
-  it('does not rescue a truncated answer or provider refusal with valid-looking text', async () => {
-    for (const extra of [
-      { unparsed: true },
-      { declineReason: 'provider-blocked' },
-    ] as Partial<JudgeResult>[]) {
+  it.each<{
+    name: string;
+    extra: Partial<JudgeResult>;
+    outcome: 'unparsed' | 'refused';
+  }>([
+    { name: 'truncated', extra: { unparsed: true }, outcome: 'unparsed' },
+    { name: 'declined', extra: { declineReason: 'provider-blocked' }, outcome: 'refused' },
+    {
+      name: 'blocked',
+      extra: { providerBlock: { provider: 'google', reason: 'SAFETY' } },
+      outcome: 'refused',
+    },
+    {
+      name: 'blocked and unparsed',
+      extra: { unparsed: true, providerBlock: { provider: 'openai', reason: 'content_filter' } },
+      outcome: 'refused',
+    },
+  ])('preserves the baseline tie and response provenance when $name', async ({ extra, outcome }) => {
+    const baseline = await judgePairLedger(fake([ledger(), ledger(), ledger()]).client, request());
+    for (const variant of ['direct', 'reasoning'] as const) {
       const f = fake([ledger(), ledger(), ledger(), '{"winner":"A"}']);
       const judge = f.client.judge;
-      f.client.judge = async (r) => ({ ...(await judge(r)), ...(f.requests.length === 4 ? extra : {}) });
-      expect(await judgePairLedger(f.client, request(), { tieFollowup: 'direct' })).toMatchObject({
-        status: 'unparsed',
-        calls: 4,
+      let response: JudgeResult | undefined;
+      f.client.judge = async (r) => {
+        const parsed = await judge(r);
+        if (f.requests.length !== 4) return parsed;
+        response = { ...parsed, ...extra, costUsd: 0.01, metadata: { graderError: true } };
+        return response;
+      };
+      const result = await judgePairLedger(f.client, request(), { tieFollowup: variant });
+      expect(result).toMatchObject({ status: 'tie', choice: 'tie', calls: baseline.calls + 1 });
+      expect(result).not.toHaveProperty('metadata');
+      expect(result.tieFollowup).toMatchObject({
+        attempted: true,
+        outcome,
+        variant,
       });
+      expect(result.tieFollowup?.result).toEqual(response);
+      const { calls, tieFollowup, ...preserved } = result;
+      expect({ ...preserved, calls: baseline.calls }).toEqual(baseline);
+      expect(calls).toBe(4);
+      expect(tieFollowup?.result.metadata?.graderError).toBe(true);
+      expect(f.requests).toHaveLength(4);
     }
   });
 
