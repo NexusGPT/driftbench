@@ -26,6 +26,7 @@ import {
   runnableSection,
   searchHelpTopics,
   sectionsFor,
+  stem,
   TOPIC_FILE,
   topicsForCommand,
 } from '../src/help-topics';
@@ -120,6 +121,33 @@ describe('the help loader', () => {
     const io = capture();
     expect(runHelpTopics(['help'], io, new Set(), join(scratch, 'missing'))).toBe(0);
     expect(io.stdout()).toContain('No topic is installed');
+  });
+
+  it('lets an area win over a command of the same name, and names the command usage', () => {
+    writeFileSync(
+      join(scratch, 'redteam-attack-packs.md'),
+      '---\ntitle: Packs\nsummary: The red team packs.\ncommands: []\nsee_also: []\n---\n',
+    );
+    const io = capture();
+    expect(runHelpTopics(['help', 'redteam'], io, new Set(['redteam']), scratch)).toBe(0);
+    expect(io.stdout()).toContain('Help topics of the area redteam');
+    expect(io.stdout()).toContain('  redteam-attack-packs  The red team packs.');
+    expect(io.stdout()).toContain('The usage of the command redteam: driftbench redteam --help');
+  });
+
+  it('searches whole words and their stems, never parts of other words', () => {
+    const topic = (id: string, body: string) =>
+      parseTopic(id, `---\ntitle: ${id}\nsummary: s\ncommands: []\nsee_also: []\n---\n${body}\n`);
+    const topics = [
+      topic('core-a', 'The decoder reads frames.'),
+      topic('core-b', 'Codes and coding: run the code.'),
+      topic('core-c', 'An --exit-code flag.'),
+    ];
+    expect(searchHelpTopics(topics, 'code').map((hit) => hit.topic.id)).toEqual(['core-b', 'core-c']);
+    expect(searchHelpTopics(topics, 'decode').map((hit) => hit.topic.id)).toEqual([]);
+    expect(searchHelpTopics(topics, 'exit code').map((hit) => hit.topic.id)).toEqual(['core-c']);
+    expect(stem('codes')).toBe(stem('code'));
+    expect(stem('decoder')).not.toBe(stem('code'));
   });
 
   it('leaves help <command> and help with options to the command usage', () => {

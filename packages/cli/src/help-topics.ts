@@ -209,26 +209,47 @@ export function formatHelpTopic(topic: HelpTopic, next: readonly string[] = []):
   return `${head.join('\n')}\n\n${topic.body.trim()}\n\n${tail.join('\n')}\n`;
 }
 
-/** A topic that holds a word: how many lines hold it, and the first such line. */
+/** A topic that holds the query: how many lines hold one of its words, and the first such line. */
 export type SearchHit = { topic: HelpTopic; count: number; first: string };
 
+/** The words of a text, lower case: letters, digits and underscores, so `--judge-budget` gives judge, budget. */
+function wordsOf(text: string): string[] {
+  return text.toLowerCase().match(/[a-z0-9_]+/g) ?? [];
+}
+
 /**
- * The topics that hold every word of the query, case blind, in title, summary, commands or body. Ranked by
- * a match in the title or summary first, then by the number of matching lines.
+ * A word without its common English ending, so `codes`, `coded` and `coding` meet `code`, while `decoder`
+ * never meets `code`: a stem is compared whole, never as a part of another word.
+ */
+export function stem(word: string): string {
+  for (const suffix of ['ing', 'ies', 'es', 'ed', 's']) {
+    if (word.length > suffix.length + 2 && word.endsWith(suffix)) {
+      const base = word.slice(0, -suffix.length);
+      return suffix === 'ies' ? `${base}y` : base;
+    }
+  }
+  return word.endsWith('e') && word.length > 3 ? word.slice(0, -1) : word;
+}
+
+/**
+ * The topics that hold every word of the query as a whole word (or the same stem), case blind, in title,
+ * summary, commands or body. Ranked by a match in the title or summary first, then by the number of
+ * matching lines, then by id, so adding a topic never reorders the others.
  */
 export function searchHelpTopics(topics: readonly HelpTopic[], query: string): SearchHit[] {
-  const words = query
-    .toLowerCase()
-    .split(/\s+/)
-    .filter((word) => word !== '');
-  if (words.length === 0) return [];
+  const wanted = [...new Set(wordsOf(query).map(stem))];
+  if (wanted.length === 0) return [];
+  const holds = (line: string) => {
+    const stems = new Set(wordsOf(line).map(stem));
+    return wanted.filter((word) => stems.has(word));
+  };
   const hits: (SearchHit & { head: boolean })[] = [];
   for (const topic of topics) {
     const lines = [topic.title, topic.summary, ...topic.commands, ...topic.body.split('\n')];
-    const all = lines.join('\n').toLowerCase();
-    if (!words.every((word) => all.includes(word))) continue;
-    const matching = lines.filter((line) => words.some((word) => line.toLowerCase().includes(word)));
-    const head = words.some((word) => `${topic.title} ${topic.summary}`.toLowerCase().includes(word));
+    const found = new Set(lines.flatMap(holds));
+    if (found.size < wanted.length) continue;
+    const matching = lines.filter((line) => holds(line).length > 0);
+    const head = holds(`${topic.title} ${topic.summary}`).length > 0;
     hits.push({ topic, count: matching.length, first: (matching[0] ?? '').trim(), head });
   }
   hits.sort(
@@ -339,8 +360,11 @@ export function runHelpTopics(
   }
   if (argv.length > 2) return undefined;
   const name = argv[1];
-  if (name !== undefined && (commandNames.has(name) || name.startsWith('-'))) return undefined;
+  if (name !== undefined && name.startsWith('-')) return undefined;
   const topics = loadHelpTopics(dir);
+  // An area wins over a command of the same name (`help redteam`); the command's usage stays one flag away.
+  const area = name === undefined ? [] : topics.filter((each) => each.area === name);
+  if (name !== undefined && area.length === 0 && commandNames.has(name)) return undefined;
   if (name === undefined) {
     io.out(formatHelpIndex(topics, loadOverview(dir)));
     return 0;
@@ -350,9 +374,11 @@ export function runHelpTopics(
     io.out(formatHelpTopic(topic, nextTopics(topics, topic)));
     return 0;
   }
-  const area = topics.filter((each) => each.area === name);
   if (area.length > 0) {
-    io.out(formatHelpIndex(area).replace('Help topics', `Help topics of the area ${name}`));
+    const usage = commandNames.has(name)
+      ? `\nThe usage of the command ${name}: driftbench ${name} --help\n`
+      : '';
+    io.out(`${formatHelpIndex(area).replace('Help topics', `Help topics of the area ${name}`)}${usage}`);
     return 0;
   }
   const near = topics.filter((each) => each.id.includes(name)).map((each) => each.id);
