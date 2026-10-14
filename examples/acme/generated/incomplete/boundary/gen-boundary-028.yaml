@@ -5,25 +5,44 @@
 id: gen-boundary-028
 version: 7c05b9cee9cc
 kind: conversation
-title: "Boundary value coverage.check.out.five_g.absent: five_g is left out (not required)"
+title: "Boundary value coverage.check.out.five_g.absent: Path porting-keep-number of porting: needs > port_number > offer > details > recap > order_placed"
 channel: chat
 lang: EN
 tier: generated
 tags:
+  - flow:porting
   - persona:new-customer
-  - data:fiber
-given:
-  world:
-    tools:
-      coverage.check:
-        result:
-          found: false
-          address: address-1
+stages:
+  - needs
+  - identify
+  - address
+  - port_number
+  - offer
+  - details
+  - recap
+  - order_placed
+  - callback
+  - handover
+  - closing
+  - build_sheet
+  - add_summary
 blocks:
-  - id: b1-value
+  - id: b1-needs-to-port_number
+    when:
+      user: I'd like to move to Acme and keep my phone number.
+    expect:
+      stage: port_number
+      stage_reported: true
+      tools:
+        - label: coverage.check
+          count: 0
+      lang: EN
+  - id: b2-value
     when:
       user: "[no approved phrase for coverage.check.out.five_g=coverage.check.out.five_g.absent]"
     expect:
+      stage: port_number
+      stage_reported: true
       tools:
         - label: coverage.check
           count:
@@ -39,6 +58,12 @@ blocks:
       lang: EN
       criteria:
         - needs-approved-phrase
+rules:
+  forbidden_tools:
+    - catalog.search
+    - port.check
+    - order.create
+    - notify_sales
 metadata:
   generated:
     by: driftbench generate
@@ -50,20 +75,32 @@ metadata:
       agent: acme
       version: "1"
       hash: 7c05b9cee9cc
+    path: porting-keep-number
     cell:
       coverage.check.out.five_g: coverage.check.out.five_g.absent
-      coverage.check.out.found: coverage.check.out.found.false
-      coverage.check.out.address_id: coverage.check.out.address_id.absent
-      coverage.check.out.fiber_mbps: coverage.check.out.fiber_mbps.absent
-      channel: chat
+      flow: porting
       user_type: new-customer
-      coverage_result: fiber
+      port_result: can-move
+      plan_choice: names-one
+      customer_details: name-and-email
+      channel: chat
+      coverage_result: none
     blocks:
-      - block: b1-value
+      - block: b1-needs-to-port_number
+        seeder: boundary
+        cell:
+          spec: metadata.generated.cell
+          stage_transition: needs-to-port_number
+          stage: needs
+        phrase:
+          dimension: stage_transition
+          value: needs-to-port_number
+      - block: b2-value
         seeder: boundary
         cell:
           spec: metadata.generated.cell
           coverage.check.out.five_g: coverage.check.out.five_g.absent
+          stage: port_number
         phrase: null
     concrete:
       coverage.check.out.five_g.absent: (absent)

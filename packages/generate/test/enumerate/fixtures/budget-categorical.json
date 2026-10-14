@@ -1,11 +1,11 @@
 {
-  "source": "Main 6bf47594 with the price-sheet family review signed (owner, 2026-10-13): the 67 task specs record review: signed; map 7c05b9cee9cc; baseline coverage 237 of 708",
+  "source": "Generator v3 merged with main 5a196790: signed price-sheet family review and executor generation fixes",
   "mapHash": "7c05b9cee9cc",
   "hashes": {
-    "pairwise": "f5dd5c74960b43e7b2c46b1cfc5137b0918c371916dfd98e0a6c3d2e450f79a8",
-    "budget-20": "f60d3b4337c0c6bf2451cf72a863d602b7a76f7b8ceaa3144b28937b638b34d7",
-    "budget-50": "09ef4d624ad621bc3de9617e6329f38af59ca9be5773ba83ef2c02c34486ed5f",
-    "budget-100": "11c4fceffc88f60ddbb72631c8b5f089af1998d8b012fd832bea57c6bd218644",
-    "budget-200": "7933bae58cbdee244474e4f25c6db38c32983f573469d972e6ded0ec0095d889"
+    "pairwise": "8717d1003e1ae2b4122ce13538e5992a920e4d01b184a4b1c2fc80c1e6b82049",
+    "budget-20": "6171e3d739888803b0462cc6d5183351221a8dfd9b0271b2f9de4fe606c6abb7",
+    "budget-50": "ab58972705708f38303ad0cf0732c19ece7d0c63d63c4c2115a3bddfc38b73c1",
+    "budget-100": "b0e5ccc7b88c2dc24d52de07f36cdbe09ad3d586d7bb6bd76ed63c8032db3831",
+    "budget-200": "0807d700783bd792b9a1c347d091ef069469737fd7aed50979762d41fe76838b"
   }
 }

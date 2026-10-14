@@ -1,0 +1,531 @@
+{
+  "competitors": {
+    "promptfoo": {
+      "primary": {
+        "contestant": "driftbench answer-audit (opt-in)",
+        "paired_items": 504,
+        "ours_right": 500,
+        "theirs_right": 496,
+        "ours_only_right": 8,
+        "theirs_only_right": 4,
+        "mcnemar_exact_p": 0.3876953125
+      },
+      "secondary": {
+        "contestant": "driftbench default",
+        "paired_items": 504,
+        "ours_right": 496,
+        "theirs_right": 496,
+        "ours_only_right": 6,
+        "theirs_only_right": 6,
+        "mcnemar_exact_p": 1.0
+      },
+      "rows": {
+        "rubric": {
+          "items": 126,
+          "default": {
+            "complete": 126,
+            "right": 123,
+            "inconclusive": 3,
+            "wilson95": [
+              93.23,
+              99.19
+            ],
+            "by_class": {
+              "double-negation": 18,
+              "embedded-instruction": 17,
+              "flattened-trace": 17,
+              "long-one-wrong": 18,
+              "near-miss": 17,
+              "partial-credit": 18,
+              "unusual-format": 18
+            }
+          },
+          "audit": {
+            "complete": 126,
+            "right": 124,
+            "inconclusive": 2,
+            "wilson95": [
+              94.4,
+              99.56
+            ],
+            "by_class": {
+              "double-negation": 18,
+              "embedded-instruction": 18,
+              "flattened-trace": 18,
+              "long-one-wrong": 18,
+              "near-miss": 18,
+              "partial-credit": 18,
+              "unusual-format": 16
+            }
+          },
+          "theirs": {
+            "complete": 126,
+            "right": 122,
+            "inconclusive": 0,
+            "wilson95": [
+              92.12,
+              98.76
+            ],
+            "by_class": {
+              "double-negation": 17,
+              "embedded-instruction": 15,
+              "flattened-trace": 18,
+              "long-one-wrong": 18,
+              "near-miss": 18,
+              "partial-credit": 18,
+              "unusual-format": 18
+            }
+          }
+        },
+        "factuality": {
+          "items": 126,
+          "default": {
+            "complete": 126,
+            "right": 126,
+            "inconclusive": 0,
+            "wilson95": [
+              97.04,
+              100.0
+            ],
+            "by_class": {
+              "double-negation": 18,
+              "embedded-instruction": 18,
+              "flattened-trace": 18,
+              "long-one-wrong": 18,
+              "near-miss": 18,
+              "partial-credit": 18,
+              "unusual-format": 18
+            }
+          },
+          "audit": {
+            "complete": 126,
+            "right": 126,
+            "inconclusive": 0,
+            "wilson95": [
+              97.04,
+              100.0
+            ],
+            "by_class": {
+              "double-negation": 18,
+              "embedded-instruction": 18,
+              "flattened-trace": 18,
+              "long-one-wrong": 18,
+              "near-miss": 18,
+              "partial-credit": 18,
+              "unusual-format": 18
+            }
+          },
+          "theirs": {
+            "complete": 126,
+            "right": 123,
+            "inconclusive": 0,
+            "wilson95": [
+              93.23,
+              99.19
+            ],
+            "by_class": {
+              "double-negation": 15,
+              "embedded-instruction": 18,
+              "flattened-trace": 18,
+              "long-one-wrong": 18,
+              "near-miss": 18,
+              "partial-credit": 18,
+              "unusual-format": 18
+            }
+          }
+        },
+        "pii": {
+          "items": 126,
+          "default": {
+            "complete": 126,
+            "right": 125,
+            "inconclusive": 0,
+            "wilson95": [
+              95.64,
+              99.86
+            ],
+            "by_class": {
+              "double-negation": 18,
+              "embedded-instruction": 18,
+              "flattened-trace": 17,
+              "long-one-wrong": 18,
+              "near-miss": 18,
+              "partial-credit": 18,
+              "unusual-format": 18
+            }
+          },
+          "audit": {
+            "complete": 126,
+            "right": 126,
+            "inconclusive": 0,
+            "wilson95": [
+              97.04,
+              100.0
+            ],
+            "by_class": {
+              "double-negation": 18,
+              "embedded-instruction": 18,
+              "flattened-trace": 18,
+              "long-one-wrong": 18,
+              "near-miss": 18,
+              "partial-credit": 18,
+              "unusual-format": 18
+            }
+          },
+          "theirs": {
+            "complete": 126,
+            "right": 125,
+            "inconclusive": 0,
+            "wilson95": [
+              95.64,
+              99.86
+            ],
+            "by_class": {
+              "double-negation": 18,
+              "embedded-instruction": 18,
+              "flattened-trace": 17,
+              "long-one-wrong": 18,
+              "near-miss": 18,
+              "partial-credit": 18,
+              "unusual-format": 18
+            }
+          }
+        },
+        "goal": {
+          "items": 126,
+          "default": {
+            "complete": 126,
+            "right": 122,
+            "inconclusive": 0,
+            "wilson95": [
+              92.12,
+              98.76
+            ],
+            "by_class": {
+              "double-negation": 18,
+              "embedded-instruction": 18,
+              "flattened-trace": 18,
+              "long-one-wrong": 18,
+              "near-miss": 18,
+              "partial-credit": 14,
+              "unusual-format": 18
+            }
+          },
+          "audit": {
+            "complete": 126,
+            "right": 124,
+            "inconclusive": 1,
+            "wilson95": [
+              94.4,
+              99.56
+            ],
+            "by_class": {
+              "double-negation": 18,
+              "embedded-instruction": 18,
+              "flattened-trace": 17,
+              "long-one-wrong": 18,
+              "near-miss": 18,
+              "partial-credit": 17,
+              "unusual-format": 18
+            }
+          },
+          "theirs": {
+            "complete": 126,
+            "right": 126,
+            "inconclusive": 0,
+            "wilson95": [
+              97.04,
+              100.0
+            ],
+            "by_class": {
+              "double-negation": 18,
+              "embedded-instruction": 18,
+              "flattened-trace": 18,
+              "long-one-wrong": 18,
+              "near-miss": 18,
+              "partial-credit": 18,
+              "unusual-format": 18
+            }
+          }
+        }
+      }
+    },
+    "langfuse": {
+      "primary": {
+        "contestant": "driftbench answer-audit (opt-in)",
+        "paired_items": 126,
+        "ours_right": 118,
+        "theirs_right": 123,
+        "ours_only_right": 2,
+        "theirs_only_right": 7,
+        "mcnemar_exact_p": 0.1796875
+      },
+      "secondary": {
+        "contestant": "driftbench default",
+        "paired_items": 126,
+        "ours_right": 122,
+        "theirs_right": 123,
+        "ours_only_right": 2,
+        "theirs_only_right": 3,
+        "mcnemar_exact_p": 1.0
+      },
+      "rows": {
+        "correctness": {
+          "items": 126,
+          "theirs_threshold": 0.5,
+          "theirs_right_at": {
+            "1.0": 108,
+            "0.5": 123
+          },
+          "default": {
+            "complete": 126,
+            "right": 122,
+            "inconclusive": 0,
+            "wilson95": [
+              92.12,
+              98.76
+            ],
+            "by_class": {
+              "double-negation": 18,
+              "embedded-instruction": 17,
+              "flattened-trace": 18,
+              "long-one-wrong": 15,
+              "near-miss": 18,
+              "partial-credit": 18,
+              "unusual-format": 18
+            }
+          },
+          "audit": {
+            "complete": 126,
+            "right": 118,
+            "inconclusive": 0,
+            "wilson95": [
+              87.97,
+              96.75
+            ],
+            "by_class": {
+              "double-negation": 18,
+              "embedded-instruction": 18,
+              "flattened-trace": 18,
+              "long-one-wrong": 10,
+              "near-miss": 18,
+              "partial-credit": 18,
+              "unusual-format": 18
+            }
+          },
+          "theirs": {
+            "complete": 126,
+            "right": 123,
+            "inconclusive": 0,
+            "wilson95": [
+              93.23,
+              99.19
+            ],
+            "by_class": {
+              "double-negation": 18,
+              "embedded-instruction": 18,
+              "flattened-trace": 18,
+              "long-one-wrong": 17,
+              "near-miss": 16,
+              "partial-credit": 18,
+              "unusual-format": 18
+            }
+          }
+        }
+      }
+    },
+    "deepeval": {
+      "primary": {
+        "contestant": "driftbench answer-audit (opt-in)",
+        "paired_items": 378,
+        "ours_right": 353,
+        "theirs_right": 269,
+        "ours_only_right": 86,
+        "theirs_only_right": 2,
+        "mcnemar_exact_p": 2.531301921382976e-23
+      },
+      "secondary": {
+        "contestant": "driftbench default",
+        "paired_items": 378,
+        "ours_right": 355,
+        "theirs_right": 269,
+        "ours_only_right": 86,
+        "theirs_only_right": 0,
+        "mcnemar_exact_p": 2.5849394142282115e-26
+      },
+      "rows": {
+        "task": {
+          "items": 126,
+          "default": {
+            "complete": 126,
+            "right": 126,
+            "inconclusive": 0,
+            "wilson95": [
+              97.04,
+              100.0
+            ],
+            "by_class": {
+              "double-negation": 18,
+              "embedded-instruction": 18,
+              "flattened-trace": 18,
+              "long-one-wrong": 18,
+              "near-miss": 18,
+              "partial-credit": 18,
+              "unusual-format": 18
+            }
+          },
+          "audit": {
+            "complete": 126,
+            "right": 119,
+            "inconclusive": 0,
+            "wilson95": [
+              88.98,
+              97.28
+            ],
+            "by_class": {
+              "double-negation": 18,
+              "embedded-instruction": 18,
+              "flattened-trace": 18,
+              "long-one-wrong": 11,
+              "near-miss": 18,
+              "partial-credit": 18,
+              "unusual-format": 18
+            }
+          },
+          "theirs": {
+            "complete": 126,
+            "right": 82,
+            "inconclusive": 0,
+            "wilson95": [
+              56.42,
+              72.85
+            ],
+            "by_class": {
+              "double-negation": 9,
+              "embedded-instruction": 9,
+              "flattened-trace": 18,
+              "long-one-wrong": 11,
+              "near-miss": 11,
+              "partial-credit": 13,
+              "unusual-format": 11
+            }
+          }
+        },
+        "knowledge": {
+          "items": 126,
+          "default": {
+            "complete": 126,
+            "right": 126,
+            "inconclusive": 0,
+            "wilson95": [
+              97.04,
+              100.0
+            ],
+            "by_class": {
+              "double-negation": 18,
+              "embedded-instruction": 18,
+              "flattened-trace": 18,
+              "long-one-wrong": 18,
+              "near-miss": 18,
+              "partial-credit": 18,
+              "unusual-format": 18
+            }
+          },
+          "audit": {
+            "complete": 126,
+            "right": 126,
+            "inconclusive": 0,
+            "wilson95": [
+              97.04,
+              100.0
+            ],
+            "by_class": {
+              "double-negation": 18,
+              "embedded-instruction": 18,
+              "flattened-trace": 18,
+              "long-one-wrong": 18,
+              "near-miss": 18,
+              "partial-credit": 18,
+              "unusual-format": 18
+            }
+          },
+          "theirs": {
+            "complete": 126,
+            "right": 123,
+            "inconclusive": 0,
+            "wilson95": [
+              93.23,
+              99.19
+            ],
+            "by_class": {
+              "double-negation": 17,
+              "embedded-instruction": 18,
+              "flattened-trace": 18,
+              "long-one-wrong": 18,
+              "near-miss": 18,
+              "partial-credit": 18,
+              "unusual-format": 16
+            }
+          }
+        },
+        "completeness": {
+          "items": 126,
+          "default": {
+            "complete": 126,
+            "right": 103,
+            "inconclusive": 0,
+            "wilson95": [
+              74.1,
+              87.52
+            ],
+            "by_class": {
+              "double-negation": 9,
+              "embedded-instruction": 18,
+              "flattened-trace": 18,
+              "long-one-wrong": 9,
+              "near-miss": 13,
+              "partial-credit": 18,
+              "unusual-format": 18
+            }
+          },
+          "audit": {
+            "complete": 126,
+            "right": 108,
+            "inconclusive": 0,
+            "wilson95": [
+              78.55,
+              90.77
+            ],
+            "by_class": {
+              "double-negation": 9,
+              "embedded-instruction": 18,
+              "flattened-trace": 18,
+              "long-one-wrong": 9,
+              "near-miss": 18,
+              "partial-credit": 18,
+              "unusual-format": 18
+            }
+          },
+          "theirs": {
+            "complete": 126,
+            "right": 64,
+            "inconclusive": 0,
+            "wilson95": [
+              42.17,
+              59.37
+            ],
+            "by_class": {
+              "double-negation": 9,
+              "embedded-instruction": 9,
+              "flattened-trace": 9,
+              "long-one-wrong": 9,
+              "near-miss": 9,
+              "partial-credit": 10,
+              "unusual-format": 9
+            }
+          }
+        }
+      }
+    }
+  }
+}

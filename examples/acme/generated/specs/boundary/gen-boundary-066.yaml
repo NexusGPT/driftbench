@@ -5,7 +5,7 @@ id: gen-boundary-066
 version: 7c05b9cee9cc
 kind: conversation
 title: "Boundary value account_lookup=most-data: Path upgrade-most-data of upgrade: needs > identify > closing"
-channel: whatsapp
+channel: chat
 lang: EN
 tier: generated
 tags:
@@ -95,7 +95,7 @@ metadata:
       account_lookup: most-data
       flow: upgrade
       user_type: existing-customer
-      channel: whatsapp
+      channel: chat
       coverage_result: none
     blocks:
       - block: b1-needs-to-identify
