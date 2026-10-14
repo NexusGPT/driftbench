@@ -69,33 +69,9 @@ The evidence quotes what decided: the matched text with its offset (`/Acme Telec
 
 ## Worked example
 
-The six Acme conversation specs on the deterministic sales agent (no model call). Every text check their blocks ask for passes:
+A scratch spec: the first two blocks of the Acme plan upgrade, with extra text expectations, on the deterministic sales agent (no model call). `starts_with: Hello` fails (the reply starts with "Hi"), and `relevancy` fails on block 1, whose ask is an email address with no topic words. The run prints the failing ids; a small script then prints every verdict with its evidence from `--json`:
 
-```sh
-driftbench campaign run examples/acme/specs/conversations --no-cache
-```
-
-```text
-$ driftbench campaign run examples/acme/specs/conversations --no-cache
-Campaign c-0c369513d7ab: 6 cells, 4 at a time. Checks: tools, tools_offered, forbidden, must, must_not, regex, exact, injection, length, markup, starts_with, finish_reason, json, tool_f1, refusal, rouge_l, bleu, sql, similarity, relevancy, knowledge_retention, lang, pii, cards, stage, skills, guards, references, subagents, execution, workspace, safety, artifacts, schema_strict, budget, end_state, custom.
-Not judged: 8 criteria in 16 blocks of 6 specs (one_question_per_turn, coverage_before_offer, checks_before_promising, resumes_pending_step, ledger_intact, and 3 more), 6 of them gating. This campaign loads no judge, so these criteria have no verdict and count in no pass or fail. See docs/concepts/judges.md.
-✓ acme-new-customer-coverage · function:acme-sales · F · repeat 0  pass  4 blocks
-✓ acme-number-porting · function:acme-sales · F · repeat 0  pass  5 blocks
-✓ acme-off-topic-return · function:acme-sales · F · repeat 0  pass  5 blocks
-✓ acme-order-loose-confirmation · function:acme-sales · F · repeat 0  pass  4 blocks
-✓ acme-plan-upgrade · function:acme-sales · F · repeat 0  pass  5 blocks
-✓ acme-tool-failure · function:acme-sales · F · repeat 0  pass  3 blocks
-6 cells: 6 pass, 0 fail, 0 failed. Spent $0.00.
-The runs are not kept: pass --store <file> to keep them.
-(exit 0)
-```
-
-A scratch spec: the first two blocks of the Acme plan upgrade, with extra text expectations. `starts_with: Hello` fails (the reply starts with "Hi"), and `relevancy` fails on block 1, whose "ask" is an email address with no topic words. The one-liner prints every verdict with its evidence from `--json`:
-
-From a repository checkout, not run by the help test:
-
-```text
-$ mkdir -p out/judging/checks && cat > out/judging/checks/check-demo.yaml <<'EOF'
+```yaml file=check-demo.yaml
 # A scratch copy of the first two blocks of acme-plan-upgrade, with extra expectations. Fictional data.
 id: check-demo
 title: Machine checks on the first two blocks of the plan upgrade
@@ -132,8 +108,56 @@ blocks:
       tool_f1: { min: 0.9 }
       must: ['Acme Mobile M', '\$35']
       relevancy: {}
-EOF
-$ driftbench campaign run out/judging/checks/check-demo.yaml --no-cache --json | python3 -c "import json,sys; d=json.load(sys.stdin); [print(f'block {i} {v[\"id\"]} {v[\"outcome\"]}{\"\" if v[\"gating\"] else \" (not gating)\"}: {v[\"evidence\"]}') for c in d['cells'] for i,b in enumerate(c['blocks']) for v in b['verdicts']]"
+```
+
+```js file=show.mjs
+// Prints every verdict of a `campaign run --json` document read on stdin: block, id, outcome, evidence.
+// An optional argument lists id prefixes to leave out, comma-separated.
+let text = '';
+process.stdin.on('data', (chunk) => { text += chunk; });
+process.stdin.on('end', () => {
+  const skip = (process.argv[2] ?? '').split(',').filter(Boolean);
+  for (const cell of JSON.parse(text).cells)
+    cell.blocks.forEach((block, i) => {
+      for (const v of block.verdicts)
+        if (!skip.some((p) => v.id.startsWith(p)))
+          console.log(`block ${i} ${v.id} ${v.outcome}${v.gating ? '' : ' (not gating)'}: ${v.evidence}`);
+    });
+});
+```
+
+The scripts below run the package from its source with `tsx`; this file tells `tsx` where the packages are:
+
+```json file=tsconfig.json
+{
+  "compilerOptions": {
+    "module": "ESNext",
+    "moduleResolution": "Bundler",
+    "paths": {
+      "@agent-nexus/driftbench-example-acme": ["./examples/acme/src/package.ts"],
+      "@agent-nexus/driftbench-adapters/contract": ["./packages/adapters/src/contract.ts"],
+      "@agent-nexus/driftbench-*": ["./packages/*/src/index.ts"]
+    }
+  }
+}
+```
+
+```sh
+driftbench campaign run check-demo.yaml --no-cache  # exit 1
+```
+
+```sh setup
+tsx packages/cli/src/bin.ts campaign run check-demo.yaml --no-cache --json | node show.mjs
+```
+
+```text
+$ driftbench campaign run check-demo.yaml --no-cache
+Campaign c-a7930b101319: 1 cell, 4 at a time. Checks: tools, tools_offered, forbidden, must, must_not, regex, exact, injection, length, markup, starts_with, finish_reason, json, tool_f1, refusal, rouge_l, bleu, sql, similarity, relevancy, knowledge_retention, lang, pii, cards, stage, skills, guards, references, subagents, execution, workspace, safety, artifacts, schema_strict, budget, end_state, custom.
+✗ check-demo · function:acme-sales · F · repeat 0  fail  block 0 starts_with.0, block 1 relevancy.terms
+1 cell: 0 pass, 1 fail, 0 failed. Spent $0.00.
+The runs are not kept: pass --store <file> to keep them.
+(exit 1)
+$ tsx packages/cli/src/bin.ts campaign run check-demo.yaml --no-cache --json | node show.mjs
 block 0 forbidden.order.create pass: order.create not called (forbidden by rules.forbidden_tools)
 block 0 forbidden.catalog.search pass: catalog.search not called (the block expects it 0 times)
 block 0 must.0 pass: /Acme Telecom/ matched "Acme Telecom" at offset 12: "Hi, I'm the Acme Telecom sales assistant. I can help y..."
@@ -169,7 +193,7 @@ block 1 stage.reached pass: reached offer, expected offer (stages in this block:
 (exit 0)
 ```
 
-The exit code shown is the pipe's. Without `--json`, the same run prints `✗ check-demo · function:acme-sales · F · repeat 0  fail  block 0 starts_with.0, block 1 relevancy.terms` and exits 1. The `relevancy` fail shows the limit of a word count: an ask that is an email address has no topic words, so that block should not ask for `relevancy`.
+The campaign id changes on every run. The `relevancy` fail shows the limit of a word count: an ask that is an email address has no topic words, so that block should not ask for `relevancy`. `tsx packages/cli/src/bin.ts` is the CLI run from source, the same program as `driftbench`, so its `--json` can be piped.
 
 ## Common errors
 
