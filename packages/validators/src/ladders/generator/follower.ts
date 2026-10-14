@@ -58,7 +58,7 @@ export type Mutation = {
   calls?(tool: HiddenTool, count: number, ctx: MutationContext): number;
   /** Tools called on top of the turn's own calls. */
   extra?(called: string[], ctx: MutationContext): string[];
-  facts?(facts: Fact[], ctx: MutationContext): Fact[];
+  facts?(facts: Fact[], ctx: MutationContext, called: readonly string[]): Fact[];
   reply?(texts: string[], ctx: MutationContext): string[];
   /** On a failing tool: the rule retries a read-only tool once and stays. */
   failure?(
@@ -90,8 +90,8 @@ export function compose(...mutations: Mutation[]): Mutation {
     calls: (tool, count, ctx) =>
       chain('calls').reduce((current, mutation) => mutation.calls?.(tool, current, ctx) ?? current, count),
     extra: (called, ctx) => chain('extra').flatMap((mutation) => mutation.extra?.(called, ctx) ?? []),
-    facts: (facts, ctx) =>
-      chain('facts').reduce((current, mutation) => mutation.facts?.(current, ctx) ?? current, facts),
+    facts: (facts, ctx, called) =>
+      chain('facts').reduce((current, mutation) => mutation.facts?.(current, ctx, called) ?? current, facts),
     reply: (texts, ctx) =>
       chain('reply').reduce((current, mutation) => mutation.reply?.(current, ctx) ?? current, texts),
     failure: (tool, rule, ctx) =>
@@ -371,7 +371,12 @@ export function createFollower(spec: HiddenSpec, mutation: Mutation = {}): () =>
           const tool = tools.get(extra);
           if (tool) record(tool.name, defaultInput(tool), defaultOutput(tool), undefined);
         }
-        const stated = activeMutation.facts?.(facts, ctx()) ?? facts;
+        const stated =
+          activeMutation.facts?.(
+            facts,
+            ctx(),
+            toolCalls.map((call) => call.label),
+          ) ?? facts;
         const factText = stated.map(
           (fact) => `${fact.tool.replace(/_/g, ' ')} says ${fact.field} is ${String(fact.value)}.`,
         );
