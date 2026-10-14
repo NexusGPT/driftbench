@@ -17,6 +17,9 @@ import { type Rng, range, shuffle } from './random';
 /** A partial cell: pairs of a dimension index and a value index. */
 export type Partial = ReadonlyArray<readonly [dimension: number, value: number]>;
 
+/** Memoisation is an acceleration only; its memory must not grow with generated scenarios. */
+const MAX_CACHED_CELLS = 65_536;
+
 export class Feasibility {
   private readonly sizes: number[];
   /** For each dimension, the constraints that name it. */
@@ -47,6 +50,7 @@ export class Feasibility {
     const known = this.cache.get(key);
     if (known !== undefined) return known;
     const result = this.complete(partial) !== undefined;
+    if (this.cache.size >= MAX_CACHED_CELLS) this.cache.clear();
     this.cache.set(key, result);
     return result;
   }

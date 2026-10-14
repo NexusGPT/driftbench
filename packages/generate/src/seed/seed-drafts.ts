@@ -31,6 +31,10 @@ export type SeedContext = {
   seed: number;
   t: number;
   max: number;
+  /** Consume each completed draft immediately instead of retaining the seeder output. */
+  emit?: (draft: SpecDraft) => void;
+  /** Replayable disk rows: their final count keeps the existing "row X of N" titles exact. */
+  rows?: { length: number; push(row: number[]): void; [Symbol.iterator](): Iterator<number[]> };
   /**
    * Specs placed so far on each value of the context axes (a channel, a persona), by dimension then value.
    * A walk whose context is free takes the allowed value placed on least, so the suite spreads over them.

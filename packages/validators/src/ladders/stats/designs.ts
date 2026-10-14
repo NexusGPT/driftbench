@@ -13,6 +13,20 @@ const Probability = z.number().min(0).max(1);
 const Count = z.number().int().min(1);
 const Id = z.string().regex(/^[a-z0-9][a-z0-9.-]*$/);
 
+const SharesSchema = z.strictObject({
+  datasets: Count,
+  cells: z.number().int().min(2),
+  conversations: z.number().int().min(2),
+  wordings: z.number().int().min(2),
+  repeats: z.number().int().min(2),
+  logitMean: z.number(),
+  logitSd: z.strictObject({
+    cell: z.number().min(0),
+    conversation: z.number().min(0),
+    wording: z.number().min(0),
+  }),
+});
+
 export const StatsDesignsSchema = z.strictObject({
   version: z.literal(1),
   clustered: z.strictObject({
@@ -29,19 +43,9 @@ export const StatsDesignsSchema = z.strictObject({
       )
       .min(1),
   }),
-  shares: z.strictObject({
-    datasets: Count,
-    cells: z.number().int().min(2),
-    conversations: z.number().int().min(2),
-    wordings: z.number().int().min(2),
-    repeats: z.number().int().min(2),
-    logitMean: z.number(),
-    logitSd: z.strictObject({
-      cell: z.number().min(0),
-      conversation: z.number().min(0),
-      wording: z.number().min(0),
-    }),
-  }),
+  shares: SharesSchema,
+  // A second shares design where the nested subtraction is large: wordings carry most of the spread.
+  sharesNested: SharesSchema,
   unseen: z.strictObject({
     draws: Count,
     warningDraws: Count,
