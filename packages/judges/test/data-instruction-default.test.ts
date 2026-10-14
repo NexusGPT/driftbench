@@ -15,7 +15,7 @@ describe('default data instructions settle neither outcome', () => {
   it('uses the exact practice-tested rule in the ordinary default', () => {
     expect(buildPrompt(request).system).toContain(rule);
     expect(buildPrompt(request).system).not.toContain(oldRule);
-    expect(buildPrompt(request).user).toContain(JSON.stringify(request.transcript[0].text));
+    expect(buildPrompt(request).user).toContain(JSON.stringify(request.transcript[0]?.text));
   });
   it('keeps historical prompt 1 and caller-owned text unchanged', () => {
     expect(SYSTEM_PROMPT_V1).toContain(oldRule);

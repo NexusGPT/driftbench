@@ -54,8 +54,10 @@ describe('product answer verification', () => {
       ...solves('(C) Quinn'),
       '{"pass":false,"reason":"The required explanation is missing."}',
     ]);
-    const input = request('Final answer: (C) Quinn', 'Choose A or C and explain.');
-    input.criterion = { name: 'complete', rubric: 'Correct option and explanation are both required.' };
+    const input: JudgeRequest = {
+      ...request('Final answer: (C) Quinn', 'Choose A or C and explain.'),
+      criterion: { name: 'complete', rubric: 'Correct option and explanation are both required.' },
+    };
     expect((await verifyAnswer(client, input)).answer.outcome).toBe('fail');
     expect(seen).toHaveLength(4);
     expect(seen.at(-1)?.user).toContain('true,true,true');
