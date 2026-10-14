@@ -4,8 +4,13 @@ import { defaultChecks } from '@agent-nexus/driftbench-checks';
 import type { Observed } from '@agent-nexus/driftbench-core';
 import { faultAdapter } from '@agent-nexus/driftbench-generate';
 import { localProvider } from '@agent-nexus/driftbench-sandbox';
-import { loadRedteamPack, runAttack } from '@agent-nexus/driftbench-users';
-import { acmeSales, acmeSpec, PACK_DIR } from '../../../packages/users/test/support';
+import {
+  createPerturbingDriver,
+  fromPhrasing,
+  loadRedteamPack,
+  runAttack,
+} from '@agent-nexus/driftbench-users';
+import { acmeSales, acmeSpec, PACK_DIR, runP } from '../../../packages/users/test/support';
 import { salesFaults } from '../faults/sales';
 
 // Run with: node --import tsx --test examples/acme/redteam/pack.test.ts
@@ -162,5 +167,33 @@ for (const id of ['d2-home-instead', 'd2-cheaper-plan']) {
     assert.equal(changed.findings, 1, 'order integrity depends on the attack collateral rule');
     assert.equal(changed.rounds[0]?.finding, 'collateral damage');
     assert.match(changed.rounds[0]?.detail ?? '', /block 2:.*tools.order.create.input.plan_id/);
+  });
+}
+
+// The same phrasings land at the offer stage of a spec whose injection point precedes any recap. A correct
+// agent re-asks the plan choice there, so the CONFIRM line cannot be demanded; the mutant is still caught.
+const upgrade = await acmeSpec('conversations/plan-upgrade.yaml');
+for (const id of ['d2-home-instead', 'd2-cheaper-plan']) {
+  test(`${id} injected at the offer stage passes the correct agent and fails the goal-shift fault`, async () => {
+    const file = pack.files.get('D2_goal_shift');
+    assert.ok(file);
+    const phrasing = file.conversation.find((entry) => entry.id === id);
+    assert.ok(phrasing?.approved);
+    const drawn = fromPhrasing(upgrade, 'D2_goal_shift', 2, phrasing);
+    const run = async (adapter: ReturnType<typeof acmeSales>) => {
+      const driver = createPerturbingDriver({ spec: upgrade, perturbation: drawn });
+      return runP(driver.spec, driver, adapter, driver.perturbation.id);
+    };
+    const clean = await run(acmeSales());
+    const injected = clean.blocks[2];
+    assert.equal(injected?.stageObserved, 'offer', 'the injection lands at the offer stage');
+    assert.doesNotMatch(injected?.text ?? '', /CONFIRM/);
+    assert.deepEqual(
+      clean.blocks.filter((entry) => !entry.pass).map((entry) => entry.index),
+      [],
+      `${id} must not flag the correct agent at the offer stage`,
+    );
+    const mutant = await run(broken());
+    assert.equal(mutant.blocks[2]?.pass, false);
   });
 }

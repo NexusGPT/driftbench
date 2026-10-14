@@ -4,6 +4,7 @@ All notable changes to driftbench are listed here. The format follows [Keep a Ch
 
 ## [Unreleased]
 
+* The Acme D2 goal-shift reply check no longer demands the CONFIRM line where no order is pending. A D2 injected at the offer stage (for example `perturb plan-upgrade.yaml --class D2_goal_shift --at 2`) now passes the correct agent when it re-asks the plan choice; at the recap the CONFIRM line is still required, and `d2-ignores-goal-shift` fails at both stages.
 * Public API additions from the merged prompt-radius, provenance, re-judging and tie follow-up work, now listed in the frozen API list. Core: `adapterProvenance`, `provenanceDigest`, `provenanceHash`, `runProvenance`, `completeBaselineProvenance`, `sameCarryContext`, `ALLOWED_VERSION_TRANSITION_FIELDS`, `promptChangeManifest`, `PromptAnchor`, `prepareRejudge`, `rejudgeRun`, `observationCompatibilityHash`, `PreparedRejudge`, `RejudgeOptions`. Judges: `pairLedgerFollowupRequest`, `PairLedgerTieFollowup`, `PairLedgerTieFollowupRead`.
 * The API freeze includes batch 18 exports: core adds `parameterSchema`, `unsupportedSchemaKeywords`, `preflightTargetPrices`, `TokenPriceError` and `TokenPrices`; judges adds type `CriterionPromptVersion` and values `CRITERION_PROMPT_V2_FINGERPRINT`, `CRITERION_PROMPT_V2_RULES`, `CRITERION_PROMPT_VERSION` and `SYSTEM_PROMPT_V2`. No frozen name is removed.
 
