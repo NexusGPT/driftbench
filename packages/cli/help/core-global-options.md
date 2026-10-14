@@ -38,6 +38,9 @@ The help command:
 * `driftbench help`: print the index of every help topic, grouped by area.
 * `driftbench help <topic>`: print one topic. `<topic>` is a topic id such as `core-exit-codes`, or its slug
   alone, `exit-codes`, when only one area has that slug.
+* `driftbench help <area>`: print the topics of one area, such as `recipes`.
+* `driftbench help search <words>`: print the topics that hold every word, ranked.
+* `driftbench help --list`: print every command and subcommand with its one line description and its topic.
 * `driftbench help <command>`: print the usage of a top-level command, the same as `driftbench <command> --help`.
 * An unknown name prints `no help topic or command named "<name>"` with close topic ids, and exits 2.
 
