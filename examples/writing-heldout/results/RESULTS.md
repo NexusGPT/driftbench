@@ -35,6 +35,6 @@ The setting prefers longer, structured replies. It picks the longer reply in 93.
 | Pool | Right when the human chose the longer reply | Right when the human chose the shorter reply | Length-controlled | Longer-wins rule |
 |---|---:|---:|---:|---:|
 | Fresh, 288 games | 96.7 (178/184) | 11.5 (12/104) | 54.1 | 63.9 |
-| TEST, 346 games | 95.7 (224/234) | 1.8 (2/112) | 48.7 | 67.6 |
+| TEST, 346 games | 95.7 (224/234) | 1.8 (2/112) | 48.8 | 67.6 |
 
 Length-controlled is the mean of the two "right when" columns; a longer-wins rule scores 50 on it. The setting wins because these human labels favour longer replies; it is a declared preference, not a measure of writing quality. On the TEST it scores below the longer-wins rule. Without the setting the default judge does not win clearly on writing (`../README.md`).
