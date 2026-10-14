@@ -1,0 +1,22 @@
+{
+  "stamp": "2026-10-13T12:02:55.587714+00:00",
+  "authorization": "Owner decision: let us do all the rest then and go back to Gemini at the end. Do not start Gemini on your own after the reset; resume only on my word.",
+  "supersedes": "Reset-based automatic release in daily-quota-amendment.json",
+  "gemini_resume_requires_explicit_owner_word": true,
+  "gemini_missing_unique": 262,
+  "included_abandoned_no_answer_keys": 2,
+  "planned_additional_content_reasks": 0,
+  "crash_reasks_remaining": 0,
+  "missing_by_row_side": {
+    "goal/audit": 110,
+    "goal/peer": 40,
+    "goal/peer-full-state": 112
+  },
+  "transport_retry_allowance": "Not a fixed number. Only future no-answer failures may add attempts under the existing retry policy.",
+  "gemini_missing_only_cutoff": "2026-10-14T12:00:00+00:00",
+  "cap_usd": 12,
+  "lost_attempt_reserve_usd": 0.4,
+  "sha256": {
+    "comparisons/ledger-hard/resume.py": "d4e477f7d85547024bde0ebf3ada0c3662bf06d9380f72f0631400b6f3aa4229"
+  }
+}
