@@ -1,10 +1,10 @@
 {
-  "stamp": "2026-10-13T14:26:41.755940+00:00",
-  "recorded": 159,
+  "stamp": "2026-10-14T03:20:16.994959+00:00",
+  "recorded": 6559,
   "planned": 6560,
-  "measured_usd": 0.805057,
-  "unknown_attempt_reserve_usd": 0.6,
-  "projected_usd": 33.214930314465406,
-  "method": "prefix mean; family mix may change",
+  "measured_usd": 33.722363,
+  "unknown_attempt_reserve_usd": 1.0,
+  "projected_usd": 33.7274054073107,
+  "method": "experiment/row/contestant stratified",
   "outcomes_used": false
 }

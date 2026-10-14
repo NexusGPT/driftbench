@@ -1,11 +1,11 @@
 {
-  "created": "2026-10-13T18:51:56.229803+00:00",
+  "created": "2026-10-14T03:20:49.826979+00:00",
   "dossier": "/private/tmp/claude-501/-Users-assem-Documents-Doc-Assem-Claude-Code-nexus/649588d0-8d65-49cb-8d78-47b071cd71cb/scratchpad/codex/dossier-ledger-hard.md",
-  "dossier_sha256": "edfccdaeaa6bf2e761dec0468c9019a5d5bd5577cd324cd49fdf381946e37135",
-  "local_final_sha256": "edfccdaeaa6bf2e761dec0468c9019a5d5bd5577cd324cd49fdf381946e37135",
-  "full_coverage": false,
+  "dossier_sha256": "ff440e3266e5aeed511fa7e682f7cd7e6c918edd8e8f99a6b4653d234328819c",
+  "local_final_sha256": "ff440e3266e5aeed511fa7e682f7cd7e6c918edd8e8f99a6b4653d234328819c",
+  "full_coverage": true,
   "original_frozen_matrix_complete": false,
-  "available_models_complete": false,
+  "available_models_complete": true,
   "dropped_models": [
     {
       "model": "gemini-3.8-flash",
@@ -16,29 +16,29 @@
     }
   ],
   "pending_requests_by_model": {
-    "claude-sonnet-5-5": 6401,
-    "gpt-6.1-sol": 5050
+    "claude-sonnet-5-5": 0,
+    "gpt-6.1-sol": 0
   },
-  "measured_usd": 20.6546887,
-  "lost_attempt_reserve_usd": 4.4,
-  "unique_recorded_requests": 24367,
+  "measured_usd": 63.3552102,
+  "lost_attempt_reserve_usd": 4.9,
+  "unique_recorded_requests": 35818,
   "flash_lite_complete": true,
   "added_models": {
     "sonnet-5-5": {
       "model": "claude-sonnet-5-5",
-      "complete": false,
-      "unique_calls": 159,
-      "measured_usd": 0.805057,
-      "lost_unique_requests": null,
-      "token_limited_entries": null
+      "complete": true,
+      "unique_calls": 6560,
+      "measured_usd": 33.726765,
+      "lost_unique_requests": 60,
+      "token_limited_entries": 0
     },
     "gpt-6.1-sol": {
       "model": "gpt-6.1-sol",
-      "complete": false,
-      "unique_calls": 1510,
-      "measured_usd": 2.6681545,
-      "lost_unique_requests": null,
-      "token_limited_entries": null
+      "complete": true,
+      "unique_calls": 6560,
+      "measured_usd": 12.446968,
+      "lost_unique_requests": 3,
+      "token_limited_entries": 3
     }
   },
   "overall_cap_usd": 91

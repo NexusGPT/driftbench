@@ -1,10 +1,10 @@
 # Ledger hard-row dossier
 
-Haiku, Luna and Flash Lite are closed; Sonnet and Sol remain in progress. Recording analysis generated 2026-10-13T18:51:56.136115+00:00. All case and result counts come from the linked files in `comparisons/ledger-hard/`.
+Closed Haiku, Luna and Flash-Lite results retained; added models complete. Recording analysis generated 2026-10-14T03:20:48.745797+00:00. All case and result counts come from the linked files in `comparisons/ledger-hard/`.
 
 - Gemini 3.8: dropped by the owner on 13 Oct 2026, partial data kept, not reported as a score. Flash Lite remains the Gemini result. Gemini 3.8 has zero pending requests and must not resume.
 - 6560 primary and 9578 dialect unique recorded requests, including the goal equal-evidence ablation.
-- Measured spend across all recorded cells, including archived Gemini 3.8: USD 20.65468870. Unreported-attempt reserve: USD 4.40000000. Combined: USD 25.05468870. Separate authorized allocations total USD 91; each model allocation is enforced independently.
+- Measured spend across all recorded cells, including archived Gemini 3.8: USD 63.35521020. Unreported-attempt reserve: USD 4.90000000. Combined: USD 68.25521020. Separate authorized allocations total USD 91; each model allocation is enforced independently.
 - The construction audit passes. No pool is withdrawn. This is synthetic evidence on the original construction families.
 - Primary and dialect results remain separate. The dialect run uses the same cases and is not an independent replication.
 
@@ -32,15 +32,15 @@ The owner requests claude-sonnet-5-5 and gpt-6.1-sol on the same sealed cases. E
 
 | Model | Recorded / planned | Cost USD | Reserved USD | Lost requests | Token-limited entries | Coverage |
 |---|---:|---:|---:|---:|---:|---|
-| claude-sonnet-5-5 | 159/6560 | 0.80505700 | 0.60000000 | Pending | Pending | network pause; awaiting ten-probe gate; no score while missing |
-| gpt-6.1-sol | 1510/6560 | 2.66815450 | 3.40000000 | Pending | Pending | running; no score while missing |
+| claude-sonnet-5-5 | 6560/6560 | 33.72676500 | 1.00000000 | 60 | 0 | Complete |
+| gpt-6.1-sol | 6560/6560 | 12.44696800 | 3.50000000 | 3 | 3 | Complete |
 
 | Model | Experiment | Ours USD | Default peer USD | Equal-state peer USD |
 |---|---|---:|---:|---:|
-| claude-sonnet-5-5 | primary | 0.19189990 | 0.15623600 | 0.03980400 |
-| claude-sonnet-5-5 | dialect | 0.27206800 | 0.14504910 | 0.00000000 |
-| gpt-6.1-sol | primary | 0.74461650 | 0.49892600 | 0.14764800 |
-| gpt-6.1-sol | dialect | 0.85525200 | 0.42171200 | 0.00000000 |
+| claude-sonnet-5-5 | primary | 7.87851590 | 5.85831200 | 1.93785000 |
+| claude-sonnet-5-5 | dialect | 10.29168400 | 5.82475910 | 1.93564400 |
+| gpt-6.1-sol | primary | 3.33146000 | 1.98270400 | 0.66926200 |
+| gpt-6.1-sol | dialect | 3.81344600 | 1.98087400 | 0.66922200 |
 
 Contestant costs count unique recorded calls. Reserved costs remain separate. Unanswered transport requests stay pending and receive no judge score. Full per-row scores, discordant wins/losses, exact tests, intervals and lost keys appear below only for fully answered model cells.
 
@@ -165,7 +165,7 @@ Focused protocol/recovery tests pass; `test-output.txt` retains the test result.
 | `closed-cell-reporting-amendment.json` | `2f9874ba863902e0ab19c3bb5f9d933c649bf3fdffd1009f99f5b00840fc2538` |
 | `luna-transport-census.json` | `09bd39b39de9d713bf594132ef53f7d5f874354537c5d9fc59cdddecd92fe640` |
 | `audit-network-runtime.py` | `c7c79a4d485b8132e5604f08c02018861daee09f4ef150d08413628600d1c6be` |
-| `network-verification.json` | `dd5b6ba6d225ec185a90746a45aaeb928410c28388d96f09f364e88b5bb63cab` |
+| `network-verification.json` | `e64f89de51c072485a009165315087ad13c5b0cd4010d87589e43448a6b5f05f` |
 | `network-finish.py` | `af1807aa4dbae06eee44d9d1e6280847b72fbe9eaace9ef0d3c05ab94a8e5e50` |
 | `gemini-3.8-owner-drop.json` | `56061b82b578dfd3814c6ccb7b1ccb3f510168fc96b26458ad2106f1ebf0903f` |
 | `supervisor-amendment.json` | `3ad71b77206c9ce5c2d1aba6925be22f06b29372a115263756a96c0cf73422b8` |
@@ -175,11 +175,15 @@ Focused protocol/recovery tests pass; `test-output.txt` retains the test result.
 | `sonnet-5-5/pilot.json` | `787fabc4c202494523c00f3bc901cf68ac70f7207068bc778a158fdb8ee49490` |
 | `sonnet-5-5/cache-pilot.json` | `aabb84a1a730cd069952093c835f83401bc1246773d37ccf87638c2dbcf03b0c` |
 | `sonnet-5-5/cache-choice.json` | `5ee1e9ecd123dc231989356c8716efd82aa4b359124d2969b7ec41578812280a` |
+| `sonnet-5-5/scores.json` | `cd59f4ceb2b71c0d97f85344ba7a9a5803bd3e04ed7928a9adeb40dfc3d8e692` |
+| `sonnet-5-5/verification.json` | `72460edf44447f33fbae8b1c3279cd8a92a6b725e6edcf65f92aa18e83ccc153` |
 | `sonnet-5-5/budget-amendment.json` | `25be91c20ee2ab813e3163e41b856a6feb2950caf6981255fd8ca4075af28a3e` |
 | `sonnet-5-5/transport-reconciliation.json` | `7881758f88d38dade69aa27e1d640f7d6f8431e0c71cd44ddf789d6410c0ae81` |
 | `gpt-6.1-sol/seal.json` | `d71218174c21f9ca4146e55ea1f5ff22ff88a01fa6eb3cfaa0be48609fa3318d` |
 | `gpt-6.1-sol/pricing.json` | `9e34faa1a5e372521d5789d0962ce059eb502889daab0abcd51cab466d874d97` |
 | `gpt-6.1-sol/pilot.json` | `cc0331aab66dc66b6be33c2e1513839fda11cfe4dd96fa43bd7b935c6ab62c1f` |
+| `gpt-6.1-sol/scores.json` | `0dbeb215b807b1613bd33ea0615d56ba20799dc007f23b0a62bae86521b400a5` |
+| `gpt-6.1-sol/verification.json` | `775db0b82bb3866b508f56b535c78d620ba645544d43df360aa28ac6faff46a9` |
 
 Candidate procedure: `d7f5e226bf5afe7b955ee0f2247835cd19953001c196dcc7260d1f0c37922587`. Original seal commit: `eeb7875e`. Core dialect source: `2bb0a7a787ca4466ff69d204f2380a7ad19cc056`; dialect seal commit: `a7954b1b`. The per-file source hash maps remain inside the seals and operational amendments.
 
@@ -401,6 +405,140 @@ The nominal win rule is unchanged: higher accuracy and exact two-sided McNemar p
 Default goal inputs remain information-asymmetric. The pooled equal-evidence comparison replaces that goal row with final state supplied to both. No pool counts goal twice. This is a new model measurement on the same cohort, not an independent replication. No content is retried. Transport failures and provider limits remain separate from judge outcomes.
 
 Seal SHA-256: `5ea0a0a7ca782c6b57775cc516f895d6d721126132322b1c3144a1b90b8b407d`. Original case seal: `5845e97e2651d2942134209e4abfa8f932409744930bd0d143ebbe03877b07a4`. Reasoning application: `d37718bb39d54c5a81cd64e4b8b6cac9c47d812ab45adb43301dfa7613b9d881`. Statistics source: `f5f91044dcb166d04b8bff098e8cc31d7431fae30a3983894e7dc1617c4a6831`. Per-file hashes are retained inside the committed seal.
+
+
+## Added sonnet-5-5 measurements
+
+# Additional model: claude-sonnet-5-5
+
+Generated 2026-10-14T03:20:29.086117+00:00. Sources: `sonnet-5-5/seal.json`, `requests.json`, `attempts.jsonl`, both `calls.jsonl` files and `scores.json`.
+
+6560/6560 unique requests recorded; 384 sealed cases per row in each experiment. Both contestants use medium reasoning. Each experiment remains separate.
+
+Measured USD 33.72676500; unknown-attempt reserve USD 1.00000000; model-cell cap USD 45. First five sealed requests form the cost pilot and are retained once. `pilot.json` and `cost-forecast.json` record cost-only projections.
+
+The total generated-token limit is 4096, including hidden reasoning. No answer is retried, including malformed or token-limited output. Token-limit and other lost items are listed in `lost-items.json`; they remain in the denominator and earn no credit.
+
+Sonnet uses the Claude print-mode route, alias `sonnet`, an empty folder, explicit grading system text, disabled settings/tools/MCP/session persistence, and safe mode. `CLAUDE_CODE_MAX_OUTPUT_TOKENS=4096` bounds adaptive thinking plus visible output; a fixed thinking budget is not supported by Sonnet 5.5. CLI-reported `total_cost_usd` is authoritative. [Claude environment documentation](https://code.claude.com/docs/en/env-vars).
+
+## primary
+
+| Row / evidence | Paired / sealed | Ours | Promptfoo | W | L | Exact two-sided p | USD ours / peer | Lost ours / peer | Verdict |
+|---|---:|---:|---:|---:|---:|---|---|---|---|
+| rubric/peer | 384/384 | 337 | 371 | 3 | 37 | 10701/549755813888 = 1.9465006e-08 | 1.92050800 / 1.43627600 | 47/0 | LOSS |
+| factuality/peer | 384/384 | 375 | 364 | 15 | 4 | 1259/65536 = 0.019210815 | 2.10311590 / 1.70480400 | 9/0 | nominal lead |
+| pii/peer | 384/384 | 384 | 374 | 10 | 0 | 1/512 = 0.001953125 | 1.70792000 / 1.46071800 | 0/0 | nominal lead |
+| goal/peer | 384/384 | 381 | 192 | 192 | 3 | 154497/3138550867693340381917894711603833208051177722232017256448 = 4.9225584e-53 | 2.14697200 / 1.25651400 | 3/0 | nominal lead |
+| goal/peer-full-state | 384/384 | 381 | 356 | 25 | 0 | 1/16777216 = 5.9604645e-08 | 2.14697200 / 1.93785000 | 3/0 | nominal lead |
+| pooled-default/mixed | 1536/1536 | 1477 | 1301 | 220 | 44 | 11668324187155147651728699777845132422026206013307/463168356949264781694283940034751631413079938662562256157830336031652518559744 = 2.5192404e-29 | 7.87851590 / 5.85831200 | 59/0 | nominal lead |
+| pooled-equal-evidence/mixed | 1536/1536 | 1477 | 1465 | 53 | 41 | 1269841006050060543474866827/4951760157141521099596496896 = 0.25644235 | 7.87851590 / 6.53964800 | 59/0 | TIE (not equivalence) |
+
+| Row / evidence | Wilson ours | Wilson peer | Family bootstrap difference |
+|---|---|---|---|
+| rubric/peer | [84.103%, 90.670%] | [94.295%, 98.011%] | [-18.750%, 0.000%] |
+| factuality/peer | [95.606%, 98.762%] | [92.093%, 96.603%] | [-1.302%, 9.635%] |
+| pii/peer | [99.010%, 100.000%] | [95.273%, 98.579%] | [0.000%, 7.812%] |
+| goal/peer | [97.729%, 99.734%] | [45.024%, 54.976%] | [47.917%, 50.000%] |
+| goal/peer-full-state | [97.729%, 99.734%] | [89.663%, 94.907%] | [0.000%, 15.104%] |
+| pooled-default/mixed | [95.077%, 97.011%] | [82.814%, 86.414%] | [8.398%, 14.453%] |
+| pooled-equal-evidence/mixed | [95.077%, 97.011%] | [94.210%, 96.319%] | [-2.734%, 4.427%] |
+
+## dialect
+
+| Row / evidence | Paired / sealed | Ours | Promptfoo | W | L | Exact two-sided p | USD ours / peer | Lost ours / peer | Verdict |
+|---|---:|---:|---:|---:|---:|---|---|---|---|
+| rubric/peer | 384/384 | 384 | 373 | 11 | 0 | 1/1024 = 0.0009765625 | 2.55895000 / 1.41448910 | 0/0 | nominal lead |
+| factuality/peer | 384/384 | 383 | 362 | 22 | 1 | 3/524288 = 5.7220459e-06 | 2.67037600 / 1.71114600 | 1/0 | nominal lead |
+| pii/peer | 384/384 | 384 | 372 | 12 | 0 | 1/2048 = 0.00048828125 | 2.32225800 / 1.44836800 | 0/0 | nominal lead |
+| goal/peer | 384/384 | 384 | 192 | 192 | 0 | 1/3138550867693340381917894711603833208051177722232017256448 = 3.1861838e-58 | 2.74010000 / 1.25075600 | 0/0 | nominal lead |
+| goal/peer-full-state | 384/384 | 384 | 357 | 27 | 0 | 1/67108864 = 1.4901161e-08 | 2.74010000 / 1.93564400 | 0/0 | nominal lead |
+| pooled-default/mixed | 1536/1536 | 1535 | 1299 | 237 | 1 | 239/220855883097298041197912187592864814478435487109452369765200775161577472 = 1.0821536e-69 | 10.29168400 / 5.82475910 | 1/0 | nominal lead |
+| pooled-equal-evidence/mixed | 1536/1536 | 1535 | 1464 | 72 | 1 | 37/2361183241434822606848 = 1.567011e-20 | 10.29168400 / 6.50964710 | 1/0 | nominal lead |
+
+| Row / evidence | Wilson ours | Wilson peer | Family bootstrap difference |
+|---|---|---|---|
+| rubric/peer | [99.010%, 100.000%] | [94.944%, 98.393%] | [0.000%, 8.594%] |
+| factuality/peer | [98.540%, 99.954%] | [91.478%, 96.186%] | [0.000%, 14.583%] |
+| pii/peer | [99.010%, 100.000%] | [94.618%, 98.203%] | [0.000%, 9.375%] |
+| goal/peer | [99.010%, 100.000%] | [45.024%, 54.976%] | [50.000%, 50.000%] |
+| goal/peer-full-state | [99.010%, 100.000%] | [89.963%, 95.123%] | [0.000%, 16.406%] |
+| pooled-default/mixed | [99.632%, 99.989%] | [82.678%, 86.290%] | [12.891%, 18.490%] |
+| pooled-equal-evidence/mixed | [99.632%, 99.989%] | [94.138%, 96.261%] | [1.497%, 8.398%] |
+
+## Losses and interpretation
+
+60 case-side entries have no usable verdict, covering 60 unique requests. 0 entries reach the output/thinking cap. Full keys and causes remain in `lost-items.json`. No 65536-token request is configured.
+
+Nominal tests use the unchanged exact two-sided McNemar calculation and 20000 family-bootstrap draws. Global multiplicity correction belongs to the collator. The same synthetic cohort is not independent replication. Default goal is information-asymmetric; pooled equal-evidence replaces it with final state supplied to both. Costs shown for overlapping rows and pools must not be summed as additional spend.
+
+Seal SHA-256: `0f9a30095c9eb53a201d28bf440462862f3ae043b430ae08249017d3a76595c5`. Original case seal: `5845e97e2651d2942134209e4abfa8f932409744930bd0d143ebbe03877b07a4`. Per-file hashes remain in the seal. Gemini 3.8 is dropped and its journals remain unchanged.
+
+
+## Added gpt-6.1-sol measurements
+
+# Additional model: gpt-6.1-sol
+
+Generated 2026-10-13T22:02:13.883748+00:00. Sources: `gpt-6.1-sol/seal.json`, `requests.json`, `attempts.jsonl`, both `calls.jsonl` files and `scores.json`.
+
+6560/6560 unique requests recorded; 384 sealed cases per row in each experiment. Both contestants use medium reasoning. Each experiment remains separate.
+
+Measured USD 12.44696800; unknown-attempt reserve USD 3.50000000; model-cell cap USD 25. First five sealed requests form the cost pilot and are retained once. `pilot.json` and `cost-forecast.json` record cost-only projections.
+
+The total generated-token limit is 4096, including hidden reasoning. No answer is retried, including malformed or token-limited output. Token-limit and other lost items are listed in `lost-items.json`; they remain in the denominator and earn no credit.
+
+Standard short-context prices per million tokens, verified 2026-10-13: input USD 2, cached input USD 0.10, cache write USD 2.50, output including reasoning USD 10. [OpenAI pricing](https://developers.openai.com/api/docs/pricing). The route is the Responses API; temperature is omitted. Raw token counts and reported reasoning are retained per call.
+
+## primary
+
+| Row / evidence | Paired / sealed | Ours | Promptfoo | W | L | Exact two-sided p | USD ours / peer | Lost ours / peer | Verdict |
+|---|---:|---:|---:|---:|---:|---|---|---|---|
+| rubric/peer | 384/384 | 384 | 369 | 15 | 0 | 1/16384 = 6.1035156e-05 | 0.76909200 / 0.43080000 | 0/0 | nominal lead |
+| factuality/peer | 384/384 | 384 | 384 | 0 | 0 | 1 = 1 | 0.86114800 / 0.63126600 | 0/0 | TIE (not equivalence) |
+| pii/peer | 384/384 | 384 | 384 | 0 | 0 | 1 = 1 | 0.69587000 / 0.44034600 | 0/0 | TIE (not equivalence) |
+| goal/peer | 384/384 | 384 | 192 | 192 | 0 | 1/3138550867693340381917894711603833208051177722232017256448 = 3.1861838e-58 | 1.00535000 / 0.48029200 | 0/0 | nominal lead |
+| goal/peer-full-state | 384/384 | 384 | 384 | 0 | 0 | 1 = 1 | 1.00535000 / 0.66926200 | 0/0 | TIE (not equivalence) |
+| pooled-default/mixed | 1536/1536 | 1536 | 1329 | 207 | 0 | 1/102844034832575377634685573909834406561420991602098741459288064 = 9.7234614e-63 | 3.33146000 / 1.98270400 | 0/0 | nominal lead |
+| pooled-equal-evidence/mixed | 1536/1536 | 1536 | 1521 | 15 | 0 | 1/16384 = 6.1035156e-05 | 3.33146000 / 2.17167400 | 0/0 | nominal lead |
+
+| Row / evidence | Wilson ours | Wilson peer | Family bootstrap difference |
+|---|---|---|---|
+| rubric/peer | [99.010%, 100.000%] | [93.656%, 97.619%] | [0.000%, 11.719%] |
+| factuality/peer | [99.010%, 100.000%] | [99.010%, 100.000%] | [0.000%, 0.000%] |
+| pii/peer | [99.010%, 100.000%] | [99.010%, 100.000%] | [0.000%, 0.000%] |
+| goal/peer | [99.010%, 100.000%] | [45.024%, 54.976%] | [50.000%, 50.000%] |
+| goal/peer-full-state | [99.010%, 100.000%] | [99.010%, 100.000%] | [0.000%, 0.000%] |
+| pooled-default/mixed | [99.751%, 100.000%] | [84.724%, 88.140%] | [12.500%, 15.430%] |
+| pooled-equal-evidence/mixed | [99.751%, 100.000%] | [98.395%, 99.407%] | [0.000%, 2.930%] |
+
+## dialect
+
+| Row / evidence | Paired / sealed | Ours | Promptfoo | W | L | Exact two-sided p | USD ours / peer | Lost ours / peer | Verdict |
+|---|---:|---:|---:|---:|---:|---|---|---|---|
+| rubric/peer | 384/384 | 384 | 368 | 16 | 0 | 1/32768 = 3.0517578e-05 | 0.86657800 / 0.42835000 | 0/0 | nominal lead |
+| factuality/peer | 384/384 | 381 | 384 | 0 | 3 | 1/4 = 0.25 | 1.05419600 / 0.63279600 | 3/0 | TIE (not equivalence) |
+| pii/peer | 384/384 | 384 | 384 | 0 | 0 | 1 = 1 | 0.78589600 / 0.44119600 | 0/0 | TIE (not equivalence) |
+| goal/peer | 384/384 | 384 | 192 | 192 | 0 | 1/3138550867693340381917894711603833208051177722232017256448 = 3.1861838e-58 | 1.10677600 / 0.47853200 | 0/0 | nominal lead |
+| goal/peer-full-state | 384/384 | 384 | 384 | 0 | 0 | 1 = 1 | 1.10677600 / 0.66922200 | 0/0 | TIE (not equivalence) |
+| pooled-default/mixed | 1536/1536 | 1533 | 1328 | 208 | 3 | 195729/205688069665150755269371147819668813122841983204197482918576128 = 9.5158169e-58 | 3.81344600 / 1.98087400 | 3/0 | nominal lead |
+| pooled-equal-evidence/mixed | 1536/1536 | 1533 | 1520 | 16 | 3 | 145/32768 = 0.0044250488 | 3.81344600 / 2.17156400 | 3/0 | nominal lead |
+
+| Row / evidence | Wilson ours | Wilson peer | Family bootstrap difference |
+|---|---|---|---|
+| rubric/peer | [99.010%, 100.000%] | [93.339%, 97.419%] | [0.000%, 12.500%] |
+| factuality/peer | [97.729%, 99.734%] | [99.010%, 100.000%] | [-1.562%, 0.000%] |
+| pii/peer | [99.010%, 100.000%] | [99.010%, 100.000%] | [0.000%, 0.000%] |
+| goal/peer | [99.010%, 100.000%] | [45.024%, 54.976%] | [50.000%, 50.000%] |
+| goal/peer-full-state | [99.010%, 100.000%] | [99.010%, 100.000%] | [0.000%, 0.000%] |
+| pooled-default/mixed | [99.427%, 99.934%] | [84.656%, 88.079%] | [12.174%, 15.495%] |
+| pooled-equal-evidence/mixed | [99.427%, 99.934%] | [98.315%, 99.358%] | [-0.326%, 2.995%] |
+
+## Losses and interpretation
+
+3 case-side entries have no usable verdict, covering 3 unique requests. 3 entries reach the output/thinking cap. Full keys and causes remain in `lost-items.json`. No 65536-token request is configured.
+
+Nominal tests use the unchanged exact two-sided McNemar calculation and 20000 family-bootstrap draws. Global multiplicity correction belongs to the collator. The same synthetic cohort is not independent replication. Default goal is information-asymmetric; pooled equal-evidence replaces it with final state supplied to both. Costs shown for overlapping rows and pools must not be summed as additional spend.
+
+Seal SHA-256: `d71218174c21f9ca4146e55ea1f5ff22ff88a01fa6eb3cfaa0be48609fa3318d`. Original case seal: `5845e97e2651d2942134209e4abfa8f932409744930bd0d143ebbe03877b07a4`. Per-file hashes remain in the seal. Gemini 3.8 is dropped and its journals remain unchanged.
 
 
 ## Authorized host-crash recovery
