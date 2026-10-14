@@ -89,10 +89,17 @@ Two entries of the council cassette, a system 1 `answer` and a system 2 `raw`:
 
 ## Worked example
 
-The council cassette replayed over the fixtures it was recorded for: every call finds its recording, so no call is made:
+The council cassette replayed over the fixtures it was recorded for, where every call finds its recording; then a copy of the criteria with one rubric reworded, replayed on the same cassette. The rubric is part of the request key, so the changed criterion misses every recording and the other 11 still replay:
+
+```sh setup
+mkdir -p cassette-miss
+cp examples/acme/criteria/*.yaml cassette-miss/
+sed 's/rubric: The reply asks the customer at most one question./rubric: The reply asks the customer one question at most./' examples/acme/criteria/one_question_per_turn.yaml > cassette-miss/one_question_per_turn.yaml
+```
 
 ```sh
 driftbench judge run --criteria examples/acme/criteria --cassette examples/acme/criteria/council.cassette.json
+driftbench judge run --criteria cassette-miss --cassette examples/acme/criteria/council.cassette.json  # exit 1
 ```
 
 ```text
@@ -112,16 +119,7 @@ separated  sheet_matches_catalog [system1, gating]: pass fixture pass, fail fixt
 
 12 of 12 criteria separated in mode hybrid.
 (exit 0)
-```
-
-Change one word order in one rubric, on a copy of the Acme criteria, and replay the unchanged council cassette. The changed criterion misses every recording; the other 11 still replay:
-
-From a repository checkout, not run by the help test:
-
-```text
-$ mkdir -p out/judging/cassette-miss && cp examples/acme/criteria/*.yaml out/judging/cassette-miss/
-$ sed -i '' 's/rubric: The reply asks the customer at most one question./rubric: The reply asks the customer one question at most./' out/judging/cassette-miss/one_question_per_turn.yaml
-$ driftbench judge run --criteria out/judging/cassette-miss --cassette examples/acme/criteria/council.cassette.json
+$ driftbench judge run --criteria cassette-miss --cassette examples/acme/criteria/council.cassette.json
 separated  care_redirect [system1, gating]: pass fixture pass, fail fixture fail
 separated  checks_before_promising [system1, gating]: pass fixture pass, fail fixture fail
 separated  coverage_before_offer [system1, gating]: pass fixture pass, fail fixture fail
@@ -145,7 +143,7 @@ separated  sheet_matches_catalog [system1, gating]: pass fixture pass, fail fixt
 (exit 1)
 ```
 
-The `sed -i ''` form is the macOS one; on Linux write `sed -i`. A rubric is part of the key, so the 18 calls for that criterion (three rounds of three judges, for each fixture) find no recording and vote inconclusive.
+The 18 calls of the changed criterion (three rounds of three judges, for each fixture) find no recording and vote inconclusive.
 
 ## Common errors
 
