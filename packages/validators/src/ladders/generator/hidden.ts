@@ -933,6 +933,7 @@ export function readTurn(
   text: string,
 ): { intent: Intent; slots: Record<string, string> } | undefined {
   const trimmed = text.trim();
+  if (trimmed === `Save the record as ${spec.saveFile}.`) return { intent: { kind: 'save' }, slots: {} };
   for (const phrase of spec.phrases) {
     const match = phrasePattern(phrase.text).exec(trimmed);
     if (match) return { intent: phrase.intent, slots: { ...(match.groups ?? {}) } };

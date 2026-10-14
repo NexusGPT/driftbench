@@ -1,6 +1,7 @@
 import type { Inventory } from '@agent-nexus/driftbench-core';
 import { type Proposal, type ProposalDimension, renderProposal } from '@agent-nexus/driftbench-generate';
 import { NONE, type SpaceMap } from '@agent-nexus/driftbench-space';
+import { codeTask } from './code-task';
 import type { HiddenProperty, HiddenSpec } from './hidden';
 import { DEVIATION_RULES } from './hidden';
 import { impossiblePairs } from './possible';
@@ -18,6 +19,8 @@ export const MAP_FILES = {
   prompt: 'prompt.md',
   inventory: 'inventory.yaml',
   tools: 'tools.yaml',
+  family: 'family.yaml',
+  oracle: 'oracle.mjs',
 } as const;
 
 /** The fixed date every rendered map records, so a seed renders the same bytes on any day. */
@@ -89,6 +92,8 @@ export function renderPrompt(spec: HiddenSpec): string {
     '',
     'Each returned field is stated as "<tool label with spaces> says <field> is <value>." Unspecified required integer inputs use their schema minimum.',
     ...replyRules(spec).map((rule) => `- ${rule.quote}`),
+    '',
+    codeTask(spec).quote,
     '',
     '## Users',
     '',
@@ -379,6 +384,14 @@ export function hiddenProposal(spec: HiddenSpec): Proposal {
         evidence: { source: tools, quote: value.quote },
         ...common,
       })),
+    {
+      kind: 'task_family' as const,
+      flow: codeTask(spec).flow,
+      family: '.',
+      stages: [spec.goal, spec.goal],
+      evidence: { source: prompt, quote: codeTask(spec).quote },
+      ...common,
+    },
     ...spec.recoveries.map((recovery) => ({
       kind: 'recovery' as const,
       class: recovery.class,
@@ -434,6 +447,8 @@ export function renderMap(spec: HiddenSpec): RenderedMap {
     prompt: renderPrompt(spec),
     inventory: renderInventory(spec),
     tools: renderTools(spec),
+    family: codeTask(spec).family,
+    oracle: codeTask(spec).oracle,
   };
 }
 
