@@ -67,7 +67,7 @@ Usage: driftbench compare [options]
 (exit 0)
 ```
 
-The long-structured rule, run with no model call from a checkout of main with the PR 378 file copied beside a script (once PR 378 lands, import `applyLongStructured` from `@agent-nexus/driftbench-judges` instead). The ledger verdict passed in says `first`; the rule overrides it with the longer reply:
+Not run by the help test: it reads the PR 378 file with git. The long-structured rule, run with no model call from a checkout of main with the PR 378 file copied beside a script (once PR 378 lands, import `applyLongStructured` from `@agent-nexus/driftbench-judges` instead). The ledger verdict passed in says `first`; the rule overrides it with the longer reply:
 
 ```text
 $ mkdir -p out/ls
