@@ -22,21 +22,28 @@ const MAX_CACHED_CELLS = 65_536;
 
 export class Feasibility {
   private readonly sizes: number[];
-  /** For each dimension, the constraints that name it. */
-  private readonly touching: number[][];
+  /** Only constraints naming the chosen value can forbid a cell. */
+  private readonly touchingValue: Map<number, number[]>[];
   private readonly cache = new Map<string, boolean>();
   /** The visiting order: constrained dimensions first, the most constrained first, then map order. */
   private readonly order: number[];
 
   constructor(private readonly space: CompiledSpace) {
     this.sizes = space.dimensions.map((dimension) => dimension.values.length);
-    this.touching = this.sizes.map(() => []);
+    this.touchingValue = this.sizes.map(() => new Map());
+    const touching = this.sizes.map(() => 0);
     space.constraints.forEach((constraint, index) => {
-      for (const [dimension] of constraint) this.touching[dimension]?.push(index);
+      for (const [dimension, value] of constraint) {
+        const byValue = this.touchingValue[dimension];
+        if (!byValue) continue;
+        touching[dimension] = (touching[dimension] ?? 0) + 1;
+        const indices = byValue.get(value) ?? [];
+        indices.push(index);
+        byValue.set(value, indices);
+      }
     });
-    this.order = range(this.sizes.length).sort(
-      (a, b) => (this.touching[b]?.length ?? 0) - (this.touching[a]?.length ?? 0) || a - b,
-    );
+    // Preserve the search order, including seeded searches' random draws.
+    this.order = range(this.sizes.length).sort((a, b) => (touching[b] ?? 0) - (touching[a] ?? 0) || a - b);
   }
 
   /** The number of dimensions of the map. */
@@ -93,7 +100,7 @@ export class Feasibility {
 
   /** False when a constraint naming the dimension has every one of its values in the cell. */
   private consistent(cell: readonly number[], dimension: number): boolean {
-    for (const index of this.touching[dimension] ?? []) {
+    for (const index of this.touchingValue[dimension]?.get(cell[dimension] ?? -1) ?? []) {
       const constraint = this.space.constraints[index];
       if (!constraint || constraint.length === 0) continue;
       if (constraint.every(([at, value]) => cell[at] === value)) return false;

@@ -117,6 +117,63 @@ describe('Feasibility', () => {
     expect(allowedTuples(feasibility, sizes, [0, 1, 2, 3], 2)).toHaveLength(15);
   });
 
+  it('does not rescan unrelated value constraints as a dimension grows', () => {
+    const width = 256;
+    const map: SpaceMap = {
+      ...MAP,
+      dimensions: [
+        {
+          id: 'A',
+          title: 'A',
+          kind: 'behaviour',
+          values: Array.from({ length: width }, (_, index) => ({ id: `a${index}`, title: 'a' })),
+        },
+        {
+          id: 'B',
+          title: 'B',
+          kind: 'channel',
+          values: [
+            { id: 'blocked', title: 'blocked' },
+            { id: 'open', title: 'open' },
+          ],
+        },
+      ],
+      constraints: Array.from({ length: width }, (_, index) => ({
+        forbid: { A: `a${index}`, B: 'blocked' },
+        reason: 'blocked channel',
+      })),
+    };
+    const space = compileSpace(map);
+    let reads = 0;
+    // Count constraint visits, independent of clock speed and concurrent test workers.
+    for (const constraint of space.constraints) {
+      const first = constraint[0];
+      Object.defineProperty(constraint, 0, {
+        get: () => {
+          reads += 1;
+          return first;
+        },
+      });
+    }
+    const feasibility = new Feasibility(space);
+    reads = 0;
+    for (let value = 0; value < width; value += 1) {
+      expect(
+        feasibility.complete([
+          [0, value],
+          [1, 1],
+        ]),
+      ).toEqual([value, 1]);
+      expect(
+        feasibility.allowed([
+          [0, value],
+          [1, 0],
+        ]),
+      ).toBe(false);
+    }
+    expect(reads).toBeLessThan(width * 8);
+  });
+
   it('keys a tuple by its dimensions and values', () => {
     expect(tupleKey([0, 2], [1, 0])).toBe('0=1,2=0');
   });
