@@ -5,3 +5,5 @@ work/*
 work/sources/*
 !work/sources/
 !work/sources/manifest.json
+cells/*.jsonl
+cells/.*.lock
