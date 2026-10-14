@@ -215,7 +215,7 @@ The repository ships three cassettes of scripted answers, each for the same six 
 | `examples/acme/criteria/calibration/cassette.json` | 387 | `judge calibrate`, and `judge run --assignments` |
 | `examples/acme/criteria/calibration/campaign.cassette.json` | 38 | the Acme campaign with the judge check |
 
-The six judges are three of system 1 (`jev-a` and `jev-b`, cost 1, and `openai-decisions`, cost 2) and three of system 2 (`openai-chat` and `google-chat`, cost 10, and `anthropic-chat`, cost 12). The cassette files name the first two after the system 1 judge of the Nexus platform (see the [Nexus adapter](../adapters/nexus.md#judge)). The prose and output below use those same cassette names. The answers are written by a test script: every judge tells the truth except 7 scripted misses, each with a note in the cassette.
+The six judges are three of system 1 (`s1p-a` and `s1p-b`, cost 1, and `openai-decisions`, cost 2) and three of system 2 (`openai-chat` and `google-chat`, cost 10, and `anthropic-chat`, cost 12). The first two have neutral scripted IDs; see the [Nexus adapter](../adapters/nexus.md#judge) for the platform judge they model. The prose and output below use those same cassette names. The answers are written by a test script: every judge tells the truth except 7 scripted misses, each with a note in the cassette.
 
 ## The council
 
@@ -346,9 +346,9 @@ On the Acme criteria, labels and calibration cassette, each criterion prints its
 
 ```text
 $ pnpm -s driftbench judge calibrate --criteria examples/acme/criteria --labels examples/acme/labels --cassette examples/acme/criteria/calibration/cassette.json --out _captures/docs3/judges/assignments.yaml
-care_redirect [gating]: owned by jev-a (system1: jev-a, jev-b, openai-decisions; re-judge google-chat, openai-chat, anthropic-chat)
-    jev-a              system1  separation 3/3  kappa  1.00  agreement 4/4 [0.51, 1.00]  at the bar
-    jev-b              system1  separation 3/3  kappa  1.00  agreement 4/4 [0.51, 1.00]  at the bar
+care_redirect [gating]: owned by s1p-a (system1: s1p-a, s1p-b, openai-decisions; re-judge google-chat, openai-chat, anthropic-chat)
+    s1p-a              system1  separation 3/3  kappa  1.00  agreement 4/4 [0.51, 1.00]  at the bar
+    s1p-b              system1  separation 3/3  kappa  1.00  agreement 4/4 [0.51, 1.00]  at the bar
     openai-decisions   system1  separation 3/3  kappa  1.00  agreement 4/4 [0.51, 1.00]  at the bar
     openai-chat        system2  separation 3/3  kappa  1.00  agreement 4/4 [0.51, 1.00]  at the bar
     google-chat        system2  separation 3/3  kappa  1.00  agreement 4/4 [0.51, 1.00]  at the bar
@@ -359,9 +359,9 @@ care_redirect [gating]: owned by jev-a (system1: jev-a, jev-b, openai-decisions;
 A criterion that moves to system 2, because one system 1 judge misses the bar:
 
 ```text
-holds_instructions [gating]: owned by google-chat (system2: google-chat, openai-chat, anthropic-chat; re-judge jev-a, jev-b, openai-decisions)
-    jev-a              system1  separation 3/3  kappa  1.00  agreement 4/4 [0.51, 1.00]  at the bar
-    jev-b              system1  separation 3/3  kappa  1.00  agreement 4/4 [0.51, 1.00]  at the bar
+holds_instructions [gating]: owned by google-chat (system2: google-chat, openai-chat, anthropic-chat; re-judge s1p-a, s1p-b, openai-decisions)
+    s1p-a              system1  separation 3/3  kappa  1.00  agreement 4/4 [0.51, 1.00]  at the bar
+    s1p-b              system1  separation 3/3  kappa  1.00  agreement 4/4 [0.51, 1.00]  at the bar
     openai-decisions   system1  separation 2/3  kappa  1.00  agreement 4/4 [0.51, 1.00]  misses: separates the fixture pair 2 of 3 times
     openai-chat        system2  separation 3/3  kappa  1.00  agreement 4/4 [0.51, 1.00]  at the bar
     google-chat        system2  separation 3/3  kappa  1.00  agreement 4/4 [0.51, 1.00]  at the bar
@@ -372,9 +372,9 @@ holds_instructions [gating]: owned by google-chat (system2: google-chat, openai-
 A criterion no class can take:
 
 ```text
-ledger_intact: UNASSIGNED, judged but not gating: no class has 3 judges at the bar (system1 has 2 of 3 judges at the bar, system2 has 2 of 3 judges at the bar): jev-b kappa 0.40 is under 0.8; google-chat kappa 0.50 is under 0.8
-    jev-a              system1  separation 3/3  kappa  1.00  agreement 3/3 [0.44, 1.00]  at the bar
-    jev-b              system1  separation 3/3  kappa  0.40  agreement 2/3 [0.21, 0.94]  misses: kappa 0.40 is under 0.8
+ledger_intact: UNASSIGNED, judged but not gating: no class has 3 judges at the bar (system1 has 2 of 3 judges at the bar, system2 has 2 of 3 judges at the bar): s1p-b kappa 0.40 is under 0.8; google-chat kappa 0.50 is under 0.8
+    s1p-a              system1  separation 3/3  kappa  1.00  agreement 3/3 [0.44, 1.00]  at the bar
+    s1p-b              system1  separation 3/3  kappa  0.40  agreement 2/3 [0.21, 0.94]  misses: kappa 0.40 is under 0.8
     openai-decisions   system1  separation 3/3  kappa  1.00  agreement 3/3 [0.44, 1.00]  at the bar
     openai-chat        system2  separation 3/3  kappa  1.00  agreement 3/3 [0.44, 1.00]  at the bar
     google-chat        system2  separation 3/3  kappa  0.50  agreement 2/3 [0.21, 0.94]  misses: kappa 0.50 is under 0.8
@@ -385,7 +385,7 @@ ledger_intact: UNASSIGNED, judged but not gating: no class has 3 judges at the b
 The last lines of the output:
 
 ```text
-Kappa over every labelled block: jev-a 0.90 (38/40), jev-b 0.90 (38/40), openai-decisions 1.00 (40/40), openai-chat 1.00 (40/40), google-chat 0.95 (39/40), anthropic-chat 1.00 (40/40).
+Kappa over every labelled block: s1p-a 0.90 (38/40), s1p-b 0.90 (38/40), openai-decisions 1.00 (40/40), openai-chat 1.00 (40/40), google-chat 0.95 (39/40), anthropic-chat 1.00 (40/40).
 
 11 of 12 criteria assigned in mode hybrid (3 repeats, kappa at least 0.8). Unassigned, judged but never gating: ledger_intact.
 Wrote _captures/docs3/judges/assignments.yaml.
@@ -535,32 +535,32 @@ The table has `version: 1`, the `mode`, the `repeats`, `kappa_min`, and one entr
       - openai-chat
       - anthropic-chat
     rejudge:
-      - jev-a
-      - jev-b
+      - s1p-a
+      - s1p-b
       - openai-decisions
     separation: 3 of 3
     kappa: 1
   - criterion: ledger_intact
     status: unassigned
-    reason: "no class has 3 judges at the bar (system1 has 2 of 3 judges at the bar, system2 has 2 of 3 judges at the bar): jev-b kappa 0.40 is under 0.8; google-chat kappa 0.50 is under 0.8"
+    reason: "no class has 3 judges at the bar (system1 has 2 of 3 judges at the bar, system2 has 2 of 3 judges at the bar): s1p-b kappa 0.40 is under 0.8; google-chat kappa 0.50 is under 0.8"
 ```
 
 Who owns each Acme criterion, from the committed table:
 
 | Criterion | Gating | Class | Owner |
 |---|---|---|---|
-| `care_redirect` | yes | system 1 | `jev-a` |
-| `checks_before_promising` | yes | system 1 | `jev-a` |
-| `coverage_before_offer` | yes | system 1 | `jev-a` |
-| `explicit_confirmation` | yes | system 1 | `jev-a` |
+| `care_redirect` | yes | system 1 | `s1p-a` |
+| `checks_before_promising` | yes | system 1 | `s1p-a` |
+| `coverage_before_offer` | yes | system 1 | `s1p-a` |
+| `explicit_confirmation` | yes | system 1 | `s1p-a` |
 | `holds_instructions` | yes | system 2 | `google-chat` |
 | `honest_failure` | yes | system 2 | `google-chat` |
 | `ledger_intact` | no, unassigned | none | none |
 | `no_invented_data` | yes | system 2 | `google-chat` |
-| `one_question_per_turn` | no | system 1 | `jev-a` |
+| `one_question_per_turn` | no | system 1 | `s1p-a` |
 | `plain_language` | no | system 2 | `google-chat` |
-| `resumes_pending_step` | yes | system 1 | `jev-a` |
-| `sheet_matches_catalog` | yes | system 1 | `jev-a` |
+| `resumes_pending_step` | yes | system 1 | `s1p-a` |
+| `sheet_matches_catalog` | yes | system 1 | `s1p-a` |
 
 `holds_instructions` and `plain_language` declare system 1; calibration gives them to system 2. `loadAssignmentTable` reads a table, and `councilAssignment` turns it into council rows with source `calibration` plus the unassigned criteria. `judge run --assignments <file>` uses it; the table's mode must be the run's mode. An unassigned row prints `unassigned: not gating`:
 
@@ -615,10 +615,10 @@ The Acme campaign, the six conversation specs and the price-sheet task, runs wit
 
 | Verdict id | Spec | Gating | Votes | Evidence |
 |---|---|---|---|---|
-| `judge.one_question_per_turn` | `acme-number-porting` | no | `jev-a pass` | `system1: jev-a pass; pass, the cheapest judge was sure` |
+| `judge.one_question_per_turn` | `acme-number-porting` | no | `s1p-a pass` | `system1: s1p-a pass; pass, the cheapest judge was sure` |
 | `judge.no_invented_data` | `acme-order-loose-confirmation` | yes | `google-chat pass`, `openai-chat pass`, `anthropic-chat pass` | `system2: google-chat pass, openai-chat pass, anthropic-chat pass; pass` |
 | `judge.ledger_intact` | `acme-off-topic-return` | no | `google-chat pass`, `openai-chat pass`, `anthropic-chat pass` | `unassigned by calibration, not gating: no class has 3 judges at the bar (...) \| system2: google-chat pass, openai-chat pass, anthropic-chat pass; pass` |
-| `judge.sheet_matches_catalog` | `acme-price-sheet` | yes | `jev-a pass` | `system1: jev-a pass; pass, the cheapest judge was sure` |
+| `judge.sheet_matches_catalog` | `acme-price-sheet` | yes | `s1p-a pass` | `system1: s1p-a pass; pass, the cheapest judge was sure` |
 
 * The cascade stops `one_question_per_turn` at the cheapest system 1 judge, whose answer carries a score.
 * `no_invented_data` shows three votes: its owner, `google-chat`, leaves `score` out, so the cascade never stops early.
