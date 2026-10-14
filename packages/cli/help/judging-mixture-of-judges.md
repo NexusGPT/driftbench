@@ -14,12 +14,18 @@ see_also:
 
 Mixture of Judges (MoJ) is a routing design: a cheap, fast first judge answers every item, and only the items it leaves uncertain go to more costly judges, such as a reasoning model or a panel of models from other families, sometimes after a reference answer is solved once. The cost is spent where the cheap judge is unsure.
 
-On main, MoJ exists in two places:
+MoJ is the umbrella name; on main it is made of four package functions, each opt-in and each a library call:
+
+* `createEscalation`: the router. A cheap first judge answers; only the signals you choose send the item to later judges of other families (details below).
+* `weightedPanel(votes, weights, margin)`: the panel vote of the later judges, weighted by calibrated agreement (such as kappa), with an abstain when the margin is thin (default margin 0.3). It is defined in `packages/judges/src/weighted-panel.ts` but not exported from the package index on main, so it cannot be imported yet; the council's own `weights` field is the public weighted vote (see `judging-council`).
+* `withReferenceConsensus(client, { solve, samples, route: 'auto' })`: the reference expert. With `route: 'auto'` it first asks whether the question has one checkable answer (a number, an option, a fact, a proof result, code behaviour); only then does a blind solver produce a reference the judge compares with. Creative and open questions skip the solve.
+* `calibrateCascade`: the measurement. `{ judge, criteria, labels, repeats }` scores a deployable route on your labels; `{ first, escalateTo, ... }` is the label-aware form behind `judge calibrate --cascade`.
+
+The research write-up and its frozen results are on main too:
 
 * The research harness and its write-up. `research/moj/README.md`, `research/moj/RESULTS.md`, `research/moj/results/sealed/report.json` and `research/moj/sealed/freeze.json` are copies from the branch `research/system1-judge`, kept so that published numbers have a source in the repository. The harness code and its recordings are not copied.
-* The package API it runs on: `createEscalation` in `@agent-nexus/driftbench-judges`, an opt-in judge client that asks other judges only when the first one reports a chosen uncertainty signal. It never reads labels or fixture sides, so it is a procedure a real run can use.
 
-No CLI command runs MoJ on main. `judge run`, `judge calibrate`, `replay` and `estate run` do not route through an escalation client.
+No CLI command runs MoJ routing on main. `judge run`, `judge calibrate`, `replay` and `estate run` do not route through an escalation client; `judge calibrate --cascade` measures a cheap-first cascade but is not a deployed router.
 
 ## When to use it
 
