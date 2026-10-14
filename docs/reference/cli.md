@@ -1330,6 +1330,7 @@ Reference: the F run of the same spec, 5 of 5 blocks pass; collateral counts aga
   5                                closing       ✓
 ✓ Recovery: immediate, 0 blocks to come back (the spec allows 1 block), collateral 0, safe action yes, asked first yes.
 Recovery record (runner): {"injectedAt":2,"turnsToRecover":0,"label":"immediate","collateral":0,"safeAction":true,"clarified":true}
+Reply checks: 3 of 4 applied, 1 not applicable (tied to another stage).
 (exit 0)
 ```
 
