@@ -88,3 +88,67 @@ def test_committed_manifest_matches_its_sizes():
     splits = manifest['splits']
     assert splits['practice']['n'] == 120 and splits['confirm']['n'] == 544
     assert not set(splits['practice']['ids']) & set(splits['confirm']['ids'])
+
+
+# ---------------------------------------------------------------- the frozen judge (driftbench-v5)
+
+def v5_call(quote, solves, matches, compare='{"pass": true, "reason": "r"}'):
+    seen = []
+
+    def call(system, user):
+        seen.append((system, user))
+        if system == contestants.QUOTE_SYSTEM:
+            return quote
+        if system.startswith('Solve the problem yourself'):
+            return solves.pop(0)
+        if system.startswith('You compare final answers'):
+            return matches.pop(0)
+        return compare
+    return call, seen
+
+
+NO_MARKER = {**ITEM, 'response': 'I sorted them: b, a, c.'}
+
+
+def test_quote_must_be_in_the_response():
+    call, _ = v5_call('b, a, c', [], [])
+    assert contestants.quoted_answer(NO_MARKER, call) == ('b, a, c', 'quoted')
+    call, _ = v5_call('a, b, c', [], [])  # a rewrite into the right answer is refused
+    assert contestants.quoted_answer(NO_MARKER, call) == (NO_MARKER['response'][-1200:], 'tail')
+
+
+def test_marked_answer_is_copied_without_a_model_call():
+    call, seen = v5_call('unused', [], [])
+    assert contestants.quoted_answer({**ITEM, 'response': 'so the answer is (E).\n'}, call) == ('(E).', 'literal')
+    assert seen == []
+
+
+def test_code_settles_options_and_numbers():
+    assert contestants.plain_same('(C) Patrick', '(A) Karl') is False
+    assert contestants.plain_same('7 animals', '6') is False
+    assert contestants.plain_same('\\boxed{1,495}', '1495') is True
+    assert contestants.plain_same('D. The economic system', 'D') is True
+    assert contestants.plain_same('A function', 'B') is None
+
+
+def test_v5_passes_only_when_every_solution_matches():
+    v5 = contestants.CONTESTANTS['driftbench-v5']
+    item = {**ITEM, 'response': 'The answer is 42'}
+    call, _ = v5_call('', ['Final answer: 42'] * 3, [])
+    assert v5(item, call)['why'] == 'every solution matches'
+    # Two of three agree with the submission: not enough to accept, the full comparison decides.
+    call, seen = v5_call('', ['Final answer: 42', 'Final answer: 42', 'Final answer: 41'], [], '{"pass": false}')
+    out = v5(item, call)
+    assert out['pass'] is False and out['why'] == 'no majority: full comparison'
+    assert seen[-1][0].startswith('You decide whether the final answer')
+
+
+def test_v5_rejects_when_a_majority_agrees_on_another_answer():
+    v5 = contestants.CONTESTANTS['driftbench-v5']
+    call, _ = v5_call('', ['Final answer: 41', 'Final answer: 41', 'Final answer: 42'], [])
+    out = v5({**ITEM, 'response': 'The answer is 42'}, call)
+    assert out['pass'] is False and out['why'] == 'a majority of solutions agree on a different answer'
+
+
+def test_verdict_json_survives_braces_in_prose():
+    assert contestants.read_pass('stack `{`, `{` open. {"pass": false, "reason": "x { y"}') is False

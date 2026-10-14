@@ -25,7 +25,7 @@ os.environ.setdefault('DEEPEVAL_UPDATE_WARNING_OPT_IN', 'NO')
 from contestants import CONTESTANTS  # noqa: E402
 from transport import Journal, Stop, TransportFailure, now, probe_gate, request_key  # noqa: E402
 
-SPLITS = ('practice', 'confirm')
+SPLITS = ('practice', 'confirm', 'dev')
 
 
 def items_for(split):
