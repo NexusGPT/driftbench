@@ -90,7 +90,26 @@ export function registerRadiusAuto(radius: Command, io: Io, setExit: (code: numb
           return;
         }
         const mapPath = resolve(io.cwd, options.map);
-        const map = Proposal.parse(parseYaml(await readFile(mapPath, 'utf8')));
+        let rawMap: unknown;
+        try {
+          rawMap = parseYaml(await readFile(mapPath, 'utf8'));
+        } catch (cause) {
+          io.err(
+            `Cannot read map ${options.map}: ${cause instanceof Error ? cause.message : String(cause)}\n`,
+          );
+          setExit(2);
+          return;
+        }
+        const parsedMap = Proposal.safeParse(rawMap);
+        if (!parsedMap.success) {
+          io.err(`Invalid map ${options.map}:\n`);
+          for (const issue of parsedMap.error.issues) {
+            io.err(`    ${issue.path.join('.') || '(root)'}: ${issue.message}\n`);
+          }
+          setExit(2);
+          return;
+        }
+        const map = parsedMap.data;
         const oldPath = resolve(io.cwd, oldFile);
         const before = await readFile(oldPath, 'utf8');
         const after = await readFile(resolve(io.cwd, newFile), 'utf8');

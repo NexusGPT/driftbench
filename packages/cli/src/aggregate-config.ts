@@ -2,7 +2,7 @@ import { existsSync } from 'node:fs';
 import { readFile } from 'node:fs/promises';
 import { resolve } from 'node:path';
 import { type AggregateCriterion, aggregateFromFlag } from '@agent-nexus/driftbench-report';
-import { isMap, isScalar, isSeq, parseDocument } from 'yaml';
+import { isMap, isNode, isScalar, isSeq, parseDocument } from 'yaml';
 
 /**
  * The project config file: `driftbench.yaml` at the root, or --config. It declares campaign-level criteria
@@ -28,6 +28,8 @@ export async function readScaleConfig(path: string): Promise<ScaleLoad> {
   }
   const root = doc.contents;
   if (root === null || root === undefined || !isMap(root)) return { ok: true, scales: {} };
+  const keyError = configKeyError(root, text, path);
+  if (keyError) return { ok: false, message: keyError };
   const block = root.get('scales');
   if (block === undefined || block === null) return { ok: true, scales: {} };
   if (!isMap(block))
@@ -51,10 +53,23 @@ export async function readScaleConfig(path: string): Promise<ScaleLoad> {
   return { ok: true, scales };
 }
 
-const KEYS = new Set(['aggregates', 'scales', 'campaign', 'plugins']);
+const KEYS = new Set(['aggregates', 'scales', 'campaign', 'plugins', 'prices']);
 
 function lineOf(text: string, offset: number): number {
   return text.slice(0, offset).split('\n').length;
+}
+
+/** The shared top-level allowlist and diagnostic for independently loaded project sections. */
+export function configKeyError(root: unknown, text: string, path: string): string | undefined {
+  if (!isMap(root)) return undefined;
+  for (const pair of root.items) {
+    const key = isScalar(pair.key) ? String(pair.key.value) : '';
+    if (!KEYS.has(key)) {
+      const at = isNode(pair.key) ? (pair.key.range?.[0] ?? 0) : 0;
+      return `${path}:${lineOf(text, at)}: unknown key ${key}; the config defines ${[...KEYS].sort().join(', ')} only`;
+    }
+  }
+  return undefined;
 }
 
 /** Reads the aggregate specs of a config file. A missing file is an error here; the caller decides. */
@@ -72,16 +87,8 @@ export async function readAggregateConfig(path: string): Promise<ConfigLoad> {
   if (root === null || root === undefined) return { ok: true, specs: [] };
   if (!isMap(root))
     return { ok: false, message: `${path}:1: the config must be a map with an aggregates list` };
-  for (const pair of root.items) {
-    const key = isScalar(pair.key) ? String(pair.key.value) : '';
-    if (!KEYS.has(key)) {
-      const at = pair.key && 'range' in pair.key && pair.key.range ? pair.key.range[0] : 0;
-      return {
-        ok: false,
-        message: `${path}:${lineOf(text, at)}: unknown key ${key}; the config defines ${[...KEYS].sort().join(', ')} only`,
-      };
-    }
-  }
+  const keyError = configKeyError(root, text, path);
+  if (keyError) return { ok: false, message: keyError };
   const list = root.get('aggregates');
   if (list === undefined || list === null) return { ok: true, specs: [] };
   if (!isSeq(list)) {
@@ -163,6 +170,3 @@ export async function criteriaFromConfig(
 }
 
 export const DEFAULT_CONFIG = 'driftbench.yaml';
-
-// Extend the shared allowlist without replacing other independently loaded project sections.
-KEYS.add('prices');
