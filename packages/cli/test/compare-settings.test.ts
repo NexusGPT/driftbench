@@ -213,19 +213,40 @@ describe('driftbench compare: pairwise settings reach the judge', () => {
     expect(orphan.err).toContain('need --pairwise-config reader-first');
   }, 60_000);
 
-  it('row 15: --pairwise-preference needs the ledger contract and a build that has the preference', async () => {
-    const result = await pairwise(
+  it('row 15: --pairwise-preference long-structured applies after the ledger, and needs the ledger contract', async () => {
+    const preferred = await pairwise(
       '--pairwise-contract',
       'ledger',
       '--pairwise-preference',
       'long-structured',
     );
-    expect(result.code).toBe(2);
-    expect(result.requests).toHaveLength(0);
-    expect(result.err).toMatch(
-      /this build of driftbench has no declared pair preference yet|add --pairwise-contract ledger|--pairwise-preference takes/,
+    expect(preferred.err).toBe('');
+    expect(preferred.out).toContain('Pairwise (ledger, long-structured)');
+    for (const request of preferred.requests) expect(request.answerContract).toBe('ledger');
+    // The candidate replies are one sentence longer and neither side is structured: the preference names the
+    // longer reply wherever the ledger read is not decided by a hard row.
+    const tally = async (...flags: string[]) =>
+      (
+        JSON.parse((await pairwise(...flags, '--json')).out) as {
+          pairwise: { candidate: number; pairs: number };
+        }
+      ).pairwise;
+    const withPreference = await tally(
+      '--pairwise-contract',
+      'ledger',
+      '--pairwise-preference',
+      'long-structured',
     );
-  });
+    const ledgerOnly = await tally('--pairwise-contract', 'ledger');
+    expect(withPreference.candidate).toBeGreaterThan(ledgerOnly.candidate);
+    const alone = await pairwise('--pairwise-preference', 'long-structured');
+    expect(alone.code).toBe(2);
+    expect(alone.err).toContain('add --pairwise-contract ledger');
+    expect(alone.requests).toHaveLength(0);
+    const unknown = await pairwise('--pairwise-contract', 'ledger', '--pairwise-preference', 'shortest');
+    expect(unknown.code).toBe(2);
+    expect(unknown.err).toContain('--pairwise-preference takes long-structured, not "shortest".');
+  }, 60_000);
 
   it('refuses contradictory pairwise flags before any call', async () => {
     for (const [flags, message] of [

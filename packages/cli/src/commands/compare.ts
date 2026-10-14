@@ -1,7 +1,6 @@
 import { readFile } from 'node:fs/promises';
 import { resolve } from 'node:path';
 import type { RunMode, RunResult, Stimulus, Store } from '@agent-nexus/driftbench-core';
-import * as judges from '@agent-nexus/driftbench-judges';
 import {
   createAnthropicJudge,
   createGoogleJudge,
@@ -9,6 +8,8 @@ import {
   createReaderFirstJudge,
   type JudgeClient,
   judgePairwise,
+  PAIR_PREFERENCES,
+  type PairPreference,
   type PairwiseOptions,
   type RubricItem,
   readPairwiseCriterion,
@@ -230,14 +231,8 @@ type PairwiseSettings = {
   itemsFile?: string;
   audit: boolean;
   readerFirst?: { judgeMargin?: number; featureMargin?: number; minFailures?: number };
-  preference?: string;
+  preference?: PairPreference;
 };
-
-/** The long-structured preference ships with PR 378; until it is on main this build refuses the flag. */
-export function pairPreferences(): readonly string[] {
-  const known = (judges as Record<string, unknown>).PAIR_PREFERENCES;
-  return Array.isArray(known) ? (known as string[]) : [];
-}
 
 /** The pairwise flags as settings; undefined after printing why one is wrong. */
 function parsePairwiseSettings(options: CompareCommandOptions, io: Io): PairwiseSettings | undefined {
@@ -287,12 +282,9 @@ function parsePairwiseSettings(options: CompareCommandOptions, io: Io): Pairwise
     }
   }
   if (options.pairwisePreference !== undefined) {
-    const known = pairPreferences();
-    if (!known.includes(options.pairwisePreference))
+    if (!(PAIR_PREFERENCES as readonly string[]).includes(options.pairwisePreference))
       return fail(
-        known.length === 0
-          ? `--pairwise-preference ${options.pairwisePreference}: this build of driftbench has no declared pair preference yet (it ships with the long-structured setting).`
-          : `--pairwise-preference takes ${known.join(', ')}, not "${options.pairwisePreference}".`,
+        `--pairwise-preference takes ${PAIR_PREFERENCES.join(', ')}, not "${options.pairwisePreference}".`,
       );
     if (contract !== 'ledger')
       return fail('--pairwise-preference applies after the ledger verdict: add --pairwise-contract ledger.');
@@ -303,7 +295,9 @@ function parsePairwiseSettings(options: CompareCommandOptions, io: Io): Pairwise
     ...(options.pairwiseItems === undefined ? {} : { itemsFile: options.pairwiseItems }),
     audit: options.pairwiseAudit !== false,
     ...(readerFirst === undefined ? {} : { readerFirst }),
-    ...(options.pairwisePreference === undefined ? {} : { preference: options.pairwisePreference }),
+    ...(options.pairwisePreference === undefined
+      ? {}
+      : { preference: options.pairwisePreference as PairPreference }),
   };
 }
 
@@ -392,9 +386,7 @@ async function runPairwise(
     ...(settings.audit ? {} : { audit: false }),
     ...(settings.contract === 'ledger' ? { answerContract: 'ledger' as const } : {}),
     ...(settings.presentation === 'canonical' ? { presentation: 'canonical' as const } : {}),
-    ...(settings.preference === undefined
-      ? {}
-      : ({ preference: settings.preference } as Record<string, unknown>)),
+    ...(settings.preference === undefined ? {} : { preference: settings.preference }),
   };
   const judgeOne = async (pair: (typeof pairs)[number]): Promise<PairwiseCall> => {
     const transcript = pair.stimulus === '' ? [] : [{ role: 'user' as const, text: pair.stimulus }];

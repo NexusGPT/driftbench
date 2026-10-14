@@ -1371,7 +1371,7 @@ The pairwise call takes these settings. Each is checked before any call; a contr
 | `--pairwise-items <file>` | a YAML list of rubric items, each `{ name, rubric, weight, hard }`, scored for both replies. See [itemized rubrics](../concepts/judges.md#itemized-rubrics) |
 | `--no-pairwise-audit` | with `--pairwise-reference`: no fact audit of the reference and no ledger recovery of an order split |
 | `--pairwise-config reader-first` | the reader-first configuration: prefer the longer complete reply unless the judge finds supported failures in it. `--judge-margin` (default 4), `--feature-margin` (default 5) and `--min-failures` (default 1) set its thresholds. It replaces the other pairwise settings. See [reader-first](../concepts/judges.md#reader-first-configuration-length-aware-opt-in) |
-| `--pairwise-preference long-structured` | a declared preference for the longer structured reply, applied after the ledger verdict; needs `--pairwise-contract ledger`. A build without the long-structured setting refuses the flag and says so |
+| `--pairwise-preference long-structured` | a declared preference for the longer structured reply, applied after the ledger verdict; needs `--pairwise-contract ledger`. See [judges](../concepts/judges.md#declared-preference-long-structured-opt-in) |
 
 With a setting, the printed line names it, such as `Pairwise (ledger): ...`, and counts the order splits and position bias only where both orders were judged by the winner contract.
 
