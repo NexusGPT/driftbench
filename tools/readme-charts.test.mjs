@@ -1,9 +1,10 @@
 import { spawnSync } from 'node:child_process';
-import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs';
+import { mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { afterEach, describe, expect, it } from 'vitest';
+import { summarySvg } from './readme-summary.mjs';
 
 const script = fileURLToPath(new URL('./readme-charts.mjs', import.meta.url));
 const roots = [];
@@ -58,14 +59,14 @@ const fixture = {
 
 describe('readme charts, competitors', () => {
   it('draws only driftbench and promptfoo when no competitor file exists', () => {
-    const c = chart('bench-judgebench');
+    const c = chart('bench-judgebench-models');
     for (const panel of c.panels)
       expect(Object.keys(scores(panel)).sort()).toEqual(['driftbench', 'promptfoo']);
     expect(c.note).toContain('recorded result on this benchmark in this repository: promptfoo.');
   });
 
   it('draws every contestant of a competitor file, with names for the known tools', () => {
-    const c = chart('bench-judgebench', { judgebench: fixture });
+    const c = chart('bench-judgebench-models', { judgebench: fixture });
     const haiku = scores(panelOf(c, 'Claude Haiku 5.5'));
     expect(haiku['fixture-tool']).toBe(71);
     expect(haiku.DeepEval).toBe(60);
@@ -73,14 +74,14 @@ describe('readme charts, competitors', () => {
   });
 
   it('keeps the recorded driftbench and promptfoo cells, not the file copies', () => {
-    const c = chart('bench-judgebench', { judgebench: fixture });
+    const c = chart('bench-judgebench-models', { judgebench: fixture });
     const haiku = scores(panelOf(c, 'Claude Haiku 5.5'));
-    expect(haiku.driftbench).toBe(88.89);
-    expect(haiku.promptfoo).toBe(82.96);
+    expect(haiku.driftbench).toBeCloseTo(88.889, 2);
+    expect(haiku.promptfoo).toBeCloseTo(82.963, 2);
   });
 
   it('draws a contestant that refused some items with its score and the refusal count', () => {
-    const c = chart('bench-judgebench', { judgebench: fixture });
+    const c = chart('bench-judgebench-models', { judgebench: fixture });
     const bar = panelOf(c, 'Claude Haiku 5.5').bars.find((b) => b.name === 'LangWatch');
     expect(bar.score).toBe(20);
     expect(bar.refused).toBe(12);
@@ -88,7 +89,7 @@ describe('readme charts, competitors', () => {
   });
 
   it('draws a contestant with no result, and a contestant on another model, as not run', () => {
-    const c = chart('bench-judgebench', { judgebench: fixture });
+    const c = chart('bench-judgebench-models', { judgebench: fixture });
     expect(scores(panelOf(c, 'Claude Haiku 5.5')).Inspect).toBeNull();
     expect(scores(panelOf(c, 'GPT-6 Luna'))['fixture-tool']).toBeNull();
     expect(scores(panelOf(c, 'Gemini 3.5 Flash-Lite')).DeepEval).toBeNull();
@@ -103,8 +104,130 @@ describe('readme charts, competitors', () => {
         { contestant: 'fixture-tool', transportMissing: 0, primary: { score: 0.5 }, all: { score: 0.9 } },
       ],
     };
-    const c = chart('bench-mm-eval', { mmeval: file });
+    const c = chart('bench-mm-eval-models', { mmeval: file });
     expect(scores(panelOf(c, 'Claude Haiku 5.5'))['fixture-tool']).toBe(50);
+  });
+});
+
+describe('readme charts, best case per benchmark', () => {
+  const cell = (score, n = 100) => ({ score, n });
+  const best = {
+    bench: 'verify',
+    model: 'claude-haiku-5-5',
+    unit: 'item',
+    contestants: [
+      { contestant: 'driftbench', transportMissing: 0, all: cell(0.7) },
+      { contestant: 'promptfoo', transportMissing: 0, all: cell(0.6) },
+      { contestant: 'deepeval', transportMissing: 3, all: cell(0.8) },
+      { contestant: 'inspect', transportMissing: 0, all: cell(0.5) },
+    ],
+  };
+  const writing = {
+    bench: 'writing',
+    model: 'claude-haiku-5-5',
+    unit: 'game',
+    contestants: [
+      { contestant: 'driftbench', transportMissing: 0, all: cell(0.6127, 346) },
+      { contestant: 'driftbench-reader-first', transportMissing: 0, all: cell(0.6763, 346) },
+      { contestant: 'promptfoo', transportMissing: 0, all: cell(0.5694, 346) },
+    ],
+  };
+
+  it('is one panel on one model, sorted high to low, with no baseline bar', () => {
+    const c = chart('bench-verify', { verify: best });
+    expect(c.panels).toHaveLength(1);
+    expect(c.panels[0].name).toBe('Claude Haiku 5.5');
+    expect(c.panels[0].bars.map((b) => b.name)).toEqual(['DeepEval', 'driftbench', 'promptfoo', 'Inspect']);
+    expect(c.panels[0].bars.some((b) => b.baseline)).toBe(false);
+  });
+
+  it("labels refusals, and keeps the title to driftbench's own score", () => {
+    const c = chart('bench-verify', { verify: best });
+    expect(c.title).toBe('Verify: driftbench scores 70.0.');
+    expect(c.panels[0].bars[0].refused).toBe(3);
+  });
+
+  it('draws the reader-first setting as plain "driftbench" with a footnote', () => {
+    const c = chart('bench-writing', { writing });
+    const bars = scores(c.panels[0]);
+    expect(bars.driftbench).toBeCloseTo(67.63, 2);
+    expect(Object.keys(bars)).not.toContain('driftbench-reader-first');
+    expect(c.title).not.toContain('reader-first');
+    expect(c.key.map((k) => k.label)).toContain('driftbench');
+    expect(c.key.some((k) => k.label.includes('reader-first'))).toBe(false);
+    expect(c.note).toContain('default 61.3');
+  });
+});
+
+describe('readme summary chart', () => {
+  const row = (score) => ({
+    id: 'x',
+    name: 'X',
+    unit: 'items',
+    n: 10,
+    definition: 'd',
+    cells: ['driftbench', 'promptfoo', 'DeepEval', 'Inspect', 'Langfuse', 'LangWatch'].map((name, i) => ({
+      name,
+      score: i === 0 ? score : 60 + i,
+    })),
+  });
+  const args = (rows) => ({ rows, title: 'T', model: 'M', sources: 'S', notes: ['a'] });
+
+  it('draws every score as a label, ranked, with no tally words', () => {
+    const svg = summarySvg(false, args([row(90)]));
+    expect((svg.match(/class="score"/g) ?? []).length).toBe(6);
+    expect(svg).not.toMatch(/wins|losses|ties|Holm/);
+  });
+
+  it('refuses a score that falls inside the axis break', () => {
+    expect(() => summarySvg(false, args([row(40)]))).toThrow(/axis break/);
+  });
+
+  it('takes its numbers from the benchmark charts, in the committed alt text', () => {
+    const run = spawnSync('node', [script, '--print', 'summary'], { encoding: 'utf8' });
+    expect(run.status, run.stderr).toBe(0);
+    const c = JSON.parse(run.stdout);
+    expect(c.alt).toContain('JudgeBench, 270 pairs: driftbench 88.9');
+    expect(c.svg.light).toContain('88.9');
+  });
+});
+
+describe('readme charts, rows measured with an opt-in setting', () => {
+  it('labels retention by the paired test and shows its exact p value', () => {
+    const c = chart('hard-deepeval');
+    const source = JSON.parse(
+      readFileSync(new URL('../comparisons/deepeval/lead/fresh-scores.json', import.meta.url), 'utf8'),
+    );
+    const retention = source.find((r) => r.row === 'knowledge retention');
+    const group = c.groups.find((r) => r.label.replaceAll('|', '') === 'Knowledge retention');
+    const verdict =
+      retention.paired_p_holm > 0.05 || retention.ours === retention.theirs
+        ? 'level'
+        : retention.ours > retention.theirs
+          ? 'ahead'
+          : 'behind';
+    expect(group.sub).toBe(`of ${retention.n}; ${verdict}`);
+    expect(c.note).toContain(`Retention exact p = ${retention.paired_p.toPrecision(3)}`);
+    if (retention.excluded_missing) {
+      expect(c.note).toContain(
+        `Knowledge retention: ${retention.excluded_missing} incomplete pairs excluded`,
+      );
+    }
+    expect(c.note).toContain('Holm p <= 0.05');
+  });
+
+  it('draw the bar as plain driftbench, with a footnote that names the setting', () => {
+    const c = chart('hard-deepeval');
+    const marked = c.groups.filter((g) => g.label.endsWith(' *'));
+    expect(marked.length).toBeGreaterThan(0);
+    expect(c.key[0]).toBe('driftbench');
+    expect(c.note).toContain('* opt-in setting response-relevance');
+  });
+
+  it('stay out of the shipped-judge leads chart', () => {
+    const c = chart('judge-leads');
+    const labels = c.groups.flatMap((g) => g.rows.map((r) => r.label));
+    expect(labels).not.toContain('G-Eval, strict');
   });
 });
 
@@ -165,11 +288,11 @@ function defaultFixtures() {
 
 describe('readme charts, frozen default results', () => {
   it.each([
-    ['bench-judgebench', 30, 40, '10 pairs'],
-    ['bench-mm-eval', 45, 35, '20 pairs'],
-    ['bench-rubricbench', 50, 60, '30 pairs'],
-    ['bench-verify', 80, 70, '10 items'],
-    ['bench-writing', 75, 65, '40 pairs'],
+    ['bench-judgebench-models', 30, 40, '10 pairs'],
+    ['bench-mm-eval-models', 45, 35, '20 pairs'],
+    ['bench-rubricbench-models', 50, 60, '30 pairs'],
+    ['bench-verify-models', 80, 70, '10 items'],
+    ['bench-writing-models', 75, 65, '40 pairs'],
   ])('reads %s from the frozen Haiku default, without mixing older defaults', (name, ours, peer, size) => {
     const c = chart(name, undefined, defaultFixtures());
     const haiku = panelOf(c, 'Claude Haiku 5.5');
@@ -192,7 +315,7 @@ describe('readme charts, frozen default results', () => {
   });
 
   it('keeps recorded competitor scores separate from the new default score', () => {
-    const c = chart('bench-judgebench', { judgebench: fixture }, defaultFixtures());
+    const c = chart('bench-judgebench-models', { judgebench: fixture }, defaultFixtures());
     const haiku = scores(panelOf(c, 'Claude Haiku 5.5'));
     expect(haiku.driftbench).toBe(30);
     expect(haiku.promptfoo).toBe(40);
@@ -203,7 +326,7 @@ describe('readme charts, frozen default results', () => {
   it.each(Object.keys(defaultFixtures()))('rejects a partial default result set missing %s', (missing) => {
     const files = defaultFixtures();
     delete files[missing];
-    const run = chartRun('bench-judgebench', undefined, files);
+    const run = chartRun('bench-judgebench-models', undefined, files);
     expect(run.status).not.toBe(0);
     expect(run.stderr).toContain(`incomplete default result set: missing ${missing}`);
   });
@@ -211,8 +334,89 @@ describe('readme charts, frozen default results', () => {
   it.each(['policy', 'model'])('rejects an unexpected frozen %s', (field) => {
     const files = defaultFixtures();
     files['verify.json'].metadata = { ...files['verify.json'].metadata, [field]: 'unexpected' };
-    const run = chartRun('bench-judgebench', undefined, files);
+    const run = chartRun('bench-judgebench-models', undefined, files);
     expect(run.status).not.toBe(0);
     expect(run.stderr).toContain('expected default-on-v6 on claude-haiku-5-5');
+  });
+});
+
+// One all-competitors file per benchmark on Claude Haiku 5.5. The promptfoo cell matches the default
+// fixtures, as the real report requires; the recorded driftbench rows are older defaults.
+function peersOnHaiku() {
+  const cell = (score, n) => ({ score, n });
+  const file = (bench, cohort, promptfoo, n, extra = []) => ({
+    bench,
+    model: 'claude-haiku-5-5',
+    contestants: [
+      { contestant: 'driftbench', transportMissing: 0, [cohort]: cell(0.99, n) },
+      ...extra,
+      { contestant: 'promptfoo', transportMissing: 0, [cohort]: cell(promptfoo, n) },
+      { contestant: 'deepeval', transportMissing: 0, [cohort]: cell(0.21, n) },
+      { contestant: 'inspect', transportMissing: 0, [cohort]: cell(0.22, n) },
+      { contestant: 'langfuse', transportMissing: 0, [cohort]: cell(0.23, n) },
+      { contestant: 'langwatch', transportMissing: 0, [cohort]: cell(0.24, n) },
+    ],
+  });
+  return {
+    judgebench: file('judgebench', 'all', 0.4, 10),
+    mmeval: file('mmeval', 'primary', 0.35, 20),
+    rubricbench: file('rubricbench', 'all', 0.6, 60),
+    verify: file('verify', 'all', 0.7, 10),
+    writing: file('writing', 'all', 0.65, 80, [
+      { contestant: 'driftbench-reader-first', transportMissing: 0, all: cell(0.98, 80) },
+    ]),
+  };
+}
+
+describe('readme charts, best case on the frozen default', () => {
+  it.each([
+    ['bench-judgebench', 30],
+    ['bench-mm-eval', 45],
+    ['bench-rubricbench', 50],
+    ['bench-verify', 80],
+    ['bench-writing', 75],
+  ])('draws %s with the frozen default score, never the recorded driftbench row', (name, ours) => {
+    const c = chart(name, peersOnHaiku(), defaultFixtures());
+    const s = scores(c.panels[0]);
+    expect(s.driftbench).toBeCloseTo(ours, 6);
+    expect(s.DeepEval).toBeCloseTo(21, 6);
+    expect(c.note).toContain('default-on-v6');
+    expect(c.note).toContain('unverified historical (lane report)');
+    expect(c.note).not.toContain('reader-first');
+  });
+
+  it('refuses a default result whose promptfoo score differs from the competitor file', () => {
+    const peers = peersOnHaiku();
+    peers.verify.contestants.find((x) => x.contestant === 'promptfoo').all.score = 0.5;
+    const run = chartRun('bench-verify', peers, defaultFixtures());
+    expect(run.status).not.toBe(0);
+    expect(run.stderr).toContain('populations differ');
+  });
+
+  it('refuses a competitor file run on another model', () => {
+    const peers = peersOnHaiku();
+    peers.verify.model = 'gpt-6-luna';
+    const run = chartRun('bench-verify', peers, defaultFixtures());
+    expect(run.status).not.toBe(0);
+    expect(run.stderr).toContain('the frozen default ran on claude-haiku-5-5');
+  });
+
+  it('names the frozen default in the summary, without the reader-first footnote', () => {
+    // The summary chart breaks its axis from 30 to 50, so every fixture score sits outside it.
+    const files = defaultFixtures();
+    files['judgebench.json'].cells[0].ledger.correct = 6;
+    files['judgebench.json'].cells[0].promptfoo.correct = 7;
+    files['mm-eval.json'].models.haiku.primary.scores = { ledger: 0.55, promptfoo: 0.65 };
+    files['rubricbench-haiku.json'].cells[0].stats.ours.estimate = 0.56;
+    const peers = peersOnHaiku();
+    const promptfoo = (bench) => peers[bench].contestants.find((x) => x.contestant === 'promptfoo');
+    promptfoo('judgebench').all.score = 0.7;
+    promptfoo('mmeval').primary.score = 0.65;
+    const run = chartRun('summary', peers, files);
+    expect(run.status, run.stderr).toBe(0);
+    const c = JSON.parse(run.stdout);
+    expect(c.alt).toContain('default-on-v6');
+    expect(c.alt).not.toContain('Reader-first');
+    expect(c.alt).toContain('driftbench 75.0');
   });
 });

@@ -1,0 +1,61 @@
+{
+  "split": "ljb-test",
+  "driftbench": {
+    "contestant": "driftbench-v5",
+    "correct": 168,
+    "n": 221,
+    "missing": 0
+  },
+  "peers": [
+    {
+      "peer": "promptfoo",
+      "correct": 167,
+      "wins": 12,
+      "losses": 11,
+      "p": 1.0,
+      "missing": 1,
+      "holm": 1.0,
+      "verdict": "tie"
+    },
+    {
+      "peer": "deepeval",
+      "correct": 130,
+      "wins": 45,
+      "losses": 7,
+      "p": 6.973810151578164e-8,
+      "missing": 30,
+      "holm": 3.486905075789082e-7,
+      "verdict": "win"
+    },
+    {
+      "peer": "inspect",
+      "correct": 162,
+      "wins": 15,
+      "losses": 9,
+      "p": 0.30745625495910645,
+      "missing": 0,
+      "holm": 1.0,
+      "verdict": "tie"
+    },
+    {
+      "peer": "langfuse",
+      "correct": 166,
+      "wins": 13,
+      "losses": 11,
+      "p": 0.8388197422027588,
+      "missing": 0,
+      "holm": 1.0,
+      "verdict": "tie"
+    },
+    {
+      "peer": "langwatch",
+      "correct": 162,
+      "wins": 16,
+      "losses": 10,
+      "p": 0.32693958282470703,
+      "missing": 0,
+      "holm": 1.0,
+      "verdict": "tie"
+    }
+  ]
+}

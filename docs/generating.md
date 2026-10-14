@@ -286,7 +286,7 @@ That is the last line of `pnpm -s driftbench space coverage examples/acme/gated/
 | `graph` | one spec per approved path: the stage graph walked along the paths, so every edge a path takes is covered by a conversation the agent can have |
 | `twise` | a covering array at strength `--t` (default 3) over the axes; each row walks an approved path of a flow its behaviour belongs to |
 | `boundary` | one spec per value of every detail data dimension, on a path that needs it; a tool output value becomes the tool's answer, a tool input value an expected or a forbidden call |
-| `deviation` | one probe per deviation class, injected at a stage of a path whose flow has a recovery for the class; a class a first message can carry may arrive on the first turn, and a class whose recovery stays may arrive after the last stage |
+| `deviation` | one probe per deviation class, injected at a stage of a path whose flow has a recovery for the class; a class a first message can carry may arrive on the first turn, and a class whose recovery stays may arrive after the last stage. After the `cover` seeder, a class probed by fewer than a third as many blocks as the most probed class gets more probes (`gen-deviation-balance-NNN`), until it reaches that third or no approved path can carry it |
 | `metamorphic` | families of specs that differ only in the phrasing of one value, with the same Then by construction |
 | `task` | the instances of every family a `task_family` relation names (`--tasks <n>` per relation, default 8), each with its corner and planted variants; see [task families](#task-families) |
 | `cover` | runs last: one scenario for each allowed pair no complete spec of the other seeders covers, its values fixed and its deviation a probe at its stage; a pair it cannot build is listed in `generate-report.json` under `cover.unbuilt` with the reasons |
@@ -310,7 +310,7 @@ A complete generated block reads observed state, not only words. Code derives ea
 
 A `states` relation names a `subject` (`dimension` and `value`), the departing `stage`, optional destination `to`, optional `when`, and `must`, `must_not`, or both. Each supplied list contains at least one regular expression. Both lists reuse the quoted-price relation's `{slot}` syntax: an approved `binds` relation supplies the value, which is escaped as literal regex text. Missing bindings make the scenario incomplete, with the reason in the report. Relations without approval do not contribute assertions. Existing `must`-only maps remain valid.
 
-Generated tool expectations set `input_closed: true` when their explicit `input` names every property of the tool's input schema. Partial map assertions keep allowing other arguments. List every permitted top-level input key to close a generated call. Existing saved specs do not gain these optional assertions automatically.
+Generated tool expectations set `input_closed: true` when their explicit `input` names every property of the tool's input schema. A turn where the user asks directly for one run of a tool, to send a value or to report a returned value, expects one call. With a value of one argument, the call carries that value and, for every other argument whose schema gives a `default`, that default; the input is closed when that names every property. Partial map assertions keep allowing other arguments. List every permitted top-level input key to close a generated call. Existing saved specs do not gain these optional assertions automatically.
 
 Two blocks of `gen-graph-001`, the path `upgrade-order`. The email in the When and the expected input come from the same `binds` relation; the order's inputs come from the path's `uses_tool` relation:
 
@@ -446,6 +446,16 @@ exit 1
 The files match the committed `examples/acme/generated`, apart from the relative path of the map, which follows the output folder. Exit 1 is the exit for a suite written with incomplete specs: 332 specs are complete, 75 are incomplete. Complete specs cover all 708 allowed pairs. The price-sheet flow has no conversation path: its specs come from the map's `task_family` relation, so B-013, B-014 and `sales-operations` hold allowed pairs through the [task families](#task-families). `--baseline <specs>` measures other specs on the same map for comparison; `--max <n>` caps the specs per seeder.
 
 `generate-report.json` holds the generator and map identity, the options, the summary (specs, blocks, complete, incomplete), one entry per seeder, the stage graph, the covering array, the boundary values, the deviation probes, the metamorphic families, the constraints applied, the values with no phrase (`no_phrase`), the blocks with no machine Then and why (`no_then`), the coverage, and any invalid spec or lint finding. `generate` exits 0 when every block has an approved phrase and a Then, 1 when the suite is written with incomplete specs, a seeder cut by `--max` or a generator defect, 2 on a usage or input error (nothing written).
+
+## Streaming generation to disk
+
+The package API `generateSuiteToDisk(prepared, { mapPath, outputDir, seed, t })` writes each spec as it is rendered. It returns `reportPath`, `summary` and `fileCount`; read the full report from `reportPath`. It writes the same spec files as `generateSuite` with the same options, and a report with the same fields and diagnostics in compact JSON.
+
+The output directory must be new or empty. The API keeps the input map, its projected coverage grid and one spec or task-family input at a time. It writes output-sized diagnostics and effective-sample-size placements to temporary files and removes them at the end, so the heap does not grow with the number of specs. On the generator validator's map of seed 1 with a hundred times its behaviours (33343 specs), it finishes under a 96 MB heap cap; `generateSuite` runs out of a 96 MB heap at ten times the behaviours (3470 specs).
+
+This API rejects `budget`, `specCap`, `specCapMode` and maps with `numeric_settings` before writing any file. It never falls back to eager generation. A per-seeder `max` keeps its meaning. The CLI and `generateSuite` stay eager: they keep the whole candidate suite, so a small total cap or budget does not make a large map memory-safe.
+
+A failed disk generation removes its temporary files but can leave already-written specs without a final report. Retry in a fresh output directory. It never overwrites an existing suite.
 
 ## Total spec cap
 

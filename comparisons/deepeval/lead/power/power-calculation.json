@@ -1,0 +1,17 @@
+{
+  "pilot_n": 480,
+  "pilot_discordance": [
+    3,
+    0
+  ],
+  "alpha": 0.05,
+  "test": "two-sided exact McNemar",
+  "target_power": 0.8,
+  "minimum_n": 1264,
+  "previous_n_power": 0.7996999479353668,
+  "minimum_n_power": 0.8002946742284498,
+  "balanced_n": 1272,
+  "balanced_power": 0.8050032781212039,
+  "estimated_usd": 3.71,
+  "assumption": "iid pairs; plug-in favorable discordance 3/480; reverse discordance zero"
+}
