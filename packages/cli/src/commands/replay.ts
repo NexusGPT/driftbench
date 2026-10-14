@@ -209,7 +209,11 @@ export async function replayCommand(
   try {
     const createdAt = deps.now().toISOString();
     const specs = uniqueBy(
-      aligned.alignments.map(({ spec }) => ({ id: spec.spec.id, hash: spec.hash })),
+      aligned.alignments.map(({ spec, entry }) => ({
+        id: spec.spec.id,
+        hash: spec.hash,
+        target: targetOf(entry),
+      })),
       (spec) => `${spec.id} ${spec.hash}`,
     );
     const targets = uniqueBy(

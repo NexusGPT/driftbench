@@ -102,7 +102,7 @@ export function beginPluginRun(): () => void {
 function refuseDuplicate(kind: string, name: string, owner: string, earlier: string | undefined): void {
   if (earlier !== undefined) {
     throw new PluginRefusal(
-      `The plugin ${owner} registers the ${kind} ${name}, which the plugin ${earlier} already registered. A plugin never replaces a ${kind}: give it another name.`,
+      `The plugin ${owner} registers the ${kind} ${name}, which the plugin ${earlier} already registered. A plugin never replaces ${kind === 'adapter' ? 'an' : 'a'} ${kind}: give it another name.`,
     );
   }
 }

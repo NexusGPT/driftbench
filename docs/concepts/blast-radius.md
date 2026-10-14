@@ -315,6 +315,11 @@ target coverage, incomplete run or block fields, and unknown seeds also force a 
 its runs. Legacy observations cannot establish compatibility for criterion re-judging; run a new full
 campaign first. These stamps preserve execution evidence; they do not themselves authorize reuse.
 
+A new baseline may mix P cells with F and T cells: the perturbing driver records the base driver's
+known seeds and any pack draw seed. Eligible F and T cells can still carry. P cells themselves run
+fresh because their injected block inputs cannot yet be reconstructed for carry. Older baselines
+whose P drivers recorded unknown seeds still need a new full run.
+
 A complete baseline is necessary but insufficient: the planner also needs the actual current run's
 execution stamp (`CarryLimits.currentProvenance`). It compares every stamp field by default, including
 new fields. Changed driver identity or seeds, adapter identity or configuration, target configuration,
