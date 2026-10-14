@@ -1576,18 +1576,19 @@ export function noAdapter(
   context: RefusalContext = {},
 ): string {
   const whose = specIds.length === 0 ? '' : `, the target of ${specIds.join(', ')}`;
-  const added = pluginAdapterNames();
-  const plugins = added.length === 0 ? '' : ` Plugins add the adapters ${added.join(', ')}.`;
-  const hint = pluginAdapterNames().includes(target.adapter) ? undefined : builtinTargetHint(target);
-  const needs = hint === undefined ? '' : ` ${hint}`;
   const installed = context.exampleInstalled ?? acmeExampleInstalled();
   const reaches = context.pilot
     ? installed
       ? 'The pilot reaches function:acme (the Acme sales assistant) and function:acme-random or function:acme-random-<seed> (its seeded random control).'
       : `${ACME_EXAMPLE_ABSENT} The pilot runs on the example's agents only, so this install has no pilot target.`
     : knownTargets(installed);
+  const added = pluginAdapterNames();
+  const plugins = added.length === 0 ? '' : ` Plugins add the adapters ${added.join(', ')}.`;
+  const hint = context.pilot || added.includes(target.adapter) ? undefined : builtinTargetHint(target);
+  const needs = hint === undefined ? '' : ` ${hint}`;
   const suffix = context.unspent ? ': nothing ran, no query was spent.' : '.';
-  return `No adapter is set up for ${context.reference ? 'the reference ' : ''}${showTarget(target)}${whose}${suffix}${needs} ${reaches} ${BUILTIN_TARGETS_NOTE}${plugins}`;
+  const extra = context.pilot ? '' : ` ${BUILTIN_TARGETS_NOTE}${plugins}`;
+  return `No adapter is set up for ${context.reference ? 'the reference ' : ''}${showTarget(target)}${whose}${suffix}${needs} ${reaches}${extra}`;
 }
 
 /** The target of the first route whose tag the spec carries, if any. */

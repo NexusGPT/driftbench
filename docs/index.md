@@ -50,6 +50,7 @@ Every page says what exists today and what is not built yet, with the phase that
 * [Change manifest reference](reference/change.md): every field of a change manifest for `driftbench radius`.
 * [Estate files reference](reference/estate-files.md): every field of an estate map, an estate plan, a phrase bank and a session index.
 * [CLI](reference/cli.md): every `driftbench` command, its options, its output and its exit codes.
+* [Public API](reference/api.md): what a package's public API is, the frozen list of its names, and how a name is added or removed.
 * [Checks](reference/checks.md): every field of `expect`, the check that reads it, and its verdict ids.
 
 ## Adapters
