@@ -20,7 +20,7 @@ type Summary = {
   calls?: number;
   results: Result[];
 };
-const procedures = ['default', 'split', 'split-conv', 'rendered', 'audit'];
+const procedures = ['default', 'split', 'split-conv', 'split-r2', 'rendered', 'audit'];
 const load = (row: string, name: string): Summary | undefined => {
   const path = `${here}${dir}/${row}-${name}.json`;
   return existsSync(path) ? (JSON.parse(readFileSync(path, 'utf8')) as Summary) : undefined;
@@ -34,7 +34,7 @@ const names: Record<string, string> = {
   borderline: 'Panel, borderline',
 };
 lines.push(
-  'Model on every side: claude-haiku-5-5 through `claude -p`, same flags. An unscored or incomplete case counts as wrong.',
+  'Model on every side: claude-haiku-5-5, through `claude -p` with the flags of the judges package or through the Messages API with the same texts (each recorded call names its transport). An unscored or incomplete case counts as wrong.',
   '',
   '| Row | Procedure | Judge commit | Correct | 95% interval | Unscored | Calls | USD per 100 cases |',
   '|---|---|---|---|---|---|---|---|',

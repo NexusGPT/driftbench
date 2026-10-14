@@ -1,6 +1,6 @@
-# Fresh held-out set, 480 cases per row: split-record default judge against Inspect
+# Shipped judge against Inspect, this lane
 
-Model on every side: claude-haiku-5-5 through `claude -p`, same flags. An unscored or incomplete case counts as wrong.
+Model on every side: claude-haiku-5-5, through `claude -p` with the flags of the judges package or through the Messages API with the same texts (each recorded call names its transport). An unscored or incomplete case counts as wrong.
 
 | Row | Procedure | Judge commit | Correct | 95% interval | Unscored | Calls | USD per 100 cases |
 |---|---|---|---|---|---|---|---|
