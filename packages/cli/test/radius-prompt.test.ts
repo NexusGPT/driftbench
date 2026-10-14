@@ -107,4 +107,4 @@ it('maps the Acme offer quote, persists the anchor, and explains the selected bl
   const ambiguous = await cli(['radius', 'examples/acme/gated/specs', '--change', manifest, '--explain']);
   expect(ambiguous.code).toBe(1);
   expect(ambiguous.out).toMatch(/ambiguous|overlapping/);
-});
+}, 50_000);

@@ -1,0 +1,356 @@
+{
+  "split": "confirm",
+  "questionOverlap": {
+    "rule": "stem before the first (A) option line, lowercased, letters and digits only",
+    "confirmPairsAlsoInDev": [
+      {
+        "confirm": "mmlu-pro:6619",
+        "confirmPair": "0d8b1f5f-a81a-56d0-b873-a365a68b8c01",
+        "dev": ["mmlu-pro:6618"],
+        "devPairs": ["494c8b5c-dcb4-5641-a1d6-4a1e399ef79f"]
+      }
+    ],
+    "duplicateQuestionsWithinConfirm": [
+      [
+        {
+          "qid": "mmlu-pro:352",
+          "pair": "08c0aeae-54d0-58d7-85e9-ee2f94bbd29c"
+        },
+        {
+          "qid": "mmlu-pro:556",
+          "pair": "7b90c586-bf85-5b3e-bfee-a218408c53a3"
+        }
+      ],
+      [
+        {
+          "qid": "mmlu-pro:6634",
+          "pair": "78925ba1-fb02-5c63-bc65-6ada9f33be5e"
+        },
+        {
+          "qid": "mmlu-pro:6635",
+          "pair": "f9d7fa5e-dbd0-5714-ba11-d447eba56b14"
+        }
+      ],
+      [
+        {
+          "qid": "mmlu-pro:11895",
+          "pair": "c2c6d211-00d4-5dc5-9dec-0b8642352e95"
+        },
+        {
+          "qid": "mmlu-pro:4207",
+          "pair": "9753670b-9be5-5720-a467-921ffe811a84"
+        }
+      ],
+      [
+        {
+          "qid": "mmlu-pro:6673",
+          "pair": "1e8e4aad-c99c-56d5-ae46-7cdd2813c291"
+        },
+        {
+          "qid": "mmlu-pro:6672",
+          "pair": "254b0d9b-af47-5bd6-b0f9-6e7f98d13be1"
+        }
+      ],
+      [
+        {
+          "qid": "mmlu-pro:1396",
+          "pair": "59129a80-e907-5075-8577-a9eb19e4021f"
+        },
+        {
+          "qid": "mmlu-pro:1397",
+          "pair": "fa15a849-7fec-5ec8-80e7-aa1136e7f2a0"
+        }
+      ]
+    ]
+  },
+  "transport": {
+    "pairs": {
+      "driftbench": {
+        "cli": 828,
+        "api": 226,
+        "mixed": 7
+      },
+      "promptfoo": {
+        "cli": 616,
+        "api": 438,
+        "mixed": 7
+      },
+      "deepeval": {
+        "cli": 514,
+        "mixed": 5,
+        "api": 541
+      },
+      "inspect": {
+        "cli": 508,
+        "mixed": 6,
+        "api": 546
+      },
+      "langfuse": {
+        "cli": 529,
+        "mixed": 3,
+        "api": 529
+      },
+      "langwatch": {
+        "cli": 520,
+        "mixed": 5,
+        "api": 535
+      }
+    },
+    "itemCalls": {
+      "driftbench": {
+        "cli": 1665,
+        "api": 463
+      },
+      "promptfoo": {
+        "cli": 1239,
+        "api": 883
+      },
+      "deepeval": {
+        "cli": 1033,
+        "api": 1087
+      },
+      "inspect": {
+        "cli": 1022,
+        "api": 1098
+      },
+      "langfuse": {
+        "cli": 1061,
+        "api": 1061
+      },
+      "langwatch": {
+        "cli": 1045,
+        "api": 1075
+      }
+    }
+  },
+  "rows": {
+    "all": [
+      {
+        "tool": "promptfoo",
+        "pairs": 1061,
+        "driftbenchCorrect": 890,
+        "correct": 821,
+        "wins": 108,
+        "losses": 39,
+        "exactTwoSidedP": 1.1047851223224085e-8,
+        "holmP": 2.209570244644817e-8,
+        "verdict": "win"
+      },
+      {
+        "tool": "deepeval",
+        "pairs": 1061,
+        "driftbenchCorrect": 890,
+        "correct": 838,
+        "wins": 90,
+        "losses": 38,
+        "exactTwoSidedP": 4.922847559437514e-6,
+        "holmP": 4.922847559437514e-6,
+        "verdict": "win"
+      },
+      {
+        "tool": "inspect",
+        "pairs": 1061,
+        "driftbenchCorrect": 890,
+        "correct": 774,
+        "wins": 151,
+        "losses": 35,
+        "exactTwoSidedP": 2.2717737089011182e-18,
+        "holmP": 9.087094835604473e-18,
+        "verdict": "win"
+      },
+      {
+        "tool": "langfuse",
+        "pairs": 1061,
+        "driftbenchCorrect": 890,
+        "correct": 744,
+        "wins": 178,
+        "losses": 32,
+        "exactTwoSidedP": 9.530026403347768e-26,
+        "holmP": 4.765013201673884e-25,
+        "verdict": "win"
+      },
+      {
+        "tool": "langwatch",
+        "pairs": 1061,
+        "driftbenchCorrect": 890,
+        "correct": 818,
+        "wins": 113,
+        "losses": 41,
+        "exactTwoSidedP": 5.607104085256949e-9,
+        "holmP": 1.682131225577085e-8,
+        "verdict": "win"
+      }
+    ],
+    "withoutDevOverlap": [
+      {
+        "tool": "promptfoo",
+        "pairs": 1060,
+        "driftbenchCorrect": 890,
+        "correct": 820,
+        "wins": 108,
+        "losses": 38,
+        "exactTwoSidedP": 5.782859615561111e-9,
+        "holmP": 1.1565719231122221e-8,
+        "verdict": "win"
+      },
+      {
+        "tool": "deepeval",
+        "pairs": 1060,
+        "driftbenchCorrect": 890,
+        "correct": 838,
+        "wins": 90,
+        "losses": 38,
+        "exactTwoSidedP": 4.922847559437514e-6,
+        "holmP": 4.922847559437514e-6,
+        "verdict": "win"
+      },
+      {
+        "tool": "inspect",
+        "pairs": 1060,
+        "driftbenchCorrect": 890,
+        "correct": 774,
+        "wins": 151,
+        "losses": 35,
+        "exactTwoSidedP": 2.2717737089011182e-18,
+        "holmP": 9.087094835604473e-18,
+        "verdict": "win"
+      },
+      {
+        "tool": "langfuse",
+        "pairs": 1060,
+        "driftbenchCorrect": 890,
+        "correct": 744,
+        "wins": 178,
+        "losses": 32,
+        "exactTwoSidedP": 9.530026403347768e-26,
+        "holmP": 4.765013201673884e-25,
+        "verdict": "win"
+      },
+      {
+        "tool": "langwatch",
+        "pairs": 1060,
+        "driftbenchCorrect": 890,
+        "correct": 817,
+        "wins": 113,
+        "losses": 40,
+        "exactTwoSidedP": 2.946817226157902e-9,
+        "holmP": 8.840451678473705e-9,
+        "verdict": "win"
+      }
+    ],
+    "withoutDevOverlapOneQuestionEach": [
+      {
+        "tool": "promptfoo",
+        "pairs": 1055,
+        "driftbenchCorrect": 887,
+        "correct": 818,
+        "wins": 107,
+        "losses": 38,
+        "exactTwoSidedP": 8.595663351161877e-9,
+        "holmP": 1.7191326702323754e-8,
+        "verdict": "win"
+      },
+      {
+        "tool": "deepeval",
+        "pairs": 1055,
+        "driftbenchCorrect": 887,
+        "correct": 836,
+        "wins": 89,
+        "losses": 38,
+        "exactTwoSidedP": 6.973664632067768e-6,
+        "holmP": 6.973664632067768e-6,
+        "verdict": "win"
+      },
+      {
+        "tool": "inspect",
+        "pairs": 1055,
+        "driftbenchCorrect": 887,
+        "correct": 772,
+        "wins": 150,
+        "losses": 35,
+        "exactTwoSidedP": 3.695697583110017e-18,
+        "holmP": 1.4782790332440068e-17,
+        "verdict": "win"
+      },
+      {
+        "tool": "langfuse",
+        "pairs": 1055,
+        "driftbenchCorrect": 887,
+        "correct": 740,
+        "wins": 177,
+        "losses": 30,
+        "exactTwoSidedP": 1.456700602983364e-26,
+        "holmP": 7.283503014916821e-26,
+        "verdict": "win"
+      },
+      {
+        "tool": "langwatch",
+        "pairs": 1055,
+        "driftbenchCorrect": 887,
+        "correct": 814,
+        "wins": 112,
+        "losses": 39,
+        "exactTwoSidedP": 2.271450283600249e-9,
+        "holmP": 6.814350850800747e-9,
+        "verdict": "win"
+      }
+    ],
+    "sameTransport": [
+      {
+        "tool": "promptfoo",
+        "pairs": 830,
+        "driftbenchCorrect": 701,
+        "correct": 638,
+        "wins": 91,
+        "losses": 28,
+        "exactTwoSidedP": 5.8019739897429865e-9,
+        "holmP": 1.740592196922896e-8,
+        "verdict": "win"
+      },
+      {
+        "tool": "deepeval",
+        "pairs": 727,
+        "driftbenchCorrect": 616,
+        "correct": 579,
+        "wins": 62,
+        "losses": 25,
+        "exactTwoSidedP": 9.060798596521848e-5,
+        "holmP": 9.060798596521848e-5,
+        "verdict": "win"
+      },
+      {
+        "tool": "inspect",
+        "pairs": 721,
+        "driftbenchCorrect": 611,
+        "correct": 537,
+        "wins": 99,
+        "losses": 25,
+        "exactTwoSidedP": 1.297755995567177e-11,
+        "holmP": 5.191023982268708e-11,
+        "verdict": "win"
+      },
+      {
+        "tool": "langfuse",
+        "pairs": 743,
+        "driftbenchCorrect": 631,
+        "correct": 516,
+        "wins": 135,
+        "losses": 20,
+        "exactTwoSidedP": 3.750158445130065e-22,
+        "holmP": 1.8750792225650322e-21,
+        "verdict": "win"
+      },
+      {
+        "tool": "langwatch",
+        "pairs": 733,
+        "driftbenchCorrect": 623,
+        "correct": 566,
+        "wins": 81,
+        "losses": 24,
+        "exactTwoSidedP": 2.0779877274240746e-8,
+        "holmP": 4.155975454848149e-8,
+        "verdict": "win"
+      }
+    ]
+  }
+}

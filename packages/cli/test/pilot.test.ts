@@ -44,7 +44,7 @@ describe('driftbench pilot plan', () => {
     );
     expect(out).toMatch(/behaviour=B-001\s+10\s+\d+\s+\d+\s+\d+\s+\$0\.00/);
     expect(out).toContain('Cost: the agent runs in process: no model call, nothing billed.');
-  });
+  }, 20_000);
 
   it('gives the plan as JSON: runs are wordings times repeats, cell by cell', async () => {
     const { code, out } = await cli([

@@ -143,6 +143,7 @@ Bounds, so a runaway agent cannot exhaust the run:
 
 * Standard output and standard error are each cut at 10 MiB, and the record says so.
 * A command is killed after its timeout, 10 minutes by default, with everything it started. Its exit code is then 124. A command killed by a signal exits with 128 plus the signal number.
+* A child that left the command's process group (it started its own session) is found by its working folder after the command ends. Linux reads this from `/proc` at once. macOS has no `/proc`: the sweep runs `ps` and `lsof` after the exit, so on a heavily loaded host a child that wakes within about half a second of the exit may run before it is ended.
 * A file read returns at most 100 MiB.
 * A snapshot stops past 20,000 files, 32 folder levels or 1 GiB hashed. It never enters `node_modules` or `.git`.
 

@@ -3,7 +3,7 @@ import { mkdtemp, realpath, rm } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { afterEach, beforeEach, expect, it, vi } from 'vitest';
-import { candidatePids, PROCESS_SCAN_TIMEOUT_MS, scanWorkingFolders } from '../src/process-scan';
+import { candidatePids, orphanPids, PROCESS_SCAN_TIMEOUT_MS, scanWorkingFolders } from '../src/process-scan';
 import { runProcess } from '../src/run';
 
 const scan = vi.hoisted(() => vi.fn());
@@ -37,7 +37,7 @@ const run = (args = ['-c', 'printf done'], timeoutMs = 5000) =>
 it('bounds a slow lsof and records that the cwd sweep was skipped', async () => {
   const actual = await vi.importActual<typeof import('node:child_process')>('node:child_process');
   scan.mockImplementation((file, args, options) => {
-    if (file === 'ps') return { status: 0, stdout: '101 00:00\n' };
+    if (file === 'ps') return { status: 0, stdout: '101 1 00:00\n' };
     if (file !== 'lsof') return actual.spawnSync(file, args, options);
     // A real subprocess uses the production timeout options. Without a bound it lasts 1.8 seconds.
     return actual.spawnSync(process.execPath, ['-e', 'setTimeout(() => {}, 1800)'], options);
@@ -53,7 +53,7 @@ it('bounds a slow lsof and records that the cwd sweep was skipped', async () => 
 it('asks lsof only about processes born since the sandbox folder, including reparented processes', async () => {
   scan.mockImplementation((file) =>
     file === 'ps'
-      ? { status: 0, stdout: '101 00:00\n102 00:04\n103 01:00\n104 1-02:00:00\n' }
+      ? { status: 0, stdout: '101 1 00:00\n102 101 00:04\n103 1 01:00\n104 1 1-02:00:00\n' }
       : { status: 0, stdout: '' },
   );
   await run();
@@ -65,14 +65,14 @@ it('asks lsof only about processes born since the sandbox folder, including repa
 });
 
 it('does not call lsof when there are no candidates', () => {
-  scan.mockReturnValue({ status: 0, stdout: '101 1-02:00:00\n' });
+  scan.mockReturnValue({ status: 0, stdout: '101 1 1-02:00:00\n' });
   expect(scanWorkingFolders(candidatePids(root))).toEqual({ folders: [] });
   expect(scan).toHaveBeenCalledTimes(1);
 });
 
 it.each([
   { status: null, error: Object.assign(new Error('timed out'), { code: 'ETIMEDOUT' }), stdout: '' },
-  { status: 0, stdout: '101 unknown-age\n' },
+  { status: 0, stdout: '101 1 unknown-age\n' },
 ])('falls back to bounded host-wide lsof when ps cannot produce safe candidates: %j', async (ps) => {
   scan.mockImplementation((file) => (file === 'ps' ? ps : { status: 0, stdout: '' }));
   await run();
@@ -103,7 +103,7 @@ it('preserves readable lsof entries on exit 1 but discards partial output after 
 it('bounds both cwd sweeps when the command times out and then exits', async () => {
   scan.mockImplementation((file) =>
     file === 'ps'
-      ? { status: 0, stdout: '101 00:00\n' }
+      ? { status: 0, stdout: '101 1 00:00\n' }
       : { status: null, error: Object.assign(new Error('timed out'), { code: 'ETIMEDOUT' }), stdout: '' },
   );
   const record = await run(['-c', 'sleep 30'], 100);
@@ -115,4 +115,17 @@ it('bounds both cwd sweeps when the command times out and then exits', async () 
   for (const [, , options] of calls) {
     expect(options).toMatchObject({ timeout: PROCESS_SCAN_TIMEOUT_MS, killSignal: 'SIGKILL' });
   }
+});
+
+it('asks first about the young processes the system adopted and their young descendants', () => {
+  expect(
+    orphanPids([
+      { pid: 101, ppid: 1 },
+      { pid: 102, ppid: 101 },
+      { pid: 103, ppid: 102 },
+      { pid: 104, ppid: 900 },
+      { pid: 105, ppid: 104 },
+    ]).sort(),
+  ).toEqual([101, 102, 103]);
+  expect(orphanPids([])).toEqual([]);
 });

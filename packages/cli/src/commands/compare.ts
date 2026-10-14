@@ -5,8 +5,13 @@ import {
   createAnthropicJudge,
   createGoogleJudge,
   createOpenAiJudge,
+  createReaderFirstJudge,
   type JudgeClient,
   judgePairwise,
+  PAIR_PREFERENCES,
+  type PairPreference,
+  type PairwiseOptions,
+  type RubricItem,
   readPairwiseCriterion,
 } from '@agent-nexus/driftbench-judges';
 import {
@@ -17,6 +22,7 @@ import {
   compareText,
   loadCampaign,
   MIN_GOLDENS,
+  type PairwiseCall,
   ReportInputError,
   replyPairs,
 } from '@agent-nexus/driftbench-report';
@@ -26,6 +32,7 @@ import type { Io } from '../io';
 import { optionNumber } from '../number';
 import { pluginPairwiseJudge } from '../plugins';
 import { noStoreAt } from '../store-path';
+import { rankCommand } from './compare-rank';
 
 /** What compare and report open stores with. Tests pass their own. */
 export type ReportDeps = {
@@ -50,8 +57,9 @@ export const defaultReportDeps: ReportDeps = {
 };
 
 type CompareCommandOptions = {
-  baseline: string;
-  candidate: string;
+  baseline?: string;
+  candidate?: string;
+  rank?: string[];
   store: string;
   margin: string;
   mode?: string;
@@ -62,6 +70,15 @@ type CompareCommandOptions = {
   pairwise?: string;
   pairwiseJudge?: string;
   pairwiseReference?: string;
+  pairwiseContract?: string;
+  pairwisePresentation?: string;
+  pairwiseItems?: string;
+  pairwiseAudit?: boolean;
+  pairwiseConfig?: string;
+  pairwisePreference?: string;
+  judgeMargin?: string;
+  featureMargin?: string;
+  minFailures?: string;
 };
 
 /** Registers `driftbench compare`. */
@@ -76,8 +93,12 @@ export function registerCompareCommand(
     .description(
       'Compare a candidate campaign with a baseline on the goldens both ran. Exit 0 non-inferior, 1 regressed or not shown non-inferior, 2 on bad input.',
     )
-    .requiredOption('--baseline <campaign>', 'the baseline campaign id')
-    .requiredOption('--candidate <campaign>', 'the candidate campaign id')
+    .option('--baseline <campaign>', 'the baseline campaign id; required unless --rank')
+    .option('--candidate <campaign>', 'the candidate campaign id; required unless --rank')
+    .option(
+      '--rank <campaigns...>',
+      'rank three or more campaigns instead: wins per shared run, the Bradley-Terry order and every three-campaign cycle',
+    )
     .requiredOption('--store <file>', 'the store that holds both campaigns')
     .option(
       '--margin <points|auto>',
@@ -106,6 +127,33 @@ export function registerCompareCommand(
       '--pairwise-reference <file>',
       'judge which reply matches this reference answer better, instead of which reply is better; the file holds the text',
     )
+    .option(
+      '--pairwise-contract <contract>',
+      'winner: the judge names the better reply (default); ledger: the judge scores each requirement for both replies and code decides',
+    )
+    .option(
+      '--pairwise-presentation <order>',
+      'both-orders: judge each pair in both orders (default); canonical: one order fixed by content, position bias not measured',
+    )
+    .option(
+      '--pairwise-items <file>',
+      'a YAML list of rubric items ({ name, rubric, weight, hard }) the judge scores for both replies',
+    )
+    .option('--no-pairwise-audit', 'without the reference fact audit and its ledger recovery')
+    .option(
+      '--pairwise-config <config>',
+      'reader-first: prefer the longer complete reply unless the judge finds supported failures in it',
+    )
+    .option(
+      '--judge-margin <n>',
+      'reader-first: the score advantage the shorter reply needs, 0 to 20; default 4',
+    )
+    .option('--feature-margin <n>', 'reader-first: the machine risk-flag gap; default 5')
+    .option('--min-failures <n>', 'reader-first: the supported failures the longer reply needs; default 1')
+    .option(
+      '--pairwise-preference <preference>',
+      'long-structured: a declared preference for the longer structured reply, applied after the ledger verdict; needs --pairwise-contract ledger',
+    )
     .action(async (options: CompareCommandOptions) => {
       setExit(await compareCommand(options, io, deps));
     });
@@ -117,6 +165,19 @@ export async function compareCommand(
   io: Io,
   deps: ReportDeps,
 ): Promise<number> {
+  if (options.rank !== undefined) {
+    if (options.baseline !== undefined || options.candidate !== undefined || options.pairwise !== undefined) {
+      io.err('--rank compares campaigns on its own: drop --baseline, --candidate and --pairwise.\n');
+      return 2;
+    }
+    return rankCommand({ ...options, rank: options.rank }, io, deps);
+  }
+  if (options.baseline === undefined || options.candidate === undefined) {
+    io.err('compare needs --baseline <campaign> and --candidate <campaign>, or --rank <campaigns...>.\n');
+    return 2;
+  }
+  const pairwiseSettings = parsePairwiseSettings(options, io);
+  if (pairwiseSettings === undefined) return 2;
   const gate = parseGate(options, io);
   const q = parseRate(options.q, '--q', io);
   const modes = options.mode === undefined ? undefined : parseModes(options.mode, io);
@@ -144,7 +205,7 @@ export async function compareCommand(
     }
     let pairwise: PairwiseLine | undefined;
     if (options.pairwise !== undefined) {
-      pairwise = await runPairwise(options, baseline, candidate, deps, io);
+      pairwise = await runPairwise(options, pairwiseSettings, baseline, candidate, deps, io);
       if (pairwise === undefined) return 2;
     }
     if (options.json) {
@@ -161,7 +222,120 @@ export async function compareCommand(
   }
 }
 
-type PairwiseLine = { line: string; json: Record<string, number> };
+type PairwiseLine = { line: string; json: Record<string, number | string> };
+
+/** The pairwise settings the flags ask for, checked before any call. */
+type PairwiseSettings = {
+  contract: 'winner' | 'ledger';
+  presentation: 'both-orders' | 'canonical';
+  itemsFile?: string;
+  audit: boolean;
+  readerFirst?: { judgeMargin?: number; featureMargin?: number; minFailures?: number };
+  preference?: PairPreference;
+};
+
+/** The pairwise flags as settings; undefined after printing why one is wrong. */
+function parsePairwiseSettings(options: CompareCommandOptions, io: Io): PairwiseSettings | undefined {
+  const fail = (message: string) => {
+    io.err(`${message}\n`);
+    return undefined;
+  };
+  const contract = options.pairwiseContract ?? 'winner';
+  if (contract !== 'winner' && contract !== 'ledger')
+    return fail(`--pairwise-contract takes winner or ledger, not "${contract}".`);
+  const presentation = options.pairwisePresentation ?? 'both-orders';
+  if (presentation !== 'both-orders' && presentation !== 'canonical')
+    return fail(`--pairwise-presentation takes both-orders or canonical, not "${presentation}".`);
+  if (contract === 'ledger' && presentation === 'canonical')
+    return fail('--pairwise-contract ledger reads both orders: drop --pairwise-presentation canonical.');
+  const reader = [options.judgeMargin, options.featureMargin, options.minFailures].some(
+    (v) => v !== undefined,
+  );
+  if (options.pairwiseConfig !== undefined && options.pairwiseConfig !== 'reader-first')
+    return fail(`--pairwise-config takes reader-first, not "${options.pairwiseConfig}".`);
+  if (reader && options.pairwiseConfig !== 'reader-first')
+    return fail('--judge-margin, --feature-margin and --min-failures need --pairwise-config reader-first.');
+  let readerFirst: PairwiseSettings['readerFirst'];
+  if (options.pairwiseConfig === 'reader-first') {
+    const others = [
+      options.pairwiseContract,
+      options.pairwisePresentation,
+      options.pairwiseItems,
+      options.pairwiseReference,
+      options.pairwisePreference,
+    ];
+    if (others.some((v) => v !== undefined) || options.pairwiseAudit === false)
+      return fail(
+        '--pairwise-config reader-first is its own contract: drop --pairwise-contract, --pairwise-presentation, --pairwise-items, --pairwise-reference, --no-pairwise-audit and --pairwise-preference.',
+      );
+    readerFirst = {};
+    for (const [flag, key, text] of [
+      ['--judge-margin', 'judgeMargin', options.judgeMargin],
+      ['--feature-margin', 'featureMargin', options.featureMargin],
+      ['--min-failures', 'minFailures', options.minFailures],
+    ] as const) {
+      if (text === undefined) continue;
+      const value = optionNumber(text);
+      if (!Number.isFinite(value) || value <= 0)
+        return fail(`${flag} takes a positive number, not "${text}".`);
+      readerFirst[key] = value;
+    }
+  }
+  if (options.pairwisePreference !== undefined) {
+    if (!(PAIR_PREFERENCES as readonly string[]).includes(options.pairwisePreference))
+      return fail(
+        `--pairwise-preference takes ${PAIR_PREFERENCES.join(', ')}, not "${options.pairwisePreference}".`,
+      );
+    if (contract !== 'ledger')
+      return fail('--pairwise-preference applies after the ledger verdict: add --pairwise-contract ledger.');
+  }
+  return {
+    contract,
+    presentation,
+    ...(options.pairwiseItems === undefined ? {} : { itemsFile: options.pairwiseItems }),
+    audit: options.pairwiseAudit !== false,
+    ...(readerFirst === undefined ? {} : { readerFirst }),
+    ...(options.pairwisePreference === undefined
+      ? {}
+      : { preference: options.pairwisePreference as PairPreference }),
+  };
+}
+
+/** Reads rubric items from YAML: a list of { name, rubric, weight, hard }, or { items: [...] }. */
+async function readItems(path: string): Promise<RubricItem[]> {
+  const { parse } = await import('yaml');
+  const value = parse(await readFile(path, 'utf8')) as unknown;
+  const list = Array.isArray(value)
+    ? value
+    : value && typeof value === 'object' && Array.isArray((value as { items?: unknown }).items)
+      ? (value as { items: unknown[] }).items
+      : undefined;
+  if (!list || list.length === 0)
+    throw new Error(`${path} holds no rubric items: write a list of { name, rubric }`);
+  const names = new Set<string>();
+  return list.map((entry, index) => {
+    const item = entry as Partial<RubricItem>;
+    if (
+      typeof item?.name !== 'string' ||
+      !item.name.trim() ||
+      typeof item.rubric !== 'string' ||
+      !item.rubric.trim()
+    )
+      throw new Error(`${path}: item ${index + 1} needs a nonempty name and rubric`);
+    if (names.has(item.name)) throw new Error(`${path}: item ${item.name} appears twice`);
+    names.add(item.name);
+    if (item.weight !== undefined && !(typeof item.weight === 'number' && item.weight > 0))
+      throw new Error(`${path}: item ${item.name} needs a weight above 0`);
+    if (item.hard !== undefined && typeof item.hard !== 'boolean')
+      throw new Error(`${path}: item ${item.name} hard is true or false`);
+    return {
+      name: item.name,
+      rubric: item.rubric,
+      ...(item.weight === undefined ? {} : { weight: item.weight }),
+      ...(item.hard === undefined ? {} : { hard: item.hard }),
+    };
+  });
+}
 
 /** The stimulus a block sent, as the text the pairwise judge reads it against. Empty when it has none. */
 function stimulusText(when: Stimulus | undefined): string {
@@ -172,11 +346,12 @@ function stimulusText(when: Stimulus | undefined): string {
 }
 
 /**
- * Judges each reply pair of the two campaigns with the criterion, in both orders. A judge that gives no answer
- * fails the command with its reason; it is never counted as a tie.
+ * Judges each reply pair of the two campaigns with the criterion, in both orders unless canonical. A judge
+ * that gives no answer fails the command with its reason; it is never counted as a tie.
  */
 async function runPairwise(
   options: CompareCommandOptions,
+  settings: PairwiseSettings,
   baseline: CampaignData,
   candidate: CampaignData,
   deps: ReportDeps,
@@ -185,12 +360,17 @@ async function runPairwise(
   let criterion: Awaited<ReturnType<typeof readPairwiseCriterion>>;
   let judge: JudgeClient;
   let reference: string | undefined;
+  let items: RubricItem[] | undefined;
+  let readerFirst: ReturnType<typeof createReaderFirstJudge> | undefined;
   try {
     criterion = await readPairwiseCriterion(resolve(io.cwd, options.pairwise ?? ''));
     if (options.pairwiseReference !== undefined) {
       reference = (await readFile(resolve(io.cwd, options.pairwiseReference), 'utf8')).trim();
     }
+    if (settings.itemsFile !== undefined) items = await readItems(resolve(io.cwd, settings.itemsFile));
     judge = (deps.pairwiseClient ?? defaultPairwiseClient)(options.pairwiseJudge ?? 'openai');
+    if (settings.readerFirst !== undefined)
+      readerFirst = createReaderFirstJudge(judge, { configuration: 'reader-first', ...settings.readerFirst });
   } catch (cause) {
     io.err(`${cause instanceof Error ? cause.message : String(cause)}\n`);
     return undefined;
@@ -200,24 +380,61 @@ async function runPairwise(
     return stimulusText(loaded?.ok ? loaded.spec.blocks[index]?.when : undefined);
   };
   const pairs = replyPairs(baseline.runs, candidate.runs, stimulusOf);
+  const pairOptions: PairwiseOptions = {
+    ...(reference === undefined ? {} : { reference }),
+    ...(items === undefined ? {} : { rubricItems: items }),
+    ...(settings.audit ? {} : { audit: false }),
+    ...(settings.contract === 'ledger' ? { answerContract: 'ledger' as const } : {}),
+    ...(settings.presentation === 'canonical' ? { presentation: 'canonical' as const } : {}),
+    ...(settings.preference === undefined ? {} : { preference: settings.preference }),
+  };
+  const judgeOne = async (pair: (typeof pairs)[number]): Promise<PairwiseCall> => {
+    const transcript = pair.stimulus === '' ? [] : [{ role: 'user' as const, text: pair.stimulus }];
+    if (readerFirst !== undefined) {
+      const read = await readerFirst.judgePair(pair.stimulus || criterion.rubric, pair.first, pair.second);
+      return single(read.choice === 'A' ? 'first' : read.choice === 'B' ? 'second' : 'tie');
+    }
+    const verdict = await judgePairwise(judge, criterion, transcript, pair.first, pair.second, pairOptions);
+    if ('status' in verdict) {
+      if (verdict.status === 'unparsed') throw new Error('the pair ledger did not parse in either order');
+      return single(verdict.choice ?? 'tie');
+    }
+    if ('presentation' in verdict) return single(verdict.choice);
+    return verdict;
+  };
   try {
-    const report = await comparePairwise(pairs, (pair) =>
-      judgePairwise(
-        judge,
-        criterion,
-        pair.stimulus === '' ? [] : [{ role: 'user', text: pair.stimulus }],
-        pair.first,
-        pair.second,
-        reference === undefined ? {} : { reference },
-      ),
-    );
+    const report = await comparePairwise(pairs, judgeOne);
     const { tally } = report;
-    const line = `Pairwise: ${pairs.length} pairs, baseline ${tally.baseline}, candidate ${tally.candidate}, tie ${tally.tie}, inconsistent ${tally.inconsistent}, position bias ${tally.positionBias}.`;
-    return { line, json: { ...tally, pairs: pairs.length } };
+    const how =
+      readerFirst !== undefined
+        ? 'reader-first'
+        : [
+            settings.contract,
+            ...(settings.presentation === 'canonical' ? ['canonical'] : []),
+            ...(settings.itemsFile === undefined ? [] : ['items']),
+            ...(settings.audit ? [] : ['no audit']),
+            ...(settings.preference === undefined ? [] : [settings.preference]),
+          ].join(', ');
+    const measured =
+      readerFirst === undefined && settings.contract === 'winner' && settings.presentation === 'both-orders';
+    if (measured && settings.itemsFile === undefined && settings.audit) {
+      const line = `Pairwise: ${pairs.length} pairs, baseline ${tally.baseline}, candidate ${tally.candidate}, tie ${tally.tie}, inconsistent ${tally.inconsistent}, position bias ${tally.positionBias}.`;
+      return { line, json: { ...tally, pairs: pairs.length } };
+    }
+    const line = `Pairwise (${how}): ${pairs.length} pairs, baseline ${tally.baseline}, candidate ${tally.candidate}, tie ${tally.tie}${
+      measured ? `, inconsistent ${tally.inconsistent}, position bias ${tally.positionBias}` : ''
+    }.`;
+    return { line, json: { ...tally, pairs: pairs.length, how } };
   } catch (cause) {
     io.err(`pairwise judge gave no answer: ${cause instanceof Error ? cause.message : String(cause)}\n`);
     return undefined;
   }
+}
+
+/** A verdict decided in code from both orders, or read in one order: no order split or position bias to report. */
+function single(choice: 'first' | 'second' | 'tie'): PairwiseCall {
+  const outcome = choice === 'first' ? 'pass' : choice === 'second' ? 'fail' : 'inconclusive';
+  return { choice, ordered: outcome, swapped: outcome, consistent: true, positionBias: false };
 }
 
 /** The comparison with its maps and sets written as plain objects and lists. */
