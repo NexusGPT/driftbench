@@ -90,7 +90,7 @@ Each row of a per-tool page is measured head to head, measured against our own e
 
 ## Mixture of Judges
 
-* The README's line, at least as accurate with 3.5 to 20 times fewer costly calls: on the sealed sets MoJ scores 85.0, 94.9 and 65.2 against promptfoo's 84.0, 94.7 and 57.0, with ties on the first two after a Holm correction and a win on the third; promptfoo uses 200 reasoning calls per 100 pairs, MoJ 57, 21 and 10 (200 / 57 = 3.5, 200 / 10.3 = 19.4).
+* The README's line, at least as accurate with 3.5 to 19.4 times fewer costly calls: on the sealed sets MoJ scores 85.0, 94.9 and 65.2 against promptfoo's 84.0, 94.7 and 57.0, with ties on the first two after a Holm correction and a win on the third; promptfoo uses 200 reasoning calls per 100 pairs, MoJ 57, 21 and 10 (200 / 57 = 3.5, 200 / 10.3 = 19.4).
 
 * Design and results: [research/moj/RESULTS.md](../../research/moj/RESULTS.md), section "Sealed confirmation (run once)", with [report.json](../../research/moj/results/sealed/report.json); copies from `research/system1-judge` at `06fd0edb`, listed in [research/moj](../../research/moj/README.md). MoJ runs from that research harness; the package's opt-in escalation API (`createEscalation`) is on main.
 * The sealed ids were drawn before any call and the primary configuration (`r9-two-step`) was frozen before any sealed score existed. All contestants run GPT-6 Luna at medium effort. Sealed pairs: JudgeBench 100, MM-Eval 294, writing 300.
