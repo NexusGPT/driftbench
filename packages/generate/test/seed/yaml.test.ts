@@ -53,6 +53,40 @@ describe('generated YAML serialization', () => {
     }
   });
 
+  it('matches primitive and plain-text spellings without YAML node construction', () => {
+    for (const value of [
+      'null',
+      'Null',
+      'NULL',
+      'true',
+      'True',
+      'TRUE',
+      'false',
+      'False',
+      'FALSE',
+      'tRuE',
+      'NaN',
+      'Infinity',
+      'yes',
+      'no',
+      'hello world',
+      'a ',
+      ' a',
+      'a: b',
+      '---',
+      '.',
+      '_',
+      'a--.',
+      'a # comment',
+    ]) {
+      expect(stringifyGeneratedYaml({ value })).toBe(stringify({ value }, options));
+    }
+    for (let index = 0; index < 1000; index += 1) {
+      const value = Math.sin(index) * 10 ** ((index % 617) - 308);
+      expect(stringifyGeneratedYaml({ value })).toBe(stringify({ value }, options));
+    }
+  });
+
   it('retains library behavior for complex keys, shared objects, dates and long cache runs', () => {
     const shared = { a: 'one', b: 1 };
     for (const value of [

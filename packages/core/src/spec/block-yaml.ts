@@ -35,61 +35,6 @@ export function parseBlockYaml(text: string): { value: unknown } | undefined {
       at += 1;
     }
   };
-  const rawScalar = (source: string): unknown => {
-    if (source === '{}') return {};
-    if (source === '[]') return [];
-    if (source.startsWith('"')) {
-      const value: unknown = JSON.parse(source);
-      if (typeof value !== 'string') throw unsupported;
-      return value;
-    }
-    if (source.startsWith("'")) {
-      if (!/^'(?:[^']|'')*'$/.test(source)) throw unsupported;
-      return source.slice(1, -1).replaceAll("''", "'");
-    }
-    if (
-      source.length === 0 ||
-      source.trim() !== source ||
-      /^[!&*#{}[\],>|%@`]/.test(source) ||
-      /^[?:-](?: |$)/.test(source) ||
-      /:($| )| #/.test(source) ||
-      source === '---' ||
-      source === '...'
-    )
-      throw unsupported;
-    for (const tag of scalarTags) {
-      if (tag.test?.test(source)) {
-        const resolved = tag.resolve(
-          source,
-          () => {
-            throw unsupported;
-          },
-          {},
-        );
-        return isScalar(resolved) ? resolved.value : resolved;
-      }
-    }
-    return source;
-  };
-  const scalar = (source: string): unknown => {
-    const known = scalarValues.get(source);
-    if (known !== undefined) return known;
-    const result = rawScalar(source);
-    if (source.length <= 256 && (result === null || typeof result !== 'object')) {
-      if (scalarValues.size >= 4096) scalarValues.clear();
-      scalarValues.set(source, result);
-    }
-    return result;
-  };
-  const pair = (source: string): [string, string] => {
-    // Complex/quoted keys are uncommon and retain the full parser's handling.
-    const colon = source.indexOf(':');
-    const key = source.slice(0, colon);
-    if (colon < 1 || !plainKey.test(key) || (source[colon + 1] !== undefined && source[colon + 1] !== ' '))
-      throw unsupported;
-    if (typeof scalar(key) !== 'string') throw unsupported;
-    return [key, source.slice(source[colon + 1] === ' ' ? colon + 2 : colon + 1)];
-  };
   const literal = (source: string, indent: number): string => {
     if ((source !== '|-' && source !== '|') || !text.endsWith('\n')) throw unsupported;
     const content: string[] = [];
@@ -176,4 +121,60 @@ export function parseBlockYaml(text: string): { value: unknown } | undefined {
   } catch {
     return;
   }
+}
+
+function rawScalar(source: string): unknown {
+  if (source === '{}') return {};
+  if (source === '[]') return [];
+  if (source.startsWith('"')) {
+    const value: unknown = JSON.parse(source);
+    if (typeof value !== 'string') throw unsupported;
+    return value;
+  }
+  if (source.startsWith("'")) {
+    if (!/^'(?:[^']|'')*'$/.test(source)) throw unsupported;
+    return source.slice(1, -1).replaceAll("''", "'");
+  }
+  if (
+    source.length === 0 ||
+    source.trim() !== source ||
+    /^[!&*#{}[\],>|%@`]/.test(source) ||
+    /^[?:-](?: |$)/.test(source) ||
+    /:($| )| #/.test(source) ||
+    source === '---' ||
+    source === '...'
+  )
+    throw unsupported;
+  for (const tag of scalarTags) {
+    if (tag.test?.test(source)) {
+      const resolved = tag.resolve(
+        source,
+        () => {
+          throw unsupported;
+        },
+        {},
+      );
+      return isScalar(resolved) ? resolved.value : resolved;
+    }
+  }
+  return source;
+}
+function scalar(source: string): unknown {
+  const known = scalarValues.get(source);
+  if (known !== undefined) return known;
+  const result = rawScalar(source);
+  if (source.length <= 256 && (result === null || typeof result !== 'object')) {
+    if (scalarValues.size >= 4096) scalarValues.clear();
+    scalarValues.set(source, result);
+  }
+  return result;
+}
+function pair(source: string): [string, string] {
+  // Complex/quoted keys are uncommon and retain the full parser's handling.
+  const colon = source.indexOf(':');
+  const key = source.slice(0, colon);
+  if (colon < 1 || !plainKey.test(key) || (source[colon + 1] !== undefined && source[colon + 1] !== ' '))
+    throw unsupported;
+  if (typeof scalar(key) !== 'string') throw unsupported;
+  return [key, source.slice(source[colon + 1] === ' ' ? colon + 2 : colon + 1)];
 }

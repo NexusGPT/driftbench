@@ -1,14 +1,20 @@
-import { readdir, readFile, stat } from 'node:fs/promises';
+import { readFile as readFileCallback } from 'node:fs';
+import { readdir, stat } from 'node:fs/promises';
 import { dirname, extname, join, resolve } from 'node:path';
+import { promisify } from 'node:util';
 import { parse as parseYaml } from 'yaml';
 import type { z } from 'zod';
-import { Spec } from '../schema/spec';
+import type { Spec } from '../schema/spec';
 import { parseBlockYaml } from './block-yaml';
+import { parseSpecSchema } from './compiled-schema';
 import { contentHash } from './hash';
 import { error, type Issue } from './issues';
 import { lintSpec } from './lint';
 import { normalizeSpec } from './normalize';
 import { checkSemantics } from './semantics';
+
+// The callback reader avoids FileHandle wrapper overhead for the many small spec files.
+const readFile = promisify(readFileCallback);
 
 export type LoadResult =
   | { ok: true; path: string; spec: Spec; hash: string; warnings: Issue[] }
@@ -50,7 +56,7 @@ export function validateSpec(raw: unknown, path = '<inline>'): LoadResult {
 export function checkSpec(raw: unknown, path = '<inline>'): SpecValidationResult {
   const normalized = normalizeSpec(raw);
   const errors = normalized.issues.filter((issue) => issue.level === 'error');
-  const parsed = Spec.safeParse(normalized.value);
+  const parsed = parseSpecSchema(normalized.value);
 
   if (!parsed.success) {
     for (const zodIssue of parsed.error.issues) {

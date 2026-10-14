@@ -112,12 +112,17 @@ function writeSuite(
   ) as Record<Seeder, SeederTotals>;
   const drafted = Object.fromEntries(SEEDERS.map((seeder) => [seeder, 0])) as Record<Seeder, number>;
   let fileCount = 0;
+  let lastDirectory: string | undefined;
   const write = (path: string, text: string | Uint8Array): void => {
     const target = resolve(directory, path);
     const inside = relative(directory, target);
     if (inside === '..' || inside.startsWith(`..${sep}`) || resolve(target) === directory)
       throw new RangeError(`Generated path escapes outputDir: ${path}`);
-    mkdirSync(dirname(target), { recursive: true });
+    const parent = dirname(target);
+    if (parent !== lastDirectory) {
+      mkdirSync(parent, { recursive: true });
+      lastDirectory = parent;
+    }
     writeFileSync(target, text, { flag: 'wx' });
     fileCount += 1;
   };

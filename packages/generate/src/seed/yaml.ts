@@ -6,17 +6,25 @@ const scalarDocument = new Document({ v: scalarNode });
 
 const options = { lineWidth: 0, aliasDuplicateObjects: false };
 const unsupported = Symbol('unsupported YAML value');
-const scalars = new Map<unknown, string>();
+const scalars = new Map<string, string>();
 const keys = new Map<string, string>();
-const negativeZero = Symbol('-0');
+const plainText = /^[A-Za-z_](?:[A-Za-z0-9_. -]*[A-Za-z0-9_.-])?$/;
+const reserved = new Set(['null', 'Null', 'NULL', 'true', 'True', 'TRUE', 'false', 'False', 'FALSE']);
 let cachedCharacters = 0;
 
 /** Bounded scalar text reuse, independent of the number of specs emitted. */
 function scalar(value: unknown): string {
-  const type = typeof value;
-  if (value !== null && type !== 'string' && type !== 'number' && type !== 'boolean') throw unsupported;
-  const key = Object.is(value, -0) ? negativeZero : value;
-  const known = scalars.get(key);
+  if (value === null) return 'null';
+  if (typeof value === 'boolean') return value ? 'true' : 'false';
+  if (typeof value === 'number') {
+    if (Number.isNaN(value)) return '.nan';
+    if (!Number.isFinite(value)) return value < 0 ? '-.inf' : '.inf';
+    return Object.is(value, -0) ? '-0' : JSON.stringify(value);
+  }
+  if (typeof value !== 'string') throw unsupported;
+  // These ASCII strings cannot be indicators, document markers, numbers or quoted scalars.
+  if (plainText.test(value) && !reserved.has(value)) return value;
+  const known = scalars.get(value);
   if (known !== undefined) return known;
   scalarNode.value = value;
   const text = scalarDocument.toString(options).slice(3, -1);
@@ -27,7 +35,7 @@ function scalar(value: unknown): string {
     scalars.clear();
     cachedCharacters = 0;
   }
-  scalars.set(key, text);
+  scalars.set(value, text);
   cachedCharacters += text.length;
   return text;
 }
