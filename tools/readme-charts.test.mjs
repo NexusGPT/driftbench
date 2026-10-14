@@ -4,6 +4,7 @@ import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { afterEach, describe, expect, it } from 'vitest';
+import { summarySvg } from './readme-summary.mjs';
 
 const script = fileURLToPath(new URL('./readme-charts.mjs', import.meta.url));
 const roots = [];
@@ -145,6 +146,39 @@ describe('readme charts, best case per benchmark', () => {
     expect(Object.keys(bars)).not.toContain('driftbench-reader-first');
     expect(c.title).toContain('reader-first');
     expect(c.note).toContain('default 61.3');
+  });
+});
+
+describe('readme summary chart', () => {
+  const row = (score) => ({
+    id: 'x',
+    name: 'X',
+    unit: 'items',
+    n: 10,
+    definition: 'd',
+    cells: ['driftbench', 'promptfoo', 'DeepEval', 'Inspect', 'Langfuse', 'LangWatch'].map((name, i) => ({
+      name,
+      score: i === 0 ? score : 60 + i,
+    })),
+  });
+  const args = (rows) => ({ rows, title: 'T', model: 'M', sources: 'S', notes: ['a'] });
+
+  it('draws every score as a label, ranked, with no tally words', () => {
+    const svg = summarySvg(false, args([row(90)]));
+    expect((svg.match(/class="score"/g) ?? []).length).toBe(6);
+    expect(svg).not.toMatch(/wins|losses|ties|Holm/);
+  });
+
+  it('refuses a score that falls inside the axis break', () => {
+    expect(() => summarySvg(false, args([row(40)]))).toThrow(/axis break/);
+  });
+
+  it('takes its numbers from the benchmark charts, in the committed alt text', () => {
+    const run = spawnSync('node', [script, '--print', 'summary'], { encoding: 'utf8' });
+    expect(run.status, run.stderr).toBe(0);
+    const c = JSON.parse(run.stdout);
+    expect(c.alt).toContain('JudgeBench, 270 pairs: driftbench 88.9');
+    expect(c.svg.light).toContain('88.9');
   });
 });
 

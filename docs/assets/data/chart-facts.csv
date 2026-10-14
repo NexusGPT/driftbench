@@ -19,6 +19,7 @@
 "hard-promptfoo","title","promptfoo: equal or higher on 4 of 4 tests.","tools/readme-charts.mjs"
 "hard-inspect","title","Inspect: behind on 2, level on 2 of 4 tests.","tools/readme-charts.mjs"
 "hard-langfuse","title","Langfuse: 116 of 120 correct, against 115.","tools/readme-charts.mjs"
+"summary","title","Five judge benchmarks","tools/readme-charts.mjs"
 "impact-blocks","gated suite: conversations, blocks","[195,861]","examples/acme/gated/gate-report.json"
 "impact-blocks","x1-invents-price: red blocks, failing conversations, blocks in them, red share percent","[125,125,692,18.06]","examples/acme/gated/gate-report.json"
 "impact-blocks","x3-skips-recap: red blocks, failing conversations, blocks in them, red share percent","[237,102,601,39.43]","examples/acme/gated/gate-report.json"

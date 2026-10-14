@@ -1,0 +1,25 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>driftbench: the five judge benchmarks</title>
+<link rel="stylesheet" href="brand.css">
+<style>
+  /* The summary chart. Its SVG is drawn by tools/readme-summary.mjs from the same bars as the benchmark
+     charts and stored in chart-data.js by tools/readme-charts.mjs. No panel: the figure is the frame. */
+  html, body { margin: 0; background: transparent; }
+  #frame { width: 800px; height: 810px; }
+  #frame svg { display: block; }
+</style>
+</head>
+<body>
+<div id="frame"></div>
+<script src="chart-data.js"></script>
+<script>
+  window.__fonts = ['400 38px "Libre Caslon Display"', '400 12px Geist', '500 14px Geist', '600 12px Geist', '400 11px "Geist Mono"', '600 11px "Geist Mono"'];
+  const dark = matchMedia('(prefers-color-scheme: dark)').matches;
+  document.getElementById('frame').innerHTML = window.CHART_DATA.summary.svg[dark ? 'dark' : 'light'];
+  Promise.all(window.__fonts.map((f) => document.fonts.load(f))).then(() => document.fonts.ready).then(() => { window.__ready = true; });
+</script>
+</body>
+</html>

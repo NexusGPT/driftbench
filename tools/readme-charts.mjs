@@ -14,6 +14,7 @@
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { summarySvg } from './readme-summary.mjs';
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..');
 const OUT = join(ROOT, 'docs', 'assets');
@@ -933,6 +934,7 @@ function hardPerTool(tool) {
 // ---------------------------------------------------------------------------------------------
 
 let readerFirstDefault = 0;
+let longerReply = 0;
 const BEST = [
   {
     chart: 'bench-judgebench',
@@ -1024,6 +1026,7 @@ function bestCase({ chart, bench, name, unit, kicker }) {
     const plain = row('driftbench')[cohort];
     readerFirstDefault = plain.score * 100;
     const longer = json(`${SEALED}/writing.json`).cells.find((c) => c.contestant === 'longer-wins');
+    longerReply = longer.accuracy;
     fact(
       chart,
       'driftbench default, reader-first setting, rule that picks the longer reply, percent',
@@ -1053,6 +1056,63 @@ function bestCase({ chart, bench, name, unit, kicker }) {
     ],
     note,
   };
+}
+
+// ---------------------------------------------------------------------------------------------
+// The summary chart above the quickstart: the five benchmark charts side by side, drawn from their bars
+// ---------------------------------------------------------------------------------------------
+
+const DEFINITIONS = {
+  'bench-judgebench': 'Correct choices between a right answer and a wrong answer.',
+  'bench-mm-eval': 'Judgement across chat, reasoning, safety and language tasks.',
+  'bench-rubricbench': 'Choices between replies against the stated grading criteria.',
+  'bench-verify': 'LongJudgeBench: checks whether the final answer is correct.',
+  'bench-writing': 'LongJudgeBench: choice of the preferred written reply.',
+};
+const one = (v) => (Math.round(v * 10) / 10).toFixed(1);
+const SUMMARY_ORDER = ['driftbench', PROMPTFOO, 'DeepEval', 'Inspect', 'Langfuse', 'LangWatch'];
+
+function summaryData() {
+  const rows = BEST.map(({ chart, name }) => {
+    const panel = data[chart].panels[0];
+    const cells = SUMMARY_ORDER.map((n) => {
+      const b = panel.bars.find((x) => x.name === n);
+      if (!b || b.score === null) throw new Error(`${chart}: no score for ${n} in the summary chart`);
+      return { name: n, score: b.score };
+    });
+    const label = name === 'Verify' ? 'verify' : name === 'Writing' ? 'writing' : name;
+    return {
+      id: chart,
+      name: label,
+      unit: panel.model.split(' ')[1],
+      n: Number(panel.model.split(' ')[0].replaceAll(',', '')),
+      definition: DEFINITIONS[chart],
+      cells,
+    };
+  });
+  const writing = data['bench-writing'];
+  const notes = [
+    `Reader-first setting: ${one(rows.at(-1).cells[0].score)} shown; default ${one(readerFirstDefault)}.`,
+    `Same score as a rule that always picks the longer reply (${one(longerReply)}).`,
+  ];
+  void writing;
+  const model = data['bench-judgebench'].panels[0].name;
+  const sources = 'docs/comparison/benchmarks/*-all-peers.json';
+  const args = { rows, title: 'Five judge benchmarks', model, sources, notes };
+  const alt = `Five judge benchmarks, ${model}, scores out of 100, bars ranked within each benchmark, driftbench the only coloured bar and each competitor grey with its own pattern, with an axis break from 30 to 50. ${rows
+    .map(
+      (r) =>
+        `${r.name}, ${r.n.toLocaleString('en-US')} ${r.unit}: ${[...r.cells]
+          .sort((a, b) => b.score - a.score)
+          .map((c) => `${c.name} ${one(c.score)}`)
+          .join(', ')}.`,
+    )
+    .join(' ')} ${notes.join(' ')}`;
+  return { title: args.title, svg: { light: summarySvg(false, args), dark: summarySvg(true, args) }, alt };
+}
+
+function readmeSummary() {
+  return `<p align="center">\n  <picture>\n    <source media="(prefers-color-scheme: dark)" srcset="docs/assets/summary-dark.png">\n    <img alt="${data.summary.alt}" src="docs/assets/summary-light.png" width="100%" />\n  </picture>\n</p>`;
 }
 
 const CHARTS = {
@@ -1209,9 +1269,11 @@ impactMoj();
 
 const data = {};
 for (const [name, build] of Object.entries(CHARTS)) {
-  if (PRINT && name !== PRINT) continue;
+  const forSummary = PRINT === 'summary' && BEST.some((b) => b.chart === name);
+  if (PRINT && name !== PRINT && !forSummary) continue;
   data[name] = build();
 }
+if (!PRINT || PRINT === 'summary') data.summary = summaryData();
 if (PRINT) {
   if (!data[PRINT]) throw new Error(`no chart named ${PRINT}`);
   console.log(JSON.stringify(data[PRINT]));
@@ -1294,7 +1356,6 @@ function detailPage() {
 // ---------------------------------------------------------------------------------------------
 
 const README = 'README.md';
-const one = (v) => (Math.round(v * 10) / 10).toFixed(1);
 
 function readmeCharts() {
   const parts = [
@@ -1347,7 +1408,11 @@ function readmeText() {
     if (a < 0 || b < 0) throw new Error(`${README}: the markers ${start} and ${end} are missing`);
     return `${text.slice(0, a + start.length)}\n${body}\n${text.slice(b)}`;
   };
-  return swap(swap(read(README), 'readme-charts', readmeCharts()), 'readme-table', readmeTable());
+  return swap(
+    swap(swap(read(README), 'readme-charts', readmeCharts()), 'readme-table', readmeTable()),
+    'readme-summary',
+    readmeSummary(),
+  );
 }
 
 const files = new Map();

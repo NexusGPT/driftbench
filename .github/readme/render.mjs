@@ -58,6 +58,7 @@ const jobs = [
   { name: 'judge-cost', src: 'chart.html', query: 'c=judge-cost', out: 'judge-cost-{theme}.png' },
   { name: 'mm-eval-sealed-test', src: 'chart.html', query: 'c=mm-eval-sealed-test', out: 'mm-eval-sealed-test-{theme}.png' },
   { name: 'capability-matrix', src: 'chart.html', query: 'c=capability-matrix', out: 'capability-matrix-{theme}.png' },
+  { name: 'summary', src: 'summary.html', out: '../../docs/assets/summary-{theme}.png' },
   { name: 'bench-judgebench', src: 'chart.html', query: 'c=bench-judgebench', out: '../../docs/assets/bench-judgebench-{theme}.png' },
   { name: 'bench-judgebench-models', src: 'chart.html', query: 'c=bench-judgebench-models', out: '../../docs/assets/bench-judgebench-models-{theme}.png' },
   { name: 'bench-mm-eval', src: 'chart.html', query: 'c=bench-mm-eval', out: '../../docs/assets/bench-mm-eval-{theme}.png' },
