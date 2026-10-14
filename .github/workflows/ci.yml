@@ -47,8 +47,9 @@ jobs:
       - run: pnpm install --frozen-lockfile
       - run: pnpm lint
       - run: pnpm typecheck
+      # The API gate builds first and stamps source + emitted bytes. Tests verify that stamp.
+      - run: node tools/structure/api-surface.mjs --build --check
       - run: pnpm test --maxWorkers=2
-      - run: pnpm build
       - run: pnpm docs:reference --check
       - run: pnpm docs:links
       - run: pnpm docs:site:build

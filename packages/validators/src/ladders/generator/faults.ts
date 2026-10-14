@@ -301,12 +301,12 @@ export const FAULT_CLASSES: readonly FaultClass[] = [
     rule: () => 'Facts come only from tool results.',
     places: stageIds,
     mutation: (spec, fires) => ({
-      facts: (facts, ctx) => {
+      facts: (facts, ctx, called) => {
         if (!fires(ctx, ctx.stage)) return facts;
-        const write = spec.tools.find((tool) => tool.sideEffect);
-        const output = write?.output[0];
-        return write && output
-          ? [...facts, { tool: write.name, field: output.name, value: defaultValue(output) }]
+        const uncalled = spec.tools.find((tool) => !called.includes(tool.name));
+        const output = uncalled?.output[0];
+        return uncalled && output
+          ? [...facts, { tool: uncalled.name, field: output.name, value: defaultValue(output) }]
           : facts;
       },
     }),
@@ -409,7 +409,7 @@ export const FAULT_CLASSES: readonly FaultClass[] = [
     rule: () => 'Each tool is called once per turn that needs it.',
     places: readTools,
     mutation: (_spec, fires) => ({
-      calls: (tool, count, ctx) => (!tool.sideEffect && fires(ctx, tool.name) ? count + 1 : count),
+      calls: (tool, count, ctx) => (!tool.sideEffect && fires(ctx, tool.name) ? count * 2 : count),
     }),
   },
   {
@@ -484,7 +484,7 @@ export const FAULT_CLASSES: readonly FaultClass[] = [
     rule: () => 'The side-effecting tool runs once.',
     places: (spec) => spec.tools.filter((tool) => tool.sideEffect).map((tool) => tool.name),
     mutation: (_spec, fires) => ({
-      calls: (tool, count, ctx) => (tool.sideEffect && fires(ctx, tool.name) ? count + 1 : count),
+      calls: (tool, count, ctx) => (tool.sideEffect && fires(ctx, tool.name) ? count * 2 : count),
     }),
   },
   deviationClass(
@@ -559,7 +559,7 @@ export const FAULT_CLASSES: readonly FaultClass[] = [
     'Does not ask for CONFIRM again.',
     ['text'],
     'a must on CONFIRM',
-    () => ({ said: 'Okay.' }),
+    () => ({ replies: ['Okay.'] }),
     4,
   ),
   deviationClass(

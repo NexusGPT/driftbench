@@ -12,6 +12,7 @@ import {
   redteamPack,
   seededIndex,
 } from '../src/index';
+import { patternsAt } from '../src/redteam';
 import { PACK_DIR, UNAPPROVED_PACK_DIR } from './support';
 
 const dirs: string[] = [];
@@ -40,21 +41,17 @@ describe('the Acme red-team pack', () => {
     }
     for (const [cls, file] of pack.files) {
       if (cls === 'D11_pii_leak' || cls === 'D12_prompt_extraction') continue;
-      // D2 carries one more phrasing: the separating draft, unapproved, for the owner's review.
-      expect(file.conversation, cls).toHaveLength(cls === 'D2_goal_shift' ? 4 : 3);
+      expect(file.conversation, cls).toHaveLength(3);
       const tasks = ['D2_goal_shift', 'D6_instruction_in_data', 'D7_silence_or_burst', 'D8_tool_failure'];
       expect(file.task?.length ?? 0, cls).toBe(tasks.includes(cls) ? 3 : 0);
     }
   });
 
-  it('ships every phrasing approved except the one D2 draft, and every file passes the pack validator', async () => {
+  it('ships 46 approved phrasings, and every file passes the pack validator', async () => {
     const pack = await loadRedteamPack(PACK_DIR);
     const all = [...pack.files.values()].flatMap((file) => [...file.conversation, ...(file.task ?? [])]);
-    expect(all).toHaveLength(47);
-    // The one unapproved phrasing: the separating D2 draft written from the baseline's reply, for the owner's review.
-    expect(all.filter((phrasing) => !phrasing.approved).map((phrasing) => phrasing.id)).toEqual([
-      'x-d2-cheaper-plan-separating',
-    ]);
+    expect(all).toHaveLength(46);
+    expect(all.filter((phrasing) => !phrasing.approved).map((phrasing) => phrasing.id)).toEqual([]);
     for (const file of pack.files.values()) expect(checkPackFile(file), file.path).toEqual([]);
   });
 
@@ -182,5 +179,47 @@ describe('the seeded draw', () => {
     );
     expect(seededIndex(['a'], 2 ** 40)).toBe(0xca978112ca1b % 2 ** 40);
     expect(() => seededIndex(['a'], 0)).toThrow(RangeError);
+  });
+});
+
+describe('stage-bound reply patterns', () => {
+  const file = (stages: string[] | undefined, atStage: string[]) =>
+    `class: D2_goal_shift
+${stages ? `stages: [${stages.join(', ')}]\n` : ''}conversation:
+  - id: shift
+    approved: true
+    user: Actually, something else instead.
+    must:
+      - "always"
+      - pattern: "only at recap"
+        at_stage: [${atStage.join(', ')}]
+`;
+
+  it('loads a file whose at_stage names are all listed in stages', async () => {
+    const dir = await packDir({ 'd02.yaml': file(['offer', 'recap'], ['recap']) });
+    const pack = await loadRedteamPack(dir);
+    expect(pack.files.get('D2_goal_shift')?.stages).toEqual(['offer', 'recap']);
+  });
+
+  it('refuses a stage name the file does not list, and a file with no stages at all', async () => {
+    await expect(loadRedteamPack(await packDir({ 'd02.yaml': file(['offer'], ['recap']) }))).rejects.toThrow(
+      /the stage recap, which the file does not list in stages/,
+    );
+    await expect(loadRedteamPack(await packDir({ 'd02.yaml': file(undefined, ['recap']) }))).rejects.toThrow(
+      /the stage recap, which the file does not list in stages/,
+    );
+  });
+
+  it('refuses an empty at_stage list and an unknown key on a pattern', async () => {
+    await expect(loadRedteamPack(await packDir({ 'd02.yaml': file(['recap'], []) }))).rejects.toThrow(
+      RedteamPackError,
+    );
+  });
+
+  it('keeps a stage-bound pattern only at its stages, and drops it where the stage is unknown', () => {
+    const entries = ['always', { pattern: 'only at recap', at_stage: ['recap'] }];
+    expect(patternsAt(entries, 'recap')).toEqual(['always', 'only at recap']);
+    expect(patternsAt(entries, 'offer')).toEqual(['always']);
+    expect(patternsAt(entries, undefined)).toEqual(['always']);
   });
 });

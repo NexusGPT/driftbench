@@ -32,6 +32,7 @@ import {
 } from './given';
 import { describeContradiction, ledgerVerdicts } from './ledger';
 import { preflightTargetPrices, priceObserved, TokenPriceError, TokenPrices } from './pricing';
+import { captureArtifacts, provenanceDigest, provenanceHash, runProvenance } from './provenance';
 import { type RecoveryOptions, recoveryOf } from './recovery';
 import { CallFailure, describeError, type RetryOptions, retryLayer, withRetry } from './retry';
 import { canonicalPreviousStage, flowVerdicts, readStage, stageSignatures } from './stages';
@@ -53,6 +54,8 @@ export type RunOptions = {
   onEvent?: (event: RunEvent) => void;
   /** Keeps the events on the run record (its events field), in order. Off by default: a run record stays as it was. */
   recordEvents?: boolean;
+  /** Add execution provenance to records. Off for standalone runs unless requested. */
+  recordProvenance?: boolean;
   adapter: AgentAdapter;
   /** Decides each block's stimulus. The scripted driver of `@agent-nexus/driftbench-users` replays the spec's blocks. */
   driver: UserDriver;
@@ -147,6 +150,7 @@ export async function runSpec(spec: Spec, options: RunOptions): Promise<RunResul
   const run: RunContext = {
     prices,
     requireTokenPrices: options.requireTokenPrices === true,
+    provenance: options.recordProvenance ? runProvenance({ ...options, target }) : undefined,
     spec,
     specHash,
     cacheSpecHash,
@@ -209,6 +213,7 @@ export async function runSpec(spec: Spec, options: RunOptions): Promise<RunResul
 type RunContext = {
   prices: TokenPrices | undefined;
   requireTokenPrices: boolean;
+  provenance: RunResult['provenance'];
   spec: Spec;
   specHash: string;
   /** The hash the cache key carries: the spec's, without its version label. */
@@ -283,6 +288,10 @@ async function execute(run: RunContext, channel: Channel): Promise<RunResult | u
   const { sources } = run;
   let state = initialGiven(spec);
   let history: Message[] = [];
+  /** The user messages of the history, one list that grows with it, so the ledger reads each one once. */
+  let users: Message[] = [];
+  /** The spec block whose user messages `users` ends with; NaN after an injected step. */
+  let usersBlock = -1;
   let nextBlock = 0;
   let lastKey: string | undefined;
   let endRead: { states: unknown[]; afterBlock: number } | undefined;
@@ -331,11 +340,18 @@ async function execute(run: RunContext, channel: Channel): Promise<RunResult | u
           sessionBase = composed;
         }
         history = canonical.prefix;
+        // The canonical prefix of a block is the one of the block before, then that block's user messages
+        // and a reply (canonicalGiven), unless the block writes a prefix of its own. So after the block
+        // before, the user messages kept are those of this prefix already.
+        const follows =
+          step.blockIndex === usersBlock + 1 && spec.blocks[step.blockIndex]?.given?.prefix === undefined;
+        if (!follows) users = userMessagesOf(history);
       } else {
         state = enterBlock(state, planned.given, planned.world);
         if (planned.given?.prefix) {
           await channel.restart();
           history = structuredClone(planned.given.prefix);
+          users = userMessagesOf(history);
         }
       }
       const user = stimulusMessages(planned.stimulus);
@@ -415,6 +431,9 @@ async function execute(run: RunContext, channel: Channel): Promise<RunResult | u
         if (planned.lastSpecBlock && composed) endState = endStateValue(run.endState, sources, composed);
       }
 
+      const capture = run.provenance
+        ? captureArtifacts({ observed, readArtifact: channel.readArtifact() })
+        : undefined;
       const verdicts = await applyChecks(run.checks, {
         spec,
         mode: run.mode,
@@ -428,7 +447,7 @@ async function execute(run: RunContext, channel: Channel): Promise<RunResult | u
         ledger: facts.ledger,
         endState,
         artifacts: run.artifacts,
-        readArtifact: channel.readArtifact(),
+        readArtifact: capture ? capture.readArtifact : channel.readArtifact(),
       });
       // The stage reached: the runtime's, else the step classifier's. Before the block: in T the stage the
       // spec expects of the blocks before it, in F and P the stage the run's previous block reached.
@@ -443,14 +462,25 @@ async function execute(run: RunContext, channel: Channel): Promise<RunResult | u
         signatures: run.signatures,
       });
       const flow = flowVerdicts(spec, planned.expect, reading, previous);
-      const userMessages = [...given.prefix, ...user].filter((message) => message.role === 'user');
-      const ledger = ledgerVerdicts(facts.ledger, observed, userMessages);
+      users.push(...userMessagesOf(user));
+      usersBlock = step.kind === 'block' ? step.blockIndex : Number.NaN;
+      const ledger = ledgerVerdicts(facts.ledger, observed, users);
       const all = [...verdicts, ...flow, ...ledger.verdicts];
       const contradictions = [...facts.contradictions, ...ledger.contradictions.map(describeContradiction)];
       const block = {
         index: position,
         ...(planned.blockId !== undefined ? { blockId: planned.blockId } : {}),
         ...(planned.injected ? { injected: true } : {}),
+        ...(capture
+          ? {
+              provenance: {
+                specIndex: step.kind === 'block' ? step.blockIndex : step.beforeBlock,
+                stimulusHash: provenanceHash(planned.stimulus),
+                ledgerHash: provenanceHash(facts.ledger),
+                artifacts: capture.artifacts,
+              },
+            }
+          : {}),
         givenHash: given.hash,
         cacheKey: key,
         observed,
@@ -512,6 +542,12 @@ async function execute(run: RunContext, channel: Channel): Promise<RunResult | u
       : undefined;
   const message = [error, note].filter((part) => part !== undefined).join('; ');
   return {
+    ...(run.provenance
+      ? {
+          provenance: run.provenance,
+          provenanceDigest: provenanceDigest({ provenance: run.provenance, blocks }),
+        }
+      : {}),
     runId: run.runId,
     specId: spec.id,
     specHash: run.specHash,
@@ -841,4 +877,8 @@ function replayChannel(cache: ObservedCache, toolPolicy: readonly ToolRule[] | u
       return undefined;
     },
   };
+}
+
+function userMessagesOf(messages: readonly Message[]): Message[] {
+  return messages.filter((message) => message.role === 'user');
 }

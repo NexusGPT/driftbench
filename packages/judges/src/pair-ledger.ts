@@ -11,9 +11,19 @@ import {
   pairRequirements,
   validatePairRequirements,
 } from './pair-ledger-contract';
+import {
+  type PairLedgerTieFollowup,
+  type PairLedgerTieFollowupRead,
+  pairLedgerFollowupRequest,
+} from './pair-ledger-followup';
 import { type PairStage0Options, type PairStage0Result, runPairStage0 } from './pair-stage0';
 
 export { type LedgerParseStep, PairLedger } from './pair-ledger-contract';
+export {
+  type PairLedgerTieFollowup,
+  type PairLedgerTieFollowupRead,
+  pairLedgerFollowupRequest,
+} from './pair-ledger-followup';
 export type LedgerChoice = 'first' | 'second' | 'tie';
 export type LedgerReading = {
   readonly sign: -1 | 0 | 1;
@@ -156,6 +166,8 @@ export type PairLedgerResult = {
   readonly reads: readonly PairLedgerRead[];
   readonly stage0: PairStage0Result;
   readonly verdict?: LedgerVerdict;
+  /** Original ledger verdict stays above; this read supplies the final choice when enabled. */
+  readonly tieFollowup?: PairLedgerTieFollowupRead;
   readonly metadata?: { readonly graderError: boolean };
   readonly lint: readonly { readonly name: string; readonly codes: readonly string[] }[];
 };
@@ -164,6 +176,8 @@ export type PairLedgerOptions = {
   /** A caller supplies a seat only after its category fixtures earn it. Default: the same client. */
   readonly escalationClient?: JudgeClient;
   readonly tiePolicy?: 'tie' | 'canonical';
+  /** One same-client forced choice after a final ledger tie. Off by default; stage0 ties are unchanged. */
+  readonly tieFollowup?: false | PairLedgerTieFollowup;
 };
 
 /** Public package entrypoint: machine checks, both orders, bounded parser repair/re-ask, canonical quorum. */
@@ -172,6 +186,8 @@ export async function judgePairLedger(
   input: JudgeRequest,
   options: PairLedgerOptions = {},
 ): Promise<PairLedgerResult> {
+  if (options.tieFollowup && !['direct', 'reasoning'].includes(options.tieFollowup))
+    throw new RangeError('tieFollowup must be false, direct or reasoning');
   if (!input.candidates) throw new RangeError('a pair ledger needs both candidates');
   if (client.cls !== 'system2' || (options.escalationClient && options.escalationClient.cls !== 'system2'))
     throw new RangeError('pair ledger readers must support the system2 ledger contract');
@@ -274,6 +290,46 @@ export async function judgePairLedger(
       { ledger, firstIsOriginalFirst: canonical.firstIsOriginalFirst },
       options,
     );
+  }
+  if (verdict.status === 'tie' && options.tieFollowup) {
+    const followup = pairLedgerFollowupRequest(request, options.tieFollowup, reads);
+    const question = { ...followup.request, reasoning: input.reasoning ?? client.reasoning };
+    calls++;
+    const response = await client.judge(question);
+    calls += (response.requestCount ?? response.thinkingRecovery?.requestCount ?? 1) - 1;
+    // Never rescue a provider-blocked or truncated answer, and never re-ask this forced choice.
+    const refused = Boolean(response.providerBlock || response.declineReason);
+    const result =
+      response.unparsed || refused ? response : { ...response, ...parseJudgeText(response.raw, question) };
+    const outcome = refused
+      ? 'refused'
+      : result.unparsed || (result.winner !== 'A' && result.winner !== 'B')
+        ? 'unparsed'
+        : 'decided';
+    const tieFollowup: PairLedgerTieFollowupRead = {
+      attempted: true,
+      outcome,
+      variant: options.tieFollowup,
+      itemHash: followup.itemHash,
+      firstIsOriginalFirst: followup.firstIsOriginalFirst,
+      result,
+    };
+    // An optional follow-up failure cannot invalidate a completed ledger verdict.
+    return {
+      status: outcome === 'decided' ? 'decided' : 'tie',
+      choice:
+        outcome === 'decided'
+          ? (result.winner === 'A') === followup.firstIsOriginalFirst
+            ? 'first'
+            : 'second'
+          : verdict.choice,
+      calls,
+      reads,
+      stage0,
+      verdict,
+      tieFollowup,
+      lint,
+    };
   }
   return {
     status: verdict.status === 'tie' ? 'tie' : 'decided',
