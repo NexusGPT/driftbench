@@ -17,8 +17,31 @@ const RB = 'examples/judge-benchmarks/experiments/ledger-rb/';
 const LV = 'examples/ledger-verify/';
 const AP = 'examples/all-peers-public/cells/calls-parts/';
 const pat = ['gh', 'p_'].join('');
+const upper = (n) => Array.from(randomBytes(n), (b) => 'ABCDEFGHIJKLMNOPQRSTUVWXYZ234567'[b % 32]).join('');
+const alnum = (n) => Array.from(randomBytes(n), (b) => 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789'[b % 62]).join('');
+// Provider-format tokens, built at runtime so no literal token sits in this file.
+const tokens = {
+  github: () => pat + alnum(36),
+  openai: () => ['s', 'k-'].join('') + alnum(20) + ['T3Blbk', 'FJ'].join('') + alnum(20),
+  aws: () => ['AK', 'IA'].join('') + upper(16),
+};
 
-// [name, file, text, mustBeReported]
+// [name, file, text, mustBeReported, badValue]. With a bad value, that value itself must be reported.
+const mixed = [];
+let m = 0;
+for (const name of ['api/key', 'api_key', 'api:key', 'api@key', 'foo/probeCallKey']) {
+  const bad = hex(64);
+  const real = `"key":"${hex(64)}"`;
+  mixed.push([`${name} after a real key on one line`, `${RB}mixed/${m++}.jsonl`, `{${real},"${name}":"${bad}"}`, true, bad]);
+  mixed.push([`${name} before a real key on one line`, `${RB}mixed/${m++}.jsonl`, `{"${name}":"${bad}",${real}}`, true, bad]);
+}
+for (const [kind, make] of Object.entries(tokens)) {
+  const bad = make();
+  const real = `"key":"${hex(64)}"`;
+  mixed.push([`${kind} token after a real key on one line`, `${RB}mixed/${m++}.jsonl`, `{${real},"note":"${bad}"}`, true, bad]);
+  mixed.push([`${kind} token before a real key on one line`, `${RB}mixed/${m++}.jsonl`, `{"note":"${bad}",${real}}`, true, bad]);
+}
+
 const cases = [
   ['ledger-rb key, single-field line', RB + 'ok/a.json', `{\n  "key": "${hex(64)}",\n  "n": 1\n}`, false],
   ['ledger-rb callKey in JSONL', RB + 'ok/b.jsonl', `{"callKey":"${hex(64)}","status":"ok"}`, false],
@@ -40,6 +63,7 @@ const cases = [
   ['longer hex', RB + 'bad/10.json', `{\n  "key": "${hex(80)}"\n}`, true],
   ['key outside the folders', 'examples/other/x.json', `{\n  "key": "${hex(64)}"\n}`, true],
   ['sibling folder prefix', 'examples/judge-benchmarks/experiments/ledger-rbx/x.json', `{\n  "key": "${hex(64)}"\n}`, true],
+  ...mixed,
 ];
 
 const repo = mkdtempSync(join(tmpdir(), 'gitleaks-cases-'));
@@ -60,12 +84,14 @@ try {
   process.chdir(repo);
   const { allowed, refused } = decide(scan(gitleaks, ['HEAD']));
   writeFileSync('.gitleaksignore', writeBlock('', allowed));
+  // Unredacted so each bad value can be matched; the report stays in the scratch repo and is deleted.
   const report = join(repo, 'report.json');
-  execFileSync(gitleaks, ['git', '--no-banner', '--redact', '--exit-code', '0', '--config', '.gitleaks.toml',
+  execFileSync(gitleaks, ['git', '--no-banner', '--exit-code', '0', '--config', '.gitleaks.toml',
     '--report-format', 'json', '--report-path', report, '--log-opts', '-1 HEAD'], { stdio: ['ignore', 'ignore', 'inherit'] });
-  const reported = new Set(JSON.parse(readFileSync(report, 'utf8')).map((f) => f.File));
-  for (const [name, file, , must] of cases) {
-    const got = reported.has(file);
+  const findings = JSON.parse(readFileSync(report, 'utf8'));
+  for (const [name, file, , must, bad] of cases) {
+    const inFile = findings.filter((f) => f.File === file);
+    const got = bad ? inFile.some((f) => f.Secret.length >= 8 && bad.includes(f.Secret)) : inFile.length > 0;
     if (got !== must) failed++;
     console.log(`${got === must ? 'PASS' : 'FAIL'}  ${must ? 'reported' : 'passes  '}  ${name}`);
   }

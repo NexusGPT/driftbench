@@ -4,8 +4,9 @@
 //
 // A line is listed only when every generic-api-key finding on it, in that commit, is the bare hex value of a field
 // that starts the object or follows a comma ({"key":"..." or ,"key":"...") and whose name is allowed for that
-// folder. Any other finding on the line, such as a field named "api/key" or a password in recorded text, leaves
-// the line out and is printed; the script then exits 1. Secret values are never printed or written.
+// folder. Any other generic-api-key finding on the line, such as a field named "api/key" or a password in recorded
+// text, leaves the line out and is printed; the script then exits 1. A fingerprint names one rule, so a finding of
+// another rule on the same line (a GitHub, OpenAI or AWS token) stays reported. Secret values are never printed.
 //
 // Usage: node tools/guard/gitleaks-recording-fingerprints.mjs [--gitleaks <bin>] [--check] [rev ...]
 // Revs default to HEAD. After a rebase or a new recording commit, rerun it with every rev that carries recordings.
