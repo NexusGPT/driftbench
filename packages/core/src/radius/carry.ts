@@ -1,9 +1,13 @@
 import type { Store } from '../contracts/store';
 import type { PlannedCell } from '../runner/campaign';
+import { provenanceDigest } from '../runner/provenance';
 import type { TargetRef } from '../schema/common';
-import type { CampaignRadius, RunResult } from '../schema/run';
+import type { Campaign, CampaignRadius, RunResult } from '../schema/run';
+import type { Spec } from '../schema/spec';
 import { canonicalJson } from '../spec/hash';
+import { sameBlockInputs } from './block-inputs';
 import { type ChangeManifest, changeLabel } from './change';
+import { completeBaselineProvenance, sameCarryContext } from './provenance';
 import type { RadiusReport } from './radius';
 import { agentVersionOf } from './version';
 
@@ -21,6 +25,10 @@ export type CarryLimits = {
   maxAgeDays?: number;
   /** When the carrying campaign starts. */
   now: Date;
+  /** Actual candidate context per cell. Missing or uncertain context always reruns. */
+  currentProvenance?: (cell: PlannedCell) => RunResult['provenance'];
+  /** The actual candidate spec, used to reconstruct block inputs. Missing means rerun. */
+  currentSpec?: (cell: PlannedCell) => Spec | undefined;
 };
 
 export const DEFAULT_MAX_CARRY = 5;
@@ -30,6 +38,7 @@ export type CarriedCell = {
   cell: PlannedCell;
   source: RunResult;
   carried: NonNullable<RunResult['carried']>;
+  provenance?: RunResult['provenance'];
 };
 
 export type RadiusPlan = {
@@ -56,6 +65,33 @@ const cellKey = (cell: Pick<PlannedCell, 'specHash' | 'target' | 'mode' | 'repea
 
 const DAY_MS = 24 * 60 * 60 * 1000;
 
+/** Shared age/count rules for carrying observations, including judge-only reuse. */
+export function carryOrigin(
+  source: RunResult,
+  campaignId: string,
+  limits: Pick<CarryLimits, 'now' | 'maxCarry' | 'maxAgeDays'>,
+): { carried: NonNullable<RunResult['carried']> } | { reason: string } {
+  const maxCarry = limits.maxCarry ?? DEFAULT_MAX_CARRY;
+  const maxAgeDays = limits.maxAgeDays ?? DEFAULT_MAX_AGE_DAYS;
+  const origin = source.carried;
+  const campaigns = (origin?.age.campaigns ?? 0) + 1;
+  // Copies retain the time of the fresh observation, never the time of a later judge call.
+  const days = Math.max(0, (limits.now.getTime() - Date.parse(source.finishedAt)) / DAY_MS);
+  if (campaigns > maxCarry)
+    return { reason: `carried ${campaigns - 1} campaigns in a row, the limit is ${maxCarry}` };
+  if (days > maxAgeDays)
+    return { reason: `its fresh run is ${Math.floor(days)} days old, the limit is ${maxAgeDays}` };
+  const agentVersion = origin?.agentVersion ?? agentVersionOf(source);
+  return {
+    carried: {
+      fromCampaign: origin?.fromCampaign ?? campaignId,
+      fromRun: origin?.fromRun ?? source.runId,
+      ...(agentVersion === undefined ? {} : { agentVersion }),
+      age: { campaigns, days: Math.round(days * 100) / 100 },
+    },
+  };
+}
+
 /**
  * Splits the cells of a campaign into those that run and those that are carried from the baseline.
  *
@@ -68,7 +104,7 @@ export function planRadiusCampaign(
   cells: readonly PlannedCell[],
   radius: RadiusReport,
   manifest: ChangeManifest,
-  baseline: { campaignId: string; runs: readonly RunResult[] },
+  baseline: { campaignId: string; runs: readonly RunResult[]; provenance?: Campaign['provenance'] },
   limits: CarryLimits,
 ): RadiusPlan {
   const all = (nothing: string): RadiusPlan => ({
@@ -96,6 +132,9 @@ export function planRadiusCampaign(
     );
   }
 
+  if (!completeBaselineProvenance(baseline))
+    return all('the baseline has no execution provenance (missing or incomplete stamp)');
+
   const inRadius = new Set<string>();
   for (const spec of radius.specs) {
     for (const cell of spec.cells) {
@@ -113,9 +152,6 @@ export function planRadiusCampaign(
       stored.set(key, run);
     }
   }
-  const maxCarry = limits.maxCarry ?? DEFAULT_MAX_CARRY;
-  const maxAgeDays = limits.maxAgeDays ?? DEFAULT_MAX_AGE_DAYS;
-
   const plan: RadiusPlan = { fresh: [], carried: [], refused: [], inside: [] };
   for (const cell of cells) {
     const spec = `${cell.specId}@${cell.specHash}`;
@@ -145,36 +181,35 @@ export function planRadiusCampaign(
       );
       continue;
     }
-    const origin = source.carried;
-    const campaigns = (origin?.age.campaigns ?? 0) + 1;
-    // A carried copy keeps the times of the fresh run, so this is the end of the fresh run either way.
-    const days = Math.max(0, (limits.now.getTime() - Date.parse(source.finishedAt)) / DAY_MS);
-    if (campaigns > maxCarry) {
-      refuse(`carried ${campaigns - 1} campaigns in a row, the limit is ${maxCarry}`);
+    const provenance = limits.currentProvenance?.(cell);
+    if (!sameCarryContext(source.provenance, provenance, source.target, cell.target, manifest)) {
+      refuse('current execution context differs or cannot be proved');
       continue;
     }
-    if (days > maxAgeDays) {
-      refuse(`its fresh run is ${Math.floor(days)} days old, the limit is ${maxAgeDays}`);
+    if (!sameBlockInputs(source, limits.currentSpec?.(cell))) {
+      refuse('current block inputs differ or cannot be reconstructed');
       continue;
     }
-    const agentVersion = origin?.agentVersion ?? sourceVersion;
-    plan.carried.push({
-      cell,
-      source,
-      carried: {
-        fromCampaign: origin?.fromCampaign ?? baseline.campaignId,
-        fromRun: origin?.fromRun ?? source.runId,
-        ...(agentVersion === undefined ? {} : { agentVersion }),
-        age: { campaigns, days: Math.round(days * 100) / 100 },
-      },
-    });
+    const origin = carryOrigin(source, baseline.campaignId, limits);
+    if ('reason' in origin) {
+      refuse(origin.reason);
+      continue;
+    }
+    plan.carried.push({ cell, source, provenance, carried: origin.carried });
   }
   return plan;
 }
 
 /** The run a carried cell stores: the baseline run under the cell's own id and target, stamped. */
 export function carriedRun(entry: CarriedCell): RunResult {
-  return { ...entry.source, runId: entry.cell.cellId, target: entry.cell.target, carried: entry.carried };
+  return {
+    ...entry.source,
+    runId: entry.cell.cellId,
+    target: entry.cell.target,
+    provenance: entry.provenance,
+    provenanceDigest: provenanceDigest({ provenance: entry.provenance, blocks: entry.source.blocks }),
+    carried: entry.carried,
+  };
 }
 
 /** Writes the carried copies under the carrying campaign. `resume` and `status` then find a completed run for each. */

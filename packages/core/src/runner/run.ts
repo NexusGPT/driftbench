@@ -32,6 +32,7 @@ import {
 } from './given';
 import { describeContradiction, ledgerVerdicts } from './ledger';
 import { preflightTargetPrices, priceObserved, TokenPriceError, TokenPrices } from './pricing';
+import { captureArtifacts, provenanceDigest, provenanceHash, runProvenance } from './provenance';
 import { type RecoveryOptions, recoveryOf } from './recovery';
 import { CallFailure, describeError, type RetryOptions, retryLayer, withRetry } from './retry';
 import { canonicalPreviousStage, flowVerdicts, readStage, stageSignatures } from './stages';
@@ -53,6 +54,8 @@ export type RunOptions = {
   onEvent?: (event: RunEvent) => void;
   /** Keeps the events on the run record (its events field), in order. Off by default: a run record stays as it was. */
   recordEvents?: boolean;
+  /** Add execution provenance to records. Off for standalone runs unless requested. */
+  recordProvenance?: boolean;
   adapter: AgentAdapter;
   /** Decides each block's stimulus. The scripted driver of `@agent-nexus/driftbench-users` replays the spec's blocks. */
   driver: UserDriver;
@@ -147,6 +150,7 @@ export async function runSpec(spec: Spec, options: RunOptions): Promise<RunResul
   const run: RunContext = {
     prices,
     requireTokenPrices: options.requireTokenPrices === true,
+    provenance: options.recordProvenance ? runProvenance({ ...options, target }) : undefined,
     spec,
     specHash,
     cacheSpecHash,
@@ -209,6 +213,7 @@ export async function runSpec(spec: Spec, options: RunOptions): Promise<RunResul
 type RunContext = {
   prices: TokenPrices | undefined;
   requireTokenPrices: boolean;
+  provenance: RunResult['provenance'];
   spec: Spec;
   specHash: string;
   /** The hash the cache key carries: the spec's, without its version label. */
@@ -426,6 +431,9 @@ async function execute(run: RunContext, channel: Channel): Promise<RunResult | u
         if (planned.lastSpecBlock && composed) endState = endStateValue(run.endState, sources, composed);
       }
 
+      const capture = run.provenance
+        ? captureArtifacts({ observed, readArtifact: channel.readArtifact() })
+        : undefined;
       const verdicts = await applyChecks(run.checks, {
         spec,
         mode: run.mode,
@@ -439,7 +447,7 @@ async function execute(run: RunContext, channel: Channel): Promise<RunResult | u
         ledger: facts.ledger,
         endState,
         artifacts: run.artifacts,
-        readArtifact: channel.readArtifact(),
+        readArtifact: capture ? capture.readArtifact : channel.readArtifact(),
       });
       // The stage reached: the runtime's, else the step classifier's. Before the block: in T the stage the
       // spec expects of the blocks before it, in F and P the stage the run's previous block reached.
@@ -463,6 +471,16 @@ async function execute(run: RunContext, channel: Channel): Promise<RunResult | u
         index: position,
         ...(planned.blockId !== undefined ? { blockId: planned.blockId } : {}),
         ...(planned.injected ? { injected: true } : {}),
+        ...(capture
+          ? {
+              provenance: {
+                specIndex: step.kind === 'block' ? step.blockIndex : step.beforeBlock,
+                stimulusHash: provenanceHash(planned.stimulus),
+                ledgerHash: provenanceHash(facts.ledger),
+                artifacts: capture.artifacts,
+              },
+            }
+          : {}),
         givenHash: given.hash,
         cacheKey: key,
         observed,
@@ -524,6 +542,12 @@ async function execute(run: RunContext, channel: Channel): Promise<RunResult | u
       : undefined;
   const message = [error, note].filter((part) => part !== undefined).join('; ');
   return {
+    ...(run.provenance
+      ? {
+          provenance: run.provenance,
+          provenanceDigest: provenanceDigest({ provenance: run.provenance, blocks }),
+        }
+      : {}),
     runId: run.runId,
     specId: spec.id,
     specHash: run.specHash,

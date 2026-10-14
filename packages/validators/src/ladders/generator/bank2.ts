@@ -552,10 +552,11 @@ function contrastItems(): BankItem[] {
         async check(data) {
           const generated = await data.generated();
           const specs = walking(generated, path).filter((spec) => probes(spec).length === 0);
+          // Invariance varies persona/channel while holding all input and returned data fixed.
           const slots = (spec: Spec) =>
             JSON.stringify(
               Object.entries(cellOf(spec))
-                .filter(([key]) => key.includes('.in.'))
+                .filter(([key]) => key.includes('.in.') || key.includes('.out.'))
                 .sort(),
             );
           const pair = specs.some((left) =>
@@ -609,10 +610,11 @@ function contrastItems(): BankItem[] {
         async check(data) {
           const generated = await data.generated();
           const specs = walking(generated, path).filter((spec) => probes(spec).length === 0);
+          // Invariance varies persona/channel while holding all input and returned data fixed.
           const slots = (spec: Spec) =>
             JSON.stringify(
               Object.entries(cellOf(spec))
-                .filter(([key]) => key.includes('.in.'))
+                .filter(([key]) => key.includes('.in.') || key.includes('.out.'))
                 .sort(),
             );
           const pair = specs.some((left) =>
