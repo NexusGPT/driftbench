@@ -64,6 +64,7 @@ One phrasing of a deviation.
 | `id` | string matching `^[a-z0-9][a-z0-9-]*$` | yes |  | An id, unique in the pack: lower case letters, digits and hyphens. |
 | `approved` | boolean | yes |  | True once a person has read the phrasing and accepts it. |
 | `note` | string | no |  | Why the phrasing exists, for the reviewer. |
+| `ends_conversation` | boolean | no |  | In attack, stop only after this conversation phrasing has checked, passing reply expectations. |
 | `user` | string | no |  | The message the user sends. Empty is silence (D7 only). |
 | `burst` | list of strings, each not empty, at least 2 items | no |  | Messages that arrive together (D7 only). |
 | `world` | [Phrasing world](#phrasing-world) | no |  | A change of the world (D6 on a conversation). |

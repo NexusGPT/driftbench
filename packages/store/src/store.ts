@@ -514,7 +514,10 @@ export class SqliteStore implements Store {
   async getVersion(kind: RegistryKind, name: string, ref?: string): Promise<RegistryVersion | undefined> {
     const versions = await this.listVersions(kind, name);
     if (ref === undefined || ref === 'latest') return versions.at(-1);
-    if (/^\d+$/.test(ref)) return versions.find((each) => each.version === Number(ref));
+    if (/^\d+$/.test(ref)) {
+      const numbered = versions.find((each) => each.version === Number(ref));
+      if (numbered || ref.length < 6 || ref.length > 64) return numbered;
+    }
     if (/^[0-9a-f]{6,64}$/.test(ref)) {
       const found = versions.filter((each) => each.hash.startsWith(ref));
       if (found.length > 1) {
