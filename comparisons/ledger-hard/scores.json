@@ -1,0 +1,1312 @@
+{
+  "generated": "2026-10-13T11:20:31.272301+00:00",
+  "seal_sha256": "5845e97e2651d2942134209e4abfa8f932409744930bd0d143ebbe03877b07a4",
+  "tables": [
+    {
+      "model": "haiku",
+      "row": "rubric",
+      "comparator": "peer",
+      "n": 384,
+      "sealed_n": 384,
+      "complete": true,
+      "ours": 373,
+      "peer": 370,
+      "wins": 7,
+      "losses": 4,
+      "both_correct": 366,
+      "both_wrong": 7,
+      "ours_wilson95": [
+        0.9494403292620704,
+        0.9839307474163485
+      ],
+      "peer_wilson95": [
+        0.9397404349689982,
+        0.9781604028694468
+      ],
+      "family_bootstrap95": {
+        "ours": [
+          0.9296875,
+          1.0
+        ],
+        "peer": [
+          0.890625,
+          1.0
+        ],
+        "difference": [
+          -0.0234375,
+          0.052083333333333336
+        ]
+      },
+      "ours_inconclusive": 11,
+      "peer_inconclusive": 0,
+      "one_sided_p": 0.2744140625,
+      "one_sided_exact": "281/1024",
+      "two_sided_p": 0.548828125,
+      "two_sided_exact": "281/512",
+      "ours_usage": {
+        "unique_calls": 384,
+        "measured_usd": 0.16368267,
+        "price_note": "CLI-reported",
+        "prompt_tokens": 768,
+        "completion_tokens": 171993,
+        "measured_usd_per_100": 0.0426256953125
+      },
+      "peer_usage": {
+        "unique_calls": 384,
+        "measured_usd": 0.11850245000000001,
+        "price_note": "CLI-reported",
+        "prompt_tokens": 768,
+        "completion_tokens": 64249,
+        "measured_usd_per_100": 0.030860013020833334
+      },
+      "discordant_ids": [
+        "ledger-hard-rubric-g1-007",
+        "ledger-hard-rubric-g1-018",
+        "ledger-hard-rubric-g1-028",
+        "ledger-hard-rubric-g1-094",
+        "ledger-hard-rubric-g1-100",
+        "ledger-hard-rubric-g1-145",
+        "ledger-hard-rubric-g2-012",
+        "ledger-hard-rubric-g2-036",
+        "ledger-hard-rubric-g2-043",
+        "ledger-hard-rubric-g2-105",
+        "ledger-hard-rubric-g2-175"
+      ],
+      "nominal_verdict": "TIE (not equivalence)"
+    },
+    {
+      "model": "haiku",
+      "row": "factuality",
+      "comparator": "peer",
+      "n": 384,
+      "sealed_n": 384,
+      "complete": true,
+      "ours": 384,
+      "peer": 352,
+      "wins": 32,
+      "losses": 0,
+      "both_correct": 352,
+      "both_wrong": 0,
+      "ours_wilson95": [
+        0.9900952857583228,
+        0.9999999999999999
+      ],
+      "peer_wilson95": [
+        0.8847252825824549,
+        0.9403541222161474
+      ],
+      "family_bootstrap95": {
+        "ours": [
+          1.0,
+          1.0
+        ],
+        "peer": [
+          0.8046875,
+          1.0
+        ],
+        "difference": [
+          0.0,
+          0.1953125
+        ]
+      },
+      "ours_inconclusive": 0,
+      "peer_inconclusive": 0,
+      "one_sided_p": 2.3283064365386963e-10,
+      "one_sided_exact": "1/4294967296",
+      "two_sided_p": 4.656612873077393e-10,
+      "two_sided_exact": "1/2147483648",
+      "ours_usage": {
+        "unique_calls": 384,
+        "measured_usd": 0.16964537000000002,
+        "price_note": "CLI-reported",
+        "prompt_tokens": 768,
+        "completion_tokens": 166600,
+        "measured_usd_per_100": 0.04417848177083333
+      },
+      "peer_usage": {
+        "unique_calls": 384,
+        "measured_usd": 0.13694266000000002,
+        "price_note": "CLI-reported",
+        "prompt_tokens": 768,
+        "completion_tokens": 89554,
+        "measured_usd_per_100": 0.03566215104166667
+      },
+      "discordant_ids": [
+        "ledger-hard-factuality-g1-032",
+        "ledger-hard-factuality-g1-039",
+        "ledger-hard-factuality-g1-049",
+        "ledger-hard-factuality-g1-050",
+        "ledger-hard-factuality-g1-051",
+        "ledger-hard-factuality-g1-065",
+        "ledger-hard-factuality-g1-066",
+        "ledger-hard-factuality-g1-072",
+        "ledger-hard-factuality-g1-091",
+        "ledger-hard-factuality-g1-095",
+        "ledger-hard-factuality-g1-107",
+        "ledger-hard-factuality-g1-136",
+        "ledger-hard-factuality-g1-160",
+        "ledger-hard-factuality-g1-169",
+        "ledger-hard-factuality-g1-173",
+        "ledger-hard-factuality-g1-175",
+        "ledger-hard-factuality-g1-176",
+        "ledger-hard-factuality-g1-186",
+        "ledger-hard-factuality-g2-001",
+        "ledger-hard-factuality-g2-047",
+        "ledger-hard-factuality-g2-050",
+        "ledger-hard-factuality-g2-052",
+        "ledger-hard-factuality-g2-061",
+        "ledger-hard-factuality-g2-069",
+        "ledger-hard-factuality-g2-093",
+        "ledger-hard-factuality-g2-111",
+        "ledger-hard-factuality-g2-112",
+        "ledger-hard-factuality-g2-132",
+        "ledger-hard-factuality-g2-150",
+        "ledger-hard-factuality-g2-151",
+        "ledger-hard-factuality-g2-152",
+        "ledger-hard-factuality-g2-167"
+      ],
+      "nominal_verdict": "nominal lead"
+    },
+    {
+      "model": "haiku",
+      "row": "pii",
+      "comparator": "peer",
+      "n": 384,
+      "sealed_n": 384,
+      "complete": true,
+      "ours": 378,
+      "peer": 381,
+      "wins": 2,
+      "losses": 5,
+      "both_correct": 376,
+      "both_wrong": 1,
+      "ours_wilson95": [
+        0.9663350498714426,
+        0.9928197582069328
+      ],
+      "peer_wilson95": [
+        0.9772854879797644,
+        0.9973395589385846
+      ],
+      "family_bootstrap95": {
+        "ours": [
+          0.953125,
+          1.0
+        ],
+        "peer": [
+          0.9791666666666666,
+          1.0
+        ],
+        "difference": [
+          -0.0390625,
+          0.015625
+        ]
+      },
+      "ours_inconclusive": 0,
+      "peer_inconclusive": 0,
+      "one_sided_p": 0.9375,
+      "one_sided_exact": "15/16",
+      "two_sided_p": 0.453125,
+      "two_sided_exact": "29/64",
+      "ours_usage": {
+        "unique_calls": 384,
+        "measured_usd": 0.17640931,
+        "price_note": "CLI-reported",
+        "prompt_tokens": 768,
+        "completion_tokens": 188645,
+        "measured_usd_per_100": 0.04593992447916667
+      },
+      "peer_usage": {
+        "unique_calls": 384,
+        "measured_usd": 0.13748557,
+        "price_note": "CLI-reported",
+        "prompt_tokens": 768,
+        "completion_tokens": 75343,
+        "measured_usd_per_100": 0.035803533854166666
+      },
+      "discordant_ids": [
+        "ledger-hard-pii-g1-049",
+        "ledger-hard-pii-g1-105",
+        "ledger-hard-pii-g1-141",
+        "ledger-hard-pii-g1-151",
+        "ledger-hard-pii-g2-018",
+        "ledger-hard-pii-g2-044",
+        "ledger-hard-pii-g2-128"
+      ],
+      "nominal_verdict": "TIE (not equivalence)"
+    },
+    {
+      "model": "haiku",
+      "row": "goal",
+      "comparator": "peer",
+      "n": 384,
+      "sealed_n": 384,
+      "complete": true,
+      "ours": 381,
+      "peer": 192,
+      "wins": 189,
+      "losses": 0,
+      "both_correct": 192,
+      "both_wrong": 3,
+      "ours_wilson95": [
+        0.9772854879797644,
+        0.9973395589385846
+      ],
+      "peer_wilson95": [
+        0.4502387845765474,
+        0.5497612154234526
+      ],
+      "family_bootstrap95": {
+        "ours": [
+          0.9791666666666666,
+          1.0
+        ],
+        "peer": [
+          0.5,
+          0.5
+        ],
+        "difference": [
+          0.4791666666666667,
+          0.5
+        ]
+      },
+      "ours_inconclusive": 0,
+      "peer_inconclusive": 0,
+      "one_sided_p": 1.2744735289059618e-57,
+      "one_sided_exact": "1/784637716923335095479473677900958302012794430558004314112",
+      "two_sided_p": 2.5489470578119236e-57,
+      "two_sided_exact": "1/392318858461667547739736838950479151006397215279002157056",
+      "ours_usage": {
+        "unique_calls": 384,
+        "measured_usd": 0.19282806,
+        "price_note": "CLI-reported",
+        "prompt_tokens": 768,
+        "completion_tokens": 219487,
+        "measured_usd_per_100": 0.050215640625
+      },
+      "peer_usage": {
+        "unique_calls": 208,
+        "measured_usd": 0.09795340000000001,
+        "price_note": "CLI-reported",
+        "prompt_tokens": 416,
+        "completion_tokens": 59146,
+        "measured_usd_per_100": 0.02550869791666667
+      },
+      "discordant_ids": [
+        "ledger-hard-goal-g1-002",
+        "ledger-hard-goal-g1-004",
+        "ledger-hard-goal-g1-006",
+        "ledger-hard-goal-g1-010",
+        "ledger-hard-goal-g1-014",
+        "ledger-hard-goal-g1-016",
+        "ledger-hard-goal-g1-017",
+        "ledger-hard-goal-g1-019",
+        "ledger-hard-goal-g1-023",
+        "ledger-hard-goal-g1-026",
+        "ledger-hard-goal-g1-027",
+        "ledger-hard-goal-g1-029",
+        "ledger-hard-goal-g1-030",
+        "ledger-hard-goal-g1-033",
+        "ledger-hard-goal-g1-034",
+        "ledger-hard-goal-g1-036",
+        "ledger-hard-goal-g1-037",
+        "ledger-hard-goal-g1-038",
+        "ledger-hard-goal-g1-039",
+        "ledger-hard-goal-g1-042",
+        "ledger-hard-goal-g1-043",
+        "ledger-hard-goal-g1-044",
+        "ledger-hard-goal-g1-045",
+        "ledger-hard-goal-g1-050",
+        "ledger-hard-goal-g1-053",
+        "ledger-hard-goal-g1-057",
+        "ledger-hard-goal-g1-063",
+        "ledger-hard-goal-g1-064",
+        "ledger-hard-goal-g1-067",
+        "ledger-hard-goal-g1-070",
+        "ledger-hard-goal-g1-072",
+        "ledger-hard-goal-g1-073",
+        "ledger-hard-goal-g1-074",
+        "ledger-hard-goal-g1-076",
+        "ledger-hard-goal-g1-077",
+        "ledger-hard-goal-g1-079",
+        "ledger-hard-goal-g1-083",
+        "ledger-hard-goal-g1-086",
+        "ledger-hard-goal-g1-087",
+        "ledger-hard-goal-g1-089",
+        "ledger-hard-goal-g1-090",
+        "ledger-hard-goal-g1-092",
+        "ledger-hard-goal-g1-093",
+        "ledger-hard-goal-g1-094",
+        "ledger-hard-goal-g1-096",
+        "ledger-hard-goal-g1-097",
+        "ledger-hard-goal-g1-098",
+        "ledger-hard-goal-g1-099",
+        "ledger-hard-goal-g1-100",
+        "ledger-hard-goal-g1-101",
+        "ledger-hard-goal-g1-102",
+        "ledger-hard-goal-g1-103",
+        "ledger-hard-goal-g1-104",
+        "ledger-hard-goal-g1-107",
+        "ledger-hard-goal-g1-108",
+        "ledger-hard-goal-g1-109",
+        "ledger-hard-goal-g1-113",
+        "ledger-hard-goal-g1-115",
+        "ledger-hard-goal-g1-116",
+        "ledger-hard-goal-g1-117",
+        "ledger-hard-goal-g1-118",
+        "ledger-hard-goal-g1-119",
+        "ledger-hard-goal-g1-120",
+        "ledger-hard-goal-g1-127",
+        "ledger-hard-goal-g1-131",
+        "ledger-hard-goal-g1-133",
+        "ledger-hard-goal-g1-134",
+        "ledger-hard-goal-g1-137",
+        "ledger-hard-goal-g1-138",
+        "ledger-hard-goal-g1-143",
+        "ledger-hard-goal-g1-145",
+        "ledger-hard-goal-g1-147",
+        "ledger-hard-goal-g1-148",
+        "ledger-hard-goal-g1-149",
+        "ledger-hard-goal-g1-150",
+        "ledger-hard-goal-g1-151",
+        "ledger-hard-goal-g1-152",
+        "ledger-hard-goal-g1-153",
+        "ledger-hard-goal-g1-155",
+        "ledger-hard-goal-g1-158",
+        "ledger-hard-goal-g1-160",
+        "ledger-hard-goal-g1-162",
+        "ledger-hard-goal-g1-163",
+        "ledger-hard-goal-g1-165",
+        "ledger-hard-goal-g1-166",
+        "ledger-hard-goal-g1-167",
+        "ledger-hard-goal-g1-168",
+        "ledger-hard-goal-g1-173",
+        "ledger-hard-goal-g1-174",
+        "ledger-hard-goal-g1-175",
+        "ledger-hard-goal-g1-184",
+        "ledger-hard-goal-g1-186",
+        "ledger-hard-goal-g1-190",
+        "ledger-hard-goal-g1-192",
+        "ledger-hard-goal-g2-001",
+        "ledger-hard-goal-g2-003",
+        "ledger-hard-goal-g2-004",
+        "ledger-hard-goal-g2-009",
+        "ledger-hard-goal-g2-012",
+        "ledger-hard-goal-g2-014",
+        "ledger-hard-goal-g2-015",
+        "ledger-hard-goal-g2-021",
+        "ledger-hard-goal-g2-023",
+        "ledger-hard-goal-g2-025",
+        "ledger-hard-goal-g2-026",
+        "ledger-hard-goal-g2-032",
+        "ledger-hard-goal-g2-033",
+        "ledger-hard-goal-g2-034",
+        "ledger-hard-goal-g2-039",
+        "ledger-hard-goal-g2-040",
+        "ledger-hard-goal-g2-041",
+        "ledger-hard-goal-g2-043",
+        "ledger-hard-goal-g2-046",
+        "ledger-hard-goal-g2-048",
+        "ledger-hard-goal-g2-049",
+        "ledger-hard-goal-g2-050",
+        "ledger-hard-goal-g2-051",
+        "ledger-hard-goal-g2-055",
+        "ledger-hard-goal-g2-058",
+        "ledger-hard-goal-g2-059",
+        "ledger-hard-goal-g2-060",
+        "ledger-hard-goal-g2-061",
+        "ledger-hard-goal-g2-064",
+        "ledger-hard-goal-g2-065",
+        "ledger-hard-goal-g2-070",
+        "ledger-hard-goal-g2-072",
+        "ledger-hard-goal-g2-073",
+        "ledger-hard-goal-g2-074",
+        "ledger-hard-goal-g2-075",
+        "ledger-hard-goal-g2-077",
+        "ledger-hard-goal-g2-079",
+        "ledger-hard-goal-g2-080",
+        "ledger-hard-goal-g2-081",
+        "ledger-hard-goal-g2-082",
+        "ledger-hard-goal-g2-083",
+        "ledger-hard-goal-g2-084",
+        "ledger-hard-goal-g2-087",
+        "ledger-hard-goal-g2-090",
+        "ledger-hard-goal-g2-092",
+        "ledger-hard-goal-g2-093",
+        "ledger-hard-goal-g2-095",
+        "ledger-hard-goal-g2-097",
+        "ledger-hard-goal-g2-098",
+        "ledger-hard-goal-g2-099",
+        "ledger-hard-goal-g2-100",
+        "ledger-hard-goal-g2-102",
+        "ledger-hard-goal-g2-106",
+        "ledger-hard-goal-g2-107",
+        "ledger-hard-goal-g2-111",
+        "ledger-hard-goal-g2-112",
+        "ledger-hard-goal-g2-115",
+        "ledger-hard-goal-g2-116",
+        "ledger-hard-goal-g2-121",
+        "ledger-hard-goal-g2-124",
+        "ledger-hard-goal-g2-125",
+        "ledger-hard-goal-g2-126",
+        "ledger-hard-goal-g2-127",
+        "ledger-hard-goal-g2-132",
+        "ledger-hard-goal-g2-135",
+        "ledger-hard-goal-g2-139",
+        "ledger-hard-goal-g2-142",
+        "ledger-hard-goal-g2-145",
+        "ledger-hard-goal-g2-148",
+        "ledger-hard-goal-g2-150",
+        "ledger-hard-goal-g2-151",
+        "ledger-hard-goal-g2-152",
+        "ledger-hard-goal-g2-155",
+        "ledger-hard-goal-g2-156",
+        "ledger-hard-goal-g2-157",
+        "ledger-hard-goal-g2-159",
+        "ledger-hard-goal-g2-160",
+        "ledger-hard-goal-g2-163",
+        "ledger-hard-goal-g2-164",
+        "ledger-hard-goal-g2-165",
+        "ledger-hard-goal-g2-166",
+        "ledger-hard-goal-g2-167",
+        "ledger-hard-goal-g2-168",
+        "ledger-hard-goal-g2-170",
+        "ledger-hard-goal-g2-171",
+        "ledger-hard-goal-g2-173",
+        "ledger-hard-goal-g2-175",
+        "ledger-hard-goal-g2-177",
+        "ledger-hard-goal-g2-183",
+        "ledger-hard-goal-g2-184",
+        "ledger-hard-goal-g2-188",
+        "ledger-hard-goal-g2-189",
+        "ledger-hard-goal-g2-190",
+        "ledger-hard-goal-g2-191",
+        "ledger-hard-goal-g2-192"
+      ],
+      "nominal_verdict": "nominal lead"
+    },
+    {
+      "model": "haiku",
+      "row": "goal",
+      "comparator": "peer-full-state",
+      "n": 384,
+      "sealed_n": 384,
+      "complete": true,
+      "ours": 381,
+      "peer": 353,
+      "wins": 30,
+      "losses": 2,
+      "both_correct": 351,
+      "both_wrong": 1,
+      "ours_wilson95": [
+        0.9772854879797644,
+        0.9973395589385846
+      ],
+      "peer_wilson95": [
+        0.8876901019215098,
+        0.9425460491570841
+      ],
+      "family_bootstrap95": {
+        "ours": [
+          0.9791666666666666,
+          1.0
+        ],
+        "peer": [
+          0.7916666666666666,
+          1.0
+        ],
+        "difference": [
+          -0.0078125,
+          0.19010416666666666
+        ]
+      },
+      "ours_inconclusive": 0,
+      "peer_inconclusive": 0,
+      "one_sided_p": 1.2316741049289703e-07,
+      "one_sided_exact": "529/4294967296",
+      "two_sided_p": 2.4633482098579407e-07,
+      "two_sided_exact": "529/2147483648",
+      "ours_usage": {
+        "unique_calls": 384,
+        "measured_usd": 0.19282806,
+        "price_note": "CLI-reported",
+        "prompt_tokens": 768,
+        "completion_tokens": 219487,
+        "measured_usd_per_100": 0.050215640625
+      },
+      "peer_usage": {
+        "unique_calls": 384,
+        "measured_usd": 0.18775740000000002,
+        "price_note": "CLI-reported",
+        "prompt_tokens": 768,
+        "completion_tokens": 110074,
+        "measured_usd_per_100": 0.04889515625000001
+      },
+      "discordant_ids": [
+        "ledger-hard-goal-g1-005",
+        "ledger-hard-goal-g1-010",
+        "ledger-hard-goal-g1-021",
+        "ledger-hard-goal-g1-048",
+        "ledger-hard-goal-g1-051",
+        "ledger-hard-goal-g1-054",
+        "ledger-hard-goal-g1-056",
+        "ledger-hard-goal-g1-063",
+        "ledger-hard-goal-g1-064",
+        "ledger-hard-goal-g1-070",
+        "ledger-hard-goal-g1-087",
+        "ledger-hard-goal-g1-110",
+        "ledger-hard-goal-g1-128",
+        "ledger-hard-goal-g1-164",
+        "ledger-hard-goal-g2-005",
+        "ledger-hard-goal-g2-006",
+        "ledger-hard-goal-g2-010",
+        "ledger-hard-goal-g2-018",
+        "ledger-hard-goal-g2-020",
+        "ledger-hard-goal-g2-028",
+        "ledger-hard-goal-g2-053",
+        "ledger-hard-goal-g2-066",
+        "ledger-hard-goal-g2-075",
+        "ledger-hard-goal-g2-091",
+        "ledger-hard-goal-g2-096",
+        "ledger-hard-goal-g2-107",
+        "ledger-hard-goal-g2-113",
+        "ledger-hard-goal-g2-114",
+        "ledger-hard-goal-g2-122",
+        "ledger-hard-goal-g2-155",
+        "ledger-hard-goal-g2-156",
+        "ledger-hard-goal-g2-182"
+      ],
+      "nominal_verdict": "nominal lead"
+    },
+    {
+      "model": "haiku",
+      "row": "pooled-default",
+      "comparator": "mixed",
+      "n": 1536,
+      "sealed_n": 1536,
+      "complete": true,
+      "ours": 1516,
+      "peer": 1295,
+      "wins": 230,
+      "losses": 9,
+      "both_correct": 1286,
+      "both_wrong": 11,
+      "ours_wilson95": [
+        0.9799732526337237,
+        0.9915553365144922
+      ],
+      "peer_wilson95": [
+        0.8240567483326774,
+        0.8604293031126568
+      ],
+      "family_bootstrap95": {
+        "ours": [
+          0.9739583333333334,
+          0.9973958333333334
+        ],
+        "peer": [
+          0.8118489583333334,
+          0.87109375
+        ],
+        "difference": [
+          0.11979166666666667,
+          0.17317708333333334
+        ]
+      },
+      "ours_inconclusive": 11,
+      "peer_inconclusive": 0,
+      "one_sided_p": 7.089581405696355e-57,
+      "one_sided_exact": "391443940536313/55213970774324510299478046898216203619608871777363092441300193790394368",
+      "two_sided_p": 1.417916281139271e-56,
+      "two_sided_exact": "391443940536313/27606985387162255149739023449108101809804435888681546220650096895197184",
+      "nominal_verdict": "nominal lead",
+      "holm18_missing_as_one": 2.5522493060506876e-55
+    },
+    {
+      "model": "haiku",
+      "row": "pooled-equal-evidence",
+      "comparator": "mixed",
+      "n": 1536,
+      "sealed_n": 1536,
+      "complete": true,
+      "ours": 1516,
+      "peer": 1456,
+      "wins": 71,
+      "losses": 11,
+      "both_correct": 1445,
+      "both_wrong": 9,
+      "ours_wilson95": [
+        0.9799732526337237,
+        0.9915553365144922
+      ],
+      "peer_wilson95": [
+        0.9356451354823688,
+        0.9579533529320331
+      ],
+      "family_bootstrap95": {
+        "ours": [
+          0.9739583333333334,
+          0.9973958333333334
+        ],
+        "peer": [
+          0.9049479166666666,
+          0.984375
+        ],
+        "difference": [
+          0.005208333333333333,
+          0.07877604166666667
+        ]
+      },
+      "ours_inconclusive": 11,
+      "peer_inconclusive": 0,
+      "one_sided_p": 3.4068915063373505e-12,
+      "one_sided_exact": "4118679106637/1208925819614629174706176",
+      "two_sided_p": 6.813783012674701e-12,
+      "two_sided_exact": "4118679106637/604462909807314587353088",
+      "nominal_verdict": "nominal lead"
+    },
+    {
+      "model": "gpt-6-luna",
+      "row": "rubric",
+      "comparator": "peer",
+      "n": 384,
+      "sealed_n": 384,
+      "complete": true,
+      "ours": 370,
+      "peer": 379,
+      "wins": 4,
+      "losses": 13,
+      "both_correct": 366,
+      "both_wrong": 1,
+      "ours_wilson95": [
+        0.9397404349689982,
+        0.9781604028694468
+      ],
+      "peer_wilson95": [
+        0.969885754626481,
+        0.9944257997318855
+      ],
+      "family_bootstrap95": {
+        "ours": [
+          0.921875,
+          0.9947916666666666
+        ],
+        "peer": [
+          0.9609375,
+          1.0
+        ],
+        "difference": [
+          -0.0703125,
+          0.013020833333333334
+        ]
+      },
+      "ours_inconclusive": 7,
+      "peer_inconclusive": 0,
+      "one_sided_p": 0.9936370849609375,
+      "one_sided_exact": "65119/65536",
+      "two_sided_p": 0.049041748046875,
+      "two_sided_exact": "1607/32768",
+      "ours_usage": {
+        "unique_calls": 384,
+        "measured_usd": 0.058005600000000004,
+        "price_note": "Provider pricing verified by owner 2026-10-13",
+        "prompt_tokens": 168896,
+        "completion_tokens": 82232,
+        "measured_usd_per_100": 0.015105625000000001
+      },
+      "peer_usage": {
+        "unique_calls": 384,
+        "measured_usd": 0.028609500000000003,
+        "price_note": "Provider pricing verified by owner 2026-10-13",
+        "prompt_tokens": 106560,
+        "completion_tokens": 35907,
+        "measured_usd_per_100": 0.007450390625000001
+      },
+      "discordant_ids": [
+        "ledger-hard-rubric-g1-026",
+        "ledger-hard-rubric-g1-028",
+        "ledger-hard-rubric-g1-060",
+        "ledger-hard-rubric-g1-084",
+        "ledger-hard-rubric-g1-087",
+        "ledger-hard-rubric-g1-092",
+        "ledger-hard-rubric-g1-164",
+        "ledger-hard-rubric-g1-165",
+        "ledger-hard-rubric-g2-005",
+        "ledger-hard-rubric-g2-012",
+        "ledger-hard-rubric-g2-036",
+        "ledger-hard-rubric-g2-040",
+        "ledger-hard-rubric-g2-079",
+        "ledger-hard-rubric-g2-104",
+        "ledger-hard-rubric-g2-123",
+        "ledger-hard-rubric-g2-131",
+        "ledger-hard-rubric-g2-179"
+      ],
+      "nominal_verdict": "LOSS"
+    },
+    {
+      "model": "gpt-6-luna",
+      "row": "factuality",
+      "comparator": "peer",
+      "n": 384,
+      "sealed_n": 384,
+      "complete": true,
+      "ours": 384,
+      "peer": 383,
+      "wins": 1,
+      "losses": 0,
+      "both_correct": 383,
+      "both_wrong": 0,
+      "ours_wilson95": [
+        0.9900952857583228,
+        0.9999999999999999
+      ],
+      "peer_wilson95": [
+        0.9853983868469071,
+        0.9995401526314246
+      ],
+      "family_bootstrap95": {
+        "ours": [
+          1.0,
+          1.0
+        ],
+        "peer": [
+          0.9921875,
+          1.0
+        ],
+        "difference": [
+          0.0,
+          0.0078125
+        ]
+      },
+      "ours_inconclusive": 0,
+      "peer_inconclusive": 1,
+      "one_sided_p": 0.5,
+      "one_sided_exact": "1/2",
+      "two_sided_p": 1.0,
+      "two_sided_exact": "1",
+      "ours_usage": {
+        "unique_calls": 384,
+        "measured_usd": 0.0573324,
+        "price_note": "Provider pricing verified by owner 2026-10-13",
+        "prompt_tokens": 187984,
+        "completion_tokens": 77068,
+        "measured_usd_per_100": 0.014930312500000001
+      },
+      "peer_usage": {
+        "unique_calls": 384,
+        "measured_usd": 0.0400478,
+        "price_note": "Provider pricing verified by owner 2026-10-13",
+        "prompt_tokens": 150608,
+        "completion_tokens": 49974,
+        "measured_usd_per_100": 0.010429114583333333
+      },
+      "discordant_ids": [
+        "ledger-hard-factuality-g1-103"
+      ],
+      "nominal_verdict": "TIE (not equivalence)"
+    },
+    {
+      "model": "gpt-6-luna",
+      "row": "pii",
+      "comparator": "peer",
+      "n": 384,
+      "sealed_n": 384,
+      "complete": true,
+      "ours": 384,
+      "peer": 369,
+      "wins": 15,
+      "losses": 0,
+      "both_correct": 369,
+      "both_wrong": 0,
+      "ours_wilson95": [
+        0.9900952857583228,
+        0.9999999999999999
+      ],
+      "peer_wilson95": [
+        0.9365570797743691,
+        0.9761870117840848
+      ],
+      "family_bootstrap95": {
+        "ours": [
+          1.0,
+          1.0
+        ],
+        "peer": [
+          0.8828125,
+          1.0
+        ],
+        "difference": [
+          0.0,
+          0.1171875
+        ]
+      },
+      "ours_inconclusive": 0,
+      "peer_inconclusive": 0,
+      "one_sided_p": 3.0517578125e-05,
+      "one_sided_exact": "1/32768",
+      "two_sided_p": 6.103515625e-05,
+      "two_sided_exact": "1/16384",
+      "ours_usage": {
+        "unique_calls": 384,
+        "measured_usd": 0.075549,
+        "price_note": "Provider pricing verified by owner 2026-10-13",
+        "prompt_tokens": 187360,
+        "completion_tokens": 113626,
+        "measured_usd_per_100": 0.01967421875
+      },
+      "peer_usage": {
+        "unique_calls": 384,
+        "measured_usd": 0.0293208,
+        "price_note": "Provider pricing verified by owner 2026-10-13",
+        "prompt_tokens": 124608,
+        "completion_tokens": 33720,
+        "measured_usd_per_100": 0.007635625
+      },
+      "discordant_ids": [
+        "ledger-hard-pii-g1-042",
+        "ledger-hard-pii-g1-046",
+        "ledger-hard-pii-g1-086",
+        "ledger-hard-pii-g1-105",
+        "ledger-hard-pii-g1-131",
+        "ledger-hard-pii-g1-135",
+        "ledger-hard-pii-g1-185",
+        "ledger-hard-pii-g1-191",
+        "ledger-hard-pii-g2-014",
+        "ledger-hard-pii-g2-020",
+        "ledger-hard-pii-g2-082",
+        "ledger-hard-pii-g2-118",
+        "ledger-hard-pii-g2-128",
+        "ledger-hard-pii-g2-136",
+        "ledger-hard-pii-g2-178"
+      ],
+      "nominal_verdict": "nominal lead"
+    },
+    {
+      "model": "gpt-6-luna",
+      "row": "goal",
+      "comparator": "peer",
+      "n": 384,
+      "sealed_n": 384,
+      "complete": true,
+      "ours": 384,
+      "peer": 182,
+      "wins": 202,
+      "losses": 0,
+      "both_correct": 182,
+      "both_wrong": 0,
+      "ours_wilson95": [
+        0.9900952857583228,
+        0.9999999999999999
+      ],
+      "peer_wilson95": [
+        0.42452192257573396,
+        0.5239106146243533
+      ],
+      "family_bootstrap95": {
+        "ours": [
+          1.0,
+          1.0
+        ],
+        "peer": [
+          0.421875,
+          0.5
+        ],
+        "difference": [
+          0.5,
+          0.578125
+        ]
+      },
+      "ours_inconclusive": 0,
+      "peer_inconclusive": 0,
+      "one_sided_p": 1.5557538194652854e-61,
+      "one_sided_exact": "1/6427752177035961102167848369364650410088811975131171341205504",
+      "two_sided_p": 3.111507638930571e-61,
+      "two_sided_exact": "1/3213876088517980551083924184682325205044405987565585670602752",
+      "ours_usage": {
+        "unique_calls": 384,
+        "measured_usd": 0.06379800000000001,
+        "price_note": "Provider pricing verified by owner 2026-10-13",
+        "prompt_tokens": 185680,
+        "completion_tokens": 90460,
+        "measured_usd_per_100": 0.016614062500000002
+      },
+      "peer_usage": {
+        "unique_calls": 208,
+        "measured_usd": 0.0607256,
+        "price_note": "Provider pricing verified by owner 2026-10-13",
+        "prompt_tokens": 107296,
+        "completion_tokens": 99992,
+        "measured_usd_per_100": 0.015813958333333333
+      },
+      "discordant_ids": [
+        "ledger-hard-goal-g1-001",
+        "ledger-hard-goal-g1-003",
+        "ledger-hard-goal-g1-004",
+        "ledger-hard-goal-g1-010",
+        "ledger-hard-goal-g1-011",
+        "ledger-hard-goal-g1-013",
+        "ledger-hard-goal-g1-015",
+        "ledger-hard-goal-g1-016",
+        "ledger-hard-goal-g1-018",
+        "ledger-hard-goal-g1-022",
+        "ledger-hard-goal-g1-023",
+        "ledger-hard-goal-g1-024",
+        "ledger-hard-goal-g1-025",
+        "ledger-hard-goal-g1-027",
+        "ledger-hard-goal-g1-028",
+        "ledger-hard-goal-g1-030",
+        "ledger-hard-goal-g1-032",
+        "ledger-hard-goal-g1-033",
+        "ledger-hard-goal-g1-038",
+        "ledger-hard-goal-g1-040",
+        "ledger-hard-goal-g1-041",
+        "ledger-hard-goal-g1-046",
+        "ledger-hard-goal-g1-049",
+        "ledger-hard-goal-g1-051",
+        "ledger-hard-goal-g1-052",
+        "ledger-hard-goal-g1-054",
+        "ledger-hard-goal-g1-055",
+        "ledger-hard-goal-g1-056",
+        "ledger-hard-goal-g1-059",
+        "ledger-hard-goal-g1-060",
+        "ledger-hard-goal-g1-061",
+        "ledger-hard-goal-g1-062",
+        "ledger-hard-goal-g1-063",
+        "ledger-hard-goal-g1-064",
+        "ledger-hard-goal-g1-066",
+        "ledger-hard-goal-g1-068",
+        "ledger-hard-goal-g1-069",
+        "ledger-hard-goal-g1-070",
+        "ledger-hard-goal-g1-073",
+        "ledger-hard-goal-g1-074",
+        "ledger-hard-goal-g1-079",
+        "ledger-hard-goal-g1-082",
+        "ledger-hard-goal-g1-083",
+        "ledger-hard-goal-g1-084",
+        "ledger-hard-goal-g1-085",
+        "ledger-hard-goal-g1-087",
+        "ledger-hard-goal-g1-088",
+        "ledger-hard-goal-g1-090",
+        "ledger-hard-goal-g1-091",
+        "ledger-hard-goal-g1-092",
+        "ledger-hard-goal-g1-093",
+        "ledger-hard-goal-g1-094",
+        "ledger-hard-goal-g1-096",
+        "ledger-hard-goal-g1-097",
+        "ledger-hard-goal-g1-098",
+        "ledger-hard-goal-g1-104",
+        "ledger-hard-goal-g1-105",
+        "ledger-hard-goal-g1-106",
+        "ledger-hard-goal-g1-110",
+        "ledger-hard-goal-g1-113",
+        "ledger-hard-goal-g1-114",
+        "ledger-hard-goal-g1-116",
+        "ledger-hard-goal-g1-118",
+        "ledger-hard-goal-g1-122",
+        "ledger-hard-goal-g1-123",
+        "ledger-hard-goal-g1-124",
+        "ledger-hard-goal-g1-126",
+        "ledger-hard-goal-g1-130",
+        "ledger-hard-goal-g1-132",
+        "ledger-hard-goal-g1-133",
+        "ledger-hard-goal-g1-135",
+        "ledger-hard-goal-g1-136",
+        "ledger-hard-goal-g1-137",
+        "ledger-hard-goal-g1-138",
+        "ledger-hard-goal-g1-139",
+        "ledger-hard-goal-g1-144",
+        "ledger-hard-goal-g1-146",
+        "ledger-hard-goal-g1-152",
+        "ledger-hard-goal-g1-158",
+        "ledger-hard-goal-g1-159",
+        "ledger-hard-goal-g1-161",
+        "ledger-hard-goal-g1-164",
+        "ledger-hard-goal-g1-165",
+        "ledger-hard-goal-g1-166",
+        "ledger-hard-goal-g1-168",
+        "ledger-hard-goal-g1-170",
+        "ledger-hard-goal-g1-171",
+        "ledger-hard-goal-g1-172",
+        "ledger-hard-goal-g1-174",
+        "ledger-hard-goal-g1-175",
+        "ledger-hard-goal-g1-176",
+        "ledger-hard-goal-g1-177",
+        "ledger-hard-goal-g1-178",
+        "ledger-hard-goal-g1-179",
+        "ledger-hard-goal-g1-180",
+        "ledger-hard-goal-g1-181",
+        "ledger-hard-goal-g1-182",
+        "ledger-hard-goal-g1-183",
+        "ledger-hard-goal-g1-187",
+        "ledger-hard-goal-g1-189",
+        "ledger-hard-goal-g1-191",
+        "ledger-hard-goal-g2-002",
+        "ledger-hard-goal-g2-005",
+        "ledger-hard-goal-g2-006",
+        "ledger-hard-goal-g2-007",
+        "ledger-hard-goal-g2-008",
+        "ledger-hard-goal-g2-010",
+        "ledger-hard-goal-g2-013",
+        "ledger-hard-goal-g2-014",
+        "ledger-hard-goal-g2-015",
+        "ledger-hard-goal-g2-016",
+        "ledger-hard-goal-g2-017",
+        "ledger-hard-goal-g2-018",
+        "ledger-hard-goal-g2-019",
+        "ledger-hard-goal-g2-024",
+        "ledger-hard-goal-g2-025",
+        "ledger-hard-goal-g2-026",
+        "ledger-hard-goal-g2-027",
+        "ledger-hard-goal-g2-028",
+        "ledger-hard-goal-g2-029",
+        "ledger-hard-goal-g2-030",
+        "ledger-hard-goal-g2-036",
+        "ledger-hard-goal-g2-037",
+        "ledger-hard-goal-g2-039",
+        "ledger-hard-goal-g2-040",
+        "ledger-hard-goal-g2-044",
+        "ledger-hard-goal-g2-045",
+        "ledger-hard-goal-g2-051",
+        "ledger-hard-goal-g2-053",
+        "ledger-hard-goal-g2-054",
+        "ledger-hard-goal-g2-057",
+        "ledger-hard-goal-g2-059",
+        "ledger-hard-goal-g2-062",
+        "ledger-hard-goal-g2-063",
+        "ledger-hard-goal-g2-064",
+        "ledger-hard-goal-g2-065",
+        "ledger-hard-goal-g2-067",
+        "ledger-hard-goal-g2-069",
+        "ledger-hard-goal-g2-071",
+        "ledger-hard-goal-g2-074",
+        "ledger-hard-goal-g2-075",
+        "ledger-hard-goal-g2-076",
+        "ledger-hard-goal-g2-077",
+        "ledger-hard-goal-g2-078",
+        "ledger-hard-goal-g2-080",
+        "ledger-hard-goal-g2-081",
+        "ledger-hard-goal-g2-085",
+        "ledger-hard-goal-g2-088",
+        "ledger-hard-goal-g2-089",
+        "ledger-hard-goal-g2-091",
+        "ledger-hard-goal-g2-092",
+        "ledger-hard-goal-g2-093",
+        "ledger-hard-goal-g2-094",
+        "ledger-hard-goal-g2-101",
+        "ledger-hard-goal-g2-103",
+        "ledger-hard-goal-g2-107",
+        "ledger-hard-goal-g2-108",
+        "ledger-hard-goal-g2-110",
+        "ledger-hard-goal-g2-112",
+        "ledger-hard-goal-g2-113",
+        "ledger-hard-goal-g2-114",
+        "ledger-hard-goal-g2-115",
+        "ledger-hard-goal-g2-117",
+        "ledger-hard-goal-g2-118",
+        "ledger-hard-goal-g2-119",
+        "ledger-hard-goal-g2-120",
+        "ledger-hard-goal-g2-122",
+        "ledger-hard-goal-g2-123",
+        "ledger-hard-goal-g2-125",
+        "ledger-hard-goal-g2-128",
+        "ledger-hard-goal-g2-133",
+        "ledger-hard-goal-g2-134",
+        "ledger-hard-goal-g2-135",
+        "ledger-hard-goal-g2-137",
+        "ledger-hard-goal-g2-138",
+        "ledger-hard-goal-g2-139",
+        "ledger-hard-goal-g2-140",
+        "ledger-hard-goal-g2-141",
+        "ledger-hard-goal-g2-142",
+        "ledger-hard-goal-g2-143",
+        "ledger-hard-goal-g2-146",
+        "ledger-hard-goal-g2-147",
+        "ledger-hard-goal-g2-148",
+        "ledger-hard-goal-g2-150",
+        "ledger-hard-goal-g2-154",
+        "ledger-hard-goal-g2-155",
+        "ledger-hard-goal-g2-156",
+        "ledger-hard-goal-g2-157",
+        "ledger-hard-goal-g2-158",
+        "ledger-hard-goal-g2-161",
+        "ledger-hard-goal-g2-162",
+        "ledger-hard-goal-g2-167",
+        "ledger-hard-goal-g2-169",
+        "ledger-hard-goal-g2-172",
+        "ledger-hard-goal-g2-175",
+        "ledger-hard-goal-g2-179",
+        "ledger-hard-goal-g2-180",
+        "ledger-hard-goal-g2-181",
+        "ledger-hard-goal-g2-184",
+        "ledger-hard-goal-g2-185",
+        "ledger-hard-goal-g2-188",
+        "ledger-hard-goal-g2-190"
+      ],
+      "nominal_verdict": "nominal lead"
+    },
+    {
+      "model": "gpt-6-luna",
+      "row": "goal",
+      "comparator": "peer-full-state",
+      "n": 384,
+      "sealed_n": 384,
+      "complete": true,
+      "ours": 384,
+      "peer": 379,
+      "wins": 5,
+      "losses": 0,
+      "both_correct": 379,
+      "both_wrong": 0,
+      "ours_wilson95": [
+        0.9900952857583228,
+        0.9999999999999999
+      ],
+      "peer_wilson95": [
+        0.969885754626481,
+        0.9944257997318855
+      ],
+      "family_bootstrap95": {
+        "ours": [
+          1.0,
+          1.0
+        ],
+        "peer": [
+          0.9635416666666666,
+          1.0
+        ],
+        "difference": [
+          0.0,
+          0.036458333333333336
+        ]
+      },
+      "ours_inconclusive": 0,
+      "peer_inconclusive": 0,
+      "one_sided_p": 0.03125,
+      "one_sided_exact": "1/32",
+      "two_sided_p": 0.0625,
+      "two_sided_exact": "1/16",
+      "ours_usage": {
+        "unique_calls": 384,
+        "measured_usd": 0.06379800000000001,
+        "price_note": "Provider pricing verified by owner 2026-10-13",
+        "prompt_tokens": 185680,
+        "completion_tokens": 90460,
+        "measured_usd_per_100": 0.016614062500000002
+      },
+      "peer_usage": {
+        "unique_calls": 384,
+        "measured_usd": 0.044345100000000005,
+        "price_note": "Provider pricing verified by owner 2026-10-13",
+        "prompt_tokens": 220256,
+        "completion_tokens": 44639,
+        "measured_usd_per_100": 0.011548203125000002
+      },
+      "discordant_ids": [
+        "ledger-hard-goal-g1-122",
+        "ledger-hard-goal-g2-006",
+        "ledger-hard-goal-g2-018",
+        "ledger-hard-goal-g2-091",
+        "ledger-hard-goal-g2-113"
+      ],
+      "nominal_verdict": "TIE (not equivalence)"
+    },
+    {
+      "model": "gpt-6-luna",
+      "row": "pooled-default",
+      "comparator": "mixed",
+      "n": 1536,
+      "sealed_n": 1536,
+      "complete": true,
+      "ours": 1522,
+      "peer": 1313,
+      "wins": 222,
+      "losses": 13,
+      "both_correct": 1300,
+      "both_wrong": 1,
+      "ours_wilson95": [
+        0.9847586893507685,
+        0.9945629098708291
+      ],
+      "peer_wilson95": [
+        0.8363147069918005,
+        0.8715503746736778
+      ],
+      "family_bootstrap95": {
+        "ours": [
+          0.98046875,
+          0.9986979166666666
+        ],
+        "peer": [
+          0.8287760416666666,
+          0.8743489583333334
+        ],
+        "difference": [
+          0.11458333333333333,
+          0.16276041666666666
+        ]
+      },
+      "ours_inconclusive": 7,
+      "peer_inconclusive": 1,
+      "one_sided_p": 1.4680145338114165e-50,
+      "one_sided_exact": "12664829932210496241/862718293348820473429344482784628181556388621521298319395315527974912",
+      "two_sided_p": 2.936029067622833e-50,
+      "two_sided_exact": "12664829932210496241/431359146674410236714672241392314090778194310760649159697657763987456",
+      "nominal_verdict": "nominal lead",
+      "holm18_missing_as_one": 4.991249414958816e-49
+    },
+    {
+      "model": "gpt-6-luna",
+      "row": "pooled-equal-evidence",
+      "comparator": "mixed",
+      "n": 1536,
+      "sealed_n": 1536,
+      "complete": true,
+      "ours": 1522,
+      "peer": 1510,
+      "wins": 25,
+      "losses": 13,
+      "both_correct": 1497,
+      "both_wrong": 1,
+      "ours_wilson95": [
+        0.9847586893507685,
+        0.9945629098708291
+      ],
+      "peer_wilson95": [
+        0.9753129664343998,
+        0.9884226126404347
+      ],
+      "family_bootstrap95": {
+        "ours": [
+          0.98046875,
+          0.9986979166666666
+        ],
+        "peer": [
+          0.9602864583333334,
+          0.9986979166666666
+        ],
+        "difference": [
+          -0.011067708333333334,
+          0.031901041666666664
+        ]
+      },
+      "ours_inconclusive": 7,
+      "peer_inconclusive": 1,
+      "one_sided_p": 0.036475694258115254,
+      "one_sided_exact": "2506590623/68719476736",
+      "two_sided_p": 0.07295138851623051,
+      "two_sided_exact": "2506590623/34359738368",
+      "nominal_verdict": "TIE (not equivalence)"
+    }
+  ],
+  "unique_calls": 6560,
+  "measured_usd": 1.83894069,
+  "cap_accounted_usd": 1.83894069,
+  "failed_calls": 0,
+  "luna_calls_token_priced": 3280,
+  "gemini": "pending billing",
+  "dialect_variant": "pending core dossier",
+  "resolved_models": [
+    "claude-haiku-5-5",
+    "gpt-6-luna"
+  ]
+}

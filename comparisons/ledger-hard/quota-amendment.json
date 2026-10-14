@@ -1,0 +1,16 @@
+{
+  "stamp": "2026-10-13T08:32:23.945950+00:00",
+  "authorization": "Owner: Drop Gemini to 2 calls at a time. On 429: no-answer transport, waits of 60, 120, 240 s, never counted as a judge failure.",
+  "gemini_call_limit": 2,
+  "combined_call_limit": 4,
+  "quota_backoff_seconds": [
+    60,
+    120,
+    240
+  ],
+  "exhausted_quota": "Retain the request as pending without a scored answer; pause that provider and continue independent queues. No exhausted quota call becomes a judge failure.",
+  "drained_previous_workers_at": "2026-10-13T08:29:26.774761+00:00",
+  "sha256": {
+    "comparisons/ledger-hard/resume.py": "28452d3360d6668f8e35f9d855b459d5fa451c06b3f82dcccd275ef93f1c963c"
+  }
+}

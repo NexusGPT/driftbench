@@ -1,0 +1,20 @@
+{
+  "created": "2026-10-13T13:42:25.296991+00:00",
+  "reason": "Required five-call cost pilot projects above the owner USD 25 gate",
+  "cell_cap_usd": 25,
+  "measured_usd": 0.028311,
+  "projected_usd": 37.144032,
+  "recorded": 5,
+  "remaining": 6555,
+  "resume": "explicit owner cap amendment only",
+  "answered_keys_retained_once": [
+    "d40bc9049ffbac00a4e179adf3204e8260c5f76762184b9d5e7d5ed08f5d340e",
+    "43ef25f07e2f65efb789a7b7844867f60790fb42316850d410cb42bd6116543a",
+    "9adf05345e72429a91ba78b3d84d158873d63dfc0c558fb9c9f33308fef01ecc",
+    "4193331e57062fe3c362db8f7d8657842984ef475fdcba3ba5cd3fa5e6334a34",
+    "4428b9623a55563384bf766c54df8479aa7aea895e0a51fa73ef1d0a1dbcb5d8"
+  ],
+  "outcomes_used": false,
+  "resolved_by": "budget-amendment.json",
+  "resolution": "Owner approves USD 45 and a next-five cache pilot before full continuation"
+}

@@ -18,14 +18,14 @@ The counts come from each tool's comparison table in the repository's evidence r
 
 ## Public judge benchmarks
 
-Each benchmark has a slot on its own page. A slot shows "run in progress" until its chart is committed, and "data not public" where the benchmark's data is not published.
+Each benchmark has a section on its own page, with its chart. A section says "data not public" where the benchmark's data is not published.
 
 | Benchmark | Status | Page |
 |---|---|---|
-| JudgeBench | run in progress | [JudgeBench](benchmarks/index.md#judgebench) |
-| LongJudgeBench | run in progress | [LongJudgeBench](benchmarks/index.md#longjudgebench) |
-| MM-Eval | run in progress | [MM-Eval](benchmarks/index.md#mm-eval) |
-| RubricBench | run in progress | [RubricBench](benchmarks/index.md#rubricbench) |
+| JudgeBench | charted, three models | [JudgeBench](benchmarks/index.md#judgebench) |
+| LongJudgeBench | charted, verify with one model and writing with three | [LongJudgeBench](benchmarks/index.md#longjudgebench) |
+| MM-Eval | charted, three models | [MM-Eval](benchmarks/index.md#mm-eval) |
+| RubricBench | charted, three models | [RubricBench](benchmarks/index.md#rubricbench) |
 | RubricEval | data not public | [RubricEval](benchmarks/index.md#rubriceval) |
 
 The method behind every chart of the README is on [how the README numbers were measured](methods.md).

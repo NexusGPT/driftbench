@@ -1,0 +1,29 @@
+{
+  "stamp": "2026-10-13T12:45:15.429411+00:00",
+  "authorization": "Approved, logged as a freeze amendment: Flash Lite cell cap 9 USD, overall 21 USD, the 12 USD allocation for 3.8 kept.",
+  "cell_cap_usd": 9,
+  "overall_cap_usd": 21,
+  "original_allocation_usd": 12,
+  "reason": "Complete exactly the same sealed requests; all reasoning, prompts, cases, order and statistical rules unchanged.",
+  "sha256": {
+    "comparisons/ledger-hard/lite-run.py": "bdb71f6d27b070dc1f6cf34918bcb0ba15db327117fd22cbdea35cbe3a1779d8",
+    "comparisons/ledger-hard/lite-score.py": "ade0810f6869dcef2199376ab0276729aa7169642f87de9e114b8783517ad895"
+  },
+  "prior_amendments": [
+    {
+      "stamp": "2026-10-13T12:15:29.402001+00:00",
+      "authorization": "Approved, logged as a freeze amendment: the Flash Lite cell cap rises to 8 USD and the overall cap to 20 USD, keeping the 12 USD allocation for the parked 3.8 work. Finish full coverage.",
+      "cell_cap_usd": 8,
+      "overall_cap_usd": 20,
+      "original_allocation_usd": 12,
+      "reason": "Complete exactly the same sealed requests; all reasoning, prompts, cases, order and statistical rules unchanged.",
+      "sha256": {
+        "comparisons/ledger-hard/lite-run.py": "bdb71f6d27b070dc1f6cf34918bcb0ba15db327117fd22cbdea35cbe3a1779d8",
+        "comparisons/ledger-hard/lite-score.py": "ade0810f6869dcef2199376ab0276729aa7169642f87de9e114b8783517ad895"
+      }
+    }
+  ],
+  "drained_recorded_requests": 5259,
+  "drained_model_measured_usd": 6.426996,
+  "source_contract_changed": false
+}
