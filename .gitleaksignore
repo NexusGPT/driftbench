@@ -419,3 +419,6 @@ b1c1f43af3da53f0b3ce5c730db7e21c9e637b3d:comparisons/hard-peers/calls/old-langwa
 b1c1f43af3da53f0b3ce5c730db7e21c9e637b3d:comparisons/hard-peers/calls/old-langwatch.jsonl.parts/part-0001.txt:generic-api-key:97
 b1c1f43af3da53f0b3ce5c730db7e21c9e637b3d:comparisons/hard-peers/calls/old-langwatch.jsonl.parts/part-0001.txt:generic-api-key:98
 b1c1f43af3da53f0b3ce5c730db7e21c9e637b3d:comparisons/hard-peers/calls/old-langwatch.jsonl.parts/part-0001.txt:generic-api-key:99
+
+# Verified SHA-256 of power_api.py at this commit; source integrity metadata.
+5d2a15114ccddd73f0c71de0bc94ffa3bd6cddba:comparisons/deepeval/lead/power/api/policy.json:generic-api-key:43

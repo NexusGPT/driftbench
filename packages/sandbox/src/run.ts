@@ -6,7 +6,7 @@ import { performance } from 'node:perf_hooks';
 import type { ExecutionRecord } from '@agent-nexus/driftbench-core';
 import { trackGroup, untrackGroup } from './cleanup';
 import { TIMEOUT_EXIT_CODE } from './limits';
-import { candidatePids, scanWorkingFolders } from './process-scan';
+import { orphanPids, scanWorkingFolders, youngProcesses } from './process-scan';
 
 /**
  * Runs one process with bounded output and a timeout, and returns its execution record. The process
@@ -148,20 +148,17 @@ function realFolder(folder: string): string {
  * walk of the process tree finds it). A child that moved to another folder is not found.
  */
 function killInside(root: string): string | undefined {
-  const { pids, note } = pidsInside(root);
-  for (const pid of pids) {
-    if (pid === process.pid) continue;
-    try {
-      process.kill(pid, 'SIGKILL');
-    } catch {
-      // It ended on its own, or it is not ours to kill.
-    }
-  }
-  return note;
-}
-
-function pidsInside(root: string): { pids: number[]; note?: string } {
   const inside = (folder: string) => folder === root || folder.startsWith(`${root}${sep}`);
+  const end = (pids: readonly number[]) => {
+    for (const pid of pids) {
+      if (pid === process.pid) continue;
+      try {
+        process.kill(pid, 'SIGKILL');
+      } catch {
+        // It ended on its own, or it is not ours to kill.
+      }
+    }
+  };
   try {
     if (process.platform === 'linux') {
       const pids: number[] = [];
@@ -173,15 +170,28 @@ function pidsInside(root: string): { pids: number[]; note?: string } {
           // Not readable: another user's process, or one that just ended.
         }
       }
-      return { pids };
+      end(pids);
+      return undefined;
     }
-    const { folders, note } = scanWorkingFolders(candidatePids(root));
-    return { pids: folders.filter(({ cwd }) => inside(cwd)).map(({ pid }) => pid), note };
+    // No /proc: a working folder costs a subprocess, slow on a busy host, and a child that wakes within
+    // that time has run. The processes the system adopted are few and are asked first, then ended.
+    const young = youngProcesses(root);
+    const first = young ? orphanPids(young) : [];
+    let note: string | undefined;
+    const sweep = (pids?: readonly number[]) => {
+      const found = scanWorkingFolders(pids);
+      end(found.folders.filter(({ cwd }) => inside(cwd)).map(({ pid }) => pid));
+      note ??= found.note;
+    };
+    if (first.length > 0) sweep(first);
+    const spared = new Set(first);
+    sweep(young?.map(({ pid }) => pid).filter((pid) => !spared.has(pid)));
+    return note;
   } catch {
     // The listing is unavailable: the group kill has still run.
     return process.platform === 'linux'
-      ? { pids: [] }
-      : { pids: [], note: 'driftbench: cwd sweep skipped; process listing unavailable' };
+      ? undefined
+      : 'driftbench: cwd sweep skipped; process listing unavailable';
   }
 }
 

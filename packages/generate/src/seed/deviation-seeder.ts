@@ -3,6 +3,7 @@
 import { NONE } from '@agent-nexus/driftbench-space';
 import { type BlockDraft, choosePhrase, draftCriterion, type Pick, pickOf, type SpecDraft } from './assemble';
 import { TOOL_FAILURE } from './deviation';
+import { draftOutput } from './draft-output';
 import { type Edge, type StageGraph, stageGraph } from './graph';
 import { dimensionId, type PreparedMap, phraseKey, valueId } from './map';
 import { pick, rngFor, streamSeed } from './random';
@@ -62,7 +63,8 @@ export function deviationSeeder(
   prepared: PreparedMap,
   context: SeedContext,
 ): { drafts: SpecDraft[]; summary: DeviationSummary } {
-  const drafts: SpecDraft[] = [];
+  const output = draftOutput(context);
+  const drafts = output.drafts;
   const probes: DeviationSummary['probes'] = [];
   const dimension = prepared.deviation;
   if (dimension === undefined) return { drafts, summary: { classes: 0, probes } };
@@ -70,9 +72,9 @@ export function deviationSeeder(
   const anchors = anchorStages(prepared, graph);
   const classes = prepared.space.dimensions[dimension]?.values.filter((value) => value.id !== NONE) ?? [];
   for (const value of classes) {
-    if (drafts.length >= context.max) break;
+    if (output.count >= context.max) break;
     const deviation: Pick = [dimension, prepared.space.dimensions[dimension]?.index.get(value.id) ?? 0];
-    const id = `gen-deviation-${pad(drafts.length + 1)}`;
+    const id = `gen-deviation-${pad(output.count + 1)}`;
     if (hasPaths(prepared)) {
       const required = new Set(
         (prepared.inventory?.flows ?? [])
@@ -96,7 +98,7 @@ export function deviationSeeder(
         (prepared.phrasesOf.get(phraseKey(dimensionId(prepared, dimension), value.id)) ?? []).length > 0;
       if ('draft' in built) {
         built.draft.cell.push(deviation);
-        drafts.push(built.draft);
+        output.push(built.draft);
         const injected = built.draft.blocks.findIndex((block) => block.injection === value.id);
         const path = built.path.stages;
         const first = injected < 0 ? null : (path[injected] ?? null);
@@ -105,8 +107,8 @@ export function deviationSeeder(
         // looks the same as staying when the probe is already at the goal, so one stage proves nothing.
         const stages = prepared.space.dimensions[prepared.stage ?? -1]?.values.map((entry) => entry.id) ?? [];
         for (const stage of [...stages].reverse()) {
-          if (stage === first || drafts.length >= context.max) continue;
-          const again = `gen-deviation-${pad(drafts.length + 1)}`;
+          if (stage === first || output.count >= context.max) continue;
+          const again = `gen-deviation-${pad(output.count + 1)}`;
           const other = scenarioDraft(
             prepared,
             context,
@@ -122,18 +124,18 @@ export function deviationSeeder(
           );
           if (!('draft' in other)) continue;
           other.draft.cell.push(deviation);
-          drafts.push(other.draft);
+          output.push(other.draft);
           break;
         }
         continue;
       }
       const fallback = probeDraft(prepared, context, id, 'deviation', deviation, anchors);
-      drafts.push(withReasons(fallback.draft, built.reasons));
+      output.push(withReasons(fallback.draft, built.reasons));
       probes.push({ class: value.id, stage: null, spec: id, phrase });
       continue;
     }
     const probe = probeDraft(prepared, context, id, 'deviation', deviation, anchors);
-    drafts.push(probe.draft);
+    output.push(probe.draft);
     probes.push({
       class: value.id,
       stage: probe.anchor,
