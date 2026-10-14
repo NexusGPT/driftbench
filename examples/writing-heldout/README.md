@@ -1,6 +1,6 @@
 # Writing held-out pool and length check
 
-Status: closed with no change proposed. The fresh pool is sealed and unspent.
+Status: the default judge gains nothing honest on writing (below). The owner then asked for a declared preference for long, structured replies: `judgePairLedger(..., { preference: 'long-structured' })`, off by default. Its results, labelled "driftbench, long-structured setting", are in `results/RESULTS.md`: on the fresh pool it is a significant win against all five peers after Holm; on the recorded TEST against four of five (DeepEval is a tie).
 
 ## What is here
 
