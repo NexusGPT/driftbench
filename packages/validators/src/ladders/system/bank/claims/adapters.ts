@@ -253,34 +253,58 @@ function functionItems(): BankItem[] {
       component: FN,
       source: 'contract',
       title:
-        'index.md "The contract suite": open carries the adapter, the target and the Given, and its history is a copy of the prefix',
-      cause: 'functionAdapter.open starts the session history as a copy of the prefix',
+        'function.md "What the agent receives": open preserves the prefix and rejects writes into handed-over messages without changing history or Given',
+      cause: 'functionAdapter.open protects handed-over messages from caller writes',
       async check({ seed }) {
+        // Deliberately unfrozen: direct callers receive the same protection as the runner.
         const prefix: Message[] = [
           { role: 'user', content: `Earlier question ${code(seed)}` },
           { role: 'assistant', content: 'Earlier answer' },
         ];
         const given = givenOf({ prefix });
+        const prefixBefore = JSON.stringify(prefix);
+        const givenBefore = JSON.stringify(given);
         const adapter = functionAdapter({ respond: () => textObserved('x') });
         const session = await adapter.open(given);
-        const before = canonicalJson(session.history);
-        (given.prefix[0] as Message).content = 'changed after open';
-        return expectAll([
-          [session.adapter === 'function', `expected session.adapter function, got ${session.adapter}`],
-          [same(session.target, TARGET), `expected the target ${show(TARGET)}, got ${show(session.target)}`],
-          [session.given === given || same(session.given, given), 'expected the session to carry the Given'],
-          [
-            before ===
-              canonicalJson(
-                prefix.map((m, i) => (i === 0 ? { ...m, content: `Earlier question ${code(seed)}` } : m)),
-              ),
-            `expected the history to equal the prefix at open, got ${before}`,
-          ],
-          [
-            canonicalJson(session.history) === before,
-            `expected the history to stay as it was when the prefix changed after open, got ${show(session.history)}`,
-          ],
-        ]);
+        try {
+          const historyBefore = JSON.stringify(session.history);
+          const callerError = await caught(async () => {
+            (prefix[0] as Message).content = 'changed after open';
+          });
+          const sessionError = await caught(async () => {
+            (session.history[1] as Message).content = 'changed through session';
+          });
+          return expectAll([
+            [session.adapter === 'function', `expected session.adapter function, got ${session.adapter}`],
+            [
+              same(session.target, TARGET),
+              `expected the target ${show(TARGET)}, got ${show(session.target)}`,
+            ],
+            [
+              session.given === given || same(session.given, given),
+              'expected the session to carry the Given',
+            ],
+            [
+              historyBefore === prefixBefore,
+              `expected history to equal the prefix at open, got ${historyBefore}`,
+            ],
+            [
+              JSON.stringify(session.history) === historyBefore,
+              'a caller write changed session history bytes',
+            ],
+            [JSON.stringify(given) === givenBefore, 'a caller write changed Given bytes'],
+            [
+              callerError instanceof TypeError,
+              `expected a caller message write to throw TypeError, got ${kindOf(callerError)}`,
+            ],
+            [
+              sessionError instanceof TypeError,
+              `expected a session message write to throw TypeError, got ${kindOf(sessionError)}`,
+            ],
+          ]);
+        } finally {
+          await adapter.close(session);
+        }
       },
     }),
     adapterItem({
@@ -345,34 +369,89 @@ function functionItems(): BankItem[] {
       component: FN,
       source: 'adversarial',
       title:
-        'function.md "What the agent receives": every argument is a copy, so an agent that mutates them changes neither the session nor the Given',
-      cause: 'functionAdapter.send hands the agent copies of the history, world and vars',
+        'function.md "What the agent receives": message writes fail loudly, history and Given stay byte-identical, and each turn receives private arrays, world and vars',
+      cause: 'functionAdapter.send protects message contents and isolates each turn from agent writes',
       async check({ seed }) {
-        const given = givenOf({ world: { fixtures: { code: code(seed) } }, vars: { channel: 'chat' } });
+        const given = givenOf({
+          prefix: [
+            {
+              role: 'assistant',
+              content: 'Earlier call',
+              tool_calls: [{ label: 'records.lookup', input: { code: code(seed) } }],
+            },
+          ],
+          world: { fixtures: { code: code(seed) } },
+          vars: { preferences: { channel: 'chat' } },
+        });
+        const views: string[] = [];
+        const inputs: string[] = [];
+        const arrays: Message[][] = [];
+        const reachedMessageWrite: boolean[] = [];
+        let attempt = 0;
         const adapter = functionAdapter({
           respond: (messages, world, vars) => {
+            views.push(JSON.stringify(messages));
+            inputs.push(JSON.stringify([world, vars]));
+            arrays.push(messages);
+            const newest = messages.at(-1) as Message;
+            const earlier = messages[0] as Message;
+            // These writes must succeed on private per-turn containers, even when the
+            // following message write aborts the turn. Nested values must be private too.
             messages.push({ role: 'assistant', content: 'smuggled' });
-            (messages[0] as Message).content = 'rewritten';
-            (world as Record<string, unknown>).fixtures = { code: 'R-0000' };
-            vars.channel = 'hijacked';
+            messages[0] = { role: 'user', content: 'replaced only in the agent array' };
+            (world.fixtures as Record<string, unknown>).code = 'R-0000';
+            (vars.preferences as Record<string, unknown>).channel = 'hijacked';
+            const calls = earlier.tool_calls;
+            if (!calls?.[0]) throw new Error('the agent did not receive the planted tool call');
+            reachedMessageWrite[attempt] = true;
+            if (attempt === 0) newest.content = 'rewritten';
+            else if (attempt === 1) {
+              (calls[0].input as Record<string, unknown>).code = 'rewritten nested input';
+            } else calls.push({ label: 'smuggled' });
             return textObserved('ok');
           },
         });
         const session = await adapter.open(given);
-        session.history.push({ role: 'user', content: `Hi ${code(seed)}` });
-        const historyBefore = canonicalJson(session.history);
-        const givenBefore = canonicalJson(given);
-        await adapter.send(session, { index: 0, stimulus: { user: `Hi ${code(seed)}` }, given });
-        return expectAll([
-          [
-            canonicalJson(session.history) === historyBefore,
-            `expected the history unchanged by the agent, got ${show(session.history)}`,
-          ],
-          [
-            canonicalJson(given) === givenBefore,
-            `expected the Given unchanged by the agent, got ${show(given)}`,
-          ],
-        ]);
+        const givenBefore = JSON.stringify(given);
+        const inputsBefore = JSON.stringify([given.world, given.vars]);
+        const checks: Array<readonly [boolean, string]> = [];
+        try {
+          for (attempt = 0; attempt < 3; attempt += 1) {
+            const user = `Hi ${code(seed)} turn ${attempt}`;
+            // No runner and no fixture freeze: send must protect a directly appended message.
+            session.history.push({ role: 'user', content: user });
+            const historyBefore = JSON.stringify(session.history);
+            const retainedBefore = arrays.map((messages) => JSON.stringify(messages));
+            const error = await caught(adapter.send(session, { index: attempt, stimulus: { user }, given }));
+            checks.push(
+              [
+                JSON.stringify(session.history) === historyBefore,
+                `turn ${attempt}: an agent write changed history bytes`,
+              ],
+              [JSON.stringify(given) === givenBefore, `turn ${attempt}: an agent write changed Given bytes`],
+              [
+                views[attempt] === historyBefore,
+                `turn ${attempt}: a prior turn changed the next history view`,
+              ],
+              [inputs[attempt] === inputsBefore, `turn ${attempt}: a prior turn changed world or vars`],
+              [
+                reachedMessageWrite[attempt] === true,
+                `turn ${attempt}: private array, world or vars writes were blocked`,
+              ],
+              [
+                error instanceof AgentFailure && error.cause instanceof TypeError,
+                `turn ${attempt}: expected AgentFailure caused by TypeError for the message write, got ${kindOf(error)}`,
+              ],
+              [
+                retainedBefore.every((before, i) => JSON.stringify(arrays[i]) === before),
+                `turn ${attempt}: a later turn changed an earlier agent array`,
+              ],
+            );
+          }
+          return expectAll(checks);
+        } finally {
+          await adapter.close(session);
+        }
       },
     }),
     adapterItem({
@@ -2664,27 +2743,96 @@ fs.writeFileSync('src/a${ctx.seed}.js', '3');`;
       component: PROC,
       source: 'differential',
       title:
-        'index.md "The contract suite": the session history is a copy of the prefix (the function and http adapters copy it deeply; the process session must not share message objects with the Given)',
-      cause: 'processAdapter.open copies the prefix messages into the session history',
+        'process.md "How a block runs": handed-over host messages reject writes, and child edits of serialised history cannot change host history or another turn',
+      cause: 'processAdapter protects host messages at handoff and isolates child history edits',
       async check(ctx) {
-        const dir = folderFor(ctx, 'history-copy');
-        const adapter = processAdapter({
-          command: process.execPath,
-          provider: localProvider({ dir: join(dir, 'sandboxes') }),
-        });
         const prefix: Message[] = [{ role: 'user', content: `Earlier ${code(ctx.seed)}` }];
-        const given = givenOf({ prefix });
-        const session = await adapter.open(given);
-        try {
-          (session.history[0] as Message).content = 'edited in the session';
-          return given.prefix[0]?.content === `Earlier ${code(ctx.seed)}`
-            ? PASS
-            : fail(
-                `expected the Given prefix untouched by an edit of the session history, it now reads ${show(given.prefix[0]?.content)}`,
+        const prefixBefore = JSON.stringify(prefix);
+        const body = `
+const file = process.env.DRIFTBENCH_HISTORY_FILE;
+const messages = JSON.parse(fs.readFileSync(file, 'utf8'));
+const before = JSON.stringify(messages);
+messages[0].content = 'edited in the child';
+messages.push({ role: 'assistant', content: 'smuggled' });
+fs.writeFileSync(file, JSON.stringify(messages));
+process.stdout.write(JSON.stringify({ before, after: fs.readFileSync(file, 'utf8') }));`;
+        return withProcess(
+          ctx,
+          'history-copy',
+          body,
+          {},
+          async ({ adapter, session }) => {
+            const givenBefore = JSON.stringify(session.given);
+            const historyAtOpen = JSON.stringify(session.history);
+            const callerError = await caught(async () => {
+              (prefix[0] as Message).content = 'edited by the caller';
+            });
+            const sessionError = await caught(async () => {
+              (session.history[0] as Message).content = 'edited in the session';
+            });
+            const checks: Array<readonly [boolean, string]> = [
+              [historyAtOpen === prefixBefore, 'expected history to equal the prefix at open'],
+              [
+                JSON.stringify(session.history) === historyAtOpen,
+                'a host write changed session history bytes',
+              ],
+              [JSON.stringify(session.given) === givenBefore, 'a host write changed Given bytes'],
+              [
+                callerError instanceof TypeError,
+                `expected a caller message write to throw TypeError, got ${kindOf(callerError)}`,
+              ],
+              [
+                sessionError instanceof TypeError,
+                `expected a session message write to throw TypeError, got ${kindOf(sessionError)}`,
+              ],
+            ];
+            for (let index = 0; index < 2; index += 1) {
+              const user = `Now ${code(ctx.seed)} turn ${index}`;
+              const message: Message = { role: 'user', content: user };
+              session.history.push(message);
+              const historyBefore = JSON.stringify(session.history);
+              const observed = await adapter.send(session, {
+                index,
+                stimulus: { user },
+                given: session.given,
+              });
+              const child = JSON.parse(observed.text) as { before: string; after: string };
+              const expectedEdit = JSON.parse(historyBefore) as Message[];
+              (expectedEdit[0] as Message).content = 'edited in the child';
+              expectedEdit.push({ role: 'assistant', content: 'smuggled' });
+              checks.push(
+                [child.before === historyBefore, `turn ${index}: the child received a changed history view`],
+                [
+                  child.after === JSON.stringify(expectedEdit),
+                  `turn ${index}: the child did not perform its serialised history edit`,
+                ],
+                [
+                  JSON.stringify(session.history) === historyBefore,
+                  `turn ${index}: the child changed host history bytes`,
+                ],
+                [
+                  JSON.stringify(session.given) === givenBefore,
+                  `turn ${index}: the child changed Given bytes`,
+                ],
               );
-        } finally {
-          await adapter.close(session);
-        }
+              const lateError = await caught(async () => {
+                message.content = 'edited after send';
+              });
+              checks.push(
+                [
+                  JSON.stringify(session.history) === historyBefore,
+                  `turn ${index}: a late caller write changed history bytes`,
+                ],
+                [
+                  lateError instanceof TypeError,
+                  `turn ${index}: expected a handed-over message write to throw TypeError, got ${kindOf(lateError)}`,
+                ],
+              );
+            }
+            return expectAll(checks);
+          },
+          { prefix },
+        );
       },
     }),
   );

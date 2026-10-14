@@ -3,6 +3,7 @@ import {
   type AgentAdapter,
   AgentFailure,
   contentHash,
+  copyHistory,
   isPlainObject,
   type RetryPolicy,
   type Segment,
@@ -123,6 +124,8 @@ export function googleAdapter(options: GoogleAdapterOptions): AgentAdapter {
     capabilities: () => ({ ...capabilities }),
 
     async open(given) {
+      // Validate and freeze before user-supplied setup receives the Given.
+      copyHistory(given.prefix);
       const list = typeof options.tools === 'function' ? options.tools(given) : (options.tools ?? []);
       const state: GoogleState = {
         kind: 'google',
@@ -134,9 +137,10 @@ export function googleAdapter(options: GoogleAdapterOptions): AgentAdapter {
     },
 
     async send(session: Session, turn: Turn) {
+      const sharedHistory = copyHistory(session.history);
       const state = ownState<GoogleState>(session, id, 'google');
       const names = new WireNames(state.tools.keys(), GOOGLE_NAME, 128);
-      const history = toGoogleContents(session.history, names);
+      const history = toGoogleContents(sharedHistory, names);
       // A prompt version from the registry replaces the configured system prompt.
       const system = [session.target.prompt?.text ?? options.system ?? '', ...history.system]
         .filter((part) => part !== '')

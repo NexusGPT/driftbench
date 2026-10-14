@@ -1,0 +1,18 @@
+{
+  "at": "2026-10-13T16:22:32.210254+00:00",
+  "afterPilot": false,
+  "beforeTEST": true,
+  "authorization": "Agreed: a native refusal is a terminal response, never a transport no-answer, at any token count. Apply it identically to both contestants; record refusals as their own column. Fixed after pilot and before TEST, with no verdict changed.",
+  "strict": "A consumed native refusal makes the consuming contestant/item an error, symmetrically. Output-limit rule remains in force.",
+  "productFinal": "The frozen product final verdict, including built-in fallback, remains unchanged.",
+  "nativeEvidence": "stop_reason=refusal or Responses content type refusal",
+  "priorHashes": {
+    "runtime-freeze.json": "7bd9573b0ed9b9273896563295dae18fd6020e459bf5c54d6e9fb4d43093e95e",
+    "pilot-runtime-freeze.json": "7bd9573b0ed9b9273896563295dae18fd6020e459bf5c54d6e9fb4d43093e95e",
+    "reporting-freeze.json": "a7563ea875f1037a4798129120a4a879fd52ab195ddf0309578eca9ac48ff315"
+  },
+  "runtimeSha256": "35ef2c06561977e03255c8030c6893039e0bd7b5e9d995199236c9fcffbb7e33",
+  "reportingSha256": "5c1387e3fcf96b93710a378990af83b97dac82e971d4a8e39b97e6762dedd685",
+  "promptsChanged": false,
+  "returnedResponsesResent": false
+}

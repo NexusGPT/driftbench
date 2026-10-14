@@ -230,7 +230,7 @@ export type Verdict = z.infer<typeof Verdict>;
 
 export const BlockResult = z.strictObject({
   provenance: BlockProvenance.optional(),
-  carried: z.lazy(() => CarriedFrom).optional(),
+  carried: z.lazy(() => CarriedFrom.extend({ measuredAt: z.string().optional() })).optional(),
   rejudged: RejudgedFrom.optional(),
   index: z.number().int().min(0),
   blockId: z.string().optional(),
@@ -325,6 +325,13 @@ export type CarriedFrom = z.infer<typeof CarriedFrom>;
 
 export const RunResult = z.strictObject({
   provenance: RunProvenance.optional(),
+  blockRerun: z
+    .strictObject({
+      selected: z.array(z.number().int().nonnegative()),
+      downstreamNotRerun: z.array(z.number().int().nonnegative()),
+      reason: z.string(),
+    })
+    .optional(),
   rejudged: RejudgedFrom.optional(),
   /** Integrity of the run stamp and every block stamp, including the resolved Given hash. */
   provenanceDigest: z
@@ -351,6 +358,11 @@ export const RunResult = z.strictObject({
       diff: z.array(z.strictObject({ field: z.string(), expected: z.unknown(), observed: z.unknown() })),
     })
     .optional(),
+  /**
+   * The end state the adapter returned for `endState`, as the checks saw it (null when its source recorded
+   * nothing). Absent when no end state was read, and in runs stored before this field existed.
+   */
+  endStateValue: z.unknown().optional(),
   cost: z.number().nonnegative(),
   latencyMs: z.number().nonnegative(),
   startedAt: z.string().min(1),

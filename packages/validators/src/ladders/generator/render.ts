@@ -1,6 +1,8 @@
 import type { Inventory } from '@agent-nexus/driftbench-core';
 import { type Proposal, type ProposalDimension, renderProposal } from '@agent-nexus/driftbench-generate';
 import { NONE, type SpaceMap } from '@agent-nexus/driftbench-space';
+import { codeTask } from './code-task';
+import { defaultValue } from './follower';
 import type { HiddenProperty, HiddenSpec } from './hidden';
 import { DEVIATION_RULES } from './hidden';
 import { impossiblePairs } from './possible';
@@ -18,6 +20,8 @@ export const MAP_FILES = {
   prompt: 'prompt.md',
   inventory: 'inventory.yaml',
   tools: 'tools.yaml',
+  family: 'family.yaml',
+  oracle: 'oracle.mjs',
 } as const;
 
 /** The fixed date every rendered map records, so a seed renders the same bytes on any day. */
@@ -90,6 +94,8 @@ export function renderPrompt(spec: HiddenSpec): string {
     'Each returned field is stated as "<tool label with spaces> says <field> is <value>." Unspecified required integer inputs use their schema minimum.',
     ...replyRules(spec).map((rule) => `- ${rule.quote}`),
     '',
+    codeTask(spec).quote,
+    '',
     '## Users',
     '',
     ...spec.personas.map((persona) => `- ${persona.id}: ${title(persona.title)}`),
@@ -130,11 +136,17 @@ export function renderInventory(spec: HiddenSpec): string {
   return lines.join('\n');
 }
 
-function propertyLine(property: HiddenProperty): string {
+/**
+ * One property of a tool schema. An input property states its `default`: the value the rule follower sends
+ * when the conversation names none (follower.ts#defaultValue), so a direct call's other arguments are in the
+ * tools file, as the prompt says in prose ("Unspecified required integer inputs use their schema minimum").
+ */
+function propertyLine(property: HiddenProperty, input: boolean): string {
+  const fallback = input ? `, default: ${String(defaultValue(property))}` : '';
   if (property.type === 'enum')
-    return `${property.name}: { type: string, enum: [${property.members.join(', ')}] }`;
-  if (property.type === 'boolean') return `${property.name}: { type: boolean }`;
-  return `${property.name}: { type: integer, minimum: ${property.minimum}, maximum: ${property.maximum} }`;
+    return `${property.name}: { type: string, enum: [${property.members.join(', ')}]${fallback} }`;
+  if (property.type === 'boolean') return `${property.name}: { type: boolean${fallback} }`;
+  return `${property.name}: { type: integer, minimum: ${property.minimum}, maximum: ${property.maximum}${fallback} }`;
 }
 
 /** The tool schemas, in the `tools` list form the extractor and the generator read. */
@@ -151,7 +163,7 @@ export function renderTools(spec: HiddenSpec): string {
         '      type: object',
         `      required: [${properties.map((property) => property.name).join(', ')}]`,
         '      properties:',
-        ...properties.map((property) => `        ${propertyLine(property)}`),
+        ...properties.map((property) => `        ${propertyLine(property, key === 'input_schema')}`),
       );
     }
   }
@@ -379,6 +391,14 @@ export function hiddenProposal(spec: HiddenSpec): Proposal {
         evidence: { source: tools, quote: value.quote },
         ...common,
       })),
+    {
+      kind: 'task_family' as const,
+      flow: codeTask(spec).flow,
+      family: '.',
+      stages: [spec.goal, spec.goal],
+      evidence: { source: prompt, quote: codeTask(spec).quote },
+      ...common,
+    },
     ...spec.recoveries.map((recovery) => ({
       kind: 'recovery' as const,
       class: recovery.class,
@@ -434,6 +454,8 @@ export function renderMap(spec: HiddenSpec): RenderedMap {
     prompt: renderPrompt(spec),
     inventory: renderInventory(spec),
     tools: renderTools(spec),
+    family: codeTask(spec).family,
+    oracle: codeTask(spec).oracle,
   };
 }
 

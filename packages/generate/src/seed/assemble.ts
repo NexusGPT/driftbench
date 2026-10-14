@@ -348,7 +348,10 @@ export function renderDraft(prepared: PreparedMap, draft: SpecDraft, run: RunIde
   if (stages) spec.stages = stages;
   if (!incomplete && draft.criteria.length > 0) spec.criteria = draft.criteria;
   spec.blocks = blocks;
-  if (draft.rules) spec.rules = draft.rules;
+  // One reply per user turn unless the map says otherwise (`reply_count`), so a doubled reply fails.
+  if (prepared.relations.repliesPerTurn === 'one')
+    spec.rules = { ...(draft.rules ?? {}), one_message_per_turn: true };
+  else if (draft.rules) spec.rules = draft.rules;
   if (draft.end_state) spec.end_state = draft.end_state;
   if (perturbations && perturbations.length > 0) spec.perturbations = perturbations;
   const generated: Record<string, unknown> = {

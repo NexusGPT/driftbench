@@ -1,3 +1,4 @@
+import { copyHistory, freezeHistory } from '../contracts/history';
 import type { Assertion, Count, Message, TargetRef, WorldState } from '../schema/common';
 import type { Observed, ResolvedGiven } from '../schema/run';
 import type { Expect, GivenOverride, Spec, Stimulus } from '../schema/spec';
@@ -48,7 +49,7 @@ export function resolveGiven(
   target: TargetRef,
 ): ResolvedGiven {
   const body = {
-    prefix: [...prefix],
+    prefix: copyHistory(prefix),
     ledger: structuredClone(state.ledger),
     world: structuredClone(state.world),
     vars: structuredClone(state.vars),
@@ -113,25 +114,29 @@ export function canonicalGiven(spec: Spec, blockIndex: number): { state: Running
   const kept = canonicalKept.get(spec);
   const resume = kept && kept.blocks === spec.blocks && kept.next <= blockIndex ? kept : undefined;
   let state = resume ? resume.state : initialGiven(spec);
-  let prefix: Message[] = resume ? [...resume.prefix] : [];
+  // Retain immutable private arrays; callers receive a separate mutable array below.
+  let prefix: readonly Message[] = resume ? resume.prefix : [];
   for (let index = resume ? resume.next : 0; index <= blockIndex; index++) {
     const block = spec.blocks[index];
     if (!block) break;
     if (index === blockIndex) {
-      canonicalKept.set(spec, { blocks: spec.blocks, next: index, state, prefix: [...prefix] });
+      canonicalKept.set(spec, { blocks: spec.blocks, next: index, state, prefix });
     }
     state = enterBlock(state, block.given);
-    if (block.given?.prefix) prefix = structuredClone(block.given.prefix);
+    if (block.given?.prefix) prefix = freezeHistory(block.given.prefix);
     if (index === blockIndex) break;
-    prefix.push(...stimulusMessages(block.when), canonicalReply(block.expect, state.world));
+    prefix = freezeHistory(prefix, [
+      ...stimulusMessages(block.when),
+      canonicalReply(block.expect, state.world),
+    ]);
     state = { ...state, ledger: { ...state.ledger, ...block.expect?.ledger_add } };
   }
-  return { state, prefix };
+  return { state, prefix: copyHistory(prefix) };
 }
 
 const canonicalKept = new WeakMap<
   Spec,
-  { blocks: Spec['blocks']; next: number; state: RunningGiven; prefix: Message[] }
+  { blocks: Spec['blocks']; next: number; state: RunningGiven; prefix: readonly Message[] }
 >();
 
 /** The assistant message a teacher-forced prefix keeps for one earlier block: no text, the expected calls. */
@@ -188,7 +193,8 @@ export function assistantMessage(observed: Observed): Message {
     if (call.id !== undefined) recorded.id = call.id;
     if (call.input !== undefined) recorded.input = call.input as Json;
     if (call.error !== undefined) recorded.error = call.error;
-    else recorded.output = call.output as Json;
+    // An absent output stays absent: history holds plain JSON data, never an undefined value.
+    else if (call.output !== undefined) recorded.output = call.output as Json;
     return recorded;
   });
   return calls.length > 0

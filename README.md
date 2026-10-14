@@ -5,7 +5,7 @@
 <p align="center">
   <picture>
     <source media="(prefers-color-scheme: dark)" srcset=".github/readme/hero-dark.webp">
-    <img src=".github/readme/hero-light.webp" alt="driftbench, an agent evaluation framework by Nexus. Every exchange is a unit test. Every number carries an interval; drift and recovery are measured, block by block. Beside the title, driftbench drawn as one machine, an indexing test line on a bench, with eight callouts. Test generation: a hopper fed from a prompt, a spec or past conversations. Validity gate: invalid blocks never run. Agent under test: chat or code, through one adapter. Machine checks: nine pins, and a fail is final. Judge council: system 1 and system 2 balances that earned their criteria. Drift and recovery: a chart pen leaves the line, then comes back. Pass rate and interval: a dial reads 0.38, between 0.14 and 0.69. CI gate: an arm that lifts only when the candidate is noninferior." width="100%" />
+    <img src=".github/readme/hero-light.webp" alt="driftbench, an agent evaluation framework by Nexus. Every exchange is a unit test. Every number carries an interval; drift and recovery are measured, block by block. Beside the title, driftbench drawn as one machine, an indexing test line on a bench, with eight callouts. Test generation: a hopper fed from a prompt, a spec or past conversations. Validity gate: invalid blocks never run. Agent under test: chat or code, through one adapter. Machine checks: nine pins, and a fail is final. Judge council: fast and expert judges that earned their criteria. Drift and recovery: a chart pen leaves the line, then comes back. Pass rate and interval: a dial reads 0.38, between 0.14 and 0.69. CI gate: an arm that lifts only when the candidate is noninferior." width="100%" />
   </picture>
 </p>
 
@@ -33,9 +33,18 @@ driftbench is an open-source evaluation framework for AI agents: chat agents, an
 - **A failure has an address.** A failing run names the block, the check and the evidence, such as `block 1 forbidden.order.create`.
 - **You are told when a score is noise.** Every rate carries a 95% interval, and the gate says how many test conversations your suite needs before it can show anything.
 - **The tests are not written by hand.** Code generates them from a map of what the agent can face, and counts what they cover.
-- **The evaluator is tested too.** driftbench runs against 7,453 cases with a known answer before its own numbers are trusted.
+- **The evaluator is tested too.** driftbench checks its own scores on cases where the right answer is known.
 
 Works with any agent through an [adapter](#adapters). No account, no server. Apache 2.0, TypeScript, Node 22 or newer.
+
+<!-- readme-summary:start -->
+<p align="center">
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="docs/assets/summary-dark.png">
+    <img alt="Judge accuracy on public benchmarks, Claude Haiku 5.5, scores out of 100, bars ranked within each benchmark, driftbench the only coloured bar and each competitor grey with its own pattern, with an axis break from 30 to 50. JudgeBench, 270 pairs: driftbench 88.9, DeepEval 86.3, LangWatch 83.7, promptfoo 83.0, Inspect 80.0, Langfuse 74.8. MM-Eval, 591 items: driftbench 88.9, promptfoo 86.5, DeepEval 84.1, LangWatch 83.9, Inspect 75.4, Langfuse 73.5. RubricBench, 1,580 games: driftbench 82.7, DeepEval 77.6, promptfoo 75.6, LangWatch 74.9, Inspect 26.6, Langfuse 25.1. verify, 221 items: Langfuse 75.1, driftbench 74.2, Inspect 73.3, LangWatch 73.3, promptfoo 71.9, DeepEval 58.8. writing, 346 games: driftbench 67.6, DeepEval 58.4, promptfoo 56.9, LangWatch 52.6, Langfuse 14.5, Inspect 11.6. Reader-first setting: 67.6 shown; default 61.3. Same score as a rule that always picks the longer reply (67.6)." src="docs/assets/summary-light.png" width="100%" />
+  </picture>
+</p>
+<!-- readme-summary:end -->
 
 ## Quickstart
 
@@ -121,51 +130,112 @@ npx driftbench report --store runs.db --out scorecard.html
 <p align="center">
   <picture>
     <source media="(prefers-color-scheme: dark)" srcset="docs/assets/scorecard-dark.png">
-    <img src="docs/assets/scorecard-light.png" alt="A driftbench scorecard, one HTML file. Summary: Regressed, candidate against baseline, margin 28.0 points, 10 paired conversations. Six tiles: runs passing 50.0% with interval 19.9% to 80.1%, block accuracy 73.3%, end state match 85.7%, tool F1 77.6%, cost per block, latency per block. Below, the baseline passes 10 of 10 and the candidate 5 of 10, with the five conversations that regressed and the reason for each." width="820" />
+    <img src="docs/assets/scorecard-light.png" alt="A driftbench scorecard, one HTML file, dark by default with a light theme. At the top, the candidate campaign against its baseline: 12 of 26 cases passing against 26 of 26 for the baseline, 36 of 78 runs passing, 14 of 26 cases regressed and none improved, McNemar p = 0.0001. Below, the two versions side by side, then three charts: cases passing by test, runs passing by mode (teacher-forced 57.1%, free-running 57.1%, perturbed 33.3%, each with its interval) and failed checks by type, led by tools (192) and must (162). Then the tests list: each test with its status, its score and one pass or fail pill per check family, the first one failing 0 of 4 cases." width="820" />
   </picture>
 </p>
-<p align="center"><sub>The scorecard of the bundled Acme example with one planted fault. Every rate has its interval, and the verdict says why.</sub></p>
+<p align="center"><sub>The scorecard of the example agents with a bug planted on purpose in each. Numbers and charts first, then every test, then every run: a click opens its conversation and its checks.</sub></p>
 
 Next: [evaluate your own agent](#evaluate-your-own-agent), [add a judge](#add-a-judge), or [gate a pull request](#gate-a-pull-request). The full spec format is in the [spec reference](docs/reference/spec.md).
 
 ## What makes it different
 
-We read seven other evaluation tools against 30 capabilities. Six capabilities are found in full in none of the seven. driftbench ships all six, each with a test that fails when it breaks:
+Four ideas lead. Each one changes what you learn when a test fails, and what it costs to find out.
 
-| Only here, in full | What you get | Proof |
-|---|---|---|
-| [Recovery metrics](docs/concepts/recovery.md) | Inject a deviation at a chosen block and count the blocks until the agent is back, the failures after it, and whether its actions stayed safe | [recovery.test.ts](packages/core/test/runner/recovery.test.ts) |
-| [Drift across turns](docs/concepts/drift.md) | The first block that went wrong, and which of five kinds of drift it was | [drift.test.ts](packages/core/test/runner/drift.test.ts) |
-| [Judge calibration](docs/concepts/judges.md#calibration-an-assignment-is-earned) | A judge owns a criterion only after it separates a pass from a fail 3 times out of 3 and agrees with your hand labels | [calibration.test.ts](packages/judges/test/calibration.test.ts) |
-| [Intervals and significance tests](docs/concepts/statistics.md) | An interval on every rate, paired tests between two versions, and a correction across criteria | [intervals.test.ts](packages/stats/test/intervals.test.ts) |
-| [End state assertions](docs/reference/checks.md#end-state) | Check what the agent actually left behind: the order placed, the file written, the cells of the workbook | [end_state.test.ts](packages/checks/test/end_state.test.ts) |
-| [Multi-language handling](docs/reference/checks.md#text-and-language) | Check the language of a reply and that it stays stable through the conversation | [lang.test.ts](packages/checks/test/lang.test.ts) |
+### Tests written by code
 
-<a href=".github/readme/capability-matrix-light.png">
+<a href=".github/readme/gen-light.png">
   <picture>
-    <source media="(prefers-color-scheme: dark)" srcset=".github/readme/capability-matrix-dark.png">
-    <img alt="Of 30 evaluation capabilities: driftbench 30. In full, in part, not found: deepeval 12, 14, 4. langwatch 12, 11, 7. promptfoo 10, 15, 5. langfuse 10, 7, 13. inspect_ai 9, 14, 7. opik 9, 10, 11. braintrust 2, 11, 17." src=".github/readme/capability-matrix-light.png" width="100%">
+    <source media="(prefers-color-scheme: dark)" srcset=".github/readme/gen-dark.png">
+    <img alt="A small example of tests written by code. Step 1, you list what can vary: language English or French, customer new or returning, payment card or transfer. Step 2, code picks 4 of the 8 combinations so that every two settings meet at least once. Step 3, the tests run against an agent with a hidden bug that only shows up for French plus transfer: test 3, French, new, transfer, catches it. Half the tests, every pair of settings still meets, and the bug is caught." src=".github/readme/gen-light.png" width="100%">
   </picture>
 </a>
-<p align="center"><sub>Every cell with its source: <a href="docs/comparison.md">comparison page</a>. <a href="docs/comparison/methods.md#the-capability-matrix">How we measured</a>.</sub></p>
+<p align="center"><sub>The method is a covering array; numeric settings are spread with sliced Latin hypercube sampling.</sub></p>
 
-Eight ideas shape driftbench:
+- **What it is.** You list what your agent can face. Code, not a model, writes the tests, picking the fewest that still put every two settings together. You can also fix a budget of N tests.
+- **What others do.** Test sets are rows you write, rows you import from traces, or cases a model writes for you, as DeepEval's synthesizer does (rows 2, 19 and 20 of our [comparison](docs/comparison.md)).
+- **Why it matters.** You know what your tests cover, and a test is kept only if it catches a bug planted on purpose. You stop paying for tests that cannot catch anything.
+- **Impact.** On our example agent, every pair of settings is covered with 5.8 times fewer tests than all the combinations. [How we measured](docs/comparison/methods.md#tests-written-by-code)
 
-1. **Tests are generated by code from a map, with coverage you can count.** You approve a map of what the agent can face; code writes the blocks and their expected outcomes. On the Acme example it writes 508 files and covers all 708 allowed pairs of values. → [generating tests](docs/generating.md), [budget study](comparisons/budget/full-study.md)
-2. **The evaluator is proven on planted truth.** Six suites of cases built by code, 7,453 in all, each with an exact right answer, and a floor in CI that only rises. → [validators](docs/validators.md), [chart](#driftbench-tests-itself)
-3. **Blocks carry their starting state, so a failure is located.** A block starts from a stated Given, so it can be run alone. A regression is reported as a block and a check, and a fix re-runs only the blocks it can affect. → [a block is a unit test](#a-block-is-a-unit-test), [blast radius](#blast-radius)
-4. **A judge must show its evidence.** A judge answers per requirement and quotes the passage it relied on. Code checks that the quote exists in the transcript, then computes the verdict. A quote that cannot be found is not a verdict. → [strict grounding](docs/concepts/judges.md#strict-grounding)
-5. **A mixture of judges, not one judge.** A fast decision model judges every item and routes the unsure ones to the judge built for them. On MM-Eval's sealed test set, 48 of 1,212 items went to a panel and the score rose by 2.05 points. → [Mixture of Judges](#mixture-of-judges), [chart](#a-panel-only-when-unsure)
-6. **Noise is measured, and reported.** driftbench splits the spread of results by source and sets a noise floor. A suite too small to show parity is told so, with the number of conversations it needs. → [where results vary](docs/concepts/statistics.md#where-results-vary)
-7. **Code agents are first class.** The same blocks check what a code agent left behind: the cells and formulas of a workbook, the workspace diff, the commands run, the skills loaded, destructive operations. → [testing a code agent](docs/estate.md), [checks on files](docs/reference/checks.md#code-files-and-workspace)
-8. **Record once, replay for free.** Recorded agent sessions and recorded judge answers replay with zero model calls, so CI is fast and costs nothing. → [replay](docs/estate.md#replay-built), [cassettes](docs/concepts/judges.md#cassettes-recorded-answers)
+### Blocks: see which step failed
+
+<a href=".github/readme/blocks-diff-light.png">
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset=".github/readme/blocks-diff-dark.png">
+    <img alt="A sales conversation with a bug. Other tools: one score for the whole conversation, seven steps, fail, and you read the transcript to find which step broke. driftbench: a verdict for every step. Number, offer and details pass; recap and order fail; the two closing steps pass. Expected: read the order back to the customer. Got: placed the order without a recap." src=".github/readme/blocks-diff-light.png" width="100%">
+  </picture>
+</a>
+<p align="center"><sub>A recorded run: an agent with a bug that skips the order recap.</sub></p>
+
+
+**See which step failed, and why, instead of reading a whole transcript.**
+
+- **What it is.** A conversation is split into steps, which driftbench calls blocks. Each block has its own starting point and its own expected result, so each block passes or fails on its own. The report names the block, the check and the evidence.
+- **Why no other framework does it.** The seven tools we read score a whole scenario, test row, conversation, sample, dataset item or trace (row 1 of our [comparison](docs/comparison.md#where-driftbench-is-ahead)). A verdict per step needs every step to carry its own starting point and expected result, and the driftbench spec format is built that way.
+- **Measured impact.** On the Acme sales assistant, the fault that drops a coverage check fails 86 conversations that hold 413 blocks. A whole-conversation score marks all 413 blocks; driftbench marks the 86 that fail. For eight of the nine planted faults, the failing blocks are 18 to 40 percent of the blocks of the conversations that fail. Sources: [gate-report.json](examples/acme/gated/gate-report.json) and every count in [chart-facts.csv](docs/assets/data/chart-facts.csv). [How we measured](docs/comparison/methods.md#blocks-a-failure-you-can-diagnose)
+
+<sub>Counts are over the 195 conversations and 861 blocks of the gated Acme suite. The ninth fault, a wrong language, fails 826 of the 861 blocks: every block of the 171 conversations that fail.</sub>
+
+### Blast radius: rerun only what a change touches
+
+<a href=".github/readme/blast-light.png">
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset=".github/readme/blast-dark.png">
+    <img alt="One change, to the order recap, and four test conversations drawn step by step. The steps that use the recap are lit, and so are the steps after them. One conversation has no recap and is skipped, its earlier result kept. This change: 30 percent of the tests skipped, same failures found." src=".github/readme/blast-light.png" width="100%">
+  </picture>
+</a>
+<p align="center"><sub>A change reruns the steps that use what changed, and the steps after them.</sub></p>
+
+
+**Change one part of your agent and rerun only the tests it can affect, so a pull request pays for what it can break.**
+
+- **What it is.** Every block says what it uses. When you change one part of your agent, driftbench reruns the blocks that use it and keeps the other results from the last run. When it cannot tell, it reruns everything. The nightly run still covers everything.
+- **Why no other framework does it.** LangWatch Scenario and Inspect cache model calls, and promptfoo and DeepEval document part of a cache (row 22 of our [comparison](docs/comparison.md)). A cache replays a call that has not changed. Choosing the tests a change can affect needs each test to say what it reads, which blocks do.
+- **Measured impact.** On the Acme example, for a change to the recap, a radius run sends 606 of 867 blocks and fails on the same 102 cells as a full run. For a change to one tool's input, where each block runs on its own, it sends 86 of 867 blocks, 90.1 percent fewer, and the same 86 blocks fail as in a full run. A change to the price sheet task family skips 95.9 percent. A change that every block depends on, the reply language rule, skips none, and the radius says so. A fault planted outside the declared change is caught by the audit, which then sends all 867 blocks. Sources: [blast-radius.md](docs/concepts/blast-radius.md), [radius-carry.test.ts](packages/cli/test/radius-carry.test.ts), [radius-blocks-acme.test.ts](packages/cli/test/radius-blocks-acme.test.ts), [contained.test.ts](examples/acme/test/radius/contained.test.ts). [How we measured](docs/comparison/methods.md#blast-radius-rerun-only-what-a-change-touches)
+
+<sub>The planner counts 861 scored blocks; a run also sends six blocks that are not scored, which is why a run reports 867. Without end-state snapshots the second change sends 376 of 867. The radius holds when the change you declare lists everything that changed; the audit samples cells to check that, and a sample can miss. `driftbench radius` and `campaign run --change` are on main.</sub>
+
+### Mixture of Judges: the right judge for each answer
+
+<a href=".github/readme/moj-light.png">
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset=".github/readme/moj-dark.png">
+    <img alt="One answer to judge. First, a quick, cheap judge reads it and says how sure it is and what kind of answer this is. If it is sure, it decides at once. If not, the answer goes to the expert that fits: a fact or a sum to check is solved once and compared; anything else unclear goes to a careful reasoning judge; if still unclear, a panel of models votes. The verdict is pass or fail, with the reason. At least as accurate as promptfoo on three public benchmarks, with 3.5 to 19.4 times fewer costly calls." src=".github/readme/moj-light.png" width="100%">
+  </picture>
+</a>
+<p align="center"><sub>A cheap judge decides what it is sure of; the rest goes to the expert that fits.</sub></p>
+
+
+**A cheap judge settles the answers it is sure of, and the expert sees only the rest: at least the accuracy of promptfoo's judge on three sealed sets, with 3.5 to 19.4 times fewer costly reasoning calls.**
+
+- **What it is.** A quick judge reads every answer first. When it is sure, it decides. When it is not, the answer goes to the expert that fits it: a fact check, a careful reasoning judge, or a panel of models.
+- **Why no other framework does it.** promptfoo, DeepEval, LangWatch and Langfuse let you pick one judge model, and their docs show ensembles only in part (row 11 of our [comparison](docs/comparison.md)). Inspect documents a [scorer cascade](https://inspect.aisi.org.uk/multiple-scorers.html) that stops at the first scorer that settles a sample. We found no documented routing of an answer by the first judge's confidence to an expert chosen for it.
+- **Measured impact.** With GPT-6 Luna on sealed pairs, MoJ scored 85.0 against promptfoo's 84.0 on JudgeBench, 94.9 against 94.7 on MM-Eval and 65.2 against 57.0 on writing, using 57, 21 and 10.3 reasoning calls per 100 pairs where promptfoo used 200 ([RESULTS.md](research/moj/RESULTS.md), [report.json](research/moj/results/sealed/report.json)). On 1,212 sealed MM-Eval items, the first judge sent 48 to the panel; on those 48 the score rose from 51.0 to 85.4, and on the whole set from 89.49 to 91.54 ([mm-eval-sealed-test.json](docs/assets/data/mm-eval-sealed-test.json)). [How we measured](docs/comparison/methods.md#mixture-of-judges)
+
+<sub>On JudgeBench and MM-Eval the differences are within the 95% intervals. On writing, a rule that picks the longer reply scores 69.7 on the sealed pairs. MoJ runs today from the research harness, on the package's opt-in escalation API (`createEscalation`).</sub>
+
+### More that ships
+
+<a href=".github/readme/innovations-light.png">
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset=".github/readme/innovations-dark.png">
+    <img alt="Six more things driftbench does. A judge that shows its work, opt-in: it lists the evidence for each requirement and code decides pass or fail. Recovery: a surprise mid-conversation, and how many steps the agent needs to get back on track. Statistics: every rate has a range, and it says when you have too few tests. Code agents: it opens the spreadsheets and documents the agent leaves behind. Attacker: a user that pushes back, each move picked from the agent's last reply. Replay: a recorded run replays with no model call." src=".github/readme/innovations-light.png" width="100%">
+  </picture>
+</a>
+<p align="center"><sub>Six more, in one line each.</sub></p>
+
+- **A judge that shows its work (opt-in).** It writes the evidence for each requirement, and code decides pass or fail. promptfoo's select-best prompt asks the model for the index of the text that best fits the criteria, as a single integer ([its grader](comparisons/promptfoo/hard/vendor/grading.ts.txt)). On RubricBench, a public benchmark, it scores 7 points above promptfoo with Claude Haiku 5.5. [How we measured](docs/comparison/methods.md#a-judge-that-shows-its-work)
+- **Recovery.** Inject a surprise at any step and count the steps until the agent is back on track. No other tool in our comparison shows recovery metrics in full (row 15). → [recovery](docs/concepts/recovery.md)
+- **Statistics you can trust.** Every rate has a range, two versions are compared on the same tests, and the gate says when you have too few tests to decide. No other tool in our comparison shows intervals with significance tests in full (row 17). → [statistics](docs/concepts/statistics.md)
+- **Code agents.** The same steps check the files a code agent leaves behind: spreadsheet cells, documents, the workspace. None of the six code-agent benchmarks in our [comparison](docs/comparison.md#code-agent-benchmarks) grades office files in the pages read. → [code agents](docs/estate.md)
+- **An attacker that adapts.** A simulated user picks each next move from the agent's last reply. → [attacker](docs/attack.md)
+- **Replay for free.** A recorded run replays with no model call, so CI costs nothing. LangWatch and Inspect cache model calls (row 22); driftbench replays whole runs. → [replay](docs/estate.md#replay-built)
 
 ## What it does
 
 <a href=".github/readme/areas-light.png">
   <picture>
     <source media="(prefers-color-scheme: dark)" srcset=".github/readme/areas-dark.png">
-    <img alt="Four areas on four cards: scenarios and simulated users, checks and judges, drift and recovery, statistics and CI gates." src=".github/readme/areas-light.png" width="100%">
+    <img alt="Four things driftbench tests, on four cards. Test conversations: replay a real conversation, let a simulated user talk, or throw in a surprise at any step. Rules and judges: rules check what code can check, and a judge decides the rest once it has proved it can. Going off track: where the agent first went wrong, and how many steps it took to get back. Numbers you can trust: every rate with its range, and a yes or no your CI can act on." src=".github/readme/areas-light.png" width="100%">
   </picture>
 </a>
 
@@ -180,7 +250,7 @@ Eight ideas shape driftbench:
 - [Simulated users](docs/simulated-user.md) and an [adaptive attacker](docs/attack.md) that picks its next move from the agent's last replies.
 
 **Check and judge**
-- [29 machine checks](docs/reference/checks.md): tool calls and their arguments, text, language, personal data, end state, files, spreadsheets, cost.
+- [37 machine checks](docs/reference/checks.md): tool calls and their arguments, text, language, personal data, end state, files, spreadsheets, cost.
 - [Judges](docs/concepts/judges.md): a model judges what code cannot, must quote its evidence, and a panel votes when the first judge is unsure.
 - [Hand labels](docs/viewer.md): label blocks in a local viewer and measure each judge against them.
 
@@ -203,36 +273,92 @@ Eight ideas shape driftbench:
 - [Planted-truth suites](docs/validators.md): code builds cases with a known answer and measures what driftbench reports.
 - [A validity gate](docs/generating.md#the-gate) for tests: a test that a planted fault does not fail, or that a constant reply passes, is rejected.
 
+**Only here, in full.** We read seven other evaluation tools against 30 capabilities. Six are found in full in none of them:
+
+| Only here, in full | What you get | Proof |
+|---|---|---|
+| [Recovery metrics](docs/concepts/recovery.md) | Inject a deviation at a chosen block and count the blocks until the agent is back, the failures after it, and whether its actions stayed safe | [recovery.test.ts](packages/core/test/runner/recovery.test.ts) |
+| [Drift across turns](docs/concepts/drift.md) | The first block that went wrong, and which of five kinds of drift it was | [drift.test.ts](packages/core/test/runner/drift.test.ts) |
+| [Judge calibration](docs/concepts/judges.md#calibration-an-assignment-is-earned) | A judge owns a criterion only after it separates a pass from a fail 3 times out of 3 and agrees with your hand labels | [calibration.test.ts](packages/judges/test/calibration.test.ts) |
+| [Intervals and significance tests](docs/concepts/statistics.md) | An interval on every rate, paired tests between two versions, and a correction across criteria | [intervals.test.ts](packages/stats/test/intervals.test.ts) |
+| [End state assertions](docs/reference/checks.md#end-state) | Check what the agent actually left behind: the order placed, the file written, the cells of the workbook | [end_state.test.ts](packages/checks/test/end_state.test.ts) |
+| [Multi-language handling](docs/reference/checks.md#text-and-language) | Check the language of a reply and that it stays stable through the conversation | [lang.test.ts](packages/checks/test/lang.test.ts) |
+
+<a href=".github/readme/capability-matrix-light.png">
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset=".github/readme/capability-matrix-dark.png">
+    <img alt="Of 30 evaluation capabilities: driftbench 30. In full, in part, not found: deepeval 12, 14, 4. langwatch 12, 11, 7. promptfoo 10, 15, 5. langfuse 10, 7, 13. inspect_ai 9, 14, 7. opik 9, 10, 11. braintrust 2, 11, 17." src=".github/readme/capability-matrix-light.png" width="100%">
+  </picture>
+</a>
+<p align="center"><sub>Every cell with its source: <a href="docs/comparison.md">comparison page</a>. <a href="docs/comparison/methods.md#the-capability-matrix">How we measured</a>.</sub></p>
+
 ## How it works
 
-<a href=".github/readme/flow-light.png">
+<a href=".github/readme/loop-light.png">
   <picture>
-    <source media="(prefers-color-scheme: dark)" srcset=".github/readme/flow-dark.png">
-    <img alt="Seven steps, from a map to a verdict. 01 Map: what the agent can face, approved by you. 02 Tests: blocks written by code; a gate drops tests that cannot fail. 03 Run: your agent through one adapter, three modes, replay. 04 Checks: 29 machine checks on the reply, the tools and the files; a fail is final. 05 Judges: quoted evidence; a panel votes only when unsure. 06 Statistics: an interval on every rate, the noise floor, paired tests. 07 Verdict: a scorecard and an exit code, parity or regression, on every pull request." src=".github/readme/flow-light.png" width="100%">
+    <source media="(prefers-color-scheme: dark)" srcset=".github/readme/loop-dark.png">
+    <img alt="The loop a team runs, in six steps. 1 Generate: tests from a map you approve; code writes the blocks. 2 Run: your agent through one adapter, three modes, repeats. 3 Check and judge: a verdict per block, machine checks then the judges. 4 Gate: parity or regression, an exit code on every pull request. 5 Fix: the verdict names the block and the check. 6 Rerun the radius: only what the fix touches; the rest is carried from the last run. Then the gate decides again." src=".github/readme/loop-light.png" width="100%">
   </picture>
 </a>
 
-You can enter at step 3 with specs you wrote by hand, as in the quickstart. Steps 1 and 2 are for when you want coverage you can count.
+Six steps, numbered as in the figure, then the loop again. You can start at step 2 with specs you write by hand, as in the quickstart.
 
-### A block is a unit test
+### Generating tests
+
+You approve a map of what the agent can face, and code writes the blocks from it. A validity gate keeps only tests a planted fault fails.
+
+<details>
+<summary>Generate the tests of the example agent</summary>
+
+driftbench writes tests from a map of the situations an agent can face. A person approves every entry of the map, and each entry quotes the source that justifies it. Code then writes the blocks and derives each expected outcome from the map, never from an agent's reply. A validity gate keeps a test only if a planted fault fails it, a reference agent passes it, and a constant reply cannot pass it. Then `select` picks the fewest conversations that cover the map. On the Acme example the gated suite covers 592 of the 708 allowed pairs of values and every required cell.
+
+Generate the Acme suite from its approved map, from a clone. No model is called:
+
+```bash
+pnpm driftbench generate --map examples/acme/map/approved.yaml --out generated --t 2
+```
+
+The table of test writers, the coverage line and the last line:
+
+```
+Seeder        specs  blocks  complete  incomplete
+graph            12      48        12           0
+twise           156     793       153           3
+boundary         85     146        13          72
+deviation        21     111        21           0
+metamorphic      42     192        42           0
+task             67      71        67           0
+cover            28     155        28           0
+
+Coverage on the axis map at t = 2: complete specs 708 of 708 (100.0%), all specs 708 (100.0%).
+Wrote 508 files to generated.
+```
+
+Complete specs go to `specs/`. A spec with no approved phrase or no machine-checkable outcome goes to `incomplete/`, and the command then exits 1: the map has a gap to fill, and the output names it.
+
+**On a budget.** `driftbench generate --budget N` writes the N tests that cover the most pairs of settings. → [budget study](comparisons/budget/full-study.md)
+
+</details>
+
+### Running your agent
 
 <a href=".github/readme/block-light.png">
   <picture>
     <source media="(prefers-color-scheme: dark)" srcset=".github/readme/block-dark.png">
-    <img alt="The second block of the plan upgrade spec in three parts. Given: the first block, an existing customer, the Acme store, the chat channel. When: the user gives the email on their account. Then: stage offer, one catalogue search, both larger plans named, no home plans, the customer id added to the ledger, the no invented data criterion. Below, every observed field passes and the block passes." src=".github/readme/block-light.png" width="100%">
+    <img alt="One step of a conversation in three parts. Before: where the step starts, after the greeting, with a current customer, in a phone shop, on chat. The user says their email address. After: what must be true: make an offer, search the plans once, name the two bigger plans, not mention home internet, learn the customer id, invent nothing. Below, every check passes and the step passes." src=".github/readme/block-light.png" width="100%">
   </picture>
 </a>
-<p align="center"><sub>Given the state so far, when the user speaks, then the agent must reach the right stage, call the right tools and say nothing it must not.</sub></p>
+<p align="center"><sub>Before the step, what the user says, and what must be true after it.</sub></p>
 
 A block holds everything the agent does between two user messages: text, cards, tool calls and tool results. The spec fixes what must be true after it. driftbench reads what happened, compares it field by field, and keeps the evidence behind every verdict. Because a block starts from its own Given, it can be run many times on its own and gets its own pass rate.
 
 <a href=".github/readme/kinds-light.png">
   <picture>
     <source media="(prefers-color-scheme: dark)" srcset=".github/readme/kinds-dark.png">
-    <img alt="The same block model for two agents. Left, the Acme sales assistant at block four: the user replies CONFIRM, the agent places the order and gives its order number; stage, tool call, confirmation guard, text and end state are checked. Right, a code interpreter agent at the first block of the price sheet task: it loads the xlsx skill, runs code that exits with 0, creates the price sheet workbook and leaves the other files untouched; sheets and cells, the formula, the workspace diff and no destructive operation are checked." src=".github/readme/kinds-light.png" width="100%">
+    <img alt="The same step model for two kinds of agent. Left, a chat agent at step 4: the user says Confirm, the agent places the order and gives its order number; right step, tool call, asked first, order id and order saved are checked. Right, an agent that writes files at step 1: it uses its spreadsheet skill, runs its own code with no error, creates price-sheet.xlsx and leaves the other files untouched; sheets and cells, the yearly formula, the other files and nothing deleted are checked." src=".github/readme/kinds-light.png" width="100%">
   </picture>
 </a>
-<p align="center"><sub>One block model for both kinds of agent. Left, the Acme agent's real reply. The same checks read a reply, a tool call or a file.</sub></p>
+<p align="center"><sub>One step model for a chat agent and for an agent that writes files.</sub></p>
 
 The same block model covers a chat agent and an agent that writes code and files. For a code agent, a block is one task step in a sandbox, and the checks read what it left behind: workbook cells and formulas, the workspace diff, the commands run, the skills loaded.
 
@@ -315,69 +441,47 @@ blocks:
 
 </details>
 
-### Blast radius
-
-<a href=".github/readme/blast-light.png">
-  <picture>
-    <source media="(prefers-color-scheme: dark)" srcset=".github/readme/blast-dark.png">
-    <img alt="A change to the recap stage, and four conversations drawn block by block. The blocks that read the recap stage are lit, and so are the blocks after them in the same conversation. One conversation has no recap and stays untouched. Radius: 298 of 861 blocks run again, and the 237 blocks the planted fault turns red are all inside it." src=".github/readme/blast-light.png" width="100%">
-  </picture>
-</a>
-<p align="center"><sub>A change to the recap stage lights the blocks that read it and the blocks after them. The rest is carried from the last full run.</sub></p>
-
-When you change one part of your agent, driftbench reruns only the blocks that part can affect and carries the rest from the last run. The nightly run still covers everything.
-
-Every block says what it reads: its stage, its tools, its rules. So a change maps to the blocks that read it, plus the blocks after them in the same conversation, which inherit the agent's replies. That set is the blast radius.
-
-Measured on the Acme example, 195 conversations and 861 blocks:
-
-- A change to the recap stage reruns 298 blocks. A planted fault that skips the recap turns 237 blocks red, and all 237 are inside the radius.
-- A change to the inputs of the coverage check reruns exactly 86 blocks.
-- By change, a pull request saves 30 to 96 percent of the suite.
-- The safety rule is "unknown means everything": a change to the reply-language rule touches 826 of 861 blocks, so the whole suite runs.
-
-Blast radius is designed and measured, and is being built now.
-
-### Mixture of Judges
-
-<a href=".github/readme/moj-light.png">
-  <picture>
-    <source media="(prefers-color-scheme: dark)" srcset=".github/readme/moj-dark.png">
-    <img alt="The Mixture of Judges. Stage 1: a System-1 decision model judges every item in both orders and reads its terrain: needs reasoning, has a reference, safety, writing. A router sends each item on by terrain and confidence. High confidence stops at stage 1. Unsure items go to the judge built for their terrain: a reference check on reasoning terrain, a System-2 verdict elsewhere, a panel of model families at the lowest confidence. A trusted expert's verdict is final. You pick the operating point: cheapest, balanced or most accurate. Practice data against promptfoo: JudgeBench 91.6 against 90.4, MM-Eval 95.7 against 92.8, writing 64.8 against 54.8, at 0.43 to 1.49 reasoning calls per pair against 2." src=".github/readme/moj-light.png" width="100%">
-  </picture>
-</a>
-
-One judge model for every question is slow where the question is easy and weak where it is hard. The Mixture of Judges (MoJ) uses the right judge for each item:
-
-- **A fast first pass.** A System-1 decision model judges every item in both orders and reads its terrain: does it need reasoning, is there a reference, is it a safety case, is it a piece of writing.
-- **A router.** High confidence stops there. An unsure item goes to the judge built for its terrain: a reference check, a System-2 verdict, or a panel of model families. A trusted expert's verdict is final.
-- **Your operating point.** Cheapest, balanced or most accurate: you choose how much reasoning to buy.
-
-Practice data: JudgeBench 91.6 against promptfoo's 90.4, MM-Eval 95.7 against 92.8, writing 64.8 against 54.8, at 0.43 to 1.49 reasoning calls per pair against 2. MoJ is an option today, and a sealed run confirms it next. → [design and results](https://github.com/achammah/driftbench/blob/9be7b75133e31a2f5d81f1dec0ef15c517be5d21/research/moj/RESULTS.md)
-
-### One conversation, three runs
-
 <a href=".github/readme/modes-light.png">
   <picture>
     <source media="(prefers-color-scheme: dark)" srcset=".github/readme/modes-dark.png">
-    <img alt="One golden, the plan upgrade spec, feeds three runs. Teacher forced: each block starts from the golden, so a miss stays local; it measures local accuracy. Free running: the agent's own replies carry forward, one miss leads to another; it measures compounding. Perturbed: a deviation lands at block two and the agent is back one block later; it measures recovery." src=".github/readme/modes-light.png" width="100%">
+    <img alt="One conversation, run three ways. Replay the real conversation: each step starts from the real past turns, so a miss stays local; it shows each step alone. Let the agent run: its own replies carry forward, so one miss leads to another; it shows errors that pile up. Throw in a surprise: the user changes course midway and the agent is back one step later; it shows recovery." src=".github/readme/modes-light.png" width="100%">
   </picture>
 </a>
-<p align="center"><sub>Teacher forced isolates each block. Free running lets errors compound. Perturbed injects a deviation and measures the way back.</sub></p>
+<p align="center"><sub>Replay to test each step alone, let it run to see errors pile up, or throw in a surprise to see it recover.</sub></p>
 
-The gap between teacher forced and free running on the same conversation is the **compounding index**. An agent can pass every block on its own and still fail the whole conversation. Only free running shows it. → [run modes](docs/concepts/run-modes.md)
+An agent can pass every step on its own and still fail the whole conversation. Replaying the real conversation tests each step alone; letting the agent run shows the errors that pile up. The gap between the two is the **compounding index**. → [run modes](docs/concepts/run-modes.md)
 
-### Drift and recovery
+### Checking and judging every block
+
+<a href=".github/readme/council-light.png">
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset=".github/readme/council-dark.png">
+    <img alt="How a verdict is reached. First, rules checked by code: tools, text, language, personal data, end state; a rule that fails is final. Then three fast judges, which answer one yes or no question, or three expert judges, models from different labs that reason it through. The majority of three wins; a split goes to the other kind of judge; an unsure answer is judged again and never counted. Below, a judge earns its place: two examples, one bad and one good; it tells them apart 3 times out of 3; it agrees with your own labels; then it judges, and ties go to the fast judge." src=".github/readme/council-light.png" width="100%">
+  </picture>
+</a>
+<p align="center"><sub>Rules first, then fast or expert judges, each one tested before it may judge.</sub></p>
+
+- **Machine checks first.** Code checks everything code can check. A machine fail is final.
+- **Earned on evidence.** A judge owns a criterion only if it separates a failing transcript from a clean one 3 times out of 3 and agrees with hand labels at a kappa of 0.8 or more.
+- **Strict verdicts.** Majority of three. A split goes to the other class of judge. An inconclusive answer is judged again and never counted. A judge never shares the agent's model family.
+
+→ [judges](docs/concepts/judges.md)
+
+### Measuring, and gating the pull request
+
+One run proves little. Every rate comes with its interval, comparisons are paired on the same conversations, and a difference smaller than the run-to-run spread is reported as noise. Before a campaign spends anything, driftbench prints the smallest effect it can detect. → [statistics](docs/concepts/statistics.md)
 
 <a href=".github/readme/perturbed-light.png">
   <picture>
     <source media="(prefers-color-scheme: dark)" srcset=".github/readme/perturbed-dark.png">
-    <img alt="Six blocks of an order flow. A goal shift is injected at block three: make it two lines. At block three the agent asks for ID and skips the change: flow drift. At block four it says one line: contradiction. At block five it is back on the expected path, and the end state matches. Turns to recover: two blocks, label late, collateral zero." src=".github/readme/perturbed-light.png" width="100%">
+    <img alt="A surprise mid-conversation. Six steps of an order. At step 3 the user changes course: make it two lines. At step 3 the agent ignores the change, a wrong step. At step 4 it contradicts it. At step 5 it is back on track, and the order is saved. Back on track after 2 steps, with no damage after that." src=".github/readme/perturbed-light.png" width="100%">
   </picture>
 </a>
-<p align="center"><sub>A goal shift lands at block 3. The agent skips the change, then contradicts it, then comes back. Two blocks to recover.</sub></p>
+<p align="center"><sub>An illustration with a faulty agent: the user changes course at step 3, and the agent goes off track, then comes back two steps later.</sub></p>
 
 Every failing block gets a drift class: a local error, a contradiction, flow drift, format drift or tool drift. Twelve kinds of deviation can be injected at any block. After an injection, driftbench reports the blocks to recover, the failures after recovery, and whether the agent's actions stayed safe.
+
+On the correct Acme sales agent, a goal shift at block 2 is handled at once:
 
 ```bash
 pnpm driftbench perturb examples/acme/specs/conversations/plan-upgrade.yaml --class D2_goal_shift --at 2
@@ -391,64 +495,15 @@ pnpm driftbench perturb examples/acme/specs/conversations/plan-upgrade.yaml --cl
 
 → [drift](docs/concepts/drift.md), [recovery](docs/concepts/recovery.md)
 
-### Judges earn their criteria
+The gate turns all of this into an exit code: parity, regression, or not enough evidence. See [gate a pull request](#gate-a-pull-request).
 
-<a href=".github/readme/council-light.png">
-  <picture>
-    <source media="(prefers-color-scheme: dark)" srcset=".github/readme/council-dark.png">
-    <img alt="The judge council. Machine checks run first and a machine fail is final. Then three system 1 judges, such as Jev and the OpenAI Decisions API, or three system 2 judges, chat models from OpenAI, Google and Anthropic, vote. Majority wins, a split goes to the other class, inconclusive is judged again and never counted. Below: assignment is earned through a fixture pair, separation three times out of three, and a kappa of 0.8 or more against hand labels." src=".github/readme/council-light.png" width="100%">
-  </picture>
-</a>
-<p align="center"><sub>Machine checks run first and cannot be overruled. Each criterion goes to the judge class that earned it on a fixture pair.</sub></p>
+### Fixing the block that failed
 
-- **Machine checks first.** Code checks everything code can check. A machine fail is final.
-- **Earned on evidence.** A judge owns a criterion only if it separates a failing transcript from a clean one 3 times out of 3 and agrees with hand labels at a kappa of 0.8 or more.
-- **Strict verdicts.** Majority of three. A split goes to the other class of judge. An inconclusive answer is judged again and never counted. A judge never shares the agent's model family.
+The verdict names the block, the stage and the check, with the evidence. You fix that part of the agent, not the whole prompt.
 
-→ [judges](docs/concepts/judges.md)
+### Rerunning the blast radius
 
-### Numbers with intervals
-
-One run proves little. Every rate comes with its interval, comparisons are paired on the same conversations, and a difference smaller than the run-to-run spread is reported as noise. Before a campaign spends anything, driftbench prints the smallest effect it can detect. → [statistics](docs/concepts/statistics.md)
-
-### Generating tests
-
-driftbench writes tests from a map of the situations an agent can face. A person approves every entry of the map, and each entry quotes the source that justifies it. Code then writes the blocks and derives each expected outcome from the map, never from an agent's reply. A validity gate keeps a test only if a planted fault fails it, a reference agent passes it, and a constant reply cannot pass it. Then `select` picks the fewest conversations that cover the map. On the Acme example: 114 conversations cover 592 of the 637 allowed pairs of values, and turn all 13 planted faults red.
-
-Generate the Acme suite from its approved map, from a clone. No model is called:
-
-```bash
-pnpm driftbench generate --map examples/acme/map/approved.yaml --out generated --t 2
-```
-
-The table of test writers, the coverage line and the last line:
-
-```
-Seeder        specs  blocks  complete  incomplete
-graph            12      48        12           0
-twise           156     793       153           3
-boundary         85     146        13          72
-deviation        21     111        21           0
-metamorphic      42     192        42           0
-task             67      71        67           0
-cover            28     155        28           0
-
-Coverage on the axis map at t = 2: complete specs 708 of 708 (100.0%), all specs 708 (100.0%).
-Wrote 508 files to generated.
-```
-
-Complete specs go to `specs/`. A spec with no approved phrase or no machine-checkable outcome goes to `incomplete/`, and the command then exits 1: the map has a gap to fill, and the output names it.
-
-**On a budget.** `driftbench generate --budget N` replaces the covering-array rows with N conversations. Each pick is the one that covers the most new pairs of values, then the one that balances the values best. Mean planted faults caught on Acme, of 13, over 30 seeds:
-
-| Tests | Budget mode | Pairwise covering | Random |
-|---|---|---|---|
-| 20 | 9.00 | 8.00 | 8.37 |
-| 50 | 9.00 | 9.00 | 8.97 |
-| 100 | 9.00 | 9.00 | 9.00 |
-| 200 | 9.00 | 9.00 | 9.00 |
-
-→ [generating tests](docs/generating.md), [budget study](comparisons/budget/full-study.md)
+The fix maps to the blocks it can affect. driftbench reruns those and carries the rest from the last run, then the gate decides again. The nightly run still covers everything. See [blast radius](#blast-radius-rerun-only-what-a-change-touches).
 
 Concepts in the docs: [block](docs/concepts/block.md) · [Given, When, Then](docs/concepts/given-when-then.md) · [run modes](docs/concepts/run-modes.md) · [judges](docs/concepts/judges.md) · [statistics](docs/concepts/statistics.md)
 
@@ -709,6 +764,65 @@ A minimal complete adapter is the `functionAdapter` of [Evaluate your own agent]
 
 Every number comes from a result file in this repository. All scores are on one scale, 0 to 100.
 
+### Public benchmarks
+
+Five public benchmarks for judges, all on the same sealed items and the same model, Claude Haiku 5.5, with every tool running its default judge. Scores are out of 100. The other models and the charts that carry them are in the detail of each benchmark: [JudgeBench](docs/comparison/benchmarks/index.md#judgebench), [MM-Eval](docs/comparison/benchmarks/index.md#mm-eval), [RubricBench](docs/comparison/benchmarks/index.md#rubricbench), [verify and writing](docs/comparison/benchmarks/index.md#longjudgebench).
+
+<!-- readme-charts:start -->
+**JudgeBench.** driftbench picks the correct answer more often than DeepEval, LangWatch, promptfoo, Inspect and Langfuse on the same model: 88.9, against 86.3 for the next best, DeepEval.
+
+<a href="docs/assets/bench-judgebench-light.png">
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="docs/assets/bench-judgebench-dark.png">
+    <img alt="JudgeBench: driftbench scores 88.9. Claude Haiku 5.5, 270 pairs, percent correct, highest to lowest: driftbench 88.9, DeepEval 86.3, LangWatch 83.7, promptfoo 83.0, Inspect 80.0, Langfuse 74.8." src="docs/assets/bench-judgebench-light.png" width="100%">
+  </picture>
+</a>
+<p align="center"><sub>Claude Haiku 5.5, 270 pairs. Each judge runs its default settings; driftbench runs its opt-in pair ledger. A refused item counts as wrong.</sub></p>
+
+**MM-Eval.** driftbench picks the better answer more often than promptfoo, DeepEval, LangWatch, Inspect and Langfuse on the same model: 88.9, against 86.5 for the next best, promptfoo.
+
+<a href="docs/assets/bench-mm-eval-light.png">
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="docs/assets/bench-mm-eval-dark.png">
+    <img alt="MM-Eval: driftbench scores 88.9. Claude Haiku 5.5, 591 items, percent correct, highest to lowest: driftbench 88.9, promptfoo 86.5, DeepEval 84.1, LangWatch 83.9, Inspect 75.4, Langfuse 73.5." src="docs/assets/bench-mm-eval-light.png" width="100%">
+  </picture>
+</a>
+<p align="center"><sub>Claude Haiku 5.5, 591 items. Each judge runs its default settings; driftbench runs its opt-in pair ledger. A refused item counts as wrong (refused: DeepEval 3, LangWatch 7, Inspect 7, Langfuse 6).</sub></p>
+
+**RubricBench.** driftbench picks the reply that meets the grading criteria more often than DeepEval, promptfoo, LangWatch, Inspect and Langfuse on the same model: 82.7, against 77.6 for the next best, DeepEval.
+
+<a href="docs/assets/bench-rubricbench-light.png">
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="docs/assets/bench-rubricbench-dark.png">
+    <img alt="RubricBench: driftbench scores 82.7. Claude Haiku 5.5, 1,580 games, percent correct, highest to lowest: driftbench 82.7, DeepEval 77.6, promptfoo 75.6, LangWatch 74.9, Inspect 26.6, Langfuse 25.1." src="docs/assets/bench-rubricbench-light.png" width="100%">
+  </picture>
+</a>
+<p align="center"><sub>Claude Haiku 5.5, 1,580 games. Each judge runs its default settings; driftbench runs its opt-in pair ledger. A refused item counts as wrong (refused: DeepEval 1, Langfuse 1).</sub></p>
+
+**Verify.** driftbench decides whether the final answer is correct 74.2 times in 100, within 0.9 points of the top score (Langfuse, 75.1) and above Inspect (73.3), LangWatch (73.3), promptfoo (71.9) and DeepEval (58.8).
+
+<a href="docs/assets/bench-verify-light.png">
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="docs/assets/bench-verify-dark.png">
+    <img alt="Verify: driftbench scores 74.2. Claude Haiku 5.5, 221 items, percent correct, highest to lowest: Langfuse 75.1, driftbench 74.2, Inspect 73.3, LangWatch 73.3, promptfoo 71.9, DeepEval 58.8." src="docs/assets/bench-verify-light.png" width="100%">
+  </picture>
+</a>
+<p align="center"><sub>Claude Haiku 5.5, 221 items. Each judge runs its default settings; driftbench runs its opt-in frozen verify cascade. A refused item counts as wrong.</sub></p>
+
+**Writing.** driftbench picks the reply readers prefer more often than DeepEval, promptfoo, LangWatch, Langfuse and Inspect on the same model: 67.6, against 58.4 for the next best, DeepEval.
+
+<a href="docs/assets/bench-writing-light.png">
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="docs/assets/bench-writing-dark.png">
+    <img alt="Writing: driftbench scores 67.6. Claude Haiku 5.5, 346 games, percent correct, highest to lowest: driftbench 67.6, DeepEval 58.4, promptfoo 56.9, LangWatch 52.6, Langfuse 14.5, Inspect 11.6." src="docs/assets/bench-writing-light.png" width="100%">
+  </picture>
+</a>
+<p align="center"><sub>Claude Haiku 5.5, 346 games. Each judge runs its default settings; driftbench runs its opt-in pair ledger. A refused item counts as wrong. The driftbench bar uses its opt-in reader-first setting (long-structured), which scores the same as a rule that always picks the longer reply, 67.6; the default setting scores 61.3.</sub></p>
+
+<!-- readme-charts:end -->
+
+<p align="center"><sub><a href="docs/comparison/methods.md#public-benchmarks-against-promptfoo">How we measured</a></sub></p>
+
 ### A panel, only when unsure
 
 <a href=".github/readme/mm-eval-sealed-test-light.png">
@@ -719,40 +833,36 @@ Every number comes from a result file in this repository. All scores are on one 
 </a>
 <p align="center"><sub><a href="docs/comparison/methods.md#mm-eval-a-panel-only-when-unsure">How we measured</a></sub></p>
 
-MM-Eval is a public benchmark for judges. On 1,212 sealed items, sending only the unsure cases to a panel lifts the score from 89.49 to 91.54: a gain of 2.05 points, 95% interval 1.02 to 3.29. Only 48 items went to the panel, and cost per 100 items rose from $0.2471 to $0.2646.
+A panel that sees only the unsure cases lifts the MM-Eval score from 89.49 to 91.54 on 1,212 sealed items, a gain of 2.05 points with a 95% interval of 1.02 to 3.29.
 
-### Faults found on a budget
+<sub>MM-Eval is a public benchmark for judges. Only 48 items went to the panel, and cost per 100 items rose from $0.2471 to $0.2646.</sub>
 
-<a href=".github/readme/testgen-budget-light.png">
-  <picture>
-    <source media="(prefers-color-scheme: dark)" srcset=".github/readme/testgen-budget-dark.png">
-    <img alt="Planted faults caught, of 13, by number of generated tests. At 20 tests: driftbench's selector 9, pairwise covering 8, random sampling 8.37. At 50 tests: 9, 9 and 8.97. At 100 and 200 tests all three catch 9." src=".github/readme/testgen-budget-light.png" width="100%">
-  </picture>
-</a>
-<p align="center"><sub><a href="docs/comparison/methods.md#faults-found-on-a-budget">How we measured</a></sub></p>
-
-`driftbench generate --budget 20` picks each test to cover the most new pairs of values. With 20 tests it catches 9 of 13 planted faults, one more than a pairwise covering array in every one of 30 seeds. From 50 tests up the three methods tie.
-
-### Five clear wins for the judge
+### The shipped judge against DeepEval
 
 <a href=".github/readme/judge-leads-light.png">
   <picture>
     <source media="(prefers-color-scheme: dark)" srcset=".github/readme/judge-leads-dark.png">
-    <img alt="Five held-out judge tests where driftbench's shipped judge beats DeepEval's default metric beyond the 95% interval, of 72 cases each. Hallucination 71 against 36. Faithfulness 71 against 36. Turn relevancy 65 against 36. Completeness 70 against 46. Role adherence 72 against 63." src=".github/readme/judge-leads-light.png" width="100%">
+    <img alt="Held-out judge tests where driftbench's shipped judge beats DeepEval's default metric beyond the 95% interval, of 72 cases each. Hallucination 71 against 36. Faithfulness 71 against 36. Turn relevancy 65 against 36. Completeness 70 against 46. Role adherence 72 against 63." src=".github/readme/judge-leads-light.png" width="100%">
   </picture>
 </a>
 <p align="center"><sub><a href="docs/comparison/methods.md#the-judge-on-hard-cases">How we measured</a></sub></p>
 
-The judge that ships today, against DeepEval 4.2.8's default metrics, same model on both sides. On these five tests the lead is beyond the margin of error.
+On hallucination, faithfulness, turn relevancy, completeness and role adherence, the judge that ships today scores higher than DeepEval 4.2.8's default metric, by more than the 95% margin.
+
+<sub>Held-out cases, same model on both sides.</sub>
 
 ### Hard cases, framework by framework
 
-The shipped judge against each framework's own default judge, on held-out hard cases, with Claude Haiku 5.5 on both sides. Bars show the share of cases judged correctly, out of 100.
+The shipped judge against each framework's own default judge. Bars show the cases judged correctly.
+
+<sub>Held-out hard cases, Claude Haiku 5.5 on both sides.</sub>
+
+On DeepEval, G-Eval strict uses 480 fresh cases and the opt-in setting `response-relevance` ([how](comparisons/deepeval/lead/README.md)). Knowledge retention uses 1,272 fresh cases: 1,270 against 1,272, level by the exact paired test ([how](comparisons/deepeval/lead/power/REPORT.md)).
 
 <a href=".github/readme/hard-deepeval-light.png">
   <picture>
     <source media="(prefers-color-scheme: dark)" srcset=".github/readme/hard-deepeval-dark.png">
-    <img alt="DeepEval hard cases, cases correct of 72, driftbench against DeepEval default. Hallucination 71 against 36. Faithfulness 71 against 36. Turn relevancy 65 against 36. Completeness 70 against 46. Role adherence 72 against 63. DAG 65 against 65. Task completion 72 against 72. Knowledge retention 68 against 69. G-Eval strict 65 against 70." src=".github/readme/hard-deepeval-light.png" width="100%">
+    <img alt="DeepEval hard cases, cases correct, driftbench against DeepEval default. Of 72: Hallucination 71 against 36. Faithfulness 71 against 36. Turn relevancy 65 against 36. Completeness 70 against 46. Role adherence 72 against 63. DAG 65 against 65. Task completion 72 against 72. Of 480 fresh cases: G-Eval strict 474 against 451, with the opt-in setting response-relevance. Of 1272 fresh cases: Knowledge retention 1270 against 1272, level. Two driftbench answers are inconclusive; exact paired p = 1 on 1270 complete pairs." src=".github/readme/hard-deepeval-light.png" width="100%">
   </picture>
 </a>
 <p align="center"><sub><a href="docs/comparison/methods.md#the-judge-on-hard-cases">How we measured</a></sub></p>
@@ -773,19 +883,52 @@ The shipped judge against each framework's own default judge, on held-out hard c
 </a>
 <p align="center"><sub><a href="docs/comparison/methods.md#the-judge-on-hard-cases">How we measured</a></sub></p>
 
-Every result, test by test and tool by tool, including the tests where another framework is ahead today: [how we measured](docs/comparison/methods.md) and the [per-tool pages](docs/comparison/index.md).
+Every result, test by test and tool by tool: [how we measured](docs/comparison/methods.md) and the [per-tool pages](docs/comparison/index.md).
 
-### JudgeBench, against promptfoo
+### The numbers
 
-A public benchmark for judges: the same 270 sealed pairs and the same model for both judges, one pair of bars per model. Here driftbench runs the pair ledger, an opt-in judge mode that is in review ([PR 168](https://github.com/achammah/driftbench/pull/168)).
+The table holds the numbers of the five charts. DeepEval, Inspect, Langfuse and LangWatch run their default judge; driftbench and promptfoo are the recorded cells. Each comparison is a paired exact test of driftbench against one tool, on the same items.
 
-<a href=".github/readme/bench-judgebench-light.png">
-  <picture>
-    <source media="(prefers-color-scheme: dark)" srcset=".github/readme/bench-judgebench-dark.png">
-    <img alt="JudgeBench sealed test, 270 pairs, percent correct, driftbench pair ledger against promptfoo select-best. Claude Haiku 5.5: 88.9 against 83.0. GPT-6 Luna: 87.0 against 84.8. Gemini 3.5 Flash-Lite: 79.6 against 79.6." src=".github/readme/bench-judgebench-light.png" width="100%">
-  </picture>
-</a>
-<p align="center"><sub><a href="docs/comparison/methods.md#public-benchmarks-against-promptfoo">How we measured</a></sub></p>
+<!-- readme-table:start -->
+| Benchmark | driftbench | promptfoo | DeepEval | Inspect | Langfuse | LangWatch |
+|---|---:|---:|---:|---:|---:|---:|
+| JudgeBench, 270 pairs | 88.9 | 83.0 | 86.3 | 80.0 | 74.8 | 83.7 |
+| MM-Eval, 591 items | 88.9 | 86.5 | 84.1 | 75.4 | 73.5 | 83.9 |
+| RubricBench, 1,580 games | 82.7 | 75.6 | 77.6 | 26.6 | 25.1 | 74.9 |
+| LongJudgeBench verify, 221 items | 74.2 | 71.9 | 58.8 | 73.3 | 75.1 | 73.3 |
+| LongJudgeBench writing, 346 games (footnote) | 67.6 | 56.9 | 58.4 | 11.6 | 14.5 | 52.6 |
+
+Footnote: the driftbench figure for writing uses its opt-in reader-first setting (long-structured); the default setting scores 61.3.
+<!-- readme-table:end -->
+
+- Verify: Langfuse scores 0.9 points above driftbench. On the paired items driftbench alone is right on 13 and Langfuse alone on 15 (raw p 0.85).
+- Writing: the reader-first setting picks the longer reply on all 173 pairs, so its 67.6 equals a longer-reply rule.
+- The verify column here is Claude Haiku 5.5 (driftbench 74.2, promptfoo 71.9). The 74.7 and 72.4 in [the public benchmark table](docs/comparison/methods.md) are GPT-6 Luna, a different model.
+- A few items stay undecided after three passes because the model refused them. They count as wrong for the contestant. Undecided items: MM-Eval 3 to 7 per peer, RubricBench 1 each for DeepEval and Langfuse.
+- Inspect and Langfuse scores on RubricBench and writing are low because a pointwise grader returns equal scores for many pairs, and a tie counts as wrong.
+
+Per benchmark tables with paired counts, p values and spend: [JudgeBench](docs/comparison/benchmarks/judgebench-all-peers.md), [MM-Eval](docs/comparison/benchmarks/mmeval-all-peers.md), [RubricBench](docs/comparison/benchmarks/rubricbench-all-peers.md), [verify](docs/comparison/benchmarks/verify-all-peers.md), [writing](docs/comparison/benchmarks/writing-all-peers.md). The sealed items are not committed. To rebuild them:
+
+1. Run the RubricBench loader, `node --experimental-strip-types examples/all-peers-public/rubricbench-loader/load.mts <out.json>`. It downloads the RubricBench rows from Hugging Face (cached on disk), keeps the 790 sealed test ids listed in `test-ids.json` and writes them as JSON.
+2. Run `python examples/all-peers-public/export.py --items-only --rubricbench-items <out.json>`. It rebuilds all five item files and checks each against the committed sha256.
+3. Re-score offline with `python examples/all-peers-public/stats.py`.
+
+### Verify v5: corrected confirmation
+
+The verify candidate's primary result uses the 536 confirmation items whose normalized question text appears
+in neither practice nor DEV. The original 544-item split leaked 8 practice questions and reused 32 practice
+call references. The frozen manifest and decisions are preserved; the full result is a sensitivity analysis.
+Scores are percent correct.
+
+| Verify v5 analysis | driftbench-v5 | promptfoo | DeepEval | Inspect | Langfuse | LangWatch |
+|---|---:|---:|---:|---:|---:|---:|
+| Primary, 536 items without practice/DEV question overlap | 78.73 | 76.87 | 60.26 | 76.49 | 75.75 | 75.19 |
+| Sensitivity, original 544 items including overlap | 78.86 | 77.21 | 60.85 | 76.84 | 75.92 | 75.18 |
+| LJB TEST, 221 items | 76.02 | 75.57 | 58.82 | 73.30 | 75.11 | 73.30 |
+
+On the 536 primary items, driftbench-v5 scores 78.73%; DeepEval scores 60.26%, a significant difference after exact paired tests
+with Holm over the five peers. promptfoo (76.87%), Inspect (76.49%), Langfuse (75.75%) and LangWatch (75.19%) are within the
+paired-test noise. The exclusion is a post-review correction using recorded decisions, with no new model calls. [Full results and exclusions](examples/verify-lead/RESULTS.md).
 
 ### What a judgement costs
 
@@ -797,31 +940,19 @@ A public benchmark for judges: the same 270 sealed pairs and the same model for 
 </a>
 <p align="center"><sub><a href="docs/comparison/methods.md#what-a-judgement-costs">How we measured</a></sub></p>
 
-On Inspect's grader panel the two judges score the same, 59 of 60, and driftbench spends $0.076 where the default spends $0.138.
-
-### driftbench tests itself
-
-<a href=".github/readme/self-tests-light.png">
-  <picture>
-    <source media="(prefers-color-scheme: dark)" srcset=".github/readme/self-tests-dark.png">
-    <img alt="Planted-truth cases per self-test suite. Whole pipeline 2,383, floor at level 7. Test generator 2,033, no floor yet. Code-agent estates 1,170, no floor yet. Statistics 651, floor at level 7. Judges 638, floor at level 7. Map extraction 578, floor at level 8." src=".github/readme/self-tests-light.png" width="100%">
-  </picture>
-</a>
-<p align="center"><sub><a href="docs/comparison/methods.md#driftbench-tests-itself">How we measured</a></sub></p>
-
-A planted-truth case is built by code with a known answer: a fault, a recovery or an effect put in at a known place. Six suites, 7,453 cases. Four suites hold a floor that CI refuses to go below. → [validators](docs/validators.md)
+On Inspect's grader panel, driftbench spends $0.076 per 100 judged cases where the default spends $0.138, at the same score, 59 of 60.
 
 ## How it compares
 
-The capability matrix is [above](#what-makes-it-different). Tool by tool, row by row:
+The capability matrix is [above](#what-makes-it-different). One page per tool, row by row:
 
-| Tool | Rows ahead | Equal | Behind | In progress | Not comparable | Page |
-|---|---|---|---|---|---|---|
-| promptfoo | 22 | 5 | 1 | 1 | 7 | [promptfoo](docs/comparison/promptfoo.md) |
-| Inspect | 20 | 0 | 0 | 0 | 3 | [Inspect](docs/comparison/inspect.md) |
-| DeepEval | 11 | 1 | 0 | 0 | 2 | [DeepEval](docs/comparison/deepeval.md) |
-| Langfuse | 10 | 2 | 0 | 0 | 3 | [Langfuse](docs/comparison/langfuse.md) |
-| LangWatch | 8 | 5 | 0 | 1 | 2 | [LangWatch](docs/comparison/langwatch.md) |
+| Tool | Page |
+|---|---|
+| promptfoo | [promptfoo](docs/comparison/promptfoo.md) |
+| Inspect | [Inspect](docs/comparison/inspect.md) |
+| DeepEval | [DeepEval](docs/comparison/deepeval.md) |
+| Langfuse | [Langfuse](docs/comparison/langfuse.md) |
+| LangWatch | [LangWatch](docs/comparison/langwatch.md) |
 
 What driftbench does not do: retrieval metrics for RAG, promptfoo's catalogue of red-team plugins, a hosted platform with a team UI. → [how each row was checked](docs/comparison/methods.md#the-tool-by-tool-tallies)
 

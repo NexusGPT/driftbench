@@ -32,6 +32,8 @@ export type Relations = {
   recoveries: RecoveryRelation[];
   /** The language every reply is in, as a spec writes it (EN); undefined when the map fixes none. */
   replyLanguage: string | undefined;
+  /** Replies the agent sends to one user turn: `one` unless an approved `reply_count` relation says `any`. */
+  repliesPerTurn: 'one' | 'any';
 };
 
 export const EMPTY_RELATIONS: Relations = {
@@ -42,6 +44,7 @@ export const EMPTY_RELATIONS: Relations = {
   binds: new Map(),
   recoveries: [],
   replyLanguage: undefined,
+  repliesPerTurn: 'one',
 };
 
 /** The approved relations whose references are all approved values. */
@@ -91,6 +94,7 @@ export function readRelations(
     (relation) =>
       relation.kind === 'reply_language' && approvedValue(relation.subject.dimension, relation.subject.value),
   );
+  const replyCount = relations.find((relation) => relation.kind === 'reply_count');
   return {
     paths,
     usesTools,
@@ -99,6 +103,7 @@ export function readRelations(
     binds,
     recoveries,
     replyLanguage: language?.kind === 'reply_language' ? language.lang.toUpperCase() : undefined,
+    repliesPerTurn: replyCount?.kind === 'reply_count' ? replyCount.per_turn : 'one',
   };
 }
 

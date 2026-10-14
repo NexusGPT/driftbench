@@ -154,7 +154,9 @@ export function prepareMap(
       relations.taskFamilies.length +
       relations.binds.size +
       relations.recoveries.length >
-      0 || relations.replyLanguage !== undefined
+      0 ||
+    relations.replyLanguage !== undefined ||
+    relations.repliesPerTurn !== 'one'
       ? {
           relations: (proposal.relations ?? [])
             .filter((relation) => relation.approved)

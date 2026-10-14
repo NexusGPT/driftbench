@@ -1,0 +1,63 @@
+{
+  "created": "2026-10-13T13:37:28.396168+00:00",
+  "authority": "Owner requests claude-sonnet-5-5 and gpt-6.1-sol; both contestants, sealed set once, 5 Sonnet cost calls before full cell; stop if projected cell cost exceeds USD 25; Gemini 3.8 stays parked.",
+  "cell": "sonnet-5-5",
+  "model": "claude-sonnet-5-5",
+  "route": "claude-cli",
+  "concurrency": 2,
+  "reserve": 0.1,
+  "cell_cap_usd": 25,
+  "experiments": [
+    "primary",
+    "dialect"
+  ],
+  "cases_per_row": 384,
+  "planned_unique_calls": 6560,
+  "interpretation": "Carry forward the two-experiment layout of the previous added model. Each model allocation covers both experiments and the equal-state ablation.",
+  "reasoning": "medium for both contestants in both experiments",
+  "temperature": "omitted",
+  "total_generated_token_cap": 4096,
+  "thinking_limit_note": "Responses max_output_tokens includes hidden reasoning. Sonnet 5.5 is adaptive and ignores positive MAX_THINKING_TOKENS; constrain total generated tokens through CLAUDE_CODE_MAX_OUTPUT_TOKENS instead.",
+  "thinking_sources": [
+    "https://developers.openai.com/api/docs/guides/reasoning",
+    "https://code.claude.com/docs/en/env-vars"
+  ],
+  "no_content_retry": true,
+  "transport_tries": 3,
+  "transport_wait_seconds": [
+    10,
+    30
+  ],
+  "quota_wait_seconds": [
+    20,
+    60,
+    180
+  ],
+  "http_402": "immediate stop, no retry, unscored",
+  "pilot": "First five requests in the frozen rotating experiment order, retained once. Gate continuation only on cost, model identity and transport integrity, never accuracy. Reproject after first 50 calls and each later 100.",
+  "cost_projection_rule": "Mean measured USD per pilot request times 6560. Subsequent projection stratifies by experiment, row and contestant once all groups have observations; otherwise uses the overall mean.",
+  "unknown_attempt_reserve_usd": 0.1,
+  "request_timeout_seconds": 180,
+  "last_call_cutoff": "2026-10-14T12:00:00+00:00",
+  "original_seal_sha256": "5845e97e2651d2942134209e4abfa8f932409744930bd0d143ebbe03877b07a4",
+  "dialect_seal_sha256": "ebbc5876d5a9d482203382d33c7fa3c0ee640b6e1254bf821784004493cd85d9",
+  "candidate_procedure_sha256": "d7f5e226bf5afe7b955ee0f2247835cd19953001c196dcc7260d1f0c37922587",
+  "prior_journal_sha256": {
+    "comparisons/ledger-hard/calls.jsonl": "efbc92b5754f7626d51f99788ea5d818a636f122a9fb5e81927480e9e332a10a",
+    "comparisons/ledger-hard/dialect/calls.jsonl": "13f1b355359ebc50964415c861f6cb3958281aaec947fc12ed975723abf64948",
+    "comparisons/ledger-hard/flash-lite/primary/calls.jsonl": "e36cbcc3dc5f7e2f1ac40aeefebd86ec122c832f122bf6a17f8a2946a169102d",
+    "comparisons/ledger-hard/flash-lite/dialect/calls.jsonl": "928bf05406686d8994f79775882e47dd840fe5eaa42ed2153e4f1ee8128096b9"
+  },
+  "sha256": {
+    "comparisons/ledger-hard/extended-run.py": "b4c3892eea5987e9e442e05ef2ebc0d00e4f4abe3d66d5549c09f9bc8278d49c",
+    "comparisons/ledger-hard/extended-score.py": "1bea532d01f834ca8ef604e283c18c5f7cb0c837cd4f72c64f1b1525df3c5d6c",
+    "comparisons/ledger-hard/extended-peer-parity.mts": "6126d05c37da748d2ab333b2130cae0ff4941320d83d667c8d61057b72308cea",
+    "comparisons/ledger-hard/test_extended.py": "fb89dc6dc6a948ab8b18bb4f770cd3618b80112605160256f33da0b57b5dc651",
+    "comparisons/ledger-hard/score.py": "f5f91044dcb166d04b8bff098e8cc31d7431fae30a3983894e7dc1617c4a6831",
+    "comparisons/ledger-hard/common.py": "5b58400c66eccd45a52b7ee0201bade2f43a5f9dc1d1a115db9a55aeb4511f1b",
+    "comparisons/ledger-hard/run.py": "a23abf61ab6d3c42afad0285e70c806bcc2ffbdad80843443cb63f33faa60e57",
+    "comparisons/ledger-hard/dialect-run.py": "28a020031d43288debe04c297b3662d61a81301c3461a4d15c49c72d2e349254",
+    "comparisons/ledger-hard/sonnet-5-5/requests.json": "75e091dbd4370a78da65cb26b4445640ce4fd538b9080e29f08a033019bcbf27",
+    "comparisons/ledger-hard/sonnet-5-5/pricing.json": "00cfb936f27a78787e18a6de3d73f9cb3a34369f1fbb6685f5217fe56a409fd8"
+  }
+}

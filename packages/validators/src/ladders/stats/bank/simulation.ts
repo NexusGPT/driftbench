@@ -4,7 +4,13 @@ import { designsPath, readDesigns, type StatsDesigns } from '../designs';
 import { generator } from '../draw';
 import { powerLevel } from '../power';
 import type { StatsImpl } from '../reference';
-import { SHARE_LEVELS, sharesLevel } from '../shares';
+import {
+  SHARE_LEVELS,
+  SHARES_LEVEL_MISSES,
+  SHARES_NESTED_MISSES,
+  SHARES_RECOVERY,
+  sharesLevel,
+} from '../shares';
 import { unseenLevel } from '../unseen';
 import { WILSON_COVERAGE, WILSON_DRAWS, WILSON_RATES } from '../wilson';
 import { type BankItem, fail, ok } from './item';
@@ -114,10 +120,10 @@ export function simulationItems(): BankItem[] {
   out.push(
     item('simulation.shares.pooled', 4, 'packages/generate/src/pilot/analyse.ts', ({ seed, root }) => {
       const m = shares(seed, root);
-      return m.value >= 0.93
+      return m.value >= SHARES_RECOVERY
         ? ok()
         : fail(
-            `analysePilot recovered ${m.value} of the planted shares over 8 datasets (bar 0.93): ${m.items
+            `analysePilot recovered ${m.value} of the planted shares over ${designs(root).shares.datasets} datasets (bar ${SHARES_RECOVERY}): ${m.items
               .map((i) => i.detail)
               .slice(0, 3)
               .join(' | ')}`,
@@ -128,10 +134,10 @@ export function simulationItems(): BankItem[] {
     out.push(
       item(`simulation.shares.${level}`, 4, 'packages/generate/src/pilot/analyse.ts', ({ seed, root }) => {
         const misses = shares(seed, root).items.filter((i) => i.id.endsWith(`-${level}`));
-        return misses.length <= 2
+        return misses.length <= SHARES_LEVEL_MISSES[level]
           ? ok()
           : fail(
-              `the planted ${level} share fell outside the analysePilot bootstrap interval on ${misses.length} of 8 datasets (at most 2 for a 95 percent interval): ${misses
+              `the planted ${level} share fell outside the analysePilot bootstrap interval on ${misses.length} of ${designs(root).shares.datasets} datasets (at most ${SHARES_LEVEL_MISSES[level]}): ${misses
                 .map((i) => i.detail)
                 .slice(0, 2)
                 .join(' | ')}`,
@@ -139,6 +145,24 @@ export function simulationItems(): BankItem[] {
       }),
     );
   }
+  // Wordings carry most of the spread here, so an analysis that does not take the lower levels' variance out of
+  // a level's mean square puts it on the conversation level, above the planted share.
+  out.push(
+    item('simulation.shares.nested', 4, 'packages/generate/src/pilot/analyse.ts', ({ seed, root }) => {
+      const design = designs(root).sharesNested;
+      const misses = sharesLevel(seed, design, undefined, 1).items.filter((i) =>
+        i.id.endsWith('-conversation'),
+      );
+      return misses.length <= SHARES_NESTED_MISSES
+        ? ok()
+        : fail(
+            `on the nested design (wording spread ${design.logitSd.wording} on the logit scale, conversation ${design.logitSd.conversation}) the planted conversation share fell outside the analysePilot bootstrap interval on ${misses.length} of ${design.datasets} datasets (at most ${SHARES_NESTED_MISSES}); a variance-components estimator that leaves the wording variance in the conversation mean square does this: ${misses
+              .map((i) => i.detail)
+              .slice(0, 2)
+              .join(' | ')}`,
+          );
+    }),
+  );
   const unseen = (seed: number, s: StatsImpl, root: string) =>
     once(`unseen:${seed}:${root}`, () => unseenLevel(seed, s, designs(root).unseen));
   for (const pop of ['s60-spread5', 's120-spread10']) {

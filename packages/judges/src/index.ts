@@ -203,6 +203,13 @@ export {
 } from './legacy-prompt';
 export { type LintIssue, lintCriterion } from './lint';
 export {
+  applyLongStructured,
+  isStructured,
+  PAIR_PREFERENCES,
+  type PairPreference,
+  type PreferenceResult,
+} from './long-structured';
+export {
   canonicalPairOrder,
   judgePairLedger,
   type LedgerChoice,
@@ -317,3 +324,4 @@ export {
   type VerificationOptions,
   withVerification,
 } from './verification';
+export { type PanelOutcome, type PanelVote, weightedPanel } from './weighted-panel';

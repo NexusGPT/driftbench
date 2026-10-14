@@ -1,7 +1,9 @@
+import { createHash } from 'node:crypto';
 import { mkdir, mkdtemp, readdir, readFile, rm, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
-import { dirname, join, relative, sep } from 'node:path';
+import { dirname, isAbsolute, join, relative, resolve, sep } from 'node:path';
 import { functionAdapter } from '@agent-nexus/driftbench-adapters';
+import { defaultReaders } from '@agent-nexus/driftbench-artifacts';
 import { defaultChecks } from '@agent-nexus/driftbench-checks';
 import {
   type AgentAdapter,
@@ -14,6 +16,7 @@ import {
   type Message,
   type RunResult,
   runSpec,
+  type Session,
   type Spec,
   stimulusMessages,
   type Verdict,
@@ -21,14 +24,15 @@ import {
 import {
   blockCell,
   blockOutcome,
+  buildTaskInputs,
   COMPLETE_DIR,
   deviationOf,
   type FaultSession,
   failingIds,
-  faultAdapter,
   type GenerateResult,
   generateSuite,
   loadApprovedMap,
+  loadFamily,
   machineSignature,
   type PreparedMap,
   projectObserved,
@@ -38,12 +42,13 @@ import {
   stimulusText,
   type ThenField,
   thenFields,
+  writePendingReview,
 } from '@agent-nexus/driftbench-generate';
 import { createPerturbingDriver, createScriptedDriver } from '@agent-nexus/driftbench-users';
 import { baselineSuite } from './baseline';
 import { CHEATERS, type Cheater, cheaterAdapter, replayCalls } from './cheaters';
 import { combinedFault, FAULT_CLASSES, faultFamily, type HiddenFault } from './faults';
-import { createFollower } from './follower';
+import { createFollower, type FileSession } from './follower';
 import { type HiddenSpec, hiddenSpec } from './hidden';
 import { MAP_FILES, type RenderedMap, renderMap } from './render';
 
@@ -68,7 +73,7 @@ export const STABILITY_OFFSETS = [0, 101, 202] as const;
 export type GeneratorParts = {
   hidden?: (seed: number) => HiddenSpec;
   render?: (spec: HiddenSpec) => RenderedMap;
-  generate?: (prepared: PreparedMap, options: { seed: number; mapPath: string }) => GenerateResult;
+  generate?: (prepared: PreparedMap, options: Parameters<typeof generateSuite>[1]) => GenerateResult;
   /** The rule follower: what the reference runs. */
   follower?: (spec: HiddenSpec) => () => FaultSession;
   faults?: (spec: HiddenSpec) => HiddenFault[];
@@ -156,22 +161,127 @@ function rememberLang(check: Check): Check {
 
 export function runContext(): RunContext {
   return {
+    artifacts: defaultReaders(),
     checks: defaultChecks().map((check) => (check.name === 'lang' ? rememberLang(check) : check)),
     driver: () => createScriptedDriver(),
   };
 }
 
 export function followerAdapter(session: () => FaultSession, version = 'rule-follower'): AgentAdapter {
-  return functionAdapter<FaultSession>({
-    create: () => session(),
-    respond: (messages, world, _vars, state) => state.respond(messages, world),
-    payloads: (state) => state.payloads(),
-    deterministic: true,
-    version,
+  const base = (state: FaultSession) =>
+    functionAdapter({
+      create: () => state,
+      respond: (messages, world) => state.respond(messages, world),
+      payloads: () => state.payloads(),
+      deterministic: true,
+      version,
+    });
+  const live = new WeakMap<
+    Session,
+    { adapter: AgentAdapter; state: FaultSession; root?: string; files: Record<string, string> }
+  >();
+  const prototype = base({
+    respond: async () => {
+      throw new Error('unopened session');
+    },
+    payloads: () => [],
   });
+  const own = (opened: Session) => {
+    const found = live.get(opened);
+    if (!found) throw new Error('closed or unknown fixture session');
+    return found;
+  };
+  const safe = (root: string, path: string) => {
+    const target = resolve(root, path);
+    const rel = relative(root, target);
+    return !isAbsolute(path) && rel !== '..' && !rel.startsWith(`..${sep}`) ? target : undefined;
+  };
+  return {
+    ...prototype,
+    async open(given) {
+      const state = session();
+      const adapter = base(state);
+      const opened = await adapter.open(given);
+      live.set(opened, {
+        adapter,
+        state,
+        files: { ...(given.world.workspace?.files ?? {}) },
+      });
+      return opened;
+    },
+    async send(opened, turn) {
+      const entry = own(opened);
+      const observed = await entry.adapter.send(opened, turn);
+      const files = (entry.state as Partial<FileSession>).files?.() ?? {};
+      if (!(entry.state as Partial<FileSession>).files) return observed;
+      if (!entry.root && Object.keys(files).length === 0 && !turn.given.world.workspace) return observed;
+      entry.root ??= await mkdtemp(join(tmpdir(), 'driftbench-files-'));
+      for (const path of Object.keys(entry.files)) {
+        const target = safe(entry.root, path);
+        if (!(path in files) && target) await rm(target, { force: true });
+      }
+      for (const [path, content] of Object.entries(files)) {
+        const target = safe(entry.root, path);
+        if (!target) continue;
+        await mkdir(dirname(target), { recursive: true });
+        await writeFile(target, content);
+      }
+      const actual: Record<string, string> = {};
+      for (const path of Object.keys(files)) {
+        const target = safe(entry.root, path);
+        if (target) actual[path] = await readFile(target, 'utf8');
+      }
+      const created = Object.keys(actual).filter((path) => !(path in entry.files));
+      const changed = Object.keys(actual).filter(
+        (path) => path in entry.files && actual[path] !== entry.files[path],
+      );
+      const deleted = Object.keys(entry.files).filter((path) => !(path in actual));
+      entry.files = actual;
+      return {
+        ...observed,
+        workspaceDiff: { created, changed, deleted },
+        artifacts: [
+          ...new Set([...created, ...changed, ...(observed.artifacts ?? []).map((file) => file.path)]),
+        ]
+          .filter((path) => path in actual)
+          .map((path) => ({
+            path,
+            sha256: createHash('sha256')
+              .update(actual[path] ?? '')
+              .digest('hex'),
+            bytes: Buffer.byteLength(actual[path] ?? ''),
+          })),
+      };
+    },
+    async readArtifact(opened, path) {
+      const root = own(opened).root;
+      if (!root) throw new Error('the fixture produced no workspace files');
+      const target = safe(root, path);
+      if (!target) throw new Error('artifact path is outside the fixture workspace');
+      return readFile(target);
+    },
+    async endState(opened, source) {
+      const entry = own(opened);
+      return entry.adapter.endState?.(opened, source);
+    },
+    async close(opened) {
+      const entry = own(opened);
+      try {
+        await entry.adapter.close(opened);
+      } finally {
+        if (entry.root) await rm(entry.root, { recursive: true, force: true });
+        live.delete(opened);
+      }
+    },
+  };
 }
 
-async function writeAll(
+function fixtureFaultAdapter(fault: HiddenFault): AgentAdapter {
+  if (fault.def.agent.kind !== 'function') throw new Error('the validator plants function faults only');
+  return followerAdapter(fault.def.agent.create, fault.def.id);
+}
+
+export async function writeAll(
   root: string,
   files: readonly { path: string; text: string; bytes?: Uint8Array }[],
 ): Promise<void> {
@@ -214,6 +324,9 @@ export async function generateFrom(
     for (const [key, name] of Object.entries(MAP_FILES)) {
       await writeFile(join(mapDir, name), rendered[key as keyof RenderedMap]);
     }
+    const family = await loadFamily(mapDir);
+    if (!family.ok) throw new Error(`invalid fixture family: ${JSON.stringify(family.issues)}`);
+    await writePendingReview(family.loaded);
     const loaded = await loadApprovedMap(join(mapDir, MAP_FILES.map));
     if (!loaded.ok) {
       return {
@@ -237,7 +350,13 @@ export async function generateFrom(
       const again = await loadApprovedMap(join(mapDir, MAP_FILES.map));
       if (!again.ok) throw new Error(`the map loaded once and was refused the second time: ${again.message}`);
       prepared ??= again.prepared;
-      const result = generate(again.prepared, { seed: generatorSeed, mapPath: MAP_PATH });
+      const tasks = await buildTaskInputs(again.prepared, mapDir, { n: 1, seed: generatorSeed });
+      if (tasks.refused.length > 0) throw new Error(`fixture task refused: ${JSON.stringify(tasks.refused)}`);
+      const result = generate(again.prepared, {
+        seed: generatorSeed,
+        mapPath: MAP_PATH,
+        tasks: tasks.inputs,
+      });
       await writeAll(join(root, folder), result.files);
       runs.push(result);
     }
@@ -363,6 +482,9 @@ type SpecPlan = { spec: Spec; follower: RunResult; projections: string[]; emulab
 
 async function planSpec(spec: Spec, follower: RunResult, session: () => FaultSession): Promise<SpecPlan> {
   const projections = projectRun(follower);
+  // File checks read disk; reported metadata cannot prove that a file run is unchanged.
+  if (spec.kind === 'task' || spec.blocks.some((block) => block.expect?.artifacts || block.expect?.workspace))
+    return { spec, follower, projections, emulable: false };
   const emulated = await emulate(spec, session());
   const emulable =
     follower.status === 'completed' &&
@@ -409,10 +531,7 @@ export async function runAll(generated: Generation, parts: GeneratorParts = {}):
   const faults = (parts.faults ?? ((spec: HiddenSpec) => faultFamily(spec)))(hidden);
   const cheaters = parts.cheaters ?? CHEATERS;
   const replay = replayCalls((parts.baseline ?? baselineSuite)(hidden).map((loaded) => loaded.spec));
-  const provider = () => {
-    throw new Error('the generator validator plants function faults only');
-  };
-  const adapters = faults.map((fault) => ({ fault, adapter: faultAdapter(fault.def, provider) }));
+  const adapters = faults.map((fault) => ({ fault, adapter: fixtureFaultAdapter(fault) }));
   const records = new Map<string, FaultRecord>(
     faults.map((fault) => [fault.def.id, { fault, changedOn: [], ranOn: 0, firstChange: {} }]),
   );
@@ -569,9 +688,6 @@ export async function modeKills(
   const follower = followerAdapter(
     (parts.follower ?? ((spec: HiddenSpec) => createFollower(spec)))(generated.hidden),
   );
-  const provider = () => {
-    throw new Error('function faults only');
-  };
   const planted = faultFamily(
     generated.hidden,
     FAULT_CLASSES.filter((cls) => cls.family !== 'code'),
@@ -609,7 +725,7 @@ export async function modeKills(
         continue;
       }
       for (const fault of planted) {
-        const run = await perturbedRun(faultAdapter(fault.def, provider));
+        const run = await perturbedRun(fixtureFaultAdapter(fault));
         if (run.blocks.some((block) => !block.pass)) result.P.killed.add(fault.class);
       }
     }
@@ -637,7 +753,7 @@ export async function modeKills(
         };
         const base = await runSpec(spec, { ...options, adapter: follower });
         for (const fault of planted) {
-          const run = await runSpec(spec, { ...options, adapter: faultAdapter(fault.def, provider) });
+          const run = await runSpec(spec, { ...options, adapter: fixtureFaultAdapter(fault) });
           base.blocks.forEach((block, index) => {
             if (block.pass && run.blocks[index] && !run.blocks[index]?.pass) result.T.killed.add(fault.class);
           });

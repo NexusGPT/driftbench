@@ -1,0 +1,193 @@
+{
+  "rows": {
+    "task": {
+      "items": 126,
+      "audit": {
+        "complete": 126,
+        "right": 126,
+        "inconclusive": 0,
+        "wilson95": [
+          97.04,
+          100.0
+        ],
+        "by_class": {
+          "double-negation": 18,
+          "embedded-instruction": 18,
+          "flattened-trace": 18,
+          "long-one-wrong": 18,
+          "near-miss": 18,
+          "partial-credit": 18,
+          "unusual-format": 18
+        }
+      },
+      "default": {
+        "complete": 126,
+        "right": 125,
+        "inconclusive": 0,
+        "wilson95": [
+          95.64,
+          99.86
+        ],
+        "by_class": {
+          "double-negation": 18,
+          "embedded-instruction": 18,
+          "flattened-trace": 18,
+          "long-one-wrong": 18,
+          "near-miss": 17,
+          "partial-credit": 18,
+          "unusual-format": 18
+        }
+      },
+      "theirs": {
+        "complete": 126,
+        "right": 106,
+        "inconclusive": 20,
+        "wilson95": [
+          76.75,
+          89.48
+        ],
+        "by_class": {
+          "double-negation": 17,
+          "embedded-instruction": 9,
+          "flattened-trace": 18,
+          "long-one-wrong": 10,
+          "near-miss": 17,
+          "partial-credit": 17,
+          "unusual-format": 18
+        }
+      }
+    },
+    "knowledge": {
+      "items": 126,
+      "audit": {
+        "complete": 126,
+        "right": 126,
+        "inconclusive": 0,
+        "wilson95": [
+          97.04,
+          100.0
+        ],
+        "by_class": {
+          "double-negation": 18,
+          "embedded-instruction": 18,
+          "flattened-trace": 18,
+          "long-one-wrong": 18,
+          "near-miss": 18,
+          "partial-credit": 18,
+          "unusual-format": 18
+        }
+      },
+      "default": {
+        "complete": 126,
+        "right": 126,
+        "inconclusive": 0,
+        "wilson95": [
+          97.04,
+          100.0
+        ],
+        "by_class": {
+          "double-negation": 18,
+          "embedded-instruction": 18,
+          "flattened-trace": 18,
+          "long-one-wrong": 18,
+          "near-miss": 18,
+          "partial-credit": 18,
+          "unusual-format": 18
+        }
+      },
+      "theirs": {
+        "complete": 126,
+        "right": 126,
+        "inconclusive": 0,
+        "wilson95": [
+          97.04,
+          100.0
+        ],
+        "by_class": {
+          "double-negation": 18,
+          "embedded-instruction": 18,
+          "flattened-trace": 18,
+          "long-one-wrong": 18,
+          "near-miss": 18,
+          "partial-credit": 18,
+          "unusual-format": 18
+        }
+      }
+    },
+    "completeness": {
+      "items": 126,
+      "audit": {
+        "complete": 126,
+        "right": 126,
+        "inconclusive": 0,
+        "wilson95": [
+          97.04,
+          100.0
+        ],
+        "by_class": {
+          "double-negation": 18,
+          "embedded-instruction": 18,
+          "flattened-trace": 18,
+          "long-one-wrong": 18,
+          "near-miss": 18,
+          "partial-credit": 18,
+          "unusual-format": 18
+        }
+      },
+      "default": {
+        "complete": 126,
+        "right": 123,
+        "inconclusive": 0,
+        "wilson95": [
+          93.23,
+          99.19
+        ],
+        "by_class": {
+          "double-negation": 18,
+          "embedded-instruction": 18,
+          "flattened-trace": 18,
+          "long-one-wrong": 18,
+          "near-miss": 15,
+          "partial-credit": 18,
+          "unusual-format": 18
+        }
+      },
+      "theirs": {
+        "complete": 126,
+        "right": 126,
+        "inconclusive": 0,
+        "wilson95": [
+          97.04,
+          100.0
+        ],
+        "by_class": {
+          "double-negation": 18,
+          "embedded-instruction": 18,
+          "flattened-trace": 18,
+          "long-one-wrong": 18,
+          "near-miss": 18,
+          "partial-credit": 18,
+          "unusual-format": 18
+        }
+      }
+    }
+  },
+  "primary": {
+    "contestant": "driftbench answer-audit (opt-in)",
+    "paired_items": 378,
+    "ours_right": 378,
+    "theirs_right": 358,
+    "ours_only_right": 20,
+    "theirs_only_right": 0,
+    "mcnemar_exact_p": 1.9073486328125e-06
+  },
+  "secondary": {
+    "contestant": "driftbench default",
+    "paired_items": 378,
+    "ours_right": 374,
+    "theirs_right": 358,
+    "ours_only_right": 20,
+    "theirs_only_right": 4,
+    "mcnemar_exact_p": 0.001543879508972168
+  }
+}

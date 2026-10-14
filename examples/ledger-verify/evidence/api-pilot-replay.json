@@ -1,0 +1,14 @@
+{
+  "gpt-6-luna": {
+    "items": 20,
+    "contestants": 2,
+    "identicalDecisions": true,
+    "newCalls": 0
+  },
+  "gemini-3.8-flash": {
+    "items": 20,
+    "contestants": 2,
+    "identicalDecisions": true,
+    "newCalls": 0
+  }
+}

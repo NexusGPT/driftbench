@@ -72,7 +72,7 @@ describe('driftbench view', () => {
   it('tells the browser to load nothing from anywhere', async () => {
     const response = await fetch(`${viewer.url}/`);
     expect(response.headers.get('content-security-policy')).toBe(
-      "default-src 'none'; style-src 'unsafe-inline'; form-action 'self'; base-uri 'none'",
+      "default-src 'none'; style-src 'unsafe-inline'; font-src data:; form-action 'self'; base-uri 'none'",
     );
   });
 
@@ -91,7 +91,8 @@ describe('driftbench view', () => {
     expect(page.status).toBe(200);
     expect(page.text).toContain('<section id="spread">');
     expect(page.text).toContain('<section id="drilldown">');
-    expect([...page.text.matchAll(/href="\/campaign\/c-x3\/run\//g)].length).toBe(6);
+    // Each run links to its own page twice: from its panel and from the drilldown list.
+    expect([...page.text.matchAll(/href="\/campaign\/c-x3\/run\//g)].length).toBe(12);
   });
 
   it('shows a run block by block, with evidence and a label form per block and criterion', async () => {
@@ -124,12 +125,14 @@ describe('driftbench view', () => {
     // A run whose form offers no_invented_data: a label goes only on a criterion the block offers.
     const run = await runOffering('c-x3', 'no_invented_data', 'acme-plan-upgrade');
     const runId = decodeURIComponent(run.split('/').pop() as string);
+    const csrf = (await get(run)).text.match(/name="csrf" value="([^"]+)"/)?.[1] ?? '';
     const save = (label: string, block: string, note: string) =>
       fetch(`${viewer.url}/labels`, {
         method: 'POST',
         redirect: 'manual',
-        headers: { 'content-type': 'application/x-www-form-urlencoded' },
+        headers: { 'content-type': 'application/x-www-form-urlencoded', origin: viewer.url },
         body: new URLSearchParams({
+          csrf,
           campaign: 'c-x3',
           run: runId,
           block,
@@ -171,13 +174,15 @@ describe('driftbench view', () => {
   it('refuses a bad label request with 400 and writes nothing', async () => {
     const run = await firstRun('c-x3', true);
     const runId = decodeURIComponent(run.split('/').pop() as string);
+    const csrf = (await get(run)).text.match(/name="csrf" value="([^"]+)"/)?.[1] ?? '';
     const bad = async (fields: Record<string, string>) =>
       (
         await fetch(`${viewer.url}/labels`, {
           method: 'POST',
           redirect: 'manual',
-          headers: { 'content-type': 'application/x-www-form-urlencoded' },
+          headers: { 'content-type': 'application/x-www-form-urlencoded', origin: viewer.url },
           body: new URLSearchParams({
+            csrf,
             campaign: 'c-x3',
             run: runId,
             block: '0',

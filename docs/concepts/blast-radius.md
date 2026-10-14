@@ -241,13 +241,13 @@ The test can fail. A manifest that declares the loose confirmation fault as a ch
 
 The radius is sound for the declared change under two assumptions: a block's outcome depends only on its declared dependencies and its run history, and the manifest lists every change. It is not a proof that the new agent equals the old one outside the radius. A full run on a schedule, with no manifest, is what checks that.
 
-Mode T figures are a projection: the fault runs behind the gate report are free-running, so the containment above is measured in mode F only.
+Mode F containment is measured from the gate report, which holds free-running fault runs. Mode T containment is measured by running the faulty agent: see [mode T block reruns](#mode-t-block-reruns).
 
 ## What comes next
 
 Not built yet, in order:
 
-* Blocks as the unit in mode T.
+* The learned dependency table and automatic estate-diff ingestion.
 
 ## Prompt quotes
 
@@ -402,3 +402,55 @@ A paid judge requires `--judge-budget <usd>`. The budget guard is the existing r
 Exit 0 means the resulting campaign passes, 1 means a gating result fails or is inconclusive,
 and 2 means the inputs or reuse proof were refused. `--json` emits the campaign ids, carried
 and re-judged block counts, zero agent calls and judge spend.
+
+## Mode T block reruns
+
+A mode T block starts from its canonical Given, so the blocks of one cell do not depend on each other's replies. A change that reaches 1 block of a 4 block cell needs only that block sent. `--block-reruns` does this: the cell runs, but only the blocks in the radius reach the agent, and the other blocks keep their stored result.
+
+```sh
+driftbench campaign run examples/acme/gated/specs --target function:acme-sales \
+  --route flow:price-sheet=process:acme-ops --mode T --agent-version acme-v1 \
+  --campaign base --store runs.db --record-end-state-snapshots
+driftbench campaign run examples/acme/gated/specs --target function:acme-sales \
+  --route flow:price-sheet=process:acme-ops --mode T --agent-version acme-v2 \
+  --campaign next --store runs.db --change examples/acme/radius/tool-coverage-check-input.yaml \
+  --from base --block-reruns
+```
+
+Tell driftbench what changed with a change manifest, or with `radius auto --prompt` for a prompt edit. The campaign prints what it sends and what it keeps:
+
+```
+86 of 195 cells in the radius. 86 cells run fresh, 109 carried from base.
+Mode T block reruns: 86 cells send 86 blocks and keep 330 stored blocks from base.
+Saved: 781 of 867 blocks, 90.1%.
+```
+
+On the Acme gated suite, a rerun of the coverage check input change sends 86 of 867 blocks. The same campaign without end-state snapshots sends 376 of 867. A full mode T campaign sends all 867.
+
+### Which cells run in part
+
+A cell runs in part only when every check below passes. Otherwise the whole cell runs, and the campaign prints the reason.
+
+* The mode is T, the driver is the scripted driver and the adapter has no sandbox. A sandbox keeps the workspace of an earlier step, so a block cannot start alone.
+* The stored baseline run completed, every block passed, and every block has execution provenance. A failing or partial baseline is rerun whole.
+* The stored run passes the same proof as a whole-cell carry: complete stamps, an intact digest, an equal execution context, reconstructed block inputs, the full spec hash, and the `--max-carry` and `--max-age` limits. Each kept block counts one more campaign of age.
+* The radius is a strict part of the cell. A cell with every block in the radius runs whole, as it did before.
+
+The result is a normal run. Kept blocks carry the stamp of the campaign that measured them. The run records `blockRerun`: the blocks sent, the later blocks not rerun, and why the later blocks do not depend on the sent ones. The compounding rates read only the blocks that were sent. `compare` treats a partly rerun cell as a fresh run, so its pairs include the kept blocks of that cell.
+
+### End state
+
+A spec with `end_state` is judged on the whole cell, and the runner composes the end state across the blocks: for each source the last value that is not null, and the concatenated list for `*`. Skipped blocks still contribute to it, and a stored verdict cannot say what a skipped block contributed.
+
+* By default, a baseline records no per block values. A cell with `end_state` then runs whole. On the Acme gated suite, 65 cells run whole for this reason.
+* With `--record-end-state-snapshots` on the baseline campaign, each T block stores the raw values it read, and a value that was not read is stored as unavailable. A block rerun recomposes the end state from the stored values and the new ones, by the same rule, and re-evaluates the end state verdict of the last block. A block rerun campaign keeps recording snapshots when its baseline did, so a chain of reruns stays possible.
+
+Snapshots hold raw values read from the agent's systems. They can hold personal or secret data. Treat them as observations: they follow the same handling as the stored replies of the run, and the flag is off unless you set it.
+
+### Audit and misses
+
+`--audit <n>` also draws cells that run in part. A drawn cell runs whole and fresh, and each kept block is compared with its stored result on the gating verdicts. The end state verdict is not compared, because it is recomposed. One difference is a radius miss: nothing is kept, every cell runs whole, and the exit code is 1.
+
+On Acme, a full mode T run of the planted fault `x5-drops-coverage-check` fails 86 blocks. A block rerun with the right manifest fails the same 86 blocks, and every one was sent. With the recap manifest, which does not name this fault, the failing blocks stay unsent, so the check can fail. A fault planted in an offer price, outside the coverage check radius, is found by the audit. `packages/cli/test/radius-blocks-acme.test.ts` runs these cases with no model call.
+
+A block rerun needs no new assumption about the agent beyond the one every radius makes, and one more: in mode T a block depends only on its Given, which the spec writes. [When it is sound](#when-it-is-sound) lists the rest.

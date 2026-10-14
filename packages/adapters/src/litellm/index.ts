@@ -3,6 +3,7 @@ import {
   type AgentAdapter,
   AgentFailure,
   contentHash,
+  copyHistory,
   isPlainObject,
   type ResolvedGiven,
   type Segment,
@@ -110,6 +111,8 @@ export function litellmAdapter(options: LitellmAdapterOptions): AgentAdapter {
     capabilities: () => ({ ...capabilities }),
 
     async open(given: ResolvedGiven) {
+      // Validate and freeze before user-supplied setup receives the Given.
+      copyHistory(given.prefix);
       const list = typeof options.tools === 'function' ? options.tools(given) : (options.tools ?? []);
       return openSession(id, given, {
         kind: 'litellm',
@@ -120,11 +123,12 @@ export function litellmAdapter(options: LitellmAdapterOptions): AgentAdapter {
     },
 
     async send(session: Session, turn: Turn) {
+      const history = copyHistory(session.history);
       const state = ownState<LitellmState>(session, id, 'litellm');
       const names = new WireNames(state.tools.keys(), OPENAI_NAME);
       const messages: ChatMessage[] = [
         ...(options.system ? [{ role: 'system', content: options.system }] : []),
-        ...toChatMessages(session.history).map((message) =>
+        ...toChatMessages(history).map((message) =>
           message.tool_calls
             ? {
                 ...message,

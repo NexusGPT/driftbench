@@ -9,7 +9,6 @@
      blue path: it leaves the expected line at the injected block and rejoins it two blocks later. */
   #frame { width: 640px; height: 330px; }
   .b { width: 88px; height: 58px; padding: 7px 10px; row-gap: 3px; }
-  .spark { position: absolute; width: 7px; height: 7px; border-radius: 50%; background: var(--nx-spark); }
   .shift { position: absolute; left: 270px; top: 58px; display: flex; align-items: baseline; gap: 8px; }
   .shift .nx-kind { position: static; }
   .shift q { font: 400 11.5px/1 var(--nx-sans); color: var(--nx-ink); quotes: "\201C" "\201D"; }
@@ -33,30 +32,28 @@
       <path class="nx-edge--new" d="M58 121 L158 121 C208 121 208 173 258 173 C308 173 308 149 358 149 C408 149 408 121 458 121 L558 121"/>
     </svg>
 
-    <span class="nx-kind nx-kind--ink" style="left:16px;top:18px">Perturbed run</span>
+    <span class="nx-kind nx-kind--ink" style="left:16px;top:18px">A surprise mid-conversation</span>
     <div class="legend">
       <svg viewBox="0 0 20 6"><path class="nx-edge--soft" d="M1 3 L19 3"/></svg><span class="nx-kind">expected</span>
       <svg viewBox="0 0 20 6" style="margin-left:8px"><path class="nx-edge--new" d="M1.5 3 L18.5 3"/></svg><span class="nx-kind">observed</span>
     </div>
+    <div class="shift"><span class="nx-kind nx-kind--ink">The user changes course</span><q>Make it two lines.</q></div>
 
-    <span class="spark" style="left:254.5px;top:61px"></span>
-    <div class="shift"><span class="nx-kind nx-kind--ink">Goal shift</span><q>Make it two lines.</q></div>
+    <div class="nx-node nx-node--noico b" style="left:14px;top:92px"><span class="nx-node__kind">step 1</span><span class="nx-node__title">greet</span><span class="nx-node__detail">on track</span></div>
+    <div class="nx-node nx-node--noico b" style="left:114px;top:92px"><span class="nx-node__kind">step 2</span><span class="nx-node__title">pick a plan</span><span class="nx-node__detail">on track</span></div>
+    <div class="nx-node nx-node--noico b" style="left:214px;top:144px"><span class="nx-node__kind">step 3</span><span class="nx-node__title">pick a plan</span><span class="nx-node__detail">ignores the change</span></div>
+    <div class="nx-node nx-node--noico b" style="left:314px;top:120px"><span class="nx-node__kind">step 4</span><span class="nx-node__title">check ID</span><span class="nx-node__detail">contradicts it</span></div>
+    <div class="nx-node nx-node--noico b" style="left:414px;top:92px"><span class="nx-node__kind">step 5</span><span class="nx-node__title">recap</span><span class="nx-node__detail">on track</span></div>
+    <div class="nx-node nx-node--noico b" style="left:514px;top:92px"><span class="nx-node__kind">step 6</span><span class="nx-node__title">submit</span><span class="nx-node__detail">on track</span></div>
 
-    <div class="nx-node nx-node--noico b" style="left:14px;top:92px"><span class="nx-node__kind">b1</span><span class="nx-node__title">greet</span><span class="nx-node__detail">right stage</span></div>
-    <div class="nx-node nx-node--noico b" style="left:114px;top:92px"><span class="nx-node__kind">b2</span><span class="nx-node__title">plan</span><span class="nx-node__detail">right stage</span></div>
-    <div class="nx-node nx-node--noico b" style="left:214px;top:144px"><span class="nx-node__kind">b3</span><span class="nx-node__title">plan</span><span class="nx-node__detail">asks for ID</span></div>
-    <div class="nx-node nx-node--noico b" style="left:314px;top:120px"><span class="nx-node__kind">b4</span><span class="nx-node__title">identity</span><span class="nx-node__detail">says one line</span></div>
-    <div class="nx-node nx-node--noico b" style="left:414px;top:92px"><span class="nx-node__kind">b5</span><span class="nx-node__title">recap</span><span class="nx-node__detail">right stage</span></div>
-    <div class="nx-node nx-node--noico b" style="left:514px;top:92px"><span class="nx-node__kind">b6</span><span class="nx-node__title">submit</span><span class="nx-node__detail">right stage</span></div>
-
-    <span class="nx-ipill nx-center" style="left:258px;top:228px">X3 flow drift</span>
-    <span class="nx-ipill nx-center" style="left:358px;top:204px">X2 contradiction</span>
-    <span class="nx-done end"><svg viewBox="0 0 10 10" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M2 5.3l2 2L8 2.8"/></svg>end state</span>
+    <span class="nx-ipill nx-center" style="left:258px;top:228px">wrong step</span>
+    <span class="nx-ipill nx-center" style="left:358px;top:204px">contradiction</span>
+    <span class="nx-done end"><svg viewBox="0 0 10 10" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M2 5.3l2 2L8 2.8"/></svg>order saved</span>
 
     <div class="read">
-      <span class="nx-kind">Turns to recover</span>
-      <span class="nx-readout">2 blocks</span>
-      <div class="d">label: late · collateral: 0</div>
+      <span class="nx-kind">Back on track after</span>
+      <span class="nx-readout">2 steps</span>
+      <div class="d">no damage after that</div>
     </div>
   </div>
 </div>

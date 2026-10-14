@@ -7,8 +7,19 @@ import { STATS_COMPONENTS, type StatsImpl } from './reference';
 
 /** Level 2: the sample sizes, the draws per size and seed, the coverage bar and the range of true rates. */
 export const WILSON_SIZES = [20, 50, 200] as const;
-export const WILSON_DRAWS = 1000;
-export const WILSON_COVERAGE = 0.93;
+/**
+ * The draws and the bar, set by the false failures of a correct Wilson interval and the faults they must catch.
+ *
+ * A draw's interval holds its true rate with a fixed chance (the exact coverage over rates uniform on [0.1, 0.9]:
+ * 0.9529, 0.9509 and 0.9503 at n 20, 50 and 200), so the contained count of one size is binomial over the draws.
+ * At 1000 draws and 0.93 a correct interval fails one of the sizes on 4.0e-3 of the seeds (24 item failures over
+ * seeds 1 to 5000 on main 4dc61151). At 20000 draws and 0.943 it fails on 1.7e-6. Planted intervals, the chance a
+ * seed fails at 20000 and 0.943 against 1000 and 0.93: Wald 1 against 0.974; Wilson at z 1.645, 1 against 1;
+ * without the z^2 / 4n^2 term, 1 against 0.966; centred on k / n, 1 against 0.995; Wilson at z 1.90 (coverage
+ * 0.943 to 0.946), 0.729 against 0.082.
+ */
+export const WILSON_DRAWS = 20000;
+export const WILSON_COVERAGE = 0.943;
 export const WILSON_RATES = { low: 0.1, high: 0.9 } as const;
 
 /**

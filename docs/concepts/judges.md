@@ -177,7 +177,8 @@ Every judge is a `JudgeClient`: an `id`, a model `family`, a class `cls`, an opt
 * A judge that a platform offers is listed on the page of that platform's adapter, such as the [Nexus adapter](../adapters/nexus.md).
 * No model is hardcoded for the provider clients: the model comes from its variable or the `model` option. A missing key or model is a `config` error that names the variable, never a value.
 * Keys come from the environment only (the `env` option, `process.env` by default). A key lives inside the client and is never a field of it, so printing a client never shows it.
-* A call is retried twice, with a growing wait, on 408, 409, 429, 500, 502, 503, 504, 529, a network failure or a timeout (120 seconds per attempt by default). A 4xx the request caused is never retried. Redirects are refused.
+* A call is retried under the [shared retry policy](../retries.md): up to 4 attempts in all, the first included, with a growing wait, on a 408, a 429, any 5xx (529 included), a network failure or a timeout (120 seconds per attempt by default). Any other 4xx, 409 included, is never retried. Redirects are refused.
+* A chat judge sends temperature 0. When a model answers a 400 that names the temperature, the OpenAI and Anthropic clients ask once more without it and stop sending it for that client.
 * An error names the URL and the status and quotes at most 200 characters of the provider's error body. Any header value the provider echoes back is replaced by `[redacted]`.
 * A client throws only when it got no answer at all. In a council, that judge votes inconclusive and the error is counted.
 
@@ -444,7 +445,7 @@ On the Claude council recording, every criterion goes to haiku, at 0.0002 to 0.0
 
 ### A cascade: the costly judges only where the cheap one is unsure
 
-`judge calibrate --cascade` takes the judges in order: the first answers every fixture (each repeat) and every labelled block; the others answer only the items where the first is unsure (inconclusive, or a score between 0.2 and 0.8) or disagrees with the truth (the fixture's side or the label). An escalated item takes the majority of every judge that answered it, two agreeing votes needed. `--only <criterion>` limits the run; the report, written as JSON to `--out`, gives per criterion the separation, the kappa, the escalated items with the reason, and the cost.
+`judge calibrate --cascade` takes the judges in order: the first answers every fixture (each repeat) and every labelled block; the others answer only the items where the first is unsure (inconclusive, or a score between 0.2 and 0.8) or disagrees with the truth (the fixture's side or the label). An escalated item takes the majority of every judge that answered it, two agreeing votes needed. `--only <criterion>` limits the run; the report, written as JSON to `--out`, gives per criterion the separation, the kappa, the escalated items with the reason, and the cost. `--agent-family` applies as it does to the council: a judge of the agent's family, first or escalated, is refused before any call. The cascade writes no assignment table, so an `--assign` or a `--mode` other than the default is refused with it.
 
 Escalating on disagreement uses the label, which a run does not have: it measures whether the costly judges fix the cheap judge's errors. The report also gives `unsureOnly`, from the same answers, which escalates only the unsure items, as a deployed cascade could.
 
@@ -597,10 +598,10 @@ These APIs are available in the package. The judge validator checks their behavi
 * Structured output. The OpenAI chat client asks for a JSON schema of the answer contract (`response_format: json_schema`), and the Google client gives it as `responseSchema`.
 * Token usage. `usageFromResponse(provider, body)` reads input and output token counts from OpenAI, Anthropic and Google response bodies.
 * Retry-After. On a 429 or a 503 carrying a `Retry-After` header, a client uses its seconds or HTTP date, capped by its configured maximum delay.
+* Label hygiene. Each criterion of the calibration report names labelled blocks with the same slice and opposite labels in `labelConflicts`, labelled blocks equal to a fixture in `fixtureLeaks`, and carries `few-labels` in its `warnings` when a label class has fewer than 5 blocks.
 
 ## Remaining planned capabilities
 
-* Label hygiene. Calibration names labelled blocks with the same slice and opposite labels, labelled blocks equal to a fixture, and warns when a label class has fewer than 5 blocks.
 * The repair mark on the verdict. The judge verdict built from repaired votes says so, as the votes and cassette entries do today.
 
 ## The judge check in a run
@@ -725,6 +726,27 @@ const result = await judgePairwise(client, criterion, transcript, first, second,
 Item names are stable caller-owned requirement ids, not model-assigned row positions. Code ignores unknown names before validating scores and retains them in `ignoredRequirementIds`. Every requested name must still appear exactly once; missing, duplicate or malformed requested rows are unparseable. Code then computes the weighted fulfillment fraction from only the requested items. A candidate that fully meets every hard item outranks one that fails a hard item. Otherwise the fractions decide. A null score leaves the assessment inconclusive. The swapped pass reverses the rubric presentation order as well as the candidates; names preserve aggregation identity. Reasoning prose cannot replace a structured score, even when they conflict.
 
 `judgeRubric(client, request, items, { threshold })` performs the pointwise version in one batched call. An invalid ledger gets one re-ask with the same caller requirements and the large budget, then remains inconclusive if still invalid. Reported `costUsd` includes both calls. Valid scores, including null, do not trigger a re-ask. Explicit legacy requests retain their previous one-call behavior. Its default threshold is full fulfillment. The result carries the individual scores and aggregate in `rubric`; a hard failure cannot be offset by soft points. No rubric is generated or applied to creative writing automatically. These APIs are code options; they do not add fields to the spec YAML schema.
+
+### Declared preference: long-structured (opt-in)
+
+`judgePairLedger(client, request, { preference: 'long-structured' })` declares that the caller prefers longer, well-structured replies. It is off by default; without it the ledger verdict is unchanged. It is a stated preference of the user, not a measure of quality.
+
+After the ledger verdict, code decides in this order:
+
+* An explicit request row (a hard requirement that decided a reading, such as a stated word limit or form) wins: `preference.hard-row`.
+* Otherwise the longer reply wins when it is structured, or when the shorter reply is not structured either: `preference.long-structured`. Length is words for English and Han characters for Chinese, from the reader-first features.
+* Otherwise the ledger choice stands: `preference.ledger`. Equal lengths also keep the ledger choice.
+
+A reply is structured (`isStructured`) when it has paragraphs, headings or lists rather than one long block (the reader-first structure flag), and does not repeat itself (repeated sentences at most 8 percent, repeated four-grams at most 15 percent). The result keeps the ledger `verdict` and adds `preference` with the rule id, both lengths and both structure readings. The setting makes no extra model call.
+
+The setting prefers the longer reply. Use it only when longer, structured answers are what you want. Measured with Claude Haiku 5.5 on WritingPreferenceBench pairs ([results](../../examples/writing-heldout/results/RESULTS.md)):
+
+| Pool | Accuracy | Picks the longer reply | Right when the human chose the longer reply | Right when the human chose the shorter reply |
+|---|---:|---:|---:|---:|
+| Recorded TEST, 173 pairs (346 games) | 65.3 | 96.5 | 95.7 | 1.8 |
+| Fresh pool, 144 pairs (288 games) | 66.0 | 93.8 | 96.7 | 11.5 |
+
+It scores well where the human labels favour longer replies, and it is almost always wrong where they favour the shorter one. A rule that always picks the longer reply scores 67.6 on the TEST and 63.9 on the fresh pool. The default judge scores 61.3 on the same TEST and picks the longer reply in 58.4 percent of games. Results with the setting are labelled "driftbench, long-structured setting" and never reported as the default judge.
 
 ### Reader-first configuration (length-aware, opt-in)
 
