@@ -799,10 +799,12 @@ The same sealed items and the same model (Claude Haiku 5.5) for every contestant
 | LongJudgeBench verify, 221 items | 74.2 | 71.9 | 58.8 | 73.3 | 75.1 | 73.3 |
 | LongJudgeBench writing, 346 games | 61.3 | 56.9 | 58.4 | 11.6 | 14.5 | 52.6 |
 
+Length-controlled accuracy on writing (a longer-wins rule scores 50): driftbench 59.3, DeepEval 58.3, promptfoo 55.6, LangWatch 51.5, Langfuse 15.8, Inspect 11.8 (source: `examples/writing-heldout/README.md` on `feat/writing-lead`).
+
 - Holm-corrected over the 25 comparisons (driftbench against promptfoo and each of the four tools on each benchmark): 16 significant wins, 9 ties, no losses.
 - The 9 ties are JudgeBench against promptfoo (raw p 0.0139), LangWatch (raw p 0.0201) and DeepEval (raw p 0.21); verify against promptfoo, Inspect, Langfuse and LangWatch; writing against promptfoo and DeepEval. Holm p values are in the per benchmark tables.
 - Without the correction, 18 of the 25 have raw p below 0.05, so JudgeBench against promptfoo and against LangWatch would count as wins.
-- No comparison is a significant loss. Langfuse scores 0.9 points higher on verify (13 wins against 15 losses, raw p 0.85). On writing, the reader-first variant of driftbench scores 67.6 against 61.3 (raw p 0.078).
+- No comparison is a significant loss. Langfuse scores 0.9 points higher on verify (13 wins against 15 losses, raw p 0.85). On writing, the reader-first variant picks the longer reply on all 173 pairs, so its 67.6 equals a longer-wins rule and is not a judge result.
 - The verify column here is Claude Haiku 5.5 (driftbench 74.2, promptfoo 71.9). The 74.7 and 72.4 in [the public benchmark table](docs/comparison/methods.md) are GPT-6 Luna, a different model.
 - A few items stay undecided after three passes because the model refused them. They count as wrong for the contestant. Undecided items: MM-Eval 3 to 7 per peer, RubricBench 1 each for DeepEval and Langfuse.
 - Inspect and Langfuse scores on RubricBench and writing are low because a pointwise grader returns equal scores for many pairs, and a tie counts as wrong.
