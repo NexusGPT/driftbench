@@ -109,7 +109,7 @@ ok  sheet_matches_catalog [system1, gating]: pass fixture 2 line(s), fail fixtur
 
 Replay the committed haiku recording of one slice and check its floor:
 
-From a repository checkout, not run by the help test:
+Not run by the help test: the bench reads git (the commit each report records) and the repository's `benchmarks/` folder, which the help test's scratch folder does not link. From a repository checkout:
 
 ```text
 $ pnpm -s bench replay --slice fresh-reference --model haiku --check-floor
