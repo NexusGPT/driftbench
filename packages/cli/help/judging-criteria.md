@@ -69,10 +69,16 @@ In a run with a judge, each criterion a block names gives one verdict `judge.<na
 
 ## Worked example
 
-The shared catalogue validates:
+The shared catalogue validates; then a copy of the plan upgrade spec whose first block references a criterion the spec does not define is refused:
+
+```sh setup
+mkdir -p criteria
+sed 's/criteria: \[one_question_per_turn\]$/criteria: [one_question]/' examples/acme/specs/conversations/plan-upgrade.yaml > criteria/plan-upgrade.yaml
+```
 
 ```sh
 driftbench judge check examples/criteria
+driftbench spec validate criteria/plan-upgrade.yaml  # exit 1
 ```
 
 ```text
@@ -85,17 +91,8 @@ ok  task_completion [system1]: pass fixture 4 line(s), fail fixture 2 line(s)
 
 5 valid criteria, 0 issue(s).
 (exit 0)
-```
-
-A block that references a criterion its spec does not define is refused:
-
-From a repository checkout, not run by the help test:
-
-```text
-$ mkdir -p out/judging/criteria
-$ sed 's/criteria: \[one_question_per_turn\]$/criteria: [one_question]/' examples/acme/specs/conversations/plan-upgrade.yaml > out/judging/criteria/plan-upgrade.yaml
-$ driftbench spec validate out/judging/criteria/plan-upgrade.yaml
-✗ out/judging/criteria/plan-upgrade.yaml
+$ driftbench spec validate criteria/plan-upgrade.yaml
+✗ criteria/plan-upgrade.yaml
     blocks.0.expect.criteria.0  CRITERION_UNDEFINED  criterion "one_question" is not defined in this spec's criteria
 Checked 1 spec: 0 valid, 1 invalid, 0 warnings.
 (exit 1)
