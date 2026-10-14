@@ -1,12 +1,14 @@
 # LongJudge verify confirmation
 
-Status: recovering interrupted DEV pilots. Core PR 168 at 35f07309 is imported; successful answers remain cached.
+Historical dossier. Gemini 3.8 Flash was dropped by the owner; its recorded data stays archived. All Gemini resume permissions and process descriptions below are superseded; no pending or parked continuation remains.
+
+Historical status: recovering interrupted DEV pilots. Core PR 168 at 35f07309 is imported; successful answers remain cached.
 
 - Worktree: `/Users/assem/Documents/GitHub/driftbench/.worktrees/ledger-verify`.
 - Branch: `research/ledger-verify`, created from `origin/main` at `9970c938de76bbb3030795d983fad08d8bb611b6`.
 - Cascade: `driftbench-verify-uncertainty-cascade`, freeze `558d75de017ecbf243852f5669a1bffeb8d511b9`, source head `f13242f29ad0ced947907a84ffbb19abaa32f190`.
 - The user confirms the core is resumed. Its latest dossier supersedes the earlier paused status.
-- Gemini is authorized on the newly billable key. All three models share the 25 USD cap. Current receipts are in examples/ledger-verify/receipts/budget.json.
+- Historical authorization, superseded for Gemini 3.8 by the owner drop: Gemini used the newly billable key. All three models share the 25 USD cap. Current receipts are in examples/ledger-verify/receipts/budget.json.
 
 ## Pool and exposure
 
@@ -25,7 +27,7 @@ Upstream directory: https://github.com/cjj826/LongJudgeBench/tree/main/data_stan
 |---|---|---|---|---|---|
 | Haiku | pending / pending | pending / pending | pending / pending | pending | DEV pilot running |
 | gpt-6-luna | pending / pending | pending / pending | pending / pending | pending | DEV pilot running |
-| gemini-3.8-flash | pending / pending | pending / pending | pending / pending | pending | DEV pilot running |
+| gemini-3.8-flash | Not reported | Not reported | Not reported | Not reported | dropped by the owner |
 
 No new benchmark score or win is claimed. Machine-readable cells: `examples/ledger-verify/evidence/cells.json`.
 Holm waits for the complete prespecified 18-cell family. Missing and unparsed verdicts count as wrong, with coverage reported separately.
