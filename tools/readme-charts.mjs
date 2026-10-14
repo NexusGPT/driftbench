@@ -365,13 +365,12 @@ function judgeData(leadsOnly) {
         .filter((g) => g.rows.length)
     : every;
   const all = groups.flatMap((g) => g.rows);
-  const count = (standing) => all.filter((r) => r.standing === standing).length;
   return {
     kind: 'pairs',
     kicker: 'Judge accuracy · held-out cases · Claude Haiku 5.5 on both sides',
     title: leadsOnly
-      ? `${all.length} clear wins over the default judges.`
-      : `${total} judge tests: ${count('lead')} ahead, ${count('deficit')} behind, ${count('close')} level.`,
+      ? 'Where the intervals do not overlap: driftbench and the default judges.'
+      : `${total} judge tests: cases correct, driftbench and the default judges.`,
     key: ['driftbench, shipped judge', "the other tool's default"],
     min: 0,
     max: 100,
@@ -842,14 +841,6 @@ function hardPerTool(tool) {
   const name = { deepeval: 'DeepEval', promptfoo: 'promptfoo', langfuse: 'Langfuse', inspect: 'Inspect' }[
     tool
   ];
-  const ahead = group.rows.filter((r) => r.standing === 'lead').length;
-  const behind = group.rows.filter((r) => r.standing === 'deficit').length;
-  const level = group.rows.length - ahead - behind;
-  const parts = [
-    ahead && `ahead on ${ahead}`,
-    behind && `behind on ${behind}`,
-    level && `level on ${level}`,
-  ].filter(Boolean);
   const kicker = `${name} hard cases · held-out · Claude Haiku 5.5 on both sides`;
   if (group.rows.length === 1) {
     const [r] = group.rows;
@@ -882,11 +873,10 @@ function hardPerTool(tool) {
       note: `${r.label} · ${r.n} cases`,
     };
   }
-  const atLeast = group.rows.filter((r) => r.ours >= r.theirs).length;
-  const title =
-    ahead || behind
-      ? `${name}: ${parts.join(', ')} of ${group.rows.length} tests.`
-      : `${name}: equal or higher on ${atLeast} of ${group.rows.length} tests.`;
+  // Owner rule: no win, tie or loss tally in a chart title.
+  const title = `${name}: cases correct of ${[...new Set(group.rows.map((r) => r.n))]
+    .sort((a, b) => a - b)
+    .join(' or ')}.`;
   const settings = [...new Set(group.rows.filter((r) => r.setting).map((r) => r.setting))];
   const sizes = [...new Set(group.rows.map((r) => r.n))];
   return columns(`hard-${tool}`, {

@@ -1,4 +1,8 @@
-"""Free scoring of the fresh run into fresh-scores.json, the file the README chart reads. No model call."""
+"""Free scoring of the fresh run into fresh-scores.json, the file the README chart reads. No model call.
+
+Scores fresh-retry.json: the fresh run after its 9 timed-out calls were called again with the
+frozen settings (replay.py --retry-failures). Pass fresh.json to score the run before the retries.
+"""
 import json
 from pathlib import Path
 import sys
@@ -11,7 +15,8 @@ ROWS = {"G-Eval strict": "relevancy", "knowledge retention": "knowledge"}
 
 
 def main():
-    run = json.loads((ROOT / "fresh.json").read_text())
+    name = sys.argv[1] if len(sys.argv) > 1 else "fresh-retry.json"
+    run = json.loads((ROOT / name).read_text())
     freeze = json.loads((ROOT / "fresh-freeze.json").read_text())
     if run.get("stopped") or run["settings"] != freeze["state"]["settings"]:
         raise SystemExit("The fresh run is incomplete or used other settings")
@@ -36,6 +41,7 @@ def main():
             "ours_wrong": s["ours_wrong"], "theirs_wrong": s["theirs_wrong"],
             "cost_usd": sum(cost.get(k, 0) for k in keys),
             "setting": run["settings"][set_name],
+            "run": name,
             "corpus": f"fresh, generate.py seed {freeze['seed']}, {freeze['pairs_per_family']} pairs per family",
         })
     # Holm over the two rows reported here.

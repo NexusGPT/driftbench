@@ -61,49 +61,41 @@
   ],
   "cost_usd": 0.35671546,
   "setting": "response-relevance",
+  "run": "G-Eval strict",
   "corpus": "fresh, generate.py seed 20261114, 20 pairs per family",
   "paired_p_holm": 0.0002336837351322174
  },
  {
   "row": "knowledge retention",
   "n": 480,
-  "ours": 475,
-  "theirs": 473,
+  "ours": 480,
+  "theirs": 477,
   "ours_ci": [
-   97.58,
-   99.55
+   99.21,
+   100
   ],
   "theirs_ci": [
-   97.02,
-   99.29
+   98.18,
+   99.79
   ],
   "ours_distinct_inputs": 480,
   "theirs_distinct_inputs": 480,
-  "ours_only_right": 6,
-  "theirs_only_right": 4,
-  "paired_p": 0.75390625,
+  "ours_only_right": 3,
+  "theirs_only_right": 0,
+  "paired_p": 0.25,
   "outcome": "ahead",
-  "ours_unparsed": 5,
-  "theirs_unparsed": 4,
-  "ours_wrong": [
-   "knowledge-correct-use-15-b",
-   "knowledge-fluent-reask-10-a",
-   "knowledge-long-distractors-19-a",
-   "knowledge-mixed-language-16-b",
-   "knowledge-name-nearmiss-9-b"
-  ],
+  "ours_unparsed": 0,
+  "theirs_unparsed": 0,
+  "ours_wrong": [],
   "theirs_wrong": [
-   "knowledge-budget-unit-17-b",
-   "knowledge-fluent-reask-10-a",
    "knowledge-known-vs-new-9-b",
    "knowledge-mixed-language-19-b",
-   "knowledge-mixed-language-6-b",
-   "knowledge-other-person-19-a",
-   "knowledge-reask-email-18-b"
+   "knowledge-other-person-19-a"
   ],
-  "cost_usd": 0.94810214,
+  "cost_usd": 0.503073,
   "setting": "default",
+  "run": "knowledge retention",
   "corpus": "fresh, generate.py seed 20261114, 20 pairs per family",
-  "paired_p_holm": 0.75390625
+  "paired_p_holm": 0.25
  }
 ]

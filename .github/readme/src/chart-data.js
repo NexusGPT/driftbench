@@ -3,7 +3,7 @@ window.CHART_DATA = {
   "judge-leads": {
     "kind": "pairs",
     "kicker": "Judge accuracy · held-out cases · Claude Haiku 5.5 on both sides",
-    "title": "5 clear wins over the default judges.",
+    "title": "Where the intervals do not overlap: driftbench and the default judges.",
     "key": [
       "driftbench, shipped judge",
       "the other tool's default"
@@ -884,7 +884,7 @@ window.CHART_DATA = {
   "hard-deepeval": {
     "kind": "columns",
     "kicker": "DeepEval hard cases · held-out · Claude Haiku 5.5 on both sides · bars labelled with cases correct",
-    "title": "DeepEval: ahead on 6, level on 3 of 9 tests.",
+    "title": "DeepEval: cases correct of 72 or 480.",
     "key": [
       "driftbench",
       "DeepEval default"
@@ -1003,13 +1003,13 @@ window.CHART_DATA = {
         "bars": [
           {
             "series": 0,
-            "value": 98.96,
-            "text": "475"
+            "value": 100,
+            "text": "480"
           },
           {
             "series": 1,
-            "value": 98.54,
-            "text": "473"
+            "value": 99.38,
+            "text": "477"
           }
         ]
       },
@@ -1051,7 +1051,7 @@ window.CHART_DATA = {
   "hard-promptfoo": {
     "kind": "columns",
     "kicker": "promptfoo hard cases · held-out · Claude Haiku 5.5 on both sides · bars labelled with cases correct",
-    "title": "promptfoo: equal or higher on 4 of 4 tests.",
+    "title": "promptfoo: cases correct of 72.",
     "key": [
       "driftbench, shipped judge",
       "promptfoo default"
@@ -1138,7 +1138,7 @@ window.CHART_DATA = {
   "hard-inspect": {
     "kind": "columns",
     "kicker": "Inspect hard cases · held-out · Claude Haiku 5.5 on both sides · bars labelled with cases correct",
-    "title": "Inspect: behind on 2, level on 2 of 4 tests.",
+    "title": "Inspect: cases correct of 60.",
     "key": [
       "driftbench, shipped judge",
       "Inspect default"

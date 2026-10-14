@@ -31,9 +31,9 @@ Measured 2026-10-14 on a fresh set from the unchanged generator (seed 20261114, 
 | Row | driftbench | DeepEval default | Only driftbench right | Only DeepEval right | Exact paired p | Holm (2 rows) |
 |---|---|---|---|---|---|---|
 | G-Eval strict, opt-in setting `response-relevance` | 474/480 (97.3 to 99.43%) | 451/480 (91.46 to 95.76%) | 29 | 6 | 0.00012 | 0.00023 |
-| Knowledge retention, shipped judge | 475/480 (97.58 to 99.55%) | 473/480 (97.02 to 99.29%) | 6 | 4 | 0.75 | 0.75 |
+| Knowledge retention, shipped judge | 480/480 (99.21 to 100%) | 477/480 (98.18 to 99.79%) | 3 | 0 | 0.25 | 0.25 |
 
-Knowledge retention is level. Nine CLI calls timed out at 180 seconds on that row (five driftbench, four DeepEval) and count as wrong; no call was retried. Method and replay: [comparisons/deepeval/lead](../../comparisons/deepeval/lead/README.md).
+On knowledge retention the intervals overlap. Nine CLI calls had timed out at 180 seconds on that row (five driftbench, four DeepEval); they were called once more with the same frozen settings, and every retried case is now correct on both sides. Before the retries the row read 475 against 473. Method and replay: [comparisons/deepeval/lead](../../comparisons/deepeval/lead/README.md).
 
 ## Shipped judge, candidate and default
 

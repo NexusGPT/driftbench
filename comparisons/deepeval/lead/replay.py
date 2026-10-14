@@ -5,7 +5,10 @@
   send the same first-stage DeepEval prompt at the same moment; each got its own answer, both recorded.
   A third case can then reuse either answer. When one prompt has several recorded answers, the replay
   takes the one whose extracted facts, as DeepEval renders them, appear in that case's recorded next-stage prompt (fresh.json).
+- With --retry-failures, only the cases that hold a failed call are called again, with the frozen settings.
+  Their recorded successful calls still replay; any other case that misses a recording stops the run.
 Usage: .venv/bin/python comparisons/deepeval/lead/replay.py --corpus fresh --tag replay-fresh
+       .venv/bin/python comparisons/deepeval/lead/replay.py --corpus fresh --tag fresh-retry --retry-failures --workers 3
 """
 import importlib.util
 import json
@@ -19,7 +22,12 @@ lead = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(lead)
 
 
+RETRY_CAP_USD = 1.0
+
+
 class ReplayRecorder(lead.Recorder):
+    retry = set()
+
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.by_case, self.answers, self.users = {}, {}, {}
@@ -65,16 +73,28 @@ class ReplayRecorder(lead.Recorder):
             with self.lock:
                 self.replays += 1
             return own
+        if case in self.retry:
+            return super().call(system, user)
         failed = self.records.get(key, {}).get("error")
         if failed and key not in self.cache:
             self.keys().append(key)
             raise ValueError(failed)
+        if key not in self.cache:
+            self.keys().append(key)
+            raise lead.StopRun(f"Replay miss outside the retried cases: {key} in {case}")
         return super().call(system, user)
 
 
 if __name__ == "__main__":
     if "--record" in sys.argv:
-        raise SystemExit("replay.py never records")
+        raise SystemExit("replay.py records only through --retry-failures")
+    if "--retry-failures" in sys.argv:
+        sys.argv.remove("--retry-failures")
+        rows = json.loads((ROOT / "fresh.json").read_text())["rows"]
+        ReplayRecorder.retry = {r["id"] for r in rows
+                                if r.get("ours", {}).get("error") or r.get("theirs", {}).get("error")}
+        print(f"Retrying the failed calls of {len(ReplayRecorder.retry)} cases", flush=True)
+        sys.argv += ["--record", "--cap-usd", str(RETRY_CAP_USD)]
     lead.Recorder = ReplayRecorder
     lead.os.environ.setdefault("DEEPEVAL_TELEMETRY_OPT_OUT", "YES")
     lead.main()

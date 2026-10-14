@@ -811,12 +811,12 @@ The driftbench side is the pair ledger, an opt-in judge mode merged in [PR 168](
 
 MM-Eval is a public benchmark for judges. On 1,212 sealed items, sending only the unsure cases to a panel lifts the score from 89.49 to 91.54: a gain of 2.05 points, 95% interval 1.02 to 3.29. Only 48 items went to the panel, and cost per 100 items rose from $0.2471 to $0.2646.
 
-### Five clear wins for the judge
+### Where the judge is clearly ahead
 
 <a href=".github/readme/judge-leads-light.png">
   <picture>
     <source media="(prefers-color-scheme: dark)" srcset=".github/readme/judge-leads-dark.png">
-    <img alt="Five held-out judge tests where driftbench's shipped judge beats DeepEval's default metric beyond the 95% interval, of 72 cases each. Hallucination 71 against 36. Faithfulness 71 against 36. Turn relevancy 65 against 36. Completeness 70 against 46. Role adherence 72 against 63." src=".github/readme/judge-leads-light.png" width="100%">
+    <img alt="Held-out judge tests where driftbench's shipped judge beats DeepEval's default metric beyond the 95% interval, of 72 cases each. Hallucination 71 against 36. Faithfulness 71 against 36. Turn relevancy 65 against 36. Completeness 70 against 46. Role adherence 72 against 63." src=".github/readme/judge-leads-light.png" width="100%">
   </picture>
 </a>
 <p align="center"><sub><a href="docs/comparison/methods.md#the-judge-on-hard-cases">How we measured</a></sub></p>
@@ -830,7 +830,7 @@ The shipped judge against each framework's own default judge, on held-out hard c
 <a href=".github/readme/hard-deepeval-light.png">
   <picture>
     <source media="(prefers-color-scheme: dark)" srcset=".github/readme/hard-deepeval-dark.png">
-    <img alt="DeepEval hard cases, cases correct, driftbench against DeepEval default. Of 72: Hallucination 71 against 36. Faithfulness 71 against 36. Turn relevancy 65 against 36. Completeness 70 against 46. Role adherence 72 against 63. DAG 65 against 65. Task completion 72 against 72. Of 480 fresh cases: G-Eval strict 474 against 451, with the opt-in setting response-relevance. Knowledge retention 475 against 473." src=".github/readme/hard-deepeval-light.png" width="100%">
+    <img alt="DeepEval hard cases, cases correct, driftbench against DeepEval default. Of 72: Hallucination 71 against 36. Faithfulness 71 against 36. Turn relevancy 65 against 36. Completeness 70 against 46. Role adherence 72 against 63. DAG 65 against 65. Task completion 72 against 72. Of 480 fresh cases: G-Eval strict 474 against 451, with the opt-in setting response-relevance. Knowledge retention 480 against 477." src=".github/readme/hard-deepeval-light.png" width="100%">
   </picture>
 </a>
 <p align="center"><sub><a href="docs/comparison/methods.md#the-judge-on-hard-cases">How we measured</a></sub></p>
