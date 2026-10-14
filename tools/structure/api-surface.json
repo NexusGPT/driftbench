@@ -661,6 +661,7 @@
       "runsByCell": "value",
       "sameCarryContext": "value",
       "script": "value",
+      "sentStimulus": "value",
       "specBlocks": "value",
       "stageSignatures": "value",
       "stimulusMessages": "value",
