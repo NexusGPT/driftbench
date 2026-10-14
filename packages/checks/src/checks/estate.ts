@@ -2,9 +2,9 @@ import {
   type Assertion,
   type CheckContext,
   type Count,
-  deepEqual,
   globMatches,
   machineVerdict,
+  sentStimulus,
   type Verdict,
 } from '@agent-nexus/driftbench-core';
 import { checkAssertion } from '../support/assert';
@@ -332,10 +332,9 @@ type Values = {
 function seenText(ctx: CheckContext): string {
   const parts: string[] = [];
   for (const message of ctx.given.prefix ?? []) parts.push(JSON.stringify(message));
-  for (const block of ctx.spec.blocks.slice(0, ctx.blockIndex + 1)) parts.push(JSON.stringify(block.when));
-  // A driver that writes the user turn itself sent this block something the spec does not hold.
-  if (ctx.stimulus !== undefined && !deepEqual(ctx.stimulus, ctx.block.when))
-    parts.push(JSON.stringify(ctx.stimulus));
+  for (const block of ctx.spec.blocks.slice(0, ctx.blockIndex)) parts.push(JSON.stringify(block.when));
+  // This block's ask as the agent received it: a driver that writes the user turn itself never sent the authored one.
+  parts.push(JSON.stringify(sentStimulus(ctx)));
   for (const perturbation of ctx.spec.perturbations ?? []) parts.push(JSON.stringify(perturbation));
   for (const block of [...ctx.history.map((entry) => entry.observed), ctx.observed]) {
     for (const call of block.toolCalls) {
