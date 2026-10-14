@@ -13,3 +13,18 @@ useDefault = true
 description = "judge cassette request keys are 12-character content hashes"
 regexTarget = "line"
 regexes = ['''^[+\s]*"key": "[0-9a-f]{12}",?\s*$''']
+
+# The verify evidence in examples/ledger-verify records every request under a content hash in a field named
+# "key" (12 to 64 hex characters). The generic-api-key rule reads some of those hashes as secrets. This
+# exception applies only to that rule, only under that folder, and only when the whole reported match is
+# the field name with a bare hex value. Any other field, a longer or non-hex value, a different folder, or
+# a token of a known format is still reported.
+[[rules]]
+id = "generic-api-key"
+
+[[rules.allowlists]]
+description = "ledger-verify request content hashes"
+condition = "AND"
+paths = ['''^examples/ledger-verify/''']
+regexTarget = "match"
+regexes = ['''^"?key"?\s*:\s*"[0-9a-f]{12,64}"?$''']
