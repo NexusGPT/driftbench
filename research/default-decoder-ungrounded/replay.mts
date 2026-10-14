@@ -392,7 +392,7 @@ const variants = aliasRows.length ? [summarize('variant/source-alias/hard-factua
 for (const row of rows) {
   if (row.transportError) continue;
   assert.deepEqual(
-    production(row.raw, row.request),
+    production(row.raw, { ...row.request, criterionDecoderVersion: 2 }),
     row.after,
     `Public decoder differs from simulation: ${row.set}/${row.id}`,
   );

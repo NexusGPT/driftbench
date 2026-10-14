@@ -145,3 +145,6 @@ The [complete per-set table](complete-gate.md) covers all 28 current recordings 
 - Main's source-alias grounding (PR 184) now parses 43 bench-current rows that the PR 172 recordings stored as unparsed. Both decoders read those rows identically, so this PR still changes 0 of them. `rebase-fixture.mts` re-reads the committed fixture with zero model calls and records each moved row in `results.json` under `baselineMovedOnMain`.
 - Current totals: Haiku 1751/1798, gpt-6-luna 1639/1798. Decoder version 2: 0 fixes and 0 breaks on all 28 current sets. Historical sets keep 38 fixes and 0 breaks.
 
+## Rebuilding the snapshot
+
+`replay.mts` rebuilds the fixture and `results.json` from the original git recordings. It passes `criterionDecoderVersion: 2` for the candidate and `1` for the baseline, because the package default is version 1. Regenerating overwrites the committed fixture and `results.json` with a new snapshot, so run it only to refresh the evidence. `rebase-fixture.mts` re-reads the committed fixture and needs no other input. `tools/research-replay.test.ts` pins both decoder versions in CI.

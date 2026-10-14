@@ -38,10 +38,7 @@ for (const file of ['assessment', 'criterion-ledger', 'evidence']) {
   writeFileSync(resolve(output, `${file}.ts`), text);
 }
 const { parseJudgeText: baseline } = await import(pathToFileURL(resolve(output, 'assessment.ts')).href);
-const donor = resolve(
-  root,
-  '../default-decoder-ungrounded/packages/judges/test/fixtures/criterion-decoder-recordings.json.gz',
-);
+const donor = resolve(root, 'packages/judges/test/fixtures/criterion-decoder-recordings.json.gz');
 const donorBytes = readFileSync(donor);
 hashes['decoder-pr/criterion-decoder-recordings.json.gz'] = sha(donorBytes);
 const donorData = JSON.parse(gunzipSync(donorBytes).toString());
