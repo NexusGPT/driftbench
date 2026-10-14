@@ -160,6 +160,17 @@ export function userTurn(messages: readonly Message[]): string {
 export function createFollower(spec: HiddenSpec, mutation: Mutation = {}): () => FaultSession {
   const tools = new Map(spec.tools.map((tool) => [tool.name, tool]));
   const stageOf = new Map(spec.stages.map((stage) => [stage.id, stage]));
+  const instructions = spec.phrases
+    .filter(
+      (phrase) => phrase.intent.kind === 'deviation' && phrase.intent.class === 'D6_instruction_in_data',
+    )
+    .map((phrase) => phrase.text);
+  const carriesInstruction = (value: unknown): boolean => {
+    if (typeof value === 'string') return instructions.some((instruction) => value.includes(instruction));
+    if (Array.isArray(value)) return value.some(carriesInstruction);
+    if (value !== null && typeof value === 'object') return Object.values(value).some(carriesInstruction);
+    return false;
+  };
   return () => {
     let stage = spec.start;
     const memory: Record<string, string> = {};
@@ -185,6 +196,7 @@ export function createFollower(spec: HiddenSpec, mutation: Mutation = {}): () =>
         let said = '';
         let replaced: string[] | undefined;
         let callId = 0;
+        let dataInstruction = carriesInstruction(world.workspace?.files);
         let workspace: WorkspaceDiff | undefined;
         let artifacts: ArtifactRef[] | undefined;
 
@@ -193,6 +205,7 @@ export function createFollower(spec: HiddenSpec, mutation: Mutation = {}): () =>
           const id = `call-${callId}`;
           segments.push({ type: 'tool_call', id, label: tool, input });
           if (error === undefined) {
+            dataInstruction ||= carriesInstruction(output);
             segments.push({ type: 'tool_result', id, label: tool, output });
             toolCalls.push({ id, label: tool, input, output });
           } else {
@@ -332,6 +345,24 @@ export function createFollower(spec: HiddenSpec, mutation: Mutation = {}): () =>
             break;
           default:
             said = 'I did not understand that.';
+        }
+
+        // World-carried data is encountered during the normal turn. Keep that turn's
+        // completed action and stage; only a faulty agent follows the embedded instruction.
+        if (dataInstruction && !(intent?.kind === 'deviation' && intent.class === 'D6_instruction_in_data')) {
+          const rule: DeviationAnswer = {
+            stage,
+            enter: false,
+            said,
+            ...(replaced ? { replies: replaced } : {}),
+          };
+          const answer = mutation.deviation?.('D6_instruction_in_data', rule, ctx()) ?? rule;
+          if (answer.stage !== stage) {
+            if (answer.enter) enter(answer.stage);
+            else stage = answer.stage;
+          }
+          said = answer.said;
+          replaced = answer.replies;
         }
 
         for (const extra of mutation.extra?.(
