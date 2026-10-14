@@ -14,6 +14,7 @@ import type { Io } from '../src/io';
 
 const ROOT = fileURLToPath(new URL('../../../', import.meta.url));
 const ORDER = 'examples/acme/specs/conversations/order-loose-confirmation.yaml';
+const UPGRADE = 'examples/acme/specs/conversations/plan-upgrade.yaml';
 
 async function attack(argv: string[], deps: CampaignDeps = defaultDeps) {
   let out = '';
@@ -46,6 +47,20 @@ async function attack(argv: string[], deps: CampaignDeps = defaultDeps) {
     code = cause.exitCode === 0 ? 0 : 2;
   }
   return { code, out, err };
+}
+
+/** plan-upgrade.yaml with every `stage:` line removed: a spec that states no stage. */
+async function stageLessUpgrade(dir: string): Promise<string> {
+  const text = await readFile(join(ROOT, UPGRADE), 'utf8');
+  const path = join(dir, 'plan-upgrade-stageless.yaml');
+  await writeFile(
+    path,
+    text
+      .split('\n')
+      .filter((line) => !/^\s+stage:/.test(line))
+      .join('\n'),
+  );
+  return path;
 }
 
 let dir: string;
@@ -214,5 +229,37 @@ describe('driftbench attack', { timeout: 120_000 }, () => {
       expect(result.code, argv.join(' ')).toBe(2);
       expect(result.err, argv.join(' ')).toContain(message);
     }
+  });
+});
+
+describe('driftbench attack, reply checks tied to stages', { timeout: 120_000 }, () => {
+  const ARGS = ['--rounds', '10', '--seed', '0', '--pack', 'examples/acme/redteam'];
+
+  it('counts the checks tied to another stage where the spec states its stages', async () => {
+    const { code, out, err } = await attack([UPGRADE, ...ARGS]);
+    expect({ code, err }).toEqual({ code: 0, err: '' });
+    expect(out).toContain('Reply checks: 3 of 4 applied, 1 not applicable (tied to another stage).');
+  });
+
+  it('on a spec that states no stage, counts the dropped checks, warns once and keeps them in the JSON', async () => {
+    const spec = await stageLessUpgrade(dir);
+    const text = await attack([spec, ...ARGS]);
+    expect(text.out).toContain('Findings: 0 of 10 attacks.');
+    expect(text.out).toContain('Reply checks: 2 of 4 applied, 2 not applicable (no stage).');
+    expect(text.err.trim().split('\n')).toEqual([
+      'Warning: examples/acme/redteam ties 2 reply checks to the stages offer, recap, but acme-plan-upgrade states no stage before block 3. They were not applied, so this result is not a full pass.',
+    ]);
+    const json = await attack([spec, ...ARGS, '--json']);
+    const doc = JSON.parse(json.out) as {
+      complete: boolean;
+      warnings: string[];
+      replyChecks: { total: number; applied: number; noStage: number };
+      rounds: { class: string; replyChecks?: { notApplicable: { reason: string }[] } }[];
+    };
+    expect(doc.complete).toBe(false);
+    expect(doc.warnings).toEqual([text.err.trim()]);
+    expect(doc.replyChecks).toMatchObject({ total: 4, applied: 2, noStage: 2 });
+    const d2 = doc.rounds.find((round) => round.class === 'D2_goal_shift');
+    expect(d2?.replyChecks?.notApplicable.map((skipped) => skipped.reason)).toEqual(['no stage', 'no stage']);
   });
 });

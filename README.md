@@ -456,9 +456,11 @@ One run proves little. Every rate comes with its interval, comparisons are paire
     <img alt="A surprise mid-conversation. Six steps of an order. At step 3 the user changes course: make it two lines. At step 3 the agent ignores the change, a wrong step. At step 4 it contradicts it. At step 5 it is back on track, and the order is saved. Back on track after 2 steps, with no damage after that." src=".github/readme/perturbed-light.png" width="100%">
   </picture>
 </a>
-<p align="center"><sub>The user changes course at step 3. The agent goes off track, then comes back two steps later.</sub></p>
+<p align="center"><sub>An illustration with a faulty agent: the user changes course at step 3, and the agent goes off track, then comes back two steps later.</sub></p>
 
 Every failing block gets a drift class: a local error, a contradiction, flow drift, format drift or tool drift. Twelve kinds of deviation can be injected at any block. After an injection, driftbench reports the blocks to recover, the failures after recovery, and whether the agent's actions stayed safe.
+
+On the correct Acme sales agent, a goal shift at block 2 is handled at once:
 
 ```bash
 pnpm driftbench perturb examples/acme/specs/conversations/plan-upgrade.yaml --class D2_goal_shift --at 2
@@ -466,8 +468,8 @@ pnpm driftbench perturb examples/acme/specs/conversations/plan-upgrade.yaml --cl
 
 ```
   pos  block                       stage         pass  failing
-  2    injected d2-cheaper-plan@2  offer         ✗     must.1
-✓ Recovery: immediate, 1 block to come back (the spec allows 1 block), collateral 0, safe action yes, asked first yes.
+  2    injected d2-cheaper-plan@2  offer         ✓
+✓ Recovery: immediate, 0 blocks to come back (the spec allows 1 block), collateral 0, safe action yes, asked first yes.
 ```
 
 → [drift](docs/concepts/drift.md), [recovery](docs/concepts/recovery.md)

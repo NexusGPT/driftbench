@@ -151,7 +151,7 @@ Each row of a per-tool page is measured head to head, measured against our own e
 
 ## The other innovation figures
 
-* Drift and recovery: `pnpm driftbench perturb examples/acme/specs/conversations/plan-upgrade.yaml --class D2_goal_shift --at 2` prints `Recovery: immediate, 1 block to come back (the spec allows 1 block), collateral 0`. Row 15 of the comparison.
+* Drift and recovery: `pnpm driftbench perturb examples/acme/specs/conversations/plan-upgrade.yaml --class D2_goal_shift --at 2` prints `Recovery: immediate, 0 blocks to come back (the spec allows 1 block), collateral 0`. Row 15 of the comparison.
 * Statistics: the Acme gate prints `this suite cannot show parity under 15 points (the all-pass flag needs 27.8 points); about 22 goldens would.` with 10 goldens paired. Row 17 of the comparison.
 * Code agents: `pnpm driftbench estate lint examples/estates/fixture/approved.yaml` reads 125 atoms and prints 6 findings, all planted in the fixture. The six code-agent benchmarks (SWE-bench, Terminal-Bench, OpenHands evaluation, GAIA, AgentBench, inspect_ai sandboxes), what decides a pass in each and whether it grades office files are listed in [code-agent benchmarks](../comparison.md#code-agent-benchmarks).
 * Self-tests: see [driftbench tests itself](#driftbench-tests-itself).
