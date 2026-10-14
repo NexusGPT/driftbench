@@ -179,7 +179,6 @@
       "createAcmeAgent": "value",
       "createStore": "value",
       "expectWholeObserved": "value",
-      "frozenMessage": "value",
       "replyMessage": "value",
       "sendUser": "value",
       "userTurn": "value"

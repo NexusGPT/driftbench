@@ -3,6 +3,7 @@ import {
   type AdapterCapabilities,
   AdapterTransportError,
   type AgentAdapter,
+  copyHistory,
   type Message,
   Observed,
   type Session,
@@ -56,15 +57,17 @@ export function queueAdapter(service: QueueService): AgentAdapter {
         adapter: id,
         target: given.target,
         given,
-        history: structuredClone(given.prefix),
+        history: copyHistory(given.prefix),
         state,
       };
     },
     async send(session, turn) {
       const state = own(session);
       if (!service.up) throw new AdapterTransportError('the queue service went away');
+      // Validate and copy the history once: a sparse array or an accessor is refused before the service runs.
+      const history = copyHistory(session.history);
       const answer = await service.ask(
-        structuredClone(session.history),
+        structuredClone(history),
         structuredClone(turn.given.world),
         state.conversation,
       );

@@ -111,7 +111,7 @@ export const UPGRADE_PAYLOAD = { type: 'upgrade', customer_id: 'cust-001', plan_
 const GREETING = "Hi, I'm the Acme Telecom sales assistant.";
 
 /** Test callers play the runner: every message enters history deeply frozen. */
-export function frozenMessage<T>(value: T): T {
+function frozenMessage<T>(value: T): T {
   if (value !== null && typeof value === 'object') {
     for (const child of Object.values(value)) frozenMessage(child);
     Object.freeze(value);
