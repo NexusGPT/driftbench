@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'vitest';
+import { defaultValue } from '../../../validators/src/ladders/generator/follower';
 import { hiddenSpec } from '../../../validators/src/ladders/generator/hidden';
 import { generateFrom } from '../../../validators/src/ladders/generator/measure';
 import { renderMap } from '../../../validators/src/ladders/generator/render';
@@ -14,14 +15,13 @@ async function directCalls(withDefaults: boolean) {
   );
   if (!tool) throw new Error(`seed ${SEED} has no tool that no flow calls`);
   const rendered = renderMap(hidden);
-  if (withDefaults) {
-    // The schema states the default of each integer argument, as `default:`.
+  // The rendered tools file states the default of each input, as `default:`. Without defaults it is stripped.
+  if (!withDefaults) {
     for (const property of tool.input)
-      if (property.type === 'integer')
-        rendered.tools = rendered.tools.replace(
-          `${property.name}: { type: integer, minimum: ${property.minimum}, maximum: ${property.maximum} }`,
-          `${property.name}: { type: integer, minimum: ${property.minimum}, maximum: ${property.maximum}, default: ${property.minimum} }`,
-        );
+      rendered.tools = rendered.tools.replace(
+        new RegExp(`(${property.name}: \\{[^}\\n]*?), default: [^,}\\n]+`),
+        '$1',
+      );
   }
   const source = await generateFrom(hidden, rendered, SEED, {}, { once: true });
   if (!source.prepared)
@@ -52,12 +52,18 @@ describe('a tool a user asks for directly', () => {
     expect(calls.length).toBeGreaterThan(0);
     expect(runs.length).toBeGreaterThan(calls.length);
     expect(runs.map((call) => call.count)).toEqual(runs.map(() => 1));
+    // The tools file states the integer's default, so a value turn can assert the full input too: it tests
+    // another value of the integer, in range, with the other arguments at their defaults. A direct call
+    // keeps the default.
     for (const call of calls) {
       expect(call.count).toBe(1);
-      expect(call.input?.[integer.name]).toBe(integer.minimum);
+      const value = call.input?.[integer.name];
+      expect(value).toBeGreaterThanOrEqual(integer.minimum);
+      expect(value).toBeLessThanOrEqual(integer.maximum);
       expect(enumField.members).toContain(call.input?.[enumField.name]);
       expect(call.input_closed).toBe(true);
     }
+    expect(calls.some((call) => call.input?.[integer.name] === defaultValue(integer))).toBe(true);
   }, 180_000);
 
   it('leaves an argument with no schema default open', async () => {
