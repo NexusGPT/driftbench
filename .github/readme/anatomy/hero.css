@@ -82,6 +82,7 @@ body {
 }
 .hero-intro {
   margin: 26px 0 0;
+  max-width: 410px;
   font: 400 21px/1.45 var(--an-sans);
   color: var(--hero-soft);
 }
