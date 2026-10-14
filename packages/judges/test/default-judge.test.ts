@@ -1,5 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { emptyCassette, playerClient, recordingClient, requestKey } from '../src/cassette';
+import { ClaudeThinkingError } from '../src/clients/claude-cli';
+import { ClaudeTransportError } from '../src/clients/claude-errors';
 import type { DialectCompletionRequest, DialectTransport } from '../src/clients/transport';
 import { createDefaultJudge } from '../src/default-judge';
 
@@ -25,6 +27,219 @@ function mock(outputs: unknown[]) {
 }
 
 describe('one default configuration', () => {
+  it('evaluates the full pair criterion before an arithmetic answer can decide', async () => {
+    const rubric = 'An invalid equality disqualifies a reply even when its final answer is correct.';
+    const ledger = (reverse: boolean) => ({
+      items: ['final_correct', 'format_followed', 'derivation_sound', 'caller_criterion'].map((name) => ({
+        name,
+        first: name === 'caller_criterion' ? (reverse ? 4 : 0) : 2,
+        second: name === 'caller_criterion' ? (reverse ? 0 : 4) : 2,
+        reasoning: 'The full criterion disqualifies the invalid equality.',
+        evidence: null,
+      })),
+    });
+    const { judge, calls } = mock([{ route: 'objective' }, ledger(false), ledger(true)]);
+    const result = await judge.judge({
+      criterion: { name: 'math', rubric },
+      transcript: [{ role: 'user', text: 'What is 2+2?' }],
+      candidates: { A: '2+2=9\nFinal answer: 4', B: '2+2=4\nFinal answer: 5' },
+    });
+    expect(result.winner).toBe('B');
+    expect(calls).toHaveLength(3);
+    expect(calls.slice(1).every((call) => call.user.includes(rubric))).toBe(true);
+    expect(JSON.parse(result.raw).reads).toHaveLength(2);
+  });
+
+  it.each([
+    [true, false, 'fail'],
+    [false, true, 'fail'],
+    [null, true, 'inconclusive'],
+    [true, null, 'inconclusive'],
+    [true, true, 'pass'],
+    [false, null, 'fail'],
+  ] as const)('composes relevance %s and the full criterion %s as %s', async (relevant, meets, outcome) => {
+    const { judge, calls } = mock([
+      { route: 'relevance' },
+      {
+        checks: [
+          {
+            obligation: 'name',
+            requestQuote: 'Name?',
+            reasoning: 'name check',
+            answerQuote: 'Widget',
+            met: relevant,
+          },
+        ],
+      },
+      {
+        checks: [
+          {
+            id: 'x',
+            reasoning: 'original criterion',
+            evidence: [{ source: 'transcript.1', quote: 'Widget' }],
+            met: meets,
+          },
+        ],
+      },
+    ]);
+    const request = {
+      criterion: { name: 'x', rubric: 'Address the request and apply CRITERION_SENTINEL.' },
+      transcript: [
+        { role: 'user' as const, text: 'Name?' },
+        { role: 'agent' as const, text: 'Widget' },
+      ],
+    };
+    const cassette = emptyCassette();
+    const result = await recordingClient(judge, cassette).judge(request);
+    expect(calls).toHaveLength(3);
+    expect(calls[2]?.user).toContain('CRITERION_SENTINEL');
+    expect(result.answer.outcome).toBe(outcome);
+    expect(result.costUsd).toBeCloseTo(0.03);
+    expect(result.requestCount).toBe(3);
+    expect(JSON.parse(result.raw)).toMatchObject({
+      relevance: { responseRelevance: expect.any(Object) },
+      criterion: { checks: expect.any(Array) },
+    });
+    expect(await playerClient(cassette, judge.id).judge(request)).toEqual(result);
+  });
+
+  it('keeps explicitly selected response relevance as one assessment', async () => {
+    const { judge, calls } = mock([
+      {
+        checks: [
+          {
+            obligation: 'name',
+            requestQuote: 'Name?',
+            reasoning: 'answered',
+            answerQuote: 'Widget',
+            met: true,
+          },
+        ],
+      },
+    ]);
+    const result = await judge.judge({
+      criterion: { name: 'x', rubric: 'Address request.' },
+      assessment: { kind: 'response-relevance' },
+      transcript: [
+        { role: 'user', text: 'Name?' },
+        { role: 'agent', text: 'Widget' },
+      ],
+    });
+    expect(calls).toHaveLength(1);
+    expect(result.answer.outcome).toBe('pass');
+  });
+
+  it.each([
+    ['relevance', true, 'inconclusive'],
+    ['criterion', true, 'inconclusive'],
+    ['relevance', false, 'fail'],
+    ['criterion', false, 'fail'],
+  ] as const)('keeps a malformed %s from becoming a pass', async (malformed, met, outcome) => {
+    const relevance = {
+      checks: [
+        { obligation: 'name', requestQuote: 'Name?', reasoning: 'checked', answerQuote: 'Widget', met },
+      ],
+    };
+    const criterion = {
+      checks: [
+        { id: 'x', reasoning: 'checked', evidence: [{ source: 'transcript.1', quote: 'Widget' }], met },
+      ],
+    };
+    const { judge } = mock([
+      { route: 'relevance' },
+      malformed === 'relevance' ? { malformed: true } : relevance,
+      malformed === 'criterion' ? { malformed: true } : criterion,
+    ]);
+    const result = await judge.judge({
+      criterion: { name: 'x', rubric: 'Address the request.' },
+      transcript: [
+        { role: 'user', text: 'Name?' },
+        { role: 'agent', text: 'Widget' },
+      ],
+    });
+    expect(result.answer.outcome).toBe(outcome);
+    expect(result.unparsed === true).toBe(outcome === 'inconclusive');
+  });
+
+  it('retains a failed relevance receipt while completing the full criterion within the cap', async () => {
+    let count = 0;
+    const error = new ClaudeTransportError('http', 'failed', {
+      stdout: 'RELEVANCE_FAILURE_SENTINEL',
+      code: 1,
+    });
+    Object.assign(error, { costUsd: 0.03, requestCount: 3 });
+    const transport: DialectTransport = {
+      dialect: 'scratchpad-json',
+      fingerprint: 'part-failure',
+      async complete() {
+        if (++count === 2) throw error;
+        const text =
+          count === 1
+            ? '{"route":"relevance"}'
+            : '{"checks":[{"id":"x","reasoning":"missing","evidence":null,"met":false}]}';
+        return { text, raw: text, dialect: 'scratchpad-json', fingerprint: 'part-failure', costUsd: 0.01 };
+      },
+    };
+    const judge = createDefaultJudge({
+      provider: 'claude-cli',
+      transport,
+      maxBudgetUsd: 0.1,
+      spendCapUsd: 0.2,
+    });
+    const result = await judge.judge({
+      criterion: { name: 'x', rubric: 'Address the request.' },
+      transcript: [
+        { role: 'user', text: 'Name?' },
+        { role: 'agent', text: 'Widget' },
+      ],
+    });
+    expect(result.answer.outcome).toBe('fail');
+    expect(result.unparsed).not.toBe(true);
+    expect(result.costUsd).toBeCloseTo(0.05);
+    expect(result.requestCount).toBe(5);
+    expect(result.raw).toContain('RELEVANCE_FAILURE_SENTINEL');
+    expect(count).toBe(3);
+  });
+
+  it.each(['transport', 'thinking'] as const)(
+    'retains native evidence from a thrown %s failure',
+    async (kind) => {
+      const retryReceipts = [
+        { raw: 'RETRY_RECEIPT_SENTINEL', exitCode: 1, category: 'overload' as const, costUsd: 0.01 },
+      ];
+      const recovery = {
+        reason: 'reasoning-budget-exhausted' as const,
+        requestCount: 2,
+        attempts: [{ raw: 'THINKING_RECEIPT_SENTINEL', usage: {}, costUsd: 0.02 }],
+      };
+      const error =
+        kind === 'transport'
+          ? new ClaudeTransportError('http', 'failed', { stdout: 'FINAL_RECEIPT_SENTINEL', code: 1 })
+          : new ClaudeThinkingError(recovery, {}, 0.03);
+      Object.assign(error, { costUsd: 0.03, requestCount: 3, retryReceipts });
+      const transport: DialectTransport = {
+        dialect: 'scratchpad-json',
+        fingerprint: 'failed',
+        async complete() {
+          throw error;
+        },
+      };
+      const judge = createDefaultJudge({ provider: 'claude-cli', transport });
+      const result = await judge.judge({
+        criterion: { name: 'x', rubric: 'x' },
+        system: 'explicit',
+        transcript: [],
+      });
+      expect(result.answer.outcome).toBe('inconclusive');
+      expect(result.costUsd).toBe(0.03);
+      expect(result.requestCount).toBe(3);
+      expect(result.retryReceipts).toEqual(retryReceipts);
+      expect(result.raw).toContain(
+        kind === 'transport' ? 'FINAL_RECEIPT_SENTINEL' : 'THINKING_RECEIPT_SENTINEL',
+      );
+      if (kind === 'thinking') expect(result.thinkingRecovery).toEqual(recovery);
+    },
+  );
   it('keys explicit reasoning separately and names configured models separately', () => {
     const transport: DialectTransport = {
       dialect: 'scratchpad-json',
@@ -178,6 +393,7 @@ describe('one default configuration', () => {
           },
         ],
       },
+      { checks: [{ id: 'x', reasoning: 'price absent', evidence: null, met: false }] },
     ]);
     const result = await judge.judge({
       criterion: { name: 'x', rubric: 'Address every part of the latest request.' },
@@ -187,7 +403,7 @@ describe('one default configuration', () => {
     expect(calls[0]?.user).toContain('Name and price?');
     expect(calls[0]?.user).not.toContain('The name is Widget');
     expect(calls[1]?.system).toContain('Extract each distinct requested part');
-    expect(result.costUsd).toBeCloseTo(0.02);
+    expect(result.costUsd).toBeCloseTo(0.03);
   });
   it('uses prompt and decoder two for an ordinary criterion, and preserves evidence', async () => {
     const { judge, calls } = mock([

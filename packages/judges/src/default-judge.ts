@@ -1,6 +1,8 @@
 import { contentHash } from '@agent-nexus/driftbench-core';
 import { parseJudgeText, responseSchema } from './assessment';
 import type { JudgeClient } from './client';
+import { ClaudeThinkingError } from './clients/claude-cli';
+import { ClaudeTransportError } from './clients/claude-errors';
 import {
   createDialectTransport,
   type DialectTransport,
@@ -16,7 +18,7 @@ import { writingRequirementsV1 } from './writing-requirements';
 
 /** One policy across providers and tasks. Routing sees the criterion and user requests, never answers. */
 export const DEFAULT_JUDGE_POLICY = Object.freeze({
-  version: 'default-on-v1',
+  version: 'default-on-v2',
   criterionPromptVersion: 2,
   criterionDecoderVersion: 2,
   pairOrders: 'both',
@@ -88,7 +90,11 @@ export function createDefaultJudge(options: DefaultJudgeOptions): DefaultJudgeCl
   async function evaluate(original: DefaultJudgeRequest, completePair: boolean): Promise<JudgeResult> {
     const request = normalizeJudgeRequest(original);
     const receipts: Awaited<ReturnType<DialectTransport['complete']>>[] = [];
-    const failures: { count: number; cost?: number }[] = [];
+    const failures: {
+      count: number;
+      cost?: number;
+      evidence: Partial<Pick<JudgeResult, 'raw' | 'retryReceipts' | 'thinkingRecovery'>>;
+    }[] = [];
     const metered: DialectTransport = {
       ...transport,
       async complete(input) {
@@ -128,7 +134,25 @@ export function createDefaultJudge(options: DefaultJudgeOptions): DefaultJudgeCl
             Number.isFinite(error.costUsd) &&
             error.costUsd >= 0 &&
             !error.costIncomplete;
-          failures.push({ count: error?.requestCount ?? 1, ...(known ? { cost: error.costUsd } : {}) });
+          // Only typed provider errors carry sanitized native evidence. Never serialize an arbitrary
+          // thrown object, which may contain credentials or the original request.
+          const evidence =
+            cause instanceof ClaudeTransportError || cause instanceof ClaudeThinkingError
+              ? {
+                  ...(cause instanceof ClaudeTransportError ? { raw: cause.raw } : {}),
+                  ...('retryReceipts' in cause
+                    ? { retryReceipts: cause.retryReceipts as JudgeResult['retryReceipts'] }
+                    : {}),
+                  ...('thinkingRecovery' in cause
+                    ? { thinkingRecovery: cause.thinkingRecovery as JudgeResult['thinkingRecovery'] }
+                    : {}),
+                }
+              : {};
+          failures.push({
+            count: error?.requestCount ?? 1,
+            ...(known ? { cost: error.costUsd } : {}),
+            evidence,
+          });
           if (known) account.spentUsd += error.costUsd as number;
           else account.costIncomplete = true;
           throw cause;
@@ -293,8 +317,9 @@ export function createDefaultJudge(options: DefaultJudgeOptions): DefaultJudgeCl
           {
             stage0: {
               exactIdentity: true,
-              correctness:
-                route === 'objective' && !hasContext && !request.criterion.pass && !request.criterion.fail,
+              // A routed classification cannot prove every condition in the caller's rubric.
+              // Arithmetic is advisory here; the complete ledger must decide nonidentical pairs.
+              correctness: false,
             },
             tiePolicy: 'canonical',
           },
@@ -343,7 +368,35 @@ export function createDefaultJudge(options: DefaultJudgeOptions): DefaultJudgeCl
           request.transcript.findLastIndex((e) => e.role === 'user') &&
         request.transcript.some((e) => e.role === 'user')
       ) {
-        result = await client.judge({ ...request, assessment: { kind: 'response-relevance' } });
+        const read = async (input: Parameters<JudgeClient['judge']>[0]): Promise<JudgeResult> => {
+          try {
+            return await client.judge(input);
+          } catch (cause) {
+            return {
+              raw: '',
+              unparsed: true,
+              answer: inconclusive(cause instanceof Error ? cause.message : String(cause)),
+            };
+          }
+        };
+        const relevance = await read({ ...request, assessment: { kind: 'response-relevance' } });
+        const criterion = await read(request);
+        const parts = [relevance, criterion];
+        const outcome = parts.some((part) => !part.unparsed && part.answer.outcome === 'fail')
+          ? 'fail'
+          : parts.some((part) => part.unparsed || part.answer.outcome === 'inconclusive')
+            ? 'inconclusive'
+            : 'pass';
+        result = {
+          raw: JSON.stringify({ relevance, criterion }),
+          answer: {
+            outcome,
+            reasoning: `Response relevance: ${relevance.answer.reasoning}\nFull criterion: ${criterion.answer.reasoning}`,
+          },
+          ...(relevance.responseRelevance ? { responseRelevance: relevance.responseRelevance } : {}),
+          ...(criterion.checks ? { checks: criterion.checks } : {}),
+          ...(outcome === 'inconclusive' && parts.some((part) => part.unparsed) ? { unparsed: true } : {}),
+        };
       } else {
         route = 'criterion';
         result = await client.judge(request);
@@ -363,8 +416,17 @@ export function createDefaultJudge(options: DefaultJudgeOptions): DefaultJudgeCl
       receipts.every(
         (r) => r.costUsd !== undefined && !r.costIncomplete && Number.isFinite(r.costUsd) && r.costUsd >= 0,
       );
+    const retryReceipts = [
+      ...receipts.flatMap((receipt) => receipt.retryReceipts ?? []),
+      ...failures.flatMap((failure) => failure.evidence.retryReceipts ?? []),
+    ];
+    const failedRecovery = failures.findLast((failure) => failure.evidence.thinkingRecovery)?.evidence
+      .thinkingRecovery;
     return {
       ...result,
+      ...(failures.length ? { raw: JSON.stringify({ result, failures }) } : {}),
+      ...(retryReceipts.length ? { retryReceipts } : {}),
+      ...(failedRecovery ? { thinkingRecovery: failedRecovery } : {}),
       defaultJudge: { version: DEFAULT_JUDGE_POLICY.version, route, receipts },
       requestCount:
         receipts.reduce((n, r) => n + (r.requestCount ?? 1), 0) + failures.reduce((n, f) => n + f.count, 0),
