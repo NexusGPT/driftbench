@@ -1197,6 +1197,29 @@ function impactRadius() {
     [faults.length, clean],
     RADIUS_DOC,
   );
+  // what a run sends: the recap change in mode F, and one independent block change in mode T
+  const e2e = text.match(
+    /sends (\d+) of (\d+) blocks and carries (\d+) cells\. A full campaign of the same faulty agent fails on (\d+) cells/,
+  );
+  if (!e2e) throw new Error(`${RADIUS_DOC}: the end to end sentence no longer parses`);
+  const [sent, all, carried, failing] = e2e.slice(1).map(Number);
+  fact(
+    'impact-radius',
+    'recap change, mode F: blocks sent, blocks in the full run, percent saved, cells carried, failing cells of the full run',
+    [sent, all, Number((((all - sent) / all) * 100).toFixed(1)), carried, failing],
+    RADIUS_DOC,
+  );
+  const modeT = text.match(
+    /sends (\d+) of (\d+) blocks\. The same campaign without end-state snapshots sends (\d+) of (\d+)/,
+  );
+  if (!modeT) throw new Error(`${RADIUS_DOC}: the mode T sentence no longer parses`);
+  const [modeTSent, modeTAll, modeTWithout] = [modeT[1], modeT[2], modeT[3]].map(Number);
+  fact(
+    'impact-radius',
+    'coverage check input change, mode T: blocks sent, blocks in the full run, percent saved, blocks sent without snapshots',
+    [modeTSent, modeTAll, Number((((modeTAll - modeTSent) / modeTAll) * 100).toFixed(1)), modeTWithout],
+    RADIUS_DOC,
+  );
 }
 
 const MOJ_REPORT = 'research/moj/results/sealed/report.json';

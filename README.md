@@ -156,7 +156,7 @@ Four ideas lead. Each one changes what you learn when a test fails, and what it 
 - **Why it matters.** You know what your tests cover, and a test is kept only if it catches a bug planted on purpose. You stop paying for tests that cannot catch anything.
 - **Impact.** On our example agent, every pair of settings is covered with 5.8 times fewer tests than all the combinations. [How we measured](docs/comparison/methods.md#tests-written-by-code)
 
-### Blocks: a failure you can diagnose
+### Blocks: see which step failed
 
 <a href=".github/readme/blocks-diff-light.png">
   <picture>
@@ -166,10 +166,14 @@ Four ideas lead. Each one changes what you learn when a test fails, and what it 
 </a>
 <p align="center"><sub>A recorded run: an agent with a bug that skips the order recap.</sub></p>
 
-- **What it is.** A conversation is split into steps, which driftbench calls blocks. Each block has its own starting point and its own expected result, so each block passes or fails on its own.
-- **What others do.** They score a whole scenario, test row, conversation, sample, dataset item or trace (row 1 of our [comparison](docs/comparison.md#where-driftbench-is-ahead)). You learn that the run failed.
-- **Why it matters.** You learn what broke, not only that something did: the report names the step, what was expected and what happened.
-- **Impact.** Nine planted faults of the Acme sales assistant fail at least one block of its gated suite, 195 conversations and 861 blocks. For eight of them, the failing blocks are 18 to 40 percent of the blocks of the conversations that fail. The fault that drops the coverage check fails 86 conversations that hold 413 blocks: a whole-conversation score marks all 413, and driftbench marks the 86 that fail. The ninth fault, a wrong language, fails 826 of the 861 blocks: every block of the 171 conversations that fail. Source: [gate-report.json](examples/acme/gated/gate-report.json); every count is in [chart-facts.csv](docs/assets/data/chart-facts.csv). [How we measured](docs/comparison/methods.md#blocks-a-failure-you-can-diagnose)
+
+**See which step failed, and why, instead of reading a whole transcript.**
+
+- **What it is.** A conversation is split into steps, which driftbench calls blocks. Each block has its own starting point and its own expected result, so each block passes or fails on its own. The report names the block, the check and the evidence.
+- **Why no other framework does it.** The seven tools we read score a whole scenario, test row, conversation, sample, dataset item or trace (row 1 of our [comparison](docs/comparison.md#where-driftbench-is-ahead)). A verdict per step needs every step to carry its own starting point and expected result, and the driftbench spec format is built that way.
+- **Measured impact.** On the Acme sales assistant, the fault that drops a coverage check fails 86 conversations that hold 413 blocks. A whole-conversation score marks all 413 blocks; driftbench marks the 86 that fail. For eight of the nine planted faults, the failing blocks are 18 to 40 percent of the blocks of the conversations that fail. Sources: [gate-report.json](examples/acme/gated/gate-report.json) and every count in [chart-facts.csv](docs/assets/data/chart-facts.csv). [How we measured](docs/comparison/methods.md#blocks-a-failure-you-can-diagnose)
+
+<sub>Counts are over the 195 conversations and 861 blocks of the gated Acme suite. The ninth fault, a wrong language, fails 826 of the 861 blocks: every block of the 171 conversations that fail.</sub>
 
 ### Blast radius: rerun only what a change touches
 
@@ -181,10 +185,14 @@ Four ideas lead. Each one changes what you learn when a test fails, and what it 
 </a>
 <p align="center"><sub>A change reruns the steps that use what changed, and the steps after them.</sub></p>
 
-- **What it is.** Every step says what it uses. When you change one part of your agent, driftbench reruns the steps that use it and keeps the other results from the last run. When it cannot tell, it reruns everything.
-- **What others do.** LangWatch Scenario and Inspect cache model calls, and promptfoo and DeepEval document part of a cache (row 22 of our [comparison](docs/comparison.md)). A cache replays a call that has not changed; it does not decide which tests a change can affect.
-- **Why it matters.** A pull request pays for the tests its change can break, and still finds every failure. The nightly run covers everything.
-- **Impact.** On the Acme suite of 861 blocks, a rerun of the recap change sends 601 and skips 30.2 percent. A change to the price sheet task family skips 95.9 percent. A change to the reply language rule, which every block depends on, skips 0, and the radius says so. For all 13 planted faults, no block that fails in a full run lies outside the radius of its change. A radius run of the recap change fails on the same 102 cells as a full run. Sources: [blast-radius.md](docs/concepts/blast-radius.md), [contained.test.ts](examples/acme/test/radius/contained.test.ts), [radius-carry.test.ts](packages/cli/test/radius-carry.test.ts). `driftbench radius` and `campaign run --change` are on main. [How we measured](docs/comparison/methods.md#blast-radius-rerun-only-what-a-change-touches)
+
+**Change one part of your agent and rerun only the tests it can affect, so a pull request pays for what it can break.**
+
+- **What it is.** Every block says what it uses. When you change one part of your agent, driftbench reruns the blocks that use it and keeps the other results from the last run. When it cannot tell, it reruns everything. The nightly run still covers everything.
+- **Why no other framework does it.** LangWatch Scenario and Inspect cache model calls, and promptfoo and DeepEval document part of a cache (row 22 of our [comparison](docs/comparison.md)). A cache replays a call that has not changed. Choosing the tests a change can affect needs each test to say what it reads, which blocks do.
+- **Measured impact.** On the Acme example, for a change to the recap, a radius run sends 606 of 867 blocks and fails on the same 102 cells as a full run. For a change to one tool's input, where each block runs on its own, it sends 86 of 867 blocks, 90.1 percent fewer, and the same 86 blocks fail as in a full run. A change to the price sheet task family skips 95.9 percent. A change that every block depends on, the reply language rule, skips none, and the radius says so. A fault planted outside the declared change is caught by the audit, which then sends all 867 blocks. Sources: [blast-radius.md](docs/concepts/blast-radius.md), [radius-carry.test.ts](packages/cli/test/radius-carry.test.ts), [radius-blocks-acme.test.ts](packages/cli/test/radius-blocks-acme.test.ts), [contained.test.ts](examples/acme/test/radius/contained.test.ts). [How we measured](docs/comparison/methods.md#blast-radius-rerun-only-what-a-change-touches)
+
+<sub>The planner counts 861 scored blocks; a run also sends six blocks that are not scored, which is why a run reports 867. Without end-state snapshots the second change sends 376 of 867. The radius holds when the change you declare lists everything that changed; the audit samples cells to check that, and a sample can miss. `driftbench radius` and `campaign run --change` are on main.</sub>
 
 ### Mixture of Judges: the right judge for each answer
 
@@ -196,10 +204,14 @@ Four ideas lead. Each one changes what you learn when a test fails, and what it 
 </a>
 <p align="center"><sub>A cheap judge decides what it is sure of; the rest goes to the expert that fits.</sub></p>
 
+
+**A cheap judge settles the answers it is sure of, and the expert sees only the rest: at least the accuracy of promptfoo's judge on three sealed sets, with 3.5 to 19.4 times fewer costly reasoning calls.**
+
 - **What it is.** A quick judge reads every answer first. When it is sure, it decides. When it is not, the answer goes to the expert that fits it: a fact check, a careful reasoning judge, or a panel of models.
-- **What others do.** promptfoo, DeepEval, LangWatch and Langfuse let you pick one judge model; our comparison found ensembles in their docs only in part (row 11). Inspect documents a [scorer cascade](https://inspect.aisi.org.uk/multiple-scorers.html) that stops at the first scorer that settles a sample.
-- **Why it matters.** You pay for careful reasoning only where an answer needs it.
-- **Impact.** MoJ scores at least as high as promptfoo on all three sealed sets, with 3.5 to 19.4 times fewer costly reasoning calls. With GPT-6 Luna it scored 85.0 against 84.0 on JudgeBench, 94.9 against 94.7 on MM-Eval and 65.2 against 57.0 on writing, using 57, 21 and 10.3 reasoning calls per 100 pairs where promptfoo used 200 ([RESULTS.md](research/moj/RESULTS.md), [report.json](research/moj/results/sealed/report.json)). On 1,212 sealed MM-Eval items, the first judge sent 48 to the panel; on those 48 the score rose from 51.0 to 85.4, and on the whole set from 89.49 to 91.54 ([mm-eval-sealed-test.json](docs/assets/data/mm-eval-sealed-test.json)). On writing, a rule that picks the longer reply scores 69.7 on the sealed pairs. MoJ runs today from the research harness, on the package's opt-in escalation API (`createEscalation`). [How we measured](docs/comparison/methods.md#mixture-of-judges)
+- **Why no other framework does it.** promptfoo, DeepEval, LangWatch and Langfuse let you pick one judge model, and their docs show ensembles only in part (row 11 of our [comparison](docs/comparison.md)). Inspect documents a [scorer cascade](https://inspect.aisi.org.uk/multiple-scorers.html) that stops at the first scorer that settles a sample. We found no documented routing of an answer by the first judge's confidence to an expert chosen for it.
+- **Measured impact.** With GPT-6 Luna on sealed pairs, MoJ scored 85.0 against promptfoo's 84.0 on JudgeBench, 94.9 against 94.7 on MM-Eval and 65.2 against 57.0 on writing, using 57, 21 and 10.3 reasoning calls per 100 pairs where promptfoo used 200 ([RESULTS.md](research/moj/RESULTS.md), [report.json](research/moj/results/sealed/report.json)). On 1,212 sealed MM-Eval items, the first judge sent 48 to the panel; on those 48 the score rose from 51.0 to 85.4, and on the whole set from 89.49 to 91.54 ([mm-eval-sealed-test.json](docs/assets/data/mm-eval-sealed-test.json)). [How we measured](docs/comparison/methods.md#mixture-of-judges)
+
+<sub>On JudgeBench and MM-Eval the differences are within the 95% intervals. On writing, a rule that picks the longer reply scores 69.7 on the sealed pairs. MoJ runs today from the research harness, on the package's opt-in escalation API (`createEscalation`).</sub>
 
 ### More that ships
 
