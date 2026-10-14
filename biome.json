@@ -16,7 +16,8 @@
       "!docs/lanes",
       "!docs/lane-dag.json",
       "!.github/readme",
-      "!comparisons/deepeval/judge/ours-prompts.json"
+      "!comparisons/deepeval/judge/ours-prompts.json",
+      "!packages/validators/fixtures/generator/seed-1/oracle.mjs"
     ]
   },
   "formatter": { "enabled": true, "indentStyle": "space", "indentWidth": 2, "lineWidth": 110 },

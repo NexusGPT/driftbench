@@ -50,6 +50,8 @@ Each returned field is stated as "<tool label with spaces> says <field> is <valu
 - In new-request, a turn from check to recap asks "Reply CONFIRM to submit the request, or tell me what to change.", states every returned field of no tool, never states facts of an uncalled tool, and never narrates internal steps with "Step <number>:".
 - In status-check, a turn from check to check asks "Shall I go on with the record I found?", states every returned field of lookup_record, never states facts of an uncalled tool, and never narrates internal steps with "Step <number>:".
 
+The change-request flow also offers a code task: open the request, then save the record from input.json as exports/record.json, state its path, and leave every other file untouched.
+
 ## Users
 
 - returning: A user who has made requests before.
