@@ -37,7 +37,8 @@ const fixture = {
     { contestant: 'promptfoo', transportMissing: 0, all: { score: 0.5 } },
     { contestant: 'fixture-tool', transportMissing: 0, all: { score: 0.71 } },
     { contestant: 'deepeval', transportMissing: 0, all: { score: 0.6 } },
-    { contestant: 'langwatch', transportMissing: 12, all: { score: 0.2 } },
+    { contestant: 'langwatch', transportMissing: 12, present: 258, all: { score: 0.2 } },
+    { contestant: 'inspect', transportMissing: 270, present: 0 },
   ],
 };
 
@@ -64,11 +65,20 @@ describe('readme charts, competitors', () => {
     expect(haiku.promptfoo).toBe(82.96);
   });
 
-  it('draws an incomplete contestant, and a contestant on another model, as not run', () => {
+  it('draws a contestant that refused some items with its score and the refusal count', () => {
     const c = chart('bench-judgebench', { judgebench: fixture });
-    expect(scores(panelOf(c, 'Claude Haiku 5.5')).LangWatch).toBeNull();
+    const bar = panelOf(c, 'Claude Haiku 5.5').bars.find((b) => b.name === 'LangWatch');
+    expect(bar.score).toBe(20);
+    expect(bar.refused).toBe(12);
+    expect(panelOf(c, 'Claude Haiku 5.5').bars.find((b) => b.name === 'DeepEval').refused).toBeUndefined();
+  });
+
+  it('draws a contestant with no result, and a contestant on another model, as not run', () => {
+    const c = chart('bench-judgebench', { judgebench: fixture });
+    expect(scores(panelOf(c, 'Claude Haiku 5.5')).Inspect).toBeNull();
     expect(scores(panelOf(c, 'GPT-6 Luna'))['fixture-tool']).toBeNull();
     expect(scores(panelOf(c, 'Gemini 3.5 Flash-Lite')).DeepEval).toBeNull();
+    expect(scores(panelOf(c, 'GPT-6 Luna')).LangWatch).toBeNull();
   });
 
   it('reads the primary cohort for MM-Eval', () => {

@@ -225,7 +225,7 @@
         if (!empty) bar.style.background = b.ours ? 'var(--s0)' : b.baseline ? 'var(--s-none)' : 'var(--s2)';
         if (b.baseline) bar.style.boxShadow = 'inset 0 0 0 1.5px var(--s2)';
         col.append(bar);
-        labs.append(el('div', 'rlab' + (b.ours ? ' ours' : ''), esc(b.name)));
+        labs.append(el('div', 'rlab' + (b.ours ? ' ours' : ''), esc(b.name) + (b.refused ? `<br>${b.refused} refused` : '')));
         bars.append(col);
       }
       box.append(bars);

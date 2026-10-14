@@ -578,12 +578,21 @@ function addPeers(chart, bench, panels) {
   const names = [];
   for (const row of file.contestants.filter((c) => !OWN.has(c.contestant))) {
     const name = PEER_NAME[row.contestant] ?? row.contestant;
-    const complete = row.transportMissing === 0 && row[cohort] !== undefined;
+    // A peer that refused some items is drawn with its score, which counts each refusal as wrong, and the
+    // refusal count. Only a peer with no result at all is "not run".
+    const refused = row.transportMissing ?? 0;
+    const hasResult = row[cohort] !== undefined && (row.present === undefined || row.present > 0);
     names.push(name);
     for (const panel of panels) {
-      const score = complete && panel.name === model ? row[cohort].score * 100 : null;
-      panel.bars.push(bar(name, score));
-      fact(chart, `${panel.name}: ${name}, percent`, score === null ? 'not run' : round(score), shown);
+      const drawn = hasResult && panel.name === model;
+      const score = drawn ? row[cohort].score * 100 : null;
+      panel.bars.push(bar(name, score, drawn && refused > 0 ? { refused } : {}));
+      fact(
+        chart,
+        `${panel.name}: ${name}, percent${drawn && refused > 0 ? ', refused items counted wrong' : ''}`,
+        score === null ? 'not run' : drawn && refused > 0 ? [round(score), refused] : round(score),
+        shown,
+      );
     }
   }
   return names;
