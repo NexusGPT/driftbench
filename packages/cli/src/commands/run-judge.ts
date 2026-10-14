@@ -5,7 +5,9 @@ import {
   createClaudeCliJudge,
   type JudgeClient,
   JudgeError,
+  judgePersonalData,
   noJudgeCheck,
+  type PersonalDataVerdict,
   singleJudgeCheck,
 } from '@agent-nexus/driftbench-judges';
 import type { Command } from 'commander';
@@ -43,6 +45,7 @@ export type RunJudgeOptions = { judge?: string; judgeCommand?: string; judgeBudg
 
 export type RunJudge = {
   check: Check;
+  piiJudge?: (text: string) => Promise<PersonalDataVerdict>;
   /** What the judge has spent so far, in US dollars. */
   spend: { usd: number };
   /** `claude:<model>`, or `none`. */
@@ -103,7 +106,14 @@ export async function runJudgeFrom(
     ...(script ? { command: process.execPath, commandArgs: [path] } : { command: path }),
     ...(budget === undefined ? {} : { maxBudgetUsd: budget }),
   });
-  return { check: singleJudgeCheck(capped(client, spend, budget)), spend, label: `claude:${model}`, billed };
+  const budgeted = capped(client, spend, budget);
+  return {
+    check: singleJudgeCheck(budgeted),
+    piiJudge: (text) => judgePersonalData(budgeted, text),
+    spend,
+    label: `claude:${model}`,
+    billed,
+  };
 }
 
 /** A client that stops calling once the spend reaches the cap, and adds every reported cost to it. */

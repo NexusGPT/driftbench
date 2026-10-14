@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'vitest';
+import { runPassed } from '../src/data';
 import { renderRun } from '../src/html';
 import { runDetailOf } from '../src/scorecard';
 import { dataOf, run } from './support';
@@ -36,4 +37,9 @@ describe('a run a verdict stopped early shows the blocks it skipped', () => {
     expect(detail.stopped).toBeUndefined();
     expect(renderRun(detail)).not.toContain('Stopped by verdict');
   });
+});
+
+it('does not count an inconclusive driver verdict as a passed run', () => {
+  const inconclusive = { ...run({ blocks: [{ text: 'hi' }] }), endVerdict: 'inconclusive' as const };
+  expect(runPassed(inconclusive)).toBe(false);
 });

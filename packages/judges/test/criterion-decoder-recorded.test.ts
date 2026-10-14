@@ -3,6 +3,11 @@ import { gunzipSync } from 'node:zlib';
 import { describe, expect, it } from 'vitest';
 import { parseJudgeText } from '../src/assessment';
 import type { JudgeRequest } from '../src/contract';
+import emptySourceFixes from './fixtures/whole-empty-source-fixes.json';
+
+// Recorded met false ledgers that quote an empty `{}` file exactly. The frozen fixture holds them as
+// inconclusive; grounding the whole empty source decodes each to its true verdict, fail.
+const movedBy = emptySourceFixes as Record<string, string[]>;
 
 const fixture = JSON.parse(
   gunzipSync(
@@ -53,6 +58,8 @@ describe('zero-cost recorded criterion decoder replay', () => {
       let after = 0;
       let fixes = 0;
       let breaks = 0;
+      let movedBefore = 0;
+      let movedAfter = 0;
       for (const row of rows) {
         const read = (version: 1 | 2) => {
           if (row.transportError) return 'inconclusive';
@@ -65,17 +72,24 @@ describe('zero-cost recorded criterion decoder replay', () => {
         };
         const old = read(1);
         const current = read(2);
-        expect(old, row.id).toBe(row.baseline);
-        expect(current, row.id).toBe(row.candidate);
+        const moved = movedBy[row.set]?.includes(row.id) ?? false;
+        if (moved) {
+          // Version 2 already kept the verdict where the archived evidence was one string.
+          expect([row.baseline, row.truth], row.id).toEqual(['inconclusive', 'fail']);
+          movedBefore += 1;
+          movedAfter += Number(row.candidate !== row.truth);
+        }
+        expect(old, row.id).toBe(moved ? row.truth : row.baseline);
+        expect(current, row.id).toBe(moved ? row.truth : row.candidate);
         before += Number(old === row.truth);
         after += Number(current === row.truth);
         fixes += Number(old !== row.truth && current === row.truth);
         breaks += Number(old === row.truth && current !== row.truth);
       }
       expect({ before, after, fixes, breaks }).toEqual({
-        before: summary.baselineCorrect,
-        after: summary.candidateCorrect,
-        fixes: summary.fixes,
+        before: (summary.baselineCorrect ?? 0) + movedBefore,
+        after: (summary.candidateCorrect ?? 0) + movedAfter,
+        fixes: (summary.fixes ?? 0) - (movedBefore - movedAfter),
         breaks: summary.breaks,
       });
       expect(breaks).toBe(0);

@@ -11,7 +11,7 @@ Built: the three run modes, teacher-forced (T), free-running (F) and perturbed (
 * `function:acme-sales`, or its short form `function:acme`: the Acme sales assistant behind the [function adapter](adapters/function.md). The Acme conversation specs name it.
 * `process:acme-ops`: the Acme ops agent (`examples/acme/ops/agent.mjs`) behind the [process adapter](adapters/process.md), in a local sandbox. The Acme task spec names it.
 
-Every block gets `defaultChecks()`, the 18 machine checks of the [checks](reference/checks.md) page, with the artifact readers of `@agent-nexus/driftbench-artifacts`. Other adapters are used from code: see [runSpec](#runspec).
+Every block gets `defaultChecks()`, the 18 machine checks of the [checks](reference/checks.md) page, with the artifact readers of `@agent-nexus/driftbench-artifacts`. Other adapters are used from code: see [runSpec](#runspec). The command line also reaches `http`, `litellm` and `nexus` targets from a spec's `target.options`: see [targets from settings](#targets-from-settings). A [plugin](plugins.md) loads any adapter, your own checks and your own judge into the command line.
 
 A target is written `<adapter>` or `<adapter>:<agent>`. Without `--target`, each spec runs on the target it names, and a spec that names none is refused. A `--target` overrides the target every spec names, and `plan` and `run` print a note for each spec whose own target names another adapter. `--route <tag=target>` keeps a part of a mixed suite on its own agent: a spec carrying the tag runs on that target instead, and no note is printed for it. On the Acme suites, `--route flow:price-sheet=process:acme-ops` keeps the price-sheet task specs on the ops agent while `--target` names the sales agent; `ci` takes the same option, where a route may also name a `fault:<id>` of `--faults`, such as a fault of the ops agent.
 
@@ -20,7 +20,7 @@ The examples below run from the repository root. `pnpm -s` keeps pnpm's own line
 ## `driftbench campaign plan`
 
 ```
-driftbench campaign plan <paths...> [--target <adapter[:agent]>]... [--route <tag=target>]... [--mode <modes>] [--repeats <n>] [--budget-usd <usd>] [--baseline-rate <rate>] [--rho <rho>] [--store <file>] [--json]
+driftbench campaign plan <paths...> [--target <adapter[:agent]>]... [--route <tag=target>]... [--mode <modes>] [--repeats <n>] [--budget-usd <usd>] [--baseline-rate <rate>] [--rho <rho>] [--store <file>] [--config <file>] [--json]
 ```
 
 Expands the cells, projects their cost and prints the minimum detectable effect. Nothing runs.
@@ -94,6 +94,7 @@ Minimum detectable effect, mode F: none detectable on a 50% pass rate, with 7 ru
 | `--baseline-rate <rate>` | the pass rate the minimum detectable effect assumes, between 0 and 1. Default 0.5. |
 | `--rho <rho>` | the correlation of repeats of one spec, as `icc` measures it, from 0 to 1. Default 0. |
 | `--store <file>` | read the measured unit costs from this store |
+| `--config <file>` | the project config whose `campaign:` settings apply where no flag is given; default `driftbench.yaml` in the working folder. See [the campaign key](#the-campaign-key) |
 | `--json` | print one JSON document: `cells`, `blocks`, `cost` (`usd`, `unmeasured`, `byAdapter`), `budgetUsd` and `withinBudget` when a budget is given, and `mde` |
 
 The projected cost of an adapter is its blocks times the latest cost per block measured for it, from the store's cost units. An adapter with no measured unit costs nothing in the projection and is named. Judge calls are not priced yet.
@@ -101,7 +102,7 @@ The projected cost of an adapter is its blocks times the latest cost per block m
 ## `driftbench campaign run`
 
 ```
-driftbench campaign run [paths...] [--dataset <ref>] [--prompt <ref>] [--target <adapter[:agent]>]... [--route <tag=target>]... [--mode <modes>] [--repeats <n>] [--agent-version <label>] [--change <manifest> --from <campaign> [--audit <n>] [--audit-seed <n>] [--max-carry <n>] [--max-age <days>]] [--campaign <id>] [--store <file>] [--no-cache] [--cache-suite <name>] [--concurrency <n>] [--budget-usd <usd>] [--process-command <command>] [--retry-attempts <n>] [--retry-base-ms <ms>] [--retry-max-ms <ms>] [--driver scripted|simulated] [--persona <file>]... [--recording <file>]... [--model] [--agent-family <family>] [--judge-family <family>]... [--json]
+driftbench campaign run [paths...] [--dataset <ref>] [--prompt <ref>] [--target <adapter[:agent]>]... [--route <tag=target>]... [--mode <modes>] [--repeats <n>] [--agent-version <label>] [--change <manifest> --from <campaign> [--audit <n>] [--audit-seed <n>] [--max-carry <n>] [--max-age <days>]] [--campaign <id>] [--store <file>] [--no-cache] [--cache-suite <name>] [--concurrency <n>] [--budget-usd <usd>] [--process-command <command>] [--retry-attempts <n>] [--retry-base-ms <ms>] [--retry-max-ms <ms>] [--driver scripted|simulated] [--persona <file>]... [--recording <file>]... [--model] [--agent-family <family>] [--judge-family <family>]... [--config <file>] [--json]
 ```
 
 Creates a campaign over the specs, runs every cell and prints one line per cell, in cell order.
@@ -155,7 +156,7 @@ The process target runs each cell in a sandbox, a temporary folder under one fol
 | Option | Effect |
 |---|---|
 | `--target`, `--mode`, `--repeats` | as for `plan` |
-| `--agent-version <label>` | the version of the agent under test. It is written as the `variant` of every target that names none, so the runs record which agent produced them. The target is part of the cell id and of the cache key: a run under `v2` never reuses a run or a cached block of `v1`. With `--prompt`, the prompt hash is the version and the label is recorded beside it. |
+| `--agent-version <label>` | the version of the agent under test. It is included in every block cache key, even when the target already pins a variant or prompt. The campaign stores the label for resume. It is also written as the `variant` of every target that names none, preserving existing cell identity rules. With `--prompt`, the prompt hash remains the version used for blast-radius comparisons. |
 | `--change <manifest>` | run only the [blast radius](concepts/blast-radius.md) of this change manifest, and carry the stored run of every other cell from the `--from` campaign. It needs `--from`, `--store` and an agent version. Without it, nothing changes: every cell runs |
 | `--from <campaign>` | with `--change`: the stored campaign the carried runs are read from |
 | `--audit <n>` | with `--change`: draw n of the cells about to be carried, run them fresh and compare each with its stored run on every gating verdict. One that differs is a radius miss: nothing is carried, every cell runs, and the command exits 1. `--audit-seed <n>` sets the draw (default 1) |
@@ -170,6 +171,7 @@ The process target runs each cell in a sandbox, a temporary folder under one fol
 | `--process-command <command>` | the command that runs the agent of any `process:<name>` target other than `process:acme-ops`, through the [process adapter](adapters/process.md) in a local sandbox: a JSON list of strings such as `["python3", "/path/to/agent.py"]`, or words split on spaces, with no quoting. The command runs in the workspace of each sandbox, a temporary folder, not in the folder you run `driftbench` in: name the agent file by its absolute path (`"$PWD/agent.py"` in a shell). A relative path that names a file of the working folder gets a note on stderr, and the run goes on. The [Python package](python.md) passes it for a Python function agent. |
 | `--retry-attempts <n>`, `--retry-base-ms <ms>`, `--retry-max-ms <ms>` | how model calls are retried, over the spec target's `retry`. See [retries](retries.md). |
 | `--driver <driver>`, `--persona <file>`, `--recording <file>`, `--model`, `--agent-family <family>`, `--judge-family <family>` | who writes the user turns: `scripted` (the default) or `simulated`, a persona through the model port or a recording. See [simulated user](simulated-user.md). |
+| `--config <file>` | the project config whose `campaign:` settings apply where no flag is given; default `driftbench.yaml` in the working folder. See [the campaign key](#the-campaign-key) |
 | `--json` | print one JSON document: `campaignId`, `stored`, `checks`, `cells` and `summary`. Each cell holds its state, its failing list, its run id, its end state when the spec has one, and `blocks`: each block's `index`, `blockId`, `pass`, observed `stage`, and its `verdicts`, each with `id`, `outcome`, `gating` and `evidence` |
 
 The store needs Node.js 22.13 or newer, for `node:sqlite`.
@@ -481,14 +483,45 @@ A transcript holds what the agent did in each block: the segments, the tool call
 | `--runs <n>` | how many runs to compare, at least 2. Default 3. |
 | `--json` | print one JSON document: `specId`, `target`, `runs`, `deterministicClaim`, `identical`, `hashes` and `firstDifference` when they differ |
 
+## Targets from settings
+
+Beside the two Acme example targets, the command line reaches three kinds of agent from settings alone, with no code and no plugin. The settings are the spec's `target.options`:
+
+```yaml
+target:
+  adapter: http
+  agent: my-bot
+  options:
+    url: https://bot.example.com/turn
+    headers_env: { authorization: MY_BOT_TOKEN }
+```
+
+| Target | Reaches | `target.options` | Without options (as with `--target`) |
+|---|---|---|---|
+| `http:<agent>` | an endpoint that speaks the [http adapter](adapters/http.md)'s JSON | `url` (needed), `headers`, `headers_env` (header name to the environment variable that holds its value), `end_state_url`, `close_url`, `timeout_ms`, `max_tool_rounds`, `redirects`, `variants`, `tool_stubs`, `deterministic` | `DRIFTBENCH_HTTP_URL` gives the URL |
+| `litellm:<model>` | a model behind a LiteLLM proxy or any OpenAI-compatible endpoint, through the [litellm adapter](adapters/litellm.md) | `base_url` (needed; the request goes to `<base_url>/chat/completions`), `model` (default: the agent name of the target), `api_key_env` (default `LITELLM_API_KEY`, then `OPENAI_API_KEY`), `system`, `max_tokens`, `max_steps`, `timeout_ms`, `deterministic` | `LITELLM_BASE_URL`, then `OPENAI_BASE_URL`, give the endpoint |
+| `nexus:<agent id>` | an agent on the Nexus platform, through the [nexus adapter](adapters/nexus.md) | `timeout_ms`, `generate_timeout_ms`, `keep_conversations`; the spec's `target.deployment` is needed | the key is always read from `NEXUS_API_KEY` |
+
+A key is never written in a spec: `headers_env` and `api_key_env` name the environment variable that holds it. Specs and target settings are stored as run inputs. Credential header names, URLs with userinfo or credential query fields, and settings containing a resolved key are refused before storage. Keep other secrets out of arbitrary spec content too. Use the URL environment variable when its query contains credentials.
+
+**Error-path guarantee:** by default, every non-success response and transport failure suppresses upstream bodies, headers and thrown details. Diagnostics keep the status, a fixed adapter message, the request host (no userinfo, path, query or fragment), and the body length in bytes when available. The retry policy still receives numeric status and parsed retry delay. All three targets accept `debug_error_body: true`: this is **unsafe**, off by default, and permits the upstream error body to appear in output and storage. Use it only with non-sensitive test data; never enable it with real credentials. Transport exception details and headers remain suppressed even with this option.
+
+Successful replies are content and are stored. Redaction is **best effort**, not a guarantee against arbitrary encodings: the adapter scans text, raw content, tool payloads and end states for its keys and `headers_env` values, in literal, percent-encoded, base64, base64url and hex forms, with or without padding, including encoded `Bearer <key>` forms and all 16 ordered two-level compositions of percent, base64, base64url and hex. Keys split across fields, deeper compositions and unlisted encodings can remain in results. Use a test-scoped key and treat the results store and cache as sensitive. Matches become `[redacted]` before checks, output, SQLite and cache writes. The block's `observed.raw.redactions` counts replacements across its returned fields, including repeated copies of text in segments and tool payloads. Echoed request headers are removed; echoed URL metadata loses userinfo, query and fragment. New cache keys prevent replaying entries made before this guard; existing stores are not rewritten.
+
+These targets do not follow redirects, as the judge calls do not ([retries](retries.md)). A redirect to another origin is always refused: neither the request nor a key header goes to a host the spec did not name. A 307 or a 308 on the same origin is followed only when the `http` target says `redirects: same-origin`. A refused redirect fails the block with the reason. A `litellm` target takes its system prompt from `campaign run --prompt` when one is given, else from `system`. One adapter is made per target name in a campaign, so two specs that name `http:my-bot` share the options of the first.
+
+A target with a missing setting is refused with exit 2 and the setting to give: `No adapter is set up for http:my-bot. An http target needs its URL: set target.options.url in the spec, or DRIFTBENCH_HTTP_URL.` A [plugin](plugins.md) that registers `http`, `litellm` or `nexus` replaces the built-in target of that name. [`examples/http-target`](https://github.com/achammah/driftbench/tree/main/examples/http-target) runs an `http` target against a stand-in server.
+
 ## Project config and the pull-request gate
 
-`driftbench.yaml` in the working folder, or the file `--config <file>` names, is the project config. `report`, `ci` and `view` read it. It has two keys, both optional:
+`driftbench.yaml` in the working folder, or the file `--config <file>` names, is the project config. `campaign run`, `campaign plan`, `report`, `ci` and `view` read it. It has four keys, all optional:
 
 | Key | Read by | Holds |
 |---|---|---|
 | `aggregates` | `report`, `ci` | the campaign-level criteria, one `name:op threshold` string each |
 | `scales` | `view` | per criterion, the `min` and `max` of the score a reviewer may give its queue item, with `min` below `max`. A criterion without one keeps 0 to 1 |
+| `campaign` | `campaign run`, `campaign plan`, `ci` | the settings of a campaign, each the flag of `campaign run` it names; see [the campaign key](#the-campaign-key) |
+| `plugins` | every command | modules of your own code to load before the command runs: paths relative to the file, or package names; see [CLI plugins](plugins.md) |
 
 
 
@@ -503,6 +536,54 @@ scales:
 Each entry is one `name:op threshold` string, the same syntax as `--aggregate`. A flag with the same name replaces the file's entry, and a flag with a new name adds to it. Any other key, or a bad entry, exits 2 and names the line. The file is optional: without it, only the flags count. See [campaign-level criteria](aggregates.md).
 
 To gate a pull request, `driftbench ci` runs as a GitHub Action: [action/action.yml](../action/action.yml) takes the specs, the target, the baseline and the `aggregate` input, and fails the job unless the verdict is parity. Its `process-command` input passes `--process-command`, so the action gates your own process agent. A workflow that uses it is in [examples/acme/ci/driftbench-ci.yml](../examples/acme/ci/driftbench-ci.yml).
+
+### The campaign key
+
+Every field and its accepted values are in the [campaign configuration reference](reference/campaign.md).
+
+`campaign:` declares a campaign in the file instead of on the command line. Each setting is a plain mapping onto one flag of `campaign run`, so the file and the flags mean the same thing:
+
+| Key | Flag | Holds |
+|---|---|---|
+| `specs` | the `[paths...]` argument | spec files or folders; used by `campaign run` when the command line names neither paths nor `--dataset` |
+| `dataset` | `--dataset` | a dataset version of the store, `name` or `name@version` |
+| `prompts` | `--prompt`, once per item | prompt versions of the store to record |
+| `targets` | `--target`, once per item | the targets every spec runs on |
+| `routes` | `--route`, once per item | targets by spec tag, each `tag=target` |
+| `modes` | `--mode` | a list of `T`, `F` and `P` |
+| `repeats` | `--repeats` | runs per spec, target and mode |
+| `agent_version` | `--agent-version` | the version of the agent under test |
+| `store` | `--store` | the store file |
+| `cache` | `--no-cache` when `false` | `campaign run` only |
+| `cache_suite` | `--cache-suite` | the cache suite of the campaign |
+| `concurrency` | `--concurrency` | cells that run at the same time |
+| `budget_usd` | `--budget-usd` | a hard stop on the spend |
+| `process_command` | `--process-command` | the command of a process target |
+| `driver`, `personas`, `recordings`, `model` | `--driver`, `--persona`, `--recording`, `--model` | the simulated user; `model: true` is a paid call |
+| `agent_family`, `judge_families` | `--agent-family`, `--judge-family` | the model families of the agent and of the judges |
+| `retry` | `--retry-attempts`, `--retry-base-ms`, `--retry-max-ms` | `max_attempts`, `base_delay_ms` and `max_delay_ms`, named as in a spec's `target.retry` |
+
+The rules:
+
+* A flag given on the command line wins over the file, flag by flag. A list flag such as `--target` replaces the file's whole list.
+* What to run comes from one place: the paths or `--dataset` of the command line when it gives one, else the file's `specs` and `dataset`.
+* Paths in the file are read from the working folder, as the same paths on the command line are.
+* `campaign plan` takes the settings it has a flag for: `targets`, `routes`, `modes`, `repeats`, `budget_usd` and `store`. Its spec paths stay on the command line.
+* `ci` takes the run settings it shares with `campaign run`: `routes`, `modes`, `repeats`, `concurrency`, `budget_usd`, `process_command` and `agent_version`. Its `--specs`, `--target`, `--baseline` and `--store` stay on the command line, and its cache stays off unless `--cache` is given.
+* The settings of one run are not in the file: `--campaign`, `--change`, `--from`, `--audit`, `--audit-seed`, `--max-carry`, `--max-age` and `--json`.
+* A file with no `campaign:` key changes nothing. A `campaign:` key with an unknown setting or a value that does not fit exits 2 and names the setting, such as `driftbench.yaml: campaign.repeats`.
+
+[`examples/acme/ci/campaign.yaml`](../examples/acme/ci/campaign.yaml) declares the Acme campaign: the conversation specs on `function:acme-sales`, modes T and F, two repeats.
+
+```
+$ pnpm -s driftbench campaign run --config examples/acme/ci/campaign.yaml --store acme.db
+...
+24 cells: 24 pass, 0 fail, 0 failed. Spent $0.00.
+$ pnpm -s driftbench campaign run --config examples/acme/ci/campaign.yaml --mode F --repeats 1
+...
+6 cells: 6 pass, 0 fail, 0 failed. Spent $0.00.
+The runs are not kept: pass --store <file> to keep them.
+```
 
 ## Run events
 
@@ -559,6 +640,53 @@ A cell's line notes `reused` when a completed run of the cell was already in the
 ### The budget
 
 `--budget-usd` is a hard stop on spend, in US dollars, over the whole campaign. The spend is the cost of the campaign's runs already in the store, plus the runs finished in this command. A run replayed from the cache costs nothing. A worker checks the budget when it takes a cell: once the spend has reached the budget, the cell is stopped and never starts. Cells already in flight finish, so the spend can pass the budget by the cost of those cells.
+
+The budget counts what the target adapter reports; simulated-user and judge calls are not counted.
+The CLI prints this notice on stderr when a budget is set and a simulated user or a model judge is used, including with `--json`.
+
+Token-only adapters need a user-supplied price to make this stop meaningful. Put `prices:` in
+`driftbench.yaml`, or pass `--prices <file>` to `campaign run` or `campaign resume`.
+The standalone file contains the table below without the outer `prices:` key; it takes precedence over the project file.
+`ci` reads the same project `prices:` key, including its `--config` file.
+
+This example is **fictional**, including its model and rates. No vendor prices are bundled.
+Replace it with prices you verify for your model and the date you verified them:
+
+```text
+prices:
+  as_of: '2026-10-13'
+  models:
+    fictional-model:
+      input: 2
+      output: 4
+      cached_input: 0.5
+```
+
+All rates are finite, nonnegative USD per million tokens; an explicit zero rate is allowed.
+All three rates and the valid `as_of` date are required. Negative, nonnumeric and missing rates are refused at load time.
+The exact lookup key is the adapter's aggregate `cost.model`, then a unique model named in segment costs, then the spec's `target.options.model`.
+Set that target option explicitly when the adapter does not report its model. Segment usage may name its own model; otherwise it inherits the block model, then the target model.
+Model-only segment metadata identifies aggregate tokens without replacing their usage. Ambiguous aggregate models or incomplete segment accounting stop a budgeted run.
+`inputTokens` includes `cachedInputTokens`; cached input is subtracted before applying the regular input rate.
+Adapters that report cache reads separately must include those reads in their input total.
+The estimate is `((inputTokens - cachedInputTokens) * input + cachedInputTokens * cached_input + outputTokens * output) / 1000000`.
+Reported dollars, including zero, take precedence. Aggregate usage is priced once; segment-only usage is summed without counting it twice.
+
+With a budget, every declared target model is checked before the campaign sends anything, including targets in later cells.
+All missing model names appear in one error with instructions to supply prices. This preflight requires a price for each declared model even if the adapter normally reports dollars.
+
+When a model only becomes known at runtime, the first block that reports tokens without a price stops the run and closes its session.
+This case costs one call before the error is detected. Tokens with no resolvable model also stop the run; they never count as zero.
+The CLI exits 2 and names the model (or the missing identity) and how to supply prices.
+No further cell starts after the error is observed. Other cells already in flight can finish.
+Without a budget or prices, token accounting behaves as before. A price table can also estimate costs without setting a budget.
+On resume, old stored token-only observations are priced before the budget check; keep the price file available when resuming.
+The prices do not estimate unreported usage, and they do not change the worker pool's existing cell-level stop or reserve in-flight spend.
+`campaign plan` still projects from measured units in the store, not this table.
+
+From code, pass `prices` to `runCampaign` or `runSpec`. `runCampaign` requires prices for token-only
+observations whenever `budgetUsd` is set; a direct `runSpec` caller can request the same guard with `requireTokenPrices: true`.
+An unknown price raises `TokenPriceError`.
 
 The campaign record stores a budget of 0 when none was given. `resume` reads a stored 0 as no budget.
 
@@ -717,7 +845,9 @@ The record keeps the blocks that ran, the error, and a note when a session could
 
 ### The cache and replay
 
-The cache key of a block is the SHA-256 of the canonical JSON of the spec hash, the repeat, the block's position in the run, its whole resolved Given (the history so far included), its stimulus, the target, and the adapter's id and version. An end-state read is cached under the key of the block it follows and its source. The spec's `version` is a free label and plays no part.
+The cache key of a block is the SHA-256 of the canonical JSON of the spec hash, the repeat, the block's position in the run, its whole resolved Given (the history so far included), its stimulus, the target, and the adapter's id and version. An end-state read is cached under the key of the block it follows and its source. The spec's `version` is a free label and plays no part. When supplied, the agent version (`--agent-version` on the command line, `agentVersion` in runner options) is included as well. Without an agent version, the cache cannot see an agent change behind the same target and adapter identity. Bump the label when the agent changes, or use `--no-cache`. An absent agent version preserves the earlier key format.
+
+The process adapter reports version `0.1.0`. Its separate `cacheIdentity` holds a SHA-256 digest of its command and arguments; the block cache key and opt-in execution provenance read this field. Changing either changes the cache identity; changing the contents of the same binary or script does not. Adapters without this optional field keep their existing cache keys. Process runs use sandboxes and remain uncached.
 
 With a cache, the runner first replays the run from it. Any block or end-state read the cache misses sends the whole run to the adapter instead, and every block it observes goes into the cache. A replayed run has `cacheHit: true` and costs nothing against a budget. A run on an adapter that makes sandboxes is neither replayed nor cached: a replay has no workspace to read files from, so its artifact checks could not open them.
 

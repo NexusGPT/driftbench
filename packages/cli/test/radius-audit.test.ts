@@ -48,7 +48,11 @@ async function cli(argv: string[], fault?: string) {
     ...defaultDeps,
     adapterFor: async (target, scope) => {
       const def = target.adapter === 'function' ? defs.find((each) => each.id === fault) : undefined;
-      return def ? faultAdapter(def, () => localProvider({})) : defaultDeps.adapterFor(target, scope);
+      const adapter = await defaultDeps.adapterFor(target, scope);
+      if (!adapter) throw new Error('missing fixture adapter');
+      // This fixture changes the agent (the explicit v1 -> v2), not its function transport.
+      // faultAdapter's diagnostic version otherwise introduces a second, correctly refused change.
+      return def ? { ...faultAdapter(def, () => localProvider({})), version: adapter.version } : adapter;
     },
   };
   let code = 0;
@@ -146,7 +150,7 @@ describe('--audit: a sample of the cells about to be carried runs fresh', () => 
     );
     expect(out.err).toBe('');
     await writeFile(
-      '/tmp/radius-audit.txt',
+      join(dir, 'radius-audit.txt'),
       out.out
         .split('\n')
         .filter((line) => !line.startsWith('✓') && !line.startsWith('✗'))
@@ -163,6 +167,51 @@ describe('--audit: a sample of the cells about to be carried runs fresh', () => 
     expect([runs.length, carriedOf(runs).length]).toEqual([171, 0]);
     // Failing closed is what makes the result right: the whole suite ran, and it fails where the fault bites.
     expect(out.out).toContain('171 cells: 146 pass, 25 fail, 0 failed, 20 reused.');
+  });
+
+  it('draws the audited cells with --audit-seed: the same seed the same cells, another seed other cells', async () => {
+    const audited = async (id: string, seed: string[]) => {
+      const out = await cli(
+        run(id, 'acme-v2', [
+          '--change',
+          manifest('deviation-goal-shift'),
+          '--from',
+          'c-base',
+          '--audit',
+          '5',
+          ...seed,
+        ]),
+      );
+      expect(out.err).toBe('');
+      expect(out.code).toBe(0);
+      const fresh = (await runsOf(id)).filter((each) => each.carried === undefined);
+      // 9 cells in the radius and 5 audited run fresh.
+      expect(fresh).toHaveLength(14);
+      return {
+        out: out.out,
+        cells: fresh.map((each) => `${each.specId} ${each.mode} ${each.repeat}`).sort(),
+      };
+    };
+    const one = await audited('c-seed-default', []);
+    expect(one.out).toContain('(seed 1)');
+    const same = await audited('c-seed-1', ['--audit-seed', '1']);
+    expect(same.cells).toEqual(one.cells);
+    const other = await audited('c-seed-2', ['--audit-seed', '2']);
+    expect(other.out).toContain('(seed 2)');
+    expect(other.cells).not.toEqual(one.cells);
+
+    const alone = await cli(
+      run('c-bad-seed', 'acme-v2', [
+        '--change',
+        manifest('deviation-goal-shift'),
+        '--from',
+        'c-base',
+        '--audit-seed',
+        '2',
+      ]),
+    );
+    expect(alone.code).toBe(2);
+    expect(alone.err).toContain('--audit-seed sets the draw of an audit: it goes with --audit <n>.');
   });
 
   it('refuses the audit flags without --change, and a size that is not a whole number', async () => {

@@ -1,0 +1,14 @@
+id: http-target-hello
+version: '1'
+title: An agent behind a URL answers one block
+channel: chat
+lang: EN
+target:
+  adapter: http
+  agent: echo
+  options:
+    url: http://127.0.0.1:8787/turn
+blocks:
+  - user: Hello there
+    expect:
+      must: ['You said: Hello there']

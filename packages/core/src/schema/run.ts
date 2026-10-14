@@ -1,5 +1,6 @@
 import { z } from 'zod';
 import { DriftClass, Message, TargetRef, WorldState } from './common';
+import { BlockProvenance, CampaignProvenance, RejudgedFrom, RunProvenance } from './provenance';
 
 /**
  * Run records written by the runner. Keys are camelCase. A run is one spec, on one target, in one
@@ -38,6 +39,10 @@ export const ToolCall = z.strictObject({
 export type ToolCall = z.infer<typeof ToolCall>;
 
 export const Cost = z.strictObject({
+  /** Exact pricing key; otherwise the runner uses target.options.model. */
+  model: z.string().min(1).optional(),
+  /** Cache reads, included in inputTokens (not additional input tokens). */
+  cachedInputTokens: z.number().int().nonnegative().optional(),
   usd: z.number().nonnegative().optional(),
   inputTokens: z.number().int().nonnegative().optional(),
   outputTokens: z.number().int().nonnegative().optional(),
@@ -224,6 +229,9 @@ export const Verdict = z.strictObject({
 export type Verdict = z.infer<typeof Verdict>;
 
 export const BlockResult = z.strictObject({
+  provenance: BlockProvenance.optional(),
+  carried: z.lazy(() => CarriedFrom).optional(),
+  rejudged: RejudgedFrom.optional(),
   index: z.number().int().min(0),
   blockId: z.string().optional(),
   injected: z.boolean().optional(),
@@ -316,6 +324,13 @@ export const CarriedFrom = z.strictObject({
 export type CarriedFrom = z.infer<typeof CarriedFrom>;
 
 export const RunResult = z.strictObject({
+  provenance: RunProvenance.optional(),
+  rejudged: RejudgedFrom.optional(),
+  /** Integrity of the run stamp and every block stamp, including the resolved Given hash. */
+  provenanceDigest: z
+    .string()
+    .regex(/^[0-9a-f]{64}$/)
+    .optional(),
   runId: z.string().min(1),
   specId: z.string().min(1),
   specHash: z.string().min(1),
@@ -324,8 +339,8 @@ export const RunResult = z.strictObject({
   repeat: z.number().int().min(0),
   perturbationId: z.string().optional(),
   status: z.enum(['completed', 'failed', 'stopped']),
-  /** The verdict the spec's end gave the run, when the script ended with one. */
-  endVerdict: z.enum(['success', 'failure']).optional(),
+  /** The driver or spec's end verdict. Inconclusive means the run could not be judged. */
+  endVerdict: z.enum(['success', 'failure', 'inconclusive']).optional(),
   error: z.string().optional(),
   blocks: z.array(BlockResult),
   succession: Succession,
@@ -406,6 +421,8 @@ export type CampaignRadius = z.infer<typeof CampaignRadius>;
 
 /** A campaign pins spec versions, targets, modes and repeats. A re-run is a new campaign. */
 export const Campaign = z.strictObject({
+  provenance: CampaignProvenance.optional(),
+  rejudged: z.array(RejudgedFrom).optional(),
   campaignId: z.string().min(1),
   specs: z
     .array(
@@ -427,6 +444,8 @@ export const Campaign = z.strictObject({
   budgetUsd: z.number().nonnegative(),
   judge: JudgeConfig,
   createdAt: z.string().min(1),
+  /** The explicit agent version used by the block cache, retained when the campaign resumes. */
+  agentVersion: z.string().optional(),
   /** The registry versions the campaign ran: the dataset its specs came from, the prompts it pinned. */
   sources: z.array(RegistrySource).optional(),
   /** Set when the campaign ran the blast radius of a change and carried the rest. Absent on a full campaign. */

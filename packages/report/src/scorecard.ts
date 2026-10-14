@@ -65,6 +65,8 @@ export type ScorecardOptions = {
 export type ToolCall = { label: string; input?: unknown; output?: unknown; error?: string };
 
 export type BlockDetail = {
+  carried?: NonNullable<RunResult['blocks'][number]['carried']>;
+  rejudged?: NonNullable<RunResult['blocks'][number]['rejudged']>;
   index: number;
   /** The spec block this block stands for; absent for a block a driver injected. */
   specBlock?: number;
@@ -123,7 +125,7 @@ export type RunDetail = {
 };
 
 export type StoppedRun = {
-  verdict: 'success' | 'failure';
+  verdict: NonNullable<RunResult['endVerdict']>;
   reason?: string;
   /** The index of the last block that ran. */
   after: number;
@@ -307,6 +309,8 @@ export function runDetailOf(data: CampaignData, run: RunResult): RunDetail {
         specBlock === undefined ? perturbation?.expect?.stage : spec?.blocks[specBlock]?.expect?.stage;
       return {
         index: result.index,
+        ...optional('carried', result.carried),
+        ...optional('rejudged', result.rejudged),
         ...optional('specBlock', specBlock),
         injected: result.injected === true,
         ...optional('stimulus', stimulus),
@@ -314,7 +318,10 @@ export function runDetailOf(data: CampaignData, run: RunResult): RunDetail {
         ...optional('observedStage', result.stageObserved),
         pass: result.pass,
         latencyMs: result.observed.latencyMs,
-        ...optional('costUsd', result.observed.cost.usd),
+        ...optional(
+          'costUsd',
+          result.rejudged?.judgeCostUsd ?? (result.carried ? undefined : result.observed.cost.usd),
+        ),
         retries: result.observed.retries?.length ?? 0,
         drift: [...result.drift],
         text: result.observed.text,
@@ -465,6 +472,13 @@ function costOf(runs: readonly RunResult[]): Scorecard['cost'] {
   runs.forEach((run, index) => {
     if (run.cacheHit) return;
     for (const block of run.blocks) {
+      if (run.rejudged) {
+        if (block.rejudged?.judgeCostUsd !== undefined) {
+          usd.push(block.rejudged.judgeCostUsd);
+          usdClusters.push(index);
+        }
+        continue;
+      }
       const observed = block.observed;
       const segmentUsd = observed.segments.flatMap((segment) =>
         segment.cost?.usd === undefined ? [] : [segment.cost.usd],

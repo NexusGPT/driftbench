@@ -137,7 +137,7 @@ export const replyJson: Check = {
             : machineVerdict(
                 'json',
                 'schema',
-                'fail',
+                issues.some((issue) => issue.schemaError) ? 'inconclusive' : 'fail',
                 issues.map((issue) => `${issue.path}: ${issue.message}`).join('; '),
               ),
         );

@@ -1,8 +1,7 @@
-import { existsSync, readFileSync, statSync } from 'node:fs';
+import { existsSync, statSync } from 'node:fs';
 import { mkdtemp, rm } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
-import { dirname, isAbsolute, join, relative, resolve, sep } from 'node:path';
-import { fileURLToPath } from 'node:url';
+import { isAbsolute, join, relative, resolve, sep } from 'node:path';
 import { functionAdapter, processAdapter } from '@agent-nexus/driftbench-adapters';
 import { defaultReaders } from '@agent-nexus/driftbench-artifacts';
 import { classifyTool, defaultChecks } from '@agent-nexus/driftbench-checks';
@@ -22,6 +21,7 @@ import {
   campaignRadius,
   canonicalJson,
   carryRuns,
+  completeBaselineProvenance,
   compoundingIndex,
   contentHash,
   DEFAULT_MAX_AGE_DAYS,
@@ -38,6 +38,7 @@ import {
   parseCriterionRef,
   planCampaign,
   planRadiusCampaign,
+  preflightTargetPrices,
   type RadiusPlan,
   type RegistrySource,
   type RetryOptions,
@@ -45,11 +46,14 @@ import {
   type RunResult,
   radiusOf,
   runCampaign,
+  runProvenance,
   runsByCell,
   type Spec,
   type Store,
   type TargetPrompt,
   TargetRef,
+  TokenPriceError,
+  type TokenPrices,
   type UserDriver,
   withAgentVersion,
 } from '@agent-nexus/driftbench-core';
@@ -72,9 +76,16 @@ import {
   type UserModelPort,
 } from '@agent-nexus/driftbench-users';
 import type { Command } from 'commander';
+import { ACME_EXAMPLE_ABSENT, acmeExample, acmeExampleInstalled, requireAcmeExample } from '../acme-example';
+import { applyCampaignConfig } from '../campaign-config';
 import type { Io } from '../io';
 import { optionNumber } from '../number';
+import { pluginAdapter, pluginAdapterNames } from '../plugins';
 import { noStoreAt } from '../store-path';
+import { BUILTIN_TARGETS_NOTE, builtinTarget, builtinTargetHint } from '../targets';
+import { pricesFromConfig } from '../token-prices';
+import { campaignProvenance } from './campaign-provenance';
+import { registerCampaignRejudge } from './campaign-rejudge';
 import { agentFamilyOf, describeSource, loadPersonas, portFor, userFactory, userSource } from './personas';
 
 /** What lives as long as one campaign: a temporary folder for its sandboxes, made on first use. */
@@ -114,6 +125,8 @@ export type CampaignDeps = {
 const MODE_HELP =
   'the run mode: T teacher-forced, F free-running, P perturbed; several separated by commas, such as T,F';
 
+const CONFIG_HELP =
+  'the project config whose campaign: settings apply where no flag is given; default driftbench.yaml in the working folder';
 const TARGET_HELP =
   'run every spec on this target (but the specs a --route marks); repeat for several. Without it, each spec runs on its own target';
 
@@ -206,9 +219,22 @@ function strandedFiles(command: readonly string[], cwd: string): string[] {
   });
 }
 
-/** The targets this build reaches, for the message of a target it does not. */
+/** The targets a checkout reaches, for the message of a target it does not. */
 const KNOWN_TARGETS =
   'The CLI reaches function:acme-sales (or function:acme), the Acme sales assistant, and process:acme-ops, the Acme ops agent.';
+
+/** What an install without the Acme example reaches. */
+const REACHABLE_WITHOUT_EXAMPLE =
+  'This install reaches a process target through --process-command: process:<name> runs the command you give.';
+
+/**
+ * The sentence of a refusal that says which targets this install reaches. With the Acme example installed,
+ * as in a checkout, the example's targets; without it, that the example is absent and where it lives, and
+ * only what really is reachable.
+ */
+export function knownTargets(exampleInstalled: boolean = acmeExampleInstalled()): string {
+  return exampleInstalled ? KNOWN_TARGETS : `${ACME_EXAMPLE_ABSENT} ${REACHABLE_WITHOUT_EXAMPLE}`;
+}
 
 /**
  * What the commands run with. `function:acme-sales`, the target the Acme conversation specs name, and its
@@ -221,10 +247,13 @@ const KNOWN_TARGETS =
 export const defaultDeps: CampaignDeps = {
   adapterFor: async (target, scope) => {
     if (target.adapter === 'function' && (target.agent === 'acme' || target.agent === 'acme-sales')) {
-      return acmeFunctionAdapter();
+      return (await acmeExample()) === undefined ? undefined : acmeFunctionAdapter();
     }
     if (target.adapter === 'process' && target.agent === 'acme-ops') return acmeOpsAdapter(scope);
-    return undefined;
+    const plugged = await pluginAdapter(target, scope);
+    if (plugged !== undefined) return plugged;
+    const builtin = builtinTarget(target);
+    return builtin !== undefined && 'adapter' in builtin ? builtin.adapter : undefined;
   },
   checks: defaultChecks(),
   artifacts: defaultReaders(),
@@ -241,6 +270,7 @@ export const defaultDeps: CampaignDeps = {
 };
 
 type PlanCommandOptions = {
+  config?: string;
   target: string[];
   route?: string[];
   mode: string;
@@ -253,6 +283,8 @@ type PlanCommandOptions = {
 };
 
 type RunCommandOptions = {
+  prices?: string;
+  config?: string;
   dataset?: string;
   cacheSuite?: string;
   prompt?: string[];
@@ -286,6 +318,8 @@ type RunCommandOptions = {
 type RetryFlags = { retryAttempts?: string; retryBaseMs?: string; retryMaxMs?: string };
 
 type StoredCommandOptions = RetryFlags & {
+  prices?: string;
+  config?: string;
   store: string;
   cache?: boolean;
   cacheSuite?: string;
@@ -305,6 +339,7 @@ export function registerCampaignCommands(
   const campaign = program
     .command('campaign')
     .description('Plan and run campaigns: specs x targets x modes x repeats.');
+  registerCampaignRejudge(campaign, io, setExit);
 
   campaign
     .command('plan')
@@ -319,7 +354,9 @@ export function registerCampaignCommands(
     .option('--rho <rho>', 'the correlation of repeats of one spec, as icc measures it, from 0 to 1', '0')
     .option('--store <file>', 'read the measured unit costs from this store')
     .option('--json', 'print one JSON document')
-    .action(async (paths: string[], options: PlanCommandOptions) => {
+    .option('--config <file>', CONFIG_HELP)
+    .action(async (paths: string[], options: PlanCommandOptions, command: Command) => {
+      if ((await applyCampaignConfig(command, options, io)) === false) return setExit(2);
       setExit(await campaignPlanCommand(paths, options, io, deps));
     });
 
@@ -340,7 +377,7 @@ export function registerCampaignCommands(
     .option('--repeats <n>', 'runs per spec, target and mode', '1')
     .option(
       '--agent-version <label>',
-      'the version of the agent under test, written as the variant of every target that names none',
+      'the agent version in every block cache key; also the variant of targets that name none',
     )
     .option(
       '--change <manifest>',
@@ -369,6 +406,7 @@ export function registerCampaignCommands(
     )
     .option('--concurrency <n>', 'cells run at the same time', '4')
     .option('--budget-usd <usd>', 'a hard stop: no cell starts once the campaign has spent this much')
+    .option('--prices <file>', 'dated USD token prices; default prices in driftbench.yaml')
     .option('--process-command <command>', PROCESS_COMMAND_HELP)
     .option(
       '--driver <driver>',
@@ -406,8 +444,14 @@ export function registerCampaignCommands(
     )
     .option('--retry-max-ms <ms>', 'the longest wait between two attempts (default 30000)')
     .option('--json', 'print one JSON document')
-    .action(async (paths: string[], options: RunCommandOptions) => {
-      setExit(await campaignRunCommand(paths, options, io, deps));
+    .option('--config <file>', CONFIG_HELP)
+    .action(async (paths: string[], options: RunCommandOptions, command: Command) => {
+      const config = await applyCampaignConfig(command, options, io);
+      if (config === false) return setExit(2);
+      // What to run comes from one place: the command line when it names paths or --dataset, else the file.
+      const named = paths.length > 0 || command.getOptionValueSource('dataset') === 'cli';
+      if (named && command.getOptionValueSource('dataset') !== 'cli') options.dataset = undefined;
+      setExit(await campaignRunCommand(named ? paths : (config?.specs ?? []), options, io, deps));
     });
 
   campaign
@@ -420,6 +464,7 @@ export function registerCampaignCommands(
     .option('--no-cache', 'neither replay runs from the cache nor write to it')
     .option('--concurrency <n>', 'cells run at the same time', '4')
     .option('--budget-usd <usd>', "a hard stop on the campaign's spend; default: the budget it was run with")
+    .option('--prices <file>', 'dated USD token prices; default prices in driftbench.yaml')
     .option('--process-command <command>', PROCESS_COMMAND_HELP)
     .option(
       '--retry-attempts <n>',
@@ -645,6 +690,8 @@ export async function campaignRunCommand(
   const pool = parsePool(options, io);
   const withCommand = processDeps(deps, options.processCommand, io);
   if (!shape || !pool || !withCommand) return 2;
+  const prices = await readPrices(options, io);
+  if (prices === null) return 2;
   if (options.from !== undefined && options.change === undefined) {
     io.err('--from names the campaign a radius run carries from: it goes with --change <manifest>.\n');
     return 2;
@@ -689,6 +736,13 @@ export async function campaignRunCommand(
     );
     if (!runs) return 2;
     if (tooManyCells(runs, shape, io)) return 2;
+    if (pool.budgetUsd !== undefined) {
+      budgetScopeNotice(options.driver === 'simulated', deps, io);
+      preflightTargetPrices(
+        runs.flatMap((run) => run.targets),
+        prices,
+      );
+    }
     const driven = await driverDeps(options, runs, deps, io);
     if (!driven) return 2;
     deps = driven.deps;
@@ -729,43 +783,76 @@ export async function campaignRunCommand(
         repeats,
         // 0 when no budget was given: the schema has no field for "no budget".
         budgetUsd: pool.budgetUsd ?? 0,
+        provenance: campaignProvenance(
+          runs.flatMap((run) => run.targets),
+          (target) => required(adapters.get(showTarget(target)), 'adapter'),
+        ),
         judge: { mode: 'system1', judges: [] },
         createdAt,
         ...(registry.sources.length > 0 ? { sources: registry.sources } : {}),
+        ...(options.agentVersion === undefined ? {} : { agentVersion: options.agentVersion }),
       };
       const radius =
         options.change === undefined
           ? undefined
-          : await radiusPlan(options, campaign, loaded, store, deps, io, async (cells) => {
-              // The audit runs before the campaign is stored, in a store of its own: what it finds
-              // decides what the campaign carries, and a campaign record never changes once written.
-              const memory = await deps.openStore(undefined);
-              try {
-                for (const entry of loaded) await memory.putSpec(entry);
-                await memory.putCampaign(campaign);
-                const specs = new Map(loaded.map((entry) => [`${entry.spec.id}@${entry.hash}`, entry.spec]));
-                const outcomes = await runCampaign({
-                  campaignId,
-                  cells,
-                  recordEvents: true,
-                  specFor: (cell) =>
-                    required(specs.get(`${cell.specId}@${cell.specHash}`), `spec ${cell.specId}`),
-                  adapterFor: (target) =>
-                    required(adapters.get(showTarget(target)), `adapter ${showTarget(target)}`),
-                  driver: (cell, spec) => deps.driver(cell, spec),
-                  ...(deps.consequential ? { consequential: deps.consequential } : {}),
+          : await radiusPlan(
+              options,
+              campaign,
+              loaded,
+              store,
+              deps,
+              io,
+              (cell) => {
+                const spec = required(loaded.find((entry) => entry.hash === cell.specHash)?.spec, 'spec');
+                return runProvenance({
+                  adapter: required(adapters.get(showTarget(cell.target)), 'adapter'),
+                  driver: deps.driver(cell, spec),
                   checks: deps.checks,
-                  ...(deps.artifacts ? { artifacts: deps.artifacts } : {}),
-                  store: memory,
-                  now: () => deps.now(),
-                  concurrency: pool.concurrency,
-                  ...(pool.retry ? { retry: pool.retry } : {}),
+                  mode: cell.mode,
+                  repeat: cell.repeat,
+                  target: cell.target,
+                  perturbationId: cell.perturbationId,
+                  retry: pool.retry,
+                  agentVersion: campaign.agentVersion,
                 });
-                return outcomes.flatMap((outcome) => (outcome.run ? [outcome.run] : []));
-              } finally {
-                await memory.close();
-              }
-            });
+              },
+              async (cells) => {
+                // The audit runs before the campaign is stored, in a store of its own: what it finds
+                // decides what the campaign carries, and a campaign record never changes once written.
+                const memory = await deps.openStore(undefined);
+                try {
+                  for (const entry of loaded) await memory.putSpec(entry);
+                  await memory.putCampaign(campaign);
+                  const specs = new Map(
+                    loaded.map((entry) => [`${entry.spec.id}@${entry.hash}`, entry.spec]),
+                  );
+                  const outcomes = await runCampaign({
+                    campaignId,
+                    cells,
+                    recordProvenance: true,
+                    recordEvents: true,
+                    specFor: (cell) =>
+                      required(specs.get(`${cell.specId}@${cell.specHash}`), `spec ${cell.specId}`),
+                    adapterFor: (target) =>
+                      required(adapters.get(showTarget(target)), `adapter ${showTarget(target)}`),
+                    driver: (cell, spec) => deps.driver(cell, spec),
+                    ...(deps.consequential ? { consequential: deps.consequential } : {}),
+                    checks: deps.checks,
+                    ...(deps.artifacts ? { artifacts: deps.artifacts } : {}),
+                    store: memory,
+                    ...(campaign.agentVersion === undefined ? {} : { agentVersion: campaign.agentVersion }),
+                    now: () => deps.now(),
+                    concurrency: pool.concurrency,
+                    ...(pool.budgetUsd === undefined ? {} : { budgetUsd: pool.budgetUsd }),
+                    ...(prices ? { prices } : {}),
+                    ...(pool.retry ? { retry: pool.retry } : {}),
+                  });
+                  return outcomes.flatMap((outcome) => (outcome.run ? [outcome.run] : []));
+                } finally {
+                  await memory.close();
+                }
+              },
+            );
       if (radius === null) return 2;
       if (radius) campaign.radius = radius.record;
       try {
@@ -792,12 +879,17 @@ export async function campaignRunCommand(
         json: options.json === true,
         kept: options.store !== undefined,
         ...pool,
+        ...(prices ? { prices } : {}),
       });
       // A radius miss fails closed, whatever the cells say: the manifest left out part of the change.
       return (radius?.record.audit?.misses ?? 0) > 0 ? 1 : exit;
     } finally {
       await store.close();
     }
+  } catch (cause) {
+    if (!(cause instanceof TokenPriceError)) throw cause;
+    io.err(`${cause.message}\n`);
+    return 2;
   } finally {
     await closeScope(scope, io);
   }
@@ -908,6 +1000,8 @@ export async function campaignResumeCommand(
   const pool = parsePool({ ...options, concurrency: options.concurrency ?? '4' }, io);
   const withCommand = processDeps(deps, options.processCommand, io);
   if (!pool || !withCommand) return 2;
+  const prices = await readPrices(options, io);
+  if (prices === null) return 2;
   deps = withCommand;
   if (noStoreAt(resolve(io.cwd, options.store), options.store, io)) return 2;
   const store = await openReported(deps, resolve(io.cwd, options.store), io);
@@ -916,10 +1010,18 @@ export async function campaignResumeCommand(
   try {
     const stored = await storedCampaign(store, campaignId, options.store, io);
     if (!stored) return 2;
-    const adapters = await adaptersFor(runsOf(stored.campaign, stored.specs), deps, scope, io);
-    if (!adapters) return 2;
     const budgetUsd =
       pool.budgetUsd ?? (stored.campaign.budgetUsd > 0 ? stored.campaign.budgetUsd : undefined);
+    const runs = runsOf(stored.campaign, stored.specs);
+    if (budgetUsd !== undefined) {
+      budgetScopeNotice(false, deps, io);
+      preflightTargetPrices(
+        runs.flatMap((run) => run.targets),
+        prices,
+      );
+    }
+    const adapters = await adaptersFor(runs, deps, scope, io);
+    if (!adapters) return 2;
     return await executeCampaign(stored.campaign, stored.specs, adapters, store, deps, io, {
       cache: options.cache !== false,
       ...(options.cacheSuite === undefined ? {} : { cacheSuite: options.cacheSuite }),
@@ -927,8 +1029,13 @@ export async function campaignResumeCommand(
       kept: true,
       concurrency: pool.concurrency,
       ...(budgetUsd === undefined ? {} : { budgetUsd }),
+      ...(prices ? { prices } : {}),
       ...(pool.retry ? { retry: pool.retry } : {}),
     });
+  } catch (cause) {
+    if (!(cause instanceof TokenPriceError)) throw cause;
+    io.err(`${cause.message}\n`);
+    return 2;
   } finally {
     // closeScope never throws, so the store is closed whatever happens to the folder.
     await closeScope(scope, io);
@@ -984,6 +1091,7 @@ async function executeCampaign(
     kept: boolean;
     concurrency: number;
     budgetUsd?: number;
+    prices?: TokenPrices;
     retry?: RetryOptions;
     /** The line a radius campaign prints before its cells: what runs and what is carried. */
     radiusNote?: string;
@@ -1005,6 +1113,7 @@ async function executeCampaign(
   const outcomes = await runCampaign({
     campaignId: campaign.campaignId,
     cells: plan.cells,
+    recordProvenance: campaign.provenance !== undefined,
     recordEvents: true,
     specFor: (cell) => required(specs.get(`${cell.specId}@${cell.specHash}`), `spec ${cell.specId}`),
     adapterFor: (target) => required(adapters.get(showTarget(target)), `adapter ${showTarget(target)}`),
@@ -1016,9 +1125,11 @@ async function executeCampaign(
     // The runner neither replays nor caches a run in a sandbox: a replay has no workspace to read.
     ...(flags.cache ? { cache: store } : {}),
     ...(flags.cacheSuite === undefined ? {} : { cacheSuite: flags.cacheSuite }),
+    ...(campaign.agentVersion === undefined ? {} : { agentVersion: campaign.agentVersion }),
     now: () => deps.now(),
     concurrency: flags.concurrency,
     ...(flags.budgetUsd === undefined ? {} : { budgetUsd: flags.budgetUsd }),
+    ...(flags.prices ? { prices: flags.prices } : {}),
     ...(flags.retry ? { retry: flags.retry } : {}),
     ...(flags.json ? {} : { onCell: (outcome: CellOutcome) => io.out(cellLine(outcome)) }),
   });
@@ -1046,6 +1157,7 @@ async function radiusPlan(
   store: Store,
   deps: CampaignDeps,
   io: Io,
+  currentProvenance: (cell: PlannedCell) => RunResult['provenance'],
   runAudit: (cells: PlannedCell[]) => Promise<RunResult[]>,
 ): Promise<{
   plan: RadiusPlan;
@@ -1099,13 +1211,18 @@ async function radiusPlan(
     manifest.manifest,
     { modes: campaign.modes },
   );
+  const baselineRuns = await store.listRuns({ campaignId: baseline.campaignId });
+  if (!completeBaselineProvenance({ provenance: baseline.provenance, runs: baselineRuns }))
+    radius.whole = { change: 'legacy', reason: 'the baseline has no execution provenance' };
   let plan = planRadiusCampaign(
     cells,
     radius,
     manifest.manifest,
-    { campaignId: baseline.campaignId, runs: await store.listRuns({ campaignId: baseline.campaignId }) },
+    { campaignId: baseline.campaignId, runs: baselineRuns, provenance: baseline.provenance },
     {
       now: deps.now(),
+      currentProvenance,
+      currentSpec: (cell) => loaded.find((entry) => entry.hash === cell.specHash)?.spec,
       ...(maxCarry === undefined ? {} : { maxCarry }),
       ...(maxAge === undefined ? {} : { maxAgeDays: maxAge }),
     },
@@ -1427,23 +1544,51 @@ async function adaptersFor(
   for (const target of runs.flatMap((run) => run.targets)) {
     const key = showTarget(target);
     if (adapters.has(key)) continue;
-    const adapter = await deps.adapterFor(target, scope);
-    if (!adapter) {
-      const owners = runs
-        .filter((run) => run.pinned !== undefined && showTarget(run.pinned) === key)
-        .map((run) => run.spec.id);
-      io.err(`${noAdapter(target, owners)}\n`);
-      return undefined;
-    }
+    const owners = runs
+      .filter((run) => run.pinned !== undefined && showTarget(run.pinned) === key)
+      .map((run) => run.spec.id);
+    const adapter = await resolveAdapter(target, () => deps.adapterFor(target, scope), io, owners);
+    if (!adapter) return undefined;
     adapters.set(key, adapter);
   }
   return adapters;
 }
 
-/** Why a target cannot run: no adapter is set up for it. Names the specs whose own target it is. */
-export function noAdapter(target: TargetRef, specIds: readonly string[] = []): string {
+type RefusalContext = { reference?: boolean; unspent?: boolean; pilot?: boolean; exampleInstalled?: boolean };
+
+/** Resolve a command's target and give every refusal the same install-aware explanation. */
+export async function resolveAdapter(
+  target: TargetRef,
+  factory: () => Promise<AgentAdapter | undefined>,
+  io: Io,
+  specIds: readonly string[] = [],
+  context: RefusalContext = {},
+): Promise<AgentAdapter | undefined> {
+  const adapter = await factory();
+  if (!adapter) io.err(`${noAdapter(target, specIds, context)}\n`);
+  return adapter;
+}
+
+/** Why a target cannot run, including its owning specs and the targets this install reaches. */
+export function noAdapter(
+  target: TargetRef,
+  specIds: readonly string[] = [],
+  context: RefusalContext = {},
+): string {
   const whose = specIds.length === 0 ? '' : `, the target of ${specIds.join(', ')}`;
-  return `No adapter is set up for ${showTarget(target)}${whose}. ${KNOWN_TARGETS}`;
+  const installed = context.exampleInstalled ?? acmeExampleInstalled();
+  const reaches = context.pilot
+    ? installed
+      ? 'The pilot reaches function:acme (the Acme sales assistant) and function:acme-random or function:acme-random-<seed> (its seeded random control).'
+      : `${ACME_EXAMPLE_ABSENT} The pilot runs on the example's agents only, so this install has no pilot target.`
+    : knownTargets(installed);
+  const added = pluginAdapterNames();
+  const plugins = added.length === 0 ? '' : ` Plugins add the adapters ${added.join(', ')}.`;
+  const hint = context.pilot || added.includes(target.adapter) ? undefined : builtinTargetHint(target);
+  const needs = hint === undefined ? '' : ` ${hint}`;
+  const suffix = context.unspent ? ': nothing ran, no query was spent.' : '.';
+  const extra = context.pilot ? '' : ` ${BUILTIN_TARGETS_NOTE}${plugins}`;
+  return `No adapter is set up for ${context.reference ? 'the reference ' : ''}${showTarget(target)}${whose}${suffix}${needs} ${reaches}${extra}`;
 }
 
 /** The target of the first route whose tag the spec carries, if any. */
@@ -1989,7 +2134,7 @@ function required<T>(value: T | undefined, what: string): T {
  * payloads never leak between runs, and its payload log as the end-state source.
  */
 export async function acmeFunctionAdapter(): Promise<AgentAdapter> {
-  const acme = await import('../../../../examples/acme/src/index');
+  const acme = await requireAcmeExample();
   type AcmeSession = {
     store: ReturnType<typeof acme.createStore>;
     agent: ReturnType<typeof acme.createAcmeAgent>;
@@ -2013,7 +2158,7 @@ export async function acmeFunctionAdapter(): Promise<AgentAdapter> {
  * Undefined when this install does not hold the example.
  */
 export async function acmeOpsAdapter(scope?: CampaignScope): Promise<AgentAdapter | undefined> {
-  const agent = acmeOpsAgent();
+  const agent = await acmeOpsAgent();
   if (agent === undefined) return undefined;
   return processAdapter({
     command: process.execPath,
@@ -2025,32 +2170,12 @@ export async function acmeOpsAdapter(scope?: CampaignScope): Promise<AgentAdapte
 }
 
 /**
- * The path of examples/acme/ops/agent.mjs, found from the folder of the CLI package, which holds this
- * module in src/ and in dist/ alike; never from the working folder. Undefined when the file is not there.
+ * The path of the Acme ops agent, `ops/agent.mjs` of the example package; never from the working folder.
+ * Undefined when this install does not hold the example, or the file is not there.
  */
-export function acmeOpsAgent(): string | undefined {
-  const root = cliPackageRoot(dirname(fileURLToPath(import.meta.url)));
-  if (root === undefined) return undefined;
-  const agent = join(root, '..', '..', 'examples', 'acme', 'ops', 'agent.mjs');
-  return existsSync(agent) ? agent : undefined;
-}
-
-/** The nearest folder at or above `from` whose package.json names the driftbench CLI. */
-function cliPackageRoot(from: string): string | undefined {
-  for (let dir = from; ; dir = dirname(dir)) {
-    const manifest = join(dir, 'package.json');
-    if (existsSync(manifest) && packageName(manifest) === '@agent-nexus/driftbench') return dir;
-    if (dirname(dir) === dir) return undefined;
-  }
-}
-
-function packageName(manifest: string): unknown {
-  try {
-    return (JSON.parse(readFileSync(manifest, 'utf8')) as { name?: unknown }).name;
-  } catch {
-    // A package.json that does not parse belongs to no package this lookup wants.
-    return undefined;
-  }
+export async function acmeOpsAgent(): Promise<string | undefined> {
+  const agent = (await acmeExample())?.OPS_AGENT;
+  return agent !== undefined && existsSync(agent) ? agent : undefined;
 }
 
 /**
@@ -2128,4 +2253,26 @@ async function driverDeps(
     },
     note: `Driver: simulated, ${lines.join('; ')}.\n`,
   };
+}
+
+/** Invalid pricing is input error, before any adapter call or stored campaign. */
+async function readPrices(
+  options: { prices?: string; config?: string },
+  io: Io,
+): Promise<TokenPrices | undefined | null> {
+  try {
+    return await pricesFromConfig(options, io.cwd);
+  } catch (cause) {
+    io.err(`${cause instanceof Error ? cause.message : String(cause)}\n`);
+    return null;
+  }
+}
+
+/** stderr keeps --json machine-readable; the notice precedes any paid driver or judge call. */
+function budgetScopeNotice(simulated: boolean, deps: CampaignDeps, io: Io): void {
+  if (simulated || deps.checks.some((check) => check.name === JUDGE_CHECK)) {
+    io.err(
+      'The budget counts what the target adapter reports; simulated-user and judge calls are not counted.\n',
+    );
+  }
 }

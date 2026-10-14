@@ -19,7 +19,12 @@ import { CRITERION_DECODER_VERSION, type CriterionDecoderVersion } from './crite
 import { JudgeError } from './http';
 import { PROMPT_FINGERPRINT as LEGACY_PROMPT_FINGERPRINT } from './legacy-prompt';
 import { isPairLedgerRequest } from './pair-ledger-contract';
-import { PAIR_LEDGER_PROMPT_FINGERPRINT, PROMPT_FINGERPRINT } from './prompt';
+import {
+  CRITERION_PROMPT_V2_FINGERPRINT,
+  PAIR_LEDGER_PROMPT_FINGERPRINT,
+  PROMPT_FINGERPRINT,
+  usesCriterionPromptV2,
+} from './prompt';
 import {
   RESPONSE_RELEVANCE_PROMPT_FINGERPRINT,
   validateResponseRelevanceRequest,
@@ -138,7 +143,8 @@ export type KeyClient = {
  */
 export function dataKey(request: JudgeRequest): string {
   return contentHash({
-    ...(isPairLedgerRequest(request)
+    ...(isPairLedgerRequest(request) ||
+    (request.assessment?.kind === 'pairwise' && request.assessment.tieFollowup)
       ? { dialect: request.dialect ?? 'scratchpad-json', reasoning: request.reasoning }
       : {}),
     ...(request.referenceDisagreement === undefined
@@ -223,7 +229,9 @@ export function requestKey(
               ? CONFORMANCE_PROMPT_FINGERPRINT
               : effective.assessment?.kind === 'answer-audit'
                 ? ANSWER_AUDIT_PROMPT_FINGERPRINT
-                : PROMPT_FINGERPRINT),
+                : usesCriterionPromptV2(effective)
+                  ? CRITERION_PROMPT_V2_FINGERPRINT
+                  : PROMPT_FINGERPRINT),
     client: client ? { cls: client.cls, model: client.model, settings: client.settings } : undefined,
   });
 }

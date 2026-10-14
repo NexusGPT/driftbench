@@ -3,6 +3,7 @@ import { mde as powerMde } from '@agent-nexus/driftbench-stats';
 import { gateContract, goldenContract, pilotContract } from '../current-contracts';
 import { docBlock } from '../doc-blocks';
 import { DOCUMENTED_CHECKS } from '../documented';
+import { reviewFamily } from '../review-family';
 /**
  * Blind-breaker claims: executable claims taken from the documentation pages and the command-line help
  * only. Each item runs the command line in process on fictional data, built from the seed under the
@@ -4969,15 +4970,27 @@ function toolItems(): BankItem[] {
       tier: 2,
       component: 'driftbench family',
       title:
-        'cli.md "driftbench family": review exits 1 while a person still has to sign, and prints "Review: pending."',
+        'cli.md "driftbench family": an unsigned review exits 1 and prints "Review: pending."; a signed review exits 0 without pending',
       cause:
         'driftbench family review prints "Review: pending." and exits 1 for a family with an unsigned review',
       async check(ctx) {
         const dir = work(ctx, 'family-review');
-        const c = await cli(['family', 'review', join(ctx.root, 'examples/acme/families/price-sheet')], dir);
-        return c.code === 1 && /Review: pending\./.test(c.out)
-          ? PASS
-          : fail(`expected exit 1 and "Review: pending."; got ${shown(c)}`);
+        const family = reviewFamily(dir);
+        const pending = await cli(['family', 'review', family.path], dir);
+        family.sign();
+        const signed = await cli(['family', 'review', family.path], dir);
+        return expectAll([
+          [
+            pending.code === 1 && pending.out.startsWith('Review: pending.'),
+            `pending family: expected exit 1 and "Review: pending."; got ${shown(pending)}`,
+          ],
+          [
+            signed.code === 0 &&
+              signed.out.startsWith('Review: signed by ') &&
+              !signed.out.includes('Review: pending.'),
+            `signed family: expected exit 0 and a signed review, not pending; got ${shown(signed)}`,
+          ],
+        ]);
       },
     }),
     tl({
