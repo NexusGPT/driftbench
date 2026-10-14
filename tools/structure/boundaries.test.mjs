@@ -21,6 +21,8 @@ const CROSSING_ALLOWLIST = {
     'same as bank/cli.ts: the claim runs the real CLI entry',
   'packages/validators/src/ladders/system/bank/claims/breaker2.ts -> ../../../../../../cli/src/main':
     'same as bank/cli.ts: the claim runs the real CLI entry (two dynamic imports, one specifier)',
+  'packages/validators/src/ladders/system/bank/claims/breaker2.ts -> ../../../../../../cli/src/view/server':
+    'the viewer write-protection claim starts the real viewer server directly: one in-process start per case instead of a full CLI run (about 5 s each, over 80 starts); the cli package depends on validators, so a manifest dependency would be a cycle',
   'packages/validators/src/ladders/system/bank/claims/cli.ts -> ../../../../../../cli/src/main':
     'same as bank/cli.ts: the claim runs the real CLI entry',
   'packages/validators/src/ladders/system/bank/claims/exits.ts -> ../../../../../../cli/src/main':

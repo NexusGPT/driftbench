@@ -1,0 +1,70 @@
+{
+  "at": "2026-10-13T10:19:49.094413+00:00",
+  "authorization": "The owner topped up Gemini. Resume Gemini missing-only: one probe call first; if it answers, continue at 2 calls at a time with the 429 waits and the 402 circuit break. Never re-send an answered call.",
+  "runtime": "ee96e47757aa837860fe",
+  "reasoning": "medium",
+  "timeoutMs": 300000,
+  "concurrency": 2,
+  "quotaWaitSeconds": [
+    60,
+    120,
+    240
+  ],
+  "billing402": "stop and settle proven rejection zero",
+  "probe": {
+    "receiptId": "4be8c338-3566-4b4f-8eb7-b860b6cc0050",
+    "fingerprint": "5977ebc2a4288c1b4ac6238c212cc5b4cf7d8be0e70a99b722e78a8c5501bf5c",
+    "phase": "noise-1",
+    "key": "f0e5abee69706376c55d",
+    "costUsd": 0.00151125,
+    "answerPreservedInReceipt": true,
+    "paidResends": 0
+  },
+  "phases": [
+    {
+      "phase": "noise-0",
+      "missingKeys": [
+        "2325949ec7c9955cdc5f",
+        "8e9bb676724b7d96cb24",
+        "042e925efc365b4b0aac",
+        "db47101e42d812e757f7",
+        "0a1b4cbb20656bf88de5"
+      ],
+      "returnedAnswersPreserved": 168,
+      "cassetteArchive": "examples/ledger-verify/recordings/2869d4d1f750545a2c7d/noise-0/longjudge-verify/gemini-3.8-flash.pre-topup.partial.jsonl",
+      "reportArchive": "examples/ledger-verify/noise-0/gemini-3.8-flash.pre-topup.partial.json",
+      "archiveSha256": "f0f72eb2fcd9c9a1f5ad74c4429214ca87de1690283833982440338ca7f0d027"
+    },
+    {
+      "phase": "noise-1",
+      "missingKeys": [
+        "1953642a53b223663c4e",
+        "f0e5abee69706376c55d",
+        "afdbbc9f2e16b2813125",
+        "66b9091e6478e2352718",
+        "d2e726fab4a785127b47",
+        "4e128c1f7e5f9294b644",
+        "58860fb897181bde88f0",
+        "001b21fac5293d405f17",
+        "4068d4bd3c378b6b61a5",
+        "37c245cf6a4ecad929c3",
+        "06bf495e817bdbb45314",
+        "2a4f1863654b28058a19",
+        "87ca0103b103545424c5",
+        "6d7fa99ffdb4dd56e644",
+        "bcccf8ad8bc90e4d47c6",
+        "2b884149e0d798eac81a",
+        "6347dbb29c365522c2cf",
+        "c4deb8c366c1bcac177c",
+        "3670994366db204bd360",
+        "a49fd14a9a574e712ecf"
+      ],
+      "returnedAnswersPreserved": 1,
+      "cassetteArchive": "examples/ledger-verify/recordings/2869d4d1f750545a2c7d/noise-1/longjudge-verify/gemini-3.8-flash.pre-topup.partial.jsonl",
+      "reportArchive": "examples/ledger-verify/noise-1/gemini-3.8-flash.pre-topup.partial.json",
+      "archiveSha256": "6575ec4d749dbb28c50b05acd204532b72251ba009e7f2e6102a484143c1dd6c"
+    }
+  ],
+  "unknownHoldsReleasedUsd": 0,
+  "scoringChanged": false
+}

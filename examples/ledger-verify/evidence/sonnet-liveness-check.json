@@ -1,0 +1,19 @@
+{
+  "at": "2026-10-13T19:24:45.390880+00:00",
+  "runnerPid": 74884,
+  "supervisorPid": 86181,
+  "observedProcessAlive": true,
+  "testTerminalAnswers": 1100,
+  "allPhaseTerminalAnswers": 1846,
+  "lastAnswerAt": "2026-10-13T19:24:44.163Z",
+  "lastFiveAnswerReceipts": [
+    "5d3a89ea-0c96-4597-a512-f4066957f4c9",
+    "54e8acdb-c6b7-4d22-ae28-232bf1f4165b",
+    "b671a914-fc60-48a0-bac6-0efc5a9b300a",
+    "261bc458-1e19-4dd1-abf8-8e6616046752",
+    "ee521cae-1f89-46a8-a6fb-95c957064045"
+  ],
+  "runnerLog": "sonnet/logs/results.log",
+  "answerLog": "sonnet/receipts/calls.jsonl",
+  "restartNeeded": false
+}

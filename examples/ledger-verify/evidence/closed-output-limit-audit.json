@@ -1,0 +1,734 @@
+{
+  "at": "2026-10-13T17:44:32.004632+00:00",
+  "authorization": "Owner accepts labelled strict audit correction; closed files stay unchanged; same detector audits both contestants on Haiku, Luna and Flash Lite.",
+  "detectorSource": "sonnet/output_limits.py",
+  "detectorSha256": "25e556a7247245e6bf3830897e278653eab6fef75912199ef8ee3b5bf1f400da",
+  "closedFileHashes": {
+    "results/haiku.json": "88f983b266d4fdbb34bc97b4f9d5f2bf7a27107dd76eb740cea115f7c99d00f2",
+    "results/haiku.strict.json": "f9f614fe4b9d5a2fb592261ce07d05721a5eeaaa9f7e07c073ff7ab176c64ac4",
+    "evidence/output-limit-errors.json": "b3b8c77866f42152e108714284222b8cd92515ead158935d49247ec4210a506e",
+    "results/gpt-6-luna.json": "13d3510ddb261d71758bca9cb14236159d25aca4522e5a17b180941facde4e20",
+    "results/gpt-6-luna.strict.json": "e10154f9eeb37b0d7f9e0d892472e85a5d3c36d425edf85a4cdd8753c639b087",
+    "lite/results/gemini-3.5-flash-lite.json": "11774e1c96eb7f42b1d3837d0359fe59f893c49ebaa7ea24731441e736e06690",
+    "lite/results/gemini-3.5-flash-lite.strict.json": "06a2b5ede7f9514004231f8a52a4945a0871a800a83582d2a994566cd306f51f",
+    "lite/evidence/output-limit-errors.json": "bddfd36e3119d460780d183f2454e21ccec1b308da14c6e62277f1d753949e4a"
+  },
+  "cells": [
+    {
+      "model": "haiku",
+      "receiptCount": 2013,
+      "nativeBodiesRead": 1949,
+      "finishMetadataRead": 1974,
+      "unknownNativeErrors": [
+        {
+          "receipt": "6ab5b67b-9b3f-4827-aa2d-fbe47b370693",
+          "reason": "Historical native error body unavailable"
+        },
+        {
+          "receipt": "54a2039c-e91b-4fd8-95c4-d77da5e16bb1",
+          "reason": "Historical native error body unavailable"
+        }
+      ],
+      "counts": {
+        "driftbench-verify-uncertainty-cascade": {
+          "all": {
+            "answerEnvelopes": 22,
+            "affectedItems": 13,
+            "newEnvelopes": 1
+          },
+          "test": {
+            "answerEnvelopes": 8,
+            "affectedItems": 5,
+            "newEnvelopes": 1
+          }
+        },
+        "promptfoo": {
+          "all": {
+            "answerEnvelopes": 0,
+            "affectedItems": 0,
+            "newEnvelopes": 0
+          },
+          "test": {
+            "answerEnvelopes": 0,
+            "affectedItems": 0,
+            "newEnvelopes": 0
+          }
+        }
+      },
+      "newLimits": [
+        {
+          "receipt": "81cd575a-8bb0-46f7-abca-b399594ea621",
+          "reason": "native stop_reason=max_tokens",
+          "new": true,
+          "consumers": [
+            {
+              "phase": "test",
+              "model": "haiku",
+              "key": "77aacaf101ef0ba0bfa3",
+              "fingerprint": "3c775e3fabfeee9f7e08025fc6f4e7bfc57b571414f1c8711f5804c9b67e8763",
+              "bench": "longjudge-verify",
+              "contestant": "driftbench-verify-uncertainty-cascade",
+              "item": "d212694b0411cadba66b960b826e90c3_c18d3261db1cb1aaf0713ea1ffd2792d",
+              "order": "blind-algebra"
+            }
+          ],
+          "nativePath": "receipts/native/81cd575a-8bb0-46f7-abca-b399594ea621.json"
+        }
+      ],
+      "scores": {
+        "officialLabels": {
+          "official": {
+            "sealedItems": 221,
+            "matchedItems": 217,
+            "missing": [
+              4,
+              0
+            ],
+            "correct": [
+              164,
+              159
+            ],
+            "accuracy": [
+              0.7420814479638009,
+              0.7194570135746606
+            ],
+            "balancedAccuracy": [
+              0.6886769381266813,
+              0.6587796527268281
+            ],
+            "wilson95": [
+              [
+                0.6806117405123012,
+                0.7952791408279148
+              ],
+              [
+                0.6568644573052397,
+                0.7745506407321524
+              ]
+            ],
+            "delta": 0.02262443438914027,
+            "deltaRequestClusterBootstrap95": [
+              -0.02727272727272727,
+              0.07623318385650224
+            ],
+            "bootstrapReplicates": 10000,
+            "bootstrapSeed": 20261013,
+            "requestClusters": 219,
+            "wins": 19,
+            "losses": 14,
+            "twoSidedExactMcNemarP": 0.48685024166479707,
+            "holmP": null,
+            "holmStatus": "Pending full prespecified 18-cell family, supplied to collator",
+            "bonferroni18UpperBound": 1.0,
+            "verdict": "TIE",
+            "missingPolicy": "Unparsed and missing verdicts are wrong in official scores; coverage reported separately",
+            "provisional": true
+          },
+          "auditCorrection": {
+            "sealedItems": 221,
+            "matchedItems": 216,
+            "missing": [
+              5,
+              0
+            ],
+            "correct": [
+              163,
+              159
+            ],
+            "accuracy": [
+              0.7375565610859729,
+              0.7194570135746606
+            ],
+            "balancedAccuracy": [
+              0.678038640254341,
+              0.6587796527268281
+            ],
+            "wilson95": [
+              [
+                0.675847192172072,
+                0.7911485325075792
+              ],
+              [
+                0.6568644573052397,
+                0.7745506407321524
+              ]
+            ],
+            "delta": 0.01809954751131222,
+            "deltaRequestClusterBootstrap95": [
+              -0.031818181818181815,
+              0.07207207207207207
+            ],
+            "bootstrapReplicates": 10000,
+            "bootstrapSeed": 20261013,
+            "requestClusters": 219,
+            "wins": 19,
+            "losses": 15,
+            "twoSidedExactMcNemarP": 0.6075913612730801,
+            "holmP": null,
+            "holmStatus": "Pending full prespecified 18-cell family, supplied to collator",
+            "bonferroni18UpperBound": 1.0,
+            "verdict": "TIE",
+            "missingPolicy": "Unparsed and missing verdicts are wrong in official scores; coverage reported separately",
+            "provisional": true
+          }
+        },
+        "auditedLabels": {
+          "official": {
+            "sealedItems": 221,
+            "matchedItems": 217,
+            "missing": [
+              4,
+              0
+            ],
+            "correct": [
+              185,
+              180
+            ],
+            "accuracy": [
+              0.8371040723981901,
+              0.8144796380090498
+            ],
+            "balancedAccuracy": [
+              0.8202662721893491,
+              0.7921597633136095
+            ],
+            "wilson95": [
+              [
+                0.7827346844803535,
+                0.8799544867317228
+              ],
+              [
+                0.7580137954418993,
+                0.8601995924673531
+              ]
+            ],
+            "delta": 0.02262443438914027,
+            "deltaRequestClusterBootstrap95": [
+              -0.0273972602739726,
+              0.07272727272727272
+            ],
+            "bootstrapReplicates": 10000,
+            "bootstrapSeed": 20261013,
+            "requestClusters": 219,
+            "wins": 19,
+            "losses": 14,
+            "twoSidedExactMcNemarP": 0.48685024166479707,
+            "holmP": null,
+            "holmStatus": "Pending full prespecified 18-cell family, supplied to collator",
+            "bonferroni18UpperBound": 1.0,
+            "verdict": "TIE",
+            "missingPolicy": "Unparsed and missing verdicts are wrong in official scores; coverage reported separately",
+            "provisional": true
+          },
+          "auditCorrection": {
+            "sealedItems": 221,
+            "matchedItems": 216,
+            "missing": [
+              5,
+              0
+            ],
+            "correct": [
+              184,
+              180
+            ],
+            "accuracy": [
+              0.832579185520362,
+              0.8144796380090498
+            ],
+            "balancedAccuracy": [
+              0.8106508875739645,
+              0.7921597633136095
+            ],
+            "wilson95": [
+              [
+                0.7777664649529943,
+                0.8760275495985175
+              ],
+              [
+                0.7580137954418993,
+                0.8601995924673531
+              ]
+            ],
+            "delta": 0.01809954751131222,
+            "deltaRequestClusterBootstrap95": [
+              -0.036036036036036036,
+              0.0684931506849315
+            ],
+            "bootstrapReplicates": 10000,
+            "bootstrapSeed": 20261013,
+            "requestClusters": 219,
+            "wins": 19,
+            "losses": 15,
+            "twoSidedExactMcNemarP": 0.6075913612730801,
+            "holmP": null,
+            "holmStatus": "Pending full prespecified 18-cell family, supplied to collator",
+            "bonferroni18UpperBound": 1.0,
+            "verdict": "TIE",
+            "missingPolicy": "Unparsed and missing verdicts are wrong in official scores; coverage reported separately",
+            "provisional": true
+          }
+        }
+      },
+      "productFinalChanged": false
+    },
+    {
+      "model": "gpt-6-luna",
+      "receiptCount": 1992,
+      "nativeBodiesRead": 0,
+      "finishMetadataRead": 1978,
+      "unknownNativeErrors": [],
+      "counts": {
+        "driftbench-verify-uncertainty-cascade": {
+          "all": {
+            "answerEnvelopes": 0,
+            "affectedItems": 0,
+            "newEnvelopes": 0
+          },
+          "test": {
+            "answerEnvelopes": 0,
+            "affectedItems": 0,
+            "newEnvelopes": 0
+          }
+        },
+        "promptfoo": {
+          "all": {
+            "answerEnvelopes": 0,
+            "affectedItems": 0,
+            "newEnvelopes": 0
+          },
+          "test": {
+            "answerEnvelopes": 0,
+            "affectedItems": 0,
+            "newEnvelopes": 0
+          }
+        }
+      },
+      "newLimits": [],
+      "scores": {
+        "officialLabels": {
+          "official": {
+            "sealedItems": 221,
+            "matchedItems": 221,
+            "missing": [
+              0,
+              0
+            ],
+            "correct": [
+              165,
+              160
+            ],
+            "accuracy": [
+              0.746606334841629,
+              0.7239819004524887
+            ],
+            "balancedAccuracy": [
+              0.6682562973832233,
+              0.6771826852531181
+            ],
+            "wilson95": [
+              [
+                0.685384081936647,
+                0.7994019560641337
+              ],
+              [
+                0.6615990556573178,
+                0.7787111990406389
+              ]
+            ],
+            "delta": 0.02262443438914027,
+            "deltaRequestClusterBootstrap95": [
+              -0.02727272727272727,
+              0.07207207207207207
+            ],
+            "bootstrapReplicates": 10000,
+            "bootstrapSeed": 20261013,
+            "requestClusters": 219,
+            "wins": 18,
+            "losses": 13,
+            "twoSidedExactMcNemarP": 0.47312965989112854,
+            "holmP": null,
+            "holmStatus": "Pending full prespecified 18-cell family, supplied to collator",
+            "bonferroni18UpperBound": 1.0,
+            "verdict": "TIE",
+            "missingPolicy": "Unparsed and missing verdicts are wrong in official scores; coverage reported separately",
+            "provisional": false
+          },
+          "auditCorrection": {
+            "sealedItems": 221,
+            "matchedItems": 221,
+            "missing": [
+              0,
+              0
+            ],
+            "correct": [
+              165,
+              160
+            ],
+            "accuracy": [
+              0.746606334841629,
+              0.7239819004524887
+            ],
+            "balancedAccuracy": [
+              0.6682562973832233,
+              0.6771826852531181
+            ],
+            "wilson95": [
+              [
+                0.685384081936647,
+                0.7994019560641337
+              ],
+              [
+                0.6615990556573178,
+                0.7787111990406389
+              ]
+            ],
+            "delta": 0.02262443438914027,
+            "deltaRequestClusterBootstrap95": [
+              -0.02727272727272727,
+              0.07207207207207207
+            ],
+            "bootstrapReplicates": 10000,
+            "bootstrapSeed": 20261013,
+            "requestClusters": 219,
+            "wins": 18,
+            "losses": 13,
+            "twoSidedExactMcNemarP": 0.47312965989112854,
+            "holmP": null,
+            "holmStatus": "Pending full prespecified 18-cell family, supplied to collator",
+            "bonferroni18UpperBound": 1.0,
+            "verdict": "TIE",
+            "missingPolicy": "Unparsed and missing verdicts are wrong in official scores; coverage reported separately",
+            "provisional": false
+          }
+        },
+        "auditedLabels": {
+          "official": {
+            "sealedItems": 221,
+            "matchedItems": 221,
+            "missing": [
+              0,
+              0
+            ],
+            "correct": [
+              188,
+              181
+            ],
+            "accuracy": [
+              0.8506787330316742,
+              0.8190045248868778
+            ],
+            "balancedAccuracy": [
+              0.8158284023668638,
+              0.8084319526627219
+            ],
+            "wilson95": [
+              [
+                0.7977178267401317,
+                0.891656814453639
+              ],
+              [
+                0.7629346391025311,
+                0.8641739054672861
+              ]
+            ],
+            "delta": 0.03167420814479638,
+            "deltaRequestClusterBootstrap95": [
+              -0.018018018018018018,
+              0.08108108108108109
+            ],
+            "bootstrapReplicates": 10000,
+            "bootstrapSeed": 20261013,
+            "requestClusters": 219,
+            "wins": 19,
+            "losses": 12,
+            "twoSidedExactMcNemarP": 0.28104151505976915,
+            "holmP": null,
+            "holmStatus": "Pending full prespecified 18-cell family, supplied to collator",
+            "bonferroni18UpperBound": 1.0,
+            "verdict": "TIE",
+            "missingPolicy": "Unparsed and missing verdicts are wrong in official scores; coverage reported separately",
+            "provisional": false
+          },
+          "auditCorrection": {
+            "sealedItems": 221,
+            "matchedItems": 221,
+            "missing": [
+              0,
+              0
+            ],
+            "correct": [
+              188,
+              181
+            ],
+            "accuracy": [
+              0.8506787330316742,
+              0.8190045248868778
+            ],
+            "balancedAccuracy": [
+              0.8158284023668638,
+              0.8084319526627219
+            ],
+            "wilson95": [
+              [
+                0.7977178267401317,
+                0.891656814453639
+              ],
+              [
+                0.7629346391025311,
+                0.8641739054672861
+              ]
+            ],
+            "delta": 0.03167420814479638,
+            "deltaRequestClusterBootstrap95": [
+              -0.018018018018018018,
+              0.08108108108108109
+            ],
+            "bootstrapReplicates": 10000,
+            "bootstrapSeed": 20261013,
+            "requestClusters": 219,
+            "wins": 19,
+            "losses": 12,
+            "twoSidedExactMcNemarP": 0.28104151505976915,
+            "holmP": null,
+            "holmStatus": "Pending full prespecified 18-cell family, supplied to collator",
+            "bonferroni18UpperBound": 1.0,
+            "verdict": "TIE",
+            "missingPolicy": "Unparsed and missing verdicts are wrong in official scores; coverage reported separately",
+            "provisional": false
+          }
+        }
+      },
+      "productFinalChanged": false
+    },
+    {
+      "model": "gemini-3.5-flash-lite",
+      "receiptCount": 2170,
+      "nativeBodiesRead": 0,
+      "finishMetadataRead": 2107,
+      "unknownNativeErrors": [],
+      "counts": {
+        "driftbench-verify-uncertainty-cascade": {
+          "all": {
+            "answerEnvelopes": 5,
+            "affectedItems": 5,
+            "newEnvelopes": 0
+          },
+          "test": {
+            "answerEnvelopes": 5,
+            "affectedItems": 5,
+            "newEnvelopes": 0
+          }
+        },
+        "promptfoo": {
+          "all": {
+            "answerEnvelopes": 2,
+            "affectedItems": 2,
+            "newEnvelopes": 0
+          },
+          "test": {
+            "answerEnvelopes": 0,
+            "affectedItems": 0,
+            "newEnvelopes": 0
+          }
+        }
+      },
+      "newLimits": [],
+      "scores": {
+        "officialLabels": {
+          "official": {
+            "sealedItems": 221,
+            "matchedItems": 216,
+            "missing": [
+              5,
+              0
+            ],
+            "correct": [
+              138,
+              127
+            ],
+            "accuracy": [
+              0.6244343891402715,
+              0.5746606334841629
+            ],
+            "balancedAccuracy": [
+              0.6450232330643189,
+              0.6444729762778185
+            ],
+            "wilson95": [
+              [
+                0.5589738052255021,
+                0.6856430029400294
+              ],
+              [
+                0.5087500059007226,
+                0.6380200789985961
+              ]
+            ],
+            "delta": 0.049773755656108594,
+            "deltaRequestClusterBootstrap95": [
+              -0.02242152466367713,
+              0.1187214611872146
+            ],
+            "bootstrapReplicates": 10000,
+            "bootstrapSeed": 20261013,
+            "requestClusters": 219,
+            "wins": 39,
+            "losses": 28,
+            "twoSidedExactMcNemarP": 0.22154872964481115,
+            "holmP": null,
+            "holmStatus": "Pending full prespecified 18-cell family, supplied to collator",
+            "bonferroni18UpperBound": 1.0,
+            "verdict": "TIE",
+            "missingPolicy": "Unparsed and missing verdicts are wrong in official scores; coverage reported separately",
+            "provisional": true
+          },
+          "auditCorrection": {
+            "sealedItems": 221,
+            "matchedItems": 216,
+            "missing": [
+              5,
+              0
+            ],
+            "correct": [
+              138,
+              127
+            ],
+            "accuracy": [
+              0.6244343891402715,
+              0.5746606334841629
+            ],
+            "balancedAccuracy": [
+              0.6450232330643189,
+              0.6444729762778185
+            ],
+            "wilson95": [
+              [
+                0.5589738052255021,
+                0.6856430029400294
+              ],
+              [
+                0.5087500059007226,
+                0.6380200789985961
+              ]
+            ],
+            "delta": 0.049773755656108594,
+            "deltaRequestClusterBootstrap95": [
+              -0.02242152466367713,
+              0.1187214611872146
+            ],
+            "bootstrapReplicates": 10000,
+            "bootstrapSeed": 20261013,
+            "requestClusters": 219,
+            "wins": 39,
+            "losses": 28,
+            "twoSidedExactMcNemarP": 0.22154872964481115,
+            "holmP": null,
+            "holmStatus": "Pending full prespecified 18-cell family, supplied to collator",
+            "bonferroni18UpperBound": 1.0,
+            "verdict": "TIE",
+            "missingPolicy": "Unparsed and missing verdicts are wrong in official scores; coverage reported separately",
+            "provisional": true
+          }
+        },
+        "auditedLabels": {
+          "official": {
+            "sealedItems": 221,
+            "matchedItems": 216,
+            "missing": [
+              5,
+              0
+            ],
+            "correct": [
+              158,
+              142
+            ],
+            "accuracy": [
+              0.7149321266968326,
+              0.6425339366515838
+            ],
+            "balancedAccuracy": [
+              0.7603550295857988,
+              0.7263313609467456
+            ],
+            "wilson95": [
+              [
+                0.6521370675019499,
+                0.7703828738748774
+              ],
+              [
+                0.5774079991220044,
+                0.7027894356857863
+              ]
+            ],
+            "delta": 0.07239819004524888,
+            "deltaRequestClusterBootstrap95": [
+              0.0,
+              0.1415525114155251
+            ],
+            "bootstrapReplicates": 10000,
+            "bootstrapSeed": 20261013,
+            "requestClusters": 219,
+            "wins": 42,
+            "losses": 26,
+            "twoSidedExactMcNemarP": 0.06811867428409976,
+            "holmP": null,
+            "holmStatus": "Pending full prespecified 18-cell family, supplied to collator",
+            "bonferroni18UpperBound": 1.0,
+            "verdict": "TIE",
+            "missingPolicy": "Unparsed and missing verdicts are wrong in official scores; coverage reported separately",
+            "provisional": true
+          },
+          "auditCorrection": {
+            "sealedItems": 221,
+            "matchedItems": 216,
+            "missing": [
+              5,
+              0
+            ],
+            "correct": [
+              158,
+              142
+            ],
+            "accuracy": [
+              0.7149321266968326,
+              0.6425339366515838
+            ],
+            "balancedAccuracy": [
+              0.7603550295857988,
+              0.7263313609467456
+            ],
+            "wilson95": [
+              [
+                0.6521370675019499,
+                0.7703828738748774
+              ],
+              [
+                0.5774079991220044,
+                0.7027894356857863
+              ]
+            ],
+            "delta": 0.07239819004524888,
+            "deltaRequestClusterBootstrap95": [
+              0.0,
+              0.1415525114155251
+            ],
+            "bootstrapReplicates": 10000,
+            "bootstrapSeed": 20261013,
+            "requestClusters": 219,
+            "wins": 42,
+            "losses": 26,
+            "twoSidedExactMcNemarP": 0.06811867428409976,
+            "holmP": null,
+            "holmStatus": "Pending full prespecified 18-cell family, supplied to collator",
+            "bonferroni18UpperBound": 1.0,
+            "verdict": "TIE",
+            "missingPolicy": "Unparsed and missing verdicts are wrong in official scores; coverage reported separately",
+            "provisional": true
+          }
+        }
+      },
+      "productFinalChanged": false
+    }
+  ],
+  "providerCalls": 0
+}
