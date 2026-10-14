@@ -25,7 +25,7 @@ export function registerRadiusCommand(program: Command, io: Io, setExit: (code: 
   const radius = program
     .command('radius')
     .description('Print the blast radius of a change: the blocks it can affect, against the whole suite')
-    .argument('[paths...]', 'spec files or folders')
+    .argument('<paths...>', 'spec files or folders')
     .option('--change <manifest>', 'the change manifest (YAML or JSON): from, to and the changes')
     .option(
       '--mode <modes>',
