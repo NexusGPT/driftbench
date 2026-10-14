@@ -28,3 +28,15 @@ export const CampaignProvenance = z.strictObject({
   version: z.literal(2),
   adapters: z.array(AdapterIdentity.extend({ targetHash: Digest, agentVersionHash: Digest.nullable() })),
 });
+
+/** Both pinned full specs plus the proof that their agent-facing execution is compatible. */
+export const RejudgedFrom = z.strictObject({
+  fromCampaign: z.string(),
+  fromRun: z.string(),
+  oldSpecHash: z.string(),
+  newSpecHash: z.string(),
+  compatibilityHash: z.string(),
+  criteria: z.array(z.string()),
+  judgedAt: z.string(),
+  judgeCostUsd: z.number().nonnegative().optional(),
+});

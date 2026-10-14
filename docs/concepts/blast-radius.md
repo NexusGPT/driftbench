@@ -247,7 +247,7 @@ Mode T figures are a projection: the fault runs behind the gate report are free-
 
 Not built yet, in order:
 
-* Blocks as the unit in mode T, and a judged criterion change that judges again without calling the agent.
+* Blocks as the unit in mode T.
 
 ## Prompt quotes
 
@@ -346,3 +346,59 @@ Stamp hashes are deterministic equality fingerprints, not secrets. Low-entropy v
 identifiers or numeric seeds are guessable by enumeration. No per-store salt is used: fingerprints remain
 comparable across stores, and this change adds no store metadata or salt lifecycle. Protect results stores
 as you protect the observations they contain; hashes do not replace that protection.
+
+## Re-judge a criterion
+
+`campaign rejudge` calls only the judge on stored observations. The manifest contains only
+`criterion` changes, and its `from` and `to` name the same agent version. Every new spec is
+pinned beside its old full hash and an observation-compatibility hash. Blocks identify the
+re-judged criterion ids; other results carry their source and age. Judge calls count in the
+new run cost. Historical agent cost is not charged again. The scorecard labels both kinds.
+
+The compatibility hash covers everything that can change what the agent receives or does:
+givens, stimuli, tools, target, adapter, modes, perturbations, user driver, seeds, stages and
+block order. An explicit exclusion list removes only criterion `rubric`, `pass`, `fail`,
+`gating`, `scope`, `judge_class` and `repeat_reducer`. Those are the schema's judge-only text,
+anchors and settings. New fields are included by default. Deterministic checks and expected
+outputs remain in the hash: changing them requires a full agent rerun; this command does not
+re-evaluate changed deterministic checks on old observations.
+
+Re-judge validates the existing carry age and count limits, the same agent version, the complete
+campaign stamp and integrity digest, and every resolved Given, ledger and stimulus hash before
+making a judge call. Its agent execution context is the frozen recorded context: this command accepts
+no new driver, seed, adapter or target configuration. Such changes require `campaign run`. It supports
+complete scripted F and T conversation runs whose judge inputs can be reconstructed. Legacy,
+partial, injected or adaptive runs, unknown seeds, task artifact reads, inconsistent stamps,
+and missing judge input bytes are refused with a full-rerun instruction. A judge-only command
+cannot silently turn that refusal into an agent call. Keep `campaign run` for those cases.
+Re-judged observations remain unpaired agent measurements. When no fresh agent pairs exist,
+`report` uses its default margin and says why; it does not estimate an automatic margin from
+copied observations.
+
+Run this offline Acme demonstration from the repository root with a fresh output directory.
+The fake judge deliberately fails the added public-holiday rule; it makes no model call.
+
+```sh
+mkdir -p /tmp/acme-radius-rejudge
+node --import tsx --input-type=module <<'JS'
+import { readFileSync, writeFileSync } from 'node:fs';
+import { parse } from 'yaml';
+const spec = parse(readFileSync('examples/acme/specs/conversations/plan-upgrade.yaml', 'utf8'));
+spec.criteria.find(c => c.name === 'no_invented_data').rubric += ' Never invent a public holiday.';
+writeFileSync('/tmp/acme-radius-rejudge/updated.spec.json', JSON.stringify(spec));
+writeFileSync('/tmp/acme-radius-rejudge/criterion.yaml', 'from: acme-v1\nto: acme-v1\nchanges:\n  - { kind: criterion, id: no_invented_data }\n');
+JS
+node --import tsx packages/cli/src/bin.ts campaign run examples/acme/specs/conversations/plan-upgrade.yaml --target function:acme-sales --agent-version acme-v1 --campaign acme-before --store /tmp/acme-radius-rejudge/runs.db
+node --import tsx packages/cli/src/bin.ts campaign rejudge /tmp/acme-radius-rejudge/updated.spec.json --from acme-before --campaign acme-rejudged --store /tmp/acme-radius-rejudge/runs.db --change /tmp/acme-radius-rejudge/criterion.yaml --judge claude:haiku --judge-command examples/estates/fixture/live/fake/judge.cjs
+```
+
+The final command exits 1 and prints:
+
+```text
+Campaign acme-rejudged: 2 blocks re-judged, 3 carried; 0 agent calls. Judge cost 0.0030 USD.
+```
+
+A paid judge requires `--judge-budget <usd>`. The budget guard is the existing run-judge guard.
+Exit 0 means the resulting campaign passes, 1 means a gating result fails or is inconclusive,
+and 2 means the inputs or reuse proof were refused. `--json` emits the campaign ids, carried
+and re-judged block counts, zero agent calls and judge spend.

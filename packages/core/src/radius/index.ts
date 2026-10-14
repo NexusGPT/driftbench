@@ -53,4 +53,11 @@ export {
   type RadiusSpecReport,
   radiusOf,
 } from './radius';
+export {
+  observationCompatibilityHash,
+  type PreparedRejudge,
+  prepareRejudge,
+  type RejudgeOptions,
+  rejudgeRun,
+} from './rejudge';
 export { agentVersionOf, withAgentVersion } from './version';

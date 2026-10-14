@@ -65,6 +65,33 @@ const cellKey = (cell: Pick<PlannedCell, 'specHash' | 'target' | 'mode' | 'repea
 
 const DAY_MS = 24 * 60 * 60 * 1000;
 
+/** Shared age/count rules for carrying observations, including judge-only reuse. */
+export function carryOrigin(
+  source: RunResult,
+  campaignId: string,
+  limits: Pick<CarryLimits, 'now' | 'maxCarry' | 'maxAgeDays'>,
+): { carried: NonNullable<RunResult['carried']> } | { reason: string } {
+  const maxCarry = limits.maxCarry ?? DEFAULT_MAX_CARRY;
+  const maxAgeDays = limits.maxAgeDays ?? DEFAULT_MAX_AGE_DAYS;
+  const origin = source.carried;
+  const campaigns = (origin?.age.campaigns ?? 0) + 1;
+  // Copies retain the time of the fresh observation, never the time of a later judge call.
+  const days = Math.max(0, (limits.now.getTime() - Date.parse(source.finishedAt)) / DAY_MS);
+  if (campaigns > maxCarry)
+    return { reason: `carried ${campaigns - 1} campaigns in a row, the limit is ${maxCarry}` };
+  if (days > maxAgeDays)
+    return { reason: `its fresh run is ${Math.floor(days)} days old, the limit is ${maxAgeDays}` };
+  const agentVersion = origin?.agentVersion ?? agentVersionOf(source);
+  return {
+    carried: {
+      fromCampaign: origin?.fromCampaign ?? campaignId,
+      fromRun: origin?.fromRun ?? source.runId,
+      ...(agentVersion === undefined ? {} : { agentVersion }),
+      age: { campaigns, days: Math.round(days * 100) / 100 },
+    },
+  };
+}
+
 /**
  * Splits the cells of a campaign into those that run and those that are carried from the baseline.
  *
@@ -125,9 +152,6 @@ export function planRadiusCampaign(
       stored.set(key, run);
     }
   }
-  const maxCarry = limits.maxCarry ?? DEFAULT_MAX_CARRY;
-  const maxAgeDays = limits.maxAgeDays ?? DEFAULT_MAX_AGE_DAYS;
-
   const plan: RadiusPlan = { fresh: [], carried: [], refused: [], inside: [] };
   for (const cell of cells) {
     const spec = `${cell.specId}@${cell.specHash}`;
@@ -166,30 +190,12 @@ export function planRadiusCampaign(
       refuse('current block inputs differ or cannot be reconstructed');
       continue;
     }
-    const origin = source.carried;
-    const campaigns = (origin?.age.campaigns ?? 0) + 1;
-    // A carried copy keeps the times of the fresh run, so this is the end of the fresh run either way.
-    const days = Math.max(0, (limits.now.getTime() - Date.parse(source.finishedAt)) / DAY_MS);
-    if (campaigns > maxCarry) {
-      refuse(`carried ${campaigns - 1} campaigns in a row, the limit is ${maxCarry}`);
+    const origin = carryOrigin(source, baseline.campaignId, limits);
+    if ('reason' in origin) {
+      refuse(origin.reason);
       continue;
     }
-    if (days > maxAgeDays) {
-      refuse(`its fresh run is ${Math.floor(days)} days old, the limit is ${maxAgeDays}`);
-      continue;
-    }
-    const agentVersion = origin?.agentVersion ?? sourceVersion;
-    plan.carried.push({
-      cell,
-      source,
-      provenance,
-      carried: {
-        fromCampaign: origin?.fromCampaign ?? baseline.campaignId,
-        fromRun: origin?.fromRun ?? source.runId,
-        ...(agentVersion === undefined ? {} : { agentVersion }),
-        age: { campaigns, days: Math.round(days * 100) / 100 },
-      },
-    });
+    plan.carried.push({ cell, source, provenance, carried: origin.carried });
   }
   return plan;
 }

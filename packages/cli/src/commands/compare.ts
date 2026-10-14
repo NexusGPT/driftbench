@@ -290,6 +290,12 @@ export function resolveMargin(
   io?: Io,
 ): number {
   if (gate.margin !== 'auto') return gate.margin;
+  if (baseline.campaign.rejudged?.length && baseline.runs.every((run) => run.carried)) {
+    io?.out(
+      'Margin auto: re-judged observations supply no fresh agent pairs; using the 2.0 point default.\n',
+    );
+    return 0.02;
+  }
   if (baseline.runs.length === 0) {
     // Nothing to measure the margin on: a campaign with no runs keeps the 2 point default and says so.
     io?.out('Margin auto: the campaign has no runs to measure it on; 2.0 points.\n');
