@@ -1,5 +1,5 @@
 import { expect, it } from 'vitest';
-import { fillText, phraseFits, slotsOf } from '../../src/seed/relations';
+import { fillText, fillValue, phraseFits, slotsOf } from '../../src/seed/relations';
 
 it('collects slots in depth-first order, retaining duplicates and fresh results', () => {
   const sparse = new Array<unknown>(2);
@@ -50,4 +50,18 @@ it('checks phrase eligibility without formatting text that will not be used', ()
   expect(phraseFits({ ...phrase, when: { stage: ['ready'] } }, { stage: 'waiting' }, { a: 'value' })).toBe(
     false,
   );
+});
+
+it('fills nested values with fresh containers and preserves unusual own keys', () => {
+  const input = JSON.parse('{"__proto__":{"x":"{a}"},"list":["{a}",{"value":"{a}"}]}');
+  const result = fillValue(input, { a: 'value' });
+  expect(result).toEqual({
+    ok: true,
+    value: JSON.parse('{"__proto__":{"x":"value"},"list":["value",{"value":"value"}]}'),
+  });
+  if (!result.ok) throw new Error('bound slots should fill');
+  expect(Object.hasOwn(result.value, '__proto__')).toBe(true);
+  expect(Object.getPrototypeOf(result.value)).toBe(Object.prototype);
+  result.value.list[1].value = 'changed';
+  expect(input.list[1].value).toBe('{a}');
 });

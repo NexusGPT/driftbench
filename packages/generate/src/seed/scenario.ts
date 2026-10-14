@@ -457,17 +457,18 @@ export function buildScenario(prepared: PreparedMap, rng: Rng, request: Scenario
       replyData.push(...sources.filter(([at]) => prepared.toolDimensions.get(at)?.direction === 'out'));
     }
     const carries = unique([[prepared.transition as number, transition], ...ruled]);
-    blocks.push({
+    const block: BlockDraft = {
       id: `b${blocks.length + 1}-${transitionId}`,
       stimulus: stimulusOf(slots, phrase, transitionKey, transitionId),
       stage: to,
       saidAt: from,
       carries,
-      ...(tools.length > 0 ? { tools } : {}),
-      ...(stated.length > 0 ? { must: stated } : {}),
-      ...(unstated.length > 0 ? { must_not: unstated } : {}),
-      ...(lang === undefined ? {} : { lang }),
-    });
+    };
+    if (tools.length > 0) block.tools = tools;
+    if (stated.length > 0) block.must = stated;
+    if (unstated.length > 0) block.must_not = unstated;
+    if (lang !== undefined) block.lang = lang;
+    blocks.push(block);
     const asked = request.turn?.call;
     const made = asked ? tools.find((tool) => tool.label === asked.tool && calls(tool)) : undefined;
     if (request.turn && asked && made) {

@@ -262,17 +262,26 @@ export function fillText(text: string, slots: Slots, literal = false): Filled<st
 export function fillValue<T>(value: T, slots: Slots): Filled<T> {
   const missing = [...new Set(slotsOf(value).filter((name) => slots[name] === undefined))];
   if (missing.length > 0) return { ok: false, missing };
-  const walk = (node: unknown): unknown => {
-    if (typeof node === 'string') {
-      const filled = fillText(node, slots);
-      return filled.ok ? filled.value : node;
+  return { ok: true, value: fillNode(value, slots) as T };
+}
+
+function fillNode(node: unknown, slots: Slots): unknown {
+  if (typeof node === 'string') {
+    const filled = fillText(node, slots);
+    return filled.ok ? filled.value : node;
+  }
+  if (Array.isArray(node)) return node.map((child) => fillNode(child, slots));
+  if (isPlainObject(node)) {
+    const out: Record<string, unknown> = {};
+    for (const [key, item] of Object.entries(node)) {
+      const value = fillNode(item, slots);
+      if (key === '__proto__')
+        Object.defineProperty(out, key, { value, enumerable: true, writable: true, configurable: true });
+      else out[key] = value;
     }
-    if (Array.isArray(node)) return node.map(walk);
-    if (isPlainObject(node))
-      return Object.fromEntries(Object.entries(node).map(([key, item]) => [key, walk(item)]));
-    return node;
-  };
-  return { ok: true, value: walk(value) as T };
+    return out;
+  }
+  return node;
 }
 
 export function escapeRegExp(text: string): string {

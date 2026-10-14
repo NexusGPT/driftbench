@@ -287,32 +287,41 @@ export function contextAxes(
     if (dimension?.kind === 'task' && empty !== undefined && !base.some(([at]) => at === index))
       base.push([index, empty]);
   }
+  const otherBases = also.map((entry) => base.filter(([at]) => at !== entry[0]));
+  const axes = [...prepared.axes]
+    .sort((a, b) => a - b)
+    .filter((index) => CONTEXT_KINDS.has(prepared.space.dimensions[index]?.kind ?? ''))
+    .filter((index) => !base.some(([at]) => at === index));
+  const fits = (candidate: readonly Pick[]) => {
+    if (!prepared.feasibility.allowed([...base, ...candidate])) return false;
+    for (let index = 0; index < also.length; index += 1) {
+      const entry = also[index] as Pick;
+      if (!prepared.feasibility.allowed([...(otherBases[index] as Pick[]), ...candidate, entry]))
+        return false;
+    }
+    return true;
+  };
   for (let attempt = 0; attempt < 5; attempt += 1) {
     const full = prepared.feasibility.complete(base, rng);
     if (!full) return [];
-    const picks: Pick[] = [...prepared.axes]
-      .sort((a, b) => a - b)
-      .filter((index) => CONTEXT_KINDS.has(prepared.space.dimensions[index]?.kind ?? ''))
-      .filter((index) => !base.some(([at]) => at === index))
-      .map((index) => [index, full[index] ?? 0]);
-    const fits = (candidate: readonly Pick[]) =>
-      prepared.feasibility.allowed([...base, ...candidate]) &&
-      also.every((entry) =>
-        prepared.feasibility.allowed([...base.filter(([at]) => at !== entry[0]), ...candidate, entry]),
-      );
+    const picks: Pick[] = axes.map((index) => [index, full[index] ?? 0]);
     if (!fits(picks)) continue;
     if (usage) {
       // The draw stands unless another allowed value of the axis has been placed on less: then that one.
-      picks.forEach(([index, drawn], at) => {
+      for (let at = 0; at < picks.length; at += 1) {
+        const original = picks[at] as Pick;
+        const [index, drawn] = original;
         const placed = usage.get(index);
-        const count = (value: number) => placed?.get(value) ?? 0;
         let best = drawn;
-        prepared.space.dimensions[index]?.values.forEach((entry, value) => {
-          if (entry.id === NONE || count(value) >= count(best)) return;
-          if (fits(picks.map((pick, other) => (other === at ? [index, value] : pick)))) best = value;
-        });
+        const values = prepared.space.dimensions[index]?.values ?? [];
+        for (let value = 0; value < values.length; value += 1) {
+          if (values[value]?.id === NONE || (placed?.get(value) ?? 0) >= (placed?.get(best) ?? 0)) continue;
+          picks[at] = [index, value];
+          if (fits(picks)) best = value;
+          picks[at] = original;
+        }
         picks[at] = [index, best];
-      });
+      }
     }
     return picks;
   }

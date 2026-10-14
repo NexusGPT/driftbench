@@ -195,9 +195,13 @@ export function renderDraft(prepared: PreparedMap, draft: SpecDraft, run: RunIde
     const id = valueId(prepared, dimension, value);
     if (!compiled || id === '') continue;
     if (compiled.kind === 'stage' || compiled.kind === 'deviation') continue;
-    const listed = specCell[compiled.id]?.split(' + ') ?? [];
-    if (!listed.includes(id)) listed.push(id);
-    specCell[compiled.id] = listed.join(' + ');
+    const previous = specCell[compiled.id];
+    if (previous === undefined) specCell[compiled.id] = id;
+    else {
+      const listed = previous.split(' + ');
+      if (!listed.includes(id)) listed.push(id);
+      specCell[compiled.id] = listed.join(' + ');
+    }
     if (id === NONE) continue;
     // A value that is an inventory flow gets the core's flow tag, so `spec coverage` joins it.
     const flowTag = `flow:${id}`;
@@ -329,43 +333,41 @@ export function renderDraft(prepared: PreparedMap, draft: SpecDraft, run: RunIde
     version: prepared.hash,
     kind: 'conversation',
     title: draft.title,
-    ...(channel === undefined ? {} : { channel }),
-    ...(lang === undefined ? {} : { lang }),
-    tier: 'generated',
-    ...(tags.length > 0 ? { tags } : {}),
-    ...(covers.length > 0 ? { covers } : {}),
-    ...(draft.world || draft.vars
-      ? {
-          given: {
-            ...(draft.world ? { world: draft.world } : {}),
-            ...(draft.vars ? { vars: draft.vars } : {}),
-          },
-        }
-      : {}),
-    ...(stages ? { stages } : {}),
-    ...(!incomplete && draft.criteria.length > 0 ? { criteria: draft.criteria } : {}),
-    blocks,
-    ...(draft.rules ? { rules: draft.rules } : {}),
-    ...(draft.end_state ? { end_state: draft.end_state } : {}),
-    ...(perturbations && perturbations.length > 0 ? { perturbations } : {}),
-    metadata: {
-      generated: {
-        by: 'driftbench generate',
-        seeder: draft.seeder,
-        seed: run.seed,
-        stream: draft.stream,
-        map: { path: run.mapPath, agent: prepared.agent, version: prepared.version, hash: prepared.hash },
-        ...(draft.path ? { path: draft.path } : {}),
-        cell: specCell,
-        blocks: blockRecords,
-        ...(draft.concrete ? { concrete: draft.concrete } : {}),
-        ...(draft.metamorphic ? { metamorphic: draft.metamorphic } : {}),
-        ...(placeholders.length > 0 ? { needs_phrase: placeholders } : {}),
-        ...(noThen.length > 0 ? { needs_then: noThen } : {}),
-        ...(reasons.length > 0 ? { needs_then_why: reasons } : {}),
-      },
-    },
   };
+  if (channel !== undefined) spec.channel = channel;
+  if (lang !== undefined) spec.lang = lang;
+  spec.tier = 'generated';
+  if (tags.length > 0) spec.tags = tags;
+  if (covers.length > 0) spec.covers = covers;
+  if (draft.world || draft.vars) {
+    const given: Record<string, unknown> = {};
+    if (draft.world) given.world = draft.world;
+    if (draft.vars) given.vars = draft.vars;
+    spec.given = given;
+  }
+  if (stages) spec.stages = stages;
+  if (!incomplete && draft.criteria.length > 0) spec.criteria = draft.criteria;
+  spec.blocks = blocks;
+  if (draft.rules) spec.rules = draft.rules;
+  if (draft.end_state) spec.end_state = draft.end_state;
+  if (perturbations && perturbations.length > 0) spec.perturbations = perturbations;
+  const generated: Record<string, unknown> = {
+    by: 'driftbench generate',
+    seeder: draft.seeder,
+    seed: run.seed,
+    stream: draft.stream,
+    map: { path: run.mapPath, agent: prepared.agent, version: prepared.version, hash: prepared.hash },
+  };
+  if (draft.path) generated.path = draft.path;
+  generated.cell = specCell;
+  generated.blocks = blockRecords;
+  if (draft.concrete) generated.concrete = draft.concrete;
+  if (draft.metamorphic) generated.metamorphic = draft.metamorphic;
+  if (placeholders.length > 0) generated.needs_phrase = placeholders;
+  if (noThen.length > 0) generated.needs_then = noThen;
+  if (reasons.length > 0) generated.needs_then_why = reasons;
+
+  spec.metadata = { generated };
   const rendered = {
     id: draft.id,
     seeder: draft.seeder,
