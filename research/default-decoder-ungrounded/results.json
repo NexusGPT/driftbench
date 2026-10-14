@@ -576,7 +576,7 @@
       "set": "bench-current/fresh-rubric/gemini-3.8-flash",
       "total": 0,
       "planned": 192,
-      "status": "not recorded",
+      "status": "dropped by the owner",
       "fixes": null,
       "breaks": null
     },
@@ -610,7 +610,7 @@
       "set": "bench-current/fresh-reference/gemini-3.8-flash",
       "total": 0,
       "planned": 192,
-      "status": "not recorded",
+      "status": "dropped by the owner",
       "fixes": null,
       "breaks": null
     },
@@ -644,7 +644,7 @@
       "set": "bench-current/map-rubric/gemini-3.8-flash",
       "total": 0,
       "planned": 156,
-      "status": "not recorded",
+      "status": "dropped by the owner",
       "fixes": null,
       "breaks": null
     },
@@ -678,7 +678,7 @@
       "set": "bench-current/map-reference/gemini-3.8-flash",
       "total": 0,
       "planned": 180,
-      "status": "not recorded",
+      "status": "dropped by the owner",
       "fixes": null,
       "breaks": null
     },
@@ -712,7 +712,7 @@
       "set": "bench-current/hard-rubric/gemini-3.8-flash",
       "total": 0,
       "planned": 120,
-      "status": "not recorded",
+      "status": "dropped by the owner",
       "fixes": null,
       "breaks": null
     },
@@ -746,7 +746,7 @@
       "set": "bench-current/hard-factuality/gemini-3.8-flash",
       "total": 0,
       "planned": 120,
-      "status": "not recorded",
+      "status": "dropped by the owner",
       "fixes": null,
       "breaks": null
     },
@@ -780,7 +780,7 @@
       "set": "bench-current/hard-pii/gemini-3.8-flash",
       "total": 0,
       "planned": 120,
-      "status": "not recorded",
+      "status": "dropped by the owner",
       "fixes": null,
       "breaks": null
     },
@@ -814,7 +814,7 @@
       "set": "bench-current/hard-goal/gemini-3.8-flash",
       "total": 0,
       "planned": 120,
-      "status": "not recorded",
+      "status": "dropped by the owner",
       "fixes": null,
       "breaks": null
     },
@@ -848,7 +848,7 @@
       "set": "bench-current/heldout-rubric/gemini-3.8-flash",
       "total": 0,
       "planned": 72,
-      "status": "not recorded",
+      "status": "dropped by the owner",
       "fixes": null,
       "breaks": null
     },
@@ -882,7 +882,7 @@
       "set": "bench-current/heldout-factuality/gemini-3.8-flash",
       "total": 0,
       "planned": 72,
-      "status": "not recorded",
+      "status": "dropped by the owner",
       "fixes": null,
       "breaks": null
     },
@@ -916,7 +916,7 @@
       "set": "bench-current/heldout-pii/gemini-3.8-flash",
       "total": 0,
       "planned": 72,
-      "status": "not recorded",
+      "status": "dropped by the owner",
       "fixes": null,
       "breaks": null
     },
@@ -950,7 +950,7 @@
       "set": "bench-current/heldout-goal/gemini-3.8-flash",
       "total": 0,
       "planned": 72,
-      "status": "not recorded",
+      "status": "dropped by the owner",
       "fixes": null,
       "breaks": null
     },
@@ -984,7 +984,7 @@
       "set": "bench-current/planted-verify/gemini-3.8-flash",
       "total": 0,
       "planned": 190,
-      "status": "not recorded",
+      "status": "dropped by the owner",
       "fixes": null,
       "breaks": null
     },
@@ -1018,7 +1018,7 @@
       "set": "bench-current/planted-rubric/gemini-3.8-flash",
       "total": 0,
       "planned": 120,
-      "status": "not recorded",
+      "status": "dropped by the owner",
       "fixes": null,
       "breaks": null
     }
