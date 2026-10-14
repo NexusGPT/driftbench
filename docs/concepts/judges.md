@@ -46,6 +46,8 @@ A reference to a name the spec does not define is an error. A spec with no `crit
 
 ## Criteria folders and fixture pairs
 
+Every field of a criterion file and of a label file is in the [criteria and labels reference](../reference/criteria.md).
+
 A criteria folder holds one YAML file per criterion, named after it. Each file holds the `criterion`, in the same shape as a spec's `criteria` entry, and a fixture pair: a `pass` slice the criterion must pass and a `fail` slice it must fail.
 
 ```text
@@ -146,6 +148,7 @@ Without its catalog, a real judge cannot answer `sheet_matches_catalog`: haiku a
 * An evidence quote can include its entry's rendered role prefix. It must match that entry's actual role and text. A role alone, tool name alone, wrong role or invented passage is not grounded.
 * `parseAnswerText` and `parseAnswerValue` remain explicit binary parsing utilities. Their public answer shape is `outcome`, `reasoning`, optional `score` and optional `evidence`; they are distinct from the default model-facing ledger contract.
 * `answerContract: 'legacy'` reproduces main `a97cb65e` rendering and parsing, including literal entry separators and its original quote repair. Additional repair forms and guard hardening do not change legacy playback.
+* `criterionPromptVersion: 2` on a request is opt-in. It sends the default criterion prompt plus three rules: compare named identifiers, numbers and units exactly; treat facts the criterion states as the expected values, so `met` is not null for want of an outside source; let the record the question names decide, over the scope line and a contradicting reply. It has its own prompt fingerprint, so its recordings are separate. The default stays version 1 with unchanged bytes and keys. Version 2 does not apply to legacy, assessment or caller-supplied system prompts.
 * Council and calibration paths retry an unparseable normal-budget answer once with the large budget. A single judge re-asks an invalid criterion ledger once. A split council can still run its existing additional round. A provider refusal or unresolved check remains inconclusive.
 
 ## Two classes of judge
@@ -655,6 +658,7 @@ Chat models now return a named winner instead of translating a winner into pass 
 * `winnerQuote` copies a passage that appears in the winner and not in the other candidate. The passage can occur anywhere and must be nonempty. It is null for a tie or missing data. A decisive answer without candidates or with a blank quote is unparseable.
 * For serialized JSON, the substantive span is checked after string unescaping and mapped back to its original source positions. A quote inside an escaped role token, a JSON `text` wrapper key or an escape spelling for punctuation cannot ground. JSON normalization still needs content from the decoded values.
 * A literal substring of a candidate retains its match, including an opening code fence copied from a complete fence. Normalization adds matching views; it cannot remove a substantive literal match. Quotes still need a letter or digit from the candidate body, excluding role and list metadata, and must identify exactly one candidate across all matching views.
+* Ordinary criterion evidence has one quote without a letter or digit that grounds: `{}` or `[]`, white space aside, quoted from a transcript entry, input, artifact or Given whose whole text is that same empty container. It is how a check cites an empty file. Any other source, and any other decoration-only quote, leaves it ungrounded.
 * If a quote is shared, the parser can extend it with following evidence text that the model actually supplied, including a winner-labelled quoted passage. The complete extension must occur in order in exactly one candidate. Code never invents following words from the A/B label. An evidence passage may repeat the shared opening; code removes that overlap before extending it. Strict JSON string or text-field decoding, rendered separators, Markdown/list presentation and a leading reply label can normalize copies. The label must agree with the declared winner, then the same stripped quote body is checked against both candidates. A label never excludes the other candidate. Malformed or duplicate JSON is not decoded. Paraphrase and nonexclusive matches remain invalid.
 * A malformed answer gets one re-ask with the large budget. An ambiguous quote's re-ask explicitly says "your quote matches both replies" and requests a distinguishing passage. A still-invalid answer stays inconclusive.
 * Every built-in chat client sends and parses the request's assessment contract. Custom clients that already return binary outcomes remain supported, including probability clients. They do not provide the named-winner integrity check until they adopt `parseJudgeText(raw, request)` or `parseJudgeValue(value, request)`.

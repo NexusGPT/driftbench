@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { isPlainObject } from '../spec/normalize';
 import {
   Assertion,
   Budget,
@@ -10,6 +11,7 @@ import {
   TargetRef,
   WorldState,
 } from './common';
+import { parameterSchema, unsupportedSchemaKeywords } from './json-schema';
 
 /**
  * The spec format. A spec is one golden conversation (or one task for a code agent) written as a
@@ -136,6 +138,11 @@ export const JsonExpect = z
       ),
     schema: z
       .record(z.string(), z.json())
+      .superRefine((schema, ctx) => {
+        for (const issue of unsupportedSchemaKeywords(schema)) {
+          ctx.addIssue({ code: 'custom', ...issue });
+        }
+      })
       .optional()
       .describe('A JSON Schema the reply must match; an undeclared key fails.'),
     paths: z
@@ -381,7 +388,7 @@ export const Expect = z
       .min(1)
       .optional()
       .describe(
-        'The reply must equal this text after normalising: case, surrounding space and punctuation ignored; two numbers compare as numbers.',
+        'The reply must equal this text after normalising: case, surrounding space and punctuation ignored; two numbers compare as numbers. A dot or comma between two digits counts, except a strictly grouped thousands comma.',
       ),
     exact_strict: z
       .boolean()
@@ -431,6 +438,12 @@ export const Expect = z
       .optional()
       .describe('Facts given earlier that the block must not ask for again, and may have to use.'),
     lang: Lang.optional().describe('The language of the reply.'),
+    pii_judge: z
+      .boolean()
+      .optional()
+      .describe(
+        'Opt in to judged detection of personal names and addresses in the visible reply. Requires a configured personal-data judge; absent or false makes no model calls. Missing or failed judging is gating inconclusive.',
+      ),
     cards: z.array(CardExpect).optional().describe('The cards expected in the block.'),
     criteria: z
       .array(z.string().min(1))
@@ -653,7 +666,18 @@ export const Spec = z
     rules: Rules.optional().describe('Rules for the whole conversation.'),
     end_state: EndState.optional().describe('The expected end state of the world after the run.'),
     perturbations: z.array(PerturbationSpec).optional().describe('Deviations to inject in perturbed mode.'),
-    metadata: z.record(z.string(), z.unknown()).optional().describe('Free metadata.'),
+    metadata: z
+      .record(z.string(), z.unknown())
+      .superRefine((metadata, ctx) => {
+        if (!isPlainObject(metadata.tool_schemas)) return;
+        for (const [label, definition] of Object.entries(metadata.tool_schemas)) {
+          for (const issue of unsupportedSchemaKeywords(parameterSchema(definition))) {
+            ctx.addIssue({ code: 'custom', ...issue, path: ['tool_schemas', label, ...issue.path] });
+          }
+        }
+      })
+      .optional()
+      .describe('Free metadata.'),
   })
   .describe('One golden conversation, or one task for a code agent, written as a succession of blocks.');
 export type Spec = z.infer<typeof Spec>;

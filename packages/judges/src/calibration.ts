@@ -41,21 +41,37 @@ const COUNCIL_SIZE = 3;
  * a span is a trace span id, which the transcript cannot show.
  */
 export const AnnotationAnchor = z.discriminatedUnion('kind', [
-  z.strictObject({ kind: z.literal('message'), index: z.number().int().min(0) }),
   z.strictObject({
-    kind: z.literal('tool_call'),
-    tool: z.string().min(1),
-    occurrence: z.number().int().min(1).optional(),
+    kind: z.literal('message').describe('A transcript line.'),
+    index: z.number().int().min(0).describe('The index of the line in the transcript, from 0.'),
   }),
-  z.strictObject({ kind: z.literal('field'), path: z.string().min(1) }),
-  z.strictObject({ kind: z.literal('span'), span_id: z.string().min(1) }),
+  z.strictObject({
+    kind: z.literal('tool_call').describe('A tool the transcript calls.'),
+    tool: z.string().min(1).describe('The tool name.'),
+    occurrence: z
+      .number()
+      .int()
+      .min(1)
+      .optional()
+      .describe('Which call of that tool, from 1; 1 when absent.'),
+  }),
+  z.strictObject({
+    kind: z.literal('field').describe('A field of the ledger or of a tool output.'),
+    path: z.string().min(1).describe('The dot path of the field.'),
+  }),
+  z.strictObject({
+    kind: z.literal('span').describe('A trace span, which the transcript cannot show.'),
+    span_id: z.string().min(1).describe('The span id the run recorded.'),
+  }),
 ]);
 export type AnnotationAnchor = z.infer<typeof AnnotationAnchor>;
 
 export const LabelledBlock = CriterionFixture.extend({
-  id: z.string().min(1),
-  label: z.enum(['pass', 'fail']),
-  anchor: AnnotationAnchor.optional(),
+  id: z.string().min(1).describe('The id of the block; a new label for the same id replaces the old one.'),
+  label: z.enum(['pass', 'fail']).describe("The human's verdict on the criterion: pass or fail."),
+  anchor: AnnotationAnchor.optional().describe(
+    'The element of the block the label is about; absent: the whole block.',
+  ),
 });
 export type LabelledBlock = z.infer<typeof LabelledBlock>;
 
@@ -122,10 +138,10 @@ function fieldAt(root: unknown, path: string): boolean {
 
 /** One labels file: the hand-labelled blocks of one criterion. */
 export const LabelFile = z.strictObject({
-  criterion: z.string().min(1),
+  criterion: z.string().min(1).describe('The name of the criterion the labels are for.'),
   /** Who labelled, for a reader. */
-  labelled_by: z.string().optional(),
-  blocks: z.array(LabelledBlock).min(1),
+  labelled_by: z.string().optional().describe('Who labelled, for a reader.'),
+  blocks: z.array(LabelledBlock).min(1).describe('The labelled blocks.'),
 });
 export type LabelFile = z.infer<typeof LabelFile>;
 
