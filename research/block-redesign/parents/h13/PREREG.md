@@ -23,7 +23,7 @@ Source: section 5 of `reports/Driftbench block redesign deep.md` (row H13), mech
 - A stand-in written for this lane: the Acme sales assistant on `claude-haiku-5-5`, temperature 0, `max_tokens` 700. Its system prompt is `agent-prompt.md` (the dialogue policy of `examples/acme/src/policy.ts` in prose). Its five tools are the real implementations of `examples/acme/src/tools.ts` over a fresh store for each conversation; tool names use `_` for `.` (`tools.json`).
 - Key: `~/.nexus-secrets/anthropic-driftbench.key`, loaded in the command, never printed.
 - No judge, no second model. Scoring is code (`live.ts`, `scoreBlock`): a block passes when (a) each expected tool has exactly `count` calls in the turn, and for `count > 0` with an `input`, at least one call has an input that contains the expected keys (a `customer.subset` matches as a subset; strings compare case-insensitively); (b) no tool of `rules.forbidden_tools` is called in the turn; (c) every `must` string matches the reply as a case-insensitive pattern after removing `*` `_`, folding curly quotes and collapsing spaces; (d) no `must_not` string occurs. Stage, `stage_reported`, language, guards, criteria and `one_message_per_turn` are not checked, because the live agent does not report them. This lowers the sensitivity of every verdict equally. It is a stated limit.
-- A block's `given.world.tools` override (9 children of the sample plan, 19 blocks in the population) is honoured in its turn.
+- A block's `given.world.tools` override (5 items of the plan; 19 blocks in the whole population) is honoured in its turn.
 
 ## Arms and definitions
 
