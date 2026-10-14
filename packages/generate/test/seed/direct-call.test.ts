@@ -62,6 +62,10 @@ describe('a tool a user asks for directly', () => {
       expect(value).toBeLessThanOrEqual(integer.maximum);
       expect(enumField.members).toContain(call.input?.[enumField.name]);
       expect(call.input_closed).toBe(true);
+      // A call is a direct call at the defaults, or a value turn for the integer with the enum at its default.
+      expect(value === defaultValue(integer) || call.input?.[enumField.name] === enumField.members[0]).toBe(
+        true,
+      );
     }
     expect(calls.some((call) => call.input?.[integer.name] === defaultValue(integer))).toBe(true);
   }, 180_000);
