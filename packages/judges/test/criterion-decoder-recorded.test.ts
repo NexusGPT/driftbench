@@ -3,16 +3,17 @@ import { gunzipSync } from 'node:zlib';
 import { describe, expect, it } from 'vitest';
 import { parseJudgeText } from '../src/assessment';
 import type { JudgeRequest } from '../src/contract';
-import symbolQuoteMoves from './fixtures/symbol-quote-moves.json';
+import decoderTwoMoves from './fixtures/decoder-2-moves.json';
 import emptySourceFixes from './fixtures/whole-empty-source-fixes.json';
 
 // Recorded met false ledgers that quote an empty `{}` file exactly. The frozen fixture holds them as
 // inconclusive; grounding the whole empty source decodes each to its true verdict, fail.
 const movedBy = emptySourceFixes as Record<string, string[]>;
 
-// Recorded span lists whose quote is symbols alone, a run of brackets, found in the source they name. The
-// frozen candidate column holds them as inconclusive; version 2 now grounds them and keeps the recorded met.
-const symbolMoved = symbolQuoteMoves as Record<string, Record<string, string>>;
+// Recorded span lists that version 2 now reads: a quote of symbols alone found in the source it names, an
+// input source label spelled another way (`input/<path>`), or a span quoting the criterion, which is dropped.
+// The frozen candidate column holds these rows as inconclusive; version 2 keeps the recorded met.
+const symbolMoved = decoderTwoMoves as Record<string, Record<string, string>>;
 
 const fixture = JSON.parse(
   gunzipSync(
@@ -110,7 +111,7 @@ describe('zero-cost recorded criterion decoder replay', () => {
       expect(breaks).toBe(0);
     });
   }
-  it('lists only recorded rows for the symbol quote moves', () => {
+  it('lists only recorded rows for the version 2 moves', () => {
     for (const [set, ids] of Object.entries(symbolMoved))
       for (const id of Object.keys(ids))
         expect(

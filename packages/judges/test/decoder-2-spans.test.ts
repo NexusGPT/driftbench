@@ -66,3 +66,72 @@ describe('a quote of symbols alone, under the default decoder', () => {
     ).toEqual({ grounded: false });
   });
 });
+
+describe('an input source label spelled another way, under the default decoder', () => {
+  const two: JudgeRequest = {
+    criterion: { name: 'c', rubric: 'The reply states the plan price from the reference.' },
+    transcript: [{ role: 'agent', text: 'Lumen-12 costs 57 credits.' }],
+    inputs: [
+      { path: 'reference.txt', text: 'Lumen-12 costs 57 credits per month.' },
+      { path: 'order.json', text: '{"plan_id":"Lumen-12","quantity":2}' },
+    ],
+  };
+  const spanLedger = (source: string, quote: string) =>
+    JSON.stringify({
+      checks: [
+        {
+          id: 'c',
+          reasoning: 'The price matches.',
+          evidence: [
+            { source: 'transcript.0', quote: 'Lumen-12 costs 57 credits.' },
+            { source, quote },
+          ],
+          met: true,
+        },
+      ],
+    });
+  const quote = 'Lumen-12 costs 57 credits per month.';
+  it.each([
+    'input/reference.txt',
+    'input_data/reference.txt',
+    'input. reference.txt',
+    'input<reference.txt>',
+    'input reference.txt',
+    'inputs/reference.txt',
+  ])('reads %s as input.reference.txt', (source) => {
+    expect(
+      parseJudgeText(spanLedger(source, quote), { ...two, criterionDecoderVersion: 2 }).unparsed,
+    ).toBeUndefined();
+    expect(groundEvidenceSpan(two, { source, quote }, { inputSpellings: true })).toEqual({
+      grounded: true,
+      where: 'input.reference.txt',
+    });
+  });
+  it('never guesses among inputs, nor reads a quote from another input', () => {
+    for (const source of [
+      'input_data',
+      'input',
+      'input/missing.txt',
+      'input/order.json',
+      'inputx/reference.txt',
+    ])
+      expect(
+        parseJudgeText(spanLedger(source, quote), { ...two, criterionDecoderVersion: 2 }).unparsed,
+        source,
+      ).toBe(true);
+  });
+  it('reads a bare input label as the sole input', () => {
+    const one: JudgeRequest = { ...two, inputs: two.inputs?.slice(0, 1) };
+    for (const source of ['input_data', 'input', 'inputs'])
+      expect(groundEvidenceSpan(one, { source, quote }, { inputSpellings: true }), source).toEqual({
+        grounded: true,
+        where: 'input.reference.txt',
+      });
+  });
+  it('stays rejected by the strict decoder, version 1', () => {
+    expect(
+      parseJudgeText(spanLedger('input/reference.txt', quote), { ...two, criterionDecoderVersion: 1 })
+        .unparsed,
+    ).toBe(true);
+  });
+});
