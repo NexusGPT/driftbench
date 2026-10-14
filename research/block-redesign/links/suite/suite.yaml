@@ -53,7 +53,7 @@ conversations:
         links: [upgrade_identify, upgrade_more_data]
         checks:
           - called: {tool: catalog_search, input: {customer_email: {re: "sam\\.rivera"}}}
-          - must_not: ["Mobile S,"]
+          - must: ["Mobile M", "Mobile L"]
       - id: ly2
         user: "The unlimited one."
         links: [recap]

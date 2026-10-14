@@ -38,3 +38,7 @@ The primary verdict is on data set 3 when it has at least 10 evaluable faults; o
 ## Seeds and budget
 
 Seeds: 20261014 for the simulation. No model calls in H5 itself; the lane budget is the H7 ledger.
+
+## Amendment 1 (2026-10-14, before any mutant run)
+
+The H7 amendment adds 20 two-section mutants (both sections negated). They become the real-suite double faults of data set 3: scored with the "first faulty section found" rule above, reported apart from single faults and pooled. The falsifier counts all evaluable real-suite faults (single and double).
