@@ -14,6 +14,7 @@
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { summarySvg } from './readme-summary.mjs';
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..');
 const OUT = join(ROOT, 'docs', 'assets');
@@ -354,8 +355,8 @@ function judgeData(leadsOnly) {
     kind: 'pairs',
     kicker: 'Judge accuracy · held-out cases · Claude Haiku 5.5 on both sides',
     title: leadsOnly
-      ? `${all.length} clear wins over the default judges.`
-      : `${total} judge tests: ${count('lead')} ahead, ${count('deficit')} behind, ${count('close')} level.`,
+      ? `Cases correct of ${all[0].n}, driftbench against DeepEval's default.`
+      : `${total} judge tests, cases correct.`,
     key: ['driftbench, shipped judge', "the other tool's default"],
     min: 0,
     max: 100,
@@ -374,7 +375,7 @@ function costData() {
   return {
     kind: 'pairs',
     kicker: 'Judge cost · US dollars per 100 cases · Claude Haiku 5.5',
-    title: `Cheaper on ${rows.filter((r) => r.ours < r.theirs).length} of ${rows.length} rows.`,
+    title: 'Cost per 100 judged cases.',
     key: ['driftbench, shipped judge', "the other tool's default"],
     min: 0,
     max: 0.15,
@@ -528,7 +529,21 @@ const MODEL = {
 const FILE_MODEL = { 'claude-haiku-5-5': 'haiku' };
 const inFile = (model) => FILE_MODEL[model] ?? model;
 const PROMPTFOO = 'promptfoo';
-const bar = (name, score, extra = {}) => ({ name, score: score === null ? null : round(score), ...extra });
+// Competitors are grey, each with its own fill pattern; driftbench is the only coloured bar.
+const PATTERNS = {
+  promptfoo: 'hatch',
+  DeepEval: 'dots',
+  Inspect: 'cross',
+  Langfuse: 'lines',
+  LangWatch: 'light',
+};
+// three decimals: a score read to one decimal later must not be rounded twice
+const bar = (name, score, extra = {}) => ({
+  name,
+  score: score === null ? null : Number(score.toFixed(3)),
+  ...(PATTERNS[name] && !extra.ours ? { pattern: PATTERNS[name] } : {}),
+  ...extra,
+});
 
 /** One panel of a ranked chart: a model, the size of its set, and its bars. `sizes` is "n pairs" or null. */
 function modelPanel(chart, model, size, bars, source) {
@@ -568,7 +583,7 @@ const MODEL_IN_PEERS_FILE = { 'claude-haiku-5-5': 'Claude Haiku 5.5' };
 
 /** Adds one bar per recorded competitor to every panel; returns the names drawn. A contestant that is
  *  incomplete in the file, or run on another model, is drawn as "not run" in that panel. */
-function addPeers(chart, bench, panels) {
+function addPeers(chart, bench, panels, labels = {}) {
   const path = join(PEERS_DIR, `${bench}-all-peers.json`);
   if (!existsSync(path)) return [];
   const file = JSON.parse(readFileSync(path, 'utf8'));
@@ -576,6 +591,17 @@ function addPeers(chart, bench, panels) {
   const cohort = bench === 'mmeval' ? 'primary' : 'all';
   const shown = path.startsWith(ROOT) ? path.slice(ROOT.length + 1) : path;
   const names = [];
+  // The file holds driftbench and promptfoo cells too: they fill a panel where the sealed files have none.
+  for (const id of ['driftbench', PROMPTFOO]) {
+    const row = file.contestants.find((c) => c.contestant === id);
+    const panel = panels.find((p) => p.name === model);
+    const mine = panel?.bars.find((b) => b.name === (id === 'driftbench' ? 'driftbench' : PROMPTFOO));
+    if (row?.[cohort] && mine && mine.score === null) {
+      mine.score = Number((row[cohort].score * 100).toFixed(3));
+      panel.model = `${row[cohort].n.toLocaleString('en-US')} ${file.unit.startsWith('item') ? 'items' : file.unit.startsWith('pair') ? 'pairs' : 'games'}`;
+      fact(chart, `${panel.name}: ${mine.name}, percent`, mine.score, shown);
+    }
+  }
   for (const row of file.contestants.filter((c) => !OWN.has(c.contestant))) {
     const name = PEER_NAME[row.contestant] ?? row.contestant;
     // A peer that refused some items is drawn with its score, which counts each refusal as wrong, and the
@@ -583,6 +609,7 @@ function addPeers(chart, bench, panels) {
     const refused = row.transportMissing ?? 0;
     const hasResult = row[cohort] !== undefined && (row.present === undefined || row.present > 0);
     names.push(name);
+    labels[name] = row.grader ?? name;
     for (const panel of panels) {
       const drawn = hasResult && panel.name === model;
       const score = drawn ? row[cohort].score * 100 : null;
@@ -599,16 +626,26 @@ function addPeers(chart, bench, panels) {
 }
 
 const ranked = ({ chart, bench, kicker, title, key, panels, note }) => {
-  const peers = addPeers(chart, bench, panels);
+  const labels = {};
+  const peers = addPeers(chart, bench, panels, labels);
   const drawn = [PROMPTFOO, ...peers].join(', ');
+  // which models have no driftbench result, read from the panels as drawn
+  const unrun = panels.filter((p) => p.bars.find((b) => b.ours)?.score === null).map((p) => p.name);
+  const missing = unrun.length
+    ? `${note ? ' ' : ''}Not run for driftbench and promptfoo: ${unrun.join(', ')}.`
+    : '';
   return {
     kind: 'ranked',
     kicker,
     title,
-    key,
+    key: [
+      ...key.filter((k) => k.style !== 'other'),
+      ...key.filter((k) => k.style === 'other').map((k) => ({ ...k, pattern: PATTERNS[PROMPTFOO] })),
+      ...peers.map((n) => ({ label: labels[n], style: 'other', pattern: PATTERNS[n] })),
+    ],
     axis: 'score out of 100: correct, % of items',
     panels: orderPanels(panels),
-    note: `Competitors with a recorded result on this benchmark in this repository: ${drawn}. ${note}`,
+    note: `Competitors with a recorded result on this benchmark in this repository: ${drawn}. ${note}${missing}`.trim(),
   };
 };
 const notRun = (ours, competitor) => [bar(ours, null, { ours: true }), bar(competitor, null)];
@@ -620,7 +657,7 @@ function sealedJudgeBench() {
     const c = cells.find((x) => x.model === model);
     return c
       ? modelPanel(
-          'bench-judgebench',
+          'bench-judgebench-models',
           model,
           `${c.n} pairs`,
           [
@@ -629,10 +666,10 @@ function sealedJudgeBench() {
           ],
           file,
         )
-      : modelPanel('bench-judgebench', model, null, notRun('driftbench', PROMPTFOO), file);
+      : modelPanel('bench-judgebench-models', model, null, notRun('driftbench', PROMPTFOO), file);
   });
   return ranked({
-    chart: 'bench-judgebench',
+    chart: 'bench-judgebench-models',
     bench: 'judgebench',
     kicker: 'JudgeBench · sealed test · same items, same model in each panel',
     title: `JudgeBench: driftbench scores ${versus(panels, PROMPTFOO)}.`,
@@ -652,9 +689,9 @@ function sealedMmEval() {
     const c = data.models[inFile(model)]?.primary;
     // a model whose run covers under 98 percent of the planned items is not charted as a result
     if (!c || c.matched < data.planned * 0.98)
-      return modelPanel('bench-mm-eval', model, null, notRun('driftbench', PROMPTFOO), file);
+      return modelPanel('bench-mm-eval-models', model, null, notRun('driftbench', PROMPTFOO), file);
     return modelPanel(
-      'bench-mm-eval',
+      'bench-mm-eval-models',
       model,
       `${c.matched} pairs`,
       [bar('driftbench', c.scores.ledger * 100, { ours: true }), bar(PROMPTFOO, c.scores.promptfoo * 100)],
@@ -662,7 +699,7 @@ function sealedMmEval() {
     );
   });
   return ranked({
-    chart: 'bench-mm-eval',
+    chart: 'bench-mm-eval-models',
     bench: 'mmeval',
     kicker: "MM-Eval · sealed test · the benchmark's own score",
     title: `MM-Eval: driftbench scores ${versus(panels, PROMPTFOO)}.`,
@@ -693,9 +730,9 @@ function sealedRubricBench() {
   const panels = MODELS.map((model) => {
     const [c, file] = cells[model];
     if (!c?.coverage?.complete)
-      return modelPanel('bench-rubricbench', model, null, notRun('driftbench', PROMPTFOO), file);
+      return modelPanel('bench-rubricbench-models', model, null, notRun('driftbench', PROMPTFOO), file);
     return modelPanel(
-      'bench-rubricbench',
+      'bench-rubricbench-models',
       model,
       `${c.stats.pairs} pairs`,
       [
@@ -706,7 +743,7 @@ function sealedRubricBench() {
     );
   });
   return ranked({
-    chart: 'bench-rubricbench',
+    chart: 'bench-rubricbench-models',
     bench: 'rubricbench',
     kicker: 'RubricBench · test split · both orders of every pair',
     title: `RubricBench: driftbench scores ${versus(panels, PROMPTFOO)}.`,
@@ -727,11 +764,17 @@ function sealedVerify() {
     const c = data.cells.find((x) => x.model === inFile(model) && x.official);
     const baseline = bar('always fail', fail, { baseline: true });
     if (!c)
-      return modelPanel('bench-verify', model, null, [...notRun('driftbench', PROMPTFOO), baseline], file);
+      return modelPanel(
+        'bench-verify-models',
+        model,
+        null,
+        [...notRun('driftbench', PROMPTFOO), baseline],
+        file,
+      );
     const [ours, theirs] = c.official.correct;
     const n = c.official.matchedItems;
     return modelPanel(
-      'bench-verify',
+      'bench-verify-models',
       model,
       `${n} items`,
       [bar('driftbench', pct(ours, n), { ours: true }), bar(PROMPTFOO, pct(theirs, n)), baseline],
@@ -739,7 +782,7 @@ function sealedVerify() {
     );
   });
   return ranked({
-    chart: 'bench-verify',
+    chart: 'bench-verify-models',
     bench: 'verify',
     kicker: 'LongJudgeBench verify · test split · is the final answer correct',
     title: 'Verify: above promptfoo, below a judge that always says fail.',
@@ -749,7 +792,7 @@ function sealedVerify() {
       { label: 'no model', style: 'baseline' },
     ],
     panels,
-    note: `Run with GPT-6 Luna only; the other two models are not run.`,
+    note: '',
   });
 }
 
@@ -763,10 +806,16 @@ function sealedWriting() {
     const peer = cells.find((c) => c.model === key && c.contestant === 'promptfoo');
     const baseline = bar('longer reply', longer.accuracy, { baseline: true });
     if (ours?.status !== 'complete' || peer?.status !== 'complete') {
-      return modelPanel('bench-writing', model, null, [...notRun('driftbench', PROMPTFOO), baseline], file);
+      return modelPanel(
+        'bench-writing-models',
+        model,
+        null,
+        [...notRun('driftbench', PROMPTFOO), baseline],
+        file,
+      );
     }
     return modelPanel(
-      'bench-writing',
+      'bench-writing-models',
       model,
       `${ours.pairs} pairs`,
       [bar('driftbench', ours.accuracy, { ours: true }), bar(PROMPTFOO, peer.accuracy), baseline],
@@ -774,7 +823,7 @@ function sealedWriting() {
     );
   });
   return ranked({
-    chart: 'bench-writing',
+    chart: 'bench-writing-models',
     bench: 'writing',
     kicker: 'LongJudgeBench writing preference · test split · both orders',
     title: `Writing: driftbench scores ${versus(panels, PROMPTFOO)}; picking the longer reply beats both.`,
@@ -867,10 +916,7 @@ function hardPerTool(tool) {
     };
   }
   const atLeast = group.rows.filter((r) => r.ours >= r.theirs).length;
-  const title =
-    ahead || behind
-      ? `${name}: ${parts.join(', ')} of ${group.rows.length} tests.`
-      : `${name}: equal or higher on ${atLeast} of ${group.rows.length} tests.`;
+  const title = `${name}: cases correct of ${group.rows[0].n}.`;
   return columns(`hard-${tool}`, {
     kicker: `${kicker} · bars labelled with cases correct`,
     title,
@@ -880,6 +926,187 @@ function hardPerTool(tool) {
   });
 }
 
+// ---------------------------------------------------------------------------------------------
+// The README charts: one per benchmark, driftbench beside every competitor on one model, best case
+// ---------------------------------------------------------------------------------------------
+
+let readerFirstDefault = 0;
+let longerReply = 0;
+const BEST = [
+  {
+    chart: 'bench-judgebench',
+    bench: 'judgebench',
+    name: 'JudgeBench',
+    unit: 'pairs',
+    kicker: 'JudgeBench · sealed test · official pair score',
+  },
+  {
+    chart: 'bench-mm-eval',
+    bench: 'mmeval',
+    name: 'MM-Eval',
+    unit: 'items',
+    kicker: "MM-Eval · sealed test · the benchmark's own score",
+  },
+  {
+    chart: 'bench-rubricbench',
+    bench: 'rubricbench',
+    name: 'RubricBench',
+    unit: 'games',
+    kicker: 'RubricBench · test split · both orders of every pair',
+  },
+  {
+    chart: 'bench-verify',
+    bench: 'verify',
+    name: 'Verify',
+    unit: 'items',
+    kicker: 'LongJudgeBench verify · test split · is the final answer correct',
+  },
+  {
+    chart: 'bench-writing',
+    bench: 'writing',
+    name: 'Writing',
+    unit: 'games',
+    kicker: 'LongJudgeBench writing preference · test split · both orders',
+  },
+];
+const TOOL_NAME = { promptfoo: 'promptfoo', ...PEER_NAME };
+
+/** One chart per benchmark from the all-competitors file: driftbench and every competitor on the model that
+ *  file was run on, highest to lowest, scores out of 100, no baseline bars. Every competitor was run on that
+ *  one model only, so it is the only model where driftbench can be set against all of them. */
+function bestCase({ chart, bench, name, unit, kicker }) {
+  const path = `docs/comparison/benchmarks/${bench}-all-peers.json`;
+  const file = JSON.parse(readFileSync(join(PEERS_DIR, `${bench}-all-peers.json`), 'utf8'));
+  const cohort = bench === 'mmeval' ? 'primary' : 'all';
+  const model = MODEL[file.model] ?? file.model;
+  const row = (id) => file.contestants.find((c) => c.contestant === id);
+  // A footnote where driftbench used an opt-in setting: the writing bar is the reader-first setting.
+  const optIn = row('driftbench-reader-first');
+  const ours = optIn ?? row('driftbench');
+  const bars = [{ id: 'driftbench', row: ours, ours: true }];
+  for (const c of file.contestants) {
+    if (['driftbench', 'driftbench-reader-first'].includes(c.contestant)) continue;
+    bars.push({ id: c.contestant, row: c });
+  }
+  const labelOf = { [PROMPTFOO]: bench === 'verify' ? 'promptfoo llm-rubric' : 'promptfoo select-best' };
+  for (const b of bars) if (!b.ours && b.row.grader) labelOf[TOOL_NAME[b.id]] = b.row.grader;
+  const drawn = bars.map((b) => {
+    const cell = b.row[cohort];
+    const refused = b.row.transportMissing ?? 0;
+    const label = b.ours ? 'driftbench' : (TOOL_NAME[b.id] ?? b.id);
+    const out = bar(label, cell ? cell.score * 100 : null, {
+      ...(b.ours ? { ours: true } : {}),
+      ...(refused > 0 ? { refused } : {}),
+    });
+    fact(
+      chart,
+      `${label}, percent${refused > 0 ? ', refused items counted wrong' : ''}`,
+      out.score === null ? 'not run' : refused > 0 ? [out.score, refused] : out.score,
+      path,
+    );
+    return out;
+  });
+  const n = ours[cohort].n;
+  const others = drawn.filter((b) => !b.ours && b.score !== null);
+  const top = others.reduce((a, b) => (b.score > a.score ? b : a));
+  const tenth = (v) => Math.round(v * 10);
+  const mine = drawn[0].score;
+  const title = `${name}: driftbench scores ${p1(mine)}.`;
+  let note = `${model}, ${n.toLocaleString('en-US')} ${unit}. Every competitor ran on this model only. A refused item counts as wrong.`;
+  if (optIn) {
+    const plain = row('driftbench')[cohort];
+    readerFirstDefault = plain.score * 100;
+    const longer = json(`${SEALED}/writing.json`).cells.find((c) => c.contestant === 'longer-wins');
+    longerReply = longer.accuracy;
+    fact(
+      chart,
+      'driftbench default, reader-first setting, rule that picks the longer reply, percent',
+      [round(plain.score * 100), round(ours[cohort].score * 100), round(longer.accuracy)],
+      `${path}, ${SEALED}/writing.json`,
+    );
+    const same = Math.abs(ours[cohort].score * 100 - longer.accuracy) < 0.005;
+    note += ` The driftbench bar uses its opt-in reader-first setting (default ${p1(plain.score * 100)}).${same ? ` It scores the same as a rule that always picks the longer reply, ${p1(longer.accuracy)}.` : ''}`;
+  }
+  return {
+    kind: 'ranked',
+    kicker,
+    title,
+    key: [
+      { label: 'driftbench', style: 'ours' },
+      ...drawn
+        .filter((b) => !b.ours)
+        .map((b) => ({ label: labelOf[b.name], style: 'other', pattern: PATTERNS[b.name] })),
+    ],
+    axis: 'score out of 100: correct, % of items',
+    panels: [
+      {
+        name: model,
+        model: `${n.toLocaleString('en-US')} ${unit}`,
+        bars: drawn.sort((a, b) => (b.score ?? -1) - (a.score ?? -1)),
+      },
+    ],
+    note,
+  };
+}
+
+// ---------------------------------------------------------------------------------------------
+// The summary chart above the quickstart: the five benchmark charts side by side, drawn from their bars
+// ---------------------------------------------------------------------------------------------
+
+const DEFINITIONS = {
+  'bench-judgebench': 'Correct choices between a right answer and a wrong answer.',
+  'bench-mm-eval': 'Judgement across chat, reasoning, safety and language tasks.',
+  'bench-rubricbench': 'Choices between replies against the stated grading criteria.',
+  'bench-verify': 'LongJudgeBench: checks whether the final answer is correct.',
+  'bench-writing': 'LongJudgeBench: choice of the preferred written reply.',
+};
+const one = (v) => (Math.round(v * 10) / 10).toFixed(1);
+const SUMMARY_ORDER = ['driftbench', PROMPTFOO, 'DeepEval', 'Inspect', 'Langfuse', 'LangWatch'];
+
+function summaryData() {
+  const rows = BEST.map(({ chart, name }) => {
+    const panel = data[chart].panels[0];
+    const cells = SUMMARY_ORDER.map((n) => {
+      const b = panel.bars.find((x) => x.name === n);
+      if (!b || b.score === null) throw new Error(`${chart}: no score for ${n} in the summary chart`);
+      return { name: n, score: b.score };
+    });
+    const label = name === 'Verify' ? 'verify' : name === 'Writing' ? 'writing' : name;
+    return {
+      id: chart,
+      name: label,
+      unit: panel.model.split(' ')[1],
+      n: Number(panel.model.split(' ')[0].replaceAll(',', '')),
+      definition: DEFINITIONS[chart],
+      cells,
+    };
+  });
+  const writing = data['bench-writing'];
+  const notes = [
+    `Reader-first setting: ${one(rows.at(-1).cells[0].score)} shown; default ${one(readerFirstDefault)}.`,
+    `Same score as a rule that always picks the longer reply (${one(longerReply)}).`,
+  ];
+  void writing;
+  const model = data['bench-judgebench'].panels[0].name;
+  const sources = 'docs/comparison/benchmarks/*-all-peers.json';
+  const SUMMARY_TITLE = 'Judge accuracy on public benchmarks';
+  const args = { rows, title: SUMMARY_TITLE, model, sources, notes };
+  const alt = `${SUMMARY_TITLE}, ${model}, scores out of 100, bars ranked within each benchmark, driftbench the only coloured bar and each competitor grey with its own pattern, with an axis break from 30 to 50. ${rows
+    .map(
+      (r) =>
+        `${r.name}, ${r.n.toLocaleString('en-US')} ${r.unit}: ${[...r.cells]
+          .sort((a, b) => b.score - a.score)
+          .map((c) => `${c.name} ${one(c.score)}`)
+          .join(', ')}.`,
+    )
+    .join(' ')} ${notes.join(' ')}`;
+  return { title: args.title, svg: { light: summarySvg(false, args), dark: summarySvg(true, args) }, alt };
+}
+
+function readmeSummary() {
+  return `<p align="center">\n  <picture>\n    <source media="(prefers-color-scheme: dark)" srcset="docs/assets/summary-dark.png">\n    <img alt="${data.summary.alt}" src="docs/assets/summary-light.png" width="100%" />\n  </picture>\n</p>`;
+}
+
 const CHARTS = {
   'judge-leads': () => judgeData(true),
   'judge-cost': costData,
@@ -887,11 +1114,12 @@ const CHARTS = {
   'testgen-budget': budgetData,
   'self-tests': banksData,
   'capability-matrix': matrixData,
-  'bench-judgebench': sealedJudgeBench,
-  'bench-mm-eval': sealedMmEval,
-  'bench-rubricbench': sealedRubricBench,
-  'bench-verify': sealedVerify,
-  'bench-writing': sealedWriting,
+  ...Object.fromEntries(BEST.map((b) => [b.chart, () => bestCase(b)])),
+  'bench-judgebench-models': sealedJudgeBench,
+  'bench-mm-eval-models': sealedMmEval,
+  'bench-rubricbench-models': sealedRubricBench,
+  'bench-verify-models': sealedVerify,
+  'bench-writing-models': sealedWriting,
   'hard-deepeval': () => hardPerTool('deepeval'),
   'hard-promptfoo': () => hardPerTool('promptfoo'),
   'hard-inspect': () => hardPerTool('inspect'),
@@ -1033,14 +1261,182 @@ impactMoj();
 
 const data = {};
 for (const [name, build] of Object.entries(CHARTS)) {
+  const forSummary = PRINT === 'summary' && BEST.some((b) => b.chart === name);
+  if (PRINT && name !== PRINT && !forSummary) continue;
   data[name] = build();
 }
+if (!PRINT || PRINT === 'summary') data.summary = summaryData();
 if (PRINT) {
   if (!data[PRINT]) throw new Error(`no chart named ${PRINT}`);
   console.log(JSON.stringify(data[PRINT]));
   process.exit(0);
 }
+
+// ---------------------------------------------------------------------------------------------
+// The detail page of the public benchmarks: the per-model charts and their tables, written from the data
+// ---------------------------------------------------------------------------------------------
+
+const DETAIL = 'docs/comparison/benchmarks/index.md';
+
+function detailTable(chartName) {
+  const panels = data[chartName].panels;
+  const order = ['driftbench', PROMPTFOO, ...Object.values(PEER_NAME), 'always fail', 'longer reply'];
+  const names = order.filter((n) => panels.some((p) => p.bars.some((b) => b.name === n)));
+  const cell = (b) =>
+    !b || b.score === null ? 'not run' : `${b.score.toFixed(1)}${b.refused ? ` (${b.refused} refused)` : ''}`;
+  const rows = panels.map(
+    (p) =>
+      `| ${p.name} | ${p.model} | ${names.map((n) => cell(p.bars.find((b) => b.name === n))).join(' | ')} |`,
+  );
+  return [
+    `| Model | Set | ${names.join(' | ')} |`,
+    `|---|---|${names.map(() => '---:').join('|')}|`,
+    ...rows,
+  ].join('\n');
+}
+
+function detailPage() {
+  const section = (title, status, charts, extra = '') =>
+    [
+      `## ${title}`,
+      '',
+      status,
+      '',
+      ...charts.flatMap(([name, label]) => [
+        `![${label}: one panel per model, driftbench beside every recorded competitor, highest to lowest. The numbers are in the table below.](../../assets/${name}-light.png)`,
+        '',
+        detailTable(name),
+        '',
+      ]),
+      extra,
+    ]
+      .filter((line, i, all) => !(line === '' && all[i - 1] === ''))
+      .join('\n');
+  return `${[
+    '# Public judge benchmarks',
+    '',
+    'The README shows one chart per benchmark: driftbench beside every competitor on one model. This page holds the rest: one chart and one table per benchmark with every model that was run, and a "not run" where a contestant was not. Bars run from the highest score to the lowest, on one scale of 0 to 100. A refused item counts as wrong, and the table says how many. The sets, the rules and the limits of each result are in [how the README numbers were measured](../methods.md#public-benchmarks-against-promptfoo). A correction across the whole family of cells is pending, so no cell is called a win or a loss.',
+    '',
+    'DeepEval, Inspect, Langfuse and LangWatch were run on Claude Haiku 5.5 only. promptfoo and driftbench were also run on GPT-6 Luna and Gemini 3.5 Flash-Lite. Paired tests, wins, losses and spend per benchmark are in the [all-competitors tables](judgebench-all-peers.md).',
+    '',
+    section('JudgeBench', 'Three models, 270 sealed pairs each.', [
+      ['bench-judgebench-models', 'JudgeBench'],
+    ]),
+    section(
+      'LongJudgeBench',
+      'Verify is run on GPT-6 Luna for promptfoo and driftbench, and on Claude Haiku 5.5 for all contestants. Writing preference has 173 pairs per model, and a rule that picks the longer reply is drawn as a baseline.',
+      [
+        ['bench-verify-models', 'LongJudgeBench verify'],
+        ['bench-writing-models', 'LongJudgeBench writing preference'],
+      ],
+    ),
+    section(
+      'MM-Eval',
+      'Up to 600 sealed pairs per model. Claude Haiku 5.5 scores 591 pairs; the nine missing are safety items.',
+      [['bench-mm-eval-models', 'MM-Eval']],
+    ),
+    section('RubricBench', 'Three models, 790 pairs each.', [['bench-rubricbench-models', 'RubricBench']]),
+    '## RubricEval',
+    '',
+    'Data not public. No chart is planned.',
+  ].join('\n\n')}\n`.replace(/\n{3,}/g, '\n\n');
+}
+
+// ---------------------------------------------------------------------------------------------
+// The README blocks that repeat the numbers of the charts: alt text, labels and the table are written
+// from the same bars the charts draw, so a number cannot differ between them
+// ---------------------------------------------------------------------------------------------
+
+const README = 'README.md';
+
+const TASK = {
+  'bench-judgebench': 'picks the correct answer',
+  'bench-mm-eval': 'picks the better answer',
+  'bench-rubricbench': 'picks the reply that meets the grading criteria',
+  'bench-verify': 'decides whether the final answer is correct',
+  'bench-writing': 'picks the reply readers prefer',
+};
+
+/** One plain line that leads with driftbench's score and says what the reader gains, from the bars of the chart. */
+function benefit(chart) {
+  const bars = data[chart].panels[0].bars;
+  const ours = bars.find((b) => b.ours);
+  const rest = bars.filter((b) => !b.ours && b.score !== null).sort((a, b) => b.score - a.score);
+  const names = rest.map((b) => b.name);
+  const next = rest[0];
+  const tenth = (v) => Math.round(v * 10);
+  if (tenth(ours.score) > tenth(next.score)) {
+    return `driftbench ${TASK[chart]} more often than ${names.slice(0, -1).join(', ')} and ${names.at(-1)} on the same model: ${one(ours.score)}, against ${one(next.score)} for the next best, ${next.name}.`;
+  }
+  const below = rest.filter((b) => tenth(b.score) < tenth(ours.score));
+  const list = below.map((b) => `${b.name} (${one(b.score)})`);
+  const gap = one(next.score - ours.score);
+  return `driftbench ${TASK[chart]} ${one(ours.score)} times in 100, within ${gap} points of the top score (${next.name}, ${one(next.score)}) and above ${list.slice(0, -1).join(', ')} and ${list.at(-1)}.`;
+}
+
+function readmeCharts() {
+  const parts = [
+    ['bench-judgebench', 'judgebench', 'JudgeBench', 'pair ledger'],
+    ['bench-mm-eval', 'mm-eval', 'MM-Eval', 'pair ledger'],
+    ['bench-rubricbench', 'rubricbench', 'RubricBench', 'pair ledger'],
+    ['bench-verify', 'verify', 'Verify', 'frozen verify cascade'],
+    ['bench-writing', 'writing', 'Writing', 'pair ledger'],
+  ];
+  return parts
+    .map(([chart, file, label, mode]) => {
+      const c = data[chart];
+      const panel = c.panels[0];
+      const alt = `${c.title} ${panel.name}, ${panel.model}, percent correct, highest to lowest: ${panel.bars.map((b) => `${b.name} ${one(b.score)}`).join(', ')}.`;
+      const writing =
+        chart === 'bench-writing'
+          ? ` The driftbench bar uses its opt-in reader-first setting (long-structured), which scores the same as a rule that always picks the longer reply, ${one(panel.bars.find((b) => b.ours).score)}; the default setting scores ${one(readerFirstDefault)}.`
+          : '';
+      const refused = panel.bars.filter((b) => b.refused).map((b) => `${b.name} ${b.refused}`);
+      const foot = `${panel.name}, ${panel.model}. Each judge runs its default settings; driftbench runs its opt-in ${mode}. A refused item counts as wrong${refused.length ? ` (refused: ${refused.join(', ')})` : ''}.${writing}`;
+      return `**${label}.** ${benefit(chart)}\n\n<a href="docs/assets/bench-${file}-light.png">\n  <picture>\n    <source media="(prefers-color-scheme: dark)" srcset="docs/assets/bench-${file}-dark.png">\n    <img alt="${alt}" src="docs/assets/bench-${file}-light.png" width="100%">\n  </picture>\n</a>\n<p align="center"><sub>${foot}</sub></p>\n`;
+    })
+    .join('\n');
+}
+
+function readmeTable() {
+  const names = ['driftbench', PROMPTFOO, 'DeepEval', 'Inspect', 'Langfuse', 'LangWatch'];
+  const rows = [
+    ['bench-judgebench', 'JudgeBench'],
+    ['bench-mm-eval', 'MM-Eval'],
+    ['bench-rubricbench', 'RubricBench'],
+    ['bench-verify', 'LongJudgeBench verify'],
+    ['bench-writing', 'LongJudgeBench writing'],
+  ].map(([chart, label]) => {
+    const panel = data[chart].panels[0];
+    const reader = chart === 'bench-writing' ? ' (footnote)' : '';
+    const cells = names.map((n) => {
+      const b = panel.bars.find((x) => x.name === n);
+      return b && b.score !== null ? one(b.score) : 'not run';
+    });
+    return `| ${label}, ${panel.model}${reader} | ${cells.join(' | ')} |`;
+  });
+  return `| Benchmark | ${names.join(' | ')} |\n|---|${names.map(() => '---:').join('|')}|\n${rows.join('\n')}\n\nFootnote: the driftbench figure for writing uses its opt-in reader-first setting (long-structured); the default setting scores ${one(readerFirstDefault)}.`;
+}
+
+function readmeText() {
+  const swap = (text, tag, body) => {
+    const start = `<!-- ${tag}:start -->`;
+    const end = `<!-- ${tag}:end -->`;
+    const a = text.indexOf(start);
+    const b = text.indexOf(end);
+    if (a < 0 || b < 0) throw new Error(`${README}: the markers ${start} and ${end} are missing`);
+    return `${text.slice(0, a + start.length)}\n${body}\n${text.slice(b)}`;
+  };
+  return swap(
+    swap(swap(read(README), 'readme-charts', readmeCharts()), 'readme-table', readmeTable()),
+    'readme-summary',
+    readmeSummary(),
+  );
+}
+
 const files = new Map();
+files.set(join(ROOT, DETAIL), detailPage());
+files.set(join(ROOT, README), readmeText());
 files.set(
   join(ROOT, '.github', 'readme', 'src', 'chart-data.js'),
   `// Written by tools/readme-charts.mjs from the result files it names. Do not edit by hand.\nwindow.CHART_DATA = ${JSON.stringify(data, null, 2)};\n`,

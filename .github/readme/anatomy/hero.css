@@ -62,18 +62,10 @@ body {
 .hero-kicker {
   display: flex;
   align-items: center;
-  gap: 12px;
   font: 500 15px/1.2 var(--anatomy-mono);
   letter-spacing: 0.12em;
   text-transform: uppercase;
   color: var(--hero-soft);
-}
-.hero-kicker::before {
-  content: "";
-  width: 7px;
-  height: 7px;
-  border-radius: 50%;
-  background: #ff6600;
 }
 .hero-title {
   margin: 24px 0 0;
@@ -90,6 +82,7 @@ body {
 }
 .hero-intro {
   margin: 26px 0 0;
+  max-width: 410px;
   font: 400 21px/1.45 var(--an-sans);
   color: var(--hero-soft);
 }
@@ -104,7 +97,7 @@ body {
 .hero-hidden {
   display: none;
 }
-/* the spark is spent on the kicker dot here, so the punch's lamp lights in ink */
+/* no orange mark anywhere in the hero: the punch's lamp lights in ink */
 .an-hero .an-spark[data-on] .an-spark-dot {
   fill: var(--anatomy-hi);
 }

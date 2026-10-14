@@ -43,8 +43,9 @@ The matrix counts what each tool's public docs or source show, one cited page pe
 
 The result files are copies from the research branches, listed with their commits in [docs/assets/data](../assets/data/README.md).
 
-* One chart per benchmark: `docs/assets/bench-<name>-light.png` and `-dark.png`, drawn by `.github/readme/render.mjs` from `.github/readme/src/chart-data.js`. `tools/readme-charts.mjs` writes that file from the result files in `docs/assets/data/sealed/` and lists every drawn number, with its file, in [chart-facts.csv](../assets/data/chart-facts.csv).
-* Each chart has one panel per model: Claude Haiku 5.5, GPT-6 Luna and Gemini 3.5 Flash-Lite. Bars run from the highest score to the lowest, on one scale of 0 to 100. Gemini 3.8 Flash was dropped by the owner and is not charted. Recorded results remain archival data; no pending or parked cell remains.
+* The README shows one chart per benchmark (`docs/assets/bench-<name>-light.png` and `-dark.png`): driftbench beside every competitor on Claude Haiku 5.5, the one model all of them were run on, highest to lowest, scores out of 100, no baseline bars. The per-model charts, with the baselines, are `docs/assets/bench-<name>-models-*.png`, on the [detail page](benchmarks/index.md). `tools/readme-charts.mjs` draws both from `docs/comparison/benchmarks/<bench>-all-peers.json` and `docs/assets/data/sealed/*.json`, writes the detail page, and `--check` fails when any of it differs from its sources.
+* A per-model chart has one panel per model: Claude Haiku 5.5, GPT-6 Luna and Gemini 3.5 Flash-Lite. Gemini 3.8 Flash was dropped by the owner and is not charted. Recorded results remain archival data; no pending or parked cell remains. The README chart takes the model of the all-competitors file; no other model has results for every competitor, so there is no other candidate.
+* Writing: the README bar for driftbench is its opt-in reader-first setting, and says so in a footnote. Its score equals that of a rule that always picks the longer reply; the default setting scores 61.3.
 * A competitor is drawn when a result file records it. `tools/readme-charts.mjs` reads every contestant of `docs/comparison/benchmarks/<bench>-all-peers.json`, the file the all-competitors run writes, and draws each beside driftbench and promptfoo; a contestant that refused some items is drawn with its score, which counts each refused item as wrong, and the label "N refused"; a contestant with no result, or run on another model, is drawn as "not run". Today only promptfoo is recorded. A model with no recorded cell is drawn as "not run", and no value is estimated.
 * The driftbench side is the pair ledger, an opt-in judge mode merged in PR 168, and on the verify benchmark the frozen verify cascade. Neither is the shipped default.
 * promptfoo runs its select-best template (llm-rubric on verify) at its pinned commit `8014282`.
@@ -52,29 +53,11 @@ The result files are copies from the research branches, listed with their commit
 * A correction across the whole family of cells is pending, so no cell is called a win or a loss. On JudgeBench with Claude Haiku 5.5 the uncorrected p is 0.0139; on MM-Eval with Haiku 0.00061, and with Gemini 3.5 Flash-Lite 0.042 in promptfoo's favour.
 * MM-Eval with Haiku scores 591 of the 600 pairs; the nine missing are safety items.
 * RubricBench with Claude Haiku 5.5 is complete: 790 of 790 pairs, in `rubricbench-haiku.json`.
-* Verify is run with GPT-6 Luna only. Claude Haiku 5.5 is pending and Gemini 3.5 Flash-Lite has no cell, so both are drawn as "not run".
+* Verify: the sealed file `verify.json` holds GPT-6 Luna only. The Claude Haiku 5.5 cells of driftbench and promptfoo come from the all-competitors file, and Gemini 3.5 Flash-Lite has no cell, so it is drawn as "not run".
 * On verify a judge that always says fail scores 78.7 percent, above both judges. On writing a rule that picks the longer reply scores 67.6 percent, above every judge, and the three models did not pass the development check against such rules.
 * Titles compare the bars as drawn, to one decimal: two bars that read 80.8 and 80.8 are equal. On RubricBench with Gemini 3.5 Flash-Lite the scores are 80.76 for driftbench and 80.82 for promptfoo, so the title calls them equal.
 
-All charted numbers:
-
-| Benchmark | Model | driftbench | promptfoo | No model |
-|---|---|---|---|---|
-| JudgeBench | Claude Haiku 5.5 | 88.9 | 83.0 |  |
-| JudgeBench | GPT-6 Luna | 87.0 | 84.8 |  |
-| JudgeBench | Gemini 3.5 Flash-Lite | 79.6 | 79.6 |  |
-| MM-Eval | Claude Haiku 5.5 | 88.9 | 86.5 |  |
-| MM-Eval | GPT-6 Luna | 88.1 | 89.0 |  |
-| MM-Eval | Gemini 3.5 Flash-Lite | 81.4 | 83.8 |  |
-| RubricBench | Claude Haiku 5.5 | 82.7 | 75.6 |  |
-| RubricBench | GPT-6 Luna | 82.3 | 81.5 |  |
-| RubricBench | Gemini 3.5 Flash-Lite | 80.8 | 80.8 |  |
-| verify | Claude Haiku 5.5 | not run | not run | 78.7 (always fail) |
-| verify | GPT-6 Luna | 74.7 | 72.4 | 78.7 (always fail) |
-| verify | Gemini 3.5 Flash-Lite | not run | not run | 78.7 (always fail) |
-| writing | Claude Haiku 5.5 | 61.3 | 56.9 | 67.6 (longer reply) |
-| writing | GPT-6 Luna | 53.8 | 56.9 | 67.6 (longer reply) |
-| writing | Gemini 3.5 Flash-Lite | 59.0 | 60.4 | 67.6 (longer reply) |
+The numbers of every model, one table per benchmark, are on the [detail page](benchmarks/index.md); the best-case charts of the README are listed with their sources in [chart-facts.csv](../assets/data/chart-facts.csv).
 
 ## What a judgement costs
 
