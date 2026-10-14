@@ -617,6 +617,11 @@ function addPeers(chart, bench, panels) {
 const ranked = ({ chart, bench, kicker, title, key, panels, note }) => {
   const peers = addPeers(chart, bench, panels);
   const drawn = [PROMPTFOO, ...peers].join(', ');
+  // which models have no driftbench result, read from the panels as drawn
+  const unrun = panels.filter((p) => p.bars.find((b) => b.ours)?.score === null).map((p) => p.name);
+  const missing = unrun.length
+    ? `${note ? ' ' : ''}Not run for driftbench and promptfoo: ${unrun.join(', ')}.`
+    : '';
   return {
     kind: 'ranked',
     kicker,
@@ -624,7 +629,7 @@ const ranked = ({ chart, bench, kicker, title, key, panels, note }) => {
     key,
     axis: 'score out of 100: correct, % of items',
     panels: orderPanels(panels),
-    note: `Competitors with a recorded result on this benchmark in this repository: ${drawn}. ${note}`,
+    note: `Competitors with a recorded result on this benchmark in this repository: ${drawn}. ${note}${missing}`.trim(),
   };
 };
 const notRun = (ours, competitor) => [bar(ours, null, { ours: true }), bar(competitor, null)];
@@ -771,7 +776,7 @@ function sealedVerify() {
       { label: 'no model', style: 'baseline' },
     ],
     panels,
-    note: `Run with GPT-6 Luna only; the other two models are not run.`,
+    note: '',
   });
 }
 

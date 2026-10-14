@@ -1250,7 +1250,7 @@ window.CHART_DATA = {
         ]
       }
     ],
-    "note": "Competitors with a recorded result on this benchmark in this repository: promptfoo, DeepEval, Inspect, Langfuse, LangWatch. Run with GPT-6 Luna only; the other two models are not run."
+    "note": "Competitors with a recorded result on this benchmark in this repository: promptfoo, DeepEval, Inspect, Langfuse, LangWatch. Not run for driftbench and promptfoo: Gemini 3.5 Flash-Lite."
   },
   "bench-writing-models": {
     "kind": "ranked",
