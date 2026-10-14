@@ -23,7 +23,13 @@ import {
 import { openStore } from '@agent-nexus/driftbench-store';
 import type { Command } from 'commander';
 import type { Io } from '../io';
-import { addJudgeOptions, clientJudgeFrom, type JudgeFlags, judgeAsked } from '../judge-options';
+import {
+  addJudgeOptions,
+  clientJudgeFrom,
+  familyRefusal,
+  type JudgeFlags,
+  judgeAsked,
+} from '../judge-options';
 import { optionNumber } from '../number';
 import { pluginPairwiseJudge } from '../plugins';
 import { noStoreAt } from '../store-path';
@@ -209,6 +215,16 @@ async function runPairwise(
   } catch (cause) {
     io.err(`${cause instanceof Error ? cause.message : String(cause)}\n`);
     return undefined;
+  }
+  // Every pairwise judge, by --judge or by --pairwise-judge and its default, meets the agent family here,
+  // before any call.
+  const agentFamily = options.agentFamily?.trim();
+  if (agentFamily) {
+    const refused = await familyRefusal(judge, agentFamily);
+    if (refused !== undefined) {
+      io.err(`error: ${refused}\n`);
+      return undefined;
+    }
   }
   const stimulusOf = (run: RunResult, index: number): string => {
     const loaded = baseline.specs.get(`${run.specId}@${run.specHash}`);
