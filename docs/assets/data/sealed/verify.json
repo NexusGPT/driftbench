@@ -451,8 +451,8 @@
     },
     {
       "model": "gemini-3.8-flash",
-      "status": "pending",
-      "reason": "authorized; execution and validation pending",
+      "status": "dropped by the owner",
+      "reason": "dropped by the owner; completed partial results are labelled dropped",
       "official": null,
       "audited": null,
       "outputLimitErrors": {
@@ -578,10 +578,10 @@
           "recording": "examples/ledger-verify/recordings/2869d4d1f750545a2c7d/noise-1/longjudge-verify/gemini-3.8-flash.jsonl"
         },
         "noise-2": {
-          "status": "pending"
+          "status": "dropped by the owner"
         },
         "results": {
-          "status": "pending"
+          "status": "dropped by the owner"
         }
       },
       "validityPassedScope": "Planted mutation checks only; predeclared cheater margin not established"

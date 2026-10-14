@@ -177,7 +177,7 @@
     },
     {
       "set": "bench-archived/fresh-rubric/gemini-3.8-flash",
-      "status": "not recorded",
+      "status": "dropped by the owner",
       "planned": 192,
       "total": 0,
       "fixes": null,
@@ -206,7 +206,7 @@
     },
     {
       "set": "bench-archived/fresh-reference/gemini-3.8-flash",
-      "status": "not recorded",
+      "status": "dropped by the owner",
       "planned": 192,
       "total": 0,
       "fixes": null,
@@ -235,7 +235,7 @@
     },
     {
       "set": "bench-archived/map-rubric/gemini-3.8-flash",
-      "status": "not recorded",
+      "status": "dropped by the owner",
       "planned": 156,
       "total": 0,
       "fixes": null,
@@ -264,7 +264,7 @@
     },
     {
       "set": "bench-archived/map-reference/gemini-3.8-flash",
-      "status": "not recorded",
+      "status": "dropped by the owner",
       "planned": 180,
       "total": 0,
       "fixes": null,
@@ -293,7 +293,7 @@
     },
     {
       "set": "bench-archived/hard-rubric/gemini-3.8-flash",
-      "status": "not recorded",
+      "status": "dropped by the owner",
       "planned": 120,
       "total": 0,
       "fixes": null,
@@ -322,7 +322,7 @@
     },
     {
       "set": "bench-archived/hard-factuality/gemini-3.8-flash",
-      "status": "not recorded",
+      "status": "dropped by the owner",
       "planned": 120,
       "total": 0,
       "fixes": null,
@@ -351,7 +351,7 @@
     },
     {
       "set": "bench-archived/hard-pii/gemini-3.8-flash",
-      "status": "not recorded",
+      "status": "dropped by the owner",
       "planned": 120,
       "total": 0,
       "fixes": null,
@@ -380,7 +380,7 @@
     },
     {
       "set": "bench-archived/hard-goal/gemini-3.8-flash",
-      "status": "not recorded",
+      "status": "dropped by the owner",
       "planned": 120,
       "total": 0,
       "fixes": null,
@@ -414,7 +414,7 @@
     },
     {
       "set": "bench-archived/heldout-rubric/gemini-3.8-flash",
-      "status": "not recorded",
+      "status": "dropped by the owner",
       "planned": 72,
       "total": 0,
       "fixes": null,
@@ -443,7 +443,7 @@
     },
     {
       "set": "bench-archived/heldout-factuality/gemini-3.8-flash",
-      "status": "not recorded",
+      "status": "dropped by the owner",
       "planned": 72,
       "total": 0,
       "fixes": null,
@@ -467,7 +467,7 @@
     },
     {
       "set": "bench-archived/heldout-pii/gemini-3.8-flash",
-      "status": "not recorded",
+      "status": "dropped by the owner",
       "planned": 72,
       "total": 0,
       "fixes": null,
@@ -491,7 +491,7 @@
     },
     {
       "set": "bench-archived/heldout-goal/gemini-3.8-flash",
-      "status": "not recorded",
+      "status": "dropped by the owner",
       "planned": 72,
       "total": 0,
       "fixes": null,
@@ -515,7 +515,7 @@
     },
     {
       "set": "bench-archived/planted-verify/gemini-3.8-flash",
-      "status": "not recorded",
+      "status": "dropped by the owner",
       "planned": 190,
       "total": 0,
       "fixes": null,
@@ -539,7 +539,7 @@
     },
     {
       "set": "bench-archived/planted-rubric/gemini-3.8-flash",
-      "status": "not recorded",
+      "status": "dropped by the owner",
       "planned": 120,
       "total": 0,
       "fixes": null,

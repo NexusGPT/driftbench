@@ -592,7 +592,7 @@ window.CHART_DATA = {
         ]
       }
     ],
-    "note": "Gemini 3.8 Flash not run: provider quota"
+    "note": "Gemini 3.8 Flash dropped by the owner"
   },
   "bench-mm-eval": {
     "kind": "columns",
@@ -663,7 +663,7 @@ window.CHART_DATA = {
         ]
       }
     ],
-    "note": "Gemini 3.8 Flash partial (393 of 600 pairs): left out"
+    "note": "Gemini 3.8 Flash dropped by the owner (393 of 600 pairs done)"
   },
   "bench-rubricbench": {
     "kind": "columns",
@@ -718,7 +718,7 @@ window.CHART_DATA = {
         ]
       }
     ],
-    "note": "Claude Haiku 5.5 still running · Gemini 3.8 Flash partial: left out"
+    "note": "Claude Haiku 5.5 still running · Gemini 3.8 Flash dropped by the owner"
   },
   "bench-verify": {
     "kind": "columns",
@@ -852,7 +852,7 @@ window.CHART_DATA = {
         ]
       }
     ],
-    "note": "Gemini 3.8 Flash not run: provider quota"
+    "note": "Gemini 3.8 Flash dropped by the owner"
   },
   "hard-deepeval": {
     "kind": "columns",
