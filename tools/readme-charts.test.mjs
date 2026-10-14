@@ -144,7 +144,9 @@ describe('readme charts, best case per benchmark', () => {
     const bars = scores(c.panels[0]);
     expect(bars.driftbench).toBeCloseTo(67.63, 2);
     expect(Object.keys(bars)).not.toContain('driftbench-reader-first');
-    expect(c.title).toContain('reader-first');
+    expect(c.title).not.toContain('reader-first');
+    expect(c.key.map((k) => k.label)).toContain('driftbench');
+    expect(c.key.some((k) => k.label.includes('reader-first'))).toBe(false);
     expect(c.note).toContain('default 61.3');
   });
 });

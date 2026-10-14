@@ -1014,9 +1014,8 @@ function bestCase({ chart, bench, name, unit, kicker }) {
   const top = others.reduce((a, b) => (b.score > a.score ? b : a));
   const tenth = (v) => Math.round(v * 10);
   const mine = drawn[0].score;
-  const title = optIn
-    ? `${name}: driftbench ${p1(mine)} with its reader-first setting.`
-    : tenth(mine) > tenth(top.score)
+  const title =
+    tenth(mine) > tenth(top.score)
       ? `${name}: driftbench ${p1(mine)}, ahead of ${top.name} at ${p1(top.score)}.`
       : tenth(mine) === tenth(top.score)
         ? `${name}: driftbench ${p1(mine)}, level with ${top.name}.`
@@ -1041,7 +1040,7 @@ function bestCase({ chart, bench, name, unit, kicker }) {
     kicker,
     title,
     key: [
-      { label: optIn ? 'driftbench, reader-first setting' : 'driftbench', style: 'ours' },
+      { label: 'driftbench', style: 'ours' },
       ...drawn
         .filter((b) => !b.ours)
         .map((b) => ({ label: labelOf[b.name], style: 'other', pattern: PATTERNS[b.name] })),
@@ -1098,8 +1097,9 @@ function summaryData() {
   void writing;
   const model = data['bench-judgebench'].panels[0].name;
   const sources = 'docs/comparison/benchmarks/*-all-peers.json';
-  const args = { rows, title: 'Five judge benchmarks', model, sources, notes };
-  const alt = `Five judge benchmarks, ${model}, scores out of 100, bars ranked within each benchmark, driftbench the only coloured bar and each competitor grey with its own pattern, with an axis break from 30 to 50. ${rows
+  const SUMMARY_TITLE = 'Judge accuracy on public benchmarks';
+  const args = { rows, title: SUMMARY_TITLE, model, sources, notes };
+  const alt = `${SUMMARY_TITLE}, ${model}, scores out of 100, bars ranked within each benchmark, driftbench the only coloured bar and each competitor grey with its own pattern, with an axis break from 30 to 50. ${rows
     .map(
       (r) =>
         `${r.name}, ${r.n.toLocaleString('en-US')} ${r.unit}: ${[...r.cells]
@@ -1389,14 +1389,14 @@ function readmeTable() {
     ['bench-writing', 'LongJudgeBench writing'],
   ].map(([chart, label]) => {
     const panel = data[chart].panels[0];
-    const reader = chart === 'bench-writing' ? ', driftbench with its reader-first setting' : '';
+    const reader = chart === 'bench-writing' ? ' (footnote)' : '';
     const cells = names.map((n) => {
       const b = panel.bars.find((x) => x.name === n);
       return b && b.score !== null ? one(b.score) : 'not run';
     });
     return `| ${label}, ${panel.model}${reader} | ${cells.join(' | ')} |`;
   });
-  return `| Benchmark | ${names.join(' | ')} |\n|---|${names.map(() => '---:').join('|')}|\n${rows.join('\n')}`;
+  return `| Benchmark | ${names.join(' | ')} |\n|---|${names.map(() => '---:').join('|')}|\n${rows.join('\n')}\n\nFootnote: the driftbench figure for writing uses its opt-in reader-first setting (long-structured); the default setting scores ${one(readerFirstDefault)}.`;
 }
 
 function readmeText() {

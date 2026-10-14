@@ -41,7 +41,7 @@ Works with any agent through an [adapter](#adapters). No account, no server. Apa
 <p align="center">
   <picture>
     <source media="(prefers-color-scheme: dark)" srcset="docs/assets/summary-dark.png">
-    <img alt="Five judge benchmarks, Claude Haiku 5.5, scores out of 100, bars ranked within each benchmark, driftbench the only coloured bar and each competitor grey with its own pattern, with an axis break from 30 to 50. JudgeBench, 270 pairs: driftbench 88.9, DeepEval 86.3, LangWatch 83.7, promptfoo 83.0, Inspect 80.0, Langfuse 74.8. MM-Eval, 591 items: driftbench 88.9, promptfoo 86.5, DeepEval 84.1, LangWatch 83.9, Inspect 75.4, Langfuse 73.5. RubricBench, 1,580 games: driftbench 82.7, DeepEval 77.6, promptfoo 75.6, LangWatch 74.9, Inspect 26.6, Langfuse 25.1. verify, 221 items: Langfuse 75.1, driftbench 74.2, Inspect 73.3, LangWatch 73.3, promptfoo 71.9, DeepEval 58.8. writing, 346 games: driftbench 67.6, DeepEval 58.4, promptfoo 56.9, LangWatch 52.6, Langfuse 14.5, Inspect 11.6. Reader-first setting: 67.6 shown; default 61.3. Same score as a rule that always picks the longer reply (67.6)." src="docs/assets/summary-light.png" width="100%" />
+    <img alt="Judge accuracy on public benchmarks, Claude Haiku 5.5, scores out of 100, bars ranked within each benchmark, driftbench the only coloured bar and each competitor grey with its own pattern, with an axis break from 30 to 50. JudgeBench, 270 pairs: driftbench 88.9, DeepEval 86.3, LangWatch 83.7, promptfoo 83.0, Inspect 80.0, Langfuse 74.8. MM-Eval, 591 items: driftbench 88.9, promptfoo 86.5, DeepEval 84.1, LangWatch 83.9, Inspect 75.4, Langfuse 73.5. RubricBench, 1,580 games: driftbench 82.7, DeepEval 77.6, promptfoo 75.6, LangWatch 74.9, Inspect 26.6, Langfuse 25.1. verify, 221 items: Langfuse 75.1, driftbench 74.2, Inspect 73.3, LangWatch 73.3, promptfoo 71.9, DeepEval 58.8. writing, 346 games: driftbench 67.6, DeepEval 58.4, promptfoo 56.9, LangWatch 52.6, Langfuse 14.5, Inspect 11.6. Reader-first setting: 67.6 shown; default 61.3. Same score as a rule that always picks the longer reply (67.6)." src="docs/assets/summary-light.png" width="100%" />
   </picture>
 </p>
 <!-- readme-summary:end -->
@@ -800,7 +800,7 @@ Footnote: the driftbench bar uses its opt-in reader-first setting (long-structur
 <a href="docs/assets/bench-writing-light.png">
   <picture>
     <source media="(prefers-color-scheme: dark)" srcset="docs/assets/bench-writing-dark.png">
-    <img alt="Writing: driftbench 67.6 with its reader-first setting. Claude Haiku 5.5, 346 games, percent correct, highest to lowest: driftbench 67.6, DeepEval 58.4, promptfoo 56.9, LangWatch 52.6, Langfuse 14.5, Inspect 11.6. The driftbench bar uses its opt-in reader-first setting." src="docs/assets/bench-writing-light.png" width="100%">
+    <img alt="Writing: driftbench 67.6, ahead of DeepEval at 58.4. Claude Haiku 5.5, 346 games, percent correct, highest to lowest: driftbench 67.6, DeepEval 58.4, promptfoo 56.9, LangWatch 52.6, Langfuse 14.5, Inspect 11.6. The driftbench bar uses its opt-in reader-first setting." src="docs/assets/bench-writing-light.png" width="100%">
   </picture>
 </a>
 
@@ -873,7 +873,9 @@ The table holds the numbers of the five charts. DeepEval, Inspect, Langfuse and 
 | MM-Eval, 591 items | 88.9 | 86.5 | 84.1 | 75.4 | 73.5 | 83.9 |
 | RubricBench, 1,580 games | 82.7 | 75.6 | 77.6 | 26.6 | 25.1 | 74.9 |
 | LongJudgeBench verify, 221 items | 74.2 | 71.9 | 58.8 | 73.3 | 75.1 | 73.3 |
-| LongJudgeBench writing, 346 games, driftbench with its reader-first setting | 67.6 | 56.9 | 58.4 | 11.6 | 14.5 | 52.6 |
+| LongJudgeBench writing, 346 games (footnote) | 67.6 | 56.9 | 58.4 | 11.6 | 14.5 | 52.6 |
+
+Footnote: the driftbench figure for writing uses its opt-in reader-first setting (long-structured); the default setting scores 61.3.
 <!-- readme-table:end -->
 
 Length-controlled accuracy on writing (a longer-wins rule scores 50): driftbench 59.3, DeepEval 58.3, promptfoo 55.6, LangWatch 51.5, Langfuse 15.8, Inspect 11.8 (source: `examples/writing-heldout/README.md` on `feat/writing-lead`).
