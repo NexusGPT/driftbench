@@ -887,8 +887,6 @@ The table holds the numbers of the five charts. DeepEval, Inspect, Langfuse and 
 Footnote: the driftbench figure for writing uses its opt-in reader-first setting (long-structured); the default setting scores 61.3.
 <!-- readme-table:end -->
 
-Length-controlled accuracy on writing (a longer-wins rule scores 50): driftbench 59.3, DeepEval 58.3, promptfoo 55.6, LangWatch 51.5, Langfuse 15.8, Inspect 11.8 (source: `examples/writing-heldout/README.md` on `feat/writing-lead`).
-
 - Verify: Langfuse scores 0.9 points above driftbench. On the paired items driftbench alone is right on 13 and Langfuse alone on 15 (raw p 0.85).
 - Writing: the reader-first setting picks the longer reply on all 173 pairs, so its 67.6 equals a longer-reply rule.
 - The verify column here is Claude Haiku 5.5 (driftbench 74.2, promptfoo 71.9). The 74.7 and 72.4 in [the public benchmark table](docs/comparison/methods.md) are GPT-6 Luna, a different model.
