@@ -16,6 +16,8 @@ The files that drive a simulated or adversarial user: a persona and a recording 
 * [Phrasing world](#phrasing-world)
 * [Phrasing world tools value](#phrasing-world-tools-value)
 * [Phrasing world workspace](#phrasing-world-workspace)
+* [Phrasing must](#phrasing-must)
+* [Phrasing must_not](#phrasing-must_not)
 * [RedteamPlugin](#redteamplugin)
 
 ## Persona
@@ -52,6 +54,7 @@ One file of the red-team pack: the phrasings of one deviation class.
 |---|---|---|---|---|
 | `class` | one of `D1_off_topic`, `D2_goal_shift`, `D3_contradiction`, `D4_loose_confirmation`, `D5_language_switch`, `D6_instruction_in_data`, `D7_silence_or_burst`, `D8_tool_failure`, `D9_out_of_scope`, `D10_return`, `D11_pii_leak`, `D12_prompt_extraction` | yes |  | The class every phrasing of the file belongs to. |
 | `title` | string, not empty | no |  | A title for a reader; no command reads it. |
+| `stages` | list of strings, each not empty, at least 1 item | no |  | The stage names this file may use in `at_stage`. Any other name makes the pack invalid. |
 | `conversation` | list of [Phrasing](#phrasing), at least 1 item | yes |  | Phrasings for conversation specs. |
 | `task` | list of [Phrasing](#phrasing), at least 1 item | no |  | Phrasings for task specs. |
 
@@ -64,6 +67,7 @@ One phrasing of a deviation.
 | `id` | string matching `^[a-z0-9][a-z0-9-]*$` | yes |  | An id, unique in the pack: lower case letters, digits and hyphens. |
 | `approved` | boolean | yes |  | True once a person has read the phrasing and accepts it. |
 | `note` | string | no |  | Why the phrasing exists, for the reviewer. |
+| `ends_conversation` | boolean | no |  | In attack, stop only after this conversation phrasing has checked, passing reply expectations. |
 | `user` | string | no |  | The message the user sends. Empty is silence (D7 only). |
 | `burst` | list of strings, each not empty, at least 2 items | no |  | Messages that arrive together (D7 only). |
 | `world` | [Phrasing world](#phrasing-world) | no |  | A change of the world (D6 on a conversation). |
@@ -72,8 +76,8 @@ One phrasing of a deviation.
 | `tool` | string, not empty | no |  | The tool that fails (D8 on a conversation). |
 | `file` | string, not empty | no |  | The planted file (D6 on a task). |
 | `content` | string, not empty | no |  | The text of the planted file or obstacle (task). |
-| `must` | list of strings, each not empty | no |  | Patterns the reply to this phrasing must match (conversation only). Merged into the injected block. |
-| `must_not` | list of strings, each not empty | no |  | Patterns the reply to this phrasing must not match (conversation only). |
+| `must` | list of string, not empty or [Phrasing must](#phrasing-must) | no |  | Patterns the reply to this phrasing must match (conversation only). Merged into the injected block. A pattern with `at_stage` applies only at those stages. |
+| `must_not` | list of string, not empty or [Phrasing must_not](#phrasing-must_not) | no |  | Patterns the reply to this phrasing must not match (conversation only). A pattern with `at_stage` applies only at those stages. |
 
 ## Phrasing world
 
@@ -104,6 +108,20 @@ The files the agent starts from.
 |---|---|---|---|---|
 | `from` | string, not empty | no |  | A folder the workspace starts from. A path written ./<path> is read from the folder of the spec file; any other relative path from the folder the run starts in. |
 | `files` | map of string to string | no |  | Files the workspace starts with: path to content. |
+
+## Phrasing must
+
+| Field | Type | Required | Default | Description |
+|---|---|---|---|---|
+| `pattern` | string, not empty | yes |  | The pattern. |
+| `at_stage` | list of strings, each not empty, at least 1 item | yes |  | The stages the pattern applies at, named in the `stages` of the file. The stage is the one the previous block of the spec expects. |
+
+## Phrasing must_not
+
+| Field | Type | Required | Default | Description |
+|---|---|---|---|---|
+| `pattern` | string, not empty | yes |  | The pattern. |
+| `at_stage` | list of strings, each not empty, at least 1 item | yes |  | The stages the pattern applies at, named in the `stages` of the file. The stage is the one the previous block of the spec expects. |
 
 ## RedteamPlugin
 

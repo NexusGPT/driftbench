@@ -1,0 +1,71 @@
+{
+  "created": "2026-10-13T14:50:09.073671+00:00",
+  "authority": "Update replaces prior circuit rules: full network pause for Sonnet and Sol; drain in-flight calls; ten consecutive healthy provider probes thirty seconds apart before automatic resumption at concurrency two, one model cell at a time; three consecutive connection failures cause ten-minute pause and repeated gate; unlimited missing-only recovery cycles; real confirmed zero-token cost, otherwise unknown reserve; no scores with transport-missing items. Owner subsequently authorizes a detached supervisor, two named no-answer crash re-asks with old holds retained, session-limit waits, and drops Gemini 3.8.",
+  "supersedes": [
+    "two consecutive connection failures permanently park",
+    "three connection failures and five-minute pause, three one-minute probes, fourth pause per hour parks"
+  ],
+  "model_order": [
+    "gpt-6.1-sol",
+    "sonnet-5-5"
+  ],
+  "concurrency": 2,
+  "one_model_at_a_time": true,
+  "probe_count": 10,
+  "probe_spacing_seconds": 30,
+  "connection_failure_threshold": 3,
+  "pause_seconds": 600,
+  "recovery_cycle_limit": null,
+  "answered_calls_resent": false,
+  "caps_usd": {
+    "gpt-6.1-sol": 25,
+    "sonnet-5-5": 45
+  },
+  "cutoff": "Original sealed cutoff remains 2026-10-14T12:00:00+00:00",
+  "probe_definition": {
+    "gpt-6.1-sol": "Authenticated GET https://api.openai.com/v1/models, expected HTTP 200. Key loaded inside each probe, never printed.",
+    "sonnet-5-5": "Unauthenticated GET https://api.anthropic.com/v1/models, expected HTTP 401. Completes provider TLS/API path without reading another key file or billing inference. This establishes network reachability, not generation readiness."
+  },
+  "cost_rule": "Keep unknown no-response charges reserved. Provider error rejections with no generation have zero reported usage and cost. A local CLI zero-token transport error does not itself confirm provider billing, so its unknown hold stays.",
+  "score_rule": "Only generated model answers enter calls.jsonl; unanswered transport attempts remain durable in attempts.jsonl and pending journals. All prior mistaken transport rows are archived verbatim. No added-model score output before full answered coverage.",
+  "paused_snapshots": {
+    "gpt-6.1-sol": {
+      "stamp": "2026-10-13T14:13:37.757549+00:00",
+      "model": "gpt-6.1-sol",
+      "completed": 903,
+      "planned": 6560,
+      "inflight": 0,
+      "measured_usd": 1.6011145,
+      "unknown_attempt_reserve_usd": 3.25,
+      "stop_reason": "two consecutive connection failures",
+      "pilot": false
+    },
+    "sonnet-5-5": {
+      "stamp": "2026-10-13T14:26:41.668748+00:00",
+      "model": "claude-sonnet-5-5",
+      "completed": 159,
+      "planned": 6560,
+      "inflight": 0,
+      "measured_usd": 0.805057,
+      "unknown_attempt_reserve_usd": 0.6,
+      "stop_reason": "drain requested",
+      "pilot": false
+    }
+  },
+  "source_sha256": {
+    "network-resume.py": "7f1ef374c0e73032e88907af2a00041d4f448ab75bdfb97462dc7b11f2ff39e8",
+    "network-probe.py": "2c95a6a2ae9a45ff9255de2a6ad9ca7fc9874ca83f2c9570ac64050058fec714",
+    "test_network.py": "daf1682fe17e0a3fe7a6467c7aa29d3513b370174ec86dd5e782c87dd51f7b73",
+    "verify-extended.py": "4e13c2f85edfdf5628f76709736611d134b20f0217d098d40549191b01dcd467"
+  },
+  "focused_tests": "network-test-output.txt: nine focused tests pass, including zero-token session limits and recovery of saved answer receipts.",
+  "gemini_3_8": "Dropped by owner; partial recordings kept, no score, no pending work, no resume.",
+  "history": [
+    {
+      "changed": "2026-10-13T18:42:20.307334+00:00",
+      "prior_sha256": "30fef07f613d492d8daa4def62bd7a05cf92c1b6838f81a40203d2f845bed69b",
+      "reason": "Owner authorizes two named crash re-asks and detached serial supervision that waits through outages and session limits. Gemini 3.8 is dropped."
+    }
+  ],
+  "session_limit_rule": "An explicit zero-token CLI error envelope naming a rate/session limit is a no-answer. Preserve it and unknown holds; pause ten minutes, then repeat the ten-probe gate."
+}

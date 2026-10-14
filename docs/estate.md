@@ -235,7 +235,7 @@ The committed `examples/estates/fixture/approved.yaml` is the Northwind map with
 
 ```
 $ pnpm -s driftbench estate approve examples/estates/fixture/approved.yaml
-examples/estates/fixture/approved.yaml: all 122 atoms are approved.
+examples/estates/fixture/approved.yaml: all 125 atoms are approved.
 ```
 
 ## 2. Relations: the estate graph

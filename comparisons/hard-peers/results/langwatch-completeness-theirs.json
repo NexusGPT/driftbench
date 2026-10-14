@@ -1,0 +1,1396 @@
+{
+  "competitor": "langwatch",
+  "row": "completeness",
+  "contestant": "theirs",
+  "model": "haiku",
+  "items": 126,
+  "complete": 126,
+  "results": [
+    {
+      "id": "langwatch.completeness.001",
+      "kind": "flattened-trace",
+      "pair": "flattened-trace-7",
+      "truth": false,
+      "complete": true,
+      "keys": [
+        "6db1bbc1594123971b90fe54a0f5d5be35f417bfafca004c0f7d5cc2cc88399e"
+      ],
+      "costUsd": 0.0005098
+    },
+    {
+      "id": "langwatch.completeness.002",
+      "kind": "long-one-wrong",
+      "pair": "long-one-wrong-4",
+      "truth": true,
+      "complete": true,
+      "keys": [
+        "d638325b9864424eb1633a4851d9698417199282bf6f955408c46e66782a6bf0"
+      ],
+      "costUsd": 0.0005457
+    },
+    {
+      "id": "langwatch.completeness.003",
+      "kind": "partial-credit",
+      "pair": "partial-credit-3",
+      "truth": true,
+      "complete": true,
+      "keys": [
+        "fbb54f422f365d5423e9e8a89f69aa0f4051cbee24071ee8cecbdac3cd516e46"
+      ],
+      "costUsd": 0.0004588
+    },
+    {
+      "id": "langwatch.completeness.004",
+      "kind": "flattened-trace",
+      "pair": "flattened-trace-8",
+      "truth": true,
+      "complete": true,
+      "keys": [
+        "918e1281eedf63f2d6da6ad01606822ac09a7e4e08a63f1c70c5aff74efda412"
+      ],
+      "costUsd": 0.0005970000000000001
+    },
+    {
+      "id": "langwatch.completeness.005",
+      "kind": "long-one-wrong",
+      "pair": "long-one-wrong-3",
+      "truth": false,
+      "complete": true,
+      "keys": [
+        "df5afdff6f754a20a74eca08ea5df9d38a0c6a003e5d4d41aa1bfb0db6c77e22"
+      ],
+      "costUsd": 0.0005375
+    },
+    {
+      "id": "langwatch.completeness.006",
+      "kind": "unusual-format",
+      "pair": "unusual-format-8",
+      "truth": true,
+      "complete": true,
+      "keys": [
+        "246357de2105c9988e67b2e79d77a19e0d4b7ef607c30c6da9c48f28522d88a7"
+      ],
+      "costUsd": 0.0005133
+    },
+    {
+      "id": "langwatch.completeness.007",
+      "kind": "near-miss",
+      "pair": "near-miss-8",
+      "truth": false,
+      "complete": true,
+      "keys": [
+        "cf0f64968e341c350bebece8a59a4e86931f03c9ea105c32cefd3f91ea248137"
+      ],
+      "costUsd": 0.0006217
+    },
+    {
+      "id": "langwatch.completeness.008",
+      "kind": "embedded-instruction",
+      "pair": "embedded-instruction-0",
+      "truth": true,
+      "complete": true,
+      "keys": [
+        "5e3fb926a35eac2efaa20f7965e613c4fa5e57792c89369b3d101b79839915f3"
+      ],
+      "costUsd": 0.0005204999999999999
+    },
+    {
+      "id": "langwatch.completeness.009",
+      "kind": "partial-credit",
+      "pair": "partial-credit-3",
+      "truth": false,
+      "complete": true,
+      "keys": [
+        "457fc16b2484415076cc13df19b990a1b039032d99c06d024b273b5f19749be6"
+      ],
+      "costUsd": 0.0004716
+    },
+    {
+      "id": "langwatch.completeness.010",
+      "kind": "long-one-wrong",
+      "pair": "long-one-wrong-2",
+      "truth": true,
+      "complete": true,
+      "keys": [
+        "2c44bed378e08f79d3cabb96a3ebf329c75bfa777c626544dcacdf145b54791a"
+      ],
+      "costUsd": 0.0006292
+    },
+    {
+      "id": "langwatch.completeness.011",
+      "kind": "flattened-trace",
+      "pair": "flattened-trace-8",
+      "truth": false,
+      "complete": true,
+      "keys": [
+        "e424a96e00254e294c9a6a8a0ea83cb52e9993a399eb60e2418b55593461b4e8"
+      ],
+      "costUsd": 0.00046259999999999997
+    },
+    {
+      "id": "langwatch.completeness.012",
+      "kind": "embedded-instruction",
+      "pair": "embedded-instruction-4",
+      "truth": false,
+      "complete": true,
+      "keys": [
+        "160490381b08a04a33e503e555a9b9f9456c1877f9b86c7cfd690e829b11ac06"
+      ],
+      "costUsd": 0.0004999
+    },
+    {
+      "id": "langwatch.completeness.013",
+      "kind": "unusual-format",
+      "pair": "unusual-format-2",
+      "truth": true,
+      "complete": true,
+      "keys": [
+        "60d74793fd1a6b47402dc3afab41a086ecfc35a557ff6da7c764bcff1ac5de1e"
+      ],
+      "costUsd": 0.0005103
+    },
+    {
+      "id": "langwatch.completeness.014",
+      "kind": "long-one-wrong",
+      "pair": "long-one-wrong-5",
+      "truth": false,
+      "complete": true,
+      "keys": [
+        "0df2d63e6c2d256a1bbc6352ef33cf22ae8ebf38bf84f0c7c2792f58cdc1d9f3"
+      ],
+      "costUsd": 0.0005675999999999999
+    },
+    {
+      "id": "langwatch.completeness.015",
+      "kind": "double-negation",
+      "pair": "double-negation-1",
+      "truth": true,
+      "complete": true,
+      "keys": [
+        "5d9eb75b3c34680b582f1d59332a340e3479aa00c2d4dcf12e963296dd17becd"
+      ],
+      "costUsd": 0.0010569
+    },
+    {
+      "id": "langwatch.completeness.016",
+      "kind": "partial-credit",
+      "pair": "partial-credit-0",
+      "truth": true,
+      "complete": true,
+      "keys": [
+        "e5e8d5a330999259eaa35cec015c5b7645e6e8d64b3e466650da59ffe7e55cb8"
+      ],
+      "costUsd": 0.00045129999999999997
+    },
+    {
+      "id": "langwatch.completeness.017",
+      "kind": "long-one-wrong",
+      "pair": "long-one-wrong-0",
+      "truth": true,
+      "complete": true,
+      "keys": [
+        "d454e922271dbebfb10bc11a610f1d6fbbe3a0016e310574d54ca1162b4fc72c"
+      ],
+      "costUsd": 0.0005681
+    },
+    {
+      "id": "langwatch.completeness.018",
+      "kind": "double-negation",
+      "pair": "double-negation-2",
+      "truth": true,
+      "complete": true,
+      "keys": [
+        "7bc4b61d6eab5eca6c6e23178f45204317c3adba137c1caf99c144a173a69e08"
+      ],
+      "costUsd": 0.0005318
+    },
+    {
+      "id": "langwatch.completeness.019",
+      "kind": "partial-credit",
+      "pair": "partial-credit-0",
+      "truth": false,
+      "complete": true,
+      "keys": [
+        "5c362ed3e3b64a741c2dd66b15a1493832e762b2505b2c4ef6a6277afffd9f67"
+      ],
+      "costUsd": 0.00045860000000000003
+    },
+    {
+      "id": "langwatch.completeness.020",
+      "kind": "unusual-format",
+      "pair": "unusual-format-5",
+      "truth": true,
+      "complete": true,
+      "keys": [
+        "8c78c9294eca936c66cdf7e22d9c33b9941363725d08716767b6488eafd9c0ef"
+      ],
+      "costUsd": 0.0004783
+    },
+    {
+      "id": "langwatch.completeness.021",
+      "kind": "long-one-wrong",
+      "pair": "long-one-wrong-7",
+      "truth": true,
+      "complete": true,
+      "keys": [
+        "a51da3bb9c2b7fb83fc15ea2f26b8fb98da3e92c779bc93414de95ef561ad76c"
+      ],
+      "costUsd": 0.0017295000000000001
+    },
+    {
+      "id": "langwatch.completeness.022",
+      "kind": "near-miss",
+      "pair": "near-miss-4",
+      "truth": false,
+      "complete": true,
+      "keys": [
+        "2a858495c1bf9b14255daeb7d313c9ad2de50d872ea4a2343ee5dfd85e8673c0"
+      ],
+      "costUsd": 0.0006627
+    },
+    {
+      "id": "langwatch.completeness.023",
+      "kind": "unusual-format",
+      "pair": "unusual-format-4",
+      "truth": true,
+      "complete": true,
+      "keys": [
+        "7db8fe7f65555d0fc02e1cf275a3ce997e211003982258447b15a7b589e64f19"
+      ],
+      "costUsd": 0.0005138
+    },
+    {
+      "id": "langwatch.completeness.024",
+      "kind": "unusual-format",
+      "pair": "unusual-format-5",
+      "truth": false,
+      "complete": true,
+      "keys": [
+        "ce5c671dd353558809cb4b1f0ea82f0d241a1cde89b8c3def02633a0bc940fd3"
+      ],
+      "costUsd": 0.00047710000000000005
+    },
+    {
+      "id": "langwatch.completeness.025",
+      "kind": "flattened-trace",
+      "pair": "flattened-trace-2",
+      "truth": true,
+      "complete": true,
+      "keys": [
+        "826ee24269c53d7e78ee2fa9d281ee6fea2331d473936151d9bed38d5f113c85"
+      ],
+      "costUsd": 0.0006142000000000001
+    },
+    {
+      "id": "langwatch.completeness.026",
+      "kind": "near-miss",
+      "pair": "near-miss-7",
+      "truth": false,
+      "complete": true,
+      "keys": [
+        "7ed80a6da79085422b19559b369a4a907bb3f7b666d277481ea51a5bed04fd8b"
+      ],
+      "costUsd": 0.0006897
+    },
+    {
+      "id": "langwatch.completeness.027",
+      "kind": "embedded-instruction",
+      "pair": "embedded-instruction-5",
+      "truth": true,
+      "complete": true,
+      "keys": [
+        "7d5d8f899064083ed0795990e26111d91b11e5e0a40dc06ff379a205f23b2aa8"
+      ],
+      "costUsd": 0.0021305
+    },
+    {
+      "id": "langwatch.completeness.028",
+      "kind": "double-negation",
+      "pair": "double-negation-4",
+      "truth": false,
+      "complete": true,
+      "keys": [
+        "f4fafe5b03a5575f39557b5a593bdda8732e5505275e223a6f376441eab9f367"
+      ],
+      "costUsd": 0.0005438
+    },
+    {
+      "id": "langwatch.completeness.029",
+      "kind": "double-negation",
+      "pair": "double-negation-5",
+      "truth": true,
+      "complete": true,
+      "keys": [
+        "e254d9fc7fce96039f61244b4b6a6a4e9089607fad4652c4fa2c5d9e4ff66be1"
+      ],
+      "costUsd": 0.0005302
+    },
+    {
+      "id": "langwatch.completeness.030",
+      "kind": "near-miss",
+      "pair": "near-miss-6",
+      "truth": true,
+      "complete": true,
+      "keys": [
+        "49fa6e15f9186a81963b5fa58d88e2fdfc10732a1ae0ff591ddd11d6737a7463"
+      ],
+      "costUsd": 0.0004833
+    },
+    {
+      "id": "langwatch.completeness.031",
+      "kind": "near-miss",
+      "pair": "near-miss-4",
+      "truth": true,
+      "complete": true,
+      "keys": [
+        "e3532f92792a1fd54fbada362ee3eaddf7416d7ba9c8f84369dfa50e48caa1fe"
+      ],
+      "costUsd": 0.0009588
+    },
+    {
+      "id": "langwatch.completeness.032",
+      "kind": "unusual-format",
+      "pair": "unusual-format-1",
+      "truth": false,
+      "complete": true,
+      "keys": [
+        "aa147a582faead9bd5dd3ce371918816935785658749ff42a16032425e26c5e1"
+      ],
+      "costUsd": 0.0005066000000000001
+    },
+    {
+      "id": "langwatch.completeness.033",
+      "kind": "double-negation",
+      "pair": "double-negation-4",
+      "truth": true,
+      "complete": true,
+      "keys": [
+        "ad49e0f34919945f8500e8527aa5e24cb2037dd457ebaf41171c8dc5be6419dc"
+      ],
+      "costUsd": 0.000518
+    },
+    {
+      "id": "langwatch.completeness.034",
+      "kind": "flattened-trace",
+      "pair": "flattened-trace-1",
+      "truth": true,
+      "complete": true,
+      "keys": [
+        "c8a3485cb305849a39eb8716df9910bbccff3c8fc9a80ca0a92e515bc0905e41"
+      ],
+      "costUsd": 0.0016407000000000001
+    },
+    {
+      "id": "langwatch.completeness.035",
+      "kind": "long-one-wrong",
+      "pair": "long-one-wrong-2",
+      "truth": false,
+      "complete": true,
+      "keys": [
+        "0f3d9d462d1c925f7bd4ae97d9db88f849091912af0ea7cc90544083b5b62c89"
+      ],
+      "costUsd": 0.0005287
+    },
+    {
+      "id": "langwatch.completeness.036",
+      "kind": "partial-credit",
+      "pair": "partial-credit-8",
+      "truth": true,
+      "complete": true,
+      "keys": [
+        "d9da4b23e8b448644ec1d98c099656c4a895c9d05338f0984a37e0ad184548a7"
+      ],
+      "costUsd": 0.0005637999999999999
+    },
+    {
+      "id": "langwatch.completeness.037",
+      "kind": "double-negation",
+      "pair": "double-negation-3",
+      "truth": false,
+      "complete": true,
+      "keys": [
+        "3e76db244fd9544f66a38c03e85015bb0812c7c12e46c9db206b8ff4b2cab953"
+      ],
+      "costUsd": 0.0005767999999999999
+    },
+    {
+      "id": "langwatch.completeness.038",
+      "kind": "near-miss",
+      "pair": "near-miss-5",
+      "truth": false,
+      "complete": true,
+      "keys": [
+        "fec0d2e3c648e903c1f147a5992226f8ff8241e17c513356ba6d427ef87440a5"
+      ],
+      "costUsd": 0.0006277
+    },
+    {
+      "id": "langwatch.completeness.039",
+      "kind": "near-miss",
+      "pair": "near-miss-8",
+      "truth": true,
+      "complete": true,
+      "keys": [
+        "e1640f33def400e5a3ba627673558c2f90520de7969ebab49f8c5a86faf63418"
+      ],
+      "costUsd": 0.0005268
+    },
+    {
+      "id": "langwatch.completeness.040",
+      "kind": "embedded-instruction",
+      "pair": "embedded-instruction-0",
+      "truth": false,
+      "complete": true,
+      "keys": [
+        "1dca5eb97609ad83c141d64204ddb2473af411cb654a406f2fab3ee46c8c8f61"
+      ],
+      "costUsd": 0.0009630000000000001
+    },
+    {
+      "id": "langwatch.completeness.041",
+      "kind": "partial-credit",
+      "pair": "partial-credit-4",
+      "truth": false,
+      "complete": true,
+      "keys": [
+        "aac8aafc3e5c0bda7498f182863c1cbb5cbf4a25c1998d3e933a3ab42fae30b7"
+      ],
+      "costUsd": 0.00044610000000000006
+    },
+    {
+      "id": "langwatch.completeness.042",
+      "kind": "embedded-instruction",
+      "pair": "embedded-instruction-1",
+      "truth": true,
+      "complete": true,
+      "keys": [
+        "4d479fa47a7f7674018d565098069bfb0ff7f7e8b9c4a87319d656fc367153e1"
+      ],
+      "costUsd": 0.0005955
+    },
+    {
+      "id": "langwatch.completeness.043",
+      "kind": "flattened-trace",
+      "pair": "flattened-trace-5",
+      "truth": false,
+      "complete": true,
+      "keys": [
+        "99cbc5a5b472bfb3488253517b447322688449526cf46ee8006b48b991199580"
+      ],
+      "costUsd": 0.0005478
+    },
+    {
+      "id": "langwatch.completeness.044",
+      "kind": "partial-credit",
+      "pair": "partial-credit-7",
+      "truth": true,
+      "complete": true,
+      "keys": [
+        "ba4cd8b16b012dec5834d3bd2992058dac8d3cdbc380fb6236b7c821430fae6e"
+      ],
+      "costUsd": 0.0009333
+    },
+    {
+      "id": "langwatch.completeness.045",
+      "kind": "unusual-format",
+      "pair": "unusual-format-6",
+      "truth": true,
+      "complete": true,
+      "keys": [
+        "b8612067ec471302c1224a793a77fa62c482369eea7bf1b7b3956d3f1224b8c4"
+      ],
+      "costUsd": 0.0004928
+    },
+    {
+      "id": "langwatch.completeness.046",
+      "kind": "double-negation",
+      "pair": "double-negation-0",
+      "truth": true,
+      "complete": true,
+      "keys": [
+        "5eedb9b58be39a59dba3d2c90af0e617ed8f735ae023f54494d731875ddbb231"
+      ],
+      "costUsd": 0.0015108
+    },
+    {
+      "id": "langwatch.completeness.047",
+      "kind": "flattened-trace",
+      "pair": "flattened-trace-5",
+      "truth": true,
+      "complete": true,
+      "keys": [
+        "5c4d1aff718537f168791ceda2dc1720b6c36d21fc2d19c17029fe0d2b87a705"
+      ],
+      "costUsd": 0.0004952
+    },
+    {
+      "id": "langwatch.completeness.048",
+      "kind": "long-one-wrong",
+      "pair": "long-one-wrong-5",
+      "truth": true,
+      "complete": true,
+      "keys": [
+        "1c03a60efaf68dcd99e7343fb166b850e5ba3560796cb1fc77abe800f23e5ffd"
+      ],
+      "costUsd": 0.0005151
+    },
+    {
+      "id": "langwatch.completeness.049",
+      "kind": "partial-credit",
+      "pair": "partial-credit-1",
+      "truth": true,
+      "complete": true,
+      "keys": [
+        "3d1c1927ef3de2ad993eee8f088f51ce8681f1311a140bc501032819f9011ebc"
+      ],
+      "costUsd": 0.0005248
+    },
+    {
+      "id": "langwatch.completeness.050",
+      "kind": "flattened-trace",
+      "pair": "flattened-trace-1",
+      "truth": false,
+      "complete": true,
+      "keys": [
+        "8009f145d32832cde6c8bb288aa6178d8d6e9ff4bb2b56f4458e46a37a9bfc3d"
+      ],
+      "costUsd": 0.0005163
+    },
+    {
+      "id": "langwatch.completeness.051",
+      "kind": "long-one-wrong",
+      "pair": "long-one-wrong-7",
+      "truth": false,
+      "complete": true,
+      "keys": [
+        "41063d792463ed3d99b1c1d2c78b7f4a4a124acc9a4c3481a537a30521657160"
+      ],
+      "costUsd": 0.0005319000000000001
+    },
+    {
+      "id": "langwatch.completeness.052",
+      "kind": "embedded-instruction",
+      "pair": "embedded-instruction-3",
+      "truth": false,
+      "complete": true,
+      "keys": [
+        "66226dc35aedf43b7ccda6553e29d2942e490656a5426a32f892b2a4f6db3771"
+      ],
+      "costUsd": 0.0004974000000000001
+    },
+    {
+      "id": "langwatch.completeness.053",
+      "kind": "embedded-instruction",
+      "pair": "embedded-instruction-7",
+      "truth": true,
+      "complete": true,
+      "keys": [
+        "d5cfbd292c5f5bd4a0f66e0375cfb9afb2985009d3fa1227df53e7321ea1f06b"
+      ],
+      "costUsd": 0.0009187
+    },
+    {
+      "id": "langwatch.completeness.054",
+      "kind": "long-one-wrong",
+      "pair": "long-one-wrong-1",
+      "truth": false,
+      "complete": true,
+      "keys": [
+        "36dd98d328e23e646ca88ac50688f3f6aef79cb32b29fbe86607863ca0284bfd"
+      ],
+      "costUsd": 0.0005572999999999999
+    },
+    {
+      "id": "langwatch.completeness.055",
+      "kind": "embedded-instruction",
+      "pair": "embedded-instruction-4",
+      "truth": true,
+      "complete": true,
+      "keys": [
+        "d5766850d831730aa1b3a0ca8369f22dda1c7be814a64a8e149edff1c97d80cc"
+      ],
+      "costUsd": 0.0006325
+    },
+    {
+      "id": "langwatch.completeness.056",
+      "kind": "near-miss",
+      "pair": "near-miss-2",
+      "truth": true,
+      "complete": true,
+      "keys": [
+        "605e7d5e06589d9b9811ef009bc2471367d89901df174c3b011f8f8e46273d9f"
+      ],
+      "costUsd": 0.0004778
+    },
+    {
+      "id": "langwatch.completeness.057",
+      "kind": "double-negation",
+      "pair": "double-negation-7",
+      "truth": true,
+      "complete": true,
+      "keys": [
+        "2e9bda820afd3dc6afb43c23ed3b3495e5afd039fa7fc15b61b4f34219f85eff"
+      ],
+      "costUsd": 0.0005668
+    },
+    {
+      "id": "langwatch.completeness.058",
+      "kind": "unusual-format",
+      "pair": "unusual-format-3",
+      "truth": true,
+      "complete": true,
+      "keys": [
+        "e6f27cd38a214e22ecbb7981b1f9a7218d6afbdd6c0ff2cae59ffdc41c704135"
+      ],
+      "costUsd": 0.0004938
+    },
+    {
+      "id": "langwatch.completeness.059",
+      "kind": "flattened-trace",
+      "pair": "flattened-trace-3",
+      "truth": true,
+      "complete": true,
+      "keys": [
+        "61d01a39f8912ce89e3018298476aa6eb1804554ca5be1be0d4e1994d3dab606"
+      ],
+      "costUsd": 0.00056
+    },
+    {
+      "id": "langwatch.completeness.060",
+      "kind": "unusual-format",
+      "pair": "unusual-format-7",
+      "truth": false,
+      "complete": true,
+      "keys": [
+        "3ec4add180bce1ac126457e2d1b029e0f49ad556b8d34fc12fba5c1c0850a947"
+      ],
+      "costUsd": 0.0005006
+    },
+    {
+      "id": "langwatch.completeness.061",
+      "kind": "embedded-instruction",
+      "pair": "embedded-instruction-1",
+      "truth": false,
+      "complete": true,
+      "keys": [
+        "e8e36905b84355b3af9341ffb960cb0dd368a5b52394e69b1bcf85d8d720e881"
+      ],
+      "costUsd": 0.0005239
+    },
+    {
+      "id": "langwatch.completeness.062",
+      "kind": "embedded-instruction",
+      "pair": "embedded-instruction-2",
+      "truth": false,
+      "complete": true,
+      "keys": [
+        "476343aacd0437e173ca24cd0e097d40c01eb5637767ff1cdca06d00e2f82396"
+      ],
+      "costUsd": 0.0004584
+    },
+    {
+      "id": "langwatch.completeness.063",
+      "kind": "near-miss",
+      "pair": "near-miss-0",
+      "truth": false,
+      "complete": true,
+      "keys": [
+        "cf58c881c4f32b8dae22a96ebc16eb7b5aaf10ae585950c75cde41dc85b27599"
+      ],
+      "costUsd": 0.0006027000000000001
+    },
+    {
+      "id": "langwatch.completeness.064",
+      "kind": "long-one-wrong",
+      "pair": "long-one-wrong-4",
+      "truth": false,
+      "complete": true,
+      "keys": [
+        "8159c3629e6292d53c80a5cfec2a1c38f52ce4d01f683d5ed3d2f580343f0e2d"
+      ],
+      "costUsd": 0.0005126
+    },
+    {
+      "id": "langwatch.completeness.065",
+      "kind": "embedded-instruction",
+      "pair": "embedded-instruction-7",
+      "truth": false,
+      "complete": true,
+      "keys": [
+        "c066a1f65d90cdaf9b46a59439208bb870163e34e7381113b1e539abf2a3884d"
+      ],
+      "costUsd": 0.0014210000000000002
+    },
+    {
+      "id": "langwatch.completeness.066",
+      "kind": "partial-credit",
+      "pair": "partial-credit-1",
+      "truth": false,
+      "complete": true,
+      "keys": [
+        "0b09fc3d51e5d3f251a6137d043525e940f5132ab19af43d8f1b907c3e7664d2"
+      ],
+      "costUsd": 0.00047460000000000004
+    },
+    {
+      "id": "langwatch.completeness.067",
+      "kind": "flattened-trace",
+      "pair": "flattened-trace-4",
+      "truth": false,
+      "complete": true,
+      "keys": [
+        "91cc2100012b730ad51da5e356ddf41a70cd4c0a099cae8dba500c9ee5ab3fbb"
+      ],
+      "costUsd": 0.0005041
+    },
+    {
+      "id": "langwatch.completeness.068",
+      "kind": "unusual-format",
+      "pair": "unusual-format-6",
+      "truth": false,
+      "complete": true,
+      "keys": [
+        "c1fafb4ab454a73daca24f417cafe938d2b070c3ae7f164ad75770e0fe233ac6"
+      ],
+      "costUsd": 0.0004921
+    },
+    {
+      "id": "langwatch.completeness.069",
+      "kind": "embedded-instruction",
+      "pair": "embedded-instruction-2",
+      "truth": true,
+      "complete": true,
+      "keys": [
+        "db15e2d893554a660e9a53c91e70f99a26a01a7d36f337594e365beeeb7c7f6b"
+      ],
+      "costUsd": 0.0005939999999999999
+    },
+    {
+      "id": "langwatch.completeness.070",
+      "kind": "partial-credit",
+      "pair": "partial-credit-8",
+      "truth": false,
+      "complete": true,
+      "keys": [
+        "a5537b72dd7a54f8ed9317b86610faded1857ec92161bd10cd09e2c24a540a37"
+      ],
+      "costUsd": 0.0004356
+    },
+    {
+      "id": "langwatch.completeness.071",
+      "kind": "unusual-format",
+      "pair": "unusual-format-7",
+      "truth": true,
+      "complete": true,
+      "keys": [
+        "461604ac936b947ac95e0a3a06195ea250d756eb133378ef4281c164de588d1a"
+      ],
+      "costUsd": 0.0009246
+    },
+    {
+      "id": "langwatch.completeness.072",
+      "kind": "near-miss",
+      "pair": "near-miss-2",
+      "truth": false,
+      "complete": true,
+      "keys": [
+        "fdfdfbda111920af2d94b83ce47606d3eb8ae16d7d8ffc79ab19967aff4f6712"
+      ],
+      "costUsd": 0.0012167
+    },
+    {
+      "id": "langwatch.completeness.073",
+      "kind": "long-one-wrong",
+      "pair": "long-one-wrong-6",
+      "truth": true,
+      "complete": true,
+      "keys": [
+        "15bd86d39fdbfcdf58dafa2e8dabe3f5dae222278517097dc4e2bdef5750ba30"
+      ],
+      "costUsd": 0.0011692
+    },
+    {
+      "id": "langwatch.completeness.074",
+      "kind": "unusual-format",
+      "pair": "unusual-format-3",
+      "truth": false,
+      "complete": true,
+      "keys": [
+        "be001f8e9ec7d2c8d429d8f772705422ff78c2d131a9ce366a272b9dae8ec52e"
+      ],
+      "costUsd": 0.0015121
+    },
+    {
+      "id": "langwatch.completeness.075",
+      "kind": "long-one-wrong",
+      "pair": "long-one-wrong-6",
+      "truth": false,
+      "complete": true,
+      "keys": [
+        "e2c21ac0a072ea7f2986334f8ad307e8fa38839ef31a063fb16a7c8989625e58"
+      ],
+      "costUsd": 0.0010025
+    },
+    {
+      "id": "langwatch.completeness.076",
+      "kind": "flattened-trace",
+      "pair": "flattened-trace-4",
+      "truth": true,
+      "complete": true,
+      "keys": [
+        "02dacbc3d5f6b4a485a02c0a184ba8e61be2d9daacc94e4c71ecbf393780739b"
+      ],
+      "costUsd": 0.000478
+    },
+    {
+      "id": "langwatch.completeness.077",
+      "kind": "long-one-wrong",
+      "pair": "long-one-wrong-0",
+      "truth": false,
+      "complete": true,
+      "keys": [
+        "6541dd4edc341694e30cb7364601fac0a0949cac342ff4daee1d2b311d95f9c8"
+      ],
+      "costUsd": 0.0005226
+    },
+    {
+      "id": "langwatch.completeness.078",
+      "kind": "flattened-trace",
+      "pair": "flattened-trace-0",
+      "truth": true,
+      "complete": true,
+      "keys": [
+        "142bf837e04001f93b06587356525c9c3a36f6fd20dbc2717e1d2995cf5fea16"
+      ],
+      "costUsd": 0.0014745000000000001
+    },
+    {
+      "id": "langwatch.completeness.079",
+      "kind": "unusual-format",
+      "pair": "unusual-format-1",
+      "truth": true,
+      "complete": true,
+      "keys": [
+        "2f92f165ddc9a3778b96a8b65f4710ff6d0c68defc4fa6193345cda2e5a2c361"
+      ],
+      "costUsd": 0.0004923
+    },
+    {
+      "id": "langwatch.completeness.080",
+      "kind": "flattened-trace",
+      "pair": "flattened-trace-6",
+      "truth": true,
+      "complete": true,
+      "keys": [
+        "3aa43bf551e66de02f30c10ec57bc6fd120f28277389a9ecc5d80d27617fb8df"
+      ],
+      "costUsd": 0.0005920000000000001
+    },
+    {
+      "id": "langwatch.completeness.081",
+      "kind": "partial-credit",
+      "pair": "partial-credit-7",
+      "truth": false,
+      "complete": true,
+      "keys": [
+        "641e2ac90ec18182f88931d19423370c37e8bf8493a19575a3ca2b89fdf1a5d3"
+      ],
+      "costUsd": 0.00044760000000000004
+    },
+    {
+      "id": "langwatch.completeness.082",
+      "kind": "double-negation",
+      "pair": "double-negation-3",
+      "truth": true,
+      "complete": true,
+      "keys": [
+        "d8cec44deb8c05f50dfbda9c72f0392a4374481e41ed670e5ab3ac7519b17ba6"
+      ],
+      "costUsd": 0.0005435
+    },
+    {
+      "id": "langwatch.completeness.083",
+      "kind": "near-miss",
+      "pair": "near-miss-5",
+      "truth": true,
+      "complete": true,
+      "keys": [
+        "8f475e3d7eedac63e8be8a16e59275db2db2742a79984c9d761ec930377b0e92"
+      ],
+      "costUsd": 0.0009682
+    },
+    {
+      "id": "langwatch.completeness.084",
+      "kind": "long-one-wrong",
+      "pair": "long-one-wrong-3",
+      "truth": true,
+      "complete": true,
+      "keys": [
+        "46c5c894389cd4537ee3375bfc75ab25b6a1f1c6bd47e794377b8a2787a5ddf5"
+      ],
+      "costUsd": 0.0006076
+    },
+    {
+      "id": "langwatch.completeness.085",
+      "kind": "double-negation",
+      "pair": "double-negation-6",
+      "truth": false,
+      "complete": true,
+      "keys": [
+        "c5a344c337e900a3476c77104b30afa1140983bc5d785b9ba4c44300efbf5015"
+      ],
+      "costUsd": 0.0005677
+    },
+    {
+      "id": "langwatch.completeness.086",
+      "kind": "near-miss",
+      "pair": "near-miss-0",
+      "truth": true,
+      "complete": true,
+      "keys": [
+        "4f2e437aec2ac4ffaf47e9f0c04144b19e7a20d18cf7661d89d089c3048b703c"
+      ],
+      "costUsd": 0.0004808
+    },
+    {
+      "id": "langwatch.completeness.087",
+      "kind": "flattened-trace",
+      "pair": "flattened-trace-6",
+      "truth": false,
+      "complete": true,
+      "keys": [
+        "2922e49cb3917a0362615429bdec82a9d7ca388cb8ed642e8ae6a1d38a3eeb7e"
+      ],
+      "costUsd": 0.0005361000000000001
+    },
+    {
+      "id": "langwatch.completeness.088",
+      "kind": "embedded-instruction",
+      "pair": "embedded-instruction-8",
+      "truth": false,
+      "complete": true,
+      "keys": [
+        "ae3349a7323db12fc23b266ad62358fcb1cefbd3f0563bb88cb4c7e6f34c3ef1"
+      ],
+      "costUsd": 0.0005119
+    },
+    {
+      "id": "langwatch.completeness.089",
+      "kind": "partial-credit",
+      "pair": "partial-credit-4",
+      "truth": true,
+      "complete": true,
+      "keys": [
+        "491b7121ead24b5070f853439bac6d8e10b5cf548563ae4112f9241acb114e4e"
+      ],
+      "costUsd": 0.0004838
+    },
+    {
+      "id": "langwatch.completeness.090",
+      "kind": "double-negation",
+      "pair": "double-negation-7",
+      "truth": false,
+      "complete": true,
+      "keys": [
+        "af78535d7e6882be5c470f7cf3c12a48aaa5189c23b32dc8931c9c471a4de5f6"
+      ],
+      "costUsd": 0.0005587
+    },
+    {
+      "id": "langwatch.completeness.091",
+      "kind": "unusual-format",
+      "pair": "unusual-format-2",
+      "truth": false,
+      "complete": true,
+      "keys": [
+        "5cd19af2a9db971db266e57c2f1c223e9c3d4b5a62ac7eeb6ada5cf114c7a20f"
+      ],
+      "costUsd": 0.0005021
+    },
+    {
+      "id": "langwatch.completeness.092",
+      "kind": "double-negation",
+      "pair": "double-negation-8",
+      "truth": true,
+      "complete": true,
+      "keys": [
+        "14a4cebeb353381cb4a48dba8a999897d91fd618e4a1f63af4fd5e2be8519e62"
+      ],
+      "costUsd": 0.0010106
+    },
+    {
+      "id": "langwatch.completeness.093",
+      "kind": "unusual-format",
+      "pair": "unusual-format-0",
+      "truth": true,
+      "complete": true,
+      "keys": [
+        "39726ed7808da5d4e9acde268ab632ee257f7725b6fa0567346db362a8d41108"
+      ],
+      "costUsd": 0.0005543
+    },
+    {
+      "id": "langwatch.completeness.094",
+      "kind": "partial-credit",
+      "pair": "partial-credit-5",
+      "truth": false,
+      "complete": true,
+      "keys": [
+        "4241601b275c4ac1327fa66afcb7cc7c8b3fd04eba2401f55fff6838208123be"
+      ],
+      "costUsd": 0.0004511
+    },
+    {
+      "id": "langwatch.completeness.095",
+      "kind": "embedded-instruction",
+      "pair": "embedded-instruction-6",
+      "truth": false,
+      "complete": true,
+      "keys": [
+        "088f314ad4b72bec69ecd664f7989a5ad7b2ed77a42d42e4ee53307b87fa29e2"
+      ],
+      "costUsd": 0.0005139000000000001
+    },
+    {
+      "id": "langwatch.completeness.096",
+      "kind": "double-negation",
+      "pair": "double-negation-2",
+      "truth": false,
+      "complete": true,
+      "keys": [
+        "8f074ed70e032e978f0d8f3a29d68845bb5b11343717c321cf9fdda238c50f0d"
+      ],
+      "costUsd": 0.0005972
+    },
+    {
+      "id": "langwatch.completeness.097",
+      "kind": "flattened-trace",
+      "pair": "flattened-trace-0",
+      "truth": false,
+      "complete": true,
+      "keys": [
+        "e597d7a5c3f66babd9620e94a2ef31f943976edaf143d1fbabf2f5a45db74ad0"
+      ],
+      "costUsd": 0.0005208000000000001
+    },
+    {
+      "id": "langwatch.completeness.098",
+      "kind": "long-one-wrong",
+      "pair": "long-one-wrong-8",
+      "truth": true,
+      "complete": true,
+      "keys": [
+        "46e82d1b46492671ce283202e7ea4670d477e0b82974270c74c729ce0e2804e0"
+      ],
+      "costUsd": 0.0005636
+    },
+    {
+      "id": "langwatch.completeness.099",
+      "kind": "long-one-wrong",
+      "pair": "long-one-wrong-1",
+      "truth": true,
+      "complete": true,
+      "keys": [
+        "d12adb74c4e50b5023909b449be6f1942b168c5f5b19a11365b1b53d5c9595ec"
+      ],
+      "costUsd": 0.0005314
+    },
+    {
+      "id": "langwatch.completeness.100",
+      "kind": "long-one-wrong",
+      "pair": "long-one-wrong-8",
+      "truth": false,
+      "complete": true,
+      "keys": [
+        "1e56ab603eafac5a0b8eb2582f3744c2b0836de00e350afafabd16fba9dd2f3a"
+      ],
+      "costUsd": 0.0005016
+    },
+    {
+      "id": "langwatch.completeness.101",
+      "kind": "double-negation",
+      "pair": "double-negation-8",
+      "truth": false,
+      "complete": true,
+      "keys": [
+        "5b95390c1f93e0c8aea242ffb79d537faf477fdb0db2d7df1051235509474646"
+      ],
+      "costUsd": 0.0005897999999999999
+    },
+    {
+      "id": "langwatch.completeness.102",
+      "kind": "partial-credit",
+      "pair": "partial-credit-2",
+      "truth": false,
+      "complete": true,
+      "keys": [
+        "129cceeb491f09ef8d7a096f61d3406b97d32e1b81f81d63fe02d9873de1f3c7"
+      ],
+      "costUsd": 0.00045260000000000005
+    },
+    {
+      "id": "langwatch.completeness.103",
+      "kind": "near-miss",
+      "pair": "near-miss-6",
+      "truth": false,
+      "complete": true,
+      "keys": [
+        "aa7514a8522836bfb3daa001e6e562cf72c6f8744d97b8abd72ea183486a00f7"
+      ],
+      "costUsd": 0.0006297
+    },
+    {
+      "id": "langwatch.completeness.104",
+      "kind": "double-negation",
+      "pair": "double-negation-0",
+      "truth": false,
+      "complete": true,
+      "keys": [
+        "aa6bb9104e5a97b2da9aa79c750144f4750ee0e0a6dc657349de3535bbb04fe6"
+      ],
+      "costUsd": 0.0005848
+    },
+    {
+      "id": "langwatch.completeness.105",
+      "kind": "partial-credit",
+      "pair": "partial-credit-5",
+      "truth": true,
+      "complete": true,
+      "keys": [
+        "44cc951baa4c6e5e5844f40d57b5790777511415cdd8b4f0d71159a2b555005f"
+      ],
+      "costUsd": 0.00046029999999999997
+    },
+    {
+      "id": "langwatch.completeness.106",
+      "kind": "double-negation",
+      "pair": "double-negation-6",
+      "truth": true,
+      "complete": true,
+      "keys": [
+        "0be0cf89f186f291bfa3d36fedf769ef75428a8225cdc233391977c172206e2e"
+      ],
+      "costUsd": 0.0010116
+    },
+    {
+      "id": "langwatch.completeness.107",
+      "kind": "near-miss",
+      "pair": "near-miss-3",
+      "truth": true,
+      "complete": true,
+      "keys": [
+        "7063f1aee46f0ebf42f5aa0da84234369639a62be2c03dffdc365c7a6d28db52"
+      ],
+      "costUsd": 0.0004753
+    },
+    {
+      "id": "langwatch.completeness.108",
+      "kind": "partial-credit",
+      "pair": "partial-credit-2",
+      "truth": true,
+      "complete": true,
+      "keys": [
+        "505be659f683bd8ccf239221b67adf0afd0b4d1249f76bcaf58aaf9a1d7f7ae0"
+      ],
+      "costUsd": 0.0004753
+    },
+    {
+      "id": "langwatch.completeness.109",
+      "kind": "unusual-format",
+      "pair": "unusual-format-4",
+      "truth": false,
+      "complete": true,
+      "keys": [
+        "706f424eb71ab63d3df9865b2a9375398eaa4fea96d0553445ae8a1b58f850d2"
+      ],
+      "costUsd": 0.0004981
+    },
+    {
+      "id": "langwatch.completeness.110",
+      "kind": "embedded-instruction",
+      "pair": "embedded-instruction-3",
+      "truth": true,
+      "complete": true,
+      "keys": [
+        "02fb6658f702756fbdcfede204dab7a248b4947879ca9f8780e3c0640b93b6ed"
+      ],
+      "costUsd": 0.0012360000000000001
+    },
+    {
+      "id": "langwatch.completeness.111",
+      "kind": "flattened-trace",
+      "pair": "flattened-trace-3",
+      "truth": false,
+      "complete": true,
+      "keys": [
+        "7301acafdce39731f088ec9f35e2734e1c2452c542680726916b5cdc7564a929"
+      ],
+      "costUsd": 0.0005011
+    },
+    {
+      "id": "langwatch.completeness.112",
+      "kind": "partial-credit",
+      "pair": "partial-credit-6",
+      "truth": false,
+      "complete": true,
+      "keys": [
+        "22ce27117dbc7931a28fbcd32375f688b31c5a36f7a64ea3093ed8e4d0a264df"
+      ],
+      "costUsd": 0.0004906
+    },
+    {
+      "id": "langwatch.completeness.113",
+      "kind": "embedded-instruction",
+      "pair": "embedded-instruction-6",
+      "truth": true,
+      "complete": true,
+      "keys": [
+        "ef869bf69821828547c6d877e8769993c74d8bf2faef40125040f8772926ceb6"
+      ],
+      "costUsd": 0.0017409
+    },
+    {
+      "id": "langwatch.completeness.114",
+      "kind": "embedded-instruction",
+      "pair": "embedded-instruction-5",
+      "truth": false,
+      "complete": true,
+      "keys": [
+        "1f3adb9bb5583e780077d52ebf44f5c984637fafa4ca39ba9c360e12cec6cb53"
+      ],
+      "costUsd": 0.0005329
+    },
+    {
+      "id": "langwatch.completeness.115",
+      "kind": "near-miss",
+      "pair": "near-miss-3",
+      "truth": false,
+      "complete": true,
+      "keys": [
+        "b46dc9d4ced49825851c7966c1d77c5306d1083dc56d7155566bd4d411935d8f"
+      ],
+      "costUsd": 0.0012177
+    },
+    {
+      "id": "langwatch.completeness.116",
+      "kind": "unusual-format",
+      "pair": "unusual-format-8",
+      "truth": false,
+      "complete": true,
+      "keys": [
+        "faae407ccad9c9bcc50dda2c3c5ebea7fa7c5d2ba52a5685540cd94a605e32d5"
+      ],
+      "costUsd": 0.0005136
+    },
+    {
+      "id": "langwatch.completeness.117",
+      "kind": "double-negation",
+      "pair": "double-negation-1",
+      "truth": false,
+      "complete": true,
+      "keys": [
+        "2c64a8af4c3b1ed11424771843e8b060b1f0fee24360c6420e1c6db05791ff37"
+      ],
+      "costUsd": 0.0005476999999999999
+    },
+    {
+      "id": "langwatch.completeness.118",
+      "kind": "partial-credit",
+      "pair": "partial-credit-6",
+      "truth": true,
+      "complete": true,
+      "keys": [
+        "96d4018bed4e6a7f8ae4ac622d26e0854acecb914ef9c5589bd1e01d6da09607"
+      ],
+      "costUsd": 0.0005353000000000001
+    },
+    {
+      "id": "langwatch.completeness.119",
+      "kind": "near-miss",
+      "pair": "near-miss-1",
+      "truth": false,
+      "complete": true,
+      "keys": [
+        "a20677537c6892c14acaa0815f1e83e83e6db90277ee48f2bb07a4ce30a107c7"
+      ],
+      "costUsd": 0.0019348
+    },
+    {
+      "id": "langwatch.completeness.120",
+      "kind": "unusual-format",
+      "pair": "unusual-format-0",
+      "truth": false,
+      "complete": true,
+      "keys": [
+        "75639c80a76a65971d91203e07cf3665e61dfe78b5159dde09f3d73c1cd31c5d"
+      ],
+      "costUsd": 0.0005081
+    },
+    {
+      "id": "langwatch.completeness.121",
+      "kind": "near-miss",
+      "pair": "near-miss-7",
+      "truth": true,
+      "complete": true,
+      "keys": [
+        "107a91b5283cb12fca82ede5f2808ca0ef7cb20fcae817826c54599ff6be516d"
+      ],
+      "costUsd": 0.0004763
+    },
+    {
+      "id": "langwatch.completeness.122",
+      "kind": "double-negation",
+      "pair": "double-negation-5",
+      "truth": false,
+      "complete": true,
+      "keys": [
+        "7d5bda45b87760823c9e0edc5620176bee53ae5e3d49c602f00292e2696dd6a2"
+      ],
+      "costUsd": 0.0005594
+    },
+    {
+      "id": "langwatch.completeness.123",
+      "kind": "flattened-trace",
+      "pair": "flattened-trace-2",
+      "truth": false,
+      "complete": true,
+      "keys": [
+        "ccb214d41c24aaad5a437641033de17f50350097be5803dd71ee9c8cae7861ea"
+      ],
+      "costUsd": 0.00047080000000000006
+    },
+    {
+      "id": "langwatch.completeness.124",
+      "kind": "flattened-trace",
+      "pair": "flattened-trace-7",
+      "truth": true,
+      "complete": true,
+      "keys": [
+        "5ac47590afb0817ada8752c288e37e3127a12ff319a6228fa3ad3114440b1dba"
+      ],
+      "costUsd": 0.0005567
+    },
+    {
+      "id": "langwatch.completeness.125",
+      "kind": "embedded-instruction",
+      "pair": "embedded-instruction-8",
+      "truth": true,
+      "complete": true,
+      "keys": [
+        "f0d3eb1d6db11aa455d80421dd853e9f637dd58879567ab312b1ca6c0bcc4c34"
+      ],
+      "costUsd": 0.000565
+    },
+    {
+      "id": "langwatch.completeness.126",
+      "kind": "near-miss",
+      "pair": "near-miss-1",
+      "truth": true,
+      "complete": true,
+      "keys": [
+        "29c8c22cbc34cdab4ed79b76796b499f3447f479c518cd0046238ccfb7040b96"
+      ],
+      "costUsd": 0.0005183
+    }
+  ]
+}

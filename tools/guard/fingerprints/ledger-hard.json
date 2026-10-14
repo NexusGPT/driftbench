@@ -1,0 +1,30 @@
+{
+  "comment": "Made-up values in comparisons/ledger-hard, proven against comparisons/promptfoo/hard/generate.py and the sealed case files. Entries are kind plus sha256 of the exact matched text.",
+  "entries": [
+    {
+      "kind": "national-number",
+      "sha256": "e14415cec38a850c212273b52c92e291559ecf5bf51e2cc664765ec921a45dc5",
+      "reason": "Made-up product id from comparisons/promptfoo/hard/generate.py (Lumen-/fictional-trace- plus pair+101+offset); the value is inside the sealed ledger-hard case files and the checksum only passes by chance."
+    },
+    {
+      "kind": "national-number",
+      "sha256": "1a97acb9673a805cc03aaee49b108789c345fd27f550ece189b4c6fbc10d013f",
+      "reason": "Made-up product id from comparisons/promptfoo/hard/generate.py (Lumen-/fictional-trace- plus pair+101+offset); the value is inside the sealed ledger-hard case files and the checksum only passes by chance."
+    },
+    {
+      "kind": "national-number",
+      "sha256": "f1b239d7b88b17ab5070feb3a6f913c251853f2fdc7241fc9ab0a88b5ddafb56",
+      "reason": "Made-up product id from comparisons/promptfoo/hard/generate.py (Lumen-/fictional-trace- plus pair+101+offset); the value is inside the sealed ledger-hard case files and the checksum only passes by chance."
+    },
+    {
+      "kind": "national-number",
+      "sha256": "2eb18b4f53ae9e9f1061922e5662132169fe54a59d094c594ba51c3591b121c9",
+      "reason": "Made-up product id from comparisons/promptfoo/hard/generate.py (Lumen-/fictional-trace- plus pair+101+offset); the value is inside the sealed ledger-hard case files and the checksum only passes by chance."
+    },
+    {
+      "kind": "phone",
+      "sha256": "f9e709fb6a389ca0f35f23b4da610cb350d3737e436c7856f1c0ea8001954cb2",
+      "reason": "Made-up phone binding from comparisons/promptfoo/hard/generate.py (+1 area 555 suffix); the same binding is inside the sealed ledger-hard pii case file."
+    }
+  ]
+}

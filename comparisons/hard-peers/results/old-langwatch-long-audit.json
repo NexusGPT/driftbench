@@ -1,0 +1,3134 @@
+{
+  "competitor": "langwatch",
+  "row": "long",
+  "contestant": "audit",
+  "model": "haiku",
+  "items": 240,
+  "complete": 240,
+  "results": [
+    {
+      "id": "longtrace-v2-entity_binding-01#1",
+      "kind": "entity_binding",
+      "pair": "longtrace-v2-entity_binding-01",
+      "truth": "pass",
+      "complete": true,
+      "outcome": "inconclusive",
+      "unparsed": false,
+      "keys": [
+        "cb1cba12ba5d409809e8ddc3cdf693e58ddd8389540edd4fee15f54a271cf8ca"
+      ],
+      "costUsd": 0.0020568
+    },
+    {
+      "id": "longtrace-v2-entity_binding-01#2",
+      "kind": "entity_binding",
+      "pair": "longtrace-v2-entity_binding-01",
+      "truth": "pass",
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "c44e00abbf43556e755f618f58f82d92f24fcd0af211f213cb261d8c1d3e8b84"
+      ],
+      "costUsd": 0.0015975
+    },
+    {
+      "id": "longtrace-v2-entity_binding-02#1",
+      "kind": "entity_binding",
+      "pair": "longtrace-v2-entity_binding-02",
+      "truth": "fail",
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "4b130966219764144fd094fe94dfcd8f3778ebb6f329a1d7a97e93aabc469e40"
+      ],
+      "costUsd": 0.0021969
+    },
+    {
+      "id": "longtrace-v2-entity_binding-02#2",
+      "kind": "entity_binding",
+      "pair": "longtrace-v2-entity_binding-02",
+      "truth": "fail",
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "d882d5e0dba0cfb350399652233eb0c7c1bf39376c538a8e127b05ae544f45f1"
+      ],
+      "costUsd": 0.0014691
+    },
+    {
+      "id": "longtrace-v2-entity_binding-03#1",
+      "kind": "entity_binding",
+      "pair": "longtrace-v2-entity_binding-03",
+      "truth": "inconclusive",
+      "complete": true,
+      "outcome": "inconclusive",
+      "unparsed": false,
+      "keys": [
+        "5d81c5df6bb160b98a22cf00f9ea30db88796dc0c20ecb2526d94dc9774c2a6b"
+      ],
+      "costUsd": 0.0022029
+    },
+    {
+      "id": "longtrace-v2-entity_binding-03#2",
+      "kind": "entity_binding",
+      "pair": "longtrace-v2-entity_binding-03",
+      "truth": "pass",
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "9ae7283e04a794dfe20fab698037dbec8a5fc2a349ff2435f67b8bf7fa995d69"
+      ],
+      "costUsd": 0.0017596
+    },
+    {
+      "id": "longtrace-v2-entity_binding-04#1",
+      "kind": "entity_binding",
+      "pair": "longtrace-v2-entity_binding-04",
+      "truth": "pass",
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "6a5ff26e0dec2329e98a5fea34dce1174835eb9ca5bdbb1c54d7f512745997d7"
+      ],
+      "costUsd": 0.0023493999999999998
+    },
+    {
+      "id": "longtrace-v2-entity_binding-04#2",
+      "kind": "entity_binding",
+      "pair": "longtrace-v2-entity_binding-04",
+      "truth": "fail",
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "fe9fbf4e551a09ef296150f61504b91bb512b8dafefe16f73d2c4abd650576a2"
+      ],
+      "costUsd": 0.0019456
+    },
+    {
+      "id": "longtrace-v2-entity_binding-05#1",
+      "kind": "entity_binding",
+      "pair": "longtrace-v2-entity_binding-05",
+      "truth": "fail",
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "4accb4dcceb3fbfd4c9c0b86695d3fa3331d67a9217aa66311e4ae4609c2e675"
+      ],
+      "costUsd": 0.0018729
+    },
+    {
+      "id": "longtrace-v2-entity_binding-05#2",
+      "kind": "entity_binding",
+      "pair": "longtrace-v2-entity_binding-05",
+      "truth": "pass",
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "6505efc55c4c413f85f689610e6bee6a5d85425ceb7c1cee5ed65259ce3531e3"
+      ],
+      "costUsd": 0.0015071
+    },
+    {
+      "id": "longtrace-v2-entity_binding-06#1",
+      "kind": "entity_binding",
+      "pair": "longtrace-v2-entity_binding-06",
+      "truth": "inconclusive",
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "eea0dc8ea450d3ec8667c7574d27b55f4cd89856507950f7c15adf7665e2526e"
+      ],
+      "costUsd": 0.0015171
+    },
+    {
+      "id": "longtrace-v2-entity_binding-06#2",
+      "kind": "entity_binding",
+      "pair": "longtrace-v2-entity_binding-06",
+      "truth": "fail",
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "0c5a1d1acc3f4102cf2b068c8b6fa854e854766f3fc6aee727db9b5e1281fb6a"
+      ],
+      "costUsd": 0.0013833
+    },
+    {
+      "id": "longtrace-v2-entity_binding-07#1",
+      "kind": "entity_binding",
+      "pair": "longtrace-v2-entity_binding-07",
+      "truth": "pass",
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "7cfb56cff749f2d98c55368e97d6ebbca19efeb960fe26453a489c185327caee"
+      ],
+      "costUsd": 0.0023547999999999998
+    },
+    {
+      "id": "longtrace-v2-entity_binding-07#2",
+      "kind": "entity_binding",
+      "pair": "longtrace-v2-entity_binding-07",
+      "truth": "pass",
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "17a26386d8c34970db15c7f6a38f6f7907ee43b739c4845285cd0c32d5a5b810"
+      ],
+      "costUsd": 0.0019190000000000001
+    },
+    {
+      "id": "longtrace-v2-entity_binding-08#1",
+      "kind": "entity_binding",
+      "pair": "longtrace-v2-entity_binding-08",
+      "truth": "fail",
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "aeda815a9c77c7f1d2bdb8bcb7e45de55b34529a60c0eb44e45eda4dcabaa8ce"
+      ],
+      "costUsd": 0.0020046
+    },
+    {
+      "id": "longtrace-v2-entity_binding-08#2",
+      "kind": "entity_binding",
+      "pair": "longtrace-v2-entity_binding-08",
+      "truth": "fail",
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "5c8ccdbedc6e386344465ef2aff9037a5290650d76152bebae816f323f4d61ef"
+      ],
+      "costUsd": 0.0016343
+    },
+    {
+      "id": "longtrace-v2-entity_binding-09#1",
+      "kind": "entity_binding",
+      "pair": "longtrace-v2-entity_binding-09",
+      "truth": "inconclusive",
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "a8ebc8e862ddcd8a12115a59702465adf9bae974c92ce9dd4df3f343a63e7fac"
+      ],
+      "costUsd": 0.0020527
+    },
+    {
+      "id": "longtrace-v2-entity_binding-09#2",
+      "kind": "entity_binding",
+      "pair": "longtrace-v2-entity_binding-09",
+      "truth": "pass",
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "b4b68d89d6ff17c8c60e2ce8020dae6b8f14a240e29b7a46381253b976a4b32a"
+      ],
+      "costUsd": 0.0016278999999999998
+    },
+    {
+      "id": "longtrace-v2-entity_binding-10#1",
+      "kind": "entity_binding",
+      "pair": "longtrace-v2-entity_binding-10",
+      "truth": "pass",
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "175209dffeca74da81ea8d5990edd5b02de140cd6a347c4ed62298518b640bcb",
+        "cf6abb71ecefdc9981df61605ce4df6cad2598ad10a7caf39af166d64aed6efc"
+      ],
+      "costUsd": 0.0041589999999999995
+    },
+    {
+      "id": "longtrace-v2-entity_binding-10#2",
+      "kind": "entity_binding",
+      "pair": "longtrace-v2-entity_binding-10",
+      "truth": "fail",
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "4c17f24b88924db78c6c141e3e5dcf41f4b35d22c659b1953850cbbb09b707de"
+      ],
+      "costUsd": 0.0014412
+    },
+    {
+      "id": "longtrace-v2-entity_binding-11#1",
+      "kind": "entity_binding",
+      "pair": "longtrace-v2-entity_binding-11",
+      "truth": "fail",
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "4f02f80bee8b1764973a6e15a69a1a346c5392251855da48e7c4de6e5a9cda60"
+      ],
+      "costUsd": 0.0019481000000000001
+    },
+    {
+      "id": "longtrace-v2-entity_binding-11#2",
+      "kind": "entity_binding",
+      "pair": "longtrace-v2-entity_binding-11",
+      "truth": "pass",
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "a4adeb0316f8fb0d164a1e07100ffa783ed5af6eefcf5b4a1fdbd340df8d27d1"
+      ],
+      "costUsd": 0.0016253
+    },
+    {
+      "id": "longtrace-v2-entity_binding-12#1",
+      "kind": "entity_binding",
+      "pair": "longtrace-v2-entity_binding-12",
+      "truth": "inconclusive",
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "8624e9caa0728d5469c6abf6bf0bbe6ec16d56ca28c7379161277ebfb38f4f49"
+      ],
+      "costUsd": 0.0020708000000000002
+    },
+    {
+      "id": "longtrace-v2-entity_binding-12#2",
+      "kind": "entity_binding",
+      "pair": "longtrace-v2-entity_binding-12",
+      "truth": "fail",
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "cfb97c8db52f6c22b3a0e6cb42a8fa37e210cb7764fe811f63a6d7731e0658c4"
+      ],
+      "costUsd": 0.0017855000000000002
+    },
+    {
+      "id": "longtrace-v2-units-01#1",
+      "kind": "units",
+      "pair": "longtrace-v2-units-01",
+      "truth": "pass",
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "5fee964f937d393551e92dfe7b2d0ab79b4a0007327e51708fe59716510ccc25"
+      ],
+      "costUsd": 0.0021101
+    },
+    {
+      "id": "longtrace-v2-units-01#2",
+      "kind": "units",
+      "pair": "longtrace-v2-units-01",
+      "truth": "pass",
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "fa2bb7033a21739b1c84db7c7fa9f181b574f367afccc41a5c1cdf47cffaecd7"
+      ],
+      "costUsd": 0.0015398
+    },
+    {
+      "id": "longtrace-v2-units-02#1",
+      "kind": "units",
+      "pair": "longtrace-v2-units-02",
+      "truth": "fail",
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "b060657c2b0b7e52e0c86ae46140d9ae8e08f2b4bd291a9c17568735f7fa2db0"
+      ],
+      "costUsd": 0.0016692
+    },
+    {
+      "id": "longtrace-v2-units-02#2",
+      "kind": "units",
+      "pair": "longtrace-v2-units-02",
+      "truth": "fail",
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "f41b663992b8943242bbd0719ac2fea0f0429480537352db96b5929c0e300d51"
+      ],
+      "costUsd": 0.0014564
+    },
+    {
+      "id": "longtrace-v2-units-03#1",
+      "kind": "units",
+      "pair": "longtrace-v2-units-03",
+      "truth": "inconclusive",
+      "complete": true,
+      "outcome": "inconclusive",
+      "unparsed": false,
+      "keys": [
+        "d18981c42af78eb75a2881470f72c5f80e421b1d4b33f826739fd92a05af234b"
+      ],
+      "costUsd": 0.0017333
+    },
+    {
+      "id": "longtrace-v2-units-03#2",
+      "kind": "units",
+      "pair": "longtrace-v2-units-03",
+      "truth": "pass",
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "e97ec175b467c88d56ef3d44321a78caa85be7be4460352d08d74e02d6a56bc4"
+      ],
+      "costUsd": 0.0016305
+    },
+    {
+      "id": "longtrace-v2-units-04#1",
+      "kind": "units",
+      "pair": "longtrace-v2-units-04",
+      "truth": "pass",
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "4b62ccf71c15aaf21d5a679a463576ab429766834b18caf23762619656dd5d83"
+      ],
+      "costUsd": 0.0020610000000000003
+    },
+    {
+      "id": "longtrace-v2-units-04#2",
+      "kind": "units",
+      "pair": "longtrace-v2-units-04",
+      "truth": "fail",
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "f6f92d6304b1e87b0b35ef97952f01318c33f5764cb41f7028a82f245ca78ab4"
+      ],
+      "costUsd": 0.0015292
+    },
+    {
+      "id": "longtrace-v2-units-05#1",
+      "kind": "units",
+      "pair": "longtrace-v2-units-05",
+      "truth": "fail",
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "bc6648ee0b75c8de2e688c315902458d6751d456e1f89ce62382bf83c87cebd0"
+      ],
+      "costUsd": 0.0019165
+    },
+    {
+      "id": "longtrace-v2-units-05#2",
+      "kind": "units",
+      "pair": "longtrace-v2-units-05",
+      "truth": "pass",
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "58d072215d3ec8b0236d655eb07d122648e49314905ed059c89070fc170bbf6a"
+      ],
+      "costUsd": 0.0015417
+    },
+    {
+      "id": "longtrace-v2-units-06#1",
+      "kind": "units",
+      "pair": "longtrace-v2-units-06",
+      "truth": "inconclusive",
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "52494d4432265fecaa45c2671505d5c2fead5ca5c332cdaf63b8421d18a2f939"
+      ],
+      "costUsd": 0.0020596
+    },
+    {
+      "id": "longtrace-v2-units-06#2",
+      "kind": "units",
+      "pair": "longtrace-v2-units-06",
+      "truth": "fail",
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "d814487cff92c9659a284efa1aebba2ce7785032c946240d5bf03b019374dad0"
+      ],
+      "costUsd": 0.0016283000000000003
+    },
+    {
+      "id": "longtrace-v2-units-07#1",
+      "kind": "units",
+      "pair": "longtrace-v2-units-07",
+      "truth": "pass",
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "5f1edaa81fee5e9505589b4f432e208f304302ce52eabf060b8ed10d81812d5a"
+      ],
+      "costUsd": 0.0024497
+    },
+    {
+      "id": "longtrace-v2-units-07#2",
+      "kind": "units",
+      "pair": "longtrace-v2-units-07",
+      "truth": "pass",
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "c6f40a096760a6fd785279c0d524a9b3f2051de1092a1bf91e47b644b80a8be3"
+      ],
+      "costUsd": 0.0017769
+    },
+    {
+      "id": "longtrace-v2-units-08#1",
+      "kind": "units",
+      "pair": "longtrace-v2-units-08",
+      "truth": "fail",
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "a534721c0cdadbcb5641297efd11bdeec0405cc4f3cea18da972b82c9d006869"
+      ],
+      "costUsd": 0.0016976
+    },
+    {
+      "id": "longtrace-v2-units-08#2",
+      "kind": "units",
+      "pair": "longtrace-v2-units-08",
+      "truth": "fail",
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "761eac7d684898ee988fea25159ac27fa0493e3d346731e1dd5bd2fbc0c1bda4"
+      ],
+      "costUsd": 0.0015568000000000001
+    },
+    {
+      "id": "longtrace-v2-units-09#1",
+      "kind": "units",
+      "pair": "longtrace-v2-units-09",
+      "truth": "inconclusive",
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "16e37a8c38eb4ba6b92f9c3601b838ec262244100e6bf81efe9afc2cf64ff578"
+      ],
+      "costUsd": 0.0020066
+    },
+    {
+      "id": "longtrace-v2-units-09#2",
+      "kind": "units",
+      "pair": "longtrace-v2-units-09",
+      "truth": "pass",
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "9a8c2895db49519fbfb472c784d4048e1a9d299bc01e9432200896e6d9781b9e"
+      ],
+      "costUsd": 0.0016738
+    },
+    {
+      "id": "longtrace-v2-units-10#1",
+      "kind": "units",
+      "pair": "longtrace-v2-units-10",
+      "truth": "pass",
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "3f139876f92fe76e4d8f9d27f57187722e45db3c411b66fa165ef697daa56ad2"
+      ],
+      "costUsd": 0.0019488
+    },
+    {
+      "id": "longtrace-v2-units-10#2",
+      "kind": "units",
+      "pair": "longtrace-v2-units-10",
+      "truth": "fail",
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "6af61754e9399af654ca95881b8227eaa03fae4b04edc79c2b8f0dbfcad935d6"
+      ],
+      "costUsd": 0.0014445
+    },
+    {
+      "id": "longtrace-v2-units-11#1",
+      "kind": "units",
+      "pair": "longtrace-v2-units-11",
+      "truth": "fail",
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "a91acaf06f7211c142012bf876ec3a639ccde0c9142d6ca4382671f554b550ca"
+      ],
+      "costUsd": 0.0018825
+    },
+    {
+      "id": "longtrace-v2-units-11#2",
+      "kind": "units",
+      "pair": "longtrace-v2-units-11",
+      "truth": "pass",
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "910b06eaaffe706f77d08fd5e81e2c78c48ceee56889273d158aae343cc78308"
+      ],
+      "costUsd": 0.0017262
+    },
+    {
+      "id": "longtrace-v2-units-12#1",
+      "kind": "units",
+      "pair": "longtrace-v2-units-12",
+      "truth": "inconclusive",
+      "complete": true,
+      "outcome": "inconclusive",
+      "unparsed": false,
+      "keys": [
+        "104c15c04a639eaed1466fef09f63412fb5dd048977b64d44ec3fc68ccd823c0"
+      ],
+      "costUsd": 0.0018949000000000001
+    },
+    {
+      "id": "longtrace-v2-units-12#2",
+      "kind": "units",
+      "pair": "longtrace-v2-units-12",
+      "truth": "fail",
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "590ce396900d809f0dfca590df67f0f0a754c268376b5be3a8f0d8f62a1c122e"
+      ],
+      "costUsd": 0.0016041000000000002
+    },
+    {
+      "id": "longtrace-v2-action_order-01#1",
+      "kind": "action_order",
+      "pair": "longtrace-v2-action_order-01",
+      "truth": "pass",
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "5b4d9f777628aea42c01c8d2479ddf7a04a3f02ee1c326e838a4b9f244255470"
+      ],
+      "costUsd": 0.0019533
+    },
+    {
+      "id": "longtrace-v2-action_order-01#2",
+      "kind": "action_order",
+      "pair": "longtrace-v2-action_order-01",
+      "truth": "pass",
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "c2d37134ae1e5705ba1b52c02c0f383777565f1d2d76ef30d0128628f8c7ff7c"
+      ],
+      "costUsd": 0.0014470000000000002
+    },
+    {
+      "id": "longtrace-v2-action_order-02#1",
+      "kind": "action_order",
+      "pair": "longtrace-v2-action_order-02",
+      "truth": "fail",
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "503fdc25aaaa337e57bee792a035b18df08cb78189a94cbd75ff6472ad9f757f"
+      ],
+      "costUsd": 0.0021420000000000002
+    },
+    {
+      "id": "longtrace-v2-action_order-02#2",
+      "kind": "action_order",
+      "pair": "longtrace-v2-action_order-02",
+      "truth": "fail",
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "dddc2e93b16a2af927f17a799732bc53ec4036e62097dc24e906620184282351"
+      ],
+      "costUsd": 0.0015276999999999999
+    },
+    {
+      "id": "longtrace-v2-action_order-03#1",
+      "kind": "action_order",
+      "pair": "longtrace-v2-action_order-03",
+      "truth": "inconclusive",
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "eca9bf2b7a6ca96d61042482b83b11cba7c6daff27a697cd185f7272ee3b0d18"
+      ],
+      "costUsd": 0.0018080000000000001
+    },
+    {
+      "id": "longtrace-v2-action_order-03#2",
+      "kind": "action_order",
+      "pair": "longtrace-v2-action_order-03",
+      "truth": "pass",
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "82cfe61065c38ed3aedb18161f4c98e13b8db658a0648aa126cbd12ec4d0451f"
+      ],
+      "costUsd": 0.0016507000000000002
+    },
+    {
+      "id": "longtrace-v2-action_order-04#1",
+      "kind": "action_order",
+      "pair": "longtrace-v2-action_order-04",
+      "truth": "pass",
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "cba5b7b8258b1644c73043be82f7511464a441350eb8fe11655ae79a7a93ace0"
+      ],
+      "costUsd": 0.002036
+    },
+    {
+      "id": "longtrace-v2-action_order-04#2",
+      "kind": "action_order",
+      "pair": "longtrace-v2-action_order-04",
+      "truth": "fail",
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "ce7e804d4a8bff9a39d3e2836049bc86df8190a27625d5596ce732fcb5bd43d5"
+      ],
+      "costUsd": 0.0017802
+    },
+    {
+      "id": "longtrace-v2-action_order-05#1",
+      "kind": "action_order",
+      "pair": "longtrace-v2-action_order-05",
+      "truth": "fail",
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "96fc63007baec6c1fdb2ae419734998d23773d7cba34e66fb7a9da2a6a2a63f2"
+      ],
+      "costUsd": 0.0020442999999999998
+    },
+    {
+      "id": "longtrace-v2-action_order-05#2",
+      "kind": "action_order",
+      "pair": "longtrace-v2-action_order-05",
+      "truth": "pass",
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "8e0cfdd3fd52a628de11d622b1e72d89261b27eb6988f04efa8b27eb35dd0055"
+      ],
+      "costUsd": 0.0013485
+    },
+    {
+      "id": "longtrace-v2-action_order-06#1",
+      "kind": "action_order",
+      "pair": "longtrace-v2-action_order-06",
+      "truth": "inconclusive",
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "1aaebd00f1adf4d10f102790f4232ca15358c49c6a8253fc35464424e36b7e67"
+      ],
+      "costUsd": 0.0017749
+    },
+    {
+      "id": "longtrace-v2-action_order-06#2",
+      "kind": "action_order",
+      "pair": "longtrace-v2-action_order-06",
+      "truth": "fail",
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "e25f1174a154003f5451462e05e6d1ae2632b15b28e4d2ae31fba1ef2f913e08"
+      ],
+      "costUsd": 0.0016600999999999999
+    },
+    {
+      "id": "longtrace-v2-action_order-07#1",
+      "kind": "action_order",
+      "pair": "longtrace-v2-action_order-07",
+      "truth": "pass",
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "91352d805d7a5250e66d289efc2a366776f36fdc54ec73175081a678c0cacd10"
+      ],
+      "costUsd": 0.0021304
+    },
+    {
+      "id": "longtrace-v2-action_order-07#2",
+      "kind": "action_order",
+      "pair": "longtrace-v2-action_order-07",
+      "truth": "pass",
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "d26f3f14ac80e302b550c9d43bcb989cc602904f7efb0b4d758219db05c310fb"
+      ],
+      "costUsd": 0.0016726
+    },
+    {
+      "id": "longtrace-v2-action_order-08#1",
+      "kind": "action_order",
+      "pair": "longtrace-v2-action_order-08",
+      "truth": "fail",
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "1c3632389989940eb85b7873be056c0b1dcfbcbab3bcc6d4b12469cd5fd4c8e0"
+      ],
+      "costUsd": 0.002179
+    },
+    {
+      "id": "longtrace-v2-action_order-08#2",
+      "kind": "action_order",
+      "pair": "longtrace-v2-action_order-08",
+      "truth": "fail",
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "b68288bc662fe307440a66479491f8f55621bae8cf2ec8725fbf212e1f03a90d"
+      ],
+      "costUsd": 0.0016412
+    },
+    {
+      "id": "longtrace-v2-action_order-09#1",
+      "kind": "action_order",
+      "pair": "longtrace-v2-action_order-09",
+      "truth": "inconclusive",
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "b7360944d1e8d32802216b76f2b3242482535e112e3996edacb5ce24cbeef848"
+      ],
+      "costUsd": 0.0016278
+    },
+    {
+      "id": "longtrace-v2-action_order-09#2",
+      "kind": "action_order",
+      "pair": "longtrace-v2-action_order-09",
+      "truth": "pass",
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "b76141a00846ea5a6ea42a916d8565d78f3d181ba122f7f0c0e3923c71ce1c45"
+      ],
+      "costUsd": 0.0016015
+    },
+    {
+      "id": "longtrace-v2-action_order-10#1",
+      "kind": "action_order",
+      "pair": "longtrace-v2-action_order-10",
+      "truth": "pass",
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "86c7ade745da1cec9234dfc17dff6ed9c575d2df4f7b6eee8596bc0f6f0d8b92"
+      ],
+      "costUsd": 0.0018726000000000003
+    },
+    {
+      "id": "longtrace-v2-action_order-10#2",
+      "kind": "action_order",
+      "pair": "longtrace-v2-action_order-10",
+      "truth": "fail",
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "018b8c35d74bff9cb033bf07a67599e1b2a8c5f628982930613e55d00b5430a8"
+      ],
+      "costUsd": 0.0014923
+    },
+    {
+      "id": "longtrace-v2-action_order-11#1",
+      "kind": "action_order",
+      "pair": "longtrace-v2-action_order-11",
+      "truth": "fail",
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "75844307443c7b6345285ddc3f977aed281978612d47635c76346026d83b855b"
+      ],
+      "costUsd": 0.0022266
+    },
+    {
+      "id": "longtrace-v2-action_order-11#2",
+      "kind": "action_order",
+      "pair": "longtrace-v2-action_order-11",
+      "truth": "pass",
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "6e69094c358f5e0ad6922d7f908dadf10928e25b5f20b4446f3771397fd837bc"
+      ],
+      "costUsd": 0.0018008000000000002
+    },
+    {
+      "id": "longtrace-v2-action_order-12#1",
+      "kind": "action_order",
+      "pair": "longtrace-v2-action_order-12",
+      "truth": "inconclusive",
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "c994d0da3a1c67c9bbe0d3821eca704f0d6acbd00b03d474623f4c5a24d83a3c"
+      ],
+      "costUsd": 0.0019475999999999999
+    },
+    {
+      "id": "longtrace-v2-action_order-12#2",
+      "kind": "action_order",
+      "pair": "longtrace-v2-action_order-12",
+      "truth": "fail",
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "bb3fc3c02465c36f42e0e4b79e5384887104771aa2b9da3d688c5741cee0543b"
+      ],
+      "costUsd": 0.0014488
+    },
+    {
+      "id": "longtrace-v2-tool_error-01#1",
+      "kind": "tool_error",
+      "pair": "longtrace-v2-tool_error-01",
+      "truth": "pass",
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "851620753e9b4e608abbec39c39e676b4418318ad4cfba747ae70a3ead718129"
+      ],
+      "costUsd": 0.0020487
+    },
+    {
+      "id": "longtrace-v2-tool_error-01#2",
+      "kind": "tool_error",
+      "pair": "longtrace-v2-tool_error-01",
+      "truth": "pass",
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "8c908944c181e995949f790fc5a64e41e53c68260ebaf26ab747802b0843ddc9"
+      ],
+      "costUsd": 0.0016302000000000003
+    },
+    {
+      "id": "longtrace-v2-tool_error-02#1",
+      "kind": "tool_error",
+      "pair": "longtrace-v2-tool_error-02",
+      "truth": "fail",
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "82d876bad55201cb32cccedb627a11407407911dd12435e2a2a286312b7b0cf4"
+      ],
+      "costUsd": 0.0017339999999999999
+    },
+    {
+      "id": "longtrace-v2-tool_error-02#2",
+      "kind": "tool_error",
+      "pair": "longtrace-v2-tool_error-02",
+      "truth": "fail",
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "caa76ec7a7e6896a572f99555949befb3fcd8279b1b6eaf3f0da2709c4faa2d9"
+      ],
+      "costUsd": 0.0015015
+    },
+    {
+      "id": "longtrace-v2-tool_error-03#1",
+      "kind": "tool_error",
+      "pair": "longtrace-v2-tool_error-03",
+      "truth": "inconclusive",
+      "complete": true,
+      "outcome": "inconclusive",
+      "unparsed": false,
+      "keys": [
+        "35686783c431643c84e7f011ddd3844ae5e8667f292a5509b877992f0ce7f28a"
+      ],
+      "costUsd": 0.0019128
+    },
+    {
+      "id": "longtrace-v2-tool_error-03#2",
+      "kind": "tool_error",
+      "pair": "longtrace-v2-tool_error-03",
+      "truth": "pass",
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "0df3970034c5308d63a972118b8f39954013ac47e6e0ccf6ce1511fc9e79a13c"
+      ],
+      "costUsd": 0.0015998
+    },
+    {
+      "id": "longtrace-v2-tool_error-04#1",
+      "kind": "tool_error",
+      "pair": "longtrace-v2-tool_error-04",
+      "truth": "pass",
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "db8cc7c5c8a643292abcf9e1f992a007ed3bc62dc4b7442623a2b385aed580ee"
+      ],
+      "costUsd": 0.002055
+    },
+    {
+      "id": "longtrace-v2-tool_error-04#2",
+      "kind": "tool_error",
+      "pair": "longtrace-v2-tool_error-04",
+      "truth": "fail",
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "150c700c970c90bbcd152ae92a29803d59f99800dff2fd81a46ba41ee4b5b349"
+      ],
+      "costUsd": 0.001795
+    },
+    {
+      "id": "longtrace-v2-tool_error-05#1",
+      "kind": "tool_error",
+      "pair": "longtrace-v2-tool_error-05",
+      "truth": "fail",
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "61cc26d1234d16690c4036b4596a95eb6bf6be7bd08e63b5beaca201d1e1c970"
+      ],
+      "costUsd": 0.001717
+    },
+    {
+      "id": "longtrace-v2-tool_error-05#2",
+      "kind": "tool_error",
+      "pair": "longtrace-v2-tool_error-05",
+      "truth": "pass",
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "2f788995959dfc26145703427288cd99202ef6b7f31e675aaae7efca51d15fb0"
+      ],
+      "costUsd": 0.0013955
+    },
+    {
+      "id": "longtrace-v2-tool_error-06#1",
+      "kind": "tool_error",
+      "pair": "longtrace-v2-tool_error-06",
+      "truth": "inconclusive",
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "99480b8bd032e3fde79d0654b8d4efb7882e2d93a5ddcfcea7751b8ceff932e1"
+      ],
+      "costUsd": 0.0023608
+    },
+    {
+      "id": "longtrace-v2-tool_error-06#2",
+      "kind": "tool_error",
+      "pair": "longtrace-v2-tool_error-06",
+      "truth": "fail",
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "3c64c8d914fc8ef66efac2109fe10e10e87d54d37a7d8f8feb4bd79a7b8ac06b"
+      ],
+      "costUsd": 0.0016178
+    },
+    {
+      "id": "longtrace-v2-tool_error-07#1",
+      "kind": "tool_error",
+      "pair": "longtrace-v2-tool_error-07",
+      "truth": "pass",
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "47ad426b7d351b6e7014d087d8b6895563045fddf86eb273aea299882aeab3e1"
+      ],
+      "costUsd": 0.0021032
+    },
+    {
+      "id": "longtrace-v2-tool_error-07#2",
+      "kind": "tool_error",
+      "pair": "longtrace-v2-tool_error-07",
+      "truth": "pass",
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "1ca197fed103ddc119a72b2f85d2582a9bf6535ac185c7fc072549287585920a"
+      ],
+      "costUsd": 0.0016842
+    },
+    {
+      "id": "longtrace-v2-tool_error-08#1",
+      "kind": "tool_error",
+      "pair": "longtrace-v2-tool_error-08",
+      "truth": "fail",
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "e48dd9ec7d51c2d4b0e0c99f6dcae7e25ffb3cdb4549fec6c015615e58fc7c99"
+      ],
+      "costUsd": 0.0018621
+    },
+    {
+      "id": "longtrace-v2-tool_error-08#2",
+      "kind": "tool_error",
+      "pair": "longtrace-v2-tool_error-08",
+      "truth": "fail",
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "3d8333c1a47247b9c323bb9c70e9be09223aa25b4b4ed5bc2fb9b6c1adc61a65"
+      ],
+      "costUsd": 0.0016421
+    },
+    {
+      "id": "longtrace-v2-tool_error-09#1",
+      "kind": "tool_error",
+      "pair": "longtrace-v2-tool_error-09",
+      "truth": "inconclusive",
+      "complete": true,
+      "outcome": "inconclusive",
+      "unparsed": false,
+      "keys": [
+        "4497dba55a4a75c794a54387a6104a34195c185167956a3c092f58fb208349d6"
+      ],
+      "costUsd": 0.0019009
+    },
+    {
+      "id": "longtrace-v2-tool_error-09#2",
+      "kind": "tool_error",
+      "pair": "longtrace-v2-tool_error-09",
+      "truth": "pass",
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "540e45ec0fe4ae3d9cd7216c9ce3a6dbbd64f2dd39bbeb584e53844f93322956"
+      ],
+      "costUsd": 0.0015943999999999997
+    },
+    {
+      "id": "longtrace-v2-tool_error-10#1",
+      "kind": "tool_error",
+      "pair": "longtrace-v2-tool_error-10",
+      "truth": "pass",
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "6d3161e1cebcd09e57ffb3d0e725a45cbfcf4dd8308b954579a52c543e9febc5"
+      ],
+      "costUsd": 0.0023053
+    },
+    {
+      "id": "longtrace-v2-tool_error-10#2",
+      "kind": "tool_error",
+      "pair": "longtrace-v2-tool_error-10",
+      "truth": "fail",
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "132b4b7de515ff641baab35960e52c5811124caa749587fa1128902d47659133"
+      ],
+      "costUsd": 0.0016063
+    },
+    {
+      "id": "longtrace-v2-tool_error-11#1",
+      "kind": "tool_error",
+      "pair": "longtrace-v2-tool_error-11",
+      "truth": "fail",
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "db5a030567a013ff86f68311ff72b881edbdd93e08bffd297bc121af2fcf575b"
+      ],
+      "costUsd": 0.0016973000000000001
+    },
+    {
+      "id": "longtrace-v2-tool_error-11#2",
+      "kind": "tool_error",
+      "pair": "longtrace-v2-tool_error-11",
+      "truth": "pass",
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "8d10e59664018a7517a5296677bde5f58ae3b2108d7fabb4875b544c9a3bffd5"
+      ],
+      "costUsd": 0.0014213
+    },
+    {
+      "id": "longtrace-v2-tool_error-12#1",
+      "kind": "tool_error",
+      "pair": "longtrace-v2-tool_error-12",
+      "truth": "inconclusive",
+      "complete": true,
+      "outcome": "inconclusive",
+      "unparsed": false,
+      "keys": [
+        "ca7a1d2ed84916ebe1153546112abb36b91b2afd2acd352679d4fdc4b0d27219"
+      ],
+      "costUsd": 0.0018072000000000001
+    },
+    {
+      "id": "longtrace-v2-tool_error-12#2",
+      "kind": "tool_error",
+      "pair": "longtrace-v2-tool_error-12",
+      "truth": "fail",
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "f101adba76319374c368d0854ca29b470935cf1894d38ea7d8bdb100070cdf34"
+      ],
+      "costUsd": 0.0015942
+    },
+    {
+      "id": "longtrace-v2-conditional_promise-01#1",
+      "kind": "conditional_promise",
+      "pair": "longtrace-v2-conditional_promise-01",
+      "truth": "pass",
+      "complete": true,
+      "outcome": "inconclusive",
+      "unparsed": false,
+      "keys": [
+        "5c40e94ab943f73a009eb8f89ab16537c4b68aa1e46ea9f9b3a52b80e2cb836f"
+      ],
+      "costUsd": 0.0019778
+    },
+    {
+      "id": "longtrace-v2-conditional_promise-01#2",
+      "kind": "conditional_promise",
+      "pair": "longtrace-v2-conditional_promise-01",
+      "truth": "pass",
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "7650b0bec71051d3779a315fe544c564540f7d95e6ad6d28496a4885f01efb68"
+      ],
+      "costUsd": 0.0016884
+    },
+    {
+      "id": "longtrace-v2-conditional_promise-02#1",
+      "kind": "conditional_promise",
+      "pair": "longtrace-v2-conditional_promise-02",
+      "truth": "fail",
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "ad5503979bc2b4b46afcc0b55dba1326d58e4d553839bd0faac32fd6a980c864"
+      ],
+      "costUsd": 0.0018463999999999998
+    },
+    {
+      "id": "longtrace-v2-conditional_promise-02#2",
+      "kind": "conditional_promise",
+      "pair": "longtrace-v2-conditional_promise-02",
+      "truth": "fail",
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "f403f8109f3fea4bb6215788f8b19ef8b463286d5594ef5a03ac4e7f4f874a8c"
+      ],
+      "costUsd": 0.0015555
+    },
+    {
+      "id": "longtrace-v2-conditional_promise-03#1",
+      "kind": "conditional_promise",
+      "pair": "longtrace-v2-conditional_promise-03",
+      "truth": "inconclusive",
+      "complete": true,
+      "outcome": "inconclusive",
+      "unparsed": false,
+      "keys": [
+        "02775d0f835c756dd4cbad340a9341515913faf751b619efc6b663f699056cbe"
+      ],
+      "costUsd": 0.001891
+    },
+    {
+      "id": "longtrace-v2-conditional_promise-03#2",
+      "kind": "conditional_promise",
+      "pair": "longtrace-v2-conditional_promise-03",
+      "truth": "pass",
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "585b86316ef31ee9d120e6d571fdbe6de1e3cf74ce5e43e0d32eae63c260b010"
+      ],
+      "costUsd": 0.0017136
+    },
+    {
+      "id": "longtrace-v2-conditional_promise-04#1",
+      "kind": "conditional_promise",
+      "pair": "longtrace-v2-conditional_promise-04",
+      "truth": "pass",
+      "complete": true,
+      "outcome": "inconclusive",
+      "unparsed": false,
+      "keys": [
+        "e9370014408f16a6933c3e7cd350989bb1c98c8e4b2e88e26f4982779859e7ac"
+      ],
+      "costUsd": 0.0020429000000000003
+    },
+    {
+      "id": "longtrace-v2-conditional_promise-04#2",
+      "kind": "conditional_promise",
+      "pair": "longtrace-v2-conditional_promise-04",
+      "truth": "fail",
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "5236f872a191a4c7a687b204a574e15641d0d1a3ce7f03469e3510a457064e84"
+      ],
+      "costUsd": 0.0014824999999999999
+    },
+    {
+      "id": "longtrace-v2-conditional_promise-05#1",
+      "kind": "conditional_promise",
+      "pair": "longtrace-v2-conditional_promise-05",
+      "truth": "fail",
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "b8f33ff14a9b8167f3336de9e3f7dca835e5a84dd632c791208dab83407def57"
+      ],
+      "costUsd": 0.0016925999999999998
+    },
+    {
+      "id": "longtrace-v2-conditional_promise-05#2",
+      "kind": "conditional_promise",
+      "pair": "longtrace-v2-conditional_promise-05",
+      "truth": "pass",
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "1f615231268953c2a44e8f66ec6a744ed1200946710215f700d477a25d904dc2"
+      ],
+      "costUsd": 0.0014312
+    },
+    {
+      "id": "longtrace-v2-conditional_promise-06#1",
+      "kind": "conditional_promise",
+      "pair": "longtrace-v2-conditional_promise-06",
+      "truth": "inconclusive",
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "2a7b8a106a5bcf8e3aa284db4435bc4d4026b6c97370c0ece240a0be687b6848"
+      ],
+      "costUsd": 0.0031451000000000005
+    },
+    {
+      "id": "longtrace-v2-conditional_promise-06#2",
+      "kind": "conditional_promise",
+      "pair": "longtrace-v2-conditional_promise-06",
+      "truth": "fail",
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "fd07d569080be31c75d411d01406df05887c4a0d7568c17d2697d218555d8f90"
+      ],
+      "costUsd": 0.0016977
+    },
+    {
+      "id": "longtrace-v2-conditional_promise-07#1",
+      "kind": "conditional_promise",
+      "pair": "longtrace-v2-conditional_promise-07",
+      "truth": "pass",
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "8e8cf5c1a44c620eb26ab58a28d390ba9ad7dab5b90c743d57a219c747abdcef"
+      ],
+      "costUsd": 0.0021821
+    },
+    {
+      "id": "longtrace-v2-conditional_promise-07#2",
+      "kind": "conditional_promise",
+      "pair": "longtrace-v2-conditional_promise-07",
+      "truth": "pass",
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "7c7e7b6a18025b82f4c56ef397faa0a65a079ae6b08ac4608ab9979cc6f47b0e"
+      ],
+      "costUsd": 0.0019437
+    },
+    {
+      "id": "longtrace-v2-conditional_promise-08#1",
+      "kind": "conditional_promise",
+      "pair": "longtrace-v2-conditional_promise-08",
+      "truth": "fail",
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "4c8fee7086b90c55b9683b5cdf2bd6481cdb1cbf3c7967b3f7d8dddab362c88a"
+      ],
+      "costUsd": 0.00154
+    },
+    {
+      "id": "longtrace-v2-conditional_promise-08#2",
+      "kind": "conditional_promise",
+      "pair": "longtrace-v2-conditional_promise-08",
+      "truth": "fail",
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "eca4ae841da225d01af38ede772c0a99ee2a39f0c2d41eb4126279f4caeb1228"
+      ],
+      "costUsd": 0.0014401000000000001
+    },
+    {
+      "id": "longtrace-v2-conditional_promise-09#1",
+      "kind": "conditional_promise",
+      "pair": "longtrace-v2-conditional_promise-09",
+      "truth": "inconclusive",
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "c65de8e6166095ee3ea2616f921f613ca14bca554dacd96be7762bce8528c1e0"
+      ],
+      "costUsd": 0.0020353000000000003
+    },
+    {
+      "id": "longtrace-v2-conditional_promise-09#2",
+      "kind": "conditional_promise",
+      "pair": "longtrace-v2-conditional_promise-09",
+      "truth": "pass",
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "ded2c387114c8d80501a0c02b874c2d6d5bc6d0135c27ee1e8bc6e1424238a4b"
+      ],
+      "costUsd": 0.0016343999999999998
+    },
+    {
+      "id": "longtrace-v2-conditional_promise-10#1",
+      "kind": "conditional_promise",
+      "pair": "longtrace-v2-conditional_promise-10",
+      "truth": "pass",
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "ae71c2229b7d62328d7646f29e3f77bdecf4702a1acc4a0c2e51894b9f96bca2"
+      ],
+      "costUsd": 0.0020648999999999997
+    },
+    {
+      "id": "longtrace-v2-conditional_promise-10#2",
+      "kind": "conditional_promise",
+      "pair": "longtrace-v2-conditional_promise-10",
+      "truth": "fail",
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "71fcefe4d2878de5c2170d0cb3059212c2f08a6f9469a94fff45d3dc06e10c4c"
+      ],
+      "costUsd": 0.001634
+    },
+    {
+      "id": "longtrace-v2-conditional_promise-11#1",
+      "kind": "conditional_promise",
+      "pair": "longtrace-v2-conditional_promise-11",
+      "truth": "fail",
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "6d8e85a4a7b547b9b4bd277dd945023d405e5239bcbbb5a76c755ba2b0e48e03"
+      ],
+      "costUsd": 0.0017018
+    },
+    {
+      "id": "longtrace-v2-conditional_promise-11#2",
+      "kind": "conditional_promise",
+      "pair": "longtrace-v2-conditional_promise-11",
+      "truth": "pass",
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "498006331fad0dd4cbc2dc476f2355922c4ac5dff069582f20bddcfb743fad5a"
+      ],
+      "costUsd": 0.0015879000000000002
+    },
+    {
+      "id": "longtrace-v2-conditional_promise-12#1",
+      "kind": "conditional_promise",
+      "pair": "longtrace-v2-conditional_promise-12",
+      "truth": "inconclusive",
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "2680f048bd463705bbadd84483a8e8b8dcfcfa49b9f59090ef1e06fc2190eeb6"
+      ],
+      "costUsd": 0.0020163
+    },
+    {
+      "id": "longtrace-v2-conditional_promise-12#2",
+      "kind": "conditional_promise",
+      "pair": "longtrace-v2-conditional_promise-12",
+      "truth": "fail",
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "3358f4328fdfdad91d7a52cfeb70975e48bc23786a19bb4c729cf8dda96f7330"
+      ],
+      "costUsd": 0.0015559
+    },
+    {
+      "id": "longtrace-v2-sparse_trace-01#1",
+      "kind": "sparse_trace",
+      "pair": "longtrace-v2-sparse_trace-01",
+      "truth": "pass",
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "5f9dd87c10b75c10722c4b69e51afa42172846b922ca80ffa71be3b969392a41"
+      ],
+      "costUsd": 0.0017876000000000003
+    },
+    {
+      "id": "longtrace-v2-sparse_trace-01#2",
+      "kind": "sparse_trace",
+      "pair": "longtrace-v2-sparse_trace-01",
+      "truth": "pass",
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "62a6c10629f95dbbd903456dbafe1042c25558c0e466ffb332f80b602d0b7c32"
+      ],
+      "costUsd": 0.001522
+    },
+    {
+      "id": "longtrace-v2-sparse_trace-02#1",
+      "kind": "sparse_trace",
+      "pair": "longtrace-v2-sparse_trace-02",
+      "truth": "fail",
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "020da152a70886df6160abe79969decf307ac8435503f224eb614bf34c03aba9"
+      ],
+      "costUsd": 0.0024197000000000003
+    },
+    {
+      "id": "longtrace-v2-sparse_trace-02#2",
+      "kind": "sparse_trace",
+      "pair": "longtrace-v2-sparse_trace-02",
+      "truth": "fail",
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "f3d1136a09cddfdc129eed2aeb44b24c7adfbeeb4161958a36b7d910c3d6f2b8"
+      ],
+      "costUsd": 0.0016206
+    },
+    {
+      "id": "longtrace-v2-sparse_trace-03#1",
+      "kind": "sparse_trace",
+      "pair": "longtrace-v2-sparse_trace-03",
+      "truth": "inconclusive",
+      "complete": true,
+      "outcome": "inconclusive",
+      "unparsed": false,
+      "keys": [
+        "e2ba093ae67c3d66fe68cff2f23f9248f3bfc58bd3c365528aa88d097cd30fda"
+      ],
+      "costUsd": 0.0021650000000000003
+    },
+    {
+      "id": "longtrace-v2-sparse_trace-03#2",
+      "kind": "sparse_trace",
+      "pair": "longtrace-v2-sparse_trace-03",
+      "truth": "pass",
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "7c8189ec13fd1c06a6add9c789847b506315e49a1f86bd39b48aedc29e8bc3f4"
+      ],
+      "costUsd": 0.0019134
+    },
+    {
+      "id": "longtrace-v2-sparse_trace-04#1",
+      "kind": "sparse_trace",
+      "pair": "longtrace-v2-sparse_trace-04",
+      "truth": "pass",
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "955f1c7c32cdfc497395cc483ba579a54c45861b6aca6a239aa7ebeab2ffe682"
+      ],
+      "costUsd": 0.0022716999999999998
+    },
+    {
+      "id": "longtrace-v2-sparse_trace-04#2",
+      "kind": "sparse_trace",
+      "pair": "longtrace-v2-sparse_trace-04",
+      "truth": "fail",
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "8d7738bc4b4327e0a9af3ace402f566ca33e1c1372f1692fc2e711174f90db79"
+      ],
+      "costUsd": 0.0013641
+    },
+    {
+      "id": "longtrace-v2-sparse_trace-05#1",
+      "kind": "sparse_trace",
+      "pair": "longtrace-v2-sparse_trace-05",
+      "truth": "fail",
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "5482cf3ce548d167e3f79fd00f6ac04e76ed1a2bb783f89b58f841ae89fddc2b"
+      ],
+      "costUsd": 0.0029853
+    },
+    {
+      "id": "longtrace-v2-sparse_trace-05#2",
+      "kind": "sparse_trace",
+      "pair": "longtrace-v2-sparse_trace-05",
+      "truth": "pass",
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "9eeb9f6c584d49d181a5b82db160a09ab4c42eacf72afac6030f343f16cec612"
+      ],
+      "costUsd": 0.0017012
+    },
+    {
+      "id": "longtrace-v2-sparse_trace-06#1",
+      "kind": "sparse_trace",
+      "pair": "longtrace-v2-sparse_trace-06",
+      "truth": "inconclusive",
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "c55c594c91efe471efd2ff6e72a0e7d884e616caaf97132272edf1c979b66c75"
+      ],
+      "costUsd": 0.0020934
+    },
+    {
+      "id": "longtrace-v2-sparse_trace-06#2",
+      "kind": "sparse_trace",
+      "pair": "longtrace-v2-sparse_trace-06",
+      "truth": "fail",
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "7a629a249b6ab564bfc0fa195bffa11f244eb0e7320c57f55449427b03f58d78"
+      ],
+      "costUsd": 0.0017063
+    },
+    {
+      "id": "longtrace-v2-sparse_trace-07#1",
+      "kind": "sparse_trace",
+      "pair": "longtrace-v2-sparse_trace-07",
+      "truth": "pass",
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "f39bf6e7b16ea76b4944bc7092bbf3da6c88a65ef31a8c77668badc08c9e08e7"
+      ],
+      "costUsd": 0.0023263
+    },
+    {
+      "id": "longtrace-v2-sparse_trace-07#2",
+      "kind": "sparse_trace",
+      "pair": "longtrace-v2-sparse_trace-07",
+      "truth": "pass",
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "ec37d80217b0fee79e4a96d1aabd7dd2b9607fb39cec23a3e7cfe3db37458dcc"
+      ],
+      "costUsd": 0.0018157
+    },
+    {
+      "id": "longtrace-v2-sparse_trace-08#1",
+      "kind": "sparse_trace",
+      "pair": "longtrace-v2-sparse_trace-08",
+      "truth": "fail",
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "651b7cd2f22e67b54ac43037585490e42b719eb6b4611b7fdb677bf3645fa5a7"
+      ],
+      "costUsd": 0.0020610000000000003
+    },
+    {
+      "id": "longtrace-v2-sparse_trace-08#2",
+      "kind": "sparse_trace",
+      "pair": "longtrace-v2-sparse_trace-08",
+      "truth": "fail",
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "5d006ef4d2f6e0326c90abebe2cd1ec902ad085d1ef4de3e7844f0946e4cb245"
+      ],
+      "costUsd": 0.0016494
+    },
+    {
+      "id": "longtrace-v2-sparse_trace-09#1",
+      "kind": "sparse_trace",
+      "pair": "longtrace-v2-sparse_trace-09",
+      "truth": "inconclusive",
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "5bbdeb7c9319fbaf4522ea0d8de1ab347208b55cddbf52cb4734131178cbf5cb"
+      ],
+      "costUsd": 0.0019439000000000001
+    },
+    {
+      "id": "longtrace-v2-sparse_trace-09#2",
+      "kind": "sparse_trace",
+      "pair": "longtrace-v2-sparse_trace-09",
+      "truth": "pass",
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "d44d50b33bf7773deeeb42de7ea2b503c64a1d4d4b2987865498417e32fd8e5d"
+      ],
+      "costUsd": 0.0015773
+    },
+    {
+      "id": "longtrace-v2-sparse_trace-10#1",
+      "kind": "sparse_trace",
+      "pair": "longtrace-v2-sparse_trace-10",
+      "truth": "pass",
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "28f8cdcdea0dc86bb4af403f2e6e8e1879fb9544bfe66b17d7f2398e7b807197"
+      ],
+      "costUsd": 0.0021122
+    },
+    {
+      "id": "longtrace-v2-sparse_trace-10#2",
+      "kind": "sparse_trace",
+      "pair": "longtrace-v2-sparse_trace-10",
+      "truth": "fail",
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "b3ac6fc7b360c6302bf0e9b300321e88159b6718e2b771929d0e3ebfb9b7aa86"
+      ],
+      "costUsd": 0.0018871
+    },
+    {
+      "id": "longtrace-v2-sparse_trace-11#1",
+      "kind": "sparse_trace",
+      "pair": "longtrace-v2-sparse_trace-11",
+      "truth": "fail",
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "abd9fb59e5a1e2c00dcb6b285b9ad5665882765f9d076c4eb30d664be2cddaf6"
+      ],
+      "costUsd": 0.0019848
+    },
+    {
+      "id": "longtrace-v2-sparse_trace-11#2",
+      "kind": "sparse_trace",
+      "pair": "longtrace-v2-sparse_trace-11",
+      "truth": "pass",
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "e09246a4e3bdaf0a756f21b45e9846c82ea3844f6dc2937856f3f5531b8cf012"
+      ],
+      "costUsd": 0.0015837
+    },
+    {
+      "id": "longtrace-v2-sparse_trace-12#1",
+      "kind": "sparse_trace",
+      "pair": "longtrace-v2-sparse_trace-12",
+      "truth": "inconclusive",
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "48cc819aa809f83621e53b890db2a3bca474b49996ad1c94681fbae369c62eba"
+      ],
+      "costUsd": 0.001767
+    },
+    {
+      "id": "longtrace-v2-sparse_trace-12#2",
+      "kind": "sparse_trace",
+      "pair": "longtrace-v2-sparse_trace-12",
+      "truth": "fail",
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "94ff0600776c153ce2d7c60601bc27498279a258b4d701dd60eee6adaa9e7f47",
+        "c87337a6f4ac035a5e46bfd29d77489b0017344c6450ed0aee9bc2190712b58d"
+      ],
+      "costUsd": 0.0033338000000000005
+    },
+    {
+      "id": "longtrace-v2-multilingual-01#1",
+      "kind": "multilingual",
+      "pair": "longtrace-v2-multilingual-01",
+      "truth": "pass",
+      "complete": true,
+      "outcome": "inconclusive",
+      "unparsed": false,
+      "keys": [
+        "ed8a812ce7dc58152fec3d220437ed86ab668a96e08e36e29f01f0bc0d9b7878"
+      ],
+      "costUsd": 0.0021393999999999996
+    },
+    {
+      "id": "longtrace-v2-multilingual-01#2",
+      "kind": "multilingual",
+      "pair": "longtrace-v2-multilingual-01",
+      "truth": "pass",
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "cd23ce426782458d110d32917c8e7a018dee5249b090b60a4f7d1d8930cc5c34"
+      ],
+      "costUsd": 0.0016365000000000002
+    },
+    {
+      "id": "longtrace-v2-multilingual-02#1",
+      "kind": "multilingual",
+      "pair": "longtrace-v2-multilingual-02",
+      "truth": "fail",
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "51ba8116ca81a4bf52b24c710aa90596d384a0aa4989456af044823088976354"
+      ],
+      "costUsd": 0.0020482
+    },
+    {
+      "id": "longtrace-v2-multilingual-02#2",
+      "kind": "multilingual",
+      "pair": "longtrace-v2-multilingual-02",
+      "truth": "fail",
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "e353fc06115d479395fd8f47be23851db3e5ba58c58251c704f0277a30302711"
+      ],
+      "costUsd": 0.0015373000000000001
+    },
+    {
+      "id": "longtrace-v2-multilingual-03#1",
+      "kind": "multilingual",
+      "pair": "longtrace-v2-multilingual-03",
+      "truth": "inconclusive",
+      "complete": true,
+      "outcome": "inconclusive",
+      "unparsed": false,
+      "keys": [
+        "b364cc613a124cd4abc9c63924800274d23605b4103c0359137353997ef9a2e1"
+      ],
+      "costUsd": 0.0016349
+    },
+    {
+      "id": "longtrace-v2-multilingual-03#2",
+      "kind": "multilingual",
+      "pair": "longtrace-v2-multilingual-03",
+      "truth": "pass",
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "bdf9c55014d77e3863409aa8166741c19c8b0c2bebffddbaa8d303ef42b1c26d"
+      ],
+      "costUsd": 0.001591
+    },
+    {
+      "id": "longtrace-v2-multilingual-04#1",
+      "kind": "multilingual",
+      "pair": "longtrace-v2-multilingual-04",
+      "truth": "pass",
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "086fe948ce0f3ac9254c1434a45cadc9b03080bdcc516ac281518ae4a84f87db"
+      ],
+      "costUsd": 0.0020676
+    },
+    {
+      "id": "longtrace-v2-multilingual-04#2",
+      "kind": "multilingual",
+      "pair": "longtrace-v2-multilingual-04",
+      "truth": "fail",
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "b86d674d89bf95f7e6d71eede972b4cf348ca0430af4f7fd748439416c35f3bf"
+      ],
+      "costUsd": 0.0015892000000000002
+    },
+    {
+      "id": "longtrace-v2-multilingual-05#1",
+      "kind": "multilingual",
+      "pair": "longtrace-v2-multilingual-05",
+      "truth": "fail",
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "302a5495a6fac8958a22d5e031f90e67fee71d8f4b5a3424ccb7f2e9de31313d"
+      ],
+      "costUsd": 0.0018116
+    },
+    {
+      "id": "longtrace-v2-multilingual-05#2",
+      "kind": "multilingual",
+      "pair": "longtrace-v2-multilingual-05",
+      "truth": "pass",
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "fbae4467434a36039067ce7c2cc5a36e5e2909ab8ef072ff7fceb75d8f83d2e3"
+      ],
+      "costUsd": 0.0015927
+    },
+    {
+      "id": "longtrace-v2-multilingual-06#1",
+      "kind": "multilingual",
+      "pair": "longtrace-v2-multilingual-06",
+      "truth": "inconclusive",
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "af71db82a27d23a7171dd485bc2691e821f433ac2b6d04191f2afc6e8c015992"
+      ],
+      "costUsd": 0.0018411999999999999
+    },
+    {
+      "id": "longtrace-v2-multilingual-06#2",
+      "kind": "multilingual",
+      "pair": "longtrace-v2-multilingual-06",
+      "truth": "fail",
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "14419b4493c95334584bd2cbc3d5686d817343ec0deaaa55954af05bc2db7ee3"
+      ],
+      "costUsd": 0.0014008
+    },
+    {
+      "id": "longtrace-v2-multilingual-07#1",
+      "kind": "multilingual",
+      "pair": "longtrace-v2-multilingual-07",
+      "truth": "pass",
+      "complete": true,
+      "outcome": "inconclusive",
+      "unparsed": false,
+      "keys": [
+        "f34fcb3e6e9d99e74c10d662275b8bb4c199da2908e21a62f92e76027d45a18e"
+      ],
+      "costUsd": 0.0022648
+    },
+    {
+      "id": "longtrace-v2-multilingual-07#2",
+      "kind": "multilingual",
+      "pair": "longtrace-v2-multilingual-07",
+      "truth": "pass",
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "3126659db49cf36ea21780204ff57054eb08cbfbc4bef151b1bd05f0ab8707b8"
+      ],
+      "costUsd": 0.0014529
+    },
+    {
+      "id": "longtrace-v2-multilingual-08#1",
+      "kind": "multilingual",
+      "pair": "longtrace-v2-multilingual-08",
+      "truth": "fail",
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "a53508d983a11686f00a4dab6a4dbd34b205104f2a6849b7ac154e09155800c9"
+      ],
+      "costUsd": 0.0019343
+    },
+    {
+      "id": "longtrace-v2-multilingual-08#2",
+      "kind": "multilingual",
+      "pair": "longtrace-v2-multilingual-08",
+      "truth": "fail",
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "381bb32406d536792f07ad3ade49b2e72632a72b9149cc620d8c70864fa6f171"
+      ],
+      "costUsd": 0.0015514
+    },
+    {
+      "id": "longtrace-v2-multilingual-09#1",
+      "kind": "multilingual",
+      "pair": "longtrace-v2-multilingual-09",
+      "truth": "inconclusive",
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "14b2f37ea918954e7e9361d82fcb6a16e43eee2177b15c49c43640e6a5b46fee"
+      ],
+      "costUsd": 0.0022128
+    },
+    {
+      "id": "longtrace-v2-multilingual-09#2",
+      "kind": "multilingual",
+      "pair": "longtrace-v2-multilingual-09",
+      "truth": "pass",
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "fe7a79af0bedaf6df0fb0be5afeb814dbff5f1b1a578a56745d50d38c081004f"
+      ],
+      "costUsd": 0.0016034
+    },
+    {
+      "id": "longtrace-v2-multilingual-10#1",
+      "kind": "multilingual",
+      "pair": "longtrace-v2-multilingual-10",
+      "truth": "pass",
+      "complete": true,
+      "outcome": "inconclusive",
+      "unparsed": false,
+      "keys": [
+        "9af648359410f2613e40b1c8d1f831acd869f24d88fb5411a828a51161b3ad14"
+      ],
+      "costUsd": 0.0024149
+    },
+    {
+      "id": "longtrace-v2-multilingual-10#2",
+      "kind": "multilingual",
+      "pair": "longtrace-v2-multilingual-10",
+      "truth": "fail",
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "3bfa642d8cf39512cfdda64d7a4a3d6e0abb0acc75ca70b47bdea211d70b09df"
+      ],
+      "costUsd": 0.0016925
+    },
+    {
+      "id": "longtrace-v2-multilingual-11#1",
+      "kind": "multilingual",
+      "pair": "longtrace-v2-multilingual-11",
+      "truth": "fail",
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "92bfb7be1dfec4f0a80b7ba723037a68ce235b3236cfacf12db54cf74060304a"
+      ],
+      "costUsd": 0.0021833
+    },
+    {
+      "id": "longtrace-v2-multilingual-11#2",
+      "kind": "multilingual",
+      "pair": "longtrace-v2-multilingual-11",
+      "truth": "pass",
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "51b29e979869bb28334b70e278b00c1a304c3d72ce4151624169257d2ef8d70c"
+      ],
+      "costUsd": 0.0016819
+    },
+    {
+      "id": "longtrace-v2-multilingual-12#1",
+      "kind": "multilingual",
+      "pair": "longtrace-v2-multilingual-12",
+      "truth": "inconclusive",
+      "complete": true,
+      "outcome": "inconclusive",
+      "unparsed": false,
+      "keys": [
+        "19b6617e158939dd1514c4866005c93b666dcd6da41cd8a6c49e857035911865"
+      ],
+      "costUsd": 0.0017545
+    },
+    {
+      "id": "longtrace-v2-multilingual-12#2",
+      "kind": "multilingual",
+      "pair": "longtrace-v2-multilingual-12",
+      "truth": "fail",
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "d61e90aa27903eb554d749f63aef1dd5f3ba20d858493343539e2fbdc8af8a61"
+      ],
+      "costUsd": 0.0016401
+    },
+    {
+      "id": "longtrace-v2-strict_threshold-01#1",
+      "kind": "strict_threshold",
+      "pair": "longtrace-v2-strict_threshold-01",
+      "truth": "pass",
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "e9f0897edcb86721d3e0cd9f48244594765c0e6687660f6ae546f84944502823"
+      ],
+      "costUsd": 0.0019702
+    },
+    {
+      "id": "longtrace-v2-strict_threshold-01#2",
+      "kind": "strict_threshold",
+      "pair": "longtrace-v2-strict_threshold-01",
+      "truth": "pass",
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "7325492e9533974c23abf5166464991e3c78bb056a2d1d04191c636588c3484b"
+      ],
+      "costUsd": 0.0016799000000000002
+    },
+    {
+      "id": "longtrace-v2-strict_threshold-02#1",
+      "kind": "strict_threshold",
+      "pair": "longtrace-v2-strict_threshold-02",
+      "truth": "fail",
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "3cca622b7798c3a7de97c184669d1c466f6f9b384bc5e669a47232e95a8b970c"
+      ],
+      "costUsd": 0.0018213
+    },
+    {
+      "id": "longtrace-v2-strict_threshold-02#2",
+      "kind": "strict_threshold",
+      "pair": "longtrace-v2-strict_threshold-02",
+      "truth": "fail",
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "5185203e858cc95267628247a714cdaeb4285a066dac62c0c61056953894a5bf"
+      ],
+      "costUsd": 0.0014010000000000001
+    },
+    {
+      "id": "longtrace-v2-strict_threshold-03#1",
+      "kind": "strict_threshold",
+      "pair": "longtrace-v2-strict_threshold-03",
+      "truth": "inconclusive",
+      "complete": true,
+      "outcome": "inconclusive",
+      "unparsed": false,
+      "keys": [
+        "3828a5e06b4c6b006bafc38818ff11937854421b799d46dfe0cbb479255f2c3a"
+      ],
+      "costUsd": 0.0025242
+    },
+    {
+      "id": "longtrace-v2-strict_threshold-03#2",
+      "kind": "strict_threshold",
+      "pair": "longtrace-v2-strict_threshold-03",
+      "truth": "pass",
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "d0eb475aa5cfb515f4a416ce0343638d58f80541ee5bf7ee275bda262ad6cd90"
+      ],
+      "costUsd": 0.0016084
+    },
+    {
+      "id": "longtrace-v2-strict_threshold-04#1",
+      "kind": "strict_threshold",
+      "pair": "longtrace-v2-strict_threshold-04",
+      "truth": "pass",
+      "complete": true,
+      "outcome": "inconclusive",
+      "unparsed": false,
+      "keys": [
+        "c4efea4946df3f31c93a2ce57f62b91d05ac407e618dc722334fe909c5343ffd"
+      ],
+      "costUsd": 0.002069
+    },
+    {
+      "id": "longtrace-v2-strict_threshold-04#2",
+      "kind": "strict_threshold",
+      "pair": "longtrace-v2-strict_threshold-04",
+      "truth": "fail",
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "207e113e95d408f61a920dd446c123613034ebb21b2e7ded0f33c9e59b47c993"
+      ],
+      "costUsd": 0.0020102
+    },
+    {
+      "id": "longtrace-v2-strict_threshold-05#1",
+      "kind": "strict_threshold",
+      "pair": "longtrace-v2-strict_threshold-05",
+      "truth": "fail",
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "7cd0f63a6db89c2c08d7d697e97a432025f0f58aa6ada5446c91916936449b55"
+      ],
+      "costUsd": 0.0018535000000000001
+    },
+    {
+      "id": "longtrace-v2-strict_threshold-05#2",
+      "kind": "strict_threshold",
+      "pair": "longtrace-v2-strict_threshold-05",
+      "truth": "pass",
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "ae1934df120be0983da406a8a29449730b31d124c8410d45bf657cba121dc442"
+      ],
+      "costUsd": 0.0018792000000000001
+    },
+    {
+      "id": "longtrace-v2-strict_threshold-06#1",
+      "kind": "strict_threshold",
+      "pair": "longtrace-v2-strict_threshold-06",
+      "truth": "inconclusive",
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "d7e876d7e80a62f29b5acc6a7efdad4c7b6c4c764053f9064bcddc20dc205611"
+      ],
+      "costUsd": 0.001927
+    },
+    {
+      "id": "longtrace-v2-strict_threshold-06#2",
+      "kind": "strict_threshold",
+      "pair": "longtrace-v2-strict_threshold-06",
+      "truth": "fail",
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "d989672358a3009c9b80423955bb716879796782f1a5844a543a7ae2955e58e8"
+      ],
+      "costUsd": 0.0015997
+    },
+    {
+      "id": "longtrace-v2-strict_threshold-07#1",
+      "kind": "strict_threshold",
+      "pair": "longtrace-v2-strict_threshold-07",
+      "truth": "pass",
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "0e0ee9fccf752434059b70fc3b987006925cb3fd974a53388fd681dea20f9739"
+      ],
+      "costUsd": 0.0021378
+    },
+    {
+      "id": "longtrace-v2-strict_threshold-07#2",
+      "kind": "strict_threshold",
+      "pair": "longtrace-v2-strict_threshold-07",
+      "truth": "pass",
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "1fb1536d6a3d3cd52475d4fe6f3260f2bf1ce939d7d08d30018cc339ef689267"
+      ],
+      "costUsd": 0.001513
+    },
+    {
+      "id": "longtrace-v2-strict_threshold-08#1",
+      "kind": "strict_threshold",
+      "pair": "longtrace-v2-strict_threshold-08",
+      "truth": "fail",
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "2417d806d453fe2014dad4c221af63e1d13e51d573ccd149f567c4a8e788fdb9",
+        "c3850d0b53e13bd6ab3d1cac331964c92831a40c9cd2519c96a877d4c46814b9"
+      ],
+      "costUsd": 0.0040934000000000005
+    },
+    {
+      "id": "longtrace-v2-strict_threshold-08#2",
+      "kind": "strict_threshold",
+      "pair": "longtrace-v2-strict_threshold-08",
+      "truth": "fail",
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "c8f15498a21f78223852d0a873dc0f753561e2608acf9355f3d5998bb085c106"
+      ],
+      "costUsd": 0.0014684
+    },
+    {
+      "id": "longtrace-v2-strict_threshold-09#1",
+      "kind": "strict_threshold",
+      "pair": "longtrace-v2-strict_threshold-09",
+      "truth": "inconclusive",
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "5f2923294ccc81313b1d72934dfd650ce84270c38771ea9bbd73741b1c7e1c1a"
+      ],
+      "costUsd": 0.0024124000000000003
+    },
+    {
+      "id": "longtrace-v2-strict_threshold-09#2",
+      "kind": "strict_threshold",
+      "pair": "longtrace-v2-strict_threshold-09",
+      "truth": "pass",
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "33443aea01c26b782e50b56adfec2be0b74bdc0bb98cafe70ec48b88a79a30a6"
+      ],
+      "costUsd": 0.0016691
+    },
+    {
+      "id": "longtrace-v2-strict_threshold-10#1",
+      "kind": "strict_threshold",
+      "pair": "longtrace-v2-strict_threshold-10",
+      "truth": "pass",
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "1244492bd82670889ddbd1539c8a441bd0379bd2c77c9bdb015a23eef4b1f05b"
+      ],
+      "costUsd": 0.0020737
+    },
+    {
+      "id": "longtrace-v2-strict_threshold-10#2",
+      "kind": "strict_threshold",
+      "pair": "longtrace-v2-strict_threshold-10",
+      "truth": "fail",
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "84ab80b1001fe56bb9c8d33876b90d9d5edb4de6061ac15a5c114b01b16353dc"
+      ],
+      "costUsd": 0.0012504
+    },
+    {
+      "id": "longtrace-v2-strict_threshold-11#1",
+      "kind": "strict_threshold",
+      "pair": "longtrace-v2-strict_threshold-11",
+      "truth": "fail",
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "9a55758ece4fa0232df6224c0c3d1085a0d21f5571f1c23c98bbeafabd66dc62"
+      ],
+      "costUsd": 0.0020463
+    },
+    {
+      "id": "longtrace-v2-strict_threshold-11#2",
+      "kind": "strict_threshold",
+      "pair": "longtrace-v2-strict_threshold-11",
+      "truth": "pass",
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "720c8645354807e32cea2b25d6946a4d8c73d24ef344a5d2d2b46606751c387a"
+      ],
+      "costUsd": 0.0016665
+    },
+    {
+      "id": "longtrace-v2-strict_threshold-12#1",
+      "kind": "strict_threshold",
+      "pair": "longtrace-v2-strict_threshold-12",
+      "truth": "inconclusive",
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "8ddde05544d17df4218ccb984648638d24837571168da53dcc7abcb65613859b"
+      ],
+      "costUsd": 0.0024406000000000002
+    },
+    {
+      "id": "longtrace-v2-strict_threshold-12#2",
+      "kind": "strict_threshold",
+      "pair": "longtrace-v2-strict_threshold-12",
+      "truth": "fail",
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "d8897ac8382ae0376cc8e40d84454a8cab40f809d2eb9393aae7519f972bd6e2"
+      ],
+      "costUsd": 0.0016313
+    },
+    {
+      "id": "longtrace-v2-quoted_override-01#1",
+      "kind": "quoted_override",
+      "pair": "longtrace-v2-quoted_override-01",
+      "truth": "pass",
+      "complete": true,
+      "outcome": "inconclusive",
+      "unparsed": false,
+      "keys": [
+        "31e0f656ead965a241f9b6c2c3cb545183092818fccdc7ff3bfbbd8872aa5557"
+      ],
+      "costUsd": 0.0022498
+    },
+    {
+      "id": "longtrace-v2-quoted_override-01#2",
+      "kind": "quoted_override",
+      "pair": "longtrace-v2-quoted_override-01",
+      "truth": "pass",
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "918568c47456597c4a0c8385bd7d703674a765bd361dbc4c79d336a8edeb1b12"
+      ],
+      "costUsd": 0.0017025
+    },
+    {
+      "id": "longtrace-v2-quoted_override-02#1",
+      "kind": "quoted_override",
+      "pair": "longtrace-v2-quoted_override-02",
+      "truth": "fail",
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "6bf1626bb1d95969338da30a87e17fd024a8afe5718603897335afff1619cda1"
+      ],
+      "costUsd": 0.0021929000000000002
+    },
+    {
+      "id": "longtrace-v2-quoted_override-02#2",
+      "kind": "quoted_override",
+      "pair": "longtrace-v2-quoted_override-02",
+      "truth": "fail",
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "e94cc1b8d60d34056818033fc8ff98ff50b1041bd01e184f7d558d9c9a26b22c"
+      ],
+      "costUsd": 0.0016011
+    },
+    {
+      "id": "longtrace-v2-quoted_override-03#1",
+      "kind": "quoted_override",
+      "pair": "longtrace-v2-quoted_override-03",
+      "truth": "inconclusive",
+      "complete": true,
+      "outcome": "inconclusive",
+      "unparsed": false,
+      "keys": [
+        "1bbab378b32276eeca84055b26c953b314b8d301ae434b0ff68881011047fde8"
+      ],
+      "costUsd": 0.0017114
+    },
+    {
+      "id": "longtrace-v2-quoted_override-03#2",
+      "kind": "quoted_override",
+      "pair": "longtrace-v2-quoted_override-03",
+      "truth": "pass",
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "0e5710fd5e73595d71f1e940f966264661cb2db07e3cddb32f7aa78d52a38fe2"
+      ],
+      "costUsd": 0.0011561
+    },
+    {
+      "id": "longtrace-v2-quoted_override-04#1",
+      "kind": "quoted_override",
+      "pair": "longtrace-v2-quoted_override-04",
+      "truth": "pass",
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "e060664c2251a98b9046651134213c90ed1b4b2978d71859e142a53142178671"
+      ],
+      "costUsd": 0.0023563
+    },
+    {
+      "id": "longtrace-v2-quoted_override-04#2",
+      "kind": "quoted_override",
+      "pair": "longtrace-v2-quoted_override-04",
+      "truth": "fail",
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "c7fbfaa21b465aa2d09b5ad2560b275087cfb05b02611b705e6a2ccb0a100628"
+      ],
+      "costUsd": 0.0016775000000000002
+    },
+    {
+      "id": "longtrace-v2-quoted_override-05#1",
+      "kind": "quoted_override",
+      "pair": "longtrace-v2-quoted_override-05",
+      "truth": "fail",
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "5daf9a123f038b9b77784e79177eb4b995ba780418c6697b59fb13d45e8ec06b"
+      ],
+      "costUsd": 0.0018917
+    },
+    {
+      "id": "longtrace-v2-quoted_override-05#2",
+      "kind": "quoted_override",
+      "pair": "longtrace-v2-quoted_override-05",
+      "truth": "pass",
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "cad10c342b87d7e8eb5404a13f4521bd0a1a172df35ee80561fef50f33e03199"
+      ],
+      "costUsd": 0.0015234
+    },
+    {
+      "id": "longtrace-v2-quoted_override-06#1",
+      "kind": "quoted_override",
+      "pair": "longtrace-v2-quoted_override-06",
+      "truth": "inconclusive",
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "af0d28b1d02bf53b9f241e47512e374339e840675e93d9159bfd53e03cfe372a"
+      ],
+      "costUsd": 0.0019087000000000002
+    },
+    {
+      "id": "longtrace-v2-quoted_override-06#2",
+      "kind": "quoted_override",
+      "pair": "longtrace-v2-quoted_override-06",
+      "truth": "fail",
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "150903a2a3a4ed085cd09a36cf637247f13213764b90e1832c10eeba59b7b6d7"
+      ],
+      "costUsd": 0.0014554
+    },
+    {
+      "id": "longtrace-v2-quoted_override-07#1",
+      "kind": "quoted_override",
+      "pair": "longtrace-v2-quoted_override-07",
+      "truth": "pass",
+      "complete": true,
+      "outcome": "inconclusive",
+      "unparsed": false,
+      "keys": [
+        "8c6fb32dfcbed07ded1dc3be6ea366b5597f65efc94d18b2a71b47ddacce9831"
+      ],
+      "costUsd": 0.0021601
+    },
+    {
+      "id": "longtrace-v2-quoted_override-07#2",
+      "kind": "quoted_override",
+      "pair": "longtrace-v2-quoted_override-07",
+      "truth": "pass",
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "144d2aee2daae33af962b06836cfaa86e6c58625daa70c9099c0c9fa2bc6082a"
+      ],
+      "costUsd": 0.0018423
+    },
+    {
+      "id": "longtrace-v2-quoted_override-08#1",
+      "kind": "quoted_override",
+      "pair": "longtrace-v2-quoted_override-08",
+      "truth": "fail",
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "8558de039efe828e4b901b5e814be7c97fef505ca534b8a31dd378e2d8b104e8"
+      ],
+      "costUsd": 0.0018703
+    },
+    {
+      "id": "longtrace-v2-quoted_override-08#2",
+      "kind": "quoted_override",
+      "pair": "longtrace-v2-quoted_override-08",
+      "truth": "fail",
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "f07e03e3f0182503e9f2c22c05010f87a3db50dfbf3fbedc9b714fd191765f5c"
+      ],
+      "costUsd": 0.001778
+    },
+    {
+      "id": "longtrace-v2-quoted_override-09#1",
+      "kind": "quoted_override",
+      "pair": "longtrace-v2-quoted_override-09",
+      "truth": "inconclusive",
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "9c168b8bfa11db6e28c604375f3b662204b327e40e0ba374658772d6e21f6ad2"
+      ],
+      "costUsd": 0.001898
+    },
+    {
+      "id": "longtrace-v2-quoted_override-09#2",
+      "kind": "quoted_override",
+      "pair": "longtrace-v2-quoted_override-09",
+      "truth": "pass",
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "ba50844f3ed8d46291313bcb9634f05aa89035371226be0f74906c8cfceafa85"
+      ],
+      "costUsd": 0.0016112000000000001
+    },
+    {
+      "id": "longtrace-v2-quoted_override-10#1",
+      "kind": "quoted_override",
+      "pair": "longtrace-v2-quoted_override-10",
+      "truth": "pass",
+      "complete": true,
+      "outcome": "inconclusive",
+      "unparsed": false,
+      "keys": [
+        "1b1d883caad56ad063bd739d642278f4f92f320ad6024743d0cda05d0784966e"
+      ],
+      "costUsd": 0.001955
+    },
+    {
+      "id": "longtrace-v2-quoted_override-10#2",
+      "kind": "quoted_override",
+      "pair": "longtrace-v2-quoted_override-10",
+      "truth": "fail",
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "b68cd079fd23c80dea3bfab195d87b850460f99c427486e23bbb851f51048b95"
+      ],
+      "costUsd": 0.0015557000000000001
+    },
+    {
+      "id": "longtrace-v2-quoted_override-11#1",
+      "kind": "quoted_override",
+      "pair": "longtrace-v2-quoted_override-11",
+      "truth": "fail",
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "e74050967beae829b596e995c1c7f0be53051553ee83318a0cb7afa1ebf22715"
+      ],
+      "costUsd": 0.001971
+    },
+    {
+      "id": "longtrace-v2-quoted_override-11#2",
+      "kind": "quoted_override",
+      "pair": "longtrace-v2-quoted_override-11",
+      "truth": "pass",
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "f0cba0ef8668fd46bb9434e042418fe017999b2ef861178112b4e93878d4b172"
+      ],
+      "costUsd": 0.0015097
+    },
+    {
+      "id": "longtrace-v2-quoted_override-12#1",
+      "kind": "quoted_override",
+      "pair": "longtrace-v2-quoted_override-12",
+      "truth": "inconclusive",
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "9b44d15b54cf579d9536d591a77ab674c57af3f3eb22235788e77df00588a787"
+      ],
+      "costUsd": 0.0021129
+    },
+    {
+      "id": "longtrace-v2-quoted_override-12#2",
+      "kind": "quoted_override",
+      "pair": "longtrace-v2-quoted_override-12",
+      "truth": "fail",
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "c37d9d1c17bb52663029a0f7ed2aab7446368b25f23f0f01c55aec658f686380"
+      ],
+      "costUsd": 0.0016106
+    },
+    {
+      "id": "longtrace-v2-partial_answer-01#1",
+      "kind": "partial_answer",
+      "pair": "longtrace-v2-partial_answer-01",
+      "truth": "pass",
+      "complete": true,
+      "outcome": "inconclusive",
+      "unparsed": false,
+      "keys": [
+        "991bf2b0b5415fe5b7b4f3dd39dfe7b7b58b3057b1f70d0099365d3dd5d0883b"
+      ],
+      "costUsd": 0.0020279
+    },
+    {
+      "id": "longtrace-v2-partial_answer-01#2",
+      "kind": "partial_answer",
+      "pair": "longtrace-v2-partial_answer-01",
+      "truth": "pass",
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "95b9efb775c726102c3f11a9bdf432b1bb149b4ceb2c3c2c1a14dd830630f516"
+      ],
+      "costUsd": 0.0017952
+    },
+    {
+      "id": "longtrace-v2-partial_answer-02#1",
+      "kind": "partial_answer",
+      "pair": "longtrace-v2-partial_answer-02",
+      "truth": "fail",
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "0dafae02e7478ea501f1e4a430fd517cbef23f5d0c7392065a065f3d7d933b53"
+      ],
+      "costUsd": 0.0016942
+    },
+    {
+      "id": "longtrace-v2-partial_answer-02#2",
+      "kind": "partial_answer",
+      "pair": "longtrace-v2-partial_answer-02",
+      "truth": "fail",
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "71c0469d09f1f40f9c13e65a5913f3224660c9188503b562d7da550fe5993a24"
+      ],
+      "costUsd": 0.0016705
+    },
+    {
+      "id": "longtrace-v2-partial_answer-03#1",
+      "kind": "partial_answer",
+      "pair": "longtrace-v2-partial_answer-03",
+      "truth": "inconclusive",
+      "complete": true,
+      "outcome": "inconclusive",
+      "unparsed": false,
+      "keys": [
+        "b2f8d0d7d079bff9ce0e4583c0c5ac43abe3a65f74a75d71bb85abdd79f23f41",
+        "1f5be1fcad5985d2ee8e15e97a143625e960b7efcaf322e8fe1c481d09616275"
+      ],
+      "costUsd": 0.003772
+    },
+    {
+      "id": "longtrace-v2-partial_answer-03#2",
+      "kind": "partial_answer",
+      "pair": "longtrace-v2-partial_answer-03",
+      "truth": "pass",
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "26c5764a9f3316fefff11e3f2fefd50f621e3eb995fad47066538f6b52c67e16"
+      ],
+      "costUsd": 0.0017708000000000003
+    },
+    {
+      "id": "longtrace-v2-partial_answer-04#1",
+      "kind": "partial_answer",
+      "pair": "longtrace-v2-partial_answer-04",
+      "truth": "pass",
+      "complete": true,
+      "outcome": "inconclusive",
+      "unparsed": false,
+      "keys": [
+        "306dfd6b9bb3ca4f6300ed3e9c14484a8a30ac9c923df05a3d5f0888524f8c68"
+      ],
+      "costUsd": 0.0022208
+    },
+    {
+      "id": "longtrace-v2-partial_answer-04#2",
+      "kind": "partial_answer",
+      "pair": "longtrace-v2-partial_answer-04",
+      "truth": "fail",
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "a080c8a9d6976c580001887eff919cd24fa53586067c9b9db53e6b169723f94c"
+      ],
+      "costUsd": 0.0018646000000000001
+    },
+    {
+      "id": "longtrace-v2-partial_answer-05#1",
+      "kind": "partial_answer",
+      "pair": "longtrace-v2-partial_answer-05",
+      "truth": "fail",
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "9974acf1d7a0c035b37473e2985454232bc11bf9dda13d8aea65fa07b37daf31"
+      ],
+      "costUsd": 0.0016087
+    },
+    {
+      "id": "longtrace-v2-partial_answer-05#2",
+      "kind": "partial_answer",
+      "pair": "longtrace-v2-partial_answer-05",
+      "truth": "pass",
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "e20926ed6f9be80663eb6e2ccc889b40d9d64193fb896e420caa26a19d1accb1"
+      ],
+      "costUsd": 0.001771
+    },
+    {
+      "id": "longtrace-v2-partial_answer-06#1",
+      "kind": "partial_answer",
+      "pair": "longtrace-v2-partial_answer-06",
+      "truth": "inconclusive",
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "80ebe84512e6fd4efcb13c9281543cf08afb0134ca90c31729f5f59dec81eef5"
+      ],
+      "costUsd": 0.0018675000000000002
+    },
+    {
+      "id": "longtrace-v2-partial_answer-06#2",
+      "kind": "partial_answer",
+      "pair": "longtrace-v2-partial_answer-06",
+      "truth": "fail",
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "6b9fa3e114c215d55fdb0dd40d0262b16875a4d1aad0c7d4082c53ca2ec07136"
+      ],
+      "costUsd": 0.0016118
+    },
+    {
+      "id": "longtrace-v2-partial_answer-07#1",
+      "kind": "partial_answer",
+      "pair": "longtrace-v2-partial_answer-07",
+      "truth": "pass",
+      "complete": true,
+      "outcome": "inconclusive",
+      "unparsed": false,
+      "keys": [
+        "603b0136ca14ad48122b76953ac4c0ee0d1ee59d79573ccd936db771e4b9fcdc"
+      ],
+      "costUsd": 0.0022747
+    },
+    {
+      "id": "longtrace-v2-partial_answer-07#2",
+      "kind": "partial_answer",
+      "pair": "longtrace-v2-partial_answer-07",
+      "truth": "pass",
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "741825422a56cf72e55174be875e4a9908239f9f1e9917e5912295cf1efdb9e6"
+      ],
+      "costUsd": 0.001583
+    },
+    {
+      "id": "longtrace-v2-partial_answer-08#1",
+      "kind": "partial_answer",
+      "pair": "longtrace-v2-partial_answer-08",
+      "truth": "fail",
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "14f2c1625264270ebfc71b69ced36feffa2dcee3720db24a06d8e6f1ba91b71c"
+      ],
+      "costUsd": 0.0028053
+    },
+    {
+      "id": "longtrace-v2-partial_answer-08#2",
+      "kind": "partial_answer",
+      "pair": "longtrace-v2-partial_answer-08",
+      "truth": "fail",
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "0579d075918bcb749d7eca62cd8aefcb694b2253b43ddb39530cb489ff602e1d"
+      ],
+      "costUsd": 0.0016076
+    },
+    {
+      "id": "longtrace-v2-partial_answer-09#1",
+      "kind": "partial_answer",
+      "pair": "longtrace-v2-partial_answer-09",
+      "truth": "inconclusive",
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "256a3b90003006677c6695c31e8bf0571ccefae6abffaf7b1e0fdb68e9d20249"
+      ],
+      "costUsd": 0.0019242999999999999
+    },
+    {
+      "id": "longtrace-v2-partial_answer-09#2",
+      "kind": "partial_answer",
+      "pair": "longtrace-v2-partial_answer-09",
+      "truth": "pass",
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "f8367be2701edc64a59f94fccf02ffe353fc237bc9fc8ca979a3c364205bbf7f"
+      ],
+      "costUsd": 0.0015915999999999999
+    },
+    {
+      "id": "longtrace-v2-partial_answer-10#1",
+      "kind": "partial_answer",
+      "pair": "longtrace-v2-partial_answer-10",
+      "truth": "pass",
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "bc56b03ad2d7739b70d1fd02572fb1a27e3680fb6e75b97334600136a90af7d7"
+      ],
+      "costUsd": 0.0022142999999999998
+    },
+    {
+      "id": "longtrace-v2-partial_answer-10#2",
+      "kind": "partial_answer",
+      "pair": "longtrace-v2-partial_answer-10",
+      "truth": "fail",
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "0026e0f24723f96db9162a0dfeac1b19e18022f9575e1ac736bd5d0d5252e476"
+      ],
+      "costUsd": 0.0015926
+    },
+    {
+      "id": "longtrace-v2-partial_answer-11#1",
+      "kind": "partial_answer",
+      "pair": "longtrace-v2-partial_answer-11",
+      "truth": "fail",
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "cf1cc98c256eca689b80c7517beab367755aef5228978c4e1072c5d98fe8a1a8"
+      ],
+      "costUsd": 0.0022654
+    },
+    {
+      "id": "longtrace-v2-partial_answer-11#2",
+      "kind": "partial_answer",
+      "pair": "longtrace-v2-partial_answer-11",
+      "truth": "pass",
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "a440c27876b566cb5c0ec148d8b11f1297199641d3735b57ee1248ec2121eeca"
+      ],
+      "costUsd": 0.0017082
+    },
+    {
+      "id": "longtrace-v2-partial_answer-12#1",
+      "kind": "partial_answer",
+      "pair": "longtrace-v2-partial_answer-12",
+      "truth": "inconclusive",
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "033e58df0806e0ea24339205acee1aab6e8d9aaa23598b74cb80327b4efbcdec"
+      ],
+      "costUsd": 0.0021982
+    },
+    {
+      "id": "longtrace-v2-partial_answer-12#2",
+      "kind": "partial_answer",
+      "pair": "longtrace-v2-partial_answer-12",
+      "truth": "fail",
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "8c8d8c5473e365ff65229a18adbd29e881e5ba0ad98e6090783f35f591cd18e1"
+      ],
+      "costUsd": 0.001753
+    }
+  ]
+}

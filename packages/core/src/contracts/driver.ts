@@ -24,5 +24,7 @@ export type DriverStep =
 
 export interface UserDriver {
   readonly id: string;
+  /** Every random seed this driver uses. {} means no randomness; absent means unknown. */
+  readonly seeds?: Readonly<Record<string, string | number>>;
   next(ctx: DriverContext): Promise<DriverStep> | DriverStep;
 }

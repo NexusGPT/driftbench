@@ -1,0 +1,23 @@
+import assert from 'node:assert/strict';
+import { chmod, mkdir, mkdtemp, readFile, writeFile } from 'node:fs/promises';
+import { resolve } from 'node:path';
+import { CallFailed, createCaller, Recordings } from '../judge-benchmarks/src/call';
+const cache=resolve('examples/ledger-verify/cache');await mkdir(cache,{recursive:true});
+const folder=await mkdtemp(`${cache}/failure-test-`);
+const count=`${folder}/calls.txt`, command=`${folder}/fake.cjs`;
+await writeFile(command,`#!/usr/bin/env node\nrequire('node:fs').appendFileSync(${JSON.stringify(count)},'call\\n');\nprocess.stdout.write(JSON.stringify({is_error:true,total_cost_usd:0,result:'Transport missing: fixture timeout'}));\n`);
+await chmod(command,0o755);
+const recordings=await new Recordings(`${folder}/recordings.jsonl`).load();
+const caller=createCaller(recordings,{model:'fixture',command});
+let thrown:unknown;
+try { await caller.call({system:'fixture',user:'fixture'},{item:'fixture'}); } catch(e) { thrown=e; }
+assert(thrown instanceof CallFailed);
+assert.equal((await readFile(count,'utf8')).trim().split('\n').length,1,'A missing transport result must not retry');
+assert.equal(caller.calls(),0);
+assert.equal(recordings.size,1,'A terminal failure is recorded explicitly to prevent retries');
+const saved=JSON.parse((await readFile(`${folder}/recordings.jsonl`,'utf8')).trim());
+assert.match(saved.failure,/fixture timeout/);assert.equal(saved.text,'');
+await assert.rejects(()=>caller.call({system:'fixture',user:'fixture'},{item:'fixture'}),CallFailed);
+assert.equal((await readFile(count,'utf8')).trim().split('\n').length,1,'Replaying a terminal transport failure must not call again');
+assert.equal(caller.calls(),0);assert.equal(caller.replayed(),1);
+console.log(JSON.stringify({missingTransportIsNotRetried:'PASS',failedOutputIsNotAnAnswer:'PASS',modelCalls:0}));

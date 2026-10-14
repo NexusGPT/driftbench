@@ -1,0 +1,53 @@
+{
+  "at": "2026-10-13T11:23:02.896066+00:00",
+  "kind": "runtime-only",
+  "model": "gemini-3.8-flash",
+  "status": "not run: daily quota",
+  "authorization": "Stop Gemini now: no more waits or retries today; calls in backoff are no answer and stay eligible. Gemini missing-only completion may run until 14 October 12:00 UTC. Resume Gemini only on my word or after the reset.",
+  "causeSource": "Owner diagnosis: generate_requests_per_model_per_day, 10000; reset near 2026-10-14T00:00:00Z",
+  "automaticResumeNotBefore": "2026-10-14T00:00:00Z",
+  "completionDeadline": "2026-10-14T12:00:00Z",
+  "currentRuntime": "ee96e47757aa837860fe",
+  "runtimeSha256": "c1da047e74647cd9f61318b63e6bd5a11ecb5dc2a4c51a1887b5f039a411e52e",
+  "timeoutMs": 300000,
+  "reasoning": "medium",
+  "concurrency": 2,
+  "capUsd": 40,
+  "quotaBackoffSeconds": [
+    60,
+    120,
+    240
+  ],
+  "billing402": "stop immediately",
+  "scoring": "Quota pending is no answer, excluded from judge failures and noise flips until completed; no TEST score before TEST runs.",
+  "pendingNoise2Ids": {
+    "driftbench-verify-uncertainty-cascade": [],
+    "promptfoo": [
+      "4d1497a568219528716b51f87ef72f18_6029e690d7a881057e987894b31db7e6",
+      "4e962b5781cb54bc20844b76f48015bf_5030f4551098b9ae90f2f5e090b46346",
+      "4f8faed01fbb8264519d9f4ae8989a36_45f94dc55ea05eafeb903b1266bfe98e",
+      "4fd3bc514ff8e3775723a0f883a7d347_54c1d82ec537b265b891b55d68a2d539",
+      "50624457d129ae6ba7aa043aa9bdc92b_b8dae8e757dabf12f4302375e64baa0d",
+      "514cb7d27518d395ec9a46c2ae62c9bf_6a8c772c3cbf9a7e26dae82deafbc213",
+      "52fc2d3ed06507bdbd094aabcfde7e1d_67b0aab158f41fd3a9675c7d5529910e",
+      "5305069c7919fc01c8707be50843590a_b156bd30f7b7d418897e9ccec7ea7708",
+      "5379ab99eae4161320d5bb2c0850315e_bcec25bc2e21ce2667e0368df647bcf2",
+      "542a4a7aed316e1a799d1c145b101ea9_c10967faf71a528ab33e138f74ffb1cf"
+    ]
+  },
+  "pendingTestItemsPerContestant": 221,
+  "answeredNoise2CassetteRows": 163,
+  "cassetteSha256": "c7899feb41e398072976a7f93dc878e2b8868e3373ed52cfd03ea8fbd3f4cb86",
+  "preservedAllReturnedAnswers": true,
+  "releasedProvenQuotaHoldsUsd": 2,
+  "quotaReceiptIds": [
+    "65c0dcc5-4692-4c1a-9f83-9c1bb3d142c1",
+    "c43898c0-f96f-40ac-b275-416c35afb410"
+  ],
+  "lastQuotaCompletion": "2026-10-13T11:19:19.429Z",
+  "stopTimingDisclosure": "The pre-existing backoff processes reached final 429 responses at 11:19 UTC before the resumed controller inspected them; both exited. No Gemini process remains at pause verification.",
+  "stoppedReport": "noise-2/gemini-3.8-flash.pre-daily-quota.partial.json",
+  "sealedOrderUnchanged": true,
+  "contractUnchanged": true,
+  "scoringUnchanged": true
+}

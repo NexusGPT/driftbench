@@ -1,0 +1,4 @@
+offline-recordings/
+__pycache__/
+cache/
+*.log

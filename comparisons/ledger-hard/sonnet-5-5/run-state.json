@@ -1,0 +1,13 @@
+{
+  "stamp": "2026-10-14T03:20:17.013515+00:00",
+  "model": "claude-sonnet-5-5",
+  "completed": 6560,
+  "planned": 6560,
+  "inflight": 0,
+  "measured_usd": 33.726765000000015,
+  "unknown_attempt_reserve_usd": 0.9999999999999999,
+  "phase": "complete",
+  "concurrency": 2,
+  "score_status": "eligible only when all requests have model answers",
+  "stop_reason": null
+}

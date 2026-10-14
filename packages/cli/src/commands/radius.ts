@@ -10,8 +10,9 @@ import { textTable as table } from '@agent-nexus/driftbench-report';
 import type { Command } from 'commander';
 import type { Io } from '../io';
 import { loadValidSpecs } from './campaign';
+import { registerRadiusAuto } from './radius-prompt';
 
-type RadiusCommandOptions = { change: string; mode: string; json?: boolean };
+type RadiusCommandOptions = { change: string; mode: string; json?: boolean; explain?: boolean };
 
 /**
  * `driftbench radius <specs...> --change <manifest> [--mode F] [--json]`: the blast radius of a change.
@@ -21,23 +22,29 @@ type RadiusCommandOptions = { change: string; mode: string; json?: boolean };
  * whole suite, 2 on bad input.
  */
 export function registerRadiusCommand(program: Command, io: Io, setExit: (code: number) => void): void {
-  program
+  const radius = program
     .command('radius')
     .description('Print the blast radius of a change: the blocks it can affect, against the whole suite')
     .argument('<paths...>', 'spec files or folders')
-    .requiredOption('--change <manifest>', 'the change manifest (YAML or JSON): from, to and the changes')
+    .option('--change <manifest>', 'the change manifest (YAML or JSON): from, to and the changes')
     .option(
       '--mode <modes>',
       'the run mode: T teacher-forced, F free-running, P perturbed; several separated by commas',
       'F',
     )
+    .option('--explain', 'show the manifest anchors and the blocks each change selects')
     .option('--json', 'print one JSON document')
     .action(async (paths: string[], options: RadiusCommandOptions) => {
       setExit(await radiusCommand(paths, options, io));
     });
+  registerRadiusAuto(radius, io, setExit);
 }
 
 export async function radiusCommand(paths: string[], options: RadiusCommandOptions, io: Io): Promise<number> {
+  if (!options.change || paths.length === 0) {
+    io.err('radius needs spec paths and --change <manifest>.\n');
+    return 2;
+  }
   const modes: RunMode[] = [];
   for (const text of options.mode.split(',')) {
     const mode = RunMode.safeParse(text.trim());
@@ -72,6 +79,17 @@ export async function radiusCommand(paths: string[], options: RadiusCommandOptio
     );
   } else {
     io.out(renderRadius(report, manifest.hash));
+    if (options.explain) {
+      for (const change of manifest.manifest.changes) {
+        io.out(`${change.kind}:${change.id ?? 'global'}: ${change.note ?? 'declared in the manifest'}\n`);
+      }
+      for (const spec of report.specs)
+        for (const block of spec.blocks) {
+          io.out(
+            `${spec.specId}/${block.id}: ${JSON.stringify(block.state)}: ${block.why.join(', ') || 'outside declared changes'}\n`,
+          );
+        }
+    }
   }
   return report.whole ? 1 : 0;
 }

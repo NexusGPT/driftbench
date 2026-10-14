@@ -1,5 +1,6 @@
 import { describe, expect, it, vi } from 'vitest';
 import { type CoverElement, selectGolden } from '../../src/select';
+import { coverWork } from '../../src/select/cover-meter';
 import { selectGolden as reference } from './cover-reference';
 
 /** A small seeded generator, so the pools are the same on every run. */
@@ -84,21 +85,53 @@ describe('selectGolden cost', () => {
   });
 
   it('grows no faster than the pool times the picks, not the pool times the cells', () => {
-    const cpu = (specs: number) => {
+    // The work is the number of membership tests on sets, counted, not timed: the same count on any host.
+    const work = (select: typeof selectGolden, specs: number) => {
       const chain = Array.from({ length: specs }, (_, i) => `s-${i}`);
       const cells = Array.from({ length: specs + 1 }, (_, c) => ({
         key: `c-${c}`,
         label: `cell ${c}`,
         specs: [c - 1, c].filter((i) => i >= 0 && i < specs).map((i) => `s-${i}`),
       }));
-      const before = process.cpuUsage();
-      selectGolden({ pool: chain, cells, required: [] });
-      const used = process.cpuUsage(before);
-      return (used.user + used.system) / 1000;
+      const originalSet = Set;
+      let tests = 0;
+      class CountedSet<T> extends originalSet<T> {
+        override has(value: T): boolean {
+          tests += 1;
+          return super.has(value);
+        }
+      }
+      vi.stubGlobal('Set', CountedSet);
+      try {
+        select({ pool: chain, cells, required: [] });
+      } finally {
+        vi.unstubAllGlobals();
+      }
+      return tests;
     };
-    cpu(300);
-    const small = Math.max(cpu(500), 1);
-    const large = cpu(5000);
-    expect(large / small).toBeLessThan(40);
-  });
+    const ratio = (select: typeof selectGolden) => work(select, 2000) / work(select, 200);
+    // Ten times the pool: about ten times the work. A full scan at every pick (the reference) is about a
+    // hundred times, so the bound tells the two apart.
+    expect(ratio(reference)).toBeGreaterThan(40);
+    expect(ratio(selectGolden)).toBeLessThan(40);
+  }, 60_000);
+
+  it('compares heap entries no faster than the pool times the log of the pool, per pick of the cover', () => {
+    // The heap keeps the candidates ordered by their gains; a re-sort of the whole heap at every pick
+    // multiplies the comparisons by the picks. Counted on the same chain pool as the membership tests.
+    const comparisons = (specs: number) => {
+      const chain = Array.from({ length: specs }, (_, i) => `s-${i}`);
+      const cells = Array.from({ length: specs + 1 }, (_, c) => ({
+        key: `c-${c}`,
+        label: `cell ${c}`,
+        specs: [c - 1, c].filter((i) => i >= 0 && i < specs).map((i) => `s-${i}`),
+      }));
+      coverWork.comparisons = 0;
+      selectGolden({ pool: chain, cells, required: [] });
+      return coverWork.comparisons;
+    };
+    // Ten times the pool: 14.9 times the comparisons (counted, the same on any host). A heap re-sorted at
+    // every pick reads 42.1, and more on larger pools; the bound of 25 tells the two apart.
+    expect(comparisons(2000) / comparisons(200)).toBeLessThan(25);
+  }, 60_000);
 });

@@ -1,0 +1,170 @@
+{
+ "bench": "verify",
+ "title": "LongJudgeBench verify",
+ "model": "claude-haiku-5-5",
+ "kind": "point",
+ "unit": "item",
+ "final": true,
+ "contestants": [
+  {
+   "contestant": "driftbench",
+   "items": 221,
+   "present": 221,
+   "transportMissing": 0,
+   "all": {
+    "correct": 164,
+    "n": 221,
+    "score": 0.7420814479638009,
+    "wilson95": [
+     0.6806117405123012,
+     0.7952791408279148
+    ],
+    "driftbenchMinusThis": 0.0
+   }
+  },
+  {
+   "contestant": "promptfoo",
+   "items": 221,
+   "present": 221,
+   "transportMissing": 0,
+   "all": {
+    "correct": 159,
+    "n": 221,
+    "score": 0.7194570135746606,
+    "wilson95": [
+     0.6568644573052397,
+     0.7745506407321524
+    ],
+    "driftbenchMinusThis": 0.02262443438914027,
+    "driftbenchWins": 19,
+    "driftbenchLosses": 14,
+    "exactTwoSidedP": 0.48685024166479707,
+    "holmP": 1.0
+   }
+  },
+  {
+   "contestant": "deepeval",
+   "items": 221,
+   "present": 221,
+   "transportMissing": 0,
+   "grader": "GEval, threshold 0.5 (DeepEval 4.2.8)",
+   "mode": "native",
+   "graderErrors": 30,
+   "ties": 0,
+   "spend": {
+    "usd": 0.26414519999999997,
+    "attempts": 222,
+    "answered": 222,
+    "noAnswer": 0,
+    "estimatedUsd": 0.0
+   },
+   "all": {
+    "correct": 130,
+    "n": 221,
+    "score": 0.5882352941176471,
+    "wilson95": [
+     0.522380643230544,
+     0.6510749116504693
+    ],
+    "driftbenchMinusThis": 0.15384615384615385,
+    "driftbenchWins": 44,
+    "driftbenchLosses": 10,
+    "exactTwoSidedP": 3.385685953372075e-06,
+    "holmP": 5.078528930058113e-05
+   }
+  },
+  {
+   "contestant": "inspect",
+   "items": 221,
+   "present": 221,
+   "transportMissing": 0,
+   "grader": "model_graded_qa (inspect_ai 0.3.278)",
+   "mode": "native",
+   "graderErrors": 0,
+   "ties": 0,
+   "spend": {
+    "usd": 0.34555329999999984,
+    "attempts": 221,
+    "answered": 221,
+    "noAnswer": 0,
+    "estimatedUsd": 0.0
+   },
+   "all": {
+    "correct": 162,
+    "n": 221,
+    "score": 0.7330316742081447,
+    "wilson95": [
+     0.6710903090599684,
+     0.7870102589591178
+    ],
+    "driftbenchMinusThis": 0.00904977375565611,
+    "driftbenchWins": 17,
+    "driftbenchLosses": 15,
+    "exactTwoSidedP": 0.860050065908581,
+    "holmP": 1.0
+   }
+  },
+  {
+   "contestant": "langfuse",
+   "items": 221,
+   "present": 221,
+   "transportMissing": 0,
+   "grader": "Answer Critic (Langfuse 64ba74f9)",
+   "mode": "native",
+   "graderErrors": 0,
+   "ties": 0,
+   "spend": {
+    "usd": 0.2604660999999999,
+    "attempts": 221,
+    "answered": 221,
+    "noAnswer": 0,
+    "estimatedUsd": 0.0
+   },
+   "all": {
+    "correct": 166,
+    "n": 221,
+    "score": 0.751131221719457,
+    "wilson95": [
+     0.6901643504114494,
+     0.8035168442498961
+    ],
+    "driftbenchMinusThis": -0.00904977375565611,
+    "driftbenchWins": 13,
+    "driftbenchLosses": 15,
+    "exactTwoSidedP": 0.8505540192127228,
+    "holmP": 1.0
+   }
+  },
+  {
+   "contestant": "langwatch",
+   "items": 221,
+   "present": 221,
+   "transportMissing": 0,
+   "grader": "LLM-as-a-Judge Boolean (LangWatch e683dd9e)",
+   "mode": "native",
+   "graderErrors": 0,
+   "ties": 0,
+   "spend": {
+    "usd": 0.2842034000000001,
+    "attempts": 221,
+    "answered": 221,
+    "noAnswer": 0,
+    "estimatedUsd": 0.0
+   },
+   "all": {
+    "correct": 162,
+    "n": 221,
+    "score": 0.7330316742081447,
+    "wilson95": [
+     0.6710903090599684,
+     0.7870102589591178
+    ],
+    "driftbenchMinusThis": 0.00904977375565611,
+    "driftbenchWins": 16,
+    "driftbenchLosses": 14,
+    "exactTwoSidedP": 0.855535551905632,
+    "holmP": 1.0
+   }
+  }
+ ]
+}

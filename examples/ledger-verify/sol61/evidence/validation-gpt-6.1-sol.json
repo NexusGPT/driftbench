@@ -1,0 +1,36 @@
+{
+  "model": "gpt-6.1-sol",
+  "mutationChecks": {
+    "driftbench-verify-uncertainty-cascade": {
+      "baseItems": 12,
+      "preserved": 12,
+      "flipped": 12,
+      "injectionMovedOrMissing": 0,
+      "baseMissing": 0,
+      "pass_": true
+    },
+    "promptfoo": {
+      "baseItems": 12,
+      "preserved": 12,
+      "flipped": 12,
+      "injectionMovedOrMissing": 0,
+      "baseMissing": 0,
+      "pass_": true
+    }
+  },
+  "noise": {
+    "driftbench-verify-uncertainty-cascade": {
+      "items": 30,
+      "repeats": 3,
+      "itemsWithAnyFlip": 2,
+      "itemsWithAnyMissing": 0
+    },
+    "promptfoo": {
+      "items": 30,
+      "repeats": 3,
+      "itemsWithAnyFlip": 1,
+      "itemsWithAnyMissing": 0
+    }
+  },
+  "limitations": "Mutation labels are planted arithmetic truth. This tests invariance, not broad domain accuracy."
+}
