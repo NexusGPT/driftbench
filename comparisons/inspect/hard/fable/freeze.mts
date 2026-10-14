@@ -16,15 +16,24 @@ import { configs, requestFor } from './request';
 //   node --import tsx comparisons/inspect/hard/fable/freeze.mts heldout-480 20 900001 910001 920001
 const here = fileURLToPath(new URL('./', import.meta.url));
 const repo = fileURLToPath(new URL('../../../../', import.meta.url));
-const [name, per, qaStart, panelStart, borderlineStart] = process.argv.slice(2);
+const [name, per, qaStart, panelStart, borderlineStart, borderlinePer] = process.argv.slice(2);
 if (!name || !per || !qaStart || !panelStart || !borderlineStart)
   throw new Error(
-    'Usage: freeze.mts <set name> <items per family and label> <qa and fact start seed> <panel start seed> <borderline start seed>',
+    'Usage: freeze.mts <set name> <items per family and label> <qa and fact start seed> <panel start seed> <borderline start seed> [borderline items per family and label]',
   );
 const out = `${here}${name}/`;
 if (existsSync(`${out}freeze.json`)) throw new Error(`The ${name} set is already frozen`);
 mkdirSync(out, { recursive: true });
 const perCell = Number(per);
+// The borderline construction has 78 distinct submissions per cell, and some cells share them (a passing
+// near-number case and a passing missing case are the same text). Earlier sets used most of them, so the
+// borderline row may take fewer items per cell than the other rows. Its count is recorded in the manifest.
+const perCellOf: Record<Row, number> = {
+  qa: perCell,
+  fact: perCell,
+  panel: perCell,
+  borderline: Number(borderlinePer ?? per),
+};
 const start: Record<Row, number> = {
   qa: Number(qaStart),
   fact: Number(qaStart),
@@ -67,7 +76,7 @@ const pick = (row: Row): { cases: Case[]; seeds: [number, number] } => {
     for (const c of generate(row, { seed, count: 60 })) {
       const cell = `${c.family}:${c.label}`;
       const list = cells.get(cell) ?? [];
-      if (list.length >= perCell) continue;
+      if (list.length >= perCellOf[row]) continue;
       if (seen.has(c.submission)) continue;
       const keys = digests(c, row);
       if (keys.some((k) => seen.has(k) || taken.has(k))) continue;
@@ -75,9 +84,9 @@ const pick = (row: Row): { cases: Case[]; seeds: [number, number] } => {
       list.push(c);
       cells.set(cell, list);
     }
-    if (cells.size === 24 && [...cells.values()].every((l) => l.length === perCell)) break;
+    if (cells.size === 24 && [...cells.values()].every((l) => l.length === perCellOf[row])) break;
   }
-  if (cells.size !== 24 || ![...cells.values()].every((l) => l.length === perCell))
+  if (cells.size !== 24 || ![...cells.values()].every((l) => l.length === perCellOf[row]))
     throw new Error(`${row}: not enough never-requested items`);
   return { cases: [...cells.values()].flat(), seeds: [start[row], seed] };
 };
@@ -136,10 +145,10 @@ writeFileSync(
       frozenAt: new Date().toISOString(),
       harnessCommit: execFileSync('git', ['rev-parse', 'HEAD'], { cwd: repo, encoding: 'utf8' }).trim(),
       judgeSha256AtFreeze: judgeSha256,
-      casesPerRow: perCell * 24,
-      perFamilyAndLabel: perCell,
+      casesPerRow: Object.fromEntries(rows.map((row) => [row, perCellOf[row] * 24])),
+      perFamilyAndLabel: perCellOf,
       seedRanges: seeds,
-      selection: `Seeds walked upward from ${qaStart} (QA, fact), ${panelStart} (panel), ${borderlineStart} (borderline). Items taken in generator order when the request of every procedure (${configs.join(', ')}, theirs) is new and unique and the submission is in no earlier set, until each family and label cell holds ${perCell}. No model outcome is read.`,
+      selection: `Seeds walked upward from ${qaStart} (QA, fact), ${panelStart} (panel), ${borderlineStart} (borderline). Items taken in generator order when the request of every procedure (${configs.join(', ')}, theirs) is new and unique and the submission is in no earlier set, until each family and label cell holds its count (${rows.map((row) => `${row} ${perCellOf[row]}`).join(', ')}). No model outcome is read.`,
       procedures: {
         default:
           'driftbench default judge, the whole rendered record as one agent entry (the registered wiring of the shipped comparison)',
