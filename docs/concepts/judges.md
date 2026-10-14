@@ -177,7 +177,8 @@ Every judge is a `JudgeClient`: an `id`, a model `family`, a class `cls`, an opt
 * A judge that a platform offers is listed on the page of that platform's adapter, such as the [Nexus adapter](../adapters/nexus.md).
 * No model is hardcoded for the provider clients: the model comes from its variable or the `model` option. A missing key or model is a `config` error that names the variable, never a value.
 * Keys come from the environment only (the `env` option, `process.env` by default). A key lives inside the client and is never a field of it, so printing a client never shows it.
-* A call is retried twice, with a growing wait, on 408, 409, 429, 500, 502, 503, 504, 529, a network failure or a timeout (120 seconds per attempt by default). A 4xx the request caused is never retried. Redirects are refused.
+* A call is retried under the [shared retry policy](../retries.md): up to 4 attempts in all, the first included, with a growing wait, on a 408, a 429, any 5xx (529 included), a network failure or a timeout (120 seconds per attempt by default). Any other 4xx, 409 included, is never retried. Redirects are refused.
+* A chat judge sends temperature 0. When a model answers a 400 that names the temperature, the OpenAI and Anthropic clients ask once more without it and stop sending it for that client.
 * An error names the URL and the status and quotes at most 200 characters of the provider's error body. Any header value the provider echoes back is replaced by `[redacted]`.
 * A client throws only when it got no answer at all. In a council, that judge votes inconclusive and the error is counted.
 
@@ -444,7 +445,7 @@ On the Claude council recording, every criterion goes to haiku, at 0.0002 to 0.0
 
 ### A cascade: the costly judges only where the cheap one is unsure
 
-`judge calibrate --cascade` takes the judges in order: the first answers every fixture (each repeat) and every labelled block; the others answer only the items where the first is unsure (inconclusive, or a score between 0.2 and 0.8) or disagrees with the truth (the fixture's side or the label). An escalated item takes the majority of every judge that answered it, two agreeing votes needed. `--only <criterion>` limits the run; the report, written as JSON to `--out`, gives per criterion the separation, the kappa, the escalated items with the reason, and the cost.
+`judge calibrate --cascade` takes the judges in order: the first answers every fixture (each repeat) and every labelled block; the others answer only the items where the first is unsure (inconclusive, or a score between 0.2 and 0.8) or disagrees with the truth (the fixture's side or the label). An escalated item takes the majority of every judge that answered it, two agreeing votes needed. `--only <criterion>` limits the run; the report, written as JSON to `--out`, gives per criterion the separation, the kappa, the escalated items with the reason, and the cost. `--agent-family` applies as it does to the council: a judge of the agent's family, first or escalated, is refused before any call. The cascade writes no assignment table, so an `--assign` or a `--mode` other than the default is refused with it.
 
 Escalating on disagreement uses the label, which a run does not have: it measures whether the costly judges fix the cheap judge's errors. The report also gives `unsureOnly`, from the same answers, which escalates only the unsure items, as a deployed cascade could.
 
@@ -597,10 +598,10 @@ These APIs are available in the package. The judge validator checks their behavi
 * Structured output. The OpenAI chat client asks for a JSON schema of the answer contract (`response_format: json_schema`), and the Google client gives it as `responseSchema`.
 * Token usage. `usageFromResponse(provider, body)` reads input and output token counts from OpenAI, Anthropic and Google response bodies.
 * Retry-After. On a 429 or a 503 carrying a `Retry-After` header, a client uses its seconds or HTTP date, capped by its configured maximum delay.
+* Label hygiene. Each criterion of the calibration report names labelled blocks with the same slice and opposite labels in `labelConflicts`, labelled blocks equal to a fixture in `fixtureLeaks`, and carries `few-labels` in its `warnings` when a label class has fewer than 5 blocks.
 
 ## Remaining planned capabilities
 
-* Label hygiene. Calibration names labelled blocks with the same slice and opposite labels, labelled blocks equal to a fixture, and warns when a label class has fewer than 5 blocks.
 * The repair mark on the verdict. The judge verdict built from repaired votes says so, as the votes and cassette entries do today.
 
 ## The judge check in a run

@@ -158,6 +158,8 @@ export function createAnthropicJudge(options: ClientOptions = {}): JudgeClient {
   const key = requireEnv(env, 'ANTHROPIC_API_KEY');
   const model = modelOf(options, env, 'ANTHROPIC_JUDGE_MODEL');
   const url = `${baseOf(env, 'ANTHROPIC_BASE_URL', 'https://api.anthropic.com')}/v1/messages`;
+  // Some models refuse the temperature field with a 400; the client then stops sending it.
+  let sendTemperature = true;
   return {
     id: options.id ?? 'anthropic',
     family: 'anthropic',
@@ -175,20 +177,36 @@ export function createAnthropicJudge(options: ClientOptions = {}): JudgeClient {
       const ledgerPayload = isPairLedgerRequest(request)
         ? buildDialectRequest('anthropic', prompt).payload
         : undefined;
-      const payload = await postJson(
-        url,
-        { 'x-api-key': key, 'anthropic-version': '2023-06-01' },
-        ledgerPayload
-          ? { model, max_tokens: budgetOf(request), temperature: TEMPERATURE, ...ledgerPayload }
+      const body = (withTemperature: boolean) => {
+        const temperature = withTemperature ? { temperature: TEMPERATURE } : {};
+        return ledgerPayload
+          ? { model, max_tokens: budgetOf(request), ...temperature, ...ledgerPayload }
           : {
               model,
               max_tokens: budgetOf(request),
-              temperature: TEMPERATURE,
+              ...temperature,
               system: prompt.system,
               messages: [{ role: 'user', content: prompt.user }],
-            },
-        options,
-      );
+            };
+      };
+      const send = (withTemperature: boolean) =>
+        postJson(
+          url,
+          { 'x-api-key': key, 'anthropic-version': '2023-06-01' },
+          body(withTemperature),
+          options,
+        );
+      let payload: unknown;
+      const sentTemperature = sendTemperature;
+      try {
+        payload = await send(sentTemperature);
+      } catch (cause) {
+        // Retry a rejected temperature once, then omit it on subsequent calls from this client.
+        const text = cause instanceof Error ? cause.message : '';
+        if (!sentTemperature || !/answered 400/.test(text) || !/temperature/i.test(text)) throw cause;
+        sendTemperature = false;
+        payload = await send(false);
+      }
       const raw = JSON.stringify(payload);
       if (!isRecord(payload) || !Array.isArray(payload.content)) {
         return { answer: inconclusive(`${model} answered without a content list`), raw, unparsed: true };

@@ -339,6 +339,17 @@ export async function judgeCalibrateCommand(options: JudgeCalibrateOptions, io: 
     const chosen =
       only.length > 0 ? loaded.criteria.filter((c) => only.includes(c.def.name)) : loaded.criteria;
     if (options.cascade) {
+      // The cascade writes a report, not an assignment table: the table's rule and mode do not apply to it.
+      if (options.assign !== undefined && options.assign !== 'council') {
+        io.err(
+          `judge calibrate --cascade writes no assignment table: --assign ${options.assign} does not apply to it.\n`,
+        );
+        return 2;
+      }
+      if (options.mode !== 'hybrid') {
+        io.err('judge calibrate --cascade writes no assignment table: --mode does not apply to it.\n');
+        return 2;
+      }
       const [head, ...rest] = judges;
       if (!head || rest.length === 0) {
         io.err('judge calibrate --cascade needs a first judge and at least one to escalate to.\n');
@@ -350,6 +361,7 @@ export async function judgeCalibrateCommand(options: JudgeCalibrateOptions, io: 
         criteria: chosen,
         labels: labels.labels,
         repeats,
+        agentFamily: options.agentFamily,
       });
       const out = resolve(io.cwd, options.out);
       await writeFile(out, `${JSON.stringify(cascade, null, 2)}\n`, 'utf8');
