@@ -1,6 +1,6 @@
 ---
 title: Self-checks of the repository
-summary: The checks CI runs on driftbench itself beside the validators: the leak guard, the public API surface, the docs checks and the package boundaries.
+summary: The checks CI runs on driftbench itself beside the validators, such as the leak guard, the public API surface, the docs checks and the package boundaries.
 commands:
   - validate
 see_also:
