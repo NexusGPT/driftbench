@@ -369,6 +369,51 @@ blocks:
       criteria: [answers]
 `;
 
+describe('a council from --judges judges each criterion as it asks', () => {
+  it(
+    'applies repeat to every seat: a recording of pass then fail is inconclusive, not a pass',
+    async () => {
+      const dir = await folder();
+      await writeFile(
+        join(dir, 'judged.yaml'),
+        JUDGED.replace('scope: block }', 'scope: block, repeat: 2 }'),
+      );
+      const tools = await folder();
+      // A stand-in that answers pass, then fail, then pass: the fake judge with its fail words switched per call.
+      const alternating = join(tools, 'alternating.cjs');
+      await writeFile(
+        alternating,
+        [
+          '#!/usr/bin/env node',
+          '// @driftbench-stand-in: alternates pass and fail. No model call.',
+          "const fs = require('node:fs');",
+          'const file = process.env.ALT_COUNTER;',
+          "const n = fs.existsSync(file) ? Number(fs.readFileSync(file, 'utf8')) : 0;",
+          'fs.writeFileSync(file, String(n + 1));',
+          "process.env.FAKE_JUDGE_FAIL = n % 2 === 0 ? '' : 'Add a discount';",
+          `require(${JSON.stringify(FAKE)});`,
+          '',
+        ].join('\n'),
+      );
+      vi.stubEnv('ALT_COUNTER', join(tools, 'counter'));
+      const tape = join(tools, 'tape.json');
+      const live = await replay(
+        ['--judge', 'claude:haiku', '--judge-command', alternating, '--record', tape],
+        dir,
+      );
+      expect(live.doc?.runs[0]?.failing).toEqual(['block 0: judge.keeps-scope (inconclusive)']);
+      const cassette = JSON.parse(await readFile(tape, 'utf8')) as { entries: unknown[] };
+      expect(cassette.entries).toHaveLength(2);
+
+      const council = await replay(['--judges', tape], dir);
+      expect(council.err).toBe('');
+      expect(council.code).toBe(1);
+      expect(council.doc?.runs[0]?.failing).toEqual(['block 0: judge.keeps-scope (inconclusive)']);
+    },
+    SLOW,
+  );
+});
+
 describe('row 1: judges in campaign run, resume, ci and smoke', () => {
   it(
     'campaign run judges the criteria it named, and without a judge leaves them unjudged',

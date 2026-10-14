@@ -270,7 +270,9 @@ export async function runJudgeFrom(
   if (!judgeAsked(options)) {
     const stray = shapingFlags(options);
     if (stray.length > 0) {
-      io.err(`error: ${stray.join(' and ')} need --judge claude:<model>, another --judge <kind>:<model>, or --judges <cassette>\n`);
+      io.err(
+        `error: ${stray.join(' and ')} need --judge claude:<model>, another --judge <kind>:<model>, or --judges <cassette>\n`,
+      );
       return undefined;
     }
     const { noJudgeCheck } = await import('@agent-nexus/driftbench-judges');
@@ -299,7 +301,9 @@ export async function optionalJudgeFrom(
   if (!judgeAsked(options)) {
     const stray = shapingFlags(options);
     if (stray.length > 0) {
-      io.err(`error: ${stray.join(' and ')} need --judge claude:<model>, another --judge <kind>:<model>, or --judges <cassette>\n`);
+      io.err(
+        `error: ${stray.join(' and ')} need --judge claude:<model>, another --judge <kind>:<model>, or --judges <cassette>\n`,
+      );
       return null;
     }
     return undefined;
@@ -651,17 +655,35 @@ async function councilJudge(
         : mode === 'system1'
           ? count('system1')
           : Math.min(count('system1'), count('system2')));
-    const council = J.createCouncil({
-      mode,
-      size: Math.max(1, size),
-      judges,
-      agentFamily: agentFamily ?? 'none',
-      ...(weights ? { weights } : {}),
-      ...(earned ? { assignment: earned.assignment, unassigned: earned.unassigned } : {}),
-      ...(options.cascade ? { cascade: true } : {}),
-    });
+    const councilOf = (defs: Parameters<typeof J.criteriaJudge>[1]) =>
+      J.createCouncil({
+        mode,
+        size: Math.max(1, size),
+        // Each seat judges a criterion as the criterion asks (`repeat`, `per_turn`), as the single judge does.
+        judges: defs.length === 0 ? judges : judges.map((judge) => J.criteriaJudge(judge, defs)),
+        agentFamily: agentFamily ?? 'none',
+        ...(weights ? { weights } : {}),
+        ...(earned ? { assignment: earned.assignment, unassigned: earned.unassigned } : {}),
+        ...(options.cascade ? { cascade: true } : {}),
+      });
+    // Built once here, so a bad council is refused before any run.
+    const council = councilOf([]);
+    const base = council.check();
+    // The criteria live in each spec: the council of a spec is built from its criteria, once per spec.
+    const bySpec = new WeakMap<object, Check>();
+    const check: Check = {
+      ...base,
+      evaluate(ctx) {
+        let own = bySpec.get(ctx.spec);
+        if (!own) {
+          own = councilOf(ctx.spec.criteria ?? []).check();
+          bySpec.set(ctx.spec, own);
+        }
+        return own.evaluate(ctx);
+      },
+    };
     return {
-      check: council.check(),
+      check,
       piiJudge: (text) => council.piiJudge(text),
       spend: state.spend,
       label: judges.map((judge) => judge.id).join(', '),
