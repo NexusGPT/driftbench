@@ -15,6 +15,7 @@ export * from './retry';
 export * from './runner';
 export * from './schema/common';
 export * from './schema/config';
+export { parameterSchema, unsupportedSchemaKeywords } from './schema/json-schema';
 export * from './schema/run';
 export * from './schema/spec';
 export * as script from './script';

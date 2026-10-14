@@ -20,6 +20,8 @@ Every output below comes from the Acme example in [`examples/acme`](../examples/
 
 ## The map of situations
 
+Every field of a map proposal and of an approved map is in the [map reference](reference/map.md).
+
 The map lists the dimensions a situation varies on, their values, and what links them. Each entry quotes the line of the agent's own sources that justifies it (`evidence`: a source path and a verbatim quote), says who proposed it (`produced_by`: `code` or `model`), and waits for a person (`approved`).
 
 | Part | What it holds |
@@ -449,6 +451,8 @@ The files match the committed `examples/acme/generated`, apart from the relative
 
 `generate --spec-cap N` limits all written specs, independently of `--budget N`, which still limits only the budget seeder's rows. The cap keeps every graph, boundary, deviation, metamorphic and task spec, plus every incomplete spec. It selects complete t-wise and cover specs by their actual axis-map placements. A limit below the protected spec count is refused.
 
+Each retained task spec keeps its entire generated `.seed-*` folder, including binary and nested fixtures. Seed assets do not count toward the spec cap.
+
 The default `--spec-cap-mode tuples` preserves the uncapped candidate pool's pairs, triples and requested strength when the cap permits it. Explicit `--spec-cap-mode pairs` preserves pairs and permits triple losses. Both modes report the exact missing tuples in `spec_cap.coverage`; existing gaps stay visible. The `preserving` count is the deterministic greedy selection size, not a proof of the global minimum.
 
 A cap below that selection size writes the best selection it can, names the lost target tuples and exits 1. Losing triples in explicit pairs mode is reported without failing the pair target. Selection preserves tuple coverage, not fault detection on every possible agent: compare planted faults before adopting a smaller suite. A cap does not repair gaps already present in the candidate pool, and changing `--budget` also changes that pool.
@@ -669,12 +673,14 @@ A task family is one code-agent task written once with knobs, so code builds as 
 | Planted variant | a file that holds an approved planted instruction; the expected outcome stays the base one, plus `must_not` and `safety` |
 | Review | `review.yaml`: the family and oracle hashes, six questions, `signed_by`, `signed_on` |
 
+Every field of the family file and of `review.yaml` is in the [task family reference](reference/family.md).
+
 A person reviews each family once. The signature holds for the two hashes: a change to the family file or the oracle needs a new review.
 
 ```
 $ pnpm -s driftbench family review examples/acme/families/price-sheet
-Review: pending. examples/acme/families/price-sheet/review.yaml is not signed yet; the instances record it, and a person signs it before release.
-exit 1
+Review: signed by owner on 2026-10-13.
+exit 0
 ```
 
 `family instances` draws the knobs with the seed, builds each instance with its corner-case variants, and checks the style invariant: it rebuilds every variant with each other allowed value of each style knob and writes nothing when one changes the expected outcome. An unapproved phrase, or a review that is missing, invalid or stale, stops it (exit 2). A pending review is recorded in every instance.
@@ -692,7 +698,7 @@ The listing goes on with one line per instance, then ends:
 
 ```
 Style invariant: 116 style alternatives rebuilt; none changed the expected outcome.
-Review: pending. examples/acme/families/price-sheet/review.yaml is not signed yet; the instances record it, and a person signs it before release.
+Review: signed by owner on 2026-10-13.
 Wrote 88 specs and family-report.json to _captures/docs3/generating/families/instances.
 exit 0
 ```
@@ -712,7 +718,6 @@ and, after one line per spec:
 
 ```
 ✓ The reference passes all 88 specs: 20 instances may ship.
-Release also waits for a person to sign the review of acme-price-sheet (20 instances wait on it).
 Wrote _captures/docs3/generating/families/instances/verify-report.json.
 exit 0
 ```
@@ -891,6 +896,8 @@ Five fictional conversations, written to a private folder outside the repository
 The folder is created for the owner alone and holds `conversations.jsonl` (redacted, with intents), `reference-turns.jsonl` (user turns with their intent cell, the input of `fidelity`), `spot-check.yaml` (a seeded sample, `--spot-check`, default 20, with `clean: null` for a person to set) and `intake-report.json`. No raw text and no detected value is in any file or in the printed report. `intake logs` exits 0 when the set is written, 1 when the model check failed on a conversation, 2 on a usage or input error.
 
 ### From an interview
+
+Every field of the questionnaire is in the [interview reference](reference/interview.md).
 
 When no past conversation exists, `intake interview` writes a questionnaire from the approved map: personas with their shares and map values (`personas`), the share of each intent (`intents`), example messages per stage (`examples`), what users never do (`never`), tone (`tone`, and `tone` per persona), languages (`languages`) and channels (`channels`).
 
