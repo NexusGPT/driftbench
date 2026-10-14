@@ -24,3 +24,4 @@ Projection after row 4: facets 0.0008 USD each, 1,000 about 0.8 USD.
 | 6 | 2026-10-15 | H14 blocks tiny sample: 2 blocks x 1 run; not used as data | claude-haiku-5-5, gpt-5.4-nano | 16 + 13 | haiku 54 in, 393,746 cache read, 57,614 cache write / 1,731 out; nano 7,150 / 377 | 0.01391 | 0.19475 |
 
 Projection after row 6: U = 17 uncovered clusters, so M = 17 blocks per arm, 102 runs at about 0.007 USD, about 0.7 USD.
+| 7 | 2026-10-15 | H11 full run: 20 blocks x 2 families x 8 trials (320 conversations) | claude-haiku-5-5, gpt-5.4-nano, gemini-3.5-flash-lite | 3,048 + 1,153 + 980 | haiku 9,722 in, 79,048,121 cache read, 7,434,991 cache write / 333,512 out; nano 747,844 (+12,544 cached) / 33,121; gemini 516,576 / 18,140 | 2.27913 | 2.47388 |

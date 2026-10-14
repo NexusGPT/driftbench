@@ -19,7 +19,8 @@ done = set()
 if os.path.exists(path):
     for line in open(path):
         r = json.loads(line)
-        done.add((r["convo_id"], r["family"], r["trial"]))
+        if "error" not in r:
+            done.add((r["convo_id"], r["family"], r["trial"]))
 jobs = [(b, f, t) for t in range(trials) for b in blocks for f in "OG" if (b["convo_id"], f, t) not in done]
 
 
