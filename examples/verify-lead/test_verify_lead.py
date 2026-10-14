@@ -152,3 +152,63 @@ def test_v5_rejects_when_a_majority_agrees_on_another_answer():
 
 def test_verdict_json_survives_braces_in_prose():
     assert contestants.read_pass('stack `{`, `{` open. {"pass": false, "reason": "x { y"}') is False
+
+
+# ---------------------------------------------------------------- API transport (api_run.py)
+
+class _Usage:
+    def __init__(self, inp, out):
+        self.input_tokens, self.output_tokens = inp, out
+        self.cache_read_input_tokens = self.cache_creation_input_tokens = 0
+
+
+class _Block:
+    def __init__(self, kind, text=''):
+        self.type, self.text = kind, text
+
+
+class _Message:
+    def __init__(self, blocks, stop, usage):
+        self.content, self.stop_reason, self.usage, self.model = blocks, stop, usage, 'claude-haiku-5-5'
+
+
+def _api_with(reply):
+    import api_run
+
+    class Messages:
+        def create(self, **kwargs):
+            if isinstance(reply, Exception):
+                raise reply
+            return reply
+
+    class Client:
+        messages = Messages()
+    api_run._client = Client()
+    return api_run
+
+
+def test_api_cost_uses_the_short_prompt_rate_and_the_long_prompt_rate():
+    import api_run
+    assert abs(api_run.cost_usd(_Usage(1000, 200)) - (1000 * 0.10 + 200 * 0.50) / 1e6) < 1e-12
+    assert abs(api_run.cost_usd(_Usage(200_000, 10)) - (200_000 * 0.50 + 10 * 2.50) / 1e6) < 1e-12
+
+
+def test_api_answer_joins_text_blocks_and_skips_thinking():
+    api = _api_with(_Message([_Block('thinking'), _Block('text', 'a'), _Block('text', 'b')], 'end_turn', _Usage(10, 5)))
+    out = api.api_run_claude(None, 'S', 'U')
+    assert out['answered'] is True and out['text'] == 'ab' and out['transport'] == 'api'
+
+
+def test_api_reply_without_text_stays_missing():
+    api = _api_with(_Message([_Block('thinking')], 'max_tokens', _Usage(10, 16000)))
+    out = api.api_run_claude(None, 'S', 'U')
+    assert out['answered'] is False and out['connection'] is False and out['measuredCostUsd'] > 0
+
+
+def test_api_rejected_request_costs_nothing_and_is_not_a_connection_failure():
+    import anthropic
+    import httpx2
+    request = httpx2.Request('POST', 'https://api.anthropic.com/v1/messages')
+    error = anthropic.BadRequestError('bad', response=httpx2.Response(400, request=request), body=None)
+    out = _api_with(error).api_run_claude(None, 'S', 'U')
+    assert out['answered'] is False and out['connection'] is False and out['measuredCostUsd'] == 0.0
