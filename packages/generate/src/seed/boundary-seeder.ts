@@ -5,6 +5,7 @@ import { NONE } from '@agent-nexus/driftbench-space';
 import type { PathRelation } from '../extract/proposal';
 import { choosePhrase, draftCriterion, type Pick, type SpecDraft } from './assemble';
 import { TOOL_FAILURE } from './deviation';
+import { draftOutput } from './draft-output';
 import { type PreparedMap, partitionOf, valueId } from './map';
 import { type Rng, rngFor, streamSeed } from './random';
 import { slotsOf } from './relations';
@@ -34,7 +35,8 @@ export function boundarySeeder(
   prepared: PreparedMap,
   context: SeedContext,
 ): { drafts: SpecDraft[]; summary: BoundarySummary } {
-  const drafts: SpecDraft[] = [];
+  const output = draftOutput(context);
+  const drafts = output.drafts;
   const unsupported: string[] = [];
   let toolValues = 0;
   // A tool a path names as its end-state source changes the world: the map calls it on a move of a flow,
@@ -47,19 +49,19 @@ export function boundarySeeder(
   prepared.space.dimensions.forEach((dimension, index) => {
     if (dimension.kind !== 'data' || prepared.axes.has(index)) return;
     dimension.values.forEach((value, position) => {
-      if (value.id === NONE || drafts.length >= context.max) return;
-      const id = `gen-boundary-${pad(drafts.length + 1)}`;
+      if (value.id === NONE || output.count >= context.max) return;
+      const id = `gen-boundary-${pad(output.count + 1)}`;
       const rng = rngFor(context.seed, id);
       const target: Pick = [index, position];
       const found = prepared.toolDimensions.get(index);
       if (hasPaths(prepared) && !found) {
         const built = boundaryScenario(prepared, context, id, dimension.id, value.id, target);
         if ('draft' in built) {
-          drafts.push(built.draft);
+          output.push(built.draft);
           return;
         }
         const old = oldBoundary(prepared, context, id, rng, index, position, value.title);
-        drafts.push(withReasons(old, built.reasons));
+        output.push(withReasons(old, built.reasons));
         return;
       }
       const partition = partitionOf(dimension.id, value.id);
@@ -76,7 +78,7 @@ export function boundarySeeder(
           if (shown.kind === 'value') built.draft.concrete = { [value.id]: shown.value };
           else if (shown.kind === 'absent') built.draft.concrete = { [value.id]: '(absent)' };
           toolValues += 1;
-          drafts.push(built.draft);
+          output.push(built.draft);
           return;
         }
       }
@@ -88,7 +90,7 @@ export function boundarySeeder(
           const shown = concreteValue(found.schema, partition);
           if (shown.kind === 'value') built.draft.concrete = { [value.id]: shown.value };
           toolValues += 1;
-          drafts.push(built.draft);
+          output.push(built.draft);
           return;
         }
       }
@@ -173,7 +175,7 @@ export function boundarySeeder(
         );
         if ('draft' in built) {
           if (Object.keys(concrete).length > 0) built.draft.concrete = concrete;
-          drafts.push(built.draft);
+          output.push(built.draft);
           return;
         }
       }
@@ -194,7 +196,7 @@ export function boundarySeeder(
         );
         if ('draft' in built) {
           if (Object.keys(concrete).length > 0) built.draft.concrete = concrete;
-          drafts.push(built.draft);
+          output.push(built.draft);
           return;
         }
       }
@@ -220,7 +222,7 @@ export function boundarySeeder(
         criteria,
         ...(Object.keys(concrete).length > 0 ? { concrete } : {}),
       };
-      drafts.push(
+      output.push(
         forbidsOnly
           ? withReasons(draft, [
               `${value.id}: the block only forbids tool calls, which a reply that does nothing passes`,
@@ -229,7 +231,7 @@ export function boundarySeeder(
       );
     });
   });
-  return { drafts, summary: { values: drafts.length, tools: toolValues, unsupported } };
+  return { drafts, summary: { values: output.count, tools: toolValues, unsupported } };
 }
 
 /**
