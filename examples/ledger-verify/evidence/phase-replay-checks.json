@@ -1,0 +1,181 @@
+{
+  "at": "2026-10-13T15:21:24.859867+00:00",
+  "phases": [
+    {
+      "model": "haiku",
+      "phase": "pilot",
+      "items": 20,
+      "newCalls": 0,
+      "identicalDecisions": true,
+      "changed": [],
+      "originalSha256": "b53d9f0592716461b29b150396afa0c614f2ffeda15279465deb14dafb1422e1",
+      "replaySha256": "44a0730aef91cad3f8c2baada90706a2401f835208c23b62aaeeb11863d359e3",
+      "verification": "Revalidated prior exact replay against unchanged original decisions"
+    },
+    {
+      "model": "haiku",
+      "phase": "validity",
+      "items": 48,
+      "newCalls": 0,
+      "identicalDecisions": true,
+      "changed": [],
+      "originalSha256": "0da02048dfcce121e3c03ca9cb3a1e2826b727fbc1440b659b51f7c1755e9d1b",
+      "replaySha256": "3d5751d39512a749c30523f25e5c8f81e0f0a6c8465bb5390f1e30315012174c",
+      "verification": "Revalidated prior exact replay against unchanged original decisions"
+    },
+    {
+      "model": "haiku",
+      "phase": "noise-0",
+      "items": 30,
+      "newCalls": 0,
+      "identicalDecisions": true,
+      "changed": [],
+      "originalSha256": "b734e03c529f6bf621b049258d6dd5d0f05a4eb8e9f9b2fc49759b78ee08354a",
+      "replaySha256": "df63621774cc160d3cfd6b7b519664366aea7e970b76835f7f45584c8fafe8e4",
+      "verification": "Revalidated prior exact replay against unchanged original decisions"
+    },
+    {
+      "model": "haiku",
+      "phase": "noise-1",
+      "items": 30,
+      "newCalls": 0,
+      "identicalDecisions": true,
+      "changed": [],
+      "originalSha256": "58259327191057dec3b886928f7113d9df5eb2e097848123f27f62a4d87a1c9e",
+      "replaySha256": "a98b0e0db5b45d9ac1e5f00db4c47bf0623c35718a6a7051b9ab46bd7e533b14",
+      "verification": "Revalidated prior exact replay against unchanged original decisions"
+    },
+    {
+      "model": "haiku",
+      "phase": "noise-2",
+      "items": 30,
+      "newCalls": 0,
+      "identicalDecisions": true,
+      "changed": [],
+      "originalSha256": "32bf60fceb5c6e823f1287e18650fb967dc3a198d7b0b98a58f217a428e90033",
+      "replaySha256": "f2eb69f635e31e03e81bfb452332212fd2b36c66806ed2077beab973c4e470d6",
+      "verification": "Revalidated prior exact replay against unchanged original decisions"
+    },
+    {
+      "model": "haiku",
+      "phase": "results",
+      "items": 221,
+      "newCalls": 0,
+      "identicalDecisions": true,
+      "changed": [],
+      "originalSha256": "88f983b266d4fdbb34bc97b4f9d5f2bf7a27107dd76eb740cea115f7c99d00f2",
+      "replaySha256": "5f14fc54bdf8a6eb2c80b0452ff5c804688b136b6f1c279a57f38b1a5990371f",
+      "verification": "Fresh per-item recorded-chain reconstruction"
+    },
+    {
+      "model": "gpt-6-luna",
+      "phase": "pilot",
+      "items": 20,
+      "newCalls": 0,
+      "identicalDecisions": true,
+      "changed": [],
+      "originalSha256": "68a95a95d282242ef038e973be3ebf75f2b9c1fb5b819893ad2fb404e87e531e",
+      "replaySha256": "94dcaeb23291fbb7fe7273573a6a30e67dbc405ea35924ce100a7c68f6a7a7b2",
+      "verification": "Revalidated prior exact replay against unchanged original decisions"
+    },
+    {
+      "model": "gpt-6-luna",
+      "phase": "validity",
+      "items": 48,
+      "newCalls": 0,
+      "identicalDecisions": true,
+      "changed": [],
+      "originalSha256": "9afee94de93034c99a4fead14240a553a204db699f7bffb27bc945b756088d05",
+      "replaySha256": "2a055c673b4952e5d2e9400eb78af930ce82d55e706d1200845943b0cc8cf8ab",
+      "verification": "Revalidated prior exact replay against unchanged original decisions"
+    },
+    {
+      "model": "gpt-6-luna",
+      "phase": "noise-0",
+      "items": 30,
+      "newCalls": 0,
+      "identicalDecisions": true,
+      "changed": [],
+      "originalSha256": "fc6c149582a2bcd4d8a8c6d493dd0e1dbe45053f90ddd5ec46f62f4536d3e4b5",
+      "replaySha256": "a62cdc3e07474537a030a2cc6109a348e50e8a982c87b93bcb0c8b77ce389be8",
+      "verification": "Revalidated prior exact replay against unchanged original decisions"
+    },
+    {
+      "model": "gpt-6-luna",
+      "phase": "noise-1",
+      "items": 30,
+      "newCalls": 0,
+      "identicalDecisions": true,
+      "changed": [],
+      "originalSha256": "fd4db9a1016ef2daa23f65238e06b6618dfa24d06291c5700405f9dd34b88b74",
+      "replaySha256": "e07a4901756418b5bd49c07a53e4fcad571bf27d71ad76a5110718aae0bf0011",
+      "verification": "Revalidated prior exact replay against unchanged original decisions"
+    },
+    {
+      "model": "gpt-6-luna",
+      "phase": "noise-2",
+      "items": 30,
+      "newCalls": 0,
+      "identicalDecisions": true,
+      "changed": [],
+      "originalSha256": "f757230bd70ded2e7326e91e6aa4c089cf6e232a038ccb4815487edf9b96a4e2",
+      "replaySha256": "ad9bc45b121004470908e81f914c684c69dbdde02cc2609c2796eaf8044cd374",
+      "verification": "Revalidated prior exact replay against unchanged original decisions"
+    },
+    {
+      "model": "gpt-6-luna",
+      "phase": "results",
+      "items": 221,
+      "newCalls": 0,
+      "identicalDecisions": true,
+      "changed": [],
+      "originalSha256": "13d3510ddb261d71758bca9cb14236159d25aca4522e5a17b180941facde4e20",
+      "replaySha256": "e72900936d64917426b6552a5a30caa60c6dae7826a5339fca7887274d415741",
+      "verification": "Revalidated prior exact replay against unchanged original decisions"
+    },
+    {
+      "model": "gemini-3.8-flash",
+      "phase": "pilot",
+      "items": 20,
+      "newCalls": 0,
+      "identicalDecisions": true,
+      "changed": [],
+      "originalSha256": "d6608a43050612b668d3ad409650a25d32e7619b7785b9220708c29bf2d31fa0",
+      "replaySha256": "94cc9161e1c6e75db668930dbe7bf13885c0b670a7984e389274203955bdbc9d",
+      "verification": "Revalidated prior exact replay against unchanged original decisions"
+    },
+    {
+      "model": "gemini-3.8-flash",
+      "phase": "validity",
+      "items": 48,
+      "newCalls": 0,
+      "identicalDecisions": true,
+      "changed": [],
+      "originalSha256": "4dfae08bb8ba287b572498d835ebd0e0741e60d174083be3ba3505e5cacb6d91",
+      "replaySha256": "cc7452a4daeddd06fec31539e80189a1b7107f23b48e7fe493f456aaf74c036f",
+      "verification": "Revalidated prior exact replay against unchanged original decisions"
+    },
+    {
+      "model": "gemini-3.8-flash",
+      "phase": "noise-0",
+      "items": 30,
+      "newCalls": 0,
+      "identicalDecisions": true,
+      "changed": [],
+      "originalSha256": "8ffd3331f98a8066f59e6c1b7d15a45fe91ea55a50b3e7e7e81f94bfaa3d94df",
+      "replaySha256": "b1983c1d5e6eb2d41117e63105bde8c47ce231c5caaa85936ebf2c805f6f81c6",
+      "verification": "Revalidated prior exact replay against unchanged original decisions"
+    },
+    {
+      "model": "gemini-3.8-flash",
+      "phase": "noise-1",
+      "items": 30,
+      "newCalls": 0,
+      "identicalDecisions": true,
+      "changed": [],
+      "originalSha256": "138713148578e486f82bada3b2389bcb3836378075e772ecacaf97e44eb2039f",
+      "replaySha256": "79e77bb2a144461b8fb9fb4077b5481c0f32dfce1bf2f045ddb682e1fe5c9081",
+      "verification": "Revalidated prior exact replay against unchanged original decisions"
+    }
+  ]
+}
