@@ -1,0 +1,64 @@
+{
+  "split": "confirm",
+  "candidate": "driftbench",
+  "pairs": 1061,
+  "candidateCorrect": 890,
+  "candidateMissing": 0,
+  "tools": [
+    {
+      "tool": "promptfoo",
+      "grader": "select-best (promptfoo 8014282)",
+      "correct": 821,
+      "missing": 0,
+      "wins": 108,
+      "losses": 39,
+      "exactTwoSidedP": 1.1047851223224085e-8,
+      "holmP": 2.209570244644817e-8,
+      "verdict": "win"
+    },
+    {
+      "tool": "deepeval",
+      "grader": "ArenaGEval (DeepEval 4.2.8)",
+      "correct": 838,
+      "missing": 1,
+      "wins": 90,
+      "losses": 38,
+      "exactTwoSidedP": 4.922847559437514e-6,
+      "holmP": 4.922847559437514e-6,
+      "verdict": "win"
+    },
+    {
+      "tool": "inspect",
+      "grader": "model_graded_qa (inspect_ai 0.3.278), pointwise grader, higher score wins",
+      "correct": 774,
+      "missing": 1,
+      "wins": 151,
+      "losses": 35,
+      "exactTwoSidedP": 2.2717737089011182e-18,
+      "holmP": 9.087094835604473e-18,
+      "verdict": "win"
+    },
+    {
+      "tool": "langfuse",
+      "grader": "Answer Critic (Langfuse 64ba74f9), pointwise grader, higher score wins",
+      "correct": 744,
+      "missing": 0,
+      "wins": 178,
+      "losses": 32,
+      "exactTwoSidedP": 9.530026403347768e-26,
+      "holmP": 4.765013201673884e-25,
+      "verdict": "win"
+    },
+    {
+      "tool": "langwatch",
+      "grader": "Comparison, swap and reconcile (LangWatch e683dd9e)",
+      "correct": 818,
+      "missing": 1,
+      "wins": 113,
+      "losses": 41,
+      "exactTwoSidedP": 5.607104085256949e-9,
+      "holmP": 1.682131225577085e-8,
+      "verdict": "win"
+    }
+  ]
+}
