@@ -4,7 +4,7 @@ import { generateFrom } from '../../../validators/src/ladders/generator/measure'
 import { renderMap } from '../../../validators/src/ladders/generator/render';
 import { generateSuite } from '../../src/enumerate/generate';
 
-const escape = (text: string) => text.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+const escapeText = (text: string) => text.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 
 describe('a probe whose recovery stays on the pending stage', () => {
   it('is held to what the reply that reached the stage must never hold, such as narrated steps', async () => {
@@ -13,7 +13,7 @@ describe('a probe whose recovery stays on the pending stage', () => {
     const source = await generateFrom(hidden, renderMap(hidden), seed, {}, { once: true });
     if (!source.prepared) throw new Error('the fictional map failed to load');
     const suite = generateSuite(source.prepared, { mapPath: '../map.yaml', t: 2, seed });
-    const questions = new Map(hidden.stages.map((stage) => [stage.id, escape(stage.question)]));
+    const questions = new Map(hidden.stages.map((stage) => [stage.id, escapeText(stage.question)]));
     const missing: string[] = [];
     let probes = 0;
     for (const spec of suite.complete) {
