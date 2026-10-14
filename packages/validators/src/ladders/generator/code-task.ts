@@ -18,14 +18,17 @@ export function codeTask(spec: HiddenSpec) {
   // The checks every block of the task holds whatever the oracle answers, read from the prompt's reply
   // requirements: English, the stage reported, no tool called, no fact of an uncalled tool, no narrated
   // steps; the opening turn asks the question of the stage it reaches.
-  const escape = (text: string) => text.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  const escapePattern = (text: string) => text.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
   const fixed = () => ({
     lang: 'EN',
     stage_reported: true,
     tools: spec.tools.map((tool) => ({ label: tool.name, count: 0 })),
-    must_not: ['Step [0-9]+:', ...spec.tools.map((tool) => `${escape(tool.name.replace(/_/g, ' '))} says `)],
+    must_not: [
+      'Step [0-9]+:',
+      ...spec.tools.map((tool) => `${escapePattern(tool.name.replace(/_/g, ' '))} says `),
+    ],
   });
-  const question = escape(spec.stages.find((stage) => stage.id === spec.goal)?.question ?? '');
+  const question = escapePattern(spec.stages.find((stage) => stage.id === spec.goal)?.question ?? '');
   const quote = `The ${flow.id} flow also offers a code task: open the request, then save the record from input.json as ${spec.saveFile}, state its path, and leave every other file untouched.`;
   const family = {
     version: 1,
