@@ -44,6 +44,8 @@
 "impact-radius","the reply language rule: blocks sent of 861, percent saved","[861,0]","docs/concepts/blast-radius.md"
 "impact-radius","a tool no block names: blocks sent of 861, percent saved","[861,0]","docs/concepts/blast-radius.md"
 "impact-radius","scored faults, faults with no red block outside the radius","[13,13]","docs/concepts/blast-radius.md"
+"impact-radius","recap change, mode F: blocks sent, blocks in the full run, percent saved, cells carried, failing cells of the full run","[606,867,30.1,93,102]","docs/concepts/blast-radius.md"
+"impact-radius","coverage check input change, mode T: blocks sent, blocks in the full run, percent saved, blocks sent without snapshots","[86,867,90.1,376]","docs/concepts/blast-radius.md"
 "impact-moj","sealed MM-Eval, items sent to the panel, score of the first judge, score after the panel, wins, losses","[48,51.04,85.42,36,2]","docs/assets/data/mm-eval-sealed-test.json"
 "impact-moj","sealed JudgeBench, strict both-order rule: pairs, MoJ percent, promptfoo percent, MoJ reasoning calls per 100 pairs, promptfoo calls, ratio","[100,85,84,57,200,3.5]","research/moj/results/sealed/report.json"
 "impact-moj","sealed MM-Eval: pairs, MoJ percent, promptfoo percent, MoJ reasoning calls per 100 pairs, promptfoo calls, ratio","[294,94.9,94.7,21,200,9.5]","research/moj/results/sealed/report.json"
