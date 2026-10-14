@@ -1,0 +1,25 @@
+{
+ "commit": "1e80d19172bf857aa4de45af6d958e9afa65f474",
+ "driftbench": "driftbench-v5",
+ "peers": [
+  "promptfoo",
+  "deepeval",
+  "inspect",
+  "langfuse",
+  "langwatch"
+ ],
+ "model": "claude-haiku-5-5",
+ "split": "confirm",
+ "n": 544,
+ "analysis": "item unit; missing counts wrong; exact two-sided binomial on discordant items per peer; Holm over the five peers; alpha 0.05",
+ "hashes": {
+  "examples/verify-lead/contestants.py": "835a8331427a93c723f1e01ff6776306d0fc026a9313811e815ba47f898500f9",
+  "examples/verify-lead/run.py": "76a5449ca22a847ff568418bde73b3819c4ee885d89f8efa8edbe06b1dc20d24",
+  "examples/verify-lead/pool.py": "233ff1e4f9f17c447924ceaa119bf8959797c34cc87a2c55496408d093205964",
+  "examples/verify-lead/lead_stats.py": "10ae8324204471cec3e991190f433f83a0752175d8e62a5b941089ebe53b5fe9",
+  "examples/all-peers-public/peers.py": "6aff93e6e19a3a70c9eb01af62cc1fb87238fecdfc8125bcac2ceaa7af02409d",
+  "examples/all-peers-public/transport.py": "061b99ae8a1ca28c8c00c6bf3f2146c1ec9709f0f66406b5773d7275f1b5a34a",
+  "examples/all-peers-public/vendor/langfuse-managed-evaluators.json": "e29de21e300c872bdc2d451dce4097572b378f5ce7d322f48b3f140eb4e7e13d",
+  "examples/verify-lead/data/manifest.json": "a52f37ee482dac7109b2e2baf47481b06399ed6249ec2853518ea0855ccdc25e"
+ }
+}
