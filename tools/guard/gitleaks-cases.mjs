@@ -35,6 +35,28 @@ for (const name of ['api/key', 'api_key', 'api:key', 'api@key', 'foo/probeCallKe
   mixed.push([`${name} after a real key on one line`, `${RB}mixed/${m++}.jsonl`, `{${real},"${name}":"${bad}"}`, true, bad]);
   mixed.push([`${name} before a real key on one line`, `${RB}mixed/${m++}.jsonl`, `{"${name}":"${bad}",${real}}`, true, bad]);
 }
+// High-entropy hex: shuffled full cycles of the 16 digits, so gitleaks' entropy threshold never hides the fixture.
+const spread = (n) => {
+  let out = '';
+  while (out.length < n) out += [...'0123456789abcdef'].sort(() => randomBytes(1)[0] - 128).join('');
+  return out.slice(0, n);
+};
+// A key padded from a short secret has low entropy and is not reported, so only the short real secret is. The
+// generator must not fingerprint that line in any folder.
+for (const [folder, dir, ext, field] of [['ledger-rb', RB + 'padded/', 'jsonl', 'key'], ['ledger-verify', LV + 'padded/', 'jsonl', 'key'],
+  ['all-peers', AP, 'jsonl', 'attempt_key']]) {
+  for (const size of [16, 20, 24, 32]) {
+    for (const [form, text] of [
+      ['api/key', (k, s) => `{"${field}":"${k}","api/key":"${s}"}`],
+      ['api_key', (k, s) => `{"api_key":"${s}","${field}":"${k}"}`],
+      ['password =', (k, s) => `{"${field}":"${k}","text":"password = ${s}"}`],
+    ]) {
+      const secret = spread(size);
+      const file = folder === 'all-peers' ? `${AP}part-${String(3000 + m++).padStart(4, '0')}.jsonl` : `${dir}${m++}.${ext}`;
+      mixed.push([`${folder}: ${form} ${size}-hex secret beside a key padded from it`, file, text(secret.padEnd(64, 'a'), secret), true, secret]);
+    }
+  }
+}
 for (const [kind, make] of Object.entries(tokens)) {
   const bad = make();
   const real = `"key":"${hex(64)}"`;
@@ -84,6 +106,11 @@ try {
   process.chdir(repo);
   const { allowed, refused } = decide(scan(gitleaks, ['HEAD']));
   writeFileSync('.gitleaksignore', writeBlock('', allowed));
+  // A rebuild over the written block must list the same lines: the existing block must not hide findings from it.
+  const rebuilt = decide(scan(gitleaks, ['HEAD']));
+  const stable = JSON.stringify(rebuilt.allowed) === JSON.stringify(allowed) && allowed.length > 0;
+  if (!stable) failed++;
+  console.log(`${stable ? 'PASS' : 'FAIL'}  rebuild   same ${allowed.length} fingerprints with the block in place (got ${rebuilt.allowed.length})`);
   // Unredacted so each bad value can be matched; the report stays in the scratch repo and is deleted.
   const report = join(repo, 'report.json');
   execFileSync(gitleaks, ['git', '--no-banner', '--exit-code', '0', '--config', '.gitleaks.toml',

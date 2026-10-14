@@ -2,9 +2,9 @@
 // Rebuilds the generated block of .gitleaksignore: exact commit:file:rule:line fingerprints for recording content
 // hashes that sit inside longer JSONL lines, where the whole-line exceptions in .gitleaks.toml cannot reach.
 //
-// A line is listed only when every generic-api-key finding on it, in that commit, is the bare hex value of a field
-// that starts the object or follows a comma ({"key":"..." or ,"key":"...") and whose name is allowed for that
-// folder. Any other generic-api-key finding on the line, such as a field named "api/key" or a password in recorded
+// A line is listed only when every generic-api-key finding on it, in that commit, sits exactly on a field that starts
+// the object or follows a comma ({"key":"..." or ,"key":"..."), whose name is allowed for that folder, and whose
+// whole hex value is the reported secret. Any other generic-api-key finding on the line, such as a field named "api/key" or a password in recorded
 // text, leaves the line out and is printed; the script then exits 1. A fingerprint names one rule, so a finding of
 // another rule on the same line (a GitHub, OpenAI or AWS token) stays reported. Secret values are never printed.
 //
@@ -13,7 +13,7 @@
 import { execFileSync } from 'node:child_process';
 import { mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
-import { join } from 'node:path';
+import { join, resolve } from 'node:path';
 
 export const FOLDERS = [
   { path: /^examples\/all-peers-public\/cells\/calls-parts\/part-\d{4}\.jsonl$/, fields: ['key', 'attempt_key'], min: 16 },
@@ -24,24 +24,26 @@ export const PATHSPECS = ['examples/all-peers-public/cells/calls-parts', 'exampl
 export const BEGIN = '# BEGIN generated recording-hash fingerprints: tools/guard/gitleaks-recording-fingerprints.mjs';
 export const END = '# END generated recording-hash fingerprints';
 
-// Values of allowed hash fields on one line, each counted once per occurrence.
-export function allowedValues(line, folder) {
+// Allowed hash fields on one line: where each field name starts, where the field ends, and its whole hex value.
+export function allowedFields(line, folder) {
   const names = folder.fields.join('|');
-  const re = new RegExp(`(?:^|[{,])\\s*"(?:${names})"\\s*:\\s*"([0-9a-f]{${folder.min},64})"`, 'g');
-  const counts = new Map();
-  for (const match of line.matchAll(re)) counts.set(match[1], (counts.get(match[1]) ?? 0) + 1);
-  return counts;
+  const re = new RegExp(`(?:^|[{,])\\s*"(${names})"\\s*:\\s*"([0-9a-f]{${folder.min},64})"`, 'dg');
+  return [...line.matchAll(re)].map((match) => ({ start: match.indices[1][0], end: match.index + match[0].length, value: match[2] }));
 }
 
-// Decides one line: every finding must consume one allowed occurrence whose value it equals or begins (gitleaks
-// 8.30 can report a prefix of a long hash as the secret).
+// Decides one line. Each finding must sit exactly on one allowed field: its match text begins where the field name
+// begins and ends inside that field, and its secret is the field's whole hex value. A shorter value, or the same
+// text found anywhere else on the line (inside "api/key", a password, recorded prose), refuses the line.
 export function lineAllowed(line, folder, findings) {
-  const available = allowedValues(line, folder);
+  const fields = allowedFields(line, folder);
+  const used = new Set();
   for (const finding of findings) {
-    if (finding.RuleID !== 'generic-api-key' || !/^[0-9a-f]{8,64}$/.test(finding.Secret ?? '')) return false;
-    const value = [...available.keys()].find((v) => available.get(v) > 0 && v.startsWith(finding.Secret));
-    if (!value) return false;
-    available.set(value, available.get(value) - 1);
+    const { RuleID, Match, Secret } = finding;
+    if (RuleID !== 'generic-api-key' || !Match || !Secret || !Match.includes(Secret)) return false;
+    const field = fields.find((f, i) => !used.has(i) && f.value === Secret && f.start + Match.length <= f.end
+      && line.startsWith(Match, f.start));
+    if (!field) return false;
+    used.add(fields.indexOf(field));
   }
   return true;
 }
@@ -70,10 +72,16 @@ export function scan(gitleaks, revs) {
   const dir = mkdtempSync(join(tmpdir(), 'gitleaks-fp-'));
   try {
     const report = join(dir, 'report.json');
-    // The empty folder as ignore path makes every finding visible; the report stays in the temp folder.
-    execFileSync(gitleaks, ['git', '--no-banner', '--exit-code', '0', '--config', '.gitleaks.toml',
+    // gitleaks also applies the .gitleaksignore at the root of the scanned source, whatever --gitleaks-ignore-path
+    // says, so a rebuild would see only what the current block does not already hide. Scanning the git directory
+    // (which holds no .gitleaksignore) with revs resolved to commits makes every finding visible. The report,
+    // which holds secret values, stays in the temp folder.
+    const git = (...args) => execFileSync('git', args).toString().trim();
+    const gitDir = git('rev-parse', '--path-format=absolute', '--git-common-dir');
+    const commits = revs.map((rev) => git('rev-parse', '--verify', `${rev}^{commit}`));
+    execFileSync(gitleaks, ['git', '--no-banner', '--exit-code', '0', '--config', resolve('.gitleaks.toml'),
       '--gitleaks-ignore-path', dir, '--report-format', 'json', '--report-path', report,
-      '--log-opts', [...revs, '--', ...PATHSPECS].join(' ')], { stdio: ['ignore', 'ignore', 'inherit'] });
+      '--log-opts', [...commits, '--', ...PATHSPECS].join(' '), gitDir], { cwd: dir, stdio: ['ignore', 'ignore', 'inherit'] });
     return JSON.parse(readFileSync(report, 'utf8'));
   } finally {
     rmSync(dir, { recursive: true, force: true });
