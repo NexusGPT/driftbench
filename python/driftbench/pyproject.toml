@@ -7,7 +7,7 @@ name = "drift-bench"
 version = "0.1.0"
 description = "Run driftbench specs from Python and pytest: typed results, a pytest plugin, Python function agents."
 readme = "README.md"
-license = "Apache-2.0"
+license = "MIT"
 requires-python = ">=3.11"
 dependencies = []
 keywords = ["driftbench", "ai-agents", "evaluation", "llm", "testing", "pytest"]
