@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'vitest';
+import { parseDocument, stringify } from 'yaml';
 import { hiddenSpec } from '../../../validators/src/ladders/generator/hidden';
 import { generateFrom } from '../../../validators/src/ladders/generator/measure';
 import { renderMap } from '../../../validators/src/ladders/generator/render';
@@ -50,5 +51,55 @@ describe('phrases no other spec says', () => {
     const placed = suite.complete.filter((spec) => spec.id.startsWith('gen-phrase-'));
     expect(placed.length).toBeGreaterThan(0);
     expect(userTurns(placed).has('Hi, do you have home internet at 3 Orchard Way, Acmeville?')).toBe(false);
+  }, 300_000);
+});
+
+describe('the returned fields a tool-value phrase reports', () => {
+  it('are read only from the states relations that hold in the cell, as a move reads them', async () => {
+    // Seed 1 with every reply relation that reports a tool's field repeated once per channel, held on that
+    // channel only (`when: { channel }`) and marked with the channel's name.
+    const seed = 1;
+    const hidden = hiddenSpec(seed);
+    const rendered = renderMap(hidden);
+    const map = parseDocument(rendered.map).toJS() as { relations: Array<Record<string, unknown>> };
+    const reporting = map.relations.filter(
+      (relation) =>
+        relation.kind === 'states' &&
+        ((relation.must as string[] | undefined) ?? []).some((p) => p.includes('{')),
+    );
+    reporting.forEach((relation, index) => {
+      for (const channel of hidden.channels) {
+        const must = ((relation.must as string[]) ?? [])
+          .filter((pattern) => pattern.includes('{'))
+          .map((pattern) => `ONLY_${channel}_${index} ${pattern}`);
+        const quote = `Only on channel ${channel}, rule ${index}: ${must.join(' and ')}.`;
+        map.relations.push({
+          ...relation,
+          when: { ...((relation.when as object | undefined) ?? {}), channel: [channel] },
+          must,
+          evidence: { source: './prompt.md', quote },
+          approved: true,
+        });
+        rendered.prompt += `\n${quote}\n`;
+      }
+    });
+    rendered.map = stringify(map);
+    const source = await generateFrom(hidden, rendered, seed, {}, { once: true });
+    if (!source.prepared) throw new Error(`the map failed to load: ${JSON.stringify(source.refused)}`);
+    const suite = generateSuite(source.prepared, { mapPath: '../map.yaml', t: 2, seed });
+    const reported = suite.complete.filter(
+      (spec) =>
+        spec.id.startsWith('gen-phrase-') &&
+        (spec.blocks.at(-1)?.expect?.tools ?? []).some((t) => t.count === 1),
+    );
+    expect(reported.length).toBeGreaterThan(0);
+    const foreign = reported.flatMap((spec) =>
+      (spec.blocks.at(-1)?.expect?.must ?? [])
+        .filter((pattern) =>
+          hidden.channels.some((c) => c !== spec.channel && pattern.startsWith(`ONLY_${c}_`)),
+        )
+        .map((pattern) => `${spec.id} (${spec.channel}): ${pattern}`),
+    );
+    expect(foreign).toEqual([]);
   }, 300_000);
 });

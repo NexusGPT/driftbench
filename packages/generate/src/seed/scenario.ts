@@ -302,8 +302,15 @@ export function buildScenario(prepared: PreparedMap, rng: Rng, request: Scenario
     if (request.turn && !request.turn.call && index === (request.turn.at ?? 1)) {
       freeBlock = request.turn.free ? blocks.length : undefined;
       const reports: string[] = [];
+      // The relations that hold here, as a move's Then reads them: the subject the cell holds, the `when`
+      // its values meet (a channel-only reply rule stays on its channel).
+      const context = contextOf(path.stages[index] as string);
       for (const entry of request.turn.report ? relations.states : []) {
-        if (entry.subject.dimension === 'flow' && entry.subject.value !== path.flow) continue;
+        const subject =
+          entry.subject.dimension === 'flow'
+            ? entry.subject.value === path.flow
+            : context[entry.subject.dimension] === entry.subject.value;
+        if (!subject || !matches(entry.when, context)) continue;
         for (const pattern of entry.must ?? []) {
           const out = slotsOf(pattern).some((slot) => {
             const source = boundBy.get(slot);
