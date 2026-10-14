@@ -9,7 +9,12 @@ USD from each call's usage fields and the published price: claude-haiku-5-5 0.10
 | m42-wire2 | gpt-6-luna | 19 | 4875 | 68 | 0.0005 | 0.0040 |
 | h6-pilot | claude-haiku-5-5 | 5 | 6833 | 1577 | 0.0015 | 0.0055 |
 | h6-judge-pilot | gpt-6-luna | 4 | 835 | 20 | 0.0001 | 0.0056 |
+| h6-full | claude-haiku-5-5 | 1239 | 1759225 | 296798 | 0.3243 | 0.3299 |
+| h8-filler | gpt-6-luna | 20 | 2700 | 25924 | 0.0132 | 0.3431 |
+| h8-pilot | claude-haiku-5-5 | 12 | 396249 | 716 | 0.0400 | 0.3831 |
 
 Unlogged: 3 probe calls to gpt-6-luna chat completions (reasoning_effort none, minimal, low; about 120 input tokens each), under 0.0001 USD.
 
 Projection after the H6 pilot (4 runs, 0.00037 USD per run): H6 900 runs about 0.33 USD; judge about 0.05 USD.
+
+Projection after the H8 pilot (2026-10-15, before the full H8 run): a 64K run costs 0.0064 USD with one model call (0.0128 USD for the address block, which calls coverage.check, so two calls); a 2K run 0.0002 USD. Per size, 5 blocks x 6 cells x 30 runs, with address doubled: 64K about 6.9 USD, 16K about 1.7, 4K about 0.45, 2K about 0.25. H8 total about 9.3 USD. Cumulative projection with H6 and its judge: about 9.8 USD, under the 27 USD stop line. No trim.
