@@ -12,7 +12,33 @@ import { generator, normal, salt } from './draw';
  * interval the pilot analysis gives for it.
  */
 
-export const SHARES_RECOVERY = 0.93;
+/**
+ * The bars of the share recovery, derived from the false failures of the correct analysis.
+ *
+ * Measured 2026-10-14 on main 4dc61151, seeds 1 to 400 (sharesLevel on the committed design, 8 datasets of 4
+ * shares each): a correct analysis misses 0.0006 (cell), 0.0334 (conversation), 0.0141 (wording) and 0.0031
+ * (repeat) of its shares. The misses of one seed are Poisson (mean 0.41, variance 0.418): 0, 1, 2 and 3 misses on
+ * 269, 100, 29 and 2 seeds. The earlier bars (at most 2 misses of 32, 0.93, and at most 2 of 8 at every level)
+ * failed 2 of the 400 seeds, and their tails put them at 1.0e-2 of the seeds; the hidden seed 305826193 of main
+ * 4dc61151 gave 3 misses (29 of 32, 0.90625), two of them within 0.003 of an interval end.
+ *
+ * Each bar is now the smallest count whose binomial tail at its measured rate is under about 1.5e-4 of the seeds:
+ * at most 4 misses of 32 (6.9e-5), and per level at most 1 (cell, 1.0e-5), 3 (conversation, 7.9e-5), 2 (wording,
+ * 1.5e-4) and 2 (repeat, 1.7e-6) of 8. Together about 3.1e-4 of the seeds; none of the 400 fails.
+ *
+ * Planted faults (seeds 1 to 40), caught at these bars and at the earlier ones: no residual subtracted from the
+ * levels above it, 40 and 40; the residual mean square over N instead of its degrees of freedom, 36 and 39; the
+ * cell and conversation shares swapped, 17 and 22. Not subtracting the nested lower levels is caught by neither.
+ */
+export const SHARES_RECOVERY = 0.875;
+
+/** At most this many of the 8 datasets may miss the planted share of each level. */
+export const SHARES_LEVEL_MISSES: Readonly<Record<(typeof SHARE_LEVELS)[number], number>> = {
+  cell: 1,
+  conversation: 3,
+  wording: 2,
+  repeat: 2,
+};
 
 /** The component a missed share points at. */
 export const SHARES_COMPONENT = 'packages/generate/src/pilot/analyse.ts';

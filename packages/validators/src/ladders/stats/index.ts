@@ -40,6 +40,7 @@ export {
   plantShares,
   SHARE_LEVELS,
   SHARES_COMPONENT,
+  SHARES_LEVEL_MISSES,
   SHARES_RECOVERY,
   type SharesDataset,
   sharesLevel,
