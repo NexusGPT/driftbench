@@ -4,7 +4,7 @@ All notable changes to driftbench are listed here. The format follows [Keep a Ch
 
 ## [Unreleased]
 
-* Add the product default policy: `createDefaultJudge`, `DEFAULT_JUDGE_POLICY`, `DefaultJudgeClient` and `DefaultJudgeOptions`. CLI runs, calibration and built-in pair comparisons use it without a benchmark switch. It normalizes rendered records before task routing, uses criterion prompt/decoder 2, and applies objective verification, relevance checks and pair ledgers when their input contracts fit.
+* Add the product default policy: `createDefaultJudge`, `DEFAULT_JUDGE_POLICY`, `DefaultJudgeClient` and `DefaultJudgeOptions`. CLI runs, calibration and built-in pair comparisons use it without a benchmark switch. It normalizes rendered records before task routing, uses criterion prompt 2 and decoder 3, and applies objective verification, relevance checks and pair ledgers while preserving the full caller criterion. Explicit decoder 2 keeps its historical behavior.
 * Add `DefaultJudgeRequest`, `ParsedRecord`, `normalizeJudgeRequest` and `parseRenderedRecord` for explicitly serialized records; structured transcript roles remain literal. Add `verifyAnswer`, `BETTER_PIECE_V1`, `explicitRequestRows` and `writingRequirementsV1`; the writing policy has no length preference. Export `CRITERION_PROMPT_V1_FINGERPRINT` and `SYSTEM_PROMPT_V1` for historical replay, plus `REASONING_TOKENS` for the reasoning allowance.
 * Default procedures retain complete cassette audits, per-request reasoning identity, retry charges and shared budget reservations. Explicit version-1 requests and caller-owned contracts remain available. Output token room follows the requested reasoning level; native command transports keep their own output limit.
 
