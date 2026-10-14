@@ -101,7 +101,7 @@
 - A request for missing-only recovery and host-outage confirmation is sent to the parent. No Flash Lite paid runner remains.
 - Exact ordinary replay of mutation fixtures exposes concurrent duplicate-key answers. Offline item-aware replay is under verification, preserving every answer and the original verdicts.
 - Haiku continues in TEST under automatic load fallback. Original offline reporter session 18577 remains active.
-- Current branch checkpoint 19167375 is pushed. Gemini 3.8 stays parked under a persistent owner-only guard.
+- Current branch checkpoint 19167375 is pushed. Gemini 3.8 was dropped by the owner; the persistent guard prevents restart.
 
 ## 2026-10-13T12:44:38.889306+00:00 Flash Lite recovery
 
@@ -110,7 +110,7 @@
 - DNS and unauthenticated HTTP probes pass before submission. Exact requests, receipts and attempt claims are retained.
 - Noise resumes from preserved answers, followed by the remaining repeats and sealed TEST. Source: lite/evidence/network-recovery-result.json and network-recovery-execution.json.
 
-- Recovery driver PID 16732, exec session 10043. Original finalizer PID 2795; Flash Lite finalizer exec session 52960. Haiku TEST continues. Gemini 3.8 stays owner-held.
+- Recovery driver PID 16732, exec session 10043. Original finalizer PID 2795; Flash Lite finalizer exec session 52960. Haiku TEST continues. Gemini 3.8 was dropped by the owner; no continuation is scheduled.
 
 ## 2026-10-13T12:53:26.576077+00:00 first-final preservation
 
@@ -139,7 +139,7 @@
 - Flash Lite all 379 units complete; six exact offline replays pass. Fees 8.6226905 USD plus 10.80 USD retained holds.
 - Haiku initial TEST continues. PID 65388 waits for initial TEST and offline report, then recovers only the three authorized timeouts once. Existing final verdicts stay unchanged.
 - Sonnet and gpt-6.1-sol are frozen as separate 25 USD cells, with five DEV calls and a cost projection before the full run. They cannot call until existing cells and Haiku recovery finish.
-- Gemini 3.8 remains owner-held.
+- Gemini 3.8 was dropped by the owner; no continuation is scheduled.
 
 ## 2026-10-13T14:07:26.800356+00:00 Haiku TEST recovery extension
 
@@ -152,7 +152,7 @@
 - All paid admissions pause until ten consecutive healthy provider probes spaced 30 seconds apart. Calls then run at concurrency two, one model cell at a time. Three consecutive connection failures trigger a ten-minute pause and a new gate.
 - Zero-token, no-output transport failures retry missing-only without an attempt limit. This supersedes the Haiku eight-timeout ceiling. Returned answers, original receipts and uncertain-charge holds remain.
 - Haiku initial TEST returns all 221 cascade verdicts; promptfoo has two transport-missing finals. Six empty native timeouts are eligible. Completed answers remain primary and only missing finals can change.
-- Sequence: finish Haiku recovery, then Sonnet, then Sol. A new model cost projection above 25 USD stops that cell before its full run. Gemini 3.8 remains parked with no timed restart.
+- Sequence: finish Haiku recovery, then Sonnet, then Sol. A new model cost projection above 25 USD stops that cell before its full run. Gemini 3.8 was dropped by the owner; no restart is authorized.
 - Provider probes have no credentials and make no generation request. Evidence: evidence/network-pause-20261013.json, network-probes.jsonl and network-admission.json.
 
 ## 2026-10-13T14:55:03.348307+00:00 network scheduling safeguards

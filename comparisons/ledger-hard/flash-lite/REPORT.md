@@ -2,7 +2,7 @@
 
 Generated 2026-10-13T12:52:46.172668+00:00. Sources: `flash-lite/seal.json`, `requests.json`, `attempts.jsonl`, both `calls.jsonl` journals and `scores.json`.
 
-Model `gemini-3.5-flash-lite`, reasoning `medium` for both contestants and both experiments. This is the same sealed cohort, 384 cases per row. Results never mix with Gemini 3.8.
+Model `gemini-3.5-flash-lite`, reasoning `medium` for both contestants and both experiments. This is the same sealed cohort, 384 cases per row. Results never mix with Gemini 3.8, which was dropped by the owner. Its recorded data remains archived, with no pending continuation.
 
 6560/6560 unique requests recorded. Model-cell measured spend USD 8.18203290, cap USD 9. Combined measured spend plus the USD 0.40 lost-attempt reserve is USD 17.57967320, cap USD 21.
 

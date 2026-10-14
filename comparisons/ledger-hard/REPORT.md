@@ -2,7 +2,7 @@
 
 Generated 2026-10-13T11:20:31.272301+00:00. All results below derive from `comparisons/ledger-hard/scores.json`, `decisions.json` and `calls.jsonl` on `research/ledger-hard`.
 
-Frozen criterion-ledger candidate, not a shipped-default claim. Synthetic cases retain the original construction families. Gemini is pending billing. The separate dialect variant is pending the core dossier.
+Frozen criterion-ledger candidate, not a shipped-default claim. Synthetic cases retain the original construction families. Gemini 3.8 Flash was dropped by the owner; no pending billing cell remains. The separate dialect variant is pending the core dossier.
 
 ## Sealed cases
 
@@ -35,7 +35,7 @@ The generator runs two generations of 192 per row. Every row has 12 families, 32
 | gpt-6-luna | goal / peer-full-state | 384/384 | 384 | 379 | 5 | 0 | 1/16 = 0.0625 | 1/32 = 0.03125 | TIE (not equivalence) |
 | gpt-6-luna | pooled-default / mixed | 1536/1536 | 1522 | 1313 | 222 | 13 | 12664829932210496241/431359146674410236714672241392314090778194310760649159697657763987456 = 2.9360291e-50 | 12664829932210496241/862718293348820473429344482784628181556388621521298319395315527974912 = 1.4680145e-50 | nominal lead |
 | gpt-6-luna | pooled-equal-evidence / mixed | 1536/1536 | 1522 | 1510 | 25 | 13 | 2506590623/34359738368 = 0.072951389 | 2506590623/68719476736 = 0.036475694 | TIE (not equivalence) |
-| gemini-3.8-flash | All rows | 0/1536 | pending | pending | | | | | Pending billing |
+| gemini-3.8-flash | All rows | 0/1536 | Not reported | Not reported | | | | | dropped by the owner |
 
 ## Uncertainty and usage
 
