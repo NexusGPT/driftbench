@@ -401,6 +401,7 @@ const names: Record<string, string> = {
   default: 'default judge, one agent entry',
   split: 'default judge, role-separated record',
   'split-conv': 'default judge, role-separated record, conversation scope',
+  'split-r2': 'default judge, role-separated record, instruction settles nothing',
   rendered: 'default judge plus the rendered-record rule, one agent entry',
   audit: 'answer audit',
 };
