@@ -47,7 +47,13 @@ export type DeviationAnswer = {
 };
 
 /** A workspace change the save behaviour makes. */
-export type SaveResult = { diff: WorkspaceDiff; artifacts: ArtifactRef[]; said: string };
+export type SaveResult = {
+  diff: WorkspaceDiff;
+  artifacts: ArtifactRef[];
+  said: string;
+  files: Record<string, string>;
+};
+export type FileSession = FaultSession & { files(): Record<string, string> };
 
 /** Wrong decisions. Each hook gets the rule's decision and returns the one to take. */
 export type Mutation = {
@@ -157,7 +163,7 @@ export function userTurn(messages: readonly Message[]): string {
 }
 
 /** A session of the follower, with an optional mutation. One session per conversation. */
-export function createFollower(spec: HiddenSpec, mutation: Mutation = {}): () => FaultSession {
+export function createFollower(spec: HiddenSpec, mutation: Mutation = {}): () => FileSession {
   const tools = new Map(spec.tools.map((tool) => [tool.name, tool]));
   const stageOf = new Map(spec.stages.map((stage) => [stage.id, stage]));
   return () => {
@@ -174,9 +180,16 @@ export function createFollower(spec: HiddenSpec, mutation: Mutation = {}): () =>
         return seen;
       },
     });
+    let files: Record<string, string> = {};
+    let seeded = false;
     return {
+      files: () => ({ ...files }),
       payloads: () => payloads,
       async respond(messages: Message[], world: WorldState): Promise<Observed> {
+        if (!seeded) {
+          files = { ...(world.workspace?.files ?? {}) };
+          seeded = true;
+        }
         const text = userTurn(messages).trim();
         const segments: Segment[] = [];
         const toolCalls: ToolCall[] = [];
@@ -185,7 +198,9 @@ export function createFollower(spec: HiddenSpec, mutation: Mutation = {}): () =>
         let said = '';
         let replaced: string[] | undefined;
         let callId = 0;
-        let workspace: WorkspaceDiff | undefined;
+        let workspace: WorkspaceDiff | undefined = world.workspace
+          ? { created: [], changed: [], deleted: [] }
+          : undefined;
         let artifacts: ArtifactRef[] | undefined;
 
         const record = (tool: string, input: unknown, output: unknown, error: string | undefined) => {
@@ -304,13 +319,19 @@ export function createFollower(spec: HiddenSpec, mutation: Mutation = {}): () =>
             break;
           }
           case 'save': {
-            const content = savedContent(spec);
+            const record = files['input.json']
+              ? JSON.parse(files['input.json']).records[0]
+              : { agent: spec.agent };
+            const content = `${JSON.stringify({ agent: record.agent, saved: true })}\n`;
             const rule: SaveResult = {
+              files: { [spec.saveFile]: content },
               diff: { created: [spec.saveFile], changed: [], deleted: [] },
               artifacts: [{ path: spec.saveFile, sha256: sha256(content), bytes: content.length }],
               said: `I saved the record to ${spec.saveFile}.`,
             };
             const result = mutation.save?.(rule, ctx()) ?? rule;
+            for (const path of result.diff.deleted) delete files[path];
+            Object.assign(files, result.files);
             workspace = result.diff;
             artifacts = result.artifacts;
             said = result.said;
