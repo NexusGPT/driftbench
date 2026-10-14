@@ -374,18 +374,38 @@ function shellLineProblem(command: string): string | undefined {
   return undefined;
 }
 
-/** What git sees changed or added under examples/ and packages/ of the repository, as one text. */
+/**
+ * What git sees changed or added under examples/ and packages/ of the repository, plus every file at the
+ * repository root, ignored ones included (a stray store such as `estate-runs.db`), as one text.
+ */
 function repositoryState(): string {
-  const run = spawnSync(
-    'git',
-    ['status', '--porcelain', '--untracked-files=all', '--', 'examples', 'packages'],
-    {
+  const status = (args: string[]) => {
+    const run = spawnSync('git', ['status', '--porcelain', '--untracked-files=all', ...args], {
       cwd: ROOT,
       encoding: 'utf8',
-    },
-  );
-  if (run.status !== 0) throw new Error(`git status failed: ${run.stderr}`);
-  return run.stdout;
+    });
+    if (run.status !== 0) throw new Error(`git status failed: ${run.stderr}`);
+    return run.stdout;
+  };
+  return status(['--', 'examples', 'packages']) + status(['--ignored', '--', ':(glob)*']);
+}
+
+/**
+ * Runs `work` with INIT_CWD and PWD set to the scratch folder, as a shell started there would see them:
+ * `pnpm test` sets INIT_CWD to the repository root, and the CLI resolves paths from INIT_CWD (bin.ts).
+ */
+async function inScratch<T>(scratch: string, work: () => Promise<T>): Promise<T> {
+  const saved = { INIT_CWD: process.env.INIT_CWD, PWD: process.env.PWD };
+  process.env.INIT_CWD = scratch;
+  process.env.PWD = scratch;
+  try {
+    return await work();
+  } finally {
+    for (const [key, value] of Object.entries(saved)) {
+      if (value === undefined) delete process.env[key];
+      else process.env[key] = value;
+    }
+  }
 }
 
 /** Where a worked example may write: a new relative path, never into the linked repository folders. */
@@ -414,9 +434,8 @@ describe('every worked example runs', () => {
       try {
         symlinkSync(join(ROOT, 'examples'), join(scratch, 'examples'));
         symlinkSync(join(ROOT, 'packages'), join(scratch, 'packages'));
-        // A setup line runs in a shell, which could write through the links: the repository must not change.
-        const shell = steps.some((step) => step.kind === 'shell');
-        const before = shell ? repositoryState() : '';
+        // A step could write through the links or at the repository root: the repository must not change.
+        const before = repositoryState();
         for (const step of steps) {
           if (step.kind === 'file') {
             const path = scratchPath(scratch, step.path);
@@ -427,21 +446,19 @@ describe('every worked example runs', () => {
             const run = spawnSync('bash', ['-c', step.command], {
               cwd: scratch,
               encoding: 'utf8',
-              env: { ...process.env, HOME: scratch },
+              env: { ...process.env, HOME: scratch, INIT_CWD: scratch, PWD: scratch },
             });
             expect(run.status, `${step.line}\n${run.stdout}${run.stderr}`).toBe(step.exit);
           } else {
             const io = capture(scratch);
-            const code = await main(step.argv, io);
+            const code = await inScratch(scratch, () => main(step.argv, io));
             expect(code, `${step.line}\n${io.stderr()}`).toBe(step.exit);
           }
         }
-        if (shell) {
-          expect(
-            repositoryState(),
-            'a sh setup line wrote into examples/ or packages/ of the repository',
-          ).toBe(before);
-        }
+        expect(
+          repositoryState(),
+          'a step wrote into examples/, packages/ or the root of the repository',
+        ).toBe(before);
       } finally {
         rmSync(scratch, { recursive: true, force: true });
       }
@@ -488,6 +505,13 @@ describe('every worked example runs', () => {
       rmSync(planted, { force: true });
     }
     expect(repositoryState()).toBe(before);
+    const rootStore = join(ROOT, `help-confinement-probe-${process.pid}.db`);
+    try {
+      writeFileSync(rootStore, 'x');
+      expect(repositoryState()).not.toBe(before);
+    } finally {
+      rmSync(rootStore, { force: true });
+    }
     expect(() => scratchPath('/tmp/s', '../x.yaml')).toThrow();
     expect(scratchPath('/tmp/s', 'out/x.yaml')).toBe('/tmp/s/out/x.yaml');
   });
