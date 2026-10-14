@@ -65,3 +65,17 @@ it('defers exotic values, accessors, cycles and invalid JSON to the original par
   expect(z.json().parse(accessed)).toEqual({ value: 'text' });
   expect(reads).toBe(1);
 });
+
+it('defers record constructor rules and enumerable symbols to Zod', () => {
+  const values = [
+    Object.defineProperty({}, 'constructor', { value: function Custom() {} }),
+    { [Symbol.toStringTag]: 'Date', value: 1 },
+    { [Symbol('key')]: 'value' },
+  ];
+  for (const value of values) {
+    expect(z.json().safeParse(value).success).toBe(false);
+    expect(cloneJsonLeaf(value)).toBe(UNSUPPORTED_JSON);
+  }
+  const hidden = Object.defineProperty({ value: 1 }, Symbol('hidden'), { value: () => 1 });
+  expect(cloneJsonLeaf(hidden)).toEqual(z.json().parse(hidden));
+});

@@ -54,10 +54,15 @@ export function cloneJsonLeaf(value: unknown, depth = 0): unknown {
     return out;
   }
   const out: Record<string, unknown> = {};
-  for (const key of Object.keys(value)) {
-    if (key === '__proto__') return UNSUPPORTED_JSON;
+  for (const key of Reflect.ownKeys(value)) {
+    // Zod's record check consults constructor even when it is non-enumerable.
+    if (key === 'constructor') return UNSUPPORTED_JSON;
     const descriptor = Object.getOwnPropertyDescriptor(value, key);
-    if (!descriptor || descriptor.get || descriptor.set) return UNSUPPORTED_JSON;
+    if (!descriptor) return UNSUPPORTED_JSON;
+    if (!descriptor.enumerable) continue;
+    // z.record(z.string(), ...) rejects enumerable symbol keys and strips __proto__.
+    if (typeof key !== 'string' || key === '__proto__' || descriptor.get || descriptor.set)
+      return UNSUPPORTED_JSON;
     const child = cloneJsonLeaf(descriptor.value, depth + 1);
     if (child === UNSUPPORTED_JSON) return UNSUPPORTED_JSON;
     out[key] = child;
