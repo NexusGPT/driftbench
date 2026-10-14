@@ -81,6 +81,40 @@ async function post(path: string, body: URLSearchParams, headers: Record<string,
 
 for (const path of ['/labels', '/queue/assign']) {
   describe(`request protection on ${path}`, () => {
+    for (const header of ['origin', 'host']) {
+      it.each(['POST', 'PUT', 'PATCH', 'DELETE'])(
+        `rejects %s with foreign ${header} before writing, then accepts the same-origin POST`,
+        async (method) => {
+          const queueBefore = await readFile(join(labels, 'queue.json'), 'utf8');
+          const body = fields(await token()).toString();
+          const headers: Record<string, string> = {
+            host: new URL(viewer.url).host,
+            origin: viewer.url,
+            'content-type': 'application/x-www-form-urlencoded',
+            'content-length': String(Buffer.byteLength(body)),
+          };
+          headers[header] = header === 'origin' ? 'https://foreign.example' : 'foreign.example';
+          // node:http preserves the explicit Host header for the DNS rebinding case.
+          const status = await new Promise<number | undefined>((resolve, reject) => {
+            const req = request(`${viewer.url}${path}`, { method, headers }, (res) => {
+              res.resume();
+              res.on('end', () => resolve(res.statusCode));
+            });
+            req.on('error', reject);
+            req.setTimeout(2000, () => req.destroy(new Error(`Timed out sending ${method}`)));
+            req.end(body);
+          });
+          expect(status).toBe(403);
+          expect(await readFile(join(labels, 'queue.json'), 'utf8')).toBe(queueBefore);
+          expect(existsSync(join(labels, 'no_invented_data.yaml'))).toBe(false);
+
+          const accepted = await post(path, new URLSearchParams(body), { origin: viewer.url });
+          expect(accepted.status).toBe(303);
+          if (path === '/labels') expect(existsSync(join(labels, 'no_invented_data.yaml'))).toBe(true);
+          else expect((await readQueue(labels)).entries[0]?.state).toBe('assigned');
+        },
+      );
+    }
     it.each(METHODS.filter((method) => method !== 'POST'))(
       'refuses runtime method %s with valid credentials and no write',
       async (method) => {
@@ -184,6 +218,15 @@ for (const path of ['/labels', '/queue/assign']) {
     });
   });
 }
+
+it('serves GET pages with a foreign Origin without writing', async () => {
+  const queueBefore = await readFile(join(labels, 'queue.json'), 'utf8');
+  const response = await fetch(`${viewer.url}/queue`, { headers: { origin: 'https://foreign.example' } });
+  expect(response.status).toBe(200);
+  expect(await response.text()).toContain('Review queue');
+  expect(await readFile(join(labels, 'queue.json'), 'utf8')).toBe(queueBefore);
+  expect(existsSync(join(labels, 'no_invented_data.yaml'))).toBe(false);
+});
 
 it.each(['foreign.example', '127.0.0.1:1', 'localhost:1'])('rejects Host %s even on GET', async (host) => {
   const status = await new Promise<number | undefined>((resolve, reject) => {

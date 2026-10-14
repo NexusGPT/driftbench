@@ -27,6 +27,7 @@ Migration: pass plain JSON data, convert special values explicitly, and omit abs
 Adapters freeze caller-owned messages too: copy before handing one over to keep editing your original. World and vars remain copies.
 
 ### Changes
+* Add viewer regression coverage for foreign Origin and Host refusals on POST, PUT, PATCH and DELETE, successful same-origin form posts, and unchanged GET behavior.
 * The generator gate accepts equal sibling expectations when repeated reference outputs establish equivalence, while still rejecting copied expectations for edits that change the reference output.
 - The local viewer rejects untrusted Host and write-origin headers, and requires a per-start hidden token on label and queue forms. Stale forms need a reload after restart.
 
