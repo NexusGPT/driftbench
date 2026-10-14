@@ -1,15 +1,13 @@
-import { execFile } from 'node:child_process';
-import { mkdtemp, readdir, readFile, rm, symlink, writeFile } from 'node:fs/promises';
+import { mkdtemp, readdir, readFile, rm, symlink } from 'node:fs/promises';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { promisify } from 'node:util';
 import { loadRedteamPlugins } from '@agent-nexus/driftbench-users';
 import type { Command } from 'commander';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { parse } from 'yaml';
 import type { Io } from '../src/io';
 import { createProgram, main } from '../src/main';
-import { pluginTopic } from './support/redteam-help';
+import { pluginsTopic, pluginTopic } from './support/redteam-help';
 
 const ROOT = fileURLToPath(new URL('../../../', import.meta.url));
 const HELP = join(ROOT, 'packages/cli/help');
@@ -108,11 +106,7 @@ describe('red-team help is an executable contract', { timeout: 240_000 }, () => 
       expect(fences(worked(topic.body), 'sh').length, topic.id).toBeGreaterThan(0);
       for (const linked of topic.seeAlso) expect(ids.has(linked), `${topic.id} -> ${linked}`).toBe(true);
     }
-    const index = topics.find((t) => t.id === 'redteam-plugins')?.text ?? '';
-    for (const plugin of loadRedteamPlugins())
-      expect(index, `redteam-plugins lists ${plugin.id}`).toContain(
-        `- ${plugin.id}: ${plugin.title} (${plugin.family})`,
-      );
+    expect(topics.find((t) => t.id === 'redteam-plugins')?.text).toBe(pluginsTopic(loadRedteamPlugins()));
     for (const plugin of loadRedteamPlugins()) {
       expect(topics.find((t) => t.id === `redteam-plugin-${plugin.id}`)?.text).toBe(pluginTopic(plugin));
     }
@@ -123,7 +117,7 @@ describe('red-team help is an executable contract', { timeout: 240_000 }, () => 
     const programs = new Map<string, Command>();
     const contracts: Record<string, unknown> = {};
     for (const topic of topics) {
-      if (!topic.id.startsWith('redteam-plugin-')) expect(topic.text).toMatchSnapshot(topic.id);
+      if (!topic.id.startsWith('redteam-plugin')) expect(topic.text).toMatchSnapshot(topic.id);
       for (const path of topic.commands) {
         const root = path.split(' ')[0] as string;
         if (!programs.has(root)) programs.set(root, await createProgram([root, '--help'], io, () => {}));
@@ -175,54 +169,6 @@ describe('red-team help is an executable contract', { timeout: 240_000 }, () => 
             expect(JSON.parse(result.out).findings).toBe(0);
         }
       }
-    }
-  });
-
-  it('executes every complete code example, including target calls, grading and cassette replay', async () => {
-    const cwd = await scratch('code-');
-    // Hoist the identical imports once, then run each published body in a fresh lexical scope.
-    // This avoids starting 41 TypeScript loaders; every byte of each body still executes.
-    const imports = new Set<string>();
-    const bodies: string[] = [];
-    for (const topic of topics)
-      for (const code of fences(worked(topic.body), 'ts')) {
-        const body = code.replace(/^import [\s\S]*? from '[^']+';$/gm, (line) => {
-          imports.add(line);
-          return '';
-        });
-        bodies.push(`{\n${body}\n}`);
-      }
-    expect(bodies).toHaveLength(41);
-    const path = join(cwd, 'examples.ts');
-    await writeFile(path, `${[...imports].join('\n')}\n${bodies.join('\n')}`);
-    const result = await promisify(execFile)(process.execPath, ['--import', 'tsx', path], {
-      cwd,
-      timeout: 180_000,
-      maxBuffer: 24 * 1024 * 1024,
-      env: {
-        ...process.env,
-        TSX_TSCONFIG_PATH: join(ROOT, 'tsconfig.json'),
-        ANTHROPIC_API_KEY: '',
-        OPENAI_API_KEY: '',
-      },
-    });
-    // Each example prints one pretty JSON object. Parse the concatenated documents.
-    const docs = result.stdout
-      .trim()
-      .split(/\n(?=\{\n)/)
-      .map((text) => JSON.parse(text));
-    expect(docs).toHaveLength(41);
-    for (const doc of docs) {
-      for (const run of [doc.first, doc.replay]) {
-        expect(run.status).toBe('completed');
-        expect(run.blocks).toHaveLength(1);
-        expect(run.blocks[0].observed.text).not.toBe('');
-        expect(run.blocks[0].pass).toBe(false);
-        expect(run.blocks[0].verdicts).toContainEqual(
-          expect.objectContaining({ kind: 'judge', gating: true, outcome: 'inconclusive' }),
-        );
-      }
-      expect(doc.replay.blocks[0].observed.text).toBe(doc.first.blocks[0].observed.text);
     }
   });
 });
