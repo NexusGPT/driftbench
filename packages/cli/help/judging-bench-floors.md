@@ -90,7 +90,7 @@ ok  sheet_matches_catalog [system1, gating]: pass fixture 2 line(s), fail fixtur
 
 On a copy of `benchmarks/` under `out/`, with the haiku floor of `fresh-reference` removed, so no tracked file changes. The check fails without a floor, the replay evidence raises it, a second raise with the same evidence is refused, and the check then holds:
 
-From a repository checkout, not run by the help test:
+Not run by the help test: the bench reads git (the commit each report records) and the repository's `benchmarks/` folder, which the help test's scratch folder does not link. From a repository checkout:
 
 ```text
 $ mkdir -p out/judging/benchroot && cp -R benchmarks out/judging/benchroot/
