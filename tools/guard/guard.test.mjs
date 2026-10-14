@@ -4,10 +4,12 @@ import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { describe, expect, it } from 'vitest';
 import {
+  fingerprint,
   isFictionalPhone,
   isValidIban,
   isValidNationalNumber,
   loadDenylist,
+  loadExceptions,
   main,
   makeIban,
   makeNationalNumber,
@@ -219,6 +221,33 @@ describe('allow marker and redaction', () => {
   it('suppresses pattern findings on its line and counts them', () => {
     const email = ['jane.doe', 'acme-corp.io'].join('@');
     expect(scanText(`${email} <!-- guard:allow documented sample -->`)).toEqual({ findings: [], allowed: 1 });
+  });
+
+  it('excuses only the exact fingerprinted value and never a denylist hit', () => {
+    const number = makeNationalNumber('850730', '003');
+    const other = makeNationalNumber('930518', '223');
+    const exceptions = new Set([fingerprint('national-number', number)]);
+    expect(scanText(`Lumen-${number}`, { exceptions })).toEqual({ findings: [], allowed: 1 });
+    expect(kinds(`Lumen-${other}`, { exceptions })).toEqual(['national-number']);
+    expect(kinds(`Lumen-${number}`, { exceptions, denylist: ['Lumen'] })).toEqual(['denylist']);
+  });
+
+  it('loads every fingerprint file in a folder and rejects a bad entry', () => {
+    const dir = mkdtempSync(join(tmpdir(), 'guard-fp-'));
+    try {
+      const sha256 = 'a'.repeat(64);
+      writeFileSync(join(dir, 'one.json'), JSON.stringify({ entries: [{ kind: 'phone', sha256 }] }));
+      writeFileSync(
+        join(dir, 'two.json'),
+        JSON.stringify({ entries: [{ kind: 'national-number', sha256 }] }),
+      );
+      expect([...loadExceptions(dir)].sort()).toEqual([`national-number:${sha256}`, `phone:${sha256}`]);
+      writeFileSync(join(dir, 'bad.json'), JSON.stringify({ entries: [{ kind: 'phone', sha256: 'xyz' }] }));
+      expect(() => loadExceptions(dir)).toThrow('bad fingerprint entry');
+      expect(loadExceptions(join(dir, 'missing')).size).toBe(0);
+    } finally {
+      rmSync(dir, { recursive: true, force: true });
+    }
   });
 
   it('masks all but the edges, and masks denylist matches entirely', () => {
