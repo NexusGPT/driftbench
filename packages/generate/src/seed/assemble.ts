@@ -10,11 +10,11 @@ import type {
 } from '@agent-nexus/driftbench-core';
 import { isPlainObject } from '@agent-nexus/driftbench-core';
 import { NONE } from '@agent-nexus/driftbench-space';
-import { stringify } from 'yaml';
 import type { ProposalPhrase } from '../extract/proposal';
 import { DEVIATION_EXPECTED, isDeviationClass } from './deviation';
 import { dimensionId, type PreparedMap, phraseKey, valueId } from './map';
 import { pick, type Rng } from './random';
+import { stringifyGeneratedYaml } from './yaml';
 
 /**
  * Turns a seeder's draft into a driftbench spec. A draft names values by index; the spec names them the
@@ -398,6 +398,6 @@ export function specText(rendered: Rendered, run: RunIdentity, hash: string): st
     );
   }
   for (const reason of rendered.reasons) header.push(`# Why: ${reason}.`);
-  const body = stringify(rendered.spec, { lineWidth: 0, aliasDuplicateObjects: false });
+  const body = stringifyGeneratedYaml(rendered.spec);
   return `${header.join('\n')}\n${body}`;
 }

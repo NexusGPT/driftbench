@@ -3,6 +3,7 @@ import { dirname, extname, join, resolve } from 'node:path';
 import { parse as parseYaml } from 'yaml';
 import type { z } from 'zod';
 import { Spec } from '../schema/spec';
+import { parseBlockYaml } from './block-yaml';
 import { contentHash } from './hash';
 import { error, type Issue } from './issues';
 import { lintSpec } from './lint';
@@ -19,7 +20,10 @@ export type LoadedSpec = Extract<LoadResult, { ok: true }>;
 export function parseSpecText(text: string, format: 'yaml' | 'json', path = '<inline>'): LoadResult {
   let raw: unknown;
   try {
-    raw = format === 'json' ? JSON.parse(text) : parseYaml(text, { prettyErrors: true, uniqueKeys: true });
+    raw =
+      format === 'json'
+        ? JSON.parse(text)
+        : (parseBlockYaml(text)?.value ?? parseYaml(text, { prettyErrors: true, uniqueKeys: true }));
   } catch (cause) {
     return { ok: false, path, errors: [error('SPEC_PARSE', '', describe(cause))], warnings: [] };
   }
