@@ -9,6 +9,8 @@ see_also:
   - validate-floors
   - validate-protect
   - validate-mutants-and-rulings
+next:
+  - validate-protect
 ---
 
 ## What it is

@@ -9,6 +9,8 @@ see_also:
   - validate-estate-unit
   - validate-estate-replay
   - validate-mutants-and-rulings
+next:
+  - validate-estate-stats
 ---
 
 ## What it is

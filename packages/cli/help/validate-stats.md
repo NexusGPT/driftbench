@@ -8,6 +8,8 @@ see_also:
   - validate-reading-items
   - validate-system
   - validate-mutants-and-rulings
+next:
+  - validate-self-checks
 ---
 
 ## What it is

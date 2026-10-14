@@ -17,6 +17,8 @@ see_also:
   - validate-stats
   - validate-self-checks
   - validate-research-replays
+next:
+  - validate-reading-items
 ---
 
 ## What it is

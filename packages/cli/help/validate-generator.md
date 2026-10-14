@@ -9,6 +9,8 @@ see_also:
   - validate-map
   - validate-system
   - validate-mutants-and-rulings
+next:
+  - validate-judges
 ---
 
 ## What it is
