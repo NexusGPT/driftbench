@@ -11,6 +11,8 @@
  * - Both are deterministic: the same pool, cells and evidence give the same picks in the same order.
  */
 
+import { coverWork } from './cover-meter';
+
 /** One thing a golden set should hold: an allowed cell, or a required cell, and the specs that cover it. */
 export type CoverElement = {
   /** A stable key, unique within its list. */
@@ -200,6 +202,7 @@ function greedy(pool: readonly string[], tiers: readonly Tier[], goals: number, 
   type Entry = { id: string; order: number; gains: number[] };
   const heap: Entry[] = [];
   const before = (x: Entry, y: Entry) => {
+    coverWork.comparisons += 1;
     for (let position = 0; position < x.gains.length; position += 1) {
       const left = x.gains[position] ?? 0;
       const right = y.gains[position] ?? 0;
