@@ -142,7 +142,8 @@ driftbench validate floors
 Floors (validators/floors.json): none.
 ```
 
-A real mutant of the statistics package, at the repository root (not run by the help test; 62 seconds).
+A real mutant of the statistics package, at the repository root (62 seconds). Shown as text, not run by the help test: a whole ladder runs for minutes, and the level it reaches changes as the product is fixed. The
+mutant also sets an environment variable, which a worked example line cannot.
 The planted bug changes the default power of `mde` from 0.8 to 0.9:
 
 ```bash

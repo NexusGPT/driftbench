@@ -157,8 +157,10 @@ registered one, or a floor above the top of its ladder. Exit 0 when every floor 
 
 ## Worked example
 
-These run in a scratch folder with no `validators/floors.json`, so the printed floors are `none`; the
-errors show what each part of a raise needs.
+The worked example runs in a scratch folder with no `validators/floors.json`, so the first command prints
+`none`. The errors show what each part of a raise needs. Then two evidence files, written by hand for this
+example in the shape of a `driftbench validate estate --json` run, show a refusal and a raise. A real raise
+uses the real `--json` output of the ladder, which reads git for its hidden seed.
 
 ```sh
 driftbench validate floors
@@ -176,19 +178,80 @@ The level is a whole number, not "two".
 Cannot read the evidence run.json: ENOENT: no such file or directory, open '<scratch folder>/run.json'
 ```
 
-At the repository root, a whole raise looks like this (not run by the help test: the evidence run takes
-many minutes, and the raise rewrites a protected file):
+Evidence with no hidden seed:
+
+```json file=no-hidden.json
+{ "component": "estate", "ladderVersion": 1, "level": 2, "top": 7,
+  "seeds": [ { "seed": 1, "hidden": false, "level": 2 } ],
+  "hiddenSeed": { "seed": 7777777, "source": "fallback" } }
+```
+
+Evidence with seed 1 and the hidden seed of a commit, both at level 2:
+
+```json file=run.json
+{ "component": "estate", "ladderVersion": 1, "level": 2, "top": 7,
+  "seeds": [ { "seed": 1, "hidden": false, "level": 2 }, { "seed": 1123456789, "hidden": true, "level": 2 } ],
+  "hiddenSeed": { "seed": 1123456789, "source": "head", "head": "0123456789abcdef0123456789abcdef01234567" } }
+```
+
+The raise writes `validators/floors.json`, so its folder must exist:
+
+```sh setup
+mkdir validators
+```
+
+```sh
+driftbench validate floors --raise estate 2 --ladder-version 1 --evidence no-hidden.json # exit 1
+driftbench validate floors --raise estate 2 --ladder-version 1 --evidence run.json
+driftbench validate floors
+driftbench validate floors --raise estate 1 --ladder-version 1 --evidence run.json # exit 1
+driftbench validate floors --raise estate 3 --ladder-version 1 --evidence run.json # exit 1
+driftbench validate floors --raise estate 2 --ladder-version 2 --evidence run.json # exit 1
+```
+
+```text
+Refused: The evidence must run at least one visible seed and the hidden seed (--hidden).
+The floor of estate for ladder version 1 rises from 0 to 2 in validators/floors.json. Commit it on its own with the evidence run.
+Floors (validators/floors.json): estate = 2 (ladder version 1).
+Refused: The floor of estate is 2; it only rises, so 1 is refused.
+Refused: The evidence does not reach 3 on seed 1, hidden.
+Refused: The registered estate ladder is version 1; a floor for version 2 is refused.
+```
+
+The file it wrote:
+
+```text
+{
+  "version": 2,
+  "ladderVersion": {
+    "estate": 1
+  },
+  "floors": {
+    "estate": 2
+  },
+  "evidence": {
+    "estate": {
+      "level": 2,
+      "seeds": [
+        "1",
+        "hidden"
+      ],
+      "hiddenSeed": 1123456789,
+      "head": "0123456789abcdef0123456789abcdef01234567",
+      "ladderVersion": 1
+    }
+  }
+}
+```
+
+In the repository, the whole raise and the CI check look like this. They are shown as text because both
+read git (the hidden seed comes from `git rev-parse HEAD`), and the commit writes to git:
 
 ```bash
 pnpm -s driftbench validate estate --seeds 1..20 --hidden --json > run.json
 pnpm -s driftbench validate floors --raise estate 3 --ladder-version 1 --evidence run.json
 git add validators/floors.json
 git commit -m "chore(validators): raise the estate floor to 3 (ladder version 1)"
-```
-
-And the CI check, which prints the tables and exits 0 or 1:
-
-```bash
 pnpm -s driftbench validate all --seeds 1..3 --hidden --check-floor
 ```
 
@@ -205,3 +268,4 @@ pnpm -s driftbench validate all --seeds 1..3 --hidden --check-floor
 | `<component> is at level <l>, below its floor <f>.` (exit 1) | a change made the ladder regress | run the ladder on that seed, read its first failing level, fix the component it names. Never lower a floor |
 | `validators/floors.json holds a floor for <c>, which has no registered validator.` | a ladder was removed or renamed | the maintainer moves or removes the floor |
 | `Unexpected argument "<n>": a level is only taken by floors --raise.` (exit 64) | a level given outside `floors --raise` | drop it |
+| `driftbench: cannot use .../validators/floors.json: ENOENT: ...` (exit 2) | `floors --raise` in a folder with no `validators/` folder | run it at the repository root, or create the folder |

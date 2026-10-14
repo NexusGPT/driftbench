@@ -151,38 +151,34 @@ Atom no.such is not in the map.
 deleted is not empty; pass --force to replace an earlier mutant.
 ```
 
-A mutant turning a live spec red, at the repository root, on the stand-in playing the recorded Northwind
-streams (not run by the help test, because `FAKE_MANIFEST` needs an absolute path):
+A mutant turning a live spec red, on the same stand-in. The mutant deletes `WebFetch` from the deny list of
+the settings; the `tool_denied` spec of the suite asks the agent for a carrier page and expects `WebFetch`
+not even to be offered:
 
-```bash
-D=$(mktemp -d)
-L=examples/estates/fixture/generated/specs/live
-SPECS="$L/obligation/estate.obligation.instruction.standing.tell-the-user-about-a-late.yaml $L/outside_trigger/estate.outside_trigger.instruction.standing.tell-the-user-about-a-late.yaml"
-RUN="--runtime claude-code --command examples/estates/fixture/live/fake/claude.mjs --set-env FAKE_MANIFEST=$PWD/examples/estates/fixture/live/fake/manifest.json --states examples/estates/fixture/live/states/library.json"
-pnpm -s driftbench estate mutate examples/estates/fixture/approved.yaml --atom instruction.standing.tell-the-user-about-a-late --invert --to $D/inv
-pnpm -s driftbench estate run $SPECS --estate examples/estates/fixture $RUN --store $D/a.db
-pnpm -s driftbench estate run $SPECS --estate $D/inv $RUN --store $D/b.db
+```sh
+driftbench estate mutate examples/estates/fixture/approved.yaml --atom tool.settings.deny-webfetch --delete --to no-deny
+driftbench estate run suite/specs/live/tool_denied --estate examples/estates/fixture --runtime claude-code --command examples/estates/fixture/live/fake/claude.mjs --store original.db --map examples/estates/fixture/approved.yaml
+driftbench estate run suite/specs/live/tool_denied --estate no-deny --runtime claude-code --command examples/estates/fixture/live/fake/claude.mjs --store mutant.db # exit 1
 ```
 
 ```text
-Mutant: invert instruction.standing.tell-the-user-about-a-late in CLAUDE.md.
-  before: - **R7.** When a shipment is late by more than two days, tell the user and propose a supplier email.
-  after:  - **R7.** When a shipment is late by more than two days, do not tell the user and propose a supplier email.
-  map be2e7a0919cb -> dbf3167f59b0
-Wrote /var/folders/r2/k83h9fg92j7f6pfxshk0nn280000gn/T/tmp.JXTMMBKa9I/inv: the estate copy, map.yaml and mutant.json.
-note: the estate copy is not pinned to a map hash; pass --map to pin it
-✓ estate.obligation.instruction.standing.tell-the-user-about-a-late  (0.0000 USD)
-✓ estate.outside_trigger.instruction.standing.tell-the-user-about-a-late  (0.0000 USD)
-2 specs run live on a stand-in: 2 pass, 0 fail. Cost 0.0000 USD over 2 runs that report one, judge none 0.0000 USD of it. Campaign estate-run-df0868c972ee.
-note: mutant of instruction.standing.tell-the-user-about-a-late (invert): specs of the map be2e7a0919cb run on it
-✗ estate.obligation.instruction.standing.tell-the-user-about-a-late  (0.0000 USD)
-    failing: block 0: must.0
-✓ estate.outside_trigger.instruction.standing.tell-the-user-about-a-late  (0.0000 USD)
-2 specs run live on a stand-in: 1 pass, 1 fail. Cost 0.0000 USD over 2 runs that report one, judge none 0.0000 USD of it. Campaign estate-run-9e521f977375.
+Mutant: delete tool.settings.deny-webfetch in .claude/settings.json.
+  before:     "deny": ["Bash(git push --force:*)", "Bash(rm -rf:*)", "WebFetch"],
+  after:      "deny": ["Bash(git push --force:*)", "Bash(rm -rf:*)" ],
+  map be2e7a0919cb -> 796f9715bcff
+Wrote no-deny: the estate copy, map.yaml and mutant.json.
+✓ estate.p24  (0.0000 USD)
+1 spec run live on a stand-in: 1 pass, 0 fail. Cost 0.0000 USD over 1 run that report one, judge none 0.0000 USD of it. Campaign estate-run-dcc972819245.
+note: mutant of tool.settings.deny-webfetch (delete): specs of the map be2e7a0919cb run on it
+✗ estate.p24  (0.0000 USD)
+    failing: block 0: tools_offered.exclude.WebFetch
+1 spec run live on a stand-in: 0 pass, 1 fail. Cost 0.0000 USD over 1 run that report one, judge none 0.0000 USD of it. Campaign estate-run-eec428949e4a.
 ```
 
-The rule now says "do not tell the user", so the obligation spec (the agent must tell the user) goes red and
-the control (the rule does not act outside its situation) stays green. The first run exits 0, the second 1.
+The same spec passes on the original and fails on the mutant: the test catches the loss of the deny rule.
+The stand-in can also play the recorded Northwind streams: set `--set-env FAKE_MANIFEST=<absolute path of
+examples/estates/fixture/live/fake/manifest.json>`. The path must be absolute, since the runtime runs inside
+the estate copy.
 
 ## Common errors
 

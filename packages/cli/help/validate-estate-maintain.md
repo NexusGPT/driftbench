@@ -210,15 +210,19 @@ Replay of 8 runs, campaign replay-baa56005c117, against replay-077293b62f68.
 
 The last command prints `error: required option '--tests <dir>' not specified`.
 
-`--write` changes the spec files, so run it on a copy (not run by the help test):
+`--write` changes the spec files, so run it on a copy of them:
 
-```bash
-D=$(mktemp -d)
-cp -R examples/estates/fixture-v2/tests "$D/tests"
-pnpm -s driftbench estate diff examples/estates/fixture/approved.yaml examples/estates/fixture-v2/map.yaml --old-guards examples/estates/fixture-v2/maintain/guard-state.v1.yaml --out "$D/diff.json"
-pnpm -s driftbench estate impact "$D/diff.json" --tests "$D/tests" --write
-pnpm -s driftbench estate impact "$D/diff.json" --tests "$D/tests" --write
-grep retired "$D/tests/unsent-draft.yaml"
+```sh setup
+cp -R examples/estates/fixture-v2/tests tests
+```
+
+```sh
+driftbench estate impact diff.json --tests tests --write # exit 1
+driftbench estate impact diff.json --tests tests --write # exit 1
+```
+
+```sh setup
+grep retired tests/unsent-draft.yaml
 ```
 
 The first and the retirement line of each impact, then the line written into the spec:

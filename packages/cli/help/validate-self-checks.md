@@ -160,7 +160,9 @@ driftbench validate protect # exit 64
 Check a pull request with: driftbench validate protect --branch <name> --base <ref>.
 ```
 
-At the repository root (not run by the help test; the API check builds every package and took 265 seconds):
+At the repository root. Shown as text, not run by the help test: the guard reads git (the files it tracks),
+and the API and docs checks read `tools/` and `docs/`, which the test's scratch folder does not hold (the API
+check also builds every package; it took 265 seconds).
 
 ```bash
 node tools/guard/guard.mjs --canary

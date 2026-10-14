@@ -135,7 +135,7 @@ driftbench validate estate --hardness # exit 64
 validators/estate/journal.jsonl: the journal holds no iteration 0 row: run and record iteration 0 first.
 ```
 
-The ladder on seed 1, at the repository root (not run by the help test; 1327 seconds on a busy machine).
+The ladder on seed 1, at the repository root (1327 seconds on a busy machine). Shown as text, not run by the help test: a whole ladder runs for minutes, and the level it reaches changes as the product is fixed.
 It failed level 1 with 72 items and exited 0. The table and one family of the failing items, cut from
 107 lines:
 

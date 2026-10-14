@@ -132,7 +132,8 @@ driftbench validate floors
 Floors (validators/floors.json): none.
 ```
 
-At the repository root, on a full clone with a clean tree (not run by the help test; 88 seconds):
+At the repository root, on a full clone with a clean tree (88 seconds). Shown as text, not run by the help
+test: it reads git (an old commit, checked out as a worktree).
 
 ```bash
 tools/research-replay-ci.sh

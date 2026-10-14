@@ -125,7 +125,7 @@ Check a pull request with: driftbench validate protect --branch <name> --base <r
 ```
 
 Inside the clone, on the branch of this help topic, whose only change against `origin/main` was then the
-help contract (not run by the help test):
+help contract. Shown as text, not run by the help test: it reads git.
 
 ```bash
 pnpm -s driftbench validate protect --branch feat/cli-help-validate --base origin/main

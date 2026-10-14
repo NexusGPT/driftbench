@@ -240,44 +240,10 @@ The measurement that decides whether a validator is hard enough to merge (`docs/
 Exit 0 when the gate holds, 1 when it does not, 64 when the journal has an invalid line or no iteration 0.
 `--json` prints `{ component, ... }` with the same measurement.
 
-## Worked example
+### A real measurement
 
-These run in a scratch folder that has no `validators/` loop files, so they show the empty state and the
-mode rules:
-
-```sh
-driftbench validate stats --hardness # exit 64
-driftbench validate all --check-handover # exit 1
-driftbench validate stats --fresh # exit 64
-driftbench validate all --brief # exit 64
-driftbench validate stats --journal row.json # exit 64
-```
-
-```text
-validators/stats/journal.jsonl: the journal holds no iteration 0 row: run and record iteration 0 first.
-validators/estate/HANDOVER.md:
-  validators/estate/HANDOVER.md is missing
-validators/generator/HANDOVER.md:
-  validators/generator/HANDOVER.md is missing
-validators/judges/HANDOVER.md:
-  validators/judges/HANDOVER.md is missing
-validators/map/HANDOVER.md:
-  validators/map/HANDOVER.md is missing
-validators/stats/HANDOVER.md:
-  validators/stats/HANDOVER.md is missing
-validators/system/HANDOVER.md:
-  validators/system/HANDOVER.md is missing
---fresh goes with --brief.
---brief, --journal and --hardness take one component, not all.
-Cannot read the journal row row.json: ENOENT: no such file or directory, open '<scratch folder>/row.json'
-```
-
-At the repository root, where the loop files exist (not run by the help test):
-
-```bash
-pnpm -s driftbench validate all --check-handover
-pnpm -s driftbench validate stats --hardness
-```
+The repository's own statistics journal, read at its root with `pnpm -s driftbench validate all --check-handover`
+and `pnpm -s driftbench validate stats --hardness`:
 
 ```text
 validators/estate/HANDOVER.md: every section present, the level table matches the journal.
@@ -323,6 +289,173 @@ The first command exits 0 and the second exits 1. Read the hardness this way: th
 green now (651 of 651 at iteration 42); its pilot forecast 73.21 iterations and 62 causes, which meets the
 lowered bar of `validators/stats/GATE.md` (score 0.7, forecast 70, causes 60); and the gate still fails on
 the one remaining term, the missing `audit.md`.
+
+## Worked example
+
+These run in a scratch folder that has no `validators/` loop files, so they show the empty state and the
+mode rules:
+
+```sh
+driftbench validate stats --hardness # exit 64
+driftbench validate all --check-handover # exit 1
+driftbench validate stats --fresh # exit 64
+driftbench validate all --brief # exit 64
+driftbench validate stats --journal row.json # exit 64
+```
+
+```text
+validators/stats/journal.jsonl: the journal holds no iteration 0 row: run and record iteration 0 first.
+validators/estate/HANDOVER.md:
+  validators/estate/HANDOVER.md is missing
+validators/generator/HANDOVER.md:
+  validators/generator/HANDOVER.md is missing
+validators/judges/HANDOVER.md:
+  validators/judges/HANDOVER.md is missing
+validators/map/HANDOVER.md:
+  validators/map/HANDOVER.md is missing
+validators/stats/HANDOVER.md:
+  validators/stats/HANDOVER.md is missing
+validators/system/HANDOVER.md:
+  validators/system/HANDOVER.md is missing
+--fresh goes with --brief.
+--brief, --journal and --hardness take one component, not all.
+Cannot read the journal row row.json: ENOENT: no such file or directory, open '<scratch folder>/row.json'
+```
+
+The loop on a scratch folder. A baseline row (iteration 0) is appended, which creates `HANDOVER.md` and
+`research.md` from their templates. A first row for iteration 1 is refused because its `result` does not
+match the move of the level; the corrected row is appended. Then the handover check, an audit file, and the
+hardness measurement. The rows are illustrative, written by hand in the shape an executor copies from an
+`--items --json` run.
+
+```json file=row0.json
+{
+  "iteration": 0, "at": "2026-10-14T09:00:00.000Z", "model": "sonnet", "seeds": ["1"],
+  "command": "driftbench validate stats --seed 1 --items --json",
+  "level": { "before": 3, "after": 3 },
+  "perSeed": [{ "seed": "1", "before": 3, "after": 3 }],
+  "metrics": [
+    { "level": 1, "id": "reference", "metric": "items passing / items", "threshold": 1, "before": 1, "after": 1 },
+    { "level": 2, "id": "degenerate", "metric": "items passing / items", "threshold": 1, "before": 1, "after": 1 },
+    { "level": 3, "id": "reproducibility", "metric": "items passing / items", "threshold": 1, "before": 1, "after": 1 },
+    { "level": 4, "id": "analytic", "metric": "items passing / items", "threshold": 1, "before": 0.98, "after": 0.98 },
+    { "level": 5, "id": "simulation", "metric": "items passing / items", "threshold": 1, "before": null, "after": null },
+    { "level": 6, "id": "scale", "metric": "items passing / items", "threshold": 1, "before": null, "after": null },
+    { "level": 7, "id": "roadmap", "metric": "items passing / items", "threshold": 1, "before": null, "after": null }
+  ],
+  "bankSize": 651, "passing": 646, "failingByFamily": { "edge-accuracy": 5 },
+  "failingCauses": 2, "failingWithoutCause": 0,
+  "failingBefore": ["edge.rule.mde-defaults"],
+  "hypothesis": "the measurement before any fix", "research": null,
+  "change": { "files": [], "commit": null }, "testsAdded": [],
+  "result": "baseline", "durationMinutes": 3, "tokenEstimate": 0
+}
+```
+
+```json file=row1-wrong.json
+{
+  "iteration": 1, "at": "2026-10-14T10:00:00.000Z", "model": "sonnet", "seeds": ["1"],
+  "command": "driftbench validate stats --seed 1 --items --json",
+  "level": { "before": 3, "after": 7 },
+  "perSeed": [{ "seed": "1", "before": 3, "after": 7 }],
+  "metrics": [
+    { "level": 1, "id": "reference", "metric": "items passing / items", "threshold": 1, "before": 1, "after": 1 },
+    { "level": 2, "id": "degenerate", "metric": "items passing / items", "threshold": 1, "before": 1, "after": 1 },
+    { "level": 3, "id": "reproducibility", "metric": "items passing / items", "threshold": 1, "before": 1, "after": 1 },
+    { "level": 4, "id": "analytic", "metric": "items passing / items", "threshold": 1, "before": 0.98, "after": 1 },
+    { "level": 5, "id": "simulation", "metric": "items passing / items", "threshold": 1, "before": null, "after": 1 },
+    { "level": 6, "id": "scale", "metric": "items passing / items", "threshold": 1, "before": null, "after": 1 },
+    { "level": 7, "id": "roadmap", "metric": "items passing / items", "threshold": 1, "before": null, "after": 1 }
+  ],
+  "bankSize": 651, "passing": 651, "failingByFamily": { "edge-accuracy": 0 },
+  "failingCauses": 0, "failingWithoutCause": 0,
+  "failingBefore": ["edge.rule.mde-defaults"],
+  "hypothesis": "packages/stats/src/power.ts: the default power of mde is not 0.8; edge.rule.mde-defaults proves it",
+  "research": null,
+  "change": { "files": ["packages/stats/src/power.ts"], "commit": "0123abc" },
+  "testsAdded": ["packages/stats/test/power.test.ts"],
+  "result": "unchanged", "durationMinutes": 20, "tokenEstimate": 90000
+}
+```
+
+The same row with `"result": "raised"`:
+
+```json file=row1.json
+{
+  "iteration": 1, "at": "2026-10-14T10:00:00.000Z", "model": "sonnet", "seeds": ["1"],
+  "command": "driftbench validate stats --seed 1 --items --json",
+  "level": { "before": 3, "after": 7 },
+  "perSeed": [{ "seed": "1", "before": 3, "after": 7 }],
+  "metrics": [
+    { "level": 1, "id": "reference", "metric": "items passing / items", "threshold": 1, "before": 1, "after": 1 },
+    { "level": 2, "id": "degenerate", "metric": "items passing / items", "threshold": 1, "before": 1, "after": 1 },
+    { "level": 3, "id": "reproducibility", "metric": "items passing / items", "threshold": 1, "before": 1, "after": 1 },
+    { "level": 4, "id": "analytic", "metric": "items passing / items", "threshold": 1, "before": 0.98, "after": 1 },
+    { "level": 5, "id": "simulation", "metric": "items passing / items", "threshold": 1, "before": null, "after": 1 },
+    { "level": 6, "id": "scale", "metric": "items passing / items", "threshold": 1, "before": null, "after": 1 },
+    { "level": 7, "id": "roadmap", "metric": "items passing / items", "threshold": 1, "before": null, "after": 1 }
+  ],
+  "bankSize": 651, "passing": 651, "failingByFamily": { "edge-accuracy": 0 },
+  "failingCauses": 0, "failingWithoutCause": 0,
+  "failingBefore": ["edge.rule.mde-defaults"],
+  "hypothesis": "packages/stats/src/power.ts: the default power of mde is not 0.8; edge.rule.mde-defaults proves it",
+  "research": null,
+  "change": { "files": ["packages/stats/src/power.ts"], "commit": "0123abc" },
+  "testsAdded": ["packages/stats/test/power.test.ts"],
+  "result": "raised", "durationMinutes": 20, "tokenEstimate": 90000
+}
+```
+
+```sh
+driftbench validate stats --journal row0.json
+driftbench validate stats --journal row1-wrong.json # exit 1
+driftbench validate stats --journal row1.json
+driftbench validate stats --check-handover
+```
+
+```text
+Appended iteration 0 to validators/stats/journal.jsonl and rewrote the level table of validators/stats/HANDOVER.md.
+Refused: the row was not appended to validators/stats/journal.jsonl.
+  result: the level moved, so result is raised
+Appended iteration 1 to validators/stats/journal.jsonl and rewrote the level table of validators/stats/HANDOVER.md.
+validators/stats/HANDOVER.md: every section present, the level table matches the journal.
+```
+
+The audit file, written by the audit helpers (here three of the four checks):
+
+```markdown file=validators/stats/audit.md
+| Check | Verdict | Note |
+|---|---|---|
+| blind pilot | pass | 2.1 items fixed per iteration |
+| cheater | pass | no score gain from a cheat |
+| cause review | pending | 18 of 30 reviewed |
+```
+
+```sh
+driftbench validate stats --hardness # exit 1
+```
+
+```text
+Hardness of stats (docs/validators.md section 12.4), from validators/stats/journal.jsonl
+Bank at iteration 1: 651 items, 651 pass on every seed.
+Family  tier 1  tier 2  tier 3  tier 4  tier 5  tier none  items  failing
+Score at iteration 0: 0.9923 (646 of 651).
+Score after the pilot: 1 (651 of 651, iteration 1; 1 of 10 pilot iterations).
+Items fixed per iteration: 5 (mean over the pilot).
+Forecast: 0 iterations to 100 percent (0 failing / 5).
+Distinct failing causes after the pilot: 0 (0 failing items name no cause and count as their own).
+Gate: NOT MET: the pilot holds 1 of 10 iterations; the forecast 0 is under 100: extend the bank (12.2); the score after the pilot 1 is above 0.4; 0 distinct failing causes after the pilot, under 100: extend the bank (12.2); the audit check cause review is pending; the audit check planted bugs is missing.
+Bank minimum at merge (12.1): not met: the row records no bankByFamilyTier, so family and tier sizes are unknown.
+Audit (validators/stats/audit.md, section 12.7):
+  blind pilot: PASS, 2.1 items fixed per iteration
+  cheater: PASS, no score gain from a cheat
+  cause review: PENDING, 18 of 30 reviewed
+  planted bugs: MISSING
+```
+
+Every reason the gate fails is named: the pilot has one row of ten, the bank is already green so nothing is
+left to forecast, and the audit is incomplete. `--brief` is not part of this example: it runs the whole
+ladder first, which takes minutes.
 
 ## Common errors
 

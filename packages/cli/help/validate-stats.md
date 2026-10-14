@@ -143,7 +143,7 @@ driftbench validate stats --hardness # exit 64
 validators/stats/journal.jsonl: the journal holds no iteration 0 row: run and record iteration 0 first.
 ```
 
-The ladder on seed 1, at the repository root (not run by the help test; 143 seconds on a busy machine):
+The ladder on seed 1, at the repository root (143 seconds on a busy machine). Shown as text, not run by the help test: a whole ladder runs for minutes, and the level it reaches changes as the product is fixed.
 
 ```bash
 pnpm -s driftbench validate stats
