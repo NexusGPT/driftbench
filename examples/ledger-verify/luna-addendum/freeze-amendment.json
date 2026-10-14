@@ -1,0 +1,132 @@
+{
+  "at": "2026-10-13T15:12:15.323857+00:00",
+  "authorization": "Owner: Haiku first. Luna is closed and reported; its official result and 221-item TEST stay exactly recorded. Recover six noise-0 connection failures only in a labelled addendum, with a second line with recovered items beside the official line, never replacing it.",
+  "model": "gpt-6-luna",
+  "phase": "noise-0-addendum",
+  "reasoning": "medium",
+  "timeoutMs": 300000,
+  "maxConcurrency": 2,
+  "capUsd": 40,
+  "networkPolicy": "evidence/network-pause-20261013.json",
+  "retryPolicy": "Missing-only no-output connection failures have no attempt limit; returned answers are never resubmitted; retain holds.",
+  "calls": [
+    {
+      "id": "359cc0d8-5ed1-446a-97a8-b97db9a6659c",
+      "model": "gpt-6-luna",
+      "at": "2026-10-13T09:30:34.962Z",
+      "message": "https://api.openai.com/v1/chat/completions could not be reached (TypeError)",
+      "fingerprint": "c2f5ee1e2e186baa73ea509da110d4bc06c916ddfe5a2e3e151b249cf671e79b",
+      "phase": "noise-0",
+      "reservationRetained": true,
+      "key": "0311586b3d01f7e2cc69",
+      "labels": {
+        "bench": "longjudge-verify",
+        "contestant": "driftbench-verify-uncertainty-cascade",
+        "item": "5379ab99eae4161320d5bb2c0850315e_bcec25bc2e21ce2667e0368df647bcf2",
+        "order": "single"
+      }
+    },
+    {
+      "id": "48ff8412-a7f9-4e8d-8ef5-da100ee7660a",
+      "model": "gpt-6-luna",
+      "at": "2026-10-13T09:30:50.168Z",
+      "message": "https://api.openai.com/v1/chat/completions could not be reached (TypeError)",
+      "fingerprint": "501847934527a1efd804c68f5b4359199624776334ac5a83567f83a264c0ebb8",
+      "phase": "noise-0",
+      "reservationRetained": true,
+      "key": "5e0d9d89e66853e7fac8",
+      "labels": {
+        "bench": "longjudge-verify",
+        "contestant": "driftbench-verify-uncertainty-cascade",
+        "item": "542a4a7aed316e1a799d1c145b101ea9_c10967faf71a528ab33e138f74ffb1cf",
+        "order": "single"
+      }
+    },
+    {
+      "id": "0bfa1273-d2c6-467d-a59a-ebdc7ba5088b",
+      "model": "gpt-6-luna",
+      "at": "2026-10-13T09:31:01.741Z",
+      "message": "https://api.openai.com/v1/chat/completions could not be reached (TypeError)",
+      "fingerprint": "79465c13367ca34d8450c732e3dad373324f1b81db1819d905b5b5549a9aecd7",
+      "phase": "noise-0",
+      "reservationRetained": true,
+      "key": "b1985fb61943e37cec1c",
+      "labels": {
+        "bench": "longjudge-verify",
+        "contestant": "promptfoo",
+        "item": "00a93c5457ba7180f88944780f9134a0_773a31d04e4d41c29af003fb95f3b960",
+        "order": "single"
+      }
+    },
+    {
+      "id": "ca2480bc-a5e2-437a-b706-5e33cd7a0cc9",
+      "model": "gpt-6-luna",
+      "at": "2026-10-13T09:31:01.742Z",
+      "message": "https://api.openai.com/v1/chat/completions could not be reached (TypeError)",
+      "fingerprint": "5be3b546e9d9d7c931c051585e3308260e3e68cd302e9c0ed6dc468eb52599fb",
+      "phase": "noise-0",
+      "reservationRetained": true,
+      "key": "b639575bebb462411f4f",
+      "labels": {
+        "bench": "longjudge-verify",
+        "contestant": "promptfoo",
+        "item": "002ba0331c11a198784abdfff1d7b8fb_936d37ed03db3340809ca9409508b906",
+        "order": "single"
+      }
+    },
+    {
+      "id": "a3771bff-2502-46ba-8b00-818f6954b3e1",
+      "model": "gpt-6-luna",
+      "at": "2026-10-13T09:30:38.584Z",
+      "message": "https://api.openai.com/v1/chat/completions could not be reached (TypeError)",
+      "fingerprint": "ea5bd522d9aacc2aff97c4dafa96396c613738003b2afea60623f4605244d1a5",
+      "phase": "noise-0",
+      "reservationRetained": true,
+      "key": "dc9dd929b437c075c3de",
+      "labels": {
+        "bench": "longjudge-verify",
+        "contestant": "driftbench-verify-uncertainty-cascade",
+        "item": "542a4a7aed316e1a799d1c145b101ea9_c10967faf71a528ab33e138f74ffb1cf",
+        "order": "program"
+      }
+    },
+    {
+      "id": "e8fe9072-f32d-457f-a8ce-28744e87040f",
+      "model": "gpt-6-luna",
+      "at": "2026-10-13T09:30:27.377Z",
+      "message": "https://api.openai.com/v1/chat/completions could not be reached (TypeError)",
+      "fingerprint": "7fa70e60a66023e32e52880409d18ac4156f7e941409252eee7d86da2768cc66",
+      "phase": "noise-0",
+      "reservationRetained": true,
+      "key": "dd6b49a6c5fe9ebceb8b",
+      "labels": {
+        "bench": "longjudge-verify",
+        "contestant": "driftbench-verify-uncertainty-cascade",
+        "item": "542a4a7aed316e1a799d1c145b101ea9_c10967faf71a528ab33e138f74ffb1cf",
+        "order": "final-step"
+      }
+    }
+  ],
+  "officialHashes": {
+    "pilot/gpt-6-luna.json": "68a95a95d282242ef038e973be3ebf75f2b9c1fb5b819893ad2fb404e87e531e",
+    "recordings/b4e4305a2426e0bb7589/pilot/longjudge-verify/gpt-6-luna.jsonl": "8d749bfb6b895848420f75a96a876628bb92011d5dba18ae567717257209dde5",
+    "validity/gpt-6-luna.json": "9afee94de93034c99a4fead14240a553a204db699f7bffb27bc945b756088d05",
+    "recordings/2869d4d1f750545a2c7d/validity/longjudge-verify/gpt-6-luna.jsonl": "5a43beeaca0c84859f72aa5f6f88bad8ee0b31ee506fd748e5aa1c3d98930915",
+    "noise-0/gpt-6-luna.json": "fc6c149582a2bcd4d8a8c6d493dd0e1dbe45053f90ddd5ec46f62f4536d3e4b5",
+    "recordings/2869d4d1f750545a2c7d/noise-0/longjudge-verify/gpt-6-luna.jsonl": "ce159add40bec50d314b3ea0167ca63f1b60fb2111b2e078079dcac5dd5ea023",
+    "noise-1/gpt-6-luna.json": "fd4db9a1016ef2daa23f65238e06b6618dfa24d06291c5700405f9dd34b88b74",
+    "recordings/2869d4d1f750545a2c7d/noise-1/longjudge-verify/gpt-6-luna.jsonl": "64561a4ae271e89f2616162a4fc0ba405a502da13ab54a5a27d493d3c7f00fd9",
+    "noise-2/gpt-6-luna.json": "f757230bd70ded2e7326e91e6aa4c089cf6e232a038ccb4815487edf9b96a4e2",
+    "recordings/2869d4d1f750545a2c7d/noise-2/longjudge-verify/gpt-6-luna.jsonl": "71b05f51c9f1e105cf2943639fd1da116728bd44da7824020c6e67c6b6856730",
+    "results/gpt-6-luna.json": "13d3510ddb261d71758bca9cb14236159d25aca4522e5a17b180941facde4e20",
+    "recordings/2869d4d1f750545a2c7d/test/longjudge-verify/gpt-6-luna.jsonl": "940a20de93cf077bcd2c6eee33ea60273fb76ebd4925e6d49ce80412a71c61d9"
+  },
+  "reportPolicy": "Four missing final decisions may be filled in an addendum copy. Two recovered intermediate requests remain supplemental because their existing final answers cannot be replaced. The official noise and TEST rows remain unchanged.",
+  "pricing": {
+    "source": "https://developers.openai.com/api/docs/pricing",
+    "inputPerMillion": 0.1,
+    "cachedInputPerMillion": 0.01,
+    "cacheWritePerMillion": 0.125,
+    "outputPerMillion": 0.5
+  }
+}

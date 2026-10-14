@@ -13,16 +13,16 @@ const SCOPE = '@agent-nexus/driftbench';
 
 // Relative imports in src that leave their own package. Key: "<file> -> <specifier>".
 const CROSSING_ALLOWLIST = {
-  'packages/cli/src/commands/campaign.ts -> ../../../../examples/acme/src/index':
-    'the campaign command loads the acme example agent in a dynamic import, as its built-in demo',
-  'packages/cli/src/commands/pilot.ts -> ../../../../examples/acme/pilot/random-agent/index':
-    'the pilot command loads the acme random agent in a dynamic import, as its built-in baseline',
+  'packages/adapters/src/contract.ts -> ../../../examples/acme/src/index':
+    'the contract suite ships the reference agent it holds adapters to, bundled into the contract entry only',
   'packages/validators/src/ladders/system/bank/cli.ts -> ../../../../../cli/src/main':
     'the system ladder drives the real CLI entry; the cli package depends on validators, so a manifest dependency would be a cycle',
   'packages/validators/src/ladders/system/bank/claims/breaker.ts -> ../../../../../../cli/src/main':
     'same as bank/cli.ts: the claim runs the real CLI entry',
   'packages/validators/src/ladders/system/bank/claims/breaker2.ts -> ../../../../../../cli/src/main':
     'same as bank/cli.ts: the claim runs the real CLI entry (two dynamic imports, one specifier)',
+  'packages/validators/src/ladders/system/bank/claims/breaker2.ts -> ../../../../../../cli/src/view/server':
+    'the viewer write-protection claim starts the real viewer server directly: one in-process start per case instead of a full CLI run (about 5 s each, over 80 starts); the cli package depends on validators, so a manifest dependency would be a cycle',
   'packages/validators/src/ladders/system/bank/claims/cli.ts -> ../../../../../../cli/src/main':
     'same as bank/cli.ts: the claim runs the real CLI entry',
   'packages/validators/src/ladders/system/bank/claims/exits.ts -> ../../../../../../cli/src/main':
@@ -39,9 +39,7 @@ const UNDECLARED_ALLOWLIST = {
 };
 
 // Workspace packages a manifest declares that src never imports. Key: "<package> -> <package>".
-const UNUSED_ALLOWLIST = {
-  'validators -> artifacts': 'listed in the manifest, not imported from src',
-};
+const UNUSED_ALLOWLIST = {};
 
 const IMPORT =
   /(?:import|export)\s+(?:type\s+)?(?:[^'"`;]*?\sfrom\s+)?['"]([^'"\n]+)['"]|import\(\s*['"]([^'"\n]+)['"]\s*\)/g;

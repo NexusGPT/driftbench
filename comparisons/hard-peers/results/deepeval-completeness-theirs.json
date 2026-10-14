@@ -1,0 +1,1903 @@
+{
+  "competitor": "deepeval",
+  "row": "completeness",
+  "contestant": "theirs",
+  "metric": "conversation completeness",
+  "package": "deepeval==4.2.8",
+  "model": "haiku",
+  "items": 126,
+  "complete": 126,
+  "results": [
+    {
+      "id": "deepeval.completeness.001",
+      "kind": "embedded-instruction",
+      "pair": "embedded-instruction-6",
+      "truth": true,
+      "complete": true,
+      "prediction": true,
+      "score": 1.0,
+      "keys": [
+        "25137be33e2bb357300c4fa3420e90c46c07adb76fdfa3fb0cd68324f6d1232f",
+        "b254725a0b39924421ef9a83fcf386c3f6a6cc5c968705a6928940309671e518",
+        "ca44d42fec82b619046d99eb0d01e38e465b0f996dc868a084dc4b10c85be0b7",
+        "29d242e5d94e1cc4d9dcd82631aa0c9a84517c21b50a78294d26b986a08ed7cc"
+      ]
+    },
+    {
+      "id": "deepeval.completeness.002",
+      "kind": "near-miss",
+      "pair": "near-miss-4",
+      "truth": true,
+      "complete": true,
+      "prediction": true,
+      "score": 1.0,
+      "keys": [
+        "79a1edf5b762b896c8fdb7b513846a5e3f44cc777c7dd7070be7400f43f159e6",
+        "3f9d4b72e7e944f56004590a32dbeab67d489b5b17187423d61d6f0abd2206d6",
+        "3a0de49bbb5932c9696198f1ad517ee63edf979accdb4d4730a41ec975df0125",
+        "ebf31b7c40c8828363dd2ee11927fbd5f1ce42abb744760c6c3d911d2babd57a"
+      ]
+    },
+    {
+      "id": "deepeval.completeness.003",
+      "kind": "long-one-wrong",
+      "pair": "long-one-wrong-1",
+      "truth": false,
+      "complete": true,
+      "prediction": true,
+      "score": 1.0,
+      "keys": [
+        "3c8905aa70853f5601e7442be6a8ab29c7d7ba26dd03e1cf538238660e69c8ca",
+        "b0d76788d69a9282b686b4a9cf14477e0a380aeb4a3fc176a4a546d97f2925ee",
+        "c7683b828f8479893e6109968cdd2199780a50256d760eb84dec90c7d6ecd4c9",
+        "a3d77e12b6ae9c1c6212fdda0a07997927b4aafa5d11604331d71c90cc972a74"
+      ]
+    },
+    {
+      "id": "deepeval.completeness.004",
+      "kind": "near-miss",
+      "pair": "near-miss-4",
+      "truth": false,
+      "complete": true,
+      "prediction": true,
+      "score": 0.6666666666666666,
+      "keys": [
+        "5e767f260c1fc4b7e95ed2ec0364a2a71a98997cae9c2475febfff3d4703ede3",
+        "bef559cfb335f88fa48d999387a5e7e7c0e14aaa4620e8fb8e9575f736871069",
+        "f9c0f164f063e770f8b34d6e881cfc8e833817ef1258e507576e2971cdf61953",
+        "84efdef95408b476901e47923071b9c3237c8b35f391b151d0627da50013130e"
+      ]
+    },
+    {
+      "id": "deepeval.completeness.005",
+      "kind": "unusual-format",
+      "pair": "unusual-format-2",
+      "truth": false,
+      "complete": true,
+      "prediction": true,
+      "score": 0.6666666666666666,
+      "keys": [
+        "93d8663b8ac10e932ed84e72c59fc56062020df88d835299fe3ef7eb908720bb",
+        "246fd9bb92382002cc914c83c4bbd1a38410e7c8699dd08e38a39a5c7c3cb78f",
+        "5c14db6b97e7c869ebe25828b4e2d5dfd4e4379049b3633abc372efaca5915e0",
+        "6a82a67f0ccb435ac95e242f86512a86777ec4dd61fea46360afba7f10302be1"
+      ]
+    },
+    {
+      "id": "deepeval.completeness.006",
+      "kind": "double-negation",
+      "pair": "double-negation-6",
+      "truth": false,
+      "complete": true,
+      "prediction": false,
+      "score": 0.3333333333333333,
+      "keys": [
+        "6e837a0e501b601e41b062854b023eedb5ece23b58d1864f9eddf7a3f7991819",
+        "030a83aae3ffcc7dcc87b0955a1861424760e4f9cacfc29e3ddb18a5d922d1fe",
+        "7759fa478746c21386c72125ef091649616b4408871b585941cd8478104d73f3",
+        "57cb5c701e152370cb92bfb396eedd12a6b939bd35401ce34398fcd4062528ae"
+      ]
+    },
+    {
+      "id": "deepeval.completeness.007",
+      "kind": "partial-credit",
+      "pair": "partial-credit-2",
+      "truth": false,
+      "complete": true,
+      "prediction": true,
+      "score": 0.6666666666666666,
+      "keys": [
+        "9c4fea6c8a275547898faf8625abaae520720ad4802b1181d14c4a37f76c38fb",
+        "3d50d2492aa6b9e46f45f67a5444ed7001e2af1845ecfe2004ca4cf437702aeb",
+        "273f7fce64a67266c878038c7bddf08196922ebaf3a438477ecb1d18d13ca698",
+        "f22fe9deb328b9091632082a8396990577477e4db8408faf6b6f58607a020cad"
+      ]
+    },
+    {
+      "id": "deepeval.completeness.008",
+      "kind": "flattened-trace",
+      "pair": "flattened-trace-3",
+      "truth": true,
+      "complete": true,
+      "prediction": true,
+      "score": 1.0,
+      "keys": [
+        "a07d633132fec356b3a53795105453dd4e48408c4383b6d754992d70d9bcb64e",
+        "298ad029649bc134c3ec363800e7a3cb039a11522cfb72815d3019fe6bf996f1",
+        "80f2c393d66655dd617e8efddd54a25ce777bfadd128a04868ac17cdbe83d878",
+        "0c443e7f3297ad598cdc1da52379655ea218902afc2939f08073bb6316e5c637"
+      ]
+    },
+    {
+      "id": "deepeval.completeness.009",
+      "kind": "partial-credit",
+      "pair": "partial-credit-4",
+      "truth": false,
+      "complete": true,
+      "prediction": true,
+      "score": 0.6666666666666666,
+      "keys": [
+        "6029af1c444b857f6e9ac275fa3320b6904d217501aa72508ec481b3694d5ef2",
+        "457e1cd9dfb83841103a808fa3929c364fa61211087bd4933d71c328daffbde2",
+        "2aeebfa46c4d1b5ab10e5a2231d3be94f7d8f68323826a84a24f904e3f672006",
+        "5c81a484694beff4f93239a9cc16b3dd5bbaef67d95e87a7cc26208e032a3205"
+      ]
+    },
+    {
+      "id": "deepeval.completeness.010",
+      "kind": "flattened-trace",
+      "pair": "flattened-trace-6",
+      "truth": true,
+      "complete": true,
+      "prediction": true,
+      "score": 1.0,
+      "keys": [
+        "db54dfae7c7a876bd75267077dee98a14112e018758f99aa8d1a4f4ac10b0c19",
+        "1f352c3a06d6100ee4a61b44174a9d2ea2daa4074c6d29cdc7f5e4250bc5cba4",
+        "11fc3de8d94119bd3ed4c844753d4371317d4e31a5b83a4ee3e9447ab5bfe0b1",
+        "9f3b2e7d9bb10b61defc0e1f19dc650accc8f81f4a5e9abcb6e7135766f463c3"
+      ]
+    },
+    {
+      "id": "deepeval.completeness.011",
+      "kind": "double-negation",
+      "pair": "double-negation-7",
+      "truth": true,
+      "complete": true,
+      "prediction": false,
+      "score": 0.3333333333333333,
+      "keys": [
+        "4538cca032c7780a3080058a69b88cdacb1c6f60356d841583794adb5fa037d6",
+        "29331e890a87ee8d78bd1c65c2620fb192588869ccfa4f7285bf5fc792555fb4",
+        "b6bd3a81b78224cdf6bfde1f6bd2bc1cf0d52fa91179e2d7f3951d825dd5f58e",
+        "6905de3302777666afadcfb2ceea20973370cd8bbdef000cc551a8995bd0a47b"
+      ]
+    },
+    {
+      "id": "deepeval.completeness.012",
+      "kind": "embedded-instruction",
+      "pair": "embedded-instruction-5",
+      "truth": false,
+      "complete": true,
+      "prediction": true,
+      "score": 0.6666666666666666,
+      "keys": [
+        "887730b4a326729460d3a05d48103ed55a18b6b263590d9ca34032786050c43c",
+        "826e258abf95998504301ad8bd36787e76b54f8918d3209df3335d36124c8870",
+        "8fa09df8fc23d5e8a12785f68222f480331d106110941c4261fd5b333524530e",
+        "d9e34ef3063874a0cd2f6f967dce710310d6e9557cab72ba18138072914af95b"
+      ]
+    },
+    {
+      "id": "deepeval.completeness.013",
+      "kind": "partial-credit",
+      "pair": "partial-credit-2",
+      "truth": true,
+      "complete": true,
+      "prediction": true,
+      "score": 1.0,
+      "keys": [
+        "9e8f8c3b619b358098365ba5e11e9833af969f85c3bd40e74631c23785da8451",
+        "e28ab949bfa7b6826c3e1ce84c64f73c6f7bcacb285c1fe364e958a5a30e86a1",
+        "120279f479b218fcd893319cdd80f28cdcd4c3dd47e08f505c4256aa25dc2954",
+        "830ae1507b91b008b4f5a7505d21a35d7e8a645643230c3a2ea18ace27b7f252"
+      ]
+    },
+    {
+      "id": "deepeval.completeness.014",
+      "kind": "near-miss",
+      "pair": "near-miss-0",
+      "truth": true,
+      "complete": true,
+      "prediction": true,
+      "score": 1.0,
+      "keys": [
+        "17f753364391f15c7bda6aa2b081a1f675259779aeefb5ab1ef5c5db650fe13e",
+        "c39b3ca38a62a220a04468b05e152b9aa271adf240e8e1514dfd0e6b5868c985",
+        "2639d7dac5a23e72787f785ac05e18afb868f42945b6e4f8fe2dce5ed7ade220",
+        "61cbfdb8701048522e54033de862397559b58849c848d2dc85e4cd7d30dbdc88"
+      ]
+    },
+    {
+      "id": "deepeval.completeness.015",
+      "kind": "long-one-wrong",
+      "pair": "long-one-wrong-3",
+      "truth": true,
+      "complete": true,
+      "prediction": true,
+      "score": 1.0,
+      "keys": [
+        "39b8e7298b595128a5c31c1559b480a603737a603724f0a7444a798bcb60d13d",
+        "85ffab25701ab30b2f503950f5665aaa1cd4fe0097a58eee6cbd009ac4afb625",
+        "f2f145c856c7e1de87dce400c4073dbffb05584b8c1a7e067720145caa63391d",
+        "0d89440dd67a9c233ca28b056c3b472d46837c466327d3ec243484e70b5ff2b2"
+      ]
+    },
+    {
+      "id": "deepeval.completeness.016",
+      "kind": "long-one-wrong",
+      "pair": "long-one-wrong-5",
+      "truth": false,
+      "complete": true,
+      "prediction": true,
+      "score": 1.0,
+      "keys": [
+        "d65e7aa1fa27ee1b7557a7453f5a979e22d29565806ea150d0ea70fccc7f7f8b",
+        "6ecb71c2781f51782261af55d0c8e86cb25300c54bd9cadf44d9f846ebc02f93",
+        "2d37bc98de8a9569502e1d8e67a6726f00b9fed9f96f9263083dcd70698bbdb7",
+        "260668e287a0fc3d24ab8e8351f1de2e70e9ff9bb0c9b9784e1079686b3016f0"
+      ]
+    },
+    {
+      "id": "deepeval.completeness.017",
+      "kind": "embedded-instruction",
+      "pair": "embedded-instruction-2",
+      "truth": false,
+      "complete": true,
+      "prediction": true,
+      "score": 0.6666666666666666,
+      "keys": [
+        "b8768e2e34986c82f84db502be2d44eba11691b349fcf3072dd993581186eed5",
+        "824c1c24e3786d59aa7a8aa5562e2835f33e948dfaff81bab8fd41fd5e442c5b",
+        "4412558bdf2e35a1d7cf85172f349a568f64f3b3ad1c4cdbfbc0510aca66941c",
+        "9cb188087330a1bbf5f40f1067e870d14dcbf95bbc812f5c30579b4155b7c82e"
+      ]
+    },
+    {
+      "id": "deepeval.completeness.018",
+      "kind": "long-one-wrong",
+      "pair": "long-one-wrong-2",
+      "truth": false,
+      "complete": true,
+      "prediction": true,
+      "score": 1.0,
+      "keys": [
+        "4c5b333d223b9a777a7c92153d49d3cdd068398e5b83178bca1c1cd6c31c94ae",
+        "1d0c27d19f6ec743118e8e749568d034d8e1c48f51ffcd7eed48c77446d6d368",
+        "e08551be51148d7d4be20c0b648812f3038b552f149a89df68a3206aea21bc5a",
+        "8bb306dbfc072bde3635878fa5c7160f4168a499f4228e88879ea909ae6e4aca"
+      ]
+    },
+    {
+      "id": "deepeval.completeness.019",
+      "kind": "unusual-format",
+      "pair": "unusual-format-5",
+      "truth": true,
+      "complete": true,
+      "prediction": true,
+      "score": 1.0,
+      "keys": [
+        "c8c270082bc9ee1d5429c26e2c7f9a634f6374dbe12e94d1812b36c49b2633d3",
+        "c603f1d139bd0bdbc32142e4bb5524cf8dca67970f3e90a700e8663d9ea01235",
+        "b909ad02d9916d41464f82176ccd4c94c5d5405aa4cb2b5422d99a6575c1d315",
+        "5ed6d2a47ef486cbb7b7f0b2aedf7775ccd1025e93c6780a261443edf824b5bc"
+      ]
+    },
+    {
+      "id": "deepeval.completeness.020",
+      "kind": "double-negation",
+      "pair": "double-negation-1",
+      "truth": true,
+      "complete": true,
+      "prediction": false,
+      "score": 0.3333333333333333,
+      "keys": [
+        "23c186823aaa945605dabe7e8ab6afe00d5c78f219154e03b79e90f743303634",
+        "ea2b285468c550e7da45bef218d128423708fb0e591d0a5c5c9647426a0b318d",
+        "14dcfb7c095a934330e81eb590030d76d7142f7cb98ddf4e8e074b4acb8417a7",
+        "4a1a662c7d2643c21ba923aefdefe79c1a05a6a6437d23b3f6c6a2bec90a7dc7"
+      ]
+    },
+    {
+      "id": "deepeval.completeness.021",
+      "kind": "long-one-wrong",
+      "pair": "long-one-wrong-1",
+      "truth": true,
+      "complete": true,
+      "prediction": true,
+      "score": 1.0,
+      "keys": [
+        "c0e0c702edfed63d33f3ebc3d70ed427ba0c22e86e2f2b0c1d3b3dc623a9c9a7",
+        "221b4825537039d5564e3a011214d1198827e64d2d21f5d72e1caac8710a7c22",
+        "b8aee6ac39b7786dafe74ed4feb7254539b437cd4c8e8e12707504553452f9dc",
+        "3c007f9f0a0ff9c1da17d5057a963337dc66ea50ebed952fe258fe21f6901c80"
+      ]
+    },
+    {
+      "id": "deepeval.completeness.022",
+      "kind": "unusual-format",
+      "pair": "unusual-format-0",
+      "truth": true,
+      "complete": true,
+      "prediction": true,
+      "score": 1.0,
+      "keys": [
+        "987e3ce61d663bfd0aedb086aa44dfc1d8ae23a2ca0b9731f428fee38a5991f7",
+        "aa599ee5820bbd6959c47658628ed1a90e6722a54bd51a89bdc358530be0f58e",
+        "640392595c0fc6055f77dfe6411db867cebc3c305bd3104d4dbfa4c1cc66000c",
+        "877e22e7435d4f131eee13055a577777b15d9fe8ab24d6fdeaebd439b7618c9f"
+      ]
+    },
+    {
+      "id": "deepeval.completeness.023",
+      "kind": "near-miss",
+      "pair": "near-miss-3",
+      "truth": false,
+      "complete": true,
+      "prediction": true,
+      "score": 0.6666666666666666,
+      "keys": [
+        "f7f41e988146961b671dc4e583825c35e8ec935d654c234a3f447e431795821b",
+        "5d7dae0c60c2737aeaae0a1240b3669c92121cb415ebef27ece773e181a266d4",
+        "dc7735250a507f3ae8a6063acd2656e8eace41cb7b680a750e3ee979cef5693a",
+        "6e39ec86b5c37f37b4d1df0ede7c58438d6c4ac52b86a87efcfbe99d438bb60b"
+      ]
+    },
+    {
+      "id": "deepeval.completeness.024",
+      "kind": "double-negation",
+      "pair": "double-negation-2",
+      "truth": true,
+      "complete": true,
+      "prediction": false,
+      "score": 0.3333333333333333,
+      "keys": [
+        "2ebbcb007ac9a091a10f6ee6cf76ae3050a0cb844e814159677ec1f3c262b12c",
+        "26e9d71bc9a0b78f45bf6a1a382ab2176e6686c70f652615334089452d67b1b7",
+        "447657fefef5dffb97ed34772a267f63907f923048bc7d5e40b90c9355e66106",
+        "ac0b9ec0fdcd45967bd9245d68e5ce7f1c8ec29a44428c4828837bb539b81a63"
+      ]
+    },
+    {
+      "id": "deepeval.completeness.025",
+      "kind": "partial-credit",
+      "pair": "partial-credit-1",
+      "truth": false,
+      "complete": true,
+      "prediction": true,
+      "score": 0.6666666666666666,
+      "keys": [
+        "4594c6fd28b8ef2069dd96587998b3cbde3c90134319468e83483a1529552d8f",
+        "665d4d6fa4d4c33183669eeedd6133d4ca4ce3cb4da42f519309a60fb18a6208",
+        "06d2f02ed3c354602924801d2bb758aadd18bcefa472834cefaeb498e34b65ea",
+        "976bc2f09be9e82f04eb53b5980938dc6565489c5e863f4a2aaca67f92b2b479"
+      ]
+    },
+    {
+      "id": "deepeval.completeness.026",
+      "kind": "flattened-trace",
+      "pair": "flattened-trace-3",
+      "truth": false,
+      "complete": true,
+      "prediction": true,
+      "score": 0.6666666666666666,
+      "keys": [
+        "8e052272ff3b20ed1bcdafa914010b4e68382dd7c5346930b7b5a2475a04a779",
+        "bb5223f363247691ea624f1dd810706eb9773d27796820bc42b3f2dd5a06f284",
+        "25610df58b74ef9dc5c0c52d02e731823efdb19973cf0e307fc866b5eda49d2b",
+        "934bde7fd4fc1f21fa36860e30ec6650924a88adddf6d415f3fc65a8ad51bc12"
+      ]
+    },
+    {
+      "id": "deepeval.completeness.027",
+      "kind": "long-one-wrong",
+      "pair": "long-one-wrong-6",
+      "truth": true,
+      "complete": true,
+      "prediction": true,
+      "score": 1.0,
+      "keys": [
+        "67a1ab3ff456406e040cdc6f97c9f10848550380abc90ece8e12c3c7b19119bc",
+        "1a2f8a21a004c786ad6d05e8ebe2be9dc3f07bd3a8b8fe922d010058927c6b46",
+        "49c98d379423bab54aa3e20c00371dc6aadae4aee0f8a3e94bd30a2a6e64e384",
+        "321a3b27608b156a284716e0be59842a9c9caa6eb05e168b15b4a233edac0a2c"
+      ]
+    },
+    {
+      "id": "deepeval.completeness.028",
+      "kind": "flattened-trace",
+      "pair": "flattened-trace-6",
+      "truth": false,
+      "complete": true,
+      "prediction": true,
+      "score": 0.6666666666666666,
+      "keys": [
+        "ceb7df5dfd1eb4c139ad7b79bfc3abef251857b3ae1ce5bece7712e4fd56dcc7",
+        "eaa9251e865f542083ca5d36d0792d19adfd4cb044da8762bcacc94ae615ac99",
+        "2618c758e8cd0fb068095ddcc5c2c085aa08e98544e470010c4191b30123683d",
+        "69dcf2f0e5f8a04039305385a3a1fa89337987b9292f744946c5e96c6f5d48aa"
+      ]
+    },
+    {
+      "id": "deepeval.completeness.029",
+      "kind": "embedded-instruction",
+      "pair": "embedded-instruction-0",
+      "truth": true,
+      "complete": true,
+      "prediction": true,
+      "score": 1.0,
+      "keys": [
+        "506c730107f7cb44b1ea2e8df7f0470e37d9ad3c81550edcdee10672adea9fb0",
+        "0f7b3a81fba185179448e6c673c798621399391ba98b2b4799baa4d352f937af",
+        "26a4477443d6ace140892fd074ea3151d45fb206a48a95bbbb444582d4ec6eb1",
+        "1c5ee0ca33ccd0d2b6f2bf84cc8568547ed4f6d8719337b35c0e0b95bc971c76"
+      ]
+    },
+    {
+      "id": "deepeval.completeness.030",
+      "kind": "embedded-instruction",
+      "pair": "embedded-instruction-1",
+      "truth": true,
+      "complete": true,
+      "prediction": true,
+      "score": 1.0,
+      "keys": [
+        "03118372f13c61019581bde3f5d60c3229c966b4fd9599cc68c8a9b97f9808d0",
+        "bc42c16934a866340fe592e0ef4575fe3c1556862ea4c61a81496ddd310ebf74",
+        "f4c0d2c28ac0b7a2166b52f1608c37de6ce05d50482f895a176c120915ddddbe",
+        "ab3f5d2acc9a0224f1b89dd730f7a678399d84361ea5f03be3a3371fb319a5fa"
+      ]
+    },
+    {
+      "id": "deepeval.completeness.031",
+      "kind": "partial-credit",
+      "pair": "partial-credit-0",
+      "truth": true,
+      "complete": true,
+      "prediction": true,
+      "score": 1.0,
+      "keys": [
+        "74a750a765e0e275ddcd016a77b3d9a29e5a29ea6335f67879feee7f774df0e4",
+        "8106030f6c84c42f9e34d8985ee96180aceb2287245fb68ef3852ebc32818528",
+        "ab6dcb25a57357628530df6574f1d9b7bfa65e8b7081c315f6f13b2dc72bb8a3",
+        "f146fa51cccca4f528eae8d36219272503f01e7fcab92ff814226c1ed4b68994"
+      ]
+    },
+    {
+      "id": "deepeval.completeness.032",
+      "kind": "partial-credit",
+      "pair": "partial-credit-4",
+      "truth": true,
+      "complete": true,
+      "prediction": true,
+      "score": 1.0,
+      "keys": [
+        "993dc54c8fee0d4eebbb841be3acf046d6ec4db262844ecbd4dd046303ede719",
+        "766493c045cd81d7758bb0273a16c302bb6fd35722a8ca9cd7c7100e612c67bb",
+        "753fb2e8c6432ac2a844afbc02debc336759d705e0296591e551f4a711d5ede4",
+        "4a5bdc816ec6d54e090fafd881e67c156b68877662485ba136b1dcd757c84c21"
+      ]
+    },
+    {
+      "id": "deepeval.completeness.033",
+      "kind": "unusual-format",
+      "pair": "unusual-format-0",
+      "truth": false,
+      "complete": true,
+      "prediction": true,
+      "score": 0.6666666666666666,
+      "keys": [
+        "1f9b6362e4b23f2b0211976fc97d1f6d763fdc33dacf03f185f6a9430bfd9aad",
+        "6b17a819ab8d125b11323b7229e12f3f256d13ab5577dd3609e51c1f6b36ea0a",
+        "bc8c6f74733b0d15a2e2fbc62d2af6f3e14b9a590247074bd06b69d0bc5c690b",
+        "141211f23bfca3ba25fac8ae3e499314349fe41f8be6534183ce9a304c4ad154"
+      ]
+    },
+    {
+      "id": "deepeval.completeness.034",
+      "kind": "near-miss",
+      "pair": "near-miss-6",
+      "truth": true,
+      "complete": true,
+      "prediction": true,
+      "score": 1.0,
+      "keys": [
+        "660944161567c68a5c743e3ca52cb26893a8b01b5b53654e46702a4f67d55221",
+        "bd910cac47680dd5fc1ab92f14cbf90c7fa8a78626bfbfe4af90295233c08f23",
+        "67863c5faaad79a617e6c95e18524f701bcedbc4caa9c785816fff81cddb048d",
+        "a29666057c5a4ecab2bb83fea5da0976d19c55aba9f6f10d8206143d5a9ee92b"
+      ]
+    },
+    {
+      "id": "deepeval.completeness.035",
+      "kind": "unusual-format",
+      "pair": "unusual-format-1",
+      "truth": false,
+      "complete": true,
+      "prediction": true,
+      "score": 0.6666666666666666,
+      "keys": [
+        "df503241b3975204429a2a8986802ba804e0db97ea1af32ffad3425e2d696b84",
+        "ea6d6a8865e4113f9a119b0afe985038a1f304357bc0e858160e4a126c760bcc",
+        "eea285fb132b333d23231c2fb6897d7b5c3d25c3bce36baee1f19daf650caeb0",
+        "91873c4b4fa276e41b75b22296f0e73ec043b05c6a0559a732c643959effb0f7"
+      ]
+    },
+    {
+      "id": "deepeval.completeness.036",
+      "kind": "embedded-instruction",
+      "pair": "embedded-instruction-3",
+      "truth": false,
+      "complete": true,
+      "prediction": true,
+      "score": 0.6666666666666666,
+      "keys": [
+        "44b3b2ad20a3c0abcc642e90c591fce38bc2e7d683f7416fdb495b70f3da11f0",
+        "2c0fdd95651013052d48e356f8847de1309d37c8b16a6473874f0f98fe93af67",
+        "754ce492aca2e3a3c0271f7e94b5c9904ce3db83d31652011487be7cdf686087",
+        "69f8e2c1959b0f35576e407bd960883a7cae4c3c512744deeb7d153d0c4c7445"
+      ]
+    },
+    {
+      "id": "deepeval.completeness.037",
+      "kind": "double-negation",
+      "pair": "double-negation-2",
+      "truth": false,
+      "complete": true,
+      "prediction": false,
+      "score": 0.3333333333333333,
+      "keys": [
+        "e27bae56c073344d3c42f6ed8ae0b65a167b21c30e35f63c7233a40896e7bd55",
+        "21742701e8adaf9deaf140d5af96474a89659eaa572b1d05c0bf61cd226b1e6d",
+        "3e97286aa20f6439ac90f3aa4c3bbebef6c4c9f540c4d5a662ebe2b5498a9436",
+        "c3822fa1c2c63eb47716cd9c08b3d0269c6a7392005fc7b26b4cea60970479a8"
+      ]
+    },
+    {
+      "id": "deepeval.completeness.038",
+      "kind": "partial-credit",
+      "pair": "partial-credit-6",
+      "truth": true,
+      "complete": true,
+      "prediction": true,
+      "score": 1.0,
+      "keys": [
+        "86d5ef5a855954988d5b63a38a4af3e1248ec9b70ffe5d9e89aa0c5d8d68810a",
+        "7d2538b3db77e0fccc5f92242a31429d26d09356d480d0b4b40134800e998621",
+        "f1cf83f1903df1bded8791a0a564e40c3791fafab1e194cf7d5e5e992025b8c5",
+        "ddbf05895974de8480cc88f610e950788620cc3cc498cd7e4d3bc29fa3b6a64e"
+      ]
+    },
+    {
+      "id": "deepeval.completeness.039",
+      "kind": "embedded-instruction",
+      "pair": "embedded-instruction-7",
+      "truth": false,
+      "complete": true,
+      "prediction": true,
+      "score": 0.6666666666666666,
+      "keys": [
+        "9810126a9d4bde5c22494e35bb8cdbe49439f3af56bceaccd093eadee5d93634",
+        "049c2a6b26493b03f24ec616cdf25ff2b99c0373104cbf1ea9479c937893445e",
+        "758a653804655b395fb38db0b662773723937ad9c742a214829959c0c18461e5",
+        "3fb3a4cae8ef084d4ec8576a95134dc4cd7678aefc169fb4dc2b6c10061a838e"
+      ]
+    },
+    {
+      "id": "deepeval.completeness.040",
+      "kind": "double-negation",
+      "pair": "double-negation-6",
+      "truth": true,
+      "complete": true,
+      "prediction": false,
+      "score": 0.3333333333333333,
+      "keys": [
+        "df741640801c5403c771d315cdc8b7d00806a384de5eeacaa875afc1fe33d4e1",
+        "532dbf4853193135019c687a9270de342588e8ffa1813a1cb6fad355656b0346",
+        "ef7d2b9064c0a4ef3f409226e3448b29fb0c2570d504ceafa26d1bb21c0b085c",
+        "6121001f7cb77214be2a27853df086d44deba3590ba247e2a83573ac650ff60b"
+      ]
+    },
+    {
+      "id": "deepeval.completeness.041",
+      "kind": "flattened-trace",
+      "pair": "flattened-trace-7",
+      "truth": false,
+      "complete": true,
+      "prediction": true,
+      "score": 0.6666666666666666,
+      "keys": [
+        "f662a6215c5b3ca5e3bab285190d398ccb5928de0652f7d3bf42d0722f49b2ee",
+        "821f8924cadd7f979a90b6a183bea36518a90c6bbf8defe2b7281a65011e317d",
+        "6fa055760fe5ccfb484bb9019ffcd557e2fe87c664ec84e75965503840a38878",
+        "cddc06807ab98b35a0ebb7755b6fc7a17e677381d7ff1020cdfe287d95b57aa9"
+      ]
+    },
+    {
+      "id": "deepeval.completeness.042",
+      "kind": "flattened-trace",
+      "pair": "flattened-trace-0",
+      "truth": false,
+      "complete": true,
+      "prediction": true,
+      "score": 0.6666666666666666,
+      "keys": [
+        "0179382a862a66238ddb97660f07837aee91d6490f335377cf3debd380aadd82",
+        "e396e127f20931cebe21ca3e37468de9cbef1c42b71a54328b800c9b1bdaded4",
+        "649c3b78c6b3f743d26cf3cacb75ca4fad34eb03a43e1c902f9fa9223e5adbc3",
+        "786aca573a29d0116a0aa95c0caaf693640ab030306e2a15d781bd72016e196d"
+      ]
+    },
+    {
+      "id": "deepeval.completeness.043",
+      "kind": "flattened-trace",
+      "pair": "flattened-trace-0",
+      "truth": true,
+      "complete": true,
+      "prediction": true,
+      "score": 1.0,
+      "keys": [
+        "6433217246f76b6256649390577770a8e862b0f9deb0d4e429de969a65e26d5d",
+        "7b6be045b27c67eb4196a7d265e52d0e5838a595a12ca26b93bcebe94a98f18d",
+        "6f7c4618c12796e00ef6727aa71840d99fff20dbf4708ea958fd5b52e37db09a",
+        "3d7395979f87309778edef733400cabd8f7aa6d36b4ea06f1ff0d96a5541830a"
+      ]
+    },
+    {
+      "id": "deepeval.completeness.044",
+      "kind": "partial-credit",
+      "pair": "partial-credit-3",
+      "truth": true,
+      "complete": true,
+      "prediction": true,
+      "score": 1.0,
+      "keys": [
+        "c343cd38fa99a57e09cbaf7a8732eb0fc3dcf014e148885d48d58e879c81bad1",
+        "751cbf485bf59d055562bbadd67a8a3d0dced2bf2a34784ed044201b78170a32",
+        "debf77abab0a58903848f640503d40005ca8cad9651f9773d01c7b231b12d66b",
+        "c1bffb5a6c04648293f9ee5c7e69bb8202fbd2e7b191d35242e86e39d4834669"
+      ]
+    },
+    {
+      "id": "deepeval.completeness.045",
+      "kind": "flattened-trace",
+      "pair": "flattened-trace-4",
+      "truth": true,
+      "complete": true,
+      "prediction": true,
+      "score": 1.0,
+      "keys": [
+        "c064f3e2c0d597cd82f99588f23bc70d6faa2f650779491abd09451ddf63ce46",
+        "6d8ffd87badad1cdc190f2e90e901ce8b69ac7ee22fed431b7e1960720bd5b4d",
+        "29451277c035f02ffd770801f2ad49f3476243f468cf3b5bec304500c6c61473",
+        "f0cb428b607863d251d298cab9c5b188a1f3d740ba7911d19dd84856a7992bd7"
+      ]
+    },
+    {
+      "id": "deepeval.completeness.046",
+      "kind": "long-one-wrong",
+      "pair": "long-one-wrong-2",
+      "truth": true,
+      "complete": true,
+      "prediction": true,
+      "score": 1.0,
+      "keys": [
+        "5ebcacd183dacd9fdf3e84f142b35aea9c26b3d52aec7e09afaed39774bd6c44",
+        "70ad6a3979fb7cc1825a4264981b7a5dfcce256f7608abfa2d1448cc230005bd",
+        "20ab8d3193d3344a364c0f46db6f626fad84bd4f47302f8d61d85f586a02eae9",
+        "4dd3c9b1a177b9b258ec1e6b3515ee1692133fed7ff631bc21e2b3773c5d7d87"
+      ]
+    },
+    {
+      "id": "deepeval.completeness.047",
+      "kind": "long-one-wrong",
+      "pair": "long-one-wrong-4",
+      "truth": true,
+      "complete": true,
+      "prediction": true,
+      "score": 1.0,
+      "keys": [
+        "23308c06449fa5063d3358e573b894bd6e901fcf38c2ba4ee28d8614d497d713",
+        "7400e45ef854397c22cdd181afb1325ed9661ea562fbc8971175e2c3ba04b1dd",
+        "ed43ff512d7c4ae4e699985d56894886aef59f6027df3f7ef6c031bf8079f060",
+        "244bbec00baa835e5c71d3942df42ddb2fa6c913291d99d4c6ec6c8cf0070c65"
+      ]
+    },
+    {
+      "id": "deepeval.completeness.048",
+      "kind": "double-negation",
+      "pair": "double-negation-7",
+      "truth": false,
+      "complete": true,
+      "prediction": false,
+      "score": 0.3333333333333333,
+      "keys": [
+        "20a70be4c5cd6f9fe614e7badd55b7403003bdeefb3a02b0f8f309cb69eff0b6",
+        "ec16e00426ee8c75f03b87c2ceb089fc60e65883083a66f403c264a89652aafa",
+        "6f6aafdc407b3d858e6df691b623efa0f17b8b00e96c9b4b6a372685ed0c5c39",
+        "35773e2a4732bb627b98af6687d4d310cc74a3a7e4aa8c45a61bd18a21491d14"
+      ]
+    },
+    {
+      "id": "deepeval.completeness.049",
+      "kind": "flattened-trace",
+      "pair": "flattened-trace-2",
+      "truth": true,
+      "complete": true,
+      "prediction": true,
+      "score": 1.0,
+      "keys": [
+        "a0a24fd42912f8030f5f541e7d3b3e6e2a4d4d2869580afaebb346e8cad6bf10",
+        "3d7e51421866373c6feb09b9bf28b3647743f13bc50305e3188a6f586f9e7954",
+        "9b3cb4cbc9496278bff34837bf64bd10e711799ee388a7db3fee77df112440ed",
+        "e97df300e31517cdea2d71acd42498b67ca98378e45ffba0dbc2b74dc657a51d"
+      ]
+    },
+    {
+      "id": "deepeval.completeness.050",
+      "kind": "double-negation",
+      "pair": "double-negation-5",
+      "truth": true,
+      "complete": true,
+      "prediction": false,
+      "score": 0.3333333333333333,
+      "keys": [
+        "75a9e994486fb7db5b74bb3b1a7417c8f7e9efc7d002c7d0341ab2d54ab6186a",
+        "e2b7721fdd9e950cbf34ae2742dafba25029e63f3a7ef952ee56482d2f933b85",
+        "6876fff9af6c6be3cf166fd2e6bb13b75bfa623b5fd24abaa53b59edfbd97138",
+        "38d14f9652364e199c01bf56ee70cefbe16957e0e47f320aef744776f69a97ac"
+      ]
+    },
+    {
+      "id": "deepeval.completeness.051",
+      "kind": "double-negation",
+      "pair": "double-negation-4",
+      "truth": false,
+      "complete": true,
+      "prediction": false,
+      "score": 0.3333333333333333,
+      "keys": [
+        "1b25cb23eeaa83ec0a8fa6e8c7354d7be72577a5442f7142690f59492026ee78",
+        "b4ea70e09a2a5c3ead53a95f0d5539e8227ef95a070a92bc61293488a0286759",
+        "d53316293f6f6afc5183352296b0387426cf49617555865407c71c8bffdc53bb",
+        "db3532ee6965b435a1821ca39f570e33987d0eb58ae823cfffa638245c63a48d"
+      ]
+    },
+    {
+      "id": "deepeval.completeness.052",
+      "kind": "unusual-format",
+      "pair": "unusual-format-6",
+      "truth": false,
+      "complete": true,
+      "prediction": true,
+      "score": 0.6666666666666666,
+      "keys": [
+        "3919e892f48333b3ce6dc156d813d07b28e68227a45151cfa5b30c0ebc3541d1",
+        "b21fe5d57212c9e454ab3f0ccf9c0cceace220fe1f8424d797cb2f43fdb2aa9f",
+        "4b177ee765b97caee68e58f7377d86513582f17b7aee55852b67553533bf6e64",
+        "132d8efb030ea50b2c5f8ed7d3f1ecc69a211206e02058a308b701265ffbe16a"
+      ]
+    },
+    {
+      "id": "deepeval.completeness.053",
+      "kind": "double-negation",
+      "pair": "double-negation-3",
+      "truth": false,
+      "complete": true,
+      "prediction": false,
+      "score": 0.3333333333333333,
+      "keys": [
+        "d2cfdfd167ddc37ce8a59f1e011871b5661deb95f8458793838a2b94affba16a",
+        "d2699df184bf475b937640016c29524941e21368ba0fd7ce35c780201f5c2b8a",
+        "ff38ce85649a9c4831851fd88d47525252cdf02874671346de09c77e98c628a7",
+        "ef84411841561abb79847680c511038dc9262000afdce9e748d468760aefa118"
+      ]
+    },
+    {
+      "id": "deepeval.completeness.054",
+      "kind": "near-miss",
+      "pair": "near-miss-6",
+      "truth": false,
+      "complete": true,
+      "prediction": true,
+      "score": 0.6666666666666666,
+      "keys": [
+        "b8f6be75dd8ca44f062eef168e3220a597e9152243a3ea9b01f9b9abeb596912",
+        "81be0ea2aedc6e5cf9efd59100a1a50e6295396bfa2c57475379096082a86245",
+        "e0c7a755297732211cf5c6de6c7773dcd3ea954a3204dcca4cebaf78e8a4fa37",
+        "26096833c27c137ea57e5c3469c6c8084089d5bf47dbd8f758f0b83b0966d13e"
+      ]
+    },
+    {
+      "id": "deepeval.completeness.055",
+      "kind": "partial-credit",
+      "pair": "partial-credit-0",
+      "truth": false,
+      "complete": true,
+      "prediction": true,
+      "score": 0.6666666666666666,
+      "keys": [
+        "8785619539430b9cefb381ee96993fbb2600db01208ba4d34899890f30c218b8",
+        "1b10ed630501bd91296e32e5d87276fefcdc5720eb118b389612faf2573c5548",
+        "aa37fbf4390a1b2fa4dff2d7a7c7221363a5883ac4d0dc64a549abee14912b38",
+        "3ebdf77bd6c68b70c03f876e0dabd548c36846dd2ff807f9b07c2b4279ae01d0"
+      ]
+    },
+    {
+      "id": "deepeval.completeness.056",
+      "kind": "unusual-format",
+      "pair": "unusual-format-5",
+      "truth": false,
+      "complete": true,
+      "prediction": true,
+      "score": 0.6666666666666666,
+      "keys": [
+        "020c5dab9c0346fca31fbdf125eaa2b1185d43b460620df4a9922ca2ff121ded",
+        "1ed4a684fdc88af1334be41a6bdfb0d149640cc48cd07ea74c5d4834baaf148e",
+        "21f1a9c277cf406dee29d2fbe36cdadf3f86c6745baba0a331df7219da46103d",
+        "cb867f830d711ba255908f972f45760c808191c9a9f000aebfb0143744595748"
+      ]
+    },
+    {
+      "id": "deepeval.completeness.057",
+      "kind": "near-miss",
+      "pair": "near-miss-0",
+      "truth": false,
+      "complete": true,
+      "prediction": true,
+      "score": 1.0,
+      "keys": [
+        "a8ce1ecfaaab7de0a1a1ee0d554b9fe0a4714722d3ad3cb8c36e23ee379bcb57",
+        "41e8a3842e4a204bfad00c37e0ff2f43eb12ae4e0e15e785a7f3ace74b8e7b63",
+        "99043f9bc0c4b485131fa3cd31a13291b5355f4af41a94ae1126080af1a431fc",
+        "61e5cd17cd3eb2598b34f360cac5d0edb4ef260713280fe52c7d1883eb8d0aae"
+      ]
+    },
+    {
+      "id": "deepeval.completeness.058",
+      "kind": "near-miss",
+      "pair": "near-miss-2",
+      "truth": true,
+      "complete": true,
+      "prediction": true,
+      "score": 1.0,
+      "keys": [
+        "ae3416e3010e5abfb4913e3500811258821eca60f447c6ca583a6924b4a7f3eb",
+        "6b6a5c5df7725d7bbf6f348a58d83a66752b7f4ab2f38780cf7bd55a2d667150",
+        "265fec21b4fd46646b9ac7a3c646acd45d3b3644abf489f0050f2b8adc27db0d",
+        "07f84a6f6addda005c0f312468c019d9ff89dcff5b7f976f8028b1a62f51ada5"
+      ]
+    },
+    {
+      "id": "deepeval.completeness.059",
+      "kind": "near-miss",
+      "pair": "near-miss-5",
+      "truth": false,
+      "complete": true,
+      "prediction": true,
+      "score": 0.6666666666666666,
+      "keys": [
+        "03ee1f4c699dc67d09d5d2af2e5a3e6975292b2c5ab6d708d573b1802965b8ec",
+        "d77729b6d2ffdd8d758cc5c8c03092fc96ce8a40b8cd473008f8d8e58aad4f42",
+        "53a5cb1ef087eacc7f0638d855c9fed3f3350c678c2882901fdb9a45a30821c8",
+        "2c49e13e473606386aaa3ec063d6272bb3d54435606eff7d1d77d272d4947033"
+      ]
+    },
+    {
+      "id": "deepeval.completeness.060",
+      "kind": "near-miss",
+      "pair": "near-miss-8",
+      "truth": true,
+      "complete": true,
+      "prediction": true,
+      "score": 1.0,
+      "keys": [
+        "50c065fa853e8885a9d5cc62c1e27ae7959030438c8d1968379e346feecbc039",
+        "df36f5b54c7fceb6fe86d353319e507f071e757fe53344a4def70cb605d8fa8b",
+        "41849be9639f9eba4c553a985fc527d387073028fe594c0c593714b487b1b75e",
+        "ac5b440cda26e769ad8977b8addb8d3c7804100eff2bd0fe4bc2ffe084c3318e"
+      ]
+    },
+    {
+      "id": "deepeval.completeness.061",
+      "kind": "embedded-instruction",
+      "pair": "embedded-instruction-4",
+      "truth": false,
+      "complete": true,
+      "prediction": true,
+      "score": 0.6666666666666666,
+      "keys": [
+        "7baed2a4803f892d23fd63f838769201d0c9457d124ab70087c567bb44789b3f",
+        "13cc06d2ea987f7d49e768f66b42a591fff83a81d8862ebac15d6fa8c35f9b21",
+        "b2aad0a8af3274b3536626d5646e7341199332d90a587529426e88f2c83a929b",
+        "804db9f7e2243a931571eaff8c00a054a56978a337c6e7c9e60df7d37bede1f5"
+      ]
+    },
+    {
+      "id": "deepeval.completeness.062",
+      "kind": "embedded-instruction",
+      "pair": "embedded-instruction-8",
+      "truth": false,
+      "complete": true,
+      "prediction": true,
+      "score": 0.6666666666666666,
+      "keys": [
+        "4dde554c511af5dd0fd4d0195413dc1322694b0ded8a6575c520c249e018732c",
+        "3191032d089de8cf9284a910424d8498431374f356d57ba61c257ea0986e4627",
+        "e5101836efc440e17d2775a47bb1d1d9f67806ee09c0af5f136576ccbdf20ec4",
+        "3cc841e65670acb263c9209c480811ce8ad89a16fcc604b10151e69d28cd5a2b"
+      ]
+    },
+    {
+      "id": "deepeval.completeness.063",
+      "kind": "unusual-format",
+      "pair": "unusual-format-4",
+      "truth": false,
+      "complete": true,
+      "prediction": true,
+      "score": 0.6666666666666666,
+      "keys": [
+        "26f0e23ee2716e6beb59419ea51b7a1b048a03b918b0d69d5e8c2ae57d64325e",
+        "b978cb5e1b3e2cb95d34e6affe3ddf14c6cae3e8bd13d900abb4fe97bf9132bc",
+        "c4a1b9f32400e965fbecf34edf7e15ec82ab9db3eecccbf5153a062dcd8a6172",
+        "66863785be67d3533a3822e0c260d0b32d70bc17e83ed8bb50b765743158959e"
+      ]
+    },
+    {
+      "id": "deepeval.completeness.064",
+      "kind": "long-one-wrong",
+      "pair": "long-one-wrong-0",
+      "truth": false,
+      "complete": true,
+      "prediction": true,
+      "score": 1.0,
+      "keys": [
+        "804a6b27fe250ec39b38a62991beccb7962273dd4c2ff48c9cc9af5c0c349128",
+        "4b0a1709efeb57a2b2e99035e8a83b7fce331e48df2f4372c05798c5ef14bf01",
+        "ecebd5376f3b853e80082706a787ff91aaf4441680232bce6cba0c3eb27079e2",
+        "11140f4b6b2f74185b257c091d0bd5df98031659d337849acbc8288048890690"
+      ]
+    },
+    {
+      "id": "deepeval.completeness.065",
+      "kind": "embedded-instruction",
+      "pair": "embedded-instruction-2",
+      "truth": true,
+      "complete": true,
+      "prediction": true,
+      "score": 1.0,
+      "keys": [
+        "02b8240a3f5dc4105aa180dc9efad9910cc52cb570922bf87f2549cdbc994515",
+        "038f784844f58f034f58c277fb78eb226da92f5f90cb35d2fe1755c86d760735",
+        "db9bdfbbc456b36e2d60e47a3e1ed3eb6612675277fba1ad51445d9c54dfadee",
+        "721f33860c7f77e3380496a16d8e88e9ea7d271d25944d9dce7e1a93341e7e0c"
+      ]
+    },
+    {
+      "id": "deepeval.completeness.066",
+      "kind": "long-one-wrong",
+      "pair": "long-one-wrong-8",
+      "truth": false,
+      "complete": true,
+      "prediction": true,
+      "score": 1.0,
+      "keys": [
+        "68b175fb4b2ce00540d15f6f3d0177786164e1d18c090438c5093de87d006470",
+        "7b11e40b22741956f4a423596a193a4008554c6f472912faee428d4cb63bdadf",
+        "7b9c6ff317ea1710f50e16a92831b4dfe544465e65c87894ba2fd5d593722884",
+        "05bcb89164e487380e807f6f2475e647188f5bac04cccac967770a415e3cf15d"
+      ]
+    },
+    {
+      "id": "deepeval.completeness.067",
+      "kind": "flattened-trace",
+      "pair": "flattened-trace-7",
+      "truth": true,
+      "complete": true,
+      "prediction": true,
+      "score": 1.0,
+      "keys": [
+        "75d16330bd70a38f0c26fd98940430886d5b6830caeb761621411f19c8a67847",
+        "c14d14ca641e2f38bb5635a90c6d14ee250e05d5b1b34d79d8318ed85d488d1a",
+        "58168c30281171e740ab3ee8783543aee987235b2b01fe81314854c2f5183477",
+        "f7875d01ee7ff0a78fa8fbd0709934e583813d6cfe9c966097f8e5d828cd3cb6"
+      ]
+    },
+    {
+      "id": "deepeval.completeness.068",
+      "kind": "flattened-trace",
+      "pair": "flattened-trace-1",
+      "truth": true,
+      "complete": true,
+      "prediction": true,
+      "score": 1.0,
+      "keys": [
+        "21e19f1500d53979ee99f7c821cc22b345fa2d179b5d569c1e5ad78b7ba94303",
+        "ee63672e4f719feca762190b54b62e2c2916e9f05a7710a7476e7b967203a5c4",
+        "1258bca8876eda3f75b52d3c8ac30aef8e832a380fb5118993344d71fff76078",
+        "3f2528d592d5d8bb754412495be196fe7c4b863ff69224b7f32d42e463556dc8"
+      ]
+    },
+    {
+      "id": "deepeval.completeness.069",
+      "kind": "partial-credit",
+      "pair": "partial-credit-8",
+      "truth": false,
+      "complete": true,
+      "prediction": false,
+      "score": 0.3333333333333333,
+      "keys": [
+        "4fbd4201a0b85e150a39432433180d1bada199fa6860130ec83db0b7f305768f",
+        "ea5054d418de336414eecf032ed8e1dda44ccad65928983ded008636e234e06b",
+        "27d9d443453ea052cd5d2766fd6ea27ee66681a04990ab0da838f5a37a89bc79",
+        "78017b12e01aef72845691444e47e3a482cf45a1cb552159b245ce2a31b66592"
+      ]
+    },
+    {
+      "id": "deepeval.completeness.070",
+      "kind": "near-miss",
+      "pair": "near-miss-1",
+      "truth": true,
+      "complete": true,
+      "prediction": true,
+      "score": 1.0,
+      "keys": [
+        "d9286750efa5422e02c52303ddf1aca67a0abf4536b58e9bb8c21ce0e1970c80",
+        "ab0cce1b710e744e6d5f28e7c9b94274bb14f792dae706b868b9da4f2e61efc8",
+        "170187a4136a651c37575ffd7f4c2bc301b3e0c3c1a3d4949868db4445c7619f",
+        "2d0f09a9847a1b241092d5142577ddd5d6bb6f8bf6d5b733ca1f13befb1ab155"
+      ]
+    },
+    {
+      "id": "deepeval.completeness.071",
+      "kind": "long-one-wrong",
+      "pair": "long-one-wrong-5",
+      "truth": true,
+      "complete": true,
+      "prediction": true,
+      "score": 1.0,
+      "keys": [
+        "3dd4f93fefb95a7162557aa6f141757e6d2ce0729c9ee8f6623eb5e93ef77606",
+        "da0d926468f88f11cafd60854579eb19cac7648ac03c9b322024eb619c30e657",
+        "8ae6b061dc2b61576059f4448b1dd71c5067cdb1875ea42b092b92eee0c19df9",
+        "037a7606762d008318defcd9994b1b2d0d9b18dea8cd3348153edf6ccedbc77b"
+      ]
+    },
+    {
+      "id": "deepeval.completeness.072",
+      "kind": "flattened-trace",
+      "pair": "flattened-trace-5",
+      "truth": false,
+      "complete": true,
+      "prediction": true,
+      "score": 0.6666666666666666,
+      "keys": [
+        "e87e20d36eae8f13fa625ef2d7cd4f86d5a2c6a065fd51b1c658659f08741f03",
+        "d82a42582bf447892709b4dfd4ccfddc328e016b2d9ca58a830b97b9622d0940",
+        "2943c7c353f1bfebeba6fb2e8658f3c9e7dc5eb119e3414974c61472332dcbf0",
+        "5015496227313c15dc94e20e1bcda6f240fefbac4d3bd313d72863c4fab62118"
+      ]
+    },
+    {
+      "id": "deepeval.completeness.073",
+      "kind": "embedded-instruction",
+      "pair": "embedded-instruction-0",
+      "truth": false,
+      "complete": true,
+      "prediction": true,
+      "score": 0.6666666666666666,
+      "keys": [
+        "57acc0e6474ae378b376a9b31364dba7a923c508a580e85d92660ea2339fb488",
+        "00999356be71ed482a69285589a20454350fea03458f1dceefed8e3b72dfa77f",
+        "34c78ec6eb1e48f23851efa296994de6fb5198f5e3d53a5870fc60376fe56853",
+        "e22a1e0fa9cc249858b77491db88991106904e7c08a6585592827ff62a63acf7"
+      ]
+    },
+    {
+      "id": "deepeval.completeness.074",
+      "kind": "double-negation",
+      "pair": "double-negation-0",
+      "truth": true,
+      "complete": true,
+      "prediction": false,
+      "score": 0.3333333333333333,
+      "keys": [
+        "0fcd73eba87f14c3213addf89df69b81db504a406806223dff3768b18b06dc2c",
+        "4a59ee9fefc6f7ba2a26f7732f56c7e33b43fcd992064f5a835429e10dc50456",
+        "e96feb4724f4cf9c54198b2831136dd499459250d7a8d79bc2c2415a2079a786",
+        "fd564ffdbe9e42a4a822743c4b73db2eb1aea211f3f49e1c34c2a4d5d85b05b1"
+      ]
+    },
+    {
+      "id": "deepeval.completeness.075",
+      "kind": "partial-credit",
+      "pair": "partial-credit-5",
+      "truth": true,
+      "complete": true,
+      "prediction": true,
+      "score": 1.0,
+      "keys": [
+        "0fdf9acff00e0f65ba465e51ac723ff98da7b381858c23c54d01f28b9e04a537",
+        "2ff13097e125c6a982c72badd314750c10b432dfd31a64a7217393807955b266",
+        "ceb6cb29caad763f23d06a21849412b62c4b52fb7e5909443a4baa57e6054dd4",
+        "cd0960c7e4a0281cd156c1cc6e703b177fbb13bd26750fa975681dbf038ae281"
+      ]
+    },
+    {
+      "id": "deepeval.completeness.076",
+      "kind": "double-negation",
+      "pair": "double-negation-4",
+      "truth": true,
+      "complete": true,
+      "prediction": false,
+      "score": 0.3333333333333333,
+      "keys": [
+        "24a3cc9e35a3c10fe0627c032cf41834275f9046dd2b17e7f3bfe6a0e0d3d0eb",
+        "8813242623ff36c7e69b20b3ab9cc0385ae064dfa87144c60e1f703381aed0c7",
+        "91c9f44b11b10d49ad3d3c970a6469de71ee8d146c2329bd96ef6821f945e0ae",
+        "20d2a754707dbf0f41265b955c4d83dc77f016e6022315036ce5fa85eb365e3b"
+      ]
+    },
+    {
+      "id": "deepeval.completeness.077",
+      "kind": "unusual-format",
+      "pair": "unusual-format-6",
+      "truth": true,
+      "complete": true,
+      "prediction": true,
+      "score": 1.0,
+      "keys": [
+        "99710cfde096725d98ea9142d3f6fae5ab6a24bffda165dc6d1d4d9f42889b6a",
+        "92ec8156fbcba855900f4a24691c62eb4174e4fde52657f38876f28121266e23",
+        "1c0699597aac45ef92c532cab1e84156acb58b35e4ca5b3599da04df0aa21310",
+        "8b8cc684fe580dcaadd2ebd1f4a7b1a8bf89c91208d4747728d9a1dd8b836f24"
+      ]
+    },
+    {
+      "id": "deepeval.completeness.078",
+      "kind": "double-negation",
+      "pair": "double-negation-0",
+      "truth": false,
+      "complete": true,
+      "prediction": false,
+      "score": 0.0,
+      "keys": [
+        "f362aa8dda3f319b9aa328de349797883af005ea6bd46efed824c4f2b937e9be",
+        "51d43b1c26b02a895b4ed0897e3bb807657414811a9bd9b9d47a5eda15fa3593",
+        "365683e219f0061c2e0dcfd151e90d82532aa9832cb125f67aed3ee74d647370",
+        "db06dad17ad1ac639b1471dd13b1a80f93efcf37ca73648953926aafdcb57d7f"
+      ]
+    },
+    {
+      "id": "deepeval.completeness.079",
+      "kind": "unusual-format",
+      "pair": "unusual-format-7",
+      "truth": true,
+      "complete": true,
+      "prediction": true,
+      "score": 1.0,
+      "keys": [
+        "d0fb87592a7eb2d73bd63a662ea4dcd090f7463fbb110852798717b9ed94c496",
+        "e76e35ab9073b238bf2746b55f694d6e5c9660bffade6001360dce8a9e617bb5",
+        "03600b610de442fa644a56c8285cc05d12d30d9bf86975150056ba3a29c2de91",
+        "3723e3d36dd106683c0dc9c331e0d9c9b4abc8d91035a9edb63b9ac5ca22a51b"
+      ]
+    },
+    {
+      "id": "deepeval.completeness.080",
+      "kind": "unusual-format",
+      "pair": "unusual-format-2",
+      "truth": true,
+      "complete": true,
+      "prediction": true,
+      "score": 1.0,
+      "keys": [
+        "6929dda83cc63454291215073d4466b3ff057bef10d20a46fabff853a9ad2f5c",
+        "ea418e65b7cad9390e052d3a915167295d6014c032ef7af822a1cad80cb21d06",
+        "91108a48ba351d8df72ced9a7b41837c34a71d735d6ebfef4f9b3652bb451540",
+        "1aee2e3b3bde25a75eab053def367fdefbd80356b10a03d132e3faaab5103ec1"
+      ]
+    },
+    {
+      "id": "deepeval.completeness.081",
+      "kind": "partial-credit",
+      "pair": "partial-credit-8",
+      "truth": true,
+      "complete": true,
+      "prediction": true,
+      "score": 1.0,
+      "keys": [
+        "6de2930d0b3bfb6ef71584f1a2b9d5e571ba65b04be79a67f9e1d7028c18dfe9",
+        "fa80491e2a0772ad4184f03971cda2bca03edbb91e0ff90138af0b9289c5d30d",
+        "4ef06d390623704eaef64e9129db99bbb827522b3638c0cd40c5a6ae55b853cd",
+        "2a629886157ee8c9ea690cc8e5fbed1a699a32065dd1b9eeffa0abc089897c5f"
+      ]
+    },
+    {
+      "id": "deepeval.completeness.082",
+      "kind": "embedded-instruction",
+      "pair": "embedded-instruction-5",
+      "truth": true,
+      "complete": true,
+      "prediction": true,
+      "score": 0.6666666666666666,
+      "keys": [
+        "30b66b1eb7ccdf81aba6e156985b1916fac1bbc4ac6e2bc5bf4e3aac70751093",
+        "31e3af8f42d709bc7b7cdf62a7e1f3b890498118448cb33cba3ddc86efc348c6",
+        "c5d16b55117a04218cc2ee319007e8419b598b523fc71bb6937abc0f215f1653",
+        "d6db04f391b9593c937b4c3149c006b47d928c0859f1216e531e7fe4795e74b0"
+      ]
+    },
+    {
+      "id": "deepeval.completeness.083",
+      "kind": "unusual-format",
+      "pair": "unusual-format-7",
+      "truth": false,
+      "complete": true,
+      "prediction": true,
+      "score": 0.6666666666666666,
+      "keys": [
+        "ffa8249c2c6f5418ec26aab3fd7b75cd831258bab7d758c8b8836850d43c1b68",
+        "a9fe48d70d03ffee2799bddf28f63c4a4b5e3b28f87b360c6fe7f7c366cbf4c0",
+        "59242c2db48109ae4f3234a59469afdf96b1f05eb239129db7f0964e066f229d",
+        "038f2bbc9a20274d429fbb5a168eb7c3c47c7de9946069ffaad7e76235956b36"
+      ]
+    },
+    {
+      "id": "deepeval.completeness.084",
+      "kind": "partial-credit",
+      "pair": "partial-credit-6",
+      "truth": false,
+      "complete": true,
+      "prediction": true,
+      "score": 0.6666666666666666,
+      "keys": [
+        "31b4434665c7801802bac576772efda6b3280247e9b70bb6e758ca805b3a9dd5",
+        "6eb64f94c04b71bb6fc94cf57b65727fa6a103360ae22b2c82a9a4eb204a9363",
+        "c2b6d3743f792575d72e9c34f3775eb688d218d3236bffe789003dd79f2b7a55",
+        "458ecc84b702ed7f5ee4cb63ae5154d4ab30b314fefd8b4e0ba43cb3cf935fd1"
+      ]
+    },
+    {
+      "id": "deepeval.completeness.085",
+      "kind": "embedded-instruction",
+      "pair": "embedded-instruction-8",
+      "truth": true,
+      "complete": true,
+      "prediction": true,
+      "score": 1.0,
+      "keys": [
+        "666e67964ed79f61611e582e681b3923e7cdfce9a361a16c25795ed15c7c08aa",
+        "a03012479cb4fb1897b80dcec424dcc7ac3a7de440998538f89a450df9f385dc",
+        "c098c07a3354841ed5fc6336d1e84072188a6ee14e1bd096c667cc57c1c0e3c0",
+        "d3329e83f23c058e585bb3b0f3676e845624ff97e8a2fe845c61258c2ce9520f"
+      ]
+    },
+    {
+      "id": "deepeval.completeness.086",
+      "kind": "near-miss",
+      "pair": "near-miss-2",
+      "truth": false,
+      "complete": true,
+      "prediction": true,
+      "score": 1.0,
+      "keys": [
+        "03916127a199b9ea0b836893184947c5e169a9cd12d278c22b5cd3adbb25d854",
+        "9b68e9c511fc8ebf0e728a95591059b95a7a1fbb16e1e1af10306b389d7abb5f",
+        "e64ae1b2e3c6db2fc0416c908aa722e30ce40177595230e77f3350c53b40d8b9",
+        "094936ae09b4cbde9fab1503d99d1aeb44a059054225b5ec55506489bda4c292"
+      ]
+    },
+    {
+      "id": "deepeval.completeness.087",
+      "kind": "embedded-instruction",
+      "pair": "embedded-instruction-4",
+      "truth": true,
+      "complete": true,
+      "prediction": true,
+      "score": 0.6666666666666666,
+      "keys": [
+        "ddcc18e6d88d2009da836aae39e529f4bcf61d8d62d42952a79694188c15c4c0",
+        "d9703487908855dac6ebe312ccbf494aeca310769520128028c517f9eda9185b",
+        "02c91ca95356650aab1e3ee5d3c05ea03dd4aeba6351a5a85a80e7405d0deec2",
+        "7f433e693fd6ef636fb64753ce78259e02d6fc93cd63f1bf41ab08de762dbc50"
+      ]
+    },
+    {
+      "id": "deepeval.completeness.088",
+      "kind": "near-miss",
+      "pair": "near-miss-7",
+      "truth": true,
+      "complete": true,
+      "prediction": true,
+      "score": 1.0,
+      "keys": [
+        "73fe790e79184bb061c2a1aac0f6cff5a561f465b9ba69250a08ce4664bc42c1",
+        "a07629be0c2d566e0b41d8dc5fc799a4f453a815d79244b6b5c64601a8a8a7dd",
+        "dc641de28b97364908fe3ad9b4417789eff7fe0687a32385093bec6253c6dc10",
+        "9791abd5888bb5b587830aeabf0ab5804b1eae8549cbfa77aa6536eff28d52bf"
+      ]
+    },
+    {
+      "id": "deepeval.completeness.089",
+      "kind": "flattened-trace",
+      "pair": "flattened-trace-4",
+      "truth": false,
+      "complete": true,
+      "prediction": true,
+      "score": 0.6666666666666666,
+      "keys": [
+        "d23f0474dcba3e0414aff3a6a569fdcb518e7a789ce485d740cb2b63eb75670a",
+        "a07a8dc98473729d3b22f750c9bd1c0cebbb4999d1a2204b3dde4420c3c9a598",
+        "8fafc4e60dc0dc204cb48c283eb1fc41447287977b8f55023b15cb021066fdc3",
+        "86cc6f50c8bebf8419e21bfa38fb3831f4620bd18216ce477c8999d7f1d276a5"
+      ]
+    },
+    {
+      "id": "deepeval.completeness.090",
+      "kind": "near-miss",
+      "pair": "near-miss-5",
+      "truth": true,
+      "complete": true,
+      "prediction": true,
+      "score": 1.0,
+      "keys": [
+        "609b1be09d97706513bc03e0f6774b1b06123cec218901fa65a9509b6502c6c6",
+        "79b50cb8299148b885855772c5af5bbb1bc4e0830cbd9c060f492744bb04e698",
+        "6b812c33fc85c952e4f7d7dd1592d64061dd8a2cfb139c4ec33de51b45c5e718",
+        "0502a3053f29406f9127580ef9f83762ac8aa8b4351b1836488e1413e5a6f054"
+      ]
+    },
+    {
+      "id": "deepeval.completeness.091",
+      "kind": "flattened-trace",
+      "pair": "flattened-trace-5",
+      "truth": true,
+      "complete": true,
+      "prediction": true,
+      "score": 1.0,
+      "keys": [
+        "44316ec77fca38946ca5c8919ab2bcaca8eb8a831bab6086383d6e810f657d8a",
+        "8893e25269412087855c8cfedb8066026787319c1bd3f7233fddabcbbda02468",
+        "c0a81d41c9d6df63442efcc74ddec6b079d7969cd638a3cd0c0f2a8732f79f6d",
+        "2dbd7c0264e2909c580917ec2fb276fe233526f48aadc38e88c0f129deb0c07e"
+      ]
+    },
+    {
+      "id": "deepeval.completeness.092",
+      "kind": "double-negation",
+      "pair": "double-negation-5",
+      "truth": false,
+      "complete": true,
+      "prediction": false,
+      "score": 0.3333333333333333,
+      "keys": [
+        "1cbf22a87c73b02a204be453aeedca21a31d7aed086cdeab473871bf0368dd1b",
+        "a58f5de8eb6cfa0377a6a05f031b1afdd984a76094c0270b240109453127a7df",
+        "9a6f75b6d0aae75e091e826a731f5365def8584ebdd324d597e604caa2a22f05",
+        "5c19210c8088c9456cf2dae7358e78df92fba288b3c6b0552448e4becc4dc3a0"
+      ]
+    },
+    {
+      "id": "deepeval.completeness.093",
+      "kind": "long-one-wrong",
+      "pair": "long-one-wrong-0",
+      "truth": true,
+      "complete": true,
+      "prediction": true,
+      "score": 1.0,
+      "keys": [
+        "2b11528eeeb4478bc9e086e0586ff50608aa1a54619231d76e92de5a44fee57d",
+        "96ccbc05f1c52a56c8b0bba44d0a918fb87eb1f29f4bf010244a65d9bf324447",
+        "2d93382e18fa854c16f01b573db54c5ab0ca69df232cc3bb57f9cdcdda5627fa",
+        "2d8c3f247f941205d9bc49eac81ab043b959c4617583dd2519068ae4df5de046"
+      ]
+    },
+    {
+      "id": "deepeval.completeness.094",
+      "kind": "partial-credit",
+      "pair": "partial-credit-3",
+      "truth": false,
+      "complete": true,
+      "prediction": true,
+      "score": 0.6666666666666666,
+      "keys": [
+        "4d2998cbc42b921db4f43d7625aa5fa4d3f230eff834deb2fc6dcadfa08bc1a6",
+        "918480123e89734d28e3f348e499f657e191a337901b0ee037cee8e6ba3a41eb",
+        "0b65d7de20ebb7f81bb05ccc36d9df83b3d84a065f331b95e1772c1f147d67b1",
+        "065403852f264522f2935eea7858d851cce93a6ddd24bf8423a915fe8e11190a"
+      ]
+    },
+    {
+      "id": "deepeval.completeness.095",
+      "kind": "near-miss",
+      "pair": "near-miss-8",
+      "truth": false,
+      "complete": true,
+      "prediction": true,
+      "score": 0.6666666666666666,
+      "keys": [
+        "63313c5496fe90762938769f13bf4bc2a811ca84e79a86cdb71b788e0663c960",
+        "f0c209f7ae0dfe4bd1b07bfe504ee4eba9f978f3fc801bf81cb8affff88aea52",
+        "4a87e51757ca9dacc692769761bb0744a2f223c64a12e71f4e0c22a2de724615",
+        "ae17ff52bf1d1420cd6fee8463aac58f9a1b1bdf812a527612d7365f3c232466"
+      ]
+    },
+    {
+      "id": "deepeval.completeness.096",
+      "kind": "near-miss",
+      "pair": "near-miss-1",
+      "truth": false,
+      "complete": true,
+      "prediction": true,
+      "score": 0.6666666666666666,
+      "keys": [
+        "61d5852b0f97919ec403e90a9007773054eb1213f2e8525f10799d320052d78c",
+        "697a626635260fe2e718e0588d5ffa2753b3583a19a85086feb9d2e01a8a470f",
+        "4e3d35a628519c20a9821a9114429c45acad4f959b9f266398b8ca456d61cc4a",
+        "fa35ea8c6e3159ea943b8f04b0b89c8cb601d41a8fde64d3913ec0c054352162"
+      ]
+    },
+    {
+      "id": "deepeval.completeness.097",
+      "kind": "long-one-wrong",
+      "pair": "long-one-wrong-4",
+      "truth": false,
+      "complete": true,
+      "prediction": true,
+      "score": 1.0,
+      "keys": [
+        "275ae081ee11b2fc0588fa52128c45353fbebb86bbbdb46b84ea677aeb5e098c",
+        "0707e8fa575fcc7a45b59e550f1de098539fc4c529d2a542bd75b51fee4f1693",
+        "345656880bcd01bba7d0faf1ceddc4b8fb523314ce5270f5a7c5a5bddc58c8e9",
+        "54bd0b371fbf5a8d306ddbb3965718451c71c598756083297d7a45adcb62ba5f"
+      ]
+    },
+    {
+      "id": "deepeval.completeness.098",
+      "kind": "double-negation",
+      "pair": "double-negation-8",
+      "truth": false,
+      "complete": true,
+      "prediction": false,
+      "score": 0.3333333333333333,
+      "keys": [
+        "30adbbd583957dc73bf6543eefe396293e53a167f9b5d820366435baa5f30351",
+        "9d3639dd05f357db6d9ca15c09afd4cd3a739906bcd1823beca88be0917093f5",
+        "cc82a66c6a0a8f8069e56e069395880228ba243cb4b69213e39f38723a9cd811",
+        "60ac2a3423bf98444764c4154e5167ff4e81720abcc4623a2bb65e09459b236f"
+      ]
+    },
+    {
+      "id": "deepeval.completeness.099",
+      "kind": "embedded-instruction",
+      "pair": "embedded-instruction-6",
+      "truth": false,
+      "complete": true,
+      "prediction": true,
+      "score": 0.6666666666666666,
+      "keys": [
+        "60a826d510fc4f15439b77557faadd06402657ee8ca5c8f1e564f74f8d8c97c4",
+        "16c1748588056de7a03543190e55a434741859ea58ae6e7a4a02d8c7b2662782",
+        "fdefd8357e20cd685c1bc0539be3ced5e57bc93cc682942f2823233c0d40fb60",
+        "702724284ca2ae7d2cb8f7ea6abe3877c6428075fac31cdf8039953b3db34cfd"
+      ]
+    },
+    {
+      "id": "deepeval.completeness.100",
+      "kind": "unusual-format",
+      "pair": "unusual-format-3",
+      "truth": false,
+      "complete": true,
+      "prediction": true,
+      "score": 0.6666666666666666,
+      "keys": [
+        "04324eebcb8f4daa9feecde85e44d34f7082eef1c086d7dac801a7bcaa19858a",
+        "902a0336a837265d777010bd3c7ecdc8ad5d070944df647dc35b9e77ca6e76ca",
+        "b019c967b4aee889e3255b185ea51836318bba1822696de6c24e7db0dd132343",
+        "ee7a3d3462f9daa4b431e1ba779a6a5d3206576e6c9dabd503edc1ad718b3d38"
+      ]
+    },
+    {
+      "id": "deepeval.completeness.101",
+      "kind": "partial-credit",
+      "pair": "partial-credit-5",
+      "truth": false,
+      "complete": true,
+      "prediction": true,
+      "score": 0.6666666666666666,
+      "keys": [
+        "af2c8addfc025c2c6e93c4df34fb0ea29a42546b08bf142972ecbc096e3cef2f",
+        "5f7b41d2dbc9c0ecdb63c6232fbfd26c214fae15d4ed97bd5ac8179fb60d03a2",
+        "8702fe4d5deeb3e1a536d1a58c439167e7cacc4a8ba8e5b53082529281699226",
+        "8d7c75ce9198b2cb72d7341789101f714e3d560adc65c19a5fd717ba20ce879a"
+      ]
+    },
+    {
+      "id": "deepeval.completeness.102",
+      "kind": "partial-credit",
+      "pair": "partial-credit-7",
+      "truth": false,
+      "complete": true,
+      "prediction": true,
+      "score": 0.6666666666666666,
+      "keys": [
+        "5c3e9274e86cdde75515ad479f51dc7e02298473fba086c0d07501fbb24da793",
+        "9436a99fe1e2e6d87e88d6c5b2e25a791d38986abc15a3e99ed811a3f78f1f3c",
+        "a83841483b610d58481154831e33c42020adc8d90b0180bc8e31ffafea525c2e",
+        "5f820acd46135742493e3b4f8d60465abea4c9c30ab23cb87e1ed26fb84c6626"
+      ]
+    },
+    {
+      "id": "deepeval.completeness.103",
+      "kind": "unusual-format",
+      "pair": "unusual-format-8",
+      "truth": false,
+      "complete": true,
+      "prediction": true,
+      "score": 0.6666666666666666,
+      "keys": [
+        "98cd7cfeb686a9369997dfc1e8287ca9a6090c239ea154c70a4cae9cebf18e11",
+        "ebde2d14c36a1420b223deb5444453cd08bf240c6f97ce623d049c3f3bc2a7cd",
+        "516c6b216a774296f73d22573ce0ea303a239f77b814cae4b8579523024508e0",
+        "a1bd4bfa8d8dd53c7092ee761363303af7d207a6c2a4525bf0981901b1611db1"
+      ]
+    },
+    {
+      "id": "deepeval.completeness.104",
+      "kind": "flattened-trace",
+      "pair": "flattened-trace-1",
+      "truth": false,
+      "complete": true,
+      "prediction": true,
+      "score": 0.6666666666666666,
+      "keys": [
+        "6ec662d5a90ecda023d67c1b3b201778e9069fb21b05ba4e0f0db1b7ce73fb15",
+        "56493b4ddb1f26a8a20b702523f9ad9e0d98ad5eebd3bb7b2e1b28ddf904d46a",
+        "d197be585fa3b84e2f4cfe30a95aac0da3f50932fb0326a260e6fc1c79f989ab",
+        "fa8bb8cd9edf2b83d8ac7d76620e558a0f16c2ca6d981432b008130d25a6122a"
+      ]
+    },
+    {
+      "id": "deepeval.completeness.105",
+      "kind": "long-one-wrong",
+      "pair": "long-one-wrong-7",
+      "truth": true,
+      "complete": true,
+      "prediction": true,
+      "score": 1.0,
+      "keys": [
+        "87add6fb07191ef5b93ea88259c90f2552192b3da8ea9206df5e72c5fe53ac18",
+        "1a68a43505026587bbaff163f7e562292f1af670ec6a7b8e0c0ff120db784dd8",
+        "8a8acbdfeb9381be753f3d74d03cc801f3f31c8192a38e5b3e98a5aefc79685b",
+        "b086f528b47067a48cc421b012bc47356420ca88b39fb9dc472b219dc1dba860"
+      ]
+    },
+    {
+      "id": "deepeval.completeness.106",
+      "kind": "long-one-wrong",
+      "pair": "long-one-wrong-7",
+      "truth": false,
+      "complete": true,
+      "prediction": true,
+      "score": 1.0,
+      "keys": [
+        "9b515282bb5ef33c2d6747b6333c610b4e254ce288893d71e39c17b8e1b5638b",
+        "1a9e937d923749345063f34f1565315ed869acc11ce942bc66ca259b9075a27e",
+        "75cb498c7c133ca1fc3cf85b1c7dfaababbdfd84b68a52bd5d6919ee9f987c8f",
+        "565d82922191569de3398d1b39fc41270941da97d0b7ec9a444a53d40462fe3a"
+      ]
+    },
+    {
+      "id": "deepeval.completeness.107",
+      "kind": "unusual-format",
+      "pair": "unusual-format-1",
+      "truth": true,
+      "complete": true,
+      "prediction": true,
+      "score": 1.0,
+      "keys": [
+        "2f8601dc3579de5bca23f38de601de7980c71a15108df3762294711c25182712",
+        "feaff6efa13426f24b87cc3a40914ba00b9ef7ad15f84bd5e310cfcbca8f0965",
+        "3da7cadf54df5a7bdab7f85fd7a179a9dab178bf4e68570890bfb5c63676708b",
+        "6736a4d90974e13cc9498dc904474346f5a1e535eea25141bb2e00ba33410a00"
+      ]
+    },
+    {
+      "id": "deepeval.completeness.108",
+      "kind": "embedded-instruction",
+      "pair": "embedded-instruction-7",
+      "truth": true,
+      "complete": true,
+      "prediction": true,
+      "score": 1.0,
+      "keys": [
+        "26813d8ca24c5ee31408e868b5409706c5f3380d23b7a79eed7870e4723a24df",
+        "45fdc5b082a7e6421488d0ec8eed9a61cba77e63092e58279960823bb285040e",
+        "6b2bfb3e995d9123a8b56354035fb3d4a2c5d0470350cc5168db4f3276736365",
+        "bb1d7a45712b905351b5f239097b69e8356d4f3fb39da1d8d76660aba5d15a15"
+      ]
+    },
+    {
+      "id": "deepeval.completeness.109",
+      "kind": "partial-credit",
+      "pair": "partial-credit-1",
+      "truth": true,
+      "complete": true,
+      "prediction": true,
+      "score": 1.0,
+      "keys": [
+        "33908590a17b1e919c7be0bd9c3e9f78d0be9cbc7438c76a525126c388c993b4",
+        "a73214a5d86db7800e0521949969985604cf3f737650f38fb9eacb435f19fc22",
+        "43a144ebd959d2b1d7ab2116fe9404825fc9b202afe266a0456cf467b8c711cb",
+        "702369835bba8e291e01fafceab2a27734ae5328d1e216a5cbaa394c3c78dbbf"
+      ]
+    },
+    {
+      "id": "deepeval.completeness.110",
+      "kind": "long-one-wrong",
+      "pair": "long-one-wrong-3",
+      "truth": false,
+      "complete": true,
+      "prediction": true,
+      "score": 1.0,
+      "keys": [
+        "9131f28bec1be76ba4751b45c60a9080233d3e2e6aa4eedafa895c9a5d86fe3f",
+        "b8aba0a9bf52c11014860d2ec8250653ba45ddda13bb472226eb0a46400caef0",
+        "8589585e9a7db93ddfb934fcb15e0a5b3ba028752eab8280f5f64988470e08a5",
+        "d53dcc3b612e39864b77839210acea9e8b705ab01b65c4ce2d0766d435381768"
+      ]
+    },
+    {
+      "id": "deepeval.completeness.111",
+      "kind": "flattened-trace",
+      "pair": "flattened-trace-8",
+      "truth": false,
+      "complete": true,
+      "prediction": true,
+      "score": 0.6666666666666666,
+      "keys": [
+        "e5bc7110e3e803745951f0397ad85c4c776f781a8a16b917b61af56fefafe74e",
+        "355fb3ce348eed7af2996b79335d652c5e265051794dab7ada139e97c6cf6094",
+        "ce785acc5de4d948377d5c93c42f431c8c894101432a7f202e394772d1caaf02",
+        "db85aef64de76805759ea1119d45cbd6eabadf9df0538063bc3ea993fbea9ab6"
+      ]
+    },
+    {
+      "id": "deepeval.completeness.112",
+      "kind": "embedded-instruction",
+      "pair": "embedded-instruction-3",
+      "truth": true,
+      "complete": true,
+      "prediction": true,
+      "score": 1.0,
+      "keys": [
+        "5dac48859de5a7a658d945b96af237890ff5a5cf236e1e50f62159ffefa5144a",
+        "2eca9c4b1d4cfcc369399fb8940b7e65ad5d0a210a9c1257df9892c5edc472a0",
+        "c56bdf716372d9a76a3f7bf22d3e425e7c113f02c6c331ac840427f8bfa0dfab",
+        "0237adba26ac4e09c25b4ca604ea209bcd46759264c0ee474d70b7fb980dac24"
+      ]
+    },
+    {
+      "id": "deepeval.completeness.113",
+      "kind": "near-miss",
+      "pair": "near-miss-7",
+      "truth": false,
+      "complete": true,
+      "prediction": true,
+      "score": 0.6666666666666666,
+      "keys": [
+        "4ef954160b1a24af0c1d310f7088f46fcc55d5b2987fea3edeac21aeade67ea5",
+        "df54d613c3716dc1a32a0d5627b8c194b6bfc5dea577231d8e88e0711da01f9f",
+        "a6d3ea6893381fc67915b0a2b0cb9be7bb03cf2fae8dfa46f8740bd6cf90d0ef",
+        "836a3072dcbd4cddd7b77e585152d123ab5c3a1b1dcec48b0d08f4c9cc60e0ad"
+      ]
+    },
+    {
+      "id": "deepeval.completeness.114",
+      "kind": "unusual-format",
+      "pair": "unusual-format-3",
+      "truth": true,
+      "complete": true,
+      "prediction": true,
+      "score": 1.0,
+      "keys": [
+        "dc8672fa45bb0fb10b82d25ee44c1d92df686eefba4f4fc47e3f9f718bb10418",
+        "78d4f0f643f52aff154cb942562ef437b82b2321e5b6592f149add1e7cf3b728",
+        "cc8acf85daed6549a7c7d7c7cc30456cc4e3baf08e01b9d01c6a35b5c2f3c934",
+        "f0ed3ce270b6b9c30cba5bb12fa029322a599f94a02f7f477d281775d1206dbb"
+      ]
+    },
+    {
+      "id": "deepeval.completeness.115",
+      "kind": "double-negation",
+      "pair": "double-negation-3",
+      "truth": true,
+      "complete": true,
+      "prediction": false,
+      "score": 0.3333333333333333,
+      "keys": [
+        "fa18c345ad2e5b38831d0c56b4ad91944476c38c23b90ae9bba311d33438270d",
+        "35047bb8b0c9e9b5ac5c1e22c31a429997426102a5e0b619b3b87693cfec452a",
+        "03aa2f58852685bcab5b6b28b672cab1dc1e49cf2b5e6a8e33b2b47c1cc9d10a",
+        "d403d12d4317a86835939cd2feeef08282ac3af9e822e87753f1fad273d2a352"
+      ]
+    },
+    {
+      "id": "deepeval.completeness.116",
+      "kind": "flattened-trace",
+      "pair": "flattened-trace-8",
+      "truth": true,
+      "complete": true,
+      "prediction": true,
+      "score": 1.0,
+      "keys": [
+        "ff2ce7d98b78e39aee553a80e545d66f30f4f92687431aa6ecc91119f9666fd4",
+        "30674b1ac6de38c364d786f5f5e2b513407916b11618053f35d9645d2b90c73f",
+        "205387cae6d0af4052710b839510b7173ede73bc0fee843a04da434be6d6463d",
+        "6bf147752aee5dc68923a40fdc3f58337d0ffa14e48acbb5a73ad4df45b30897"
+      ]
+    },
+    {
+      "id": "deepeval.completeness.117",
+      "kind": "partial-credit",
+      "pair": "partial-credit-7",
+      "truth": true,
+      "complete": true,
+      "prediction": true,
+      "score": 1.0,
+      "keys": [
+        "9fc9d43f2b04776ba38873f26cc1e51db0005e69ed5fc1c35d17c26ebb7be34e",
+        "0ecbce9236b1c6fb55f3060ede96ea1e7dfff9b63d298afc1943ae29a19f0ae0",
+        "e61bf1199bc3c7abb9bd1d362f68270c90d89ff1ae901ca255fd2a90b040f6e0",
+        "4e7b30b636de4bf74963702fef1b950a4261d513ff53d0d0cf3ac18df3915b1f"
+      ]
+    },
+    {
+      "id": "deepeval.completeness.118",
+      "kind": "long-one-wrong",
+      "pair": "long-one-wrong-8",
+      "truth": true,
+      "complete": true,
+      "prediction": true,
+      "score": 1.0,
+      "keys": [
+        "1719fde9eec35a4ac144e8d9ebf14bc0e3f73fa5fc2d41be5f9b75ebb398e64b",
+        "02039fbb107942306e91a591e29fd63614555bddeb1718fe143847f543e735e0",
+        "af75a91e105275f2da9cca7e042211b2f42139125fbecd9a868ba586fd6a1bf7",
+        "a182941e47db1ab43b11d9f8a18ee00d4ae021f02b47685a4186850f4c81f542",
+        "dbada0ef726c92da4b81f7fe518134efda8399a105cef6d8c0af035ad0d3c60d"
+      ]
+    },
+    {
+      "id": "deepeval.completeness.119",
+      "kind": "double-negation",
+      "pair": "double-negation-8",
+      "truth": true,
+      "complete": true,
+      "prediction": false,
+      "score": 0.3333333333333333,
+      "keys": [
+        "8b0e5cbdbb5fdf3e6c1e8f8b7e58bce2e45313ee10c4b0719cd16a728dc31454",
+        "11b62a7912a768a69622a2f110c58e177ff73bc6dc391c73e2a55de82f5b5b68",
+        "206647a8098f7e11bad5b49b29091aa2b20dd0e4e4e979ee4ce09e5ee26d2528",
+        "9a0ffb5000ed1219c9a737770c2fbd185302d0a8e1835507045bd97f91052fca"
+      ]
+    },
+    {
+      "id": "deepeval.completeness.120",
+      "kind": "unusual-format",
+      "pair": "unusual-format-8",
+      "truth": true,
+      "complete": true,
+      "prediction": true,
+      "score": 1.0,
+      "keys": [
+        "86df11a7a9c2681029a8e88daafa22106830fe42d5660e91a815a1ad36b168a0",
+        "d9d608342c108ece415302926af7f2a3a0662df23d377672603ab1194e2ed027",
+        "cc030e52b28423d79f459fe2d8a2d7a7d749be6bdf44d3bd2a1d70ad2a7ad983",
+        "d47db9d31f3a4090b6f108754fefd6587eb8027f14d30f8fa7b2b038bc156b7a"
+      ]
+    },
+    {
+      "id": "deepeval.completeness.121",
+      "kind": "double-negation",
+      "pair": "double-negation-1",
+      "truth": false,
+      "complete": true,
+      "prediction": false,
+      "score": 0.3333333333333333,
+      "keys": [
+        "af142f8342de036f3552da7a3ee301b8f655662e1fffcec660db3b4a88852523",
+        "ae816e2c8cd5a6e8665bd25aca5f65e5ef6b48c7c49ba05a50b5f60076f6a683",
+        "be5de2b8817341ec02ffaeba975fa76088d4acf7647cf6a44271f9b5d9f94e0a",
+        "b02c355a8116892e47fc9c7d3ad0d5269cfb0882fd702ff7b344ecd0c6fba548"
+      ]
+    },
+    {
+      "id": "deepeval.completeness.122",
+      "kind": "embedded-instruction",
+      "pair": "embedded-instruction-1",
+      "truth": false,
+      "complete": true,
+      "prediction": true,
+      "score": 0.6666666666666666,
+      "keys": [
+        "22be6e5676e4ddd595c41c07120047eb86b5e2540218a9c8e6e15c5947d1c970",
+        "82b99debeedf35569e0a3f9d81339abe4bb53e8ae271369ca995bd3c3bf50e91",
+        "832a6f1b029ff9667a81d0085242038f65aec18d8126c6f554a026fb8ad66b7e",
+        "e5468a46b2cc6a3b360c9bf10850d6383aae6813a17f62153e5e54e6f7481686"
+      ]
+    },
+    {
+      "id": "deepeval.completeness.123",
+      "kind": "flattened-trace",
+      "pair": "flattened-trace-2",
+      "truth": false,
+      "complete": true,
+      "prediction": true,
+      "score": 0.6666666666666666,
+      "keys": [
+        "2bac16f2fd6a456f654b7d382328f03683d65290e0f685b70dbe7754d9799912",
+        "9ec828f63b85d49bd69cfd642f7a1b01b4de5e63c5dd65cf8264e27ebf011b6b",
+        "a35c6508caa9c068665f2fdcef96482c2fb0038408480c4cf708f7d258d7793f",
+        "a8282fc26d9de1af64fd60e16dec923a17b6bfd313a2837f949db9e4d3213dbe"
+      ]
+    },
+    {
+      "id": "deepeval.completeness.124",
+      "kind": "near-miss",
+      "pair": "near-miss-3",
+      "truth": true,
+      "complete": true,
+      "prediction": true,
+      "score": 1.0,
+      "keys": [
+        "e52df32ae6d5452040176f5143a91644b2dd486f5cc5e24492ae420cdf606f44",
+        "179319617a94b088cd4924ac79f524a76f1a3e29be5e490f089c42abc0be2259",
+        "3367fab807b8067b965789688c905e17f4f5f91e9961d90dd142c97fe3768db5",
+        "d988ce092e919e5167ecb692f9ab8b206170bc4c8fab0e7df8c553ec44e61abf"
+      ]
+    },
+    {
+      "id": "deepeval.completeness.125",
+      "kind": "unusual-format",
+      "pair": "unusual-format-4",
+      "truth": true,
+      "complete": true,
+      "prediction": true,
+      "score": 1.0,
+      "keys": [
+        "f246d97a99cb25385c21b86b4cb34beaacc477ee0b17c45250590d991d4da6b8",
+        "c4ad3b0a9460ce6c3627d5bbf1567fdc723d0386bcff44d56fccb675f36a128a",
+        "4c6416866fc092aac3415e3dc830bba4cfa58d5c4ade3dd3b0ddb2cc0e4852f7",
+        "d9ae6de4d19996fee72963320c6ad55d1196b1834e6448e280ba619b17b62b32"
+      ]
+    },
+    {
+      "id": "deepeval.completeness.126",
+      "kind": "long-one-wrong",
+      "pair": "long-one-wrong-6",
+      "truth": false,
+      "complete": true,
+      "prediction": true,
+      "score": 1.0,
+      "keys": [
+        "d50c8c3eb9b3a12f48105842334993cd266b237857a0463ff147c7024730231e",
+        "ca358bc289c33fc1f57fd90d209c787fdb253f01c6b110d676467153e3b0d7ce",
+        "1962f0159832c99cf465651e73e496021cb1d6a2918da7738272e974a2238222",
+        "92b81043fb04095dddbc161bfc8cd089b89f8363577e86ab33c427a9b1b80a16"
+      ]
+    }
+  ]
+}

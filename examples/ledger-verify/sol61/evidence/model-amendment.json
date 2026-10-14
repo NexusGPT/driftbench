@@ -1,0 +1,62 @@
+{
+  "at": "2026-10-13T13:40:34.689427+00:00",
+  "model": "gpt-6.1-sol",
+  "status": "frozen before first provider call",
+  "authorization": "Owner requests separate claude-sonnet-5-5 and gpt-6.1-sol cells after Haiku and Flash Lite finish; stop and report projection if a cell would exceed 25 USD.",
+  "capUsd": 25,
+  "contestants": [
+    "driftbench-verify-uncertainty-cascade",
+    "promptfoo"
+  ],
+  "phases": {
+    "costSampleRequests": 5,
+    "pilot": 20,
+    "mutation": 48,
+    "noise": [
+      30,
+      30,
+      30
+    ],
+    "TEST": 221
+  },
+  "reasoning": "medium",
+  "timeoutMs": 300000,
+  "pacing": 2,
+  "scoring": "strict headline: every consumed output-limit hit is an error; product-final preserves the product fallback; same rule for both contestants",
+  "exposure": "previously evaluated split",
+  "poolSha256": "f569c72a5e701366d232b619a623c09abddcf69cfc4379e849dbdef76b9559c5",
+  "auditMapSha256": "3de476f85d4ce54ed88260f62d4ccab8c0fad36cddf50c1e74e2035055541eb6",
+  "retry": "Owner network amendment supersedes prior no-answer attempt limits; answered outputs never resubmitted; 402 stops immediately.",
+  "projection": "Five representative frozen DEV requests first. Estimate 379-unit spend by their per-stage costs times the gpt-6-luna recorded request counts; unsampled cascade stages use the highest sampled cascade cost. Re-estimate from complete 20-item pilot before proceeding.",
+  "multiplicity": "Additional model, separate from original 18-cell family; adjustment pending collator",
+  "endpoint": "https://api.openai.com/v1/responses",
+  "temperature": "omitted",
+  "maxOutputTokensIncludingReasoning": 32768,
+  "price": {
+    "status": "published verified",
+    "source": "https://developers.openai.com/api/docs/pricing",
+    "modelSource": "https://developers.openai.com/api/docs/models/gpt-6.1-sol",
+    "readAt": "2026-10-13T13:40:34.689427+00:00",
+    "tier": "Standard",
+    "inputPerMillionUsd": 2,
+    "cachedInputPerMillionUsd": 0.1,
+    "cacheWritePerMillionUsd": 2.5,
+    "outputPerMillionUsd": 10,
+    "longContextThreshold": 272000,
+    "longInputMultiplier": 2,
+    "longOutputMultiplier": 1.5
+  },
+  "frozenAt": "2026-10-13T14:57:53.768376+00:00",
+  "runtimeSha256": "ab45f5cc95d06b4df297a96845607528f0bfd0df6785e3a458988bb0db073f3c",
+  "reportingSha256": "a7563ea875f1037a4798129120a4a879fd52ab195ddf0309578eca9ac48ff315",
+  "cacheWriteAccounting": {
+    "at": "2026-10-13T14:13:29.537391+00:00",
+    "beforeFirstCall": true,
+    "source": "https://developers.openai.com/api/docs/guides/prompt-caching",
+    "usageField": "usage.input_tokens_details.cache_write_tokens",
+    "formula": "ordinary input excludes cached and written tokens; writes use 2.50 USD per million; reserve uses the maximum input price"
+  },
+  "networkAmendment": "Ten healthy provider probes spaced 30 seconds apart before new calls, one model cell at a time, concurrency two. Three consecutive connection failures pause ten minutes and repeat the gate. Zero-token no-output transport requests retry missing-only without an attempt limit. Every answer stays cached.",
+  "outerProcessTimeoutMs": 2147483647,
+  "outerProcessNote": "Queueing and network-health pauses must not kill a live wrapper and orphan its physical attempt. Actual provider attempts remain 300 seconds; the outer envelope uses the maximum supported Node timer."
+}

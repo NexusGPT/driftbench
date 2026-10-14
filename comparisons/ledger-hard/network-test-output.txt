@@ -1,0 +1,14 @@
+test_budget_includes_existing_and_inflight_holds (test_network.NetworkPolicy.test_budget_includes_existing_and_inflight_holds) ... ok
+test_gate_needs_ten_healthy_with_spacing_and_reset (test_network.NetworkPolicy.test_gate_needs_ten_healthy_with_spacing_and_reset) ... ok
+test_model_text_about_limits_is_never_reclassified (test_network.NetworkPolicy.test_model_text_about_limits_is_never_reclassified) ... ok
+test_recovery_cycles_keep_one_answer_per_key (test_network.NetworkPolicy.test_recovery_cycles_keep_one_answer_per_key) ... ok
+test_saved_answer_receipt_is_recovered_without_a_provider_call (test_network.NetworkPolicy.test_saved_answer_receipt_is_recovered_without_a_provider_call) ... ok
+test_success_resets_pretrip_streak (test_network.NetworkPolicy.test_success_resets_pretrip_streak) ... ok
+test_three_connection_failures_trip_and_success_cannot_reopen (test_network.NetworkPolicy.test_three_connection_failures_trip_and_success_cannot_reopen) ... ok
+test_zero_token_cli_error_is_missing_but_model_content_is_never_retried (test_network.NetworkPolicy.test_zero_token_cli_error_is_missing_but_model_content_is_never_retried) ... ok
+test_zero_token_session_limit_waits_without_becoming_an_answer (test_network.NetworkPolicy.test_zero_token_session_limit_waits_without_becoming_an_answer) ... ok
+
+----------------------------------------------------------------------
+Ran 9 tests in 0.028s
+
+OK

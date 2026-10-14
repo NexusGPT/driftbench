@@ -33,27 +33,39 @@
     ".": {
       "types": "./dist/index.d.ts",
       "import": "./dist/index.js"
+    },
+    "./contract": {
+      "types": "./dist/contract.d.ts",
+      "import": "./dist/contract.js"
     }
   },
   "files": [
     "dist"
   ],
   "scripts": {
-    "build": "tsup src/index.ts --format esm --dts --clean --target node22"
+    "build": "tsup src/index.ts src/contract.ts --format esm --dts --clean --target node22 --external vitest"
   },
   "dependencies": {
     "@agent-nexus/driftbench-core": "workspace:*",
     "@agent-nexus/driftbench-sandbox": "workspace:*"
   },
+  "devDependencies": {
+    "@agent-nexus/driftbench-checks": "workspace:*"
+  },
   "peerDependencies": {
+    "@agent-nexus/driftbench-checks": "workspace:*",
     "@anthropic-ai/sdk": ">=0.133.0",
     "@google/genai": ">=2.28.0",
     "@langchain/langgraph": ">=1.4.21",
     "@openai/agents": ">=0.20.0",
     "ai": ">=7.0.137",
-    "openai": ">=7.32.0"
+    "openai": ">=7.32.0",
+    "vitest": ">=3"
   },
   "peerDependenciesMeta": {
+    "@agent-nexus/driftbench-checks": {
+      "optional": true
+    },
     "@anthropic-ai/sdk": {
       "optional": true
     },
@@ -70,6 +82,9 @@
       "optional": true
     },
     "openai": {
+      "optional": true
+    },
+    "vitest": {
       "optional": true
     }
   },

@@ -1,0 +1,7 @@
+{
+  "verified_on": "2026-10-13",
+  "model": "claude-sonnet-5-5",
+  "source": "CLI total_cost_usd per call",
+  "usd_per_million": null,
+  "tier": "CLI-reported cost is authoritative"
+}
