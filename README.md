@@ -789,12 +789,12 @@ The driftbench side is the pair ledger, an opt-in judge mode merged in [PR 168](
 </a>
 <p align="center"><sub><a href="docs/comparison/methods.md#public-benchmarks-against-promptfoo">How we measured</a></sub></p>
 
-**Writing.** The writing preference half of LongJudgeBench, both orders, 173 pairs per model. A rule that picks the longer reply scores 67.6, above every judge.
+**Writing.** The writing preference half of LongJudgeBench, both orders, 173 pairs per model. The driftbench bars use the opt-in long-structured setting, which prefers longer, well-structured replies; the default judge scores 61.3, 53.8 and 59.0. A rule that picks the longer reply scores 67.6, above every judge.
 
 <a href="docs/assets/bench-writing-light.png">
   <picture>
     <source media="(prefers-color-scheme: dark)" srcset="docs/assets/bench-writing-dark.png">
-    <img alt="LongJudgeBench writing preference test split, 173 pairs per model, percent correct, one panel per model. Claude Haiku 5.5: a rule that picks the longer reply 67.6, driftbench 61.3, promptfoo 56.9. GPT-6 Luna: longer reply 67.6, promptfoo 56.9, driftbench 53.8. Gemini 3.5 Flash-Lite: longer reply 67.6, promptfoo 60.4, driftbench 59.0." src="docs/assets/bench-writing-light.png" width="100%">
+    <img alt="LongJudgeBench writing preference test split, 173 pairs per model, percent correct, one panel per model. Claude Haiku 5.5: a rule that picks the longer reply 67.6, driftbench 65.3, DeepEval 58.4, promptfoo 56.9, LangWatch 52.6, Langfuse 14.4, Inspect 11.6. GPT-6 Luna: longer reply 67.6, driftbench 65.3, promptfoo 56.9. Gemini 3.5 Flash-Lite: longer reply 67.6, driftbench 65.9, promptfoo 60.4. Footnote: driftbench bars use the opt-in long-structured setting; the default judge scores 61.3, 53.8 and 59.0." src="docs/assets/bench-writing-light.png" width="100%">
   </picture>
 </a>
 <p align="center"><sub><a href="docs/comparison/methods.md#public-benchmarks-against-promptfoo">How we measured</a></sub></p>
@@ -863,11 +863,12 @@ The same sealed items and the same model (Claude Haiku 5.5) for every contestant
 | MM-Eval, 591 items | 88.9 | 86.5 | 84.1 | 75.4 | 73.5 | 83.9 |
 | RubricBench, 1,580 games | 82.7 | 75.6 | 77.6 | 26.6 | 25.1 | 74.9 |
 | LongJudgeBench verify, 221 items | 74.2 | 71.9 | 58.8 | 73.3 | 75.1 | 73.3 |
-| LongJudgeBench writing, 346 games | 61.3 | 56.9 | 58.4 | 11.6 | 14.5 | 52.6 |
+| LongJudgeBench writing, 346 games, driftbench long-structured setting | 65.3 | 56.9 | 58.4 | 11.6 | 14.5 | 52.6 |
+| LongJudgeBench writing, 346 games, driftbench default judge | 61.3 | 56.9 | 58.4 | 11.6 | 14.5 | 52.6 |
 
-Length-controlled accuracy on writing (a longer-wins rule scores 50): driftbench 59.3, DeepEval 58.3, promptfoo 55.6, LangWatch 51.5, Langfuse 15.8, Inspect 11.8 (source: `examples/writing-heldout/README.md` on `feat/writing-lead`).
+Writing is reported with the opt-in long-structured setting (`preference: 'long-structured'`), which prefers longer, well-structured replies; the owner chose it as driftbench's writing result. It picks the longer reply in 96.5 percent of games, so it wins because these labels favour longer replies. Against each tool on these 346 games, Holm over the five: wins against promptfoo (Holm p 0.040), Inspect, Langfuse and LangWatch, a tie with DeepEval (Holm p 0.062). On a fresh pool of 144 pairs never used before, run once after a freeze, it scores 66.0 and wins against all five after Holm ([results](examples/writing-heldout/results/RESULTS.md)). Length-controlled accuracy of the default judge (a longer-wins rule scores 50): driftbench 59.3, DeepEval 58.3, promptfoo 55.6, LangWatch 51.5, Langfuse 15.8, Inspect 11.8 ([source](examples/writing-heldout/README.md)).
 
-- Holm-corrected over the 25 comparisons (driftbench against promptfoo and each of the four tools on each benchmark): 16 significant wins, 9 ties, no losses.
+- Holm-corrected over the 25 comparisons (driftbench against promptfoo and each of the four tools on each benchmark), with the default judge on writing: 16 significant wins, 9 ties, no losses.
 - The 9 ties are JudgeBench against promptfoo (raw p 0.0139), LangWatch (raw p 0.0201) and DeepEval (raw p 0.21); verify against promptfoo, Inspect, Langfuse and LangWatch; writing against promptfoo and DeepEval. Holm p values are in the per benchmark tables.
 - Without the correction, 18 of the 25 have raw p below 0.05, so JudgeBench against promptfoo and against LangWatch would count as wins.
 - No comparison is a significant loss. Langfuse scores 0.9 points higher on verify (13 wins against 15 losses, raw p 0.85). On writing, the reader-first variant picks the longer reply on all 173 pairs, so its 67.6 equals a longer-wins rule and is not a judge result.
