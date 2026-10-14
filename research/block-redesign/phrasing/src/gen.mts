@@ -45,19 +45,22 @@ const results = await Promise.all(
     const candidates: unknown[] = [];
     const realisations: { block: string; row: number; cell: Row; text: string; attempt: number }[] = [];
     for (const [r, row] of rows.entries()) {
+      let previous: { text: string; reason: string } | undefined;
       for (let attempt = 1; attempt <= MAX_ATTEMPTS; attempt++) {
         const callSeed = seedOf(design, def.id, r, attempt);
         let text = '';
         let stages: Stage[] = [];
         try {
-          text = await realise(def, g.seed, g.lastReply, row, callSeed, batch);
+          text = await realise(def, g.seed, g.lastReply, row, callSeed, batch, previous);
           stages = deterministicStages(def, g.seed, text, row, accepted, context);
-          if (stages.every((s) => s.ok)) stages.push(await axisStage(g.seed, text, row, callSeed, batch));
-          if (stages.every((s) => s.ok)) stages.push(await equivalenceStage(g.seed, g.lastReply, text, callSeed, batch));
+          if (stages.every((s) => s.ok)) stages.push(await axisStage(def, g.seed, text, row, callSeed, batch));
+          if (stages.every((s) => s.ok)) stages.push(await equivalenceStage(def, g.seed, g.lastReply, text, callSeed, batch));
         } catch (cause) {
           stages.push({ stage: 'error', ok: false, note: String(cause) });
         }
         const ok = stages.every((s) => s.ok);
+        const failed = stages.find((s) => !s.ok);
+        if (failed) previous = { text, reason: `${failed.stage}${failed.note ? `: ${failed.note}` : ''}` };
         candidates.push({ block: def.id, row: r, attempt, cell: row, text, ok, stages });
         if (ok) {
           accepted.push(text);

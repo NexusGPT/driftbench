@@ -37,3 +37,13 @@ Style that misses its planner row (a "formal" text that reads casual) is not inv
 - Sample: 300 planned rows, 20 planted, 50 audited.
 - Tiny sample first: rows 0 to 2 of 2 blocks end to end; USD per row measured and the total re-projected in `../LEDGER.md` before scaling.
 - Stop: the lane guard (36 USD). Expected H4 cost well under 2 USD.
+
+## Amendment 1, 2026-10-15, after the tiny generation sample and before any scaled data
+The tiny sample (rows 0 to 2 of B2 and B5, kept in `../data/tiny-v1/`) accepted 1 of 6 rows after 33 candidates. Reading every candidate showed three defects of the gate as registered, none about validity:
+1. The equivalence judge rejected the class's own surface forms ("omits the +1 country code", "omits Acme from the plan name"). Fix: the judge now receives the listed spellings of each value as the same value.
+2. Axis conformance by blind labelling disagreed with the row on fuzzy axes far more often than the texts did (the lexical axis, register neutral against formal), and counted punctuation inside dictated values (an address with a comma) against `no_punctuation`. Fix: the model now verifies each axis against the required value (yes or no per axis), told that the punctuation, capitals and spelling of the fixed values never count.
+3. Retries repeated the same rejected text. Fix: from the second candidate on, the realiser sees the previous rejected candidate and the stage that rejected it.
+
+A second tiny sample (`../data/tiny-v2/`) accepted 4 of 6 and showed two axis definitions that cannot be met by slot-only seeds (`synonyms` when the seed has no other words; `terse` at 8 words when the values alone take 7). Fix: `terse` is at most 4 words besides the fixed values; `synonyms` is "the words other than the fixed values differ from the original (when the original has no such words, any added wording counts), with a similar structure"; `seed_words` and `restructured` reworded to match. A third tiny sample (`../data/tiny-v3/`, B2, B5, B7, B10, rows 0 to 2) accepted 11 of 12.
+
+The planted items, the audit sample, the validity rubric, the thresholds and the verdict rule are unchanged. Retry feedback makes the realiser adapt to the gate, which can only make false accepts more likely; the audit measures exactly that.
