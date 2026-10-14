@@ -772,6 +772,31 @@ function sample(rng: () => number, probs: number[], n: number): number[] {
   }
   return counts;
 }
+/**
+ * The samples a Chao1-at-scale or Hill item averages, and its bars on the relative error of that mean.
+ *
+ * One sample was too noisy for its bar. Over seeds 1 to 20000 on main 4dc61151, a correct implementation failed
+ * chao1-large.s80-tail10 on 14 seeds (a rare class seen once or twice lifts f1^2 / 2 f2), hill-q1.s40-tail5 on 3
+ * and hill-q2.s40-tail5 on 1. Simulated, 40000 samples per population: the relative error of one sample has mean
+ * and sd -0.0097 and 0.0102 (q1, s40-tail5) and -0.0155 and 0.0175 (q2, s40-tail5), the largest of the four
+ * populations. The mean of 4 samples halves the sd; at the bars below, over the four populations, a correct
+ * implementation fails about 4e-7 (q1), 2e-7 (q2) and none of 10000 means (Chao1, whose tail is not normal).
+ *
+ * Planted faults, any population failing, the mean of 4 against one sample at the earlier bars (0.05, 0.05,
+ * 0.10): q2 returned for q1, 1 against 1; q0 for q1, 1 against 1; q1 for q2, 1 against 1; order 2.2 for q2, 1
+ * against 1. The q2 bar now also catches q1 for q2 on s40-tail5 alone (about 1 against 0.072), the q1 bar q2 for q1
+ * on s150-tail3 alone (1 against 0.966). Chao1 at 20 draws per class sits at the class count whatever the
+ * correction: the observed count, f1^2 / f2 and S_obs + f1 pass it on nearly every seed, before and after (the
+ * low-sample Chao1 items check the formula).
+ */
+const UNSEEN_SAMPLES = 4;
+const UNSEEN_BARS = { chao1: 0.05, q1: 0.035, q2: 0.06 } as const;
+
+function meanOver(times: number, draw: () => number): number {
+  let sum = 0;
+  for (let i = 0; i < times; i += 1) sum += draw();
+  return sum / times;
+}
 const hillTrue = (probs: number[], q: number) =>
   q === 1
     ? Math.exp(-probs.reduce((a, p) => a + p * Math.log(p), 0))
@@ -893,32 +918,29 @@ function unseenItems(): BankItem[] {
             : 'chaoCoverage gives a richness estimate more than 10 percent off when the sample sits just above the class count',
       })),
       item(`analytic.unseen.chao1-large.${pop.key}`, 'unseen-known', 3, FILES.coverage, ({ s, rng }) => {
-        const counts = sample(rng, pop.probs, 20 * S);
-        const r = s.chaoCoverage(counts);
-        return Math.abs(r.chao1 - S) / S <= 0.05
+        const got = meanOver(UNSEEN_SAMPLES, () => s.chaoCoverage(sample(rng, pop.probs, 20 * S)).chao1);
+        return Math.abs(got - S) / S <= UNSEEN_BARS.chao1
           ? ok()
           : fail(
-              `chaoCoverage(counts).chao1 on ${20 * S} draws from ${S} known classes (${pop.key}) gave ${r.chao1}; with 20 draws per class Chao1 is within 5 percent of ${S}.`,
+              `chaoCoverage(counts).chao1 averaged over ${UNSEEN_SAMPLES} samples of ${20 * S} draws from ${S} known classes (${pop.key}) gave ${got}; with 20 draws per class the mean Chao1 is within ${100 * UNSEEN_BARS.chao1} percent of ${S}.`,
             );
       }),
       item(`analytic.unseen.hill-q1.${pop.key}`, 'unseen-known', 3, FILES.coverage, ({ s, rng }) => {
-        const counts = sample(rng, pop.probs, 50 * S);
         const truth = hillTrue(pop.probs, 1);
-        const got = s.hillNumbers(counts).q1;
-        return Math.abs(got - truth) / truth <= 0.05
+        const got = meanOver(UNSEEN_SAMPLES, () => s.hillNumbers(sample(rng, pop.probs, 50 * S)).q1);
+        return Math.abs(got - truth) / truth <= UNSEEN_BARS.q1
           ? ok()
           : fail(
-              `hillNumbers(counts).q1 on ${50 * S} draws from ${pop.key} gave ${got}; the population's exp(Shannon) is ${truth} and the plug-in value is within 5 percent at 50 draws per class.`,
+              `hillNumbers(counts).q1 averaged over ${UNSEEN_SAMPLES} samples of ${50 * S} draws from ${pop.key} gave ${got}; the population's exp(Shannon) is ${truth} and the mean plug-in value is within ${100 * UNSEEN_BARS.q1} percent at 50 draws per class (it is biased down by about 1 percent).`,
             );
       }),
       item(`analytic.unseen.hill-q2.${pop.key}`, 'unseen-known', 3, FILES.coverage, ({ s, rng }) => {
-        const counts = sample(rng, pop.probs, 50 * S);
         const truth = hillTrue(pop.probs, 2);
-        const got = s.hillNumbers(counts).q2;
-        return Math.abs(got - truth) / truth <= 0.1
+        const got = meanOver(UNSEEN_SAMPLES, () => s.hillNumbers(sample(rng, pop.probs, 50 * S)).q2);
+        return Math.abs(got - truth) / truth <= UNSEEN_BARS.q2
           ? ok()
           : fail(
-              `hillNumbers(counts).q2 on ${50 * S} draws from ${pop.key} gave ${got}; the population's inverse Simpson is ${truth} and the plug-in value is within 10 percent at 50 draws per class (it is biased up by about 1 / (n sum p^2)).`,
+              `hillNumbers(counts).q2 averaged over ${UNSEEN_SAMPLES} samples of ${50 * S} draws from ${pop.key} gave ${got}; the population's inverse Simpson is ${truth} and the mean plug-in value is within ${100 * UNSEEN_BARS.q2} percent at 50 draws per class (the plug-in sum of p^2 is biased up by about 1 / n, so the value is biased down by 1 to 2 percent).`,
             );
       }),
     );
