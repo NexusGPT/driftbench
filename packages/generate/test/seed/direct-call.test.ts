@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'vitest';
+import { parseDocument, stringify } from 'yaml';
 import { hiddenSpec } from '../../../validators/src/ladders/generator/hidden';
 import { generateFrom } from '../../../validators/src/ladders/generator/measure';
 import { renderMap } from '../../../validators/src/ladders/generator/render';
@@ -108,5 +109,58 @@ describe('a tool a user asks to report a returned value', () => {
     const { reports } = await directCalls(false);
     expect(reports.length).toBeGreaterThan(0);
     for (const call of reports) expect(call.input).toBeUndefined();
+  }, 180_000);
+});
+
+describe('a returned-value request on a tool a flow calls', () => {
+  it('stays a returned-value turn when the schema gives defaults: no input value of its own', async () => {
+    // Seed 1, the read tool a flow calls given a default for each input, and no states relation reporting
+    // its returned fields (so its returned values go to a request after the walk's first move).
+    const seed = 1;
+    const hidden = hiddenSpec(seed);
+    const tool = hidden.tools.find(
+      (entry) => !entry.sideEffect && hidden.uses.some((use) => use.tool === entry.name),
+    );
+    if (!tool) throw new Error('seed 1 has no read tool a flow calls');
+    const rendered = renderMap(hidden);
+    for (const property of tool.input) {
+      const value =
+        property.type === 'enum'
+          ? property.members[0]
+          : property.type === 'integer'
+            ? property.minimum
+            : true;
+      rendered.tools = rendered.tools.replace(
+        new RegExp(`(\\n\\s+${property.name}: \\{[^}]+) \\}`),
+        (_match, body: string) => `${body}, default: ${JSON.stringify(value)} }`,
+      );
+    }
+    const map = parseDocument(rendered.map).toJS() as { relations: Array<Record<string, unknown>> };
+    map.relations = map.relations.filter(
+      (relation) =>
+        relation.kind !== 'states' ||
+        !JSON.stringify([relation.must, relation.must_not]).includes(`{${tool.name}_`),
+    );
+    rendered.map = stringify(map);
+    const source = await generateFrom(hidden, rendered, seed, {}, { once: true });
+    if (!source.prepared)
+      throw new Error(`the fictional map failed to load: ${JSON.stringify(source.refused)}`);
+    const suite = generateSuite(source.prepared, { mapPath: '../map.yaml', t: 2, seed });
+    expect(suite.report.invalid).toEqual([]);
+    const asking = new Set(
+      hidden.phrases
+        .filter((phrase) => phrase.intent.kind === 'data' && phrase.value.startsWith(`${tool.name}.out.`))
+        .map((phrase) => phrase.text),
+    );
+    const runs = suite.complete.flatMap((spec) =>
+      spec.blocks.flatMap((block) =>
+        'user' in block.when && asking.has(block.when.user)
+          ? (block.expect?.tools ?? []).filter((call) => call.label === tool.name && call.count !== 0)
+          : [],
+      ),
+    );
+    expect(runs.length).toBeGreaterThan(0);
+    for (const call of runs)
+      for (const value of Object.values(call.input ?? {})) expect(value).not.toBeUndefined();
   }, 180_000);
 });
