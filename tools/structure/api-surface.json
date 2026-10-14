@@ -179,6 +179,7 @@
       "createAcmeAgent": "value",
       "createStore": "value",
       "expectWholeObserved": "value",
+      "frozenMessage": "value",
       "replyMessage": "value",
       "sendUser": "value",
       "userTurn": "value"
@@ -581,6 +582,7 @@
       "compoundingIndex": "value",
       "computeCoverage": "value",
       "contentHash": "value",
+      "copyHistory": "value",
       "decideToolRule": "value",
       "deepEqual": "value",
       "deniesCall": "value",

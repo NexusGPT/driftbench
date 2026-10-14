@@ -12,6 +12,7 @@ export {
   type CheckContext,
   type CheckSet,
   type CostUnit,
+  copyHistory,
   type DriverContext,
   type DriverStep,
   decideToolRule,
