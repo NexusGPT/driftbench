@@ -26,6 +26,8 @@ const SOURCES = {
   promptfoo: 'comparisons/promptfoo/hard/recorded/summary.json',
   deepeval: 'comparisons/deepeval/hard/baseline-heldout-scores.json',
   deepevalReceipts: 'comparisons/deepeval/hard/baseline-task-receipts-heldout-scores.json',
+  // Fresh held-out rows that replace the 72-case rows of the same name; a row may name an opt-in setting.
+  deepevalFresh: 'comparisons/deepeval/lead/fresh-scores.json',
   langfuseOurs: 'comparisons/langfuse/hard/pr115-scores.json',
   langfuseTheirs: 'comparisons/langfuse/hard/heldout-scores.json',
   inspect: 'comparisons/inspect/hard/summary.json',
@@ -78,7 +80,7 @@ function sameInterval(computed, stored, where) {
 
 function judgeRows(chart = 'judge-heldout') {
   const groups = [];
-  const row = (label, n, ours, theirs, source, stored) => {
+  const row = (label, n, ours, theirs, source, stored, setting) => {
     const oursCi = wilson(ours, n);
     const theirsCi = wilson(theirs, n);
     if (stored?.ours) sameInterval(oursCi, stored.ours, `${source} ${label} ours`);
@@ -90,11 +92,12 @@ function judgeRows(chart = 'judge-heldout') {
       [ours, theirs, n],
       source,
     );
-    return { label, n, ours, theirs, oursCi, theirsCi, standing };
+    return { label, n, ours, theirs, oursCi, theirsCi, standing, ...(setting ? { setting } : {}) };
   };
 
   const deepeval = json(SOURCES.deepeval);
   const receipts = json(SOURCES.deepevalReceipts);
+  const fresh = json(SOURCES.deepevalFresh);
   const names = {
     'turn relevancy': 'Turn relevancy',
     'G-Eval strict': 'G-Eval, strict',
@@ -107,14 +110,27 @@ function judgeRows(chart = 'judge-heldout') {
     'knowledge retention': 'Knowledge retention',
   };
   groups.push({
-    header: 'DeepEval 4.2.8, default metrics, 72 cases each',
+    // Row sizes differ (72, or the fresh set for a renewed row): each chart states them in its note.
+    header: 'DeepEval 4.2.8, default metrics',
     rows: deepeval.map((entry) => {
-      const used = entry.row === 'task completion' ? receipts.find((r) => r.row === entry.row) : entry;
-      const source = entry.row === 'task completion' ? SOURCES.deepevalReceipts : SOURCES.deepeval;
-      return row(names[entry.row], used.n, used.ours, used.theirs, source, {
-        ours: used.ours_ci,
-        theirs: used.theirs_ci,
-      });
+      const renewed = fresh.find((r) => r.row === entry.row);
+      const used =
+        renewed ?? (entry.row === 'task completion' ? receipts.find((r) => r.row === entry.row) : entry);
+      const source = renewed
+        ? SOURCES.deepevalFresh
+        : entry.row === 'task completion'
+          ? SOURCES.deepevalReceipts
+          : SOURCES.deepeval;
+      const setting = renewed && renewed.setting !== 'default' ? renewed.setting : undefined;
+      return row(
+        names[entry.row],
+        used.n,
+        used.ours,
+        used.theirs,
+        source,
+        { ours: used.ours_ci, theirs: used.theirs_ci },
+        setting,
+      );
     }),
   });
 
@@ -345,7 +361,7 @@ function judgeData(leadsOnly) {
   const total = every.flatMap((g) => g.rows).length;
   const groups = leadsOnly
     ? every
-        .map((g) => ({ ...g, rows: g.rows.filter((r) => r.standing === 'lead') }))
+        .map((g) => ({ ...g, rows: g.rows.filter((r) => r.standing === 'lead' && !r.setting) }))
         .filter((g) => g.rows.length)
     : every;
   const all = groups.flatMap((g) => g.rows);
@@ -364,8 +380,8 @@ function judgeData(leadsOnly) {
     axis: 'score out of 100: correct verdicts, % of cases',
     groups: groups.map((g) => ({ header: g.header, rows: g.rows.map(pair) })),
     note: leadsOnly
-      ? '72 cases per row · lines: 95% interval'
-      : '60 to 120 cases per row · lines: 95% interval',
+      ? `${[...new Set(all.map((r) => r.n))].sort((a, b) => a - b).join(' or ')} cases per row · lines: 95% interval`
+      : '60 to 480 cases per row · lines: 95% interval',
   };
 }
 
@@ -816,7 +832,7 @@ function hardPerTool(tool) {
     'Knowledge retention': 'Knowl|edge re|ten|tion',
   };
   const groups = group.rows.map((r) => ({
-    label: breaks[r.label] ?? r.label,
+    label: `${breaks[r.label] ?? r.label}${r.setting ? ' *' : ''}`,
     sub: `of ${r.n}`,
     bars: [
       { series: 0, value: round(pct(r.ours, r.n)), text: String(r.ours) },
@@ -871,12 +887,20 @@ function hardPerTool(tool) {
     ahead || behind
       ? `${name}: ${parts.join(', ')} of ${group.rows.length} tests.`
       : `${name}: equal or higher on ${atLeast} of ${group.rows.length} tests.`;
+  const settings = [...new Set(group.rows.filter((r) => r.setting).map((r) => r.setting))];
+  const sizes = [...new Set(group.rows.map((r) => r.n))];
   return columns(`hard-${tool}`, {
     kicker: `${kicker} · bars labelled with cases correct`,
     title,
-    key: ['driftbench, shipped judge', `${name} default`],
+    key: [settings.length ? 'driftbench' : 'driftbench, shipped judge', `${name} default`],
     groups,
-    note: 'Ahead or behind: the 95% intervals do not overlap',
+    note: [
+      'Ahead or behind: the 95% intervals do not overlap',
+      sizes.length > 1 && `cases per test: ${sizes.sort((a, b) => a - b).join(' or ')}`,
+      settings.length && `* opt-in setting ${settings.join(', ')}; every other bar is the shipped judge`,
+    ]
+      .filter(Boolean)
+      .join(' · '),
   });
 }
 

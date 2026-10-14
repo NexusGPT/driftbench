@@ -24,6 +24,17 @@ The shipped baseline uses the frozen judge snapshot from base commit 12801e1b9b9
 | Tool correctness, exact order: accuracy | equal | measured head-to-head | No example recorded in the evidence. | see comparisons/deepeval/README.md: `npx tsx comparisons/deepeval/tools/tools_ours.mts` and `.venv-deepeval/bin/python comparisons/deepeval/tools/tools_deepeval.py` |
 | Tool correctness, exact order: diagnosis | ahead | compared against their docs or code | Ours names the call, its position and the argument that differs. DeepEval gives a score only. | Not reproducible from the repository: the measurement is a local script outside it. |
 
+## Fresh 480-case rows: G-Eval strict and knowledge retention
+
+Measured 2026-10-14 on a fresh set from the unchanged generator (seed 20261114, 20 pairs per family, 480 cases per row), frozen before any call. Same Haiku path and the same pinned DeepEval metrics on both sides. The README chart reads these two rows from `comparisons/deepeval/lead/fresh-scores.json`.
+
+| Row | driftbench | DeepEval default | Only driftbench right | Only DeepEval right | Exact paired p | Holm (2 rows) |
+|---|---|---|---|---|---|---|
+| G-Eval strict, opt-in setting `response-relevance` | 474/480 (97.3 to 99.43%) | 451/480 (91.46 to 95.76%) | 29 | 6 | 0.00012 | 0.00023 |
+| Knowledge retention, shipped judge | 475/480 (97.58 to 99.55%) | 473/480 (97.02 to 99.29%) | 6 | 4 | 0.75 | 0.75 |
+
+Knowledge retention is level. Nine CLI calls timed out at 180 seconds on that row (five driftbench, four DeepEval) and count as wrong; no call was retried. Method and replay: [comparisons/deepeval/lead](../../comparisons/deepeval/lead/README.md).
+
 ## Shipped judge, candidate and default
 
 Each cell shows correct cases and a nominal 95% Wilson interval. Hard has 120 cases per row; fresh held-out has 72.

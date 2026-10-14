@@ -21,7 +21,7 @@ window.CHART_DATA = {
     "axis": "score out of 100: correct verdicts, % of cases",
     "groups": [
       {
-        "header": "DeepEval 4.2.8, default metrics, 72 cases each",
+        "header": "DeepEval 4.2.8, default metrics",
         "rows": [
           {
             "label": "Hallucination",
@@ -884,9 +884,9 @@ window.CHART_DATA = {
   "hard-deepeval": {
     "kind": "columns",
     "kicker": "DeepEval hard cases · held-out · Claude Haiku 5.5 on both sides · bars labelled with cases correct",
-    "title": "DeepEval: ahead on 5, level on 4 of 9 tests.",
+    "title": "DeepEval: ahead on 6, level on 3 of 9 tests.",
     "key": [
-      "driftbench, shipped judge",
+      "driftbench",
       "DeepEval default"
     ],
     "min": 0,
@@ -982,6 +982,38 @@ window.CHART_DATA = {
         ]
       },
       {
+        "label": "G-Eval, strict *",
+        "sub": "of 480",
+        "bars": [
+          {
+            "series": 0,
+            "value": 98.75,
+            "text": "474"
+          },
+          {
+            "series": 1,
+            "value": 93.96,
+            "text": "451"
+          }
+        ]
+      },
+      {
+        "label": "Knowl|edge re|ten|tion",
+        "sub": "of 480",
+        "bars": [
+          {
+            "series": 0,
+            "value": 98.96,
+            "text": "475"
+          },
+          {
+            "series": 1,
+            "value": 98.54,
+            "text": "473"
+          }
+        ]
+      },
+      {
         "label": "DAG, one node",
         "sub": "of 72",
         "bars": [
@@ -1012,41 +1044,9 @@ window.CHART_DATA = {
             "text": "72"
           }
         ]
-      },
-      {
-        "label": "Knowl|edge re|ten|tion",
-        "sub": "of 72",
-        "bars": [
-          {
-            "series": 0,
-            "value": 94.44,
-            "text": "68"
-          },
-          {
-            "series": 1,
-            "value": 95.83,
-            "text": "69"
-          }
-        ]
-      },
-      {
-        "label": "G-Eval, strict",
-        "sub": "of 72",
-        "bars": [
-          {
-            "series": 0,
-            "value": 90.28,
-            "text": "65"
-          },
-          {
-            "series": 1,
-            "value": 97.22,
-            "text": "70"
-          }
-        ]
       }
     ],
-    "note": "Ahead or behind: the 95% intervals do not overlap"
+    "note": "Ahead or behind: the 95% intervals do not overlap · cases per test: 72 or 480 · * opt-in setting response-relevance; every other bar is the shipped judge"
   },
   "hard-promptfoo": {
     "kind": "columns",

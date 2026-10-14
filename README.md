@@ -825,12 +825,12 @@ The judge that ships today, against DeepEval 4.2.8's default metrics, same model
 
 ### Hard cases, framework by framework
 
-The shipped judge against each framework's own default judge, on held-out hard cases, with Claude Haiku 5.5 on both sides. Bars show the share of cases judged correctly, out of 100.
+The shipped judge against each framework's own default judge, on held-out hard cases, with Claude Haiku 5.5 on both sides. Bars show the share of cases judged correctly, out of 100. On DeepEval, G-Eval strict and knowledge retention are measured on a fresh set of 480 cases each; the G-Eval strict bar uses the opt-in setting `response-relevance` ([how](comparisons/deepeval/lead/README.md)).
 
 <a href=".github/readme/hard-deepeval-light.png">
   <picture>
     <source media="(prefers-color-scheme: dark)" srcset=".github/readme/hard-deepeval-dark.png">
-    <img alt="DeepEval hard cases, cases correct of 72, driftbench against DeepEval default. Hallucination 71 against 36. Faithfulness 71 against 36. Turn relevancy 65 against 36. Completeness 70 against 46. Role adherence 72 against 63. DAG 65 against 65. Task completion 72 against 72. Knowledge retention 68 against 69. G-Eval strict 65 against 70." src=".github/readme/hard-deepeval-light.png" width="100%">
+    <img alt="DeepEval hard cases, cases correct, driftbench against DeepEval default. Of 72: Hallucination 71 against 36. Faithfulness 71 against 36. Turn relevancy 65 against 36. Completeness 70 against 46. Role adherence 72 against 63. DAG 65 against 65. Task completion 72 against 72. Of 480 fresh cases: G-Eval strict 474 against 451, with the opt-in setting response-relevance. Knowledge retention 475 against 473." src=".github/readme/hard-deepeval-light.png" width="100%">
   </picture>
 </a>
 <p align="center"><sub><a href="docs/comparison/methods.md#the-judge-on-hard-cases">How we measured</a></sub></p>

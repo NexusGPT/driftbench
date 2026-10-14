@@ -94,6 +94,22 @@ describe('readme charts, competitors', () => {
   });
 });
 
+describe('readme charts, rows measured with an opt-in setting', () => {
+  it('draw the bar as plain driftbench, with a footnote that names the setting', () => {
+    const c = chart('hard-deepeval');
+    const marked = c.groups.filter((g) => g.label.endsWith(' *'));
+    expect(marked.length).toBeGreaterThan(0);
+    expect(c.key[0]).toBe('driftbench');
+    expect(c.note).toContain('* opt-in setting response-relevance');
+  });
+
+  it('stay out of the shipped-judge leads chart', () => {
+    const c = chart('judge-leads');
+    const labels = c.groups.flatMap((g) => g.rows.map((r) => r.label));
+    expect(labels).not.toContain('G-Eval, strict');
+  });
+});
+
 describe('readme charts, committed files', () => {
   it('match the result files they are read from', () => {
     const run = spawnSync('node', [script, '--check'], { encoding: 'utf8' });
