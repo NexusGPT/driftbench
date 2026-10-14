@@ -1590,3 +1590,7 @@ Every command `driftbench --help` lists is built. These do not exist as commands
 ## Token prices for campaign budgets
 
 `campaign run` and `campaign resume` accept `--prices <file>` for a standalone dated USD token price table. Without the flag, they read `prices:` from `driftbench.yaml`. See [the budget](../running.md#the-budget) for the format, model lookup, and preflight refusal listing every declared target model without a price. Models first reported at runtime can only be checked after that first call. A budget counts target-adapter reports only; simulated-user and judge calls are excluded. The CLI prints that scope on stderr when those roles are used with a budget.
+
+### Prompt change manifests
+
+`driftbench radius auto --prompt <old> <new> --map <approved.yaml> [--source <path>] [--from-version <version>] [--to-version <version>] [--out <manifest.yaml>]` writes a manifest from approved evidence quotes. `driftbench radius <specs> --change <manifest.yaml> --explain` traces anchors to block reasons. See [prompt quotes](../concepts/blast-radius.md#prompt-quotes).
