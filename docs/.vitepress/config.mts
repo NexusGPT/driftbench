@@ -131,6 +131,7 @@ export default defineConfig({
         text: 'Running',
         items: [
           { text: 'Running', link: '/running' },
+          { text: 'CLI plugins', link: '/plugins' },
           { text: 'Generating tests', link: '/generating' },
           { text: 'Testing an estate', link: '/estate' },
           { text: 'Datasets and prompts', link: '/datasets' },
@@ -151,6 +152,7 @@ export default defineConfig({
           { text: 'Estate files', link: '/reference/estate-files' },
           { text: 'CLI', link: '/reference/cli' },
           { text: 'Checks', link: '/reference/checks' },
+          { text: 'Public API', link: '/reference/api' },
         ],
       },
       {

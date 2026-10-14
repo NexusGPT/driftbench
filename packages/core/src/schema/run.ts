@@ -39,6 +39,10 @@ export const ToolCall = z.strictObject({
 export type ToolCall = z.infer<typeof ToolCall>;
 
 export const Cost = z.strictObject({
+  /** Exact pricing key; otherwise the runner uses target.options.model. */
+  model: z.string().min(1).optional(),
+  /** Cache reads, included in inputTokens (not additional input tokens). */
+  cachedInputTokens: z.number().int().nonnegative().optional(),
   usd: z.number().nonnegative().optional(),
   inputTokens: z.number().int().nonnegative().optional(),
   outputTokens: z.number().int().nonnegative().optional(),
@@ -342,8 +346,8 @@ export const RunResult = z.strictObject({
   repeat: z.number().int().min(0),
   perturbationId: z.string().optional(),
   status: z.enum(['completed', 'failed', 'stopped']),
-  /** The verdict the spec's end gave the run, when the script ended with one. */
-  endVerdict: z.enum(['success', 'failure']).optional(),
+  /** The driver or spec's end verdict. Inconclusive means the run could not be judged. */
+  endVerdict: z.enum(['success', 'failure', 'inconclusive']).optional(),
   error: z.string().optional(),
   blocks: z.array(BlockResult),
   succession: Succession,

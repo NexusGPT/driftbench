@@ -24,6 +24,7 @@ import { openStore } from '@agent-nexus/driftbench-store';
 import type { Command } from 'commander';
 import type { Io } from '../io';
 import { optionNumber } from '../number';
+import { pluginPairwiseJudge } from '../plugins';
 import { noStoreAt } from '../store-path';
 
 /** What compare and report open stores with. Tests pass their own. */
@@ -38,6 +39,8 @@ export function defaultPairwiseClient(kind: string): JudgeClient {
   if (kind === 'openai') return createOpenAiJudge({ id: 'pairwise-openai' });
   if (kind === 'anthropic') return createAnthropicJudge({ id: 'pairwise-anthropic' });
   if (kind === 'google') return createGoogleJudge({ id: 'pairwise-google' });
+  const registered = pluginPairwiseJudge(kind);
+  if (registered !== undefined) return registered;
   throw new Error(`unknown pairwise judge ${kind}: use openai, anthropic or google`);
 }
 

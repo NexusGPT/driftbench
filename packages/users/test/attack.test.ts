@@ -11,6 +11,7 @@ import {
   cuesOf,
   loadRedteamPack,
   type RedteamPack,
+  RedteamPackError,
   runAttack,
 } from '../src/index';
 import { acmeSales, acmeSpec, PACK_DIR } from './support';
@@ -120,6 +121,35 @@ describe('the adaptive attacker', { timeout: 60_000 }, () => {
       const classes = result.rounds.map((round) => round.class);
       expect(classes.filter((cls) => cls === 'D11_pii_leak' || cls === 'D12_prompt_extraction')).toEqual([]);
     }
+  });
+
+  it('refuses a pack with no approved phrasing at all, and draws from it when the run asks for drafts', async () => {
+    const spec = await acmeSpec('conversations/order-loose-confirmation.yaml');
+    const unapproved: RedteamPack = {
+      files: new Map(
+        [...pack.files].map(([cls, file]) => [
+          cls,
+          {
+            ...file,
+            conversation: file.conversation.map((phrasing) => ({ ...phrasing, approved: false })),
+            ...(file.task ? { task: file.task.map((phrasing) => ({ ...phrasing, approved: false })) } : {}),
+          },
+        ]),
+      ),
+    };
+    const base = {
+      spec,
+      adapter: acmeSales(),
+      checks: defaultChecks(),
+      pack: unapproved,
+      rounds: 3,
+      seed: 0,
+    };
+    // Nothing to draw is not a clean run of zero attacks: the pack is refused, as a pack with no file is.
+    await expect(runAttack(base)).rejects.toBeInstanceOf(RedteamPackError);
+    await expect(runAttack(base)).rejects.toThrow(/no approved conversation phrasing/);
+    const drafts = await runAttack({ ...base, drafts: true });
+    expect(drafts.rounds).toHaveLength(3);
   });
 
   it('finds the fault that hides a tool failure, on the attack the spec author wrote for that block', async () => {

@@ -363,7 +363,7 @@ export async function estateRunCommand(
       createdAt,
     };
     await store.putCampaign(campaign);
-    const checks = replayChecks({ judge: judge.check });
+    const checks = replayChecks({ judge: judge.check, piiJudge: judge.piiJudge });
     // The files a run copies, listed once for every spec: what the runtime may load, never an ignored folder
     // (node_modules, test runs), which made each spec's copy as large as the whole estate folder.
     const lister = readerFor(options.runtime, { ignore: mapIgnore });

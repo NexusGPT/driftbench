@@ -4,7 +4,7 @@ import { measureGrowth } from '../../src/ladders/system/bank/growth';
 import { GROWTH_BOUND, scaleItems } from '../../src/ladders/system/bank/scale';
 
 /**
- * The growth measure of `scale/flow-blocks-teacher-forced/growth`, on conversations written here. None of
+ * The growth measure of both flow-blocks growth items, on conversations written here. None of
  * them runs driftbench: each is a loop that adds two messages per block and then does the per-turn work of
  * one implementation, so the test says what the measure sees and nothing about the runner.
  */
@@ -163,14 +163,17 @@ describe('the growth measure: CPU time', () => {
 });
 
 describe('the bank item', () => {
-  it('keeps its id, its tier, its level and its cause, and states both bounds', () => {
-    const item = scaleItems().find((entry) => entry.id === 'scale/flow-blocks-teacher-forced/growth');
+  it.each([
+    ['flow-blocks', 'packages/core/src/runner/run.ts'],
+    ['flow-blocks-teacher-forced', 'packages/core/src/runner/given.ts'],
+  ])('keeps %s identity and states both bounds', (name, component) => {
+    const item = scaleItems().find((entry) => entry.id === `scale/${name}/growth`);
     expect(item).toMatchObject({
       family: 'scale',
       tier: 5,
       level: 11,
-      component: 'packages/core/src/runner/given.ts',
-      cause: 'flow-blocks-teacher-forced: the per-block cost does not grow with the size of the run',
+      component,
+      cause: `${name}: the per-block cost does not grow with the size of the run`,
     });
     expect(item?.title).toContain('message visits');
     expect(item?.title).toContain(`${GROWTH_BOUND} times`);
@@ -178,9 +181,12 @@ describe('the bank item', () => {
 
   it('leaves the growth items of the other subjects as they were', () => {
     const others = scaleItems().filter(
-      (entry) => entry.id.endsWith('/growth') && entry.id !== 'scale/flow-blocks-teacher-forced/growth',
+      (entry) =>
+        entry.id.endsWith('/growth') &&
+        entry.id !== 'scale/flow-blocks/growth' &&
+        entry.id !== 'scale/flow-blocks-teacher-forced/growth',
     );
-    expect(others).toHaveLength(18);
+    expect(others).toHaveLength(17);
     for (const item of others)
       expect(item.title).toMatch(/: the time from ten to a hundred times the size grows at most 25 times$/);
   });

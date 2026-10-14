@@ -4,6 +4,7 @@ import { dirname, join, resolve } from 'node:path';
 import { portFromEnv } from '@agent-nexus/driftbench-generate';
 import { textTable as table } from '@agent-nexus/driftbench-report';
 import {
+  AttackError,
   type AttackRecording,
   type AttackResult,
   loadRedteamPack,
@@ -19,8 +20,8 @@ import {
   type CampaignDeps,
   defaultDeps,
   loadValidSpecs,
-  noAdapter,
   parseTarget,
+  resolveAdapter,
   showTarget,
   specRuns,
 } from './campaign';
@@ -128,9 +129,13 @@ export async function attackCommand(
   const [planned] = specRuns([entry], given, io) ?? [];
   const target = planned?.targets[0];
   if (planned === undefined || target === undefined) return 2;
-  const adapter = await deps.adapterFor(target);
+  const adapter = await resolveAdapter(
+    target,
+    () => deps.adapterFor(target),
+    io,
+    planned.pinned === undefined ? [] : [entry.spec.id],
+  );
   if (!adapter) {
-    io.err(`${noAdapter(target, planned.pinned === undefined ? [] : [entry.spec.id])}\n`);
     return 2;
   }
 
@@ -186,7 +191,8 @@ export async function attackCommand(
   } catch (cause) {
     const message = cause instanceof Error ? cause.message : String(cause);
     io.err(`${message}\n`);
-    if (cause instanceof SimulatedUserError || /approved|recording attacks|pack/.test(message)) return 2;
+    if (cause instanceof AttackError || cause instanceof SimulatedUserError || /approved|pack/.test(message))
+      return 2;
     throw cause;
   }
   if (options.record !== undefined) {
@@ -211,6 +217,7 @@ export async function attackCommand(
             status: round.status,
             recovery: round.recovery ?? null,
             finding: round.finding ?? null,
+            detail: round.detail ?? null,
           })),
         },
         null,
@@ -233,7 +240,11 @@ export async function attackCommand(
       round.recovery?.label ?? '-',
       round.recovery?.turnsToRecover === undefined ? '-' : String(round.recovery.turnsToRecover),
       round.recovery?.safeAction === false ? 'no' : 'yes',
-      round.finding ?? '',
+      round.finding === 'collateral damage'
+        ? (round.detail ?? round.finding)
+        : round.detail?.startsWith('collateral damage')
+          ? `${round.finding}; ${round.detail}`
+          : (round.finding ?? ''),
     ]);
     for (const line of table([
       ['round', 'class', 'at', 'cue', 'phrasing', 'label', 'turns', 'safe', 'finding'],

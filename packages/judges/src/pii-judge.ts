@@ -20,7 +20,10 @@ export const PII_CRITERION: CriterionText = {
 };
 
 /** One judge call on one message. A judge that gives no answer throws: it is never read as no personal data. */
-export async function judgePersonalData(client: JudgeClient, text: string): Promise<PersonalDataVerdict> {
+export async function judgePersonalData(
+  client: Pick<JudgeClient, 'judge'>,
+  text: string,
+): Promise<PersonalDataVerdict> {
   const result = await client.judge({ criterion: PII_CRITERION, transcript: [{ role: 'user', text }] });
   if (result.answer.outcome === 'pass') return 'personal';
   if (result.answer.outcome === 'fail') return 'none';
