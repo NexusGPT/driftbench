@@ -45,8 +45,7 @@ blocks:
       stage_reported: true
       tools:
         - label: catalog.search
-          count:
-            min: 1
+          count: 1
         - label: coverage.check
           count: 0
         - label: port.check

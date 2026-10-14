@@ -114,7 +114,8 @@ export function boundarySeeder(
               cell.push([other, otherValue]);
             }
           }
-          tools.push({ label: found.tool.name, count: { min: 1 } });
+          // Asked to run the tool and report a returned value: one run, as a map's call is made once.
+          tools.push({ label: found.tool.name, count: 1 });
         } else if (INVALID_PARTITIONS.has(partition)) {
           tools.push({ label: found.tool.name, count: 0 });
         } else {

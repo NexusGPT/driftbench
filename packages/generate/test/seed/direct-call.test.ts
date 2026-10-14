@@ -9,7 +9,9 @@ const SEED = 3;
 
 async function directCalls(withDefaults: boolean) {
   const hidden = hiddenSpec(SEED);
-  const tool = hidden.tools.find((entry) => !hidden.uses.some((use) => use.tool === entry.name) && !entry.sideEffect);
+  const tool = hidden.tools.find(
+    (entry) => !hidden.uses.some((use) => use.tool === entry.name) && !entry.sideEffect,
+  );
   if (!tool) throw new Error(`seed ${SEED} has no tool that no flow calls`);
   const rendered = renderMap(hidden);
   if (withDefaults) {
@@ -22,7 +24,8 @@ async function directCalls(withDefaults: boolean) {
         );
   }
   const source = await generateFrom(hidden, rendered, SEED, {}, { once: true });
-  if (!source.prepared) throw new Error(`the fictional map failed to load: ${JSON.stringify(source.refused)}`);
+  if (!source.prepared)
+    throw new Error(`the fictional map failed to load: ${JSON.stringify(source.refused)}`);
   const suite = generateSuite(source.prepared, { mapPath: '../map.yaml', t: 2, seed: SEED });
   const enumField = tool.input.find((property) => property.type === 'enum');
   const integer = tool.input.find((property) => property.type === 'integer');
@@ -34,13 +37,21 @@ async function directCalls(withDefaults: boolean) {
       ),
     ),
   );
-  return { calls, enumField, integer };
+  // Every turn that runs the tool, an argument or a returned value asked for, runs it once.
+  const runs = suite.complete.flatMap((spec) =>
+    spec.blocks.flatMap((block) =>
+      (block.expect?.tools ?? []).filter((call) => call.label === tool.name && call.count !== 0),
+    ),
+  );
+  return { calls, runs, enumField, integer };
 }
 
 describe('a tool a user asks for directly', () => {
   it('is called once, its other arguments at their schema default, the input closed', async () => {
-    const { calls, enumField, integer } = await directCalls(true);
+    const { calls, runs, enumField, integer } = await directCalls(true);
     expect(calls.length).toBeGreaterThan(0);
+    expect(runs.length).toBeGreaterThan(calls.length);
+    expect(runs.map((call) => call.count)).toEqual(runs.map(() => 1));
     for (const call of calls) {
       expect(call.count).toBe(1);
       expect(call.input?.[integer.name]).toBe(integer.minimum);
