@@ -40,3 +40,16 @@ condition = "AND"
 paths = ['''^examples/ledger-verify/''']
 regexTarget = "match"
 regexes = ['''^"?key"?\s*:\s*"[0-9a-f]{12,64}"?$''']
+
+# The RubricBench pair-ledger recordings in examples/judge-benchmarks/experiments/ledger-rb store each request
+# under a content hash in a field named "key", "callKey" or "probeCallKey" (12 to 64 lowercase hex characters),
+# and their freeze records map the file name audit-token-loss.py to its 64-character sha256. The generic-api-key
+# rule reads those hashes as secrets. This exception applies only to that rule, only under that folder, and only
+# when the whole reported match is one of those names with a bare hex value. Any other field, a longer or
+# non-hex value, a different folder, or a token of a known format is still reported.
+[[rules.allowlists]]
+description = "ledger-rb recording content hashes"
+condition = "AND"
+paths = ['''^examples/judge-benchmarks/experiments/ledger-rb/''']
+regexTarget = "match"
+regexes = ['''^"?(key|callKey|probeCallKey)"?\s*:\s*"[0-9a-f]{12,64}"?$''', '''^audit-token-loss\.py"\s*:\s*"[0-9a-f]{64}"$''']
