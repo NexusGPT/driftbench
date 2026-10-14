@@ -4,11 +4,12 @@ import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { functionAdapter } from '@agent-nexus/driftbench-adapters';
 import { FakeModelPort } from '@agent-nexus/driftbench-generate';
+import { FakeJudge } from '@agent-nexus/driftbench-judges';
 import { loadRedteamPlugins } from '@agent-nexus/driftbench-users';
 import { Command, CommanderError } from 'commander';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { type CampaignDeps, defaultDeps } from '../src/commands/campaign';
-import { registerRedteamCommand } from '../src/commands/redteam';
+import { type JudgeFactory, registerRedteamCommand } from '../src/commands/redteam';
 import type { Io } from '../src/io';
 
 const ROOT = fileURLToPath(new URL('../../../', import.meta.url));
@@ -22,7 +23,7 @@ afterAll(async () => {
   await rm(dir, { recursive: true, force: true });
 });
 
-export async function redteam(argv: string[], deps: CampaignDeps = defaultDeps) {
+export async function redteam(argv: string[], deps: CampaignDeps = defaultDeps, judgeFor?: JudgeFactory) {
   let out = '';
   let err = '';
   let code = 0;
@@ -45,6 +46,7 @@ export async function redteam(argv: string[], deps: CampaignDeps = defaultDeps) 
       code = exit;
     },
     deps,
+    judgeFor,
   );
   try {
     await program.parseAsync(['redteam', ...argv], { from: 'user' });
@@ -299,5 +301,111 @@ describe('redteam CLI', { timeout: 120_000 }, () => {
     expect(malformed.code).toBe(2);
     expect(malformed.err).toContain('one non-empty attack');
     expect((await redteam(['plugins', 'missing'])).code).toBe(2);
+  });
+
+  describe('grade', () => {
+    const CASSETTE = 'packages/cli/test/fixtures/redteam-grade.cassette.json';
+    const noLiveJudge: JudgeFactory = () => {
+      throw new Error('No live judge allowed');
+    };
+    async function pluginSpec(name: string) {
+      const out = join(dir, name);
+      const made = await redteam([
+        'generate',
+        'prompt-extraction',
+        '--purpose',
+        'Fictional Acme Telecom sales assistant; only plans and orders, no private data',
+        '--attack-file',
+        'packages/cli/test/fixtures/redteam-plugins/prompt-extraction.json',
+        '--out',
+        out,
+      ]);
+      expect(made.code).toBe(0);
+      return out;
+    }
+
+    it('replays a recorded inconclusive judge answer as inconclusive, exit 1, with no judge call', async () => {
+      const spec = await pluginSpec('grade-replay.spec.json');
+      const result = await redteam(
+        ['grade', spec, '--target', 'function:acme-sales', '--cassette', CASSETTE, '--json'],
+        defaultDeps,
+        noLiveJudge,
+      );
+      expect(result.err).toBe('');
+      expect(result.code).toBe(1);
+      const doc = JSON.parse(result.out);
+      expect(doc.passed).toBe(false);
+      expect(doc.run.blocks[0].observed.text).toContain('Acme');
+      expect(doc.run.blocks[0].verdicts).toContainEqual(
+        expect.objectContaining({ kind: 'judge', gating: true, outcome: 'inconclusive' }),
+      );
+    });
+
+    it('a live judge records a cassette, a replay of it gives the same verdict, and only a judged pass passes', async () => {
+      const spec = await pluginSpec('grade-live.spec.json');
+      const saved = join(dir, 'grade-live.cassette.json');
+      let made = 0;
+      const judgeFor: JudgeFactory = (provider) => {
+        made++;
+        expect(provider).toBe('openai');
+        return new FakeJudge(
+          'fake-openai',
+          [{ outcome: 'pass', reasoning: 'Refused to reveal instructions.' }],
+          {
+            family: 'openai',
+          },
+        );
+      };
+      const live = await redteam(
+        ['grade', spec, '--target', 'function:acme-sales', '--judge', 'openai', '--record', saved],
+        defaultDeps,
+        judgeFor,
+      );
+      expect(live.err).toBe('');
+      expect(live.code).toBe(0);
+      expect(live.out).toContain('pass');
+      expect(made).toBe(1);
+      const replay = await redteam(
+        ['grade', spec, '--target', 'function:acme-sales', '--cassette', saved],
+        defaultDeps,
+        noLiveJudge,
+      );
+      expect(replay.code).toBe(0);
+      const again = await redteam(
+        ['grade', spec, '--target', 'function:acme-sales', '--judge', 'openai', '--record', saved],
+        defaultDeps,
+        judgeFor,
+      );
+      expect(again.code).toBe(2);
+      expect(again.err).toContain('already exists');
+      expect(made).toBe(1);
+    });
+
+    it('refuses bad sources, a same-family judge and a spec with no criterion before any target call', async () => {
+      const spec = await pluginSpec('grade-refusals.spec.json');
+      const t = target();
+      const sameFamily: JudgeFactory = () => new FakeJudge('same', [], { family: 'Anthropic ' });
+      const deps = { ...defaultDeps, adapterFor: async () => t.adapter };
+      const cases: [string[], JudgeFactory][] = [
+        [['grade', spec, '--target', 'http:bot'], noLiveJudge],
+        [['grade', spec, '--target', 'http:bot', '--judge', 'openai', '--cassette', CASSETTE], noLiveJudge],
+        [
+          ['grade', spec, '--target', 'http:bot', '--cassette', CASSETTE, '--record', join(dir, 'x.json')],
+          noLiveJudge,
+        ],
+        [['grade', spec, '--target', 'http:bot', '--judge', 'anthropic'], sameFamily],
+        [
+          ['grade', spec, '--target', 'http:bot', '--judge', 'anthropic', '--agent-family', 'anthropic'],
+          sameFamily,
+        ],
+        [['grade', SPEC, '--cassette', CASSETTE], noLiveJudge],
+      ];
+      for (const [args, factory] of cases) {
+        const result = await redteam(args, deps, factory);
+        expect(result.code, args.join(' ')).toBe(2);
+        expect(result.err).not.toBe('');
+      }
+      expect(t.calls).toBe(0);
+    });
   });
 });
