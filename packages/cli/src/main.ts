@@ -114,6 +114,7 @@ const DEPS_COMMANDS = new Set([
   'perturb',
   'simulate',
   'attack',
+  'redteam',
   'ci',
   'monitor',
 ]);
