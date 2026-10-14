@@ -6,6 +6,8 @@ The viewer listens on `127.0.0.1` only. Its pages use the scorecard's renderer a
 
 Requests must use the exact `127.0.0.1:<port>` address printed at startup. Other Host headers are refused to block DNS rebinding. Writes also require the viewer's own Origin, or a same-origin Referer when Origin is absent, and a hidden form token generated at each start. The token is 32 random bytes from the system's cryptographic generator (64 hex characters), generated at each start and never written to disk; an old token is refused after a restart. Rejected requests return HTTP 403 with a plain message and write nothing. The write routes (`/labels` and `/queue/assign`) accept POST only; after the Host and origin checks, PUT, DELETE, PATCH, HEAD and OPTIONS return HTTP 405 and write nothing. Any other method is refused and writes nothing. GET returns HTTP 404, TRACE returns HTTP 405, and Node closes CONNECT without an HTTP response before it reaches the viewer's request handler. Reload an old form after restarting the viewer. These checks need no JavaScript.
 
+POST, PUT, PATCH and DELETE with a foreign Origin or Host return 403 before route handling, even with a valid form token. GET skips the Origin check but still requires the exact Host; its page behavior is unchanged.
+
 ## Start it
 
 ```sh
