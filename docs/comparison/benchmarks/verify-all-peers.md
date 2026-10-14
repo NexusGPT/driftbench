@@ -1,4 +1,23 @@
-# LongJudgeBench verify: driftbench against every peer
+# Verify: corrected v5 confirmation and historical comparison
+
+## Primary v5 result
+
+The verify candidate's primary result uses the 536 confirmation items whose normalized question text appears
+in neither practice nor DEV. The original 544-item split leaked 8 practice questions and reused 32 practice
+call references. The frozen manifest and decisions are preserved; the full result is a sensitivity analysis.
+Scores are percent correct.
+
+| Verify v5 analysis | driftbench-v5 | promptfoo | DeepEval | Inspect | Langfuse | LangWatch |
+|---|---:|---:|---:|---:|---:|---:|
+| Primary, 536 items without practice/DEV question overlap | 78.73 | 76.87 | 60.26 | 76.49 | 75.75 | 75.19 |
+| Sensitivity, original 544 items including overlap | 78.86 | 77.21 | 60.85 | 76.84 | 75.92 | 75.18 |
+| LJB TEST, 221 items | 76.02 | 75.57 | 58.82 | 73.30 | 75.11 | 73.30 |
+
+Each row gives v5 one significant win over DeepEval and four ties after exact paired tests with Holm over
+five peers. These are separate analyses from the historical 25-comparison table below. The exclusion is a
+post-review correction using recorded decisions, with no new model calls. [Full results and exclusions](../../../examples/verify-lead/RESULTS.md).
+
+## Historical LongJudgeBench comparison (PR 351)
 
 Model: claude-haiku-5-5 for every contestant. Unit: item. driftbench and promptfoo rows are the recorded ledger cells; peer rows are new runs on the same sealed items. Rows marked "pointwise grader, higher score wins" score each reply alone with that tool's pointwise grader; the tool has no pairwise grader.
 

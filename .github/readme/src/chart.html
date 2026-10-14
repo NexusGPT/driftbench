@@ -52,6 +52,7 @@
   .key { display: flex; flex-wrap: wrap; gap: 7px; margin: 14px 0 12px; }
   .key .nx-ipill { position: static; height: 27px; font-size: 13px; }
   .sw { width: 11px; height: 11px; border-radius: 50%; }
+  .key .sw.sq[class*='p-'] { width: 16px; height: 16px; border-radius: 3px; }
   .sw.sq { border-radius: 3px; }
   .sw.hollow { background: var(--hollow) !important; box-shadow: inset 0 0 0 2.5px var(--s2); }
   .plot { position: relative; padding: 12px 16px 8px; }
@@ -111,6 +112,12 @@
   .rcol { flex: 1; min-width: 0; display: flex; flex-direction: column; align-items: stretch; justify-content: flex-end; height: 100%; }
   .rbar { position: relative; border-radius: 3px 3px 0 0; }
   .rbar b { position: absolute; left: 50%; transform: translateX(-50%); bottom: calc(100% + 4px); font: 600 12px/1 var(--nx-sans); color: var(--nx-ink); white-space: nowrap; }
+  /* competitors: grey, each with its own fill pattern; driftbench is the only coloured bar */
+  .p-hatch { background: repeating-linear-gradient(45deg, var(--s2) 0 2px, var(--s-none) 2px 7px) !important; box-shadow: inset 0 0 0 1.5px var(--s2); }
+  .p-dots { background: radial-gradient(circle, var(--s2) 1.7px, transparent 2.1px) 0 0 / 8px 8px, var(--s-none) !important; box-shadow: inset 0 0 0 1.5px var(--s2); }
+  .p-cross { background: repeating-linear-gradient(45deg, var(--s2) 0 1.5px, transparent 1.5px 7px), repeating-linear-gradient(-45deg, var(--s2) 0 1.5px, var(--s-none) 1.5px 7px) !important; box-shadow: inset 0 0 0 1.5px var(--s2); }
+  .p-lines { background: repeating-linear-gradient(0deg, var(--s2) 0 2px, var(--s-none) 2px 7px) !important; box-shadow: inset 0 0 0 1.5px var(--s2); }
+  .p-light { background: var(--s-part) !important; box-shadow: inset 0 0 0 1.5px var(--s2); }
   .rbar.empty { border: 1.5px dashed var(--s2); border-bottom: 0; display: grid; place-items: center; }
   .rbar.empty span { font: 400 10px/1.2 var(--nx-sans); color: var(--detail); text-align: center; padding: 0 3px; }
   .rlab { flex: 1; min-width: 0; margin-top: 6px; text-align: center; font: 500 10.5px/1.2 var(--nx-sans); color: var(--detail); }
@@ -152,7 +159,7 @@
     ['--s-full', '--s-part', '--s-none'].forEach((v, i) => keyItem(c.key[i], `background:var(${v})`, 'sq'));
   } else if (c.kind === 'ranked') {
     const swatch = { ours: 'background:var(--s0)', other: 'background:var(--s2)', baseline: 'background:var(--s-none);box-shadow:inset 0 0 0 1.5px var(--s2)' };
-    c.key.forEach((k) => keyItem(k.label, swatch[k.style], 'sq'));
+    c.key.forEach((k) => keyItem(k.label, k.pattern ? '' : swatch[k.style], 'sq' + (k.pattern ? ' p-' + k.pattern : '')));
   } else if (c.kind === 'single' || c.kind === 'hbars') {
     c.key.forEach((k, i) => keyItem(k, `background:var(--s${i === 0 ? 0 : 2})`, 'sq'));
   } else if (c.kind === 'columns') {
@@ -205,7 +212,7 @@
   } else if (c.kind === 'ranked') {
     // one panel per model, bars highest to lowest; a null score is an empty bar, "not run"
     // with more than three bars in a panel (competitors recorded beyond promptfoo), the panels stack
-    const stacked = Math.max(...c.panels.map((p) => p.bars.length)) > 3;
+    const stacked = c.panels.length > 1 && Math.max(...c.panels.map((p) => p.bars.length)) > 3;
     const H = stacked ? 110 : c.panels.length > 1 ? 170 : 210;
     const grid = el('div', 'rgrid');
     grid.style.gridTemplateColumns = stacked ? '1fr' : `repeat(${c.panels.length}, 1fr)`;
@@ -223,6 +230,7 @@
         const bar = el('div', 'rbar' + (empty ? ' empty' : ''), empty ? '<span>not run</span>' : `<b>${esc(b.score.toFixed(1))}</b>`);
         bar.style.height = (empty ? H * 0.5 : Math.max(2, (b.score / 100) * H)) + 'px';
         if (!empty) bar.style.background = b.ours ? 'var(--s0)' : b.baseline ? 'var(--s-none)' : 'var(--s2)';
+        if (!empty && b.pattern) bar.classList.add('p-' + b.pattern);
         if (b.baseline) bar.style.boxShadow = 'inset 0 0 0 1.5px var(--s2)';
         col.append(bar);
         labs.append(el('div', 'rlab' + (b.ours ? ' ours' : ''), esc(b.name) + (b.refused ? `<br>${b.refused} refused` : '')));
@@ -277,7 +285,9 @@
     // vertical bars: one group per model or test, driftbench beside the competitor, one normalised scale
     const H = 210;
     const bars = c.groups.reduce((n, g) => n + g.bars.length, 0);
-    const bw = Math.max(16, Math.min(46, Math.floor((540 - c.groups.length * 22) / bars) - 6));
+    // Fresh cohorts have four-digit counts; reserve room for each label above its bar.
+    const labelWidth = Math.max(...c.groups.flatMap(g => g.bars.map(b => String(b.text).length))) * 7;
+    const bw = Math.max(16, labelWidth, Math.min(46, Math.floor((540 - c.groups.length * 22) / bars) - 6));
     const wrap = el('div', 'cols');
     wrap.style.height = (H + 16) + 'px';
     wrap.style.gap = (c.groups.length > 6 ? 10 : 22) + 'px';
@@ -297,10 +307,12 @@
     const names = el('div', 'cols names');
     names.style.gap = wrap.style.gap;
     for (const g of c.groups) {
+      const wide = g.bars.some(b => String(b.text).length > 3);
       const box = el('div', 'cgrp');
+      box.style.flex = wide ? '1.5' : '1';
       const col = el('div', 'cbars');
       col.style.height = H + 'px';
-      col.style.gap = '4px';
+      col.style.gap = wide ? '12px' : '4px';
       for (const b of g.bars) {
         const bar = el('div', 'cbar' + (b.series ? ' other' : ''), `<b>${esc(b.text)}</b>`);
         bar.style.width = bw + 'px';
@@ -312,7 +324,9 @@
       }
       box.append(col);
       wrap.append(box);
-      names.append(el('div', 'cgrp' + (c.groups.length > 6 ? ' tight' : ''), `<div class="cname">${esc(g.label)}${g.sub ? `<small>${esc(g.sub)}</small>` : ''}</div>`));
+      const name = el('div', 'cgrp' + (c.groups.length > 6 ? ' tight' : ''), `<div class="cname">${esc(g.label)}${g.sub ? `<small>${esc(g.sub)}</small>` : ''}</div>`);
+      name.style.flex = wide ? '1.5' : '1';
+      names.append(name);
     }
     plot.append(names);
     plot.append(el('div', 'yname', esc(c.axis)));

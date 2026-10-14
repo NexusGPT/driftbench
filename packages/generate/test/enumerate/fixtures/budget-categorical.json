@@ -1,11 +1,11 @@
 {
-  "source": "Generator v3 merged with main 5a196790: signed price-sheet family review and executor generation fixes",
+  "source": "Generator v4 with one run per directly requested tool call",
   "mapHash": "7c05b9cee9cc",
   "hashes": {
-    "pairwise": "8717d1003e1ae2b4122ce13538e5992a920e4d01b184a4b1c2fc80c1e6b82049",
-    "budget-20": "6171e3d739888803b0462cc6d5183351221a8dfd9b0271b2f9de4fe606c6abb7",
-    "budget-50": "ab58972705708f38303ad0cf0732c19ece7d0c63d63c4c2115a3bddfc38b73c1",
-    "budget-100": "b0e5ccc7b88c2dc24d52de07f36cdbe09ad3d586d7bb6bd76ed63c8032db3831",
-    "budget-200": "0807d700783bd792b9a1c347d091ef069469737fd7aed50979762d41fe76838b"
+    "pairwise": "99f239a1656c9211c44061ef9a910036f289fd48b5989f93b299fc7e5b5c3fc7",
+    "budget-20": "21e86a80b396847495bbfcfb0760c5dd0c2a83e4b26a747b6a2d908d4126dfb1",
+    "budget-50": "34113f77399b36dd6c233510b27a291170ea27737ecf0ab2ecfd909e6dcf8f1b",
+    "budget-100": "3e96423430eb424668f32582b1aee3bbf697ea4fe4a4cc2c6a1a63803dd09bef",
+    "budget-200": "86e64964d6f93c32b5d5df8da6ef3b6da61f20b17f9b91fb7b6680d2a1037e64"
   }
 }

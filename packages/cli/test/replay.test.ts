@@ -391,9 +391,14 @@ describe('driftbench replay: judged criteria', () => {
     expect(doc.judge).toBe('claude:haiku');
     expect(doc.judgeCostUsd).toBeCloseTo(0.0015);
     expect(doc.runs[0]?.pass).toBe(true);
+    // The judge ran, so no note may say the criteria were not run.
+    expect(judged.json?.notes ?? []).toEqual([]);
 
     const bare = await replayJson(['replay', session, '--suite', dir]);
     expect(bare.code).toBe(1);
+    expect(bare.json?.notes).toEqual([
+      'judged-positional: judged criteria are inconclusive: no --judge was given',
+    ]);
     const failing = (bare.json as unknown as { runs: Array<{ failing: string[] }> }).runs[0]?.failing ?? [];
     expect(failing).toEqual(['block 0: judge.keeps-scope (inconclusive)']);
   }, 60_000);

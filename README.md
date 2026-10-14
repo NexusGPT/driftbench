@@ -37,6 +37,15 @@ driftbench is an open-source evaluation framework for AI agents: chat agents, an
 
 Works with any agent through an [adapter](#adapters). No account, no server. MIT, TypeScript, Node 22 or newer.
 
+<!-- readme-summary:start -->
+<p align="center">
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="docs/assets/summary-dark.png">
+    <img alt="Judge accuracy on public benchmarks, Claude Haiku 5.5, scores out of 100, bars ranked within each benchmark, driftbench the only coloured bar and each competitor grey with its own pattern, with an axis break from 30 to 50. JudgeBench, 270 pairs: driftbench 88.9, DeepEval 86.3, LangWatch 83.7, promptfoo 83.0, Inspect 80.0, Langfuse 74.8. MM-Eval, 591 items: driftbench 88.9, promptfoo 86.5, DeepEval 84.1, LangWatch 83.9, Inspect 75.4, Langfuse 73.5. RubricBench, 1,580 games: driftbench 82.7, DeepEval 77.6, promptfoo 75.6, LangWatch 74.9, Inspect 26.6, Langfuse 25.1. verify, 221 items: Langfuse 75.1, driftbench 74.2, Inspect 73.3, LangWatch 73.3, promptfoo 71.9, DeepEval 58.8. writing, 346 games: driftbench 67.6, DeepEval 58.4, promptfoo 56.9, LangWatch 52.6, Langfuse 14.5, Inspect 11.6. Reader-first setting: 67.6 shown; default 61.3. Same score as a rule that always picks the longer reply (67.6)." src="docs/assets/summary-light.png" width="100%" />
+  </picture>
+</p>
+<!-- readme-summary:end -->
+
 ## Quickstart
 
 About two minutes, most of it the install. You need Node 22 or newer and npm. No API key: the agent below is a short script that stands in for yours.
@@ -121,10 +130,10 @@ npx driftbench report --store runs.db --out scorecard.html
 <p align="center">
   <picture>
     <source media="(prefers-color-scheme: dark)" srcset="docs/assets/scorecard-dark.png">
-    <img src="docs/assets/scorecard-light.png" alt="A driftbench scorecard, one HTML file. Summary: Regressed, candidate against baseline, margin 28.0 points, 10 paired conversations. Six tiles: runs passing 50.0% with interval 19.9% to 80.1%, block accuracy 73.3%, end state match 85.7%, tool F1 77.6%, cost per block, latency per block. Below, the baseline passes 10 of 10 and the candidate 5 of 10, with the five conversations that regressed and the reason for each." width="820" />
+    <img src="docs/assets/scorecard-light.png" alt="A driftbench scorecard, one HTML file, dark by default with a light theme. At the top, the candidate campaign against its baseline: 12 of 26 cases passing against 26 of 26 for the baseline, 36 of 78 runs passing, 14 of 26 cases regressed and none improved, McNemar p = 0.0001. Below, the two versions side by side, then three charts: cases passing by test, runs passing by mode (teacher-forced 57.1%, free-running 57.1%, perturbed 33.3%, each with its interval) and failed checks by type, led by tools (192) and must (162). Then the tests list: each test with its status, its score and one pass or fail pill per check family, the first one failing 0 of 4 cases." width="820" />
   </picture>
 </p>
-<p align="center"><sub>The scorecard of the example agent with one bug planted on purpose. Every rate has its interval, and the verdict says why.</sub></p>
+<p align="center"><sub>The scorecard of the example agents with a bug planted on purpose in each. Numbers and charts first, then every test, then every run: a click opens its conversation and its checks.</sub></p>
 
 Next: [evaluate your own agent](#evaluate-your-own-agent), [add a judge](#add-a-judge), or [gate a pull request](#gate-a-pull-request). The full spec format is in the [spec reference](docs/reference/spec.md).
 
@@ -147,7 +156,7 @@ Four ideas lead. Each one changes what you learn when a test fails, and what it 
 - **Why it matters.** You know what your tests cover, and a test is kept only if it catches a bug planted on purpose. You stop paying for tests that cannot catch anything.
 - **Impact.** On our example agent, every pair of settings is covered with 5.8 times fewer tests than all the combinations. [How we measured](docs/comparison/methods.md#tests-written-by-code)
 
-### Blocks: a failure you can diagnose
+### Blocks: see which step failed
 
 <a href=".github/readme/blocks-diff-light.png">
   <picture>
@@ -157,10 +166,14 @@ Four ideas lead. Each one changes what you learn when a test fails, and what it 
 </a>
 <p align="center"><sub>A recorded run: an agent with a bug that skips the order recap.</sub></p>
 
-- **What it is.** A conversation is split into steps, which driftbench calls blocks. Each block has its own starting point and its own expected result, so each block passes or fails on its own.
-- **What others do.** They score a whole scenario, test row, conversation, sample, dataset item or trace (row 1 of our [comparison](docs/comparison.md#where-driftbench-is-ahead)). You learn that the run failed.
-- **Why it matters.** You learn what broke, not only that something did: the report names the step, what was expected and what happened.
-- **Impact.** Nine planted faults of the Acme sales assistant fail at least one block of its gated suite, 195 conversations and 861 blocks. For eight of them, the failing blocks are 18 to 40 percent of the blocks of the conversations that fail. The fault that drops the coverage check fails 86 conversations that hold 413 blocks: a whole-conversation score marks all 413, and driftbench marks the 86 that fail. The ninth fault, a wrong language, fails 826 of the 861 blocks: every block of the 171 conversations that fail. Source: [gate-report.json](examples/acme/gated/gate-report.json); every count is in [chart-facts.csv](docs/assets/data/chart-facts.csv). [How we measured](docs/comparison/methods.md#blocks-a-failure-you-can-diagnose)
+
+**See which step failed, and why, instead of reading a whole transcript.**
+
+- **What it is.** A conversation is split into steps, which driftbench calls blocks. Each block has its own starting point and its own expected result, so each block passes or fails on its own. The report names the block, the check and the evidence.
+- **Why no other framework does it.** The seven tools we read score a whole scenario, test row, conversation, sample, dataset item or trace (row 1 of our [comparison](docs/comparison.md#where-driftbench-is-ahead)). A verdict per step needs every step to carry its own starting point and expected result, and the driftbench spec format is built that way.
+- **Measured impact.** On the Acme sales assistant, the fault that drops a coverage check fails 86 conversations that hold 413 blocks. A whole-conversation score marks all 413 blocks; driftbench marks the 86 that fail. For eight of the nine planted faults, the failing blocks are 18 to 40 percent of the blocks of the conversations that fail. Sources: [gate-report.json](examples/acme/gated/gate-report.json) and every count in [chart-facts.csv](docs/assets/data/chart-facts.csv). [How we measured](docs/comparison/methods.md#blocks-a-failure-you-can-diagnose)
+
+<sub>Counts are over the 195 conversations and 861 blocks of the gated Acme suite. The ninth fault, a wrong language, fails 826 of the 861 blocks: every block of the 171 conversations that fail.</sub>
 
 ### Blast radius: rerun only what a change touches
 
@@ -172,10 +185,14 @@ Four ideas lead. Each one changes what you learn when a test fails, and what it 
 </a>
 <p align="center"><sub>A change reruns the steps that use what changed, and the steps after them.</sub></p>
 
-- **What it is.** Every step says what it uses. When you change one part of your agent, driftbench reruns the steps that use it and keeps the other results from the last run. When it cannot tell, it reruns everything.
-- **What others do.** LangWatch Scenario and Inspect cache model calls, and promptfoo and DeepEval document part of a cache (row 22 of our [comparison](docs/comparison.md)). A cache replays a call that has not changed; it does not decide which tests a change can affect.
-- **Why it matters.** A pull request pays for the tests its change can break, and still finds every failure. The nightly run covers everything.
-- **Impact.** On the Acme suite of 861 blocks, a rerun of the recap change sends 601 and skips 30.2 percent. A change to the price sheet task family skips 95.9 percent. A change to the reply language rule, which every block depends on, skips 0, and the radius says so. For all 13 planted faults, no block that fails in a full run lies outside the radius of its change. A radius run of the recap change fails on the same 102 cells as a full run. Sources: [blast-radius.md](docs/concepts/blast-radius.md), [contained.test.ts](examples/acme/test/radius/contained.test.ts), [radius-carry.test.ts](packages/cli/test/radius-carry.test.ts). `driftbench radius` and `campaign run --change` are on main. [How we measured](docs/comparison/methods.md#blast-radius-rerun-only-what-a-change-touches)
+
+**Change one part of your agent and rerun only the tests it can affect, so a pull request pays for what it can break.**
+
+- **What it is.** Every block says what it uses. When you change one part of your agent, driftbench reruns the blocks that use it and keeps the other results from the last run. When it cannot tell, it reruns everything. The nightly run still covers everything.
+- **Why no other framework does it.** LangWatch Scenario and Inspect cache model calls, and promptfoo and DeepEval document part of a cache (row 22 of our [comparison](docs/comparison.md)). A cache replays a call that has not changed. Choosing the tests a change can affect needs each test to say what it reads, which blocks do.
+- **Measured impact.** On the Acme example, for a change to the recap, a radius run sends 606 of 867 blocks and fails on the same 102 cells as a full run. For a change to one tool's input, where each block runs on its own, it sends 86 of 867 blocks, 90.1 percent fewer, and the same 86 blocks fail as in a full run. A change to the price sheet task family skips 95.9 percent. A change that every block depends on, the reply language rule, skips none, and the radius says so. A fault planted outside the declared change is caught by the audit, which then sends all 867 blocks. Sources: [blast-radius.md](docs/concepts/blast-radius.md), [radius-carry.test.ts](packages/cli/test/radius-carry.test.ts), [radius-blocks-acme.test.ts](packages/cli/test/radius-blocks-acme.test.ts), [contained.test.ts](examples/acme/test/radius/contained.test.ts). [How we measured](docs/comparison/methods.md#blast-radius-rerun-only-what-a-change-touches)
+
+<sub>The planner counts 861 scored blocks; a run also sends six blocks that are not scored, which is why a run reports 867. Without end-state snapshots the second change sends 376 of 867. The radius holds when the change you declare lists everything that changed; the audit samples cells to check that, and a sample can miss. `driftbench radius` and `campaign run --change` are on main.</sub>
 
 ### Mixture of Judges: the right judge for each answer
 
@@ -187,10 +204,14 @@ Four ideas lead. Each one changes what you learn when a test fails, and what it 
 </a>
 <p align="center"><sub>A cheap judge decides what it is sure of; the rest goes to the expert that fits.</sub></p>
 
+
+**A cheap judge settles the answers it is sure of, and the expert sees only the rest: at least the accuracy of promptfoo's judge on three sealed sets, with 3.5 to 19.4 times fewer costly reasoning calls.**
+
 - **What it is.** A quick judge reads every answer first. When it is sure, it decides. When it is not, the answer goes to the expert that fits it: a fact check, a careful reasoning judge, or a panel of models.
-- **What others do.** promptfoo, DeepEval, LangWatch and Langfuse let you pick one judge model; our comparison found ensembles in their docs only in part (row 11). Inspect documents a [scorer cascade](https://inspect.aisi.org.uk/multiple-scorers.html) that stops at the first scorer that settles a sample.
-- **Why it matters.** You pay for careful reasoning only where an answer needs it.
-- **Impact.** On 1,212 sealed MM-Eval items, the first judge sent 48 to the panel. On those 48 the score rose from 51.0 to 85.4, and on the whole set from 89.49 to 91.54 ([mm-eval-sealed-test.json](docs/assets/data/mm-eval-sealed-test.json)). Against promptfoo with GPT-6 Luna, MoJ scored 85.0 against 84.0 on JudgeBench, 94.9 against 94.7 on MM-Eval and 65.2 against 57.0 on writing. It used 57, 21 and 10.3 costly reasoning calls per 100 pairs where promptfoo used 200: 3.5 to 19.4 times fewer. Two results are ties and the third is a win after a Holm correction; on writing, a rule that picks the longer reply scores 69.7 on the sealed pairs, above both ([RESULTS.md](research/moj/RESULTS.md), [report.json](research/moj/results/sealed/report.json)). MoJ runs today from that research harness, on the package's opt-in escalation API (`createEscalation`). [How we measured](docs/comparison/methods.md#mixture-of-judges)
+- **Why no other framework does it.** promptfoo, DeepEval, LangWatch and Langfuse let you pick one judge model, and their docs show ensembles only in part (row 11 of our [comparison](docs/comparison.md)). Inspect documents a [scorer cascade](https://inspect.aisi.org.uk/multiple-scorers.html) that stops at the first scorer that settles a sample. We found no documented routing of an answer by the first judge's confidence to an expert chosen for it.
+- **Measured impact.** With GPT-6 Luna on sealed pairs, MoJ scored 85.0 against promptfoo's 84.0 on JudgeBench, 94.9 against 94.7 on MM-Eval and 65.2 against 57.0 on writing, using 57, 21 and 10.3 reasoning calls per 100 pairs where promptfoo used 200 ([RESULTS.md](research/moj/RESULTS.md), [report.json](research/moj/results/sealed/report.json)). On 1,212 sealed MM-Eval items, the first judge sent 48 to the panel; on those 48 the score rose from 51.0 to 85.4, and on the whole set from 89.49 to 91.54 ([mm-eval-sealed-test.json](docs/assets/data/mm-eval-sealed-test.json)). [How we measured](docs/comparison/methods.md#mixture-of-judges)
+
+<sub>On JudgeBench and MM-Eval the differences are within the 95% intervals. On writing, a rule that picks the longer reply scores 69.7 on the sealed pairs. MoJ runs today from the research harness, on the package's opt-in escalation API (`createEscalation`).</sub>
 
 ### More that ships
 
@@ -743,60 +764,63 @@ A minimal complete adapter is the `functionAdapter` of [Evaluate your own agent]
 
 Every number comes from a result file in this repository. All scores are on one scale, 0 to 100.
 
-### Public benchmarks, against promptfoo
+### Public benchmarks
 
-Five public benchmarks for judges, one chart each. A chart has one panel per model. In each panel, driftbench stands beside every competitor with a recorded result, from the highest score to the lowest. A competitor is drawn when the repository records a result for it; the note under each chart names who is drawn. Today that is promptfoo. A result that was not run says "not run"; none is estimated.
+Five public benchmarks for judges, all on the same sealed items and the same model, Claude Haiku 5.5, with every tool running its default judge. Scores are out of 100. The other models and the charts that carry them are in the detail of each benchmark: [JudgeBench](docs/comparison/benchmarks/index.md#judgebench), [MM-Eval](docs/comparison/benchmarks/index.md#mm-eval), [RubricBench](docs/comparison/benchmarks/index.md#rubricbench), [verify and writing](docs/comparison/benchmarks/index.md#longjudgebench).
 
-The driftbench side is the pair ledger, an opt-in judge mode merged in [PR 168](https://github.com/achammah/driftbench/pull/168), and on verify the frozen verify cascade. Neither is the shipped default. A correction across the whole family of cells is still pending, so no cell is called a win or a loss.
-
-**JudgeBench.** The same 270 sealed pairs and the same model on both sides.
+<!-- readme-charts:start -->
+**JudgeBench.** driftbench picks the correct answer more often than DeepEval, LangWatch, promptfoo, Inspect and Langfuse on the same model: 88.9, against 86.3 for the next best, DeepEval.
 
 <a href="docs/assets/bench-judgebench-light.png">
   <picture>
     <source media="(prefers-color-scheme: dark)" srcset="docs/assets/bench-judgebench-dark.png">
-    <img alt="JudgeBench sealed test, 270 pairs per model, percent correct, one panel per model, bars from highest to lowest. Claude Haiku 5.5: driftbench 88.9, promptfoo 83.0. GPT-6 Luna: driftbench 87.0, promptfoo 84.8. Gemini 3.5 Flash-Lite: promptfoo 79.6, driftbench 79.6." src="docs/assets/bench-judgebench-light.png" width="100%">
+    <img alt="JudgeBench: driftbench scores 88.9. Claude Haiku 5.5, 270 pairs, percent correct, highest to lowest: driftbench 88.9, DeepEval 86.3, LangWatch 83.7, promptfoo 83.0, Inspect 80.0, Langfuse 74.8." src="docs/assets/bench-judgebench-light.png" width="100%">
   </picture>
 </a>
-<p align="center"><sub><a href="docs/comparison/methods.md#public-benchmarks-against-promptfoo">How we measured</a></sub></p>
+<p align="center"><sub>Claude Haiku 5.5, 270 pairs. Each judge runs its default settings; driftbench runs its opt-in pair ledger. A refused item counts as wrong.</sub></p>
 
-**MM-Eval.** The benchmark's own score on sealed items. Claude Haiku 5.5 scores 591 of 600 pairs; the nine missing are safety items.
+**MM-Eval.** driftbench picks the better answer more often than promptfoo, DeepEval, LangWatch, Inspect and Langfuse on the same model: 88.9, against 86.5 for the next best, promptfoo.
 
 <a href="docs/assets/bench-mm-eval-light.png">
   <picture>
     <source media="(prefers-color-scheme: dark)" srcset="docs/assets/bench-mm-eval-dark.png">
-    <img alt="MM-Eval sealed test, percent correct, one panel per model, bars from highest to lowest. GPT-6 Luna: promptfoo 89.0, driftbench 88.1. Claude Haiku 5.5: driftbench 88.9, promptfoo 86.5. Gemini 3.5 Flash-Lite: promptfoo 83.8, driftbench 81.4." src="docs/assets/bench-mm-eval-light.png" width="100%">
+    <img alt="MM-Eval: driftbench scores 88.9. Claude Haiku 5.5, 591 items, percent correct, highest to lowest: driftbench 88.9, promptfoo 86.5, DeepEval 84.1, LangWatch 83.9, Inspect 75.4, Langfuse 73.5." src="docs/assets/bench-mm-eval-light.png" width="100%">
   </picture>
 </a>
-<p align="center"><sub><a href="docs/comparison/methods.md#public-benchmarks-against-promptfoo">How we measured</a></sub></p>
+<p align="center"><sub>Claude Haiku 5.5, 591 items. Each judge runs its default settings; driftbench runs its opt-in pair ledger. A refused item counts as wrong (refused: DeepEval 3, LangWatch 7, Inspect 7, Langfuse 6).</sub></p>
 
-**RubricBench.** The test split, both orders of every pair, 790 pairs per model.
+**RubricBench.** driftbench picks the reply that meets the grading criteria more often than DeepEval, promptfoo, LangWatch, Inspect and Langfuse on the same model: 82.7, against 77.6 for the next best, DeepEval.
 
 <a href="docs/assets/bench-rubricbench-light.png">
   <picture>
     <source media="(prefers-color-scheme: dark)" srcset="docs/assets/bench-rubricbench-dark.png">
-    <img alt="RubricBench test split, 790 pairs per model, percent correct, one panel per model, bars from highest to lowest. Claude Haiku 5.5: driftbench 82.7, promptfoo 75.6. GPT-6 Luna: driftbench 82.3, promptfoo 81.5. Gemini 3.5 Flash-Lite: promptfoo 80.8, driftbench 80.8." src="docs/assets/bench-rubricbench-light.png" width="100%">
+    <img alt="RubricBench: driftbench scores 82.7. Claude Haiku 5.5, 1,580 games, percent correct, highest to lowest: driftbench 82.7, DeepEval 77.6, promptfoo 75.6, LangWatch 74.9, Inspect 26.6, Langfuse 25.1." src="docs/assets/bench-rubricbench-light.png" width="100%">
   </picture>
 </a>
-<p align="center"><sub><a href="docs/comparison/methods.md#public-benchmarks-against-promptfoo">How we measured</a></sub></p>
+<p align="center"><sub>Claude Haiku 5.5, 1,580 games. Each judge runs its default settings; driftbench runs its opt-in pair ledger. A refused item counts as wrong (refused: DeepEval 1, Langfuse 1).</sub></p>
 
-**Verify.** The verify half of LongJudgeBench: is the final answer correct. Only GPT-6 Luna is run; the other two models say "not run". A judge that always says fail scores 78.7, above both.
+**Verify.** driftbench decides whether the final answer is correct 74.2 times in 100, within 0.9 points of the top score (Langfuse, 75.1) and above Inspect (73.3), LangWatch (73.3), promptfoo (71.9) and DeepEval (58.8).
 
 <a href="docs/assets/bench-verify-light.png">
   <picture>
     <source media="(prefers-color-scheme: dark)" srcset="docs/assets/bench-verify-dark.png">
-    <img alt="LongJudgeBench verify test split, percent correct, one panel per model. Claude Haiku 5.5: not run for driftbench and promptfoo; a judge that always says fail scores 78.7. GPT-6 Luna, 221 items: a judge that always says fail 78.7, driftbench 74.7, promptfoo 72.4. Gemini 3.5 Flash-Lite: not run; always fail 78.7." src="docs/assets/bench-verify-light.png" width="100%">
+    <img alt="Verify: driftbench scores 74.2. Claude Haiku 5.5, 221 items, percent correct, highest to lowest: Langfuse 75.1, driftbench 74.2, Inspect 73.3, LangWatch 73.3, promptfoo 71.9, DeepEval 58.8." src="docs/assets/bench-verify-light.png" width="100%">
   </picture>
 </a>
-<p align="center"><sub><a href="docs/comparison/methods.md#public-benchmarks-against-promptfoo">How we measured</a></sub></p>
+<p align="center"><sub>Claude Haiku 5.5, 221 items. Each judge runs its default settings; driftbench runs its opt-in frozen verify cascade. A refused item counts as wrong.</sub></p>
 
-**Writing.** The writing preference half of LongJudgeBench, both orders, 173 pairs per model. A rule that picks the longer reply scores 67.6, above every judge.
+**Writing.** driftbench picks the reply readers prefer more often than DeepEval, promptfoo, LangWatch, Langfuse and Inspect on the same model: 67.6, against 58.4 for the next best, DeepEval.
 
 <a href="docs/assets/bench-writing-light.png">
   <picture>
     <source media="(prefers-color-scheme: dark)" srcset="docs/assets/bench-writing-dark.png">
-    <img alt="LongJudgeBench writing preference test split, 173 pairs per model, percent correct, one panel per model. Claude Haiku 5.5: a rule that picks the longer reply 67.6, driftbench 61.3, promptfoo 56.9. GPT-6 Luna: longer reply 67.6, promptfoo 56.9, driftbench 53.8. Gemini 3.5 Flash-Lite: longer reply 67.6, promptfoo 60.4, driftbench 59.0." src="docs/assets/bench-writing-light.png" width="100%">
+    <img alt="Writing: driftbench scores 67.6. Claude Haiku 5.5, 346 games, percent correct, highest to lowest: driftbench 67.6, DeepEval 58.4, promptfoo 56.9, LangWatch 52.6, Langfuse 14.5, Inspect 11.6." src="docs/assets/bench-writing-light.png" width="100%">
   </picture>
 </a>
+<p align="center"><sub>Claude Haiku 5.5, 346 games. Each judge runs its default settings; driftbench runs its opt-in pair ledger. A refused item counts as wrong. The driftbench bar uses its opt-in reader-first setting (long-structured), which scores the same as a rule that always picks the longer reply, 67.6; the default setting scores 61.3.</sub></p>
+
+<!-- readme-charts:end -->
+
 <p align="center"><sub><a href="docs/comparison/methods.md#public-benchmarks-against-promptfoo">How we measured</a></sub></p>
 
 ### A panel, only when unsure
@@ -809,28 +833,36 @@ The driftbench side is the pair ledger, an opt-in judge mode merged in [PR 168](
 </a>
 <p align="center"><sub><a href="docs/comparison/methods.md#mm-eval-a-panel-only-when-unsure">How we measured</a></sub></p>
 
-MM-Eval is a public benchmark for judges. On 1,212 sealed items, sending only the unsure cases to a panel lifts the score from 89.49 to 91.54: a gain of 2.05 points, 95% interval 1.02 to 3.29. Only 48 items went to the panel, and cost per 100 items rose from $0.2471 to $0.2646.
+A panel that sees only the unsure cases lifts the MM-Eval score from 89.49 to 91.54 on 1,212 sealed items, a gain of 2.05 points with a 95% interval of 1.02 to 3.29.
 
-### Five clear wins for the judge
+<sub>MM-Eval is a public benchmark for judges. Only 48 items went to the panel, and cost per 100 items rose from $0.2471 to $0.2646.</sub>
+
+### The shipped judge against DeepEval
 
 <a href=".github/readme/judge-leads-light.png">
   <picture>
     <source media="(prefers-color-scheme: dark)" srcset=".github/readme/judge-leads-dark.png">
-    <img alt="Five held-out judge tests where driftbench's shipped judge beats DeepEval's default metric beyond the 95% interval, of 72 cases each. Hallucination 71 against 36. Faithfulness 71 against 36. Turn relevancy 65 against 36. Completeness 70 against 46. Role adherence 72 against 63." src=".github/readme/judge-leads-light.png" width="100%">
+    <img alt="Held-out judge tests where driftbench's shipped judge beats DeepEval's default metric beyond the 95% interval, of 72 cases each. Hallucination 71 against 36. Faithfulness 71 against 36. Turn relevancy 65 against 36. Completeness 70 against 46. Role adherence 72 against 63." src=".github/readme/judge-leads-light.png" width="100%">
   </picture>
 </a>
 <p align="center"><sub><a href="docs/comparison/methods.md#the-judge-on-hard-cases">How we measured</a></sub></p>
 
-The judge that ships today, against DeepEval 4.2.8's default metrics, same model on both sides. On these five tests the lead is beyond the margin of error.
+On hallucination, faithfulness, turn relevancy, completeness and role adherence, the judge that ships today scores higher than DeepEval 4.2.8's default metric, by more than the 95% margin.
+
+<sub>Held-out cases, same model on both sides.</sub>
 
 ### Hard cases, framework by framework
 
-The shipped judge against each framework's own default judge, on held-out hard cases, with Claude Haiku 5.5 on both sides. Bars show the share of cases judged correctly, out of 100.
+The shipped judge against each framework's own default judge. Bars show the cases judged correctly.
+
+<sub>Held-out hard cases, Claude Haiku 5.5 on both sides.</sub>
+
+On DeepEval, G-Eval strict uses 480 fresh cases and the opt-in setting `response-relevance` ([how](comparisons/deepeval/lead/README.md)). Knowledge retention uses 1,272 fresh cases: 1,270 against 1,272, level by the exact paired test ([how](comparisons/deepeval/lead/power/REPORT.md)).
 
 <a href=".github/readme/hard-deepeval-light.png">
   <picture>
     <source media="(prefers-color-scheme: dark)" srcset=".github/readme/hard-deepeval-dark.png">
-    <img alt="DeepEval hard cases, cases correct of 72, driftbench against DeepEval default. Hallucination 71 against 36. Faithfulness 71 against 36. Turn relevancy 65 against 36. Completeness 70 against 46. Role adherence 72 against 63. DAG 65 against 65. Task completion 72 against 72. Knowledge retention 68 against 69. G-Eval strict 65 against 70." src=".github/readme/hard-deepeval-light.png" width="100%">
+    <img alt="DeepEval hard cases, cases correct, driftbench against DeepEval default. Of 72: Hallucination 71 against 36. Faithfulness 71 against 36. Turn relevancy 65 against 36. Completeness 70 against 46. Role adherence 72 against 63. DAG 65 against 65. Task completion 72 against 72. Of 480 fresh cases: G-Eval strict 474 against 451, with the opt-in setting response-relevance. Of 1272 fresh cases: Knowledge retention 1270 against 1272, level. Two driftbench answers are inconclusive; exact paired p = 1 on 1270 complete pairs." src=".github/readme/hard-deepeval-light.png" width="100%">
   </picture>
 </a>
 <p align="center"><sub><a href="docs/comparison/methods.md#the-judge-on-hard-cases">How we measured</a></sub></p>
@@ -851,35 +883,52 @@ The shipped judge against each framework's own default judge, on held-out hard c
 </a>
 <p align="center"><sub><a href="docs/comparison/methods.md#the-judge-on-hard-cases">How we measured</a></sub></p>
 
-Every result, test by test and tool by tool, including the tests where another framework is ahead today: [how we measured](docs/comparison/methods.md) and the [per-tool pages](docs/comparison/index.md).
+Every result, test by test and tool by tool: [how we measured](docs/comparison/methods.md) and the [per-tool pages](docs/comparison/index.md).
 
-### Every default judge, five public benchmarks
+### The numbers
 
-The same sealed items and the same model (Claude Haiku 5.5) for every contestant. DeepEval, Inspect, Langfuse and LangWatch run their default judge; driftbench and promptfoo are the recorded cells. Paired exact tests, driftbench against each tool; a win or loss needs a Holm-corrected p below 0.05. Inspect and Langfuse have no pairwise grader, so they score each reply alone and the higher score wins.
+The table holds the numbers of the five charts. DeepEval, Inspect, Langfuse and LangWatch run their default judge; driftbench and promptfoo are the recorded cells. Each comparison is a paired exact test of driftbench against one tool, on the same items.
 
+<!-- readme-table:start -->
 | Benchmark | driftbench | promptfoo | DeepEval | Inspect | Langfuse | LangWatch |
 |---|---:|---:|---:|---:|---:|---:|
 | JudgeBench, 270 pairs | 88.9 | 83.0 | 86.3 | 80.0 | 74.8 | 83.7 |
 | MM-Eval, 591 items | 88.9 | 86.5 | 84.1 | 75.4 | 73.5 | 83.9 |
 | RubricBench, 1,580 games | 82.7 | 75.6 | 77.6 | 26.6 | 25.1 | 74.9 |
 | LongJudgeBench verify, 221 items | 74.2 | 71.9 | 58.8 | 73.3 | 75.1 | 73.3 |
-| LongJudgeBench writing, 346 games | 61.3 | 56.9 | 58.4 | 11.6 | 14.5 | 52.6 |
+| LongJudgeBench writing, 346 games (footnote) | 67.6 | 56.9 | 58.4 | 11.6 | 14.5 | 52.6 |
 
-Length-controlled accuracy on writing (a longer-wins rule scores 50): driftbench 59.3, DeepEval 58.3, promptfoo 55.6, LangWatch 51.5, Langfuse 15.8, Inspect 11.8 (source: `examples/writing-heldout/README.md` on `feat/writing-lead`).
+Footnote: the driftbench figure for writing uses its opt-in reader-first setting (long-structured); the default setting scores 61.3.
+<!-- readme-table:end -->
 
-- Holm-corrected over the 25 comparisons (driftbench against promptfoo and each of the four tools on each benchmark): 16 significant wins, 9 ties, no losses.
-- The 9 ties are JudgeBench against promptfoo (raw p 0.0139), LangWatch (raw p 0.0201) and DeepEval (raw p 0.21); verify against promptfoo, Inspect, Langfuse and LangWatch; writing against promptfoo and DeepEval. Holm p values are in the per benchmark tables.
-- Without the correction, 18 of the 25 have raw p below 0.05, so JudgeBench against promptfoo and against LangWatch would count as wins.
-- No comparison is a significant loss. Langfuse scores 0.9 points higher on verify (13 wins against 15 losses, raw p 0.85). On writing, the reader-first variant picks the longer reply on all 173 pairs, so its 67.6 equals a longer-wins rule and is not a judge result.
+- Verify: Langfuse scores 0.9 points above driftbench. On the paired items driftbench alone is right on 13 and Langfuse alone on 15 (raw p 0.85).
+- Writing: the reader-first setting picks the longer reply on all 173 pairs, so its 67.6 equals a longer-reply rule.
 - The verify column here is Claude Haiku 5.5 (driftbench 74.2, promptfoo 71.9). The 74.7 and 72.4 in [the public benchmark table](docs/comparison/methods.md) are GPT-6 Luna, a different model.
 - A few items stay undecided after three passes because the model refused them. They count as wrong for the contestant. Undecided items: MM-Eval 3 to 7 per peer, RubricBench 1 each for DeepEval and Langfuse.
 - Inspect and Langfuse scores on RubricBench and writing are low because a pointwise grader returns equal scores for many pairs, and a tie counts as wrong.
 
-Per benchmark tables with wins, losses, p values and spend: [JudgeBench](docs/comparison/benchmarks/judgebench-all-peers.md), [MM-Eval](docs/comparison/benchmarks/mmeval-all-peers.md), [RubricBench](docs/comparison/benchmarks/rubricbench-all-peers.md), [verify](docs/comparison/benchmarks/verify-all-peers.md), [writing](docs/comparison/benchmarks/writing-all-peers.md). The sealed items are not committed. To rebuild them:
+Per benchmark tables with paired counts, p values and spend: [JudgeBench](docs/comparison/benchmarks/judgebench-all-peers.md), [MM-Eval](docs/comparison/benchmarks/mmeval-all-peers.md), [RubricBench](docs/comparison/benchmarks/rubricbench-all-peers.md), [verify](docs/comparison/benchmarks/verify-all-peers.md), [writing](docs/comparison/benchmarks/writing-all-peers.md). The sealed items are not committed. To rebuild them:
 
 1. Run the RubricBench loader, `node --experimental-strip-types examples/all-peers-public/rubricbench-loader/load.mts <out.json>`. It downloads the RubricBench rows from Hugging Face (cached on disk), keeps the 790 sealed test ids listed in `test-ids.json` and writes them as JSON.
 2. Run `python examples/all-peers-public/export.py --items-only --rubricbench-items <out.json>`. It rebuilds all five item files and checks each against the committed sha256.
 3. Re-score offline with `python examples/all-peers-public/stats.py`.
+
+### Verify v5: corrected confirmation
+
+The verify candidate's primary result uses the 536 confirmation items whose normalized question text appears
+in neither practice nor DEV. The original 544-item split leaked 8 practice questions and reused 32 practice
+call references. The frozen manifest and decisions are preserved; the full result is a sensitivity analysis.
+Scores are percent correct.
+
+| Verify v5 analysis | driftbench-v5 | promptfoo | DeepEval | Inspect | Langfuse | LangWatch |
+|---|---:|---:|---:|---:|---:|---:|
+| Primary, 536 items without practice/DEV question overlap | 78.73 | 76.87 | 60.26 | 76.49 | 75.75 | 75.19 |
+| Sensitivity, original 544 items including overlap | 78.86 | 77.21 | 60.85 | 76.84 | 75.92 | 75.18 |
+| LJB TEST, 221 items | 76.02 | 75.57 | 58.82 | 73.30 | 75.11 | 73.30 |
+
+On the 536 primary items, driftbench-v5 scores 78.73%; DeepEval scores 60.26%, a significant difference after exact paired tests
+with Holm over the five peers. promptfoo (76.87%), Inspect (76.49%), Langfuse (75.75%) and LangWatch (75.19%) are within the
+paired-test noise. The exclusion is a post-review correction using recorded decisions, with no new model calls. [Full results and exclusions](examples/verify-lead/RESULTS.md).
 
 ### What a judgement costs
 
@@ -891,19 +940,19 @@ Per benchmark tables with wins, losses, p values and spend: [JudgeBench](docs/co
 </a>
 <p align="center"><sub><a href="docs/comparison/methods.md#what-a-judgement-costs">How we measured</a></sub></p>
 
-On Inspect's grader panel the two judges score the same, 59 of 60, and driftbench spends $0.076 where the default spends $0.138.
+On Inspect's grader panel, driftbench spends $0.076 per 100 judged cases where the default spends $0.138, at the same score, 59 of 60.
 
 ## How it compares
 
-The capability matrix is [above](#what-makes-it-different). Tool by tool, row by row:
+The capability matrix is [above](#what-makes-it-different). One page per tool, row by row:
 
-| Tool | Rows ahead | Equal | Behind | In progress | Not comparable | Page |
-|---|---|---|---|---|---|---|
-| promptfoo | 22 | 5 | 1 | 1 | 7 | [promptfoo](docs/comparison/promptfoo.md) |
-| Inspect | 20 | 0 | 0 | 0 | 3 | [Inspect](docs/comparison/inspect.md) |
-| DeepEval | 11 | 1 | 0 | 0 | 2 | [DeepEval](docs/comparison/deepeval.md) |
-| Langfuse | 10 | 2 | 0 | 0 | 3 | [Langfuse](docs/comparison/langfuse.md) |
-| LangWatch | 8 | 5 | 0 | 1 | 2 | [LangWatch](docs/comparison/langwatch.md) |
+| Tool | Page |
+|---|---|
+| promptfoo | [promptfoo](docs/comparison/promptfoo.md) |
+| Inspect | [Inspect](docs/comparison/inspect.md) |
+| DeepEval | [DeepEval](docs/comparison/deepeval.md) |
+| Langfuse | [Langfuse](docs/comparison/langfuse.md) |
+| LangWatch | [LangWatch](docs/comparison/langwatch.md) |
 
 What driftbench does not do: retrieval metrics for RAG, promptfoo's catalogue of red-team plugins, a hosted platform with a team UI. → [how each row was checked](docs/comparison/methods.md#the-tool-by-tool-tallies)
 

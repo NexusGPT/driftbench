@@ -9,6 +9,7 @@ Dependency licenses in lockfiles are unchanged.
 | Ported path | Upstream | License and retained notice |
 | --- | --- | --- |
 | `.github/readme/anatomy/hero.html`, `.github/readme/anatomy/index.html` (inlined iso-kit.mjs and lathe.mjs) | Anatomy, wheresryan22/anatomy (Ryan) | MIT; embedded copyright and permission notices |
+| `packages/report/src/fonts.ts` (embedded font faces) | Geist, Geist Mono, Libre Caslon Display and Libre Caslon Text | SIL Open Font License 1.1; copyright notices and full license in `packages/report/fonts/OFL.txt` |
 | `packages/users/src/redteam-plugins/` | Promptfoo | MIT; NOTICE |
 | `packages/users/src/redteam-agent.ts` | LangWatch Scenario, commit ad220e6 | Apache-2.0; NOTICE and full text below |
 | `comparisons/langwatch/hard/vendor/` | LangWatch Scenario | Apache-2.0; vendor/LICENSE and vendor/NOTICE.md |
