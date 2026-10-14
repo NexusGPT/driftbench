@@ -1,10 +1,17 @@
 # Budget-bounded test generation for AI agent evaluation
 
-**Research draft. Some results remain pending.** This paper describes the `feat/budget-seeder` implementation at commit `e13e7cb3d363c7341018dbe55325536eb48fa900`. The feature is not on `main` at the documentation base, `a97cb65e`. Appendix A pins implementation references to the feature commit. Numeric sliced Latin hypercube sampling is pending integration in that pinned snapshot, and the selector uses count balancing, not Kullback-Leibler divergence. The budget-20 controls below use the newer numeric implementation at `4bb18278097cff49f8d5d8c38c0a9a6f62107115`, on an Acme map without numeric settings; their records and analysis are pinned separately.
+**Research draft.** This paper describes the budget selector merged to `main` by PR 117 (merge commit `23e9f656589722e930ef9ca927474248a3125f79`). Appendix A keeps its implementation references pinned to the pre-merge snapshot `e13e7cb3d363c7341018dbe55325536eb48fa900`, where numeric sliced Latin hypercube sampling is not yet integrated and the selector uses count balancing, not Kullback-Leibler divergence. Numeric sampling is integrated at `4bb18278097cff49f8d5d8c38c0a9a6f62107115`. The measurements come from commit `68e7a455a70fa4414c4b879906d3a4fe0b110222` (PR 153, merge commit `7ccea2c1fc54e7dbc394e8411bb8198f8a75483b`). Every recorded result is on `Acme`, one fictional system.
 
 ## Abstract
 
-Evaluating an AI agent requires choosing conversations and settings from a combinatorial space of user types, intents, channels and data conditions. A fixed test budget can be smaller than the suite required for complete interaction coverage. We describe driftbench's budget selector, which enumerates feasible categorical conversation cells and chooses rows by a lexicographic objective: maximise newly covered pairs, then favour less frequently selected values, then use a seeded order to resolve remaining ties. Selection continues after pair coverage is complete until the budget or feasible pool is exhausted. The pinned method snapshot also exposes a stratified numeric sampling helper, but it does not integrate that helper into generated settings; the newer control implementation does. We relate the selector to covering arrays, prioritised combinatorial testing and Latin hypercube designs, giving explicit credit to prior coverage-plus-frequency methods. An experimental protocol compares the hybrid with pure pairwise generation and uniform random selection on a fictional example system with seeded faults. Thirty paired budget-20 seed trials provide preliminary categorical fault and pair-coverage comparisons on Acme. Other result cells and cost remain pending; no general effectiveness claim is established.
+Evaluating an AI agent requires choosing conversations and settings from a combinatorial space of user types, intents, channels and data conditions. A fixed test budget can be smaller than the suite required for complete interaction coverage. We describe driftbench's budget selector, which enumerates feasible categorical conversation cells and chooses rows by a lexicographic objective: maximise newly covered pairs, then favour less frequently selected values, then use a seeded order to resolve remaining ties. Selection continues after pair coverage is complete until the budget or feasible pool is exhausted. The pinned method snapshot also exposes a stratified numeric sampling helper, but it does not integrate that helper into generated settings; the newer control implementation does. We relate the selector to covering arrays, prioritised combinatorial testing and Latin hypercube designs, giving explicit credit to prior coverage-plus-frequency methods. An experimental protocol compares the hybrid with pure pairwise generation and uniform random selection on a fictional example system with seeded faults. Thirty paired seed trials at each of four budgets compare the selector with pure pairwise generation and uniform random selection on Acme, and a numeric ablation compares sliced Latin hypercube sampling with uniform draws on a separate fictional fixture. No general effectiveness claim is established.
+
+## Claim
+
+- Claim 1. Under a fixed row budget, choosing categorical conversation cells by pair gain, then count balance, then a seeded order covers more allowed pairs than uniform random selection from the same pool. This holds at budgets 20, 50, 100 and 200 over 30 paired seeds on Acme (exact paired p = 1.86e-9 at each budget).
+- Claim 2. At budget 20 the same selector catches more seeded faults than random (mean 9.00 against 8.37 of 13) and than pure pairwise generation (9 against 8). At budgets 50, 100 and 200 the fault counts show no measured difference.
+- Claim 3. Sliced Latin hypercube draws hit every numeric band once per slice on the numeric fixture, where uniform draws miss bands in every trial. No numeric fault-detection outcome is measured.
+- Not claimed: generality beyond Acme, behaviour of language-model agents, dollar cost, an effect of the count criterion alone, or the four task faults that conversation rows cannot reach.
 
 ## Introduction
 
@@ -21,6 +28,8 @@ A further distinction is essential: `--budget N` bounds the replacement rows of 
 ## Related work
 
 ### Combinatorial testing and covering arrays
+
+The case for low-strength interaction coverage rests on empirical fault data. Kuhn, Wallace and Gallo studied fault reports from several software systems to ask how many parameters must interact to trigger a failure [N1](#reference-n1). Their finding that failures in the studied systems involved few interacting parameters motivates strength-two coverage, but it was observed on other systems and is not evidence about agent conversations. The present measurements are the only fault evidence this paper offers for its subject.
 
 Cohen et al.'s AETG system establishes greedy selection based on newly covered interactions [D1](#reference-d1). Nie and Leung survey combinatorial models, construction strategies and their use in testing [D3](#reference-d3). Constrained interaction testing addresses configurations that cannot occur together; Cohen, Dwyer and Shi integrate constraints with test construction [D27](#reference-d27). driftbench follows the same semantic requirement: a pair counts as feasible only if some valid full assignment can contain it. Its implementation uses a depth-first feasibility search rather than the satisfiability-based construction of that prior work.
 
@@ -119,7 +128,7 @@ The budget report records the requested budget, seed, selected dimensions, feasi
 
 For `M = |P|` and `d` selected dimensions, the repeated candidate scans require order `K M d^2` pair comparisons, plus count comparisons. Pool enumeration and feasibility search have separate costs. Pair arrays are sized from declared dimension products, even for pairs later found infeasible. The pinned code does not use lazy pool generation or a candidate subsample. These are source-derived complexity descriptions, not measured runtime results.
 
-### Numeric sampling, pending integration
+### Numeric sampling
 
 The exported helper `slicedLhs(rng, low, high, n)` requires a positive integer `n` and an ordered interval. It divides the interval into `n` equal bands, shuffles the band indices and draws once uniformly inside each band:
 
@@ -130,9 +139,9 @@ sample = low + (band + rng()) * width
 
 This gives one-dimensional stratification for that call, including a degenerate interval when the endpoints coincide. At the pinned commit, no production caller connects it to budgeted conversation settings. Existing numeric partition rendering still derives concrete values from schema bounds.
 
-The intended extension is to fill numeric settings within chosen category combinations. Such integration must define the slices, coordinate draws across numeric dimensions, preserve admissibility and verify the required within-slice and global properties. Independent calls on category groups do not by themselves establish Qian's sliced-LHS guarantee [D69](#reference-d69). All claims about numeric sliced-LHS effectiveness remain pending.
+The intended extension is to fill numeric settings within chosen category combinations. Such integration must define the slices, coordinate draws across numeric dimensions, preserve admissibility and verify the required within-slice and global properties. Independent calls on category groups do not by themselves establish Qian's sliced-LHS guarantee [D69](#reference-d69). The later implementation at `4bb18278097cff49f8d5d8c38c0a9a6f62107115` slices by categorical row; the numeric sampling ablation in the results reports its band coverage. No numeric fault-detection outcome is measured.
 
-## Experimental setup
+## Experiment design
 
 ### Subject and fault oracle
 
@@ -144,7 +153,7 @@ Selected conversation rows contain no task-family instances. Some scored faults 
 
 ### Budgets and methods
 
-The actual grid in `comparisons/budget/measure.ts` is `N` in `{20, 50, 100, 200}`, with seed `1`. The table below follows that grid. The random control in `comparisons/budget/random-control.ts` samples budget `20` over `30` seeds. Those are design settings, not measured performance values. Hybrid budget 20 is also measured over those same 30 seeds. Random controls at the other budgets and repeated pure pairwise trials remain pending.
+The grid in `comparisons/budget/measure.ts` is `N` in `{20, 50, 100, 200}`. The full measurement in `comparisons/budget/full-control.ts` runs hybrid, pure pairwise and uniform random selection over seeds 1 through 30 at every budget, with execution seed 1. These are design settings, not performance values.
 
 | Method | Definition and scope |
 |---|---|
@@ -164,13 +173,13 @@ Faults caught are distinct scored faults with a reference-pass and faulty-fail w
 
 Selection coverage and counts can include incomplete rows, while fault scoring executes complete specs only. A final analysis must expose that difference by recording selected, complete and executed counts and reference failures. It must also distinguish abstract selected-cell coverage from coverage actually exercised by runnable conversations.
 
-For hybrid and random budget-20 trials, report the mean, sample standard deviation and range. Both use seeds 1 through 30 for selection and scenario rendering; the selector seed only changes its tie-breaks. Balance, cost, other-budget controls and repeated pure pairwise trials remain pending. Following Arcuri and Briand's guidance for randomised algorithm evaluation [D161](#reference-d161), retain trial records and estimate uncertainty and effect sizes rather than treating a single seed as representative. The budget-20 subsection reports exact paired tests and mean paired differences, conditional on the stated null. No cost saving or general advantage is claimed.
+For hybrid and random budget-20 trials, report the mean, sample standard deviation and range. Both use seeds 1 through 30 for selection and scenario rendering; the selector seed only changes its tie-breaks. Balance, cost and the other budgets use the same 30 seeds. Following Arcuri and Briand's guidance for randomised algorithm evaluation [D161](#reference-d161), retain trial records and estimate uncertainty and effect sizes rather than treating a single seed as representative. The results report exact paired tests and mean paired differences, conditional on the stated null. No dollar-cost saving or general advantage is claimed.
 
 Reproduction must record the feature commit, map hash, selected indices, run seed, method, generated spec paths, reference failures and fault witnesses. The numeric implementation version must be recorded separately once integrated. Appendix A links the scripts and method source; this draft does not replace or modify their measurement output.
 
 ## Results
 
-Only the supplied seed-1 observations and the requested 30-seed hybrid/random budget-20 controls are entered. Each numeric observation carries the required provenance label. All other result cells remain the literal token `[PENDING MEASUREMENT]`, including cells for trials that may still be running or awaiting review. No percentages, derived savings or extrapolated results are calculated.
+The first table holds the original seed-1 and budget-20 observations. The sections after it add the 30-seed grid at all four budgets, exact paired tests, a reachability audit, a numeric ablation and whole-suite runs. Recorded sources, all under `comparisons/budget/`: `full-results.json` (selected rows and paired tests), `time-balance-results.json` (wall time and balance tests), `numeric-results.json` with `numeric-{20,50,100,200}-samples.json` (numeric ablation), `reachability-results.json` (task faults), `full-suite-results.json` (whole suite), `random-results.json` and `hybrid-results.json` (budget-20 controls). Where a quantity was not recorded, this paper does not state it.
 
 | Budget / output | Method | Faults caught | Pairs covered | Value-count deviation | Cost |
 |---|---|---|---|---|---|
@@ -197,7 +206,7 @@ Only the supplied seed-1 observations and the requested 30-seed hybrid/random bu
 | Whole output associated with budget 100 | Full suite | 13 of 13 (measured, budget 100, seed 1, commit `68e7a455a70fa4414c4b879906d3a4fe0b110222`) | 637 of 637 (measured, budget 100, seed 1, commit `68e7a455a70fa4414c4b879906d3a4fe0b110222`) | 209.09 (complete-spec/value incidences) (measured, budget 100, seed 1, commit `68e7a455a70fa4414c4b879906d3a4fe0b110222`) | 60723.56 ms; 252 complete / 75 incomplete; model calls 0, $0 (measured, budget 100, seed 1, commit `68e7a455a70fa4414c4b879906d3a4fe0b110222`) |
 | Whole output associated with budget 200 | Full suite | 13 of 13 (measured, budget 200, seed 1, commit `68e7a455a70fa4414c4b879906d3a4fe0b110222`) | 637 of 637 (measured, budget 200, seed 1, commit `68e7a455a70fa4414c4b879906d3a4fe0b110222`) | 263.91 (complete-spec/value incidences) (measured, budget 200, seed 1, commit `68e7a455a70fa4414c4b879906d3a4fe0b110222`) | 81505.95 ms; 319 complete / 75 incomplete; model calls 0, $0 (measured, budget 200, seed 1, commit `68e7a455a70fa4414c4b879906d3a4fe0b110222`) |
 
-The selected-row and full-suite observations answer different questions. The former concerns conversations allocated by the selector; the latter includes task and other generated tests outside that allocation. They cannot be combined into an equal-budget efficacy or efficiency estimate. The paired budget-20 control compares hybrid with random on this one scripted subject. It does not establish an advantage over pure pairwise generation, an equal-cost advantage or generalisation beyond this map.
+The selected-row and full-suite observations answer different questions. The former concerns conversations allocated by the selector; the latter includes task and other generated tests outside that allocation. They cannot be combined into an equal-budget efficacy or efficiency estimate. The paired budget-20 control compares hybrid with random on this one scripted subject. The pairwise comparison, the other budgets and the cost measures appear under Additional paired measurements; none of them generalises beyond this map.
 
 ### Paired budget-20 control
 
@@ -212,7 +221,7 @@ The exact two-sided paired test uses the absolute mean of hybrid-minus-random di
 | Faults caught | 0.6333 (preliminary, budget 20, seeds 1 through 30) | 14 / 16 / 0 (preliminary, budget 20, seeds 1 through 30) | 0.0001220703125 (preliminary, budget 20, seeds 1 through 30) | 131072 / 1073741824 (preliminary, budget 20, seeds 1 through 30) |
 | Pairs covered | 34.30 (preliminary, budget 20, seeds 1 through 30) | 30 / 0 / 0 (preliminary, budget 20, seeds 1 through 30) | 1.862645149230957e-9 (preliminary, budget 20, seeds 1 through 30) | 2 / 1073741824 (preliminary, budget 20, seeds 1 through 30) |
 
-[Random records](https://github.com/achammah/driftbench/blob/452337ee3b505e66278fc63f86c6ee3ef278308b/comparisons/budget/random-results.json), [hybrid records and paired tests](https://github.com/achammah/driftbench/blob/452337ee3b505e66278fc63f86c6ee3ef278308b/comparisons/budget/hybrid-results.json), and [the exact-test implementation](https://github.com/achammah/driftbench/blob/452337ee3b505e66278fc63f86c6ee3ef278308b/comparisons/budget/paired.ts) retain the selected indices, incomplete cells, witnesses and exact tail fractions. Small-case exhaustive enumeration and an independent closed-form check of these nonnegative paired differences verify the exact tail counts. The broader method description and Appendix A keep their earlier snapshot pins until the feature PR merges. Every other result cell retains `[PENDING MEASUREMENT]`.
+[Random records](https://github.com/achammah/driftbench/blob/452337ee3b505e66278fc63f86c6ee3ef278308b/comparisons/budget/random-results.json), [hybrid records and paired tests](https://github.com/achammah/driftbench/blob/452337ee3b505e66278fc63f86c6ee3ef278308b/comparisons/budget/hybrid-results.json), and [the exact-test implementation](https://github.com/achammah/driftbench/blob/452337ee3b505e66278fc63f86c6ee3ef278308b/comparisons/budget/paired.ts) retain the selected indices, incomplete cells, witnesses and exact tail fractions. Small-case exhaustive enumeration and an independent closed-form check of these nonnegative paired differences verify the exact tail counts. The broader method description and Appendix A keep their earlier snapshot pins.
 
 ## Threats to validity
 
@@ -220,25 +229,38 @@ The exact two-sided paired test uses the absolute mean of hybrid-minus-random di
 
 **Seeded faults.** Detection depends on the chosen fault operators and observable checks. Equivalent, redundant or subsumed faults can distort conclusions [D153](#reference-d153). A generated suite can favour faults anticipated by its map and expectations. Equivalence controls and witness traces help audit the measurement but do not establish representativeness of real agent defects.
 
-**Repeated seeds at one budget.** Hybrid and random budget-20 controls use 30 paired seeds. A seeded shuffle resolves hybrid ties, and scenario rendering uses each seed in both methods. Pure pairwise repeated trials and controls at the other budgets remain pending. Consecutive deterministic pseudorandom seeds do not establish independence of real agent failures; the paired tests are conditional on within-seed method-label exchangeability and independent swaps across seed pairs.
+**Repeated seeds at one budget.** All methods use 30 paired seeds at each budget. A seeded shuffle resolves hybrid ties, and scenario rendering uses each seed in both methods. Consecutive deterministic pseudorandom seeds do not establish independence of real agent failures; the paired tests are conditional on within-seed method-label exchangeability and independent swaps across seed pairs.
 
 **Deterministic execution.** Scripted references, faults and users remove stochastic language-model and user-simulation variation. They support an offline selector check, but not a reliability claim for an LLM-backed agent. Such evaluation must vary execution seeds or repeated runs separately from selection seeds [D124](#reference-d124).
 
 **Coverage and execution mismatch.** Abstract pair coverage can include incomplete rows, whereas fault checks run only complete specs. Other seeders and coverage repair can increase whole-suite detection outside the selected-row budget. Whole-suite denominators and cost must therefore remain separate from selector statistics.
 
-**Baseline and cost confounds.** The existing pure pairwise generator differs in row construction and stopping behaviour, and `--max` affects other seeders. Equal requested row budgets need not mean equal executed rows, blocks or runtime. Cost and an exact count-balancing ablation remain pending.
+**Baseline and cost confounds.** The existing pure pairwise generator differs in row construction and stopping behaviour, and `--max` affects other seeders. Equal requested row budgets need not mean equal executed rows, blocks or runtime. An exact count-balancing ablation is not run. Cost is reported only as executed adapter runs, blocks and wall time on a shared machine.
 
-**Numeric and scalability limits.** Numeric sliced LHS is absent from the pinned method snapshot. The newer implementation used for these controls integrates it, but Acme has no numeric settings, so numeric effectiveness remains pending. Exhaustive pool enumeration excludes spaces above the implementation cap and can dominate runtime below it. Count balancing can conflict with feasibility and pair coverage, and does not guarantee uniform marginals under arbitrary constraints.
+**Numeric and scalability limits.** Numeric sliced LHS is absent from the pinned method snapshot. The newer implementation used for these controls integrates it, but Acme has no numeric settings. The numeric ablation uses a separate fictional fixture and measures band coverage only, not fault detection. Exhaustive pool enumeration excludes spaces above the implementation cap and can dominate runtime below it. Count balancing can conflict with feasibility and pair coverage, and does not guarantee uniform marginals under arbitrary constraints.
 
 ## Conclusion
 
 driftbench's pinned budget selector gives a precise rule for allocating categorical conversation rows: maximise uncovered pair gain, balance selected value counts on ties, and resolve remaining ties reproducibly. It works over feasible assignments, reports residual pair coverage and value imbalance, and continues after complete pair coverage until its row limit is reached. The limit applies to one seeder rather than the entire generated suite.
 
-The method builds on established combinatorial selection and frequency-prioritisation work, with Choi et al. as the closest ordering precedent. Its count criterion differs from their divergence criterion. The pinned method snapshot has only the numeric helper; the newer control implementation integrates sliced numeric sampling, whose effectiveness remains pending. The paired budget-20 results are limited to this scripted subject. Other-budget controls, pure pairwise repeated trials, numeric effectiveness and cost measurements remain pending.
+The method builds on established combinatorial selection and frequency-prioritisation work, with Choi et al. as the closest ordering precedent. Its count criterion differs from their divergence criterion. The pinned method snapshot has only the numeric helper; the newer control implementation integrates sliced numeric sampling, whose effectiveness remains pending. The paired results at four budgets are limited to this scripted subject. Numeric fault detection, language-model agents, a count-balancing ablation and dollar cost are not measured.
+
+## Open questions
+
+- Do the budget-20 fault and pair-coverage advantages hold for agents backed by a language model, with a simulated user and stochastic execution? Acme is scripted, so this is untested.
+- How much of the budget-20 advantage comes from the count criterion alone? The pairwise baseline differs in row construction, so an ablation with the same pool, gain and seeded order but no count term is needed.
+- Does the pair-coverage gain carry over to maps with other sizes and constraint structures, including pools near the `MAX_POOL` cap?
+- Does sliced Latin hypercube sampling of numeric settings change fault detection? The ablation shows band coverage only, on a fixture with no seeded numeric faults.
+- Is strength two the right default for agent conversations? The fault-interaction data cited in the related work come from other kinds of software [N1](#reference-n1).
+- Which seeded faults would conversation rows reach if task axes entered the selector? Four of the 13 scored faults sit outside the current rows.
 
 ## References
 
-Citation labels retain the entry IDs of the supplied bibliography dossier. Only dossier entries are cited; page ranges are omitted.
+Labels starting with D retain the entry IDs of the supplied bibliography dossier. Label N1 was added later; its title, authors, venue and year match the Crossref record for its DOI. Page ranges are omitted.
+
+### Reference N1
+
+Kuhn D.R., Wallace D.R., Gallo A.M. (2004). *Software fault interactions and implications for software testing.* IEEE Transactions on Software Engineering 30(6). [DOI](https://doi.org/10.1109/TSE.2004.24).
 
 ### Reference D1
 
@@ -414,7 +436,7 @@ Each test swaps method labels independently within each seed pair and uses the a
 
 At budgets 50, 100 and 200, hybrid versus pairwise fault catches show **no measured difference**: all 30 paired differences are zero and each exact two-sided p-value is 1.
 
-At budget 200, pairwise catches 9 of 13 with 132 selected rows; hybrid catches 9 of 13 with 200 rows in every seed. This is a selected-row cost saving of 68 rows, or 34%, for the same measured catch. The saving is in selected rows; it does not measure dollars or whole-suite cost.
+At budget 200, pairwise stops at 132 selected rows (complete pair coverage) and catches 9 of 13. Hybrid selects 200 rows and catches the same 9. The 68 extra hybrid rows (34% of 200) add no measured fault catch, so on this subject pairwise is cheaper per catch at budget 200. Executed blocks agree: pairwise 1573.10 against hybrid 2184.87 (mean over 30 seeds). The comparison measures selected rows, runs and blocks, not dollars.
 
 #### Exact wall-time and balance tests
 
