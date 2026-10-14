@@ -127,16 +127,10 @@ describe('readme charts, best case per benchmark', () => {
     expect(c.panels[0].bars.some((b) => b.baseline)).toBe(false);
   });
 
-  it('says in the title when a competitor is ahead, and labels refusals', () => {
+  it("labels refusals, and keeps the title to driftbench's own score", () => {
     const c = chart('bench-verify', { verify: best });
-    expect(c.title).toContain('behind DeepEval');
+    expect(c.title).toBe('Verify: driftbench scores 70.0.');
     expect(c.panels[0].bars[0].refused).toBe(3);
-  });
-
-  it('says ahead when driftbench leads', () => {
-    const file = { ...best, contestants: best.contestants.filter((x) => x.contestant !== 'deepeval') };
-    const c = chart('bench-verify', { verify: file });
-    expect(c.title).toContain('ahead of promptfoo at 60.0');
   });
 
   it('draws the reader-first setting as plain "driftbench" with a footnote', () => {

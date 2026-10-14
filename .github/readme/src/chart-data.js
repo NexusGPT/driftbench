@@ -3,7 +3,7 @@ window.CHART_DATA = {
   "judge-leads": {
     "kind": "pairs",
     "kicker": "Judge accuracy · held-out cases · Claude Haiku 5.5 on both sides",
-    "title": "5 clear wins over the default judges.",
+    "title": "Cases correct of 72, driftbench against DeepEval's default.",
     "key": [
       "driftbench, shipped judge",
       "the other tool's default"
@@ -111,7 +111,7 @@ window.CHART_DATA = {
   "judge-cost": {
     "kind": "pairs",
     "kicker": "Judge cost · US dollars per 100 cases · Claude Haiku 5.5",
-    "title": "Cheaper on 4 of 5 rows.",
+    "title": "Cost per 100 judged cases.",
     "key": [
       "driftbench, shipped judge",
       "the other tool's default"
@@ -526,7 +526,7 @@ window.CHART_DATA = {
   "bench-judgebench": {
     "kind": "ranked",
     "kicker": "JudgeBench · sealed test · official pair score",
-    "title": "JudgeBench: driftbench 88.9, ahead of DeepEval at 86.3.",
+    "title": "JudgeBench: driftbench scores 88.9.",
     "key": [
       {
         "label": "driftbench",
@@ -602,7 +602,7 @@ window.CHART_DATA = {
   "bench-mm-eval": {
     "kind": "ranked",
     "kicker": "MM-Eval · sealed test · the benchmark's own score",
-    "title": "MM-Eval: driftbench 88.9, ahead of promptfoo at 86.5.",
+    "title": "MM-Eval: driftbench scores 88.9.",
     "key": [
       {
         "label": "driftbench",
@@ -682,7 +682,7 @@ window.CHART_DATA = {
   "bench-rubricbench": {
     "kind": "ranked",
     "kicker": "RubricBench · test split · both orders of every pair",
-    "title": "RubricBench: driftbench 82.7, ahead of DeepEval at 77.6.",
+    "title": "RubricBench: driftbench scores 82.7.",
     "key": [
       {
         "label": "driftbench",
@@ -760,7 +760,7 @@ window.CHART_DATA = {
   "bench-verify": {
     "kind": "ranked",
     "kicker": "LongJudgeBench verify · test split · is the final answer correct",
-    "title": "Verify: driftbench 74.2, behind Langfuse at 75.1.",
+    "title": "Verify: driftbench scores 74.2.",
     "key": [
       {
         "label": "driftbench",
@@ -836,7 +836,7 @@ window.CHART_DATA = {
   "bench-writing": {
     "kind": "ranked",
     "kicker": "LongJudgeBench writing preference · test split · both orders",
-    "title": "Writing: driftbench 67.6, ahead of DeepEval at 58.4.",
+    "title": "Writing: driftbench scores 67.6.",
     "key": [
       {
         "label": "driftbench",
@@ -1696,7 +1696,7 @@ window.CHART_DATA = {
   "hard-deepeval": {
     "kind": "columns",
     "kicker": "DeepEval hard cases · held-out · Claude Haiku 5.5 on both sides · bars labelled with cases correct",
-    "title": "DeepEval: ahead on 5, level on 4 of 9 tests.",
+    "title": "DeepEval: cases correct of 72.",
     "key": [
       "driftbench, shipped judge",
       "DeepEval default"
@@ -1863,7 +1863,7 @@ window.CHART_DATA = {
   "hard-promptfoo": {
     "kind": "columns",
     "kicker": "promptfoo hard cases · held-out · Claude Haiku 5.5 on both sides · bars labelled with cases correct",
-    "title": "promptfoo: equal or higher on 4 of 4 tests.",
+    "title": "promptfoo: cases correct of 72.",
     "key": [
       "driftbench, shipped judge",
       "promptfoo default"
@@ -1950,7 +1950,7 @@ window.CHART_DATA = {
   "hard-inspect": {
     "kind": "columns",
     "kicker": "Inspect hard cases · held-out · Claude Haiku 5.5 on both sides · bars labelled with cases correct",
-    "title": "Inspect: behind on 2, level on 2 of 4 tests.",
+    "title": "Inspect: cases correct of 60.",
     "key": [
       "driftbench, shipped judge",
       "Inspect default"

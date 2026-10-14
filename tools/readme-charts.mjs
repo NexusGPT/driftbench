@@ -355,8 +355,8 @@ function judgeData(leadsOnly) {
     kind: 'pairs',
     kicker: 'Judge accuracy · held-out cases · Claude Haiku 5.5 on both sides',
     title: leadsOnly
-      ? `${all.length} clear wins over the default judges.`
-      : `${total} judge tests: ${count('lead')} ahead, ${count('deficit')} behind, ${count('close')} level.`,
+      ? `Cases correct of ${all[0].n}, driftbench against DeepEval's default.`
+      : `${total} judge tests, cases correct.`,
     key: ['driftbench, shipped judge', "the other tool's default"],
     min: 0,
     max: 100,
@@ -375,7 +375,7 @@ function costData() {
   return {
     kind: 'pairs',
     kicker: 'Judge cost · US dollars per 100 cases · Claude Haiku 5.5',
-    title: `Cheaper on ${rows.filter((r) => r.ours < r.theirs).length} of ${rows.length} rows.`,
+    title: 'Cost per 100 judged cases.',
     key: ['driftbench, shipped judge', "the other tool's default"],
     min: 0,
     max: 0.15,
@@ -916,10 +916,7 @@ function hardPerTool(tool) {
     };
   }
   const atLeast = group.rows.filter((r) => r.ours >= r.theirs).length;
-  const title =
-    ahead || behind
-      ? `${name}: ${parts.join(', ')} of ${group.rows.length} tests.`
-      : `${name}: equal or higher on ${atLeast} of ${group.rows.length} tests.`;
+  const title = `${name}: cases correct of ${group.rows[0].n}.`;
   return columns(`hard-${tool}`, {
     kicker: `${kicker} · bars labelled with cases correct`,
     title,
@@ -1014,12 +1011,7 @@ function bestCase({ chart, bench, name, unit, kicker }) {
   const top = others.reduce((a, b) => (b.score > a.score ? b : a));
   const tenth = (v) => Math.round(v * 10);
   const mine = drawn[0].score;
-  const title =
-    tenth(mine) > tenth(top.score)
-      ? `${name}: driftbench ${p1(mine)}, ahead of ${top.name} at ${p1(top.score)}.`
-      : tenth(mine) === tenth(top.score)
-        ? `${name}: driftbench ${p1(mine)}, level with ${top.name}.`
-        : `${name}: driftbench ${p1(mine)}, behind ${top.name} at ${p1(top.score)}.`;
+  const title = `${name}: driftbench scores ${p1(mine)}.`;
   let note = `${model}, ${n.toLocaleString('en-US')} ${unit}. Every competitor ran on this model only. A refused item counts as wrong.`;
   if (optIn) {
     const plain = row('driftbench')[cohort];
@@ -1357,24 +1349,51 @@ function detailPage() {
 
 const README = 'README.md';
 
+const TASK = {
+  'bench-judgebench': 'picks the correct answer',
+  'bench-mm-eval': 'picks the better answer',
+  'bench-rubricbench': 'picks the reply that meets the grading criteria',
+  'bench-verify': 'decides whether the final answer is correct',
+  'bench-writing': 'picks the reply readers prefer',
+};
+
+/** One plain line that leads with driftbench's score and says what the reader gains, from the bars of the chart. */
+function benefit(chart) {
+  const bars = data[chart].panels[0].bars;
+  const ours = bars.find((b) => b.ours);
+  const rest = bars.filter((b) => !b.ours && b.score !== null).sort((a, b) => b.score - a.score);
+  const names = rest.map((b) => b.name);
+  const next = rest[0];
+  const tenth = (v) => Math.round(v * 10);
+  if (tenth(ours.score) > tenth(next.score)) {
+    return `driftbench ${TASK[chart]} more often than ${names.slice(0, -1).join(', ')} and ${names.at(-1)} on the same model: ${one(ours.score)}, against ${one(next.score)} for the next best, ${next.name}.`;
+  }
+  const below = rest.filter((b) => tenth(b.score) < tenth(ours.score));
+  const list = below.map((b) => `${b.name} (${one(b.score)})`);
+  const gap = one(next.score - ours.score);
+  return `driftbench ${TASK[chart]} ${one(ours.score)} times in 100, within ${gap} points of the top score (${next.name}, ${one(next.score)}) and above ${list.slice(0, -1).join(', ')} and ${list.at(-1)}.`;
+}
+
 function readmeCharts() {
   const parts = [
-    ['bench-judgebench', 'judgebench', 'JudgeBench'],
-    ['bench-mm-eval', 'mm-eval', 'MM-Eval'],
-    ['bench-rubricbench', 'rubricbench', 'RubricBench'],
-    ['bench-verify', 'verify', 'Verify'],
-    ['bench-writing', 'writing', 'Writing'],
+    ['bench-judgebench', 'judgebench', 'JudgeBench', 'pair ledger'],
+    ['bench-mm-eval', 'mm-eval', 'MM-Eval', 'pair ledger'],
+    ['bench-rubricbench', 'rubricbench', 'RubricBench', 'pair ledger'],
+    ['bench-verify', 'verify', 'Verify', 'frozen verify cascade'],
+    ['bench-writing', 'writing', 'Writing', 'pair ledger'],
   ];
   return parts
-    .map(([chart, file, label]) => {
+    .map(([chart, file, label, mode]) => {
       const c = data[chart];
       const panel = c.panels[0];
-      const alt = `${c.title} ${panel.name}, ${panel.model}, percent correct, highest to lowest: ${panel.bars.map((b) => `${b.name} ${one(b.score)}`).join(', ')}.${chart === 'bench-writing' ? ' The driftbench bar uses its opt-in reader-first setting.' : ''}`;
-      const foot =
+      const alt = `${c.title} ${panel.name}, ${panel.model}, percent correct, highest to lowest: ${panel.bars.map((b) => `${b.name} ${one(b.score)}`).join(', ')}.`;
+      const writing =
         chart === 'bench-writing'
-          ? `\n\nFootnote: the driftbench bar uses its opt-in reader-first setting (long-structured). Its ${one(panel.bars.find((b) => b.ours).score)} equals the score of a rule that always picks the longer reply; the default setting scores ${one(readerFirstDefault)}.`
+          ? ` The driftbench bar uses its opt-in reader-first setting (long-structured), which scores the same as a rule that always picks the longer reply, ${one(panel.bars.find((b) => b.ours).score)}; the default setting scores ${one(readerFirstDefault)}.`
           : '';
-      return `**${label}**${foot}\n\n<a href="docs/assets/bench-${file}-light.png">\n  <picture>\n    <source media="(prefers-color-scheme: dark)" srcset="docs/assets/bench-${file}-dark.png">\n    <img alt="${alt}" src="docs/assets/bench-${file}-light.png" width="100%">\n  </picture>\n</a>\n`;
+      const refused = panel.bars.filter((b) => b.refused).map((b) => `${b.name} ${b.refused}`);
+      const foot = `${panel.name}, ${panel.model}. Each judge runs its default settings; driftbench runs its opt-in ${mode}. A refused item counts as wrong${refused.length ? ` (refused: ${refused.join(', ')})` : ''}.${writing}`;
+      return `**${label}.** ${benefit(chart)}\n\n<a href="docs/assets/bench-${file}-light.png">\n  <picture>\n    <source media="(prefers-color-scheme: dark)" srcset="docs/assets/bench-${file}-dark.png">\n    <img alt="${alt}" src="docs/assets/bench-${file}-light.png" width="100%">\n  </picture>\n</a>\n<p align="center"><sub>${foot}</sub></p>\n`;
     })
     .join('\n');
 }
