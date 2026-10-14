@@ -94,8 +94,10 @@ runs it:
     run with bash in the scratch folder at its place in the order, and must exit 0 unless the line ends
     with `# exit <n>`. A `driftbench ` line inside it runs like any other.
   * Both write only to new relative paths: never under `examples/` or `packages/`, never with `..` or an
-    absolute path. A `file=` path that breaks this is refused. A `sh setup` topic fails its test when git
-    then sees a change or a new file under `examples/` or `packages/` of the repository. So no worked example step stays untested: show a step as `text` only for one of these
+    absolute path. A `file=` path that breaks this is refused. A `sh setup` line runs with its working
+    folder and `HOME` set to the scratch folder, and is refused when it names an absolute path, a `~` path,
+    `..` or `ln`. A `sh setup` topic also fails its test when git then sees a change or a new file under
+    `examples/` or `packages/` of the repository. So no worked example step stays untested: show a step as `text` only for one of these
     reasons, and say which in one line beside it:
     1. it calls a paid model;
     2. it reads git;

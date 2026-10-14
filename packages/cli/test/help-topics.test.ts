@@ -361,6 +361,19 @@ function workedExample(body: string, section = 'Worked example'): Step[] {
   return steps;
 }
 
+/**
+ * Why a `sh setup` line could reach outside the scratch folder, or undefined when it cannot by its text: an
+ * absolute path, a home path, a parent folder, a new symbolic link. The run also sets HOME to the scratch
+ * folder, and the test checks afterwards that git sees no change under examples/ and packages/.
+ */
+function shellLineProblem(command: string): string | undefined {
+  if (/(^|[\s'"=<>|;&(:])\//.test(command)) return 'an absolute path';
+  if (/(^|[\s'"=<>|;&(:])~/.test(command)) return 'a home path';
+  if (/(^|[\s'"=<>|;&(:/])\.\.(\/|[\s'";|&)]|$)/.test(command)) return 'a parent folder (..)';
+  if (/(^|[\s;|&(])ln(\s|$)/.test(command)) return 'a new symbolic link (ln)';
+  return undefined;
+}
+
 /** What git sees changed or added under examples/ and packages/ of the repository, as one text. */
 function repositoryState(): string {
   const run = spawnSync(
@@ -410,7 +423,12 @@ describe('every worked example runs', () => {
             mkdirSync(dirname(path), { recursive: true });
             writeFileSync(path, step.content);
           } else if (step.kind === 'shell') {
-            const run = spawnSync('bash', ['-c', step.command], { cwd: scratch, encoding: 'utf8' });
+            expect(shellLineProblem(step.command), `${step.line}: a sh setup line names`).toBeUndefined();
+            const run = spawnSync('bash', ['-c', step.command], {
+              cwd: scratch,
+              encoding: 'utf8',
+              env: { ...process.env, HOME: scratch },
+            });
             expect(run.status, `${step.line}\n${run.stdout}${run.stderr}`).toBe(step.exit);
           } else {
             const io = capture(scratch);
@@ -447,6 +465,20 @@ describe('every worked example runs', () => {
     ].join('\n');
     expect(workedExample(body).map((step) => step.kind)).toEqual(['file', 'shell', 'shell', 'cli']);
     expect(() => scratchPath('/tmp/s', 'examples/x.yaml')).toThrow();
+    for (const [line, problem] of [
+      ['cd .. && touch x', 'a parent folder (..)'],
+      ['cp a ../b', 'a parent folder (..)'],
+      ['touch /tmp/x', 'an absolute path'],
+      ['echo x > /etc/y', 'an absolute path'],
+      ['cp a $HOME/b', undefined],
+      ['touch ~/x', 'a home path'],
+      ['ln -s examples e2', 'a new symbolic link (ln)'],
+      ['cp -R examples/estates/fixture-v2/tests tests', undefined],
+      ['mkdir validators', undefined],
+      ["node -e \"require('fs').writeFileSync('a.json', '{}')\"", undefined],
+    ] as const) {
+      expect(shellLineProblem(line), line).toBe(problem);
+    }
     const planted = join(ROOT, 'examples', `.help-confinement-probe-${process.pid}`);
     const before = repositoryState();
     try {
